@@ -22,13 +22,13 @@ draws it.
 - **`index.html`** — the procedural blockman character editor (above).
 - **`drivers.html`** — an engine-drivers demo: a 3-joint arm whose two-bone IK
   (the core resolver) tracks a moving goal every frame.
-- **`body.html`** — a **parametric body editor** over source tool's CC0 base mesh:
-  a baked glTF with a conservative Korean / East-Asian beauty default, real
-  source tool CC0 hair / brows / lashes, flat iris detail, and morph targets
-  (eye shape, nose, lips, cheeks, bust / under-bust / hips / thigh / calf /
-  shoulder / neck, buttocks, hourglass body) driven live by sliders. Build the
-  glTF first: `pnpm --filter @motica/playground build:human` (fetches the CC0
-  assets and bakes `public/models/human.glb`).
+- **`body.html`** — a **reference hero-base viewer** for the baked human GLB.
+  The current bake is a CC0 hybrid scaffold: Blender Studio's realistic female
+  body STL, source tool's CC0 head topology / eye proxy, a real source tool skin
+  diffuse, and textured source tool bob hair. It is an intermediate base for
+  visual iteration, not the final hero-quality character. Build the glTF first:
+  `pnpm --filter @motica/playground build:human` (fetches/caches the CC0 assets
+  and bakes `public/models/human.glb`).
 - **`human.html`** — a **real humanoid editor** over a VRM avatar
   (`@pixiv/three-vrm`): live facial **expressions** (happy / angry / sad /
   relaxed / surprised), **gaze** that tracks the viewer, **auto-blink**, and arm
