@@ -1,6 +1,6 @@
 /**
  * The closed set of **morph names** for the parametric head built on the clean
- * source tool-derived base — the flat vocabulary that {@link IAutoMovieHead}
+ * source tool-derived base: the flat vocabulary that {@link IAutoMovieHead}
  * projects onto and the forge `morphHead` applies.
  *
  * These are the comprehensive identity/shape controls (not expression): head
