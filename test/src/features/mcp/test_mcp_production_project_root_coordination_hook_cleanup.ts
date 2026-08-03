@@ -232,7 +232,7 @@ export const test_mcp_production_project_root_coordination_hook_cleanup =
               catchBodies: ["parentSwapFailure={error};", "throwerror;"],
               catchVariables: ["error"],
               containerKind: "TryStatement",
-              containerStatements: 225,
+              containerStatements: 228,
               failureHolder:
                 "letparentSwapFailure:IProductionProjectFixtureFailure|undefined;",
               finallyDigest:
@@ -243,7 +243,7 @@ export const test_mcp_production_project_root_coordination_hook_cleanup =
                   "f0334f257cb1c1db8f34cabc1728970b1664920a8239851ca5b82a08e76f60b7",
                 tokens: 29,
               },
-              index: 99,
+              index: 102,
               substantive: {
                 digest:
                   "c479b72f1e900c5c2f3c1d10fea9bc6d5dd028cafbe35abc57d7fca99c3b86d7",
@@ -282,7 +282,7 @@ export const test_mcp_production_project_root_coordination_hook_cleanup =
               catchBodies: ["coordinationMkdirFailure={error};", "throwerror;"],
               catchVariables: ["error"],
               containerKind: "TryStatement",
-              containerStatements: 225,
+              containerStatements: 228,
               failureHolder:
                 "letcoordinationMkdirFailure:IProductionProjectFixtureFailure|undefined;",
               finallyDigest:
@@ -293,7 +293,7 @@ export const test_mcp_production_project_root_coordination_hook_cleanup =
                   "1eea9705598f3f70da68eb81e0cf487efb5828413d4a7af461d7519760b6f1f1",
                 tokens: 29,
               },
-              index: 105,
+              index: 108,
               substantive: {
                 digest:
                   "a6edb73b7c29d891b5e4de8472642d2721010433fda68278cbc4f6567f441cf9",
@@ -335,7 +335,7 @@ export const test_mcp_production_project_root_coordination_hook_cleanup =
               catchBodies: ["deniedRootLstatFailure={error};", "throwerror;"],
               catchVariables: ["error"],
               containerKind: "TryStatement",
-              containerStatements: 225,
+              containerStatements: 228,
               failureHolder:
                 "letdeniedRootLstatFailure:IProductionProjectFixtureFailure|undefined;",
               finallyDigest:
@@ -346,7 +346,7 @@ export const test_mcp_production_project_root_coordination_hook_cleanup =
                   "c71e51a4ad9263cf673465c6f30ee131ca483f3678ab4bd53f905a4a9e5eaade",
                 tokens: 31,
               },
-              index: 113,
+              index: 116,
               substantive: {
                 digest:
                   "53ee05c8c2383b8370f0fa6de53970ccc9ee3161286105a3e9b031afe1a50228",
@@ -360,7 +360,7 @@ export const test_mcp_production_project_root_coordination_hook_cleanup =
               catchBodies: ["coordinationChmodFailure={error};", "throwerror;"],
               catchVariables: ["error"],
               containerKind: "TryStatement",
-              containerStatements: 225,
+              containerStatements: 228,
               failureHolder:
                 "letcoordinationChmodFailure:IProductionProjectFixtureFailure|undefined;",
               finallyDigest:
@@ -371,7 +371,7 @@ export const test_mcp_production_project_root_coordination_hook_cleanup =
                   "32e15267074805754bdd085575ceb17929346f4feb535774d38955976bdb8c6a",
                 tokens: 29,
               },
-              index: 117,
+              index: 120,
               substantive: {
                 digest:
                   "6c74696b06c39577bc4dbe62477338211104677c0fb4b00b13315940e000989a",
@@ -385,7 +385,7 @@ export const test_mcp_production_project_root_coordination_hook_cleanup =
               catchBodies: ["partialCoordinateFailure={error};", "throwerror;"],
               catchVariables: ["error"],
               containerKind: "TryStatement",
-              containerStatements: 225,
+              containerStatements: 228,
               failureHolder:
                 "letpartialCoordinateFailure:IProductionProjectFixtureFailure|undefined;",
               finallyDigest:
@@ -396,7 +396,7 @@ export const test_mcp_production_project_root_coordination_hook_cleanup =
                   "69dd4e7ba9f5c5c031d8e52a9f293719f71fc2c72381ccb09fb7793ea8cd4b01",
                 tokens: 29,
               },
-              index: 122,
+              index: 125,
               substantive: {
                 digest:
                   "d020ca4a7c34d38ab8275576953988e180eb24310644171a5a945ae67f00ac1f",
