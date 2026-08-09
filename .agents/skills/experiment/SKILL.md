@@ -1,6 +1,6 @@
 ---
 name: experiment
-description: Defines how automovie runs an ad-hoc experiment: creating a disposable source-linked sandbox under experimental/, driving its MCP surface with a live Claude Code or Codex session against working-tree code, and deciding what an observation is worth. Use when the user asks to try something out, drive the tools by hand, or see how a change behaves through a real agent; do not use for a scored benchmark corpus (see the benchmark-campaign skill), a render inspection of something already running (viewer-verification), or a repository-wide audit (issue-campaign).
+description: Defines how automovie runs an ad-hoc experiment: creating a disposable source-linked sandbox under experimental/, driving its MCP surface with a live Claude Code or Codex session against working-tree code, and deciding what an observation is worth. Use when the user asks to try something out, drive the tools by hand, or see how a change behaves through a real agent; do not use for a render inspection of something already running (viewer-verification) or a repository-wide audit (issue-campaign).
 ---
 
 # Experiment
@@ -9,7 +9,7 @@ An experiment answers one question by running the real thing. Create a disposabl
 
 The sandbox consumes this working tree, not a release. That is the whole point: a change to `packages/mcp` or `packages/engine` is live in the next host start, so the agent-facing surface can be exercised before it ships rather than after.
 
-An experiment produces an observation, not a score. It is deliberately cheaper than the [benchmark campaign](../benchmark-campaign/SKILL.md), which exists when the question needs a corpus, a rubric, attribution, and a durable ledger. Reach for that skill when the user wants to measure the pipeline; stay here when they want to see something work.
+An experiment produces an observation, not a score.
 
 Read the [project](../project/SKILL.md) and [mcp](../mcp/SKILL.md) skills before driving the tools, and the [viewer-verification](../viewer-verification/SKILL.md) skill before claiming anything about a render.
 
@@ -77,6 +77,6 @@ Never adjust the sandbox to make a result look better. A sandbox edited until it
 
 An experiment is allowed to end with nothing but an answer. Publish an issue only when the observation survives fact-checking against the real code path, and follow the [issue-campaign skill's Self-Contained Issue Body](../issue-campaign/SKILL.md#self-contained-issue-body) contract when you do.
 
-Attribute before publishing, using the [benchmark-campaign skill's triage categories](../benchmark-campaign/SKILL.md#score-and-triage): an engine defect, a missing schema axis, MCP-surface friction, and a guide gap are automovie's; a model-side failure against an adequate surface is not.
+Attribute before publishing: an engine defect, a missing schema axis, MCP-surface friction, and a guide gap are automovie's; a model-side failure against an adequate surface is not.
 
 If the question turns out to need systematic measurement rather than one run, stop and say so. That is the benchmark campaign's job, and running it informally produces anecdotes that look like data.
