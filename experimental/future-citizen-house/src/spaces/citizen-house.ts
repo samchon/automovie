@@ -83,6 +83,7 @@ const material = (props: {
   metallic?: number;
   roughness?: number;
   opacity?: number;
+  emissive?: IAutoMovieColor | null;
   transmission?: number;
   ior?: number;
   thickness?: number;
@@ -92,7 +93,7 @@ const material = (props: {
   baseColor: props.baseColor,
   metallic: props.metallic ?? 0,
   roughness: props.roughness ?? 0.65,
-  emissive: null,
+  emissive: props.emissive ?? null,
   opacity: props.opacity ?? 1,
   alphaMode: "opaque",
   doubleSided: true,
@@ -185,6 +186,13 @@ const MATERIALS = [
     roughness: 0.78,
     opacity: 0.82,
   }),
+  material({
+    id: "house-warm-light",
+    name: "warm practical light",
+    baseColor: color(1, 0.32, 0.08),
+    roughness: 0.35,
+    emissive: color(1, 0.22, 0.04),
+  }),
 ] as const;
 
 const modelFor = (id: string, surface: IAutoMovieMaterial): IAutoMovieModel => ({
@@ -226,6 +234,7 @@ const MODELS = [
   modelFor("model-shade-module", MATERIALS[2]),
   modelFor("model-pv-module", MATERIALS[9]),
   modelFor("model-roller-shade", MATERIALS[11]),
+  modelFor("model-warm-light", MATERIALS[12]),
 ];
 
 const box = (props: {
@@ -450,16 +459,22 @@ const groundElements = (): IAutoMovieBuiltElement[] => [
   box({ id: "upper-core-wall-front", kind: "service-partition", space: "upper-service", x: 2.0, y: 4.45, z: -4.35, width: 0.16, height: 2.9, depth: 2.7, model: "model-opaque" }),
   box({ id: "upper-core-wall-back", kind: "service-partition", space: "upper-bathroom", x: 2.0, y: 4.45, z: 3.85, width: 0.16, height: 2.9, depth: 1.3, model: "model-opaque" }),
   box({ id: "entry-door", kind: "exterior-door", space: "entry", x: 0, y: 1.1, z: -5.93, width: 1.05, height: 2.2, depth: 0.08, model: "model-glass" }),
-  box({ id: "flex-door", kind: "interior-door", space: "flex-workroom", x: -1.68, y: 1.1, z: -4.3, width: 0.08, height: 2.2, depth: 0.9, model: "model-wood" }),
+  box({ id: "flex-door", kind: "sliding-pocket-door-open", space: "flex-workroom", x: -1.68, y: 1.1, z: -3.28, width: 0.08, height: 2.2, depth: 0.9, model: "model-wood" }),
+  box({ id: "flex-door-track", kind: "sliding-door-track", space: "entry", x: -1.68, y: 2.25, z: -4.3, width: 0.06, height: 0.05, depth: 0.9, model: "model-dark-metal" }),
   box({ id: "bedroom-one-door", kind: "interior-door", space: "child-bedroom-1", x: 0.14, y: 4.1, z: -3.45, width: 0.08, height: 2.1, depth: 0.9, model: "model-wood" }),
   box({ id: "bedroom-two-door", kind: "interior-door", space: "child-bedroom-2", x: 0.14, y: 4.1, z: 1.25, width: 0.08, height: 2.1, depth: 0.9, model: "model-wood" }),
   box({ id: "primary-door", kind: "interior-door", space: "primary-bedroom", x: 0.14, y: 4.1, z: 3.0, width: 0.08, height: 2.1, depth: 0.9, model: "model-wood" }),
   box({ id: "bathroom-door", kind: "interior-door", space: "upper-bathroom", x: 2.1, y: 4.1, z: 2.05, width: 0.9, height: 2.1, depth: 0.08, model: "model-wood" }),
   box({ id: "storage-door", kind: "interior-door", space: "upper-storage", x: 2.1, y: 4.1, z: 0.72, width: 0.9, height: 2.1, depth: 0.08, model: "model-wood" }),
   box({ id: "stair-landing", kind: "stair-landing", space: "entry", x: 0.6, y: 1.5, z: -1.65, width: 1.3, height: 0.18, depth: 1.05, model: "model-wood" }),
+  box({ id: "stair-lower-guard", kind: "stair-guard", space: "entry", x: -1.16, y: 0.9, z: -2.9, width: 0.08, height: 1.8, depth: 2.3, model: "model-dark-metal" }),
+  box({ id: "stair-lower-handrail", kind: "stair-rail", space: "entry", x: -1.16, y: 1.82, z: -2.9, width: 0.12, height: 0.12, depth: 2.3, model: "model-dark-metal" }),
+  box({ id: "stair-landing-guard", kind: "stair-guard", space: "entry", x: 1.22, y: 2.1, z: -1.65, width: 0.08, height: 1.2, depth: 1.05, model: "model-dark-metal" }),
   ...Array.from({ length: 9 }, (_, index) =>
     box({ id: `stair-lower-${String(index + 1).padStart(2, "0")}`, kind: "stair-tread", space: "entry", x: -0.55, y: ((index + 1) * (1.5 / 9)) / 2, z: -4 + index * 0.25, width: 1.3, height: (index + 1) * (1.5 / 9), depth: 0.28, model: "model-wood" }),
   ),
+  box({ id: "stair-upper-guard", kind: "stair-guard", space: "upper-corridor", x: 2.16, y: 2.35, z: -2.9, width: 0.08, height: 1.7, depth: 2.4, model: "model-dark-metal" }),
+  box({ id: "stair-upper-handrail", kind: "stair-rail", space: "upper-corridor", x: 2.16, y: 3.22, z: -2.9, width: 0.12, height: 0.12, depth: 2.4, model: "model-dark-metal" }),
   ...Array.from({ length: 9 }, (_, index) =>
     box({ id: `stair-upper-${String(index + 1).padStart(2, "0")}`, kind: "stair-tread", space: "upper-corridor", x: 1.55, y: 1.5 + ((index + 1) * (1.5 / 9)) / 2, z: -1.9 - index * 0.25, width: 1.3, height: (index + 1) * (1.5 / 9), depth: 0.28, model: "model-wood" }),
   ),
@@ -483,7 +498,7 @@ const fitOutElements = (): IAutoMovieBuiltElement[] => [
   box({ id: "living-sofa", kind: "sofa", space: "common-room", x: -3.25, y: 0.48, z: 2.9, width: 2.8, height: 0.75, depth: 0.88, model: "model-soft" }),
   box({ id: "living-coffee-table", kind: "table", space: "common-room", x: -3.0, y: 0.38, z: 1.8, width: 1.35, height: 0.32, depth: 0.72, model: "model-wood-light" }),
   box({ id: "living-media-wall", kind: "media-storage", space: "common-room", x: -4.9, y: 1.25, z: 4.85, width: 0.3, height: 2.25, depth: 2.2, model: "model-wood" }),
-  box({ id: "living-reading-light", kind: "reading-light", space: "common-room", x: -4.8, y: 0.95, z: 2.8, width: 0.18, height: 1.8, depth: 0.18, model: "model-metal" }),
+  box({ id: "living-reading-light", kind: "reading-light", space: "common-room", x: -4.8, y: 0.95, z: 2.8, width: 0.18, height: 1.8, depth: 0.18, model: "model-warm-light" }),
   box({ id: "dining-table", kind: "dining-table", space: "common-room", x: -0.55, y: 0.78, z: 0.25, width: 2.0, height: 0.12, depth: 1.0, model: "model-wood-light" }),
   ...[
     [-1.6, 0.25],
@@ -494,8 +509,14 @@ const fitOutElements = (): IAutoMovieBuiltElement[] => [
     [-0.55, -0.5],
   ].map(([x, z], index) => box({ id: `dining-chair-${index + 1}`, kind: "dining-chair", space: "common-room", x, y: 0.48, z, width: 0.46, height: 0.9, depth: 0.46, model: "model-wood-light" })),
   box({ id: "kitchen-island", kind: "kitchen-island", space: "common-room", x: 1.5, y: 0.52, z: 2.4, width: 2.35, height: 0.9, depth: 0.82, model: "model-wood-light" }),
+  box({ id: "kitchen-base-cabinetry", kind: "kitchen-base-cabinetry", space: "common-room", x: 2.08, y: 0.52, z: 4.65, width: 1.08, height: 0.9, depth: 0.55, model: "model-wood" }),
+  box({ id: "kitchen-stool-left", kind: "kitchen-stool", space: "common-room", x: 0.78, y: 0.52, z: 3.08, width: 0.42, height: 0.92, depth: 0.42, model: "model-metal" }),
+  box({ id: "kitchen-stool-center", kind: "kitchen-stool", space: "common-room", x: 1.5, y: 0.52, z: 3.08, width: 0.42, height: 0.92, depth: 0.42, model: "model-metal" }),
+  box({ id: "kitchen-stool-right", kind: "kitchen-stool", space: "common-room", x: 2.22, y: 0.52, z: 3.08, width: 0.42, height: 0.92, depth: 0.42, model: "model-metal" }),
   box({ id: "kitchen-sink", kind: "sink", space: "common-room", x: 1.5, y: 1.0, z: 2.4, width: 0.62, height: 0.04, depth: 0.45, model: "model-metal" }),
   box({ id: "kitchen-cooktop", kind: "induction-cooktop", space: "common-room", x: 1.95, y: 1.0, z: 2.4, width: 0.72, height: 0.04, depth: 0.42, model: "model-metal" }),
+  box({ id: "kitchen-pendant-left", kind: "pendant-light", space: "common-room", x: 0.9, y: 2.15, z: 2.4, width: 0.18, height: 0.78, depth: 0.18, model: "model-warm-light" }),
+  box({ id: "kitchen-pendant-right", kind: "pendant-light", space: "common-room", x: 2.1, y: 2.15, z: 2.4, width: 0.18, height: 0.78, depth: 0.18, model: "model-warm-light" }),
   box({ id: "kitchen-tall-pantry", kind: "pantry", space: "common-room", x: 2.88, y: 1.35, z: 4.65, width: 0.48, height: 2.45, depth: 1.2, model: "model-wood" }),
   box({ id: "kitchen-refrigerator", kind: "refrigerator", space: "common-room", x: 2.95, y: 1.15, z: 3.25, width: 0.7, height: 2.25, depth: 0.76, model: "model-metal" }),
   box({ id: "kitchen-recycling-cabinet", kind: "recycling-cabinet", space: "common-room", x: 2.7, y: 0.75, z: 1.05, width: 0.7, height: 1.5, depth: 0.68, model: "model-wood" }),
@@ -519,7 +540,7 @@ const fitOutElements = (): IAutoMovieBuiltElement[] => [
   box({ id: "upper-bath-toilet", kind: "toilet", space: "upper-bathroom", x: 4.55, y: 3.4, z: 2.65, width: 0.6, height: 0.82, depth: 0.72, model: "model-opaque" }),
   box({ id: "upper-bath-shower", kind: "shower-tub", space: "upper-bathroom", x: 4.15, y: 3.45, z: 1.98, width: 1.65, height: 0.72, depth: 0.7, model: "model-translucent" }),
   box({ id: "upper-bath-towel-storage", kind: "towel-storage", space: "upper-bathroom", x: 2.45, y: 4.05, z: 3.82, width: 0.38, height: 1.65, depth: 0.62, model: "model-wood" }),
-  box({ id: "upper-corridor-lighting", kind: "ceiling-light", space: "upper-corridor", x: 1.05, y: 5.82, z: -0.8, width: 0.32, height: 0.08, depth: 0.32, model: "model-metal" }),
+  box({ id: "upper-corridor-lighting", kind: "ceiling-light", space: "upper-corridor", x: 1.05, y: 5.82, z: -0.8, width: 0.32, height: 0.08, depth: 0.32, model: "model-warm-light" }),
   box({ id: "upper-storage-cabinet", kind: "linen-storage", space: "upper-storage", x: 4.25, y: 4.18, z: 0.72, width: 1.25, height: 2.2, depth: 0.48, model: "model-wood" }),
   box({ id: "upper-service-cabinet", kind: "service-cabinet", space: "upper-service", x: 4.35, y: 4.2, z: -2.35, width: 1.3, height: 2.25, depth: 0.5, model: "model-metal" }),
 ];
@@ -529,6 +550,12 @@ const siteElements = (): IAutoMovieBuiltElement[] => [
   box({ id: "front-walk", kind: "front-walk", space: "site-pad", x: 0, y: -0.18, z: -8.2, width: 2.0, height: 0.08, depth: 3.7, model: "model-concrete" }),
   box({ id: "planting-bed-east", kind: "planting-bed", space: "site-pad", x: 6.4, y: -0.05, z: -3.0, width: 1.6, height: 0.35, depth: 7.8, model: "model-green" }),
   box({ id: "planting-bed-west", kind: "planting-bed", space: "site-pad", x: -6.4, y: -0.05, z: 3.8, width: 1.6, height: 0.35, depth: 5.6, model: "model-green" }),
+  box({ id: "site-hedge-east-front", kind: "hedge", space: "site-pad", x: 6.4, y: 0.34, z: -5.7, width: 1.2, height: 0.7, depth: 1.2, model: "model-green" }),
+  box({ id: "site-hedge-east-mid", kind: "hedge", space: "site-pad", x: 6.4, y: 0.34, z: -4.2, width: 1.2, height: 0.7, depth: 1.2, model: "model-green" }),
+  box({ id: "site-hedge-east-back", kind: "hedge", space: "site-pad", x: 6.4, y: 0.34, z: -2.7, width: 1.2, height: 0.7, depth: 1.2, model: "model-green" }),
+  box({ id: "site-tree-west-trunk", kind: "plant-trunk", space: "site-pad", x: -6.4, y: 0.82, z: 5.35, width: 0.24, height: 1.6, depth: 0.24, model: "model-wood" }),
+  box({ id: "site-tree-west-crown-lower", kind: "tree-crown", space: "site-pad", x: -6.4, y: 1.55, z: 5.35, width: 1.65, height: 0.95, depth: 1.45, model: "model-green" }),
+  box({ id: "site-tree-west-crown-upper", kind: "tree-crown", space: "site-pad", x: -6.4, y: 2.25, z: 5.35, width: 1.1, height: 0.75, depth: 1.0, model: "model-green" }),
   box({ id: "canopy-post-front-left", kind: "canopy-post", space: "roof-deck", x: -4.95, y: 6.5, z: -5.55, width: 0.16, height: 0.6, depth: 0.16, model: "model-dark-metal" }),
   box({ id: "canopy-post-front-right", kind: "canopy-post", space: "roof-deck", x: 4.95, y: 6.5, z: -5.55, width: 0.16, height: 0.6, depth: 0.16, model: "model-dark-metal" }),
   box({ id: "canopy-post-back-left", kind: "canopy-post", space: "roof-deck", x: -4.95, y: 6.5, z: 5.55, width: 0.16, height: 0.6, depth: 0.16, model: "model-dark-metal" }),
@@ -541,7 +568,7 @@ const siteElements = (): IAutoMovieBuiltElement[] => [
 
 const spaces = (): IAutoMovieBuiltSpace[] => [
   { id: "house", kind: "building", parent: null, cells: [boxCell("house-cell", vector(HOUSE_PLAN.minX, -0.4, HOUSE_PLAN.minZ), vector(HOUSE_PLAN.maxX, 6.8, HOUSE_PLAN.maxZ))] },
-  { id: "site-pad", kind: "site", parent: "house", cells: [boxCell("site-cell", vector(SITE_PLAN.minX, -0.35, SITE_PLAN.minZ), vector(SITE_PLAN.maxX, 0.1, SITE_PLAN.maxZ))] },
+  { id: "site-pad", kind: "site", parent: "house", cells: [boxCell("site-cell", vector(SITE_PLAN.minX, -0.35, SITE_PLAN.minZ), vector(SITE_PLAN.maxX, 3, SITE_PLAN.maxZ))] },
   { id: "ground-storey", kind: "storey", parent: "house", cells: [boxCell("ground-cell", vector(HOUSE_PLAN.minX, -0.01, HOUSE_PLAN.minZ), vector(HOUSE_PLAN.maxX, 3, HOUSE_PLAN.maxZ))] },
   { id: "upper-storey", kind: "storey", parent: "house", cells: [boxCell("upper-cell", vector(HOUSE_PLAN.minX, 3, HOUSE_PLAN.minZ), vector(HOUSE_PLAN.maxX, 6, HOUSE_PLAN.maxZ))] },
   { id: "roof-deck", kind: "roof-deck", parent: "house", cells: [boxCell("roof-cell", vector(HOUSE_PLAN.minX, 6, HOUSE_PLAN.minZ), vector(HOUSE_PLAN.maxX, 7, HOUSE_PLAN.maxZ))] },
@@ -636,7 +663,12 @@ const connectors = (): IAutoMovieBuiltConnector[] => [
     steps: { count: 18, rise: 1.5 / 9, run: STAIR_HORIZONTAL_RUN / 18 },
     elements: [
       "stair-landing",
+      "stair-lower-guard",
+      "stair-lower-handrail",
+      "stair-landing-guard",
       ...Array.from({ length: 9 }, (_, index) => `stair-lower-${String(index + 1).padStart(2, "0")}`),
+      "stair-upper-guard",
+      "stair-upper-handrail",
       ...Array.from({ length: 9 }, (_, index) => `stair-upper-${String(index + 1).padStart(2, "0")}`),
     ],
   },

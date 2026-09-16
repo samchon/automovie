@@ -63,7 +63,7 @@ Review question: does the complete prototype population remain readable as bound
 @evidence principles/design/models.md#model-observable-style-basis The rough stone three-part silhouette is observable without a historical-order or carved-detail claim.
 @evidence principles/design/models.md#model-scale-layer-completion The corrected part intervals and 5% taper close every visible column layer.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work The column check compared its 3.20m total height and 0.32m-to-0.304m shaft taper with the 3.60m room height and checked the 0.45m capital ratio; no parent capability, contact, or space defect was exposed.
-@evidence settings/temple.md#coordinate-unit-convention The column uses the reviewed floor datum and Y-up metre frame for its base-centred origin.
+@evidence settings/temple.md#coordinate-unit-convention The column's base-centred origin expands to X/Z `-0.225..0.225m`, Y `0.00..3.20m`, with base/shaft/capital seams at Y `0.18` and `2.92m`; any other seam or extent falsifies its coordinate handoff.
 @evidence settings/temple.md#subject-observable-identity-and-fit-out-limits The three-part stone column is the specific vertical landmark required by the settings identity.
 @evidence spaces/temple.md#courtyard-and-continuous-colonnade-loop The column receives the reviewed loop running-line and must remain outside the 2.00m clear circulation band.
 @evidence spaces/temple.md#spatial-identity-tolerance-and-exclusions The column preserves the loop's repeated stone support role without changing the loop topology.
@@ -113,7 +113,7 @@ Review question: does the door expose named stone and wood surfaces while preser
 @evidence principles/design/models.md#model-observable-style-basis The low rough-stone circular basin is observable without carved ornament or hydraulic engineering.
 @evidence principles/design/models.md#model-scale-layer-completion The basin's outer, inner, and water-seat layers jointly close its blocking representation.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work The basin check compared its 0.85m outer radius, 0.62m inner radius, 0.42m height, and open top with the reviewed fountain centre and loop clearance; no parent socket or space defect was exposed.
-@evidence settings/temple.md#coordinate-unit-convention The basin uses the reviewed floor datum and Y-up metre frame at the central landmark.
+@evidence settings/temple.md#coordinate-unit-convention The basin origin is the source central landmark at floor contact and its bounds are X/Z `-0.85..0.85m`, Y `0.00..0.42m`; a shifted centre or alternate height falsifies this coordinate handoff.
 @evidence settings/temple.md#subject-observable-identity-and-fit-out-limits The settings require one low circular stone basin as the courtyard landmark.
 @evidence spaces/temple.md#courtyard-and-continuous-colonnade-loop The basin consumes the central courtyard landmark relation and remains clear of the loop route.
 @evidence spaces/temple.md#spatial-identity-tolerance-and-exclusions The basin preserves one central fountain landmark and does not add a second socket or route.
@@ -165,11 +165,11 @@ Review question: does the stream read only as one narrow static vertical accent 
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work The altar check compared the 0.82m total height, 1.30m by 0.80m plinth, 0.90m by 0.48m body, and 3.60m room height; the existing sanctuary room and rear-axis relation were sufficient and exposed no parent defect.
 @evidence settings/temple.md#coordinate-unit-convention The altar uses the reviewed Y-up metre frame and floor datum with a local plinth-centred origin.
 @evidence settings/temple.md#subject-observable-identity-and-fit-out-limits The settings require one broad rear-axis altar/plinth landmark rather than a socket invented by the model layer.
-@evidence spaces/temple.md#room-schedule-and-direct-thresholds The altar consumes the reviewed `sanctuary` room and its north-rear-axis relation, not a new opening or socket.
+@evidence spaces/temple.md#room-schedule-and-direct-thresholds The altar consumes the source `sanctuary` room bounds X `-3.20..3.20m`, Z `6.00..8.40m` and its `north` observation point `(0.00,0.00,7.80)`; it does not require a new opening or socket.
 @evidence spaces/temple.md#spatial-identity-tolerance-and-exclusions The one-altar and one-plinth identity remains inside the sanctuary role without changing room topology.
 -->
 
-Authority and status: `author-adopted` fixed pair for the `sanctuary` room's north-rear-axis relation. The local origin is the plinth centre at floor contact, with combined bounds X `-0.65..0.65m`, Z `-0.40..0.40m`, Y `0.00..0.82m`. The hierarchy is `plinth` Y `0.00..0.32m`, X `-0.65..0.65m`, Z `-0.40..0.40m`, and `altar-body` Y `0.32..0.82m`, X `-0.45..0.45m`, Z `-0.24..0.24m`. Stable surfaces are `altar-plinth-stone` and `altar-body-stone`. Both top boundaries are closed and there is no hidden void between them. Instances consume the existing `sanctuary` room and `north-rear-axis` relation; this model does not request or invent a sanctuary socket.
+Authority and status: `author-adopted` fixed pair for the source `sanctuary` room and its `north` observation point. The source room bounds are X `-3.20..3.20m`, Z `6.00..8.40m`, Y `0.00..3.60m`; its observation route has threshold `(0.00,0.00,6.00)`, center `(0.00,0.00,7.20)`, and north point `(0.00,0.00,7.80)`. The model local origin is the plinth centre at floor contact, with combined bounds X `-0.65..0.65m`, Z `-0.40..0.40m`, Y `0.00..0.82m`. The hierarchy is `plinth` Y `0.00..0.32m`, X `-0.65..0.65m`, Z `-0.40..0.40m`, and `altar-body` Y `0.32..0.82m`, X `-0.45..0.45m`, Z `-0.24..0.24m`. Stable surfaces are `altar-plinth-stone` and `altar-body-stone`. Both top boundaries are closed and there is no hidden void between them. Instances consume the existing `sanctuary` room and its source `north` observation point; this model does not request or invent a sanctuary socket or a new named axis.
 
 Neutral review is front, side, top, and rear-axis three-quarter. Carving, offerings, flame, and ritual iconography are outside this proxy.
 
@@ -214,11 +214,11 @@ Review question: can repeated instances preserve the tile's overlap direction, t
 @evidence principles/design/models.md#model-observable-style-basis The plain civic work-table silhouette is observable without joinery or contents.
 @evidence principles/design/models.md#model-scale-layer-completion The top and leg intervals close every visible table layer.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work The table check compared its 1.20m by 0.60m footprint, 0.76m height, four-leg clearance, and 1.10m door comparison; the records-room route and scale were sufficient and exposed no parent defect.
-@evidence settings/temple.md#coordinate-unit-convention The table uses the reviewed floor datum and Y-up metre frame.
+@evidence settings/temple.md#coordinate-unit-convention The table's floor-centred origin expands to X `-0.60..0.60m`, Z `-0.30..0.30m`, Y `0.00..0.76m`; a non-zero floor or any bound outside that footprint falsifies this coordinate handoff.
 @evidence settings/temple.md#subject-breakdown-production-scope The records-room work-surface role is a separately named fit-out subject in this population.
 @evidence settings/temple.md#subject-observable-identity-and-fit-out-limits The settings require a low work landmark that reads distinctly from vertical storage and closed chests.
-@evidence spaces/temple.md#room-schedule-and-direct-thresholds The table consumes the records-room clear box and must leave its room-side route available.
-@evidence spaces/temple.md#spatial-identity-tolerance-and-exclusions The table preserves the records-room role and does not claim route or quantity ownership.
+@evidence spaces/temple.md#room-schedule-and-direct-thresholds The table is the `records-room` work surface inside source bounds X `7.40..11.40m`, Z `-0.30..2.30m`; its `1.20m × 0.60m` footprint must not intersect the source route from threshold `(7.40,0.00,1.00)` to center `(9.40,0.00,1.00)` or its `0.30m` protected band.
+@evidence spaces/temple.md#spatial-identity-tolerance-and-exclusions The table identity is its `0.76m` top and four-leg open underside; a shelf, chest, or closed underside would falsify the records-room work-landmark handoff.
 -->
 
 Authority and status: `author-adopted` rigid prototype for the records room. The local origin is the floor contact centre, with bounds X `-0.60..0.60m`, Z `-0.30..0.30m`, Y `0.00..0.76m`. The top occupies X `-0.60..0.60m`, Z `-0.30..0.30m`, Y `0.66..0.76m`. Four legs occupy X centres `-0.50` and `0.50m`, Z centres `-0.20` and `0.20m`, each with `0.10m` square section and Y `0.00..0.66m`. Stable surfaces are `records-table-top` and `records-table-legs`; the underside between legs remains open. Instances own count, orientation, and route clearance.
@@ -240,11 +240,11 @@ Review question: does the table read as a distinct low work surface with four su
 @evidence principles/design/models.md#model-observable-style-basis The plain vertical records shelf is observable without loaded contents or decorative joinery.
 @evidence principles/design/models.md#model-scale-layer-completion The frame and three board intervals close the shelf's visible layers and negative spaces.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work The shelf check compared its 1.80m height and three-board gaps with the 3.60m room and 1.10m door anchors; the records-room space and access limits were sufficient and exposed no parent defect.
-@evidence settings/temple.md#coordinate-unit-convention The shelf uses the reviewed floor datum and Y-up metre frame.
+@evidence settings/temple.md#coordinate-unit-convention The records shelf's floor origin has bounds X `-0.45..0.45m`, Z `-0.16..0.16m`, Y `0.00..1.80m`, with frames at X `-0.40` and `0.40m`; any shifted board interval or frame outside these coordinates falsifies its local placement convention.
 @evidence settings/temple.md#subject-breakdown-production-scope The records-room vertical storage role is independently owned here rather than hidden in a furniture family.
 @evidence settings/temple.md#subject-observable-identity-and-fit-out-limits The shelf's vertical rhythm is required to read differently from the table and chest.
-@evidence spaces/temple.md#room-schedule-and-direct-thresholds The shelf consumes the records-room clear box while preserving the room-side route.
-@evidence spaces/temple.md#spatial-identity-tolerance-and-exclusions The shelf preserves the records-room fit-out role without owning population density.
+@evidence spaces/temple.md#room-schedule-and-direct-thresholds The records shelf fits the source `records-room` bounds X `7.40..11.40m`, Z `-0.30..2.30m` and leaves the `(7.40,0.00,1.00)` to `(9.40,0.00,1.00)` route plus its `0.30m` protected band clear.
+@evidence spaces/temple.md#spatial-identity-tolerance-and-exclusions The records shelf is defined by three open boards at Y `0.36..0.44`, `0.86..0.94`, and `1.36..1.44m`; four boards or closed gaps would falsify this room-specific identity.
 -->
 
 Authority and status: `author-adopted` rigid prototype for records storage. The local origin is the floor contact centre, with bounds X `-0.45..0.45m`, Z `-0.16..0.16m`, Y `0.00..1.80m`. Two side frames are centred at X `-0.40` and `0.40m`, each `0.10m` wide, `0.10m` deep, and Y `0.00..1.80m`. Three shelf boards span X `-0.40..0.40m`, Z `-0.16..0.16m` at Y `0.36..0.44m`, `0.86..0.94m`, and `1.36..1.44m`. Stable surfaces are `records-shelf-frame-wood` and `records-shelf-board-wood`; the gaps between boards remain open negative space.
@@ -266,11 +266,11 @@ Review question: does the shelf's three-board rhythm remain visibly distinct and
 @evidence principles/design/models.md#model-observable-style-basis The plain closed chest silhouette is observable without hardware or contents.
 @evidence principles/design/models.md#model-scale-layer-completion The body and lid intervals close the chest representation without an unowned drawer layer.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work The chest check compared its 0.55m height and 0.80m by 0.45m footprint with the records-room clear box and 1.10m door scale; the parent space was sufficient and exposed no defect.
-@evidence settings/temple.md#coordinate-unit-convention The chest uses the reviewed floor datum and Y-up metre frame.
+@evidence settings/temple.md#coordinate-unit-convention The records chest uses a floor-centred X `-0.40..0.40m`, Z `-0.225..0.225m`, Y `0.00..0.55m` envelope with its body/lid seam at Y `0.45m`; any alternate origin or seam falsifies this local coordinate handoff.
 @evidence settings/temple.md#subject-breakdown-production-scope The records-room low closed-storage role is independently addressed rather than bundled with the table or shelf.
 @evidence settings/temple.md#subject-observable-identity-and-fit-out-limits The low closed volume is a required distinct records-room silhouette.
-@evidence spaces/temple.md#room-schedule-and-direct-thresholds The chest consumes the records-room clear box and leaves route ownership to instances.
-@evidence spaces/temple.md#spatial-identity-tolerance-and-exclusions The chest preserves the records-room role without changing room boundaries or density.
+@evidence spaces/temple.md#room-schedule-and-direct-thresholds The records chest fits the source `records-room` clear bounds X `7.40..11.40m`, Z `-0.30..2.30m` and its `0.80m × 0.45m` footprint must remain outside the `(7.40,0.00,1.00)` to `(9.40,0.00,1.00)` route and protected band.
+@evidence spaces/temple.md#spatial-identity-tolerance-and-exclusions The records chest is one `0.55m` closed body with a `0.10m` lid layer; an open box, drawer stack, or shelf silhouette would falsify the records-room low-storage role.
 -->
 
 Authority and status: `author-adopted` rigid prototype for records storage. The local origin is the floor contact centre, with bounds X `-0.40..0.40m`, Z `-0.225..0.225m`, Y `0.00..0.55m`. The body occupies Y `0.00..0.45m`; the lid occupies Y `0.45..0.55m`, both with the full X/Z footprint. Stable surfaces are `records-chest-body` and `records-chest-lid`. The lid is closed and rigid; drawers, hinges, contents, and hardware are outside this proxy.
@@ -292,11 +292,11 @@ Review question: does the chest read as one low closed volume rather than as an 
 @evidence principles/design/models.md#model-observable-style-basis The plain storage shelf is observable without loaded contents or woven detail.
 @evidence principles/design/models.md#model-scale-layer-completion The four board intervals, frame, and open gaps close the prototype.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work The shelf check compared its 1.70m height, four-board intervals, and 0.34m depth with the storage-room clear box and route; those parent decisions were sufficient and exposed no defect.
-@evidence settings/temple.md#coordinate-unit-convention The storage shelf uses the reviewed floor datum and Y-up metre frame.
+@evidence settings/temple.md#coordinate-unit-convention The storage shelf's floor origin has bounds X `-0.45..0.45m`, Z `-0.17..0.17m`, Y `0.00..1.70m`, and its four boards use the stated Y intervals; a three-board or shifted-frame realization falsifies this storage coordinate convention.
 @evidence settings/temple.md#subject-breakdown-production-scope The storage-room shelf is an independent prototype with a distinct consumer and size.
 @evidence settings/temple.md#subject-observable-identity-and-fit-out-limits The four-board vertical rhythm distinguishes storage furniture from the records shelf.
-@evidence spaces/temple.md#room-schedule-and-direct-thresholds The shelf consumes the votive-storage-room clear box and preserves the room-side route.
-@evidence spaces/temple.md#spatial-identity-tolerance-and-exclusions The shelf preserves storage identity without owning stacking or density.
+@evidence spaces/temple.md#room-schedule-and-direct-thresholds The storage shelf fits source bounds X `7.40..11.40m`, Z `-5.20..-0.70m` and leaves the route from threshold `(7.40,0.00,-2.95)` to center `(9.40,0.00,-2.95)` plus its `0.30m` protected band clear.
+@evidence spaces/temple.md#spatial-identity-tolerance-and-exclusions The storage shelf's four open boards at Y `0.35..0.43`, `0.70..0.78`, `1.05..1.13`, and `1.40..1.48m` distinguish it from the records shelf; closed gaps or three boards would falsify the storage identity.
 -->
 
 Authority and status: `author-adopted` rigid prototype for the votive-storage room. The local origin is the floor contact centre, with bounds X `-0.45..0.45m`, Z `-0.17..0.17m`, Y `0.00..1.70m`. Side frames are centred at X `-0.40` and `0.40m`, each `0.10m` wide and deep, Y `0.00..1.70m`. Four boards span X `-0.40..0.40m`, Z `-0.17..0.17m` at Y `0.35..0.43m`, `0.70..0.78m`, `1.05..1.13m`, and `1.40..1.48m`. Stable surfaces are `storage-shelf-frame-wood` and `storage-shelf-board-wood`; all board gaps remain open.
@@ -318,11 +318,11 @@ Review question: does the storage shelf retain four visible levels and open gaps
 @evidence principles/design/models.md#model-observable-style-basis The plain storage chest is observable without hardware or loaded-state claims.
 @evidence principles/design/models.md#model-scale-layer-completion The body and lid intervals close the complete storage chest proxy.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work The chest check compared its 0.55m height and 0.78m by 0.46m footprint with the storage-room clear box and reserved route; no parent defect was exposed.
-@evidence settings/temple.md#coordinate-unit-convention The storage chest uses the reviewed floor datum and Y-up metre frame.
+@evidence settings/temple.md#coordinate-unit-convention The storage chest uses a floor-centred X `-0.39..0.39m`, Z `-0.23..0.23m`, Y `0.00..0.55m` envelope with its lid seam at Y `0.45m`; any alternate seam or extent falsifies this coordinate handoff.
 @evidence settings/temple.md#subject-breakdown-production-scope The storage-room chest is independently addressed with its own consumer and bounds.
 @evidence settings/temple.md#subject-observable-identity-and-fit-out-limits The low closed storage role is distinct from shelf gaps and basket opening.
-@evidence spaces/temple.md#room-schedule-and-direct-thresholds The chest consumes the storage-room clear box while the route remains reserved.
-@evidence spaces/temple.md#spatial-identity-tolerance-and-exclusions The chest preserves storage identity without adding an alcove or room boundary.
+@evidence spaces/temple.md#room-schedule-and-direct-thresholds The storage chest fits the source `votive-storage-room` bounds X `7.40..11.40m`, Z `-5.20..-0.70m` and its `0.78m × 0.46m` footprint must remain outside the `(7.40,0.00,-2.95)` to `(9.40,0.00,-2.95)` route and protected band.
+@evidence spaces/temple.md#spatial-identity-tolerance-and-exclusions The storage chest is one `0.55m` closed body with a `0.10m` lid and no alcove; an open container or room boundary would falsify the storage fit-out role.
 -->
 
 Authority and status: `author-adopted` rigid prototype for the votive-storage room. The local origin is the floor contact centre, with bounds X `-0.39..0.39m`, Z `-0.23..0.23m`, Y `0.00..0.55m`. The body occupies Y `0.00..0.45m`; the lid occupies Y `0.45..0.55m`. Stable surfaces are `storage-chest-body` and `storage-chest-lid`. The lid remains closed and rigid; contents, drawers, hardware, and loading state are outside this proxy.
@@ -344,11 +344,11 @@ Review question: does the chest read as one low closed storage mass with a stabl
 @evidence principles/design/models.md#model-observable-style-basis The basket role is observable without individual weave strands or loaded contents.
 @evidence principles/design/models.md#model-scale-layer-completion The body, rim, handle, cavity, and bounds close the only canonical basket representation.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work The basket check compared its 0.42m footprint, 0.48m height, open cavity, and route clearance with the storage-room clear box; the parent space was sufficient and exposed no defect.
-@evidence settings/temple.md#coordinate-unit-convention The canonical basket uses the reviewed floor datum and Y-up metre frame.
+@evidence settings/temple.md#coordinate-unit-convention The canonical basket uses a contact-centred X/Z `-0.21..0.21m`, Y `0.00..0.48m` envelope, with its open rim at Y `0.40..0.44m`; a closed top or competing local extent falsifies this coordinate convention.
 @evidence settings/temple.md#subject-breakdown-production-scope The storage-basket is independently owned here with one named consumer and one stable boundary.
 @evidence settings/temple.md#subject-observable-identity-and-fit-out-limits The open-rim basket is a distinct small storage role rather than a duplicate ceramic or furniture owner.
-@evidence spaces/temple.md#room-schedule-and-direct-thresholds The basket consumes the storage-room clear box and must remain outside the reserved route.
-@evidence spaces/temple.md#spatial-identity-tolerance-and-exclusions The basket preserves storage fit-out identity and does not own density, stacking, or a new room.
+@evidence spaces/temple.md#room-schedule-and-direct-thresholds The basket fits the source `votive-storage-room` bounds X `7.40..11.40m`, Z `-5.20..-0.70m`; its `0.42m` footprint must stay outside the `(7.40,0.00,-2.95)` to `(9.40,0.00,-2.95)` route and `0.30m` protected band.
+@evidence spaces/temple.md#spatial-identity-tolerance-and-exclusions The basket identity is its tapered `0.18m` to `0.21m` body, inner rim radius `0.16m`, and open cavity with handle; a closed cylinder, woven duplicate, or second owner would falsify the storage identity.
 -->
 
 Authority and status: `author-adopted` and sole canonical prototype for `storage-basket`. The local origin is the floor or shelf contact centre, with bounds X/Z `-0.21..0.21m`, Y `0.00..0.48m`. The hierarchy is `basket-base` Y `0.00..0.08m`, outer radius `0.18m`; tapered `basket-body` Y `0.08..0.40m`, radius `0.18m` at its foot and `0.21m` at its rim; `basket-rim` Y `0.40..0.44m`, outer radius `0.21m`, inner radius `0.16m`; and `basket-handle` within X `-0.18..0.18m`, Z `-0.04..0.04m`, Y `0.40..0.48m`. Stable surfaces are `storage-basket-fiber`, `storage-basket-rim`, and `storage-basket-handle`. The interior X/Z `-0.16..0.16m` above Y `0.40m` is one open negative cavity. This H2 is the only owner of the `storage-basket` name; the ceramic-vessel H2 does not define a basket.
@@ -370,7 +370,7 @@ Review question: does the basket retain one open tapered cavity and handle silho
 @evidence principles/design/models.md#model-observable-style-basis The civic offering display is observable without precious contents or iconography.
 @evidence principles/design/models.md#model-scale-layer-completion The display layers and recessed negative space close the blocking representation.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work The display check compared its 1.30m width, 1.40m height, ledge, recess, and protected room route with the communal-votive room; the parent boundary was sufficient and exposed no defect.
-@evidence settings/temple.md#coordinate-unit-convention The display uses the reviewed floor datum and Y-up metre frame.
+@evidence settings/temple.md#coordinate-unit-convention The display's floor-contact origin has bounds X `-0.65..0.65m`, Z `-0.20..0.20m`, Y `0.00..1.40m`, with its board beginning at Y `0.20m`; a generic block or shifted ledge falsifies this coordinate handoff.
 @evidence settings/temple.md#subject-breakdown-production-scope The communal-votive display is a separately named fit-out subject.
 @evidence settings/temple.md#subject-observable-identity-and-fit-out-limits The low public offering display must read as a display without claiming its vessel population.
 @evidence spaces/temple.md#room-schedule-and-direct-thresholds The display consumes the communal-votive room clear box and preserves its room-side route.
@@ -424,7 +424,7 @@ Review question: does the vessel read as a small open-rim ceramic object without
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work The lamp check compared its 0.20m base, 0.42m total height, 0.18m shade, and floor/mount contact cases with the room fit-out scale; the parent settings and spaces were sufficient and exposed no defect.
 @evidence settings/temple.md#coordinate-unit-convention The lamp now has one floor-contact local origin in the reviewed Y-up metre frame; wall mounting is a downstream offset.
 @evidence settings/temple.md#subject-observable-identity-and-fit-out-limits The restrained lamp is a small vertical accent whose identity must remain separate from room lighting behavior.
-@evidence spaces/temple.md#room-schedule-and-direct-thresholds The lamp consumes only a permitted floor or mount contact region and must not enter the reserved room route.
+@evidence spaces/temple.md#room-schedule-and-direct-thresholds The lamp's `0.20m` base and `0.42m` height can use a floor or explicit mount offset inside a reviewed room clear box, but any placement intersecting that room's source threshold-to-center route or `0.30m` protected band falsifies the contact handoff.
 @evidence spaces/temple.md#spatial-identity-tolerance-and-exclusions The lamp preserves the limited accent population and does not redefine a room or loop.
 -->
 
@@ -447,10 +447,10 @@ Review question: does the lamp retain one comparable base-stem-shade silhouette 
 @evidence principles/design/models.md#model-observable-style-basis The plain low civic bench is observable without cushions or occupancy claims.
 @evidence principles/design/models.md#model-scale-layer-completion The support and rail geometry completes the review-critical silhouette promised by this prototype.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work The bench check compared its 1.40m seat, four support positions, 0.48m rail height, and underside clearance with the 2.00m loop and route; the parent space was sufficient and exposed no defect.
-@evidence settings/temple.md#coordinate-unit-convention The bench uses the reviewed floor datum and Y-up metre frame.
+@evidence settings/temple.md#coordinate-unit-convention The bench's floor-centred bounds are X `-0.70..0.70m`, Z `-0.24..0.24m`, Y `0.00..0.48m`, with leg centres at X `-0.55/0.55m` and Z `-0.14/0.14m`; any missing support or shifted rail falsifies this coordinate handoff.
 @evidence settings/temple.md#subject-observable-identity-and-fit-out-limits The low civic seat and its restrained rail are the specific bench identity required by the settings.
 @evidence spaces/temple.md#courtyard-and-continuous-colonnade-loop The bench consumes the colonnade role while instances keep the 2.00m loop and 1.20m clear route free.
-@evidence spaces/temple.md#spatial-identity-tolerance-and-exclusions The bench preserves the loop fit-out role without owning count, orientation, or route width.
+@evidence spaces/temple.md#spatial-identity-tolerance-and-exclusions The bench preserves the loop fit-out role through its `1.40m` seat, four `0.10m` supports, shallow rail, and open underside; filling the underside or exceeding the route handoff would falsify the loop identity even though count and placement remain instance-owned.
 -->
 
 Authority and status: `author-adopted` rigid bench prototype. The local origin is the floor contact centre, with bounds X `-0.70..0.70m`, Z `-0.24..0.24m`, Y `0.00..0.48m`. The seat occupies X `-0.70..0.70m`, Z `-0.24..0.24m`, Y `0.30..0.42m`. Four legs are square `0.10m` sections, each Y `0.00..0.30m`, centred at X `-0.55` and `0.55m`, Z `-0.14` and `0.14m`; their underside remains open negative space. The back rail occupies X `-0.60..0.60m`, Z `0.14..0.24m`, Y `0.38..0.48m`. Stable surfaces are `bench-seat`, `bench-legs`, and `bench-back-rail`. Instances must keep the compiled `2.00m` loop route and its `1.20m` clear handoff free.
