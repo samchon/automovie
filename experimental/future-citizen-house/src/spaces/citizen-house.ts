@@ -178,6 +178,13 @@ const MATERIALS = [
     baseColor: color(0.15, 0.28, 0.12),
     roughness: 1,
   }),
+  material({
+    id: "house-shade-fabric",
+    name: "quiet roller shade fabric",
+    baseColor: color(0.45, 0.49, 0.48),
+    roughness: 0.78,
+    opacity: 0.82,
+  }),
 ] as const;
 
 const modelFor = (id: string, surface: IAutoMovieMaterial): IAutoMovieModel => ({
@@ -218,6 +225,7 @@ const MODELS = [
   modelFor("model-curtainwall-module", MATERIALS[3]),
   modelFor("model-shade-module", MATERIALS[2]),
   modelFor("model-pv-module", MATERIALS[9]),
+  modelFor("model-roller-shade", MATERIALS[11]),
 ];
 
 const box = (props: {
@@ -406,6 +414,25 @@ const roomCurtainwallTransforms = (
   }));
 };
 
+const rollerShade = (
+  id: string,
+  space: string,
+  bounds: RoomBounds,
+  face: "front" | "rear",
+): IAutoMovieBuiltElement =>
+  box({
+    id,
+    kind: "roller-shade",
+    space,
+    x: (bounds.minX + bounds.maxX) / 2,
+    y: (bounds.minY + bounds.maxY) / 2,
+    z: face === "front" ? bounds.minZ + 0.04 : bounds.maxZ - 0.04,
+    width: bounds.maxX - bounds.minX,
+    height: bounds.maxY - bounds.minY - 0.4,
+    depth: 0.04,
+    model: "model-roller-shade",
+  });
+
 const groundElements = (): IAutoMovieBuiltElement[] => [
   box({ id: "foundation-slab", kind: "foundation", space: "house", x: 0, y: -0.12, z: 0, width: 10.9, height: 0.24, depth: 11.9, model: "model-concrete" }),
   box({ id: "ground-floor-slab", kind: "floor-slab", space: "ground-storey", x: 0, y: -0.02, z: 0, width: 10.7, height: 0.16, depth: 11.7, model: "model-wood-light" }),
@@ -446,10 +473,17 @@ const fitOutElements = (): IAutoMovieBuiltElement[] => [
   box({ id: "flex-chair", kind: "chair", space: "flex-workroom", x: -3.85, y: 0.52, z: -3.72, width: 0.62, height: 0.9, depth: 0.62, model: "model-soft" }),
   box({ id: "flex-shelving", kind: "shelving", space: "flex-workroom", x: -4.85, y: 1.35, z: -5.35, width: 0.28, height: 2.2, depth: 1.55, model: "model-wood" }),
   box({ id: "flex-folding-surface", kind: "variable-work-surface", space: "flex-workroom", x: -2.35, y: 1.15, z: -5.35, width: 1.25, height: 0.08, depth: 0.42, model: "model-wood-light" }),
+  box({ id: "flex-hidden-storage", kind: "hidden-storage", space: "flex-workroom", x: -3.85, y: 0.35, z: -4.45, width: 1.65, height: 0.5, depth: 0.62, model: "model-wood" }),
   box({ id: "flex-privacy-screen", kind: "translucent-screen", space: "flex-workroom", x: -1.95, y: 1.35, z: -3.2, width: 0.08, height: 2.2, depth: 1.55, model: "model-translucent" }),
+  rollerShade("entry-roller-shade", "entry", ROOM_BOUNDS.entry, "front"),
+  rollerShade("flex-roller-shade", "flex-workroom", ROOM_BOUNDS.flexWorkroom, "front"),
+  rollerShade("common-roller-shade", "common-room", ROOM_BOUNDS.commonRoom, "rear"),
+  rollerShade("child-one-roller-shade", "child-bedroom-1", ROOM_BOUNDS.childBedroom1, "front"),
+  rollerShade("primary-roller-shade", "primary-bedroom", ROOM_BOUNDS.primaryBedroom, "rear"),
   box({ id: "living-sofa", kind: "sofa", space: "common-room", x: -3.25, y: 0.48, z: 2.9, width: 2.8, height: 0.75, depth: 0.88, model: "model-soft" }),
   box({ id: "living-coffee-table", kind: "table", space: "common-room", x: -3.0, y: 0.38, z: 1.8, width: 1.35, height: 0.32, depth: 0.72, model: "model-wood-light" }),
   box({ id: "living-media-wall", kind: "media-storage", space: "common-room", x: -4.9, y: 1.25, z: 4.85, width: 0.3, height: 2.25, depth: 2.2, model: "model-wood" }),
+  box({ id: "living-reading-light", kind: "reading-light", space: "common-room", x: -4.8, y: 0.95, z: 2.8, width: 0.18, height: 1.8, depth: 0.18, model: "model-metal" }),
   box({ id: "dining-table", kind: "dining-table", space: "common-room", x: -0.55, y: 0.78, z: 0.25, width: 2.0, height: 0.12, depth: 1.0, model: "model-wood-light" }),
   ...[
     [-1.6, 0.25],

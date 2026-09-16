@@ -91,6 +91,14 @@ const localClaims = [
     stage: "review",
     populationScope: completePopulation,
   }),
+  createAutoMovieProductionObligationClaim({
+    name: "temple-model-blocking",
+    document: "contracts/model-blocking.md",
+    account: "accounts/models/model-blocking.md",
+    layer: "models",
+    stage: "evidence",
+    populationScope: completePopulation,
+  }),
 ];
 
 export const productionEvidence = {
@@ -98,6 +106,7 @@ export const productionEvidence = {
   kind: "library" as const,
   settings: "review" as const,
   spaces: "review" as const,
+  models: "evidence" as const,
   spaceSources: "draft" as const,
   claims: localClaims,
 } satisfies IAutoMovieEvidenceConfigProps;

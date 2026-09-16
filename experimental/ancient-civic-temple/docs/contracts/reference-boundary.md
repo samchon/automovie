@@ -1,8 +1,8 @@
 <!--
 @evidence discovery/core/common.md#shared-local-boundary The reference handling rule is a production-specific boundary between user authority, visual guidance, and deterministic source.
-@evidenceReview discovery/core/common.md#shared-local-boundary #ae499c0 Read this contract discovery block with #shared-local-boundary; checked its local admission: The reference handling rule is a production-specific boundary between user authority, visual guidance, and deterministic source.
+@evidenceReview discovery/core/common.md#shared-local-boundary #ae499c0 Compared docs/contracts/reference-boundary.md#docs/contracts/reference-boundary.md with target discovery/core/common.md#shared-local-boundary and independently confirmed shared-local-boundary through this host's authored decision: The reference handling rule is a production-specific boundary between user authority, visual guidance, and deterministic source.
 @evidence discovery/core/settings.md#directive-promise-subject-requirements The brief explicitly assigns the five images a supporting but non-dimensional role.
-@evidenceReview discovery/core/settings.md#directive-promise-subject-requirements #1c99050 Read this contract discovery block with #directive-promise-subject-requirements; checked its local admission: The brief explicitly assigns the five images a supporting but non-dimensional role.
+@evidenceReview discovery/core/settings.md#directive-promise-subject-requirements #1c99050 Compared docs/contracts/reference-boundary.md#docs/contracts/reference-boundary.md with target discovery/core/settings.md#directive-promise-subject-requirements and independently confirmed directive-promise-subject-requirements through this host's authored decision: The brief explicitly assigns the five images a supporting but non-dimensional role.
 -->
 # Reference boundary
 

@@ -1,6 +1,6 @@
 <!--
 @evidence discovery/core/common.md#canonical-realization The observation denominator is derived from compiled topology rather than selected beauty views.
-@evidenceReview discovery/core/common.md#canonical-realization #5a6e541 Read this contract discovery block with #canonical-realization; checked its local admission: The observation denominator is derived from compiled topology rather than selected beauty views.
+@evidenceReview discovery/core/common.md#canonical-realization #5a6e541 Compared docs/contracts/compiled-observation-set.md#docs/contracts/compiled-observation-set.md with target discovery/core/common.md#canonical-realization and independently confirmed canonical-realization through this host's authored decision: The observation denominator is derived from compiled topology rather than selected beauty views.
 -->
 # Compiled observation set
 

@@ -50,7 +50,7 @@
 @evidenceReview contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements #83336e9 Read the local contract and checked the space H2 preserves its fixed graph and curtainwall/privacy requirements.
 -->
 
-**Status:** 독립 read-only reviewer의 PASS에 따라 evidence record를 갱신했다. current-source 시각 review gate와 다섯 reference 비교는 닫혔으며, 측정하지 않은 건물 성능이나 인체 사용성 인증은 여전히 주장하지 않는다.
+**Status:** 이전 독립 read-only reviewer의 PASS 이후 reading light, hidden storage, roller shade fit-out을 보강했다. 이 source revision에 대한 current-source 시각 review gate와 다섯 reference 비교는 아직 독립 재판정 전이며, 측정하지 않은 건물 성능이나 인체 사용성 인증은 여전히 주장하지 않는다.
 
 이 H2는 `citizen-house` building 하나, `ground-storey`와 `upper-storey` 두 level, 외부 `site-pad`와 모든 내부 room을 포함하는 하나의 environment graph를 소유한다. `house` building root의 plan bounds는 x=-5.5..5.5, z=-6.0..6.0인 11.0×12.0m이며, `site-pad`는 그 root 계층에 귀속된 15.6×17.0m의 외부 site context다. 모든 logical room은 정확히 한 storey의 child다. source는 `src/spaces/citizen-house.ts#citizenHouseSpaceSource` 하나가 이 H2를 carrier로 내보낸다.
 
@@ -58,7 +58,7 @@
 
 외피는 front stair curtainwall, front flex curtainwall, rear common curtainwall, left return envelope, right opaque service envelope로 분해한다. 각 curtainwall population은 명명된 room bounds의 x span을 `width=(maxX-minX)/count`로 나누고 center와 width를 같은 bounds에서 파생하며, 0.12m assembly의 inner face가 room의 front/rear z boundary에 정확히 놓이고 sill/head는 해당 room의 floor와 ceiling line에 맞춘다. glass fill은 material 상태로 clear·electrochromic·translucent 역할을 나타내며 실제 shader나 전기 장치의 성능을 대신 주장하지 않는다.
 
-명시 fit-out은 entry bench/shoe storage/charging niche, flex desk/chair/shelf/folding surface, common sofa/table/media wall/dining table six seats/kitchen island/sink/cooktop/refrigerator/pantry/recycling cabinet, ground core utility and storage, primary bed/bedside/wardrobe/desk, 두 child bed/wardrobe/desk, upper bathroom vanity/toilet/shower-tub/towel storage, corridor lighting, upper storage cabinets다. 지붕에는 roof slab, 지붕 구조 상단에서 y=6.20..6.80으로만 올라가는 네 개의 support post를 가진 four-sided supported PV canopy, repeated solar/slat modules와 shading fins를 둔다.
+명시 fit-out은 entry bench/shoe storage/charging niche, flex desk/chair/shelf/folding surface/hidden storage, common sofa/table/media wall/reading light/dining table six seats/kitchen island/sink/cooktop/refrigerator/pantry/recycling cabinet, ground core utility and storage, primary bed/bedside/wardrobe/desk, 두 child bed/wardrobe/desk, upper bathroom vanity/toilet/shower-tub/towel storage, corridor lighting, upper storage cabinets다. 노출된 front/rear curtainwall의 room 쪽에는 각 대응 room bounds에서 폭과 높이를 유도한 roller shade를 둔다. 지붕에는 roof slab, 지붕 구조 상단에서 y=6.20..6.80으로만 올라가는 네 개의 support post를 가진 four-sided supported PV canopy, repeated solar/slat modules와 shading fins를 둔다.
 
 **공간별 관찰 owner.**
 
@@ -68,4 +68,4 @@ compiled topology에서 setting one, exposed elevation four, every exposed corne
 
 **검증 경계.**
 
-독립 read-only reviewer는 현재 source의 compiled topology와 GPU 장면, viewer의 실제 source 연결, 층별 plan partition과 section clipping, canopy·building root·curtainwall 좌표를 확인하고 PASS로 판정했다. 다섯 reference의 외관·절개 조감·공용부·flex room·2층 사적 구역과 source의 형태·재료 관계도 같은 판정에서 비교해 종료했다. 이 판정은 current-source visual review gate만 닫으며, 법규·구조·에너지·설비 작동·인체 사용성처럼 별도 측정하지 않은 항목은 계속 `unverified`다.
+이전 독립 read-only reviewer는 최신 fit-out 보강 전 source의 compiled topology와 GPU 장면, viewer의 실제 source 연결, 층별 plan partition과 section clipping, canopy·building root·curtainwall 좌표를 확인하고 PASS로 판정했다. 다섯 reference의 외관·절개 조감·공용부·flex room·2층 사적 구역과 source의 형태·재료 관계도 그 이전 revision에서 비교해 종료했다. 현재 source의 reading light, hidden storage, roller shade 추가분은 독립 재관찰과 재판정을 기다리므로 current-source visual review gate와 다섯 reference 비교를 아직 완료로 주장하지 않는다. 법규·구조·에너지·설비 작동·인체 사용성처럼 별도 측정하지 않은 항목은 계속 `unverified`다.

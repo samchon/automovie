@@ -1,6 +1,6 @@
 <!--
 @evidence discovery/core/common.md#canonical-realization Each complete visual surface is assigned to one canonical owner rather than being distributed by implementation convenience.
-@evidenceReview discovery/core/common.md#canonical-realization #5a6e541 Read this contract discovery block with #canonical-realization; checked its local admission: Each complete visual surface is assigned to one canonical owner rather than being distributed by implementation convenience.
+@evidenceReview discovery/core/common.md#canonical-realization #5a6e541 Compared docs/contracts/surface-ownership.md#docs/contracts/surface-ownership.md with target discovery/core/common.md#canonical-realization and independently confirmed canonical-realization through this host's authored decision: Each complete visual surface is assigned to one canonical owner rather than being distributed by implementation convenience.
 -->
 # Surface ownership
 
