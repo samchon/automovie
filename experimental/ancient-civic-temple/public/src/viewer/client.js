@@ -158,6 +158,14 @@ const drawObservationRoutes = (environment, width, height, selectedId) => {
   }
 };
 
+const drawLoopReturn = (environment, width, height, selectedId) => {
+  const points = environment.elements
+    .filter((element) => element.kind === "loop-return-anchor")
+    .sort((left, right) => left.id.localeCompare(right.id))
+    .map((element) => element.transform.translation);
+  drawRoute(points, width, height, selectedId === "colonnade-loop");
+};
+
 const drawSpaceOutline = (space, width, height, selected) => {
   for (const cell of space.cells) {
     const bounds = boundsFromSpace({ cells: [cell] });
@@ -202,11 +210,12 @@ const render = (width, height) => {
   const selectedSpace = environment.spaces.find((item) => item.id === selectedId);
   const section = sectionSelect.value;
   const selectedElementIds = new Set(selectedSpace === undefined ? [] : environment.elements.filter((item) => item.space === selectedSpace.id).map((item) => item.id));
-  const elements = environment.elements.filter((item) => item.model !== null && (section !== "roof-open" || item.kind !== "roof-cover") && (section !== "cutaway" || !["roof-cover", "exterior-wall"].includes(item.kind) || item.id.includes("south") || item.id.includes("west")));
+  const elements = environment.elements.filter((item) => item.model !== null && item.kind !== "observation-route-reservation" && (section !== "roof-open" || item.kind !== "roof-cover") && (section !== "cutaway" || !["roof-cover", "exterior-wall"].includes(item.kind) || item.id.includes("south") || item.id.includes("west")));
   const ordered = [...elements].sort((left, right) => rotatePoint(left.transform.translation).z - rotatePoint(right.transform.translation).z);
   for (const element of ordered) drawBox(environment, element, width, height, selectedElementIds.has(element.id));
   if (routesInput.checked) {
     for (const connector of environment.connectors) drawRoute(connector.route, width, height, connector.from === selectedId || connector.to === selectedId);
+    drawLoopReturn(environment, width, height, selectedId);
     drawObservationRoutes(environment, width, height, selectedId);
   }
   for (const space of environment.spaces) {

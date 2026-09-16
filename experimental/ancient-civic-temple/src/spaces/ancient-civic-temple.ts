@@ -7,6 +7,7 @@ import type {
   IAutoMovieBuiltSpace,
   IAutoMovieBuiltSurface,
   IAutoMovieColor,
+  IAutoMovieConnectorSection,
   IAutoMovieLibrarySourceOwner,
   IAutoMovieMaterial,
   IAutoMovieModel,
@@ -106,6 +107,7 @@ const MATERIALS = {
   floor: color("#c6b999", 0.57, 0.48, 0.33),
   courtyard: color("#8c9a91", 0.25, 0.33, 0.29),
   earth: color("#8b765d", 0.25, 0.16, 0.09),
+  route: color("#d8a85b", 0.85, 0.66, 0.25),
 } as const;
 
 type MaterialName = keyof typeof MATERIALS;
@@ -117,8 +119,8 @@ const materialFor = (name: MaterialName): IAutoMovieMaterial => ({
   metallic: 0,
   roughness: name === "courtyard" ? 0.9 : 0.78,
   emissive: null,
-  opacity: 1,
-  alphaMode: "opaque",
+  opacity: name === "route" ? 0 : 1,
+  alphaMode: name === "route" ? "blend" : "opaque",
   doubleSided: true,
   baseColorTexture: null,
 });
@@ -491,75 +493,151 @@ const openingElements = (): IAutoMovieBuiltElement[] => [
   semanticElement("opening/records-door", "opening-void", "records-room"),
   semanticElement("opening/votive-storage-door", "opening-void", "votive-storage-room"),
   semanticElement("opening/service-gate", "opening-void", "service-yard"),
-  semanticElement("fountain/socket", "fountain-socket", "courtyard"),
+  semanticElement("fountain-center", "landmark-socket", "courtyard"),
 ];
 
-const observationAnchorData = [
+type ObservationRouteData = {
+  readonly room: string;
+  readonly threshold: IAutoMovieVector3;
+  readonly center: IAutoMovieVector3;
+  readonly north: IAutoMovieVector3;
+  readonly east: IAutoMovieVector3;
+  readonly south: IAutoMovieVector3;
+  readonly west: IAutoMovieVector3;
+  readonly clearWidth: 1.2;
+  readonly protectedBand: 0.3;
+};
+
+const observationRoutes: readonly ObservationRouteData[] = [
   {
     room: "sanctuary",
-    points: [
-      ["threshold", vector(0, 0, 6)],
-      ["center", vector(0, 0, 7.2)],
-      ["north", vector(0, 0, 8.1)],
-      ["east", vector(2.3, 0, 7.2)],
-      ["south", vector(0, 0, 6.3)],
-      ["west", vector(-2.3, 0, 7.2)],
-    ],
+    threshold: vector(0, 0, 6),
+    center: vector(0, 0, 7.2),
+    north: vector(0, 0, 7.8),
+    east: vector(0.6, 0, 7.2),
+    south: vector(0, 0, 6.6),
+    west: vector(-0.6, 0, 7.2),
+    clearWidth: 1.2,
+    protectedBand: 0.3,
   },
   {
     room: "communal-votive-room",
-    points: [
-      ["threshold", vector(-7.4, 0, 0)],
-      ["center", vector(-9.4, 0, 0)],
-      ["north", vector(-9.4, 0, 2.3)],
-      ["east", vector(-8.3, 0, 0)],
-      ["south", vector(-9.4, 0, -2.3)],
-      ["west", vector(-10.5, 0, 0)],
-    ],
+    threshold: vector(-7.4, 0, 0),
+    center: vector(-9.4, 0, 0),
+    north: vector(-9.4, 0, 0.6),
+    east: vector(-8.8, 0, 0),
+    south: vector(-9.4, 0, -0.6),
+    west: vector(-10, 0, 0),
+    clearWidth: 1.2,
+    protectedBand: 0.3,
   },
   {
     room: "administration-room",
-    points: [
-      ["threshold", vector(7.4, 0, 3.9)],
-      ["center", vector(9.4, 0, 3.9)],
-      ["north", vector(9.4, 0, 4.8)],
-      ["east", vector(10.3, 0, 3.9)],
-      ["south", vector(9.4, 0, 3)],
-      ["west", vector(8.5, 0, 3.9)],
-    ],
+    threshold: vector(7.4, 0, 3.9),
+    center: vector(9.4, 0, 3.9),
+    north: vector(9.4, 0, 4.5),
+    east: vector(10, 0, 3.9),
+    south: vector(9.4, 0, 3.3),
+    west: vector(8.8, 0, 3.9),
+    clearWidth: 1.2,
+    protectedBand: 0.3,
   },
   {
     room: "records-room",
-    points: [
-      ["threshold", vector(7.4, 0, 1)],
-      ["center", vector(9.4, 0, 1)],
-      ["north", vector(9.4, 0, 1.8)],
-      ["east", vector(10.3, 0, 1)],
-      ["south", vector(9.4, 0, 0.2)],
-      ["west", vector(8.5, 0, 1)],
-    ],
+    threshold: vector(7.4, 0, 1),
+    center: vector(9.4, 0, 1),
+    north: vector(9.4, 0, 1.6),
+    east: vector(10, 0, 1),
+    south: vector(9.4, 0, 0.4),
+    west: vector(8.8, 0, 1),
+    clearWidth: 1.2,
+    protectedBand: 0.3,
   },
   {
     room: "votive-storage-room",
-    points: [
-      ["threshold", vector(7.4, 0, -2.95)],
-      ["center", vector(9.4, 0, -2.95)],
-      ["north", vector(9.4, 0, -1.85)],
-      ["east", vector(10.3, 0, -2.95)],
-      ["south", vector(9.4, 0, -4.05)],
-      ["west", vector(8.5, 0, -2.95)],
-    ],
+    threshold: vector(7.4, 0, -2.95),
+    center: vector(9.4, 0, -2.95),
+    north: vector(9.4, 0, -2.35),
+    east: vector(10, 0, -2.95),
+    south: vector(9.4, 0, -3.55),
+    west: vector(8.8, 0, -2.95),
+    clearWidth: 1.2,
+    protectedBand: 0.3,
   },
 ] as const;
 
-const observationAnchorElements = (): IAutoMovieBuiltElement[] => observationAnchorData.flatMap((room) =>
-  room.points.map(([name, position]) => semanticElement(
-    `route-anchor/${room.room}/${name}`,
-    "observation-route-anchor",
-    room.room,
-    position,
-  )),
+const loopReturnRoute = [
+  vector(-6, 0, -4.6),
+  vector(6, 0, -4.6),
+  vector(6, 0, 4.6),
+  vector(-6, 0, 4.6),
+  vector(-6, 0, -4.6),
+] as const;
+
+const observationRouteSegments = (route: ObservationRouteData) => [
+  { name: "threshold-center", start: route.threshold, end: route.center },
+  { name: "center-north", start: route.center, end: route.north },
+  { name: "center-east", start: route.center, end: route.east },
+  { name: "center-south", start: route.center, end: route.south },
+  { name: "center-west", start: route.center, end: route.west },
+];
+
+const routeReservationElement = (
+  route: ObservationRouteData,
+  segment: ReturnType<typeof observationRouteSegments>[number],
+): IAutoMovieBuiltElement => {
+  const halfProtection = route.clearWidth / 2 + route.protectedBand;
+  const horizontal = Math.abs(segment.end.x - segment.start.x) > Math.abs(segment.end.z - segment.start.z);
+  const minX = horizontal
+    ? Math.min(segment.start.x, segment.end.x)
+    : segment.start.x - halfProtection;
+  const maxX = horizontal
+    ? Math.max(segment.start.x, segment.end.x)
+    : segment.start.x + halfProtection;
+  const minZ = horizontal
+    ? segment.start.z - halfProtection
+    : Math.min(segment.start.z, segment.end.z);
+  const maxZ = horizontal
+    ? segment.start.z + halfProtection
+    : Math.max(segment.start.z, segment.end.z);
+  return boxElement(
+    `observation-route/${route.room}/${segment.name}`,
+    "observation-route-reservation",
+    bounds(minX, 0, minZ, maxX, 0.02, maxZ),
+    "route",
+    route.room,
+  );
+};
+
+const observationRouteElements = (): IAutoMovieBuiltElement[] => observationRoutes.flatMap((route) =>
+  observationRouteSegments(route).map((segment) => routeReservationElement(route, segment)),
 );
+
+const loopReturnElements = (): IAutoMovieBuiltElement[] => loopReturnRoute.map((position, index) =>
+  semanticElement(
+    `loop-return/${String(index).padStart(2, "0")}`,
+    "loop-return-anchor",
+    "colonnade-loop",
+    position,
+  ),
+);
+
+const observationAnchorElements = (): IAutoMovieBuiltElement[] => observationRoutes.flatMap((route) => {
+  const points: ReadonlyArray<readonly [string, IAutoMovieVector3]> = [
+    ["threshold", route.threshold],
+    ["center", route.center],
+    ["north", route.north],
+    ["east", route.east],
+    ["south", route.south],
+    ["west", route.west],
+  ];
+  return points.map(([name, position]) => semanticElement(
+    `route-anchor/${route.room}/${name}`,
+    "observation-route-anchor",
+    route.room,
+    position,
+  ));
+});
 
 const environmentElements = (): IAutoMovieBuiltElement[] => [
   {
@@ -578,6 +656,8 @@ const environmentElements = (): IAutoMovieBuiltElement[] => [
   ...roofElements(),
   ...floorElements(),
   ...openingElements(),
+  ...loopReturnElements(),
+  ...observationRouteElements(),
   ...observationAnchorElements(),
 ];
 
@@ -791,20 +871,41 @@ const passage = (
   from: string,
   to: string,
   route: IAutoMovieVector3[],
-  width: number,
-  clearHeight: number,
+  width: number | undefined,
+  clearHeight: number | undefined,
   elements: string[],
-): IAutoMovieBuiltConnector => ({
-  id,
-  kind: "passage",
-  from,
-  to,
-  bidirectional: true,
-  route,
-  width,
-  clearHeight,
-  elements,
-});
+  sections?: IAutoMovieConnectorSection[],
+): IAutoMovieBuiltConnector => {
+  if (sections !== undefined)
+    return {
+      id,
+      kind: "passage",
+      from,
+      to,
+      bidirectional: true,
+      route,
+      sections,
+      elements,
+    };
+  if (width === undefined || clearHeight === undefined)
+    throw new Error(`passage ${id} needs width and clearHeight`);
+  return {
+    id,
+    kind: "passage",
+    from,
+    to,
+    bidirectional: true,
+    route,
+    width,
+    clearHeight,
+    elements,
+  };
+};
+
+const roomDoorSections = (): IAutoMovieConnectorSection[] => [
+  { at: 0, width: 1.1, clearHeight: 2.1 },
+  { at: 1, width: 1.2, clearHeight: 3.6 },
+];
 
 const environmentConnectors = (): IAutoMovieBuiltConnector[] => [
   passage(
@@ -823,7 +924,7 @@ const environmentConnectors = (): IAutoMovieBuiltConnector[] => [
     [vector(0, 0, -3.6), vector(0, 0, -4.6)],
     2,
     3.6,
-    ["fountain/socket"],
+    [],
   ),
   passage(
     "door-sanctuary",
@@ -833,6 +934,7 @@ const environmentConnectors = (): IAutoMovieBuiltConnector[] => [
     1.1,
     2.1,
     ["opening/sanctuary-door"],
+    roomDoorSections(),
   ),
   passage(
     "door-communal-votive",
@@ -842,6 +944,7 @@ const environmentConnectors = (): IAutoMovieBuiltConnector[] => [
     1.1,
     2.1,
     ["opening/communal-door"],
+    roomDoorSections(),
   ),
   passage(
     "door-administration",
@@ -851,6 +954,7 @@ const environmentConnectors = (): IAutoMovieBuiltConnector[] => [
     1.1,
     2.1,
     ["opening/administration-door"],
+    roomDoorSections(),
   ),
   passage(
     "door-records",
@@ -860,6 +964,7 @@ const environmentConnectors = (): IAutoMovieBuiltConnector[] => [
     1.1,
     2.1,
     ["opening/records-door"],
+    roomDoorSections(),
   ),
   passage(
     "door-votive-storage",
@@ -869,6 +974,7 @@ const environmentConnectors = (): IAutoMovieBuiltConnector[] => [
     1.1,
     2.1,
     ["opening/votive-storage-door"],
+    roomDoorSections(),
   ),
   passage(
     "service-gate",
