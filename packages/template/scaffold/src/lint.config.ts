@@ -10,7 +10,7 @@ import { fileURLToPath } from "node:url";
 
 /**
  * The sole tracked production kind, population scope, branch-stage, and local
- * contract declaration consumed by graph lint, instruction sync, and final
+ * contract declaration consumed by graph lint, authored source, and final
  * production review.
  *
  * Select the production shape, then advance one construction layer at a time

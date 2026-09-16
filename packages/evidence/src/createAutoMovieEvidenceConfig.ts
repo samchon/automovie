@@ -289,7 +289,7 @@ const CONTRACT_INDEX = `${CONTRACTS}/index.md`;
  * `@automovie/template` ships discovery, naturalness, upstream, obligation, and principle
  * contracts under their physical `family/domain/file` addresses inside the
  * generated project. The scaffold copies the complete inventory verbatim, so
- * graph lint, instruction sync, and a standalone generated consumer all resolve
+ * graph lint and a standalone generated consumer both resolve
  * the same project-owned contract root without reaching back into an installed
  * package. The inventory remains pinned here by domain, filename, and anchor; a
  * missing or locally divergent file is therefore a concrete graph failure.
