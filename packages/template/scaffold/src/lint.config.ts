@@ -32,7 +32,7 @@ import { fileURLToPath } from "node:url";
  * mechanically exact physical descriptions are copied unchanged. Follow
  * `.agents/skills/production-lifecycle/naturalness.md` for the revision scope
  * and upstream-repair procedure. Film and brief also require reviewed
- * productionSources as the parallel serialized input to filmSources.
+ * productionSources as the parallel typed assembly input to filmSources.
  */
 export const productionEvidence = {
   ...createBlankAutoMovieProductionEvidence(

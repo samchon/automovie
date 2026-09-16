@@ -17,7 +17,7 @@ Use ordinary coding-agent tools for authoring. Scaffold creation does not regist
 ## First run
 
 ```bash
-npm install
+npm install --package-lock=false
 npm run lint
 ```
 

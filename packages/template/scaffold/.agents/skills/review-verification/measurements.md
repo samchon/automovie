@@ -1,16 +1,14 @@
 # Offline measurements
 
-Use these measurements after a current compile when a design question is exact in generated geometry or bindings and a frame would answer it only indirectly. They consume the same typed result as the source viewer and delivery consumer, and do not become a review verdict. Open every emitted artifact, read every finding and census, and state the resulting observation in the design review that asked the question.
+Use these measurements after a current compile when a design question is exact in generated geometry or bindings and a frame would answer it only indirectly. They consume the same typed result as the source viewer and delivery consumer, and do not become a review verdict. Record the measured population, explicit inputs, source revision, result, and limits in the design review that asked the question. Inspect any drawing or other artifact the authored measurement produces; the engine queries do not publish reports on the project's behalf.
 
 Execute the current producer before measuring. A result from an earlier source revision is not evidence about changed source.
 
-## Placement and storage
+## Placement
 
-Use the engine's placement, support, overlap, and storage queries on each current built environment. Declare reference ground height and contact tolerance in metres in the relevant source input. Without that declaration preserve `not-run` for support; overlap candidates and storage counts may still be measured.
+Use `builtEnvironmentPlacementBounds`, `builtEnvironmentSupportStatus`, and `builtEnvironmentPlacementOverlap` from `@automovie/engine` on each relevant current built environment. Name the subject, support or neighbour, and contact tolerance in metres in the query. Preserve an unresolved result and its missing identities rather than inventing a support relation.
 
-Read the support report's measured, grounded, borne, floating and unresolved populations together. The overlap report lists bounds candidates and comparisons, not proven triangle collisions. Population bounds cover each compressed set as a whole; they do not certify every member. Contact is not a load-bearing, stability or gravity simulation result. Resolve the candidate families against the actual geometry and intended connections before claiming the spatial requirement is satisfied.
-
-The census separates owned models, external references, parts, population sets and represented members. Storage measures compact UTF-8 JSON and byte-identical serialized geometry repeats. Use those observations to share prototypes and retain instancing where the authored content permits it. A repeated geometry count alone does not prove whole models, materials or placements interchangeable. Reports retain the compile fingerprint and never assign a review verdict.
+Read the returned status, gap, and measurement bases together. A geometry bound, a compact-population bound, and an origin-only point support different conclusions. Overlap compares bounds, not triangle collisions. Population bounds cover each compressed set as a whole; they do not certify every member. Contact is not a load-bearing, stability or gravity simulation result. Resolve candidates against the actual geometry and intended connections before claiming the spatial requirement is satisfied.
 
 ## Building reports
 
@@ -20,15 +18,15 @@ Keep derived drawings as SVG and record measurements in the authored review. Rea
 
 An empty building population is no work measured, not a clean building review. Distinguish a reusable environment inspected directly from one actually staged in a delivered frame. Never invent a dummy shot to make a library building look photographed.
 
-Reports are tracked sidecars worth comparing across revisions, but they remain derivations. Correct the design or declared study inputs and run the command again instead of hand-editing a sheet or report.
+Correct the design or declared study inputs and recompute affected drawings and measurements instead of hand-editing derived results. Their recording and output format belong to the authored consumer, not an installed reporting command.
 
 ## Texture scale
 
-Use the public engine texture-scale queries when material work declares physical or normalized texture coordinates. Measure each actual model produced by the current source and preserve distinct identities rather than silently collapsing different records.
+Use `validateTextureScale` from `@automovie/engine` when material work declares physical or normalized texture coordinates. Pass the actual current models and inspect the returned validation findings; the function writes no report or census.
 
-Read the final census together with the findings. It counts models, parts, parts carrying texture coordinates, structured texture bindings, and bindings that declare a checkable `normalized` or `surface-metres` coordinate source. An empty finding list with zero checkable claims means nothing was measured and is not a texture-scale review. Declare `coordinateSource` on the bindings whose scale matters, compile, and measure again.
+Identify which supplied mesh parts carry nondegenerate texture coordinates and structured bindings with a checkable `normalized` or `surface-metres` coordinate source. Primitive geometry, absent coordinates or materials, string bindings, omitted coordinate sources, and `source-uv` do not establish that scale was checked. An empty finding list without a checkable population is not a texture-scale review. Declare `coordinateSource` on the bindings whose scale matters, compile, and measure again.
 
-A contradictory normalized binding is an error and makes the command fail. A surface too small to show one whole `surface-metres` tile is a warning because fitting one image to one face can be deliberate. Resolve the authored intent rather than converting every warning into a refusal.
+A normalized coordinate span above one produces an error finding. A surface too small to show one whole repeating `surface-metres` tile produces a warning because fitting one image to one face can be deliberate; a clamped axis does not produce that warning. The authored consumer handles the returned validation result. Resolve the authored intent rather than converting every warning into a refusal.
 
 ## Geometry questions
 
@@ -38,4 +36,4 @@ Read each answer as the measurement it is. A formation's ground violations count
 
 ## Gate use
 
-Run only the measurements the active design branches and delivery actually call for. The commands contribute falsifying observations to a space, material, model, instance, or system review set; their existence and exit code satisfy no principle, obligation, discovery duty, or evidence citation by themselves. After a source, design, binding, study input, or compile fingerprint changes, regenerate the current state and repeat every affected measurement before renewing that review. [Capture](capture.md) owns rendered artifact and frame identity checks.
+Run only the measurements the active design branches and delivery actually call for. Query results contribute falsifying observations to a space, material, model, instance, or system review set; successful execution satisfies no principle, obligation, discovery duty, or evidence citation by itself. After a source, design, binding, or study input changes, recompute the current result and repeat every affected measurement before renewing that review. [Capture](capture.md) owns rendered artifact and frame identity checks.

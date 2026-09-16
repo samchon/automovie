@@ -41,7 +41,7 @@ That is the whole delivery mechanism, and it is deliberate. A capability an agen
 ```bash
 npx create-automovie <dir> --language korean
 cd <dir>
-npm install
+npm install --package-lock=false
 npm run lint
 ```
 

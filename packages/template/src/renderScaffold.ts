@@ -221,7 +221,7 @@ export const scaffoldAssetDirectory = (
 /**
  * Render the bundled scaffold into an in-memory `{ posixPath: content }` map:
  * read every asset, normalize line endings, substitute `{{name}}` and the
- * catalog-synced `{{version:*}}` tokens, and rename shipped-safe filenames.
+ * catalog-resolved `{{version:*}}` tokens without renaming authored filenames.
  *
  * The map is deliberately not written to disk here (that is {@link writeFiles}'s
  * job). Callers can inspect the returned candidate or pass it directly to the
@@ -332,7 +332,7 @@ export const scaffoldAssetDirectory = (
  *
  * @evidenceExclude requirements/agent-authoring/project-ownership.md#agent-editable-source-authority Rendering produces bytes in memory; which of them a project may then edit is decided by the project that receives them, not here.
  * @evidenceExclude requirements/agent-authoring/project-ownership.md#agent-repository-project-boundary The boundary between reusable capability and one work's facts is drawn by the packages a rendered project depends on, not by the act of rendering the template.
- * @evidenceExclude requirements/agent-authoring/project-ownership.md#agent-project-owned-bytes External image, audio, model, and motion bytes are adopted by an authored project through its asset registry; the template ships none of them.
+ * @evidenceExclude requirements/agent-authoring/project-ownership.md#agent-project-owned-bytes The template ships no production image, audio, model, or motion assets; their acquisition and ownership belong to the authored project.
  * @evidenceExclude requirements/agent-authoring/project-ownership.md#agent-authoring-tool-replaceability Tool replaceability is a property of the rendered project's dependencies and public contracts, which rendering copies rather than decides.
  * @evidenceExclude requirements/agent-authoring/project-ownership.md#agent-ambiguous-ownership-refusal The template carries no authored production assets whose source, license, or digest it could adjudicate.
  * @evidenceExclude specifications/authoring-and-authority/capability-and-content-boundary.md#spec-authoring-system-project-responsibility The split of system and project responsibility is stated by the contracts the template ships, not performed by rendering them.
@@ -343,7 +343,7 @@ export const scaffoldAssetDirectory = (
  * @evidenceExclude specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-ownership-failure Ownership failures belong to an actual source or file publication boundary; this renderer only returns candidate bytes.
  * @evidenceExclude specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-resume-compatibility Rendering is one in-memory operation with no persisted execution to resume.
  * @evidenceExclude requirements/agent-authoring/project-ownership.md#agent-sandbox-write-boundary Scaffold rendering returns bytes and does not own a repository experiment root or approve sandbox packing and installation.
- * @evidenceExclude specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-sandbox-physical-ownership The build launcher retains its sandbox ancestry and manifest approval across packing and installation; rendering template bytes does not perform those operations.
+ * @evidenceExclude specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-sandbox-physical-ownership Rendering template bytes selects no repository experiment root and performs no package packing or installation.
  * @evidence requirements/agent-authoring/reference-navigation.md#agent-reference-transports Copies the authored reference-navigation guidance without registering clients or changing machine-local configuration.
  * @evidenceExclude requirements/agent-authoring/reference-navigation.md#agent-reference-selection Scaffold rendering publishes authoring documentation but installs no MCP provider and executes no reference navigation.
  * @evidenceExclude requirements/agent-authoring/reference-navigation.md#agent-reference-source Scaffold rendering publishes authoring documentation but installs no MCP provider and executes no reference navigation.

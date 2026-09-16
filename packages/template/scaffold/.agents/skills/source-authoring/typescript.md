@@ -16,7 +16,7 @@ Keep every public source declaration addressable by the evidence graph's `type`,
 
 Use `defineShot(id, { scene, contract, build })` as the named export selected by the design record. Import runtime APIs directly from their packages and types with `import type`. Keep shot and film build functions reproducible from their explicit input and seed. Perform file and network acquisition in the project scripts that prepare those inputs.
 
-This minimal helper is a real compile-checked example:
+This illustrative helper shows a type-only import and a named export:
 
 ```ts
 import type { IAutoMovieShotSource } from "@automovie/interface";
@@ -74,4 +74,4 @@ Let typed APIs return or throw their documented diagnostic form. At an authored 
 
 ## Review before commit
 
-Trace every changed design/source join and downstream consumer. Check deterministic purity, source binding, stable ids, event time, final state, acceptance coverage, and generated ownership. Format the code. The campaign runs canonical CI later; local ad hoc commands are not a substitute for the repository contract.
+Trace every changed design/source join and downstream consumer. Check deterministic purity, source binding, stable ids, event time, final state, acceptance coverage, and generated ownership. Run the project's declared lint, format the code, and follow [Recording authored work](../review-verification/recording-work.md) for the commit boundary. Report the execution and observation that actually ran; no later campaign or CI is supplied by the scaffold.

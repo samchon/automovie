@@ -33,7 +33,7 @@ Use the generated [production document map](../template/scaffold/docs/README.md)
 The shortest blank-project check is:
 
 ```bash
-npm install
+npm install --package-lock=false
 npm run lint
 ```
 
