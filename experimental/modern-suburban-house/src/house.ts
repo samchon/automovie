@@ -1236,10 +1236,10 @@ const moduleElements = (laws: readonly ModuleLaw[]): Element[] => {
             : -18;
         const roofHost = isRoof
           ? law.hostSurfaceOwnerId.endsWith("garage")
-            ? { centerX: (GARAGE.minX + GARAGE.maxX) / 2, centerY: 4.15, centerZ: -1.7, spanX: 5.95, spanZ: 6.55 }
+            ? { centerX: (GARAGE.minX + GARAGE.maxX) / 2, centerY: 4.15, centerZ: -1.7, spanX: 5.95, spanZ: 6.55, slabThicknessM: 0.18 }
             : law.hostSurfaceOwnerId.endsWith("north")
-              ? { centerX: -2.75, centerY: 6.5, centerZ: 0, spanX: 6.25, spanZ: 10.15 }
-              : { centerX: 2.75, centerY: 6.5, centerZ: 0, spanX: 6.25, spanZ: 10.15 }
+              ? { centerX: -2.75, centerY: 6.5, centerZ: 0, spanX: 6.25, spanZ: 10.15, slabThicknessM: 0.18 }
+              : { centerX: 2.75, centerY: 6.5, centerZ: 0, spanX: 6.25, spanZ: 10.15, slabThicknessM: 0.18 }
           : null;
         const roofSizeX = rowPitch * 0.95;
         const roofSizeZ = moduleLength * 0.95;
@@ -1247,6 +1247,10 @@ const moduleElements = (laws: readonly ModuleLaw[]): Element[] => {
           ? 0
           : Math.abs(Math.cos((roofSlopeDeg * Math.PI) / 180)) * roofSizeX / 2
             + Math.abs(Math.sin((roofSlopeDeg * Math.PI) / 180)) * 0.06 / 2;
+        const hostHalfX = roofHost === null
+          ? 0
+          : Math.abs(Math.cos((roofSlopeDeg * Math.PI) / 180)) * roofHost.spanX / 2
+            + Math.abs(Math.sin((roofSlopeDeg * Math.PI) / 180)) * roofHost.slabThicknessM / 2;
         const rawRoofX = law.hostSurfaceOwnerId.endsWith("garage")
           ? (roofHost?.centerX ?? 0) - (roofHost?.spanX ?? 0) / 2 + vertical
           : law.hostSurfaceOwnerId.endsWith("north")
@@ -1254,7 +1258,7 @@ const moduleElements = (laws: readonly ModuleLaw[]): Element[] => {
             : (roofHost?.centerX ?? 0) + (roofHost?.spanX ?? 0) / 2 - vertical;
         const roofX = roofHost === null
           ? 0
-          : clamp(rawRoofX, roofHost.centerX - roofHost.spanX / 2 + roofHalfX, roofHost.centerX + roofHost.spanX / 2 - roofHalfX);
+          : clamp(rawRoofX, roofHost.centerX - hostHalfX + roofHalfX, roofHost.centerX + hostHalfX - roofHalfX);
         const rawRoofZ = roofHost === null
           ? 0
           : roofHost.centerZ - roofHost.spanZ / 2 + along + moduleLength / 2;

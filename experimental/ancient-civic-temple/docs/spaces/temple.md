@@ -146,7 +146,7 @@ courtyard 중심 `(0.00, 0.00)`에는 후속 model owner가 소비할 landmark s
 
 다섯 방은 모두 `ground-storey`에 직접 속하고 하나의 named direct threshold를 통해 `colonnade-loop`에 직접 인접한다. 아래 bounds는 외벽과 room-loop partition의 안쪽 면으로 정의한 semantic clear box이며, space owner가 그 경계와 partition 두께를 함께 닫고 source는 그 결과와 door void를 소비한다.
 
-| id | function | clear bounds (X, Z) | loop side | direct threshold |
+| id | function | clear bounds (X, Z) | loop side | direct threshold / route origin |
 | --- | --- | --- | --- | --- |
 | `sanctuary` | small rear-axis sanctuary | -3.20..3.20, 6.00..8.40 | north | `door-sanctuary` across south partition; room-side observation threshold centered X=0.00 |
 | `communal-votive-room` | shared votive room | -11.40..-7.40, -3.20..3.20 | west | `door-communal-votive` across east partition; room-side observation threshold centered Z=0.00 |
@@ -393,7 +393,7 @@ The finite space review set is a named plan of questions, while the complete roo
 | `space-elevation-west-east` | paired outward west/east elevations | west/east room order, communal room, east alignment, service relation |
 | `space-elevation-north` | outward north elevation | rear sanctuary axis and rear boundary |
 | `space-courtyard-neutral` | neutral courtyard perspective from the compiled entry direction | loop continuity, fountain landmark, room-door legibility |
-| `space-room-thresholds` | one neutral view for each compiled room threshold | five direct room openings and room identity |
+| `space-room-thresholds` | one neutral view for each compiled direct room threshold, including its room-side route origin | five direct room openings and room identity |
 | `space-room-reserved-routes` | one plan/threshold observation for each room from its room-side observation threshold to its center and cardinal points, with the door transition shown separately | threshold-to-observation reachability, 1.20m in-room clear route, explicit 1.10m door transition, and 0.30m fit-out exclusion |
 | `space-service-terminal` | service-yard edge perspective and plan relation | terminal yard, no second loop, exterior/interface agreement |
 | `reference-exterior-expression` | supplementary exterior question from reference 1 | the stone envelope, roof silhouette, and exposed-corner relationship without using the image as a scene asset |
@@ -402,4 +402,4 @@ The finite space review set is a named plan of questions, while the complete roo
 | `reference-sanctuary-axis` | supplementary sanctuary question from reference 4 | the north rear-axis sanctuary’s threshold and its relation to the courtyard and loop |
 | `reference-records-service` | supplementary records/service question from reference 5 | the east room sequence and rear-east service-yard termination |
 
-The complete compiled observation set adds every exposed elevation and meeting corner, exposed roof and underside, opening and entrance, and for each room its threshold, four inside corners, and four cardinal in-space directions. The five `reference-*` rows are additive prompts, not replacements for that denominator. This document supplies the finite spatial question owners; the compiled result supplies the actual ids, positions, bindings, and dimensions. A report or cutaway can diagnose structure, but the section axonometric remains an inspection instrument and cannot replace the required observations.
+The complete compiled observation set adds every exposed elevation and meeting corner, exposed roof and underside, opening and entrance, and for each room its direct threshold with its room-side route origin, four inside corners, and four cardinal in-space directions. The five `reference-*` rows are additive prompts, not replacements for that denominator. This document supplies the finite spatial question owners; the compiled result supplies the actual ids, positions, bindings, and dimensions. A report or cutaway can diagnose structure, but the section axonometric remains an inspection instrument and cannot replace the required observations.

@@ -77,7 +77,7 @@ const resize = () => {
 const sourceItems = () => {
   if (state.data === null) return [];
   const buildingItems = state.data.building.elements.map((element) => ({ ...element, origin: "building" }));
-  const siteItems = state.data.site.elements.map((element) => ({ ...element, origin: "site" }));
+  const siteItems = (state.data.site?.elements ?? []).map((element) => ({ ...element, origin: "site" }));
   return [...buildingItems, ...siteItems];
 };
 
@@ -293,6 +293,7 @@ const updateStats = () => {
   const data = state.data;
   if (data === null) return;
   const q = data.quantities;
+  const siteAudit = data.audits.site;
   const rows = [
     ["source", data.source.file],
     ["revision", String(data.source.revision)],
@@ -303,7 +304,7 @@ const updateStats = () => {
     ["observations", data.reviewPopulation.length],
     ["topology", data.audits.topology.ok ? "PASS" : "FAIL"],
     ["surface owners", data.audits.surfaces.ok ? "PASS" : "FAIL"],
-    ["site boundary", data.audits.site.ok ? "PASS" : "FAIL"],
+    ["site boundary", siteAudit === undefined ? "UNVERIFIED" : siteAudit.ok ? "PASS" : "FAIL"],
     ["garage vehicles", data.audits.vehicles.ok ? "NONE" : "FOUND"],
   ];
   stats.innerHTML = rows.map(([key, value]) => `<dt>${key}</dt><dd class="${value === "PASS" || value === "NONE" ? "pass" : ""}">${value}</dd>`).join("");
