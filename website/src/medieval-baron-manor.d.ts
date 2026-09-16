@@ -4,7 +4,7 @@
  * reads are named, and its shape follows `createManorScene` in
  * `experimental/medieval-baron-manor/src/models/manor.js`.
  */
-declare module "medieval-baron-manor/src/instances/manor-textured.js" {
+declare module "medieval-baron-manor/textured-scene" {
   import type * as THREE from "three";
 
   /** One authored room of the manor as the scene manifest lists it. */
