@@ -97,7 +97,8 @@ export const productionEvidence = {
   ...blankProductionEvidence,
   kind: "library" as const,
   settings: "review" as const,
-  spaces: "evidence" as const,
+  spaces: "review" as const,
+  spaceSources: "draft" as const,
   claims: localClaims,
 } satisfies IAutoMovieEvidenceConfigProps;
 

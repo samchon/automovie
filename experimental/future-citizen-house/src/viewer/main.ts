@@ -26,6 +26,8 @@ type ViewMode =
   | "section";
 type ObservationLayer = "none" | "rooms" | "topology" | "all";
 type DragMode = "orbit" | "pan";
+type Storey = "ground" | "upper" | "roof" | "site" | "building";
+type PlanStorey = "ground" | "upper" | "roof";
 
 interface CameraState {
   yaw: number;
@@ -242,6 +244,7 @@ function drawSelectedSpace(bounds: { min: Point; max: Point }): void {
   if (selectedSpace === "all") return;
   const space = environment.spaces.find((entry) => entry.id === selectedSpace);
   if (space === undefined) return;
+  if (!spaceVisibleInView(space.id)) return;
   const spaceBounds = spaceBoundsOf(space);
   if (spaceBounds === null) return;
   const floorY = Math.max(spaceBounds.min.y + 0.025, bounds.min.y + 0.025);
@@ -268,6 +271,7 @@ function drawSelectedLabel(): void {
   if (selectedSpace === "all") return;
   const space = environment.spaces.find((entry) => entry.id === selectedSpace);
   if (space === undefined) return;
+  if (!spaceVisibleInView(space.id)) return;
   const bounds = spaceBoundsOf(space);
   if (bounds === null) return;
   const labelPoint = project(point((bounds.min.x + bounds.max.x) / 2, bounds.max.y + 0.18, (bounds.min.z + bounds.max.z) / 2));
@@ -287,11 +291,43 @@ function spaceVisibleInView(spaceId: string): boolean {
   const space = environment.spaces.find((entry) => entry.id === spaceId);
   const bounds = space === undefined ? null : spaceBoundsOf(space);
   if (bounds === null) return false;
-  if (viewMode === "ground" || viewMode === "ground-plan") return bounds.min.y < 3.08 && bounds.max.y > -0.4;
-  if (viewMode === "upper" || viewMode === "upper-plan") return bounds.min.y < 6.08 && bounds.max.y > 2.72;
-  if (viewMode === "roof") return bounds.max.y >= 5.82;
+  const planStorey = planStoreyForView();
+  if (planStorey !== null) {
+    const storey = storeyOfSpace(spaceId);
+    return storey === planStorey || (planStorey === "ground" && storey === "site");
+  }
   if (viewMode === "section") return bounds.max.z >= 0;
   return true;
+}
+
+function planStoreyForView(): PlanStorey | null {
+  if (viewMode === "ground" || viewMode === "ground-plan") return "ground";
+  if (viewMode === "upper" || viewMode === "upper-plan") return "upper";
+  if (viewMode === "roof") return "roof";
+  return null;
+}
+
+function storeyOfSpace(spaceId: string): Storey | null {
+  const visited = new Set<string>();
+  let currentId: string | null = spaceId;
+  while (currentId !== null && !visited.has(currentId)) {
+    visited.add(currentId);
+    const space = environment.spaces.find((entry) => entry.id === currentId);
+    if (space === undefined) return null;
+    if (space.id === "ground-storey") return "ground";
+    if (space.id === "upper-storey") return "upper";
+    if (space.id === "roof-deck") return "roof";
+    if (space.id === "site-pad") return "site";
+    if (space.id === "house") return "building";
+    currentId = space.parent;
+  }
+  return null;
+}
+
+function storeyBounds(storey: PlanStorey): { min: Point; max: Point } | null {
+  const spaceId = storey === "ground" ? "ground-storey" : storey === "upper" ? "upper-storey" : "roof-deck";
+  const space = environment.spaces.find((entry) => entry.id === spaceId);
+  return space === undefined ? null : spaceBoundsOf(space);
 }
 
 function boundaryVisibleInView(
@@ -304,9 +340,12 @@ function boundaryVisibleInView(
 }
 
 function pointVisibleInView(location: Point): boolean {
-  if (viewMode === "ground" || viewMode === "ground-plan") return location.y < 3.08;
-  if (viewMode === "upper" || viewMode === "upper-plan") return location.y >= 2.72 && location.y < 6.08;
-  if (viewMode === "roof") return location.y >= 5.82;
+  const planStorey = planStoreyForView();
+  if (planStorey !== null) {
+    const bounds = storeyBounds(planStorey);
+    if (bounds === null) return false;
+    return location.y >= bounds.min.y && location.y < bounds.max.y;
+  }
   if (viewMode === "section") return location.z >= 0;
   return true;
 }
@@ -350,7 +389,8 @@ function drawObservedTopology(): void {
     drawAnnotation(averagePoint(points), boundary.id, "#f1d49d");
   }
   for (const connector of environment.connectors) {
-    if ((!matchesSelection(connector.from) && !matchesSelection(connector.to)) || !spaceVisibleInView(connector.from) && !spaceVisibleInView(connector.to)) continue;
+    if (!connectorVisibleInView(connector)) continue;
+    if (!matchesSelection(connector.from) && !matchesSelection(connector.to)) continue;
     const points = clipSectionPolyline(connector.route);
     if (points.length < 2) continue;
     drawPolyline(points, "#ffd18e", connector.kind === "stair" ? 3 : 2);
@@ -364,6 +404,14 @@ function drawObservedTopology(): void {
     drawDiamond(location, "#ffb87d", 5);
     drawAnnotation(location, opening.id, "#ffc99b");
   }
+}
+
+function connectorVisibleInView(
+  connector: IAutoMovieBuiltEnvironment["connectors"][number],
+): boolean {
+  const planStorey = planStoreyForView();
+  if (planStorey === null) return true;
+  return storeyOfSpace(connector.from) === planStorey;
 }
 
 function drawRoomObservationTargets(): void {
@@ -616,12 +664,20 @@ function populationBoxes(): DrawBox[] {
 
 function isVisible(box: DrawBox): boolean {
   if (interiorOnly.checked && isEnvelope(box)) return false;
-  const center = averagePoint(box.corners);
-  if (viewMode === "ground" || viewMode === "ground-plan") return center.y < 3.08;
-  if (viewMode === "upper" || viewMode === "upper-plan") return center.y >= 2.72 && center.y < 6.08;
-  if (viewMode === "roof") return center.y >= 5.82;
+  const planStorey = planStoreyForView();
+  if (planStorey !== null) return boxVisibleInPlan(box, planStorey);
   if (viewMode === "section") return box.corners.some((corner) => corner.z >= 0);
   return true;
+}
+
+function boxVisibleInPlan(box: DrawBox, planStorey: PlanStorey): boolean {
+  const storey = storeyOfSpace(box.space ?? "");
+  if (storey === planStorey || (planStorey === "ground" && storey === "site")) return true;
+  if (storey !== "building") return false;
+  const bounds = storeyBounds(planStorey);
+  if (bounds === null) return false;
+  const center = averagePoint(box.corners);
+  return center.y >= bounds.min.y && center.y < bounds.max.y;
 }
 
 function isEnvelope(box: DrawBox): boolean {
