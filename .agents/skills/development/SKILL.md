@@ -9,7 +9,7 @@ description: Defines automovie implementation rules, testing standards (pure uni
 
 - [Forbidden](#forbidden)
 - [Work Rules](#work-rules)
-- [Logic source structure](#logic-source-structure)
+- [Source file structure](#source-file-structure)
 - [Consequence Analysis](#consequence-analysis)
 - [Testing](#testing)
 - [Coverage is 100% on what you write](#coverage-is-100-on-what-you-write)
@@ -38,13 +38,13 @@ These four are never acceptable; choosing any one means the approach is already 
 - Run `pnpm run format` before every commit and stage the result; never commit unformatted output. That script writes across the whole repository, so when you share a checkout with other agents use `pnpm run format:check` and format only your own paths instead; the [issue-campaign rules](../issue-campaign/development.md#implement-in-parallel) own that case.
 - Update the matching `.wiki/` doc in the same change when behavior, architecture, or a decision changes (see `documentation/SKILL.md`).
 
-## Logic source structure
+## Source file structure
 
-Every authored source file containing logic is limited to 500 physical lines, including comments and blank lines. This applies to library code, application code, scripts and test logic. A file that mixes declarations or data with logic still owes the same limit. Do not compress statements, remove necessary explanation, change formatting or move executable logic into nominal data files to evade it.
+Every authored source file is limited to 500 physical lines, including comments and blank lines. This applies to library code, application code, scripts, tests and source files containing only declarations or authored data. Do not compress statements, remove necessary explanation, change formatting or move logic into nominal data files to evade it.
 
 Split by cohesive responsibility and explicit inputs and outputs. Keep one owner for each formula, boundary and mutable state transition, with a small orchestrator naming their order. A forwarding chain that only redistributes lines does not establish those responsibilities. Preserve public behavior and the real consumer path during a split, and apply the existing per-change test obligation to the extracted code.
 
-Each logic file also owes the documentation skill's [Logic-file context](../documentation/SKILL.md#logic-file-context). The size limit never excuses missing context. Existing oversized files are unresolved violations, not precedents or exemptions; identify them in the task's consequence surface and do not report that surface as compliant until they are resolved.
+Each source file also owes the documentation skill's [Source-file context](../documentation/SKILL.md#source-file-context). The size limit never excuses missing context. Existing oversized files are unresolved violations, not precedents or exemptions; identify them in the task's consequence surface and do not report that surface as compliant until they are resolved.
 
 ## Consequence Analysis
 

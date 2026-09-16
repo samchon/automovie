@@ -22,7 +22,7 @@ Before implementation, write the affected group's shared constraints and accepta
 
 Choose the owner of every boundary, coordinate transform and formula. Distinguish a representation deficiency from incorrect measurements, bad parameter selection, incorrect assembly order and a renderer discrepancy. Replace a deficient representation at its owning layer when that is the verified cause; neither a larger parameter search nor higher tessellation can be assumed to supply a missing degree of freedom.
 
-The repair design covers the whole cause group. Its implementation may proceed in small reviewable commits, but each commit remains accountable to the group's joint conditions. Do not postpone reasoning about already observed side effects until they become the next visible failure. Apply the development skill's [Logic source structure](../development/SKILL.md#logic-source-structure) and documentation skill's [Logic-file context](../documentation/SKILL.md#logic-file-context) throughout.
+The repair design covers the whole cause group. Its implementation may proceed in small reviewable commits, but each commit remains accountable to the group's joint conditions. Do not postpone reasoning about already observed side effects until they become the next visible failure. Apply the development skill's [Source file structure](../development/SKILL.md#source-file-structure) and documentation skill's [Source-file context](../documentation/SKILL.md#source-file-context) throughout.
 
 ## Use experiments to discriminate causes
 
