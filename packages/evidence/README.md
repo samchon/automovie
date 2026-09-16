@@ -24,7 +24,7 @@ The generated graph rule remains `error`. Map, model, space, material, instance,
 
 ## Production-local obligations
 
-Use the owning branch's values from the single `productionEvidence` declaration in `src/lint.config.ts`:
+Use the owning branch's values from the single `productionEvidence` declaration in `lint.config.ts`:
 
 ```ts
 createAutoMovieProductionObligationClaim({

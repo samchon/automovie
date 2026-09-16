@@ -175,6 +175,98 @@ importers:
         specifier: catalog:typescript
         version: 7.0.2
 
+  experimental/ancient-civic-temple:
+    dependencies:
+      '@automovie/archetypes':
+        specifier: workspace:^
+        version: link:../../packages/archetypes
+      '@automovie/engine':
+        specifier: workspace:^
+        version: link:../../packages/engine
+      '@automovie/human':
+        specifier: workspace:^
+        version: link:../../packages/human
+      '@automovie/ingest':
+        specifier: workspace:^
+        version: link:../../packages/ingest
+      '@automovie/interface':
+        specifier: workspace:^
+        version: link:../../packages/interface
+      '@automovie/production':
+        specifier: workspace:^
+        version: link:../../packages/production
+      '@automovie/render':
+        specifier: workspace:^
+        version: link:../../packages/render
+      automovie:
+        specifier: workspace:^
+        version: link:../../packages/cli
+    devDependencies:
+      '@automovie/evidence':
+        specifier: workspace:^
+        version: link:../../packages/evidence
+      '@automovie/template':
+        specifier: workspace:^
+        version: link:../../packages/template
+      '@ttsc/lint':
+        specifier: ^0.29.0
+        version: 0.29.0
+      '@types/node':
+        specifier: ^22.19.17
+        version: 22.19.20
+      ttsc:
+        specifier: ^0.29.0
+        version: 0.29.0
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
+
+  experimental/future-citizen-house:
+    dependencies:
+      '@automovie/archetypes':
+        specifier: workspace:^
+        version: link:../../packages/archetypes
+      '@automovie/engine':
+        specifier: workspace:^
+        version: link:../../packages/engine
+      '@automovie/human':
+        specifier: workspace:^
+        version: link:../../packages/human
+      '@automovie/ingest':
+        specifier: workspace:^
+        version: link:../../packages/ingest
+      '@automovie/interface':
+        specifier: workspace:^
+        version: link:../../packages/interface
+      '@automovie/production':
+        specifier: workspace:^
+        version: link:../../packages/production
+      '@automovie/render':
+        specifier: workspace:^
+        version: link:../../packages/render
+      automovie:
+        specifier: workspace:^
+        version: link:../../packages/cli
+    devDependencies:
+      '@automovie/evidence':
+        specifier: workspace:^
+        version: link:../../packages/evidence
+      '@automovie/template':
+        specifier: workspace:^
+        version: link:../../packages/template
+      '@ttsc/lint':
+        specifier: ^0.29.0
+        version: 0.29.0
+      '@types/node':
+        specifier: ^22.19.17
+        version: 22.19.20
+      ttsc:
+        specifier: ^0.29.0
+        version: 0.29.0
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
+
   experimental/medieval-baron-manor:
     dependencies:
       '@automovie/archetypes':
@@ -228,6 +320,52 @@ importers:
         version: 0.29.0
       typescript:
         specifier: catalog:typescript
+        version: 7.0.2
+
+  experimental/modern-suburban-house:
+    dependencies:
+      '@automovie/archetypes':
+        specifier: workspace:^
+        version: link:../../packages/archetypes
+      '@automovie/engine':
+        specifier: workspace:^
+        version: link:../../packages/engine
+      '@automovie/human':
+        specifier: workspace:^
+        version: link:../../packages/human
+      '@automovie/ingest':
+        specifier: workspace:^
+        version: link:../../packages/ingest
+      '@automovie/interface':
+        specifier: workspace:^
+        version: link:../../packages/interface
+      '@automovie/production':
+        specifier: workspace:^
+        version: link:../../packages/production
+      '@automovie/render':
+        specifier: workspace:^
+        version: link:../../packages/render
+      automovie:
+        specifier: workspace:^
+        version: link:../../packages/cli
+    devDependencies:
+      '@automovie/evidence':
+        specifier: workspace:^
+        version: link:../../packages/evidence
+      '@automovie/template':
+        specifier: workspace:^
+        version: link:../../packages/template
+      '@ttsc/lint':
+        specifier: ^0.29.0
+        version: 0.29.0
+      '@types/node':
+        specifier: ^22.19.17
+        version: 22.19.20
+      ttsc:
+        specifier: ^0.29.0
+        version: 0.29.0
+      typescript:
+        specifier: ^7.0.2
         version: 7.0.2
 
   packages/archetypes:

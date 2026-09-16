@@ -31,11 +31,12 @@
     "plugins": [
       {
         "transform": "@ttsc/lint",
-        "configFile": "src/lint.config.ts"
+        "configFile": "lint.config.ts"
       }
     ]
   },
   "include": [
+    "lint.config.ts",
     "src"
   ],
   "scripts": {
