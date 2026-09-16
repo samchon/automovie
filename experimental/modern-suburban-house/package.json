@@ -1,0 +1,64 @@
+{
+  "name": "modern-suburban-house",
+  "private": true,
+  "type": "module",
+  "version": "0.1.0",
+  "license": "MIT",
+  "description": "An AutoMovie coding-agent production repository.",
+  "engines": {
+    "node": ">=22.23.2"
+  },
+  "compilerOptions": {
+    "target": "esnext",
+    "lib": [
+      "ESNext"
+    ],
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "esModuleInterop": true,
+    "newLine": "lf",
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "skipLibCheck": true,
+    "types": [
+      "node"
+    ],
+    "rootDir": ".",
+    "noEmitOnError": true,
+    "inlineSourceMap": true,
+    "inlineSources": true,
+    "plugins": [
+      {
+        "transform": "@ttsc/lint",
+        "configFile": "lint.config.ts"
+      }
+    ]
+  },
+  "include": [
+    "lint.config.ts",
+    "src"
+  ],
+  "scripts": {
+    "lint": "ttsc --cache-dir node_modules/.cache/ttsc --noEmit -p package.json",
+    "format": "ttsc format --cache-dir node_modules/.cache/ttsc -p package.json"
+  },
+  "dependencies": {
+    "@automovie/archetypes": "workspace:^",
+    "automovie": "workspace:^",
+    "@automovie/engine": "workspace:^",
+    "@automovie/human": "workspace:^",
+    "@automovie/ingest": "workspace:^",
+    "@automovie/interface": "workspace:^",
+    "@automovie/production": "workspace:^",
+    "@automovie/render": "workspace:^"
+  },
+  "devDependencies": {
+    "@automovie/evidence": "workspace:^",
+    "@automovie/template": "workspace:^",
+    "@ttsc/lint": "^0.29.0",
+    "@types/node": "^22.19.17",
+    "ttsc": "^0.29.0",
+    "typescript": "^7.0.2"
+  }
+}
