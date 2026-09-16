@@ -1,4 +1,6 @@
-import type { IAutoMovieLibraryDerivedSourceOwner } from "@automovie/interface";
+import type { IAutoMovieLibrarySourceOwner } from "@automovie/interface";
+
+import { buildManorEnvironment } from "../manorEnvironment.js";
 
 /**
  * Selects the current manor environment produced from the authored geometry.
@@ -68,7 +70,7 @@ import type { IAutoMovieLibraryDerivedSourceOwner } from "@automovie/interface";
  * @evidence obligations/design/space-sources.md#space-source-invalid-topology manorSpatialState refuses missing source transforms, missing or multiply owned opening panels and unbound explicit populations. Door passage generation now refuses either unresolved room endpoint and endpoints resolving to the same room, naming the opening and boundary instead of silently omitting the connector. test/manorDoorConnections.test.mjs reproduces each missing side, both missing sides and the same-room case, and checks the unchanged normal passage values. The existing library compiler attributes validateBuiltEnvironment findings, including hierarchy and spatial-reference defects, to this registered design and source.
  * @evidenceReview obligations/design/space-sources.md#space-source-invalid-topology #030592d Read the adapter refusals and library validation attribution, then reproduced its silent door omission with the pure public derivation input. After repair, tests for missing from, missing to, both missing and a same-room endpoint all throw the exact opening/boundary diagnosis, while the normal passage keeps its values. The full current derivation also preserves both output byte strings; invalid endpoints are refused instead of repaired or dropped.
  */
-export const manorSpaceSource: IAutoMovieLibraryDerivedSourceOwner = {
+export const manorSpaceSource: IAutoMovieLibrarySourceOwner = {
   design: "docs/spaces/001-manor.md#manor-space",
-  derivedArtifact: "automovie/derived/manor/environment-v24-critical.json",
+  build: () => ({ environments: [buildManorEnvironment()], models: [] }),
 };

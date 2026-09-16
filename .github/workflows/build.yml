@@ -44,7 +44,7 @@ jobs:
         with:
           # Two plugin caches, because two projects compile here from two
           # working directories: the repository root, and the manor, whose own
-          # `lint:source` writes beside its own `node_modules`. The two build
+          # `lint` writes beside its own `node_modules`. The two build
           # different plugin sets and hash apart, so without the second path the
           # manor step rebuilds `@ttsc/lint` from a cold Go cache every run.
           #
@@ -62,7 +62,7 @@ jobs:
       # The committed showcase uses its own compiler project and workspace
       # dependencies. This checks source resolution, not installed declarations.
       - name: Check the manor production
-        run: pnpm --filter medieval-baron-manor run lint:source
+        run: pnpm --filter medieval-baron-manor run lint
       - run: pnpm run build
       - name: Verify validation left the checkout clean
         run: |

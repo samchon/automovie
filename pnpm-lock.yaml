@@ -183,6 +183,9 @@ importers:
       '@automovie/engine':
         specifier: workspace:^
         version: link:../../packages/engine
+      '@automovie/human':
+        specifier: workspace:^
+        version: link:../../packages/human
       '@automovie/ingest':
         specifier: workspace:^
         version: link:../../packages/ingest
@@ -198,33 +201,9 @@ importers:
       '@automovie/viewer':
         specifier: workspace:^
         version: link:../../packages/viewer
-      '@huggingface/transformers':
-        specifier: catalog:media
-        version: 3.8.1
       automovie:
         specifier: workspace:^
         version: link:../../packages/cli
-      h264-mp4-encoder:
-        specifier: catalog:media
-        version: 1.0.12
-      kokoro-js:
-        specifier: catalog:media
-        version: 1.2.1
-      libopus-wasm:
-        specifier: catalog:media
-        version: 0.2.0
-      mp4box:
-        specifier: catalog:media
-        version: 2.4.1
-      onnxruntime-node:
-        specifier: catalog:media
-        version: 1.21.0
-      pngjs:
-        specifier: catalog:media
-        version: 7.0.0
-      sharp:
-        specifier: file:vendor/sharp-disabled
-        version: file:experimental/medieval-baron-manor/vendor/sharp-disabled
       three:
         specifier: catalog:three
         version: 0.186.0
@@ -232,9 +211,6 @@ importers:
       '@automovie/evidence':
         specifier: workspace:^
         version: link:../../packages/evidence
-      '@automovie/mcp':
-        specifier: workspace:^
-        version: link:../../packages/mcp
       '@automovie/template':
         specifier: workspace:^
         version: link:../../packages/template
@@ -244,24 +220,15 @@ importers:
       '@types/node':
         specifier: catalog:utils
         version: 22.19.20
-      '@types/pngjs':
-        specifier: catalog:media
-        version: 6.0.5
       '@types/three':
         specifier: catalog:three
         version: 0.186.0
-      playwright:
-        specifier: catalog:media
-        version: 1.62.0
       ttsc:
         specifier: catalog:typescript
         version: 0.29.0
       typescript:
         specifier: catalog:typescript
         version: 7.0.2
-      vite:
-        specifier: catalog:vite
-        version: 5.4.21(@types/node@22.19.20)
 
   packages/archetypes:
     dependencies:
@@ -2990,9 +2957,6 @@ packages:
     resolution: {integrity: sha512-Ou9I5Ft9WNcCbXrU9cMgPBcCK8LiwLqcbywW3t4oDV37n1pzpuNLsYiAV8eODnjbtQlSDwZ2cUEeQz4E54Hltg==}
     engines: {node: ^18.17.0 || ^20.3.0 || >=21.0.0}
 
-  sharp@file:experimental/medieval-baron-manor/vendor/sharp-disabled:
-    resolution: {directory: experimental/medieval-baron-manor/vendor/sharp-disabled, type: directory}
-
   shebang-command@2.0.0:
     resolution: {integrity: sha512-kHxr2zZpYtdmrN1qDjrrX/Z1rR1kG8Dx+gkpK1G4eXmvXswmcE1hTWBWYUzlraYw1/yZp6YuDY77YtvbN0dmDA==}
     engines: {node: '>=8'}
@@ -5218,8 +5182,6 @@ snapshots:
       '@img/sharp-win32-arm64': 0.34.5
       '@img/sharp-win32-ia32': 0.34.5
       '@img/sharp-win32-x64': 0.34.5
-
-  sharp@file:experimental/medieval-baron-manor/vendor/sharp-disabled: {}
 
   shebang-command@2.0.0:
     dependencies:

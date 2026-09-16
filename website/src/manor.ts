@@ -1,7 +1,7 @@
 // The manor showcase page: build the textured manor in the browser, then let
 // the visitor fly through it or jump between its authored views.
 //
-// The flight model is the one every generated project's source preview uses,
+// The flight model follows this production's authored source preview:
 // yaw/pitch mouse look with world-up height and a lens zoom, so a view seen
 // here is the view its author framed. The page adds the featured shortlist, a
 // `?view=` deep link, and a loading card; it owns no scene, light, or camera.
@@ -10,8 +10,8 @@ import {
   type IManorScene,
   createTexturedManorScene,
 } from "medieval-baron-manor/src/instances/manor-textured.js";
-import { flightSpeedReadout } from "medieval-baron-manor/viewer/src/flightSpeedReadout";
-import { mountPreviewNavigation } from "medieval-baron-manor/viewer/src/previewNavigation";
+import { flightSpeedReadout } from "medieval-baron-manor/src/viewer/flightSpeedReadout";
+import { mountPreviewNavigation } from "medieval-baron-manor/src/viewer/previewNavigation";
 import * as THREE from "three";
 
 import { bakeManor } from "./bakeManor";
