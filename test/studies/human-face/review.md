@@ -504,6 +504,28 @@ State: construction admitted; standalone document replay admitted; static glTF a
 
 [Replay document](yoo-seung-ho.json) · [Original selection and quality](inputs.md#input-yoo-seung-ho). Selected original: `yoo-seung-ho_age-22_the-magician.png`.
 
+2026-09-16 representative-first depth adoption: the current document applies brow projection −3.6 mm, nasal depth scale 0.675 and oral seam advance 1.4366575 mm. A finite five-way experiment kept the photograph, registration, eye optical identity, aperture inputs, hair, material and expression fixed, comparing the baseline, each individual change and their combination. The seam trial used half the measured 2.873315 mm central outer-border/seam gap. These are explicit authored sensitivity choices, not published anatomical normal values or recovery of a hidden profile.
+
+All 45 observed-state views and all 90 baseline/candidate performed views were directly inspected: front, both obliques, both profiles, back, clay, clay oblique and registered reference; performed states were neutral, half-blink, full blink, unilateral wink and oral/gaze. Reduced broad upper orbital shading, reduced nasal projection and less abrupt oral-junction shading coexist. Half/full closure and unilateral opening remain visible. The actual Float32 head anterior bound moves back by 5.629189 mm, and corresponding lip vertices move at most 1.367815 mm; these measure geometry response, not likeness error. Lower-lid bands, slightly pouting neutral lips, incomplete oral backdrop, regular hair cards and whole-face likeness remain unresolved. **Adopt the visible partial depth improvement; do not treat this as full likeness acceptance or a universal default.**
+
+Independent final Float32 triangle checks find zero enamel/head-or-lip surface intersections in observed plus five performed states for both baseline and candidate (12 models). They do not certify oral-chamber thickness, hidden anatomy or continuous motion. The actual AMD editor saves exact numerical JSON and exports exact source GLBs for baseline, candidate and candidate neutral. A zero nasal-depth input is refused while retaining the last-valid document/GLB; neutral undo restores both exactly. All six before/after panel-refactor editor fronts were read and their corresponding PNG, JSON and GLB bytes are exact.
+
+Current document semantic SHA-256 (JSON.stringify): `d88364152a33473b8de3b5cbcfcef64c20d9329770515de254be1c9d5cd9152c`; reviewed observed model: `aff74662c266e9c8ce55e933c4de31454185331ad0c76a5082cfb0c5062b68f7`; GLB: `7c69a50986d058ed74db44fc17fcbd0d910acd1d1f7ec193e396520df006933e`. Source baseline is `8e40ae30`; the subsequent validator extraction preserves these exact model/export values. Retained inputs, competing candidates, receipts and failure logs: `.shots/human-2469/investigation-2498/representative-depth`, `representative-performed`, `representative-depth-adoption`, and `representative-editor-{before,after}`. `panel-editor-equivalence.json` completes the actual browser comparison after its original harness encountered undefined DOM properties omitted by JSON. The original failed receipt remains preserved.
+
+| Reviewed current observed view | PNG SHA-256 |
+| --- | --- |
+| front | `bb011d72421e4b96a014e28ae2a1cfc3b5dfa669dfbbffe0e091398dbb77503d` |
+| left-oblique | `f707b1c6b07495bd3ab9a0ffe01e20a7d7905836119f6d7b80e54d32182f2601` |
+| right-oblique | `e961f699d1dd3b585f984b2194e88f22cddfc2435c2bc483ba07277cb6bcac09` |
+| left-profile | `54482af2d5f7ea46c870439fd3e0f7de16394549254cd1d888ad38933c80abc0` |
+| right-profile | `70133332f26bf6feb7f48d37fa073e32c9e621d72c882a1a8111a2e1c3b52c0e` |
+| back | `988ef29a852a602b5938ebb3decddea8a8d5e1fde1789469e9c7ad66a188bb2e` |
+| bare-clay | `3d9db9c45feb2d219abc8617582a405580eed86c6f2ce117fb71e2191d7ca969` |
+| bare-oblique | `0cdbdaafeb09e9c07567434776a4f0d30f0f15a790674d8571ede3a7017cdded` |
+| reference | `e4a97a3b381d6aac0500bf60b07c06850cfc38dbf375bef8ee065c6b620abda6` |
+
+The entries below retain their historical revisions and do not describe the current depth settings or current model bytes.
+
 2026-09-16 joint-placement partial adoption: the current replay document uses upper-arch lift 3.169522070272549 mm and recess 7 mm. These values couple the source-pixel incisal fit to the union of tooth/head/lip contact constraints across observed, neutral and oral-gaze states. All non-dental model parts and materials remain exact; the upper arch remains fixed across the three expressions. Final Float32 tooth versus head/lip surface checks find zero intersecting triangle pairs in all three states. This does not certify the unrepaired legacy oral backdrop or continuous motion.
 
 All 27 candidate views and their 27 retained baseline counterparts were directly read for this person. The exposed upper band is slightly closer to the photograph; the change remains within manual reading uncertainty. The actual source-replayed legacy-cavity model changes the sampled visible-incisal mean absolute error from 0.95 to 0.70 native pixels, with 1.2-pixel manual reference uncertainty and 0.25-pixel sampling. This fitted-column result is not whole-face accuracy. The replacement-cavity experiments are separately retained and are not silently included in this adoption.

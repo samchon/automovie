@@ -5765,7 +5765,8 @@
       },
       "section": {
         "lowerBody": 0.5
-      }
+      },
+      "seamProjection": 1.4366575000000026
     },
     "eye": {
       "sphereFit": "observation-ray",
@@ -94866,7 +94867,10 @@
       "fibreNormalScale": 0.22
     },
     "frame": {
-      "browProjection": -1.8
+      "browProjection": -3.6
+    },
+    "nose": {
+      "depthScale": 0.675
     }
   },
   "asymmetry": {
