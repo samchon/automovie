@@ -1,6 +1,6 @@
 <!--
 @evidence discovery/core/common.md#canonical-realization Every retained visual rule has one semantic owner and one realization.
-@evidence discovery/design/designs.md#work-specific-design-requirements Surface boundaries must remain stable across design and source branches.
+@evidenceReview discovery/core/common.md#canonical-realization #5a6e541 Checked the cited rule against this unit's authored scope and its compiled realization.
 @evidence discovery/design/materials.md#work-specific-material-requirements Surface construction and response require named material ownership.
 @evidence discovery/design/instances.md#work-specific-instance-requirements Repeated siding, brick, shingle, and fit-out populations need stable instance ownership.
 @evidence discovery/design/systems.md#work-specific-system-requirements Visible lighting fixtures and the explicit hidden-system boundary need a named systems owner.

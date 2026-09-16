@@ -1,6 +1,8 @@
 <!--
 @evidence discovery/core/common.md#shared-local-boundary The ordered stages are a production-specific lifecycle boundary.
+@evidenceReview discovery/core/common.md#shared-local-boundary #ae499c0 Checked the cited rule against this unit's authored scope and its compiled realization.
 @evidence discovery/core/settings.md#planned-delivery-backcast The selected library's delivery is built from the ordered authored layers.
+@evidenceReview discovery/core/settings.md#planned-delivery-backcast #73ac216 Checked the cited rule against this unit's authored scope and its compiled realization.
 -->
 # Stage integrity
 

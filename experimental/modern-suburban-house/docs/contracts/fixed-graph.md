@@ -1,8 +1,12 @@
 <!--
 @evidence discovery/core/common.md#shared-local-boundary This file retains the user's fixed spatial graph as a production-specific cross-layer rule.
+@evidenceReview discovery/core/common.md#shared-local-boundary #ae499c0 Checked the cited rule against this unit's authored scope and its compiled realization.
 @evidence discovery/core/settings.md#directive-promise-subject-requirements The brief fixes the building program, route, empty garage, and prohibited topology.
+@evidenceReview discovery/core/settings.md#directive-promise-subject-requirements #1c99050 Checked the cited rule against this unit's authored scope and its compiled realization.
 @evidence discovery/design/spaces.md#work-specific-space-requirements The graph fixes rooms, openings, storeys, and circulation.
+@evidenceReview discovery/design/spaces.md#work-specific-space-requirements #a751db6 Checked the cited rule against this unit's authored scope and its compiled realization.
 @evidence discovery/design/maps.md#work-specific-map-requirements The graph fixes the single lot, attached garage placement, and front-to-rear orientation that the map realizes.
+@evidenceReview discovery/design/maps.md#work-specific-map-requirements #7a5d44e Checked the cited rule against this unit's authored scope and its compiled realization.
 @evidence discovery/design/models.md#work-specific-model-requirements The graph fixes the bounded building representation and fidelity ceiling that the model realizes.
 @evidence discovery/design/instances.md#work-specific-instance-requirements The graph fixes repeated envelope populations and ordinary fit-out membership that instance realization must preserve.
 @evidence discovery/design/systems.md#work-specific-system-requirements The graph fixes the daytime lighting and visible-service boundary that systems realization must preserve.

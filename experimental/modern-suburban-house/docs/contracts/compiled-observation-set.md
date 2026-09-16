@@ -1,6 +1,8 @@
 <!--
 @evidence discovery/core/common.md#canonical-realization The review denominator is derived from compiled topology rather than selected beauty views.
+@evidenceReview discovery/core/common.md#canonical-realization #5a6e541 Checked the cited rule against this unit's authored scope and its compiled realization.
 @evidence discovery/design/spaces.md#work-specific-space-requirements The space review set includes every required exterior and room observation named by the brief.
+@evidenceReview discovery/design/spaces.md#work-specific-space-requirements #a751db6 Checked the cited rule against this unit's authored scope and its compiled realization.
 -->
 # Compiled observation set
 
