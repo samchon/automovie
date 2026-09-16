@@ -144,6 +144,10 @@ function applyViewPreset(mode: ViewMode): void {
       camera.yaw = -0.72;
       camera.pitch = 0.54;
       return;
+    case "ground":
+    case "upper":
+    case "roof":
+    case "whole":
     default:
       camera.yaw = -0.72;
       camera.pitch = 0.54;

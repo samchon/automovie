@@ -10,6 +10,7 @@
 @evidence principles/design/spaces.md#space-topology This space H2 owns the storey, room, opening, and single-stair topology.
 @evidence principles/design/spaces.md#space-verification-address This space H2 names the source owner and the compiled spatial observations used to verify it.
   @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work The reviewed settings facts are sufficient: the household is an ordinary family residence, the adopted Y-up metre frame uses an 11×12m building footprint, front is -Z, the single dogleg stair is the only storey transition, and the three privacy states plus the complete observation population are already explicit; no parent settings or map defect had to be repaired by this space layout.
+  @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 Checked the settings household, coordinate, stair, privacy, and observation declarations against the space bounds and topology and found no parent defect to repair.
 @evidence settings/001-production.md#delivery-scope This space H2 realizes the library delivery scope inherited from production settings.
 @evidence settings/001-production.md#governing-aim This space H2 realizes the governing everyday-household aim.
 @evidence settings/001-production.md#production-visual-grammar This space H2 realizes the declared material and visual grammar.
@@ -44,7 +45,7 @@
 @evidenceReview settings/003-spatial-basis.md#coordinate-datum #2e42a76 Read the coordinate-datum setting and checked target dimensions and datum are realized.
 @evidenceReview settings/003-spatial-basis.md#ground-graph #0a9d729 Read the ground-graph setting and checked the ground topology is realized.
 @evidenceReview settings/003-spatial-basis.md#upper-graph #c816b45 Read the upper-graph setting and checked the upper topology is realized.
-@evidenceReview settings/003-spatial-basis.md#envelope-and-privacy #e5a8b31 Read the envelope-and-privacy setting and checked the envelope and privacy strategy are realized.
+@evidenceReview settings/003-spatial-basis.md#envelope-and-privacy #ad6c65c Read the envelope-and-privacy setting and checked the envelope and privacy strategy are realized.
 @evidenceReview settings/003-spatial-basis.md#surface-decomposition #417fe6a Read the surface-decomposition setting and checked the surface ownership declaration is realized.
 @evidenceReview contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements #83336e9 Read the local contract and checked the space H2 preserves its fixed graph and curtainwall/privacy requirements.
 -->

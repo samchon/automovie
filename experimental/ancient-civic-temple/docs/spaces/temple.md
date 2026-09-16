@@ -32,7 +32,7 @@
 
 권위: review된 `docs/settings/temple.md#coordinate-unit-convention`이다. 상태: `derived` spatial realization이며 역사적 측량이나 reference image 역산이 아니다. 범위: 이 문서의 모든 bounds와 route node다.
 
-건물의 world와 site frame은 settings와 동일한 오른손 metre 좌표를 사용한다. X는 west에서 east, Y는 바닥에서 위, Z는 south에서 north로 증가한다. 남쪽 현관에서 북쪽을 보면 west가 왼쪽이고 east가 오른쪽이다. ground storey datum은 Y=0.00이며 clear ceiling datum은 Y=3.60이다. 건물의 semantic footprint는 `building` 하나로 X=-12.00..12.00, Z=-9.00..9.00을 갖고 gross area는 432.00㎡로 도출된다. 외벽의 실제 두께와 개구부 jamb은 이 semantic boundary를 보존하는 envelope source가 후속으로 실현한다.
+건물의 world와 site frame은 settings와 동일한 오른손 metre 좌표를 사용한다. X는 west에서 east, Y는 바닥에서 위, Z는 south에서 north로 증가한다. 남쪽 현관에서 북쪽을 보면 west가 왼쪽이고 east가 오른쪽이다. ground storey datum은 Y=0.00이며 clear ceiling datum은 Y=3.60이다. 건물의 semantic outer footprint는 `building` 하나로 X=-12.00..12.00, Z=-9.00..9.00을 갖고 gross area는 432.00㎡로 도출된다. 이 bounds는 외벽 바깥면이며, 외벽 두께·개구부 host 깊이·실 clear box의 안쪽 면은 envelope H2에서 함께 닫는다.
 
 건물 밖에는 `service-yard` 하나만 site에 붙인다. 이 production에는 map branch가 없으므로 space owner가 건물과 서비스 마당을 함께 담는 최소 site boundary를 X=-12.80..15.80, Z=-9.80..9.80, Y=0.00으로 author-adopted 한다. service-yard는 X=12.40..15.20, Z=5.40..8.20, Y=0.00..3.60인 외부 service zone이며 gross building footprint에 합산하지 않는다. 외부 도로, 지형, parcel network는 만들지 않으며 site boundary 바깥의 모든 broad-world 결정을 이 공간 문서에 끌어오지 않는다.
 
@@ -109,7 +109,7 @@ Containment는 다음처럼 닫힌다.
 
 권위: fixed graph의 유일한 순환 loop와 중앙 분수 요구다. 상태: `author-adopted` spatial topology다. 범위: courtyard와 loop의 relation, width, central landmark, return path다.
 
-`colonnade-loop`는 outer rectangle와 inner courtyard rectangle 사이의 하나의 ring이다. 네 변의 clear circulation width는 2.00m이고, 각 corner square를 포함하므로 south-west에서 north-west, north-east, south-east를 거쳐 다시 south-west로 끊김 없이 돌아온다. 이 ring 안에는 다른 corridor나 private shortcut이 없다. 방 문은 각각 ring에 직접 열리며 한 방을 통과해 다른 방으로 가지 않는다.
+`colonnade-loop`는 outer rectangle와 inner courtyard rectangle 사이의 하나의 ring이다. 네 변의 clear circulation width는 spaces가 settings의 `1.50m 이상` 조건을 만족하도록 `author-adopted`한 local realization인 2.00m이며, 각 corner square를 포함하므로 south-west에서 north-west, north-east, south-east를 거쳐 다시 south-west로 끊김 없이 돌아온다. 이 ring 안에는 다른 corridor나 private shortcut이 없다. 방 문은 각각 0.40m 두께의 shared room-loop partition을 관통해 ring에 직접 열리며 한 방을 통과해 다른 방으로 가지 않는다.
 
 courtyard 중심 `(0.00, 0.00)`에는 후속 model owner가 소비할 landmark socket `fountain-center`를 둔다. basin socket은 반지름 1.20m 이하의 낮은 원형 수반 host, stream socket은 수반 중심의 한 줄기 수직 water accent host다. 두 socket은 route를 침범하지 않으며 basin clear edge와 loop inner edge 사이에는 2.00m 이상의 통행 폭이 남는다. fountain socket은 room, route, opening, 또는 추가 water channel이 아니다.
 
@@ -143,15 +143,15 @@ courtyard 중심 `(0.00, 0.00)`에는 후속 model owner가 소비할 landmark s
 
 권위: settings의 west/east orientation, room program, 1.10m ordinary door와 1.60m entrance 조건이다. 상태: `derived` room bounds와 `author-adopted` adjacency다. 범위: 모든 enclosed room의 semantic identity, loop adjacency, direct door host다.
 
-다섯 방은 모두 `ground-storey`에 직접 속하고 하나의 named threshold를 통해 `colonnade-loop`에 직접 인접한다. 아래 bounds는 wall centerline이 아니라 공간의 semantic clear box이며, source는 이후 envelope thickness를 더해 같은 box와 door host를 보존한다.
+다섯 방은 모두 `ground-storey`에 직접 속하고 하나의 named threshold를 통해 `colonnade-loop`에 직접 인접한다. 아래 bounds는 외벽과 room-loop partition의 안쪽 면으로 정의한 semantic clear box이며, space owner가 그 경계와 partition 두께를 함께 닫고 source는 그 결과와 door void를 소비한다.
 
 | id | function | clear bounds (X, Z) | loop side | direct threshold |
 | --- | --- | --- | --- | --- |
-| `sanctuary` | small rear-axis sanctuary | -3.20..3.20, 5.60..8.40 | north | `door-sanctuary` on south boundary, centered X=0.00 |
-| `communal-votive-room` | shared votive room | -11.40..-7.00, -3.20..3.20 | west | `door-communal-votive` on east boundary, centered Z=0.00 |
-| `administration-room` | administration | 7.00..11.40, 2.60..5.20 | east | `door-administration` on west boundary, centered Z=3.90 |
-| `records-room` | records and writing | 7.00..11.40, -0.30..2.30 | east | `door-records` on west boundary, centered Z=1.00 |
-| `votive-storage-room` | votive storage | 7.00..11.40, -5.20..-0.70 | east | `door-votive-storage` on west boundary, centered Z=-2.95 |
+| `sanctuary` | small rear-axis sanctuary | -3.20..3.20, 6.00..8.40 | north | `door-sanctuary` on south boundary, centered X=0.00 |
+| `communal-votive-room` | shared votive room | -11.40..-7.40, -3.20..3.20 | west | `door-communal-votive` on east boundary, centered Z=0.00 |
+| `administration-room` | administration | 7.40..11.40, 2.60..5.20 | east | `door-administration` on west boundary, centered Z=3.90 |
+| `records-room` | records and writing | 7.40..11.40, -0.30..2.30 | east | `door-records` on west boundary, centered Z=1.00 |
+| `votive-storage-room` | votive storage | 7.40..11.40, -5.20..-0.70 | east | `door-votive-storage` on west boundary, centered Z=-2.95 |
 
 The room schedule is not a furniture schedule. It fixes which semantic room exists and where its threshold meets the loop; records shelves, storage chests, lamps, votive vessels, and other contents remain instance-owned. The sanctuary’s north-rear axis is the relation from the courtyard center through the north loop to `sanctuary`, not a camera choice.
 
@@ -187,21 +187,21 @@ The room schedule is not a furniture schedule. It fixes which semantic room exis
 
 The route graph has exactly these connector edges:
 
-| connector | from | to | clear width | graph meaning |
-| --- | --- | --- | --- | --- |
-| `south-entrance` | exterior south | `courtyard` | 1.60m | straight axial arrival; no vestibule room |
-| `courtyard-to-loop` | `courtyard` | `colonnade-loop` | 2.00m | open threshold at the inner south edge, part of the same public arrival |
-| `loop-return` | `colonnade-loop` | `colonnade-loop` | 2.00m | one closed ring, with no branch loop |
-| `door-sanctuary` | `colonnade-loop` | `sanctuary` | 1.10m | direct room door |
-| `door-communal-votive` | `colonnade-loop` | `communal-votive-room` | 1.10m | direct room door |
-| `door-administration` | `colonnade-loop` | `administration-room` | 1.10m | direct room door |
-| `door-records` | `colonnade-loop` | `records-room` | 1.10m | direct room door |
-| `door-votive-storage` | `colonnade-loop` | `votive-storage-room` | 1.10m | direct room door |
-| `service-gate` | rear-east exterior | `service-yard` | 1.20m | terminal service access; not a second loop |
+| connector | from | to | clear width | host depth | clear vertical range | graph meaning |
+| --- | --- | --- | --- | --- | --- | --- |
+| `south-entrance` | exterior south | `courtyard` | 1.60m | 0.60m exterior wall | Y=0.00..2.60 | straight axial arrival; no vestibule room |
+| `courtyard-to-loop` | `courtyard` | `colonnade-loop` | 2.00m | open edge | Y=0.00..3.60, no head | open threshold at the inner south edge, part of the same public arrival |
+| `loop-return` | `colonnade-loop` | `colonnade-loop` | 2.00m | open ring | Y=0.00..3.60 | one closed ring, with no branch loop |
+| `door-sanctuary` | `colonnade-loop` | `sanctuary` | 1.10m | 0.40m room-loop partition | Y=0.00..2.10 | direct room door |
+| `door-communal-votive` | `colonnade-loop` | `communal-votive-room` | 1.10m | 0.40m room-loop partition | Y=0.00..2.10 | direct room door |
+| `door-administration` | `colonnade-loop` | `administration-room` | 1.10m | 0.40m room-loop partition | Y=0.00..2.10 | direct room door |
+| `door-records` | `colonnade-loop` | `records-room` | 1.10m | 0.40m room-loop partition | Y=0.00..2.10 | direct room door |
+| `door-votive-storage` | `colonnade-loop` | `votive-storage-room` | 1.10m | 0.40m room-loop partition | Y=0.00..2.10 | direct room door |
+| `service-gate` | rear-east exterior | `service-yard` | 1.20m | 0.60m exterior wall | Y=0.00..2.10 | terminal service access; not a second loop |
 
 `south-entrance` is a straight opening aligned to X=0.00 from the south exterior boundary through the covered front edge to the open courtyard; it does not introduce a named vestibule or room. `service-gate` is a terminal external access at the north-east building edge and cannot be used to reach another room. Every room is reachable from `south-entrance` by entering courtyard, joining the single ring, and crossing its own threshold; the return path remains the same ring.
 
-Opening anchors are fixed for the later source handoff: `south-entrance` cuts `elevation-south` at `(X=0.00, Z=-9.00)`, width 1.60m; `courtyard-to-loop` is the south inner edge at `(X=0.00, Z=-3.60)`, width 2.00m; the five room doors use the threshold centers listed in the room schedule, width 1.10m, and span Y=0.00..2.40; `service-gate` cuts `elevation-east` at `(X=12.00, Z=6.80)`, width 1.20m, and terminates in the external service-yard. The room doors and south entrance are public/working access; the service gate is not a second public circulation route.
+Opening anchors are fixed at the space layer: `south-entrance` cuts `elevation-south` at `(X=0.00, Z=-9.00)`, width 1.60m, host depth 0.60m, and clear void Y=0.00..2.60; `courtyard-to-loop` is the open south inner edge at `(X=0.00, Z=-3.60)`, width 2.00m, with no jamb or head; the five room doors use the threshold centers listed in the room schedule, width 1.10m, host depth 0.40m, and clear void Y=0.00..2.10; `service-gate` cuts `elevation-east` at `(X=12.00, Z=6.80)`, width 1.20m, host depth 0.60m, and clear void Y=0.00..2.10 before terminating in the external service-yard. All thresholds are level at the Y=0.00 floor datum in this realization, so the inherited 0.08m maximum rise is not used; the room doors and south entrance are public/working access, while the service gate is not a second public circulation route.
 
 ## Envelope, opening, and interior interface {#envelope-opening-and-interior-interface}
 
@@ -233,9 +233,9 @@ Opening anchors are fixed for the later source handoff: `south-entrance` cuts `e
 
 권위: settings의 3.60m height, surface ownership rule, and the space-design principle that exterior and interior share one boundary. 상태: `author-adopted` interface contract다. 범위: wall, roof, floor, ceiling underside, courtyard edge, opening void, and service-yard boundary.
 
-The building envelope is one four-sided ground-storey boundary with a roofed cover over the loop and room bands and an explicit open hole over the courtyard. The roof footprint is the building footprint minus the courtyard opening; the underside follows Y=3.60 and never caps the courtyard. The ground floor follows the building boundary, but the courtyard floor is a separate open-air surface host with a low central basin socket. No room boundary overlaps the loop or another room.
+The building envelope is one four-sided ground-storey boundary with 0.60m exterior stone walls, a roofed cover over the loop and room bands, and an explicit open hole over the courtyard. The roof footprint is the building footprint minus the courtyard opening; the underside follows Y=3.60 and never caps the courtyard. The ground floor follows the building boundary, but the courtyard floor is a separate open-air surface host with a low central basin socket. Room clear boxes terminate at the inner face of the exterior walls and are separated from the loop by 0.40m room-loop partitions; no room boundary overlaps the loop clear area or another room.
 
-Each opening is a void in its host boundary, not a freestanding leaf: the south entrance cuts the south envelope, each room door cuts the room/loop shared boundary, and the service gate cuts only the rear-east external boundary. Door leaves, frames, lintels, and hardware are model-owned descendants of these voids. The space source must emit the host relation and void identity even when the later model population is absent.
+Each opening is a void in its host boundary, not a freestanding leaf: the south entrance and service gate cut 0.60m exterior walls, while each room door cuts a 0.40m room/loop shared partition. Their clear vertical ranges are fixed as `Y=0.00..2.60` for the south entrance and `Y=0.00..2.10` for every ordinary room door and the service gate. Door leaves, frames, lintels, and hardware are model-owned descendants of these voids, but the space source owns the host relation, host depth, clear void, and opening identity even when the later model population is absent.
 
 At the west/east interface, the communal room is the single west-side public room and the three east rooms remain ordered north-to-south as administration, records, and votive storage. The rear sanctuary is the only room on the north axis. These interfaces prevent a source author from mirroring the side assignments or moving the sanctuary off axis.
 
@@ -273,12 +273,13 @@ The space owner is the canonical host for each complete boundary and its topolog
 
 | surface family | canonical space host | later consumer |
 | --- | --- | --- |
-| `elevation-south`, `elevation-north`, `elevation-west`, `elevation-east` | four exposed building envelope faces | materials; entrance/door models at named voids |
+| `elevation-south`, `elevation-north`, `elevation-west`, `elevation-east` | four exterior faces of the 0.60m exterior-wall envelope | materials; entrance/service/door models at named voids |
+| `exterior-wall-inner-faces` | interior faces of the 0.60m exterior walls, excluding their named opening reveals | materials; room and loop boundary consumers |
 | `roof-cover` and `roof-underside` | roofed building area outside courtyard hole | materials; roof-tile instances |
 | `courtyard-floor` and four `courtyard-edge` faces | open courtyard boundary and floor | materials; basin/stream models |
-| `loop-floor`, `loop-ceiling-underside`, `loop-inner-arcade` | continuous colonnade ring | materials; column and bench instances |
+| `loop-floor`, `loop-ceiling-underside`, `loop-facing-boundaries` | continuous colonnade ring, including the courtyard-facing arcade edge and loop-facing faces of the 0.40m room-loop partitions | materials; column and bench instances |
 | five `room-floor` hosts | one floor host per named room | materials; room fit-out instances |
-| five room boundary/ceiling host sets | the room boxes in the room schedule | materials; direct door models |
+| five room boundary/ceiling host sets | the room boxes in the room schedule, including the room-facing faces of the 0.40m room-loop partitions and their ceilings | materials; direct door models |
 | `service-yard-floor` and `service-yard-boundary` | external terminal yard | materials; service contents if later selected |
 | each named opening reveal and void | its enclosing wall or shared room/loop boundary | door/frame models and materials |
 
@@ -316,7 +317,7 @@ The stage-1 declaration is complete without creating a catch-all mesh file. A re
 
 The invariant spatial identity is: one low rectangular building, one open central courtyard, one continuous four-sided covered loop, direct south arrival, one north-axis sanctuary, one west communal room, three east rooms in north-to-south order, and one rear-east service yard. A source may vary non-semantic bevels, masonry segmentation, and finish irregularity only after the space topology is unchanged. It may not mirror west/east, shift the sanctuary axis, add a corridor, close the courtyard, add a storey, or turn the service yard into a room.
 
-Space-level clearance invariants are a 2.00m clear loop, 1.60m direct entrance, 1.10m ordinary room doors, 0.08m maximum authored threshold rise, and 3.60m clear height, all inherited from settings as blocking conditions. The fountain socket must leave the loop clear, and room contents must be placed later without reducing a required route below those bounds. Exact measured realization belongs to the compiled report; a missing report remains `unverified`.
+Space-level clearance invariants are a 2.00m clear loop, 1.60m direct entrance, 1.10m ordinary room doors, level thresholds at Y=0.00, and 3.60m clear height. The 1.50m loop minimum, entrance and door widths, 0.08m maximum threshold rise, and height are inherited settings conditions; the 2.00m loop width is this spaces branch's author-adopted local realization above that minimum, and the local threshold rise is 0.00m. The 0.60m exterior wall, 0.40m room-loop partition, opening host depths, and opening vertical ranges are also space-owned blocking dimensions. The fountain socket must leave the loop clear, and room contents must be placed later without reducing a required route below those bounds. Exact measured realization belongs to the compiled report; a missing report remains `unverified`.
 
 ## Spatial verification addresses and finite review set {#spatial-verification-addresses-and-finite-review-set}
 

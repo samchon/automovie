@@ -36,6 +36,10 @@ type RoomBounds = Readonly<{
 
 const HOUSE_PLAN = { minX: -5.5, maxX: 5.5, minZ: -6, maxZ: 6 } as const;
 const SITE_PLAN = { minX: -7.8, maxX: 7.8, minZ: -8.5, maxZ: 8.5 } as const;
+const CURTAINWALL_Z = {
+  front: HOUSE_PLAN.minZ + 0.08,
+  rear: HOUSE_PLAN.maxZ - 0.08,
+} as const;
 
 const ROOM_BOUNDS = {
   entry: { minX: -1.55, minY: 0, minZ: -5.76, maxX: 1.55, maxY: 2.8, maxZ: -2.9 },
@@ -619,11 +623,11 @@ const surfaces = (): IAutoMovieBuiltSurface[] => [
 ];
 
 const populations = (): IAutoMovieBuiltPopulation[] => [
-  population({ id: "rear-common-curtainwall-bays", space: "common-room", modelRecipe: "model-curtainwall-module", palette: "#335d69", transforms: roomCurtainwallTransforms(ROOM_BOUNDS.commonRoom, 7, 5.92) }),
-  population({ id: "front-flex-curtainwall-bays", space: "flex-workroom", modelRecipe: "model-curtainwall-module", palette: "#335d69", transforms: roomCurtainwallTransforms(ROOM_BOUNDS.flexWorkroom, 3, -5.92) }),
-  population({ id: "front-stair-curtainwall-bays", space: "entry", modelRecipe: "model-curtainwall-module", palette: "#335d69", transforms: roomCurtainwallTransforms(ROOM_BOUNDS.entry, 3, -5.92) }),
-  population({ id: "front-upper-curtainwall-bays", space: "child-bedroom-1", modelRecipe: "model-curtainwall-module", palette: "#6b8282", transforms: roomCurtainwallTransforms(ROOM_BOUNDS.childBedroom1, 5, -5.92) }),
-  population({ id: "primary-rear-curtainwall-bays", space: "primary-bedroom", modelRecipe: "model-curtainwall-module", palette: "#335d69", transforms: roomCurtainwallTransforms(ROOM_BOUNDS.primaryBedroom, 4, 5.92) }),
+  population({ id: "rear-common-curtainwall-bays", space: "common-room", modelRecipe: "model-curtainwall-module", palette: "#335d69", transforms: roomCurtainwallTransforms(ROOM_BOUNDS.commonRoom, 7, CURTAINWALL_Z.rear) }),
+  population({ id: "front-flex-curtainwall-bays", space: "flex-workroom", modelRecipe: "model-curtainwall-module", palette: "#335d69", transforms: roomCurtainwallTransforms(ROOM_BOUNDS.flexWorkroom, 3, CURTAINWALL_Z.front) }),
+  population({ id: "front-stair-curtainwall-bays", space: "entry", modelRecipe: "model-curtainwall-module", palette: "#335d69", transforms: roomCurtainwallTransforms(ROOM_BOUNDS.entry, 3, CURTAINWALL_Z.front) }),
+  population({ id: "front-upper-curtainwall-bays", space: "child-bedroom-1", modelRecipe: "model-curtainwall-module", palette: "#6b8282", transforms: roomCurtainwallTransforms(ROOM_BOUNDS.childBedroom1, 5, CURTAINWALL_Z.front) }),
+  population({ id: "primary-rear-curtainwall-bays", space: "primary-bedroom", modelRecipe: "model-curtainwall-module", palette: "#335d69", transforms: roomCurtainwallTransforms(ROOM_BOUNDS.primaryBedroom, 4, CURTAINWALL_Z.rear) }),
   population({ id: "front-exterior-shading", space: "house", modelRecipe: "model-shade-module", palette: "#0b1015", transforms: [
     ...linearTransforms({ prefix: "lower", count: 7, start: -4.2, step: 1.2, axis: "x", y: 2.82, fixed: -6.15, scale: vector(1.05, 0.08, 0.26) }),
     ...linearTransforms({ prefix: "upper", count: 7, start: -4.2, step: 1.2, axis: "x", y: 5.82, fixed: -6.15, scale: vector(1.05, 0.08, 0.26) }),
@@ -672,14 +676,15 @@ const citizenHouseEnvironment = (): IAutoMovieBuiltEnvironment => ({
  * source does not read files, clocks, network state, or unseeded randomness.
  *
  * @evidence spaces/001-citizen-house.md The source realizes the complete authored citizen-house space document.
- * @evidenceReview spaces/001-citizen-house.md #1d6ce1e Read the complete space design file and checked its authored room, envelope, privacy, review requirements, and compiled topology record.
+ * @evidenceReview spaces/001-citizen-house.md #fe1c85e Read the complete space design file and checked its authored room, envelope, privacy, review requirements, and compiled topology record.
  * @evidence spaces/001-citizen-house.md#citizen-house-space The source realizes the space H2's room graph, envelope, openings, connectors, surfaces, and fit-out carrier.
- * @evidenceReview spaces/001-citizen-house.md#citizen-house-space #fab42d5 Read the space H2 and checked the built environment realizes its room graph, envelope, openings, connectors, surfaces, fit-out, and observation boundary.
+ * @evidenceReview spaces/001-citizen-house.md#citizen-house-space #56050ec Read the space H2 and checked the built environment realizes its room graph, envelope, openings, connectors, surfaces, fit-out, and observation boundary.
  * @evidence principles/core/source-units.md#source-scope-preservation The source stays within the selected spaces owner and does not create a second production branch.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 Read the source scope checklist and checked this export stays within the selected spaces owner.
  * @evidence principles/core/source-units.md#source-substantive-completion The source publishes the complete environment carrier required by its selected space design.
  * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Read the source completion checklist and checked the environment publishes the required complete carrier.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The selected space parent explicitly supplies the 11×12m house footprint, separate site context, two floor lines, room bounds, boundary/opening graph, single stair route, and measured curtainwall population rules; the current source compile implements those exact interfaces without inventing a topology or clearance decision, so no parent space defect was exposed.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 Checked the current compiled spaces, site and house bounds, room-derived bay transforms, boundaries, openings, routes, and surfaces against the selected space parent and found no unowned source decision.
  * @evidence obligations/design/space-sources.md#space-source-design-ownership The source registers the exact space H2 it realizes.
  * @evidenceReview obligations/design/space-sources.md#space-source-design-ownership #c0afa1f Read the source-ownership obligation and checked the export registers the exact space H2.
  * @evidence obligations/design/space-sources.md#space-source-stable-identities The source assigns stable identities to spaces, elements, populations, openings, connectors, and surfaces.
