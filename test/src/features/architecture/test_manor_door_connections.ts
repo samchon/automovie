@@ -57,8 +57,14 @@ export const test_manor_door_connections = (): void => {
   TestValidator.equals("to room", passage.to, "west-room");
   TestValidator.equals("bidirectional", passage.bidirectional, true);
   TestValidator.equals("boundary owner", passage.elements, ["partition"]);
-  TestValidator.predicate("declared width", nclose(passage.width, 0.8));
-  TestValidator.predicate("declared height", nclose(passage.clearHeight, 2));
+  TestValidator.predicate(
+    "declared width",
+    passage.width !== undefined && nclose(passage.width, 0.8),
+  );
+  TestValidator.predicate(
+    "declared height",
+    passage.clearHeight !== undefined && nclose(passage.clearHeight, 2),
+  );
   TestValidator.equals("two threshold endpoints", passage.route.length, 2);
   TestValidator.predicate(
     "front threshold",
