@@ -9,9 +9,9 @@ import { mountViewer } from "@automovie/viewer";
 import {
   type IManorScene,
   createTexturedManorScene,
-} from "medieval-baron-manor/src/instances/manor-textured.js";
-import { flightSpeedReadout } from "medieval-baron-manor/src/viewer/flightSpeedReadout";
-import { mountPreviewNavigation } from "medieval-baron-manor/src/viewer/previewNavigation";
+} from "medieval-baron-manor/textured-scene";
+import { flightSpeedReadout } from "medieval-baron-manor/viewer/flight-speed-readout";
+import { mountPreviewNavigation } from "medieval-baron-manor/viewer/preview-navigation";
 import * as THREE from "three";
 
 import { bakeManor } from "./bakeManor";

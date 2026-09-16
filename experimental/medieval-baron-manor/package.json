@@ -6,18 +6,17 @@
   "license": "MIT",
   "description": "The authored medieval baron manor used by the public website.",
   "exports": {
-    "./spatial-state": "./src/manorSpatialState.ts"
+    "./spatial-state": "./src/manorSpatialState.ts",
+    "./textured-scene": "./src/instances/manor-textured.js",
+    "./viewer/flight-speed-readout": "./src/viewer/flightSpeedReadout.ts",
+    "./viewer/preview-navigation": "./src/viewer/previewNavigation.ts"
   },
   "engines": {
     "node": ">=22.23.2"
   },
   "compilerOptions": {
     "target": "esnext",
-    "lib": [
-      "ESNext",
-      "DOM",
-      "DOM.Iterable"
-    ],
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "module": "esnext",
     "moduleResolution": "bundler",
     "esModuleInterop": true,
@@ -26,9 +25,7 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "skipLibCheck": true,
-    "types": [
-      "node"
-    ],
+    "types": ["node"],
     "rootDir": ".",
     "noEmitOnError": true,
     "inlineSourceMap": true,
@@ -41,9 +38,7 @@
     ],
     "allowJs": true
   },
-  "include": [
-    "src"
-  ],
+  "include": ["src"],
   "scripts": {
     "lint": "ttsc --cache-dir node_modules/.cache/ttsc --noEmit -p package.json",
     "format": "ttsc format --cache-dir node_modules/.cache/ttsc -p package.json"
