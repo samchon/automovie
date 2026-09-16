@@ -10,19 +10,19 @@ The front entry opens directly to the living room and the central stair hall. Th
 
 ## Ground-floor service and garage graph {#ground-floor-service-and-garage-graph}
 
-The east service band contains pantry, powder room, and laundry/mudroom. The pantry opens to the kitchen, the powder room opens to the ground circulation, and the laundry/mudroom opens to both the ground circulation and the garage through a real door. The garage is a single empty two-car space with its own slab, exterior overhead door, perimeter walls, ceiling, storage cabinets, and service threshold. No car, vehicle proxy, or vehicle-shaped placeholder is authored.
+The east service band contains the pantry at the rear, the powder room between service rooms, and the laundry/mudroom at the garage end. The pantry opens to the kitchen, the powder room opens to the service band, and the laundry/mudroom opens directly to the garage through a real door. The garage is a single empty two-car space with its own slab, exterior overhead door, perimeter walls, ceiling, storage cabinets, and service threshold. No car, vehicle proxy, or vehicle-shaped placeholder is authored.
 
 ## Upper-floor private graph {#upper-floor-private-graph}
 
-The stair reaches one landing and a short L-shaped corridor. That corridor directly connects the primary bedroom, bedroom two, bedroom three, bathroom one, bathroom two, and linen/storage. The primary bedroom has a closet and its own bathroom. The two smaller bedrooms have ordinary closets and share the corridor's two bathrooms. All upper rooms are reached by the same stair and corridor without a hidden shortcut.
+The stair reaches one landing and a short corridor. That corridor directly connects the primary bedroom, bedroom two, bedroom three, one shared bathroom, and linen/storage. The primary bedroom has a closet and its own bathroom; the two smaller bedrooms share the corridor bathroom. All upper rooms are reached by the same stair and corridor without a hidden shortcut.
 
 ## Openings and route schedule {#openings-and-route-schedule}
 
-Every room transition is represented by an opening with a host wall, width, head height, and source and destination space ids. The front door connects porch to entry, the entry connects to living and stair hall, the stair connects ground stair hall to upper hall, the mudroom door connects to the garage, and the upper corridor doors connect each private room and storage. Windows and the rear slider are envelope openings; the garage overhead door is an exterior opening and not a vehicle route in this library.
+Every room transition is represented by an opening with a host wall, width, head height, and source and destination space ids. The front door connects porch to entry, the entry connects to living and stair hall, the stair connects ground stair hall to upper hall, the mudroom door connects directly to the garage, and the upper corridor doors connect each private room and storage. Windows and the rear slider are envelope openings; the garage overhead door is an exterior opening and not a vehicle route in this library.
 
 ## Room surface ownership {#room-surface-ownership}
 
-Each complete room surface is owned by one stable id: ground-entry, living-room, stair-hall, kitchen-dining-family, pantry, powder-room, laundry-mudroom, garage, upper-hall, primary-bedroom, bedroom-two, bedroom-three, bathroom-one, bathroom-two, and linen-storage. Storey floors and ceilings own their own complete horizontal surfaces. A room owner may place contents in its volume but may not split ownership of its walls, floor, ceiling, or threshold with a neighboring owner.
+Each complete room surface is owned by one stable id: ground-entry, living-room, stair-hall, kitchen-dining-family, pantry, powder-room, laundry-mudroom, garage, upper-hall, primary-bedroom, bedroom-two, bedroom-three, bathroom-one, primary-bath, and linen-storage. Storey floors and ceilings own their own complete horizontal surfaces. A room owner may place contents in its volume but may not split ownership of its walls, floor, ceiling, or threshold with a neighboring owner.
 
 ## Spatial review population {#spatial-review-population}
 

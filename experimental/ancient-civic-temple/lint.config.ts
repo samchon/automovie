@@ -3,6 +3,7 @@ import {
   type IAutoMovieEvidenceConfigProps,
   createAutoMovieEvidenceConfig,
   createBlankAutoMovieProductionEvidence,
+  createAutoMovieProductionObligationClaim,
   evidence,
 } from "@automovie/evidence";
 import type { ITtscLintConfig } from "@ttsc/lint";
@@ -39,10 +40,64 @@ const blankProductionEvidence = createBlankAutoMovieProductionEvidence(
   "korean" as AutoMovieProductionLanguage,
 );
 
+const completePopulation = { mode: "complete-production" } as const;
+
+const localClaims = [
+  createAutoMovieProductionObligationClaim({
+    name: "temple-settings-reference-boundary",
+    document: "contracts/reference-boundary.md",
+    account: "accounts/settings/reference-boundary.md",
+    layer: "settings",
+    stage: "draft",
+    populationScope: completePopulation,
+  }),
+  createAutoMovieProductionObligationClaim({
+    name: "temple-settings-measurement-truth",
+    document: "contracts/measurement-truth.md",
+    account: "accounts/settings/measurement-truth.md",
+    layer: "settings",
+    stage: "draft",
+    populationScope: completePopulation,
+  }),
+  createAutoMovieProductionObligationClaim({
+    name: "temple-settings-stage-integrity",
+    document: "contracts/stage-integrity.md",
+    account: "accounts/settings/stage-integrity.md",
+    layer: "settings",
+    stage: "draft",
+    populationScope: completePopulation,
+  }),
+  createAutoMovieProductionObligationClaim({
+    name: "temple-spaces-fixed-graph",
+    document: "contracts/fixed-graph.md",
+    account: "accounts/settings/fixed-graph.md",
+    layer: "settings",
+    stage: "draft",
+    populationScope: completePopulation,
+  }),
+  createAutoMovieProductionObligationClaim({
+    name: "temple-spaces-observation-set",
+    document: "contracts/compiled-observation-set.md",
+    account: "accounts/settings/observation-set.md",
+    layer: "settings",
+    stage: "draft",
+    populationScope: completePopulation,
+  }),
+  createAutoMovieProductionObligationClaim({
+    name: "temple-spaces-surface-ownership",
+    document: "contracts/surface-ownership.md",
+    account: "accounts/settings/surface-ownership.md",
+    layer: "settings",
+    stage: "draft",
+    populationScope: completePopulation,
+  }),
+];
+
 export const productionEvidence = {
   ...blankProductionEvidence,
   kind: "library" as const,
   settings: "draft" as const,
+  claims: localClaims,
 } satisfies IAutoMovieEvidenceConfigProps;
 
 const graph = createAutoMovieEvidenceConfig(productionEvidence);

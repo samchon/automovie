@@ -1,9 +1,5 @@
 <!--
 @evidence discovery/core/common.md#canonical-realization Each complete visual surface is assigned to one canonical owner rather than being distributed by implementation convenience.
-@evidence discovery/design/designs.md#work-specific-design-requirements The decomposition is a cross-branch requirement for spaces, materials, models, and instances.
-@evidence discovery/design/spaces.md#work-specific-space-requirements The declaration assigns envelope, room, floor, and opening surfaces to named owners.
-@evidence discovery/design/materials.md#work-specific-material-requirements The declared owners provide stable hosts for construction and finish bindings.
-@evidence discovery/design/instances.md#work-specific-instance-requirements Repeated envelope and fit-out members are generated from rules, not duplicated records.
 -->
 # Surface ownership
 
@@ -18,4 +14,3 @@ Authority: the user's 2026-09-16 brief. Success is a complete surface schedule w
 Review question: does every visible surface and repeated member resolve to one semantic owner, one stable host, and one measurable realization rule?
 
 Sources: user brief, 2026-09-16; [NASA systems engineering handbook on bidirectional traceability](https://www.nasa.gov/reference/systems-engineering-handbook/)
-

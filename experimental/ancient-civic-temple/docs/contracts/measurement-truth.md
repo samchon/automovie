@@ -1,7 +1,5 @@
 <!--
 @evidence discovery/core/common.md#canonical-realization The production keeps measurement status distinct from visual and semantic judgment.
-@evidence discovery/design/designs.md#work-specific-design-requirements Active design branches preserve unsupported and unverified outcomes instead of inventing measurements.
-@evidence discovery/design/spaces.md#work-specific-space-requirements Space measurements remain unverified when no applicable measuring function or observation exists.
 -->
 # Measurement truth
 
@@ -16,4 +14,3 @@ Authority: the user's 2026-09-16 brief. Success is a review record that distingu
 Review question: can every reported result be traced to the exact current measurement or observation that produced it, with unverified cases left unresolved?
 
 Sources: user brief, 2026-09-16; [NASA systems engineering handbook on verification evidence](https://www.nasa.gov/reference/systems-engineering-handbook/)
-

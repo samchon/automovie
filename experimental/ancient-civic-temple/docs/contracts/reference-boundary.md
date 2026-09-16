@@ -1,7 +1,6 @@
 <!--
 @evidence discovery/core/common.md#shared-local-boundary The reference handling rule is a production-specific boundary between user authority, visual guidance, and deterministic source.
 @evidence discovery/core/settings.md#directive-promise-subject-requirements The brief explicitly assigns the five images a supporting but non-dimensional role.
-@evidence discovery/design/designs.md#work-specific-design-requirements The same reference boundary is consumed by each active design branch.
 -->
 # Reference boundary
 
@@ -16,4 +15,3 @@ Authority: the user's 2026-09-16 brief. Success is an authored scene whose forms
 Review question: can a reviewer distinguish the scene's deterministic construction from the supplied images while still recognizing the intended material, atmosphere, and spatial relationship cues?
 
 Sources: user brief, 2026-09-16; [OpenUSD asset terminology](https://openusd.org/release/glossary.html)
-

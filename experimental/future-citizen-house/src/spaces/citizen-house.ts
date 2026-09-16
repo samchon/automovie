@@ -289,7 +289,7 @@ const population = (props: {
   space: string;
   modelRecipe: string;
   palette: string;
-  transforms: IAutoMovieTransform[];
+  transforms: Array<IAutoMovieTransform & { id: string }>;
 }): IAutoMovieBuiltPopulation => {
   const set: IAutoMovieInstanceSetDesign = {
     id: props.id,
@@ -316,6 +316,7 @@ const population = (props: {
 };
 
 const linearTransforms = (props: {
+  prefix?: string;
   count: number;
   start: number;
   step: number;
@@ -323,15 +324,18 @@ const linearTransforms = (props: {
   y: number;
   fixed: number;
   scale: IAutoMovieVector3;
-}): IAutoMovieTransform[] =>
+}): Array<IAutoMovieTransform & { id: string }> =>
   Array.from({ length: props.count }, (_, index) => {
     const value = props.start + props.step * index;
-    return transform(
-      props.axis === "x"
-        ? vector(value, props.y, props.fixed)
-        : vector(props.fixed, props.y, value),
-      props.scale,
-    );
+    return {
+      id: `${props.prefix ?? "module"}-${String(index + 1).padStart(2, "0")}`,
+      ...transform(
+        props.axis === "x"
+          ? vector(value, props.y, props.fixed)
+          : vector(props.fixed, props.y, value),
+        props.scale,
+      ),
+    };
   });
 
 const groundElements = (): IAutoMovieBuiltElement[] => [
@@ -489,6 +493,23 @@ const openings = (): IAutoMovieBuiltOpening[] => [
   opening("service-access-opening", "corridor-service-boundary", null, "passage"),
 ];
 
+const STAIR_ROUTE = [
+  vector(-0.55, 0, -4.0),
+  vector(-0.55, 1.5, -1.75),
+  vector(0.6, 1.5, -1.65),
+  vector(1.55, 3.0, -4.0),
+];
+
+const STAIR_HORIZONTAL_RUN = STAIR_ROUTE.slice(1).reduce(
+  (total, point, index) =>
+    total +
+    Math.hypot(
+      point.x - STAIR_ROUTE[index].x,
+      point.z - STAIR_ROUTE[index].z,
+    ),
+  0,
+);
+
 const connectors = (): IAutoMovieBuiltConnector[] => [
   passage("entry-to-common", "entry", "common-room", [vector(1.25, 0.1, -2.82), vector(1.25, 0.1, -2.55)], 1.2),
   passage("entry-to-flex", "entry", "flex-workroom", [vector(-1.65, 0.1, -4.3), vector(-1.78, 0.1, -4.3)], 0.9),
@@ -506,16 +527,11 @@ const connectors = (): IAutoMovieBuiltConnector[] => [
     from: "entry",
     to: "upper-corridor",
     bidirectional: true,
-    route: [
-      vector(-0.55, 0.1, -4.0),
-      vector(-0.55, 1.5, -1.75),
-      vector(0.6, 1.5, -1.65),
-      vector(1.55, 3.0, -4.0),
-    ],
+    route: STAIR_ROUTE,
     orientations: [IDENTITY, IDENTITY, IDENTITY, IDENTITY],
     width: 1.1,
     clearHeight: 2.2,
-    steps: { count: 18, rise: 1.5 / 9, run: 0.25 },
+    steps: { count: 18, rise: 1.5 / 9, run: STAIR_HORIZONTAL_RUN / 18 },
     elements: [
       "stair-landing",
       ...Array.from({ length: 9 }, (_, index) => `stair-lower-${String(index + 1).padStart(2, "0")}`),
@@ -547,17 +563,20 @@ const populations = (): IAutoMovieBuiltPopulation[] => [
   population({ id: "front-upper-curtainwall-bays", space: "child-bedroom-1", modelRecipe: "model-curtainwall-module", palette: "#6b8282", transforms: linearTransforms({ count: 5, start: -4.6, step: 1.15, axis: "x", y: 4.45, fixed: -5.92, scale: vector(1.1, 2.72, 0.08) }) }),
   population({ id: "primary-rear-curtainwall-bays", space: "primary-bedroom", modelRecipe: "model-curtainwall-module", palette: "#335d69", transforms: linearTransforms({ count: 4, start: -4.6, step: 1.15, axis: "x", y: 4.45, fixed: 5.92, scale: vector(1.1, 2.72, 0.08) }) }),
   population({ id: "front-exterior-shading", space: "house", modelRecipe: "model-shade-module", palette: "#0b1015", transforms: [
-    ...linearTransforms({ count: 7, start: -4.2, step: 1.2, axis: "x", y: 2.82, fixed: -6.15, scale: vector(1.05, 0.08, 0.26) }),
-    ...linearTransforms({ count: 7, start: -4.2, step: 1.2, axis: "x", y: 5.82, fixed: -6.15, scale: vector(1.05, 0.08, 0.26) }),
+    ...linearTransforms({ prefix: "lower", count: 7, start: -4.2, step: 1.2, axis: "x", y: 2.82, fixed: -6.15, scale: vector(1.05, 0.08, 0.26) }),
+    ...linearTransforms({ prefix: "upper", count: 7, start: -4.2, step: 1.2, axis: "x", y: 5.82, fixed: -6.15, scale: vector(1.05, 0.08, 0.26) }),
   ] }),
   population({ id: "rear-exterior-shading", space: "house", modelRecipe: "model-shade-module", palette: "#0b1015", transforms: [
-    ...linearTransforms({ count: 7, start: -4.2, step: 1.2, axis: "x", y: 2.82, fixed: 6.15, scale: vector(1.05, 0.08, 0.26) }),
-    ...linearTransforms({ count: 7, start: -4.2, step: 1.2, axis: "x", y: 5.82, fixed: 6.15, scale: vector(1.05, 0.08, 0.26) }),
+    ...linearTransforms({ prefix: "lower", count: 7, start: -4.2, step: 1.2, axis: "x", y: 2.82, fixed: 6.15, scale: vector(1.05, 0.08, 0.26) }),
+    ...linearTransforms({ prefix: "upper", count: 7, start: -4.2, step: 1.2, axis: "x", y: 5.82, fixed: 6.15, scale: vector(1.05, 0.08, 0.26) }),
   ] }),
   population({ id: "roof-pv-canopy-grid", space: "roof-deck", modelRecipe: "model-pv-module", palette: "#071b36", transforms: Array.from({ length: 40 }, (_, index) => {
     const row = Math.floor(index / 8);
     const column = index % 8;
-    return transform(vector(-4.2 + column * 1.2, 6.72, -4.5 + row * 2.25), vector(1.08, 0.06, 2.05));
+    return {
+      id: `pv-${String(row + 1).padStart(2, "0")}-${String(column + 1).padStart(2, "0")}`,
+      ...transform(vector(-4.2 + column * 1.2, 6.72, -4.5 + row * 2.25), vector(1.08, 0.06, 2.05)),
+    };
   }) }),
 ];
 
@@ -597,4 +616,3 @@ export const citizenHouseSpaceSource: IAutoMovieLibrarySourceOwner = {
     models: [],
   }),
 };
-

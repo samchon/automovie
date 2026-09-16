@@ -1,7 +1,5 @@
 <!--
 @evidence discovery/core/common.md#canonical-realization The observation denominator is derived from compiled topology rather than selected beauty views.
-@evidence discovery/design/designs.md#work-specific-design-requirements Active space, material, model, and instance owners inherit the compiled observation population.
-@evidence discovery/design/spaces.md#work-specific-space-requirements The space review set includes every required exterior and room observation named by the brief.
 -->
 # Compiled observation set
 
@@ -16,4 +14,3 @@ Authority: the user's 2026-09-16 brief. Success is a derived, current observatio
 Review question: does the current compiled topology generate every required exterior, opening, and room observation without relying on a favorable view chosen by the author?
 
 Sources: user brief, 2026-09-16; [NASA systems engineering handbook appendix on verification methods](https://www.nasa.gov/reference/system-engineering-handbook-appendix/)
-

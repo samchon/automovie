@@ -2,8 +2,6 @@
 @evidence discovery/core/common.md#shared-local-boundary This file records the production-specific spatial graph that is not enumerated by the reusable contract inventory.
 @evidence discovery/core/settings.md#directive-promise-subject-requirements The user brief fixes the building program, route, and review boundary that settings and design must preserve.
 @evidence discovery/core/settings.md#planned-delivery-backcast The selected library delivery is backcast to the building, its spaces, surfaces, repeated elements, and inspection population.
-@evidence discovery/design/designs.md#work-specific-design-requirements The graph is the cross-branch constraint that spaces, models, materials, and instances must share.
-@evidence discovery/design/spaces.md#work-specific-space-requirements The graph fixes the spaces, openings, envelope, and route conditions owned by the space branch.
 -->
 # Fixed spatial graph
 
@@ -18,4 +16,3 @@ Authority: the user's 2026-09-16 brief. The approximately 430 m² value is a tar
 Review question: can the compiled topology be traced from the entrance to every required room and back along the one named colonnaded loop without inventing an opening or connector?
 
 Sources: user brief, 2026-09-16; [buildingSMART IFC 4.3 space-boundary relationships](https://standards.buildingsmart.org/IFC/RELEASE/IFC4_3/HTML/lexical/IfcRelSpaceBoundary.htm)
-

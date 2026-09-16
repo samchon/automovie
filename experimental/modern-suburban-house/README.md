@@ -14,6 +14,10 @@ Scaffold installation is one-way. After creation, `AGENTS.md`, `CLAUDE.md`, `.ag
 
 Use ordinary coding-agent tools for authoring. Scaffold creation does not register an MCP client or write client configuration.
 
+## Production status
+
+This production is selected as a `library` in `lint.config.ts`. Its authored settings, site map, spatial graph, surface ownership, finishes, fit-out, lighting boundary, and deterministic house library are under `docs` and `src`. The garage is intentionally empty of vehicles.
+
 ## First run
 
 ```bash
@@ -21,7 +25,7 @@ npm install --package-lock=false
 npm run lint
 ```
 
-The blank scaffold is intentionally incomplete. Select the production kind through the routed lifecycle procedure, author its prerequisites, then use the commands below at the stages their linked procedures name.
+The source graph is authored and can be inspected through the exports in `src/index.ts`. Run the commands below when the workspace package junctions are available; this sandbox currently records the unavailable compiler junction as an explicit unverified item in `.wiki/worklog.md`.
 
 ## Canonical command routes
 
@@ -32,7 +36,7 @@ Use the commands declared in `package.json`:
 | `npm run lint` | Check the complete TypeScript program and active authored evidence. |
 | `npm run format` | Format source with the configured compiler formatter. |
 
-The scaffold provides instructions, contracts, and source lint, not prewritten production or viewer code. Author only the concrete source the requested work needs through the packages' public APIs. It supplies no film build, capture, render, or publication command.
+This library supplies deterministic building data and derived review observations, not a film build, capture, render, or publication command. A consuming AutoMovie adapter may lower the named parts and module laws to the installed public runtime API without introducing a second design owner.
 
 The installed `automovie` CLI separately provides Markdown TOC maintenance, external-asset inspection, and capability routes. Read its local help before invoking a command. These operations do not authorize a project state store.
 

@@ -6,7 +6,7 @@ The site is a shallow suburban lot with the street on negative Z, a front walk a
 
 ## Building placement and access {#building-placement-and-access}
 
-The main house occupies X -5.5 to 5.5 and Z -4.8 to 4.8. The garage occupies X 5.5 to 11.3 and Z -4.8 to 1.4, sharing the east wall interface with the service band. A 1.35 m front walk reaches the porch. A 5.6 m driveway reaches the garage apron. The mudroom door is the only interior-to-garage service connection; the front door remains the public entry.
+The main house occupies X -5.5 to 5.5 and Z -4.8 to 4.8. The garage occupies X 5.5 to 11.3 and Z -4.8 to 1.4, sharing the east wall interface with the front-end service band. A 1.35 m front walk reaches the porch. A 5.6 m driveway reaches the garage apron. The mudroom door is the only interior-to-garage service connection; the front door remains the public entry.
 
 ## Site review consequence {#site-review-consequence}
 

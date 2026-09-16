@@ -1,3 +1,16 @@
+<!--
+@evidenceReview discovery/core/common.md#shared-local-boundary #ae499c0 Read the shared boundary rule and checked that this local contract preserves the fixed house graph rather than replacing it.
+@evidenceReview discovery/core/common.md#canonical-realization #5a6e541 Read the canonical realization rule and matched the settings documents and the single space source owner named here.
+@evidenceReview discovery/core/settings.md#directive-promise-subject-requirements #1c99050 Read the subject requirement and checked that the house, rooms, envelope, fit-out, openings, and review subjects remain owned.
+@evidenceReview discovery/core/settings.md#planned-delivery-backcast #73ac216 Read the delivery backcast and checked that the local contract asks only for the supported space carrier and its source.
+@evidenceReview discovery/design/spaces.md#work-specific-space-requirements #a751db6 Read the space-specific requirements and checked the single rectangular box, direct connections, curtainwall alignment, and privacy controls.
+@evidence discovery/core/common.md#shared-local-boundary 사용자 확정 공간 그래프와 reference 해석의 경계를 production-local spatial rule로 보존한다.
+@evidence discovery/core/common.md#canonical-realization 이 local rule의 현재 realization owner를 settings와 하나의 space source로 고정한다.
+@evidence discovery/core/settings.md#directive-promise-subject-requirements 약 250㎡ 주택, 전체 interior, 다섯 reference, 프라이버시 방식과 금지 구조를 후속 공간 저작이 잃지 않도록 채택한다.
+@evidence discovery/core/settings.md#planned-delivery-backcast fixed graph를 실현하는 데 필요한 층·방·개구부·연결·외피 선택을 source owner로 역추적한다.
+@evidence discovery/design/spaces.md#work-specific-space-requirements 고정된 1층·2층 공간 연결과 curtainwall 관계를 별도 local contract로 남긴다.
+-->
+
 # 시민 주택 공간 보존 계약
 
 **Status:** production decision, 사용자 저작 브리프의 고정 공간 그래프를 위한 local contract.
@@ -13,4 +26,3 @@ source는 모든 room을 storey에 귀속시키고, 모든 required room이 door
 Review question: 컴파일된 environment의 공간·경계·개구부·연결이 이 고정 그래프와 curtainwall/privacy 관계를 동시에 보존하는가?
 
 Sources: [공간 기준](../settings/003-spatial-basis.md#ground-graph), [상층 그래프](../settings/003-spatial-basis.md#upper-graph), [납품 범위](../settings/001-production.md#delivery-scope).
-

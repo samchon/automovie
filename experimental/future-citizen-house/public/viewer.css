@@ -1,0 +1,60 @@
+:root {
+  color-scheme: dark;
+  font-family: "Segoe UI", "Noto Sans KR", sans-serif;
+  background: #0b1014;
+  color: #e6edf0;
+  font-synthesis: none;
+}
+
+* { box-sizing: border-box; }
+
+body { margin: 0; min-width: 1120px; background: radial-gradient(circle at 65% 0%, #1c3136 0, #0b1014 48rem); }
+
+button, select { font: inherit; }
+
+button, select { color: #dce9eb; background: #152126; border: 1px solid #3a555c; border-radius: 5px; padding: 0.55rem 0.75rem; }
+
+button { cursor: pointer; }
+button:hover, select:focus { border-color: #8ed9c7; }
+
+.app-shell { width: min(1600px, calc(100vw - 48px)); margin: 0 auto; padding: 2.1rem 0 1.4rem; }
+
+.masthead { display: flex; justify-content: space-between; align-items: end; gap: 2rem; padding-bottom: 1.5rem; }
+
+.eyebrow { margin: 0 0 0.55rem; color: #8ed9c7; font-size: 0.68rem; letter-spacing: 0.16em; font-weight: 700; }
+
+h1, h2, p { margin-top: 0; }
+h1 { max-width: 48rem; margin-bottom: 0.55rem; font-size: clamp(1.7rem, 3vw, 2.7rem); letter-spacing: -0.04em; }
+h2 { margin-bottom: 1rem; font-size: 1.1rem; letter-spacing: -0.02em; overflow-wrap: anywhere; }
+.lede { margin-bottom: 0; color: #a7b7ba; }
+.source-badge { border: 1px solid #35555d; color: #8ed9c7; padding: 0.65rem 0.8rem; font-size: 0.72rem; letter-spacing: 0.08em; white-space: nowrap; }
+
+.toolbar { display: flex; flex-wrap: wrap; gap: 0.7rem; align-items: end; padding: 0.85rem; margin-bottom: 0.85rem; background: rgba(12, 23, 27, 0.92); border: 1px solid #263b41; border-radius: 7px; }
+.toolbar label { display: grid; gap: 0.35rem; color: #8fa6aa; font-size: 0.74rem; }
+.toolbar label > span { padding-left: 0.1rem; }
+.toolbar .space-control { min-width: 15rem; }
+.check-control { display: flex !important; align-items: center; gap: 0.5rem !important; padding: 0.6rem 0.25rem 0.6rem 0.35rem; }
+.check-control input { accent-color: #8ed9c7; }
+.toolbar button { height: 2.35rem; }
+
+.viewer-layout { display: grid; grid-template-columns: minmax(0, 1fr) 19rem; gap: 0.85rem; min-height: 680px; }
+.canvas-wrap { position: relative; min-height: 680px; overflow: hidden; border: 1px solid #2c464c; border-radius: 7px; background: #101d21; box-shadow: 0 1rem 4rem rgba(0, 0, 0, 0.22); }
+canvas { display: block; width: 100%; height: 100%; min-height: 680px; touch-action: none; cursor: grab; }
+canvas:active { cursor: grabbing; }
+.canvas-hint { position: absolute; left: 0.8rem; bottom: 0.7rem; padding: 0.42rem 0.55rem; background: rgba(8, 15, 18, 0.78); color: #a7b7ba; border-radius: 4px; font-size: 0.72rem; pointer-events: none; }
+
+.inspector { display: grid; align-content: start; gap: 0.85rem; }
+.inspector-section { padding: 1rem; border: 1px solid #263b41; border-radius: 7px; background: rgba(13, 24, 28, 0.9); }
+.inspector-section h2 { color: #eaf7f1; }
+dl { display: grid; grid-template-columns: 1fr auto; gap: 0.55rem 0.8rem; margin: 0; font-size: 0.78rem; }
+dt { color: #84999d; }
+dd { max-width: 11rem; margin: 0; color: #dce9eb; text-align: right; overflow-wrap: anywhere; }
+.note-section p { margin: 0; color: #8fa6aa; font-size: 0.75rem; line-height: 1.65; }
+.footer-note { display: flex; justify-content: space-between; gap: 1rem; padding: 0.8rem 0.25rem 0; color: #71878b; font-size: 0.74rem; }
+#build-status { color: #8ed9c7; }
+
+@media (max-width: 1200px) {
+  body { min-width: 900px; }
+  .app-shell { width: min(1200px, calc(100vw - 32px)); }
+  .viewer-layout { grid-template-columns: minmax(0, 1fr) 17rem; }
+}

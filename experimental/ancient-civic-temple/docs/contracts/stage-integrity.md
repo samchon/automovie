@@ -1,6 +1,5 @@
 <!--
 @evidence discovery/core/common.md#canonical-realization The stage order is a production-specific completion boundary that must remain coherent across owners.
-@evidence discovery/design/designs.md#work-specific-design-requirements The stage order coordinates space, surface, module, fit-out, and finish decisions.
 -->
 # Stage integrity
 
@@ -15,4 +14,3 @@ Authority: the user's 2026-09-16 brief. Success is a monotonically advancing sta
 Review question: is the current change inside the earliest still-open layer, and are all later claims explicitly withheld until its required observations exist?
 
 Sources: user brief, 2026-09-16; [NASA systems engineering handbook on configuration and verification control](https://www.nasa.gov/reference/systems-engineering-handbook/)
-

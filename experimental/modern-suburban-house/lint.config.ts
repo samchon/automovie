@@ -3,10 +3,30 @@ import {
   type IAutoMovieEvidenceConfigProps,
   createAutoMovieEvidenceConfig,
   createBlankAutoMovieProductionEvidence,
+  createAutoMovieProductionObligationClaim,
   evidence,
 } from "@automovie/evidence";
 import type { ITtscLintConfig } from "@ttsc/lint";
 import { fileURLToPath } from "node:url";
+
+const completePopulation = { mode: "complete-production" } as const;
+
+const localClaims = [
+  ["fixed-graph", "fixed spatial graph"],
+  ["compiled-observation-set", "compiled observation set"],
+  ["measurement-truth", "measurement and reference boundary"],
+  ["surface-ownership", "surface ownership"],
+  ["stage-integrity", "stage integrity"],
+].map(([file]) =>
+  createAutoMovieProductionObligationClaim({
+    name: `modern-suburban-house-${file}`,
+    document: `contracts/${file}.md`,
+    account: `accounts/settings/${file}.md`,
+    layer: "settings",
+    stage: "draft",
+    populationScope: completePopulation,
+  }),
+);
 
 /**
  * The sole tracked production kind, population scope, branch-stage, and local
@@ -42,6 +62,14 @@ export const productionEvidence = {
 } satisfies IAutoMovieEvidenceConfigProps;
 
 productionEvidence.kind = "library";
+productionEvidence.settings = "draft";
+productionEvidence.maps = "draft";
+productionEvidence.models = "draft";
+productionEvidence.spaces = "draft";
+productionEvidence.materials = "draft";
+productionEvidence.instances = "draft";
+productionEvidence.systems = "draft";
+productionEvidence.claims = localClaims;
 
 const graph = createAutoMovieEvidenceConfig(productionEvidence);
 
