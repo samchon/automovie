@@ -226,7 +226,7 @@ const environmentOpenings = (): IAutoMovieBuiltOpening[] =>
     };
   });
 
-const pairKey = (from: string, to: string): string => [from, to].sort().join("::");
+const pairKey = (from: string, to: string): string => [from, to].sort((left, right) => left.localeCompare(right)).join("::");
 
 const environmentConnectors = (): IAutoMovieBuiltConnector[] => {
   const connectors: IAutoMovieBuiltConnector[] = [];

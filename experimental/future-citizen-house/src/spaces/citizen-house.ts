@@ -608,6 +608,23 @@ const citizenHouseEnvironment = (): IAutoMovieBuiltEnvironment => ({
  * The registration answers `docs/spaces/001-citizen-house.md#citizen-house-space`.
  * Every repeated envelope member is derived from a count and spacing rule; the
  * source does not read files, clocks, network state, or unseeded randomness.
+ *
+ * @evidence spaces/001-citizen-house.md The source realizes the complete authored citizen-house space document.
+ * @evidenceReview spaces/001-citizen-house.md #1313704 Read the complete space design file and checked its authored room, envelope, privacy, and review requirements.
+ * @evidence spaces/001-citizen-house.md#citizen-house-space The source realizes the space H2's room graph, envelope, openings, connectors, surfaces, and fit-out carrier.
+ * @evidenceReview spaces/001-citizen-house.md#citizen-house-space #386f02d Read the space H2 and checked the built environment realizes its room graph, envelope, openings, connectors, surfaces, and fit-out.
+ * @evidence principles/core/source-units.md#source-scope-preservation The source stays within the selected spaces owner and does not create a second production branch.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 Read the source scope checklist and checked this export stays within the selected spaces owner.
+ * @evidence principles/core/source-units.md#source-substantive-completion The source publishes the complete environment carrier required by its selected space design.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Read the source completion checklist and checked the environment publishes the required complete carrier.
+ * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work The source's compiled environment is the executable realization of the selected space design.
+ * @evidenceReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 Read the source-upstream relation and checked the compiled environment is the executable realization of the selected design.
+ * @evidence obligations/design/space-sources.md#space-source-design-ownership The source registers the exact space H2 it realizes.
+ * @evidenceReview obligations/design/space-sources.md#space-source-design-ownership #c0afa1f Read the source-ownership obligation and checked the export registers the exact space H2.
+ * @evidence obligations/design/space-sources.md#space-source-stable-identities The source assigns stable identities to spaces, elements, populations, openings, connectors, and surfaces.
+ * @evidenceReview obligations/design/space-sources.md#space-source-stable-identities #8f4bb4a Read the stable-identities obligation and checked all spaces, elements, populations, openings, connectors, and surfaces have stable ids.
+ * @evidence obligations/design/space-sources.md#space-source-invalid-topology The source carries the topology through the engine's built-environment validation boundary.
+ * @evidenceReview obligations/design/space-sources.md#space-source-invalid-topology #030592d Read the invalid-topology obligation and checked the source's built topology passes the engine validation boundary.
  */
 export const citizenHouseSpaceSource: IAutoMovieLibrarySourceOwner = {
   design: "docs/spaces/001-citizen-house.md#citizen-house-space",

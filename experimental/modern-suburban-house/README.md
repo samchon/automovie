@@ -35,8 +35,11 @@ Use the commands declared in `package.json`:
 | --- | --- |
 | `npm run lint` | Check the complete TypeScript program and active authored evidence. |
 | `npm run format` | Format source with the configured compiler formatter. |
+| `npm run viewer` | Serve the persistent source-backed live viewer at `http://127.0.0.1:4173/`. |
 
 This library supplies deterministic building data and derived review observations, not a film build, capture, render, or publication command. A consuming AutoMovie adapter may lower the named parts and module laws to the installed public runtime API without introducing a second design owner.
+
+The live viewer is a source inspection tool. Start `npm run viewer`, open `http://127.0.0.1:4173/`, and refresh after saving source; the server reloads `src/house.ts` for each source request. Drag to rotate, Shift-drag to move, use the wheel to zoom, and select a storey, section, or room. The page does not replace compiled quantities, ids, bindings, dimensions, or independent review.
 
 The installed `automovie` CLI separately provides Markdown TOC maintenance, external-asset inspection, and capability routes. Read its local help before invoking a command. These operations do not authorize a project state store.
 

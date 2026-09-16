@@ -280,7 +280,7 @@ function isVisible(box: DrawBox): boolean {
 }
 
 function isEnvelope(box: DrawBox): boolean {
-  return box.kind.includes("wall") || box.kind.includes("partition") || box.kind.includes("slab") || box.kind.includes("roof") || box.kind.includes("door") || box.id.includes("curtainwall") || box.id.includes("shading") || box.id === "foundation-slab";
+  return box.kind.includes("wall") || box.kind.includes("partition") || box.kind.includes("slab") || box.kind.includes("roof") || box.kind.includes("door") || box.kind.includes("canopy") || box.kind.includes("site") || box.kind.includes("planting") || box.id.includes("curtainwall") || box.id.includes("shading") || box.id === "foundation-slab";
 }
 
 function projectBox(box: DrawBox): DrawBox {

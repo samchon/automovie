@@ -1,7 +1,6 @@
 <!--
 @evidence discovery/core/common.md#shared-local-boundary The ordered stages are a production-specific lifecycle boundary.
 @evidence discovery/core/settings.md#planned-delivery-backcast The selected library's delivery is built from the ordered authored layers.
-@evidence discovery/design/designs.md#work-specific-design-requirements Later layers may not silently reopen a closed earlier owner.
 -->
 # Stage integrity
 

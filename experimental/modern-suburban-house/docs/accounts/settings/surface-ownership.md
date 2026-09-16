@@ -2,5 +2,8 @@
 
 ## Surface ownership coverage {#surface-ownership-coverage}
 
-This aggregate account will close the one-owner rule for complete visual surfaces before envelope, module, and fit-out owners are independently reviewed.
+<!--
+@evidence contracts/surface-ownership.md#one-complete-visual-surface-has-one-owner This account closes the one-owner rule for each complete visual surface.
+-->
 
+This aggregate account will close the one-owner rule for complete visual surfaces before envelope, module, and fit-out owners are independently reviewed.

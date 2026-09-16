@@ -1,8 +1,11 @@
 <!--
 @evidence discovery/core/common.md#shared-local-boundary This file retains the user's fixed spatial graph as a production-specific cross-layer rule.
 @evidence discovery/core/settings.md#directive-promise-subject-requirements The brief fixes the building program, route, empty garage, and prohibited topology.
-@evidence discovery/design/designs.md#work-specific-design-requirements The graph is shared by map, space, material, instance, and source realization owners.
 @evidence discovery/design/spaces.md#work-specific-space-requirements The graph fixes rooms, openings, storeys, and circulation.
+@evidence discovery/design/maps.md#work-specific-map-requirements The graph fixes the single lot, attached garage placement, and front-to-rear orientation that the map realizes.
+@evidence discovery/design/models.md#work-specific-model-requirements The graph fixes the bounded building representation and fidelity ceiling that the model realizes.
+@evidence discovery/design/instances.md#work-specific-instance-requirements The graph fixes repeated envelope populations and ordinary fit-out membership that instance realization must preserve.
+@evidence discovery/design/systems.md#work-specific-system-requirements The graph fixes the daytime lighting and visible-service boundary that systems realization must preserve.
 -->
 # Fixed spatial graph
 

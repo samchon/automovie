@@ -23,7 +23,7 @@ const localClaims = [
     document: `contracts/${file}.md`,
     account: `accounts/settings/${file}.md`,
     layer: "settings",
-    stage: "draft",
+    stage: "review",
     populationScope: completePopulation,
   }),
 );
@@ -62,13 +62,14 @@ export const productionEvidence = {
 } satisfies IAutoMovieEvidenceConfigProps;
 
 productionEvidence.kind = "library";
-productionEvidence.settings = "draft";
-productionEvidence.maps = "draft";
+productionEvidence.settings = "review";
+productionEvidence.maps = "review";
 productionEvidence.models = "draft";
-productionEvidence.spaces = "draft";
+productionEvidence.spaces = "review";
 productionEvidence.materials = "draft";
 productionEvidence.instances = "draft";
 productionEvidence.systems = "draft";
+productionEvidence.spaceSources = "draft";
 productionEvidence.claims = localClaims;
 
 const graph = createAutoMovieEvidenceConfig(productionEvidence);

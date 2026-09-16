@@ -25,6 +25,29 @@
 @evidence settings/003-spatial-basis.md#envelope-and-privacy This space H2 realizes the envelope and privacy strategy.
 @evidence settings/003-spatial-basis.md#surface-decomposition This space H2 realizes the surface ownership declaration.
 @evidence contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements This space H2 realizes the production-local spatial contract.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb Read the shared declared-basis checklist and checked the one-box two-storey spatial basis.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 Read the shared scope checklist and checked the fixed graph has no added courtyard, bridge, void, second stair, or branch corridor.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 Read the shared completion checklist and checked the complete room, envelope, opening, circulation, and fit-out scope.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 Read the inherited-units checklist and checked settings dimensions, privacy, and household program are carried into spaces.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 Read the boundary-authority checklist and checked the rectangular house boundary and room cells.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 Read the topology checklist and checked storeys, rooms, openings, and the single stair.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 Read the verification-address checklist and checked the source and compiled observation address.
+@evidenceReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 Read the upstream space relation and checked the selected settings and coordinate basis receive the spatial decisions.
+@evidenceReview settings/001-production.md#delivery-scope #545ec14 Read the delivery-scope setting and checked this space realizes the declared library boundary.
+@evidenceReview settings/001-production.md#governing-aim #6aa36a1 Read the governing-aim setting and checked the everyday-household aim is realized spatially.
+@evidenceReview settings/001-production.md#production-visual-grammar #709df3f Read the visual-grammar setting and checked the material language is carried into the space design.
+@evidenceReview settings/001-production.md#delivery-review-condition #a699a94 Read the review-condition setting and checked the topology supplies the required observation population.
+@evidenceReview settings/001-production.md#roles-and-accessibility #9b9957a Read the roles-and-accessibility setting and checked the source/viewer boundary.
+@evidenceReview settings/002-household.md#household-program #d1603e2 Read the household-program setting and checked the household scope is realized.
+@evidenceReview settings/002-household.md#ground-program #e9f92d2 Read the ground-program setting and checked the first-floor program is realized.
+@evidenceReview settings/002-household.md#upper-program #432cac8 Read the upper-program setting and checked the second-floor program is realized.
+@evidenceReview settings/002-household.md#program-boundary #c992c25 Read the program-boundary setting and checked the household boundary is preserved.
+@evidenceReview settings/003-spatial-basis.md#coordinate-datum #2e42a76 Read the coordinate-datum setting and checked target dimensions and datum are realized.
+@evidenceReview settings/003-spatial-basis.md#ground-graph #0a9d729 Read the ground-graph setting and checked the ground topology is realized.
+@evidenceReview settings/003-spatial-basis.md#upper-graph #c816b45 Read the upper-graph setting and checked the upper topology is realized.
+@evidenceReview settings/003-spatial-basis.md#envelope-and-privacy #e5a8b31 Read the envelope-and-privacy setting and checked the envelope and privacy strategy are realized.
+@evidenceReview settings/003-spatial-basis.md#surface-decomposition #417fe6a Read the surface-decomposition setting and checked the surface ownership declaration is realized.
+@evidenceReview contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements #83336e9 Read the local contract and checked the space H2 preserves its fixed graph and curtainwall/privacy requirements.
 -->
 
 **Status:** construction draft, [공간 기준](../settings/003-spatial-basis.md)과 사용자 고정 공간 그래프의 직접 realization.
