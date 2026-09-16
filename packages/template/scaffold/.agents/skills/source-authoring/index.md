@@ -1,6 +1,6 @@
 # Source and geometry authoring
 
-Read `AGENTS.md`, `src/lint.config.ts`, `docs/README.md`, the reviewed design owner, and its active source branch before writing source. Source implements reviewed decisions; it does not invent a missing model, space, material, motion, subject, or delivery contract. Return a newly exposed decision to its earliest document owner first.
+Read `AGENTS.md`, `lint.config.ts`, `docs/README.md`, the reviewed design owner, and its active source branch before writing source. Source implements reviewed decisions; it does not invent a missing model, space, material, motion, subject, or delivery contract. Return a newly exposed decision to its earliest document owner first.
 
 Keep time in seconds, space in right-handed Y-up metres, and randomness in explicit seeds. Shot and film build functions use no clock, network, process, filesystem, or unseeded randomness. Derive production content from its reviewed owners rather than importing demonstration content.
 
