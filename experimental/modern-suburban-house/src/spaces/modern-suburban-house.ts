@@ -20,6 +20,7 @@ import {
   type MaterialId,
   type Opening,
   type Space,
+  type Storey,
 } from "../house";
 
 const IDENTITY: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
@@ -184,6 +185,13 @@ const builtSpace = (item: Space, parent: string): IAutoMovieBuiltSpace => ({
   cells: [boxCell(`${item.id}/cell`, vector(item.bounds.min.x, item.bounds.min.y, item.bounds.min.z), vector(item.bounds.max.x, item.bounds.max.y, item.bounds.max.z))],
 });
 
+const builtStorey = (item: Storey): IAutoMovieBuiltSpace => ({
+  id: item.id,
+  kind: "storey",
+  parent: "building",
+  cells: [boxCell(`${item.id}/cell`, vector(item.bounds.min.x, item.bounds.min.y, item.bounds.min.z), vector(item.bounds.max.x, item.bounds.max.y, item.bounds.max.z))],
+});
+
 const environmentSpaces = (): IAutoMovieBuiltSpace[] => [
   {
     id: "building",
@@ -195,18 +203,7 @@ const environmentSpaces = (): IAutoMovieBuiltSpace[] => [
       vector(modernSuburbanHouse.building.envelope.max.x, modernSuburbanHouse.building.envelope.max.y, modernSuburbanHouse.building.envelope.max.z),
     )],
   },
-  {
-    id: "ground",
-    kind: "storey",
-    parent: "building",
-    cells: [boxCell("ground/cell", vector(-5.5, -0.28, -4.8), vector(11.3, 2.65, 4.8))],
-  },
-  {
-    id: "upper",
-    kind: "storey",
-    parent: "building",
-    cells: [boxCell("upper/cell", vector(-5.5, 2.93, -4.8), vector(5.5, 5.48, 4.8))],
-  },
+  ...modernSuburbanHouse.building.storeys.map(builtStorey),
   ...modernSuburbanHouse.building.spaces.map((item) => builtSpace(item, item.storeyId)),
 ];
 
