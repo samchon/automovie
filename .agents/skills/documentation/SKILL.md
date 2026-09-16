@@ -77,7 +77,13 @@ Plain and direct. State the fact and stop.
 - No emoji.
 - No spaced double hyphen in prose. CLI separators remain code and are not prose.
 - No filler adjectives: "powerful", "seamless", "robust", "effortless".
-- No AI-cliche phrasing: "not only X but also Y", "whether you're X or Y", "it's worth noting", "let's dive in", and reflexive hedging.
+- No AI-cliche phrasing: "not only X but also Y", "whether you're X or Y", "it's worth noting", "let's dive in", "delve into", "leverage" for "use", and reflexive hedging.
 - No wrap-up sentence that just restates the paragraph.
+- No mannered prose. Mannered prose puts metaphor or flourish where a direct statement belongs: "a dial worth turning" for "a parameter worth varying", "this point earns its keep" for "this point still matters". It makes the reader work so the writer can perform, and the metaphor carries connotations nobody chose. When a literal phrase exists, use it.
+- No contrastive framing as the carrier of a rule. "X, not Y", "this is not about X, it is about Y", and a heading built the same way state a contrast and leave the instruction implicit, so the reader has to derive what to do. Write the rule, then name what it excludes only where that exclusion is a mistake somebody actually makes.
+
+The mannered-prose and contrastive-framing items are recent and most of the existing corpus predates them. Apply them to prose you write or revise. Do not open a corpus-wide re-voicing under them, because rewriting a settled instruction for style alone risks changing what it requires; a sweep of the existing text is its own topic with its own review.
+
+This section governs instruction prose, including the scaffold's own `AGENTS.md` and skill documents. It is not a production contract: a generated production judges its authored language under [screenplay naturalness](../../../packages/template/scaffold/.agents/skills/production-lifecycle/naturalness.md#qualified-complete-reading), which forbids starting from a phrase list at all, so these items never enter the shipped contract corpus under `packages/template/scaffold/docs`.
 
 Check these rules directly while reviewing repository instructions, package READMEs, scaffold Markdown, and TypeScript comments. Code syntax, literal values, and quoted historical evidence keep their original meaning; they are not prose to rewrite for voice. The [instruction-diff review](#instruction-authority) owns the review gate.
