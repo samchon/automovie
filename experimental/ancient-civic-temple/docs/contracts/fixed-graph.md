@@ -4,7 +4,9 @@
 @evidence discovery/core/settings.md#directive-promise-subject-requirements The user brief fixes the building program, route, and review boundary that settings and design must preserve.
 @evidenceReview discovery/core/settings.md#directive-promise-subject-requirements #1c99050 Read this contract discovery block with #directive-promise-subject-requirements; checked its local admission: The user brief fixes the building program, route, and review boundary that settings and design must preserve.
 @evidence discovery/design/designs.md#work-specific-design-requirements The fixed graph, surface handoff, deterministic source boundary, and neutral review plan are the cross-branch design constraints retained for this production.
+@evidenceReview discovery/design/designs.md#work-specific-design-requirements #1c8460c Read the cited target and this host's complete body; checked the host-specific spatial decision against the reviewed spaces graph and its stated scope.
 @evidence discovery/design/spaces.md#work-specific-space-requirements The space-specific discovery result is retained here as the named site, ground-storey containment, direct-opening, continuous-route, service-terminal, and inspection boundary.
+@evidenceReview discovery/design/spaces.md#work-specific-space-requirements #a751db6 Read the cited target and this host's complete body; checked the host-specific spatial decision against the reviewed spaces graph and its stated scope.
 -->
 # Fixed spatial graph
 
