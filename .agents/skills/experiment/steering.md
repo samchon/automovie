@@ -34,6 +34,9 @@ Two details decide whether the delivery works at all.
 
 - Name the session UUID explicitly. `--last` resolves to a sub-agent thread and fails with `direct app-server input is not allowed for multi-agent v2 sub-agents`.
 - `codex exec resume` accepts no `-C`, so change directory first.
+- `codex exec resume` does not inherit the session's model. It takes the configured default, so a run pinned to one model silently resumes on another: a campaign that had frozen `gpt-5.6-luna` resumed on `gpt-5.6-sol` because the machine's `config.toml` named that one. The harness says so (`This session was recorded with model X but is resuming with Y`) and says it as a warning in a stream that is mostly tool output. Pass `-m` on every resume, and read the model line rather than trusting the launch.
+
+That substitution also rewrites what the session records, so the next resume warns in the opposite direction and the recorded model no longer identifies the run. Once it has happened, the per-turn flag is the only thing carrying model identity, and the record says which turns ran under which model rather than naming one model for the session.
 
 ## One Machine, Several Campaigns
 
