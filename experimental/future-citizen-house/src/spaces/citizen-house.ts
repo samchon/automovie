@@ -25,6 +25,33 @@ const vector = (x: number, y: number, z: number): IAutoMovieVector3 => ({
   z,
 });
 
+type RoomBounds = Readonly<{
+  minX: number;
+  minY: number;
+  minZ: number;
+  maxX: number;
+  maxY: number;
+  maxZ: number;
+}>;
+
+const HOUSE_PLAN = { minX: -5.5, maxX: 5.5, minZ: -6, maxZ: 6 } as const;
+const SITE_PLAN = { minX: -7.8, maxX: 7.8, minZ: -8.5, maxZ: 8.5 } as const;
+
+const ROOM_BOUNDS = {
+  entry: { minX: -1.55, minY: 0, minZ: -5.76, maxX: 1.55, maxY: 2.8, maxZ: -2.9 },
+  flexWorkroom: { minX: -5.26, minY: 0, minZ: -5.76, maxX: -1.8, maxY: 2.8, maxZ: -2.9 },
+  commonRoom: { minX: -5.26, minY: 0, minZ: -2.66, maxX: 3.26, maxY: 2.8, maxZ: 5.76 },
+  powderUtility: { minX: 3.26, minY: 0, minZ: -5.76, maxX: 5.26, maxY: 2.8, maxZ: -2.66 },
+  storage1f: { minX: 3.26, minY: 0, minZ: -2.66, maxX: 5.26, maxY: 2.8, maxZ: 0.1 },
+  upperCorridor: { minX: 0.2, minY: 3, minZ: -4.3, maxX: 1.9, maxY: 5.8, maxZ: 2.6 },
+  primaryBedroom: { minX: -5.26, minY: 3, minZ: 2.66, maxX: 0, maxY: 5.8, maxZ: 5.76 },
+  childBedroom2: { minX: -5.26, minY: 3, minZ: -0.02, maxX: 0, maxY: 5.8, maxZ: 2.6 },
+  childBedroom1: { minX: -5.26, minY: 3, minZ: -5.76, maxX: 0, maxY: 5.8, maxZ: -0.04 },
+  upperBathroom: { minX: 1.9, minY: 3, minZ: 1.6, maxX: 5.26, maxY: 5.8, maxZ: 4.4 },
+  upperStorage: { minX: 1.9, minY: 3, minZ: 0, maxX: 5.26, maxY: 5.8, maxZ: 1.5 },
+  upperService: { minX: 1.9, minY: 3, minZ: -5.76, maxX: 5.26, maxY: 5.8, maxZ: -0.04 },
+} satisfies Record<string, RoomBounds>;
+
 const transform = (
   translation: IAutoMovieVector3,
   scale: IAutoMovieVector3,
@@ -229,13 +256,16 @@ const boxCell = (
 const room = (
   id: string,
   parent: string,
-  min: IAutoMovieVector3,
-  max: IAutoMovieVector3,
+  bounds: RoomBounds,
 ): IAutoMovieBuiltSpace => ({
   id,
   kind: "room",
   parent,
-  cells: [boxCell(`${id}-cell`, min, max)],
+  cells: [boxCell(
+    `${id}-cell`,
+    vector(bounds.minX, bounds.minY, bounds.minZ),
+    vector(bounds.maxX, bounds.maxY, bounds.maxZ),
+  )],
 });
 
 const surface = (
@@ -258,6 +288,19 @@ const surface = (
     height: { kind: "constant", value: y },
   },
 });
+
+const roomSurface = (
+  space: string,
+  id: string,
+  bounds: RoomBounds,
+): IAutoMovieBuiltSurface =>
+  surface(
+    space,
+    id,
+    { x: bounds.minX, z: bounds.minZ },
+    { x: bounds.maxX, z: bounds.maxZ },
+    bounds.minY,
+  );
 
 const passage = (
   id: string,
@@ -337,6 +380,25 @@ const linearTransforms = (props: {
       ),
     };
   });
+
+const roomCurtainwallTransforms = (
+  bounds: RoomBounds,
+  count: number,
+  fixedZ: number,
+): Array<IAutoMovieTransform & { id: string }> => {
+  const width = (bounds.maxX - bounds.minX) / count;
+  return Array.from({ length: count }, (_, index) => ({
+    id: `bay-${String(index + 1).padStart(2, "0")}`,
+    ...transform(
+      vector(
+        bounds.minX + width * (index + 0.5),
+        (bounds.minY + bounds.maxY) / 2,
+        fixedZ,
+      ),
+      vector(width, bounds.maxY - bounds.minY, 0.08),
+    ),
+  }));
+};
 
 const groundElements = (): IAutoMovieBuiltElement[] => [
   box({ id: "foundation-slab", kind: "foundation", space: "house", x: 0, y: -0.12, z: 0, width: 10.9, height: 0.24, depth: 11.9, model: "model-concrete" }),
@@ -427,10 +489,10 @@ const siteElements = (): IAutoMovieBuiltElement[] => [
   box({ id: "front-walk", kind: "front-walk", space: "site-pad", x: 0, y: -0.18, z: -8.2, width: 2.0, height: 0.08, depth: 3.7, model: "model-concrete" }),
   box({ id: "planting-bed-east", kind: "planting-bed", space: "site-pad", x: 6.4, y: -0.05, z: -3.0, width: 1.6, height: 0.35, depth: 7.8, model: "model-green" }),
   box({ id: "planting-bed-west", kind: "planting-bed", space: "site-pad", x: -6.4, y: -0.05, z: 3.8, width: 1.6, height: 0.35, depth: 5.6, model: "model-green" }),
-  box({ id: "canopy-post-front-left", kind: "canopy-post", space: "roof-deck", x: -4.95, y: 3.4, z: -5.55, width: 0.16, height: 6.8, depth: 0.16, model: "model-dark-metal" }),
-  box({ id: "canopy-post-front-right", kind: "canopy-post", space: "roof-deck", x: 4.95, y: 3.4, z: -5.55, width: 0.16, height: 6.8, depth: 0.16, model: "model-dark-metal" }),
-  box({ id: "canopy-post-back-left", kind: "canopy-post", space: "roof-deck", x: -4.95, y: 3.4, z: 5.55, width: 0.16, height: 6.8, depth: 0.16, model: "model-dark-metal" }),
-  box({ id: "canopy-post-back-right", kind: "canopy-post", space: "roof-deck", x: 4.95, y: 3.4, z: 5.55, width: 0.16, height: 6.8, depth: 0.16, model: "model-dark-metal" }),
+  box({ id: "canopy-post-front-left", kind: "canopy-post", space: "roof-deck", x: -4.95, y: 6.5, z: -5.55, width: 0.16, height: 0.6, depth: 0.16, model: "model-dark-metal" }),
+  box({ id: "canopy-post-front-right", kind: "canopy-post", space: "roof-deck", x: 4.95, y: 6.5, z: -5.55, width: 0.16, height: 0.6, depth: 0.16, model: "model-dark-metal" }),
+  box({ id: "canopy-post-back-left", kind: "canopy-post", space: "roof-deck", x: -4.95, y: 6.5, z: 5.55, width: 0.16, height: 0.6, depth: 0.16, model: "model-dark-metal" }),
+  box({ id: "canopy-post-back-right", kind: "canopy-post", space: "roof-deck", x: 4.95, y: 6.5, z: 5.55, width: 0.16, height: 0.6, depth: 0.16, model: "model-dark-metal" }),
   box({ id: "canopy-beam-front", kind: "canopy-beam", space: "roof-deck", x: 0, y: 6.62, z: -5.55, width: 10.1, height: 0.16, depth: 0.16, model: "model-dark-metal" }),
   box({ id: "canopy-beam-back", kind: "canopy-beam", space: "roof-deck", x: 0, y: 6.62, z: 5.55, width: 10.1, height: 0.16, depth: 0.16, model: "model-dark-metal" }),
   box({ id: "canopy-beam-left", kind: "canopy-beam", space: "roof-deck", x: -4.95, y: 6.62, z: 0, width: 0.16, height: 0.16, depth: 11.1, model: "model-dark-metal" }),
@@ -438,23 +500,23 @@ const siteElements = (): IAutoMovieBuiltElement[] => [
 ];
 
 const spaces = (): IAutoMovieBuiltSpace[] => [
-  { id: "house", kind: "building", parent: null, cells: [boxCell("house-cell", vector(-8, -0.4, -8), vector(8, 7, 8))] },
-  { id: "site-pad", kind: "site", parent: "house", cells: [boxCell("site-cell", vector(-7.8, -0.35, -8.5), vector(7.8, 0.1, 8.5))] },
-  { id: "ground-storey", kind: "storey", parent: "house", cells: [boxCell("ground-cell", vector(-5.5, -0.01, -6), vector(5.5, 3, 6))] },
-  { id: "upper-storey", kind: "storey", parent: "house", cells: [boxCell("upper-cell", vector(-5.5, 3, -6), vector(5.5, 6, 6))] },
-  { id: "roof-deck", kind: "roof-deck", parent: "house", cells: [boxCell("roof-cell", vector(-5.5, 6, -6), vector(5.5, 7, 6))] },
-  room("entry", "ground-storey", vector(-1.55, 0, -5.76), vector(1.55, 2.8, -2.9)),
-  room("flex-workroom", "ground-storey", vector(-5.26, 0, -5.76), vector(-1.8, 2.8, -2.9)),
-  room("common-room", "ground-storey", vector(-5.26, 0, -2.66), vector(3.26, 2.8, 5.76)),
-  room("powder-utility", "ground-storey", vector(3.26, 0, -5.76), vector(5.26, 2.8, -2.66)),
-  room("storage-1f", "ground-storey", vector(3.26, 0, -2.66), vector(5.26, 2.8, 0.1)),
-  room("upper-corridor", "upper-storey", vector(0.2, 3, -4.3), vector(1.9, 5.8, 2.6)),
-  room("primary-bedroom", "upper-storey", vector(-5.26, 3, 2.66), vector(0, 5.8, 5.76)),
-  room("child-bedroom-2", "upper-storey", vector(-5.26, 3, -0.02), vector(0, 5.8, 2.6)),
-  room("child-bedroom-1", "upper-storey", vector(-5.26, 3, -5.76), vector(0, 5.8, -0.04)),
-  room("upper-bathroom", "upper-storey", vector(1.9, 3, 1.6), vector(5.26, 5.8, 4.4)),
-  room("upper-storage", "upper-storey", vector(1.9, 3, 0), vector(5.26, 5.8, 1.5)),
-  room("upper-service", "upper-storey", vector(1.9, 3, -5.76), vector(5.26, 5.8, -0.04)),
+  { id: "house", kind: "building", parent: null, cells: [boxCell("house-cell", vector(HOUSE_PLAN.minX, -0.4, HOUSE_PLAN.minZ), vector(HOUSE_PLAN.maxX, 6.8, HOUSE_PLAN.maxZ))] },
+  { id: "site-pad", kind: "site", parent: "house", cells: [boxCell("site-cell", vector(SITE_PLAN.minX, -0.35, SITE_PLAN.minZ), vector(SITE_PLAN.maxX, 0.1, SITE_PLAN.maxZ))] },
+  { id: "ground-storey", kind: "storey", parent: "house", cells: [boxCell("ground-cell", vector(HOUSE_PLAN.minX, -0.01, HOUSE_PLAN.minZ), vector(HOUSE_PLAN.maxX, 3, HOUSE_PLAN.maxZ))] },
+  { id: "upper-storey", kind: "storey", parent: "house", cells: [boxCell("upper-cell", vector(HOUSE_PLAN.minX, 3, HOUSE_PLAN.minZ), vector(HOUSE_PLAN.maxX, 6, HOUSE_PLAN.maxZ))] },
+  { id: "roof-deck", kind: "roof-deck", parent: "house", cells: [boxCell("roof-cell", vector(HOUSE_PLAN.minX, 6, HOUSE_PLAN.minZ), vector(HOUSE_PLAN.maxX, 7, HOUSE_PLAN.maxZ))] },
+  room("entry", "ground-storey", ROOM_BOUNDS.entry),
+  room("flex-workroom", "ground-storey", ROOM_BOUNDS.flexWorkroom),
+  room("common-room", "ground-storey", ROOM_BOUNDS.commonRoom),
+  room("powder-utility", "ground-storey", ROOM_BOUNDS.powderUtility),
+  room("storage-1f", "ground-storey", ROOM_BOUNDS.storage1f),
+  room("upper-corridor", "upper-storey", ROOM_BOUNDS.upperCorridor),
+  room("primary-bedroom", "upper-storey", ROOM_BOUNDS.primaryBedroom),
+  room("child-bedroom-2", "upper-storey", ROOM_BOUNDS.childBedroom2),
+  room("child-bedroom-1", "upper-storey", ROOM_BOUNDS.childBedroom1),
+  room("upper-bathroom", "upper-storey", ROOM_BOUNDS.upperBathroom),
+  room("upper-storage", "upper-storey", ROOM_BOUNDS.upperStorage),
+  room("upper-service", "upper-storey", ROOM_BOUNDS.upperService),
 ];
 
 const boundaries = (): IAutoMovieBuiltBoundary[] => [
@@ -542,26 +604,26 @@ const connectors = (): IAutoMovieBuiltConnector[] => [
 
 const surfaces = (): IAutoMovieBuiltSurface[] => [
   surface("site-pad", "site-ground", { x: -7.8, z: -8.5 }, { x: 7.8, z: 8.5 }, -0.2),
-  surface("entry", "entry-floor", { x: -1.55, z: -5.76 }, { x: 1.55, z: -2.9 }, 0),
-  surface("flex-workroom", "flex-floor", { x: -5.26, z: -5.76 }, { x: -1.8, z: -2.9 }, 0),
-  surface("common-room", "common-floor", { x: -5.26, z: -2.66 }, { x: 3.26, z: 5.76 }, 0),
-  surface("powder-utility", "powder-floor", { x: 3.26, z: -5.76 }, { x: 5.26, z: -2.66 }, 0),
-  surface("storage-1f", "storage-floor", { x: 3.26, z: -2.66 }, { x: 5.26, z: 0.1 }, 0),
-  surface("upper-corridor", "upper-corridor-floor", { x: 0.2, z: -4.3 }, { x: 1.9, z: 2.6 }, 3),
-  surface("primary-bedroom", "primary-floor", { x: -5.26, z: 2.66 }, { x: 0, z: 5.76 }, 3),
-  surface("child-bedroom-2", "child-two-floor", { x: -5.26, z: -0.02 }, { x: 0, z: 2.6 }, 3),
-  surface("child-bedroom-1", "child-one-floor", { x: -5.26, z: -5.76 }, { x: 0, z: -0.04 }, 3),
-  surface("upper-bathroom", "upper-bath-floor", { x: 1.9, z: 1.6 }, { x: 5.26, z: 4.4 }, 3),
-  surface("upper-storage", "upper-storage-floor", { x: 1.9, z: 0 }, { x: 5.26, z: 1.5 }, 3),
-  surface("upper-service", "upper-service-floor", { x: 1.9, z: -5.76 }, { x: 5.26, z: -0.04 }, 3),
+  roomSurface("entry", "entry-floor", ROOM_BOUNDS.entry),
+  roomSurface("flex-workroom", "flex-floor", ROOM_BOUNDS.flexWorkroom),
+  roomSurface("common-room", "common-floor", ROOM_BOUNDS.commonRoom),
+  roomSurface("powder-utility", "powder-floor", ROOM_BOUNDS.powderUtility),
+  roomSurface("storage-1f", "storage-floor", ROOM_BOUNDS.storage1f),
+  roomSurface("upper-corridor", "upper-corridor-floor", ROOM_BOUNDS.upperCorridor),
+  roomSurface("primary-bedroom", "primary-floor", ROOM_BOUNDS.primaryBedroom),
+  roomSurface("child-bedroom-2", "child-two-floor", ROOM_BOUNDS.childBedroom2),
+  roomSurface("child-bedroom-1", "child-one-floor", ROOM_BOUNDS.childBedroom1),
+  roomSurface("upper-bathroom", "upper-bath-floor", ROOM_BOUNDS.upperBathroom),
+  roomSurface("upper-storage", "upper-storage-floor", ROOM_BOUNDS.upperStorage),
+  roomSurface("upper-service", "upper-service-floor", ROOM_BOUNDS.upperService),
 ];
 
 const populations = (): IAutoMovieBuiltPopulation[] => [
-  population({ id: "rear-common-curtainwall-bays", space: "common-room", modelRecipe: "model-curtainwall-module", palette: "#335d69", transforms: linearTransforms({ count: 7, start: -4.4, step: 1.2, axis: "x", y: 1.45, fixed: 5.92, scale: vector(1.16, 2.72, 0.08) }) }),
-  population({ id: "front-flex-curtainwall-bays", space: "flex-workroom", modelRecipe: "model-curtainwall-module", palette: "#335d69", transforms: linearTransforms({ count: 3, start: -4.8, step: 1.2, axis: "x", y: 1.45, fixed: -5.92, scale: vector(1.16, 2.72, 0.08) }) }),
-  population({ id: "front-stair-curtainwall-bays", space: "entry", modelRecipe: "model-curtainwall-module", palette: "#335d69", transforms: linearTransforms({ count: 3, start: -1.2, step: 1.2, axis: "x", y: 1.45, fixed: -5.92, scale: vector(1.16, 2.72, 0.08) }) }),
-  population({ id: "front-upper-curtainwall-bays", space: "child-bedroom-1", modelRecipe: "model-curtainwall-module", palette: "#6b8282", transforms: linearTransforms({ count: 5, start: -4.6, step: 1.15, axis: "x", y: 4.45, fixed: -5.92, scale: vector(1.1, 2.72, 0.08) }) }),
-  population({ id: "primary-rear-curtainwall-bays", space: "primary-bedroom", modelRecipe: "model-curtainwall-module", palette: "#335d69", transforms: linearTransforms({ count: 4, start: -4.6, step: 1.15, axis: "x", y: 4.45, fixed: 5.92, scale: vector(1.1, 2.72, 0.08) }) }),
+  population({ id: "rear-common-curtainwall-bays", space: "common-room", modelRecipe: "model-curtainwall-module", palette: "#335d69", transforms: roomCurtainwallTransforms(ROOM_BOUNDS.commonRoom, 7, 5.92) }),
+  population({ id: "front-flex-curtainwall-bays", space: "flex-workroom", modelRecipe: "model-curtainwall-module", palette: "#335d69", transforms: roomCurtainwallTransforms(ROOM_BOUNDS.flexWorkroom, 3, -5.92) }),
+  population({ id: "front-stair-curtainwall-bays", space: "entry", modelRecipe: "model-curtainwall-module", palette: "#335d69", transforms: roomCurtainwallTransforms(ROOM_BOUNDS.entry, 3, -5.92) }),
+  population({ id: "front-upper-curtainwall-bays", space: "child-bedroom-1", modelRecipe: "model-curtainwall-module", palette: "#6b8282", transforms: roomCurtainwallTransforms(ROOM_BOUNDS.childBedroom1, 5, -5.92) }),
+  population({ id: "primary-rear-curtainwall-bays", space: "primary-bedroom", modelRecipe: "model-curtainwall-module", palette: "#335d69", transforms: roomCurtainwallTransforms(ROOM_BOUNDS.primaryBedroom, 4, 5.92) }),
   population({ id: "front-exterior-shading", space: "house", modelRecipe: "model-shade-module", palette: "#0b1015", transforms: [
     ...linearTransforms({ prefix: "lower", count: 7, start: -4.2, step: 1.2, axis: "x", y: 2.82, fixed: -6.15, scale: vector(1.05, 0.08, 0.26) }),
     ...linearTransforms({ prefix: "upper", count: 7, start: -4.2, step: 1.2, axis: "x", y: 5.82, fixed: -6.15, scale: vector(1.05, 0.08, 0.26) }),
@@ -617,8 +679,7 @@ const citizenHouseEnvironment = (): IAutoMovieBuiltEnvironment => ({
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 Read the source scope checklist and checked this export stays within the selected spaces owner.
  * @evidence principles/core/source-units.md#source-substantive-completion The source publishes the complete environment carrier required by its selected space design.
  * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Read the source completion checklist and checked the environment publishes the required complete carrier.
- * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work The source's compiled environment is the executable realization of the selected space design.
- * @evidenceReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 Read the source-upstream relation and checked the compiled environment is the executable realization of the selected design.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The selected space parent explicitly supplies the 11×12m house footprint, separate site context, two floor lines, room bounds, boundary/opening graph, single stair route, and measured curtainwall population rules; the current source compile implements those exact interfaces without inventing a topology or clearance decision, so no parent space defect was exposed.
  * @evidence obligations/design/space-sources.md#space-source-design-ownership The source registers the exact space H2 it realizes.
  * @evidenceReview obligations/design/space-sources.md#space-source-design-ownership #c0afa1f Read the source-ownership obligation and checked the export registers the exact space H2.
  * @evidence obligations/design/space-sources.md#space-source-stable-identities The source assigns stable identities to spaces, elements, populations, openings, connectors, and surfaces.

@@ -9,7 +9,7 @@
 @evidence principles/design/spaces.md#space-boundary-authority This space H2 owns the rectangular house boundary and its logical room cells.
 @evidence principles/design/spaces.md#space-topology This space H2 owns the storey, room, opening, and single-stair topology.
 @evidence principles/design/spaces.md#space-verification-address This space H2 names the source owner and the compiled spatial observations used to verify it.
-@evidence upstream/design/spaces.md#settings-and-map-revision-from-space-work This space H2 reports the spatial decisions that feed back to the selected settings and coordinate basis.
+  @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work The reviewed settings facts are sufficient: the household is an ordinary family residence, the adopted Y-up metre frame uses an 11×12m building footprint, front is -Z, the single dogleg stair is the only storey transition, and the three privacy states plus the complete observation population are already explicit; no parent settings or map defect had to be repaired by this space layout.
 @evidence settings/001-production.md#delivery-scope This space H2 realizes the library delivery scope inherited from production settings.
 @evidence settings/001-production.md#governing-aim This space H2 realizes the governing everyday-household aim.
 @evidence settings/001-production.md#production-visual-grammar This space H2 realizes the declared material and visual grammar.
@@ -32,7 +32,6 @@
 @evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 Read the boundary-authority checklist and checked the rectangular house boundary and room cells.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 Read the topology checklist and checked storeys, rooms, openings, and the single stair.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 Read the verification-address checklist and checked the source and compiled observation address.
-@evidenceReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 Read the upstream space relation and checked the selected settings and coordinate basis receive the spatial decisions.
 @evidenceReview settings/001-production.md#delivery-scope #545ec14 Read the delivery-scope setting and checked this space realizes the declared library boundary.
 @evidenceReview settings/001-production.md#governing-aim #6aa36a1 Read the governing-aim setting and checked the everyday-household aim is realized spatially.
 @evidenceReview settings/001-production.md#production-visual-grammar #709df3f Read the visual-grammar setting and checked the material language is carried into the space design.
@@ -50,15 +49,15 @@
 @evidenceReview contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements #83336e9 Read the local contract and checked the space H2 preserves its fixed graph and curtainwall/privacy requirements.
 -->
 
-**Status:** construction draft, [공간 기준](../settings/003-spatial-basis.md)과 사용자 고정 공간 그래프의 직접 realization.
+**Status:** evidence stage, [공간 기준](../settings/003-spatial-basis.md)과 사용자 고정 공간 그래프의 직접 realization. 독립 reviewer의 current-source 판정은 아직 `unverified`다.
 
-이 H2는 `citizen-house` building 하나, `ground-storey`와 `upper-storey` 두 level, 외부 `site-pad`와 모든 내부 room을 포함하는 하나의 environment graph를 소유한다. 건물 root의 world bounds는 11.0×12.0m이며 모든 logical room은 정확히 한 storey의 child다. source는 `src/spaces/citizen-house.ts#citizenHouseSpaceSource` 하나가 이 H2를 carrier로 내보낸다.
+이 H2는 `citizen-house` building 하나, `ground-storey`와 `upper-storey` 두 level, 외부 `site-pad`와 모든 내부 room을 포함하는 하나의 environment graph를 소유한다. `house` building root의 plan bounds는 x=-5.5..5.5, z=-6.0..6.0인 11.0×12.0m이며, `site-pad`는 그 root 계층에 귀속된 15.6×17.0m의 외부 site context다. 모든 logical room은 정확히 한 storey의 child다. source는 `src/spaces/citizen-house.ts#citizenHouseSpaceSource` 하나가 이 H2를 carrier로 내보낸다.
 
 1층 graph는 `entry → common-room`, `entry → flex-workroom`, `entry → powder-utility`, `common-room → storage-1f`, `entry → upper-corridor`의 단일 꺾임계단이다. `common-room`은 living, dining, kitchen을 나누지 않는 하나의 연속 room이다. 2층 graph는 `upper-corridor`에서 `primary-bedroom`, `child-bedroom-1`, `child-bedroom-2`, `upper-bathroom`, `upper-storage`, `upper-service`로 직접 문이 난다. upper corridor 외의 corridor를 만들지 않으며, 모든 연결은 `passage` 또는 유일한 `stair` connector다.
 
-외피는 front stair curtainwall, front flex curtainwall, rear common curtainwall, left return envelope, right opaque service envelope로 분해한다. 각 curtainwall bay의 x 또는 z 간격과 sill/head는 floor line과 대응 room boundary에 맞춰 source loop에서 파생한다. glass fill은 material 상태로 clear·electrochromic·translucent 역할을 나타내며 실제 shader나 전기 장치의 성능을 대신 주장하지 않는다.
+외피는 front stair curtainwall, front flex curtainwall, rear common curtainwall, left return envelope, right opaque service envelope로 분해한다. 각 curtainwall population은 명명된 room bounds의 x span을 `width=(maxX-minX)/count`로 나누고 center와 width를 같은 bounds에서 파생하며, sill/head는 해당 room의 floor와 ceiling line에 맞춘다. glass fill은 material 상태로 clear·electrochromic·translucent 역할을 나타내며 실제 shader나 전기 장치의 성능을 대신 주장하지 않는다.
 
-명시 fit-out은 entry bench/shoe storage/charging niche, flex desk/chair/shelf/folding surface, common sofa/table/media wall/dining table six seats/kitchen island/sink/cooktop/refrigerator/pantry/recycling cabinet, ground core utility and storage, primary bed/bedside/wardrobe/desk, 두 child bed/wardrobe/desk, upper bathroom vanity/toilet/shower-tub/towel storage, corridor lighting, upper storage cabinets다. 지붕에는 roof slab, four-sided supported PV canopy, repeated solar/slat modules와 shading fins를 둔다.
+명시 fit-out은 entry bench/shoe storage/charging niche, flex desk/chair/shelf/folding surface, common sofa/table/media wall/dining table six seats/kitchen island/sink/cooktop/refrigerator/pantry/recycling cabinet, ground core utility and storage, primary bed/bedside/wardrobe/desk, 두 child bed/wardrobe/desk, upper bathroom vanity/toilet/shower-tub/towel storage, corridor lighting, upper storage cabinets다. 지붕에는 roof slab, 지붕 구조 상단에서 y=6.20..6.80으로만 올라가는 네 개의 support post를 가진 four-sided supported PV canopy, repeated solar/slat modules와 shading fins를 둔다.
 
 **공간별 관찰 owner.**
 

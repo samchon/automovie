@@ -24,13 +24,29 @@
           <select id="view-mode">
             <option value="whole">전체 매스</option>
             <option value="ground">1층 검사</option>
+            <option value="ground-plan">1층 평면</option>
             <option value="upper">2층 검사</option>
+            <option value="upper-plan">2층 평면</option>
             <option value="roof">지붕·캐노피</option>
+            <option value="front">전면 입면</option>
+            <option value="rear">후면 입면</option>
+            <option value="left">좌측 입면</option>
+            <option value="right">우측 입면</option>
+            <option value="section">검사 절개</option>
           </select>
         </label>
         <label class="space-control">
           <span>구획 선택</span>
           <select id="space-select"></select>
+        </label>
+        <label>
+          <span>관찰 오버레이</span>
+          <select id="observation-layer">
+            <option value="all">전체 topology</option>
+            <option value="rooms">방 target</option>
+            <option value="topology">boundary·opening·route</option>
+            <option value="none">오버레이 없음</option>
+          </select>
         </label>
         <label class="check-control">
           <input id="interior-only" type="checkbox" />
@@ -57,7 +73,7 @@
             <dl id="space-stats"></dl>
           </div>
           <div class="inspector-section note-section">
-            <p>수·id·바인딩·치수는 이 패널이 답하지 않습니다. 그것들은 컴파일된 산출물 계측의 책임입니다. 이 뷰어는 그 산출물이 리뷰 거리에서 주택·방·외피로 읽히는지만 답합니다.</p>
+            <p>수·id·바인딩·치수는 이 패널이 답하지 않습니다. 그것들은 컴파일된 산출물 계측의 책임입니다. 오버레이는 compiled boundary·opening·connector·surface와 room threshold·4 corners·center/cardinals를 화면에서 찾기 위한 관찰 보조입니다.</p>
           </div>
         </aside>
       </section>

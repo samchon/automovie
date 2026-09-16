@@ -49,6 +49,7 @@ export interface Part {
   readonly material: MaterialId;
   readonly rotationYDeg: number;
   readonly pitchDeg: number;
+  readonly rollDeg: number;
   readonly tags: readonly string[];
 }
 
@@ -181,6 +182,7 @@ export interface HouseLibrary {
   readonly reviewPopulation: readonly ReviewObservation[];
   readonly topologyAudit: AuditResult;
   readonly surfaceAudit: AuditResult;
+  readonly siteAudit: AuditResult;
   readonly vehicleAudit: AuditResult;
   readonly quantities: {
     readonly mainFootprintM2: number;
@@ -224,6 +226,7 @@ const box = (
   shape: PartShape = "box",
   rotationYDeg = 0,
   pitchDeg = 0,
+  rollDeg = 0,
 ): Part => ({
   id,
   shape,
@@ -232,6 +235,7 @@ const box = (
   material,
   rotationYDeg,
   pitchDeg,
+  rollDeg,
   tags,
 });
 
@@ -332,65 +336,41 @@ const wallParts = (spec: WallSpec): Part[] => {
     (a, b) => a.centerAlongAxis - b.centerAlongAxis,
   );
   const parts: Part[] = [];
-  let cursor = spec.start;
-  for (const opening of openings) {
-    const openingStart = opening.centerAlongAxis - opening.width / 2;
-    if (openingStart > cursor) {
-      parts.push(
-        box(
-          `${spec.id}.solid.${parts.length}`,
-          spec.axis === "x"
-            ? v(
-                (cursor + openingStart) / 2,
-                (spec.bottomM + spec.topM) / 2,
-                spec.fixedCoordinate,
-              )
-            : v(
-                spec.fixedCoordinate,
-                (spec.bottomM + spec.topM) / 2,
-                (cursor + openingStart) / 2,
-              ),
-          spec.axis === "x"
-            ? v(
-                openingStart - cursor,
-                spec.topM - spec.bottomM,
-                spec.thicknessM,
-              )
-            : v(
-                spec.thicknessM,
-                spec.topM - spec.bottomM,
-                openingStart - cursor,
-              ),
-          "siding-white",
-          ["wall", "opening-clear"],
-        ),
-      );
-    }
-    cursor = opening.centerAlongAxis + opening.width / 2;
-  }
-  if (cursor < spec.end) {
+  const addSpan = (start: number, end: number, bottom: number, top: number): void => {
+    if (end <= start || top <= bottom) return;
     parts.push(
       box(
         `${spec.id}.solid.${parts.length}`,
         spec.axis === "x"
-          ? v(
-              (cursor + spec.end) / 2,
-              (spec.bottomM + spec.topM) / 2,
-              spec.fixedCoordinate,
-            )
-          : v(
-              spec.fixedCoordinate,
-              (spec.bottomM + spec.topM) / 2,
-              (cursor + spec.end) / 2,
-            ),
+          ? v((start + end) / 2, (bottom + top) / 2, spec.fixedCoordinate)
+          : v(spec.fixedCoordinate, (bottom + top) / 2, (start + end) / 2),
         spec.axis === "x"
-          ? v(spec.end - cursor, spec.topM - spec.bottomM, spec.thicknessM)
-          : v(spec.thicknessM, spec.topM - spec.bottomM, spec.end - cursor),
+          ? v(end - start, top - bottom, spec.thicknessM)
+          : v(spec.thicknessM, top - bottom, end - start),
         "siding-white",
         ["wall", "opening-clear"],
       ),
     );
+  };
+  let cursor = spec.start;
+  for (const opening of openings) {
+    const openingStart = opening.centerAlongAxis - opening.width / 2;
+    addSpan(cursor, openingStart, spec.bottomM, spec.topM);
+    addSpan(
+      openingStart,
+      opening.centerAlongAxis + opening.width / 2,
+      spec.bottomM,
+      spec.bottomM + opening.sillM,
+    );
+    addSpan(
+      openingStart,
+      opening.centerAlongAxis + opening.width / 2,
+      spec.bottomM + opening.sillM + opening.height,
+      spec.topM,
+    );
+    cursor = opening.centerAlongAxis + opening.width / 2;
   }
+  addSpan(cursor, spec.end, spec.bottomM, spec.topM);
   return parts;
 };
 
@@ -969,14 +949,14 @@ const stairElements = (): Element[] => {
 const roofElements = (): Element[] => {
   return [
     element("roof/main-north", null, null, "surface.roof.main.north", "envelope", [
-      box("roof.main.north", v(-2.75, 5.88, 0), v(6.25, 0.18, 10.15), "roof-charcoal", ["roof-slope", "exposed"], "slab", 0, 28),
-      box("roof.ridge", v(0, 6.86, 0), v(0.22, 0.2, 9.9), "trim-white", ["ridge-cap"]),
+      box("roof.main.north", v(-2.75, 6.5, 0), v(6.25, 0.18, 10.15), "roof-charcoal", ["roof-slope", "exposed"], "slab", 0, 0, 18),
+      box("roof.ridge", v(0, 7.5, 0), v(0.22, 0.2, 9.9), "trim-white", ["ridge-cap"]),
     ]),
     element("roof/main-south", null, null, "surface.roof.main.south", "envelope", [
-      box("roof.main.south", v(2.75, 5.88, 0), v(6.25, 0.18, 10.15), "roof-charcoal", ["roof-slope", "exposed"], "slab", 0, -28),
+      box("roof.main.south", v(2.75, 6.5, 0), v(6.25, 0.18, 10.15), "roof-charcoal", ["roof-slope", "exposed"], "slab", 0, 0, -18),
     ]),
     element("roof/garage", null, null, "surface.roof.garage", "envelope", [
-      box("roof.garage", v(8.4, 4.15, -1.7), v(5.95, 0.18, 6.55), "roof-charcoal", ["garage-roof", "exposed"], "slab", 0, 12),
+      box("roof.garage", v(8.4, 4.15, -1.7), v(5.95, 0.18, 6.55), "roof-charcoal", ["garage-roof", "exposed"], "slab", 0, 0, 12),
     ]),
   ];
 };
@@ -1021,22 +1001,48 @@ const addUpperPartitions = (elements: Element[], openings: Opening[]): void => {
   add(partitionWithOpenings("upper/partition/hall-bedroom-three", "upper", "upper/bedroom-three", "z", 1.48, 1.025, 4.575, UPPER_ELEVATION, UPPER_ELEVATION + UPPER_HEIGHT, [{ id: "hall-bedroom-three-door", kind: "door", centerAlongAxis: 2.3, width: 0.9, sillM: 0, height: 2.1, fromSpaceId: "upper/hall", toSpaceId: "upper/bedroom-three" }]));
   add(partitionWithOpenings("upper/partition/hall-baths", "upper", "upper/bathroom-one", "z", 3.0, -0.9, 0.95, UPPER_ELEVATION, UPPER_ELEVATION + UPPER_HEIGHT, [{ id: "hall-bath-one-door", kind: "door", centerAlongAxis: 0.1, width: 0.8, sillM: 0, height: 2.1, fromSpaceId: "upper/hall", toSpaceId: "upper/bathroom-one" }]));
   add(partitionWithOpenings("upper/partition/linen", "upper", "upper/linen-storage", "z", 3.02, -3.9, -1.55, UPPER_ELEVATION, UPPER_ELEVATION + UPPER_HEIGHT, [{ id: "hall-linen-door", kind: "door", centerAlongAxis: -2.7, width: 0.75, sillM: 0, height: 2.1, fromSpaceId: "upper/hall", toSpaceId: "upper/linen-storage" }]));
-  add(partitionWithOpenings("upper/partition/primary-bath", "upper", "upper/primary-bath", "x", -0.28, -1.55, -0.35, UPPER_ELEVATION, UPPER_ELEVATION + UPPER_HEIGHT, [{ id: "primary-bath-door", kind: "door", centerAlongAxis: -0.95, width: 0.75, sillM: 0, height: 2.1, fromSpaceId: "upper/primary-bedroom", toSpaceId: "upper/primary-bath" }]));
+  add(partitionWithOpenings("upper/partition/primary-bath", "upper", "upper/primary-bath", "z", -1.55, 3.0, 4.5, UPPER_ELEVATION, UPPER_ELEVATION + UPPER_HEIGHT, [{ id: "primary-bath-door", kind: "door", centerAlongAxis: 3.75, width: 0.75, sillM: 0, height: 2.1, fromSpaceId: "upper/primary-bedroom", toSpaceId: "upper/primary-bath" }]));
 };
 
-const addFloorAndCeilingElements = (elements: Element[]): void => {
+const addFloorAndCeilingElements = (elements: Element[], spaces: readonly Space[]): void => {
   elements.push(
     slab("ground/floor-slab", "ground", null, "surface.storey.ground-floor", v(0, -0.14, 0), v(11.0, 0.28, 9.6), "concrete-cool-gray", ["structural-floor"]),
-    slab("ground/floor-finish", "ground", null, "surface.storey.ground-floor", v(0, 0.02, 0), v(10.72, 0.04, 9.32), "wood-oak", ["finish-floor"]),
     slab("ground/ceiling", "ground", null, "surface.storey.ground-ceiling", v(0, GROUND_HEIGHT + 0.14, 0), v(11.0, 0.28, 9.6), "paint-warm-white", ["ceiling"]),
     slab("upper/floor-slab", "upper", null, "surface.storey.upper-floor", v(0, UPPER_ELEVATION - 0.14, 0), v(11.0, 0.28, 9.6), "wood-oak", ["structural-floor"]),
-    slab("upper/floor-finish", "upper", null, "surface.storey.upper-floor", v(0, UPPER_ELEVATION + 0.02, 0), v(10.72, 0.04, 9.32), "carpet-warm-gray", ["finish-floor"]),
     slab("upper/ceiling", "upper", null, "surface.storey.upper-ceiling", v(0, UPPER_ELEVATION + UPPER_HEIGHT + 0.14, 0), v(11.0, 0.28, 9.6), "paint-warm-white", ["ceiling"]),
-    slab("garage/floor", "ground", "ground/garage", "surface.space.ground/garage", v(8.4, 0.03, -1.7), v(5.5, 0.06, 5.5), "concrete-cool-gray", ["garage-slab"]),
   );
+  for (const item of spaces) {
+    const width = item.bounds.max.x - item.bounds.min.x;
+    const depth = item.bounds.max.z - item.bounds.min.z;
+    elements.push(
+      slab(
+        `floor-finish/${item.id}`,
+        item.storeyId,
+        item.id,
+        item.surfaceOwnerId,
+        v((item.bounds.min.x + item.bounds.max.x) / 2, item.bounds.min.y + 0.02, (item.bounds.min.z + item.bounds.max.z) / 2),
+        v(Math.max(0.1, width - 0.06), 0.04, Math.max(0.1, depth - 0.06)),
+        item.floorMaterial,
+        ["finish-floor", "room-surface"],
+      ),
+    );
+  }
 };
 
-const addInteriorFitOut = (elements: Element[]): void => {
+const lightingElements = (spaces: readonly Space[]): Element[] => [
+  ...spaces.map((item) => simpleFurniture(
+    `lighting/${item.id}/ceiling-fixture`,
+    item.storeyId,
+    item.id,
+    v((item.bounds.min.x + item.bounds.max.x) / 2, item.bounds.max.y - 0.18, (item.bounds.min.z + item.bounds.max.z) / 2),
+    v(0.42, 0.08, 0.42),
+    "trim-white",
+    ["lighting-fixture", "ceiling-light"],
+  )),
+  simpleFurniture("lighting/kitchen/under-cabinet-task-light", "ground", "ground/kitchen-dining-family", v(-3.4, 1.55, 3.27), v(2.15, 0.06, 0.05), "trim-white", ["lighting-fixture", "under-cabinet-light"]),
+];
+
+const addInteriorFitOut = (elements: Element[], spaces: readonly Space[]): void => {
   const ground = "ground";
   elements.push(
     furniture("living/sofa", ground, "ground/living-room", [
@@ -1056,6 +1062,10 @@ const addInteriorFitOut = (elements: Element[]): void => {
     ]),
     simpleFurniture("kitchen/refrigerator", ground, "ground/kitchen-dining-family", v(-4.55, 1.15, 2.05), v(0.82, 2.15, 0.75), "metal-black", ["appliance"]),
     simpleFurniture("kitchen/range", ground, "ground/kitchen-dining-family", v(-2.7, 1.15, 3.63), v(0.85, 1.15, 0.66), "metal-black", ["appliance"]),
+    simpleFurniture("kitchen/hood", ground, "ground/kitchen-dining-family", v(-2.7, 2.03, 3.63), v(0.95, 0.16, 0.72), "metal-black", ["appliance", "hood"]),
+    simpleFurniture("kitchen/island-stool-one", ground, "ground/kitchen-dining-family", v(-2.55, 0.48, 1.45), v(0.42, 0.72, 0.42), "wood-walnut", ["seating", "island-stool"]),
+    simpleFurniture("kitchen/island-stool-two", ground, "ground/kitchen-dining-family", v(-1.8, 0.48, 1.45), v(0.42, 0.72, 0.42), "wood-walnut", ["seating", "island-stool"]),
+    simpleFurniture("kitchen/island-stool-three", ground, "ground/kitchen-dining-family", v(-1.05, 0.48, 1.45), v(0.42, 0.72, 0.42), "wood-walnut", ["seating", "island-stool"]),
     furniture("dining/table", ground, "ground/kitchen-dining-family", [
       box("dining/table-top", v(0.05, 0.82, 3.15), v(2.35, 0.12, 1.05), "wood-walnut", ["dining"]),
       box("dining/table-leg-a", v(-0.8, 0.38, 2.82), v(0.12, 0.75, 0.12), "wood-walnut", ["dining"]),
@@ -1063,15 +1073,28 @@ const addInteriorFitOut = (elements: Element[]): void => {
       box("dining/table-leg-c", v(-0.8, 0.38, 3.48), v(0.12, 0.75, 0.12), "wood-walnut", ["dining"]),
       box("dining/table-leg-d", v(0.9, 0.38, 3.48), v(0.12, 0.75, 0.12), "wood-walnut", ["dining"]),
     ]),
+    simpleFurniture("dining/chair-front-left", ground, "ground/kitchen-dining-family", v(-1.4, 0.45, 2.35), v(0.48, 0.82, 0.48), "fabric-blue-gray", ["seating", "dining-chair"]),
+    simpleFurniture("dining/chair-front-center", ground, "ground/kitchen-dining-family", v(0.05, 0.45, 2.35), v(0.48, 0.82, 0.48), "fabric-blue-gray", ["seating", "dining-chair"]),
+    simpleFurniture("dining/chair-front-right", ground, "ground/kitchen-dining-family", v(1.5, 0.45, 2.35), v(0.48, 0.82, 0.48), "fabric-blue-gray", ["seating", "dining-chair"]),
+    simpleFurniture("dining/chair-rear-left", ground, "ground/kitchen-dining-family", v(-1.4, 0.45, 3.95), v(0.48, 0.82, 0.48), "fabric-blue-gray", ["seating", "dining-chair"]),
+    simpleFurniture("dining/chair-rear-center", ground, "ground/kitchen-dining-family", v(0.05, 0.45, 3.95), v(0.48, 0.82, 0.48), "fabric-blue-gray", ["seating", "dining-chair"]),
+    simpleFurniture("dining/chair-rear-right", ground, "ground/kitchen-dining-family", v(1.5, 0.45, 3.95), v(0.48, 0.82, 0.48), "fabric-blue-gray", ["seating", "dining-chair"]),
     furniture("family/sofa", ground, "ground/kitchen-dining-family", [
       box("family/sofa/base", v(1.35, 0.55, 0.95), v(2.35, 0.75, 0.85), "fabric-oatmeal", ["seating"]),
       box("family/sofa/back", v(1.35, 1.1, 1.28), v(2.35, 0.85, 0.18), "fabric-oatmeal", ["seating"]),
     ]),
+    simpleFurniture("family/low-table", ground, "ground/kitchen-dining-family", v(1.35, 0.42, 0.32), v(1.15, 0.22, 0.65), "wood-walnut", ["table"]),
+    simpleFurniture("family/rug", ground, "ground/kitchen-dining-family", v(1.15, 0.2, 0.72), v(2.75, 0.04, 1.85), "fabric-blue-gray", ["rug"]),
+    simpleFurniture("family/plant", ground, "ground/kitchen-dining-family", v(-0.25, 0.62, 0.5), v(0.42, 1.25, 0.42), "greenery", ["plant"]),
     simpleFurniture("family/media-console", ground, "ground/kitchen-dining-family", v(2.35, 0.55, 0.05), v(0.35, 1.0, 1.8), "wood-walnut", ["media"]),
     simpleFurniture("pantry/shelves", ground, "ground/pantry", v(3.1, 1.25, 3.55), v(0.28, 2.15, 1.1), "wood-oak", ["storage"]),
     simpleFurniture("powder/vanity", ground, "ground/powder-room", v(3.9, 0.58, 1.7), v(0.8, 1.0, 0.42), "wood-walnut", ["fixture"]),
+    simpleFurniture("powder/hand-basin", ground, "ground/powder-room", v(3.9, 1.14, 1.7), v(0.46, 0.08, 0.28), "stone-pale", ["fixture", "hand-basin"]),
+    simpleFurniture("powder/mirror", ground, "ground/powder-room", v(3.9, 1.65, 1.47), v(0.62, 0.58, 0.04), "glass-smoke", ["mirror"]),
     simpleFurniture("powder/toilet", ground, "ground/powder-room", v(4.55, 0.55, 2.0), v(0.42, 0.8, 0.65), "tile-pale", ["fixture"]),
     simpleFurniture("mudroom/bench", ground, "ground/laundry-mudroom", v(3.35, 0.58, 0.75), v(1.75, 0.8, 0.48), "wood-oak", ["storage", "bench"]),
+    simpleFurniture("mudroom/shoe-storage", ground, "ground/laundry-mudroom", v(3.45, 1.18, 0.28), v(1.2, 0.58, 0.38), "wood-oak", ["storage", "shoe-storage"]),
+    simpleFurniture("mudroom/utility-sink", ground, "ground/laundry-mudroom", v(4.45, 0.72, 0.28), v(0.62, 0.9, 0.42), "stone-pale", ["fixture", "utility-sink"]),
     simpleFurniture("mudroom/laundry-pair", ground, "ground/laundry-mudroom", v(4.55, 1.05, 0.65), v(0.95, 1.9, 0.7), "metal-black", ["appliance"]),
     simpleFurniture("mudroom/hooks", ground, "ground/laundry-mudroom", v(3.25, 1.45, 0.55), v(1.2, 1.4, 0.08), "wood-walnut", ["storage"]),
     simpleFurniture("garage/storage-cabinets", ground, "ground/garage", v(6.25, 1.15, 0.55), v(0.55, 2.05, 1.95), "cabinet-taupe", ["garage-storage"]),
@@ -1092,15 +1115,23 @@ const addInteriorFitOut = (elements: Element[]): void => {
     );
   }
   elements.push(
+    simpleFurniture("fitout/primary-bedroom/nightstand-two", upper, "upper/primary-bedroom", v(-2.05, UPPER_ELEVATION + 0.48, 2.75), v(0.42, 0.55, 0.42), "wood-walnut", ["storage", "nightstand"]),
+  );
+  elements.push(
     simpleFurniture("fitout/primary-bedroom/closet", upper, "upper/primary-bedroom", v(-1.8, UPPER_ELEVATION + 1.15, 3.9), v(0.42, 2.2, 1.1), "wood-oak", ["closet"]),
     simpleFurniture("fitout/bedroom-two/closet", upper, "upper/bedroom-two", v(-1.85, UPPER_ELEVATION + 1.15, -3.55), v(0.4, 2.2, 0.95), "wood-oak", ["closet"]),
     simpleFurniture("fitout/bedroom-three/closet", upper, "upper/bedroom-three", v(4.5, UPPER_ELEVATION + 1.15, 3.9), v(0.4, 2.2, 1.0), "wood-oak", ["closet"]),
     simpleFurniture("fitout/upper/hall-linen", upper, "upper/linen-storage", v(4.45, UPPER_ELEVATION + 1.15, -2.65), v(0.38, 2.2, 1.45), "wood-oak", ["storage"]),
     simpleFurniture("fitout/bathroom-one/vanity", upper, "upper/bathroom-one", v(2.15, UPPER_ELEVATION + 0.6, -0.35), v(0.8, 1.05, 0.42), "wood-walnut", ["fixture"]),
+    simpleFurniture("fitout/bathroom-one/mirror", upper, "upper/bathroom-one", v(2.15, UPPER_ELEVATION + 1.62, -0.58), v(0.68, 0.58, 0.04), "glass-smoke", ["mirror"]),
     simpleFurniture("fitout/bathroom-one/toilet", upper, "upper/bathroom-one", v(2.65, UPPER_ELEVATION + 0.55, 0.55), v(0.42, 0.8, 0.62), "tile-pale", ["fixture"]),
     simpleFurniture("fitout/primary-bath/vanity", upper, "upper/primary-bath", v(-1.0, UPPER_ELEVATION + 0.6, 3.5), v(0.9, 1.05, 0.42), "wood-walnut", ["fixture"]),
+    simpleFurniture("fitout/primary-bath/mirror", upper, "upper/primary-bath", v(-1.0, UPPER_ELEVATION + 1.62, 3.25), v(0.78, 0.58, 0.04), "glass-smoke", ["mirror"]),
+    simpleFurniture("fitout/primary-bath/toilet", upper, "upper/primary-bath", v(-1.3, UPPER_ELEVATION + 0.55, 4.0), v(0.34, 0.8, 0.42), "tile-pale", ["fixture"]),
+    simpleFurniture("fitout/primary-bath/shower", upper, "upper/primary-bath", v(-0.58, UPPER_ELEVATION + 1.15, 3.45), v(0.34, 2.0, 0.62), "tile-pale", ["fixture", "shower"]),
     simpleFurniture("fitout/primary-bath/tub", upper, "upper/primary-bath", v(-0.75, UPPER_ELEVATION + 0.55, 4.2), v(0.78, 0.7, 1.0), "tile-pale", ["fixture", "tub"]),
   );
+  elements.push(...lightingElements(spaces));
 };
 
 const moduleCount = (family: ModuleLaw["family"], lengthM: number, heightM: number, spacingM: number): number => {
@@ -1126,6 +1157,8 @@ const moduleLaws = (): ModuleLaw[] => [
 ];
 
 const moduleElements = (laws: readonly ModuleLaw[]): Element[] => {
+  const roofPlaneY = (centerX: number, centerY: number, slopeDeg: number, x: number): number =>
+    centerY + Math.tan((slopeDeg * Math.PI) / 180) * (x - centerX);
   const elements: Element[] = [];
   for (const law of laws) {
     const parts: Part[] = [];
@@ -1146,10 +1179,27 @@ const moduleElements = (laws: readonly ModuleLaw[]): Element[] => {
         const vertical = row * rowPitch + rowPitch / 2;
         const isRoof = law.family === "shingle";
         const isSide = law.hostSurfaceOwnerId.endsWith("left") || law.hostSurfaceOwnerId.endsWith("right");
+        const roofSlopeDeg = law.hostSurfaceOwnerId.endsWith("garage")
+          ? 12
+          : law.hostSurfaceOwnerId.endsWith("north")
+            ? 18
+            : -18;
+        const roofCenterX = law.hostSurfaceOwnerId.endsWith("garage")
+          ? (GARAGE.minX + GARAGE.maxX) / 2
+          : law.hostSurfaceOwnerId.endsWith("north")
+            ? -2.75
+            : 2.75;
+        const roofCenterY = law.hostSurfaceOwnerId.endsWith("garage") ? 4.15 : 6.5;
+        const roofX = law.hostSurfaceOwnerId.endsWith("garage")
+          ? GARAGE.minX + vertical
+          : law.hostSurfaceOwnerId.endsWith("north")
+            ? MAIN.minX + vertical
+            : MAIN.maxX - vertical;
+        const roofZ = law.hostSurfaceOwnerId.endsWith("garage")
+          ? GARAGE.minZ + Math.min(along + moduleLength / 2, GARAGE.maxZ - GARAGE.minZ - moduleLength / 2)
+          : MAIN.minZ + Math.min(along + moduleLength / 2, MAIN.maxZ - MAIN.minZ - moduleLength / 2);
         const center = isRoof
-            ? law.hostSurfaceOwnerId.endsWith("garage")
-              ? v(GARAGE.minX + Math.min(along, GARAGE.maxX - GARAGE.minX), 3.75 + vertical * 0.08, GARAGE.minZ + Math.min(vertical, GARAGE.maxZ - GARAGE.minZ))
-            : v(law.hostSurfaceOwnerId.endsWith("north") ? MAIN.minX + vertical : MAIN.maxX - vertical, 4.95 + vertical * 0.12, MAIN.minZ + Math.min(along, MAIN.maxZ - MAIN.minZ))
+            ? v(roofX, roofPlaneY(roofCenterX, roofCenterY, roofSlopeDeg, roofX) + 0.11, roofZ)
           : isSide
             ? v(law.id.endsWith("garage") ? GARAGE.maxX + 0.1 : law.hostSurfaceOwnerId.endsWith("left") ? MAIN.minX - 0.1 : MAIN.maxX + 0.1, 0.15 + vertical, (law.id.endsWith("garage") ? GARAGE.minZ : MAIN.minZ) + Math.min(along, law.measuredLengthM))
             : v(MAIN.minX + Math.min(along, law.measuredLengthM), 0.15 + vertical, law.hostSurfaceOwnerId.endsWith("front") ? MAIN.minZ - 0.1 : MAIN.maxZ + 0.1);
@@ -1165,6 +1215,10 @@ const moduleElements = (laws: readonly ModuleLaw[]): Element[] => {
             size,
             material,
             ["generated-module", law.family, `law-count:${law.count}`],
+            "box",
+            0,
+            0,
+            isRoof ? roofSlopeDeg : 0,
           ),
         );
       }
@@ -1175,7 +1229,7 @@ const moduleElements = (laws: readonly ModuleLaw[]): Element[] => {
 };
 
 const siteElements = (): Element[] => [
-  slab("site/lawn", null, null, "surface.elevation.front", v(2.2, -0.1, -6.2), v(18.0, 0.2, 5.0), "greenery", ["site"]),
+  slab("site/lawn", null, null, "surface.elevation.front", v(2.2, -0.1, -6.4), v(18.0, 0.2, 3.2), "greenery", ["site"]),
   slab("site/rear-lawn", null, null, "surface.elevation.back", v(2.2, -0.1, 6.3), v(18.0, 0.2, 4.0), "greenery", ["site"]),
   slab("site/front-walk", null, null, "surface.elevation.front", v(-3.0, 0.03, -5.6), v(1.35, 0.06, 2.2), "concrete-cool-gray", ["site", "walk"]),
   slab("site/driveway", null, null, "surface.elevation.front", v(8.4, 0.03, -5.55), v(5.6, 0.06, 2.3), "concrete-cool-gray", ["site", "driveway"]),
@@ -1321,6 +1375,37 @@ const auditSurfaces = (building: Building): AuditResult => {
     }
     if (item.parts.length === 0) issues.push(`element has no geometry: ${item.id}`);
   }
+  for (const space of building.spaces) {
+    const finishes = building.elements.filter(
+      (item) => item.id === `floor-finish/${space.id}` && item.spaceId === space.id,
+    );
+    if (finishes.length !== 1) {
+      issues.push(`room floor finish count is not one: ${space.id}`);
+      continue;
+    }
+    if (finishes[0].parts[0]?.material !== space.floorMaterial) {
+      issues.push(`room floor finish material is incorrect: ${space.id}`);
+    }
+  }
+  return { ok: issues.length === 0, issues };
+};
+
+const auditSite = (site: Site): AuditResult => {
+  const issues: string[] = [];
+  for (const item of site.elements) {
+    for (const part of item.parts) {
+      const bounds = extent(part.center, part.size);
+      if (bounds.min.x < site.boundary.min.x || bounds.max.x > site.boundary.max.x) {
+        issues.push(`site element exceeds X boundary: ${item.id}/${part.id}`);
+      }
+      if (bounds.min.z < site.boundary.min.z || bounds.max.z > site.boundary.max.z) {
+        issues.push(`site element exceeds Z boundary: ${item.id}/${part.id}`);
+      }
+    }
+  }
+  if (site.streetEdgeZ !== site.boundary.min.z) {
+    issues.push("street edge is not the front site boundary");
+  }
   return { ok: issues.length === 0, issues };
 };
 
@@ -1430,10 +1515,10 @@ export const buildModernSuburbanHouse = (): HouseLibrary => {
   }
   addGroundPartitions(elements, openings);
   addUpperPartitions(elements, openings);
-  addFloorAndCeilingElements(elements);
+  addFloorAndCeilingElements(elements, spaces);
   elements.push(...stairElements(), ...roofElements(), ...chimneyElements());
   for (const opening of openings) addOpeningElement(opening, elements);
-  addInteriorFitOut(elements);
+  addInteriorFitOut(elements, spaces);
   const laws = moduleLaws();
   elements.push(...moduleElements(laws));
   const site: Site = {
@@ -1461,6 +1546,7 @@ export const buildModernSuburbanHouse = (): HouseLibrary => {
   const reviewPopulation = deriveReviewObservationPopulation(building);
   const topologyAudit = auditTopology(building);
   const surfaceAudit = auditSurfaces(building);
+  const siteAudit = auditSite(site);
   const vehicleAudit = auditVehicles(building, site);
   return {
     id: "modern-suburban-house",
@@ -1470,6 +1556,7 @@ export const buildModernSuburbanHouse = (): HouseLibrary => {
     reviewPopulation,
     topologyAudit,
     surfaceAudit,
+    siteAudit,
     vehicleAudit,
     quantities: {
       mainFootprintM2: 11 * 9.6,
@@ -1485,7 +1572,7 @@ export const buildModernSuburbanHouse = (): HouseLibrary => {
 export const modernSuburbanHouse = buildModernSuburbanHouse();
 
 export const allHouseAuditsPass = (library: HouseLibrary): boolean =>
-  library.topologyAudit.ok && library.surfaceAudit.ok && library.vehicleAudit.ok;
+  library.topologyAudit.ok && library.surfaceAudit.ok && library.siteAudit.ok && library.vehicleAudit.ok;
 
 export const houseContentBounds = (library: HouseLibrary): Bounds => {
   const parts = library.building.elements.flatMap((item) => item.parts);

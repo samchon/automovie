@@ -4,6 +4,8 @@
 
 The library has one daytime-neutral lighting state for inspection: soft warm daylight enters from front and rear windows, with warm ceiling fixtures and under-cabinet task lights completing darker service spaces. Lighting exists to preserve the warm oak, white trim, charcoal roof, and room boundaries at review distance. It is not a time-varying film system.
 
+The deterministic source realization is the `lightingElements` population in `src/house.ts`: each compiled room receives one room-owned ceiling fixture, and the kitchen receives one under-cabinet task-light element. These visible fixtures are geometry and material cues for the blocking pass; illumination energy, shadow quality, and hidden electrical behavior remain unverified.
+
 ## Services boundary {#services-boundary}
 
 Visible kitchen, bathroom, laundry, and garage utility fixtures are included and assigned to their rooms. The source records no hidden pipe, duct, wiring, load calculation, drainage slope, or structural engineering network. Those unsupported system details remain unverified rather than being represented by decorative lines or invented performance claims.

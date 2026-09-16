@@ -2,7 +2,7 @@
 
 이 문서는 settings에서 review된 좌표·접근 조건·고정 graph를 단층 시민 신전의 실제 공간 경계와 연결 graph로 전개한다. 이 단계는 공간의 containment, adjacency, opening, route, level, envelope, surface host를 소유한다. 기둥·문짝·수반·가구의 mesh와 재료 response는 이 문서의 공간 경계를 소비하는 후속 owner에 남긴다.
 
-## Spatial reference and site boundary {#spatial-reference-and-site-boundary}
+## One-storey civic temple graph: spatial reference and site boundary {#one-storey-civic-temple-graph}
 
 <!--
 @evidence principles/core/common.md#declared-basis The direct brief and reviewed settings establish this unit's spatial decision. This H2 specializes the site frame, footprint, and service-yard boundary.

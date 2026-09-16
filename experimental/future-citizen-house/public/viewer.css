@@ -33,6 +33,7 @@ h2 { margin-bottom: 1rem; font-size: 1.1rem; letter-spacing: -0.02em; overflow-w
 .toolbar label { display: grid; gap: 0.35rem; color: #8fa6aa; font-size: 0.74rem; }
 .toolbar label > span { padding-left: 0.1rem; }
 .toolbar .space-control { min-width: 15rem; }
+.toolbar label select { min-width: 9.5rem; }
 .check-control { display: flex !important; align-items: center; gap: 0.5rem !important; padding: 0.6rem 0.25rem 0.6rem 0.35rem; }
 .check-control input { accent-color: #8ed9c7; }
 .toolbar button { height: 2.35rem; }

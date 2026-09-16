@@ -97,15 +97,21 @@ const visibleElement = (item) => {
   return true;
 };
 
-const rotatePoint = (point, pitchDeg, yawDeg) => {
+const rotatePoint = (point, pitchDeg, yawDeg, rollDeg) => {
   const pitch = (pitchDeg * Math.PI) / 180;
   const yaw = (yawDeg * Math.PI) / 180;
+  const roll = (rollDeg * Math.PI) / 180;
   const yawX = point.x * Math.cos(yaw) - point.z * Math.sin(yaw);
   const yawZ = point.x * Math.sin(yaw) + point.z * Math.cos(yaw);
-  return {
+  const pitched = {
     x: yawX,
     y: point.y * Math.cos(pitch) - yawZ * Math.sin(pitch),
     z: point.y * Math.sin(pitch) + yawZ * Math.cos(pitch),
+  };
+  return {
+    x: pitched.x * Math.cos(roll) - pitched.y * Math.sin(roll),
+    y: pitched.x * Math.sin(roll) + pitched.y * Math.cos(roll),
+    z: pitched.z,
   };
 };
 
@@ -129,7 +135,7 @@ const partCorners = (part) => {
   for (const x of [-0.5, 0.5]) {
     for (const y of [-0.5, 0.5]) {
       for (const z of [-0.5, 0.5]) {
-        const rotated = rotatePoint({ x: x * part.size.x, y: y * part.size.y, z: z * part.size.z }, part.pitchDeg, part.rotationYDeg);
+        const rotated = rotatePoint({ x: x * part.size.x, y: y * part.size.y, z: z * part.size.z }, part.pitchDeg, part.rotationYDeg, part.rollDeg);
         points.push({ x: part.center.x + rotated.x, y: part.center.y + rotated.y, z: part.center.z + rotated.z });
       }
     }
@@ -297,6 +303,7 @@ const updateStats = () => {
     ["observations", data.reviewPopulation.length],
     ["topology", data.audits.topology.ok ? "PASS" : "FAIL"],
     ["surface owners", data.audits.surfaces.ok ? "PASS" : "FAIL"],
+    ["site boundary", data.audits.site.ok ? "PASS" : "FAIL"],
     ["garage vehicles", data.audits.vehicles.ok ? "NONE" : "FOUND"],
   ];
   stats.innerHTML = rows.map(([key, value]) => `<dt>${key}</dt><dd class="${value === "PASS" || value === "NONE" ? "pass" : ""}">${value}</dd>`).join("");

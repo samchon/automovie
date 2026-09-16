@@ -53,6 +53,7 @@ const server = createServer(async (request, response) => {
         audits: {
           topology: library.topologyAudit,
           surfaces: library.surfaceAudit,
+          site: library.siteAudit,
           vehicles: library.vehicleAudit,
         },
       }));

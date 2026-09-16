@@ -40,18 +40,28 @@ const transform = (
   scale,
 });
 
-const rotationFor = (pitchDeg: number, yawDeg: number): IAutoMovieQuaternion => {
+const rotationFor = (pitchDeg: number, yawDeg: number, rollDeg: number): IAutoMovieQuaternion => {
   const pitch = (pitchDeg * Math.PI) / 360;
   const yaw = (yawDeg * Math.PI) / 360;
+  const roll = (rollDeg * Math.PI) / 360;
   const sinPitch = Math.sin(pitch);
   const cosPitch = Math.cos(pitch);
   const sinYaw = Math.sin(yaw);
   const cosYaw = Math.cos(yaw);
-  return {
+  const sinRoll = Math.sin(roll);
+  const cosRoll = Math.cos(roll);
+  const pitchRotation = {
     x: sinPitch * cosYaw,
     y: cosPitch * sinYaw,
     z: sinPitch * sinYaw,
     w: cosPitch * cosYaw,
+  };
+  const rollRotation = { x: 0, y: 0, z: sinRoll, w: cosRoll };
+  return {
+    x: pitchRotation.w * rollRotation.x + pitchRotation.x * rollRotation.w + pitchRotation.y * rollRotation.z - pitchRotation.z * rollRotation.y,
+    y: pitchRotation.w * rollRotation.y - pitchRotation.x * rollRotation.z + pitchRotation.y * rollRotation.w + pitchRotation.z * rollRotation.x,
+    z: pitchRotation.w * rollRotation.z + pitchRotation.x * rollRotation.y - pitchRotation.y * rollRotation.x + pitchRotation.z * rollRotation.w,
+    w: pitchRotation.w * rollRotation.w - pitchRotation.x * rollRotation.x - pitchRotation.y * rollRotation.y - pitchRotation.z * rollRotation.z,
   };
 };
 
@@ -132,7 +142,7 @@ const partElement = (
   transform: transform(
     vector(part.center.x, part.center.y, part.center.z),
     vector(part.size.x, part.size.y, part.size.z),
-    rotationFor(part.pitchDeg, part.rotationYDeg),
+    rotationFor(part.pitchDeg, part.rotationYDeg, part.rollDeg),
   ),
   model: `model/${part.material}`,
   space: parent.spaceId,
@@ -231,10 +241,12 @@ const pairKey = (from: string, to: string): string => [from, to].sort((left, rig
 const environmentConnectors = (): IAutoMovieBuiltConnector[] => {
   const connectors: IAutoMovieBuiltConnector[] = [];
   const seen = new Set<string>();
+  const spaceById = new Map(modernSuburbanHouse.building.spaces.map((item) => [item.id, item]));
   for (const space of modernSuburbanHouse.building.spaces) {
     for (const adjacent of space.adjacentSpaceIds) {
       const key = pairKey(space.id, adjacent);
-      if (seen.has(key) || adjacent.startsWith("upper/")) continue;
+      const adjacentSpace = spaceById.get(adjacent);
+      if (seen.has(key) || adjacentSpace === undefined || space.storeyId !== adjacentSpace.storeyId) continue;
       seen.add(key);
       connectors.push({
         id: `passage/${space.id}/${adjacent}`,
@@ -275,10 +287,10 @@ const environmentSurfaces = (): IAutoMovieBuiltSurface[] =>
       id: `surface/${item.id}`,
       kind: "floor",
       polygon: [
-        vector(item.bounds.min.x, 0, item.bounds.min.z),
-        vector(item.bounds.max.x, 0, item.bounds.min.z),
-        vector(item.bounds.max.x, 0, item.bounds.max.z),
-        vector(item.bounds.min.x, 0, item.bounds.max.z),
+        vector(item.bounds.min.x, item.bounds.min.y, item.bounds.min.z),
+        vector(item.bounds.max.x, item.bounds.min.y, item.bounds.min.z),
+        vector(item.bounds.max.x, item.bounds.min.y, item.bounds.max.z),
+        vector(item.bounds.min.x, item.bounds.min.y, item.bounds.max.z),
       ],
       height: { kind: "constant", value: item.bounds.min.y },
     },

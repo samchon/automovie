@@ -12,7 +12,19 @@ import type {
 import { citizenHouseSpaceSource } from "../spaces/citizen-house";
 
 type Point = IAutoMovieVector3;
-type ViewMode = "whole" | "ground" | "upper" | "roof";
+type ViewMode =
+  | "whole"
+  | "ground"
+  | "ground-plan"
+  | "upper"
+  | "upper-plan"
+  | "roof"
+  | "front"
+  | "rear"
+  | "left"
+  | "right"
+  | "section";
+type ObservationLayer = "none" | "rooms" | "topology" | "all";
 type DragMode = "orbit" | "pan";
 
 interface CameraState {
@@ -51,6 +63,7 @@ const BUILD_CONTEXT: IAutoMovieLibraryBuildContext = {
 const canvas = required<HTMLCanvasElement>("#scene");
 const viewModeSelect = required<HTMLSelectElement>("#view-mode");
 const spaceSelect = required<HTMLSelectElement>("#space-select");
+const observationLayerSelect = required<HTMLSelectElement>("#observation-layer");
 const interiorOnly = required<HTMLInputElement>("#interior-only");
 const resetCameraButton = required<HTMLButtonElement>("#reset-camera");
 const refreshSourceButton = required<HTMLButtonElement>("#refresh-source");
@@ -72,6 +85,7 @@ const camera: CameraState = {
 let environment = buildEnvironment();
 let selectedSpace = "all";
 let viewMode: ViewMode = "whole";
+let observationLayer: ObservationLayer = "all";
 let dragging: { mode: DragMode; x: number; y: number } | null = null;
 
 function required<T extends Element>(selector: string): T {
@@ -94,12 +108,46 @@ function buildEnvironment(): IAutoMovieBuiltEnvironment {
 }
 
 function resetCamera(): void {
-  camera.yaw = -0.72;
-  camera.pitch = 0.54;
-  camera.zoom = 45;
-  camera.panX = 0;
-  camera.panY = 30;
+  applyViewPreset(viewMode);
   render();
+}
+
+function applyViewPreset(mode: ViewMode): void {
+  camera.panX = 0;
+  camera.panY = mode === "roof" ? 42 : 30;
+  camera.zoom = mode === "whole" ? 45 : 52;
+  switch (mode) {
+    case "ground-plan":
+    case "upper-plan":
+      camera.yaw = -0.72;
+      camera.pitch = 1.18;
+      camera.zoom = 42;
+      camera.panY = 42;
+      return;
+    case "front":
+      camera.yaw = 0;
+      camera.pitch = 0.18;
+      return;
+    case "rear":
+      camera.yaw = Math.PI;
+      camera.pitch = 0.18;
+      return;
+    case "left":
+      camera.yaw = -Math.PI / 2;
+      camera.pitch = 0.18;
+      return;
+    case "right":
+      camera.yaw = Math.PI / 2;
+      camera.pitch = 0.18;
+      return;
+    case "section":
+      camera.yaw = -0.72;
+      camera.pitch = 0.54;
+      return;
+    default:
+      camera.yaw = -0.72;
+      camera.pitch = 0.54;
+  }
 }
 
 function populateSpaceSelect(): void {
@@ -127,12 +175,15 @@ function render(): void {
   drawBackdrop();
   drawGroundGuide(bounds);
   drawSelectedSpace(bounds);
+  if (observationLayer !== "none") drawObservedSurfaces();
 
   const boxes = [...elementBoxes(), ...populationBoxes()]
     .filter((box) => isVisible(box))
     .map((box) => projectBox(box))
     .sort((left, right) => left.depth - right.depth);
   for (const box of boxes) drawBox(box);
+  if (observationLayer === "topology" || observationLayer === "all") drawObservedTopology();
+  if (observationLayer === "rooms" || observationLayer === "all") drawRoomObservationTargets();
   drawSelectedLabel();
   updateInspector();
 }
@@ -227,6 +278,212 @@ function drawSelectedLabel(): void {
   context.restore();
 }
 
+function drawObservedSurfaces(): void {
+  context.save();
+  context.lineWidth = 1;
+  for (const entry of environment.surfaces) {
+    if (!matchesSelection(entry.space)) continue;
+    const height = surfaceHeight(entry.surface);
+    const projected = entry.surface.polygon.map((vertex) =>
+      project(point(vertex.x, height, vertex.z)),
+    );
+    context.fillStyle = "rgba(93, 173, 158, 0.16)";
+    context.strokeStyle = "rgba(121, 225, 199, 0.48)";
+    fillPolygon(projected);
+    if (selectedSpace !== "all") {
+      drawAnnotation(
+        averagePoint(entry.surface.polygon.map((vertex) => point(vertex.x, height, vertex.z))),
+        entry.surface.id,
+        "#a7f2dc",
+      );
+    }
+  }
+  context.restore();
+}
+
+function surfaceHeight(surface: IAutoMovieBuiltEnvironment["surfaces"][number]["surface"]): number {
+  if (surface.height?.kind === "constant") return surface.height.value;
+  return surface.polygon[0]?.y ?? 0;
+}
+
+function drawObservedTopology(): void {
+  for (const boundary of environment.boundaries) {
+    if (!boundary.spaces.some((space) => matchesSelection(space))) continue;
+    const connector = connectorForBoundary(boundary);
+    const points = connector?.route ?? boundaryPoints(boundary);
+    if (points.length < 2) continue;
+    drawPolyline(points, boundary.kind === "passage" ? "#f1c98d" : "#a6e8d4", 1.5);
+    drawAnnotation(averagePoint(points), boundary.id, "#f1d49d");
+  }
+  for (const connector of environment.connectors) {
+    if (!matchesSelection(connector.from) && !matchesSelection(connector.to)) continue;
+    drawPolyline(connector.route, "#ffd18e", connector.kind === "stair" ? 3 : 2);
+    drawAnnotation(averagePoint(connector.route), connector.id, "#ffe0a8");
+  }
+  for (const opening of environment.openings) {
+    const boundary = environment.boundaries.find((entry) => entry.id === opening.boundary);
+    if (boundary === undefined || !boundary.spaces.some((space) => matchesSelection(space))) continue;
+    const location = openingPoint(boundary);
+    if (location === null) continue;
+    drawDiamond(location, "#ffb87d", 5);
+    drawAnnotation(location, opening.id, "#ffc99b");
+  }
+}
+
+function drawRoomObservationTargets(): void {
+  const rooms = environment.spaces.filter(
+    (space) => space.kind === "room" && matchesSelection(space.id),
+  );
+  for (const room of rooms) {
+    const bounds = spaceBoundsOf(room);
+    if (bounds === null) continue;
+    const y = bounds.min.y + 0.08;
+    const xOffset = Math.min((bounds.max.x - bounds.min.x) * 0.3, 0.45);
+    const zOffset = Math.min((bounds.max.z - bounds.min.z) * 0.3, 0.45);
+    const targets = [
+      point(bounds.min.x, y, bounds.min.z),
+      point(bounds.max.x, y, bounds.min.z),
+      point(bounds.max.x, y, bounds.max.z),
+      point(bounds.min.x, y, bounds.max.z),
+      point((bounds.min.x + bounds.max.x) / 2, y, (bounds.min.z + bounds.max.z) / 2),
+      point((bounds.min.x + bounds.max.x) / 2 + xOffset, y, (bounds.min.z + bounds.max.z) / 2),
+      point((bounds.min.x + bounds.max.x) / 2 - xOffset, y, (bounds.min.z + bounds.max.z) / 2),
+      point((bounds.min.x + bounds.max.x) / 2, y, (bounds.min.z + bounds.max.z) / 2 + zOffset),
+      point((bounds.min.x + bounds.max.x) / 2, y, (bounds.min.z + bounds.max.z) / 2 - zOffset),
+    ];
+    for (const target of targets.slice(0, 4)) drawDiamond(target, "#83e1c1", 4);
+    for (const target of targets.slice(4)) drawCross(target, "#d5ffef", 3);
+    const threshold = thresholdPoint(room.id);
+    if (threshold !== null) drawDiamond(threshold, "#ffdb91", 6);
+    drawAnnotation(
+      targets[4]!,
+      `${room.id} · corners + center/cardinals${threshold === null ? "" : " + threshold"}`,
+      "#d5ffef",
+    );
+  }
+}
+
+function matchesSelection(space: string | null): boolean {
+  return selectedSpace === "all" || selectedSpace === space;
+}
+
+function connectorForBoundary(
+  boundary: IAutoMovieBuiltEnvironment["boundaries"][number],
+): IAutoMovieBuiltEnvironment["connectors"][number] | undefined {
+  return environment.connectors.find(
+    (connector) =>
+      boundary.spaces.includes(connector.from) &&
+      boundary.spaces.includes(connector.to),
+  );
+}
+
+function boundaryPoints(
+  boundary: IAutoMovieBuiltEnvironment["boundaries"][number],
+): Point[] {
+  if (boundary.spaces.length === 0 || boundary.kind === "passage") return [];
+  const house = environment.spaces.find((space) => space.id === "house");
+  const candidate = environment.spaces.find(
+    (space) => space.id === (boundary.spaces.length === 1 ? boundary.spaces[0] : boundary.spaces.find((id) => id !== "house")),
+  );
+  const houseBounds = house === undefined ? null : spaceBoundsOf(house);
+  const candidateBounds = candidate === undefined ? null : spaceBoundsOf(candidate);
+  if (houseBounds === null || candidateBounds === null) return [];
+  const y = (candidateBounds.min.y + candidateBounds.max.y) / 2;
+  const distances = [
+    { side: "front", value: Math.abs(candidateBounds.min.z - houseBounds.min.z) },
+    { side: "rear", value: Math.abs(houseBounds.max.z - candidateBounds.max.z) },
+    { side: "left", value: Math.abs(candidateBounds.min.x - houseBounds.min.x) },
+    { side: "right", value: Math.abs(houseBounds.max.x - candidateBounds.max.x) },
+  ].sort((left, right) => left.value - right.value);
+  switch (distances[0]?.side) {
+    case "front":
+      return [point(candidateBounds.min.x, y, candidateBounds.min.z), point(candidateBounds.max.x, y, candidateBounds.min.z)];
+    case "rear":
+      return [point(candidateBounds.min.x, y, candidateBounds.max.z), point(candidateBounds.max.x, y, candidateBounds.max.z)];
+    case "left":
+      return [point(candidateBounds.min.x, y, candidateBounds.min.z), point(candidateBounds.min.x, y, candidateBounds.max.z)];
+    case "right":
+      return [point(candidateBounds.max.x, y, candidateBounds.min.z), point(candidateBounds.max.x, y, candidateBounds.max.z)];
+    default:
+      return [];
+  }
+}
+
+function openingPoint(
+  boundary: IAutoMovieBuiltEnvironment["boundaries"][number],
+): Point | null {
+  const points = boundaryPoints(boundary);
+  if (points.length > 0) return averagePoint(points);
+  const connector = connectorForBoundary(boundary);
+  return connector === undefined ? null : averagePoint(connector.route);
+}
+
+function thresholdPoint(spaceId: string): Point | null {
+  const connector = environment.connectors.find(
+    (entry) => entry.from === spaceId || entry.to === spaceId,
+  );
+  if (connector === undefined || connector.route.length === 0) return null;
+  return connector.from === spaceId
+    ? connector.route[0]!
+    : connector.route[connector.route.length - 1]!;
+}
+
+function drawPolyline(points: Point[], stroke: string, width: number): void {
+  const projected = points.map(project);
+  if (projected.length < 2) return;
+  context.save();
+  context.strokeStyle = stroke;
+  context.lineWidth = width;
+  context.setLineDash([5, 4]);
+  context.beginPath();
+  context.moveTo(projected[0]!.x, projected[0]!.y);
+  for (const entry of projected.slice(1)) context.lineTo(entry.x, entry.y);
+  context.stroke();
+  context.restore();
+}
+
+function drawDiamond(location: Point, fill: string, size: number): void {
+  const projected = project(location);
+  context.save();
+  context.fillStyle = fill;
+  context.beginPath();
+  context.moveTo(projected.x, projected.y - size);
+  context.lineTo(projected.x + size, projected.y);
+  context.lineTo(projected.x, projected.y + size);
+  context.lineTo(projected.x - size, projected.y);
+  context.closePath();
+  context.fill();
+  context.restore();
+}
+
+function drawCross(location: Point, stroke: string, size: number): void {
+  const projected = project(location);
+  context.save();
+  context.strokeStyle = stroke;
+  context.lineWidth = 1.5;
+  context.beginPath();
+  context.moveTo(projected.x - size, projected.y);
+  context.lineTo(projected.x + size, projected.y);
+  context.moveTo(projected.x, projected.y - size);
+  context.lineTo(projected.x, projected.y + size);
+  context.stroke();
+  context.restore();
+}
+
+function drawAnnotation(location: Point, text: string, color: string): void {
+  const projected = project(location);
+  context.save();
+  context.font = "600 10px Segoe UI, sans-serif";
+  context.textAlign = "left";
+  context.textBaseline = "middle";
+  context.fillStyle = "rgba(7, 16, 19, 0.78)";
+  const width = context.measureText(text).width + 8;
+  context.fillRect(projected.x + 7, projected.y - 8, width, 16);
+  context.fillStyle = color;
+  context.fillText(text, projected.x + 11, projected.y);
+  context.restore();
+}
+
 function elementBoxes(): DrawBox[] {
   const models = new Map(environment.models.map((model) => [model.id, model] as const));
   const elements = environment.elements.filter((element) => element.model !== null);
@@ -273,9 +530,10 @@ function populationBoxes(): DrawBox[] {
 function isVisible(box: DrawBox): boolean {
   if (interiorOnly.checked && isEnvelope(box)) return false;
   const center = averagePoint(box.corners);
-  if (viewMode === "ground") return center.y < 3.08;
-  if (viewMode === "upper") return center.y >= 2.72 && center.y < 6.08;
+  if (viewMode === "ground" || viewMode === "ground-plan") return center.y < 3.08;
+  if (viewMode === "upper" || viewMode === "upper-plan") return center.y >= 2.72 && center.y < 6.08;
   if (viewMode === "roof") return center.y >= 5.82;
+  if (viewMode === "section") return center.z >= 0;
   return true;
 }
 
@@ -336,6 +594,7 @@ function updateInspector(): void {
     ["elements", String(environment.elements.length)],
     ["populations", String(environment.populations?.length ?? 0)],
     ["population members", String((environment.populations ?? []).reduce((sum, population) => sum + population.set.count, 0))],
+    ["boundaries", String(environment.boundaries.length)],
     ["openings", String(environment.openings.length)],
     ["connectors", String(environment.connectors.length)],
     ["surfaces", String(environment.surfaces.length)],
@@ -353,6 +612,9 @@ function updateInspector(): void {
     ["parent", selected.parent ?? "root"],
     ["direct elements", String(contentElements)],
     ["direct populations", `${contentPopulations.length} / ${contentPopulations.reduce((sum, population) => sum + population.set.count, 0)} members`],
+    ["boundaries", String(environment.boundaries.filter((boundary) => boundary.spaces.includes(selected.id)).length)],
+    ["openings", String(environment.openings.filter((opening) => environment.boundaries.find((boundary) => boundary.id === opening.boundary)?.spaces.includes(selected.id)).length)],
+    ["connectors", String(environment.connectors.filter((connector) => connector.from === selected.id || connector.to === selected.id).length)],
     ["space extent", bounds === null ? "semantic only" : extentText(bounds)],
   ]);
 }
@@ -502,6 +764,12 @@ spaceSelect.addEventListener("change", () => {
 
 viewModeSelect.addEventListener("change", () => {
   viewMode = viewModeSelect.value as ViewMode;
+  applyViewPreset(viewMode);
+  render();
+});
+
+observationLayerSelect.addEventListener("change", () => {
+  observationLayer = observationLayerSelect.value as ObservationLayer;
   render();
 });
 
