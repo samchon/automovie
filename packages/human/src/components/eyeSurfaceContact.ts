@@ -3,7 +3,7 @@
  * Rebuild the same fixed optical/canthal support used for drawing, measure
  * complete triangle deficits along the observation ray in engine metres, then
  * return head-millimetre proposals without mutating the supplied final mesh.
- * Geodesic skin propagation follows the conservative triangle targets. Closed
+ * Geodesic skin propagation follows the joint minimum-travel targets. Closed
  * rim correspondences share the foremost result before proposals are returned.
  * This establishes directional clearance, not anatomical section shape.
  */
@@ -11,7 +11,7 @@ import type { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
 
 import { blendPortraitSkin } from "../geometry/blendPortraitSkin";
 import { portraitPoint as p, portraitPart } from "../geometry/geometry";
-import { portraitDirectionalSurfaceTargets } from "../geometry/portraitDirectionalContact";
+import { portraitMinimumDirectionalSurfaceTargets } from "../geometry/portraitDirectionalContact";
 import {
   type IPortraitEyeSphere,
   portraitEyeSphereIntersection,
@@ -77,7 +77,7 @@ export function createPortraitEyeSurfaceContact({
     // Full triangle overlap catches an optical bulge between
     // clear lid vertices. Retain host IDs so all neighbouring
     // skin receives one shared contact target and normal field.
-    const constraints = portraitDirectionalSurfaceTargets(
+    const constraints = portraitMinimumDirectionalSurfaceTargets(
       {
         positions: final.positions.flatMap((point) =>
           point.map((v) => v / 1000),

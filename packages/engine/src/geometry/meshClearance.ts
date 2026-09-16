@@ -10,10 +10,40 @@
  */
 import type { IAutoMovieMesh } from "@automovie/interface";
 
-type Triangle = { points: number[][]; area: number; bounds: number[] };
+type Triangle = {
+  points: number[][];
+  vertices: number[];
+  ordinal: number;
+  area: number;
+  bounds: number[];
+};
 type TriangleTree = {
   bounds: number[];
 } & ({ triangles: Triangle[] } | { children: [TriangleTree, TriangleTree] });
+
+/**
+ * An affine contact condition at one clipped overlap vertex. Barycentric weights
+ * belong to the original front triangle, including small negative roundoff;
+ * clipping or renormalizing them would change the measured plane. Advancing its
+ * three vertices by d changes this signed gap by weights dot d. Arrays are
+ * independent of the resident mesh and may be retained by the visitor.
+ *
+ * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Supplies exact projected-overlap conditions for a shared displacement solve rather than sampling only mesh corners.
+ * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Associates each affine depth witness with both triangle ordinals and the original front vertex identities.
+ * @author Samchon
+ */
+export interface IAutoMovieMeshClearanceWitness {
+  /** Front triangle ordinal, before any spatial indexing. */
+  triangle: number;
+  /** Back triangle ordinal, before any spatial indexing. */
+  backTriangle: number;
+  /** The front triangle's three original vertex ordinals. */
+  vertices: number[];
+  /** Affine coefficients in the same order as vertices. */
+  weights: number[];
+  /** Front-minus-back depth at the overlap vertex, in mesh-local metres. */
+  gap: number;
+}
 
 /**
  * Measure front-minus-back depth over the complete projected overlap of two
@@ -28,6 +58,8 @@ type TriangleTree = {
  * Coordinates for X/Y/Z depth are YZ/ZX/XY. Ray-parallel triangles are skipped:
  * this is directional surface ordering, not a closed-volume collision test.
  * Inputs must already share a frame; callers own transforms and contact pairs.
+ * An optional visitor receives every overlap vertex, including already-clear
+ * witnesses. A later coupled displacement must preserve those inequalities too.
  *
  * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Measures resident triangle separation for subsequent rigid placement or shared-surface contact without subject-specific geometry.
  * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Retains front triangle ordinals while evaluating their complete projected overlap with the supporting mesh.
@@ -36,6 +68,7 @@ export function measureAutoMovieMeshClearance(
   front: IAutoMovieMesh,
   back: IAutoMovieMesh,
   axis: "x" | "y" | "z",
+  visit?: (witness: IAutoMovieMeshClearanceWitness) => void,
 ): { triangle: number; minimum: number }[] {
   const axes = depthAxes(axis);
   const fronts = triangles(front, axes),
@@ -50,10 +83,18 @@ export function measureAutoMovieMeshClearance(
     for (const b of overlappingTriangles(tree, a.bounds)) {
       const overlap = clip(a.points, b);
       for (const point of overlap) {
-        const gap = depth(a, point) - depth(b, point);
+        const weights = barycentric(a, point);
+        const gap = depth(a, weights) - depth(b, barycentric(b, point));
         if (!Number.isFinite(gap))
           throw new Error("Mesh clearance arithmetic must remain finite.");
         minimum = Math.min(minimum, gap);
+        visit?.({
+          triangle,
+          backTriangle: b.ordinal,
+          vertices: [...a.vertices],
+          weights,
+          gap,
+        });
       }
     }
     if (minimum !== Infinity) result.push({ triangle, minimum });
@@ -216,6 +257,8 @@ function triangles(mesh: IAutoMovieMesh, axes: number[]): Triangle[] {
       throw new Error("Mesh clearance projected area must remain finite.");
     result.push({
       points,
+      vertices: indices.slice(i, i + 3),
+      ordinal: i / 3,
       area,
       bounds: [
         Math.min(...points.map((p) => p[0])),
@@ -232,11 +275,16 @@ function side(a: number[], b: number[], p: number[]): number {
   return (b[0] - a[0]) * (p[1] - a[1]) - (b[1] - a[1]) * (p[0] - a[0]);
 }
 
-function depth(triangle: Triangle, p: number[]): number {
+function barycentric(triangle: Triangle, p: number[]): number[] {
   const [a, b, c] = triangle.points;
   const beta = side(a, p, c) / triangle.area,
     gamma = side(a, b, p) / triangle.area;
-  return a[2] * (1 - beta - gamma) + b[2] * beta + c[2] * gamma;
+  return [1 - beta - gamma, beta, gamma];
+}
+
+function depth(triangle: Triangle, weights: number[]): number {
+  const [a, b, c] = triangle.points;
+  return a[2] * weights[0] + b[2] * weights[1] + c[2] * weights[2];
 }
 
 function clip(points: number[][], triangle: Triangle): number[][] {

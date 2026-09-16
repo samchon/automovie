@@ -21,6 +21,7 @@
   "files": [
     "lib",
     "src",
+    "vendor/quadratic",
     "package.json",
     "LICENSE",
     "README.md"

@@ -3,14 +3,17 @@
  * All mesh buffers, points, clearances and returned targets use engine metres.
  * An orthonormal frame maps the declared forward direction onto the engine's
  * depth sampler; queries retain transverse projection. Point intersection may
- * travel either way, point contact advances only, and complete-triangle contact
- * conservatively advances all corners by each face's maximum deficit. Inputs
- * remain owned by callers; consumers apply targets and recompute their normals.
+ * travel either way and point contact advances only. Complete-triangle contact
+ * supplies either conservative face-deficit targets or jointly minimized travel
+ * inside that envelope. Inputs remain owned by callers; consumers apply targets
+ * and recompute their normals. Eye contact uses the minimum; the oral lining
+ * still uses conservative targets pending its separate joint wall constraints.
  */
 import {
   Vector3,
   createAutoMovieMeshDepthSampler,
   measureAutoMovieMeshClearance,
+  minimizeAutoMovieMeshClearance,
 } from "@automovie/engine";
 import type { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
 
@@ -120,6 +123,44 @@ export function portraitDirectionalSurfaceTargets(
         front.positions[vertex * 3],
         front.positions[vertex * 3 + 1],
         front.positions[vertex * 3 + 2],
+      ),
+      forward,
+      distance,
+    ),
+  }));
+}
+
+/**
+ * Minimize complete-triangle contact travel in the same frame used by the
+ * resident intersection and conservative contact queries. Every original
+ * overlap condition survives the engine's joint solve, while incident face
+ * deficits bound how far any vertex may advance. The consumer owns subsequent
+ * skin propagation, seam correspondence, normals and exported contact checks.
+ *
+ * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Supplies shared-skin contact targets with minimum area-weighted motion inside the existing conservative displacement envelope.
+ * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-attachments Projects the resident meshes through the common directional frame and carries the engine's joint vertex displacements back to metric attachment targets.
+ */
+export function portraitMinimumDirectionalSurfaceTargets(
+  front: IAutoMovieMesh,
+  back: IAutoMovieMesh,
+  direction: IAutoMovieVector3,
+  clearance = 0,
+): { vertex: number; target: IAutoMovieVector3 }[] {
+  const { forward, across, up } = contactFrame(direction, clearance);
+  return minimizeAutoMovieMeshClearance(
+    project(front, across, up, forward),
+    project(back, across, up, forward),
+    "z",
+    clearance,
+  ).map(({ vertex, distance }) => ({
+    vertex,
+    target: advance(
+      Vector3.create(
+        ...(front.positions.slice(3 * vertex, 3 * vertex + 3) as [
+          number,
+          number,
+          number,
+        ]),
       ),
       forward,
       distance,
