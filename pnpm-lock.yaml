@@ -266,6 +266,9 @@ importers:
       typescript:
         specifier: ^7.0.2
         version: 7.0.2
+      vite:
+        specifier: catalog:vite
+        version: 5.4.21(@types/node@22.19.20)
 
   experimental/medieval-baron-manor:
     dependencies:
