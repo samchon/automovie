@@ -1,142 +1,41 @@
+/**
+ * Fit and attach one replaceable nose to the common head assembler. Inputs are
+ * caller-owned nasal settings and a host in millimetres (+X subject left, +Y
+ * superior, +Z anterior). Construction first owns and admits settings, then
+ * fits the shared depth basis and opening targets. Exterior normal witnesses
+ * precede aperture rotation; lining and optional exterior replacements consume
+ * that one fitted boundary. Changing this order changes neighbouring skin,
+ * subdivision and exported geometry. The returned plan mutates only the cage
+ * supplied by the assembler. It does not recover hidden anatomy or certify
+ * global contact. Shape declarations, cut topology and vestibular construction
+ * live with their separate consumers; this module preserves legacy exports.
+ */
 import { portraitNormals } from "../geometry/geometry";
 import type { IPortraitComponent } from "../geometry/portraitComponents";
 import type { IControlMesh } from "../geometry/subdivideControlMesh";
-import type { IPortraitNasalBodyShape } from "./nasalBody";
 import { createPortraitNasalBodySurface } from "./nasalBodySurface";
+import { portraitCutBoundary } from "./nasalBoundary";
+import { createPortraitNasalEnvelope } from "./nasalEnvelope";
+import { createPortraitNasalLobules } from "./nasalLobule";
 import {
-  type IPortraitNasalEnvelope,
-  createPortraitNasalEnvelope,
-} from "./nasalEnvelope";
-import {
-  type IPortraitNasalLobule,
-  createPortraitNasalLobules,
-} from "./nasalLobule";
-import {
-  type IPortraitNasalRimSection,
   appendPortraitNasalRimSection,
   createPortraitNasalRimSection,
 } from "./nasalRimSection";
-import {
-  type IPortraitNasalSection,
-  createPortraitNasalSection,
-} from "./nasalSection";
+import { createPortraitNasalSection } from "./nasalSection";
 import { createPortraitNasalSupport } from "./nasalSupport";
+import type { IPortraitNoseShape, IPortraitNoseSocket } from "./noseShape";
+import {
+  appendPortraitNostrils,
+  portraitNasalCavityOffset,
+} from "./nostrilLining";
 import { fitPortraitNostrilRim, resizePortraitNostrilRim } from "./nostrilRim";
 
-/**
- * Subject-owned nasal attachment. The two cut populations are triangle ordinals
- * on the measured host, fixed before a component deforms its openings.
- *
- * @author Samchon
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Binds replaceable nasal skin and openings to the caller's host rather than embedding a person's coordinates.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Defines the midline, relief support locations, surface vertices, original cut-face ordinals and optional section/support datums.
- */
-export interface IPortraitNoseSocket {
-  /** Nasal midline in the host frame, in mm. */
-  midline: number;
-  /** Tip influence centre Y, in mm. */
-  tipY: number;
-  /** Tip influence radii in X/Y, in mm. */
-  tipRadius: [number, number];
-  /** Alar centres' distance from the midline, in mm. */
-  alarOffset: number;
-  /** Alar centre Y, in mm. */
-  alarY: number;
-  /** Alar influence radius, in mm. */
-  alarRadius: number;
-  /** Host skin vertices that the component directly sculpts. */
-  surface: number[];
-  /** Original triangle ordinals for each nasal opening. */
-  nostrils: number[][];
-  /** Optional retained vertex supplying the local section loft's XYZ datum. */
-  sectionAnchor?: number;
-  /** Three retained skin datums spanning the nasal root and paired facial base. */
-  supportPlane?: readonly number[];
-}
-
-/**
- * Numerical nasal shape. Width and opening scales change the shared rim; the
- * same changed vertices seed the surrounding skin blend and recessed cavity.
- *
- * @author Samchon
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Separates nasal body, tip, alae, nostril aperture, rim tissue and cavity dimensions.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Carries explicit alternative depth bases plus coupled opening scales, tilt, rim refinement and lining controls on the same host.
- */
-export interface IPortraitNoseShape {
-  /** Width multiplier about the socket midline. */
-  widthScale: number;
-  /**
-   * Optional projection ratio relative to the socket's common skin support
-   * plane. Omission/one is identity. Positive smaller values reduce the entire
-   * nose's inferred depth, including the samples used by rim fitting. This is
-   * a basis replacement and cannot combine with another complete section/body
-   * basis. Local final-body lobules may use the scaled datums.
-   */
-  depthScale?: number;
-  /** Optional local tip/alar sections after support scaling; empty/omitted is identity. */
-  lobules?: readonly IPortraitNasalLobule[];
-  /** Tip displacement along host Z, in mm. */
-  tipProjection: number;
-  /** Alar displacement along host Z, in mm. */
-  alarProjection: number;
-  /** Width multiplier in the aperture plane, before overall head-X nasal scaling. */
-  nostrilWidthScale: number;
-  /** Height multiplier in the aperture plane; preserves its orientation about its centre. */
-  nostrilHeightScale: number;
-  /** Aperture displacement upwards in host Y, in mm. */
-  nostrilRise: number;
-  /** Additional rotation around host X, in degrees; positive faces the opening down. */
-  nostrilTilt: number;
-  /** Inner lining's retained fraction of the fitted rim width/height. */
-  cavityContraction: number;
-  /** Fraction of cavity travel at the rim support ring; strictly between zero and one. */
-  rimSupport: number;
-  /** Blend from the measured rim to its fitted smooth ellipse, in [0,1]. */
-  rimRoundness: number;
-  /**
-   * Optional shared anatomical-curve refinement of each aperture. Omission or
-   * surface retains general Loop weights; curve uses the host's existing 1D
-   * rule on the same skin/lining vertices, without creating a normal crease.
-   */
-  rimRefinement?: "surface" | "curve";
-  /** Optional exterior skin band; omission retains direct skin-to-lining attachment. */
-  rimSection?: IPortraitNasalRimSection;
-  /**
-   * Optional complete envelope per opening, in socket.nostrils order. Empty or
-   * omitted retains legacy construction. Each envelope supplies independent
-   * circumferential sections after subdivision. It replaces rimSection and
-   * surface/curve refinement of the aperture, and cannot stack a final body
-   * deformation that would invalidate its shared skin-to-vestibule jets.
-   */
-  envelopes?: readonly IPortraitNasalEnvelope[];
-  /** Cavity floor offset in host XYZ millimetres, rotated with the nostril tilt. */
-  cavityOffset: number[];
-  /** Reach of adjacent skin adaptation along the original mesh, in mm. */
-  blendReach: number;
-  /** Optional connected depth basis for the lower nasal body; omission is identity. */
-  section?: IPortraitNasalSection;
-  /**
-   * Optional final exterior construction, after shared refinement. Choose either
-   * additive anatomical body sections or a target-depth grid. Both preserve the
-   * fitted aperture and its first derivative. joinWidth/depthReach are positive
-   * millimetre distances. A pre-fit section cannot also be selected: each is a
-   * complete alternative basis, and stacking them would silently compound form.
-   * The local lobule alternative instead binds to the same pre-fit scaled
-   * datums as ordinary lobules and evaluates after subdivision. It may retain
-   * depthScale but cannot stack pre-fit lobules or a complete section. Its depth
-   * support is full through half depthReach and fades to zero at depthReach;
-   * all alternatives preserve the actual rim and lining. Arrays replace the
-   * complete local section population, and an empty population is identity.
-   */
-  body?: {
-    shape:
-      | IPortraitNasalBodyShape
-      | { section: IPortraitNasalSection }
-      | { lobules: readonly IPortraitNasalLobule[] };
-    joinWidth: number;
-    depthReach: number;
-  };
-}
+export { portraitCutBoundary, portraitNostrilContains } from "./nasalBoundary";
+export type { IPortraitNoseShape, IPortraitNoseSocket } from "./noseShape";
+export {
+  appendPortraitNostrils,
+  portraitNasalCavityOffset,
+} from "./nostrilLining";
 
 /**
  * Smooth nasal volume controls evaluated in the subject-owned socket frame.
@@ -159,67 +58,6 @@ export function portraitNoseDepth(
       ((point[1] - socket.tipY) / socket.tipRadius[1]) ** 2,
   );
   return shape.alarProjection * alar + shape.tipProjection * tip;
-}
-
-/**
- * Select an ellipse footprint while binding a measured host socket.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Selects the initial nostril footprint used when binding a measured host.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Tests strict interior membership of the caller-owned elliptical XY footprint without changing connectivity.
- */
-export const portraitNostrilContains = (
-  x: number,
-  y: number,
-  footprint: {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-  },
-): boolean =>
-  ((x - footprint.x) / footprint.width) ** 2 +
-    ((y - footprint.y) / footprint.height) ** 2 <
-  1;
-
-/**
- * Boundary edges of a connected cut patch, preserving its original winding.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Retains the oriented attachment rim of a selected component cut.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Counts the cut's edges and refuses an empty, open, branched or multiple-loop boundary before returning its cyclic order.
- */
-export function portraitCutBoundary(
-  faces: number[][],
-): { a: number; b: number }[] {
-  if (faces.length === 0)
-    throw new Error("A nostril opening must select at least one control face.");
-  const edges = new Map<string, { a: number; b: number; count: number }>();
-  for (const face of faces)
-    for (let i = 0; i < 3; i++) {
-      const a = face[i],
-        b = face[(i + 1) % 3];
-      const key = Math.min(a, b) + "/" + Math.max(a, b);
-      const edge = edges.get(key);
-      if (edge === undefined) edges.set(key, { a, b, count: 1 });
-      else edge.count++;
-    }
-  const boundary = [...edges.values()].filter((edge) => edge.count === 1);
-  const next = new Map(boundary.map((edge) => [edge.a, edge]));
-  const ordered: { a: number; b: number }[] = [];
-  if (boundary.length === 0 || next.size !== boundary.length)
-    throw new Error("A nasal cut must have one simple oriented boundary.");
-  let edge = boundary[0];
-  const visited = new Set<number>();
-  while (!visited.has(edge.a)) {
-    visited.add(edge.a);
-    ordered.push({ a: edge.a, b: edge.b });
-    const following = next.get(edge.b);
-    if (following === undefined)
-      throw new Error("A nasal cut boundary must be closed.");
-    edge = following;
-  }
-  if (edge.a !== ordered[0].a || ordered.length !== boundary.length)
-    throw new Error("A nasal cut must contain exactly one boundary loop.");
-  return ordered;
 }
 
 /**
@@ -455,7 +293,7 @@ export function createPortraitNoseComponent(
           ids.map((id) => targets.get(id)!),
           ids.map((id) => skinNormals!.slice(id * 3, id * 3 + 3)),
           profile,
-          cavityOffset(shape),
+          portraitNasalCavityOffset(shape),
           shape.cavityContraction,
         );
         ids.forEach((id, i) => targets.set(id, envelope.outer[i]));
@@ -541,77 +379,4 @@ export function createPortraitNoseComponent(
       };
     },
   };
-}
-
-/**
- * Build lining and cavity from the actual fitted rim. Original rim IDs stay
- * shared with the face. Changing an opening therefore changes its lining and
- * neighbouring skin together instead of placing a new cavity under an old hole.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Constructs nasal lining from the actual fitted aperture instead of placing a cavity under an unrelated hole.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Retains the host rim IDs, adds support and contracted deep rings, and joins them to the floor using the same rotated cavity offset.
- */
-export function appendPortraitNostrils(
-  cage: IControlMesh,
-  nostrilFaces: number[][][],
-  shape: IPortraitNoseShape,
-  group: number,
-): void {
-  const { positions, indices, groups } = cage;
-  const offset = cavityOffset(shape);
-  for (const faces of nostrilFaces) {
-    const boundary = portraitCutBoundary(faces);
-    const ids = [...new Set(boundary.flatMap((edge) => [edge.a, edge.b]))];
-    const center = [0, 1, 2].map(
-      (axis) =>
-        ids.reduce((sum, id) => sum + positions[id][axis], 0) / ids.length,
-    );
-    // A near support ring retains the aperture edge through subdivision before
-    // the lining travels to its contracted deep ring and recessed floor.
-    const rings = [new Map(ids.map((id) => [id, id]))];
-    for (const fraction of [shape.rimSupport, 1]) {
-      const ring = new Map<number, number>();
-      for (const id of ids) {
-        ring.set(id, positions.length);
-        positions.push(
-          positions[id].map(
-            (value, axis) =>
-              center[axis] +
-              (1 - fraction * (1 - shape.cavityContraction)) *
-                (value - center[axis]) +
-              fraction * offset[axis],
-          ),
-        );
-      }
-      rings.push(ring);
-    }
-    const floor = positions.length;
-    positions.push(center.map((value, axis) => value + offset[axis]));
-    for (const edge of boundary) {
-      for (let ring = 0; ring < rings.length - 1; ring++) {
-        const a = rings[ring].get(edge.a)!,
-          b = rings[ring].get(edge.b)!;
-        const c = rings[ring + 1].get(edge.a)!,
-          d = rings[ring + 1].get(edge.b)!;
-        indices.push(a, b, c, b, d, c);
-        groups.push(group, group);
-      }
-      indices.push(
-        rings[rings.length - 1].get(edge.a)!,
-        rings[rings.length - 1].get(edge.b)!,
-        floor,
-      );
-      groups.push(group);
-    }
-  }
-}
-
-function cavityOffset(shape: IPortraitNoseShape): number[] {
-  const angle = (shape.nostrilTilt * Math.PI) / 180;
-  return [
-    shape.cavityOffset[0],
-    shape.cavityOffset[1] * Math.cos(angle) -
-      shape.cavityOffset[2] * Math.sin(angle),
-    shape.cavityOffset[1] * Math.sin(angle) +
-      shape.cavityOffset[2] * Math.cos(angle),
-  ];
 }
