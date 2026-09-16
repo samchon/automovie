@@ -34,7 +34,7 @@ When a public export participates in the committed contract graph, preserve and 
 - **Remove repetition, not substance.** State a rule once at its owning document and link to it elsewhere. Keep the rationale when it prevents a plausible mistake.
 - **Give each paragraph one job.** Split purpose, rule, rationale, procedure, and consequence when combining them would make the reader unpack a dense block.
 - **Use structure as compression.** Numbered lists for ordered procedures, bullets for choices or checklists, tables for repeated mappings, code blocks for exact commands. Do not hide a workflow inside one long sentence.
-- **State the rule before its reason.** Use negative phrasing only for a named failure mode that the affirmative rule does not already exclude.
+- **State the rule before its reason.** Use negative phrasing only for a named failure mode that the affirmative rule does not already exclude. Write what to do and name the exclusion after it: "X, not Y" and a heading built the same way state a contrast and leave the reader to derive the instruction.
 - **Skills point, not paraphrase.** Do not restate what the `.wiki/`, READMEs, or source comments already say; link to them. Skills carry cross-cutting rules and conventions, not a second copy of project docs.
 
 Give every instruction one semantic owner and link to it elsewhere. A capability router belongs in `SKILL.md`; a substantial conditional phase belongs in one directly linked sibling Markdown file. A phase document owns one stage of one workflow, while a rule shared by every phase stays in the router. Do not create nested skill directories, `agents/openai.yaml`, or unreferenced examples and metadata.
@@ -77,7 +77,10 @@ Plain and direct. State the fact and stop.
 - No emoji.
 - No spaced double hyphen in prose. CLI separators remain code and are not prose.
 - No filler adjectives: "powerful", "seamless", "robust", "effortless".
-- No AI-cliche phrasing: "not only X but also Y", "whether you're X or Y", "it's worth noting", "let's dive in", and reflexive hedging.
+- No AI-cliche phrasing: "not only X but also Y", "whether you're X or Y", "it's worth noting", "let's dive in", "delve into", "leverage" for "use", and reflexive hedging.
 - No wrap-up sentence that just restates the paragraph.
+- No mannered prose. Use the literal phrase where one exists. Mannered prose puts metaphor or flourish in its place, writing "a dial worth turning" for "a parameter worth varying" or "this point earns its keep" for "this point still matters", which makes the reader work so the writer can perform and drags in connotations nobody chose.
 
-Check these rules directly while reviewing repository instructions, package READMEs, scaffold Markdown, and TypeScript comments. Code syntax, literal values, and quoted historical evidence keep their original meaning; they are not prose to rewrite for voice. The [instruction-diff review](#instruction-authority) owns the review gate.
+The mannered-prose item is recent and most of the corpus predates it. Apply it to prose you write or revise, and leave a corpus-wide re-voicing as its own topic, because rewriting a settled instruction for style alone risks changing what it requires.
+
+Check these rules directly while reviewing repository instructions, package READMEs, scaffold Markdown, and TypeScript comments. They stop at the shipped contract corpus under `packages/template/scaffold/docs`, where [screenplay naturalness](../../../packages/template/scaffold/.agents/skills/production-lifecycle/naturalness.md#qualified-complete-reading) owns authored language and forbids starting from a phrase list. Code syntax, literal values, and quoted historical evidence keep their original meaning; they are not prose to rewrite for voice. The [instruction-diff review](#instruction-authority) owns the review gate.
