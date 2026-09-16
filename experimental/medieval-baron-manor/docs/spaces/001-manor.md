@@ -91,7 +91,7 @@
 
 이 설계는 남쪽으로 열린 ㄷ자형 2층 본채 전체를 하나의 3D 환경으로 구성한다. [고정 공간 구성](../settings/003-spatial-basis.md)과 [원본 다섯 장](../settings/001-production.md#reference-priority)을 함께 적용한다. 외피와 물품의 재현할 정체성·기준 규모는 settings가 소유하며, 아래 배치·부재 관계와 관찰 계획은 그 기준을 공간으로 실현한다.
 
-공간 carrier는 현재 모델 entry와 instance-set의 실제 모델·부재·transform을 derived artifact로 받는다. 방 polygon, 층고, 벽과 개구부, 중정·연못·계단을 그 환경의 공간 경계로 쓴다. 별도 축약 상자로 본채를 대체하지 않는다. 등록 소유자는 `src/spaces/manor.ts`의 `manorSpaceSource`이며, `src/models/manor.js`와 `src/instances/manor.js`에서 생성한 현재 파생 공간을 소비한다.
+공간 carrier는 현재 모델 entry와 instance-set의 실제 모델·부재·transform에서 메모리 안의 typed 환경을 직접 계산한다. 방 polygon, 층고, 벽과 개구부, 중정·연못·계단을 그 환경의 공간 경계로 쓴다. 별도 축약 상자로 본채를 대체하지 않는다. 등록 소유자는 `src/spaces/manor.ts`의 `manorSpaceSource`이며, `src/manorEnvironment.js`가 `src/models/manor.js`와 `src/instances/manor.js`의 값을 조립하고 `src/manorSpatialState.ts`가 공간 연결을 계산한다. JSON 파일이나 별도 파생 상태 저장소를 입력으로 요구하지 않는다.
 
 **본채와 층별 구성**
 

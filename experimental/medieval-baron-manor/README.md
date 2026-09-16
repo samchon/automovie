@@ -16,12 +16,14 @@ Use ordinary coding-agent tools for authoring. Scaffold creation does not regist
 
 ## First run
 
+This committed production is a member of the AutoMovie pnpm workspace. Run installation and source lint from the workspace root:
+
 ```bash
-npm install
-npm run lint
+pnpm install
+pnpm --filter medieval-baron-manor lint
 ```
 
-The blank scaffold is intentionally incomplete. Select the production kind through the routed lifecycle procedure, author its prerequisites, then use the commands below at the stages their linked procedures name.
+The current production selection and evidence stages live in `src/lint.config.ts`. `src/spaces/manor.ts` returns the environment directly from the authored geometry, instances, and world transforms; it reads no generated JSON. The public website consumes the same model and texture source. Run `pnpm --filter @automovie/website dev` from the workspace root to inspect it.
 
 ## Canonical command routes
 
