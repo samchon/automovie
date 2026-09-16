@@ -393,6 +393,28 @@ State: construction admitted; standalone document replay admitted; static glTF a
 
 [Replay document](oh-seung-yoon.json) · [Original selection and quality](inputs.md#input-oh-seung-yoon). Selected original: `oh-seung-yoon_age-approx-16_lunar-new-year-interview.jpg`.
 
+2026-09-16 joint-placement partial adoption: the current replay document uses upper-arch lift 1.2672524293631948 mm and recess 7.449994597102961 mm. These values couple the source-pixel incisal fit to the union of tooth/head/lip contact constraints across observed, neutral and oral-gaze states. All non-dental model parts and materials remain exact; the upper arch remains fixed across the three expressions. Final Float32 tooth versus head/lip surface checks find zero intersecting triangle pairs in all three states. This does not certify the unrepaired legacy oral backdrop or continuous motion.
+
+All 27 candidate views and their 27 retained baseline counterparts were directly read for this person. The observed crown band is closer to the photograph, and the prior candidate’s new neutral commissure enamel is absent in the reviewed views. The actual source-replayed legacy-cavity model changes the sampled visible-incisal mean absolute error from 1.8667 to 0.4167 native pixels, with 1-pixel manual reference uncertainty and 0.25-pixel sampling. This fitted-column result is not whole-face accuracy. The replacement-cavity experiments are separately retained and are not silently included in this adoption.
+
+All three new actual-editor fronts were directly read. Saved/reloaded JSON is exact and neutral undo restores the same-browser original GLB exactly. Across all four people, eight source/browser GLBs match exactly; three Alan states and Oh observed each differ in one NORMAL Float32 component by one ULP, with every other byte exact. The new receipt records those differences without claiming cross-runtime byte identity. Hardware rendering is AMD 8060S; the editor calibration cube measures the expected 16 pixels. The open-mouth state still exposes missing lower interior and the legacy backdrop. Heavy orbital volume, simple alar form, angular face/neck planes and likeness remain unresolved. **The placement improvement is adopted; full oral anatomy and whole-face likeness are not accepted.**
+
+Current document bytes SHA-256: `bcc3c4f3f442cec5c92bef96ef61aa96268e84e8d48335097fb29c602cdabdf7`; model: `a9d9856bd9d114d1dc47ef2364f11d0c5bfa5ca6354e9b8c3a7d0fbc707cbd10`; source GLB: `e0ab3e7b167de870d142f38b9d4934312eb95954e785f28abed0ca9abbe4abe1`. Retained candidate population: `.shots/human-2469/investigation-2498/oral-joint-placement/oh-seung-yoon`. The direct comparison, editor and source-replay receipts remain in `joint-placement-adoption/direct-review.json`, `joint-placement-editor-v2/receipt.json` and `nose-owner-replay.json` under the same investigation directory.
+
+| Current observed view | PNG SHA-256 |
+| --- | --- |
+| front | `a5f13d9fc302f2fc60970669c7427f56e155e55f78246d04e090187695c66f6c` |
+| left-oblique | `563d0bdfb9a47a1411e3a177b64c0a38fc630636b73790a7377f894fcc5d73f7` |
+| right-oblique | `eae302bcd1f57d7169c2d100a1317fa93c041dbeeeb0400449ab85a9a797a5a8` |
+| left-profile | `f8dbfecb87fcdef6089f487c5d038227b0651549d3d08f782ec19aa30d0c3497` |
+| right-profile | `c654737c6cec19119901c417be8646249043a14ad6d52ba9ccad0710601f6fd8` |
+| back | `9b0a7b6a034652cc1f1acbc00b8aa990a7affc1260deb93008d4f9db9c5906a2` |
+| bare-clay | `fec0a58fbaf6e2320901b0f3d75723e4e2587f6fcfd1314f77a90ce0fd3ab4df` |
+| bare-oblique | `5b4799855d0e16598095f0b94b387039a093804c4849b0fcbef1748d704b1163` |
+| reference | `8191c635393c72450b36db944433fd3e55f02afb61dd10ab98f70ab031d20bec` |
+
+The following unrestricted placement trial and older observations retain their own artifact identities and limitations.
+
 2026-09-16 maxillary placement candidate under joint review: a one-millimetre source-builder probe establishes the rigid upper-arch translation and its derivative in the recorded photograph frame. The median signed incisal residual gives one placement candidate. The retained trial document changes only `detail.dentition.placement.lift` from 4.4 to 1.8574765689179449 mm. Crown shape, aperture, material, camera, reference and all other authored values stay exact. Every non-dental model part is unchanged in observed, neutral and oral-gaze states; the upper arch is identical across these three states.
 
 At 3 directly read source-image columns, mean absolute visible-incisal position error changes from 1.8667 to 0.4167 native pixels. Manual photograph-reading uncertainty is 1 pixels and final Float32 triangle sampling uses a 0.25-pixel step. These are fitted-column observations, not held-out anatomical accuracy or a likeness percentage. The readings distinguish visible enamel from total crown height and lip aperture; the [tooth-display study](https://pubmed.ncbi.nlm.nih.gov/20111761/) supplies that observation distinction, not this person's dimensions or a cohort value to impose.
@@ -481,6 +503,28 @@ State: construction admitted; standalone document replay admitted; static glTF a
 ## yoo-seung-ho {#yoo-seung-ho}
 
 [Replay document](yoo-seung-ho.json) · [Original selection and quality](inputs.md#input-yoo-seung-ho). Selected original: `yoo-seung-ho_age-22_the-magician.png`.
+
+2026-09-16 joint-placement partial adoption: the current replay document uses upper-arch lift 3.169522070272549 mm and recess 7 mm. These values couple the source-pixel incisal fit to the union of tooth/head/lip contact constraints across observed, neutral and oral-gaze states. All non-dental model parts and materials remain exact; the upper arch remains fixed across the three expressions. Final Float32 tooth versus head/lip surface checks find zero intersecting triangle pairs in all three states. This does not certify the unrepaired legacy oral backdrop or continuous motion.
+
+All 27 candidate views and their 27 retained baseline counterparts were directly read for this person. The exposed upper band is slightly closer to the photograph; the change remains within manual reading uncertainty. The actual source-replayed legacy-cavity model changes the sampled visible-incisal mean absolute error from 0.95 to 0.70 native pixels, with 1.2-pixel manual reference uncertainty and 0.25-pixel sampling. This fitted-column result is not whole-face accuracy. The replacement-cavity experiments are separately retained and are not silently included in this adoption.
+
+All three new actual-editor fronts were directly read. Saved/reloaded JSON is exact and neutral undo restores the same-browser original GLB exactly. Across all four people, eight source/browser GLBs match exactly; three Alan states and Oh observed each differ in one NORMAL Float32 component by one ULP, with every other byte exact. The new receipt records those differences without claiming cross-runtime byte identity. Hardware rendering is AMD 8060S; the editor calibration cube measures the expected 16 pixels. The open-mouth state still exposes missing lower interior and the legacy backdrop. Heavy orbital volume, simple alar form, angular face/neck planes and likeness remain unresolved. **The placement improvement is adopted; full oral anatomy and whole-face likeness are not accepted.**
+
+Current document bytes SHA-256: `79ca71ae672baa9432346092fe95709e985f756c857a218b0ae36ec0b646061a`; model: `6ad5f6f1ad862a703c908333f562111bbd97954d53d6ddaf1a66f0574d0e1f03`; source GLB: `0294ee577f9449afdd22c33e4657e8d29c2432923d5689d96ffc88dc44491c87`. Retained candidate population: `.shots/human-2469/investigation-2498/oral-joint-placement/yoo-seung-ho`. The direct comparison, editor and source-replay receipts remain in `joint-placement-adoption/direct-review.json`, `joint-placement-editor-v2/receipt.json` and `nose-owner-replay.json` under the same investigation directory.
+
+| Current observed view | PNG SHA-256 |
+| --- | --- |
+| front | `3e764a1538613d0925d898da57c1c3f7b285c4b26979853ace63256dcda502cd` |
+| left-oblique | `9ae96950d1178e64e4096170bceee6a5f12b38de327e74ebb650b78ee4c5b2fb` |
+| right-oblique | `32e8c070ef7bc6b5a83988d8607591c0dc5a5cdad4ee40c4b3d39a90a22fd581` |
+| left-profile | `38fe8d3b555f9c70b8cbc4b3e42cd40a3e340abb9ce017c44cf3ba3c560c5c90` |
+| right-profile | `f132ffffebb6b2818a891830bdbdd703c4823c3c0b0426f6c268ace47fb6cb72` |
+| back | `082dcbeef1e44f4f799df187e944c6eb27bee13fab85f306a755399003c91686` |
+| bare-clay | `b6827fca6abc7e1dcc1a490b5102949b1656244c4aae4c7731601088e5dc01a5` |
+| bare-oblique | `9541abe8c8dbab6bf3c623f232c63afc72ff9532b4d11d35df17750a80e62238` |
+| reference | `23524a418f88367f1b5fa32f65e5c7afb0423cb710319bb6683eae299a49e918` |
+
+The following unrestricted placement trial and older observations retain their own artifact identities and limitations.
 
 2026-09-16 maxillary placement candidate under joint review: a one-millimetre source-builder probe establishes the rigid upper-arch translation and its derivative in the recorded photograph frame. The median signed incisal residual gives one placement candidate. The retained trial document changes only `detail.dentition.placement.lift` from 4.1 to 3.169522070272549 mm. Crown shape, aperture, material, camera, reference and all other authored values stay exact. Every non-dental model part is unchanged in observed, neutral and oral-gaze states; the upper arch is identical across these three states.
 
@@ -575,6 +619,28 @@ State: construction admitted; standalone document replay admitted; static glTF a
 ## alan-rickman {#alan-rickman}
 
 [Replay document](alan-rickman.json) · [Original selection and quality](inputs.md#input-alan-rickman). Selected original: `alan-rickman_age-65_portrait.jpg`.
+
+2026-09-16 joint-placement partial adoption: the current replay document uses upper-arch lift 1.6539542997058696 mm and recess 10.78357515534418 mm. These values couple the source-pixel incisal fit to the union of tooth/head/lip contact constraints across observed, neutral and oral-gaze states. All non-dental model parts and materials remain exact; the upper arch remains fixed across the three expressions. Final Float32 tooth versus head/lip surface checks find zero intersecting triangle pairs in all three states. This does not certify the unrepaired legacy oral backdrop or continuous motion.
+
+All 27 candidate views and their 27 retained baseline counterparts were directly read for this person. The observed smile has a taller visible upper band and less excessive dark separation; its residual and regular crown shapes remain. The actual source-replayed legacy-cavity model changes the sampled visible-incisal mean absolute error from 8.125 to 3.50 native pixels, with 2-pixel manual reference uncertainty and 0.25-pixel sampling. This fitted-column result is not whole-face accuracy. The replacement-cavity experiments are separately retained and are not silently included in this adoption.
+
+All three new actual-editor fronts were directly read. Saved/reloaded JSON is exact and neutral undo restores the same-browser original GLB exactly. Across all four people, eight source/browser GLBs match exactly; three Alan states and Oh observed each differ in one NORMAL Float32 component by one ULP, with every other byte exact. The new receipt records those differences without claiming cross-runtime byte identity. Hardware rendering is AMD 8060S; the editor calibration cube measures the expected 16 pixels. The open-mouth state still exposes missing lower interior and the legacy backdrop. Heavy orbital volume, simple alar form, angular face/neck planes and likeness remain unresolved. **The placement improvement is adopted; full oral anatomy and whole-face likeness are not accepted.**
+
+Current document bytes SHA-256: `cc3742f7292ab1cf534e0f362eba0e70115d7a70ce02f068ae9115fcbcbae21f`; model: `684fed27ecc9d04e4b40049aa590790672ad3bfa5b1084aceff42e8e735ccee0`; source GLB: `9406879985fe88547890e751bedfe51099f4f4ccb38f4f4f1020a5833a76583b`. Retained candidate population: `.shots/human-2469/investigation-2498/oral-joint-placement/alan-rickman`. The direct comparison, editor and source-replay receipts remain in `joint-placement-adoption/direct-review.json`, `joint-placement-editor-v2/receipt.json` and `nose-owner-replay.json` under the same investigation directory.
+
+| Current observed view | PNG SHA-256 |
+| --- | --- |
+| front | `422b44a41faa25be68eb9784585298beb06885541dbd2cd6b63b25cce686d7dd` |
+| left-oblique | `dc522cb53e49410d4a179769a968bec5de1165706d47416c07cfecbff8c3b6c2` |
+| right-oblique | `697c7fb7ed07d68b7be869598cdc43fe245db9b8e1046b85b73d49a24bae19d8` |
+| left-profile | `a7ce8cd6bb424ae877e8b754771d16b0803c279f06f0911d18e01e803418c9e4` |
+| right-profile | `7b9bbc07d30c6b69a76a790ba460b3ff01739707e2eed279d2cc15faa3fc71f0` |
+| back | `33a6308fb981cfefc78153cb7443a41a3366f3e8e02ce919666a9a03ee462dc2` |
+| bare-clay | `7759f426a7df33eace609736bd8db14a87c0be7b75c418b7963b0ea6ff719da3` |
+| bare-oblique | `c09f24e3ebc3407dd3bbeb827b3c4c358d0316e0e1d29ccc56d7fa25bfae6af1` |
+| reference | `54de7ad6ad472ac3aeee1cce95c0b0d0868370c61e7934aa9d12d93f24a0b86b` |
+
+The following unrestricted placement trial and older observations retain their own artifact identities and limitations.
 
 2026-09-16 maxillary placement candidate under joint review: a one-millimetre source-builder probe establishes the rigid upper-arch translation and its derivative in the recorded photograph frame. The median signed incisal residual gives one placement candidate. The retained trial document changes only `detail.dentition.placement.lift` from 4.1 to 1.9137835445429685 mm. Crown shape, aperture, material, camera, reference and all other authored values stay exact. Every non-dental model part is unchanged in observed, neutral and oral-gaze states; the upper arch is identical across these three states.
 
@@ -778,6 +844,28 @@ State: construction admitted; standalone document replay admitted; static glTF a
 ## maggie-smith {#maggie-smith}
 
 [Replay document](maggie-smith.json) · [Original selection and quality](inputs.md#input-maggie-smith). Selected original: `maggie-smith_age-80_lady-in-the-van-photocall.jpg`.
+
+2026-09-16 joint-placement partial adoption: the current replay document uses upper-arch lift 1.0325601508304607 mm and recess 7.5 mm. These values couple the source-pixel incisal fit to the union of tooth/head/lip contact constraints across observed, neutral and oral-gaze states. All non-dental model parts and materials remain exact; the upper arch remains fixed across the three expressions. Final Float32 tooth versus head/lip surface checks find zero intersecting triangle pairs in all three states. This does not certify the unrepaired legacy oral backdrop or continuous motion.
+
+All 27 candidate views and their 27 retained baseline counterparts were directly read for this person. The formerly truncated upper crowns occupy a closer share of the photographed smile. The actual source-replayed legacy-cavity model changes the sampled visible-incisal mean absolute error from 3.10 to 0.4833 native pixels, with 1-pixel manual reference uncertainty and 0.25-pixel sampling. This fitted-column result is not whole-face accuracy. The replacement-cavity experiments are separately retained and are not silently included in this adoption.
+
+All three new actual-editor fronts were directly read. Saved/reloaded JSON is exact and neutral undo restores the same-browser original GLB exactly. Across all four people, eight source/browser GLBs match exactly; three Alan states and Oh observed each differ in one NORMAL Float32 component by one ULP, with every other byte exact. The new receipt records those differences without claiming cross-runtime byte identity. Hardware rendering is AMD 8060S; the editor calibration cube measures the expected 16 pixels. The open-mouth state still exposes missing lower interior and the legacy backdrop. Heavy orbital volume, simple alar form, angular face/neck planes and likeness remain unresolved. **The placement improvement is adopted; full oral anatomy and whole-face likeness are not accepted.**
+
+Current document bytes SHA-256: `cf672a43a4c061baf1142dd3d3d0c8022b14e1ec9199e44018210beb51f38f47`; model: `41a1727ff887a1170e60a964a414eef908cff8f88296560e1e5a388294fc8de9`; source GLB: `737f8cc8946ef850c1d03e71c4331cbbb35d09d4f3a75bcedbc7bf3a3d0e5fe7`. Retained candidate population: `.shots/human-2469/investigation-2498/oral-joint-placement/maggie-smith`. The direct comparison, editor and source-replay receipts remain in `joint-placement-adoption/direct-review.json`, `joint-placement-editor-v2/receipt.json` and `nose-owner-replay.json` under the same investigation directory.
+
+| Current observed view | PNG SHA-256 |
+| --- | --- |
+| front | `7e9d93ce62be7d9a272fb97b369f55703207f09184c573f07f3f7d63cd77b3b3` |
+| left-oblique | `b2dc67b4002d58a7b344fee37aa3b4fd82ac5f0ee0a2f7eceaa1f7071b9ad420` |
+| right-oblique | `e7d442e23520897e872a20f7c7bc6a67caffdde2c8cd6ae6bdfc3cc41e673958` |
+| left-profile | `fe157f9e3313fd501dd812c059ed2f4583003d24024541545d2fe7e35751ede4` |
+| right-profile | `dd9df8a6c09e2195fa493b4f681f2c5ad22dee69f796dc707e7cb318e032b1c7` |
+| back | `8eabc8bd247335b3dea2b8621a03e03a0eb55407fd953c5b8459f1a2b5221af2` |
+| bare-clay | `3bc32b6a8b3535270efdcfcce5d0f5776f9778116331889ffbd7be5b3ebeab8d` |
+| bare-oblique | `2e3c9078a71bbf4a7005fcbd040c4c15147cf8c589f3def044a8e21fae3c7304` |
+| reference | `766695f62698603f25756025445fd59774ab04c4d29a14bf04501cff6cb1c375` |
+
+The following unrestricted placement trial and older observations retain their own artifact identities and limitations.
 
 2026-09-16 maxillary placement candidate under joint review: a one-millimetre source-builder probe establishes the rigid upper-arch translation and its derivative in the recorded photograph frame. The median signed incisal residual gives one placement candidate. The retained trial document changes only `detail.dentition.placement.lift` from 5 to 1.0325601508304607 mm. Crown shape, aperture, material, camera, reference and all other authored values stay exact. Every non-dental model part is unchanged in observed, neutral and oral-gaze states; the upper arch is identical across these three states.
 
