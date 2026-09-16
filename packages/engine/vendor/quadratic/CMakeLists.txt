@@ -37,5 +37,5 @@ set_target_properties(automovie_quadratic PROPERTIES SUFFIX ".wasm")
 add_custom_command(TARGET automovie_quadratic POST_BUILD
   COMMAND ${CMAKE_COMMAND}
     "-DWASM_FILE=$<TARGET_FILE:automovie_quadratic>"
-    "-DOUTPUT_FILE=${CMAKE_CURRENT_SOURCE_DIR}/../../src/math/quadraticKernelBytes.json"
+    "-DOUTPUT_FILE=${CMAKE_CURRENT_BINARY_DIR}/quadraticKernelBytes.json"
     -P "${CMAKE_CURRENT_SOURCE_DIR}/emit.cmake")

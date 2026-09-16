@@ -26,6 +26,20 @@ export const test_geometry_quadratic_workspace = (): void => {
       return heap.floats[address / 8];
     });
   TestValidator.equals("binary-exact workspace value", readValue(), 1.25);
+  memory.withWorkspace(9, (heap, address) => {
+    TestValidator.equals(
+      "odd byte count retains double alignment",
+      address % 8,
+      0,
+    );
+    const bytes = new Uint8Array(heap.floats.buffer);
+    bytes[address + 8] = 123;
+    TestValidator.equals(
+      "odd allocation retains last byte",
+      bytes[address + 8],
+      123,
+    );
+  });
   for (const count of [0, -1, 1.25, NaN, Infinity, 0x100000000])
     TestValidator.predicate(
       "invalid byte domain",

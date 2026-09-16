@@ -1,6 +1,6 @@
 # Constrained displacement kernel
 
-The engine's quadratic adapter calls the public OSQP C API through `bridge.c`. The bridge borrows caller buffers, creates and destroys one solver, and copies the primal solution, dual solution and native diagnostics before cleanup. It does not inspect private layouts or retain solver state. The caller owns geometry, units, scaling and acceptance.
+This directory preserves the earlier OSQP implementation for reproducible numerical comparison. The active engine kernel is [Clarabel](../clarabel/README.md). The OSQP bridge borrows caller buffers, creates and destroys one solver, and copies the primal solution, dual solution and native diagnostics before cleanup. It does not inspect private layouts or retain solver state. The caller owns geometry, units, scaling and acceptance.
 
 ## Pinned sources
 
@@ -21,7 +21,7 @@ emcmake cmake -S packages/engine/vendor/quadratic -B .shots/quadratic-build -G N
 cmake --build .shots/quadratic-build --parallel 4
 ```
 
-The post-build step regenerates `packages/engine/src/math/quadraticKernelBytes.json` with source revisions, compiler version, SHA-256 and hexadecimal module bytes. The binary stays in the selected build directory. Inspect the regenerated digest and rerun the numerical ownership, independent optimum and actual geometry consumers before committing it. Normal TypeScript builds and package consumers neither fetch these repositories nor compile C.
+The post-build step writes `quadraticKernelBytes.json` beside the binary in the selected build directory, with source revisions, compiler version, SHA-256 and hexadecimal module bytes. It does not overwrite the active engine kernel. Comparison callers must use OSQP's status meanings, sixth diagnostic (`polishStatus`) and Emscripten memory ABI. Normal TypeScript builds and package consumers neither fetch these repositories nor compile C.
 
 The module uses double scalars and int32 indices. It exports linear memory, allocation, initialization and the bridge, and imports only a memory-growth notification. Printing, profiling, interrupts, derivatives and code generation are disabled. Adaptive rho updates use iteration counts, so machine timing cannot choose a different solve schedule. The TypeScript owner refreshes heap views after memory growth and copies results before returning storage.
 

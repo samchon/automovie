@@ -84,7 +84,7 @@ export const test_geometry_bounded_displacement = (): void => {
     "native infeasibility retained in refusal",
     throwsError(
       () => solve({ ...base, constraints: [condition([0], [1], 4, null)] }),
-      "status 3",
+      "status 2",
     ),
   );
   TestValidator.predicate(

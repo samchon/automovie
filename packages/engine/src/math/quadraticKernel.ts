@@ -1,5 +1,5 @@
 /**
- * Typed-array transport for the standalone OSQP public-API bridge.
+ * Typed-array transport for the pinned Clarabel public-API bridge.
  * solveAutoMovieQuadraticProgram owns semantic admission and CSC construction;
  * this owner lays out aligned wasm32 buffers, invokes one fresh native solver,
  * and copies values before releasing its borrowed workspace. Coordinates have
@@ -13,9 +13,12 @@ let memory: ReturnType<typeof createAutoMovieQuadraticMemory> | undefined;
 /**
  * Copy one already assembled column-compressed problem through the native API.
  * The program adapter owns array lengths, index bounds and finite coefficient
- * admission. The native API still reports rejected dimensions/setup as a
- * negative status. Positive statuses retain OSQP's meanings; only one means a
- * solved problem. Unsuccessful output arrays must not be used as geometry.
+ * admission. A zero-variable call reports a negative API status; the remaining
+ * buffer preconditions belong to the caller. Native statuses are: 1 is Solved,
+ * 2 is PrimalInfeasible, 3 is DualInfeasible, 4 is AlmostSolved. Only 1 means a
+ * fully solved problem. Unsuccessful output arrays must not be used as geometry.
+ * The optional initial vector is retained for caller compatibility but ignored
+ * by the cold interior-point solver; no preceding call seeds the next solve.
  * Null-bound conversion and independent residual checks belong to the adapter.
  *
  * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Evaluates an explicitly assembled shared-displacement problem without changing its coefficients or resident geometry.
@@ -36,7 +39,7 @@ export function solveAutoMovieQuadraticKernel(input: {
   primalResidual: number;
   dualResidual: number;
   objective: number;
-  polishStatus: number;
+  dualObjective: number;
   primal: number[];
   dual: number[];
 } {
@@ -108,7 +111,7 @@ export function solveAutoMovieQuadraticKernel(input: {
       primalResidual: heap.floats[at + 2],
       dualResidual: heap.floats[at + 3],
       objective: heap.floats[at + 4],
-      polishStatus: heap.floats[at + 5],
+      dualObjective: heap.floats[at + 5],
       primal: Array.from(
         heap.floats.subarray((base + primal) / 8, (base + primal) / 8 + n),
       ),

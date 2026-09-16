@@ -3,11 +3,12 @@
  * The quadratic-program adapter borrows one contiguous workspace per call and
  * copies results before this owner frees it. No solver state survives cleanup.
  * Generated JSON contains the standalone module bytes and source provenance;
- * the module imports only a memory-growth notification, with no external I/O.
+ * the module imports the closed deterministic WASI host, with no external I/O.
  * Heap views are read through getters because growth detaches earlier buffers.
  * All addresses and byte counts belong to wasm32, independently of mesh units.
  */
 import data from "./quadraticKernelBytes.json";
+import { createAutoMovieQuadraticHost } from "./quadraticKernelHost";
 
 /**
  * Borrowed heap access for one synchronous kernel call. Views are refreshed on
@@ -29,9 +30,8 @@ export interface IAutoMovieQuadraticHeap {
 
 type KernelExports = {
   memory: WebAssembly.Memory;
-  malloc(bytes: number): number;
-  free(address: number): void;
-  _initialize(): void;
+  automovie_alloc(bytes: number): number;
+  automovie_free(address: number): void;
   automovie_quadratic_solve(...arguments_: number[]): number;
 };
 
@@ -55,14 +55,12 @@ export function createAutoMovieQuadraticMemory(): {
   for (let i = 0; i < bytes.length; i++)
     bytes[i] = Number.parseInt(data.hex.slice(2 * i, 2 * i + 2), 16);
   const module = new WebAssembly.Module(bytes);
+  // This reactor has no start function. Imports first run from an explicit
+  // allocation/solve, after the exported memory has been assigned below.
   const instance = new WebAssembly.Instance(module, {
-    env: {
-      // No persistent heap view exists, so growth needs no view update here.
-      emscripten_notify_memory_growth() {},
-    },
+    wasi_snapshot_preview1: createAutoMovieQuadraticHost(() => api.memory),
   });
   const api = instance.exports as unknown as KernelExports;
-  api._initialize();
   const heap: IAutoMovieQuadraticHeap = {
     get floats() {
       return new Float64Array(api.memory.buffer);
@@ -81,13 +79,13 @@ export function createAutoMovieQuadraticMemory(): {
         throw new Error(
           "Quadratic workspace needs a positive wasm32 byte count.",
         );
-      const address = api.malloc(length) >>> 0;
+      const address = api.automovie_alloc(length) >>> 0;
       if (address === 0)
         throw new Error("Quadratic workspace allocation failed.");
       try {
         return use(heap, address);
       } finally {
-        api.free(address);
+        api.automovie_free(address);
       }
     },
   };

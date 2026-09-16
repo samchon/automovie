@@ -21,9 +21,11 @@ import {
  *
  * Inputs must be scaled by the caller into suitable numerical units. Tolerance
  * is a positive absolute row-value error in those units, not anatomical slack.
- * Maximum rounds is a positive integer work budget. Infeasibility, an exhausted
- * budget or a residual that fails on already selected rows throws with native
- * status, residual and round count. This owner admits displacement before any
+ * Maximum rounds is a positive integer work budget. An unsatisfied restricted
+ * problem with no participating variable refuses before numerical iteration.
+ * Native failure, an exhausted budget
+ * or a residual that fails on already selected rows throws with native status,
+ * residual and round count. This owner admits displacement before any
  * geometry consumer can apply it; no relaxed bound or objective is substituted.
  *
  * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Jointly minimizes area-weighted geometric travel while retaining complete contact constraints and conservative per-vertex upper bounds.
@@ -101,9 +103,38 @@ export function solveAutoMovieBoundedDisplacement(input: {
         `Bounded displacement did not converge: status ${status}, residual ${violation}, rounds ${rounds}.`,
       );
     for (const { index } of worst.values()) selected.add(index);
+    const rows = [...selected].map((i) => input.constraints[i].row);
+    // This restricted objective is diagonal with positive mass and zero linear
+    // cost. A variable absent from every selected affine row has the exact
+    // minimizer zero inside its [0, cap] interval. Eliminate that independent
+    // block before numerical iteration: an interior-point barrier otherwise
+    // leaves sqrt(energy error) travel near its zero optimum. Exact zero weights
+    // do not couple variables; every nonzero weight, however small, does.
+    const incident = new Set<number>();
+    for (const row of rows)
+      for (let j = 0; j < row.indices.length; j++)
+        if (row.weights[j] !== 0) incident.add(row.indices[j]);
+    const variables = input.mass
+      .map((_, i) => i)
+      .filter((i) => incident.has(i));
+    if (variables.length === 0)
+      throw new Error("Bounded displacement has inconsistent constant rows.");
+    const lookup = new Map(variables.map((id, i) => [id, i]));
     const solved = solveAutoMovieQuadraticProgram({
-      ...problem,
-      rows: [...selected].map((i) => input.constraints[i].row).concat(bounds),
+      diagonal: variables.map((id) => input.mass[id]),
+      linear: variables.map(() => 0),
+      rows: rows
+        .map((row) => {
+          const columns = row.indices
+            .map((id, j) => ({ id, weight: row.weights[j] }))
+            .filter(({ weight }) => weight !== 0);
+          return {
+            ...row,
+            indices: columns.map(({ id }) => lookup.get(id)!),
+            weights: columns.map(({ weight }) => weight),
+          };
+        })
+        .concat(variables.map((id, i) => ({ ...bounds[id], indices: [i] }))),
     });
     status = solved.status;
     if (status !== 1)
@@ -112,8 +143,10 @@ export function solveAutoMovieBoundedDisplacement(input: {
       );
     // Roundoff cannot spend more than the caller's cap or retreat into a support.
     // Recheck all original rows on these exact returned values next iteration.
-    travel = solved.primal.map((value, i) =>
-      Math.max(0, Math.min(input.upper[i], value)),
-    );
+    travel = input.mass.map(() => 0);
+    for (let i = 0; i < variables.length; i++) {
+      const id = variables[i];
+      travel[id] = Math.max(0, Math.min(input.upper[id], solved.primal[i]));
+    }
   }
 }

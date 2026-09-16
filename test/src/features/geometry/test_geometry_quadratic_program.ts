@@ -12,7 +12,9 @@ import { TestValidator } from "@nestia/e2e";
  *    as far. A cap redirects travel to the other variable without losing contact.
  * 2. Linear terms move an unconstrained square's centre. A zero diagonal reduces
  *    a bounded problem to a linear minimum, and a zero row leaves it unchanged.
- * 3. Contradictory rows retain native infeasibility instead of claiming success.
+ * 3. Mixed equality/inequality rows reconstruct the original signed duals.
+ *    Contradictory rows and an unbounded linear cost retain their distinct
+ *    native infeasibility statuses instead of claiming success.
  * 4. Repeated calls, a warm start and returned-buffer mutation cannot alter the
  *    input or leak state into a later solve. Both original residuals are small.
  */
@@ -78,6 +80,23 @@ export const test_geometry_quadratic_program = (): void => {
     solve({ diagonal: [1], linear: [2], rows: [row([0], [1], null, 10)] }),
     [-2],
   );
+  check(
+    solve({
+      diagonal: [1, 4],
+      linear: [0, 0],
+      rows: [
+        row([0], [1], 1, null),
+        row([0, 1], [1, 1], 3, 3),
+        row([1], [1], null, 2),
+      ],
+    }),
+    [2.4, 0.6],
+  );
+  TestValidator.equals(
+    "unbounded linear objective is dual infeasible",
+    solve({ diagonal: [0], linear: [-1], rows: [] }).status,
+    3,
+  );
   const infeasible = solve({
     diagonal: [1],
     linear: [0],
@@ -86,7 +105,7 @@ export const test_geometry_quadratic_program = (): void => {
   TestValidator.equals(
     "contradictory constraints are infeasible",
     infeasible.status,
-    3,
+    2,
   );
   check(solve({ diagonal: [1], linear: [0], rows: [] }), [0]);
 };
