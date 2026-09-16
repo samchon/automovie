@@ -6,7 +6,7 @@
   "main": "src/index.ts",
   "scripts": {
     "build": "ttsc -p tsconfig.json --noEmit && ttsc -p tsconfig.scripts.json --noEmit",
-    "start": "tsx src/index.ts"
+    "start": "ttsx -P tsconfig.json src/index.ts"
   },
   "author": "Samchon",
   "license": "MIT",
