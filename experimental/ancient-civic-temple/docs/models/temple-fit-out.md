@@ -1,598 +1,460 @@
 # Ancient civic temple model designs
 
-이 문서는 review된 `docs/spaces/temple.md`의 공간·개구부·표면 host를 소비하는 blocking prototype을 닫는다. 모든 prototype은 오른손잡이 Y-up metre 좌표, 명시적 local origin, 고정 hierarchy, stable surface owner, deterministic geometry를 갖는다. 이 문서는 placement, repeated membership, material response, water simulation, camera, 또는 역사적 복원을 소유하지 않는다. 수치는 레퍼런스 픽셀에서 역산하지 않고 settings의 compiled scale anchor와 이 prototype의 blocking 목적에서 채택한다.
+This document owns the deterministic blocking prototypes that consume the reviewed temple spaces and settings. It does not own placement, quantity, material construction, water simulation, camera composition, or a stronger fidelity claim than the blocking pass.
 
 ## Model scope, scale, and fidelity {#model-scope-scale-and-fidelity}
 
 <!--
-@evidence principles/core/common.md#declared-basis The reviewed settings and spaces source provide the metre, floor, height, opening, and blocking basis for this model population.
-@evidence principles/core/common.md#scope-preservation This unit keeps prototype geometry, placement, finish, and population as separate owners while defining their shared model boundary.
-@evidence principles/core/common.md#substantive-completion This unit closes the common scale anchors, proxy ceiling, and neutral comparison set used by every prototype below.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation This unit adds a model-owned representation and review boundary beyond the reviewed space topology.
-@evidence principles/design/models.md#representation-contract This unit defines the bounded prototype population, stable interfaces, and omitted fidelity rather than a parseable placeholder.
-@evidence principles/design/models.md#spatial-convention This unit fixes the shared Y-up metre frame and local-origin rule used by every prototype.
-@evidence principles/design/models.md#reviewable-structure This unit fixes the neutral views and common scale comparison that expose model regressions.
-@evidence principles/design/models.md#model-observable-style-basis This unit translates the temple's visual grammar into observable blocking silhouettes without claiming finish.
-@evidence principles/design/models.md#model-scale-layer-completion This unit closes the shared scale, occupied layers, stable interfaces, limits, and observations for the model population.
-@evidence upstream/design/models.md#settings-and-space-revision-from-model-work This unit tests the inherited metre, height, opening, route, and fidelity limits before any prototype is consumed.
-@evidence spaces/temple.md#envelope-opening-and-interior-interface This unit consumes the reviewed floor, room height, host depth, and opening boundary as model scale inputs.
-@evidence spaces/temple.md#spatial-identity-tolerance-and-exclusions This unit carries the reviewed prototype identity and blocking exclusions into model-owned geometry.
-@evidence settings/temple.md#delivery-scope This model-scope-scale-and-fidelity unit realizes the reviewed settings boundary for delivery-scope.
-@evidence settings/temple.md#governing-aim This model-scope-scale-and-fidelity unit realizes the reviewed settings boundary for governing-aim.
-@evidence settings/temple.md#production-visual-grammar This model-scope-scale-and-fidelity unit realizes the reviewed settings boundary for production-visual-grammar.
-@evidence settings/temple.md#production-fidelity-tier This model-scope-scale-and-fidelity unit realizes the reviewed settings boundary for production-fidelity-tier.
-@evidence settings/temple.md#subject-breakdown-production-scope This model-scope-scale-and-fidelity unit realizes the reviewed settings boundary for subject-breakdown-production-scope.
-@evidence settings/temple.md#audience-operator-access This model-scope-scale-and-fidelity unit realizes the reviewed settings boundary for audience-operator-access.
-@evidence settings/temple.md#accessibility-deliverable-states This model-scope-scale-and-fidelity unit realizes the reviewed settings boundary for accessibility-deliverable-states.
-@evidence settings/temple.md#coordinate-unit-convention This model-scope-scale-and-fidelity unit realizes the reviewed settings boundary for coordinate-unit-convention.
-@evidence settings/temple.md#stage-policy This model-scope-scale-and-fidelity unit realizes the reviewed settings boundary for stage-policy.
-@evidence settings/temple.md#delivery-review-condition This model-scope-scale-and-fidelity unit realizes the reviewed settings boundary for delivery-review-condition.
-@evidence settings/temple.md#settings-coverage-map This model-scope-scale-and-fidelity unit realizes the reviewed settings boundary for settings-coverage-map.
-@evidence settings/temple.md#operative-subject-inventory This model-scope-scale-and-fidelity unit realizes the reviewed settings boundary for operative-subject-inventory.
-@evidence settings/temple.md#design-dependent-subject-conditions This model-scope-scale-and-fidelity unit realizes the reviewed settings boundary for design-dependent-subject-conditions.
-@evidence settings/temple.md#subject-observable-identity-and-fit-out-limits This model-scope-scale-and-fidelity unit realizes the reviewed settings boundary for subject-observable-identity-and-fit-out-limits.
-@evidence settings/temple.md#reference-interpretation-boundary This model-scope-scale-and-fidelity unit realizes the reviewed settings boundary for reference-interpretation-boundary.
-@evidence obligations/core/common.md#purpose-fit The model scope assigns every promised bounded prototype to the library's civic blocking purpose.
-@evidence obligations/core/common.md#layer-boundary The model scope keeps prototype construction separate from space, material, instance, and viewer ownership.
-@evidence obligations/core/common.md#production-language The model scope names stable English prototype roles alongside the production's authored language.
-@evidence obligations/core/common.md#proportionate-development The model scope limits the prototype set to consequential blocking geometry rather than unsupported detail.
-@evidence obligations/design/models.md#addressable-model-decisions The model scope identifies the independently reviewable prototype H2 owners and their stable boundaries.
-@evidence obligations/design/models.md#representation-ceiling The model scope states the blocking proxy ceiling and refuses photoreal or simulated detail.
-@evidence obligations/design/models.md#reference-scale The model scope establishes the common metre, door, room-height, and route scale anchors.
-@evidence obligations/design/models.md#articulation-ownership The model scope records that the current prototype population is rigid and has no motion interface.
-@evidence obligations/design/models.md#model-review-set The model scope defines the finite neutral views and common comparison used for model review.
-@evidence obligations/design/models.md#model-representation-completion The model scope accounts for geometry, interfaces, limits, and observations before source realization.
-@evidence spaces/temple.md#one-storey-civic-temple-graph This model-scope-scale-and-fidelity unit consumes the reviewed spatial boundary one-storey-civic-temple-graph.
-@evidence spaces/temple.md#one-storey-containment-and-level This model-scope-scale-and-fidelity unit consumes the reviewed spatial boundary one-storey-containment-and-level.
-@evidence spaces/temple.md#courtyard-and-continuous-colonnade-loop This model-scope-scale-and-fidelity unit consumes the reviewed spatial boundary courtyard-and-continuous-colonnade-loop.
-@evidence spaces/temple.md#room-schedule-and-direct-thresholds This model-scope-scale-and-fidelity unit consumes the reviewed spatial boundary room-schedule-and-direct-thresholds.
-@evidence spaces/temple.md#entrance-service-gate-and-route-graph This model-scope-scale-and-fidelity unit consumes the reviewed spatial boundary entrance-service-gate-and-route-graph.
-@evidence spaces/temple.md#surface-decomposition-and-ownership-handoff This model-scope-scale-and-fidelity unit consumes the reviewed spatial boundary surface-decomposition-and-ownership-handoff.
-@evidence spaces/temple.md#spatial-verification-addresses-and-finite-review-set This model-scope-scale-and-fidelity unit consumes the reviewed spatial boundary spatial-verification-addresses-and-finite-review-set.
+@evidence principles/core/common.md#declared-basis This unit fixes the model population from the reviewed settings and spaces scale anchors: floor datum, room height, door clear, room route, and loop width.
+@evidence principles/core/common.md#scope-preservation This unit separates prototype geometry from space topology, material response, instance membership, and viewer observation.
+@evidence principles/core/common.md#substantive-completion This unit names the complete 17-H2 prototype population, its shared scale board, blocking ceiling, and neutral review set.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation This unit adds reusable model boundaries beyond the reviewed space topology and does not restate a room as geometry.
+@evidence principles/design/models.md#representation-contract This unit defines the population-level solid, open-boundary, surface, and proxy conventions that every prototype H2 specializes.
+@evidence principles/design/models.md#spatial-convention This unit fixes the shared Y-up metre frame, floor datum, and scale anchors used by all prototype extents.
+@evidence principles/design/models.md#reviewable-structure This unit fixes the common front, side, top, and three-quarter neutral views plus the door and room-height comparison board.
+@evidence principles/design/models.md#model-observable-style-basis This unit translates the temple's stone, terracotta, wood, metal, and restrained civic blocking grammar into observable silhouettes without finish claims.
+@evidence principles/design/models.md#model-scale-layer-completion This unit closes the population's scale references, part layers, stable-interface rule, refusal boundary, and review ownership.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work The model scope checked floor Y=0.00, room clear height 3.60m, 1.10m door clear, 1.20m room-side route, 2.00m loop width, fixed landmark identities, and the rigid blocking ceiling; those parent decisions were sufficient and no model construction exposed a parent defect.
+@evidence settings/temple.md#coordinate-unit-convention The complete prototype board uses the reviewed Y-up metre frame, south-to-north orientation, and floor datum rather than a model-local unit convention.
+@evidence settings/temple.md#production-fidelity-tier The population is limited to deterministic blocking silhouettes and explicitly refuses photoreal finish, fluid simulation, hidden engineering, and decorative micro-detail.
+@evidence settings/temple.md#subject-observable-identity-and-fit-out-limits The named columns, doors, fountain parts, altar, roof tile, furniture, vessels, lamps, and bench are the model roles that the settings identity makes observable.
+@evidence settings/temple.md#delivery-review-condition The finite neutral model board is a pre-placement check and does not replace the compiled topology observation set.
+@evidence settings/temple.md#accessibility-deliverable-states The model board reports prototype readability separately from any accessibility certification and leaves the reviewed unverified boundary intact.
+@evidence settings/temple.md#audience-operator-access The common door and room-height comparison lets an operator inspect all prototype roles at a stable review distance.
+@evidence settings/temple.md#delivery-scope The complete model population covers the promised blocking objects and explicitly hands placement, finish, and topology to later owners.
+@evidence settings/temple.md#design-dependent-subject-conditions The prototype limits preserve the compiled route, threshold, fountain, and service interfaces instead of inventing dependent behavior.
+@evidence settings/temple.md#governing-aim The neutral model board makes the civic building's object roles and room-legibility aids comparable without pretending to be a final shot.
+@evidence settings/temple.md#operative-subject-inventory The 16 named prototype roles in this document correspond to the model subjects listed by settings, while neutral observation is not treated as a design subject.
+@evidence settings/temple.md#reference-interpretation-boundary The five references inform silhouette, atmosphere, and material vocabulary only; no image is used as a dimension source or surface texture.
+@evidence settings/temple.md#settings-coverage-map The model scope assigns each model subject to one H2 owner and records the downstream placement and finish handoffs.
+@evidence settings/temple.md#stage-policy The document is complete enough for the models evidence stage but intentionally stops before model source, materials, and instances.
+@evidence spaces/temple.md#one-storey-containment-and-level Prototype heights are checked against the one ground-storey clear volume and never add a level or alter containment.
+@evidence spaces/temple.md#spatial-verification-addresses-and-finite-review-set The neutral model board is derived from the reviewed spatial scale and role questions while compiled room topology remains space-owned.
+@evidence spaces/temple.md#one-storey-civic-temple-graph Every prototype is a fit-out or envelope representation inside the reviewed civic graph and cannot introduce another room or storey.
+@evidence spaces/temple.md#entrance-service-gate-and-route-graph Door and furniture prototypes consume the reviewed threshold and protected route interfaces; they do not create a new connector or circulation loop.
+@evidence obligations/core/common.md#purpose-fit The bounded prototype family serves the civic blocking purpose by making the named building roles legible at review distance.
+@evidence obligations/core/common.md#layer-boundary This unit keeps geometry, topology, finish, population, and viewer ownership separate.
+@evidence obligations/core/common.md#production-language The prototypes retain stable English role identifiers required by the source and evidence interfaces.
+@evidence obligations/core/common.md#proportionate-development The population stops at consequential silhouette, contact, negative space, and stable surfaces rather than unsupported detail.
+@evidence obligations/design/models.md#addressable-model-decisions The 17 H2 owners each represent one independently implementable and reviewable prototype decision.
+@evidence obligations/design/models.md#representation-ceiling The models state what a blocking proxy can and cannot visually support.
+@evidence obligations/design/models.md#reference-scale The common door, room-height, floor, route, and loop anchors establish cross-prototype scale.
+@evidence obligations/design/models.md#articulation-ownership Every listed prototype is rigid and exposes no motion-writable pivot in this layer.
+@evidence obligations/design/models.md#model-review-set The common neutral front, side, top, and three-quarter views make silhouettes comparable before placement.
+@evidence obligations/design/models.md#model-representation-completion The population accounts for each promised part layer, interface, limit, and observation owner.
 -->
 
-권위와 상태: `docs/settings/temple.md#production-fidelity-tier`와 review된 `docs/spaces/temple.md`를 상속한 `author-adopted` model boundary다. 범위: 이 파일의 모든 prototype과 그 neutral model review다. 공통 scale anchor는 compiled space의 Y-up metre, floor datum `Y=0.00`, room clear height `3.60m`, ordinary door clear width `1.10m`, room-side observation route `1.20m`, loop width `2.00m`이다. Prototype local origin은 별도 항목에 명시하고, dimensions는 이 anchor에 대한 blocking realization으로만 해석한다. 지붕과 벽의 envelope, surface finish, instance transform, quantity, spacing, camera, water dynamics는 각각 spaces, materials, instances, 또는 review owner에 남긴다. 모든 prototype은 rigid blocking geometry이며 motion-writable pivot이나 photoreal detail을 약속하지 않는다.
+Authority and status: `author-adopted` model boundary derived from the reviewed settings and spaces. All geometry uses Y-up metres with floor `Y=0.00`. The shared comparison anchors are room clear height `3.60m`, ordinary door clear `1.10m`, room-side route `1.20m`, and colonnade loop width `2.00m`. The complete prototype population is `column`, `door`, `fountain-basin`, `fountain-stream`, `altar-plinth`, `roof-tile`, `records-table`, `records-shelf`, `records-chest`, `storage-shelf`, `storage-chest`, `storage-basket`, `votive-display`, `ceramic-vessel`, `lamp`, and `bench`, plus this scope owner. Placement transforms, count, spacing, material response, and compiled topology remain with their owners.
 
-검토 범위는 neutral orthographic-like front, side, top, and three-quarter views at a common metre scale, plus a silhouette comparison beside the `1.10m` door opening and `3.60m` room height anchor다. 이 범위에서 part hierarchy, negative space, surface ownership, ground contact, and role identity를 읽을 수 있어야 한다. 표현하지 않는 것은 석재 결, 테라코타 문양, 목재 grain, 유체 입자, hidden joinery, engineering reinforcement다. 그런 요구가 들어오면 `unsupported blocking fidelity`로 드러내고 낮은 proxy로 조용히 대체하지 않는다.
+The neutral model set is front, side, top, and three-quarter at the same metre scale, with a `1.10m` door comparison board and a `3.60m` room-height marker. These views expose silhouette, contact, negative space, and stable surface partition. They do not certify materials, lighting, fluid dynamics, historical reconstruction, or final rendered quality.
 
-검토 질문: 같은 compiled scale anchor에서 모든 prototype의 blocking identity와 제한을 비교할 수 있는가?
+Review question: does the complete prototype population remain readable as bounded civic blocking geometry while preserving the reviewed space graph and downstream ownership boundaries?
 
 ## Column prototype {#column-prototype}
 
 <!--
-@evidence principles/core/common.md#declared-basis The reviewed loop and settings column identity establish this prototype's base, shaft, capital, and scale basis.
-@evidence principles/core/common.md#scope-preservation This unit owns the column's rigid geometry and leaves loop placement and material response to their owners.
-@evidence principles/core/common.md#substantive-completion The three-part column hierarchy, extents, surfaces, and proxy limits are fully named here.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation This unit adds a reusable column representation beyond the loop space that receives it.
-@evidence principles/design/models.md#representation-contract This unit defines the column's solid parts, surfaces, bounds, and absent articulation.
-@evidence principles/design/models.md#spatial-convention This unit fixes the base-centred origin, Y-up axis, and metre extents.
-@evidence principles/design/models.md#reviewable-structure This unit identifies the views that expose base, shaft, capital, taper, and contact.
-@evidence principles/design/models.md#model-observable-style-basis This unit makes the rough stone three-part silhouette observable without historical-order claims.
-@evidence principles/design/models.md#model-scale-layer-completion This unit closes the column's layers, proportion anchors, surfaces, and blocking ceiling.
-@evidence upstream/design/models.md#settings-and-space-revision-from-model-work This unit tests the loop running-line and clear-height constraints before placement.
-@evidence spaces/temple.md#courtyard-and-continuous-colonnade-loop This unit consumes the reviewed colonnade loop and its clear width for the column placement handoff.
-@evidence spaces/temple.md#spatial-identity-tolerance-and-exclusions This unit preserves the reviewed stone-column silhouette and route exclusion.
-@evidence settings/temple.md#delivery-scope This column-prototype unit realizes the reviewed settings boundary for delivery-scope.
-@evidence settings/temple.md#governing-aim This column-prototype unit realizes the reviewed settings boundary for governing-aim.
-@evidence settings/temple.md#production-visual-grammar This column-prototype unit realizes the reviewed settings boundary for production-visual-grammar.
-@evidence settings/temple.md#production-fidelity-tier This column-prototype unit realizes the reviewed settings boundary for production-fidelity-tier.
-@evidence settings/temple.md#subject-breakdown-production-scope This column-prototype unit realizes the reviewed settings boundary for subject-breakdown-production-scope.
-@evidence settings/temple.md#audience-operator-access This column-prototype unit realizes the reviewed settings boundary for audience-operator-access.
-@evidence settings/temple.md#accessibility-deliverable-states This column-prototype unit realizes the reviewed settings boundary for accessibility-deliverable-states.
-@evidence settings/temple.md#coordinate-unit-convention This column-prototype unit realizes the reviewed settings boundary for coordinate-unit-convention.
-@evidence settings/temple.md#stage-policy This column-prototype unit realizes the reviewed settings boundary for stage-policy.
-@evidence settings/temple.md#delivery-review-condition This column-prototype unit realizes the reviewed settings boundary for delivery-review-condition.
-@evidence settings/temple.md#settings-coverage-map This column-prototype unit realizes the reviewed settings boundary for settings-coverage-map.
-@evidence settings/temple.md#operative-subject-inventory This column-prototype unit realizes the reviewed settings boundary for operative-subject-inventory.
-@evidence settings/temple.md#design-dependent-subject-conditions This column-prototype unit realizes the reviewed settings boundary for design-dependent-subject-conditions.
-@evidence settings/temple.md#subject-observable-identity-and-fit-out-limits This column-prototype unit realizes the reviewed settings boundary for subject-observable-identity-and-fit-out-limits.
-@evidence settings/temple.md#reference-interpretation-boundary This column-prototype unit realizes the reviewed settings boundary for reference-interpretation-boundary.
-@evidence spaces/temple.md#one-storey-civic-temple-graph This column-prototype unit consumes the reviewed spatial boundary one-storey-civic-temple-graph.
-@evidence spaces/temple.md#one-storey-containment-and-level This column-prototype unit consumes the reviewed spatial boundary one-storey-containment-and-level.
-@evidence spaces/temple.md#room-schedule-and-direct-thresholds This column-prototype unit consumes the reviewed spatial boundary room-schedule-and-direct-thresholds.
-@evidence spaces/temple.md#entrance-service-gate-and-route-graph This column-prototype unit consumes the reviewed spatial boundary entrance-service-gate-and-route-graph.
-@evidence spaces/temple.md#envelope-opening-and-interior-interface This column-prototype unit consumes the reviewed spatial boundary envelope-opening-and-interior-interface.
-@evidence spaces/temple.md#surface-decomposition-and-ownership-handoff This column-prototype unit consumes the reviewed spatial boundary surface-decomposition-and-ownership-handoff.
-@evidence spaces/temple.md#spatial-verification-addresses-and-finite-review-set This column-prototype unit consumes the reviewed spatial boundary spatial-verification-addresses-and-finite-review-set.
+@evidence principles/core/common.md#declared-basis The column unit uses the reviewed stone-column role and the shared 3.60m room-height comparison.
+@evidence principles/core/common.md#scope-preservation This unit owns only the column's rigid geometry; loop placement and stone response remain downstream.
+@evidence principles/core/common.md#substantive-completion This unit closes the base, shaft, capital, exact vertical bounds, surfaces, contact, and refusal boundary.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation This unit adds a reusable column representation beyond the colonnade-loop space.
+@evidence principles/design/models.md#representation-contract The three connected parts, taper, bounds, and named stone surfaces define the column operation without a hidden layer.
+@evidence principles/design/models.md#spatial-convention The base-centred floor origin and exact Y intervals make the column comparable and placeable.
+@evidence principles/design/models.md#reviewable-structure Front, side, top, and three-quarter views expose the base, shaft taper, capital, and ground contact.
+@evidence principles/design/models.md#model-observable-style-basis The rough stone three-part silhouette is observable without a historical-order or carved-detail claim.
+@evidence principles/design/models.md#model-scale-layer-completion The corrected part intervals and 5% taper close every visible column layer.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work The column check compared its 3.20m total height and 0.32m-to-0.304m shaft taper with the 3.60m room height and checked the 0.45m capital ratio; no parent capability, contact, or space defect was exposed.
+@evidence settings/temple.md#coordinate-unit-convention The column uses the reviewed floor datum and Y-up metre frame for its base-centred origin.
+@evidence settings/temple.md#subject-observable-identity-and-fit-out-limits The three-part stone column is the specific vertical landmark required by the settings identity.
+@evidence spaces/temple.md#courtyard-and-continuous-colonnade-loop The column receives the reviewed loop running-line and must remain outside the 2.00m clear circulation band.
+@evidence spaces/temple.md#spatial-identity-tolerance-and-exclusions The column preserves the loop's repeated stone support role without changing the loop topology.
 -->
 
-권위와 상태: settings의 `column` identity를 실현하는 `author-adopted` fixed prototype이다. local origin은 base 중심의 floor 접점 `(0,0,0)`, Y-up, occupied extent는 X/Z `-0.20..0.20`, Y `0.00..3.20m`다. hierarchy는 `base`, `shaft`, `capital` 세 rigid part이며 circular base 지름 `0.40m`, shaft 지름 `0.32m`에서 상단 `0.30m`로 taper, capital 지름 `0.46m`, capital 높이 `0.28m`를 사용한다. base·shaft·capital은 각각 `column-stone-base`, `column-stone-shaft`, `column-stone-capital` surface owner를 갖고, 모든 부분은 connected solid이며 내부 negative space나 articulation은 없다. shaft taper는 5% 이하이고 capital은 shaft보다 1.25~1.50배 넓어 settings identity를 보존한다. instance owner만 loop의 running line 밖에 placement한다.
+Authority and status: `author-adopted` fixed prototype for the colonnade loop. The local origin is the base contact centre, with occupied bounds X/Z `-0.225..0.225m` and Y `0.00..3.20m`. The hierarchy is `base`, `shaft`, `capital`: base Y `0.00..0.18m` with diameter `0.40m`; shaft Y `0.18..2.92m`, diameter `0.32m` at its base and `0.304m` at its top; capital Y `2.92..3.20m` with diameter `0.45m`. The shaft taper is exactly 5% and the capital-to-shaft-top ratio is approximately 1.48. Stable surfaces are `column-stone-base`, `column-stone-shaft`, and `column-stone-capital`. The parts are one connected rigid solid with no internal negative space or articulation. Instances place it outside the compiled loop route.
 
-neutral review는 정면·측면·상면·three-quarter에서 base 접지, 세 부분 silhouette, capital-to-shaft 비례, 그리고 `3.60m` clear-height 아래의 scale을 본다. 이 proxy는 fluting, carved relief, structural load, 또는 historical order를 표현하지 않는다. 움직일 수 있는 pivot은 없으며 모든 part는 rigid transform으로 남긴다.
+Neutral review is front, side, top, and three-quarter against the `3.60m` height marker. Fluting, carved relief, load analysis, and historical order are outside this proxy.
 
-검토 질문: column prototype이 base·shaft·capital의 세 단계와 허용 taper를 한눈에 보이며 loop route 안으로 돌출하지 않는 배치 interface를 제공하는가?
+Review question: does the column show three complete vertical layers and the permitted taper without entering the loop route?
 
 ## Door prototype {#door-prototype}
 
 <!--
-@evidence principles/core/common.md#declared-basis The reviewed opening schedule and door identity establish the frame, leaf, host, and clear-space basis.
-@evidence principles/core/common.md#scope-preservation This unit owns frame and leaf geometry while the spaces source owns the semantic void and the instances source owns placement.
-@evidence principles/core/common.md#substantive-completion This unit names the door parts, clear relation, surfaces, rigid state, and proxy refusal boundary.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation This unit adds a reusable door representation beyond the opening topology.
-@evidence principles/design/models.md#representation-contract This unit defines the frame, leaf, stable surfaces, clear void relation, and rigid hierarchy.
-@evidence principles/design/models.md#spatial-convention This unit fixes threshold-centred origin, Y-up, nominal clear extents, and host-depth relation.
-@evidence principles/design/models.md#reviewable-structure This unit identifies views that expose clear width, height, frame, leaf, and host fit.
-@evidence principles/design/models.md#model-observable-style-basis This unit makes the light-stone frame and dark-wood leaf contrast observable without joinery claims.
-@evidence principles/design/models.md#model-scale-layer-completion This unit closes the door's frame, leaf, void, surfaces, scale anchors, and rigid ceiling.
-@evidence upstream/design/models.md#settings-and-space-revision-from-model-work This unit tests every reviewed room opening and route handoff before a door is placed.
-@evidence spaces/temple.md#room-schedule-and-direct-thresholds This unit consumes the reviewed direct room threshold, 1.10m width, and room-facing route origin.
-@evidence spaces/temple.md#envelope-opening-and-interior-interface This unit consumes the reviewed 0.40m host depth and vertical opening range.
-@evidence settings/temple.md#delivery-scope This door-prototype unit realizes the reviewed settings boundary for delivery-scope.
-@evidence settings/temple.md#governing-aim This door-prototype unit realizes the reviewed settings boundary for governing-aim.
-@evidence settings/temple.md#production-visual-grammar This door-prototype unit realizes the reviewed settings boundary for production-visual-grammar.
-@evidence settings/temple.md#production-fidelity-tier This door-prototype unit realizes the reviewed settings boundary for production-fidelity-tier.
-@evidence settings/temple.md#subject-breakdown-production-scope This door-prototype unit realizes the reviewed settings boundary for subject-breakdown-production-scope.
-@evidence settings/temple.md#audience-operator-access This door-prototype unit realizes the reviewed settings boundary for audience-operator-access.
-@evidence settings/temple.md#accessibility-deliverable-states This door-prototype unit realizes the reviewed settings boundary for accessibility-deliverable-states.
-@evidence settings/temple.md#coordinate-unit-convention This door-prototype unit realizes the reviewed settings boundary for coordinate-unit-convention.
-@evidence settings/temple.md#stage-policy This door-prototype unit realizes the reviewed settings boundary for stage-policy.
-@evidence settings/temple.md#delivery-review-condition This door-prototype unit realizes the reviewed settings boundary for delivery-review-condition.
-@evidence settings/temple.md#settings-coverage-map This door-prototype unit realizes the reviewed settings boundary for settings-coverage-map.
-@evidence settings/temple.md#operative-subject-inventory This door-prototype unit realizes the reviewed settings boundary for operative-subject-inventory.
-@evidence settings/temple.md#design-dependent-subject-conditions This door-prototype unit realizes the reviewed settings boundary for design-dependent-subject-conditions.
-@evidence settings/temple.md#subject-observable-identity-and-fit-out-limits This door-prototype unit realizes the reviewed settings boundary for subject-observable-identity-and-fit-out-limits.
-@evidence settings/temple.md#reference-interpretation-boundary This door-prototype unit realizes the reviewed settings boundary for reference-interpretation-boundary.
-@evidence spaces/temple.md#one-storey-civic-temple-graph This door-prototype unit consumes the reviewed spatial boundary one-storey-civic-temple-graph.
-@evidence spaces/temple.md#one-storey-containment-and-level This door-prototype unit consumes the reviewed spatial boundary one-storey-containment-and-level.
-@evidence spaces/temple.md#courtyard-and-continuous-colonnade-loop This door-prototype unit consumes the reviewed spatial boundary courtyard-and-continuous-colonnade-loop.
-@evidence spaces/temple.md#entrance-service-gate-and-route-graph This door-prototype unit consumes the reviewed spatial boundary entrance-service-gate-and-route-graph.
-@evidence spaces/temple.md#surface-decomposition-and-ownership-handoff This door-prototype unit consumes the reviewed spatial boundary surface-decomposition-and-ownership-handoff.
-@evidence spaces/temple.md#spatial-identity-tolerance-and-exclusions This door-prototype unit consumes the reviewed spatial boundary spatial-identity-tolerance-and-exclusions.
-@evidence spaces/temple.md#spatial-verification-addresses-and-finite-review-set This door-prototype unit consumes the reviewed spatial boundary spatial-verification-addresses-and-finite-review-set.
+@evidence principles/core/common.md#declared-basis The door unit uses the reviewed 1.10m by 2.10m clear opening and 0.40m host depth.
+@evidence principles/core/common.md#scope-preservation This unit owns frame and leaf geometry; spaces owns the semantic void and instances owns placement.
+@evidence principles/core/common.md#substantive-completion This unit closes every frame and leaf surface identifier, clear relation, depth, contact, and rigid limit.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation This unit adds a reusable door representation beyond the opening element.
+@evidence principles/design/models.md#representation-contract The jamb, lintel, leaf, and clear void have named boundaries and no hidden surface owner.
+@evidence principles/design/models.md#spatial-convention The threshold-centred origin and exact X/Y/Z extents preserve the reviewed opening scale.
+@evidence principles/design/models.md#reviewable-structure The neutral door views expose clear width, clear height, frame, leaf, and host fit.
+@evidence principles/design/models.md#model-observable-style-basis The light-stone frame and dark-wood leaf contrast is observable without joinery or weather-seal claims.
+@evidence principles/design/models.md#model-scale-layer-completion The named jamb, lintel, and leaf boundaries close the door's visible layers and handoff.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work The door check compared the 1.10m by 2.10m clear void, 0.40m host depth, and room-side 1.20m route start; the reviewed opening and space interfaces were sufficient and exposed no parent defect.
+@evidence settings/temple.md#coordinate-unit-convention The threshold-centred door uses the reviewed Y-up metre frame and floor datum.
+@evidence settings/temple.md#subject-observable-identity-and-fit-out-limits The door identity requires a light frame, dark leaf, clear opening, and room-side route reading.
+@evidence spaces/temple.md#room-schedule-and-direct-thresholds The model consumes the reviewed direct room threshold, 1.10m clear width, and room-facing route origin.
+@evidence spaces/temple.md#envelope-opening-and-interior-interface The model consumes the reviewed 0.40m host depth and vertical opening range without changing the semantic void.
 -->
 
-권위와 상태: review된 room opening host와 settings의 door identity를 소비하는 `author-adopted` fixed prototype이다. local origin은 threshold center의 floor 접점, Y-up, nominal clear leaf extent는 X `-0.55..0.55m`, Y `0.00..2.10m`, host depth `0.40m` 안에서의 Z depth를 사용한다. hierarchy는 `stone-jamb-left`, `stone-jamb-right`, `stone-lintel`, `wood-leaf`의 rigid parts다. 밝은 stone frame의 외곽은 clear opening보다 좌우 각각 `0.18m`, 상부 `0.22m`만 넓히고, leaf는 clear void를 가리지 않는 직사각형 판으로 둔다. frame과 leaf는 각각 stable surface owners를 가지며, semantic void와 threshold는 spaces source가 소유하고 이 prototype은 그 void를 변경하지 않는다. leaf는 closed blocking state 하나만 제공하며 motion pivot은 의도적으로 유보한다.
+Authority and status: `author-adopted` fixed prototype for the reviewed room openings. The local origin is the threshold centre at floor contact. The semantic clear void is X `-0.55..0.55m`, Y `0.00..2.10m`, within host depth Z `-0.20..0.20m`. The rigid hierarchy and stable surfaces are `stone-jamb-left` / `door-frame-left-stone` with X `-0.73..-0.55m`, Y `0.00..2.10m`, Z `-0.20..0.20m`; `stone-jamb-right` / `door-frame-right-stone` with X `0.55..0.73m`, the same Y/Z bounds; `stone-lintel` / `door-frame-lintel-stone` with X `-0.73..0.73m`, Y `2.10..2.32m`, Z `-0.20..0.20m`; and `wood-leaf` / `door-leaf-wood` with X `-0.55..0.55m`, Y `0.00..2.10m`, Z `-0.16..0.16m`. The leaf remains a closed rigid blocking state; the semantic void and threshold stay space-owned.
 
-neutral review는 남쪽 현관 기준으로 정면·반대편·측면·three-quarter에서 `1.10m` clear width, `2.10m` clear height, frame/leaf contrast, host depth, 그리고 room-side `1.20m` route의 연속성을 본다. handle, hinge, joinery, weather seal, opening animation은 이 proxy의 범위 밖이며 요청 시 unsupported로 보고한다.
+Neutral review is from the south entry orientation, the room side, side, and three-quarter. Handles, hinges, joinery, weather seals, and opening animation are outside this proxy.
 
-검토 질문: door prototype이 frame과 leaf를 읽히게 하면서 compiled opening의 clear void와 room-side route를 침범하지 않는가?
+Review question: does the door expose named stone and wood surfaces while preserving the compiled clear void and its room-side route?
 
 ## Fountain basin prototype {#fountain-basin-prototype}
 
 <!--
-@evidence principles/core/common.md#declared-basis The reviewed fountain-center landmark socket establishes this basin's centred low circular representation.
-@evidence principles/core/common.md#scope-preservation This unit owns basin geometry and leaves the socket, water response, and population placement to their named owners.
-@evidence principles/core/common.md#substantive-completion This unit closes the circular shell, rim, water negative space, bounds, surfaces, and static proxy limit.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation This unit adds a basin prototype beyond the courtyard landmark socket.
-@evidence principles/design/models.md#representation-contract This unit defines connected basin parts, one negative water space, surfaces, and bounds.
-@evidence principles/design/models.md#spatial-convention This unit fixes a socket-centred floor origin, Y-up axis, and radial extents.
-@evidence principles/design/models.md#reviewable-structure This unit identifies top, side, and three-quarter views that expose the low rim and central opening.
-@evidence principles/design/models.md#model-observable-style-basis This unit makes the low stone circular landmark observable without claiming carved restoration.
-@evidence principles/design/models.md#model-scale-layer-completion This unit closes stone shell, rim, negative space, contact, surface owners, and blocking limits.
-@evidence upstream/design/models.md#settings-and-space-revision-from-model-work This unit tests the reviewed centre socket and loop clearance before basin placement.
-@evidence spaces/temple.md#courtyard-and-continuous-colonnade-loop This unit consumes the reviewed fountain-center socket and loop inner-edge clearance.
-@evidence spaces/temple.md#spatial-identity-tolerance-and-exclusions This unit preserves the one-basin and one-stream landmark boundary.
-@evidence settings/temple.md#delivery-scope This fountain-basin-prototype unit realizes the reviewed settings boundary for delivery-scope.
-@evidence settings/temple.md#governing-aim This fountain-basin-prototype unit realizes the reviewed settings boundary for governing-aim.
-@evidence settings/temple.md#production-visual-grammar This fountain-basin-prototype unit realizes the reviewed settings boundary for production-visual-grammar.
-@evidence settings/temple.md#production-fidelity-tier This fountain-basin-prototype unit realizes the reviewed settings boundary for production-fidelity-tier.
-@evidence settings/temple.md#subject-breakdown-production-scope This fountain-basin-prototype unit realizes the reviewed settings boundary for subject-breakdown-production-scope.
-@evidence settings/temple.md#audience-operator-access This fountain-basin-prototype unit realizes the reviewed settings boundary for audience-operator-access.
-@evidence settings/temple.md#accessibility-deliverable-states This fountain-basin-prototype unit realizes the reviewed settings boundary for accessibility-deliverable-states.
-@evidence settings/temple.md#coordinate-unit-convention This fountain-basin-prototype unit realizes the reviewed settings boundary for coordinate-unit-convention.
-@evidence settings/temple.md#stage-policy This fountain-basin-prototype unit realizes the reviewed settings boundary for stage-policy.
-@evidence settings/temple.md#delivery-review-condition This fountain-basin-prototype unit realizes the reviewed settings boundary for delivery-review-condition.
-@evidence settings/temple.md#settings-coverage-map This fountain-basin-prototype unit realizes the reviewed settings boundary for settings-coverage-map.
-@evidence settings/temple.md#operative-subject-inventory This fountain-basin-prototype unit realizes the reviewed settings boundary for operative-subject-inventory.
-@evidence settings/temple.md#design-dependent-subject-conditions This fountain-basin-prototype unit realizes the reviewed settings boundary for design-dependent-subject-conditions.
-@evidence settings/temple.md#subject-observable-identity-and-fit-out-limits This fountain-basin-prototype unit realizes the reviewed settings boundary for subject-observable-identity-and-fit-out-limits.
-@evidence settings/temple.md#reference-interpretation-boundary This fountain-basin-prototype unit realizes the reviewed settings boundary for reference-interpretation-boundary.
-@evidence spaces/temple.md#one-storey-civic-temple-graph This fountain-basin-prototype unit consumes the reviewed spatial boundary one-storey-civic-temple-graph.
-@evidence spaces/temple.md#one-storey-containment-and-level This fountain-basin-prototype unit consumes the reviewed spatial boundary one-storey-containment-and-level.
-@evidence spaces/temple.md#room-schedule-and-direct-thresholds This fountain-basin-prototype unit consumes the reviewed spatial boundary room-schedule-and-direct-thresholds.
-@evidence spaces/temple.md#entrance-service-gate-and-route-graph This fountain-basin-prototype unit consumes the reviewed spatial boundary entrance-service-gate-and-route-graph.
-@evidence spaces/temple.md#envelope-opening-and-interior-interface This fountain-basin-prototype unit consumes the reviewed spatial boundary envelope-opening-and-interior-interface.
-@evidence spaces/temple.md#surface-decomposition-and-ownership-handoff This fountain-basin-prototype unit consumes the reviewed spatial boundary surface-decomposition-and-ownership-handoff.
-@evidence spaces/temple.md#spatial-verification-addresses-and-finite-review-set This fountain-basin-prototype unit consumes the reviewed spatial boundary spatial-verification-addresses-and-finite-review-set.
+@evidence principles/core/common.md#declared-basis The basin unit uses the reviewed single central fountain landmark and floor datum.
+@evidence principles/core/common.md#scope-preservation This unit owns the basin shell; the space socket owns its identity and instances own placement.
+@evidence principles/core/common.md#substantive-completion This unit closes the outer shell, rim, inner cavity, water-seat boundary, bounds, and proxy limit.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation This unit adds a basin representation beyond the courtyard landmark element.
+@evidence principles/design/models.md#representation-contract The basin names its connected stone parts, open top, cavity, and stable surfaces.
+@evidence principles/design/models.md#spatial-convention The fountain-centred floor origin and radial extents make the landmark comparable.
+@evidence principles/design/models.md#reviewable-structure Top and three-quarter views expose the rim, cavity, contact, and scale against the courtyard.
+@evidence principles/design/models.md#model-observable-style-basis The low rough-stone circular basin is observable without carved ornament or hydraulic engineering.
+@evidence principles/design/models.md#model-scale-layer-completion The basin's outer, inner, and water-seat layers jointly close its blocking representation.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work The basin check compared its 0.85m outer radius, 0.62m inner radius, 0.42m height, and open top with the reviewed fountain centre and loop clearance; no parent socket or space defect was exposed.
+@evidence settings/temple.md#coordinate-unit-convention The basin uses the reviewed floor datum and Y-up metre frame at the central landmark.
+@evidence settings/temple.md#subject-observable-identity-and-fit-out-limits The settings require one low circular stone basin as the courtyard landmark.
+@evidence spaces/temple.md#courtyard-and-continuous-colonnade-loop The basin consumes the central courtyard landmark relation and remains clear of the loop route.
+@evidence spaces/temple.md#spatial-identity-tolerance-and-exclusions The basin preserves one central fountain landmark and does not add a second socket or route.
 -->
 
-권위와 상태: review된 `fountain-center` landmark socket을 소비하는 `author-adopted` fixed prototype이다. local origin은 socket의 중심 floor datum, Y-up, occupied extent는 X/Z `-0.95..0.95m`, Y `0.00..0.32m`다. hierarchy는 `stone-base`, `circular-rim`, `water-void`이며 outer radius `0.95m`, low rim height `0.32m`, inner water opening radius `0.68m`를 사용한다. rim과 basin wall은 connected circular solid with one visible central negative water space이고, stable surfaces는 `basin-stone-outer`, `basin-stone-rim`, `basin-water-receiving`으로 나눈다. 이 prototype은 중앙 socket을 이동하거나 loop clear edge를 줄이지 않으며 stream prototype을 geometry 안에 중복 생성하지 않는다.
+Authority and status: `author-adopted` fixed basin prototype consumed by the `fountain-center` landmark. The local origin is the basin centre at floor contact, with bounds X/Z `-0.85..0.85m` and Y `0.00..0.42m`. The hierarchy is `basin-foot`, `basin-wall`, and `basin-rim`. The foot occupies Y `0.00..0.18m` with outer radius `0.72m`; the wall occupies Y `0.18..0.38m` with outer radius `0.85m` and inner radius `0.62m`; the rim occupies Y `0.38..0.42m` with outer radius `0.85m` and inner radius `0.62m`. Stable surfaces are `basin-stone-exterior`, `basin-stone-rim`, and `basin-water-seat`; the interior is one open negative cavity with its horizontal seat at Y `0.18m`. The basin is rigid and does not own water flow or placement.
 
-neutral review는 top, side, and three-quarter에서 낮은 원형 rim, 중앙 negative space, floor contact, `1.20m` 이하의 settings landmark scale을 확인한다. 실제 수면 반사, 물결, drain, stone weathering은 materials 또는 systems 범위이며 이 model은 static basin proxy다.
+Neutral review is top, side, and three-quarter. The proxy shows one low open stone basin; carving, pump hardware, plumbing, and water shading are outside this layer.
 
-검토 질문: basin prototype이 하나의 낮은 원형 석조 landmark와 중앙 stream을 받을 명확한 negative space를 제공하는가?
+Review question: does the basin read as one low open circular landmark at the compiled `fountain-center` without changing route or socket ownership?
 
 ## Fountain stream prototype {#fountain-stream-prototype}
 
 <!--
-@evidence principles/core/common.md#declared-basis The reviewed fountain-center socket and static water-accent condition establish this stream's axis and height basis.
-@evidence principles/core/common.md#scope-preservation This unit owns a static stream proxy and leaves basin geometry, water material, and simulation outside the model layer.
-@evidence principles/core/common.md#substantive-completion This unit closes the vertical parts, bounds, surface, contact, and explicit non-simulation limit.
+@evidence principles/core/common.md#declared-basis The stream unit uses the reviewed one-stream condition and the basin-centre landmark datum.
+@evidence principles/core/common.md#scope-preservation This unit owns one rigid water accent; basin geometry, dynamics, and placement remain with their owners.
+@evidence principles/core/common.md#substantive-completion This unit closes the centreline, vertical layers, contact, surface owner, bounds, and simulation refusal.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation This unit adds a stream representation beyond the courtyard socket.
-@evidence principles/design/models.md#representation-contract This unit defines one connected vertical accent, one surface owner, bounds, and no branching.
-@evidence principles/design/models.md#spatial-convention This unit fixes the basin-centred floor origin, Y-up axis, and vertical extent.
-@evidence principles/design/models.md#reviewable-structure This unit identifies side and three-quarter views that expose the centreline and contact.
-@evidence principles/design/models.md#model-observable-style-basis This unit makes one narrow upward water accent observable without a fluid-realism claim.
-@evidence principles/design/models.md#model-scale-layer-completion This unit closes the static accent's contact, layer, surface, scale, and refusal boundary.
-@evidence upstream/design/models.md#settings-and-space-revision-from-model-work This unit tests the reviewed one-stream condition and route non-interference before placement.
-@evidence spaces/temple.md#courtyard-and-continuous-colonnade-loop This unit consumes the reviewed fountain-center landmark and courtyard route clearance.
-@evidence spaces/temple.md#spatial-identity-tolerance-and-exclusions This unit preserves one centred static stream and forbids extra channels.
-@evidence settings/temple.md#delivery-scope This fountain-stream-prototype unit realizes the reviewed settings boundary for delivery-scope.
-@evidence settings/temple.md#governing-aim This fountain-stream-prototype unit realizes the reviewed settings boundary for governing-aim.
-@evidence settings/temple.md#production-visual-grammar This fountain-stream-prototype unit realizes the reviewed settings boundary for production-visual-grammar.
-@evidence settings/temple.md#production-fidelity-tier This fountain-stream-prototype unit realizes the reviewed settings boundary for production-fidelity-tier.
-@evidence settings/temple.md#subject-breakdown-production-scope This fountain-stream-prototype unit realizes the reviewed settings boundary for subject-breakdown-production-scope.
-@evidence settings/temple.md#audience-operator-access This fountain-stream-prototype unit realizes the reviewed settings boundary for audience-operator-access.
-@evidence settings/temple.md#accessibility-deliverable-states This fountain-stream-prototype unit realizes the reviewed settings boundary for accessibility-deliverable-states.
-@evidence settings/temple.md#coordinate-unit-convention This fountain-stream-prototype unit realizes the reviewed settings boundary for coordinate-unit-convention.
-@evidence settings/temple.md#stage-policy This fountain-stream-prototype unit realizes the reviewed settings boundary for stage-policy.
-@evidence settings/temple.md#delivery-review-condition This fountain-stream-prototype unit realizes the reviewed settings boundary for delivery-review-condition.
-@evidence settings/temple.md#settings-coverage-map This fountain-stream-prototype unit realizes the reviewed settings boundary for settings-coverage-map.
-@evidence settings/temple.md#operative-subject-inventory This fountain-stream-prototype unit realizes the reviewed settings boundary for operative-subject-inventory.
-@evidence settings/temple.md#design-dependent-subject-conditions This fountain-stream-prototype unit realizes the reviewed settings boundary for design-dependent-subject-conditions.
-@evidence settings/temple.md#subject-observable-identity-and-fit-out-limits This fountain-stream-prototype unit realizes the reviewed settings boundary for subject-observable-identity-and-fit-out-limits.
-@evidence settings/temple.md#reference-interpretation-boundary This fountain-stream-prototype unit realizes the reviewed settings boundary for reference-interpretation-boundary.
-@evidence spaces/temple.md#one-storey-civic-temple-graph This fountain-stream-prototype unit consumes the reviewed spatial boundary one-storey-civic-temple-graph.
-@evidence spaces/temple.md#one-storey-containment-and-level This fountain-stream-prototype unit consumes the reviewed spatial boundary one-storey-containment-and-level.
-@evidence spaces/temple.md#room-schedule-and-direct-thresholds This fountain-stream-prototype unit consumes the reviewed spatial boundary room-schedule-and-direct-thresholds.
-@evidence spaces/temple.md#entrance-service-gate-and-route-graph This fountain-stream-prototype unit consumes the reviewed spatial boundary entrance-service-gate-and-route-graph.
-@evidence spaces/temple.md#envelope-opening-and-interior-interface This fountain-stream-prototype unit consumes the reviewed spatial boundary envelope-opening-and-interior-interface.
-@evidence spaces/temple.md#surface-decomposition-and-ownership-handoff This fountain-stream-prototype unit consumes the reviewed spatial boundary surface-decomposition-and-ownership-handoff.
-@evidence spaces/temple.md#spatial-verification-addresses-and-finite-review-set This fountain-stream-prototype unit consumes the reviewed spatial boundary spatial-verification-addresses-and-finite-review-set.
+@evidence principles/design/models.md#representation-contract The stream has named connected parts, one centreline, one stable water surface, and no branching topology.
+@evidence principles/design/models.md#spatial-convention The basin-centred floor origin and Y intervals make the static accent reproducible.
+@evidence principles/design/models.md#reviewable-structure Side and three-quarter views expose the vertical accent, contact, and route separation.
+@evidence principles/design/models.md#model-observable-style-basis The single narrow water accent is observable without fluid-realism claims.
+@evidence principles/design/models.md#model-scale-layer-completion The contact, column, and top-break intervals close the stream proxy.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work The stream check compared its one centreline, Y 0.25..1.20m bounds, and basin contact with the reviewed one-stream landmark and route clearance; no parent state or space defect was exposed.
+@evidence settings/temple.md#coordinate-unit-convention The stream uses the reviewed Y-up metre frame and basin-centred floor datum.
+@evidence settings/temple.md#subject-observable-identity-and-fit-out-limits The settings require one restrained vertical stream accent rather than a second channel or fountain system.
+@evidence spaces/temple.md#courtyard-and-continuous-colonnade-loop The stream consumes the fountain-centre relation while remaining inside the landmark clearance and outside circulation.
+@evidence spaces/temple.md#spatial-identity-tolerance-and-exclusions The one-centreline proxy preserves the single-stream identity and adds no route element.
 -->
 
-권위와 상태: settings의 one-static-stream 조건과 `fountain-center` socket을 소비하는 `author-adopted` static accent prototype이다. local origin은 basin water opening 중심의 floor datum, Y-up, occupied extent는 X/Z `-0.05..0.05m`, Y `0.25..1.20m`다. hierarchy는 `base-contact`, `vertical-column`, `top-break`의 connected rigid parts이며 nominal radius `0.05m`다. 하나의 vertical centerline만 사용하고 branching, lateral arc, spray volume, hidden pump, particle state를 만들지 않는다. stable surface owner는 `stream-water` 하나이며 basin mesh나 route surface를 소유하지 않는다. motion interface는 없고 height와 centerline은 prototype identity로 고정한다.
+Authority and status: `author-adopted` static accent prototype consumed by the basin landmark. The local origin is the courtyard floor datum at the basin centre, with occupied bounds X/Z `-0.05..0.05m` and Y `0.25..1.20m`. The rigid hierarchy is `base-contact` Y `0.25..0.30m`, `vertical-column` Y `0.30..1.15m`, and `top-break` Y `1.15..1.20m`, all on one centreline with nominal radius `0.05m`. The sole stable surface is `stream-water`. There is no branch, lateral arc, spray volume, pump, particle state, or motion interface.
 
-neutral review는 side와 three-quarter에서 basin 중심에 선 정적 수직 accent, 낮은 landmark와의 비례, route 비침범을 확인한다. 유체 시뮬레이션과 physical splash는 outside-scope이며 이 proxy의 존재만 읽힌다.
+Neutral review is side and three-quarter against the basin. Fluid simulation, splash, and physical circulation are outside the proxy.
 
-검토 질문: stream prototype이 basin 중심의 한 줄기 정적 수직 accent로만 읽히며 추가 water channel이나 순환을 암시하지 않는가?
+Review question: does the stream read only as one narrow static vertical accent at the basin centre?
 
 ## Altar and plinth prototype {#altar-and-plinth-prototype}
 
 <!--
-@evidence principles/core/common.md#declared-basis The reviewed sanctuary identity establishes this altar pair's rear-axis blocking role and scale basis.
-@evidence principles/core/common.md#scope-preservation This unit owns the two-part altar geometry while the instances source owns sanctuary placement and the materials source owns finish.
-@evidence principles/core/common.md#substantive-completion This unit closes plinth, body, bounds, surfaces, contact, and unsupported ritual-detail limits.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation This unit adds a reusable altar pair beyond the sanctuary space boundary.
-@evidence principles/design/models.md#representation-contract This unit defines two connected rigid parts, their proportion, surfaces, and closed top boundary.
-@evidence principles/design/models.md#spatial-convention This unit fixes a plinth-centred floor origin, Y-up axis, and occupied extents.
-@evidence principles/design/models.md#reviewable-structure This unit identifies views that expose plinth-to-body width, depth, stack, and contact.
-@evidence principles/design/models.md#model-observable-style-basis This unit makes the broad stone plinth and smaller body an observable sanctuary landmark.
-@evidence principles/design/models.md#model-scale-layer-completion This unit closes both occupied layers, stable surfaces, scale relation, and blocking ceiling.
-@evidence upstream/design/models.md#settings-and-space-revision-from-model-work This unit tests sanctuary clear height and rear-axis fit before placement.
-@evidence spaces/temple.md#room-schedule-and-direct-thresholds This unit consumes the reviewed sanctuary room and its north-rear axis relation.
-@evidence spaces/temple.md#spatial-identity-tolerance-and-exclusions This unit preserves the one-altar and one-plinth landmark boundary.
-@evidence settings/temple.md#delivery-scope This altar-and-plinth-prototype unit realizes the reviewed settings boundary for delivery-scope.
-@evidence settings/temple.md#governing-aim This altar-and-plinth-prototype unit realizes the reviewed settings boundary for governing-aim.
-@evidence settings/temple.md#production-visual-grammar This altar-and-plinth-prototype unit realizes the reviewed settings boundary for production-visual-grammar.
-@evidence settings/temple.md#production-fidelity-tier This altar-and-plinth-prototype unit realizes the reviewed settings boundary for production-fidelity-tier.
-@evidence settings/temple.md#subject-breakdown-production-scope This altar-and-plinth-prototype unit realizes the reviewed settings boundary for subject-breakdown-production-scope.
-@evidence settings/temple.md#audience-operator-access This altar-and-plinth-prototype unit realizes the reviewed settings boundary for audience-operator-access.
-@evidence settings/temple.md#accessibility-deliverable-states This altar-and-plinth-prototype unit realizes the reviewed settings boundary for accessibility-deliverable-states.
-@evidence settings/temple.md#coordinate-unit-convention This altar-and-plinth-prototype unit realizes the reviewed settings boundary for coordinate-unit-convention.
-@evidence settings/temple.md#stage-policy This altar-and-plinth-prototype unit realizes the reviewed settings boundary for stage-policy.
-@evidence settings/temple.md#delivery-review-condition This altar-and-plinth-prototype unit realizes the reviewed settings boundary for delivery-review-condition.
-@evidence settings/temple.md#settings-coverage-map This altar-and-plinth-prototype unit realizes the reviewed settings boundary for settings-coverage-map.
-@evidence settings/temple.md#operative-subject-inventory This altar-and-plinth-prototype unit realizes the reviewed settings boundary for operative-subject-inventory.
-@evidence settings/temple.md#design-dependent-subject-conditions This altar-and-plinth-prototype unit realizes the reviewed settings boundary for design-dependent-subject-conditions.
-@evidence settings/temple.md#subject-observable-identity-and-fit-out-limits This altar-and-plinth-prototype unit realizes the reviewed settings boundary for subject-observable-identity-and-fit-out-limits.
-@evidence settings/temple.md#reference-interpretation-boundary This altar-and-plinth-prototype unit realizes the reviewed settings boundary for reference-interpretation-boundary.
-@evidence spaces/temple.md#one-storey-civic-temple-graph This altar-and-plinth-prototype unit consumes the reviewed spatial boundary one-storey-civic-temple-graph.
-@evidence spaces/temple.md#one-storey-containment-and-level This altar-and-plinth-prototype unit consumes the reviewed spatial boundary one-storey-containment-and-level.
-@evidence spaces/temple.md#courtyard-and-continuous-colonnade-loop This altar-and-plinth-prototype unit consumes the reviewed spatial boundary courtyard-and-continuous-colonnade-loop.
-@evidence spaces/temple.md#entrance-service-gate-and-route-graph This altar-and-plinth-prototype unit consumes the reviewed spatial boundary entrance-service-gate-and-route-graph.
-@evidence spaces/temple.md#envelope-opening-and-interior-interface This altar-and-plinth-prototype unit consumes the reviewed spatial boundary envelope-opening-and-interior-interface.
-@evidence spaces/temple.md#surface-decomposition-and-ownership-handoff This altar-and-plinth-prototype unit consumes the reviewed spatial boundary surface-decomposition-and-ownership-handoff.
-@evidence spaces/temple.md#spatial-verification-addresses-and-finite-review-set This altar-and-plinth-prototype unit consumes the reviewed spatial boundary spatial-verification-addresses-and-finite-review-set.
+@evidence principles/core/common.md#declared-basis The altar unit uses the reviewed sanctuary rear-axis role and the shared floor and room-height anchors.
+@evidence principles/core/common.md#scope-preservation This unit owns the altar pair; the sanctuary room relation owns placement and materials own response.
+@evidence principles/core/common.md#substantive-completion This unit closes plinth, body, exact bounds, surfaces, contact, and unsupported ritual detail.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation This unit adds a reusable altar representation beyond the sanctuary room.
+@evidence principles/design/models.md#representation-contract The two connected stone parts have named boundaries, closed tops, and no hidden layer.
+@evidence principles/design/models.md#spatial-convention The plinth-centred floor origin and exact stacked extents make the pair placeable.
+@evidence principles/design/models.md#reviewable-structure Front, side, top, and rear-axis three-quarter views expose the stacked widths, depth, and contact.
+@evidence principles/design/models.md#model-observable-style-basis The broad stone plinth and smaller body communicate the sanctuary landmark without iconography.
+@evidence principles/design/models.md#model-scale-layer-completion The plinth and body layers, surfaces, and bounds jointly close the pair.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work The altar check compared the 0.82m total height, 1.30m by 0.80m plinth, 0.90m by 0.48m body, and 3.60m room height; the existing sanctuary room and rear-axis relation were sufficient and exposed no parent defect.
+@evidence settings/temple.md#coordinate-unit-convention The altar uses the reviewed Y-up metre frame and floor datum with a local plinth-centred origin.
+@evidence settings/temple.md#subject-observable-identity-and-fit-out-limits The settings require one broad rear-axis altar/plinth landmark rather than a socket invented by the model layer.
+@evidence spaces/temple.md#room-schedule-and-direct-thresholds The altar consumes the reviewed `sanctuary` room and its north-rear-axis relation, not a new opening or socket.
+@evidence spaces/temple.md#spatial-identity-tolerance-and-exclusions The one-altar and one-plinth identity remains inside the sanctuary role without changing room topology.
 -->
 
-권위와 상태: settings의 rear-axis altar identity를 소비하는 `author-adopted` fixed pair다. local origin은 plinth 중심의 floor 접점, Y-up, combined occupied extent X `-0.65..0.65m`, Z `-0.40..0.40m`, Y `0.00..0.82m`다. hierarchy는 `plinth`와 `altar-body` 두 rigid parts다. plinth는 `1.30m × 0.80m × 0.32m`, altar body는 `0.90m × 0.48m × 0.50m`로 body보다 넓고 깊으며, 두 part는 `altar-plinth-stone`과 `altar-body-stone` surface owners로 분리된다. top은 closed horizontal plane이고 body와 plinth 사이에는 hidden void가 없다. axis and placement belong to instances consuming the sanctuary socket; this model does not choose the sanctuary position.
+Authority and status: `author-adopted` fixed pair for the `sanctuary` room's north-rear-axis relation. The local origin is the plinth centre at floor contact, with combined bounds X `-0.65..0.65m`, Z `-0.40..0.40m`, Y `0.00..0.82m`. The hierarchy is `plinth` Y `0.00..0.32m`, X `-0.65..0.65m`, Z `-0.40..0.40m`, and `altar-body` Y `0.32..0.82m`, X `-0.45..0.45m`, Z `-0.24..0.24m`. Stable surfaces are `altar-plinth-stone` and `altar-body-stone`. Both top boundaries are closed and there is no hidden void between them. Instances consume the existing `sanctuary` room and `north-rear-axis` relation; this model does not request or invent a sanctuary socket.
 
-neutral review는 rear-axis three-quarter, front, side, and top에서 plinth가 body보다 명확히 넓고 깊은지, floor contact와 rigid stack을 확인한다. carving, offering contents, flame, and ritual claims are unsupported by this blocking prototype.
+Neutral review is front, side, top, and rear-axis three-quarter. Carving, offerings, flame, and ritual iconography are outside this proxy.
 
-검토 질문: altar pair가 plinth와 body의 두 단계와 rear-axis landmark scale을 placement 없이도 분명히 제시하는가?
+Review question: does the pair read as one broad plinth supporting one smaller body on the existing sanctuary axis?
 
 ## Roof tile prototype {#roof-tile-prototype}
 
 <!--
-@evidence principles/core/common.md#declared-basis The reviewed low terracotta roof identity establishes this tile's repeated envelope role and slope scale.
-@evidence principles/core/common.md#scope-preservation This unit owns one tile's geometry while the spaces source owns roof boundaries, instances own rows, and materials own terracotta response.
-@evidence principles/core/common.md#substantive-completion This unit closes the tile parts, overlap interface, surfaces, bounds, and omitted roof-population responsibility.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation This unit adds a reusable envelope tile beyond the roof space host.
-@evidence principles/design/models.md#representation-contract This unit defines body, overlap lip, underside seat, stable surfaces, and closed tile topology.
-@evidence principles/design/models.md#spatial-convention This unit fixes eave-corner origin, row and slope axes, Y-up, and occupied extents.
-@evidence principles/design/models.md#reviewable-structure This unit identifies top, slope-side, eave, and three-quarter views that expose overlap and termination.
-@evidence principles/design/models.md#model-observable-style-basis This unit makes the red terracotta shallow repeated unit observable without ornament claims.
-@evidence principles/design/models.md#model-scale-layer-completion This unit closes top, edge, underside, contact, overlap, scale, and proxy limits.
-@evidence upstream/design/models.md#settings-and-space-revision-from-model-work This unit tests the reviewed low roof profile and envelope handoff before row placement.
-@evidence spaces/temple.md#envelope-opening-and-interior-interface This unit consumes the reviewed roof underside and building envelope boundary.
-@evidence spaces/temple.md#surface-decomposition-and-ownership-handoff This unit consumes the roof-facing host boundary without assigning its finish.
-@evidence settings/temple.md#delivery-scope This roof-tile-prototype unit realizes the reviewed settings boundary for delivery-scope.
-@evidence settings/temple.md#governing-aim This roof-tile-prototype unit realizes the reviewed settings boundary for governing-aim.
-@evidence settings/temple.md#production-visual-grammar This roof-tile-prototype unit realizes the reviewed settings boundary for production-visual-grammar.
-@evidence settings/temple.md#production-fidelity-tier This roof-tile-prototype unit realizes the reviewed settings boundary for production-fidelity-tier.
-@evidence settings/temple.md#subject-breakdown-production-scope This roof-tile-prototype unit realizes the reviewed settings boundary for subject-breakdown-production-scope.
-@evidence settings/temple.md#audience-operator-access This roof-tile-prototype unit realizes the reviewed settings boundary for audience-operator-access.
-@evidence settings/temple.md#accessibility-deliverable-states This roof-tile-prototype unit realizes the reviewed settings boundary for accessibility-deliverable-states.
-@evidence settings/temple.md#coordinate-unit-convention This roof-tile-prototype unit realizes the reviewed settings boundary for coordinate-unit-convention.
-@evidence settings/temple.md#stage-policy This roof-tile-prototype unit realizes the reviewed settings boundary for stage-policy.
-@evidence settings/temple.md#delivery-review-condition This roof-tile-prototype unit realizes the reviewed settings boundary for delivery-review-condition.
-@evidence settings/temple.md#settings-coverage-map This roof-tile-prototype unit realizes the reviewed settings boundary for settings-coverage-map.
-@evidence settings/temple.md#operative-subject-inventory This roof-tile-prototype unit realizes the reviewed settings boundary for operative-subject-inventory.
-@evidence settings/temple.md#design-dependent-subject-conditions This roof-tile-prototype unit realizes the reviewed settings boundary for design-dependent-subject-conditions.
-@evidence settings/temple.md#subject-observable-identity-and-fit-out-limits This roof-tile-prototype unit realizes the reviewed settings boundary for subject-observable-identity-and-fit-out-limits.
-@evidence settings/temple.md#reference-interpretation-boundary This roof-tile-prototype unit realizes the reviewed settings boundary for reference-interpretation-boundary.
-@evidence spaces/temple.md#one-storey-civic-temple-graph This roof-tile-prototype unit consumes the reviewed spatial boundary one-storey-civic-temple-graph.
-@evidence spaces/temple.md#one-storey-containment-and-level This roof-tile-prototype unit consumes the reviewed spatial boundary one-storey-containment-and-level.
-@evidence spaces/temple.md#courtyard-and-continuous-colonnade-loop This roof-tile-prototype unit consumes the reviewed spatial boundary courtyard-and-continuous-colonnade-loop.
-@evidence spaces/temple.md#room-schedule-and-direct-thresholds This roof-tile-prototype unit consumes the reviewed spatial boundary room-schedule-and-direct-thresholds.
-@evidence spaces/temple.md#entrance-service-gate-and-route-graph This roof-tile-prototype unit consumes the reviewed spatial boundary entrance-service-gate-and-route-graph.
-@evidence spaces/temple.md#spatial-identity-tolerance-and-exclusions This roof-tile-prototype unit consumes the reviewed spatial boundary spatial-identity-tolerance-and-exclusions.
-@evidence spaces/temple.md#spatial-verification-addresses-and-finite-review-set This roof-tile-prototype unit consumes the reviewed spatial boundary spatial-verification-addresses-and-finite-review-set.
+@evidence principles/core/common.md#declared-basis The roof-tile unit uses the reviewed low terracotta roof profile and repeated envelope role.
+@evidence principles/core/common.md#scope-preservation This unit owns one tile; roof boundaries remain space-owned, rows remain instance-owned, and finish remains material-owned.
+@evidence principles/core/common.md#substantive-completion This unit closes tile body, overlap lip, underside seat, exact bounds, surfaces, and refusal boundary.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation This unit adds a reusable envelope tile beyond the roof host.
+@evidence principles/design/models.md#representation-contract The tile has named top, edge, and underside interfaces and no transparent or missing topology.
+@evidence principles/design/models.md#spatial-convention The eave-corner origin and row/slope axes make repeated orientation deterministic.
+@evidence principles/design/models.md#reviewable-structure Top, slope-side, eave, and three-quarter views expose profile, overlap, and termination.
+@evidence principles/design/models.md#model-observable-style-basis The thin red terracotta unit is observable without ornament or weathering claims.
+@evidence principles/design/models.md#model-scale-layer-completion The body, lip, underside, and contact relation close the repeated unit.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work The tile check compared its 0.72m by 0.44m by 0.10m bounds, overlap direction, and underside contact with the reviewed low roof boundary; no parent envelope defect was exposed.
+@evidence settings/temple.md#coordinate-unit-convention The tile uses the reviewed Y-up metre frame with explicit row and slope axes.
+@evidence settings/temple.md#production-visual-grammar The shallow red terracotta surface is the specific roof grammar consumed by this prototype.
+@evidence settings/temple.md#subject-observable-identity-and-fit-out-limits The roof identity requires a repeated low-profile tile rather than a generic roof block.
+@evidence spaces/temple.md#envelope-opening-and-interior-interface The tile consumes the reviewed roof underside and envelope host without creating a new roof boundary.
+@evidence spaces/temple.md#surface-decomposition-and-ownership-handoff The tile's top, edge, and underside are stable model interfaces for later material binding.
 -->
 
-권위와 상태: settings의 low terracotta roof identity를 소비하는 `author-adopted` repeated-envelope prototype이다. local origin은 tile의 lower eave contact corner, Y-up, row-axis X, slope-axis Z, occupied extent X `0.00..0.72m`, Z `0.00..0.44m`, Y `0.00..0.10m`다. hierarchy는 `tile-body`, `overlap-lip`, `underside-seat`의 rigid parts다. tile-body는 shallow tapered terracotta slab, overlap-lip은 다음 tile을 향한 visible overlap edge, underside-seat은 preceding row 위에 놓이는 closed contact surface다. stable surfaces는 `roof-tile-top`, `roof-tile-edge`, `roof-tile-underside`이며 tile 하나는 hole이나 transparent plane이 아니다. overlap relation과 low profile을 유지하는 dimension은 instance row rule이 읽어야 하고, this prototype does not create a roof, ridge, eave, or edge population.
+Authority and status: `author-adopted` repeated-envelope prototype. The local origin is the lower eave contact corner, with row axis X, slope axis Z, and Y-up. Bounds are X `0.00..0.72m`, Z `0.00..0.44m`, Y `0.00..0.10m`. The hierarchy is `tile-body`, `overlap-lip`, and `underside-seat`. Stable surfaces are `roof-tile-top`, `roof-tile-edge`, and `roof-tile-underside`; the body is a shallow solid slab, the lip is the visible leading overlap edge, and the underside seat is a closed contact boundary. This prototype does not create a roof, ridge, eave, or repeated population.
 
-neutral review는 top, slope-side, eave, and three-quarter에서 red terracotta row의 overlap direction, thin profile, edge termination interface를 확인한다. glazed ornament, individually broken tiles, thermal assembly, and hidden rafters remain outside the model proxy.
+Neutral review is top, slope-side, eave, and three-quarter. Glazed ornament, broken-tile variation, thermal assembly, and hidden rafters are outside the proxy.
 
-검토 질문: roof-tile prototype이 반복 시 겹침 방향과 낮은 지붕 profile을 유지할 수 있는 stable top, edge, underside를 제공하는가?
+Review question: can repeated instances preserve the tile's overlap direction, thin profile, and top/edge/underside interfaces?
 
-## Records furniture prototypes {#records-furniture-prototypes}
+## Records table prototype {#records-table-prototype}
 
 <!--
-@evidence principles/core/common.md#declared-basis The reviewed records-room fit-out identity establishes four functional furniture silhouettes and their door-relative scale.
-@evidence principles/core/common.md#scope-preservation This unit owns records furniture geometry and leaves count, placement, route clearance, and finish to their named owners.
-@evidence principles/core/common.md#substantive-completion This unit closes table, shelf, chest, and lamp hierarchies, bounds, surfaces, and proxy limits.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation This unit adds reusable furniture representations beyond the records room topology.
-@evidence principles/design/models.md#representation-contract This unit defines four rigid families, their parts, surfaces, contacts, and distinct functional silhouettes.
-@evidence principles/design/models.md#spatial-convention This unit fixes floor-centred origins, Y-up, and common door/room scale anchors.
-@evidence principles/design/models.md#reviewable-structure This unit identifies common-scale views that expose each furniture role and its boundary.
-@evidence principles/design/models.md#model-observable-style-basis This unit makes work, storage, chest, and lamp roles observable without decorative realism.
-@evidence principles/design/models.md#model-scale-layer-completion This unit closes all four occupied layers, stable surfaces, contacts, scale, and rigid ceiling.
-@evidence upstream/design/models.md#settings-and-space-revision-from-model-work This unit tests records-room height and route capacity before repeated placement.
-@evidence spaces/temple.md#room-schedule-and-direct-thresholds This unit consumes the reviewed records-room clear box, threshold, and room-side route.
-@evidence spaces/temple.md#spatial-identity-tolerance-and-exclusions This unit preserves the records-room fit-out role and route protection.
-@evidence settings/temple.md#delivery-scope This records-furniture-prototypes unit realizes the reviewed settings boundary for delivery-scope.
-@evidence settings/temple.md#governing-aim This records-furniture-prototypes unit realizes the reviewed settings boundary for governing-aim.
-@evidence settings/temple.md#production-visual-grammar This records-furniture-prototypes unit realizes the reviewed settings boundary for production-visual-grammar.
-@evidence settings/temple.md#production-fidelity-tier This records-furniture-prototypes unit realizes the reviewed settings boundary for production-fidelity-tier.
-@evidence settings/temple.md#subject-breakdown-production-scope This records-furniture-prototypes unit realizes the reviewed settings boundary for subject-breakdown-production-scope.
-@evidence settings/temple.md#audience-operator-access This records-furniture-prototypes unit realizes the reviewed settings boundary for audience-operator-access.
-@evidence settings/temple.md#accessibility-deliverable-states This records-furniture-prototypes unit realizes the reviewed settings boundary for accessibility-deliverable-states.
-@evidence settings/temple.md#coordinate-unit-convention This records-furniture-prototypes unit realizes the reviewed settings boundary for coordinate-unit-convention.
-@evidence settings/temple.md#stage-policy This records-furniture-prototypes unit realizes the reviewed settings boundary for stage-policy.
-@evidence settings/temple.md#delivery-review-condition This records-furniture-prototypes unit realizes the reviewed settings boundary for delivery-review-condition.
-@evidence settings/temple.md#settings-coverage-map This records-furniture-prototypes unit realizes the reviewed settings boundary for settings-coverage-map.
-@evidence settings/temple.md#operative-subject-inventory This records-furniture-prototypes unit realizes the reviewed settings boundary for operative-subject-inventory.
-@evidence settings/temple.md#design-dependent-subject-conditions This records-furniture-prototypes unit realizes the reviewed settings boundary for design-dependent-subject-conditions.
-@evidence settings/temple.md#subject-observable-identity-and-fit-out-limits This records-furniture-prototypes unit realizes the reviewed settings boundary for subject-observable-identity-and-fit-out-limits.
-@evidence settings/temple.md#reference-interpretation-boundary This records-furniture-prototypes unit realizes the reviewed settings boundary for reference-interpretation-boundary.
-@evidence spaces/temple.md#one-storey-civic-temple-graph This records-furniture-prototypes unit consumes the reviewed spatial boundary one-storey-civic-temple-graph.
-@evidence spaces/temple.md#one-storey-containment-and-level This records-furniture-prototypes unit consumes the reviewed spatial boundary one-storey-containment-and-level.
-@evidence spaces/temple.md#courtyard-and-continuous-colonnade-loop This records-furniture-prototypes unit consumes the reviewed spatial boundary courtyard-and-continuous-colonnade-loop.
-@evidence spaces/temple.md#entrance-service-gate-and-route-graph This records-furniture-prototypes unit consumes the reviewed spatial boundary entrance-service-gate-and-route-graph.
-@evidence spaces/temple.md#envelope-opening-and-interior-interface This records-furniture-prototypes unit consumes the reviewed spatial boundary envelope-opening-and-interior-interface.
-@evidence spaces/temple.md#surface-decomposition-and-ownership-handoff This records-furniture-prototypes unit consumes the reviewed spatial boundary surface-decomposition-and-ownership-handoff.
-@evidence spaces/temple.md#spatial-verification-addresses-and-finite-review-set This records-furniture-prototypes unit consumes the reviewed spatial boundary spatial-verification-addresses-and-finite-review-set.
+@evidence principles/core/common.md#declared-basis The records-table unit uses the records-room work-surface role and the reviewed 1.10m door scale.
+@evidence principles/core/common.md#scope-preservation This unit owns table geometry; records-room topology, membership, placement, and wood response remain downstream.
+@evidence principles/core/common.md#substantive-completion This unit closes top, four legs, contact, bounds, stable surfaces, and rigid limit.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation This unit adds a single reusable work-surface representation beyond the records room.
+@evidence principles/design/models.md#representation-contract The top and four supports are named connected parts with an explicit open underside.
+@evidence principles/design/models.md#spatial-convention The floor-centred origin and exact 1.20m by 0.60m by 0.76m bounds establish its scale.
+@evidence principles/design/models.md#reviewable-structure Front, side, top, and three-quarter views expose the work surface, legs, contact, and underside.
+@evidence principles/design/models.md#model-observable-style-basis The plain civic work-table silhouette is observable without joinery or contents.
+@evidence principles/design/models.md#model-scale-layer-completion The top and leg intervals close every visible table layer.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work The table check compared its 1.20m by 0.60m footprint, 0.76m height, four-leg clearance, and 1.10m door comparison; the records-room route and scale were sufficient and exposed no parent defect.
+@evidence settings/temple.md#coordinate-unit-convention The table uses the reviewed floor datum and Y-up metre frame.
+@evidence settings/temple.md#subject-breakdown-production-scope The records-room work-surface role is a separately named fit-out subject in this population.
+@evidence settings/temple.md#subject-observable-identity-and-fit-out-limits The settings require a low work landmark that reads distinctly from vertical storage and closed chests.
+@evidence spaces/temple.md#room-schedule-and-direct-thresholds The table consumes the records-room clear box and must leave its room-side route available.
+@evidence spaces/temple.md#spatial-identity-tolerance-and-exclusions The table preserves the records-room role and does not claim route or quantity ownership.
 -->
 
-권위와 상태: records-room의 settings fit-out identity를 위한 `author-adopted` rigid prototype family다. 각 member local origin은 floor contact center, Y-up이며 공통 scale anchor는 `1.10m` door와 `3.60m` room height다. `records-table`은 `1.20 × 0.60 × 0.76m` top-and-four-leg hierarchy, `records-shelf`는 `0.90 × 0.32 × 1.80m` frame-and-three-shelf hierarchy, `records-chest`는 `0.80 × 0.45 × 0.55m` box-lid hierarchy, `records-lamp`는 `0.18 × 0.18 × 0.42m` base-stem-shade hierarchy를 갖는다. 각 family member는 `records-table-wood`, `records-shelf-wood`, `records-chest-wood`, `records-lamp-metal` stable surface owner를 가지며 closed solids and explicit floor contacts를 사용한다. drawer articulation, light emission, contents, and material response는 이 layer에서 만들지 않는다; each silhouette remains distinct for instance placement.
+Authority and status: `author-adopted` rigid prototype for the records room. The local origin is the floor contact centre, with bounds X `-0.60..0.60m`, Z `-0.30..0.30m`, Y `0.00..0.76m`. The top occupies X `-0.60..0.60m`, Z `-0.30..0.30m`, Y `0.66..0.76m`. Four legs occupy X centres `-0.50` and `0.50m`, Z centres `-0.20` and `0.20m`, each with `0.10m` square section and Y `0.00..0.66m`. Stable surfaces are `records-table-top` and `records-table-legs`; the underside between legs remains open. Instances own count, orientation, and route clearance.
 
-neutral review는 one common scale board에서 four members의 front, side, top, and three-quarter silhouettes, floor contact, and usable clearance를 비교한다. table surface는 work landmark, shelf는 vertical storage, chest는 low closed volume, lamp는 small vertical accent로 읽혀야 하며 records population count와 placement는 instances owner다.
+Neutral review is front, side, top, and three-quarter beside the door scale board. Contents, drawers, joinery, and wood response are outside this proxy.
 
-검토 질문: records furniture family가 네 기능을 서로 다른 bounded silhouette과 surface boundary로 제공하면서 room route를 대신 소유하지 않는가?
+Review question: does the table read as a distinct low work surface with four supports and an open underside?
 
-## Storage furniture prototypes {#storage-furniture-prototypes}
+## Records shelf prototype {#records-shelf-prototype}
 
 <!--
-@evidence principles/core/common.md#declared-basis The reviewed votive-storage-room fit-out identity establishes shelf, chest, and basket roles at a shared scale.
-@evidence principles/core/common.md#scope-preservation This unit owns storage furniture geometry and leaves quantity, stacking, placement, density, and finish to their named owners.
-@evidence principles/core/common.md#substantive-completion This unit closes the three family hierarchies, open boundaries, bounds, surfaces, and proxy limits.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation This unit adds reusable storage representations beyond the room topology.
-@evidence principles/design/models.md#representation-contract This unit defines shelf gaps, chest body, basket rim, stable surfaces, contacts, and bounds.
-@evidence principles/design/models.md#spatial-convention This unit fixes floor-centred origins, Y-up, and the common room/door scale.
-@evidence principles/design/models.md#reviewable-structure This unit identifies views exposing vertical shelf rhythm, low chest mass, and basket opening.
-@evidence principles/design/models.md#model-observable-style-basis This unit makes the three storage roles observable without loaded contents or woven-detail claims.
-@evidence principles/design/models.md#model-scale-layer-completion This unit closes the storage layers, negative openings, stable surfaces, scale, and blocking ceiling.
-@evidence upstream/design/models.md#settings-and-space-revision-from-model-work This unit tests the storage room clear height and protected route before placement.
-@evidence spaces/temple.md#room-schedule-and-direct-thresholds This unit consumes the reviewed storage room clear box, threshold, and route.
-@evidence spaces/temple.md#spatial-identity-tolerance-and-exclusions This unit preserves the storage fit-out and density boundary.
-@evidence settings/temple.md#delivery-scope This storage-furniture-prototypes unit realizes the reviewed settings boundary for delivery-scope.
-@evidence settings/temple.md#governing-aim This storage-furniture-prototypes unit realizes the reviewed settings boundary for governing-aim.
-@evidence settings/temple.md#production-visual-grammar This storage-furniture-prototypes unit realizes the reviewed settings boundary for production-visual-grammar.
-@evidence settings/temple.md#production-fidelity-tier This storage-furniture-prototypes unit realizes the reviewed settings boundary for production-fidelity-tier.
-@evidence settings/temple.md#subject-breakdown-production-scope This storage-furniture-prototypes unit realizes the reviewed settings boundary for subject-breakdown-production-scope.
-@evidence settings/temple.md#audience-operator-access This storage-furniture-prototypes unit realizes the reviewed settings boundary for audience-operator-access.
-@evidence settings/temple.md#accessibility-deliverable-states This storage-furniture-prototypes unit realizes the reviewed settings boundary for accessibility-deliverable-states.
-@evidence settings/temple.md#coordinate-unit-convention This storage-furniture-prototypes unit realizes the reviewed settings boundary for coordinate-unit-convention.
-@evidence settings/temple.md#stage-policy This storage-furniture-prototypes unit realizes the reviewed settings boundary for stage-policy.
-@evidence settings/temple.md#delivery-review-condition This storage-furniture-prototypes unit realizes the reviewed settings boundary for delivery-review-condition.
-@evidence settings/temple.md#settings-coverage-map This storage-furniture-prototypes unit realizes the reviewed settings boundary for settings-coverage-map.
-@evidence settings/temple.md#operative-subject-inventory This storage-furniture-prototypes unit realizes the reviewed settings boundary for operative-subject-inventory.
-@evidence settings/temple.md#design-dependent-subject-conditions This storage-furniture-prototypes unit realizes the reviewed settings boundary for design-dependent-subject-conditions.
-@evidence settings/temple.md#subject-observable-identity-and-fit-out-limits This storage-furniture-prototypes unit realizes the reviewed settings boundary for subject-observable-identity-and-fit-out-limits.
-@evidence settings/temple.md#reference-interpretation-boundary This storage-furniture-prototypes unit realizes the reviewed settings boundary for reference-interpretation-boundary.
-@evidence spaces/temple.md#one-storey-civic-temple-graph This storage-furniture-prototypes unit consumes the reviewed spatial boundary one-storey-civic-temple-graph.
-@evidence spaces/temple.md#one-storey-containment-and-level This storage-furniture-prototypes unit consumes the reviewed spatial boundary one-storey-containment-and-level.
-@evidence spaces/temple.md#courtyard-and-continuous-colonnade-loop This storage-furniture-prototypes unit consumes the reviewed spatial boundary courtyard-and-continuous-colonnade-loop.
-@evidence spaces/temple.md#entrance-service-gate-and-route-graph This storage-furniture-prototypes unit consumes the reviewed spatial boundary entrance-service-gate-and-route-graph.
-@evidence spaces/temple.md#envelope-opening-and-interior-interface This storage-furniture-prototypes unit consumes the reviewed spatial boundary envelope-opening-and-interior-interface.
-@evidence spaces/temple.md#surface-decomposition-and-ownership-handoff This storage-furniture-prototypes unit consumes the reviewed spatial boundary surface-decomposition-and-ownership-handoff.
-@evidence spaces/temple.md#spatial-verification-addresses-and-finite-review-set This storage-furniture-prototypes unit consumes the reviewed spatial boundary spatial-verification-addresses-and-finite-review-set.
+@evidence principles/core/common.md#declared-basis The records-shelf unit uses the records-room vertical storage role and the reviewed door/room scale anchors.
+@evidence principles/core/common.md#scope-preservation This unit owns shelf geometry; placement, load, count, and wood response remain downstream.
+@evidence principles/core/common.md#substantive-completion This unit closes side frames, three boards, gaps, contact, bounds, and stable surfaces.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation This unit adds one reusable vertical records storage representation beyond the records room.
+@evidence principles/design/models.md#representation-contract The frame and boards have exact intervals and preserve visible gaps as negative space.
+@evidence principles/design/models.md#spatial-convention The floor-centred origin and 0.90m by 0.32m by 1.80m bounds establish the shelf scale.
+@evidence principles/design/models.md#reviewable-structure Front, side, top, and three-quarter views expose frame rhythm, board gaps, contact, and height.
+@evidence principles/design/models.md#model-observable-style-basis The plain vertical records shelf is observable without loaded contents or decorative joinery.
+@evidence principles/design/models.md#model-scale-layer-completion The frame and three board intervals close the shelf's visible layers and negative spaces.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work The shelf check compared its 1.80m height and three-board gaps with the 3.60m room and 1.10m door anchors; the records-room space and access limits were sufficient and exposed no parent defect.
+@evidence settings/temple.md#coordinate-unit-convention The shelf uses the reviewed floor datum and Y-up metre frame.
+@evidence settings/temple.md#subject-breakdown-production-scope The records-room vertical storage role is independently owned here rather than hidden in a furniture family.
+@evidence settings/temple.md#subject-observable-identity-and-fit-out-limits The shelf's vertical rhythm is required to read differently from the table and chest.
+@evidence spaces/temple.md#room-schedule-and-direct-thresholds The shelf consumes the records-room clear box while preserving the room-side route.
+@evidence spaces/temple.md#spatial-identity-tolerance-and-exclusions The shelf preserves the records-room fit-out role without owning population density.
 -->
 
-권위와 상태: votive-storage-room의 settings fit-out identity를 위한 `author-adopted` rigid prototype family다. local origin은 floor contact center, Y-up이다. `storage-shelf`는 `0.90 × 0.34 × 1.70m`의 side-frame-and-four-shelf hierarchy, `storage-chest`는 `0.78 × 0.46 × 0.55m`의 closed body and lid, `storage-basket`은 `0.42 × 0.42 × 0.48m`의 tapered open-rim body and handle hierarchy를 사용한다. stable surface owners는 각각 `storage-shelf-wood`, `storage-chest-wood`, `storage-basket-fiber`다. shelf는 open horizontal gaps를 유지하고 basket만 one top opening을 가지며, silhouette-changing variation, stacking, and placement remain with instances. No member extends beyond the compiled room clear height or invents a storage alcove.
+Authority and status: `author-adopted` rigid prototype for records storage. The local origin is the floor contact centre, with bounds X `-0.45..0.45m`, Z `-0.16..0.16m`, Y `0.00..1.80m`. Two side frames are centred at X `-0.40` and `0.40m`, each `0.10m` wide, `0.10m` deep, and Y `0.00..1.80m`. Three shelf boards span X `-0.40..0.40m`, Z `-0.16..0.16m` at Y `0.36..0.44m`, `0.86..0.94m`, and `1.36..1.44m`. Stable surfaces are `records-shelf-frame-wood` and `records-shelf-board-wood`; the gaps between boards remain open negative space.
 
-neutral review는 front, side, top, and three-quarter에서 shelf의 vertical rhythm, chest의 low mass, basket의 open rim, and their common door-relative scale를 비교한다. 실제 contents, woven texture, loading state, and density are not modeled here.
+Neutral review is front, side, top, and three-quarter beside the door and room-height markers. Loaded scrolls, drawers, joinery, and material response are outside this proxy.
 
-검토 질문: storage family가 shelf·chest·basket을 기능별로 구분하면서 open rim과 shelf gaps를 보존하는가?
+Review question: does the shelf's three-board rhythm remain visibly distinct and preserve open gaps from floor to top frame?
+
+## Records chest prototype {#records-chest-prototype}
+
+<!--
+@evidence principles/core/common.md#declared-basis The records-chest unit uses the records-room low closed-storage role and the reviewed door scale.
+@evidence principles/core/common.md#scope-preservation This unit owns one chest geometry; placement, quantity, contents, and wood response remain downstream.
+@evidence principles/core/common.md#substantive-completion This unit closes body, lid, contact, bounds, surfaces, and rigid state.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation This unit adds a low closed-storage representation beyond the records room.
+@evidence principles/design/models.md#representation-contract The body and closed lid have explicit layers and named stable surfaces.
+@evidence principles/design/models.md#spatial-convention The floor-centred origin and 0.80m by 0.45m by 0.55m bounds establish scale.
+@evidence principles/design/models.md#reviewable-structure Front, side, top, and three-quarter views expose low mass, lid seam, and floor contact.
+@evidence principles/design/models.md#model-observable-style-basis The plain closed chest silhouette is observable without hardware or contents.
+@evidence principles/design/models.md#model-scale-layer-completion The body and lid intervals close the chest representation without an unowned drawer layer.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work The chest check compared its 0.55m height and 0.80m by 0.45m footprint with the records-room clear box and 1.10m door scale; the parent space was sufficient and exposed no defect.
+@evidence settings/temple.md#coordinate-unit-convention The chest uses the reviewed floor datum and Y-up metre frame.
+@evidence settings/temple.md#subject-breakdown-production-scope The records-room low closed-storage role is independently addressed rather than bundled with the table or shelf.
+@evidence settings/temple.md#subject-observable-identity-and-fit-out-limits The low closed volume is a required distinct records-room silhouette.
+@evidence spaces/temple.md#room-schedule-and-direct-thresholds The chest consumes the records-room clear box and leaves route ownership to instances.
+@evidence spaces/temple.md#spatial-identity-tolerance-and-exclusions The chest preserves the records-room role without changing room boundaries or density.
+-->
+
+Authority and status: `author-adopted` rigid prototype for records storage. The local origin is the floor contact centre, with bounds X `-0.40..0.40m`, Z `-0.225..0.225m`, Y `0.00..0.55m`. The body occupies Y `0.00..0.45m`; the lid occupies Y `0.45..0.55m`, both with the full X/Z footprint. Stable surfaces are `records-chest-body` and `records-chest-lid`. The lid is closed and rigid; drawers, hinges, contents, and hardware are outside this proxy.
+
+Neutral review is front, side, top, and three-quarter beside the table and shelf. Instances own count and placement.
+
+Review question: does the chest read as one low closed volume rather than as an unnamed part of another furniture prototype?
+
+## Storage shelf prototype {#storage-shelf-prototype}
+
+<!--
+@evidence principles/core/common.md#declared-basis The storage-shelf unit uses the votive-storage-room vertical storage role and the shared room/door scale.
+@evidence principles/core/common.md#scope-preservation This unit owns storage shelf geometry; stacking, placement, quantity, and finish remain downstream.
+@evidence principles/core/common.md#substantive-completion This unit closes side frames, four boards, exact gaps, contact, bounds, and surfaces.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation This unit adds the storage-room shelf representation beyond the room topology.
+@evidence principles/design/models.md#representation-contract The frame and four shelf boards have exact intervals and stable surfaces.
+@evidence principles/design/models.md#spatial-convention The floor-centred origin and 0.90m by 0.34m by 1.70m bounds establish scale.
+@evidence principles/design/models.md#reviewable-structure Front, side, top, and three-quarter views expose four-board rhythm and contact.
+@evidence principles/design/models.md#model-observable-style-basis The plain storage shelf is observable without loaded contents or woven detail.
+@evidence principles/design/models.md#model-scale-layer-completion The four board intervals, frame, and open gaps close the prototype.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work The shelf check compared its 1.70m height, four-board intervals, and 0.34m depth with the storage-room clear box and route; those parent decisions were sufficient and exposed no defect.
+@evidence settings/temple.md#coordinate-unit-convention The storage shelf uses the reviewed floor datum and Y-up metre frame.
+@evidence settings/temple.md#subject-breakdown-production-scope The storage-room shelf is an independent prototype with a distinct consumer and size.
+@evidence settings/temple.md#subject-observable-identity-and-fit-out-limits The four-board vertical rhythm distinguishes storage furniture from the records shelf.
+@evidence spaces/temple.md#room-schedule-and-direct-thresholds The shelf consumes the votive-storage-room clear box and preserves the room-side route.
+@evidence spaces/temple.md#spatial-identity-tolerance-and-exclusions The shelf preserves storage identity without owning stacking or density.
+-->
+
+Authority and status: `author-adopted` rigid prototype for the votive-storage room. The local origin is the floor contact centre, with bounds X `-0.45..0.45m`, Z `-0.17..0.17m`, Y `0.00..1.70m`. Side frames are centred at X `-0.40` and `0.40m`, each `0.10m` wide and deep, Y `0.00..1.70m`. Four boards span X `-0.40..0.40m`, Z `-0.17..0.17m` at Y `0.35..0.43m`, `0.70..0.78m`, `1.05..1.13m`, and `1.40..1.48m`. Stable surfaces are `storage-shelf-frame-wood` and `storage-shelf-board-wood`; all board gaps remain open.
+
+Neutral review is front, side, top, and three-quarter beside the door scale board. Contents, loading, and storage density are outside this proxy.
+
+Review question: does the storage shelf retain four visible levels and open gaps without being confused with the records shelf?
+
+## Storage chest prototype {#storage-chest-prototype}
+
+<!--
+@evidence principles/core/common.md#declared-basis The storage-chest unit uses the votive-storage-room low closed-storage role and the shared door scale.
+@evidence principles/core/common.md#scope-preservation This unit owns storage chest geometry; contents, stacking, placement, and finish remain downstream.
+@evidence principles/core/common.md#substantive-completion This unit closes body, lid, contact, bounds, stable surfaces, and rigid state.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation This unit adds a storage-room chest representation beyond room topology.
+@evidence principles/design/models.md#representation-contract The body and lid are separate named layers with closed boundaries.
+@evidence principles/design/models.md#spatial-convention The floor-centred origin and exact 0.78m by 0.46m by 0.55m bounds establish scale.
+@evidence principles/design/models.md#reviewable-structure Front, side, top, and three-quarter views expose the low mass, lid, and floor contact.
+@evidence principles/design/models.md#model-observable-style-basis The plain storage chest is observable without hardware or loaded-state claims.
+@evidence principles/design/models.md#model-scale-layer-completion The body and lid intervals close the complete storage chest proxy.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work The chest check compared its 0.55m height and 0.78m by 0.46m footprint with the storage-room clear box and reserved route; no parent defect was exposed.
+@evidence settings/temple.md#coordinate-unit-convention The storage chest uses the reviewed floor datum and Y-up metre frame.
+@evidence settings/temple.md#subject-breakdown-production-scope The storage-room chest is independently addressed with its own consumer and bounds.
+@evidence settings/temple.md#subject-observable-identity-and-fit-out-limits The low closed storage role is distinct from shelf gaps and basket opening.
+@evidence spaces/temple.md#room-schedule-and-direct-thresholds The chest consumes the storage-room clear box while the route remains reserved.
+@evidence spaces/temple.md#spatial-identity-tolerance-and-exclusions The chest preserves storage identity without adding an alcove or room boundary.
+-->
+
+Authority and status: `author-adopted` rigid prototype for the votive-storage room. The local origin is the floor contact centre, with bounds X `-0.39..0.39m`, Z `-0.23..0.23m`, Y `0.00..0.55m`. The body occupies Y `0.00..0.45m`; the lid occupies Y `0.45..0.55m`. Stable surfaces are `storage-chest-body` and `storage-chest-lid`. The lid remains closed and rigid; contents, drawers, hardware, and loading state are outside this proxy.
+
+Neutral review is front, side, top, and three-quarter beside the storage shelf and basket. Instances own count and placement.
+
+Review question: does the chest read as one low closed storage mass with a stable lid boundary?
+
+## Storage basket prototype {#storage-basket-prototype}
+
+<!--
+@evidence principles/core/common.md#declared-basis The storage-basket unit uses the storage-room open-rim container role and the shared small-prop scale.
+@evidence principles/core/common.md#scope-preservation This unit is the sole canonical owner of storage-basket geometry; contents, placement, count, and fiber response remain downstream.
+@evidence principles/core/common.md#substantive-completion This unit closes body taper, rim opening, handle, contact, exact bounds, and stable surfaces.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation This unit adds one reusable open container representation beyond the room topology.
+@evidence principles/design/models.md#representation-contract The tapered body, open rim, and handle have named parts and a preserved negative cavity.
+@evidence principles/design/models.md#spatial-convention The floor-centred origin and 0.42m diameter/0.48m height anchors make the basket comparable.
+@evidence principles/design/models.md#reviewable-structure Top and three-quarter views expose the open rim, handle, taper, and contact.
+@evidence principles/design/models.md#model-observable-style-basis The basket role is observable without individual weave strands or loaded contents.
+@evidence principles/design/models.md#model-scale-layer-completion The body, rim, handle, cavity, and bounds close the only canonical basket representation.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work The basket check compared its 0.42m footprint, 0.48m height, open cavity, and route clearance with the storage-room clear box; the parent space was sufficient and exposed no defect.
+@evidence settings/temple.md#coordinate-unit-convention The canonical basket uses the reviewed floor datum and Y-up metre frame.
+@evidence settings/temple.md#subject-breakdown-production-scope The storage-basket is independently owned here with one named consumer and one stable boundary.
+@evidence settings/temple.md#subject-observable-identity-and-fit-out-limits The open-rim basket is a distinct small storage role rather than a duplicate ceramic or furniture owner.
+@evidence spaces/temple.md#room-schedule-and-direct-thresholds The basket consumes the storage-room clear box and must remain outside the reserved route.
+@evidence spaces/temple.md#spatial-identity-tolerance-and-exclusions The basket preserves storage fit-out identity and does not own density, stacking, or a new room.
+-->
+
+Authority and status: `author-adopted` and sole canonical prototype for `storage-basket`. The local origin is the floor or shelf contact centre, with bounds X/Z `-0.21..0.21m`, Y `0.00..0.48m`. The hierarchy is `basket-base` Y `0.00..0.08m`, outer radius `0.18m`; tapered `basket-body` Y `0.08..0.40m`, radius `0.18m` at its foot and `0.21m` at its rim; `basket-rim` Y `0.40..0.44m`, outer radius `0.21m`, inner radius `0.16m`; and `basket-handle` within X `-0.18..0.18m`, Z `-0.04..0.04m`, Y `0.40..0.48m`. Stable surfaces are `storage-basket-fiber`, `storage-basket-rim`, and `storage-basket-handle`. The interior X/Z `-0.16..0.16m` above Y `0.40m` is one open negative cavity. This H2 is the only owner of the `storage-basket` name; the ceramic-vessel H2 does not define a basket.
+
+Neutral review is front, side, top, and three-quarter beside the storage shelf and door scale board. Weaving strands, contents, wetness, and deformation are outside this proxy.
+
+Review question: does the basket retain one open tapered cavity and handle silhouette with no competing owner?
 
 ## Votive display prototype {#votive-display-prototype}
 
 <!--
-@evidence principles/core/common.md#declared-basis The reviewed communal-votive-room identity establishes this low display's public offering role and scale.
-@evidence principles/core/common.md#scope-preservation This unit owns display geometry and leaves vessel membership, placement, material response, and count to their owners.
-@evidence principles/core/common.md#substantive-completion This unit closes plinth, board, ledge, recess, bounds, surfaces, and omitted iconography.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation This unit adds a reusable display representation beyond the communal room topology.
-@evidence principles/design/models.md#representation-contract This unit defines three rigid parts, one visible recess, stable surfaces, and occupied bounds.
-@evidence principles/design/models.md#spatial-convention This unit fixes floor-centred origin, Y-up, and display extents.
-@evidence principles/design/models.md#reviewable-structure This unit identifies views exposing the low plinth, upright board, ledge, recess, and contact.
-@evidence principles/design/models.md#model-observable-style-basis This unit makes a civic offering display observable without inventing precious contents or iconography.
-@evidence principles/design/models.md#model-scale-layer-completion This unit closes the display layers, negative recess, surfaces, scale, and proxy ceiling.
-@evidence upstream/design/models.md#settings-and-space-revision-from-model-work This unit tests the communal room route and display clearance before placement.
-@evidence spaces/temple.md#room-schedule-and-direct-thresholds This unit consumes the reviewed communal-votive room and its room-side route.
-@evidence spaces/temple.md#spatial-identity-tolerance-and-exclusions This unit preserves the display role and protected route boundary.
-@evidence settings/temple.md#delivery-scope This votive-display-prototype unit realizes the reviewed settings boundary for delivery-scope.
-@evidence settings/temple.md#governing-aim This votive-display-prototype unit realizes the reviewed settings boundary for governing-aim.
-@evidence settings/temple.md#production-visual-grammar This votive-display-prototype unit realizes the reviewed settings boundary for production-visual-grammar.
-@evidence settings/temple.md#production-fidelity-tier This votive-display-prototype unit realizes the reviewed settings boundary for production-fidelity-tier.
-@evidence settings/temple.md#subject-breakdown-production-scope This votive-display-prototype unit realizes the reviewed settings boundary for subject-breakdown-production-scope.
-@evidence settings/temple.md#audience-operator-access This votive-display-prototype unit realizes the reviewed settings boundary for audience-operator-access.
-@evidence settings/temple.md#accessibility-deliverable-states This votive-display-prototype unit realizes the reviewed settings boundary for accessibility-deliverable-states.
-@evidence settings/temple.md#coordinate-unit-convention This votive-display-prototype unit realizes the reviewed settings boundary for coordinate-unit-convention.
-@evidence settings/temple.md#stage-policy This votive-display-prototype unit realizes the reviewed settings boundary for stage-policy.
-@evidence settings/temple.md#delivery-review-condition This votive-display-prototype unit realizes the reviewed settings boundary for delivery-review-condition.
-@evidence settings/temple.md#settings-coverage-map This votive-display-prototype unit realizes the reviewed settings boundary for settings-coverage-map.
-@evidence settings/temple.md#operative-subject-inventory This votive-display-prototype unit realizes the reviewed settings boundary for operative-subject-inventory.
-@evidence settings/temple.md#design-dependent-subject-conditions This votive-display-prototype unit realizes the reviewed settings boundary for design-dependent-subject-conditions.
-@evidence settings/temple.md#subject-observable-identity-and-fit-out-limits This votive-display-prototype unit realizes the reviewed settings boundary for subject-observable-identity-and-fit-out-limits.
-@evidence settings/temple.md#reference-interpretation-boundary This votive-display-prototype unit realizes the reviewed settings boundary for reference-interpretation-boundary.
-@evidence spaces/temple.md#one-storey-civic-temple-graph This votive-display-prototype unit consumes the reviewed spatial boundary one-storey-civic-temple-graph.
-@evidence spaces/temple.md#one-storey-containment-and-level This votive-display-prototype unit consumes the reviewed spatial boundary one-storey-containment-and-level.
-@evidence spaces/temple.md#courtyard-and-continuous-colonnade-loop This votive-display-prototype unit consumes the reviewed spatial boundary courtyard-and-continuous-colonnade-loop.
-@evidence spaces/temple.md#entrance-service-gate-and-route-graph This votive-display-prototype unit consumes the reviewed spatial boundary entrance-service-gate-and-route-graph.
-@evidence spaces/temple.md#envelope-opening-and-interior-interface This votive-display-prototype unit consumes the reviewed spatial boundary envelope-opening-and-interior-interface.
-@evidence spaces/temple.md#surface-decomposition-and-ownership-handoff This votive-display-prototype unit consumes the reviewed spatial boundary surface-decomposition-and-ownership-handoff.
-@evidence spaces/temple.md#spatial-verification-addresses-and-finite-review-set This votive-display-prototype unit consumes the reviewed spatial boundary spatial-verification-addresses-and-finite-review-set.
+@evidence principles/core/common.md#declared-basis The votive-display unit uses the communal-votive-room public offering role and the shared door scale.
+@evidence principles/core/common.md#scope-preservation This unit owns display geometry; vessel membership, placement, quantity, and materials remain downstream.
+@evidence principles/core/common.md#substantive-completion This unit closes plinth, board, ledge, recess, bounds, contact, and omitted iconography.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation This unit adds one reusable public display representation beyond the communal room topology.
+@evidence principles/design/models.md#representation-contract The plinth, upright board, ledge, and recess have named boundaries and one stable surface partition.
+@evidence principles/design/models.md#spatial-convention The floor-centred origin and exact display extents establish a small-room scale.
+@evidence principles/design/models.md#reviewable-structure Front, side, top, and three-quarter views expose low plinth, upright board, ledge, recess, and contact.
+@evidence principles/design/models.md#model-observable-style-basis The civic offering display is observable without precious contents or iconography.
+@evidence principles/design/models.md#model-scale-layer-completion The display layers and recessed negative space close the blocking representation.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work The display check compared its 1.30m width, 1.40m height, ledge, recess, and protected room route with the communal-votive room; the parent boundary was sufficient and exposed no defect.
+@evidence settings/temple.md#coordinate-unit-convention The display uses the reviewed floor datum and Y-up metre frame.
+@evidence settings/temple.md#subject-breakdown-production-scope The communal-votive display is a separately named fit-out subject.
+@evidence settings/temple.md#subject-observable-identity-and-fit-out-limits The low public offering display must read as a display without claiming its vessel population.
+@evidence spaces/temple.md#room-schedule-and-direct-thresholds The display consumes the communal-votive room clear box and preserves its room-side route.
+@evidence spaces/temple.md#spatial-identity-tolerance-and-exclusions The display preserves the communal offering role and does not own vessel count or density.
 -->
 
-권위와 상태: communal-votive-room의 settings identity를 소비하는 `author-adopted` display prototype이다. local origin은 floor contact center, Y-up, occupied extent X `-0.55..0.55m`, Z `-0.24..0.24m`, Y `0.00..1.20m`다. hierarchy는 `display-plinth`, `back-board`, `ledge`의 rigid parts이며 display-plinth는 `1.10 × 0.48 × 0.22m`, back-board는 `0.95 × 0.08 × 0.78m`, ledge는 `0.88 × 0.24 × 0.12m`다. stable surfaces는 `votive-display-stone`, `votive-display-wood`, `votive-display-ledge`; ledge와 board 사이의 shallow visible recess는 intended negative space다. It is one display unit, not a room partition or route marker, and vessels are separate prototypes.
+Authority and status: `author-adopted` rigid display prototype for the communal-votive room. The local origin is the floor contact centre, with bounds X `-0.65..0.65m`, Z `-0.20..0.20m`, Y `0.00..1.40m`. The hierarchy is `display-plinth` X `-0.65..0.65m`, Z `-0.20..0.20m`, Y `0.00..0.20m`; `display-board` X `-0.55..0.55m`, Z `-0.08..0.08m`, Y `0.20..1.40m`; and `display-ledge` X `-0.58..0.58m`, Z `-0.20..0.02m`, Y `0.62..0.72m`. A recessed field X `-0.42..0.42m`, Z `-0.09..-0.02m`, Y `0.80..1.22m` is a visible negative boundary. Stable surfaces are `display-plinth-stone`, `display-board-stone`, and `display-ledge-stone`; the display is rigid and does not own vessel membership.
 
-neutral review는 front, side, and three-quarter에서 low plinth, upright back-board, ledge and recess가 하나의 civic offering display로 읽히는지 확인한다. carved iconography, precious contents, and population count remain outside this prototype.
+Neutral review is front, side, top, and three-quarter beside the door scale board. Precious materials, iconography, offering contents, and display population are outside this proxy.
 
-검토 질문: votive display prototype이 낮은 받침·세운 판·선반의 관계와 별도 vessel 수용 공간을 읽히게 하는가?
+Review question: does the display read as a low civic offering fixture with an upright board, ledge, and visible recess?
 
-## Ceramic and basket prototypes {#ceramic-and-basket-prototypes}
+## Ceramic vessel prototype {#ceramic-vessel-prototype}
 
 <!--
-@evidence principles/core/common.md#declared-basis The reviewed display and storage fit-out identities establish the two small-prop roles and common scale.
-@evidence principles/core/common.md#scope-preservation This unit owns ceramic and basket geometry while instances own counts and placement and materials own tone.
-@evidence principles/core/common.md#substantive-completion This unit closes both hierarchies, open rims, bounds, surfaces, contacts, and omitted contents.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation This unit adds small reusable props beyond the rooms that receive them.
-@evidence principles/design/models.md#representation-contract This unit defines two distinct rigid families, their negative openings, surfaces, and bounds.
-@evidence principles/design/models.md#spatial-convention This unit fixes contact-centred origins, Y-up, and explicit scale extents.
-@evidence principles/design/models.md#reviewable-structure This unit identifies a common scale board and three-quarter view that distinguish the roles.
-@evidence principles/design/models.md#model-observable-style-basis This unit makes vessel and basket functions observable without texture or content claims.
-@evidence principles/design/models.md#model-scale-layer-completion This unit closes the two prop layers, open boundaries, stable surfaces, scale, and blocking ceiling.
-@evidence upstream/design/models.md#settings-and-space-revision-from-model-work This unit tests the room route and shelf/display contact scale before population.
-@evidence spaces/temple.md#room-schedule-and-direct-thresholds This unit consumes the reviewed communal and storage room clear boxes and routes.
-@evidence spaces/temple.md#spatial-identity-tolerance-and-exclusions This unit preserves the named prop silhouettes and density boundary.
-@evidence settings/temple.md#delivery-scope This ceramic-and-basket-prototypes unit realizes the reviewed settings boundary for delivery-scope.
-@evidence settings/temple.md#governing-aim This ceramic-and-basket-prototypes unit realizes the reviewed settings boundary for governing-aim.
-@evidence settings/temple.md#production-visual-grammar This ceramic-and-basket-prototypes unit realizes the reviewed settings boundary for production-visual-grammar.
-@evidence settings/temple.md#production-fidelity-tier This ceramic-and-basket-prototypes unit realizes the reviewed settings boundary for production-fidelity-tier.
-@evidence settings/temple.md#subject-breakdown-production-scope This ceramic-and-basket-prototypes unit realizes the reviewed settings boundary for subject-breakdown-production-scope.
-@evidence settings/temple.md#audience-operator-access This ceramic-and-basket-prototypes unit realizes the reviewed settings boundary for audience-operator-access.
-@evidence settings/temple.md#accessibility-deliverable-states This ceramic-and-basket-prototypes unit realizes the reviewed settings boundary for accessibility-deliverable-states.
-@evidence settings/temple.md#coordinate-unit-convention This ceramic-and-basket-prototypes unit realizes the reviewed settings boundary for coordinate-unit-convention.
-@evidence settings/temple.md#stage-policy This ceramic-and-basket-prototypes unit realizes the reviewed settings boundary for stage-policy.
-@evidence settings/temple.md#delivery-review-condition This ceramic-and-basket-prototypes unit realizes the reviewed settings boundary for delivery-review-condition.
-@evidence settings/temple.md#settings-coverage-map This ceramic-and-basket-prototypes unit realizes the reviewed settings boundary for settings-coverage-map.
-@evidence settings/temple.md#operative-subject-inventory This ceramic-and-basket-prototypes unit realizes the reviewed settings boundary for operative-subject-inventory.
-@evidence settings/temple.md#design-dependent-subject-conditions This ceramic-and-basket-prototypes unit realizes the reviewed settings boundary for design-dependent-subject-conditions.
-@evidence settings/temple.md#subject-observable-identity-and-fit-out-limits This ceramic-and-basket-prototypes unit realizes the reviewed settings boundary for subject-observable-identity-and-fit-out-limits.
-@evidence settings/temple.md#reference-interpretation-boundary This ceramic-and-basket-prototypes unit realizes the reviewed settings boundary for reference-interpretation-boundary.
-@evidence spaces/temple.md#one-storey-civic-temple-graph This ceramic-and-basket-prototypes unit consumes the reviewed spatial boundary one-storey-civic-temple-graph.
-@evidence spaces/temple.md#one-storey-containment-and-level This ceramic-and-basket-prototypes unit consumes the reviewed spatial boundary one-storey-containment-and-level.
-@evidence spaces/temple.md#courtyard-and-continuous-colonnade-loop This ceramic-and-basket-prototypes unit consumes the reviewed spatial boundary courtyard-and-continuous-colonnade-loop.
-@evidence spaces/temple.md#entrance-service-gate-and-route-graph This ceramic-and-basket-prototypes unit consumes the reviewed spatial boundary entrance-service-gate-and-route-graph.
-@evidence spaces/temple.md#envelope-opening-and-interior-interface This ceramic-and-basket-prototypes unit consumes the reviewed spatial boundary envelope-opening-and-interior-interface.
-@evidence spaces/temple.md#surface-decomposition-and-ownership-handoff This ceramic-and-basket-prototypes unit consumes the reviewed spatial boundary surface-decomposition-and-ownership-handoff.
-@evidence spaces/temple.md#spatial-verification-addresses-and-finite-review-set This ceramic-and-basket-prototypes unit consumes the reviewed spatial boundary spatial-verification-addresses-and-finite-review-set.
+@evidence principles/core/common.md#declared-basis The ceramic-vessel unit uses the communal display small-prop role and the reviewed door-relative scale.
+@evidence principles/core/common.md#scope-preservation This unit owns only the ceramic vessel; display membership, quantity, placement, and material response remain downstream.
+@evidence principles/core/common.md#substantive-completion This unit closes foot, body, neck, rim, open top, exact bounds, and stable surfaces.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation This unit adds a reusable vessel representation beyond the display topology.
+@evidence principles/design/models.md#representation-contract The foot-body-neck-rim hierarchy has named surfaces and a real open negative cavity.
+@evidence principles/design/models.md#spatial-convention The floor or shelf contact origin and 0.32m diameter/0.34m height anchors establish scale.
+@evidence principles/design/models.md#reviewable-structure Top and three-quarter views expose the foot, body, shoulder, neck, rim, and open top.
+@evidence principles/design/models.md#model-observable-style-basis The ceramic vessel role is observable without painted iconography or liquid contents.
+@evidence principles/design/models.md#model-scale-layer-completion The four vertical layers and open top close the vessel proxy.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work The vessel check compared its 0.32m diameter, 0.34m height, open top, and shelf/display contact with the room fit-out boundaries; no parent defect was exposed.
+@evidence settings/temple.md#coordinate-unit-convention The vessel uses the reviewed Y-up metre frame and an explicit contact-centred origin.
+@evidence settings/temple.md#subject-breakdown-production-scope The ceramic vessel is independently named from its display consumer and from the canonical storage basket.
+@evidence settings/temple.md#subject-observable-identity-and-fit-out-limits The open-rim ceramic prop is a required small offering silhouette.
+@evidence spaces/temple.md#room-schedule-and-direct-thresholds The vessel consumes communal display or storage shelf contact regions without changing room routes.
+@evidence spaces/temple.md#spatial-identity-tolerance-and-exclusions The vessel preserves the offering-prop role and leaves population density to instances.
 -->
 
-권위와 상태: communal display와 storage fit-out에 소비되는 `author-adopted` small-prop family다. local origin은 floor or shelf contact center, Y-up이다. `ceramic-vessel`은 radius `0.16m`, height `0.34m`의 foot-body-neck-rim hierarchy와 one open top를 갖고, `storage-basket`은 radius `0.21m`, height `0.48m`의 tapered body-rim-handle hierarchy와 one open top를 갖는다. occupied bounds는 각각 X/Z `±0.16m`, Y `0.00..0.34m`와 X/Z `±0.21m`, Y `0.00..0.48m`이며 stable surfaces는 `ceramic-body`, `ceramic-rim`, `basket-fiber`, `basket-rim`이다. Both are upright rigid proxies; contents, wetness, weaving strands, and deformations are not represented. Placement, count, and tone variation remain with instances/materials.
+Authority and status: `author-adopted` rigid prototype for `ceramic-vessel`. The local origin is the floor or shelf contact centre, with bounds X/Z `-0.16..0.16m`, Y `0.00..0.34m`. The hierarchy is `vessel-foot` Y `0.00..0.04m`, radius `0.10m`; `vessel-body` Y `0.04..0.26m`, radius `0.16m`; `vessel-neck` Y `0.26..0.31m`, radius `0.10m`; and `vessel-rim` Y `0.31..0.34m`, outer radius `0.13m`, inner radius `0.10m`. Stable surfaces are `ceramic-foot`, `ceramic-body`, and `ceramic-rim`. The top is open negative space above the inner radius. This prototype does not define `storage-basket`; that name and geometry belong only to `storage-basket-prototype`.
 
-neutral review는 common door-relative scale board and three-quarter view에서 vessel의 foot-body-neck-rim과 basket의 tapered open-rim silhouette를 구분한다. A generic cylinder or closed block is a failure because it erases the role-defining negative space.
+Neutral review is top and three-quarter beside the display and door scale board. Painted decoration, contents, wetness, and firing process are outside this proxy.
 
-검토 질문: ceramic과 basket prototype이 작은 scale에서도 서로 다른 open-rim silhouette과 기능을 보이는가?
+Review question: does the vessel read as a small open-rim ceramic object without colliding with the canonical basket owner?
 
 ## Lamp prototype {#lamp-prototype}
 
 <!--
-@evidence principles/core/common.md#declared-basis The reviewed lamp identity establishes this small vertical accent's scale and restrained geometry.
-@evidence principles/core/common.md#scope-preservation This unit owns lamp geometry and leaves light response, count, and placement to materials, systems, and instances.
-@evidence principles/core/common.md#substantive-completion This unit closes base, stem, shade, underside, bounds, surfaces, and non-emissive proxy limits.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation This unit adds a reusable lamp representation beyond the room topology.
-@evidence principles/design/models.md#representation-contract This unit defines three rigid parts, one open underside, stable surfaces, and contact.
-@evidence principles/design/models.md#spatial-convention This unit fixes mounting/floor origin, Y-up, and occupied extents.
-@evidence principles/design/models.md#reviewable-structure This unit identifies side and three-quarter views exposing the small vertical silhouette.
-@evidence principles/design/models.md#model-observable-style-basis This unit makes the lamp role observable without claiming flame, smoke, or emitted light.
-@evidence principles/design/models.md#model-scale-layer-completion This unit closes the lamp layers, opening, surfaces, scale, and rigid blocking ceiling.
-@evidence upstream/design/models.md#settings-and-space-revision-from-model-work This unit tests basket and door-relative scale and the protected route before placement.
-@evidence spaces/temple.md#spatial-identity-tolerance-and-exclusions This unit consumes the reviewed lamp role and route exclusion.
-@evidence spaces/temple.md#room-schedule-and-direct-thresholds This unit consumes the room-side route and clear-box boundary that lamp instances must respect.
-@evidence settings/temple.md#delivery-scope This lamp-prototype unit realizes the reviewed settings boundary for delivery-scope.
-@evidence settings/temple.md#governing-aim This lamp-prototype unit realizes the reviewed settings boundary for governing-aim.
-@evidence settings/temple.md#production-visual-grammar This lamp-prototype unit realizes the reviewed settings boundary for production-visual-grammar.
-@evidence settings/temple.md#production-fidelity-tier This lamp-prototype unit realizes the reviewed settings boundary for production-fidelity-tier.
-@evidence settings/temple.md#subject-breakdown-production-scope This lamp-prototype unit realizes the reviewed settings boundary for subject-breakdown-production-scope.
-@evidence settings/temple.md#audience-operator-access This lamp-prototype unit realizes the reviewed settings boundary for audience-operator-access.
-@evidence settings/temple.md#accessibility-deliverable-states This lamp-prototype unit realizes the reviewed settings boundary for accessibility-deliverable-states.
-@evidence settings/temple.md#coordinate-unit-convention This lamp-prototype unit realizes the reviewed settings boundary for coordinate-unit-convention.
-@evidence settings/temple.md#stage-policy This lamp-prototype unit realizes the reviewed settings boundary for stage-policy.
-@evidence settings/temple.md#delivery-review-condition This lamp-prototype unit realizes the reviewed settings boundary for delivery-review-condition.
-@evidence settings/temple.md#settings-coverage-map This lamp-prototype unit realizes the reviewed settings boundary for settings-coverage-map.
-@evidence settings/temple.md#operative-subject-inventory This lamp-prototype unit realizes the reviewed settings boundary for operative-subject-inventory.
-@evidence settings/temple.md#design-dependent-subject-conditions This lamp-prototype unit realizes the reviewed settings boundary for design-dependent-subject-conditions.
-@evidence settings/temple.md#subject-observable-identity-and-fit-out-limits This lamp-prototype unit realizes the reviewed settings boundary for subject-observable-identity-and-fit-out-limits.
-@evidence settings/temple.md#reference-interpretation-boundary This lamp-prototype unit realizes the reviewed settings boundary for reference-interpretation-boundary.
-@evidence spaces/temple.md#one-storey-civic-temple-graph This lamp-prototype unit consumes the reviewed spatial boundary one-storey-civic-temple-graph.
-@evidence spaces/temple.md#one-storey-containment-and-level This lamp-prototype unit consumes the reviewed spatial boundary one-storey-containment-and-level.
-@evidence spaces/temple.md#courtyard-and-continuous-colonnade-loop This lamp-prototype unit consumes the reviewed spatial boundary courtyard-and-continuous-colonnade-loop.
-@evidence spaces/temple.md#entrance-service-gate-and-route-graph This lamp-prototype unit consumes the reviewed spatial boundary entrance-service-gate-and-route-graph.
-@evidence spaces/temple.md#envelope-opening-and-interior-interface This lamp-prototype unit consumes the reviewed spatial boundary envelope-opening-and-interior-interface.
-@evidence spaces/temple.md#surface-decomposition-and-ownership-handoff This lamp-prototype unit consumes the reviewed spatial boundary surface-decomposition-and-ownership-handoff.
-@evidence spaces/temple.md#spatial-verification-addresses-and-finite-review-set This lamp-prototype unit consumes the reviewed spatial boundary spatial-verification-addresses-and-finite-review-set.
+@evidence principles/core/common.md#declared-basis The lamp unit uses the restrained small vertical accent role and the shared basket/door scale anchors.
+@evidence principles/core/common.md#scope-preservation This unit owns lamp geometry; mount placement, count, light response, and materials remain downstream.
+@evidence principles/core/common.md#substantive-completion This unit closes one origin, mount offset convention, base, stem, shade, underside, bounds, and surfaces.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation This unit adds one reusable lamp representation beyond room topology.
+@evidence principles/design/models.md#representation-contract The three rigid parts and open shade underside have exact bounds and stable names.
+@evidence principles/design/models.md#spatial-convention The floor-contact origin and separate mounting offset remove the former origin alternative.
+@evidence principles/design/models.md#reviewable-structure Side and three-quarter views expose base, stem, shade, underside, and contact.
+@evidence principles/design/models.md#model-observable-style-basis The small metal lamp silhouette is observable without emitted-light, flame, or smoke claims.
+@evidence principles/design/models.md#model-scale-layer-completion The base, stem, shade, mount convention, and bounds close the lamp proxy.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work The lamp check compared its 0.20m base, 0.42m total height, 0.18m shade, and floor/mount contact cases with the room fit-out scale; the parent settings and spaces were sufficient and exposed no defect.
+@evidence settings/temple.md#coordinate-unit-convention The lamp now has one floor-contact local origin in the reviewed Y-up metre frame; wall mounting is a downstream offset.
+@evidence settings/temple.md#subject-observable-identity-and-fit-out-limits The restrained lamp is a small vertical accent whose identity must remain separate from room lighting behavior.
+@evidence spaces/temple.md#room-schedule-and-direct-thresholds The lamp consumes only a permitted floor or mount contact region and must not enter the reserved room route.
+@evidence spaces/temple.md#spatial-identity-tolerance-and-exclusions The lamp preserves the limited accent population and does not redefine a room or loop.
 -->
 
-권위와 상태: settings의 restrained lamp population을 위한 `author-adopted` rigid prototype이다. local origin은 mounting or floor contact datum, Y-up, occupied extent X/Z `±0.10m`, Y `0.00..0.42m`다. hierarchy는 `base`, `stem`, `shallow-shade`의 rigid parts다. base 지름 `0.20m`, stem height `0.22m`, shade 지름 `0.18m`, total height `0.42m`이며 stable surfaces는 `lamp-base`, `lamp-stem`, `lamp-shade`다. shade has a shallow open underside as a visible negative boundary, but no fire, emissive response, smoke, or hanging articulation is modeled. The lamp remains a small vertical accent that cannot redefine a room or loop.
+Authority and status: `author-adopted` rigid prototype with one canonical local origin: floor contact centre at Y `0.00`. Occupied bounds are X/Z `-0.10..0.10m`, Y `0.00..0.42m`. The hierarchy is `lamp-base` Y `0.00..0.08m`, diameter `0.20m`; `lamp-stem` Y `0.08..0.30m`, diameter `0.06m`; and `lamp-shade` Y `0.30..0.42m`, diameter `0.18m`, with an open underside at Y `0.30m`. Stable surfaces are `lamp-base`, `lamp-stem`, and `lamp-shade`. A wall or shelf mounting case adds an explicit instance transform offset from the same floor-contact datum; it does not create a second model origin. There is no flame, emissive response, smoke, or hanging articulation.
 
-neutral review는 side and three-quarter에서 low base, slender stem, shallow shade, and scale against the `0.42m` basket and `1.10m` door anchor를 비교한다. Light intensity and color are material/system decisions; this model supplies only geometry.
+Neutral review is side and three-quarter beside the `0.48m` basket and `1.10m` door scale board. Light intensity and colour are material/system decisions.
 
-검토 질문: lamp prototype이 작은 vertical accent로 읽히며 shade의 open underside와 rigid floor/mount interface를 보존하는가?
+Review question: does the lamp retain one comparable base-stem-shade silhouette under either placement offset without offering two local-origin conventions?
 
 ## Bench prototype {#bench-prototype}
 
 <!--
-@evidence principles/core/common.md#declared-basis The reviewed colonnaded-loop bench identity establishes this low civic seat's scale and role.
-@evidence principles/core/common.md#scope-preservation This unit owns bench geometry and leaves count, orientation, placement, route clearance, and finish to their owners.
-@evidence principles/core/common.md#substantive-completion This unit closes seat, legs, rail, negative space, bounds, surfaces, contact, and proxy limits.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation This unit adds a reusable bench representation beyond the colonnade space.
-@evidence principles/design/models.md#representation-contract This unit defines three rigid parts, open underside, stable surfaces, and occupied bounds.
-@evidence principles/design/models.md#spatial-convention This unit fixes floor-centred origin, Y-up, seat height, and extents.
-@evidence principles/design/models.md#reviewable-structure This unit identifies views exposing low seat, supports, rail, contact, and route side.
-@evidence principles/design/models.md#model-observable-style-basis This unit makes a plain low civic bench observable without cushion or occupancy claims.
-@evidence principles/design/models.md#model-scale-layer-completion This unit closes bench layers, negative underside, stable surfaces, scale, and rigid ceiling.
-@evidence upstream/design/models.md#settings-and-space-revision-from-model-work This unit tests the reviewed 2.00m loop and running route before placement.
-@evidence spaces/temple.md#courtyard-and-continuous-colonnade-loop This unit consumes the reviewed colonnaded-loop width and continuous circulation boundary.
-@evidence spaces/temple.md#spatial-identity-tolerance-and-exclusions This unit preserves the bench role and protected loop route.
-@evidence settings/temple.md#delivery-scope This bench-prototype unit realizes the reviewed settings boundary for delivery-scope.
-@evidence settings/temple.md#governing-aim This bench-prototype unit realizes the reviewed settings boundary for governing-aim.
-@evidence settings/temple.md#production-visual-grammar This bench-prototype unit realizes the reviewed settings boundary for production-visual-grammar.
-@evidence settings/temple.md#production-fidelity-tier This bench-prototype unit realizes the reviewed settings boundary for production-fidelity-tier.
-@evidence settings/temple.md#subject-breakdown-production-scope This bench-prototype unit realizes the reviewed settings boundary for subject-breakdown-production-scope.
-@evidence settings/temple.md#audience-operator-access This bench-prototype unit realizes the reviewed settings boundary for audience-operator-access.
-@evidence settings/temple.md#accessibility-deliverable-states This bench-prototype unit realizes the reviewed settings boundary for accessibility-deliverable-states.
-@evidence settings/temple.md#coordinate-unit-convention This bench-prototype unit realizes the reviewed settings boundary for coordinate-unit-convention.
-@evidence settings/temple.md#stage-policy This bench-prototype unit realizes the reviewed settings boundary for stage-policy.
-@evidence settings/temple.md#delivery-review-condition This bench-prototype unit realizes the reviewed settings boundary for delivery-review-condition.
-@evidence settings/temple.md#settings-coverage-map This bench-prototype unit realizes the reviewed settings boundary for settings-coverage-map.
-@evidence settings/temple.md#operative-subject-inventory This bench-prototype unit realizes the reviewed settings boundary for operative-subject-inventory.
-@evidence settings/temple.md#design-dependent-subject-conditions This bench-prototype unit realizes the reviewed settings boundary for design-dependent-subject-conditions.
-@evidence settings/temple.md#subject-observable-identity-and-fit-out-limits This bench-prototype unit realizes the reviewed settings boundary for subject-observable-identity-and-fit-out-limits.
-@evidence settings/temple.md#reference-interpretation-boundary This bench-prototype unit realizes the reviewed settings boundary for reference-interpretation-boundary.
-@evidence spaces/temple.md#one-storey-civic-temple-graph This bench-prototype unit consumes the reviewed spatial boundary one-storey-civic-temple-graph.
-@evidence spaces/temple.md#one-storey-containment-and-level This bench-prototype unit consumes the reviewed spatial boundary one-storey-containment-and-level.
-@evidence spaces/temple.md#room-schedule-and-direct-thresholds This bench-prototype unit consumes the reviewed spatial boundary room-schedule-and-direct-thresholds.
-@evidence spaces/temple.md#entrance-service-gate-and-route-graph This bench-prototype unit consumes the reviewed spatial boundary entrance-service-gate-and-route-graph.
-@evidence spaces/temple.md#envelope-opening-and-interior-interface This bench-prototype unit consumes the reviewed spatial boundary envelope-opening-and-interior-interface.
-@evidence spaces/temple.md#surface-decomposition-and-ownership-handoff This bench-prototype unit consumes the reviewed spatial boundary surface-decomposition-and-ownership-handoff.
-@evidence spaces/temple.md#spatial-verification-addresses-and-finite-review-set This bench-prototype unit consumes the reviewed spatial boundary spatial-verification-addresses-and-finite-review-set.
+@evidence principles/core/common.md#declared-basis The bench unit uses the reviewed low civic seat role and the 2.00m loop scale.
+@evidence principles/core/common.md#scope-preservation This unit owns seat, legs, and rail geometry; count, orientation, placement, route clearance, and finish remain downstream.
+@evidence principles/core/common.md#substantive-completion This unit closes seat, four leg bounds, back rail, contact, underside negative space, and stable surfaces.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation This unit adds a reusable seat representation beyond the colonnade space.
+@evidence principles/design/models.md#representation-contract The seat, four supports, and rail have named parts, exact bounds, and open underside.
+@evidence principles/design/models.md#spatial-convention The floor-centred origin and exact seat/leg/rail intervals establish scale.
+@evidence principles/design/models.md#reviewable-structure Front, side, top, and three-quarter views expose seat, supports, rail, contact, and route side.
+@evidence principles/design/models.md#model-observable-style-basis The plain low civic bench is observable without cushions or occupancy claims.
+@evidence principles/design/models.md#model-scale-layer-completion The support and rail geometry completes the review-critical silhouette promised by this prototype.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work The bench check compared its 1.40m seat, four support positions, 0.48m rail height, and underside clearance with the 2.00m loop and route; the parent space was sufficient and exposed no defect.
+@evidence settings/temple.md#coordinate-unit-convention The bench uses the reviewed floor datum and Y-up metre frame.
+@evidence settings/temple.md#subject-observable-identity-and-fit-out-limits The low civic seat and its restrained rail are the specific bench identity required by the settings.
+@evidence spaces/temple.md#courtyard-and-continuous-colonnade-loop The bench consumes the colonnade role while instances keep the 2.00m loop and 1.20m clear route free.
+@evidence spaces/temple.md#spatial-identity-tolerance-and-exclusions The bench preserves the loop fit-out role without owning count, orientation, or route width.
 -->
 
-권위와 상태: colonnaded-loop의 settings bench identity를 위한 `author-adopted` rigid prototype이다. local origin은 floor contact center, Y-up, occupied extent X `-0.70..0.70m`, Z `-0.24..0.24m`, Y `0.00..0.48m`다. hierarchy는 `seat`, `legs`, `back-rail`의 rigid parts이며 seat `1.40 × 0.48 × 0.12m`, seat top `Y=0.42m`, back-rail top `Y=0.48m`를 사용한다. stable surfaces are `bench-seat`, `bench-legs`, `bench-back-rail`; underside is open between legs and remains a visible negative space. Instance placement must keep the compiled `2.00m` loop route and its `1.20m` clear handoff free; this prototype does not own route width or bench count.
+Authority and status: `author-adopted` rigid bench prototype. The local origin is the floor contact centre, with bounds X `-0.70..0.70m`, Z `-0.24..0.24m`, Y `0.00..0.48m`. The seat occupies X `-0.70..0.70m`, Z `-0.24..0.24m`, Y `0.30..0.42m`. Four legs are square `0.10m` sections, each Y `0.00..0.30m`, centred at X `-0.55` and `0.55m`, Z `-0.14` and `0.14m`; their underside remains open negative space. The back rail occupies X `-0.60..0.60m`, Z `0.14..0.24m`, Y `0.38..0.48m`. Stable surfaces are `bench-seat`, `bench-legs`, and `bench-back-rail`. Instances must keep the compiled `2.00m` loop route and its `1.20m` clear handoff free.
 
-neutral review는 front, side, top, and three-quarter에서 low horizontal seat, four support points, shallow back-rail, floor contact, and route clearance를 확인한다. Cushions, occupancy, wood grain, and weathering remain outside the model proxy.
+Neutral review is front, side, top, and three-quarter against the loop route board. Cushions, occupancy, wood grain, and weathering are outside this proxy.
 
-검토 질문: bench prototype이 낮은 수평 civic seat으로 읽히면서 legs 사이 negative space와 loop clear route를 보존하는가?
+Review question: does the bench read as a low civic seat with four visible supports, a shallow back rail, and an open underside while leaving route clearance to instances?
