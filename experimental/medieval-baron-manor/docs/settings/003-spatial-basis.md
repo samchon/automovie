@@ -3,15 +3,15 @@
 ## 본채와 중앙정원의 관계 {#single-house}
 
 <!--
-@evidence principles/core/common.md#declared-basis Status의 사용자 확정 그래프를 근거로 ㄷ자 두 층과 남쪽 중앙 현관 접근을 채택한다.
-@evidence principles/core/common.md#scope-preservation 본채의 세 부분을 하나의 바닥·벽·지붕·동선으로 연결하고 모든 실의 층과 실제 접근을 남긴다.
-@evidence principles/core/common.md#substantive-completion 남쪽으로 열린 정원, 한 본채의 연결, 현관 접근 방향과 추가하지 않을 시설을 정한다.
-@evidence principles/core/settings.md#capability-boundary 본채의 연결은 정적인 환경 관계이며 자동 이동이나 건물 변형 능력을 부여하지 않는다.
-@evidence principles/core/settings.md#constraint-sufficiency 별채 경유와 연못 횡단을 입장 조건에서 제외하고 대영주관·방어시설 추가를 금한다.
-@evidence principles/core/settings.md#fact-status ㄷ자 2층과 진입 관계를 사용자 확정 가상 제작 그래프로 분류한다.
-@evidence principles/core/settings.md#observable-identity 남쪽으로 열린 얕은 ㄷ자와 연속된 두 층의 외피가 별채 집합과 다른 본채 형상을 정한다.
+@evidence principles/core/common.md#declared-basis The declared user-approved graph authorizes the two-storey U-shaped house and approach to its central entrance from the south.
+@evidence principles/core/common.md#scope-preservation The three wings share floors, walls, roof and circulation; every room belongs to a storey and has a physical access route.
+@evidence principles/core/common.md#substantive-completion The unit settles the south-facing garden opening, continuity of the main house, entrance approach and excluded additions.
+@evidence principles/core/settings.md#capability-boundary The house connections describe a static environment, not automatic travel or a building transformation capability.
+@evidence principles/core/settings.md#constraint-sufficiency Entry cannot require crossing an outbuilding or pond, and the design cannot add a great ceremonial hall or defensive works.
+@evidence principles/core/settings.md#fact-status The two-storey massing and entrance relationships are classified as a user-approved fictional production graph.
+@evidence principles/core/settings.md#observable-identity A shallow U opening south and a continuous two-storey envelope distinguish the house from a collection of separate buildings.
 @evidenceReview principles/core/settings.md#observable-identity #4ccb62e 남쪽으로 열린 얕은 ㄷ자 두 층이 한 건물의 바닥·벽·지붕·동선으로 이어지고 정원 쪽 접근 길이 중앙 현관에 닿는다. 앞면만 ㄷ자로 꾸미고 뒤에서 분리된 별채가 되거나 연못을 건너야 들어가는 재현은 이 구조 정체성을 보존하지 못한다.
-@evidence principles/core/settings.md#source-support 특정 역사 저택의 실측이나 통행 규격을 인용하지 않고 이 제작의 본채·정원 구성을 채택한다.
+@evidence principles/core/settings.md#source-support The house and garden arrangement is adopted for this production without claiming measurements of a historical manor or an external access standard.
 -->
 
 **Status:** production invention, 사용자 확정 그래프.
@@ -51,15 +51,15 @@
 ## 1층의 직접 연결 {#ground-access}
 
 <!--
-@evidence principles/core/common.md#declared-basis 사용자 확정 직접 연결 그래프를 채택하고 방 경계와 문 위치의 결정권은 space 설계에 둔다.
-@evidence principles/core/common.md#scope-preservation 현관·계단 하부와 홀·주방·식료실·장부실·저장·세척의 필수 접근을 같은 회랑에 배정한다.
-@evidence principles/core/common.md#substantive-completion 현관의 직접 연결과 생활 용도의 서측·후면·동측 방향 예산을 모두 정한다.
-@evidence principles/core/settings.md#capability-boundary 직접 문과 회랑은 고정 공간 관계이며 문 자동 조작이나 인물의 통행 능력을 선언하지 않는다.
-@evidence principles/core/settings.md#constraint-sufficiency 다른 필수 실 경유, 잠긴 중간 방과 끊긴 회랑 바닥을 배제한다.
-@evidence principles/core/settings.md#fact-status 확정한 제작 그래프와 이후 space 설계가 정할 문 좌표·방 경계를 구별한다.
-@evidence principles/core/settings.md#observable-identity 정원 쪽 연속 ㄷ자 회랑과 서측 홀·후면 서비스·동측 장부실의 관계를 보존한다.
+@evidence principles/core/common.md#declared-basis The user-approved direct-access graph fixes connectivity while the space design retains authority over room boundaries and door positions.
+@evidence principles/core/common.md#scope-preservation Entrance and stair access, hall, kitchen, pantry, ledger room, storage and washing functions all receive direct access from the same gallery or entrance.
+@evidence principles/core/common.md#substantive-completion The entrance connections and the west, rear and east allocations of household functions are settled together.
+@evidence principles/core/settings.md#capability-boundary Direct doors and galleries define static connections, not automatic door operation or an occupant's ability to traverse them.
+@evidence principles/core/settings.md#constraint-sufficiency A required room cannot be reached only through another room, a locked intermediate room or a discontinuous gallery floor.
+@evidence principles/core/settings.md#fact-status The adopted production graph is distinguished from door coordinates and room boundaries that the space design must still choose.
+@evidence principles/core/settings.md#observable-identity The continuous garden-facing U-shaped gallery relates the western hall, rear service functions and eastern ledger room.
 @evidenceReview principles/core/settings.md#observable-identity #4ccb62e 현관·한 계단 하부·연속 ㄷ자 회랑과 서측 홀/후면 서비스/동측 장부실의 방향 관계를 대조했다. 각 필수 실의 직접 문과 끊기지 않는 회랑이 물리적 식별 조건이고 실제 문 좌표는 이 조건을 소비하는 space 설계가 정한다.
-@evidence principles/core/settings.md#source-support 회랑과 실의 직접 접근은 제작자가 채택한 관계이며 역사적 저택의 보편적 평면이라고 주장하지 않는다.
+@evidence principles/core/settings.md#source-support Direct access from the gallery is an adopted production relationship, not a claim about the universal layout of historical manors.
 -->
 
 **Status:** production invention, 사용자 확정 그래프.
@@ -123,15 +123,15 @@
 ## 첫 구조 단계의 표면 책임 {#surface-responsibility}
 
 <!--
-@evidence principles/core/common.md#declared-basis 사용자 지시를 적용한 제작 소유 기준으로 표면 분해와 책임 경계를 정한다.
-@evidence principles/core/common.md#scope-preservation 실내 바닥·천장·벽과 외벽·모서리·지붕 하면·개구부를 포함하며 가려진 면도 소유한다.
-@evidence principles/core/common.md#substantive-completion 공간 경계, 부재 형상, 마감, 배치를 각각 space·model·material·instance 책임으로 배정한다.
-@evidence principles/core/settings.md#capability-boundary 표면 소유는 제작 책임이며 벽의 이동이나 개구부의 자동 생성 능력을 뜻하지 않는다.
-@evidence principles/core/settings.md#constraint-sufficiency 공유벽의 양면은 같은 경계에서 제공하며 중복 벽과 무소유 표면의 관찰 제외를 금한다.
-@evidence principles/core/settings.md#fact-status 표면별 책임은 사용자 지시에서 채택한 제작 기준이고 완성 모델의 측정 결과가 아니다.
-@evidence principles/core/settings.md#observable-identity 공유 경계의 양면·천장·지붕 하면·개구부 테두리를 실제 형상으로 소유한다.
+@evidence principles/core/common.md#declared-basis The declared user instruction establishes the production's surface decomposition and ownership boundaries.
+@evidence principles/core/common.md#scope-preservation Interior floors, ceilings and walls, exterior corners, roof undersides and openings all retain owners, including obscured surfaces.
+@evidence principles/core/common.md#substantive-completion Space boundaries, member geometry, finishes and placement are allocated to space, model, material and instance owners respectively.
+@evidence principles/core/settings.md#capability-boundary Surface ownership assigns authoring responsibility without granting walls motion or openings automatic creation.
+@evidence principles/core/settings.md#constraint-sufficiency Both faces of a shared wall come from one boundary; duplicated walls and observation exclusions for ownerless surfaces are forbidden.
+@evidence principles/core/settings.md#fact-status Surface responsibilities are an adopted production rule derived from the user instruction, not measurements of a completed model.
+@evidence principles/core/settings.md#observable-identity Shared boundary faces, ceilings, roof undersides and opening surrounds are owned as actual geometry.
 @evidenceReview principles/core/settings.md#observable-identity #4ccb62e 바닥·천장·모든 벽과 외피·모서리·지붕 하면·개구부 테두리가 소유된 실제 면이고 공유벽은 같은 경계의 양쪽 면이라는 문장을 확인했다. 정면에서만 붙인 벽이나 보이지 않는 면의 무주인 처리는 반대쪽·하면 관찰의 동일성을 잃으며 마감·부재·배치 책임은 별도로 나뉜다.
-@evidence principles/core/settings.md#source-support 표면 책임은 이 제작의 저작 규칙이며 외부 건축 규격이나 실제 구조 안전의 입증으로 제시하지 않는다.
+@evidence principles/core/settings.md#source-support The surface rule governs this production's authorship without asserting an external building standard or proof of structural safety.
 -->
 
 **Status:** production invention, 사용자 지시를 적용한 소유 기준.
