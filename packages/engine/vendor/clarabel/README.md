@@ -25,6 +25,6 @@ The script compiles the locked crate and regenerates `src/math/quadraticKernelBy
 
 ## Provenance and prior comparison
 
-`licenses/inventory.json` records the locked dependency licenses; the adjacent directories preserve original license/notice files, including Rust runtime notices. Clarabel is Apache 2.0 and the AMD ordering crate is BSD 3-Clause; the dependency inventory states each other license. AutoMovie's bridge, host and build recipe are MIT under the engine's license.
+`licenses/inventory.json` records the locked dependency licenses; the adjacent directories preserve upstream license/notice wording, including Rust runtime notices, with trailing whitespace normalized. Clarabel is Apache 2.0 and the AMD ordering crate is BSD 3-Clause; the dependency inventory states each other license. AutoMovie's bridge, host and build recipe are MIT under the engine's license.
 
 The earlier OSQP implementation and its build recipe remain in [the comparison source](../quadratic/README.md). Its generated output goes only to its chosen build directory. The shared-method investigation and independently derived nearly parallel constraint family belong to [issue #2498](https://github.com/samchon/AutoMovie/issues/2498); unsuccessful candidates remain research evidence. Neither a successful solve nor more exported documents is a likeness or full-face review verdict.
