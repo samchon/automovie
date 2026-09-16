@@ -144,15 +144,25 @@ courtyard 중심 `(0.00, 0.00)`에는 후속 model owner가 소비할 landmark s
 
 권위: settings의 west/east orientation, room program, 1.10m ordinary door와 1.60m entrance 조건이다. 상태: `derived` room bounds와 `author-adopted` adjacency다. 범위: 모든 enclosed room의 semantic identity, loop adjacency, direct door host다.
 
-다섯 방은 모두 `ground-storey`에 직접 속하고 하나의 named threshold를 통해 `colonnade-loop`에 직접 인접한다. 아래 bounds는 외벽과 room-loop partition의 안쪽 면으로 정의한 semantic clear box이며, space owner가 그 경계와 partition 두께를 함께 닫고 source는 그 결과와 door void를 소비한다.
+다섯 방은 모두 `ground-storey`에 직접 속하고 하나의 named direct threshold를 통해 `colonnade-loop`에 직접 인접한다. 아래 bounds는 외벽과 room-loop partition의 안쪽 면으로 정의한 semantic clear box이며, space owner가 그 경계와 partition 두께를 함께 닫고 source는 그 결과와 door void를 소비한다.
 
 | id | function | clear bounds (X, Z) | loop side | direct threshold |
 | --- | --- | --- | --- | --- |
-| `sanctuary` | small rear-axis sanctuary | -3.20..3.20, 6.00..8.40 | north | `door-sanctuary` on south boundary, centered X=0.00 |
-| `communal-votive-room` | shared votive room | -11.40..-7.40, -3.20..3.20 | west | `door-communal-votive` on east boundary, centered Z=0.00 |
-| `administration-room` | administration | 7.40..11.40, 2.60..5.20 | east | `door-administration` on west boundary, centered Z=3.90 |
-| `records-room` | records and writing | 7.40..11.40, -0.30..2.30 | east | `door-records` on west boundary, centered Z=1.00 |
-| `votive-storage-room` | votive storage | 7.40..11.40, -5.20..-0.70 | east | `door-votive-storage` on west boundary, centered Z=-2.95 |
+| `sanctuary` | small rear-axis sanctuary | -3.20..3.20, 6.00..8.40 | north | `door-sanctuary` across south partition; room-side observation threshold centered X=0.00 |
+| `communal-votive-room` | shared votive room | -11.40..-7.40, -3.20..3.20 | west | `door-communal-votive` across east partition; room-side observation threshold centered Z=0.00 |
+| `administration-room` | administration | 7.40..11.40, 2.60..5.20 | east | `door-administration` across west partition; room-side observation threshold centered Z=3.90 |
+| `records-room` | records and writing | 7.40..11.40, -0.30..2.30 | east | `door-records` across west partition; room-side observation threshold centered Z=1.00 |
+| `votive-storage-room` | votive storage | 7.40..11.40, -5.20..-0.70 | east | `door-votive-storage` across west partition; room-side observation threshold centered Z=-2.95 |
+
+The direct threshold is the room's one graph connector and retains the 1.10m clear door opening across the 0.40m room-loop partition. The `room-side observation threshold` is the room-facing plane of that same threshold after the door passage, at the inner edge of the room clear box; it is not a second threshold or connector. The observation route and its protected band begin at this room-side plane, so the 1.10m door passage and the 1.20m in-room route are an explicit width transition rather than an unrecorded bottleneck.
+
+| room | door passage interval, loop-facing plane -> room-facing plane | room-side observation threshold |
+| --- | --- | --- |
+| `sanctuary` | `(0.00, 5.60) -> (0.00, 6.00)` | `(0.00, 6.00)` |
+| `communal-votive-room` | `(-7.00, 0.00) -> (-7.40, 0.00)` | `(-7.40, 0.00)` |
+| `administration-room` | `(7.00, 3.90) -> (7.40, 3.90)` | `(7.40, 3.90)` |
+| `records-room` | `(7.00, 1.00) -> (7.40, 1.00)` | `(7.40, 1.00)` |
+| `votive-storage-room` | `(7.00, -2.95) -> (7.40, -2.95)` | `(7.40, -2.95)` |
 
 The two gaps between the east room clear boxes are full-height space-owned separators rather than open zones. Their outer ends meet the inner face of the exterior wall at X=11.40 and their inner ends meet the room-loop partition at X=7.40.
 
@@ -163,9 +173,9 @@ The two gaps between the east room clear boxes are full-height space-owned separ
 
 Each named separator closes both adjacent clear boxes from floor to ceiling without becoming a room, a route, or a second loop. The room-facing surface hosts remain space-owned; later materials bind to them and later doors do not cut these separators.
 
-Each room also receives one space-owned observation route from its threshold to its center and from that center to four cardinal observation points. Every segment is a 1.20m clear route, and the protected handoff region is the union of those segments expanded by 0.30m beyond each clear edge. Model and instance owners must keep object footprints outside that protected region; it is an exclusion inside the room floor host, not a new room or surface owner.
+Each room also receives one space-owned observation route from its room-side observation threshold to its center and from that center to four cardinal observation points. Every in-room segment is a 1.20m clear route. The 1.10m door passage is the separately named connector preceding this route, and is not counted as an in-room route segment. The protected handoff region is the union of the in-room segments expanded by 0.30m beyond each clear edge; it begins at the room-facing threshold plane and does not reserve the loop or door host. Model and instance owners must keep object footprints outside that protected region; it is an exclusion inside the room floor host, not a new room or surface owner.
 
-| room | threshold to center | center | north / east / south / west observation points |
+| room | room-side observation threshold to center | center | north / east / south / west observation points |
 | --- | --- | --- | --- |
 | `sanctuary` | `(0.00, 6.00) -> (0.00, 7.20)` | `(0.00, 7.20)` | `(0.00, 7.80)` / `(0.60, 7.20)` / `(0.00, 6.60)` / `(-0.60, 7.20)` |
 | `communal-votive-room` | `(-7.40, 0.00) -> (-9.40, 0.00)` | `(-9.40, 0.00)` | `(-9.40, 0.60)` / `(-8.80, 0.00)` / `(-9.40, -0.60)` / `(-10.00, 0.00)` |
@@ -173,7 +183,7 @@ Each room also receives one space-owned observation route from its threshold to 
 | `records-room` | `(7.40, 1.00) -> (9.40, 1.00)` | `(9.40, 1.00)` | `(9.40, 1.60)` / `(10.00, 1.00)` / `(9.40, 0.40)` / `(8.80, 1.00)` |
 | `votive-storage-room` | `(7.40, -2.95) -> (9.40, -2.95)` | `(9.40, -2.95)` | `(9.40, -2.35)` / `(10.00, -2.95)` / `(9.40, -3.55)` / `(8.80, -2.95)` |
 
-The room schedule is not a furniture schedule. It fixes which semantic room exists, where its threshold meets the loop, and which floor regions remain reserved for observation; records shelves, storage chests, lamps, votive vessels, and other contents remain instance-owned and must not enter a protected route. The sanctuary’s north-rear axis is the relation from the courtyard center through the north loop to `sanctuary`, not a camera choice.
+The room schedule is not a furniture schedule. It fixes which semantic room exists, where its direct threshold meets the loop, where the room-side observation route begins, and which floor regions remain reserved for observation; records shelves, storage chests, lamps, votive vessels, and other contents remain instance-owned and must not enter a protected route. The sanctuary’s north-rear axis is the relation from the courtyard center through the north loop to `sanctuary`, not a camera choice.
 
 ## Entrance, service gate, and route graph {#entrance-service-gate-and-route-graph}
 
@@ -219,9 +229,11 @@ The route graph has exactly these connector edges:
 | `door-votive-storage` | `colonnade-loop` | `votive-storage-room` | 1.10m | 0.40m room-loop partition | Y=0.00..2.10 | direct room door |
 | `service-gate` | rear-east exterior | `service-yard` | 1.20m | 0.60m exterior wall | Y=0.00..2.10 | terminal service access; not a second loop |
 
+The five `door-*` rows report the direct opening transition from loop to room and therefore use the 1.10m door width. The 1.20m observation route begins at the room-facing threshold plane named in the room schedule; it is an in-room route condition and does not retroactively widen the direct door opening.
+
 `south-entrance` is a straight opening aligned to X=0.00 from the south exterior boundary through the open covered `entry-threshold` apron and the south bay of the ring to the courtyard; it does not introduce a named vestibule, enclosed room, or second corridor. `service-gate` is a terminal external access at the north-east building edge and cannot be used to reach another room. Every room is reachable from `south-entrance` by entering courtyard, joining the single ring, and crossing its own threshold; the return path remains the same ring.
 
-Opening anchors are fixed at the space layer: `south-entrance` cuts `elevation-south` at `(X=0.00, Z=-9.00)`, width 1.60m, host depth 0.60m, and clear void Y=0.00..2.60; `courtyard-to-loop` is the open south inner edge at `(X=0.00, Z=-3.60)`, width 2.00m, with no jamb or head; the five room doors use the threshold centers listed in the room schedule, width 1.10m, host depth 0.40m, and clear void Y=0.00..2.10; `service-gate` cuts `elevation-east` at `(X=12.00, Z=6.80)`, width 1.20m, host depth 0.60m, and clear void Y=0.00..2.10 before terminating in the external service-yard. All thresholds are level at the Y=0.00 floor datum in this realization, so the inherited 0.08m maximum rise is not used; the room doors and south entrance are public/working access, while the service gate is not a second public circulation route.
+Opening anchors are fixed at the space layer: `south-entrance` cuts `elevation-south` at `(X=0.00, Z=-9.00)`, width 1.60m, host depth 0.60m, and clear void Y=0.00..2.60; `courtyard-to-loop` is the open south inner edge at `(X=0.00, Z=-3.60)`, width 2.00m, with no jamb or head; the five room doors use the door passage intervals and room-side observation thresholds listed in the room schedule, width 1.10m, host depth 0.40m, and clear void Y=0.00..2.10; `service-gate` cuts `elevation-east` at `(X=12.00, Z=6.80)`, width 1.20m, host depth 0.60m, and clear void Y=0.00..2.10 before terminating in the external service-yard. All thresholds are level at the Y=0.00 floor datum in this realization, so the inherited 0.08m maximum rise is not used; the room doors and south entrance are public/working access, while the service gate is not a second public circulation route.
 
 ## Envelope, opening, and interior interface {#envelope-opening-and-interior-interface}
 
@@ -382,7 +394,7 @@ The finite space review set is a named plan of questions, while the complete roo
 | `space-elevation-north` | outward north elevation | rear sanctuary axis and rear boundary |
 | `space-courtyard-neutral` | neutral courtyard perspective from the compiled entry direction | loop continuity, fountain landmark, room-door legibility |
 | `space-room-thresholds` | one neutral view for each compiled room threshold | five direct room openings and room identity |
-| `space-room-reserved-routes` | one plan/threshold observation for each room with its center, cardinal points, clear route, and protected band | threshold-to-observation reachability, 1.20m clear route, and 0.30m fit-out exclusion |
+| `space-room-reserved-routes` | one plan/threshold observation for each room from its room-side observation threshold to its center and cardinal points, with the door transition shown separately | threshold-to-observation reachability, 1.20m in-room clear route, explicit 1.10m door transition, and 0.30m fit-out exclusion |
 | `space-service-terminal` | service-yard edge perspective and plan relation | terminal yard, no second loop, exterior/interface agreement |
 | `reference-exterior-expression` | supplementary exterior question from reference 1 | the stone envelope, roof silhouette, and exposed-corner relationship without using the image as a scene asset |
 | `reference-section-relation` | supplementary inspection question from reference 2 | the one-storey courtyard, loop, room, and roof-hole relationship; this cutaway remains diagnostic only |

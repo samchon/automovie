@@ -481,6 +481,54 @@ function drawPolyline(points: Point[], stroke: string, width: number): void {
   context.restore();
 }
 
+function clipSectionPolygon(points: Point[]): Point[] {
+  if (viewMode !== "section" || points.length === 0) return points;
+  const clipped: Point[] = [];
+  for (let index = 0; index < points.length; index += 1) {
+    const current = points[index]!;
+    const next = points[(index + 1) % points.length]!;
+    const currentInside = current.z >= 0;
+    const nextInside = next.z >= 0;
+    if (currentInside && nextInside) {
+      appendUniquePoint(clipped, next);
+    } else if (currentInside !== nextInside) {
+      appendUniquePoint(clipped, sectionIntersection(current, next));
+      if (nextInside) appendUniquePoint(clipped, next);
+    }
+  }
+  return clipped;
+}
+
+function clipSectionPolyline(points: Point[]): Point[] {
+  if (viewMode !== "section" || points.length === 0) return points;
+  const clipped: Point[] = [];
+  for (let index = 0; index < points.length - 1; index += 1) {
+    const current = points[index]!;
+    const next = points[index + 1]!;
+    const currentInside = current.z >= 0;
+    const nextInside = next.z >= 0;
+    if (currentInside) appendUniquePoint(clipped, current);
+    if (currentInside !== nextInside) appendUniquePoint(clipped, sectionIntersection(current, next));
+    if (nextInside) appendUniquePoint(clipped, next);
+  }
+  return clipped;
+}
+
+function sectionIntersection(first: Point, second: Point): Point {
+  const ratio = -first.z / (second.z - first.z);
+  return point(
+    first.x + (second.x - first.x) * ratio,
+    first.y + (second.y - first.y) * ratio,
+    0,
+  );
+}
+
+function appendUniquePoint(points: Point[], candidate: Point): void {
+  const previous = points[points.length - 1];
+  if (previous?.x === candidate.x && previous.y === candidate.y && previous.z === candidate.z) return;
+  points.push(candidate);
+}
+
 function drawDiamond(location: Point, fill: string, size: number): void {
   const projected = project(location);
   context.save();
@@ -572,7 +620,7 @@ function isVisible(box: DrawBox): boolean {
   if (viewMode === "ground" || viewMode === "ground-plan") return center.y < 3.08;
   if (viewMode === "upper" || viewMode === "upper-plan") return center.y >= 2.72 && center.y < 6.08;
   if (viewMode === "roof") return center.y >= 5.82;
-  if (viewMode === "section") return center.z >= 0;
+  if (viewMode === "section") return box.corners.some((corner) => corner.z >= 0);
   return true;
 }
 
@@ -585,7 +633,6 @@ function projectBox(box: DrawBox): DrawBox {
 }
 
 function drawBox(box: DrawBox): void {
-  const projected = box.corners.map(project);
   const faces: Array<{ indices: number[]; shade: number }> = [
     { indices: [0, 1, 2, 3], shade: 0.74 },
     { indices: [4, 7, 6, 5], shade: 1.12 },
@@ -596,7 +643,9 @@ function drawBox(box: DrawBox): void {
   ];
   context.save();
   for (const face of faces) {
-    const polygon = face.indices.map((index) => projected[index]!);
+    const clipped = clipSectionPolygon(face.indices.map((index) => box.corners[index]!));
+    if (clipped.length < 3) continue;
+    const polygon = clipped.map(project);
     context.fillStyle = cssColor(box.color, face.shade, box.opacity);
     context.strokeStyle = box.selected ? "rgba(191, 249, 233, 0.9)" : "rgba(7, 14, 17, 0.34)";
     context.lineWidth = box.selected ? 1.25 : 0.55;

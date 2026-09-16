@@ -54,8 +54,8 @@ const ROOM_BOUNDS = {
 } satisfies Record<string, RoomBounds>;
 
 const CURTAINWALL_Z = {
-  front: ROOM_BOUNDS.entry.minZ + CURTAINWALL_ASSEMBLY_THICKNESS / 2,
-  rear: ROOM_BOUNDS.commonRoom.maxZ - CURTAINWALL_ASSEMBLY_THICKNESS / 2,
+  front: ROOM_BOUNDS.entry.minZ - CURTAINWALL_ASSEMBLY_THICKNESS / 2,
+  rear: ROOM_BOUNDS.commonRoom.maxZ + CURTAINWALL_ASSEMBLY_THICKNESS / 2,
 } as const;
 
 const transform = (
@@ -678,9 +678,9 @@ const citizenHouseEnvironment = (): IAutoMovieBuiltEnvironment => ({
  * source does not read files, clocks, network state, or unseeded randomness.
  *
  * @evidence spaces/001-citizen-house.md The source realizes the complete authored citizen-house space document.
- * @evidenceReview spaces/001-citizen-house.md #fe1c85e Read the complete space design file and checked its authored room, envelope, privacy, review requirements, and compiled topology record.
+ * @evidenceReview spaces/001-citizen-house.md #ce18e80 Read the complete space design file and checked its authored room, envelope, privacy, review requirements, and compiled topology record.
  * @evidence spaces/001-citizen-house.md#citizen-house-space The source realizes the space H2's room graph, envelope, openings, connectors, surfaces, and fit-out carrier.
- * @evidenceReview spaces/001-citizen-house.md#citizen-house-space #56050ec Read the space H2 and checked the built environment realizes its room graph, envelope, openings, connectors, surfaces, fit-out, and observation boundary.
+ * @evidenceReview spaces/001-citizen-house.md#citizen-house-space #448eae2 Read the space H2 and checked the built environment realizes its room graph, envelope, openings, connectors, surfaces, fit-out, and observation boundary.
  * @evidence principles/core/source-units.md#source-scope-preservation The source stays within the selected spaces owner and does not create a second production branch.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 Read the source scope checklist and checked this export stays within the selected spaces owner.
  * @evidence principles/core/source-units.md#source-substantive-completion The source publishes the complete environment carrier required by its selected space design.

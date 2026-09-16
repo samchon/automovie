@@ -45,7 +45,7 @@
 @evidenceReview settings/003-spatial-basis.md#coordinate-datum #2e42a76 Read the coordinate-datum setting and checked target dimensions and datum are realized.
 @evidenceReview settings/003-spatial-basis.md#ground-graph #0a9d729 Read the ground-graph setting and checked the ground topology is realized.
 @evidenceReview settings/003-spatial-basis.md#upper-graph #c816b45 Read the upper-graph setting and checked the upper topology is realized.
-@evidenceReview settings/003-spatial-basis.md#envelope-and-privacy #ad6c65c Read the envelope-and-privacy setting and checked the envelope and privacy strategy are realized.
+@evidenceReview settings/003-spatial-basis.md#envelope-and-privacy #3aab158 Read the envelope-and-privacy setting and checked the envelope and privacy strategy are realized.
 @evidenceReview settings/003-spatial-basis.md#surface-decomposition #417fe6a Read the surface-decomposition setting and checked the surface ownership declaration is realized.
 @evidenceReview contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements #83336e9 Read the local contract and checked the space H2 preserves its fixed graph and curtainwall/privacy requirements.
 -->
