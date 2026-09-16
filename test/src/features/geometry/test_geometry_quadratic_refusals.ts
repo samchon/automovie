@@ -1,7 +1,7 @@
 import { solveAutoMovieQuadraticProgram } from "@automovie/engine";
+import { solveAutoMovieQuadraticKernel } from "@automovie/engine/math/quadraticKernel";
 import { TestValidator } from "@nestia/e2e";
 
-import { solveAutoMovieQuadraticKernel } from "../../../../packages/engine/lib/math/quadraticKernel";
 import { throwsError } from "../internal/predicates";
 
 /**
