@@ -1,6 +1,6 @@
 <!--
 @evidence discovery/core/common.md#canonical-realization Every retained visual rule has one semantic owner and one realization.
-@evidenceReview discovery/core/common.md#canonical-realization #5a6e541 Checked the cited rule against this unit's authored scope and its compiled realization.
+@evidenceReview discovery/core/common.md#canonical-realization #5a6e541 The surface-ownership contract gives complete elevations, roof families, storey planes, and room surfaces one semantic owner and gives generated repeats measured laws; the falsifier would be a split surface or a detail that changes the fixed graph.
 @evidence discovery/design/materials.md#work-specific-material-requirements Surface construction and response require named material ownership.
 @evidence discovery/design/instances.md#work-specific-instance-requirements Repeated siding, brick, shingle, and fit-out populations need stable instance ownership.
 @evidence discovery/design/systems.md#work-specific-system-requirements Visible lighting fixtures and the explicit hidden-system boundary need a named systems owner.

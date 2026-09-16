@@ -1,8 +1,8 @@
 <!--
 @evidence discovery/core/common.md#shared-local-boundary The ordered stages are a production-specific lifecycle boundary.
-@evidenceReview discovery/core/common.md#shared-local-boundary #ae499c0 Checked the cited rule against this unit's authored scope and its compiled realization.
+@evidenceReview discovery/core/common.md#shared-local-boundary #ae499c0 The stage-integrity contract keeps the ordered construction boundary local to this production and records unsupported or discarded work in the worklog; the falsifier would be an unrecorded stage reopening or a local rule replacing the shared lifecycle owner.
 @evidence discovery/core/settings.md#planned-delivery-backcast The selected library's delivery is built from the ordered authored layers.
-@evidenceReview discovery/core/settings.md#planned-delivery-backcast #73ac216 Checked the cited rule against this unit's authored scope and its compiled realization.
+@evidenceReview discovery/core/settings.md#planned-delivery-backcast #73ac216 The stage-integrity contract backcasts this library's reviewable source-graph ending into massing, surfaces, envelope, modules, fit-out, and finish; the falsifier would be detail work added without the required coarse owner.
 -->
 # Stage integrity
 

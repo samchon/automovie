@@ -1,8 +1,8 @@
 <!--
 @evidence discovery/core/common.md#canonical-realization The review denominator is derived from compiled topology rather than selected beauty views.
-@evidenceReview discovery/core/common.md#canonical-realization #5a6e541 Checked the cited rule against this unit's authored scope and its compiled realization.
+@evidenceReview discovery/core/common.md#canonical-realization #5a6e541 The compiled-observation-set contract gives the denominator one named owner and binds it to compiled topology rather than a viewer hero frame; the falsifier would be a review count taken from selected views instead of the derived population.
 @evidence discovery/design/spaces.md#work-specific-space-requirements The space review set includes every required exterior and room observation named by the brief.
-@evidenceReview discovery/design/spaces.md#work-specific-space-requirements #a751db6 Checked the cited rule against this unit's authored scope and its compiled realization.
+@evidenceReview discovery/design/spaces.md#work-specific-space-requirements #a751db6 The compiled-observation-set contract carries every room, opening, exterior, roof, and underside observation required by the fixed spatial brief; the falsifier would be a required subject absent from its derivation.
 -->
 # Compiled observation set
 

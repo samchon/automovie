@@ -1,10 +1,10 @@
 <!--
 @evidence discovery/core/common.md#canonical-realization Authored measurements must have one owner and an observable realization.
-@evidenceReview discovery/core/common.md#canonical-realization #5a6e541 Checked the cited rule against this unit's authored scope and its compiled realization.
+@evidenceReview discovery/core/common.md#canonical-realization #5a6e541 The measurement-truth contract assigns dimensions, ids, counts, locations, and bindings to authored or compiled geometry and preserves its own uncertainty boundary; the falsifier would be a measurement with no source owner.
 @evidence discovery/core/settings.md#directive-promise-subject-requirements The supplied references are conceptual and do not authorize dimensional inference.
-@evidenceReview discovery/core/settings.md#directive-promise-subject-requirements #1c99050 Checked the cited rule against this unit's authored scope and its compiled realization.
+@evidenceReview discovery/core/settings.md#directive-promise-subject-requirements #1c99050 The measurement-truth contract answers the brief's explicit refusal to infer dimensions from reference pixels and keeps unsupported measurements unverified; the falsifier would be a reference number used as a production dimension.
 @evidence discovery/design/spaces.md#work-specific-space-requirements Compiled topology is the authority for room and opening measurements.
-@evidenceReview discovery/design/spaces.md#work-specific-space-requirements #a751db6 Checked the cited rule against this unit's authored scope and its compiled realization.
+@evidenceReview discovery/design/spaces.md#work-specific-space-requirements #a751db6 The measurement-truth contract makes compiled space and opening geometry the authority for spatial identities and measurements; the falsifier would be a room or opening dimension recovered from an image rather than the source result.
 -->
 # Measurement and reference boundary
 
