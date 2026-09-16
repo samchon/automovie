@@ -794,6 +794,9 @@ importers:
       libopus-wasm:
         specifier: catalog:media
         version: 0.2.0
+      medieval-baron-manor:
+        specifier: workspace:*
+        version: link:../experimental/medieval-baron-manor
       onnxruntime-node:
         specifier: catalog:media
         version: 1.21.0

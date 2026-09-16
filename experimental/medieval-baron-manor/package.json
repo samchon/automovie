@@ -5,6 +5,9 @@
   "version": "0.1.0",
   "license": "MIT",
   "description": "The authored medieval baron manor used by the public website.",
+  "exports": {
+    "./spatial-state": "./src/manorSpatialState.ts"
+  },
   "engines": {
     "node": ">=22.23.2"
   },

@@ -1,6 +1,6 @@
 import { TestValidator } from "@nestia/e2e";
+import { manorSpatialState } from "medieval-baron-manor/spatial-state";
 
-import { manorSpatialState } from "../../../../experimental/medieval-baron-manor/src/manorSpatialState";
 import { nclose, throwsError, vclose } from "../internal/predicates";
 
 const room = (id: string, left: number, right: number) => ({
