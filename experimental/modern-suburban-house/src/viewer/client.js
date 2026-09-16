@@ -38,6 +38,12 @@ const status = document.querySelector("#status");
 const storeySelect = document.querySelector("#storey");
 const sectionSelect = document.querySelector("#section");
 const focusSelect = document.querySelector("#focus");
+const observationSelect = document.createElement("select");
+observationSelect.id = "observation";
+const observationLabel = document.createElement("label");
+observationLabel.textContent = "Review observation";
+observationLabel.append(observationSelect);
+focusSelect.parentElement?.insertAdjacentElement("afterend", observationLabel);
 const labelsInput = document.querySelector("#labels");
 const stats = document.querySelector("#stats");
 const legend = document.querySelector("#legend");
@@ -172,6 +178,47 @@ const fitCamera = () => {
     z: (bounds.min.z + bounds.max.z) / 2,
   };
   state.zoom = 0.88;
+  scheduleRender();
+};
+
+const updateObservationOptions = () => {
+  if (state.data === null) return;
+  const current = observationSelect.value;
+  observationSelect.replaceChildren(new Option("Manual view", ""));
+  for (const observation of state.data.reviewPopulation) {
+    observationSelect.append(new Option(`${observation.id} [${observation.kind}]`, observation.id));
+  }
+  observationSelect.value = state.data.reviewPopulation.some((item) => item.id === current) ? current : "";
+};
+
+const frameObservation = () => {
+  if (state.data === null) return;
+  const observation = state.data.reviewPopulation.find((item) => item.id === observationSelect.value);
+  if (observation === undefined) {
+    fitCamera();
+    return;
+  }
+  const direction = observation.direction;
+  const horizontal = Math.hypot(direction.x, direction.z);
+  const roomObservation = observation.subjectId.startsWith("ground/") || observation.subjectId.startsWith("upper/");
+  if (roomObservation) {
+    storeySelect.value = observation.subjectId.startsWith("upper/") ? "upper" : "ground";
+    focusSelect.value = observation.subjectId;
+  } else {
+    focusSelect.value = "all";
+  }
+  const bounds = state.data.building.envelope;
+  state.target = roomObservation
+    ? { ...observation.position }
+    : {
+      x: (bounds.min.x + bounds.max.x) / 2,
+      y: (bounds.min.y + bounds.max.y) / 2,
+      z: (bounds.min.z + bounds.max.z) / 2,
+    };
+  state.yaw = Math.atan2(direction.x, direction.z);
+  state.pitch = clamp(Math.atan2(-direction.y, horizontal || 1), 0.16, 1.2);
+  state.zoom = roomObservation ? 2.2 : 0.88;
+  status.textContent = `${observation.id} · ${observation.subjectId}`;
   scheduleRender();
 };
 
@@ -326,6 +373,7 @@ const load = async () => {
     if (!response.ok) throw new Error(`source request returned ${response.status}`);
     state.data = await response.json();
     updateFocusOptions();
+    updateObservationOptions();
     updateStats();
     fitCamera();
     status.textContent = `${state.data.source.file} · ${new Date(state.data.source.revision).toLocaleString()}`;
@@ -363,10 +411,15 @@ canvas.addEventListener("wheel", (event) => {
   scheduleRender();
 }, { passive: false });
 
-for (const control of [storeySelect, sectionSelect, focusSelect, labelsInput]) control.addEventListener("change", () => { fitCamera(); });
+for (const control of [storeySelect, sectionSelect, focusSelect, labelsInput]) control.addEventListener("change", () => {
+  observationSelect.value = "";
+  fitCamera();
+});
+observationSelect.addEventListener("change", frameObservation);
 resetButton.addEventListener("click", () => {
   state.yaw = -0.78;
   state.pitch = 0.56;
+  observationSelect.value = "";
   fitCamera();
 });
 window.addEventListener("resize", resize);
