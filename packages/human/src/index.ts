@@ -32,6 +32,10 @@ export * from "./components/jawContinuation";
 export * from "./components/facePerformance";
 export * from "./components/facialFrame";
 export * from "./components/head";
+export {
+  preparePortraitHead,
+  type IPortraitHeadFormation,
+} from "./components/headPreparation";
 export * from "./components/irisPigment";
 export * from "./components/lipSection";
 export * from "./components/lidSection";
