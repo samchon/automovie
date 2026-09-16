@@ -64,6 +64,8 @@
 
 compiled topology에서 setting one, exposed elevation four, every exposed corner, roof/top underside, every opening/entry를 얻는다. 각 room의 threshold, 네 inside corners, room center의 +X/-X/+Z/-Z를 별도 observation target으로 파생한다. 이 문서에 대표 view를 임의로 골라 분모를 줄이는 규칙은 없다. 다섯 reference의 외관·절개 조감·common room·flex room·upper private area는 이 population에 추가되는 질문이며, section axonometric은 inspection-only다.
 
+**저작자 계측 기록.** 이전 실제 environment lowerer 실행의 compiled 결과는 `citizen-house-2080`, 17 spaces, 101 elements, 8 populations, 90 population members, 14 models, 15 openings, 11 connectors, 13 surfaces였다. 12개 room 각각에 node, threshold connector, surface, content bounds가 존재하는지 engine query로 확인했고, 동일 입력의 두 build 결과가 결정적으로 일치했다. 이 수치와 id는 source 추정이 아니라 그 compiled 결과에서 읽은 값이며, 파생 JSON·receipt를 production에 남기지 않는다. 따라서 현재 topology observation population은 environment setting 1개, 네 exposed elevation과 그 모서리·roof/top underside·opening/entry 집합, 그리고 12개 room 각각의 threshold·4 inside corners·중심의 4방위 질문으로 유지한다. 이 단락은 author 계측 기록이며 독립 reviewer의 read-only 판정이나 다섯 reference의 종료 판정이 아니다.
+
 **검증 경계.**
 
-컴파일 전에는 안정 id와 authored bounds만 확인할 수 있고, 현재 sandbox의 package junction 때문에 실제 engine compile과 viewer capture는 `unverified`다. source가 시각적으로 잘 보인다는 판단, 법규·구조·에너지·설비 작동·인체 사용성의 통과는 이 H2가 아직 주장하지 않는다.
+compiled topology 계측과 viewer self-review는 기록했지만, 독립 read-only reviewer의 판정과 다섯 reference 전체의 동시 종료 조건은 아직 `unverified`다. source가 시각적으로 잘 보인다는 author 관찰은 법규·구조·에너지·설비 작동·인체 사용성의 통과를 주장하지 않는다.

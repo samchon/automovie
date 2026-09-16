@@ -1,5 +1,6 @@
 <!--
 @evidence discovery/core/common.md#canonical-realization The stage order is a production-specific completion boundary that must remain coherent across owners.
+@evidenceReview discovery/core/common.md#canonical-realization #5a6e541 Read this contract discovery block with #canonical-realization; checked its local admission: The stage order is a production-specific completion boundary that must remain coherent across owners.
 -->
 # Stage integrity
 

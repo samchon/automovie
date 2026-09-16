@@ -1260,6 +1260,41 @@ const auditTopology = (building: Building): AuditResult => {
   for (const id of required) {
     if (!visited.has(id)) issues.push(`space is disconnected from entry: ${id}`);
   }
+  const routeEdges = new Set<string>();
+  const edgeKey = (left: string, right: string): string =>
+    [left, right].sort((a, b) => a.localeCompare(b)).join("::");
+  for (const opening of building.openings) {
+    if (opening.fromSpaceId !== null && opening.toSpaceId !== null) {
+      const from = spaceMap.get(opening.fromSpaceId);
+      const to = spaceMap.get(opening.toSpaceId);
+      if (!from || !to) {
+        issues.push(`opening endpoint space is missing: ${opening.id}`);
+        continue;
+      }
+      routeEdges.add(edgeKey(opening.fromSpaceId, opening.toSpaceId));
+      if (!from.adjacentSpaceIds.includes(opening.toSpaceId)) {
+        issues.push(`opening source adjacency is missing: ${opening.id}`);
+      }
+      if (!to.adjacentSpaceIds.includes(opening.fromSpaceId)) {
+        issues.push(`opening destination adjacency is missing: ${opening.id}`);
+      }
+    }
+  }
+  routeEdges.add(edgeKey(building.stairConnector.fromSpaceId, building.stairConnector.toSpaceId));
+  for (const item of building.spaces) {
+    for (const adjacentId of item.adjacentSpaceIds) {
+      if (!spaceMap.has(adjacentId)) {
+        issues.push(`adjacent space is missing: ${item.id}/${adjacentId}`);
+        continue;
+      }
+      if (!spaceMap.get(adjacentId)?.adjacentSpaceIds.includes(item.id)) {
+        issues.push(`space adjacency is not reciprocal: ${item.id}/${adjacentId}`);
+      }
+      if (!routeEdges.has(edgeKey(item.id, adjacentId))) {
+        issues.push(`space adjacency has no opening or connector: ${item.id}/${adjacentId}`);
+      }
+    }
+  }
   for (const space of building.spaces) {
     for (const thresholdId of space.thresholdIds) {
       if (thresholdId !== building.stairConnector.id && !openingIds.has(thresholdId)) {
@@ -1301,16 +1336,34 @@ const auditVehicles = (building: Building, site: Site): AuditResult => {
   return { ok: issues.length === 0, issues };
 };
 
-const roomReviewPopulation = (spaces: readonly Space[]): ReviewObservation[] => {
+const roomReviewPopulation = (building: Building): ReviewObservation[] => {
+  const spaces = building.spaces;
+  const openingById = new Map(building.openings.map((opening) => [opening.id, opening]));
+  const stair = building.stairConnector;
   const observations: ReviewObservation[] = [];
   for (const item of spaces) {
     const { min, max } = item.bounds;
+    const center = v((min.x + max.x) / 2, min.y + 1.2, (min.z + max.z) / 2);
+    const opening = item.thresholdIds
+      .map((thresholdId) => openingById.get(thresholdId))
+      .find((candidate): candidate is Opening => candidate !== undefined);
+    const routePoint = item.id === stair.fromSpaceId
+      ? stair.route[0]
+      : item.id === stair.toSpaceId
+        ? stair.route[stair.route.length - 1]
+        : undefined;
+    const boundary = opening?.center ?? routePoint ?? center;
+    const deltaX = center.x - boundary.x;
+    const deltaZ = center.z - boundary.z;
+    const direction = Math.abs(deltaX) >= Math.abs(deltaZ)
+      ? v(Math.sign(deltaX) || 1, 0, 0)
+      : v(0, 0, Math.sign(deltaZ) || 1);
     observations.push({
       id: `observation.${item.id}.threshold`,
       subjectId: item.id,
       kind: "threshold",
-      position: v((min.x + max.x) / 2, min.y + 1.2, min.z + 0.15),
-      direction: v(0, 0, 1),
+      position: v(boundary.x + direction.x * 0.15, min.y + 1.2, boundary.z + direction.z * 0.15),
+      direction,
     });
     const corners: Array<[string, Vec3]> = [
       ["north-west", v(min.x + 0.12, min.y + 1.2, max.z - 0.12)],
@@ -1321,7 +1374,6 @@ const roomReviewPopulation = (spaces: readonly Space[]): ReviewObservation[] => 
     for (const [name, position] of corners) {
       observations.push({ id: `observation.${item.id}.corner.${name}`, subjectId: item.id, kind: "room-corner", position, direction: v(0, 0, 1) });
     }
-    const center = v((min.x + max.x) / 2, min.y + 1.2, (min.z + max.z) / 2);
     for (const [name, direction] of [
       ["north", v(0, 0, 1)],
       ["east", v(1, 0, 0)],
@@ -1363,7 +1415,7 @@ export const deriveReviewObservationPopulation = (building: Building): readonly 
     position: opening.center,
     direction: opening.axis === "x" ? v(0, 0, opening.center.z < 0 ? 1 : -1) : v(opening.center.x < 0 ? 1 : -1, 0, 0),
   })));
-  observations.push(...roomReviewPopulation(building.spaces));
+  observations.push(...roomReviewPopulation(building));
   return observations;
 };
 

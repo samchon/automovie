@@ -610,9 +610,9 @@ const citizenHouseEnvironment = (): IAutoMovieBuiltEnvironment => ({
  * source does not read files, clocks, network state, or unseeded randomness.
  *
  * @evidence spaces/001-citizen-house.md The source realizes the complete authored citizen-house space document.
- * @evidenceReview spaces/001-citizen-house.md #1313704 Read the complete space design file and checked its authored room, envelope, privacy, and review requirements.
+ * @evidenceReview spaces/001-citizen-house.md #1d6ce1e Read the complete space design file and checked its authored room, envelope, privacy, review requirements, and compiled topology record.
  * @evidence spaces/001-citizen-house.md#citizen-house-space The source realizes the space H2's room graph, envelope, openings, connectors, surfaces, and fit-out carrier.
- * @evidenceReview spaces/001-citizen-house.md#citizen-house-space #386f02d Read the space H2 and checked the built environment realizes its room graph, envelope, openings, connectors, surfaces, and fit-out.
+ * @evidenceReview spaces/001-citizen-house.md#citizen-house-space #fab42d5 Read the space H2 and checked the built environment realizes its room graph, envelope, openings, connectors, surfaces, fit-out, and observation boundary.
  * @evidence principles/core/source-units.md#source-scope-preservation The source stays within the selected spaces owner and does not create a second production branch.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 Read the source scope checklist and checked this export stays within the selected spaces owner.
  * @evidence principles/core/source-units.md#source-substantive-completion The source publishes the complete environment carrier required by its selected space design.

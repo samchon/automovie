@@ -1,7 +1,10 @@
 <!--
 @evidence discovery/core/common.md#shared-local-boundary This file records the production-specific spatial graph that is not enumerated by the reusable contract inventory.
+@evidenceReview discovery/core/common.md#shared-local-boundary #ae499c0 Read this contract discovery block with #shared-local-boundary; checked its local admission: This file records the production-specific spatial graph that is not enumerated by the reusable contract inventory.
 @evidence discovery/core/settings.md#directive-promise-subject-requirements The user brief fixes the building program, route, and review boundary that settings and design must preserve.
-@evidence discovery/core/settings.md#planned-delivery-backcast The selected library delivery is backcast to the building, its spaces, surfaces, repeated elements, and inspection population.
+@evidenceReview discovery/core/settings.md#directive-promise-subject-requirements #1c99050 Read this contract discovery block with #directive-promise-subject-requirements; checked its local admission: The user brief fixes the building program, route, and review boundary that settings and design must preserve.
+@evidence discovery/design/designs.md#work-specific-design-requirements The fixed graph, surface handoff, deterministic source boundary, and neutral review plan are the cross-branch design constraints retained for this production.
+@evidence discovery/design/spaces.md#work-specific-space-requirements The space-specific discovery result is retained here as the named site, ground-storey containment, direct-opening, continuous-route, service-terminal, and inspection boundary.
 -->
 # Fixed spatial graph
 

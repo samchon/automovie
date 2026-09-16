@@ -25,7 +25,7 @@ npm install --package-lock=false
 npm run lint
 ```
 
-The source graph is authored and can be inspected through the exports in `src/index.ts`. Run the commands below when the workspace package junctions are available; this sandbox currently records the unavailable compiler junction as an explicit unverified item in `.wiki/worklog.md`.
+The source graph is authored and can be inspected through the exports in `src/index.ts`. The commands below are the project-owned routes for structural checks and live source inspection.
 
 ## Canonical command routes
 

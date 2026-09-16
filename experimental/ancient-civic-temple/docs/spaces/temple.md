@@ -1,0 +1,369 @@
+# Temple space design
+
+이 문서는 settings에서 review된 좌표·접근 조건·고정 graph를 단층 시민 신전의 실제 공간 경계와 연결 graph로 전개한다. 이 단계는 공간의 containment, adjacency, opening, route, level, envelope, surface host를 소유한다. 기둥·문짝·수반·가구의 mesh와 재료 response는 이 문서의 공간 경계를 소비하는 후속 owner에 남긴다.
+
+## Spatial reference and site boundary {#spatial-reference-and-site-boundary}
+
+<!--
+@evidence principles/core/common.md#declared-basis The direct brief and reviewed settings establish this unit's spatial decision. This H2 specializes the site frame, footprint, and service-yard boundary.
+@evidence principles/core/common.md#scope-preservation This unit covers its named spatial relation and leaves prototype, finish, and population decisions to their owners. This H2 specializes the site frame, footprint, and service-yard boundary.
+@evidence principles/core/common.md#substantive-completion This unit closes its spatial decision with named ids, bounds, relations, or review questions rather than a future-work label. This H2 specializes the site frame, footprint, and service-yard boundary.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation This unit adds a space-owned topology or verification decision beyond the settings parent. This H2 specializes the site frame, footprint, and service-yard boundary.
+@evidence principles/design/spaces.md#space-boundary-authority This unit assigns its spatial boundaries and dimensions to one named owner. This H2 specializes the site frame, footprint, and service-yard boundary.
+@evidence principles/design/spaces.md#space-topology This unit states the containment, adjacency, opening, and route relations before geometry. This H2 specializes the site frame, footprint, and service-yard boundary.
+@evidence principles/design/spaces.md#space-verification-address This unit maps its consequential spatial claims to a falsifying observation or measurement address. This H2 specializes the site frame, footprint, and service-yard boundary.
+@evidence upstream/design/spaces.md#settings-and-map-revision-from-space-work This H2 tests the reviewed settings coordinate, access, capability, and acceptance interfaces while resolving the site frame, footprint, and service-yard boundary; no upstream defect is hidden in a local shortcut.
+@evidence settings/temple.md#delivery-scope This H2 carries the site frame, footprint, and service-yard boundary into the delivered building and interior boundary without changing the settings owner.
+@evidence settings/temple.md#governing-aim This H2 carries the site frame, footprint, and service-yard boundary into the review-distance civic and room-legibility aim without changing the settings owner.
+@evidence settings/temple.md#production-visual-grammar This H2 carries the site frame, footprint, and service-yard boundary into the shared material and surface-reading grammar without changing the settings owner.
+@evidence settings/temple.md#production-fidelity-tier This H2 carries the site frame, footprint, and service-yard boundary into the deterministic blocking ceiling and refusals without changing the settings owner.
+@evidence settings/temple.md#subject-breakdown-production-scope This H2 carries the site frame, footprint, and service-yard boundary into the settings-listed spatial subjects and future owners without changing the settings owner.
+@evidence settings/temple.md#audience-operator-access This H2 carries the site frame, footprint, and service-yard boundary into the entrance, loop, room access, and working widths without changing the settings owner.
+@evidence settings/temple.md#accessibility-deliverable-states This H2 carries the site frame, footprint, and service-yard boundary into the reportable route and unverified certification boundary without changing the settings owner.
+@evidence settings/temple.md#coordinate-unit-convention This H2 carries the site frame, footprint, and service-yard boundary into the metre frame, orientation, footprint, and datum without changing the settings owner.
+@evidence settings/temple.md#stage-policy This H2 carries the site frame, footprint, and service-yard boundary into the massing and graph stage with its no-reopen handoff without changing the settings owner.
+@evidence settings/temple.md#delivery-review-condition This H2 carries the site frame, footprint, and service-yard boundary into the compiled-topology authority and neutral review conditions without changing the settings owner.
+@evidence settings/temple.md#settings-coverage-map This H2 carries the site frame, footprint, and service-yard boundary into the assigned canonical owners for the space branch without changing the settings owner.
+@evidence settings/temple.md#operative-subject-inventory This H2 carries the site frame, footprint, and service-yard boundary into the building, rooms, fountain sockets, and observation population without changing the settings owner.
+@evidence settings/temple.md#design-dependent-subject-conditions This H2 carries the site frame, footprint, and service-yard boundary into the route, threshold, fountain, and service constraints without changing the settings owner.
+@evidence settings/temple.md#subject-observable-identity-and-fit-out-limits This H2 carries the site frame, footprint, and service-yard boundary into the stable landmarks and clearance limits without changing the settings owner.
+@evidence settings/temple.md#reference-interpretation-boundary This H2 carries the site frame, footprint, and service-yard boundary into the visual-only, non-dimensional reference role without changing the settings owner.
+-->
+
+권위: review된 `docs/settings/temple.md#coordinate-unit-convention`이다. 상태: `derived` spatial realization이며 역사적 측량이나 reference image 역산이 아니다. 범위: 이 문서의 모든 bounds와 route node다.
+
+건물의 world와 site frame은 settings와 동일한 오른손 metre 좌표를 사용한다. X는 west에서 east, Y는 바닥에서 위, Z는 south에서 north로 증가한다. 남쪽 현관에서 북쪽을 보면 west가 왼쪽이고 east가 오른쪽이다. ground storey datum은 Y=0.00이며 clear ceiling datum은 Y=3.60이다. 건물의 semantic footprint는 `building` 하나로 X=-12.00..12.00, Z=-9.00..9.00을 갖고 gross area는 432.00㎡로 도출된다. 외벽의 실제 두께와 개구부 jamb은 이 semantic boundary를 보존하는 envelope source가 후속으로 실현한다.
+
+건물 밖에는 `service-yard` 하나만 site에 붙인다. 이 production에는 map branch가 없으므로 space owner가 건물과 서비스 마당을 함께 담는 최소 site boundary를 X=-12.80..15.80, Z=-9.80..9.80, Y=0.00으로 author-adopted 한다. service-yard는 X=12.40..15.20, Z=5.40..8.20, Y=0.00..3.60인 외부 service zone이며 gross building footprint에 합산하지 않는다. 외부 도로, 지형, parcel network는 만들지 않으며 site boundary 바깥의 모든 broad-world 결정을 이 공간 문서에 끌어오지 않는다.
+
+## One-storey containment and level {#one-storey-containment-and-level}
+
+<!--
+@evidence principles/core/common.md#declared-basis The direct brief and reviewed settings establish this unit's spatial decision. This H2 specializes the sole ground-storey containment hierarchy and level boundary.
+@evidence principles/core/common.md#scope-preservation This unit covers its named spatial relation and leaves prototype, finish, and population decisions to their owners. This H2 specializes the sole ground-storey containment hierarchy and level boundary.
+@evidence principles/core/common.md#substantive-completion This unit closes its spatial decision with named ids, bounds, relations, or review questions rather than a future-work label. This H2 specializes the sole ground-storey containment hierarchy and level boundary.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation This unit adds a space-owned topology or verification decision beyond the settings parent. This H2 specializes the sole ground-storey containment hierarchy and level boundary.
+@evidence principles/design/spaces.md#space-boundary-authority This unit assigns its spatial boundaries and dimensions to one named owner. This H2 specializes the sole ground-storey containment hierarchy and level boundary.
+@evidence principles/design/spaces.md#space-topology This unit states the containment, adjacency, opening, and route relations before geometry. This H2 specializes the sole ground-storey containment hierarchy and level boundary.
+@evidence principles/design/spaces.md#space-verification-address This unit maps its consequential spatial claims to a falsifying observation or measurement address. This H2 specializes the sole ground-storey containment hierarchy and level boundary.
+@evidence upstream/design/spaces.md#settings-and-map-revision-from-space-work This H2 tests the reviewed settings coordinate, access, capability, and acceptance interfaces while resolving the sole ground-storey containment hierarchy and level boundary; no upstream defect is hidden in a local shortcut.
+@evidence settings/temple.md#delivery-scope This H2 carries the sole ground-storey containment hierarchy and level boundary into the delivered building and interior boundary without changing the settings owner.
+@evidence settings/temple.md#governing-aim This H2 carries the sole ground-storey containment hierarchy and level boundary into the review-distance civic and room-legibility aim without changing the settings owner.
+@evidence settings/temple.md#production-visual-grammar This H2 carries the sole ground-storey containment hierarchy and level boundary into the shared material and surface-reading grammar without changing the settings owner.
+@evidence settings/temple.md#production-fidelity-tier This H2 carries the sole ground-storey containment hierarchy and level boundary into the deterministic blocking ceiling and refusals without changing the settings owner.
+@evidence settings/temple.md#subject-breakdown-production-scope This H2 carries the sole ground-storey containment hierarchy and level boundary into the settings-listed spatial subjects and future owners without changing the settings owner.
+@evidence settings/temple.md#audience-operator-access This H2 carries the sole ground-storey containment hierarchy and level boundary into the entrance, loop, room access, and working widths without changing the settings owner.
+@evidence settings/temple.md#accessibility-deliverable-states This H2 carries the sole ground-storey containment hierarchy and level boundary into the reportable route and unverified certification boundary without changing the settings owner.
+@evidence settings/temple.md#coordinate-unit-convention This H2 carries the sole ground-storey containment hierarchy and level boundary into the metre frame, orientation, footprint, and datum without changing the settings owner.
+@evidence settings/temple.md#stage-policy This H2 carries the sole ground-storey containment hierarchy and level boundary into the massing and graph stage with its no-reopen handoff without changing the settings owner.
+@evidence settings/temple.md#delivery-review-condition This H2 carries the sole ground-storey containment hierarchy and level boundary into the compiled-topology authority and neutral review conditions without changing the settings owner.
+@evidence settings/temple.md#settings-coverage-map This H2 carries the sole ground-storey containment hierarchy and level boundary into the assigned canonical owners for the space branch without changing the settings owner.
+@evidence settings/temple.md#operative-subject-inventory This H2 carries the sole ground-storey containment hierarchy and level boundary into the building, rooms, fountain sockets, and observation population without changing the settings owner.
+@evidence settings/temple.md#design-dependent-subject-conditions This H2 carries the sole ground-storey containment hierarchy and level boundary into the route, threshold, fountain, and service constraints without changing the settings owner.
+@evidence settings/temple.md#subject-observable-identity-and-fit-out-limits This H2 carries the sole ground-storey containment hierarchy and level boundary into the stable landmarks and clearance limits without changing the settings owner.
+@evidence settings/temple.md#reference-interpretation-boundary This H2 carries the sole ground-storey containment hierarchy and level boundary into the visual-only, non-dimensional reference role without changing the settings owner.
+-->
+
+권위: user-fixed one-storey graph와 review된 settings stage policy다. 상태: `user-fixed` topology를 `author-adopted` bounds로 구체화한다. 범위: 층·건물·중정·주랑·방·서비스 마당의 parent 관계다.
+
+`ground-storey` 하나만 `building`의 level parent이며 Y 범위는 0.00..3.60이다. `courtyard`, `colonnade-loop`, 다섯 enclosed room, 그리고 `entry-threshold`와 각 room threshold는 모두 ground-storey의 자식이다. courtyard는 open-to-sky void이고 covered envelope의 내부 hole이다. `service-yard`는 building 외부의 site child이며 room이나 loop child가 아니다. stair, mezzanine, hidden room, disconnected corridor, second loop는 존재하지 않는다.
+
+Containment는 다음처럼 닫힌다.
+
+| id | parent | spatial role | bounds (X, Z) |
+| --- | --- | --- | --- |
+| `site` | world | minimum adopted site boundary for this mapless library | -12.80..15.80, -9.80..9.80 |
+| `building` | `site` | one-storey rectangular envelope | -12.00..12.00, -9.00..9.00 |
+| `ground-storey` | `building` | sole level | Y=0.00..3.60 |
+| `courtyard` | `ground-storey` | open central void | -5.00..5.00, -3.60..3.60 |
+| `colonnade-loop` | `ground-storey` | one continuous covered circulation ring | outer -7.00..7.00, -5.60..5.60; inner -5.00..5.00, -3.60..3.60 |
+| `service-yard` | `site` | external terminal service zone | 12.40..15.20, 5.40..8.20 |
+
+## Courtyard and continuous colonnade loop {#courtyard-and-continuous-colonnade-loop}
+
+<!--
+@evidence principles/core/common.md#declared-basis The direct brief and reviewed settings establish this unit's spatial decision. This H2 specializes the central courtyard, ring width, fountain socket, and single return loop.
+@evidence principles/core/common.md#scope-preservation This unit covers its named spatial relation and leaves prototype, finish, and population decisions to their owners. This H2 specializes the central courtyard, ring width, fountain socket, and single return loop.
+@evidence principles/core/common.md#substantive-completion This unit closes its spatial decision with named ids, bounds, relations, or review questions rather than a future-work label. This H2 specializes the central courtyard, ring width, fountain socket, and single return loop.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation This unit adds a space-owned topology or verification decision beyond the settings parent. This H2 specializes the central courtyard, ring width, fountain socket, and single return loop.
+@evidence principles/design/spaces.md#space-boundary-authority This unit assigns its spatial boundaries and dimensions to one named owner. This H2 specializes the central courtyard, ring width, fountain socket, and single return loop.
+@evidence principles/design/spaces.md#space-topology This unit states the containment, adjacency, opening, and route relations before geometry. This H2 specializes the central courtyard, ring width, fountain socket, and single return loop.
+@evidence principles/design/spaces.md#space-verification-address This unit maps its consequential spatial claims to a falsifying observation or measurement address. This H2 specializes the central courtyard, ring width, fountain socket, and single return loop.
+@evidence upstream/design/spaces.md#settings-and-map-revision-from-space-work This H2 tests the reviewed settings coordinate, access, capability, and acceptance interfaces while resolving the central courtyard, ring width, fountain socket, and single return loop; no upstream defect is hidden in a local shortcut.
+@evidence settings/temple.md#delivery-scope This H2 carries the central courtyard, ring width, fountain socket, and single return loop into the delivered building and interior boundary without changing the settings owner.
+@evidence settings/temple.md#governing-aim This H2 carries the central courtyard, ring width, fountain socket, and single return loop into the review-distance civic and room-legibility aim without changing the settings owner.
+@evidence settings/temple.md#production-visual-grammar This H2 carries the central courtyard, ring width, fountain socket, and single return loop into the shared material and surface-reading grammar without changing the settings owner.
+@evidence settings/temple.md#production-fidelity-tier This H2 carries the central courtyard, ring width, fountain socket, and single return loop into the deterministic blocking ceiling and refusals without changing the settings owner.
+@evidence settings/temple.md#subject-breakdown-production-scope This H2 carries the central courtyard, ring width, fountain socket, and single return loop into the settings-listed spatial subjects and future owners without changing the settings owner.
+@evidence settings/temple.md#audience-operator-access This H2 carries the central courtyard, ring width, fountain socket, and single return loop into the entrance, loop, room access, and working widths without changing the settings owner.
+@evidence settings/temple.md#accessibility-deliverable-states This H2 carries the central courtyard, ring width, fountain socket, and single return loop into the reportable route and unverified certification boundary without changing the settings owner.
+@evidence settings/temple.md#coordinate-unit-convention This H2 carries the central courtyard, ring width, fountain socket, and single return loop into the metre frame, orientation, footprint, and datum without changing the settings owner.
+@evidence settings/temple.md#stage-policy This H2 carries the central courtyard, ring width, fountain socket, and single return loop into the massing and graph stage with its no-reopen handoff without changing the settings owner.
+@evidence settings/temple.md#delivery-review-condition This H2 carries the central courtyard, ring width, fountain socket, and single return loop into the compiled-topology authority and neutral review conditions without changing the settings owner.
+@evidence settings/temple.md#settings-coverage-map This H2 carries the central courtyard, ring width, fountain socket, and single return loop into the assigned canonical owners for the space branch without changing the settings owner.
+@evidence settings/temple.md#operative-subject-inventory This H2 carries the central courtyard, ring width, fountain socket, and single return loop into the building, rooms, fountain sockets, and observation population without changing the settings owner.
+@evidence settings/temple.md#design-dependent-subject-conditions This H2 carries the central courtyard, ring width, fountain socket, and single return loop into the route, threshold, fountain, and service constraints without changing the settings owner.
+@evidence settings/temple.md#subject-observable-identity-and-fit-out-limits This H2 carries the central courtyard, ring width, fountain socket, and single return loop into the stable landmarks and clearance limits without changing the settings owner.
+@evidence settings/temple.md#reference-interpretation-boundary This H2 carries the central courtyard, ring width, fountain socket, and single return loop into the visual-only, non-dimensional reference role without changing the settings owner.
+-->
+
+권위: fixed graph의 유일한 순환 loop와 중앙 분수 요구다. 상태: `author-adopted` spatial topology다. 범위: courtyard와 loop의 relation, width, central landmark, return path다.
+
+`colonnade-loop`는 outer rectangle와 inner courtyard rectangle 사이의 하나의 ring이다. 네 변의 clear circulation width는 2.00m이고, 각 corner square를 포함하므로 south-west에서 north-west, north-east, south-east를 거쳐 다시 south-west로 끊김 없이 돌아온다. 이 ring 안에는 다른 corridor나 private shortcut이 없다. 방 문은 각각 ring에 직접 열리며 한 방을 통과해 다른 방으로 가지 않는다.
+
+courtyard 중심 `(0.00, 0.00)`에는 후속 model owner가 소비할 landmark socket `fountain-center`를 둔다. basin socket은 반지름 1.20m 이하의 낮은 원형 수반 host, stream socket은 수반 중심의 한 줄기 수직 water accent host다. 두 socket은 route를 침범하지 않으며 basin clear edge와 loop inner edge 사이에는 2.00m 이상의 통행 폭이 남는다. fountain socket은 room, route, opening, 또는 추가 water channel이 아니다.
+
+## Room schedule and direct thresholds {#room-schedule-and-direct-thresholds}
+
+<!--
+@evidence principles/core/common.md#declared-basis The direct brief and reviewed settings establish this unit's spatial decision. This H2 specializes the five named room identities, clear boxes, and direct loop thresholds.
+@evidence principles/core/common.md#scope-preservation This unit covers its named spatial relation and leaves prototype, finish, and population decisions to their owners. This H2 specializes the five named room identities, clear boxes, and direct loop thresholds.
+@evidence principles/core/common.md#substantive-completion This unit closes its spatial decision with named ids, bounds, relations, or review questions rather than a future-work label. This H2 specializes the five named room identities, clear boxes, and direct loop thresholds.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation This unit adds a space-owned topology or verification decision beyond the settings parent. This H2 specializes the five named room identities, clear boxes, and direct loop thresholds.
+@evidence principles/design/spaces.md#space-boundary-authority This unit assigns its spatial boundaries and dimensions to one named owner. This H2 specializes the five named room identities, clear boxes, and direct loop thresholds.
+@evidence principles/design/spaces.md#space-topology This unit states the containment, adjacency, opening, and route relations before geometry. This H2 specializes the five named room identities, clear boxes, and direct loop thresholds.
+@evidence principles/design/spaces.md#space-verification-address This unit maps its consequential spatial claims to a falsifying observation or measurement address. This H2 specializes the five named room identities, clear boxes, and direct loop thresholds.
+@evidence upstream/design/spaces.md#settings-and-map-revision-from-space-work This H2 tests the reviewed settings coordinate, access, capability, and acceptance interfaces while resolving the five named room identities, clear boxes, and direct loop thresholds; no upstream defect is hidden in a local shortcut.
+@evidence settings/temple.md#delivery-scope This H2 carries the five named room identities, clear boxes, and direct loop thresholds into the delivered building and interior boundary without changing the settings owner.
+@evidence settings/temple.md#governing-aim This H2 carries the five named room identities, clear boxes, and direct loop thresholds into the review-distance civic and room-legibility aim without changing the settings owner.
+@evidence settings/temple.md#production-visual-grammar This H2 carries the five named room identities, clear boxes, and direct loop thresholds into the shared material and surface-reading grammar without changing the settings owner.
+@evidence settings/temple.md#production-fidelity-tier This H2 carries the five named room identities, clear boxes, and direct loop thresholds into the deterministic blocking ceiling and refusals without changing the settings owner.
+@evidence settings/temple.md#subject-breakdown-production-scope This H2 carries the five named room identities, clear boxes, and direct loop thresholds into the settings-listed spatial subjects and future owners without changing the settings owner.
+@evidence settings/temple.md#audience-operator-access This H2 carries the five named room identities, clear boxes, and direct loop thresholds into the entrance, loop, room access, and working widths without changing the settings owner.
+@evidence settings/temple.md#accessibility-deliverable-states This H2 carries the five named room identities, clear boxes, and direct loop thresholds into the reportable route and unverified certification boundary without changing the settings owner.
+@evidence settings/temple.md#coordinate-unit-convention This H2 carries the five named room identities, clear boxes, and direct loop thresholds into the metre frame, orientation, footprint, and datum without changing the settings owner.
+@evidence settings/temple.md#stage-policy This H2 carries the five named room identities, clear boxes, and direct loop thresholds into the massing and graph stage with its no-reopen handoff without changing the settings owner.
+@evidence settings/temple.md#delivery-review-condition This H2 carries the five named room identities, clear boxes, and direct loop thresholds into the compiled-topology authority and neutral review conditions without changing the settings owner.
+@evidence settings/temple.md#settings-coverage-map This H2 carries the five named room identities, clear boxes, and direct loop thresholds into the assigned canonical owners for the space branch without changing the settings owner.
+@evidence settings/temple.md#operative-subject-inventory This H2 carries the five named room identities, clear boxes, and direct loop thresholds into the building, rooms, fountain sockets, and observation population without changing the settings owner.
+@evidence settings/temple.md#design-dependent-subject-conditions This H2 carries the five named room identities, clear boxes, and direct loop thresholds into the route, threshold, fountain, and service constraints without changing the settings owner.
+@evidence settings/temple.md#subject-observable-identity-and-fit-out-limits This H2 carries the five named room identities, clear boxes, and direct loop thresholds into the stable landmarks and clearance limits without changing the settings owner.
+@evidence settings/temple.md#reference-interpretation-boundary This H2 carries the five named room identities, clear boxes, and direct loop thresholds into the visual-only, non-dimensional reference role without changing the settings owner.
+-->
+
+권위: settings의 west/east orientation, room program, 1.10m ordinary door와 1.60m entrance 조건이다. 상태: `derived` room bounds와 `author-adopted` adjacency다. 범위: 모든 enclosed room의 semantic identity, loop adjacency, direct door host다.
+
+다섯 방은 모두 `ground-storey`에 직접 속하고 하나의 named threshold를 통해 `colonnade-loop`에 직접 인접한다. 아래 bounds는 wall centerline이 아니라 공간의 semantic clear box이며, source는 이후 envelope thickness를 더해 같은 box와 door host를 보존한다.
+
+| id | function | clear bounds (X, Z) | loop side | direct threshold |
+| --- | --- | --- | --- | --- |
+| `sanctuary` | small rear-axis sanctuary | -3.20..3.20, 5.60..8.40 | north | `door-sanctuary` on south boundary, centered X=0.00 |
+| `communal-votive-room` | shared votive room | -11.40..-7.00, -3.20..3.20 | west | `door-communal-votive` on east boundary, centered Z=0.00 |
+| `administration-room` | administration | 7.00..11.40, 2.60..5.20 | east | `door-administration` on west boundary, centered Z=3.90 |
+| `records-room` | records and writing | 7.00..11.40, -0.30..2.30 | east | `door-records` on west boundary, centered Z=1.00 |
+| `votive-storage-room` | votive storage | 7.00..11.40, -5.20..-0.70 | east | `door-votive-storage` on west boundary, centered Z=-2.95 |
+
+The room schedule is not a furniture schedule. It fixes which semantic room exists and where its threshold meets the loop; records shelves, storage chests, lamps, votive vessels, and other contents remain instance-owned. The sanctuary’s north-rear axis is the relation from the courtyard center through the north loop to `sanctuary`, not a camera choice.
+
+## Entrance, service gate, and route graph {#entrance-service-gate-and-route-graph}
+
+<!--
+@evidence principles/core/common.md#declared-basis The direct brief and reviewed settings establish this unit's spatial decision. This H2 specializes the south arrival, room doors, service terminal, and route edges.
+@evidence principles/core/common.md#scope-preservation This unit covers its named spatial relation and leaves prototype, finish, and population decisions to their owners. This H2 specializes the south arrival, room doors, service terminal, and route edges.
+@evidence principles/core/common.md#substantive-completion This unit closes its spatial decision with named ids, bounds, relations, or review questions rather than a future-work label. This H2 specializes the south arrival, room doors, service terminal, and route edges.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation This unit adds a space-owned topology or verification decision beyond the settings parent. This H2 specializes the south arrival, room doors, service terminal, and route edges.
+@evidence principles/design/spaces.md#space-boundary-authority This unit assigns its spatial boundaries and dimensions to one named owner. This H2 specializes the south arrival, room doors, service terminal, and route edges.
+@evidence principles/design/spaces.md#space-topology This unit states the containment, adjacency, opening, and route relations before geometry. This H2 specializes the south arrival, room doors, service terminal, and route edges.
+@evidence principles/design/spaces.md#space-verification-address This unit maps its consequential spatial claims to a falsifying observation or measurement address. This H2 specializes the south arrival, room doors, service terminal, and route edges.
+@evidence upstream/design/spaces.md#settings-and-map-revision-from-space-work This H2 tests the reviewed settings coordinate, access, capability, and acceptance interfaces while resolving the south arrival, room doors, service terminal, and route edges; no upstream defect is hidden in a local shortcut.
+@evidence settings/temple.md#delivery-scope This H2 carries the south arrival, room doors, service terminal, and route edges into the delivered building and interior boundary without changing the settings owner.
+@evidence settings/temple.md#governing-aim This H2 carries the south arrival, room doors, service terminal, and route edges into the review-distance civic and room-legibility aim without changing the settings owner.
+@evidence settings/temple.md#production-visual-grammar This H2 carries the south arrival, room doors, service terminal, and route edges into the shared material and surface-reading grammar without changing the settings owner.
+@evidence settings/temple.md#production-fidelity-tier This H2 carries the south arrival, room doors, service terminal, and route edges into the deterministic blocking ceiling and refusals without changing the settings owner.
+@evidence settings/temple.md#subject-breakdown-production-scope This H2 carries the south arrival, room doors, service terminal, and route edges into the settings-listed spatial subjects and future owners without changing the settings owner.
+@evidence settings/temple.md#audience-operator-access This H2 carries the south arrival, room doors, service terminal, and route edges into the entrance, loop, room access, and working widths without changing the settings owner.
+@evidence settings/temple.md#accessibility-deliverable-states This H2 carries the south arrival, room doors, service terminal, and route edges into the reportable route and unverified certification boundary without changing the settings owner.
+@evidence settings/temple.md#coordinate-unit-convention This H2 carries the south arrival, room doors, service terminal, and route edges into the metre frame, orientation, footprint, and datum without changing the settings owner.
+@evidence settings/temple.md#stage-policy This H2 carries the south arrival, room doors, service terminal, and route edges into the massing and graph stage with its no-reopen handoff without changing the settings owner.
+@evidence settings/temple.md#delivery-review-condition This H2 carries the south arrival, room doors, service terminal, and route edges into the compiled-topology authority and neutral review conditions without changing the settings owner.
+@evidence settings/temple.md#settings-coverage-map This H2 carries the south arrival, room doors, service terminal, and route edges into the assigned canonical owners for the space branch without changing the settings owner.
+@evidence settings/temple.md#operative-subject-inventory This H2 carries the south arrival, room doors, service terminal, and route edges into the building, rooms, fountain sockets, and observation population without changing the settings owner.
+@evidence settings/temple.md#design-dependent-subject-conditions This H2 carries the south arrival, room doors, service terminal, and route edges into the route, threshold, fountain, and service constraints without changing the settings owner.
+@evidence settings/temple.md#subject-observable-identity-and-fit-out-limits This H2 carries the south arrival, room doors, service terminal, and route edges into the stable landmarks and clearance limits without changing the settings owner.
+@evidence settings/temple.md#reference-interpretation-boundary This H2 carries the south arrival, room doors, service terminal, and route edges into the visual-only, non-dimensional reference role without changing the settings owner.
+-->
+
+권위: settings의 direct entrance, one-loop rule, service-yard boundary, and audience/operator access다. 상태: `author-adopted` connector topology다. 범위: 외부 입구에서 courtyard로의 direct arrival, room thresholds, service terminal relation이다.
+
+The route graph has exactly these connector edges:
+
+| connector | from | to | clear width | graph meaning |
+| --- | --- | --- | --- | --- |
+| `south-entrance` | exterior south | `courtyard` | 1.60m | straight axial arrival; no vestibule room |
+| `courtyard-to-loop` | `courtyard` | `colonnade-loop` | 2.00m | open threshold at the inner south edge, part of the same public arrival |
+| `loop-return` | `colonnade-loop` | `colonnade-loop` | 2.00m | one closed ring, with no branch loop |
+| `door-sanctuary` | `colonnade-loop` | `sanctuary` | 1.10m | direct room door |
+| `door-communal-votive` | `colonnade-loop` | `communal-votive-room` | 1.10m | direct room door |
+| `door-administration` | `colonnade-loop` | `administration-room` | 1.10m | direct room door |
+| `door-records` | `colonnade-loop` | `records-room` | 1.10m | direct room door |
+| `door-votive-storage` | `colonnade-loop` | `votive-storage-room` | 1.10m | direct room door |
+| `service-gate` | rear-east exterior | `service-yard` | 1.20m | terminal service access; not a second loop |
+
+`south-entrance` is a straight opening aligned to X=0.00 from the south exterior boundary through the covered front edge to the open courtyard; it does not introduce a named vestibule or room. `service-gate` is a terminal external access at the north-east building edge and cannot be used to reach another room. Every room is reachable from `south-entrance` by entering courtyard, joining the single ring, and crossing its own threshold; the return path remains the same ring.
+
+Opening anchors are fixed for the later source handoff: `south-entrance` cuts `elevation-south` at `(X=0.00, Z=-9.00)`, width 1.60m; `courtyard-to-loop` is the south inner edge at `(X=0.00, Z=-3.60)`, width 2.00m; the five room doors use the threshold centers listed in the room schedule, width 1.10m, and span Y=0.00..2.40; `service-gate` cuts `elevation-east` at `(X=12.00, Z=6.80)`, width 1.20m, and terminates in the external service-yard. The room doors and south entrance are public/working access; the service gate is not a second public circulation route.
+
+## Envelope, opening, and interior interface {#envelope-opening-and-interior-interface}
+
+<!--
+@evidence principles/core/common.md#declared-basis The direct brief and reviewed settings establish this unit's spatial decision. This H2 specializes the shared envelope, courtyard hole, floor, roof underside, and opening hosts.
+@evidence principles/core/common.md#scope-preservation This unit covers its named spatial relation and leaves prototype, finish, and population decisions to their owners. This H2 specializes the shared envelope, courtyard hole, floor, roof underside, and opening hosts.
+@evidence principles/core/common.md#substantive-completion This unit closes its spatial decision with named ids, bounds, relations, or review questions rather than a future-work label. This H2 specializes the shared envelope, courtyard hole, floor, roof underside, and opening hosts.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation This unit adds a space-owned topology or verification decision beyond the settings parent. This H2 specializes the shared envelope, courtyard hole, floor, roof underside, and opening hosts.
+@evidence principles/design/spaces.md#space-boundary-authority This unit assigns its spatial boundaries and dimensions to one named owner. This H2 specializes the shared envelope, courtyard hole, floor, roof underside, and opening hosts.
+@evidence principles/design/spaces.md#space-topology This unit states the containment, adjacency, opening, and route relations before geometry. This H2 specializes the shared envelope, courtyard hole, floor, roof underside, and opening hosts.
+@evidence principles/design/spaces.md#space-verification-address This unit maps its consequential spatial claims to a falsifying observation or measurement address. This H2 specializes the shared envelope, courtyard hole, floor, roof underside, and opening hosts.
+@evidence upstream/design/spaces.md#settings-and-map-revision-from-space-work This H2 tests the reviewed settings coordinate, access, capability, and acceptance interfaces while resolving the shared envelope, courtyard hole, floor, roof underside, and opening hosts; no upstream defect is hidden in a local shortcut.
+@evidence settings/temple.md#delivery-scope This H2 carries the shared envelope, courtyard hole, floor, roof underside, and opening hosts into the delivered building and interior boundary without changing the settings owner.
+@evidence settings/temple.md#governing-aim This H2 carries the shared envelope, courtyard hole, floor, roof underside, and opening hosts into the review-distance civic and room-legibility aim without changing the settings owner.
+@evidence settings/temple.md#production-visual-grammar This H2 carries the shared envelope, courtyard hole, floor, roof underside, and opening hosts into the shared material and surface-reading grammar without changing the settings owner.
+@evidence settings/temple.md#production-fidelity-tier This H2 carries the shared envelope, courtyard hole, floor, roof underside, and opening hosts into the deterministic blocking ceiling and refusals without changing the settings owner.
+@evidence settings/temple.md#subject-breakdown-production-scope This H2 carries the shared envelope, courtyard hole, floor, roof underside, and opening hosts into the settings-listed spatial subjects and future owners without changing the settings owner.
+@evidence settings/temple.md#audience-operator-access This H2 carries the shared envelope, courtyard hole, floor, roof underside, and opening hosts into the entrance, loop, room access, and working widths without changing the settings owner.
+@evidence settings/temple.md#accessibility-deliverable-states This H2 carries the shared envelope, courtyard hole, floor, roof underside, and opening hosts into the reportable route and unverified certification boundary without changing the settings owner.
+@evidence settings/temple.md#coordinate-unit-convention This H2 carries the shared envelope, courtyard hole, floor, roof underside, and opening hosts into the metre frame, orientation, footprint, and datum without changing the settings owner.
+@evidence settings/temple.md#stage-policy This H2 carries the shared envelope, courtyard hole, floor, roof underside, and opening hosts into the massing and graph stage with its no-reopen handoff without changing the settings owner.
+@evidence settings/temple.md#delivery-review-condition This H2 carries the shared envelope, courtyard hole, floor, roof underside, and opening hosts into the compiled-topology authority and neutral review conditions without changing the settings owner.
+@evidence settings/temple.md#settings-coverage-map This H2 carries the shared envelope, courtyard hole, floor, roof underside, and opening hosts into the assigned canonical owners for the space branch without changing the settings owner.
+@evidence settings/temple.md#operative-subject-inventory This H2 carries the shared envelope, courtyard hole, floor, roof underside, and opening hosts into the building, rooms, fountain sockets, and observation population without changing the settings owner.
+@evidence settings/temple.md#design-dependent-subject-conditions This H2 carries the shared envelope, courtyard hole, floor, roof underside, and opening hosts into the route, threshold, fountain, and service constraints without changing the settings owner.
+@evidence settings/temple.md#subject-observable-identity-and-fit-out-limits This H2 carries the shared envelope, courtyard hole, floor, roof underside, and opening hosts into the stable landmarks and clearance limits without changing the settings owner.
+@evidence settings/temple.md#reference-interpretation-boundary This H2 carries the shared envelope, courtyard hole, floor, roof underside, and opening hosts into the visual-only, non-dimensional reference role without changing the settings owner.
+-->
+
+권위: settings의 3.60m height, surface ownership rule, and the space-design principle that exterior and interior share one boundary. 상태: `author-adopted` interface contract다. 범위: wall, roof, floor, ceiling underside, courtyard edge, opening void, and service-yard boundary.
+
+The building envelope is one four-sided ground-storey boundary with a roofed cover over the loop and room bands and an explicit open hole over the courtyard. The roof footprint is the building footprint minus the courtyard opening; the underside follows Y=3.60 and never caps the courtyard. The ground floor follows the building boundary, but the courtyard floor is a separate open-air surface host with a low central basin socket. No room boundary overlaps the loop or another room.
+
+Each opening is a void in its host boundary, not a freestanding leaf: the south entrance cuts the south envelope, each room door cuts the room/loop shared boundary, and the service gate cuts only the rear-east external boundary. Door leaves, frames, lintels, and hardware are model-owned descendants of these voids. The space source must emit the host relation and void identity even when the later model population is absent.
+
+At the west/east interface, the communal room is the single west-side public room and the three east rooms remain ordered north-to-south as administration, records, and votive storage. The rear sanctuary is the only room on the north axis. These interfaces prevent a source author from mirroring the side assignments or moving the sanctuary off axis.
+
+## Surface decomposition and ownership handoff {#surface-decomposition-and-ownership-handoff}
+
+<!--
+@evidence principles/core/common.md#declared-basis The direct brief and reviewed settings establish this unit's spatial decision. This H2 specializes the complete surface schedule and its owner handoff to later consumers.
+@evidence principles/core/common.md#scope-preservation This unit covers its named spatial relation and leaves prototype, finish, and population decisions to their owners. This H2 specializes the complete surface schedule and its owner handoff to later consumers.
+@evidence principles/core/common.md#substantive-completion This unit closes its spatial decision with named ids, bounds, relations, or review questions rather than a future-work label. This H2 specializes the complete surface schedule and its owner handoff to later consumers.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation This unit adds a space-owned topology or verification decision beyond the settings parent. This H2 specializes the complete surface schedule and its owner handoff to later consumers.
+@evidence principles/design/spaces.md#space-boundary-authority This unit assigns its spatial boundaries and dimensions to one named owner. This H2 specializes the complete surface schedule and its owner handoff to later consumers.
+@evidence principles/design/spaces.md#space-topology This unit states the containment, adjacency, opening, and route relations before geometry. This H2 specializes the complete surface schedule and its owner handoff to later consumers.
+@evidence principles/design/spaces.md#space-verification-address This unit maps its consequential spatial claims to a falsifying observation or measurement address. This H2 specializes the complete surface schedule and its owner handoff to later consumers.
+@evidence upstream/design/spaces.md#settings-and-map-revision-from-space-work This H2 tests the reviewed settings coordinate, access, capability, and acceptance interfaces while resolving the complete surface schedule and its owner handoff to later consumers; no upstream defect is hidden in a local shortcut.
+@evidence settings/temple.md#delivery-scope This H2 carries the complete surface schedule and its owner handoff to later consumers into the delivered building and interior boundary without changing the settings owner.
+@evidence settings/temple.md#governing-aim This H2 carries the complete surface schedule and its owner handoff to later consumers into the review-distance civic and room-legibility aim without changing the settings owner.
+@evidence settings/temple.md#production-visual-grammar This H2 carries the complete surface schedule and its owner handoff to later consumers into the shared material and surface-reading grammar without changing the settings owner.
+@evidence settings/temple.md#production-fidelity-tier This H2 carries the complete surface schedule and its owner handoff to later consumers into the deterministic blocking ceiling and refusals without changing the settings owner.
+@evidence settings/temple.md#subject-breakdown-production-scope This H2 carries the complete surface schedule and its owner handoff to later consumers into the settings-listed spatial subjects and future owners without changing the settings owner.
+@evidence settings/temple.md#audience-operator-access This H2 carries the complete surface schedule and its owner handoff to later consumers into the entrance, loop, room access, and working widths without changing the settings owner.
+@evidence settings/temple.md#accessibility-deliverable-states This H2 carries the complete surface schedule and its owner handoff to later consumers into the reportable route and unverified certification boundary without changing the settings owner.
+@evidence settings/temple.md#coordinate-unit-convention This H2 carries the complete surface schedule and its owner handoff to later consumers into the metre frame, orientation, footprint, and datum without changing the settings owner.
+@evidence settings/temple.md#stage-policy This H2 carries the complete surface schedule and its owner handoff to later consumers into the massing and graph stage with its no-reopen handoff without changing the settings owner.
+@evidence settings/temple.md#delivery-review-condition This H2 carries the complete surface schedule and its owner handoff to later consumers into the compiled-topology authority and neutral review conditions without changing the settings owner.
+@evidence settings/temple.md#settings-coverage-map This H2 carries the complete surface schedule and its owner handoff to later consumers into the assigned canonical owners for the space branch without changing the settings owner.
+@evidence settings/temple.md#operative-subject-inventory This H2 carries the complete surface schedule and its owner handoff to later consumers into the building, rooms, fountain sockets, and observation population without changing the settings owner.
+@evidence settings/temple.md#design-dependent-subject-conditions This H2 carries the complete surface schedule and its owner handoff to later consumers into the route, threshold, fountain, and service constraints without changing the settings owner.
+@evidence settings/temple.md#subject-observable-identity-and-fit-out-limits This H2 carries the complete surface schedule and its owner handoff to later consumers into the stable landmarks and clearance limits without changing the settings owner.
+@evidence settings/temple.md#reference-interpretation-boundary This H2 carries the complete surface schedule and its owner handoff to later consumers into the visual-only, non-dimensional reference role without changing the settings owner.
+-->
+
+권위: user-fixed requirement that every complete visual surface has one owner, applied to this actual spatial graph. 상태: `author-adopted` stage-1/2 decomposition. 범위: every exposed envelope, room boundary, opening host, and repeated-member host in this building.
+
+The space owner is the canonical host for each complete boundary and its topology. Material owners later bind construction and response to these hosts; model owners later build bounded prototypes; instance owners later place repeated members on the hosts. Binding does not split a surface or move its semantic ownership.
+
+| surface family | canonical space host | later consumer |
+| --- | --- | --- |
+| `elevation-south`, `elevation-north`, `elevation-west`, `elevation-east` | four exposed building envelope faces | materials; entrance/door models at named voids |
+| `roof-cover` and `roof-underside` | roofed building area outside courtyard hole | materials; roof-tile instances |
+| `courtyard-floor` and four `courtyard-edge` faces | open courtyard boundary and floor | materials; basin/stream models |
+| `loop-floor`, `loop-ceiling-underside`, `loop-inner-arcade` | continuous colonnade ring | materials; column and bench instances |
+| five `room-floor` hosts | one floor host per named room | materials; room fit-out instances |
+| five room boundary/ceiling host sets | the room boxes in the room schedule | materials; direct door models |
+| `service-yard-floor` and `service-yard-boundary` | external terminal yard | materials; service contents if later selected |
+| each named opening reveal and void | its enclosing wall or shared room/loop boundary | door/frame models and materials |
+
+The stage-1 declaration is complete without creating a catch-all mesh file. A repeated column, roof tile, bench, or vessel will use a measured prototype and a later repetition rule; it will not be represented by manually copied records in this space owner.
+
+## Spatial identity, tolerance, and exclusions {#spatial-identity-tolerance-and-exclusions}
+
+<!--
+@evidence principles/core/common.md#declared-basis The direct brief and reviewed settings establish this unit's spatial decision. This H2 specializes the invariant orientation, landmark relations, and clearance boundaries.
+@evidence principles/core/common.md#scope-preservation This unit covers its named spatial relation and leaves prototype, finish, and population decisions to their owners. This H2 specializes the invariant orientation, landmark relations, and clearance boundaries.
+@evidence principles/core/common.md#substantive-completion This unit closes its spatial decision with named ids, bounds, relations, or review questions rather than a future-work label. This H2 specializes the invariant orientation, landmark relations, and clearance boundaries.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation This unit adds a space-owned topology or verification decision beyond the settings parent. This H2 specializes the invariant orientation, landmark relations, and clearance boundaries.
+@evidence principles/design/spaces.md#space-boundary-authority This unit assigns its spatial boundaries and dimensions to one named owner. This H2 specializes the invariant orientation, landmark relations, and clearance boundaries.
+@evidence principles/design/spaces.md#space-topology This unit states the containment, adjacency, opening, and route relations before geometry. This H2 specializes the invariant orientation, landmark relations, and clearance boundaries.
+@evidence principles/design/spaces.md#space-verification-address This unit maps its consequential spatial claims to a falsifying observation or measurement address. This H2 specializes the invariant orientation, landmark relations, and clearance boundaries.
+@evidence upstream/design/spaces.md#settings-and-map-revision-from-space-work This H2 tests the reviewed settings coordinate, access, capability, and acceptance interfaces while resolving the invariant orientation, landmark relations, and clearance boundaries; no upstream defect is hidden in a local shortcut.
+@evidence settings/temple.md#delivery-scope This H2 carries the invariant orientation, landmark relations, and clearance boundaries into the delivered building and interior boundary without changing the settings owner.
+@evidence settings/temple.md#governing-aim This H2 carries the invariant orientation, landmark relations, and clearance boundaries into the review-distance civic and room-legibility aim without changing the settings owner.
+@evidence settings/temple.md#production-visual-grammar This H2 carries the invariant orientation, landmark relations, and clearance boundaries into the shared material and surface-reading grammar without changing the settings owner.
+@evidence settings/temple.md#production-fidelity-tier This H2 carries the invariant orientation, landmark relations, and clearance boundaries into the deterministic blocking ceiling and refusals without changing the settings owner.
+@evidence settings/temple.md#subject-breakdown-production-scope This H2 carries the invariant orientation, landmark relations, and clearance boundaries into the settings-listed spatial subjects and future owners without changing the settings owner.
+@evidence settings/temple.md#audience-operator-access This H2 carries the invariant orientation, landmark relations, and clearance boundaries into the entrance, loop, room access, and working widths without changing the settings owner.
+@evidence settings/temple.md#accessibility-deliverable-states This H2 carries the invariant orientation, landmark relations, and clearance boundaries into the reportable route and unverified certification boundary without changing the settings owner.
+@evidence settings/temple.md#coordinate-unit-convention This H2 carries the invariant orientation, landmark relations, and clearance boundaries into the metre frame, orientation, footprint, and datum without changing the settings owner.
+@evidence settings/temple.md#stage-policy This H2 carries the invariant orientation, landmark relations, and clearance boundaries into the massing and graph stage with its no-reopen handoff without changing the settings owner.
+@evidence settings/temple.md#delivery-review-condition This H2 carries the invariant orientation, landmark relations, and clearance boundaries into the compiled-topology authority and neutral review conditions without changing the settings owner.
+@evidence settings/temple.md#settings-coverage-map This H2 carries the invariant orientation, landmark relations, and clearance boundaries into the assigned canonical owners for the space branch without changing the settings owner.
+@evidence settings/temple.md#operative-subject-inventory This H2 carries the invariant orientation, landmark relations, and clearance boundaries into the building, rooms, fountain sockets, and observation population without changing the settings owner.
+@evidence settings/temple.md#design-dependent-subject-conditions This H2 carries the invariant orientation, landmark relations, and clearance boundaries into the route, threshold, fountain, and service constraints without changing the settings owner.
+@evidence settings/temple.md#subject-observable-identity-and-fit-out-limits This H2 carries the invariant orientation, landmark relations, and clearance boundaries into the stable landmarks and clearance limits without changing the settings owner.
+@evidence settings/temple.md#reference-interpretation-boundary This H2 carries the invariant orientation, landmark relations, and clearance boundaries into the visual-only, non-dimensional reference role without changing the settings owner.
+-->
+
+권위: settings의 observable identity와 fit-out clearance limits다. 상태: `author-adopted` blocking identity다. 범위: space source가 보존해야 할 landmark relations와 허용 variation의 한계다.
+
+The invariant spatial identity is: one low rectangular building, one open central courtyard, one continuous four-sided covered loop, direct south arrival, one north-axis sanctuary, one west communal room, three east rooms in north-to-south order, and one rear-east service yard. A source may vary non-semantic bevels, masonry segmentation, and finish irregularity only after the space topology is unchanged. It may not mirror west/east, shift the sanctuary axis, add a corridor, close the courtyard, add a storey, or turn the service yard into a room.
+
+Space-level clearance invariants are a 2.00m clear loop, 1.60m direct entrance, 1.10m ordinary room doors, 0.08m maximum authored threshold rise, and 3.60m clear height, all inherited from settings as blocking conditions. The fountain socket must leave the loop clear, and room contents must be placed later without reducing a required route below those bounds. Exact measured realization belongs to the compiled report; a missing report remains `unverified`.
+
+## Spatial verification addresses and finite review set {#spatial-verification-addresses-and-finite-review-set}
+
+<!--
+@evidence principles/core/common.md#declared-basis The direct brief and reviewed settings establish this unit's spatial decision. This H2 specializes the finite plan, section, elevation, perspective, and threshold review questions.
+@evidence principles/core/common.md#scope-preservation This unit covers its named spatial relation and leaves prototype, finish, and population decisions to their owners. This H2 specializes the finite plan, section, elevation, perspective, and threshold review questions.
+@evidence principles/core/common.md#substantive-completion This unit closes its spatial decision with named ids, bounds, relations, or review questions rather than a future-work label. This H2 specializes the finite plan, section, elevation, perspective, and threshold review questions.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation This unit adds a space-owned topology or verification decision beyond the settings parent. This H2 specializes the finite plan, section, elevation, perspective, and threshold review questions.
+@evidence principles/design/spaces.md#space-boundary-authority This unit assigns its spatial boundaries and dimensions to one named owner. This H2 specializes the finite plan, section, elevation, perspective, and threshold review questions.
+@evidence principles/design/spaces.md#space-topology This unit states the containment, adjacency, opening, and route relations before geometry. This H2 specializes the finite plan, section, elevation, perspective, and threshold review questions.
+@evidence principles/design/spaces.md#space-verification-address This unit maps its consequential spatial claims to a falsifying observation or measurement address. This H2 specializes the finite plan, section, elevation, perspective, and threshold review questions.
+@evidence upstream/design/spaces.md#settings-and-map-revision-from-space-work This H2 tests the reviewed settings coordinate, access, capability, and acceptance interfaces while resolving the finite plan, section, elevation, perspective, and threshold review questions; no upstream defect is hidden in a local shortcut.
+@evidence settings/temple.md#delivery-scope This H2 carries the finite plan, section, elevation, perspective, and threshold review questions into the delivered building and interior boundary without changing the settings owner.
+@evidence settings/temple.md#governing-aim This H2 carries the finite plan, section, elevation, perspective, and threshold review questions into the review-distance civic and room-legibility aim without changing the settings owner.
+@evidence settings/temple.md#production-visual-grammar This H2 carries the finite plan, section, elevation, perspective, and threshold review questions into the shared material and surface-reading grammar without changing the settings owner.
+@evidence settings/temple.md#production-fidelity-tier This H2 carries the finite plan, section, elevation, perspective, and threshold review questions into the deterministic blocking ceiling and refusals without changing the settings owner.
+@evidence settings/temple.md#subject-breakdown-production-scope This H2 carries the finite plan, section, elevation, perspective, and threshold review questions into the settings-listed spatial subjects and future owners without changing the settings owner.
+@evidence settings/temple.md#audience-operator-access This H2 carries the finite plan, section, elevation, perspective, and threshold review questions into the entrance, loop, room access, and working widths without changing the settings owner.
+@evidence settings/temple.md#accessibility-deliverable-states This H2 carries the finite plan, section, elevation, perspective, and threshold review questions into the reportable route and unverified certification boundary without changing the settings owner.
+@evidence settings/temple.md#coordinate-unit-convention This H2 carries the finite plan, section, elevation, perspective, and threshold review questions into the metre frame, orientation, footprint, and datum without changing the settings owner.
+@evidence settings/temple.md#stage-policy This H2 carries the finite plan, section, elevation, perspective, and threshold review questions into the massing and graph stage with its no-reopen handoff without changing the settings owner.
+@evidence settings/temple.md#delivery-review-condition This H2 carries the finite plan, section, elevation, perspective, and threshold review questions into the compiled-topology authority and neutral review conditions without changing the settings owner.
+@evidence settings/temple.md#settings-coverage-map This H2 carries the finite plan, section, elevation, perspective, and threshold review questions into the assigned canonical owners for the space branch without changing the settings owner.
+@evidence settings/temple.md#operative-subject-inventory This H2 carries the finite plan, section, elevation, perspective, and threshold review questions into the building, rooms, fountain sockets, and observation population without changing the settings owner.
+@evidence settings/temple.md#design-dependent-subject-conditions This H2 carries the finite plan, section, elevation, perspective, and threshold review questions into the route, threshold, fountain, and service constraints without changing the settings owner.
+@evidence settings/temple.md#subject-observable-identity-and-fit-out-limits This H2 carries the finite plan, section, elevation, perspective, and threshold review questions into the stable landmarks and clearance limits without changing the settings owner.
+@evidence settings/temple.md#reference-interpretation-boundary This H2 carries the finite plan, section, elevation, perspective, and threshold review questions into the visual-only, non-dimensional reference role without changing the settings owner.
+-->
+
+권위: settings의 compiled observation denominator과 space obligation의 plan/section/elevation/perspective 요구다. 상태: `author-adopted` review plan이며 실제 observation result가 아니다. 범위: 이 branch가 review로 올라가기 전에 falsify해야 할 spatial questions다.
+
+The finite space review set is a named plan of questions, while the complete room/corner/cardinal denominator is derived later from compiled topology. Each question has one answer and no favorable representative view may discharge another question.
+
+| review id | observation | falsifies |
+| --- | --- | --- |
+| `space-plan-ground` | ground-storey plan at Y=1.20 with room ids, courtyard hole, loop ring, and all connectors | containment, adjacency, direct doors, single-loop graph |
+| `space-section-south-north` | south-to-north section through X=0.00 | one storey, 3.60m height, direct entrance, open courtyard, sanctuary axis |
+| `space-elevation-south` | outward south elevation | entrance host void and exterior surface ownership |
+| `space-elevation-west-east` | paired outward west/east elevations | west/east room order, communal room, east alignment, service relation |
+| `space-elevation-north` | outward north elevation | rear sanctuary axis and rear boundary |
+| `space-courtyard-neutral` | neutral courtyard perspective from the compiled entry direction | loop continuity, fountain landmark, room-door legibility |
+| `space-room-thresholds` | one neutral view for each compiled room threshold | five direct room openings and room identity |
+| `space-service-terminal` | service-yard edge perspective and plan relation | terminal yard, no second loop, exterior/interface agreement |
+| `reference-exterior-expression` | supplementary exterior question from reference 1 | the stone envelope, roof silhouette, and exposed-corner relationship without using the image as a scene asset |
+| `reference-section-relation` | supplementary inspection question from reference 2 | the one-storey courtyard, loop, room, and roof-hole relationship; this cutaway remains diagnostic only |
+| `reference-courtyard-fountain` | supplementary courtyard question from reference 3 | the central low basin, single water strand, and covered-loop relationship |
+| `reference-sanctuary-axis` | supplementary sanctuary question from reference 4 | the north rear-axis sanctuary’s threshold and its relation to the courtyard and loop |
+| `reference-records-service` | supplementary records/service question from reference 5 | the east room sequence and rear-east service-yard termination |
+
+The complete compiled observation set adds every exposed elevation and meeting corner, exposed roof and underside, opening and entrance, and for each room its threshold, four inside corners, and four cardinal in-space directions. The five `reference-*` rows are additive prompts, not replacements for that denominator. This document supplies the finite spatial question owners; the compiled result supplies the actual ids, positions, bindings, and dimensions. A report or cutaway can diagnose structure, but the section axonometric remains an inspection instrument and cannot replace the required observations.

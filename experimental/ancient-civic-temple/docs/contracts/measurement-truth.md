@@ -1,5 +1,6 @@
 <!--
 @evidence discovery/core/common.md#canonical-realization The production keeps measurement status distinct from visual and semantic judgment.
+@evidenceReview discovery/core/common.md#canonical-realization #5a6e541 Read this contract discovery block with #canonical-realization; checked its local admission: The production keeps measurement status distinct from visual and semantic judgment.
 -->
 # Measurement truth
 

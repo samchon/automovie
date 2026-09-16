@@ -48,7 +48,7 @@ const localClaims = [
     document: "contracts/reference-boundary.md",
     account: "accounts/settings/reference-boundary.md",
     layer: "settings",
-    stage: "draft",
+    stage: "review",
     populationScope: completePopulation,
   }),
   createAutoMovieProductionObligationClaim({
@@ -56,7 +56,7 @@ const localClaims = [
     document: "contracts/measurement-truth.md",
     account: "accounts/settings/measurement-truth.md",
     layer: "settings",
-    stage: "draft",
+    stage: "review",
     populationScope: completePopulation,
   }),
   createAutoMovieProductionObligationClaim({
@@ -64,7 +64,7 @@ const localClaims = [
     document: "contracts/stage-integrity.md",
     account: "accounts/settings/stage-integrity.md",
     layer: "settings",
-    stage: "draft",
+    stage: "review",
     populationScope: completePopulation,
   }),
   createAutoMovieProductionObligationClaim({
@@ -72,7 +72,7 @@ const localClaims = [
     document: "contracts/fixed-graph.md",
     account: "accounts/settings/fixed-graph.md",
     layer: "settings",
-    stage: "draft",
+    stage: "review",
     populationScope: completePopulation,
   }),
   createAutoMovieProductionObligationClaim({
@@ -80,7 +80,7 @@ const localClaims = [
     document: "contracts/compiled-observation-set.md",
     account: "accounts/settings/observation-set.md",
     layer: "settings",
-    stage: "draft",
+    stage: "review",
     populationScope: completePopulation,
   }),
   createAutoMovieProductionObligationClaim({
@@ -88,7 +88,7 @@ const localClaims = [
     document: "contracts/surface-ownership.md",
     account: "accounts/settings/surface-ownership.md",
     layer: "settings",
-    stage: "draft",
+    stage: "review",
     populationScope: completePopulation,
   }),
 ];
@@ -96,7 +96,8 @@ const localClaims = [
 export const productionEvidence = {
   ...blankProductionEvidence,
   kind: "library" as const,
-  settings: "draft" as const,
+  settings: "review" as const,
+  spaces: "evidence" as const,
   claims: localClaims,
 } satisfies IAutoMovieEvidenceConfigProps;
 
