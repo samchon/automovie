@@ -1,13 +1,10 @@
 /**
- * Exercise instruction publication through its pure candidate boundary.
+ * Exercise initial instruction admission through its pure candidate boundary.
  * The synthetic Markdown population owns all inputs: no checkout path or
  * shipped paragraph is the oracle. Topic links must be valid before a writer
  * can publish them, even when the five entry routers themselves remain valid.
  */
-import {
-  getAutoMovieInstructionProjectTargets,
-  renderAutoMovieProductionInstructionCandidate,
-} from "@automovie/template";
+import { validateAutoMovieSkillRouterLinks } from "@automovie/template";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/predicates";
@@ -43,29 +40,15 @@ export const test_cli_scaffold_skill_topic_links = (): void => {
     "# Frames\n\n## Shared origin\n";
   sources[".agents/skills/source-authoring/example.json"] =
     '{"literal":"[data](missing.md)"}';
-  const evidence = {
-    contracts: [],
-    description: "",
-    designOwners: [],
-    packageName: "topic-link-probe",
-    manifest: {
-      bindings: [],
-      branches: [],
-      kind: null,
-      language: "english" as const,
-      localAudits: [],
-      localBindings: [],
-      populationScope: { mode: "complete-production" as const },
-    },
-  };
-  const render = () =>
-    renderAutoMovieProductionInstructionCandidate({ evidence, sources });
+  const validate = () =>
+    validateAutoMovieSkillRouterLinks(
+      Object.entries(sources).map(([path, content]) => ({ path, content })),
+    );
   sources[topic] =
     "# Placement\n[Origin](frames.md#shared-origin) [Here](#placement) [Reference](https://example.com/reference)\n";
-  TestValidator.equals(
-    "the complete valid topic survives publication",
-    render()[topic],
-    sources[topic],
+  TestValidator.predicate(
+    "the complete valid topic is admitted",
+    !throwsError(validate),
   );
   for (const [destination, diagnostic] of [
     ["absent.md", "missing target"],
@@ -75,39 +58,29 @@ export const test_cli_scaffold_skill_topic_links = (): void => {
     sources[topic] = `# Placement\n[Origin](${destination})\n`;
     TestValidator.predicate(
       `the topic refuses ${destination}`,
-      throwsError(render, [topic, diagnostic]),
+      throwsError(validate, [topic, diagnostic]),
     );
   }
   sources[topic] = "# Placement\nNo conditional route is needed.\n";
-  TestValidator.equals(
+  TestValidator.predicate(
     "repair retains the topic and restores admission",
-    render()[topic],
-    sources[topic],
+    !throwsError(validate),
   );
   sources[topic] =
     "# Placement\n[Project policy](../../../README.md#updates)\n";
   TestValidator.predicate(
-    "a project dependency must be read before publication",
-    throwsError(render, ["missing target"]),
+    "a project dependency must exist before publication",
+    throwsError(validate, ["missing target"]),
   );
-  const project = { "README.md": "# Overview\n## Updates\n" };
-  for (const target of getAutoMovieInstructionProjectTargets(sources)) {
-    TestValidator.equals(
-      "the topic selects the actual read dependency",
-      target,
-      "README.md",
-    );
-    sources[target] = project["README.md"];
-  }
-  const candidate = render();
-  TestValidator.equals(
+  sources["README.md"] = "# Overview\n## Updates\n";
+  const original = structuredClone(sources);
+  TestValidator.predicate(
     "the project file admits the topic",
-    candidate[topic],
-    sources[topic],
+    !throwsError(validate),
   );
   TestValidator.equals(
-    "project facts are not instruction writes",
-    candidate["README.md"],
-    undefined,
+    "admission leaves project-owned facts untouched",
+    sources,
+    original,
   );
 };

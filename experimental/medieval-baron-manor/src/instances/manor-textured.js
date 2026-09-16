@@ -10,16 +10,20 @@ import {deriveManorInstanceInventory} from './manor-inventory.js';
 import {createManorInstanceConsumer} from './manor-viewer.js';
 
 const urls={
- 'assets/textures/manor/oak-albedo-v1.png':new URL('../../assets/textures/manor/oak-albedo-v1.png',import.meta.url).href,
- 'assets/textures/manor/limestone-albedo-v1.png':new URL('../../assets/textures/manor/limestone-albedo-v1.png',import.meta.url).href,
- 'assets/textures/manor/lime-plaster-albedo-v1.png':new URL('../../assets/textures/manor/lime-plaster-albedo-v1.png',import.meta.url).href,
- 'assets/textures/manor/terracotta-albedo-v1.png':new URL('../../assets/textures/manor/terracotta-albedo-v1.png',import.meta.url).href,
- 'assets/textures/manor/linen-albedo-v1.png':new URL('../../assets/textures/manor/linen-albedo-v1.png',import.meta.url).href,
- 'assets/textures/manor/apple-bark-albedo-v1.png':new URL('../../assets/textures/manor/apple-bark-albedo-v1.png',import.meta.url).href,
- 'assets/textures/manor/garden-soil-albedo-v1.png':new URL('../../assets/textures/manor/garden-soil-albedo-v1.png',import.meta.url).href,
+ 'assets/textures/manor/oak-albedo-v1.png':new URL('../../public/assets/textures/manor/oak-albedo-v1.png',import.meta.url).href,
+ 'assets/textures/manor/limestone-albedo-v1.png':new URL('../../public/assets/textures/manor/limestone-albedo-v1.png',import.meta.url).href,
+ 'assets/textures/manor/lime-plaster-albedo-v1.png':new URL('../../public/assets/textures/manor/lime-plaster-albedo-v1.png',import.meta.url).href,
+ 'assets/textures/manor/terracotta-albedo-v1.png':new URL('../../public/assets/textures/manor/terracotta-albedo-v1.png',import.meta.url).href,
+ 'assets/textures/manor/linen-albedo-v1.png':new URL('../../public/assets/textures/manor/linen-albedo-v1.png',import.meta.url).href,
+ 'assets/textures/manor/apple-bark-albedo-v1.png':new URL('../../public/assets/textures/manor/apple-bark-albedo-v1.png',import.meta.url).href,
+ 'assets/textures/manor/garden-soil-albedo-v1.png':new URL('../../public/assets/textures/manor/garden-soil-albedo-v1.png',import.meta.url).href,
 };
 // `report` names each phase before it starts and may return a promise so a host
 // can paint the message; the geometry work between two reports is synchronous.
+/**
+ * Builds the authored scene after texture loading and reports each phase.
+ * @param {{report?: (phase: string) => void | Promise<void>, shadows?: boolean}} [options]
+ */
 export async function createTexturedManorScene({report=()=>undefined,...options}={}){
  await report('Decoding textures');
  const loader=new TextureLoader(),cache=new AutoMovieTextureCache(asset=>{

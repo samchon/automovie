@@ -1,11 +1,11 @@
 /**
  * Admit the generated project's complete instruction routes before publication.
- * Initial creation and instruction synchronization supply an immutable map of
- * project-relative files through renderAutoMovieProductionInstructionCandidate.
+ * Initial renderScaffold creation supplies an immutable population of
+ * project-relative files before publishFiles installs the completed candidate.
  * Normalize paths, admit the five router identities/frontmatter, then resolve
  * every Markdown topic link against that same population. No filesystem reads
  * or writes occur here. A broken conditional route must refuse the candidate
- * before the publication owner can replace installed instructions. Non-Markdown
+ * before the publication owner can install project-owned instructions. Non-Markdown
  * resources remain addressable data; this validator does not judge instruction
  * meaning, evidence realization or the content of external HTTP references.
  */
@@ -78,41 +78,7 @@ export const validateAutoMovieInstructionLink = (
   }
 };
 
-/**
- * Select project-owned file targets needed by the installed skill population.
- *
- * Synchronization reads these files before validating or publishing instructions.
- * The same route parser owns percent decoding, portable separators and root
- * refusal here and in link validation. External URLs and generated instruction
- * targets need no project read. Anchors are checked after target bytes arrive;
- * referenced project documents are not recursively treated as instructions.
- *
- * @evidence requirements/agent-authoring/capability-discovery.md#agent-topic-document-discovery Includes the actual project documents and data advertised by conditional skill topics.
- * @evidence specifications/authoring-and-authority/capability-and-content-boundary.md#spec-authoring-capability-input-output Derives the required read population from installed links instead of a duplicate topic-specific filename list.
- */
-export const getAutoMovieInstructionProjectTargets = (
-  sources: Readonly<Record<string, string>>,
-): string[] => {
-  const targets = new Set<string>();
-  for (const [file, content] of Object.entries(sources)) {
-    const source = normalizeSourcePath(file);
-    if (!source.startsWith(".agents/skills/") || !source.endsWith(".md"))
-      continue;
-    for (const match of content.matchAll(/\[[^\]]*\]\(([^)]+)\)/gu)) {
-      const link = resolveInstructionRoute(source, match[1]!);
-      if (
-        link !== null &&
-        !link.resolved.startsWith(".agents/skills/") &&
-        link.resolved !== "AGENTS.md" &&
-        link.resolved !== "CLAUDE.md"
-      )
-        targets.add(link.resolved);
-    }
-  }
-  return [...targets];
-};
-
-/** Normalize one link before either collecting its file or checking its bytes. */
+/** Normalize a local or remote route before checking its resident target. */
 const resolveInstructionRoute = (
   source: string,
   destination: string,

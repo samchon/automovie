@@ -1,8 +1,8 @@
 # Offline measurements
 
-Use these measurements after a current compile when a design question is exact in generated geometry or bindings and a frame would answer it only indirectly. They read builder-owned state rather than source, and they do not become builder output, delivery evidence, or a review verdict. Open every emitted artifact, read every finding and census, and state the resulting observation in the design review that asked the question.
+Use these measurements after a current compile when a design question is exact in generated geometry or bindings and a frame would answer it only indirectly. They consume the same typed result as the source viewer and delivery consumer, and do not become a review verdict. Record the measured population, explicit inputs, source revision, result, and limits in the design review that asked the question. Inspect any drawing or other artifact the authored measurement produces; the engine queries do not publish reports on the project's behalf.
 
-These commands refuse missing or stale generated state. Compile again before measuring rather than treating old output as evidence about changed source.
+Execute the current producer before measuring. A result from an earlier source revision is not evidence about changed source.
 
 ## Measurement basis
 
@@ -10,38 +10,36 @@ State the measured quantity, unit, coordinate frame, population, artifact revisi
 
 Distinguish observations from inferred hidden dimensions and population priors. Use applicable primary references for physical or anatomical assumptions, record the passage or method actually examined, and justify how it applies to this authored subject and state. Detector landmarks, finite collision samples, bounding boxes, triangle ordering and image masks measure different properties. A lower residual against any one of them does not by itself establish physical validity, visual improvement or likeness. Judge the claimed result through the corresponding current views and states under [Production review](review.md#compare-and-observe).
 
-## Placement and storage
+## Placement
 
-Run `npm run building:inspect` to write `reports/<environment>/inspection.json` for each compiled building. Declare reference ground height and contact tolerance in metres per environment in `scripts/productionPlacementStudies.ts`. Without that declaration the support result says `not-run`; overlap candidates and storage counts are still measured.
+Use `builtEnvironmentPlacementBounds`, `builtEnvironmentSupportStatus`, and `builtEnvironmentPlacementOverlap` from `@automovie/engine` on each relevant current built environment. Name the subject, support or neighbour, and contact tolerance in metres in the query. Preserve an unresolved result and its missing identities rather than inventing a support relation.
 
-Read the support report's measured, grounded, borne, floating and unresolved populations together. The overlap report lists bounds candidates and comparisons, not proven triangle collisions. Population bounds cover each compressed set as a whole; they do not certify every member. Contact is not a load-bearing, stability or gravity simulation result. Resolve the candidate families against the actual geometry and intended connections before claiming the spatial requirement is satisfied.
-
-The census separates owned models, external references, parts, population sets and represented members. Storage measures compact UTF-8 JSON and byte-identical serialized geometry repeats. Use those observations to share prototypes and retain instancing where the authored content permits it. A repeated geometry count alone does not prove whole models, materials or placements interchangeable. Reports retain the compile fingerprint and never assign a review verdict.
+Read the returned status, gap, and measurement bases together. A geometry bound, a compact-population bound, and an origin-only point support different conclusions. Overlap compares bounds, not triangle collisions. Population bounds cover each compressed set as a whole; they do not certify every member. Contact is not a load-bearing, stability or gravity simulation result. Resolve candidates against the actual geometry and intended connections before claiming the spatial requirement is satisfied.
 
 ## Building reports
 
-Run `npm run building:report` when a compiled building's spatial or system review needs drawings, schedules, quantities, services, or declared performance studies. The command collects every building this production holds: the ones compiled shots stage, and the ones a library materialized as the delivered work itself. It takes each once by id and refuses two different records under one id instead of choosing one by shot order; where a shot and a library carry the same id, the staged record wins, because that is the one a frame was drawn from.
+Use the public engine building-report functions when current geometry needs drawings, schedules, quantities, services, or declared performance studies. Pass the exact built environments from the production's current producer and preserve each subject's identity and provenance.
 
-Each building writes deterministic SVG sheets and `report.json` under `reports/<building>/`. Read the room schedule's declared volume box and measured content box as separate facts: the first says what the space claims to contain, while the second says what its staged members actually occupy. Read every declared gap with its status, reason, and remedy. A gap may name an unsupported derivation or a study that could run but lacks a production input; neither is repaired by editing the report.
+Keep derived drawings as SVG and record measurements in the authored review. Read the room schedule's declared volume box and measured content box as separate facts: the first says what the space claims to contain, while the second says what its staged members actually occupy. Read every declared gap with its status, reason, and remedy. A gap may name an unsupported derivation or a study that could run but lacks a production input; neither is repaired by editing the report.
 
-The command exits successfully when no built environment is staged or materialized and says that there was nothing to draw, count, or study. That is a truthful empty population, not a clean building review. It also tallies the two provenances apart, and the difference is what a citation may rest on: a staged building has frames a delivery review can open, while a materialized one has none, so a claim about how it looks rests on these drawings and nothing else. Never stage a dummy shot to make a library building look photographed.
+An empty building population is no work measured, not a clean building review. Distinguish a reusable environment inspected directly from one actually staged in a delivered frame. Never invent a dummy shot to make a library building look photographed.
 
-Reports are tracked sidecars worth comparing across revisions, but they remain derivations. Correct the design or declared study inputs and run the command again instead of hand-editing a sheet or report.
+Correct the design or declared study inputs and recompute affected drawings and measurements instead of hand-editing derived results. Their recording and output format belong to the authored consumer, not an installed reporting command.
 
 ## Texture scale
 
-Run `npm run texture:scale` when reviewed material work binds textures whose physical or normalized scale must survive the geometry that receives them. The command measures each distinct model produced by compiled shots or materialized recipes and refuses two different model records under one id.
+Use `validateTextureScale` from `@automovie/engine` when material work declares physical or normalized texture coordinates. Pass the actual current models and inspect the returned validation findings; the function writes no report or census.
 
-Read the final census together with the findings. It counts models, parts, parts carrying texture coordinates, structured texture bindings, and bindings that declare a checkable `normalized` or `surface-metres` coordinate source. An empty finding list with zero checkable claims means nothing was measured and is not a texture-scale review. Declare `coordinateSource` on the bindings whose scale matters, compile, and measure again.
+Identify which supplied mesh parts carry nondegenerate texture coordinates and structured bindings with a checkable `normalized` or `surface-metres` coordinate source. Primitive geometry, absent coordinates or materials, string bindings, omitted coordinate sources, and `source-uv` do not establish that scale was checked. An empty finding list without a checkable population is not a texture-scale review. Declare `coordinateSource` on the bindings whose scale matters, compile, and measure again.
 
-A contradictory normalized binding is an error and makes the command fail. A surface too small to show one whole `surface-metres` tile is a warning because fitting one image to one face can be deliberate. Resolve the authored intent rather than converting every warning into a refusal.
+A normalized coordinate span above one produces an error finding. A surface too small to show one whole repeating `surface-metres` tile produces a warning because fitting one image to one face can be deliberate; a clamped axis does not produce that warning. The authored consumer handles the returned validation result. Resolve the authored intent rather than converting every warning into a refusal.
 
 ## Geometry questions
 
-Write an ordinary project script when a review needs a measured distance, an actor's reach to a target, the ground under a point, a formation's extent and ground contact in a shot, an effect's density along the camera's view, the film-global frame a time names, an actor's pose, or where subjects' roots project in a shot's camera. Load the project with `loadAutoMovieProjectState`, require it current with `requireCurrentAutoMovieProjectState`, and pass `state.design`, `state.generated.shots` and `state.generated.film` to `measureAutoMovieGeometry` from `@automovie/engine`. The query reads nothing else, which is why the currentness check comes first; a question the records cannot answer throws a message naming the selector, time or record at fault.
+Use a source module when a review needs distance, reach, ground, formation, effect, film-time, pose, or camera measurements. Pass the producer's actual design, compiled shots, and film values directly to `measureAutoMovieGeometry` from `@automovie/engine`. The query reads only those explicit inputs; preserve its refusal when they cannot answer the question.
 
 Read each answer as the measurement it is. A formation's ground violations count only its representative members, the first, middle and last slot of each chunk, placed from the compiled record on its terrain snapshot. A camera answer projects subject roots and does not measure occlusion. An effect's visibility risk is its density along the camera's central ray, not a rendered frame. None of these is a review verdict; state what was measured in the review that asked.
 
 ## Gate use
 
-Run only the measurements the active design branches and delivery actually call for. The commands contribute falsifying observations to a space, material, model, instance, or system review set; their existence and exit code satisfy no principle, obligation, discovery duty, or evidence citation by themselves. After a source, design, binding, study input, or compile fingerprint changes, regenerate the current state and repeat every affected measurement before renewing that review. [Capture](capture.md) owns rendered artifact and frame identity checks.
+Run only the measurements the active design branches and delivery actually call for. Query results contribute falsifying observations to a space, material, model, instance, or system review set; successful execution satisfies no principle, obligation, discovery duty, or evidence citation by itself. After a source, design, binding, or study input changes, recompute the current result and repeat every affected measurement before renewing that review. [Capture](capture.md) owns rendered artifact and frame identity checks.

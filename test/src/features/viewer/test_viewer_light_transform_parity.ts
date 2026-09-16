@@ -107,16 +107,12 @@ const keyedMidpointDirection = (): IAutoMovieVector3 => {
  * The viewer and the renderer derive the SAME direction, at build time and at
  * every frame after it.
  *
- * Both hosts drive lighting through one seam. The viewer and the scaffold shot
- * runtime the render package captures through (`applyLightMotion` at
- * `packages/template/scaffold/viewer/src/shotRuntime.ts`) each call the same helper
- * with the scene's lights, the shot's clips and the frame's time, and that
- * helper resolves through the engine and writes through one `applyLightState`.
- * The parity risk is therefore not between two packages but between the two
- * PATHS every host takes: a light is placed once when the scene is built and
- * written again on every frame. While those were different writers — the build
- * applied the transform and the per-frame write did not — a light could only
- * ever face where it was staged, which is the defect this pins closed.
+ * `buildLight` places a light once; `applyLightMotion` resolves the scene's
+ * lights, clips and frame time through the engine on each update. Both write
+ * through `applyLightState`. The parity risk is between initial construction
+ * and subsequent animation, not between a viewer page and a deleted scaffold
+ * runtime. The light must follow its animated transform rather than keep
+ * facing the direction in which it was first staged.
  *
  * `three.js` does not shine an aimed light along its quaternion; it shines from
  * its position toward its `target`, so the rendered direction is measured the
