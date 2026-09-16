@@ -4,6 +4,7 @@
 @evidence discovery/design/designs.md#work-specific-design-requirements The fixed civic-temple identity, reviewed spatial scale, material handoff, repeated fit-out roles, and neutral model review require one local model boundary.
 @evidenceReview discovery/design/designs.md#work-specific-design-requirements #1c8460c Compared this model contract's scale, material handoff, population boundary, and review consequence with the cross-design search; confirmed that those interfaces are local to this prototype family.
 @evidence discovery/design/models.md#work-specific-model-requirements The model population must preserve the named silhouette, hierarchy, stable surfaces, scale anchors, and blocking ceiling of the temple's reusable prototypes.
+@evidenceReview discovery/design/models.md#work-specific-model-requirements #e541d95 Checked the local prototype population's named silhouettes, part hierarchy, stable surfaces, scale anchors, and blocking ceiling against the model discovery result.
 -->
 # Ancient civic temple model contract
 

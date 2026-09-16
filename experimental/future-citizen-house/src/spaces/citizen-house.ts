@@ -744,9 +744,9 @@ const citizenHouseEnvironment = (): IAutoMovieBuiltEnvironment => ({
  * source does not read files, clocks, network state, or unseeded randomness.
  *
  * @evidence spaces/001-citizen-house.md The source realizes the complete authored citizen-house space document.
- * @evidenceReview spaces/001-citizen-house.md #c4cfb4d Read the complete space design file and checked its authored room, envelope, privacy, review requirements, and compiled topology record.
+ * @evidenceReview spaces/001-citizen-house.md # Read the complete authored file as the sole spaces deliverable and checked that its status, fixed-graph declaration, surface-decomposition owner, observation denominator, reference comparison, and explicit unverified limits are all carried by this one environment source without an omitted sibling unit.
  * @evidence spaces/001-citizen-house.md#citizen-house-space The source realizes the space H2's room graph, envelope, openings, connectors, surfaces, and fit-out carrier.
- * @evidenceReview spaces/001-citizen-house.md#citizen-house-space #3631249 Read the space H2 and checked the built environment realizes its room graph, envelope, openings, connectors, surfaces, fit-out, and observation boundary.
+ * @evidenceReview spaces/001-citizen-house.md#citizen-house-space # Read the complete H2 topology and traced its 11×12m house root, two storeys, room-owned envelope, 15 openings, 11 connectors, and single-stair guard realization into the current 17-space/126-element environment; the front upper opening belongs to child-bedroom-1, so corridor-end glazing remains a fixed-graph exclusion and Canvas2D warm emissive appearance remains unverified.
  * @evidence principles/core/source-units.md#source-scope-preservation The source stays within the selected spaces owner and does not create a second production branch.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 Read the source scope checklist and checked this export stays within the selected spaces owner.
  * @evidence principles/core/source-units.md#source-substantive-completion The source publishes the complete environment carrier required by its selected space design.

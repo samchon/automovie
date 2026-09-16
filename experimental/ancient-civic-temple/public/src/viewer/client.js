@@ -4,6 +4,7 @@ const status = document.querySelector("#status");
 const errorPanel = document.querySelector("#error");
 const sectionSelect = document.querySelector("#section");
 const spaceSelect = document.querySelector("#space");
+const modelSelect = document.querySelector("#model");
 const labelsInput = document.querySelector("#labels");
 const routesInput = document.querySelector("#routes");
 const revision = document.querySelector("#revision");
@@ -14,7 +15,7 @@ let camera = { yaw: -0.74, pitch: 0.66, zoom: 1, panX: 0, panY: 0 };
 let drag = null;
 
 const colorForModel = (environment, modelId) => {
-  const model = environment.models.find((item) => item.id === modelId);
+  const model = payload?.models?.find((item) => item.id === modelId) ?? environment.models.find((item) => item.id === modelId);
   return model?.materials[0]?.baseColor?.hex ?? "#aaa08d";
 };
 
@@ -124,6 +125,126 @@ const drawBox = (environment, element, width, height, selected) => {
   }
 };
 
+const modelPartBounds = (part) => {
+  const translation = part.transform.translation;
+  let size = { x: 0.04, y: 0.04, z: 0.04 };
+  const geometry = part.geometry;
+  if (geometry.type === "primitive") {
+    const shape = geometry.shape;
+    if (shape.type === "box") size = { x: shape.width, y: shape.height, z: shape.depth };
+    if (shape.type === "cylinder" || shape.type === "cone") size = { x: shape.radius * 2, y: shape.height, z: shape.radius * 2 };
+    if (shape.type === "sphere") size = { x: shape.radius * 2, y: shape.radius * 2, z: shape.radius * 2 };
+    if (shape.type === "capsule") size = { x: shape.radius * 2, y: shape.height + shape.radius * 2, z: shape.radius * 2 };
+    if (shape.type === "plane") size = { x: shape.width, y: 0.02, z: shape.depth };
+  } else {
+    const positions = geometry.mesh.positions;
+    const min = { x: Infinity, y: Infinity, z: Infinity };
+    const max = { x: -Infinity, y: -Infinity, z: -Infinity };
+    for (let index = 0; index < positions.length; index += 3) {
+      min.x = Math.min(min.x, positions[index]);
+      min.y = Math.min(min.y, positions[index + 1]);
+      min.z = Math.min(min.z, positions[index + 2]);
+      max.x = Math.max(max.x, positions[index]);
+      max.y = Math.max(max.y, positions[index + 1]);
+      max.z = Math.max(max.z, positions[index + 2]);
+    }
+    size = { x: max.x - min.x, y: max.y - min.y, z: max.z - min.z };
+  }
+  return {
+    min: { x: translation.x - size.x / 2, y: translation.y - size.y / 2, z: translation.z - size.z / 2 },
+    max: { x: translation.x + size.x / 2, y: translation.y + size.y / 2, z: translation.z + size.z / 2 },
+  };
+};
+
+const boundsFromModel = (model) => {
+  const result = { min: { x: Infinity, y: Infinity, z: Infinity }, max: { x: -Infinity, y: -Infinity, z: -Infinity } };
+  for (const part of model.parts) {
+    const bounds = modelPartBounds(part);
+    result.min.x = Math.min(result.min.x, bounds.min.x);
+    result.min.y = Math.min(result.min.y, bounds.min.y);
+    result.min.z = Math.min(result.min.z, bounds.min.z);
+    result.max.x = Math.max(result.max.x, bounds.max.x);
+    result.max.y = Math.max(result.max.y, bounds.max.y);
+    result.max.z = Math.max(result.max.z, bounds.max.z);
+  }
+  return result;
+};
+
+const projectModelPoint = (point, width, height, scale, centre, offset = { x: 0, y: 0 }) => {
+  const relative = { x: point.x - centre.x, y: point.y - centre.y, z: point.z - centre.z };
+  const rotated = rotatePoint(relative);
+  return {
+    x: width / 2 + camera.panX + offset.x + (rotated.x - rotated.z * 0.52) * scale,
+    y: height / 2 + camera.panY + offset.y - (rotated.y - rotated.z * 0.24) * scale,
+    depth: rotated.z,
+  };
+};
+
+const drawModelPart = (model, part, width, height, scale, centre, selected, offset) => {
+  const bounds = modelPartBounds(part);
+  const element = {
+    model: model.id,
+    transform: {
+      translation: centerOf(bounds),
+      scale: sizeOf(bounds),
+    },
+  };
+  const corners = boxCorners(element).map((point) => projectModelPoint(point, width, height, scale, centre, offset));
+  const faces = cubeFaces.map((face, index) => ({
+    points: face.map((corner) => corners[corner]),
+    depth: face.reduce((sum, corner) => sum + corners[corner].depth, 0) / face.length,
+    shade: [0.74, 1.02, 0.86, 0.62, 0.92, 0.68][index],
+  })).sort((left, right) => left.depth - right.depth);
+  const base = model.materials.find((item) => item.id === part.material)?.baseColor?.hex ?? "#aaa08d";
+  for (const face of faces) {
+    context.beginPath();
+    context.moveTo(face.points[0].x, face.points[0].y);
+    for (const point of face.points.slice(1)) context.lineTo(point.x, point.y);
+    context.closePath();
+    context.fillStyle = selected ? shade("#d8a85b", face.shade) : shade(base, face.shade);
+    context.fill();
+    context.strokeStyle = selected ? "rgba(255, 221, 153, .9)" : "rgba(25, 23, 19, .48)";
+    context.lineWidth = selected ? 1.2 : 0.65;
+    context.stroke();
+  }
+};
+
+const drawModelBoard = (width, height, selectedId) => {
+  const models = (payload.models ?? []).filter((item) => selectedId === "all" || item.id === selectedId);
+  if (models.length === 0) return;
+  const modelBounds = models.map((model) => ({ model, bounds: boundsFromModel(model) }));
+  if (selectedId !== "all") {
+    const entry = modelBounds[0];
+    const centre = centerOf(entry.bounds);
+    const extent = Math.max(sizeOf(entry.bounds).x, sizeOf(entry.bounds).y, sizeOf(entry.bounds).z, 1);
+    const scale = Math.min(width, height) * 0.22 * camera.zoom / extent;
+    for (const part of entry.model.parts) drawModelPart(entry.model, part, width, height, scale, centre, true, { x: 0, y: 0 });
+    if (labelsInput.checked) {
+      const point = projectModelPoint(centre, width, height, scale, centre);
+      drawLabel(entry.model.id.replace("model/", ""), point, true);
+    }
+    return;
+  }
+  const columns = Math.min(4, modelBounds.length);
+  const rows = Math.ceil(modelBounds.length / columns);
+  const cellWidth = width / columns;
+  const cellHeight = height / rows;
+  for (const [index, entry] of modelBounds.entries()) {
+    const centre = centerOf(entry.bounds);
+    const extent = Math.max(sizeOf(entry.bounds).x, sizeOf(entry.bounds).y, sizeOf(entry.bounds).z, 1);
+    const scale = Math.min(cellWidth, cellHeight) * 0.46 * camera.zoom / extent;
+    const offset = {
+      x: (index % columns + 0.5) * cellWidth - width / 2,
+      y: (Math.floor(index / columns) + 0.5) * cellHeight - height / 2,
+    };
+    for (const part of entry.model.parts) drawModelPart(entry.model, part, width, height, scale, centre, false, offset);
+    if (labelsInput.checked) {
+      const point = projectModelPoint(centre, width, height, scale, centre, offset);
+      drawLabel(entry.model.id.replace("model/", ""), point, false);
+    }
+  }
+};
+
 const drawRoute = (route, width, height, selected) => {
   const points = route.map((point) => project(point, width, height));
   if (points.length < 2) return;
@@ -206,9 +327,13 @@ const render = (width, height) => {
   context.clearRect(0, 0, width, height);
   if (payload === null) return;
   const { environment } = payload;
+  const section = sectionSelect.value;
+  if (section === "model-board") {
+    drawModelBoard(width, height, modelSelect.value);
+    return;
+  }
   const selectedId = spaceSelect.value;
   const selectedSpace = environment.spaces.find((item) => item.id === selectedId);
-  const section = sectionSelect.value;
   const selectedElementIds = new Set(selectedSpace === undefined ? [] : environment.elements.filter((item) => item.space === selectedSpace.id).map((item) => item.id));
   const elements = environment.elements.filter((item) => item.model !== null && item.kind !== "observation-route-reservation" && (section !== "roof-open" || item.kind !== "roof-cover") && (section !== "cutaway" || !["roof-cover", "exterior-wall"].includes(item.kind) || item.id.includes("south") || item.id.includes("west")));
   const ordered = [...elements].sort((left, right) => rotatePoint(left.transform.translation).z - rotatePoint(right.transform.translation).z);
@@ -239,7 +364,9 @@ const updateStats = () => {
     return;
   }
   const { environment } = payload;
-  stats.innerHTML = `<dt>spaces</dt><dd>${environment.spaces.length}</dd><dt>elements</dt><dd>${environment.elements.length}</dd><dt>openings</dt><dd>${environment.openings.length}</dd><dt>connectors</dt><dd>${environment.connectors.length}</dd><dt>surfaces</dt><dd>${environment.surfaces.length}</dd>`;
+  const models = payload.models ?? [];
+  const selectedModel = models.find((item) => item.id === modelSelect.value);
+  stats.innerHTML = `<dt>spaces</dt><dd>${environment.spaces.length}</dd><dt>elements</dt><dd>${environment.elements.length}</dd><dt>openings</dt><dd>${environment.openings.length}</dd><dt>connectors</dt><dd>${environment.connectors.length}</dd><dt>surfaces</dt><dd>${environment.surfaces.length}</dd><dt>models</dt><dd>${models.length}</dd><dt>model parts</dt><dd>${selectedModel?.parts.length ?? "all"}</dd>`;
 };
 
 const loadSource = async () => {
@@ -250,10 +377,15 @@ const loadSource = async () => {
     const nextPayload = await response.json();
     if (!response.ok) throw new Error(nextPayload.error ?? `HTTP ${response.status}`);
     payload = nextPayload;
+    const models = payload.models ?? [];
     const previous = spaceSelect.value;
+    const previousModel = modelSelect.value;
     spaceSelect.replaceChildren(new Option("All spaces", "all"));
     for (const space of payload.environment.spaces) spaceSelect.append(new Option(`${space.id} · ${space.kind}`, space.id));
     spaceSelect.value = payload.environment.spaces.some((item) => item.id === previous) ? previous : "all";
+    modelSelect.replaceChildren(new Option("All model prototypes", "all"));
+    for (const model of models) modelSelect.append(new Option(`${model.id} / ${model.name}`, model.id));
+    modelSelect.value = models.some((item) => item.id === previousModel) ? previousModel : "all";
     setStatus("ready", "Live source loaded");
     revision.textContent = `Source revision: ${payload.source} · mtime ${new Date(payload.revision).toISOString()} · refresh after save`;
     updateStats();
@@ -303,6 +435,7 @@ canvas.addEventListener("wheel", (event) => {
 }, { passive: false });
 sectionSelect.addEventListener("change", () => render(canvas.clientWidth, canvas.clientHeight));
 spaceSelect.addEventListener("change", () => render(canvas.clientWidth, canvas.clientHeight));
+modelSelect.addEventListener("change", () => render(canvas.clientWidth, canvas.clientHeight));
 labelsInput.addEventListener("change", () => render(canvas.clientWidth, canvas.clientHeight));
 routesInput.addEventListener("change", () => render(canvas.clientWidth, canvas.clientHeight));
 document.querySelector("#reset").addEventListener("click", resetView);

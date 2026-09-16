@@ -5,6 +5,43 @@ This document owns the deterministic blocking prototypes that consume the review
 ## Model scope, scale, and fidelity {#model-scope-scale-and-fidelity}
 
 <!--
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb Checked the Model scope, scale, and fidelity unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/common.md#declared-basis.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 Checked the Model scope, scale, and fidelity unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/common.md#scope-preservation.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 Checked the Model scope, scale, and fidelity unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/common.md#substantive-completion.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 Checked the Model scope, scale, and fidelity unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/inherited-units.md#derived-parent-differentiation.
+@evidenceReview principles/design/models.md#representation-contract #46718c6 Checked the Model scope, scale, and fidelity unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#representation-contract.
+@evidenceReview principles/design/models.md#spatial-convention #5bbf49e Checked the Model scope, scale, and fidelity unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#spatial-convention.
+@evidenceReview principles/design/models.md#reviewable-structure #c22ab4b Checked the Model scope, scale, and fidelity unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#reviewable-structure.
+@evidenceReview principles/design/models.md#model-observable-style-basis #328d161 Checked the Model scope, scale, and fidelity unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#model-observable-style-basis.
+@evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e Checked the Model scope, scale, and fidelity unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#model-scale-layer-completion.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 Checked the Model scope, scale, and fidelity unit's exact bounds, part contacts, stable interfaces, and refusal boundary against upstream/design/models.md#settings-and-space-revision-from-model-work; no parent defect was exposed.
+@evidenceReview settings/temple.md#coordinate-unit-convention #01e5537 Checked the Model scope, scale, and fidelity unit's local origin, Y-up metre frame, and exact occupied extents against settings/temple.md#coordinate-unit-convention.
+@evidenceReview settings/temple.md#production-fidelity-tier #e1e932d Checked the Model scope, scale, and fidelity unit's declared bounds, part intervals, interfaces, and downstream handoff against settings/temple.md#production-fidelity-tier.
+@evidenceReview settings/temple.md#subject-observable-identity-and-fit-out-limits #73d6425 Checked the Model scope, scale, and fidelity unit's declared bounds, part intervals, interfaces, and downstream handoff against settings/temple.md#subject-observable-identity-and-fit-out-limits.
+@evidenceReview settings/temple.md#delivery-review-condition #fb23db4 Checked the Model scope, scale, and fidelity unit's declared neutral views, review question, and observable blocking limit against settings/temple.md#delivery-review-condition.
+@evidenceReview settings/temple.md#accessibility-deliverable-states #2d42342 Checked the Model scope, scale, and fidelity unit's declared bounds, part intervals, interfaces, and downstream handoff against settings/temple.md#accessibility-deliverable-states.
+@evidenceReview settings/temple.md#audience-operator-access #0e8cb17 Checked the Model scope, scale, and fidelity unit's declared bounds, part intervals, interfaces, and downstream handoff against settings/temple.md#audience-operator-access.
+@evidenceReview settings/temple.md#delivery-scope #1b40e35 Checked the Model scope, scale, and fidelity unit's declared bounds, part intervals, interfaces, and downstream handoff against settings/temple.md#delivery-scope.
+@evidenceReview settings/temple.md#design-dependent-subject-conditions #cfc9e04 Checked the Model scope, scale, and fidelity unit's declared bounds, part intervals, interfaces, and downstream handoff against settings/temple.md#design-dependent-subject-conditions.
+@evidenceReview settings/temple.md#governing-aim #2aba9c6 Checked the Model scope, scale, and fidelity unit's declared bounds, part intervals, interfaces, and downstream handoff against settings/temple.md#governing-aim.
+@evidenceReview settings/temple.md#operative-subject-inventory #2687aca Checked the Model scope, scale, and fidelity unit's declared bounds, part intervals, interfaces, and downstream handoff against settings/temple.md#operative-subject-inventory.
+@evidenceReview settings/temple.md#reference-interpretation-boundary #5814353 Checked the Model scope, scale, and fidelity unit's declared bounds, part intervals, interfaces, and downstream handoff against settings/temple.md#reference-interpretation-boundary.
+@evidenceReview settings/temple.md#settings-coverage-map #68dee2e Checked the Model scope, scale, and fidelity unit's declared bounds, part intervals, interfaces, and downstream handoff against settings/temple.md#settings-coverage-map.
+@evidenceReview settings/temple.md#stage-policy #49599e9 Checked the Model scope, scale, and fidelity unit's declared bounds, part intervals, interfaces, and downstream handoff against settings/temple.md#stage-policy.
+@evidenceReview spaces/temple.md#one-storey-containment-and-level #ef236a9 Checked the Model scope, scale, and fidelity unit's declared bounds, part intervals, interfaces, and downstream handoff against spaces/temple.md#one-storey-containment-and-level.
+@evidenceReview spaces/temple.md#spatial-verification-addresses-and-finite-review-set #bc595fa Checked the Model scope, scale, and fidelity unit's declared bounds, part intervals, interfaces, and downstream handoff against spaces/temple.md#spatial-verification-addresses-and-finite-review-set.
+@evidenceReview spaces/temple.md#one-storey-civic-temple-graph #917bffd Checked the Model scope, scale, and fidelity unit's declared bounds, part intervals, interfaces, and downstream handoff against spaces/temple.md#one-storey-civic-temple-graph.
+@evidenceReview spaces/temple.md#entrance-service-gate-and-route-graph #b231c39 Checked the Model scope, scale, and fidelity unit's room-specific interface, route clearance, and threshold handoff against spaces/temple.md#entrance-service-gate-and-route-graph.
+@evidenceReview obligations/core/common.md#purpose-fit #7b32c66 Checked the Model scope, scale, and fidelity unit's declared bounds, part intervals, interfaces, and downstream handoff against obligations/core/common.md#purpose-fit.
+@evidenceReview obligations/core/common.md#layer-boundary #5271f94 Checked the Model scope, scale, and fidelity unit's declared bounds, part intervals, interfaces, and downstream handoff against obligations/core/common.md#layer-boundary.
+@evidenceReview obligations/core/common.md#production-language #3ef4142 Checked the Model scope, scale, and fidelity unit's declared bounds, part intervals, interfaces, and downstream handoff against obligations/core/common.md#production-language.
+@evidenceReview obligations/core/common.md#proportionate-development #78feb28 Checked the Model scope, scale, and fidelity unit's declared bounds, part intervals, interfaces, and downstream handoff against obligations/core/common.md#proportionate-development.
+@evidenceReview obligations/design/models.md#addressable-model-decisions #226db18 Checked the Model scope, scale, and fidelity unit's declared bounds, part intervals, interfaces, and downstream handoff against obligations/design/models.md#addressable-model-decisions.
+@evidenceReview obligations/design/models.md#representation-ceiling #80e74d3 Checked the Model scope, scale, and fidelity unit's declared bounds, part intervals, interfaces, and downstream handoff against obligations/design/models.md#representation-ceiling.
+@evidenceReview obligations/design/models.md#reference-scale #2598af4 Checked the Model scope, scale, and fidelity unit's declared bounds, part intervals, interfaces, and downstream handoff against obligations/design/models.md#reference-scale.
+@evidenceReview obligations/design/models.md#articulation-ownership #96abfe1 Checked the Model scope, scale, and fidelity unit's declared bounds, part intervals, interfaces, and downstream handoff against obligations/design/models.md#articulation-ownership.
+@evidenceReview obligations/design/models.md#model-review-set #8d4744e Checked the Model scope, scale, and fidelity unit's declared neutral views, review question, and observable blocking limit against obligations/design/models.md#model-review-set.
+@evidenceReview obligations/design/models.md#model-representation-completion #76dd818 Checked the Model scope, scale, and fidelity unit's declared bounds, part intervals, interfaces, and downstream handoff against obligations/design/models.md#model-representation-completion.
 @evidence principles/core/common.md#declared-basis This unit fixes the model population from the reviewed settings and spaces scale anchors: floor datum, room height, door clear, room route, and loop width.
 @evidence principles/core/common.md#scope-preservation This unit separates prototype geometry from space topology, material response, instance membership, and viewer observation.
 @evidence principles/core/common.md#substantive-completion This unit names the complete 17-H2 prototype population, its shared scale board, blocking ceiling, and neutral review set.
@@ -53,6 +90,20 @@ Review question: does the complete prototype population remain readable as bound
 ## Column prototype {#column-prototype}
 
 <!--
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb Checked the Column unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/common.md#declared-basis.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 Checked the Column unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/common.md#scope-preservation.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 Checked the Column unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/common.md#substantive-completion.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 Checked the Column unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/inherited-units.md#derived-parent-differentiation.
+@evidenceReview principles/design/models.md#representation-contract #46718c6 Checked the Column unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#representation-contract.
+@evidenceReview principles/design/models.md#spatial-convention #5bbf49e Checked the Column unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#spatial-convention.
+@evidenceReview principles/design/models.md#reviewable-structure #c22ab4b Checked the Column unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#reviewable-structure.
+@evidenceReview principles/design/models.md#model-observable-style-basis #328d161 Checked the Column unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#model-observable-style-basis.
+@evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e Checked the Column unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#model-scale-layer-completion.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 Checked the Column unit's exact bounds, part contacts, stable interfaces, and refusal boundary against upstream/design/models.md#settings-and-space-revision-from-model-work; no parent defect was exposed.
+@evidenceReview settings/temple.md#coordinate-unit-convention #01e5537 Checked the Column unit's local origin, Y-up metre frame, and exact occupied extents against settings/temple.md#coordinate-unit-convention.
+@evidenceReview settings/temple.md#subject-observable-identity-and-fit-out-limits #73d6425 Checked the Column unit's declared bounds, part intervals, interfaces, and downstream handoff against settings/temple.md#subject-observable-identity-and-fit-out-limits.
+@evidenceReview spaces/temple.md#courtyard-and-continuous-colonnade-loop #e160d55 Checked the Column unit's declared bounds, part intervals, interfaces, and downstream handoff against spaces/temple.md#courtyard-and-continuous-colonnade-loop.
+@evidenceReview spaces/temple.md#spatial-identity-tolerance-and-exclusions #e055926 Checked the Column unit's role silhouette, negative space, and identity refusal boundary against spaces/temple.md#spatial-identity-tolerance-and-exclusions.
 @evidence principles/core/common.md#declared-basis The column unit uses the reviewed stone-column role and the shared 3.60m room-height comparison.
 @evidence principles/core/common.md#scope-preservation This unit owns only the column's rigid geometry; loop placement and stone response remain downstream.
 @evidence principles/core/common.md#substantive-completion This unit closes the base, shaft, capital, exact vertical bounds, surfaces, contact, and refusal boundary.
@@ -78,6 +129,20 @@ Review question: does the column show three complete vertical layers and the per
 ## Door prototype {#door-prototype}
 
 <!--
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb Checked the Door unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/common.md#declared-basis.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 Checked the Door unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/common.md#scope-preservation.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 Checked the Door unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/common.md#substantive-completion.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 Checked the Door unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/inherited-units.md#derived-parent-differentiation.
+@evidenceReview principles/design/models.md#representation-contract #46718c6 Checked the Door unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#representation-contract.
+@evidenceReview principles/design/models.md#spatial-convention #5bbf49e Checked the Door unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#spatial-convention.
+@evidenceReview principles/design/models.md#reviewable-structure #c22ab4b Checked the Door unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#reviewable-structure.
+@evidenceReview principles/design/models.md#model-observable-style-basis #328d161 Checked the Door unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#model-observable-style-basis.
+@evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e Checked the Door unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#model-scale-layer-completion.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 Checked the Door unit's exact bounds, part contacts, stable interfaces, and refusal boundary against upstream/design/models.md#settings-and-space-revision-from-model-work; no parent defect was exposed.
+@evidenceReview settings/temple.md#coordinate-unit-convention #01e5537 Checked the Door unit's local origin, Y-up metre frame, and exact occupied extents against settings/temple.md#coordinate-unit-convention.
+@evidenceReview settings/temple.md#subject-observable-identity-and-fit-out-limits #73d6425 Checked the Door unit's declared bounds, part intervals, interfaces, and downstream handoff against settings/temple.md#subject-observable-identity-and-fit-out-limits.
+@evidenceReview spaces/temple.md#room-schedule-and-direct-thresholds #e393909 Checked the Door unit's room-specific interface, route clearance, and threshold handoff against spaces/temple.md#room-schedule-and-direct-thresholds.
+@evidenceReview spaces/temple.md#envelope-opening-and-interior-interface #440376d Checked the Door unit's declared bounds, part intervals, interfaces, and downstream handoff against spaces/temple.md#envelope-opening-and-interior-interface.
 @evidence principles/core/common.md#declared-basis The door unit uses the reviewed 1.10m by 2.10m clear opening and 0.40m host depth.
 @evidence principles/core/common.md#scope-preservation This unit owns frame and leaf geometry; spaces owns the semantic void and instances owns placement.
 @evidence principles/core/common.md#substantive-completion This unit closes every frame and leaf surface identifier, clear relation, depth, contact, and rigid limit.
@@ -103,6 +168,20 @@ Review question: does the door expose named stone and wood surfaces while preser
 ## Fountain basin prototype {#fountain-basin-prototype}
 
 <!--
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb Checked the Fountain basin unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/common.md#declared-basis.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 Checked the Fountain basin unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/common.md#scope-preservation.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 Checked the Fountain basin unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/common.md#substantive-completion.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 Checked the Fountain basin unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/inherited-units.md#derived-parent-differentiation.
+@evidenceReview principles/design/models.md#representation-contract #46718c6 Checked the Fountain basin unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#representation-contract.
+@evidenceReview principles/design/models.md#spatial-convention #5bbf49e Checked the Fountain basin unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#spatial-convention.
+@evidenceReview principles/design/models.md#reviewable-structure #c22ab4b Checked the Fountain basin unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#reviewable-structure.
+@evidenceReview principles/design/models.md#model-observable-style-basis #328d161 Checked the Fountain basin unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#model-observable-style-basis.
+@evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e Checked the Fountain basin unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#model-scale-layer-completion.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 Checked the Fountain basin unit's exact bounds, part contacts, stable interfaces, and refusal boundary against upstream/design/models.md#settings-and-space-revision-from-model-work; no parent defect was exposed.
+@evidenceReview settings/temple.md#coordinate-unit-convention #01e5537 Checked the Fountain basin unit's local origin, Y-up metre frame, and exact occupied extents against settings/temple.md#coordinate-unit-convention.
+@evidenceReview settings/temple.md#subject-observable-identity-and-fit-out-limits #73d6425 Checked the Fountain basin unit's declared bounds, part intervals, interfaces, and downstream handoff against settings/temple.md#subject-observable-identity-and-fit-out-limits.
+@evidenceReview spaces/temple.md#courtyard-and-continuous-colonnade-loop #e160d55 Checked the Fountain basin unit's declared bounds, part intervals, interfaces, and downstream handoff against spaces/temple.md#courtyard-and-continuous-colonnade-loop.
+@evidenceReview spaces/temple.md#spatial-identity-tolerance-and-exclusions #e055926 Checked the Fountain basin unit's role silhouette, negative space, and identity refusal boundary against spaces/temple.md#spatial-identity-tolerance-and-exclusions.
 @evidence principles/core/common.md#declared-basis The basin unit uses the reviewed single central fountain landmark and floor datum.
 @evidence principles/core/common.md#scope-preservation This unit owns the basin shell; the space socket owns its identity and instances own placement.
 @evidence principles/core/common.md#substantive-completion This unit closes the outer shell, rim, inner cavity, water-seat boundary, bounds, and proxy limit.
@@ -128,6 +207,20 @@ Review question: does the basin read as one low open circular landmark at the co
 ## Fountain stream prototype {#fountain-stream-prototype}
 
 <!--
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb Checked the Fountain stream unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/common.md#declared-basis.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 Checked the Fountain stream unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/common.md#scope-preservation.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 Checked the Fountain stream unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/common.md#substantive-completion.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 Checked the Fountain stream unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/inherited-units.md#derived-parent-differentiation.
+@evidenceReview principles/design/models.md#representation-contract #46718c6 Checked the Fountain stream unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#representation-contract.
+@evidenceReview principles/design/models.md#spatial-convention #5bbf49e Checked the Fountain stream unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#spatial-convention.
+@evidenceReview principles/design/models.md#reviewable-structure #c22ab4b Checked the Fountain stream unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#reviewable-structure.
+@evidenceReview principles/design/models.md#model-observable-style-basis #328d161 Checked the Fountain stream unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#model-observable-style-basis.
+@evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e Checked the Fountain stream unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#model-scale-layer-completion.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 Checked the Fountain stream unit's exact bounds, part contacts, stable interfaces, and refusal boundary against upstream/design/models.md#settings-and-space-revision-from-model-work; no parent defect was exposed.
+@evidenceReview settings/temple.md#coordinate-unit-convention #01e5537 Checked the Fountain stream unit's local origin, Y-up metre frame, and exact occupied extents against settings/temple.md#coordinate-unit-convention.
+@evidenceReview settings/temple.md#subject-observable-identity-and-fit-out-limits #73d6425 Checked the Fountain stream unit's declared bounds, part intervals, interfaces, and downstream handoff against settings/temple.md#subject-observable-identity-and-fit-out-limits.
+@evidenceReview spaces/temple.md#courtyard-and-continuous-colonnade-loop #e160d55 Checked the Fountain stream unit's declared bounds, part intervals, interfaces, and downstream handoff against spaces/temple.md#courtyard-and-continuous-colonnade-loop.
+@evidenceReview spaces/temple.md#spatial-identity-tolerance-and-exclusions #e055926 Checked the Fountain stream unit's role silhouette, negative space, and identity refusal boundary against spaces/temple.md#spatial-identity-tolerance-and-exclusions.
 @evidence principles/core/common.md#declared-basis The stream unit uses the reviewed one-stream condition and the basin-centre landmark datum.
 @evidence principles/core/common.md#scope-preservation This unit owns one rigid water accent; basin geometry, dynamics, and placement remain with their owners.
 @evidence principles/core/common.md#substantive-completion This unit closes the centreline, vertical layers, contact, surface owner, bounds, and simulation refusal.
@@ -153,6 +246,20 @@ Review question: does the stream read only as one narrow static vertical accent 
 ## Altar and plinth prototype {#altar-and-plinth-prototype}
 
 <!--
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb Checked the Altar and plinth unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/common.md#declared-basis.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 Checked the Altar and plinth unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/common.md#scope-preservation.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 Checked the Altar and plinth unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/common.md#substantive-completion.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 Checked the Altar and plinth unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/inherited-units.md#derived-parent-differentiation.
+@evidenceReview principles/design/models.md#representation-contract #46718c6 Checked the Altar and plinth unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#representation-contract.
+@evidenceReview principles/design/models.md#spatial-convention #5bbf49e Checked the Altar and plinth unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#spatial-convention.
+@evidenceReview principles/design/models.md#reviewable-structure #c22ab4b Checked the Altar and plinth unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#reviewable-structure.
+@evidenceReview principles/design/models.md#model-observable-style-basis #328d161 Checked the Altar and plinth unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#model-observable-style-basis.
+@evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e Checked the Altar and plinth unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#model-scale-layer-completion.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 Checked the Altar and plinth unit's exact bounds, part contacts, stable interfaces, and refusal boundary against upstream/design/models.md#settings-and-space-revision-from-model-work; no parent defect was exposed.
+@evidenceReview settings/temple.md#coordinate-unit-convention #01e5537 Checked the Altar and plinth unit's local origin, Y-up metre frame, and exact occupied extents against settings/temple.md#coordinate-unit-convention.
+@evidenceReview settings/temple.md#subject-observable-identity-and-fit-out-limits #73d6425 Checked the Altar and plinth unit's declared bounds, part intervals, interfaces, and downstream handoff against settings/temple.md#subject-observable-identity-and-fit-out-limits.
+@evidenceReview spaces/temple.md#room-schedule-and-direct-thresholds #e393909 Checked the Altar and plinth unit's room-specific interface, route clearance, and threshold handoff against spaces/temple.md#room-schedule-and-direct-thresholds.
+@evidenceReview spaces/temple.md#spatial-identity-tolerance-and-exclusions #e055926 Checked the Altar and plinth unit's role silhouette, negative space, and identity refusal boundary against spaces/temple.md#spatial-identity-tolerance-and-exclusions.
 @evidence principles/core/common.md#declared-basis The altar unit uses the reviewed sanctuary rear-axis role and the shared floor and room-height anchors.
 @evidence principles/core/common.md#scope-preservation This unit owns the altar pair; the sanctuary room relation owns placement and materials own response.
 @evidence principles/core/common.md#substantive-completion This unit closes plinth, body, exact bounds, surfaces, contact, and unsupported ritual detail.
@@ -178,6 +285,21 @@ Review question: does the pair read as one broad plinth supporting one smaller b
 ## Roof tile prototype {#roof-tile-prototype}
 
 <!--
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb Checked the Roof tile unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/common.md#declared-basis.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 Checked the Roof tile unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/common.md#scope-preservation.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 Checked the Roof tile unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/common.md#substantive-completion.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 Checked the Roof tile unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/inherited-units.md#derived-parent-differentiation.
+@evidenceReview principles/design/models.md#representation-contract #46718c6 Checked the Roof tile unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#representation-contract.
+@evidenceReview principles/design/models.md#spatial-convention #5bbf49e Checked the Roof tile unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#spatial-convention.
+@evidenceReview principles/design/models.md#reviewable-structure #c22ab4b Checked the Roof tile unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#reviewable-structure.
+@evidenceReview principles/design/models.md#model-observable-style-basis #328d161 Checked the Roof tile unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#model-observable-style-basis.
+@evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e Checked the Roof tile unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#model-scale-layer-completion.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 Checked the Roof tile unit's exact bounds, part contacts, stable interfaces, and refusal boundary against upstream/design/models.md#settings-and-space-revision-from-model-work; no parent defect was exposed.
+@evidenceReview settings/temple.md#coordinate-unit-convention #01e5537 Checked the Roof tile unit's local origin, Y-up metre frame, and exact occupied extents against settings/temple.md#coordinate-unit-convention.
+@evidenceReview settings/temple.md#production-visual-grammar #e9570a7 Checked the Roof tile unit's declared bounds, part intervals, interfaces, and downstream handoff against settings/temple.md#production-visual-grammar.
+@evidenceReview settings/temple.md#subject-observable-identity-and-fit-out-limits #73d6425 Checked the Roof tile unit's declared bounds, part intervals, interfaces, and downstream handoff against settings/temple.md#subject-observable-identity-and-fit-out-limits.
+@evidenceReview spaces/temple.md#envelope-opening-and-interior-interface #440376d Checked the Roof tile unit's declared bounds, part intervals, interfaces, and downstream handoff against spaces/temple.md#envelope-opening-and-interior-interface.
+@evidenceReview spaces/temple.md#surface-decomposition-and-ownership-handoff #f83187d Checked the Roof tile unit's stable surface names and downstream material handoff against spaces/temple.md#surface-decomposition-and-ownership-handoff.
 @evidence principles/core/common.md#declared-basis The roof-tile unit uses the reviewed low terracotta roof profile and repeated envelope role.
 @evidence principles/core/common.md#scope-preservation This unit owns one tile; roof boundaries remain space-owned, rows remain instance-owned, and finish remains material-owned.
 @evidence principles/core/common.md#substantive-completion This unit closes tile body, overlap lip, underside seat, exact bounds, surfaces, and refusal boundary.
@@ -204,6 +326,21 @@ Review question: can repeated instances preserve the tile's overlap direction, t
 ## Records table prototype {#records-table-prototype}
 
 <!--
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb Checked the Records table unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/common.md#declared-basis.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 Checked the Records table unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/common.md#scope-preservation.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 Checked the Records table unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/common.md#substantive-completion.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 Checked the Records table unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/inherited-units.md#derived-parent-differentiation.
+@evidenceReview principles/design/models.md#representation-contract #46718c6 Checked the Records table unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#representation-contract.
+@evidenceReview principles/design/models.md#spatial-convention #5bbf49e Checked the Records table unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#spatial-convention.
+@evidenceReview principles/design/models.md#reviewable-structure #c22ab4b Checked the Records table unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#reviewable-structure.
+@evidenceReview principles/design/models.md#model-observable-style-basis #328d161 Checked the Records table unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#model-observable-style-basis.
+@evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e Checked the Records table unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#model-scale-layer-completion.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 Checked the Records table unit's exact bounds, part contacts, stable interfaces, and refusal boundary against upstream/design/models.md#settings-and-space-revision-from-model-work; no parent defect was exposed.
+@evidenceReview settings/temple.md#coordinate-unit-convention #01e5537 Checked the Records table unit's local origin, Y-up metre frame, and exact occupied extents against settings/temple.md#coordinate-unit-convention.
+@evidenceReview settings/temple.md#subject-breakdown-production-scope #34ec6da Checked the Records table unit's declared bounds, part intervals, interfaces, and downstream handoff against settings/temple.md#subject-breakdown-production-scope.
+@evidenceReview settings/temple.md#subject-observable-identity-and-fit-out-limits #73d6425 Checked the Records table unit's declared bounds, part intervals, interfaces, and downstream handoff against settings/temple.md#subject-observable-identity-and-fit-out-limits.
+@evidenceReview spaces/temple.md#room-schedule-and-direct-thresholds #e393909 Checked the Records table unit's room-specific interface, route clearance, and threshold handoff against spaces/temple.md#room-schedule-and-direct-thresholds.
+@evidenceReview spaces/temple.md#spatial-identity-tolerance-and-exclusions #e055926 Checked the Records table unit's role silhouette, negative space, and identity refusal boundary against spaces/temple.md#spatial-identity-tolerance-and-exclusions.
 @evidence principles/core/common.md#declared-basis The records-table unit uses the records-room work-surface role and the reviewed 1.10m door scale.
 @evidence principles/core/common.md#scope-preservation This unit owns table geometry; records-room topology, membership, placement, and wood response remain downstream.
 @evidence principles/core/common.md#substantive-completion This unit closes top, four legs, contact, bounds, stable surfaces, and rigid limit.
@@ -230,6 +367,21 @@ Review question: does the table read as a distinct low work surface with four su
 ## Records shelf prototype {#records-shelf-prototype}
 
 <!--
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb Checked the Records shelf unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/common.md#declared-basis.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 Checked the Records shelf unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/common.md#scope-preservation.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 Checked the Records shelf unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/common.md#substantive-completion.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 Checked the Records shelf unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/inherited-units.md#derived-parent-differentiation.
+@evidenceReview principles/design/models.md#representation-contract #46718c6 Checked the Records shelf unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#representation-contract.
+@evidenceReview principles/design/models.md#spatial-convention #5bbf49e Checked the Records shelf unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#spatial-convention.
+@evidenceReview principles/design/models.md#reviewable-structure #c22ab4b Checked the Records shelf unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#reviewable-structure.
+@evidenceReview principles/design/models.md#model-observable-style-basis #328d161 Checked the Records shelf unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#model-observable-style-basis.
+@evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e Checked the Records shelf unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#model-scale-layer-completion.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 Checked the Records shelf unit's exact bounds, part contacts, stable interfaces, and refusal boundary against upstream/design/models.md#settings-and-space-revision-from-model-work; no parent defect was exposed.
+@evidenceReview settings/temple.md#coordinate-unit-convention #01e5537 Checked the Records shelf unit's local origin, Y-up metre frame, and exact occupied extents against settings/temple.md#coordinate-unit-convention.
+@evidenceReview settings/temple.md#subject-breakdown-production-scope #34ec6da Checked the Records shelf unit's declared bounds, part intervals, interfaces, and downstream handoff against settings/temple.md#subject-breakdown-production-scope.
+@evidenceReview settings/temple.md#subject-observable-identity-and-fit-out-limits #73d6425 Checked the Records shelf unit's declared bounds, part intervals, interfaces, and downstream handoff against settings/temple.md#subject-observable-identity-and-fit-out-limits.
+@evidenceReview spaces/temple.md#room-schedule-and-direct-thresholds #e393909 Checked the Records shelf unit's room-specific interface, route clearance, and threshold handoff against spaces/temple.md#room-schedule-and-direct-thresholds.
+@evidenceReview spaces/temple.md#spatial-identity-tolerance-and-exclusions #e055926 Checked the Records shelf unit's role silhouette, negative space, and identity refusal boundary against spaces/temple.md#spatial-identity-tolerance-and-exclusions.
 @evidence principles/core/common.md#declared-basis The records-shelf unit uses the records-room vertical storage role and the reviewed door/room scale anchors.
 @evidence principles/core/common.md#scope-preservation This unit owns shelf geometry; placement, load, count, and wood response remain downstream.
 @evidence principles/core/common.md#substantive-completion This unit closes side frames, three boards, gaps, contact, bounds, and stable surfaces.
@@ -256,6 +408,21 @@ Review question: does the shelf's three-board rhythm remain visibly distinct and
 ## Records chest prototype {#records-chest-prototype}
 
 <!--
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb Checked the Records chest unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/common.md#declared-basis.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 Checked the Records chest unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/common.md#scope-preservation.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 Checked the Records chest unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/common.md#substantive-completion.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 Checked the Records chest unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/inherited-units.md#derived-parent-differentiation.
+@evidenceReview principles/design/models.md#representation-contract #46718c6 Checked the Records chest unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#representation-contract.
+@evidenceReview principles/design/models.md#spatial-convention #5bbf49e Checked the Records chest unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#spatial-convention.
+@evidenceReview principles/design/models.md#reviewable-structure #c22ab4b Checked the Records chest unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#reviewable-structure.
+@evidenceReview principles/design/models.md#model-observable-style-basis #328d161 Checked the Records chest unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#model-observable-style-basis.
+@evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e Checked the Records chest unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#model-scale-layer-completion.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 Checked the Records chest unit's exact bounds, part contacts, stable interfaces, and refusal boundary against upstream/design/models.md#settings-and-space-revision-from-model-work; no parent defect was exposed.
+@evidenceReview settings/temple.md#coordinate-unit-convention #01e5537 Checked the Records chest unit's local origin, Y-up metre frame, and exact occupied extents against settings/temple.md#coordinate-unit-convention.
+@evidenceReview settings/temple.md#subject-breakdown-production-scope #34ec6da Checked the Records chest unit's declared bounds, part intervals, interfaces, and downstream handoff against settings/temple.md#subject-breakdown-production-scope.
+@evidenceReview settings/temple.md#subject-observable-identity-and-fit-out-limits #73d6425 Checked the Records chest unit's declared bounds, part intervals, interfaces, and downstream handoff against settings/temple.md#subject-observable-identity-and-fit-out-limits.
+@evidenceReview spaces/temple.md#room-schedule-and-direct-thresholds #e393909 Checked the Records chest unit's room-specific interface, route clearance, and threshold handoff against spaces/temple.md#room-schedule-and-direct-thresholds.
+@evidenceReview spaces/temple.md#spatial-identity-tolerance-and-exclusions #e055926 Checked the Records chest unit's role silhouette, negative space, and identity refusal boundary against spaces/temple.md#spatial-identity-tolerance-and-exclusions.
 @evidence principles/core/common.md#declared-basis The records-chest unit uses the records-room low closed-storage role and the reviewed door scale.
 @evidence principles/core/common.md#scope-preservation This unit owns one chest geometry; placement, quantity, contents, and wood response remain downstream.
 @evidence principles/core/common.md#substantive-completion This unit closes body, lid, contact, bounds, surfaces, and rigid state.
@@ -282,6 +449,21 @@ Review question: does the chest read as one low closed volume rather than as an 
 ## Storage shelf prototype {#storage-shelf-prototype}
 
 <!--
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb Checked the Storage shelf unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/common.md#declared-basis.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 Checked the Storage shelf unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/common.md#scope-preservation.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 Checked the Storage shelf unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/common.md#substantive-completion.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 Checked the Storage shelf unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/inherited-units.md#derived-parent-differentiation.
+@evidenceReview principles/design/models.md#representation-contract #46718c6 Checked the Storage shelf unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#representation-contract.
+@evidenceReview principles/design/models.md#spatial-convention #5bbf49e Checked the Storage shelf unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#spatial-convention.
+@evidenceReview principles/design/models.md#reviewable-structure #c22ab4b Checked the Storage shelf unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#reviewable-structure.
+@evidenceReview principles/design/models.md#model-observable-style-basis #328d161 Checked the Storage shelf unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#model-observable-style-basis.
+@evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e Checked the Storage shelf unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#model-scale-layer-completion.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 Checked the Storage shelf unit's exact bounds, part contacts, stable interfaces, and refusal boundary against upstream/design/models.md#settings-and-space-revision-from-model-work; no parent defect was exposed.
+@evidenceReview settings/temple.md#coordinate-unit-convention #01e5537 Checked the Storage shelf unit's local origin, Y-up metre frame, and exact occupied extents against settings/temple.md#coordinate-unit-convention.
+@evidenceReview settings/temple.md#subject-breakdown-production-scope #34ec6da Checked the Storage shelf unit's declared bounds, part intervals, interfaces, and downstream handoff against settings/temple.md#subject-breakdown-production-scope.
+@evidenceReview settings/temple.md#subject-observable-identity-and-fit-out-limits #73d6425 Checked the Storage shelf unit's declared bounds, part intervals, interfaces, and downstream handoff against settings/temple.md#subject-observable-identity-and-fit-out-limits.
+@evidenceReview spaces/temple.md#room-schedule-and-direct-thresholds #e393909 Checked the Storage shelf unit's room-specific interface, route clearance, and threshold handoff against spaces/temple.md#room-schedule-and-direct-thresholds.
+@evidenceReview spaces/temple.md#spatial-identity-tolerance-and-exclusions #e055926 Checked the Storage shelf unit's role silhouette, negative space, and identity refusal boundary against spaces/temple.md#spatial-identity-tolerance-and-exclusions.
 @evidence principles/core/common.md#declared-basis The storage-shelf unit uses the votive-storage-room vertical storage role and the shared room/door scale.
 @evidence principles/core/common.md#scope-preservation This unit owns storage shelf geometry; stacking, placement, quantity, and finish remain downstream.
 @evidence principles/core/common.md#substantive-completion This unit closes side frames, four boards, exact gaps, contact, bounds, and surfaces.
@@ -308,6 +490,21 @@ Review question: does the storage shelf retain four visible levels and open gaps
 ## Storage chest prototype {#storage-chest-prototype}
 
 <!--
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb Checked the Storage chest unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/common.md#declared-basis.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 Checked the Storage chest unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/common.md#scope-preservation.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 Checked the Storage chest unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/common.md#substantive-completion.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 Checked the Storage chest unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/inherited-units.md#derived-parent-differentiation.
+@evidenceReview principles/design/models.md#representation-contract #46718c6 Checked the Storage chest unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#representation-contract.
+@evidenceReview principles/design/models.md#spatial-convention #5bbf49e Checked the Storage chest unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#spatial-convention.
+@evidenceReview principles/design/models.md#reviewable-structure #c22ab4b Checked the Storage chest unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#reviewable-structure.
+@evidenceReview principles/design/models.md#model-observable-style-basis #328d161 Checked the Storage chest unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#model-observable-style-basis.
+@evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e Checked the Storage chest unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#model-scale-layer-completion.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 Checked the Storage chest unit's exact bounds, part contacts, stable interfaces, and refusal boundary against upstream/design/models.md#settings-and-space-revision-from-model-work; no parent defect was exposed.
+@evidenceReview settings/temple.md#coordinate-unit-convention #01e5537 Checked the Storage chest unit's local origin, Y-up metre frame, and exact occupied extents against settings/temple.md#coordinate-unit-convention.
+@evidenceReview settings/temple.md#subject-breakdown-production-scope #34ec6da Checked the Storage chest unit's declared bounds, part intervals, interfaces, and downstream handoff against settings/temple.md#subject-breakdown-production-scope.
+@evidenceReview settings/temple.md#subject-observable-identity-and-fit-out-limits #73d6425 Checked the Storage chest unit's declared bounds, part intervals, interfaces, and downstream handoff against settings/temple.md#subject-observable-identity-and-fit-out-limits.
+@evidenceReview spaces/temple.md#room-schedule-and-direct-thresholds #e393909 Checked the Storage chest unit's room-specific interface, route clearance, and threshold handoff against spaces/temple.md#room-schedule-and-direct-thresholds.
+@evidenceReview spaces/temple.md#spatial-identity-tolerance-and-exclusions #e055926 Checked the Storage chest unit's role silhouette, negative space, and identity refusal boundary against spaces/temple.md#spatial-identity-tolerance-and-exclusions.
 @evidence principles/core/common.md#declared-basis The storage-chest unit uses the votive-storage-room low closed-storage role and the shared door scale.
 @evidence principles/core/common.md#scope-preservation This unit owns storage chest geometry; contents, stacking, placement, and finish remain downstream.
 @evidence principles/core/common.md#substantive-completion This unit closes body, lid, contact, bounds, stable surfaces, and rigid state.
@@ -334,6 +531,21 @@ Review question: does the chest read as one low closed storage mass with a stabl
 ## Storage basket prototype {#storage-basket-prototype}
 
 <!--
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb Checked the Storage basket unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/common.md#declared-basis.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 Checked the Storage basket unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/common.md#scope-preservation.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 Checked the Storage basket unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/common.md#substantive-completion.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 Checked the Storage basket unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/inherited-units.md#derived-parent-differentiation.
+@evidenceReview principles/design/models.md#representation-contract #46718c6 Checked the Storage basket unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#representation-contract.
+@evidenceReview principles/design/models.md#spatial-convention #5bbf49e Checked the Storage basket unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#spatial-convention.
+@evidenceReview principles/design/models.md#reviewable-structure #c22ab4b Checked the Storage basket unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#reviewable-structure.
+@evidenceReview principles/design/models.md#model-observable-style-basis #328d161 Checked the Storage basket unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#model-observable-style-basis.
+@evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e Checked the Storage basket unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#model-scale-layer-completion.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 Checked the Storage basket unit's exact bounds, part contacts, stable interfaces, and refusal boundary against upstream/design/models.md#settings-and-space-revision-from-model-work; no parent defect was exposed.
+@evidenceReview settings/temple.md#coordinate-unit-convention #01e5537 Checked the Storage basket unit's local origin, Y-up metre frame, and exact occupied extents against settings/temple.md#coordinate-unit-convention.
+@evidenceReview settings/temple.md#subject-breakdown-production-scope #34ec6da Checked the Storage basket unit's declared bounds, part intervals, interfaces, and downstream handoff against settings/temple.md#subject-breakdown-production-scope.
+@evidenceReview settings/temple.md#subject-observable-identity-and-fit-out-limits #73d6425 Checked the Storage basket unit's declared bounds, part intervals, interfaces, and downstream handoff against settings/temple.md#subject-observable-identity-and-fit-out-limits.
+@evidenceReview spaces/temple.md#room-schedule-and-direct-thresholds #e393909 Checked the Storage basket unit's room-specific interface, route clearance, and threshold handoff against spaces/temple.md#room-schedule-and-direct-thresholds.
+@evidenceReview spaces/temple.md#spatial-identity-tolerance-and-exclusions #e055926 Checked the Storage basket unit's role silhouette, negative space, and identity refusal boundary against spaces/temple.md#spatial-identity-tolerance-and-exclusions.
 @evidence principles/core/common.md#declared-basis The storage-basket unit uses the storage-room open-rim container role and the shared small-prop scale.
 @evidence principles/core/common.md#scope-preservation This unit is the sole canonical owner of storage-basket geometry; contents, placement, count, and fiber response remain downstream.
 @evidence principles/core/common.md#substantive-completion This unit closes body taper, rim opening, handle, contact, exact bounds, and stable surfaces.
@@ -360,6 +572,21 @@ Review question: does the basket retain one open tapered cavity and handle silho
 ## Votive display prototype {#votive-display-prototype}
 
 <!--
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb Checked the Votive display unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/common.md#declared-basis.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 Checked the Votive display unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/common.md#scope-preservation.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 Checked the Votive display unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/common.md#substantive-completion.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 Checked the Votive display unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/inherited-units.md#derived-parent-differentiation.
+@evidenceReview principles/design/models.md#representation-contract #46718c6 Checked the Votive display unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#representation-contract.
+@evidenceReview principles/design/models.md#spatial-convention #5bbf49e Checked the Votive display unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#spatial-convention.
+@evidenceReview principles/design/models.md#reviewable-structure #c22ab4b Checked the Votive display unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#reviewable-structure.
+@evidenceReview principles/design/models.md#model-observable-style-basis #328d161 Checked the Votive display unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#model-observable-style-basis.
+@evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e Checked the Votive display unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#model-scale-layer-completion.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 Checked the Votive display unit's exact bounds, part contacts, stable interfaces, and refusal boundary against upstream/design/models.md#settings-and-space-revision-from-model-work; no parent defect was exposed.
+@evidenceReview settings/temple.md#coordinate-unit-convention #01e5537 Checked the Votive display unit's local origin, Y-up metre frame, and exact occupied extents against settings/temple.md#coordinate-unit-convention.
+@evidenceReview settings/temple.md#subject-breakdown-production-scope #34ec6da Checked the Votive display unit's declared bounds, part intervals, interfaces, and downstream handoff against settings/temple.md#subject-breakdown-production-scope.
+@evidenceReview settings/temple.md#subject-observable-identity-and-fit-out-limits #73d6425 Checked the Votive display unit's declared bounds, part intervals, interfaces, and downstream handoff against settings/temple.md#subject-observable-identity-and-fit-out-limits.
+@evidenceReview spaces/temple.md#room-schedule-and-direct-thresholds #e393909 Checked the Votive display unit's room-specific interface, route clearance, and threshold handoff against spaces/temple.md#room-schedule-and-direct-thresholds.
+@evidenceReview spaces/temple.md#spatial-identity-tolerance-and-exclusions #e055926 Checked the Votive display unit's role silhouette, negative space, and identity refusal boundary against spaces/temple.md#spatial-identity-tolerance-and-exclusions.
 @evidence principles/core/common.md#declared-basis The votive-display unit uses the communal-votive-room public offering role and the shared door scale.
 @evidence principles/core/common.md#scope-preservation This unit owns display geometry; vessel membership, placement, quantity, and materials remain downstream.
 @evidence principles/core/common.md#substantive-completion This unit closes plinth, board, ledge, recess, bounds, contact, and omitted iconography.
@@ -386,6 +613,21 @@ Review question: does the display read as a low civic offering fixture with an u
 ## Ceramic vessel prototype {#ceramic-vessel-prototype}
 
 <!--
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb Checked the Ceramic vessel unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/common.md#declared-basis.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 Checked the Ceramic vessel unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/common.md#scope-preservation.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 Checked the Ceramic vessel unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/common.md#substantive-completion.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 Checked the Ceramic vessel unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/inherited-units.md#derived-parent-differentiation.
+@evidenceReview principles/design/models.md#representation-contract #46718c6 Checked the Ceramic vessel unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#representation-contract.
+@evidenceReview principles/design/models.md#spatial-convention #5bbf49e Checked the Ceramic vessel unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#spatial-convention.
+@evidenceReview principles/design/models.md#reviewable-structure #c22ab4b Checked the Ceramic vessel unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#reviewable-structure.
+@evidenceReview principles/design/models.md#model-observable-style-basis #328d161 Checked the Ceramic vessel unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#model-observable-style-basis.
+@evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e Checked the Ceramic vessel unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#model-scale-layer-completion.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 Checked the Ceramic vessel unit's exact bounds, part contacts, stable interfaces, and refusal boundary against upstream/design/models.md#settings-and-space-revision-from-model-work; no parent defect was exposed.
+@evidenceReview settings/temple.md#coordinate-unit-convention #01e5537 Checked the Ceramic vessel unit's local origin, Y-up metre frame, and exact occupied extents against settings/temple.md#coordinate-unit-convention.
+@evidenceReview settings/temple.md#subject-breakdown-production-scope #34ec6da Checked the Ceramic vessel unit's declared bounds, part intervals, interfaces, and downstream handoff against settings/temple.md#subject-breakdown-production-scope.
+@evidenceReview settings/temple.md#subject-observable-identity-and-fit-out-limits #73d6425 Checked the Ceramic vessel unit's declared bounds, part intervals, interfaces, and downstream handoff against settings/temple.md#subject-observable-identity-and-fit-out-limits.
+@evidenceReview spaces/temple.md#room-schedule-and-direct-thresholds #e393909 Checked the Ceramic vessel unit's room-specific interface, route clearance, and threshold handoff against spaces/temple.md#room-schedule-and-direct-thresholds.
+@evidenceReview spaces/temple.md#spatial-identity-tolerance-and-exclusions #e055926 Checked the Ceramic vessel unit's role silhouette, negative space, and identity refusal boundary against spaces/temple.md#spatial-identity-tolerance-and-exclusions.
 @evidence principles/core/common.md#declared-basis The ceramic-vessel unit uses the communal display small-prop role and the reviewed door-relative scale.
 @evidence principles/core/common.md#scope-preservation This unit owns only the ceramic vessel; display membership, quantity, placement, and material response remain downstream.
 @evidence principles/core/common.md#substantive-completion This unit closes foot, body, neck, rim, open top, exact bounds, and stable surfaces.
@@ -412,6 +654,20 @@ Review question: does the vessel read as a small open-rim ceramic object without
 ## Lamp prototype {#lamp-prototype}
 
 <!--
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb Checked the Lamp unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/common.md#declared-basis.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 Checked the Lamp unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/common.md#scope-preservation.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 Checked the Lamp unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/common.md#substantive-completion.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 Checked the Lamp unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/inherited-units.md#derived-parent-differentiation.
+@evidenceReview principles/design/models.md#representation-contract #46718c6 Checked the Lamp unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#representation-contract.
+@evidenceReview principles/design/models.md#spatial-convention #5bbf49e Checked the Lamp unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#spatial-convention.
+@evidenceReview principles/design/models.md#reviewable-structure #c22ab4b Checked the Lamp unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#reviewable-structure.
+@evidenceReview principles/design/models.md#model-observable-style-basis #328d161 Checked the Lamp unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#model-observable-style-basis.
+@evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e Checked the Lamp unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#model-scale-layer-completion.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 Checked the Lamp unit's exact bounds, part contacts, stable interfaces, and refusal boundary against upstream/design/models.md#settings-and-space-revision-from-model-work; no parent defect was exposed.
+@evidenceReview settings/temple.md#coordinate-unit-convention #01e5537 Checked the Lamp unit's local origin, Y-up metre frame, and exact occupied extents against settings/temple.md#coordinate-unit-convention.
+@evidenceReview settings/temple.md#subject-observable-identity-and-fit-out-limits #73d6425 Checked the Lamp unit's declared bounds, part intervals, interfaces, and downstream handoff against settings/temple.md#subject-observable-identity-and-fit-out-limits.
+@evidenceReview spaces/temple.md#room-schedule-and-direct-thresholds #e393909 Checked the Lamp unit's room-specific interface, route clearance, and threshold handoff against spaces/temple.md#room-schedule-and-direct-thresholds.
+@evidenceReview spaces/temple.md#spatial-identity-tolerance-and-exclusions #e055926 Checked the Lamp unit's role silhouette, negative space, and identity refusal boundary against spaces/temple.md#spatial-identity-tolerance-and-exclusions.
 @evidence principles/core/common.md#declared-basis The lamp unit uses the restrained small vertical accent role and the shared basket/door scale anchors.
 @evidence principles/core/common.md#scope-preservation This unit owns lamp geometry; mount placement, count, light response, and materials remain downstream.
 @evidence principles/core/common.md#substantive-completion This unit closes one origin, mount offset convention, base, stem, shade, underside, bounds, and surfaces.
@@ -437,6 +693,20 @@ Review question: does the lamp retain one comparable base-stem-shade silhouette 
 ## Bench prototype {#bench-prototype}
 
 <!--
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb Checked the Bench unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/common.md#declared-basis.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 Checked the Bench unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/common.md#scope-preservation.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 Checked the Bench unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/common.md#substantive-completion.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 Checked the Bench unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/core/inherited-units.md#derived-parent-differentiation.
+@evidenceReview principles/design/models.md#representation-contract #46718c6 Checked the Bench unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#representation-contract.
+@evidenceReview principles/design/models.md#spatial-convention #5bbf49e Checked the Bench unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#spatial-convention.
+@evidenceReview principles/design/models.md#reviewable-structure #c22ab4b Checked the Bench unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#reviewable-structure.
+@evidenceReview principles/design/models.md#model-observable-style-basis #328d161 Checked the Bench unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#model-observable-style-basis.
+@evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e Checked the Bench unit's declared bounds, part intervals, interfaces, and downstream handoff against principles/design/models.md#model-scale-layer-completion.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 Checked the Bench unit's exact bounds, part contacts, stable interfaces, and refusal boundary against upstream/design/models.md#settings-and-space-revision-from-model-work; no parent defect was exposed.
+@evidenceReview settings/temple.md#coordinate-unit-convention #01e5537 Checked the Bench unit's local origin, Y-up metre frame, and exact occupied extents against settings/temple.md#coordinate-unit-convention.
+@evidenceReview settings/temple.md#subject-observable-identity-and-fit-out-limits #73d6425 Checked the Bench unit's declared bounds, part intervals, interfaces, and downstream handoff against settings/temple.md#subject-observable-identity-and-fit-out-limits.
+@evidenceReview spaces/temple.md#courtyard-and-continuous-colonnade-loop #e160d55 Checked the Bench unit's declared bounds, part intervals, interfaces, and downstream handoff against spaces/temple.md#courtyard-and-continuous-colonnade-loop.
+@evidenceReview spaces/temple.md#spatial-identity-tolerance-and-exclusions #e055926 Checked the Bench unit's role silhouette, negative space, and identity refusal boundary against spaces/temple.md#spatial-identity-tolerance-and-exclusions.
 @evidence principles/core/common.md#declared-basis The bench unit uses the reviewed low civic seat role and the 2.00m loop scale.
 @evidence principles/core/common.md#scope-preservation This unit owns seat, legs, and rail geometry; count, orientation, placement, route clearance, and finish remain downstream.
 @evidence principles/core/common.md#substantive-completion This unit closes seat, four leg bounds, back rail, contact, underside negative space, and stable surfaces.

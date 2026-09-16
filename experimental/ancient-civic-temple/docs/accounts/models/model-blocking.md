@@ -3,6 +3,7 @@
 ## Model blocking coverage {#model-blocking-coverage}
 
 <!--
+@evidenceReview contracts/model-blocking.md#temple-blocking-model-boundary #87caa13 Checked the Model blocking coverage unit's declared bounds, part intervals, interfaces, and downstream handoff against contracts/model-blocking.md#temple-blocking-model-boundary.
 @evidence contracts/model-blocking.md#temple-blocking-model-boundary This account is the aggregate owner that checks every model H2 against the temple-local prototype and blocking boundary.
 -->
 

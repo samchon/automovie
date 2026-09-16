@@ -5,7 +5,8 @@ import { fileURLToPath } from "node:url";
 
 const projectRoot = resolve(fileURLToPath(new URL("../..", import.meta.url)));
 const publicRoot = resolve(projectRoot, "public");
-const sourcePath = resolve(projectRoot, "src/spaces/ancient-civic-temple.ts");
+const spaceSourcePath = resolve(projectRoot, "src/spaces/ancient-civic-temple.ts");
+const modelSourcePath = resolve(projectRoot, "src/models/ancient-civic-temple.ts");
 const port = 4175;
 
 const staticFiles = new Map([
@@ -27,11 +28,19 @@ const writeJson = (response, status, value) => {
 };
 
 const loadCurrentEnvironment = async () => {
-  const sourceStat = await stat(sourcePath);
-  const sourceUrl = new URL("../spaces/ancient-civic-temple.ts", import.meta.url);
-  sourceUrl.searchParams.set("revision", String(sourceStat.mtimeMs));
-  const module = await import(sourceUrl.href);
-  const contribution = module.ancientCivicTempleSpaceSource.build({
+  const [spaceStat, modelStat] = await Promise.all([
+    stat(spaceSourcePath),
+    stat(modelSourcePath),
+  ]);
+  const spaceUrl = new URL("../spaces/ancient-civic-temple.ts", import.meta.url);
+  spaceUrl.searchParams.set("revision", String(spaceStat.mtimeMs));
+  const modelUrl = new URL("../models/ancient-civic-temple.ts", import.meta.url);
+  modelUrl.searchParams.set("revision", String(modelStat.mtimeMs));
+  const [spaceModule, modelModule] = await Promise.all([
+    import(spaceUrl.href),
+    import(modelUrl.href),
+  ]);
+  const contribution = spaceModule.ancientCivicTempleSpaceSource.build({
     production: "ancient-civic-temple",
     branch: "spaces",
     design: "docs/spaces/temple.md",
@@ -40,7 +49,28 @@ const loadCurrentEnvironment = async () => {
   });
   const environment = contribution.environments[0];
   if (environment === undefined) throw new Error("space source returned no environment");
-  return { source: "src/spaces/ancient-civic-temple.ts", revision: sourceStat.mtimeMs, environment };
+  const modelSources = Object.values(modelModule).filter(
+    (value) =>
+      value !== null &&
+      typeof value === "object" &&
+      typeof value.design === "string" &&
+      typeof value.build === "function",
+  );
+  const models = modelSources.flatMap((source) =>
+    source.build({
+      production: "ancient-civic-temple",
+      branch: "models",
+      design: source.design,
+      anchor: `#${source.design.split("#")[1] ?? ""}`,
+      derivedArtifacts: {},
+    }).models,
+  );
+  return {
+    source: "src/spaces/ancient-civic-temple.ts; src/models/ancient-civic-temple.ts",
+    revision: Math.max(spaceStat.mtimeMs, modelStat.mtimeMs),
+    environment,
+    models,
+  };
 };
 
 const serveStatic = async (requestPath, response) => {
