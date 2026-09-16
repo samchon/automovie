@@ -19,14 +19,11 @@ import {
  * A subject named by key is framed from the box its contents fill, not from
  * the box a room was declared over.
  *
- * This pins the seam the scaffold's subject page stands on
- * (`packages/template/scaffold/viewer/src/subject.ts`, opened as
- * `viewer/subject.html?subject=<kind>:<id>`). That page holds no geometry of
- * its own: it resolves a key through `describeAutoMovieSubject`, takes the
- * description's CONTENT box, and hands it to `frameAutoMovieViewerSubject`.
- * Every property a reviewer relies on there — that the thing named is the
- * thing framed, that all of it is inside the picture, that none of it is
- * clipped away — is a property of that chain and is measured here.
+ * The test resolves a key through `describeAutoMovieSubject`, takes the
+ * description's content box, and passes it to `frameAutoMovieViewerSubject`.
+ * It measures the public query-to-camera chain directly: the named subject
+ * determines the framing, and its full content box stays inside the picture.
+ * No scaffold page or browser entry point is required by this unit test.
  *
  * The declared box is the trap, and it is a trap because it is plausible. A
  * space is authored as a convex cell and its contents fill some other extent
@@ -51,9 +48,8 @@ import {
  * 6. A fixed downward ring puts the eye under the ground for a room and not
  *    for a slate on a roof, and the eye's height rises with the angle, which
  *    is what makes one grounded angle per subject well defined.
- * 7. The compiled ids the page spells from a subject key resolve, and a
- *    prototype's answer is model-space, which is why the page refuses to aim
- *    a world camera at one.
+ * 7. Compiled ids resolve from subject keys; a prototype reports model-space
+ *    bounds rather than pretending to be a placed world-space subject.
  */
 export const test_viewer_subject_page_framing = (): void => {
   const artifact = subjectInspectionArtifact();
