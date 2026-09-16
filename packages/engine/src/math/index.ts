@@ -8,6 +8,7 @@ export * from "./hull";
 export * from "./bisect";
 export * from "./quadraticProgram";
 export * from "./boundedDisplacement";
+export * from "./absoluteDisplacement";
 // Last on purpose. This module is the only one here that imports across a
 // package boundary, and inserting it ahead of `Quaternion` made
 // `Quaternion.fromAxisAngle` undefined inside `stickmanArchetype` while the
