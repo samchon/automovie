@@ -94,7 +94,7 @@
 @evidenceReview principles/core/settings.md#source-support #430bca9 Read the source-support checklist and checked envelope populations and elements.
 -->
 
-전면 stair bay, 전면 flex bay, 후면 common bay, 2층 전면 bedroom/corridor bay는 각 대응 room bounds의 x span을 bay count로 나눈 측정 폭으로 나눈다. source는 각 bay center, width, floor-to-ceiling height를 그 room bounds와 floor line에서 직접 유도하므로 module 끝이 room 경계와 일치한다. 우측 x=5.50 쪽은 opaque service wall로 묶고, 좌측은 구조적으로 필요한 opaque return과 제한된 glass를 둔다. roof는 직사각형 box 위 y=6.20에서 시작하는 네 개의 support post를 세워 y=6.80에서 끝나는 별도 canopy frame으로 표현하며 cantilevered house mass는 만들지 않는다.
+전면 stair bay, 전면 flex bay, 후면 common bay, 2층 전면 bedroom/corridor bay는 각 대응 room bounds의 x span을 bay count로 나눈 측정 폭으로 나눈다. 0.12m curtainwall assembly의 inner face는 front room z=-5.76, rear room z=5.76에 맞추고 source는 그 inner face와 assembly thickness에서 center를 계산한다. source는 각 bay center, width, floor-to-ceiling height를 그 room bounds와 floor line에서 직접 유도하므로 module 끝이 room 경계와 일치한다. 우측 x=5.50 쪽은 opaque service wall로 묶고, 좌측은 구조적으로 필요한 opaque return과 제한된 glass를 둔다. roof는 직사각형 box 위 y=6.20에서 시작하는 네 개의 support post를 세워 y=6.80에서 끝나는 별도 canopy frame으로 표현하며 cantilevered house mass는 만들지 않는다.
 
 프라이버시는 세 단계다. 낮에는 후면 common의 clear electrochromic glass가 열리고 전면 private bay는 반투명 tint를 기본으로 한다. 야간 또는 외부 시선이 강한 상태에서는 glass tint가 어두워지고 translucent interlayer와 roller shade가 silhouette만 남긴다. canopy의 수평 PV/slat과 sill-level exterior fin은 직사광선과 맞은편 시선을 낮춘다. 이 제어는 material·fit-out 상태의 시각 표현이며 실제 전기변색 장치의 성능 인증이 아니다.
 

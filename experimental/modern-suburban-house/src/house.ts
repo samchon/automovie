@@ -149,6 +149,7 @@ export interface Building {
     readonly toSpaceId: string;
     readonly route: readonly Vec3[];
     readonly stepCount: number;
+    readonly riseM: number;
     readonly turnCount: 1;
   };
 }
@@ -252,14 +253,59 @@ const extent = (center: Vec3, size: Vec3): Bounds => ({
   ),
 });
 
+const rotatePartPoint = (point: Vec3, part: Part): Vec3 => {
+  const pitch = (part.pitchDeg * Math.PI) / 180;
+  const yaw = (part.rotationYDeg * Math.PI) / 180;
+  const roll = (part.rollDeg * Math.PI) / 180;
+  const yawX = point.x * Math.cos(yaw) - point.z * Math.sin(yaw);
+  const yawZ = point.x * Math.sin(yaw) + point.z * Math.cos(yaw);
+  const pitched = {
+    x: yawX,
+    y: point.y * Math.cos(pitch) - yawZ * Math.sin(pitch),
+    z: point.y * Math.sin(pitch) + yawZ * Math.cos(pitch),
+  };
+  return {
+    x: pitched.x * Math.cos(roll) - pitched.y * Math.sin(roll),
+    y: pitched.x * Math.sin(roll) + pitched.y * Math.cos(roll),
+    z: pitched.z,
+  };
+};
+
+const partExtent = (part: Part): Bounds => {
+  const points: Vec3[] = [];
+  for (const x of [-0.5, 0.5]) {
+    for (const y of [-0.5, 0.5]) {
+      for (const z of [-0.5, 0.5]) {
+        const rotated = rotatePartPoint(v(x * part.size.x, y * part.size.y, z * part.size.z), part);
+        points.push(v(part.center.x + rotated.x, part.center.y + rotated.y, part.center.z + rotated.z));
+      }
+    }
+  }
+  return points.reduce(
+    (current, point) => ({
+      min: v(
+        Math.min(current.min.x, point.x),
+        Math.min(current.min.y, point.y),
+        Math.min(current.min.z, point.z),
+      ),
+      max: v(
+        Math.max(current.max.x, point.x),
+        Math.max(current.max.y, point.y),
+        Math.max(current.max.z, point.z),
+      ),
+    }),
+    { min: points[0], max: points[0] },
+  );
+};
+
 const unionBounds = (parts: readonly Part[]): Bounds => {
   if (parts.length === 0) {
     return { min: v(0, 0, 0), max: v(0, 0, 0) };
   }
-  const first = extent(parts[0].center, parts[0].size);
+  const first = partExtent(parts[0]);
   return parts.slice(1).reduce(
     (current, part) => {
-      const next = extent(part.center, part.size);
+      const next = partExtent(part);
       return {
         min: v(
           Math.min(current.min.x, next.min.x),
@@ -912,28 +958,31 @@ const garageWalls = (): WallSpec[] => [
 const stairElements = (): Element[] => {
   const parts: Part[] = [];
   const lowerRun = 14;
-  const rise = (GROUND_HEIGHT + 0.28) / (lowerRun + 4);
+  const stepCount = lowerRun + 4;
+  const rise = UPPER_ELEVATION / stepCount;
   const going = 0.255;
   for (let index = 0; index < lowerRun; index += 1) {
+    const top = rise * (index + 1);
     parts.push(
       box(
         `stair.lower.${index + 1}`,
-        v(-0.3, rise * (index + 0.5), -3.7 + going * index),
-        v(1.05, rise * (index + 1), 0.34),
+        v(-0.3, top / 2, -3.7 + going * index),
+        v(1.05, top, 0.34),
         "wood-oak",
         ["stair-step", "single-stair"],
       ),
     );
   }
   parts.push(
-    box("stair.landing", v(-0.3, rise * lowerRun, -0.1), v(1.65, 0.16, 1.1), "wood-oak", ["stair-landing"]),
+    box("stair.landing", v(-0.3, rise * lowerRun + 0.08, -0.1), v(1.65, 0.16, 1.1), "wood-oak", ["stair-landing"]),
   );
   for (let index = 0; index < 4; index += 1) {
+    const top = rise * (lowerRun + index + 1);
     parts.push(
       box(
         `stair.turn.${index + 1}`,
-        v(-0.3 + 0.23 * index, rise * (lowerRun + index + 0.5), -0.1),
-        v(0.38, rise * (lowerRun + index + 1), 1.05),
+        v(-0.3 + 0.23 * index, top / 2, -0.1),
+        v(0.38, top, 1.05),
         "wood-oak",
         ["stair-step", "turn-step", "single-stair"],
       ),
@@ -1159,6 +1208,7 @@ const moduleLaws = (): ModuleLaw[] => [
 const moduleElements = (laws: readonly ModuleLaw[]): Element[] => {
   const roofPlaneY = (centerX: number, centerY: number, slopeDeg: number, x: number): number =>
     centerY + Math.tan((slopeDeg * Math.PI) / 180) * (x - centerX);
+  const clamp = (value: number, min: number, max: number): number => Math.min(Math.max(value, min), max);
   const elements: Element[] = [];
   for (const law of laws) {
     const parts: Part[] = [];
@@ -1184,27 +1234,40 @@ const moduleElements = (laws: readonly ModuleLaw[]): Element[] => {
           : law.hostSurfaceOwnerId.endsWith("north")
             ? 18
             : -18;
-        const roofCenterX = law.hostSurfaceOwnerId.endsWith("garage")
-          ? (GARAGE.minX + GARAGE.maxX) / 2
+        const roofHost = isRoof
+          ? law.hostSurfaceOwnerId.endsWith("garage")
+            ? { centerX: (GARAGE.minX + GARAGE.maxX) / 2, centerY: 4.15, centerZ: -1.7, spanX: 5.95, spanZ: 6.55 }
+            : law.hostSurfaceOwnerId.endsWith("north")
+              ? { centerX: -2.75, centerY: 6.5, centerZ: 0, spanX: 6.25, spanZ: 10.15 }
+              : { centerX: 2.75, centerY: 6.5, centerZ: 0, spanX: 6.25, spanZ: 10.15 }
+          : null;
+        const roofSizeX = rowPitch * 0.95;
+        const roofSizeZ = moduleLength * 0.95;
+        const roofHalfX = roofHost === null
+          ? 0
+          : Math.abs(Math.cos((roofSlopeDeg * Math.PI) / 180)) * roofSizeX / 2
+            + Math.abs(Math.sin((roofSlopeDeg * Math.PI) / 180)) * 0.06 / 2;
+        const rawRoofX = law.hostSurfaceOwnerId.endsWith("garage")
+          ? (roofHost?.centerX ?? 0) - (roofHost?.spanX ?? 0) / 2 + vertical
           : law.hostSurfaceOwnerId.endsWith("north")
-            ? -2.75
-            : 2.75;
-        const roofCenterY = law.hostSurfaceOwnerId.endsWith("garage") ? 4.15 : 6.5;
-        const roofX = law.hostSurfaceOwnerId.endsWith("garage")
-          ? GARAGE.minX + vertical
-          : law.hostSurfaceOwnerId.endsWith("north")
-            ? MAIN.minX + vertical
-            : MAIN.maxX - vertical;
-        const roofZ = law.hostSurfaceOwnerId.endsWith("garage")
-          ? GARAGE.minZ + Math.min(along + moduleLength / 2, GARAGE.maxZ - GARAGE.minZ - moduleLength / 2)
-          : MAIN.minZ + Math.min(along + moduleLength / 2, MAIN.maxZ - MAIN.minZ - moduleLength / 2);
-        const center = isRoof
-            ? v(roofX, roofPlaneY(roofCenterX, roofCenterY, roofSlopeDeg, roofX) + 0.11, roofZ)
+            ? (roofHost?.centerX ?? 0) - (roofHost?.spanX ?? 0) / 2 + vertical
+            : (roofHost?.centerX ?? 0) + (roofHost?.spanX ?? 0) / 2 - vertical;
+        const roofX = roofHost === null
+          ? 0
+          : clamp(rawRoofX, roofHost.centerX - roofHost.spanX / 2 + roofHalfX, roofHost.centerX + roofHost.spanX / 2 - roofHalfX);
+        const rawRoofZ = roofHost === null
+          ? 0
+          : roofHost.centerZ - roofHost.spanZ / 2 + along + moduleLength / 2;
+        const roofZ = roofHost === null
+          ? 0
+          : clamp(rawRoofZ, roofHost.centerZ - roofHost.spanZ / 2 + roofSizeZ / 2, roofHost.centerZ + roofHost.spanZ / 2 - roofSizeZ / 2);
+        const center = isRoof && roofHost !== null
+            ? v(roofX, roofPlaneY(roofHost.centerX, roofHost.centerY, roofSlopeDeg, roofX) + 0.11, roofZ)
           : isSide
             ? v(law.id.endsWith("garage") ? GARAGE.maxX + 0.1 : law.hostSurfaceOwnerId.endsWith("left") ? MAIN.minX - 0.1 : MAIN.maxX + 0.1, 0.15 + vertical, (law.id.endsWith("garage") ? GARAGE.minZ : MAIN.minZ) + Math.min(along, law.measuredLengthM))
             : v(MAIN.minX + Math.min(along, law.measuredLengthM), 0.15 + vertical, law.hostSurfaceOwnerId.endsWith("front") ? MAIN.minZ - 0.1 : MAIN.maxZ + 0.1);
         const size = isRoof
-          ? v(moduleLength * 0.95, 0.06, rowPitch * 0.95)
+          ? v(roofSizeX, 0.06, roofSizeZ)
           : isSide
             ? v(0.025, rowPitch * 0.92, moduleLength * 0.95)
             : v(moduleLength * 0.95, rowPitch * 0.92, 0.025);
@@ -1238,6 +1301,12 @@ const siteElements = (): Element[] => [
   simpleFurniture("site/porch-column-right", null, "ground/front-entry", v(-1.75, 1.35, -4.95), v(0.22, 2.7, 0.22), "trim-white", ["site", "porch"]),
   simpleFurniture("site/front-shrub-left", null, null, v(-5.85, 0.55, -4.6), v(0.8, 1.1, 0.8), "greenery", ["site", "planting"]),
   simpleFurniture("site/front-shrub-right", null, null, v(5.0, 0.55, -4.6), v(0.8, 1.1, 0.8), "greenery", ["site", "planting"]),
+  element("site/rear-fence", null, null, "surface.elevation.back", "site", [
+    box("site/rear-fence/rail", v(1.0, 0.58, 8.65), v(24.8, 0.1, 0.1), "wood-walnut", ["site", "fence", "rear-edge"]),
+    box("site/rear-fence/post-left", v(-11.4, 0.6, 8.65), v(0.14, 1.2, 0.14), "wood-walnut", ["site", "fence", "rear-edge"]),
+    box("site/rear-fence/post-center", v(1.0, 0.6, 8.65), v(0.14, 1.2, 0.14), "wood-walnut", ["site", "fence", "rear-edge"]),
+    box("site/rear-fence/post-right", v(13.4, 0.6, 8.65), v(0.14, 1.2, 0.14), "wood-walnut", ["site", "fence", "rear-edge"]),
+  ]),
 ];
 
 const makeStoreys = (spaces: readonly Space[], elements: readonly Element[]): Storey[] => [
@@ -1521,6 +1590,7 @@ export const buildModernSuburbanHouse = (): HouseLibrary => {
   addInteriorFitOut(elements, spaces);
   const laws = moduleLaws();
   elements.push(...moduleElements(laws));
+  const buildingEnvelope = unionBounds(elements.flatMap((item) => item.parts));
   const site: Site = {
     boundary: { min: v(-12, -0.2, -8), max: v(14, 0.8, 9) },
     streetEdgeZ: -8,
@@ -1528,7 +1598,7 @@ export const buildModernSuburbanHouse = (): HouseLibrary => {
   };
   const building: Building = {
     id: "modern-suburban-house/building",
-    envelope: { min: v(MAIN.minX, -0.28, MAIN.minZ), max: v(GARAGE.maxX, 6.95, MAIN.maxZ) },
+    envelope: buildingEnvelope,
     storeys: makeStoreys(spaces, elements),
     spaces,
     elements,
@@ -1538,8 +1608,9 @@ export const buildModernSuburbanHouse = (): HouseLibrary => {
       id: "connector/stair-ground-to-upper",
       fromSpaceId: "ground/stair-hall",
       toSpaceId: "upper/hall",
-      route: [v(-0.3, 0.08, -3.7), v(-0.3, 2.7, -0.1), v(0.45, 3.0, -0.1)],
+      route: [v(-0.3, 0.08, -3.7), v(-0.3, UPPER_ELEVATION * (14 / 18), -0.1), v(0.45, UPPER_ELEVATION + 0.08, -0.1)],
       stepCount: 18,
+      riseM: UPPER_ELEVATION / 18,
       turnCount: 1,
     },
   };

@@ -213,14 +213,14 @@ function drawBackdrop(): void {
 }
 
 function visibleWorldBounds(): { min: Point; max: Point } {
-  if (viewMode === "ground") return { min: point(-8, -0.4, -8), max: point(8, 3.1, 8) };
-  if (viewMode === "upper") return { min: point(-6, 2.7, -7), max: point(6, 6.3, 7) };
+  if (viewMode === "ground" || viewMode === "ground-plan") return { min: point(-8, -0.4, -8), max: point(8, 3.1, 8) };
+  if (viewMode === "upper" || viewMode === "upper-plan") return { min: point(-6, 2.7, -7), max: point(6, 6.3, 7) };
   if (viewMode === "roof") return { min: point(-7, 5.8, -7), max: point(7, 7.1, 7) };
   return { min: point(-9, -0.5, -9), max: point(9, 7.2, 9) };
 }
 
 function drawGroundGuide(bounds: { min: Point; max: Point }): void {
-  if (viewMode === "upper" || viewMode === "roof") return;
+  if (viewMode === "upper" || viewMode === "upper-plan" || viewMode === "roof") return;
   context.save();
   context.lineWidth = 1;
   for (let x = Math.ceil(bounds.min.x); x <= bounds.max.x; x += 1) drawGuideLine(point(x, -0.38, bounds.min.z), point(x, -0.38, bounds.max.z));
@@ -250,15 +250,16 @@ function drawSelectedSpace(bounds: { min: Point; max: Point }): void {
     point(spaceBounds.max.x, floorY, spaceBounds.min.z),
     point(spaceBounds.max.x, floorY, spaceBounds.max.z),
     point(spaceBounds.min.x, floorY, spaceBounds.max.z),
-  ].map(project);
+  ];
   context.save();
   context.fillStyle = "rgba(111, 226, 199, 0.13)";
-  fillPolygon(floor);
+  const clippedFloor = clipSectionPolygon(floor);
+  if (clippedFloor.length >= 3) fillPolygon(clippedFloor.map(project));
   context.strokeStyle = "rgba(142, 217, 199, 0.92)";
   context.lineWidth = 2;
   for (const edge of spaceEdges(spaceBounds)) {
-    const projected = edge.map(project);
-    strokePolygon(projected, true);
+    if (viewMode === "section") drawPolyline(clipSectionPolyline(edge), "rgba(142, 217, 199, 0.92)", 2);
+    else strokePolygon(edge.map(project), true);
   }
   context.restore();
 }
@@ -282,21 +283,50 @@ function drawSelectedLabel(): void {
   context.restore();
 }
 
+function spaceVisibleInView(spaceId: string): boolean {
+  const space = environment.spaces.find((entry) => entry.id === spaceId);
+  const bounds = space === undefined ? null : spaceBoundsOf(space);
+  if (bounds === null) return false;
+  if (viewMode === "ground" || viewMode === "ground-plan") return bounds.min.y < 3.08 && bounds.max.y > -0.4;
+  if (viewMode === "upper" || viewMode === "upper-plan") return bounds.min.y < 6.08 && bounds.max.y > 2.72;
+  if (viewMode === "roof") return bounds.max.y >= 5.82;
+  if (viewMode === "section") return bounds.max.z >= 0;
+  return true;
+}
+
+function boundaryVisibleInView(
+  boundary: IAutoMovieBuiltEnvironment["boundaries"][number],
+): boolean {
+  return boundary.spaces.some((spaceId) => {
+    const space = environment.spaces.find((entry) => entry.id === spaceId);
+    return space?.kind === "room" && spaceVisibleInView(spaceId);
+  });
+}
+
+function pointVisibleInView(location: Point): boolean {
+  if (viewMode === "ground" || viewMode === "ground-plan") return location.y < 3.08;
+  if (viewMode === "upper" || viewMode === "upper-plan") return location.y >= 2.72 && location.y < 6.08;
+  if (viewMode === "roof") return location.y >= 5.82;
+  if (viewMode === "section") return location.z >= 0;
+  return true;
+}
+
 function drawObservedSurfaces(): void {
   context.save();
   context.lineWidth = 1;
   for (const entry of environment.surfaces) {
-    if (!matchesSelection(entry.space)) continue;
+    if (!matchesSelection(entry.space) || !spaceVisibleInView(entry.space)) continue;
     const height = surfaceHeight(entry.surface);
-    const projected = entry.surface.polygon.map((vertex) =>
-      project(point(vertex.x, height, vertex.z)),
-    );
+    const polygon = clipSectionPolygon(entry.surface.polygon.map((vertex) =>
+      point(vertex.x, height, vertex.z),
+    ));
+    if (polygon.length < 3) continue;
     context.fillStyle = "rgba(93, 173, 158, 0.16)";
     context.strokeStyle = "rgba(121, 225, 199, 0.48)";
-    fillPolygon(projected);
+    fillPolygon(polygon.map(project));
     if (selectedSpace !== "all") {
       drawAnnotation(
-        averagePoint(entry.surface.polygon.map((vertex) => point(vertex.x, height, vertex.z))),
+        averagePoint(polygon),
         entry.surface.id,
         "#a7f2dc",
       );
@@ -312,23 +342,25 @@ function surfaceHeight(surface: IAutoMovieBuiltEnvironment["surfaces"][number]["
 
 function drawObservedTopology(): void {
   for (const boundary of environment.boundaries) {
-    if (!boundary.spaces.some((space) => matchesSelection(space))) continue;
+    if (!boundaryVisibleInView(boundary) || !boundary.spaces.some((space) => matchesSelection(space))) continue;
     const connector = connectorForBoundary(boundary);
-    const points = connector?.route ?? boundaryPoints(boundary);
+    const points = clipSectionPolyline(connector?.route ?? boundaryPoints(boundary));
     if (points.length < 2) continue;
     drawPolyline(points, boundary.kind === "passage" ? "#f1c98d" : "#a6e8d4", 1.5);
     drawAnnotation(averagePoint(points), boundary.id, "#f1d49d");
   }
   for (const connector of environment.connectors) {
-    if (!matchesSelection(connector.from) && !matchesSelection(connector.to)) continue;
-    drawPolyline(connector.route, "#ffd18e", connector.kind === "stair" ? 3 : 2);
-    drawAnnotation(averagePoint(connector.route), connector.id, "#ffe0a8");
+    if ((!matchesSelection(connector.from) && !matchesSelection(connector.to)) || !spaceVisibleInView(connector.from) && !spaceVisibleInView(connector.to)) continue;
+    const points = clipSectionPolyline(connector.route);
+    if (points.length < 2) continue;
+    drawPolyline(points, "#ffd18e", connector.kind === "stair" ? 3 : 2);
+    drawAnnotation(averagePoint(points), connector.id, "#ffe0a8");
   }
   for (const opening of environment.openings) {
     const boundary = environment.boundaries.find((entry) => entry.id === opening.boundary);
-    if (boundary === undefined || !boundary.spaces.some((space) => matchesSelection(space))) continue;
+    if (boundary === undefined || !boundaryVisibleInView(boundary) || !boundary.spaces.some((space) => matchesSelection(space))) continue;
     const location = openingPoint(boundary);
-    if (location === null) continue;
+    if (location === null || !pointVisibleInView(location)) continue;
     drawDiamond(location, "#ffb87d", 5);
     drawAnnotation(location, opening.id, "#ffc99b");
   }
@@ -336,7 +368,7 @@ function drawObservedTopology(): void {
 
 function drawRoomObservationTargets(): void {
   const rooms = environment.spaces.filter(
-    (space) => space.kind === "room" && matchesSelection(space.id),
+    (space) => space.kind === "room" && matchesSelection(space.id) && spaceVisibleInView(space.id),
   );
   for (const room of rooms) {
     const bounds = spaceBoundsOf(room);
@@ -355,12 +387,15 @@ function drawRoomObservationTargets(): void {
       point((bounds.min.x + bounds.max.x) / 2, y, (bounds.min.z + bounds.max.z) / 2 + zOffset),
       point((bounds.min.x + bounds.max.x) / 2, y, (bounds.min.z + bounds.max.z) / 2 - zOffset),
     ];
-    for (const target of targets.slice(0, 4)) drawDiamond(target, "#83e1c1", 4);
-    for (const target of targets.slice(4)) drawCross(target, "#d5ffef", 3);
+    const visibleTargets = targets.filter(pointVisibleInView);
+    for (const target of visibleTargets.slice(0, 4)) drawDiamond(target, "#83e1c1", 4);
+    for (const target of visibleTargets.slice(4)) drawCross(target, "#d5ffef", 3);
     const threshold = thresholdPoint(room.id);
-    if (threshold !== null) drawDiamond(threshold, "#ffdb91", 6);
+    if (threshold !== null && pointVisibleInView(threshold)) drawDiamond(threshold, "#ffdb91", 6);
+    const labelTarget = visibleTargets[4] ?? visibleTargets[0];
+    if (labelTarget === undefined) continue;
     drawAnnotation(
-      targets[4]!,
+      labelTarget,
       `${room.id} · corners + center/cardinals${threshold === null ? "" : " + threshold"}`,
       "#d5ffef",
     );

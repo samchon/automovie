@@ -189,7 +189,11 @@ const environmentSpaces = (): IAutoMovieBuiltSpace[] => [
     id: "building",
     kind: "building",
     parent: null,
-    cells: [boxCell("building/cell", vector(-5.5, -0.28, -4.8), vector(11.3, 6.95, 4.8))],
+    cells: [boxCell(
+      "building/cell",
+      vector(modernSuburbanHouse.building.envelope.min.x, modernSuburbanHouse.building.envelope.min.y, modernSuburbanHouse.building.envelope.min.z),
+      vector(modernSuburbanHouse.building.envelope.max.x, modernSuburbanHouse.building.envelope.max.y, modernSuburbanHouse.building.envelope.max.z),
+    )],
   },
   {
     id: "ground",
@@ -238,31 +242,67 @@ const environmentOpenings = (): IAutoMovieBuiltOpening[] =>
 
 const pairKey = (from: string, to: string): string => [from, to].sort((left, right) => left.localeCompare(right)).join("::");
 
+const horizontalDirection = (from: IAutoMovieVector3, to: IAutoMovieVector3): IAutoMovieVector3 => {
+  const deltaX = to.x - from.x;
+  const deltaZ = to.z - from.z;
+  return Math.abs(deltaX) >= Math.abs(deltaZ)
+    ? vector(Math.sign(deltaX) || 1, 0, 0)
+    : vector(0, 0, Math.sign(deltaZ) || 1);
+};
+
+const passageRoute = (
+  opening: Opening,
+  from: Space,
+  to: Space,
+): IAutoMovieVector3[] => {
+  const floorY = Math.max(from.bounds.min.y, to.bounds.min.y) + 0.1;
+  const center = vector(opening.center.x, floorY, opening.center.z);
+  const fromDirection = horizontalDirection(
+    center,
+    vector(
+      (from.bounds.min.x + from.bounds.max.x) / 2,
+      floorY,
+      (from.bounds.min.z + from.bounds.max.z) / 2,
+    ),
+  );
+  const toDirection = horizontalDirection(
+    center,
+    vector(
+      (to.bounds.min.x + to.bounds.max.x) / 2,
+      floorY,
+      (to.bounds.min.z + to.bounds.max.z) / 2,
+    ),
+  );
+  return [
+    vector(center.x + fromDirection.x * 0.45, floorY, center.z + fromDirection.z * 0.45),
+    center,
+    vector(center.x + toDirection.x * 0.45, floorY, center.z + toDirection.z * 0.45),
+  ];
+};
+
 const environmentConnectors = (): IAutoMovieBuiltConnector[] => {
   const connectors: IAutoMovieBuiltConnector[] = [];
   const seen = new Set<string>();
   const spaceById = new Map(modernSuburbanHouse.building.spaces.map((item) => [item.id, item]));
-  for (const space of modernSuburbanHouse.building.spaces) {
-    for (const adjacent of space.adjacentSpaceIds) {
-      const key = pairKey(space.id, adjacent);
-      const adjacentSpace = spaceById.get(adjacent);
-      if (seen.has(key) || adjacentSpace === undefined || space.storeyId !== adjacentSpace.storeyId) continue;
-      seen.add(key);
-      connectors.push({
-        id: `passage/${space.id}/${adjacent}`,
-        kind: "passage",
-        from: space.id,
-        to: adjacent,
-        bidirectional: true,
-        route: [
-          vector(space.bounds.min.x, space.bounds.min.y + 0.1, space.bounds.min.z),
-          vector(space.bounds.max.x, space.bounds.min.y + 0.1, space.bounds.max.z),
-        ],
-        width: 0.9,
-        clearHeight: 2.1,
-        elements: [],
-      });
-    }
+  for (const opening of modernSuburbanHouse.building.openings) {
+    if (opening.fromSpaceId === null || opening.toSpaceId === null) continue;
+    const from = spaceById.get(opening.fromSpaceId);
+    const to = spaceById.get(opening.toSpaceId);
+    if (from === undefined || to === undefined || from.storeyId !== to.storeyId) continue;
+    const key = pairKey(from.id, to.id);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    connectors.push({
+      id: `passage/${opening.id}`,
+      kind: "passage",
+      from: from.id,
+      to: to.id,
+      bidirectional: true,
+      route: passageRoute(opening, from, to),
+      width: opening.width,
+      clearHeight: opening.height,
+      elements: [`opening/${opening.id}`],
+    });
   }
   connectors.push({
     id: modernSuburbanHouse.building.stairConnector.id,
@@ -274,7 +314,7 @@ const environmentConnectors = (): IAutoMovieBuiltConnector[] => {
     orientations: [IDENTITY, IDENTITY, IDENTITY],
     width: 1.05,
     clearHeight: 2.1,
-    steps: { count: modernSuburbanHouse.building.stairConnector.stepCount, rise: 0.18, run: 0.255 },
+    steps: { count: modernSuburbanHouse.building.stairConnector.stepCount, rise: modernSuburbanHouse.building.stairConnector.riseM, run: 0.255 },
     elements: ["stair/single-l-turn"],
   });
   return connectors;

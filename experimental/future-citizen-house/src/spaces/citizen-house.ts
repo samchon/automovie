@@ -36,10 +36,7 @@ type RoomBounds = Readonly<{
 
 const HOUSE_PLAN = { minX: -5.5, maxX: 5.5, minZ: -6, maxZ: 6 } as const;
 const SITE_PLAN = { minX: -7.8, maxX: 7.8, minZ: -8.5, maxZ: 8.5 } as const;
-const CURTAINWALL_Z = {
-  front: HOUSE_PLAN.minZ + 0.08,
-  rear: HOUSE_PLAN.maxZ - 0.08,
-} as const;
+const CURTAINWALL_ASSEMBLY_THICKNESS = 0.12;
 
 const ROOM_BOUNDS = {
   entry: { minX: -1.55, minY: 0, minZ: -5.76, maxX: 1.55, maxY: 2.8, maxZ: -2.9 },
@@ -55,6 +52,11 @@ const ROOM_BOUNDS = {
   upperStorage: { minX: 1.9, minY: 3, minZ: 0, maxX: 5.26, maxY: 5.8, maxZ: 1.5 },
   upperService: { minX: 1.9, minY: 3, minZ: -5.76, maxX: 5.26, maxY: 5.8, maxZ: -0.04 },
 } satisfies Record<string, RoomBounds>;
+
+const CURTAINWALL_Z = {
+  front: ROOM_BOUNDS.entry.minZ + CURTAINWALL_ASSEMBLY_THICKNESS / 2,
+  rear: ROOM_BOUNDS.commonRoom.maxZ - CURTAINWALL_ASSEMBLY_THICKNESS / 2,
+} as const;
 
 const transform = (
   translation: IAutoMovieVector3,
@@ -399,7 +401,7 @@ const roomCurtainwallTransforms = (
         (bounds.minY + bounds.maxY) / 2,
         fixedZ,
       ),
-      vector(width, bounds.maxY - bounds.minY, 0.08),
+      vector(width, bounds.maxY - bounds.minY, CURTAINWALL_ASSEMBLY_THICKNESS),
     ),
   }));
 };
