@@ -137,6 +137,27 @@ const drawRoute = (route, width, height, selected) => {
   context.setLineDash([]);
 };
 
+const drawObservationRoutes = (environment, width, height, selectedId) => {
+  const anchorsByRoom = new Map();
+  for (const element of environment.elements) {
+    if (element.kind !== "observation-route-anchor") continue;
+    const [room, name] = element.id.split("/").slice(-2);
+    if (!anchorsByRoom.has(room)) anchorsByRoom.set(room, new Map());
+    anchorsByRoom.get(room).set(name, element.transform.translation);
+  }
+  for (const [room, anchors] of anchorsByRoom) {
+    const center = anchors.get("center");
+    const threshold = anchors.get("threshold");
+    if (center === undefined || threshold === undefined) continue;
+    const selected = room === selectedId;
+    drawRoute([threshold, center], width, height, selected);
+    for (const name of ["north", "east", "south", "west"]) {
+      const point = anchors.get(name);
+      if (point !== undefined) drawRoute([center, point], width, height, selected);
+    }
+  }
+};
+
 const drawSpaceOutline = (space, width, height, selected) => {
   for (const cell of space.cells) {
     const bounds = boundsFromSpace({ cells: [cell] });
@@ -181,11 +202,12 @@ const render = (width, height) => {
   const selectedSpace = environment.spaces.find((item) => item.id === selectedId);
   const section = sectionSelect.value;
   const selectedElementIds = new Set(selectedSpace === undefined ? [] : environment.elements.filter((item) => item.space === selectedSpace.id).map((item) => item.id));
-  const elements = environment.elements.filter((item) => item.model !== null && item.kind !== "floor" && (section !== "roof-open" || item.kind !== "roof-cover") && (section !== "cutaway" || !["roof-cover", "exterior-wall"].includes(item.kind) || item.id.includes("south") || item.id.includes("west")));
+  const elements = environment.elements.filter((item) => item.model !== null && (section !== "roof-open" || item.kind !== "roof-cover") && (section !== "cutaway" || !["roof-cover", "exterior-wall"].includes(item.kind) || item.id.includes("south") || item.id.includes("west")));
   const ordered = [...elements].sort((left, right) => rotatePoint(left.transform.translation).z - rotatePoint(right.transform.translation).z);
   for (const element of ordered) drawBox(environment, element, width, height, selectedElementIds.has(element.id));
   if (routesInput.checked) {
     for (const connector of environment.connectors) drawRoute(connector.route, width, height, connector.from === selectedId || connector.to === selectedId);
+    drawObservationRoutes(environment, width, height, selectedId);
   }
   for (const space of environment.spaces) {
     const selected = space.id === selectedId;

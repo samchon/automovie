@@ -165,11 +165,12 @@ const semanticElement = (
   id: string,
   kind: string,
   space: string,
+  translation: IAutoMovieVector3 = vector(0, 0, 0),
 ): IAutoMovieBuiltElement => ({
   id,
   kind,
   parent: "building/root",
-  transform: transform(vector(0, 0, 0), vector(1, 1, 1)),
+  transform: transform(translation, vector(1, 1, 1)),
   model: null,
   space,
 });
@@ -493,6 +494,73 @@ const openingElements = (): IAutoMovieBuiltElement[] => [
   semanticElement("fountain/socket", "fountain-socket", "courtyard"),
 ];
 
+const observationAnchorData = [
+  {
+    room: "sanctuary",
+    points: [
+      ["threshold", vector(0, 0, 6)],
+      ["center", vector(0, 0, 7.2)],
+      ["north", vector(0, 0, 8.1)],
+      ["east", vector(2.3, 0, 7.2)],
+      ["south", vector(0, 0, 6.3)],
+      ["west", vector(-2.3, 0, 7.2)],
+    ],
+  },
+  {
+    room: "communal-votive-room",
+    points: [
+      ["threshold", vector(-7.4, 0, 0)],
+      ["center", vector(-9.4, 0, 0)],
+      ["north", vector(-9.4, 0, 2.3)],
+      ["east", vector(-8.3, 0, 0)],
+      ["south", vector(-9.4, 0, -2.3)],
+      ["west", vector(-10.5, 0, 0)],
+    ],
+  },
+  {
+    room: "administration-room",
+    points: [
+      ["threshold", vector(7.4, 0, 3.9)],
+      ["center", vector(9.4, 0, 3.9)],
+      ["north", vector(9.4, 0, 4.8)],
+      ["east", vector(10.3, 0, 3.9)],
+      ["south", vector(9.4, 0, 3)],
+      ["west", vector(8.5, 0, 3.9)],
+    ],
+  },
+  {
+    room: "records-room",
+    points: [
+      ["threshold", vector(7.4, 0, 1)],
+      ["center", vector(9.4, 0, 1)],
+      ["north", vector(9.4, 0, 1.8)],
+      ["east", vector(10.3, 0, 1)],
+      ["south", vector(9.4, 0, 0.2)],
+      ["west", vector(8.5, 0, 1)],
+    ],
+  },
+  {
+    room: "votive-storage-room",
+    points: [
+      ["threshold", vector(7.4, 0, -2.95)],
+      ["center", vector(9.4, 0, -2.95)],
+      ["north", vector(9.4, 0, -1.85)],
+      ["east", vector(10.3, 0, -2.95)],
+      ["south", vector(9.4, 0, -4.05)],
+      ["west", vector(8.5, 0, -2.95)],
+    ],
+  },
+] as const;
+
+const observationAnchorElements = (): IAutoMovieBuiltElement[] => observationAnchorData.flatMap((room) =>
+  room.points.map(([name, position]) => semanticElement(
+    `route-anchor/${room.room}/${name}`,
+    "observation-route-anchor",
+    room.room,
+    position,
+  )),
+);
+
 const environmentElements = (): IAutoMovieBuiltElement[] => [
   {
     id: "building/root",
@@ -510,6 +578,7 @@ const environmentElements = (): IAutoMovieBuiltElement[] => [
   ...roofElements(),
   ...floorElements(),
   ...openingElements(),
+  ...observationAnchorElements(),
 ];
 
 const space = (
@@ -737,77 +806,6 @@ const passage = (
   elements,
 });
 
-const observationRoute = (
-  id: string,
-  room: string,
-  route: IAutoMovieVector3[],
-  elements: string[],
-): IAutoMovieBuiltConnector => ({
-  id,
-  kind: "other",
-  from: room,
-  to: room,
-  bidirectional: true,
-  route,
-  width: 1.2,
-  clearHeight: 3.6,
-  elements,
-});
-
-const roomObservationRoutes = (): IAutoMovieBuiltConnector[] => {
-  const rooms = [
-    {
-      id: "sanctuary",
-      threshold: vector(0, 0, 6),
-      center: vector(0, 0, 7.2),
-      cardinal: [vector(0, 0, 8.1), vector(2.3, 0, 7.2), vector(0, 0, 6.3), vector(-2.3, 0, 7.2)],
-      door: "opening/sanctuary-door",
-    },
-    {
-      id: "communal-votive-room",
-      threshold: vector(-7.4, 0, 0),
-      center: vector(-9.4, 0, 0),
-      cardinal: [vector(-9.4, 0, 2.3), vector(-8.3, 0, 0), vector(-9.4, 0, -2.3), vector(-10.5, 0, 0)],
-      door: "opening/communal-door",
-    },
-    {
-      id: "administration-room",
-      threshold: vector(7.4, 0, 3.9),
-      center: vector(9.4, 0, 3.9),
-      cardinal: [vector(9.4, 0, 4.8), vector(10.3, 0, 3.9), vector(9.4, 0, 3), vector(8.5, 0, 3.9)],
-      door: "opening/administration-door",
-    },
-    {
-      id: "records-room",
-      threshold: vector(7.4, 0, 1),
-      center: vector(9.4, 0, 1),
-      cardinal: [vector(9.4, 0, 1.8), vector(10.3, 0, 1), vector(9.4, 0, 0.2), vector(8.5, 0, 1)],
-      door: "opening/records-door",
-    },
-    {
-      id: "votive-storage-room",
-      threshold: vector(7.4, 0, -2.95),
-      center: vector(9.4, 0, -2.95),
-      cardinal: [vector(9.4, 0, -1.85), vector(10.3, 0, -2.95), vector(9.4, 0, -4.05), vector(8.5, 0, -2.95)],
-      door: "opening/votive-storage-door",
-    },
-  ];
-  return rooms.flatMap((room) => [
-    observationRoute(
-      `route/${room.id}/threshold-center`,
-      room.id,
-      [room.threshold, room.center],
-      [room.door],
-    ),
-    ...room.cardinal.map((point, index) => observationRoute(
-      `route/${room.id}/center-cardinal-${index + 1}`,
-      room.id,
-      [room.center, point],
-      [`floor/${room.id.replace("-room", "")}`],
-    )),
-  ]);
-};
-
 const environmentConnectors = (): IAutoMovieBuiltConnector[] => [
   passage(
     "south-entrance",
@@ -826,22 +824,6 @@ const environmentConnectors = (): IAutoMovieBuiltConnector[] => [
     2,
     3.6,
     ["fountain/socket"],
-  ),
-  passage(
-    "loop-return",
-    "colonnade-loop",
-    "colonnade-loop",
-    [
-      vector(0, 0, -4.6),
-      vector(6, 0, -4.6),
-      vector(6, 0, 4.6),
-      vector(-6, 0, 4.6),
-      vector(-6, 0, -4.6),
-      vector(0, 0, -4.6),
-    ],
-    2,
-    3.6,
-    ["building/root"],
   ),
   passage(
     "door-sanctuary",
@@ -897,7 +879,6 @@ const environmentConnectors = (): IAutoMovieBuiltConnector[] => [
     2.1,
     ["opening/service-gate"],
   ),
-  ...roomObservationRoutes(),
 ];
 
 const floorSurface = (
@@ -946,7 +927,7 @@ const ancientCivicTempleEnvironment = (): IAutoMovieBuiltEnvironment => {
     version: 1,
     id: "ancient-civic-temple",
     units: "meter",
-    buildings: [{ id: "ancient-civic-temple", element: "building/root", space: "building" }],
+    buildings: [{ id: "ancient-civic-temple", element: "building/root", space: "site" }],
     models: Object.keys(MATERIALS).map((name) => modelFor(name as MaterialName)),
     modelReferences: [],
     elements: environmentElements(),

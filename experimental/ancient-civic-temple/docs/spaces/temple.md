@@ -304,7 +304,7 @@ The room schedule is not a furniture schedule. It fixes which semantic room exis
 @evidenceReview settings/temple.md#production-visual-grammar #e9570a7 Read the cited target and this host's complete body; checked the host-specific spatial decision against the reviewed spaces graph and its stated scope.
 @evidence settings/temple.md#production-fidelity-tier This H2 carries the south arrival, room doors, service terminal, and route edges into the deterministic blocking ceiling and refusals without changing the settings owner.
 @evidenceReview settings/temple.md#production-fidelity-tier #e1e932d Read the cited target and this host's complete body; checked the host-specific spatial decision against the reviewed spaces graph and its stated scope.
-@evidenceReview settings/temple.md#producti…843 tokens truncated…its stated scope.
+@evidenceReview settings/temple.md#production-fidelity-tier #e1e932d Read the cited target and this host's complete body; checked the host-specific spatial decision against the reviewed spaces graph and its stated scope.
 @evidence settings/temple.md#operative-subject-inventory This H2 carries the south arrival, room doors, service terminal, and route edges into the building, rooms, fountain sockets, and observation population without changing the settings owner.
 @evidenceReview settings/temple.md#operative-subject-inventory #2687aca Read the cited target and this host's complete body; checked the host-specific spatial decision against the reviewed spaces graph and its stated scope.
 @evidence settings/temple.md#design-dependent-subject-conditions This H2 carries the south arrival, room doors, service terminal, and route edges into the route, threshold, fountain, and service constraints without changing the settings owner.
