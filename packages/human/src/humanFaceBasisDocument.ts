@@ -13,10 +13,7 @@ import type { IAutoMovieHumanFaceBasisDocument } from "./IAutoMovieHumanFaceBasi
 export function parseHumanFaceBasisDocument(
   text: string,
 ): IAutoMovieHumanFaceBasisDocument {
-  if (text.length > 16 * 1024 * 1024)
-    throw new Error(
-      "Face documents must fit within 16,777,216 UTF-16 code units.",
-    );
+  assertTextSize(text);
   return admit(JSON.parse(text));
 }
 
@@ -30,7 +27,19 @@ export function parseHumanFaceBasisDocument(
 export function serializeHumanFaceBasisDocument(
   document: IAutoMovieHumanFaceBasisDocument,
 ): string {
-  return JSON.stringify(admit(document), null, 2);
+  const text = JSON.stringify(admit(document), null, 2);
+  // Measure the actual escaped, formatted representation. Otherwise a valid
+  // in-memory edit could save successfully but exceed the loader's envelope.
+  assertTextSize(text);
+  return text;
+}
+
+/** Loading and saving share a UTF-16 envelope, including JSON whitespace. */
+function assertTextSize(text: string): void {
+  if (text.length > 16 * 1024 * 1024)
+    throw new Error(
+      "Face documents must fit within 16,777,216 UTF-16 code units.",
+    );
 }
 
 /** Finite scalar admission is shared by loading and saving this flat schema. */
