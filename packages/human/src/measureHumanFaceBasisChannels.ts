@@ -64,7 +64,11 @@ export interface IAutoMovieHumanFaceEndpointScale {
  * `assertHumanFaceBasis`, which is what guarantees finite sparse rows and
  * resident vertex identities; an endpoint no surface carries a row for measures
  * as zero rather than throwing, because the admission boundary already refuses
- * that basis. Cost is linear in the total number of sparse rows.
+ * that basis. The one precondition this function cannot leave implicit is a
+ * resident vertex, because dividing by an empty population would publish NaN as
+ * a measurement; the browser editor reads a fetched asset before any builder
+ * has admitted it, so that case is refused here rather than displayed. Cost is
+ * linear in the total number of sparse rows.
  *
  * @param basis Admitted immutable basis to measure.
  * @returns One record per channel, in the basis's own channel order.
@@ -79,6 +83,8 @@ export function measureHumanFaceBasisChannels(
     (total, surface) => total + surface.positions.length / 3,
     0,
   );
+  if (vertices === 0)
+    throw new Error("A facial basis needs resident vertices to measure.");
   const measure = (name: string): IAutoMovieHumanFaceEndpointScale => {
     let square = 0;
     let peak = 0;

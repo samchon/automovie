@@ -2,7 +2,7 @@ import { measureHumanFaceBasisChannels } from "@automovie/human";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFaceBasisFixture } from "../internal/humanFaceBasisFixture";
-import { nclose } from "../internal/predicates";
+import { nclose, throwsError } from "../internal/predicates";
 
 /**
  * A channel's metric scale is the whole basis's displacement, not one surface's.
@@ -20,6 +20,7 @@ import { nclose } from "../internal/predicates";
  * 2. An endpoint spanning two surfaces accumulates across them and divides by every resident vertex.
  * 3. A nonnegative channel reports a null negative side rather than a zeroed record.
  * 4. Channel order and kind follow the basis, so a caller can index without a second lookup.
+ * 5. A basis with no resident vertex refuses instead of publishing NaN as a measurement.
  */
 export const test_subject_human_basis_channel_scale = (): void => {
   const { basis } = humanFaceBasisFixture();
@@ -81,5 +82,14 @@ export const test_subject_human_basis_channel_scale = (): void => {
     "measuring does not mutate the basis",
     basis,
     humanFaceBasisFixture().basis,
+  );
+  const empty = humanFaceBasisFixture().basis;
+  empty.surfaces = [];
+  TestValidator.predicate(
+    "an empty surface population refuses",
+    throwsError(
+      () => measureHumanFaceBasisChannels(empty),
+      "resident vertices",
+    ),
   );
 };
