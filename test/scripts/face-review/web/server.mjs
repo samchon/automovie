@@ -29,10 +29,19 @@ const digest = (bytes) => createHash("sha256").update(bytes).digest("hex");
 const routes = new Map([
   ["/", [path.join(directory, "index.html"), "text/html"]],
   ["/app.mjs", [path.join(directory, "app.mjs"), "text/javascript"]],
+  ["/controls.mjs", [path.join(directory, "controls.mjs"), "text/javascript"]],
+  ["/scene.mjs", [path.join(directory, "scene.mjs"), "text/javascript"]],
+  ["/identity.mjs", [path.join(directory, "identity.mjs"), "text/javascript"]],
   ["/style.css", [path.join(directory, "style.css"), "text/css"]],
   [
     "/three.module.js",
     [path.join(three, "build/three.module.js"), "text/javascript"],
+  ],
+  // The installed Three.js module imports its core through this relative URL.
+  // Keep that dependency in both the exact allowlist and capture fingerprint.
+  [
+    "/three.core.js",
+    [path.join(three, "build/three.core.js"), "text/javascript"],
   ],
   [
     "/OrbitControls.js",
