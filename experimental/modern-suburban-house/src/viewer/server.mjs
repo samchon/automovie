@@ -22,6 +22,7 @@ const contentTypes = new Map([
 ]);
 
 const loadCurrentSource = async () => {
+  // The source timestamp is the single revision authority for the live API and cache busting.
   const revision = (await stat(sourcePath)).mtimeMs;
   const sourceUrl = new URL("../house.ts", import.meta.url);
   sourceUrl.searchParams.set("revision", String(revision));

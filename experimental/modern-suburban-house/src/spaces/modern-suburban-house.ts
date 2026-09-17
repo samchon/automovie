@@ -139,13 +139,22 @@ const partElement = (
 ): IAutoMovieBuiltElement => ({
   id: `${parent.id}/${part.id}`,
   kind: part.tags[0] ?? parent.layer,
-  parent: "building/root",
+  parent: parent.id,
   transform: transform(
     vector(part.center.x, part.center.y, part.center.z),
     vector(part.size.x, part.size.y, part.size.z),
     rotationFor(part.pitchDeg, part.rotationYDeg, part.rollDeg),
   ),
   model: `model/${part.material}`,
+  space: parent.spaceId,
+});
+
+const elementGroup = (parent: Element): IAutoMovieBuiltElement => ({
+  id: parent.id,
+  kind: parent.layer,
+  parent: "building/root",
+  transform: transform(vector(0, 0, 0), vector(1, 1, 1)),
+  model: null,
   space: parent.spaceId,
 });
 
@@ -158,12 +167,10 @@ const environmentElements = (): IAutoMovieBuiltElement[] => [
     model: null,
     space: "building",
   },
-  ...modernSuburbanHouse.building.elements.flatMap((item) =>
-    item.parts.map((part) => partElement(item, part)),
-  ),
-  ...modernSuburbanHouse.site.elements.flatMap((item) =>
-    item.parts.map((part) => partElement(item, part)),
-  ),
+  ...[...modernSuburbanHouse.building.elements, ...modernSuburbanHouse.site.elements].flatMap((item) => [
+    elementGroup(item),
+    ...item.parts.map((part) => partElement(item, part)),
+  ]),
 ];
 
 const boxCell = (id: string, min: IAutoMovieVector3, max: IAutoMovieVector3) => ({
