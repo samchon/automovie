@@ -14,6 +14,8 @@ The default development URL is `http://127.0.0.1:5173`. The development command 
 
 ## Anatomical face editor
 
+Open `/connected-face.html` for the [connected whole-face study](../../test/studies/human-face/connected-basis/whole-face/README.md). Its selected CC0 basis exposes 80 shape and 52 expression controls. The study selector loads nineteen compact documents, including `kdy1`; search filters the visible controls without changing hidden values. Selection, numerical edits, presets and document loading share undo/redo and last-valid-state recovery. Save document preserves the exact basis revision, and Export GLB downloads the current static face. These studies have no scalp groom and retain the linked study's unresolved likeness limits.
+
 Open `/face.html`. The editor consumes [human](../human/README.md) and the nineteen numerical [subject documents](../../test/studies/human-face), not photographs or a live fitting service. The old face-package page and `/head.html` have been retired.
 
 Select a subject, adjust intermediate traits or an anatomical detail, and wait for the worker to build the model. Scalar fields show units and applied values; the region JSON editor handles nested objects and complete arrays. Eyes, cheeks and ears have independent side overrides. Expression controls and presets include paired blink, brow, smile and gaze plus jaw opening, lip separation and pucker. Camera presets, orbit controls and clay help inspect geometry. The Shadows checkbox isolates cast-shadow boundaries from surface form while preserving the direct lights, face document and export. Shadows start enabled; turning them off is an inspection mode, not a change to the anatomical model.
