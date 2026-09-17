@@ -2,6 +2,7 @@
 @evidence discovery/core/common.md#canonical-realization Each complete visual surface is assigned to one canonical owner rather than being distributed by implementation convenience.
 @evidenceReview discovery/core/common.md#canonical-realization #5a6e541 Compared docs/contracts/surface-ownership.md#docs/contracts/surface-ownership.md with target discovery/core/common.md#canonical-realization and independently confirmed canonical-realization through this host's authored decision: Each complete visual surface is assigned to one canonical owner rather than being distributed by implementation convenience.
 @evidence discovery/design/materials.md#work-specific-material-requirements Surface construction and renderer response for the named host schedule are assigned to the materials design population.
+@evidenceReview discovery/design/materials.md#work-specific-material-requirements #19a2072 Compared this surface-ownership contract with the material discovery predicate and confirmed that its named host schedule assigns construction and renderer response to the materials population while space/model owners retain boundaries and stable surfaces; an unassigned host schedule or geometry change in the material handoff would falsify this relationship.
 -->
 # Surface ownership
 
