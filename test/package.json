@@ -47,7 +47,6 @@
     "mp4box": "catalog:media",
     "playwright": "catalog:media",
     "ttsc": "catalog:typescript",
-    "tsx": "^4.19.0",
     "typescript": "catalog:typescript",
     "typescript-compiler": "npm:typescript@5.9.3",
     "@ttsc/lint": "catalog:typescript",

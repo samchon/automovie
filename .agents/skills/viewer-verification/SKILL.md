@@ -27,7 +27,7 @@ Two details decide whether the frame is real.
 
 Do not stand up vite or a bundler. Split it in two, which is both simpler and more robust:
 
-1. A Node step run through `test/node_modules/.bin/tsx` imports the engine **source file by absolute path**, builds the geometry or pose, and dumps the result to JSON. `tsx` does not type-check, so another owner's type error cannot hold your verification hostage, and importing the module directly instead of through the package barrel sidesteps the empty-barrel trap an `evidence/graph` error sets.
+1. Run the TypeScript export entry through `pnpm exec ttsx -P <owning-tsconfig.json> <entry.ts>` from the repository root. The owning project supplies its type checks and configured transforms. Import the engine source module directly to inspect the working-tree implementation, build the geometry or pose, and write the result to JSON. Face-review entries use `test/tsconfig.scripts.json`; a diagnostic entry needs a project that includes it. The [development skill](../development/SKILL.md#validation) owns repository acceptance checks.
 2. A dependency-free static page reads that JSON and draws it. It opens over `file://`, so no server is involved.
 
 Create the context with `preserveDrawingBuffer: true` and call `gl.finish()` at the end of the render, or the screenshot and the pixel read will disagree about which frame they saw. Screenshot the canvas element rather than the page, and expose `gl.readPixels` on `window` when a claim needs coordinates and channel values rather than an impression.
