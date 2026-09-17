@@ -1,3 +1,4 @@
+import { serializeHumanFaceDocument } from "@automovie/human";
 import { createHumanPreviewBuilder } from "@automovie/playground/src/human/previewBuilder";
 import { TestValidator } from "@nestia/e2e";
 
@@ -26,6 +27,7 @@ export async function assertHumanPanelRefusal(
   let count = 0;
   const disposed: string[] = [];
   const builder = createHumanPreviewBuilder({
+    serialize: serializeHumanFaceDocument,
     worker: () => {
       const worker: PreviewWorker = {
         onError: (_message: string): void => {},

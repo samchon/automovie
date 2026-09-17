@@ -1,5 +1,6 @@
 import type * as Human from "@automovie/human";
 
+import type { humanFaceConnectedReview } from "./connected-review";
 import type { humanFaceDetailReview } from "./detail-review";
 import type { humanFaceInteriorReview } from "./interior-review";
 import type { humanFaceOcularReview } from "./ocular-review";
@@ -12,6 +13,8 @@ import type { humanFaceStudyDocuments } from "./studies";
  * the per-person image observations remain separately identified in review.md.
  * Deterministic replay and source correctness do not accept photographic likeness.
  * Native-issued fingerprints are added only after those inspections.
+ * @evidence {@link humanFaceConnectedReview} Retains the connected-prior schema, numerical evaluation and real consumer inspection as a domain of the complete source population.
+ * @evidenceReview {@link humanFaceConnectedReview} #3cd8c3e Read the complete carrier and all seventeen public schema/evaluator/IO acknowledgements against their implementation and browser consumers. Each source inspection preserves its interpolation and likeness limits; the CC0 study separately records actual GPU/export observations.
  *
  * @evidence {@link humanFaceInteriorReview} Retains the native interior preparation inspection within the whole construction population.
  * @evidenceReview {@link humanFaceInteriorReview} #064cedc Read the complete six-symbol descriptor, adapter and oral producer account against their actual head and compatibility consumers. It records units and ownership without accepting anatomy, collision freedom or likeness.
@@ -221,7 +224,7 @@ import type { humanFaceStudyDocuments } from "./studies";
  * @evidence {@link Human.buildPortraitMouth} Builds the recessed cavity and, when requested, the legacy upper crowns from final lip curves.
  * @evidenceReview {@link Human.buildPortraitMouth} #f205e43 Read the complete compatibility entry and its single preparePortraitMouth call. It forwards source, socket, shape, performance and optional actual lip indices without changing admission or omission, then converts each native mesh once in its existing part order. The native owner retains backdrop, connected lining and legacy crown formulas.
  * @evidence {@link Human.createHumanFaceEditor} Owns atomic face-document/model publication, cancellation and undoable history for the application.
- * @evidenceReview {@link Human.createHumanFaceEditor} #6cf5c51 Read candidate/initial cloning, request generations, latest-only success/failure, undo/redo queues, reset and cancellation. Focused tests preserve the committed pair and redo history after cancelled late success/failure and failed history traversal; the actual panel now cancels this owner before a new file read.
+ * @evidenceReview {@link Human.createHumanFaceEditor} #652c46e Re-read the complete generic-document transaction owner against both procedural and connected panel consumers. The default document type preserves existing callers; runtime generation, ownership, error and history semantics are unchanged. Read candidate/initial cloning, request generations, latest-only success/failure, undo/redo queues, reset and cancellation. Focused tests preserve the committed pair and redo history after cancelled late success/failure and failed history traversal; the actual panel now cancels this owner before a new file read.
  * @evidence {@link Human.createPortraitCheekLayer} Derives owned cheek and fold fields from live refined skin attachments.
  * @evidenceReview {@link Human.createPortraitCheekLayer} #7f94a2f Read copied input/resident checks, side-mirrored offsets, metric field emission, bounded two-stage fold sampling and overflow refusals. The volume/offset tests cover neutral supports and moving anchors. The nineteen observed render sets retain broad perioral transitions; field correctness does not accept cheek likeness.
  * @evidence {@link Human.createPortraitControlLayer} Solves coupled anatomical targets into fields consumed by the shared surface assembler.
@@ -295,7 +298,7 @@ import type { humanFaceStudyDocuments } from "./studies";
  * @evidence {@link Human.IAutoMovieHumanFaceDocument} Keeps each selected numerical face, immutable basis, explicit changes and non-executable provenance in one versioned artifact.
  * @evidenceReview {@link Human.IAutoMovieHumanFaceDocument} #d58822c Read version and topology literals, basis host/bindings/recipe/observation, common and side overrides, whole-palette replacement, current expression and nullable reference facts. Source URLs and hashes are descriptive: no replay path fetches them, and the document does not issue a likeness verdict.
  * @evidence {@link Human.IAutoMovieHumanFaceEditorSnapshot} Exposes the last committed numerical face with current request status and history availability.
- * @evidenceReview {@link Human.IAutoMovieHumanFaceEditorSnapshot} #38dcd31 Read copied document ownership, opaque read-only model, ready/building/error, nullable error and undo/redo flags against the state machine. Pending candidates never replace this document; callers still own renderer-resource disposal.
+ * @evidenceReview {@link Human.IAutoMovieHumanFaceEditorSnapshot} #c5567a1 Re-read all snapshot fields and both consumer types after adding the generic document parameter; copied document ownership and opaque model identity remain unchanged. Read copied document ownership, opaque read-only model, ready/building/error, nullable error and undo/redo flags against the state machine. Pending candidates never replace this document; callers still own renderer-resource disposal.
  * @evidence {@link Human.IAutoMovieHumanFaceExpression} Keeps current performance separate from the expression already present in each recorded basis.
  * @evidenceReview {@link Human.IAutoMovieHumanFaceExpression} #824acdd Read all paired and scalar channels including independent tongue elevation and advancement. Omission is neutral; source observation remains separate. Nonzero lingual channels require a selected tongue in document resolution.
  * @evidence {@link Human.IAutoMovieHumanFaceRecipe} Collects the individual part profiles and optional shared supports replayed by the face builder.

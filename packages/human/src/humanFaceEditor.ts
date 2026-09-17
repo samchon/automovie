@@ -8,9 +8,12 @@ import type { IAutoMovieHumanFaceDocument } from "./IAutoMovieHumanFaceDocument"
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Carries committed state without granting a pending build publication authority.
  * @author Samchon
  */
-export interface IAutoMovieHumanFaceEditorSnapshot<Model> {
+export interface IAutoMovieHumanFaceEditorSnapshot<
+  Model,
+  Document = IAutoMovieHumanFaceDocument,
+> {
   /** Last successfully built document, never an invalid pending candidate. */
-  document: IAutoMovieHumanFaceDocument;
+  document: Document;
   /** Renderer-owned immutable result for document. */
   model: Model;
   /** State of the latest requested build only. */
@@ -37,23 +40,26 @@ export interface IAutoMovieHumanFaceEditorSnapshot<Model> {
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-editor This renderer-independent state owner exposes editing and history operations; the playground adapter owns DOM controls, camera interaction and downloads.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view This package has no DOM, camera or file-picker adapter; the application binds these operations to the transactional editor.
  */
-export function createHumanFaceEditor<Model>(props: {
-  document: IAutoMovieHumanFaceDocument;
+export function createHumanFaceEditor<
+  Model,
+  Document = IAutoMovieHumanFaceDocument,
+>(props: {
+  document: Document;
   model: Model;
-  build: (document: IAutoMovieHumanFaceDocument) => Promise<Model>;
+  build: (document: Document) => Promise<Model>;
 }) {
   const initial = structuredClone(props.document);
   let document = structuredClone(initial);
   let model = props.model;
-  let past: IAutoMovieHumanFaceDocument[] = [];
-  let future: IAutoMovieHumanFaceDocument[] = [];
+  let past: Document[] = [];
+  let future: Document[] = [];
   let generation = 0;
   let status: "ready" | "building" | "error" = "ready";
   let error: string | null = null;
   const request = async (
-    next: IAutoMovieHumanFaceDocument,
-    nextPast: IAutoMovieHumanFaceDocument[],
-    nextFuture: IAutoMovieHumanFaceDocument[],
+    next: Document,
+    nextPast: Document[],
+    nextFuture: Document[],
   ): Promise<boolean> => {
     const ticket = ++generation;
     const candidate = structuredClone(next);
@@ -75,11 +81,11 @@ export function createHumanFaceEditor<Model>(props: {
       return false;
     }
   };
-  const edit = (next: IAutoMovieHumanFaceDocument): Promise<boolean> =>
+  const edit = (next: Document): Promise<boolean> =>
     request(next, [...past, document], []);
   return {
     /** A caller may edit the returned document without mutating committed state. */
-    snapshot: (): IAutoMovieHumanFaceEditorSnapshot<Model> => ({
+    snapshot: (): IAutoMovieHumanFaceEditorSnapshot<Model, Document> => ({
       document: structuredClone(document),
       model,
       status,

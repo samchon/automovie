@@ -102,7 +102,7 @@ textarea{width:100%;height:250px;padding:8px;font:11px/1.4 ui-monospace,monospac
 <main id="human-editor"><section id="viewport"><canvas id="face-canvas"></canvas><div id="view-tools">
 <button data-view="0">Front</button><button data-view="45">Left ¾</button><button data-view="-45">Right ¾</button><button data-view="90">Left</button><button data-view="-90">Right</button><button data-view="180">Back</button><button id="fit-view">Fit</button><label><input id="clay" type="checkbox"> Clay</label><label><input id="shadows" type="checkbox" checked> Shadows</label>
 </div><div id="view-note">Drag to orbit · wheel to zoom · static expression pose</div></section>
-<aside id="face-panel"><h1>Human · face editor</h1><p>Procedural anatomy · numerical replay · no runtime photograph</p><div id="face-status" role="status">Choose a face document.</div>
+<aside id="face-panel"><h1>Human · face editor</h1><p>Procedural anatomy · numerical replay · no runtime photograph</p><a href="connected-face.html">Connected reference editor</a><div id="face-status" role="status">Choose a face document.</div>
 <h2>Subject</h2><select id="face-subject" aria-label="Subject"></select><p class="hint" id="source-note"></p>
 <div class="toolbar"><button id="face-undo">Undo</button><button id="face-redo">Redo</button><button id="face-reset">Reset subject</button></div>
 <div class="toolbar"><button id="face-save">Save document</button><button id="face-load">Load document</button><button id="face-glb">Export GLB</button><button id="face-gltf">Export glTF + buffers</button><input id="face-file" type="file" accept=".json,application/json" hidden></div>

@@ -1,3 +1,4 @@
+import type { IAutoMovieHumanFaceDocument } from "@automovie/human";
 import type { JSONDocument } from "@gltf-transform/core";
 import * as THREE from "three";
 
@@ -25,7 +26,11 @@ type BuiltFace = {
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Owns lighting, display-only clay and camera state independently of browser allocation.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Delegates worker generation isolation to the preview builder and disposes discarded decoded assets.
  */
-export function createHumanViewport(props: {
+export function createHumanViewport<
+  Document = IAutoMovieHumanFaceDocument,
+>(props: {
+  /** The selected face document owns schema admission before worker allocation. */
+  serialize: (document: Document) => string;
   canvas: { getBoundingClientRect: () => Pick<DOMRect, "width" | "height"> };
   pixelRatio: number;
   renderer: {
@@ -108,7 +113,8 @@ export function createHumanViewport(props: {
   let active: BuiltFace | undefined;
   let clayEnabled = false;
   const dispose = disposeHumanPreview;
-  const { build, cancel } = createHumanPreviewBuilder<BuiltFace>({
+  const { build, cancel } = createHumanPreviewBuilder<BuiltFace, Document>({
+    serialize: props.serialize,
     worker: props.worker,
     decode: async (result) => {
       const group = await props.decode(

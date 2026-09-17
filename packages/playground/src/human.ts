@@ -1,3 +1,7 @@
+import {
+  type IAutoMovieHumanFaceDocument,
+  serializeHumanFaceDocument,
+} from "@automovie/human";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
@@ -10,7 +14,9 @@ import { createHumanPreviewWorkerPort } from "./human/workerPort";
 const subjects = Object.entries(humanFaceStudyDocuments)
   .map(([id, document]) => ({ id, read: async () => JSON.stringify(document) }))
   .sort((a, b) => a.id.localeCompare(b.id));
-let viewport!: ReturnType<typeof createHumanViewport>;
+let viewport!: ReturnType<
+  typeof createHumanViewport<IAutoMovieHumanFaceDocument>
+>;
 const panel = mountHumanFacePanel(
   document.querySelector<HTMLDivElement>("#app")!,
   {
@@ -19,6 +25,7 @@ const panel = mountHumanFacePanel(
     viewport: (canvas) => {
       const loader = new GLTFLoader();
       return (viewport = createHumanViewport({
+        serialize: serializeHumanFaceDocument,
         canvas,
         pixelRatio: devicePixelRatio,
         renderer: new THREE.WebGLRenderer({

@@ -1,3 +1,4 @@
+import { serializeHumanFaceDocument } from "@automovie/human";
 import { createHumanViewport } from "@automovie/playground/src/human/viewport";
 import * as THREE from "three";
 
@@ -80,6 +81,7 @@ export function createHumanViewportFixture(
     }),
   };
   const viewport = createHumanViewport({
+    serialize: serializeHumanFaceDocument,
     canvas: { getBoundingClientRect: () => ({ ...dimensions }) },
     pixelRatio: options.pixelRatio ?? 3,
     renderer,
