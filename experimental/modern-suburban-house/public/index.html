@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>modern-suburban-house · live view</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <header class="masthead">
+      <div>
+        <p class="eyebrow">AUTOMOVIE / LIVE SOURCE VIEW</p>
+        <h1>Modern suburban house</h1>
+      </div>
+      <div class="status" id="status">소스를 읽는 중…</div>
+    </header>
+    <main class="workspace">
+      <aside class="controls" aria-label="뷰어 제어">
+        <section>
+          <h2>검사 구획</h2>
+          <label>층
+            <select id="storey">
+              <option value="all">전체 건물</option>
+              <option value="ground">1층</option>
+              <option value="upper">2층</option>
+            </select>
+          </label>
+          <label>절개
+            <select id="section">
+              <option value="full">완전한 외피</option>
+              <option value="cutaway">전면 절개 — 내부 검사</option>
+              <option value="roofless">지붕 제거 — 수직 관계</option>
+            </select>
+          </label>
+          <label>공간 선택
+            <select id="focus">
+              <option value="all">선택 없음</option>
+            </select>
+          </label>
+          <label class="check"><input id="labels" type="checkbox" checked /> 공간 이름 표시</label>
+        </section>
+        <section>
+          <h2>조작</h2>
+          <p class="help">드래그: 회전<br />Shift+드래그: 이동<br />휠: 확대·축소</p>
+          <button id="reset" type="button">기본 시점으로</button>
+        </section>
+        <section>
+          <h2>컴파일된 요약</h2>
+          <dl class="stats" id="stats"></dl>
+        </section>
+        <section>
+          <h2>재료 범례</h2>
+          <div class="legend" id="legend"></div>
+        </section>
+      </aside>
+      <section class="viewport" aria-label="주택 3D 검사 뷰">
+        <canvas id="view" tabindex="0" aria-label="회전 가능한 주택 뷰어"></canvas>
+        <div class="viewport-note">이 화면은 전달 프레임이 아닌 구조·가독성 검사 도구입니다.</div>
+      </section>
+    </main>
+    <script type="module" src="/src/viewer/client.js"></script>
+  </body>
+</html>

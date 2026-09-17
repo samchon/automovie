@@ -1,0 +1,58 @@
+# modern-suburban-house
+
+This is a coding-agent-first AutoMovie production repository. Author production facts, construction and final screenplay documents, source, assets, and delivery indexes as ordinary tracked files. Production execution consumes typed source directly.
+
+## Authoring routes
+
+`AGENTS.md` is the shared coding-agent entry point. It routes contract lookup through the [contract skill](.agents/skills/contract/SKILL.md), production work through [production lifecycle](.agents/skills/production-lifecycle/SKILL.md), graph changes through [evidence graph](.agents/skills/evidence-graph/SKILL.md), implementation through [source authoring](.agents/skills/source-authoring/SKILL.md), and observation or completion through [review verification](.agents/skills/review-verification/SKILL.md). Read the current production selection and claims from `lint.config.ts` and their actual owners from `docs`; the entry point is not a generated facts inventory.
+
+Use [Production kinds](.agents/skills/production-lifecycle/production-kinds.md) before selecting `kind` in `lint.config.ts`. Use [Production documents](docs/README.md) for physical document ownership, [Contract targets](.agents/skills/evidence-graph/contract-targets.md) for shared and language target forms, [Production-specific contract](.agents/skills/evidence-graph/work-specific.md) for local discovery results, and [Evidence staging](.agents/skills/evidence-graph/staging.md) before changing a branch stage or evidence annotation. Those routes own their semantics; this README only makes them reachable.
+
+## Static-document updates
+
+Scaffold installation is one-way. After creation, `AGENTS.md`, `CLAUDE.md`, `.agents/skills`, contracts, READMEs, configuration, and source are project-owned tracked files. The coding agent maintains them through ordinary reviewed edits and commits; package upgrades do not regenerate or overwrite them. Adopt an upstream instruction or contract change only as an explicit project change, preserving authored content and reconciling its affected callers, claims, and reviews.
+
+Use ordinary coding-agent tools for authoring. Scaffold creation does not register an MCP client or write client configuration.
+
+## Production status
+
+This production is selected as a `library` in `lint.config.ts`. Its authored settings, site map, spatial graph, surface ownership, finishes, fit-out, lighting boundary, and deterministic house library are under `docs` and `src`. The garage is intentionally empty of vehicles.
+
+## First run
+
+```bash
+npm install --package-lock=false
+npm run lint
+```
+
+The source graph is authored and can be inspected through the exports in `src/index.ts`. The commands below are the project-owned routes for structural checks and live source inspection.
+
+## Canonical command routes
+
+Use the commands declared in `package.json`:
+
+| Command | Purpose |
+| --- | --- |
+| `npm run lint` | Check the complete TypeScript program and active authored evidence. |
+| `npm run format` | Format source with the configured compiler formatter. |
+| `npm run viewer` | Serve the persistent source-backed live viewer at `http://127.0.0.1:4173/`. |
+
+This library supplies deterministic building data and derived review observations, not a film build, capture, render, or publication command. A consuming AutoMovie adapter may lower the named parts and module laws to the installed public runtime API without introducing a second design owner.
+
+The live viewer is a source inspection tool. Start `npm run viewer`, open `http://127.0.0.1:4173/`, and refresh after saving source; the server reloads `src/house.ts` for each source request. Drag to rotate, Shift-drag to move, use the wheel to zoom, and select a storey, section, or room. The page does not replace compiled quantities, ids, bindings, dimensions, or independent review.
+
+The installed `automovie` CLI separately provides Markdown TOC maintenance, external-asset inspection, and capability routes. Read its local help before invoking a command. These operations do not authorize a project state store.
+
+## Visual work
+
+When the task needs a model view, building walkthrough, or film playback, follow [Live viewing](.agents/skills/review-verification/live-viewing.md) to implement the required view over the production's own source. A page and its controls are authored for that need, not selected from seeded viewer templates.
+
+## Ownership
+
+- All source code belongs under `src`, including command entry points, viewer code, review declarations, and any test source. The typed production declaration is the one exception: `lint.config.ts` sits at the project root, where the compiler plugin and the production resolver both read it. Source location does not make tooling a production design owner; the typed evidence declaration selects the authored populations.
+- `public` holds HTML and static assets. Keep executable code in imported `src` modules rather than inline HTML scripts or asset directories.
+- `docs` holds authored decisions, contracts, and review observations. Git holds change history. Neither is replaced by a generated state ledger.
+- `package.json` is the only project JSON file. Keep package and compiler settings there; do not create another JSON configuration, design store, registry, migration journal, receipt, or cache file in the project.
+- Execute production and measurement functions over typed values. Images, media, and reader-facing documents are outputs; serialized project state is not an authoring product.
+
+Run the applicable [Author process Self-Review](.agents/skills/review-verification/self-review.md) before handing off a completed authoring, evidence, review, or stage-transition boundary.

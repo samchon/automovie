@@ -15,7 +15,7 @@ Read the [project](../project/SKILL.md) and [scaffold](../scaffold/SKILL.md) ski
 
 ## Create The Sandbox
 
-Choose one explicit, disposable path under `experimental/` for the authorized question. Resolve its absolute location and inspect any existing content before creation or replacement; the committed manor is not a disposable target.
+Choose one explicit, disposable path under `experimental/` for the authorized question. Resolve its absolute location and inspect any existing content before creation or replacement; the committed manor is not a disposable target. A production that is kept instead of deleted graduates out of this rule by becoming a committed workspace member the website imports, which is a separate decision from creating the sandbox.
 
 Use the ordinary project creator described by the [CLI surface](../../../packages/cli/README.md#cli-surface), with the requested language. For a working-tree experiment, invoke the CLI and template built from the revision under investigation rather than silently downloading a registry release. The scaffold's [ownership contract](../../../packages/template/scaffold/README.md#ownership) applies inside the sandbox.
 
@@ -29,7 +29,7 @@ Create a disposable sandbox only for an active experiment. Delete the sandbox an
 
 Verify the installed dependency closure, including transitive workspace packages, before interpreting a sandbox failure as a product defect. The execution path must apply the required TypeScript transforms and resolve the generation recorded for the run; a package name or version string alone does not establish either property.
 
-Keep a disposable sandbox outside the tracked workspace membership. Its installation must not add a transient importer to the repository lockfile. If the chosen installation cannot resolve unpublished sibling dependencies, correct the package installation before launching the experiment rather than changing product source to hide the mismatch.
+Keep a disposable sandbox out of the pnpm workspace membership. It still lives under `experimental/`, inside this repository's git root; what it stays outside of is `pnpm-workspace.yaml`, so its installation adds no transient importer to the repository lockfile. If the chosen installation cannot resolve unpublished sibling dependencies, correct the package installation before launching the experiment rather than changing product source to hide the mismatch.
 
 When an export is missing, inspect the actual resolved module and its emitted exports. Do not assume that every resolution error has the same cause. Read the invoked command's exit code directly; a successful output filter is not evidence that the command it filtered succeeded.
 

@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="data:," />
+    <title>Ancient Civic Temple — live source viewer</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">ANCIENT CIVIC TEMPLE / SPACE SOURCES</p>
+          <h1>Live spatial source viewer</h1>
+          <p class="subtitle">Current authored topology, envelope, openings, routes, and surface hosts.</p>
+        </div>
+        <div id="status" class="status" data-state="loading">Loading source…</div>
+      </header>
+      <section class="workspace">
+        <aside class="controls" aria-label="Viewer controls">
+          <label>Section
+            <select id="section">
+              <option value="full">Full building</option>
+              <option value="roof-open">Roof open</option>
+              <option value="cutaway">North cutaway</option>
+              <option value="model-board">Model prototype board</option>
+            </select>
+          </label>
+          <label>Space focus
+            <select id="space"><option value="all">All spaces</option></select>
+          </label>
+          <label>Model focus
+            <select id="model"><option value="all">All model prototypes</option></select>
+          </label>
+          <div class="button-row">
+            <button id="reset" type="button">Reset view</button>
+            <button id="reload" type="button">Reload source</button>
+          </div>
+          <label class="check"><input id="labels" type="checkbox" checked /> Space labels</label>
+          <label class="check"><input id="routes" type="checkbox" checked /> Route lines</label>
+          <div class="legend">
+            <span><i class="swatch stone"></i>structure</span>
+            <span><i class="swatch floor"></i>floor host</span>
+            <span><i class="swatch route"></i>connector</span>
+          </div>
+          <p class="help">Drag to orbit. Shift-drag or right-drag to pan. Scroll to zoom. Select a space to highlight its compiled bounds.</p>
+          <dl id="stats" class="stats"></dl>
+        </aside>
+        <section class="stage" aria-label="3D spatial view">
+          <canvas id="view" aria-label="Interactive temple source view"></canvas>
+          <div id="error" class="error" hidden></div>
+        </section>
+      </section>
+      <footer id="revision" class="revision">Source revision: waiting</footer>
+    </main>
+    <script type="module" src="/src/viewer/client.js"></script>
+  </body>
+</html>

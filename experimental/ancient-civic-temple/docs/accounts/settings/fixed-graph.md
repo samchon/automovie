@@ -1,0 +1,5 @@
+# Settings fixed-graph account
+
+## Fixed-graph coverage {#fixed-graph-coverage}
+
+The settings fixed-graph conclusion is contributed by `docs/settings/temple.md#delivery-scope`, `#coordinate-unit-convention`, `#audience-operator-access`, `#operative-subject-inventory`, `#design-dependent-subject-conditions`, and `#stage-policy`. Together these hosts bind one rectangular one-storey envelope, one central courtyard, one continuous colonnaded loop, direct room thresholds to that loop, the north rear-axis sanctuary, west communal room, east aligned administration·records·storage rooms, and the northeast service yard without adding a hidden room, broken corridor, or second circulation loop. They also bind the south-to-north coordinate orientation, the route and opening conditions, and the rule that compiled containment and opening topology is the later space-owner authority. This account therefore substantively covers the fixed-graph settings obligation; it does not pretend that the future compiled graph already exists or replace its later realization.
