@@ -27,6 +27,12 @@ So the brief states the rule, once, in the section that fixes the massing: **whi
 
 Whatever the rule is, name it before the first turn. A contradiction adjudicated mid-run cannot be rerun, and an agent that meets one with no rule either stops, costing a turn, or picks, which silently makes the brief mean whatever it picked.
 
+## Whether It Asks Or Decides Is A Setting
+
+The section above reads "both times the agent stopped and asked" as the behaviour to want, and it is. That readiness to ask belongs to the run. It is set by the model, its effort level, and whatever autonomy or initiative instruction the harness puts in front of your brief, and current coding harnesses ship one by default. Under a strong bias-to-action instruction the same agent resolves the contradiction by picking, and the brief then means whatever it picked, which is the failure the ruling exists to prevent.
+
+So read a stop-and-ask or a decide-and-continue against the frozen basis rather than reporting either as what the surface afforded. [records.md](records.md#freeze-identity-before-launch) already requires the model, effort, policy, and harness revision in that basis; what this adds is that those four fix the writer's ask-versus-act default between them. Two runs that differ on this axis are two conditions, and a comparison across them measures the harness. Writing the governing-source ruling before turn one is what stops the axis mattering for the contradictions you can foresee.
+
 ## Withhold The Method
 
 A benchmark measures what the agent derives from the product's surface and its guides. Give it the target and the evidence: what the thing is, what it has to end up looking like, and how it will be judged. Withhold how to build it.
