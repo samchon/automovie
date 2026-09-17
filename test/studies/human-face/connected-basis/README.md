@@ -1,6 +1,6 @@
 # Connected facial basis
 
-`basis.json.gz` is a CC0 numerical study asset consumed by the playground's `connected-face.html`. The generic evaluator lives in `@automovie/human`; this selected head and its textures remain application content. The compact edit document identifies `mpfb-connected-head-2026-09-17-clipped` and contains shape, expression and optional material edits. Replay needs this basis, not a portrait or Blender.
+`basis.json.gz` is the preserved first CC0 numerical study asset. The playground's `connected-face.html` now selects the expanded [whole-face revision](whole-face/README.md). The generic evaluator lives in `@automovie/human`; selected heads and textures remain application content. This earlier compact edit document identifies `mpfb-connected-head-2026-09-17-clipped` and contains shape, expression and optional material edits. Replay needs its exact basis, not a portrait or Blender.
 
 ## Sources and license
 

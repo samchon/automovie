@@ -16,6 +16,25 @@ export const test_subject_connected_panel_controls =
     TestValidator.equals("no unbuilt snapshot", f.panel.snapshot(), undefined);
     await f.panel.ready;
     TestValidator.equals("initial fit", f.fits(), 1);
+    const search = f.element<HTMLInputElement>("control-search");
+    for (const [text, count] of [
+      ["missing", 0],
+      [" WID TH ", 1],
+      ["", 1],
+    ] as const) {
+      search.value = text;
+      search.oninput!.call(search, new f.dom.window.InputEvent("input"));
+      TestValidator.equals(
+        "filtered controls " + text,
+        f.app.querySelectorAll(".row").length,
+        count,
+      );
+      TestValidator.equals(
+        "search preserves document",
+        f.panel.snapshot()!.document,
+        f.document,
+      );
+    }
     const slider = f.element<HTMLInputElement>("control-width-slider");
     slider.value = "0.4";
     slider.oninput!.call(slider, new f.dom.window.InputEvent("input"));

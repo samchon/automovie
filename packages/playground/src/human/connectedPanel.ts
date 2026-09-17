@@ -111,10 +111,16 @@ export function mountConnectedFacePanel<
   };
   const renderControls = (): void => {
     const kind = element<HTMLSelectElement>("control-kind").value;
+    // Search only changes which controls are shown. It never rewrites weights
+    // or drops an edited region from the complete saved document.
+    const query = element<HTMLInputElement>("control-search")
+      .value.toLowerCase()
+      .replace(/\s/g, "");
     const container = element("basis-controls");
     container.replaceChildren();
     for (const channel of props.channels.filter(
-      (channel) => channel.kind === kind,
+      (channel) =>
+        channel.kind === kind && channel.id.toLowerCase().includes(query),
     )) {
       const row = dom.createElement("div"),
         label = dom.createElement("label"),
@@ -166,6 +172,14 @@ export function mountConnectedFacePanel<
   element<HTMLInputElement>("shadows").onchange = () =>
     viewport.setShadows(element<HTMLInputElement>("shadows").checked);
   element<HTMLSelectElement>("control-kind").onchange = renderControls;
+  const search = dom.createElement("input");
+  search.id = "control-search";
+  search.type = "search";
+  search.placeholder = "Find a control: nose, lip, cheek, ear…";
+  search.setAttribute("aria-label", "Find a facial control");
+  search.style.width = "100%";
+  search.oninput = renderControls;
+  element("basis-controls").before(search);
   for (const action of ["undo", "redo", "reset"] as const)
     element("face-" + action).onclick = async () => {
       const ticket = withdraw();

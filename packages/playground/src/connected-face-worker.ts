@@ -14,7 +14,7 @@ const prepared = readConnectedFaceAsset({
   read: () =>
     fetch(
       new URL(
-        "../../../test/studies/human-face/connected-basis/basis.json.gz",
+        "../../../test/studies/human-face/connected-basis/whole-face/basis.json.gz",
         import.meta.url,
       ),
     ),
