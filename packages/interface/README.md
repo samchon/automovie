@@ -1,5 +1,9 @@
 # `@automovie/interface`
 
+Contract exclusions are grouped by semantic domain in `src/evidence/`; `src/AutoMovieInterfaceEvidenceExclusions.ts` retains actor and asset boundaries. `lint.config.ts` selects these declarations from the complete source population. They record capabilities the portable data package does not implement, while public data declarations retain their own positive contract citations. Exclusion carriers are not re-exported by the package barrel.
+
+`IAutoMovieMesh.colors` optionally carries one linear RGB multiplier per vertex, with finite components in `[0,1]`. Omission preserves the material's base colour without allocating a colour buffer. RGB multiplies material and texture colour; it does not change alpha.
+
 ## 필름 전역 효과 런타임
 
 `IAutoMovieCompiledFilmEffect`는 기존의 결정론적 효과 스트림에 필름 소유자, 전체 해상도 타임라인 프레임 시계, 현재 컴파일 및 편집 식별자를 결합한다. 프록시와 최종 렌더러는 이 동일한 공개 DTO를 사용하며 샷 로컬 효과를 대체하지 않는다.

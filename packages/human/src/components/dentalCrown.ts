@@ -1,3 +1,11 @@
+/**
+ * Own local enamel geometry and its cervical attachment identity. Native row
+ * and legacy mouth producers consume preparePortraitDentalCrown; standalone
+ * callers use buildPortraitDentalCrown for the same mesh. Each result owns its
+ * millimetre buffers and cap cycle. No input is mutated. Profile-dependent rows
+ * make vertex ordinals variable, so downstream joins must retain this cycle.
+ * Root tissue, tooth placement and collision policy belong to other owners.
+ */
 import type { IAutoMovieMesh } from "@automovie/interface";
 
 import { portraitNormals } from "../geometry/geometry";
@@ -99,13 +107,15 @@ export function assertPortraitDentalCrown(s: IPortraitDentalCrown): void {
  * mesialDirection (+1 or -1 along local X); a standalone crown defaults to +1.
  * Incisal rise is multiplied by x^2 and fades toward the cervical end, retaining
  * a continuous central edge even when the two proximal corners differ.
+ * The result pairs this owned mesh with its directed cervical cap cycle; the
+ * cycle is constructed with the loft, before any row placement or packing.
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Constructs a closed enamel crown with independently located mesial and distal contours.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Samples both authored contact crests, joins cervical and incisal caps to their rings and derives normals from the resulting oriented loft.
  */
-export function buildPortraitDentalCrown(
+export function preparePortraitDentalCrown(
   s: IPortraitDentalCrown,
   mesialDirection: number = 1,
-): IAutoMovieMesh {
+) {
   assertPortraitDentalCrown(s);
   if (mesialDirection !== 1 && mesialDirection !== -1)
     throw new Error(
@@ -172,11 +182,34 @@ export function buildPortraitDentalCrown(
       rows * columns + next,
     );
   }
-  return {
+  const mesh: IAutoMovieMesh = {
     positions,
     indices,
     normals: portraitNormals(positions, indices),
     uvs: null,
     skin: null,
   };
+  // The cervical cap owns this directed cycle. Its row is determined by the
+  // actual sampled levels, including independently authored proximal crests.
+  // Keep these IDs at construction; recovering them later from height or a
+  // fixed vertex count would break after sampling or a rigid oral placement.
+  const cervical = Array.from(
+    { length: columns },
+    (_, column) => rows * columns + column,
+  );
+  return { mesh, cervical };
+}
+
+/**
+ * Build the standalone enamel mesh through the same native crown producer used
+ * by dental rows. Existing callers retain the mesh-only API and owned buffers.
+ *
+ * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Publishes one independently shaped enamel crown without a second loft formula.
+ * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Retains the native crown producer's oriented mesh, normals and millimetre coordinates.
+ */
+export function buildPortraitDentalCrown(
+  shape: IPortraitDentalCrown,
+  mesialDirection: number = 1,
+): IAutoMovieMesh {
+  return preparePortraitDentalCrown(shape, mesialDirection).mesh;
 }

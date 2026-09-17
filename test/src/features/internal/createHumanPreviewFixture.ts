@@ -1,3 +1,4 @@
+import { serializeHumanFaceDocument } from "@automovie/human";
 import { createHumanPreviewBuilder } from "@automovie/playground/src/human/previewBuilder";
 
 type Options = Parameters<typeof createHumanPreviewBuilder<string>>[0];
@@ -14,6 +15,7 @@ export function createHumanPreviewFixture(
   const decoded: Parameters<Options["decode"]>[0][] = [];
   const disposed: string[] = [];
   const builder = createHumanPreviewBuilder({
+    serialize: serializeHumanFaceDocument,
     worker: () => {
       if (options.workerError) throw options.workerError;
       const worker = {

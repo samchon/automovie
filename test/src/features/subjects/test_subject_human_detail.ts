@@ -1,18 +1,16 @@
-import {
-  humanFaceDetailChannels,
-  humanFaceDetailValue,
-  setHumanFaceDetail,
-} from "@automovie/human";
+import { humanFaceDetailValue, setHumanFaceDetail } from "@automovie/human";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFaceFixture } from "../internal/humanFaceFixture";
 import { throwsError } from "../internal/predicates";
 
 /**
- * Scalar detail writes preserve override intent and use declared anatomical envelopes.
+ * Scalar detail writes preserve override intent, side ownership and inheritance.
+ * Envelope endpoints are exercised separately by the lower/upper limits cases;
+ * this case follows document state without repeatedly cloning every channel.
  *
  * Scenarios:
- * 1. Every channel accepts both inclusive endpoints and refuses adjacent/nonfinite values.
+ * 1. Omitted oral depth resolves to zero; an explicit basis value remains applied.
  * 2. A left-only edit leaves the common/right profile and unrelated traits unchanged.
  * 3. Removing the leaf restores inheritance; absent optional profiles remain absent.
  * 4. Unknown channels, fractional fibre populations and invalid side owners refuse.
@@ -31,25 +29,6 @@ export const test_subject_human_detail = (): void => {
     humanFaceDetailValue(inheritedDepth, "mouth.seamProjection"),
     -2,
   );
-  for (const definition of humanFaceDetailChannels) {
-    for (const value of [definition.minimum, definition.maximum]) {
-      const next = setHumanFaceDetail(document, definition.id, value);
-      let actual: unknown = next.detail;
-      for (const key of [definition.region, ...definition.path])
-        actual = (actual as Record<string, unknown>)[key];
-      TestValidator.equals("exact override", actual, value);
-    }
-    for (const value of [
-      definition.minimum - 0.01,
-      definition.maximum + 0.01,
-      NaN,
-      Infinity,
-    ])
-      TestValidator.predicate(
-        "outside scalar envelope",
-        throwsError(() => setHumanFaceDetail(document, definition.id, value)),
-      );
-  }
   document.controls = { noseWidth: 0.2 };
   const common = setHumanFaceDetail(document, "eye.foldDepth", 0.3);
   const left = setHumanFaceDetail(common, "eye.foldDepth", 0.7, "left");
