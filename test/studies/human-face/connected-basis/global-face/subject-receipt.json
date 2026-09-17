@@ -1,8 +1,10 @@
 {
   "basis": "mpfb-connected-head-2026-09-17-binocular-frame",
   "basisSha256": "80e3cbbbc254af3a22392b32dc0cb0767ab789372cb15a8bfc20f06924785fdc",
-  "method": "Bounded TRF weak-perspective projection; 84 shape controls and 52 performance controls; three whole-face shape starts (0, -0.2, +0.2), selecting the lowest identical robust soft_l1 objective",
+  "method": "Bounded robust TRF with six equal semantic landmark groups, 84 shape controls, 52 performance controls, three whole-face shape starts, 0.003 shape regularity and 0.015 observed-performance regularity",
   "frozenSubject": "generated-korean-girl-01",
+  "equalGroupRootMeanBefore": 0.019433180919829984,
+  "equalGroupRootMeanAfter": 0.018298221749526004,
   "limits": [
     "Single-image depth is inferred",
     "Detector landmarks are not anatomical measurements",
@@ -21,27 +23,44 @@
         "author": "Not supplied in the issue asset inventory",
         "license": "Not established; retained locally for user-requested analysis only"
       },
-      "rmseBeforeFaceHeight": 0.038637883677450705,
-      "rmseAfterFaceHeight": 0.02589804125255893,
-      "glbSha256": "3fd3f29f1a7bf32a0495a8e35172b1442722bf1d732cff6d564d42d33448ca40",
+      "previousRmseAfterFaceHeight": 0.02589804125255893,
+      "rmseBeforeFaceHeight": 0.039758398602438974,
+      "rmseAfterFaceHeight": 0.025891634849890648,
+      "semanticGroupRms": {
+        "lips": 0.05852629490616339,
+        "eyes": 0.018424184849131768,
+        "brows": 0.01690408085887165,
+        "outline": 0.04376865667609713,
+        "nose": 0.012321953298270625,
+        "other": 0.01664378204993792
+      },
+      "previousSemanticGroupRms": {
+        "lips": 0.0649701022781914,
+        "eyes": 0.02323971795318767,
+        "brows": 0.017714559954628076,
+        "outline": 0.03931626913430265,
+        "nose": 0.013767738700809365,
+        "other": 0.013926946981635642
+      },
+      "glbSha256": "f28302665653887be253c1567457a20c521d049c8fec8595fbccced53d046dbc",
       "parts": 7,
-      "documentSha256": "fa06d20ef0729846d3210d2754533b811ea700ebc209a7a3d8d353b0cd8945c8",
+      "documentSha256": "8b09bc2e225de8ff79d684514f2a9e644ba04f69b391ef4353e32783e6905e63",
       "likeness": "unaccepted",
       "multistart": [
         {
-          "cost": 0.0003723709879832884,
+          "cost": 0.0005681897007338126,
           "success": true,
-          "nfev": 59
+          "nfev": 35
         },
         {
-          "cost": 0.0003723532773555046,
+          "cost": 0.000569220171623543,
           "success": true,
-          "nfev": 47
+          "nfev": 51
         },
         {
-          "cost": 0.0003724392047979925,
+          "cost": 0.000574687744561007,
           "success": true,
-          "nfev": 75
+          "nfev": 62
         }
       ]
     },
@@ -55,27 +74,44 @@
         "author": "Not supplied in the issue asset inventory",
         "license": "Not established; retained locally for user-requested analysis only"
       },
-      "rmseBeforeFaceHeight": 0.023754404339679108,
-      "rmseAfterFaceHeight": 0.010545766309104128,
-      "glbSha256": "241fde5305f6fb50edb6e51be164d36bc50977e7c1a634db42c331f6e43507af",
+      "previousRmseAfterFaceHeight": 0.010545766309104128,
+      "rmseBeforeFaceHeight": 0.023820140561755614,
+      "rmseAfterFaceHeight": 0.010720023188862927,
+      "semanticGroupRms": {
+        "lips": 0.023137672166982773,
+        "eyes": 0.01132697561738978,
+        "brows": 0.013454194682342224,
+        "outline": 0.006899415494223579,
+        "nose": 0.0074274502312576835,
+        "other": 0.008268510450752815
+      },
+      "previousSemanticGroupRms": {
+        "lips": 0.0233143952180572,
+        "eyes": 0.012712116533149704,
+        "brows": 0.016237486052415914,
+        "outline": 0.006667495540257427,
+        "nose": 0.007338293667091656,
+        "other": 0.0073278269918357255
+      },
+      "glbSha256": "ff3ae26705dedc05e0680f6673269831c4fad5c442c152e29227765f0a18a96b",
       "parts": 7,
-      "documentSha256": "95aec43fe8085fd5be5819f34b62b3579340284870f48f72753aa4a4090c3ad6",
+      "documentSha256": "7ba791a59987af46e21b4771011c3ab2f70e07102022bd12ddf3ed1d3f8b3792",
       "likeness": "unaccepted",
       "multistart": [
         {
-          "cost": 0.00006221064489111993,
+          "cost": 0.00009546708563337966,
+          "success": true,
+          "nfev": 33
+        },
+        {
+          "cost": 0.0000951851183405273,
           "success": true,
           "nfev": 31
         },
         {
-          "cost": 0.00006288482744600751,
+          "cost": 0.00009345453426479198,
           "success": true,
-          "nfev": 29
-        },
-        {
-          "cost": 0.00006252879965309875,
-          "success": true,
-          "nfev": 35
+          "nfev": 33
         }
       ]
     },
@@ -89,27 +125,44 @@
         "author": "Not supplied in the issue asset inventory",
         "license": "Not established; retained locally for user-requested analysis only"
       },
-      "rmseBeforeFaceHeight": 0.02318519424674974,
-      "rmseAfterFaceHeight": 0.013748808027827525,
-      "glbSha256": "f4724c26591fcc5b7ed38e3fbe6af05d153e63f94dc8b6d6b9f0cae7b0ceb971",
+      "previousRmseAfterFaceHeight": 0.013748808027827525,
+      "rmseBeforeFaceHeight": 0.023901051781586267,
+      "rmseAfterFaceHeight": 0.01381517729969278,
+      "semanticGroupRms": {
+        "lips": 0.02550829885623282,
+        "eyes": 0.011714054449935982,
+        "brows": 0.009670505818477126,
+        "outline": 0.02280363301330847,
+        "nose": 0.008410465022243314,
+        "other": 0.010764434968921596
+      },
+      "previousSemanticGroupRms": {
+        "lips": 0.030265577473274873,
+        "eyes": 0.015829055101465712,
+        "brows": 0.011281919858674855,
+        "outline": 0.020343170849643585,
+        "nose": 0.009365428642212228,
+        "other": 0.008761738102997784
+      },
+      "glbSha256": "e6d5469273129f70dbb9bac43807aff6fb1c89b2eedd3a9905caec5c419b3202",
       "parts": 7,
-      "documentSha256": "d2ba08e10341533fc89c0207b984cbd74cd00d37fdcd2fc72057c77c489e861e",
+      "documentSha256": "29a5b9e6587207a0249e411d660abd7475e7103d8b4a057237f2145bc5cc73b2",
       "likeness": "unaccepted",
       "multistart": [
         {
-          "cost": 0.00011626827863123118,
+          "cost": 0.00016236369833194474,
           "success": true,
-          "nfev": 32
+          "nfev": 36
         },
         {
-          "cost": 0.00011634208419372677,
+          "cost": 0.0001629513895114969,
           "success": true,
-          "nfev": 46
+          "nfev": 45
         },
         {
-          "cost": 0.00011629503988858531,
+          "cost": 0.00016228365592429992,
           "success": true,
-          "nfev": 44
+          "nfev": 39
         }
       ]
     },
@@ -123,27 +176,44 @@
         "author": "Not supplied in the issue asset inventory",
         "license": "Not established; retained locally for user-requested analysis only"
       },
-      "rmseBeforeFaceHeight": 0.02366854275259054,
-      "rmseAfterFaceHeight": 0.012237727208535939,
-      "glbSha256": "f46d16a9c43705179cbd411da1991c92a79e6f2bbd6813a1e47958587360c232",
+      "previousRmseAfterFaceHeight": 0.012237727208535939,
+      "rmseBeforeFaceHeight": 0.023701051565799512,
+      "rmseAfterFaceHeight": 0.012502994410149428,
+      "semanticGroupRms": {
+        "lips": 0.025991763637207985,
+        "eyes": 0.014204751784734482,
+        "brows": 0.01572452339892818,
+        "outline": 0.0146594963995593,
+        "nose": 0.006055521147140958,
+        "other": 0.009091424135364654
+      },
+      "previousSemanticGroupRms": {
+        "lips": 0.026155254252079787,
+        "eyes": 0.014487695856012443,
+        "brows": 0.018772009804337474,
+        "outline": 0.01581004336242582,
+        "nose": 0.0065654137545234255,
+        "other": 0.0077392991204254654
+      },
+      "glbSha256": "898a33e659deb9718f5c0939e2e50136b295143ed07c92b4f0c6b6bc681f8786",
       "parts": 7,
-      "documentSha256": "8b5f956c893d179e56fd4a0f88c242579a53e8b476e0972adcde02bdddda72de",
+      "documentSha256": "be0b72eda787687d8e2af0a5a38c806358880916e17d6809674d8c88c1b61447",
       "likeness": "unaccepted",
       "multistart": [
         {
-          "cost": 0.00008873200263313003,
+          "cost": 0.00014119077873416666,
           "success": true,
-          "nfev": 55
+          "nfev": 39
         },
         {
-          "cost": 0.00008842115932717953,
+          "cost": 0.0001392875968797614,
           "success": true,
-          "nfev": 59
+          "nfev": 44
         },
         {
-          "cost": 0.00008817539083450627,
+          "cost": 0.00014273963310041396,
           "success": true,
-          "nfev": 42
+          "nfev": 46
         }
       ]
     },
@@ -157,27 +227,44 @@
         "author": "Not supplied in the issue asset inventory",
         "license": "Not established; retained locally for user-requested analysis only"
       },
-      "rmseBeforeFaceHeight": 0.026864357005516596,
-      "rmseAfterFaceHeight": 0.013389172455471795,
-      "glbSha256": "415a38c0e8e463e15876da39a04ce3a9ecf553795b5967d196248844e9bf72ce",
+      "previousRmseAfterFaceHeight": 0.013389172455471795,
+      "rmseBeforeFaceHeight": 0.027021102768655932,
+      "rmseAfterFaceHeight": 0.013523318541645296,
+      "semanticGroupRms": {
+        "lips": 0.026920134833452625,
+        "eyes": 0.01711903732474341,
+        "brows": 0.01939233567632775,
+        "outline": 0.013916758200866347,
+        "nose": 0.005503772782354309,
+        "other": 0.010063344219198578
+      },
+      "previousSemanticGroupRms": {
+        "lips": 0.02731440288515294,
+        "eyes": 0.018746090094547863,
+        "brows": 0.023910894337300252,
+        "outline": 0.014401132206120609,
+        "nose": 0.005576699364859117,
+        "other": 0.008561545164960944
+      },
+      "glbSha256": "b10b46fcc524ccad6a77e63a4813cba18fbea235055f30953aec2294137b022e",
       "parts": 7,
-      "documentSha256": "f303cda7add67c62dc1291cb2a93ed9719c393e889ca3ab0e274bc397feadc1a",
+      "documentSha256": "17ea9a21934581e9cecb82124dde7a5302d414abf88d0bb12119ba179aeefe5d",
       "likeness": "unaccepted",
       "multistart": [
         {
-          "cost": 0.00009998986119605374,
-          "success": true,
-          "nfev": 35
-        },
-        {
-          "cost": 0.00010066291209034813,
+          "cost": 0.00016123172873432623,
           "success": true,
           "nfev": 32
         },
         {
-          "cost": 0.000100627813241118,
+          "cost": 0.00016127360793027925,
           "success": true,
-          "nfev": 30
+          "nfev": 36
+        },
+        {
+          "cost": 0.00016113981805765206,
+          "success": true,
+          "nfev": 45
         }
       ]
     },
@@ -191,27 +278,44 @@
         "author": "Not supplied in the issue asset inventory",
         "license": "Not established; retained locally for user-requested analysis only"
       },
-      "rmseBeforeFaceHeight": 0.01775731128744237,
-      "rmseAfterFaceHeight": 0.010025545135702748,
-      "glbSha256": "bb7457179c5fdce31a5ed356818d4cd5ed9ff5a03b19d8bf34ae7cc368c9a0ac",
+      "previousRmseAfterFaceHeight": 0.010025545135702748,
+      "rmseBeforeFaceHeight": 0.01796730551317489,
+      "rmseAfterFaceHeight": 0.010241964738686061,
+      "semanticGroupRms": {
+        "lips": 0.017995440126780494,
+        "eyes": 0.012388506227198216,
+        "brows": 0.015865672337614715,
+        "outline": 0.010034218779472543,
+        "nose": 0.00477352681310965,
+        "other": 0.008347971080973352
+      },
+      "previousSemanticGroupRms": {
+        "lips": 0.018961759569989547,
+        "eyes": 0.012151790287856654,
+        "brows": 0.01999953031591563,
+        "outline": 0.010758534581151138,
+        "nose": 0.005210836698650965,
+        "other": 0.006915862406262132
+      },
+      "glbSha256": "b29d424da4e02c15600a79287f89c0762dd823394d531f465fd6ebfba19ea01c",
       "parts": 7,
-      "documentSha256": "f05c2d2f5d43cf94d9a145664b348b0b29c9c4a08dafb25da49bdf75ffee979a",
+      "documentSha256": "158afe074b3b13ef52043fa587d0a59646370377711a573ec9302e5472f8c4c3",
       "likeness": "unaccepted",
       "multistart": [
         {
-          "cost": 0.00005880898904444242,
+          "cost": 0.00009132564056055311,
           "success": true,
-          "nfev": 32
+          "nfev": 33
         },
         {
-          "cost": 0.000058628719613027155,
+          "cost": 0.000091066824351033,
           "success": true,
-          "nfev": 32
+          "nfev": 34
         },
         {
-          "cost": 0.000058941514265462006,
+          "cost": 0.00008935947015568021,
           "success": true,
-          "nfev": 36
+          "nfev": 34
         }
       ]
     },
@@ -225,27 +329,44 @@
         "author": "Not supplied in the issue asset inventory",
         "license": "Not established; retained locally for user-requested analysis only"
       },
-      "rmseBeforeFaceHeight": 0.02027092680569635,
-      "rmseAfterFaceHeight": 0.010946205992805432,
-      "glbSha256": "e7ad8ae92ef6187b5608c712231e8cd4e1465f18f378ae1afe63a1f9dfe069b5",
+      "previousRmseAfterFaceHeight": 0.010946205992805432,
+      "rmseBeforeFaceHeight": 0.020286242831523606,
+      "rmseAfterFaceHeight": 0.010932866839153467,
+      "semanticGroupRms": {
+        "lips": 0.024750824686374656,
+        "eyes": 0.01169647224555234,
+        "brows": 0.011771350314725185,
+        "outline": 0.011838392027483635,
+        "nose": 0.006215995062706008,
+        "other": 0.007612656745468757
+      },
+      "previousSemanticGroupRms": {
+        "lips": 0.025084097880402327,
+        "eyes": 0.011959557380109913,
+        "brows": 0.013713662985302867,
+        "outline": 0.012212559692268992,
+        "nose": 0.006548253922226606,
+        "other": 0.007153458016464604
+      },
+      "glbSha256": "f7322ab0ba5768452fb2a38f30f283444e782a3839c00c8deb116fc47e16101b",
       "parts": 7,
-      "documentSha256": "0524dfd62f2bb52438d32ddf54633dfb140d7ab45b86471bd7f99685a2223040",
+      "documentSha256": "00cf8a891d8e25809f2c94f4e5c0ff00dee1e30f15ebd5268819a121aaafb75d",
       "likeness": "unaccepted",
       "multistart": [
         {
-          "cost": 0.000067400027588807,
+          "cost": 0.00010266729219898209,
           "success": true,
-          "nfev": 34
+          "nfev": 38
         },
         {
-          "cost": 0.00006775347522411117,
+          "cost": 0.00010437103332674481,
           "success": true,
-          "nfev": 31
+          "nfev": 36
         },
         {
-          "cost": 0.00006757056622671728,
+          "cost": 0.00010318644593031985,
           "success": true,
-          "nfev": 41
+          "nfev": 33
         }
       ]
     },
@@ -259,27 +380,44 @@
         "author": "Not supplied in the issue asset inventory",
         "license": "Not established; retained locally for user-requested analysis only"
       },
-      "rmseBeforeFaceHeight": 0.03944955629079779,
-      "rmseAfterFaceHeight": 0.02592170317080458,
-      "glbSha256": "c45dd4b1b49919da659a517aa934c546480dee515bf97a484464b05558e1fb0b",
+      "previousRmseAfterFaceHeight": 0.02592170317080458,
+      "rmseBeforeFaceHeight": 0.04035740668453635,
+      "rmseAfterFaceHeight": 0.025807339065549984,
+      "semanticGroupRms": {
+        "lips": 0.05683764209370695,
+        "eyes": 0.01979975112505494,
+        "brows": 0.017443206208077048,
+        "outline": 0.04507512549766833,
+        "nose": 0.01047459069196569,
+        "other": 0.016694289556913173
+      },
+      "previousSemanticGroupRms": {
+        "lips": 0.06378634118424452,
+        "eyes": 0.02652112132129592,
+        "brows": 0.020482661854381076,
+        "outline": 0.040041251866459696,
+        "nose": 0.01290266371044974,
+        "other": 0.013676247955884877
+      },
+      "glbSha256": "042951faa6d4bf25ceee2be58cc722fd6c3cfad2dd7f52de6b4ac37c0f8df486",
       "parts": 7,
-      "documentSha256": "25372ea24cf42ff6c22f2bf5bf96f2b9b94fe3e80658a9434da570ff348c2bbd",
+      "documentSha256": "a17f6865abea66a145c7c6dea3ea1573de79230b04bdce0e1835e8a72ff2dfa3",
       "likeness": "unaccepted",
       "multistart": [
         {
-          "cost": 0.00037786680158837833,
+          "cost": 0.0005768267679776366,
           "success": true,
-          "nfev": 32
+          "nfev": 45
         },
         {
-          "cost": 0.0003781572130061898,
+          "cost": 0.0005769046616845119,
+          "success": true,
+          "nfev": 96
+        },
+        {
+          "cost": 0.0005819484332665214,
           "success": true,
           "nfev": 46
-        },
-        {
-          "cost": 0.0003817115338033218,
-          "success": true,
-          "nfev": 52
         }
       ]
     },
@@ -293,27 +431,44 @@
         "author": "Not supplied in the issue asset inventory",
         "license": "Not established; retained locally for user-requested analysis only"
       },
-      "rmseBeforeFaceHeight": 0.022686429532612223,
-      "rmseAfterFaceHeight": 0.010568414485356255,
-      "glbSha256": "48b7d31ffefb8d33083135fcc297f310a334d240f8bfc91fdc0c346f665f3503",
+      "previousRmseAfterFaceHeight": 0.010568414485356255,
+      "rmseBeforeFaceHeight": 0.023604834452957267,
+      "rmseAfterFaceHeight": 0.010556594255390477,
+      "semanticGroupRms": {
+        "lips": 0.01517662613681237,
+        "eyes": 0.01438285950933075,
+        "brows": 0.01688436537674482,
+        "outline": 0.015146132190902595,
+        "nose": 0.00686709131128216,
+        "other": 0.008196514636874042
+      },
+      "previousSemanticGroupRms": {
+        "lips": 0.017945026766856165,
+        "eyes": 0.01516328869175503,
+        "brows": 0.020556502148852195,
+        "outline": 0.01335117858097274,
+        "nose": 0.006481102198148435,
+        "other": 0.0071503623197379
+      },
+      "glbSha256": "c927701199bdd9bda52baf177a1152942b19939a833f6d115503b2eb0d197ab4",
       "parts": 7,
-      "documentSha256": "17fe9935184003376c63e907397bcf8ab662acfc64e311dc0e7f0a96c1561497",
+      "documentSha256": "ec2f25ed67bb18c8aec117ce6fa505e6456e91d29e62ae219a3c51cf3424297c",
       "likeness": "unaccepted",
       "multistart": [
         {
-          "cost": 0.0000716517638482146,
+          "cost": 0.00010888954774705973,
           "success": true,
-          "nfev": 38
+          "nfev": 29
         },
         {
-          "cost": 0.00007240122574646082,
+          "cost": 0.00011215514653286852,
           "success": true,
-          "nfev": 39
+          "nfev": 37
         },
         {
-          "cost": 0.00007139210850158449,
+          "cost": 0.00011189118095475823,
           "success": true,
-          "nfev": 35
+          "nfev": 53
         }
       ]
     },
@@ -327,27 +482,44 @@
         "author": "Not supplied in the issue asset inventory",
         "license": "Not established; retained locally for user-requested analysis only"
       },
-      "rmseBeforeFaceHeight": 0.020251971004509234,
-      "rmseAfterFaceHeight": 0.012208644242858486,
-      "glbSha256": "d0513523d25f13887b9cdfdd60f196c89c47b94bd3a5a2ac8342408ae11719e1",
+      "previousRmseAfterFaceHeight": 0.012208644242858486,
+      "rmseBeforeFaceHeight": 0.020716621181508094,
+      "rmseAfterFaceHeight": 0.01206750949641633,
+      "semanticGroupRms": {
+        "lips": 0.021400993643618114,
+        "eyes": 0.013916198852487507,
+        "brows": 0.017733261879338588,
+        "outline": 0.01925271569871316,
+        "nose": 0.008707970453308768,
+        "other": 0.008378295457406582
+      },
+      "previousSemanticGroupRms": {
+        "lips": 0.023967172690024498,
+        "eyes": 0.01447659971820064,
+        "brows": 0.021590469169800435,
+        "outline": 0.01655521809812165,
+        "nose": 0.009089842787138177,
+        "other": 0.007733673437043644
+      },
+      "glbSha256": "1954dd08b405746ddf33083c5f2491f7f1f3011e837ce0044256139965f1901a",
       "parts": 7,
-      "documentSha256": "fcdcdd77cbf62c829b16b7ae0ae2d79793598a1fde1bc3f3da73d883dda4029f",
+      "documentSha256": "4f9f18f7f623e4ef236733e275d630c8dbcc0bc4054acdcc1ffceb8a797f7378",
       "likeness": "unaccepted",
       "multistart": [
         {
-          "cost": 0.00008575769487196043,
+          "cost": 0.0001393963733445023,
           "success": true,
           "nfev": 30
         },
         {
-          "cost": 0.00008554750841987978,
+          "cost": 0.0001419426443137743,
           "success": true,
-          "nfev": 45
+          "nfev": 105
         },
         {
-          "cost": 0.0000865172205565108,
+          "cost": 0.0001403788983070562,
           "success": true,
-          "nfev": 40
+          "nfev": 38
         }
       ]
     },
@@ -361,27 +533,44 @@
         "author": "Not supplied in the issue asset inventory",
         "license": "Not established; retained locally for user-requested analysis only"
       },
-      "rmseBeforeFaceHeight": 0.01806158631716324,
-      "rmseAfterFaceHeight": 0.008845826074421555,
-      "glbSha256": "506198139f697ad6c5bdb08de65043053be4604e5e8da99e01c78fcb4fbf829a",
+      "previousRmseAfterFaceHeight": 0.008845826074421555,
+      "rmseBeforeFaceHeight": 0.018105553281079493,
+      "rmseAfterFaceHeight": 0.009497699726789637,
+      "semanticGroupRms": {
+        "lips": 0.013085917716158055,
+        "eyes": 0.011157736069102357,
+        "brows": 0.01641515967793727,
+        "outline": 0.011667885811150544,
+        "nose": 0.00438469860775845,
+        "other": 0.008080189269796674
+      },
+      "previousSemanticGroupRms": {
+        "lips": 0.013506294391180201,
+        "eyes": 0.010246758993296273,
+        "brows": 0.019691075987622757,
+        "outline": 0.012194129150875194,
+        "nose": 0.0034657160728113028,
+        "other": 0.006306407981034923
+      },
+      "glbSha256": "dc4dcf3293b23cdedb3408c85243af72b50c7008abdc72369a816672a87a28eb",
       "parts": 7,
-      "documentSha256": "8f71398085ceb74c309e1efe8053fc1066c106b25ffcf799a22c577183ca01a2",
+      "documentSha256": "0a9a1a9fa9e6c827dcfe64db4efc7f51e21c0394f399d43fc149dddcf798e077",
       "likeness": "unaccepted",
       "multistart": [
         {
-          "cost": 0.00004819967356098805,
+          "cost": 0.00007824818226539955,
           "success": true,
-          "nfev": 34
+          "nfev": 37
         },
         {
-          "cost": 0.000048205222152061446,
+          "cost": 0.00007570891196063993,
           "success": true,
-          "nfev": 31
+          "nfev": 44
         },
         {
-          "cost": 0.00004926239304597145,
+          "cost": 0.00007617606253111588,
           "success": true,
-          "nfev": 54
+          "nfev": 33
         }
       ]
     },
@@ -395,27 +584,44 @@
         "author": "Not supplied in the issue asset inventory",
         "license": "Not established; retained locally for user-requested analysis only"
       },
-      "rmseBeforeFaceHeight": 0.021887688540393205,
-      "rmseAfterFaceHeight": 0.015182227010313947,
-      "glbSha256": "1cca17665cb276d48ae22e390894a057cecd7dda5d30542484906b0959b5bf10",
+      "previousRmseAfterFaceHeight": 0.015182227010313947,
+      "rmseBeforeFaceHeight": 0.02213853333502591,
+      "rmseAfterFaceHeight": 0.015524301207965989,
+      "semanticGroupRms": {
+        "lips": 0.033318176657134047,
+        "eyes": 0.01587646779591241,
+        "brows": 0.01524745984730418,
+        "outline": 0.021016200243535604,
+        "nose": 0.007992538445321901,
+        "other": 0.01100006763078838
+      },
+      "previousSemanticGroupRms": {
+        "lips": 0.03611396111735064,
+        "eyes": 0.01643878364396803,
+        "brows": 0.01740343029083685,
+        "outline": 0.01889283172457925,
+        "nose": 0.00828525241927907,
+        "other": 0.009158056604024935
+      },
+      "glbSha256": "c56c42471454b35e5e7ec0d2b0af9e2838af64c95c23e7667c20c15adcf05045",
       "parts": 7,
-      "documentSha256": "5925164c2c639774e4ea60cb101bb61bcde905666f1eff3aebd058dc3c46df7d",
+      "documentSha256": "39fb2cc55be227a77858b603cafd5ee48c7d9c8f6d034b3a40e1332e24bbe255",
       "likeness": "unaccepted",
       "multistart": [
         {
-          "cost": 0.00013093794888631086,
+          "cost": 0.00020224498279630904,
           "success": true,
           "nfev": 36
         },
         {
-          "cost": 0.0001310253441088059,
+          "cost": 0.00020578620197970378,
           "success": true,
-          "nfev": 38
+          "nfev": 34
         },
         {
-          "cost": 0.00012893893556270933,
+          "cost": 0.00020021366841050937,
           "success": true,
-          "nfev": 41
+          "nfev": 43
         }
       ]
     },
@@ -429,27 +635,44 @@
         "author": "Not supplied in the issue asset inventory",
         "license": "Not established; retained locally for user-requested analysis only"
       },
-      "rmseBeforeFaceHeight": 0.023938887384549093,
-      "rmseAfterFaceHeight": 0.01750230230009476,
-      "glbSha256": "0c9c727f21b95478e61cd49a66f021f870385dd7bfa8f6b485d54a6898800d73",
+      "previousRmseAfterFaceHeight": 0.01750230230009476,
+      "rmseBeforeFaceHeight": 0.02472727238320791,
+      "rmseAfterFaceHeight": 0.017778329840294232,
+      "semanticGroupRms": {
+        "lips": 0.02777678628204145,
+        "eyes": 0.0156506101352878,
+        "brows": 0.025872892861294877,
+        "outline": 0.028006293390484802,
+        "nose": 0.008020877109516582,
+        "other": 0.014457633909709418
+      },
+      "previousSemanticGroupRms": {
+        "lips": 0.03500782409209372,
+        "eyes": 0.015730188962612638,
+        "brows": 0.032282032140759094,
+        "outline": 0.025263115461667124,
+        "nose": 0.0103002829673973,
+        "other": 0.011259000510775238
+      },
+      "glbSha256": "99bf42a0c7fa1ee4f91ccc2635ae559290c20c058ddfebd18bca732355cb02a3",
       "parts": 7,
-      "documentSha256": "9b5871348abf233bc9af705f70906b66c0465e4fe9bf581a56f49c81b1631448",
+      "documentSha256": "dac8928b3d379c56ecf3bef9dac4dcbdd819b3d3a0b1cf820164de8192b54c09",
       "likeness": "unaccepted",
       "multistart": [
         {
-          "cost": 0.00017203344495777875,
-          "success": true,
-          "nfev": 39
-        },
-        {
-          "cost": 0.0001924817690327001,
-          "success": true,
-          "nfev": 44
-        },
-        {
-          "cost": 0.00017250435026937617,
+          "cost": 0.0002689977437423908,
           "success": true,
           "nfev": 36
+        },
+        {
+          "cost": 0.0002982497071838225,
+          "success": true,
+          "nfev": 37
+        },
+        {
+          "cost": 0.00026201232828035597,
+          "success": true,
+          "nfev": 41
         }
       ]
     },
@@ -463,27 +686,44 @@
         "author": "Not supplied in the issue asset inventory",
         "license": "Not established; retained locally for user-requested analysis only"
       },
-      "rmseBeforeFaceHeight": 0.030597434477532784,
-      "rmseAfterFaceHeight": 0.014483630944525162,
-      "glbSha256": "279b739b966bda6f43e084832d013f51d021af2a7d4a3529e94496bbfc2c8f65",
+      "previousRmseAfterFaceHeight": 0.014483630944525162,
+      "rmseBeforeFaceHeight": 0.031208480018183684,
+      "rmseAfterFaceHeight": 0.01490839579657355,
+      "semanticGroupRms": {
+        "lips": 0.036136310604693286,
+        "eyes": 0.01285087662229256,
+        "brows": 0.009479620385084108,
+        "outline": 0.01352557563174463,
+        "nose": 0.005395471323682145,
+        "other": 0.010881704484835839
+      },
+      "previousSemanticGroupRms": {
+        "lips": 0.036972140969586294,
+        "eyes": 0.015542649553162405,
+        "brows": 0.010129866547139526,
+        "outline": 0.01297450560243969,
+        "nose": 0.00522590101227223,
+        "other": 0.009243393832819535
+      },
+      "glbSha256": "e73e976d52a928acda91b0f1c9066185a88946d2ff4bf54942849f8cb067a2f5",
       "parts": 7,
-      "documentSha256": "941087edfb3169f3507c814bd8ebf13271044621b6721b933a0f7c9007735354",
+      "documentSha256": "6350d9b2cfe71f2d8880ace933b743df42cbab93a976402bf048ab7ca9a31f29",
       "likeness": "unaccepted",
       "multistart": [
         {
-          "cost": 0.00011852370766773344,
+          "cost": 0.00017024110655406674,
           "success": true,
-          "nfev": 54
+          "nfev": 53
         },
         {
-          "cost": 0.00011818651133643342,
+          "cost": 0.00017015575340078472,
           "success": true,
-          "nfev": 94
+          "nfev": 68
         },
         {
-          "cost": 0.00011836422256892873,
+          "cost": 0.0001711298864779471,
           "success": true,
-          "nfev": 60
+          "nfev": 84
         }
       ]
     },
@@ -497,27 +737,44 @@
         "author": "Not supplied in the issue asset inventory",
         "license": "Not established; retained locally for user-requested analysis only"
       },
-      "rmseBeforeFaceHeight": 0.024963146280674267,
-      "rmseAfterFaceHeight": 0.015611742874005845,
-      "glbSha256": "027eaba195b99f5577439c533b1e9cb1f5cda81b999085f419ba8b62f6f94e4c",
+      "previousRmseAfterFaceHeight": 0.015611742874005845,
+      "rmseBeforeFaceHeight": 0.025545014293025716,
+      "rmseAfterFaceHeight": 0.015789150658993785,
+      "semanticGroupRms": {
+        "lips": 0.029840859439380925,
+        "eyes": 0.016723590608564987,
+        "brows": 0.015495139613824906,
+        "outline": 0.02395366520685235,
+        "nose": 0.008699308238343462,
+        "other": 0.011910540790551385
+      },
+      "previousSemanticGroupRms": {
+        "lips": 0.033953559112540437,
+        "eyes": 0.018466284071621958,
+        "brows": 0.018915619469390674,
+        "outline": 0.02046743807445703,
+        "nose": 0.0093290151163669,
+        "other": 0.010174490779911605
+      },
+      "glbSha256": "7a9f88442dfaac751362ed424161e7c828d10d550f33ad6b968e4efedc98025d",
       "parts": 7,
-      "documentSha256": "67b9b5ffa8b6f6d9ff7e0b58061956ba672f8431258263649fed0db52454c03e",
+      "documentSha256": "78832e1e456e123600fa92ae04d729dfaf96e7b92d4846a6001dd4fa74fa6b6b",
       "likeness": "unaccepted",
       "multistart": [
         {
-          "cost": 0.00013997188985910447,
+          "cost": 0.0002045999447135318,
           "success": true,
-          "nfev": 35
+          "nfev": 27
         },
         {
-          "cost": 0.00014064057007497953,
-          "success": true,
-          "nfev": 36
-        },
-        {
-          "cost": 0.00014266283100043196,
+          "cost": 0.00020695607752218775,
           "success": true,
           "nfev": 41
+        },
+        {
+          "cost": 0.00021201895279396665,
+          "success": true,
+          "nfev": 43
         }
       ]
     },
@@ -531,27 +788,44 @@
         "author": "Not supplied in the issue asset inventory",
         "license": "Not established; retained locally for user-requested analysis only"
       },
-      "rmseBeforeFaceHeight": 0.016597870233768325,
-      "rmseAfterFaceHeight": 0.00741705233407032,
-      "glbSha256": "b5d4ecb4eb6b718e1cbc85a2b5973d4dcfc3d21be4307f29e4bf0f1ac49c1791",
+      "previousRmseAfterFaceHeight": 0.00741705233407032,
+      "rmseBeforeFaceHeight": 0.016858975044520403,
+      "rmseAfterFaceHeight": 0.007498109925664022,
+      "semanticGroupRms": {
+        "lips": 0.008928211470105078,
+        "eyes": 0.009800919776619312,
+        "brows": 0.013107223867462587,
+        "outline": 0.008219966573786366,
+        "nose": 0.004757834775625631,
+        "other": 0.006569405804082822
+      },
+      "previousSemanticGroupRms": {
+        "lips": 0.009550874013200743,
+        "eyes": 0.00979707291471742,
+        "brows": 0.01634561931991481,
+        "outline": 0.008244724084942567,
+        "nose": 0.004541718143108555,
+        "other": 0.005829855441911141
+      },
+      "glbSha256": "a6795eeb433f21989271f3d4edcfee90856aa7ed68062d9b239d3edb7e439eff",
       "parts": 7,
-      "documentSha256": "8f7651998d5fdcccceaeb2d67a7df9f8d3823d1afdaa1a13b38776fa089582e9",
+      "documentSha256": "2269857a7b2115f89971a43c8a57bc9147154f8dae8186f6033c71b1ad032b18",
       "likeness": "unaccepted",
       "multistart": [
         {
-          "cost": 0.00003742826475547534,
+          "cost": 0.000051340038237937176,
           "success": true,
-          "nfev": 34
+          "nfev": 28
         },
         {
-          "cost": 0.00003595843449060645,
+          "cost": 0.00005193779574258894,
           "success": true,
-          "nfev": 44
+          "nfev": 36
         },
         {
-          "cost": 0.000037100501188186094,
+          "cost": 0.000055245975495263076,
           "success": true,
-          "nfev": 35
+          "nfev": 43
         }
       ]
     },
@@ -565,27 +839,44 @@
         "author": "Not supplied in the issue asset inventory",
         "license": "Not established; retained locally for user-requested analysis only"
       },
-      "rmseBeforeFaceHeight": 0.02243247895124281,
-      "rmseAfterFaceHeight": 0.013579238291129617,
-      "glbSha256": "1df6799f5e00fcb5ab69793f3c5632138f77d2266bf5a9ebad2ffe921eade3bd",
+      "previousRmseAfterFaceHeight": 0.013579238291129617,
+      "rmseBeforeFaceHeight": 0.022883258493492972,
+      "rmseAfterFaceHeight": 0.013651889294388379,
+      "semanticGroupRms": {
+        "lips": 0.02614613504074175,
+        "eyes": 0.012326862453405456,
+        "brows": 0.015291427399955742,
+        "outline": 0.02223207550695678,
+        "nose": 0.007808189192978467,
+        "other": 0.009917775329211927
+      },
+      "previousSemanticGroupRms": {
+        "lips": 0.02998498411528934,
+        "eyes": 0.015280864201011338,
+        "brows": 0.018415693150393306,
+        "outline": 0.018941646459064463,
+        "nose": 0.008396920911190002,
+        "other": 0.008242722121332416
+      },
+      "glbSha256": "c06cb586fca209685938a3b632aa793caf39b1d7a95a5b35803bc2f4fed6206f",
       "parts": 7,
-      "documentSha256": "525f90d69fdee78eb39011df88284b31a8655dd0a6256c7d78c1dee60f03632e",
+      "documentSha256": "32d50e6ce07caa060264461098aed5bc4a711f7966aa9d265f7289e08e0872ed",
       "likeness": "unaccepted",
       "multistart": [
         {
-          "cost": 0.00010564333007890224,
+          "cost": 0.00016265507720160174,
           "success": true,
           "nfev": 29
         },
         {
-          "cost": 0.00010523669243187331,
-          "success": true,
-          "nfev": 34
-        },
-        {
-          "cost": 0.00010551758360281753,
+          "cost": 0.00016253695410018717,
           "success": true,
           "nfev": 33
+        },
+        {
+          "cost": 0.00016335314959780686,
+          "success": true,
+          "nfev": 31
         }
       ]
     },
@@ -599,27 +890,44 @@
         "author": "Not supplied in the issue asset inventory",
         "license": "Not established; retained locally for user-requested analysis only"
       },
-      "rmseBeforeFaceHeight": 0.013762756799043445,
-      "rmseAfterFaceHeight": 0.00980474217539412,
-      "glbSha256": "3a224464cf0799462caf9633f0ec02520941cabb7b0db50a49b622c2d44bee49",
+      "previousRmseAfterFaceHeight": 0.00980474217539412,
+      "rmseBeforeFaceHeight": 0.014196981878782183,
+      "rmseAfterFaceHeight": 0.009985246945191843,
+      "semanticGroupRms": {
+        "lips": 0.01789531458341096,
+        "eyes": 0.011161931562890236,
+        "brows": 0.014101166223602187,
+        "outline": 0.012955885500473857,
+        "nose": 0.00523327094420623,
+        "other": 0.007792514122908845
+      },
+      "previousSemanticGroupRms": {
+        "lips": 0.020344787161598994,
+        "eyes": 0.012306131820387927,
+        "brows": 0.017237642413227793,
+        "outline": 0.010665127088360383,
+        "nose": 0.00474673136679986,
+        "other": 0.006416308280459776
+      },
+      "glbSha256": "1deac40aaeb93964048331ddadfe908e1454238bf11ab117ae82c3a905661b18",
       "parts": 7,
-      "documentSha256": "2e0d099fd89cf65f1c47b4a7110a2a931c157621ff071fa4c4ee00ab9053dfde",
+      "documentSha256": "5627da99b37b2f02a8e07ab2d261a053be5322cf0f662969990b3de20bee920d",
       "likeness": "unaccepted",
       "multistart": [
         {
-          "cost": 0.00005409415441617766,
+          "cost": 0.00008548805279234079,
           "success": true,
-          "nfev": 38
+          "nfev": 37
         },
         {
-          "cost": 0.00005519702528503481,
+          "cost": 0.00008497375829727809,
           "success": true,
-          "nfev": 36
+          "nfev": 41
         },
         {
-          "cost": 0.00005426863725737352,
+          "cost": 0.00008440554232530291,
           "success": true,
-          "nfev": 64
+          "nfev": 62
         }
       ]
     },
@@ -630,31 +938,46 @@
         "url": null,
         "sha256": "b5faf9013533b1e75dee734174d81db00dbc2e61fe1abe925f0248529929b009"
       },
-      "rmseBeforeFaceHeight": 0.023288963400481116,
-      "rmseAfterFaceHeight": 0.014722792528138778,
-      "glbSha256": "9b81f1b82f61a0b3282dd0eb25995d6138e131ed1c4607b4a78b0e48356a5e01",
+      "previousRmseAfterFaceHeight": 0.014722792528138778,
+      "rmseBeforeFaceHeight": 0.02426875066846625,
+      "rmseAfterFaceHeight": 0.01463351782519981,
+      "semanticGroupRms": {
+        "lips": 0.026984585225532168,
+        "eyes": 0.016086138345323756,
+        "brows": 0.020440890294348996,
+        "outline": 0.023681928125195772,
+        "nose": 0.005637837599757748,
+        "other": 0.010296372615348841
+      },
+      "previousSemanticGroupRms": {
+        "lips": 0.03130747572048443,
+        "eyes": 0.016296758369085385,
+        "brows": 0.025199989704188255,
+        "outline": 0.020616667212377253,
+        "nose": 0.006309042784665361,
+        "other": 0.008855587708936541
+      },
+      "glbSha256": "561f88cd790d3ef3de1655f95fe22ca829a7105b4ccb738c751d7648cc8b41bd",
       "parts": 7,
-      "documentSha256": "d980829bf30ae0d2d02c5a5745c7b9f18d13f971fb702223106eb44190fa60c9",
+      "documentSha256": "4e1c389bcd51e64cd36d37c0b14b65016d5a6e9cc577a822a2a287653b9be46b",
       "likeness": "unaccepted",
       "multistart": [
         {
-          "cost": 0.00012497809830179401,
+          "cost": 0.00019697446827968346,
           "success": true,
-          "nfev": 33
+          "nfev": 28
         },
         {
-          "cost": 0.00012654794750324296,
+          "cost": 0.0002048228338966245,
           "success": true,
           "nfev": 35
         },
         {
-          "cost": 0.00013041620610978644,
+          "cost": 0.00019915674609573945,
           "success": true,
-          "nfev": 32
+          "nfev": 35
         }
       ]
     }
-  ],
-  "previousRevision": "bfba98e05dc2c530dfdae5dfbcc8434212ac7b10",
-  "performanceReference": "https://storage.googleapis.com/mediapipe-assets/Model%20Card%20Blendshape%20V2.pdf"
+  ]
 }
