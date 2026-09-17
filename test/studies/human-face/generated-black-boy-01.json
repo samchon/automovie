@@ -6076,7 +6076,11 @@
             }
           }
         ]
-      }
+      },
+      "sphereFit": "observation-ray",
+      "opticalFrame": "radial",
+      "canthalSupport": "tangent",
+      "surfaceRadius": 12
     },
     "dentition": {
       "row": {

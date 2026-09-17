@@ -1271,3 +1271,29 @@ State: construction admitted; standalone document replay admitted; static glTF a
 | back | `2bee0ffe73603b2c9dc47f0385c2c9e912e3e9fc61fc531ecb4ba3c938906b89` |
 | reference | `ac3feaa147cd84013b0539c6ae08c9e0455e268acd51431ccfa940150d8a8b12` |
 | clay | `cff167e42fd80ea72cfbccf18e1e20e0d5ea0269cd22efad6f3ad795be7a37a5` |
+
+## Optical population expansion, 2026-09-17 {#optical-population-2026-09-17}
+
+This partial adoption changes four eye settings in eleven canonical documents: `sphereFit: observation-ray`, `opticalFrame: radial`, `canthalSupport: tangent`, and `surfaceRadius: 12` mm. It uses the existing package construction already adopted for four other documents. Their basis, expression, nose, mouth, face envelope and appearance inputs remain unchanged. The optical sphere and tangent canthal support are authored geometric approximations. The 12-mm radius is a spherical prior, not a measurement of any pictured adult or child, and it does not recover hidden anatomy from a photograph.
+
+At source `fbd5a587`, the freshly built public human package exported both original and radial candidates for the fourteen remaining editable documents: 28 exports, zero construction failures. All 168 calibrated AMD Radeon 8060S views were directly read, covering front, both obliques, both profiles and back. Eleven candidates improve the visible rounded optical surface and canthal transition. Alan Rickman and generated White girl show increased iris occlusion; Emma Watson remains visually uncertain. Those three keep their previous documents. Every candidate, including those not selected, remains in `optical-population-v1` under `.shots/human-2469/investigation-2498/`. The frozen generated Korean girl retains SHA-256 `d54adc6b28bf8a466f0914878f5d751211c13787d4b4143e6fe9ac28a46f1fcc`.
+
+Each selected candidate also exports three explicit performed states: bilateral half blink; bilateral complete blink; and combined jaw rotation 12.5 degrees, bilateral smile 4 mm, pucker 2 mm, bilateral gaze yaw 10 degrees and pitch 5 degrees. Other expression channels use neutral values in these probes. All 33 builds and 198 same-camera GPU views were directly read. The complete blinks cover the optical surface, and half/combined states retain the visible eye assembly. Bulky lids and the pre-existing oral, nasal and cervical defects remain. These observations are finite pose checks, not continuous collision certification or complete anatomical acceptance. `optical-population-motion-v1` retains every document, GLB, capture and receipt.
+
+The rebuilt actual editor at `http://127.0.0.1:5187/face.html` loads all eleven through its nineteen-document selector, saves the exact tested JSON and exports each GLB without browser errors on the same hardware GPU. All eleven resulting editor fronts were directly read. An independent accessor comparison finds exact exported positions, topology, materials and UVs between the native and browser exports. Normal components differ by at most 5.960464477539063e-8; therefore the complete cross-runtime GLB bytes are not identical. `optical-population-editor-v1` retains these captures, browser exports and the full per-semantic comparison. The table binds the committed document bytes and those actual browser GLBs.
+
+| Study | Document SHA-256 | Browser GLB SHA-256 |
+| --- | --- | --- |
+| daniel-radcliffe | `227dda17ab7b0b5b12fafdfcbb300431f44df26d522665dd2e21759360aeb4dc` | `6f6abd8fa3ede10895554b0dc0bf70e797cdac01ddf807c2e5c8a652a122ec1f` |
+| generated-black-boy-01 | `dc884c5d003d34a637b59afddc3afbdc9f46fab16dffd9502188231eaa6af539` | `5c05fa28e1e2f8e44f7ebe441d8e20fcbee7b639b5fc2323a817add60cfd0cf7` |
+| generated-white-boy-01 | `3bc1be298f9490653cbf5a7a6047cdb885cc07d5365f1d7c480602496962efb2` | `fb8ab410d1abf713719479f322509bb1812cfbca2483ecc8a5be40c5f75f36da` |
+| jang-su-hye | `626f33d78053b0686de850ae0f40c827e78e05fa5f274b98bd779e3173f1b803` | `865e5512ae9ebcee8d9554b0a2c3297fb029f678648808f65343781abc474e22` |
+| kim-min-jung | `dc40872aa83f93282c6bc75beafe945bec33ec452789ac7f4f7c659c1f17041e` | `e9380317e5210ba7d88e556b85df203d0af847be12e6a84a533b6e49a7c01e5f` |
+| lee-tae-ri | `dc9425881add72169f74f5e42a4df81300abde7017f4dcec015ccf2cd3375b3d` | `dbacf3aed4a38b54f7ef36d204610d8ac78826cd642d25dad3c367e380f61a62` |
+| maggie-smith | `62e5cd5636f1241afb8fde44e161a5fd480d46e049e05a2095887b77c8387e80` | `fb8fe51cde45d1551150ee2ab4a41df84e2a770b3dc060ef3c2169b32c6dada8` |
+| michael-gambon | `b75696278692da2d8775806e57bcbc4f7b22f05474947c853e7e9d70b1fe0090` | `41bdf2d4a056543e73a516ddd7e9d146937245ec37979aec96d85286c0ca1abd` |
+| oh-seung-yoon | `b7660d068fd78f1af62e54e3db85e4da6c7f391a1210ff14dece51d7d5e69fc2` | `1fd4a09869cb639f12dfffeb75fe3d49a45ed85a2aa1e9194d55fcd078e883a7` |
+| park-eun-bin | `9db039fe7549ea377c20cc669ed1627918e607c9a219a22411e697750a90d0d9` | `640f548be0c0ccc997a6c80be86c1a59d0482c7466efdd1e2ce23c0f36f833c3` |
+| rupert-grint | `aeb0d9059d7e7893d61eedc3a9d17fe46e63e397b642a0683f9143dc9b3f6a0d` | `1ef16d64be9f3c73f5563ab740f7b64c57b7468a4627025c7bb5fe50fc7265a2` |
+
+The earlier per-person sections retain their artifact-specific historical verdicts. This expansion accepts the observed optical improvement only. It does not accept whole-face likeness, oversized lid anatomy, nasal planes, oral enclosure/contents, mandibular deformation, cervical form or final PR readiness. No photographic likeness percentage is established by export success or by the view count.

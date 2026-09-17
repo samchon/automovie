@@ -6085,7 +6085,11 @@
             }
           }
         ]
-      }
+      },
+      "sphereFit": "observation-ray",
+      "opticalFrame": "radial",
+      "canthalSupport": "tangent",
+      "surfaceRadius": 12
     },
     "nose": {
       "tipProjection": 0.25
