@@ -19,8 +19,6 @@
  * project's own commands, or a person, while the concrete production units keep
  * their positive citations.
  *
- * @evidence requirements/evidence-and-provenance/completeness-freshness-and-refusal.md#evidence-honest-refusal Keeps the units this package does not implement explicit instead of presenting them as production implementations.
- * @evidence specifications/evidence-and-provenance/completeness-freshness-and-refusal.md#evp-fail-closed-decision-gate Makes the package evidence graph refuse a positive verdict for a unit no production export truthfully answers.
  * @evidenceExclude requirements/agent-authoring/partial-work.md#agent-partial-result-control Adopting, revising or discarding a partial result is the author's decision in the generated project's tracked source; production returns typed results and never adopts a checkpoint on the user's behalf.
  * @evidenceExclude requirements/agent-authoring/source-owned-loop.md#agent-reviewable-source-change A change stays reviewable as the generated project's source diff and version history; production consumes reviewed source revisions through the builder's input fingerprint and authors no change itself.
  * @evidenceExclude requirements/delivery-and-accessibility/audio-streams-and-channels.md#delivery-audio-sample-boundary The render plan fixes each cue's source sample boundary and render's Opus profile assertion verifies the delivered priming, tail and presentation boundary against the encoded bytes; production stores the plan and compares the receipt rows against it.

@@ -2,6 +2,16 @@
 
 Start at the first authoritative disagreement among authored decisions, typed source, engine result, viewer state, and actual output. A visual symptom can originate upstream of the renderer.
 
+## Coupled geometry and performance
+
+Before correcting a visible symptom, inspect the complete requested population and required states or views. Group deviations by shared cause and trace their earliest divergence through authored inputs, assembly, refinement, contact, export and display. Separate observed deviations from hypotheses about their cause.
+
+Design the group's constraints together before implementation: what must improve, what neighboring parts and states must preserve, who owns each boundary and coordinate transform, and which observations would refute the approach. Return missing decisions to their authored design owners. A missing representational freedom requires a repair at its owner; repeated scalar tuning, higher tessellation or a display workaround cannot supply it.
+
+Declare the fixed quantities, intervention, competing explanation and rejection condition for each experiment. Follow [Measurement basis](measurements.md#measurement-basis) for quantitative claims and [Production review](review.md#compare-and-observe) for comparisons of rendered output. Preserve unfavorable results and earlier candidates with their exact basis. A repair applies to the whole verified cause group, and any newly exposed coupled defect reopens that group's design before another correction.
+
+When repeated corrections leave the consumed result inadequate, return to [Implementation strategy](../source-authoring/implementation-strategy.md) to compare the formulation, representation, and reusable alternatives against the group's conditions.
+
 ## Triage
 
 1. Read the complete diagnostic and its input, target, phase, and observed values.

@@ -10,6 +10,8 @@ Review question: can an implementer choose an operation and build the intended b
 
 This item owns the required geometry result. Source authoring owns which documented operation realizes it and the consequences that operation preserves, regenerates, omits, or refuses.
 
+When the representation reuses a mesh, rig, deformation basis, or attachment data, identify the adopted revision and the correspondence its consumers require. Distinguish the reusable basis from subject-specific parameters and pose. A replacement preserves or explicitly revises that correspondence and its dependent data; matching appearance in one pose does not establish compatible control or attachment semantics.
+
 Sources: [OpenUSD model and asset terminology](https://openusd.org/release/glossary.html); [glTF 2.0 meshes, skins, and instantiation](https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#geometry)
 
 ## Spatial convention {#spatial-convention}

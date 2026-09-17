@@ -22,6 +22,8 @@ Sources: [W3C PROV-O on entities, activities, and agents in provenance](https://
 
 Every research entry records material disagreement, missing coverage, or interpretive limits before downstream documents select a production answer. The ledger does not resolve uncertainty by silently averaging incompatible sources.
 
+For a comparative technical result, distinguish what its author reports, what has been reproduced locally, and what has been observed in the intended consumer. State differences in inputs, required data, operating conditions, and measured work that limit the comparison. A component benchmark or an available code repository does not establish the complete production result.
+
 Review question: what remains unknown or contested after reading this entry, and where is the production choice recorded?
 
-Sources: [NIST Technical Note 1297 on expressing measurement uncertainty](https://www.nist.gov/pml/nist-technical-note-1297); [W3C Data Quality Vocabulary](https://www.w3.org/TR/vocab-dqv/)
+Sources: [NIST Technical Note 1297 on expressing measurement uncertainty](https://www.nist.gov/pml/nist-technical-note-1297); [W3C Data Quality Vocabulary](https://www.w3.org/TR/vocab-dqv/); [NASA decision analysis on alternatives, assumptions, and uncertainty](https://www.nasa.gov/reference/6-8-decision-analysis/)

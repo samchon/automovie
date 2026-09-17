@@ -1,3 +1,4 @@
+import type { IAutoMovieHumanFaceDocument } from "@automovie/human";
 import type { JSONDocument } from "@gltf-transform/core";
 import * as THREE from "three";
 
@@ -25,10 +26,15 @@ type BuiltFace = {
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Owns lighting, display-only clay and camera state independently of browser allocation.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Delegates worker generation isolation to the preview builder and disposes discarded decoded assets.
  */
-export function createHumanViewport(props: {
+export function createHumanViewport<
+  Document = IAutoMovieHumanFaceDocument,
+>(props: {
+  /** The selected face document owns schema admission before worker allocation. */
+  serialize: (document: Document) => string;
   canvas: { getBoundingClientRect: () => Pick<DOMRect, "width" | "height"> };
   pixelRatio: number;
   renderer: {
+    capabilities: Pick<THREE.WebGLCapabilities, "getMaxAnisotropy">;
     setPixelRatio: (ratio: number) => void;
     outputColorSpace: string;
     toneMapping: THREE.ToneMapping;
@@ -65,6 +71,7 @@ export function createHumanViewport(props: {
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   const scene = new THREE.Scene();
+  const shadowLights: THREE.DirectionalLight[] = [];
   scene.background = new THREE.Color(0x1c252e);
   scene.add(new THREE.HemisphereLight(0xffeee2, 0x526578, 0.5));
   for (const [x, y, z, power, color] of [
@@ -76,6 +83,7 @@ export function createHumanViewport(props: {
     light.position.set(x, y, z);
     scene.add(light);
     if (x < 0) {
+      shadowLights.push(light);
       light.castShadow = true;
       light.shadow.mapSize.set(4096, 4096);
       Object.assign(light.shadow.camera, {
@@ -105,7 +113,8 @@ export function createHumanViewport(props: {
   let active: BuiltFace | undefined;
   let clayEnabled = false;
   const dispose = disposeHumanPreview;
-  const { build, cancel } = createHumanPreviewBuilder<BuiltFace>({
+  const { build, cancel } = createHumanPreviewBuilder<BuiltFace, Document>({
+    serialize: props.serialize,
     worker: props.worker,
     decode: async (result) => {
       const group = await props.decode(
@@ -114,7 +123,12 @@ export function createHumanViewport(props: {
           result.glb.byteOffset + result.glb.byteLength,
         ),
       );
-      prepareHumanPreview(group);
+      try {
+        prepareHumanPreview(group, renderer.capabilities.getMaxAnisotropy());
+      } catch (error) {
+        disposeHumanPreview(group);
+        throw error;
+      }
       return { ...result, group };
     },
     dispose: (model) => dispose(model.group),
@@ -162,6 +176,13 @@ export function createHumanViewport(props: {
     cameraView,
     setClay: (enabled: boolean): void => {
       clayEnabled = enabled;
+    },
+    // A cast-shadow boundary can resemble a crease in the anatomical surface.
+    // Toggle only the shadow casters: direct light, materials, geometry and the
+    // saved document stay fixed, so the two views isolate that ambiguity.
+    // Changing the light's shadow count also refreshes Three's shader variant.
+    setShadows: (enabled: boolean): void => {
+      for (const light of shadowLights) light.castShadow = enabled;
     },
     finish: () => {
       render();

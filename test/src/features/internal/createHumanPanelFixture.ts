@@ -25,7 +25,8 @@ export function createHumanPanelFixture(
   const published: string[] = [],
     disposed: string[] = [],
     views: number[] = [],
-    clays: boolean[] = [];
+    clays: boolean[] = [],
+    shadows: boolean[] = [];
   let fits = 0,
     cancellations = 0;
   const panel = mountHumanFacePanel(app, {
@@ -64,6 +65,9 @@ export function createHumanPanelFixture(
       setClay: (enabled) => {
         clays.push(enabled);
       },
+      setShadows: (enabled) => {
+        shadows.push(enabled);
+      },
     }),
     download: (name, bytes, mime) => {
       downloads.push({ name, bytes, mime });
@@ -99,6 +103,7 @@ export function createHumanPanelFixture(
     disposed,
     views,
     clays,
+    shadows,
     fits: () => fits,
     cancellations: () => cancellations,
   };

@@ -1,0 +1,21 @@
+[package]
+name = "automovie-quadratic"
+version = "0.1.0"
+edition = "2021"
+publish = false
+license = "MIT"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+# Upstream 0.11.1's SolverError references serde_json even with serde disabled.
+# Keep the published default feature set; do not patch the numerical library.
+clarabel = { version = "=0.11.1" }
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true

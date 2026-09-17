@@ -1,3 +1,12 @@
+/**
+ * Reserve host skin and reconnect it around a replacement anatomical seam.
+ * Eye components use the reservation before moving their shared vertices, then
+ * append the annulus topology. Skin coordinates remain caller-owned head mm;
+ * only a copied XY chart enters the engine in metres. The engine returns the
+ * original index permutation, so the bridge keeps resident XYZ identities and
+ * never reconstructs them by metric coordinate equality. Final subdivision and
+ * common normals belong to the head assembler, after this topology is joined.
+ */
 import {
   autoMoviePlanarRegionFailure,
   triangulateAutoMovieRegion,
@@ -97,9 +106,9 @@ export function reservePortraitSkin(
 /**
  * Triangulate a shared skin annulus without flattening or copying its vertices.
  * Both loops follow their enclosed surface winding and must project as strictly
- * nested simple rings. The engine preserves exact planar input coordinates;
- * those coordinates recover the resident XYZ identities, including unequal
- * ring populations. Reversed matching winding reverses every emitted face.
+ * nested simple rings. The engine's canonical-to-input permutation retains the
+ * resident XYZ identities, including unequal ring populations. Reversed
+ * matching winding reverses every emitted face without changing those IDs.
  *
  * Positions use construction mm and are read only. Admission finishes before
  * the caller appends returned indices, so an impossible join changes no cage.
@@ -126,12 +135,8 @@ export function portraitSkinAnnulus(
     outer: outerPoints,
     holes: [innerPoints],
   });
-  const key = (p: { x: number; y: number }) => `${p.x}/${p.y}`;
-  const identities = new Map([
-    ...outerPoints.map((p, i) => [key(p), outer[i]] as const),
-    ...innerPoints.map((p, i) => [key(p), inner[i]] as const),
-  ]);
-  const mapped = triangulated.points.map((p) => identities.get(key(p))!);
+  const identities = [...outer, ...inner];
+  const mapped = triangulated.sourceIndices.map((index) => identities[index]);
   const reversed = mapped[0] !== outer[0];
   const innerReversed = mapped[triangulated.rings[1].start] !== inner[0];
   if (reversed === innerReversed)

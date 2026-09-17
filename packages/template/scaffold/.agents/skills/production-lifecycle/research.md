@@ -8,6 +8,8 @@ Derive research questions from delivery scope, the settings coverage map, repres
 
 Search results, summaries, and collection portals are discovery routes. Open the primary record, official specification, scholarly work, critical edition, or direct technical source before accepting a claim. Record the source identity and used portion, material date and authority, disagreements and missing coverage, and the exact production decision affected.
 
+When research compares implementation methods, use [Implementation strategy](../source-authoring/implementation-strategy.md) to choose discriminating experiments and establish the actual consumer result. This research layer continues to own the external evidence and its interpretation boundary.
+
 ## Boundary
 
 Research does not decide production canon. Interpret every adopted conclusion in a settings H2 with its status, scope, affected specialist layer, and production consequence. That settings owner cites the research H2; design, narrative, and verification layers cite the interpreted settings decision instead of copying the bibliography or creating a second research-to-production path.

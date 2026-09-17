@@ -30,6 +30,7 @@ export default defineConfig({
         impact: resolve(__dirname, "impact.html"),
         trampoline: resolve(__dirname, "trampoline.html"),
         face: resolve(__dirname, "face.html"),
+        connectedFace: resolve(__dirname, "connected-face.html"),
       },
     },
   },
