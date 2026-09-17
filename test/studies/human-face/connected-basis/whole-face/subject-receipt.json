@@ -1,7 +1,7 @@
 {
   "basis": "mpfb-connected-head-2026-09-17-complete-regions",
   "basisSha256": "368146c389a100ce29ba2ab012fdf3ad4cfa4fd6277fb438d4d03df1b9a2593e",
-  "method": "Bounded TRF weak-perspective projection with soft_l1 loss and zero-centred shape/expression regularity; 468 detector landmarks and neutral barycentric anchors",
+  "method": "Bounded TRF weak-perspective projection; 80 shape controls with zero-centred regularity, 52 performance controls with observed detector-centred regularity; robust soft_l1 loss",
   "frozenSubject": "generated-korean-girl-01",
   "limits": [
     "Single-image depth is inferred",
@@ -22,10 +22,10 @@
         "license": "Not established; retained locally for user-requested analysis only"
       },
       "rmseBeforeFaceHeight": 0.03863788367829405,
-      "rmseAfterFaceHeight": 0.02831889974713662,
-      "glbSha256": "e81275c4f77147bafddedbf2c3a936a0f7739d99447449dd5cc49067347da1f7",
+      "rmseAfterFaceHeight": 0.026031171619345858,
+      "glbSha256": "fd8ecdbe216979e1d2287e726d6c9cb7f16a79478d26224f02564dfa591a80b8",
       "parts": 7,
-      "documentSha256": "e0cbce9b45cfbb46993927a06a9172f6a67e7175bfce8208914afe909bb64a0a",
+      "documentSha256": "e2e48cc70a70abe9fb4f06e0e83d22cfe79878c50ee47b54165ad209c9d58cd2",
       "likeness": "unaccepted"
     },
     {
@@ -39,10 +39,10 @@
         "license": "Not established; retained locally for user-requested analysis only"
       },
       "rmseBeforeFaceHeight": 0.023754404339836825,
-      "rmseAfterFaceHeight": 0.011631704255436,
-      "glbSha256": "ad8fe6a5204547b7c852fba963582506341882aeea587781f53b5d8b71a41e7e",
+      "rmseAfterFaceHeight": 0.010600679963741496,
+      "glbSha256": "f3254f58c157e05c6521b2ba04d5edde81286795f75f0d055fd11de13aaad735",
       "parts": 7,
-      "documentSha256": "6aa5492413b4522fb7595fee703b5756a61713d5890264e11807e2695ad75f16",
+      "documentSha256": "845e3e9bb9b430196b68edaed8c7df86b5927b340bf316508c7329bba7ada9c7",
       "likeness": "unaccepted"
     },
     {
@@ -56,10 +56,10 @@
         "license": "Not established; retained locally for user-requested analysis only"
       },
       "rmseBeforeFaceHeight": 0.02318519424674654,
-      "rmseAfterFaceHeight": 0.01463567860863634,
-      "glbSha256": "4b7d9d775e76bd4a109122d25a012878b4e4f6e9d400fa0dffa40530e1231f5b",
+      "rmseAfterFaceHeight": 0.013851027441625825,
+      "glbSha256": "1e3166272def20dafc9d3dcf1d5ed3fba12aabf70ff46158db453f0754762cdd",
       "parts": 7,
-      "documentSha256": "67f00d599225268f99b727d4729a4e4acbb16e9732aba4ac9a06c2c216c94cfd",
+      "documentSha256": "452dfd4a1b4333860fae8d0e9df6256e594f4e75913b9878e668b4bcfabf152a",
       "likeness": "unaccepted"
     },
     {
@@ -73,10 +73,10 @@
         "license": "Not established; retained locally for user-requested analysis only"
       },
       "rmseBeforeFaceHeight": 0.023668542752565542,
-      "rmseAfterFaceHeight": 0.013484477490696391,
-      "glbSha256": "31c32ff824fb6d0ddd3738ba023b856e767344c2944824f781d8c03b2377bb7e",
+      "rmseAfterFaceHeight": 0.012536927507804,
+      "glbSha256": "8dfe42594688c0700217fb8d50455493ff203537d24778c065b5b6ea54982efd",
       "parts": 7,
-      "documentSha256": "4c17be63861095b2cf97a1ddc2e2228d08da2186b2ab93b39d967930d1e2c68b",
+      "documentSha256": "407e1a8ed4b6bcfe205b7501e3514545f1edc43f991781abf1a249d6e5ccf449",
       "likeness": "unaccepted"
     },
     {
@@ -90,10 +90,10 @@
         "license": "Not established; retained locally for user-requested analysis only"
       },
       "rmseBeforeFaceHeight": 0.026864357005574917,
-      "rmseAfterFaceHeight": 0.01513037493830373,
-      "glbSha256": "bc16b2523e176deadbd8578408fa00e9318d1b03f88aa25b85c2907351a04ba3",
+      "rmseAfterFaceHeight": 0.01354796456129478,
+      "glbSha256": "49e98b960a6e731d3a61de42894a8848f7c31f81500aaccbfd2f01f126c82124",
       "parts": 7,
-      "documentSha256": "31646e3330af80104cc2cbb93297718ba34a64ae8afef6c3b31d359a04f1e611",
+      "documentSha256": "6d9c6aef28c34c43f52692fcd77d1996583c9ce9106bb6488a96780c0cd015af",
       "likeness": "unaccepted"
     },
     {
@@ -107,10 +107,10 @@
         "license": "Not established; retained locally for user-requested analysis only"
       },
       "rmseBeforeFaceHeight": 0.01775731128738798,
-      "rmseAfterFaceHeight": 0.010765148079992062,
-      "glbSha256": "0792b5799e5d6b9ea49e74fecd8fbc8376dc5ab2ea53b5f518cbaed1f25fed2e",
+      "rmseAfterFaceHeight": 0.010422096404625237,
+      "glbSha256": "1ad72aa2ea17a89371bab07ac3982851e9167ffab88ce577fa63b3b328d1d7fd",
       "parts": 7,
-      "documentSha256": "e5367785fed950c2161b090878891dff80f2c175526407d3b744c5558f1fc112",
+      "documentSha256": "089a77385372624bee49eb386965f8f423ec9c0390112cf4be565d0da28e2ad7",
       "likeness": "unaccepted"
     },
     {
@@ -124,10 +124,10 @@
         "license": "Not established; retained locally for user-requested analysis only"
       },
       "rmseBeforeFaceHeight": 0.020270926805710195,
-      "rmseAfterFaceHeight": 0.01181173896363648,
-      "glbSha256": "995933e5d50dc59f04700c9e14ca2d53c0baea95a2671f4ba8ec844aab4450f7",
+      "rmseAfterFaceHeight": 0.011079161602615491,
+      "glbSha256": "44c3df1f44574e4a1d2e1ee703edca007451791c5e2dc200664a102e45ca10ac",
       "parts": 7,
-      "documentSha256": "b79e4329ab4f90c1fb2af25e9c505bdd2067de583f37fc49c91555256302c41a",
+      "documentSha256": "30012f45525604da33019d8e1fbd38db8009724c124200f451a62facf3e2f688",
       "likeness": "unaccepted"
     },
     {
@@ -141,10 +141,10 @@
         "license": "Not established; retained locally for user-requested analysis only"
       },
       "rmseBeforeFaceHeight": 0.03944955629051272,
-      "rmseAfterFaceHeight": 0.029333301315030195,
-      "glbSha256": "990538b1062c9854923d5482ea25c86fd73c41c339464a2d72bb09b41f878178",
+      "rmseAfterFaceHeight": 0.026349578456387437,
+      "glbSha256": "0297b0efc30d0065a4b35f2e3c3c299a07855c67b2aec8bcbadf8fad7125a71c",
       "parts": 7,
-      "documentSha256": "8afeb4f6e18ba609009a7592d86f03220064c2b1eb85957c0fbb96c02b78bec9",
+      "documentSha256": "7871fd04f2678d7d37a7298289bb47bea36eeab535365d8a40b7219546271acf",
       "likeness": "unaccepted"
     },
     {
@@ -158,10 +158,10 @@
         "license": "Not established; retained locally for user-requested analysis only"
       },
       "rmseBeforeFaceHeight": 0.022686429532448243,
-      "rmseAfterFaceHeight": 0.011586514816148167,
-      "glbSha256": "36c4271928a3fa01329b73b8d4697e6b2d52aac2aec9f5d150db359d7e077ccf",
+      "rmseAfterFaceHeight": 0.010813909263324694,
+      "glbSha256": "644356e319c7f4a3b3b7c6624cd743926f37cff9a2a6d1218ac27ebf6cb20ac1",
       "parts": 7,
-      "documentSha256": "c56e3a1d1ffbba6f5822fa5acc53098ffb551dfae0be6288d338c9996315db37",
+      "documentSha256": "03485369c6b05210154dd33b951aac30b86231f85a7c227974141e5764fa18c8",
       "likeness": "unaccepted"
     },
     {
@@ -175,10 +175,10 @@
         "license": "Not established; retained locally for user-requested analysis only"
       },
       "rmseBeforeFaceHeight": 0.020251971004383036,
-      "rmseAfterFaceHeight": 0.01327078536636481,
-      "glbSha256": "74d897d2358e33e115e3db6ca8adcb952323b27162c74f4770a71fd2878935db",
+      "rmseAfterFaceHeight": 0.012367409869857219,
+      "glbSha256": "bb9bde3a9e6d397335e43642a808f8203d3f0210ac3a6e1451f77b95de485383",
       "parts": 7,
-      "documentSha256": "b493e48ab3b0257730ec3ec365cceaccdea91f42fb5795202c46e731e9041d44",
+      "documentSha256": "7b23b26f721005024da64afc18cc6fa807ff080f992cfac8ce678d8b86d2ab50",
       "likeness": "unaccepted"
     },
     {
@@ -192,10 +192,10 @@
         "license": "Not established; retained locally for user-requested analysis only"
       },
       "rmseBeforeFaceHeight": 0.01806158631714046,
-      "rmseAfterFaceHeight": 0.009075108098659515,
-      "glbSha256": "3966ed9fc3ff0a102270bfa67ec18137291633089a6cf1d6380f29bfcc5856e3",
+      "rmseAfterFaceHeight": 0.00893388157900016,
+      "glbSha256": "6ffa7f1630aa8d3e065d7d3426e15f6b9aa4a9c796254723c426eca5d7221f6f",
       "parts": 7,
-      "documentSha256": "0a665d18757a11bcf0bdbe786be59ac21190ffaa27bf17f0d061896ef8d88a96",
+      "documentSha256": "1d21494bf81603e50beac54661b6902c0adf0bbf403be3c36fecb6143c08a799",
       "likeness": "unaccepted"
     },
     {
@@ -209,10 +209,10 @@
         "license": "Not established; retained locally for user-requested analysis only"
       },
       "rmseBeforeFaceHeight": 0.021887688540386228,
-      "rmseAfterFaceHeight": 0.015826969177161584,
-      "glbSha256": "f1ba570448cc07d0ad4ff4542f9d7516fe2883cdd75217f6650d912d1c9f2861",
+      "rmseAfterFaceHeight": 0.015505974336913121,
+      "glbSha256": "1a0c85d83ebd5393a09b966b6c0f450c5627158a32b783d45ea8b672bbf37607",
       "parts": 7,
-      "documentSha256": "87380276af85e29d1b12c21cc78873aac8da96840f6631cf556283be9974df2e",
+      "documentSha256": "65eb38fe2ac9214f479d9ea0db67c2194938dd8ced153d08912493b4f1f32e06",
       "likeness": "unaccepted"
     },
     {
@@ -226,10 +226,10 @@
         "license": "Not established; retained locally for user-requested analysis only"
       },
       "rmseBeforeFaceHeight": 0.023938887384297905,
-      "rmseAfterFaceHeight": 0.01840121823249532,
-      "glbSha256": "a9523fac73039cd3fbca8eb6e584bf1a9ebf67178260f9c6e1f5ed2262a2ed27",
+      "rmseAfterFaceHeight": 0.018098544722928208,
+      "glbSha256": "9626603b1472dc0541bb48fafdefd8ebcdd13d7f2b821e55430a8df2b6770aae",
       "parts": 7,
-      "documentSha256": "5c2a3e5461ce0d99914a7bdaba853a2bc2784563650ae5a11048329960044f93",
+      "documentSha256": "31d8fee6de1366044f5a1a9c288327807762e246d4b97c311bae688be99c9a69",
       "likeness": "unaccepted"
     },
     {
@@ -243,10 +243,10 @@
         "license": "Not established; retained locally for user-requested analysis only"
       },
       "rmseBeforeFaceHeight": 0.030597434477184958,
-      "rmseAfterFaceHeight": 0.016718474992352548,
-      "glbSha256": "f1fd7ca0bf6aee8c1b122e59f27eb6b32dce35b94e8daff37bab39e6667218a1",
+      "rmseAfterFaceHeight": 0.01473958331098552,
+      "glbSha256": "f6e3bc6f2e7460ebae550b3fba4b096320dd848d3b46de8318232ffcc45f689b",
       "parts": 7,
-      "documentSha256": "0a1e57b83ab6381350c8b30c748f8333b08842816261c3fa1024409f91c97904",
+      "documentSha256": "573caf59f71b9b0bf11c9665b0040c9c8e0f0249572aaa55b2b1dc0a08e503fc",
       "likeness": "unaccepted"
     },
     {
@@ -260,10 +260,10 @@
         "license": "Not established; retained locally for user-requested analysis only"
       },
       "rmseBeforeFaceHeight": 0.024963146280973687,
-      "rmseAfterFaceHeight": 0.01728045177529982,
-      "glbSha256": "363c005650f52c6bf5d6c6deacdda3737c89ccf0c0b8021bfee3b97d487d773e",
+      "rmseAfterFaceHeight": 0.01569636938936637,
+      "glbSha256": "871603c1cead73b59e8d66c74623ea86e3ef735aea61d409415cf1317d3dbc78",
       "parts": 7,
-      "documentSha256": "bdfd12f9561bab47b05bb38acf00810faba0855a298c485d777c299ecca09a39",
+      "documentSha256": "5d4089d91705cf2ab0ceb11bf3f64caf9bf567464b09ee5751161d8fe2a81403",
       "likeness": "unaccepted"
     },
     {
@@ -277,10 +277,10 @@
         "license": "Not established; retained locally for user-requested analysis only"
       },
       "rmseBeforeFaceHeight": 0.016597870233701476,
-      "rmseAfterFaceHeight": 0.008208929806722689,
-      "glbSha256": "bc40a2bdaf5edd6a89a58bfa90ba7b9fb90311aed6dd1d7117d767e13d5e85d6",
+      "rmseAfterFaceHeight": 0.007690243395599597,
+      "glbSha256": "6ddb300364f8c49d1eebced34ce5cb4c6c43bc7ca6c0fb32801eb29ef91f56c5",
       "parts": 7,
-      "documentSha256": "3434a69154b6e670198c1c59259a1d7f567af867f421fc8e393a16a5f3ce9149",
+      "documentSha256": "14c7660050fd9aac0c593564dbb2b95b235baaef820e303a98af4f68670e01af",
       "likeness": "unaccepted"
     },
     {
@@ -294,10 +294,10 @@
         "license": "Not established; retained locally for user-requested analysis only"
       },
       "rmseBeforeFaceHeight": 0.02243247895052238,
-      "rmseAfterFaceHeight": 0.014643921539167087,
-      "glbSha256": "675a6a62a42b1a01ef5a72a2a4a9e60c237c5c80a2cf364f79bbfb2f53a9f589",
+      "rmseAfterFaceHeight": 0.013743865119614231,
+      "glbSha256": "c9320883ac92c3f80596f5573980dcd0520d3c2a72103b9c0253674be264b14b",
       "parts": 7,
-      "documentSha256": "a1981dc01f9d1cfeaf1fe52790082daf31aff18e45913f55d951d192a1e3b42b",
+      "documentSha256": "07af86e26502a207469ce8ae97270c82d5e22f251386d06ead1c2304a83cc400",
       "likeness": "unaccepted"
     },
     {
@@ -311,10 +311,10 @@
         "license": "Not established; retained locally for user-requested analysis only"
       },
       "rmseBeforeFaceHeight": 0.01376275679944968,
-      "rmseAfterFaceHeight": 0.010274634915958982,
-      "glbSha256": "bd2906adbf4b587f43bc9b18601cfc0501579545a95b17d64d71ee3127461ce9",
+      "rmseAfterFaceHeight": 0.009868814129755921,
+      "glbSha256": "5fa6774e8ec4680fc99934491f99277da2f26af2be3f0408103039c6e2d71215",
       "parts": 7,
-      "documentSha256": "8fbe86e907380a5b38b07895c83fe7a06b45df6409cd36ea7cd222020d41b11d",
+      "documentSha256": "11a4d8441652f28bdb49d794aa26d45287a69fab578da85e84bc0fcb11129184",
       "likeness": "unaccepted"
     },
     {
@@ -325,11 +325,13 @@
         "sha256": "b5faf9013533b1e75dee734174d81db00dbc2e61fe1abe925f0248529929b009"
       },
       "rmseBeforeFaceHeight": 0.02328896340084215,
-      "rmseAfterFaceHeight": 0.015647701935918683,
-      "glbSha256": "2a27b3a50d286fc91d0c1b1a01f8518fcdf7524b8cf1cbe12632021b7718f341",
+      "rmseAfterFaceHeight": 0.01539692555956201,
+      "glbSha256": "8ffaac4502e443d063317c8affa0ff5fc484cb7740e081e1e9b4c04b6f0a6ff8",
       "parts": 7,
-      "documentSha256": "3a3e67cd179d1183eb9e04545c1e4323c51d4f0243ba793507cba47c504cd665",
+      "documentSha256": "eb900c4629f911f4b274320f45a8901e866c152ca1ca1cf716b2aeeb029cb134",
       "likeness": "unaccepted"
     }
-  ]
+  ],
+  "previousRevision": "bfba98e05dc2c530dfdae5dfbcc8434212ac7b10",
+  "performanceReference": "https://storage.googleapis.com/mediapipe-assets/Model%20Card%20Blendshape%20V2.pdf"
 }
