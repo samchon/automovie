@@ -254,6 +254,12 @@ const horizontalDirection = (from: IAutoMovieVector3, to: IAutoMovieVector3): IA
     : vector(0, 0, Math.sign(deltaZ) || 1);
 };
 
+const horizontalRouteLength = (route: readonly IAutoMovieVector3[]): number =>
+  route.slice(1).reduce((total, point, index) => {
+    const previous = route[index]!;
+    return total + Math.hypot(point.x - previous.x, point.z - previous.z);
+  }, 0);
+
 const passageRoute = (
   opening: Opening,
   from: Space,
@@ -308,17 +314,19 @@ const environmentConnectors = (): IAutoMovieBuiltConnector[] => {
       elements: [`opening/${opening.id}`],
     });
   }
+  const stair = modernSuburbanHouse.building.stairConnector;
+  const stairRoute = [...stair.route];
   connectors.push({
-    id: modernSuburbanHouse.building.stairConnector.id,
+    id: stair.id,
     kind: "stair",
-    from: modernSuburbanHouse.building.stairConnector.fromSpaceId,
-    to: modernSuburbanHouse.building.stairConnector.toSpaceId,
+    from: stair.fromSpaceId,
+    to: stair.toSpaceId,
     bidirectional: true,
-    route: [...modernSuburbanHouse.building.stairConnector.route],
+    route: stairRoute,
     orientations: [IDENTITY, IDENTITY, IDENTITY],
     width: 1.05,
     clearHeight: 2.1,
-    steps: { count: modernSuburbanHouse.building.stairConnector.stepCount, rise: modernSuburbanHouse.building.stairConnector.riseM, run: 0.255 },
+    steps: { count: stair.stepCount, rise: stair.riseM, run: horizontalRouteLength(stairRoute) / stair.stepCount },
     elements: ["stair/single-l-turn"],
   });
   return connectors;
