@@ -1,8 +1,9 @@
 import { Quaternion } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { portraitPart, portraitPoint } from "../geometry/geometry";
+import { portraitPoint } from "../geometry/geometry";
 import type { IPortraitComponent } from "../geometry/portraitComponents";
+import { createPortraitInteriorFinisher } from "../geometry/portraitInteriorFinisher";
 import {
   type IPortraitDentalRow,
   attachPortraitDentalRow,
@@ -16,6 +17,9 @@ import { posePortraitJawPoint } from "./jawPerformance";
  * upper profiles are never silently reused. Cervical ends point inferiorly,
  * incisal edges superiorly. The whole row follows only the jaw hinge, not lip
  * separation, smile or pucker. No gingiva, tongue or occlusion solver is implied.
+ * Fit owns the observed-relative pose in head millimetres; native preparation
+ * returns a fresh copy without applying that rotation again. The compatibility
+ * finisher packs the same producer's mesh through the shared metric boundary.
  *
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Adds independently authored mandibular enamel to the oral structures.
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-expression Attaches lower teeth to the mandible while maxillary teeth remain fixed.
@@ -106,9 +110,13 @@ export function createPortraitMandibularDentition(
         cutFaces: [],
         attach: () => ({
           openings: [],
-          finish: () => [
-            portraitPart("tooth-lower-arch", structuredClone(placed), "teeth"),
-          ],
+          ...createPortraitInteriorFinisher(() => [
+            {
+              id: "tooth-lower-arch",
+              mesh: structuredClone(placed),
+              material: "teeth",
+            },
+          ]),
         }),
       };
     },

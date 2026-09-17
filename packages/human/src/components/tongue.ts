@@ -1,12 +1,9 @@
 import type { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IAutoMovieHumanFaceExpression } from "../IAutoMovieHumanFaceDocument";
-import {
-  portraitNormals,
-  portraitPart,
-  portraitPoint,
-} from "../geometry/geometry";
+import { portraitNormals, portraitPoint } from "../geometry/geometry";
 import type { IPortraitComponent } from "../geometry/portraitComponents";
+import { createPortraitInteriorFinisher } from "../geometry/portraitInteriorFinisher";
 import { resolveHumanFaceExpression } from "../humanFaceExpression";
 import { posePortraitJawPoint } from "./jawPerformance";
 import { attachPortraitOralMesh } from "./oralFrame";
@@ -106,6 +103,9 @@ export function buildPortraitTongue(
  * body follows the bound jaw, fading to a fixed posterior endpoint. Normals
  * are recomputed after this non-rigid motion. This is an authored kinematic
  * approximation, not muscular/hyoid simulation or a collision certificate.
+ * Fit captures the performed mesh in head millimetres. Native preparation gives
+ * each consumer a fresh copy with matching normals; compatibility finish packs
+ * this same producer's result without repeating attachment or jaw motion.
  *
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Adds a separately finished lingual interior without cutting skin or moving teeth.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Uses the observed lower oral midpoint and shared orthonormal oral placement.
@@ -172,9 +172,13 @@ export function createPortraitTongueComponent(
         cutFaces: [],
         attach: () => ({
           openings: [],
-          finish: () => [
-            portraitPart("tongue", structuredClone(placed), shape.material),
-          ],
+          ...createPortraitInteriorFinisher(() => [
+            {
+              id: "tongue",
+              mesh: structuredClone(placed),
+              material: shape.material,
+            },
+          ]),
         }),
       };
     },

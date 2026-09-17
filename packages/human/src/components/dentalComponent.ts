@@ -1,5 +1,6 @@
-import { portraitPoint as p, portraitPart } from "../geometry/geometry";
+import { portraitPoint as p } from "../geometry/geometry";
 import type { IPortraitComponent } from "../geometry/portraitComponents";
+import { createPortraitInteriorFinisher } from "../geometry/portraitInteriorFinisher";
 import {
   type IPortraitDentalRow,
   attachPortraitDentalRow,
@@ -9,7 +10,8 @@ import {
 /**
  * Bind an entire dental group through the same component protocol as the eyes,
  * nose and mouth. This interior does not cut or deform skin. The mouth owns its
- * opening; the group reads the actual refined oral anchors in its finish phase.
+ * opening; the group reads the actual refined oral anchors during native
+ * preparation. The compatibility finisher packs that same owned millimetre mesh.
  * Socket IDs belong to the subject, while enamel, arch and placement remain
  * independent controls. All offsets and local geometry use millimetres.
  * Observed-maxilla attachment instead captures the host before performance,
@@ -62,24 +64,24 @@ export function createPortraitDentalComponent(
         cutFaces: [],
         attach: () => ({
           openings: [],
-          finish: (refined) => {
+          ...createPortraitInteriorFinisher((refined) => {
             const source = maxilla ?? refined.positions;
             const point = (id: number) =>
               p(source[id][0], source[id][1], source[id][2]);
             return [
-              portraitPart(
-                "tooth-upper-arch",
-                attachPortraitDentalRow(row, {
+              {
+                id: "tooth-upper-arch",
+                mesh: attachPortraitDentalRow(row, {
                   rightCorner: point(socket.rightCorner),
                   leftCorner: point(socket.leftCorner),
                   upperLipMiddle: point(socket.upperLipMiddle),
                   up: p(0, 1, 0),
                   ...placement,
                 }),
-                "teeth",
-              ),
+                material: "teeth",
+              },
             ];
-          },
+          }),
         }),
       };
     },

@@ -68,6 +68,7 @@ export * from "./geometry/refinePortraitSurfaceSampling";
 export * from "./geometry/blendPortraitSkin";
 export * from "./geometry/geometry";
 export * from "./geometry/portraitComponents";
+export * from "./geometry/portraitInteriorFinisher";
 export * from "./geometry/portraitControlLayer";
 export * from "./geometry/portraitCornea";
 export * from "./geometry/portraitDirectionalContact";

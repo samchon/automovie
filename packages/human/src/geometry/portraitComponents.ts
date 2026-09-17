@@ -1,6 +1,16 @@
+/**
+ * Shared protocol between replaceable anatomy and the head assembler. Fit reads
+ * the observed host, attach contributes shared skin, and interior preparation
+ * reads the sealed final skin. All construction coordinates are head millimetres
+ * (+Y up, +Z anterior, +X anatomical left); only final model packing uses metres.
+ * Components own their returned buffers and never mutate a supplied host or
+ * refined surface. Vertex identities belong to their native meshes; equal XYZ
+ * coordinates alone establish neither a shared attachment nor collision policy.
+ */
 import { selectAutoMovieTriangleRegion } from "@automovie/engine";
 import type {
   IAutoMovieMaterial,
+  IAutoMovieMesh,
   IAutoMovieModelPart,
 } from "@automovie/interface";
 
@@ -43,10 +53,30 @@ export interface IPortraitComponentHost {
 }
 
 /**
+ * An independent interior before metric model packing. Its producer transfers
+ * newly owned mesh buffers in the shared head frame, retaining native indices
+ * and normals valid for those positions. Changing positions invalidates derived
+ * normals; this descriptor does not declare fixed/free tissue or seam aliases.
+ *
+ * @author Samchon
+ * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Carries a component-owned anatomical interior and its finish before model construction.
+ * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Keeps native interior geometry in head millimetres until the single metric model boundary.
+ */
+export interface IPortraitInterior {
+  /** Stable model-part identity, retained when the mesh is finally packed. */
+  id: string;
+  /** Existing palette identity; preparation does not create a material. */
+  material: string;
+  /** Fresh, placed head-space mesh in millimetres, with its native connectivity. */
+  mesh: IAutoMovieMesh;
+}
+
+/**
  * An anatomical part fitted to one host. Its boundary constraints drive the
  * surrounding skin, and its attach stage shares the existing host vertex IDs.
- * The returned finisher can only be obtained after attachment, so it reads the
+ * Interior consumers can only be obtained after attachment, so they read the
  * actual refined boundary instead of guessing where subdivision will put it.
+ * Native preparation is additive: existing direct finish callers still work.
  *
  * @author Samchon
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Sequences fitted constraints, cut ownership, shared attachment and refined interior construction.
@@ -73,7 +103,18 @@ export interface IPortraitComponentPlan {
     replacements?: readonly IPortraitRegionReplacement[];
     /** Propose shared final positions from the immutable post-layer surface. */
     finalSurface?: IPortraitFinalSurface;
-    /** Build independent interior parts against the shared refined skin. */
+    /**
+     * Read the sealed refined skin and return owned head-millimetre interiors.
+     * The head calls all selected providers before packing any material region.
+     * An empty result is authoritative. When present, this replaces finish for
+     * that head build; the consumer never generates the same interior twice.
+     */
+    prepareInteriors?: (refined: IControlMesh) => IPortraitInterior[];
+    /**
+     * Compatibility construction in model metres. Direct callers may use it;
+     * the head uses it only when native preparation is absent. It reads the
+     * same final surface without changing its coordinates or connectivity.
+     */
     finish: (refined: IControlMesh) => IAutoMovieModelPart[];
   };
 }

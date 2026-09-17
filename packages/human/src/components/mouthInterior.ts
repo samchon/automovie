@@ -1,9 +1,10 @@
 /**
- * Finish the oral interior from the assembler's actual refined lip boundaries.
- * createPortraitMouthComponent calls this after common surface refinement;
+ * Prepare the oral interior from the assembler's actual refined lip boundaries.
+ * createPortraitMouthComponent calls this before skin or interior model packing;
  * direct callers keep the established buildPortraitMouth API via mouth.ts.
  * Source coordinates, cavity distances and crown sizes are head millimetres
- * (+Z anterior). Geometry helpers convert the resulting parts to model metres.
+ * (+Z anterior). preparePortraitMouth retains native meshes; buildPortraitMouth
+ * converts those same results to model metres through the shared part boundary.
  * Caller arrays are read only; crown buffers are newly owned and placed here.
  * First admit an optional connected lining, then omit a closed performed cavity,
  * then place any legacy static crowns along the shared arc. Performed dentition
@@ -11,6 +12,7 @@
  * an admitted enclosure does not prove clearance against tongue or enamel.
  */
 import type {
+  IAutoMovieMesh,
   IAutoMovieModelPart,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -22,6 +24,7 @@ import {
   portraitPatch as patch,
   portraitPart,
 } from "../geometry/geometry";
+import type { IPortraitInterior } from "../geometry/portraitComponents";
 import { createPortraitDentalArc } from "./dentalArc";
 import { buildPortraitDentalCrown } from "./dentalCrown";
 import type { IPortraitMouthShape, IPortraitMouthSocket } from "./mouth";
@@ -45,26 +48,22 @@ const pi = Math.PI;
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Constructs a recessed oral interior and optional individually sized upper crowns behind the refined opening.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Selects the legacy backdrop or actual-rim enclosure, omits a fully closed performed cavity and rotates each legacy crown and its normals along the common arch.
  */
-export function buildPortraitMouth(
+export function preparePortraitMouth(
   source: number[][],
   socket: IPortraitMouthSocket,
   shape: IPortraitMouthShape,
   performance?: IPortraitMouthPerformance,
   skinIndices?: readonly number[],
-): IAutoMovieModelPart[] {
+): IPortraitInterior[] {
   if (shape.cavityWall !== undefined || shape.cavityChamber !== undefined)
     assertPortraitOralLining(
       shape.cavityDepth,
       shape.cavityWall!,
       shape.cavityChamber,
     );
-  const parts: IAutoMovieModelPart[] = [];
-  const add = (
-    id: string,
-    mesh: Parameters<typeof portraitPart>[1],
-    finish: string,
-  ): void => {
-    parts.push(portraitPart(id, mesh, finish));
+  const parts: IPortraitInterior[] = [];
+  const add = (id: string, mesh: IAutoMovieMesh, finish: string): void => {
+    parts.push({ id, mesh, material: finish });
   };
   const landmark = (id: number): Point =>
     p(source[id][0], source[id][1], source[id][2]);
@@ -155,4 +154,28 @@ export function buildPortraitMouth(
     add(`tooth-${i}`, crown, enamel);
   }
   return parts;
+}
+
+/**
+ * Preserve the direct oral builder in model metres. Native preparation owns
+ * all lining admission, closed-cavity omission and legacy crown placement, so
+ * the component and this compatibility entry cannot diverge geometrically.
+ *
+ * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Publishes the prepared cavity and legacy crown interiors as model parts.
+ * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Converts each owned native oral mesh exactly once at the metric model boundary, retaining part order and material identities.
+ */
+export function buildPortraitMouth(
+  source: number[][],
+  socket: IPortraitMouthSocket,
+  shape: IPortraitMouthShape,
+  performance?: IPortraitMouthPerformance,
+  skinIndices?: readonly number[],
+): IAutoMovieModelPart[] {
+  return preparePortraitMouth(
+    source,
+    socket,
+    shape,
+    performance,
+    skinIndices,
+  ).map(({ id, mesh, material }) => portraitPart(id, mesh, material));
 }

@@ -4,8 +4,9 @@
  * identities and millimetre shape values in head coordinates (+Z anterior).
  * Admission copies caller settings; fit reads an immutable host and returns
  * constraints/cuts; attachment only labels the assembly cage's lip triangles.
- * The refined-rim finisher delegates to mouthInterior after shared subdivision,
- * so the lining consumes the actual opening and material-owned connectivity.
+ * Native preparation delegates to mouthInterior after shared subdivision and
+ * sealing, so the lining consumes the actual opening and material connectivity.
+ * Compatibility finish packs the same native producer through a shared adapter.
  * Separate dental components own performed teeth; legacy crowns are refused
  * with performance. Changing the fitted band invalidates lining, material
  * coordinates and downstream normals. This owner does not certify likeness.
@@ -17,6 +18,7 @@ import {
   type IPortraitComponent,
   portraitFacesInsideLoop,
 } from "../geometry/portraitComponents";
+import { createPortraitInteriorFinisher } from "../geometry/portraitInteriorFinisher";
 import {
   type IPortraitDentalCrown,
   assertPortraitDentalCrown,
@@ -28,7 +30,7 @@ import {
   createPortraitLipBandScale,
   createPortraitLipSection,
 } from "./lipSection";
-import { buildPortraitMouth } from "./mouthInterior";
+import { preparePortraitMouth } from "./mouthInterior";
 import {
   type IPortraitMouthPerformance,
   createPortraitMouthPerformance,
@@ -38,7 +40,7 @@ import {
   assertPortraitOralLining,
 } from "./oralLining";
 
-export { buildPortraitMouth } from "./mouthInterior";
+export { buildPortraitMouth, preparePortraitMouth } from "./mouthInterior";
 
 type Point = IAutoMovieVector3;
 
@@ -398,8 +400,8 @@ export function createPortraitMouthComponent(
                 : undefined,
             curves:
               shape.borderRefinement === "curve" ? [socket.outer] : undefined,
-            finish: (refined) =>
-              buildPortraitMouth(
+            ...createPortraitInteriorFinisher((refined) =>
+              preparePortraitMouth(
                 refined.positions,
                 socket,
                 shape,
@@ -411,6 +413,7 @@ export function createPortraitMouthComponent(
                         refined.groups[Math.floor(i / 3)] === group,
                     ),
               ),
+            ),
           };
         },
       };
