@@ -216,7 +216,7 @@ The east service band contains the pantry at the rear, the powder room between s
 @evidenceReview settings/house.md#reference-basis-and-uncertainty #ea1aa57 I read upper-floor-private-graph literally for settings/house.md#reference-basis-and-uncertainty: the one upper corridor reaches primary bedroom, two smaller bedrooms, shared bath, primary bath, and linen/storage through the stair. This answers whether this topology uses authored dimensions rather than reference pixels; it would fail if a room relation justified only by a reference image.
 -->
 
-The stair reaches one landing and a short corridor. That corridor directly connects the primary bedroom, bedroom two, bedroom three, one shared bathroom, and linen/storage. The primary bedroom has a closet and its own bathroom; the two smaller bedrooms share the corridor bathroom. All upper rooms are reached by the same stair and corridor without a hidden shortcut.
+The stair reaches one landing and a short corridor occupying the authored upper-hall cell at `x -1.4..3.0`. The right-side bathroom-one and linen-storage cells begin at `x 3.05`, so their box bounds do not overlap the hall; bedroom three also begins at `x 3.05` while the primary bedroom remains on the west side. The corridor directly connects the primary bedroom, bedroom two, bedroom three, one shared bathroom, and linen/storage. The primary bedroom has a closet and its own bathroom; the two smaller bedrooms share the corridor bathroom. All upper rooms are reached by the same stair and corridor without a hidden shortcut.
 
 ## Openings and route schedule {#openings-and-route-schedule}
 

@@ -696,7 +696,7 @@ const upperSpaces = (): Space[] => [
     "upper",
     "upper-hall",
     v(-1.4, UPPER_ELEVATION + 0.15, -3.9),
-    v(4.95, UPPER_ELEVATION + UPPER_HEIGHT, 1.15),
+    v(3.0, UPPER_ELEVATION + UPPER_HEIGHT, 1.15),
     "carpet-warm-gray",
     ["connector/stair-ground-to-upper", "hall-primary-door", "hall-bedroom-two-door", "hall-bedroom-three-door", "hall-bath-one-door", "hall-linen-door"],
     ["upper/primary-bedroom", "upper/bedroom-two", "upper/bedroom-three", "upper/bathroom-one", "upper/linen-storage", "ground/stair-hall"],
@@ -725,7 +725,7 @@ const upperSpaces = (): Space[] => [
     "upper/bedroom-three",
     "upper",
     "bedroom",
-    v(1.55, UPPER_ELEVATION + 0.15, 1.3),
+    v(3.05, UPPER_ELEVATION + 0.15, 1.3),
     v(4.95, UPPER_ELEVATION + UPPER_HEIGHT, 4.5),
     "carpet-warm-gray",
     ["hall-bedroom-three-door"],
@@ -735,8 +735,8 @@ const upperSpaces = (): Space[] => [
     "upper/bathroom-one",
     "upper",
     "bathroom",
-    v(1.55, UPPER_ELEVATION + 0.15, -0.9),
-    v(3.0, UPPER_ELEVATION + UPPER_HEIGHT, 0.95),
+    v(3.05, UPPER_ELEVATION + 0.15, -0.9),
+    v(4.95, UPPER_ELEVATION + UPPER_HEIGHT, 0.95),
     "tile-pale",
     ["hall-bath-one-door"],
     ["upper/hall"],
@@ -1047,9 +1047,9 @@ const addUpperPartitions = (elements: Element[], openings: Opening[]): void => {
   };
   add(partitionWithOpenings("upper/partition/hall-primary", "upper", "upper/primary-bedroom", "z", -1.48, 1.025, 4.575, UPPER_ELEVATION, UPPER_ELEVATION + UPPER_HEIGHT, [{ id: "hall-primary-door", kind: "door", centerAlongAxis: 2.0, width: 0.9, sillM: 0, height: 2.1, fromSpaceId: "upper/hall", toSpaceId: "upper/primary-bedroom" }]));
   add(partitionWithOpenings("upper/partition/hall-bedroom-two", "upper", "upper/bedroom-two", "z", -1.48, -3.9, -1.55, UPPER_ELEVATION, UPPER_ELEVATION + UPPER_HEIGHT, [{ id: "hall-bedroom-two-door", kind: "door", centerAlongAxis: -2.7, width: 0.9, sillM: 0, height: 2.1, fromSpaceId: "upper/hall", toSpaceId: "upper/bedroom-two" }]));
-  add(partitionWithOpenings("upper/partition/hall-bedroom-three", "upper", "upper/bedroom-three", "z", 1.48, 1.025, 4.575, UPPER_ELEVATION, UPPER_ELEVATION + UPPER_HEIGHT, [{ id: "hall-bedroom-three-door", kind: "door", centerAlongAxis: 2.3, width: 0.9, sillM: 0, height: 2.1, fromSpaceId: "upper/hall", toSpaceId: "upper/bedroom-three" }]));
+  add(partitionWithOpenings("upper/partition/hall-bedroom-three", "upper", "upper/bedroom-three", "z", 3.0, 1.025, 4.575, UPPER_ELEVATION, UPPER_ELEVATION + UPPER_HEIGHT, [{ id: "hall-bedroom-three-door", kind: "door", centerAlongAxis: 2.3, width: 0.9, sillM: 0, height: 2.1, fromSpaceId: "upper/hall", toSpaceId: "upper/bedroom-three" }]));
   add(partitionWithOpenings("upper/partition/hall-baths", "upper", "upper/bathroom-one", "z", 3.0, -0.9, 0.95, UPPER_ELEVATION, UPPER_ELEVATION + UPPER_HEIGHT, [{ id: "hall-bath-one-door", kind: "door", centerAlongAxis: 0.1, width: 0.8, sillM: 0, height: 2.1, fromSpaceId: "upper/hall", toSpaceId: "upper/bathroom-one" }]));
-  add(partitionWithOpenings("upper/partition/linen", "upper", "upper/linen-storage", "z", 3.02, -3.9, -1.55, UPPER_ELEVATION, UPPER_ELEVATION + UPPER_HEIGHT, [{ id: "hall-linen-door", kind: "door", centerAlongAxis: -2.7, width: 0.75, sillM: 0, height: 2.1, fromSpaceId: "upper/hall", toSpaceId: "upper/linen-storage" }]));
+  add(partitionWithOpenings("upper/partition/linen", "upper", "upper/linen-storage", "z", 3.0, -3.9, -1.55, UPPER_ELEVATION, UPPER_ELEVATION + UPPER_HEIGHT, [{ id: "hall-linen-door", kind: "door", centerAlongAxis: -2.7, width: 0.75, sillM: 0, height: 2.1, fromSpaceId: "upper/hall", toSpaceId: "upper/linen-storage" }]));
   add(partitionWithOpenings("upper/partition/primary-bath", "upper", "upper/primary-bath", "z", -1.55, 3.0, 4.5, UPPER_ELEVATION, UPPER_ELEVATION + UPPER_HEIGHT, [{ id: "primary-bath-door", kind: "door", centerAlongAxis: 3.75, width: 0.75, sillM: 0, height: 2.1, fromSpaceId: "upper/primary-bedroom", toSpaceId: "upper/primary-bath" }]));
 };
 
@@ -1088,101 +1088,107 @@ const lightingElements = (spaces: readonly Space[]): Element[] => [
     "trim-white",
     ["lighting-fixture", "ceiling-light"],
   )),
-  simpleFurniture("lighting/kitchen/under-cabinet-task-light", "ground", "ground/kitchen-dining-family", v(-3.4, 1.55, 3.27), v(2.15, 0.06, 0.05), "trim-white", ["lighting-fixture", "under-cabinet-light"]),
+  simpleFurniture("lighting/kitchen/under-cabinet-task-light", "ground", "ground/kitchen-dining-family", v(-3.4, 1.55, 3.27), v(1.3, 0.06, 0.05), "trim-white", ["lighting-fixture", "under-cabinet-light"]),
 ];
 
 const addInteriorFitOut = (elements: Element[], spaces: readonly Space[]): void => {
   const ground = "ground";
   elements.push(
     furniture("living/sofa", ground, "ground/living-room", [
-      box("living/sofa/base", v(-3.75, 0.55, -1.75), v(2.55, 0.75, 0.82), "fabric-oatmeal", ["seating"]),
-      box("living/sofa/back", v(-3.75, 1.1, -2.08), v(2.55, 0.85, 0.18), "fabric-oatmeal", ["seating"]),
+      box("living/sofa/base", v(-3.625, 0.55, -1.75), v(2.55, 0.75, 0.82), "fabric-oatmeal", ["seating"]),
+      box("living/sofa/back", v(-3.625, 1.1, -2.08), v(2.55, 0.85, 0.18), "fabric-oatmeal", ["seating"]),
     ]),
     simpleFurniture("living/armchair", ground, "ground/living-room", v(-2.25, 0.62, -0.8), v(0.85, 0.92, 0.85), "fabric-blue-gray", ["seating"]),
     simpleFurniture("living/armchair-two", ground, "ground/living-room", v(-2.25, 0.62, -2.55), v(0.85, 0.92, 0.75), "fabric-blue-gray", ["seating"]),
     simpleFurniture("living/coffee-table", ground, "ground/living-room", v(-3.75, 0.42, -0.55), v(1.35, 0.22, 0.65), "wood-walnut", ["table"]),
-    simpleFurniture("living/fireplace", ground, "ground/living-room", v(-4.95, 1.2, 0.0), v(0.16, 2.25, 2.3), "brick-red-brown", ["fireplace"]),
-    simpleFurniture("living/bookcase", ground, "ground/living-room", v(-2.05, 1.25, -0.29), v(0.42, 2.25, 0.16), "wood-walnut", ["storage"]),
-    simpleFurniture("living/rug", ground, "ground/living-room", v(-3.55, 0.2, -1.25), v(2.4, 0.04, 1.55), "fabric-blue-gray", ["rug"]),
+    simpleFurniture("living/fireplace", ground, "ground/living-room", v(-4.75, 1.275, -0.34), v(0.16, 2.25, 0.28), "brick-red-brown", ["fireplace"]),
+    simpleFurniture("living/bookcase", ground, "ground/living-room", v(-2.05, 1.275, -0.29), v(0.42, 2.25, 0.16), "wood-walnut", ["storage"]),
+    simpleFurniture("living/rug", ground, "ground/living-room", v(-3.55, 0.2, -1.35), v(2.4, 0.04, 1.2), "fabric-blue-gray", ["rug"]),
     simpleFurniture("living/plant", ground, "ground/living-room", v(-2.05, 0.8, -1.7), v(0.42, 1.25, 0.42), "greenery", ["plant"]),
     furniture("kitchen/cabinets", ground, "ground/kitchen-dining-family", [
-      box("kitchen/base-cabinets", v(-3.4, 0.65, 3.65), v(2.6, 1.1, 0.65), "cabinet-taupe", ["kitchen"]),
-      box("kitchen/tall-cabinets", v(-4.55, 1.55, 2.95), v(0.75, 2.5, 0.72), "cabinet-taupe", ["kitchen", "appliance-housing"]),
+      box("kitchen/base-cabinets", v(-3.4, 0.7, 3.65), v(2.6, 1.1, 0.65), "cabinet-taupe", ["kitchen"]),
+      box("kitchen/tall-cabinets", v(-4.525, 1.4, 2.95), v(0.75, 2.5, 0.72), "cabinet-taupe", ["kitchen", "appliance-housing"]),
       box("kitchen/island", v(-1.8, 0.85, 2.15), v(2.0, 1.0, 0.9), "cabinet-taupe", ["island"]),
       box("kitchen/island-counter", v(-1.8, 1.42, 2.15), v(2.18, 0.12, 1.02), "stone-pale", ["counter"]),
       box("kitchen/sink", v(-3.2, 1.28, 3.25), v(0.65, 0.06, 0.42), "stone-pale", ["fixture"]),
     ]),
-    simpleFurniture("kitchen/refrigerator", ground, "ground/kitchen-dining-family", v(-4.55, 1.15, 2.05), v(0.82, 2.15, 0.75), "metal-black", ["appliance"]),
+    simpleFurniture("kitchen/refrigerator", ground, "ground/kitchen-dining-family", v(-4.49, 1.225, 2.05), v(0.82, 2.15, 0.75), "metal-black", ["appliance"]),
     simpleFurniture("kitchen/range", ground, "ground/kitchen-dining-family", v(-2.2, 1.15, 2.99), v(0.85, 1.15, 0.62), "metal-black", ["appliance"]),
     simpleFurniture("kitchen/hood", ground, "ground/kitchen-dining-family", v(-2.2, 2.03, 2.99), v(0.95, 0.16, 0.72), "metal-black", ["appliance", "hood"]),
-    simpleFurniture("kitchen/island-stool-one", ground, "ground/kitchen-dining-family", v(-2.55, 0.48, 1.45), v(0.42, 0.72, 0.42), "wood-walnut", ["seating", "island-stool"]),
-    simpleFurniture("kitchen/island-stool-two", ground, "ground/kitchen-dining-family", v(-1.8, 0.48, 1.45), v(0.42, 0.72, 0.42), "wood-walnut", ["seating", "island-stool"]),
-    simpleFurniture("kitchen/island-stool-three", ground, "ground/kitchen-dining-family", v(-1.05, 0.48, 1.45), v(0.42, 0.72, 0.42), "wood-walnut", ["seating", "island-stool"]),
+    simpleFurniture("kitchen/island-stool-one", ground, "ground/kitchen-dining-family", v(-2.55, 0.51, 1.45), v(0.42, 0.72, 0.42), "wood-walnut", ["seating", "island-stool"]),
+    simpleFurniture("kitchen/island-stool-two", ground, "ground/kitchen-dining-family", v(-1.8, 0.51, 1.45), v(0.42, 0.72, 0.42), "wood-walnut", ["seating", "island-stool"]),
+    simpleFurniture("kitchen/island-stool-three", ground, "ground/kitchen-dining-family", v(-1.05, 0.51, 1.45), v(0.42, 0.72, 0.42), "wood-walnut", ["seating", "island-stool"]),
     furniture("dining/table", ground, "ground/kitchen-dining-family", [
       box("dining/table-top", v(0.05, 0.82, 3.15), v(2.35, 0.12, 1.05), "wood-walnut", ["dining"]),
-      box("dining/table-leg-a", v(-0.8, 0.38, 2.82), v(0.12, 0.75, 0.12), "wood-walnut", ["dining"]),
-      box("dining/table-leg-b", v(0.9, 0.38, 2.82), v(0.12, 0.75, 0.12), "wood-walnut", ["dining"]),
-      box("dining/table-leg-c", v(-0.8, 0.38, 3.48), v(0.12, 0.75, 0.12), "wood-walnut", ["dining"]),
-      box("dining/table-leg-d", v(0.9, 0.38, 3.48), v(0.12, 0.75, 0.12), "wood-walnut", ["dining"]),
+      box("dining/table-leg-a", v(-0.8, 0.525, 2.82), v(0.12, 0.75, 0.12), "wood-walnut", ["dining"]),
+      box("dining/table-leg-b", v(0.9, 0.525, 2.82), v(0.12, 0.75, 0.12), "wood-walnut", ["dining"]),
+      box("dining/table-leg-c", v(-0.8, 0.525, 3.48), v(0.12, 0.75, 0.12), "wood-walnut", ["dining"]),
+      box("dining/table-leg-d", v(0.9, 0.525, 3.48), v(0.12, 0.75, 0.12), "wood-walnut", ["dining"]),
     ]),
-    simpleFurniture("dining/chair-front-left", ground, "ground/kitchen-dining-family", v(-0.45, 0.45, 2.35), v(0.48, 0.82, 0.48), "fabric-blue-gray", ["seating", "dining-chair"]),
-    simpleFurniture("dining/chair-front-center", ground, "ground/kitchen-dining-family", v(0.05, 0.45, 2.35), v(0.48, 0.82, 0.48), "fabric-blue-gray", ["seating", "dining-chair"]),
-    simpleFurniture("dining/chair-front-right", ground, "ground/kitchen-dining-family", v(1.5, 0.45, 2.35), v(0.48, 0.82, 0.48), "fabric-blue-gray", ["seating", "dining-chair"]),
-    simpleFurniture("dining/chair-rear-left", ground, "ground/kitchen-dining-family", v(-1.4, 0.45, 3.95), v(0.48, 0.82, 0.48), "fabric-blue-gray", ["seating", "dining-chair"]),
-    simpleFurniture("dining/chair-rear-center", ground, "ground/kitchen-dining-family", v(0.05, 0.45, 3.95), v(0.48, 0.82, 0.48), "fabric-blue-gray", ["seating", "dining-chair"]),
-    simpleFurniture("dining/chair-rear-right", ground, "ground/kitchen-dining-family", v(1.5, 0.45, 3.95), v(0.48, 0.82, 0.48), "fabric-blue-gray", ["seating", "dining-chair"]),
+    simpleFurniture("dining/chair-front-left", ground, "ground/kitchen-dining-family", v(-0.45, 0.56, 2.35), v(0.48, 0.82, 0.48), "fabric-blue-gray", ["seating", "dining-chair"]),
+    simpleFurniture("dining/chair-front-center", ground, "ground/kitchen-dining-family", v(0.05, 0.56, 2.35), v(0.48, 0.82, 0.48), "fabric-blue-gray", ["seating", "dining-chair"]),
+    simpleFurniture("dining/chair-front-right", ground, "ground/kitchen-dining-family", v(1.5, 0.56, 2.35), v(0.48, 0.82, 0.48), "fabric-blue-gray", ["seating", "dining-chair"]),
+    simpleFurniture("dining/chair-rear-left", ground, "ground/kitchen-dining-family", v(-1.4, 0.56, 3.95), v(0.48, 0.82, 0.48), "fabric-blue-gray", ["seating", "dining-chair"]),
+    simpleFurniture("dining/chair-rear-center", ground, "ground/kitchen-dining-family", v(0.05, 0.56, 3.95), v(0.48, 0.82, 0.48), "fabric-blue-gray", ["seating", "dining-chair"]),
+    simpleFurniture("dining/chair-rear-right", ground, "ground/kitchen-dining-family", v(1.5, 0.56, 3.95), v(0.48, 0.82, 0.48), "fabric-blue-gray", ["seating", "dining-chair"]),
     furniture("family/sofa", ground, "ground/kitchen-dining-family", [
       box("family/sofa/base", v(1.1, 0.55, 1.5), v(2.35, 0.75, 0.85), "fabric-oatmeal", ["seating"]),
       box("family/sofa/back", v(1.1, 1.1, 1.83), v(2.35, 0.85, 0.18), "fabric-oatmeal", ["seating"]),
     ]),
     simpleFurniture("family/low-table", ground, "ground/kitchen-dining-family", v(1.1, 0.42, 0.75), v(1.15, 0.22, 0.65), "wood-walnut", ["table"]),
-    simpleFurniture("family/rug", ground, "ground/kitchen-dining-family", v(1.1, 0.2, 0.72), v(2.6, 0.04, 1.85), "fabric-blue-gray", ["rug"]),
-    simpleFurniture("family/plant", ground, "ground/kitchen-dining-family", v(-0.45, 0.62, 0.5), v(0.42, 1.25, 0.42), "greenery", ["plant"]),
-    simpleFurniture("family/media-console", ground, "ground/kitchen-dining-family", v(2.2, 0.55, 0.05), v(0.35, 1.0, 1.8), "wood-walnut", ["media"]),
+    simpleFurniture("family/rug", ground, "ground/kitchen-dining-family", v(1.1, 0.2, 1.125), v(2.6, 0.04, 1.85), "fabric-blue-gray", ["rug"]),
+    simpleFurniture("family/plant", ground, "ground/kitchen-dining-family", v(-0.45, 0.775, 0.5), v(0.42, 1.25, 0.42), "greenery", ["plant"]),
+    simpleFurniture("family/media-console", ground, "ground/kitchen-dining-family", v(2.5, 1.0, 0.5), v(0.35, 1.0, 0.5), "wood-walnut", ["media"]),
     simpleFurniture("pantry/shelves", ground, "ground/pantry", v(3.1, 1.25, 3.55), v(0.28, 2.15, 1.1), "wood-oak", ["storage"]),
-    simpleFurniture("powder/vanity", ground, "ground/powder-room", v(3.9, 0.58, 1.7), v(0.8, 1.0, 0.42), "wood-walnut", ["fixture"]),
-    simpleFurniture("powder/hand-basin", ground, "ground/powder-room", v(3.9, 1.14, 1.7), v(0.46, 0.08, 0.28), "stone-pale", ["fixture", "hand-basin"]),
+    simpleFurniture("powder/vanity", ground, "ground/powder-room", v(3.9, 0.65, 1.7), v(0.8, 1.0, 0.42), "wood-walnut", ["fixture"]),
+    simpleFurniture("powder/hand-basin", ground, "ground/powder-room", v(3.9, 1.19, 1.7), v(0.46, 0.08, 0.28), "stone-pale", ["fixture", "hand-basin"]),
     simpleFurniture("powder/mirror", ground, "ground/powder-room", v(3.9, 1.65, 1.47), v(0.62, 0.58, 0.04), "glass-smoke", ["mirror"]),
     simpleFurniture("powder/toilet", ground, "ground/powder-room", v(4.55, 0.55, 2.0), v(0.42, 0.8, 0.65), "tile-pale", ["fixture"]),
-    simpleFurniture("mudroom/bench", ground, "ground/laundry-mudroom", v(3.35, 0.58, 0.75), v(1.75, 0.8, 0.48), "wood-oak", ["storage", "bench"]),
-    simpleFurniture("mudroom/shoe-storage", ground, "ground/laundry-mudroom", v(3.45, 1.18, 0.28), v(1.2, 0.58, 0.38), "wood-oak", ["storage", "shoe-storage"]),
-    simpleFurniture("mudroom/utility-sink", ground, "ground/laundry-mudroom", v(4.45, 0.72, 0.28), v(0.62, 0.9, 0.42), "stone-pale", ["fixture", "utility-sink"]),
-    simpleFurniture("mudroom/laundry-pair", ground, "ground/laundry-mudroom", v(4.65, 1.05, 0.95), v(0.7, 1.9, 0.42), "metal-black", ["appliance"]),
-    simpleFurniture("mudroom/hooks", ground, "ground/laundry-mudroom", v(3.25, 1.7, 0.55), v(1.2, 0.45, 0.08), "wood-walnut", ["storage"]),
-    simpleFurniture("garage/storage-cabinets", ground, "ground/garage", v(6.25, 1.15, 0.55), v(0.55, 2.05, 1.95), "cabinet-taupe", ["garage-storage"]),
-    simpleFurniture("garage/storage-shelf", ground, "ground/garage", v(10.15, 1.25, 0.55), v(0.5, 2.25, 2.25), "metal-black", ["garage-storage"]),
+    simpleFurniture("mudroom/bench", ground, "ground/laundry-mudroom", v(3.725, 0.58, 0.75), v(1.75, 0.8, 0.48), "wood-oak", ["storage", "bench"]),
+    simpleFurniture("mudroom/shoe-storage", ground, "ground/laundry-mudroom", v(3.45, 1.18, 0.35), v(1.2, 0.58, 0.32), "wood-oak", ["storage", "shoe-storage"]),
+    simpleFurniture("mudroom/utility-sink", ground, "ground/laundry-mudroom", v(4.8, 0.72, 0.35), v(0.5, 0.9, 0.28), "stone-pale", ["fixture", "utility-sink"]),
+    simpleFurniture("mudroom/laundry-pair", ground, "ground/laundry-mudroom", v(4.65, 1.1, 1.1), v(0.7, 1.9, 0.2), "metal-black", ["appliance"]),
+    simpleFurniture("mudroom/hooks", ground, "ground/laundry-mudroom", v(3.45, 1.7, 0.55), v(1.2, 0.45, 0.08), "wood-walnut", ["storage"]),
+    simpleFurniture("garage/storage-cabinets", ground, "ground/garage", v(6.25, 1.175, 0.125), v(0.55, 2.05, 1.95), "cabinet-taupe", ["garage-storage"]),
+    simpleFurniture("garage/storage-shelf", ground, "ground/garage", v(10.15, 1.275, -0.025), v(0.5, 2.25, 2.25), "metal-black", ["garage-storage"]),
   );
 
   const upper = "upper";
   const bedrooms: Array<{ id: string; x: number; z: number; bed: MaterialId }> = [
     { id: "primary-bedroom", x: -3.25, z: 2.75, bed: "fabric-oatmeal" },
     { id: "bedroom-two", x: -3.25, z: -2.8, bed: "fabric-blue-gray" },
-    { id: "bedroom-three", x: 3.1, z: 2.8, bed: "fabric-blue-gray" },
+    { id: "bedroom-three", x: 3.75, z: 2.8, bed: "fabric-blue-gray" },
   ];
   for (const bedroom of bedrooms) {
+    const nightstandX = bedroom.id === "bedroom-three" ? 3.4 : bedroom.x - 1.25;
+    const nightstandZ = bedroom.id === "bedroom-three" ? 1.5125 : bedroom.z;
+    const dresserX = bedroom.id === "primary-bedroom" ? -1.8 : bedroom.id === "bedroom-three" ? 3.4 : bedroom.x + 1.25;
+    const dresserZ = bedroom.id === "primary-bedroom" ? 1.9 : bedroom.id === "bedroom-two" ? bedroom.z + 0.65 : bedroom.id === "bedroom-three" ? 4.2 : 2.0;
+    const bedWidth = bedroom.id === "bedroom-three" ? 1.25 : 1.85;
+    const dresserDepth = bedroom.id === "primary-bedroom" ? 1.0 : bedroom.id === "bedroom-three" ? 0.6 : 1.2;
     elements.push(
-      simpleFurniture(`fitout/${bedroom.id}/bed`, upper, `upper/${bedroom.id}`, v(bedroom.x, UPPER_ELEVATION + 0.45, bedroom.z), v(1.85, 0.55, 2.15), bedroom.bed, ["bed"]),
-      simpleFurniture(`fitout/${bedroom.id}/nightstand`, upper, `upper/${bedroom.id}`, v(bedroom.x - 1.25, UPPER_ELEVATION + 0.48, bedroom.z), v(0.42, 0.55, 0.42), "wood-walnut", ["storage"]),
-      simpleFurniture(`fitout/${bedroom.id}/dresser`, upper, `upper/${bedroom.id}`, v(bedroom.x + 1.25, UPPER_ELEVATION + 0.65, bedroom.id === "bedroom-two" ? bedroom.z + 0.7 : 1.55), v(0.42, 1.15, 1.2), "wood-walnut", ["storage"]),
+      simpleFurniture(`fitout/${bedroom.id}/bed`, upper, `upper/${bedroom.id}`, v(bedroom.x, UPPER_ELEVATION + 0.45, bedroom.z), v(bedWidth, 0.55, 2.15), bedroom.bed, ["bed"]),
+      simpleFurniture(`fitout/${bedroom.id}/nightstand`, upper, `upper/${bedroom.id}`, v(nightstandX, UPPER_ELEVATION + 0.48, nightstandZ), v(0.42, 0.55, 0.42), "wood-walnut", ["storage"]),
+      simpleFurniture(`fitout/${bedroom.id}/dresser`, upper, `upper/${bedroom.id}`, v(dresserX, UPPER_ELEVATION + 0.725, dresserZ), v(0.42, 1.15, dresserDepth), "wood-walnut", ["storage"]),
     );
   }
   elements.push(
-    simpleFurniture("fitout/primary-bedroom/nightstand-two", upper, "upper/primary-bedroom", v(-2.05, UPPER_ELEVATION + 0.48, 2.75), v(0.42, 0.55, 0.42), "wood-walnut", ["storage", "nightstand"]),
+    simpleFurniture("fitout/primary-bedroom/nightstand-two", upper, "upper/primary-bedroom", v(-1.76, UPPER_ELEVATION + 0.48, 2.75), v(0.42, 0.55, 0.42), "wood-walnut", ["storage", "nightstand"]),
   );
   elements.push(
-    simpleFurniture("fitout/primary-bedroom/closet", upper, "upper/primary-bedroom", v(-1.8, UPPER_ELEVATION + 1.15, 3.9), v(0.42, 2.2, 1.1), "wood-oak", ["closet"]),
-    simpleFurniture("fitout/bedroom-two/closet", upper, "upper/bedroom-two", v(-1.85, UPPER_ELEVATION + 1.15, -3.55), v(0.4, 2.2, 0.95), "wood-oak", ["closet"]),
-    simpleFurniture("fitout/bedroom-three/closet", upper, "upper/bedroom-three", v(4.5, UPPER_ELEVATION + 1.15, 3.9), v(0.4, 2.2, 1.0), "wood-oak", ["closet"]),
-    simpleFurniture("fitout/upper/hall-linen", upper, "upper/linen-storage", v(4.45, UPPER_ELEVATION + 1.15, -2.65), v(0.38, 2.2, 1.45), "wood-oak", ["storage"]),
-    simpleFurniture("fitout/bathroom-one/vanity", upper, "upper/bathroom-one", v(2.15, UPPER_ELEVATION + 0.6, -0.35), v(0.8, 1.05, 0.42), "wood-walnut", ["fixture"]),
-    simpleFurniture("fitout/bathroom-one/mirror", upper, "upper/bathroom-one", v(2.15, UPPER_ELEVATION + 1.62, -0.58), v(0.68, 0.58, 0.04), "glass-smoke", ["mirror"]),
-    simpleFurniture("fitout/bathroom-one/toilet", upper, "upper/bathroom-one", v(2.65, UPPER_ELEVATION + 0.55, 0.55), v(0.42, 0.8, 0.62), "tile-pale", ["fixture"]),
-    simpleFurniture("fitout/bathroom-one/shower", upper, "upper/bathroom-one", v(1.9, UPPER_ELEVATION + 1.15, 0.35), v(0.34, 2.0, 0.62), "tile-pale", ["fixture", "shower"]),
-    simpleFurniture("fitout/primary-bath/vanity", upper, "upper/primary-bath", v(-1.2, UPPER_ELEVATION + 0.6, 3.45), v(0.5, 1.05, 0.32), "wood-walnut", ["fixture"]),
+    simpleFurniture("fitout/primary-bedroom/closet", upper, "upper/primary-bedroom", v(-1.8, UPPER_ELEVATION + 1.25, 3.9), v(0.42, 2.2, 1.1), "wood-oak", ["closet"]),
+    simpleFurniture("fitout/bedroom-two/closet", upper, "upper/bedroom-two", v(-1.85, UPPER_ELEVATION + 1.25, -3.425), v(0.4, 2.2, 0.95), "wood-oak", ["closet"]),
+    simpleFurniture("fitout/bedroom-three/closet", upper, "upper/bedroom-three", v(4.7, UPPER_ELEVATION + 1.25, 3.9), v(0.4, 2.2, 1.0), "wood-oak", ["closet"]),
+    simpleFurniture("fitout/upper/hall-linen", upper, "upper/linen-storage", v(4.45, UPPER_ELEVATION + 1.25, -2.65), v(0.38, 2.2, 1.45), "wood-oak", ["storage"]),
+    simpleFurniture("fitout/bathroom-one/vanity", upper, "upper/bathroom-one", v(3.65, UPPER_ELEVATION + 0.675, -0.35), v(0.8, 1.05, 0.42), "wood-walnut", ["fixture"]),
+    simpleFurniture("fitout/bathroom-one/mirror", upper, "upper/bathroom-one", v(3.65, UPPER_ELEVATION + 1.62, -0.58), v(0.68, 0.58, 0.04), "glass-smoke", ["mirror"]),
+    simpleFurniture("fitout/bathroom-one/toilet", upper, "upper/bathroom-one", v(4.15, UPPER_ELEVATION + 0.55, 0.55), v(0.42, 0.8, 0.62), "tile-pale", ["fixture"]),
+    simpleFurniture("fitout/bathroom-one/shower", upper, "upper/bathroom-one", v(3.4, UPPER_ELEVATION + 1.15, 0.35), v(0.34, 2.0, 0.62), "tile-pale", ["fixture", "shower"]),
+    simpleFurniture("fitout/primary-bath/vanity", upper, "upper/primary-bath", v(-1.2, UPPER_ELEVATION + 0.675, 3.45), v(0.5, 1.05, 0.32), "wood-walnut", ["fixture"]),
     simpleFurniture("fitout/primary-bath/mirror", upper, "upper/primary-bath", v(-1.2, UPPER_ELEVATION + 1.62, 3.25), v(0.5, 0.58, 0.04), "glass-smoke", ["mirror"]),
     simpleFurniture("fitout/primary-bath/toilet", upper, "upper/primary-bath", v(-1.36, UPPER_ELEVATION + 0.55, 4.0), v(0.34, 0.8, 0.42), "tile-pale", ["fixture"]),
     simpleFurniture("fitout/primary-bath/shower", upper, "upper/primary-bath", v(-0.58, UPPER_ELEVATION + 1.15, 3.32), v(0.34, 2.0, 0.5), "tile-pale", ["fixture", "shower"]),
-    simpleFurniture("fitout/primary-bath/tub", upper, "upper/primary-bath", v(-0.75, UPPER_ELEVATION + 0.55, 4.2), v(0.78, 0.7, 1.0), "tile-pale", ["fixture", "tub"]),
+    simpleFurniture("fitout/primary-bath/tub", upper, "upper/primary-bath", v(-0.75, UPPER_ELEVATION + 0.55, 4.1), v(0.78, 0.7, 0.8), "tile-pale", ["fixture", "tub"]),
   );
   elements.push(...lightingElements(spaces));
 };

@@ -7,4 +7,4 @@
 @evidenceReview contracts/measurement-truth.md#dimensions-come-from-authored-and-compiled-geometry #0f6a007 The measurement-truth.md account was read against its literal source owner: the source revision and compiled quantities are the basis for identities, locations, counts, and dimensions, while the five references remain non-dimensional; the falsifier is a reported dimension, id, or count traceable only to a reference pixel or an earlier source revision.
 -->
 
-This aggregate account will close the distinction between visual reference and authored or compiled measurements before source and review claims consume it.
+The current measurement basis is `src/house.ts` revision `1789631480194.1206` and its compiled API: 15 spaces, 31 openings, 179 emitted elements, 26 surface owners, 13 module laws, and 181 review observations. The five references remain qualitative form, material, and atmosphere guidance; ids, positions, counts, and dimensions in this production come from authored source or compiled geometry, not reference pixels. A measurement traceable only to an earlier source revision or an image pixel would falsify this account.
