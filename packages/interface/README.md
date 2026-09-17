@@ -1,5 +1,7 @@
 # `@automovie/interface`
 
+Contract exclusions are grouped by semantic domain in `src/evidence/`; `src/AutoMovieInterfaceEvidenceExclusions.ts` retains actor and asset boundaries. `lint.config.ts` selects these declarations from the complete source population. They record capabilities the portable data package does not implement, while public data declarations retain their own positive contract citations. Exclusion carriers are not re-exported by the package barrel.
+
 `IAutoMovieMesh.colors` optionally carries one linear RGB multiplier per vertex, with finite components in `[0,1]`. Omission preserves the material's base colour without allocating a colour buffer. RGB multiplies material and texture colour; it does not change alpha.
 
 ## 필름 전역 효과 런타임

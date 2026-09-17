@@ -1,5 +1,7 @@
 # `@automovie/engine`
 
+Contract exclusions are grouped by semantic domain in `src/evidence/`; `src/AutoMovieEngineEvidenceExclusions.ts` retains actor and asset boundaries. `lint.config.ts` selects these declarations from the complete source population. Each exclusion records an intentional package boundary; implementation evidence remains on the actual computation or validation export. These declarations contain no runtime gate or rendering logic.
+
 `polygonIsSimple` exposes the shared metre-space planar self-intersection predicate. Facial fold admission uses it for transverse tissue curves, closed by an auxiliary edge below the curve. A simple section does not certify collision-free three-dimensional skin after attachment and subdivision.
 
 ## Deterministic film grammar
