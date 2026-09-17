@@ -231,6 +231,20 @@ Seven input-refusal probes cover missing cavity/enamel, duplicate and disconnect
 
 Sources, authored profile, new actual-source observations, native/exact audits, GLBs, all captures and failure history are preserved under `general-oral-initialization-{baseline,width-plus,arch-plus}` and adjacent `general-*` scripts/receipts in the existing investigation directory. The earlier direct IPC formulation remains the joint-solve basis. Closed-reference feasibility, arbitrary profiles, mandibular/tongue ownership and actual editor integration are still required; none is replaced by these initial-state results.
 
+### Current expression targets and closed initial topology
+
+The general target constructor now consumes a regenerated initial enclosure and current native preparations. Its complete initial coordinates, targets, triangles and free sets exactly reproduce the retained pucker, smile and asymmetric problems. Constant-vector disk, no-op, three invalid-input and recovery observations pass. This remains a fixed-maxilla transport contract; it does not support prescribed moving lower enamel or tongue, and it does not rerun or integrate the nonlinear solver.
+
+A fresh closed-document initialization first refused because it required a resident cavity, while the actual mouth producer omits that part at performed closure. The repaired input explicitly names a resident part to replace or declares no removal. Floor boundary planning now uses current pre-seal native connectivity: sealing erases the external lower free edge and collapses commissural geometry. A separate identity-composition owner retains the combinatorial plan; the final compound still applies every geometric area, face and edge-incidence check to the sealed skin and all retained interiors. No contact pair is excluded and no lip gap is inserted.
+
+Independent collinear and identity-collapse plans remain geometrically refused. The previous seven positive/fifteen refusal cases pass, and four retained complete compounds reproduce every position, triangle, vertex map, junction and moved scatter exactly. Eight initializer refusals preserve their inputs, followed by exact baseline recovery. A new actual-source baseline build also preserves the complete earlier model and GLB bytes.
+
+The regenerated closed candidate has 32,735 vertices, 65,590 triangles and 358 compound junctions. Its 52,110 complete projected floor/enamel constraints yield approximately 0.05 mm chart-direction clearance. Full native double and final Float32 checks find zero forbidden intersections. The independent final-Float32 audit checks 458,018 inclusive AABB pairs: 53,657 disjoint, 404,361 contacts limited to declared shared features, zero forbidden contacts and 38,710 exact Fraction tests. Analytic, broad-phase and previous-census controls run first.
+
+The main agent directly inspected all 23 calibrated AMD Radeon 8060S captures: nine whole-model views each before and after, plus five isolated oral views. The exterior retains the existing silhouette and facial features without a newly exposed interior break. Bulky eyelids, angular nasal form and simplified lips/enamel remain. The document's closed state is not an acceptance of ideal lip anatomy or likeness. The initial closed compound does not establish a common open/closed deformation topology or validate movable contact junctions in the current rigid-junction shell solver.
+
+The original refusal, all prior source versions, successful current-source builds, independent controls, exact/native audits and captures are retained under `general-oral-targets`, `general-oral-initialization-{closed,closed-v2,baseline-v2}`, `native-topology-separation-receipt.json` and adjacent scripts in the existing investigation root. Actual editor integration, prescribed lower-jaw/tongue motion and the remaining whole-face and expression conditions are still required.
+
 ## generated-black-boy-01 {#generated-black-boy-01}
 
 [Replay document](generated-black-boy-01.json) · [Original selection and quality](inputs.md#input-generated-black-boy-01). Selected original: `generated-black-boy-01_age-15_front-smile.png`.
