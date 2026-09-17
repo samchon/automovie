@@ -1,6 +1,6 @@
 # Whole-face regional basis
 
-The connected-face playground selects this CC0 prior. It retains the preceding basis's neutral geometry, materials, UVs, connectivity and every existing endpoint exactly, then expands from 12 to 80 shape controls while retaining all 52 expression controls. Its immutable identity is `mpfb-connected-head-2026-09-17-complete-regions`. The earlier [64-control basis](../README.md) remains available as a separate revision; saved documents bind to their exact revision and are never silently converted.
+This preserved CC0 prior retains the preceding basis's neutral geometry, materials, UVs, connectivity and every existing endpoint exactly, then expands from 12 to 80 shape controls while retaining all 52 expression controls. Its immutable identity is `mpfb-connected-head-2026-09-17-complete-regions`. The connected editor now selects its [global morphology extension](../global-face/README.md). This revision and the earlier [64-control basis](../README.md) remain available separately; saved documents bind to their exact revision and are never silently converted.
 
 ## Source and derivation
 
@@ -33,7 +33,7 @@ These controls interpolate authored CC0 targets. Their weights are dimensionless
 
 ## Input studies
 
-`subjects.json` holds nineteen compact documents selected by the connected editor: eighteen original input subjects and `kdy1`. The frozen `generated-korean-girl-01` document stays in the procedural study without new fitting. The prior and original documents remain available; selecting a connected study is a normal validated edit with undo/redo and JSON/GLB export.
+`subjects.json` preserves nineteen compact documents previously selected by the connected editor: eighteen original input subjects and `kdy1`. The frozen `generated-korean-girl-01` document stays in the procedural study without new fitting. The prior and original documents remain available; selecting a connected study is a normal validated edit with undo/redo and JSON/GLB export.
 
 `subject-receipt.json` preserves the selected image identity, independent exported GLB digest and projection residual for each document. All nineteen documents replay through the public package and export seven material parts. Existing authored skin/lip colours are carried from the corresponding procedural study; `kdy1` retains the prior's authored material. No photograph is distributed or sampled at runtime.
 
