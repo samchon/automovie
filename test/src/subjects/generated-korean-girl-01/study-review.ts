@@ -2,6 +2,7 @@ import type * as ReferenceAnatomy from "../reference-anatomy/model";
 import type * as Anatomy from "./anatomy";
 import type * as Configuration from "./configuration";
 import type * as ControlNet from "./controlNet";
+import type * as ControlPositions from "./controlPositions";
 import type * as Fitted from "./fittedModel";
 import type * as Hair from "./hairProxy";
 import type * as Model from "./model";
@@ -69,7 +70,9 @@ import type * as NasalReference from "./nasalReference";
  * @evidence {@link Anatomy.portraitNasalRelief} Supplies the retained basic nasal surface envelopes when no optional replacement detail is selected.
  * @evidenceReview {@link Anatomy.portraitNasalRelief} #d38d104 Read named nasal support regions, live anchors, radii and signed displacements beside portraitNasalLayerFor. They are visible-surface controls and remain separate from the nasal body and aperture groups.
  * @evidence {@link ControlNet.referenceControlNet} Supplies the frozen measured control positions, camera basis and triangle topology for this subject.
- * @evidenceReview {@link ControlNet.referenceControlNet} #0720aae Read source/model/topology digests, camera basis and resident position population beside fitting and assembly. Image-plane observations are measured inputs; depth remains an authored estimate and is not a likeness certificate.
+ * @evidenceReview {@link ControlNet.referenceControlNet} #4d29c79 Re-read the complete provenance, projection frame and topology after separating its unchanged position array into controlPositions. The assembly retains one shared data instance with the same vertex order and values. Image-plane observations are measured inputs; depth remains an authored estimate and is not a likeness certificate.
+ * @evidence {@link ControlPositions.referenceControlPositions} Retains the exact frozen observation coordinates used by the study's control net after responsibility-based separation.
+ * @evidenceReview {@link ControlPositions.referenceControlPositions} #ac132e9 Compared all 478 ordered coordinates with the pre-extraction control net and retained its original provenance and capture frame in controlNet. Only the data owner moved; coordinates and shared-array assembly semantics remain unchanged. These are frozen study inputs, not an anatomical ground-truth oracle.
  * @evidence {@link Hair.buildPortraitHairProxy} Builds the coarse scalp cap and side curtain used for face silhouette inspection.
  * @evidenceReview {@link Hair.buildPortraitHairProxy} #37d9aad Read finite scalp/side-attachment admission, uniform scalp enclosure, lateral-only ear clearance, finite metric radii and optional foreground depth sampling. The bounded fringe bias changes the cap's continuous boundary; the curtain shares cap vertices and normals are rebuilt. The returned single coarse hair mass is legacy context, not a human-package hair editor.
  * @evidence {@link Hair.IPortraitHairShape} Describes the optional subject-owned angular bias for the connected frontal cap boundary.

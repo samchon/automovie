@@ -2,6 +2,8 @@
 
 These are directly authored AutoMovie model studies. They use `@automovie/interface` model/mesh types, general `@automovie/engine` geometry operations and anatomical builders from [`@automovie/human`](../../../packages/human/README.md). Subject measurements, person-specific settings and review decisions stay outside the shared capability package. The nineteen independently replayable numerical studies for issue #2469, their source inventory and retained observations live in [`test/studies/human-face`](../../studies/human-face). This directory retains the legacy authored construction and its separate review.
 
+General human-package scenarios use independently owned inputs under `test/src/features/internal/humanFace*Fixture.ts`. Their factory clones every nested input and no longer imports this historical study. Here, `configuration.ts` composes the separate eye, nose and mouth settings; `controlNet.ts` owns measurement provenance, the capture frame and topology, while `controlPositions.ts` owns the unchanged ordered observation coordinates. This separation preserves the frozen study and its existing consumers.
+
 The first subject, `generated-korean-girl-01`, remains unfinished and its fit is frozen after 57 minutes. Its [inspection record](generated-korean-girl-01/review.md) explicitly does not accept the likeness. That legacy assembly retains coarse optional hair and its fitted brow profile; it does not select the later human surface-hair or brow-flow controls. The source photograph is `.shots/input/east-asian/generated-korean-girl-01/generated-korean-girl-age-16.png`; the compiled model does not need that file or the measurement software at runtime. Torso construction remains outside these face studies.
 
 ## Construction
