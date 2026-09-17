@@ -1,0 +1,660 @@
+{
+  "basis": "mpfb-connected-head-2026-09-17-binocular-frame",
+  "basisSha256": "80e3cbbbc254af3a22392b32dc0cb0767ab789372cb15a8bfc20f06924785fdc",
+  "method": "Bounded TRF weak-perspective projection; 84 shape controls and 52 performance controls; three whole-face shape starts (0, -0.2, +0.2), selecting the lowest identical robust soft_l1 objective",
+  "frozenSubject": "generated-korean-girl-01",
+  "limits": [
+    "Single-image depth is inferred",
+    "Detector landmarks are not anatomical measurements",
+    "Projection residual is not likeness",
+    "No scalp groom on this prior",
+    "Fitted weak-perspective registration does not recover physical camera intrinsics"
+  ],
+  "subjects": [
+    {
+      "subject": "alan-rickman",
+      "source": {
+        "relative": "white/alan-rickman/alan-rickman_age-65_portrait.jpg",
+        "url": "https://raw.githubusercontent.com/samchon/AutoMovie/f57d3396d1fb2d57b01d851c14130ef7409a822d/.github/issue-assets/human-face-input/originals/white/alan-rickman/alan-rickman_age-65_portrait.jpg",
+        "bytes": 2248735,
+        "sha256": "6f96dff142f3200a9823391b6301ec2cd32526dec0153d3455c036a1a1ebfa5c",
+        "author": "Not supplied in the issue asset inventory",
+        "license": "Not established; retained locally for user-requested analysis only"
+      },
+      "rmseBeforeFaceHeight": 0.038637883677450705,
+      "rmseAfterFaceHeight": 0.02589804125255893,
+      "glbSha256": "3fd3f29f1a7bf32a0495a8e35172b1442722bf1d732cff6d564d42d33448ca40",
+      "parts": 7,
+      "documentSha256": "fa06d20ef0729846d3210d2754533b811ea700ebc209a7a3d8d353b0cd8945c8",
+      "likeness": "unaccepted",
+      "multistart": [
+        {
+          "cost": 0.0003723709879832884,
+          "success": true,
+          "nfev": 59
+        },
+        {
+          "cost": 0.0003723532773555046,
+          "success": true,
+          "nfev": 47
+        },
+        {
+          "cost": 0.0003724392047979925,
+          "success": true,
+          "nfev": 75
+        }
+      ]
+    },
+    {
+      "subject": "daniel-radcliffe",
+      "source": {
+        "relative": "white/daniel-radcliffe/daniel-radcliffe_age-13_chamber-of-secrets-premiere.jpg",
+        "url": "https://raw.githubusercontent.com/samchon/AutoMovie/f57d3396d1fb2d57b01d851c14130ef7409a822d/.github/issue-assets/human-face-input/originals/white/daniel-radcliffe/daniel-radcliffe_age-13_chamber-of-secrets-premiere.jpg",
+        "bytes": 716981,
+        "sha256": "07fefaaaa62b12cd47ea9b16da23ef7045c1784f6cde2e963118d86b7de0d48f",
+        "author": "Not supplied in the issue asset inventory",
+        "license": "Not established; retained locally for user-requested analysis only"
+      },
+      "rmseBeforeFaceHeight": 0.023754404339679108,
+      "rmseAfterFaceHeight": 0.010545766309104128,
+      "glbSha256": "241fde5305f6fb50edb6e51be164d36bc50977e7c1a634db42c331f6e43507af",
+      "parts": 7,
+      "documentSha256": "95aec43fe8085fd5be5819f34b62b3579340284870f48f72753aa4a4090c3ad6",
+      "likeness": "unaccepted",
+      "multistart": [
+        {
+          "cost": 0.00006221064489111993,
+          "success": true,
+          "nfev": 31
+        },
+        {
+          "cost": 0.00006288482744600751,
+          "success": true,
+          "nfev": 29
+        },
+        {
+          "cost": 0.00006252879965309875,
+          "success": true,
+          "nfev": 35
+        }
+      ]
+    },
+    {
+      "subject": "emma-watson",
+      "source": {
+        "relative": "white/emma-watson/emma-watson_age-24_british-fashion-awards.jpg",
+        "url": "https://raw.githubusercontent.com/samchon/AutoMovie/f57d3396d1fb2d57b01d851c14130ef7409a822d/.github/issue-assets/human-face-input/originals/white/emma-watson/emma-watson_age-24_british-fashion-awards.jpg",
+        "bytes": 375192,
+        "sha256": "64f7bb7d4f390a9246a4b9ffa9b6aa88c7f9f04a96fc484d25eddb3ccc4eab87",
+        "author": "Not supplied in the issue asset inventory",
+        "license": "Not established; retained locally for user-requested analysis only"
+      },
+      "rmseBeforeFaceHeight": 0.02318519424674974,
+      "rmseAfterFaceHeight": 0.013748808027827525,
+      "glbSha256": "f4724c26591fcc5b7ed38e3fbe6af05d153e63f94dc8b6d6b9f0cae7b0ceb971",
+      "parts": 7,
+      "documentSha256": "d2ba08e10341533fc89c0207b984cbd74cd00d37fdcd2fc72057c77c489e861e",
+      "likeness": "unaccepted",
+      "multistart": [
+        {
+          "cost": 0.00011626827863123118,
+          "success": true,
+          "nfev": 32
+        },
+        {
+          "cost": 0.00011634208419372677,
+          "success": true,
+          "nfev": 46
+        },
+        {
+          "cost": 0.00011629503988858531,
+          "success": true,
+          "nfev": 44
+        }
+      ]
+    },
+    {
+      "subject": "generated-black-boy-01",
+      "source": {
+        "relative": "black/generated-black-boy-01/generated-black-boy-01_age-15_front-smile.png",
+        "url": "https://raw.githubusercontent.com/samchon/AutoMovie/f57d3396d1fb2d57b01d851c14130ef7409a822d/.github/issue-assets/human-face-input/originals/black/generated-black-boy-01/generated-black-boy-01_age-15_front-smile.png",
+        "bytes": 1991708,
+        "sha256": "ca4a2f3a214df183e9fde84f5f5f001d3fe5f2a20b179afb67ecba4b4359c13e",
+        "author": "Not supplied in the issue asset inventory",
+        "license": "Not established; retained locally for user-requested analysis only"
+      },
+      "rmseBeforeFaceHeight": 0.02366854275259054,
+      "rmseAfterFaceHeight": 0.012237727208535939,
+      "glbSha256": "f46d16a9c43705179cbd411da1991c92a79e6f2bbd6813a1e47958587360c232",
+      "parts": 7,
+      "documentSha256": "8b5f956c893d179e56fd4a0f88c242579a53e8b476e0972adcde02bdddda72de",
+      "likeness": "unaccepted",
+      "multistart": [
+        {
+          "cost": 0.00008873200263313003,
+          "success": true,
+          "nfev": 55
+        },
+        {
+          "cost": 0.00008842115932717953,
+          "success": true,
+          "nfev": 59
+        },
+        {
+          "cost": 0.00008817539083450627,
+          "success": true,
+          "nfev": 42
+        }
+      ]
+    },
+    {
+      "subject": "generated-black-girl-01",
+      "source": {
+        "relative": "black/generated-black-girl-01/generated-black-girl-01_age-15_front-smile.png",
+        "url": "https://raw.githubusercontent.com/samchon/AutoMovie/f57d3396d1fb2d57b01d851c14130ef7409a822d/.github/issue-assets/human-face-input/originals/black/generated-black-girl-01/generated-black-girl-01_age-15_front-smile.png",
+        "bytes": 2502364,
+        "sha256": "fe80a9623d1f6760110722508b4a37b2c127e79ba3a2b056ee9ac789b7c7242a",
+        "author": "Not supplied in the issue asset inventory",
+        "license": "Not established; retained locally for user-requested analysis only"
+      },
+      "rmseBeforeFaceHeight": 0.026864357005516596,
+      "rmseAfterFaceHeight": 0.013389172455471795,
+      "glbSha256": "415a38c0e8e463e15876da39a04ce3a9ecf553795b5967d196248844e9bf72ce",
+      "parts": 7,
+      "documentSha256": "f303cda7add67c62dc1291cb2a93ed9719c393e889ca3ab0e274bc397feadc1a",
+      "likeness": "unaccepted",
+      "multistart": [
+        {
+          "cost": 0.00009998986119605374,
+          "success": true,
+          "nfev": 35
+        },
+        {
+          "cost": 0.00010066291209034813,
+          "success": true,
+          "nfev": 32
+        },
+        {
+          "cost": 0.000100627813241118,
+          "success": true,
+          "nfev": 30
+        }
+      ]
+    },
+    {
+      "subject": "generated-korean-boy-01",
+      "source": {
+        "relative": "east-asian/generated-korean-boy-01/generated-korean-boy-01_age-15_front-smile.png",
+        "url": "https://raw.githubusercontent.com/samchon/AutoMovie/f57d3396d1fb2d57b01d851c14130ef7409a822d/.github/issue-assets/human-face-input/originals/east-asian/generated-korean-boy-01/generated-korean-boy-01_age-15_front-smile.png",
+        "bytes": 1828762,
+        "sha256": "81cfa3b9d3d7c28b8f4758db11a0546e05852a47fb1c46b84eb1cab28f701331",
+        "author": "Not supplied in the issue asset inventory",
+        "license": "Not established; retained locally for user-requested analysis only"
+      },
+      "rmseBeforeFaceHeight": 0.01775731128744237,
+      "rmseAfterFaceHeight": 0.010025545135702748,
+      "glbSha256": "bb7457179c5fdce31a5ed356818d4cd5ed9ff5a03b19d8bf34ae7cc368c9a0ac",
+      "parts": 7,
+      "documentSha256": "f05c2d2f5d43cf94d9a145664b348b0b29c9c4a08dafb25da49bdf75ffee979a",
+      "likeness": "unaccepted",
+      "multistart": [
+        {
+          "cost": 0.00005880898904444242,
+          "success": true,
+          "nfev": 32
+        },
+        {
+          "cost": 0.000058628719613027155,
+          "success": true,
+          "nfev": 32
+        },
+        {
+          "cost": 0.000058941514265462006,
+          "success": true,
+          "nfev": 36
+        }
+      ]
+    },
+    {
+      "subject": "generated-white-boy-01",
+      "source": {
+        "relative": "white/generated-white-boy-01/generated-white-boy-01_age-15_front-smile.png",
+        "url": "https://raw.githubusercontent.com/samchon/AutoMovie/f57d3396d1fb2d57b01d851c14130ef7409a822d/.github/issue-assets/human-face-input/originals/white/generated-white-boy-01/generated-white-boy-01_age-15_front-smile.png",
+        "bytes": 2456627,
+        "sha256": "b6f4b18d0de389e4fa74255576aa30efca080d77d858231120bc3314d85df12c",
+        "author": "Not supplied in the issue asset inventory",
+        "license": "Not established; retained locally for user-requested analysis only"
+      },
+      "rmseBeforeFaceHeight": 0.02027092680569635,
+      "rmseAfterFaceHeight": 0.010946205992805432,
+      "glbSha256": "e7ad8ae92ef6187b5608c712231e8cd4e1465f18f378ae1afe63a1f9dfe069b5",
+      "parts": 7,
+      "documentSha256": "0524dfd62f2bb52438d32ddf54633dfb140d7ab45b86471bd7f99685a2223040",
+      "likeness": "unaccepted",
+      "multistart": [
+        {
+          "cost": 0.000067400027588807,
+          "success": true,
+          "nfev": 34
+        },
+        {
+          "cost": 0.00006775347522411117,
+          "success": true,
+          "nfev": 31
+        },
+        {
+          "cost": 0.00006757056622671728,
+          "success": true,
+          "nfev": 41
+        }
+      ]
+    },
+    {
+      "subject": "generated-white-girl-01",
+      "source": {
+        "relative": "white/generated-white-girl-01/generated-white-girl-01-age-14.png",
+        "url": "https://raw.githubusercontent.com/samchon/AutoMovie/f57d3396d1fb2d57b01d851c14130ef7409a822d/.github/issue-assets/human-face-input/originals/white/generated-white-girl-01/generated-white-girl-01-age-14.png",
+        "bytes": 1238454,
+        "sha256": "58cae33a788066f88a6b5f1a26894569802a22cbf2aff9d2f511c787543ee316",
+        "author": "Not supplied in the issue asset inventory",
+        "license": "Not established; retained locally for user-requested analysis only"
+      },
+      "rmseBeforeFaceHeight": 0.03944955629079779,
+      "rmseAfterFaceHeight": 0.02592170317080458,
+      "glbSha256": "c45dd4b1b49919da659a517aa934c546480dee515bf97a484464b05558e1fb0b",
+      "parts": 7,
+      "documentSha256": "25372ea24cf42ff6c22f2bf5bf96f2b9b94fe3e80658a9434da570ff348c2bbd",
+      "likeness": "unaccepted",
+      "multistart": [
+        {
+          "cost": 0.00037786680158837833,
+          "success": true,
+          "nfev": 32
+        },
+        {
+          "cost": 0.0003781572130061898,
+          "success": true,
+          "nfev": 46
+        },
+        {
+          "cost": 0.0003817115338033218,
+          "success": true,
+          "nfev": 52
+        }
+      ]
+    },
+    {
+      "subject": "jang-su-hye",
+      "source": {
+        "relative": "east-asian/jang-su-hye/jang-su-hye_age-approx-31_symposium-portrait.jpeg",
+        "url": "https://raw.githubusercontent.com/samchon/AutoMovie/f57d3396d1fb2d57b01d851c14130ef7409a822d/.github/issue-assets/human-face-input/originals/east-asian/jang-su-hye/jang-su-hye_age-approx-31_symposium-portrait.jpeg",
+        "bytes": 249739,
+        "sha256": "f47625be7c4192850cfc7c8825d982a409e3cde667974a50ee15eb5d5d66068d",
+        "author": "Not supplied in the issue asset inventory",
+        "license": "Not established; retained locally for user-requested analysis only"
+      },
+      "rmseBeforeFaceHeight": 0.022686429532612223,
+      "rmseAfterFaceHeight": 0.010568414485356255,
+      "glbSha256": "48b7d31ffefb8d33083135fcc297f310a334d240f8bfc91fdc0c346f665f3503",
+      "parts": 7,
+      "documentSha256": "17fe9935184003376c63e907397bcf8ab662acfc64e311dc0e7f0a96c1561497",
+      "likeness": "unaccepted",
+      "multistart": [
+        {
+          "cost": 0.0000716517638482146,
+          "success": true,
+          "nfev": 38
+        },
+        {
+          "cost": 0.00007240122574646082,
+          "success": true,
+          "nfev": 39
+        },
+        {
+          "cost": 0.00007139210850158449,
+          "success": true,
+          "nfev": 35
+        }
+      ]
+    },
+    {
+      "subject": "kim-min-jung",
+      "source": {
+        "relative": "east-asian/kim-min-jung/kim-min-jung_age-26_strike-love.jpg",
+        "url": "https://raw.githubusercontent.com/samchon/AutoMovie/f57d3396d1fb2d57b01d851c14130ef7409a822d/.github/issue-assets/human-face-input/originals/east-asian/kim-min-jung/kim-min-jung_age-26_strike-love.jpg",
+        "bytes": 77932,
+        "sha256": "a2dfa2081c49b8055e5da5d871883bbb0eeb890f34719c8ab6801f564c9799a5",
+        "author": "Not supplied in the issue asset inventory",
+        "license": "Not established; retained locally for user-requested analysis only"
+      },
+      "rmseBeforeFaceHeight": 0.020251971004509234,
+      "rmseAfterFaceHeight": 0.012208644242858486,
+      "glbSha256": "d0513523d25f13887b9cdfdd60f196c89c47b94bd3a5a2ac8342408ae11719e1",
+      "parts": 7,
+      "documentSha256": "fcdcdd77cbf62c829b16b7ae0ae2d79793598a1fde1bc3f3da73d883dda4029f",
+      "likeness": "unaccepted",
+      "multistart": [
+        {
+          "cost": 0.00008575769487196043,
+          "success": true,
+          "nfev": 30
+        },
+        {
+          "cost": 0.00008554750841987978,
+          "success": true,
+          "nfev": 45
+        },
+        {
+          "cost": 0.0000865172205565108,
+          "success": true,
+          "nfev": 40
+        }
+      ]
+    },
+    {
+      "subject": "lee-tae-ri",
+      "source": {
+        "relative": "east-asian/lee-tae-ri/lee-tae-ri_age-31_handsome-trot.jpg",
+        "url": "https://raw.githubusercontent.com/samchon/AutoMovie/f57d3396d1fb2d57b01d851c14130ef7409a822d/.github/issue-assets/human-face-input/originals/east-asian/lee-tae-ri/lee-tae-ri_age-31_handsome-trot.jpg",
+        "bytes": 654202,
+        "sha256": "a833496a8302bcb15ff9f8b1d44a86c33492a8ac69ea9a12c6f1f26d468b9e1e",
+        "author": "Not supplied in the issue asset inventory",
+        "license": "Not established; retained locally for user-requested analysis only"
+      },
+      "rmseBeforeFaceHeight": 0.01806158631716324,
+      "rmseAfterFaceHeight": 0.008845826074421555,
+      "glbSha256": "506198139f697ad6c5bdb08de65043053be4604e5e8da99e01c78fcb4fbf829a",
+      "parts": 7,
+      "documentSha256": "8f71398085ceb74c309e1efe8053fc1066c106b25ffcf799a22c577183ca01a2",
+      "likeness": "unaccepted",
+      "multistart": [
+        {
+          "cost": 0.00004819967356098805,
+          "success": true,
+          "nfev": 34
+        },
+        {
+          "cost": 0.000048205222152061446,
+          "success": true,
+          "nfev": 31
+        },
+        {
+          "cost": 0.00004926239304597145,
+          "success": true,
+          "nfev": 54
+        }
+      ]
+    },
+    {
+      "subject": "maggie-smith",
+      "source": {
+        "relative": "white/maggie-smith/maggie-smith_age-80_lady-in-the-van-photocall.jpg",
+        "url": "https://raw.githubusercontent.com/samchon/AutoMovie/f57d3396d1fb2d57b01d851c14130ef7409a822d/.github/issue-assets/human-face-input/originals/white/maggie-smith/maggie-smith_age-80_lady-in-the-van-photocall.jpg",
+        "bytes": 216182,
+        "sha256": "e07e4c4d67083255248c126bc765a159192420007da7e5582e23ef65348760d8",
+        "author": "Not supplied in the issue asset inventory",
+        "license": "Not established; retained locally for user-requested analysis only"
+      },
+      "rmseBeforeFaceHeight": 0.021887688540393205,
+      "rmseAfterFaceHeight": 0.015182227010313947,
+      "glbSha256": "1cca17665cb276d48ae22e390894a057cecd7dda5d30542484906b0959b5bf10",
+      "parts": 7,
+      "documentSha256": "5925164c2c639774e4ea60cb101bb61bcde905666f1eff3aebd058dc3c46df7d",
+      "likeness": "unaccepted",
+      "multistart": [
+        {
+          "cost": 0.00013093794888631086,
+          "success": true,
+          "nfev": 36
+        },
+        {
+          "cost": 0.0001310253441088059,
+          "success": true,
+          "nfev": 38
+        },
+        {
+          "cost": 0.00012893893556270933,
+          "success": true,
+          "nfev": 41
+        }
+      ]
+    },
+    {
+      "subject": "michael-gambon",
+      "source": {
+        "relative": "white/michael-gambon/michael-gambon_age-72_portrait.jpg",
+        "url": "https://raw.githubusercontent.com/samchon/AutoMovie/f57d3396d1fb2d57b01d851c14130ef7409a822d/.github/issue-assets/human-face-input/originals/white/michael-gambon/michael-gambon_age-72_portrait.jpg",
+        "bytes": 163723,
+        "sha256": "e8b37987276f848e75bf1c4367287a16a3e169612354eea993fef8031c9b68ac",
+        "author": "Not supplied in the issue asset inventory",
+        "license": "Not established; retained locally for user-requested analysis only"
+      },
+      "rmseBeforeFaceHeight": 0.023938887384549093,
+      "rmseAfterFaceHeight": 0.01750230230009476,
+      "glbSha256": "0c9c727f21b95478e61cd49a66f021f870385dd7bfa8f6b485d54a6898800d73",
+      "parts": 7,
+      "documentSha256": "9b5871348abf233bc9af705f70906b66c0465e4fe9bf581a56f49c81b1631448",
+      "likeness": "unaccepted",
+      "multistart": [
+        {
+          "cost": 0.00017203344495777875,
+          "success": true,
+          "nfev": 39
+        },
+        {
+          "cost": 0.0001924817690327001,
+          "success": true,
+          "nfev": 44
+        },
+        {
+          "cost": 0.00017250435026937617,
+          "success": true,
+          "nfev": 36
+        }
+      ]
+    },
+    {
+      "subject": "miriam-margolyes",
+      "source": {
+        "relative": "white/miriam-margolyes/miriam-margolyes_age-71_portrait.jpg",
+        "url": "https://raw.githubusercontent.com/samchon/AutoMovie/f57d3396d1fb2d57b01d851c14130ef7409a822d/.github/issue-assets/human-face-input/originals/white/miriam-margolyes/miriam-margolyes_age-71_portrait.jpg",
+        "bytes": 2612964,
+        "sha256": "7101f8b6fb4745ac3786df89bc6e08fd98cbc3709f2cfdae7af651392ddfa69e",
+        "author": "Not supplied in the issue asset inventory",
+        "license": "Not established; retained locally for user-requested analysis only"
+      },
+      "rmseBeforeFaceHeight": 0.030597434477532784,
+      "rmseAfterFaceHeight": 0.014483630944525162,
+      "glbSha256": "279b739b966bda6f43e084832d013f51d021af2a7d4a3529e94496bbfc2c8f65",
+      "parts": 7,
+      "documentSha256": "941087edfb3169f3507c814bd8ebf13271044621b6721b933a0f7c9007735354",
+      "likeness": "unaccepted",
+      "multistart": [
+        {
+          "cost": 0.00011852370766773344,
+          "success": true,
+          "nfev": 54
+        },
+        {
+          "cost": 0.00011818651133643342,
+          "success": true,
+          "nfev": 94
+        },
+        {
+          "cost": 0.00011836422256892873,
+          "success": true,
+          "nfev": 60
+        }
+      ]
+    },
+    {
+      "subject": "oh-seung-yoon",
+      "source": {
+        "relative": "east-asian/oh-seung-yoon/oh-seung-yoon_age-approx-16_lunar-new-year-interview.jpg",
+        "url": "https://raw.githubusercontent.com/samchon/AutoMovie/f57d3396d1fb2d57b01d851c14130ef7409a822d/.github/issue-assets/human-face-input/originals/east-asian/oh-seung-yoon/oh-seung-yoon_age-approx-16_lunar-new-year-interview.jpg",
+        "bytes": 156701,
+        "sha256": "d93c3883b75951d92268144227bbf75f4cf1b6242393b6530c264eb73168cbde",
+        "author": "Not supplied in the issue asset inventory",
+        "license": "Not established; retained locally for user-requested analysis only"
+      },
+      "rmseBeforeFaceHeight": 0.024963146280674267,
+      "rmseAfterFaceHeight": 0.015611742874005845,
+      "glbSha256": "027eaba195b99f5577439c533b1e9cb1f5cda81b999085f419ba8b62f6f94e4c",
+      "parts": 7,
+      "documentSha256": "67b9b5ffa8b6f6d9ff7e0b58061956ba672f8431258263649fed0db52454c03e",
+      "likeness": "unaccepted",
+      "multistart": [
+        {
+          "cost": 0.00013997188985910447,
+          "success": true,
+          "nfev": 35
+        },
+        {
+          "cost": 0.00014064057007497953,
+          "success": true,
+          "nfev": 36
+        },
+        {
+          "cost": 0.00014266283100043196,
+          "success": true,
+          "nfev": 41
+        }
+      ]
+    },
+    {
+      "subject": "park-eun-bin",
+      "source": {
+        "relative": "east-asian/park-eun-bin/park-eun-bin_age-20_minas-stationery-premiere.jpg",
+        "url": "https://raw.githubusercontent.com/samchon/AutoMovie/f57d3396d1fb2d57b01d851c14130ef7409a822d/.github/issue-assets/human-face-input/originals/east-asian/park-eun-bin/park-eun-bin_age-20_minas-stationery-premiere.jpg",
+        "bytes": 100381,
+        "sha256": "a9797e47d076de402e10e0b48b3ab9a665b9dd79f3f3dcf8753cafeb63ec02ff",
+        "author": "Not supplied in the issue asset inventory",
+        "license": "Not established; retained locally for user-requested analysis only"
+      },
+      "rmseBeforeFaceHeight": 0.016597870233768325,
+      "rmseAfterFaceHeight": 0.00741705233407032,
+      "glbSha256": "b5d4ecb4eb6b718e1cbc85a2b5973d4dcfc3d21be4307f29e4bf0f1ac49c1791",
+      "parts": 7,
+      "documentSha256": "8f7651998d5fdcccceaeb2d67a7df9f8d3823d1afdaa1a13b38776fa089582e9",
+      "likeness": "unaccepted",
+      "multistart": [
+        {
+          "cost": 0.00003742826475547534,
+          "success": true,
+          "nfev": 34
+        },
+        {
+          "cost": 0.00003595843449060645,
+          "success": true,
+          "nfev": 44
+        },
+        {
+          "cost": 0.000037100501188186094,
+          "success": true,
+          "nfev": 35
+        }
+      ]
+    },
+    {
+      "subject": "rupert-grint",
+      "source": {
+        "relative": "white/rupert-grint/rupert-grint_age-14_chamber-of-secrets-premiere.jpg",
+        "url": "https://raw.githubusercontent.com/samchon/AutoMovie/f57d3396d1fb2d57b01d851c14130ef7409a822d/.github/issue-assets/human-face-input/originals/white/rupert-grint/rupert-grint_age-14_chamber-of-secrets-premiere.jpg",
+        "bytes": 426154,
+        "sha256": "ef48f1a310bc63f2f19fb04d2407692b07386be85995f7c2fdf3582dbc29ffbe",
+        "author": "Not supplied in the issue asset inventory",
+        "license": "Not established; retained locally for user-requested analysis only"
+      },
+      "rmseBeforeFaceHeight": 0.02243247895124281,
+      "rmseAfterFaceHeight": 0.013579238291129617,
+      "glbSha256": "1df6799f5e00fcb5ab69793f3c5632138f77d2266bf5a9ebad2ffe921eade3bd",
+      "parts": 7,
+      "documentSha256": "525f90d69fdee78eb39011df88284b31a8655dd0a6256c7d78c1dee60f03632e",
+      "likeness": "unaccepted",
+      "multistart": [
+        {
+          "cost": 0.00010564333007890224,
+          "success": true,
+          "nfev": 29
+        },
+        {
+          "cost": 0.00010523669243187331,
+          "success": true,
+          "nfev": 34
+        },
+        {
+          "cost": 0.00010551758360281753,
+          "success": true,
+          "nfev": 33
+        }
+      ]
+    },
+    {
+      "subject": "yoo-seung-ho",
+      "source": {
+        "relative": "east-asian/yoo-seung-ho/yoo-seung-ho_age-22_the-magician.png",
+        "url": "https://raw.githubusercontent.com/samchon/AutoMovie/f57d3396d1fb2d57b01d851c14130ef7409a822d/.github/issue-assets/human-face-input/originals/east-asian/yoo-seung-ho/yoo-seung-ho_age-22_the-magician.png",
+        "bytes": 290691,
+        "sha256": "546557eca12ac82a3f52dfd19f2b25ae867bbeb7c4e449bb6c517816785df56f",
+        "author": "Not supplied in the issue asset inventory",
+        "license": "Not established; retained locally for user-requested analysis only"
+      },
+      "rmseBeforeFaceHeight": 0.013762756799043445,
+      "rmseAfterFaceHeight": 0.00980474217539412,
+      "glbSha256": "3a224464cf0799462caf9633f0ec02520941cabb7b0db50a49b622c2d44bee49",
+      "parts": 7,
+      "documentSha256": "2e0d099fd89cf65f1c47b4a7110a2a931c157621ff071fa4c4ee00ab9053dfde",
+      "likeness": "unaccepted",
+      "multistart": [
+        {
+          "cost": 0.00005409415441617766,
+          "success": true,
+          "nfev": 38
+        },
+        {
+          "cost": 0.00005519702528503481,
+          "success": true,
+          "nfev": 36
+        },
+        {
+          "cost": 0.00005426863725737352,
+          "success": true,
+          "nfev": 64
+        }
+      ]
+    },
+    {
+      "subject": "kdy1",
+      "source": {
+        "relative": "east-asian/kdy1.png",
+        "url": null,
+        "sha256": "b5faf9013533b1e75dee734174d81db00dbc2e61fe1abe925f0248529929b009"
+      },
+      "rmseBeforeFaceHeight": 0.023288963400481116,
+      "rmseAfterFaceHeight": 0.014722792528138778,
+      "glbSha256": "9b81f1b82f61a0b3282dd0eb25995d6138e131ed1c4607b4a78b0e48356a5e01",
+      "parts": 7,
+      "documentSha256": "d980829bf30ae0d2d02c5a5745c7b9f18d13f971fb702223106eb44190fa60c9",
+      "likeness": "unaccepted",
+      "multistart": [
+        {
+          "cost": 0.00012497809830179401,
+          "success": true,
+          "nfev": 33
+        },
+        {
+          "cost": 0.00012654794750324296,
+          "success": true,
+          "nfev": 35
+        },
+        {
+          "cost": 0.00013041620610978644,
+          "success": true,
+          "nfev": 32
+        }
+      ]
+    }
+  ],
+  "previousRevision": "bfba98e05dc2c530dfdae5dfbcc8434212ac7b10",
+  "performanceReference": "https://storage.googleapis.com/mediapipe-assets/Model%20Card%20Blendshape%20V2.pdf"
+}

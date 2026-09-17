@@ -1,12 +1,13 @@
 import { Quaternion } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { portraitPart, portraitPoint } from "../geometry/geometry";
+import { portraitPoint } from "../geometry/geometry";
 import type { IPortraitComponent } from "../geometry/portraitComponents";
+import { createPortraitInteriorFinisher } from "../geometry/portraitInteriorFinisher";
 import {
   type IPortraitDentalRow,
   attachPortraitDentalRow,
-  buildPortraitDentalRow,
+  preparePortraitDentalRow,
 } from "./dentalRow";
 import { posePortraitJawPoint } from "./jawPerformance";
 
@@ -16,6 +17,9 @@ import { posePortraitJawPoint } from "./jawPerformance";
  * upper profiles are never silently reused. Cervical ends point inferiorly,
  * incisal edges superiorly. The whole row follows only the jaw hinge, not lip
  * separation, smile or pucker. No gingiva, tongue or occlusion solver is implied.
+ * Fit owns the observed-relative pose in head millimetres; native preparation
+ * returns a fresh copy without applying that rotation again. The compatibility
+ * finisher packs the same producer's mesh through the shared metric boundary.
  *
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Adds independently authored mandibular enamel to the oral structures.
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-expression Attaches lower teeth to the mandible while maxillary teeth remain fixed.
@@ -50,13 +54,14 @@ export function createPortraitMandibularDentition(
       "Mandibular dentition requires nonnegative finite offsets and jaw angles in [0,25] degrees.",
     );
   posePortraitJawPoint(jaw.hinge, jaw.hinge, 0, 1);
-  const row = buildPortraitDentalRow(inputRow);
+  const prepared = preparePortraitDentalRow(inputRow);
+  const row = prepared.mesh;
   // Reflect the cervical-to-incisal axis, including normals and handedness.
   for (let i = 1; i < row.positions.length; i += 3) {
     row.positions[i] = -row.positions[i];
     row.normals![i] = -row.normals![i];
   }
-  // buildPortraitDentalRow always returns indexed, normal-bearing crowns.
+  // Native row preparation always returns indexed, normal-bearing crowns.
   const indices = row.indices!;
   for (let i = 0; i < indices.length; i += 3)
     [indices[i + 1], indices[i + 2]] = [indices[i + 2], indices[i + 1]];
@@ -106,9 +111,19 @@ export function createPortraitMandibularDentition(
         cutFaces: [],
         attach: () => ({
           openings: [],
-          finish: () => [
-            portraitPart("tooth-lower-arch", structuredClone(placed), "teeth"),
-          ],
+          ...createPortraitInteriorFinisher(() => [
+            {
+              id: "tooth-lower-arch",
+              mesh: structuredClone(placed),
+              material: "teeth",
+              // Reflection reverses the cap's winding along with its faces.
+              // Reverse the owned cycle as well; its vertex set stays intact.
+              loops: prepared.cervical.map((vertices, tooth) => ({
+                name: `cervical-${tooth}`,
+                vertices: [...vertices].reverse(),
+              })),
+            },
+          ]),
         }),
       };
     },

@@ -40,7 +40,7 @@ try {
   Recycle-Capture $previousPath
   Assert-CapturePath $previewPath
   $ErrorActionPreference = "Continue"
-  & (Join-Path $portraitWorkspace "test/node_modules/.bin/tsx.cmd") (Join-Path $PSScriptRoot "export.ts") *> (Join-Path $captureRoot "preview.log")
+  & (Join-Path $portraitWorkspace "test/node_modules/.bin/ttsx.cmd") -P (Join-Path $portraitWorkspace "test/tsconfig.scripts.json") (Join-Path $PSScriptRoot "export.ts") *> (Join-Path $captureRoot "preview.log")
   $exportExit = $LASTEXITCODE
   $ErrorActionPreference = "Stop"
   if ($exportExit -ne 0) { throw "Portrait export failed. The previous preview remains available." }

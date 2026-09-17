@@ -3,17 +3,19 @@ import {
   portraitEarShape,
 } from "@automovie/human";
 
-import {
-  portraitEyeShape,
-  portraitEyeSockets,
-  portraitMouthShape,
-  portraitMouthSocket,
-  portraitNoseShape,
-  portraitNoseSocket,
-} from "../../subjects/generated-korean-girl-01/configuration";
-import { referenceControlNet } from "../../subjects/generated-korean-girl-01/controlNet";
+import { humanFaceBindingsFixture } from "./humanFaceBindingsFixture";
+import { humanFaceHostPositionsFixture } from "./humanFaceHostPositionsFixture";
+import { humanFaceHostTopologyFixture } from "./humanFaceHostTopologyFixture";
+import { humanFaceRecipeFixture } from "./humanFaceRecipeFixture";
 
-/** A typed in-memory document for state and interpretation scenarios, without a renderer. */
+/**
+ * Independent in-memory input for document, state and interpretation scenarios.
+ * The four data owners retain the former fixture's exact numerical arrangement;
+ * changes to a historical portrait experiment can no longer alter these tests.
+ * Each invocation owns its nested data, so negative cases and editor mutations
+ * cannot contaminate another scenario. This is a test input, not a likeness or
+ * complete-anatomy oracle. Coarse assembly sampling is selected separately below.
+ */
 export const humanFaceFixture = (
   id = "unit-face",
 ): IAutoMovieHumanFaceDocument => ({
@@ -24,20 +26,12 @@ export const humanFaceFixture = (
     id: "unit-observed-basis",
     topology: "mediapipe-478/1",
     host: structuredClone({
-      positions: referenceControlNet.positions,
-      indices: referenceControlNet.indices,
-      viewRay: referenceControlNet.viewRay,
+      positions: humanFaceHostPositionsFixture,
+      indices: humanFaceHostTopologyFixture,
+      viewRay: [0.1505110114812851, 0.17655004560947418, 0.9727165699005127],
     }),
-    bindings: structuredClone({
-      eyes: { right: portraitEyeSockets[0], left: portraitEyeSockets[1] },
-      nose: portraitNoseSocket,
-      mouth: portraitMouthSocket,
-    }),
-    recipe: structuredClone({
-      eye: portraitEyeShape,
-      nose: portraitNoseShape,
-      mouth: portraitMouthShape,
-    }),
+    bindings: structuredClone(humanFaceBindingsFixture),
+    recipe: structuredClone(humanFaceRecipeFixture),
     expression: {},
   },
 });

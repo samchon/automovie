@@ -13,6 +13,7 @@ import { nclose } from "../internal/predicates";
  * 2. Animation frames use the same order, and only the key light casts shadows.
  * 3. Resize updates the camera; renderer reporting uses debug and basic enums.
  * 4. Pixel ratios above the sampling cap clamp, while a smaller ratio survives.
+ * 5. Shadow isolation preserves light direction, power and the scene population.
  */
 export const test_subject_human_viewport_frame = (): void => {
   const f = createHumanViewportFixture();
@@ -75,6 +76,30 @@ export const test_subject_human_viewport_frame = (): void => {
       f.renderer.outputColorSpace === THREE.SRGBColorSpace &&
       f.orbit.enableDamping &&
       f.orbit.minDistance > 0,
+  );
+  const lightStates = lights.map((light) => ({
+    position: light.position.toArray(),
+    intensity: light.intensity,
+    color: light.color.toArray(),
+  }));
+  f.viewport.setShadows(false);
+  f.viewport.finish();
+  TestValidator.equals(
+    "isolated surface has no cast shadows",
+    lights.filter((light) => light.castShadow).length,
+    0,
+  );
+  f.viewport.setShadows(true);
+  f.frame();
+  TestValidator.equals("same key caster restored", key.castShadow, true);
+  TestValidator.equals(
+    "shadow toggle preserves direct illumination",
+    lights.map((light) => ({
+      position: light.position.toArray(),
+      intensity: light.intensity,
+      color: light.color.toArray(),
+    })),
+    lightStates,
   );
   f.dimensions.width = 900;
   f.dimensions.height = 300;

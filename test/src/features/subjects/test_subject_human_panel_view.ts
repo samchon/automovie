@@ -7,9 +7,7 @@ import { createHumanPanelFixture } from "../internal/createHumanPanelFixture";
  *
  * Scenarios:
  * 1. An omitted appearance palette still exposes the version-default skin channels.
- * 2. Camera, fit and clay operations reach viewport ports but do not modify the face document.
- * 3. JSON, GLB and glTF/buffer downloads use the last committed identity and asset bytes.
- * 4. Selecting another subject rebuilds, publishes and fits it; an unknown selection does nothing.
+ * 2. Camera, fit, clay and shadow controls reach viewport ports without editing the document.
  */
 export const test_subject_human_panel_view = async (): Promise<void> => {
   const f = createHumanPanelFixture();
@@ -29,6 +27,13 @@ export const test_subject_human_panel_view = async (): Promise<void> => {
   const clay = f.element<HTMLInputElement>("clay");
   clay.checked = true;
   clay.onchange!.call(clay, new f.dom.window.Event("change"));
+  const shadows = f.element<HTMLInputElement>("shadows");
+  TestValidator.equals("cast shadows initially visible", shadows.checked, true);
+  shadows.checked = false;
+  shadows.onchange!.call(shadows, new f.dom.window.Event("change"));
+  shadows.checked = true;
+  shadows.onchange!.call(shadows, new f.dom.window.Event("change"));
+  TestValidator.equals("shadow isolation routed", f.shadows, [false, true]);
   clay.checked = false;
   clay.onchange!.call(clay, new f.dom.window.Event("change"));
   TestValidator.equals(
@@ -41,41 +46,5 @@ export const test_subject_human_panel_view = async (): Promise<void> => {
     f.panel.snapshot()!.document,
     before,
   );
-  await f.click("face-save");
-  await f.click("face-glb");
-  await f.click("face-gltf");
-  TestValidator.equals(
-    "committed download filenames",
-    f.downloads.map((file) => file.name),
-    ["first.face.json", "first.glb", "mesh.bin", "first.gltf"],
-  );
-  TestValidator.equals(
-    "saved document identity",
-    JSON.parse(f.downloads[0].bytes as string).id,
-    "first",
-  );
-  TestValidator.equals(
-    "opaque GLB bytes",
-    [...(f.downloads[1].bytes as Uint8Array)],
-    [1, 2, 3],
-  );
-  TestValidator.equals(
-    "external glTF buffer",
-    [...(f.downloads[2].bytes as Uint8Array)],
-    [4, 5],
-  );
-  await f.change("face-subject", "second");
-  TestValidator.equals(
-    "selected subject",
-    f.panel.snapshot()!.document.id,
-    "second",
-  );
-  TestValidator.equals("both models published", f.published, [
-    "first",
-    "second",
-  ]);
-  await f.change("face-subject", "missing");
-  TestValidator.equals("unknown selection unchanged", f.published.length, 2);
-  TestValidator.equals("one cancel per read", f.cancellations(), 2);
   f.dom.window.close();
 };

@@ -33,8 +33,7 @@ packages/playground/montage-three.png
 # transpiled output that lands beside a source rather than in `lib/`
 packages/*/src/**/*.js
 packages/*/src/**/*.js.map
-# declarations emitted beside a source, for the same reason: `tsc` run without
-# `--noEmit` drops a `.d.ts` next to every `.ts`, and none is ever committed.
+# declarations emitted beside a source are compiler output, just like JavaScript.
 packages/*/src/**/*.d.ts
 # the scaffold nests a whole project, so its own sources need the same rule
 packages/template/scaffold/src/**/*.js
@@ -45,3 +44,7 @@ packages/template/scaffold/src/**/*.d.ts
 test/src/**/*.js
 test/src/**/*.js.map
 test/src/**/*.d.ts
+# Portable studies share that native TypeScript program and emission behavior.
+test/studies/**/*.js
+test/studies/**/*.js.map
+test/studies/**/*.d.ts

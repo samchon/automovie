@@ -1,0 +1,8 @@
+{
+  "generated": "OSQP public C API bridge; regenerate with vendor/quadratic/CMakeLists.txt",
+  "osqp": "236713ce9a56c182ac3230d52108f952afce1523",
+  "qdldl": "138fdac58b9cd1c4137ff1b99152c8108a6cff5b",
+  "emscripten": "6.0.9",
+  "sha256": "@KERNEL_SHA@",
+  "hex": "@KERNEL_HEX@"
+}

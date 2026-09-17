@@ -1,0 +1,47 @@
+{
+  "sourceBlend": "7bd7b59bec110ccd77a874c6977b1c761c18493e6c28272b5cb070299eaa47c9",
+  "basis": "80e3cbbbc254af3a22392b32dc0cb0767ab789372cb15a8bfc20f06924785fdc",
+  "neutralRecoveryMaximumMetres": {
+    "Human": 0.0,
+    "Human.eyebrow001": 0.0,
+    "Human.eyelashes01": 0.0,
+    "Human.low-poly": 0.0,
+    "Human.teeth_base": 0.0,
+    "Human.tongue01": 0.0
+  },
+  "cropMinimumYMetres": -0.145,
+  "channels": 136,
+  "surfaceCount": 6,
+  "limits": [
+    "Authored upstream prior, not individual anatomy",
+    "Linear endpoint interpolation, not a rigid joint rig",
+    "No collision or likeness acceptance"
+  ],
+  "compressedSha256": "b924c18cedda6e118888e80bd1e0c4d6c21474dd7e71f3276c60264a982a4635",
+  "compressedBytes": 20327627,
+  "previousBasis": "mpfb-connected-head-2026-09-17-complete-regions",
+  "previousControlsAndNeutralExact": true,
+  "frame": "All endpoint surfaces subtract the same change in the complete binocular eye-surface centroid.",
+  "macroSource": {
+    "age": [
+      0.25,
+      0.5,
+      1.0
+    ],
+    "gender": [
+      0.0,
+      0.5,
+      1.0
+    ],
+    "weight": [
+      0.0,
+      0.5,
+      1.0
+    ],
+    "muscle": [
+      0.0,
+      0.5,
+      1.0
+    ]
+  }
+}

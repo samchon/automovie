@@ -1,3 +1,4 @@
+import { serializeHumanFaceDocument } from "@automovie/human";
 import { createHumanViewport } from "@automovie/playground/src/human/viewport";
 import * as THREE from "three";
 
@@ -8,6 +9,7 @@ type Worker = ReturnType<Options["worker"]>;
 export function createHumanViewportFixture(
   options: {
     pixelRatio?: number;
+    maxAnisotropy?: number;
     decode?: Options["decode"];
   } = {},
 ) {
@@ -45,6 +47,7 @@ export function createHumanViewportFixture(
     },
   };
   const renderer: Options["renderer"] = {
+    capabilities: { getMaxAnisotropy: () => options.maxAnisotropy ?? 16 },
     setPixelRatio: (ratio) => {
       ratios.push(ratio);
     },
@@ -78,6 +81,7 @@ export function createHumanViewportFixture(
     }),
   };
   const viewport = createHumanViewport({
+    serialize: serializeHumanFaceDocument,
     canvas: { getBoundingClientRect: () => ({ ...dimensions }) },
     pixelRatio: options.pixelRatio ?? 3,
     renderer,

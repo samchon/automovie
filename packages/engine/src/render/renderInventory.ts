@@ -1,7 +1,17 @@
-import {
+/**
+ * Orchestrate conservative one-frame render costs for budgets and reports.
+ * Create one model cache and resource closure, then count staged populations and
+ * simulated drawables in order. Resolve materials/textures and resident geometry
+ * only after both phases have named their resources. Finally add light, outline
+ * and background passes before sorting attribution rows and emitting the report.
+ * Each phase continues the previous counts without reordering floating-point
+ * addition. Owned caches and owner rows are mutable; the input subject is not.
+ * Null totals preserve declared analysis gaps rather than treating unknowns as
+ * zero. Display geometry, resource bytes and whole-frame pass costs differ, so
+ * changing one requires checking its consumer in the viewer and budget report.
+ */
+import type {
   AutoMovieRenderMetric,
-  AutoMovieRenderMetricOrder,
-  AutoMovieTextureBinding,
   IAutoMovieMaterial,
   IAutoMovieModel,
   IAutoMovieRenderAnalysisGap,
@@ -13,109 +23,25 @@ import {
   IAutoMovieSemanticMask,
 } from "@automovie/interface";
 
-import { fluidDomainBudget } from "../fluid/shallowWater";
-import { tessellateSurface } from "../geometry/surfaceMesh";
-import { tessellate } from "../geometry/tessellate";
-import { plantingBudget } from "../soft/planting";
-import { softBodyBudget } from "../soft/softBody";
 import { resolveAutoMovieMaterial } from "./materialResolution";
 import { compareAutoMovieRenderIds } from "./renderDigest";
-import {
-  IAutoMovieRenderPrototypeCost,
-  IAutoMovieRenderSubject,
-} from "./renderSubject";
+import { texturesOf } from "./renderInventoryGeometry";
+import { AUTOMOVIE_TEXEL_BYTES } from "./renderInventoryMetrics";
+import { measureRenderPopulation } from "./renderInventoryPopulation";
+import { measureRenderSimulation } from "./renderInventorySimulation";
+import type { IAutoMovieRenderSubject } from "./renderSubject";
 import { autoMovieSemanticMaskNodeIndex } from "./semanticMask";
 
-/**
- * Every metric, in the fixed order a report lists them.
- *
- * The single runtime spelling of `AutoMovieRenderMetricOrder`. A report always
- * carries all of them, which is what makes its length independent of the
- * production and what stops an unmeasured cost from disappearing instead of
- * being reported as unmeasured.
- *
- * @evidence requirements/rendering/budgets.md#rendering-geometry-memory-budget Enumerates every geometry, memory, light, instance, and simulation metric that a render budget must account for.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Fixes the complete metric order used by the worst-case preflight inventory and report.
- */
-export const AUTOMOVIE_RENDER_METRICS: Readonly<AutoMovieRenderMetricOrder> = [
-  "triangles",
-  "vertices",
-  "drawCalls",
-  "materials",
-  "textures",
-  "textureBytes",
-  "geometryBytes",
-  "lights",
-  "shadowMaps",
-  "nodes",
-  "instanceSets",
-  "instanceSlots",
-  "instanceChunks",
-  "fluidCells",
-  "fluidParticles",
-];
-
-/**
- * Device bytes of one vertex position: three 32-bit floats.
- *
- * @evidence requirements/rendering/budgets.md#rendering-geometry-memory-budget Accounts for the position-buffer component of geometry memory.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Supplies the fixed position stride used by worst-case geometry accounting.
- */
-export const AUTOMOVIE_POSITION_BYTES = 12;
-
-/**
- * Device bytes of one vertex normal: three 32-bit floats.
- *
- * @evidence requirements/rendering/budgets.md#rendering-geometry-memory-budget Accounts for the normal-buffer component of geometry memory.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Supplies the fixed normal stride used by worst-case geometry accounting.
- */
-export const AUTOMOVIE_NORMAL_BYTES = 12;
-
-/**
- * Device bytes of one texture coordinate pair: two 32-bit floats.
- *
- * @evidence requirements/rendering/budgets.md#rendering-geometry-memory-budget Accounts for the texture-coordinate component of geometry memory.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Supplies the fixed UV stride used by worst-case geometry accounting.
- */
-export const AUTOMOVIE_UV_BYTES = 8;
-
-/**
- * Device bytes of one triangle index: one 32-bit unsigned integer.
- *
- * @evidence requirements/rendering/budgets.md#rendering-geometry-memory-budget Accounts for indexed-triangle storage in geometry memory.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Supplies the fixed index stride used by worst-case geometry accounting.
- */
-export const AUTOMOVIE_INDEX_BYTES = 4;
-
-/**
- * Device bytes of one vertex's skin binding: four 16-bit joint indices and four
- * 32-bit weights, the glTF four-influence convention the mesh type documents.
- *
- * @evidence requirements/rendering/budgets.md#rendering-geometry-memory-budget Includes joint and weight attributes in skinned-geometry memory rather than counting only positions.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Supplies the declared four-influence stride for conservative geometry accounting.
- */
-export const AUTOMOVIE_SKIN_BYTES = 24;
-
-/**
- * Device bytes of one RGBA8 texel.
- *
- * @evidence requirements/rendering/budgets.md#rendering-geometry-memory-budget Converts decoded RGBA8 dimensions into the texture-memory budget.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Supplies the texel stride used by texture closure accounting.
- */
-export const AUTOMOVIE_TEXEL_BYTES = 4;
-
-/**
- * Device bytes of one vertex's free-surface flow vector: two 32-bit floats.
- *
- * A drawn water surface carries this attribute beside position, normal and
- * texture coordinate, and a ripple shader scrolls along it. Leaving it out
- * would understate the one buffer a pond has that a wall does not.
- *
- * @evidence requirements/rendering/budgets.md#rendering-geometry-memory-budget Includes the water-only flow attribute in geometry memory instead of undercounting simulated surfaces.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Supplies the explicit free-surface flow stride for worst-case preflight accounting.
- */
-export const AUTOMOVIE_FLOW_BYTES = 8;
-
+export {
+  AUTOMOVIE_RENDER_METRICS,
+  AUTOMOVIE_POSITION_BYTES,
+  AUTOMOVIE_NORMAL_BYTES,
+  AUTOMOVIE_UV_BYTES,
+  AUTOMOVIE_INDEX_BYTES,
+  AUTOMOVIE_SKIN_BYTES,
+  AUTOMOVIE_TEXEL_BYTES,
+  AUTOMOVIE_FLOW_BYTES,
+} from "./renderInventoryMetrics";
 /**
  * Measure what one frame of a subject commits the renderer to.
  *
@@ -192,6 +118,7 @@ export const measureAutoMovieRenderInventory = (props: {
   const owners: IAutoMovieRenderOwnerCost[] = [];
   const gaps: IAutoMovieRenderAnalysisGap[] = [];
   const drawnModels = new Set<string>();
+  const flattenedModels = new Set<string>();
   const add = (
     owner: string,
     source: string,
@@ -247,395 +174,34 @@ export const measureAutoMovieRenderInventory = (props: {
     if (!materials.has(material)) materials.set(material, found);
   };
 
-  // --- ordinary scene nodes -------------------------------------------------
-  let triangles = 0;
-  let vertices = 0;
-  let drawCalls = 0;
-  for (const node of subject.scene.nodes) {
-    const cost = measure(model(node.model, `scene node "${node.id}"`), costs);
-    drawnModels.add(cost.model);
-    triangles += cost.triangles;
-    vertices += cost.vertices;
-    drawCalls += cost.parts;
-    const entry = nodeIndex.get(node.id);
-    const owner = entry === undefined ? `node:${node.id}` : entry.id;
-    // A staged prop is edited in the scene; a lowered building element is
-    // edited in the building that produced it. Keying off the entry's KIND and
-    // not merely its presence is what keeps a prop from being reported at a
-    // building path nobody can open.
-    const source =
-      entry?.kind === "element"
-        ? `builtEnvironments[].elements["${node.id}"]`
-        : `scene.nodes["${node.id}"]`;
-    add(owner, source, "triangles", cost.triangles);
-    add(owner, source, "vertices", cost.vertices);
-    add(owner, source, "drawCalls", cost.parts);
-    add(owner, source, "nodes", 1);
-  }
-
-  // --- the standable ground -------------------------------------------------
-  const space = subject.scene.space ?? null;
-  let groundBytes = 0;
-  if (space !== null) {
-    // Measured through the SAME tessellator the viewer draws the ground with,
-    // so the ground is counted exactly rather than left out. Leaving it out was
-    // the tempting shortcut and the wrong one: a triangle budget that quietly
-    // excludes the floor is a budget that clears a scene it never measured.
-    // A footprint enclosing no area tessellates to nothing and the viewer draws
-    // no mesh for it, so it costs nothing here either.
-    const owner = `node:${space.id}`;
-    let groundTriangles = 0;
-    let groundVertices = 0;
-    let groundDraws = 0;
-    for (const surface of space.surfaces) {
-      const mesh = tessellateSurface(surface);
-      if (mesh === null) continue;
-      ++groundDraws;
-      groundTriangles += mesh.indices.length / 3;
-      groundVertices += mesh.positions.length / 3;
-      groundBytes +=
-        (mesh.positions.length / 3) *
-          (AUTOMOVIE_POSITION_BYTES + AUTOMOVIE_NORMAL_BYTES) +
-        mesh.indices.length * AUTOMOVIE_INDEX_BYTES;
-    }
-    triangles += groundTriangles;
-    vertices += groundVertices;
-    drawCalls += groundDraws;
-    add(owner, "scene.space.surfaces", "triangles", groundTriangles);
-    add(owner, "scene.space.surfaces", "vertices", groundVertices);
-    add(owner, "scene.space.surfaces", "drawCalls", groundDraws);
-    add(owner, "scene.space.surfaces", "geometryBytes", groundBytes);
-    add(owner, "scene.space.surfaces", "nodes", 1);
-  }
-
-  // --- instanced sets -------------------------------------------------------
-  let instanceSlots = 0;
-  let instanceChunks = 0;
-  for (const instanceSet of subject.instanceSets ?? []) {
-    const prototypes = instanceSet.prototypes ?? [
-      {
-        id: "default",
-        modelRecipe: instanceSet.modelRecipe,
-        weight: 1,
-        lod: instanceSet.lod,
-        projectionRadius: instanceSet.projectionRadius,
-      },
-    ];
-    let worstTriangles = 0;
-    let worstVertices = 0;
-    let partsPerChunk = 0;
-    for (const prototype of prototypes) {
-      // Near-to-far order: the first tier is the most expensive representation
-      // any slot of this prototype can select.
-      const finest = prototype.lod[0];
-      if (finest === undefined)
-        throw new Error(
-          `render inventory cannot measure instance set "${instanceSet.id}": prototype "${prototype.id}" declares no level of detail`,
-        );
-      const cost = measure(
-        model(
-          finest.model,
-          `instance set "${instanceSet.id}" prototype "${prototype.id}"`,
-        ),
-        costs,
-        finest.tier,
-      );
-      drawnModels.add(cost.model);
-      worstTriangles = Math.max(worstTriangles, cost.triangles);
-      worstVertices = Math.max(worstVertices, cost.vertices);
-      partsPerChunk += cost.parts;
-    }
-    const owner = `instance-set:${instanceSet.id}`;
-    const source = `world.instanceSets["${instanceSet.id}"]`;
-    const setDraws = instanceSet.chunks.length * partsPerChunk;
-    instanceSlots += instanceSet.count;
-    instanceChunks += instanceSet.chunks.length;
-    triangles += instanceSet.count * worstTriangles;
-    vertices += instanceSet.count * worstVertices;
-    drawCalls += setDraws;
-    add(owner, source, "triangles", instanceSet.count * worstTriangles);
-    add(owner, source, "vertices", instanceSet.count * worstVertices);
-    add(owner, source, "drawCalls", setDraws);
-    add(owner, source, "instanceSlots", instanceSet.count);
-    add(owner, source, "instanceChunks", instanceSet.chunks.length);
-    add(owner, source, "instanceSets", 1);
-  }
-
-  let simulatedNodes = 0;
-  let simulatedBytes = 0;
-
-  // --- compact formations --------------------------------------------------
-  // Promoted heroes are ordinary scene nodes above. Every other member is one
-  // instance in exactly one camera-selected LOD batch, so the most expensive
-  // tier times the anonymous population is the safe frame bound. A chunk can
-  // select only one tier, which makes its draw bound the largest part count,
-  // not the sum of every mutually-exclusive representation.
-  for (const formation of subject.formations ?? []) {
-    let worstTriangles = 0;
-    let worstVertices = 0;
-    let worstParts = 0;
-    if (formation.lod.length === 0)
-      throw new Error(
-        `render inventory cannot measure formation "${formation.id}": it declares no level of detail`,
-      );
-    for (const lod of formation.lod) {
-      const cost = measure(
-        model(lod.model, `formation "${formation.id}" LOD "${lod.tier}"`),
-        costs,
-        lod.tier,
-      );
-      drawnModels.add(cost.model);
-      worstTriangles = Math.max(worstTriangles, cost.triangles);
-      worstVertices = Math.max(worstVertices, cost.vertices);
-      worstParts = Math.max(worstParts, cost.parts);
-    }
-    const owner = `formation:${formation.id}`;
-    const source = `formations["${formation.id}"]`;
-    const formationTriangles = formation.anonymousCount * worstTriangles;
-    const formationVertices = formation.anonymousCount * worstVertices;
-    const formationDraws = formation.chunks.length * worstParts;
-    triangles += formationTriangles;
-    vertices += formationVertices;
-    drawCalls += formationDraws;
-    instanceSlots += formation.anonymousCount;
-    instanceChunks += formation.chunks.length;
-    add(owner, source, "triangles", formationTriangles);
-    add(owner, source, "vertices", formationVertices);
-    add(owner, source, "drawCalls", formationDraws);
-    add(owner, source, "instanceSlots", formation.anonymousCount);
-    add(owner, source, "instanceChunks", formation.chunks.length);
-    add(owner, source, "nodes", 1);
-    ++simulatedNodes;
-  }
-
-  // --- bounded billboard effects ------------------------------------------
-  // The viewer uploads one four-vertex plane and instances it up to the
-  // builder-owned cap. Time sampling may draw fewer (including zero), but a
-  // preflight bound must hold at the cue's peak rather than at frame zero.
-  for (const effect of subject.effects ?? []) {
-    const cap = effect.recipe.budget.maxParticles;
-    if (!Number.isSafeInteger(cap) || cap <= 0)
-      throw new Error(
-        `render inventory cannot measure effect "${effect.id}": maxParticles must be a positive safe integer, but was ${cap}`,
-      );
-    const owner = `effect:${effect.id}`;
-    const source = `effects["${effect.id}"]`;
-    const effectTriangles = cap * 2;
-    const effectVertices = cap * 4;
-    const effectDraws = 1;
-    triangles += effectTriangles;
-    vertices += effectVertices;
-    drawCalls += effectDraws;
-    instanceSlots += cap;
-    simulatedBytes +=
-      4 *
-        (AUTOMOVIE_POSITION_BYTES +
-          AUTOMOVIE_NORMAL_BYTES +
-          AUTOMOVIE_UV_BYTES) +
-      6 * AUTOMOVIE_INDEX_BYTES;
-    ++simulatedNodes;
-    add(owner, source, "triangles", effectTriangles);
-    add(owner, source, "vertices", effectVertices);
-    add(owner, source, "drawCalls", effectDraws);
-    add(owner, source, "instanceSlots", cap);
-    add(owner, source, "nodes", 1);
-    cite(null, owner, source, `effect "${effect.id}"`);
-  }
-
-  // --- simulated drawables --------------------------------------------------
-  // Cloth, planting and water are drawn by the same renderer as everything
-  // above and are held by no scene node, so a subject that measured only nodes,
-  // ground and instance sets would report a triangle count for a room the
-  // curtain, the fern bed and the pond are missing from. Every count here is
-  // derived from the domain record alone: no solve has to run, which is the
-  // whole point of refusing a production before the first step is integrated.
-  let fluidCells = 0;
-  let fluidParticles = 0;
-  const unmeasured: string[] = [];
-
-  for (const panel of subject.softBodies ?? []) {
-    const owner = `soft-body:${panel.domain.id}`;
-    const source = `softBodies["${panel.domain.id}"]`;
-    // One vertex per particle and two triangles per lattice quad, read from the
-    // domain's own budget rather than recomputed: a second copy of that
-    // arithmetic here would keep answering with the old shape the day the panel
-    // geometry changes. A lattice one particle wide holds no quad, so it is a
-    // cord, it draws nothing, and the viewer hides it rather than submitting a
-    // degenerate mesh.
-    const cost = softBodyBudget(panel.domain);
-    const panelVertices = cost.particles;
-    const panelTriangles = cost.triangles;
-    const panelDraws = panelTriangles === 0 ? 0 : 1;
-    const panelBytes =
-      panelVertices *
-        (AUTOMOVIE_POSITION_BYTES +
-          AUTOMOVIE_NORMAL_BYTES +
-          AUTOMOVIE_UV_BYTES) +
-      panelTriangles * 3 * AUTOMOVIE_INDEX_BYTES;
-    triangles += panelTriangles;
-    vertices += panelVertices;
-    drawCalls += panelDraws;
-    simulatedBytes += panelBytes;
-    ++simulatedNodes;
-    add(owner, source, "triangles", panelTriangles);
-    add(owner, source, "vertices", panelVertices);
-    add(owner, source, "drawCalls", panelDraws);
-    add(owner, source, "geometryBytes", panelBytes);
-    add(owner, source, "nodes", 1);
-    // A hidden mesh binds no material the renderer ever has to prepare, so a
-    // cord costs its buffers and nothing else.
-    if (panelDraws !== 0)
-      cite(panel.material, owner, source, `soft body "${panel.domain.id}"`);
-  }
-
-  for (const planting of subject.plantings ?? []) {
-    const owner = `planting:${planting.cluster.id}`;
-    const source = `plantings["${planting.cluster.id}"]`;
-    const budget = plantingBudget({
-      domain: planting.domain,
-      cluster: planting.cluster,
-    });
-    // Two instanced batches, never two draws per member: that is the whole
-    // reason a bed of forty ferns is affordable. A batch with no instance is
-    // never built, or is hidden, so it submits nothing and binds nothing.
-    //
-    // A branch is drawn as whatever solid the renderer sweeps along it, so the
-    // per-instance geometry is a renderer fact and not a recipe fact. Stating
-    // it is what turns the geometry metrics from unmeasured into measured, and
-    // withholding it leaves them unmeasured rather than guessed.
-    const batches = [
-      {
-        part: "branch",
-        instances: budget.worstCaseBranchInstances,
-        material: planting.branchMaterial,
-        cost: statedPrototype(
-          planting.branch,
-          `planting "${planting.cluster.id}" branch`,
-        ),
-      },
-      {
-        part: "leaf",
-        instances: budget.worstCaseLeafInstances,
-        material: planting.leafMaterial,
-        cost: statedPrototype(
-          planting.leaf,
-          `planting "${planting.cluster.id}" leaf`,
-        ),
-      },
-    ];
-    let plantDraws = 0;
-    let plantSlots = 0;
-    let plantTriangles = 0;
-    let plantVertices = 0;
-    let plantBytes = 0;
-    let stated = true;
-    for (const batch of batches) {
-      if (batch.instances === 0) continue;
-      ++plantDraws;
-      plantSlots += batch.instances;
-      cite(
-        batch.material,
-        `${owner}/${batch.part}`,
-        source,
-        `planting "${planting.cluster.id}" ${batch.part}`,
-      );
-      if (batch.cost === null) {
-        stated = false;
-        continue;
-      }
-      plantTriangles += batch.instances * batch.cost.triangles;
-      plantVertices += batch.instances * batch.cost.vertices;
-      // The prototype buffers are uploaded once and reused by every instance,
-      // which is exactly what makes instancing cheaper than duplication; the
-      // per-instance matrices are the caller's stream and are not geometry.
-      plantBytes += prototypeBytes(batch.cost);
-    }
-    drawCalls += plantDraws;
-    instanceSlots += plantSlots;
-    ++simulatedNodes;
-    add(owner, source, "drawCalls", plantDraws);
-    add(owner, source, "instanceSlots", plantSlots);
-    add(owner, source, "nodes", 1);
-    if (!stated) {
-      unmeasured.push(planting.cluster.id);
-      continue;
-    }
-    triangles += plantTriangles;
-    vertices += plantVertices;
-    simulatedBytes += plantBytes;
-    add(owner, source, "triangles", plantTriangles);
-    add(owner, source, "vertices", plantVertices);
-    add(owner, source, "geometryBytes", plantBytes);
-  }
-  if (unmeasured.length !== 0)
-    for (const metric of ["triangles", "vertices", "geometryBytes"] as const)
-      gaps.push({
-        metric,
-        status: "not-run",
-        reason: `${unmeasured.length} planting cluster(s) state no drawn prototype cost, starting with "${[...unmeasured].sort(compareAutoMovieRenderIds)[0]!}"`,
-        remedy:
-          "pass each planting cluster's branch and leaf prototype vertex and triangle counts, as the renderer builds them, in the subject's plantings list",
-      });
-
-  // --- water ----------------------------------------------------------------
-  const bodies = subject.waterBodies ?? [];
-  const unsolved = bodies.filter(
-    (body) => body.domain === null && body.cells === null,
-  );
-  if (unsolved.length !== 0)
-    for (const metric of ["fluidCells", "fluidParticles"] as const)
-      gaps.push({
-        metric,
-        status: "unsupported",
-        reason: `${unsolved.length} declared water body/bodies carry no solver-proved cost, so this metric has no analysis behind it`,
-        remedy:
-          "bind each water body to its shallow-water domain, or supply its solver-derived cell and particle cost, or remove the declared water bodies",
-      });
-  for (const body of bodies) {
-    const owner = `water-body:${body.id}`;
-    const source = `waterBodies["${body.id}"]`;
-    if (body.domain === null) {
-      if (body.cells === null) continue;
-      fluidCells += body.cells;
-      fluidParticles += body.particles ?? 0;
-      add(owner, source, "fluidCells", body.cells);
-      add(owner, source, "fluidParticles", body.particles ?? 0);
-      continue;
-    }
-    // A bound domain states its own cost exactly, so nothing is copied by hand
-    // and nothing can drift from the record it describes.
-    const budget = fluidDomainBudget(body.domain);
-    fluidCells += budget.cells;
-    fluidParticles += budget.sprayParticleCap;
-    add(owner, source, "fluidCells", budget.cells);
-    add(owner, source, "fluidParticles", budget.sprayParticleCap);
-    // One vertex per cell, at the cell centre, and two triangles per quad whose
-    // four corner cells are all wet. Dry and solid cells only ever drop quads,
-    // so the full lattice is the upper bound a budget has to hold against.
-    const { columns, rows } = body.domain.grid;
-    const waterVertices = columns * rows;
-    const waterTriangles = 2 * quads(columns) * quads(rows);
-    const waterDraws = waterTriangles === 0 ? 0 : 1;
-    const waterBytes =
-      waterVertices *
-        (AUTOMOVIE_POSITION_BYTES +
-          AUTOMOVIE_NORMAL_BYTES +
-          AUTOMOVIE_UV_BYTES +
-          AUTOMOVIE_FLOW_BYTES) +
-      waterTriangles * 3 * AUTOMOVIE_INDEX_BYTES;
-    triangles += waterTriangles;
-    vertices += waterVertices;
-    drawCalls += waterDraws;
-    simulatedBytes += waterBytes;
-    ++simulatedNodes;
-    add(owner, source, "triangles", waterTriangles);
-    add(owner, source, "vertices", waterVertices);
-    add(owner, source, "drawCalls", waterDraws);
-    add(owner, source, "geometryBytes", waterBytes);
-    add(owner, source, "nodes", 1);
-    if (waterDraws !== 0)
-      cite(body.material, owner, source, `water body "${body.id}"`);
-  }
+  const population = measureRenderPopulation({
+    subject,
+    nodeIndex,
+    model,
+    costs,
+    drawnModels,
+    flattenedModels,
+    add,
+  });
+  const { space, groundBytes, instanceChunks } = population;
+  const simulation = measureRenderSimulation({
+    ...population,
+    subject,
+    gaps,
+    add,
+    cite,
+  });
+  let { triangles, drawCalls } = simulation;
+  const {
+    vertices,
+    instanceSlots,
+    simulatedNodes,
+    simulatedBytes,
+    fluidCells,
+    fluidParticles,
+    unmeasured,
+    unsolved,
+  } = simulation;
 
   // --- materials and textures ----------------------------------------------
   for (const id of drawnModels)
@@ -698,6 +264,25 @@ export const measureAutoMovieRenderInventory = (props: {
   let geometryBytes = groundBytes + simulatedBytes;
   for (const id of [...drawnModels].sort(compareAutoMovieRenderIds)) {
     const cost = costs.get(id)!;
+    if (flattenedModels.has(id)) {
+      // Flattening mixed RGB/bare parts gives every vertex a white-default RGB
+      // triple. Count that resident padding once per prototype, not per slot.
+      const coloredComponents = byId
+        .get(id)!
+        .parts.reduce(
+          (sum, part) =>
+            sum +
+            (part.geometry.type === "mesh" &&
+            part.geometry.mesh.colors !== undefined
+              ? part.geometry.mesh.positions.length
+              : 0),
+          0,
+        );
+      if (coloredComponents !== 0)
+        cost.geometryBytes +=
+          (cost.vertices * 3 - coloredComponents) *
+          Float32Array.BYTES_PER_ELEMENT;
+    }
     geometryBytes += cost.geometryBytes;
     add(`model:${id}`, `models["${id}"]`, "geometryBytes", cost.geometryBytes);
   }
@@ -824,124 +409,5 @@ export const measureAutoMovieRenderInventory = (props: {
     gaps,
   };
 };
-
 const sumBytes = (textures: readonly IAutoMovieRenderTextureCost[]): number =>
   textures.reduce((sum, texture) => sum + texture.bytes!, 0);
-
-/**
- * Quads one grid axis of `count` cells spans.
- *
- * A single cell spans none, which is what makes a one-cell-wide pond a line
- * rather than a surface: it draws nothing at all, and inventing a sliver for it
- * would be inventing geometry. The panel beside it needs no such helper because
- * the soft-body domain publishes its own drawn triangle count; the fluid budget
- * states cells and faces but not the surface it draws, so this is derived here
- * from the grid the surface geometry reads.
- */
-const quads = (count: number): number => (count > 1 ? count - 1 : 0);
-
-/**
- * Read one stated prototype cost, refusing a value no renderer could hold.
- *
- * A fractional or negative vertex count is an authoring or adapter mistake, and
- * multiplying one by ten thousand instances would put a fabricated number into
- * the one report that exists to hold real ones.
- */
-const statedPrototype = (
-  cost: IAutoMovieRenderPrototypeCost | null,
-  cited: string,
-): IAutoMovieRenderPrototypeCost | null => {
-  if (cost === null) return null;
-  for (const [field, value] of [
-    ["vertices", cost.vertices],
-    ["triangles", cost.triangles],
-  ] as const)
-    if (!Number.isSafeInteger(value) || value < 0)
-      throw new Error(
-        `render inventory cannot measure ${cited} prototype: ${field} must be a safe integer at or above zero, but was ${value}`,
-      );
-  return cost;
-};
-
-/** Device bytes one instanced prototype's own buffers occupy. */
-const prototypeBytes = (cost: IAutoMovieRenderPrototypeCost): number =>
-  cost.vertices *
-    (AUTOMOVIE_POSITION_BYTES + AUTOMOVIE_NORMAL_BYTES + AUTOMOVIE_UV_BYTES) +
-  cost.triangles * 3 * AUTOMOVIE_INDEX_BYTES;
-
-/**
- * Exact geometry cost of one model, memoized by model id.
- *
- * Primitives are measured by tessellating them with the engine's own
- * tessellator rather than by a table of formulas: a table would be a second
- * source of truth for how many triangles a sphere has, and the day the
- * tessellator's ring count changes, the budget would still be checking the old
- * number.
- */
-const measure = (
-  model: IAutoMovieModel,
-  cache: Map<string, IAutoMovieRenderModelCost>,
-  tier?: "hero" | "near" | "far",
-): IAutoMovieRenderModelCost => {
-  const cached = cache.get(model.id);
-  if (cached !== undefined) {
-    // A model cited by several level-of-detail tiers, or by both a tier and a
-    // plain scene node, has no single tier to report.
-    if (cached.tier !== (tier ?? null)) cached.tier = null;
-    return cached;
-  }
-  let vertices = 0;
-  let triangles = 0;
-  let geometryBytes = 0;
-  const materials = new Set<string>();
-  for (const part of model.parts) {
-    if (part.material !== null) materials.add(part.material);
-    if (part.geometry.type === "primitive") {
-      const mesh = tessellate(part.geometry.shape);
-      const count = mesh.positions.length / 3;
-      vertices += count;
-      triangles += mesh.indices.length / 3;
-      geometryBytes +=
-        count * (AUTOMOVIE_POSITION_BYTES + AUTOMOVIE_NORMAL_BYTES) +
-        mesh.indices.length * AUTOMOVIE_INDEX_BYTES;
-      continue;
-    }
-    const mesh = part.geometry.mesh;
-    const count = mesh.positions.length / 3;
-    vertices += count;
-    triangles += mesh.indices === null ? count / 3 : mesh.indices.length / 3;
-    geometryBytes +=
-      count *
-        (AUTOMOVIE_POSITION_BYTES +
-          (mesh.normals === null ? 0 : AUTOMOVIE_NORMAL_BYTES) +
-          (mesh.uvs === null ? 0 : AUTOMOVIE_UV_BYTES) +
-          (mesh.skin === null ? 0 : AUTOMOVIE_SKIN_BYTES)) +
-      (mesh.indices === null ? 0 : mesh.indices.length) * AUTOMOVIE_INDEX_BYTES;
-  }
-  const cost: IAutoMovieRenderModelCost = {
-    model: model.id,
-    tier: tier ?? null,
-    parts: model.parts.length,
-    vertices,
-    triangles,
-    materials: [...materials].sort(compareAutoMovieRenderIds),
-    geometryBytes,
-  };
-  cache.set(model.id, cost);
-  return cost;
-};
-
-/** Every distinct texture asset one material binds, ascending. */
-const texturesOf = (material: IAutoMovieMaterial): string[] => {
-  const assets = new Set<string>();
-  const bind = (binding: AutoMovieTextureBinding | null | undefined): void => {
-    if (binding === null || binding === undefined) return;
-    assets.add(typeof binding === "string" ? binding : binding.asset);
-  };
-  bind(material.baseColorTexture);
-  bind(material.metallicRoughnessTexture);
-  bind(material.normalTexture);
-  bind(material.occlusionTexture);
-  bind(material.emissiveTexture);
-  return [...assets].sort(compareAutoMovieRenderIds);
-};

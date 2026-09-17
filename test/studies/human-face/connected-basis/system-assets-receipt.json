@@ -1,0 +1,108 @@
+{
+  "url": "https://files.makehumancommunity.org/asset_packs/makehuman_system_assets/makehuman_system_assets_cc0.zip",
+  "etag": "\"10bbb7ea-6160e7c0d7996\"",
+  "archive_bytes": 280737770,
+  "files": [
+    {
+      "name": "teeth/teeth_base/teeth_base.obj",
+      "bytes": 313110,
+      "sha256": "f55198069e55d360c4b4cc7ecb1cc292b2c7665753ab8b65eabf46a8783f2875"
+    },
+    {
+      "name": "teeth/teeth_base/teeth_base.mhclo",
+      "bytes": 263220,
+      "sha256": "9edc3deff3bb97a95c791878064dd069a74a38f95ea6d9707a9ba68d888b3b5c"
+    },
+    {
+      "name": "teeth/teeth_base/teeth.mhmat",
+      "bytes": 1086,
+      "sha256": "3baeff72d9eb06ca16c3cff7ca2ab304216717dee247e0d88f1dc33037c8320e"
+    },
+    {
+      "name": "teeth/teeth_base/teeth.png",
+      "bytes": 1799930,
+      "sha256": "d0afb57869c6fbb56b98f5efc4aec629ee7593e70d8dd2bfb9de923acfb65f43"
+    },
+    {
+      "name": "teeth/teeth_base/teeth_base.thumb",
+      "bytes": 50147,
+      "sha256": "04b97c4fa15c3ba0786e552a4bf5474d47efc1162d9f7f4dbdc2f06d1ae43004"
+    },
+    {
+      "name": "eyelashes/eyelashes01/eyelashes01.obj",
+      "bytes": 18832,
+      "sha256": "f78f5b93fea1946fcae103d32c4f082dd9612a1ec2e7e2f90b03ebe59b0baf20"
+    },
+    {
+      "name": "eyelashes/eyelashes01/eyelashes01.mhclo",
+      "bytes": 2265,
+      "sha256": "5a86b29c15649273d723084954b7fa7bf199112571d4f58539b46734d397ee6b"
+    },
+    {
+      "name": "eyelashes/eyelashes01/eyelashes01.png",
+      "bytes": 91600,
+      "sha256": "4b69c0fff2648874460e9caf80c31413c444218a5c50afebc425aeaa65484a35"
+    },
+    {
+      "name": "eyelashes/eyelashes01/eyelashes01.mhmat",
+      "bytes": 1074,
+      "sha256": "8029c99d94f3d87a1e81825fad6b90eec773ae6955a5b2592222ef237377e190"
+    },
+    {
+      "name": "eyelashes/eyelashes01/eyelashes01.thumb",
+      "bytes": 140641,
+      "sha256": "34ab06601745c2b74fcfa6f63a374fcea58cb4501e728a3c6935a3a1ed794aa3"
+    },
+    {
+      "name": "tongue/tongue01/tongue01.thumb",
+      "bytes": 49815,
+      "sha256": "5c995b9b94fa73a080aa24e398cafb971a4e3667e028c33d8857a15dcc35a770"
+    },
+    {
+      "name": "tongue/tongue01/tongue01.obj",
+      "bytes": 17155,
+      "sha256": "12f4a6a9f85abae2ce3b4aa42d8119e1f679a437e0e89cb928ec68b29a7a1587"
+    },
+    {
+      "name": "tongue/tongue01/tongue01.mhmat",
+      "bytes": 1261,
+      "sha256": "7769df66c69b8c09a0ec713d70d8381abbb08ac82207369f5413970495cd4340"
+    },
+    {
+      "name": "tongue/tongue01/tongue01_diffuse.png",
+      "bytes": 625419,
+      "sha256": "3150be398e48e8ba1feac164c3143c16c0b2e959d9ffb6155f0171f59cfb4ea9"
+    },
+    {
+      "name": "tongue/tongue01/tongue01.mhclo",
+      "bytes": 2113,
+      "sha256": "61d825899cd78ff3146fa1324118060cb44b095fae1427d408c199ade74e3c9e"
+    },
+    {
+      "name": "eyebrows/eyebrow001/eyebrow001.obj",
+      "bytes": 8227,
+      "sha256": "88b13146395133f3901715e11706cdfd293e5d6087ad7c5e01efe1485a26b513"
+    },
+    {
+      "name": "eyebrows/eyebrow001/eyebrow001.png",
+      "bytes": 89619,
+      "sha256": "9940f7d0b1b223709a19b05156ba6f6e9e4dbdbced02d7574f4d51d72c58967b"
+    },
+    {
+      "name": "eyebrows/eyebrow001/eyebrow001.mhclo",
+      "bytes": 9141,
+      "sha256": "54c8892c2ba577f4152d779ce1f20f7cd323beb8cbd9cb701796165c221b4f5b"
+    },
+    {
+      "name": "eyebrows/eyebrow001/eyebrow001.thumb",
+      "bytes": 137534,
+      "sha256": "98b68eccf50977ff00242a33eb1dc6e3eaf4cc262e1f6c4ceca5c1c564f6c745"
+    },
+    {
+      "name": "eyebrows/eyebrow001/eyebrow001.mhmat",
+      "bytes": 1098,
+      "sha256": "976e5f4f1d3922d7a11c6e2db233f8b4584b068d00619d5749687e81c92d61fc"
+    }
+  ],
+  "transferred_bytes": 3208596
+}
