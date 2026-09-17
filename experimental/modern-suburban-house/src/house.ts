@@ -1187,6 +1187,31 @@ const addInteriorFitOut = (elements: Element[], spaces: readonly Space[]): void 
   elements.push(...lightingElements(spaces));
 };
 
+type RoofRowHost = {
+  spanX: number;
+  slabThicknessM: number;
+  slopeDeg: number;
+};
+
+const roofRowStep = (spacingM: number, roofHost: RoofRowHost): number => {
+  const angle = (roofHost.slopeDeg * Math.PI) / 180;
+  const transformedPitch = Math.abs(Math.cos(angle)) * spacingM;
+  const moduleHalfX = Math.abs(Math.cos(angle)) * spacingM * 0.95 / 2 + Math.abs(Math.sin(angle)) * 0.06 / 2;
+  return Math.max(transformedPitch, moduleHalfX * 2) + 0.000001;
+};
+
+const moduleRowCount = (family: ModuleLaw["family"], heightM: number, spacingM: number, roofHost?: RoofRowHost): number => {
+  if (family === "shingle" && roofHost !== undefined) {
+    const angle = (roofHost.slopeDeg * Math.PI) / 180;
+    const moduleHalfX = Math.abs(Math.cos(angle)) * spacingM * 0.95 / 2 + Math.abs(Math.sin(angle)) * 0.06 / 2;
+    const hostHalfX = Math.abs(Math.cos(angle)) * roofHost.spanX / 2 + Math.abs(Math.sin(angle)) * roofHost.slabThicknessM / 2;
+    return Math.max(1, Math.floor((2 * (hostHalfX - moduleHalfX)) / roofRowStep(spacingM, roofHost)) + 1);
+  }
+  const rowPitch = family === "brick" ? 0.1875 : spacingM;
+  const footprintHeight = family === "shingle" ? rowPitch * 0.95 : rowPitch * 0.92;
+  return Math.max(1, Math.floor((heightM - footprintHeight) / rowPitch) + 1);
+};
+
 const moduleColumnCount = (family: ModuleLaw["family"], lengthM: number, spacingM: number): number => {
   const moduleLength = family === "siding" ? spacingM * 4 : spacingM;
   const moduleWidth = moduleLength * 0.95;
@@ -1194,10 +1219,14 @@ const moduleColumnCount = (family: ModuleLaw["family"], lengthM: number, spacing
   return Math.max(1, Math.floor((lengthM - moduleWidth - maximumStagger) / moduleLength) + 1);
 };
 
-const moduleCount = (family: ModuleLaw["family"], lengthM: number, heightM: number, spacingM: number): number => {
-  const rowPitch = family === "brick" ? 0.1875 : spacingM;
-  const rows = family === "shingle" ? Math.ceil(heightM / rowPitch) : Math.max(1, Math.floor(heightM / rowPitch));
-  return moduleColumnCount(family, lengthM, spacingM) * rows;
+const moduleCount = (
+  family: ModuleLaw["family"],
+  lengthM: number,
+  heightM: number,
+  spacingM: number,
+  roofHost?: RoofRowHost,
+): number => {
+  return moduleColumnCount(family, lengthM, spacingM) * moduleRowCount(family, heightM, spacingM, roofHost);
 };
 
 const moduleLaws = (): ModuleLaw[] => [
@@ -1211,15 +1240,14 @@ const moduleLaws = (): ModuleLaw[] => [
   { id: "module.brick.left-skirt", hostSurfaceOwnerId: "surface.elevation.left", family: "brick", measuredLengthM: 9.6, measuredHeightM: 0.75, spacingM: 0.406, count: moduleCount("brick", 9.6, 0.75, 0.406), staggerRule: "alternate-half-module" },
   { id: "module.brick.right-main-skirt", hostSurfaceOwnerId: "surface.elevation.right", family: "brick", measuredLengthM: 9.6, measuredHeightM: 0.75, spacingM: 0.406, count: moduleCount("brick", 9.6, 0.75, 0.406), staggerRule: "alternate-half-module" },
   { id: "module.brick.right-garage-skirt", hostSurfaceOwnerId: "surface.elevation.right", family: "brick", measuredLengthM: 5.95, measuredHeightM: 0.75, spacingM: 0.406, count: moduleCount("brick", 5.95, 0.75, 0.406), staggerRule: "alternate-half-module" },
-  { id: "module.shingle.main-north", hostSurfaceOwnerId: "surface.roof.main.north", family: "shingle", measuredLengthM: 10.15, measuredHeightM: 6.25, spacingM: 0.305, count: moduleCount("shingle", 10.15, 6.25, 0.305), staggerRule: "alternate-half-module" },
-  { id: "module.shingle.main-south", hostSurfaceOwnerId: "surface.roof.main.south", family: "shingle", measuredLengthM: 10.15, measuredHeightM: 6.25, spacingM: 0.305, count: moduleCount("shingle", 10.15, 6.25, 0.305), staggerRule: "alternate-half-module" },
-  { id: "module.shingle.garage", hostSurfaceOwnerId: "surface.roof.garage", family: "shingle", measuredLengthM: 6.55, measuredHeightM: 5.95, spacingM: 0.305, count: moduleCount("shingle", 6.55, 5.95, 0.305), staggerRule: "alternate-half-module" },
+  { id: "module.shingle.main-north", hostSurfaceOwnerId: "surface.roof.main.north", family: "shingle", measuredLengthM: 10.15, measuredHeightM: 6.25, spacingM: 0.305, count: moduleCount("shingle", 10.15, 6.25, 0.305, { spanX: 6.25, slabThicknessM: 0.18, slopeDeg: 18 }), staggerRule: "alternate-half-module" },
+  { id: "module.shingle.main-south", hostSurfaceOwnerId: "surface.roof.main.south", family: "shingle", measuredLengthM: 10.15, measuredHeightM: 6.25, spacingM: 0.305, count: moduleCount("shingle", 10.15, 6.25, 0.305, { spanX: 6.25, slabThicknessM: 0.18, slopeDeg: -18 }), staggerRule: "alternate-half-module" },
+  { id: "module.shingle.garage", hostSurfaceOwnerId: "surface.roof.garage", family: "shingle", measuredLengthM: 6.55, measuredHeightM: 5.95, spacingM: 0.305, count: moduleCount("shingle", 6.55, 5.95, 0.305, { spanX: 5.95, slabThicknessM: 0.18, slopeDeg: 12 }), staggerRule: "alternate-half-module" },
 ];
 
 const moduleElements = (laws: readonly ModuleLaw[]): Element[] => {
   const roofPlaneY = (centerX: number, centerY: number, slopeDeg: number, x: number): number =>
     centerY + Math.tan((slopeDeg * Math.PI) / 180) * (x - centerX);
-  const clamp = (value: number, min: number, max: number): number => Math.min(Math.max(value, min), max);
   const elements: Element[] = [];
   for (const law of laws) {
     const parts: Part[] = [];
@@ -1231,15 +1259,17 @@ const moduleElements = (laws: readonly ModuleLaw[]): Element[] => {
         : "roof-charcoal";
     const rowPitch = law.family === "brick" ? 0.1875 : law.spacingM;
     const moduleLength = law.family === "siding" ? law.spacingM * 4 : law.spacingM;
-    const rows = law.family === "shingle"
-      ? Math.ceil(law.measuredHeightM / rowPitch)
-      : Math.max(1, Math.floor(law.measuredHeightM / rowPitch));
+    const roofRowHost = law.family !== "shingle"
+      ? undefined
+      : law.hostSurfaceOwnerId.endsWith("garage")
+        ? { spanX: 5.95, slabThicknessM: 0.18, slopeDeg: 12 }
+        : { spanX: 6.25, slabThicknessM: 0.18, slopeDeg: law.hostSurfaceOwnerId.endsWith("south") ? -18 : 18 };
+    const rows = moduleRowCount(law.family, law.measuredHeightM, law.spacingM, roofRowHost);
     const columns = moduleColumnCount(law.family, law.measuredLengthM, law.spacingM);
     for (let row = 0; row < rows; row += 1) {
       for (let column = 0; column < columns; column += 1) {
         const offset = row % 2 === 0 ? 0 : law.spacingM / 2;
         const along = column * moduleLength + offset;
-        const vertical = row * rowPitch + rowPitch / 2;
         const isRoof = law.family === "shingle";
         const isSide = law.hostSurfaceOwnerId.endsWith("left") || law.hostSurfaceOwnerId.endsWith("right");
         const isGarageFacade = law.id === "module.siding.right-garage" || law.id === "module.brick.right-garage-skirt";
@@ -1252,21 +1282,9 @@ const moduleElements = (laws: readonly ModuleLaw[]): Element[] => {
         const facadeHostStart = isSide
           ? isGarageFacade ? GARAGE.minZ : MAIN.minZ
           : MAIN.minX;
-        const facadeHalfLength = moduleLength * 0.95 / 2;
-        const facadeAlong = clamp(
-          along + moduleLength / 2,
-          facadeHalfLength,
-          law.measuredLengthM - facadeHalfLength,
-        );
-        const facadeTopY = isGarageFacade
-          ? GROUND_HEIGHT
-          : GROUND_HEIGHT + UPPER_HEIGHT;
+        const facadeAlong = along + moduleLength / 2;
         const facadeHalfY = rowPitch * 0.92 / 2;
-        const facadeCenterY = clamp(
-          facadeBaseY + vertical,
-          facadeBaseY + facadeHalfY,
-          facadeTopY - facadeHalfY,
-        );
+        const facadeCenterY = facadeBaseY + facadeHalfY + row * rowPitch;
         const roofHost = isRoof
           ? law.hostSurfaceOwnerId.endsWith("garage")
             ? { centerX: (GARAGE.minX + GARAGE.maxX) / 2, centerY: 4.15, centerZ: -1.7, spanX: 5.95, spanZ: 6.55, slabThicknessM: 0.18 }
@@ -1284,20 +1302,14 @@ const moduleElements = (laws: readonly ModuleLaw[]): Element[] => {
           ? 0
           : Math.abs(Math.cos((roofSlopeDeg * Math.PI) / 180)) * roofHost.spanX / 2
             + Math.abs(Math.sin((roofSlopeDeg * Math.PI) / 180)) * roofHost.slabThicknessM / 2;
-        const rawRoofX = law.hostSurfaceOwnerId.endsWith("garage")
-          ? (roofHost?.centerX ?? 0) - (roofHost?.spanX ?? 0) / 2 + vertical
-          : law.hostSurfaceOwnerId.endsWith("north")
-            ? (roofHost?.centerX ?? 0) - (roofHost?.spanX ?? 0) / 2 + vertical
-            : (roofHost?.centerX ?? 0) + (roofHost?.spanX ?? 0) / 2 - vertical;
+        const roofCenterMinX = roofHost === null ? 0 : roofHost.centerX - hostHalfX + roofHalfX;
+        const roofStepX = roofRowHost === undefined ? 0 : roofRowStep(rowPitch, roofRowHost);
         const roofX = roofHost === null
           ? 0
-          : clamp(rawRoofX, roofHost.centerX - hostHalfX + roofHalfX, roofHost.centerX + hostHalfX - roofHalfX);
-        const rawRoofZ = roofHost === null
-          ? 0
-          : roofHost.centerZ - roofHost.spanZ / 2 + along + moduleLength / 2;
+          : roofCenterMinX + row * roofStepX;
         const roofZ = roofHost === null
           ? 0
-          : clamp(rawRoofZ, roofHost.centerZ - roofHost.spanZ / 2 + roofSizeZ / 2, roofHost.centerZ + roofHost.spanZ / 2 - roofSizeZ / 2);
+          : roofHost.centerZ - roofHost.spanZ / 2 + along + moduleLength / 2;
         const center = isRoof && roofHost !== null
             ? v(roofX, roofPlaneY(roofHost.centerX, roofHost.centerY, roofSlopeDeg, roofX) + 0.11, roofZ)
             : isSide
