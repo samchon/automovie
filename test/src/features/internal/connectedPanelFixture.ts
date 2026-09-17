@@ -14,6 +14,7 @@ import { humanFaceBasisFixture } from "./humanFaceBasisFixture";
  */
 export function connectedPanelFixture(
   props: {
+    studies?: readonly IAutoMovieHumanFaceBasisDocument[];
     build?: (
       document: IAutoMovieHumanFaceBasisDocument,
     ) => Promise<ReturnType<typeof connectedPanelModel>>;
@@ -34,6 +35,7 @@ export function connectedPanelFixture(
   const panel = mountConnectedFacePanel(app, {
     channels: source.basis.channels,
     initial: source.document,
+    studies: props.studies,
     presets: [
       { name: "Lift", expression: { lift: 0.5 } },
       { name: "Neutral", expression: {} },

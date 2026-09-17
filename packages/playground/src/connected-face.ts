@@ -6,12 +6,14 @@
  */
 import {
   type IAutoMovieHumanFaceBasisDocument,
+  parseHumanFaceBasisDocument,
   serializeHumanFaceBasisDocument,
 } from "@automovie/human";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
+import studyDocuments from "../../../test/studies/human-face/connected-basis/whole-face/subjects.json";
 import { readConnectedFaceAsset } from "./human/connectedAsset";
 import { mountConnectedFacePanel } from "./human/connectedPanel";
 import { createHumanViewport } from "./human/viewport";
@@ -47,6 +49,9 @@ async function main(): Promise<void> {
     {
       channels: basis.channels,
       initial,
+      studies: studyDocuments.map((document) =>
+        parseHumanFaceBasisDocument(JSON.stringify(document)),
+      ),
       presets: [
         { name: "Neutral", expression: {} },
         {

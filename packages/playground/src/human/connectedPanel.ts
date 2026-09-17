@@ -30,6 +30,8 @@ export function mountConnectedFacePanel<
   props: {
     channels: IAutoMovieHumanFaceBasis["channels"];
     initial: IAutoMovieHumanFaceBasisDocument;
+    /** Application-owned studies; never embedded in the numerical package. */
+    studies?: readonly IAutoMovieHumanFaceBasisDocument[];
     presets: { name: string; expression: Record<string, number> }[];
     viewport: (canvas: HTMLCanvasElement) => {
       build: (document: IAutoMovieHumanFaceBasisDocument) => Promise<Model>;
@@ -180,6 +182,28 @@ export function mountConnectedFacePanel<
   search.style.width = "100%";
   search.oninput = renderControls;
   element("basis-controls").before(search);
+  // Selecting a study is an ordinary validated transaction, so failed builds
+  // retain the previous face and successful selection participates in history.
+  const studies = dom.createElement("select");
+  studies.id = "face-study";
+  studies.setAttribute("aria-label", "Select a connected face study");
+  const placeholder = dom.createElement("option");
+  placeholder.value = "";
+  placeholder.textContent = "Load an input study";
+  studies.append(placeholder);
+  for (const [index, study] of (props.studies ?? []).entries()) {
+    const option = dom.createElement("option");
+    option.value = String(index);
+    option.textContent = study.name;
+    studies.append(option);
+  }
+  studies.onchange = async () => {
+    const selected = studies.value;
+    studies.value = "";
+    if (selected === "") return;
+    await change(props.studies![Number(selected)]);
+  };
+  element("editing").prepend(studies);
   for (const action of ["undo", "redo", "reset"] as const)
     element("face-" + action).onclick = async () => {
       const ticket = withdraw();
