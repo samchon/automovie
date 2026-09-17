@@ -10,6 +10,7 @@ description: Defines automovie implementation rules, testing standards (pure uni
 - [Forbidden](#forbidden)
 - [Work Rules](#work-rules)
 - [Source file structure](#source-file-structure)
+- [Implementation strategy](#implementation-strategy)
 - [Consequence Analysis](#consequence-analysis)
 - [Testing](#testing)
 - [Coverage is 100% on what you write](#coverage-is-100-on-what-you-write)
@@ -45,6 +46,10 @@ Every authored source file is limited to 500 physical lines, including comments 
 Split by cohesive responsibility and explicit inputs and outputs. Keep one owner for each formula, boundary and mutable state transition, with a small orchestrator naming their order. A forwarding chain that only redistributes lines does not establish those responsibilities. Preserve public behavior and the real consumer path during a split, and apply the existing per-change test obligation to the extracted code.
 
 Each source file also owes the documentation skill's [Source-file context](../documentation/SKILL.md#source-file-context). The size limit never excuses missing context. Existing oversized files are unresolved violations, not precedents or exemptions; identify them in the task's consequence surface and do not report that surface as compliant until they are resolved.
+
+## Implementation strategy
+
+When choosing an uncertain implementation method or revisiting repeated failed corrections, apply the shared [Implementation strategy procedure](../../../packages/template/scaffold/.agents/skills/source-authoring/implementation-strategy.md). For repository development, committed requirements and specifications own the intended behavior, `.wiki/` records research and decisions, this skill owns implementation and testing, and the repository review and pull-request skills own review and delivery. Generated productions use the procedure's shipped workflow owners.
 
 ## Consequence Analysis
 

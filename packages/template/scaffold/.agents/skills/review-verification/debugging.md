@@ -10,6 +10,8 @@ Design the group's constraints together before implementation: what must improve
 
 Declare the fixed quantities, intervention, competing explanation and rejection condition for each experiment. Follow [Measurement basis](measurements.md#measurement-basis) for quantitative claims and [Production review](review.md#compare-and-observe) for comparisons of rendered output. Preserve unfavorable results and earlier candidates with their exact basis. A repair applies to the whole verified cause group, and any newly exposed coupled defect reopens that group's design before another correction.
 
+When repeated corrections leave the consumed result inadequate, return to [Implementation strategy](../source-authoring/implementation-strategy.md) to compare the formulation, representation, and reusable alternatives against the group's conditions.
+
 ## Triage
 
 1. Read the complete diagnostic and its input, target, phase, and observed values.
