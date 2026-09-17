@@ -79,33 +79,36 @@ export interface IAutoMovieHumanFaceEndpointScale {
 export function measureHumanFaceBasisChannels(
   basis: IAutoMovieHumanFaceBasis,
 ): IAutoMovieHumanFaceChannelScale[] {
-  const vertices = basis.surfaces.reduce(
+  const resident = basis.surfaces.reduce(
     (total, surface) => total + surface.positions.length / 3,
     0,
   );
-  if (vertices === 0)
+  if (resident === 0)
     throw new Error("A facial basis needs resident vertices to measure.");
+  // Accumulate squared magnitudes and take the roots once at the end: both
+  // reported figures are roots of the same per-row quantity, and squaring a
+  // sparse row is cheaper than taking its length for every row.
   const measure = (name: string): IAutoMovieHumanFaceEndpointScale => {
-    let square = 0;
-    let peak = 0;
-    let moved = 0;
+    let sumOfSquares = 0;
+    let largestSquare = 0;
+    let rowCount = 0;
     for (const surface of basis.surfaces) {
       const rows = surface.targets[name];
       if (rows === undefined) continue;
       for (let i = 0; i < rows.length; i += 4) {
-        const length =
+        const square =
           rows[i + 1] * rows[i + 1] +
           rows[i + 2] * rows[i + 2] +
           rows[i + 3] * rows[i + 3];
-        square += length;
-        peak = Math.max(peak, length);
-        moved++;
+        sumOfSquares += square;
+        largestSquare = Math.max(largestSquare, square);
+        rowCount++;
       }
     }
     return {
-      displacement: Math.sqrt(square / vertices),
-      peak: Math.sqrt(peak),
-      vertices: moved,
+      displacement: Math.sqrt(sumOfSquares / resident),
+      peak: Math.sqrt(largestSquare),
+      vertices: rowCount,
     };
   };
   return basis.channels.map((channel) => ({
