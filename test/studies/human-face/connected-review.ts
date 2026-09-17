@@ -42,5 +42,25 @@ import type * as Human from "@automovie/human";
  * @evidenceReview {@link Human.parseHumanFaceBasisDocument} #04edd49 Read the shared UTF-16 text budget, JSON and exact-schema admission, finite numbers and nonblank identities. Basis-specific channel validation remains with the compiled builder.
  * @evidence {@link Human.serializeHumanFaceBasisDocument} Read finite admission before JSON serialization and the shared size check after escaping and formatting, so a successful save fits the loader envelope; geometry remains separately versioned.
  * @evidenceReview {@link Human.serializeHumanFaceBasisDocument} #9d35caa Read finite admission before JSON serialization and the shared size check after escaping and formatting, so a successful save fits the loader envelope; geometry remains separately versioned.
+ * @evidence {@link Human.measureHumanFaceBasisChannels} Read the whole-basis accumulation: every surface's sparse rows for one endpoint are summed before dividing by the shared resident vertex count, an absent endpoint measures zero rather than throwing, and the input basis is only read. The connected panel prints its result and the whole-face study fit prices shape weights with the same figures.
+ * @evidenceReview {@link Human.measureHumanFaceBasisChannels} #4b5bb1f Read the whole-basis accumulation: every surface's sparse rows for one endpoint are summed before dividing by the shared resident vertex count, an absent endpoint measures zero rather than throwing, and the input basis is only read. The connected panel prints its result and the whole-face study fit prices shape weights with the same figures.
+ * @evidence {@link Human.IAutoMovieHumanFaceChannelScale} Read the per-channel record against the basis channel order and kind it copies, so a caller can index the two lists together.
+ * @evidenceReview {@link Human.IAutoMovieHumanFaceChannelScale} #935a1d9 Read the per-channel record against the basis channel order and kind it copies, so a caller can index the two lists together.
+ * @evidence {@link Human.IAutoMovieHumanFaceChannelScale.id} Read the identity copied from the measured basis channel.
+ * @evidenceReview {@link Human.IAutoMovieHumanFaceChannelScale.id} #c08a6d2 Read the identity copied from the measured basis channel.
+ * @evidence {@link Human.IAutoMovieHumanFaceChannelScale.kind} Read the shape/expression discriminator copied from the channel so grouping needs no second lookup.
+ * @evidenceReview {@link Human.IAutoMovieHumanFaceChannelScale.kind} #c2659af Read the shape/expression discriminator copied from the channel so grouping needs no second lookup.
+ * @evidence {@link Human.IAutoMovieHumanFaceChannelScale.positive} Read the always-present positive endpoint measurement.
+ * @evidenceReview {@link Human.IAutoMovieHumanFaceChannelScale.positive} #a04a937 Read the always-present positive endpoint measurement.
+ * @evidence {@link Human.IAutoMovieHumanFaceChannelScale.negative} Read the null result for a nonnegative control, distinguished from a measured zero.
+ * @evidenceReview {@link Human.IAutoMovieHumanFaceChannelScale.negative} #8eb0125 Read the null result for a nonnegative control, distinguished from a measured zero.
+ * @evidence {@link Human.IAutoMovieHumanFaceEndpointScale} Read the endpoint record's metre units and its explicit limit: a large displacement states how far geometry moves, never that the result is anatomically valid or a likeness.
+ * @evidenceReview {@link Human.IAutoMovieHumanFaceEndpointScale} #bc6ba43 Read the endpoint record's metre units and its explicit limit: a large displacement states how far geometry moves, never that the result is anatomically valid or a likeness.
+ * @evidence {@link Human.IAutoMovieHumanFaceEndpointScale.displacement} Read the root mean square over every resident vertex, including untouched ones, which is what makes a wide endpoint outrank a narrow one of equal distance.
+ * @evidenceReview {@link Human.IAutoMovieHumanFaceEndpointScale.displacement} #001a8a4 Read the root mean square over every resident vertex, including untouched ones, which is what makes a wide endpoint outrank a narrow one of equal distance.
+ * @evidence {@link Human.IAutoMovieHumanFaceEndpointScale.peak} Read the largest single-vertex magnitude, taken as the square root of the largest squared row.
+ * @evidenceReview {@link Human.IAutoMovieHumanFaceEndpointScale.peak} #0d7529c Read the largest single-vertex magnitude, taken as the square root of the largest squared row.
+ * @evidence {@link Human.IAutoMovieHumanFaceEndpointScale.vertices} Read the count of sparse rows the endpoint carries across all surfaces.
+ * @evidenceReview {@link Human.IAutoMovieHumanFaceEndpointScale.vertices} #89f1d76 Read the count of sparse rows the endpoint carries across all surfaces.
  */
 export const humanFaceConnectedReview = true;
