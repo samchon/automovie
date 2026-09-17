@@ -6,6 +6,9 @@
  * Canonical rings are copied; only the private bridge and ear work lists mutate.
  * Loft validates intermediate rings without triangulating unused caps. Changing
  * canonical corner order changes loft correspondence, UVs and mesh topology.
+ * The same orientation operation carries each original input index into the
+ * result. Consumers such as anatomical skin attachments use this permutation
+ * to retain their own 3D vertices without an XY search or a metric round trip.
  */
 import { autoMoviePlanarRegionFailure } from "./planarRegion";
 import {
@@ -38,9 +41,13 @@ import {
  * because which ring bounds the region and which is a void is settled by
  * containment and not by the order the points were typed in. The emitted
  * triangles are counter-clockwise, so the region faces +Z.
+ * `sourceIndices` retains every canonical point's index in the original outer
+ * then hole population. Winding changes ordering, never point identity.
  *
  * @evidence requirements/asset-authoring/validation.md#asset-geometry-validation Refuses malformed planar topology before producing triangles.
  * @evidence specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-numeric-structure Implements the shared numeric and topology validation contract for free-form regions.
+ * @evidence requirements/asset-authoring/geometry.md#asset-geometry-topology Preserves each authored boundary identity through winding normalization.
+ * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Returns the original-input permutation beside unchanged canonical coordinates and triangles.
  */
 export const triangulateAutoMovieRegion = (props: {
   outer: readonly IAutoMovieProfilePoint[];
@@ -78,15 +85,21 @@ export const canonicalRegion = (
     ),
   );
   const points: IAutoMovieProfilePoint[] = [];
+  const sourceIndices: number[] = [];
   const rings: IAutoMovieRegionRing[] = [];
   for (const loop of loops) {
-    rings.push({ start: points.length, count: loop.length });
-    for (const point of loop) points.push(point);
+    const start = points.length;
+    rings.push({ start, count: loop.points.length });
+    for (let index = 0; index < loop.points.length; ++index) {
+      points.push(loop.points[index]!);
+      sourceIndices.push(start + loop.sourceIndices[index]!);
+    }
   }
   return {
     points,
+    sourceIndices,
     rings,
-    area: loops.reduce((total, loop) => total + signedArea(loop), 0),
+    area: loops.reduce((total, loop) => total + signedArea(loop.points), 0),
   };
 };
 
@@ -108,11 +121,12 @@ export const triangulateRegion = (
  * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Uses the canonical region identities for the cap indices consumed by extrusion and loft.
  */
 export const trianglesOf = (
-  region: Omit<IAutoMovieRegionTriangulation, "triangles">,
+  region: Pick<IAutoMovieRegionTriangulation, "points" | "rings">,
 ): number[] => earClip(region.points, bridgeHoles(region.points, region.rings));
 
 /**
- * The ring wound the way asked for, reversed in place when it disagrees.
+ * Wind an already copied ring and its original local indices together. The
+ * canonical owner offsets those indices by preceding input ring populations.
  *
  * Reversal maps corner `k` to corner `size - 1 - k`, which is a relabelling a
  * triangulation does not care about and a loft does: the loft refuses sections
@@ -122,8 +136,14 @@ export const trianglesOf = (
 const orientedRing = (
   points: IAutoMovieProfilePoint[],
   counterClockwise: boolean,
-): IAutoMovieProfilePoint[] =>
-  signedArea(points) > 0 === counterClockwise ? points : points.reverse();
+) => {
+  const sourceIndices = points.map((_point, index) => index);
+  if (signedArea(points) > 0 !== counterClockwise) {
+    points.reverse();
+    sourceIndices.reverse();
+  }
+  return { points, sourceIndices };
+};
 
 /** Twice the shoelace sum, halved: positive counter-clockwise, in m².
  * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Measures the orientation and area of a metric construction ring.

@@ -137,6 +137,10 @@ Root motion은 기본적으로 `target rest height / source rest height`로 tran
 
 The deterministic engine evaluates and validates the `@automovie/interface` AST. Geometry and orchestration are TypeScript; jointly constrained displacement uses a pinned, synchronous Clarabel WebAssembly kernel. The engine contains no AI or `three.js` dependency.
 
+### Planar region identity
+
+`triangulateAutoMovieRegion({ outer, holes })` returns canonical points, ring spans, counterclockwise triangles, area and `sourceIndices`. Each `sourceIndices[k]` identifies `points[k]` in the original flattened input: the outer ring followed by holes in their supplied order. Winding normalization carries this permutation with the copied coordinates, so consumers retain original 3D vertices or attached attributes without searching XY or converting coordinates back from metres. No vertices are added or merged. The operation owns its returned arrays and retains the caller's input. Region extrusion, loft caps and planar faces continue to use the same canonical topology; anatomical skin connections consume the source permutation directly.
+
 ### Constrained surface displacement
 
 `measureAutoMovieMeshClearance` measures signed front-minus-back depth over complete projected triangle intersections. Its optional visitor retains each affine witness with original front vertex identities. `minimizeAutoMovieMeshClearance` uses those same witnesses to minimize incident-area-weighted squared forward travel, capped by the conservative per-face correction. Positive depth follows the selected local axis; distances use metres. Callers supply a common coordinate frame and recheck subsequent deformation and Float32 export. Directional ordering does not establish tissue thickness or arbitrary closed-volume collision freedom.
