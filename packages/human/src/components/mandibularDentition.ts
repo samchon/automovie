@@ -7,7 +7,7 @@ import { createPortraitInteriorFinisher } from "../geometry/portraitInteriorFini
 import {
   type IPortraitDentalRow,
   attachPortraitDentalRow,
-  buildPortraitDentalRow,
+  preparePortraitDentalRow,
 } from "./dentalRow";
 import { posePortraitJawPoint } from "./jawPerformance";
 
@@ -54,13 +54,14 @@ export function createPortraitMandibularDentition(
       "Mandibular dentition requires nonnegative finite offsets and jaw angles in [0,25] degrees.",
     );
   posePortraitJawPoint(jaw.hinge, jaw.hinge, 0, 1);
-  const row = buildPortraitDentalRow(inputRow);
+  const prepared = preparePortraitDentalRow(inputRow);
+  const row = prepared.mesh;
   // Reflect the cervical-to-incisal axis, including normals and handedness.
   for (let i = 1; i < row.positions.length; i += 3) {
     row.positions[i] = -row.positions[i];
     row.normals![i] = -row.normals![i];
   }
-  // buildPortraitDentalRow always returns indexed, normal-bearing crowns.
+  // Native row preparation always returns indexed, normal-bearing crowns.
   const indices = row.indices!;
   for (let i = 0; i < indices.length; i += 3)
     [indices[i + 1], indices[i + 2]] = [indices[i + 2], indices[i + 1]];
@@ -115,6 +116,12 @@ export function createPortraitMandibularDentition(
               id: "tooth-lower-arch",
               mesh: structuredClone(placed),
               material: "teeth",
+              // Reflection reverses the cap's winding along with its faces.
+              // Reverse the owned cycle as well; its vertex set stays intact.
+              loops: prepared.cervical.map((vertices, tooth) => ({
+                name: `cervical-${tooth}`,
+                vertices: [...vertices].reverse(),
+              })),
             },
           ]),
         }),

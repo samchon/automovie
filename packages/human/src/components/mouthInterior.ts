@@ -26,12 +26,12 @@ import {
 } from "../geometry/geometry";
 import type { IPortraitInterior } from "../geometry/portraitComponents";
 import { createPortraitDentalArc } from "./dentalArc";
-import { buildPortraitDentalCrown } from "./dentalCrown";
+import { preparePortraitDentalCrown } from "./dentalCrown";
 import type { IPortraitMouthShape, IPortraitMouthSocket } from "./mouth";
 import type { IPortraitMouthPerformance } from "./mouthPerformance";
 import {
   assertPortraitOralLining,
-  buildPortraitOralLining,
+  preparePortraitOralLining,
 } from "./oralLining";
 
 type Point = IAutoMovieVector3;
@@ -62,8 +62,13 @@ export function preparePortraitMouth(
       shape.cavityChamber,
     );
   const parts: IPortraitInterior[] = [];
-  const add = (id: string, mesh: IAutoMovieMesh, finish: string): void => {
-    parts.push({ id, mesh, material: finish });
+  const add = (
+    id: string,
+    mesh: IAutoMovieMesh,
+    finish: string,
+    bindings: Pick<IPortraitInterior, "attachments" | "loops">,
+  ): void => {
+    parts.push({ id, mesh, material: finish, ...bindings });
   };
   const landmark = (id: number): Point =>
     p(source[id][0], source[id][1], source[id][2]);
@@ -82,16 +87,20 @@ export function preparePortraitMouth(
   ) {
     if (shape.cavityWall !== undefined && skinIndices === undefined)
       throw new Error("Oral lining requires the actual refined lip triangles.");
-    add(
-      "oral-cavity",
-      shape.cavityWall !== undefined
-        ? buildPortraitOralLining(
+    const lining =
+      shape.cavityWall === undefined
+        ? undefined
+        : preparePortraitOralLining(
             { positions: source, indices: skinIndices! },
             socket.upper[0],
             shape.cavityDepth,
             shape.cavityWall,
             shape.cavityChamber,
-          )
+          );
+    add(
+      "oral-cavity",
+      lining !== undefined
+        ? lining.mesh
         : patch(
             (u, v) => {
               const top = interpolate(mouthUpper, u),
@@ -107,6 +116,12 @@ export function preparePortraitMouth(
             30,
           ),
       cavity,
+      {
+        attachments: lining?.boundary.map((skin, vertex) => ({
+          vertex,
+          target: { part: null, vertex: skin },
+        })),
+      },
     );
   }
   if (shape.crowns.length === 0) return parts;
@@ -123,7 +138,7 @@ export function preparePortraitMouth(
     const { position: at, tangent } = arch.sample(distance);
     cursor += width + shape.toothGap;
     const angleY = -Math.atan2(tangent.z, tangent.x);
-    const crown = buildPortraitDentalCrown(
+    const prepared = preparePortraitDentalCrown(
       {
         width,
         height,
@@ -134,6 +149,7 @@ export function preparePortraitMouth(
       },
       distance <= arch.center ? 1 : -1,
     );
+    const crown = prepared.mesh;
     // Placement and normals use the same rigid arch rotation. The local crown
     // profile therefore cannot silently change measured interdental clearance.
     for (let vertex = 0; vertex < crown.positions.length; vertex += 3) {
@@ -151,7 +167,9 @@ export function preparePortraitMouth(
       crown.normals![vertex + 2] =
         -Math.sin(angleY) * nx + Math.cos(angleY) * nz;
     }
-    add(`tooth-${i}`, crown, enamel);
+    add(`tooth-${i}`, crown, enamel, {
+      loops: [{ name: "cervical", vertices: prepared.cervical }],
+    });
   }
   return parts;
 }

@@ -4,7 +4,7 @@ import { createPortraitInteriorFinisher } from "../geometry/portraitInteriorFini
 import {
   type IPortraitDentalRow,
   attachPortraitDentalRow,
-  buildPortraitDentalRow,
+  preparePortraitDentalRow,
 } from "./dentalRow";
 
 /**
@@ -37,7 +37,7 @@ export function createPortraitDentalComponent(
     );
   const socket = structuredClone(inputSocket),
     placement = structuredClone(inputPlacement),
-    row = buildPortraitDentalRow(inputRow);
+    row = preparePortraitDentalRow(inputRow);
   if (![placement.lift, placement.recess].every(Number.isFinite))
     throw new Error("Dental component placement must be finite millimetres.");
   return {
@@ -71,7 +71,7 @@ export function createPortraitDentalComponent(
             return [
               {
                 id: "tooth-upper-arch",
-                mesh: attachPortraitDentalRow(row, {
+                mesh: attachPortraitDentalRow(row.mesh, {
                   rightCorner: point(socket.rightCorner),
                   leftCorner: point(socket.leftCorner),
                   upperLipMiddle: point(socket.upperLipMiddle),
@@ -79,6 +79,10 @@ export function createPortraitDentalComponent(
                   ...placement,
                 }),
                 material: "teeth",
+                loops: row.cervical.map((vertices, tooth) => ({
+                  name: `cervical-${tooth}`,
+                  vertices: [...vertices],
+                })),
               },
             ];
           }),

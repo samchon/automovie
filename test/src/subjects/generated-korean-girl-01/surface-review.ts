@@ -310,7 +310,7 @@ import type * as Human from "@automovie/human";
  * @evidence {@link Human.preparePortraitHead} Prepares shared skin and retains component finishers for the actual head consumer.
  * @evidenceReview {@link Human.preparePortraitHead} #f317855 Read the complete extracted fit, blend, cut, attach, continuation, reference, refinement, replacement, final-proposal and RGB path. It returns an unsealed surface without invoking interiors; buildPortraitHead consumes it before common normals and finishing. This is no global collision guarantee.
  * @evidence {@link Human.buildPortraitHead} Consumes prepared shared skin before contact sealing, common normals, material separation and attached interiors.
- * @evidenceReview {@link Human.buildPortraitHead} #dcca9a7 Read the complete consumer: unchanged preparation, explicit contact sealing, all native providers, common normals and colour-bearing skin regions, then ordered native packing or legacy finish. Empty native arrays do not fall back. No joint solve is invoked. Reference/current identities and retained colour corners remain owned by preparation and sealing; earlier multi-view limitations and unaccepted likeness remain.
+ * @evidenceReview {@link Human.buildPortraitHead} #0c79f6c Read all preparation, sealing, native staging, admission, skin normal/material and final ordered output branches. The new identity validator runs after all providers and before any packing, so later target parts resolve. A displaced declared join refuses through the actual head consumer; absent and empty providers preserve compatibility semantics. No collision solve or geometric correction runs here.
  */
 export const portraitSurfaceReview = {
   scope: "surface construction inspection",

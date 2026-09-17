@@ -4,7 +4,9 @@
  * Inputs are read-only skin positions/indices and authored head-millimetre
  * dimensions. oralBoundary owns attachment topology; this module owns the
  * depth rings, optional chamber expansion, posterior cap and resident normals.
- * The returned mesh owns all arrays and starts with exact copied rim points.
+ * Native preparation returns owned mesh arrays and the corresponding ordered
+ * skin IDs; standalone buildPortraitOralLining returns that same mesh. Its first
+ * vertices copy the exact rim, so mouthInterior can retain live attachment IDs.
  * These legacy rings follow the performed aperture; they do not provide an
  * independent maxillary palate or mandibular floor, nor certify tooth clearance.
  */
@@ -74,13 +76,15 @@ export function assertPortraitOralLining(
  * Optional chamber dimensions expand X/Y behind the vestibule without moving
  * the rim or cap. Omission and two zero expansions preserve the original mesh.
  * This enclosure does not reconstruct gingiva or certify tissue clearance.
+ * The returned boundary names the source skin vertex for each initial mesh
+ * vertex, in order. Both boundary and mesh arrays are newly owned.
  *
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Constructs an explicit oral enclosure separately from teeth and tongue.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Samples a declared straight-wall fraction and posterior cosine taper in head millimetres.
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Uses the final skin's actual attachment boundary after refinement and performance.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-attachments Traces the seeded free cycle, copies every refined rim point and opposes its skin-edge winding.
  */
-export function buildPortraitOralLining(
+export function preparePortraitOralLining(
   surface: {
     positions: readonly (readonly number[])[];
     indices: readonly number[];
@@ -89,7 +93,7 @@ export function buildPortraitOralLining(
   depth: number,
   wall: number,
   chamber?: IPortraitOralChamber,
-): IAutoMovieMesh {
+) {
   assertPortraitOralLining(depth, wall, chamber);
   const boundary = tracePortraitOralBoundary(surface, seed);
   const rim = boundary.map((id) => surface.positions[id]);
@@ -156,11 +160,35 @@ export function buildPortraitOralLining(
     }
     indices.push((rows - 1) * count + col, pole, (rows - 1) * count + after);
   }
-  return {
+  const mesh: IAutoMovieMesh = {
     positions,
     indices,
     normals: portraitNormals(positions, indices),
     uvs: null,
     skin: null,
   };
+  // Native vertices [0,count) are the exact copied skin cycle. Retain the
+  // traversal's IDs alongside them instead of reconstructing that identity
+  // after packing, where equal coordinates may belong to different tissues.
+  return { mesh, boundary };
+}
+
+/**
+ * Preserve the standalone lining mesh API. The same native producer supplies
+ * the mouth component with both the geometry and its exact skin correspondence.
+ *
+ * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Publishes the existing oral enclosure from its single native producer.
+ * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Retains depth, chamber, normal and ownership behavior without a second lining implementation.
+ */
+export function buildPortraitOralLining(
+  surface: {
+    positions: readonly (readonly number[])[];
+    indices: readonly number[];
+  },
+  seed: number,
+  depth: number,
+  wall: number,
+  chamber?: IPortraitOralChamber,
+): IAutoMovieMesh {
+  return preparePortraitOralLining(surface, seed, depth, wall, chamber).mesh;
 }

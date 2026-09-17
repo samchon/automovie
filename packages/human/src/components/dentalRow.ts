@@ -1,3 +1,11 @@
+/**
+ * Prepare a rigid local enamel arch for upper/lower component attachment. The
+ * crown constructor owns each profile and cervical cycle; this module owns
+ * arc placement, optional X separation and concatenated vertex identity. Fresh
+ * millimetre buffers retain +Y superior and +Z anterior until an oral frame is
+ * applied. Caller inputs are copied. Cervical cycles travel with the merged
+ * mesh and become stale if a later consumer changes its vertex ordering.
+ */
 import {
   mergeAutoMovieMeshes,
   separateAutoMovieMeshSequence,
@@ -9,7 +17,7 @@ import { createPortraitDentalArc } from "./dentalArc";
 import {
   type IPortraitDentalCrown,
   assertPortraitDentalCrown,
-  buildPortraitDentalCrown,
+  preparePortraitDentalCrown,
 } from "./dentalCrown";
 import { attachPortraitOralMesh } from "./oralFrame";
 
@@ -42,12 +50,12 @@ export interface IPortraitDentalRow {
  * arc length establishes nominal crown centres. The same tangent rotates each crown's
  * positions and normals, while all cervical ends share the group's Y=0 plane.
  * Neither a lip landmark's height nor an individual ray hit can tilt one tooth.
+ * Returns the merged owned mesh and one directed cervical cycle per input
+ * crown in that crown's order, expressed in merged native vertex identities.
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Places independent crowns along one dental arch without tilting each tooth to a lip landmark.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Samples an elliptical guide, rotates crown positions and normals together, and optionally separates their complete proximal surfaces.
  */
-export function buildPortraitDentalRow(
-  input: IPortraitDentalRow,
-): IAutoMovieMesh {
+export function preparePortraitDentalRow(input: IPortraitDentalRow) {
   const shape = structuredClone(input);
   if (
     ![shape.halfWidth, shape.depth, shape.gap].every(Number.isFinite) ||
@@ -68,6 +76,8 @@ export function buildPortraitDentalRow(
       "Dental surface contact gap must be finite and nonnegative.",
     );
   const crowns: IAutoMovieMesh[] = [];
+  const cervical: number[][] = [];
+  let vertices = 0;
   const length =
     shape.crowns.reduce((sum, crown) => sum + crown.width, 0) +
     shape.gap * (shape.crowns.length - 1);
@@ -87,10 +97,16 @@ export function buildPortraitDentalRow(
     const { position, tangent } = arc.sample(distance);
     // The proximal side toward the common arch midpoint is mesial. Resolve it
     // from arrangement, including unequal crown widths, instead of a tooth ID.
-    const mesh = buildPortraitDentalCrown(
+    const crown = preparePortraitDentalCrown(
       profile,
       distance <= arc.center ? 1 : -1,
     );
+    const { mesh } = crown;
+    // mergeAutoMovieMeshes preserves input order and offsets all native indices
+    // by preceding vertex counts. The same documented correspondence carries
+    // the crown-owned cycle; no position search recovers attachment identity.
+    cervical.push(crown.cervical.map((vertex) => vertices + vertex));
+    vertices += mesh.positions.length / 3;
     crowns.push(mesh);
     cursor += profile.width + shape.gap;
     // The tangent is the crown's local X axis. Its perpendicular in XZ is
@@ -132,7 +148,21 @@ export function buildPortraitDentalRow(
             ),
           };
         });
-  return mergeAutoMovieMeshes(placed);
+  return { mesh: mergeAutoMovieMeshes(placed), cervical };
+}
+
+/**
+ * Preserve the mesh-only dental-row API. Native preparation owns the arch,
+ * optional surface separation and cervical identities, so spacing and drawing
+ * cannot silently use different crown constructions.
+ *
+ * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Publishes the composed enamel group from the shared native row producer.
+ * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Retains the row's complete placed mesh and normals without duplicating arch or crown formulas.
+ */
+export function buildPortraitDentalRow(
+  input: IPortraitDentalRow,
+): IAutoMovieMesh {
+  return preparePortraitDentalRow(input).mesh;
 }
 
 /**

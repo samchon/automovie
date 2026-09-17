@@ -1,4 +1,5 @@
 import {
+  assertPortraitInteriorBindings,
   createPortraitDentalComponent,
   createPortraitMandibularDentition,
   createPortraitTongueComponent,
@@ -19,6 +20,8 @@ import { nclose } from "../internal/predicates";
  *    unit conversion. Connectivity, normals, order and materials are retained.
  * 2. Mutating a returned native mesh cannot alter its producer, the source host,
  *    another native result or a subsequent compatibility finish.
+ * 3. Upper cervical cycles face superiorly; reflection and a ten-degree jaw
+ *    rotation make the lower cycle face (0,-cos(10),-sin(10)).
  */
 export const test_subject_native_oral_interiors = (): void => {
   const host = {
@@ -74,6 +77,7 @@ export const test_subject_native_oral_interiors = (): void => {
       attached.prepareInteriors !== undefined,
     );
     const native = attached.prepareInteriors!(refined);
+    assertPortraitInteriorBindings(refined, native);
     const saved = structuredClone(native);
     const finished = attached.finish(refined);
     TestValidator.equals(
@@ -82,6 +86,36 @@ export const test_subject_native_oral_interiors = (): void => {
       finished.map((part) => part.id),
     );
     TestValidator.equals("one actual oral body", native.length, 1);
+    if (component.id !== "tongue") {
+      TestValidator.equals(
+        "one declared cervical ring",
+        native[0].loops?.length,
+        1,
+      );
+      const cycle = native[0].loops![0].vertices;
+      const points = cycle.map((id) =>
+        native[0].mesh.positions.slice(3 * id, 3 * id + 3),
+      );
+      const normal = [0, 0, 0];
+      for (let i = 0; i < points.length; ++i) {
+        const a = points[i],
+          b = points[(i + 1) % points.length];
+        normal[0] += a[1] * b[2] - a[2] * b[1];
+        normal[1] += a[2] * b[0] - a[0] * b[2];
+        normal[2] += a[0] * b[1] - a[1] * b[0];
+      }
+      const length = Math.hypot(...normal);
+      const expected =
+        component.id === "lower-dentition"
+          ? [0, -Math.cos(Math.PI / 18), -Math.sin(Math.PI / 18)]
+          : [0, 1, 0];
+      TestValidator.predicate(
+        "anatomical cervical winding follows jaw",
+        normal.every((value, axis) =>
+          nclose(value / length, expected[axis], 1e-12),
+        ),
+      );
+    }
     const part = finished[0];
     if (part.geometry.type !== "mesh") throw new Error("Expected oral mesh.");
     const mesh = part.geometry.mesh;
@@ -110,6 +144,8 @@ export const test_subject_native_oral_interiors = (): void => {
     native[0].mesh.positions[0] = 999;
     native[0].mesh.normals![0] = 999;
     native[0].mesh.indices![0] = 999;
+    // Mutable result ownership includes the declared anatomy, not just XYZ.
+    if (native[0].loops !== undefined) native[0].loops[0].name = "changed";
     TestValidator.equals(
       "native result has exclusive ownership",
       attached.prepareInteriors!(refined),
