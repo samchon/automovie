@@ -316,13 +316,13 @@ The room schedule is not a furniture schedule. It fixes which semantic room exis
 
 권위: settings의 direct entrance, one-loop rule, service-yard boundary, and audience/operator access다. 상태: `author-adopted` connector topology다. 범위: 외부 입구에서 courtyard로의 direct arrival, room thresholds, service terminal relation이다.
 
-The route graph has exactly these connector edges:
+The route graph has exactly these semantic route edges. Eight rows compile as `IAutoMovieBuiltConnector` records; the `loop-return` row is the closed-ring edge that the engine's connector contract cannot represent with identical endpoints, so the source realizes it as five ordered `loop-return/00` through `loop-return/04` anchor elements instead of a ninth connector.
 
-| connector | from | to | clear width | host depth | clear vertical range | graph meaning |
+| route edge | from | to | clear width | host depth | clear vertical range | graph meaning |
 | --- | --- | --- | --- | --- | --- | --- |
 | `south-entrance` | exterior south | `courtyard` | 1.60m | 0.60m exterior wall | Y=0.00..2.60 | straight axial arrival through the open entry apron; no vestibule room |
 | `courtyard-to-loop` | `courtyard` | `colonnade-loop` | 2.00m | open edge | Y=0.00..3.60, no head | open threshold at the inner south edge, part of the same public arrival |
-| `loop-return` | `colonnade-loop` | `colonnade-loop` | 2.00m | open ring | Y=0.00..3.60 | one closed ring, with no branch loop |
+| `loop-return` | `colonnade-loop` | `colonnade-loop` | 2.00m | open ring | Y=0.00..3.60 | five ordered `loop-return/*` anchors close one ring, with no branch loop |
 | `door-sanctuary` | `colonnade-loop` | `sanctuary` | 1.10m | 0.40m room-loop partition | Y=0.00..2.10 | direct room door |
 | `door-communal-votive` | `colonnade-loop` | `communal-votive-room` | 1.10m | 0.40m room-loop partition | Y=0.00..2.10 | direct room door |
 | `door-administration` | `colonnade-loop` | `administration-room` | 1.10m | 0.40m room-loop partition | Y=0.00..2.10 | direct room door |
@@ -330,7 +330,7 @@ The route graph has exactly these connector edges:
 | `door-votive-storage` | `colonnade-loop` | `votive-storage-room` | 1.10m | 0.40m room-loop partition | Y=0.00..2.10 | direct room door |
 | `service-gate` | rear-east exterior | `service-yard` | 1.20m | 0.60m exterior wall | Y=0.00..2.10 | terminal service access; not a second loop |
 
-The five `door-*` rows report the direct opening transition from loop to room and therefore use the 1.10m door width. The 1.20m observation route begins at the room-facing threshold plane named in the room schedule; it is an in-room route condition and does not retroactively widen the direct door opening.
+The five `door-*` rows report the direct opening transition from loop to room and therefore use the 1.10m door width. The 1.20m observation route begins at the room-facing threshold plane named in the room schedule; it is an in-room route condition and does not retroactively widen the direct door opening. The `loop-return` row is intentionally not a same-space connector: accepting that spelling would violate the installed environment validator, while omitting its five anchor elements would leave the ring open.
 
 `south-entrance` is a straight opening aligned to X=0.00 from the south exterior boundary through the open covered `entry-threshold` apron and the south bay of the ring to the courtyard; it does not introduce a named vestibule, enclosed room, or second corridor. `service-gate` is a terminal external access at the north-east building edge and cannot be used to reach another room. Every room is reachable from `south-entrance` by entering courtyard, joining the single ring, and crossing its own threshold; the return path remains the same ring.
 

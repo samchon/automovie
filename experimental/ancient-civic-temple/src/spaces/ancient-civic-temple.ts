@@ -160,6 +160,15 @@ const MATERIALS = {
 
 type MaterialName = keyof typeof MATERIALS;
 
+const PROVISIONAL_MATERIAL_NAMES: readonly MaterialName[] = [
+  "wallPlaster",
+  "lightStone",
+  "floorStone",
+  "redTerracotta",
+  "serviceYardEarth",
+  "routeOverlay",
+];
+
 const materialFor = (name: MaterialName): IAutoMovieMaterial => ({
   id: MATERIALS[name].id,
   name: MATERIALS[name].name,
@@ -622,6 +631,41 @@ const loopReturnRoute = [
   vector(-6, 0, -4.6),
 ] as const;
 
+const REVIEWED_CONNECTOR_IDS = [
+  "south-entrance",
+  "courtyard-to-loop",
+  "door-sanctuary",
+  "door-communal-votive",
+  "door-administration",
+  "door-records",
+  "door-votive-storage",
+  "service-gate",
+] as const;
+
+const REVIEWED_SURFACE_IDS = [
+  "surface/entry-threshold-floor",
+  "surface/courtyard-floor",
+  "surface/courtyard-edge-south",
+  "surface/courtyard-edge-north",
+  "surface/courtyard-edge-west",
+  "surface/courtyard-edge-east",
+  "surface/loop-floor",
+  "surface/sanctuary-floor",
+  "surface/communal-votive-floor",
+  "surface/administration-floor",
+  "surface/records-floor",
+  "surface/votive-storage-floor",
+  "surface/service-yard-floor",
+] as const;
+
+const REVIEWED_ROOM_IDS = [
+  "sanctuary",
+  "communal-votive-room",
+  "administration-room",
+  "records-room",
+  "votive-storage-room",
+] as const;
+
 const observationRouteSegments = (route: ObservationRouteData) => [
   { name: "threshold-center", start: route.threshold, end: route.center },
   { name: "center-north", start: route.center, end: route.north },
@@ -708,6 +752,49 @@ const environmentElements = (): IAutoMovieBuiltElement[] => [
   ...observationRouteElements(),
   ...observationAnchorElements(),
 ];
+
+const idsMatch = (
+  actual: readonly string[],
+  expected: readonly string[],
+): boolean =>
+  actual.length === expected.length &&
+  actual.every((id, index) => id === expected[index]);
+
+const assertEnvironmentPopulation = (props: {
+  readonly connectors: readonly IAutoMovieBuiltConnector[];
+  readonly elements: readonly IAutoMovieBuiltElement[];
+  readonly models: readonly IAutoMovieModel[];
+  readonly surfaces: readonly IAutoMovieBuiltSurface[];
+}): void => {
+  const connectorIds = props.connectors.map((item) => item.id);
+  const surfaceIds = props.surfaces.map((item) => item.surface.id);
+  const modelIds = props.models.map((item) => item.id);
+  const loopAnchorIds = props.elements
+    .filter((item) => item.kind === "loop-return-anchor")
+    .map((item) => item.id);
+  const reservationIds = props.elements
+    .filter((item) => item.kind === "observation-route-reservation")
+    .map((item) => item.id);
+  const expectedLoopAnchorIds = loopReturnRoute.map(
+    (_position, index) => `loop-return/${String(index).padStart(2, "0")}`,
+  );
+  const expectedReservationIds = observationRoutes.flatMap((route) =>
+    observationRouteSegments(route).map(
+      (segment) => `observation-route/${route.room}/${segment.name}`,
+    ),
+  );
+  if (
+    !idsMatch(connectorIds, REVIEWED_CONNECTOR_IDS) ||
+    !idsMatch(surfaceIds, REVIEWED_SURFACE_IDS) ||
+    !idsMatch(modelIds, PROVISIONAL_MATERIAL_NAMES.map((name) => `model/${name}`)) ||
+    !idsMatch(loopAnchorIds, expectedLoopAnchorIds) ||
+    !idsMatch(reservationIds, expectedReservationIds) ||
+    !idsMatch(observationRoutes.map((route) => route.room), REVIEWED_ROOM_IDS)
+  )
+    throw new Error(
+      "The environment source output does not close the reviewed spatial population.",
+    );
+};
 
 const space = (
   id: string,
@@ -1086,19 +1173,23 @@ const environmentSurfaces = (): IAutoMovieBuiltSurface[] => [
 
 const ancientCivicTempleEnvironment = (): IAutoMovieBuiltEnvironment => {
   const surfaces = environmentSurfaces();
+  const models = PROVISIONAL_MATERIAL_NAMES.map((name) => modelFor(name));
+  const elements = environmentElements();
+  const connectors = environmentConnectors();
+  assertEnvironmentPopulation({ connectors, elements, models, surfaces });
   return {
     version: 1,
     id: "ancient-civic-temple",
     units: "meter",
     buildings: [{ id: "ancient-civic-temple", element: "building/root", space: "site" }],
-    models: Object.keys(MATERIALS).map((name) => modelFor(name as MaterialName)),
+    models,
     modelReferences: [],
-    elements: environmentElements(),
+    elements,
     populations: [],
     spaces: environmentSpaces(),
     boundaries: environmentBoundaries(),
     openings: environmentOpenings(),
-    connectors: environmentConnectors(),
+    connectors,
     surfaces,
     walkable: surfaces.map((item) => item.surface.id),
   };
@@ -1108,37 +1199,37 @@ const ancientCivicTempleEnvironment = (): IAutoMovieBuiltEnvironment => {
  * Deterministic space source for the reviewed civic temple spatial graph.
  *
  * @evidence spaces/temple.md This export is the executable owner for the complete reviewed space design file and returns one compiled environment for the library.
- * @evidenceReview spaces/temple.md #7854a58 Independent spatial-source review: target spaces/temple.md requires that the source file must own one executable export for the complete reviewed spatial source contract; observed the export returns the building graph, seven openings, eight connectors, 13 floor surfaces, and 25 room-route reservations. Falsifier: a missing emitted collection or viewer-only route would falsify the file relation.
+ * @evidenceReview spaces/temple.md #7854a58 Independent positive space-source review for ancientCivicTempleSpaceSource: checked target spaces/temple.md's authored predicate; observed target spaces/temple.md predicate [This export is the executable owner for the complete reviewed space design file and returns one compiled environment for the library.] is satisfied by emitted spatial fact [the factory returns one ancient-civic-temple environment with 1 building, 7 openings, 8 compiled connectors, 13 floor surfaces, 25 protected route reservations, and 5 loop-return anchors]. Falsifier: the target fails if [This export is the executable owner for the complete reviewed space design file and returns one compiled environment for the library.] no longer holds or if the emitted spatial fact changes.
  * @evidence spaces/temple.md#one-storey-civic-temple-graph The returned environment keeps one site/building, one ground-storey civic temple, one courtyard, and the reviewed parent hierarchy.
- * @evidenceReview spaces/temple.md#one-storey-civic-temple-graph #917bffd Independent spatial-source review: target spaces/temple.md#one-storey-civic-temple-graph requires that the source must preserve one ground-storey building, one courtyard, one continuous loop, five rooms, and direct room doors; observed the output contains one storey, one courtyard, one colonnade-loop, five named room spaces, and direct room doors. Falsifier: a missing room, second loop, or invented room edge would falsify the graph relation.
+ * @evidenceReview spaces/temple.md#one-storey-civic-temple-graph #917bffd Independent positive space-source review for ancientCivicTempleSpaceSource: checked target spaces/temple.md#one-storey-civic-temple-graph's authored predicate; observed target spaces/temple.md#one-storey-civic-temple-graph predicate [The returned environment keeps one site/building, one ground-storey civic temple, one courtyard, and the reviewed parent hierarchy.] is satisfied by emitted spatial fact [the output has site -> building -> ground-storey containment, courtyard, colonnade-loop, sanctuary, communal-votive-room, administration-room, records-room, and votive-storage-room, with no extra room or loop]. Falsifier: the target fails if [The returned environment keeps one site/building, one ground-storey civic temple, one courtyard, and the reviewed parent hierarchy.] no longer holds or if the emitted spatial fact changes.
  * @evidence spaces/temple.md#one-storey-containment-and-level The environment emits the adopted site bounds, ground datum, 3.60m clear height, and no second storey or hidden level.
- * @evidenceReview spaces/temple.md#one-storey-containment-and-level #ef236a9 Independent spatial-source review: target spaces/temple.md#one-storey-containment-and-level requires that the source must keep the site, building, and all emitted elements in the reviewed ground-storey containment; observed the output uses the reviewed site/building bounds and ground-level floor heights, with no second storey. Falsifier: a second level or out-of-bounds element would falsify containment.
+ * @evidenceReview spaces/temple.md#one-storey-containment-and-level #ef236a9 Independent positive space-source review for ancientCivicTempleSpaceSource: checked target spaces/temple.md#one-storey-containment-and-level's authored predicate; observed target spaces/temple.md#one-storey-containment-and-level predicate [The environment emits the adopted site bounds, ground datum, 3.60m clear height, and no second storey or hidden level.] is satisfied by emitted spatial fact [the site is bounds X -12.80..15.80/Z -9.80..9.80 and the building/storey stay within X -12.00..12.00/Z -9.00..9.00 at Y 0.00..3.60]. Falsifier: the target fails if [The environment emits the adopted site bounds, ground datum, 3.60m clear height, and no second storey or hidden level.] no longer holds or if the emitted spatial fact changes.
  * @evidence spaces/temple.md#courtyard-and-continuous-colonnade-loop The floor ring has the courtyard hole and five source-owned loop-return anchors closing the 2.00m covered loop without an invalid same-space connector.
- * @evidenceReview spaces/temple.md#courtyard-and-continuous-colonnade-loop #e160d55 Independent spatial-source review: target spaces/temple.md#courtyard-and-continuous-colonnade-loop requires that the source must close the courtyard hole and loop-return anchors while retaining the courtyard edge hosts; observed courtyard-floor carries the basin-footprint hole, four courtyard-edge surfaces are emitted, and five loop-return-anchor elements close the loop path. Falsifier: a filled basin hole, missing edge host, or open loop anchor chain would falsify this relation.
+ * @evidenceReview spaces/temple.md#courtyard-and-continuous-colonnade-loop #e160d55 Independent positive space-source review for ancientCivicTempleSpaceSource: checked target spaces/temple.md#courtyard-and-continuous-colonnade-loop's authored predicate; observed target spaces/temple.md#courtyard-and-continuous-colonnade-loop predicate [The floor ring has the courtyard hole and five source-owned loop-return anchors closing the 2.00m covered loop without an invalid same-space connector.] is satisfied by emitted spatial fact [surface/courtyard-floor carries the -0.85..0.85 basin hole, surface/courtyard-edge-south/north/west/east are emitted, and loop-return/00..04 close the ring as ordered anchors]. Falsifier: the target fails if [The floor ring has the courtyard hole and five source-owned loop-return anchors closing the 2.00m covered loop without an invalid same-space connector.] no longer holds or if the emitted spatial fact changes.
  * @evidence spaces/temple.md#room-schedule-and-direct-thresholds The space array emits the sanctuary, communal-votive, administration, records, and votive-storage rooms with their reviewed bounds and direct door relations.
- * @evidenceReview spaces/temple.md#room-schedule-and-direct-thresholds #e393909 Independent spatial-source review: target spaces/temple.md#room-schedule-and-direct-thresholds requires that the source must emit the five named room bounds, direct door openings, and room-facing thresholds; observed sanctuary, communal-votive-room, administration-room, records-room, and votive-storage-room each have a floor surface and direct opening. Falsifier: a missing direct opening or mismatched room bound would falsify the room schedule.
+ * @evidenceReview spaces/temple.md#room-schedule-and-direct-thresholds #e393909 Independent positive space-source review for ancientCivicTempleSpaceSource: checked target spaces/temple.md#room-schedule-and-direct-thresholds's authored predicate; observed target spaces/temple.md#room-schedule-and-direct-thresholds predicate [The space array emits the sanctuary, communal-votive, administration, records, and votive-storage rooms with their reviewed bounds and direct door relations.] is satisfied by emitted spatial fact [sanctuary, communal-votive-room, administration-room, records-room, and votive-storage-room each have the reviewed floor bounds, direct opening, room threshold, 1.20m reservation route, and six observation anchors]. Falsifier: the target fails if [The space array emits the sanctuary, communal-votive, administration, records, and votive-storage rooms with their reviewed bounds and direct door relations.] no longer holds or if the emitted spatial fact changes.
  * @evidence spaces/temple.md#entrance-service-gate-and-route-graph The connector array emits the south entry, five direct room passages, and terminal service gate with the reviewed clear widths, room route sections, and source-owned reservations.
- * @evidenceReview spaces/temple.md#entrance-service-gate-and-route-graph #b231c39 Independent spatial-source review: target spaces/temple.md#entrance-service-gate-and-route-graph requires that the source must preserve the south entry route and rear-east service-yard terminal without adding a connector; observed the south entry opening is direct to colonnade-loop and service-yard is an external rear-east terminal reached through the service gate. Falsifier: a service connector entering the loop or a second terminal would falsify the route graph.
+ * @evidenceReview spaces/temple.md#entrance-service-gate-and-route-graph #6970694 Independent positive space-source review for ancientCivicTempleSpaceSource: checked target spaces/temple.md#entrance-service-gate-and-route-graph's authored predicate; observed target spaces/temple.md#entrance-service-gate-and-route-graph predicate [The connector array emits the south entry, five direct room passages, and terminal service gate with the reviewed clear widths, room route sections, and source-owned reservations.] is satisfied by emitted spatial fact [the connector IDs are south-entrance, courtyard-to-loop, door-sanctuary, door-communal-votive, door-administration, door-records, door-votive-storage, and service-gate, with service-yard terminal access]. Falsifier: the target fails if [The connector array emits the south entry, five direct room passages, and terminal service gate with the reviewed clear widths, room route sections, and source-owned reservations.] no longer holds or if the emitted spatial fact changes.
  * @evidence spaces/temple.md#envelope-opening-and-interior-interface The environment emits the 0.60m exterior walls, 0.40m loop partitions, two named east separators, seven opening voids, and their host-facing surfaces without adding a boundary.
- * @evidenceReview spaces/temple.md#envelope-opening-and-interior-interface #440376d Independent spatial-source review: target spaces/temple.md#envelope-opening-and-interior-interface requires that the source must emit the 0.60m exterior wall, 0.40m partitions, opening hosts, and their reviewed vertical ranges; observed exterior walls are 0.60m, loop partitions are 0.40m, and all seven openings carry host depth and vertical range. Falsifier: a changed wall/partition thickness or an opening without host depth and vertical range would falsify the interface.
+ * @evidenceReview spaces/temple.md#envelope-opening-and-interior-interface #440376d Independent positive space-source review for ancientCivicTempleSpaceSource: checked target spaces/temple.md#envelope-opening-and-interior-interface's authored predicate; observed target spaces/temple.md#envelope-opening-and-interior-interface predicate [The environment emits the 0.60m exterior walls, 0.40m loop partitions, two named east separators, seven opening voids, and their host-facing surfaces without adding a boundary.] is satisfied by emitted spatial fact [the emitted wall and partition elements carry 0.60m exterior or 0.40m loop/separator depth, while all 7 opening-void elements retain their reviewed host and Y ranges]. Falsifier: the target fails if [The environment emits the 0.60m exterior walls, 0.40m loop partitions, two named east separators, seven opening voids, and their host-facing surfaces without adding a boundary.] no longer holds or if the emitted spatial fact changes.
  * @evidence spaces/temple.md#surface-decomposition-and-ownership-handoff The thirteen floor surfaces include the entry, courtyard floor with a 0.85m basin-footprint hole, four named courtyard-edge hosts, loop, five rooms, and service yard, preserving the reviewed one-owner surface schedule.
- * @evidenceReview spaces/temple.md#surface-decomposition-and-ownership-handoff #f83187d Independent spatial-source review: target spaces/temple.md#surface-decomposition-and-ownership-handoff requires that the source must expose one stable owner for every declared floor, courtyard-edge, loop, room, and service surface; observed surface IDs include courtyard-floor with its hole, four courtyard-edge hosts, loop-floor, eight room/threshold floors, and service-yard-floor. Falsifier: an absent, duplicate, or viewer-only surface host would falsify ownership.
+ * @evidenceReview spaces/temple.md#surface-decomposition-and-ownership-handoff #f83187d Independent positive space-source review for ancientCivicTempleSpaceSource: checked target spaces/temple.md#surface-decomposition-and-ownership-handoff's authored predicate; observed target spaces/temple.md#surface-decomposition-and-ownership-handoff predicate [The thirteen floor surfaces include the entry, courtyard floor with a 0.85m basin-footprint hole, four named courtyard-edge hosts, loop, five rooms, and service yard, preserving the reviewed one-owner surface schedule.] is satisfied by emitted spatial fact [the surface IDs are surface/entry-threshold-floor, surface/courtyard-floor, four courtyard-edge faces, surface/loop-floor, five room floors, and surface/service-yard-floor, each emitted once]. Falsifier: the target fails if [The thirteen floor surfaces include the entry, courtyard floor with a 0.85m basin-footprint hole, four named courtyard-edge hosts, loop, five rooms, and service yard, preserving the reviewed one-owner surface schedule.] no longer holds or if the emitted spatial fact changes.
  * @evidence spaces/temple.md#spatial-identity-tolerance-and-exclusions The emitted identities retain west communal placement, north sanctuary axis, east room order, rear-east service terminal, central fountain landmark, and the no-mirror/no-extra-corridor exclusions.
- * @evidenceReview spaces/temple.md#spatial-identity-tolerance-and-exclusions #e055926 Independent spatial-source review: target spaces/temple.md#spatial-identity-tolerance-and-exclusions requires that the source must preserve source-owned route reservations, landmarks, orientation, and refusal of invalid same-space graph edges; observed 25 reservation elements carry clearWidth 1.20m and protectedBand 0.30m, and same-space connectors are refused by the source contract. Falsifier: a blocked route, altered landmark, or accepted same-space connector would falsify the identity boundary.
+ * @evidenceReview spaces/temple.md#spatial-identity-tolerance-and-exclusions #e055926 Independent positive space-source review for ancientCivicTempleSpaceSource: checked target spaces/temple.md#spatial-identity-tolerance-and-exclusions's authored predicate; observed target spaces/temple.md#spatial-identity-tolerance-and-exclusions predicate [The emitted identities retain west communal placement, north sanctuary axis, east room order, rear-east service terminal, central fountain landmark, and the no-mirror/no-extra-corridor exclusions.] is satisfied by emitted spatial fact [the source keeps west communal, north sanctuary, east room order, rear-east service yard, fountain-center landmark, 25 protected reservations, and same-space connector refusal]. Falsifier: the target fails if [The emitted identities retain west communal placement, north sanctuary axis, east room order, rear-east service terminal, central fountain landmark, and the no-mirror/no-extra-corridor exclusions.] no longer holds or if the emitted spatial fact changes.
  * @evidence spaces/temple.md#spatial-verification-addresses-and-finite-review-set The source emits threshold, center, four cardinal, route, and loop-return addresses as source-owned elements so the compiled observation set can measure them rather than rely on viewer decoration.
- * @evidenceReview spaces/temple.md#spatial-verification-addresses-and-finite-review-set #bc595fa Independent spatial-source review: target spaces/temple.md#spatial-verification-addresses-and-finite-review-set requires that the source must emit the approved threshold, center, cardinal, and protected-route addresses used by the finite review set; observed each of five rooms emits threshold, center, north, east, south, and west observation coordinates plus its protected route reservation. Falsifier: a missing cardinal point or protected band would falsify the finite review address.
+ * @evidenceReview spaces/temple.md#spatial-verification-addresses-and-finite-review-set #bc595fa Independent positive space-source review for ancientCivicTempleSpaceSource: checked target spaces/temple.md#spatial-verification-addresses-and-finite-review-set's authored predicate; observed target spaces/temple.md#spatial-verification-addresses-and-finite-review-set predicate [The source emits threshold, center, four cardinal, route, and loop-return addresses as source-owned elements so the compiled observation set can measure them rather than rely on viewer decoration.] is satisfied by emitted spatial fact [each of the 5 rooms emits threshold, center, north, east, south, and west route-anchor IDs plus 5 reservation elements with clearWidth 1.20m and protectedBand 0.30m]. Falsifier: the target fails if [The source emits threshold, center, four cardinal, route, and loop-return addresses as source-owned elements so the compiled observation set can measure them rather than rely on viewer decoration.] no longer holds or if the emitted spatial fact changes.
  * @evidence principles/core/source-units.md#source-scope-preservation This export realizes spatial records only; model geometry, material construction, instance count, camera composition, and viewer interpretation remain outside the source owner.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 Independent spatial-source review: target principles/core/source-units.md#source-scope-preservation requires that the export must emit spatial topology, openings, surfaces, and route data only, leaving models, materials, and placement downstream; observed the export contains spaces, openings, connectors, surfaces, and reservations but no model mesh, material response, or placement population. Falsifier: a model, material, or placement record emitted by this export would falsify scope.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 Independent positive space-source review for ancientCivicTempleSpaceSource: checked target principles/core/source-units.md#source-scope-preservation's authored predicate; observed target principles/core/source-units.md#source-scope-preservation predicate [This export realizes spatial records only; model geometry, material construction, instance count, camera composition, and viewer interpretation remain outside the source owner.] is satisfied by emitted spatial fact [the export contains spaces, openings, connectors, surfaces, walkable IDs, and route elements, while model mesh, material response, instance population, and camera data are absent]. Falsifier: the target fails if [This export realizes spatial records only; model geometry, material construction, instance count, camera composition, and viewer interpretation remain outside the source owner.] no longer holds or if the emitted spatial fact changes.
  * @evidence principles/core/source-units.md#source-substantive-completion The deterministic factory returns buildings, spaces, elements, boundaries, openings, connectors, surfaces, walkable IDs, and the provisional semantic material records required by the reviewed space interface.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Independent spatial-source review: target principles/core/source-units.md#source-substantive-completion requires that the export must be executable and contain every declared space boundary, opening, surface, and route interface; observed the executable factory returns the complete site/storey graph, seven openings, eight connectors, 13 surfaces, and route reservations. Falsifier: a declared boundary or interface absent from the returned data would falsify completion.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Independent positive space-source review for ancientCivicTempleSpaceSource: checked target principles/core/source-units.md#source-substantive-completion's authored predicate; observed target principles/core/source-units.md#source-substantive-completion predicate [The deterministic factory returns buildings, spaces, elements, boundaries, openings, connectors, surfaces, walkable IDs, and the provisional semantic material records required by the reviewed space interface.] is satisfied by emitted spatial fact [the executable environment object returns the named buildings, spaces, boundaries, openings, connectors, surfaces, walkable IDs, and source-owned route elements]. Falsifier: the target fails if [The deterministic factory returns buildings, spaces, elements, boundaries, openings, connectors, surfaces, walkable IDs, and the provisional semantic material records required by the reviewed space interface.] no longer holds or if the emitted spatial fact changes.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The source implements the reviewed site bounds, ground-storey containment, room boxes, separator intervals, opening hosts, route widths, route protection, loop anchors, fountain landmark, floor holes, and service terminal; no parent interface was missing or repaired here.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 Independent exclusion check for ancientCivicTempleSpaceSource: checked the environment factory 13 floor surfaces, including the courtyard basin-footprint hole and four named courtyard-edge hosts, plus source-owned route reservations against design-revision-from-space-source-work; no missing parent decision or repaired upstream interface was found, and a parent repair would falsify this exclusion.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 Independent exclusion space-source review for ancientCivicTempleSpaceSource: checked target upstream/design/space-sources.md#design-revision-from-space-source-work's parent-revision predicate; observed target upstream/design/space-sources.md#design-revision-from-space-source-work exclusion predicate [The source implements the reviewed site bounds, ground-storey containment, room boxes, separator intervals, opening hosts, route widths, route protection, loop anchors, fountain landmark, floor holes, and service terminal; no parent interface was missing or repaired here.] is satisfied by emitted spatial fact [the source already carries the reviewed room bounds, opening hosts, separator spans, floor hole, courtyard edges, service terminal, and route reservations]. Falsifier: the exclusion fails if [The source implements the reviewed site bounds, ground-storey containment, room boxes, separator intervals, opening hosts, route widths, route protection, loop anchors, fountain landmark, floor holes, and service terminal; no parent interface was missing or repaired here.] no longer holds or if the emitted spatial fact changes.
  * @evidence obligations/design/space-sources.md#space-source-design-ownership Every emitted room, opening, connector, route reservation, and surface is tied to one of the nine reviewed spaces H2s above; the source invents no place or dimension.
- * @evidenceReview obligations/design/space-sources.md#space-source-design-ownership #c0afa1f Independent spatial-source review: target obligations/design/space-sources.md#space-source-design-ownership requires that the source must construct the reviewed space design through the named space factory rather than a hidden or viewer-only record; observed the ancientCivicTempleSpaceSource constructor binds the reviewed spaces/temple.md design and returns its factory output. Falsifier: a source export not bound to the reviewed design address would falsify ownership.
+ * @evidenceReview obligations/design/space-sources.md#space-source-design-ownership #c0afa1f Independent positive space-source review for ancientCivicTempleSpaceSource: checked target obligations/design/space-sources.md#space-source-design-ownership's authored predicate; observed target obligations/design/space-sources.md#space-source-design-ownership predicate [Every emitted room, opening, connector, route reservation, and surface is tied to one of the nine reviewed spaces H2s above; the source invents no place or dimension.] is satisfied by emitted spatial fact [ancientCivicTempleSpaceSource binds docs/spaces/temple.md and returns its sole environment factory rather than a viewer-only route record]. Falsifier: the target fails if [Every emitted room, opening, connector, route reservation, and surface is tied to one of the nine reviewed spaces H2s above; the source invents no place or dimension.] no longer holds or if the emitted spatial fact changes.
  * @evidence obligations/design/space-sources.md#space-source-stable-identities Fixed IDs, metre units, Y-up transforms, bounds, parent spaces, opening names, connector sections, and equal-input factory output remain stable across builds.
- * @evidenceReview obligations/design/space-sources.md#space-source-stable-identities #8f4bb4a Independent spatial-source review: target obligations/design/space-sources.md#space-source-stable-identities requires that the source must preserve the named space, opening, connector, surface, and reservation IDs used by downstream owners; observed named room IDs, opening IDs, connector IDs, surface IDs, loop-return anchors, and reservation IDs are emitted in source data. Falsifier: a renamed or missing downstream ID would falsify stable identity.
+ * @evidenceReview obligations/design/space-sources.md#space-source-stable-identities #8f4bb4a Independent positive space-source review for ancientCivicTempleSpaceSource: checked target obligations/design/space-sources.md#space-source-stable-identities's authored predicate; observed target obligations/design/space-sources.md#space-source-stable-identities predicate [Fixed IDs, metre units, Y-up transforms, bounds, parent spaces, opening names, connector sections, and equal-input factory output remain stable across builds.] is satisfied by emitted spatial fact [the returned arrays preserve the named space, opening, connector, surface, loop-return, and observation reservation IDs in declaration order]. Falsifier: the target fails if [Fixed IDs, metre units, Y-up transforms, bounds, parent spaces, opening names, connector sections, and equal-input factory output remain stable across builds.] no longer holds or if the emitted spatial fact changes.
  * @evidence obligations/design/space-sources.md#space-source-invalid-topology The source refuses to represent same-space loop return as an invalid connector and instead emits the reviewed closed anchor sequence; required routes, host holes, and separator bounds are represented explicitly rather than guessed.
- * @evidenceReview obligations/design/space-sources.md#space-source-invalid-topology #030592d Independent spatial-source review: target obligations/design/space-sources.md#space-source-invalid-topology requires that the source must refuse invalid topology such as a same-space connector while retaining the loop-return anchor representation; observed the factory rejects from===to connectors and represents the closed loop with five loop-return anchors instead. Falsifier: accepting an invalid same-space edge or losing a loop-return anchor would falsify topology refusal.
+ * @evidenceReview obligations/design/space-sources.md#space-source-invalid-topology #030592d Independent positive space-source review for ancientCivicTempleSpaceSource: checked target obligations/design/space-sources.md#space-source-invalid-topology's authored predicate; observed target obligations/design/space-sources.md#space-source-invalid-topology predicate [The source refuses to represent same-space loop return as an invalid connector and instead emits the reviewed closed anchor sequence; required routes, host holes, and separator bounds are represented explicitly rather than guessed.] is satisfied by emitted spatial fact [the connector helper rejects from===to and the source retains loop-return/00..04 as the valid closed-ring representation]. Falsifier: the target fails if [The source refuses to represent same-space loop return as an invalid connector and instead emits the reviewed closed anchor sequence; required routes, host holes, and separator bounds are represented explicitly rather than guessed.] no longer holds or if the emitted spatial fact changes.
  */
 export const ancientCivicTempleSpaceSource: IAutoMovieLibrarySourceOwner = {
   design: "docs/spaces/temple.md#one-storey-civic-temple-graph",
