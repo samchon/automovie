@@ -73,6 +73,7 @@ export function mountHumanFacePanel<Model extends PreviewAsset>(
       fitView: () => void;
       cameraView: (degrees: number) => void;
       setClay: (enabled: boolean) => void;
+      setShadows: (enabled: boolean) => void;
     };
     /** The browser host owns actual file publication; the panel selects committed bytes. */
     download: (filename: string, bytes: BlobPart, mime: string) => void;
@@ -99,7 +100,7 @@ textarea{width:100%;height:250px;padding:8px;font:11px/1.4 ui-monospace,monospac
 @media(max-width:780px){#human-editor{grid-template-columns:1fr;height:auto}#viewport{height:60vh}#face-panel{height:auto;overflow:visible}}
 </style>
 <main id="human-editor"><section id="viewport"><canvas id="face-canvas"></canvas><div id="view-tools">
-<button data-view="0">Front</button><button data-view="45">Left ¾</button><button data-view="-45">Right ¾</button><button data-view="90">Left</button><button data-view="-90">Right</button><button data-view="180">Back</button><button id="fit-view">Fit</button><label><input id="clay" type="checkbox"> Clay</label>
+<button data-view="0">Front</button><button data-view="45">Left ¾</button><button data-view="-45">Right ¾</button><button data-view="90">Left</button><button data-view="-90">Right</button><button data-view="180">Back</button><button id="fit-view">Fit</button><label><input id="clay" type="checkbox"> Clay</label><label><input id="shadows" type="checkbox" checked> Shadows</label>
 </div><div id="view-note">Drag to orbit · wheel to zoom · static expression pose</div></section>
 <aside id="face-panel"><h1>Human · face editor</h1><p>Procedural anatomy · numerical replay · no runtime photograph</p><div id="face-status" role="status">Choose a face document.</div>
 <h2>Subject</h2><select id="face-subject" aria-label="Subject"></select><p class="hint" id="source-note"></p>
@@ -148,6 +149,8 @@ textarea{width:100%;height:250px;padding:8px;font:11px/1.4 ui-monospace,monospac
   element("fit-view").onclick = fitView;
   element<HTMLInputElement>("clay").onchange = () =>
     viewport.setClay(element<HTMLInputElement>("clay").checked);
+  element<HTMLInputElement>("shadows").onchange = () =>
+    viewport.setShadows(element<HTMLInputElement>("shadows").checked);
   const change = async (next: IAutoMovieHumanFaceDocument): Promise<void> => {
     const revision = ++subjectRevision;
     // Only controls rendered from a committed document can supply a candidate.

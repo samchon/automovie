@@ -66,6 +66,7 @@ export function createHumanViewport(props: {
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   const scene = new THREE.Scene();
+  const shadowLights: THREE.DirectionalLight[] = [];
   scene.background = new THREE.Color(0x1c252e);
   scene.add(new THREE.HemisphereLight(0xffeee2, 0x526578, 0.5));
   for (const [x, y, z, power, color] of [
@@ -77,6 +78,7 @@ export function createHumanViewport(props: {
     light.position.set(x, y, z);
     scene.add(light);
     if (x < 0) {
+      shadowLights.push(light);
       light.castShadow = true;
       light.shadow.mapSize.set(4096, 4096);
       Object.assign(light.shadow.camera, {
@@ -168,6 +170,13 @@ export function createHumanViewport(props: {
     cameraView,
     setClay: (enabled: boolean): void => {
       clayEnabled = enabled;
+    },
+    // A cast-shadow boundary can resemble a crease in the anatomical surface.
+    // Toggle only the shadow casters: direct light, materials, geometry and the
+    // saved document stay fixed, so the two views isolate that ambiguity.
+    // Changing the light's shadow count also refreshes Three's shader variant.
+    setShadows: (enabled: boolean): void => {
+      for (const light of shadowLights) light.castShadow = enabled;
     },
     finish: () => {
       render();
