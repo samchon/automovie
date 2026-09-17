@@ -10,7 +10,9 @@ Authority and status: the reviewed settings visual grammar, model stable-surface
 
 The population is eleven independently replaceable decisions: wall plaster, structural stone, floor stone, service-yard earth, dark timber, terracotta roof, water, ceramic, basket fiber, lamp metal, and the neutral material review condition. The lower wall band is a region state of the wall-plaster assembly rather than a second owner of the same complete wall surface. Route-reservation elements are review overlays and have no finish material. HDRI, photographic projection, procedural particles, displacement, and hidden engineering are outside this material scope.
 
-Every renderer material uses linear `baseColor` values, `metallic` and `roughness` in `[0, 1]`, `opacity=1`, `alphaMode=opaque`, `emissive=null`, and no texture unless a later source explicitly supplies a reviewed asset. The canonical material key is the stable surface identifier where a model source already exposes one; semantic space hosts use the family key in this document. This distinction keeps binding identity readable without pretending that the current library contribution has a standalone material carrier.
+Every finish renderer material uses linear `baseColor` values, `metallic` and `roughness` in `[0, 1]`, `opacity=1`, `alphaMode=opaque`, `emissive=null`, and no texture unless a later source explicitly supplies a reviewed asset. The diagnostic route overlay is the sole non-finish exception and is transparent by the explicit rule below. The canonical material key is the stable surface identifier where a model source already exposes one; semantic space hosts use the family key in this document. This distinction keeps binding identity readable without pretending that the current library contribution has a standalone material carrier.
+
+The current space source carries provisional renderer records for the five semantic families it consumes: `material/wall-plaster-ochre`, `material/light-stone-rough`, `material/floor-stone`, `material/red-terracotta`, and `material/service-yard-earth`. Those records use the same linear values and roughness declared below; they are a transport for the compiled environment and are not a second material owner. The transparent `material/route-reservation-overlay` record is a diagnostic overlay, not a finish assignment, and remains outside the material population.
 
 The material branch inherits the reviewed Y-up metre convention. Surface scale is expressed in metres: any future texture binding must state its coordinate source and repeat scale, and a missing texture asset is `unverified` rather than silently replaced by an image or a new geometry layer.
 
@@ -34,7 +36,9 @@ Authority and status: the reviewed rough light-stone plinth, column, frame, basi
 
 The material family is `material/light-stone-rough`, with linear base colour `(0.47, 0.40, 0.30)`, metallic `0`, roughness `0.84`, opaque, non-emissive, and no texture. It is a visible blocking finish over the model part, not a claim about structural thickness. It keeps the same response on connected surfaces of one prototype so a column, basin, altar, or door frame does not change substance at an arbitrary seam.
 
-The model bindings are `column-stone-base`, `column-stone-shaft`, `column-stone-capital`, `door-frame-left-stone`, `door-frame-right-stone`, `door-frame-lintel-stone`, `basin-stone-exterior`, `basin-stone-rim`, `altar-plinth-stone`, `altar-body-stone`, `display-plinth-stone`, `display-board-stone`, and `display-ledge-stone`. The space bindings are the four `courtyard-edge` faces and any named stone opening reveal. The exterior elevation remains assigned to wall plaster because no separate stone-plinth surface is owned by spaces. `door-leaf-wood`, water, ceramic, and plaster are not members of this family.
+The model bindings are `column-stone-base`, `column-stone-shaft`, `column-stone-capital`, `door-frame-left-stone`, `door-frame-right-stone`, `door-frame-lintel-stone`, `basin-stone-exterior`, `basin-stone-rim`, `altar-plinth-stone`, `altar-body-stone`, `display-plinth-stone`, `display-board-stone`, `display-ledge-stone`, and `scale-board-stone`. The space bindings are the four `courtyard-edge` faces and any named stone opening reveal. The exterior elevation remains assigned to wall plaster because no separate stone-plinth surface is owned by spaces. `door-leaf-wood`, water, ceramic, and plaster are not members of this family.
+
+In the current space source, the two exterior entry/service lintels, every room-loop jamb and lintel, and both east-room separators use the provisional `material/light-stone-rough` record. The six exposed wall runs use `material/wall-plaster-ochre`; this keeps the wall finish and the stone boundary pieces distinct without changing their reviewed geometry.
 
 The permitted deterministic variation is tone ±`0.025` per linear channel and roughness ±`0.04`; it must preserve the light-stone read and never add a normal map, bevel, crack, or displacement that changes the model silhouette. The negative boundary of the votive display remains an empty field; stone surrounds it but does not fill it.
 
@@ -48,6 +52,8 @@ The family is `material/floor-stone`, with linear base colour `(0.57, 0.48, 0.33
 
 Bindings are `surface/entry-threshold-floor`, `surface/courtyard-floor`, `surface/loop-floor`, `surface/sanctuary-floor`, `surface/communal-votive-floor`, `surface/administration-floor`, `surface/records-floor`, and `surface/votive-storage-floor`. The courtyard floor remains open to the basin socket and has no material geometry over the basin or stream. `surface/service-yard-floor` is assigned to the earth family below, not silently treated as interior paving.
 
+The current space source assigns `material/floor-stone` to the entry threshold, courtyard, loop, sanctuary, communal-votive, administration, records, and votive-storage floor elements, and assigns `material/service-yard-earth` only to the service-yard floor element. Their provisional records use roughness `0.90` and `0.94` respectively, matching this document.
+
 The finish is continuous at the room threshold and does not narrow the 1.20m protected route. Tone variation is ±`0.035` per linear channel and roughness variation is ±`0.03`, deterministic and face-stable. A tile or seam pattern that cannot state its metre repeat is refused as `unverified`; a viewer route line is not a floor finish.
 
 Review question: from the neutral exterior, courtyard, and room views, do all eight civic floor hosts read as one restrained matte stone field, with no material crossing the courtyard hole or reserved route?
@@ -57,6 +63,8 @@ Review question: from the neutral exterior, courtyard, and room views, do all ei
 Authority and status: the rear-east service yard's practical unpaved distinction is an `author-adopted` interpretation of the settings service boundary and reference 5's service question. Scope: only `surface/service-yard-floor` and its `service-yard-boundary` ground-facing host.
 
 The family is `material/service-yard-earth`, with linear base colour `(0.25, 0.16, 0.09)`, metallic `0`, roughness `0.94`, opaque, non-emissive, and no texture. It is a flat blocking earth response and does not add gravel geometry, vegetation, puddles, or a second service circulation path. The service gate remains a terminal access owned by spaces.
+
+The current space source's `floor/service-yard` element is the sole provisional consumer of `material/service-yard-earth`; no room, loop, courtyard, roof, or model element receives this record.
 
 No earth material binds to a room, loop, courtyard, roof, or model part. Deterministic tone variation is limited to ±`0.025` per linear channel and roughness ±`0.03`; it may not become a photographic ground texture. If the service yard is exposed in a review view, the contrast with the floor-stone family must remain legible without changing the building graph.
 
@@ -77,6 +85,8 @@ Review question: do the door leaves and fit-out pieces read as one restrained da
 Authority and status: the low red terracotta roof grammar is `user-fixed` in appearance and `author-adopted` in response. Scope: the reusable roof-tile surfaces and the roof-cover host; the roof silhouette, overlap count, ridge, and eave geometry remain owned by models, spaces, and instances.
 
 The family is `material/red-terracotta`, with linear base colour `(0.34, 0.12, 0.05)`, metallic `0`, roughness `0.88`, opaque, non-emissive, and no texture. Model bindings are exactly `roof-tile-top`, `roof-tile-edge`, and `roof-tile-underside`; the space binding is `roof-cover`. The roof underside is assigned to dark timber only where its host is a timber underside; a tile underside does not become timber merely because it faces down.
+
+The current space source assigns `material/red-terracotta` to each of `roof/south-cover`, `roof/north-cover`, `roof/west-cover`, and `roof/east-cover`, with roughness `0.88`; the roof geometry and courtyard opening remain space-owned.
 
 The tile's existing metre scale is the only repeat basis: no image repetition is introduced without an explicit surface-metres coordinate source and a repeat value. Tone variation is ±`0.03` per channel and roughness ±`0.04`, deterministic per tile population member but not enough to erase the continuous low-profile roof read. Material assignment never changes the reviewed roof hole over the courtyard.
 
