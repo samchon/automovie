@@ -1,23 +1,24 @@
 {
   "basis": "mpfb-connected-head-2026-09-17-binocular-frame",
   "basisSha256": "80e3cbbbc254af3a22392b32dc0cb0767ab789372cb15a8bfc20f06924785fdc",
-  "method": "Bounded robust TRF with six equal semantic landmark groups, 84 shape controls, 52 performance controls, three whole-face shape starts, lip landmarks anchored on the authored lip material, a commitment-scaled shape regularizer of 0.003 at the basis's root-mean-square channel commitment and 0.015 observed-performance regularity",
-  "residualInstrument": "Both semantic group residuals are measured on the repaired lip anchors, so the published and candidate solutions share one instrument",
+  "method": "Bounded robust TRF with six equal semantic landmark groups, 84 shape controls, 52 performance controls, three whole-face shape starts, every landmark anchored on the outer surface the front camera sees, a commitment-scaled shape regularizer of 0.003 at the basis's root-mean-square channel commitment and 0.015 observed-performance regularity",
+  "residualInstrument": "Both semantic group residuals are measured on the outer-shell anchors, so the published and candidate solutions share one instrument",
   "frozenSubject": "generated-korean-girl-01",
-  "repairedLipAnchors": [
+  "anchorRule": "outer shell",
+  "repairedAnchors": [
     {
-      "landmark": 0,
-      "imagePlaneDistance": 0.0005152274672782837,
-      "moved": 0.0006327438225921573,
-      "previousZ": 0.15170365368387012,
-      "anchorZ": 0.15207094839114282
+      "landmark": 33,
+      "imagePlaneDistance": 0.00004689809408725224,
+      "moved": 0.018001946578118103,
+      "previousZ": 0.10821564466974093,
+      "anchorZ": 0.1262175301590498
     },
     {
-      "landmark": 37,
-      "imagePlaneDistance": 0.0012396967041748642,
-      "moved": 0.0014890518983044008,
-      "previousZ": 0.1504832389193352,
-      "anchorZ": 0.1513081192970276
+      "landmark": 58,
+      "imagePlaneDistance": 0.0007408833628675681,
+      "moved": null,
+      "previousZ": null,
+      "anchorZ": 0.07502714407744557
     },
     {
       "landmark": 88,
@@ -34,6 +35,34 @@
       "anchorZ": 0.13856814504104792
     },
     {
+      "landmark": 158,
+      "imagePlaneDistance": 0.00022901217634196705,
+      "moved": 0.029733928281593155,
+      "previousZ": 0.10382211557035878,
+      "anchorZ": 0.1335551619073558
+    },
+    {
+      "landmark": 159,
+      "imagePlaneDistance": 0.0006090593545135088,
+      "moved": 0.030175504488428515,
+      "previousZ": 0.10356801750569794,
+      "anchorZ": 0.13373737477153722
+    },
+    {
+      "landmark": 160,
+      "imagePlaneDistance": 0.0010548685802172903,
+      "moved": 0.028140933326266798,
+      "previousZ": 0.10443716082624475,
+      "anchorZ": 0.13255831622128256
+    },
+    {
+      "landmark": 161,
+      "imagePlaneDistance": 0.0015190197124436977,
+      "moved": 0.02515486491800549,
+      "previousZ": 0.10576579975846181,
+      "anchorZ": 0.1308747584815214
+    },
+    {
       "landmark": 178,
       "imagePlaneDistance": 0.0001872455135489883,
       "moved": 0.09657876437503393,
@@ -48,25 +77,18 @@
       "anchorZ": 0.1404963082270715
     },
     {
-      "landmark": 267,
-      "imagePlaneDistance": 0.0017366091074928235,
-      "moved": 0.002078055003738158,
-      "previousZ": 0.14946704252832063,
-      "anchorZ": 0.15060831436549799
+      "landmark": 246,
+      "imagePlaneDistance": 0.0016879019676178605,
+      "moved": 0.019657742877651135,
+      "previousZ": 0.10687827665541069,
+      "anchorZ": 0.12646342005523178
     },
     {
-      "landmark": 269,
-      "imagePlaneDistance": 0.0009974056834412192,
-      "moved": 0.001192538143842454,
-      "previousZ": 0.14597826773281466,
-      "anchorZ": 0.14663197189155802
-    },
-    {
-      "landmark": 270,
-      "imagePlaneDistance": 0.0003657280191237627,
-      "moved": 0.0004323865710982504,
-      "previousZ": 0.1428340752495585,
-      "anchorZ": 0.1430647290223304
+      "landmark": 288,
+      "imagePlaneDistance": 0.00014958512359104981,
+      "moved": null,
+      "previousZ": null,
+      "anchorZ": 0.07491328373725584
     },
     {
       "landmark": 318,
@@ -83,6 +105,41 @@
       "anchorZ": 0.13798544305123703
     },
     {
+      "landmark": 384,
+      "imagePlaneDistance": 0.00018441796199769237,
+      "moved": 0.026026293411496874,
+      "previousZ": 0.10527568587883737,
+      "anchorZ": 0.13130132590471605
+    },
+    {
+      "landmark": 385,
+      "imagePlaneDistance": 0.000020552984219399566,
+      "moved": 0.02987923667822675,
+      "previousZ": 0.10378162849740946,
+      "anchorZ": 0.13366085810676068
+    },
+    {
+      "landmark": 386,
+      "imagePlaneDistance": 0.0001297345290931153,
+      "moved": 0.02996656082000858,
+      "previousZ": 0.1037255291354105,
+      "anchorZ": 0.13369180912361114
+    },
+    {
+      "landmark": 387,
+      "imagePlaneDistance": 0.0002261131160643975,
+      "moved": 0.027348858627395573,
+      "previousZ": 0.10495864986136956,
+      "anchorZ": 0.13230657375112787
+    },
+    {
+      "landmark": 388,
+      "imagePlaneDistance": 0.0005250387524491167,
+      "moved": 0.023386568605345364,
+      "previousZ": 0.10653917249912286,
+      "anchorZ": 0.12991984668617212
+    },
+    {
       "landmark": 402,
       "imagePlaneDistance": 0.00014957662875932583,
       "moved": 0.09599937827453368,
@@ -95,13 +152,20 @@
       "moved": 0.09238615929041849,
       "previousZ": 0.04793910439859451,
       "anchorZ": 0.14032508690855802
+    },
+    {
+      "landmark": 466,
+      "imagePlaneDistance": 0.0006154898887205413,
+      "moved": 0.019886132961035155,
+      "previousZ": 0.10785953818466644,
+      "anchorZ": 0.12773614393969543
     }
   ],
   "commitmentReferenceMetres": 0.002364645094507096,
-  "equalGroupRootMeanBefore": 0.015064157624969206,
-  "equalGroupRootMeanAfter": 0.012420141393364422,
+  "equalGroupRootMeanBefore": 0.014633741933658271,
+  "equalGroupRootMeanAfter": 0.010889438362989516,
   "committedShapeMillimetresBefore": 20.292647048458026,
-  "committedShapeMillimetresAfter": 16.087040100936857,
+  "committedShapeMillimetresAfter": 14.90594959023789,
   "limits": [
     "Single-image depth is inferred",
     "Detector landmarks are not anatomical measurements",
@@ -120,45 +184,45 @@
         "author": "Not supplied in the issue asset inventory",
         "license": "Not established; retained locally for user-requested analysis only"
       },
-      "rmseBeforeFaceHeight": 0.027093368417958626,
-      "rmseAfterFaceHeight": 0.01524253309745809,
+      "rmseBeforeFaceHeight": 0.024569904106986052,
+      "rmseAfterFaceHeight": 0.012646645977871082,
       "semanticGroupRms": {
-        "lips": 0.019630438678482704,
-        "eyes": 0.025930129674381113,
-        "brows": 0.012583285440587942,
-        "outline": 0.018814876934924032,
-        "nose": 0.007865077959493571,
-        "other": 0.013121540285712162
+        "lips": 0.018864729227848695,
+        "eyes": 0.0071508685240907035,
+        "brows": 0.011744862808321948,
+        "outline": 0.016221781614242474,
+        "nose": 0.00849227980516145,
+        "other": 0.011935538054490132
       },
       "previousSemanticGroupRms": {
-        "lips": 0.021614042075821828,
-        "eyes": 0.018424184849131768,
+        "lips": 0.021817246750118507,
+        "eyes": 0.010018684856092832,
         "brows": 0.01690408085887165,
-        "outline": 0.04376865667609713,
+        "outline": 0.043291395178678325,
         "nose": 0.012321953298270625,
         "other": 0.01664378204993792
       },
-      "committedShapeMillimetres": 25.458165039653476,
+      "committedShapeMillimetres": 19.13918898051648,
       "previousCommittedShapeMillimetres": 40.22621533606353,
-      "glbSha256": "2f5e9e5347eb2fdbe18d09c8e0a4101b4d48c319f21f2be485782ad3bcf3f21c",
+      "glbSha256": "cca2b2a9e91b450900f419a70581417ae04bbd2f936df3253eb1b2a646fe1808",
       "parts": 7,
-      "documentSha256": "630fa5b0ab5ed1500481ee0fe61137d3c19bc6b3659ec5460cf849c2e23970fb",
+      "documentSha256": "3a8c3826ab8f7f7959b223c9ce80f97e7f1496d7052181913b3e83ab755219ea",
       "likeness": "unaccepted",
       "multistart": [
         {
-          "cost": 0.00017952764181521053,
-          "success": true,
-          "nfev": 33
-        },
-        {
-          "cost": 0.00017883726737310702,
+          "cost": 0.00010444700235790082,
           "success": true,
           "nfev": 44
         },
         {
-          "cost": 0.00018261234747670783,
+          "cost": 0.00010333570733698424,
           "success": true,
-          "nfev": 71
+          "nfev": 49
+        },
+        {
+          "cost": 0.0001067553228919512,
+          "success": true,
+          "nfev": 78
         }
       ]
     },
@@ -172,45 +236,45 @@
         "author": "Not supplied in the issue asset inventory",
         "license": "Not established; retained locally for user-requested analysis only"
       },
-      "rmseBeforeFaceHeight": 0.0239544712242214,
-      "rmseAfterFaceHeight": 0.00921986312760518,
+      "rmseBeforeFaceHeight": 0.023808536285274604,
+      "rmseAfterFaceHeight": 0.008708992870545298,
       "semanticGroupRms": {
-        "lips": 0.015531653895290152,
-        "eyes": 0.009829079124276437,
-        "brows": 0.012045715017619061,
-        "outline": 0.006908517375212989,
-        "nose": 0.006763008817059481,
-        "other": 0.008214685762657645
+        "lips": 0.01567270386086851,
+        "eyes": 0.007346346211839141,
+        "brows": 0.011828928803745182,
+        "outline": 0.0072409617973490945,
+        "nose": 0.00711302065721394,
+        "other": 0.007556444439851862
       },
       "previousSemanticGroupRms": {
-        "lips": 0.01614186845741996,
-        "eyes": 0.01132697561738978,
+        "lips": 0.016280747727007237,
+        "eyes": 0.009080507952237606,
         "brows": 0.013454194682342224,
-        "outline": 0.006899415494223579,
+        "outline": 0.006871533027306625,
         "nose": 0.0074274502312576835,
         "other": 0.008268510450752815
       },
-      "committedShapeMillimetres": 11.907917848662866,
+      "committedShapeMillimetres": 10.355981480767715,
       "previousCommittedShapeMillimetres": 10.068628137907815,
-      "glbSha256": "d3a31796ed6bca81728a4690187d2e457216bd36b0ded6411b8104f40ada02de",
+      "glbSha256": "a55fa3ae705ca7ac5d9abb325a9b5d882188fa30910e50b0110c4af561d71b41",
       "parts": 7,
-      "documentSha256": "c9a6f3342f4ea3156f29d05a48ba881aaa7f1d0f951ac30ad636d95ad9272bfd",
+      "documentSha256": "274153c1354cba0325477207c0d1624a4f3b199c54297e4f67a0c9d46a88b843",
       "likeness": "unaccepted",
       "multistart": [
         {
-          "cost": 0.00006003856010573013,
+          "cost": 0.00005637045970367291,
           "success": true,
-          "nfev": 34
+          "nfev": 31
         },
         {
-          "cost": 0.000060971629074861406,
-          "success": true,
-          "nfev": 36
-        },
-        {
-          "cost": 0.0000608014854556078,
+          "cost": 0.000056953665381471575,
           "success": true,
           "nfev": 33
+        },
+        {
+          "cost": 0.00005873085065939718,
+          "success": true,
+          "nfev": 37
         }
       ]
     },
@@ -224,45 +288,45 @@
         "author": "Not supplied in the issue asset inventory",
         "license": "Not established; retained locally for user-requested analysis only"
       },
-      "rmseBeforeFaceHeight": 0.018059210382312698,
-      "rmseAfterFaceHeight": 0.00937304340861925,
+      "rmseBeforeFaceHeight": 0.016779481000669748,
+      "rmseAfterFaceHeight": 0.007388403722383432,
       "semanticGroupRms": {
-        "lips": 0.008277796841834318,
-        "eyes": 0.01645124316475958,
-        "brows": 0.008159785732281004,
-        "outline": 0.010335286233232353,
-        "nose": 0.006237300498906943,
-        "other": 0.00864258487098143
+        "lips": 0.007632434584752524,
+        "eyes": 0.00511431585444026,
+        "brows": 0.007374666346697151,
+        "outline": 0.00872319347978417,
+        "nose": 0.006032318172538514,
+        "other": 0.007479894227501262
       },
       "previousSemanticGroupRms": {
-        "lips": 0.009377703950624792,
-        "eyes": 0.011714054449935982,
+        "lips": 0.010106706374869448,
+        "eyes": 0.007135154943982657,
         "brows": 0.009670505818477126,
-        "outline": 0.02280363301330847,
+        "outline": 0.022616396118905084,
         "nose": 0.008410465022243314,
         "other": 0.010764434968921596
       },
-      "committedShapeMillimetres": 14.815013548025979,
+      "committedShapeMillimetres": 12.033584349074749,
       "previousCommittedShapeMillimetres": 30.057186003272804,
-      "glbSha256": "e973120ce87e026cc149ac0067a47179d0d71cf11d34d46dc5b4c5c5c8d7442b",
+      "glbSha256": "23cab01d54238852f2538d4dc5bbbf81b57a330c374008929c3ee7eb8cbf0aa8",
       "parts": 7,
-      "documentSha256": "6e674c6c14da0f65271c00f5b98abffb62d8c997430466014ad841f0a56e9ceb",
+      "documentSha256": "c6611324026135bbc73d431e3bffeee895c5c530fafdcb468ecc1f84c903b804",
       "likeness": "unaccepted",
       "multistart": [
         {
-          "cost": 0.00006141211034558406,
+          "cost": 0.00003233301840818017,
           "success": true,
-          "nfev": 68
+          "nfev": 33
         },
         {
-          "cost": 0.00006145263294587637,
+          "cost": 0.00003233502617886323,
           "success": true,
-          "nfev": 80
+          "nfev": 52
         },
         {
-          "cost": 0.00006149640708232894,
+          "cost": 0.0000324342557077802,
           "success": true,
-          "nfev": 69
+          "nfev": 86
         }
       ]
     },
@@ -276,45 +340,45 @@
         "author": "Not supplied in the issue asset inventory",
         "license": "Not established; retained locally for user-requested analysis only"
       },
-      "rmseBeforeFaceHeight": 0.023160053712127402,
-      "rmseAfterFaceHeight": 0.010588905826443973,
+      "rmseBeforeFaceHeight": 0.023423298255021267,
+      "rmseAfterFaceHeight": 0.01014115573197022,
       "semanticGroupRms": {
-        "lips": 0.015932430945991727,
-        "eyes": 0.011452644142092716,
-        "brows": 0.011258750225167199,
-        "outline": 0.012387600543601671,
-        "nose": 0.00489611319323556,
-        "other": 0.009660165981539688
+        "lips": 0.01589584772278378,
+        "eyes": 0.007963333580720308,
+        "brows": 0.012147738305263767,
+        "outline": 0.011824258323688512,
+        "nose": 0.004683301726885318,
+        "other": 0.009325874611756772
       },
       "previousSemanticGroupRms": {
-        "lips": 0.01796204645883595,
-        "eyes": 0.014204751784734482,
+        "lips": 0.01788612526555806,
+        "eyes": 0.010485925931753678,
         "brows": 0.01572452339892818,
-        "outline": 0.0146594963995593,
+        "outline": 0.014666896616970198,
         "nose": 0.006055521147140958,
         "other": 0.009091424135364654
       },
-      "committedShapeMillimetres": 17.638251547999086,
+      "committedShapeMillimetres": 17.57193823577469,
       "previousCommittedShapeMillimetres": 15.092680165119107,
-      "glbSha256": "efb751ef496f4bb5a2a18eb15c68d9f06a08e38692ecb759e1db88458e52fd5d",
+      "glbSha256": "1c319aaa5d16a3990468426ac748fe74af20b09d3ded0fbb85c31253f7aaac71",
       "parts": 7,
-      "documentSha256": "e0d21cd77408f26ba27f1e8ccd003673def54e6d7c787a664bd9a34b8f5e9ef0",
+      "documentSha256": "4b2a928350649dbf98921b6859eac3ca4653deb1e181d7b5c63b5eeac5693fd2",
       "likeness": "unaccepted",
       "multistart": [
         {
-          "cost": 0.00008222021482113959,
-          "success": true,
-          "nfev": 60
-        },
-        {
-          "cost": 0.0000811352935989605,
-          "success": true,
-          "nfev": 27
-        },
-        {
-          "cost": 0.000076463529043419,
+          "cost": 0.00007514788424972084,
           "success": true,
           "nfev": 35
+        },
+        {
+          "cost": 0.00007598286411318497,
+          "success": true,
+          "nfev": 32
+        },
+        {
+          "cost": 0.0000721566681671957,
+          "success": true,
+          "nfev": 33
         }
       ]
     },
@@ -328,45 +392,45 @@
         "author": "Not supplied in the issue asset inventory",
         "license": "Not established; retained locally for user-requested analysis only"
       },
-      "rmseBeforeFaceHeight": 0.02712151083775281,
-      "rmseAfterFaceHeight": 0.01226405259366784,
+      "rmseBeforeFaceHeight": 0.027013877315509506,
+      "rmseAfterFaceHeight": 0.011264953499823293,
       "semanticGroupRms": {
-        "lips": 0.0178322056241939,
-        "eyes": 0.014444262281623302,
-        "brows": 0.01680346712068771,
-        "outline": 0.01250142614651822,
-        "nose": 0.004721473443876001,
-        "other": 0.011135836085605404
+        "lips": 0.0175913689718224,
+        "eyes": 0.00962023460317126,
+        "brows": 0.016919569361967788,
+        "outline": 0.012594421440973424,
+        "nose": 0.0047372242289628564,
+        "other": 0.010074826289605963
       },
       "previousSemanticGroupRms": {
-        "lips": 0.017430944191711796,
-        "eyes": 0.01711903732474341,
+        "lips": 0.017554618459059243,
+        "eyes": 0.013307129440636806,
         "brows": 0.01939233567632775,
-        "outline": 0.013916758200866347,
+        "outline": 0.013938707282321336,
         "nose": 0.005503772782354309,
         "other": 0.010063344219198578
       },
-      "committedShapeMillimetres": 18.695230217829852,
+      "committedShapeMillimetres": 18.6793486611394,
       "previousCommittedShapeMillimetres": 17.45928205666748,
-      "glbSha256": "53be0c978b4fbb05276135b0c1f19f452466d19074972ff4678eedba2905412c",
+      "glbSha256": "7419aa281ec93cc3e5d71ca2ceea7a3692bbc321b764953b72cb507b5f6d2c86",
       "parts": 7,
-      "documentSha256": "5e4889bd9a120d87cf20b19ff54f29afd59686692686a4e0d69c380bfdb1a06f",
+      "documentSha256": "007c4c5454826f45b56b296e36fa6d0ba03a50c6f2979644e8c373b4865e0ff7",
       "likeness": "unaccepted",
       "multistart": [
         {
-          "cost": 0.00010789945590618298,
+          "cost": 0.00009618423777721839,
           "success": true,
-          "nfev": 29
+          "nfev": 31
         },
         {
-          "cost": 0.00010569014545255679,
+          "cost": 0.00009800811327046813,
           "success": true,
-          "nfev": 38
+          "nfev": 33
         },
         {
-          "cost": 0.00010601485073205078,
+          "cost": 0.00009895523703361652,
           "success": true,
-          "nfev": 48
+          "nfev": 50
         }
       ]
     },
@@ -380,45 +444,45 @@
         "author": "Not supplied in the issue asset inventory",
         "license": "Not established; retained locally for user-requested analysis only"
       },
-      "rmseBeforeFaceHeight": 0.017947490301847783,
-      "rmseAfterFaceHeight": 0.008811206794700415,
+      "rmseBeforeFaceHeight": 0.017996685661190594,
+      "rmseAfterFaceHeight": 0.00862865040125046,
       "semanticGroupRms": {
-        "lips": 0.011896948659060946,
-        "eyes": 0.00972067829762856,
-        "brows": 0.013058445230759433,
-        "outline": 0.00804852652007955,
-        "nose": 0.004372562245819759,
-        "other": 0.008238475175649681
+        "lips": 0.011959277575066072,
+        "eyes": 0.008715138018637212,
+        "brows": 0.013639990283488524,
+        "outline": 0.008962104975664686,
+        "nose": 0.004354660660530979,
+        "other": 0.007880677248671815
       },
       "previousSemanticGroupRms": {
-        "lips": 0.012008249814300218,
-        "eyes": 0.012388506227198216,
+        "lips": 0.012253746765427462,
+        "eyes": 0.011846540091440205,
         "brows": 0.015865672337614715,
-        "outline": 0.010034218779472543,
+        "outline": 0.010037460400631975,
         "nose": 0.00477352681310965,
         "other": 0.008347971080973352
       },
-      "committedShapeMillimetres": 13.642167026594748,
+      "committedShapeMillimetres": 13.600793065645465,
       "previousCommittedShapeMillimetres": 13.617241229618205,
-      "glbSha256": "84ca3716fad995144c1a1550858e550bf7a5bafeec9de7602f986b7ae132dec4",
+      "glbSha256": "47223134559ae593e97cd6a90d569f88c0be03775dc33118efb6ac9811165798",
       "parts": 7,
-      "documentSha256": "d1b957ace7dd501cba8c7e18f6316fc92f27d911f3a4138e3e8160731788d7a5",
+      "documentSha256": "90a31986b8d66b6019c614d6a036ade141f9a874aa0c09e6d60ba4b60fa2a073",
       "likeness": "unaccepted",
       "multistart": [
         {
-          "cost": 0.00005558881695633394,
+          "cost": 0.0000568945985656693,
           "success": true,
           "nfev": 30
         },
         {
-          "cost": 0.000056408024655821966,
-          "success": true,
-          "nfev": 42
-        },
-        {
-          "cost": 0.00005804728518132983,
+          "cost": 0.000057155305007968214,
           "success": true,
           "nfev": 36
+        },
+        {
+          "cost": 0.0000585806640821474,
+          "success": true,
+          "nfev": 32
         }
       ]
     },
@@ -432,45 +496,45 @@
         "author": "Not supplied in the issue asset inventory",
         "license": "Not established; retained locally for user-requested analysis only"
       },
-      "rmseBeforeFaceHeight": 0.02003303797653258,
-      "rmseAfterFaceHeight": 0.00923206782398874,
+      "rmseBeforeFaceHeight": 0.02018707689333639,
+      "rmseAfterFaceHeight": 0.008956217537786429,
       "semanticGroupRms": {
-        "lips": 0.015960461479012457,
-        "eyes": 0.009387069705186941,
-        "brows": 0.008666519028806571,
-        "outline": 0.00924243769676679,
-        "nose": 0.005674271188267613,
-        "other": 0.008254040228772653
+        "lips": 0.016338344069585432,
+        "eyes": 0.0066054381373318385,
+        "brows": 0.008865267815274898,
+        "outline": 0.009041621275365692,
+        "nose": 0.005266187500451069,
+        "other": 0.008012197623267292
       },
       "previousSemanticGroupRms": {
-        "lips": 0.0166587003496598,
-        "eyes": 0.01169647224555234,
+        "lips": 0.016880398297660207,
+        "eyes": 0.008376355857954283,
         "brows": 0.011771350314725185,
-        "outline": 0.011838392027483635,
+        "outline": 0.011810755907398572,
         "nose": 0.006215995062706008,
         "other": 0.007612656745468757
       },
-      "committedShapeMillimetres": 11.931894462084616,
+      "committedShapeMillimetres": 12.416946577533023,
       "previousCommittedShapeMillimetres": 10.81097540758172,
-      "glbSha256": "250692341c889cc9767a058eb6c6860b9af4c50df2da4fe72d15ee91c1ec90ba",
+      "glbSha256": "5f1dea11fa0f4336d0698f4c5e123a53902c9a4e035d7c94e4b8277025e642de",
       "parts": 7,
-      "documentSha256": "59e897ed95812a3a7e1c6d0c6940e1ef0a454fa0050c6b69612c684d4670c3f9",
+      "documentSha256": "eb84e0c5a701d8f609fa5c033344860bf797efaaef23d2a8e19a043ba5830ad5",
       "likeness": "unaccepted",
       "multistart": [
         {
-          "cost": 0.000057841939951182966,
+          "cost": 0.000055388169598332827,
           "success": true,
-          "nfev": 32
+          "nfev": 35
         },
         {
-          "cost": 0.00005824911380299009,
+          "cost": 0.00005480403661987245,
           "success": true,
-          "nfev": 28
+          "nfev": 35
         },
         {
-          "cost": 0.000058675023132461045,
+          "cost": 0.000055007776968541456,
           "success": true,
-          "nfev": 34
+          "nfev": 36
         }
       ]
     },
@@ -484,45 +548,45 @@
         "author": "Not supplied in the issue asset inventory",
         "license": "Not established; retained locally for user-requested analysis only"
       },
-      "rmseBeforeFaceHeight": 0.03198691558232812,
-      "rmseAfterFaceHeight": 0.016155931824425075,
+      "rmseBeforeFaceHeight": 0.030266351383287784,
+      "rmseAfterFaceHeight": 0.013313820337720628,
       "semanticGroupRms": {
-        "lips": 0.019862417159186057,
-        "eyes": 0.027923212884991583,
-        "brows": 0.013902839680178709,
-        "outline": 0.02079219963110881,
-        "nose": 0.008554225282090763,
-        "other": 0.013806766554005269
+        "lips": 0.018721593977126593,
+        "eyes": 0.007559839513457471,
+        "brows": 0.013571850050888339,
+        "outline": 0.01816716771487072,
+        "nose": 0.008190557586827563,
+        "other": 0.012570345346614676
       },
       "previousSemanticGroupRms": {
-        "lips": 0.021088836997689712,
-        "eyes": 0.01979975112505494,
+        "lips": 0.02121722949138608,
+        "eyes": 0.010868177817353315,
         "brows": 0.017443206208077048,
-        "outline": 0.04507512549766833,
+        "outline": 0.04470166929337154,
         "nose": 0.01047459069196569,
         "other": 0.016694289556913173
       },
-      "committedShapeMillimetres": 25.90622276822827,
+      "committedShapeMillimetres": 20.911786315482143,
       "previousCommittedShapeMillimetres": 50.24142653991159,
-      "glbSha256": "01e0647b22d4d7bee8cf8e1e8c2e1b7b813504fa172e7532164707071f11521f",
+      "glbSha256": "01f7fcad1bbd362a9da1c55db4224142875261729c9a540e3fa0baf30bfad345",
       "parts": 7,
-      "documentSha256": "55fa6ba24523ba9b66c8d44d19ba1633a83c9f038c2289d60ca7626287aa7868",
+      "documentSha256": "c5c846903f79895747d27071c65a2f3eb72550dd8dcb0b1bb2c17ff06e53c193",
       "likeness": "unaccepted",
       "multistart": [
         {
-          "cost": 0.000200883940392675,
+          "cost": 0.00011612695231832476,
           "success": true,
-          "nfev": 40
+          "nfev": 38
         },
         {
-          "cost": 0.00020305067114941418,
+          "cost": 0.00011537907061039021,
+          "success": true,
+          "nfev": 62
+        },
+        {
+          "cost": 0.00012019123431695377,
           "success": true,
           "nfev": 74
-        },
-        {
-          "cost": 0.00020448497028132732,
-          "success": true,
-          "nfev": 54
         }
       ]
     },
@@ -536,45 +600,45 @@
         "author": "Not supplied in the issue asset inventory",
         "license": "Not established; retained locally for user-requested analysis only"
       },
-      "rmseBeforeFaceHeight": 0.021679975213876067,
-      "rmseAfterFaceHeight": 0.009327440583101766,
+      "rmseBeforeFaceHeight": 0.021518248228019173,
+      "rmseAfterFaceHeight": 0.008350186878054552,
       "semanticGroupRms": {
-        "lips": 0.0067167868636754755,
-        "eyes": 0.014303311214661042,
-        "brows": 0.016380490978990053,
-        "outline": 0.010367246694177467,
-        "nose": 0.005959398290387618,
-        "other": 0.008396274880230833
+        "lips": 0.007398067036013903,
+        "eyes": 0.008898956524836028,
+        "brows": 0.016266355787345605,
+        "outline": 0.009301543413175016,
+        "nose": 0.005956918920094163,
+        "other": 0.007682384031876513
       },
       "previousSemanticGroupRms": {
-        "lips": 0.007318213892134607,
-        "eyes": 0.01438285950933075,
+        "lips": 0.00875745656230174,
+        "eyes": 0.011822236976059022,
         "brows": 0.01688436537674482,
-        "outline": 0.015146132190902595,
+        "outline": 0.015091478640981728,
         "nose": 0.00686709131128216,
         "other": 0.008196514636874042
       },
-      "committedShapeMillimetres": 18.65285762220014,
+      "committedShapeMillimetres": 18.760617084268205,
       "previousCommittedShapeMillimetres": 21.072957666195734,
-      "glbSha256": "d33e5d08d1fdc9630e393ce4ba99a1e81065a955154b140fd4fe7b84ea04ffc5",
+      "glbSha256": "150368c925b3d0dba22947e6dd76f0cac9fa107ce6336643f1cfb56342b51a41",
       "parts": 7,
-      "documentSha256": "935cbf5ad8d9e81ff878300769fae9c44d5d9060e1a3fcac93c15dfb54b75b52",
+      "documentSha256": "a42ca2e3c5e0d404978133265bd3673278bee66abdbd9a7bcc3bb98b7f4939db",
       "likeness": "unaccepted",
       "multistart": [
         {
-          "cost": 0.00007225968190331357,
+          "cost": 0.00006279846178599873,
           "success": true,
-          "nfev": 35
+          "nfev": 31
         },
         {
-          "cost": 0.00007418445696656846,
+          "cost": 0.00006655415686509393,
           "success": true,
-          "nfev": 34
+          "nfev": 40
         },
         {
-          "cost": 0.00007216506779473907,
+          "cost": 0.00006369480972682475,
           "success": true,
-          "nfev": 59
+          "nfev": 57
         }
       ]
     },
@@ -588,45 +652,45 @@
         "author": "Not supplied in the issue asset inventory",
         "license": "Not established; retained locally for user-requested analysis only"
       },
-      "rmseBeforeFaceHeight": 0.0187041377096398,
-      "rmseAfterFaceHeight": 0.009458684051796876,
+      "rmseBeforeFaceHeight": 0.018208597934280826,
+      "rmseAfterFaceHeight": 0.008272092822721183,
       "semanticGroupRms": {
-        "lips": 0.006630171495542057,
-        "eyes": 0.015744055805031354,
-        "brows": 0.01570234673530555,
-        "outline": 0.010803358599381741,
-        "nose": 0.007324795931019813,
-        "other": 0.008298133837855087
+        "lips": 0.0063126405111008,
+        "eyes": 0.00828778022601884,
+        "brows": 0.015358512248945244,
+        "outline": 0.010048026015185733,
+        "nose": 0.007733270714787257,
+        "other": 0.007639936129438191
       },
       "previousSemanticGroupRms": {
-        "lips": 0.007135875091871759,
-        "eyes": 0.013916198852487507,
+        "lips": 0.007426073989412765,
+        "eyes": 0.011057898911668971,
         "brows": 0.017733261879338588,
-        "outline": 0.01925271569871316,
+        "outline": 0.019197060938539463,
         "nose": 0.008707970453308768,
         "other": 0.008378295457406582
       },
-      "committedShapeMillimetres": 13.811224175625588,
+      "committedShapeMillimetres": 13.72350849512874,
       "previousCommittedShapeMillimetres": 17.99683076484266,
-      "glbSha256": "123362b7f34d68277da13bf0f1618eb1fde785673a7551134522163e2778060f",
+      "glbSha256": "3a4cc597de9d4edbaa61002f2a70d5551a091dd8451ae8df57101370b655a515",
       "parts": 7,
-      "documentSha256": "8ddcfd2e9e8b4d37d9ac763af71e4a3f19fcfb14589b2cf1fb3fd94e649c3dd9",
+      "documentSha256": "f7f78839b734eb64067f0180acee416bff19e29afeebca5cac0150c8b8ad6d02",
       "likeness": "unaccepted",
       "multistart": [
         {
-          "cost": 0.00007553216615415156,
+          "cost": 0.00005625944707843778,
           "success": true,
-          "nfev": 42
+          "nfev": 34
         },
         {
-          "cost": 0.00007434503770541973,
+          "cost": 0.00005879408852124996,
           "success": true,
-          "nfev": 92
+          "nfev": 95
         },
         {
-          "cost": 0.00007317725305969827,
+          "cost": 0.000058232450601453395,
           "success": true,
-          "nfev": 38
+          "nfev": 31
         }
       ]
     },
@@ -640,45 +704,45 @@
         "author": "Not supplied in the issue asset inventory",
         "license": "Not established; retained locally for user-requested analysis only"
       },
-      "rmseBeforeFaceHeight": 0.017953245156085876,
-      "rmseAfterFaceHeight": 0.007825940576698703,
+      "rmseBeforeFaceHeight": 0.018023051849721358,
+      "rmseAfterFaceHeight": 0.0077110624770793425,
       "semanticGroupRms": {
-        "lips": 0.0054291489756329745,
-        "eyes": 0.009329650036341276,
-        "brows": 0.013175693223997535,
-        "outline": 0.010095620542497706,
-        "nose": 0.004962729155763193,
-        "other": 0.0073273800696498975
+        "lips": 0.00546032911850535,
+        "eyes": 0.0069010216933116765,
+        "brows": 0.01242840074707577,
+        "outline": 0.010378518920891495,
+        "nose": 0.004719341262456453,
+        "other": 0.007464981735907676
       },
       "previousSemanticGroupRms": {
-        "lips": 0.005905276410135461,
-        "eyes": 0.011157736069102357,
+        "lips": 0.006167503466554572,
+        "eyes": 0.009548265657603808,
         "brows": 0.01641515967793727,
-        "outline": 0.011667885811150544,
+        "outline": 0.011729916963874211,
         "nose": 0.00438469860775845,
         "other": 0.008080189269796674
       },
-      "committedShapeMillimetres": 11.577570778082979,
+      "committedShapeMillimetres": 14.132839056005833,
       "previousCommittedShapeMillimetres": 11.465089291051525,
-      "glbSha256": "f16675b8f6feac94feef30dbab38cc669da03eab50985c9c6365d1731e43f081",
+      "glbSha256": "4d13210349790f54f8feff13bf927600c924f013a353173fefbb7ebe3134fbfb",
       "parts": 7,
-      "documentSha256": "1f12b844acf1eab905178979e148d359ae3bc454bb66ea281e2c6452ad5ecf43",
+      "documentSha256": "d8fa282bdbeb5db550719f9f6de819ada8ae2c62f8251c54421c87d16e82b879",
       "likeness": "unaccepted",
       "multistart": [
         {
-          "cost": 0.00004806653200979266,
+          "cost": 0.00004711713707104588,
           "success": true,
-          "nfev": 40
+          "nfev": 39
         },
         {
-          "cost": 0.00004624910292451154,
+          "cost": 0.00004677320550684695,
           "success": true,
-          "nfev": 29
+          "nfev": 38
         },
         {
-          "cost": 0.00004530147087020174,
+          "cost": 0.000043433320980554353,
           "success": true,
-          "nfev": 37
+          "nfev": 38
         }
       ]
     },
@@ -692,45 +756,45 @@
         "author": "Not supplied in the issue asset inventory",
         "license": "Not established; retained locally for user-requested analysis only"
       },
-      "rmseBeforeFaceHeight": 0.018915980827453265,
-      "rmseAfterFaceHeight": 0.010715530631995391,
+      "rmseBeforeFaceHeight": 0.01885975027220813,
+      "rmseAfterFaceHeight": 0.00988446030497709,
       "semanticGroupRms": {
-        "lips": 0.020101118847746582,
-        "eyes": 0.015701198248481436,
-        "brows": 0.011178712307025496,
-        "outline": 0.009750258821060192,
-        "nose": 0.004774457643052515,
-        "other": 0.008571570889369792
+        "lips": 0.020091863770302594,
+        "eyes": 0.008652799832033603,
+        "brows": 0.011180134489240047,
+        "outline": 0.008335802758258092,
+        "nose": 0.0051556197251645414,
+        "other": 0.008256621083571463
       },
       "previousSemanticGroupRms": {
-        "lips": 0.021782549857301377,
-        "eyes": 0.01587646779591241,
+        "lips": 0.021858057243991105,
+        "eyes": 0.012794361166983272,
         "brows": 0.01524745984730418,
-        "outline": 0.021016200243535604,
+        "outline": 0.020834595916464412,
         "nose": 0.007992538445321901,
         "other": 0.01100006763078838
       },
-      "committedShapeMillimetres": 16.643873478291674,
+      "committedShapeMillimetres": 14.865513341758966,
       "previousCommittedShapeMillimetres": 16.23309758970516,
-      "glbSha256": "5a265f7f7587eb584f76c6e47165a31e14081e66e08761a557831eb5e4bdd715",
+      "glbSha256": "dd75575f3f4aa377031d229639394eba00a5ece108e2871908b86fb0640434d9",
       "parts": 7,
-      "documentSha256": "adb446b5b86c690e896cca7f7c3d3b7128ca39a9d39a2df6bc9a55317769f829",
+      "documentSha256": "57f27232c2ceb4df04d58a1631059d68fa8044c943ff3f0a4d83c5311d41d986",
       "likeness": "unaccepted",
       "multistart": [
         {
-          "cost": 0.00009307033188307922,
+          "cost": 0.00007445297631049314,
+          "success": true,
+          "nfev": 28
+        },
+        {
+          "cost": 0.00007817221991043259,
           "success": true,
           "nfev": 39
         },
         {
-          "cost": 0.00009320677027349119,
+          "cost": 0.00007488445015243475,
           "success": true,
-          "nfev": 32
-        },
-        {
-          "cost": 0.00009161893173006194,
-          "success": true,
-          "nfev": 39
+          "nfev": 34
         }
       ]
     },
@@ -744,45 +808,45 @@
         "author": "Not supplied in the issue asset inventory",
         "license": "Not established; retained locally for user-requested analysis only"
       },
-      "rmseBeforeFaceHeight": 0.017052017217907875,
-      "rmseAfterFaceHeight": 0.012303807251808088,
+      "rmseBeforeFaceHeight": 0.01644506813250163,
+      "rmseAfterFaceHeight": 0.011141349860994585,
       "semanticGroupRms": {
-        "lips": 0.006241720237737769,
-        "eyes": 0.016870943225931568,
-        "brows": 0.01949493915431918,
-        "outline": 0.02007944866521749,
-        "nose": 0.004295360244566673,
-        "other": 0.01091140786199703
+        "lips": 0.006767132875312341,
+        "eyes": 0.012097329104568105,
+        "brows": 0.022280112320970602,
+        "outline": 0.016610537498988224,
+        "nose": 0.0050204417478283084,
+        "other": 0.00992250522821774
       },
       "previousSemanticGroupRms": {
-        "lips": 0.007354914267995206,
-        "eyes": 0.0156506101352878,
+        "lips": 0.007972806865083172,
+        "eyes": 0.017581719915409875,
         "brows": 0.025872892861294877,
-        "outline": 0.028006293390484802,
+        "outline": 0.02786738730214178,
         "nose": 0.008020877109516582,
         "other": 0.014457633909709418
       },
-      "committedShapeMillimetres": 14.305522742403035,
+      "committedShapeMillimetres": 12.581214008175923,
       "previousCommittedShapeMillimetres": 20.767204336148456,
-      "glbSha256": "40ff1902b397756a9b6240e155b3407488d7542b9146637c7c0f0a77549066d2",
+      "glbSha256": "84aca86c2f7909829837217190e95f00e92eef2d3aafecc3e459505c02997f31",
       "parts": 7,
-      "documentSha256": "dc45999468838fb3a2efae69af34587081b5c4f4844577a322c220f639011b66",
+      "documentSha256": "92144b9e077b3bc1125c7a66ea906a85fb675510c32f9e3121c8d6693fa299a8",
       "likeness": "unaccepted",
       "multistart": [
         {
-          "cost": 0.00011170431803667662,
+          "cost": 0.00010375310155503862,
+          "success": true,
+          "nfev": 45
+        },
+        {
+          "cost": 0.00010393380239139676,
+          "success": true,
+          "nfev": 42
+        },
+        {
+          "cost": 0.00009848814959792817,
           "success": true,
           "nfev": 39
-        },
-        {
-          "cost": 0.00011212743011561507,
-          "success": true,
-          "nfev": 40
-        },
-        {
-          "cost": 0.00011378466234447658,
-          "success": true,
-          "nfev": 55
         }
       ]
     },
@@ -796,45 +860,45 @@
         "author": "Not supplied in the issue asset inventory",
         "license": "Not established; retained locally for user-requested analysis only"
       },
-      "rmseBeforeFaceHeight": 0.031230436347805212,
-      "rmseAfterFaceHeight": 0.013917762486024823,
+      "rmseBeforeFaceHeight": 0.031246220557727748,
+      "rmseAfterFaceHeight": 0.013086861948667664,
       "semanticGroupRms": {
-        "lips": 0.032058816792484415,
-        "eyes": 0.012649677762646139,
-        "brows": 0.008896300969309582,
-        "outline": 0.01311091867901097,
-        "nose": 0.005832092182333704,
-        "other": 0.010649016539493352
+        "lips": 0.032082921988936926,
+        "eyes": 0.006018968535242798,
+        "brows": 0.008215504292599981,
+        "outline": 0.012421164662602768,
+        "nose": 0.005279133777044445,
+        "other": 0.009783671531726216
       },
       "previousSemanticGroupRms": {
-        "lips": 0.03315332671854318,
-        "eyes": 0.01285087662229256,
+        "lips": 0.03320739707997647,
+        "eyes": 0.007980563048004386,
         "brows": 0.009479620385084108,
-        "outline": 0.01352557563174463,
+        "outline": 0.013377511299277098,
         "nose": 0.005395471323682145,
         "other": 0.010881704484835839
       },
-      "committedShapeMillimetres": 15.465801582320262,
+      "committedShapeMillimetres": 13.381201689769723,
       "previousCommittedShapeMillimetres": 13.769772799982425,
-      "glbSha256": "117866bcf7918115268587a2e60a7436dcca0d7d8d18c08d41946ac147679ae2",
+      "glbSha256": "ffbc94be0fc08301f9d415a2978f271d919baf6135067b5b2a3fb4650d7bbcef",
       "parts": 7,
-      "documentSha256": "a4df3fd04201a9d2211ec8338c9c891a078fcbcb7712c6de5adde5b9751270e0",
+      "documentSha256": "8aa8e5d33b3d3972308a75472d1c8311b7260d5d3399e59f461ca992ea25c80b",
       "likeness": "unaccepted",
       "multistart": [
         {
-          "cost": 0.00014352858213152297,
+          "cost": 0.000128206967873516,
           "success": true,
-          "nfev": 112
+          "nfev": 43
         },
         {
-          "cost": 0.00014271700472076628,
+          "cost": 0.00012856863791904573,
           "success": true,
-          "nfev": 49
+          "nfev": 143
         },
         {
-          "cost": 0.00014460199039961045,
+          "cost": 0.0001282504539457026,
           "success": true,
-          "nfev": 195
+          "nfev": 92
         }
       ]
     },
@@ -848,45 +912,45 @@
         "author": "Not supplied in the issue asset inventory",
         "license": "Not established; retained locally for user-requested analysis only"
       },
-      "rmseBeforeFaceHeight": 0.021361265602238385,
-      "rmseAfterFaceHeight": 0.011472165938143737,
+      "rmseBeforeFaceHeight": 0.02053860805391646,
+      "rmseAfterFaceHeight": 0.010199219080565012,
       "semanticGroupRms": {
-        "lips": 0.015062527985251295,
-        "eyes": 0.01843314927940242,
-        "brows": 0.015268242445855718,
-        "outline": 0.012828611310212797,
-        "nose": 0.006546840813658652,
-        "other": 0.009748399059424262
+        "lips": 0.01476017013906459,
+        "eyes": 0.007879081951493241,
+        "brows": 0.014294642920095475,
+        "outline": 0.012134330260097475,
+        "nose": 0.007040978441080273,
+        "other": 0.009312599607863107
       },
       "previousSemanticGroupRms": {
-        "lips": 0.015771129577950502,
-        "eyes": 0.016723590608564987,
+        "lips": 0.016067923750316248,
+        "eyes": 0.009959008302447087,
         "brows": 0.015495139613824906,
-        "outline": 0.02395366520685235,
+        "outline": 0.023526831483635508,
         "nose": 0.008699308238343462,
         "other": 0.011910540790551385
       },
-      "committedShapeMillimetres": 17.38361912757281,
+      "committedShapeMillimetres": 16.33991684269078,
       "previousCommittedShapeMillimetres": 25.10945699961053,
-      "glbSha256": "989decbdd842a90a53f591ea388b2b1d2f03d4efd2043fa27cb1227e47410172",
+      "glbSha256": "276528b0681010f02d03e5744409c0b17ddaf6a2cacf384c524331348e1dcb2a",
       "parts": 7,
-      "documentSha256": "36278b5a5a10b4ea17f163954bf37363e70996b97b027d2ae8bbbcdd1f8f8208",
+      "documentSha256": "9bc987b04eb5a5e9c97a42b53990ee1e538692b2b9bf4748675b479b71798f02",
       "likeness": "unaccepted",
       "multistart": [
         {
-          "cost": 0.00010465195091557246,
+          "cost": 0.00007734158525562724,
           "success": true,
-          "nfev": 31
+          "nfev": 40
         },
         {
-          "cost": 0.00010578561472530038,
+          "cost": 0.00007623518762234834,
           "success": true,
-          "nfev": 30
+          "nfev": 34
         },
         {
-          "cost": 0.0001055154754964678,
+          "cost": 0.00007696112169026721,
           "success": true,
-          "nfev": 35
+          "nfev": 39
         }
       ]
     },
@@ -900,45 +964,45 @@
         "author": "Not supplied in the issue asset inventory",
         "license": "Not established; retained locally for user-requested analysis only"
       },
-      "rmseBeforeFaceHeight": 0.01634656761107079,
-      "rmseAfterFaceHeight": 0.007167900441980874,
+      "rmseBeforeFaceHeight": 0.016377270429371944,
+      "rmseAfterFaceHeight": 0.007307443482908426,
       "semanticGroupRms": {
-        "lips": 0.0059006862028230175,
-        "eyes": 0.008746917039783326,
-        "brows": 0.012505607610202321,
-        "outline": 0.00748434561862114,
-        "nose": 0.004752691431939202,
-        "other": 0.006778083961941303
+        "lips": 0.006409283318937877,
+        "eyes": 0.006151800389164451,
+        "brows": 0.011701599410334829,
+        "outline": 0.007714671378711201,
+        "nose": 0.005365182518754976,
+        "other": 0.007240105858202815
       },
       "previousSemanticGroupRms": {
-        "lips": 0.006313529877089109,
-        "eyes": 0.009800919776619312,
+        "lips": 0.007570846217514495,
+        "eyes": 0.007816182743271376,
         "brows": 0.013107223867462587,
-        "outline": 0.008219966573786366,
+        "outline": 0.008145771330060312,
         "nose": 0.004757834775625631,
         "other": 0.006569405804082822
       },
-      "committedShapeMillimetres": 12.345190070291316,
+      "committedShapeMillimetres": 12.706905407509025,
       "previousCommittedShapeMillimetres": 13.4667631598009,
-      "glbSha256": "4099d0e98621cef9c23743d264f46452917872f5bf9160cd2f099e5af2e1f69b",
+      "glbSha256": "983ac75f661a6ed93a1bb70271c9eaaeba112fbcc9450ba17b8f5986bb540f07",
       "parts": 7,
-      "documentSha256": "4d425a005192d4922525ed844c08726bd55eead5621ef9333ff778628ab88249",
+      "documentSha256": "4cd96b3c77b3da6d0abb1baa56ee5f9b52c48a6d3ae1110ce8cd83263ed86de7",
       "likeness": "unaccepted",
       "multistart": [
         {
-          "cost": 0.00003995476968509601,
+          "cost": 0.00003753375329458214,
           "success": true,
-          "nfev": 33
+          "nfev": 30
         },
         {
-          "cost": 0.00004035785533117074,
+          "cost": 0.00004040981192720446,
           "success": true,
-          "nfev": 66
+          "nfev": 47
         },
         {
-          "cost": 0.00003996629115721802,
+          "cost": 0.000037148463094028135,
           "success": true,
-          "nfev": 36
+          "nfev": 34
         }
       ]
     },
@@ -952,45 +1016,45 @@
         "author": "Not supplied in the issue asset inventory",
         "license": "Not established; retained locally for user-requested analysis only"
       },
-      "rmseBeforeFaceHeight": 0.01984358286886422,
-      "rmseAfterFaceHeight": 0.00922322998143363,
+      "rmseBeforeFaceHeight": 0.019222103629229537,
+      "rmseAfterFaceHeight": 0.008257505600293862,
       "semanticGroupRms": {
-        "lips": 0.007137564002622076,
-        "eyes": 0.014818372809631906,
-        "brows": 0.013486562165143661,
-        "outline": 0.010957663275431913,
-        "nose": 0.004831827089067651,
-        "other": 0.008386759823673304
+        "lips": 0.007228973060925552,
+        "eyes": 0.007118187758615588,
+        "brows": 0.013132098962345436,
+        "outline": 0.009599880514897392,
+        "nose": 0.005482022039913274,
+        "other": 0.008095853368045712
       },
       "previousSemanticGroupRms": {
-        "lips": 0.007835864668359518,
-        "eyes": 0.012326862453405456,
+        "lips": 0.008732316178980072,
+        "eyes": 0.010148470910700268,
         "brows": 0.015291427399955742,
-        "outline": 0.02223207550695678,
+        "outline": 0.022025983450360893,
         "nose": 0.007808189192978467,
         "other": 0.009917775329211927
       },
-      "committedShapeMillimetres": 15.232412426447631,
+      "committedShapeMillimetres": 13.52337064285027,
       "previousCommittedShapeMillimetres": 22.0702559458546,
-      "glbSha256": "faf9b19876e40c7e22580439438dff1df16ffdc7c00b882b8f1d6b94c1ba2380",
+      "glbSha256": "e41d3438951dcd53bdc1fb525ddc03f494e617830f18134ff436527b0bf36587",
       "parts": 7,
-      "documentSha256": "904f4b66d21bb56f62cc83756f38dda2f1127bcab8df26468dd9652ec6a0be04",
+      "documentSha256": "bba76acf86530450fb6228a8aeb3add40ceba0fa7b73a06061c212bd3894aa79",
       "likeness": "unaccepted",
       "multistart": [
         {
-          "cost": 0.00006370418671106294,
+          "cost": 0.000048114532345652464,
           "success": true,
           "nfev": 35
         },
         {
-          "cost": 0.00006324706572794547,
+          "cost": 0.00004764275737784595,
           "success": true,
-          "nfev": 53
+          "nfev": 39
         },
         {
-          "cost": 0.00006382603162609806,
+          "cost": 0.00004648802158403885,
           "success": true,
-          "nfev": 36
+          "nfev": 38
         }
       ]
     },
@@ -1004,45 +1068,45 @@
         "author": "Not supplied in the issue asset inventory",
         "license": "Not established; retained locally for user-requested analysis only"
       },
-      "rmseBeforeFaceHeight": 0.012062026337799932,
-      "rmseAfterFaceHeight": 0.008172454024818442,
+      "rmseBeforeFaceHeight": 0.011507095274424652,
+      "rmseAfterFaceHeight": 0.007439127350665158,
       "semanticGroupRms": {
-        "lips": 0.012211255741091876,
-        "eyes": 0.011389237368430687,
-        "brows": 0.013247166505457354,
-        "outline": 0.008848218681819744,
-        "nose": 0.0030487746512287217,
-        "other": 0.006795029868152728
+        "lips": 0.012317711095179802,
+        "eyes": 0.007755698086401925,
+        "brows": 0.013434696642342845,
+        "outline": 0.008904928825763657,
+        "nose": 0.003510587563919799,
+        "other": 0.005938828057107566
       },
       "previousSemanticGroupRms": {
-        "lips": 0.012434262351751482,
-        "eyes": 0.011161931562890236,
+        "lips": 0.012737459712894545,
+        "eyes": 0.010811196891611839,
         "brows": 0.014101166223602187,
-        "outline": 0.012955885500473857,
+        "outline": 0.012816963761285122,
         "nose": 0.00523327094420623,
         "other": 0.007792514122908845
       },
-      "committedShapeMillimetres": 11.049644163124754,
+      "committedShapeMillimetres": 9.978430387069437,
       "previousCommittedShapeMillimetres": 11.223323553714065,
-      "glbSha256": "722673fe7770c35de071d97ee7ea32110965639f379b49f25c7f743511b16bcc",
+      "glbSha256": "92ff74f88235fdfb888e21549cc637ab3acb6f00915670b3945168540ec650f1",
       "parts": 7,
-      "documentSha256": "e54b33ca50b90a1b0607b707374a7e25d0dbe645ec0a0b968e16ec2cb7d2a520",
+      "documentSha256": "661edce372285324b94f2135ec1333d0a9ec565ba164857276f3556ff30473d8",
       "likeness": "unaccepted",
       "multistart": [
         {
-          "cost": 0.000054035006217115446,
+          "cost": 0.000047494093828263,
           "success": true,
-          "nfev": 27
+          "nfev": 29
         },
         {
-          "cost": 0.000053322807896157324,
-          "success": true,
-          "nfev": 35
-        },
-        {
-          "cost": 0.00005393773661070631,
+          "cost": 0.00004767499532352472,
           "success": true,
           "nfev": 41
+        },
+        {
+          "cost": 0.0000488484629045019,
+          "success": true,
+          "nfev": 43
         }
       ]
     },
@@ -1053,45 +1117,45 @@
         "url": null,
         "sha256": "b5faf9013533b1e75dee734174d81db00dbc2e61fe1abe925f0248529929b009"
       },
-      "rmseBeforeFaceHeight": 0.020640633910471565,
-      "rmseAfterFaceHeight": 0.010011449353418583,
+      "rmseBeforeFaceHeight": 0.02016865855702598,
+      "rmseAfterFaceHeight": 0.009252019567376759,
       "semanticGroupRms": {
-        "lips": 0.006390809681877916,
-        "eyes": 0.017021040896822583,
-        "brows": 0.016814940887727024,
-        "outline": 0.012864596652376681,
-        "nose": 0.003299992555857537,
-        "other": 0.008738192149230647
+        "lips": 0.007060556764893683,
+        "eyes": 0.011336964160424418,
+        "brows": 0.017197758918301997,
+        "outline": 0.011384972547029106,
+        "nose": 0.004295605825578092,
+        "other": 0.008518311866176782
       },
       "previousSemanticGroupRms": {
-        "lips": 0.006887821614116677,
-        "eyes": 0.016086138345323756,
+        "lips": 0.008150757520872798,
+        "eyes": 0.016935157777707894,
         "brows": 0.020440890294348996,
-        "outline": 0.023681928125195772,
+        "outline": 0.02354306870419953,
         "nose": 0.005637837599757748,
         "other": 0.010296372615348841
       },
-      "committedShapeMillimetres": 19.19118329236117,
+      "committedShapeMillimetres": 18.50995759335941,
       "previousCommittedShapeMillimetres": 24.8119069376541,
-      "glbSha256": "ee8331911bcd2f7e03728a6896772eda9e26c292e9a6b8929a210372c4f023fd",
+      "glbSha256": "f4aebe805e7e9072d369c28d45b742dfcd60ab61da31c5e5fcded54e4640027c",
       "parts": 7,
-      "documentSha256": "35055dd6a3290eff64862893677e68a12182e8cd6c80c2ef389cf776883c487e",
+      "documentSha256": "2f50f8c0256580b2ead44d9940c7b389703d641c164719af0bea2e9ff02328eb",
       "likeness": "unaccepted",
       "multistart": [
         {
-          "cost": 0.00008330345525736452,
+          "cost": 0.00007091565850223319,
           "success": true,
-          "nfev": 31
+          "nfev": 44
         },
         {
-          "cost": 0.00008953520801148337,
+          "cost": 0.00007098203042946329,
           "success": true,
-          "nfev": 47
+          "nfev": 56
         },
         {
-          "cost": 0.0000835237972390423,
+          "cost": 0.00007026007962830465,
           "success": true,
-          "nfev": 35
+          "nfev": 37
         }
       ]
     }
