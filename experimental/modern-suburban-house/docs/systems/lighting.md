@@ -14,7 +14,7 @@ The under-cabinet task light is intentionally bound to `ground/kitchen-dining-fa
 
 ## State, clock, and determinism {#state-clock-and-determinism}
 
-The only authored lighting state is `day-neutral-inspection`; it has no time clock, animation phase, random seed, accumulated history, seek state, or update order. Given the same compiled spaces and material vocabulary, the 16 fixture elements have the same IDs, centers, sizes, tags, and bindings. A consuming renderer may choose a daytime environment, but that runtime choice is outside this production source and is not presented as a deterministic authored illumination result.
+The only authored lighting state is the design-side inspection label `day-neutral-inspection`; it is not a runtime photometric state object emitted by this source. It has no time clock, animation phase, random seed, accumulated history, seek state, or update order. Given the same compiled spaces and material vocabulary, the 16 fixture elements have the same IDs, centers, sizes, tags, and bindings. A consuming renderer may choose a daytime environment, but that runtime choice is outside this production source and is not presented as a deterministic authored illumination result.
 
 ## Budget and degradation {#budget-and-degradation}
 

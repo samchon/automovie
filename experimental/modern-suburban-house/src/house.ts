@@ -1187,11 +1187,17 @@ const addInteriorFitOut = (elements: Element[], spaces: readonly Space[]): void 
   elements.push(...lightingElements(spaces));
 };
 
+const moduleColumnCount = (family: ModuleLaw["family"], lengthM: number, spacingM: number): number => {
+  const moduleLength = family === "siding" ? spacingM * 4 : spacingM;
+  const moduleWidth = moduleLength * 0.95;
+  const maximumStagger = spacingM / 2;
+  return Math.max(1, Math.floor((lengthM - moduleWidth - maximumStagger) / moduleLength) + 1);
+};
+
 const moduleCount = (family: ModuleLaw["family"], lengthM: number, heightM: number, spacingM: number): number => {
   const rowPitch = family === "brick" ? 0.1875 : spacingM;
-  const moduleLength = family === "siding" ? spacingM * 4 : spacingM;
   const rows = family === "shingle" ? Math.ceil(heightM / rowPitch) : Math.max(1, Math.floor(heightM / rowPitch));
-  return Math.ceil(lengthM / moduleLength) * rows;
+  return moduleColumnCount(family, lengthM, spacingM) * rows;
 };
 
 const moduleLaws = (): ModuleLaw[] => [
@@ -1228,7 +1234,7 @@ const moduleElements = (laws: readonly ModuleLaw[]): Element[] => {
     const rows = law.family === "shingle"
       ? Math.ceil(law.measuredHeightM / rowPitch)
       : Math.max(1, Math.floor(law.measuredHeightM / rowPitch));
-    const columns = Math.ceil(law.measuredLengthM / moduleLength);
+    const columns = moduleColumnCount(law.family, law.measuredLengthM, law.spacingM);
     for (let row = 0; row < rows; row += 1) {
       for (let column = 0; column < columns; column += 1) {
         const offset = row % 2 === 0 ? 0 : law.spacingM / 2;
@@ -1236,6 +1242,7 @@ const moduleElements = (laws: readonly ModuleLaw[]): Element[] => {
         const vertical = row * rowPitch + rowPitch / 2;
         const isRoof = law.family === "shingle";
         const isSide = law.hostSurfaceOwnerId.endsWith("left") || law.hostSurfaceOwnerId.endsWith("right");
+        const isGarageFacade = law.id === "module.siding.right-garage" || law.id === "module.brick.right-garage-skirt";
         const roofSlopeDeg = law.hostSurfaceOwnerId.endsWith("garage")
           ? 12
           : law.hostSurfaceOwnerId.endsWith("north")
@@ -1243,7 +1250,7 @@ const moduleElements = (laws: readonly ModuleLaw[]): Element[] => {
             : -18;
         const facadeBaseY = isSiding ? 0.9 : 0.15;
         const facadeHostStart = isSide
-          ? law.id.endsWith("garage") ? GARAGE.minZ : MAIN.minZ
+          ? isGarageFacade ? GARAGE.minZ : MAIN.minZ
           : MAIN.minX;
         const facadeHalfLength = moduleLength * 0.95 / 2;
         const facadeAlong = clamp(
@@ -1251,7 +1258,7 @@ const moduleElements = (laws: readonly ModuleLaw[]): Element[] => {
           facadeHalfLength,
           law.measuredLengthM - facadeHalfLength,
         );
-        const facadeTopY = law.id.endsWith("garage")
+        const facadeTopY = isGarageFacade
           ? GROUND_HEIGHT
           : GROUND_HEIGHT + UPPER_HEIGHT;
         const facadeHalfY = rowPitch * 0.92 / 2;
@@ -1294,7 +1301,7 @@ const moduleElements = (laws: readonly ModuleLaw[]): Element[] => {
         const center = isRoof && roofHost !== null
             ? v(roofX, roofPlaneY(roofHost.centerX, roofHost.centerY, roofSlopeDeg, roofX) + 0.11, roofZ)
             : isSide
-            ? v(law.id.endsWith("garage") ? GARAGE.maxX + 0.1 : law.hostSurfaceOwnerId.endsWith("left") ? MAIN.minX - 0.1 : MAIN.maxX + 0.1, facadeCenterY, facadeHostStart + facadeAlong)
+            ? v(isGarageFacade ? GARAGE.maxX + 0.1 : law.hostSurfaceOwnerId.endsWith("left") ? MAIN.minX - 0.1 : MAIN.maxX + 0.1, facadeCenterY, facadeHostStart + facadeAlong)
             : v(facadeHostStart + facadeAlong, facadeCenterY, law.hostSurfaceOwnerId.endsWith("front") ? MAIN.minZ - 0.1 : MAIN.maxZ + 0.1);
         const size = isRoof
           ? v(roofSizeX, 0.06, roofSizeZ)
