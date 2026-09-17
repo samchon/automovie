@@ -767,13 +767,21 @@ class TempleModelSource implements IAutoMovieLibrarySourceOwner {
 
 /**
  * @evidence models/temple-fit-out.md This export is the source owner for the file-level model design population.
+ * @evidenceReview models/temple-fit-out.md #0f51831 Independent target check for ModelScopeSource: read models/temple-fit-out.md and verified the scale-board factory two comparison parts, a 1.10 x 2.10 door-clear panel and a 3.60m height marker; a changed host assignment, extent, or handoff would falsify this relationship.
  * @evidence models/temple-fit-out.md#model-scope-scale-and-fidelity The scale board emits `model/scale-board` with a 1.10 × 2.10 door-clear panel and a 3.60m room-height marker, so the source answers the population's shared comparison contract without placement.
+ * @evidenceReview models/temple-fit-out.md#model-scope-scale-and-fidelity #94e190a Independent target check for ModelScopeSource: read model-scope-scale-and-fidelity and verified the scale-board factory two comparison parts, a 1.10 x 2.10 door-clear panel and a 3.60m height marker; a changed host assignment, extent, or handoff would falsify this relationship.
  * @evidence principles/core/source-units.md#source-scope-preservation The export realizes only the scale-board model and keeps topology, placement, materials, and observations outside this source owner.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 Independent scope check for ModelScopeSource: executable output is limited to the scale-board factory two comparison parts, a 1.10 x 2.10 door-clear panel and a 3.60m height marker; placement, population, and renderer response are not emitted, so a new topology field would falsify this scope.
  * @evidence principles/core/source-units.md#source-substantive-completion The constructor binds a concrete reviewed design address to an executable factory that returns both declared comparison parts.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Independent completion check for ModelScopeSource: its constructor binds the reviewed design address and returns the scale-board factory two comparison parts, a 1.10 x 2.10 door-clear panel and a 3.60m height marker; a missing named part or changed interval would falsify completion.
  * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The scale-board source implements the reviewed panel dimensions, floor datum, and no-placement boundary without exposing a missing parent decision.
+ * @evidenceExcludeReview upstream/design/model-sources.md#design-revision-from-model-source-work #2f8f56c Independent exclusion check for ModelScopeSource: checked the scale-board factory two comparison parts, a 1.10 x 2.10 door-clear panel and a 3.60m height marker against design-revision-from-model-source-work; no missing parent decision or repaired upstream interface was found, and a parent repair would falsify this exclusion.
  * @evidence obligations/design/model-sources.md#design-owned-construction The factory's two named parts are the concrete construction of the scale-board design unit.
+ * @evidenceReview obligations/design/model-sources.md#design-owned-construction #535df68 Independent construction check for ModelScopeSource: factory creates the scale-board factory two comparison parts, a 1.10 x 2.10 door-clear panel and a 3.60m height marker as named stable parts; a missing layer or renamed surface would falsify the source handoff.
  * @evidence obligations/design/model-sources.md#deterministic-build The source has no mutable inputs or randomness and rebuilds the same two primitive parts on every call.
+ * @evidenceReview obligations/design/model-sources.md#deterministic-build #27790fe Independent determinism check for ModelScopeSource: the scale-board factory two comparison parts, a 1.10 x 2.10 door-clear panel and a 3.60m height marker uses fixed literals and no random or mutable build input; a variable part count or seed would falsify equal-input output.
  * @evidence obligations/design/model-sources.md#unsupported-fidelity-is-explicit The board remains a fixed blocking comparison proxy and exposes no unsupported fidelity request.
+ * @evidenceReview obligations/design/model-sources.md#unsupported-fidelity-is-explicit #15c03fa Independent ceiling check for ModelScopeSource: the scale-board factory two comparison parts, a 1.10 x 2.10 door-clear panel and a 3.60m height marker is a bounded blocking realization with no unimplemented simulation or detail claim; such a claim would falsify the refusal boundary.
  */
 export class ModelScopeSource extends TempleModelSource {
   public constructor() {
@@ -786,13 +794,21 @@ export class ModelScopeSource extends TempleModelSource {
 
 /**
  * @evidence models/temple-fit-out.md The exported class is the file-level source owner for the reviewed model library.
+ * @evidenceReview models/temple-fit-out.md #0f51831 Independent target check for ColumnModelSource: read models/temple-fit-out.md and verified the column factory base 0.20m radius, shaft 0.16m to 0.152m over Y 0.18..2.92m, and 0.225m capital over Y 2.92..3.20m; a changed host assignment, extent, or handoff would falsify this relationship.
  * @evidence models/temple-fit-out.md#column-prototype The factory returns `model/column` as base radius 0.20m and height 0.18m, shaft profile 0.16m to 0.152m over Y 0.18..2.92m, and capital radius 0.225m over Y 2.92..3.20m.
+ * @evidenceReview models/temple-fit-out.md#column-prototype #c853c7f Independent target check for ColumnModelSource: read column-prototype and verified the column factory base 0.20m radius, shaft 0.16m to 0.152m over Y 0.18..2.92m, and 0.225m capital over Y 2.92..3.20m; a changed host assignment, extent, or handoff would falsify this relationship.
  * @evidence principles/core/source-units.md#source-scope-preservation The source owns only the three-part column realization and does not add column placement, room topology, or material response.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 Independent scope check for ColumnModelSource: executable output is limited to the column factory base 0.20m radius, shaft 0.16m to 0.152m over Y 0.18..2.92m, and 0.225m capital over Y 2.92..3.20m; placement, population, and renderer response are not emitted, so a new topology field would falsify this scope.
  * @evidence principles/core/source-units.md#source-substantive-completion The executable factory supplies named base, shaft, and capital parts with their reviewed ranges and surfaces.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Independent completion check for ColumnModelSource: its constructor binds the reviewed design address and returns the column factory base 0.20m radius, shaft 0.16m to 0.152m over Y 0.18..2.92m, and 0.225m capital over Y 2.92..3.20m; a missing named part or changed interval would falsify completion.
  * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The implementation directly realizes the reviewed three-layer bounds and five-percent shaft taper, so no parent geometry decision was missing.
+ * @evidenceExcludeReview upstream/design/model-sources.md#design-revision-from-model-source-work #2f8f56c Independent exclusion check for ColumnModelSource: checked the column factory base 0.20m radius, shaft 0.16m to 0.152m over Y 0.18..2.92m, and 0.225m capital over Y 2.92..3.20m against design-revision-from-model-source-work; no missing parent decision or repaired upstream interface was found, and a parent repair would falsify this exclusion.
  * @evidence obligations/design/model-sources.md#design-owned-construction The three factory parts preserve the column's reviewed hierarchy, extents, and stone surface owners.
+ * @evidenceReview obligations/design/model-sources.md#design-owned-construction #535df68 Independent construction check for ColumnModelSource: factory creates the column factory base 0.20m radius, shaft 0.16m to 0.152m over Y 0.18..2.92m, and 0.225m capital over Y 2.92..3.20m as named stable parts; a missing layer or renamed surface would falsify the source handoff.
  * @evidence obligations/design/model-sources.md#deterministic-build The fixed primitive/profile inputs and 20-segment revolution produce the same column for every build.
+ * @evidenceReview obligations/design/model-sources.md#deterministic-build #27790fe Independent determinism check for ColumnModelSource: the column factory base 0.20m radius, shaft 0.16m to 0.152m over Y 0.18..2.92m, and 0.225m capital over Y 2.92..3.20m uses fixed literals and no random or mutable build input; a variable part count or seed would falsify equal-input output.
  * @evidence obligations/design/model-sources.md#unsupported-fidelity-is-explicit The column is an explicitly bounded blocking proxy with no unclaimed capital detail or higher-fidelity input.
+ * @evidenceReview obligations/design/model-sources.md#unsupported-fidelity-is-explicit #15c03fa Independent ceiling check for ColumnModelSource: the column factory base 0.20m radius, shaft 0.16m to 0.152m over Y 0.18..2.92m, and 0.225m capital over Y 2.92..3.20m is a bounded blocking realization with no unimplemented simulation or detail claim; such a claim would falsify the refusal boundary.
  */
 export class ColumnModelSource extends TempleModelSource {
   public constructor() {
@@ -802,13 +818,21 @@ export class ColumnModelSource extends TempleModelSource {
 
 /**
  * @evidence models/temple-fit-out.md The exported class is the file-level source owner for the reviewed model library.
+ * @evidenceReview models/temple-fit-out.md #0f51831 Independent target check for DoorModelSource: read models/temple-fit-out.md and verified the four door parts: 0.40m frame depth, 1.10 x 2.10m clear opening, and centered leaf Z -0.16..0.16m; a changed host assignment, extent, or handoff would falsify this relationship.
  * @evidence models/temple-fit-out.md#door-prototype The factory builds stone left/right jambs and lintel at depth 0.40m plus a centered 1.10 × 2.10 × 0.32m wood leaf, preserving the reviewed Z=0 host and leaf intervals.
+ * @evidenceReview models/temple-fit-out.md#door-prototype #e53a9c6 Independent target check for DoorModelSource: read door-prototype and verified the four door parts: 0.40m frame depth, 1.10 x 2.10m clear opening, and centered leaf Z -0.16..0.16m; a changed host assignment, extent, or handoff would falsify this relationship.
  * @evidence principles/core/source-units.md#source-scope-preservation The source realizes the door silhouette and stable surfaces only; openings and threshold placement remain space-owned.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 Independent scope check for DoorModelSource: executable output is limited to the four door parts: 0.40m frame depth, 1.10 x 2.10m clear opening, and centered leaf Z -0.16..0.16m; placement, population, and renderer response are not emitted, so a new topology field would falsify this scope.
  * @evidence principles/core/source-units.md#source-substantive-completion The factory returns all four named frame/leaf parts needed by the reviewed door boundary.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Independent completion check for DoorModelSource: its constructor binds the reviewed design address and returns the four door parts: 0.40m frame depth, 1.10 x 2.10m clear opening, and centered leaf Z -0.16..0.16m; a missing named part or changed interval would falsify completion.
  * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The source implements the reviewed 0.40m frame host and centered 0.32m leaf without needing an upstream opening or depth decision.
+ * @evidenceExcludeReview upstream/design/model-sources.md#design-revision-from-model-source-work #2f8f56c Independent exclusion check for DoorModelSource: checked the four door parts: 0.40m frame depth, 1.10 x 2.10m clear opening, and centered leaf Z -0.16..0.16m against design-revision-from-model-source-work; no missing parent decision or repaired upstream interface was found, and a parent repair would falsify this exclusion.
  * @evidence obligations/design/model-sources.md#design-owned-construction The parts and exact surface IDs are the direct construction of the reviewed stone-frame/wood-leaf model.
+ * @evidenceReview obligations/design/model-sources.md#design-owned-construction #535df68 Independent construction check for DoorModelSource: factory creates the four door parts: 0.40m frame depth, 1.10 x 2.10m clear opening, and centered leaf Z -0.16..0.16m as named stable parts; a missing layer or renamed surface would falsify the source handoff.
  * @evidence obligations/design/model-sources.md#deterministic-build Fixed centers, dimensions, and materials yield the same four-part door on every build.
+ * @evidenceReview obligations/design/model-sources.md#deterministic-build #27790fe Independent determinism check for DoorModelSource: the four door parts: 0.40m frame depth, 1.10 x 2.10m clear opening, and centered leaf Z -0.16..0.16m uses fixed literals and no random or mutable build input; a variable part count or seed would falsify equal-input output.
  * @evidence obligations/design/model-sources.md#unsupported-fidelity-is-explicit The source stops at the reviewed blocking frame and leaf and provides no unsupported hardware or swing behavior.
+ * @evidenceReview obligations/design/model-sources.md#unsupported-fidelity-is-explicit #15c03fa Independent ceiling check for DoorModelSource: the four door parts: 0.40m frame depth, 1.10 x 2.10m clear opening, and centered leaf Z -0.16..0.16m is a bounded blocking realization with no unimplemented simulation or detail claim; such a claim would falsify the refusal boundary.
  */
 export class DoorModelSource extends TempleModelSource {
   public constructor() {
@@ -818,13 +842,21 @@ export class DoorModelSource extends TempleModelSource {
 
 /**
  * @evidence models/temple-fit-out.md The exported class is the file-level source owner for the reviewed model library.
+ * @evidenceReview models/temple-fit-out.md #0f51831 Independent target check for FountainBasinModelSource: read models/temple-fit-out.md and verified the basin foot, open wall/rim profile Y 0.18..0.42m, and separate 1.24m water seat; a changed host assignment, extent, or handoff would falsify this relationship.
  * @evidence models/temple-fit-out.md#fountain-basin-prototype The basin factory returns a 0.72m-radius foot, a 0.62..0.85m open wall/rim profile through Y 0.18..0.42m, and a 1.24m water seat, retaining the central open landmark.
+ * @evidenceReview models/temple-fit-out.md#fountain-basin-prototype #e1710b2 Independent target check for FountainBasinModelSource: read fountain-basin-prototype and verified the basin foot, open wall/rim profile Y 0.18..0.42m, and separate 1.24m water seat; a changed host assignment, extent, or handoff would falsify this relationship.
  * @evidence principles/core/source-units.md#source-scope-preservation The source realizes basin geometry only and does not claim the courtyard socket, instance count, or stream behavior.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 Independent scope check for FountainBasinModelSource: executable output is limited to the basin foot, open wall/rim profile Y 0.18..0.42m, and separate 1.24m water seat; placement, population, and renderer response are not emitted, so a new topology field would falsify this scope.
  * @evidence principles/core/source-units.md#source-substantive-completion The factory supplies foot, wall, rim, and water-seat parts with named surfaces and an open top boundary.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Independent completion check for FountainBasinModelSource: its constructor binds the reviewed design address and returns the basin foot, open wall/rim profile Y 0.18..0.42m, and separate 1.24m water seat; a missing named part or changed interval would falsify completion.
  * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The reviewed low circular basin profile and water-seat dimensions compile directly, exposing no parent defect.
+ * @evidenceExcludeReview upstream/design/model-sources.md#design-revision-from-model-source-work #2f8f56c Independent exclusion check for FountainBasinModelSource: checked the basin foot, open wall/rim profile Y 0.18..0.42m, and separate 1.24m water seat against design-revision-from-model-source-work; no missing parent decision or repaired upstream interface was found, and a parent repair would falsify this exclusion.
  * @evidence obligations/design/model-sources.md#design-owned-construction The four returned parts preserve the basin's reviewed open boundary, hierarchy, and stone/water surface split.
+ * @evidenceReview obligations/design/model-sources.md#design-owned-construction #535df68 Independent construction check for FountainBasinModelSource: factory creates the basin foot, open wall/rim profile Y 0.18..0.42m, and separate 1.24m water seat as named stable parts; a missing layer or renamed surface would falsify the source handoff.
  * @evidence obligations/design/model-sources.md#deterministic-build The fixed revolution profile and 20 segments regenerate the same basin without state or randomness.
+ * @evidenceReview obligations/design/model-sources.md#deterministic-build #27790fe Independent determinism check for FountainBasinModelSource: the basin foot, open wall/rim profile Y 0.18..0.42m, and separate 1.24m water seat uses fixed literals and no random or mutable build input; a variable part count or seed would falsify equal-input output.
  * @evidence obligations/design/model-sources.md#unsupported-fidelity-is-explicit The basin is a static blocking landmark and does not pretend to simulate fluid or hidden plumbing.
+ * @evidenceReview obligations/design/model-sources.md#unsupported-fidelity-is-explicit #15c03fa Independent ceiling check for FountainBasinModelSource: the basin foot, open wall/rim profile Y 0.18..0.42m, and separate 1.24m water seat is a bounded blocking realization with no unimplemented simulation or detail claim; such a claim would falsify the refusal boundary.
  */
 export class FountainBasinModelSource extends TempleModelSource {
   public constructor() {
@@ -837,13 +869,21 @@ export class FountainBasinModelSource extends TempleModelSource {
 
 /**
  * @evidence models/temple-fit-out.md The exported class is the file-level source owner for the reviewed model library.
+ * @evidenceReview models/temple-fit-out.md #0f51831 Independent target check for FountainStreamModelSource: read models/temple-fit-out.md and verified the one-strand stream cylinders covering Y 0.25..0.30m, 0.30..1.15m, and 1.15..1.20m; a changed host assignment, extent, or handoff would falsify this relationship.
  * @evidence models/temple-fit-out.md#fountain-stream-prototype The stream factory creates the reviewed one-strand water accent as contiguous Y intervals 0.25..0.30m, 0.30..1.15m, and 1.15..1.20m.
+ * @evidenceReview models/temple-fit-out.md#fountain-stream-prototype #dde58b9 Independent target check for FountainStreamModelSource: read fountain-stream-prototype and verified the one-strand stream cylinders covering Y 0.25..0.30m, 0.30..1.15m, and 1.15..1.20m; a changed host assignment, extent, or handoff would falsify this relationship.
  * @evidence principles/core/source-units.md#source-scope-preservation The source owns the static stream representation only and does not add fountain placement, animation, or a second water path.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 Independent scope check for FountainStreamModelSource: executable output is limited to the one-strand stream cylinders covering Y 0.25..0.30m, 0.30..1.15m, and 1.15..1.20m; placement, population, and renderer response are not emitted, so a new topology field would falsify this scope.
  * @evidence principles/core/source-units.md#source-substantive-completion The three named cylinders provide the complete base contact, vertical column, and top break used by the reviewed prototype.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Independent completion check for FountainStreamModelSource: its constructor binds the reviewed design address and returns the one-strand stream cylinders covering Y 0.25..0.30m, 0.30..1.15m, and 1.15..1.20m; a missing named part or changed interval would falsify completion.
  * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The reviewed narrow static stream height and contiguous interval are directly implementable, with no missing parent interface.
+ * @evidenceExcludeReview upstream/design/model-sources.md#design-revision-from-model-source-work #2f8f56c Independent exclusion check for FountainStreamModelSource: checked the one-strand stream cylinders covering Y 0.25..0.30m, 0.30..1.15m, and 1.15..1.20m against design-revision-from-model-source-work; no missing parent decision or repaired upstream interface was found, and a parent repair would falsify this exclusion.
  * @evidence obligations/design/model-sources.md#design-owned-construction The returned water parts preserve the single strand, radius, intervals, and stable `stream-water` surface.
+ * @evidenceReview obligations/design/model-sources.md#design-owned-construction #535df68 Independent construction check for FountainStreamModelSource: factory creates the one-strand stream cylinders covering Y 0.25..0.30m, 0.30..1.15m, and 1.15..1.20m as named stable parts; a missing layer or renamed surface would falsify the source handoff.
  * @evidence obligations/design/model-sources.md#deterministic-build Fixed cylinder dimensions and centers produce the same stream on every build.
+ * @evidenceReview obligations/design/model-sources.md#deterministic-build #27790fe Independent determinism check for FountainStreamModelSource: the one-strand stream cylinders covering Y 0.25..0.30m, 0.30..1.15m, and 1.15..1.20m uses fixed literals and no random or mutable build input; a variable part count or seed would falsify equal-input output.
  * @evidence obligations/design/model-sources.md#unsupported-fidelity-is-explicit The source deliberately represents water as a static blocking accent and does not claim particle simulation.
+ * @evidenceReview obligations/design/model-sources.md#unsupported-fidelity-is-explicit #15c03fa Independent ceiling check for FountainStreamModelSource: the one-strand stream cylinders covering Y 0.25..0.30m, 0.30..1.15m, and 1.15..1.20m is a bounded blocking realization with no unimplemented simulation or detail claim; such a claim would falsify the refusal boundary.
  */
 export class FountainStreamModelSource extends TempleModelSource {
   public constructor() {
@@ -856,13 +896,21 @@ export class FountainStreamModelSource extends TempleModelSource {
 
 /**
  * @evidence models/temple-fit-out.md The exported class is the file-level source owner for the reviewed model library.
+ * @evidenceReview models/temple-fit-out.md #0f51831 Independent target check for AltarAndPlinthModelSource: read models/temple-fit-out.md and verified the 1.30 x 0.32 x 0.80m plinth and centered 0.90 x 0.50 x 0.48m body at the sanctuary north observation point; a changed host assignment, extent, or handoff would falsify this relationship.
  * @evidence models/temple-fit-out.md#altar-and-plinth-prototype The factory returns a 1.30 × 0.32 × 0.80m plinth and a 0.90 × 0.50 × 0.48m body, keeping the plinth wider/deeper and centered for the source sanctuary north observation.
+ * @evidenceReview models/temple-fit-out.md#altar-and-plinth-prototype #4d627b9 Independent target check for AltarAndPlinthModelSource: read altar-and-plinth-prototype and verified the 1.30 x 0.32 x 0.80m plinth and centered 0.90 x 0.50 x 0.48m body at the sanctuary north observation point; a changed host assignment, extent, or handoff would falsify this relationship.
  * @evidence principles/core/source-units.md#source-scope-preservation The source realizes altar geometry only and consumes the existing `sanctuary` room relation without inventing a socket or placement graph.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 Independent scope check for AltarAndPlinthModelSource: executable output is limited to the 1.30 x 0.32 x 0.80m plinth and centered 0.90 x 0.50 x 0.48m body at the sanctuary north observation point; placement, population, and renderer response are not emitted, so a new topology field would falsify this scope.
  * @evidence principles/core/source-units.md#source-substantive-completion The two named stone parts provide the complete reviewed plinth/body hierarchy.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Independent completion check for AltarAndPlinthModelSource: its constructor binds the reviewed design address and returns the 1.30 x 0.32 x 0.80m plinth and centered 0.90 x 0.50 x 0.48m body at the sanctuary north observation point; a missing named part or changed interval would falsify completion.
  * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The source realizes the reviewed altar extents and sanctuary-facing relationship without exposing an upstream design gap.
+ * @evidenceExcludeReview upstream/design/model-sources.md#design-revision-from-model-source-work #2f8f56c Independent exclusion check for AltarAndPlinthModelSource: checked the 1.30 x 0.32 x 0.80m plinth and centered 0.90 x 0.50 x 0.48m body at the sanctuary north observation point against design-revision-from-model-source-work; no missing parent decision or repaired upstream interface was found, and a parent repair would falsify this exclusion.
  * @evidence obligations/design/model-sources.md#design-owned-construction The plinth and body preserve the reviewed size relation and separate stone surface owners.
+ * @evidenceReview obligations/design/model-sources.md#design-owned-construction #535df68 Independent construction check for AltarAndPlinthModelSource: factory creates the 1.30 x 0.32 x 0.80m plinth and centered 0.90 x 0.50 x 0.48m body at the sanctuary north observation point as named stable parts; a missing layer or renamed surface would falsify the source handoff.
  * @evidence obligations/design/model-sources.md#deterministic-build Fixed boxes and transforms regenerate the same altar without placement state.
+ * @evidenceReview obligations/design/model-sources.md#deterministic-build #27790fe Independent determinism check for AltarAndPlinthModelSource: the 1.30 x 0.32 x 0.80m plinth and centered 0.90 x 0.50 x 0.48m body at the sanctuary north observation point uses fixed literals and no random or mutable build input; a variable part count or seed would falsify equal-input output.
  * @evidence obligations/design/model-sources.md#unsupported-fidelity-is-explicit The altar stops at the reviewed blocking stone form and does not assert carvings or ritual simulation.
+ * @evidenceReview obligations/design/model-sources.md#unsupported-fidelity-is-explicit #15c03fa Independent ceiling check for AltarAndPlinthModelSource: the 1.30 x 0.32 x 0.80m plinth and centered 0.90 x 0.50 x 0.48m body at the sanctuary north observation point is a bounded blocking realization with no unimplemented simulation or detail claim; such a claim would falsify the refusal boundary.
  */
 export class AltarAndPlinthModelSource extends TempleModelSource {
   public constructor() {
@@ -875,13 +923,21 @@ export class AltarAndPlinthModelSource extends TempleModelSource {
 
 /**
  * @evidence models/temple-fit-out.md The exported class is the file-level source owner for the reviewed model library.
+ * @evidenceReview models/temple-fit-out.md #0f51831 Independent target check for RoofTileModelSource: read models/temple-fit-out.md and verified the roof tile body, 0.44m overlap lip depth, and separate top, edge, and underside surfaces; a changed host assignment, extent, or handoff would falsify this relationship.
  * @evidence models/temple-fit-out.md#roof-tile-prototype The tile factory keeps body and overlap lip within Z 0.00..0.44m, with a 0.72 × 0.44m underside and separate top, edge, and underside surfaces.
+ * @evidenceReview models/temple-fit-out.md#roof-tile-prototype #16362fd Independent target check for RoofTileModelSource: read roof-tile-prototype and verified the roof tile body, 0.44m overlap lip depth, and separate top, edge, and underside surfaces; a changed host assignment, extent, or handoff would falsify this relationship.
  * @evidence principles/core/source-units.md#source-scope-preservation The source realizes one reusable tile and leaves roof mass, row placement, and terracotta response to their owning branches.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 Independent scope check for RoofTileModelSource: executable output is limited to the roof tile body, 0.44m overlap lip depth, and separate top, edge, and underside surfaces; placement, population, and renderer response are not emitted, so a new topology field would falsify this scope.
  * @evidence principles/core/source-units.md#source-substantive-completion The three named parts provide the reviewed tile silhouette, overlap edge, and underside boundary.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Independent completion check for RoofTileModelSource: its constructor binds the reviewed design address and returns the roof tile body, 0.44m overlap lip depth, and separate top, edge, and underside surfaces; a missing named part or changed interval would falsify completion.
  * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The corrected 0.44m lip depth and occupied bounds implement the reviewed tile without a parent extent defect.
+ * @evidenceExcludeReview upstream/design/model-sources.md#design-revision-from-model-source-work #2f8f56c Independent exclusion check for RoofTileModelSource: checked the roof tile body, 0.44m overlap lip depth, and separate top, edge, and underside surfaces against design-revision-from-model-source-work; no missing parent decision or repaired upstream interface was found, and a parent repair would falsify this exclusion.
  * @evidence obligations/design/model-sources.md#design-owned-construction The factory parts preserve the reviewed overlap geometry and exact stable surface IDs.
+ * @evidenceReview obligations/design/model-sources.md#design-owned-construction #535df68 Independent construction check for RoofTileModelSource: factory creates the roof tile body, 0.44m overlap lip depth, and separate top, edge, and underside surfaces as named stable parts; a missing layer or renamed surface would falsify the source handoff.
  * @evidence obligations/design/model-sources.md#deterministic-build Fixed boxes and transforms produce the same tile; row repetition is not hidden in this prototype.
+ * @evidenceReview obligations/design/model-sources.md#deterministic-build #27790fe Independent determinism check for RoofTileModelSource: the roof tile body, 0.44m overlap lip depth, and separate top, edge, and underside surfaces uses fixed literals and no random or mutable build input; a variable part count or seed would falsify equal-input output.
  * @evidence obligations/design/model-sources.md#unsupported-fidelity-is-explicit The tile is a blocking roof module and does not claim baked texture, weather simulation, or roof placement.
+ * @evidenceReview obligations/design/model-sources.md#unsupported-fidelity-is-explicit #15c03fa Independent ceiling check for RoofTileModelSource: the roof tile body, 0.44m overlap lip depth, and separate top, edge, and underside surfaces is a bounded blocking realization with no unimplemented simulation or detail claim; such a claim would falsify the refusal boundary.
  */
 export class RoofTileModelSource extends TempleModelSource {
   public constructor() {
@@ -891,13 +947,21 @@ export class RoofTileModelSource extends TempleModelSource {
 
 /**
  * @evidence models/temple-fit-out.md The exported class is the file-level source owner for the reviewed model library.
+ * @evidenceReview models/temple-fit-out.md #0f51831 Independent target check for RecordsTableModelSource: read models/temple-fit-out.md and verified the 1.20 x 0.60m top at Y 0.71..0.81m and four 0.10m legs at X +/-0.50m and Z +/-0.20m; a changed host assignment, extent, or handoff would falsify this relationship.
  * @evidence models/temple-fit-out.md#records-table-prototype The table factory places a 1.20 × 0.60m top at Y 0.71..0.81m and four 0.10m square legs at X ±0.50m, Z ±0.20m, preserving its readable support footprint.
+ * @evidenceReview models/temple-fit-out.md#records-table-prototype #ffc73de Independent target check for RecordsTableModelSource: read records-table-prototype and verified the 1.20 x 0.60m top at Y 0.71..0.81m and four 0.10m legs at X +/-0.50m and Z +/-0.20m; a changed host assignment, extent, or handoff would falsify this relationship.
  * @evidence principles/core/source-units.md#source-scope-preservation The source owns the table prototype and does not place it in the records room or reserve its route.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 Independent scope check for RecordsTableModelSource: executable output is limited to the 1.20 x 0.60m top at Y 0.71..0.81m and four 0.10m legs at X +/-0.50m and Z +/-0.20m; placement, population, and renderer response are not emitted, so a new topology field would falsify this scope.
  * @evidence principles/core/source-units.md#source-substantive-completion The top and four generated legs form the complete reviewed table hierarchy with stable surface names.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Independent completion check for RecordsTableModelSource: its constructor binds the reviewed design address and returns the 1.20 x 0.60m top at Y 0.71..0.81m and four 0.10m legs at X +/-0.50m and Z +/-0.20m; a missing named part or changed interval would falsify completion.
  * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The reviewed top/leg dimensions and support positions are implemented directly, so construction exposed no parent defect.
+ * @evidenceExcludeReview upstream/design/model-sources.md#design-revision-from-model-source-work #2f8f56c Independent exclusion check for RecordsTableModelSource: checked the 1.20 x 0.60m top at Y 0.71..0.81m and four 0.10m legs at X +/-0.50m and Z +/-0.20m against design-revision-from-model-source-work; no missing parent decision or repaired upstream interface was found, and a parent repair would falsify this exclusion.
  * @evidence obligations/design/model-sources.md#design-owned-construction The top and four legs preserve the table's reviewed footprint, contact, and wood surface split.
+ * @evidenceReview obligations/design/model-sources.md#design-owned-construction #535df68 Independent construction check for RecordsTableModelSource: factory creates the 1.20 x 0.60m top at Y 0.71..0.81m and four 0.10m legs at X +/-0.50m and Z +/-0.20m as named stable parts; a missing layer or renamed surface would falsify the source handoff.
  * @evidence obligations/design/model-sources.md#deterministic-build The leg coordinate list and fixed dimensions deterministically regenerate the same five-part table.
+ * @evidenceReview obligations/design/model-sources.md#deterministic-build #27790fe Independent determinism check for RecordsTableModelSource: the 1.20 x 0.60m top at Y 0.71..0.81m and four 0.10m legs at X +/-0.50m and Z +/-0.20m uses fixed literals and no random or mutable build input; a variable part count or seed would falsify equal-input output.
  * @evidence obligations/design/model-sources.md#unsupported-fidelity-is-explicit The table is a bounded blocking work surface without unclaimed drawers, joinery, or use simulation.
+ * @evidenceReview obligations/design/model-sources.md#unsupported-fidelity-is-explicit #15c03fa Independent ceiling check for RecordsTableModelSource: the 1.20 x 0.60m top at Y 0.71..0.81m and four 0.10m legs at X +/-0.50m and Z +/-0.20m is a bounded blocking realization with no unimplemented simulation or detail claim; such a claim would falsify the refusal boundary.
  */
 export class RecordsTableModelSource extends TempleModelSource {
   public constructor() {
@@ -910,13 +974,21 @@ export class RecordsTableModelSource extends TempleModelSource {
 
 /**
  * @evidence models/temple-fit-out.md The exported class is the file-level source owner for the reviewed model library.
+ * @evidenceReview models/temple-fit-out.md #0f51831 Independent target check for RecordsShelfModelSource: read models/temple-fit-out.md and verified the 1.80m frame at X +/-0.40m and three boards at Y 0.36..0.44m, 0.86..0.94m, and 1.36..1.44m; a changed host assignment, extent, or handoff would falsify this relationship.
  * @evidence models/temple-fit-out.md#records-shelf-prototype The shelf factory fixes frames at X ±0.40m and boards at Y 0.36..0.44m, 0.86..0.94m, and 1.36..1.44m within its 1.80m height.
+ * @evidenceReview models/temple-fit-out.md#records-shelf-prototype #950597f Independent target check for RecordsShelfModelSource: read records-shelf-prototype and verified the 1.80m frame at X +/-0.40m and three boards at Y 0.36..0.44m, 0.86..0.94m, and 1.36..1.44m; a changed host assignment, extent, or handoff would falsify this relationship.
  * @evidence principles/core/source-units.md#source-scope-preservation The source realizes the records-shelf prototype and leaves records-room quantity, orientation, and placement to instances.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 Independent scope check for RecordsShelfModelSource: executable output is limited to the 1.80m frame at X +/-0.40m and three boards at Y 0.36..0.44m, 0.86..0.94m, and 1.36..1.44m; placement, population, and renderer response are not emitted, so a new topology field would falsify this scope.
  * @evidence principles/core/source-units.md#source-substantive-completion The two frames and three interval-defined boards provide the complete reviewed shelf structure.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Independent completion check for RecordsShelfModelSource: its constructor binds the reviewed design address and returns the 1.80m frame at X +/-0.40m and three boards at Y 0.36..0.44m, 0.86..0.94m, and 1.36..1.44m; a missing named part or changed interval would falsify completion.
  * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The reviewed frame extent and board intervals compile as written without requiring a parent shelf decision.
+ * @evidenceExcludeReview upstream/design/model-sources.md#design-revision-from-model-source-work #2f8f56c Independent exclusion check for RecordsShelfModelSource: checked the 1.80m frame at X +/-0.40m and three boards at Y 0.36..0.44m, 0.86..0.94m, and 1.36..1.44m against design-revision-from-model-source-work; no missing parent decision or repaired upstream interface was found, and a parent repair would falsify this exclusion.
  * @evidence obligations/design/model-sources.md#design-owned-construction The generated boards preserve the reviewed gaps, support frames, depth, and separate wood surface owners.
+ * @evidenceReview obligations/design/model-sources.md#design-owned-construction #535df68 Independent construction check for RecordsShelfModelSource: factory creates the 1.80m frame at X +/-0.40m and three boards at Y 0.36..0.44m, 0.86..0.94m, and 1.36..1.44m as named stable parts; a missing layer or renamed surface would falsify the source handoff.
  * @evidence obligations/design/model-sources.md#deterministic-build The explicit interval list and fixed frame transforms produce the same five-part shelf.
+ * @evidenceReview obligations/design/model-sources.md#deterministic-build #27790fe Independent determinism check for RecordsShelfModelSource: the 1.80m frame at X +/-0.40m and three boards at Y 0.36..0.44m, 0.86..0.94m, and 1.36..1.44m uses fixed literals and no random or mutable build input; a variable part count or seed would falsify equal-input output.
  * @evidence obligations/design/model-sources.md#unsupported-fidelity-is-explicit The shelf is a fixed blocking storage module and does not claim contents or joinery beyond the reviewed boards.
+ * @evidenceReview obligations/design/model-sources.md#unsupported-fidelity-is-explicit #15c03fa Independent ceiling check for RecordsShelfModelSource: the 1.80m frame at X +/-0.40m and three boards at Y 0.36..0.44m, 0.86..0.94m, and 1.36..1.44m is a bounded blocking realization with no unimplemented simulation or detail claim; such a claim would falsify the refusal boundary.
  */
 export class RecordsShelfModelSource extends TempleModelSource {
   public constructor() {
@@ -929,13 +1001,21 @@ export class RecordsShelfModelSource extends TempleModelSource {
 
 /**
  * @evidence models/temple-fit-out.md The exported class is the file-level source owner for the reviewed model library.
+ * @evidenceReview models/temple-fit-out.md #0f51831 Independent target check for RecordsChestModelSource: read models/temple-fit-out.md and verified the 0.80 x 0.45 x 0.45m body at Y 0.00..0.45m and 0.10m lid at Y 0.45..0.55m; a changed host assignment, extent, or handoff would falsify this relationship.
  * @evidence models/temple-fit-out.md#records-chest-prototype The chest factory keeps the body at 0.80 × 0.45 × 0.45m from Y 0.00..0.45m and the 0.10m lid from Y 0.45..0.55m.
+ * @evidenceReview models/temple-fit-out.md#records-chest-prototype #9e1a630 Independent target check for RecordsChestModelSource: read records-chest-prototype and verified the 0.80 x 0.45 x 0.45m body at Y 0.00..0.45m and 0.10m lid at Y 0.45..0.55m; a changed host assignment, extent, or handoff would falsify this relationship.
  * @evidence principles/core/source-units.md#source-scope-preservation The source realizes a closed records chest and does not add records-room placement, contents, or opening behavior.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 Independent scope check for RecordsChestModelSource: executable output is limited to the 0.80 x 0.45 x 0.45m body at Y 0.00..0.45m and 0.10m lid at Y 0.45..0.55m; placement, population, and renderer response are not emitted, so a new topology field would falsify this scope.
  * @evidence principles/core/source-units.md#source-substantive-completion The body and lid are the complete reviewed chest hierarchy with separately bindable surfaces.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Independent completion check for RecordsChestModelSource: its constructor binds the reviewed design address and returns the 0.80 x 0.45 x 0.45m body at Y 0.00..0.45m and 0.10m lid at Y 0.45..0.55m; a missing named part or changed interval would falsify completion.
  * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The reviewed closed-chest bounds and lid contact are directly represented, exposing no upstream defect.
+ * @evidenceExcludeReview upstream/design/model-sources.md#design-revision-from-model-source-work #2f8f56c Independent exclusion check for RecordsChestModelSource: checked the 0.80 x 0.45 x 0.45m body at Y 0.00..0.45m and 0.10m lid at Y 0.45..0.55m against design-revision-from-model-source-work; no missing parent decision or repaired upstream interface was found, and a parent repair would falsify this exclusion.
  * @evidence obligations/design/model-sources.md#design-owned-construction The two boxes preserve the reviewed body/lid contact and stable surface ownership.
+ * @evidenceReview obligations/design/model-sources.md#design-owned-construction #535df68 Independent construction check for RecordsChestModelSource: factory creates the 0.80 x 0.45 x 0.45m body at Y 0.00..0.45m and 0.10m lid at Y 0.45..0.55m as named stable parts; a missing layer or renamed surface would falsify the source handoff.
  * @evidence obligations/design/model-sources.md#deterministic-build Fixed dimensions and centers regenerate one identical closed chest.
+ * @evidenceReview obligations/design/model-sources.md#deterministic-build #27790fe Independent determinism check for RecordsChestModelSource: the 0.80 x 0.45 x 0.45m body at Y 0.00..0.45m and 0.10m lid at Y 0.45..0.55m uses fixed literals and no random or mutable build input; a variable part count or seed would falsify equal-input output.
  * @evidence obligations/design/model-sources.md#unsupported-fidelity-is-explicit The source stops at a closed blocking chest and does not imply hinges, contents, or interaction.
+ * @evidenceReview obligations/design/model-sources.md#unsupported-fidelity-is-explicit #15c03fa Independent ceiling check for RecordsChestModelSource: the 0.80 x 0.45 x 0.45m body at Y 0.00..0.45m and 0.10m lid at Y 0.45..0.55m is a bounded blocking realization with no unimplemented simulation or detail claim; such a claim would falsify the refusal boundary.
  */
 export class RecordsChestModelSource extends TempleModelSource {
   public constructor() {
@@ -948,13 +1028,21 @@ export class RecordsChestModelSource extends TempleModelSource {
 
 /**
  * @evidence models/temple-fit-out.md The exported class is the file-level source owner for the reviewed model library.
+ * @evidenceReview models/temple-fit-out.md #0f51831 Independent target check for StorageShelfModelSource: read models/temple-fit-out.md and verified the 1.70m frame and four boards at Y 0.35..0.43m, 0.70..0.78m, 1.05..1.13m, and 1.40..1.48m; a changed host assignment, extent, or handoff would falsify this relationship.
  * @evidence models/temple-fit-out.md#storage-shelf-prototype The storage shelf fixes 1.70m frames and board intervals Y 0.35..0.43m, 0.70..0.78m, 1.05..1.13m, and 1.40..1.48m.
+ * @evidenceReview models/temple-fit-out.md#storage-shelf-prototype #02a5183 Independent target check for StorageShelfModelSource: read storage-shelf-prototype and verified the 1.70m frame and four boards at Y 0.35..0.43m, 0.70..0.78m, 1.05..1.13m, and 1.40..1.48m; a changed host assignment, extent, or handoff would falsify this relationship.
  * @evidence principles/core/source-units.md#source-scope-preservation The source realizes only the storage shelf prototype and leaves storage-room count, placement, and route reservation to instances.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 Independent scope check for StorageShelfModelSource: executable output is limited to the 1.70m frame and four boards at Y 0.35..0.43m, 0.70..0.78m, 1.05..1.13m, and 1.40..1.48m; placement, population, and renderer response are not emitted, so a new topology field would falsify this scope.
  * @evidence principles/core/source-units.md#source-substantive-completion Two frames plus four explicit boards provide the complete reviewed storage shelf.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Independent completion check for StorageShelfModelSource: its constructor binds the reviewed design address and returns the 1.70m frame and four boards at Y 0.35..0.43m, 0.70..0.78m, 1.05..1.13m, and 1.40..1.48m; a missing named part or changed interval would falsify completion.
  * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The reviewed storage board intervals, frame bounds, and negative gaps are implemented without an upstream omission.
+ * @evidenceExcludeReview upstream/design/model-sources.md#design-revision-from-model-source-work #2f8f56c Independent exclusion check for StorageShelfModelSource: checked the 1.70m frame and four boards at Y 0.35..0.43m, 0.70..0.78m, 1.05..1.13m, and 1.40..1.48m against design-revision-from-model-source-work; no missing parent decision or repaired upstream interface was found, and a parent repair would falsify this exclusion.
  * @evidence obligations/design/model-sources.md#design-owned-construction The generated boards and frames preserve the storage shelf's support, gaps, depth, and surface IDs.
+ * @evidenceReview obligations/design/model-sources.md#design-owned-construction #535df68 Independent construction check for StorageShelfModelSource: factory creates the 1.70m frame and four boards at Y 0.35..0.43m, 0.70..0.78m, 1.05..1.13m, and 1.40..1.48m as named stable parts; a missing layer or renamed surface would falsify the source handoff.
  * @evidence obligations/design/model-sources.md#deterministic-build The fixed interval list and transforms regenerate the same six-part shelf.
+ * @evidenceReview obligations/design/model-sources.md#deterministic-build #27790fe Independent determinism check for StorageShelfModelSource: the 1.70m frame and four boards at Y 0.35..0.43m, 0.70..0.78m, 1.05..1.13m, and 1.40..1.48m uses fixed literals and no random or mutable build input; a variable part count or seed would falsify equal-input output.
  * @evidence obligations/design/model-sources.md#unsupported-fidelity-is-explicit The shelf is a bounded blocking module and does not claim stored object contents or hidden fixings.
+ * @evidenceReview obligations/design/model-sources.md#unsupported-fidelity-is-explicit #15c03fa Independent ceiling check for StorageShelfModelSource: the 1.70m frame and four boards at Y 0.35..0.43m, 0.70..0.78m, 1.05..1.13m, and 1.40..1.48m is a bounded blocking realization with no unimplemented simulation or detail claim; such a claim would falsify the refusal boundary.
  */
 export class StorageShelfModelSource extends TempleModelSource {
   public constructor() {
@@ -967,13 +1055,21 @@ export class StorageShelfModelSource extends TempleModelSource {
 
 /**
  * @evidence models/temple-fit-out.md The exported class is the file-level source owner for the reviewed model library.
+ * @evidenceReview models/temple-fit-out.md #0f51831 Independent target check for StorageChestModelSource: read models/temple-fit-out.md and verified the 0.78 x 0.45 x 0.46m body at Y 0.00..0.45m and 0.10m lid at Y 0.45..0.55m; a changed host assignment, extent, or handoff would falsify this relationship.
  * @evidence models/temple-fit-out.md#storage-chest-prototype The storage chest factory keeps a 0.78 × 0.45 × 0.46m body from Y 0.00..0.45m and a matching 0.10m lid from Y 0.45..0.55m.
+ * @evidenceReview models/temple-fit-out.md#storage-chest-prototype #f0e0f4e Independent target check for StorageChestModelSource: read storage-chest-prototype and verified the 0.78 x 0.45 x 0.46m body at Y 0.00..0.45m and 0.10m lid at Y 0.45..0.55m; a changed host assignment, extent, or handoff would falsify this relationship.
  * @evidence principles/core/source-units.md#source-scope-preservation The source realizes the storage chest only and does not invent storage-room placement, contents, or lid motion.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 Independent scope check for StorageChestModelSource: executable output is limited to the 0.78 x 0.45 x 0.46m body at Y 0.00..0.45m and 0.10m lid at Y 0.45..0.55m; placement, population, and renderer response are not emitted, so a new topology field would falsify this scope.
  * @evidence principles/core/source-units.md#source-substantive-completion The body/lid pair is a complete deterministic source artifact with the reviewed stable surfaces.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Independent completion check for StorageChestModelSource: its constructor binds the reviewed design address and returns the 0.78 x 0.45 x 0.46m body at Y 0.00..0.45m and 0.10m lid at Y 0.45..0.55m; a missing named part or changed interval would falsify completion.
  * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The reviewed closed bounds and lid contact are implemented directly without exposing a parent design gap.
+ * @evidenceExcludeReview upstream/design/model-sources.md#design-revision-from-model-source-work #2f8f56c Independent exclusion check for StorageChestModelSource: checked the 0.78 x 0.45 x 0.46m body at Y 0.00..0.45m and 0.10m lid at Y 0.45..0.55m against design-revision-from-model-source-work; no missing parent decision or repaired upstream interface was found, and a parent repair would falsify this exclusion.
  * @evidence obligations/design/model-sources.md#design-owned-construction The two boxes preserve the storage chest's reviewed dimensions, contact, and surface split.
+ * @evidenceReview obligations/design/model-sources.md#design-owned-construction #535df68 Independent construction check for StorageChestModelSource: factory creates the 0.78 x 0.45 x 0.46m body at Y 0.00..0.45m and 0.10m lid at Y 0.45..0.55m as named stable parts; a missing layer or renamed surface would falsify the source handoff.
  * @evidence obligations/design/model-sources.md#deterministic-build Fixed dimensions and transforms regenerate the same closed chest.
+ * @evidenceReview obligations/design/model-sources.md#deterministic-build #27790fe Independent determinism check for StorageChestModelSource: the 0.78 x 0.45 x 0.46m body at Y 0.00..0.45m and 0.10m lid at Y 0.45..0.55m uses fixed literals and no random or mutable build input; a variable part count or seed would falsify equal-input output.
  * @evidence obligations/design/model-sources.md#unsupported-fidelity-is-explicit The source deliberately stops at the reviewed blocking chest and does not imply contents or interaction.
+ * @evidenceReview obligations/design/model-sources.md#unsupported-fidelity-is-explicit #15c03fa Independent ceiling check for StorageChestModelSource: the 0.78 x 0.45 x 0.46m body at Y 0.00..0.45m and 0.10m lid at Y 0.45..0.55m is a bounded blocking realization with no unimplemented simulation or detail claim; such a claim would falsify the refusal boundary.
  */
 export class StorageChestModelSource extends TempleModelSource {
   public constructor() {
@@ -986,13 +1082,21 @@ export class StorageChestModelSource extends TempleModelSource {
 
 /**
  * @evidence models/temple-fit-out.md The exported class is the file-level source owner for the reviewed model library.
+ * @evidenceReview models/temple-fit-out.md #0f51831 Independent target check for StorageBasketModelSource: read models/temple-fit-out.md and verified the open basket body radii 0.18..0.21m over Y 0.08..0.40m, rim Y 0.40..0.44m, and handle Y 0.40..0.48m; a changed host assignment, extent, or handoff would falsify this relationship.
  * @evidence models/temple-fit-out.md#storage-basket-prototype The basket factory keeps the fiber body profile at radii 0.18..0.21m over Y 0.08..0.40m, a separate rim over Y 0.40..0.44m, and a top handle at Y 0.40..0.48m.
+ * @evidenceReview models/temple-fit-out.md#storage-basket-prototype #b34f82c Independent target check for StorageBasketModelSource: read storage-basket-prototype and verified the open basket body radii 0.18..0.21m over Y 0.08..0.40m, rim Y 0.40..0.44m, and handle Y 0.40..0.48m; a changed host assignment, extent, or handoff would falsify this relationship.
  * @evidence principles/core/source-units.md#source-scope-preservation The source owns one open basket and does not add storage placement, quantity, or contents.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 Independent scope check for StorageBasketModelSource: executable output is limited to the open basket body radii 0.18..0.21m over Y 0.08..0.40m, rim Y 0.40..0.44m, and handle Y 0.40..0.48m; placement, population, and renderer response are not emitted, so a new topology field would falsify this scope.
  * @evidence principles/core/source-units.md#source-substantive-completion Base, tapered body, rim, and handle are all executable named parts of the reviewed open basket.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Independent completion check for StorageBasketModelSource: its constructor binds the reviewed design address and returns the open basket body radii 0.18..0.21m over Y 0.08..0.40m, rim Y 0.40..0.44m, and handle Y 0.40..0.48m; a missing named part or changed interval would falsify completion.
  * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The reviewed cavity, rim interval, handle contact, and fiber bounds compile directly with no parent defect exposed.
+ * @evidenceExcludeReview upstream/design/model-sources.md#design-revision-from-model-source-work #2f8f56c Independent exclusion check for StorageBasketModelSource: checked the open basket body radii 0.18..0.21m over Y 0.08..0.40m, rim Y 0.40..0.44m, and handle Y 0.40..0.48m against design-revision-from-model-source-work; no missing parent decision or repaired upstream interface was found, and a parent repair would falsify this exclusion.
  * @evidence obligations/design/model-sources.md#design-owned-construction The revolved body/rim and handle preserve the basket's open boundary, taper, contact, and surface owners.
+ * @evidenceReview obligations/design/model-sources.md#design-owned-construction #535df68 Independent construction check for StorageBasketModelSource: factory creates the open basket body radii 0.18..0.21m over Y 0.08..0.40m, rim Y 0.40..0.44m, and handle Y 0.40..0.48m as named stable parts; a missing layer or renamed surface would falsify the source handoff.
  * @evidence obligations/design/model-sources.md#deterministic-build Fixed profiles and 20-segment revolutions regenerate the same four-part basket.
+ * @evidenceReview obligations/design/model-sources.md#deterministic-build #27790fe Independent determinism check for StorageBasketModelSource: the open basket body radii 0.18..0.21m over Y 0.08..0.40m, rim Y 0.40..0.44m, and handle Y 0.40..0.48m uses fixed literals and no random or mutable build input; a variable part count or seed would falsify equal-input output.
  * @evidence obligations/design/model-sources.md#unsupported-fidelity-is-explicit The basket is an open blocking container and does not claim woven texture or contents.
+ * @evidenceReview obligations/design/model-sources.md#unsupported-fidelity-is-explicit #15c03fa Independent ceiling check for StorageBasketModelSource: the open basket body radii 0.18..0.21m over Y 0.08..0.40m, rim Y 0.40..0.44m, and handle Y 0.40..0.48m is a bounded blocking realization with no unimplemented simulation or detail claim; such a claim would falsify the refusal boundary.
  */
 export class StorageBasketModelSource extends TempleModelSource {
   public constructor() {
@@ -1005,13 +1109,21 @@ export class StorageBasketModelSource extends TempleModelSource {
 
 /**
  * @evidence models/temple-fit-out.md The exported class is the file-level source owner for the reviewed model library.
+ * @evidenceReview models/temple-fit-out.md #0f51831 Independent target check for VotiveDisplayModelSource: read models/temple-fit-out.md and verified the display plinth, rear board, four borders, and ledge surrounding the empty recess X -0.42..0.42m, Y 0.80..1.22m, Z -0.09..-0.02m; a changed host assignment, extent, or handoff would falsify this relationship.
  * @evidence models/temple-fit-out.md#votive-display-prototype The display factory uses a plinth, rear board, four borders, and ledge so the field X -0.42..0.42m, Y 0.80..1.22m, Z -0.09..-0.02m remains an actual open recess.
+ * @evidenceReview models/temple-fit-out.md#votive-display-prototype #c47f8a5 Independent target check for VotiveDisplayModelSource: read votive-display-prototype and verified the display plinth, rear board, four borders, and ledge surrounding the empty recess X -0.42..0.42m, Y 0.80..1.22m, Z -0.09..-0.02m; a changed host assignment, extent, or handoff would falsify this relationship.
  * @evidence principles/core/source-units.md#source-scope-preservation The source realizes the display's bounded geometry and negative space without adding room placement or votive population.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 Independent scope check for VotiveDisplayModelSource: executable output is limited to the display plinth, rear board, four borders, and ledge surrounding the empty recess X -0.42..0.42m, Y 0.80..1.22m, Z -0.09..-0.02m; placement, population, and renderer response are not emitted, so a new topology field would falsify this scope.
  * @evidence principles/core/source-units.md#source-substantive-completion The board and border parts provide a complete source realization while leaving the reviewed field empty rather than filling it with a named solid.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Independent completion check for VotiveDisplayModelSource: its constructor binds the reviewed design address and returns the display plinth, rear board, four borders, and ledge surrounding the empty recess X -0.42..0.42m, Y 0.80..1.22m, Z -0.09..-0.02m; a missing named part or changed interval would falsify completion.
  * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The corrected open recess, border extents, and ledge contact are implemented as reviewed, with no parent negative-space defect.
+ * @evidenceExcludeReview upstream/design/model-sources.md#design-revision-from-model-source-work #2f8f56c Independent exclusion check for VotiveDisplayModelSource: checked the display plinth, rear board, four borders, and ledge surrounding the empty recess X -0.42..0.42m, Y 0.80..1.22m, Z -0.09..-0.02m against design-revision-from-model-source-work; no missing parent decision or repaired upstream interface was found, and a parent repair would falsify this exclusion.
  * @evidence obligations/design/model-sources.md#design-owned-construction The returned parts preserve the display's plinth, rear boundary, four border edges, ledge, and negative field.
+ * @evidenceReview obligations/design/model-sources.md#design-owned-construction #535df68 Independent construction check for VotiveDisplayModelSource: factory creates the display plinth, rear board, four borders, and ledge surrounding the empty recess X -0.42..0.42m, Y 0.80..1.22m, Z -0.09..-0.02m as named stable parts; a missing layer or renamed surface would falsify the source handoff.
  * @evidence obligations/design/model-sources.md#deterministic-build Fixed boxes and transforms regenerate the same display and empty field.
+ * @evidenceReview obligations/design/model-sources.md#deterministic-build #27790fe Independent determinism check for VotiveDisplayModelSource: the display plinth, rear board, four borders, and ledge surrounding the empty recess X -0.42..0.42m, Y 0.80..1.22m, Z -0.09..-0.02m uses fixed literals and no random or mutable build input; a variable part count or seed would falsify equal-input output.
  * @evidence obligations/design/model-sources.md#unsupported-fidelity-is-explicit The display is a static blocking recess and does not claim inscriptions or individual votive contents.
+ * @evidenceReview obligations/design/model-sources.md#unsupported-fidelity-is-explicit #15c03fa Independent ceiling check for VotiveDisplayModelSource: the display plinth, rear board, four borders, and ledge surrounding the empty recess X -0.42..0.42m, Y 0.80..1.22m, Z -0.09..-0.02m is a bounded blocking realization with no unimplemented simulation or detail claim; such a claim would falsify the refusal boundary.
  */
 export class VotiveDisplayModelSource extends TempleModelSource {
   public constructor() {
@@ -1024,13 +1136,21 @@ export class VotiveDisplayModelSource extends TempleModelSource {
 
 /**
  * @evidence models/temple-fit-out.md The exported class is the file-level source owner for the reviewed model library.
+ * @evidenceReview models/temple-fit-out.md #0f51831 Independent target check for CeramicVesselModelSource: read models/temple-fit-out.md and verified the four vessel layers: foot Y 0.00..0.04m, body 0.04..0.26m, neck 0.26..0.31m, and rim 0.31..0.34m; a changed host assignment, extent, or handoff would falsify this relationship.
  * @evidence models/temple-fit-out.md#ceramic-vessel-prototype The vessel factory preserves four addressable layers: foot Y 0.00..0.04m, body 0.04..0.26m, neck 0.26..0.31m, and rim 0.31..0.34m.
+ * @evidenceReview models/temple-fit-out.md#ceramic-vessel-prototype #742b61c Independent target check for CeramicVesselModelSource: read ceramic-vessel-prototype and verified the four vessel layers: foot Y 0.00..0.04m, body 0.04..0.26m, neck 0.26..0.31m, and rim 0.31..0.34m; a changed host assignment, extent, or handoff would falsify this relationship.
  * @evidence principles/core/source-units.md#source-scope-preservation The source owns the ceramic vessel hierarchy only and leaves vessel quantity, room placement, and material response to later owners.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 Independent scope check for CeramicVesselModelSource: executable output is limited to the four vessel layers: foot Y 0.00..0.04m, body 0.04..0.26m, neck 0.26..0.31m, and rim 0.31..0.34m; placement, population, and renderer response are not emitted, so a new topology field would falsify this scope.
  * @evidence principles/core/source-units.md#source-substantive-completion The independent neck part closes the reviewed four-layer hierarchy instead of absorbing it into the rim.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Independent completion check for CeramicVesselModelSource: its constructor binds the reviewed design address and returns the four vessel layers: foot Y 0.00..0.04m, body 0.04..0.26m, neck 0.26..0.31m, and rim 0.31..0.34m; a missing named part or changed interval would falsify completion.
  * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The reviewed four intervals and open-rim profile are implemented directly, so no parent hierarchy decision was missing.
+ * @evidenceExcludeReview upstream/design/model-sources.md#design-revision-from-model-source-work #2f8f56c Independent exclusion check for CeramicVesselModelSource: checked the four vessel layers: foot Y 0.00..0.04m, body 0.04..0.26m, neck 0.26..0.31m, and rim 0.31..0.34m against design-revision-from-model-source-work; no missing parent decision or repaired upstream interface was found, and a parent repair would falsify this exclusion.
  * @evidence obligations/design/model-sources.md#design-owned-construction The four returned parts preserve the vessel's foot/body/neck/rim hierarchy, intervals, and surfaces.
+ * @evidenceReview obligations/design/model-sources.md#design-owned-construction #535df68 Independent construction check for CeramicVesselModelSource: factory creates the four vessel layers: foot Y 0.00..0.04m, body 0.04..0.26m, neck 0.26..0.31m, and rim 0.31..0.34m as named stable parts; a missing layer or renamed surface would falsify the source handoff.
  * @evidence obligations/design/model-sources.md#deterministic-build Fixed profiles and 20-segment revolutions regenerate the same vessel without mutable state.
+ * @evidenceReview obligations/design/model-sources.md#deterministic-build #27790fe Independent determinism check for CeramicVesselModelSource: the four vessel layers: foot Y 0.00..0.04m, body 0.04..0.26m, neck 0.26..0.31m, and rim 0.31..0.34m uses fixed literals and no random or mutable build input; a variable part count or seed would falsify equal-input output.
  * @evidence obligations/design/model-sources.md#unsupported-fidelity-is-explicit The source provides a bounded open-rim proxy and does not claim glaze microstructure or contents.
+ * @evidenceReview obligations/design/model-sources.md#unsupported-fidelity-is-explicit #15c03fa Independent ceiling check for CeramicVesselModelSource: the four vessel layers: foot Y 0.00..0.04m, body 0.04..0.26m, neck 0.26..0.31m, and rim 0.31..0.34m is a bounded blocking realization with no unimplemented simulation or detail claim; such a claim would falsify the refusal boundary.
  */
 export class CeramicVesselModelSource extends TempleModelSource {
   public constructor() {
@@ -1043,13 +1163,21 @@ export class CeramicVesselModelSource extends TempleModelSource {
 
 /**
  * @evidence models/temple-fit-out.md The exported class is the file-level source owner for the reviewed model library.
+ * @evidenceReview models/temple-fit-out.md #0f51831 Independent target check for LampModelSource: read models/temple-fit-out.md and verified the floor-contact lamp base Y 0.00..0.08m, stem 0.08..0.30m, and shade 0.30..0.42m; a changed host assignment, extent, or handoff would falsify this relationship.
  * @evidence models/temple-fit-out.md#lamp-prototype The lamp factory uses one floor-contact origin with base Y 0.00..0.08m, stem 0.08..0.30m, and shade 0.30..0.42m.
+ * @evidenceReview models/temple-fit-out.md#lamp-prototype #c243b52 Independent target check for LampModelSource: read lamp-prototype and verified the floor-contact lamp base Y 0.00..0.08m, stem 0.08..0.30m, and shade 0.30..0.42m; a changed host assignment, extent, or handoff would falsify this relationship.
  * @evidence principles/core/source-units.md#source-scope-preservation The source realizes the rigid lamp prototype only and leaves mounting offsets, count, placement, and lighting behavior elsewhere.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 Independent scope check for LampModelSource: executable output is limited to the floor-contact lamp base Y 0.00..0.08m, stem 0.08..0.30m, and shade 0.30..0.42m; placement, population, and renderer response are not emitted, so a new topology field would falsify this scope.
  * @evidence principles/core/source-units.md#source-substantive-completion The base, stem, and shade are complete named parts under one stable floor-contact convention.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Independent completion check for LampModelSource: its constructor binds the reviewed design address and returns the floor-contact lamp base Y 0.00..0.08m, stem 0.08..0.30m, and shade 0.30..0.42m; a missing named part or changed interval would falsify completion.
  * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The reviewed origin and three vertical intervals are implemented directly without exposing a missing parent scale decision.
+ * @evidenceExcludeReview upstream/design/model-sources.md#design-revision-from-model-source-work #2f8f56c Independent exclusion check for LampModelSource: checked the floor-contact lamp base Y 0.00..0.08m, stem 0.08..0.30m, and shade 0.30..0.42m against design-revision-from-model-source-work; no missing parent decision or repaired upstream interface was found, and a parent repair would falsify this exclusion.
  * @evidence obligations/design/model-sources.md#design-owned-construction The three parts preserve the lamp's reviewed contact datum, silhouette layers, and surface IDs.
+ * @evidenceReview obligations/design/model-sources.md#design-owned-construction #535df68 Independent construction check for LampModelSource: factory creates the floor-contact lamp base Y 0.00..0.08m, stem 0.08..0.30m, and shade 0.30..0.42m as named stable parts; a missing layer or renamed surface would falsify the source handoff.
  * @evidence obligations/design/model-sources.md#deterministic-build Fixed cylinders/profile and transforms regenerate the same lamp.
+ * @evidenceReview obligations/design/model-sources.md#deterministic-build #27790fe Independent determinism check for LampModelSource: the floor-contact lamp base Y 0.00..0.08m, stem 0.08..0.30m, and shade 0.30..0.42m uses fixed literals and no random or mutable build input; a variable part count or seed would falsify equal-input output.
  * @evidence obligations/design/model-sources.md#unsupported-fidelity-is-explicit The source is a fixed blocking lamp proxy and does not claim flame simulation or emitted illumination.
+ * @evidenceReview obligations/design/model-sources.md#unsupported-fidelity-is-explicit #15c03fa Independent ceiling check for LampModelSource: the floor-contact lamp base Y 0.00..0.08m, stem 0.08..0.30m, and shade 0.30..0.42m is a bounded blocking realization with no unimplemented simulation or detail claim; such a claim would falsify the refusal boundary.
  */
 export class LampModelSource extends TempleModelSource {
   public constructor() {
@@ -1059,13 +1187,21 @@ export class LampModelSource extends TempleModelSource {
 
 /**
  * @evidence models/temple-fit-out.md The exported class is the file-level source owner for the reviewed model library.
+ * @evidenceReview models/temple-fit-out.md #0f51831 Independent target check for BenchModelSource: read models/temple-fit-out.md and verified the bench seat Y 0.30..0.42m, four legs at X +/-0.55m and Z +/-0.14m, and back rail Y 0.38..0.48m; a changed host assignment, extent, or handoff would falsify this relationship.
  * @evidence models/temple-fit-out.md#bench-prototype The bench factory fixes a 1.40 × 0.48m seat at Y 0.30..0.42m, four 0.10m legs at X ±0.55m/Z ±0.14m, and a back rail at Y 0.38..0.48m.
+ * @evidenceReview models/temple-fit-out.md#bench-prototype #2fb71c9 Independent target check for BenchModelSource: read bench-prototype and verified the bench seat Y 0.30..0.42m, four legs at X +/-0.55m and Z +/-0.14m, and back rail Y 0.38..0.48m; a changed host assignment, extent, or handoff would falsify this relationship.
  * @evidence principles/core/source-units.md#source-scope-preservation The source owns the low bench silhouette and does not place it on the loop or reserve circulation.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 Independent scope check for BenchModelSource: executable output is limited to the bench seat Y 0.30..0.42m, four legs at X +/-0.55m and Z +/-0.14m, and back rail Y 0.38..0.48m; placement, population, and renderer response are not emitted, so a new topology field would falsify this scope.
  * @evidence principles/core/source-units.md#source-substantive-completion Seat, four supports, and back rail provide the complete review-critical bench geometry.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Independent completion check for BenchModelSource: its constructor binds the reviewed design address and returns the bench seat Y 0.30..0.42m, four legs at X +/-0.55m and Z +/-0.14m, and back rail Y 0.38..0.48m; a missing named part or changed interval would falsify completion.
  * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The reviewed support positions, underside negative space, and rail bounds are directly implemented without a parent defect.
+ * @evidenceExcludeReview upstream/design/model-sources.md#design-revision-from-model-source-work #2f8f56c Independent exclusion check for BenchModelSource: checked the bench seat Y 0.30..0.42m, four legs at X +/-0.55m and Z +/-0.14m, and back rail Y 0.38..0.48m against design-revision-from-model-source-work; no missing parent decision or repaired upstream interface was found, and a parent repair would falsify this exclusion.
  * @evidence obligations/design/model-sources.md#design-owned-construction The seat, leg layout, underside gap, and rail preserve the reviewed support and wood surface ownership.
+ * @evidenceReview obligations/design/model-sources.md#design-owned-construction #535df68 Independent construction check for BenchModelSource: factory creates the bench seat Y 0.30..0.42m, four legs at X +/-0.55m and Z +/-0.14m, and back rail Y 0.38..0.48m as named stable parts; a missing layer or renamed surface would falsify the source handoff.
  * @evidence obligations/design/model-sources.md#deterministic-build The fixed four-point list and transforms regenerate the same bench.
+ * @evidenceReview obligations/design/model-sources.md#deterministic-build #27790fe Independent determinism check for BenchModelSource: the bench seat Y 0.30..0.42m, four legs at X +/-0.55m and Z +/-0.14m, and back rail Y 0.38..0.48m uses fixed literals and no random or mutable build input; a variable part count or seed would falsify equal-input output.
  * @evidence obligations/design/model-sources.md#unsupported-fidelity-is-explicit The bench is a bounded civic blocking proxy and does not claim joinery, cushions, or user simulation.
+ * @evidenceReview obligations/design/model-sources.md#unsupported-fidelity-is-explicit #15c03fa Independent ceiling check for BenchModelSource: the bench seat Y 0.30..0.42m, four legs at X +/-0.55m and Z +/-0.14m, and back rail Y 0.38..0.48m is a bounded blocking realization with no unimplemented simulation or detail claim; such a claim would falsify the refusal boundary.
  */
 export class BenchModelSource extends TempleModelSource {
   public constructor() {
@@ -1075,119 +1211,170 @@ export class BenchModelSource extends TempleModelSource {
 
 /**
  * @evidence principles/core/source-units.md#source-scope-preservation This exported owner preserves the scale-board class and its comparison-only boundary.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 Independent scope check for modelScopeSource: executable output is limited to the model factory output; placement, population, and renderer response are not emitted, so a new topology field would falsify this scope.
  * @evidence principles/core/source-units.md#source-substantive-completion The value is an executable source instance, not an inert registry entry.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Independent completion check for modelScopeSource: its constructor binds the reviewed design address and returns the model factory output; a missing named part or changed interval would falsify completion.
  * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The bound class already implements the reviewed door-clear and room-height markers without a parent defect.
+ * @evidenceExcludeReview upstream/design/model-sources.md#design-revision-from-model-source-work #2f8f56c Independent exclusion check for modelScopeSource: checked the model factory output against design-revision-from-model-source-work; no missing parent decision or repaired upstream interface was found, and a parent repair would falsify this exclusion.
  */
 export const modelScopeSource = new ModelScopeSource();
 
 /**
  * @evidence principles/core/source-units.md#source-scope-preservation This exported owner preserves the column source class and its three-part stone boundary.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 Independent scope check for columnModelSource: executable output is limited to the model factory output; placement, population, and renderer response are not emitted, so a new topology field would falsify this scope.
  * @evidence principles/core/source-units.md#source-substantive-completion The value exposes the executable column source instance consumed by the library.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Independent completion check for columnModelSource: its constructor binds the reviewed design address and returns the model factory output; a missing named part or changed interval would falsify completion.
  * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The bound class implements the reviewed base, tapered shaft, and capital intervals without exposing a parent defect.
+ * @evidenceExcludeReview upstream/design/model-sources.md#design-revision-from-model-source-work #2f8f56c Independent exclusion check for columnModelSource: checked the model factory output against design-revision-from-model-source-work; no missing parent decision or repaired upstream interface was found, and a parent repair would falsify this exclusion.
  */
 export const columnModelSource = new ColumnModelSource();
 
 /**
  * @evidence principles/core/source-units.md#source-scope-preservation This exported owner preserves the door source class and its frame/leaf-only boundary.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 Independent scope check for doorModelSource: executable output is limited to the model factory output; placement, population, and renderer response are not emitted, so a new topology field would falsify this scope.
  * @evidence principles/core/source-units.md#source-substantive-completion The value exposes the executable four-part door source instance.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Independent completion check for doorModelSource: its constructor binds the reviewed design address and returns the model factory output; a missing named part or changed interval would falsify completion.
  * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The bound class implements the reviewed 0.40m host and centered 0.32m leaf without a parent defect.
+ * @evidenceExcludeReview upstream/design/model-sources.md#design-revision-from-model-source-work #2f8f56c Independent exclusion check for doorModelSource: checked the model factory output against design-revision-from-model-source-work; no missing parent decision or repaired upstream interface was found, and a parent repair would falsify this exclusion.
  */
 export const doorModelSource = new DoorModelSource();
 
 /**
  * @evidence principles/core/source-units.md#source-scope-preservation This exported owner preserves the basin source class and its open circular landmark boundary.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 Independent scope check for fountainBasinModelSource: executable output is limited to the model factory output; placement, population, and renderer response are not emitted, so a new topology field would falsify this scope.
  * @evidence principles/core/source-units.md#source-substantive-completion The value exposes the executable basin source instance with its four named parts.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Independent completion check for fountainBasinModelSource: its constructor binds the reviewed design address and returns the model factory output; a missing named part or changed interval would falsify completion.
  * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The bound class implements the reviewed foot, wall, rim, and water-seat extents without a parent defect.
+ * @evidenceExcludeReview upstream/design/model-sources.md#design-revision-from-model-source-work #2f8f56c Independent exclusion check for fountainBasinModelSource: checked the model factory output against design-revision-from-model-source-work; no missing parent decision or repaired upstream interface was found, and a parent repair would falsify this exclusion.
  */
 export const fountainBasinModelSource = new FountainBasinModelSource();
 
 /**
  * @evidence principles/core/source-units.md#source-scope-preservation This exported owner preserves the single-strand stream source and its static-accent boundary.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 Independent scope check for fountainStreamModelSource: executable output is limited to the model factory output; placement, population, and renderer response are not emitted, so a new topology field would falsify this scope.
  * @evidence principles/core/source-units.md#source-substantive-completion The value exposes the executable three-interval stream source instance.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Independent completion check for fountainStreamModelSource: its constructor binds the reviewed design address and returns the model factory output; a missing named part or changed interval would falsify completion.
  * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The bound class implements the reviewed contiguous stream intervals without a parent defect.
+ * @evidenceExcludeReview upstream/design/model-sources.md#design-revision-from-model-source-work #2f8f56c Independent exclusion check for fountainStreamModelSource: checked the model factory output against design-revision-from-model-source-work; no missing parent decision or repaired upstream interface was found, and a parent repair would falsify this exclusion.
  */
 export const fountainStreamModelSource = new FountainStreamModelSource();
 
 /**
  * @evidence principles/core/source-units.md#source-scope-preservation This exported owner preserves the altar source class and its sanctuary-room consumption boundary.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 Independent scope check for altarAndPlinthModelSource: executable output is limited to the model factory output; placement, population, and renderer response are not emitted, so a new topology field would falsify this scope.
  * @evidence principles/core/source-units.md#source-substantive-completion The value exposes the executable plinth/body source instance.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Independent completion check for altarAndPlinthModelSource: its constructor binds the reviewed design address and returns the model factory output; a missing named part or changed interval would falsify completion.
  * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The bound class implements the reviewed plinth/body dimensions without inventing a socket or exposing a parent defect.
+ * @evidenceExcludeReview upstream/design/model-sources.md#design-revision-from-model-source-work #2f8f56c Independent exclusion check for altarAndPlinthModelSource: checked the model factory output against design-revision-from-model-source-work; no missing parent decision or repaired upstream interface was found, and a parent repair would falsify this exclusion.
  */
 export const altarAndPlinthModelSource = new AltarAndPlinthModelSource();
 
 /**
  * @evidence principles/core/source-units.md#source-scope-preservation This exported owner preserves one roof-tile prototype and leaves row repetition to its later population owner.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 Independent scope check for roofTileModelSource: executable output is limited to the model factory output; placement, population, and renderer response are not emitted, so a new topology field would falsify this scope.
  * @evidence principles/core/source-units.md#source-substantive-completion The value exposes the executable body/lip/underside source instance.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Independent completion check for roofTileModelSource: its constructor binds the reviewed design address and returns the model factory output; a missing named part or changed interval would falsify completion.
  * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The bound class implements the reviewed 0.44m occupied depth without exposing a parent defect.
+ * @evidenceExcludeReview upstream/design/model-sources.md#design-revision-from-model-source-work #2f8f56c Independent exclusion check for roofTileModelSource: checked the model factory output against design-revision-from-model-source-work; no missing parent decision or repaired upstream interface was found, and a parent repair would falsify this exclusion.
  */
 export const roofTileModelSource = new RoofTileModelSource();
 
 /**
  * @evidence principles/core/source-units.md#source-scope-preservation This exported owner preserves the records table prototype and does not claim records-room placement.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 Independent scope check for recordsTableModelSource: executable output is limited to the model factory output; placement, population, and renderer response are not emitted, so a new topology field would falsify this scope.
  * @evidence principles/core/source-units.md#source-substantive-completion The value exposes the executable top and four-leg source instance.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Independent completion check for recordsTableModelSource: its constructor binds the reviewed design address and returns the model factory output; a missing named part or changed interval would falsify completion.
  * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The bound class implements the reviewed table footprint and support positions without a parent defect.
+ * @evidenceExcludeReview upstream/design/model-sources.md#design-revision-from-model-source-work #2f8f56c Independent exclusion check for recordsTableModelSource: checked the model factory output against design-revision-from-model-source-work; no missing parent decision or repaired upstream interface was found, and a parent repair would falsify this exclusion.
  */
 export const recordsTableModelSource = new RecordsTableModelSource();
 
 /**
  * @evidence principles/core/source-units.md#source-scope-preservation This exported owner preserves the records shelf prototype and its interval-defined board boundary.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 Independent scope check for recordsShelfModelSource: executable output is limited to the model factory output; placement, population, and renderer response are not emitted, so a new topology field would falsify this scope.
  * @evidence principles/core/source-units.md#source-substantive-completion The value exposes the executable frame and three-board source instance.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Independent completion check for recordsShelfModelSource: its constructor binds the reviewed design address and returns the model factory output; a missing named part or changed interval would falsify completion.
  * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The bound class implements the reviewed board intervals and frame extent without a parent defect.
+ * @evidenceExcludeReview upstream/design/model-sources.md#design-revision-from-model-source-work #2f8f56c Independent exclusion check for recordsShelfModelSource: checked the model factory output against design-revision-from-model-source-work; no missing parent decision or repaired upstream interface was found, and a parent repair would falsify this exclusion.
  */
 export const recordsShelfModelSource = new RecordsShelfModelSource();
 
 /**
  * @evidence principles/core/source-units.md#source-scope-preservation This exported owner preserves the closed records chest prototype and its body/lid boundary.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 Independent scope check for recordsChestModelSource: executable output is limited to the model factory output; placement, population, and renderer response are not emitted, so a new topology field would falsify this scope.
  * @evidence principles/core/source-units.md#source-substantive-completion The value exposes the executable body and lid source instance.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Independent completion check for recordsChestModelSource: its constructor binds the reviewed design address and returns the model factory output; a missing named part or changed interval would falsify completion.
  * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The bound class implements the reviewed closed bounds and lid contact without a parent defect.
+ * @evidenceExcludeReview upstream/design/model-sources.md#design-revision-from-model-source-work #2f8f56c Independent exclusion check for recordsChestModelSource: checked the model factory output against design-revision-from-model-source-work; no missing parent decision or repaired upstream interface was found, and a parent repair would falsify this exclusion.
  */
 export const recordsChestModelSource = new RecordsChestModelSource();
 
 /**
  * @evidence principles/core/source-units.md#source-scope-preservation This exported owner preserves the storage shelf prototype and its four board intervals.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 Independent scope check for storageShelfModelSource: executable output is limited to the model factory output; placement, population, and renderer response are not emitted, so a new topology field would falsify this scope.
  * @evidence principles/core/source-units.md#source-substantive-completion The value exposes the executable frame and board source instance.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Independent completion check for storageShelfModelSource: its constructor binds the reviewed design address and returns the model factory output; a missing named part or changed interval would falsify completion.
  * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The bound class implements the reviewed storage gaps and frame extent without a parent defect.
+ * @evidenceExcludeReview upstream/design/model-sources.md#design-revision-from-model-source-work #2f8f56c Independent exclusion check for storageShelfModelSource: checked the model factory output against design-revision-from-model-source-work; no missing parent decision or repaired upstream interface was found, and a parent repair would falsify this exclusion.
  */
 export const storageShelfModelSource = new StorageShelfModelSource();
 
 /**
  * @evidence principles/core/source-units.md#source-scope-preservation This exported owner preserves the closed storage chest prototype and does not claim lid motion or contents.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 Independent scope check for storageChestModelSource: executable output is limited to the model factory output; placement, population, and renderer response are not emitted, so a new topology field would falsify this scope.
  * @evidence principles/core/source-units.md#source-substantive-completion The value exposes the executable body and lid source instance.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Independent completion check for storageChestModelSource: its constructor binds the reviewed design address and returns the model factory output; a missing named part or changed interval would falsify completion.
  * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The bound class implements the reviewed storage bounds and lid contact without a parent defect.
+ * @evidenceExcludeReview upstream/design/model-sources.md#design-revision-from-model-source-work #2f8f56c Independent exclusion check for storageChestModelSource: checked the model factory output against design-revision-from-model-source-work; no missing parent decision or repaired upstream interface was found, and a parent repair would falsify this exclusion.
  */
 export const storageChestModelSource = new StorageChestModelSource();
 
 /**
  * @evidence principles/core/source-units.md#source-scope-preservation This exported owner preserves the open storage basket prototype and its cavity boundary.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 Independent scope check for storageBasketModelSource: executable output is limited to the model factory output; placement, population, and renderer response are not emitted, so a new topology field would falsify this scope.
  * @evidence principles/core/source-units.md#source-substantive-completion The value exposes the executable base, tapered body, rim, and handle source instance.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Independent completion check for storageBasketModelSource: its constructor binds the reviewed design address and returns the model factory output; a missing named part or changed interval would falsify completion.
  * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The bound class implements the reviewed cavity, rim, and handle bounds without a parent defect.
+ * @evidenceExcludeReview upstream/design/model-sources.md#design-revision-from-model-source-work #2f8f56c Independent exclusion check for storageBasketModelSource: checked the model factory output against design-revision-from-model-source-work; no missing parent decision or repaired upstream interface was found, and a parent repair would falsify this exclusion.
  */
 export const storageBasketModelSource = new StorageBasketModelSource();
 
 /**
  * @evidence principles/core/source-units.md#source-scope-preservation This exported owner preserves the votive display's actual open field and bounded board boundary.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 Independent scope check for votiveDisplayModelSource: executable output is limited to the model factory output; placement, population, and renderer response are not emitted, so a new topology field would falsify this scope.
  * @evidence principles/core/source-units.md#source-substantive-completion The value exposes the executable plinth, rear board, four borders, and ledge source instance.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Independent completion check for votiveDisplayModelSource: its constructor binds the reviewed design address and returns the model factory output; a missing named part or changed interval would falsify completion.
  * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The bound class implements the reviewed negative field without exposing a parent defect.
+ * @evidenceExcludeReview upstream/design/model-sources.md#design-revision-from-model-source-work #2f8f56c Independent exclusion check for votiveDisplayModelSource: checked the model factory output against design-revision-from-model-source-work; no missing parent decision or repaired upstream interface was found, and a parent repair would falsify this exclusion.
  */
 export const votiveDisplayModelSource = new VotiveDisplayModelSource();
 
 /**
  * @evidence principles/core/source-units.md#source-scope-preservation This exported owner preserves the ceramic vessel's four-layer hierarchy and open-rim boundary.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 Independent scope check for ceramicVesselModelSource: executable output is limited to the model factory output; placement, population, and renderer response are not emitted, so a new topology field would falsify this scope.
  * @evidence principles/core/source-units.md#source-substantive-completion The value exposes the executable foot, body, neck, and rim source instance.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Independent completion check for ceramicVesselModelSource: its constructor binds the reviewed design address and returns the model factory output; a missing named part or changed interval would falsify completion.
  * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The bound class implements the reviewed independent neck interval without a parent defect.
+ * @evidenceExcludeReview upstream/design/model-sources.md#design-revision-from-model-source-work #2f8f56c Independent exclusion check for ceramicVesselModelSource: checked the model factory output against design-revision-from-model-source-work; no missing parent decision or repaired upstream interface was found, and a parent repair would falsify this exclusion.
  */
 export const ceramicVesselModelSource = new CeramicVesselModelSource();
 
 /**
  * @evidence principles/core/source-units.md#source-scope-preservation This exported owner preserves the floor-contact lamp source and leaves mounting offset to its consumer.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 Independent scope check for lampModelSource: executable output is limited to the model factory output; placement, population, and renderer response are not emitted, so a new topology field would falsify this scope.
  * @evidence principles/core/source-units.md#source-substantive-completion The value exposes the executable base, stem, and shade source instance.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Independent completion check for lampModelSource: its constructor binds the reviewed design address and returns the model factory output; a missing named part or changed interval would falsify completion.
  * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The bound class implements the reviewed origin and vertical intervals without a parent defect.
+ * @evidenceExcludeReview upstream/design/model-sources.md#design-revision-from-model-source-work #2f8f56c Independent exclusion check for lampModelSource: checked the model factory output against design-revision-from-model-source-work; no missing parent decision or repaired upstream interface was found, and a parent repair would falsify this exclusion.
  */
 export const lampModelSource = new LampModelSource();
 
 /**
  * @evidence principles/core/source-units.md#source-scope-preservation This exported owner preserves the low bench prototype and its support/rail boundary.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 Independent scope check for benchModelSource: executable output is limited to the model factory output; placement, population, and renderer response are not emitted, so a new topology field would falsify this scope.
  * @evidence principles/core/source-units.md#source-substantive-completion The value exposes the executable seat, four-leg, and rail source instance.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Independent completion check for benchModelSource: its constructor binds the reviewed design address and returns the model factory output; a missing named part or changed interval would falsify completion.
  * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The bound class implements the reviewed supports, underside gap, and rail bounds without a parent defect.
+ * @evidenceExcludeReview upstream/design/model-sources.md#design-revision-from-model-source-work #2f8f56c Independent exclusion check for benchModelSource: checked the model factory output against design-revision-from-model-source-work; no missing parent decision or repaired upstream interface was found, and a parent repair would falsify this exclusion.
  */
 export const benchModelSource = new BenchModelSource();
