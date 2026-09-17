@@ -15,6 +15,7 @@ type AutoMovieNodeTrackPath = "translation" | "rotation" | "scale" | "weights";
 
 /**
  * The automovie-core payload an imported glTF/GLB resolves to.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-basis External scene import reads evaluated meshes and animation; it does not interpret facial basis endpoints or compact numerical editing documents.
  *
  * @evidence requirements/asset-authoring/external-assets.md#asset-external-scene-graph-preservation Preserves source nodes and animations as stable project-native identities.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/README.md#face-specifications Ingest maps an already-parsed external scene and animations; it does not author or validate the complete face construction, application and review boundary.

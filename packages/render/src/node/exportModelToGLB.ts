@@ -30,6 +30,7 @@ import type { Document, Material, Node } from "@gltf-transform/core";
  * equals what the viewer computes for a soup anyway.
  *
  * @evidence requirements/product/scope-and-exclusions.md#product-editor-export-exclusion Limits this operation to one model artifact instead of claiming generic scene editing or export.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-basis This serializer consumes an evaluated model; connected facial basis admission, numerical editing and common-normal construction precede serialization in the human builder.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/README.md#face-specifications The generic exporter serializes supplied model nodes and basic materials; it does not implement the complete face construction, application and review boundary.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document The generic exporter serializes supplied model nodes and basic materials; it does not implement human-face version admission and photo-independent basis interpretation.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components The generic exporter serializes supplied model nodes and basic materials; it does not implement cranial, cervical, ocular, nasal, oral and auricular surface assembly.

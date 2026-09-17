@@ -14,6 +14,8 @@ import { numberOf, numberParameter } from "./parameterValues";
 
 /**
  * The catalogue's articulated figure: one height-driven primitive rig.
+ * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-connected-basis This primitive figure catalogue does not provide the connected anatomical face prior or its independent editing document.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-basis Primitive rig construction does not compile sparse facial endpoints or separate connected facial material regions; the human authoring builder owns that operation.
  *
  * @evidenceExclude requirements/actors/facial-authoring/README.md#face-requirements The stickman catalogue constructs a coarse primitive skeleton and body; it does not provide detailed facial authoring across document, editor and study review.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-document The stickman catalogue constructs a coarse primitive skeleton and body; it does not provide the standalone human-face recipe, basis and version interpreter.

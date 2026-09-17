@@ -122,6 +122,27 @@ export const test_subject_human_basis_admission = (): void => {
     (b) => {
       delete b.surfaces[0].targets.narrow;
     },
+    (b) => {
+      b.surfaces[0].positions = [];
+    },
+    (b) => {
+      b.surfaces[0].positions.pop();
+    },
+    (b) => {
+      b.surfaces[0].indices = [];
+    },
+    (b) => {
+      b.surfaces[0].indices.pop();
+    },
+    (b) => {
+      b.surfaces[0].indices[0] = 0.5;
+    },
+    (b) => {
+      b.surfaces[0].indices[0] = -1;
+    },
+    (b) => {
+      b.surfaces[0].indices[0] = 4;
+    },
   ];
   for (const [index, patch] of patches.entries()) {
     const { basis } = humanFaceBasisFixture();

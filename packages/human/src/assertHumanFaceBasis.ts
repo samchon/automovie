@@ -47,6 +47,23 @@ export function assertHumanFaceBasis(basis: IAutoMovieHumanFaceBasis): void {
   if (basis.surfaces.length === 0)
     throw new Error("A facial basis needs resident surfaces.");
   for (const surface of basis.surfaces) {
+    // The topology checker assumes structurally valid buffers and deliberately
+    // leaves malformed-buffer reporting to its caller. Establish that premise
+    // before welding positions or compiling sparse vertex correspondence.
+    const vertices = surface.positions.length / 3;
+    if (
+      vertices === 0 ||
+      !Number.isInteger(vertices) ||
+      !surface.positions.every(Number.isFinite) ||
+      surface.indices.length === 0 ||
+      surface.indices.length % 3 !== 0 ||
+      surface.indices.some(
+        (index) => !Number.isInteger(index) || index < 0 || index >= vertices,
+      )
+    )
+      throw new Error(
+        "Facial neutral buffers need finite XYZ and resident triangles.",
+      );
     const mesh = {
       positions: surface.positions,
       indices: surface.indices,
