@@ -1,12 +1,4 @@
-/** A typed internal refusal carried across the verifier boundary. */
-class AutoMovieSemanticMaskVerificationError extends Error {
-  public constructor(
-    public readonly reason: "unsupported" | "invalid" | "digest-mismatch",
-    message: string,
-  ) {
-    super(message);
-  }
-}
+import { AutoMovieSemanticMaskVerificationError } from "./AutoMovieSemanticMaskVerificationError";
 
 /**
  * Return the typed reason from a semantic-mask verifier refusal.

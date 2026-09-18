@@ -78,7 +78,7 @@ export function createPortraitSkinLayer(
             uvs: null,
             skin: null,
           },
-          "createPortraitSkinLayer",
+          "skin-morphology-basis",
         ).geometry.mesh,
         "z",
       );

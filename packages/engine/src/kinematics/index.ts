@@ -1,5 +1,6 @@
 export * from "./AutoMovieSkeletonParentKey";
 export * from "./DEFAULT_JOINT_AXES";
+export * from "./HUMANOID_JOINT_AXES";
 export * from "./IAutoMovieArmChainFault";
 export * from "./IAutoMovieChainBone";
 export * from "./IAutoMovieHingedArticulation";
@@ -16,7 +17,6 @@ export * from "./clinicalDeviation";
 export * from "./decomposeJointRotation";
 export * from "./gazeChainJoints";
 export * from "./hingedArmArticulation";
-export * from "./HUMANOID_JOINT_AXES";
 export * from "./indexSkeletonTopology";
 export * from "./jointRomOvershoot";
 export * from "./jointToQuaternion";

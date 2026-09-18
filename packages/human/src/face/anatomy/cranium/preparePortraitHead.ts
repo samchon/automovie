@@ -86,7 +86,7 @@ export function preparePortraitHead(
       cage.indices.push(...host.indices.slice(i, i + 3));
       cage.groups.push(0);
     }
-    const regions = [{ id: "buildPortraitHead", material: "skin" }];
+    const regions = [{ id: "head", material: "skin" }];
     const region = (id: string, material: string): number => {
       if (regions.some((entry) => entry.id === id))
         throw new Error("A component skin region must have a unique identity.");
