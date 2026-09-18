@@ -10,6 +10,7 @@ export * from "./resolveHumanFaceDocument";
 export * from "./buildHumanFace";
 export * from "./IAutoMovieHumanFaceBasis";
 export * from "./createHumanFaceBasisBuilder";
+export * from "./measureHumanFaceBasisChannels";
 export * from "./humanFaceBasisDocument";
 export * from "./exportHumanFace";
 export * from "./mergeHumanFaceSettings";
