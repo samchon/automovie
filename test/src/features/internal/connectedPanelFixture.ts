@@ -1,3 +1,4 @@
+import type { IAutoMovieModelCrossing } from "@automovie/engine";
 import {
   type IAutoMovieHumanFaceBasisDocument,
   createHumanFaceBasisBuilder,
@@ -15,6 +16,10 @@ import { humanFaceBasisFixture } from "./humanFaceBasisFixture";
 export function connectedPanelFixture(
   props: {
     studies?: readonly IAutoMovieHumanFaceBasisDocument[];
+    /** Crossing readings by document id, standing in for the worker's measure. */
+    crossings?: (
+      document: IAutoMovieHumanFaceBasisDocument,
+    ) => IAutoMovieModelCrossing[] | null;
     build?: (
       document: IAutoMovieHumanFaceBasisDocument,
     ) => Promise<ReturnType<typeof connectedPanelModel>>;
@@ -32,6 +37,7 @@ export function connectedPanelFixture(
   const downloads: { name: string; bytes: BlobPart; mime: string }[] = [];
   let fits = 0,
     cancellations = 0;
+  const measurements: boolean[] = [];
   const panel = mountConnectedFacePanel(app, {
     basis: source.basis,
     initial: source.document,
@@ -43,9 +49,16 @@ export function connectedPanelFixture(
     viewport: () => ({
       build:
         props.build ??
-        (async (document) => {
+        (async (document, measure) => {
           build(document);
-          return connectedPanelModel(document);
+          measurements.push(measure === true);
+          return {
+            ...connectedPanelModel(document),
+            crossings:
+              measure === true && props.crossings !== undefined
+                ? props.crossings(document)
+                : null,
+          };
         }),
       cancel: () => {
         ++cancellations;
@@ -112,6 +125,7 @@ export function connectedPanelFixture(
     downloads,
     fits: () => fits,
     cancellations: () => cancellations,
+    measurements,
   };
 }
 
