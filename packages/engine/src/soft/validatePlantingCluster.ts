@@ -1,7 +1,7 @@
 import { IAutoMoviePlantingCluster, IAutoMovieValidation, IAutoMovieVector3 } from "@automovie/interface";
 import { ViolationCollector } from "../validation/ViolationCollector";
-import { PLANTING_MAX_ATTEMPTS } from "./PLANTING_MAX_ATTEMPTS";
-import { PLANTING_MAX_MEMBERS } from "./PLANTING_MAX_MEMBERS";
+import { PLANTING_MAX_ATTEMPTS } from "./constants/PLANTING_MAX_ATTEMPTS";
+import { PLANTING_MAX_MEMBERS } from "./constants/PLANTING_MAX_MEMBERS";
 
 /**
  * Validate one planting cluster's count, region, spacing rule and variation.

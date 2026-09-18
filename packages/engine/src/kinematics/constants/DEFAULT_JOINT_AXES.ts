@@ -1,4 +1,4 @@
-import { IAutoMovieJointAxes } from "./IAutoMovieJointAxes";
+import { IAutoMovieJointAxes } from "../IAutoMovieJointAxes";
 
 /**
  * The default clinical basis: flexion→X, abduction→Z, twist→Y.

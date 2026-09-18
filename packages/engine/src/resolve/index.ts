@@ -1,4 +1,3 @@
-export * from "./AUTO_MOVIE_LIGHT_TYPES";
 export * from "./AutoMovieLightProperty";
 export * from "./IAutoMovieBoundProfile";
 export * from "./IAutoMovieClampOutcome";
@@ -16,7 +15,6 @@ export * from "./IAutoMovieShotLightingInput";
 export * from "./IAutoMovieSpringCollider";
 export * from "./IAutoMovieSpringSphere";
 export * from "./IAutoMovieSpringState";
-export * from "./LIGHT_CHANNEL_PROPERTIES";
 export * from "./applyChannelLimit";
 export * from "./applyIterativeIK";
 export * from "./applyLightOverride";
@@ -43,3 +41,5 @@ export * from "./sampleClip";
 export * from "./sampleClipSequence";
 export * from "./sceneToNodes";
 export * from "./stepSpring";
+export { AUTO_MOVIE_LIGHT_TYPES } from "./constants/AUTO_MOVIE_LIGHT_TYPES";
+export { LIGHT_CHANNEL_PROPERTIES } from "./constants/LIGHT_CHANNEL_PROPERTIES";

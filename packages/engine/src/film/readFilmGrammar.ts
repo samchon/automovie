@@ -2,7 +2,7 @@ import { AutoMovieGrammarStyleIntent, IAutoMovieCameraIntent, IAutoMovieVector3 
 import { Vector3 } from "../math/Vector3";
 import { compareCodeUnits } from "../text/compareCodeUnits";
 import { projectToNdc } from "./projectToNdc";
-import { GRAMMAR_STYLE_SUPPRESSION } from "./GRAMMAR_STYLE_SUPPRESSION";
+import { GRAMMAR_STYLE_SUPPRESSION } from "./constants/GRAMMAR_STYLE_SUPPRESSION";
 import { IAutoMovieGrammarCameraObservation } from "./IAutoMovieGrammarCameraObservation";
 import { IAutoMovieGrammarDiagnostic } from "./IAutoMovieGrammarDiagnostic";
 import { IAutoMovieGrammarInput } from "./IAutoMovieGrammarInput";

@@ -3,7 +3,7 @@ import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { sampleMotion } from "../motion/sampleMotion";
 import { sampleClipSequence } from "../resolve/sampleClipSequence";
-import { VELOCITY_DT } from "./VELOCITY_DT";
+import { VELOCITY_DT } from "./constants/VELOCITY_DT";
 import { foldRoot } from "./foldRoot";
 import { gaitPhaseOf } from "./gaitPhaseOf";
 import { plantsAtEnd } from "./plantsAtEnd";

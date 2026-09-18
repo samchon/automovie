@@ -1,5 +1,5 @@
 import { AutoMovieLightProperty } from "./AutoMovieLightProperty";
-import { LIGHT_CHANNEL_PROPERTIES } from "./LIGHT_CHANNEL_PROPERTIES";
+import { LIGHT_CHANNEL_PROPERTIES } from "./constants/LIGHT_CHANNEL_PROPERTIES";
 
 /**
  * Whether a string names an animatable light property.

@@ -1,5 +1,5 @@
 import { AutoMovieGrammarStyleIntent } from "@automovie/interface";
-import { AutoMovieGrammarDiagnosticCode } from "./AutoMovieGrammarDiagnosticCode";
+import { AutoMovieGrammarDiagnosticCode } from "../AutoMovieGrammarDiagnosticCode";
 
 /**
  * Exact one-to-one suppression table for deliberate grammar exceptions.

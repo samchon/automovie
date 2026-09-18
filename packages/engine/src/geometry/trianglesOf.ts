@@ -1,7 +1,7 @@
 import { IAutoMovieProfilePoint } from "./IAutoMovieProfilePoint";
 import { IAutoMovieRegionRing } from "./IAutoMovieRegionRing";
 import { IAutoMovieRegionTriangulation } from "./IAutoMovieRegionTriangulation";
-import { PLANAR_EPSILON } from "./PLANAR_EPSILON";
+import { PLANAR_EPSILON } from "./constants/PLANAR_EPSILON";
 
 /** The triangles one already-validated region resolves to.
  * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Triangulates an already admitted region for real cap geometry.

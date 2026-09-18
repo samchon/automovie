@@ -1,6 +1,6 @@
 import { IAutoMovieChannel } from "@automovie/interface";
-import { CHANNEL_VALUE_TYPES } from "../validation/CHANNEL_VALUE_TYPES";
-import { NODE_CHANNEL_PATHS } from "../validation/NODE_CHANNEL_PATHS";
+import { CHANNEL_VALUE_TYPES } from "../validation/constants/CHANNEL_VALUE_TYPES";
+import { NODE_CHANNEL_PATHS } from "../validation/constants/NODE_CHANNEL_PATHS";
 
 type IAutoMovieNodeChannel = Extract<IAutoMovieChannel, { kind: "node" }>;
 

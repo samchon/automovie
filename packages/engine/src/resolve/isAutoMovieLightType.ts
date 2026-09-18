@@ -1,5 +1,5 @@
 import { IAutoMovieLight } from "@automovie/interface";
-import { AUTO_MOVIE_LIGHT_TYPES } from "./AUTO_MOVIE_LIGHT_TYPES";
+import { AUTO_MOVIE_LIGHT_TYPES } from "./constants/AUTO_MOVIE_LIGHT_TYPES";
 
 /**
  * Whether an untyped artifact names one of the supported light kinds.

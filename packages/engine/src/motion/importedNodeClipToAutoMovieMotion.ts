@@ -1,10 +1,10 @@
 import type { AutoMovieHumanoidBone, AutoMovieInterpolation, IAutoMovieMotion, IAutoMovieQuaternion, IAutoMovieSkeleton } from "@automovie/interface";
 import { decomposeJointRotation } from "../kinematics/decomposeJointRotation";
-import { HUMANOID_JOINT_AXES } from "../kinematics/HUMANOID_JOINT_AXES";
+import { HUMANOID_JOINT_AXES } from "../kinematics/constants/HUMANOID_JOINT_AXES";
 import { Quaternion } from "../math/Quaternion";
 import { channelKey } from "../resolve/channelKey";
 import { sampleClip } from "../resolve/sampleClip";
-import { HUMANOID_REST_FRAME } from "../rom/HUMANOID_REST_FRAME";
+import { HUMANOID_REST_FRAME } from "../rom/constants/HUMANOID_REST_FRAME";
 import { compareCodeUnits } from "../text/compareCodeUnits";
 import { IAutoMovieImportedNodeMotionProps } from "./IAutoMovieImportedNodeMotionProps";
 

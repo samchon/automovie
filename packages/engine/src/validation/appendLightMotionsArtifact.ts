@@ -1,7 +1,7 @@
 import { IAutoMovieConstraintViolation } from "@automovie/interface";
 import { cubicHermiteValue } from "../math/cubicHermiteValue";
 import { AutoMovieLightProperty } from "../resolve/AutoMovieLightProperty";
-import { LIGHT_CHANNEL_PROPERTIES } from "../resolve/LIGHT_CHANNEL_PROPERTIES";
+import { LIGHT_CHANNEL_PROPERTIES } from "../resolve/constants/LIGHT_CHANNEL_PROPERTIES";
 import { parseLightPointer } from "../resolve/parseLightPointer";
 import { asArray } from "./asArray";
 import { isRecord } from "./isRecord";

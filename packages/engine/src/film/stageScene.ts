@@ -2,7 +2,7 @@ import { IAutoMovieCameraClearanceEnvelope, IAutoMovieLight, IAutoMovieSceneNode
 import { aimRotation } from "../kinematics/aimRotation";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { AUTO_MOVIE_LIGHT_TYPES } from "../resolve/AUTO_MOVIE_LIGHT_TYPES";
+import { AUTO_MOVIE_LIGHT_TYPES } from "../resolve/constants/AUTO_MOVIE_LIGHT_TYPES";
 import { isAutoMovieLightType } from "../resolve/isAutoMovieLightType";
 import { withArticle } from "../text/withArticle";
 import { isRecord } from "../validation/isRecord";

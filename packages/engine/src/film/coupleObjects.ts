@@ -1,5 +1,5 @@
 import { AutoMovieHumanoidBone, IAutoMovieActionCall, IAutoMovieClip, IAutoMovieConstraintViolation, IAutoMovieInteractionEvent, IAutoMovieMotion, IAutoMovieScene, IAutoMovieSkeleton, IAutoMovieTransform } from "@automovie/interface";
-import { HUMANOID_JOINT_AXES } from "../kinematics/HUMANOID_JOINT_AXES";
+import { HUMANOID_JOINT_AXES } from "../kinematics/constants/HUMANOID_JOINT_AXES";
 import { IAutoMovieJointAxes } from "../kinematics/IAutoMovieJointAxes";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { ViolationCollector } from "../validation/ViolationCollector";

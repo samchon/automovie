@@ -1,5 +1,5 @@
 import { AutoMovieAnalysisDomain } from "@automovie/interface";
-import { AUTOMOVIE_ANALYSIS_DOMAINS } from "./AUTOMOVIE_ANALYSIS_DOMAINS";
+import { AUTOMOVIE_ANALYSIS_DOMAINS } from "./constants/AUTOMOVIE_ANALYSIS_DOMAINS";
 
 /**
  * Test whether a value names a rollable analysis domain.

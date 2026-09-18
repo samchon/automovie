@@ -1,5 +1,5 @@
 import { IAutoMovieAnalysisMetric, IAutoMovieAnalysisMetricGap, IAutoMovieAnalysisRun, IAutoMovieAnalysisSample, IAutoMovieAnalysisWarning, IAutoMovieEnvironmentInstant } from "@automovie/interface";
-import { AUTOMOVIE_ANALYSIS_MAX_SAMPLES } from "./AUTOMOVIE_ANALYSIS_MAX_SAMPLES";
+import { AUTOMOVIE_ANALYSIS_MAX_SAMPLES } from "./constants/AUTOMOVIE_ANALYSIS_MAX_SAMPLES";
 import { assertAutoMovieAnalysisTargets } from "./assertAutoMovieAnalysisTargets";
 import { autoMovieAnalysisMetric } from "./autoMovieAnalysisMetric";
 import { sealAutoMovieAnalysisRun } from "./sealAutoMovieAnalysisRun";

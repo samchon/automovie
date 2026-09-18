@@ -4,7 +4,7 @@ import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { toClinicalAngle } from "../rom/toClinicalAngle";
-import { DEFAULT_JOINT_AXES } from "./DEFAULT_JOINT_AXES";
+import { DEFAULT_JOINT_AXES } from "./constants/DEFAULT_JOINT_AXES";
 import { IAutoMovieJointAxes } from "./IAutoMovieJointAxes";
 import { normalizeJointAxes } from "./normalizeJointAxes";
 

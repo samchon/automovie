@@ -1,6 +1,6 @@
 import { IAutoMovieAnalysisMetric, IAutoMovieAnalysisRun, IAutoMovieAnalysisTarget, IAutoMovieValidation } from "@automovie/interface";
 import { ViolationCollector } from "../validation/ViolationCollector";
-import { AUTOMOVIE_ANALYSIS_MAX_SAMPLES } from "./AUTOMOVIE_ANALYSIS_MAX_SAMPLES";
+import { AUTOMOVIE_ANALYSIS_MAX_SAMPLES } from "./constants/AUTOMOVIE_ANALYSIS_MAX_SAMPLES";
 import { autoMovieAnalysisRunDigest } from "./autoMovieAnalysisRunDigest";
 import { isAutoMovieAnalysisDomain } from "./isAutoMovieAnalysisDomain";
 

@@ -1,5 +1,5 @@
 import { IAutoMoviePlanarPoint } from "@automovie/interface";
-import { PLANAR_EPSILON } from "../geometry/PLANAR_EPSILON";
+import { PLANAR_EPSILON } from "../geometry/constants/PLANAR_EPSILON";
 
 /**
  * Whether a point is inside a simple polygon, its own boundary included.

@@ -27,7 +27,7 @@ import { autoMovieOpeningExtent } from "./autoMovieOpeningExtent";
 import { autoMovieOpeningFillExtent } from "./autoMovieOpeningFillExtent";
 import { autoMovieOpeningHasArc } from "./autoMovieOpeningHasArc";
 import { autoMovieOpeningOutlinePoints } from "./autoMovieOpeningOutlinePoints";
-import { AUTOMOVIE_DRAWING_EPSILON } from "./AUTOMOVIE_DRAWING_EPSILON";
+import { AUTOMOVIE_DRAWING_EPSILON } from "./constants/AUTOMOVIE_DRAWING_EPSILON";
 import { IAutoMovieDrawingEdge } from "./IAutoMovieDrawingEdge";
 import { IAutoMovieDrawingTriangle } from "./IAutoMovieDrawingTriangle";
 import { autoMovieDrawingCellSection } from "./autoMovieDrawingCellSection";

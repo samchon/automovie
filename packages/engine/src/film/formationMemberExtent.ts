@@ -1,6 +1,6 @@
 import { IAutoMovieCompiledFormation, IAutoMovieModel } from "@automovie/interface";
 import { productionRuntimeModelId } from "../productionRuntimeModelId";
-import { DEFAULT_SUBJECT_HEIGHT } from "./DEFAULT_SUBJECT_HEIGHT";
+import { DEFAULT_SUBJECT_HEIGHT } from "./constants/DEFAULT_SUBJECT_HEIGHT";
 import { computeModelRestExtentY } from "./computeModelRestExtentY";
 
 /**

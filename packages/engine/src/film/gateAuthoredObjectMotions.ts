@@ -6,7 +6,7 @@ import { placementNodePrefix } from "../resolve/placementNodePrefix";
 import { sceneToNodes } from "../resolve/sceneToNodes";
 import { pushViolation } from "../validation/pushViolation";
 import { IAutoMovieNodeChannel } from "../validation/IAutoMovieNodeChannel";
-import { NODE_CHANNEL_PATHS } from "../validation/NODE_CHANNEL_PATHS";
+import { NODE_CHANNEL_PATHS } from "../validation/constants/NODE_CHANNEL_PATHS";
 import { IAutoMovieClipChannelGate } from "../validation/IAutoMovieClipChannelGate";
 import { validateClipArtifact } from "../validation/validateClipArtifact";
 import { validateHonorableChannel } from "../validation/validateHonorableChannel";

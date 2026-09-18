@@ -1,9 +1,9 @@
 import { AutoMovieHumanoidBone, IAutoMovieMotion, IAutoMovieProfileBinding, IAutoMovieSkeleton } from "@automovie/interface";
-import { HUMANOID_JOINT_AXES } from "../kinematics/HUMANOID_JOINT_AXES";
+import { HUMANOID_JOINT_AXES } from "../kinematics/constants/HUMANOID_JOINT_AXES";
 import { IAutoMovieJointAxes } from "../kinematics/IAutoMovieJointAxes";
 import { validateJointAxesBasis } from "../kinematics/validateJointAxesBasis";
 import { resolvePose } from "../kinematics/resolvePose";
-import { HUMANOID_REST_FRAME } from "../rom/HUMANOID_REST_FRAME";
+import { HUMANOID_REST_FRAME } from "../rom/constants/HUMANOID_REST_FRAME";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { compareCodeUnits } from "../text/compareCodeUnits";
 import { validateMotion } from "../validation/validateMotion";

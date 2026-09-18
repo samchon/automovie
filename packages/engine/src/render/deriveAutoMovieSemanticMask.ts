@@ -5,9 +5,9 @@ import { IAutoMovieRenderSubject } from "./IAutoMovieRenderSubject";
 import { autoMovieFluidSurfaceNodeName } from "./autoMovieFluidSurfaceNodeName";
 import { autoMoviePlantingNodeName } from "./autoMoviePlantingNodeName";
 import { autoMovieSoftBodyNodeName } from "./autoMovieSoftBodyNodeName";
-import { AUTOMOVIE_SEMANTIC_MASK_COLORS } from "./AUTOMOVIE_SEMANTIC_MASK_COLORS";
-import { AUTOMOVIE_SEMANTIC_MASK_MAX_ENTRIES } from "./AUTOMOVIE_SEMANTIC_MASK_MAX_ENTRIES";
-import { AUTOMOVIE_SEMANTIC_MASK_SPACE_NODE } from "./AUTOMOVIE_SEMANTIC_MASK_SPACE_NODE";
+import { AUTOMOVIE_SEMANTIC_MASK_COLORS } from "./constants/AUTOMOVIE_SEMANTIC_MASK_COLORS";
+import { AUTOMOVIE_SEMANTIC_MASK_MAX_ENTRIES } from "./constants/AUTOMOVIE_SEMANTIC_MASK_MAX_ENTRIES";
+import { AUTOMOVIE_SEMANTIC_MASK_SPACE_NODE } from "./constants/AUTOMOVIE_SEMANTIC_MASK_SPACE_NODE";
 import { digestAutoMovieSemanticMask } from "./digestAutoMovieSemanticMask";
 
 /** Current full-payload semantic-mask format. */

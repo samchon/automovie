@@ -2,7 +2,7 @@ import { AutoMovieHumanoidBone, IAutoMovieMotion, IAutoMoviePose, IAutoMovieSkel
 import { IAutoMovieJointAxes } from "../kinematics/IAutoMovieJointAxes";
 import { jointToQuaternion } from "../kinematics/jointToQuaternion";
 import { Quaternion } from "../math/Quaternion";
-import { MOTION_ROOT_NODE_ID } from "../resolve/MOTION_ROOT_NODE_ID";
+import { MOTION_ROOT_NODE_ID } from "../resolve/constants/MOTION_ROOT_NODE_ID";
 import { lowerSkeletonNodes } from "../resolve/lowerSkeletonNodes";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { sampleTimes } from "./sampleTimes";

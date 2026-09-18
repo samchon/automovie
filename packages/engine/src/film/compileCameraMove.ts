@@ -2,8 +2,8 @@ import { IAutoMovieCamera, IAutoMovieClip, IAutoMovieQuaternion, IAutoMovieVecto
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { ease } from "../motion/ease";
-import { FRAMING_AIM_FRACTION } from "./FRAMING_AIM_FRACTION";
-import { FRAMING_HEIGHT_FRACTION } from "./FRAMING_HEIGHT_FRACTION";
+import { FRAMING_AIM_FRACTION } from "./constants/FRAMING_AIM_FRACTION";
+import { FRAMING_HEIGHT_FRACTION } from "./constants/FRAMING_HEIGHT_FRACTION";
 import { IAutoMovieCameraFrameEntry } from "./IAutoMovieCameraFrameEntry";
 import { lookRotation } from "./lookRotation";
 

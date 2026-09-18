@@ -9,9 +9,9 @@ import { surfaceFootprint } from "../space/surfaceFootprint";
 import { autoMovieOpeningArea } from "./autoMovieOpeningArea";
 import { autoMovieDrawingCellVolume } from "./autoMovieDrawingCellVolume";
 import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
-import { AUTOMOVIE_QUANTITY_CELL_UNION_APPROXIMATION } from "./AUTOMOVIE_QUANTITY_CELL_UNION_APPROXIMATION";
-import { AUTOMOVIE_QUANTITY_MAX_CONTRIBUTORS } from "./AUTOMOVIE_QUANTITY_MAX_CONTRIBUTORS";
-import { AUTOMOVIE_QUANTITY_SUBJECTS } from "./AUTOMOVIE_QUANTITY_SUBJECTS";
+import { AUTOMOVIE_QUANTITY_CELL_UNION_APPROXIMATION } from "./constants/AUTOMOVIE_QUANTITY_CELL_UNION_APPROXIMATION";
+import { AUTOMOVIE_QUANTITY_MAX_CONTRIBUTORS } from "./constants/AUTOMOVIE_QUANTITY_MAX_CONTRIBUTORS";
+import { AUTOMOVIE_QUANTITY_SUBJECTS } from "./constants/AUTOMOVIE_QUANTITY_SUBJECTS";
 
 /** The unit each subject is measured in. */
 const UNITS: { [subject in AutoMovieQuantitySubject]: AutoMovieQuantityUnit } =

@@ -2,7 +2,7 @@ import { Quaternion } from "../math/Quaternion";
 import { convexHull2D } from "../math/convexHull2D";
 import { positiveModulo } from "../math/positiveModulo";
 import { seededValue } from "../math/seededValue";
-import { AUTOMOVIE_MAX_PATTERN_CELLS } from "./AUTOMOVIE_MAX_PATTERN_CELLS";
+import { AUTOMOVIE_MAX_PATTERN_CELLS } from "./constants/AUTOMOVIE_MAX_PATTERN_CELLS";
 import { IAutoMoviePatternCandidate } from "./IAutoMoviePatternCandidate";
 import { IAutoMoviePatternFinding } from "./IAutoMoviePatternFinding";
 import { IAutoMoviePatternPlacement } from "./IAutoMoviePatternPlacement";

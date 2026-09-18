@@ -1,6 +1,6 @@
 import { AutoMovieInterpolation } from "@automovie/interface";
 import { IAutoMovieClipShapeFault } from "./IAutoMovieClipShapeFault";
-import { TRACK_INTERPOLATIONS } from "./TRACK_INTERPOLATIONS";
+import { TRACK_INTERPOLATIONS } from "./constants/TRACK_INTERPOLATIONS";
 import { channelValueWidth } from "./channelValueWidth";
 
 /**

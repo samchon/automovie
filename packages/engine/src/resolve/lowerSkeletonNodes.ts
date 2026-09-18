@@ -1,5 +1,5 @@
 import { IAutoMovieNode, IAutoMovieSkeleton } from "@automovie/interface";
-import { MOTION_ROOT_NODE_ID } from "./MOTION_ROOT_NODE_ID";
+import { MOTION_ROOT_NODE_ID } from "./constants/MOTION_ROOT_NODE_ID";
 
 const IDENTITY = {
   translation: { x: 0, y: 0, z: 0 },

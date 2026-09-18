@@ -1,5 +1,5 @@
 import { IAutoMovieCameraIntent } from "@automovie/interface";
-import { FRAMING_HEIGHT_FRACTION } from "./FRAMING_HEIGHT_FRACTION";
+import { FRAMING_HEIGHT_FRACTION } from "./constants/FRAMING_HEIGHT_FRACTION";
 
 /**
  * Classify a subject's measured fraction of the frame.

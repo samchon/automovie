@@ -2,7 +2,7 @@ import { IAutoMovieJointPose, IAutoMovieQuaternion } from "@automovie/interface"
 import { Quaternion } from "../math/Quaternion";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { toRigAngle } from "../rom/toRigAngle";
-import { DEFAULT_JOINT_AXES } from "./DEFAULT_JOINT_AXES";
+import { DEFAULT_JOINT_AXES } from "./constants/DEFAULT_JOINT_AXES";
 import { IAutoMovieJointAxes } from "./IAutoMovieJointAxes";
 import { normalizeJointAxes } from "./normalizeJointAxes";
 

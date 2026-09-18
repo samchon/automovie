@@ -7,7 +7,7 @@ import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { groundFunction } from "../space/groundFunction";
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { contactMask } from "./contactMask";
-import { HUMANOID_LEG_CHAINS } from "./HUMANOID_LEG_CHAINS";
+import { HUMANOID_LEG_CHAINS } from "./constants/HUMANOID_LEG_CHAINS";
 import { IAutoMoviePlantChain } from "./IAutoMoviePlantChain";
 import { fitChainToTarget } from "./fitChainToTarget";
 import { resolveBoneMap } from "./resolveBoneMap";

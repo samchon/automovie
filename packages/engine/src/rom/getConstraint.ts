@@ -1,5 +1,5 @@
 import { AutoMovieHumanoidBone, IAutoMovieJointConstraint } from "@automovie/interface";
-import { DEFAULT_HUMANOID_ROM } from "./DEFAULT_HUMANOID_ROM";
+import { DEFAULT_HUMANOID_ROM } from "./constants/DEFAULT_HUMANOID_ROM";
 
 /**
  * The effective ROM constraint for a bone: the skeleton's per-bone override if

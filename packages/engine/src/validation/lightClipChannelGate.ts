@@ -1,4 +1,4 @@
-import { LIGHT_CHANNEL_PROPERTIES } from "../resolve/LIGHT_CHANNEL_PROPERTIES";
+import { LIGHT_CHANNEL_PROPERTIES } from "../resolve/constants/LIGHT_CHANNEL_PROPERTIES";
 import { parseLightPointer } from "../resolve/parseLightPointer";
 import { withArticle } from "../text/withArticle";
 import { pushViolation } from "./pushViolation";

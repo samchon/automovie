@@ -1,7 +1,4 @@
-export * from "./AUTO_MOVIE_MAX_TEXTURE_EDGE";
-export * from "./AUTO_MOVIE_SUPPORTED_MATERIAL_EXTENSIONS";
 export * from "./AutoMovieTextureMediaType";
-export * from "./FACE_PARAMETER_LIMIT";
 export * from "./IAutoMovieBalanceSupportWindow";
 export * from "./IAutoMovieBodyCollisionResult";
 export * from "./IAutoMovieCapsuleProxyPair";
@@ -63,3 +60,6 @@ export * from "./validateUniqueBy";
 export * from "./validateUniqueIds";
 export * from "./validateVectorArtifact";
 export * from "./violation";
+export { FACE_PARAMETER_LIMIT } from "./constants/FACE_PARAMETER_LIMIT";
+export { AUTO_MOVIE_SUPPORTED_MATERIAL_EXTENSIONS } from "./constants/AUTO_MOVIE_SUPPORTED_MATERIAL_EXTENSIONS";
+export { AUTO_MOVIE_MAX_TEXTURE_EDGE } from "./constants/AUTO_MOVIE_MAX_TEXTURE_EDGE";

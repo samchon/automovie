@@ -1,6 +1,6 @@
 import { IAutoMovieAnalysisMetric, IAutoMovieAnalysisMetricGap, IAutoMovieAnalysisRun, IAutoMovieAnalysisSample, IAutoMovieAnalysisWarning, IAutoMovieEnvironmentInstant, IAutoMovieReferenceGround, IAutoMovieVector3 } from "@automovie/interface";
 import { Vector3 } from "../math/Vector3";
-import { AUTOMOVIE_ANALYSIS_MAX_SAMPLES } from "./AUTOMOVIE_ANALYSIS_MAX_SAMPLES";
+import { AUTOMOVIE_ANALYSIS_MAX_SAMPLES } from "./constants/AUTOMOVIE_ANALYSIS_MAX_SAMPLES";
 import { assertAutoMovieAnalysisTargets } from "./assertAutoMovieAnalysisTargets";
 import { autoMovieAnalysisMetric } from "./autoMovieAnalysisMetric";
 import { sealAutoMovieAnalysisRun } from "./sealAutoMovieAnalysisRun";
@@ -13,7 +13,7 @@ import { autoMovieHemisphereDirections } from "./autoMovieHemisphereDirections";
 import { autoMovieRayObstructed } from "./autoMovieRayObstructed";
 import { autoMovieSkyward } from "./autoMovieSkyward";
 import { validateAutoMovieEnvironmentContext } from "./validateAutoMovieEnvironmentContext";
-import { AUTOMOVIE_DAYLIGHT_SKY_MODEL } from "./AUTOMOVIE_DAYLIGHT_SKY_MODEL";
+import { AUTOMOVIE_DAYLIGHT_SKY_MODEL } from "./constants/AUTOMOVIE_DAYLIGHT_SKY_MODEL";
 import { IAutoMovieAnalysisLuminaire } from "./IAutoMovieAnalysisLuminaire";
 import { IAutoMovieAnalysisWorkplane } from "./IAutoMovieAnalysisWorkplane";
 import { IAutoMovieDaylightRequest } from "./IAutoMovieDaylightRequest";

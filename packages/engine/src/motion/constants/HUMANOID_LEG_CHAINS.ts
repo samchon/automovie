@@ -1,4 +1,4 @@
-import { IAutoMoviePlantChain } from "./IAutoMoviePlantChain";
+import { IAutoMoviePlantChain } from "../IAutoMoviePlantChain";
 
 /**
  * The humanoid leg chains, the default both plant passes pin.

@@ -1,4 +1,4 @@
-import { IAutoMovieNodeChannel } from "./IAutoMovieNodeChannel";
+import { IAutoMovieNodeChannel } from "../IAutoMovieNodeChannel";
 
 /**
  * The node properties a channel may address. `channelKey` refuses anything else

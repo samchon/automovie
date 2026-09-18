@@ -1,7 +1,7 @@
 import { IAutoMovieHalfSpacePlane, IAutoMovieVector3 } from "@automovie/interface";
 import { Vector3 } from "../math/Vector3";
 import { ViolationCollector } from "../validation/ViolationCollector";
-import { AUTOMOVIE_ANALYSIS_MIN_SOLID_PLANES } from "./AUTOMOVIE_ANALYSIS_MIN_SOLID_PLANES";
+import { AUTOMOVIE_ANALYSIS_MIN_SOLID_PLANES } from "./constants/AUTOMOVIE_ANALYSIS_MIN_SOLID_PLANES";
 
 /** Directions shorter than this carry no direction at all. */
 const AXIS_EPSILON = 1e-12;

@@ -15,7 +15,7 @@ import { autoMovieDrawingRange } from "./autoMovieDrawingRange";
 import { autoMovieDrawingWorldMatrices } from "./autoMovieDrawingWorldMatrices";
 import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
 import { transformAutoMovieDrawingTriangles } from "./transformAutoMovieDrawingTriangles";
-import { AUTOMOVIE_DRAWING_SCHEDULE_MAX_MEMBERS } from "./AUTOMOVIE_DRAWING_SCHEDULE_MAX_MEMBERS";
+import { AUTOMOVIE_DRAWING_SCHEDULE_MAX_MEMBERS } from "./constants/AUTOMOVIE_DRAWING_SCHEDULE_MAX_MEMBERS";
 import { AutoMovieDrawingScheduleSubject } from "./AutoMovieDrawingScheduleSubject";
 
 /**

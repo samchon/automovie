@@ -1,4 +1,4 @@
-import { AUTOMOVIE_DRAWING_DECIMALS } from "./AUTOMOVIE_DRAWING_DECIMALS";
+import { AUTOMOVIE_DRAWING_DECIMALS } from "./constants/AUTOMOVIE_DRAWING_DECIMALS";
 
 /**
  * Round one drawing scalar onto the fixed output grid.

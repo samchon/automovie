@@ -1,5 +1,5 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
-import { LOCOMOTE_GROUND_EPSILON } from "./LOCOMOTE_GROUND_EPSILON";
+import { LOCOMOTE_GROUND_EPSILON } from "./constants/LOCOMOTE_GROUND_EPSILON";
 
 /**
  * Classify one requested root displacement under the ground-gait epsilon.

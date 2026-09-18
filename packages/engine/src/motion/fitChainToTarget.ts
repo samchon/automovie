@@ -1,6 +1,6 @@
 import { AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMoviePose, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
 import { decomposeJointRotation } from "../kinematics/decomposeJointRotation";
-import { DEFAULT_JOINT_AXES } from "../kinematics/DEFAULT_JOINT_AXES";
+import { DEFAULT_JOINT_AXES } from "../kinematics/constants/DEFAULT_JOINT_AXES";
 import { IAutoMovieJointAxes } from "../kinematics/IAutoMovieJointAxes";
 import { jointToQuaternion } from "../kinematics/jointToQuaternion";
 import { normalizeJointAxes } from "../kinematics/normalizeJointAxes";

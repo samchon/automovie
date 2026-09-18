@@ -17,7 +17,7 @@ import { IAutoMovieLoftSection } from "./IAutoMovieLoftSection";
 import { IAutoMovieProfilePoint } from "./IAutoMovieProfilePoint";
 import { IAutoMovieRegionTriangulation } from "./IAutoMovieRegionTriangulation";
 import { pathFrames } from "./pathFrames";
-import { PLANAR_EPSILON } from "../architecture/PLANAR_EPSILON";
+import { PLANAR_EPSILON } from "../architecture/constants/PLANAR_EPSILON";
 import { canonicalRegion } from "./canonicalRegion";
 import { signedArea } from "./signedArea";
 import { trianglesOf } from "./trianglesOf";

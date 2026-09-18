@@ -1,12 +1,12 @@
 import { IAutoMovieSoftBodyDomain, IAutoMovieSoftCollider, IAutoMovieValidation, IAutoMovieVector3 } from "@automovie/interface";
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { softBodyTravelNumber } from "./softBodyTravelNumber";
-import { SOFT_MAX_ANCHORS } from "./SOFT_MAX_ANCHORS";
-import { SOFT_MAX_COLLIDERS } from "./SOFT_MAX_COLLIDERS";
-import { SOFT_MAX_ITERATIONS } from "./SOFT_MAX_ITERATIONS";
-import { SOFT_MAX_PARTICLES } from "./SOFT_MAX_PARTICLES";
-import { SOFT_MAX_STATES } from "./SOFT_MAX_STATES";
-import { SOFT_MAX_STEPS } from "./SOFT_MAX_STEPS";
+import { SOFT_MAX_ANCHORS } from "./constants/SOFT_MAX_ANCHORS";
+import { SOFT_MAX_COLLIDERS } from "./constants/SOFT_MAX_COLLIDERS";
+import { SOFT_MAX_ITERATIONS } from "./constants/SOFT_MAX_ITERATIONS";
+import { SOFT_MAX_PARTICLES } from "./constants/SOFT_MAX_PARTICLES";
+import { SOFT_MAX_STATES } from "./constants/SOFT_MAX_STATES";
+import { SOFT_MAX_STEPS } from "./constants/SOFT_MAX_STEPS";
 
 /**
  * Validate a soft-body domain's lattice, budgets, stability, anchors, states

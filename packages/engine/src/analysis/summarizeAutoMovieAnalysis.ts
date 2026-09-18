@@ -1,8 +1,8 @@
 import { AutoMovieAnalysisDomain, IAutoMovieAnalysisDomainRollup, IAutoMovieAnalysisGap, IAutoMovieAnalysisReport, IAutoMovieAnalysisRun } from "@automovie/interface";
 import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
 import { withArticle } from "../text/withArticle";
-import { AUTOMOVIE_ANALYSIS_DOMAINS } from "./AUTOMOVIE_ANALYSIS_DOMAINS";
-import { AUTOMOVIE_ANALYSIS_REPORT_MAX_GAPS } from "./AUTOMOVIE_ANALYSIS_REPORT_MAX_GAPS";
+import { AUTOMOVIE_ANALYSIS_DOMAINS } from "./constants/AUTOMOVIE_ANALYSIS_DOMAINS";
+import { AUTOMOVIE_ANALYSIS_REPORT_MAX_GAPS } from "./constants/AUTOMOVIE_ANALYSIS_REPORT_MAX_GAPS";
 import { isAutoMovieAnalysisDomain } from "./isAutoMovieAnalysisDomain";
 import { validateAutoMovieAnalysisRun } from "./validateAutoMovieAnalysisRun";
 

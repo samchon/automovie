@@ -16,9 +16,9 @@ import type {
 
 import { tessellateSurface } from "../geometry/tessellateSurface";
 import { measure } from "./measure";
-import { AUTOMOVIE_INDEX_BYTES } from "./AUTOMOVIE_INDEX_BYTES";
-import { AUTOMOVIE_NORMAL_BYTES } from "./AUTOMOVIE_NORMAL_BYTES";
-import { AUTOMOVIE_POSITION_BYTES } from "./AUTOMOVIE_POSITION_BYTES";
+import { AUTOMOVIE_INDEX_BYTES } from "./constants/AUTOMOVIE_INDEX_BYTES";
+import { AUTOMOVIE_NORMAL_BYTES } from "./constants/AUTOMOVIE_NORMAL_BYTES";
+import { AUTOMOVIE_POSITION_BYTES } from "./constants/AUTOMOVIE_POSITION_BYTES";
 import type { IAutoMovieRenderSubject } from "./IAutoMovieRenderSubject";
 import type { autoMovieSemanticMaskNodeIndex } from "./autoMovieSemanticMaskNodeIndex";
 

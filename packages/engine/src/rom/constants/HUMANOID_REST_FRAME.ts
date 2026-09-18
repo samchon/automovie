@@ -1,5 +1,5 @@
 import { AutoMovieHumanoidBone } from "@automovie/interface";
-import { IAutoMovieRestFrame } from "./IAutoMovieRestFrame";
+import { IAutoMovieRestFrame } from "../IAutoMovieRestFrame";
 
 /**
  * Rest frames for the **canonical T-pose humanoid**, where they differ from the

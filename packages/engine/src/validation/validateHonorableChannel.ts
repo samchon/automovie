@@ -1,6 +1,6 @@
 import { pushViolation } from "./pushViolation";
 import { IAutoMovieNodeChannel } from "./IAutoMovieNodeChannel";
-import { NODE_CHANNEL_PATHS } from "./NODE_CHANNEL_PATHS";
+import { NODE_CHANNEL_PATHS } from "./constants/NODE_CHANNEL_PATHS";
 import { IAutoMovieClipChannelGate } from "./IAutoMovieClipChannelGate";
 
 /**

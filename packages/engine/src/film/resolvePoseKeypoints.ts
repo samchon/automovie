@@ -4,7 +4,7 @@ import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { projectToNdc } from "./projectToNdc";
 import { resolveCameraAt } from "./resolveCameraAt";
-import { DEFAULT_KEYPOINT_BONES } from "./DEFAULT_KEYPOINT_BONES";
+import { DEFAULT_KEYPOINT_BONES } from "./constants/DEFAULT_KEYPOINT_BONES";
 
 /** Assumed render aspect (width/height): the scene camera carries no aspect. */
 const DEFAULT_ASPECT = 16 / 9;

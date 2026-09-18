@@ -1,7 +1,7 @@
 import { IAutoMovieFace } from "@automovie/interface";
 import { flattenFace } from "../face/flattenFace";
 import { ViolationCollector } from "./ViolationCollector";
-import { FACE_PARAMETER_LIMIT } from "./FACE_PARAMETER_LIMIT";
+import { FACE_PARAMETER_LIMIT } from "./constants/FACE_PARAMETER_LIMIT";
 
 /**
  * Validate an {@link IAutoMovieFace}: Tier-1 range checks the rough types

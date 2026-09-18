@@ -3,7 +3,7 @@ import { IAutoMovieJointAxes } from "../kinematics/IAutoMovieJointAxes";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { groundFunction } from "../space/groundFunction";
 import { pinStanceTargets } from "./pinStanceTargets";
-import { HUMANOID_LEG_CHAINS } from "./HUMANOID_LEG_CHAINS";
+import { HUMANOID_LEG_CHAINS } from "./constants/HUMANOID_LEG_CHAINS";
 import { assemblePlantedFeet } from "./assemblePlantedFeet";
 import { rekeyPlantedFeet } from "./rekeyPlantedFeet";
 import { resolveBoneMap } from "./resolveBoneMap";

@@ -1,5 +1,5 @@
 import { AutoMovieDrawingRole, IAutoMovieDrawing, IAutoMovieDrawingPoint, IAutoMovieDrawingView } from "@automovie/interface";
-import { AUTOMOVIE_DRAWING_SVG_MARGIN } from "./AUTOMOVIE_DRAWING_SVG_MARGIN";
+import { AUTOMOVIE_DRAWING_SVG_MARGIN } from "./constants/AUTOMOVIE_DRAWING_SVG_MARGIN";
 
 /**
  * Serialize one derived drawing as a self-describing SVG sheet.

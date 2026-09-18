@@ -27,7 +27,7 @@ import { transformFormationBounds } from "./transformFormationBounds";
 import { transformFormationPoint } from "./transformFormationPoint";
 import { placeFormationSlot } from "./placeFormationSlot";
 import { sampleFormationSlotMotion } from "./sampleFormationSlotMotion";
-import { HUMANOID_JOINT_AXES } from "./kinematics/HUMANOID_JOINT_AXES";
+import { HUMANOID_JOINT_AXES } from "./kinematics/constants/HUMANOID_JOINT_AXES";
 import { reachPose } from "./kinematics/reachPose";
 import { resolvePose } from "./kinematics/resolvePose";
 import { Quaternion } from "./math/Quaternion";

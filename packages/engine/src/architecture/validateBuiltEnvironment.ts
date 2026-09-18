@@ -6,7 +6,7 @@ import { validateModel } from "../validation/validateModel";
 import { validateSpace } from "../validation/validateSpace";
 import { validateTransformScalars } from "../validation/validateTransformScalars";
 import { ViolationCollector } from "../validation/ViolationCollector";
-import { PLANAR_EPSILON } from "./PLANAR_EPSILON";
+import { PLANAR_EPSILON } from "./constants/PLANAR_EPSILON";
 import { outlineHull } from "./outlineHull";
 import { polygonDoubleArea } from "./polygonDoubleArea";
 import { polygonInside } from "./polygonInside";

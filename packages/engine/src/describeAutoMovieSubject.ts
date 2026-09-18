@@ -5,7 +5,7 @@ import { resolvePose } from "./kinematics";
 import { Matrix4, Quaternion } from "./math";
 import { instanceSlot } from "./populationRuntime/instanceSlot";
 import { compareAutoMovieRenderIds } from "./render";
-import { AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT } from "./AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT";
+import { AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT } from "./constants/AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT";
 
 /**
  * Describe one stable subject address from a compiled shot artifact.

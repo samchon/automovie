@@ -1,5 +1,5 @@
 import { IAutoMovieOpeningProfile, IAutoMoviePlanarPoint } from "@automovie/interface";
-import { AUTOMOVIE_DRAWING_ARC_STEP } from "./AUTOMOVIE_DRAWING_ARC_STEP";
+import { AUTOMOVIE_DRAWING_ARC_STEP } from "./constants/AUTOMOVIE_DRAWING_ARC_STEP";
 
 /** Below this the bulge is a straight edge, not an arc anybody can see. */
 const BULGE_EPSILON = 1e-12;

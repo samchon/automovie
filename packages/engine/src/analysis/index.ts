@@ -1,9 +1,3 @@
-export * from "./AUTOMOVIE_ANALYSIS_DOMAINS";
-export * from "./AUTOMOVIE_ANALYSIS_MAX_SAMPLES";
-export * from "./AUTOMOVIE_ANALYSIS_MIN_SOLID_PLANES";
-export * from "./AUTOMOVIE_ANALYSIS_REPORT_MAX_GAPS";
-export * from "./AUTOMOVIE_DAYLIGHT_SKY_MODEL";
-export * from "./AUTOMOVIE_SABINE_CONSTANT";
 export * from "./IAutoMovieAcousticPartition";
 export * from "./IAutoMovieAcousticReceiver";
 export * from "./IAutoMovieAcousticRequest";
@@ -34,6 +28,7 @@ export * from "./autoMovieHemisphereDirections";
 export * from "./autoMovieRayObstructed";
 export * from "./autoMovieSkyward";
 export * from "./autoMovieSolidBlocks";
+export * from "./constants";
 export * from "./isAutoMovieAnalysisDomain";
 export * from "./sealAutoMovieAnalysisRun";
 export * from "./summarizeAutoMovieAnalysis";

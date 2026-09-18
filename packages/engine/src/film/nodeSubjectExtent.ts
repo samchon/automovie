@@ -1,4 +1,4 @@
-import { DEFAULT_SUBJECT_HEIGHT } from "./DEFAULT_SUBJECT_HEIGHT";
+import { DEFAULT_SUBJECT_HEIGHT } from "./constants/DEFAULT_SUBJECT_HEIGHT";
 import { IAutoMovieSubjectBox } from "./IAutoMovieSubjectBox";
 
 /**

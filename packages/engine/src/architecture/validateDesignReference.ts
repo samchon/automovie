@@ -1,9 +1,9 @@
 import { IAutoMovieDesignReference, IAutoMovieDesignSourceFrame, IAutoMovieValidation, IAutoMovieVector3 } from "@automovie/interface";
 import { validateTransformScalars } from "../validation/validateTransformScalars";
 import { ViolationCollector } from "../validation/ViolationCollector";
-import { AUTO_MOVIE_DESIGN_FRAME_VIEWS } from "./AUTO_MOVIE_DESIGN_FRAME_VIEWS";
-import { AUTO_MOVIE_DESIGN_ISSUE_KINDS } from "./AUTO_MOVIE_DESIGN_ISSUE_KINDS";
-import { AUTO_MOVIE_DESIGN_REFERENCE_MEDIA } from "./AUTO_MOVIE_DESIGN_REFERENCE_MEDIA";
+import { AUTO_MOVIE_DESIGN_FRAME_VIEWS } from "./constants/AUTO_MOVIE_DESIGN_FRAME_VIEWS";
+import { AUTO_MOVIE_DESIGN_ISSUE_KINDS } from "./constants/AUTO_MOVIE_DESIGN_ISSUE_KINDS";
+import { AUTO_MOVIE_DESIGN_REFERENCE_MEDIA } from "./constants/AUTO_MOVIE_DESIGN_REFERENCE_MEDIA";
 import { isAutoMovieDesignReferenceMedia } from "./isAutoMovieDesignReferenceMedia";
 
 /**

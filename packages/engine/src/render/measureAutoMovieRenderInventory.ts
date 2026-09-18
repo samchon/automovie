@@ -26,7 +26,7 @@ import type {
 import { resolveAutoMovieMaterial } from "./resolveAutoMovieMaterial";
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
 import { texturesOf } from "./texturesOf";
-import { AUTOMOVIE_TEXEL_BYTES } from "./AUTOMOVIE_TEXEL_BYTES";
+import { AUTOMOVIE_TEXEL_BYTES } from "./constants/AUTOMOVIE_TEXEL_BYTES";
 import { measureRenderPopulation } from "./measureRenderPopulation";
 import { measureRenderSimulation } from "./measureRenderSimulation";
 import type { IAutoMovieRenderSubject } from "./IAutoMovieRenderSubject";
