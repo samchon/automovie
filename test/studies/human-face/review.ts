@@ -487,6 +487,116 @@ import type { humanFaceStudyDocuments } from "./studies";
  * @evidenceReview {@link Human.subdivideControlMesh} #2bc2ab2 Read every Loop and curve branch after sharing the refinement mask for positions, optional reference XYZ and RGB. Edge identities and face groups propagate each round; omitted attributes stay absent. The narrow-field unit demonstrates why product pigment is evaluated after reference refinement instead of interpolating only control RGB.
  * @evidence {@link humanFaceStudyDocuments} Binds the actual eighteen editor-consumed numerical documents to the per-person image and construction account.
  * @evidenceReview {@link humanFaceStudyDocuments} #3aac1f7 Read all eighteen direct JSON imports and their stable registry keys against the actual panel's sorted document list. Each selected item is serialized and parsed before construction; no built-in person or image-fetching code enters the human package. Current independent replay preserves every saved model identity. The population is eighteen rather than nineteen because one subject was removed at the owner's request: its import, registry key, replay document and both inventory records are gone together, so nothing here names a document that no longer exists.
+ * @evidence {@link Human.admit} Shares one finite-scalar admission between loading and saving the flat basis document.
+ * @evidenceReview {@link Human.admit} #06c3d1d Read the shared scalar gate both directions use: a value that is not a finite number refuses rather than being coerced, so a document cannot be saved in a shape it could not be loaded from.
+ * @evidence {@link Human.advance} Steps a directional surface walk one sample along the recorded ray.
+ * @evidenceReview {@link Human.advance} #4e0d744 Read the single step the four directional owners share. It was one file with them until each public identity took its own, and moving it changed nothing it computes.
+ * @evidence {@link Human.assertDetailValue} Refuses a detail edit outside the channel's own declared range before it is written.
+ * @evidenceReview {@link Human.assertDetailValue} #5de9594 Read the range gate the two detail setters share: the channel's declared minimum and maximum bound the write, so a slider cannot leave a document the editor would refuse to reopen.
+ * @evidence {@link Human.assertDirection} Refuses a degenerate placement direction before a static part is oriented for export.
+ * @evidenceReview {@link Human.assertDirection} #61d6374 Read the direction gate the placement and buffer owners share: a zero or non-finite direction refuses instead of producing an unusable frame.
+ * @evidence {@link Human.assertFinite} Refuses a non-finite scalar in the independent face document, on load and on save alike.
+ * @evidenceReview {@link Human.assertFinite} #666cd20 Read the shared finite gate: parse and serialize apply the same admission, so a document that round-trips is a document both ends accept.
+ * @evidence {@link Human.assertHumanFaceBasis} Admits immutable connectivity, endpoint correspondence and triangle partitions once, before the builder compiles.
+ * @evidenceReview {@link Human.assertHumanFaceBasis} #784d3e1 Read the admission the basis builder calls once: mesh topology, sparse endpoint rows and the region partition are checked together, so a partially admitted basis never reaches evaluation.
+ * @evidence {@link Human.assertRegion} Names the editor's replaceable anatomical regions and refuses one it does not own.
+ * @evidenceReview {@link Human.assertRegion} #358f74b Read the region gate the value reader and the replacement share: an unnamed region refuses rather than silently addressing nothing.
+ * @evidence {@link Human.assertTextSize} Holds a saved document inside the UTF-16 envelope the loader accepts, JSON whitespace included.
+ * @evidenceReview {@link Human.assertTextSize} #65067c5 Read the shared size gate: the measured envelope includes the formatting, so a save that passes is a load that fits.
+ * @evidence {@link Human.buildPortraitCanthalMesh} Builds the canthal tissue that joins the lid margins at both corners.
+ * @evidenceReview {@link Human.buildPortraitCanthalMesh} #df286f6 Read the canthal construction against the performance globe it is fitted to; the corner identities are shared exactly once with the lid rows.
+ * @evidence {@link Human.buildPortraitEyeContactBasis} Combines the cornea and, when resident, the optical globe into the volume lid attachment is constrained against.
+ * @evidenceReview {@link Human.buildPortraitEyeContactBasis} #b588175 Read the combination: the contact basis is the optical volume, not the drawn surface, so lid attachment cannot be constrained against geometry the eye does not have.
+ * @evidence {@link Human.buildPortraitEyeCornea} Builds one closed corneal shell, used for drawing and for optical contact alike.
+ * @evidenceReview {@link Human.buildPortraitEyeCornea} #a9d9f83 Read the shell construction from the eye's metric optical dimensions; one shell serves both consumers, so the drawn cornea and the contact cornea cannot disagree.
+ * @evidence {@link Human.contactFrame} Fixes the frame a directional surface contact is measured in.
+ * @evidenceReview {@link Human.contactFrame} #8c3a4c5 Read the frame the four directional owners share, unchanged by the move into a file of its own.
+ * @evidence {@link Human.createHumanFaceDetailChannel} Constructs one documented scalar channel with its unit, range and anatomical profile, admitting no geometry.
+ * @evidenceReview {@link Human.createHumanFaceDetailChannel} #472a37f Read the constructor every channel group calls: unit, range and meaning travel with the channel, so a slider always states what it moves and by how much.
+ * @evidence {@link Human.createPortraitCanthalIntersection} Intersects an emitted support from either side along the recorded camera ray.
+ * @evidenceReview {@link Human.createPortraitCanthalIntersection} #42b5cc3 Read the single projection: the original point is projected once with no preceding depth shift, so a point in front of the surface stays in front of it.
+ * @evidence {@link Human.createPortraitEyeSupport} Establishes one eye's fixed optical identity before any lid performance is applied.
+ * @evidenceReview {@link Human.createPortraitEyeSupport} #02cf801 Read the ordering: identity is fixed from the shaped observed curves and the forward camera ray first, and performance moves lids over an identity that no longer changes.
+ * @evidence {@link Human.createPortraitEyeSurfaceContact} Resolves the shared skin against this eye's actual optical volume.
+ * @evidenceReview {@link Human.createPortraitEyeSurfaceContact} #65ac636 Read the seam rule: closed margins share the foremost correction along the observation ray, so independent triangle contacts cannot reopen a coincident seam.
+ * @evidence {@link Human.createTexture} Builds the hair texture both the colour and normal maps are generated from.
+ * @evidenceReview {@link Human.createTexture} #d4c38ed Read the shared generator: an invalid curl profile refuses rather than producing a map, and the two callers differ only in what they read out of it.
+ * @evidence {@link Human.cyclic} Closes a circumferential nasal station list without repeating its first sample.
+ * @evidenceReview {@link Human.cyclic} #7a708a7 Read the wrap the envelope shape and its construction share: the ring closes by index rather than by a duplicated sample, so the surface has no seam of its own.
+ * @evidence {@link Human.definitionOf} Resolves a named detail channel to its declared definition for the editor.
+ * @evidenceReview {@link Human.definitionOf} #64f1ab3 Read the lookup the value reader and both setters share: an unknown name resolves to nothing rather than to a default.
+ * @evidence {@link Human.facialOval} Resolves the chin-relative cranial envelope the cranium and chin height are both measured against.
+ * @evidenceReview {@link Human.facialOval} #abba529 Read the shared oval: both consumers take the whole boundary's actual lowest height, not only the central chin landmark.
+ * @evidence {@link Human.fitPortraitCanthalSphere} Fits the optical body independently of the canthal aperture width.
+ * @evidenceReview {@link Human.fitPortraitCanthalSphere} #af8f53f Read the fit: observed shaped curves in construction millimetres before blink, a forward camera ray, and the canthal midpoint owning the transverse axis.
+ * @evidence {@link Human.frontWeight} States how much of the tongue's forward shaping reaches a given station.
+ * @evidenceReview {@link Human.frontWeight} #c3c0d43 Read the inverted smoothstep: one at the root, zero by the tip, zero slope at both ends. It is a cubic rather than a line so the shaping does not crease where it meets the unshaped surface.
+ * @evidence {@link Human.humanFaceBasisRegion} Emits one material region from an already evaluated connected surface.
+ * @evidenceReview {@link Human.humanFaceBasisRegion} #51c9d72 Read the emission order: the builder computes common normals first, and a UV seam may duplicate a vertex without changing its position, deformation or normal.
+ * @evidence {@link Human.humanFaceCavityChannels} Declares the oral cavity's scalar controls for the common document editor.
+ * @evidenceReview {@link Human.humanFaceCavityChannels} #c9c7556 Read the wall and chamber dimensions it exposes, each with its own unit and range, in the same editor as lip shape.
+ * @evidence {@link Human.humanFaceCheekChannels} Declares the cheek's scalar controls for the common document editor.
+ * @evidenceReview {@link Human.humanFaceCheekChannels} #f53f646 Read the malar, medial, buccal and nasolabial details it exposes, with independent cheek ownership.
+ * @evidence {@link Human.humanFaceEarChannels} Declares the ear's scalar controls for the common document editor.
+ * @evidenceReview {@link Human.humanFaceEarChannels} #2b34f6b Read the pinna span, projection, tilt and signed vertical placement it exposes as numerical details.
+ * @evidence {@link Human.humanFaceFrameChannels} Declares the facial frame's scalar controls for the common document editor.
+ * @evidenceReview {@link Human.humanFaceFrameChannels} #8d758a9 Read the width, length and named foundation projections it exposes through the detailed editor.
+ * @evidence {@link Human.humanFaceHairChannels} Declares the hair's scalar controls for the common document editor.
+ * @evidenceReview {@link Human.humanFaceHairChannels} #ee9352c Read the guide width, taper, painted fibres, curl and sampling it exposes as hair detail controls.
+ * @evidence {@link Human.humanFaceLashChannels} Declares the eyelash scalar controls for the common document editor.
+ * @evidenceReview {@link Human.humanFaceLashChannels} #3aa2b83 Read how it connects the native eyelash parameter vocabulary to upper lash profile editing without restating its ranges.
+ * @evidence {@link Human.humanFaceLipChannels} Declares the lip scalar controls for the common document editor.
+ * @evidenceReview {@link Human.humanFaceLipChannels} #4941726 Read the aperture, commissure, contact and vermilion shape it exposes as mouth detail controls.
+ * @evidence {@link Human.humanFaceLowerDentalChannels} Declares the mandibular arch scalar controls for the common document editor.
+ * @evidenceReview {@link Human.humanFaceLowerDentalChannels} #7b6ca77 Read the arch dimensions and placement it exposes, separate from the maxillary group.
+ * @evidence {@link Human.humanFaceNasalChannels} Declares the nose's scalar controls for the common document editor.
+ * @evidenceReview {@link Human.humanFaceNasalChannels} #47f777c Read the external support and aperture shape it exposes through signed numerical detail controls.
+ * @evidence {@link Human.humanFaceNeckChannels} Declares the neck's scalar controls for the common document editor.
+ * @evidenceReview {@link Human.humanFaceNeckChannels} #5fe61b1 Read the submental projection it exposes as a millimetre edit on the neck profile.
+ * @evidence {@link Human.humanFaceOcularChannels} Declares the eye's scalar controls for the common document editor.
+ * @evidenceReview {@link Human.humanFaceOcularChannels} #20c8e52 Read the identity aperture, lid relief, optical dimensions and brow detail it exposes through numerical controls.
+ * @evidence {@link Human.humanFaceSkinChannels} Declares the skin's scalar controls for the common document editor.
+ * @evidenceReview {@link Human.humanFaceSkinChannels} #e79a29e Read how it connects native skin-shape parameters to numerical detail editing without duplicating their ranges.
+ * @evidence {@link Human.humanFaceTongueChannels} Declares the tongue's scalar controls for the common document editor.
+ * @evidenceReview {@link Human.humanFaceTongueChannels} #6cfc000 Read how it connects the native tongue dimensions to numerical editing without duplicating their ranges.
+ * @evidence {@link Human.humanFaceUpperDentalChannels} Declares the maxillary arch scalar controls for the common document editor.
+ * @evidenceReview {@link Human.humanFaceUpperDentalChannels} #3c93d12 Read the arch dimensions, tooth gap and placement it exposes through the detailed editor.
+ * @evidence {@link Human.innerLoop} Binds the replaceable mouth aperture loop the lip triangles and the component both read.
+ * @evidenceReview {@link Human.innerLoop} #0f9aa52 Read the shared loop: the aperture identities are ordered once and both consumers take that order rather than each deriving its own.
+ * @evidence {@link Human.mean} Averages the sample set the optical globe is fitted from.
+ * @evidenceReview {@link Human.mean} #e561883 Read the average the sphere shape and its fit share; it separates the fitted centre from the curvature radius rather than deriving one from the other.
+ * @evidence {@link Human.normalizedRim} Normalises a nostril rim so width and height can be changed independently.
+ * @evidenceReview {@link Human.normalizedRim} #05dca80 Read the normalisation the resize and the fit share: the rim is expressed in its own frame first, so one dimension moves without dragging the other.
+ * @evidence {@link Human.normalsOf} Names the shared normal computation where a patch or tube finishes a mesh.
+ * @evidenceReview {@link Human.normalsOf} #aa8685e Read the alias: it computes nothing different from the named normal owner, and exists so the geometry stays the visible part of a dense expression.
+ * @evidence {@link Human.p} Names the head-frame point constructor where an expression is dense with points.
+ * @evidenceReview {@link Human.p} #cdb476f Read the alias: it constructs nothing different, and exists so the coordinates stay readable where a patch or tube writes dozens in one expression.
+ * @evidence {@link Human.patch} Names the shared patch sampler where a construction samples several surfaces at once.
+ * @evidenceReview {@link Human.patch} #c9b9fe9 Read the alias: it samples nothing different, and exists so the lattice bounds stay the visible part of the line.
+ * @evidence {@link Human.Point} Names the head-frame point every facial construction is written in.
+ * @evidenceReview {@link Human.Point} #9d89fe3 Read the alias: the engine's vector under a name that states the space — millimetres in the head frame, +Z anterior, owned by whoever supplied it.
+ * @evidence {@link Human.portraitEyeLidRows} Produces the lid sample rows both profiles are built from.
+ * @evidenceReview {@link Human.portraitEyeLidRows} #7f62cd0 Read the rows against the socket and shape they are taken from; the mix is the shared one, so upper and lower profiles cannot disagree about a shared station.
+ * @evidence {@link Human.portraitEyeLoop} Orders the socket's aperture identities counterclockwise, sharing both canthi exactly once.
+ * @evidenceReview {@link Human.portraitEyeLoop} #676cf1e Read the ordering: each canthus appears once, so the lower and upper rims join without a duplicated corner.
+ * @evidence {@link Human.project} Projects a point onto the surface a directional contact is measured against.
+ * @evidenceReview {@link Human.project} #2f86238 Read the projection the four directional owners share, unchanged by the move into a file of its own.
+ * @evidence {@link Human.resolvePortraitEyeInputs} Owns and validates one eye's numerical inputs before any host is fitted.
+ * @evidenceReview {@link Human.resolvePortraitEyeInputs} #41af834 Read the ownership: optional profile samplers keep their own copied station populations, so a caller's array cannot be mutated by the fit.
+ * @evidence {@link Human.rimNormal} Gives the nostril rim its outward normal for independent width and height edits.
+ * @evidenceReview {@link Human.rimNormal} #664df76 Read the normal the resize and the fit share; it is taken from the normalised rim, so the two edits stay independent.
+ * @evidence {@link Human.roles} Names the lower-lid tissue offsets separately from the profile that applies them.
+ * @evidenceReview {@link Human.roles} #5a1d068 Read the role names the shape and its construction share: the offsets are named once and applied once.
+ * @evidence {@link Human.rows} States how many rings the lingual surface is sampled along, root to tip.
+ * @evidenceReview {@link Human.rows} #6f5d9d8 Read what it decides and what it does not: the count is a tessellation choice that sets how finely the sample follows the authored profile, and says nothing about the shape that profile describes.
+ * @evidence {@link Human.solvePortraitSkinSystem} Solves the sparse Dirichlet system the skin relief is relaxed on.
+ * @evidenceReview {@link Human.solvePortraitSkinSystem} #2d0ef99 Read the recurrence against Saad, Iterative Methods for Sparse Linear Systems, second edition, Algorithm 9.1: Jacobi-preconditioned conjugate gradients with row-normalised preconditioning.
+ * @evidence {@link Human.triangleArea} Measures a triangle so a degenerate face is not carried into an export.
+ * @evidenceReview {@link Human.triangleArea} #ed48b4d Read the measure the placement and buffer owners share: a zero-area face is dropped rather than exported as a face with no surface.
+ * @evidence {@link Human.unit} Normalises a nasal envelope station to its own circumferential unit.
+ * @evidenceReview {@link Human.unit} #5049873 Read the normalisation the envelope section and its construction share: tissue width, crease and rim are separated before any of them is shaped.
+ * @evidence {@link Human.writeDetail} Writes one admitted detail edit into the document the editor owns.
+ * @evidenceReview {@link Human.writeDetail} #3a5f2ed Read the write the two detail setters share: the value is admitted against its channel first, so the document never holds an edit the editor would refuse.
  */
 export const humanFaceStudyReview = {
   inputs: "inputs.md",
