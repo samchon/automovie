@@ -136,13 +136,22 @@ export function portraitDocument(model: IAutoMovieModel): Document {
     for (const slot of ["baseColorTexture", "normalTexture"] as const) {
       const binding = finish[slot];
       if (binding === null || binding === undefined) continue;
-      if (
-        typeof binding !== "string" ||
-        !binding.startsWith("data:image/png;base64,")
-      )
-        throw new Error(
-          "Portrait textures must be resident PNG data URIs with default UV0 sampling.",
+      // glTF admits exactly two image encodings, and which one a map wants is
+      // decided by what the map is. A generated mask is flat and needs its
+      // exact bytes; a skin baked from a photograph has no flat region to
+      // exploit and is several megabytes as PNG against a few hundred
+      // kilobytes as JPEG, which is the difference between an appearance that
+      // can ship with a face and one that cannot.
+      const prefix = (["png", "jpeg"] as const)
+        .map((kind) => `data:image/${kind};base64,`)
+        .find((candidate) =>
+          typeof binding === "string" ? binding.startsWith(candidate) : false,
         );
+      if (typeof binding !== "string" || prefix === undefined)
+        throw new Error(
+          "Portrait textures must be resident PNG or JPEG data URIs with default UV0 sampling.",
+        );
+      const mediaType = prefix.slice("data:".length, -";base64,".length);
       if (
         mesh.uvs === null ||
         mesh.uvs.length !== (mesh.positions.length / 3) * 2 ||
@@ -153,23 +162,25 @@ export function portraitDocument(model: IAutoMovieModel): Document {
         );
       let texture = textures.get(binding);
       if (texture === undefined) {
-        const bytes = Uint8Array.from(atob(binding.slice(22)), (c) =>
+        const bytes = Uint8Array.from(atob(binding.slice(prefix.length)), (c) =>
           c.charCodeAt(0),
         );
+        // The header is read rather than trusted: the declared type has to be
+        // the type the bytes actually are, or a viewer is handed a mislabelled
+        // image that only fails once someone looks at the face.
         const facts = readAutoMovieImageFacts(bytes);
         if (
-          bytes.length < 33 ||
-          facts?.mediaType !== "image/png" ||
+          facts?.mediaType !== mediaType ||
           facts.width <= 0 ||
           facts.height <= 0
         )
           throw new Error(
-            "Portrait resident texture must contain a positive-size PNG header.",
+            "Portrait resident texture must contain a positive-size header of its declared type.",
           );
         texture = document
           .createTexture()
           .setImage(bytes)
-          .setMimeType("image/png");
+          .setMimeType(mediaType);
         textures.set(binding, texture);
       }
       if (slot === "baseColorTexture") {

@@ -15,6 +15,7 @@ import { nclose } from "../internal/predicates";
  *    its optical material through an independent reader without changing input.
  * 2. Repeated exports are byte-identical for the same model in one runtime.
  * 3. Unsupported texture input rejects before any portable result is returned.
+ * 4. Both encodings glTF admits are accepted, and a label the bytes contradict is not.
  */
 export const test_subject_human_export = async (): Promise<void> => {
   const model = createModel(null);
@@ -74,16 +75,51 @@ export const test_subject_human_export = async (): Promise<void> => {
     Array.from(exported.glb),
   );
   TestValidator.equals("input stays owned by caller", model, original);
-  model.materials[0].baseColorTexture = "unsupported";
-  let refusal: unknown;
-  try {
-    await exportHumanFace(model);
-  } catch (error) {
-    refusal = error;
+  // The two encodings glTF admits, each as its own smallest valid file: a 1x1
+  // PNG and a 1x1 JPEG. A photographic skin map is several megabytes lossless
+  // and a few hundred kilobytes as JPEG, so refusing one of the two would
+  // decide an appearance cannot ship rather than decide anything about format.
+  const png =
+    "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==";
+  const jpeg =
+    "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/wAALCAABAAEBAREA/8QAFAABAAAAAAAAAAAAAAAAAAAACf/EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEAAD8AKp//2Q==";
+  // A textured group needs its coordinates; the untextured cases above
+  // deliberately have none, so the triangle gets them only from here on.
+  (model.parts[0].geometry as { mesh: { uvs: number[] | null } }).mesh.uvs = [
+    0, 0, 1, 0, 0, 1,
+  ];
+  for (const [label, binding] of [
+    ["png", png],
+    ["jpeg", jpeg],
+  ] as const) {
+    model.materials[0].baseColorTexture = binding;
+    const textured = await exportHumanFace(model);
+    TestValidator.predicate(
+      "an admitted encoding exports: " + label,
+      textured.glb.length > 0,
+    );
+  }
+  // The bytes decide, not the label: a JPEG announced as a PNG is a
+  // mislabelled image that only fails once somebody looks at the face.
+  const refusals: string[] = [];
+  for (const binding of [
+    "unsupported",
+    "data:image/png;base64," + jpeg.slice("data:image/jpeg;base64,".length),
+  ]) {
+    model.materials[0].baseColorTexture = binding;
+    try {
+      await exportHumanFace(model);
+      refusals.push("accepted");
+    } catch (error) {
+      refusals.push(error instanceof Error ? error.message : String(error));
+    }
   }
   TestValidator.predicate(
-    "static export admission preserved",
-    refusal instanceof Error &&
-      refusal.message.includes("resident PNG data URIs"),
+    "an unsupported binding names the encodings that are admitted",
+    refusals[0].includes("PNG or JPEG data URIs"),
+  );
+  TestValidator.predicate(
+    "bytes that contradict their declared type refuse",
+    refusals[1].includes("declared type"),
   );
 };

@@ -3,10 +3,12 @@
 import { measureAutoMovieModelCrossings } from "@automovie/engine";
 import {
   appendHumanFaceGroom,
+  applyHumanFaceSkin,
   createHumanFaceBasisBuilder,
   exportHumanFace,
   type IAutoMovieHumanFaceBasis,
   type IAutoMovieHumanFaceGroom,
+  type IAutoMovieHumanFaceSkin,
   parseHumanFaceBasisDocument,
 } from "@automovie/human";
 
@@ -31,7 +33,8 @@ const gzipped = <Payload,>(name: string) =>
 const prepared = Promise.all([
   gzipped<IAutoMovieHumanFaceBasis>("basis.json.gz"),
   gzipped<Record<string, IAutoMovieHumanFaceGroom>>("grooms.json.gz"),
-]).then(([basis, grooms]) => {
+  gzipped<Record<string, IAutoMovieHumanFaceSkin>>("skins.json.gz"),
+]).then(([basis, grooms, skins]) => {
   const evaluate = createHumanFaceBasisBuilder(basis);
   return createHumanFaceWorkerHandler({
     parse: parseHumanFaceBasisDocument,
@@ -40,7 +43,16 @@ const prepared = Promise.all([
     // building the same bald head, which would look like a groom that failed
     // to render instead of one this build does not carry.
     build: (document) => {
-      const model = evaluate(document);
+      let model = evaluate(document);
+      if (document.skin !== undefined && document.skin !== null) {
+        const skin = skins[document.skin];
+        if (skin === undefined)
+          throw new Error(
+            "This build does not carry the appearance this face names: " +
+              document.skin,
+          );
+        model = applyHumanFaceSkin({ model, skin });
+      }
       if (document.hair === undefined || document.hair === null) return model;
       const groom = grooms[document.hair];
       if (groom === undefined)

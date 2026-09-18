@@ -14,6 +14,8 @@ export * from "./measureHumanFaceBasisChannels";
 export * from "./IAutoMovieHumanFaceGroom";
 export * from "./resolveHumanFaceGroom";
 export * from "./appendHumanFaceGroom";
+export * from "./IAutoMovieHumanFaceSkin";
+export * from "./applyHumanFaceSkin";
 export * from "./humanFaceBasisDocument";
 export * from "./exportHumanFace";
 export * from "./mergeHumanFaceSettings";

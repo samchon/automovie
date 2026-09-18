@@ -87,6 +87,14 @@ export interface IAutoMovieHumanFaceBasisDocument {
    * this identity against the grooms it holds.
    */
   hair?: string | null;
+  /**
+   * Optional identity of the observed appearance this face wears. Omission is
+   * the basis's own flat finishes, which is what a connected prior carries: it
+   * has one base colour per material and no maps for skin. The appearance is a
+   * separate resource, like the basis and the groom, and the consumer resolves
+   * this identity against the appearances it holds.
+   */
+  skin?: string | null;
   /** Optional linear RGB and roughness, each in [0,1], by existing material ID. */
   materials?: Record<
     string,

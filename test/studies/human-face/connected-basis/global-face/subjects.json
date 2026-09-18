@@ -155,7 +155,8 @@
         "roughness": 0.57
       }
     },
-    "hair": "alan-rickman"
+    "hair": "alan-rickman",
+    "skin": "alan-rickman"
   },
   {
     "version": "human-face-basis-document/1",
@@ -317,7 +318,8 @@
         "roughness": 0.57
       }
     },
-    "hair": "daniel-radcliffe"
+    "hair": "daniel-radcliffe",
+    "skin": "daniel-radcliffe"
   },
   {
     "version": "human-face-basis-document/1",
@@ -474,7 +476,8 @@
         "roughness": 0.57
       }
     },
-    "hair": "emma-watson"
+    "hair": "emma-watson",
+    "skin": "emma-watson"
   },
   {
     "version": "human-face-basis-document/1",
@@ -633,7 +636,8 @@
         "roughness": 0.57
       }
     },
-    "hair": "generated-black-boy-01"
+    "hair": "generated-black-boy-01",
+    "skin": "generated-black-boy-01"
   },
   {
     "version": "human-face-basis-document/1",
@@ -793,7 +797,8 @@
         "roughness": 0.57
       }
     },
-    "hair": "generated-black-girl-01"
+    "hair": "generated-black-girl-01",
+    "skin": "generated-black-girl-01"
   },
   {
     "version": "human-face-basis-document/1",
@@ -953,7 +958,8 @@
         "roughness": 0.57
       }
     },
-    "hair": "generated-korean-boy-01"
+    "hair": "generated-korean-boy-01",
+    "skin": "generated-korean-boy-01"
   },
   {
     "version": "human-face-basis-document/1",
@@ -1114,7 +1120,8 @@
         "roughness": 0.57
       }
     },
-    "hair": "generated-white-boy-01"
+    "hair": "generated-white-boy-01",
+    "skin": "generated-white-boy-01"
   },
   {
     "version": "human-face-basis-document/1",
@@ -1271,7 +1278,8 @@
         "roughness": 0.57
       }
     },
-    "hair": "generated-white-girl-01"
+    "hair": "generated-white-girl-01",
+    "skin": "generated-white-girl-01"
   },
   {
     "version": "human-face-basis-document/1",
@@ -1428,7 +1436,8 @@
         "roughness": 0.57
       }
     },
-    "hair": "jang-su-hye"
+    "hair": "jang-su-hye",
+    "skin": "jang-su-hye"
   },
   {
     "version": "human-face-basis-document/1",
@@ -1584,7 +1593,8 @@
         "roughness": 0.57
       }
     },
-    "hair": "kim-min-jung"
+    "hair": "kim-min-jung",
+    "skin": "kim-min-jung"
   },
   {
     "version": "human-face-basis-document/1",
@@ -1744,7 +1754,8 @@
         "roughness": 0.57
       }
     },
-    "hair": "lee-tae-ri"
+    "hair": "lee-tae-ri",
+    "skin": "lee-tae-ri"
   },
   {
     "version": "human-face-basis-document/1",
@@ -1903,7 +1914,8 @@
         "roughness": 0.57
       }
     },
-    "hair": "maggie-smith"
+    "hair": "maggie-smith",
+    "skin": "maggie-smith"
   },
   {
     "version": "human-face-basis-document/1",
@@ -2056,7 +2068,8 @@
         "roughness": 0.57
       }
     },
-    "hair": "michael-gambon"
+    "hair": "michael-gambon",
+    "skin": "michael-gambon"
   },
   {
     "version": "human-face-basis-document/1",
@@ -2215,7 +2228,8 @@
         },
         "roughness": 0.57
       }
-    }
+    },
+    "skin": "miriam-margolyes"
   },
   {
     "version": "human-face-basis-document/1",
@@ -2371,7 +2385,8 @@
         "roughness": 0.57
       }
     },
-    "hair": "oh-seung-yoon"
+    "hair": "oh-seung-yoon",
+    "skin": "oh-seung-yoon"
   },
   {
     "version": "human-face-basis-document/1",
@@ -2533,7 +2548,8 @@
         "roughness": 0.57
       }
     },
-    "hair": "park-eun-bin"
+    "hair": "park-eun-bin",
+    "skin": "park-eun-bin"
   },
   {
     "version": "human-face-basis-document/1",
@@ -2694,7 +2710,8 @@
         "roughness": 0.57
       }
     },
-    "hair": "rupert-grint"
+    "hair": "rupert-grint",
+    "skin": "rupert-grint"
   },
   {
     "version": "human-face-basis-document/1",
@@ -2850,7 +2867,8 @@
         "roughness": 0.57
       }
     },
-    "hair": "yoo-seung-ho"
+    "hair": "yoo-seung-ho",
+    "skin": "yoo-seung-ho"
   },
   {
     "version": "human-face-basis-document/1",
@@ -2989,6 +3007,7 @@
       "mouthUpperUpLeft": 0.0009224295674974166,
       "mouthUpperUpRight": 0.00007641862650435841,
       "noseSneerLeft": 0.000040436661577653273
-    }
+    },
+    "skin": "kdy1"
   }
 ]
