@@ -18,9 +18,10 @@ import { throwsError } from "../internal/predicates";
 export const test_subject_human_basis_admission = (): void => {
   const patches: ((basis: IAutoMovieHumanFaceBasis) => void)[] = [
     (b) => {
-      // No schema version exists to be wrong; an unknown field must still be
-      // refused rather than ignored.
-      (b as unknown as Record<string, unknown>).version = "unknown";
+      // Exact admission: a field the schema does not declare is refused rather
+      // than carried along, which is what the removed version discriminator
+      // used to demonstrate.
+      (b as unknown as Record<string, unknown>).unknown = "field";
     },
     (b) => {
       b.id = " ";

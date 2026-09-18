@@ -18,7 +18,7 @@ import { throwsError } from "../internal/predicates";
  * Basis admission distinguishes a supported finite facial host from geometry build and likeness acceptance.
  *
  * Scenarios:
- * 1. Unknown versions, malformed host coordinates/triangles/view rays and blank identities refuse.
+ * 1. An unsupported landmark topology, malformed host coordinates/triangles/view rays and blank identities refuse.
  * 2. Side mismatches, missing cheek/maxillary attachments and duplicate dental ownership refuse.
  * 3. An observed blink must remain invertible, while current full closure is valid.
  * 4. Cranial defaults use the whole oval's actual lowest height, not only the central chin landmark.
@@ -36,11 +36,6 @@ export const test_subject_human_basis = (): void => {
       throwsError(() => resolveHumanFaceDocument(document)),
     );
   };
-  bad((document) => {
-    // The document has no schema version to disagree about; what it must still
-    // refuse is a field it does not understand.
-    (document as unknown as Record<string, unknown>).version = "unknown";
-  });
   bad((document) => {
     document.basis.topology = "unknown" as typeof document.basis.topology;
   });
