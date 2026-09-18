@@ -1,59 +1,101 @@
 {
-  "alan-rickman-confidence": {
-    "kilobytes": 51
+  "subjects": {
+    "alan-rickman": {
+      "kilobytes": 118,
+      "offSkinShareBefore": 0.1703,
+      "offSkinShareAfter": 0.0036
+    },
+    "daniel-radcliffe": {
+      "kilobytes": 143,
+      "offSkinShareBefore": 0.0891,
+      "offSkinShareAfter": 0.006500000000000001
+    },
+    "emma-watson": {
+      "kilobytes": 119,
+      "offSkinShareBefore": 0.281,
+      "offSkinShareAfter": 0.005600000000000001
+    },
+    "generated-black-boy-01": {
+      "kilobytes": 112,
+      "offSkinShareBefore": 0.1886,
+      "offSkinShareAfter": 0.0040999999999999995
+    },
+    "generated-black-girl-01": {
+      "kilobytes": 107,
+      "offSkinShareBefore": 0.5149,
+      "offSkinShareAfter": 0.0086
+    },
+    "generated-korean-boy-01": {
+      "kilobytes": 112,
+      "offSkinShareBefore": 0.020099999999999996,
+      "offSkinShareAfter": 0.0015
+    },
+    "generated-white-boy-01": {
+      "kilobytes": 122,
+      "offSkinShareBefore": 0.0783,
+      "offSkinShareAfter": 0.0225
+    },
+    "generated-white-girl-01": {
+      "kilobytes": 122,
+      "offSkinShareBefore": 0.0678,
+      "offSkinShareAfter": 0.0265
+    },
+    "kdy1": {
+      "kilobytes": 96,
+      "offSkinShareBefore": 0.21489999999999998,
+      "offSkinShareAfter": 0.0139
+    },
+    "kim-min-jung": {
+      "kilobytes": 102,
+      "offSkinShareBefore": 0.17559999999999998,
+      "offSkinShareAfter": 0.009300000000000001
+    },
+    "lee-tae-ri": {
+      "kilobytes": 105,
+      "offSkinShareBefore": 0.2658,
+      "offSkinShareAfter": 0.015
+    },
+    "maggie-smith": {
+      "kilobytes": 123,
+      "offSkinShareBefore": 0.0385,
+      "offSkinShareAfter": 0.0042
+    },
+    "michael-gambon": {
+      "kilobytes": 116,
+      "offSkinShareBefore": 0,
+      "offSkinShareAfter": 0
+    },
+    "miriam-margolyes": {
+      "kilobytes": 124,
+      "offSkinShareBefore": 0.15289999999999998,
+      "offSkinShareAfter": 0.011699999999999999
+    },
+    "oh-seung-yoon": {
+      "kilobytes": 99,
+      "offSkinShareBefore": 0.0002,
+      "offSkinShareAfter": 0
+    },
+    "park-eun-bin": {
+      "kilobytes": 111,
+      "offSkinShareBefore": 0.16010000000000002,
+      "offSkinShareAfter": 0.0108
+    },
+    "rupert-grint": {
+      "kilobytes": 114,
+      "offSkinShareBefore": 0.515,
+      "offSkinShareAfter": 0.0076
+    },
+    "yoo-seung-ho": {
+      "kilobytes": 90,
+      "offSkinShareBefore": 0.1709,
+      "offSkinShareAfter": 0.0042
+    }
   },
-  "alan-rickman": {
-    "kilobytes": 124
-  },
-  "daniel-radcliffe": {
-    "kilobytes": 138
-  },
-  "emma-watson": {
-    "kilobytes": 119
-  },
-  "generated-black-boy-01": {
-    "kilobytes": 119
-  },
-  "generated-black-girl-01": {
-    "kilobytes": 122
-  },
-  "generated-korean-boy-01": {
-    "kilobytes": 115
-  },
-  "generated-white-boy-01": {
-    "kilobytes": 125
-  },
-  "generated-white-girl-01": {
-    "kilobytes": 110
-  },
-  "kdy1": {
-    "kilobytes": 97
-  },
-  "kim-min-jung": {
-    "kilobytes": 102
-  },
-  "lee-tae-ri": {
-    "kilobytes": 103
-  },
-  "maggie-smith": {
-    "kilobytes": 118
-  },
-  "michael-gambon": {
-    "kilobytes": 118
-  },
-  "miriam-margolyes": {
-    "kilobytes": 156
-  },
-  "oh-seung-yoon": {
-    "kilobytes": 93
-  },
-  "park-eun-bin": {
-    "kilobytes": 101
-  },
-  "rupert-grint": {
-    "kilobytes": 129
-  },
-  "yoo-seung-ho": {
-    "kilobytes": 89
-  }
+  "method": "Each surface point is projected into the portrait the fit solved against and painted with the pixel it lands on. Two guards decide whether that pixel is usable: the model's own depth buffer, which marks a texel near a silhouette unusable, and the subject's own skin chroma, which marks a sample that is not this person's skin unusable. The second exists because the first cannot see the other boundary — the model's neck and chest reach past where the photograph shows the person, and the pixel underneath is the room.",
+  "limits": [
+    "Chroma carries the judgement, not brightness: a neck and the underside of a chin are darker than a cheek without being a different material",
+    "A greyscale portrait has no chroma, so nothing is refused in one. michael-gambon is that case and his reading is 0% before and after",
+    "The reference is the pixels the detector's landmarks enclose, which is this person's skin under this light rather than skin in general"
+  ],
+  "summary": "median 16.52% -> 0.70%, 0 subjects worse"
 }
