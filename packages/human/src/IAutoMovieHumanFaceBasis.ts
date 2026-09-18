@@ -34,6 +34,45 @@ export interface IAutoMovieHumanFaceBasis {
     /** Negative-side endpoint, or null for a nonnegative control. */
     negative: string | null;
   }[];
+  /**
+   * Combination correctives, evaluated after the channels that drive them.
+   *
+   * Linear endpoints added together are wrong wherever two of them move the
+   * same tissue: a jaw that opens and a mouth that closes each describe a
+   * reachable face, and their sum describes teeth through a lip. A corrective
+   * is the authored difference between the sum and the face that combination
+   * should actually be, and it is applied in proportion to how much of the
+   * combination is present.
+   *
+   * The activation is a product, not a sum, which is what makes it a
+   * corrective rather than another control: it is zero unless every driving
+   * side is present, and at half strength on two drivers it contributes a
+   * quarter. The form is MetaHuman's, read from Epic's own `PSDNetImpl` rather
+   * than from a description of it: `min(1, weight * product of clamped
+   * inputs)`.
+   *
+   * Omission is a basis with no correctives, which is exactly what a purely
+   * linear prior is. Nothing here infers a corrective; the endpoint it applies
+   * has to be authored like any other.
+   */
+  correctives?: {
+    /** Name unique within this basis, distinct from every channel id. */
+    id: string;
+    /**
+     * The driving sides. Each names a channel and which of its two endpoints
+     * this corrective answers for, because a signed channel reaches two
+     * different faces and a combination of one is not a combination of the
+     * other.
+     */
+    inputs: {
+      channel: string;
+      side: "positive" | "negative";
+    }[];
+    /** Authored gain in (0,1]; the product of a rig row's authored weights. */
+    weight: number;
+    /** Endpoint name, resolved in each surface's targets like any other. */
+    target: string;
+  }[];
   /** Connected skin and separately attached components, in the same head frame. */
   surfaces: {
     id: string;

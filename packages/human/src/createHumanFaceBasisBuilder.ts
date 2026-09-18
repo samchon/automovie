@@ -16,9 +16,15 @@ import { humanFaceBasisRegion } from "./humanFaceBasisRegions";
  * resident model through exportHumanFace. Offline modelling tools supply the
  * licensed geometry; none run here and no source photo is needed for replay.
  *
- * For each vertex p, evaluation is p + sum(abs(weight) * endpointDelta).
- * Signed shape controls select distinct authored endpoints. All surfaces use
- * the same channel order; normals are reconstructed before UV/material seams.
+ * For each vertex p, evaluation is p + sum(abs(weight) * endpointDelta), then
+ * plus each corrective's endpoint at its own activation. Signed shape controls
+ * select distinct authored endpoints. All surfaces use the same channel order;
+ * normals are reconstructed before UV/material seams.
+ *
+ * Correctives are what a purely linear prior cannot express: two endpoints that
+ * move the same tissue sum to a face neither of them describes. The activation
+ * is a product of the clamped driving sides, so it is absent unless the whole
+ * combination is, which is what separates a corrective from another control.
  * A new model owns its arrays and materials; neither basis nor edits mutate.
  * The existing model and Float32 exporter admission remain authoritative.
  * Linear endpoints do not establish collision-free or physiological movement.
@@ -90,19 +96,46 @@ export function createHumanFaceBasisBuilder(
       if (override.roughness !== undefined)
         material.roughness = override.roughness;
     }
+    // Correctives are evaluated once, from the channel weights, and then
+    // applied like any other endpoint. The activation is a product of the
+    // clamped driving sides times the authored gain, capped at one: present
+    // only when every driver is present, a quarter when two drivers are at
+    // half. That is MetaHuman's `PSDNetImpl`, which computes
+    // `min(1, weight * product of clamped inputs)` over a buffer it clamps to
+    // [0,1] first, and the form matters more than the source: a sum here would
+    // fire a corrective on one driver alone, which is the pose it was authored
+    // to leave untouched.
+    const applied = (basis.correctives ?? []).map((corrective) => ({
+      target: corrective.target,
+      activation: Math.min(
+        1,
+        corrective.inputs.reduce((total, input) => {
+          const weight = weights.get(input.channel) ?? 0;
+          const driver = input.side === "negative" ? -weight : weight;
+          return total * Math.min(1, Math.max(0, driver));
+        }, corrective.weight),
+      ),
+    }));
     const parts = basis.surfaces.flatMap((surface) => {
       const positions = surface.positions.slice();
+      const accumulate = (name: string, gain: number): void => {
+        const rows = surface.targets[name];
+        if (rows === undefined) return;
+        for (let i = 0; i < rows.length; i += 4)
+          for (let axis = 0; axis < 3; axis++)
+            positions[rows[i] * 3 + axis] += gain * rows[i + axis + 1];
+      };
       for (const channel of basis.channels) {
         const weight = weights.get(channel.id) ?? 0;
         if (weight === 0) continue;
-        const name = weight < 0 ? channel.negative! : channel.positive;
-        const rows = surface.targets[name];
-        if (rows === undefined) continue;
-        for (let i = 0; i < rows.length; i += 4)
-          for (let axis = 0; axis < 3; axis++)
-            positions[rows[i] * 3 + axis] +=
-              Math.abs(weight) * rows[i + axis + 1];
+        accumulate(
+          weight < 0 ? channel.negative! : channel.positive,
+          Math.abs(weight),
+        );
       }
+      for (const corrective of applied)
+        if (corrective.activation > 0)
+          accumulate(corrective.target, corrective.activation);
       const normals = portraitNormals(positions, surface.indices);
       return surface.regions.map((region) => ({
         id: region.id,

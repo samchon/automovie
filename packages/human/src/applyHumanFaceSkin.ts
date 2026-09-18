@@ -10,6 +10,13 @@ import type { IAutoMovieHumanFaceSkin } from "./IAutoMovieHumanFaceSkin";
  * are untouched, so a face keeps its shape and an export written against the
  * untextured model finds the same surfaces in the same places.
  *
+ * A mapped material also loses its base colour, which is the one change that is
+ * not merely additive. The rendered colour is the factor times the map, so a
+ * material still carrying an estimated skin colour would multiply it into a map
+ * that already observed that skin: the face comes back darker and more
+ * saturated than the photograph it was painted from, once for every channel.
+ * The map is the colour, so the factor becomes white.
+ *
  * A map for a material this face does not carry refuses. Ignoring it would
  * leave an author looking at an unchanged face with no way to tell whether the
  * appearance failed to load, named the wrong surface, or was applied and simply
@@ -39,7 +46,11 @@ export function applyHumanFaceSkin(props: {
       const map = props.skin.maps[material.id];
       return map === undefined
         ? material
-        : { ...material, baseColorTexture: map.baseColorTexture };
+        : {
+            ...material,
+            baseColor: { r: 1, g: 1, b: 1, a: material.baseColor.a, hex: null },
+            baseColorTexture: map.baseColorTexture,
+          };
     }),
   };
 }

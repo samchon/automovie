@@ -78,13 +78,19 @@ const painted = "data:image/png;base64,U0tJTg==";
  * leaves an author looking at an unchanged face with no way to distinguish an
  * appearance that failed to load from one that named the wrong surface.
  *
+ * A mapped material also loses its base colour, and that is deliberate. The
+ * rendered colour is the factor times the map, so a material still carrying an
+ * estimated skin colour multiplies it into a map that already observed that
+ * skin and the face comes back darker and more saturated once per channel.
+ *
  * Scenarios:
- * 1. A named material gains its map; its colour, roughness and every other field are unchanged.
- * 2. Materials the appearance does not name keep whatever map they already had, including none.
- * 3. An existing map is replaced rather than merged.
- * 4. Geometry and part order are untouched, and neither input is mutated.
- * 5. Naming a material this face does not carry refuses.
- * 6. An appearance of no maps is accepted and changes nothing.
+ * 1. A named material gains its map and keeps its roughness and every other coefficient.
+ * 2. A mapped material's base colour becomes white, and its opacity survives that.
+ * 3. Materials the appearance does not name keep whatever map they already had, including none.
+ * 4. An existing map is replaced rather than merged.
+ * 5. Geometry and part order are untouched, and neither input is mutated.
+ * 6. Naming a material this face does not carry refuses.
+ * 7. An appearance of no maps is accepted and changes nothing.
  */
 export const test_subject_human_skin_appearance = (): void => {
   const model = face();
@@ -94,9 +100,29 @@ export const test_subject_human_skin_appearance = (): void => {
   const dressed = applyHumanFaceSkin({ model, skin: source });
 
   TestValidator.equals(
-    "the named material gains the map and keeps every other field",
+    "the named material gains the map and its colour stops being counted twice",
     dressed.materials[0],
-    { ...finish("skin"), baseColorTexture: painted },
+    {
+      ...finish("skin"),
+      baseColor: { r: 1, g: 1, b: 1, a: 1, hex: null },
+      baseColorTexture: painted,
+    },
+  );
+  TestValidator.equals(
+    "opacity survives the colour being neutralised",
+    applyHumanFaceSkin({
+      model: {
+        ...model,
+        materials: [
+          {
+            ...finish("skin"),
+            baseColor: { r: 0.5, g: 0.3, b: 0.2, a: 0.25, hex: null },
+          },
+        ],
+      },
+      skin: source,
+    }).materials[0].baseColor,
+    { r: 1, g: 1, b: 1, a: 0.25, hex: null },
   );
   TestValidator.equals(
     "an unnamed material without a map keeps having none",

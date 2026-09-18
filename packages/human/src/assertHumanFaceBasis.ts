@@ -42,6 +42,47 @@ export function assertHumanFaceBasis(basis: IAutoMovieHumanFaceBasis): void {
     endpoints.add(channel.positive);
     if (channel.negative !== null) endpoints.add(channel.negative);
   }
+  // A corrective is admitted against the channels it drives off, not merely
+  // parsed: a driver that is not a channel, or a side a channel does not have,
+  // would evaluate to a silent zero and look like a corrective that was
+  // authored badly rather than one that names something absent.
+  const correctives = basis.correctives ?? [];
+  unique([
+    ...basis.channels.map((channel) => channel.id),
+    ...correctives.map((corrective) => corrective.id),
+  ]);
+  const sides = new Map(
+    basis.channels.map((channel) => [
+      channel.id,
+      { positive: channel.positive, negative: channel.negative },
+    ]),
+  );
+  for (const corrective of correctives) {
+    if (
+      corrective.inputs.length === 0 ||
+      !Number.isFinite(corrective.weight) ||
+      corrective.weight <= 0 ||
+      corrective.weight > 1 ||
+      corrective.target.trim() === "" ||
+      new Set(
+        corrective.inputs.map((input) => input.channel + "/" + input.side),
+      ).size !== corrective.inputs.length
+    )
+      throw new Error(
+        "A facial corrective needs distinct drivers, a gain in (0,1] and a named endpoint.",
+      );
+    for (const input of corrective.inputs) {
+      const channel = sides.get(input.channel);
+      if (channel === undefined || channel[input.side] === null)
+        throw new Error(
+          "A facial corrective drives off a side no channel carries: " +
+            input.channel +
+            "." +
+            input.side,
+        );
+    }
+    endpoints.add(corrective.target);
+  }
   const residentEndpoints = new Set<string>();
   const materials = new Set(basis.materials.map((material) => material.id));
   if (basis.surfaces.length === 0)
