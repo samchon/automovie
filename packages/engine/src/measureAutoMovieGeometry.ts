@@ -14,21 +14,17 @@ import {
   IAutoMovieWorldDesign,
 } from "@automovie/interface";
 
-import { sampleCompiledEffect } from "./effect";
-import {
-  intersectsPerspectiveFrustumSphere,
-  projectToNdc,
-  resolveAutoMovieDeliveryCrop,
-  resolveCameraAt,
-} from "./film/cameraProjection";
-import {
-  composeFormationHeroTransform,
-  formationSlotPosition,
-  sampleFormationMotion,
-  selectFormationLod,
-  transformFormationBounds,
-  transformFormationPoint,
-} from "./formation";
+import { sampleCompiledEffect } from "./sampleCompiledEffect";
+import { intersectsPerspectiveFrustumSphere } from "./film/intersectsPerspectiveFrustumSphere";
+import { projectToNdc } from "./film/projectToNdc";
+import { resolveAutoMovieDeliveryCrop } from "./film/resolveAutoMovieDeliveryCrop";
+import { resolveCameraAt } from "./film/resolveCameraAt";
+import { composeFormationHeroTransform } from "./composeFormationHeroTransform";
+import { formationSlotPosition } from "./formationSlotPosition";
+import { sampleFormationMotion } from "./sampleFormationMotion";
+import { selectFormationLod } from "./selectFormationLod";
+import { transformFormationBounds } from "./transformFormationBounds";
+import { transformFormationPoint } from "./transformFormationPoint";
 import { placeFormationSlot, sampleFormationSlotMotion } from "./formationSlot";
 import { HUMANOID_JOINT_AXES } from "./kinematics/humanoidJointAxes";
 import { reachPose } from "./kinematics/reachPose";
@@ -36,9 +32,10 @@ import { resolvePose } from "./kinematics/resolvePose";
 import { Quaternion } from "./math/Quaternion";
 import { Vector3 } from "./math/Vector3";
 import { sampleMotion } from "./motion/sampleMotion";
-import { sampleClipSequence } from "./resolve/sampleClip";
+import { sampleClipSequence } from "./resolve/sampleClipSequence";
 import { validatePose } from "./validation/validatePose";
-import { worldGroundSurface, worldSurfaceHeight } from "./worldKit";
+import { worldGroundSurface } from "./worldGroundSurface";
+import { worldSurfaceHeight } from "./worldSurfaceHeight";
 
 /**
  * Answer one compact geometry question from a production's current records.

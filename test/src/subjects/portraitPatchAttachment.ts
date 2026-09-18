@@ -1,14 +1,10 @@
 import { Vector3, createAutoMovieMeshDepthSampler } from "@automovie/engine";
-import {
-  portraitPart,
-  portraitPoint,
-  portraitRayIntersection,
-} from "@automovie/human/geometry/geometry";
-import type {
-  IPortraitComponentHost,
-  IPortraitSkinConstraint,
-} from "@automovie/human/geometry/portraitComponents";
-import type { IControlMesh } from "@automovie/human/geometry/subdivideControlMesh";
+import { portraitPart } from "@automovie/human/face/mesh/portraitPart";
+import { portraitPoint } from "@automovie/human/face/mesh/portraitPoint";
+import { portraitRayIntersection } from "@automovie/human/face/mesh/portraitRayIntersection";
+import type { IPortraitSkinConstraint } from "@automovie/human/face/anatomy/skin/structures/IPortraitSkinConstraint";
+import type { IPortraitComponentHost } from "@automovie/human/face/surface/IPortraitComponentHost";
+import type { IControlMesh } from "@automovie/human/face/mesh/IControlMesh";
 import type { IAutoMovieModelPart } from "@automovie/interface";
 
 /** Optional source-surface attachment of a patch's outer host boundary. */

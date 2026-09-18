@@ -1,9 +1,7 @@
 import { IAutoMovieMesh } from "@automovie/interface";
 
-import {
-  IAutoMovieProfilePoint,
-  triangulateAutoMovieRegion,
-} from "./proceduralMesh";
+import { IAutoMovieProfilePoint } from "./IAutoMovieProfilePoint";
+import { triangulateAutoMovieRegion } from "./triangulateAutoMovieRegion";
 
 /**
  * Build one open planar region facing local positive Z.

@@ -5,7 +5,7 @@ import {
   IAutoMovieWorldDesign,
 } from "@automovie/interface";
 
-import { autoMovieRenderDigest } from "../render/renderDigest";
+import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
 import { canonicalizeAutoMovieJson } from "../text/canonicalizeAutoMovieJson";
 import { AUTOMOVIE_INSTANCE_CHUNK_SIZE } from "./AUTOMOVIE_INSTANCE_CHUNK_SIZE";
 import { IAutoMovieInstanceSetPlacement } from "./IAutoMovieInstanceSetPlacement";

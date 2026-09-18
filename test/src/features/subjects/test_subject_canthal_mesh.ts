@@ -3,10 +3,8 @@ import {
   mergeAutoMovieMeshes,
   validateMeshTopology,
 } from "@automovie/engine";
-import {
-  buildPortraitCanthalMesh,
-  createPortraitCanthalIntersection,
-} from "@automovie/human/geometry/portraitCanthalMesh";
+import { buildPortraitCanthalMesh } from "@automovie/human/face/anatomy/eye/buildPortraitCanthalMesh";
+import { createPortraitCanthalIntersection } from "@automovie/human/face/anatomy/eye/createPortraitCanthalIntersection";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, throwsError } from "../internal/predicates";

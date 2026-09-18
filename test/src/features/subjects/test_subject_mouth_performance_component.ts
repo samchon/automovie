@@ -1,6 +1,6 @@
 import { portraitMeshBuffers } from "@automovie/human";
-import { buildPortraitHead } from "@automovie/human/components/head";
-import { createPortraitMouthComponent } from "@automovie/human/components/mouth";
+import { buildPortraitHead } from "@automovie/human/face/anatomy/cranium/buildPortraitHead";
+import { createPortraitMouthComponent } from "@automovie/human/face/anatomy/mouth/createPortraitMouthComponent";
 import { TestValidator } from "@nestia/e2e";
 
 import {

@@ -1,7 +1,5 @@
-import {
-  type IPortraitFinalSurfaceHost,
-  applyPortraitFinalSurfaces,
-} from "@automovie/human/geometry/portraitFinalSurface";
+import { type IPortraitFinalSurfaceHost } from "@automovie/human/face/surface/IPortraitFinalSurfaceHost";
+import { applyPortraitFinalSurfaces } from "@automovie/human/face/surface/applyPortraitFinalSurfaces";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/predicates";

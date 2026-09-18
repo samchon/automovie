@@ -3,7 +3,7 @@ import {
   IAutoMovieFormationSlot,
 } from "@automovie/interface";
 
-import { formationSlotPosition } from "../formation";
+import { formationSlotPosition } from "../formationSlotPosition";
 import { formationSlotRecord } from "../formationSlotRecord";
 
 /**

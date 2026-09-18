@@ -8,10 +8,10 @@
  */
 import { IAutoMovieMesh } from "@automovie/interface";
 
-import { positive } from "./proceduralDimensions";
-import { emptyMeshTarget } from "./proceduralMeshBuffers";
-import { IAutoMovieProfilePoint } from "./proceduralMeshTypes";
-import { triangulateRegion } from "./proceduralRegionTriangulation";
+import { positive } from "./positive";
+import { emptyMeshTarget } from "./emptyMeshTarget";
+import { IAutoMovieProfilePoint } from "./IAutoMovieProfilePoint";
+import { triangulateRegion } from "./triangulateRegion";
 
 /**
  * Extrude a free-form region, holes and all, into a closed prism along local Z.

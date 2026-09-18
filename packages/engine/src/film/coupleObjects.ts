@@ -1,63 +1,14 @@
-import {
-  AutoMovieHumanoidBone,
-  IAutoMovieActionCall,
-  IAutoMovieClip,
-  IAutoMovieConstraintViolation,
-  IAutoMovieInteractionEvent,
-  IAutoMovieMotion,
-  IAutoMovieScene,
-  IAutoMovieSkeleton,
-  IAutoMovieTransform,
-} from "@automovie/interface";
-
+import { AutoMovieHumanoidBone, IAutoMovieClip, IAutoMovieConstraintViolation, IAutoMovieInteractionEvent, IAutoMovieMotion, IAutoMovieScene, IAutoMovieSkeleton, IAutoMovieTransform } from "@automovie/interface";
 import { HUMANOID_JOINT_AXES } from "../kinematics/humanoidJointAxes";
-import { IAutoMovieJointAxes } from "../kinematics/jointToQuaternion";
-import { IAutoMovieRestFrame } from "../rom/restFrame";
-import { ViolationCollector } from "../validation/violation";
+import { IAutoMovieJointAxes } from "../kinematics/IAutoMovieJointAxes";
+import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
+import { ViolationCollector } from "../validation/ViolationCollector";
 import { compileAttach } from "./compileAttach";
-import { bakedTransformAt, followClipOf } from "./followClip";
+import { bakedTransformAt } from "./bakedTransformAt";
+import { followClipOf } from "./followClipOf";
 import { handoffEvents } from "./handoffEvents";
-import { IAutoMovieStagedSet } from "./stageScene";
-
-/**
- * One validated `attachTo` job: the coupling and its source action index.
- *
- * @evidence requirements/motion/object-motion-and-interaction.md#motion-coupled-objects IAttachJob preserves declared attachment handoff: One validated `attachTo` job: the coupling and its source action index.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-interaction-attachment-object-handoff IAttachJob realizes declared attachment and object handoff: One validated `attachTo` job: the coupling and its source action index.
- */
-export interface IAttachJob {
-  /**
-   * Validated attachment action to compile.
-   *
-   * @evidence requirements/motion/object-motion-and-interaction.md#motion-coupled-objects IAttachJob.action preserves declared attachment handoff: Validated attachment action to compile.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-interaction-attachment-object-handoff IAttachJob.action realizes declared attachment and object handoff: Validated attachment action to compile.
-   */
-  action: IAutoMovieActionCall & { verb: "attachTo" };
-  /**
-   * Stable source index used for paths and ordering.
-   *
-   * @evidence requirements/motion/object-motion-and-interaction.md#motion-coupled-objects IAttachJob.index preserves declared attachment handoff: Stable source index used for paths and ordering.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-interaction-attachment-object-handoff IAttachJob.index realizes declared attachment and object handoff: Stable source index used for paths and ordering.
-   */
-  index: number;
-}
-
-/** The per-node lookups a follow bake needs from the compiled shot. */
-interface ICoupleContext {
-  scene: IAutoMovieScene;
-  motions: Record<string, IAutoMovieMotion>;
-  skeleton: (node: string) => IAutoMovieSkeleton | null;
-  jointAxes?: (
-    node: string,
-  ) => Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> | undefined;
-  restFrames?: (
-    node: string,
-  ) => Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>> | undefined;
-  duration: number;
-}
-
-const childrenOf = (action: IAutoMovieActionCall): string[] =>
-  typeof action.actor === "string" ? [action.actor] : action.actor;
+import { IAutoMovieStagedSet } from "./IAutoMovieStagedSet";
+import { IAttachJob } from "./IAttachJob";
 
 /**
  * Bake the object couplings a shot carries, the per-beat `attachTo` handoffs
@@ -207,6 +158,129 @@ export const coupleObjects = (props: {
   }
   return { clips, events, violations: out.items };
 };
+
+/**
+ * Bake one child's per-beat `attachTo` follows and their handoff events. A
+ * handoff (the same child attached to two parents over disjoint spans) would
+ * bake two clips with one `attach:<child>` id: an uncommittable shot and an
+ * duplicate artifact id (#989). Process the child's attachments in START order
+ * and suffix repeats (`attach:<child>:2`, ...), so the FIRST occurrence keeps
+ * the stable id. Runtime authority follows track start and producer order, not
+ * the spelling of this uniqueness suffix.
+ */
+const bakeAttachFollows = (
+  child: string,
+  jobs: readonly IAttachJob[],
+  context: ICoupleContext,
+  parentPathOf: (
+    parent: string,
+  ) => ((t: number) => IAutoMovieTransform) | undefined,
+  keep: (child: string, clip: IAutoMovieClip) => void,
+  events: IAutoMovieInteractionEvent[],
+): void => {
+  const ordered = [...jobs].sort((a, b) => a.action.start - b.action.start);
+  ordered.forEach((job, occurrence) => {
+    const parentNode = context.scene.nodes.find(
+      (n) => n.id === job.action.parent,
+    )!;
+    const parentRig = context.skeleton(job.action.parent)!;
+    const end =
+      job.action.duration === "auto"
+        ? context.duration
+        : Math.min(job.action.start + job.action.duration, context.duration);
+    events.push(
+      ...handoffEvents(
+        child,
+        job.action.parent,
+        job.action.start,
+        end,
+        job.index,
+      ),
+    );
+    const baked = compileAttach({
+      child,
+      bone: job.action.bone,
+      parentTransform: parentNode.transform,
+      parentTransformAt: parentPathOf(job.action.parent),
+      parentSkeleton: parentRig,
+      parentMotion: context.motions[job.action.parent],
+      start: job.action.start,
+      duration: end - job.action.start,
+      shotDuration: context.duration,
+      jointAxes: context.jointAxes?.(job.action.parent) ?? HUMANOID_JOINT_AXES,
+      restFrames: context.restFrames?.(job.action.parent),
+    });
+    keep(
+      child,
+      occurrence === 0
+        ? baked
+        : { ...baked, id: `${baked.id}:${occurrence + 1}` },
+    );
+  });
+};
+
+/**
+ * Bake one persistent staged mount (#674): the rider descends through
+ * {@link compileAttach}, spanning the whole shot. The parent rig and saddle bone
+ * are validated here.
+ */
+const bakeMountFollow = (
+  mount: IAutoMovieStagedSet.IMount,
+  context: ICoupleContext,
+  parentPathOf: (
+    parent: string,
+  ) => ((t: number) => IAutoMovieTransform) | undefined,
+  keep: (child: string, clip: IAutoMovieClip) => void,
+  out: ViolationCollector,
+): void => {
+  // Staging validated the parent is a placed actor, so it is always a scene
+  // node (the `!` below); the rig and bone are the mount's own preconditions.
+  const parentRig = context.skeleton(mount.binding.parent);
+  if (parentRig === null) {
+    out.push(
+      "type",
+      "$staged.mounts",
+      mountRiggedMessage(mount.node, mount.binding.parent),
+      mount.binding.parent,
+    );
+    return;
+  }
+  if (!parentRig.bones.some((b) => b.bone === mount.binding.bone)) {
+    out.push(
+      "type",
+      "$staged.mounts",
+      mountBoneMessage(mount.binding.bone, mount.binding.parent),
+      mount.binding.bone,
+    );
+    return;
+  }
+  const parentNode = context.scene.nodes.find(
+    (n) => n.id === mount.binding.parent,
+  )!;
+  keep(
+    mount.node,
+    compileAttach({
+      child: mount.node,
+      bone: mount.binding.bone,
+      parentTransform: parentNode.transform,
+      parentTransformAt: parentPathOf(mount.binding.parent),
+      parentSkeleton: parentRig,
+      parentMotion: context.motions[mount.binding.parent],
+      start: 0,
+      duration: context.duration,
+      shotDuration: context.duration,
+      jointAxes:
+        context.jointAxes?.(mount.binding.parent) ?? HUMANOID_JOINT_AXES,
+      restFrames: context.restFrames?.(mount.binding.parent),
+    }),
+  );
+};
+
+const mountRiggedMessage = (rider: string, parent: string): string =>
+  `mount rider "${rider}" rides "${parent}", which must be a rigged node to carry a saddle bone`;
+
+const mountBoneMessage = (bone: string, parent: string): string =>
+  `mount bone "${bone}" is not on ${parent}'s skeleton`;
 
 /**
  * Bake one child's per-beat `attachTo` follows and their handoff events. A

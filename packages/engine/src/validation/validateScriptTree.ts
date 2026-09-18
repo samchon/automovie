@@ -4,7 +4,7 @@ import {
   IAutoMovieValidation,
 } from "@automovie/interface";
 
-import { ViolationCollector } from "./violation";
+import { ViolationCollector } from "./ViolationCollector";
 
 /**
  * Which parent kinds each node kind may refine. The refinement tree is

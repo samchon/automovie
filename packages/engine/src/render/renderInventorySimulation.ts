@@ -14,21 +14,17 @@ import type {
   IAutoMovieRenderOwnerCost,
 } from "@automovie/interface";
 
-import { fluidDomainBudget } from "../fluid/shallowWater";
-import { plantingBudget } from "../soft/planting";
-import { softBodyBudget } from "../soft/softBody";
-import { compareAutoMovieRenderIds } from "./renderDigest";
-import {
-  AUTOMOVIE_FLOW_BYTES,
-  AUTOMOVIE_INDEX_BYTES,
-  AUTOMOVIE_NORMAL_BYTES,
-  AUTOMOVIE_POSITION_BYTES,
-  AUTOMOVIE_UV_BYTES,
-} from "./renderInventoryMetrics";
-import type {
-  IAutoMovieRenderPrototypeCost,
-  IAutoMovieRenderSubject,
-} from "./renderSubject";
+import { fluidDomainBudget } from "../fluid/fluidDomainBudget";
+import { plantingBudget } from "../soft/plantingBudget";
+import { softBodyBudget } from "../soft/softBodyBudget";
+import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
+import { AUTOMOVIE_FLOW_BYTES } from "./AUTOMOVIE_FLOW_BYTES";
+import { AUTOMOVIE_INDEX_BYTES } from "./AUTOMOVIE_INDEX_BYTES";
+import { AUTOMOVIE_NORMAL_BYTES } from "./AUTOMOVIE_NORMAL_BYTES";
+import { AUTOMOVIE_POSITION_BYTES } from "./AUTOMOVIE_POSITION_BYTES";
+import { AUTOMOVIE_UV_BYTES } from "./AUTOMOVIE_UV_BYTES";
+import type { IAutoMovieRenderPrototypeCost } from "./IAutoMovieRenderPrototypeCost";
+import type { IAutoMovieRenderSubject } from "./IAutoMovieRenderSubject";
 
 /**
  * Extend prior counts with simulated drawable costs and explicit missing inputs.

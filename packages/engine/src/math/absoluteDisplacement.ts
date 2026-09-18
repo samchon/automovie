@@ -7,11 +7,9 @@
  * Coordinates, area weights and numerical tolerances belong to the caller.
  * The objective selects geometric travel, not a tissue constitutive law.
  */
-import {
-  type IAutoMovieQuadraticRow,
-  assembleAutoMovieQuadraticProgram,
-  solveAutoMovieQuadraticProgram,
-} from "./quadraticProgram";
+import { type IAutoMovieQuadraticRow } from "./IAutoMovieQuadraticRow";
+import { assembleAutoMovieQuadraticProgram } from "./assembleAutoMovieQuadraticProgram";
+import { solveAutoMovieQuadraticProgram } from "./solveAutoMovieQuadraticProgram";
 
 /**
  * Minimize sum(weight[i] * abs(travel[i])) with the supplied affine intervals.

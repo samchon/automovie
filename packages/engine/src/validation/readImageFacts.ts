@@ -1,4 +1,4 @@
-import { IAutoMovieTextureImageFacts } from "./validateTextureAssets";
+import { IAutoMovieTextureImageFacts } from "./IAutoMovieTextureImageFacts";
 
 /**
  * What an image asset's own bytes say it is and how big it is.

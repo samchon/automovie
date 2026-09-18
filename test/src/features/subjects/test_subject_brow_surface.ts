@@ -1,7 +1,5 @@
-import {
-  buildPortraitEyebrow,
-  portraitEyebrowProfile,
-} from "@automovie/human/components/eyebrows";
+import { buildPortraitEyebrow } from "@automovie/human/face/anatomy/brow/buildPortraitEyebrow";
+import { portraitEyebrowProfile } from "@automovie/human/face/anatomy/brow/portraitEyebrowProfile";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, throwsError } from "../internal/predicates";

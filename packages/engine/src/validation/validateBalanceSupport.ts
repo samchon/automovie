@@ -1,125 +1,15 @@
-import {
-  AutoMovieHumanoidBone,
-  IAutoMovieMotion,
-  IAutoMovieSkeleton,
-  IAutoMovieValidation,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-
-import {
-  IAutoMovieJointAxes,
-  indexSkeletonTopology,
-  resolvePose,
-} from "../kinematics";
-import { convexHull2D, pointHullDistance } from "../math/hull";
-import { windowSampleTimes } from "../motion/sampleClock";
+import { AutoMovieHumanoidBone, IAutoMovieMotion, IAutoMovieSkeleton, IAutoMovieValidation, IAutoMovieVector3 } from "@automovie/interface";
+import { IAutoMovieJointAxes } from "../kinematics/IAutoMovieJointAxes";
+import { indexSkeletonTopology } from "../kinematics/indexSkeletonTopology";
+import { resolvePose } from "../kinematics/resolvePose";
+import { convexHull2D } from "../math/convexHull2D";
+import { pointHullDistance } from "../math/pointHullDistance";
+import { windowSampleTimes } from "../motion/windowSampleTimes";
 import { sampleMotion } from "../motion/sampleMotion";
-import { IAutoMovieRestFrame } from "../rom/restFrame";
+import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { fkReachableBones } from "./fkReachableBones";
-import { ViolationCollector } from "./violation";
-
-const DEFAULT_MARGIN = 0.02;
-const DEFAULT_SAMPLE_RATE = 24;
-
-/**
- * Segment mass as a fraction of total body mass, per load-bearing bone (Winter,
- * "Biomechanics and Motor Control of Human Movement"). Only the ratios matter:
- * the whole-body COM is a weighted mean, so any consistent scaling yields the
- * same point. Bones absent from this table (clavicles, toes, eyes, jaw,
- * fingers) carry {@link DEFAULT_SEGMENT_MASS_FRACTION}, and the mean
- * renormalizes over whichever bones a rig actually resolves, so an omitted
- * `upperChest`/`neck` never biases the result.
- */
-const SEGMENT_MASS_FRACTION: Partial<Record<AutoMovieHumanoidBone, number>> = {
-  hips: 14.2,
-  spine: 13.9,
-  chest: 15.6,
-  upperChest: 6.0,
-  neck: 1.1,
-  head: 7.0,
-  leftUpperArm: 2.8,
-  rightUpperArm: 2.8,
-  leftLowerArm: 1.6,
-  rightLowerArm: 1.6,
-  leftHand: 0.6,
-  rightHand: 0.6,
-  leftUpperLeg: 10.0,
-  rightUpperLeg: 10.0,
-  leftLowerLeg: 4.65,
-  rightLowerLeg: 4.65,
-  leftFoot: 1.45,
-  rightFoot: 1.45,
-};
-
-/** Mass fraction for a minor bone the table omits (clavicle, toe, eye, finger). */
-const DEFAULT_SEGMENT_MASS_FRACTION = 0.2;
-const CENTER_BONE_EXPECTED = "center bone must exist in the target skeleton";
-const CENTER_BONE_REACHABLE =
-  "center bone is declared but not reachable from a root bone via forward kinematics";
-const MARGIN_EXPECTED = "margin must be a finite number >= 0";
-const SUPPORT_BONES_EXPECTED =
-  "supportBones must contain at least one contact bone";
-const SUPPORT_BONE_EXPECTED = "support bone must exist in the target skeleton";
-const SUPPORT_BONE_REACHABLE =
-  "support bone is declared but not reachable from a root bone via forward kinematics";
-
-/**
- * Declared balance window for center-of-mass support validation.
- *
- * The support hull is explicit because stance semantics are action-level facts:
- * a jump, kneel, hand plant, or one-foot balance all need different contact
- * points even when the same skeleton is sampled.
- *
- * @evidence requirements/diagnostics/identity-path-and-context.md#diagnostics-path-and-scope `IAutoMovieBalanceSupportWindow` identifies the motion interval and contact bones whose support failure can be traced back to one declaration.
- * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-path-scope `IAutoMovieBalanceSupportWindow` groups the center source, support set, time bounds, and margin that define one balance-validation scope.
- * @author Samchon
- */
-export interface IAutoMovieBalanceSupportWindow {
-  /**
-   * Center-of-mass source. **Omit** (the default and recommended form) to use
-   * the segment-mass-weighted whole-body COM over the resolved pose,
-   * trustworthy for a lean, reach, or crouch, where the real COM shifts far
-   * from the pelvis. Provide a bone to override with a single-bone proxy (the
-   * pre-#1184 coarse behavior) for a rig or stance where a specific point is
-   * the intended COM.
-   *
-   * @evidence requirements/diagnostics/identity-path-and-context.md#diagnostics-path-and-scope `centerBone` names the optional single-bone center proxy responsible for a support-distance observation.
-   * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-path-scope `centerBone` distinguishes an explicit bone source from the default weighted whole-body center calculation.
-   */
-  centerBone?: AutoMovieHumanoidBone;
-
-  /**
-   * Ordered support contact bones projected onto the horizontal XZ plane.
-   *
-   * @evidence requirements/diagnostics/identity-path-and-context.md#diagnostics-path-and-scope `supportBones` identifies the declared contact landmarks from which the failing support hull was formed.
-   * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-path-scope `supportBones` preserves stable bone identities rather than an incidental order of resolved world points.
-   */
-  supportBones: readonly AutoMovieHumanoidBone[];
-
-  /**
-   * Inclusive start time in seconds.
-   *
-   * @evidence requirements/diagnostics/identity-path-and-context.md#diagnostics-path-and-scope `start` locates the inclusive film-clock boundary at which this support declaration begins to govern the motion.
-   * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-path-scope `start` provides the lower endpoint used to derive the window's deterministic sample positions.
-   */
-  start: number;
-
-  /**
-   * Inclusive end time in seconds.
-   *
-   * @evidence requirements/diagnostics/identity-path-and-context.md#diagnostics-path-and-scope `end` locates the inclusive film-clock boundary after which this support declaration no longer applies.
-   * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-path-scope `end` provides the upper endpoint checked against duration before balance samples are addressed.
-   */
-  end: number;
-
-  /**
-   * Allowed projected COM distance outside the support hull in meters.
-   *
-   * @evidence requirements/diagnostics/identity-path-and-context.md#diagnostics-path-and-scope `margin` records the permitted meter overhang against which each center-to-hull distance is reported.
-   * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-path-scope `margin` keeps the expected support tolerance separate from the observed projected distance.
-   */
-  margin?: number;
-}
+import { ViolationCollector } from "./ViolationCollector";
+import { IAutoMovieBalanceSupportWindow } from "./IAutoMovieBalanceSupportWindow";
 
 /**
  * Tier-3 balance check over declared support windows. It samples a motion,
@@ -313,6 +203,89 @@ export const validateBalanceSupport = (props: {
   const validation = collector.toValidation();
   return validation;
 };
+
+/**
+ * The whole-body center of mass: each resolved bone's world position weighted
+ * by its segment mass fraction. This is a proximal-joint mass model (each
+ * segment's mass sits at the bone's own joint), a v1 that is already far more
+ * trustworthy than a single hips bone for a lean, reach, or crouch, where the
+ * real COM shifts away from the pelvis. Sampling runs only past the
+ * reachability gate, so `resolved` always holds at least the root and the total
+ * weight is positive.
+ */
+const weightedCenterOfMass = (
+  resolved: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieVector3>,
+): IAutoMovieVector3 => {
+  let mass = 0;
+  let x = 0;
+  let y = 0;
+  let z = 0;
+  for (const [bone, position] of resolved) {
+    const weight = SEGMENT_MASS_FRACTION[bone] ?? DEFAULT_SEGMENT_MASS_FRACTION;
+    mass += weight;
+    x += weight * position.x;
+    y += weight * position.y;
+    z += weight * position.z;
+  }
+  return { x: x / mass, y: y / mass, z: z / mass };
+};
+
+const isPositiveFinite = (value: number): boolean =>
+  Number.isFinite(value) && value > 0;
+
+const round = (value: number): number => Math.round(value * 1_000) / 1_000;
+
+const DEFAULT_MARGIN = 0.02;
+
+const DEFAULT_SAMPLE_RATE = 24;
+
+/**
+ * Segment mass as a fraction of total body mass, per load-bearing bone (Winter,
+ * "Biomechanics and Motor Control of Human Movement"). Only the ratios matter:
+ * the whole-body COM is a weighted mean, so any consistent scaling yields the
+ * same point. Bones absent from this table (clavicles, toes, eyes, jaw,
+ * fingers) carry {@link DEFAULT_SEGMENT_MASS_FRACTION}, and the mean
+ * renormalizes over whichever bones a rig actually resolves, so an omitted
+ * `upperChest`/`neck` never biases the result.
+ */
+const SEGMENT_MASS_FRACTION: Partial<Record<AutoMovieHumanoidBone, number>> = {
+  hips: 14.2,
+  spine: 13.9,
+  chest: 15.6,
+  upperChest: 6.0,
+  neck: 1.1,
+  head: 7.0,
+  leftUpperArm: 2.8,
+  rightUpperArm: 2.8,
+  leftLowerArm: 1.6,
+  rightLowerArm: 1.6,
+  leftHand: 0.6,
+  rightHand: 0.6,
+  leftUpperLeg: 10.0,
+  rightUpperLeg: 10.0,
+  leftLowerLeg: 4.65,
+  rightLowerLeg: 4.65,
+  leftFoot: 1.45,
+  rightFoot: 1.45,
+};
+
+/** Mass fraction for a minor bone the table omits (clavicle, toe, eye, finger). */
+const DEFAULT_SEGMENT_MASS_FRACTION = 0.2;
+
+const CENTER_BONE_EXPECTED = "center bone must exist in the target skeleton";
+
+const CENTER_BONE_REACHABLE =
+
+  "center bone is declared but not reachable from a root bone via forward kinematics";
+const MARGIN_EXPECTED = "margin must be a finite number >= 0";
+
+const SUPPORT_BONES_EXPECTED =
+
+  "supportBones must contain at least one contact bone";
+const SUPPORT_BONE_EXPECTED = "support bone must exist in the target skeleton";
+
+const SUPPORT_BONE_REACHABLE =
+  "support bone is declared but not reachable from a root bone via forward kinematics";
 
 /**
  * The whole-body center of mass: each resolved bone's world position weighted

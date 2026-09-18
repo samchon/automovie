@@ -7,7 +7,8 @@ import {
   IAutoMovieSkeleton,
 } from "@automovie/interface";
 
-import { IAutoMovieRecoilPush, impactRecoil } from "../physics/impactRecoil";
+import { IAutoMovieRecoilPush } from "../physics/IAutoMovieRecoilPush";
+import { impactRecoil } from "../physics/impactRecoil";
 
 /**
  * Synthesise the **react** action into a short flinch clip: snap from rest into

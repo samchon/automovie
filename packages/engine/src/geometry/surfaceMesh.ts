@@ -1,8 +1,9 @@
 import { IAutoMovieSurface, IAutoMovieVector3 } from "@automovie/interface";
 
-import { footprintConvexPieces, surfaceFootprint } from "../space/footprint";
-import { surfaceHeightAt } from "../space/surfaces";
-import { ITessellation } from "./tessellate";
+import { footprintConvexPieces } from "../space/footprintConvexPieces";
+import { surfaceFootprint } from "../space/surfaceFootprint";
+import { surfaceHeightAt } from "../space/surfaceHeightAt";
+import { ITessellation } from "./ITessellation";
 
 const CLIP_EPSILON = 1e-10;
 

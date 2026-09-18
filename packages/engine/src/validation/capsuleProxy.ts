@@ -3,7 +3,7 @@ import type {
   IAutoMovieCapsuleProxy,
 } from "@automovie/interface";
 
-import { ViolationCollector } from "./violation";
+import { ViolationCollector } from "./ViolationCollector";
 
 /** Shared actor-local capsule used by body validation and soft contact. */
 export type { IAutoMovieCapsuleProxy } from "@automovie/interface";

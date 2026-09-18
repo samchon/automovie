@@ -9,7 +9,7 @@ import {
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { sampleTimes } from "../motion/sampleClock";
+import { sampleTimes } from "../motion/sampleTimes";
 
 /** One current world-space obstacle bound at one fixed-clock instant. */
 interface IAutoMovieCameraClearanceObstacleState {

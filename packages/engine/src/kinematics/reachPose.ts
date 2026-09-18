@@ -6,15 +6,14 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { getConstraint } from "../rom/humanoidRom";
-import { HUMANOID_REST_FRAME, IAutoMovieRestFrame } from "../rom/restFrame";
+import { getConstraint } from "../rom/getConstraint";
+import { HUMANOID_REST_FRAME } from "../rom/HUMANOID_REST_FRAME";
+import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { armChainFault } from "./armChainFault";
 import { decomposeJointRotation } from "./decomposeJointRotation";
-import {
-  clinicalDeviation,
-  hingedArmArticulation,
-  jointRomOvershoot,
-} from "./hingedArmArticulation";
+import { clinicalDeviation } from "./clinicalDeviation";
+import { hingedArmArticulation } from "./hingedArmArticulation";
+import { jointRomOvershoot } from "./jointRomOvershoot";
 import { HUMANOID_JOINT_AXES } from "./humanoidJointAxes";
 import { resolvePose } from "./resolvePose";
 

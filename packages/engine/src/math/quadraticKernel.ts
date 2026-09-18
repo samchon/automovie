@@ -6,7 +6,7 @@
  * the caller's declared units. No geometry, scaling or constraint is changed.
  * The reusable heap contains no retained solver instance or warm-start state.
  */
-import { createAutoMovieQuadraticMemory } from "./quadraticKernelMemory";
+import { createAutoMovieQuadraticMemory } from "./createAutoMovieQuadraticMemory";
 
 let memory: ReturnType<typeof createAutoMovieQuadraticMemory> | undefined;
 

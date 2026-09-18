@@ -4,11 +4,9 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import {
-  builtSpaceContainsPoint,
-  builtSpaceStatesVolume,
-} from "../architecture/builtEnvironment";
-import { compareAutoMovieRenderIds } from "./renderDigest";
+import { builtSpaceContainsPoint } from "../architecture/builtSpaceContainsPoint";
+import { builtSpaceStatesVolume } from "../architecture/builtSpaceStatesVolume";
+import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
 
 /** The exterior, as a node of the portal graph rather than the absence of one. */
 const EXTERIOR = " exterior";

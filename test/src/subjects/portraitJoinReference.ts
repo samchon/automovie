@@ -1,5 +1,5 @@
-import { blendPortraitSkin } from "@automovie/human/geometry/blendPortraitSkin";
-import type { IPortraitFinalSurfaceHost } from "@automovie/human/geometry/portraitFinalSurface";
+import { blendPortraitSkin } from "@automovie/human/face/anatomy/skin/blendPortraitSkin";
+import type { IPortraitFinalSurfaceHost } from "@automovie/human/face/surface/IPortraitFinalSurfaceHost";
 
 import { fitPortraitJoinBoundary } from "./portraitJoinTangency";
 

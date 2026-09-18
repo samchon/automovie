@@ -9,7 +9,7 @@
 import { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
-import { finiteVector } from "./proceduralDimensions";
+import { finiteVector } from "./finiteVector";
 
 /**
  * Build a boundary representation from planar polygonal faces.

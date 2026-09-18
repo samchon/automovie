@@ -16,40 +16,34 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { validateBuiltEnvironment } from "../architecture/builtEnvironment";
+import { validateBuiltEnvironment } from "../architecture/validateBuiltEnvironment";
 import { Vector3 } from "../math/Vector3";
-import {
-  autoMovieRenderDigest,
-  compareAutoMovieRenderIds,
-} from "../render/renderDigest";
-import { resolveAutoMovieDrawingFeature } from "./drawingFeature";
-import {
-  autoMovieBoundaryFacePoint,
-  autoMovieBoundaryShellTriangles,
-  autoMovieOpeningExtent,
-  autoMovieOpeningFillExtent,
-  autoMovieOpeningHasArc,
-  autoMovieOpeningOutlinePoints,
-} from "./drawingOpening";
-import {
-  AUTOMOVIE_DRAWING_EPSILON,
-  IAutoMovieDrawingEdge,
-  IAutoMovieDrawingTriangle,
-  autoMovieDrawingCellSection,
-  autoMovieDrawingCutEdges,
-  autoMovieDrawingFrame,
-  autoMovieDrawingHasCut,
-  autoMovieDrawingPartTriangles,
-  autoMovieDrawingPlaneDistance,
-  autoMovieDrawingPolygonArea,
-  autoMovieDrawingRange,
-  autoMovieDrawingSilhouetteEdges,
-  autoMovieDrawingWorldMatrices,
-  clipAutoMovieDrawingTriangles,
-  projectAutoMovieDrawingPoint,
-  roundAutoMovieDrawingScalar,
-  transformAutoMovieDrawingTriangles,
-} from "./drawingProjection";
+import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
+import { compareAutoMovieRenderIds } from "../render/compareAutoMovieRenderIds";
+import { resolveAutoMovieDrawingFeature } from "./resolveAutoMovieDrawingFeature";
+import { autoMovieBoundaryFacePoint } from "./autoMovieBoundaryFacePoint";
+import { autoMovieBoundaryShellTriangles } from "./autoMovieBoundaryShellTriangles";
+import { autoMovieOpeningExtent } from "./autoMovieOpeningExtent";
+import { autoMovieOpeningFillExtent } from "./autoMovieOpeningFillExtent";
+import { autoMovieOpeningHasArc } from "./autoMovieOpeningHasArc";
+import { autoMovieOpeningOutlinePoints } from "./autoMovieOpeningOutlinePoints";
+import { AUTOMOVIE_DRAWING_EPSILON } from "./AUTOMOVIE_DRAWING_EPSILON";
+import { IAutoMovieDrawingEdge } from "./IAutoMovieDrawingEdge";
+import { IAutoMovieDrawingTriangle } from "./IAutoMovieDrawingTriangle";
+import { autoMovieDrawingCellSection } from "./autoMovieDrawingCellSection";
+import { autoMovieDrawingCutEdges } from "./autoMovieDrawingCutEdges";
+import { autoMovieDrawingFrame } from "./autoMovieDrawingFrame";
+import { autoMovieDrawingHasCut } from "./autoMovieDrawingHasCut";
+import { autoMovieDrawingPartTriangles } from "./autoMovieDrawingPartTriangles";
+import { autoMovieDrawingPlaneDistance } from "./autoMovieDrawingPlaneDistance";
+import { autoMovieDrawingPolygonArea } from "./autoMovieDrawingPolygonArea";
+import { autoMovieDrawingRange } from "./autoMovieDrawingRange";
+import { autoMovieDrawingSilhouetteEdges } from "./autoMovieDrawingSilhouetteEdges";
+import { autoMovieDrawingWorldMatrices } from "./autoMovieDrawingWorldMatrices";
+import { clipAutoMovieDrawingTriangles } from "./clipAutoMovieDrawingTriangles";
+import { projectAutoMovieDrawingPoint } from "./projectAutoMovieDrawingPoint";
+import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
+import { transformAutoMovieDrawingTriangles } from "./transformAutoMovieDrawingTriangles";
 
 /** Order the four line roles are drafted and sorted in. */
 const ROLE_ORDER: AutoMovieDrawingRole[] = [

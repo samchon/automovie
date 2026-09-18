@@ -1,6 +1,6 @@
-import { createPortraitNoseComponent } from "@automovie/human/components/nose";
-import { applyPortraitRegionReplacements } from "@automovie/human/geometry/portraitRegionReplacement";
-import { subdivideControlMesh } from "@automovie/human/geometry/subdivideControlMesh";
+import { createPortraitNoseComponent } from "@automovie/human/face/anatomy/nose/createPortraitNoseComponent";
+import { applyPortraitRegionReplacements } from "@automovie/human/face/surface/applyPortraitRegionReplacements";
+import { subdivideControlMesh } from "@automovie/human/face/mesh/subdivideControlMesh";
 import { TestValidator } from "@nestia/e2e";
 
 import {

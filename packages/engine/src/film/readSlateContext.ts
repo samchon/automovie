@@ -1,64 +1,6 @@
-import {
-  IAutoMovieBeatEndState,
-  IAutoMovieContextRequest,
-  IAutoMovieReviewNote,
-  IAutoMovieScene,
-  IAutoMovieScript,
-  IAutoMovieShot,
-  IAutoMovieSlate,
-} from "@automovie/interface";
-
-type AutoMovieStoredContextType =
-  | "getScript"
-  | "getScene"
-  | "getShot"
-  | "getNotes"
-  | "getBeatEnd";
-
-/**
- * A context request answerable from state already stored on the slate.
- *
- * @evidence requirements/acceptance/scope-targets-and-authority.md#acceptance-requestable-unit IAutoMovieStoredContextRequest keeps the requested review unit explicit: A context request answerable from state already stored on the slate.
- * @evidence specifications/review-and-acceptance/target-scope-and-context.md#review-system-scope-selection IAutoMovieStoredContextRequest realizes explicit review-scope selection: A context request answerable from state already stored on the slate.
- */
-export type IAutoMovieStoredContextRequest = Extract<
-  IAutoMovieContextRequest,
-  { type: AutoMovieStoredContextType }
->;
-
-/**
- * Value returned for a stored-context request, or `null` when absent.
- *
- * @evidence requirements/acceptance/scope-targets-and-authority.md#acceptance-requestable-unit IAutoMovieStoredContext keeps the requested review unit explicit: Value returned for a stored-context request, or `null` when absent.
- * @evidence specifications/review-and-acceptance/target-scope-and-context.md#review-system-scope-selection IAutoMovieStoredContext realizes explicit review-scope selection: Value returned for a stored-context request, or `null` when absent.
- */
-export type IAutoMovieStoredContext =
-  | IAutoMovieScript
-  | IAutoMovieScene
-  | IAutoMovieShot
-  | IAutoMovieReviewNote[]
-  | IAutoMovieBeatEndState
-  | null;
-
-const findUniqueOrNull = <T>(props: {
-  items: readonly T[];
-  matches: (item: T) => boolean;
-  key: string;
-  label: string;
-  path: (index: number) => string;
-}): T | null => {
-  let found: { item: T; index: number } | null = null;
-  for (let index = 0; index < props.items.length; index++) {
-    const item = props.items[index]!;
-    if (!props.matches(item)) continue;
-    if (found !== null)
-      throw new Error(
-        `${props.label} "${props.key}" is duplicated at ${props.path(index)}; first declared at ${props.path(found.index)}`,
-      );
-    found = { item, index };
-  }
-  return found?.item ?? null;
-};
+import { IAutoMovieSlate } from "@automovie/interface";
+import { IAutoMovieStoredContext } from "./IAutoMovieStoredContext";
+import { IAutoMovieStoredContextRequest } from "./IAutoMovieStoredContextRequest";
 
 /**
  * Answer stored-context requests from the production slate. Geometry-dependent

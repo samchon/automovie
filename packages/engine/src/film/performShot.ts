@@ -1,257 +1,52 @@
-import {
-  AutoMovieHumanoidBone,
-  IAutoMovieActionCall,
-  IAutoMovieActionTarget,
-  IAutoMovieBeatEndFootPlant,
-  IAutoMovieBeatEndState,
-  IAutoMovieBlocking,
-  IAutoMovieBlockingCoverage,
-  IAutoMovieCamera,
-  IAutoMovieCameraAction,
-  IAutoMovieClip,
-  IAutoMovieCompiledFormation,
-  IAutoMovieConstraintViolation,
-  IAutoMovieFormationMotion,
-  IAutoMovieGroupTarget,
-  IAutoMovieInteractionEvent,
-  IAutoMovieModel,
-  IAutoMovieMotion,
-  IAutoMoviePerformance,
-  IAutoMoviePropSpec,
-  IAutoMovieQuaternion,
-  IAutoMovieScript,
-  IAutoMovieShot,
-  IAutoMovieShotCoverage,
-  IAutoMovieSkeleton,
-  IAutoMovieTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-
-import { sampleFormationMotion, transformFormationPoint } from "../formation";
+import { AutoMovieHumanoidBone, IAutoMovieActionCall, IAutoMovieActionTarget, IAutoMovieBeatEndState, IAutoMovieBlocking, IAutoMovieBlockingCoverage, IAutoMovieCamera, IAutoMovieCameraAction, IAutoMovieClip, IAutoMovieCompiledFormation, IAutoMovieFormationMotion, IAutoMovieGroupTarget, IAutoMovieInteractionEvent, IAutoMovieModel, IAutoMovieMotion, IAutoMoviePerformance, IAutoMoviePropSpec, IAutoMovieScript, IAutoMovieShot, IAutoMovieShotCoverage, IAutoMovieSkeleton, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
+import { sampleFormationMotion } from "../sampleFormationMotion";
+import { transformFormationPoint } from "../transformFormationPoint";
 import { armChainFault } from "../kinematics/armChainFault";
-import { IAutoMovieJointAxes } from "../kinematics/jointToQuaternion";
+import { IAutoMovieJointAxes } from "../kinematics/IAutoMovieJointAxes";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { classifyLocomoteGroundDisplacement } from "../motion/locomote";
-import { plantStanceFeet } from "../motion/plantFeet";
-import { sampleMotion } from "../motion/sampleMotion";
+import { classifyLocomoteGroundDisplacement } from "../motion/classifyLocomoteGroundDisplacement";
+import { plantStanceFeet } from "../motion/plantStanceFeet";
 import { actionRegion } from "../perform/actionRegion";
 import { bodyRegionBones } from "../perform/bodyRegionBones";
-import {
-  IAutoMovieActionSynthesizer,
-  compilePerformance,
-} from "../perform/compilePerformance";
-import {
-  POSITIONAL_TARGET_SHAPE,
-  positionalTargetFault,
-} from "../perform/positionalTargetFault";
+import { IAutoMovieActionSynthesizer } from "../perform/IAutoMovieActionSynthesizer";
+import { compilePerformance } from "../perform/compilePerformance";
+import { POSITIONAL_TARGET_SHAPE } from "../perform/POSITIONAL_TARGET_SHAPE";
+import { positionalTargetFault } from "../perform/positionalTargetFault";
 import { resolveTargetPoint } from "../perform/resolveTargetPoint";
 import { scenePlacements } from "../perform/scenePlacements";
-import { IAutoMovieRestFrame } from "../rom/restFrame";
-import { spaceGround } from "../space/surfaces";
+import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
+import { spaceGround } from "../space/spaceGround";
 import { withArticle } from "../text/article";
 import { compareCodeUnits } from "../text/compareCodeUnits";
 import { validateMotion } from "../validation/validateMotion";
-import {
-  appendLightMotionsArtifact,
-  validateShotArtifact,
-} from "../validation/validateShotArtifact";
-import { ViolationCollector } from "../validation/violation";
-import {
-  IAutoMovieCameraClearanceRuntime,
-  compileCameraClearanceReports,
-} from "./cameraClearancePerformance";
-import {
-  DEFAULT_SUBJECT_HEIGHT,
-  IAutoMovieCameraFrameEntry,
-  IAutoMovieFramedSubject,
-  compileCameraCoverage,
-  compileCameraMove,
-  computeModelRestExtent,
-  computeRestHeight,
-} from "./cameraMove";
+import { appendLightMotionsArtifact } from "../validation/appendLightMotionsArtifact";
+import { validateShotArtifact } from "../validation/validateShotArtifact";
+import { ViolationCollector } from "../validation/ViolationCollector";
+import { IAutoMovieCameraClearanceRuntime } from "./IAutoMovieCameraClearanceRuntime";
+import { compileCameraClearanceReports } from "./compileCameraClearanceReports";
+import { DEFAULT_SUBJECT_HEIGHT } from "./DEFAULT_SUBJECT_HEIGHT";
+import { IAutoMovieCameraFrameEntry } from "./IAutoMovieCameraFrameEntry";
+import { IAutoMovieFramedSubject } from "./IAutoMovieFramedSubject";
+import { compileCameraCoverage } from "./compileCameraCoverage";
+import { compileCameraMove } from "./compileCameraMove";
+import { computeModelRestExtent } from "./computeModelRestExtent";
+import { computeRestHeight } from "./computeRestHeight";
 import { compileLaunch } from "./compileLaunch";
 import { coupleObjects } from "./coupleObjects";
-import { bakedTransformFromClipsAt } from "./followClip";
-import { gateAuthoredObjectMotions } from "./objectMotionGate";
-import { IAutoMovieStagedSet } from "./stageScene";
-import {
-  IAutoMovieFramedBox,
-  IAutoMovieSubjectBox,
-  formationMemberExtent,
-  formationSubjectBox,
-  framedBoxOf,
-  nodeSubjectBox,
-  nodeSubjectExtent,
-  unionSubjectBoxes,
-} from "./subjectExtent";
-
-/**
- * A node's animated **world** position over shot time: its staged `base` plus
- * the node-local root displacement of `motion` at that instant, rotated into
- * the world by the node's staged `facing`. The read shared by a `follow` camera
- * tracking a walking actor and a `launch` leading a moving target, one place,
- * one convention (the root is node-local; the renderer applies it under the
- * same facing).
- */
-const animatedBaseAt =
-  (
-    base: IAutoMovieVector3,
-    facing: IAutoMovieQuaternion,
-    motion: IAutoMovieMotion,
-  ) =>
-  (seconds: number): IAutoMovieVector3 =>
-    Vector3.add(
-      base,
-      Quaternion.rotateVector(
-        facing,
-        sampleMotion(motion, seconds).pose.root?.translation ?? {
-          x: 0,
-          y: 0,
-          z: 0,
-        },
-      ),
-    );
-
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === "object" && value !== null && !Array.isArray(value);
-
-const isFiniteVector3 = (vector: IAutoMovieVector3): boolean =>
-  [vector.x, vector.y, vector.z].every((coordinate) =>
-    Number.isFinite(coordinate),
-  );
-
-const isFiniteQuaternion = (rotation: IAutoMovieQuaternion): boolean =>
-  [rotation.x, rotation.y, rotation.z, rotation.w].every((component) =>
-    Number.isFinite(component),
-  );
-
-const actionActors = (action: IAutoMovieActionCall): string[] =>
-  typeof action.actor === "string"
-    ? [action.actor]
-    : Array.isArray(action.actor)
-      ? action.actor
-      : [];
-
-const EVENT_KIND_ORDER: Record<IAutoMovieInteractionEvent["kind"], number> = {
-  contact: 0,
-  hit: 1,
-  fall: 2,
-  grab: 3,
-  attach: 4,
-  detach: 5,
-  release: 6,
-};
-
-const CAMERA_FRAMINGS = new Set<IAutoMovieCameraAction["framing"]>([
-  "wide",
-  "full",
-  "medium",
-  "close",
-]);
-
-const CAMERA_MOVES = new Set<IAutoMovieCameraAction["move"]>([
-  "static",
-  "follow",
-  "orbit",
-  "push-in",
-  "truck",
-  "whip",
-]);
-
-const orderEvents = (
-  events: readonly IAutoMovieInteractionEvent[],
-): IAutoMovieInteractionEvent[] =>
-  [...events].sort(
-    (a, b) =>
-      a.time - b.time ||
-      EVENT_KIND_ORDER[a.kind] - EVENT_KIND_ORDER[b.kind] ||
-      compareCodeUnits(a.id, b.id),
-  );
-
-/**
- * A performed shot: the assembled {@link IAutoMovieShot} plus the dense motion
- * clips the builder synthesised for it. The clips travel alongside the shot
- * because the shot references them by id, the host registers them wherever its
- * clip store lives.
- *
- * @evidence requirements/staging/budgets-safety-and-validation.md#staging-deterministic-replay IAutoMoviePerformedShot supports reproducible staging and performance: A performed shot: the assembled {@link IAutoMovieShot} plus the dense motion clips the builder synthesised for it. The clips travel alongside the shot because the shot references them by id, the host registers them wherever its clip store lives.
- * @evidence specifications/performance-motion-and-staging/staging-events-coverage-and-validation.md#performance-staging-deterministic-replay-failure-result IAutoMoviePerformedShot realizes deterministic staging replay and validation: A performed shot: the assembled {@link IAutoMovieShot} plus the dense motion clips the builder synthesised for it. The clips travel alongside the shot because the shot references them by id, the host registers them wherever its clip store lives.
- * @author Samchon
- */
-export type IAutoMoviePerformedShot =
-  | IAutoMoviePerformedShot.ISuccess
-  | IAutoMoviePerformedShot.IFailure;
-export namespace IAutoMoviePerformedShot {
-  /**
-   * The performance compiled and every clip passed validation.
-   *
-   * @evidence requirements/staging/budgets-safety-and-validation.md#staging-deterministic-replay IAutoMoviePerformedShot.ISuccess supports reproducible staging and performance: The performance compiled and every clip passed validation.
-   * @evidence specifications/performance-motion-and-staging/staging-events-coverage-and-validation.md#performance-staging-deterministic-replay-failure-result IAutoMoviePerformedShot.ISuccess realizes deterministic staging replay and validation: The performance compiled and every clip passed validation.
-   */
-  export interface ISuccess {
-    /**
-     * Discriminator.
-     *
-     * @evidence requirements/staging/budgets-safety-and-validation.md#staging-deterministic-replay The success discriminator keeps successful and failed performed-shot replay outcomes structurally distinct.
-     * @evidence specifications/performance-motion-and-staging/staging-events-coverage-and-validation.md#performance-staging-deterministic-replay-failure-result IAutoMoviePerformedShot.ISuccess.success admits the compiled shot and validated motion bundle to editing.
-     */
-    success: true;
-
-    /**
-     * The shot, ready for the cut.
-     *
-     * @evidence requirements/staging/budgets-safety-and-validation.md#staging-deterministic-replay IAutoMoviePerformedShot.ISuccess.shot supports reproducible staging and performance: The shot, ready for the cut.
-     * @evidence specifications/performance-motion-and-staging/staging-events-coverage-and-validation.md#performance-staging-deterministic-replay-failure-result IAutoMoviePerformedShot.ISuccess.shot realizes deterministic staging replay and validation: The shot, ready for the cut.
-     */
-    shot: IAutoMovieShot;
-
-    /**
-     * The synthesised per-actor clips, keyed by scene-node id.
-     *
-     * @evidence requirements/staging/budgets-safety-and-validation.md#staging-deterministic-replay IAutoMoviePerformedShot.ISuccess.motions supports reproducible staging and performance: The synthesised per-actor clips, keyed by scene-node id.
-     * @evidence specifications/performance-motion-and-staging/staging-events-coverage-and-validation.md#performance-staging-deterministic-replay-failure-result IAutoMoviePerformedShot.ISuccess.motions realizes deterministic staging replay and validation: The synthesised per-actor clips, keyed by scene-node id.
-     */
-    motions: Record<string, IAutoMovieMotion>;
-
-    /**
-     * Ground-IK stance runs produced for gait or resumed opening plants.
-     *
-     * @evidence requirements/staging/budgets-safety-and-validation.md#staging-deterministic-replay IAutoMoviePerformedShot.ISuccess.plants supports reproducible staging and performance: Ground-IK stance runs produced for gait or resumed opening plants.
-     * @evidence specifications/performance-motion-and-staging/staging-events-coverage-and-validation.md#performance-staging-deterministic-replay-failure-result IAutoMoviePerformedShot.ISuccess.plants realizes deterministic staging replay and validation: Ground-IK stance runs produced for gait or resumed opening plants.
-     */
-    plants: Array<{
-      /** Scene node owning these world-space plant runs. */
-      node: string;
-      /** Current-shot stance runs carried into the next beat. */
-      plants: IAutoMovieBeatEndFootPlant[];
-    }>;
-  }
-
-  /**
-   * The action list contradicted the stage, or a compiled clip broke ROM.
-   *
-   * @evidence requirements/staging/budgets-safety-and-validation.md#staging-failure-status Withholds the performed shot when an action contradicts the staged world or a synthesized clip fails its motion gate, preserving an actionable failure branch.
-   * @evidence specifications/performance-motion-and-staging/staging-events-coverage-and-validation.md#performance-staging-deterministic-replay-failure-result IAutoMoviePerformedShot.IFailure realizes deterministic staging replay and validation: The action list contradicted the stage, or a compiled clip broke ROM.
-   */
-  export interface IFailure {
-    /**
-     * Discriminator.
-     *
-     * @evidence requirements/staging/budgets-safety-and-validation.md#staging-failure-status The success discriminator keeps successful and failed performance failure outcomes structurally distinct.
-     * @evidence specifications/performance-motion-and-staging/staging-events-coverage-and-validation.md#performance-staging-deterministic-replay-failure-result IAutoMoviePerformedShot.IFailure.success prevents failed synthesis from yielding a playable shot.
-     */
-    success: false;
-
-    /**
-     * Every violation found, for the correction round.
-     *
-     * @evidence requirements/staging/budgets-safety-and-validation.md#staging-failure-status Returns addressed action-reference, synthesis, range-of-motion, and plant failures instead of a partial performed shot.
-     * @evidence specifications/performance-motion-and-staging/staging-events-coverage-and-validation.md#performance-staging-deterministic-replay-failure-result IAutoMoviePerformedShot.IFailure.violations realizes deterministic staging replay and validation: Every violation found, for the correction round.
-     */
-    violations: IAutoMovieConstraintViolation[];
-  }
-}
+import { bakedTransformFromClipsAt } from "./bakedTransformFromClipsAt";
+import { gateAuthoredObjectMotions } from "./gateAuthoredObjectMotions";
+import { IAutoMovieStagedSet } from "./IAutoMovieStagedSet";
+import { IAutoMovieFramedBox } from "./IAutoMovieFramedBox";
+import { IAutoMovieSubjectBox } from "./IAutoMovieSubjectBox";
+import { formationMemberExtent } from "./formationMemberExtent";
+import { formationSubjectBox } from "./formationSubjectBox";
+import { framedBoxOf } from "./framedBoxOf";
+import { nodeSubjectBox } from "./nodeSubjectBox";
+import { nodeSubjectExtent } from "./nodeSubjectExtent";
+import { unionSubjectBoxes } from "./unionSubjectBoxes";
+import { isRecord } from "../validation/isRecord";
+import { IAutoMoviePerformedShot } from "./IAutoMoviePerformedShot";
 
 /**
  * The PERFORMANCE consumer, fold one beat's action calls into an
@@ -2268,3 +2063,76 @@ export const performShot = (props: {
 
   return { success: true, shot, motions, plants };
 };
+
+/**
+ * A node's animated **world** position over shot time: its staged `base` plus
+ * the node-local root displacement of `motion` at that instant, rotated into
+ * the world by the node's staged `facing`. The read shared by a `follow` camera
+ * tracking a walking actor and a `launch` leading a moving target, one place,
+ * one convention (the root is node-local; the renderer applies it under the
+ * same facing).
+ */
+const animatedBaseAt =
+  (
+    base: IAutoMovieVector3,
+    facing: IAutoMovieQuaternion,
+    motion: IAutoMovieMotion,
+  ) =>
+  (seconds: number): IAutoMovieVector3 =>
+    Vector3.add(
+      base,
+      Quaternion.rotateVector(
+        facing,
+        sampleMotion(motion, seconds).pose.root?.translation ?? {
+          x: 0,
+          y: 0,
+          z: 0,
+        },
+      ),
+    );
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null && !Array.isArray(value);
+
+const isFiniteVector3 = (vector: IAutoMovieVector3): boolean =>
+  [vector.x, vector.y, vector.z].every((coordinate) =>
+    Number.isFinite(coordinate),
+  );
+
+const isFiniteQuaternion = (rotation: IAutoMovieQuaternion): boolean =>
+  [rotation.x, rotation.y, rotation.z, rotation.w].every((component) =>
+    Number.isFinite(component),
+  );
+
+const actionActors = (action: IAutoMovieActionCall): string[] =>
+  typeof action.actor === "string"
+    ? [action.actor]
+    : Array.isArray(action.actor)
+      ? action.actor
+      : [];
+
+const CAMERA_FRAMINGS = new Set<IAutoMovieCameraAction["framing"]>([
+  "wide",
+  "full",
+  "medium",
+  "close",
+]);
+
+const CAMERA_MOVES = new Set<IAutoMovieCameraAction["move"]>([
+  "static",
+  "follow",
+  "orbit",
+  "push-in",
+  "truck",
+  "whip",
+]);
+
+const orderEvents = (
+  events: readonly IAutoMovieInteractionEvent[],
+): IAutoMovieInteractionEvent[] =>
+  [...events].sort(
+    (a, b) =>
+      a.time - b.time ||
+      EVENT_KIND_ORDER[a.kind] - EVENT_KIND_ORDER[b.kind] ||
+      compareCodeUnits(a.id, b.id),
+  );

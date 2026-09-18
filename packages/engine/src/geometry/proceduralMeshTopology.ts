@@ -8,8 +8,8 @@
  */
 import { IAutoMovieMesh } from "@automovie/interface";
 
-import { triangleIndicesOf } from "./proceduralMeshBuffers";
-import { IAutoMovieMeshTopology } from "./proceduralMeshTypes";
+import { triangleIndicesOf } from "./triangleIndicesOf";
+import { IAutoMovieMeshTopology } from "./IAutoMovieMeshTopology";
 
 /**
  * Measure a mesh's triangle topology instead of assuming it.

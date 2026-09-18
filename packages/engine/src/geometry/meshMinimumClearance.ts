@@ -9,10 +9,8 @@
 import type { IAutoMovieMesh } from "@automovie/interface";
 
 import { solveAutoMovieBoundedDisplacement } from "../math/boundedDisplacement";
-import {
-  type IAutoMovieMeshClearanceWitness,
-  measureAutoMovieMeshClearance,
-} from "./meshClearance";
+import { type IAutoMovieMeshClearanceWitness } from "./IAutoMovieMeshClearanceWitness";
+import { measureAutoMovieMeshClearance } from "./measureAutoMovieMeshClearance";
 
 /**
  * Return joint vertex travel along one positive local axis, in metres. The

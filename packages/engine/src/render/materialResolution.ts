@@ -1,6 +1,6 @@
 import type { IAutoMovieMaterial, IAutoMovieModel } from "@automovie/interface";
 
-import { compareAutoMovieRenderIds } from "./renderDigest";
+import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
 
 /**
  * Resolve one cross-model material id to one complete material definition.

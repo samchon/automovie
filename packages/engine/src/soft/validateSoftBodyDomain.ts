@@ -1,66 +1,12 @@
-import {
-  IAutoMovieSoftBodyDomain,
-  IAutoMovieSoftCollider,
-  IAutoMovieValidation,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-
-import { ViolationCollector } from "../validation/violation";
-import { softBodyTravelNumber } from "./softBody";
-
-/**
- * Particles one panel may hold, so a lattice cannot silently cost a gigabyte.
- *
- * @evidence requirements/effects-and-simulation/soft-bodies-and-deformation.md#effects-soft-discretization-identity Bounds the particle topology carried by one stable domain identity.
- * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-static-moving-anchor-input Makes the bounded particle lattice part of the solver-domain contract.
- * @author Samchon
- */
-export const SOFT_MAX_PARTICLES = 16_384;
-
-/**
- * Absolute steps one seek may integrate.
- *
- * @evidence requirements/effects-and-simulation/soft-bodies-and-deformation.md#effects-soft-solver-state Bounds replay work needed to derive one complete solver state.
- * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-collider-and-solver-transition Makes step admission finite before state transition.
- * @author Samchon
- */
-export const SOFT_MAX_STEPS = 100_000;
-
-/**
- * Constraint relaxation sweeps one step may cost.
- *
- * @evidence requirements/effects-and-simulation/soft-bodies-and-deformation.md#effects-soft-solver-state Bounds deterministic constraint work per solver state transition.
- * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-collider-and-solver-transition Applies the declared iteration cap during ordered transition.
- * @author Samchon
- */
-export const SOFT_MAX_ITERATIONS = 64;
-
-/**
- * Anchors one panel may declare.
- *
- * @evidence requirements/effects-and-simulation/soft-bodies-and-deformation.md#effects-soft-anchors Bounds the static and moving attachment inventory.
- * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-static-moving-anchor-input Keeps anchor evaluation finite at each fixed-step boundary.
- * @author Samchon
- */
-export const SOFT_MAX_ANCHORS = 4_096;
-
-/**
- * Named anchor states one panel may declare.
- *
- * @evidence requirements/effects-and-simulation/soft-bodies-and-deformation.md#effects-soft-solver-state Bounds named solver-state alternatives carried by one domain.
- * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-collider-and-solver-transition Keeps state selection inside a finite deterministic transition input.
- * @author Samchon
- */
-export const SOFT_MAX_STATES = 32;
-
-/**
- * Colliders one panel may be kept out of.
- *
- * @evidence requirements/effects-and-simulation/soft-bodies-and-deformation.md#effects-soft-colliders Bounds the shared proxy inventory presented to the solver.
- * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-collider-and-solver-transition Keeps ordered collision projection finite.
- * @author Samchon
- */
-export const SOFT_MAX_COLLIDERS = 64;
+import { IAutoMovieSoftBodyDomain, IAutoMovieSoftCollider, IAutoMovieValidation, IAutoMovieVector3 } from "@automovie/interface";
+import { ViolationCollector } from "../validation/ViolationCollector";
+import { softBodyTravelNumber } from "./softBodyTravelNumber";
+import { SOFT_MAX_ANCHORS } from "./SOFT_MAX_ANCHORS";
+import { SOFT_MAX_COLLIDERS } from "./SOFT_MAX_COLLIDERS";
+import { SOFT_MAX_ITERATIONS } from "./SOFT_MAX_ITERATIONS";
+import { SOFT_MAX_PARTICLES } from "./SOFT_MAX_PARTICLES";
+import { SOFT_MAX_STATES } from "./SOFT_MAX_STATES";
+import { SOFT_MAX_STEPS } from "./SOFT_MAX_STEPS";
 
 /**
  * Validate a soft-body domain's lattice, budgets, stability, anchors, states
@@ -648,4 +594,140 @@ const identity = (
   else if (seen.has(id))
     out.push("type", `${path}.id`, `${label} id "${id}" is duplicated`, id);
   seen.add(id);
+};
+
+/** Whether a point lies strictly inside one collider. */
+const embedded = (
+  collider: IAutoMovieSoftCollider,
+  point: IAutoMovieVector3,
+): boolean => {
+  if (collider.kind === "plane") {
+    const length = magnitude(collider.normal);
+    if (length === 0) return false;
+    return (
+      (collider.normal.x * point.x +
+        collider.normal.y * point.y +
+        collider.normal.z * point.z) /
+        length <
+      collider.offset
+    );
+  }
+  if (collider.kind === "sphere") {
+    const dx = point.x - collider.center.x;
+    const dy = point.y - collider.center.y;
+    const dz = point.z - collider.center.z;
+    return Math.sqrt(dx * dx + dy * dy + dz * dz) < collider.radius;
+  }
+  // A body capsule is actor-local until the primary pose is evaluated. Treating
+  // its bone labels as world coordinates would invent an origin collider and
+  // reject an otherwise valid authored rest mesh.
+  if (collider.kind === "body-capsule") return false;
+  return (
+    point.x > collider.min.x &&
+    point.x < collider.max.x &&
+    point.y > collider.min.y &&
+    point.y < collider.max.y &&
+    point.z > collider.min.z &&
+    point.z < collider.max.z
+  );
+};
+
+/** Euclidean length of one authored vector. */
+const magnitude = (vector: IAutoMovieVector3): number =>
+  Math.sqrt(vector.x * vector.x + vector.y * vector.y + vector.z * vector.z);
+
+/** Refuse a structural rest edge whose two particles sit on the same point. */
+const coincident = (
+  out: ViolationCollector,
+  root: string,
+  domain: IAutoMovieSoftBodyDomain,
+  a: number,
+  b: number,
+): void => {
+  const dx = domain.rest[b * 3] - domain.rest[a * 3];
+  const dy = domain.rest[b * 3 + 1] - domain.rest[a * 3 + 1];
+  const dz = domain.rest[b * 3 + 2] - domain.rest[a * 3 + 2];
+  if (dx * dx + dy * dy + dz * dz !== 0) return;
+  out.push(
+    "type",
+    `${root}.rest[${a * 3}]`,
+    `rest particles ${a} and ${b} are coincident, so the constraint between them has no direction`,
+    [a, b],
+  );
+};
+
+/** Every component of an authored vector must be a real number. */
+const vector = (
+  out: ViolationCollector,
+  path: string,
+  value: IAutoMovieVector3,
+): void => {
+  for (const axis of ["x", "y", "z"] as const)
+    numeric(
+      out,
+      `${path}.${axis}`,
+      `${axis} component`,
+      value[axis],
+      -Infinity,
+      false,
+      Infinity,
+    );
+};
+
+/** A finite scalar inside `[min, max]`, or `(min, max]` when `exclusive`. */
+const numeric = (
+  out: ViolationCollector,
+  path: string,
+  label: string,
+  value: number,
+  min: number,
+  exclusive: boolean,
+  max: number,
+): void => {
+  if (
+    !Number.isFinite(value) ||
+    (exclusive ? value <= min : value < min) ||
+    value > max
+  )
+    out.push(
+      "range",
+      path,
+      `${label} must be finite within ${exclusive ? "(" : "["}${min}, ${max}]`,
+      value,
+    );
+};
+
+/** A safe integer inside `[min, max]`. */
+const integer = (
+  out: ViolationCollector,
+  path: string,
+  label: string,
+  value: number,
+  min: number,
+  max: number,
+): void => {
+  if (!Number.isSafeInteger(value) || value < min || value > max)
+    out.push(
+      "type",
+      path,
+      `${label} must be an integer within [${min}, ${max}]`,
+      value,
+    );
+};
+
+/** A particle-indexed array whose length must equal the lattice's own. */
+const length = (
+  out: ViolationCollector,
+  path: string,
+  label: string,
+  actual: number,
+  expected: number,
+): void => {
+  if (actual !== expected)
+    out.push(
+      "type",
+      path,
+      `${label} must hold exactly ${expected} values, but held ${actual}`,
+      actual,
+    );
 };

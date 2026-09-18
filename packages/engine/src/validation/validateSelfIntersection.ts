@@ -1,53 +1,15 @@
-import {
-  AutoMovieHumanoidBone,
-  IAutoMovieMotion,
-  IAutoMovieSkeleton,
-  IAutoMovieValidation,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-
-import {
-  IAutoMovieJointAxes,
-  indexSkeletonTopology,
-  resolvePose,
-} from "../kinematics";
-import { segmentSegmentDistance } from "../math/segments";
-import { sampleTimes } from "../motion/sampleClock";
+import { AutoMovieHumanoidBone, IAutoMovieMotion, IAutoMovieSkeleton, IAutoMovieValidation, IAutoMovieVector3 } from "@automovie/interface";
+import { IAutoMovieJointAxes } from "../kinematics/IAutoMovieJointAxes";
+import { indexSkeletonTopology } from "../kinematics/indexSkeletonTopology";
+import { resolvePose } from "../kinematics/resolvePose";
+import { segmentSegmentDistance } from "../math/segmentSegmentDistance";
+import { sampleTimes } from "../motion/sampleTimes";
 import { sampleMotion } from "../motion/sampleMotion";
-import { IAutoMovieRestFrame } from "../rom/restFrame";
+import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { IAutoMovieCapsuleProxy, validateCapsule } from "./capsuleProxy";
 import { fkReachableBones } from "./fkReachableBones";
-import { ViolationCollector } from "./violation";
-
-const DEFAULT_SAMPLE_RATE = 24;
-
-/**
- * Explicit capsule pair to test for overlap.
- *
- * Pairing is explicit because adjacent anatomical capsules often share joints
- * and should not be treated as self-intersections.
- *
- * @evidence requirements/diagnostics/identity-path-and-context.md#diagnostics-path-and-scope `IAutoMovieCapsuleProxyPair` binds the two explicitly selected body proxies to one self-overlap validation entry.
- * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-path-scope `IAutoMovieCapsuleProxyPair` provides the pair index and endpoint identities needed to reconstruct an affected capsule relation.
- * @author Samchon
- */
-export interface IAutoMovieCapsuleProxyPair {
-  /**
-   * First capsule in the pair.
-   *
-   * @evidence requirements/diagnostics/identity-path-and-context.md#diagnostics-path-and-scope `first` identifies the first bone segment and radius participating in the declared overlap test.
-   * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-path-scope `first` retains its own endpoint fields so malformed proxy input is reported under the first pair arm.
-   */
-  first: IAutoMovieCapsuleProxy;
-
-  /**
-   * Second capsule in the pair.
-   *
-   * @evidence requirements/diagnostics/identity-path-and-context.md#diagnostics-path-and-scope `second` identifies the comparison segment whose distance from the first proxy determines penetration.
-   * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-path-scope `second` keeps its endpoint and radius address separate from the other arm of the capsule relation.
-   */
-  second: IAutoMovieCapsuleProxy;
-}
+import { ViolationCollector } from "./ViolationCollector";
+import { IAutoMovieCapsuleProxyPair } from "./IAutoMovieCapsuleProxyPair";
 
 /**
  * Tier-3 self-intersection check over declared capsule proxy pairs. It samples
@@ -163,6 +125,32 @@ export const validateSelfIntersection = (props: {
 
   return collector.toValidation();
 };
+
+const rejectSampleRate = (
+  collector: ViolationCollector,
+  path: string,
+  sampleRate: number,
+): IAutoMovieValidation => {
+  collector.push(
+    "range",
+    `${path}.sampleRate`,
+    `sampleRate must be a finite number > 0, but was ${sampleRate}`,
+    sampleRate,
+  );
+  return collector.toValidation();
+};
+
+const resolveCapsule = (
+  capsule: IAutoMovieCapsuleProxy,
+  resolved: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieVector3>,
+): { from: IAutoMovieVector3; to: IAutoMovieVector3 } => ({
+  from: resolved.get(capsule.from)!,
+  to: resolved.get(capsule.to)!,
+});
+
+const round = (value: number): number => Math.round(value * 1_000) / 1_000;
+
+const DEFAULT_SAMPLE_RATE = 24;
 
 const rejectSampleRate = (
   collector: ViolationCollector,

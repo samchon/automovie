@@ -24,13 +24,13 @@ import type {
 } from "@automovie/interface";
 
 import { resolveAutoMovieMaterial } from "./materialResolution";
-import { compareAutoMovieRenderIds } from "./renderDigest";
-import { texturesOf } from "./renderInventoryGeometry";
-import { AUTOMOVIE_TEXEL_BYTES } from "./renderInventoryMetrics";
+import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
+import { texturesOf } from "./texturesOf";
+import { AUTOMOVIE_TEXEL_BYTES } from "./AUTOMOVIE_TEXEL_BYTES";
 import { measureRenderPopulation } from "./renderInventoryPopulation";
 import { measureRenderSimulation } from "./renderInventorySimulation";
-import type { IAutoMovieRenderSubject } from "./renderSubject";
-import { autoMovieSemanticMaskNodeIndex } from "./semanticMask";
+import type { IAutoMovieRenderSubject } from "./IAutoMovieRenderSubject";
+import { autoMovieSemanticMaskNodeIndex } from "./autoMovieSemanticMaskNodeIndex";
 
 export {
   AUTOMOVIE_RENDER_METRICS,

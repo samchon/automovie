@@ -3,10 +3,10 @@ import {
   selectAutoMovieTriangleRegion,
   triangulateAutoMovieRegion,
 } from "@automovie/engine";
-import { portraitPart } from "@automovie/human/geometry/geometry";
-import type { IPortraitComponent } from "@automovie/human/geometry/portraitComponents";
-import type { IPortraitFinalSurfaceHost } from "@automovie/human/geometry/portraitFinalSurface";
-import type { IControlMesh } from "@automovie/human/geometry/subdivideControlMesh";
+import { portraitPart } from "@automovie/human/face/mesh/portraitPart";
+import type { IPortraitComponent } from "@automovie/human/face/surface/IPortraitComponent";
+import type { IPortraitFinalSurfaceHost } from "@automovie/human/face/surface/IPortraitFinalSurfaceHost";
+import type { IControlMesh } from "@automovie/human/face/mesh/IControlMesh";
 
 import { fitPortraitJoinReference } from "./portraitJoinReference";
 import {

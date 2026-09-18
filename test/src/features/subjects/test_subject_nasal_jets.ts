@@ -1,7 +1,5 @@
-import {
-  portraitNasalJetCorrection,
-  samplePortraitNasalSection,
-} from "@automovie/human/components/nasalAperture";
+import { portraitNasalJetCorrection } from "@automovie/human/face/anatomy/nose/portraitNasalJetCorrection";
+import { samplePortraitNasalSection } from "@automovie/human/face/anatomy/nose/samplePortraitNasalSection";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, throwsError } from "../internal/predicates";

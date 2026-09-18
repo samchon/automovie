@@ -1,9 +1,7 @@
-import type { IPortraitEyePerformance } from "@automovie/human/components/eyePerformance";
-import {
-  type IPortraitEyeShape,
-  createPortraitEyeComponent,
-} from "@automovie/human/components/eyes";
-import { portraitNormals } from "@automovie/human/geometry/geometry";
+import type { IPortraitEyePerformance } from "@automovie/human/face/anatomy/eye/structures/IPortraitEyePerformance";
+import { createPortraitEyeComponent } from "@automovie/human/face/anatomy/eye/createPortraitEyeComponent";
+import { type IPortraitEyeShape } from "@automovie/human/face/anatomy/eye/structures/IPortraitEyeShape";
+import { portraitNormals } from "@automovie/human/face/mesh/portraitNormals";
 import { TestValidator } from "@nestia/e2e";
 
 import { portraitEyeShapeFixture } from "../internal/portraitEyeShapeFixture";

@@ -8,9 +8,10 @@
  */
 import { IAutoMovieMesh } from "@automovie/interface";
 
-import { countAtLeast, finitePoint } from "./proceduralDimensions";
-import { meshOf } from "./proceduralMeshBuffers";
-import { IAutoMovieProfilePoint } from "./proceduralMeshTypes";
+import { countAtLeast } from "./countAtLeast";
+import { finitePoint } from "./finitePoint";
+import { meshOf } from "./meshOf";
+import { IAutoMovieProfilePoint } from "./IAutoMovieProfilePoint";
 
 /**
  * Revolve a radius/height profile around local Y into a closed surface.

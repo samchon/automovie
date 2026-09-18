@@ -5,7 +5,7 @@ import {
 } from "@automovie/interface";
 
 import { compareCodeUnits } from "../text/compareCodeUnits";
-import { engineDiagnostic } from "./productionValidationDiagnostics";
+import { engineDiagnostic } from "./engineDiagnostic";
 
 /**
  * Validate shot-local effect cues against builder-owned streams and events.

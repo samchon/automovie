@@ -15,14 +15,12 @@ import type {
 } from "@automovie/interface";
 
 import { tessellateSurface } from "../geometry/surfaceMesh";
-import { measure } from "./renderInventoryGeometry";
-import {
-  AUTOMOVIE_INDEX_BYTES,
-  AUTOMOVIE_NORMAL_BYTES,
-  AUTOMOVIE_POSITION_BYTES,
-} from "./renderInventoryMetrics";
-import type { IAutoMovieRenderSubject } from "./renderSubject";
-import type { autoMovieSemanticMaskNodeIndex } from "./semanticMask";
+import { measure } from "./measure";
+import { AUTOMOVIE_INDEX_BYTES } from "./AUTOMOVIE_INDEX_BYTES";
+import { AUTOMOVIE_NORMAL_BYTES } from "./AUTOMOVIE_NORMAL_BYTES";
+import { AUTOMOVIE_POSITION_BYTES } from "./AUTOMOVIE_POSITION_BYTES";
+import type { IAutoMovieRenderSubject } from "./IAutoMovieRenderSubject";
+import type { autoMovieSemanticMaskNodeIndex } from "./autoMovieSemanticMaskNodeIndex";
 
 /**
  * Account for staged and compact populations before simulation and frame passes.

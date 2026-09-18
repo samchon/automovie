@@ -8,3 +8,6 @@ export * from "./materializeCompiledFormationInventory";
 export * from "./materializeCompiledInstanceSet";
 export * from "./materializeCompiledInstanceSetInventory";
 export * from "./selectInstancePrototype";
+export * from "./compiledLodRecipeDigest";
+export * from "./compiledPopulationRepresentation";
+export * from "./summarizeCompiledSlotRange";

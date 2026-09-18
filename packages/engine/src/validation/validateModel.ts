@@ -13,26 +13,21 @@ import type {
   IAutoMovieValidation,
 } from "@automovie/interface";
 
-import { validateExtents, validateMesh } from "./validateModelGeometry";
-import {
-  finiteMinimum,
-  finiteNumber,
-  validateColor,
-  validateTextureBinding,
-} from "./validateModelMaterials";
-import {
-  validateAffordance,
-  validateBody,
-  validateNonEmptyId,
-  validateUniqueValues,
-} from "./validateModelMetadata";
-import {
-  validateJointConstraint,
-  validateSkeletonGraph,
-} from "./validateModelRig";
+import { validateExtents } from "./validateExtents";
+import { validateMesh } from "./validateMesh";
+import { finiteMinimum } from "./finiteMinimum";
+import { finiteNumber } from "./finiteNumber";
+import { validateColor } from "./validateColor";
+import { validateTextureBinding } from "./validateTextureBinding";
+import { validateAffordance } from "./validateAffordance";
+import { validateBody } from "./validateBody";
+import { validateNonEmptyId } from "./validateNonEmptyId";
+import { validateUniqueValues } from "./validateUniqueValues";
+import { validateJointConstraint } from "./validateJointConstraint";
+import { validateSkeletonGraph } from "./validateSkeletonGraph";
 import { validateProfileCapabilities } from "./validateProfileCapabilities";
 import { validateTransformScalars } from "./validateTransformScalars";
-import { ViolationCollector } from "./violation";
+import { ViolationCollector } from "./ViolationCollector";
 
 /**
  * Validate an {@link IAutoMovieModel}: Tier-1 structural/range checks over its

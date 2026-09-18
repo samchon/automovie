@@ -6,7 +6,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { IAutoMovieRestFrame } from "../rom/restFrame";
+import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 
 /**
  * The per-actor context the reference {@link makeActorSynthesizer} needs to

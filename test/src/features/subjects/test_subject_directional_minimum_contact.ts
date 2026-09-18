@@ -1,4 +1,4 @@
-import { portraitMinimumDirectionalSurfaceTargets } from "@automovie/human/geometry/portraitDirectionalContact";
+import { portraitMinimumDirectionalSurfaceTargets } from "@automovie/human/face/surface/portraitMinimumDirectionalSurfaceTargets";
 import type { IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 

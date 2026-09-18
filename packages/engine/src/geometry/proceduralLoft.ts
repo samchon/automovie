@@ -10,20 +10,17 @@
 import { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
-import { finiteVector } from "./proceduralDimensions";
-import { emptyMeshTarget, pushFlatTriangle } from "./proceduralMeshBuffers";
-import {
-  IAutoMovieLoftSection,
-  IAutoMovieProfilePoint,
-  IAutoMovieRegionTriangulation,
-} from "./proceduralMeshTypes";
+import { finiteVector } from "./finiteVector";
+import { emptyMeshTarget } from "./emptyMeshTarget";
+import { pushFlatTriangle } from "./pushFlatTriangle";
+import { IAutoMovieLoftSection } from "./IAutoMovieLoftSection";
+import { IAutoMovieProfilePoint } from "./IAutoMovieProfilePoint";
+import { IAutoMovieRegionTriangulation } from "./IAutoMovieRegionTriangulation";
 import { pathFrames } from "./proceduralPathFrames";
-import {
-  PLANAR_EPSILON,
-  canonicalRegion,
-  signedArea,
-  trianglesOf,
-} from "./proceduralRegionTriangulation";
+import { PLANAR_EPSILON } from "./PLANAR_EPSILON";
+import { canonicalRegion } from "./canonicalRegion";
+import { signedArea } from "./signedArea";
+import { trianglesOf } from "./trianglesOf";
 
 /**
  * Loft free-form sections along a path, interpolating the section between them.

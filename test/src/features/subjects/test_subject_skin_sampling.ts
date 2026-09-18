@@ -1,5 +1,5 @@
-import { refinePortraitSurfaceSampling } from "@automovie/human/geometry/refinePortraitSurfaceSampling";
-import type { IControlMesh } from "@automovie/human/geometry/subdivideControlMesh";
+import { refinePortraitSurfaceSampling } from "@automovie/human/face/surface/refinePortraitSurfaceSampling";
+import type { IControlMesh } from "@automovie/human/face/mesh/IControlMesh";
 import type { IAutoMovieMeshDeformationField } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 

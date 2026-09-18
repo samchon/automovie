@@ -72,6 +72,7 @@ export default {
   extends: "../../config/lint.config.ts",
   plugins: { evidence },
   rules: {
+    "evidence/singular": "error",
     "evidence/documented": [
       "error",
       { symbol: ["type", "function", "property"] },

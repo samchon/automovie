@@ -1,5 +1,5 @@
 import { buildPortraitHead, preparePortraitHead } from "@automovie/human";
-import type { IPortraitComponent } from "@automovie/human/geometry/portraitComponents";
+import type { IPortraitComponent } from "@automovie/human/face/surface/IPortraitComponent";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFaceFixture } from "../internal/humanFaceFixture";

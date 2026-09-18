@@ -1,4 +1,4 @@
-import type { IControlMesh } from "@automovie/human/geometry/subdivideControlMesh";
+import type { IControlMesh } from "@automovie/human/face/mesh/IControlMesh";
 
 /**
  * Refine a joining surface without subdividing either attachment boundary.

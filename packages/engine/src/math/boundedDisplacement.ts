@@ -6,11 +6,9 @@
  * numerical residual. Grouping chooses work order, never which contacts count.
  * Geometry and physical units belong to the caller; no tissue model is inferred.
  */
-import {
-  type IAutoMovieQuadraticRow,
-  assembleAutoMovieQuadraticProgram,
-  solveAutoMovieQuadraticProgram,
-} from "./quadraticProgram";
+import { type IAutoMovieQuadraticRow } from "./IAutoMovieQuadraticRow";
+import { assembleAutoMovieQuadraticProgram } from "./assembleAutoMovieQuadraticProgram";
+import { solveAutoMovieQuadraticProgram } from "./solveAutoMovieQuadraticProgram";
 
 /**
  * Minimize 1/2 sum(mass[i] * travel[i]^2) with 0 <= travel <= upper and every

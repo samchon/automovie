@@ -8,8 +8,9 @@
  */
 import { IAutoMovieMesh } from "@automovie/interface";
 
-import { finitePoint, positive } from "./proceduralDimensions";
-import { IAutoMovieWallOpening } from "./proceduralMeshTypes";
+import { finitePoint } from "./finitePoint";
+import { positive } from "./positive";
+import { IAutoMovieWallOpening } from "./IAutoMovieWallOpening";
 
 /**
  * Build a local XY wall around rectangular door/window openings.

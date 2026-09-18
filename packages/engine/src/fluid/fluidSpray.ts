@@ -6,7 +6,7 @@ import {
   IAutoMovieFluidState,
 } from "@automovie/interface";
 
-import { seededValue } from "../math/random";
+import { seededValue } from "../math/seededValue";
 
 const JITTER_X = 0x73707278;
 const JITTER_Y = 0x73707279;

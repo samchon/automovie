@@ -1,8 +1,6 @@
 import { validateMeshTopology } from "@automovie/engine";
-import {
-  type IPortraitDentalCrown,
-  buildPortraitDentalCrown,
-} from "@automovie/human/components/dentalCrown";
+import { buildPortraitDentalCrown } from "@automovie/human/face/anatomy/dental/buildPortraitDentalCrown";
+import { type IPortraitDentalCrown } from "@automovie/human/face/anatomy/dental/structures/IPortraitDentalCrown";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, throwsError } from "../internal/predicates";

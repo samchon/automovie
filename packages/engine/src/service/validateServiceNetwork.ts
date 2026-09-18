@@ -11,23 +11,20 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { builtEnvironmentContainsPoint } from "../architecture/builtEnvironment";
-import { outlineHull, polygonInside } from "../architecture/planarGeometry";
-import {
-  propBoundsOverlap,
-  propSpaceContainsBounds,
-} from "../film/propPlacement";
+import { builtEnvironmentContainsPoint } from "../architecture/builtEnvironmentContainsPoint";
+import { outlineHull } from "../architecture/outlineHull";
+import { polygonInside } from "../architecture/polygonInside";
+import { propBoundsOverlap } from "../film/propBoundsOverlap";
+import { propSpaceContainsBounds } from "../film/propSpaceContainsBounds";
 import { Quaternion } from "../math/Quaternion";
-import { ViolationCollector } from "../validation/violation";
-import {
-  portRecords,
-  routeDistanceSquared,
-  serviceMaintenanceBounds,
-  serviceSegmentClashes,
-  serviceSegmentSpanBounds,
-  serviceSystemLoad,
-  serviceSystemReach,
-} from "./serviceNetwork";
+import { ViolationCollector } from "../validation/ViolationCollector";
+import { portRecords } from "./portRecords";
+import { routeDistanceSquared } from "./routeDistanceSquared";
+import { serviceMaintenanceBounds } from "./serviceMaintenanceBounds";
+import { serviceSegmentClashes } from "./serviceSegmentClashes";
+import { serviceSegmentSpanBounds } from "./serviceSegmentSpanBounds";
+import { serviceSystemLoad } from "./serviceSystemLoad";
+import { serviceSystemReach } from "./serviceSystemReach";
 
 /** Tolerance for fit and coincidence comparisons, in metres. */
 const SERVICE_EPSILON = 1e-9;

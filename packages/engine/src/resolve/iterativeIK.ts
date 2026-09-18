@@ -8,13 +8,11 @@ import {
 import { Matrix4 } from "../math/Matrix4";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import {
-  blendVec,
-  readWorld,
-  recompose,
-  rotationBetween,
-  validateInfluence,
-} from "./worldShared";
+import { rotationBetween } from "../math/rotationBetween";
+import { blendVec } from "./blendVec";
+import { readWorld } from "./readWorld";
+import { recompose } from "./recompose";
+import { validateInfluence } from "./validateInfluence";
 
 /**
  * Iteration budget when the driver leaves `iterations: null`, enough for a
