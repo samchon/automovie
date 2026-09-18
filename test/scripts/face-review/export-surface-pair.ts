@@ -11,11 +11,12 @@
 import fs from "node:fs";
 import { gunzipSync } from "node:zlib";
 
-import { buildHumanFace, createHumanFaceBasisBuilder } from "@automovie/human";
-import type {
-  IAutoMovieHumanFaceBasis,
-  IAutoMovieHumanFaceBasisDocument,
-  IAutoMovieHumanFaceDocument,
+import {
+  buildHumanFace,
+  createHumanFaceBasisBuilder,
+  type IAutoMovieHumanFaceBasis,
+  type IAutoMovieHumanFaceBasisDocument,
+  type IAutoMovieHumanFaceDocument,
 } from "@automovie/human";
 
 const [subject, output] = process.argv.slice(2);

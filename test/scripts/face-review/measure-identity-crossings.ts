@@ -16,10 +16,10 @@ import fs from "node:fs";
 import { gunzipSync } from "node:zlib";
 
 import { measureAutoMovieModelCrossings } from "@automovie/engine";
-import { createHumanFaceBasisBuilder } from "@automovie/human";
-import type {
-  IAutoMovieHumanFaceBasis,
-  IAutoMovieHumanFaceBasisDocument,
+import {
+  createHumanFaceBasisBuilder,
+  type IAutoMovieHumanFaceBasis,
+  type IAutoMovieHumanFaceBasisDocument,
 } from "@automovie/human";
 
 const published = "studies/human-face/connected-basis/global-face";

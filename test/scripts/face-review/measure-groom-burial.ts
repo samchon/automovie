@@ -30,11 +30,11 @@
 import fs from "node:fs";
 import { gunzipSync } from "node:zlib";
 
-import { createHumanFaceBasisBuilder } from "@automovie/human";
-import type {
-  IAutoMovieHumanFaceBasis,
-  IAutoMovieHumanFaceBasisDocument,
-  IAutoMovieHumanFaceGroom,
+import {
+  createHumanFaceBasisBuilder,
+  type IAutoMovieHumanFaceBasis,
+  type IAutoMovieHumanFaceBasisDocument,
+  type IAutoMovieHumanFaceGroom,
 } from "@automovie/human";
 
 const published = "studies/human-face/connected-basis/global-face";
