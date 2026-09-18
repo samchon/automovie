@@ -63,7 +63,6 @@ const bald = (): IAutoMovieModel => ({
 
 const groom = (over: Partial<IAutoMovieHumanFaceGroom> = {}) =>
   ({
-    version: "human-face-groom/1",
     id: "study-groom",
     basis: "study-basis",
     finish,

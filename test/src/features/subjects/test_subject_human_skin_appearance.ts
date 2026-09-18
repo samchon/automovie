@@ -56,7 +56,6 @@ const face = (): IAutoMovieModel => ({
 const skin = (
   maps: IAutoMovieHumanFaceSkin["maps"],
 ): IAutoMovieHumanFaceSkin => ({
-  version: "human-face-skin/1",
   id: "study-skin",
   basis: "study-basis",
   maps,

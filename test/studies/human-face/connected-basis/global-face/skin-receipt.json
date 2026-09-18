@@ -1,6 +1,9 @@
 {
+  "alan-rickman-confidence": {
+    "kilobytes": 51
+  },
   "alan-rickman": {
-    "kilobytes": 125
+    "kilobytes": 124
   },
   "daniel-radcliffe": {
     "kilobytes": 138
@@ -33,7 +36,7 @@
     "kilobytes": 103
   },
   "maggie-smith": {
-    "kilobytes": 123
+    "kilobytes": 118
   },
   "michael-gambon": {
     "kilobytes": 118
@@ -51,6 +54,6 @@
     "kilobytes": 129
   },
   "yoo-seung-ho": {
-    "kilobytes": 92
+    "kilobytes": 89
   }
 }

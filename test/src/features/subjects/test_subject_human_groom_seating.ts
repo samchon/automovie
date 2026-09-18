@@ -67,7 +67,6 @@ const face = (corners: number[][]): IAutoMovieModel => ({
 const groom = (
   cards: IAutoMovieHumanFaceGroom["cards"],
 ): IAutoMovieHumanFaceGroom => ({
-  version: "human-face-groom/1",
   id: "study-groom",
   basis: "study-basis",
   finish,
