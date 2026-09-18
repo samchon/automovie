@@ -1,3 +1,4 @@
+import type { IAutoMovieModelCrossing } from "@automovie/engine";
 import type { IAutoMovieHumanFaceDocument } from "@automovie/human";
 import type { JSONDocument } from "@gltf-transform/core";
 
@@ -5,12 +6,14 @@ type Artifact = {
   glb: Uint8Array<ArrayBuffer>;
   gltf: JSONDocument;
   parts: number;
+  /** Absent when the port does not measure, null when this request did not ask. */
+  crossings?: IAutoMovieModelCrossing[] | null;
 };
 type Reply = ({ success: true } & Artifact) | { success: false; error: string };
 type WorkerPort = {
   onError: (message: string) => void;
   onReply: (reply: Reply) => void;
-  send: (text: string) => void;
+  send: (text: string, measure?: boolean) => void;
   terminate: () => void;
 };
 
@@ -43,7 +46,7 @@ export function createHumanPreviewBuilder<
     active = undefined;
     rejectActive = undefined;
   };
-  const build = async (document: Document): Promise<Model> => {
+  const build = async (document: Document, measure = false): Promise<Model> => {
     cancel();
     const ticket = generation;
     const text = props.serialize(document);
@@ -63,7 +66,7 @@ export function createHumanPreviewBuilder<
           );
         worker.onReply = (reply) =>
           reply.success ? resolve(reply) : reject(new Error(reply.error));
-        worker.send(text);
+        worker.send(text, measure);
       });
     } finally {
       worker.terminate();
