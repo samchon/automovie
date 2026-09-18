@@ -31,7 +31,14 @@
       },
       "flippedTriangles": 0,
       "flippedSlivers": 0,
-      "movedVertices": 17272
+      "movedVertices": 17272,
+      "crossings": {
+        "pairsAtRest": 7,
+        "pairsWithIdentity": 7,
+        "trianglesAtRest": 2357,
+        "trianglesWithIdentity": 2422,
+        "pairsThatAppeared": []
+      }
     },
     "daniel-radcliffe": {
       "cameraConverged": true,
@@ -54,7 +61,14 @@
       },
       "flippedTriangles": 0,
       "flippedSlivers": 0,
-      "movedVertices": 14562
+      "movedVertices": 14562,
+      "crossings": {
+        "pairsAtRest": 7,
+        "pairsWithIdentity": 7,
+        "trianglesAtRest": 2315,
+        "trianglesWithIdentity": 2337,
+        "pairsThatAppeared": []
+      }
     },
     "emma-watson": {
       "cameraConverged": true,
@@ -77,7 +91,14 @@
       },
       "flippedTriangles": 0,
       "flippedSlivers": 0,
-      "movedVertices": 15756
+      "movedVertices": 15756,
+      "crossings": {
+        "pairsAtRest": 6,
+        "pairsWithIdentity": 6,
+        "trianglesAtRest": 2064,
+        "trianglesWithIdentity": 2155,
+        "pairsThatAppeared": []
+      }
     },
     "generated-black-boy-01": {
       "cameraConverged": true,
@@ -100,7 +121,14 @@
       },
       "flippedTriangles": 0,
       "flippedSlivers": 0,
-      "movedVertices": 16325
+      "movedVertices": 16325,
+      "crossings": {
+        "pairsAtRest": 7,
+        "pairsWithIdentity": 7,
+        "trianglesAtRest": 2527,
+        "trianglesWithIdentity": 2506,
+        "pairsThatAppeared": []
+      }
     },
     "generated-black-girl-01": {
       "cameraConverged": true,
@@ -123,7 +151,14 @@
       },
       "flippedTriangles": 0,
       "flippedSlivers": 0,
-      "movedVertices": 16815
+      "movedVertices": 16815,
+      "crossings": {
+        "pairsAtRest": 7,
+        "pairsWithIdentity": 7,
+        "trianglesAtRest": 2148,
+        "trianglesWithIdentity": 2250,
+        "pairsThatAppeared": []
+      }
     },
     "generated-korean-boy-01": {
       "cameraConverged": true,
@@ -146,7 +181,14 @@
       },
       "flippedTriangles": 0,
       "flippedSlivers": 1,
-      "movedVertices": 16139
+      "movedVertices": 16139,
+      "crossings": {
+        "pairsAtRest": 7,
+        "pairsWithIdentity": 7,
+        "trianglesAtRest": 2503,
+        "trianglesWithIdentity": 2466,
+        "pairsThatAppeared": []
+      }
     },
     "generated-white-boy-01": {
       "cameraConverged": true,
@@ -169,7 +211,14 @@
       },
       "flippedTriangles": 0,
       "flippedSlivers": 0,
-      "movedVertices": 15992
+      "movedVertices": 15992,
+      "crossings": {
+        "pairsAtRest": 7,
+        "pairsWithIdentity": 7,
+        "trianglesAtRest": 2591,
+        "trianglesWithIdentity": 2576,
+        "pairsThatAppeared": []
+      }
     },
     "generated-white-girl-01": {
       "cameraConverged": true,
@@ -192,7 +241,14 @@
       },
       "flippedTriangles": 0,
       "flippedSlivers": 0,
-      "movedVertices": 17593
+      "movedVertices": 17593,
+      "crossings": {
+        "pairsAtRest": 7,
+        "pairsWithIdentity": 7,
+        "trianglesAtRest": 2538,
+        "trianglesWithIdentity": 2651,
+        "pairsThatAppeared": []
+      }
     },
     "kim-min-jung": {
       "cameraConverged": true,
@@ -215,7 +271,14 @@
       },
       "flippedTriangles": 0,
       "flippedSlivers": 0,
-      "movedVertices": 17720
+      "movedVertices": 17720,
+      "crossings": {
+        "pairsAtRest": 6,
+        "pairsWithIdentity": 6,
+        "trianglesAtRest": 2173,
+        "trianglesWithIdentity": 2252,
+        "pairsThatAppeared": []
+      }
     },
     "lee-tae-ri": {
       "cameraConverged": true,
@@ -238,7 +301,14 @@
       },
       "flippedTriangles": 0,
       "flippedSlivers": 0,
-      "movedVertices": 17515
+      "movedVertices": 17515,
+      "crossings": {
+        "pairsAtRest": 6,
+        "pairsWithIdentity": 6,
+        "trianglesAtRest": 2349,
+        "trianglesWithIdentity": 2308,
+        "pairsThatAppeared": []
+      }
     },
     "maggie-smith": {
       "cameraConverged": true,
@@ -261,7 +331,14 @@
       },
       "flippedTriangles": 0,
       "flippedSlivers": 0,
-      "movedVertices": 14037
+      "movedVertices": 14037,
+      "crossings": {
+        "pairsAtRest": 7,
+        "pairsWithIdentity": 7,
+        "trianglesAtRest": 2605,
+        "trianglesWithIdentity": 2586,
+        "pairsThatAppeared": []
+      }
     },
     "michael-gambon": {
       "cameraConverged": true,
@@ -284,7 +361,14 @@
       },
       "flippedTriangles": 0,
       "flippedSlivers": 0,
-      "movedVertices": 15477
+      "movedVertices": 15477,
+      "crossings": {
+        "pairsAtRest": 6,
+        "pairsWithIdentity": 6,
+        "trianglesAtRest": 2083,
+        "trianglesWithIdentity": 2044,
+        "pairsThatAppeared": []
+      }
     },
     "miriam-margolyes": {
       "cameraConverged": true,
@@ -307,7 +391,14 @@
       },
       "flippedTriangles": 0,
       "flippedSlivers": 0,
-      "movedVertices": 15788
+      "movedVertices": 15788,
+      "crossings": {
+        "pairsAtRest": 7,
+        "pairsWithIdentity": 7,
+        "trianglesAtRest": 2729,
+        "trianglesWithIdentity": 2696,
+        "pairsThatAppeared": []
+      }
     },
     "oh-seung-yoon": {
       "cameraConverged": true,
@@ -330,7 +421,14 @@
       },
       "flippedTriangles": 0,
       "flippedSlivers": 0,
-      "movedVertices": 17750
+      "movedVertices": 17750,
+      "crossings": {
+        "pairsAtRest": 7,
+        "pairsWithIdentity": 7,
+        "trianglesAtRest": 2042,
+        "trianglesWithIdentity": 2071,
+        "pairsThatAppeared": []
+      }
     },
     "park-eun-bin": {
       "cameraConverged": true,
@@ -353,7 +451,14 @@
       },
       "flippedTriangles": 0,
       "flippedSlivers": 0,
-      "movedVertices": 17163
+      "movedVertices": 17163,
+      "crossings": {
+        "pairsAtRest": 6,
+        "pairsWithIdentity": 6,
+        "trianglesAtRest": 2157,
+        "trianglesWithIdentity": 2192,
+        "pairsThatAppeared": []
+      }
     },
     "rupert-grint": {
       "cameraConverged": true,
@@ -376,7 +481,14 @@
       },
       "flippedTriangles": 0,
       "flippedSlivers": 0,
-      "movedVertices": 17594
+      "movedVertices": 17594,
+      "crossings": {
+        "pairsAtRest": 7,
+        "pairsWithIdentity": 7,
+        "trianglesAtRest": 2189,
+        "trianglesWithIdentity": 2248,
+        "pairsThatAppeared": []
+      }
     },
     "yoo-seung-ho": {
       "cameraConverged": true,
@@ -399,7 +511,14 @@
       },
       "flippedTriangles": 0,
       "flippedSlivers": 1,
-      "movedVertices": 16928
+      "movedVertices": 16928,
+      "crossings": {
+        "pairsAtRest": 6,
+        "pairsWithIdentity": 6,
+        "trianglesAtRest": 2027,
+        "trianglesWithIdentity": 2142,
+        "pairsThatAppeared": []
+      }
     },
     "kdy1": {
       "cameraConverged": true,
@@ -422,7 +541,14 @@
       },
       "flippedTriangles": 0,
       "flippedSlivers": 0,
-      "movedVertices": 17671
+      "movedVertices": 17671,
+      "crossings": {
+        "pairsAtRest": 6,
+        "pairsWithIdentity": 6,
+        "trianglesAtRest": 2559,
+        "trianglesWithIdentity": 2628,
+        "pairsThatAppeared": []
+      }
     }
   },
   "method": "The residual at the published fit's own anchors, diffused over the mesh. Anchors are recomputed by the fit's rule; only the camera is re-solved, against this machine's detection of the same portraits, every digest matching. The smoothness is chosen per subject: the tightest rung of a fixed ladder that turns no triangle over.",
@@ -431,5 +557,6 @@
     "An anchor outside every triangle, and one whose residual stands three interquartile ranges beyond the rest, is dropped rather than allowed to pull geometry after it",
     "Rows below a hundredth of a millimetre are dropped: below the mesh's own numerical noise and below anything a render resolves",
     "The residual reduction is not the same for everyone. Where a portrait was taken at an angle the camera cannot take out, the residual is pose rather than shape, and forcing it into vertices folds the mesh; those subjects take the smoothest field and gain least"
-  ]
+  ],
+  "selfIntersection": "Measured with measureAutoMovieMeshCrossings by the rule that instrument states: the change from the same face without its identity, not the count. Across all eighteen no crossing pair appeared. The triangle totals move within a few per cent in both directions, 11 up and 7 down, which is the shells that already rest inside each other shifting with the surface they are seated on."
 }
