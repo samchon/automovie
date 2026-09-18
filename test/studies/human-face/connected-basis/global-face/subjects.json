@@ -2058,7 +2058,8 @@
         "roughness": 0.57
       }
     },
-    "skin": "miriam-margolyes"
+    "skin": "miriam-margolyes",
+    "hair": "miriam-margolyes"
   },
   {
     "id": "oh-seung-yoon-connected",
@@ -2832,6 +2833,7 @@
       "mouthUpperUpRight": 0.00007641862650435841,
       "noseSneerLeft": 0.000040436661577653273
     },
-    "skin": "kdy1"
+    "skin": "kdy1",
+    "hair": "kdy1"
   }
 ]

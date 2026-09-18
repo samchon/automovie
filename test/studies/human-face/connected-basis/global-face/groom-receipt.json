@@ -174,5 +174,34 @@
       "median": 162.4,
       "longest": 248.3
     }
+  },
+  "miriam-margolyes": {
+    "cards": 828,
+    "seatedOn": [
+      "Human/skin"
+    ],
+    "finish": "subject-hair",
+    "lockLengthMillimetres": {
+      "median": 43.1,
+      "longest": 414.2
+    },
+    "authoredFrom": "generated-black-girl-01",
+    "why": "tight-curled halo standing clear of the skull; her own authored profile already matches this donor's",
+    "finishWhy": "white, faintly warm; the sunlit crown measures 0.90 linear, brighter than any fibre, so the value is the neutral the portrait shows inside the range white hair occupies",
+    "limit": "The donor is a close-cropped curl and the portrait is a halo standing roughly twice the face width. The curl character matches and the volume does not: scaling the guides uniformly was measured and rejected, because a guide runs mostly along and down the scalp, so multiplying it lengthens the strand instead of widening the curl. Reaching her volume needs locks authored at that radius, not a scaled copy."
+  },
+  "kdy1": {
+    "cards": 408,
+    "seatedOn": [
+      "Human/skin"
+    ],
+    "finish": "subject-hair",
+    "lockLengthMillimetres": {
+      "median": 145.4,
+      "longest": 229.2
+    },
+    "authoredFrom": "generated-korean-boy-01",
+    "why": "short side-parted cut; this donor was already the template kdy1's face was authored from",
+    "finishWhy": "near-black and neutral; the tungsten-lit sample measures (0.022, 0.008, 0.001), whose red cast is the room rather than the hair"
   }
 }
