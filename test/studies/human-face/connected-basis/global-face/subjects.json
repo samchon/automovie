@@ -154,7 +154,8 @@
         },
         "roughness": 0.57
       }
-    }
+    },
+    "hair": "alan-rickman"
   },
   {
     "version": "human-face-basis-document/1",
@@ -315,7 +316,8 @@
         },
         "roughness": 0.57
       }
-    }
+    },
+    "hair": "daniel-radcliffe"
   },
   {
     "version": "human-face-basis-document/1",
@@ -471,7 +473,8 @@
         },
         "roughness": 0.57
       }
-    }
+    },
+    "hair": "emma-watson"
   },
   {
     "version": "human-face-basis-document/1",
@@ -629,7 +632,8 @@
         },
         "roughness": 0.57
       }
-    }
+    },
+    "hair": "generated-black-boy-01"
   },
   {
     "version": "human-face-basis-document/1",
@@ -788,7 +792,8 @@
         },
         "roughness": 0.57
       }
-    }
+    },
+    "hair": "generated-black-girl-01"
   },
   {
     "version": "human-face-basis-document/1",
@@ -947,7 +952,8 @@
         },
         "roughness": 0.57
       }
-    }
+    },
+    "hair": "generated-korean-boy-01"
   },
   {
     "version": "human-face-basis-document/1",
@@ -1107,7 +1113,8 @@
         },
         "roughness": 0.57
       }
-    }
+    },
+    "hair": "generated-white-boy-01"
   },
   {
     "version": "human-face-basis-document/1",
@@ -1263,7 +1270,8 @@
         },
         "roughness": 0.57
       }
-    }
+    },
+    "hair": "generated-white-girl-01"
   },
   {
     "version": "human-face-basis-document/1",
@@ -1419,7 +1427,8 @@
         },
         "roughness": 0.57
       }
-    }
+    },
+    "hair": "jang-su-hye"
   },
   {
     "version": "human-face-basis-document/1",
@@ -1574,7 +1583,8 @@
         },
         "roughness": 0.57
       }
-    }
+    },
+    "hair": "kim-min-jung"
   },
   {
     "version": "human-face-basis-document/1",
@@ -1733,7 +1743,8 @@
         },
         "roughness": 0.57
       }
-    }
+    },
+    "hair": "lee-tae-ri"
   },
   {
     "version": "human-face-basis-document/1",
@@ -1891,7 +1902,8 @@
         },
         "roughness": 0.57
       }
-    }
+    },
+    "hair": "maggie-smith"
   },
   {
     "version": "human-face-basis-document/1",
@@ -2043,7 +2055,8 @@
         },
         "roughness": 0.57
       }
-    }
+    },
+    "hair": "michael-gambon"
   },
   {
     "version": "human-face-basis-document/1",
@@ -2357,7 +2370,8 @@
         },
         "roughness": 0.57
       }
-    }
+    },
+    "hair": "oh-seung-yoon"
   },
   {
     "version": "human-face-basis-document/1",
@@ -2518,7 +2532,8 @@
         },
         "roughness": 0.57
       }
-    }
+    },
+    "hair": "park-eun-bin"
   },
   {
     "version": "human-face-basis-document/1",
@@ -2678,7 +2693,8 @@
         },
         "roughness": 0.57
       }
-    }
+    },
+    "hair": "rupert-grint"
   },
   {
     "version": "human-face-basis-document/1",
@@ -2833,7 +2849,8 @@
         },
         "roughness": 0.57
       }
-    }
+    },
+    "hair": "yoo-seung-ho"
   },
   {
     "version": "human-face-basis-document/1",

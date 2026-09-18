@@ -79,6 +79,14 @@ export interface IAutoMovieHumanFaceBasisDocument {
   shape: Record<string, number>;
   /** Current transient expression; omitted channels mean source neutral. */
   expression: Record<string, number>;
+  /**
+   * Optional identity of the seated groom this face wears. Omission is bald,
+   * which is what a connected basis carries on its own: the prior has no hair
+   * surface, so a face only has hair because its document named one. The groom
+   * itself is a separate resource, like the basis, and the consumer resolves
+   * this identity against the grooms it holds.
+   */
+  hair?: string | null;
   /** Optional linear RGB and roughness, each in [0,1], by existing material ID. */
   materials?: Record<
     string,

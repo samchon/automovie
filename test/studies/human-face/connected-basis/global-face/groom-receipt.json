@@ -1,0 +1,189 @@
+{
+  "alan-rickman": {
+    "cards": 312,
+    "seatedOn": [
+      "Human/skin"
+    ],
+    "finish": "subject-hair",
+    "lockLengthMillimetres": {
+      "median": 165.5,
+      "longest": 215.8
+    }
+  },
+  "daniel-radcliffe": {
+    "cards": 408,
+    "seatedOn": [
+      "Human/skin"
+    ],
+    "finish": "subject-hair",
+    "lockLengthMillimetres": {
+      "median": 152.5,
+      "longest": 212.3
+    }
+  },
+  "emma-watson": {
+    "cards": 312,
+    "seatedOn": [
+      "Human/skin"
+    ],
+    "finish": "subject-hair",
+    "lockLengthMillimetres": {
+      "median": 461.7,
+      "longest": 594.5
+    }
+  },
+  "generated-black-boy-01": {
+    "cards": 1024,
+    "seatedOn": [
+      "Human/skin"
+    ],
+    "finish": "subject-hair",
+    "lockLengthMillimetres": {
+      "median": 40.8,
+      "longest": 56.9
+    }
+  },
+  "generated-black-girl-01": {
+    "cards": 828,
+    "seatedOn": [
+      "Human/skin"
+    ],
+    "finish": "subject-hair",
+    "lockLengthMillimetres": {
+      "median": 43.1,
+      "longest": 414.2
+    }
+  },
+  "generated-korean-boy-01": {
+    "cards": 408,
+    "seatedOn": [
+      "Human/skin"
+    ],
+    "finish": "subject-hair",
+    "lockLengthMillimetres": {
+      "median": 145.4,
+      "longest": 229.2
+    }
+  },
+  "generated-white-boy-01": {
+    "cards": 408,
+    "seatedOn": [
+      "Human/skin"
+    ],
+    "finish": "subject-hair",
+    "lockLengthMillimetres": {
+      "median": 144.5,
+      "longest": 199.3
+    }
+  },
+  "generated-white-girl-01": {
+    "cards": 444,
+    "seatedOn": [
+      "Human/skin"
+    ],
+    "finish": "subject-hair",
+    "lockLengthMillimetres": {
+      "median": 141.1,
+      "longest": 245.5
+    }
+  },
+  "jang-su-hye": {
+    "cards": 312,
+    "seatedOn": [
+      "Human/skin"
+    ],
+    "finish": "subject-hair",
+    "lockLengthMillimetres": {
+      "median": 453.4,
+      "longest": 613.5
+    }
+  },
+  "kim-min-jung": {
+    "cards": 540,
+    "seatedOn": [
+      "Human/skin"
+    ],
+    "finish": "subject-hair",
+    "lockLengthMillimetres": {
+      "median": 139.5,
+      "longest": 221.2
+    }
+  },
+  "lee-tae-ri": {
+    "cards": 408,
+    "seatedOn": [
+      "Human/skin"
+    ],
+    "finish": "subject-hair",
+    "lockLengthMillimetres": {
+      "median": 151.6,
+      "longest": 230.7
+    }
+  },
+  "maggie-smith": {
+    "cards": 312,
+    "seatedOn": [
+      "Human/skin"
+    ],
+    "finish": "subject-hair",
+    "lockLengthMillimetres": {
+      "median": 235.4,
+      "longest": 413.7
+    }
+  },
+  "michael-gambon": {
+    "cards": 210,
+    "seatedOn": [
+      "Human/skin"
+    ],
+    "finish": "subject-hair",
+    "lockLengthMillimetres": {
+      "median": 179.5,
+      "longest": 215.5
+    }
+  },
+  "oh-seung-yoon": {
+    "cards": 408,
+    "seatedOn": [
+      "Human/skin"
+    ],
+    "finish": "subject-hair",
+    "lockLengthMillimetres": {
+      "median": 150.2,
+      "longest": 259.1
+    }
+  },
+  "park-eun-bin": {
+    "cards": 540,
+    "seatedOn": [
+      "Human/skin"
+    ],
+    "finish": "subject-hair",
+    "lockLengthMillimetres": {
+      "median": 136,
+      "longest": 193.2
+    }
+  },
+  "rupert-grint": {
+    "cards": 408,
+    "seatedOn": [
+      "Human/skin"
+    ],
+    "finish": "subject-hair",
+    "lockLengthMillimetres": {
+      "median": 145.8,
+      "longest": 214
+    }
+  },
+  "yoo-seung-ho": {
+    "cards": 408,
+    "seatedOn": [
+      "Human/skin"
+    ],
+    "finish": "subject-hair",
+    "lockLengthMillimetres": {
+      "median": 162.4,
+      "longest": 248.3
+    }
+  }
+}
