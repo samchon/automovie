@@ -39,17 +39,6 @@ Selected: `generated-korean-girl-age-16.png`. Original first-hour reference. Its
 | [generated-korean-girl-age-16.png](https://raw.githubusercontent.com/samchon/AutoMovie/f57d3396d1fb2d57b01d851c14130ef7409a822d/.github/issue-assets/human-face-input/originals/east-asian/generated-korean-girl-01/generated-korean-girl-age-16.png) | 896 × 1000 | `bd15adc1984b16059bbf006e8edf2d0bdf215d504189857996e8b278340e2683` | Selected with the limitations stated above. |
 | [generated-korean-girl-age-20.png](https://raw.githubusercontent.com/samchon/AutoMovie/f57d3396d1fb2d57b01d851c14130ef7409a822d/.github/issue-assets/human-face-input/originals/east-asian/generated-korean-girl-01/generated-korean-girl-age-20.png) | 896 × 1000 | `deb6b0f48ca3f902e9ee94895180f594b987115ad9758ff2bb5b75e912fabc20` | Alternative age label; deliberately not substituted for the frozen age-16 first-hour target. |
 
-## jang-su-hye {#input-jang-su-hye}
-
-Selected: `jang-su-hye_age-approx-31_symposium-portrait.jpeg`. Largest near-frontal adult portrait with closed lips. Child group scenes have small faces and are retained as limited sources, not silently discarded.
-
-| Original source | Pixels | SHA-256 | Quality decision |
-| --- | --- | --- | --- |
-| [jang-su-hye_age-approx-12_ladies-of-the-palace-near-front-right.jpg](https://raw.githubusercontent.com/samchon/AutoMovie/f57d3396d1fb2d57b01d851c14130ef7409a822d/.github/issue-assets/human-face-input/originals/east-asian/jang-su-hye/jang-su-hye_age-approx-12_ladies-of-the-palace-near-front-right.jpg) | 1280 × 720 | `9e9751c393a06d4e8fc426eb9abb7790f15d885330c27981fdf5ab26cc2861bb` | Limited: a two-person television frame; the named target is on the right. Face occupies only a fraction of the image and fine tissue depth is not measurable. |
-| [jang-su-hye_age-approx-12_ladies-of-the-palace-smile-left.jpg](https://raw.githubusercontent.com/samchon/AutoMovie/f57d3396d1fb2d57b01d851c14130ef7409a822d/.github/issue-assets/human-face-input/originals/east-asian/jang-su-hye/jang-su-hye_age-approx-12_ladies-of-the-palace-smile-left.jpg) | 1280 × 720 | `48cf7ed5158e40920a0435fbf2a067fa97e5acd74d80502f1043039f7b630024` | Limited: two-person television frame; the named target is on the left in oblique smile. Small face and hidden side prevent complete shape recovery. |
-| [jang-su-hye_age-approx-21-22_portfolio-smile.jpg](https://raw.githubusercontent.com/samchon/AutoMovie/f57d3396d1fb2d57b01d851c14130ef7409a822d/.github/issue-assets/human-face-input/originals/east-asian/jang-su-hye/jang-su-hye_age-approx-21-22_portfolio-smile.jpg) | 400 × 580 | `abd858b767bdb49de83069b9fc597fb13c537cc78f09bbc593b0ad665b6a1d13` | Retained alternative age/pose. Not selected for this one-pose study; no assertion that it measures hidden anatomy or improves the selected fit. |
-| [jang-su-hye_age-approx-31_symposium-portrait.jpeg](https://raw.githubusercontent.com/samchon/AutoMovie/f57d3396d1fb2d57b01d851c14130ef7409a822d/.github/issue-assets/human-face-input/originals/east-asian/jang-su-hye/jang-su-hye_age-approx-31_symposium-portrait.jpeg) | 560 × 707 | `f47625be7c4192850cfc7c8825d982a409e3cde667974a50ee15eb5d5d66068d` | Selected with the limitations stated above. |
-
 ## kim-min-jung {#input-kim-min-jung}
 
 Selected: `kim-min-jung_age-26_strike-love.jpg`. Near-frontal, unobstructed facial outline and closed mouth. Dim event lighting limits albedo inference; the agency portrait has cheek/hand contact and more rotation.
