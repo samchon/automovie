@@ -1,5 +1,6 @@
 /// <reference lib="webworker" />
 /** A disposable worker loads the selected basis and uses the shared request owner. */
+import { measureAutoMovieModelCrossings } from "@automovie/engine";
 import {
   createHumanFaceBasisBuilder,
   exportHumanFace,
@@ -26,15 +27,18 @@ const prepared = readConnectedFaceAsset({
   createHumanFaceWorkerHandler({
     parse: parseHumanFaceBasisDocument,
     build: createHumanFaceBasisBuilder(basis),
+    measure: measureAutoMovieModelCrossings,
     export: exportHumanFace,
     send: (reply, transfer) => scope.postMessage(reply, { transfer }),
   }),
 );
-scope.onmessage = async (event: MessageEvent<{ document: string }>) => {
+scope.onmessage = async (
+  event: MessageEvent<{ document: string; measure?: boolean }>,
+) => {
   try {
     await (
       await prepared
-    )(event.data.document);
+    )(event.data.document, event.data.measure === true);
   } catch (error) {
     scope.postMessage({
       success: false,

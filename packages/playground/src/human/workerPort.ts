@@ -21,7 +21,7 @@ export function createHumanPreviewWorkerPort(
     set onReply(callback: Port["onReply"]) {
       worker.onmessage = (event) => callback(event.data);
     },
-    send: (text) => worker.postMessage({ document: text }),
+    send: (text, measure) => worker.postMessage({ document: text, measure }),
     terminate: () => worker.terminate(),
   };
 }

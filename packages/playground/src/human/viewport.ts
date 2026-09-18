@@ -1,3 +1,4 @@
+import type { IAutoMovieModelCrossing } from "@automovie/engine";
 import type { IAutoMovieHumanFaceDocument } from "@automovie/human";
 import type { JSONDocument } from "@gltf-transform/core";
 import * as THREE from "three";
@@ -14,6 +15,8 @@ type BuiltFace = {
   glb: Uint8Array<ArrayBuffer>;
   gltf: JSONDocument;
   parts: number;
+  /** Absent when the port does not measure, null when the request did not ask. */
+  crossings?: IAutoMovieModelCrossing[] | null;
 };
 /**
  * Own the face preview scene and publication through explicit browser IO ports.

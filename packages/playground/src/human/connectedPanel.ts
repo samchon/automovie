@@ -6,6 +6,7 @@
  * forms the model and exports it; camera/clay state never enters the document.
  * A failed or superseded edit retains the committed preview and downloads.
  */
+import type { IAutoMovieModelCrossing } from "@automovie/engine";
 import {
   type IAutoMovieHumanFaceBasis,
   type IAutoMovieHumanFaceBasisDocument,
@@ -27,7 +28,11 @@ import {
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Shares transactional history and cancels stale file reads and builds by generation.
  */
 export function mountConnectedFacePanel<
-  Model extends { glb: Uint8Array<ArrayBuffer>; parts: number },
+  Model extends {
+    glb: Uint8Array<ArrayBuffer>;
+    parts: number;
+    crossings?: IAutoMovieModelCrossing[] | null;
+  },
 >(
   app: HTMLElement,
   props: {
@@ -38,7 +43,10 @@ export function mountConnectedFacePanel<
     studies?: readonly IAutoMovieHumanFaceBasisDocument[];
     presets: { name: string; expression: Record<string, number> }[];
     viewport: (canvas: HTMLCanvasElement) => {
-      build: (document: IAutoMovieHumanFaceBasisDocument) => Promise<Model>;
+      build: (
+        document: IAutoMovieHumanFaceBasisDocument,
+        measure?: boolean,
+      ) => Promise<Model>;
       cancel: () => void;
       publish: (model: Model) => void;
       dispose: (model: Model) => void;
@@ -74,7 +82,7 @@ export function mountConnectedFacePanel<
 </style>
 <main><section><canvas id="face-canvas"></canvas><div class="toolbar views"><button data-view="0">Front</button><button data-view="45">Left ¾</button><button data-view="-45">Right ¾</button><button data-view="90">Left</button><button data-view="-90">Right</button><button data-view="180">Back</button><button id="fit-view">Fit</button><label><input id="clay" type="checkbox"> Clay</label><label><input id="shadows" type="checkbox" checked> Shadows</label></div></section>
 <aside><h1>Connected face editor</h1><p>Shape and expression on one shared surface</p><a href="face.html">Open procedural face editor</a><div id="face-status" role="status">Loading the numerical basis…</div>
-<fieldset id="editing" disabled><div class="toolbar"><button id="face-undo">Undo</button><button id="face-redo">Redo</button><button id="face-reset">Reset</button></div><div class="toolbar"><button id="face-save">Save document</button><button id="face-load">Load document</button><button id="face-glb">Export GLB</button><input id="face-file" type="file" accept=".json,application/json" hidden></div>
+<fieldset id="editing" disabled><div class="toolbar"><button id="face-undo">Undo</button><button id="face-redo">Redo</button><button id="face-reset">Reset</button></div><div class="toolbar"><button id="face-save">Save document</button><button id="face-load">Load document</button><button id="face-glb">Export GLB</button><button id="face-contacts">Check contacts</button><input id="face-file" type="file" accept=".json,application/json" hidden></div>
 <h2>Expression presets</h2><div id="presets" class="toolbar"></div><h2>Controls</h2><select id="control-kind" aria-label="Control group"><option value="shape">Face shape</option><option value="expression">Expression</option></select><p>0 is the source neutral. Weights interpolate authored endpoints; they are not physical measurements. Each control states how far one unit of its endpoints moves the surface.</p><div id="basis-controls"></div><details><summary>Complete document and appearance</summary><textarea id="document-json" aria-label="Complete document"></textarea><button id="document-apply">Apply document</button></details></fieldset></aside></main>`;
   const element = <T extends HTMLElement>(id: string): T =>
     app.querySelector<T>("#" + id)!;
@@ -268,6 +276,70 @@ export function mountConnectedFacePanel<
       state.model.glb,
       "model/gltf-binary",
     );
+  };
+  // Crossing surfaces are read against the source neutral, not against zero.
+  // This asset rests with its shells inside each other on purpose, so the
+  // absolute count is meaningless and the change from rest is the finding.
+  // The reading costs seconds, so it runs on request instead of on every edit.
+  let rest: IAutoMovieModelCrossing[] | undefined;
+  const label = (crossing: IAutoMovieModelCrossing): string =>
+    `${crossing.part} x ${crossing.other}`;
+  const describeContacts = (
+    before: IAutoMovieModelCrossing[],
+    after: IAutoMovieModelCrossing[],
+  ): string => {
+    const was = new Map(before.map((entry) => [label(entry), entry]));
+    const fresh = after.filter((entry) => !was.has(label(entry)));
+    const deeper = after.filter((entry) => {
+      const earlier = was.get(label(entry));
+      return (
+        earlier !== undefined &&
+        entry.triangles + entry.otherTriangles >
+          earlier.triangles + earlier.otherTriangles
+      );
+    });
+    const line = (entry: IAutoMovieModelCrossing): string =>
+      `${label(entry)} ${entry.triangles}/${entry.otherTriangles}`;
+    if (fresh.length === 0 && deeper.length === 0)
+      return `No surface crosses that the source neutral did not already cross. The neutral itself crosses on ${before.length} pairs by construction.`;
+    return [
+      fresh.length === 0
+        ? null
+        : `New since rest: ${fresh.map(line).join(", ")}`,
+      deeper.length === 0
+        ? null
+        : `Deeper than rest: ${deeper.map(line).join(", ")}`,
+    ]
+      .filter((part) => part !== null)
+      .join("\n");
+  };
+  element("face-contacts").onclick = async () => {
+    const ticket = withdraw();
+    status("Measuring which surfaces cross…", "building");
+    try {
+      if (rest === undefined) {
+        const neutral = await viewport.build(props.initial, true);
+        const reading = neutral.crossings;
+        viewport.dispose(neutral);
+        if (reading === null || reading === undefined) {
+          status("This build does not supply a crossing reading.", "error");
+          return;
+        }
+        rest = reading;
+      }
+      const posed = await viewport.build(editor!.snapshot().document, true);
+      const reading = posed.crossings;
+      viewport.dispose(posed);
+      if (ticket !== revision) return;
+      status(
+        reading === null || reading === undefined
+          ? "This build does not supply a crossing reading."
+          : describeContacts(rest, reading),
+        reading === null || reading === undefined ? "error" : "ready",
+      );
+    } catch (error) {
+      if (ticket === revision) refuse(error);
+    }
   };
   element("face-load").onclick = () =>
     element<HTMLInputElement>("face-file").click();
