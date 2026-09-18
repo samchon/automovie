@@ -1,8 +1,11 @@
-import { inspectAutoMovieMeshTopology, transformAutoMovieMesh } from "@automovie/engine";
+import {
+  type IAutoMovieMeshTransform,
+  inspectAutoMovieMeshTopology,
+  transformAutoMovieMesh,
+} from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
 import { assertDirection } from "./assertDirection";
 import { triangleArea } from "./triangleArea";
-import { IAutoMovieMeshTransform } from "@automovie/engine";
 
 /**
  * Place each source face without losing it to a large translation's precision.

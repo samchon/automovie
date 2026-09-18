@@ -1,4 +1,5 @@
 export * from "./AutoMovieHumanFaceOverride";
+export * from "./anatomy";
 export * from "./basis";
 export * from "./build";
 export * from "./channels";
