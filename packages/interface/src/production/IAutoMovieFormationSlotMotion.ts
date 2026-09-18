@@ -31,6 +31,7 @@ export interface IAutoMovieFormationSlotMotion {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `id` for the performance formation layout slot assignment system contract.
    */
   id: string;
+
   /**
    * Participating compiled formation id.
    *
@@ -38,6 +39,7 @@ export interface IAutoMovieFormationSlotMotion {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `formation` for the performance formation layout slot assignment system contract.
    */
   formation: string;
+
   /**
    * Zero-based slots this exception names, unique and below the unit's count.
    *
@@ -48,6 +50,7 @@ export interface IAutoMovieFormationSlotMotion {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `slots` for the performance formation layout slot assignment system contract.
    */
   slots: number[];
+
   /**
    * Inclusive shot-local cue start.
    *
@@ -55,6 +58,7 @@ export interface IAutoMovieFormationSlotMotion {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `start` for the performance formation layout slot assignment system contract.
    */
   start: number;
+
   /**
    * Exclusive shot-local cue end.
    *
@@ -62,6 +66,7 @@ export interface IAutoMovieFormationSlotMotion {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `end` for the performance formation layout slot assignment system contract.
    */
   end: number;
+
   /**
    * Member state at cue start.
    *
@@ -69,6 +74,7 @@ export interface IAutoMovieFormationSlotMotion {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `from` for the performance formation layout slot assignment system contract.
    */
   from: IAutoMovieFormationSlotState;
+
   /**
    * Member state at cue end.
    *
@@ -76,6 +82,7 @@ export interface IAutoMovieFormationSlotMotion {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `to` for the performance formation layout slot assignment system contract.
    */
   to: IAutoMovieFormationSlotState;
+
   /**
    * Deterministic interpolation curve.
    *

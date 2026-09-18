@@ -12,6 +12,7 @@ export interface IAutoMovieLightShadow {
    * @evidence specifications/camera-light-and-visibility/practical-shaping-and-linking.md#clv-light-link-resolution Types `mapSize` for the clv light link resolution system contract.
    */
   mapSize: number;
+
   /**
    * Depth bias used to suppress surface acne.
    *
@@ -19,6 +20,7 @@ export interface IAutoMovieLightShadow {
    * @evidence specifications/camera-light-and-visibility/practical-shaping-and-linking.md#clv-light-link-resolution Types `bias` for the clv light link resolution system contract.
    */
   bias: number;
+
   /**
    * Normal-relative depth bias.
    *
@@ -26,6 +28,7 @@ export interface IAutoMovieLightShadow {
    * @evidence specifications/camera-light-and-visibility/practical-shaping-and-linking.md#clv-light-link-resolution Types `normalBias` for the clv light link resolution system contract.
    */
   normalBias: number;
+
   /**
    * Positive shadow-camera near distance.
    *
@@ -33,6 +36,7 @@ export interface IAutoMovieLightShadow {
    * @evidence specifications/camera-light-and-visibility/practical-shaping-and-linking.md#clv-light-link-resolution Types `near` for the clv light link resolution system contract.
    */
   near: number;
+
   /**
    * Shadow-camera far distance, greater than `near`.
    *

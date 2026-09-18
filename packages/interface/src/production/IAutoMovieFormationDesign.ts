@@ -16,6 +16,7 @@ export interface IAutoMovieFormationDesign {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `id` for the performance formation hierarchy membership command system contract.
    */
   id: string;
+
   /**
    * Existing model recipe id enforced on every derived slot, including heroes.
    *
@@ -23,6 +24,7 @@ export interface IAutoMovieFormationDesign {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `modelRecipe` for the performance formation hierarchy membership command system contract.
    */
   modelRecipe: string;
+
   /**
    * Integer number of derived slots from 1 through 100,000. Generated output
    * stores bounded chunks and hero exceptions; anonymous slots are regenerated
@@ -32,6 +34,7 @@ export interface IAutoMovieFormationDesign {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `count` for the performance formation hierarchy membership command system contract.
    */
   count: number;
+
   /**
    * Compact layout with only the parameters its algorithm consumes. Line,
    * column and wedge own explicit spacing; arc separation follows radius and
@@ -41,6 +44,7 @@ export interface IAutoMovieFormationDesign {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `layout` for the performance formation hierarchy membership command system contract.
    */
   layout: IAutoMovieFormationLayout;
+
   /**
    * Formation origin in world space.
    *
@@ -48,6 +52,7 @@ export interface IAutoMovieFormationDesign {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `anchor` for the performance formation hierarchy membership command system contract.
    */
   anchor: IAutoMovieVector3;
+
   /**
    * Finite world-space heading in degrees.
    *
@@ -55,6 +60,7 @@ export interface IAutoMovieFormationDesign {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `facingDeg` for the performance formation hierarchy membership command system contract.
    */
   facingDeg: number;
+
   /**
    * Integer deterministic seed from zero through `MAX_SAFE_INTEGER`.
    *
@@ -62,6 +68,7 @@ export interface IAutoMovieFormationDesign {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `seed` for the performance formation hierarchy membership command system contract.
    */
   seed: number;
+
   /**
    * Unique intended formation behaviors for source/review coordination.
    *
@@ -72,6 +79,7 @@ export interface IAutoMovieFormationDesign {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `capabilities` for the performance formation hierarchy membership command system contract.
    */
   capabilities: AutoMovieFormationCapability[];
+
   /**
    * Slots promoted to named hero actors.
    *
@@ -81,6 +89,7 @@ export interface IAutoMovieFormationDesign {
   heroOverrides: Array<{
     /** Unique zero-based slot strictly below this formation's count. */
     slot: number;
+
     /** Non-blank actor id, unique among this formation's hero overrides. */
     actor: string;
   }>;

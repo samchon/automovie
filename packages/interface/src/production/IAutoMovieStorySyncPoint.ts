@@ -12,6 +12,7 @@ export interface IAutoMovieStorySyncPoint {
    * @evidence specifications/narrative-and-intent/events-causality-and-time.md#narrative-intent-story-synchronization Types `shot` for the narrative intent story synchronization system contract.
    */
   shot: string;
+
   /**
    * Exact event id.
    *
@@ -19,6 +20,7 @@ export interface IAutoMovieStorySyncPoint {
    * @evidence specifications/narrative-and-intent/events-causality-and-time.md#narrative-intent-story-synchronization Types `event` for the narrative intent story synchronization system contract.
    */
   event: string;
+
   /**
    * Compiler-realized shot-local time in seconds, or null when the owning shot
    * has no current realization for the event.
@@ -27,6 +29,7 @@ export interface IAutoMovieStorySyncPoint {
    * @evidence specifications/narrative-and-intent/events-causality-and-time.md#narrative-intent-story-synchronization Types `localSeconds` for the narrative intent story synchronization system contract.
    */
   localSeconds: number | null;
+
   /**
    * Story-clock time in seconds, or null when the local time is unavailable or
    * the owning shot carries no story-clock pin.

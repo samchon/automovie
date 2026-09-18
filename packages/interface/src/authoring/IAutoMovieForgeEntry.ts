@@ -14,6 +14,7 @@ export interface IAutoMovieForgeEntry {
    * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `node` for the spec authoring authority compatibility system contract.
    */
   node: string;
+
   /**
    * Generated model whose skeleton and geometry pass engine validation.
    *

@@ -11,8 +11,10 @@ import { AutoMovieBuiltPlacementBasis } from "./AutoMovieBuiltPlacementBasis";
 export interface IAutoMovieBuiltPlacementBounds {
   /** Inclusive world-space minimum corner, in metres. */
   min: IAutoMovieVector3;
+
   /** Inclusive world-space maximum corner, in metres. */
   max: IAutoMovieVector3;
+
   /**
    * The derivation used to obtain this box. `element-origin-point` marks a box
    * with no extent, so read it before treating the corners as a volume.

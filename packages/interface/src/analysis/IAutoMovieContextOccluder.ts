@@ -19,6 +19,7 @@ export interface IAutoMovieContextOccluder {
    * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-environment-image-spatial-variation Types `id` for the clv environment image spatial variation system contract.
    */
   id: string;
+
   /**
    * Open semantic label such as `neighbour-tower` or `boundary-wall`.
    *
@@ -26,6 +27,7 @@ export interface IAutoMovieContextOccluder {
    * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-environment-image-spatial-variation Types `kind` for the clv environment image spatial variation system contract.
    */
   kind: string;
+
   /**
    * Half-spaces whose intersection is the mass; at least four, since fewer
    * cannot bound a solid in three dimensions.

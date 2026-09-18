@@ -13,6 +13,7 @@ export interface IAutoMovieProductionRenditionDeliveryOccurrence {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-failure-publication Supplies the exact final-conform join key.
    */
   occurrence: string;
+
   /**
    * Exact compiled shot id.
    *
@@ -20,6 +21,7 @@ export interface IAutoMovieProductionRenditionDeliveryOccurrence {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-failure-publication Binds delivery provenance to its compiled shot.
    */
   shot: string;
+
   /**
    * Render-root-relative immutable visual source.
    *
@@ -27,6 +29,7 @@ export interface IAutoMovieProductionRenditionDeliveryOccurrence {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-failure-publication Names the exact source consumed by final conform.
    */
   path: string;
+
   /**
    * Exact current visual source digest.
    *

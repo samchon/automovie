@@ -22,6 +22,7 @@ export interface IAutoMovieVisualRevisionView {
    * @evidence specifications/review-and-acceptance/visual-change-reporting.md#review-system-visual-revision-snapshot Forms the first half of the unique catalog key.
    */
   subject: string;
+
   /**
    * Stable catalog-local view identity. A different viewpoint, time, pass, or
    * presentation basis requires a different identity.
@@ -30,6 +31,7 @@ export interface IAutoMovieVisualRevisionView {
    * @evidence specifications/review-and-acceptance/visual-change-reporting.md#review-system-visual-revision-snapshot Forms the second half of the unique catalog key.
    */
   view: string;
+
   /**
    * Exact digest of the already-produced image bytes.
    *

@@ -14,6 +14,7 @@ export interface IAutoMovieWorldLandmark {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `id` for the narrative intent story design ownership system contract.
    */
   id: string;
+
   /**
    * Center in meters.
    *
@@ -21,6 +22,7 @@ export interface IAutoMovieWorldLandmark {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `position` for the narrative intent story design ownership system contract.
    */
   position: IAutoMovieVector3;
+
   /**
    * Finite selection and clearance radius in meters, strictly above zero.
    *
@@ -28,6 +30,7 @@ export interface IAutoMovieWorldLandmark {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `radius` for the narrative intent story design ownership system contract.
    */
   radius: number;
+
   /**
    * Non-blank narrative or tactical meaning.
    *

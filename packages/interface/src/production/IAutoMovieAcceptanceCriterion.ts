@@ -10,28 +10,36 @@ export type IAutoMovieAcceptanceCriterion =
   | {
       /** Visual frame criterion. */
       kind: "frame";
+
       /** Owning shot id; required when the acceptance target is the film. */
       shot?: string;
+
       /** Review-frame id in the target shot. */
       frame: string;
+
       /** Render pass to inspect. */
       pass: AutoMovieGuidePass;
+
       /** Non-blank observable expectation for the cited current frame. */
       expectation: string;
     }
   | {
       /** Semantic event criterion. */
       kind: "event";
+
       /** Owning shot id; required when the acceptance target is the film. */
       shot?: string;
+
       /** Event id in the target shot or film. */
       event: string;
+
       /** Non-blank observable expectation for the cited compiled event. */
       expectation: string;
     }
   | {
       /** Numeric metric criterion. */
       kind: "metric";
+
       /**
        * Supported builder-owned metric.
        *
@@ -39,8 +47,10 @@ export type IAutoMovieAcceptanceCriterion =
        * until their operands and measurement protocols are explicit.
        */
       metric: "runtime-seconds";
+
       /** Numeric comparison. */
       operator: "<=" | ">=" | "==";
+
       /** Finite threshold value, in seconds for `runtime-seconds`. */
       value: number;
     }
@@ -58,6 +68,7 @@ export type IAutoMovieAcceptanceCriterion =
        * tolerance, or realized times that in fact land outside it all fail it.
        */
       kind: "story-sync";
+
       /**
        * Two or more realized events, each named with the shot that owns it.
        * Every shot must be pinned; each shot-and-event pair appears once.
@@ -65,14 +76,17 @@ export type IAutoMovieAcceptanceCriterion =
       events: Array<{
         /** Owning shot id. */
         shot: string;
+
         /** Event id declared by that shot. */
         event: string;
       }>;
+
       /**
        * Finite non-negative tolerance in story seconds. The claim holds when
        * the earliest and latest realized story times differ by no more.
        */
       toleranceSeconds: number;
+
       /** Non-blank observable expectation for the asserted shared moment. */
       expectation: string;
     };

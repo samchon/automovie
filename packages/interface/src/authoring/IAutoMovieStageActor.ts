@@ -15,6 +15,7 @@ export interface IAutoMovieStageActor {
    * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `node` for the spec authoring authority compatibility system contract.
    */
   node: string;
+
   /**
    * Initial root position in world meters.
    *
@@ -22,6 +23,7 @@ export interface IAutoMovieStageActor {
    * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `position` for the spec authoring authority compatibility system contract.
    */
   position: IAutoMovieVector3;
+
   /**
    * Initial heading in degrees about +Y, where zero faces +Z.
    *
@@ -29,6 +31,7 @@ export interface IAutoMovieStageActor {
    * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `facingDeg` for the spec authoring authority compatibility system contract.
    */
   facingDeg: number;
+
   /**
    * Film-persistent mount carried through beat-end continuity, when present.
    *

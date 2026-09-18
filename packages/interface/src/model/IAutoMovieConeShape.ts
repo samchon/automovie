@@ -12,6 +12,7 @@ export interface IAutoMovieConeShape {
    * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Types `type` for the asset spec geometry inputs system contract.
    */
   type: "cone";
+
   /**
    * Base radius, meters.
    *
@@ -19,6 +20,7 @@ export interface IAutoMovieConeShape {
    * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Types `radius` for the asset spec geometry inputs system contract.
    */
   radius: number;
+
   /**
    * Height along local Y, meters.
    *

@@ -12,6 +12,7 @@ export interface IAutoMovieIKPole {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `node` for the performance motion clip keytime interpolation system contract.
    */
   node: string | null;
+
   /**
    * Pole roll angle in degrees.
    *

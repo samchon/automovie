@@ -15,6 +15,7 @@ export interface IAutoMovieExternalMotionBasis {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Identifies the deterministic normalization protocol used by the receipt.
    */
   profile: "gltf-motion-basis-v1";
+
   /**
    * Canonical length unit of normalized translations.
    *
@@ -22,6 +23,7 @@ export interface IAutoMovieExternalMotionBasis {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Seals meter normalization into the source basis.
    */
   lengthUnit: "meter";
+
   /**
    * Canonical coordinate handedness.
    *
@@ -29,6 +31,7 @@ export interface IAutoMovieExternalMotionBasis {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Seals right-handed interpretation into the source basis.
    */
   handedness: "right-handed";
+
   /**
    * Canonical vertical axis.
    *
@@ -36,6 +39,7 @@ export interface IAutoMovieExternalMotionBasis {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Seals Y-up normalization into the source basis.
    */
   upAxis: "Y-up";
+
   /**
    * Inspected nodes in stable source index order.
    *

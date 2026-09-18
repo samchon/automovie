@@ -14,6 +14,7 @@ export interface IAutoMovieFormationBounds {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `min` for the performance formation hierarchy membership command system contract.
    */
   min: IAutoMovieVector3;
+
   /**
    * Maximum world-space corner.
    *

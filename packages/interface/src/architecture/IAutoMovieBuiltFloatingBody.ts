@@ -18,8 +18,10 @@ import { AutoMovieBuiltPlacementBodyLocator } from "./AutoMovieBuiltPlacementBod
 export interface IAutoMovieBuiltFloatingBody {
   /** The element or compact population nothing supports at its underside. */
   body: AutoMovieBuiltPlacementBodyLocator;
+
   /** The derivation this body's own extent came from. */
   basis: Exclude<AutoMovieBuiltPlacementBasis, "surface-height-rule">;
+
   /**
    * The highest measurable body under this one and the clearance to it in
    * metres, or `null` when the sweep found nothing under this body at all. A
@@ -29,6 +31,7 @@ export interface IAutoMovieBuiltFloatingBody {
   below: {
     /** The nearest measurable body below. */
     body: AutoMovieBuiltPlacementBodyLocator;
+
     /** Positive vertical clearance from that body's top to this one's underside. */
     clearance: number;
   } | null;

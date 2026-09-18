@@ -33,6 +33,7 @@ export interface IAutoMovieBuiltPopulation {
    * @evidence specifications/asset-and-representation/alternatives-instances-and-groups.md#asset-spec-group-individuality Names the owning space through which each compressed member stays selectable and inspectable.
    */
   space: string;
+
   /**
    * Conservative occupied box of every selectable prototype, in model-local
    * metres before a slot's rotation, scale, and placement are applied.
@@ -58,9 +59,11 @@ export interface IAutoMovieBuiltPopulation {
   prototypeBounds: {
     /** Inclusive model-local minimum corner, in metres. */
     min: IAutoMovieVector3;
+
     /** Inclusive model-local maximum corner, in metres. */
     max: IAutoMovieVector3;
   };
+
   /**
    * The compact set that places every member of this population.
    *

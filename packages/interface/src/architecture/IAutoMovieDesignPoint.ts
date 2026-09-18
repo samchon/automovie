@@ -12,6 +12,7 @@ export interface IAutoMovieDesignPoint {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `x` for the narrative intent reference lineage system contract.
    */
   x: number;
+
   /**
    * Finite source-space y, growing the way the source grows it.
    *

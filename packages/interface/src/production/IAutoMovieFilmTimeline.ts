@@ -19,6 +19,7 @@ export interface IAutoMovieFilmTimeline {
    * @evidence specifications/narrative-and-intent/events-causality-and-time.md#narrative-intent-temporal-state-handoff Types `version` for the narrative intent temporal state handoff system contract.
    */
   version: 1;
+
   /**
    * Compiler protocol that derived the timeline.
    *
@@ -26,6 +27,7 @@ export interface IAutoMovieFilmTimeline {
    * @evidence specifications/narrative-and-intent/events-causality-and-time.md#narrative-intent-temporal-state-handoff Types `builder` for the narrative intent temporal state handoff system contract.
    */
   builder: string;
+
   /**
    * Exact aggregate compile input.
    *
@@ -33,6 +35,7 @@ export interface IAutoMovieFilmTimeline {
    * @evidence specifications/narrative-and-intent/events-causality-and-time.md#narrative-intent-temporal-state-handoff Types `inputFingerprint` for the narrative intent temporal state handoff system contract.
    */
   inputFingerprint: AutoMovieContentDigest;
+
   /**
    * Digest of normalized `src/film.ts` bytes.
    *
@@ -40,6 +43,7 @@ export interface IAutoMovieFilmTimeline {
    * @evidence specifications/narrative-and-intent/events-causality-and-time.md#narrative-intent-temporal-state-handoff Types `sourceDigest` for the narrative intent temporal state handoff system contract.
    */
   sourceDigest: AutoMovieContentDigest;
+
   /**
    * Stable finished-film id.
    *
@@ -47,6 +51,7 @@ export interface IAutoMovieFilmTimeline {
    * @evidence specifications/narrative-and-intent/events-causality-and-time.md#narrative-intent-temporal-state-handoff Types `id` for the narrative intent temporal state handoff system contract.
    */
   id: string;
+
   /**
    * Production frame rate.
    *
@@ -54,6 +59,7 @@ export interface IAutoMovieFilmTimeline {
    * @evidence specifications/narrative-and-intent/events-causality-and-time.md#narrative-intent-temporal-state-handoff Types `fps` for the narrative intent temporal state handoff system contract.
    */
   fps: number;
+
   /**
    * Exact reduced production frame rate.
    *
@@ -64,6 +70,7 @@ export interface IAutoMovieFilmTimeline {
    * @evidence specifications/editorial-render-and-delivery/rational-timeline-and-composition.md#spec-editorial-rational-timeline Supplies the canonical rational clock to caption, sound, and delivery consumers.
    */
   frameRate?: IAutoMovieProductionFrameRate;
+
   /**
    * Exact target and derived timeline duration.
    *
@@ -71,6 +78,7 @@ export interface IAutoMovieFilmTimeline {
    * @evidence specifications/narrative-and-intent/events-causality-and-time.md#narrative-intent-temporal-state-handoff Types `totalFrames` for the narrative intent temporal state handoff system contract.
    */
   totalFrames: number;
+
   /**
    * Ordered global-to-shot mapping.
    *
@@ -78,6 +86,7 @@ export interface IAutoMovieFilmTimeline {
    * @evidence specifications/narrative-and-intent/events-causality-and-time.md#narrative-intent-temporal-state-handoff Types `segments` for the narrative intent temporal state handoff system contract.
    */
   segments: IAutoMovieFilmTimelineSegment[];
+
   /**
    * Explicitly omitted current narrative shots.
    *
@@ -85,6 +94,7 @@ export interface IAutoMovieFilmTimeline {
    * @evidence specifications/narrative-and-intent/events-causality-and-time.md#narrative-intent-temporal-state-handoff Types `omissions` for the narrative intent temporal state handoff system contract.
    */
   omissions: IAutoMovieFilmOmission[];
+
   /**
    * Frame-normalized non-video tracks.
    *
@@ -105,6 +115,7 @@ export interface IAutoMovieFilmTimeline {
       fadeOutFrames: number;
       bus: IAutoMovieAudioCue["bus"];
     }>;
+
     /** Ordered caption placements. */
     captions: Array<{
       id: string;
@@ -114,6 +125,7 @@ export interface IAutoMovieFilmTimeline {
       startFrame: number;
       endFrame: number;
     }>;
+
     /** Ordered effect placements. */
     effects: Array<{
       id: string;

@@ -14,6 +14,7 @@ export interface IAutoMovieDesignRevision {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `id` for the narrative intent reference lineage system contract.
    */
   id: string;
+
   /**
    * Revision this one supersedes, or null for the first.
    *
@@ -21,6 +22,7 @@ export interface IAutoMovieDesignRevision {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `parent` for the narrative intent reference lineage system contract.
    */
   parent: string | null;
+
   /**
    * SHA-256 over the authored source this revision names.
    *

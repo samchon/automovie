@@ -12,6 +12,7 @@ export interface IAutoMovieDesignSkippedAnalysis {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `analysis` for the narrative intent reference lineage system contract.
    */
   analysis: string;
+
   /**
    * Which kind of nothing it produced.
    *
@@ -19,6 +20,7 @@ export interface IAutoMovieDesignSkippedAnalysis {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `status` for the narrative intent reference lineage system contract.
    */
   status: "unsupported" | "not-run";
+
   /**
    * The analysis' own reason, carried through verbatim.
    *

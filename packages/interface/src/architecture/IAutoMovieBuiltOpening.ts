@@ -15,6 +15,7 @@ export interface IAutoMovieBuiltOpening {
    * @evidence specifications/building-envelope/facade-roof-and-openings.md#building-envelope-opening-cut-input-output Types `id` for the building envelope opening cut input output system contract.
    */
   id: string;
+
   /**
    * Open semantic label such as `door`, `window`, `arch`, or `passage`.
    *
@@ -22,6 +23,7 @@ export interface IAutoMovieBuiltOpening {
    * @evidence specifications/building-envelope/facade-roof-and-openings.md#building-envelope-opening-cut-input-output Types `kind` for the building envelope opening cut input output system contract.
    */
   kind: string;
+
   /**
    * Boundary containing this opening.
    *
@@ -29,6 +31,7 @@ export interface IAutoMovieBuiltOpening {
    * @evidence specifications/building-envelope/facade-roof-and-openings.md#building-envelope-opening-cut-input-output Types `boundary` for the building envelope opening cut input output system contract.
    */
   boundary: string;
+
   /**
    * Door, sash, gate, or other filling element; null for an open cut.
    *
@@ -36,6 +39,7 @@ export interface IAutoMovieBuiltOpening {
    * @evidence specifications/building-envelope/facade-roof-and-openings.md#building-envelope-opening-cut-input-output Types `fill` for the building envelope opening cut input output system contract.
    */
   fill: string | null;
+
   /**
    * The void this opening actually cuts in its host boundary's face.
    *
@@ -48,6 +52,7 @@ export interface IAutoMovieBuiltOpening {
    * @evidence specifications/building-envelope/facade-roof-and-openings.md#building-envelope-opening-cut-input-output Types `profile` for the building envelope opening cut input output system contract.
    */
   profile?: IAutoMovieOpeningProfile;
+
   /**
    * Movable panels and the named states they stand in, or nothing for a fixed
    * cut such as an arch or a permanently open passage.

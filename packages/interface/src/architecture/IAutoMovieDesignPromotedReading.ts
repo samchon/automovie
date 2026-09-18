@@ -14,6 +14,7 @@ export interface IAutoMovieDesignPromotedReading {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `candidate` for the narrative intent reference lineage system contract.
    */
   candidate: string;
+
   /**
    * The candidate's own semantic label.
    *
@@ -21,6 +22,7 @@ export interface IAutoMovieDesignPromotedReading {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `semantic` for the narrative intent reference lineage system contract.
    */
   semantic: string;
+
   /**
    * One world-space polyline in metres per primitive the candidate reads, in
    * the candidate's own primitive order and each in source point order.

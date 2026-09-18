@@ -17,12 +17,16 @@ import { IAutoMovieMaterializedLibraryOwner } from "./IAutoMovieMaterializedLibr
 export interface IAutoMovieMaterializedLibrary {
   /** Closed schema version. */
   version: 1;
+
   /** Compiler protocol that produced this index. */
   builder: string;
+
   /** Production namespace this library was compiled under. */
   production: string;
+
   /** Compiler input identity this index was derived at. */
   inputFingerprint: AutoMovieContentDigest;
+
   /** Executed owners in stable branch-and-address order. */
   owners: IAutoMovieMaterializedLibraryOwner[];
 }

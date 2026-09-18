@@ -15,6 +15,7 @@ export interface IAutoMovieCaptionReadabilityMeasurement {
    * @evidence specifications/editorial-render-and-delivery/delivery-audio-text-and-localization.md#spec-delivery-caption-readability-profile Keeps per-cue outcomes traceable.
    */
   cue: string;
+
   /**
    * Canonical cue language.
    *
@@ -22,6 +23,7 @@ export interface IAutoMovieCaptionReadabilityMeasurement {
    * @evidence specifications/editorial-render-and-delivery/delivery-audio-text-and-localization.md#spec-delivery-caption-readability-profile Separates language-specific measurement populations.
    */
   language: string;
+
   /**
    * Complete identity of the runtime that produced these measurements.
    *
@@ -29,6 +31,7 @@ export interface IAutoMovieCaptionReadabilityMeasurement {
    * @evidence specifications/editorial-render-and-delivery/delivery-audio-text-and-localization.md#spec-delivery-caption-readability-measurement Keeps requested and executed segmentation identities distinct.
    */
   segmentation: IAutoMovieCaptionGraphemeSegmentationIdentity;
+
   /**
    * Displayed grapheme-cluster count after markup removal.
    *
@@ -36,6 +39,7 @@ export interface IAutoMovieCaptionReadabilityMeasurement {
    * @evidence specifications/editorial-render-and-delivery/delivery-audio-text-and-localization.md#spec-delivery-caption-readability-profile Measures displayed clusters with the declared segmentation revision.
    */
   graphemes: number;
+
   /**
    * Authored line count.
    *
@@ -43,6 +47,7 @@ export interface IAutoMovieCaptionReadabilityMeasurement {
    * @evidence specifications/editorial-render-and-delivery/delivery-audio-text-and-localization.md#spec-delivery-caption-readability-profile Supplies the line-count comparison input.
    */
   lines: number;
+
   /**
    * Largest displayed grapheme count among authored lines.
    *
@@ -50,6 +55,7 @@ export interface IAutoMovieCaptionReadabilityMeasurement {
    * @evidence specifications/editorial-render-and-delivery/delivery-audio-text-and-localization.md#spec-delivery-caption-readability-profile Supplies the line-length comparison input.
    */
   maxLineGraphemes: number;
+
   /**
    * Exact cue duration on the production frame clock.
    *
@@ -57,6 +63,7 @@ export interface IAutoMovieCaptionReadabilityMeasurement {
    * @evidence specifications/editorial-render-and-delivery/delivery-audio-text-and-localization.md#spec-delivery-caption-readability-profile Supplies the frame-exact duration comparison input.
    */
   durationFrames: number;
+
   /**
    * Gap from the preceding cue in the same language, or null for the first.
    *
@@ -64,6 +71,7 @@ export interface IAutoMovieCaptionReadabilityMeasurement {
    * @evidence specifications/editorial-render-and-delivery/delivery-audio-text-and-localization.md#spec-delivery-caption-readability-profile Supplies the same-language gap comparison input.
    */
   gapBeforeFrames: number | null;
+
   /**
    * Displayed graphemes per second on the production frame clock.
    *

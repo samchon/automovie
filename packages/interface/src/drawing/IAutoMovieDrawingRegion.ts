@@ -21,6 +21,7 @@ export interface IAutoMovieDrawingRegion {
    * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `space` for the interior space drawing schedule quantity system contract.
    */
   space: string;
+
   /**
    * Cell within that space.
    *
@@ -28,6 +29,7 @@ export interface IAutoMovieDrawingRegion {
    * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `cell` for the interior space drawing schedule quantity system contract.
    */
   cell: string;
+
   /**
    * Space kind, which is the region's drafting layer.
    *
@@ -35,6 +37,7 @@ export interface IAutoMovieDrawingRegion {
    * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `kind` for the interior space drawing schedule quantity system contract.
    */
   kind: string;
+
   /**
    * Convex page polygon in counter-clockwise order; at least three points.
    *
@@ -42,6 +45,7 @@ export interface IAutoMovieDrawingRegion {
    * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `polygon` for the interior space drawing schedule quantity system contract.
    */
   polygon: IAutoMovieDrawingPoint[];
+
   /**
    * Exact area of {@link polygon} in square metres.
    *
@@ -49,6 +53,7 @@ export interface IAutoMovieDrawingRegion {
    * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `area` for the interior space drawing schedule quantity system contract.
    */
   area: number;
+
   /**
    * Material id a finish view fills this region with, or `null`.
    *

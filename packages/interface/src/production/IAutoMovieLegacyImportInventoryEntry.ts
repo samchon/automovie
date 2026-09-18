@@ -14,6 +14,7 @@ export interface IAutoMovieLegacyImportInventoryEntry {
    * @evidence specifications/execution-and-recovery/portability-migration-and-compatibility.md#execution-resume-compatibility Types `path` for the execution resume compatibility system contract.
    */
   path: string;
+
   /**
    * Exact bytes, or zero when a registered asset is absent.
    *
@@ -21,6 +22,7 @@ export interface IAutoMovieLegacyImportInventoryEntry {
    * @evidence specifications/execution-and-recovery/portability-migration-and-compatibility.md#execution-resume-compatibility Types `bytes` for the execution resume compatibility system contract.
    */
   bytes: number;
+
   /**
    * Exact content digest, or null when a registered asset is absent.
    *
@@ -28,6 +30,7 @@ export interface IAutoMovieLegacyImportInventoryEntry {
    * @evidence specifications/execution-and-recovery/portability-migration-and-compatibility.md#execution-resume-compatibility Types `digest` for the execution resume compatibility system contract.
    */
   digest: AutoMovieContentDigest | null;
+
   /**
    * Why this file belongs to the import boundary.
    *

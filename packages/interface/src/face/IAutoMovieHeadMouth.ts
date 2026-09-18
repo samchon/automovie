@@ -15,6 +15,7 @@ export interface IAutoMovieHeadMouth {
    * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `width` as a coarse proxy parameter under the representation-fidelity ceiling.
    */
   width?: AutoMovieFaceWeight;
+
   /**
    * Lip fullness (both lips): `+` fuller (feminine), `-` thinner.
    *
@@ -22,6 +23,7 @@ export interface IAutoMovieHeadMouth {
    * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `lipFullness` as a coarse proxy parameter under the representation-fidelity ceiling.
    */
   lipFullness?: AutoMovieFaceWeight;
+
   /**
    * Upper-lip vermilion height.
    *
@@ -29,6 +31,7 @@ export interface IAutoMovieHeadMouth {
    * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `upperLipHeight` as a coarse proxy parameter under the representation-fidelity ceiling.
    */
   upperLipHeight?: AutoMovieFaceWeight;
+
   /**
    * Lower-lip vermilion height.
    *
@@ -36,6 +39,7 @@ export interface IAutoMovieHeadMouth {
    * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `lowerLipHeight` as a coarse proxy parameter under the representation-fidelity ceiling.
    */
   lowerLipHeight?: AutoMovieFaceWeight;
+
   /**
    * Cupid's-bow definition.
    *
@@ -43,6 +47,7 @@ export interface IAutoMovieHeadMouth {
    * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `cupidsBow` as a coarse proxy parameter under the representation-fidelity ceiling.
    */
   cupidsBow?: AutoMovieFaceWeight;
+
   /**
    * Philtrum volume.
    *
@@ -50,6 +55,7 @@ export interface IAutoMovieHeadMouth {
    * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `philtrum` as a coarse proxy parameter under the representation-fidelity ceiling.
    */
   philtrum?: AutoMovieFaceWeight;
+
   /**
    * Vertical mouth position: `+` higher, `-` lower.
    *
@@ -57,6 +63,7 @@ export interface IAutoMovieHeadMouth {
    * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `height` as a coarse proxy parameter under the representation-fidelity ceiling.
    */
   height?: AutoMovieFaceWeight;
+
   /**
    * Resting corner lift (slight smile): `+` up, `-` down.
    *

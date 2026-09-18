@@ -22,6 +22,7 @@ export interface IAutoMovieScreenplayIndex {
    * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-scene-prose-index Types `version` for the narrative intent scene prose index system contract.
    */
   version: 2;
+
   /**
    * Exact active production id.
    *
@@ -29,6 +30,7 @@ export interface IAutoMovieScreenplayIndex {
    * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-scene-prose-index Types `production` for the narrative intent scene prose index system contract.
    */
   production: string;
+
   /**
    * Project-relative Markdown treatment path.
    *
@@ -38,9 +40,11 @@ export interface IAutoMovieScreenplayIndex {
   treatment: {
     /** Human-owned treatment document. */
     path: string;
+
     /** Ordered sequence and beat promises indexed from that document. */
     sequences: IAutoMovieTreatmentSequence[];
   };
+
   /**
    * Project-relative Markdown screenplay and its stable scene ledger.
    *
@@ -50,11 +54,14 @@ export interface IAutoMovieScreenplayIndex {
   screenplay: {
     /** Human-owned screenplay document. */
     path: string;
+
     /** Null before lock, otherwise the permanent scene-number ledger. */
     lock: IAutoMovieScreenplayLock | null;
+
     /** Ordered active scenes and `OMITTED` tombstones. */
     scenes: IAutoMovieScreenplayScene[];
   };
+
   /**
    * Discovered story identities grounded in authored scene evidence.
    *
@@ -64,11 +71,14 @@ export interface IAutoMovieScreenplayIndex {
   catalog: {
     /** Characters, independent of model or rig convenience. */
     characters: IAutoMovieScreenplayCatalogEntry[];
+
     /** Story factions or forces. */
     factions: IAutoMovieScreenplayCatalogEntry[];
+
     /** Canonical story locations. */
     locations: IAutoMovieScreenplayCatalogEntry[];
   };
+
   /**
    * Canon facts with exactly one proof owner each.
    *

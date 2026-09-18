@@ -12,6 +12,7 @@ export interface IAutoMovieSubjectMaterial {
    * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-description-record Carries the compiled material identity.
    */
   id: string;
+
   /**
    * Human-readable compiled material name, or null when unnamed.
    *

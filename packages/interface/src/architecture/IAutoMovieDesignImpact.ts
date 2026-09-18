@@ -16,6 +16,7 @@ export interface IAutoMovieDesignImpact {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `changed` for the narrative intent reference lineage system contract.
    */
   changed: string[];
+
   /**
    * Derived artifact ids that must be recomputed, in ascending order.
    *
@@ -23,6 +24,7 @@ export interface IAutoMovieDesignImpact {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `invalidated` for the narrative intent reference lineage system contract.
    */
   invalidated: string[];
+
   /**
    * Derived artifact ids provably unaffected, in ascending order.
    *

@@ -12,17 +12,22 @@
 export interface IAutoMovieCaptionGraphemeSegmentationIdentity {
   /** Non-blank algorithm identity supported by the selected validator. */
   algorithm: string;
+
   /** Exact algorithm or segmentation-data revision. */
   version: string;
+
   /** Grapheme-cluster granularity used to measure caption text. */
   granularity: "grapheme";
+
   /** Locale participation in the actual segmentation execution. */
   locale:
     | {
         /** The runtime resolves a requested locale before segmenting. */
         kind: "requested-resolved";
+
         /** Non-blank locale passed to the runtime. */
         requested: string;
+
         /** Non-blank locale reported by the runtime after resolution. */
         resolved: string;
       }

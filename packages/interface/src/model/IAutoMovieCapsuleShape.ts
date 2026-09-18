@@ -12,6 +12,7 @@ export interface IAutoMovieCapsuleShape {
    * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Types `type` for the asset spec geometry inputs system contract.
    */
   type: "capsule";
+
   /**
    * Radius of the body and end caps, meters.
    *
@@ -19,6 +20,7 @@ export interface IAutoMovieCapsuleShape {
    * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Types `radius` for the asset spec geometry inputs system contract.
    */
   radius: number;
+
   /**
    * Length of the cylindrical body between the caps, meters.
    *

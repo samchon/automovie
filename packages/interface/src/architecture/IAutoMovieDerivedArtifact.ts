@@ -21,6 +21,7 @@ export interface IAutoMovieDerivedArtifact {
    * @evidence specifications/evidence-and-provenance/entities-activities-agents-and-lineage.md#evp-lineage-gap-representation Types `id` for the evp lineage gap representation system contract.
    */
   id: string;
+
   /**
    * Open output family such as `mesh`, `cut`, `quantity`, or `render`.
    *
@@ -28,6 +29,7 @@ export interface IAutoMovieDerivedArtifact {
    * @evidence specifications/evidence-and-provenance/entities-activities-agents-and-lineage.md#evp-lineage-gap-representation Types `kind` for the evp lineage gap representation system contract.
    */
   kind: string;
+
   /**
    * Subject or artifact ids this output was computed from; at least one.
    *
@@ -35,6 +37,7 @@ export interface IAutoMovieDerivedArtifact {
    * @evidence specifications/evidence-and-provenance/entities-activities-agents-and-lineage.md#evp-lineage-gap-representation Types `inputs` for the evp lineage gap representation system contract.
    */
   inputs: string[];
+
   /**
    * The imported bytes it read: exactly one citation per input carrying any.
    *
@@ -47,6 +50,7 @@ export interface IAutoMovieDerivedArtifact {
    * @evidence specifications/evidence-and-provenance/entities-activities-agents-and-lineage.md#evp-lineage-gap-representation Types `assets` for the evp lineage gap representation system contract.
    */
   assets: IAutoMovieDesignAssetCitation[];
+
   /**
    * The view it was computed under.
    *
@@ -54,6 +58,7 @@ export interface IAutoMovieDerivedArtifact {
    * @evidence specifications/evidence-and-provenance/entities-activities-agents-and-lineage.md#evp-lineage-gap-representation Types `stamp` for the evp lineage gap representation system contract.
    */
   stamp: IAutoMovieDesignStamp;
+
   /**
    * SHA-256 of the output's own bytes.
    *

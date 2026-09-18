@@ -14,6 +14,7 @@ export interface IAutoMovieStorySyncOutcome {
    * @evidence specifications/narrative-and-intent/events-causality-and-time.md#narrative-intent-story-synchronization Types `points` for the narrative intent story synchronization system contract.
    */
   points: IAutoMovieStorySyncPoint[];
+
   /**
    * Widest gap between two addressed story times in seconds, or null when any
    * operand failed to resolve.
@@ -22,6 +23,7 @@ export interface IAutoMovieStorySyncOutcome {
    * @evidence specifications/narrative-and-intent/events-causality-and-time.md#narrative-intent-story-synchronization Types `spreadSeconds` for the narrative intent story synchronization system contract.
    */
   spreadSeconds: number | null;
+
   /**
    * Required tolerance in story seconds.
    *
@@ -29,6 +31,7 @@ export interface IAutoMovieStorySyncOutcome {
    * @evidence specifications/narrative-and-intent/events-causality-and-time.md#narrative-intent-story-synchronization Types `toleranceSeconds` for the narrative intent story synchronization system contract.
    */
   toleranceSeconds: number;
+
   /**
    * Whether every point resolved and the widest gap is within tolerance.
    *
@@ -36,6 +39,7 @@ export interface IAutoMovieStorySyncOutcome {
    * @evidence specifications/narrative-and-intent/events-causality-and-time.md#narrative-intent-story-synchronization Types `passed` for the narrative intent story synchronization system contract.
    */
   passed: boolean;
+
   /**
    * Deterministic one-line account of the measurement, naming the two events
    * that produced the widest gap or the first operand that failed to resolve.

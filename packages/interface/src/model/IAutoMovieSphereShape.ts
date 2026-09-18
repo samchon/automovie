@@ -12,6 +12,7 @@ export interface IAutoMovieSphereShape {
    * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Types `type` for the asset spec geometry inputs system contract.
    */
   type: "sphere";
+
   /**
    * Radius, meters.
    *

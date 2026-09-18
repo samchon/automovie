@@ -12,6 +12,7 @@ export interface IAutoMovieProductionDialogueLine {
    * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#dialogue-voice-consistency-and-phoneme-state Types `id` for the dialogue voice consistency and phoneme state system contract.
    */
   id: string;
+
   /**
    * Spoken and captioned text.
    *
@@ -19,6 +20,7 @@ export interface IAutoMovieProductionDialogueLine {
    * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#dialogue-voice-consistency-and-phoneme-state Types `text` for the dialogue voice consistency and phoneme state system contract.
    */
   text: string;
+
   /**
    * BCP-47-ish authored language label.
    *
@@ -26,6 +28,7 @@ export interface IAutoMovieProductionDialogueLine {
    * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#dialogue-voice-consistency-and-phoneme-state Types `language` for the dialogue voice consistency and phoneme state system contract.
    */
   language: string;
+
   /**
    * Optional authored speaker identity.
    *
@@ -33,6 +36,7 @@ export interface IAutoMovieProductionDialogueLine {
    * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#dialogue-voice-consistency-and-phoneme-state Types `speaker` for the dialogue voice consistency and phoneme state system contract.
    */
   speaker?: string;
+
   /**
    * Film-global inclusive start frame.
    *
@@ -40,6 +44,7 @@ export interface IAutoMovieProductionDialogueLine {
    * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#dialogue-voice-consistency-and-phoneme-state Types `startFrame` for the dialogue voice consistency and phoneme state system contract.
    */
   startFrame: number;
+
   /**
    * Film-global exclusive end frame.
    *

@@ -16,10 +16,13 @@ import { IAutoMovieBuiltPlacementOverlapPair } from "./IAutoMovieBuiltPlacementO
 export interface IAutoMovieBuiltPlacementOverlapReport {
   /** Bodies whose extent resolved and were therefore compared. */
   measured: number;
+
   /** Pair tests performed after pruning, the sweep's own cost. */
   compared: number;
+
   /** Every intersecting pair, deepest share of the smaller body first. */
   pairs: IAutoMovieBuiltPlacementOverlapPair[];
+
   /** Bodies whose extent the record does not resolve, so nothing compared them. */
   unresolved: AutoMovieBuiltPlacementBodyLocator[];
 }

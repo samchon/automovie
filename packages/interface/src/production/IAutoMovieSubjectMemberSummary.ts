@@ -12,6 +12,7 @@ export interface IAutoMovieSubjectMemberSummary {
    * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-description-record Types the exact membership total.
    */
   total: number;
+
   /**
    * Code-unit-sorted bounded sample of stable member ids.
    *
@@ -19,6 +20,7 @@ export interface IAutoMovieSubjectMemberSummary {
    * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-diff-tolerance-fanout Carries the deterministic bounded sample.
    */
   items: string[];
+
   /**
    * Rank of the first member present in {@link items}, within the sorted whole.
    *
@@ -34,6 +36,7 @@ export interface IAutoMovieSubjectMemberSummary {
    * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-diff-tolerance-fanout Types the deterministic sample's starting rank alongside its exact total.
    */
   offset: number;
+
   /**
    * Number of members not present in {@link items}.
    *

@@ -13,6 +13,7 @@ export interface IAutoMovieExternalMotionHumanoidRetargetMode {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Records humanoid retargeting as the selected mode.
    */
   kind: "humanoid-retarget";
+
   /**
    * Explicit finite positive root-translation scale.
    *

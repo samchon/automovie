@@ -43,6 +43,7 @@ export interface IAutoMovieBuiltEnvironment {
    * @evidence specifications/building-envelope/exterior-spaces-circulation-and-optics.md#building-envelope-multibuilding-connector-failures Types `version` for the building envelope multibuilding connector failures system contract.
    */
   version: 1;
+
   /**
    * Stable identity of this environment.
    *
@@ -50,6 +51,7 @@ export interface IAutoMovieBuiltEnvironment {
    * @evidence specifications/building-envelope/exterior-spaces-circulation-and-optics.md#building-envelope-multibuilding-connector-failures Types `id` for the building envelope multibuilding connector failures system contract.
    */
   id: string;
+
   /**
    * All authored dimensions are measured in metres.
    *
@@ -57,6 +59,7 @@ export interface IAutoMovieBuiltEnvironment {
    * @evidence specifications/building-envelope/exterior-spaces-circulation-and-optics.md#building-envelope-multibuilding-connector-failures Types `units` for the building envelope multibuilding connector failures system contract.
    */
   units: "meter";
+
   /**
    * Independently owned and independently placed building units in this work.
    *
@@ -69,6 +72,7 @@ export interface IAutoMovieBuiltEnvironment {
    * @evidence specifications/building-envelope/exterior-spaces-circulation-and-optics.md#building-envelope-multibuilding-connector-failures Types `buildings` for the building envelope multibuilding connector failures system contract.
    */
   buildings: IAutoMovieBuildingUnit[];
+
   /**
    * Models owned by the environment and cited by visible elements.
    *
@@ -76,6 +80,7 @@ export interface IAutoMovieBuiltEnvironment {
    * @evidence specifications/building-envelope/exterior-spaces-circulation-and-optics.md#building-envelope-multibuilding-connector-failures Types `models` for the building envelope multibuilding connector failures system contract.
    */
   models: IAutoMovieModel[];
+
   /**
    * Compiler-owned runtime model ids cited by elements, including imported
    * external assets whose bytes cannot be created inside source code.
@@ -84,6 +89,7 @@ export interface IAutoMovieBuiltEnvironment {
    * @evidence specifications/building-envelope/exterior-spaces-circulation-and-optics.md#building-envelope-multibuilding-connector-failures Types `modelReferences` for the building envelope multibuilding connector failures system contract.
    */
   modelReferences: string[];
+
   /**
    * Parent-local full-TRS hierarchy of visible and grouping elements.
    *
@@ -91,6 +97,7 @@ export interface IAutoMovieBuiltEnvironment {
    * @evidence specifications/building-envelope/exterior-spaces-circulation-and-optics.md#building-envelope-multibuilding-connector-failures Types `elements` for the building envelope multibuilding connector failures system contract.
    */
   elements: IAutoMovieBuiltElement[];
+
   /**
    * Compact repeated populations this work stages, each in one logical space.
    *
@@ -112,6 +119,7 @@ export interface IAutoMovieBuiltEnvironment {
    * @evidence specifications/asset-and-representation/alternatives-instances-and-groups.md#asset-spec-group-individuality Types the compressed population so count-and-seed storage keeps each member inspectable through the space that owns it.
    */
   populations?: IAutoMovieBuiltPopulation[];
+
   /**
    * Independently nested semantic partitions inside/on the building envelope.
    *
@@ -119,6 +127,7 @@ export interface IAutoMovieBuiltEnvironment {
    * @evidence specifications/building-envelope/exterior-spaces-circulation-and-optics.md#building-envelope-multibuilding-connector-failures Types `spaces` for the building envelope multibuilding connector failures system contract.
    */
   spaces: IAutoMovieBuiltSpace[];
+
   /**
    * Physical or logical separations between spaces.
    *
@@ -126,6 +135,7 @@ export interface IAutoMovieBuiltEnvironment {
    * @evidence specifications/building-envelope/exterior-spaces-circulation-and-optics.md#building-envelope-multibuilding-connector-failures Types `boundaries` for the building envelope multibuilding connector failures system contract.
    */
   boundaries: IAutoMovieBuiltBoundary[];
+
   /**
    * Passages cut through boundaries.
    *
@@ -133,6 +143,7 @@ export interface IAutoMovieBuiltEnvironment {
    * @evidence specifications/building-envelope/exterior-spaces-circulation-and-optics.md#building-envelope-multibuilding-connector-failures Types `openings` for the building envelope multibuilding connector failures system contract.
    */
   openings: IAutoMovieBuiltOpening[];
+
   /**
    * Traversable relations such as stairs, lifts, ramps, and skybridges.
    *
@@ -140,6 +151,7 @@ export interface IAutoMovieBuiltEnvironment {
    * @evidence specifications/building-envelope/exterior-spaces-circulation-and-optics.md#building-envelope-multibuilding-connector-failures Types `connectors` for the building envelope multibuilding connector failures system contract.
    */
   connectors: IAutoMovieBuiltConnector[];
+
   /**
    * Ground/support patches assigned to logical spaces.
    *
@@ -147,6 +159,7 @@ export interface IAutoMovieBuiltEnvironment {
    * @evidence specifications/building-envelope/exterior-spaces-circulation-and-optics.md#building-envelope-multibuilding-connector-failures Types `surfaces` for the building envelope multibuilding connector failures system contract.
    */
   surfaces: IAutoMovieBuiltSurface[];
+
   /**
    * Surface ids on which locomotion is permitted.
    *

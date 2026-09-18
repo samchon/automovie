@@ -15,6 +15,7 @@ export interface IAutoMovieProductionRenderReceipt {
    * @evidence specifications/editorial-render-and-delivery/delivery-package-provenance-and-publication.md#spec-delivery-provenance-integrity Selects the publication-fingerprint receipt schema.
    */
   version: 4;
+
   /**
    * Exact digest of the active production's tracked render manifest.
    *
@@ -22,12 +23,14 @@ export interface IAutoMovieProductionRenderReceipt {
    * @evidence specifications/execution-and-recovery/artifacts-and-atomic-publication.md#execution-atomic-current-commit Joins the receipt to the committed manifest bytes.
    */
   manifestDigest: AutoMovieContentDigest;
+
   /**
    * Exact recomputed publication identity carried by the manifest.
    * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-runtime-identity Carries the runtime-bound publication digest.
    * @evidence specifications/editorial-render-and-delivery/delivery-package-provenance-and-publication.md#spec-delivery-provenance-integrity Joins the independently parsed receipt and manifest identities.
    */
   publicationFingerprint: AutoMovieContentDigest;
+
   /**
    * Exact byte and media probes in canonical path order.
    *

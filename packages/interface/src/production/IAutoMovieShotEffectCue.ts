@@ -12,6 +12,7 @@ export interface IAutoMovieShotEffectCue {
    * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `id` for the spec authoring source derivation state system contract.
    */
   id: string;
+
   /**
    * Existing world effect-zone id.
    *
@@ -19,6 +20,7 @@ export interface IAutoMovieShotEffectCue {
    * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `zone` for the spec authoring source derivation state system contract.
    */
   zone: string;
+
   /**
    * Inclusive shot-local start in seconds.
    *
@@ -26,6 +28,7 @@ export interface IAutoMovieShotEffectCue {
    * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `start` for the spec authoring source derivation state system contract.
    */
   start: number;
+
   /**
    * Exclusive shot-local end in seconds.
    *
@@ -33,6 +36,7 @@ export interface IAutoMovieShotEffectCue {
    * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `end` for the spec authoring source derivation state system contract.
    */
   end: number;
+
   /**
    * Bounded intensity envelope.
    *
@@ -42,9 +46,11 @@ export interface IAutoMovieShotEffectCue {
   intensity: {
     /** Intensity at cue start. */
     from: number;
+
     /** Intensity at cue end. */
     to: number;
   };
+
   /**
    * Optional authoritative shot event that must realize inside this cue.
    *

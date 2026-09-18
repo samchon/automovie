@@ -14,6 +14,7 @@ export interface IAutoMovieShotReviewFrame {
    * @evidence specifications/simulation-effects-and-sound/budget-admission.md#budget-frame-shot-sequence-composition Types `id` for the budget frame shot sequence composition system contract.
    */
   id: string;
+
   /**
    * Time inside the owning shot, snapped exactly to the production frame clock.
    *
@@ -21,6 +22,7 @@ export interface IAutoMovieShotReviewFrame {
    * @evidence specifications/simulation-effects-and-sound/budget-admission.md#budget-frame-shot-sequence-composition Types `time` for the budget frame shot sequence composition system contract.
    */
   time: number;
+
   /**
    * Non-empty unique passes that must be captured.
    *

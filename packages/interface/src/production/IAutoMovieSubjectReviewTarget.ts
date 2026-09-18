@@ -11,6 +11,7 @@
 export interface IAutoMovieSubjectReviewTarget {
   /** Compiled shot artifact that contains the subject. */
   shot: string;
+
   /** Stable namespaced subject id inside the compiled artifact. */
   subject: string;
 }

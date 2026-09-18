@@ -33,6 +33,7 @@ export interface IAutoMovieOpeningOperation {
    * @evidence specifications/interior-space/boundaries-openings-and-circulation.md#interior-space-host-opening-operation Types `panels` for the interior space host opening operation system contract.
    */
   panels: IAutoMovieMovablePanel[];
+
   /**
    * Named states; at least one, and each gives every panel a value.
    *
@@ -40,6 +41,7 @@ export interface IAutoMovieOpeningOperation {
    * @evidence specifications/interior-space/boundaries-openings-and-circulation.md#interior-space-host-opening-operation Types `states` for the interior space host opening operation system contract.
    */
   states: IAutoMovieOperationState[];
+
   /**
    * The state the design currently stands in; names one of {@link states}.
    *
@@ -47,6 +49,7 @@ export interface IAutoMovieOpeningOperation {
    * @evidence specifications/interior-space/boundaries-openings-and-circulation.md#interior-space-host-opening-operation Types `state` for the interior space host opening operation system contract.
    */
   state: string;
+
   /**
    * Fixed members the opening carries, such as a frame, hinge, or handle.
    *

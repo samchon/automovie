@@ -18,6 +18,7 @@ export interface IAutoMovieAssetTurntableView {
    * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-host-evidence-output Types the view identity the evidence output carries.
    */
   id: string;
+
   /**
    * Turntable azimuth in degrees.
    *
@@ -25,6 +26,7 @@ export interface IAutoMovieAssetTurntableView {
    * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-host-evidence-output Types the azimuth the evidence output carries.
    */
   angleDeg: number;
+
   /**
    * Camera elevation in degrees.
    *
@@ -32,6 +34,7 @@ export interface IAutoMovieAssetTurntableView {
    * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-host-evidence-output Types the elevation the evidence output carries.
    */
   elevationDeg: number;
+
   /**
    * Rig pose the view was opened in.
    *
@@ -39,6 +42,7 @@ export interface IAutoMovieAssetTurntableView {
    * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-host-evidence-output Types the pose the evidence output carries.
    */
   pose: "rest" | "rom-extremes";
+
   /**
    * Render pass the view was captured in.
    *
@@ -46,6 +50,7 @@ export interface IAutoMovieAssetTurntableView {
    * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-host-evidence-output Types the pass the evidence output carries.
    */
   pass: AutoMovieGuidePass;
+
   /**
    * Project-relative PNG path, or null when this view was refused.
    *

@@ -16,16 +16,20 @@ export interface IAutoMovieBuiltSupportResult {
     | "not-over-support"
     | "suspended"
     | "unresolved";
+
   /**
    * Signed underside gap in metres for a resolved bearing relation, or null
    * when no bearing sample exists, the relation is suspended, or either side
    * is unresolved.
    */
   gap: number | null;
+
   /** Unresolved inputs, empty for every conclusive result. */
   unresolved: ("subject" | "support")[];
+
   /** Subject measurement basis, or null when its bounds cannot be resolved. */
   subjectBasis: AutoMovieBuiltPlacementBasis | null;
+
   /** Support measurement basis, or null when its face cannot be resolved. */
   supportBasis: AutoMovieBuiltPlacementBasis | null;
 }

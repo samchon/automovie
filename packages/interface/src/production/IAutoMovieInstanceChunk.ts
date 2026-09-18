@@ -15,6 +15,7 @@ export interface IAutoMovieInstanceChunk {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-provider-choice Types `index` for the asset spec generation provider choice system contract.
    */
   index: number;
+
   /**
    * Inclusive first slot.
    *
@@ -22,6 +23,7 @@ export interface IAutoMovieInstanceChunk {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-provider-choice Types `start` for the asset spec generation provider choice system contract.
    */
   start: number;
+
   /**
    * Number of slots in this chunk.
    *
@@ -29,6 +31,7 @@ export interface IAutoMovieInstanceChunk {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-provider-choice Types `count` for the asset spec generation provider choice system contract.
    */
   count: number;
+
   /**
    * Exact world-space range bounds.
    *
@@ -36,6 +39,7 @@ export interface IAutoMovieInstanceChunk {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-provider-choice Types `bounds` for the asset spec generation provider choice system contract.
    */
   bounds: IAutoMovieFormationBounds;
+
   /**
    * Exact arithmetic centroid of the range.
    *

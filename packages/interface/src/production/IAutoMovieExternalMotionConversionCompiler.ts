@@ -13,6 +13,7 @@ export interface IAutoMovieExternalMotionConversionCompiler {
    * @evidence specifications/interchange-and-adoption/conversion-receipts-and-determinism.md#interchange-receipt-input-basis Invalidates receipt identity when the builder implementation version changes.
    */
   packageVersion: string;
+
   /**
    * Exact builder content-protocol version.
    *

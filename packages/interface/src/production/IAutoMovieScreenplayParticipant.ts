@@ -10,6 +10,7 @@ import { AutoMovieScreenplayParticipantMode } from "./AutoMovieScreenplayPartici
 export interface IAutoMovieScreenplayParticipant {
   /** Stable character, faction, object or environmental identity. */
   id: string;
+
   /** How that identity participates in this exact scene. */
   mode: AutoMovieScreenplayParticipantMode;
 }

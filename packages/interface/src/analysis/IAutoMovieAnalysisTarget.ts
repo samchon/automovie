@@ -26,6 +26,7 @@ export interface IAutoMovieAnalysisTarget {
    * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-failed-not-run-states Types `key` for the validation failed not run states system contract.
    */
   key: string;
+
   /**
    * Unit symbol the target is stated in, such as `lx`, `s`, `dB`.
    *
@@ -33,6 +34,7 @@ export interface IAutoMovieAnalysisTarget {
    * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-failed-not-run-states Types `unit` for the validation failed not run states system contract.
    */
   unit: string;
+
   /**
    * Finite target value in {@link unit}.
    *
@@ -40,6 +42,7 @@ export interface IAutoMovieAnalysisTarget {
    * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-failed-not-run-states Types `value` for the validation failed not run states system contract.
    */
   value: number;
+
   /**
    * Whether the metric must reach the value or stay under it.
    *

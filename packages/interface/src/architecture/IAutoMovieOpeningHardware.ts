@@ -12,6 +12,7 @@ export interface IAutoMovieOpeningHardware {
    * @evidence specifications/building-envelope/facade-roof-and-openings.md#building-envelope-opening-cut-input-output Types `id` for the building envelope opening cut input output system contract.
    */
   id: string;
+
   /**
    * Open semantic label such as `frame`, `hinge`, `handle`, or `track`.
    *
@@ -19,6 +20,7 @@ export interface IAutoMovieOpeningHardware {
    * @evidence specifications/building-envelope/facade-roof-and-openings.md#building-envelope-opening-cut-input-output Types `kind` for the building envelope opening cut input output system contract.
    */
   kind: string;
+
   /**
    * Visible element realizing it, or null when it is only declared.
    *

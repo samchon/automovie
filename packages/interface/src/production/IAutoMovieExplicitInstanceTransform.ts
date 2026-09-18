@@ -15,6 +15,7 @@ export interface IAutoMovieExplicitInstanceTransform {
    * @evidence specifications/world-and-site/spatial-reference-and-identity.md#world-site-transform-lineage-precision Types `id` for the world site transform lineage precision system contract.
    */
   id: string;
+
   /**
    * Translation relative to the set anchor, in meters.
    *
@@ -22,6 +23,7 @@ export interface IAutoMovieExplicitInstanceTransform {
    * @evidence specifications/world-and-site/spatial-reference-and-identity.md#world-site-transform-lineage-precision Types `translation` for the world site transform lineage precision system contract.
    */
   translation: IAutoMovieVector3;
+
   /**
    * Exact unit quaternion in glTF `(x, y, z, w)` order.
    *
@@ -29,6 +31,7 @@ export interface IAutoMovieExplicitInstanceTransform {
    * @evidence specifications/world-and-site/spatial-reference-and-identity.md#world-site-transform-lineage-precision Types `rotation` for the world site transform lineage precision system contract.
    */
   rotation: IAutoMovieQuaternion;
+
   /**
    * Strictly positive scale on each local axis.
    *
@@ -36,6 +39,7 @@ export interface IAutoMovieExplicitInstanceTransform {
    * @evidence specifications/world-and-site/spatial-reference-and-identity.md#world-site-transform-lineage-precision Types `scale` for the world site transform lineage precision system contract.
    */
   scale: IAutoMovieVector3;
+
   /**
    * Optional prototype id; omitted selects the set's default prototype.
    *
@@ -43,6 +47,7 @@ export interface IAutoMovieExplicitInstanceTransform {
    * @evidence specifications/world-and-site/spatial-reference-and-identity.md#world-site-transform-lineage-precision Types `prototype` for the world site transform lineage precision system contract.
    */
   prototype?: string;
+
   /**
    * Omitted means visible.
    *
@@ -50,6 +55,7 @@ export interface IAutoMovieExplicitInstanceTransform {
    * @evidence specifications/world-and-site/spatial-reference-and-identity.md#world-site-transform-lineage-precision Types `visible` for the world site transform lineage precision system contract.
    */
   visible?: boolean;
+
   /**
    * Optional exact `#RRGGBB` palette override.
    *
@@ -61,6 +67,7 @@ export interface IAutoMovieExplicitInstanceTransform {
    * @evidence specifications/world-and-site/spatial-reference-and-identity.md#world-site-transform-lineage-precision Types `palette` for the world site transform lineage precision system contract.
    */
   palette?: string;
+
   /**
    * Optional exact overrides for declared numeric traits.
    *

@@ -27,6 +27,7 @@ export namespace IAutoMovieCaptureTurntable {
      * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-host-evidence-output Types the production scope of the request.
      */
     productionId?: string;
+
     /**
      * Registry-owned asset id.
      *
@@ -34,6 +35,7 @@ export namespace IAutoMovieCaptureTurntable {
      * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-host-evidence-output Types the requested evidence target.
      */
     asset: string;
+
     /**
      * Optional positive integer width no larger than production width.
      *
@@ -41,6 +43,7 @@ export namespace IAutoMovieCaptureTurntable {
      * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-host-evidence-output Types the requested raster width.
      */
     width?: number;
+
     /**
      * Optional positive integer height no larger than production height.
      *

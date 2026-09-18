@@ -12,6 +12,7 @@ export interface IAutoMovieTreatmentBeat {
    * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-scene-prose-index Types `id` for the narrative intent scene prose index system contract.
    */
   id: string;
+
   /**
    * Exact non-blank prose copied by a scene's `covers` entry.
    *

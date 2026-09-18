@@ -14,6 +14,7 @@ export interface IAutoMovieDrawingExtent {
    * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `min` for the interior space drawing schedule quantity system contract.
    */
   min: IAutoMovieDrawingPoint;
+
   /**
    * Highest page coordinate on each axis.
    *

@@ -25,6 +25,7 @@ export interface IAutoMovieExternalMotionProvenance {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Types `ingestProfile` for the performance motion external adoption receipt system contract.
    */
   ingestProfile: "gltf-motion-v1";
+
   /**
    * Canonical hierarchy and rest basis inspected from the resident source
    * bytes.
@@ -33,6 +34,7 @@ export interface IAutoMovieExternalMotionProvenance {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Retains the normalized byte basis beside source takes and digests.
    */
   basis: IAutoMovieExternalMotionBasis;
+
   /**
    * Inspected animation takes in source index order.
    *

@@ -15,6 +15,7 @@ export interface IAutoMovieShotStoryTime {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `originSeconds` for the narrative intent story design ownership system contract.
    */
   originSeconds: number;
+
   /**
    * Story seconds elapsed per shot-local second; finite and strictly above
    * zero. Omitted means one, so shot time and story time run together.

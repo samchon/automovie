@@ -14,6 +14,7 @@ export interface IAutoMovieEffectCue {
    * @evidence specifications/simulation-effects-and-sound/scope-tiers-and-identities.md#effect-tier-state-machine Types `id` for the effect tier state machine system contract.
    */
   id: string;
+
   /**
    * Supported builder-owned recipe family.
    *
@@ -21,6 +22,7 @@ export interface IAutoMovieEffectCue {
    * @evidence specifications/simulation-effects-and-sound/scope-tiers-and-identities.md#effect-tier-state-machine Types `recipe` for the effect tier state machine system contract.
    */
   recipe: "world-zone";
+
   /**
    * Existing world effect-zone id.
    *
@@ -28,6 +30,7 @@ export interface IAutoMovieEffectCue {
    * @evidence specifications/simulation-effects-and-sound/scope-tiers-and-identities.md#effect-tier-state-machine Types `zone` for the effect tier state machine system contract.
    */
   zone: string;
+
   /**
    * Film-global cue start.
    *
@@ -35,6 +38,7 @@ export interface IAutoMovieEffectCue {
    * @evidence specifications/simulation-effects-and-sound/scope-tiers-and-identities.md#effect-tier-state-machine Types `start` for the effect tier state machine system contract.
    */
   start: AutoMovieFilmTime;
+
   /**
    * Cue duration.
    *
@@ -42,6 +46,7 @@ export interface IAutoMovieEffectCue {
    * @evidence specifications/simulation-effects-and-sound/scope-tiers-and-identities.md#effect-tier-state-machine Types `duration` for the effect tier state machine system contract.
    */
   duration: AutoMovieFilmTime;
+
   /**
    * Bounded normalized strength.
    *

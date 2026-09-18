@@ -22,6 +22,7 @@ export interface IAutoMovieStoryClock {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `units` for the narrative intent story design ownership system contract.
    */
   units: "second";
+
   /**
    * Non-blank statement of what story time zero denotes.
    *

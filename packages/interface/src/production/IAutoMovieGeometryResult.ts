@@ -8,22 +8,27 @@ export type IAutoMovieGeometryResult =
   | {
       /** Distance in meters. */
       kind: "distance";
+
       /** Measured value. */
       meters: number;
     }
   | {
       /** Ground sample. */
       kind: "ground";
+
       /** Surface height in meters. */
       height: number;
+
       /** Matching surface id, or null. */
       surface: string | null;
+
       /** Whether the surface is walkable. */
       walkable: boolean;
     }
   | {
       /** Generic current-compile measurement. */
       kind: "measurement";
+
       /** Machine-readable metric names and scalar or text values. */
       values: Record<string, number | string | boolean>;
     };

@@ -17,6 +17,7 @@ export interface IAutoMovieFilmBuildContext {
    * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `production` for the spec authoring source derivation state system contract.
    */
   production: IAutoMovieProductionDesign;
+
   /**
    * Current shot contracts keyed by id.
    *
@@ -24,6 +25,7 @@ export interface IAutoMovieFilmBuildContext {
    * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `shots` for the spec authoring source derivation state system contract.
    */
   shots: Readonly<Record<string, IAutoMovieShotContract>>;
+
   /**
    * Declared, present render-content paths.
    *
@@ -31,6 +33,7 @@ export interface IAutoMovieFilmBuildContext {
    * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `assets` for the spec authoring source derivation state system contract.
    */
   assets: readonly string[];
+
   /**
    * Current verified deterministic artifacts keyed by canonical output path.
    *
@@ -38,6 +41,7 @@ export interface IAutoMovieFilmBuildContext {
    * @evidence specifications/authoring-and-authority/deterministic-precomputed-artifacts.md#spec-authoring-precomputed-freshness Carries verified text or base64 bytes through the JSON source boundary.
    */
   derivedArtifacts: Readonly<Record<string, IAutoMovieDerivedArtifactSource>>;
+
   /**
    * Current registered deterministic effect zones.
    *

@@ -14,6 +14,7 @@ export interface IAutoMovieProductionRenderStatus {
    * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Types `path` for the spec render state isolation system contract.
    */
   path: string;
+
   /**
    * Whether the bundle matches current target-local inputs.
    *
@@ -21,6 +22,7 @@ export interface IAutoMovieProductionRenderStatus {
    * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Types `current` for the spec render state isolation system contract.
    */
   current: boolean;
+
   /**
    * What this bundle was rendered for, verbatim from its own manifest, or
    * `null` when that manifest cannot be read.
@@ -34,6 +36,7 @@ export interface IAutoMovieProductionRenderStatus {
    * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Types `target` for the spec render state isolation system contract.
    */
   target: IAutoMovieRenderBundleManifest["target"] | null;
+
   /**
    * Whether the design still carries the target this bundle was rendered for.
    *

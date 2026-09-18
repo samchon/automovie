@@ -12,6 +12,7 @@ export interface IAutoMoviePanelValue {
    * @evidence specifications/building-envelope/facade-roof-and-openings.md#building-envelope-opening-operable-sweep-invariant Types `panel` for the building envelope opening operable sweep invariant system contract.
    */
   panel: string;
+
   /**
    * Radians for a revolute panel, metres for a prismatic one.
    *

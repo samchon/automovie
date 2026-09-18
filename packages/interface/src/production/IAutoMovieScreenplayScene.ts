@@ -19,6 +19,7 @@ export interface IAutoMovieScreenplayScene {
    * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-scene-prose-index Types `id` for the narrative intent scene prose index system contract.
    */
   id: string;
+
   /**
    * Human title following the exact id token in the Markdown heading.
    *
@@ -26,6 +27,7 @@ export interface IAutoMovieScreenplayScene {
    * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-scene-prose-index Types `title` for the narrative intent scene prose index system contract.
    */
   title: string;
+
   /**
    * Active prose scene or retained deletion tombstone.
    *
@@ -33,6 +35,7 @@ export interface IAutoMovieScreenplayScene {
    * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-scene-prose-index Types `status` for the narrative intent scene prose index system contract.
    */
   status: "active" | "OMITTED";
+
   /**
    * Project-relative document holding this scene's prose, when the screenplay
    * is split one file per scene.
@@ -45,6 +48,7 @@ export interface IAutoMovieScreenplayScene {
    * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-scene-prose-index Types `path` for the narrative intent scene prose index system contract.
    */
   path?: string;
+
   /**
    * Exact treatment promises this scene realizes.
    *
@@ -52,6 +56,7 @@ export interface IAutoMovieScreenplayScene {
    * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-scene-prose-index Types `covers` for the narrative intent scene prose index system contract.
    */
   covers: IAutoMovieSceneBeatCoverage[];
+
   /**
    * Existing location catalog id for an active scene.
    *
@@ -59,6 +64,7 @@ export interface IAutoMovieScreenplayScene {
    * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-scene-prose-index Types `location` for the narrative intent scene prose index system contract.
    */
   location: string | null;
+
   /**
    * Exact story-time identity stated by the authoritative prose carrier.
    *
@@ -69,6 +75,7 @@ export interface IAutoMovieScreenplayScene {
    * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-scene-prose-index Types the story-time half of the scene authority join.
    */
   storyTime: string;
+
   /**
    * Exact scene-local participant identities and modes.
    *
@@ -76,6 +83,7 @@ export interface IAutoMovieScreenplayScene {
    * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-scene-prose-index Types the participant set compared with the bounded prose carrier.
    */
   participants: IAutoMovieScreenplayParticipant[];
+
   /**
    * Explicit local exemption from shot realization, or null when required.
    *

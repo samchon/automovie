@@ -14,6 +14,7 @@ export interface IAutoMovieConnectorSection {
    * @evidence specifications/interior-space/boundaries-openings-and-circulation.md#interior-space-connector-route-topology Types `at` for the interior space connector route topology system contract.
    */
   at: number;
+
   /**
    * Positive usable width in metres here.
    *
@@ -21,6 +22,7 @@ export interface IAutoMovieConnectorSection {
    * @evidence specifications/interior-space/boundaries-openings-and-circulation.md#interior-space-connector-route-topology Types `width` for the interior space connector route topology system contract.
    */
   width: number;
+
   /**
    * Positive vertical clearance in metres here.
    *

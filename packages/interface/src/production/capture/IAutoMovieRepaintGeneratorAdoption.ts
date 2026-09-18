@@ -10,6 +10,7 @@ import { IAutoMovieRepaintRuntimeIdentity } from "./IAutoMovieRepaintRuntimeIden
 export interface IAutoMovieRepaintGeneratorAdoption {
   /** Provider, model, version, and execution boundary the adapter must report. */
   runtimeIdentity: IAutoMovieRepaintRuntimeIdentity;
+
   /** Cost basis, production consumer, and optional descriptive metadata. */
   generatorProvenance: IAutoMovieRepaintGeneratorProvenance;
 }

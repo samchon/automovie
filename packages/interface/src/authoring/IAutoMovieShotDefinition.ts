@@ -15,6 +15,7 @@ export interface IAutoMovieShotDefinition<Context> {
    * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Types `scene` for the spec authoring source input system contract.
    */
   scene: string;
+
   /**
    * Required participants, states, events, coverage, and review evidence.
    *
@@ -22,6 +23,7 @@ export interface IAutoMovieShotDefinition<Context> {
    * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Types `contract` for the spec authoring source input system contract.
    */
   contract: IAutoMovieDefinedShotContract;
+
   /**
    * Free deterministic code that emits the typed engine program.
    *

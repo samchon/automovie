@@ -14,6 +14,7 @@ export interface IAutoMovieBlockingActor {
    * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `node` for the spec authoring authority compatibility system contract.
    */
   node: string;
+
   /**
    * Ordered action intent; dense motion remains engine-owned.
    *
@@ -21,6 +22,7 @@ export interface IAutoMovieBlockingActor {
    * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `beats` for the spec authoring authority compatibility system contract.
    */
   beats: string;
+
   /**
    * Sparse causal anchors the action spans must cover in listed order.
    *

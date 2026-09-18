@@ -14,6 +14,7 @@ export interface IAutoMovieCompiledInstancePrototype {
    * @evidence specifications/asset-and-representation/alternatives-instances-and-groups.md#asset-spec-prototype-instance Types `id` for the asset prototype and instance system contract.
    */
   id: string;
+
   /**
    * Source model recipe.
    *
@@ -21,6 +22,7 @@ export interface IAutoMovieCompiledInstancePrototype {
    * @evidence specifications/asset-and-representation/alternatives-instances-and-groups.md#asset-spec-prototype-instance Types `modelRecipe` for the asset prototype and instance system contract.
    */
   modelRecipe: string;
+
   /**
    * Positive deterministic selection weight.
    *
@@ -28,6 +30,7 @@ export interface IAutoMovieCompiledInstancePrototype {
    * @evidence specifications/asset-and-representation/alternatives-instances-and-groups.md#asset-spec-prototype-instance Types `weight` for the asset prototype and instance system contract.
    */
   weight: number;
+
   /**
    * Ordered automatic LOD representations for this prototype.
    *
@@ -35,6 +38,7 @@ export interface IAutoMovieCompiledInstancePrototype {
    * @evidence specifications/asset-and-representation/alternatives-instances-and-groups.md#asset-spec-prototype-instance Types `lod` for the asset prototype and instance system contract.
    */
   lod: IAutoMovieCompiledFormationLod[];
+
   /**
    * Conservative source-model radius before per-slot scaling.
    *

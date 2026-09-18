@@ -8,17 +8,22 @@ export type IAutoMovieFormationLayout =
   | {
       /** Rectangular line. */
       kind: "line";
+
       /** Integer ranks from 1 through count. */
       ranks: number;
+
       /** Integer files from 1 through count; ranks times files covers count. */
       files: number;
+
       /** Finite inter-slot spacing in meters, strictly above zero. */
       spacing: {
         /** Left-to-right spacing between files. */
         lateral: number;
+
         /** Front-to-back spacing between ranks. */
         depth: number;
       };
+
       /**
        * How far a member may stand off its exact slot, in meters.
        *
@@ -34,6 +39,7 @@ export type IAutoMovieFormationLayout =
       dressing?: {
         /** Maximum left-to-right deviation in meters, zero or above. */
         lateral: number;
+
         /** Maximum front-to-back deviation in meters, zero or above. */
         depth: number;
       };
@@ -41,17 +47,22 @@ export type IAutoMovieFormationLayout =
   | {
       /** March column. */
       kind: "column";
+
       /** Integer ranks from 1 through count. */
       ranks: number;
+
       /** Integer files from 1 through count; ranks times files covers count. */
       files: number;
+
       /** Finite inter-slot spacing in meters, strictly above zero. */
       spacing: {
         /** Left-to-right spacing between files. */
         lateral: number;
+
         /** Front-to-back spacing between ranks. */
         depth: number;
       };
+
       /**
        * How far a member may stand off its exact slot, in meters.
        *
@@ -67,6 +78,7 @@ export type IAutoMovieFormationLayout =
       dressing?: {
         /** Maximum left-to-right deviation in meters, zero or above. */
         lateral: number;
+
         /** Maximum front-to-back deviation in meters, zero or above. */
         depth: number;
       };
@@ -74,15 +86,19 @@ export type IAutoMovieFormationLayout =
   | {
       /** Wedge layout. */
       kind: "wedge";
+
       /** Integer rows from 1 through count; depth squared must cover count. */
       depth: number;
+
       /** Finite inter-slot spacing in meters, strictly above zero. */
       spacing: {
         /** Left-to-right spacing between members in one row. */
         lateral: number;
+
         /** Front-to-back spacing between rows. */
         depth: number;
       };
+
       /**
        * How far a member may stand off its exact slot, in meters.
        *
@@ -98,6 +114,7 @@ export type IAutoMovieFormationLayout =
       dressing?: {
         /** Maximum left-to-right deviation in meters, zero or above. */
         lateral: number;
+
         /** Maximum front-to-back deviation in meters, zero or above. */
         depth: number;
       };
@@ -105,10 +122,13 @@ export type IAutoMovieFormationLayout =
   | {
       /** Arc layout. */
       kind: "arc";
+
       /** Finite arc radius in meters, strictly above zero. */
       radius: number;
+
       /** Finite covered angle, strictly above zero and at most 360 degrees. */
       arcDegrees: number;
+
       /**
        * How far a member may stand off its exact slot, in meters.
        *
@@ -124,6 +144,7 @@ export type IAutoMovieFormationLayout =
       dressing?: {
         /** Maximum left-to-right deviation in meters, zero or above. */
         lateral: number;
+
         /** Maximum front-to-back deviation in meters, zero or above. */
         depth: number;
       };
@@ -131,8 +152,10 @@ export type IAutoMovieFormationLayout =
   | {
       /** Seeded scatter layout. */
       kind: "scatter";
+
       /** Finite scatter radius in meters, strictly above zero. */
       radius: number;
+
       /** Integer layout-specific seed from zero through `MAX_SAFE_INTEGER`. */
       seed: number;
     };

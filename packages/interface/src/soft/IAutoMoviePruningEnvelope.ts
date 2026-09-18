@@ -49,6 +49,7 @@ export namespace IAutoMoviePruningEnvelope {
      * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `kind` for the interior space soft furnishing planting system contract.
      */
     kind: "box";
+
     /**
      * Minimum corner.
      *
@@ -56,6 +57,7 @@ export namespace IAutoMoviePruningEnvelope {
      * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `min` for the interior space soft furnishing planting system contract.
      */
     min: IAutoMovieVector3;
+
     /**
      * Maximum corner, strictly greater on every axis.
      *
@@ -79,6 +81,7 @@ export namespace IAutoMoviePruningEnvelope {
      * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `kind` for the interior space soft furnishing planting system contract.
      */
     kind: "sphere";
+
     /**
      * World centre.
      *
@@ -86,6 +89,7 @@ export namespace IAutoMoviePruningEnvelope {
      * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `center` for the interior space soft furnishing planting system contract.
      */
     center: IAutoMovieVector3;
+
     /**
      * Strictly positive radius in metres.
      *

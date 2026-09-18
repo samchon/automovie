@@ -12,6 +12,7 @@ export interface IAutoMoviePlaneShape {
    * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Types `type` for the asset spec geometry inputs system contract.
    */
   type: "plane";
+
   /**
    * Size along local X, meters.
    *
@@ -19,6 +20,7 @@ export interface IAutoMoviePlaneShape {
    * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Types `width` for the asset spec geometry inputs system contract.
    */
   width: number;
+
   /**
    * Size along local Z, meters.
    *

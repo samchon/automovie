@@ -21,6 +21,7 @@ export interface IAutoMovieDesignPromotion {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `promoted` for the narrative intent reference lineage system contract.
    */
   promoted: IAutoMovieDesignPromotedReading[];
+
   /**
    * Readings left as observation, each with its blocking reason.
    *
@@ -28,6 +29,7 @@ export interface IAutoMovieDesignPromotion {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `withheld` for the narrative intent reference lineage system contract.
    */
   withheld: IAutoMovieDesignWithholding[];
+
   /**
    * Analyses that were unsupported or never run.
    *

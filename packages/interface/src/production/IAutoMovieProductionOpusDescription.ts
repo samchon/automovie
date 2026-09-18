@@ -11,34 +11,40 @@ export interface IAutoMovieProductionOpusDescription {
    * @evidence specifications/editorial-render-and-delivery/delivery-profiles-time-and-picture.md#spec-delivery-container-media-facts Supplies the parsed sample-entry kind.
    */
   kind: "opus";
+
   /**
    * Parsed dOps version.
    */
   version: number;
+
   /**
    * Parsed output channel count.
    * @evidence requirements/delivery-and-accessibility/audio-streams-and-channels.md#delivery-channel-layout Preserves the coded channel population.
    * @evidence specifications/editorial-render-and-delivery/delivery-profiles-time-and-picture.md#spec-delivery-container-media-facts Supplies the sample-entry channel count.
    */
   outputChannelCount: number;
+
   /**
    * Parsed decoder pre-skip in samples.
    * @evidence requirements/delivery-and-accessibility/audio-streams-and-channels.md#delivery-audio-sample-boundary Preserves the coded priming boundary that offsets the first audible sample.
    * @evidence specifications/editorial-render-and-delivery/delivery-profiles-time-and-picture.md#spec-delivery-container-media-facts Supplies the parsed pre-skip.
    */
   preSkip: number;
+
   /**
    * Parsed input sample rate.
    * @evidence requirements/delivery-and-accessibility/audio-streams-and-channels.md#delivery-audio-sample-boundary Preserves the Opus input clock that converts sample counts into presentation time.
    * @evidence specifications/editorial-render-and-delivery/delivery-profiles-time-and-picture.md#spec-delivery-container-media-facts Supplies the sample-entry rate.
    */
   inputSampleRate: number;
+
   /**
    * Parsed signed Q7.8 output gain.
    * @evidence requirements/delivery-and-accessibility/audio-streams-and-channels.md#delivery-audio-downmix Prevents hidden final-stream gain changes.
    * @evidence specifications/editorial-render-and-delivery/delivery-profiles-time-and-picture.md#spec-delivery-container-media-facts Supplies the parsed Opus gain.
    */
   outputGainQ7_8: number;
+
   /**
    * Parsed mapping-family, stream, and channel-order facts.
    * @evidence requirements/delivery-and-accessibility/audio-streams-and-channels.md#delivery-channel-layout Preserves the complete coded channel mapping.

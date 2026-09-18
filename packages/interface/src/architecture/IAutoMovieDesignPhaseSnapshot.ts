@@ -26,6 +26,7 @@ export interface IAutoMovieDesignPhaseSnapshot {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `phase` for the narrative intent reference lineage system contract.
    */
   phase: string | null;
+
   /**
    * Every declared subject, in ascending id order.
    *

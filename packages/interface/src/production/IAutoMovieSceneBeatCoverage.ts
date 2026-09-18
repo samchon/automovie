@@ -15,6 +15,7 @@ export interface IAutoMovieSceneBeatCoverage {
    * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-scene-prose-index Types the stable beat identity compared with the prose authority carrier.
    */
   id: string;
+
   /**
    * Why this scene is responsible for the cited dramatic beat.
    *
@@ -22,6 +23,7 @@ export interface IAutoMovieSceneBeatCoverage {
    * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-scene-prose-index Types `reason` for the narrative intent scene prose index system contract.
    */
   reason: string;
+
   /**
    * Exact {@link IAutoMovieTreatmentBeat.text} value.
    *

@@ -21,6 +21,7 @@ export interface IAutoMovieCompiledFormation {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `version` for the performance formation layout slot assignment system contract.
    */
   version: 1;
+
   /**
    * Stable formation design id.
    *
@@ -28,6 +29,7 @@ export interface IAutoMovieCompiledFormation {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `id` for the performance formation layout slot assignment system contract.
    */
   id: string;
+
   /**
    * Exact designed slot count.
    *
@@ -35,6 +37,7 @@ export interface IAutoMovieCompiledFormation {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `count` for the performance formation layout slot assignment system contract.
    */
   count: number;
+
   /**
    * Count remaining in instance batches after hero exclusion.
    *
@@ -42,6 +45,7 @@ export interface IAutoMovieCompiledFormation {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `anonymousCount` for the performance formation layout slot assignment system contract.
    */
   anonymousCount: number;
+
   /**
    * Base design recipe.
    *
@@ -49,6 +53,7 @@ export interface IAutoMovieCompiledFormation {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `modelRecipe` for the performance formation layout slot assignment system contract.
    */
   modelRecipe: string;
+
   /**
    * Exact compact layout algorithm and parameters.
    *
@@ -56,6 +61,7 @@ export interface IAutoMovieCompiledFormation {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `layout` for the performance formation layout slot assignment system contract.
    */
   layout: IAutoMovieFormationDesign["layout"];
+
   /**
    * World-space origin.
    *
@@ -63,6 +69,7 @@ export interface IAutoMovieCompiledFormation {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `anchor` for the performance formation layout slot assignment system contract.
    */
   anchor: IAutoMovieVector3;
+
   /**
    * World terrain under this formation, snapshotted at compile time.
    *
@@ -79,6 +86,7 @@ export interface IAutoMovieCompiledFormation {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `ground` for the performance formation layout slot assignment system contract.
    */
   ground: IAutoMovieWorldDesign["surfaces"];
+
   /**
    * World-space base heading in degrees.
    *
@@ -86,6 +94,7 @@ export interface IAutoMovieCompiledFormation {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `facingDeg` for the performance formation layout slot assignment system contract.
    */
   facingDeg: number;
+
   /**
    * Full safe-integer design seed.
    *
@@ -93,6 +102,7 @@ export interface IAutoMovieCompiledFormation {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `seed` for the performance formation layout slot assignment system contract.
    */
   seed: number;
+
   /**
    * Exact bounds of all slots.
    *
@@ -100,6 +110,7 @@ export interface IAutoMovieCompiledFormation {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `bounds` for the performance formation layout slot assignment system contract.
    */
   bounds: IAutoMovieFormationBounds;
+
   /**
    * Exact arithmetic centroid of all slots.
    *
@@ -107,6 +118,7 @@ export interface IAutoMovieCompiledFormation {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `centroid` for the performance formation layout slot assignment system contract.
    */
   centroid: IAutoMovieVector3;
+
   /**
    * Compiler-derived representative member radius used by LOD projection.
    *
@@ -114,6 +126,7 @@ export interface IAutoMovieCompiledFormation {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `projectionRadius` for the performance formation layout slot assignment system contract.
    */
   projectionRadius: number;
+
   /**
    * Bounded independently regenerable slot ranges.
    *
@@ -121,6 +134,7 @@ export interface IAutoMovieCompiledFormation {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `chunks` for the performance formation layout slot assignment system contract.
    */
   chunks: IAutoMovieFormationChunk[];
+
   /**
    * Explicit hero promotions, ordered by slot.
    *
@@ -128,6 +142,7 @@ export interface IAutoMovieCompiledFormation {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `heroes` for the performance formation layout slot assignment system contract.
    */
   heroes: IAutoMovieCompiledFormationHero[];
+
   /**
    * Ordered automatic LOD representations.
    *
@@ -135,6 +150,7 @@ export interface IAutoMovieCompiledFormation {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `lod` for the performance formation layout slot assignment system contract.
    */
   lod: IAutoMovieCompiledFormationLod[];
+
   /**
    * Deterministic per-slot phase generator contract.
    *
@@ -151,6 +167,7 @@ export interface IAutoMovieCompiledFormation {
     /** Domain-separated safe-integer seed. */
     seed: number;
   };
+
   /**
    * Digest of every field above except this digest.
    *

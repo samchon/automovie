@@ -12,42 +12,49 @@ export type IAutoMovieReviewTarget =
   | {
       /** Consumed compiled model asset. */
       kind: "asset";
+
       /** Model-recipe id. */
       id: string;
     }
   | {
       /** Typed design target. */
       kind: "design";
+
       /** Exact design artifact. */
       design: IAutoMovieDesignTarget;
     }
   | {
       /** Coding-agent-owned source file. */
       kind: "source";
+
       /** Project-relative source path. */
       path: string;
     }
   | {
       /** Compiled shot. */
       kind: "shot";
+
       /** Shot id. */
       id: string;
     }
   | {
       /** Receipt-bound visual rendition of one compiled shot. */
       kind: "rendition";
+
       /** Exact compiled shot id. */
       id: string;
     }
   | {
       /** Authored treatment sequence. */
       kind: "sequence";
+
       /** Stable sequence id. */
       id: string;
     }
   | {
       /** Whole film. */
       kind: "film";
+
       /** Film id. */
       id: string;
     }

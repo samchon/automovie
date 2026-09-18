@@ -14,6 +14,7 @@ export interface IAutoMovieVisualChangeCounts {
    * @evidence specifications/review-and-acceptance/visual-change-reporting.md#review-system-visual-change-states Counts the unequal-digest common branch.
    */
   changed: number;
+
   /**
    * Common identities whose image digests are equal.
    *
@@ -21,6 +22,7 @@ export interface IAutoMovieVisualChangeCounts {
    * @evidence specifications/review-and-acceptance/visual-change-reporting.md#review-system-visual-change-states Counts the equal-digest common branch.
    */
   unchanged: number;
+
   /**
    * Identities found only in the later snapshot.
    *
@@ -28,6 +30,7 @@ export interface IAutoMovieVisualChangeCounts {
    * @evidence specifications/review-and-acceptance/visual-change-reporting.md#review-system-visual-change-states Counts the later-only branch.
    */
   new: number;
+
   /**
    * Identities found only in the earlier snapshot.
    *

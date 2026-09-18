@@ -21,6 +21,7 @@ export namespace IAutoMovieCaptureFrame {
      * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-host-evidence-output Types `target` for the spec authoring host evidence output system contract.
      */
     target: AutoMovieCaptureTarget;
+
     /**
      * Optional positive integer width no larger than production width.
      *
@@ -28,6 +29,7 @@ export namespace IAutoMovieCaptureFrame {
      * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-host-evidence-output Types `width` for the spec authoring host evidence output system contract.
      */
     width?: number;
+
     /**
      * Optional positive integer height no larger than production height.
      *

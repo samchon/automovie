@@ -13,6 +13,7 @@ export interface IAutoMovieMotionResourceConsumer {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Identifies this use as source-resource ownership in the adoption receipt.
    */
   kind: "motion-resource";
+
   /**
    * Exact manifest path of the owning external motion asset.
    *

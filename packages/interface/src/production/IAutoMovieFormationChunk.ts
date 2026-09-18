@@ -15,6 +15,7 @@ export interface IAutoMovieFormationChunk {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `index` for the performance formation layout slot assignment system contract.
    */
   index: number;
+
   /**
    * Inclusive first slot.
    *
@@ -22,6 +23,7 @@ export interface IAutoMovieFormationChunk {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `start` for the performance formation layout slot assignment system contract.
    */
   start: number;
+
   /**
    * Number of slots in this chunk.
    *
@@ -29,6 +31,7 @@ export interface IAutoMovieFormationChunk {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `count` for the performance formation layout slot assignment system contract.
    */
   count: number;
+
   /**
    * Anonymous slots rendered through instancing after hero exclusion.
    *
@@ -36,6 +39,7 @@ export interface IAutoMovieFormationChunk {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `anonymousCount` for the performance formation layout slot assignment system contract.
    */
   anonymousCount: number;
+
   /**
    * Exact world-space range bounds.
    *
@@ -43,6 +47,7 @@ export interface IAutoMovieFormationChunk {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `bounds` for the performance formation layout slot assignment system contract.
    */
   bounds: IAutoMovieFormationBounds;
+
   /**
    * Exact arithmetic centroid of the range.
    *

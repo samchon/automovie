@@ -14,6 +14,7 @@ export interface IAutoMovieDestructibleTrait {
    * @evidence specifications/simulation-effects-and-sound/rigid-collision-and-damage.md#damage-trait-result-state-boundary Types `kind` for the damage trait result state boundary system contract.
    */
   kind: "destructible";
+
   /**
    * Positive structural durability.
    *
@@ -21,6 +22,7 @@ export interface IAutoMovieDestructibleTrait {
    * @evidence specifications/simulation-effects-and-sound/rigid-collision-and-damage.md#damage-trait-result-state-boundary Types `durability` for the damage trait result state boundary system contract.
    */
   durability: number;
+
   /**
    * Collision and material response owned by the declared proxy.
    *

@@ -14,6 +14,7 @@ export interface IAutoMovieFormationSlot {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `slot` for the performance formation layout slot assignment system contract.
    */
   slot: number;
+
   /**
    * Compiler-owned scene-node id.
    *
@@ -21,6 +22,7 @@ export interface IAutoMovieFormationSlot {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `node` for the performance formation layout slot assignment system contract.
    */
   node: string;
+
   /**
    * Named hero actor at this slot, or null.
    *
@@ -28,6 +30,7 @@ export interface IAutoMovieFormationSlot {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `actor` for the performance formation layout slot assignment system contract.
    */
   actor: string | null;
+
   /**
    * Runtime model recipe id.
    *
@@ -35,6 +38,7 @@ export interface IAutoMovieFormationSlot {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `modelRecipe` for the performance formation layout slot assignment system contract.
    */
   modelRecipe: string;
+
   /**
    * Compiler-derived world position in meters.
    *
@@ -42,6 +46,7 @@ export interface IAutoMovieFormationSlot {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `position` for the performance formation layout slot assignment system contract.
    */
   position: IAutoMovieVector3;
+
   /**
    * Compiler-derived world-space heading in degrees.
    *
@@ -49,6 +54,7 @@ export interface IAutoMovieFormationSlot {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `facingDeg` for the performance formation layout slot assignment system contract.
    */
   facingDeg: number;
+
   /**
    * Stable normalized phase used by bounded instance motion.
    *

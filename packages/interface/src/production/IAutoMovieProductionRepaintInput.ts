@@ -19,6 +19,7 @@ export interface IAutoMovieProductionRepaintInput {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-attempt-selection Types cancellation as part of one distinct attempt rather than a request mutation.
    */
   signal: AbortSignal;
+
   /**
    * Active project root.
    *
@@ -26,6 +27,7 @@ export interface IAutoMovieProductionRepaintInput {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-controls-references Types `projectRoot` for the asset spec repaint controls references system contract.
    */
   projectRoot: string;
+
   /**
    * Active production namespace.
    *
@@ -33,6 +35,7 @@ export interface IAutoMovieProductionRepaintInput {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-controls-references Types `productionId` for the asset spec repaint controls references system contract.
    */
   productionId: string;
+
   /**
    * Current builder-owned registry fingerprint.
    *
@@ -40,6 +43,7 @@ export interface IAutoMovieProductionRepaintInput {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-controls-references Types `compileFingerprint` for the asset spec repaint controls references system contract.
    */
   compileFingerprint: AutoMovieContentDigest;
+
   /**
    * Exact compiled shot id.
    *
@@ -47,6 +51,7 @@ export interface IAutoMovieProductionRepaintInput {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-controls-references Types `shot` for the asset spec repaint controls references system contract.
    */
   shot: string;
+
   /**
    * Verified deterministic source identity and bytes.
    *
@@ -56,26 +61,35 @@ export interface IAutoMovieProductionRepaintInput {
   source: {
     /** Project-relative content-addressed source bundle. */
     bundle: string;
+
     /** Verified source bundle manifest. */
     manifest: IAutoMovieRenderBundleManifest;
+
     /** Digest over the verified manifest and frame bytes. */
     fingerprint: AutoMovieContentDigest;
+
     /** Current decoded source frames. */
     frames: Array<{
       /** Frame index. */
       index: number;
+
       /** Frame time. */
       time: number;
+
       /** Beauty or structural pass. */
       pass: AutoMovieGuidePass;
+
       /** Exact PNG digest. */
       digest: AutoMovieContentDigest;
+
       /** Raw verified PNG bytes. */
       bytes: Uint8Array;
     }>;
+
     /** Capture runtime that produced the deterministic controls. */
     captureRuntime: IAutoMovieCaptureRuntimeIdentity;
   };
+
   /**
    * Verified fixed reference bytes.
    *
@@ -85,13 +99,17 @@ export interface IAutoMovieProductionRepaintInput {
   references: Array<{
     /** Exact non-collapsible role; `character` means identity. */
     role: AutoMovieRepaintReferenceRole;
+
     /** Project-relative asset-manifest path. */
     path: string;
+
     /** Current digest. */
     digest: AutoMovieContentDigest;
+
     /** Current bytes. */
     bytes: Uint8Array;
   }>;
+
   /**
    * Exact generation controls.
    *

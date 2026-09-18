@@ -15,6 +15,7 @@ export interface IAutoMovieProductionRenderReceiptFile extends IAutoMovieProduct
    * @evidence specifications/editorial-render-and-delivery/delivery-package-provenance-and-publication.md#spec-delivery-provenance-integrity Joins each receipt row to its deliverable.
    */
   deliverable: string;
+
   /**
    * Parser-derived media facts.
    *

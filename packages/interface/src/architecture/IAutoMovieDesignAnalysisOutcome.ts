@@ -13,6 +13,7 @@ export type IAutoMovieDesignAnalysisOutcome =
   | {
       /** The reading ran and produced candidates. */
       status: "observed";
+
       /**
        * Candidate ids this analysis produced; at least one, each named once.
        *
@@ -26,12 +27,14 @@ export type IAutoMovieDesignAnalysisOutcome =
   | {
       /** This host cannot perform the reading at all. */
       status: "unsupported";
+
       /** Non-blank statement of what is missing. */
       reason: string;
     }
   | {
       /** The reading is possible but was not executed. */
       status: "not-run";
+
       /** Non-blank statement of why it was skipped. */
       reason: string;
     };

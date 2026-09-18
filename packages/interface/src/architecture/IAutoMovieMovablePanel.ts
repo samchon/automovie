@@ -23,6 +23,7 @@ export interface IAutoMovieMovablePanel {
    * @evidence specifications/building-envelope/structure-envelope-and-materials.md#building-envelope-envelope-continuity-invariant Types `id` for the building envelope envelope continuity invariant system contract.
    */
   id: string;
+
   /**
    * Visible element this panel drives; its local transform is the rest pose.
    *
@@ -33,6 +34,7 @@ export interface IAutoMovieMovablePanel {
    * @evidence specifications/building-envelope/structure-envelope-and-materials.md#building-envelope-envelope-continuity-invariant Types `element` for the building envelope envelope continuity invariant system contract.
    */
   element: string;
+
   /**
    * Positive leaf extent along the element's local X, in metres.
    *
@@ -40,6 +42,7 @@ export interface IAutoMovieMovablePanel {
    * @evidence specifications/building-envelope/structure-envelope-and-materials.md#building-envelope-envelope-continuity-invariant Types `width` for the building envelope envelope continuity invariant system contract.
    */
   width: number;
+
   /**
    * Positive leaf extent along the element's local Y, in metres.
    *
@@ -47,6 +50,7 @@ export interface IAutoMovieMovablePanel {
    * @evidence specifications/building-envelope/structure-envelope-and-materials.md#building-envelope-envelope-continuity-invariant Types `height` for the building envelope envelope continuity invariant system contract.
    */
   height: number;
+
   /**
    * The one degree of freedom this panel travels on.
    *

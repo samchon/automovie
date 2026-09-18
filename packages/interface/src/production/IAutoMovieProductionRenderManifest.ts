@@ -18,6 +18,7 @@ export interface IAutoMovieProductionRenderManifest {
    * @evidence specifications/editorial-render-and-delivery/delivery-package-provenance-and-publication.md#spec-delivery-provenance-integrity Selects the structured-provenance schema.
    */
   version: 2;
+
   /**
    * Exact builder input that produced every listed output.
    *
@@ -25,12 +26,14 @@ export interface IAutoMovieProductionRenderManifest {
    * @evidence specifications/execution-and-recovery/artifacts-and-atomic-publication.md#execution-publication-preconditions Supplies the builder-input precondition.
    */
   compileFingerprint: AutoMovieContentDigest;
+
   /**
    * Structured and self-verifying render-plan identity.
    * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-runtime-identity Carries the runtime closure.
    * @evidence specifications/editorial-render-and-delivery/delivery-package-provenance-and-publication.md#spec-delivery-provenance-integrity Supports independent recomputation.
    */
   publication: IAutoMovieProductionPublicationIdentity;
+
   /**
    * Materialized required and optional deliverables.
    *

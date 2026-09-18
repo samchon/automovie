@@ -8,16 +8,21 @@
 export interface IAutoMovieRepaintGeneratorProvenance {
   /** Optional descriptive source location. */
   source?: string;
+
   /** Optional descriptive license metadata. */
   license?: string;
+
   /** Optional descriptive date metadata. */
   termsCheckedAt?: string;
+
   /** Authored cost basis, including an explicit local-compute basis. */
   cost: string;
+
   /** Typed production consumer and authored reason for this adoption. */
   consumer: {
     /** Exact generated-content lane. */
     kind: "repaint";
+
     /** Why this production needs a repainted appearance rendition. */
     reason: string;
   };

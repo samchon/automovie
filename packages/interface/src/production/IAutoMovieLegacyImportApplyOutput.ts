@@ -14,6 +14,7 @@ export interface IAutoMovieLegacyImportApplyOutput {
    * @evidence specifications/interchange-and-adoption/conversion-receipts-and-determinism.md#interchange-canonical-receipt-result Types `status` for the interchange canonical receipt result system contract.
    */
   status: "applied" | "unchanged";
+
   /**
    * Exact plan persisted by the import.
    *

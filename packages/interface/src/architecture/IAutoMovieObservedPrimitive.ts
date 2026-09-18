@@ -18,6 +18,7 @@ export interface IAutoMovieObservedPrimitive {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `id` for the narrative intent reference lineage system contract.
    */
   id: string;
+
   /**
    * Frame this mark was read from.
    *
@@ -25,6 +26,7 @@ export interface IAutoMovieObservedPrimitive {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `frame` for the narrative intent reference lineage system contract.
    */
   frame: string;
+
   /**
    * Raw geometry family exactly as read.
    *
@@ -32,6 +34,7 @@ export interface IAutoMovieObservedPrimitive {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `kind` for the narrative intent reference lineage system contract.
    */
   kind: "line" | "arc" | "polyline" | "region" | "text" | "level-marker";
+
   /**
    * Source-space points. A `line` carries exactly two, an `arc` carries start,
    * through and end, a `polyline` at least two, a closed `region` at least
@@ -41,6 +44,7 @@ export interface IAutoMovieObservedPrimitive {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `points` for the narrative intent reference lineage system contract.
    */
   points: IAutoMovieDesignPoint[];
+
   /**
    * Literal text for `text` and `level-marker`, otherwise null.
    *

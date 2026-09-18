@@ -10,18 +10,25 @@ import { AutoMovieContentDigest } from "./AutoMovieContentDigest";
 export interface IAutoMovieMaterializedLibraryOwner {
   /** Active manifest-derived design branch. */
   branch: string;
+
   /** Exact design-document and H2 address the artifacts realize. */
   owner: string;
+
   /** Project-relative source file whose export produced them. */
   source: string;
+
   /** Named export inside that file. */
   export: string;
+
   /** Digest of the normalized source bytes that were executed. */
   sourceDigest: AutoMovieContentDigest;
+
   /** Ids of the built environments this owner published, in code-unit order. */
   environments: string[];
+
   /** Ids of the models this owner published, in code-unit order. */
   models: string[];
+
   /**
    * Ids of the environment contexts this owner published, in code-unit order.
    *

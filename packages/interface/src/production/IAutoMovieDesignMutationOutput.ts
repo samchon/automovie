@@ -17,6 +17,7 @@ export interface IAutoMovieDesignMutationOutput {
    * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-derived-result-finding Types `accepted` for the validation derived result finding system contract.
    */
   accepted: boolean;
+
   /**
    * Current monotonic project revision.
    *
@@ -24,6 +25,7 @@ export interface IAutoMovieDesignMutationOutput {
    * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-derived-result-finding Types `revision` for the validation derived result finding system contract.
    */
   revision: number;
+
   /**
    * Exact addressed target.
    *
@@ -31,6 +33,7 @@ export interface IAutoMovieDesignMutationOutput {
    * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-derived-result-finding Types `target` for the validation derived result finding system contract.
    */
   target: IAutoMovieDesignTarget;
+
   /**
    * Current target digest, or null when refused or erased.
    *
@@ -38,6 +41,7 @@ export interface IAutoMovieDesignMutationOutput {
    * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-derived-result-finding Types `fingerprint` for the validation derived result finding system contract.
    */
   fingerprint: AutoMovieContentDigest | null;
+
   /**
    * Downstream review, render and generated artifacts made stale or removed by
    * the accepted mutation, or predicted for a refused mutation.
@@ -46,6 +50,7 @@ export interface IAutoMovieDesignMutationOutput {
    * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-derived-result-finding Types `consequences` for the validation derived result finding system contract.
    */
   consequences: IAutoMovieDesignMutationConsequences;
+
   /**
    * Validation, reference and downstream diagnostics. A refused mutation never
    * changes tracked state; accepted warnings must be corrected before compile.

@@ -19,6 +19,7 @@ export interface IAutoMoviePropBox {
    * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-scene-prose-index Types `min` for the narrative intent scene prose index system contract.
    */
   min: IAutoMovieVector3;
+
   /**
    * Local maximum corner, strictly greater on every axis.
    *

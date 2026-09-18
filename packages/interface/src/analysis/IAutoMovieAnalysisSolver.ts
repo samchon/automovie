@@ -16,6 +16,7 @@ export interface IAutoMovieAnalysisSolver {
    * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-derived-result-finding Types `id` for the validation derived result finding system contract.
    */
   id: string;
+
   /**
    * Version that changes whenever the result for the same input changes.
    *
@@ -23,6 +24,7 @@ export interface IAutoMovieAnalysisSolver {
    * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-derived-result-finding Types `version` for the validation derived result finding system contract.
    */
   version: string;
+
   /**
    * One-line statement of the governing model and its stated exclusions.
    *

@@ -20,6 +20,7 @@ export interface IAutoMovieConnectorCarriage {
    * @evidence specifications/interior-space/boundaries-openings-and-circulation.md#interior-space-connector-route-topology Types `id` for the interior space connector route topology system contract.
    */
   id: string;
+
   /**
    * Visible element this carriage drives; its transform is the rest pose.
    *
@@ -27,6 +28,7 @@ export interface IAutoMovieConnectorCarriage {
    * @evidence specifications/interior-space/boundaries-openings-and-circulation.md#interior-space-connector-route-topology Types `element` for the interior space connector route topology system contract.
    */
   element: string;
+
   /**
    * The one degree of freedom this carriage travels on.
    *

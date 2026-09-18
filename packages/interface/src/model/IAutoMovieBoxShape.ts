@@ -12,6 +12,7 @@ export interface IAutoMovieBoxShape {
    * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Types `type` for the asset spec geometry inputs system contract.
    */
   type: "box";
+
   /**
    * Full size along local X, meters.
    *
@@ -19,6 +20,7 @@ export interface IAutoMovieBoxShape {
    * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Types `width` for the asset spec geometry inputs system contract.
    */
   width: number;
+
   /**
    * Full size along local Y, meters.
    *
@@ -26,6 +28,7 @@ export interface IAutoMovieBoxShape {
    * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Types `height` for the asset spec geometry inputs system contract.
    */
   height: number;
+
   /**
    * Full size along local Z, meters.
    *

@@ -16,6 +16,7 @@ export interface IAutoMovieExternalMotionConversionDecision {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Records the shot-scoped destination of the conversion.
    */
   shot: string;
+
   /**
    * Actor identity that consumes the converted motion.
    *
@@ -23,6 +24,7 @@ export interface IAutoMovieExternalMotionConversionDecision {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Binds the conversion result to one actor rather than an unowned clip.
    */
   actor: string;
+
   /**
    * Authored clip identity receiving the converted motion.
    *
@@ -30,6 +32,7 @@ export interface IAutoMovieExternalMotionConversionDecision {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Joins the result to the exact performance clip.
    */
   clip: string;
+
   /**
    * Native or humanoid-retarget conversion mode.
    *
@@ -37,6 +40,7 @@ export interface IAutoMovieExternalMotionConversionDecision {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Retains the selected mode as receipt data.
    */
   mode: IAutoMovieExternalMotionAdoptionMode["kind"];
+
   /**
    * Reviewed source-node to target-bone mapping.
    *
@@ -44,6 +48,7 @@ export interface IAutoMovieExternalMotionConversionDecision {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Seals the accepted mapping separately from compatibility findings.
    */
   mapping: IAutoMovieExternalMotionMappingEntry[];
+
   /**
    * Explicit root-translation scale, or null for native adoption.
    *

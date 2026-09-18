@@ -32,6 +32,7 @@ export interface IAutoMovieProductionDesign {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-graphics-style-exceptions Types `id` for the narrative intent graphics style exceptions system contract.
    */
   id: string;
+
   /**
    * Non-blank human-facing title.
    *
@@ -39,6 +40,7 @@ export interface IAutoMovieProductionDesign {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-graphics-style-exceptions Types `title` for the narrative intent graphics style exceptions system contract.
    */
   title: string;
+
   /**
    * Non-blank one-sentence narrative promise.
    *
@@ -46,6 +48,7 @@ export interface IAutoMovieProductionDesign {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-graphics-style-exceptions Types `logline` for the narrative intent graphics style exceptions system contract.
    */
   logline: string;
+
   /**
    * Finite intended finished runtime in seconds, strictly above zero and on the
    * production frame clock.
@@ -54,6 +57,7 @@ export interface IAutoMovieProductionDesign {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-graphics-style-exceptions Types `targetRuntimeSeconds` for the narrative intent graphics style exceptions system contract.
    */
   targetRuntimeSeconds: number;
+
   /**
    * Legacy all-one-lane shorthand or an explicit mixed film delivery.
    *
@@ -66,6 +70,7 @@ export interface IAutoMovieProductionDesign {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-graphics-style-exceptions Types `visualDelivery` for the narrative intent graphics style exceptions system contract.
    */
   visualDelivery: "deterministic" | "repainted" | "mixed";
+
   /**
    * Ordered explicit occurrence lanes, required exactly for mixed delivery.
    *
@@ -73,6 +78,7 @@ export interface IAutoMovieProductionDesign {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-failure-publication Supplies the exact population consumed by final conform and reopen.
    */
   visualDeliveryLanes?: IAutoMovieProductionVisualDeliveryLane[];
+
   /**
    * Versioned crossing policy, required exactly when explicit lanes cross.
    *
@@ -80,6 +86,7 @@ export interface IAutoMovieProductionDesign {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-structure-continuity Binds the crossing set to the current aggregate observation.
    */
   mixedVisualDeliveryPolicy?: IAutoMovieProductionMixedVisualDeliveryPolicy;
+
   /**
    * Story clock every pinned shot and cross-shot criterion is measured on.
    *
@@ -90,6 +97,7 @@ export interface IAutoMovieProductionDesign {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-graphics-style-exceptions Types `storyClock` for the narrative intent graphics style exceptions system contract.
    */
   storyClock?: IAutoMovieStoryClock;
+
   /**
    * The production's own light sources and their motion on the story clock.
    *
@@ -110,6 +118,7 @@ export interface IAutoMovieProductionDesign {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-graphics-style-exceptions Types `lighting` for the narrative intent graphics style exceptions system contract.
    */
   lighting?: IAutoMovieProductionLighting;
+
   /**
    * Render cost limits this production holds its own artifacts to, by tier.
    *
@@ -127,6 +136,7 @@ export interface IAutoMovieProductionDesign {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-graphics-style-exceptions Types `renderBudgets` for the narrative intent graphics style exceptions system contract.
    */
   renderBudgets?: IAutoMovieRenderBudget[];
+
   /**
    * User-selected external motion adoptions, unique by id and clip.
    *
@@ -141,6 +151,7 @@ export interface IAutoMovieProductionDesign {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-graphics-style-exceptions Types `externalMotions` for the narrative intent graphics style exceptions system contract.
    */
   externalMotions?: IAutoMovieExternalMotionAdoption[];
+
   /**
    * Production-owned caption readability profiles, unique by language.
    *
@@ -151,6 +162,7 @@ export interface IAutoMovieProductionDesign {
    * @evidence specifications/editorial-render-and-delivery/delivery-audio-text-and-localization.md#spec-delivery-caption-readability-profile Distinguishes measure-only operation from profile-backed evaluation.
    */
   captionReadabilityProfiles?: IAutoMovieCaptionReadabilityProfile[];
+
   /**
    * Optional production-owned propagation, room-response, and dialogue
    * choices.
@@ -172,8 +184,10 @@ export interface IAutoMovieProductionDesign {
   sound?: {
     /** Selected direct-path propagation model. */
     propagation?: IAutoMovieSoundPropagationProfile;
+
     /** Selected bounded derived or externally adopted room-response source. */
     acousticResponse?: IAutoMovieAcousticResponseProfile;
+
     /**
      * The exact dialogue generator this production adopted, if any.
      *
@@ -192,21 +206,29 @@ export interface IAutoMovieProductionDesign {
     dialogueSynthesis?: {
       /** Non-blank generator identity the host runtime must implement. */
       provider: string;
+
       /** Non-blank exact model repository or local tool identity. */
       model: string;
+
       /** Non-blank immutable model revision. */
       modelRevision: string;
+
       /** Non-blank weight quantization the adopted revision was taken at. */
       dtype: string;
+
       /** Non-blank execution device the adoption was reviewed for. */
       device: string;
+
       /** Non-blank voice identity inside that model revision. */
       voice: string;
+
       /** Finite speaking rate strictly above zero. */
       speed: number;
+
       /** Reviewed source, rights, terms date, cost, and consumer reason. */
       generatorProvenance: IAutoMovieProductionTtsReceipt["generatorProvenance"];
     };
+
     /**
      * Joins from a screenplay speaker identity to the compiled actor whose
      * mouth performs that line.
@@ -225,10 +247,12 @@ export interface IAutoMovieProductionDesign {
     speakerBindings?: Array<{
       /** Non-blank speaker identity carried by the dialogue line. */
       speaker: string;
+
       /** Non-blank compiled actor node id that owns the mouth layer. */
       actor: string;
     }>;
   };
+
   /**
    * The proxy and final visual deliverables this production renders at.
    *
@@ -253,21 +277,27 @@ export interface IAutoMovieProductionDesign {
     proxy: {
       /** Stable tier identity used in slots, chunks, and publication paths. */
       kind: "proxy";
+
       /** Output raster multiplier in `(0, 1]`. */
       resolutionScale: number;
+
       /** Keep every Nth source frame; an integer from 1 through 16. */
       frameStep: number;
     };
+
     /** Delivery tier; `resolutionScale` and `frameStep` are exactly one. */
     final: {
       /** Stable tier identity used in slots, chunks, and publication paths. */
       kind: "final";
+
       /** Output raster multiplier; exactly one at the final tier. */
       resolutionScale: number;
+
       /** Source frame stride; exactly one at the final tier. */
       frameStep: number;
     };
   };
+
   /**
    * The appearance rendition this production adopted, and its exact requests.
    *
@@ -294,20 +324,26 @@ export interface IAutoMovieProductionDesign {
   repaint?: {
     /** Adopted runtime identity and reviewed rights for the generator. */
     generator: IAutoMovieRepaintGeneratorAdoption;
+
     /** Bounded attempts, timeouts, cost, backoff, and retryable failures. */
     executionPolicy: IAutoMovieRepaintExecutionPolicy;
+
     /** One immutable reviewed request per delivered shot, unique by shot. */
     requests: Array<{
       /** Authored shot id this request repaints. */
       shot: string;
+
       /** Prompt, seed, preservation strength, and optional scalar controls. */
       parameters: IAutoMovieRepaintParameters;
+
       /** At least one manifest-registered role-specific reference. */
       references: IAutoMovieRepaintReferenceInput[];
+
       /** Stable addresses of the owners this request answers to. */
       evidence: IAutoMovieRepaintRequestEvidence;
     }>;
   };
+
   /**
    * Soft-body domains this production admits to a live moving-boundary solve.
    *
@@ -329,6 +365,7 @@ export interface IAutoMovieProductionDesign {
     /** Unique, non-blank, trimmed domain ids in stable budget order. */
     liveWearableSoftBodies: string[];
   };
+
   /**
    * Read-only site context every environmental analysis is measured against.
    *
@@ -347,6 +384,7 @@ export interface IAutoMovieProductionDesign {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-graphics-style-exceptions Types `environmentContext` for the narrative intent graphics style exceptions system contract.
    */
   environmentContext?: IAutoMovieEnvironmentContext;
+
   /**
    * Deterministic frame clock and raster format.
    *
@@ -361,26 +399,32 @@ export interface IAutoMovieProductionDesign {
      * exceed 16,777,216 pixels, the exact-frame review capture ceiling.
      */
     width: number;
+
     /**
      * Integer pixel height from 16 through 16,384. Width times height may not
      * exceed 16,777,216 pixels, the exact-frame review capture ceiling.
      */
     height: number;
+
     /** Finite frames per second, strictly above zero. */
     fps: number;
+
     /**
      * Exact frame rate when `fps` is fractional. Integer legacy rates use an
      * equivalent denominator of one when this field is omitted.
      */
     frameRate?: IAutoMovieProductionFrameRate;
+
     /** Output color space. */
     colorSpace: "srgb";
+
     /**
      * Optional normalized delivery-gate window projected onto the full output
      * raster. Omission and the complete `0,0,1,1` window are geometric no-ops.
      */
     crop?: IAutoMovieDeliveryCrop;
   };
+
   /**
    * Bounded visual grammar rather than screenplay prose.
    *
@@ -390,13 +434,17 @@ export interface IAutoMovieProductionDesign {
   artDirection: {
     /** Foundation visual style. */
     style: "primitive-3d";
+
     /** Non-empty unique CSS-compatible palette colors. */
     palette: string[];
+
     /** Non-blank rules that keep important silhouettes legible. */
     silhouettePriority: string;
+
     /** Non-blank rules for conveying scale with primitive geometry. */
     scaleGrammar: string;
   };
+
   /**
    * At least one output, with every deliverable id unique.
    *

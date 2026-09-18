@@ -19,6 +19,7 @@ export interface IAutoMovieWorldDesign {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `id` for the narrative intent story design ownership system contract.
    */
   id: string;
+
   /**
    * World unit.
    *
@@ -26,6 +27,7 @@ export interface IAutoMovieWorldDesign {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `units` for the narrative intent story design ownership system contract.
    */
   units: "meter";
+
   /**
    * Named tactical or narrative landmarks.
    *
@@ -33,6 +35,7 @@ export interface IAutoMovieWorldDesign {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `landmarks` for the narrative intent story design ownership system contract.
    */
   landmarks: IAutoMovieWorldLandmark[];
+
   /**
    * Queryable surfaces.
    *
@@ -40,6 +43,7 @@ export interface IAutoMovieWorldDesign {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `surfaces` for the narrative intent story design ownership system contract.
    */
   surfaces: IAutoMovieWorldSurface[];
+
   /**
    * Named formation routes.
    *
@@ -47,6 +51,7 @@ export interface IAutoMovieWorldDesign {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `routes` for the narrative intent story design ownership system contract.
    */
   routes: IAutoMovieWorldRoute[];
+
   /**
    * Bounded deterministic environmental-effect recipes.
    *
@@ -54,6 +59,7 @@ export interface IAutoMovieWorldDesign {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `effectRecipes` for the narrative intent story design ownership system contract.
    */
   effectRecipes: IAutoMovieEffectRecipe[];
+
   /**
    * Deterministic effect regions bound to recipes.
    *
@@ -61,6 +67,7 @@ export interface IAutoMovieWorldDesign {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `effectZones` for the narrative intent story design ownership system contract.
    */
   effectZones: IAutoMovieWorldEffectZone[];
+
   /**
    * Compact non-formation instance sets such as civilians, trees, or debris.
    *

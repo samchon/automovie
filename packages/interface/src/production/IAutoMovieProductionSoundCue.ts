@@ -12,6 +12,7 @@ export interface IAutoMovieProductionSoundCue {
    * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-cue-sample-boundary-and-arrival Types `id` for the sound cue sample boundary and arrival system contract.
    */
   id: string;
+
   /**
    * The asset this cue plays.
    *
@@ -26,6 +27,7 @@ export interface IAutoMovieProductionSoundCue {
    * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-cue-sample-boundary-and-arrival Types `asset` for the sound cue sample boundary and arrival system contract.
    */
   asset: string;
+
   /**
    * Film-global inclusive start frame.
    *
@@ -33,6 +35,7 @@ export interface IAutoMovieProductionSoundCue {
    * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-cue-sample-boundary-and-arrival Types `startFrame` for the sound cue sample boundary and arrival system contract.
    */
   startFrame: number;
+
   /**
    * Exact cue duration in film frames.
    *
@@ -40,6 +43,7 @@ export interface IAutoMovieProductionSoundCue {
    * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-cue-sample-boundary-and-arrival Types `durationFrames` for the sound cue sample boundary and arrival system contract.
    */
   durationFrames: number;
+
   /**
    * Source-asset frame at which this edit begins.
    *
@@ -47,6 +51,7 @@ export interface IAutoMovieProductionSoundCue {
    * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-cue-sample-boundary-and-arrival Types `sourceOffsetFrame` for the sound cue sample boundary and arrival system contract.
    */
   sourceOffsetFrame: number;
+
   /**
    * Complete source-asset duration on the production frame clock.
    *
@@ -60,6 +65,7 @@ export interface IAutoMovieProductionSoundCue {
    * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-cue-sample-boundary-and-arrival Types `sourceDurationFrames` for the sound cue sample boundary and arrival system contract.
    */
   sourceDurationFrames: number;
+
   /**
    * Authored linear gain.
    *
@@ -67,6 +73,7 @@ export interface IAutoMovieProductionSoundCue {
    * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-cue-sample-boundary-and-arrival Types `gain` for the sound cue sample boundary and arrival system contract.
    */
   gain: number;
+
   /**
    * Exact fade-in duration in film frames.
    *
@@ -74,6 +81,7 @@ export interface IAutoMovieProductionSoundCue {
    * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-cue-sample-boundary-and-arrival Types `fadeInFrames` for the sound cue sample boundary and arrival system contract.
    */
   fadeInFrames: number;
+
   /**
    * Exact fade-out duration in film frames.
    *
@@ -81,6 +89,7 @@ export interface IAutoMovieProductionSoundCue {
    * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-cue-sample-boundary-and-arrival Types `fadeOutFrames` for the sound cue sample boundary and arrival system contract.
    */
   fadeOutFrames: number;
+
   /**
    * Compiler-owned mix bus.
    *
@@ -88,6 +97,7 @@ export interface IAutoMovieProductionSoundCue {
    * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-cue-sample-boundary-and-arrival Types `bus` for the sound cue sample boundary and arrival system contract.
    */
   bus: "dialogue" | "music" | "effects" | "ambience";
+
   /**
    * Stable unsigned 32-bit procedural seed.
    *

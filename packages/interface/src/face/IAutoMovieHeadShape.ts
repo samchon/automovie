@@ -15,6 +15,7 @@ export interface IAutoMovieHeadShape {
    * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `width` as a coarse proxy parameter under the representation-fidelity ceiling.
    */
   width?: AutoMovieFaceWeight;
+
   /**
    * Vertical stretch about the eye line: `+` longer, `-` shorter/rounder.
    *
@@ -22,6 +23,7 @@ export interface IAutoMovieHeadShape {
    * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `length` as a coarse proxy parameter under the representation-fidelity ceiling.
    */
   length?: AutoMovieFaceWeight;
+
   /**
    * Toward an oval outline (`+`) vs a squarer one (`-`).
    *
@@ -29,6 +31,7 @@ export interface IAutoMovieHeadShape {
    * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `oval` as a coarse proxy parameter under the representation-fidelity ceiling.
    */
   oval?: AutoMovieFaceWeight;
+
   /**
    * Toward a round outline (`+`) vs a rectangular one (`-`).
    *
@@ -36,6 +39,7 @@ export interface IAutoMovieHeadShape {
    * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `round` as a coarse proxy parameter under the representation-fidelity ceiling.
    */
   round?: AutoMovieFaceWeight;
+
   /**
    * Forehead front slope: `+` forward/upright, `-` receding.
    *
@@ -43,6 +47,7 @@ export interface IAutoMovieHeadShape {
    * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `foreheadSlope` as a coarse proxy parameter under the representation-fidelity ceiling.
    */
   foreheadSlope?: AutoMovieFaceWeight;
+
   /**
    * Forehead vertical height: `+` taller (childlike), `-` shorter.
    *
@@ -50,6 +55,7 @@ export interface IAutoMovieHeadShape {
    * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `foreheadHeight` as a coarse proxy parameter under the representation-fidelity ceiling.
    */
   foreheadHeight?: AutoMovieFaceWeight;
+
   /**
    * Forehead/cranial bossing (Nubian curvature).
    *
@@ -57,6 +63,7 @@ export interface IAutoMovieHeadShape {
    * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `foreheadBulge` as a coarse proxy parameter under the representation-fidelity ceiling.
    */
   foreheadBulge?: AutoMovieFaceWeight;
+
   /**
    * Temple width at the side of the forehead.
    *
@@ -64,6 +71,7 @@ export interface IAutoMovieHeadShape {
    * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `templeWidth` as a coarse proxy parameter under the representation-fidelity ceiling.
    */
   templeWidth?: AutoMovieFaceWeight;
+
   /**
    * Occiput (back-of-skull) depth: `+` more projection in profile.
    *

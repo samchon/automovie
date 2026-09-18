@@ -19,6 +19,7 @@ export interface IAutoMovieFormationMotion {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Types `id` for the performance motion external adoption receipt system contract.
    */
   id: string;
+
   /**
    * Participating compiled formation id.
    *
@@ -26,6 +27,7 @@ export interface IAutoMovieFormationMotion {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Types `formation` for the performance motion external adoption receipt system contract.
    */
   formation: string;
+
   /**
    * Review-facing action expressed by this exact cue.
    *
@@ -33,6 +35,7 @@ export interface IAutoMovieFormationMotion {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Types `action` for the performance motion external adoption receipt system contract.
    */
   action: AutoMovieFormationCapability;
+
   /**
    * Which of the unit figure's declared gaits its members perform here.
    *
@@ -75,6 +78,7 @@ export interface IAutoMovieFormationMotion {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Types `layout` for the performance motion external adoption receipt system contract.
    */
   layout?: IAutoMovieFormationDesign["layout"];
+
   /**
    * Inclusive shot-local cue start.
    *
@@ -82,6 +86,7 @@ export interface IAutoMovieFormationMotion {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Types `start` for the performance motion external adoption receipt system contract.
    */
   start: number;
+
   /**
    * Exclusive shot-local cue end.
    *
@@ -89,6 +94,7 @@ export interface IAutoMovieFormationMotion {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Types `end` for the performance motion external adoption receipt system contract.
    */
   end: number;
+
   /**
    * State at cue start.
    *
@@ -96,6 +102,7 @@ export interface IAutoMovieFormationMotion {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Types `from` for the performance motion external adoption receipt system contract.
    */
   from: IAutoMovieFormationMotionState;
+
   /**
    * State at cue end.
    *
@@ -103,6 +110,7 @@ export interface IAutoMovieFormationMotion {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Types `to` for the performance motion external adoption receipt system contract.
    */
   to: IAutoMovieFormationMotionState;
+
   /**
    * Deterministic interpolation curve.
    *

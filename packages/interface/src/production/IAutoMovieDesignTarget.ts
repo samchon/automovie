@@ -12,6 +12,7 @@ export type IAutoMovieDesignTarget =
   | {
       /** Model recipe. */
       kind: "model";
+
       /** Recipe id. */
       id: string;
     }
@@ -22,18 +23,21 @@ export type IAutoMovieDesignTarget =
   | {
       /** Formation design. */
       kind: "formation";
+
       /** Formation id. */
       id: string;
     }
   | {
       /** Shot contract. */
       kind: "shot";
+
       /** Shot id. */
       id: string;
     }
   | {
       /** Acceptance scenario. */
       kind: "acceptance";
+
       /** Scenario id. */
       id: string;
     };

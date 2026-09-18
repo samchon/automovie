@@ -70,6 +70,7 @@ export interface IAutoMovieMaterialAssembly {
   faces: {
     /** Exposure of the face the first layer presents. */
     first: "exposed" | "concealed";
+
     /** Exposure of the face the last layer presents. */
     last: "exposed" | "concealed";
   };

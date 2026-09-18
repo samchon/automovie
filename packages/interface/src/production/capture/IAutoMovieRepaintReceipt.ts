@@ -21,6 +21,7 @@ export interface IAutoMovieRepaintReceipt {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-output-provenance Types `version` for the asset spec repaint output provenance system contract.
    */
   version: 3 | 4;
+
   /**
    * Owning production namespace.
    *
@@ -28,6 +29,7 @@ export interface IAutoMovieRepaintReceipt {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-output-provenance Types `productionId` for the asset spec repaint output provenance system contract.
    */
   productionId: string;
+
   /**
    * Exact compiled shot id.
    *
@@ -35,6 +37,7 @@ export interface IAutoMovieRepaintReceipt {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-output-provenance Types `shot` for the asset spec repaint output provenance system contract.
    */
   shot: string;
+
   /**
    * Current builder registry fingerprint.
    *
@@ -42,6 +45,7 @@ export interface IAutoMovieRepaintReceipt {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-output-provenance Types `compileFingerprint` for the asset spec repaint output provenance system contract.
    */
   compileFingerprint: AutoMovieContentDigest;
+
   /**
    * Digest over deterministic source manifest and frame bytes.
    *
@@ -49,6 +53,7 @@ export interface IAutoMovieRepaintReceipt {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-output-provenance Types `sourceRenderFingerprint` for the asset spec repaint output provenance system contract.
    */
   sourceRenderFingerprint: AutoMovieContentDigest;
+
   /**
    * Immutable identity shared by the transport attempts of one request.
    *
@@ -56,6 +61,7 @@ export interface IAutoMovieRepaintReceipt {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-attempt-selection Carries the stable request side of request/attempt identity.
    */
   requestId?: string;
+
   /**
    * Host-generated identity of this repaint invocation.
    *
@@ -63,14 +69,19 @@ export interface IAutoMovieRepaintReceipt {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-output-provenance Types `attemptId` for the asset spec repaint output provenance system contract.
    */
   attemptId: string;
+
   /** UTC instant captured immediately before this provider call. */
   startedAt?: string;
+
   /** UTC instant captured when the validated candidate completed. */
   completedAt?: string;
+
   /** Metered cost charged to this successful attempt. */
   costUnits?: number;
+
   /** Complete bounded policy under which the request executed. */
   executionPolicy?: IAutoMovieRepaintExecutionPolicy;
+
   /**
    * Content-addressed deterministic source bundle.
    *
@@ -78,6 +89,7 @@ export interface IAutoMovieRepaintReceipt {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-output-provenance Types `sourceBundle` for the asset spec repaint output provenance system contract.
    */
   sourceBundle: string;
+
   /**
    * Structural passes supplied to the adapter.
    *
@@ -87,9 +99,11 @@ export interface IAutoMovieRepaintReceipt {
   controls: Array<{
     /** Structural pass name. */
     pass: Exclude<AutoMovieGuidePass, "beauty">;
+
     /** Ordered source-frame digests for this pass. */
     frameDigests: AutoMovieContentDigest[];
   }>;
+
   /**
    * Fixed reference identities supplied to the adapter.
    *
@@ -99,11 +113,14 @@ export interface IAutoMovieRepaintReceipt {
   references: Array<{
     /** Exact non-collapsible reference role. */
     role: AutoMovieRepaintReferenceRole;
+
     /** Project-relative manifest path. */
     path: string;
+
     /** Current byte digest. */
     digest: AutoMovieContentDigest;
   }>;
+
   /**
    * Canonical structured adapter/model identity.
    *
@@ -111,6 +128,7 @@ export interface IAutoMovieRepaintReceipt {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-output-provenance Types `adapterIdentity` for the asset spec repaint output provenance system contract.
    */
   adapterIdentity: string;
+
   /**
    * Reviewed generator adoption retained with the exact rendition bytes.
    *
@@ -118,6 +136,7 @@ export interface IAutoMovieRepaintReceipt {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-output-provenance Carries the selected generator's rights, terms, cost, and consumer into the immutable receipt.
    */
   generatorProvenance: IAutoMovieRepaintGeneratorProvenance;
+
   /**
    * Authority boundary of the derived appearance.
    *
@@ -128,6 +147,7 @@ export interface IAutoMovieRepaintReceipt {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-eligibility-source-lock Marks the output as a derived appearance rather than a replacement source.
    */
   structuralAuthority: "deterministic-source-only";
+
   /**
    * Exact generation parameters.
    *
@@ -135,8 +155,10 @@ export interface IAutoMovieRepaintReceipt {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-output-provenance Types `parameters` for the asset spec repaint output provenance system contract.
    */
   parameters: IAutoMovieRepaintParameters;
+
   /** Stable evidence addresses from which this immutable request was formed. */
   evidence?: IAutoMovieRepaintRequestEvidence;
+
   /**
    * Verified rendition output.
    *
@@ -146,10 +168,13 @@ export interface IAutoMovieRepaintReceipt {
   output: {
     /** Render-root-relative content-addressed path. */
     path: string;
+
     /** Exact output bytes digest. */
     digest: AutoMovieContentDigest;
+
     /** Exact output byte length. */
     bytes: number;
+
     /** Parsed media facts. */
     probe: IAutoMovieProductionMediaProbe;
   };

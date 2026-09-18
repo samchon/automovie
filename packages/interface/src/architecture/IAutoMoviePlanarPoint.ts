@@ -12,6 +12,7 @@ export interface IAutoMoviePlanarPoint {
    * @evidence specifications/building-envelope/identity-scope-and-coordinates.md#building-envelope-coordinate-shared-boundary-identity Types `x` for the building envelope coordinate shared boundary identity system contract.
    */
   x: number;
+
   /**
    * Coordinate along the host frame's local Y axis.
    *

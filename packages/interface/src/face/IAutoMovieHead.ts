@@ -30,6 +30,7 @@ export interface IAutoMovieHead {
    * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `shape` as a coarse proxy parameter under the representation-fidelity ceiling.
    */
   shape?: IAutoMovieHeadShape;
+
   /**
    * Eyebrows.
    *
@@ -37,6 +38,7 @@ export interface IAutoMovieHead {
    * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `brow` as a coarse proxy parameter under the representation-fidelity ceiling.
    */
   brow?: IAutoMovieHeadBrow;
+
   /**
    * Eyes (incl. epicanthus / eyelid fold).
    *
@@ -44,6 +46,7 @@ export interface IAutoMovieHead {
    * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `eyes` as a coarse proxy parameter under the representation-fidelity ceiling.
    */
   eyes?: IAutoMovieHeadEyes;
+
   /**
    * Nose (incl. bridge height).
    *
@@ -51,6 +54,7 @@ export interface IAutoMovieHead {
    * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `nose` as a coarse proxy parameter under the representation-fidelity ceiling.
    */
   nose?: IAutoMovieHeadNose;
+
   /**
    * Mouth and lips.
    *
@@ -58,6 +62,7 @@ export interface IAutoMovieHead {
    * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `mouth` as a coarse proxy parameter under the representation-fidelity ceiling.
    */
   mouth?: IAutoMovieHeadMouth;
+
   /**
    * Cheeks and cheekbones.
    *
@@ -65,6 +70,7 @@ export interface IAutoMovieHead {
    * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `cheek` as a coarse proxy parameter under the representation-fidelity ceiling.
    */
   cheek?: IAutoMovieHeadCheek;
+
   /**
    * Jaw and chin.
    *

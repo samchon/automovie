@@ -18,6 +18,7 @@ export interface IAutoMovieProductionInspection {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-provider-choice Types `revision` for the asset spec generation provider choice system contract.
    */
   revision: number;
+
   /**
    * Typed design inventory.
    *
@@ -25,6 +26,7 @@ export interface IAutoMovieProductionInspection {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-provider-choice Types `design` for the asset spec generation provider choice system contract.
    */
   design: IAutoMovieProductionDesignInventory;
+
   /**
    * Coding-agent and builder ownership status.
    *
@@ -34,11 +36,14 @@ export interface IAutoMovieProductionInspection {
   source: {
     /** Bound source modules that currently exist. */
     bound: string[];
+
     /** Bound source modules that are missing or unsafe. */
     missing: string[];
+
     /** Files under generated absent from its manifest. */
     unownedGenerated: string[];
   };
+
   /**
    * Current structural and ownership diagnostics.
    *
@@ -46,6 +51,7 @@ export interface IAutoMovieProductionInspection {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-provider-choice Types `diagnostics` for the asset spec generation provider choice system contract.
    */
   diagnostics: IAutoMovieDiagnostic[];
+
   /**
    * Discovered render manifests.
    *
@@ -53,6 +59,7 @@ export interface IAutoMovieProductionInspection {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-provider-choice Types `renders` for the asset spec generation provider choice system contract.
    */
   renders: IAutoMovieProductionRenderStatus[];
+
   /**
    * Current caption readability measurements and outcomes for the film edit.
    *
@@ -64,6 +71,7 @@ export interface IAutoMovieProductionInspection {
    * @evidence specifications/editorial-render-and-delivery/delivery-audio-text-and-localization.md#spec-delivery-caption-readability-profile Keeps measure-only status explicit at the inspection boundary.
    */
   captionReadability: IAutoMovieCaptionReadabilityReport;
+
   /**
    * Ordered concrete corrections.
    *

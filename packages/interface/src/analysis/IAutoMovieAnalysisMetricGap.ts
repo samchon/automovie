@@ -17,6 +17,7 @@ export interface IAutoMovieAnalysisMetricGap {
    * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-failed-not-run-states Types `reason` for the validation failed not run states system contract.
    */
   reason: string;
+
   /**
    * Non-blank statement of the exact change that would produce a value.
    *

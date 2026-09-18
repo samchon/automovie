@@ -15,6 +15,7 @@ export interface IAutoMovieAcceptanceScenario {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-visual-language-acceptance Types `id` for the narrative intent visual language acceptance system contract.
    */
   id: string;
+
   /**
    * Screenplay scenes and optional canon claims this observable check verifies.
    *
@@ -25,6 +26,7 @@ export interface IAutoMovieAcceptanceScenario {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-visual-language-acceptance Types `evidence` for the narrative intent visual language acceptance system contract.
    */
   evidence?: IAutoMovieSceneEvidence[];
+
   /**
    * Scenario target.
    *
@@ -35,15 +37,18 @@ export interface IAutoMovieAcceptanceScenario {
     | {
         /** Shot target. */
         kind: "shot";
+
         /** Shot id. */
         id: string;
       }
     | {
         /** Film target. */
         kind: "film";
+
         /** Film id. */
         id: string;
       };
+
   /**
    * Observable frame, compiled event or runtime metric criterion. Film-level
    * frame and event criteria also name their owning shot.
@@ -52,6 +57,7 @@ export interface IAutoMovieAcceptanceScenario {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-visual-language-acceptance Types `criterion` for the narrative intent visual language acceptance system contract.
    */
   criterion: IAutoMovieAcceptanceCriterion;
+
   /**
    * Whether current review and final compilation require exact passing evidence
    * for this scenario.

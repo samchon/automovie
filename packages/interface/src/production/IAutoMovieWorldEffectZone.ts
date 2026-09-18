@@ -14,6 +14,7 @@ export interface IAutoMovieWorldEffectZone {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `id` for the narrative intent story design ownership system contract.
    */
   id: string;
+
   /**
    * Existing deterministic effect recipe id.
    *
@@ -21,6 +22,7 @@ export interface IAutoMovieWorldEffectZone {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `recipe` for the narrative intent story design ownership system contract.
    */
   recipe: string;
+
   /**
    * World-space volume.
    *
@@ -28,6 +30,7 @@ export interface IAutoMovieWorldEffectZone {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `bounds` for the narrative intent story design ownership system contract.
    */
   bounds: IAutoMovieWorldBounds;
+
   /**
    * Explicit deterministic zone seed.
    *

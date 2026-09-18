@@ -13,8 +13,10 @@ export interface IAutoMovieProductionRenditionDeliveryDeterministicLane {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-failure-publication Refuses receipt-based inference.
    */
   lane: "deterministic";
+
   /** Current deterministic feature source digest. */
   sourceDigest: AutoMovieContentDigest;
+
   /**
    * No repaint lineage belongs to this lane.
    *
@@ -22,6 +24,7 @@ export interface IAutoMovieProductionRenditionDeliveryDeterministicLane {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-failure-publication Seals the absence of a candidate receipt in final conform.
    */
   receiptDigest: null;
+
   /** No active selection belongs to this lane. */
   selectionDigest: null;
 }

@@ -18,6 +18,7 @@ export interface IAutoMovieFilmEdit {
    * @evidence specifications/authoring-and-authority/partial-targets-and-atomic-results.md#spec-authoring-partial-target-input Types `id` for the spec authoring partial target input system contract.
    */
   id: string;
+
   /**
    * Explicit accounting for intentionally unused shot contracts.
    *
@@ -25,6 +26,7 @@ export interface IAutoMovieFilmEdit {
    * @evidence specifications/authoring-and-authority/partial-targets-and-atomic-results.md#spec-authoring-partial-target-input Types `omissions` for the spec authoring partial target input system contract.
    */
   omissions: IAutoMovieFilmOmission[];
+
   /**
    * Narrow deterministic edit tracks.
    *
@@ -34,10 +36,13 @@ export interface IAutoMovieFilmEdit {
   tracks: {
     /** Ordered source-shot placements. */
     video: IAutoMovieVideoEdit[];
+
     /** Ordered audio cues. */
     audio: IAutoMovieAudioCue[];
+
     /** Ordered caption cues. */
     captions: IAutoMovieCaptionCue[];
+
     /** Ordered supported-effect cues. */
     effects: IAutoMovieEffectCue[];
   };

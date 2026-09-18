@@ -15,7 +15,9 @@
  * @author Samchon
  */
 export type AutoMovieAssetOrigin =
+
   /** Geometry assembled by automovie's generation phase. */
   | "generated"
+
   /** Mesh supplied by the user (glTF / VRM / FBX), normalized by ingest. */
   | "imported";

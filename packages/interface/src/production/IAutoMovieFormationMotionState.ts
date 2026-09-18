@@ -14,6 +14,7 @@ export interface IAutoMovieFormationMotionState {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `translation` for the performance formation hierarchy membership command system contract.
    */
   translation: IAutoMovieVector3;
+
   /**
    * Heading offset added around the designed anchor, in degrees.
    *
@@ -21,6 +22,7 @@ export interface IAutoMovieFormationMotionState {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `facingOffsetDeg` for the performance formation hierarchy membership command system contract.
    */
   facingOffsetDeg: number;
+
   /**
    * Positive lateral and depth scale for bounded density deformation.
    *
@@ -30,6 +32,7 @@ export interface IAutoMovieFormationMotionState {
   spacingScale: {
     /** Left-to-right spacing multiplier. */
     lateral: number;
+
     /** Front-to-back spacing multiplier. */
     depth: number;
   };

@@ -25,6 +25,7 @@ export interface IAutoMovieExternalMotionAdoption {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Types `id` for the performance motion external adoption receipt system contract.
    */
   id: string;
+
   /**
    * Manifest-owned external motion asset path.
    *
@@ -34,6 +35,7 @@ export interface IAutoMovieExternalMotionAdoption {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Types `asset` for the performance motion external adoption receipt system contract.
    */
   asset: string;
+
   /**
    * Take id from the asset's inspected motion record.
    *
@@ -43,6 +45,7 @@ export interface IAutoMovieExternalMotionAdoption {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Types `take` for the performance motion external adoption receipt system contract.
    */
   take: string;
+
   /**
    * Shot contract in which the adoption is available.
    *
@@ -52,6 +55,7 @@ export interface IAutoMovieExternalMotionAdoption {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Types `shot` for the performance motion external adoption receipt system contract.
    */
   shot: string;
+
   /**
    * Actor participant that performs the adopted take.
    *
@@ -61,6 +65,7 @@ export interface IAutoMovieExternalMotionAdoption {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Types `actor` for the performance motion external adoption receipt system contract.
    */
   actor: string;
+
   /**
    * Stable clip id exposed to the shot source after successful adoption.
    *
@@ -68,6 +73,7 @@ export interface IAutoMovieExternalMotionAdoption {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Preserves motion identity at the source boundary.
    */
   clip: string;
+
   /**
    * Authored semantic source rig reconciled with the byte-inspected basis.
    *
@@ -78,6 +84,7 @@ export interface IAutoMovieExternalMotionAdoption {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Types `sourceRig` for the performance motion external adoption receipt system contract.
    */
   sourceRig: IAutoMovieSkeleton;
+
   /**
    * Explicit source-node to target-semantic-bone mappings.
    *
@@ -88,6 +95,7 @@ export interface IAutoMovieExternalMotionAdoption {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Types `mapping` for the performance motion external adoption receipt system contract.
    */
   mapping: IAutoMovieExternalMotionMappingEntry[];
+
   /**
    * Explicit native or humanoid-retarget adoption decision.
    *

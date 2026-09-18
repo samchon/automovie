@@ -16,6 +16,7 @@ export interface IAutoMovieBuildingUnit {
    * @evidence specifications/building-envelope/identity-scope-and-coordinates.md#building-envelope-coordinate-input-output Types `id` for the building envelope coordinate input output system contract.
    */
   id: string;
+
   /**
    * Root visible element. It must have no element parent.
    *
@@ -23,6 +24,7 @@ export interface IAutoMovieBuildingUnit {
    * @evidence specifications/building-envelope/identity-scope-and-coordinates.md#building-envelope-coordinate-input-output Types `element` for the building envelope coordinate input output system contract.
    */
   element: string;
+
   /**
    * Root logical space. It must have no logical-space parent.
    *

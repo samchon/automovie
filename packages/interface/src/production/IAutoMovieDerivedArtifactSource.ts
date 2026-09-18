@@ -16,6 +16,7 @@ export interface IAutoMovieDerivedArtifactSource {
    * @evidence specifications/authoring-and-authority/deterministic-precomputed-artifacts.md#spec-authoring-precomputed-freshness Carries the checked output identity with its content.
    */
   digest: AutoMovieContentDigest;
+
   /**
    * Whether content is direct UTF-8 text or base64 of raw bytes.
    *
@@ -23,6 +24,7 @@ export interface IAutoMovieDerivedArtifactSource {
    * @evidence specifications/authoring-and-authority/deterministic-precomputed-artifacts.md#spec-authoring-precomputed-freshness Preserves arbitrary exact bytes across the sandbox JSON boundary.
    */
   encoding: AutoMovieDerivedArtifactEncoding;
+
   /**
    * Verified text or base64 payload.
    *

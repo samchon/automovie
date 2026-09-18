@@ -12,6 +12,7 @@ export type AutoMovieBuiltPlacementSupportLocator =
   | {
       /** Address an authored support surface and its height rule. */
       kind: "surface";
+
       /** Stable surface identity inside the queried built environment. */
       id: string;
     };

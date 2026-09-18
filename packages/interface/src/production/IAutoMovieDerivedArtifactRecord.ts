@@ -18,6 +18,7 @@ export interface IAutoMovieDerivedArtifactRecord {
    * @evidence specifications/authoring-and-authority/deterministic-precomputed-artifacts.md#spec-authoring-precomputed-portability Carries the canonical project-relative output identity the physical publication gate enforces.
    */
   path: string;
+
   /**
    * Source-context representation of the exact output bytes.
    *
@@ -25,6 +26,7 @@ export interface IAutoMovieDerivedArtifactRecord {
    * @evidence specifications/authoring-and-authority/deterministic-precomputed-artifacts.md#spec-authoring-precomputed-freshness Declares how verified bytes cross the JSON sandbox boundary.
    */
   encoding: AutoMovieDerivedArtifactEncoding;
+
   /**
    * Generator source identity and normalized-source digest.
    *
@@ -32,6 +34,7 @@ export interface IAutoMovieDerivedArtifactRecord {
    * @evidence specifications/authoring-and-authority/deterministic-precomputed-artifacts.md#spec-authoring-precomputed-basis Seals normalized generator source into the basis.
    */
   generator: IAutoMovieDerivedArtifactDependency;
+
   /**
    * Declared input files sorted by canonical path.
    *
@@ -39,6 +42,7 @@ export interface IAutoMovieDerivedArtifactRecord {
    * @evidence specifications/authoring-and-authority/deterministic-precomputed-artifacts.md#spec-authoring-precomputed-basis Keeps input ordering portable and rejects duplicate identities.
    */
   inputs: IAutoMovieDerivedArtifactDependency[];
+
   /**
    * Domain-separated digest of generator and declared input identities.
    *
@@ -46,6 +50,7 @@ export interface IAutoMovieDerivedArtifactRecord {
    * @evidence specifications/authoring-and-authority/deterministic-precomputed-artifacts.md#spec-authoring-precomputed-basis Identifies the complete versioned dependency closure.
    */
   basisDigest: AutoMovieContentDigest;
+
   /**
    * SHA-256 of the exact artifact bytes.
    *

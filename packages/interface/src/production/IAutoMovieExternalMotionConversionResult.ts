@@ -15,6 +15,7 @@ export interface IAutoMovieExternalMotionConversionResult {
    * @evidence specifications/interchange-and-adoption/conversion-receipts-and-determinism.md#interchange-canonical-receipt-result Binds canonical receipt serialization to the adopted motion identity.
    */
   motionId: string;
+
   /**
    * Canonical digest of the project-native motion value.
    *
@@ -22,6 +23,7 @@ export interface IAutoMovieExternalMotionConversionResult {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Seals the converted motion identity independently of file placement.
    */
   motionDigest: AutoMovieContentDigest;
+
   /**
    * Production-relative builder-owned result file path.
    *
@@ -29,6 +31,7 @@ export interface IAutoMovieExternalMotionConversionResult {
    * @evidence specifications/interchange-and-adoption/conversion-receipts-and-determinism.md#interchange-canonical-receipt-result Identifies the generated output inventoried by the builder manifest.
    */
   outputPath: string;
+
   /**
    * Content digest of the exact generated output file bytes.
    *

@@ -12,6 +12,7 @@ export interface IAutoMovieRepaintRuntimeIdentity {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-controls-references Types `protocolVersion` for the asset spec repaint controls references system contract.
    */
   protocolVersion: "automovie.repaint-runtime.v1";
+
   /**
    * Adapter/provider family.
    *
@@ -19,6 +20,7 @@ export interface IAutoMovieRepaintRuntimeIdentity {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-controls-references Types `provider` for the asset spec repaint controls references system contract.
    */
   provider: string;
+
   /**
    * Exact model id.
    *
@@ -26,6 +28,7 @@ export interface IAutoMovieRepaintRuntimeIdentity {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-controls-references Types `model` for the asset spec repaint controls references system contract.
    */
   model: string;
+
   /**
    * Exact model or deployment version.
    *
@@ -33,6 +36,7 @@ export interface IAutoMovieRepaintRuntimeIdentity {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-controls-references Types `version` for the asset spec repaint controls references system contract.
    */
   version: string;
+
   /**
    * Local, API, or another explicit execution boundary.
    *

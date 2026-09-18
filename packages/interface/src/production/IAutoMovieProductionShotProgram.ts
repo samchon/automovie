@@ -38,6 +38,7 @@ export interface IAutoMovieProductionShotProgram extends IAutoMovieShotProgram {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `models` for the performance formation hierarchy membership command system contract.
    */
   models?: IAutoMovieModel[];
+
   /**
    * Source-owned semantic props whose model and behavior are validated.
    *
@@ -45,6 +46,7 @@ export interface IAutoMovieProductionShotProgram extends IAutoMovieShotProgram {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `props` for the performance formation hierarchy membership command system contract.
    */
   props?: IAutoMoviePropSpec[];
+
   /**
    * Code-authored buildings used by the shot. They remain structured in the
    * compiled artifact; visible placements and support space are staged from the
@@ -54,6 +56,7 @@ export interface IAutoMovieProductionShotProgram extends IAutoMovieShotProgram {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `builtEnvironments` for the performance formation hierarchy membership command system contract.
    */
   builtEnvironments?: IAutoMovieBuiltEnvironment[];
+
   /**
    * Observation documents the building source read, carried as provenance.
    *
@@ -65,6 +68,7 @@ export interface IAutoMovieProductionShotProgram extends IAutoMovieShotProgram {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `designReferences` for the performance formation hierarchy membership command system contract.
    */
   designReferences?: IAutoMovieDesignReference[];
+
   /**
    * Citations from authored design members back to those observations.
    *
@@ -72,6 +76,7 @@ export interface IAutoMovieProductionShotProgram extends IAutoMovieShotProgram {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `designEvidence` for the performance formation hierarchy membership command system contract.
    */
   designEvidence?: IAutoMovieDesignEvidence[];
+
   /**
    * Phase, alternative and change-impact lineage over those identities.
    *
@@ -79,6 +84,7 @@ export interface IAutoMovieProductionShotProgram extends IAutoMovieShotProgram {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `designLineages` for the performance formation hierarchy membership command system contract.
    */
   designLineages?: IAutoMovieDesignLineage[];
+
   /**
    * Independent deterministic fluid domains this shot's source declares.
    *
@@ -86,6 +92,7 @@ export interface IAutoMovieProductionShotProgram extends IAutoMovieShotProgram {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `fluidDomains` for the performance formation hierarchy membership command system contract.
    */
   fluidDomains?: IAutoMovieFluidDomain[];
+
   /**
    * Bindings that make those domains a building's own water features.
    *
@@ -93,6 +100,7 @@ export interface IAutoMovieProductionShotProgram extends IAutoMovieShotProgram {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `waterFeatures` for the performance formation hierarchy membership command system contract.
    */
   waterFeatures?: IAutoMovieWaterFeature[];
+
   /**
    * Cloth and cushion domains this shot's source declares.
    *
@@ -100,6 +108,7 @@ export interface IAutoMovieProductionShotProgram extends IAutoMovieShotProgram {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `softBodyDomains` for the performance formation hierarchy membership command system contract.
    */
   softBodyDomains?: IAutoMovieSoftBodyDomain[];
+
   /**
    * Bindings that hang those domains on a building's own elements.
    *
@@ -107,6 +116,7 @@ export interface IAutoMovieProductionShotProgram extends IAutoMovieShotProgram {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `softFurnishings` for the performance formation hierarchy membership command system contract.
    */
   softFurnishings?: IAutoMovieSoftFurnishing[];
+
   /**
    * Growth recipes for the planting this shot's source declares.
    *
@@ -114,6 +124,7 @@ export interface IAutoMovieProductionShotProgram extends IAutoMovieShotProgram {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `plantingDomains` for the performance formation hierarchy membership command system contract.
    */
   plantingDomains?: IAutoMoviePlantingDomain[];
+
   /**
    * Arrangements those recipes are grown into.
    *
@@ -121,6 +132,7 @@ export interface IAutoMovieProductionShotProgram extends IAutoMovieShotProgram {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `plantingClusters` for the performance formation hierarchy membership command system contract.
    */
   plantingClusters?: IAutoMoviePlantingCluster[];
+
   /**
    * Bindings that plant those clusters in a building's own spaces.
    *
@@ -128,6 +140,7 @@ export interface IAutoMovieProductionShotProgram extends IAutoMovieShotProgram {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `plantingInstallations` for the performance formation hierarchy membership command system contract.
    */
   plantingInstallations?: IAutoMoviePlantingInstallation[];
+
   /**
    * Port networks that serve the buildings this shot stages.
    *
@@ -135,6 +148,7 @@ export interface IAutoMovieProductionShotProgram extends IAutoMovieShotProgram {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `serviceNetworks` for the performance formation hierarchy membership command system contract.
    */
   serviceNetworks?: IAutoMovieServiceNetwork[];
+
   /**
    * Optional source-computed clips cited only by explicit `enact` actions.
    *
@@ -145,6 +159,7 @@ export interface IAutoMovieProductionShotProgram extends IAutoMovieShotProgram {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `clips` for the performance formation hierarchy membership command system contract.
    */
   clips?: IAutoMovieMotion[];
+
   /**
    * Optional clips moving this shot's staged lights over its own local clock.
    *
@@ -160,6 +175,7 @@ export interface IAutoMovieProductionShotProgram extends IAutoMovieShotProgram {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `lightMotions` for the performance formation hierarchy membership command system contract.
    */
   lightMotions?: IAutoMovieClip[];
+
   /**
    * Optional clips turning this shot's non-performing scene nodes over its own
    * local clock, carried onto the compiled shot's `objectMotions`.
@@ -186,6 +202,7 @@ export interface IAutoMovieProductionShotProgram extends IAutoMovieShotProgram {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `objectMotions` for the performance formation hierarchy membership command system contract.
    */
   objectMotions?: IAutoMovieClip[];
+
   /**
    * Optional compact formation-level cues.
    *
@@ -193,6 +210,7 @@ export interface IAutoMovieProductionShotProgram extends IAutoMovieShotProgram {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `formationMotions` for the performance formation hierarchy membership command system contract.
    */
   formationMotions?: IAutoMovieFormationMotion[];
+
   /**
    * Optional sparse per-member exceptions inside compact formations.
    *
@@ -200,6 +218,7 @@ export interface IAutoMovieProductionShotProgram extends IAutoMovieShotProgram {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `formationSlotMotions` for the performance formation hierarchy membership command system contract.
    */
   formationSlotMotions?: IAutoMovieFormationSlotMotion[];
+
   /**
    * Optional bounded shot-local deterministic effect cues.
    *

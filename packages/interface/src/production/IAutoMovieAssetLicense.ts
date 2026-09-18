@@ -12,6 +12,7 @@ export interface IAutoMovieAssetLicense {
    * @evidence specifications/asset-and-representation/identity-resources-and-lifecycle.md#asset-spec-identity-failure-compatibility Types `identifier` for the asset spec identity failure compatibility system contract.
    */
   identifier: string;
+
   /**
    * Source page containing the applicable license terms.
    *
@@ -19,6 +20,7 @@ export interface IAutoMovieAssetLicense {
    * @evidence specifications/asset-and-representation/identity-resources-and-lifecycle.md#asset-spec-identity-failure-compatibility Types `url` for the asset spec identity failure compatibility system contract.
    */
   url: string;
+
   /**
    * Descriptive notice supplied with the asset.
    *

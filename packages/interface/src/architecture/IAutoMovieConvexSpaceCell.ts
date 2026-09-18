@@ -14,6 +14,7 @@ export interface IAutoMovieConvexSpaceCell {
    * @evidence specifications/interior-space/space-level-zone-topology.md#interior-space-occupancy-activity-visibility Types `id` for the interior space occupancy activity visibility system contract.
    */
   id: string;
+
   /**
    * Planes whose inside test is `dot(normal, point) <= offset`.
    *

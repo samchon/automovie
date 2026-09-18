@@ -23,26 +23,33 @@ export type IAutoMovieAnalysisOutcome =
   | {
       /** The solver ran and produced results. */
       status: "solved";
+
       /** At least one metric; each one measured or explicitly gapped. */
       metrics: IAutoMovieAnalysisMetric[];
+
       /** Spatial field, possibly empty; every key must name a measured metric. */
       samples: IAutoMovieAnalysisSample[];
+
       /** Non-fatal observations about the inputs. */
       warnings: IAutoMovieAnalysisWarning[];
     }
   | {
       /** This host cannot perform the analysis at all. */
       status: "unsupported";
+
       /** Non-blank statement of what is missing. */
       reason: string;
+
       /** Non-blank statement of what would make it possible. */
       remedy: string;
     }
   | {
       /** An adapter exists but was not executed. */
       status: "not-run";
+
       /** Non-blank statement of why it was skipped. */
       reason: string;
+
       /** Non-blank statement of the input that would let it run. */
       remedy: string;
     };

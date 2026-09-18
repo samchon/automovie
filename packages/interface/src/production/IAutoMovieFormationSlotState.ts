@@ -26,6 +26,7 @@ export interface IAutoMovieFormationSlotState {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `present` for the performance formation hierarchy membership command system contract.
    */
   present: boolean;
+
   /**
    * Displacement from the member's designed place, in unit-local meters.
    *
@@ -33,6 +34,7 @@ export interface IAutoMovieFormationSlotState {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `offset` for the performance formation hierarchy membership command system contract.
    */
   offset: IAutoMovieVector3;
+
   /**
    * Heading added to the member's placed heading, in degrees.
    *

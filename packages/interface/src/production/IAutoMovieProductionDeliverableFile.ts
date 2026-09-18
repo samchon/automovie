@@ -15,6 +15,7 @@ export interface IAutoMovieProductionDeliverableFile {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-provider-choice Types `path` for the asset spec generation provider choice system contract.
    */
   path: string;
+
   /**
    * Exact file-byte digest.
    *
@@ -22,6 +23,7 @@ export interface IAutoMovieProductionDeliverableFile {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-provider-choice Types `digest` for the asset spec generation provider choice system contract.
    */
   digest: AutoMovieContentDigest;
+
   /**
    * Exact non-zero file size.
    *
@@ -29,6 +31,7 @@ export interface IAutoMovieProductionDeliverableFile {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-provider-choice Types `bytes` for the asset spec generation provider choice system contract.
    */
   bytes: number;
+
   /**
    * Explicit media type, such as video/mp4 or text/vtt.
    *
@@ -36,6 +39,7 @@ export interface IAutoMovieProductionDeliverableFile {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-provider-choice Types `mediaType` for the asset spec generation provider choice system contract.
    */
   mediaType: string;
+
   /**
    * Semantic identity carried by a mask sidecar.
    *

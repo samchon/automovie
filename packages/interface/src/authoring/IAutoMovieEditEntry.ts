@@ -15,6 +15,7 @@ export interface IAutoMovieEditEntry {
    * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `shot` for the spec authoring authority compatibility system contract.
    */
   shot: string;
+
   /**
    * Optional positive source subrange.
    *
@@ -22,6 +23,7 @@ export interface IAutoMovieEditEntry {
    * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `trim` for the spec authoring authority compatibility system contract.
    */
   trim: IAutoMovieTrim | null;
+
   /**
    * Incoming transition, or null for a hard cut.
    *

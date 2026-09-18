@@ -13,6 +13,7 @@ export interface IAutoMovieDrivenCurvePoint {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `source` for the performance motion clip keytime interpolation system contract.
    */
   source: number;
+
   /**
    * Output scalar written by the driven driver.
    *

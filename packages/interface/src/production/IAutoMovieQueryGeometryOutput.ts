@@ -17,6 +17,7 @@ export interface IAutoMovieQueryGeometryOutput {
    * @evidence specifications/authoring-and-authority/partial-targets-and-atomic-results.md#spec-authoring-partial-result-checkpoint Types `query` for the spec authoring partial result checkpoint system contract.
    */
   query: AutoMovieGeometryQuery["query"];
+
   /**
    * Current compile fingerprint or null before a successful compile.
    *
@@ -24,6 +25,7 @@ export interface IAutoMovieQueryGeometryOutput {
    * @evidence specifications/authoring-and-authority/partial-targets-and-atomic-results.md#spec-authoring-partial-result-checkpoint Types `compileFingerprint` for the spec authoring partial result checkpoint system contract.
    */
   compileFingerprint: AutoMovieContentDigest | null;
+
   /**
    * Engine-derived result, or null when compilation is missing or stale, a
    * selector is ambiguous, or the requested fact cannot be measured.
@@ -32,6 +34,7 @@ export interface IAutoMovieQueryGeometryOutput {
    * @evidence specifications/authoring-and-authority/partial-targets-and-atomic-results.md#spec-authoring-partial-result-checkpoint Types `result` for the spec authoring partial result checkpoint system contract.
    */
   result: IAutoMovieGeometryResult | null;
+
   /**
    * Exact refusal diagnostics and the correction required before retrying.
    *

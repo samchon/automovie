@@ -22,6 +22,7 @@ export interface IAutoMovieDesignSourceFrame {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `id` for the narrative intent reference lineage system contract.
    */
   id: string;
+
   /**
    * One-based page or image index inside the asset.
    *
@@ -29,6 +30,7 @@ export interface IAutoMovieDesignSourceFrame {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `page` for the narrative intent reference lineage system contract.
    */
   page: number;
+
   /**
    * Drawing family this frame shows.
    *
@@ -36,6 +38,7 @@ export interface IAutoMovieDesignSourceFrame {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `view` for the narrative intent reference lineage system contract.
    */
   view: "plan" | "section" | "elevation" | "detail" | "perspective";
+
   /**
    * Storey or datum label this frame belongs to, or null.
    *
@@ -43,6 +46,7 @@ export interface IAutoMovieDesignSourceFrame {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `level` for the narrative intent reference lineage system contract.
    */
   level: string | null;
+
   /**
    * Source-space extent: pixels for raster, user units for vector.
    *
@@ -52,9 +56,11 @@ export interface IAutoMovieDesignSourceFrame {
   bounds: {
     /** Strictly positive width in source units. */
     width: number;
+
     /** Strictly positive height in source units. */
     height: number;
   };
+
   /**
    * Source-space point that maps onto {@link origin}.
    *
@@ -64,9 +70,11 @@ export interface IAutoMovieDesignSourceFrame {
   anchor: {
     /** Finite source-space x, inside `[0, bounds.width]`. */
     x: number;
+
     /** Finite source-space y, inside `[0, bounds.height]`. */
     y: number;
   };
+
   /**
    * Every scale reading; more than one means the scale is not settled.
    *
@@ -74,6 +82,7 @@ export interface IAutoMovieDesignSourceFrame {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `scaleCandidates` for the narrative intent reference lineage system contract.
    */
   scaleCandidates: IAutoMovieDesignScaleCandidate[];
+
   /**
    * Chosen scale candidate id, or null while the scale is unknown.
    *
@@ -81,6 +90,7 @@ export interface IAutoMovieDesignSourceFrame {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `scale` for the narrative intent reference lineage system contract.
    */
   scale: string | null;
+
   /**
    * World direction the frame's own +x axis points along; non-zero.
    *
@@ -88,6 +98,7 @@ export interface IAutoMovieDesignSourceFrame {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `axisX` for the narrative intent reference lineage system contract.
    */
   axisX: IAutoMovieVector3;
+
   /**
    * World direction the frame's own +y axis points along; non-zero.
    *
@@ -95,6 +106,7 @@ export interface IAutoMovieDesignSourceFrame {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `axisY` for the narrative intent reference lineage system contract.
    */
   axisY: IAutoMovieVector3;
+
   /**
    * World position of {@link anchor}, in metres.
    *
@@ -102,6 +114,7 @@ export interface IAutoMovieDesignSourceFrame {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `origin` for the narrative intent reference lineage system contract.
    */
   origin: IAutoMovieVector3;
+
   /**
    * World direction the drawing calls up; non-zero.
    *
@@ -109,6 +122,7 @@ export interface IAutoMovieDesignSourceFrame {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `up` for the narrative intent reference lineage system contract.
    */
   up: IAutoMovieVector3;
+
   /**
    * World direction the drawing calls north, or null when unmarked.
    *
@@ -116,6 +130,7 @@ export interface IAutoMovieDesignSourceFrame {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `north` for the narrative intent reference lineage system contract.
    */
   north: IAutoMovieVector3 | null;
+
   /**
    * Extra world placement applied after the axis mapping, or null.
    *

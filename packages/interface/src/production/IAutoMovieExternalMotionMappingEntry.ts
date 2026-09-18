@@ -15,6 +15,7 @@ export interface IAutoMovieExternalMotionMappingEntry {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Joins one byte-grounded source node to the retained mapping decision.
    */
   source: string;
+
   /**
    * Target normalized humanoid bone.
    *

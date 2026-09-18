@@ -15,6 +15,7 @@ export interface IAutoMovieStageSetPiece {
    * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `node` for the spec authoring authority compatibility system contract.
    */
   node: string;
+
   /**
    * Runtime model identity used to render the piece.
    *
@@ -22,6 +23,7 @@ export interface IAutoMovieStageSetPiece {
    * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `model` for the spec authoring authority compatibility system contract.
    */
   model: string;
+
   /**
    * World-space placement in meters.
    *
@@ -29,6 +31,7 @@ export interface IAutoMovieStageSetPiece {
    * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `position` for the spec authoring authority compatibility system contract.
    */
   position: IAutoMovieVector3;
+
   /**
    * Optional heading in degrees about +Y.
    *
@@ -36,6 +39,7 @@ export interface IAutoMovieStageSetPiece {
    * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `facingDeg` for the spec authoring authority compatibility system contract.
    */
   facingDeg?: number;
+
   /**
    * Optional full world rotation for sloped, vertical, or arbitrarily oriented
    * architecture. Mutually exclusive with the simpler `facingDeg` spelling.
@@ -44,6 +48,7 @@ export interface IAutoMovieStageSetPiece {
    * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `rotation` for the spec authoring authority compatibility system contract.
    */
   rotation?: IAutoMovieQuaternion;
+
   /**
    * Positive uniform or per-axis scale applied to the model.
    *

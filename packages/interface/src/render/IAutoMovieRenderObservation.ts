@@ -18,6 +18,7 @@ export interface IAutoMovieRenderObservation {
    * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Carries one observed budget metric.
    */
   meshes: number | null;
+
   /**
    * Submitted draw-call count.
    *
@@ -25,6 +26,7 @@ export interface IAutoMovieRenderObservation {
    * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Carries one observed budget metric.
    */
   drawCalls: number | null;
+
   /**
    * Rendered triangle count.
    *
@@ -32,6 +34,7 @@ export interface IAutoMovieRenderObservation {
    * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Carries one observed budget metric.
    */
   triangles: number | null;
+
   /**
    * Distinct material count.
    *
@@ -39,6 +42,7 @@ export interface IAutoMovieRenderObservation {
    * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Carries one observed budget metric.
    */
   materials: number | null;
+
   /**
    * Distinct texture count.
    *
@@ -46,6 +50,7 @@ export interface IAutoMovieRenderObservation {
    * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Carries one observed budget metric.
    */
   textures: number | null;
+
   /**
    * Active light count.
    *
@@ -53,6 +58,7 @@ export interface IAutoMovieRenderObservation {
    * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Carries one observed budget metric.
    */
   lights: number | null;
+
   /**
    * Active shadow-map count.
    *
@@ -60,6 +66,7 @@ export interface IAutoMovieRenderObservation {
    * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Carries one observed budget metric.
    */
   shadowMaps: number | null;
+
   /**
    * Addressed instance-slot count.
    *

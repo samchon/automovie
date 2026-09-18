@@ -16,6 +16,7 @@ export interface IAutoMovieModelRecipe {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `id` for the narrative intent story design ownership system contract.
    */
   id: string;
+
   /**
    * Production role.
    *
@@ -23,6 +24,7 @@ export interface IAutoMovieModelRecipe {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `role` for the narrative intent story design ownership system contract.
    */
   role: "performer" | "mount" | "prop" | "set";
+
   /**
    * Non-blank id of the registered archetype that builds this recipe.
    *
@@ -35,6 +37,7 @@ export interface IAutoMovieModelRecipe {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `archetype` for the narrative intent story design ownership system contract.
    */
   archetype: string;
+
   /**
    * Registered external appearance asset, or omitted for builder-generated
    * primitive geometry. The active production asset ledger must carry one
@@ -44,6 +47,7 @@ export interface IAutoMovieModelRecipe {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `asset` for the narrative intent story design ownership system contract.
    */
   asset?: string;
+
   /**
    * Exact archetype-specific parameter map.
    *
@@ -56,6 +60,7 @@ export interface IAutoMovieModelRecipe {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `parameters` for the narrative intent story design ownership system contract.
    */
   parameters: Record<string, number | string | boolean>;
+
   /**
    * Exactly one named six-digit `#RRGGBB` material color in the foundation
    * builder. Multiple semantic part materials remain unsupported and are
@@ -71,6 +76,7 @@ export interface IAutoMovieModelRecipe {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `palette` for the narrative intent story design ownership system contract.
    */
   palette: Record<string, string>;
+
   /**
    * Non-empty unique tiers ordered `hero`, `near`, `far`, with increasing
    * positive distances and an optional unbounded tier only at the end.
@@ -79,6 +85,7 @@ export interface IAutoMovieModelRecipe {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `lod` for the narrative intent story design ownership system contract.
    */
   lod: IAutoMovieModelLodRecipe[];
+
   /**
    * Semantic abilities visible to source and review, unique within the recipe.
    *
@@ -90,6 +97,7 @@ export interface IAutoMovieModelRecipe {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `capabilities` for the narrative intent story design ownership system contract.
    */
   capabilities: string[];
+
   /**
    * Unique semantic bone sockets.
    *
@@ -103,9 +111,11 @@ export interface IAutoMovieModelRecipe {
   attachments: Array<{
     /** Non-blank attachment id, unique within the recipe. */
     id: string;
+
     /** Bone id used as the attachment parent. */
     bone: AutoMovieHumanoidBone;
   }>;
+
   /**
    * Declarative capability profiles copied onto the builder-owned runtime
    * model. Omitted means that trait-gated engine verbs such as mounting are

@@ -17,6 +17,7 @@ export interface IAutoMovieVisualRevisionSnapshot {
    * @evidence specifications/review-and-acceptance/visual-change-reporting.md#review-system-visual-revision-snapshot Types the revision identity copied into the report.
    */
   revision: string;
+
   /**
    * Non-blank identity of the observation population.
    *
@@ -24,6 +25,7 @@ export interface IAutoMovieVisualRevisionSnapshot {
    * @evidence specifications/review-and-acceptance/visual-change-reporting.md#review-system-visual-revision-snapshot Types the equality precondition between snapshots.
    */
   catalog: string;
+
   /**
    * Unique subject-view records in arbitrary input order.
    *

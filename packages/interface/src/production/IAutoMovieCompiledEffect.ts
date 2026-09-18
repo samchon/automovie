@@ -17,6 +17,7 @@ export interface IAutoMovieCompiledEffect {
    * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Types `version` for the spec render state isolation system contract.
    */
   version: 1;
+
   /**
    * Stable source cue id.
    *
@@ -24,6 +25,7 @@ export interface IAutoMovieCompiledEffect {
    * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Types `id` for the spec render state isolation system contract.
    */
   id: string;
+
   /**
    * Existing world zone id.
    *
@@ -31,6 +33,7 @@ export interface IAutoMovieCompiledEffect {
    * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Types `zone` for the spec render state isolation system contract.
    */
   zone: string;
+
   /**
    * Supported primitive effect family.
    *
@@ -38,6 +41,7 @@ export interface IAutoMovieCompiledEffect {
    * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Types `kind` for the spec render state isolation system contract.
    */
   kind: IAutoMovieEffectRecipe["kind"];
+
   /**
    * Exact world-space emitter bounds.
    *
@@ -45,6 +49,7 @@ export interface IAutoMovieCompiledEffect {
    * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Types `bounds` for the spec render state isolation system contract.
    */
   bounds: IAutoMovieWorldDesign["effectZones"][number]["bounds"];
+
   /**
    * Domain-separated deterministic stream seed.
    *
@@ -52,6 +57,7 @@ export interface IAutoMovieCompiledEffect {
    * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Types `seed` for the spec render state isolation system contract.
    */
   seed: number;
+
   /**
    * Exact current recipe.
    *
@@ -59,6 +65,7 @@ export interface IAutoMovieCompiledEffect {
    * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Types `recipe` for the spec render state isolation system contract.
    */
   recipe: IAutoMovieEffectRecipe;
+
   /**
    * Inclusive shot-local cue start.
    *
@@ -66,6 +73,7 @@ export interface IAutoMovieCompiledEffect {
    * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Types `start` for the spec render state isolation system contract.
    */
   start: number;
+
   /**
    * Exclusive shot-local cue end.
    *
@@ -73,6 +81,7 @@ export interface IAutoMovieCompiledEffect {
    * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Types `end` for the spec render state isolation system contract.
    */
   end: number;
+
   /**
    * Bounded cue intensity envelope.
    *
@@ -80,6 +89,7 @@ export interface IAutoMovieCompiledEffect {
    * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Types `intensity` for the spec render state isolation system contract.
    */
   intensity: IAutoMovieShotEffectCue["intensity"];
+
   /**
    * Bound authoritative event, when present.
    *
@@ -87,6 +97,7 @@ export interface IAutoMovieCompiledEffect {
    * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Types `event` for the spec render state isolation system contract.
    */
   event?: string;
+
   /**
    * Production frame-clock simulation step.
    *
@@ -94,6 +105,7 @@ export interface IAutoMovieCompiledEffect {
    * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Types `fixedStepSeconds` for the spec render state isolation system contract.
    */
   fixedStepSeconds: number;
+
   /**
    * Digest of every field above except this digest.
    *

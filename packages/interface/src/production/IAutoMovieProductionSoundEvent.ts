@@ -16,6 +16,7 @@ export interface IAutoMovieProductionSoundEvent {
    * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-cue-kind-and-event-timing Types `id` for the sound cue kind and event timing system contract.
    */
   id: string;
+
   /**
    * Compiled shot that owns the event.
    *
@@ -23,6 +24,7 @@ export interface IAutoMovieProductionSoundEvent {
    * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-cue-kind-and-event-timing Types `shot` for the sound cue kind and event timing system contract.
    */
   shot: string;
+
   /**
    * Authoritative event-contract id.
    *
@@ -30,6 +32,7 @@ export interface IAutoMovieProductionSoundEvent {
    * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-cue-kind-and-event-timing Types `event` for the sound cue kind and event timing system contract.
    */
   event: string;
+
   /**
    * Procedural sound family selected by the event contract.
    *
@@ -37,6 +40,7 @@ export interface IAutoMovieProductionSoundEvent {
    * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-cue-kind-and-event-timing Types `kind` for the sound cue kind and event timing system contract.
    */
   kind: IAutoMovieShotEventContract["kind"];
+
   /**
    * Exact film-global event frame.
    *
@@ -44,6 +48,7 @@ export interface IAutoMovieProductionSoundEvent {
    * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-cue-kind-and-event-timing Types `frame` for the sound cue kind and event timing system contract.
    */
   frame: number;
+
   /**
    * Exact frame-derived film time.
    *
@@ -51,6 +56,7 @@ export interface IAutoMovieProductionSoundEvent {
    * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-cue-kind-and-event-timing Types `timeSeconds` for the sound cue kind and event timing system contract.
    */
   timeSeconds: number;
+
   /**
    * Sampled world-space source point.
    *
@@ -58,6 +64,7 @@ export interface IAutoMovieProductionSoundEvent {
    * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-cue-kind-and-event-timing Types `emitter` for the sound cue kind and event timing system contract.
    */
   emitter: IAutoMovieVector3;
+
   /**
    * Sampled world-space camera point.
    *
@@ -65,6 +72,7 @@ export interface IAutoMovieProductionSoundEvent {
    * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-cue-kind-and-event-timing Types `listener` for the sound cue kind and event timing system contract.
    */
   listener: IAutoMovieVector3;
+
   /**
    * Euclidean distance in meters from the listener to `emitter`.
    *
@@ -72,6 +80,7 @@ export interface IAutoMovieProductionSoundEvent {
    * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-cue-kind-and-event-timing Types `distanceMeters` for the sound cue kind and event timing system contract.
    */
   distanceMeters: number;
+
   /**
    * How many individual sources the event's subjects contain: one for a scene
    * node, the member count for a formation or an instance set, summed over
@@ -85,6 +94,7 @@ export interface IAutoMovieProductionSoundEvent {
    * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-cue-kind-and-event-timing Types `memberCount` for the sound cue kind and event timing system contract.
    */
   memberCount: number;
+
   /**
    * Root-mean-square distance in meters from `emitter` to those members: the
    * source's own size.
@@ -97,6 +107,7 @@ export interface IAutoMovieProductionSoundEvent {
    * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-cue-kind-and-event-timing Types `spreadRadiusMeters` for the sound cue kind and event timing system contract.
    */
   spreadRadiusMeters: number;
+
   /**
    * Level factor for `memberCount` mutually uncorrelated sources,
    * `sqrt(memberCount)`.
@@ -112,6 +123,7 @@ export interface IAutoMovieProductionSoundEvent {
    * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-cue-kind-and-event-timing Types `densityGain` for the sound cue kind and event timing system contract.
    */
   densityGain: number;
+
   /**
    * Camera-relative stereo position from -1 (left) through 1 (right), narrowed
    * by the source's own angular width: `local.x / hypot(distanceMeters,
@@ -126,6 +138,7 @@ export interface IAutoMovieProductionSoundEvent {
    * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-cue-kind-and-event-timing Types `pan` for the sound cue kind and event timing system contract.
    */
   pan: number;
+
   /**
    * Distance-derived dry gain from zero through one, taken at the
    * root-mean-square source/listener distance `hypot(distanceMeters,
@@ -141,6 +154,7 @@ export interface IAutoMovieProductionSoundEvent {
    * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-cue-kind-and-event-timing Types `attenuation` for the sound cue kind and event timing system contract.
    */
   attenuation: number;
+
   /**
    * Direct-path propagation result when the production selected a profile.
    * Omitted only on the legacy dry path.
@@ -151,17 +165,23 @@ export interface IAutoMovieProductionSoundEvent {
   propagation?: {
     /** Selected production propagation profile id. */
     profile: string;
+
     /** Exact film-global listener-arrival frame. */
     arrivalFrame: number;
+
     /** Exact frame-derived listener-arrival time. */
     arrivalTimeSeconds: number;
+
     /** Distance gain derived by the declared law. */
     distanceGain: number;
+
     /** High-frequency linear gain, or null when no spectral model was claimed. */
     highFrequencyGain: number | null;
+
     /** Applied shot-boundary decision. */
     boundary: "inside-segment" | "carried-across-cut" | "trimmed-at-segment";
   };
+
   /**
    * Room-path result when the production selected an acoustic profile. Omitted
    * only on the legacy dry path.
@@ -170,6 +190,7 @@ export interface IAutoMovieProductionSoundEvent {
    * @evidence specifications/simulation-effects-and-sound/ambience-music-spatial-and-acoustics.md#acoustic-mix-consumption-and-claim-boundary Distinguishes outdoor, same-room, different-room, unsupported, and not-run outcomes.
    */
   acousticResponse?: IAutoMovieProductionAcousticResponse;
+
   /**
    * Stable unsigned 32-bit procedural seed.
    *

@@ -22,6 +22,7 @@ export interface IAutoMovieBuiltSpace {
    * @evidence specifications/interior-space/surface-assemblies.md#interior-space-surface-assembly-region Types `id` for the interior space surface assembly region system contract.
    */
   id: string;
+
   /**
    * Open semantic label such as `building`, `storey`, `room`, `attic`, `void`,
    * `roof-deck`, `facade-access`, or `bridge-deck`.
@@ -30,6 +31,7 @@ export interface IAutoMovieBuiltSpace {
    * @evidence specifications/interior-space/surface-assemblies.md#interior-space-surface-assembly-region Types `kind` for the interior space surface assembly region system contract.
    */
   kind: string;
+
   /**
    * Parent logical-space id, or null for a root partition.
    *
@@ -37,6 +39,7 @@ export interface IAutoMovieBuiltSpace {
    * @evidence specifications/interior-space/surface-assemblies.md#interior-space-surface-assembly-region Types `parent` for the interior space surface assembly region system contract.
    */
   parent: string | null;
+
   /**
    * World-space convex cells whose union locates the region. Empty cells make a
    * purely semantic container; non-convex regions are split into cells.
@@ -52,6 +55,7 @@ export interface IAutoMovieBuiltSpace {
    * @evidence specifications/interior-space/surface-assemblies.md#interior-space-surface-assembly-region Types `cells` for the interior space surface assembly region system contract.
    */
   cells: IAutoMovieConvexSpaceCell[];
+
   /**
    * The region as its own closed boundary, when half-spaces cannot state it.
    *
@@ -72,6 +76,7 @@ export interface IAutoMovieBuiltSpace {
    * @evidence specifications/interior-space/surface-assemblies.md#interior-space-surface-assembly-region Types `shell` for the interior space surface assembly region system contract.
    */
   shell?: IAutoMovieSpaceShell;
+
   /**
    * What the stated volume claims to be, when it claims less than the region.
    *

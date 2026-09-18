@@ -14,6 +14,7 @@ export interface IAutoMovieProductionRegistryManifest {
    * @evidence specifications/authoring-and-authority/partial-targets-and-atomic-results.md#spec-authoring-partial-verification-invariant Types `version` for the spec authoring partial verification invariant system contract.
    */
   version: 2;
+
   /**
    * Compiler protocol that produced this registry.
    *
@@ -21,6 +22,7 @@ export interface IAutoMovieProductionRegistryManifest {
    * @evidence specifications/authoring-and-authority/partial-targets-and-atomic-results.md#spec-authoring-partial-verification-invariant Types `builder` for the spec authoring partial verification invariant system contract.
    */
   builder: string;
+
   /**
    * Exact production namespace.
    *
@@ -28,6 +30,7 @@ export interface IAutoMovieProductionRegistryManifest {
    * @evidence specifications/authoring-and-authority/partial-targets-and-atomic-results.md#spec-authoring-partial-verification-invariant Types `productionId` for the spec authoring partial verification invariant system contract.
    */
   productionId: string;
+
   /**
    * Current aggregate builder input fingerprint.
    *
@@ -35,6 +38,7 @@ export interface IAutoMovieProductionRegistryManifest {
    * @evidence specifications/authoring-and-authority/partial-targets-and-atomic-results.md#spec-authoring-partial-verification-invariant Types `inputFingerprint` for the spec authoring partial verification invariant system contract.
    */
   inputFingerprint: AutoMovieContentDigest;
+
   /**
    * Built model/asset targets with their generated paths.
    *
@@ -44,9 +48,11 @@ export interface IAutoMovieProductionRegistryManifest {
   assets: Array<{
     /** Exact model recipe id. */
     id: string;
+
     /** Compiler-owned generated model path. */
     path: string;
   }>;
+
   /**
    * Built shot targets with their generated paths.
    *
@@ -56,9 +62,11 @@ export interface IAutoMovieProductionRegistryManifest {
   shots: Array<{
     /** Exact shot registration id. */
     id: string;
+
     /** Compiler-owned generated shot path. */
     path: string;
   }>;
+
   /**
    * Current builder-owned film id, or null before film materialization.
    *

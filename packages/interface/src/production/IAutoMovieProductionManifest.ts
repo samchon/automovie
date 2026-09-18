@@ -14,6 +14,7 @@ export interface IAutoMovieProductionManifest {
    * @evidence specifications/authoring-and-authority/partial-targets-and-atomic-results.md#spec-authoring-partial-target-input Types `formatVersion` for the spec authoring partial target input system contract.
    */
   formatVersion: 2;
+
   /**
    * Repository-local project identity, excluded from content fingerprints.
    *
@@ -21,6 +22,7 @@ export interface IAutoMovieProductionManifest {
    * @evidence specifications/authoring-and-authority/partial-targets-and-atomic-results.md#spec-authoring-partial-target-input Types `projectId` for the spec authoring partial target input system contract.
    */
   projectId: string;
+
   /**
    * Project-relative coding-agent-owned source directories. Shot modules must
    * resolve as real TypeScript files inside one of these roots.
@@ -29,6 +31,7 @@ export interface IAutoMovieProductionManifest {
    * @evidence specifications/authoring-and-authority/partial-targets-and-atomic-results.md#spec-authoring-partial-target-input Types `sourceRoots` for the spec authoring partial target input system contract.
    */
   sourceRoots: string[];
+
   /**
    * Additional project-relative directories whose exact files affect compile
    * and render identity, such as viewer, scripts and public assets.
@@ -37,6 +40,7 @@ export interface IAutoMovieProductionManifest {
    * @evidence specifications/authoring-and-authority/partial-targets-and-atomic-results.md#spec-authoring-partial-target-input Types `contentRoots` for the spec authoring partial target input system contract.
    */
   contentRoots?: string[];
+
   /**
    * Additional project-relative files whose bytes affect compile identity.
    *
@@ -44,6 +48,7 @@ export interface IAutoMovieProductionManifest {
    * @evidence specifications/authoring-and-authority/partial-targets-and-atomic-results.md#spec-authoring-partial-target-input Types `contentFiles` for the spec authoring partial target input system contract.
    */
   contentFiles?: string[];
+
   /**
    * Project-global asset provenance ledger.
    *
@@ -54,6 +59,7 @@ export interface IAutoMovieProductionManifest {
    * @evidence specifications/authoring-and-authority/partial-targets-and-atomic-results.md#spec-authoring-partial-target-input Types `assetManifest` for the spec authoring partial target input system contract.
    */
   assetManifest?: "automovie/assets.json";
+
   /**
    * Project-owned deterministic precomputation ledger.
    *
@@ -64,6 +70,7 @@ export interface IAutoMovieProductionManifest {
    * @evidence specifications/authoring-and-authority/deterministic-precomputed-artifacts.md#spec-authoring-precomputed-manifest Selects the one canonical project-relative ledger path.
    */
   derivedArtifactManifest?: "automovie/derived-artifacts.json";
+
   /**
    * Compiler-owned generated root.
    *
@@ -71,6 +78,7 @@ export interface IAutoMovieProductionManifest {
    * @evidence specifications/authoring-and-authority/partial-targets-and-atomic-results.md#spec-authoring-partial-target-input Types `generatedRoot` for the spec authoring partial target input system contract.
    */
   generatedRoot: string;
+
   /**
    * Content-addressed render root.
    *
@@ -78,6 +86,7 @@ export interface IAutoMovieProductionManifest {
    * @evidence specifications/authoring-and-authority/partial-targets-and-atomic-results.md#spec-authoring-partial-target-input Types `renderRoot` for the spec authoring partial target input system contract.
    */
   renderRoot: string;
+
   /**
    * Optional non-destructive legacy import provenance.
    *
@@ -87,6 +96,7 @@ export interface IAutoMovieProductionManifest {
   importedLegacy?: {
     /** Imported legacy project revision. */
     revision: number;
+
     /** Relative source directory containing the untouched legacy tree. */
     sourceRoot: string;
   };

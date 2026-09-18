@@ -22,6 +22,7 @@ export namespace IAutoMovieRepaintShot {
      * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-controls-references Types `productionId` for the asset spec repaint controls references system contract.
      */
     productionId: string;
+
     /**
      * Exact current builder-registry shot id.
      *
@@ -29,6 +30,7 @@ export namespace IAutoMovieRepaintShot {
      * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-controls-references Types `shot` for the asset spec repaint controls references system contract.
      */
     shot: string;
+
     /**
      * Fixed non-collapsible role-specific references from the asset manifest.
      *
@@ -36,6 +38,7 @@ export namespace IAutoMovieRepaintShot {
      * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-controls-references Types `references` for the asset spec repaint controls references system contract.
      */
     references: IAutoMovieRepaintReferenceInput[];
+
     /**
      * Exact adapter controls stored in the rendition receipt.
      *

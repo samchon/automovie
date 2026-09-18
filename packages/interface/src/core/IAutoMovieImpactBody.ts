@@ -12,6 +12,7 @@ export interface IAutoMovieImpactBody {
    * @evidence specifications/simulation-effects-and-sound/rigid-collision-and-damage.md#collision-proxy-and-world-contact-output Types `mass` for the collision proxy and world contact output system contract.
    */
   mass: number;
+
   /**
    * Normal rebound ratio from zero through one.
    *
@@ -19,6 +20,7 @@ export interface IAutoMovieImpactBody {
    * @evidence specifications/simulation-effects-and-sound/rigid-collision-and-damage.md#collision-proxy-and-world-contact-output Types `restitution` for the collision proxy and world contact output system contract.
    */
   restitution: number;
+
   /**
    * Relative surface hardness, strictly above zero.
    *
@@ -26,6 +28,7 @@ export interface IAutoMovieImpactBody {
    * @evidence specifications/simulation-effects-and-sound/rigid-collision-and-damage.md#collision-proxy-and-world-contact-output Types `hardness` for the collision proxy and world contact output system contract.
    */
   hardness: number;
+
   /**
    * Relative penetration resistance, strictly above zero.
    *

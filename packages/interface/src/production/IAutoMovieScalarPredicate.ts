@@ -12,6 +12,7 @@ export interface IAutoMovieScalarPredicate {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `operator` for the narrative intent story design ownership system contract.
    */
   operator: "<=" | ">=" | "==";
+
   /**
    * Finite expected value in the unit implied by the selected predicate.
    *
@@ -19,6 +20,7 @@ export interface IAutoMovieScalarPredicate {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `value` for the narrative intent story design ownership system contract.
    */
   value: number;
+
   /**
    * Finite non-negative absolute comparison tolerance.
    *

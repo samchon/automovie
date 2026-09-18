@@ -19,6 +19,7 @@ export interface IAutoMovieDesignVariant {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `id` for the narrative intent reference lineage system contract.
    */
   id: string;
+
   /**
    * Human label such as `warm-oak` or `open-plan`.
    *
@@ -26,6 +27,7 @@ export interface IAutoMovieDesignVariant {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `label` for the narrative intent reference lineage system contract.
    */
   label: string;
+
   /**
    * Revision every change in this variant applies to.
    *
@@ -33,6 +35,7 @@ export interface IAutoMovieDesignVariant {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `base` for the narrative intent reference lineage system contract.
    */
   base: string;
+
   /**
    * Edits this alternative makes; at most one per subject and aspect.
    *

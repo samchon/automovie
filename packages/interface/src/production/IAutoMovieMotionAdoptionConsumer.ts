@@ -13,6 +13,7 @@ export interface IAutoMovieMotionAdoptionConsumer {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Identifies this use as a production adoption decision.
    */
   kind: "motion-adoption";
+
   /**
    * Exact production-declared adoption identity.
    *

@@ -20,6 +20,7 @@ export interface IAutoMovieAnalysisGap {
    * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-failed-not-run-states Types `run` for the validation failed not run states system contract.
    */
   run: string | null;
+
   /**
    * Domain the missing answer belongs to.
    *
@@ -27,6 +28,7 @@ export interface IAutoMovieAnalysisGap {
    * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-failed-not-run-states Types `domain` for the validation failed not run states system contract.
    */
   domain: AutoMovieAnalysisDomain;
+
   /**
    * Metric key, or null when the whole run produced nothing.
    *
@@ -34,6 +36,7 @@ export interface IAutoMovieAnalysisGap {
    * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-failed-not-run-states Types `metric` for the validation failed not run states system contract.
    */
   metric: string | null;
+
   /**
    * Which kind of nothing this is.
    *
@@ -41,6 +44,7 @@ export interface IAutoMovieAnalysisGap {
    * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-failed-not-run-states Types `status` for the validation failed not run states system contract.
    */
   status: "unsupported" | "not-run";
+
   /**
    * Non-blank statement of what is missing.
    *
@@ -48,6 +52,7 @@ export interface IAutoMovieAnalysisGap {
    * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-failed-not-run-states Types `reason` for the validation failed not run states system contract.
    */
   reason: string;
+
   /**
    * Non-blank statement of the exact change that would fill it.
    *

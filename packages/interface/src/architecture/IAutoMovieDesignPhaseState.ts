@@ -15,6 +15,7 @@ export interface IAutoMovieDesignPhaseState {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `subject` for the narrative intent reference lineage system contract.
    */
   subject: string;
+
   /**
    * The graph that owns the id, carried through from its declaration.
    *
@@ -22,6 +23,7 @@ export interface IAutoMovieDesignPhaseState {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `graph` for the narrative intent reference lineage system contract.
    */
   graph: string;
+
   /**
    * How the subject relates to the work as a whole.
    *
@@ -29,6 +31,7 @@ export interface IAutoMovieDesignPhaseState {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `role` for the narrative intent reference lineage system contract.
    */
   role: AutoMovieDesignLifecycleRole;
+
   /**
    * Whether it is in place once this phase completes.
    *

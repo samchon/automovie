@@ -29,6 +29,7 @@ export interface IAutoMovieCompiledShotSource extends IAutoMovieShotSourceOutput
     digest: AutoMovieContentDigest;
     target: string;
   };
+
   /**
    * Reviewed non-entry exports bound to the same unit, retained as acceptance
    * attribution without executing them as shot builders.
@@ -42,6 +43,7 @@ export interface IAutoMovieCompiledShotSource extends IAutoMovieShotSourceOutput
     digest: AutoMovieContentDigest;
     target: string;
   }>;
+
   /**
    * Models required by this shot.
    *
@@ -49,6 +51,7 @@ export interface IAutoMovieCompiledShotSource extends IAutoMovieShotSourceOutput
    * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `models` for the spec authoring source derivation state system contract.
    */
   models: IAutoMovieModel[];
+
   /**
    * Compact formation runtimes required by this shot.
    *
@@ -56,6 +59,7 @@ export interface IAutoMovieCompiledShotSource extends IAutoMovieShotSourceOutput
    * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `formations` for the spec authoring source derivation state system contract.
    */
   formations: IAutoMovieCompiledFormation[];
+
   /**
    * Compact general instance runtimes placed by the production world.
    *
@@ -63,6 +67,7 @@ export interface IAutoMovieCompiledShotSource extends IAutoMovieShotSourceOutput
    * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `instanceSets` for the spec authoring source derivation state system contract.
    */
   instanceSets: IAutoMovieCompiledInstanceSet[];
+
   /**
    * Validated compact formation-level cues, empty when source omitted them.
    *
@@ -70,6 +75,7 @@ export interface IAutoMovieCompiledShotSource extends IAutoMovieShotSourceOutput
    * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `formationMotions` for the spec authoring source derivation state system contract.
    */
   formationMotions: IAutoMovieFormationMotion[];
+
   /**
    * Validated sparse per-member exceptions, empty when source omitted them.
    *
@@ -77,6 +83,7 @@ export interface IAutoMovieCompiledShotSource extends IAutoMovieShotSourceOutput
    * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `formationSlotMotions` for the spec authoring source derivation state system contract.
    */
   formationSlotMotions: IAutoMovieFormationSlotMotion[];
+
   /**
    * Compiler-owned deterministic effect runtimes.
    *

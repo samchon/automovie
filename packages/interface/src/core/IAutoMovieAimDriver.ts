@@ -14,6 +14,7 @@ export interface IAutoMovieAimDriver {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `type` for the performance motion clip keytime interpolation system contract.
    */
   type: "aim";
+
   /**
    * Node to orient.
    *
@@ -21,6 +22,7 @@ export interface IAutoMovieAimDriver {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `owner` for the performance motion clip keytime interpolation system contract.
    */
   owner: string;
+
   /**
    * Node to point at.
    *
@@ -28,6 +30,7 @@ export interface IAutoMovieAimDriver {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `target` for the performance motion clip keytime interpolation system contract.
    */
   target: string;
+
   /**
    * Owner-local axis aimed at the target (e.g. camera `(0,0,-1)`).
    *
@@ -35,6 +38,7 @@ export interface IAutoMovieAimDriver {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `aimAxis` for the performance motion clip keytime interpolation system contract.
    */
   aimAxis: IAutoMovieVector3;
+
   /**
    * Owner-local up axis, kept aligned to `worldUp` to fix the remaining roll.
    *
@@ -42,6 +46,7 @@ export interface IAutoMovieAimDriver {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `upAxis` for the performance motion clip keytime interpolation system contract.
    */
   upAxis: IAutoMovieVector3;
+
   /**
    * World reference up the `upAxis` aligns to.
    *
@@ -49,6 +54,7 @@ export interface IAutoMovieAimDriver {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `worldUp` for the performance motion clip keytime interpolation system contract.
    */
   worldUp: IAutoMovieVector3;
+
   /**
    * Blend factor `[0, 1]`.
    *

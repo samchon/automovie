@@ -14,6 +14,7 @@ export interface IAutoMovieWorldBounds {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `min` for the narrative intent story design ownership system contract.
    */
   min: IAutoMovieVector3;
+
   /**
    * Maximum corner.
    *

@@ -15,6 +15,7 @@ export interface IAutoMovieVideoEdit {
    * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `shot` for the spec authoring source derivation state system contract.
    */
   shot: string;
+
   /**
    * Inclusive source frame.
    *
@@ -22,6 +23,7 @@ export interface IAutoMovieVideoEdit {
    * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `sourceIn` for the spec authoring source derivation state system contract.
    */
   sourceIn: AutoMovieFilmTime;
+
   /**
    * Exclusive source frame.
    *
@@ -29,6 +31,7 @@ export interface IAutoMovieVideoEdit {
    * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `sourceOut` for the spec authoring source derivation state system contract.
    */
   sourceOut: AutoMovieFilmTime;
+
   /**
    * Film-global inclusive start frame.
    *
@@ -36,6 +39,7 @@ export interface IAutoMovieVideoEdit {
    * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `start` for the spec authoring source derivation state system contract.
    */
   start: AutoMovieFilmTime;
+
   /**
    * Available transition material at each side of this placement.
    *
@@ -45,9 +49,11 @@ export interface IAutoMovieVideoEdit {
   handles: {
     /** Available incoming frames. */
     head: AutoMovieFilmTime;
+
     /** Available outgoing frames. */
     tail: AutoMovieFilmTime;
   };
+
   /**
    * Transition entering this placement.
    *
@@ -55,6 +61,7 @@ export interface IAutoMovieVideoEdit {
    * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `transitionIn` for the spec authoring source derivation state system contract.
    */
   transitionIn: IAutoMovieFilmTransition;
+
   /**
    * Transition leaving this placement.
    *

@@ -12,6 +12,7 @@ export interface IAutoMovieFilmOmission {
    * @evidence specifications/authoring-and-authority/partial-targets-and-atomic-results.md#spec-authoring-partial-omission-failure Types `shot` for the spec authoring partial omission failure system contract.
    */
   shot: string;
+
   /**
    * Auditable non-blank reason.
    *

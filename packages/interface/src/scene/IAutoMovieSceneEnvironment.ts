@@ -21,6 +21,7 @@ export interface IAutoMovieSceneEnvironment {
    * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-environment-image-spatial-variation Types `image` for the clv environment image spatial variation system contract.
    */
   image: string | null;
+
   /**
    * Solid background when `image` is null, or null for transparent black.
    *
@@ -28,6 +29,7 @@ export interface IAutoMovieSceneEnvironment {
    * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-environment-image-spatial-variation Types `background` for the clv environment image spatial variation system contract.
    */
   background: IAutoMovieColor | null;
+
   /**
    * Non-negative image-based-light intensity.
    *
@@ -35,6 +37,7 @@ export interface IAutoMovieSceneEnvironment {
    * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-environment-image-spatial-variation Types `intensity` for the clv environment image spatial variation system contract.
    */
   intensity: number;
+
   /**
    * Finite world-Y rotation of the environment in degrees.
    *
@@ -42,6 +45,7 @@ export interface IAutoMovieSceneEnvironment {
    * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-environment-image-spatial-variation Types `rotationDeg` for the clv environment image spatial variation system contract.
    */
   rotationDeg: number;
+
   /**
    * Positive renderer exposure multiplier.
    *
@@ -49,6 +53,7 @@ export interface IAutoMovieSceneEnvironment {
    * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-environment-image-spatial-variation Types `exposure` for the clv environment image spatial variation system contract.
    */
   exposure: number;
+
   /**
    * Beauty-pass tone mapping; structural passes always bypass it.
    *
@@ -60,6 +65,7 @@ export interface IAutoMovieSceneEnvironment {
    * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-environment-image-spatial-variation Types `toneMapping` for the clv environment image spatial variation system contract.
    */
   toneMapping: "none" | "acesFilmic";
+
   /**
    * Renderer shadow-map policy for physical scene lights.
    *
@@ -76,6 +82,7 @@ export interface IAutoMovieSceneEnvironment {
   shadows: {
     /** Whether shadow maps are rendered in beauty passes. */
     enabled: boolean;
+
     /** Deterministic Three.js shadow-filter family. */
     type: "pcf" | "pcfSoft" | "vsm";
   };

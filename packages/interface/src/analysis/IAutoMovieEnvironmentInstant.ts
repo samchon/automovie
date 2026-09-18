@@ -20,6 +20,7 @@ export interface IAutoMovieEnvironmentInstant {
    * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-environment-sampling-claims Gives each sampled environment state a stable identity.
    */
   id: string;
+
   /**
    * Open label such as `summer-solstice-1400` or `overcast-morning`.
    *
@@ -27,6 +28,7 @@ export interface IAutoMovieEnvironmentInstant {
    * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-environment-sampling-claims Names the sampled state without inventing a location or climate catalogue.
    */
   label: string;
+
   /**
    * Ordering key in seconds from the production's own epoch; finite.
    *
@@ -34,6 +36,7 @@ export interface IAutoMovieEnvironmentInstant {
    * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-environment-sampling-claims Supplies the deterministic ordering and lookup key for environment sampling.
    */
   time: number;
+
   /**
    * World direction from the site toward the sun; non-zero.
    *
@@ -41,6 +44,7 @@ export interface IAutoMovieEnvironmentInstant {
    * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-environment-image-spatial-variation Types `sun` for the clv environment image spatial variation system contract.
    */
   sun: IAutoMovieVector3;
+
   /**
    * Illuminance on a surface facing the sun directly, in lux; at or above zero.
    * A sun at or below the horizon must declare zero, because a source under the
@@ -50,6 +54,7 @@ export interface IAutoMovieEnvironmentInstant {
    * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-environment-image-spatial-variation Types `directNormalIlluminance` for the clv environment image spatial variation system contract.
    */
   directNormalIlluminance: number;
+
   /**
    * Diffuse sky illuminance on an unobstructed horizontal plane, in lux.
    *
@@ -57,6 +62,7 @@ export interface IAutoMovieEnvironmentInstant {
    * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-environment-image-spatial-variation Types `diffuseHorizontalIlluminance` for the clv environment image spatial variation system contract.
    */
   diffuseHorizontalIlluminance: number;
+
   /**
    * Outdoor dry-bulb air temperature in degrees Celsius, or null.
    *
@@ -64,6 +70,7 @@ export interface IAutoMovieEnvironmentInstant {
    * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-environment-image-spatial-variation Types `outdoorAirTemperature` for the clv environment image spatial variation system contract.
    */
   outdoorAirTemperature: number | null;
+
   /**
    * Outdoor relative humidity as a `[0, 1]` fraction, or null.
    *

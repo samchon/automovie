@@ -16,6 +16,7 @@ export interface IAutoMovieShotSource {
    * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `id` for the spec authoring source derivation state system contract.
    */
   id: IAutoMovieDefinedShot<IAutoMovieShotBuildContext>["id"];
+
   /**
    * Exact staged-scene id the returned program must author.
    *
@@ -23,6 +24,7 @@ export interface IAutoMovieShotSource {
    * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `scene` for the spec authoring source derivation state system contract.
    */
   scene: IAutoMovieDefinedShot<IAutoMovieShotBuildContext>["scene"];
+
   /**
    * Measurable source-owned contract, checked against the design contract.
    *
@@ -30,6 +32,7 @@ export interface IAutoMovieShotSource {
    * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `contract` for the spec authoring source derivation state system contract.
    */
   contract: IAutoMovieDefinedShot<IAutoMovieShotBuildContext>["contract"];
+
   /**
    * Build a thin stage/block/performance program.
    *

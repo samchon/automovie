@@ -14,6 +14,7 @@ export interface IAutoMovieHalfSpacePlane {
    * @evidence specifications/interior-space/space-level-zone-topology.md#interior-space-hierarchy-zone-overlay Types `normal` for the interior space hierarchy zone overlay system contract.
    */
   normal: IAutoMovieVector3;
+
   /**
    * Finite plane offset in the same scale as the normal.
    *

@@ -18,6 +18,7 @@ export interface IAutoMovieStageCamera {
    * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `node` for the spec authoring authority compatibility system contract.
    */
   node: string;
+
   /**
    * Initial camera position in world meters.
    *
@@ -25,6 +26,7 @@ export interface IAutoMovieStageCamera {
    * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `position` for the spec authoring authority compatibility system contract.
    */
   position: IAutoMovieVector3;
+
   /**
    * Initial live subject; stage validation requires it to resolve.
    *
@@ -32,6 +34,7 @@ export interface IAutoMovieStageCamera {
    * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `lookAt` for the spec authoring authority compatibility system contract.
    */
   lookAt: IAutoMovieNodeTarget | IAutoMoviePointTarget;
+
   /**
    * Vertical field of view in degrees, strictly between zero and 180.
    *

@@ -13,6 +13,7 @@ export interface IAutoMovieCaptionReadabilityBoundary {
    * @evidence specifications/editorial-render-and-delivery/delivery-audio-text-and-localization.md#spec-delivery-caption-readability-profile Supplies the value used by deterministic comparison.
    */
   value: number;
+
   /**
    * Whether equality satisfies this boundary.
    *

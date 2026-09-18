@@ -26,6 +26,7 @@ export interface IAutoMovieOpeningProfile {
    * @evidence specifications/interior-space/boundaries-openings-and-circulation.md#interior-space-wall-partition-boundary Types `outline` for the interior space wall partition boundary system contract.
    */
   outline: IAutoMoviePlanarPoint[];
+
   /**
    * Per-edge circular bulge, one entry per edge when stated at all.
    *

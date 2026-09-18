@@ -15,6 +15,7 @@ export interface IAutoMovieCompiledFilmEdit {
    * @evidence specifications/authoring-and-authority/partial-targets-and-atomic-results.md#spec-authoring-partial-verification-invariant Types `version` for the spec authoring partial verification invariant system contract.
    */
   version: 1;
+
   /**
    * Compiler protocol that validated the edit.
    *
@@ -22,6 +23,7 @@ export interface IAutoMovieCompiledFilmEdit {
    * @evidence specifications/authoring-and-authority/partial-targets-and-atomic-results.md#spec-authoring-partial-verification-invariant Types `builder` for the spec authoring partial verification invariant system contract.
    */
   builder: string;
+
   /**
    * Exact aggregate compile input.
    *
@@ -29,6 +31,7 @@ export interface IAutoMovieCompiledFilmEdit {
    * @evidence specifications/authoring-and-authority/partial-targets-and-atomic-results.md#spec-authoring-partial-verification-invariant Types `inputFingerprint` for the spec authoring partial verification invariant system contract.
    */
   inputFingerprint: AutoMovieContentDigest;
+
   /**
    * Film source provenance.
    *
@@ -38,11 +41,14 @@ export interface IAutoMovieCompiledFilmEdit {
   source: {
     /** Project-relative module path. */
     path: string;
+
     /** Named build export. */
     export: string;
+
     /** Digest of normalized TypeScript source. */
     digest: AutoMovieContentDigest;
   };
+
   /**
    * Strict authored edit returned by the deterministic sandbox.
    *

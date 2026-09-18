@@ -15,6 +15,7 @@ export interface IAutoMovieEditPlan {
    * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Types `sequence` for the spec authoring source input system contract.
    */
   sequence: IAutoMovieNamedId;
+
   /**
    * Positive playback frame rate.
    *
@@ -22,6 +23,7 @@ export interface IAutoMovieEditPlan {
    * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Types `fps` for the spec authoring source input system contract.
    */
   fps: number;
+
   /**
    * Shot placements in playback order.
    *
@@ -29,6 +31,7 @@ export interface IAutoMovieEditPlan {
    * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Types `entries` for the spec authoring source input system contract.
    */
   entries: IAutoMovieEditEntry[];
+
   /**
    * Why the trims and transitions serve the film's rhythm.
    *
@@ -36,6 +39,7 @@ export interface IAutoMovieEditPlan {
    * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Types `pacing` for the spec authoring source input system contract.
    */
   pacing: string;
+
   /**
    * How adjacent opening/end states connect across each cut.
    *

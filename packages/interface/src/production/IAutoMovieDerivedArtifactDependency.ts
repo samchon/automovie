@@ -16,6 +16,7 @@ export interface IAutoMovieDerivedArtifactDependency {
    * @evidence specifications/authoring-and-authority/deterministic-precomputed-artifacts.md#spec-authoring-precomputed-portability Restricts dependency identity to one canonical project-relative spelling across hosts.
    */
   path: string;
+
   /**
    * SHA-256 of the exact input bytes.
    *

@@ -9,8 +9,10 @@ import { AutoMovieContentDigest } from "./AutoMovieContentDigest";
 export interface IAutoMovieProductionRenditionDeliveryRepaintedLane {
   /** Explicit selected repaint source. */
   lane: "repainted";
+
   /** Candidate output digest, repeated as the exact source identity. */
   sourceDigest: AutoMovieContentDigest;
+
   /**
    * Digest of the canonical immutable candidate receipt.
    *
@@ -18,12 +20,16 @@ export interface IAutoMovieProductionRenditionDeliveryRepaintedLane {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-failure-publication Seals the candidate receipt consumed by final conform.
    */
   receiptDigest: AutoMovieContentDigest;
+
   /** Digest of the active immutable selection record. */
   selectionDigest: AutoMovieContentDigest;
+
   /** Stable active selection identity. */
   selectionId: string;
+
   /** Immutable request identity. */
   requestId: string;
+
   /** Immutable successful attempt identity. */
   attemptId: string;
 }

@@ -17,6 +17,7 @@ export interface IAutoMovieConnectorSteps {
    * @evidence specifications/interior-space/boundaries-openings-and-circulation.md#interior-space-connector-route-topology Types `count` for the interior space connector route topology system contract.
    */
   count: number;
+
   /**
    * Positive vertical rise of one step, in metres.
    *
@@ -24,6 +25,7 @@ export interface IAutoMovieConnectorSteps {
    * @evidence specifications/interior-space/boundaries-openings-and-circulation.md#interior-space-connector-route-topology Types `rise` for the interior space connector route topology system contract.
    */
   rise: number;
+
   /**
    * Positive horizontal going of one step, in metres.
    *

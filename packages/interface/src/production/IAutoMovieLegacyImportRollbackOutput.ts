@@ -14,6 +14,7 @@ export interface IAutoMovieLegacyImportRollbackOutput {
    * @evidence specifications/execution-and-recovery/portability-migration-and-compatibility.md#execution-downgrade-rollback-compatibility Types `status` for the execution downgrade rollback compatibility system contract.
    */
   status: "rolled-back";
+
   /**
    * Fingerprint of the removed import plan.
    *

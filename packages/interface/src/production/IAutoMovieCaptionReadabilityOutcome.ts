@@ -10,12 +10,16 @@ export type IAutoMovieCaptionReadabilityOutcome =
   | {
       /** Profile-backed evaluation completed. */
       status: "evaluated";
+
       /** Exact production profile id. */
       profile: string;
+
       /** Complete segmentation identity selected by the production profile. */
       segmentation: IAutoMovieCaptionGraphemeSegmentationIdentity;
+
       /** Whether every profile-declared boundary passed. */
       passed: boolean;
+
       /** Stable names of boundaries exceeded by this cue. */
       breaches: Array<
         | "graphemes-per-second"
@@ -28,8 +32,10 @@ export type IAutoMovieCaptionReadabilityOutcome =
   | {
       /** No production profile judged the measurement. */
       status: "not-run";
+
       /** Requested segmentation identity, or null when no profile was declared. */
       segmentation: IAutoMovieCaptionGraphemeSegmentationIdentity | null;
+
       /** Exact reason a verdict was not computed. */
       reason:
         | "caption-readability-profile-not-declared"

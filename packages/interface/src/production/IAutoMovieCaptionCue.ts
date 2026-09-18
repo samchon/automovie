@@ -17,6 +17,7 @@ export interface IAutoMovieCaptionCue {
    * @evidence specifications/editorial-render-and-delivery/delivery-audio-text-and-localization.md#spec-delivery-caption-readability-profile Types `id` for the spec delivery caption readability profile system contract.
    */
   id: string;
+
   /**
    * Non-blank plain text whose authored CR, LF, and CRLF line presentation is
    * preserved canonically by readability and selectable delivery.
@@ -26,6 +27,7 @@ export interface IAutoMovieCaptionCue {
    * @evidence specifications/editorial-render-and-delivery/delivery-audio-text-and-localization.md#spec-delivery-caption-readability-profile Types `text` for the spec delivery caption readability profile system contract.
    */
   text: string;
+
   /**
    * RFC 5646 well-formed language tag in retained display form.
    *
@@ -35,6 +37,7 @@ export interface IAutoMovieCaptionCue {
    * @evidence specifications/editorial-render-and-delivery/delivery-audio-text-and-localization.md#spec-delivery-localization Uses RFC 5646 syntax without registry canonicalization or inference.
    */
   language: string;
+
   /**
    * Optional speaker id.
    *
@@ -42,6 +45,7 @@ export interface IAutoMovieCaptionCue {
    * @evidence specifications/editorial-render-and-delivery/delivery-audio-text-and-localization.md#spec-delivery-caption-readability-profile Types `speaker` for the spec delivery caption readability profile system contract.
    */
   speaker?: string;
+
   /**
    * Film-global inclusive start.
    *
@@ -49,6 +53,7 @@ export interface IAutoMovieCaptionCue {
    * @evidence specifications/editorial-render-and-delivery/delivery-audio-text-and-localization.md#spec-delivery-caption-readability-profile Types `start` for the spec delivery caption readability profile system contract.
    */
   start: AutoMovieFilmTime;
+
   /**
    * Film-global exclusive end.
    *

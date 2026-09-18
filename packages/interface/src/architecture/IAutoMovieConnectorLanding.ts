@@ -18,6 +18,7 @@ export interface IAutoMovieConnectorLanding {
    * @evidence specifications/interior-space/boundaries-openings-and-circulation.md#interior-space-connector-route-topology Types `space` for the interior space connector route topology system contract.
    */
   space: string;
+
   /**
    * Arc-length fraction of the 3D route polyline where the run serves it,
    * strictly between `0` (the {@link IAutoMovieBuiltConnector.from} end) and `1`

@@ -23,6 +23,7 @@ export interface IAutoMovieShotBuildContext {
    * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `contract` for the spec authoring source derivation state system contract.
    */
   contract: IAutoMovieShotContract;
+
   /**
    * Current model recipes keyed by id.
    *
@@ -30,6 +31,7 @@ export interface IAutoMovieShotBuildContext {
    * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `models` for the spec authoring source derivation state system contract.
    */
   models: Readonly<Record<string, IAutoMovieModelRecipe>>;
+
   /**
    * Current verified deterministic artifacts keyed by canonical output path.
    *
@@ -37,6 +39,7 @@ export interface IAutoMovieShotBuildContext {
    * @evidence specifications/authoring-and-authority/deterministic-precomputed-artifacts.md#spec-authoring-precomputed-freshness Carries verified text or base64 bytes through the JSON source boundary.
    */
   derivedArtifacts: Readonly<Record<string, IAutoMovieDerivedArtifactSource>>;
+
   /**
    * The production's story-clock light sources, when it declares any.
    *
@@ -50,6 +53,7 @@ export interface IAutoMovieShotBuildContext {
    * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `lighting` for the spec authoring source derivation state system contract.
    */
   lighting?: IAutoMovieProductionLighting;
+
   /**
    * Current world design.
    *
@@ -57,6 +61,7 @@ export interface IAutoMovieShotBuildContext {
    * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `world` for the spec authoring source derivation state system contract.
    */
   world: IAutoMovieWorldDesign;
+
   /**
    * Current formations keyed by id.
    *
@@ -64,6 +69,7 @@ export interface IAutoMovieShotBuildContext {
    * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `formations` for the spec authoring source derivation state system contract.
    */
   formations: Readonly<Record<string, IAutoMovieFormationDesign>>;
+
   /**
    * Compiler-generated primitive runtime models keyed by recipe id.
    *
@@ -71,6 +77,7 @@ export interface IAutoMovieShotBuildContext {
    * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `runtimeModels` for the spec authoring source derivation state system contract.
    */
   runtimeModels: Readonly<Record<string, IAutoMovieModel>>;
+
   /**
    * Compact builder-derived formation runtimes keyed by formation id.
    *
@@ -78,6 +85,7 @@ export interface IAutoMovieShotBuildContext {
    * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `formationRuntime` for the spec authoring source derivation state system contract.
    */
   formationRuntime: Readonly<Record<string, IAutoMovieCompiledFormation>>;
+
   /**
    * Compact builder-derived general instance runtimes keyed by set id.
    *
@@ -85,6 +93,7 @@ export interface IAutoMovieShotBuildContext {
    * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `instanceSetRuntime` for the spec authoring source derivation state system contract.
    */
   instanceSetRuntime: Readonly<Record<string, IAutoMovieCompiledInstanceSet>>;
+
   /**
    * Deterministic geometry helpers.
    *

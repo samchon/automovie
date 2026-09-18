@@ -16,6 +16,7 @@ export interface IAutoMovieCaptionReadabilityReport {
    * @evidence specifications/editorial-render-and-delivery/delivery-audio-text-and-localization.md#spec-delivery-caption-readability-profile Makes report interpretation explicit.
    */
   version: 2;
+
   /**
    * Cue reports in canonical film and cue order.
    *
@@ -25,6 +26,7 @@ export interface IAutoMovieCaptionReadabilityReport {
   cues: Array<{
     /** Effective cue measurements. */
     measurement: IAutoMovieCaptionReadabilityMeasurement;
+
     /** Profile-backed verdict or explicit measure-only outcome. */
     outcome: IAutoMovieCaptionReadabilityOutcome;
   }>;

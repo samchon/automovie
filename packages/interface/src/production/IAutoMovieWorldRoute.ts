@@ -12,6 +12,7 @@ export interface IAutoMovieWorldRoute {
    * @evidence specifications/world-and-site/traversal-and-visibility.md#world-site-route-connectivity-time-state Types `id` for the world site route connectivity time state system contract.
    */
   id: string;
+
   /**
    * At least two finite ordered centerline points in world XZ coordinates.
    *
@@ -21,9 +22,11 @@ export interface IAutoMovieWorldRoute {
   waypoints: Array<{
     /** World X in meters. */
     x: number;
+
     /** World Z in meters. */
     z: number;
   }>;
+
   /**
    * Finite maximum formation width in meters, strictly above zero.
    *

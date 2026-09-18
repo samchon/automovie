@@ -20,6 +20,7 @@ export interface IAutoMovieDrawingGap {
    * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `subject` for the interior space drawing schedule quantity system contract.
    */
   subject: string;
+
   /**
    * Whether the derivation does not exist or merely had no input.
    *
@@ -27,6 +28,7 @@ export interface IAutoMovieDrawingGap {
    * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `status` for the interior space drawing schedule quantity system contract.
    */
   status: AutoMovieDrawingGapStatus;
+
   /**
    * Exactly what is absent, naming the declaration that needed it.
    *
@@ -34,6 +36,7 @@ export interface IAutoMovieDrawingGap {
    * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `reason` for the interior space drawing schedule quantity system contract.
    */
   reason: string;
+
   /**
    * Exactly what would make the derivation produce a result.
    *

@@ -17,6 +17,7 @@ export interface IAutoMovieModelLodRecipe {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-design-reference-realization Types `tier` for the narrative intent design reference realization system contract.
    */
   tier: "hero" | "near" | "far";
+
   /**
    * Positive maximum viewing distance in meters, strictly increasing between
    * tiers, or null only on the final unbounded tier.
@@ -25,6 +26,7 @@ export interface IAutoMovieModelLodRecipe {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-design-reference-realization Types `maxDistance` for the narrative intent design reference realization system contract.
    */
   maxDistance: number | null;
+
   /**
    * Existing recipe id used at this tier; self-reference is allowed.
    *

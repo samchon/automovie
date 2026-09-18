@@ -24,6 +24,7 @@ export interface IAutoMovieLegacyImportPlan {
    * @evidence specifications/execution-and-recovery/portability-migration-and-compatibility.md#execution-resume-compatibility Types `version` for the execution resume compatibility system contract.
    */
   version: 1;
+
   /**
    * Domain-separated identity of every field below except this fingerprint.
    *
@@ -31,6 +32,7 @@ export interface IAutoMovieLegacyImportPlan {
    * @evidence specifications/execution-and-recovery/portability-migration-and-compatibility.md#execution-resume-compatibility Types `fingerprint` for the execution resume compatibility system contract.
    */
   fingerprint: AutoMovieContentDigest;
+
   /**
    * Legacy monotonic revision captured by this plan.
    *
@@ -38,6 +40,7 @@ export interface IAutoMovieLegacyImportPlan {
    * @evidence specifications/execution-and-recovery/portability-migration-and-compatibility.md#execution-resume-compatibility Types `legacyRevision` for the execution resume compatibility system contract.
    */
   legacyRevision: number;
+
   /**
    * Exact deterministic legacy byte inventory.
    *
@@ -45,6 +48,7 @@ export interface IAutoMovieLegacyImportPlan {
    * @evidence specifications/execution-and-recovery/portability-migration-and-compatibility.md#execution-resume-compatibility Types `inventory` for the execution resume compatibility system contract.
    */
   inventory: IAutoMovieLegacyImportInventoryEntry[];
+
   /**
    * Trusted rollback fence for production-owned directories.
    *
@@ -52,6 +56,7 @@ export interface IAutoMovieLegacyImportPlan {
    * @evidence specifications/execution-and-recovery/portability-migration-and-compatibility.md#execution-resume-compatibility Types `rollbackBaseline` for the execution resume compatibility system contract.
    */
   rollbackBaseline: IAutoMovieLegacyOwnedDirectoryBaseline[];
+
   /**
    * Conservative production design draft with explicit default warnings.
    *
@@ -59,6 +64,7 @@ export interface IAutoMovieLegacyImportPlan {
    * @evidence specifications/execution-and-recovery/portability-migration-and-compatibility.md#execution-resume-compatibility Types `productionDraft` for the execution resume compatibility system contract.
    */
   productionDraft: IAutoMovieProductionDesign;
+
   /**
    * Conservative shot contract drafts; their source modules remain TODOs.
    *
@@ -66,6 +72,7 @@ export interface IAutoMovieLegacyImportPlan {
    * @evidence specifications/execution-and-recovery/portability-migration-and-compatibility.md#execution-resume-compatibility Types `shotContractDrafts` for the execution resume compatibility system contract.
    */
   shotContractDrafts: IAutoMovieShotContract[];
+
   /**
    * Unrecoverable coding-agent source bindings.
    *
@@ -73,6 +80,7 @@ export interface IAutoMovieLegacyImportPlan {
    * @evidence specifications/execution-and-recovery/portability-migration-and-compatibility.md#execution-resume-compatibility Types `sourceTodos` for the execution resume compatibility system contract.
    */
   sourceTodos: IAutoMovieLegacySourceTodo[];
+
   /**
    * Import limitations and corrective actions.
    *

@@ -15,6 +15,7 @@ export interface IAutoMovieDrawingDimension {
    * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `id` for the interior space drawing schedule quantity system contract.
    */
   id: string;
+
   /**
    * What the measurement means.
    *
@@ -22,6 +23,7 @@ export interface IAutoMovieDrawingDimension {
    * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `measure` for the interior space drawing schedule quantity system contract.
    */
   measure: "page" | "world";
+
   /**
    * Whether both ends resolved.
    *
@@ -29,6 +31,7 @@ export interface IAutoMovieDrawingDimension {
    * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `status` for the interior space drawing schedule quantity system contract.
    */
   status: AutoMovieDrawingTargetStatus;
+
   /**
    * Page start point, or `null` when stale.
    *
@@ -36,6 +39,7 @@ export interface IAutoMovieDrawingDimension {
    * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `from` for the interior space drawing schedule quantity system contract.
    */
   from: IAutoMovieDrawingPoint | null;
+
   /**
    * Page end point, or `null` when stale.
    *
@@ -43,6 +47,7 @@ export interface IAutoMovieDrawingDimension {
    * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `to` for the interior space drawing schedule quantity system contract.
    */
   to: IAutoMovieDrawingPoint | null;
+
   /**
    * Measured distance in metres, or `null` when stale.
    *
@@ -50,6 +55,7 @@ export interface IAutoMovieDrawingDimension {
    * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `value` for the interior space drawing schedule quantity system contract.
    */
   value: number | null;
+
   /**
    * Exactly why the target no longer resolves, or `null` when resolved.
    *

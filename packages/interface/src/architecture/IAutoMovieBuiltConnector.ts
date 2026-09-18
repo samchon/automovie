@@ -29,6 +29,7 @@ export interface IAutoMovieBuiltConnector {
    * @evidence specifications/building-envelope/exterior-spaces-circulation-and-optics.md#building-envelope-multibuilding-connector-failures Types `id` for the building envelope multibuilding connector failures system contract.
    */
   id: string;
+
   /**
    * Computational traversal family.
    *
@@ -51,6 +52,7 @@ export interface IAutoMovieBuiltConnector {
     | "ladder"
     | "bridge"
     | "other";
+
   /**
    * Logical space at the start of the route.
    *
@@ -58,6 +60,7 @@ export interface IAutoMovieBuiltConnector {
    * @evidence specifications/building-envelope/exterior-spaces-circulation-and-optics.md#building-envelope-multibuilding-connector-failures Types `from` for the building envelope multibuilding connector failures system contract.
    */
   from: string;
+
   /**
    * Logical space at the end of the route.
    *
@@ -65,6 +68,7 @@ export interface IAutoMovieBuiltConnector {
    * @evidence specifications/building-envelope/exterior-spaces-circulation-and-optics.md#building-envelope-multibuilding-connector-failures Types `to` for the building envelope multibuilding connector failures system contract.
    */
   to: string;
+
   /**
    * Whether traversal is permitted in both directions.
    *
@@ -76,6 +80,7 @@ export interface IAutoMovieBuiltConnector {
    * @evidence specifications/building-envelope/exterior-spaces-circulation-and-optics.md#building-envelope-multibuilding-connector-failures Types `bidirectional` for the building envelope multibuilding connector failures system contract.
    */
   bidirectional: boolean;
+
   /**
    * Further spaces this one run serves between its two endpoints.
    *
@@ -94,6 +99,7 @@ export interface IAutoMovieBuiltConnector {
    * @evidence specifications/building-envelope/exterior-spaces-circulation-and-optics.md#building-envelope-multibuilding-connector-failures Types `landings` for the building envelope multibuilding connector failures system contract.
    */
   landings?: IAutoMovieConnectorLanding[];
+
   /**
    * World-space center route, including both endpoints.
    *
@@ -101,6 +107,7 @@ export interface IAutoMovieBuiltConnector {
    * @evidence specifications/building-envelope/exterior-spaces-circulation-and-optics.md#building-envelope-multibuilding-connector-failures Types `route` for the building envelope multibuilding connector failures system contract.
    */
   route: IAutoMovieVector3[];
+
   /**
    * Per-station facing, one unit quaternion per {@link route} point.
    *
@@ -115,6 +122,7 @@ export interface IAutoMovieBuiltConnector {
    * @evidence specifications/building-envelope/exterior-spaces-circulation-and-optics.md#building-envelope-multibuilding-connector-failures Types `orientations` for the building envelope multibuilding connector failures system contract.
    */
   orientations?: IAutoMovieQuaternion[];
+
   /**
    * Constant usable width in metres.
    *
@@ -127,6 +135,7 @@ export interface IAutoMovieBuiltConnector {
    * @evidence specifications/building-envelope/exterior-spaces-circulation-and-optics.md#building-envelope-multibuilding-connector-failures Types `width` for the building envelope multibuilding connector failures system contract.
    */
   width?: number;
+
   /**
    * Constant vertical clearance in metres; see {@link width} for the rule.
    *
@@ -134,6 +143,7 @@ export interface IAutoMovieBuiltConnector {
    * @evidence specifications/building-envelope/exterior-spaces-circulation-and-optics.md#building-envelope-multibuilding-connector-failures Types `clearHeight` for the building envelope multibuilding connector failures system contract.
    */
   clearHeight?: number;
+
   /**
    * Usable section sampled along the route, for a passage that changes shape.
    *
@@ -145,6 +155,7 @@ export interface IAutoMovieBuiltConnector {
    * @evidence specifications/building-envelope/exterior-spaces-circulation-and-optics.md#building-envelope-multibuilding-connector-failures Types `sections` for the building envelope multibuilding connector failures system contract.
    */
   sections?: IAutoMovieConnectorSection[];
+
   /**
    * Slope of the travelled surface in radians, measured from horizontal.
    *
@@ -160,6 +171,7 @@ export interface IAutoMovieBuiltConnector {
    * @evidence specifications/building-envelope/exterior-spaces-circulation-and-optics.md#building-envelope-multibuilding-connector-failures Types `slope` for the building envelope multibuilding connector failures system contract.
    */
   slope?: number;
+
   /**
    * The repeated step of a stepped run, or nothing for a smooth one.
    *
@@ -167,6 +179,7 @@ export interface IAutoMovieBuiltConnector {
    * @evidence specifications/building-envelope/exterior-spaces-circulation-and-optics.md#building-envelope-multibuilding-connector-failures Types `steps` for the building envelope multibuilding connector failures system contract.
    */
   steps?: IAutoMovieConnectorSteps;
+
   /**
    * Travelling cars and the named states they stand in, or nothing for a run
    * that never moves.
@@ -180,6 +193,7 @@ export interface IAutoMovieBuiltConnector {
    * @evidence specifications/building-envelope/exterior-spaces-circulation-and-optics.md#building-envelope-multibuilding-connector-failures Types `operation` for the building envelope multibuilding connector failures system contract.
    */
   operation?: IAutoMovieConnectorOperation;
+
   /**
    * Visible elements realizing the connector, such as steps or a lift car.
    *

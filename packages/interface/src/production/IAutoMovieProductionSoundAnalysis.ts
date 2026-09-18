@@ -12,6 +12,7 @@ export interface IAutoMovieProductionSoundAnalysis {
    * @evidence specifications/simulation-effects-and-sound/validation-evidence-and-compatibility.md#sound-budget-and-audible-review Types `version` for the sound budget and audible review system contract.
    */
   version: 1;
+
   /**
    * Fixed output PCM clock.
    *
@@ -19,6 +20,7 @@ export interface IAutoMovieProductionSoundAnalysis {
    * @evidence specifications/simulation-effects-and-sound/validation-evidence-and-compatibility.md#sound-budget-and-audible-review Types `sampleRate` for the sound budget and audible review system contract.
    */
   sampleRate: 48_000;
+
   /**
    * Exact interleaved stereo frame count.
    *
@@ -26,6 +28,7 @@ export interface IAutoMovieProductionSoundAnalysis {
    * @evidence specifications/simulation-effects-and-sound/validation-evidence-and-compatibility.md#sound-budget-and-audible-review Types `sampleFrames` for the sound budget and audible review system contract.
    */
   sampleFrames: number;
+
   /**
    * Runtime derived from the PCM clock.
    *
@@ -33,6 +36,7 @@ export interface IAutoMovieProductionSoundAnalysis {
    * @evidence specifications/simulation-effects-and-sound/validation-evidence-and-compatibility.md#sound-budget-and-audible-review Types `runtimeSeconds` for the sound budget and audible review system contract.
    */
   runtimeSeconds: number;
+
   /**
    * ITU-R BS.1770 K-weighted, gated integrated loudness in LUFS.
    *
@@ -40,6 +44,7 @@ export interface IAutoMovieProductionSoundAnalysis {
    * @evidence specifications/simulation-effects-and-sound/validation-evidence-and-compatibility.md#sound-budget-and-audible-review Types `integratedLoudness` for the sound budget and audible review system contract.
    */
   integratedLoudness: number | null;
+
   /**
    * Absolute post-limiter sample peak.
    *
@@ -47,6 +52,7 @@ export interface IAutoMovieProductionSoundAnalysis {
    * @evidence specifications/simulation-effects-and-sound/validation-evidence-and-compatibility.md#sound-budget-and-audible-review Types `samplePeak` for the sound budget and audible review system contract.
    */
   samplePeak: number;
+
   /**
    * Number of post-limiter samples outside [-1, 1].
    *
@@ -54,6 +60,7 @@ export interface IAutoMovieProductionSoundAnalysis {
    * @evidence specifications/simulation-effects-and-sound/validation-evidence-and-compatibility.md#sound-budget-and-audible-review Types `clippingSamples` for the sound budget and audible review system contract.
    */
   clippingSamples: number;
+
   /**
    * Longest contiguous near-silent span.
    *
@@ -61,6 +68,7 @@ export interface IAutoMovieProductionSoundAnalysis {
    * @evidence specifications/simulation-effects-and-sound/validation-evidence-and-compatibility.md#sound-budget-and-audible-review Types `longestSilenceSeconds` for the sound budget and audible review system contract.
    */
   longestSilenceSeconds: number;
+
   /**
    * Per-event energy evidence centered on the authoritative event frame.
    *
@@ -70,12 +78,16 @@ export interface IAutoMovieProductionSoundAnalysis {
   eventAlignment: Array<{
     /** Stable sound occurrence id. */
     id: string;
+
     /** Exact expected event time. */
     expectedSeconds: number;
+
     /** Peak-energy sample time inside the event gate. */
     peakSeconds: number;
+
     /** Absolute frame-clock error. */
     errorFrames: number;
+
     /** Whether observable energy lands within one production frame. */
     passed: boolean;
   }>;

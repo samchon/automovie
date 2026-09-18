@@ -12,6 +12,7 @@ export interface IAutoMovieCylinderShape {
    * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Types `type` for the asset spec geometry inputs system contract.
    */
   type: "cylinder";
+
   /**
    * Radius, meters.
    *
@@ -19,6 +20,7 @@ export interface IAutoMovieCylinderShape {
    * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Types `radius` for the asset spec geometry inputs system contract.
    */
   radius: number;
+
   /**
    * Height along local Y, meters.
    *

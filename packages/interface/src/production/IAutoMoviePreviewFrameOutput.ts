@@ -17,6 +17,7 @@ export interface IAutoMoviePreviewFrameOutput {
    * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-knowledge-request-output Types `captured` for the spec authoring knowledge request output system contract.
    */
   captured: boolean;
+
   /**
    * Current compile fingerprint.
    *
@@ -24,6 +25,7 @@ export interface IAutoMoviePreviewFrameOutput {
    * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-knowledge-request-output Types `compileFingerprint` for the spec authoring knowledge request output system contract.
    */
   compileFingerprint: AutoMovieContentDigest;
+
   /**
    * Project-relative content-addressed render bundle, or null on any refusal.
    *
@@ -31,6 +33,7 @@ export interface IAutoMoviePreviewFrameOutput {
    * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-knowledge-request-output Types `renderBundle` for the spec authoring knowledge request output system contract.
    */
   renderBundle: string | null;
+
   /**
    * Verified frame metadata or null on refusal.
    *
@@ -40,21 +43,29 @@ export interface IAutoMoviePreviewFrameOutput {
   frame: {
     /** Zero-based frame index. */
     index: number;
+
     /** Frame time in seconds. */
     time: number;
+
     /** Render pass. */
     pass: AutoMovieGuidePass;
+
     /** Project-relative PNG path. */
     path: string;
+
     /** Raster media type. */
     mime: "image/png";
+
     /** Raw PNG digest. */
     digest: AutoMovieContentDigest;
+
     /** Pixel width. */
     width: number;
+
     /** Pixel height. */
     height: number;
   } | null;
+
   /**
    * Exact capture refusal diagnostics and correction, empty on success.
    *

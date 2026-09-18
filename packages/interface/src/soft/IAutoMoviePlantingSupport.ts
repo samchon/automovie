@@ -28,6 +28,7 @@ export namespace IAutoMoviePlantingSupport {
      * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `kind` for the interior space soft furnishing planting system contract.
      */
     kind: "surface";
+
     /**
      * Support-patch id inside the owning environment.
      *
@@ -51,6 +52,7 @@ export namespace IAutoMoviePlantingSupport {
      * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `kind` for the interior space soft furnishing planting system contract.
      */
     kind: "element";
+
     /**
      * Element id inside the owning environment.
      *
@@ -74,6 +76,7 @@ export namespace IAutoMoviePlantingSupport {
      * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `kind` for the interior space soft furnishing planting system contract.
      */
     kind: "boundary";
+
     /**
      * Boundary id inside the owning environment.
      *

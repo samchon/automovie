@@ -11,6 +11,7 @@ export interface IAutoMovieProductionFrameRate {
    * @evidence specifications/editorial-render-and-delivery/rational-timeline-and-composition.md#spec-editorial-rational-timeline Supplies the canonical clock numerator.
    */
   numerator: number;
+
   /**
    * Positive integer denominator.
    * @evidence requirements/editorial/rational-time-and-ranges.md#editorial-canonical-time Preserves the authored positive rate denominator of the canonical rational rate.

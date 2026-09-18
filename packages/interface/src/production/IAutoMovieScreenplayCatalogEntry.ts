@@ -14,6 +14,7 @@ export interface IAutoMovieScreenplayCatalogEntry {
    * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-scene-prose-index Types `id` for the narrative intent scene prose index system contract.
    */
   id: string;
+
   /**
    * Human-readable canonical name.
    *
@@ -21,6 +22,7 @@ export interface IAutoMovieScreenplayCatalogEntry {
    * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-scene-prose-index Types `name` for the narrative intent scene prose index system contract.
    */
   name: string;
+
   /**
    * At least one authored scene proving this subject exists in the film.
    *
@@ -28,6 +30,7 @@ export interface IAutoMovieScreenplayCatalogEntry {
    * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-scene-prose-index Types `evidence` for the narrative intent scene prose index system contract.
    */
   evidence: IAutoMovieSceneEvidence[];
+
   /**
    * Production-scoped joins to shared downstream design.
    *
@@ -42,6 +45,7 @@ export interface IAutoMovieScreenplayCatalogEntry {
   bindings: Array<{
     /** Downstream design family allowed by this catalog section. */
     kind: "model" | "formation" | "world-landmark";
+
     /** Existing shared design identity. */
     id: string;
   }>;

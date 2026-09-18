@@ -18,6 +18,7 @@ export interface IAutoMovieSourceOracle {
     left: { x: number; y: number; z: number },
     right: { x: number; y: number; z: number },
   ): number;
+
   /**
    * Height of the first matching world surface, or zero.
    *
@@ -25,6 +26,7 @@ export interface IAutoMovieSourceOracle {
    * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `groundHeight` for the spec authoring source derivation state system contract.
    */
   groundHeight(point: { x: number; z: number }): number;
+
   /**
    * Regenerate one exact builder-owned formation slot without expanding it.
    *
@@ -32,6 +34,7 @@ export interface IAutoMovieSourceOracle {
    * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `formationSlot` for the spec authoring source derivation state system contract.
    */
   formationSlot(formation: string, slot: number): IAutoMovieFormationSlot;
+
   /**
    * Regenerate one exact builder-owned general instance without expanding it.
    *

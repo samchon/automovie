@@ -15,6 +15,7 @@ export interface IAutoMovieModelProxyAsset {
    * @evidence specifications/asset-and-representation/identity-resources-and-lifecycle.md#asset-spec-element-consumer-links Types `version` for the asset spec element consumer links system contract.
    */
   version: 1;
+
   /**
    * Optional collision shape when cited as a collision proxy.
    *
@@ -22,6 +23,7 @@ export interface IAutoMovieModelProxyAsset {
    * @evidence specifications/asset-and-representation/identity-resources-and-lifecycle.md#asset-spec-element-consumer-links Types `collision` for the asset spec element consumer links system contract.
    */
   collision?: IAutoMovieGeneratedCollisionProxy;
+
   /**
    * Optional measurement envelope when cited as a measurement proxy.
    *

@@ -12,6 +12,7 @@ export interface IAutoMovieAnalysisWarning {
    * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-failed-not-run-states Types `code` for the validation failed not run states system contract.
    */
   code: string;
+
   /**
    * Non-blank human-readable detail.
    *
@@ -19,6 +20,7 @@ export interface IAutoMovieAnalysisWarning {
    * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-failed-not-run-states Types `detail` for the validation failed not run states system contract.
    */
   detail: string;
+
   /**
    * Input the warning is about, or null when it is about the run.
    *

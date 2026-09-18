@@ -20,6 +20,7 @@ export interface IAutoMovieAssetProvenance {
    * @evidence specifications/asset-and-representation/identity-resources-and-lifecycle.md#asset-spec-adoption-output Types `path` for the asset spec adoption output system contract.
    */
   path: string;
+
   /**
    * SHA-256 of the current bytes at {@link path}.
    *
@@ -27,6 +28,7 @@ export interface IAutoMovieAssetProvenance {
    * @evidence specifications/asset-and-representation/identity-resources-and-lifecycle.md#asset-spec-adoption-output Types `digest` for the asset spec adoption output system contract.
    */
   digest: AutoMovieContentDigest;
+
   /**
    * Optional descriptive record of an earlier source revision.
    *
@@ -36,9 +38,11 @@ export interface IAutoMovieAssetProvenance {
   original?: {
     /** Descriptive source location. */
     url: string;
+
     /** SHA-256 of the acquired original bytes. */
     digest: AutoMovieContentDigest;
   };
+
   /**
    * Optional descriptive generation record.
    *
@@ -46,6 +50,7 @@ export interface IAutoMovieAssetProvenance {
    * @evidence specifications/asset-and-representation/identity-resources-and-lifecycle.md#asset-spec-adoption-output Types `generated` for the asset spec adoption output system contract.
    */
   generated?: IAutoMovieGeneratedAcquisition;
+
   /**
    * Optional descriptive license metadata.
    *
@@ -53,6 +58,7 @@ export interface IAutoMovieAssetProvenance {
    * @evidence specifications/asset-and-representation/identity-resources-and-lifecycle.md#asset-spec-adoption-output Types `license` for the asset spec adoption output system contract.
    */
   license?: IAutoMovieAssetLicense;
+
   /**
    * Optional ordered transformations associated with the current bytes.
    *
@@ -60,6 +66,7 @@ export interface IAutoMovieAssetProvenance {
    * @evidence specifications/asset-and-representation/identity-resources-and-lifecycle.md#asset-spec-adoption-output Types `processing` for the asset spec adoption output system contract.
    */
   processing?: IAutoMovieAssetProcessingStep[];
+
   /**
    * Non-empty production usage ledger.
    *
@@ -67,6 +74,7 @@ export interface IAutoMovieAssetProvenance {
    * @evidence specifications/asset-and-representation/identity-resources-and-lifecycle.md#asset-spec-adoption-output Types `uses` for the asset spec adoption output system contract.
    */
   uses: IAutoMovieAssetUse[];
+
   /**
    * Required ingest/LOD/proxy ledger for external glTF, GLB, or VRM assets.
    *
@@ -76,6 +84,7 @@ export interface IAutoMovieAssetProvenance {
    * @evidence specifications/asset-and-representation/identity-resources-and-lifecycle.md#asset-spec-adoption-output Types `model` for the asset spec adoption output system contract.
    */
   model?: IAutoMovieExternalModelProvenance;
+
   /**
    * Inspected motion facts when these bytes are adopted as animation input.
    * Omitted for non-motion assets; presence never selects a take.

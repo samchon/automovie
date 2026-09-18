@@ -25,6 +25,7 @@ export interface IAutoMovieStage {
    * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Types `scene` for the spec authoring source input system contract.
    */
   scene: IAutoMovieNamedId;
+
   /**
    * Human-readable geometric rationale retained beside the authored values.
    *
@@ -32,6 +33,7 @@ export interface IAutoMovieStage {
    * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Types `plan` for the spec authoring source input system contract.
    */
   plan: string;
+
   /**
    * One placement for every scripted cast node that appears on the set.
    *
@@ -39,6 +41,7 @@ export interface IAutoMovieStage {
    * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Types `actors` for the spec authoring source input system contract.
    */
   actors: IAutoMovieStageActor[];
+
   /**
    * Optional static set geometry; these nodes never perform an action.
    *
@@ -46,6 +49,7 @@ export interface IAutoMovieStage {
    * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Types `set` for the spec authoring source input system contract.
    */
   set?: IAutoMovieStageSetPiece[];
+
   /**
    * Walkable surfaces whose geometry drives grounding and locomotion checks.
    *
@@ -53,6 +57,7 @@ export interface IAutoMovieStage {
    * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Types `space` for the spec authoring source input system contract.
    */
   space?: IAutoMovieSpace;
+
   /**
    * The set's atmosphere, lowered verbatim onto the composed scene's `fog`.
    * Omitted stages a scene with no atmosphere, which renders exactly as every
@@ -62,6 +67,7 @@ export interface IAutoMovieStage {
    * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Types `fog` for the spec authoring source input system contract.
    */
   fog?: IAutoMovieFog;
+
   /**
    * Optional image-lighting, exposure, tone mapping, and shadow policy.
    *
@@ -69,6 +75,7 @@ export interface IAutoMovieStage {
    * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Types `environment` for the spec authoring source input system contract.
    */
   environment?: IAutoMovieSceneEnvironment;
+
   /**
    * Cameras available to the shot and its alternate coverage takes.
    *
@@ -76,6 +83,7 @@ export interface IAutoMovieStage {
    * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Types `cameras` for the spec authoring source input system contract.
    */
   cameras: IAutoMovieStageCamera[];
+
   /**
    * Physical light declarations lowered into the deterministic scene.
    *

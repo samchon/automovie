@@ -15,6 +15,7 @@ export interface IAutoMovieHeadNose {
    * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `width` as a coarse proxy parameter under the representation-fidelity ceiling.
    */
   width?: AutoMovieFaceWeight;
+
   /**
    * Length down the face: `+` longer, `-` shorter.
    *
@@ -22,6 +23,7 @@ export interface IAutoMovieHeadNose {
    * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `length` as a coarse proxy parameter under the representation-fidelity ceiling.
    */
   length?: AutoMovieFaceWeight;
+
   /**
    * Forward projection of the whole nose.
    *
@@ -29,6 +31,7 @@ export interface IAutoMovieHeadNose {
    * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `projection` as a coarse proxy parameter under the representation-fidelity ceiling.
    */
   projection?: AutoMovieFaceWeight;
+
   /**
    * Dorsal hump: `+` convex/humped, `-` scooped.
    *
@@ -36,6 +39,7 @@ export interface IAutoMovieHeadNose {
    * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `hump` as a coarse proxy parameter under the representation-fidelity ceiling.
    */
   hump?: AutoMovieFaceWeight;
+
   /**
    * Tip vertical angle: `+` upturned, `-` drooping.
    *
@@ -43,6 +47,7 @@ export interface IAutoMovieHeadNose {
    * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `tipAngle` as a coarse proxy parameter under the representation-fidelity ceiling.
    */
   tipAngle?: AutoMovieFaceWeight;
+
   /**
    * Nostril width.
    *
@@ -50,6 +55,7 @@ export interface IAutoMovieHeadNose {
    * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `nostrilWidth` as a coarse proxy parameter under the representation-fidelity ceiling.
    */
   nostrilWidth?: AutoMovieFaceWeight;
+
   /**
    * Nasal base height (sub-nasal).
    *
@@ -57,6 +63,7 @@ export interface IAutoMovieHeadNose {
    * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `baseHeight` as a coarse proxy parameter under the representation-fidelity ceiling.
    */
   baseHeight?: AutoMovieFaceWeight;
+
   /**
    * Bridge/radix height: `+` higher straight bridge, `-` flatter (East-Asian).
    *

@@ -12,6 +12,7 @@ export interface IAutoMovieMountableTrait {
    * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-interaction-attachment-object-handoff Types `kind` for the performance interaction attachment object handoff system contract.
    */
   kind: "mountable";
+
   /**
    * Positive simultaneous rider capacity.
    *
@@ -19,6 +20,7 @@ export interface IAutoMovieMountableTrait {
    * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-interaction-attachment-object-handoff Types `seats` for the performance interaction attachment object handoff system contract.
    */
   seats: number;
+
   /**
    * Maximum supported payload in kilograms.
    *

@@ -25,6 +25,7 @@ export interface IAutoMovieDesignAssetCitation {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `subject` for the narrative intent reference lineage system contract.
    */
   subject: string;
+
   /**
    * SHA-256 that subject carried at the moment this artifact was produced.
    *

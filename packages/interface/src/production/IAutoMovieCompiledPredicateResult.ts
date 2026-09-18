@@ -14,6 +14,7 @@ export interface IAutoMovieCompiledPredicateResult {
    * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-derived-result-finding Types `predicate` for the validation derived result finding system contract.
    */
   predicate: IAutoMovieShotPredicate;
+
   /**
    * Actual sampled value, or null when the operand could not be resolved.
    *
@@ -21,6 +22,7 @@ export interface IAutoMovieCompiledPredicateResult {
    * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-derived-result-finding Types `actual` for the validation derived result finding system contract.
    */
   actual: number | null;
+
   /**
    * Whether the authoritative comparison passed.
    *

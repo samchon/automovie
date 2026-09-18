@@ -41,6 +41,7 @@ export interface IAutoMoviePropRelation {
    * @evidence specifications/camera-light-and-visibility/target-focus-exposure-and-sampling.md#clv-focus-intent-appearance-boundary Types `kind` for the clv focus intent appearance boundary system contract.
    */
   kind: AutoMoviePropRelationKind;
+
   /**
    * The stable spatial, element, or affordance id the relation cites.
    *

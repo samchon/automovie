@@ -11,30 +11,35 @@ export type IAutoMovieAssetConsumer =
   | {
       /** Film audio cue whose `asset` field names this path. */
       kind: "audio-cue";
+
       /** Exact audio cue id. */
       id: string;
     }
   | {
       /** Model recipe whose registered appearance consumes this model asset. */
       kind: "model-recipe";
+
       /** Exact model recipe id. */
       id: string;
     }
   | {
       /** Sidecar or LOD bytes owned by one external-model asset. */
       kind: "model-resource";
+
       /** Exact path of the owning hero model asset. */
       id: string;
     }
   | {
       /** Byte-authored deterministic proxy owned by one external model. */
       kind: "model-proxy";
+
       /** Exact path of the owning hero model asset. */
       id: string;
     }
   | {
       /** Fixed non-collapsible role-specific reference for one repaint shot. */
       kind: "rendition-reference";
+
       /** Exact shot id. */
       id: string;
     }
@@ -49,12 +54,14 @@ export type IAutoMovieAssetConsumer =
        * same reason.
        */
       kind: "material-texture";
+
       /** Exact compiled model id whose materials bind this image. */
       id: string;
     }
   | {
       /** Equirectangular image lighting the scene of one compiled shot. */
       kind: "scene-environment";
+
       /** Exact shot id whose scene environment names this image. */
       id: string;
     }
@@ -69,6 +76,7 @@ export type IAutoMovieAssetConsumer =
        * document to cite these exact bytes as evidence.
        */
       kind: "design-reference";
+
       /** Exact design-reference document id observing these bytes. */
       id: string;
     }

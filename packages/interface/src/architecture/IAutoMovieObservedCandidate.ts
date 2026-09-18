@@ -17,6 +17,7 @@ export interface IAutoMovieObservedCandidate {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `id` for the narrative intent reference lineage system contract.
    */
   id: string;
+
   /**
    * Open semantic label such as `wall-centerline`, `opening`, `storey-datum`.
    *
@@ -24,6 +25,7 @@ export interface IAutoMovieObservedCandidate {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `semantic` for the narrative intent reference lineage system contract.
    */
   semantic: string;
+
   /**
    * Primitive ids this reading is built from; at least one.
    *
@@ -31,6 +33,7 @@ export interface IAutoMovieObservedCandidate {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `primitives` for the narrative intent reference lineage system contract.
    */
   primitives: string[];
+
   /**
    * Inclusive `[0, 1]` confidence in this reading.
    *
@@ -38,6 +41,7 @@ export interface IAutoMovieObservedCandidate {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `confidence` for the narrative intent reference lineage system contract.
    */
   confidence: number;
+
   /**
    * Competing candidate ids reading the same marks differently; distinct.
    *
@@ -45,6 +49,7 @@ export interface IAutoMovieObservedCandidate {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `alternatives` for the narrative intent reference lineage system contract.
    */
   alternatives: string[];
+
   /**
    * Issue ids that block promotion while open; distinct.
    *

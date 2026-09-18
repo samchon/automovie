@@ -16,12 +16,16 @@ import { IAutoMovieDerivedArtifactSource } from "./IAutoMovieDerivedArtifactSour
 export interface IAutoMovieLibraryBuildContext {
   /** Production namespace this library is compiled under. */
   production: string;
+
   /** Active design branch the owner belongs to, such as `spaces`. */
   branch: string;
+
   /** Project-relative POSIX path of the reviewed design document. */
   design: string;
+
   /** Exact H2 anchor of the reviewed decision this owner realizes. */
   anchor: string;
+
   /**
    * Declared precomputed artifacts whose basis and output bytes the builder
    * verified before execution, keyed by project-relative output path.

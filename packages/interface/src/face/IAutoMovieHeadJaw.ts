@@ -15,6 +15,7 @@ export interface IAutoMovieHeadJaw {
    * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `width` as a coarse proxy parameter under the representation-fidelity ceiling.
    */
   width?: AutoMovieFaceWeight;
+
   /**
    * Jaw drop / lower-face length at the angle.
    *
@@ -22,6 +23,7 @@ export interface IAutoMovieHeadJaw {
    * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `drop` as a coarse proxy parameter under the representation-fidelity ceiling.
    */
   drop?: AutoMovieFaceWeight;
+
   /**
    * Chin vertical length: `+` longer, `-` shorter (feminine/childlike).
    *
@@ -29,6 +31,7 @@ export interface IAutoMovieHeadJaw {
    * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `chinLength` as a coarse proxy parameter under the representation-fidelity ceiling.
    */
   chinLength?: AutoMovieFaceWeight;
+
   /**
    * Chin width: `+` broader, `-` narrower/pointed.
    *
@@ -36,6 +39,7 @@ export interface IAutoMovieHeadJaw {
    * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `chinWidth` as a coarse proxy parameter under the representation-fidelity ceiling.
    */
   chinWidth?: AutoMovieFaceWeight;
+
   /**
    * Chin forward projection: `+` prominent, `-` recessive (East-Asian).
    *

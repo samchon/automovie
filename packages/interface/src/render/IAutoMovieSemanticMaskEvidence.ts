@@ -10,10 +10,13 @@ import { IAutoMovieSemanticMaskCoverage } from "./IAutoMovieSemanticMaskCoverage
 export interface IAutoMovieSemanticMaskEvidence {
   /** Evidence envelope schema. */
   version: 1;
+
   /** Exact compiled shot whose drawn scene was audited. */
   shot: string;
+
   /** Verified current semantic palette. */
   mask: IAutoMovieSemanticMask;
+
   /** Coverage observed from the same built frame. */
   coverage: IAutoMovieSemanticMaskCoverage;
 }

@@ -12,6 +12,7 @@ export interface IAutoMovieParentDriver {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `type` for the performance motion clip keytime interpolation system contract.
    */
   type: "parent";
+
   /**
    * Node that follows.
    *
@@ -19,6 +20,7 @@ export interface IAutoMovieParentDriver {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `owner` for the performance motion clip keytime interpolation system contract.
    */
   owner: string;
+
   /**
    * Node followed.
    *
@@ -26,6 +28,7 @@ export interface IAutoMovieParentDriver {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `parent` for the performance motion clip keytime interpolation system contract.
    */
   parent: string;
+
   /**
    * Which components of the parent frame are inherited.
    *
@@ -33,6 +36,7 @@ export interface IAutoMovieParentDriver {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `translation` for the performance motion clip keytime interpolation system contract.
    */
   translation: boolean;
+
   /**
    * Whether the owner inherits the parent rotation.
    *
@@ -42,6 +46,7 @@ export interface IAutoMovieParentDriver {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `rotation` for the performance motion clip keytime interpolation system contract.
    */
   rotation: boolean;
+
   /**
    * Whether the owner inherits the parent scale.
    *

@@ -12,6 +12,7 @@
 export interface IAutoMovieLibraryDerivedSourceOwner {
   /** Exact active design-document and H2 address this export realizes. */
   design: string;
+
   /**
    * Current UTF-8 ledger output path containing one IAutoMovieLibraryContribution
    * as JSON whose objects never repeat a member name.

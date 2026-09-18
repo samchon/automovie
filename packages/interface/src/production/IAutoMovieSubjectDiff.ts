@@ -15,6 +15,7 @@ export interface IAutoMovieSubjectDiff {
    * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-structural-diff Types the first diff schema.
    */
   version: 1;
+
   /**
    * Revision of the earlier compiled artifact.
    *
@@ -22,6 +23,7 @@ export interface IAutoMovieSubjectDiff {
    * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-structural-diff Carries the prior artifact revision.
    */
   fromRevision: string;
+
   /**
    * Revision of the later compiled artifact.
    *
@@ -29,6 +31,7 @@ export interface IAutoMovieSubjectDiff {
    * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-structural-diff Carries the next artifact revision.
    */
   toRevision: string;
+
   /**
    * Inclusive absolute numeric tolerance used by this comparison.
    *
@@ -36,6 +39,7 @@ export interface IAutoMovieSubjectDiff {
    * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-diff-tolerance-fanout Carries the finite non-negative comparison threshold.
    */
   tolerance: number;
+
   /**
    * Subjects present only in the later revision.
    *
@@ -43,6 +47,7 @@ export interface IAutoMovieSubjectDiff {
    * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-structural-diff Types exclusive added records.
    */
   added: IAutoMovieSubjectChange[];
+
   /**
    * Subjects present only in the earlier revision.
    *
@@ -50,6 +55,7 @@ export interface IAutoMovieSubjectDiff {
    * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-structural-diff Types exclusive removed records.
    */
   removed: IAutoMovieSubjectChange[];
+
   /**
    * Common subjects whose placement state changed.
    *
@@ -57,6 +63,7 @@ export interface IAutoMovieSubjectDiff {
    * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-structural-diff Types the non-exclusive moved category.
    */
   moved: IAutoMovieSubjectChange[];
+
   /**
    * Common subjects whose reusable structure or population law changed.
    *
@@ -64,6 +71,7 @@ export interface IAutoMovieSubjectDiff {
    * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-structural-diff Types the non-exclusive reshaped category.
    */
   reshaped: IAutoMovieSubjectChange[];
+
   /**
    * Bounded summary of common subjects in neither changed category.
    *

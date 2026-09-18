@@ -15,6 +15,7 @@ export interface IAutoMovieDrawingLine {
    * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `owner` for the interior space drawing schedule quantity system contract.
    */
   owner: string;
+
   /**
    * Logical space the owning element occupies, or `null`.
    *
@@ -27,6 +28,7 @@ export interface IAutoMovieDrawingLine {
    * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `space` for the interior space drawing schedule quantity system contract.
    */
   space: string | null;
+
   /**
    * Owning element's kind, which is the drafting layer.
    *
@@ -34,6 +36,7 @@ export interface IAutoMovieDrawingLine {
    * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `layer` for the interior space drawing schedule quantity system contract.
    */
   layer: string;
+
   /**
    * Relation to the cut plane and the view depth.
    *
@@ -41,6 +44,7 @@ export interface IAutoMovieDrawingLine {
    * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `role` for the interior space drawing schedule quantity system contract.
    */
   role: AutoMovieDrawingRole;
+
   /**
    * Page start point; lexicographically at or before {@link to}.
    *
@@ -48,6 +52,7 @@ export interface IAutoMovieDrawingLine {
    * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `from` for the interior space drawing schedule quantity system contract.
    */
   from: IAutoMovieDrawingPoint;
+
   /**
    * Page end point.
    *

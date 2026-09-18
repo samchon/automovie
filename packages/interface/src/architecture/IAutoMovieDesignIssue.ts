@@ -12,6 +12,7 @@ export interface IAutoMovieDesignIssue {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `id` for the narrative intent reference lineage system contract.
    */
   id: string;
+
   /**
    * Closed reason family that keeps a reading unsettled.
    *
@@ -25,6 +26,7 @@ export interface IAutoMovieDesignIssue {
     | "illegible"
     | "conflicting-dimension"
     | "other";
+
   /**
    * Primitive or candidate ids this issue is about; at least one, distinct.
    *
@@ -32,6 +34,7 @@ export interface IAutoMovieDesignIssue {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `subjects` for the narrative intent reference lineage system contract.
    */
   subjects: string[];
+
   /**
    * What a human still has to decide.
    *
@@ -39,6 +42,7 @@ export interface IAutoMovieDesignIssue {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `detail` for the narrative intent reference lineage system contract.
    */
   detail: string;
+
   /**
    * Whether the issue is still open.
    *

@@ -14,6 +14,7 @@ export interface IAutoMovieTextureReference {
    * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Types `asset` for the asset spec material texture relations system contract.
    */
   asset: string;
+
   /**
    * UV set index. Generated automovie meshes that emit texture coordinates
    * provide set zero and no other.
@@ -35,6 +36,7 @@ export interface IAutoMovieTextureReference {
    * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Types `texCoord` for the asset spec material texture relations system contract.
    */
   texCoord: number;
+
   /**
    * What one unit of the addressed UV set means. Omission preserves legacy raw
    * UV sampling without making a new claim about the set's unit or extent.
@@ -54,6 +56,7 @@ export interface IAutoMovieTextureReference {
    * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-surface-coordinate-convention Carries the declared vocabulary the convention's three coordinate sources are named in, which is what makes the unit a binding states readable from the record alone.
    */
   coordinateSource?: AutoMovieTextureCoordinateSource;
+
   /**
    * How stored texels must be decoded before shading.
    *
@@ -61,6 +64,7 @@ export interface IAutoMovieTextureReference {
    * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Types `colorSpace` for the asset spec material texture relations system contract.
    */
   colorSpace: "srgb" | "linear";
+
   /**
    * Optional UV transform applied around the origin, in texture turns.
    *
@@ -78,6 +82,7 @@ export interface IAutoMovieTextureReference {
     scale: { x: number; y: number };
     rotationDeg: number;
   };
+
   /**
    * Optional texture filtering and wrap policy.
    *

@@ -12,6 +12,7 @@ export interface IAutoMovieDrawingPoint {
    * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `x` for the interior space drawing schedule quantity system contract.
    */
   x: number;
+
   /**
    * Distance along the page up axis.
    *

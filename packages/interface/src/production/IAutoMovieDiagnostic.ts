@@ -14,6 +14,7 @@ export interface IAutoMovieDiagnostic {
    * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-code-catalog-reference Uses the same key union the exhaustive catalog maps.
    */
   code: AutoMovieDiagnosticCode;
+
   /**
    * Whether the diagnostic blocks the current operation.
    *
@@ -21,6 +22,7 @@ export interface IAutoMovieDiagnostic {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-provider-choice Types `category` for the asset spec generation provider choice system contract.
    */
   category: "error" | "warning";
+
   /**
    * Pipeline phase that owns the correction.
    *
@@ -28,6 +30,7 @@ export interface IAutoMovieDiagnostic {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-provider-choice Types `phase` for the asset spec generation provider choice system contract.
    */
   phase: "project" | "design" | "source" | "compile" | "review" | "render";
+
   /**
    * Stable target identity.
    *
@@ -35,6 +38,7 @@ export interface IAutoMovieDiagnostic {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-provider-choice Types `target` for the asset spec generation provider choice system contract.
    */
   target: string;
+
   /**
    * Project-relative file or null when no one file owns it.
    *
@@ -42,6 +46,7 @@ export interface IAutoMovieDiagnostic {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-provider-choice Types `path` for the asset spec generation provider choice system contract.
    */
   path: string | null;
+
   /**
    * Human-readable cause followed by the concrete correction owned by this
    * phase. Do not discard it and retry unchanged.

@@ -15,6 +15,7 @@ export interface IAutoMovieExternalMotionConversionTarget {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Binds conversion to the exact target model.
    */
   model: string;
+
   /**
    * Target skeleton identity within the model.
    *
@@ -22,6 +23,7 @@ export interface IAutoMovieExternalMotionConversionTarget {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Binds mapping and retargeting to the exact target skeleton.
    */
   skeleton: string;
+
   /**
    * Canonical digest of the target skeleton basis.
    *

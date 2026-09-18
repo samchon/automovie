@@ -12,6 +12,7 @@ export interface IAutoMovieProductionNextAction {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-provider-choice Types `owner` for the asset spec generation provider choice system contract.
    */
   owner: "design" | "source" | "compile" | "review" | "render";
+
   /**
    * Exact package API or coding-agent command to run.
    *
@@ -19,6 +20,7 @@ export interface IAutoMovieProductionNextAction {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-provider-choice Types `action` for the asset spec generation provider choice system contract.
    */
   action: string;
+
   /**
    * Exact target or artifact to correct.
    *
@@ -26,6 +28,7 @@ export interface IAutoMovieProductionNextAction {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-provider-choice Types `target` for the asset spec generation provider choice system contract.
    */
   target: string;
+
   /**
    * Why this action is next.
    *

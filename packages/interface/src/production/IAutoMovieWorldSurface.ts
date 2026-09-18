@@ -14,6 +14,7 @@ export interface IAutoMovieWorldSurface {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `id` for the narrative intent story design ownership system contract.
    */
   id: string;
+
   /**
    * At least three distinct finite XZ vertices forming a simple,
    * non-self-intersecting polygon with non-zero area.
@@ -24,9 +25,11 @@ export interface IAutoMovieWorldSurface {
   polygon: Array<{
     /** World X in meters. */
     x: number;
+
     /** World Z in meters. */
     z: number;
   }>;
+
   /**
    * Surface height function.
    *
@@ -34,6 +37,7 @@ export interface IAutoMovieWorldSurface {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `height` for the narrative intent story design ownership system contract.
    */
   height: IAutoMovieHeightRule;
+
   /**
    * Whether performers may traverse the surface.
    *

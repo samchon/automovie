@@ -14,6 +14,7 @@ export interface IAutoMovieProductionDeliverable {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `id` for the narrative intent story design ownership system contract.
    */
   id: string;
+
   /**
    * Output class.
    *
@@ -21,6 +22,7 @@ export interface IAutoMovieProductionDeliverable {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `kind` for the narrative intent story design ownership system contract.
    */
   kind: "preview" | "feature" | "guide-pass" | "captions" | "audio-mix";
+
   /**
    * Structural render pass owned by a guide-pass deliverable.
    *
@@ -32,6 +34,7 @@ export interface IAutoMovieProductionDeliverable {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `pass` for the narrative intent story design ownership system contract.
    */
   pass?: Exclude<AutoMovieGuidePass, "beauty">;
+
   /**
    * Whether final compilation requires the deliverable.
    *

@@ -27,6 +27,7 @@ export interface IAutoMovieDesignLineage {
    * @evidence specifications/evidence-and-provenance/entities-activities-agents-and-lineage.md#evp-lineage-gap-representation Types `version` for the evp lineage gap representation system contract.
    */
   version: 1;
+
   /**
    * Stable lineage identity within the production.
    *
@@ -34,6 +35,7 @@ export interface IAutoMovieDesignLineage {
    * @evidence specifications/evidence-and-provenance/entities-activities-agents-and-lineage.md#evp-lineage-gap-representation Types `id` for the evp lineage gap representation system contract.
    */
   id: string;
+
   /**
    * Revision the work is on now; every derived artifact must stamp it.
    *
@@ -41,6 +43,7 @@ export interface IAutoMovieDesignLineage {
    * @evidence specifications/evidence-and-provenance/entities-activities-agents-and-lineage.md#evp-lineage-gap-representation Types `head` for the evp lineage gap representation system contract.
    */
   head: string;
+
   /**
    * Every identity this lineage speaks about.
    *
@@ -48,6 +51,7 @@ export interface IAutoMovieDesignLineage {
    * @evidence specifications/evidence-and-provenance/entities-activities-agents-and-lineage.md#evp-lineage-gap-representation Types `subjects` for the evp lineage gap representation system contract.
    */
   subjects: IAutoMovieDesignSubject[];
+
   /**
    * Every recorded state of the authored source; at least one.
    *
@@ -55,6 +59,7 @@ export interface IAutoMovieDesignLineage {
    * @evidence specifications/evidence-and-provenance/entities-activities-agents-and-lineage.md#evp-lineage-gap-representation Types `revisions` for the evp lineage gap representation system contract.
    */
   revisions: IAutoMovieDesignRevision[];
+
   /**
    * The construction plan, as a graph of prerequisites.
    *
@@ -62,6 +67,7 @@ export interface IAutoMovieDesignLineage {
    * @evidence specifications/evidence-and-provenance/entities-activities-agents-and-lineage.md#evp-lineage-gap-representation Types `phases` for the evp lineage gap representation system contract.
    */
   phases: IAutoMovieDesignPhase[];
+
   /**
    * Exactly one entry per declared subject.
    *
@@ -69,6 +75,7 @@ export interface IAutoMovieDesignLineage {
    * @evidence specifications/evidence-and-provenance/entities-activities-agents-and-lineage.md#evp-lineage-gap-representation Types `lifecycles` for the evp lineage gap representation system contract.
    */
   lifecycles: IAutoMovieDesignLifecycle[];
+
   /**
    * Alternatives preserved side by side over their base revisions.
    *
@@ -76,6 +83,7 @@ export interface IAutoMovieDesignLineage {
    * @evidence specifications/evidence-and-provenance/entities-activities-agents-and-lineage.md#evp-lineage-gap-representation Types `variants` for the evp lineage gap representation system contract.
    */
   variants: IAutoMovieDesignVariant[];
+
   /**
    * Open and settled comparisons between those alternatives.
    *
@@ -83,6 +91,7 @@ export interface IAutoMovieDesignLineage {
    * @evidence specifications/evidence-and-provenance/entities-activities-agents-and-lineage.md#evp-lineage-gap-representation Types `decisions` for the evp lineage gap representation system contract.
    */
   decisions: IAutoMovieDesignDecision[];
+
   /**
    * Outputs computed from the identities above.
    *

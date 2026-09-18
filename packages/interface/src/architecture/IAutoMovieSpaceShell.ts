@@ -28,6 +28,7 @@ export interface IAutoMovieSpaceShell {
    * @evidence specifications/interior-space/boundaries-openings-and-circulation.md#interior-space-wall-partition-boundary Types `vertices` for the interior space wall partition boundary system contract.
    */
   vertices: IAutoMovieVector3[];
+
   /**
    * Triangles as flat vertex-index triples, so `triangles[3i]`,
    * `triangles[3i+1]` and `triangles[3i+2]` are one face. At least four faces,

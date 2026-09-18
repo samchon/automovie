@@ -14,6 +14,7 @@ export interface IAutoMovieSubjectArtifact {
    * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-description-record Types the revision copied into every description record.
    */
   revision: string;
+
   /**
    * Fully compiled shot data inspected by the engine.
    *

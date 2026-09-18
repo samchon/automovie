@@ -14,6 +14,7 @@ export interface IAutoMovieRepaintReferenceInput {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-controls-references Types `role` for the asset spec repaint controls references system contract.
    */
   role: AutoMovieRepaintReferenceRole;
+
   /**
    * Exact project-relative asset-manifest path.
    *

@@ -30,8 +30,10 @@ import { IAutoMovieModel } from "../model/IAutoMovieModel";
 export interface IAutoMovieLibraryContribution {
   /** Structured built environments a `spaces` owner publishes, in author order. */
   environments: IAutoMovieBuiltEnvironment[];
+
   /** Reusable models a `models` owner publishes, in author order. */
   models: IAutoMovieModel[];
+
   /**
    * Adopted environment contexts this owner publishes, in author order.
    *

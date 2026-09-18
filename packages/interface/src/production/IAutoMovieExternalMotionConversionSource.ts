@@ -18,6 +18,7 @@ export interface IAutoMovieExternalMotionConversionSource {
    * @evidence specifications/interchange-and-adoption/conversion-receipts-and-determinism.md#interchange-receipt-input-basis Pins the primary source bytes as a deterministic conversion input.
    */
   asset: IAutoMovieExternalMotionReceiptResource;
+
   /**
    * Ordered dependency files required to interpret the source asset.
    *
@@ -25,6 +26,7 @@ export interface IAutoMovieExternalMotionConversionSource {
    * @evidence specifications/interchange-and-adoption/conversion-receipts-and-determinism.md#interchange-receipt-input-basis Preserves the canonicalized source closure used by conversion.
    */
   closure: IAutoMovieExternalMotionReceiptResource[];
+
   /**
    * Exact animation take selected from the source bytes.
    *
@@ -32,6 +34,7 @@ export interface IAutoMovieExternalMotionConversionSource {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Binds conversion to the inspected source take and its range.
    */
   take: IAutoMovieExternalMotionTake;
+
   /**
    * Canonical coordinate, hierarchy, and local-rest basis inspected from bytes.
    *
@@ -39,6 +42,7 @@ export interface IAutoMovieExternalMotionConversionSource {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Seals the byte-grounded basis into the conversion source.
    */
   basis: IAutoMovieExternalMotionBasis;
+
   /**
    * Canonical digest of the inspected source basis.
    *

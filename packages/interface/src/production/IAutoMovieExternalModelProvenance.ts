@@ -22,6 +22,7 @@ export interface IAutoMovieExternalModelProvenance {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Types `ingestProfile` for the performance motion external adoption receipt system contract.
    */
   ingestProfile: "gltf-static-v1" | "gltf-humanoid-v1" | "vrm-humanoid-v1";
+
   /**
    * Explicit LOD members rather than an inferred filename convention.
    *
@@ -31,9 +32,11 @@ export interface IAutoMovieExternalModelProvenance {
   lod: Array<{
     /** Closed near-to-far level identity. */
     level: "hero" | "near" | "far";
+
     /** Manifest-owned asset path providing this level. */
     asset: string;
   }>;
+
   /**
    * Chosen collision proxy; absence never falls back to mesh inference.
    *
@@ -41,6 +44,7 @@ export interface IAutoMovieExternalModelProvenance {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Types `collisionProxy` for the performance motion external adoption receipt system contract.
    */
   collisionProxy: IAutoMovieCollisionProxyReference;
+
   /**
    * Chosen measurement proxy; absence never falls back to mesh inference.
    *

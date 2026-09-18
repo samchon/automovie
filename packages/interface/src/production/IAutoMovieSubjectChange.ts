@@ -16,6 +16,7 @@ export interface IAutoMovieSubjectChange {
    * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-structural-diff Uses stable id as the comparison key.
    */
   id: string;
+
   /**
    * Structural kind of the changed subject.
    *
@@ -23,6 +24,7 @@ export interface IAutoMovieSubjectChange {
    * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-structural-diff Carries the common role discriminator.
    */
   kind: AutoMovieSubjectKind;
+
   /**
    * Subject before the change, or null for an addition.
    *
@@ -30,6 +32,7 @@ export interface IAutoMovieSubjectChange {
    * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-structural-diff Types the nullable prior state.
    */
   before: IAutoMovieSubjectDescription | null;
+
   /**
    * Subject after the change, or null for a removal.
    *
@@ -37,6 +40,7 @@ export interface IAutoMovieSubjectChange {
    * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-structural-diff Types the nullable next state.
    */
   after: IAutoMovieSubjectDescription | null;
+
   /**
    * Aggregate placements and selections affected by this record.
    *

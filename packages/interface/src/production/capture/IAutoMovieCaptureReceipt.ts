@@ -16,6 +16,7 @@ export interface IAutoMovieCaptureReceipt {
    * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-knowledge-request-output Types `version` for the spec authoring knowledge request output system contract.
    */
   version: 2;
+
   /**
    * Production namespace used to resolve the registry target.
    *
@@ -23,6 +24,7 @@ export interface IAutoMovieCaptureReceipt {
    * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-knowledge-request-output Types `productionId` for the spec authoring knowledge request output system contract.
    */
   productionId: string;
+
   /**
    * Exact evidence target.
    *
@@ -30,6 +32,7 @@ export interface IAutoMovieCaptureReceipt {
    * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-knowledge-request-output Types `target` for the spec authoring knowledge request output system contract.
    */
   target: AutoMovieCaptureTarget;
+
   /**
    * Current builder-owned target registry fingerprint.
    *
@@ -37,6 +40,7 @@ export interface IAutoMovieCaptureReceipt {
    * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-knowledge-request-output Types `compileFingerprint` for the spec authoring knowledge request output system contract.
    */
   compileFingerprint: AutoMovieContentDigest;
+
   /**
    * Target-local render fingerprint from the verified bundle manifest.
    *
@@ -44,6 +48,7 @@ export interface IAutoMovieCaptureReceipt {
    * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-knowledge-request-output Types `targetFingerprint` for the spec authoring knowledge request output system contract.
    */
   targetFingerprint: AutoMovieContentDigest;
+
   /**
    * Canonical structured capture-runtime identity.
    *
@@ -51,6 +56,7 @@ export interface IAutoMovieCaptureReceipt {
    * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-knowledge-request-output Types `rendererIdentity` for the spec authoring knowledge request output system contract.
    */
   rendererIdentity: string;
+
   /**
    * Content-addressed project-relative render bundle.
    *
@@ -58,6 +64,7 @@ export interface IAutoMovieCaptureReceipt {
    * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-knowledge-request-output Types `bundle` for the spec authoring knowledge request output system contract.
    */
   bundle: string;
+
   /**
    * Verified PNG digest.
    *
@@ -65,6 +72,7 @@ export interface IAutoMovieCaptureReceipt {
    * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-knowledge-request-output Types `outputDigest` for the spec authoring knowledge request output system contract.
    */
   outputDigest: AutoMovieContentDigest;
+
   /** Semantic dependency of a shot mask, or null for every other product. */
   semanticMask: IAutoMovieSemanticMaskReceipt | null;
 }

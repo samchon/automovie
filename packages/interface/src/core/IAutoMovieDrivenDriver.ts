@@ -24,6 +24,7 @@ export interface IAutoMovieDrivenDriver {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `type` for the performance motion clip keytime interpolation system contract.
    */
   type: "driven";
+
   /**
    * Channel that receives the computed value.
    *
@@ -31,6 +32,7 @@ export interface IAutoMovieDrivenDriver {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `output` for the performance motion clip keytime interpolation system contract.
    */
   output: IAutoMovieChannel;
+
   /**
    * Channel read as the driver value.
    *
@@ -38,6 +40,7 @@ export interface IAutoMovieDrivenDriver {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `source` for the performance motion clip keytime interpolation system contract.
    */
   source: IAutoMovieChannel;
+
   /**
    * Source value range `[in0, in1]` mapped onto `outRange` (linear default).
    * Required for the linear remap; **omit when `curve` is set**: the curve
@@ -47,6 +50,7 @@ export interface IAutoMovieDrivenDriver {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `inRange` for the performance motion clip keytime interpolation system contract.
    */
   inRange?: [number, number];
+
   /**
    * Output value range `[out0, out1]`. Linear remap only; omit with `curve`.
    *
@@ -54,6 +58,7 @@ export interface IAutoMovieDrivenDriver {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `outRange` for the performance motion clip keytime interpolation system contract.
    */
   outRange?: [number, number];
+
   /**
    * Clamp the linear output to `outRange` outside `inRange`. Linear only; omit
    * with `curve` (and, when omitted on a linear driver, defaults to no clamp).
@@ -62,6 +67,7 @@ export interface IAutoMovieDrivenDriver {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `clamp` for the performance motion clip keytime interpolation system contract.
    */
   clamp?: boolean;
+
   /**
    * Optional nonlinear map: source/output control points sorted by source
    * value, with output interpolated piecewise-linearly between them and held

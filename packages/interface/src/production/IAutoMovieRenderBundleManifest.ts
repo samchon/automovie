@@ -19,6 +19,7 @@ export interface IAutoMovieRenderBundleManifest {
    * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-tool-content-side-effect-invariant Types `version` for the spec authoring tool content side effect invariant system contract.
    */
   version: 6;
+
   /**
    * Asset, shot, sequence, or film render target.
    *
@@ -29,14 +30,19 @@ export interface IAutoMovieRenderBundleManifest {
     | {
         /** Isolated compiled model turntable. */
         kind: "asset";
+
         /** Model-recipe id. */
         id: string;
+
         /** Finite turntable azimuth in degrees. */
         angleDeg: number;
+
         /** Finite camera elevation in degrees. */
         elevationDeg: number;
+
         /** Rest or required extreme-range rig pose. */
         pose: "rest" | "rom-extremes";
+
         /**
          * Compiled part the turntable framed, when it framed one.
          *
@@ -48,21 +54,25 @@ export interface IAutoMovieRenderBundleManifest {
     | {
         /** Shot target. */
         kind: "shot";
+
         /** Shot id. */
         id: string;
       }
     | {
         /** Authored treatment sequence. */
         kind: "sequence";
+
         /** Stable treatment-sequence id. */
         id: string;
       }
     | {
         /** Film target. */
         kind: "film";
+
         /** Film id. */
         id: string;
       };
+
   /**
    * Compile fingerprint whose bytes were rendered.
    *
@@ -70,6 +80,7 @@ export interface IAutoMovieRenderBundleManifest {
    * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-tool-content-side-effect-invariant Types `compileFingerprint` for the spec authoring tool content side effect invariant system contract.
    */
   compileFingerprint: AutoMovieContentDigest;
+
   /**
    * Final-byte dialogue and viseme identity installed before these pixels were
    * drawn, or null when this target consumes no dialogue runtime.
@@ -78,6 +89,7 @@ export interface IAutoMovieRenderBundleManifest {
    * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-tool-content-side-effect-invariant Types `dialogueRuntimeIdentity` for the spec authoring tool content side effect invariant system contract.
    */
   dialogueRuntimeIdentity: AutoMovieContentDigest | null;
+
   /**
    * Canonical JSON encoding of one validated capture runtime identity.
    *
@@ -85,6 +97,7 @@ export interface IAutoMovieRenderBundleManifest {
    * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-tool-content-side-effect-invariant Types `rendererIdentity` for the spec authoring tool content side effect invariant system contract.
    */
   rendererIdentity: string;
+
   /**
    * Target-local render identity. Unlike the aggregate compile fingerprint,
    * this changes only when this target's compiled bytes or declared viewer,
@@ -95,6 +108,7 @@ export interface IAutoMovieRenderBundleManifest {
    * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-tool-content-side-effect-invariant Types `targetFingerprint` for the spec authoring tool content side effect invariant system contract.
    */
   targetFingerprint: AutoMovieContentDigest;
+
   /**
    * Deterministic render specification.
    *
@@ -102,6 +116,7 @@ export interface IAutoMovieRenderBundleManifest {
    * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-tool-content-side-effect-invariant Types `renderSpec` for the spec authoring tool content side effect invariant system contract.
    */
   renderSpec: IAutoMovieRenderSpec;
+
   /**
    * Verified PNG frames in the bundle.
    *
@@ -111,19 +126,26 @@ export interface IAutoMovieRenderBundleManifest {
   frames: Array<{
     /** Zero-based frame index. */
     index: number;
+
     /** Frame time in seconds. */
     time: number;
+
     /** Render pass. */
     pass: AutoMovieGuidePass;
+
     /** Bundle-relative PNG path. */
     path: string;
+
     /** Raw PNG digest. */
     digest: AutoMovieContentDigest;
+
     /** Pixel width. */
     width: number;
+
     /** Pixel height. */
     height: number;
   }>;
+
   /** Complete semantic dependencies of mask frames in this bundle. */
   semanticMasks: IAutoMovieSemanticMaskReceipt[];
 }

@@ -20,6 +20,7 @@ export interface IAutoMovieProductionSoundPlan {
    * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-decode-and-derived-source-closure Types `version` for the sound decode and derived source closure system contract.
    */
   version: 1;
+
   /**
    * Exact builder input shared with the film timeline.
    *
@@ -27,6 +28,7 @@ export interface IAutoMovieProductionSoundPlan {
    * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-decode-and-derived-source-closure Types `inputFingerprint` for the sound decode and derived source closure system contract.
    */
   inputFingerprint: AutoMovieContentDigest;
+
   /**
    * Production frame rate.
    *
@@ -34,6 +36,7 @@ export interface IAutoMovieProductionSoundPlan {
    * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-decode-and-derived-source-closure Types `fps` for the sound decode and derived source closure system contract.
    */
   fps: number;
+
   /**
    * Exact frame rate when `fps` is fractional. Integer legacy rates use an
    * equivalent denominator of one when this field is omitted.
@@ -42,6 +45,7 @@ export interface IAutoMovieProductionSoundPlan {
    * @evidence specifications/simulation-effects-and-sound/clocks-ordering-seek-and-checkpoints.md#effect-film-time-step-boundary Supplies the rational source clock for sample-boundary conversion.
    */
   frameRate?: IAutoMovieProductionFrameRate;
+
   /**
    * Exact finished-film frame count.
    *
@@ -49,6 +53,7 @@ export interface IAutoMovieProductionSoundPlan {
    * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-decode-and-derived-source-closure Types `totalFrames` for the sound decode and derived source closure system contract.
    */
   totalFrames: number;
+
   /**
    * Fixed output PCM sample rate.
    *
@@ -56,6 +61,7 @@ export interface IAutoMovieProductionSoundPlan {
    * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-decode-and-derived-source-closure Types `sampleRate` for the sound decode and derived source closure system contract.
    */
   sampleRate: 48_000;
+
   /**
    * Fixed interleaved stereo channel count.
    *
@@ -63,6 +69,7 @@ export interface IAutoMovieProductionSoundPlan {
    * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-decode-and-derived-source-closure Types `channels` for the sound decode and derived source closure system contract.
    */
   channels: 2;
+
   /**
    * Selected direct-path propagation profile, or null for the byte-compatible
    * legacy dry path.
@@ -71,6 +78,7 @@ export interface IAutoMovieProductionSoundPlan {
    * @evidence specifications/simulation-effects-and-sound/ambience-music-spatial-and-acoustics.md#spatial-direct-path-and-output-mapping Binds every propagated event to one declared model.
    */
   propagationProfile?: IAutoMovieSoundPropagationProfile;
+
   /**
    * Selected room-response source, or absent for the byte-compatible dry path.
    *
@@ -78,6 +86,7 @@ export interface IAutoMovieProductionSoundPlan {
    * @evidence specifications/simulation-effects-and-sound/ambience-music-spatial-and-acoustics.md#bounded-acoustic-response-and-provider-adoption Carries provider-neutral response provenance into the mix plan.
    */
   acousticProfile?: IAutoMovieAcousticResponseProfile;
+
   /**
    * Ordered semantic sound occurrences.
    *
@@ -85,6 +94,7 @@ export interface IAutoMovieProductionSoundPlan {
    * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-decode-and-derived-source-closure Types `events` for the sound decode and derived source closure system contract.
    */
   events: IAutoMovieProductionSoundEvent[];
+
   /**
    * Ordered authored procedural score cues.
    *
@@ -92,6 +102,7 @@ export interface IAutoMovieProductionSoundPlan {
    * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-decode-and-derived-source-closure Types `cues` for the sound decode and derived source closure system contract.
    */
   cues: IAutoMovieProductionSoundCue[];
+
   /**
    * Ordered dialogue/caption placements.
    *

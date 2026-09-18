@@ -15,6 +15,7 @@ export interface IAutoMovieHeadBrow {
    * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `height` as a coarse proxy parameter under the representation-fidelity ceiling.
    */
   height?: AutoMovieFaceWeight;
+
   /**
    * Brow tilt: `+` arched up, `-` angled down.
    *

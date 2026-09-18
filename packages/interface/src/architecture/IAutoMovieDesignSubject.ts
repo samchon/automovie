@@ -21,6 +21,7 @@ export interface IAutoMovieDesignSubject {
    * @evidence specifications/evidence-and-provenance/entities-activities-agents-and-lineage.md#evp-lineage-gap-representation Types `id` for the evp lineage gap representation system contract.
    */
   id: string;
+
   /**
    * Open name of the graph the id belongs to, such as `element`, `space`,
    * `opening`, `material-layer`, `service-port`, `instance-slot`, or `asset`.
@@ -29,6 +30,7 @@ export interface IAutoMovieDesignSubject {
    * @evidence specifications/evidence-and-provenance/entities-activities-agents-and-lineage.md#evp-lineage-gap-representation Types `graph` for the evp lineage gap representation system contract.
    */
   graph: string;
+
   /**
    * SHA-256 of the bytes this identity stands for, or null when the identity is
    * authored source rather than bytes.

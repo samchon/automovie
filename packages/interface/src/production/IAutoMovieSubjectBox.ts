@@ -14,6 +14,7 @@ export interface IAutoMovieSubjectBox {
    * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-description-bounds Types the box minimum produced by deterministic measurement.
    */
   min: IAutoMovieVector3;
+
   /**
    * Inclusive maximum corner in metres.
    *

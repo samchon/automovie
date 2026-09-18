@@ -12,6 +12,7 @@ export interface IAutoMovieRepaintParameters {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-controls-references Types `prompt` for the asset spec repaint controls references system contract.
    */
   prompt: string;
+
   /**
    * Optional negative prompt.
    *
@@ -19,6 +20,7 @@ export interface IAutoMovieRepaintParameters {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-controls-references Types `negativePrompt` for the asset spec repaint controls references system contract.
    */
   negativePrompt?: string;
+
   /**
    * Explicit deterministic request seed.
    *
@@ -26,6 +28,7 @@ export interface IAutoMovieRepaintParameters {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-controls-references Types `seed` for the asset spec repaint controls references system contract.
    */
   seed: number;
+
   /**
    * Finite structural-preservation strength in [0, 1].
    *
@@ -33,6 +36,7 @@ export interface IAutoMovieRepaintParameters {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-controls-references Types `strength` for the asset spec repaint controls references system contract.
    */
   strength: number;
+
   /**
    * Additional adapter-defined scalar controls.
    *

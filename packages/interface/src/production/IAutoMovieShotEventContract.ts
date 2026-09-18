@@ -14,6 +14,7 @@ export interface IAutoMovieShotEventContract {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `id` for the narrative intent story design ownership system contract.
    */
   id: string;
+
   /**
    * Event family.
    *
@@ -21,6 +22,7 @@ export interface IAutoMovieShotEventContract {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `kind` for the narrative intent story design ownership system contract.
    */
   kind: "contact" | "arrival" | "break" | "reveal" | "transition";
+
   /**
    * Inclusive finite event window inside the owning shot's duration.
    *
@@ -30,9 +32,11 @@ export interface IAutoMovieShotEventContract {
   window: {
     /** Earliest valid time. */
     from: number;
+
     /** Latest valid time. */
     to: number;
   };
+
   /**
    * Non-empty unique actor, formation or object ids involved.
    *
@@ -40,6 +44,7 @@ export interface IAutoMovieShotEventContract {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `subjects` for the narrative intent story design ownership system contract.
    */
   subjects: string[];
+
   /**
    * Non-empty machine-checkable facts required at the realized event time.
    *

@@ -14,6 +14,7 @@ export interface IAutoMovieLegacyOwnedDirectoryBaseline {
    * @evidence specifications/execution-and-recovery/portability-migration-and-compatibility.md#execution-resume-compatibility Types `path` for the execution resume compatibility system contract.
    */
   path: "src" | "generated" | "renders";
+
   /**
    * Whether the directory existed when the import plan was captured.
    *
@@ -21,6 +22,7 @@ export interface IAutoMovieLegacyOwnedDirectoryBaseline {
    * @evidence specifications/execution-and-recovery/portability-migration-and-compatibility.md#execution-resume-compatibility Types `existed` for the execution resume compatibility system contract.
    */
   existed: boolean;
+
   /**
    * Exact recursive physical subdirectory inventory at capture time.
    *
@@ -28,6 +30,7 @@ export interface IAutoMovieLegacyOwnedDirectoryBaseline {
    * @evidence specifications/execution-and-recovery/portability-migration-and-compatibility.md#execution-resume-compatibility Types `directories` for the execution resume compatibility system contract.
    */
   directories: string[];
+
   /**
    * Exact recursive file inventory at capture time.
    *

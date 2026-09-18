@@ -27,6 +27,7 @@ export interface IAutoMovieAnalysisReport {
    * @evidence specifications/review-and-acceptance/profiles-aggregation-and-partial-results.md#acceptance-system-required-severity Types `version` for the acceptance system required severity system contract.
    */
   version: 1;
+
   /**
    * Versioned report protocol.
    *
@@ -34,6 +35,7 @@ export interface IAutoMovieAnalysisReport {
    * @evidence specifications/review-and-acceptance/profiles-aggregation-and-partial-results.md#acceptance-system-required-severity Types `protocol` for the acceptance system required severity system contract.
    */
   protocol: "automovie.analysis-report.v1";
+
   /**
    * Worst outcome: `misses` when any measured metric violates its declared
    * target, otherwise `incomplete` when anything is missing or stale, otherwise
@@ -47,6 +49,7 @@ export interface IAutoMovieAnalysisReport {
    * @evidence specifications/review-and-acceptance/profiles-aggregation-and-partial-results.md#acceptance-system-required-severity Types `status` for the acceptance system required severity system contract.
    */
   status: "meets" | "misses" | "incomplete";
+
   /**
    * Design revision this report is a verdict about.
    *
@@ -54,6 +57,7 @@ export interface IAutoMovieAnalysisReport {
    * @evidence specifications/review-and-acceptance/profiles-aggregation-and-partial-results.md#acceptance-system-required-severity Types `revision` for the acceptance system required severity system contract.
    */
   revision: string;
+
   /**
    * One row per domain, in the fixed domain order.
    *
@@ -61,6 +65,7 @@ export interface IAutoMovieAnalysisReport {
    * @evidence specifications/review-and-acceptance/profiles-aggregation-and-partial-results.md#acceptance-system-required-severity Types `domains` for the acceptance system required severity system contract.
    */
   domains: IAutoMovieAnalysisDomainRollup[];
+
   /**
    * Missing answers, bounded and in run order.
    *
@@ -68,6 +73,7 @@ export interface IAutoMovieAnalysisReport {
    * @evidence specifications/review-and-acceptance/profiles-aggregation-and-partial-results.md#acceptance-system-required-severity Types `gaps` for the acceptance system required severity system contract.
    */
   gaps: IAutoMovieAnalysisGap[];
+
   /**
    * Gaps the bound left out.
    *
@@ -75,6 +81,7 @@ export interface IAutoMovieAnalysisReport {
    * @evidence specifications/review-and-acceptance/profiles-aggregation-and-partial-results.md#acceptance-system-required-severity Types `omittedGaps` for the acceptance system required severity system contract.
    */
   omittedGaps: number;
+
   /**
    * Digest over protocol, status, revision, rollups and listed gaps.
    *

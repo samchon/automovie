@@ -13,6 +13,7 @@ export interface IAutoMovieDiagnosticReference {
    * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-code-catalog-reference Carries the catalog revision used by actual delivery.
    */
   catalogRevision: number;
+
   /**
    * Stable behavioral-reference identity within the catalog revision.
    *
@@ -20,6 +21,7 @@ export interface IAutoMovieDiagnosticReference {
    * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-code-catalog-reference Keys the exhaustive catalog entry independently of prose location.
    */
   id: string;
+
   /**
    * User-facing Markdown path and stable anchor for the explanation.
    *

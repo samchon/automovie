@@ -14,6 +14,7 @@ export interface IAutoMovieBuiltBoundary {
    * @evidence specifications/interior-space/scope-and-host.md#interior-space-linked-building-shared-facts Types `id` for the interior space linked building shared facts system contract.
    */
   id: string;
+
   /**
    * Open semantic label such as `wall`, `floor`, `ceiling`, or `threshold`.
    *
@@ -21,6 +22,7 @@ export interface IAutoMovieBuiltBoundary {
    * @evidence specifications/interior-space/scope-and-host.md#interior-space-linked-building-shared-facts Types `kind` for the interior space linked building shared facts system contract.
    */
   kind: string;
+
   /**
    * One enclosing space, or the two spaces this boundary separates.
    *
@@ -28,6 +30,7 @@ export interface IAutoMovieBuiltBoundary {
    * @evidence specifications/interior-space/scope-and-host.md#interior-space-linked-building-shared-facts Types `spaces` for the interior space linked building shared facts system contract.
    */
   spaces: string[];
+
   /**
    * Visible elements realizing the boundary; empty for a logical boundary.
    *
@@ -35,6 +38,7 @@ export interface IAutoMovieBuiltBoundary {
    * @evidence specifications/interior-space/scope-and-host.md#interior-space-linked-building-shared-facts Types `elements` for the interior space linked building shared facts system contract.
    */
   elements: string[];
+
   /**
    * Where the separation actually is, when it is somewhere at all.
    *

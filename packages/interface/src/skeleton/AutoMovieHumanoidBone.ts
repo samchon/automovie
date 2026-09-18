@@ -30,57 +30,76 @@ export type AutoMovieHumanoidBone =
   // ── torso (4) ──
   /** Pelvis. The root of the humanoid hierarchy. */
   | "hips"
+
   /** Lower spine. */
   | "spine"
+
   /** Mid spine / ribcage. */
   | "chest"
+
   /** Upper ribcage (optional). */
   | "upperChest"
   // ── head (5) ──
   /** Neck (optional). */
   | "neck"
+
   /** Head. */
   | "head"
+
   /** Left eyeball (optional). */
   | "leftEye"
+
   /** Right eyeball (optional). */
   | "rightEye"
+
   /** Jaw (optional). */
   | "jaw"
   // ── left arm (4) ──
   /** Left clavicle / shoulder (optional). */
   | "leftShoulder"
+
   /** Left upper arm (humerus). */
   | "leftUpperArm"
+
   /** Left forearm. */
   | "leftLowerArm"
+
   /** Left hand. */
   | "leftHand"
   // ── right arm (4) ──
   /** Right clavicle / shoulder (optional). */
   | "rightShoulder"
+
   /** Right upper arm (humerus). */
   | "rightUpperArm"
+
   /** Right forearm. */
   | "rightLowerArm"
+
   /** Right hand. */
   | "rightHand"
   // ── left leg (4) ──
   /** Left thigh (femur). */
   | "leftUpperLeg"
+
   /** Left shin. */
   | "leftLowerLeg"
+
   /** Left foot. */
   | "leftFoot"
+
   /** Left toes (optional). */
   | "leftToes"
   // ── right leg (4) ──
   /** Right thigh (femur). */
   | "rightUpperLeg"
+
   /** Right shin. */
   | "rightLowerLeg"
+
   /** Right foot. */
   | "rightFoot"
+
   /** Right toes (optional). */
   | "rightToes"
   // ── left fingers (15, all optional) ──

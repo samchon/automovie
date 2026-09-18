@@ -32,6 +32,7 @@ export interface IAutoMovieEnvironmentContext {
    * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-environment-image-spatial-variation Types `version` for the clv environment image spatial variation system contract.
    */
   version: 1;
+
   /**
    * Stable context identity within the production.
    *
@@ -39,6 +40,7 @@ export interface IAutoMovieEnvironmentContext {
    * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-environment-image-spatial-variation Types `id` for the clv environment image spatial variation system contract.
    */
   id: string;
+
   /**
    * All authored dimensions are measured in metres.
    *
@@ -46,6 +48,7 @@ export interface IAutoMovieEnvironmentContext {
    * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-environment-image-spatial-variation Types `units` for the clv environment image spatial variation system contract.
    */
   units: "meter";
+
   /**
    * World direction the site calls north; non-zero, need not be normalized.
    *
@@ -53,6 +56,7 @@ export interface IAutoMovieEnvironmentContext {
    * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-environment-image-spatial-variation Types `north` for the clv environment image spatial variation system contract.
    */
   north: IAutoMovieVector3;
+
   /**
    * Datum plane every sky ray is measured against.
    *
@@ -60,6 +64,7 @@ export interface IAutoMovieEnvironmentContext {
    * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-environment-image-spatial-variation Types `ground` for the clv environment image spatial variation system contract.
    */
   ground: IAutoMovieReferenceGround;
+
   /**
    * Declared environmental instants, strictly increasing in
    * {@link IAutoMovieEnvironmentInstant.time}.
@@ -73,6 +78,7 @@ export interface IAutoMovieEnvironmentContext {
    * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-environment-sampling-claims Supplies the ordered environment samples consumed at declared production times.
    */
   instants: IAutoMovieEnvironmentInstant[];
+
   /**
    * Neighbouring masses that block light; read-only, never owned geometry.
    *

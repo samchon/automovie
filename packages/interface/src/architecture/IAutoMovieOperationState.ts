@@ -14,6 +14,7 @@ export interface IAutoMovieOperationState {
    * @evidence specifications/interior-space/boundaries-openings-and-circulation.md#interior-space-host-opening-operation Types `id` for the interior space host opening operation system contract.
    */
   id: string;
+
   /**
    * One value per panel; every panel of the operation must appear exactly once.
    *

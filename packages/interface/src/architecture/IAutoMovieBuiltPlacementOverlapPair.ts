@@ -18,14 +18,19 @@ import { AutoMovieBuiltPlacementBodyLocator } from "./AutoMovieBuiltPlacementBod
 export interface IAutoMovieBuiltPlacementOverlapPair {
   /** The body that appears first in record order. */
   left: AutoMovieBuiltPlacementBodyLocator;
+
   /** The body that appears later in record order. */
   right: AutoMovieBuiltPlacementBodyLocator;
+
   /** Derivation of the left body's extent. */
   leftBasis: Exclude<AutoMovieBuiltPlacementBasis, "surface-height-rule">;
+
   /** Derivation of the right body's extent. */
   rightBasis: Exclude<AutoMovieBuiltPlacementBasis, "surface-height-rule">;
+
   /** Shared volume in cubic metres, always greater than zero. */
   volume: number;
+
   /**
    * Shared volume over the smaller body's own volume, within `[0, 1]`. It is
    * `0` when that body measures no volume, which an `element-origin-point`

@@ -12,6 +12,7 @@ export interface IAutoMovieProductionViseme {
    * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-decode-and-derived-source-closure Types `phoneme` for the sound decode and derived source closure system contract.
    */
   phoneme: string;
+
   /**
    * VRM expression target, or `rest` for a closed/neutral mouth.
    *
@@ -19,6 +20,7 @@ export interface IAutoMovieProductionViseme {
    * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-decode-and-derived-source-closure Types `viseme` for the sound decode and derived source closure system contract.
    */
   viseme: "aa" | "ih" | "ou" | "ee" | "oh" | "rest";
+
   /**
    * Film-global inclusive start frame.
    *
@@ -26,6 +28,7 @@ export interface IAutoMovieProductionViseme {
    * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-decode-and-derived-source-closure Types `startFrame` for the sound decode and derived source closure system contract.
    */
   startFrame: number;
+
   /**
    * Film-global exclusive end frame.
    *

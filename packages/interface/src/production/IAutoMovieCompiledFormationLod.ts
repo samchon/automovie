@@ -14,6 +14,7 @@ export interface IAutoMovieCompiledFormationLod {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `tier` for the performance formation layout slot assignment system contract.
    */
   tier: "hero" | "near" | "far";
+
   /**
    * Positive maximum distance, or null only for the final tier.
    *
@@ -21,6 +22,7 @@ export interface IAutoMovieCompiledFormationLod {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `maxDistance` for the performance formation layout slot assignment system contract.
    */
   maxDistance: number | null;
+
   /**
    * Design recipe id.
    *
@@ -28,6 +30,7 @@ export interface IAutoMovieCompiledFormationLod {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `recipe` for the performance formation layout slot assignment system contract.
    */
   recipe: string;
+
   /**
    * Exact current recipe digest, including geometry and palette parameters.
    *
@@ -35,6 +38,7 @@ export interface IAutoMovieCompiledFormationLod {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `recipeDigest` for the performance formation layout slot assignment system contract.
    */
   recipeDigest: AutoMovieContentDigest;
+
   /**
    * Compiler-owned runtime model id.
    *

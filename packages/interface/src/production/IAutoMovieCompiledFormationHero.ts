@@ -14,6 +14,7 @@ export interface IAutoMovieCompiledFormationHero {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `slot` for the performance formation layout slot assignment system contract.
    */
   slot: number;
+
   /**
    * Named explicit scene-node id.
    *
@@ -21,6 +22,7 @@ export interface IAutoMovieCompiledFormationHero {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `actor` for the performance formation layout slot assignment system contract.
    */
   actor: string;
+
   /**
    * Compiler-owned base transform before source-authored performance.
    *

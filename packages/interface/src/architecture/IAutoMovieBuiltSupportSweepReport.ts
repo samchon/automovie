@@ -16,6 +16,7 @@ import { IAutoMovieBuiltFloatingBody } from "./IAutoMovieBuiltFloatingBody";
 export interface IAutoMovieBuiltSupportSweepReport {
   /** Bodies whose extent resolved and were therefore judged. */
   measured: number;
+
   /**
    * Candidate inspections performed after pruning, the sweep's own cost.
    *
@@ -24,12 +25,16 @@ export interface IAutoMovieBuiltSupportSweepReport {
    * measured once in a document is a cost nobody can re-measure.
    */
   compared: number;
+
   /** Bodies whose underside meets the stated ground plane within tolerance. */
   grounded: number;
+
   /** Bodies resting on another body's top within tolerance. */
   borne: number;
+
   /** Every body with clear air under it, in stable record order. */
   floating: IAutoMovieBuiltFloatingBody[];
+
   /** Bodies whose extent the record does not resolve, so nothing was judged. */
   unresolved: AutoMovieBuiltPlacementBodyLocator[];
 }

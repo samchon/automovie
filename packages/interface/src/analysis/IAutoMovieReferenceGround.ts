@@ -18,6 +18,7 @@ export interface IAutoMovieReferenceGround {
    * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-environment-image-spatial-variation Types `up` for the clv environment image spatial variation system contract.
    */
   up: IAutoMovieVector3;
+
   /**
    * Plane constant in metres, read as `dot(normalize(up), point) = elevation`.
    * A point is above ground when its projection exceeds this value.

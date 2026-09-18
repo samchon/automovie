@@ -15,6 +15,7 @@ export interface IAutoMovieContinuityClaim {
    * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-scene-prose-index Types `id` for the narrative intent scene prose index system contract.
    */
   id: string;
+
   /**
    * Human-readable canon fact, such as handedness or persistent weather.
    *
@@ -22,6 +23,7 @@ export interface IAutoMovieContinuityClaim {
    * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-scene-prose-index Types `text` for the narrative intent scene prose index system contract.
    */
   text: string;
+
   /**
    * Evidence family that alone can discharge this claim.
    *
@@ -29,6 +31,7 @@ export interface IAutoMovieContinuityClaim {
    * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-scene-prose-index Types `verification` for the narrative intent scene prose index system contract.
    */
   verification: "frame-review" | "geometry" | "acceptance";
+
   /**
    * Exact claim-specific evidence selected inside that family.
    *
@@ -36,6 +39,7 @@ export interface IAutoMovieContinuityClaim {
    * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-scene-prose-index Types `proof` for the narrative intent scene prose index system contract.
    */
   proof: IAutoMovieContinuityProof;
+
   /**
    * Authored scenes in which the canon fact must hold.
    *

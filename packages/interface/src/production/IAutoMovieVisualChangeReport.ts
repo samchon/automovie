@@ -19,6 +19,7 @@ export interface IAutoMovieVisualChangeReport {
    * @evidence specifications/review-and-acceptance/visual-change-reporting.md#review-system-visual-change-states Types the first report schema.
    */
   version: 1;
+
   /**
    * Shared catalog identity.
    *
@@ -26,6 +27,7 @@ export interface IAutoMovieVisualChangeReport {
    * @evidence specifications/review-and-acceptance/visual-change-reporting.md#review-system-visual-revision-snapshot Preserves the validated same-catalog precondition.
    */
   catalog: string;
+
   /**
    * Earlier revision identity.
    *
@@ -33,6 +35,7 @@ export interface IAutoMovieVisualChangeReport {
    * @evidence specifications/review-and-acceptance/visual-change-reporting.md#review-system-visual-revision-snapshot Copies the earlier snapshot identity.
    */
   fromRevision: string;
+
   /**
    * Later revision identity.
    *
@@ -40,6 +43,7 @@ export interface IAutoMovieVisualChangeReport {
    * @evidence specifications/review-and-acceptance/visual-change-reporting.md#review-system-visual-revision-snapshot Copies the later snapshot identity.
    */
   toRevision: string;
+
   /**
    * Exact totals for the four states.
    *
@@ -47,6 +51,7 @@ export interface IAutoMovieVisualChangeReport {
    * @evidence specifications/review-and-acceptance/visual-change-reporting.md#review-system-visual-change-states Carries totals derived from the complete returned population.
    */
   counts: IAutoMovieVisualChangeCounts;
+
   /**
    * Complete code-unit-sorted visual comparison.
    *

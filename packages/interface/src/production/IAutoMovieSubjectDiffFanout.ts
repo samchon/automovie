@@ -14,6 +14,7 @@ export interface IAutoMovieSubjectDiffFanout {
    * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-diff-tolerance-fanout Carries the aggregate referencing-element count.
    */
   elements: number;
+
   /**
    * Number of compact instance slots whose geometry references the prototype.
    *
@@ -21,6 +22,7 @@ export interface IAutoMovieSubjectDiffFanout {
    * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-diff-tolerance-fanout Carries the aggregate referencing-instance count.
    */
   instances: number;
+
   /**
    * Bounded identities of compact sets represented by {@link instances}.
    *
@@ -28,6 +30,7 @@ export interface IAutoMovieSubjectDiffFanout {
    * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-diff-tolerance-fanout Carries the deterministic set-id summary.
    */
   instanceSets: IAutoMovieSubjectMemberSummary;
+
   /**
    * Number of slots whose selected prototype differs between set revisions.
    *

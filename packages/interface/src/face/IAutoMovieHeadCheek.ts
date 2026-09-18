@@ -15,6 +15,7 @@ export interface IAutoMovieHeadCheek {
    * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `fullness` as a coarse proxy parameter under the representation-fidelity ceiling.
    */
   fullness?: AutoMovieFaceWeight;
+
   /**
    * Malar/cheekbone prominence: `+` higher/sharper (mature beauty).
    *

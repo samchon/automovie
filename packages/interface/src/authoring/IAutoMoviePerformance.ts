@@ -19,6 +19,7 @@ export interface IAutoMoviePerformance {
    * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Types `beat` for the spec authoring source input system contract.
    */
   beat: string;
+
   /**
    * How the intended action decomposes into engine verbs and timing.
    *
@@ -26,6 +27,7 @@ export interface IAutoMoviePerformance {
    * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Types `plan` for the spec authoring source input system contract.
    */
   plan: string;
+
   /**
    * First complete action program, including camera actions.
    *
@@ -33,6 +35,7 @@ export interface IAutoMoviePerformance {
    * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Types `draft` for the spec authoring source input system contract.
    */
   draft: IAutoMovieActionCall[];
+
   /**
    * Auditable self-review and optional corrected program.
    *
@@ -42,9 +45,11 @@ export interface IAutoMoviePerformance {
   revise: {
     /** Range, causality, region, camera and timing assessment. */
     review: string;
+
     /** Corrected action program, or null when the draft already stands. */
     final: IAutoMovieActionCall[] | null;
   };
+
   /**
    * Positive shot-local duration in seconds.
    *

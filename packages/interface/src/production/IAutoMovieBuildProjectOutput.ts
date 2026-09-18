@@ -17,6 +17,7 @@ export interface IAutoMovieBuildProjectOutput {
    * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-derived-result-finding Types `success` for the validation derived result finding system contract.
    */
   success: boolean;
+
   /**
    * Current project revision.
    *
@@ -24,6 +25,7 @@ export interface IAutoMovieBuildProjectOutput {
    * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-derived-result-finding Types `revision` for the validation derived result finding system contract.
    */
   revision: number;
+
   /**
    * Compiler and input identity.
    *
@@ -33,9 +35,11 @@ export interface IAutoMovieBuildProjectOutput {
   builder: {
     /** Compiler package version. */
     version: string;
+
     /** Current design and source fingerprint. */
     inputFingerprint: AutoMovieContentDigest;
   };
+
   /**
    * Ordered diagnostics.
    *
@@ -43,6 +47,7 @@ export interface IAutoMovieBuildProjectOutput {
    * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-derived-result-finding Types `diagnostics` for the validation derived result finding system contract.
    */
   diagnostics: IAutoMovieDiagnostic[];
+
   /**
    * Compiler-owned files created, updated or already current. Empty for design
    * scope and for every refused atomic compile.

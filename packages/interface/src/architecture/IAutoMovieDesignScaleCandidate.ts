@@ -12,6 +12,7 @@ export interface IAutoMovieDesignScaleCandidate {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `id` for the narrative intent reference lineage system contract.
    */
   id: string;
+
   /**
    * Metres per one source unit; strictly positive.
    *
@@ -19,6 +20,7 @@ export interface IAutoMovieDesignScaleCandidate {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `metersPerUnit` for the narrative intent reference lineage system contract.
    */
   metersPerUnit: number;
+
   /**
    * Inclusive `[0, 1]` confidence in this reading.
    *
@@ -26,6 +28,7 @@ export interface IAutoMovieDesignScaleCandidate {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `confidence` for the narrative intent reference lineage system contract.
    */
   confidence: number;
+
   /**
    * Where the reading came from, such as `scale-bar` or `dimension-string`.
    *

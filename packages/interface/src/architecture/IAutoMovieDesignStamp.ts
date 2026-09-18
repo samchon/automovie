@@ -19,6 +19,7 @@ export interface IAutoMovieDesignStamp {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `revision` for the narrative intent reference lineage system contract.
    */
   revision: string;
+
   /**
    * Variant applied, or null for the base design.
    *
@@ -26,6 +27,7 @@ export interface IAutoMovieDesignStamp {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `variant` for the narrative intent reference lineage system contract.
    */
   variant: string | null;
+
   /**
    * Phase the artifact depicts, or null when it is phase-independent.
    *
@@ -33,6 +35,7 @@ export interface IAutoMovieDesignStamp {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `phase` for the narrative intent reference lineage system contract.
    */
   phase: string | null;
+
   /**
    * SHA-256 over the lowering configuration that produced the artifact.
    *

@@ -14,6 +14,7 @@ export interface IAutoMovieConnectorState {
    * @evidence specifications/interior-space/boundaries-openings-and-circulation.md#interior-space-connector-route-topology Types `id` for the interior space connector route topology system contract.
    */
   id: string;
+
   /**
    * One value per carriage; every carriage of the operation appears once.
    *
@@ -21,6 +22,7 @@ export interface IAutoMovieConnectorState {
    * @evidence specifications/interior-space/boundaries-openings-and-circulation.md#interior-space-connector-route-topology Types `carriages` for the interior space connector route topology system contract.
    */
   carriages: IAutoMovieCarriageValue[];
+
   /**
    * Which way the run is driven while it stands in this state.
    *

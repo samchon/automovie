@@ -14,6 +14,7 @@ export interface IAutoMovieIKDriver {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `type` for the performance motion clip keytime interpolation system contract.
    */
   type: "ik";
+
   /**
    * Bone chain, root → tip.
    *
@@ -21,6 +22,7 @@ export interface IAutoMovieIKDriver {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `chain` for the performance motion clip keytime interpolation system contract.
    */
   chain: string[];
+
   /**
    * Node the chain tip reaches for.
    *
@@ -28,6 +30,7 @@ export interface IAutoMovieIKDriver {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `goal` for the performance motion clip keytime interpolation system contract.
    */
   goal: string;
+
   /**
    * Pole/twist control for the solve plane, or `null`.
    *
@@ -35,6 +38,7 @@ export interface IAutoMovieIKDriver {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `pole` for the performance motion clip keytime interpolation system contract.
    */
   pole: IAutoMovieIKPole | null;
+
   /**
    * Solver. `twoBone` is the analytic, deterministic limb solver (build-first);
    * `ccd`/`fabrik` are iterative, for longer chains.
@@ -43,6 +47,7 @@ export interface IAutoMovieIKDriver {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `solver` for the performance motion clip keytime interpolation system contract.
    */
   solver: "twoBone" | "ccd" | "fabrik";
+
   /**
    * Iteration cap for iterative solvers (fixed for determinism); `null` for
    * `twoBone`.
@@ -51,6 +56,7 @@ export interface IAutoMovieIKDriver {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `iterations` for the performance motion clip keytime interpolation system contract.
    */
   iterations: number | null;
+
   /**
    * Blend factor `[0, 1]`.
    *

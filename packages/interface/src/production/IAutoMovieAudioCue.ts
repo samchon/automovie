@@ -14,6 +14,7 @@ export interface IAutoMovieAudioCue {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-provider-choice Types `id` for the asset spec generation provider choice system contract.
    */
   id: string;
+
   /**
    * Project-relative declared render-content asset.
    *
@@ -21,6 +22,7 @@ export interface IAutoMovieAudioCue {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-provider-choice Types `asset` for the asset spec generation provider choice system contract.
    */
   asset: string;
+
   /**
    * Declared source duration used for bounded trim validation.
    *
@@ -28,6 +30,7 @@ export interface IAutoMovieAudioCue {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-provider-choice Types `sourceDuration` for the asset spec generation provider choice system contract.
    */
   sourceDuration: AutoMovieFilmTime;
+
   /**
    * Source offset inside the asset.
    *
@@ -35,6 +38,7 @@ export interface IAutoMovieAudioCue {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-provider-choice Types `sourceOffset` for the asset spec generation provider choice system contract.
    */
   sourceOffset: AutoMovieFilmTime;
+
   /**
    * Film-global cue start.
    *
@@ -42,6 +46,7 @@ export interface IAutoMovieAudioCue {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-provider-choice Types `start` for the asset spec generation provider choice system contract.
    */
   start: AutoMovieFilmTime;
+
   /**
    * Cue duration.
    *
@@ -49,6 +54,7 @@ export interface IAutoMovieAudioCue {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-provider-choice Types `duration` for the asset spec generation provider choice system contract.
    */
   duration: AutoMovieFilmTime;
+
   /**
    * Linear gain from silence through a bounded boost.
    *
@@ -56,6 +62,7 @@ export interface IAutoMovieAudioCue {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-provider-choice Types `gain` for the asset spec generation provider choice system contract.
    */
   gain: number;
+
   /**
    * Fade-in duration.
    *
@@ -63,6 +70,7 @@ export interface IAutoMovieAudioCue {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-provider-choice Types `fadeIn` for the asset spec generation provider choice system contract.
    */
   fadeIn: AutoMovieFilmTime;
+
   /**
    * Fade-out duration.
    *
@@ -70,6 +78,7 @@ export interface IAutoMovieAudioCue {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-provider-choice Types `fadeOut` for the asset spec generation provider choice system contract.
    */
   fadeOut: AutoMovieFilmTime;
+
   /**
    * Deterministic destination bus.
    *

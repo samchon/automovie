@@ -17,6 +17,7 @@ export interface IAutoMovieExternalMotionLossEntry {
     | "channel-approximated"
     | "precision-loss"
     | "semantic-loss";
+
   /**
    * Stable source elements affected by the loss.
    *
@@ -24,6 +25,7 @@ export interface IAutoMovieExternalMotionLossEntry {
    * @evidence specifications/interchange-and-adoption/conversion-receipts-and-determinism.md#interchange-receipt-loss-ledger Binds a loss entry to its affected source support set.
    */
   source: string[];
+
   /**
    * Observable downstream consequence of the loss.
    *
@@ -31,6 +33,7 @@ export interface IAutoMovieExternalMotionLossEntry {
    * @evidence specifications/interchange-and-adoption/conversion-receipts-and-determinism.md#interchange-receipt-loss-ledger Prevents successful output from implying preserved behavior.
    */
   consequence: string;
+
   /**
    * Whether the user explicitly accepted this loss.
    *

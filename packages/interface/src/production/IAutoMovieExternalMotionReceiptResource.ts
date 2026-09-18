@@ -15,6 +15,7 @@ export interface IAutoMovieExternalMotionReceiptResource {
    * @evidence specifications/interchange-and-adoption/conversion-receipts-and-determinism.md#interchange-receipt-input-basis Normalizes source closure paths before receipt identity is computed.
    */
   path: string;
+
   /**
    * Content digest of the exact resident bytes.
    *

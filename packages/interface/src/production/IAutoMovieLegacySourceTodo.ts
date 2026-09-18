@@ -12,6 +12,7 @@ export interface IAutoMovieLegacySourceTodo {
    * @evidence specifications/execution-and-recovery/portability-migration-and-compatibility.md#execution-resume-compatibility Types `shot` for the execution resume compatibility system contract.
    */
   shot: string;
+
   /**
    * Proposed production source module path.
    *
@@ -19,6 +20,7 @@ export interface IAutoMovieLegacySourceTodo {
    * @evidence specifications/execution-and-recovery/portability-migration-and-compatibility.md#execution-resume-compatibility Types `module` for the execution resume compatibility system contract.
    */
   module: string;
+
   /**
    * Proposed named source export.
    *
@@ -26,6 +28,7 @@ export interface IAutoMovieLegacySourceTodo {
    * @evidence specifications/execution-and-recovery/portability-migration-and-compatibility.md#execution-resume-compatibility Types `export` for the execution resume compatibility system contract.
    */
   export: string;
+
   /**
    * Exact recovery limitation and required next action.
    *

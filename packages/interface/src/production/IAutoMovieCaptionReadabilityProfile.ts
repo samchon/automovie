@@ -20,6 +20,7 @@ export interface IAutoMovieCaptionReadabilityProfile {
    * @evidence specifications/editorial-render-and-delivery/delivery-audio-text-and-localization.md#spec-delivery-caption-readability-profile Joins each verdict to the exact production profile.
    */
   id: string;
+
   /**
    * Production-controlled schema revision.
    *
@@ -27,6 +28,7 @@ export interface IAutoMovieCaptionReadabilityProfile {
    * @evidence specifications/editorial-render-and-delivery/delivery-audio-text-and-localization.md#spec-delivery-caption-readability-profile Prevents results from silently crossing profile revisions.
    */
   version: number;
+
   /**
    * RFC 5646 well-formed language tag whose cues this profile evaluates.
    *
@@ -40,6 +42,7 @@ export interface IAutoMovieCaptionReadabilityProfile {
    * @evidence specifications/editorial-render-and-delivery/delivery-audio-text-and-localization.md#spec-delivery-localization Applies the shared RFC 5646 syntax and comparison boundary.
    */
   language: string;
+
   /**
    * Production-selected versioned grapheme segmentation rule.
    *
@@ -47,6 +50,7 @@ export interface IAutoMovieCaptionReadabilityProfile {
    * @evidence specifications/editorial-render-and-delivery/delivery-audio-text-and-localization.md#spec-delivery-caption-readability-profile Makes grapheme measurement reproducible without hardcoding one Unicode family.
    */
   segmentation: IAutoMovieCaptionGraphemeSegmentationIdentity;
+
   /**
    * Maximum displayed graphemes per second and its boundary semantics.
    *
@@ -54,6 +58,7 @@ export interface IAutoMovieCaptionReadabilityProfile {
    * @evidence specifications/editorial-render-and-delivery/delivery-audio-text-and-localization.md#spec-delivery-caption-readability-profile Supplies the explicit rate comparison boundary.
    */
   maxGraphemesPerSecond: IAutoMovieCaptionReadabilityBoundary;
+
   /**
    * Maximum authored lines in one cue and its boundary semantics.
    *
@@ -61,6 +66,7 @@ export interface IAutoMovieCaptionReadabilityProfile {
    * @evidence specifications/editorial-render-and-delivery/delivery-audio-text-and-localization.md#spec-delivery-caption-readability-profile Supplies the explicit line-count comparison boundary.
    */
   maxLinesPerCue: IAutoMovieCaptionReadabilityBoundary;
+
   /**
    * Maximum displayed graphemes in one line and its boundary semantics.
    *
@@ -68,6 +74,7 @@ export interface IAutoMovieCaptionReadabilityProfile {
    * @evidence specifications/editorial-render-and-delivery/delivery-audio-text-and-localization.md#spec-delivery-caption-readability-profile Supplies the explicit line-length comparison boundary.
    */
   maxGraphemesPerLine: IAutoMovieCaptionReadabilityBoundary;
+
   /**
    * Minimum cue duration in frames and its boundary semantics.
    *
@@ -75,6 +82,7 @@ export interface IAutoMovieCaptionReadabilityProfile {
    * @evidence specifications/editorial-render-and-delivery/delivery-audio-text-and-localization.md#spec-delivery-caption-readability-profile Supplies the explicit duration comparison boundary.
    */
   minDurationFrames: IAutoMovieCaptionReadabilityBoundary;
+
   /**
    * Minimum inter-cue gap in frames and its boundary semantics.
    *

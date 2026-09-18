@@ -14,6 +14,7 @@ export interface IAutoMovieSubjectBounds {
    * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-description-bounds Carries the independently derived logical-space or compact-set declaration.
    */
   declared: IAutoMovieSubjectBox | null;
+
   /**
    * Extent measured from resident compiled content, or null when empty.
    *
@@ -21,6 +22,7 @@ export interface IAutoMovieSubjectBounds {
    * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-description-bounds Carries the deterministic content measurement or explicit absence.
    */
   content: IAutoMovieSubjectBox | null;
+
   /**
    * Coordinate basis shared by both non-null boxes.
    *

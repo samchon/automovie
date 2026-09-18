@@ -14,6 +14,7 @@ export interface IAutoMovieInstanceVariation {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-visual-language-variation Types `scale` for the narrative intent visual language variation system contract.
    */
   scale: { min: number; max: number };
+
   /**
    * Optional independent scale ranges per local axis.
    *
@@ -21,6 +22,7 @@ export interface IAutoMovieInstanceVariation {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-visual-language-variation Types `scale3` for the narrative intent visual language variation system contract.
    */
   scale3?: { min: IAutoMovieVector3; max: IAutoMovieVector3 };
+
   /**
    * Optional seeded XYZ Euler offsets in degrees, applied after facing.
    *
@@ -32,6 +34,7 @@ export interface IAutoMovieInstanceVariation {
     y: { min: number; max: number };
     z: { min: number; max: number };
   };
+
   /**
    * Seeded probability that a procedural slot is visible.
    *
@@ -39,6 +42,7 @@ export interface IAutoMovieInstanceVariation {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-visual-language-variation Types `visibleProbability` for the narrative intent visual language variation system contract.
    */
   visibleProbability?: number;
+
   /**
    * Non-empty exact `#RRGGBB` palette choices applied per instance.
    *
@@ -60,6 +64,7 @@ export interface IAutoMovieInstanceVariation {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-visual-language-variation Types `palette` for the narrative intent visual language variation system contract.
    */
   palette: string[];
+
   /**
    * Named bounded numeric traits regenerated from seed and slot.
    *
@@ -69,8 +74,10 @@ export interface IAutoMovieInstanceVariation {
   traits: Array<{
     /** Stable trait name unique in this set. */
     name: string;
+
     /** Inclusive minimum. */
     min: number;
+
     /** Inclusive maximum. */
     max: number;
   }>;

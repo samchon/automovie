@@ -12,6 +12,7 @@ export interface IAutoMovieInstancePrototypeDesign {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `id` for the narrative intent story design ownership system contract.
    */
   id: string;
+
   /**
    * Existing model recipe used by this prototype.
    *
@@ -19,6 +20,7 @@ export interface IAutoMovieInstancePrototypeDesign {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `modelRecipe` for the narrative intent story design ownership system contract.
    */
   modelRecipe: string;
+
   /**
    * Positive deterministic selection weight.
    *

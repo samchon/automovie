@@ -11,6 +11,7 @@ import { IAutoMovieRepaintSequenceObservation } from "./IAutoMovieRepaintSequenc
 export interface IAutoMovieProductionRenditionDelivery {
   /** Versioned occurrence-lane provenance protocol. */
   version: 2;
+
   /**
    * Versioned explicit visual-lane provenance kind.
    *
@@ -18,12 +19,16 @@ export interface IAutoMovieProductionRenditionDelivery {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-failure-publication Discriminates the occurrence-lane readback protocol.
    */
   kind: "visual-lanes";
+
   /** Digest of the canonical ordered occurrence-member population. */
   memberSetDigest: AutoMovieContentDigest;
+
   /** Current passing aggregate sequence observation, null for all-deterministic. */
   observationDigest: AutoMovieContentDigest | null;
+
   /** Full observation needed for parser-only readback, null for all-deterministic. */
   observation: IAutoMovieRepaintSequenceObservation | null;
+
   /**
    * Every visual occurrence consumed by the current film timeline.
    *

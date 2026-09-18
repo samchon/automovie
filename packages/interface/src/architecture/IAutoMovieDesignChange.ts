@@ -17,6 +17,7 @@ export interface IAutoMovieDesignChange {
    * @evidence specifications/evidence-and-provenance/entities-activities-agents-and-lineage.md#evp-lineage-gap-representation Types `id` for the evp lineage gap representation system contract.
    */
   id: string;
+
   /**
    * Declared subject id this change edits.
    *
@@ -24,6 +25,7 @@ export interface IAutoMovieDesignChange {
    * @evidence specifications/evidence-and-provenance/entities-activities-agents-and-lineage.md#evp-lineage-gap-representation Types `subject` for the evp lineage gap representation system contract.
    */
   subject: string;
+
   /**
    * Open aspect label such as `material`, `layout`, `lighting`, `opening`.
    *
@@ -31,6 +33,7 @@ export interface IAutoMovieDesignChange {
    * @evidence specifications/evidence-and-provenance/entities-activities-agents-and-lineage.md#evp-lineage-gap-representation Types `aspect` for the evp lineage gap representation system contract.
    */
   aspect: string;
+
   /**
    * Author-serialized replacement value, compared verbatim across variants.
    *
@@ -38,6 +41,7 @@ export interface IAutoMovieDesignChange {
    * @evidence specifications/evidence-and-provenance/entities-activities-agents-and-lineage.md#evp-lineage-gap-representation Types `value` for the evp lineage gap representation system contract.
    */
   value: string;
+
   /**
    * Why this alternative makes the change.
    *

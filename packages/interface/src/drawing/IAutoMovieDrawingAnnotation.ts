@@ -15,6 +15,7 @@ export interface IAutoMovieDrawingAnnotation {
    * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `id` for the interior space drawing schedule quantity system contract.
    */
   id: string;
+
   /**
    * Note text, as authored.
    *
@@ -22,6 +23,7 @@ export interface IAutoMovieDrawingAnnotation {
    * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `text` for the interior space drawing schedule quantity system contract.
    */
   text: string;
+
   /**
    * Whether the target resolved.
    *
@@ -29,6 +31,7 @@ export interface IAutoMovieDrawingAnnotation {
    * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `status` for the interior space drawing schedule quantity system contract.
    */
   status: AutoMovieDrawingTargetStatus;
+
   /**
    * Page position of the target, or `null` when stale.
    *
@@ -36,6 +39,7 @@ export interface IAutoMovieDrawingAnnotation {
    * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `at` for the interior space drawing schedule quantity system contract.
    */
   at: IAutoMovieDrawingPoint | null;
+
   /**
    * Exactly why the target no longer resolves, or `null` when resolved.
    *

@@ -19,6 +19,7 @@ export interface IAutoMovieVisualChange {
    * @evidence specifications/review-and-acceptance/visual-change-reporting.md#review-system-visual-change-states Preserves the first sorted key component.
    */
   subject: string;
+
   /**
    * Stable view identity shared with the snapshot records.
    *
@@ -26,6 +27,7 @@ export interface IAutoMovieVisualChange {
    * @evidence specifications/review-and-acceptance/visual-change-reporting.md#review-system-visual-change-states Preserves the second sorted key component.
    */
   view: string;
+
   /**
    * Exactly one of the four visual change states.
    *
@@ -33,6 +35,7 @@ export interface IAutoMovieVisualChange {
    * @evidence specifications/review-and-acceptance/visual-change-reporting.md#review-system-visual-change-states Types the exhaustive join outcome.
    */
   status: AutoMovieVisualChangeStatus;
+
   /**
    * Earlier digest, or null when this view is new.
    *
@@ -40,6 +43,7 @@ export interface IAutoMovieVisualChange {
    * @evidence specifications/review-and-acceptance/visual-change-reporting.md#review-system-visual-change-states Makes absence explicit for a later-only identity.
    */
   before: AutoMovieContentDigest | null;
+
   /**
    * Later digest, or null when this view is gone.
    *

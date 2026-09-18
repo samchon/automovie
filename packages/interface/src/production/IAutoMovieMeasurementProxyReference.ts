@@ -10,6 +10,7 @@ export type IAutoMovieMeasurementProxyReference =
   | {
       /** Manifest-owned proxy bytes. */
       kind: "asset";
+
       /** Exact path of a typed JSON proxy asset in this manifest. */
       asset: string;
     }

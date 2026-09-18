@@ -21,6 +21,7 @@ export interface IAutoMovieDrawingFrame {
    * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `origin` for the interior space drawing schedule quantity system contract.
    */
   origin: IAutoMovieVector3;
+
   /**
    * Unit world direction of the page `+x` axis.
    *
@@ -28,6 +29,7 @@ export interface IAutoMovieDrawingFrame {
    * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `right` for the interior space drawing schedule quantity system contract.
    */
   right: IAutoMovieVector3;
+
   /**
    * Unit world direction of the page `+y` axis.
    *
@@ -35,6 +37,7 @@ export interface IAutoMovieDrawingFrame {
    * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `up` for the interior space drawing schedule quantity system contract.
    */
   up: IAutoMovieVector3;
+
   /**
    * Unit world normal of the cut/picture plane, pointing at the viewer.
    *

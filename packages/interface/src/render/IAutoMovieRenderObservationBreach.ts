@@ -15,6 +15,7 @@ export interface IAutoMovieRenderObservationBreach {
    * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Joins the observed value to the corresponding report metric.
    */
   metric: AutoMovieRenderMetric;
+
   /**
    * Exact or conservative preflight estimate recorded as `finding.measured`.
    *
@@ -22,6 +23,7 @@ export interface IAutoMovieRenderObservationBreach {
    * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Carries the preflight inventory bound rather than the production's maximum limit.
    */
   bound: number;
+
   /**
    * Renderer-observed value.
    *

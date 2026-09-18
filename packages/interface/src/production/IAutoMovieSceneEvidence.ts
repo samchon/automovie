@@ -17,6 +17,7 @@ export interface IAutoMovieSceneEvidence {
    * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-scene-prose-index Types `reason` for the narrative intent scene prose index system contract.
    */
   reason: string;
+
   /**
    * Existing screenplay scene id.
    *
@@ -24,6 +25,7 @@ export interface IAutoMovieSceneEvidence {
    * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-scene-prose-index Types `scene` for the narrative intent scene prose index system contract.
    */
   scene: string;
+
   /**
    * Existing continuity claim id, or null when no canon claim is cited.
    *

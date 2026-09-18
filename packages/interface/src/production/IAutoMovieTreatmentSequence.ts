@@ -14,6 +14,7 @@ export interface IAutoMovieTreatmentSequence {
    * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-sequence-refinement Types `id` for the narrative intent sequence refinement system contract.
    */
   id: string;
+
   /**
    * Human-readable sequence title.
    *
@@ -21,6 +22,7 @@ export interface IAutoMovieTreatmentSequence {
    * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-sequence-refinement Types `title` for the narrative intent sequence refinement system contract.
    */
   title: string;
+
   /**
    * Project-relative document holding this sequence's prose, when the treatment
    * is split one file per sequence.
@@ -35,6 +37,7 @@ export interface IAutoMovieTreatmentSequence {
    * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-sequence-refinement Types `path` for the narrative intent sequence refinement system contract.
    */
   path?: string;
+
   /**
    * Ordered beats the screenplay must cover.
    *

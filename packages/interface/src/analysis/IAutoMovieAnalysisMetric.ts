@@ -20,6 +20,7 @@ export interface IAutoMovieAnalysisMetric {
    * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-failed-not-run-states Types `key` for the validation failed not run states system contract.
    */
   key: string;
+
   /**
    * Unit symbol the value is stated in; non-blank even when there is no value.
    *
@@ -27,6 +28,7 @@ export interface IAutoMovieAnalysisMetric {
    * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-failed-not-run-states Types `unit` for the validation failed not run states system contract.
    */
   unit: string;
+
   /**
    * Finite measured value in {@link unit}, or `null` when none was produced.
    *
@@ -34,6 +36,7 @@ export interface IAutoMovieAnalysisMetric {
    * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-failed-not-run-states Types `value` for the validation failed not run states system contract.
    */
   value: number | null;
+
   /**
    * Declared target in {@link unit}, or `null` when none applies.
    *
@@ -41,6 +44,7 @@ export interface IAutoMovieAnalysisMetric {
    * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-failed-not-run-states Types `target` for the validation failed not run states system contract.
    */
   target: number | null;
+
   /**
    * Direction of {@link target}, or `null` when there is no target.
    *
@@ -48,6 +52,7 @@ export interface IAutoMovieAnalysisMetric {
    * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-failed-not-run-states Types `comparison` for the validation failed not run states system contract.
    */
   comparison: AutoMovieAnalysisComparison | null;
+
   /**
    * Outcome for this metric.
    *
@@ -55,6 +60,7 @@ export interface IAutoMovieAnalysisMetric {
    * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-failed-not-run-states Types `status` for the validation failed not run states system contract.
    */
   status: AutoMovieAnalysisMetricStatus;
+
   /**
    * Present exactly when {@link value} is `null`.
    *

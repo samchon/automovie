@@ -16,6 +16,7 @@ export interface IAutoMovieDesignLifecycle {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `subject` for the narrative intent reference lineage system contract.
    */
   subject: string;
+
   /**
    * Phase that installs it, or null when it predates the work.
    *
@@ -23,6 +24,7 @@ export interface IAutoMovieDesignLifecycle {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `introducedIn` for the narrative intent reference lineage system contract.
    */
   introducedIn: string | null;
+
   /**
    * Phase that removes it, or null when it outlives the work.
    *

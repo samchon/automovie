@@ -12,6 +12,7 @@ export interface IAutoMovieProductionDesignInventory {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-provider-choice Types `production` for the asset spec generation provider choice system contract.
    */
   production: boolean;
+
   /**
    * Model recipe ids.
    *
@@ -19,6 +20,7 @@ export interface IAutoMovieProductionDesignInventory {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-provider-choice Types `models` for the asset spec generation provider choice system contract.
    */
   models: string[];
+
   /**
    * Whether the project-shared world design exists.
    *
@@ -26,6 +28,7 @@ export interface IAutoMovieProductionDesignInventory {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-provider-choice Types `world` for the asset spec generation provider choice system contract.
    */
   world: boolean;
+
   /**
    * Formation ids.
    *
@@ -33,6 +36,7 @@ export interface IAutoMovieProductionDesignInventory {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-provider-choice Types `formations` for the asset spec generation provider choice system contract.
    */
   formations: string[];
+
   /**
    * Shot contract ids.
    *
@@ -40,6 +44,7 @@ export interface IAutoMovieProductionDesignInventory {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-provider-choice Types `shots` for the asset spec generation provider choice system contract.
    */
   shots: string[];
+
   /**
    * Acceptance scenario ids.
    *

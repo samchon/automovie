@@ -14,6 +14,7 @@ export interface IAutoMovieBuiltSurface {
    * @evidence specifications/interior-space/surface-assemblies.md#interior-space-surface-assembly-region Types `space` for the interior space surface assembly region system contract.
    */
   space: string;
+
   /**
    * Existing deterministic support/height representation.
    *

@@ -25,6 +25,7 @@ export interface IAutoMovieAnalysisRun {
    * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-failed-not-run-states Types `version` for the validation failed not run states system contract.
    */
   version: 1;
+
   /**
    * Versioned run protocol.
    *
@@ -32,6 +33,7 @@ export interface IAutoMovieAnalysisRun {
    * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-failed-not-run-states Types `protocol` for the validation failed not run states system contract.
    */
   protocol: "automovie.analysis-run.v1";
+
   /**
    * Stable run identity within the production.
    *
@@ -39,6 +41,7 @@ export interface IAutoMovieAnalysisRun {
    * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-failed-not-run-states Types `id` for the validation failed not run states system contract.
    */
   id: string;
+
   /**
    * Domain this run answers for.
    *
@@ -46,6 +49,7 @@ export interface IAutoMovieAnalysisRun {
    * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-failed-not-run-states Types `domain` for the validation failed not run states system contract.
    */
   domain: AutoMovieAnalysisDomain;
+
   /**
    * Open subject label, usually the logical space or boundary analysed.
    *
@@ -53,6 +57,7 @@ export interface IAutoMovieAnalysisRun {
    * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-failed-not-run-states Types `subject` for the validation failed not run states system contract.
    */
   subject: string;
+
   /**
    * Design revision the run read.
    *
@@ -60,6 +65,7 @@ export interface IAutoMovieAnalysisRun {
    * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-failed-not-run-states Types `inputRevision` for the validation failed not run states system contract.
    */
   inputRevision: string;
+
   /**
    * Solver identity.
    *
@@ -67,6 +73,7 @@ export interface IAutoMovieAnalysisRun {
    * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-failed-not-run-states Types `solver` for the validation failed not run states system contract.
    */
   solver: IAutoMovieAnalysisSolver;
+
   /**
    * Digest of the canonical settings the run was configured with.
    *
@@ -74,6 +81,7 @@ export interface IAutoMovieAnalysisRun {
    * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-failed-not-run-states Types `settings` for the validation failed not run states system contract.
    */
   settings: AutoMovieContentDigest;
+
   /**
    * Honest outcome.
    *
@@ -81,6 +89,7 @@ export interface IAutoMovieAnalysisRun {
    * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-failed-not-run-states Types `outcome` for the validation failed not run states system contract.
    */
   outcome: IAutoMovieAnalysisOutcome;
+
   /**
    * Digest over protocol, identity, solver, settings and outcome.
    *

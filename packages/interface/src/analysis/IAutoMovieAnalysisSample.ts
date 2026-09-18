@@ -19,6 +19,7 @@ export interface IAutoMovieAnalysisSample {
    * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-failed-not-run-states Types `id` for the validation failed not run states system contract.
    */
   id: string;
+
   /**
    * Metric key this sample is a field of.
    *
@@ -26,6 +27,7 @@ export interface IAutoMovieAnalysisSample {
    * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-failed-not-run-states Types `key` for the validation failed not run states system contract.
    */
   key: string;
+
   /**
    * World position in metres.
    *
@@ -33,6 +35,7 @@ export interface IAutoMovieAnalysisSample {
    * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-failed-not-run-states Types `position` for the validation failed not run states system contract.
    */
   position: IAutoMovieVector3;
+
   /**
    * Finite value at {@link position}, in the metric's unit.
    *

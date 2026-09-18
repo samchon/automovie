@@ -23,6 +23,7 @@ export interface IAutoMovieShotProgram {
    * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Types `actors` for the spec authoring source input system contract.
    */
   actors: IAutoMovieShotActorProgram[];
+
   /**
    * Macro treatment containing the registered beat.
    *
@@ -30,6 +31,7 @@ export interface IAutoMovieShotProgram {
    * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Types `script` for the spec authoring source input system contract.
    */
   script: IAutoMovieScript;
+
   /**
    * Set declaration whose scene id must equal the registration's scene.
    *
@@ -37,6 +39,7 @@ export interface IAutoMovieShotProgram {
    * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Types `stage` for the spec authoring source input system contract.
    */
   stage: IAutoMovieStage;
+
   /**
    * Checked intent that the action program must realize.
    *
@@ -44,6 +47,7 @@ export interface IAutoMovieShotProgram {
    * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Types `blocking` for the spec authoring source input system contract.
    */
   blocking: IAutoMovieBlocking;
+
   /**
    * Thin verb program compiled by the engine.
    *
@@ -51,6 +55,7 @@ export interface IAutoMovieShotProgram {
    * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Types `performance` for the spec authoring source input system contract.
    */
   performance: IAutoMoviePerformance;
+
   /**
    * One authoritative sample time for every declared semantic event.
    *
@@ -60,6 +65,7 @@ export interface IAutoMovieShotProgram {
   eventSamples: Array<{
     /** Event-contract identity. */
     id: string;
+
     /** Shot-local measurement time in seconds. */
     time: number;
   }>;

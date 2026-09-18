@@ -15,6 +15,7 @@ export interface IAutoMovieExternalMotionBasisNode {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Preserves the source container address in the receipt basis.
    */
   nodeIndex: number;
+
   /**
    * Stable normalized node identity used by motion channels and parent links.
    *
@@ -22,6 +23,7 @@ export interface IAutoMovieExternalMotionBasisNode {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Carries the normalized source node identity into mapping and compatibility checks.
    */
   id: string;
+
   /**
    * Source-authored node name, or null when the node is unnamed.
    *
@@ -29,6 +31,7 @@ export interface IAutoMovieExternalMotionBasisNode {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Retains the observed label separately from stable node identity.
    */
   sourceName: string | null;
+
   /**
    * Parent normalized node identity, or null for a source root.
    *
@@ -36,6 +39,7 @@ export interface IAutoMovieExternalMotionBasisNode {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Binds each source node to its byte-grounded parent relation.
    */
   parent: string | null;
+
   /**
    * Normalized parent-local rest transform inspected from the source node.
    *

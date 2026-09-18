@@ -12,6 +12,7 @@ export interface IAutoMovieProductionPhonemeChunk {
    * @evidence specifications/simulation-effects-and-sound/ambience-music-spatial-and-acoustics.md#spatial-extended-group-source-aggregation Types `phonemes` for the spatial extended group source aggregation system contract.
    */
   phonemes: string;
+
   /**
    * Inclusive source-sample offset in the synthesized line.
    *
@@ -19,6 +20,7 @@ export interface IAutoMovieProductionPhonemeChunk {
    * @evidence specifications/simulation-effects-and-sound/ambience-music-spatial-and-acoustics.md#spatial-extended-group-source-aggregation Types `startSample` for the spatial extended group source aggregation system contract.
    */
   startSample: number;
+
   /**
    * Exclusive source-sample offset in the synthesized line.
    *

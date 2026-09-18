@@ -14,6 +14,7 @@ export interface IAutoMovieGeneratedFile {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-adoption-output Types `path` for the asset spec generation adoption output system contract.
    */
   path: string;
+
   /**
    * Ownership marker.
    *
@@ -21,6 +22,7 @@ export interface IAutoMovieGeneratedFile {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-adoption-output Types `owner` for the asset spec generation adoption output system contract.
    */
   owner: "builder";
+
   /**
    * File-byte digest.
    *
@@ -28,6 +30,7 @@ export interface IAutoMovieGeneratedFile {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-adoption-output Types `digest` for the asset spec generation adoption output system contract.
    */
   digest: AutoMovieContentDigest;
+
   /**
    * Design or source targets that produced the file.
    *

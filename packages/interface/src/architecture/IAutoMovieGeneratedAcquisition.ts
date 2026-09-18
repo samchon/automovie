@@ -20,6 +20,7 @@ export interface IAutoMovieGeneratedAcquisition {
    * @evidence specifications/interchange-and-adoption/intake-authority-and-routing.md#interchange-acquisition-failure-envelope Types `provider` for the interchange acquisition failure envelope system contract.
    */
   provider: string;
+
   /**
    * Exact model identity, including a version when it changes output.
    *
@@ -27,6 +28,7 @@ export interface IAutoMovieGeneratedAcquisition {
    * @evidence specifications/interchange-and-adoption/intake-authority-and-routing.md#interchange-acquisition-failure-envelope Types `model` for the interchange acquisition failure envelope system contract.
    */
   model: string;
+
   /**
    * Provider-side request identity, or null when the provider issues none.
    *
@@ -34,6 +36,7 @@ export interface IAutoMovieGeneratedAcquisition {
    * @evidence specifications/interchange-and-adoption/intake-authority-and-routing.md#interchange-acquisition-failure-envelope Types `request` for the interchange acquisition failure envelope system contract.
    */
   request: string | null;
+
   /**
    * Verbatim instruction, or null when only its digest may be published.
    *
@@ -41,6 +44,7 @@ export interface IAutoMovieGeneratedAcquisition {
    * @evidence specifications/interchange-and-adoption/intake-authority-and-routing.md#interchange-acquisition-failure-envelope Types `prompt` for the interchange acquisition failure envelope system contract.
    */
   prompt: string | null;
+
   /**
    * SHA-256 of the exact instruction bytes, always recorded.
    *
@@ -48,6 +52,7 @@ export interface IAutoMovieGeneratedAcquisition {
    * @evidence specifications/interchange-and-adoption/intake-authority-and-routing.md#interchange-acquisition-failure-envelope Types `promptDigest` for the interchange acquisition failure envelope system contract.
    */
   promptDigest: AutoMovieContentDigest;
+
   /**
    * Manifest asset paths this request was conditioned on, in request order.
    * Empty for a text-only request.
@@ -56,6 +61,7 @@ export interface IAutoMovieGeneratedAcquisition {
    * @evidence specifications/interchange-and-adoption/intake-authority-and-routing.md#interchange-acquisition-failure-envelope Types `inputs` for the interchange acquisition failure envelope system contract.
    */
   inputs: string[];
+
   /**
    * SHA-256 of the exact bytes the generator returned.
    *
@@ -63,6 +69,7 @@ export interface IAutoMovieGeneratedAcquisition {
    * @evidence specifications/interchange-and-adoption/intake-authority-and-routing.md#interchange-acquisition-failure-envelope Types `outputDigest` for the interchange acquisition failure envelope system contract.
    */
   outputDigest: AutoMovieContentDigest;
+
   /**
    * Whether replaying provider, model, prompt and inputs reproduces
    * {@link outputDigest}. `false` is the honest answer for sampled image
@@ -72,6 +79,7 @@ export interface IAutoMovieGeneratedAcquisition {
    * @evidence specifications/interchange-and-adoption/intake-authority-and-routing.md#interchange-acquisition-failure-envelope Types `reproducible` for the interchange acquisition failure envelope system contract.
    */
   reproducible: boolean;
+
   /**
    * Provider-reported seed, or null when the provider exposes none.
    *

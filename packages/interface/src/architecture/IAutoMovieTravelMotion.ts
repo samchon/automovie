@@ -29,6 +29,7 @@ export namespace IAutoMovieTravelMotion {
      * @evidence specifications/building-envelope/exterior-spaces-circulation-and-optics.md#building-envelope-exterior-circulation-input-output Types `kind` for the building envelope exterior circulation input output system contract.
      */
     kind: "revolute";
+
     /**
      * Non-zero turn axis in the moving element's own local frame.
      *
@@ -36,6 +37,7 @@ export namespace IAutoMovieTravelMotion {
      * @evidence specifications/building-envelope/exterior-spaces-circulation-and-optics.md#building-envelope-exterior-circulation-input-output Types `axis` for the building envelope exterior circulation input output system contract.
      */
     axis: IAutoMovieVector3;
+
     /**
      * A point on that axis in the same local frame.
      *
@@ -43,6 +45,7 @@ export namespace IAutoMovieTravelMotion {
      * @evidence specifications/building-envelope/exterior-spaces-circulation-and-optics.md#building-envelope-exterior-circulation-input-output Types `pivot` for the building envelope exterior circulation input output system contract.
      */
     pivot: IAutoMovieVector3;
+
     /**
      * Lowest travel in radians; at most `0`, because rest is `0`.
      *
@@ -50,6 +53,7 @@ export namespace IAutoMovieTravelMotion {
      * @evidence specifications/building-envelope/exterior-spaces-circulation-and-optics.md#building-envelope-exterior-circulation-input-output Types `min` for the building envelope exterior circulation input output system contract.
      */
     min: number;
+
     /**
      * Highest travel in radians; at least `0`, and within a turn of `min`.
      *
@@ -73,6 +77,7 @@ export namespace IAutoMovieTravelMotion {
      * @evidence specifications/interior-space/scope-and-host.md#interior-space-independent-set-state Types `kind` for the interior space independent set state system contract.
      */
     kind: "prismatic";
+
     /**
      * Non-zero travel axis in the moving element's own local frame.
      *
@@ -80,6 +85,7 @@ export namespace IAutoMovieTravelMotion {
      * @evidence specifications/interior-space/scope-and-host.md#interior-space-independent-set-state Types `axis` for the interior space independent set state system contract.
      */
     axis: IAutoMovieVector3;
+
     /**
      * Lowest travel in metres along the unit axis; at most `0`.
      *
@@ -87,6 +93,7 @@ export namespace IAutoMovieTravelMotion {
      * @evidence specifications/interior-space/scope-and-host.md#interior-space-independent-set-state Types `min` for the interior space independent set state system contract.
      */
     min: number;
+
     /**
      * Highest travel in metres along the unit axis; at least `0`.
      *

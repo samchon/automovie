@@ -12,6 +12,7 @@ export interface IAutoMovieCarriageValue {
    * @evidence specifications/building-envelope/facade-roof-and-openings.md#building-envelope-opening-operable-sweep-invariant Types `carriage` for the building envelope opening operable sweep invariant system contract.
    */
   carriage: string;
+
   /**
    * Radians for a revolute carriage, metres for a prismatic one.
    *
@@ -19,6 +20,7 @@ export interface IAutoMovieCarriageValue {
    * @evidence specifications/building-envelope/facade-roof-and-openings.md#building-envelope-opening-operable-sweep-invariant Types `value` for the building envelope opening operable sweep invariant system contract.
    */
   value: number;
+
   /**
    * Logical space this carriage stands at under this state, or null.
    *

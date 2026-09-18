@@ -15,6 +15,7 @@ export interface IAutoMovieInstanceSlot {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `slot` for the performance formation layout slot assignment system contract.
    */
   slot: number;
+
   /**
    * Compiler-owned stable instance id.
    *
@@ -22,6 +23,7 @@ export interface IAutoMovieInstanceSlot {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `node` for the performance formation layout slot assignment system contract.
    */
   node: string;
+
   /**
    * Runtime model recipe id.
    *
@@ -29,6 +31,7 @@ export interface IAutoMovieInstanceSlot {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `modelRecipe` for the performance formation layout slot assignment system contract.
    */
   modelRecipe: string;
+
   /**
    * Selected prototype id; omitted for a legacy single-prototype set.
    *
@@ -36,6 +39,7 @@ export interface IAutoMovieInstanceSlot {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `prototype` for the performance formation layout slot assignment system contract.
    */
   prototype?: string;
+
   /**
    * Compiler-derived world position in meters.
    *
@@ -43,6 +47,7 @@ export interface IAutoMovieInstanceSlot {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `position` for the performance formation layout slot assignment system contract.
    */
   position: IAutoMovieVector3;
+
   /**
    * Compiler-derived world-space heading in degrees.
    *
@@ -50,6 +55,7 @@ export interface IAutoMovieInstanceSlot {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `facingDeg` for the performance formation layout slot assignment system contract.
    */
   facingDeg: number;
+
   /**
    * Positive uniform scale.
    *
@@ -57,6 +63,7 @@ export interface IAutoMovieInstanceSlot {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `scale` for the performance formation layout slot assignment system contract.
    */
   scale: number;
+
   /**
    * Exact full rotation for an enhanced set.
    *
@@ -64,6 +71,7 @@ export interface IAutoMovieInstanceSlot {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `rotation` for the performance formation layout slot assignment system contract.
    */
   rotation?: IAutoMovieQuaternion;
+
   /**
    * Exact non-uniform scale for an enhanced set.
    *
@@ -71,6 +79,7 @@ export interface IAutoMovieInstanceSlot {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `scale3` for the performance formation layout slot assignment system contract.
    */
   scale3?: IAutoMovieVector3;
+
   /**
    * Explicit or seeded visibility for an enhanced set.
    *
@@ -78,6 +87,7 @@ export interface IAutoMovieInstanceSlot {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `visible` for the performance formation layout slot assignment system contract.
    */
   visible?: boolean;
+
   /**
    * Selected exact sRGB palette value.
    *
@@ -85,6 +95,7 @@ export interface IAutoMovieInstanceSlot {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `palette` for the performance formation layout slot assignment system contract.
    */
   palette: string;
+
   /**
    * Seed-derived numeric traits keyed by declared name.
    *

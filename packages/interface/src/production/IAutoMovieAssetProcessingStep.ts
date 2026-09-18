@@ -12,6 +12,7 @@ export interface IAutoMovieAssetProcessingStep {
    * @evidence specifications/asset-and-representation/identity-resources-and-lifecycle.md#asset-spec-element-consumer-links Types `tool` for the asset spec element consumer links system contract.
    */
   tool: string;
+
   /**
    * Exact command or operation name.
    *
@@ -19,6 +20,7 @@ export interface IAutoMovieAssetProcessingStep {
    * @evidence specifications/asset-and-representation/identity-resources-and-lifecycle.md#asset-spec-element-consumer-links Types `command` for the asset spec element consumer links system contract.
    */
   command: string;
+
   /**
    * Stable serializable parameters needed to reproduce the transformation.
    *

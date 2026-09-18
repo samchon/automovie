@@ -27,6 +27,7 @@ export interface IAutoMovieBoundaryFace {
    * @evidence specifications/interior-space/boundaries-openings-and-circulation.md#interior-space-wall-partition-boundary Types `origin` for the interior space wall partition boundary system contract.
    */
   origin: IAutoMovieVector3;
+
   /**
    * Unit quaternion taking the boundary's local axes into world space.
    *
@@ -34,6 +35,7 @@ export interface IAutoMovieBoundaryFace {
    * @evidence specifications/interior-space/boundaries-openings-and-circulation.md#interior-space-wall-partition-boundary Types `rotation` for the interior space wall partition boundary system contract.
    */
   rotation: IAutoMovieQuaternion;
+
   /**
    * Closed face outline in boundary-local XY metres, at least three points.
    *
@@ -45,6 +47,7 @@ export interface IAutoMovieBoundaryFace {
    * @evidence specifications/interior-space/boundaries-openings-and-circulation.md#interior-space-wall-partition-boundary Types `outline` for the interior space wall partition boundary system contract.
    */
   outline: IAutoMoviePlanarPoint[];
+
   /**
    * Positive separation thickness along the boundary's local `+Z`, in metres.
    *

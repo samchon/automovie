@@ -12,6 +12,7 @@ export interface IAutoMovieCopyDriver {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `type` for the performance motion clip keytime interpolation system contract.
    */
   type: "copy";
+
   /**
    * Node whose transform is written.
    *
@@ -19,6 +20,7 @@ export interface IAutoMovieCopyDriver {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `owner` for the performance motion clip keytime interpolation system contract.
    */
   owner: string;
+
   /**
    * Node whose transform is read.
    *
@@ -26,6 +28,7 @@ export interface IAutoMovieCopyDriver {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `source` for the performance motion clip keytime interpolation system contract.
    */
   source: string;
+
   /**
    * Which components to copy.
    *
@@ -33,6 +36,7 @@ export interface IAutoMovieCopyDriver {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `translation` for the performance motion clip keytime interpolation system contract.
    */
   translation: boolean;
+
   /**
    * Whether the owner copies the source rotation.
    *
@@ -42,6 +46,7 @@ export interface IAutoMovieCopyDriver {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `rotation` for the performance motion clip keytime interpolation system contract.
    */
   rotation: boolean;
+
   /**
    * Whether the owner copies the source scale.
    *
@@ -51,6 +56,7 @@ export interface IAutoMovieCopyDriver {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `scale` for the performance motion clip keytime interpolation system contract.
    */
   scale: boolean;
+
   /**
    * Blend factor `[0, 1]` between the owner's prior value and the copied one.
    *

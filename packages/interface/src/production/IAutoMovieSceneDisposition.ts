@@ -12,6 +12,7 @@ export interface IAutoMovieSceneDisposition {
    * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-scene-prose-index Types `phase` for the narrative intent scene prose index system contract.
    */
   phase: "screenplay" | "production" | "edit";
+
   /**
    * Auditable reason the scene does not require a realized shot in this phase.
    *

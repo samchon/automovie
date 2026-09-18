@@ -12,6 +12,7 @@ export interface IAutoMovieDesignDifference {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `subject` for the narrative intent reference lineage system contract.
    */
   subject: string;
+
   /**
    * Aspect the two alternatives disagree on.
    *
@@ -19,6 +20,7 @@ export interface IAutoMovieDesignDifference {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `aspect` for the narrative intent reference lineage system contract.
    */
   aspect: string;
+
   /**
    * Left alternative's value, or null when it leaves the base untouched.
    *
@@ -26,6 +28,7 @@ export interface IAutoMovieDesignDifference {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `left` for the narrative intent reference lineage system contract.
    */
   left: string | null;
+
   /**
    * Right alternative's value, or null when it leaves the base untouched.
    *

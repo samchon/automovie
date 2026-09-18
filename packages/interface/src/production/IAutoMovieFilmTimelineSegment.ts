@@ -12,6 +12,7 @@ export interface IAutoMovieFilmTimelineSegment {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `shot` for the performance formation hierarchy membership command system contract.
    */
   shot: string;
+
   /**
    * Inclusive source frame.
    *
@@ -19,6 +20,7 @@ export interface IAutoMovieFilmTimelineSegment {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `sourceInFrame` for the performance formation hierarchy membership command system contract.
    */
   sourceInFrame: number;
+
   /**
    * Exclusive source frame.
    *
@@ -26,6 +28,7 @@ export interface IAutoMovieFilmTimelineSegment {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `sourceOutFrame` for the performance formation hierarchy membership command system contract.
    */
   sourceOutFrame: number;
+
   /**
    * Film-global inclusive start frame.
    *
@@ -33,6 +36,7 @@ export interface IAutoMovieFilmTimelineSegment {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `startFrame` for the performance formation hierarchy membership command system contract.
    */
   startFrame: number;
+
   /**
    * Film-global exclusive end frame.
    *
@@ -40,6 +44,7 @@ export interface IAutoMovieFilmTimelineSegment {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `endFrame` for the performance formation hierarchy membership command system contract.
    */
   endFrame: number;
+
   /**
    * Available incoming handle frames.
    *
@@ -47,6 +52,7 @@ export interface IAutoMovieFilmTimelineSegment {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `headHandleFrames` for the performance formation hierarchy membership command system contract.
    */
   headHandleFrames: number;
+
   /**
    * Available outgoing handle frames.
    *
@@ -54,6 +60,7 @@ export interface IAutoMovieFilmTimelineSegment {
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `tailHandleFrames` for the performance formation hierarchy membership command system contract.
    */
   tailHandleFrames: number;
+
   /**
    * Normalized incoming transition.
    *
@@ -63,6 +70,7 @@ export interface IAutoMovieFilmTimelineSegment {
   transitionIn:
     | { kind: "cut" }
     | { kind: "dissolve" | "fade"; durationFrames: number };
+
   /**
    * Normalized outgoing transition.
    *

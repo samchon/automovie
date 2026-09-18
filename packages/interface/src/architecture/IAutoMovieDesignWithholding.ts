@@ -12,6 +12,7 @@ export interface IAutoMovieDesignWithholding {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `candidate` for the narrative intent reference lineage system contract.
    */
   candidate: string;
+
   /**
    * Closed reason family that kept it unpromoted.
    *
@@ -25,6 +26,7 @@ export interface IAutoMovieDesignWithholding {
     | "open-issue"
     | "low-confidence"
     | "unsupported-geometry";
+
   /**
    * Human-readable statement of what would have to change.
    *

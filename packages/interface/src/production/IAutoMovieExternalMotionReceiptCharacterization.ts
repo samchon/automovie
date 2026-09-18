@@ -13,6 +13,7 @@ export interface IAutoMovieExternalMotionReceiptCharacterization {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Keeps failed compatibility distinct from an authorized risky adoption.
    */
   status: "compatible" | "override-required" | "incompatible";
+
   /**
    * Deterministically ordered source-to-target compatibility findings.
    *

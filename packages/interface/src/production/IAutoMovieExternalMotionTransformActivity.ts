@@ -20,6 +20,7 @@ export interface IAutoMovieExternalMotionTransformActivity {
     | "time-trim"
     | "channel-conversion"
     | "event-remap";
+
   /**
    * Stable source element identities consumed by this activity.
    *
@@ -27,6 +28,7 @@ export interface IAutoMovieExternalMotionTransformActivity {
    * @evidence specifications/interchange-and-adoption/conversion-receipts-and-determinism.md#interchange-receipt-element-mapping Carries the source side of one transform-ledger relation.
    */
   source: string[];
+
   /**
    * Stable result element identities produced by this activity.
    *
@@ -34,6 +36,7 @@ export interface IAutoMovieExternalMotionTransformActivity {
    * @evidence specifications/interchange-and-adoption/conversion-receipts-and-determinism.md#interchange-receipt-element-mapping Carries the result side of one transform-ledger relation.
    */
   target: string[];
+
   /**
    * Serializable parameters that fully characterize the activity.
    *

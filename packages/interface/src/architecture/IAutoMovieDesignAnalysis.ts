@@ -14,6 +14,7 @@ export interface IAutoMovieDesignAnalysis {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `id` for the narrative intent reference lineage system contract.
    */
   id: string;
+
   /**
    * Frame this analysis read.
    *
@@ -21,6 +22,7 @@ export interface IAutoMovieDesignAnalysis {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `frame` for the narrative intent reference lineage system contract.
    */
   frame: string;
+
   /**
    * Open label of the reading attempted, such as `wall-centerline`.
    *
@@ -28,6 +30,7 @@ export interface IAutoMovieDesignAnalysis {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `subject` for the narrative intent reference lineage system contract.
    */
   subject: string;
+
   /**
    * Honest outcome of the attempt.
    *

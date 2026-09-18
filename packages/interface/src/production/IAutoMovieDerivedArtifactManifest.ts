@@ -19,6 +19,7 @@ export interface IAutoMovieDerivedArtifactManifest {
    * @evidence specifications/authoring-and-authority/deterministic-precomputed-artifacts.md#spec-authoring-precomputed-manifest Selects the version-one manifest contract.
    */
   version: 1;
+
   /**
    * Artifact records sorted by canonical output path.
    *

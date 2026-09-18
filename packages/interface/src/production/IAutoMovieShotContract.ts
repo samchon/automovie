@@ -20,6 +20,7 @@ export interface IAutoMovieShotContract {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `id` for the narrative intent story design ownership system contract.
    */
   id: string;
+
   /**
    * Non-blank narrative beat id owned by the coding-agent treatment.
    *
@@ -27,6 +28,7 @@ export interface IAutoMovieShotContract {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `beat` for the narrative intent story design ownership system contract.
    */
   beat: string;
+
   /**
    * Coding-agent-owned source export.
    *
@@ -39,9 +41,11 @@ export interface IAutoMovieShotContract {
      * paths, dot segments and case-variant aliases are refused.
      */
     module: string;
+
     /** Named exported builder. */
     export: string;
   };
+
   /**
    * Screenplay scenes and optional canon claims this shot intends to realize.
    *
@@ -51,6 +55,7 @@ export interface IAutoMovieShotContract {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `evidence` for the narrative intent story design ownership system contract.
    */
   evidence?: IAutoMovieSceneEvidence[];
+
   /**
    * Finite shot runtime in seconds, strictly above zero and on the production
    * frame clock.
@@ -59,6 +64,7 @@ export interface IAutoMovieShotContract {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `durationSeconds` for the narrative intent story design ownership system contract.
    */
   durationSeconds: number;
+
   /**
    * Where this shot's local time zero lands on the production story clock.
    *
@@ -72,6 +78,7 @@ export interface IAutoMovieShotContract {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `storyTime` for the narrative intent story design ownership system contract.
    */
   storyTime?: IAutoMovieShotStoryTime;
+
   /**
    * Unique deliberate film-grammar exceptions. Each value suppresses only its
    * corresponding heuristic diagnostic; unrelated facts remain visible.
@@ -80,6 +87,7 @@ export interface IAutoMovieShotContract {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `styleIntent` for the narrative intent story design ownership system contract.
    */
   styleIntent?: AutoMovieGrammarStyleIntent[];
+
   /**
    * Unique required actor and formation ids; formations must already exist.
    *
@@ -87,6 +95,7 @@ export interface IAutoMovieShotContract {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `participants` for the narrative intent story design ownership system contract.
    */
   participants: IAutoMovieShotParticipant[];
+
   /**
    * Required opening states.
    *
@@ -94,6 +103,7 @@ export interface IAutoMovieShotContract {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `opening` for the narrative intent story design ownership system contract.
    */
   opening: IAutoMovieNamedState[];
+
   /**
    * Required closing states.
    *
@@ -101,6 +111,7 @@ export interface IAutoMovieShotContract {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `closing` for the narrative intent story design ownership system contract.
    */
   closing: IAutoMovieNamedState[];
+
   /**
    * Camera readability constraints.
    *
@@ -110,11 +121,13 @@ export interface IAutoMovieShotContract {
   camera: {
     /** Non-blank creative camera intent. */
     intent: string;
+
     /**
      * Non-empty unique compiled scene-node or formation ids that must remain
      * readable.
      */
     requiredSubjects: string[];
+
     /**
      * Finite maximum allowed pixel-occlusion ratio, inclusive from zero to one.
      *
@@ -124,6 +137,7 @@ export interface IAutoMovieShotContract {
      */
     maxOcclusionRatio: number;
   };
+
   /**
    * Timed semantic events.
    *
@@ -131,6 +145,7 @@ export interface IAutoMovieShotContract {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `events` for the narrative intent story design ownership system contract.
    */
   events: IAutoMovieShotEventContract[];
+
   /**
    * At least one required visual-review frame.
    *

@@ -24,6 +24,7 @@ export interface IAutoMovieLibrarySourceOwner {
    * without pretending settings own a model, environment, or context.
    */
   design: string;
+
   /** Build this owner's contribution deterministically from its own address. */
   build(context: IAutoMovieLibraryBuildContext): IAutoMovieLibraryContribution;
 }

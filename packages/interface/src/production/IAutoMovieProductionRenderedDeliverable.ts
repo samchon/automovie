@@ -16,6 +16,7 @@ export interface IAutoMovieProductionRenderedDeliverable {
    * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Types `id` for the spec render state isolation system contract.
    */
   id: string;
+
   /**
    * Exact kind declared by production design.
    *
@@ -23,6 +24,7 @@ export interface IAutoMovieProductionRenderedDeliverable {
    * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Types `kind` for the spec render state isolation system contract.
    */
   kind: IAutoMovieProductionDeliverable["kind"];
+
   /**
    * Byte-exact owned output files.
    *
@@ -30,6 +32,7 @@ export interface IAutoMovieProductionRenderedDeliverable {
    * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Types `files` for the spec render state isolation system contract.
    */
   files: IAutoMovieProductionDeliverableFile[];
+
   /**
    * Timeline duration, or null for a still-only deliverable.
    *
@@ -37,6 +40,7 @@ export interface IAutoMovieProductionRenderedDeliverable {
    * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Types `runtimeSeconds` for the spec render state isolation system contract.
    */
   runtimeSeconds: number | null;
+
   /**
    * Rendered frame count, or null when the kind has no video frame clock.
    *
@@ -44,6 +48,7 @@ export interface IAutoMovieProductionRenderedDeliverable {
    * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Types `frameCount` for the spec render state isolation system contract.
    */
   frameCount: number | null;
+
   /**
    * Actual codec name, or null for unencoded text/image artifacts.
    *
@@ -51,6 +56,7 @@ export interface IAutoMovieProductionRenderedDeliverable {
    * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Types `codec` for the spec render state isolation system contract.
    */
   codec: string | null;
+
   /**
    * Repaint provenance when this feature was conformed from selected visual
    * renditions. Absent for deterministic delivery and non-feature outputs.

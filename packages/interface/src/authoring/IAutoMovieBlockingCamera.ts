@@ -15,6 +15,7 @@ export interface IAutoMovieBlockingCamera {
    * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `framing` for the spec authoring authority compatibility system contract.
    */
   framing: "wide" | "full" | "medium" | "close";
+
   /**
    * Deterministic move family.
    *
@@ -22,6 +23,7 @@ export interface IAutoMovieBlockingCamera {
    * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `move` for the spec authoring authority compatibility system contract.
    */
   move: "static" | "follow" | "orbit" | "push-in" | "truck" | "whip";
+
   /**
    * Staged node or literal point the camera must favor.
    *

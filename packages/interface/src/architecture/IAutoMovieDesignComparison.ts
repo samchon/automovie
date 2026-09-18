@@ -19,6 +19,7 @@ export interface IAutoMovieDesignComparison {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `revision` for the narrative intent reference lineage system contract.
    */
   revision: string;
+
   /**
    * Left variant id.
    *
@@ -26,6 +27,7 @@ export interface IAutoMovieDesignComparison {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `left` for the narrative intent reference lineage system contract.
    */
   left: string;
+
   /**
    * Right variant id.
    *
@@ -33,6 +35,7 @@ export interface IAutoMovieDesignComparison {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `right` for the narrative intent reference lineage system contract.
    */
   right: string;
+
   /**
    * Subject ids neither alternative edits, in ascending order.
    *
@@ -40,6 +43,7 @@ export interface IAutoMovieDesignComparison {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `common` for the narrative intent reference lineage system contract.
    */
   common: string[];
+
   /**
    * Every differing subject and aspect, in ascending order.
    *

@@ -14,6 +14,7 @@ export interface IAutoMovieAssetUse {
    * @evidence specifications/asset-and-representation/identity-resources-and-lifecycle.md#asset-spec-element-consumer-links Types `production` for the asset spec element consumer links system contract.
    */
   production: string;
+
   /**
    * Typed, addressable consumer inside that production.
    *
@@ -21,6 +22,7 @@ export interface IAutoMovieAssetUse {
    * @evidence specifications/asset-and-representation/identity-resources-and-lifecycle.md#asset-spec-element-consumer-links Types `consumer` for the asset spec element consumer links system contract.
    */
   consumer: IAutoMovieAssetConsumer;
+
   /**
    * Why this production needs the asset.
    *

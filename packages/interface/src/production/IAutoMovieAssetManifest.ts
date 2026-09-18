@@ -14,6 +14,7 @@ export interface IAutoMovieAssetManifest {
    * @evidence specifications/asset-and-representation/identity-resources-and-lifecycle.md#asset-spec-adoption-output Types `version` for the asset spec adoption output system contract.
    */
   version: 1;
+
   /**
    * Every distributable project asset, ordered by canonical path.
    *

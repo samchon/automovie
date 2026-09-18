@@ -14,6 +14,7 @@ export interface IAutoMovieShotReviewWrite {
    * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-runtime-evidence-authority-invariant Types `beat` for the spec authoring runtime evidence authority invariant system contract.
    */
   beat: string;
+
   /**
    * Concrete observations from current render evidence.
    *
@@ -21,6 +22,7 @@ export interface IAutoMovieShotReviewWrite {
    * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-runtime-evidence-authority-invariant Types `observations` for the spec authoring runtime evidence authority invariant system contract.
    */
   observations: string;
+
   /**
    * Pass only when no correction note remains open.
    *
@@ -28,6 +30,7 @@ export interface IAutoMovieShotReviewWrite {
    * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-runtime-evidence-authority-invariant Types `verdict` for the spec authoring runtime evidence authority invariant system contract.
    */
   verdict: "pass" | "revise";
+
   /**
    * Located corrections; non-empty exactly when verdict is revise.
    *

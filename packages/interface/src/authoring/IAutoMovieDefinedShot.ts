@@ -20,6 +20,7 @@ export interface IAutoMovieDefinedShot<Context = undefined> {
    * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `id` for the spec authoring source derivation state system contract.
    */
   id: string;
+
   /**
    * Stable staged-scene id the builder must actually produce.
    *
@@ -27,6 +28,7 @@ export interface IAutoMovieDefinedShot<Context = undefined> {
    * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `scene` for the spec authoring source derivation state system contract.
    */
   scene: string;
+
   /**
    * Required participants, states, events, coverage, and review evidence.
    *
@@ -34,6 +36,7 @@ export interface IAutoMovieDefinedShot<Context = undefined> {
    * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `contract` for the spec authoring source derivation state system contract.
    */
   contract: IAutoMovieDefinedShotContract;
+
   /**
    * Free deterministic code that emits the typed engine program.
    *

@@ -12,6 +12,7 @@ export interface IAutoMovieScreenplayLock {
    * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-scene-prose-index Types `activatedBy` for the narrative intent scene prose index system contract.
    */
   activatedBy: "user" | "agent-before-first-shot";
+
   /**
    * Why stable numbering is now required by downstream work.
    *
@@ -19,6 +20,7 @@ export interface IAutoMovieScreenplayLock {
    * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-scene-prose-index Types `reason` for the narrative intent scene prose index system contract.
    */
   reason: string;
+
   /**
    * Every scene id present when locked.
    *

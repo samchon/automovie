@@ -31,6 +31,7 @@ export namespace IAutoMovieSoftCollider {
      * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `kind` for the interior space soft furnishing planting system contract.
      */
     kind: "plane";
+
     /**
      * Stable collider identity within the domain.
      *
@@ -38,6 +39,7 @@ export namespace IAutoMovieSoftCollider {
      * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `id` for the interior space soft furnishing planting system contract.
      */
     id: string;
+
     /**
      * Outward normal of the allowed side; non-zero and need not be unit.
      *
@@ -45,6 +47,7 @@ export namespace IAutoMovieSoftCollider {
      * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `normal` for the interior space soft furnishing planting system contract.
      */
     normal: IAutoMovieVector3;
+
     /**
      * Particles are kept where `dot(normalize(normal), p) >= offset`.
      *
@@ -68,6 +71,7 @@ export namespace IAutoMovieSoftCollider {
      * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `kind` for the interior space soft furnishing planting system contract.
      */
     kind: "sphere";
+
     /**
      * Stable collider identity within the domain.
      *
@@ -75,6 +79,7 @@ export namespace IAutoMovieSoftCollider {
      * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `id` for the interior space soft furnishing planting system contract.
      */
     id: string;
+
     /**
      * World centre.
      *
@@ -82,6 +87,7 @@ export namespace IAutoMovieSoftCollider {
      * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `center` for the interior space soft furnishing planting system contract.
      */
     center: IAutoMovieVector3;
+
     /**
      * Strictly positive radius in metres.
      *
@@ -105,6 +111,7 @@ export namespace IAutoMovieSoftCollider {
      * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `kind` for the interior space soft furnishing planting system contract.
      */
     kind: "box";
+
     /**
      * Stable collider identity within the domain.
      *
@@ -112,6 +119,7 @@ export namespace IAutoMovieSoftCollider {
      * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `id` for the interior space soft furnishing planting system contract.
      */
     id: string;
+
     /**
      * Minimum corner.
      *
@@ -119,6 +127,7 @@ export namespace IAutoMovieSoftCollider {
      * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `min` for the interior space soft furnishing planting system contract.
      */
     min: IAutoMovieVector3;
+
     /**
      * Maximum corner, strictly greater on every axis.
      *
@@ -143,6 +152,7 @@ export namespace IAutoMovieSoftCollider {
      * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-collider-and-solver-transition Selects evaluated-pose capsule resolution.
      */
     kind: "body-capsule";
+
     /**
      * Stable collider identity within the domain.
      *
@@ -150,6 +160,7 @@ export namespace IAutoMovieSoftCollider {
      * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-collider-and-solver-transition Preserves deterministic collider ordering.
      */
     id: string;
+
     /**
      * Stable actor participant whose pose places the capsule.
      *
@@ -157,6 +168,7 @@ export namespace IAutoMovieSoftCollider {
      * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-collider-and-solver-transition Joins the shared proxy to one evaluated actor pose.
      */
     actor: string;
+
     /**
      * Actor-local capsule shared with body validation and contact systems.
      *

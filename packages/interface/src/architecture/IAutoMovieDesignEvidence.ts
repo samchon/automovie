@@ -17,6 +17,7 @@ export interface IAutoMovieDesignEvidence {
    * @evidence specifications/evidence-and-provenance/observations-claims-and-human-judgments.md#evp-observation-record-contract Types `subject` for the evp observation record contract system contract.
    */
   subject: string;
+
   /**
    * Design-reference document id.
    *
@@ -24,6 +25,7 @@ export interface IAutoMovieDesignEvidence {
    * @evidence specifications/evidence-and-provenance/observations-claims-and-human-judgments.md#evp-observation-record-contract Types `document` for the evp observation record contract system contract.
    */
   document: string;
+
   /**
    * Candidate ids cited as the basis of the authored decision; at least one.
    *
@@ -31,6 +33,7 @@ export interface IAutoMovieDesignEvidence {
    * @evidence specifications/evidence-and-provenance/observations-claims-and-human-judgments.md#evp-observation-record-contract Types `candidates` for the evp observation record contract system contract.
    */
   candidates: string[];
+
   /**
    * Why the author chose this reading over the recorded alternatives.
    *

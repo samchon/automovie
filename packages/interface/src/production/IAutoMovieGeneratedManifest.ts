@@ -15,6 +15,7 @@ export interface IAutoMovieGeneratedManifest {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-adoption-output Types `version` for the asset spec generation adoption output system contract.
    */
   version: 1;
+
   /**
    * Compiler identity.
    *
@@ -24,9 +25,11 @@ export interface IAutoMovieGeneratedManifest {
   builder: {
     /** Package version. */
     packageVersion: string;
+
     /** Content protocol version. */
     protocolVersion: string;
   };
+
   /**
    * Ordered design and source input fingerprint.
    *
@@ -34,6 +37,7 @@ export interface IAutoMovieGeneratedManifest {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-adoption-output Types `inputFingerprint` for the asset spec generation adoption output system contract.
    */
   inputFingerprint: AutoMovieContentDigest;
+
   /**
    * Compiler-owned files.
    *

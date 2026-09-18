@@ -17,6 +17,7 @@ export interface IAutoMovieDesignPhase {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `id` for the narrative intent reference lineage system contract.
    */
   id: string;
+
   /**
    * Human label such as `demolition`, `structure`, `services`, `finishes`.
    *
@@ -24,6 +25,7 @@ export interface IAutoMovieDesignPhase {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `label` for the narrative intent reference lineage system contract.
    */
   label: string;
+
   /**
    * Phase ids that must complete before this one; empty for a first phase.
    *

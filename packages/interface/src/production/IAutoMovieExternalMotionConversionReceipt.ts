@@ -26,6 +26,7 @@ export interface IAutoMovieExternalMotionConversionReceipt {
    * @evidence specifications/interchange-and-adoption/conversion-receipts-and-determinism.md#interchange-canonical-receipt-result Makes canonical serialization explicitly versioned.
    */
   version: 1;
+
   /**
    * Compiler tool and protocol identity that produced the conversion.
    *
@@ -33,6 +34,7 @@ export interface IAutoMovieExternalMotionConversionReceipt {
    * @evidence specifications/interchange-and-adoption/conversion-receipts-and-determinism.md#interchange-receipt-input-basis Makes tool and profile versions part of deterministic receipt identity.
    */
   builder: IAutoMovieExternalMotionConversionCompiler;
+
   /**
    * Production-declared external motion adoption identity.
    *
@@ -40,6 +42,7 @@ export interface IAutoMovieExternalMotionConversionReceipt {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Joins source, decision, characterization, and result to one adoption.
    */
   adoption: string;
+
   /**
    * Pinned source closure, take, and byte-inspected basis.
    *
@@ -47,6 +50,7 @@ export interface IAutoMovieExternalMotionConversionReceipt {
    * @evidence specifications/interchange-and-adoption/conversion-receipts-and-determinism.md#interchange-receipt-input-basis Types the deterministic source input of the conversion receipt.
    */
   source: IAutoMovieExternalMotionConversionSource;
+
   /**
    * Actor-bound authored adoption decision.
    *
@@ -54,6 +58,7 @@ export interface IAutoMovieExternalMotionConversionReceipt {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Types the selected shot, actor, clip, mode, mapping, and scale.
    */
   decision: IAutoMovieExternalMotionConversionDecision;
+
   /**
    * Exact model and skeleton basis receiving the motion.
    *
@@ -61,6 +66,7 @@ export interface IAutoMovieExternalMotionConversionReceipt {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Binds the decision to one target basis digest.
    */
   target: IAutoMovieExternalMotionConversionTarget;
+
   /**
    * Ordered builder-performed transform ledger.
    *
@@ -68,6 +74,7 @@ export interface IAutoMovieExternalMotionConversionReceipt {
    * @evidence specifications/interchange-and-adoption/conversion-receipts-and-determinism.md#interchange-receipt-element-mapping Preserves semantic transform order in canonical identity.
    */
   transforms: IAutoMovieExternalMotionTransformActivity[];
+
   /**
    * Ordered ledger of dropped, approximated, or altered source facts.
    *
@@ -75,6 +82,7 @@ export interface IAutoMovieExternalMotionConversionReceipt {
    * @evidence specifications/interchange-and-adoption/conversion-receipts-and-determinism.md#interchange-receipt-loss-ledger Types loss independently of successful result generation.
    */
   losses: IAutoMovieExternalMotionLossEntry[];
+
   /**
    * Source-to-target compatibility findings before user authorization.
    *
@@ -82,6 +90,7 @@ export interface IAutoMovieExternalMotionConversionReceipt {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Preserves the builder's characterization beside the authored decision.
    */
   characterization: IAutoMovieExternalMotionReceiptCharacterization;
+
   /**
    * Canonical motion and generated output identities.
    *

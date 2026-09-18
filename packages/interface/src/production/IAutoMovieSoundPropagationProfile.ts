@@ -16,6 +16,7 @@ export interface IAutoMovieSoundPropagationProfile {
    * @evidence specifications/simulation-effects-and-sound/ambience-music-spatial-and-acoustics.md#spatial-direct-path-and-output-mapping Identifies the exact calculation inputs.
    */
   id: string;
+
   /**
    * Finite strictly positive propagation speed in meters per second.
    *
@@ -23,6 +24,7 @@ export interface IAutoMovieSoundPropagationProfile {
    * @evidence specifications/simulation-effects-and-sound/ambience-music-spatial-and-acoustics.md#spatial-direct-path-and-output-mapping Supplies arrival-time calculation speed.
    */
   speedOfSoundMetersPerSecond: number;
+
   /**
    * Declared distance-gain law.
    *
@@ -32,9 +34,11 @@ export interface IAutoMovieSoundPropagationProfile {
   distanceGain: {
     /** Current bounded law, `1 / (1 + coefficient * distance^2)`. */
     kind: "softened-inverse-square-v1";
+
     /** Finite non-negative softening coefficient. */
     coefficient: number;
   };
+
   /**
    * Declared spectral treatment; `none` never masquerades as absorption.
    *
@@ -49,9 +53,11 @@ export interface IAutoMovieSoundPropagationProfile {
     | {
         /** One bounded broadband high-frequency attenuation stage. */
         kind: "broadband-high-frequency-v1";
+
         /** Finite non-negative high-frequency loss in dB per meter. */
         absorptionDbPerMeter: number;
       };
+
   /**
    * Authored edit decision when arrival lies beyond the source shot segment.
    *
@@ -59,6 +65,7 @@ export interface IAutoMovieSoundPropagationProfile {
    * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-cue-sample-boundary-and-arrival Makes cut-boundary handling deterministic.
    */
   segmentBoundary: "carry-across-cut" | "trim-at-segment";
+
   /**
    * Non-empty statements of the physical assumptions this profile adopts.
    *

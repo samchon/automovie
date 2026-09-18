@@ -21,20 +21,26 @@ export interface IAutoMoviePreviewFrameInput {
     | {
         /** Shot target. */
         kind: "shot";
+
         /** Shot id. */
         id: string;
       }
     | {
         /** Isolated compiled model turntable target. */
         kind: "asset";
+
         /** Model-recipe id. */
         id: string;
+
         /** Finite turntable azimuth in degrees. */
         angleDeg: number;
+
         /** Finite camera elevation in degrees. */
         elevationDeg: number;
+
         /** Rest or required extreme-range rig pose. */
         pose: "rest" | "rom-extremes";
+
         /**
          * Compiled part id to frame instead of the whole model, when given.
          *
@@ -45,6 +51,7 @@ export interface IAutoMoviePreviewFrameInput {
          */
         part?: string;
       };
+
   /**
    * Finite non-negative shot-local time no later than shot duration. The oracle
    * snaps it to the nearest current production frame. Asset targets derive the
@@ -54,6 +61,7 @@ export interface IAutoMoviePreviewFrameInput {
    * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-knowledge-request-output Types `time` for the spec authoring knowledge request output system contract.
    */
   time: number;
+
   /**
    * Requested render pass, beauty by default.
    *
@@ -61,6 +69,7 @@ export interface IAutoMoviePreviewFrameInput {
    * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-knowledge-request-output Types `pass` for the spec authoring knowledge request output system contract.
    */
   pass?: AutoMovieGuidePass;
+
   /**
    * Optional positive integer width, no larger than production width. Width
    * times height may not exceed 16,777,216 pixels.
@@ -69,6 +78,7 @@ export interface IAutoMoviePreviewFrameInput {
    * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-knowledge-request-output Types `width` for the spec authoring knowledge request output system contract.
    */
   width?: number;
+
   /**
    * Optional positive integer height, no larger than production height. Width
    * times height may not exceed 16,777,216 pixels.

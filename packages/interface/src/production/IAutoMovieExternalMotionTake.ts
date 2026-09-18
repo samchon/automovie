@@ -17,6 +17,7 @@ export interface IAutoMovieExternalMotionTake {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Types `id` for the performance motion external adoption receipt system contract.
    */
   id: string;
+
   /**
    * Zero-based glTF animation index.
    *
@@ -26,6 +27,7 @@ export interface IAutoMovieExternalMotionTake {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Types `animationIndex` for the performance motion external adoption receipt system contract.
    */
   animationIndex: number;
+
   /**
    * Source-authored animation name, or null when unnamed.
    *
@@ -35,6 +37,7 @@ export interface IAutoMovieExternalMotionTake {
    * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Types `sourceName` for the performance motion external adoption receipt system contract.
    */
   sourceName: string | null;
+
   /**
    * Inspected finite duration in seconds.
    *

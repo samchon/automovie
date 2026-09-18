@@ -26,6 +26,7 @@ export interface IAutoMovieDesignReference {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `version` for the narrative intent reference lineage system contract.
    */
   version: 1;
+
   /**
    * Stable document identity within the production.
    *
@@ -33,6 +34,7 @@ export interface IAutoMovieDesignReference {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `id` for the narrative intent reference lineage system contract.
    */
   id: string;
+
   /**
    * Project-relative manifest asset holding the exact observed bytes.
    *
@@ -40,6 +42,7 @@ export interface IAutoMovieDesignReference {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `asset` for the narrative intent reference lineage system contract.
    */
   asset: string;
+
   /**
    * SHA-256 of those bytes at the moment the observation was made.
    *
@@ -47,6 +50,7 @@ export interface IAutoMovieDesignReference {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `digest` for the narrative intent reference lineage system contract.
    */
   digest: AutoMovieContentDigest;
+
   /**
    * Container family the asset bytes are declared to be.
    *
@@ -54,6 +58,7 @@ export interface IAutoMovieDesignReference {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `media` for the narrative intent reference lineage system contract.
    */
   media: AutoMovieDesignReferenceMedia;
+
   /**
    * Pages, sheets, or images read from the asset; at least one.
    *
@@ -61,6 +66,7 @@ export interface IAutoMovieDesignReference {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `frames` for the narrative intent reference lineage system contract.
    */
   frames: IAutoMovieDesignSourceFrame[];
+
   /**
    * Raw marks read from those frames.
    *
@@ -68,6 +74,7 @@ export interface IAutoMovieDesignReference {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `primitives` for the narrative intent reference lineage system contract.
    */
   primitives: IAutoMovieObservedPrimitive[];
+
   /**
    * Every attempted reading, including the ones that produced nothing.
    *
@@ -75,6 +82,7 @@ export interface IAutoMovieDesignReference {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `analyses` for the narrative intent reference lineage system contract.
    */
   analyses: IAutoMovieDesignAnalysis[];
+
   /**
    * Semantic proposals over the raw marks.
    *
@@ -82,6 +90,7 @@ export interface IAutoMovieDesignReference {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `candidates` for the narrative intent reference lineage system contract.
    */
   candidates: IAutoMovieObservedCandidate[];
+
   /**
    * Everything still undecided.
    *

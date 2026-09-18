@@ -11,16 +11,20 @@ export type IAutoMovieProductionLipSyncJoin =
   | {
       /** Lip-sync can be applied. */
       status: "available";
+
       /** Actor id resolved from the authored speaker. */
       actor: string;
+
       /** Mouth movement follows visual emission, not delayed audio arrival. */
       timing: "emission";
+
       /** Preserve authored emotion outside the mouth target. */
       composition: "mouth-layer-over-authored-expression";
     }
   | {
       /** Lip-sync could not be joined. */
       status: "not-run";
+
       /** Exact missing or ambiguous join fact. */
       reason:
         | "speaker-not-declared"

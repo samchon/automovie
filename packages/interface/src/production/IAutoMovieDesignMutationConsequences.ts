@@ -14,6 +14,7 @@ export interface IAutoMovieDesignMutationConsequences {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-provider-choice Types `staleReviews` for the asset spec generation provider choice system contract.
    */
   staleReviews: IAutoMovieReviewTarget[];
+
   /**
    * Render bundle ids that become stale.
    *
@@ -21,6 +22,7 @@ export interface IAutoMovieDesignMutationConsequences {
    * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-provider-choice Types `staleRenders` for the asset spec generation provider choice system contract.
    */
   staleRenders: string[];
+
   /**
    * Generated paths invalidated by the mutation.
    *

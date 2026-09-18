@@ -17,6 +17,7 @@ export interface IAutoMovieInstanceSetDesign {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `id` for the narrative intent story design ownership system contract.
    */
   id: string;
+
   /**
    * Existing model recipe rendered by every member.
    *
@@ -24,6 +25,7 @@ export interface IAutoMovieInstanceSetDesign {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `modelRecipe` for the narrative intent story design ownership system contract.
    */
   modelRecipe: string;
+
   /**
    * Optional weighted prototype table; `modelRecipe` remains the default.
    *
@@ -31,6 +33,7 @@ export interface IAutoMovieInstanceSetDesign {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `prototypes` for the narrative intent story design ownership system contract.
    */
   prototypes?: IAutoMovieInstancePrototypeDesign[];
+
   /**
    * Integer slot count from one through 100,000.
    *
@@ -38,6 +41,7 @@ export interface IAutoMovieInstanceSetDesign {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `count` for the narrative intent story design ownership system contract.
    */
   count: number;
+
   /**
    * Compact deterministic placement law.
    *
@@ -45,6 +49,7 @@ export interface IAutoMovieInstanceSetDesign {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `layout` for the narrative intent story design ownership system contract.
    */
   layout: IAutoMovieInstanceSetLayout;
+
   /**
    * World-space origin for grid and scatter layouts.
    *
@@ -52,6 +57,7 @@ export interface IAutoMovieInstanceSetDesign {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `anchor` for the narrative intent story design ownership system contract.
    */
   anchor: IAutoMovieVector3;
+
   /**
    * Finite base heading in degrees.
    *
@@ -59,6 +65,7 @@ export interface IAutoMovieInstanceSetDesign {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `facingDeg` for the narrative intent story design ownership system contract.
    */
   facingDeg: number;
+
   /**
    * Full non-negative safe-integer seed.
    *
@@ -66,6 +73,7 @@ export interface IAutoMovieInstanceSetDesign {
    * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `seed` for the narrative intent story design ownership system contract.
    */
   seed: number;
+
   /**
    * Seed-derived per-slot differences.
    *

@@ -16,6 +16,7 @@ export interface IAutoMovieStageLight {
    * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `node` for the spec authoring authority compatibility system contract.
    */
   node: string;
+
   /**
    * Optional dramatic annotation; lowering reads the physical fields below.
    *
@@ -23,6 +24,7 @@ export interface IAutoMovieStageLight {
    * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `role` for the spec authoring authority compatibility system contract.
    */
   role?: "key" | "fill" | "rim" | "ambient" | "sun";
+
   /**
    * Light family; omitted means a directional source.
    *
@@ -30,6 +32,7 @@ export interface IAutoMovieStageLight {
    * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `type` for the spec authoring authority compatibility system contract.
    */
   type?: "directional" | "point" | "spot" | "area";
+
   /**
    * Required aim for directional, spot and area sources; forbidden for point.
    *
@@ -37,6 +40,7 @@ export interface IAutoMovieStageLight {
    * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `direction` for the spec authoring authority compatibility system contract.
    */
   direction?: IAutoMovieVector3;
+
   /**
    * Required origin for point, spot and area sources; forbidden for
    * directional.
@@ -45,6 +49,7 @@ export interface IAutoMovieStageLight {
    * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `position` for the spec authoring authority compatibility system contract.
    */
   position?: IAutoMovieVector3;
+
   /**
    * Linear light color; omitted means neutral white.
    *
@@ -52,6 +57,7 @@ export interface IAutoMovieStageLight {
    * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `color` for the spec authoring authority compatibility system contract.
    */
   color?: IAutoMovieColor;
+
   /**
    * Finite non-negative relative brightness.
    *
@@ -59,6 +65,7 @@ export interface IAutoMovieStageLight {
    * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `intensity` for the spec authoring authority compatibility system contract.
    */
   intensity: number;
+
   /**
    * Point/spot falloff distance, where zero means unbounded.
    *
@@ -69,6 +76,7 @@ export interface IAutoMovieStageLight {
    * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `range` for the spec authoring authority compatibility system contract.
    */
   range?: number;
+
   /**
    * Spot half-angle in degrees, greater than zero and at most 90.
    *
@@ -76,6 +84,7 @@ export interface IAutoMovieStageLight {
    * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `coneAngle` for the spec authoring authority compatibility system contract.
    */
   coneAngle?: number;
+
   /**
    * Area-panel width in meters along its local X axis, finite and greater than
    * zero. Required on an area source and forbidden on every other family.
@@ -84,6 +93,7 @@ export interface IAutoMovieStageLight {
    * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `width` for the spec authoring authority compatibility system contract.
    */
   width?: number;
+
   /**
    * Area-panel height in meters along its local Y axis, finite and greater than
    * zero. Required on an area source and forbidden on every other family.
@@ -92,6 +102,7 @@ export interface IAutoMovieStageLight {
    * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `height` for the spec authoring authority compatibility system contract.
    */
   height?: number;
+
   /**
    * Whether this source casts shadows.
    *
@@ -99,6 +110,7 @@ export interface IAutoMovieStageLight {
    * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `castShadow` for the spec authoring authority compatibility system contract.
    */
   castShadow?: boolean;
+
   /**
    * Optional shadow-map camera and bias tuning.
    *

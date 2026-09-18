@@ -16,6 +16,7 @@ export interface IAutoMovieDesignDecision {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `id` for the narrative intent reference lineage system contract.
    */
   id: string;
+
   /**
    * What is being decided.
    *
@@ -23,6 +24,7 @@ export interface IAutoMovieDesignDecision {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `question` for the narrative intent reference lineage system contract.
    */
   question: string;
+
   /**
    * Variant ids compared; at least two, all sharing one base revision.
    *
@@ -30,6 +32,7 @@ export interface IAutoMovieDesignDecision {
    * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `options` for the narrative intent reference lineage system contract.
    */
   options: string[];
+
   /**
    * Chosen option id, or null while the decision is still open.
    *

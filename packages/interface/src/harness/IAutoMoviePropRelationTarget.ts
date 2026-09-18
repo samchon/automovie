@@ -31,6 +31,7 @@ export namespace IAutoMoviePropRelationTarget {
      * @evidence specifications/camera-light-and-visibility/target-focus-exposure-and-sampling.md#clv-focus-intent-appearance-boundary Types `kind` for the clv focus intent appearance boundary system contract.
      */
     kind: "space";
+
     /**
      * Built environment id.
      *
@@ -38,6 +39,7 @@ export namespace IAutoMoviePropRelationTarget {
      * @evidence specifications/camera-light-and-visibility/target-focus-exposure-and-sampling.md#clv-focus-intent-appearance-boundary Types `environment` for the clv focus intent appearance boundary system contract.
      */
     environment: string;
+
     /**
      * Logical space id inside that environment.
      *
@@ -61,6 +63,7 @@ export namespace IAutoMoviePropRelationTarget {
      * @evidence specifications/camera-light-and-visibility/target-focus-exposure-and-sampling.md#clv-focus-intent-appearance-boundary Types `kind` for the clv focus intent appearance boundary system contract.
      */
     kind: "element";
+
     /**
      * Built environment id.
      *
@@ -68,6 +71,7 @@ export namespace IAutoMoviePropRelationTarget {
      * @evidence specifications/camera-light-and-visibility/target-focus-exposure-and-sampling.md#clv-focus-intent-appearance-boundary Types `environment` for the clv focus intent appearance boundary system contract.
      */
     environment: string;
+
     /**
      * Element id inside that environment.
      *
@@ -91,6 +95,7 @@ export namespace IAutoMoviePropRelationTarget {
      * @evidence specifications/narrative-and-intent/dialogue-language-theme-and-meaning.md#narrative-intent-dialogue-voice-text-boundary Types `kind` for the narrative intent dialogue voice text boundary system contract.
      */
     kind: "boundary";
+
     /**
      * Built environment id.
      *
@@ -98,6 +103,7 @@ export namespace IAutoMoviePropRelationTarget {
      * @evidence specifications/narrative-and-intent/dialogue-language-theme-and-meaning.md#narrative-intent-dialogue-voice-text-boundary Types `environment` for the narrative intent dialogue voice text boundary system contract.
      */
     environment: string;
+
     /**
      * Boundary id inside that environment.
      *
@@ -121,6 +127,7 @@ export namespace IAutoMoviePropRelationTarget {
      * @evidence specifications/camera-light-and-visibility/target-focus-exposure-and-sampling.md#clv-focus-intent-appearance-boundary Types `kind` for the clv focus intent appearance boundary system contract.
      */
     kind: "opening";
+
     /**
      * Built environment id.
      *
@@ -128,6 +135,7 @@ export namespace IAutoMoviePropRelationTarget {
      * @evidence specifications/camera-light-and-visibility/target-focus-exposure-and-sampling.md#clv-focus-intent-appearance-boundary Types `environment` for the clv focus intent appearance boundary system contract.
      */
     environment: string;
+
     /**
      * Opening id inside that environment.
      *
@@ -151,6 +159,7 @@ export namespace IAutoMoviePropRelationTarget {
      * @evidence specifications/camera-light-and-visibility/target-focus-exposure-and-sampling.md#clv-focus-intent-appearance-boundary Types `kind` for the clv focus intent appearance boundary system contract.
      */
     kind: "surface";
+
     /**
      * Built environment id.
      *
@@ -158,6 +167,7 @@ export namespace IAutoMoviePropRelationTarget {
      * @evidence specifications/camera-light-and-visibility/target-focus-exposure-and-sampling.md#clv-focus-intent-appearance-boundary Types `environment` for the clv focus intent appearance boundary system contract.
      */
     environment: string;
+
     /**
      * Support surface id inside that environment.
      *
@@ -181,6 +191,7 @@ export namespace IAutoMoviePropRelationTarget {
      * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-interaction-attachment-object-handoff Types `kind` for the performance interaction attachment object handoff system contract.
      */
     kind: "prop-affordance";
+
     /**
      * Scene node id of the supporting or hosting prop.
      *
@@ -188,6 +199,7 @@ export namespace IAutoMoviePropRelationTarget {
      * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-interaction-attachment-object-handoff Types `prop` for the performance interaction attachment object handoff system contract.
      */
     prop: string;
+
     /**
      * Affordance id declared by that prop's model.
      *
