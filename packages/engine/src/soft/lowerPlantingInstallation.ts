@@ -1,5 +1,4 @@
-import { IAutoMovieFluidDomain, IAutoMoviePlantingCluster, IAutoMoviePlantingDomain, IAutoMoviePlantingInstallation, IAutoMoviePlantingPlacement, IAutoMovieSoftAnalysis, IAutoMovieValidation, IAutoMovieVector3 } from "@automovie/interface";
-import { ViolationCollector } from "../validation/ViolationCollector";
+import { IAutoMoviePlantingCluster, IAutoMoviePlantingDomain, IAutoMoviePlantingInstallation, IAutoMovieSoftAnalysis } from "@automovie/interface";
 import { arrangePlantingCluster } from "./arrangePlantingCluster";
 import { growPlanting } from "./growPlanting";
 import { validatePlantingCluster } from "./validatePlantingCluster";
@@ -88,80 +87,4 @@ export const lowerPlantingInstallation = (props: {
     plant: growPlanting(domain),
     arrangement: arrangePlantingCluster(cluster),
   };
-};
-
-/** Re-path one nested validation onto the address the binding knows it by. */
-const repath = (
-  out: ViolationCollector,
-  path: string,
-  validation: IAutoMovieValidation,
-): void => {
-  if (validation.success === true) return;
-  for (const item of validation.violations)
-    out.items.push({ ...item, path: item.path.replace("$input", path) });
-};
-
-/**
- * The eight corners of one derived canopy, carried into world space by one
- * member's own transform.
- *
- * The recipe's bounds are in the recipe's frame with the trunk's base at the
- * origin, so every corner is rotated by the member's unit quaternion, scaled
- * per axis, and translated. A rotated box therefore widens rather than being
- * silently re-fitted, exactly as a staged prop's clearance volume does.
- */
-const corners = (
-  bounds: { min: IAutoMovieVector3; max: IAutoMovieVector3 },
-  placement: IAutoMoviePlantingPlacement,
-): IAutoMovieVector3[] => {
-  const { x: qx, y: qy, z: qz, w: qw } = placement.rotation;
-  const out: IAutoMovieVector3[] = [];
-  for (const x of [bounds.min.x, bounds.max.x])
-    for (const y of [bounds.min.y, bounds.max.y])
-      for (const z of [bounds.min.z, bounds.max.z]) {
-        const sx = x * placement.scale.x;
-        const sy = y * placement.scale.y;
-        const sz = z * placement.scale.z;
-        // q * v * q⁻¹, written as the cross-product form so no matrix has to be
-        // built for eight points.
-        const tx = 2 * (qy * sz - qz * sy);
-        const ty = 2 * (qz * sx - qx * sz);
-        const tz = 2 * (qx * sy - qy * sx);
-        out.push({
-          x: placement.translation.x + sx + qw * tx + qy * tz - qz * ty,
-          y: placement.translation.y + sy + qw * ty + qz * tx - qx * tz,
-          z: placement.translation.z + sz + qw * tz + qx * ty - qy * tx,
-        });
-      }
-  return out;
-};
-
-/**
- * The free-surface elevation of one fluid domain under a world point, or `null`
- * when that domain cannot answer for the point at all.
- *
- * Read from the authored bed and depth rather than from a solve: a binding is a
- * statement about the design, and integrating a pond to decide whether a reed
- * is planted in it would make the answer depend on a shot second nobody named.
- *
- * `null` covers both ways the question can be unanswerable — a point outside
- * the lattice, and a lattice whose bed or depth array does not reach the cell —
- * because a fluid domain arrives here from another binding's validation and
- * this one must not read past the end of an array and compare against `NaN`. A
- * comparison against `NaN` is false, which would make a malformed pond report
- * every reed as properly planted.
- */
-const freeSurfaceAt = (
-  domain: IAutoMovieFluidDomain,
-  point: { x: number; y: number; z: number },
-): number | null => {
-  const column = Math.floor(
-    (point.x - domain.grid.origin.x) / domain.grid.cellX,
-  );
-  const row = Math.floor((point.z - domain.grid.origin.z) / domain.grid.cellZ);
-  if (column < 0 || column >= domain.grid.columns) return null;
-  if (row < 0 || row >= domain.grid.rows) return null;
-  const cell = row * domain.grid.columns + column;
-  const level = domain.grid.origin.y + domain.bed[cell] + domain.depth[cell];
-  return Number.isFinite(level) ? level : null;
 };

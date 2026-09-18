@@ -1,4 +1,4 @@
-import { IAutoMovieBuiltEnvironment, IAutoMovieBuiltPopulation } from "@automovie/interface";
+import { IAutoMovieBuiltEnvironment, IAutoMovieBuiltPopulation, IAutoMovieBuiltSpace } from "@automovie/interface";
 
 /**
  * Report the compact populations standing in a logical space and its
@@ -29,4 +29,35 @@ export const builtEnvironmentSpacePopulations = (
   return (environment.populations ?? []).filter((population) =>
     included.has(population.space),
   );
+};
+
+const requireSpace = (
+  environment: IAutoMovieBuiltEnvironment,
+  spaceId: string,
+): void => {
+  if (!environment.spaces.some((space) => space.id === spaceId))
+    throw new Error(
+      `built environment "${environment.id}" has no logical space "${spaceId}"`,
+    );
+};
+
+const descendantSpaces = (
+  spaces: readonly IAutoMovieBuiltSpace[],
+  root: string,
+): Set<string> => {
+  const included = new Set([root]);
+  let changed = true;
+  while (changed) {
+    changed = false;
+    for (const space of spaces)
+      if (
+        space.parent !== null &&
+        included.has(space.parent) &&
+        !included.has(space.id)
+      ) {
+        included.add(space.id);
+        changed = true;
+      }
+  }
+  return included;
 };

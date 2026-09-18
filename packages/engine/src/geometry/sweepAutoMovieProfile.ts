@@ -3,7 +3,7 @@ import { IAutoMovieProfilePoint } from "./IAutoMovieProfilePoint";
 import { finitePoint } from "./finitePoint";
 import { finiteVector } from "./finiteVector";
 import { meshOf } from "./meshOf";
-import { pathFrames } from "./proceduralPathFrames";
+import { pathFrames } from "./pathFrames";
 import { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
 
 /**

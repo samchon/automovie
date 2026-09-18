@@ -10,4 +10,3 @@ export type IAutoMovieNodeChannel = Extract<
   IAutoMovieChannel,
   { kind: "node" }
 >;
-type IAutoMoviePointerChannel = Extract<IAutoMovieChannel, { kind: "pointer" }>;

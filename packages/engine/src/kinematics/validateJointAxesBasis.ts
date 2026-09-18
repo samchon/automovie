@@ -1,6 +1,17 @@
+import { IAutoMovieVector3 } from "@automovie/interface";
 import { Vector3 } from "../math/Vector3";
 import { IAutoMovieJointAxes } from "./IAutoMovieJointAxes";
 import { IAutoMovieJointAxesIssue } from "./IAutoMovieJointAxesIssue";
+
+const JOINT_AXES = ["flexion", "abduction", "twist"] as const;
+
+const VECTOR_AXES = ["x", "y", "z"] as const;
+
+const MIN_AXIS_LENGTH = 1e-9;
+
+const MAX_AXIS_DOT = 1e-6;
+
+type AutoMovieJointAxis = (typeof JOINT_AXES)[number];
 
 /**
  * Validate the axis basis used by joint compose/decompose.
@@ -64,10 +75,13 @@ export const validateJointAxesBasis = (
   return issues;
 };
 
-const VECTOR_AXES = ["x", "y", "z"] as const;
+const normalizeRawJointAxes = (
+  axes: IAutoMovieJointAxes,
+): IAutoMovieJointAxes => ({
+  flexion: normalizeAxis(axes.flexion),
+  abduction: normalizeAxis(axes.abduction),
+  twist: normalizeAxis(axes.twist),
+});
 
-const MIN_AXIS_LENGTH = 1e-9;
-
-const MAX_AXIS_DOT = 1e-6;
-
-type AutoMovieJointAxis = (typeof JOINT_AXES)[number];
+const normalizeAxis = (axis: IAutoMovieVector3): IAutoMovieVector3 =>
+  Vector3.scale(axis, 1 / Vector3.length(axis));

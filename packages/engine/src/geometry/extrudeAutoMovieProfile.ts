@@ -1,4 +1,6 @@
+import { convexHull2D } from "../math/convexHull2D";
 import { IAutoMovieProfilePoint } from "./IAutoMovieProfilePoint";
+import { finitePoint } from "./finitePoint";
 import { meshOf } from "./meshOf";
 import { positive } from "./positive";
 import { IAutoMovieMesh } from "@automovie/interface";
@@ -41,4 +43,18 @@ export const extrudeAutoMovieProfile = (props: {
     indices.push(next, count + index, count + next);
   }
   return meshOf(positions, indices);
+};
+
+const profileHull = (
+  profile: readonly IAutoMovieProfilePoint[],
+): IAutoMovieProfilePoint[] => {
+  profile.forEach((point, index) => finitePoint(point, `profile[${index}]`));
+  const hull = convexHull2D(
+    profile.map((point) => ({ x: point.x, y: 0, z: point.y })),
+  ).map((point) => ({ x: point.x, y: point.z }));
+  if (hull.length < 3)
+    throw new Error("profile needs at least three non-collinear points");
+  if (hull.length !== profile.length)
+    throw new Error("profile must be convex and contain no interior points");
+  return hull;
 };

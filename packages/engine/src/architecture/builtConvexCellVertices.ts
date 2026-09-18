@@ -1,6 +1,19 @@
-import { IAutoMovieConvexSpaceCell, IAutoMovieSubjectBox, IAutoMovieVector3 } from "@automovie/interface";
+import { IAutoMovieConvexSpaceCell, IAutoMovieVector3 } from "@automovie/interface";
 import { Vector3 } from "../math/Vector3";
 import { AUTOMOVIE_OBSERVATION_EPSILON } from "./AUTOMOVIE_OBSERVATION_EPSILON";
+
+/** Read a plane as a unit normal and its matching offset, or null if degenerate. */
+const unitPlane = (plane: {
+  normal: IAutoMovieVector3;
+  offset: number;
+}): { normal: IAutoMovieVector3; offset: number } | null => {
+  const length = Vector3.length(plane.normal);
+  if (length <= AUTOMOVIE_OBSERVATION_EPSILON) return null;
+  return {
+    normal: Vector3.scale(plane.normal, 1 / length),
+    offset: plane.offset / length,
+  };
+};
 
 /**
  * The corner points of one convex cell's own half-space intersection.
@@ -63,23 +76,3 @@ export const builtConvexCellVertices = (
       }
   return vertices;
 };
-
-/** Grow a box by one point, creating it when there is none yet. */
-const includePoint = (
-  box: IAutoMovieSubjectBox | null,
-  point: IAutoMovieVector3,
-): IAutoMovieSubjectBox =>
-  box === null
-    ? { min: { ...point }, max: { ...point } }
-    : {
-        min: {
-          x: Math.min(box.min.x, point.x),
-          y: Math.min(box.min.y, point.y),
-          z: Math.min(box.min.z, point.z),
-        },
-        max: {
-          x: Math.max(box.max.x, point.x),
-          y: Math.max(box.max.y, point.y),
-          z: Math.max(box.max.z, point.z),
-        },
-      };

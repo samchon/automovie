@@ -1,6 +1,6 @@
 import { convexHull2D } from "../math/convexHull2D";
 import { ViolationCollector } from "./ViolationCollector";
-import { validateNonEmptyId } from "./validateNonEmptyId";
+import { collectNonEmptyId } from "./collectNonEmptyId";
 import { validateTransformScalars } from "./validateTransformScalars";
 import { IAutoMovieAffordance } from "@automovie/interface";
 
@@ -18,7 +18,7 @@ export const validateAffordance = (
   path: string,
   collector: ViolationCollector,
 ): void => {
-  validateNonEmptyId(affordance.id, `${path}.id`, "affordance id", collector);
+  collectNonEmptyId(affordance.id, `${path}.id`, "affordance id", collector);
   validateTransformScalars({
     transform: affordance.frame,
     path: `${path}.frame`,

@@ -1,10 +1,15 @@
-import { IAutoMovieBuiltEnvironment, IAutoMoviePropRelationTarget, IAutoMoviePropSpec, IAutoMovieStageSetPiece } from "@automovie/interface";
+import { IAutoMovieBuiltEnvironment, IAutoMoviePropRelationTarget, IAutoMoviePropSpec, IAutoMovieStageSetPiece, IAutoMovieVector3 } from "@automovie/interface";
 import { Matrix4 } from "../math/Matrix4";
+import { Quaternion } from "../math/Quaternion";
 import { convexHull2D } from "../math/convexHull2D";
 import { footprintConvexPieces } from "../space/footprintConvexPieces";
 import { footprintRing } from "../space/footprintRing";
 import { surfaceFootprint } from "../space/surfaceFootprint";
+import { IAutoMovieHeightSurface } from "../space/IAutoMovieHeightSurface";
 import { IAutoMoviePropSupportFace } from "./IAutoMoviePropSupportFace";
+
+/** Tolerance for containment and fit comparisons, in metres. */
+const PLACEMENT_EPSILON = 1e-9;
 
 /**
  * The face one `on-support` relation resolves to, or `null` when the record
@@ -87,3 +92,75 @@ export const propSupportFace = (props: {
     height,
   };
 };
+
+const stagedMatrix = (piece: IAutoMovieStageSetPiece): number[] => {
+  const scale =
+    piece.scale === undefined
+      ? { x: 1, y: 1, z: 1 }
+      : typeof piece.scale === "number"
+        ? { x: piece.scale, y: piece.scale, z: piece.scale }
+        : piece.scale;
+  return Matrix4.compose(
+    piece.position,
+    piece.rotation ??
+      Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, piece.facingDeg ?? 0),
+    scale,
+  );
+};
+
+/**
+ * The plane a transform carries its local XZ plane onto, spelled as the height
+ * rule {@link surfaceHeightAt} reads, or `null` when that image stands edge-on
+ * to the ground.
+ *
+ * The face is spanned by the images of local `+X` and `+Z`, so its normal is
+ * their cross product and it passes through the transform's own origin. A
+ * normal with no vertical component of its own is the vertical face, and a
+ * transform that collapses the face to a line or a point answers with the zero
+ * normal, which the same comparison catches: in both, the height over `(x, z)`
+ * is not a function, so there is no rule to read it by. The test is taken
+ * against the normal's own length rather than against a length in metres, so a
+ * face states its tilt the same way at whatever size it was staged.
+ */
+const facePlane = (matrix: number[]): IAutoMovieHeightSurface | null => {
+  const ax = { x: matrix[0]!, y: matrix[1]!, z: matrix[2]! };
+  const az = { x: matrix[8]!, y: matrix[9]!, z: matrix[10]! };
+  const normal = {
+    x: ax.y * az.z - ax.z * az.y,
+    y: ax.z * az.x - ax.x * az.z,
+    z: ax.x * az.y - ax.y * az.x,
+  };
+  const length = Math.hypot(normal.x, normal.y, normal.z);
+  if (Math.abs(normal.y) <= PLACEMENT_EPSILON * length) return null;
+  const slopeX = -normal.x / normal.y;
+  const slopeZ = -normal.z / normal.y;
+  return {
+    height: {
+      kind: "plane",
+      originHeight: matrix[13]! - slopeX * matrix[12]! - slopeZ * matrix[14]!,
+      slopeX,
+      slopeZ,
+    },
+  };
+};
+
+const transformPoint = (
+  point: IAutoMovieVector3,
+  matrix: number[],
+): IAutoMovieVector3 => ({
+  x:
+    matrix[0]! * point.x +
+    matrix[4]! * point.y +
+    matrix[8]! * point.z +
+    matrix[12]!,
+  y:
+    matrix[1]! * point.x +
+    matrix[5]! * point.y +
+    matrix[9]! * point.z +
+    matrix[13]!,
+  z:
+    matrix[2]! * point.x +
+    matrix[6]! * point.y +
+    matrix[10]! * point.z +
+    matrix[14]!,
+});

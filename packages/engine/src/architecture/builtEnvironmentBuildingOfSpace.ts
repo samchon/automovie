@@ -1,4 +1,4 @@
-import { IAutoMovieBuiltEnvironment } from "@automovie/interface";
+import { IAutoMovieBuiltEnvironment, IAutoMovieBuiltSpace } from "@automovie/interface";
 
 /**
  * Name the building unit that owns a logical space.
@@ -24,4 +24,35 @@ export const builtEnvironmentBuildingOfSpace = (
       `built environment "${environment.id}" has no building unit owning logical space "${spaceId}"`,
     );
   return owner.id;
+};
+
+const requireSpace = (
+  environment: IAutoMovieBuiltEnvironment,
+  spaceId: string,
+): void => {
+  if (!environment.spaces.some((space) => space.id === spaceId))
+    throw new Error(
+      `built environment "${environment.id}" has no logical space "${spaceId}"`,
+    );
+};
+
+const descendantSpaces = (
+  spaces: readonly IAutoMovieBuiltSpace[],
+  root: string,
+): Set<string> => {
+  const included = new Set([root]);
+  let changed = true;
+  while (changed) {
+    changed = false;
+    for (const space of spaces)
+      if (
+        space.parent !== null &&
+        included.has(space.parent) &&
+        !included.has(space.id)
+      ) {
+        included.add(space.id);
+        changed = true;
+      }
+  }
+  return included;
 };

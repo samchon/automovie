@@ -2,6 +2,9 @@ import { IAutoMovieMesh } from "@automovie/interface";
 import { compareCodeUnits } from "../text/compareCodeUnits";
 import { ViolationCollector } from "./ViolationCollector";
 
+/** Weld tolerance: ring seams recompute cos/sin with ~1e-16 float error. */
+const WELD_GRID = 1e9;
+
 /**
  * Append mesh-topology violations to a collector, the shared body behind the
  * standalone {@link validateMeshTopology} and `validateModel`'s mesh check.
@@ -81,6 +84,3 @@ export const appendMeshTopology = (
           edge,
         );
 };
-
-/** Weld tolerance: ring seams recompute cos/sin with ~1e-16 float error. */
-const WELD_GRID = 1e9;

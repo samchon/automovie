@@ -1,6 +1,20 @@
 import { IAutoMovieAngleRange, IAutoMovieJointConstraint, IAutoMovieJointPose } from "@automovie/interface";
 import { swingConeBlend } from "./swingConeBlend";
 
+const clampAxis = (
+  angle: number | null,
+  allowed: IAutoMovieAngleRange | null,
+): number | null => {
+  if (angle === null) return null;
+  if (allowed === null) return 0; // immobile axis: forced back to neutral
+  const finiteAngle = Number.isFinite(angle) ? angle : 0;
+  return finiteAngle < allowed.min
+    ? allowed.min
+    : finiteAngle > allowed.max
+      ? allowed.max
+      : finiteAngle;
+};
+
 /**
  * Clamp one joint's articulation into its anatomical range of motion, the
  * **enforce** face of {@link validateJointRom}'s **detect** face (the core
@@ -49,34 +63,6 @@ export const clampJointRom = (
     };
   }
   return { bone: joint.bone, flexion, abduction, twist };
-};
-
-/**
- * The point of `allowed` closest to neutral: neutral itself when the range
- * brackets it, else the nearer bound. This is the swing cone's pull target: the
- * joint's most-retracted reachable articulation on that axis.
- */
-const nearestNeutral = (allowed: IAutoMovieAngleRange | null): number =>
-  allowed === null
-    ? 0
-    : allowed.min > 0
-      ? allowed.min
-      : allowed.max < 0
-        ? allowed.max
-        : 0;
-
-const clampAxis = (
-  angle: number | null,
-  allowed: IAutoMovieAngleRange | null,
-): number | null => {
-  if (angle === null) return null;
-  if (allowed === null) return 0; // immobile axis: forced back to neutral
-  const finiteAngle = Number.isFinite(angle) ? angle : 0;
-  return finiteAngle < allowed.min
-    ? allowed.min
-    : finiteAngle > allowed.max
-      ? allowed.max
-      : finiteAngle;
 };
 
 /**

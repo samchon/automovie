@@ -1,15 +1,15 @@
 import { AutoMovieHumanoidBone, IAutoMovieMotion, IAutoMovieSkeleton, IAutoMovieValidation, IAutoMovieVector3 } from "@automovie/interface";
-import { IAutoMovieJointAxes } from "../kinematics/IAutoMovieJointAxes";
-import { indexSkeletonTopology } from "../kinematics/indexSkeletonTopology";
-import { resolvePose } from "../kinematics/resolvePose";
+import { IAutoMovieJointAxes, indexSkeletonTopology, resolvePose } from "../kinematics";
 import { segmentSegmentDistance } from "../math/segmentSegmentDistance";
 import { sampleTimes } from "../motion/sampleTimes";
 import { sampleMotion } from "../motion/sampleMotion";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
-import { IAutoMovieCapsuleProxy, validateCapsule } from "./capsuleProxy";
+import { IAutoMovieCapsuleProxy, validateCapsule } from "./validateCapsule";
 import { fkReachableBones } from "./fkReachableBones";
 import { ViolationCollector } from "./ViolationCollector";
 import { IAutoMovieCapsuleProxyPair } from "./IAutoMovieCapsuleProxyPair";
+
+const DEFAULT_SAMPLE_RATE = 24;
 
 /**
  * Tier-3 self-intersection check over declared capsule proxy pairs. It samples
@@ -125,32 +125,6 @@ export const validateSelfIntersection = (props: {
 
   return collector.toValidation();
 };
-
-const rejectSampleRate = (
-  collector: ViolationCollector,
-  path: string,
-  sampleRate: number,
-): IAutoMovieValidation => {
-  collector.push(
-    "range",
-    `${path}.sampleRate`,
-    `sampleRate must be a finite number > 0, but was ${sampleRate}`,
-    sampleRate,
-  );
-  return collector.toValidation();
-};
-
-const resolveCapsule = (
-  capsule: IAutoMovieCapsuleProxy,
-  resolved: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieVector3>,
-): { from: IAutoMovieVector3; to: IAutoMovieVector3 } => ({
-  from: resolved.get(capsule.from)!,
-  to: resolved.get(capsule.to)!,
-});
-
-const round = (value: number): number => Math.round(value * 1_000) / 1_000;
-
-const DEFAULT_SAMPLE_RATE = 24;
 
 const rejectSampleRate = (
   collector: ViolationCollector,

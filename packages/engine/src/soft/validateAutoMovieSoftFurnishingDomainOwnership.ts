@@ -1,6 +1,5 @@
 import { IAutoMovieSoftFurnishing, IAutoMovieValidation } from "@automovie/interface";
 import { ViolationCollector } from "../validation/ViolationCollector";
-import { compareCodeUnits } from "../text/compareCodeUnits";
 
 /**
  * Refuse two furnishings that draw the same world-space soft-body domain.
@@ -48,3 +47,7 @@ export const validateAutoMovieSoftFurnishingDomainOwnership = (
   }
   return out.toValidation();
 };
+
+/** Code-unit order without locale-dependent collation. */
+const compareCodeUnits = (left: string, right: string): number =>
+  left < right ? -1 : left > right ? 1 : 0;

@@ -1,6 +1,7 @@
 import { IAutoMovieDesignComparison, IAutoMovieDesignLineage } from "@automovie/interface";
 import { compareCodeUnits } from "../text/compareCodeUnits";
 import { designLineageCompare } from "./designLineageCompare";
+import { validateDesignLineage } from "./validateDesignLineage";
 
 /**
  * Compare every pair of alternatives one decision holds open.
@@ -33,4 +34,14 @@ export const designLineageDecisionComparisons = (
         designLineageCompare(lineage, options[index]!, options[other]!),
       );
   return comparisons;
+};
+
+const requireValidLineage = (lineage: IAutoMovieDesignLineage): void => {
+  const validated = validateDesignLineage({ lineage });
+  if (validated.success === false) {
+    const first = validated.violations[0]!;
+    throw new Error(
+      `design lineage "${lineage.id}" is invalid at ${first.path}: ${first.expected}`,
+    );
+  }
 };

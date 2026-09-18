@@ -1,4 +1,4 @@
-import { AutoMovieBodyRegion, IAutoMovieActionCall, IAutoMovieBeatEndState, IAutoMovieMotion } from "@automovie/interface";
+import { IAutoMovieActionCall, IAutoMovieBeatEndState, IAutoMovieMotion } from "@automovie/interface";
 
 /**
  * The **content seam** of the action builder. Given one action call (and the
@@ -27,13 +27,3 @@ export type IAutoMovieActionSynthesizer = (
    */
   previous?: IAutoMovieBeatEndState | null,
 ) => IAutoMovieMotion | null;
-
-const ROOT_REGIONS = new Set<AutoMovieBodyRegion>(["lowerBody", "fullBody"]);
-
-/**
- * Width of the boundary keyframes that pin a clip's envelope onto the union
- * grid (#1060). Larger than the envelope comparison tolerance (1e-9) so the
- * boundary sample itself is excluded, far smaller than any frame interval so
- * the ramp across it is invisible.
- */
-const BOUNDARY_EPSILON = 1e-6;

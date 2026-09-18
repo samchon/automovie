@@ -4,7 +4,7 @@ import { indexSkeletonTopology } from "../kinematics/indexSkeletonTopology";
 import { reachableBoneNames } from "../kinematics/reachableBoneNames";
 import { Vector3 } from "../math/Vector3";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
-import { groundFunction } from "../space/ground";
+import { groundFunction } from "../space/groundFunction";
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { contactMask } from "./contactMask";
 import { HUMANOID_LEG_CHAINS } from "./HUMANOID_LEG_CHAINS";
@@ -12,6 +12,27 @@ import { IAutoMoviePlantChain } from "./IAutoMoviePlantChain";
 import { fitChainToTarget } from "./fitChainToTarget";
 import { resolveBoneMap } from "./resolveBoneMap";
 import { IAutoMovieRetargetContactProps } from "./IAutoMovieRetargetContactProps";
+
+/** Contact tolerance above the source ground counted as a planted contact. */
+const DEFAULT_TOLERANCE = 0.02;
+
+/**
+ * Drift below this, in target model units, is floating-point residue rather
+ * than a proportion mismatch. Under a uniform rig scale the factor distributes
+ * cleanly through the FK walk (rotate is linear and every accumulated sum
+ * scales with it), so a target effector sits on its mapped source contact to
+ * the last bit, the drift measures zero, and the pass leaves the frame
+ * untouched. That is what makes contact preservation a mathematical no-op on a
+ * proportional rig, and why it is safe to leave on by default.
+ */
+const NOOP_EPSILON = 1e-9;
+
+/** A chain plus the frames on which its contact must be preserved. */
+interface IAutoMovieContactWindow {
+  chain: IAutoMoviePlantChain;
+  /** `null` detects stance against the ground; a span declares it. */
+  window: { start: number; end: number } | null;
+}
 
 /**
  * The contact-preserving stage of {@link retargetHumanoidMotion}.
@@ -191,95 +212,6 @@ export const preserveRetargetContacts = (props: {
 
   return { ...props.retargeted, keyframes };
 };
-
-/** Every bone of the chain resolves on the rig's FK walk. */
-const resolvable = (
-  chain: IAutoMoviePlantChain,
-  bones: ReadonlySet<AutoMovieHumanoidBone>,
-): boolean =>
-  [chain.effector, chain.upper, chain.lower].every((bone) => bones.has(bone));
-
-/**
- * Re-solve one keyframe's pinned limbs and record each effector's worst
- * residual. A limb already on its pin, or one whose chain is geometrically
- * degenerate, is left exactly as authored.
- */
-const correctFrame = (props: {
-  keyframe: IAutoMovieKeyframe;
-  index: number;
-  pins: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieVector3>;
-  chains: ReadonlyMap<AutoMovieHumanoidBone, IAutoMoviePlantChain>;
-  skeleton: IAutoMovieSkeleton;
-  topology: ReturnType<typeof indexSkeletonTopology>;
-  jointAxes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
-  restFrames: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>;
-  worst: Map<AutoMovieHumanoidBone, { residual: number; index: number }>;
-  referencePose?: IAutoMoviePose;
-}): IAutoMovieKeyframe => {
-  if (props.pins.size === 0) return props.keyframe;
-
-  const resolve = (pose: IAutoMoviePose): ReturnType<typeof resolveBoneMap> =>
-    resolveBoneMap(
-      props.skeleton,
-      pose,
-      props.topology,
-      props.jointAxes,
-      props.restFrames,
-    );
-
-  let pose: IAutoMoviePose = props.keyframe.pose;
-  let resolved = resolve(pose);
-  for (const [effector, target] of props.pins) {
-    const current = resolved.get(effector)!.worldPosition;
-    if (drift(current, target) <= NOOP_EPSILON) continue;
-    const chain = props.chains.get(effector)!;
-    const fitted = fitChainToTarget({
-      skeleton: props.skeleton,
-      pose,
-      chain,
-      target,
-      topology: props.topology,
-      jointAxes: props.jointAxes,
-      restFrames: props.restFrames,
-      referencePose: props.referencePose,
-    });
-    if (fitted === pose) continue;
-    pose = fitted;
-    resolved = resolve(pose);
-  }
-
-  for (const [effector, target] of props.pins) {
-    const residual = drift(resolved.get(effector)!.worldPosition, target);
-    const prior = props.worst.get(effector);
-    if (prior === undefined || residual > prior.residual)
-      props.worst.set(effector, { residual, index: props.index });
-  }
-
-  return pose === props.keyframe.pose
-    ? props.keyframe
-    : { ...props.keyframe, pose };
-};
-
-/** Distance between a resolved effector and the contact it must hold. */
-const drift = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
-  Vector3.length(Vector3.subtract(a, b));
-
-/** Six-decimal rounding so a warning message stays readable and stable. */
-const round = (value: number): number => Math.round(value * 1e6) / 1e6;
-
-/** Contact tolerance above the source ground counted as a planted contact. */
-const DEFAULT_TOLERANCE = 0.02;
-
-/**
- * Drift below this, in target model units, is floating-point residue rather
- * than a proportion mismatch. Under a uniform rig scale the factor distributes
- * cleanly through the FK walk (rotate is linear and every accumulated sum
- * scales with it), so a target effector sits on its mapped source contact to
- * the last bit, the drift measures zero, and the pass leaves the frame
- * untouched. That is what makes contact preservation a mathematical no-op on a
- * proportional rig, and why it is safe to leave on by default.
- */
-const NOOP_EPSILON = 1e-9;
 
 /** Every bone of the chain resolves on the rig's FK walk. */
 const resolvable = (

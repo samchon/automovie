@@ -1,4 +1,4 @@
-import { AutoMovieChannelValueType, IAutoMovieLight } from "@automovie/interface";
+import { AutoMovieChannelValueType } from "@automovie/interface";
 import { IAutoMovieLightOverride } from "./IAutoMovieLightOverride";
 
 /**

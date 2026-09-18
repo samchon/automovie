@@ -3,6 +3,18 @@ import { compareCodeUnits } from "../text/compareCodeUnits";
 import { engineDiagnostic } from "./engineDiagnostic";
 
 /**
+ * Members one shot may single out of its crowds, in total.
+ *
+ * The channel's whole promise is that a crowd of a hundred thousand does not
+ * pay for the three members something happens to, and a promise nothing
+ * enforces is a comment. Past this the answer is the other mechanism: a member
+ * that needs a shot's full attention is promoted to a named actor, which exists
+ * and is capped for the same reason. This is the cheaper thing and must not
+ * become that.
+ */
+const FORMATION_SLOT_EXCEPTION_LIMIT = 1_024;
+
+/**
  * Validate sparse per-member exceptions against one compiled shot.
  *
  * Narrowed to what it reads, like the ground gate beside it: the unit's own

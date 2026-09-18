@@ -1,5 +1,5 @@
 import { IAutoMovieLight } from "@automovie/interface";
-import { withArticle } from "../text/article";
+import { withArticle } from "../text/withArticle";
 import { IAutoMovieLightOverride } from "./IAutoMovieLightOverride";
 import { LIGHT_CHANNEL_PROPERTIES } from "./LIGHT_CHANNEL_PROPERTIES";
 import { applyLightOverride } from "./applyLightOverride";

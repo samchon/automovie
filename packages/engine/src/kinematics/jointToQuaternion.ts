@@ -6,6 +6,21 @@ import { DEFAULT_JOINT_AXES } from "./DEFAULT_JOINT_AXES";
 import { IAutoMovieJointAxes } from "./IAutoMovieJointAxes";
 import { normalizeJointAxes } from "./normalizeJointAxes";
 
+const JOINT_AXES = ["flexion", "abduction", "twist"] as const;
+
+const readAngle = (
+  joint: Pick<IAutoMovieJointPose, "flexion" | "abduction" | "twist">,
+  axis: (typeof JOINT_AXES)[number],
+  frame: IAutoMovieRestFrame[(typeof JOINT_AXES)[number]] | undefined,
+): number => {
+  const value = joint[axis];
+  if (value !== null && !Number.isFinite(value))
+    throw new Error(
+      `jointToQuaternion ${axis} must be finite or null, but was ${value}`,
+    );
+  return toRigAngle(value, frame) ?? 0;
+};
+
 /**
  * Convert a joint's semantic clinical angles (flexion / abduction / twist) into
  * a single bone-local rotation quaternion.

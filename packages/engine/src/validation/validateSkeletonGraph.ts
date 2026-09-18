@@ -58,5 +58,3 @@ export const validateSkeletonGraph = (
       );
   });
 };
-
-const CONSTRAINT_AXES = ["flexion", "abduction", "twist"] as const;

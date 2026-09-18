@@ -1,8 +1,6 @@
 import { LIGHT_CHANNEL_PROPERTIES } from "../resolve/LIGHT_CHANNEL_PROPERTIES";
 import { parseLightPointer } from "../resolve/parseLightPointer";
-import { withArticle } from "../text/article";
-import { asArray } from "./asArray";
-import { isRecord } from "./isRecord";
+import { withArticle } from "../text/withArticle";
 import { pushViolation } from "./pushViolation";
 import { IAutoMovieClipChannelGate } from "./IAutoMovieClipChannelGate";
 
@@ -81,21 +79,3 @@ export const lightClipChannelGate =
         channel.pointer,
       );
   };
-
-/**
- * The scene's light id → `type` index, keyed by the only thing a pointer can
- * name.
- *
- * A light is addressable exactly when it is an object with a string id and a
- * `type`, which is what a `Map.get` miss states in one read: an entry left out
- * and an entry stored with no kind both answer `undefined`, and neither can be
- * the target of a track. Such a scene is malformed either way, and
- * `validateSceneArtifact` is the gate that says so.
- */
-const stagedLightKinds = (scene: unknown): ReadonlyMap<string, unknown> => {
-  const index = new Map<string, unknown>();
-  for (const light of asArray(isRecord(scene) ? scene.lights : undefined))
-    if (isRecord(light) && typeof light.id === "string")
-      index.set(light.id, light.type);
-  return index;
-};

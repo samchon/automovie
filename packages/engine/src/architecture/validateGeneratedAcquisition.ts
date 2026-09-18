@@ -1,6 +1,9 @@
 import { IAutoMovieGeneratedAcquisition, IAutoMovieValidation } from "@automovie/interface";
 import { ViolationCollector } from "../validation/ViolationCollector";
 
+/** A plain SHA-256 content digest as this project writes it. */
+const DIGEST_PATTERN = /^sha256:[0-9a-f]{64}$/;
+
 /**
  * Validate the generation identity recorded for bytes nothing served.
  *
@@ -110,4 +113,14 @@ export const validateGeneratedAcquisition = (props: {
       acquisition.seed,
     );
   return out.toValidation();
+};
+
+const nonEmpty = (
+  value: string,
+  path: string,
+  label: string,
+  out: ViolationCollector,
+): void => {
+  if (value.trim().length === 0)
+    out.push("type", path, `${label} must be non-empty`, value);
 };

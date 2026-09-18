@@ -1,8 +1,73 @@
-import { IAutoMovieModel, IAutoMovieVector3 } from "@automovie/interface";
+import { AutoMovieHumanoidBone, IAutoMovieModel, IAutoMovieQuaternion, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
 import { tessellate } from "../geometry/tessellate";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { placeTransformedPoint } from "./placeTransformedPoint";
+
+/** One bone's rest-pose placement in model space. */
+interface IRestFrame {
+  pos: IAutoMovieVector3;
+  rot: IAutoMovieQuaternion;
+}
+
+/**
+ * Every bone's rest-pose model-space frame, composed down the parent chain.
+ * Rigs keep unit scale, so translation and rotation are the whole transform.
+ */
+const restWorldFrames = (
+  skeleton: IAutoMovieSkeleton,
+): ReadonlyMap<AutoMovieHumanoidBone, IRestFrame> => {
+  const byName = new Map<
+    AutoMovieHumanoidBone,
+    { bone: (typeof skeleton.bones)[number]; index: number }
+  >();
+  skeleton.bones.forEach((bone, index) => {
+    const existing = byName.get(bone.bone);
+    if (existing !== undefined)
+      throw new Error(
+        `skeleton "${skeleton.id}" bone "${bone.bone}" is duplicated at bones[${index}].bone; first declared at bones[${existing.index}].bone`,
+      );
+    byName.set(bone.bone, { bone, index });
+  });
+  const world = new Map<AutoMovieHumanoidBone, IRestFrame>();
+  const resolving = new Set<AutoMovieHumanoidBone>();
+  const resolve = (name: AutoMovieHumanoidBone): IRestFrame => {
+    const cached = world.get(name);
+    if (cached !== undefined) return cached;
+    if (resolving.has(name))
+      throw new Error(
+        `skeleton "${skeleton.id}" bone parent cycle includes "${name}"`,
+      );
+    const entry = byName.get(name);
+    if (entry === undefined)
+      throw new Error(
+        `skeleton "${skeleton.id}" bone "${name}" was not provided`,
+      );
+    resolving.add(name);
+    try {
+      const bone = entry.bone;
+      const frame =
+        bone.parent === null
+          ? { pos: bone.rest.translation, rot: bone.rest.rotation }
+          : (() => {
+              const parent = resolve(bone.parent);
+              return {
+                pos: Vector3.add(
+                  parent.pos,
+                  Quaternion.rotateVector(parent.rot, bone.rest.translation),
+                ),
+                rot: Quaternion.multiply(parent.rot, bone.rest.rotation),
+              };
+            })();
+      world.set(name, frame);
+      return frame;
+    } finally {
+      resolving.delete(name);
+    }
+  };
+  for (const bone of skeleton.bones) resolve(bone.bone);
+  return world;
+};
 
 /**
  * A model's rest-pose box in model space: the axis-aligned range of the geometry

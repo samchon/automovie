@@ -46,19 +46,3 @@ export interface IAutoMoviePathLocomotion {
    */
   cycles: number;
 }
-
-/** One straight XZ stretch of the polyline, arc-length addressed. */
-interface ISegment {
-  /** Start of the stretch on the ground plan. */
-  x: number;
-  z: number;
-  /** Unit XZ direction. */
-  dirX: number;
-  dirZ: number;
-  /** Facing of this stretch, degrees about +Y. */
-  yawDeg: number;
-  /** Stretch length, meters. */
-  length: number;
-  /** Cumulative arc length at the stretch start. */
-  from: number;
-}

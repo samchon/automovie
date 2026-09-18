@@ -1,5 +1,4 @@
 import { AutoMovieHumanoidBone } from "@automovie/interface";
-import { HUMANOID_LEG_CHAINS } from "./HUMANOID_LEG_CHAINS";
 
 /**
  * The leg chain that plants one foot: the foot end-effector and its upper/lower
@@ -32,15 +31,3 @@ export interface IAutoMovieFootLeg {
    */
   lower: AutoMovieHumanoidBone;
 }
-
-/**
- * The humanoid legs, named from the shared chain table so the ground-IK pass
- * and the retarget contact pass cannot disagree about which bones a leg is.
- */
-const DEFAULT_LEGS: readonly IAutoMovieFootLeg[] = HUMANOID_LEG_CHAINS.map(
-  (chain) => ({
-    foot: chain.effector,
-    upper: chain.upper,
-    lower: chain.lower,
-  }),
-);

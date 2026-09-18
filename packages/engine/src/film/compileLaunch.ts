@@ -7,6 +7,12 @@ import { projectileTrajectory } from "../physics/projectileTrajectory";
 import { eventTimeKey } from "./eventTimeKey";
 import { IAutoMovieLaunchResult } from "./IAutoMovieLaunchResult";
 
+/** The default fall the launch solves against: Earth gravity, world −Y. */
+const DEFAULT_GRAVITY: IAutoMovieVector3 = { x: 0, y: -9.81, z: 0 };
+
+const firstActor = (action: IAutoMovieLaunchAction): string | null =>
+  typeof action.actor === "string" ? action.actor : (action.actor[0] ?? null);
+
 /**
  * Compose the `launch` verb's engine primitives into one result, the missing
  * orchestrator that turns the model's thin _"loose the arrow at him"_ into the
@@ -162,6 +168,3 @@ export const compileLaunch = (props: {
     events,
   };
 };
-
-/** The default fall the launch solves against: Earth gravity, world −Y. */
-const DEFAULT_GRAVITY: IAutoMovieVector3 = { x: 0, y: -9.81, z: 0 };

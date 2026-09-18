@@ -35,3 +35,10 @@ export const canonicalProductionFrameRate = (
     denominator: input.denominator / divisor,
   };
 };
+
+const greatestCommonDivisor = (left: number, right: number): number => {
+  let a = left;
+  let b = right;
+  while (b !== 0) [a, b] = [b, a % b];
+  return a;
+};

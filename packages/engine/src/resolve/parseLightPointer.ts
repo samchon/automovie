@@ -32,3 +32,7 @@ export const parseLightPointer = (
   if (formatLightPointer(light, property) !== pointer) return null;
   return { light, property };
 };
+
+/** RFC-6901: `~1` becomes `/` and `~0` becomes `~`, in that order. */
+const unescapePointerSegment = (segment: string): string =>
+  segment.replaceAll("~1", "/").replaceAll("~0", "~");

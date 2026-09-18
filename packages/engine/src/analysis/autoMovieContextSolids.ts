@@ -1,6 +1,4 @@
-import { IAutoMovieContextOccluder, IAutoMovieEnvironmentContext, IAutoMovieVector3 } from "@automovie/interface";
-import { Vector3 } from "../math/Vector3";
-import { ViolationCollector } from "../validation/ViolationCollector";
+import { IAutoMovieContextOccluder, IAutoMovieEnvironmentContext } from "@automovie/interface";
 import { IAutoMovieAnalysisSolid } from "./IAutoMovieAnalysisSolid";
 
 /**
@@ -16,47 +14,3 @@ export const autoMovieContextSolids = (
     id: occluder.id,
     planes: occluder.planes,
   }));
-
-const direction = (
-  value: IAutoMovieVector3,
-  path: string,
-  label: string,
-  out: ViolationCollector,
-): void => {
-  for (const axis of ["x", "y", "z"] as const)
-    if (!Number.isFinite(value[axis]))
-      out.push(
-        "range",
-        `${path}.${axis}`,
-        `${label} ${axis} must be finite, but was ${value[axis]}`,
-        value[axis],
-      );
-  const length = Vector3.length(value);
-  if (Number.isFinite(length) && length <= AXIS_EPSILON)
-    out.push("range", path, `${label} must be a non-zero direction`, value);
-};
-
-const positiveOrZero = (
-  value: number,
-  path: string,
-  label: string,
-  out: ViolationCollector,
-): void => {
-  if (!Number.isFinite(value) || value < 0)
-    out.push(
-      "range",
-      path,
-      `${label} must be a finite number at or above zero, but was ${value}`,
-      value,
-    );
-};
-
-const nonEmpty = (
-  value: string,
-  path: string,
-  label: string,
-  out: ViolationCollector,
-): void => {
-  if (value.trim().length === 0)
-    out.push("type", path, `${label} must be non-empty`, value);
-};

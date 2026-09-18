@@ -21,7 +21,7 @@ import { Quaternion } from "../math/Quaternion";
 import { sampleMotion } from "../motion/sampleMotion";
 import { productionRuntimeModelId } from "../productionRuntimeModelId";
 import { sampleClipSequence } from "../resolve/sampleClipSequence";
-import { evaluateAutoMovieCameraDepthPrecision } from "./cameraDepthPrecision";
+import { evaluateAutoMovieCameraDepthPrecision } from "./evaluateAutoMovieCameraDepthPrecision";
 import { computeModelRestExtent } from "./computeModelRestExtent";
 import { computeRestHeight } from "./computeRestHeight";
 import { intersectsPerspectiveFrustumBox } from "./intersectsPerspectiveFrustumBox";

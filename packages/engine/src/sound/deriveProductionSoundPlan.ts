@@ -1,9 +1,12 @@
-import type { IAutoMovieAcousticResponseProfile, IAutoMovieCompiledShotSource, IAutoMovieFilmTimeline, IAutoMovieProductionSoundPlan, IAutoMovieShotContract, IAutoMovieSoundPropagationProfile } from "@automovie/interface";
+import type { IAutoMovieAcousticResponseProfile, IAutoMovieCompiledShotSource, IAutoMovieFilmTimeline, IAutoMovieFormationBounds, IAutoMovieProductionSoundPlan, IAutoMovieShotContract, IAutoMovieSoundPropagationProfile, IAutoMovieVector3 } from "@automovie/interface";
 import { resolveCameraAt } from "../film/resolveCameraAt";
+import { sampleFormationMotion } from "../sampleFormationMotion";
+import { transformFormationBounds } from "../transformFormationBounds";
+import { transformFormationPoint } from "../transformFormationPoint";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { deriveAutoMovieSoundPropagation } from "./soundPropagation";
-import { compareCodeUnits } from "../text/compareCodeUnits";
+import { sampleClipSequence } from "../resolve/sampleClipSequence";
+import { deriveAutoMovieSoundPropagation } from "./deriveAutoMovieSoundPropagation";
 
 /**
  * Lower semantic shot events, authored score cues, and shared caption timing
@@ -154,3 +157,197 @@ export const deriveProductionSoundPlan = (props: {
     dialogue: props.timeline.tracks.captions.map((line) => ({ ...line })),
   };
 };
+
+/**
+ * One subject's contribution to an event's sound source: where its members are
+ * centered, how many there are, and how far they lie from that center.
+ *
+ * `variance` is the MEAN SQUARED radius in m^2, not the radius, because that is
+ * the quantity that composes: variances of disjoint groups add by weight, radii
+ * do not.
+ */
+interface IAutoMovieSoundMass {
+  centroid: IAutoMovieVector3;
+  count: number;
+  variance: number;
+}
+
+/**
+ * Where an event's sound comes from, how much of it there is, and how far it is
+ * spread: the extended incoherent source its subjects add up to.
+ *
+ * A subject is a scene node (one member, no size), a formation, or an instance
+ * set (a member count and a compiled bounding box). Only the count and the box
+ * are read, never the individual slots: a compact formation deliberately never
+ * stores its members, and a source that had to expand a hundred thousand of
+ * them to be heard would not be heard at all.
+ *
+ * ## Combining subjects
+ *
+ * Each member is one equal, mutually uncorrelated source, so the group's
+ * acoustic center is the member-count-weighted mean of the subject centroids,
+ * not their arithmetic mean. The unweighted mean was the second half of the
+ * scale defect: an event naming one figure and the crowd behind it emitted from
+ * the empty midpoint between them, as though the crowd were one person.
+ *
+ * The combined spread follows by the parallel-axis identity, which makes it
+ * exact rather than approximate:
+ *
+ *     variance = sum_i n_i * (variance_i + |centroid_i - centroid|^2) / sum_i n_i
+ *
+ * ## A group's own radius
+ *
+ * The compiled runtime publishes a member count and an axis-aligned box, so the
+ * members are taken as uniformly distributed over that box, the only
+ * distribution its two facts support. For a uniform box with half-extents `h`,
+ * the mean squared distance from the center is `(hx^2 + hy^2 + hz^2)/3`, one
+ * third of the squared half-diagonal.
+ *
+ * A formation's box is transformed by its live cue first
+ * ({@link transformFormationBounds}), because a cue that rescales spacing
+ * changes the crowd's size, and a crowd closing ranks should tighten in the mix
+ * exactly as it tightens on screen.
+ *
+ * Throwing when nothing resolves also covers the degenerate group: a subject
+ * table that names only empty sets contributes no sources, and no sources is
+ * silence, which is a contradiction in an event the contract says is audible.
+ */
+const resolveSourceMass = (
+  compiled: IAutoMovieCompiledShotSource,
+  subjects: readonly string[],
+  time: number,
+): IAutoMovieSoundMass => {
+  const sampled = sampleClipSequence(compiled.shot.objectMotions, time);
+  const resolved = subjects.flatMap((subject): IAutoMovieSoundMass[] => {
+    const node = compiled.scene.nodes.find(
+      (candidate) => candidate.id === subject,
+    );
+    if (node !== undefined) {
+      const translation = sampled.get(`node:${subject}:translation`)?.value;
+      return [
+        {
+          centroid:
+            translation === undefined
+              ? node.transform.translation
+              : { x: translation[0]!, y: translation[1]!, z: translation[2]! },
+          count: 1,
+          variance: 0,
+        },
+      ];
+    }
+    const formation = compiled.formations.find(
+      (candidate) => candidate.id === subject,
+    );
+    if (formation !== undefined) {
+      const motion = sampleFormationMotion(
+        compiled.formationMotions ?? [],
+        formation.id,
+        time,
+      );
+      return [
+        {
+          centroid: transformFormationPoint(
+            formation.centroid,
+            formation.anchor,
+            motion,
+            formation.facingDeg,
+          ),
+          count: formation.count,
+          variance: boxVariance(
+            transformFormationBounds(
+              formation.bounds,
+              formation.anchor,
+              motion,
+              formation.facingDeg,
+            ),
+          ),
+        },
+      ];
+    }
+    const instances = compiled.instanceSets.find(
+      (candidate) => candidate.id === subject,
+    );
+    return instances === undefined
+      ? []
+      : [
+          {
+            centroid: instances.centroid,
+            count: instances.count,
+            variance: boxVariance(instances.bounds),
+          },
+        ];
+  });
+  const count = resolved.reduce((sum, mass) => sum + mass.count, 0);
+  if (count === 0)
+    throw new Error(
+      `Sound event in shot "${compiled.shot.id}" has no spatially resolved subject among ${subjects.join(", ")}.`,
+    );
+  const centroid = Vector3.scale(
+    resolved.reduce(
+      (sum, mass) => Vector3.add(sum, Vector3.scale(mass.centroid, mass.count)),
+      Vector3.create(),
+    ),
+    1 / count,
+  );
+  const variance =
+    resolved.reduce((sum, mass) => {
+      const offset = Vector3.length(Vector3.subtract(mass.centroid, centroid));
+      return sum + mass.count * (mass.variance + offset * offset);
+    }, 0) / count;
+  return { centroid, count, variance };
+};
+
+/**
+ * The mean squared distance from the center of an axis-aligned box to a point
+ * drawn uniformly inside it: `(hx^2 + hy^2 + hz^2)/3` over its half-extents.
+ *
+ * Each axis is independent and uniform over `[-h, h]`, whose second moment is
+ * `h^2/3`; summing the three gives the whole. A degenerate box (one slot, or a
+ * line of them) correctly yields zero on the collapsed axes, so a single-member
+ * formation is a point source and mixes exactly as it did before size existed.
+ */
+const boxVariance = (bounds: IAutoMovieFormationBounds): number => {
+  const x = (bounds.max.x - bounds.min.x) / 2;
+  const y = (bounds.max.y - bounds.min.y) / 2;
+  const z = (bounds.max.z - bounds.min.z) / 2;
+  return (x * x + y * y + z * z) / 3;
+};
+
+/** Defensively retain the exact selected propagation profile in the plan. */
+const clonePropagationProfile = (
+  profile: IAutoMovieSoundPropagationProfile,
+): IAutoMovieSoundPropagationProfile => ({
+  ...profile,
+  distanceGain: { ...profile.distanceGain },
+  spectral: { ...profile.spectral },
+  assumptions: [...profile.assumptions],
+});
+
+/** Defensively retain the exact selected room-response source in the plan. */
+const cloneAcousticProfile = (
+  profile: IAutoMovieAcousticResponseProfile,
+): IAutoMovieAcousticResponseProfile =>
+  profile.kind === "derived-room-analysis"
+    ? { ...profile }
+    : {
+        ...profile,
+        roomMappings: profile.roomMappings.map((mapping) => ({ ...mapping })),
+        ...(profile.provider === undefined
+          ? {}
+          : { provider: { ...profile.provider } }),
+      };
+
+const soundSeed = (value: string): number => {
+  let hash = 0x811c9dc5;
+  for (let index = 0; index < value.length; ++index) {
+    hash ^= value.charCodeAt(index);
+    hash = Math.imul(hash, 0x01000193);
+  }
+  return hash >>> 0;
+};
+
+const clamp = (value: number, minimum: number, maximum: number): number =>
+  Math.min(maximum, Math.max(minimum, value));
+
+const compareCodeUnits = (left: string, right: string): number =>
+  left < right ? -1 : left > right ? 1 : 0;

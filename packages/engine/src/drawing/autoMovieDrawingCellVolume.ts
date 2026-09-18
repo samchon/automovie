@@ -1,4 +1,4 @@
-import { IAutoMovieDrawingPoint, IAutoMovieHalfSpacePlane, IAutoMovieVector3 } from "@automovie/interface";
+import { IAutoMovieHalfSpacePlane, IAutoMovieVector3 } from "@automovie/interface";
 import { Vector3 } from "../math/Vector3";
 import { convexHull2D } from "../math/convexHull2D";
 import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
@@ -106,79 +106,6 @@ export const autoMovieDrawingCellVolume = (
   }
   if (Vector3.length(closure) > facing * 1e-6) return null;
   return volume;
-};
-
-const faceBasis = (
-  normal: IAutoMovieVector3,
-): { right: IAutoMovieVector3; up: IAutoMovieVector3 } => {
-  const seed =
-    Math.abs(normal.x) < 0.9
-      ? Vector3.create(1, 0, 0)
-      : Vector3.create(0, 1, 0);
-  const right = Vector3.normalize(Vector3.cross(seed, normal));
-  return { right, up: Vector3.cross(normal, right) };
-};
-
-const intersectPlanes = (
-  first: { normal: IAutoMovieVector3; offset: number },
-  second: { normal: IAutoMovieVector3; offset: number },
-  third: { normal: IAutoMovieVector3; offset: number },
-): IAutoMovieVector3 | null => {
-  const cross23 = Vector3.cross(second.normal, third.normal);
-  const determinant = Vector3.dot(first.normal, cross23);
-  if (Math.abs(determinant) <= 1e-9) return null;
-  const cross31 = Vector3.cross(third.normal, first.normal);
-  const cross12 = Vector3.cross(first.normal, second.normal);
-  return Vector3.scale(
-    Vector3.add(
-      Vector3.add(
-        Vector3.scale(cross23, first.offset),
-        Vector3.scale(cross31, second.offset),
-      ),
-      Vector3.scale(cross12, third.offset),
-    ),
-    1 / determinant,
-  );
-};
-
-const clipHalfPlane = (
-  polygon: readonly IAutoMovieDrawingPoint[],
-  a: number,
-  b: number,
-  c: number,
-): IAutoMovieDrawingPoint[] => {
-  const out: IAutoMovieDrawingPoint[] = [];
-  for (let index = 0; index < polygon.length; ++index) {
-    const current = polygon[index]!;
-    const next = polygon[(index + 1) % polygon.length]!;
-    const dCurrent = a * current.x + b * current.y - c;
-    const dNext = a * next.x + b * next.y - c;
-    if (dCurrent <= 0) out.push(current);
-    if (dCurrent * dNext < 0) {
-      const t = dCurrent / (dCurrent - dNext);
-      out.push({
-        x: current.x + (next.x - current.x) * t,
-        y: current.y + (next.y - current.y) * t,
-      });
-    }
-  }
-  return out;
-};
-
-const requireFiniteVector = (value: IAutoMovieVector3, label: string): void => {
-  if (
-    !Number.isFinite(value.x) ||
-    !Number.isFinite(value.y) ||
-    !Number.isFinite(value.z)
-  )
-    throw new Error(`${label} must be finite on every axis`);
-};
-
-const requireOptionalDepth = (value: number | null, label: string): void => {
-  if (value !== null && (!Number.isFinite(value) || value < 0))
-    throw new Error(
-      `${label} must be null or a finite number at or above zero, but was ${value}`,
-    );
 };
 
 const faceBasis = (

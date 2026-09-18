@@ -6,6 +6,9 @@ import { projectToNdc } from "./projectToNdc";
 import { resolveCameraAt } from "./resolveCameraAt";
 import { DEFAULT_KEYPOINT_BONES } from "./DEFAULT_KEYPOINT_BONES";
 
+/** Assumed render aspect (width/height): the scene camera carries no aspect. */
+const DEFAULT_ASPECT = 16 / 9;
+
 /**
  * Project one posed actor's named joints to 2D screen keypoints (#1168), the
  * exact OpenPose-style conditioning automovie can emit because it already knows
@@ -88,23 +91,6 @@ export const resolvePoseKeypoints = (props: {
   }
   return keypoints;
 };
-
-/** Lift a rig-space point into scene-world by the node's TRS (scale-correct). */
-const toSceneWorld = (
-  transform: IAutoMovieTransform,
-  point: IAutoMovieVector3,
-): IAutoMovieVector3 =>
-  Vector3.add(
-    transform.translation,
-    Quaternion.rotateVector(transform.rotation, {
-      x: transform.scale.x * point.x,
-      y: transform.scale.y * point.y,
-      z: transform.scale.z * point.z,
-    }),
-  );
-
-/** Assumed render aspect (width/height): the scene camera carries no aspect. */
-const DEFAULT_ASPECT = 16 / 9;
 
 /** Lift a rig-space point into scene-world by the node's TRS (scale-correct). */
 const toSceneWorld = (

@@ -1,4 +1,4 @@
-import { IAutoMovieInteractionEvent, IAutoMovieShot } from "@automovie/interface";
+import { IAutoMovieInteractionEvent } from "@automovie/interface";
 
 /**
  * A shot-local interaction event placed on the sequence output clock.
@@ -40,18 +40,3 @@ export interface IAutoMoviePlaybackEvent extends IAutoMovieInteractionEvent {
    */
   globalTime: number;
 }
-
-const indexShots = (
-  shots: readonly IAutoMovieShot[],
-): Map<string, { shot: IAutoMovieShot; index: number }> => {
-  const byId = new Map<string, { shot: IAutoMovieShot; index: number }>();
-  shots.forEach((shot, index) => {
-    const existing = byId.get(shot.id);
-    if (existing !== undefined)
-      throw new Error(
-        `shot id "${shot.id}" is duplicated at shots[${index}].id; first declared at shots[${existing.index}].id`,
-      );
-    byId.set(shot.id, { shot, index });
-  });
-  return byId;
-};

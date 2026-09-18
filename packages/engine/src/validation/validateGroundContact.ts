@@ -5,14 +5,16 @@ import {
   IAutoMovieValidation,
 } from "@automovie/interface";
 
-import { IAutoMovieJointAxes } from "../kinematics/IAutoMovieJointAxes";
-import { indexSkeletonTopology } from "../kinematics/indexSkeletonTopology";
-import { resolvePose } from "../kinematics/resolvePose";
+import {
+  IAutoMovieJointAxes,
+  indexSkeletonTopology,
+  resolvePose,
+} from "../kinematics";
 import { sampleTimes } from "../motion/sampleTimes";
 import { sampleMotion } from "../motion/sampleMotion";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
-import { groundFunction } from "../space/ground";
-import { IAutoMovieCapsuleProxy, validateCapsule } from "./capsuleProxy";
+import { groundFunction } from "../space/groundFunction";
+import { IAutoMovieCapsuleProxy, validateCapsule } from "./validateCapsule";
 import { fkReachableBones } from "./fkReachableBones";
 import { ViolationCollector } from "./ViolationCollector";
 

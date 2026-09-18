@@ -1,4 +1,4 @@
-import { IAutoMovieHeightRule, IAutoMovieSurface, IAutoMovieVector3 } from "@automovie/interface";
+import { IAutoMovieHeightRule, IAutoMovieVector3 } from "@automovie/interface";
 
 /**
  * Whatever states how high the ground is: either surface record answers here.

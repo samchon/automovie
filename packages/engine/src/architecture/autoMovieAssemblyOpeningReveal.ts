@@ -1,4 +1,3 @@
-import { positive } from "../geometry/positive";
 import { IAutoMovieAssemblyReveal } from "./IAutoMovieAssemblyReveal";
 import { IAutoMovieResolvedAssembly } from "./IAutoMovieResolvedAssembly";
 
@@ -67,4 +66,28 @@ export const autoMovieAssemblyOpeningReveal = (props: {
     bare: props.resolved.total - first - last,
     layers: lining.map((layer) => layer.id),
   };
+};
+
+const leadingRun = <T>(
+  items: readonly T[],
+  match: (item: T) => boolean,
+): number => {
+  let count = 0;
+  while (count < items.length && match(items[count]!)) count += 1;
+  return count;
+};
+
+const trailingRun = <T>(
+  items: readonly T[],
+  match: (item: T) => boolean,
+): number => {
+  let count = 0;
+  while (count < items.length && match(items[items.length - 1 - count]!))
+    count += 1;
+  return count;
+};
+
+const positive = (value: number, label: string): void => {
+  if (!Number.isFinite(value) || value <= 0)
+    throw new Error(`${label} must be a finite number > 0`);
 };

@@ -2,6 +2,14 @@ import { IAutoMovieMotion } from "@automovie/interface";
 import { addPositiveModulo } from "../math/addPositiveModulo";
 
 /**
+ * Wrap a non-negative time onto `[0, duration)`, matching the sampler's loop
+ * handling. Callers guarantee `seconds >= 0` (a shot's local clock never runs
+ * backwards), so no negative-modulo correction is needed.
+ */
+const wrapTime = (seconds: number, duration: number): number =>
+  seconds % duration;
+
+/**
  * Seconds into a looping clip's cycle at `localTime`, or `null` when the clip
  * does not loop (a one-shot clip has no cycle to resume).
  *

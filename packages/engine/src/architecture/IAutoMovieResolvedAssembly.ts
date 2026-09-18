@@ -1,4 +1,3 @@
-import { IAutoMovieMaterialAssembly } from "@automovie/interface";
 import { IAutoMovieResolvedLayer } from "./IAutoMovieResolvedLayer";
 
 /**

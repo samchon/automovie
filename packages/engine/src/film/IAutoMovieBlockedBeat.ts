@@ -1,8 +1,17 @@
 import { IAutoMovieBeatEndState, IAutoMovieBlocking, IAutoMovieConstraintViolation } from "@automovie/interface";
 
+/**
+ * A validated blocking: the beat's shot plan, coherent with the script and the
+ * staged world, ready to steer the performance stage.
+ *
+ * @evidence requirements/staging/marks-zones-and-blocking.md#staging-blocking-relations IAutoMovieBlockedBeat makes authored blocking mechanically validatable: A validated blocking: the beat's shot plan, coherent with the script and the staged world, ready to steer the performance stage.
+ * @evidence specifications/performance-motion-and-staging/staging-space-state-and-choreography.md#performance-staging-mark-surface-zone-membership IAutoMovieBlockedBeat realizes staged spatial-relation validation: A validated blocking: the beat's shot plan, coherent with the script and the staged world, ready to steer the performance stage.
+ * @author Samchon
+ */
 export type IAutoMovieBlockedBeat =
   | IAutoMovieBlockedBeat.ISuccess
   | IAutoMovieBlockedBeat.IFailure;
+
 export namespace IAutoMovieBlockedBeat {
   /**
    * The plan holds together; performance can align to it.

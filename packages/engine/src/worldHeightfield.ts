@@ -85,3 +85,8 @@ export const worldHeightfield = (input: {
     walkable: input.walkable,
   };
 };
+
+const assertText = (value: string, field: string): void => {
+  if (value.trim().length === 0)
+    throw new Error(`${field} must contain non-whitespace text.`);
+};

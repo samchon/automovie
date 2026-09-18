@@ -147,21 +147,3 @@ const effectValue = (seed: number, index: number, domain: number): number => {
   output ^= output + Math.imul(output ^ (output >>> 7), output | 61);
   return ((output ^ (output >>> 14)) >>> 0) / 4_294_967_296;
 };
-
-const interpolate = (from: number, to: number, ratio: number): number =>
-  from * (1 - ratio) + to * ratio;
-
-/**
- * Preserve the compiled-effect v1 stream while the public multi-part sampler
- * serves new domains. The effect digest does not carry a sampler version, so
- * changing this fold would make identical compiled bytes replay differently.
- */
-const effectValue = (seed: number, index: number, domain: number): number => {
-  let state = mixSeed(seed, domain);
-  state = mixSeed(index, state);
-  state = (state + 0x6d2b79f5) >>> 0;
-  let output = state;
-  output = Math.imul(output ^ (output >>> 15), output | 1);
-  output ^= output + Math.imul(output ^ (output >>> 7), output | 61);
-  return ((output ^ (output >>> 14)) >>> 0) / 4_294_967_296;
-};

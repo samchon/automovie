@@ -1,4 +1,4 @@
-import { IAutoMovieBuiltEnvironment } from "@automovie/interface";
+import { IAutoMovieBuiltConnector, IAutoMovieBuiltEnvironment } from "@automovie/interface";
 import { IAutoMovieConnectorSectionAt } from "./IAutoMovieConnectorSectionAt";
 import { builtConnectorSection } from "./builtConnectorSection";
 
@@ -31,4 +31,18 @@ export const builtConnectorSectionAt = (
       `connector "${connectorId}" of built environment "${environment.id}" states no usable section`,
     );
   return section;
+};
+
+const requireConnector = (
+  environment: IAutoMovieBuiltEnvironment,
+  connectorId: string,
+): IAutoMovieBuiltConnector => {
+  const connector = environment.connectors.find(
+    (candidate) => candidate.id === connectorId,
+  );
+  if (connector === undefined)
+    throw new Error(
+      `built environment "${environment.id}" has no connector "${connectorId}"`,
+    );
+  return connector;
 };

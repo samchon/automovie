@@ -1,11 +1,648 @@
-import { IAutoMovieLight, IAutoMovieScene, IAutoMovieSceneNode, IAutoMovieScript, IAutoMovieStage, IAutoMovieVector3 } from "@automovie/interface";
+import { IAutoMovieCameraClearanceEnvelope, IAutoMovieLight, IAutoMovieSceneNode, IAutoMovieScript, IAutoMovieStage, IAutoMovieStageLight, IAutoMovieVector3 } from "@automovie/interface";
+import { aimRotation } from "../kinematics/aimRotation";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
+import { AUTO_MOVIE_LIGHT_TYPES } from "../resolve/AUTO_MOVIE_LIGHT_TYPES";
+import { isAutoMovieLightType } from "../resolve/isAutoMovieLightType";
+import { withArticle } from "../text/withArticle";
+import { isRecord } from "../validation/isRecord";
 import { validateSceneEnvironment } from "../validation/validateSceneEnvironment";
 import { validateSpace } from "../validation/validateSpace";
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { lookRotation } from "./lookRotation";
 import { IAutoMovieStagedSet } from "./IAutoMovieStagedSet";
+
+/** Cameras look down local −Z (glTF convention); lights shine down −Z too. */
+const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: -1 };
+
+/** No turn: a point light radiates every way, so its orientation is arbitrary. */
+const IDENTITY_ROTATION = { x: 0, y: 0, z: 0, w: 1 };
+
+const isFiniteVector3 = (vector: IAutoMovieVector3): boolean =>
+  [vector.x, vector.y, vector.z].every((coordinate) =>
+    Number.isFinite(coordinate),
+  );
+
+/**
+ * Validate one portable camera-clearance envelope before it reaches the
+ * resolved scene. The implementation deliberately reads every nested value as
+ * unknown: generated authoring code is an external boundary even when its
+ * compile-time type claims the object is well formed.
+ */
+const validateCameraClearanceEnvelope = (
+  value: unknown,
+  path: string,
+  out: ViolationCollector,
+): void => {
+  if (!isRecord(value)) {
+    out.push("type", path, "camera clearance must be an object", value);
+    return;
+  }
+
+  const validateSphere = (sphere: unknown, spherePath: string): void => {
+    if (!isRecord(sphere)) {
+      out.push(
+        "type",
+        spherePath,
+        "camera clearance sphere must be an object",
+        sphere,
+      );
+      return;
+    }
+    if (!isRecord(sphere.center))
+      out.push(
+        "type",
+        `${spherePath}.center`,
+        "camera clearance centre must be a vector object",
+        sphere.center,
+      );
+    else if (
+      ![sphere.center.x, sphere.center.y, sphere.center.z].every(
+        (coordinate) =>
+          typeof coordinate === "number" && Number.isFinite(coordinate),
+      )
+    )
+      out.push(
+        "range",
+        `${spherePath}.center`,
+        "camera clearance centre must be a finite vector",
+        sphere.center,
+      );
+    if (
+      typeof sphere.radius !== "number" ||
+      !Number.isFinite(sphere.radius) ||
+      sphere.radius <= 0
+    )
+      out.push(
+        "range",
+        `${spherePath}.radius`,
+        "camera clearance radius must be finite and greater than zero",
+        sphere.radius,
+      );
+  };
+
+  validateSphere(value.body, `${path}.body`);
+  if (!("parentRig" in value))
+    out.push(
+      "type",
+      `${path}.parentRig`,
+      "camera clearance must state a parent rig sphere or null",
+      undefined,
+    );
+  else if (value.parentRig !== null)
+    validateSphere(value.parentRig, `${path}.parentRig`);
+};
+
+/** Copy an accepted envelope so the resolved scene cannot alias author input. */
+const lowerCameraClearanceEnvelope = (
+  envelope: IAutoMovieCameraClearanceEnvelope,
+): IAutoMovieCameraClearanceEnvelope => ({
+  body: {
+    center: { ...envelope.body.center },
+    radius: envelope.body.radius,
+  },
+  parentRig:
+    envelope.parentRig === null
+      ? null
+      : {
+          center: { ...envelope.parentRig.center },
+          radius: envelope.parentRig.radius,
+        },
+});
+
+/** Validate the authored fixed-point depth precision boundary. */
+const validateCameraDepthPrecision = (
+  value: unknown,
+  path: string,
+  out: ViolationCollector,
+): void => {
+  if (!isRecord(value)) {
+    out.push("type", path, "camera depth precision must be an object", value);
+    return;
+  }
+  const bits = value.minimumDepthBits;
+  if (
+    typeof bits !== "number" ||
+    !Number.isSafeInteger(bits) ||
+    bits <= 0 ||
+    !Number.isSafeInteger(2 ** bits - 1)
+  )
+    out.push(
+      "range",
+      `${path}.minimumDepthBits`,
+      "minimum depth bits must produce an exact positive safe-integer code count",
+      bits,
+    );
+  const maximumStep = value.maximumStepMeters;
+  if (
+    typeof maximumStep !== "number" ||
+    !Number.isFinite(maximumStep) ||
+    maximumStep <= 0
+  )
+    out.push(
+      "range",
+      `${path}.maximumStepMeters`,
+      "maximum adjacent depth step must be finite and greater than zero metres",
+      maximumStep,
+    );
+};
+
+/**
+ * Lower a set piece's optional size multiplier onto the node transform's scale:
+ * omitted keeps the model's authored size, a bare number scales uniformly, a
+ * vector scales per axis. One forged primitive can therefore stand in for a
+ * whole set, a wall, a step, and a table top are the same box at three sizes
+ * (#1173).
+ */
+const setPieceScale = (
+  scale: number | IAutoMovieVector3 | undefined,
+): IAutoMovieVector3 => {
+  if (scale === undefined) return { x: 1, y: 1, z: 1 };
+  if (typeof scale === "number") return { x: scale, y: scale, z: scale };
+  return scale;
+};
+
+/** A light placement's kind, defaulting to the sun-like parallel source. */
+const lightTypeOf = (
+  light: IAutoMovieStageLight,
+): IAutoMovieLight["type"] | null => {
+  const type = (light as unknown as { type?: unknown }).type;
+  if (type === undefined) return "directional";
+  return isAutoMovieLightType(type) ? type : null;
+};
+
+/** A spot's cone half-angle when the placement leaves it to the engine. */
+const DEFAULT_CONE_ANGLE = 45;
+
+/**
+ * The rectangular panel's extent as a placement may carry it.
+ *
+ * Read through one accessor rather than off the placement type for the same
+ * reason {@link lightTypeOf} reads `type` that way: the gate must be able to
+ * doubt a value an author supplied, and a field asserted before it is checked
+ * is a field that stopped being checked. Both axes are `unknown` here and
+ * become numbers only once {@link validateLightExtent} has said so.
+ */
+interface IAutoMovieStageLightExtent {
+  /** Declared panel width, unchecked. */
+  width?: unknown;
+  /** Declared panel height, unchecked. */
+  height?: unknown;
+}
+
+/** A placement's declared panel extent, before any of it is believed. */
+const lightExtentOf = (
+  light: IAutoMovieStageLight,
+): IAutoMovieStageLightExtent => light as IAutoMovieStageLightExtent;
+
+/**
+ * The staging light contract, per kind (#1341).
+ *
+ * `stage` used to accept `{node, role, direction, intensity}` and lower every
+ * entry to a white directional light, so a candle, a sunset, a neon sign, and a
+ * window shaft were all the same frame, and an author who wanted a warm lamp
+ * had to hand-patch `scene.lights` after `stage` and lose the referential
+ * integrity `stage` exists to give. The placement now spans every kind
+ * {@link IAutoMovieLight} models, which makes each kind's parameter set exact
+ * rather than advisory:
+ *
+ * - An aimed light (`directional`, `spot`, `area`) needs a finite non-zero
+ *   `direction` and a `point` light must not carry one, since it radiates every
+ *   way;
+ * - A positioned light (`point`, `spot`, `area`) needs a finite `position` and a
+ *   `directional` light must not carry one, since it is infinitely distant;
+ * - `range` belongs to the two punctual falloff kinds, `coneAngle` to `spot`
+ *   alone, and `width`/`height` to `area` alone.
+ *
+ * A parameter that cannot act is refused rather than ignored: silently dropping
+ * a `coneAngle` on a point light is the same false green the campaign is
+ * closing elsewhere. Colors are range-checked here too, because `stage` is the
+ * only rung between the model and the scene.
+ */
+const validateLightPlacementShape = (
+  light: IAutoMovieStageLight,
+  path: string,
+  out: ViolationCollector,
+): void => {
+  const type = lightTypeOf(light);
+  if (type === null) {
+    out.push(
+      "type",
+      `${path}.type`,
+      `light type must be one of ${[...AUTO_MOVIE_LIGHT_TYPES].join(", ")}`,
+      (light as unknown as { type?: unknown }).type,
+    );
+    return;
+  }
+  const aimed = type !== "point";
+  const positioned = type !== "directional";
+  // Distance falloff is narrower than "has a position": an area panel stands
+  // somewhere and still takes no range, because its falloff follows from the
+  // panel's own extent.
+  const falloff = type === "point" || type === "spot";
+
+  if (light.direction === undefined) {
+    if (aimed)
+      out.push(
+        "type",
+        `${path}.direction`,
+        `${withArticle(type)} light is aimed and needs a direction`,
+        light.direction,
+      );
+  } else if (!aimed)
+    out.push(
+      "type",
+      `${path}.direction`,
+      `a point light radiates in every direction and takes no direction`,
+      light.direction,
+    );
+  else if (
+    !isFiniteVector3(light.direction) ||
+    Vector3.length(light.direction) === 0
+  )
+    out.push(
+      "range",
+      `${path}.direction`,
+      `direction must be a finite non-zero vector`,
+      light.direction,
+    );
+
+  if (light.position === undefined) {
+    if (positioned)
+      out.push(
+        "type",
+        `${path}.position`,
+        `${withArticle(type)} light stands somewhere in the world and needs a position`,
+        light.position,
+      );
+  } else if (!positioned)
+    out.push(
+      "type",
+      `${path}.position`,
+      `a directional light is infinitely distant and takes no position`,
+      light.position,
+    );
+  else if (!isFiniteVector3(light.position))
+    out.push(
+      "range",
+      `${path}.position`,
+      `position must be a finite vector`,
+      light.position,
+    );
+
+  if (light.range !== undefined) {
+    if (!falloff)
+      out.push(
+        "type",
+        `${path}.range`,
+        `${withArticle(type)} light has no distance falloff and takes no range`,
+        light.range,
+      );
+    else if (!Number.isFinite(light.range) || light.range < 0)
+      out.push(
+        "range",
+        `${path}.range`,
+        `light range must be a finite number >= 0 (0 = infinite), but was ${light.range}`,
+        light.range,
+      );
+  }
+
+  if (light.coneAngle !== undefined) {
+    if (type !== "spot")
+      out.push(
+        "type",
+        `${path}.coneAngle`,
+        `only a spot light has a cone; ${withArticle(type)} light takes no coneAngle`,
+        light.coneAngle,
+      );
+    else if (
+      !Number.isFinite(light.coneAngle) ||
+      light.coneAngle <= 0 ||
+      light.coneAngle > 90
+    )
+      out.push(
+        "range",
+        `${path}.coneAngle`,
+        `spot coneAngle must be a finite number within (0, 90], but was ${light.coneAngle}`,
+        light.coneAngle,
+      );
+  }
+
+  validateLightExtent(light, type, path, out);
+  if (light.color !== undefined) validateLightColor(light.color, path, out);
+  validateLightShadow(light, type, path, out);
+};
+
+/**
+ * The panel's extent: required exactly on an `area` light, refused elsewhere.
+ *
+ * Both axes are checked, not just the first missing one, so an author who typed
+ * neither is told both rather than being walked through the same placement one
+ * recompile at a time.
+ */
+const validateLightExtent = (
+  light: IAutoMovieStageLight,
+  type: IAutoMovieLight["type"],
+  path: string,
+  out: ViolationCollector,
+): void => {
+  const extent = lightExtentOf(light);
+  for (const axis of ["width", "height"] as const) {
+    const value = extent[axis];
+    if (value === undefined) {
+      if (type === "area")
+        out.push(
+          "type",
+          `${path}.${axis}`,
+          `an area light is a rectangular panel and needs a ${axis}`,
+          value,
+        );
+    } else if (type !== "area")
+      out.push(
+        "type",
+        `${path}.${axis}`,
+        `only an area light has extent; a ${type} light takes no ${axis}`,
+        value,
+      );
+    else if (typeof value !== "number" || !Number.isFinite(value) || value <= 0)
+      out.push(
+        "range",
+        `${path}.${axis}`,
+        `area ${axis} must be a finite number greater than zero, but was ${String(value)}`,
+        value,
+      );
+  }
+};
+
+const validateLightShadow = (
+  light: IAutoMovieStageLight,
+  type: IAutoMovieLight["type"],
+  path: string,
+  out: ViolationCollector,
+): void => {
+  if (light.castShadow !== undefined && typeof light.castShadow !== "boolean")
+    out.push(
+      "type",
+      `${path}.castShadow`,
+      "castShadow must be boolean",
+      light.castShadow,
+    );
+  // A rectangular area source is integrated analytically, so `three.js` renders
+  // no shadow map for it. Accepting the flag would stage a light that says it
+  // occludes and never does, which is exactly the false green this campaign is
+  // closing; the correction is a spot or directional key beside the panel. The
+  // refusal replaces the shadow-settings demand rather than joining it: asking
+  // an author to tune a map that will never be rendered is worse advice than
+  // none.
+  else if (light.castShadow === true && type === "area") {
+    out.push(
+      "type",
+      `${path}.castShadow`,
+      "an area light is analytically integrated and casts no shadow map; use a punctual key light for occlusion",
+      light.castShadow,
+    );
+    return;
+  }
+  if (light.shadow === undefined) {
+    if (light.castShadow === true)
+      out.push(
+        "type",
+        `${path}.shadow`,
+        "a shadow-casting light requires deterministic shadow settings",
+        light.shadow,
+      );
+    return;
+  }
+  if (light.castShadow !== true)
+    out.push(
+      "type",
+      `${path}.shadow`,
+      "shadow settings require castShadow to be true",
+      light.shadow,
+    );
+  if (!isRecord(light.shadow)) {
+    out.push(
+      "type",
+      `${path}.shadow`,
+      "shadow must be a JSON object",
+      light.shadow,
+    );
+    return;
+  }
+  const shadow = light.shadow;
+  if (!Number.isSafeInteger(shadow.mapSize) || (shadow.mapSize as number) <= 0)
+    out.push(
+      "range",
+      `${path}.shadow.mapSize`,
+      "shadow mapSize must be a positive safe integer",
+      shadow.mapSize,
+    );
+  for (const key of ["bias", "normalBias"] as const)
+    if (typeof shadow[key] !== "number" || !Number.isFinite(shadow[key]))
+      out.push(
+        "range",
+        `${path}.shadow.${key}`,
+        `shadow ${key} must be finite`,
+        shadow[key],
+      );
+  if (
+    typeof shadow.near !== "number" ||
+    !Number.isFinite(shadow.near) ||
+    shadow.near <= 0
+  )
+    out.push(
+      "range",
+      `${path}.shadow.near`,
+      "shadow near must be finite and greater than zero",
+      shadow.near,
+    );
+  if (
+    typeof shadow.far !== "number" ||
+    !Number.isFinite(shadow.far) ||
+    typeof shadow.near !== "number" ||
+    shadow.far <= shadow.near
+  )
+    out.push(
+      "range",
+      `${path}.shadow.far`,
+      "shadow far must be finite and greater than near",
+      shadow.far,
+    );
+};
+
+/**
+ * A staged light's color, checked to the same rule the scene artifact validator
+ * applies downstream.
+ *
+ * Both halves matter. The object check keeps this validator TOTAL: `stage` is
+ * reachable in-process with an untyped payload (the transport's structural gate
+ * is not the engine's), and a `null` color would otherwise dereference into a
+ * TypeError instead of a located violation. The alpha check keeps the two rungs
+ * agreeing: `validateColorArtifact` range-checks a non-null `a`, so leaving it
+ * to `commitScene` would let a bad alpha compose a scene here and be refused
+ * one stage later, which is the wrong-stage failure this cycle closes
+ * elsewhere.
+ */
+const validateLightColor = (
+  color: unknown,
+  path: string,
+  out: ViolationCollector,
+): void => {
+  if (!isRecord(color)) {
+    out.push(
+      "type",
+      `${path}.color`,
+      "light color must be a JSON object",
+      color,
+    );
+    return;
+  }
+  for (const key of ["r", "g", "b"] as const)
+    unitComponent(
+      color[key],
+      `${path}.color.${key}`,
+      `light color ${key}`,
+      out,
+    );
+  // `a` is nullable by contract: a light slot is opacity-irrelevant, so `null`
+  // is the documented value there, distinct from an out-of-range number.
+  if (color.a !== null)
+    unitComponent(color.a, `${path}.color.a`, "light color a", out);
+};
+
+/**
+ * The staged atmosphere, held to the rule the scene gate applies downstream, so
+ * a fog `stage` composes can never be one `commitScene` refuses.
+ *
+ * Two facts and no more, because {@link IAutoMovieFog} carries two: an
+ * extinction coefficient that must be finite and non-negative (a negative one
+ * would AMPLIFY a distant subject, and a non-finite one erases every pixel),
+ * and a color whose components are unit-ranged like every other color the
+ * engine accepts. Density has no upper bound on purpose: `1 /m` is a wall of
+ * cloud, which is a look, not a mistake.
+ *
+ * Total over an untyped payload for the same reason {@link validateLightColor}
+ * is: `stage` is reachable in-process without the transport's structural gate,
+ * and a `null` fog must become a located violation rather than a `TypeError`
+ * two rungs later.
+ */
+const validateFogPlacement = (
+  fog: unknown,
+  path: string,
+  out: ViolationCollector,
+): void => {
+  if (!isRecord(fog)) {
+    out.push("type", path, "fog must be a JSON object", fog);
+    return;
+  }
+  if (
+    typeof fog.density !== "number" ||
+    !Number.isFinite(fog.density) ||
+    fog.density < 0
+  )
+    out.push(
+      "range",
+      `${path}.density`,
+      `fog density must be a finite number >= 0, but was ${String(fog.density)}`,
+      fog.density,
+    );
+  if (!isRecord(fog.color)) {
+    out.push(
+      "type",
+      `${path}.color`,
+      "fog color must be a JSON object",
+      fog.color,
+    );
+    return;
+  }
+  for (const key of ["r", "g", "b"] as const)
+    unitComponent(
+      fog.color[key],
+      `${path}.color.${key}`,
+      `fog color ${key}`,
+      out,
+    );
+};
+
+/**
+ * One color component in `[0, 1]`, reported in
+ * {@link ViolationCollector.range}'s own words.
+ *
+ * The collector's helper takes a `number`, and a component read off an untyped
+ * payload is `unknown`. Casting it to `number` to satisfy that signature would
+ * assert exactly the thing the check exists to doubt, so the comparison narrows
+ * with `typeof` instead and the message is kept identical to the collector's,
+ * so the two rungs read the same to an author.
+ */
+const unitComponent = (
+  value: unknown,
+  path: string,
+  label: string,
+  out: ViolationCollector,
+): void => {
+  if (
+    typeof value === "number" &&
+    Number.isFinite(value) &&
+    value >= 0 &&
+    value <= 1
+  )
+    return;
+  out.push(
+    "range",
+    path,
+    `${label} must be a finite number within [0, 1], but was ${String(value)}`,
+    value,
+  );
+};
+
+/**
+ * Lower one accepted placement into the scene light it describes.
+ *
+ * An aimed light keeps the shortest-arc rotation that puts its local −Z on
+ * `direction`; a positioned light keeps that same aim (a spot needs it, a point
+ * is rotation-indifferent and takes identity) and translates to `position`.
+ * Omitted color is neutral white with `a: null`, the light-slot convention
+ * {@link IAutoMovieColor} documents.
+ */
+const lowerLightPlacement = (light: IAutoMovieStageLight): IAutoMovieLight => {
+  const type = lightTypeOf(light)!;
+  const base = {
+    id: light.node,
+    transform: {
+      translation: light.position ?? { x: 0, y: 0, z: 0 },
+      rotation:
+        light.direction === undefined
+          ? IDENTITY_ROTATION
+          : aimRotation(FORWARD, light.direction),
+      scale: { x: 1, y: 1, z: 1 },
+    },
+    color: light.color ?? { r: 1, g: 1, b: 1, a: null, hex: null },
+    intensity: light.intensity,
+    ...(light.castShadow === undefined ? {} : { castShadow: light.castShadow }),
+    ...(light.shadow === undefined ? {} : { shadow: light.shadow }),
+  };
+  if (type === "point") return { ...base, type, range: light.range ?? 0 };
+  if (type === "spot")
+    return {
+      ...base,
+      type,
+      range: light.range ?? 0,
+      coneAngle: light.coneAngle ?? DEFAULT_CONE_ANGLE,
+    };
+  // A panel has no defaultable extent: an unstated width is not "some usual
+  // softbox", it is an author who has not decided how big the window is, so the
+  // placement gate refuses it and lowering reads what was decided.
+  if (type === "area") {
+    const extent = lightExtentOf(light);
+    return {
+      ...base,
+      type,
+      width: extent.width as number,
+      height: extent.height as number,
+    };
+  }
+  return { ...base, type };
+};
 
 /**
  * The STAGING consumer, fold the script's cast and the staging stage's
@@ -458,597 +1095,4 @@ export const stageScene = (
     },
     mounts,
   };
-};
-
-const isFiniteVector3 = (vector: IAutoMovieVector3): boolean =>
-  [vector.x, vector.y, vector.z].every((coordinate) =>
-    Number.isFinite(coordinate),
-  );
-
-/**
- * Validate one portable camera-clearance envelope before it reaches the
- * resolved scene. The implementation deliberately reads every nested value as
- * unknown: generated authoring code is an external boundary even when its
- * compile-time type claims the object is well formed.
- */
-const validateCameraClearanceEnvelope = (
-  value: unknown,
-  path: string,
-  out: ViolationCollector,
-): void => {
-  if (!isRecord(value)) {
-    out.push("type", path, "camera clearance must be an object", value);
-    return;
-  }
-
-  const validateSphere = (sphere: unknown, spherePath: string): void => {
-    if (!isRecord(sphere)) {
-      out.push(
-        "type",
-        spherePath,
-        "camera clearance sphere must be an object",
-        sphere,
-      );
-      return;
-    }
-    if (!isRecord(sphere.center))
-      out.push(
-        "type",
-        `${spherePath}.center`,
-        "camera clearance centre must be a vector object",
-        sphere.center,
-      );
-    else if (
-      ![sphere.center.x, sphere.center.y, sphere.center.z].every(
-        (coordinate) =>
-          typeof coordinate === "number" && Number.isFinite(coordinate),
-      )
-    )
-      out.push(
-        "range",
-        `${spherePath}.center`,
-        "camera clearance centre must be a finite vector",
-        sphere.center,
-      );
-    if (
-      typeof sphere.radius !== "number" ||
-      !Number.isFinite(sphere.radius) ||
-      sphere.radius <= 0
-    )
-      out.push(
-        "range",
-        `${spherePath}.radius`,
-        "camera clearance radius must be finite and greater than zero",
-        sphere.radius,
-      );
-  };
-
-  validateSphere(value.body, `${path}.body`);
-  if (!("parentRig" in value))
-    out.push(
-      "type",
-      `${path}.parentRig`,
-      "camera clearance must state a parent rig sphere or null",
-      undefined,
-    );
-  else if (value.parentRig !== null)
-    validateSphere(value.parentRig, `${path}.parentRig`);
-};
-
-/** Copy an accepted envelope so the resolved scene cannot alias author input. */
-const lowerCameraClearanceEnvelope = (
-  envelope: IAutoMovieCameraClearanceEnvelope,
-): IAutoMovieCameraClearanceEnvelope => ({
-  body: {
-    center: { ...envelope.body.center },
-    radius: envelope.body.radius,
-  },
-  parentRig:
-    envelope.parentRig === null
-      ? null
-      : {
-          center: { ...envelope.parentRig.center },
-          radius: envelope.parentRig.radius,
-        },
-});
-
-/** Validate the authored fixed-point depth precision boundary. */
-const validateCameraDepthPrecision = (
-  value: unknown,
-  path: string,
-  out: ViolationCollector,
-): void => {
-  if (!isRecord(value)) {
-    out.push("type", path, "camera depth precision must be an object", value);
-    return;
-  }
-  const bits = value.minimumDepthBits;
-  if (
-    typeof bits !== "number" ||
-    !Number.isSafeInteger(bits) ||
-    bits <= 0 ||
-    !Number.isSafeInteger(2 ** bits - 1)
-  )
-    out.push(
-      "range",
-      `${path}.minimumDepthBits`,
-      "minimum depth bits must produce an exact positive safe-integer code count",
-      bits,
-    );
-  const maximumStep = value.maximumStepMeters;
-  if (
-    typeof maximumStep !== "number" ||
-    !Number.isFinite(maximumStep) ||
-    maximumStep <= 0
-  )
-    out.push(
-      "range",
-      `${path}.maximumStepMeters`,
-      "maximum adjacent depth step must be finite and greater than zero metres",
-      maximumStep,
-    );
-};
-
-/**
- * Lower a set piece's optional size multiplier onto the node transform's scale:
- * omitted keeps the model's authored size, a bare number scales uniformly, a
- * vector scales per axis. One forged primitive can therefore stand in for a
- * whole set, a wall, a step, and a table top are the same box at three sizes
- * (#1173).
- */
-const setPieceScale = (
-  scale: number | IAutoMovieVector3 | undefined,
-): IAutoMovieVector3 => {
-  if (scale === undefined) return { x: 1, y: 1, z: 1 };
-  if (typeof scale === "number") return { x: scale, y: scale, z: scale };
-  return scale;
-};
-
-/**
- * The staging light contract, per kind (#1341).
- *
- * `stage` used to accept `{node, role, direction, intensity}` and lower every
- * entry to a white directional light, so a candle, a sunset, a neon sign, and a
- * window shaft were all the same frame, and an author who wanted a warm lamp
- * had to hand-patch `scene.lights` after `stage` and lose the referential
- * integrity `stage` exists to give. The placement now spans every kind
- * {@link IAutoMovieLight} models, which makes each kind's parameter set exact
- * rather than advisory:
- *
- * - An aimed light (`directional`, `spot`, `area`) needs a finite non-zero
- *   `direction` and a `point` light must not carry one, since it radiates every
- *   way;
- * - A positioned light (`point`, `spot`, `area`) needs a finite `position` and a
- *   `directional` light must not carry one, since it is infinitely distant;
- * - `range` belongs to the two punctual falloff kinds, `coneAngle` to `spot`
- *   alone, and `width`/`height` to `area` alone.
- *
- * A parameter that cannot act is refused rather than ignored: silently dropping
- * a `coneAngle` on a point light is the same false green the campaign is
- * closing elsewhere. Colors are range-checked here too, because `stage` is the
- * only rung between the model and the scene.
- */
-const validateLightPlacementShape = (
-  light: IAutoMovieStageLight,
-  path: string,
-  out: ViolationCollector,
-): void => {
-  const type = lightTypeOf(light);
-  if (type === null) {
-    out.push(
-      "type",
-      `${path}.type`,
-      `light type must be one of ${[...AUTO_MOVIE_LIGHT_TYPES].join(", ")}`,
-      (light as unknown as { type?: unknown }).type,
-    );
-    return;
-  }
-  const aimed = type !== "point";
-  const positioned = type !== "directional";
-  // Distance falloff is narrower than "has a position": an area panel stands
-  // somewhere and still takes no range, because its falloff follows from the
-  // panel's own extent.
-  const falloff = type === "point" || type === "spot";
-
-  if (light.direction === undefined) {
-    if (aimed)
-      out.push(
-        "type",
-        `${path}.direction`,
-        `${withArticle(type)} light is aimed and needs a direction`,
-        light.direction,
-      );
-  } else if (!aimed)
-    out.push(
-      "type",
-      `${path}.direction`,
-      `a point light radiates in every direction and takes no direction`,
-      light.direction,
-    );
-  else if (
-    !isFiniteVector3(light.direction) ||
-    Vector3.length(light.direction) === 0
-  )
-    out.push(
-      "range",
-      `${path}.direction`,
-      `direction must be a finite non-zero vector`,
-      light.direction,
-    );
-
-  if (light.position === undefined) {
-    if (positioned)
-      out.push(
-        "type",
-        `${path}.position`,
-        `${withArticle(type)} light stands somewhere in the world and needs a position`,
-        light.position,
-      );
-  } else if (!positioned)
-    out.push(
-      "type",
-      `${path}.position`,
-      `a directional light is infinitely distant and takes no position`,
-      light.position,
-    );
-  else if (!isFiniteVector3(light.position))
-    out.push(
-      "range",
-      `${path}.position`,
-      `position must be a finite vector`,
-      light.position,
-    );
-
-  if (light.range !== undefined) {
-    if (!falloff)
-      out.push(
-        "type",
-        `${path}.range`,
-        `${withArticle(type)} light has no distance falloff and takes no range`,
-        light.range,
-      );
-    else if (!Number.isFinite(light.range) || light.range < 0)
-      out.push(
-        "range",
-        `${path}.range`,
-        `light range must be a finite number >= 0 (0 = infinite), but was ${light.range}`,
-        light.range,
-      );
-  }
-
-  if (light.coneAngle !== undefined) {
-    if (type !== "spot")
-      out.push(
-        "type",
-        `${path}.coneAngle`,
-        `only a spot light has a cone; ${withArticle(type)} light takes no coneAngle`,
-        light.coneAngle,
-      );
-    else if (
-      !Number.isFinite(light.coneAngle) ||
-      light.coneAngle <= 0 ||
-      light.coneAngle > 90
-    )
-      out.push(
-        "range",
-        `${path}.coneAngle`,
-        `spot coneAngle must be a finite number within (0, 90], but was ${light.coneAngle}`,
-        light.coneAngle,
-      );
-  }
-
-  validateLightExtent(light, type, path, out);
-  if (light.color !== undefined) validateLightColor(light.color, path, out);
-  validateLightShadow(light, type, path, out);
-};
-
-/**
- * The panel's extent: required exactly on an `area` light, refused elsewhere.
- *
- * Both axes are checked, not just the first missing one, so an author who typed
- * neither is told both rather than being walked through the same placement one
- * recompile at a time.
- */
-const validateLightExtent = (
-  light: IAutoMovieStageLight,
-  type: IAutoMovieLight["type"],
-  path: string,
-  out: ViolationCollector,
-): void => {
-  const extent = lightExtentOf(light);
-  for (const axis of ["width", "height"] as const) {
-    const value = extent[axis];
-    if (value === undefined) {
-      if (type === "area")
-        out.push(
-          "type",
-          `${path}.${axis}`,
-          `an area light is a rectangular panel and needs a ${axis}`,
-          value,
-        );
-    } else if (type !== "area")
-      out.push(
-        "type",
-        `${path}.${axis}`,
-        `only an area light has extent; a ${type} light takes no ${axis}`,
-        value,
-      );
-    else if (typeof value !== "number" || !Number.isFinite(value) || value <= 0)
-      out.push(
-        "range",
-        `${path}.${axis}`,
-        `area ${axis} must be a finite number greater than zero, but was ${String(value)}`,
-        value,
-      );
-  }
-};
-
-const validateLightShadow = (
-  light: IAutoMovieStageLight,
-  type: IAutoMovieLight["type"],
-  path: string,
-  out: ViolationCollector,
-): void => {
-  if (light.castShadow !== undefined && typeof light.castShadow !== "boolean")
-    out.push(
-      "type",
-      `${path}.castShadow`,
-      "castShadow must be boolean",
-      light.castShadow,
-    );
-  // A rectangular area source is integrated analytically, so `three.js` renders
-  // no shadow map for it. Accepting the flag would stage a light that says it
-  // occludes and never does, which is exactly the false green this campaign is
-  // closing; the correction is a spot or directional key beside the panel. The
-  // refusal replaces the shadow-settings demand rather than joining it: asking
-  // an author to tune a map that will never be rendered is worse advice than
-  // none.
-  else if (light.castShadow === true && type === "area") {
-    out.push(
-      "type",
-      `${path}.castShadow`,
-      "an area light is analytically integrated and casts no shadow map; use a punctual key light for occlusion",
-      light.castShadow,
-    );
-    return;
-  }
-  if (light.shadow === undefined) {
-    if (light.castShadow === true)
-      out.push(
-        "type",
-        `${path}.shadow`,
-        "a shadow-casting light requires deterministic shadow settings",
-        light.shadow,
-      );
-    return;
-  }
-  if (light.castShadow !== true)
-    out.push(
-      "type",
-      `${path}.shadow`,
-      "shadow settings require castShadow to be true",
-      light.shadow,
-    );
-  if (!isRecord(light.shadow)) {
-    out.push(
-      "type",
-      `${path}.shadow`,
-      "shadow must be a JSON object",
-      light.shadow,
-    );
-    return;
-  }
-  const shadow = light.shadow;
-  if (!Number.isSafeInteger(shadow.mapSize) || (shadow.mapSize as number) <= 0)
-    out.push(
-      "range",
-      `${path}.shadow.mapSize`,
-      "shadow mapSize must be a positive safe integer",
-      shadow.mapSize,
-    );
-  for (const key of ["bias", "normalBias"] as const)
-    if (typeof shadow[key] !== "number" || !Number.isFinite(shadow[key]))
-      out.push(
-        "range",
-        `${path}.shadow.${key}`,
-        `shadow ${key} must be finite`,
-        shadow[key],
-      );
-  if (
-    typeof shadow.near !== "number" ||
-    !Number.isFinite(shadow.near) ||
-    shadow.near <= 0
-  )
-    out.push(
-      "range",
-      `${path}.shadow.near`,
-      "shadow near must be finite and greater than zero",
-      shadow.near,
-    );
-  if (
-    typeof shadow.far !== "number" ||
-    !Number.isFinite(shadow.far) ||
-    typeof shadow.near !== "number" ||
-    shadow.far <= shadow.near
-  )
-    out.push(
-      "range",
-      `${path}.shadow.far`,
-      "shadow far must be finite and greater than near",
-      shadow.far,
-    );
-};
-
-/**
- * A staged light's color, checked to the same rule the scene artifact validator
- * applies downstream.
- *
- * Both halves matter. The object check keeps this validator TOTAL: `stage` is
- * reachable in-process with an untyped payload (the transport's structural gate
- * is not the engine's), and a `null` color would otherwise dereference into a
- * TypeError instead of a located violation. The alpha check keeps the two rungs
- * agreeing: `validateColorArtifact` range-checks a non-null `a`, so leaving it
- * to `commitScene` would let a bad alpha compose a scene here and be refused
- * one stage later, which is the wrong-stage failure this cycle closes
- * elsewhere.
- */
-const validateLightColor = (
-  color: unknown,
-  path: string,
-  out: ViolationCollector,
-): void => {
-  if (!isRecord(color)) {
-    out.push(
-      "type",
-      `${path}.color`,
-      "light color must be a JSON object",
-      color,
-    );
-    return;
-  }
-  for (const key of ["r", "g", "b"] as const)
-    unitComponent(
-      color[key],
-      `${path}.color.${key}`,
-      `light color ${key}`,
-      out,
-    );
-  // `a` is nullable by contract: a light slot is opacity-irrelevant, so `null`
-  // is the documented value there, distinct from an out-of-range number.
-  if (color.a !== null)
-    unitComponent(color.a, `${path}.color.a`, "light color a", out);
-};
-
-/**
- * The staged atmosphere, held to the rule the scene gate applies downstream, so
- * a fog `stage` composes can never be one `commitScene` refuses.
- *
- * Two facts and no more, because {@link IAutoMovieFog} carries two: an
- * extinction coefficient that must be finite and non-negative (a negative one
- * would AMPLIFY a distant subject, and a non-finite one erases every pixel),
- * and a color whose components are unit-ranged like every other color the
- * engine accepts. Density has no upper bound on purpose: `1 /m` is a wall of
- * cloud, which is a look, not a mistake.
- *
- * Total over an untyped payload for the same reason {@link validateLightColor}
- * is: `stage` is reachable in-process without the transport's structural gate,
- * and a `null` fog must become a located violation rather than a `TypeError`
- * two rungs later.
- */
-const validateFogPlacement = (
-  fog: unknown,
-  path: string,
-  out: ViolationCollector,
-): void => {
-  if (!isRecord(fog)) {
-    out.push("type", path, "fog must be a JSON object", fog);
-    return;
-  }
-  if (
-    typeof fog.density !== "number" ||
-    !Number.isFinite(fog.density) ||
-    fog.density < 0
-  )
-    out.push(
-      "range",
-      `${path}.density`,
-      `fog density must be a finite number >= 0, but was ${String(fog.density)}`,
-      fog.density,
-    );
-  if (!isRecord(fog.color)) {
-    out.push(
-      "type",
-      `${path}.color`,
-      "fog color must be a JSON object",
-      fog.color,
-    );
-    return;
-  }
-  for (const key of ["r", "g", "b"] as const)
-    unitComponent(
-      fog.color[key],
-      `${path}.color.${key}`,
-      `fog color ${key}`,
-      out,
-    );
-};
-
-/**
- * One color component in `[0, 1]`, reported in
- * {@link ViolationCollector.range}'s own words.
- *
- * The collector's helper takes a `number`, and a component read off an untyped
- * payload is `unknown`. Casting it to `number` to satisfy that signature would
- * assert exactly the thing the check exists to doubt, so the comparison narrows
- * with `typeof` instead and the message is kept identical to the collector's,
- * so the two rungs read the same to an author.
- */
-const unitComponent = (
-  value: unknown,
-  path: string,
-  label: string,
-  out: ViolationCollector,
-): void => {
-  if (
-    typeof value === "number" &&
-    Number.isFinite(value) &&
-    value >= 0 &&
-    value <= 1
-  )
-    return;
-  out.push(
-    "range",
-    path,
-    `${label} must be a finite number within [0, 1], but was ${String(value)}`,
-    value,
-  );
-};
-
-/**
- * Lower one accepted placement into the scene light it describes.
- *
- * An aimed light keeps the shortest-arc rotation that puts its local −Z on
- * `direction`; a positioned light keeps that same aim (a spot needs it, a point
- * is rotation-indifferent and takes identity) and translates to `position`.
- * Omitted color is neutral white with `a: null`, the light-slot convention
- * {@link IAutoMovieColor} documents.
- */
-const lowerLightPlacement = (light: IAutoMovieStageLight): IAutoMovieLight => {
-  const type = lightTypeOf(light)!;
-  const base = {
-    id: light.node,
-    transform: {
-      translation: light.position ?? { x: 0, y: 0, z: 0 },
-      rotation:
-        light.direction === undefined
-          ? IDENTITY_ROTATION
-          : aimRotation(FORWARD, light.direction),
-      scale: { x: 1, y: 1, z: 1 },
-    },
-    color: light.color ?? { r: 1, g: 1, b: 1, a: null, hex: null },
-    intensity: light.intensity,
-    ...(light.castShadow === undefined ? {} : { castShadow: light.castShadow }),
-    ...(light.shadow === undefined ? {} : { shadow: light.shadow }),
-  };
-  if (type === "point") return { ...base, type, range: light.range ?? 0 };
-  if (type === "spot")
-    return {
-      ...base,
-      type,
-      range: light.range ?? 0,
-      coneAngle: light.coneAngle ?? DEFAULT_CONE_ANGLE,
-    };
-  // A panel has no defaultable extent: an unstated width is not "some usual
-  // softbox", it is an author who has not decided how big the window is, so the
-  // placement gate refuses it and lowering reads what was decided.
-  if (type === "area") {
-    const extent = lightExtentOf(light);
-    return {
-      ...base,
-      type,
-      width: extent.width as number,
-      height: extent.height as number,
-    };
-  }
-  return { ...base, type };
 };

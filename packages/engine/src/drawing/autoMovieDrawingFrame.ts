@@ -1,4 +1,4 @@
-import { IAutoMovieDrawingFrame, IAutoMovieDrawingView } from "@automovie/interface";
+import { IAutoMovieDrawingFrame, IAutoMovieDrawingView, IAutoMovieVector3 } from "@automovie/interface";
 import { Vector3 } from "../math/Vector3";
 import { AUTOMOVIE_DRAWING_EPSILON } from "./AUTOMOVIE_DRAWING_EPSILON";
 
@@ -59,4 +59,20 @@ export const autoMovieDrawingFrame = (
     up,
     normal,
   };
+};
+
+const requireFiniteVector = (value: IAutoMovieVector3, label: string): void => {
+  if (
+    !Number.isFinite(value.x) ||
+    !Number.isFinite(value.y) ||
+    !Number.isFinite(value.z)
+  )
+    throw new Error(`${label} must be finite on every axis`);
+};
+
+const requireOptionalDepth = (value: number | null, label: string): void => {
+  if (value !== null && (!Number.isFinite(value) || value < 0))
+    throw new Error(
+      `${label} must be null or a finite number at or above zero, but was ${value}`,
+    );
 };

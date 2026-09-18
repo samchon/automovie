@@ -2,6 +2,8 @@ import { swingConeAngle } from "../rom/swingConeAngle";
 import { ViolationCollector } from "./ViolationCollector";
 import { IAutoMovieAngleRange, IAutoMovieJointConstraint } from "@automovie/interface";
 
+const CONSTRAINT_AXES = ["flexion", "abduction", "twist"] as const;
+
 /**
  * Checks finite ordered degree ranges and existence of a pose inside the declared angular box and swing cone.
  * @evidence requirements/actors/validation.md#actor-input-binding-validation Checks degree-range ordering and uses the nearest-neutral box point to decide whether its swing cone admits a pose.
@@ -59,37 +61,6 @@ export const validateJointConstraint = (
         );
     }
   }
-};
-
-const validateAngleRange = (
-  range: IAutoMovieAngleRange,
-  path: string,
-  collector: ViolationCollector,
-): void => {
-  const fields: ReadonlyArray<readonly [string, number]> = [
-    ["min", range.min],
-    ["max", range.max],
-  ];
-  for (const [field, value] of fields)
-    if (!Number.isFinite(value))
-      collector.push(
-        "range",
-        `${path}.${field}`,
-        `${field} must be finite, but was ${value}`,
-        value,
-      );
-
-  if (
-    Number.isFinite(range.min) &&
-    Number.isFinite(range.max) &&
-    range.min > range.max
-  )
-    collector.push(
-      "range",
-      path,
-      `range min must be <= max, but was [${range.min}, ${range.max}]`,
-      range,
-    );
 };
 
 const validateAngleRange = (

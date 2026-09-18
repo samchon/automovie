@@ -1,6 +1,34 @@
 import { IAutoMovieSequence } from "@automovie/interface";
+import { IAutoMoviePlaybackEntry } from "./IAutoMoviePlaybackEntry";
 import { IAutoMoviePlaybackSample } from "./IAutoMoviePlaybackSample";
 import { IAutoMoviePlaybackTimeline } from "./IAutoMoviePlaybackTimeline";
+
+/**
+ * Turn one live entry into the on-screen sample: the live shot at its local
+ * time, plus, inside the live entry's incoming transition, the previous entry's
+ * tail as the `blend` with the incoming weight `alpha = elapsed / transition`.
+ * The single place the shot/time/blend shape is built, so the stateless and
+ * cursor resolvers cannot drift.
+ */
+const sampleAt = (
+  sequence: IAutoMovieSequence,
+  entries: readonly IAutoMoviePlaybackEntry[],
+  live: IAutoMoviePlaybackEntry,
+  seconds: number,
+): IAutoMoviePlaybackSample => {
+  const transition = sequence.shots[live.entry]!.transition;
+  const elapsed = seconds - live.start;
+  let blend: IAutoMoviePlaybackSample["blend"] = null;
+  if (transition !== null && elapsed < transition.duration) {
+    const outgoing = entries[live.entry - 1]!;
+    blend = {
+      shot: outgoing.shot,
+      time: outgoing.offset + (seconds - outgoing.start),
+      alpha: elapsed / transition.duration,
+    };
+  }
+  return { shot: live.shot, time: live.offset + elapsed, blend };
+};
 
 /**
  * Resolve one instant against an already-built {@link sequenceTimeline}, the

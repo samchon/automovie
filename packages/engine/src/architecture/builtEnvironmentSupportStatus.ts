@@ -1,8 +1,24 @@
-import { AutoMovieBuiltPlacementBodyLocator, IAutoMovieBuiltEnvironment, IAutoMovieBuiltPlacementBounds, IAutoMovieBuiltSupportQuery, IAutoMovieBuiltSupportResult } from "@automovie/interface";
-import { propBoundsOverlap } from "../film/propBoundsOverlap";
+import { AutoMovieBuiltPlacementBasis, AutoMovieBuiltPlacementSupportLocator, IAutoMovieBuiltEnvironment, IAutoMovieBuiltPlacementBounds, IAutoMovieBuiltSupportQuery, IAutoMovieBuiltSupportResult, IAutoMovieVector3 } from "@automovie/interface";
+import { IAutoMoviePropSupportFace } from "../film/IAutoMoviePropSupportFace";
 import { propSupportGap } from "../film/propSupportGap";
+import { footprintConvexPieces } from "../space/footprintConvexPieces";
+import { footprintRing } from "../space/footprintRing";
+import { surfaceFootprint } from "../space/surfaceFootprint";
 import { builtEnvironmentElementPartBounds } from "./builtEnvironmentElementPartBounds";
 import { builtEnvironmentPlacementBounds } from "./builtEnvironmentPlacementBounds";
+
+/**
+ * Contact slack used when project source does not choose one, in metres. This
+ * is the placement epsilon the prop kernel judges its own contact with, so an
+ * unqualified building relation and an unqualified prop relation call the same
+ * distance "touching".
+ */
+const DEFAULT_SUPPORT_TOLERANCE = 1e-9;
+
+interface IResolvedSupport {
+  face: IAutoMoviePropSupportFace;
+  basis: AutoMovieBuiltPlacementBasis;
+}
 
 /**
  * Classify one project-authored bearing or suspension relation.
@@ -85,43 +101,105 @@ export const builtEnvironmentSupportStatus = (props: {
   };
 };
 
-/** Whether any part of one body shares positive volume with any part of another. */
-const partsMeet = (
-  left: readonly IWorldBox[],
-  right: readonly IWorldBox[],
-): boolean =>
-  left.some((leftPart) =>
-    right.some((rightPart) => propBoundsOverlap(leftPart, rightPart)),
-  );
-
 /**
- * The boxes a locator's body actually fills, one per drawn part where it has
- * them and the reported box otherwise.
+ * The support part a subject bears on, chosen from the parts it stands over.
  *
- * An element resolves to its parts, because a multi-part body's union box is
- * mostly air and a test written against it answers about the box rather than
- * the body. Every other locator has no part structure to consult and keeps the
- * one box it reports, and so does an element that draws nothing.
+ * Nearest underside rather than highest: a subject resting on a low board and a
+ * subject sunk into a high one are different answers, and choosing the highest
+ * part would report the first as floating by the height of the second.
  *
- * The parts arrive through `lookup` rather than from a fixed source, because
- * one caller asks about a single pair and another has already resolved the whole
- * building. The rule about what to do with the answer is the same either way,
- * and writing it twice is how the two stop agreeing.
+ * A subject over none of the parts gets one of them rather than the union. It is
+ * over no part, so any part answers `not-over-support`, which is the truth; the
+ * union would have said it stands over the body for the same reason a shelf's
+ * box swallows what stands on it, and a notch in an L-shaped body is exactly
+ * where that reappears.
  */
-const solidBoxes = (
-  locator: AutoMovieBuiltPlacementBodyLocator,
-  reported: IAutoMovieBuiltPlacementBounds,
-  lookup: (id: string) => readonly IWorldBox[] | null | undefined,
-): readonly IWorldBox[] => {
-  if (locator.kind !== "element") return [reported];
-  const parts = lookup(locator.id);
-  return parts === null || parts === undefined || parts.length === 0
-    ? [reported]
-    : parts;
+const bearingPart = (
+  environment: IAutoMovieBuiltEnvironment,
+  locator: AutoMovieBuiltPlacementSupportLocator,
+  body: IAutoMovieBuiltPlacementBounds,
+  subject: IAutoMovieBuiltPlacementBounds | null,
+): IWorldBox => {
+  if (locator.kind !== "element" || subject === null) return body;
+  const parts = builtEnvironmentElementPartBounds(environment, locator.id);
+  if (parts === null || parts.length < 2) return body;
+  const over = parts.filter(
+    (part) =>
+      part.min.x < subject.max.x &&
+      part.max.x > subject.min.x &&
+      part.min.z < subject.max.z &&
+      part.max.z > subject.min.z,
+  );
+  if (over.length === 0) return parts[0]!;
+  return over.reduce((best, part) =>
+    Math.abs(part.max.y - subject.min.y) < Math.abs(best.max.y - subject.min.y)
+      ? part
+      : best,
+  );
 };
 
-/** The single-pair lookup: one element's parts, resolved on the spot. */
-const partsOfElement =
-  (environment: IAutoMovieBuiltEnvironment) =>
-  (id: string): readonly IWorldBox[] | null =>
-    builtEnvironmentElementPartBounds(environment, id);
+/**
+ * The face a body bears on, chosen from the parts it is actually over.
+ *
+ * A support's union box puts the bearing face at the highest point of the whole
+ * body, which for a shelf is the back panel rather than the board an object
+ * rests on — so a correctly seated object reads as floating by the height of a
+ * part it is nowhere near. Where the support has drawn parts, the face is the
+ * top of the part nearest the subject's underside among the parts its footprint
+ * covers, and where it covers none of them the face comes from a part anyway:
+ * standing over no part is what `not-over-support` means, and the union would
+ * have answered that the subject stands over the body.
+ *
+ * A single-part support yields its own box either way.
+ */
+const resolveSupport = (
+  environment: IAutoMovieBuiltEnvironment,
+  locator: AutoMovieBuiltPlacementSupportLocator,
+  subject: IAutoMovieBuiltPlacementBounds | null,
+): IResolvedSupport | null => {
+  if (locator.kind === "surface") {
+    const entry = environment.surfaces.find(
+      (candidate) => candidate.surface.id === locator.id,
+    );
+    if (entry === undefined) return null;
+    const polygon = surfaceFootprint(entry.surface);
+    if (footprintConvexPieces(polygon).length === 0) return null;
+    return {
+      face: { polygon, height: entry.surface },
+      basis: "surface-height-rule",
+    };
+  }
+  const body = builtEnvironmentPlacementBounds({
+    environment,
+    target: locator,
+  });
+  if (body === null) return null;
+  const bearing = bearingPart(environment, locator, body, subject);
+  const { min, max } = bearing;
+  return {
+    face: {
+      polygon: {
+        outer: footprintRing([
+          { x: min.x, y: max.y, z: min.z },
+          { x: max.x, y: max.y, z: min.z },
+          { x: max.x, y: max.y, z: max.z },
+          { x: min.x, y: max.y, z: max.z },
+        ]),
+        holes: [],
+      },
+      height: { height: { kind: "constant", value: max.y } },
+    },
+    basis: body.basis,
+  };
+};
+
+/** Whether two boxes share footprint area, exact contact excluded. */
+/**
+ * A world-space box, whichever resolution produced it.
+ *
+ * The measuring helpers read six numbers and nothing else, so a part box is
+ * admissible wherever a body's reported bounds are. Keeping them typed as the
+ * reported bounds would have forced a fabricated `basis` onto every part, which
+ * is a claim about how the part was resolved that nobody made.
+ */
+type IWorldBox = { min: IAutoMovieVector3; max: IAutoMovieVector3 };

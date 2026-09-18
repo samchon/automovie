@@ -1,7 +1,7 @@
 import { IAutoMovieSoftAnalysis, IAutoMovieSoftBodyDomain, IAutoMovieSoftBodyState, IAutoMovieSoftFurnishing } from "@automovie/interface";
 import { simulateSoftBody } from "./simulateSoftBody";
 import { softBodyStepAt } from "./softBodyStepAt";
-import { softBodySurfaceGeometry } from "./softBodySurface";
+import { softBodySurfaceGeometry } from "./softBodySurfaceGeometry";
 import { validateSoftBodyDomain } from "./validateSoftBodyDomain";
 import { IAutoMovieSoftFurnishingFrame } from "./IAutoMovieSoftFurnishingFrame";
 

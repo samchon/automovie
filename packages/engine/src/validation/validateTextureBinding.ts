@@ -1,5 +1,5 @@
 import { ViolationCollector } from "./ViolationCollector";
-import { validateNonEmptyId } from "./validateNonEmptyId";
+import { collectNonEmptyId } from "./collectNonEmptyId";
 
 /**
  * Admits a material slot's UV0, colour-space, transform and sampler relations without fetching resources.
@@ -14,7 +14,7 @@ export const validateTextureBinding = (
 ): void => {
   if (binding === undefined || binding === null) return;
   if (typeof binding === "string") {
-    validateNonEmptyId(binding, path, "texture asset id", collector);
+    collectNonEmptyId(binding, path, "texture asset id", collector);
     return;
   }
   if (typeof binding !== "object" || Array.isArray(binding)) {
@@ -27,7 +27,7 @@ export const validateTextureBinding = (
     return;
   }
   const texture = binding as Record<string, unknown>;
-  validateNonEmptyId(
+  collectNonEmptyId(
     texture.asset,
     `${path}.asset`,
     "texture asset id",
@@ -133,48 +133,6 @@ export const validateTextureBinding = (
       );
     }
   }
-};
-
-const finiteVector2 = (
-  value: unknown,
-  path: string,
-  label: string,
-  collector: ViolationCollector,
-  nonZero: boolean,
-): void => {
-  if (typeof value !== "object" || value === null || Array.isArray(value)) {
-    collector.push("type", path, `${label} must be an object`, value);
-    return;
-  }
-  const record = value as Record<string, unknown>;
-  for (const axis of ["x", "y"] as const)
-    if (
-      typeof record[axis] !== "number" ||
-      !Number.isFinite(record[axis]) ||
-      (nonZero && record[axis] === 0)
-    )
-      collector.push(
-        "range",
-        `${path}.${axis}`,
-        `${label} ${axis} must be finite${nonZero ? " and non-zero" : ""}`,
-        record[axis],
-      );
-};
-
-const enumValue = (
-  value: unknown,
-  allowed: readonly string[],
-  path: string,
-  label: string,
-  collector: ViolationCollector,
-): void => {
-  if (typeof value !== "string" || !allowed.includes(value))
-    collector.push(
-      "type",
-      path,
-      `${label} must be one of ${allowed.join(", ")}`,
-      value,
-    );
 };
 
 const finiteVector2 = (

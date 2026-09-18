@@ -1,5 +1,6 @@
 import { AutoMovieViolationKind, IAutoMovieConstraintViolation, IAutoMovieValidation } from "@automovie/interface";
 import { violation } from "./violation";
+import { toValidation } from "./toValidation";
 
 /**
  * A small append-only sink for violations, so each validator can push with a

@@ -1,4 +1,4 @@
-import { solveAutoMovieQuadraticKernel } from "./quadraticKernel";
+import { solveAutoMovieQuadraticKernel } from "./solveAutoMovieQuadraticKernel";
 import { solveAutoMovieQuadraticProgram } from "./solveAutoMovieQuadraticProgram";
 
 /**
@@ -64,21 +64,6 @@ export function assembleAutoMovieQuadraticProgram(
     upper,
     initial: input.initial,
   };
-}
-
-/** Indexed reads reject holes rather than letting Array.every skip them. */
-function finiteVector(values: readonly number[], length: number): void {
-  if (values.length !== length)
-    throw new Error("Quadratic vector dimensions must agree.");
-  for (let i = 0; i < values.length; i++) finiteScalar(values[i]);
-}
-
-function finiteScalar(value: number): number {
-  if (!Number.isFinite(value) || Math.abs(value) >= 1e30)
-    throw new Error(
-      "Quadratic coefficients must be finite and smaller than 1e30.",
-    );
-  return value;
 }
 
 /** Indexed reads reject holes rather than letting Array.every skip them. */

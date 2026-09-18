@@ -6,6 +6,9 @@ import { solveTwoBoneIK } from "./solveTwoBoneIK";
 import { IAutoMovieChainBone } from "./IAutoMovieChainBone";
 import { IAutoMovieTwoBoneArticulation } from "./IAutoMovieTwoBoneArticulation";
 
+/** World-down, the pole a natural elbow or knee bends away from. */
+const POLE: IAutoMovieVector3 = { x: 0, y: -1, z: 0 };
+
 /**
  * The shared two-bone lowering, the algebra {@link reachPose} (arm) and the
  * ground-IK leg plant both apply, extracted so the two cannot drift (#630):
@@ -112,6 +115,3 @@ export const twoBoneChainArticulation = (props: {
 
   return { upper, lower };
 };
-
-/** World-down, the pole a natural elbow or knee bends away from. */
-const POLE: IAutoMovieVector3 = { x: 0, y: -1, z: 0 };

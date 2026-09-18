@@ -30,9 +30,3 @@ export const classifyLocomoteGroundDisplacement = (
       alreadyThere === false && groundDistance < LOCOMOTE_GROUND_EPSILON,
   };
 };
-
-const assertFiniteVector = (label: string, vector: IAutoMovieVector3): void => {
-  if (!Number.isFinite(vector.x)) throw new Error(`${label}.x must be finite`);
-  if (!Number.isFinite(vector.y)) throw new Error(`${label}.y must be finite`);
-  if (!Number.isFinite(vector.z)) throw new Error(`${label}.z must be finite`);
-};

@@ -1,6 +1,17 @@
-import { IAutoMovieMaterialAssembly, IAutoMovieMaterialSubstance, IAutoMovieValidation } from "@automovie/interface";
+import { IAutoMovieMaterialAssembly, IAutoMovieMaterialLayer, IAutoMovieMaterialSubstance, IAutoMovieValidation } from "@automovie/interface";
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { IAutoMovieAssemblyHost } from "./IAutoMovieAssemblyHost";
+
+const AXES = ["x", "y", "z"] as const;
+
+const SENSES = ["positive", "negative"] as const;
+
+const SUBSTANCES = ["solid", "cavity", "membrane"] as const;
+
+const EXPOSURES = ["exposed", "concealed"] as const;
+
+/** Largest metre slack a summed build-up may differ from its host by. */
+const THICKNESS_EPSILON = 1e-9;
 
 /**
  * Judge one layered build-up: its layers, its finishes, and its total.
@@ -167,13 +178,113 @@ export const validateAutoMovieMaterialAssembly = (props: {
   return collector.toValidation();
 };
 
-const AXES = ["x", "y", "z"] as const;
+/**
+ * Report every finish contradiction between a stack and the faces it presents.
+ *
+ * A finish is only a finish where it can be seen. Index zero presents the first
+ * face and the final index the last one, so a finish anywhere else is either a
+ * second coat over the finish beside it or a layer buried where nothing reaches
+ * it; both are defects, and naming them apart is what tells the author whether
+ * to delete a layer or move it.
+ */
+const appendFinishDefects = (
+  assembly: IAutoMovieMaterialAssembly,
+  collector: ViolationCollector,
+  root: string,
+): void => {
+  const layers = assembly.layers;
+  if (layers.length === 0) return;
+  const last = layers.length - 1;
+  layers.forEach((layer, index) => {
+    if (!layer.finish || index === 0 || index === last) return;
+    const doubled = layers[index - 1]!.finish || layers[index + 1]!.finish;
+    collector.push(
+      "type",
+      `${root}.layers[${index}].finish`,
+      doubled
+        ? `material layer "${layer.id}" lays a finish over the finish beside it`
+        : `material layer "${layer.id}" is a finish buried between layers and reaches no exposed face`,
+      layer.finish,
+    );
+  });
+  const terminals = new Map<number, Array<"first" | "last">>();
+  terminals.set(0, ["first"]);
+  terminals.set(last, [...(terminals.get(last) ?? []), "last"]);
+  for (const [index, faces] of terminals) {
+    const layer = layers[index]!;
+    const exposed = faces.filter((face) => assembly.faces[face] === "exposed");
+    if (exposed.length > 0 && !layer.finish)
+      collector.push(
+        "type",
+        `${root}.layers[${index}].finish`,
+        `no finish presents the exposed ${exposed.join(" and ")} face; material layer "${layer.id}" is the layer that reaches it`,
+        layer.finish,
+      );
+    if (exposed.length === 0 && layer.finish)
+      collector.push(
+        "type",
+        `${root}.layers[${index}].finish`,
+        `material layer "${layer.id}" spends a finish on the concealed ${faces.join(" and ")} face`,
+        layer.finish,
+      );
+  }
+};
 
-const SENSES = ["positive", "negative"] as const;
+/**
+ * Refuse a wrapping layer that sits behind a layer stopping at the jamb.
+ *
+ * Lining an opening is a run that starts at a face: a layer cannot turn the
+ * corner into the reveal if the layer in front of it already ended there. A
+ * buried wrap would otherwise be counted into the finished opening size and
+ * quietly narrow a door nothing actually lines.
+ */
+const appendWrapDefects = (
+  layers: readonly IAutoMovieMaterialLayer[],
+  collector: ViolationCollector,
+  root: string,
+): void => {
+  const lead = leadingRun(layers, (layer) => layer.wrapsOpening);
+  const tail = Math.min(
+    trailingRun(layers, (layer) => layer.wrapsOpening),
+    layers.length - lead,
+  );
+  layers.forEach((layer, index) => {
+    if (!layer.wrapsOpening) return;
+    if (index < lead || index >= layers.length - tail) return;
+    collector.push(
+      "type",
+      `${root}.layers[${index}].wrapsOpening`,
+      `material layer "${layer.id}" wraps an opening from behind a layer that stops at the jamb`,
+      layer.wrapsOpening,
+    );
+  });
+};
 
-const SUBSTANCES = ["solid", "cavity", "membrane"] as const;
+const leadingRun = <T>(
+  items: readonly T[],
+  match: (item: T) => boolean,
+): number => {
+  let count = 0;
+  while (count < items.length && match(items[count]!)) count += 1;
+  return count;
+};
 
-const EXPOSURES = ["exposed", "concealed"] as const;
+const trailingRun = <T>(
+  items: readonly T[],
+  match: (item: T) => boolean,
+): number => {
+  let count = 0;
+  while (count < items.length && match(items[items.length - 1 - count]!))
+    count += 1;
+  return count;
+};
 
-/** Largest metre slack a summed build-up may differ from its host by. */
-const THICKNESS_EPSILON = 1e-9;
+const nonEmpty = (
+  value: string,
+  path: string,
+  label: string,
+  collector: ViolationCollector,
+): void => {
+  if (value.trim().length === 0)
+    collector.push("type", path, `${label} must be non-empty`, value);
+};

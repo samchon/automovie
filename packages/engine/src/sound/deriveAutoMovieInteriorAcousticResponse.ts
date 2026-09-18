@@ -148,3 +148,21 @@ export const deriveAutoMovieInteriorAcousticResponse = (props: {
     transmissionGain: Math.pow(10, -transmissionLoss / 20),
   };
 };
+
+const metricValue = (
+  metrics: Extract<
+    IAutoMovieAnalysisRun["outcome"],
+    { status: "solved" }
+  >["metrics"],
+  key: string,
+): number | null => metrics.find((metric) => metric.key === key)!.value ?? null;
+
+const metricGap = (
+  metrics: Extract<
+    IAutoMovieAnalysisRun["outcome"],
+    { status: "solved" }
+  >["metrics"],
+  key: string,
+): string => metrics.find((candidate) => candidate.key === key)!.gap!.reason;
+
+const DIGEST_PATTERN = /^sha256:[0-9a-f]{64}$/u;

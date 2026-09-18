@@ -15,10 +15,3 @@ export interface IAutoMovieQuadraticHeap {
   /** Invoke the fixed native bridge ABI and return its API error code. */
   solve(...arguments_: number[]): number;
 }
-
-type KernelExports = {
-  memory: WebAssembly.Memory;
-  automovie_alloc(bytes: number): number;
-  automovie_free(address: number): void;
-  automovie_quadratic_solve(...arguments_: number[]): number;
-};

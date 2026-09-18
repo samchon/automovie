@@ -96,9 +96,3 @@ const restWorldFrames = (
   for (const bone of skeleton.bones) resolve(bone.bone);
   return world;
 };
-
-/** One bone's rest-pose placement in model space. */
-interface IRestFrame {
-  pos: IAutoMovieVector3;
-  rot: IAutoMovieQuaternion;
-}

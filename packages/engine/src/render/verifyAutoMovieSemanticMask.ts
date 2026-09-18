@@ -2,6 +2,22 @@ import { IAutoMovieSemanticMask } from "@automovie/interface";
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
 import { digestAutoMovieSemanticMask } from "./digestAutoMovieSemanticMask";
 
+/** Current full-payload semantic-mask format. */
+const SEMANTIC_MASK_VERSION = 2;
+
+/** Domain separator for the current full-payload semantic-mask format. */
+const SEMANTIC_MASK_PROTOCOL = "automovie.semantic-mask.v2";
+
+/** A typed internal refusal carried across the verifier boundary. */
+class AutoMovieSemanticMaskVerificationError extends Error {
+  public constructor(
+    public readonly reason: "unsupported" | "invalid" | "digest-mismatch",
+    message: string,
+  ) {
+    super(message);
+  }
+}
+
 /**
  * Refuse a historical, foreign, or self-inconsistent semantic mask.
  *
@@ -37,80 +53,6 @@ export const verifyAutoMovieSemanticMask = (
       "digest-mismatch",
       `semantic mask digest mismatch: declared ${mask.digest}, canonical ${expected}`,
     );
-};
-
-/** Refuse unknown or missing fields before canonical projection can erase them. */
-const verifySemanticMaskSchema = (mask: Record<string, unknown>): void => {
-  exactSemanticMaskKeys(
-    mask,
-    ["version", "protocol", "background", "entries", "unaddressed", "digest"],
-    "mask",
-  );
-  const entries = semanticMaskArray(mask.entries, "entries");
-  const unaddressed = semanticMaskArray(mask.unaddressed, "unaddressed gaps");
-  for (const [index, value] of entries.entries()) {
-    const entry = semanticMaskRecord(value, `entry ${index}`);
-    exactSemanticMaskKeys(
-      entry,
-      ["id", "kind", "label", "color", "owner", "nodes", "slot"],
-      `entry ${index}`,
-    );
-    if (!Array.isArray(entry.nodes))
-      invalidSemanticMask(
-        `semantic mask entry ${index} nodes must be an array`,
-      );
-    if (entry.slot !== null)
-      exactSemanticMaskKeys(
-        semanticMaskRecord(entry.slot, `entry ${index} slot`),
-        ["instanceSet", "index"],
-        `entry ${index} slot`,
-      );
-  }
-  for (const [index, value] of unaddressed.entries())
-    exactSemanticMaskKeys(
-      semanticMaskRecord(value, `gap ${index}`),
-      ["instanceSet", "slots", "reason", "remedy"],
-      `gap ${index}`,
-    );
-};
-
-/** Read one runtime semantic collection without letting a cast erase shape. */
-const semanticMaskArray = (value: unknown, name: string): unknown[] => {
-  if (!Array.isArray(value))
-    invalidSemanticMask(`semantic mask ${name} must be an array`);
-  return value as unknown[];
-};
-
-/** Read one runtime semantic value as an exact record. */
-const semanticMaskRecord = (
-  value: unknown,
-  name: string,
-): Record<string, unknown> => {
-  if (value === null || typeof value !== "object" || Array.isArray(value))
-    invalidSemanticMask(`semantic mask ${name} must be an object`);
-  return value as Record<string, unknown>;
-};
-
-/** Compare one semantic record's complete key set without normalizing it. */
-const exactSemanticMaskKeys = (
-  value: Record<string, unknown>,
-  expected: readonly string[],
-  name: string,
-): void => {
-  const actual = Object.keys(value).sort(compareAutoMovieRenderIds);
-  const canonical = [...expected].sort(compareAutoMovieRenderIds);
-  if (
-    actual.length !== canonical.length ||
-    actual.some((key, index) => key !== canonical[index])
-  )
-    invalidSemanticMask(
-      `semantic mask ${name} keys are invalid; expected ${canonical.join(", ")}`,
-    );
-};
-
-/** Raise one typed current-schema refusal. */
-const invalidSemanticMask = (message: string): never => {
-  throw new AutoMovieSemanticMaskVerificationError("invalid", message);
 };
 
 /** Refuse unknown or missing fields before canonical projection can erase them. */

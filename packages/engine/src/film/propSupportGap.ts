@@ -1,4 +1,4 @@
-import { IAutoMoviePropBox } from "@automovie/interface";
+import { IAutoMoviePropBox, IAutoMovieVector3 } from "@automovie/interface";
 import { footprintContains } from "../space/footprintContains";
 import { surfaceHeightAt } from "../space/surfaceHeightAt";
 import { IAutoMoviePropSupportFace } from "./IAutoMoviePropSupportFace";
@@ -53,3 +53,26 @@ export const propSupportGap = (props: {
   }
   return gap;
 };
+
+/** Whether a ground-plan point stands under a staged prop's own footprint. */
+const underFootprint = (
+  point: IAutoMovieVector3,
+  bounds: IAutoMoviePropBox,
+): boolean =>
+  point.x >= bounds.min.x &&
+  point.x <= bounds.max.x &&
+  point.z >= bounds.min.z &&
+  point.z <= bounds.max.z;
+
+/** The five ground-plan points a footprint is judged to bear on. */
+const footprintProbes = (bounds: IAutoMoviePropBox): IAutoMovieVector3[] => [
+  { x: bounds.min.x, y: 0, z: bounds.min.z },
+  { x: bounds.max.x, y: 0, z: bounds.min.z },
+  { x: bounds.max.x, y: 0, z: bounds.max.z },
+  { x: bounds.min.x, y: 0, z: bounds.max.z },
+  {
+    x: (bounds.min.x + bounds.max.x) / 2,
+    y: 0,
+    z: (bounds.min.z + bounds.max.z) / 2,
+  },
+];

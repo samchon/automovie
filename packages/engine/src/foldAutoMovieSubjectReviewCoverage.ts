@@ -1,6 +1,6 @@
-import { IAutoMovieSubjectReviewCoverage, IAutoMovieSubjectReviewUnit, IAutoMovieSubjectReviewViewpoint } from "@automovie/interface";
+import { IAutoMovieSubjectReviewCoverage, IAutoMovieSubjectReviewTarget, IAutoMovieSubjectReviewUnit, IAutoMovieSubjectReviewViewpoint } from "@automovie/interface";
+import { IAutoMovieCurrentSubjectReviewObservation } from "./IAutoMovieCurrentSubjectReviewObservation";
 import { IAutoMovieSubjectReviewCurrentContext } from "./IAutoMovieSubjectReviewCurrentContext";
-import { compareCodeUnits } from "./text/compareCodeUnits";
 
 /**
  * Fold planned subject viewpoints against current observation receipts.
@@ -101,21 +101,78 @@ const validateCurrentContext = (
     );
 };
 
-const validateCurrentContext = (
-  unit: IAutoMovieSubjectReviewUnit,
-  current: IAutoMovieSubjectReviewCurrentContext,
+const validateViewpointPlan = (
+  viewpoints: readonly IAutoMovieSubjectReviewViewpoint[],
 ): void => {
-  if (
-    current.productionId.trim().length === 0 ||
-    current.target.shot.trim().length === 0 ||
-    current.target.subject !== unit.description.id ||
-    current.target.shot !== unit.target.shot ||
-    current.revision !== unit.description.revision ||
-    /^sha256:[0-9a-f]{64}$/u.test(current.compileFingerprint) === false ||
-    /^sha256:[0-9a-f]{64}$/u.test(current.planIdentity) === false ||
-    current.captureRuntimeIdentity.trim().length === 0
-  )
-    throw new Error(
-      "Subject review current context must exactly name the resolved unit, current compile, ordered plan, and canonical runtime.",
-    );
+  const ids = new Set<string>();
+  for (const viewpoint of viewpoints) {
+    if (viewpoint.id.trim().length === 0)
+      throw new RangeError("Subject review viewpoint id must not be blank.");
+    if (ids.has(viewpoint.id))
+      throw new RangeError(
+        `Subject review viewpoint id "${viewpoint.id}" is duplicated.`,
+      );
+    ids.add(viewpoint.id);
+    if (!Number.isFinite(viewpoint.distance) || viewpoint.distance <= 0)
+      throw new RangeError(
+        `Subject review viewpoint "${viewpoint.id}" distance must be finite and positive.`,
+      );
+    const direction = viewpoint.direction;
+    const length = Math.hypot(direction.x, direction.y, direction.z);
+    if (!Number.isFinite(length) || Math.abs(length - 1) > 1e-6)
+      throw new RangeError(
+        `Subject review viewpoint "${viewpoint.id}" direction must be a finite unit vector.`,
+      );
+  }
 };
+
+const isCurrentSubjectObservation = (
+  value: unknown,
+): value is IAutoMovieCurrentSubjectReviewObservation => {
+  if (value === null || typeof value !== "object" || Array.isArray(value))
+    return false;
+  const record = value as Record<string, unknown>;
+  return (
+    record.kind === "subject-view" &&
+    nonBlank(record.subject) &&
+    nonBlank(record.revision) &&
+    nonBlank(record.viewpoint) &&
+    nonBlank(record.artifact) &&
+    nonBlank(record.digest) &&
+    nonBlank(record.productionId) &&
+    isTarget(record.target) &&
+    nonBlank(record.compileFingerprint) &&
+    nonBlank(record.planIdentity) &&
+    nonBlank(record.captureRuntimeIdentity) &&
+    isRecord(record.pose) &&
+    isRecord(record.runtimeIdentity) &&
+    record.verdict === "passed" &&
+    record.deliveryEvidence === false &&
+    (record.target as IAutoMovieSubjectReviewTarget).subject === record.subject
+  );
+};
+
+const isCurrentObservationContext = (
+  observation: IAutoMovieCurrentSubjectReviewObservation,
+  current: IAutoMovieSubjectReviewCurrentContext,
+): boolean =>
+  observation.revision === current.revision &&
+  observation.compileFingerprint === current.compileFingerprint &&
+  observation.planIdentity === current.planIdentity &&
+  observation.captureRuntimeIdentity === current.captureRuntimeIdentity;
+
+const isTarget = (value: unknown): value is IAutoMovieSubjectReviewTarget => {
+  if (value === null || typeof value !== "object" || Array.isArray(value))
+    return false;
+  const record = value as Record<string, unknown>;
+  return nonBlank(record.shot) && nonBlank(record.subject);
+};
+
+const nonBlank = (value: unknown): value is string =>
+  typeof value === "string" && value.trim().length !== 0;
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  value !== null && typeof value === "object" && Array.isArray(value) === false;
+
+const compareCodeUnits = (left: string, right: string): number =>
+  left < right ? -1 : left > right ? 1 : 0;

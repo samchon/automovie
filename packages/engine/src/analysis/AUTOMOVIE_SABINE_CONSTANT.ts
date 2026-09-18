@@ -9,6 +9,3 @@
  * @evidence specifications/interior-space/lighting-acoustics-and-environment.md#interior-space-acoustic-boundary-scenario The constant pins the supported metric-unit Sabine equation instead of implying an impulse-response simulation.
  */
 export const AUTOMOVIE_SABINE_CONSTANT = 0.161;
-
-/** Distances shorter than this are the same point. */
-const EPSILON = 1e-12;

@@ -26,10 +26,3 @@ const MATERIAL_SEGMENTS: ReadonlySet<string> = new Set([
   "texture",
   "textures",
 ]);
-
-const MATERIAL_SEGMENTS: ReadonlySet<string> = new Set([
-  "material",
-  "materials",
-  "texture",
-  "textures",
-]);

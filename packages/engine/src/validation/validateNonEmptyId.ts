@@ -1,20 +1,28 @@
-import { ViolationCollector } from "./ViolationCollector";
+import { IAutoMovieConstraintViolation } from "@automovie/interface";
+import { pushViolation } from "./pushViolation";
 
 /**
- * Reports non-string or blank identities without rewriting caller-owned resource names.
- * @evidence requirements/external-inputs/validation-and-quarantine.md#external-validation-structure-semantics Separates non-string and whitespace-only identities while leaving the caller's value unchanged.
- * @evidence specifications/interchange-and-adoption/validation-and-quarantine.md#interchange-layered-validation Separates non-string and whitespace-only identities while leaving the caller's value unchanged.
+ * Validate that an artifact id is a non-empty string.
+ *
+ * @evidence requirements/asset-authoring/validation.md#asset-geometry-validation `validateNonEmptyId` rejects non-string and blank artifact identities at the id field that supplied them.
+ * @evidence specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-numeric-structure `validateNonEmptyId` retains the observed id value while enforcing the non-empty structural identity constraint.
  */
 export const validateNonEmptyId = (
-  value: unknown,
+  id: unknown,
   path: string,
   label: string,
-  collector: ViolationCollector,
+  violations: IAutoMovieConstraintViolation[],
 ): void => {
-  if (typeof value !== "string") {
-    collector.push("type", path, `${label} must be a string`, value);
+  if (typeof id !== "string") {
+    pushViolation(violations, "type", path, `${label} must be a string`, id);
     return;
   }
-  if (value.trim().length === 0)
-    collector.push("type", path, `${label} must be a non-empty id`, value);
+  if (id.trim().length === 0)
+    pushViolation(
+      violations,
+      "type",
+      path,
+      `${label} must be a non-empty id`,
+      id,
+    );
 };

@@ -1,4 +1,5 @@
-import { IAutoMovieModel, IAutoMovieVector3 } from "@automovie/interface";
+import { IAutoMovieModel, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
+import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { primitiveCentroid } from "./primitiveCentroid";
 import { primitiveVolume } from "./primitiveVolume";
@@ -39,3 +40,27 @@ export const deriveCenterOfMass = (
   }
   return total > 0 ? Vector3.scale(weighted, 1 / total) : null;
 };
+
+const IDENTITY: IAutoMovieTransform = {
+  translation: { x: 0, y: 0, z: 0 },
+  rotation: { x: 0, y: 0, z: 0, w: 1 },
+  scale: { x: 1, y: 1, z: 1 },
+};
+
+/** How much a transform's scale multiplies a solid's volume. */
+const scaleVolume = (t: IAutoMovieTransform): number =>
+  t.scale.x * t.scale.y * t.scale.z;
+
+/** Apply a full TRS transform to a local point. */
+const applyTransform = (
+  t: IAutoMovieTransform,
+  p: IAutoMovieVector3,
+): IAutoMovieVector3 =>
+  Vector3.add(
+    t.translation,
+    Quaternion.rotateVector(t.rotation, {
+      x: p.x * t.scale.x,
+      y: p.y * t.scale.y,
+      z: p.z * t.scale.z,
+    }),
+  );

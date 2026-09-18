@@ -1,5 +1,12 @@
 import { IAutoMovieDeliveryCrop } from "@automovie/interface";
 
+const WHOLE_DELIVERY_CROP: IAutoMovieDeliveryCrop = {
+  left: 0,
+  top: 0,
+  right: 1,
+  bottom: 1,
+};
+
 /**
  * Validate and resolve one portable delivery-gate crop.
  *
@@ -27,42 +34,3 @@ export const resolveAutoMovieDeliveryCrop = (
     );
   return { ...resolved };
 };
-
-interface IAutoMovieDeliveryCropNdc {
-  bottom: number;
-  height: number;
-  left: number;
-  right: number;
-  top: number;
-  width: number;
-  whole: boolean;
-}
-
-const deliveryCropNdc = (
-  crop: IAutoMovieDeliveryCrop | undefined,
-): IAutoMovieDeliveryCropNdc => {
-  const resolved = resolveAutoMovieDeliveryCrop(crop);
-  return {
-    left: 2 * resolved.left - 1,
-    right: 2 * resolved.right - 1,
-    top: 1 - 2 * resolved.top,
-    bottom: 1 - 2 * resolved.bottom,
-    width: resolved.right - resolved.left,
-    height: resolved.bottom - resolved.top,
-    whole:
-      resolved.left === 0 &&
-      resolved.top === 0 &&
-      resolved.right === 1 &&
-      resolved.bottom === 1,
-  };
-};
-
-interface IAutoMovieDeliveryCropNdc {
-  bottom: number;
-  height: number;
-  left: number;
-  right: number;
-  top: number;
-  width: number;
-  whole: boolean;
-}

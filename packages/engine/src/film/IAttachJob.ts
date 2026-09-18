@@ -1,6 +1,4 @@
-import { AutoMovieHumanoidBone, IAutoMovieActionCall, IAutoMovieMotion, IAutoMovieScene, IAutoMovieSkeleton } from "@automovie/interface";
-import { IAutoMovieJointAxes } from "../kinematics/IAutoMovieJointAxes";
-import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
+import { IAutoMovieActionCall } from "@automovie/interface";
 
 /**
  * One validated `attachTo` job: the coupling and its source action index.
@@ -24,20 +22,3 @@ export interface IAttachJob {
    */
   index: number;
 }
-
-/** The per-node lookups a follow bake needs from the compiled shot. */
-interface ICoupleContext {
-  scene: IAutoMovieScene;
-  motions: Record<string, IAutoMovieMotion>;
-  skeleton: (node: string) => IAutoMovieSkeleton | null;
-  jointAxes?: (
-    node: string,
-  ) => Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> | undefined;
-  restFrames?: (
-    node: string,
-  ) => Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>> | undefined;
-  duration: number;
-}
-
-const childrenOf = (action: IAutoMovieActionCall): string[] =>
-  typeof action.actor === "string" ? [action.actor] : action.actor;

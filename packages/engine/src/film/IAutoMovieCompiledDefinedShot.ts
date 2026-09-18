@@ -1,5 +1,4 @@
 import { IAutoMovieBeatEndState, IAutoMovieCompiledContractRealization, IAutoMovieShotSourceOutput } from "@automovie/interface";
-import { performShot } from "./performShot";
 import { IAutoMovieAuthoringDiagnostic } from "./IAutoMovieAuthoringDiagnostic";
 import { IAutoMovieShotPhysicsAdvice } from "./IAutoMovieShotPhysicsAdvice";
 

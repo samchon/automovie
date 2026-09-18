@@ -3,8 +3,7 @@ import {
   IAutoMovieSkeleton,
 } from "@automovie/interface";
 
-import { IAutoMovieSkeletonTopology } from "../kinematics/IAutoMovieSkeletonTopology";
-import { reachableBoneNames } from "../kinematics/reachableBoneNames";
+import { IAutoMovieSkeletonTopology, reachableBoneNames } from "../kinematics";
 
 /**
  * The bones a skeleton's forward kinematics can actually reach, a thin alias

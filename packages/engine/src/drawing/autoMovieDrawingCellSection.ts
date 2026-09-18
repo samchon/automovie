@@ -49,3 +49,27 @@ export const autoMovieDrawingCellSection = (
   );
   return { polygon, bounded };
 };
+
+const clipHalfPlane = (
+  polygon: readonly IAutoMovieDrawingPoint[],
+  a: number,
+  b: number,
+  c: number,
+): IAutoMovieDrawingPoint[] => {
+  const out: IAutoMovieDrawingPoint[] = [];
+  for (let index = 0; index < polygon.length; ++index) {
+    const current = polygon[index]!;
+    const next = polygon[(index + 1) % polygon.length]!;
+    const dCurrent = a * current.x + b * current.y - c;
+    const dNext = a * next.x + b * next.y - c;
+    if (dCurrent <= 0) out.push(current);
+    if (dCurrent * dNext < 0) {
+      const t = dCurrent / (dCurrent - dNext);
+      out.push({
+        x: current.x + (next.x - current.x) * t,
+        y: current.y + (next.y - current.y) * t,
+      });
+    }
+  }
+  return out;
+};

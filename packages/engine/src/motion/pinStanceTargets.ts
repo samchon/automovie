@@ -88,20 +88,3 @@ const stanceRuns = (
   if (start !== -1) runs.push({ start, end: contact.length - 1 });
   return runs;
 };
-
-/** Contiguous `true` runs of a contact mask, as inclusive frame ranges. */
-const stanceRuns = (
-  contact: readonly boolean[],
-): Array<{ start: number; end: number }> => {
-  const runs: Array<{ start: number; end: number }> = [];
-  let start = -1;
-  contact.forEach((inContact, index) => {
-    if (inContact && start === -1) start = index;
-    else if (!inContact && start !== -1) {
-      runs.push({ start, end: index - 1 });
-      start = -1;
-    }
-  });
-  if (start !== -1) runs.push({ start, end: contact.length - 1 });
-  return runs;
-};

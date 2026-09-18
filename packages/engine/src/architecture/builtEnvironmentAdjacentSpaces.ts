@@ -1,4 +1,4 @@
-import { IAutoMovieBuiltEnvironment } from "@automovie/interface";
+import { IAutoMovieBuiltConnector, IAutoMovieBuiltEnvironment } from "@automovie/interface";
 
 /**
  * Return spaces directly joined by a boundary or traversal connector.
@@ -33,3 +33,20 @@ export const builtEnvironmentAdjacentSpaces = (
   }
   return [...adjacent];
 };
+
+const requireSpace = (
+  environment: IAutoMovieBuiltEnvironment,
+  spaceId: string,
+): void => {
+  if (!environment.spaces.some((space) => space.id === spaceId))
+    throw new Error(
+      `built environment "${environment.id}" has no logical space "${spaceId}"`,
+    );
+};
+
+/** The spaces one run serves, in the order its own route reaches them. */
+const connectorStops = (connector: IAutoMovieBuiltConnector): string[] => [
+  connector.from,
+  ...(connector.landings ?? []).map((landing) => landing.space),
+  connector.to,
+];

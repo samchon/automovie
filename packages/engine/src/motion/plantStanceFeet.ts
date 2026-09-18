@@ -1,8 +1,9 @@
 import { AutoMovieHumanoidBone, IAutoMovieMotion, IAutoMovieSkeleton } from "@automovie/interface";
 import { IAutoMovieJointAxes } from "../kinematics/IAutoMovieJointAxes";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
-import { groundFunction } from "../space/ground";
+import { groundFunction } from "../space/groundFunction";
 import { pinStanceTargets } from "./pinStanceTargets";
+import { HUMANOID_LEG_CHAINS } from "./HUMANOID_LEG_CHAINS";
 import { assemblePlantedFeet } from "./assemblePlantedFeet";
 import { rekeyPlantedFeet } from "./rekeyPlantedFeet";
 import { resolveBoneMap } from "./resolveBoneMap";
@@ -11,6 +12,24 @@ import { sampleMotion } from "./sampleMotion";
 import { IAutoMovieFootLeg } from "./IAutoMovieFootLeg";
 import { IAutoMovieFootPlant } from "./IAutoMovieFootPlant";
 import { IAutoMoviePlantedFeet } from "./IAutoMoviePlantedFeet";
+
+const DEFAULT_SAMPLE_RATE = 24;
+
+const DEFAULT_GROUND_Y = 0;
+
+const DEFAULT_TOLERANCE = 0.02;
+
+/**
+ * The humanoid legs, named from the shared chain table so the ground-IK pass
+ * and the retarget contact pass cannot disagree about which bones a leg is.
+ */
+const DEFAULT_LEGS: readonly IAutoMovieFootLeg[] = HUMANOID_LEG_CHAINS.map(
+  (chain) => ({
+    foot: chain.effector,
+    upper: chain.upper,
+    lower: chain.lower,
+  }),
+);
 
 /**
  * The deterministic ground-IK pass: plant each leg's stance foot so a baked
@@ -114,9 +133,3 @@ export const plantStanceFeet = (props: {
 
   return assemblePlantedFeet(props.motion, keyframes, plants);
 };
-
-const DEFAULT_SAMPLE_RATE = 24;
-
-const DEFAULT_GROUND_Y = 0;
-
-const DEFAULT_TOLERANCE = 0.02;

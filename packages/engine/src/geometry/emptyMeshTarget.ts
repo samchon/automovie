@@ -1,3 +1,11 @@
+/** The buffers a flat-shaded builder fills before it becomes a mesh. */
+interface IMeshTarget {
+  positions: number[];
+  normals: number[];
+  uvs: number[];
+  indices: number[];
+}
+
 /**
  * Allocates independently owned mesh attributes for procedural construction.
  * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Allocates independently owned mesh attributes for procedural construction.

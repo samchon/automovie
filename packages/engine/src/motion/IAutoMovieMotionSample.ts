@@ -1,4 +1,4 @@
-import { IAutoMovieExpression, IAutoMoviePose, IAutoMovieTransform } from "@automovie/interface";
+import { IAutoMovieExpression, IAutoMoviePose } from "@automovie/interface";
 
 /**
  * A pose plus optional expression sampled at one instant of a clip.
@@ -23,9 +23,3 @@ export interface IAutoMovieMotionSample {
    */
   expression: IAutoMovieExpression | null;
 }
-
-const IDENTITY_TRANSFORM: IAutoMovieTransform = {
-  translation: { x: 0, y: 0, z: 0 },
-  rotation: { x: 0, y: 0, z: 0, w: 1 },
-  scale: { x: 1, y: 1, z: 1 },
-};

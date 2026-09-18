@@ -1,8 +1,15 @@
 import { IAutoMovieConstraintViolation, IAutoMovieReviewNote } from "@automovie/interface";
 
+/**
+ * A normalized review verdict: pass the shot through, or hand the correction
+ * backlog to the next blocking/performance round.
+ *
+ * @author Samchon
+ */
 export type IAutoMovieShotReview =
   | IAutoMovieShotReview.ISuccess
   | IAutoMovieShotReview.IFailure;
+
 export namespace IAutoMovieShotReview {
   /**
    * The review is coherent; act on its verdict.

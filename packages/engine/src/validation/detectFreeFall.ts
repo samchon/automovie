@@ -5,6 +5,16 @@ import { projectileTrajectory } from "../physics/projectileTrajectory";
 import { ViolationCollector } from "./ViolationCollector";
 import { IAutoMovieFreeFallResult } from "./IAutoMovieFreeFallResult";
 
+const DEFAULT_MARGIN = 0.02;
+
+const DEFAULT_GRAVITY: IAutoMovieVector3 = { x: 0, y: -9.81, z: 0 };
+
+const DEFAULT_VELOCITY: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+
+const DEFAULT_FALL_DURATION = 1;
+
+const DEFAULT_FPS = 30;
+
 /**
  * The default physical expectation: a body that is not held up by anything
  * falls.
@@ -133,22 +143,6 @@ export const detectFreeFall = (props: {
   );
   return { validation: collector.toValidation(), events: [event], trajectory };
 };
-
-const empty = (collector: ViolationCollector): IAutoMovieFreeFallResult => ({
-  validation: collector.toValidation(),
-  events: [],
-  trajectory: null,
-});
-
-const DEFAULT_MARGIN = 0.02;
-
-const DEFAULT_GRAVITY: IAutoMovieVector3 = { x: 0, y: -9.81, z: 0 };
-
-const DEFAULT_VELOCITY: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-
-const DEFAULT_FALL_DURATION = 1;
-
-const DEFAULT_FPS = 30;
 
 const empty = (collector: ViolationCollector): IAutoMovieFreeFallResult => ({
   validation: collector.toValidation(),

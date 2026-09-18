@@ -11,6 +11,3 @@
  * @evidence specifications/validation-and-diagnostics/budget-and-truncation.md#validation-truncation-result The report limit preserves total omitted findings while returning a deterministic prefix of concrete gaps.
  */
 export const AUTOMOVIE_ANALYSIS_REPORT_MAX_GAPS = 16;
-
-/** A plain SHA-256 content digest as this project writes it. */
-const DIGEST_PATTERN = /^sha256:[0-9a-f]{64}$/;

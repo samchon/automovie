@@ -1,5 +1,6 @@
-import { AutoMovieAffordanceKind, IAutoMovieBuiltEnvironment, IAutoMoviePropRelation, IAutoMoviePropRelationTarget, IAutoMoviePropSpec, IAutoMovieStageSetPiece, IAutoMovieTransform } from "@automovie/interface";
+import { IAutoMovieBuiltEnvironment, IAutoMoviePropRelationTarget, IAutoMoviePropSpec, IAutoMovieStageSetPiece, IAutoMovieTransform } from "@automovie/interface";
 import { Matrix4 } from "../math/Matrix4";
+import { Quaternion } from "../math/Quaternion";
 import { footprintInteriorPoint } from "../space/footprintInteriorPoint";
 import { surfaceFootprint } from "../space/surfaceFootprint";
 import { surfaceHeightAt } from "../space/surfaceHeightAt";
@@ -99,49 +100,57 @@ export const propAnchorFrame = (props: {
   }
 };
 
-interface IIndexed<Value> {
-  value: Value;
-  index: number;
-}
-
-interface IResolvedProp extends IIndexed<IAutoMoviePropSpec> {
-  forged: boolean;
-  piece: IIndexed<IAutoMovieStageSetPiece> | undefined;
-  unique: boolean;
-}
-
-type Environments = ReadonlyMap<
-  string,
-  readonly IIndexed<IAutoMovieBuiltEnvironment>[]
->;
-type Props = ReadonlyMap<string, readonly IIndexed<IAutoMoviePropSpec>[]>;
-
-/** Which target kinds each relation kind accepts. */
-const RELATION_TARGETS: Readonly<
-  Record<
-    IAutoMoviePropRelation["kind"],
-    readonly IAutoMoviePropRelationTarget["kind"][]
-  >
-> = {
-  "in-space": ["space"],
-  "on-support": ["surface", "prop-affordance"],
-  "against-boundary": ["boundary"],
-  "fill-opening": ["opening"],
-  attached: ["element", "prop-affordance"],
-  suspended: ["element", "prop-affordance"],
+/**
+ * The world matrix of one element, or `null` when it or an ancestor is missing
+ * or its parent chain closes on itself. A cyclic record is refused by
+ * `validateBuiltEnvironment`, and answering `null` here rather than recursing
+ * forever is what lets both gates report their own defect in one run.
+ */
+const elementWorldMatrix = (
+  environment: IAutoMovieBuiltEnvironment,
+  id: string,
+): number[] | null => {
+  const byId = new Map(
+    environment.elements.map((element) => [element.id, element]),
+  );
+  const trail = new Set<string>();
+  const read = (current: string): number[] | null => {
+    if (trail.has(current)) return null;
+    trail.add(current);
+    const element = byId.get(current);
+    if (element === undefined) return null;
+    const local = Matrix4.compose(
+      element.transform.translation,
+      element.transform.rotation,
+      element.transform.scale,
+    );
+    if (element.parent === null) return local;
+    const parent = read(element.parent);
+    return parent === null ? null : Matrix4.multiply(parent, local);
+  };
+  return read(id);
 };
 
-/**
- * Which affordance a prop-affordance target must declare.
- *
- * Only the three kinds whose {@link RELATION_TARGETS} entry admits a
- * prop-affordance target ever reach this, so every arm is live: resting is a
- * `stack-top`, plugging in is a `socket`, hanging is a `hook`.
- */
-const requiredAffordance = (
-  kind: IAutoMoviePropRelation["kind"],
-): AutoMovieAffordanceKind => {
-  if (kind === "attached") return "socket";
-  if (kind === "suspended") return "hook";
-  return "stack-top";
+const stagedMatrix = (piece: IAutoMovieStageSetPiece): number[] => {
+  const scale =
+    piece.scale === undefined
+      ? { x: 1, y: 1, z: 1 }
+      : typeof piece.scale === "number"
+        ? { x: piece.scale, y: piece.scale, z: piece.scale }
+        : piece.scale;
+  return Matrix4.compose(
+    piece.position,
+    piece.rotation ??
+      Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, piece.facingDeg ?? 0),
+    scale,
+  );
+};
+
+const transformOf = (matrix: number[]): IAutoMovieTransform => {
+  const world = Matrix4.decompose(matrix);
+  return {
+    translation: world.position,
+    rotation: Quaternion.normalize(world.rotation),
+    scale: world.scale,
+  };
 };

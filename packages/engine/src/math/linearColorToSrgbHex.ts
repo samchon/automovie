@@ -39,44 +39,6 @@ const srgbHexChannel = (component: number): string => {
 };
 
 /**
- * The sRGB electro-optical transfer function of IEC 61966-2-1.
- *
- * Written with the standard's own constants rather than three.js's pre-divided
- * approximations, so the repository's decode is answerable to the specification
- * instead of to a renderer's rounding. The two agree to every bit a 32-bit
- * instance color attribute can hold across all 256 channel values, which is why
- * adopting this one changes no frame the viewer already drew.
- */
-const srgbChannelToLinear = (component: number): number =>
-  component <= 0.04045
-    ? component / 12.92
-    : Math.pow((component + 0.055) / 1.055, 2.4);
-
-/**
- * The inverse of {@link srgbChannelToLinear}, with the exact `1 / 2.4`
- * exponent rather than the truncated one three.js encodes with.
- */
-const linearChannelToSrgb = (component: number): number =>
-  component <= 0.0031308
-    ? component * 12.92
-    : 1.055 * Math.pow(component, 1 / 2.4) - 0.055;
-
-/**
- * One linear component as its two lowercase hexadecimal display digits.
- */
-const srgbHexChannel = (component: number): string => {
-  if (Number.isFinite(component) === false)
-    throw new Error(
-      `Linear color component ${component} is not a finite number.`,
-    );
-  return Math.round(
-    linearChannelToSrgb(Math.min(1, Math.max(0, component))) * 255,
-  )
-    .toString(16)
-    .padStart(2, "0");
-};
-
-/**
  * The inverse of {@link srgbChannelToLinear}, with the exact `1 / 2.4`
  * exponent rather than the truncated one three.js encodes with.
  */

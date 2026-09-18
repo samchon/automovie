@@ -1,7 +1,25 @@
-import { IAutoMovieBeatEndState, IAutoMovieBlocking, IAutoMovieScript } from "@automovie/interface";
+import { IAutoMovieBeatEndState, IAutoMovieBlocking, IAutoMovieBlockingCamera, IAutoMovieScript } from "@automovie/interface";
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { IAutoMovieStagedSet } from "./IAutoMovieStagedSet";
 import { IAutoMovieBlockedBeat } from "./IAutoMovieBlockedBeat";
+
+/** The closed framing union, gated at runtime the way performShot gates it. */
+const CAMERA_FRAMINGS = new Set<IAutoMovieBlockingCamera["framing"]>([
+  "wide",
+  "full",
+  "medium",
+  "close",
+]);
+
+/** The closed move union, gated at runtime the way performShot gates it. */
+const CAMERA_MOVES = new Set<IAutoMovieBlockingCamera["move"]>([
+  "static",
+  "follow",
+  "orbit",
+  "push-in",
+  "truck",
+  "whip",
+]);
 
 /**
  * The BLOCKING consumer: gate one beat's shot plan before any performance is
@@ -226,21 +244,3 @@ export const blockBeat = (
     ? { success: false, violations: out.items }
     : { success: true, blocking, previous: previous ?? null };
 };
-
-/** The closed framing union, gated at runtime the way performShot gates it. */
-const CAMERA_FRAMINGS = new Set<IAutoMovieBlockingCamera["framing"]>([
-  "wide",
-  "full",
-  "medium",
-  "close",
-]);
-
-/** The closed move union, gated at runtime the way performShot gates it. */
-const CAMERA_MOVES = new Set<IAutoMovieBlockingCamera["move"]>([
-  "static",
-  "follow",
-  "orbit",
-  "push-in",
-  "truck",
-  "whip",
-]);

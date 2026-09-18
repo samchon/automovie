@@ -29,7 +29,3 @@ export interface IAutoMovieGrammarInput {
    */
   reestablishDistance?: number;
 }
-
-const DEFAULT_MINIMUM_CUT_ANGLE_DEGREES = 30;
-const DEFAULT_REESTABLISH_DISTANCE = 10;
-const EPSILON = 1e-6;

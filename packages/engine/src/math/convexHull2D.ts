@@ -45,3 +45,23 @@ export const convexHull2D = (
   // All input points collinear → the chain collapses to the two extremes.
   return hull.length >= 3 ? hull : dedupeXZ(hull);
 };
+
+const cross = (
+  o: IAutoMovieVector3,
+  a: IAutoMovieVector3,
+  b: IAutoMovieVector3,
+): number => (a.x - o.x) * (b.z - o.z) - (a.z - o.z) * (b.x - o.x);
+
+const dedupeXZ = (
+  points: readonly IAutoMovieVector3[],
+): IAutoMovieVector3[] => {
+  const seen = new Set<string>();
+  const out: IAutoMovieVector3[] = [];
+  for (const p of points) {
+    const key = `${p.x},${p.z}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(p);
+  }
+  return out;
+};

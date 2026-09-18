@@ -1,4 +1,3 @@
-import { IAutoMoviePlantChain } from "./IAutoMoviePlantChain";
 import { IAutoMovieRetargetHandContact } from "./IAutoMovieRetargetHandContact";
 
 /**
@@ -50,11 +49,4 @@ export interface IAutoMovieRetargetContactProps {
    * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-kinematics-retarget-scale-contact Adds authored hand constraints to the target retarget solve.
    */
   hands?: readonly IAutoMovieRetargetHandContact[];
-}
-
-/** A chain plus the frames on which its contact must be preserved. */
-interface IAutoMovieContactWindow {
-  chain: IAutoMoviePlantChain;
-  /** `null` detects stance against the ground; a span declares it. */
-  window: { start: number; end: number } | null;
 }

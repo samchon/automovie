@@ -1,7 +1,10 @@
-import { IAutoMovieClip } from "@automovie/interface";
+import { IAutoMovieClip, IAutoMovieVector3 } from "@automovie/interface";
 import { aimRotation } from "../kinematics/aimRotation";
 import { IAutoMovieProjectile } from "./IAutoMovieProjectile";
 import { projectileAt } from "./projectileAt";
+
+/** A projectile model faces +Z; its trajectory rotates that onto the flight. */
+const PROJECTILE_FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
 
 /**
  * Bake a projectile's flight into an {@link IAutoMovieClip} for its scene node:
@@ -74,6 +77,3 @@ export const projectileTrajectory = (
     ],
   };
 };
-
-/** A projectile model faces +Z; its trajectory rotates that onto the flight. */
-const PROJECTILE_FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };

@@ -1,4 +1,10 @@
-import { isRecord } from "../validation/isRecord";
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null && !Array.isArray(value);
+
+const targetKindName = (target: unknown): string =>
+  isRecord(target) && typeof target.kind === "string"
+    ? target.kind
+    : "malformed";
 
 /**
  * Why a positional target did not resolve to a world point, phrased as the
@@ -47,11 +53,3 @@ export const positionalTargetFault = (target: unknown): string => {
   }
   return `"${targetKindName(target)}" is not a positional target kind`;
 };
-
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === "object" && value !== null && !Array.isArray(value);
-
-const targetKindName = (target: unknown): string =>
-  isRecord(target) && typeof target.kind === "string"
-    ? target.kind
-    : "malformed";

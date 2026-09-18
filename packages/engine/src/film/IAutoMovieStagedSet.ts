@@ -1,8 +1,25 @@
 import { IAutoMovieConstraintViolation, IAutoMovieMountBinding, IAutoMovieScene } from "@automovie/interface";
 
+/**
+ * A staged film set: the composed {@link IAutoMovieScene} plus the persistent
+ * mount couplings staging declared. Mounts stay alongside rather than inside
+ * the scene because a scene node is a flat world placement, the per-frame world
+ * transform of a mounted rider comes from `resolveAttachment` against the
+ * parent's posed skeleton, not from the scene graph.
+ *
+ * `performShot` consumes these: every performed shot auto-descends each mount
+ * into the rider's follow clip through `compileAttach` (#674), so the rider
+ * rides for the whole film without re-issuing `attachTo`, the engine owns the
+ * composition, the host stays a pure player.
+ *
+ * @evidence requirements/staging/budgets-safety-and-validation.md#staging-deterministic-replay Carries the resolved scene or addressed validation result produced from the script and staging plan.
+ * @evidence specifications/performance-motion-and-staging/staging-events-coverage-and-validation.md#performance-staging-deterministic-replay-failure-result IAutoMovieStagedSet preserves deterministic success and failure outcomes for the same authored staging inputs.
+ * @author Samchon
+ */
 export type IAutoMovieStagedSet =
   | IAutoMovieStagedSet.ISuccess
   | IAutoMovieStagedSet.IFailure;
+
 export namespace IAutoMovieStagedSet {
   /**
    * Staging was coherent; the set is ready for blocking/performance.

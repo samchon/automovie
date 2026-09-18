@@ -1,7 +1,7 @@
 import { AutoMovieHumanoidBone, IAutoMovieBody, IAutoMovieMotion, IAutoMovieSkeleton } from "@automovie/interface";
-import { IAutoMovieJointAxes } from "../kinematics/IAutoMovieJointAxes";
+import { IAutoMovieJointAxes } from "../kinematics";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
-import { IAutoMovieCapsuleProxy } from "./capsuleProxy";
+import { IAutoMovieCapsuleProxy } from "./validateCapsule";
 
 /**
  * One actor in an inter-body collision test: its rig, its motion, the capsule

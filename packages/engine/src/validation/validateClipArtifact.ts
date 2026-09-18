@@ -7,7 +7,6 @@ import { validateNonEmptyId } from "./validateNonEmptyId";
 import { validateObjectArtifact } from "./validateObjectArtifact";
 import { validateRange } from "./validateRange";
 import { validateUniqueBy } from "./validateUniqueBy";
-import { channelValueWidth } from "./channelValueWidth";
 import { clipLoopFault } from "./clipLoopFault";
 import { clipTrackShapeFaults } from "./clipTrackShapeFaults";
 import { IAutoMovieClipChannelGate } from "./IAutoMovieClipChannelGate";

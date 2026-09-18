@@ -1,14 +1,15 @@
 import { AutoMovieHumanoidBone, IAutoMovieMotion, IAutoMovieSkeleton, IAutoMovieValidation, IAutoMovieVector3 } from "@automovie/interface";
-import { IAutoMovieJointAxes } from "../kinematics/IAutoMovieJointAxes";
-import { IAutoMovieSkeletonTopology } from "../kinematics/IAutoMovieSkeletonTopology";
-import { indexSkeletonTopology } from "../kinematics/indexSkeletonTopology";
-import { resolvePose } from "../kinematics/resolvePose";
+import { IAutoMovieJointAxes, IAutoMovieSkeletonTopology, indexSkeletonTopology, resolvePose } from "../kinematics";
 import { windowSampleTimes } from "../motion/windowSampleTimes";
 import { sampleMotion } from "../motion/sampleMotion";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { fkReachableBones } from "./fkReachableBones";
 import { ViolationCollector } from "./ViolationCollector";
 import { IAutoMovieFootContactWindow } from "./IAutoMovieFootContactWindow";
+
+const DEFAULT_SAMPLE_RATE = 24;
+
+const DEFAULT_MAX_HORIZONTAL_SPEED = 0.02;
 
 /**
  * Tier-3 planted-foot skate check. It samples declared contact windows,
@@ -156,45 +157,6 @@ export const validateFootSkate = (props: {
 
   return collector.toValidation();
 };
-
-const sampleWindow = (
-  motion: IAutoMovieMotion,
-  skeleton: IAutoMovieSkeleton,
-  contact: IAutoMovieFootContactWindow,
-  sampleRate: number,
-  jointAxes:
-    | Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>
-    | undefined,
-  restFrames:
-    | Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>
-    | undefined,
-  topology: IAutoMovieSkeletonTopology,
-): Array<{ time: number; position: IAutoMovieVector3 }> =>
-  windowSampleTimes(contact.start, contact.end, sampleRate).map((time) => {
-    const resolved = resolvePose(
-      sampleMotion(motion, time).pose,
-      skeleton,
-      jointAxes,
-      restFrames,
-      topology,
-    ).find((bone) => bone.bone === contact.bone);
-    return { time, position: resolved!.worldPosition };
-  });
-
-const horizontalSpeed = (
-  previous: { time: number; position: IAutoMovieVector3 },
-  current: { time: number; position: IAutoMovieVector3 },
-): number => {
-  const dx = current.position.x - previous.position.x;
-  const dz = current.position.z - previous.position.z;
-  return Math.hypot(dx, dz) / (current.time - previous.time);
-};
-
-const round = (value: number): number => Math.round(value * 1_000) / 1_000;
-
-const DEFAULT_SAMPLE_RATE = 24;
-
-const DEFAULT_MAX_HORIZONTAL_SPEED = 0.02;
 
 const sampleWindow = (
   motion: IAutoMovieMotion,

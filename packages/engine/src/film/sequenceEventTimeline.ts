@@ -4,6 +4,21 @@ import { IAutoMoviePlaybackEntry } from "./IAutoMoviePlaybackEntry";
 import { IAutoMoviePlaybackEvent } from "./IAutoMoviePlaybackEvent";
 import { sequenceTimeline } from "./sequenceTimeline";
 
+const indexShots = (
+  shots: readonly IAutoMovieShot[],
+): Map<string, { shot: IAutoMovieShot; index: number }> => {
+  const byId = new Map<string, { shot: IAutoMovieShot; index: number }>();
+  shots.forEach((shot, index) => {
+    const existing = byId.get(shot.id);
+    if (existing !== undefined)
+      throw new Error(
+        `shot id "${shot.id}" is duplicated at shots[${index}].id; first declared at shots[${existing.index}].id`,
+      );
+    byId.set(shot.id, { shot, index });
+  });
+  return byId;
+};
+
 /**
  * Place every shot interaction event onto the sequence output clock. Events
  * outside a sequence entry's trimmed source range are omitted. The range is

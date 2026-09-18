@@ -1,8 +1,10 @@
 import { IAutoMovieChannel } from "@automovie/interface";
 import { CHANNEL_VALUE_TYPES } from "../validation/CHANNEL_VALUE_TYPES";
 import { NODE_CHANNEL_PATHS } from "../validation/NODE_CHANNEL_PATHS";
-import { IAutoMovieNodeChannel } from "../validation/IAutoMovieNodeChannel";
-import { IAutoMoviePointerChannel } from "@automovie/interface";
+
+type IAutoMovieNodeChannel = Extract<IAutoMovieChannel, { kind: "node" }>;
+
+type IAutoMoviePointerChannel = Extract<IAutoMovieChannel, { kind: "pointer" }>;
 
 /**
  * Whether a channel carries a rotation (a quaternion), which the sample pass
@@ -41,18 +43,3 @@ const validateChannelValueType = (
   if (!CHANNEL_VALUE_TYPES.has(valueType))
     throw new Error(`unknown channel valueType "${String(valueType)}"`);
 };
-
-type IAutoMovieNodeChannel = Extract<IAutoMovieChannel, { kind: "node" }>;
-
-type IAutoMoviePointerChannel = Extract<IAutoMovieChannel, { kind: "pointer" }>;
-
-/**
- * Channel addressing helpers shared by the resolve passes.
- *
- * A channel ({@link IAutoMovieChannel}) is the universal animatable lvalue; the
- * sample / constrain passes key their results by a canonical string so a
- * track's value, a limit's bounds, and (later) a driver's output all collide on
- * the same channel.
- *
- * @author Samchon
- */

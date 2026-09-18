@@ -1,4 +1,4 @@
-import { IAutoMovieDeliveryCrop, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 
 /**
  * A camera's resolved world placement (position + rotation).
@@ -22,10 +22,3 @@ export interface IAutoMovieResolvedCamera {
    */
   rotation: IAutoMovieQuaternion;
 }
-
-const WHOLE_DELIVERY_CROP: IAutoMovieDeliveryCrop = {
-  left: 0,
-  top: 0,
-  right: 1,
-  bottom: 1,
-};

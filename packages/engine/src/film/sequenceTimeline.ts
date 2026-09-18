@@ -1,7 +1,21 @@
 import { IAutoMovieSequence, IAutoMovieShot } from "@automovie/interface";
 import { IAutoMoviePlaybackEntry } from "./IAutoMoviePlaybackEntry";
-import { IAutoMoviePlaybackSample } from "./IAutoMoviePlaybackSample";
 import { IAutoMoviePlaybackTimeline } from "./IAutoMoviePlaybackTimeline";
+
+const indexShots = (
+  shots: readonly IAutoMovieShot[],
+): Map<string, { shot: IAutoMovieShot; index: number }> => {
+  const byId = new Map<string, { shot: IAutoMovieShot; index: number }>();
+  shots.forEach((shot, index) => {
+    const existing = byId.get(shot.id);
+    if (existing !== undefined)
+      throw new Error(
+        `shot id "${shot.id}" is duplicated at shots[${index}].id; first declared at shots[${existing.index}].id`,
+      );
+    byId.set(shot.id, { shot, index });
+  });
+  return byId;
+};
 
 /**
  * Lay the cut onto the output clock, the playback mirror of `cutSequence`'s
@@ -58,31 +72,4 @@ export const sequenceTimeline = (
     cursor = start + played;
   });
   return { entries, runtime: cursor };
-};
-
-/**
- * Turn one live entry into the on-screen sample: the live shot at its local
- * time, plus, inside the live entry's incoming transition, the previous entry's
- * tail as the `blend` with the incoming weight `alpha = elapsed / transition`.
- * The single place the shot/time/blend shape is built, so the stateless and
- * cursor resolvers cannot drift.
- */
-const sampleAt = (
-  sequence: IAutoMovieSequence,
-  entries: readonly IAutoMoviePlaybackEntry[],
-  live: IAutoMoviePlaybackEntry,
-  seconds: number,
-): IAutoMoviePlaybackSample => {
-  const transition = sequence.shots[live.entry]!.transition;
-  const elapsed = seconds - live.start;
-  let blend: IAutoMoviePlaybackSample["blend"] = null;
-  if (transition !== null && elapsed < transition.duration) {
-    const outgoing = entries[live.entry - 1]!;
-    blend = {
-      shot: outgoing.shot,
-      time: outgoing.offset + (seconds - outgoing.start),
-      alpha: elapsed / transition.duration,
-    };
-  }
-  return { shot: live.shot, time: live.offset + elapsed, blend };
 };

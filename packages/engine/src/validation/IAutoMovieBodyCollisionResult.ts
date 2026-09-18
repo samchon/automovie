@@ -1,4 +1,4 @@
-import { AutoMovieHumanoidBone, IAutoMovieInteractionEvent, IAutoMovieValidation, IAutoMovieVector3 } from "@automovie/interface";
+import { IAutoMovieInteractionEvent, IAutoMovieValidation } from "@automovie/interface";
 import { IAutoMovieCollisionResponse } from "../physics/IAutoMovieCollisionResponse";
 
 /**
@@ -32,14 +32,4 @@ export interface IAutoMovieBodyCollisionResult {
    * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-path-scope `response` remains null when no unsuppressed contact applies, keeping advisory scope distinct from event existence.
    */
   response: IAutoMovieCollisionResponse | null;
-}
-
-interface IPenetration {
-  frame: number;
-  time: number;
-  from: AutoMovieHumanoidBone;
-  otherFrom: AutoMovieHumanoidBone;
-  depth: number;
-  pointA: IAutoMovieVector3;
-  pointB: IAutoMovieVector3;
 }

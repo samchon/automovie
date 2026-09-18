@@ -7,6 +7,10 @@ import { FLUID_MAX_SPRAYS } from "./FLUID_MAX_SPRAYS";
 import { FLUID_MAX_SPRAY_PARTICLES } from "./FLUID_MAX_SPRAY_PARTICLES";
 import { FLUID_MAX_STEPS } from "./FLUID_MAX_STEPS";
 
+const BOUNDARY_KINDS = new Set(["wall", "open"]);
+
+const EDGES = ["xMin", "xMax", "zMin", "zMax"] as const;
+
 /**
  * Validate a fluid domain's lattice, budgets, stability, and declared flows.
  *
@@ -352,150 +356,6 @@ export const validateFluidDomain = (props: {
   });
 
   return out.toValidation();
-};
-
-/** A finite scalar inside `[min, max]`, or `(min, max]` when `exclusive`. */
-const numeric = (
-  out: ViolationCollector,
-  path: string,
-  label: string,
-  value: number,
-  min: number,
-  exclusive: boolean,
-  max: number,
-): void => {
-  if (
-    !Number.isFinite(value) ||
-    (exclusive ? value <= min : value < min) ||
-    value > max
-  )
-    out.push(
-      "range",
-      path,
-      `${label} must be finite within ${exclusive ? "(" : "["}${min}, ${max}]`,
-      value,
-    );
-};
-
-/** A safe integer inside `[min, max]`. */
-const integer = (
-  out: ViolationCollector,
-  path: string,
-  label: string,
-  value: number,
-  min: number,
-  max: number,
-): void => {
-  if (!Number.isSafeInteger(value) || value < min || value > max)
-    out.push(
-      "type",
-      path,
-      `${label} must be an integer within [${min}, ${max}]`,
-      value,
-    );
-};
-
-/** A cell-indexed array whose length must equal the lattice's cell count. */
-const length = (
-  out: ViolationCollector,
-  path: string,
-  label: string,
-  actual: number,
-  cells: number,
-): void => {
-  if (actual !== cells)
-    out.push(
-      "type",
-      path,
-      `${label} must hold exactly one value per cell (${cells}), but held ${actual}`,
-      actual,
-    );
-};
-
-/** A declared collection that must stay inside its budget. */
-const count = (
-  out: ViolationCollector,
-  path: string,
-  label: string,
-  actual: number,
-  budget: number,
-): void => {
-  if (actual > budget)
-    out.push(
-      "range",
-      path,
-      `a fluid domain may declare at most ${budget} ${label}, but declared ${actual}`,
-      actual,
-      actual - budget,
-    );
-};
-
-/** A non-empty id that has not already been used by a sibling. */
-const identity = (
-  out: ViolationCollector,
-  path: string,
-  label: string,
-  id: string,
-  seen: Set<string>,
-): void => {
-  if (id.trim().length === 0)
-    out.push("type", `${path}.id`, `${label} id must be non-empty`, id);
-  else if (seen.has(id))
-    out.push("type", `${path}.id`, `${label} id "${id}" is duplicated`, id);
-  seen.add(id);
-};
-
-/** A cell index pair that lands inside the lattice and not on solid matter. */
-const site = (
-  out: ViolationCollector,
-  path: string,
-  domain: IAutoMovieFluidDomain,
-  column: number,
-  row: number,
-): void => {
-  integer(
-    out,
-    `${path}.column`,
-    "cell column",
-    column,
-    0,
-    domain.grid.columns - 1,
-  );
-  integer(out, `${path}.row`, "cell row", row, 0, domain.grid.rows - 1);
-  if (
-    inside(column, domain.grid.columns) &&
-    inside(row, domain.grid.rows) &&
-    domain.solid[row * domain.grid.columns + column] === true
-  )
-    out.push(
-      "type",
-      path,
-      `cell (${column}, ${row}) is solid and cannot host a declared source, drain, or spray`,
-      { column, row },
-    );
-};
-
-/** Whether one lattice index is an in-range cell coordinate. */
-const inside = (value: number, limit: number): boolean =>
-  Number.isSafeInteger(value) && value >= 0 && value < limit;
-
-/** An activity window whose end, when given, is strictly after its start. */
-const window = (
-  out: ViolationCollector,
-  path: string,
-  start: number,
-  end: number | null,
-): void => {
-  numeric(out, `${path}.start`, "activity start", start, 0, false, Infinity);
-  if (end === null) return;
-  numeric(out, `${path}.end`, "activity end", end, 0, false, Infinity);
-  if (Number.isFinite(end) && Number.isFinite(start) && end <= start)
-    out.push(
-      "range",
-      `${path}.end`,
-      `activity end must be strictly after its start (${start}), but was ${end}`,
-      end,
-    );
 };
 
 /** A finite scalar inside `[min, max]`, or `(min, max]` when `exclusive`. */

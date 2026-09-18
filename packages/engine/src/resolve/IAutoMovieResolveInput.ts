@@ -1,6 +1,5 @@
 import { IAutoMovieChannelLimit, IAutoMovieClip, IAutoMovieDriver, IAutoMovieNode } from "@automovie/interface";
 import { IAutoMovieProfileApplication } from "./IAutoMovieProfileApplication";
-import { bindProfile } from "./bindProfile";
 import { IAutoMovieResolveSprings } from "./IAutoMovieResolveSprings";
 
 /**

@@ -1,8 +1,169 @@
-import { IAutoMovieDiagnostic, IAutoMovieFormationMotion, IAutoMovieFormationSlotMotion, IAutoMovieModel, IAutoMovieShotContract } from "@automovie/interface";
+import { IAutoMovieDiagnostic, IAutoMovieFormationMotion, IAutoMovieFormationSlotMotion, IAutoMovieModel, IAutoMovieShotContract, IAutoMovieVector3 } from "@automovie/interface";
 import { formationSlotPosition, placeFormationSlot, sampleFormationMotion, sampleFormationSlotMotion } from "../index";
 import { engineDiagnostic } from "./engineDiagnostic";
 import { IAutoMovieFormationPlacement } from "../IAutoMovieFormationPlacement";
+import { IAutoMovieModelColumn } from "./IAutoMovieModelColumn";
 import { autoMovieModelColumns } from "./autoMovieModelColumns";
+
+/**
+ * One reading as a reader wants it: three decimals, so a metre is stated to the
+ * millimetre and a second to the millisecond.
+ */
+const round = (value: number): number => Math.round(value * 1_000) / 1_000;
+
+/**
+ * Members of one unit the overlap gate measures.
+ *
+ * Every measured member is a point placed into a grid at every sampled time,
+ * and a unit may be a hundred thousand of them. Past this many the walk stays
+ * bounded and what is measured is the unit's first slots, which is the trade a
+ * gate that samples has to make somewhere and had better say out loud. Below it
+ * — where nearly every authored unit sits — every member is measured, so every
+ * pair standing inside its own bodies is found.
+ */
+const FORMATION_OVERLAP_MEMBER_LIMIT = 4096;
+
+/**
+ * Times inside one shot the overlap gate places its units at.
+ *
+ * Zero and both ends of every cue are always among them, because those are
+ * states the shot certainly holds; whatever budget is left fills the gaps
+ * between them evenly. The interior is what catches two units standing clear at
+ * both ends of a cue and walking through one another in between, and a cue that
+ * closes a gap for less than one such interval is the honest limit this number
+ * states rather than hides.
+ */
+const FORMATION_OVERLAP_SAMPLE_LIMIT = 16;
+
+/** One unit the overlap gate measures, with everything it is measured by. */
+interface IFormationOverlapUnit {
+  /** Position in the shot's own order, which is the order refusals come in. */
+  index: number;
+  /** The staged unit itself. */
+  formation: IAutoMovieFormationPlacement & {
+    lod: ReadonlyArray<{ model: string }>;
+  };
+  /** Where each measured member stands at rest, with the slot it is. */
+  members: ReadonlyArray<{ slot: number; point: IAutoMovieVector3 }>;
+  /** Columns of every runtime one of its members may be drawn as. */
+  tiers: ReadonlyArray<readonly IAutoMovieModelColumn[]>;
+}
+
+/** One measured member, placed where the sampled time really puts it. */
+interface IFormationOverlapPlacement {
+  /** Unit this member stands in. */
+  unit: IFormationOverlapUnit;
+  /** Zero-based slot it is. */
+  slot: number;
+  /** Where it stands at the sampled time. */
+  point: IAutoMovieVector3;
+}
+
+/**
+ * The members one unit is measured by, found once and remembered.
+ *
+ * The set is a pure function of the unit, and the builder hands the same
+ * compiled unit to every shot that stages it, so a crowd in fifty shots would
+ * otherwise be regenerated fifty times over. Keyed by the unit itself, so
+ * nothing outlives the compile that made it.
+ */
+const formationOverlapMemberCache = new WeakMap<
+  IAutoMovieFormationPlacement,
+  ReadonlyArray<{ slot: number; point: IAutoMovieVector3 }>
+>();
+
+const formationOverlapMembers = (
+  formation: IAutoMovieFormationPlacement,
+): ReadonlyArray<{ slot: number; point: IAutoMovieVector3 }> => {
+  const remembered = formationOverlapMemberCache.get(formation);
+  if (remembered !== undefined) return remembered;
+  const members = Array.from(
+    { length: Math.min(formation.count, FORMATION_OVERLAP_MEMBER_LIMIT) },
+    (_, slot) => ({ slot, point: formationSlotPosition(formation, slot) }),
+  );
+  formationOverlapMemberCache.set(formation, members);
+  return members;
+};
+
+/**
+ * When one shot is worth placing its units at.
+ *
+ * Ends first, because the ends of a cue are states the shot certainly holds and
+ * zero is where a unit that has no cue at all stands. Then the gaps between
+ * them, filled evenly with whatever budget is left, because two units clear at
+ * both ends of a cue can walk straight through one another in between and a
+ * spacing that closes and reopens inside one cue never shows at either end.
+ *
+ * This samples; it does not solve. Whether two members are ever inside one
+ * another has no closed form — it depends on the layouts, the easings and the
+ * cues together — so a resolution is stated instead of a guarantee. Every
+ * sampled time is a state the shot really holds, which is what keeps the gate
+ * from refusing a production that was correct.
+ */
+const formationOverlapSampleTimes = (
+  cues: readonly IAutoMovieFormationMotion[],
+  slotCues: readonly IAutoMovieFormationSlotMotion[],
+): number[] => {
+  const ends = [
+    ...new Set([
+      0,
+      ...cues.flatMap((cue) => [cue.start, cue.end]),
+      ...slotCues.flatMap((cue) => [cue.start, cue.end]),
+    ]),
+  ].sort((left, right) => left - right);
+  const gaps = Math.max(1, ends.length - 1);
+  const inside = Math.max(
+    0,
+    Math.floor((FORMATION_OVERLAP_SAMPLE_LIMIT - ends.length) / gaps),
+  );
+  return [
+    ...new Set(
+      ends.flatMap((time, index) => {
+        const next = ends[index + 1];
+        return next === undefined
+          ? [time]
+          : [
+              time,
+              ...Array.from(
+                { length: inside },
+                (_, step) => time + ((next - time) * (step + 1)) / (inside + 1),
+              ),
+            ];
+      }),
+    ),
+  ];
+};
+
+/**
+ * How close two members of two units may stand before they are in one place.
+ *
+ * The least any pair of the runtimes they may be drawn as allows, because which
+ * tier a member is drawn at is the camera's decision and a refusal has to hold
+ * whichever one it makes. Zero when no pair of their columns ever meets in
+ * height, which is two bodies that pass each other at different levels rather
+ * than through each other.
+ */
+const formationOverlapClearance = (
+  left: IFormationOverlapUnit,
+  right: IFormationOverlapUnit,
+  lift: number,
+): number => {
+  let least = Number.POSITIVE_INFINITY;
+  for (const near of left.tiers)
+    for (const far of right.tiers) {
+      let widest = 0;
+      for (const one of near)
+        for (const other of far)
+          if (
+            Math.max(one.bottom, other.bottom + lift) <
+              Math.min(one.top, other.top + lift) &&
+            one.radius + other.radius > widest
+          )
+            widest = one.radius + other.radius;
+      least = Math.min(least, widest);
+    }
+  return least;
+};
 
 /**
  * Refuse a shot that stands one member of a crowd inside another.

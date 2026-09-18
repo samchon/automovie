@@ -1,4 +1,5 @@
 import { IAutoMoviePlanarPoint } from "@automovie/interface";
+import { PLANAR_EPSILON } from "../geometry/PLANAR_EPSILON";
 import { pointInPolygon } from "./pointInPolygon";
 
 /**
@@ -29,4 +30,42 @@ export const polygonInside = (
       )
         return false;
   return true;
+};
+
+/** Whether two segments meet at a point interior to both. */
+const segmentsCross = (
+  a: IAutoMoviePlanarPoint,
+  b: IAutoMoviePlanarPoint,
+  c: IAutoMoviePlanarPoint,
+  d: IAutoMoviePlanarPoint,
+): boolean => {
+  const first = side(c, d, a);
+  const second = side(c, d, b);
+  const third = side(a, b, c);
+  const fourth = side(a, b, d);
+  return (
+    first !== 0 &&
+    second !== 0 &&
+    third !== 0 &&
+    fourth !== 0 &&
+    first !== second &&
+    third !== fourth
+  );
+};
+
+/** Which side of the directed line `from -> to` a point falls on. */
+const side = (
+  from: IAutoMoviePlanarPoint,
+  to: IAutoMoviePlanarPoint,
+  point: IAutoMoviePlanarPoint,
+): number => {
+  const cross =
+    (to.x - from.x) * (point.y - from.y) - (to.y - from.y) * (point.x - from.x);
+  const scale = Math.max(
+    1,
+    Math.abs(to.x - from.x) + Math.abs(to.y - from.y),
+    Math.abs(point.x - from.x) + Math.abs(point.y - from.y),
+  );
+  if (Math.abs(cross) <= PLANAR_EPSILON * scale) return 0;
+  return cross > 0 ? 1 : -1;
 };

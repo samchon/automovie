@@ -6,6 +6,21 @@ import { AutoMovieTextureMediaType } from "./AutoMovieTextureMediaType";
 import { IAutoMovieTextureClosureInput } from "./IAutoMovieTextureClosureInput";
 import { IAutoMovieTextureImageFacts } from "./IAutoMovieTextureImageFacts";
 
+/** Media types a material's PBR slot may bind. */
+const MATERIAL_MEDIA: ReadonlySet<AutoMovieTextureMediaType> = new Set([
+  "image/png",
+  "image/jpeg",
+  "image/webp",
+]);
+
+/** Media types a scene environment may bind. */
+const ENVIRONMENT_MEDIA: ReadonlySet<AutoMovieTextureMediaType> = new Set([
+  "image/png",
+  "image/jpeg",
+  "image/webp",
+  "image/vnd.radiance",
+]);
+
 /**
  * Close the loop between what a compiled production SAMPLES and what its asset
  * ledger AUTHORIZES.
@@ -152,125 +167,6 @@ export const validateTextureAssets = (
   });
 
   return out.toValidation();
-};
-
-/** The one asset id a legacy or structured binding names. */
-const bindingAsset = (binding: string | IAutoMovieTextureReference): string =>
-  typeof binding === "string" ? binding : binding.asset;
-
-/**
- * The one decoding an equirectangular environment image can mean.
- *
- * A material slot states its intent because one image can be either a colour or
- * a measurement; an environment image is always a colour, and only its
- * container says how that colour is stored. Radiance holds linear radiance
- * already, which is why it is the container an HDR sky arrives in; the three
- * 8-bit containers hold sRGB-encoded texels, which is what the viewer decodes
- * them as. Deriving it here rather than asking the author for it keeps the
- * bytes the single authority, and lets an image bound both as image lighting
- * and as a linear material map be refused like any other contradiction.
- */
-const environmentIntent = (
-  facts: IAutoMovieTextureImageFacts,
-): "srgb" | "linear" =>
-  facts.mediaType === "image/vnd.radiance" ? "linear" : "srgb";
-
-/**
- * The PBR slots that bind an image, with the decoding each one requires.
- *
- * A legacy bare-id binding declares no intent, so the slot's own requirement is
- * what it means: base colour and emissive are radiometric colours stored in
- * sRGB, and the three data maps are measurements that must not be gamma
- * decoded.
- */
-const MATERIAL_SLOTS: ReadonlyArray<{
-  field: keyof IAutoMovieMaterial &
-    (
-      | "baseColorTexture"
-      | "metallicRoughnessTexture"
-      | "normalTexture"
-      | "occlusionTexture"
-      | "emissiveTexture"
-    );
-  colorSpace: "srgb" | "linear";
-}> = [
-  { field: "baseColorTexture", colorSpace: "srgb" },
-  { field: "metallicRoughnessTexture", colorSpace: "linear" },
-  { field: "normalTexture", colorSpace: "linear" },
-  { field: "occlusionTexture", colorSpace: "linear" },
-  { field: "emissiveTexture", colorSpace: "srgb" },
-];
-
-/** Registration, authorization, media, and dimension for one cited asset. */
-const checkAsset = (props: {
-  asset: string;
-  path: string;
-  consumer: { kind: "material-texture" | "scene-environment"; id: string };
-  media: ReadonlySet<AutoMovieTextureMediaType>;
-  out: ViolationCollector;
-  input: IAutoMovieTextureClosureInput;
-  records: ReadonlyMap<string, IAutoMovieAssetProvenance>;
-}): void => {
-  const record = props.records.get(props.asset);
-  if (record === undefined) {
-    props.out.push(
-      "type",
-      props.path,
-      `texture asset "${props.asset}" is not registered in the project asset manifest; register its path, current digest and consumer binding before compiling`,
-      props.asset,
-    );
-    return;
-  }
-  if (
-    !record.uses.some(
-      (use) =>
-        use.production === props.input.production &&
-        use.consumer.kind === props.consumer.kind &&
-        use.consumer.id === props.consumer.id,
-    )
-  )
-    props.out.push(
-      "type",
-      props.path,
-      `asset "${props.asset}" carries no ${props.consumer.kind} use for "${props.consumer.id}" in production "${props.input.production}"; add the exact typed ledger entry`,
-      props.consumer.id,
-    );
-  const facts = props.input.facts(props.asset);
-  if (facts === undefined) {
-    props.out.push(
-      "type",
-      props.path,
-      `asset "${props.asset}" is bound as an image but its bytes are not a readable PNG, JPEG, WebP or Radiance image`,
-      props.asset,
-    );
-    return;
-  }
-  if (!props.media.has(facts.mediaType)) {
-    props.out.push(
-      "type",
-      props.path,
-      `asset "${props.asset}" is ${facts.mediaType}, which this slot cannot sample; expected one of ${[...props.media].sort(compareCodeUnits).join(", ")}`,
-      facts.mediaType,
-    );
-    return;
-  }
-  for (const axis of ["width", "height"] as const) {
-    const value = facts[axis];
-    if (!Number.isSafeInteger(value) || value <= 0)
-      props.out.push(
-        "range",
-        `${props.path}.${axis}`,
-        `asset "${props.asset}" reports a ${axis} of ${value}; an image must measure a positive whole number of pixels`,
-        value,
-      );
-    else if (value > AUTO_MOVIE_MAX_TEXTURE_EDGE)
-      props.out.push(
-        "range",
-        `${props.path}.${axis}`,
-        `asset "${props.asset}" is ${value} pixels wide on its ${axis}, past the ${AUTO_MOVIE_MAX_TEXTURE_EDGE} portable limit; downscale it in a recorded processing step`,
-        value,
-      );
-  }
 };
 
 /** The one asset id a legacy or structured binding names. */

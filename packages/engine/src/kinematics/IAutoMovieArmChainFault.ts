@@ -32,14 +32,3 @@ export interface IAutoMovieArmChainFault {
    */
   reason: string;
 }
-
-/**
- * Sine of the angle below which a hinge counts as parallel to the segment it
- * drives. The engine's other geometric degeneracy guards (zero-length segment,
- * target on the chain root, bend-plane fallback) all use `1e-6`, and this is
- * the same kind of question asked about an angle rather than a length. A rig
- * whose elbow is merely CLOSE to parallel still solves: it can bend, just
- * weakly, and refusing it would be the engine deciding how much articulation is
- * worth having.
- */
-const PARALLEL_SINE = 1e-6;

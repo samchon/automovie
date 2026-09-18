@@ -63,30 +63,3 @@ const formationGroundDatumCache = new WeakMap<
   object,
   { height: number | null }
 >();
-
-/**
- * The anchor's own ground height, found once per formation record.
- *
- * Every member measures its relief against this one number, and a formation of
- * a hundred thousand members would otherwise ask the same question of the same
- * polygons a hundred thousand times. Keyed by the record itself, exactly as the
- * builder keys the members it judges a unit by, so nothing outlives the
- * placement that asked.
- */
-const formationGroundDatum = (
-  formation: IAutoMovieFormationGrounding & { anchor: IAutoMovieVector3 },
-  surfaces: readonly IAutoMovieWorldSurface[],
-): number | null => {
-  const remembered = formationGroundDatumCache.get(formation);
-  if (remembered !== undefined) return remembered.height;
-  const height = worldGroundHeight(surfaces, formation.anchor);
-  formationGroundDatumCache.set(formation, { height });
-  return height;
-};
-
-// Boxed, so a formation whose anchor is over nothing is remembered as such
-// rather than looked up again on every one of its members.
-const formationGroundDatumCache = new WeakMap<
-  object,
-  { height: number | null }
->();

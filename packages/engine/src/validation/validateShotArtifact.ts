@@ -13,6 +13,25 @@ import { appendLightMotionsArtifact } from "./appendLightMotionsArtifact";
 import { appendShotMetadataArtifact } from "./appendShotMetadataArtifact";
 import { validateClipArtifact } from "./validateClipArtifact";
 
+/**
+ * The shot artifact's structural contract, owned by the engine that produces
+ * it.
+ *
+ * It used to live only beside the commit gate, so `performShot` could emit
+ * a shot no consumer would accept and report success: the same failure recurred
+ * five times (#1224, #1308, #1314, #1316, #1318), each fixed by teaching the
+ * producer one more field. The rules now have a single home, on the side that
+ * both the producer and every consumer can reach (#1320).
+ *
+ * What stays with the host: whether a slice is committable, whether a resident
+ * registry supplies the referenced clips, and how a project addresses its
+ * files. Those are questions about a deployment, not about the artifact.
+ *
+ * @evidence requirements/diagnostics/identity-path-and-context.md#diagnostics-path-and-scope `validateShotArtifact` reports every malformed shot id, reference, performance, motion, event, intent, and coverage member at its artifact path.
+ * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-path-scope `validateShotArtifact` preserves shot-root identity, nested collection positions, observed values, and expected structural contracts across the complete commit gate.
+ * @author Samchon
+ */
+
 export const validateShotArtifact = (
   shot: IAutoMovieShot,
   scene: IAutoMovieScene,
@@ -223,41 +242,20 @@ export const validateShotArtifact = (
   return toValidation(violations);
 };
 
-/** The closed event-kind union, gated the way the engine's compilers emit it. */
-const EVENT_KINDS = new Set([
-  "contact",
-  "hit",
-  "grab",
-  "release",
-  "attach",
-  "detach",
-  "fall",
-]);
-
 /**
- * The slack the shot-local event clock carries at its upper bound, matching
- * `performShot`'s own landing comparison so the two cannot disagree about an
- * event that lands exactly on the shot end.
+ * The scene's light id → `type` index, keyed by the only thing a pointer can
+ * name.
+ *
+ * A light is addressable exactly when it is an object with a string id and a
+ * `type`, which is what a `Map.get` miss states in one read: an entry left out
+ * and an entry stored with no kind both answer `undefined`, and neither can be
+ * the target of a track. Such a scene is malformed either way, and
+ * `validateSceneArtifact` is the gate that says so.
  */
-const EVENT_TIME_EPSILON = 1e-9;
-
-/** The closed event-source union. */
-const EVENT_SOURCES = new Set([
-  "collisionSolver",
-  "scriptedCue",
-  "sampledProximity",
-  "impactOutput",
-]);
-
-/** The closed framing union, the same set `performShot` gates a frame action by. */
-const CAMERA_FRAMINGS = new Set(["wide", "full", "medium", "close"]);
-
-/** The closed move union, the same set `performShot` gates a frame action by. */
-const CAMERA_MOVES = new Set([
-  "static",
-  "follow",
-  "orbit",
-  "push-in",
-  "truck",
-  "whip",
-]);
+const stagedLightKinds = (scene: unknown): ReadonlyMap<string, unknown> => {
+  const index = new Map<string, unknown>();
+  for (const light of asArray(isRecord(scene) ? scene.lights : undefined))
+    if (isRecord(light) && typeof light.id === "string")
+      index.set(light.id, light.type);
+  return index;
+};

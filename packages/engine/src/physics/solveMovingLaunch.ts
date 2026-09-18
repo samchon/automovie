@@ -1,8 +1,16 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
 import { Vector3 } from "../math/Vector3";
-import { finiteVector } from "../geometry/finiteVector";
 import { IAutoMovieBallisticSolution } from "./IAutoMovieBallisticSolution";
 import { solveBallisticLaunch } from "./solveBallisticLaunch";
+
+const finiteVector = (v: IAutoMovieVector3): boolean => {
+  if (!Number.isFinite(v.x)) return false;
+  if (!Number.isFinite(v.y)) return false;
+  return Number.isFinite(v.z);
+};
+
+const validArc = (arc: string): arc is "direct" | "high" =>
+  arc === "direct" || arc === "high";
 
 /**
  * Solve the launch that **leads a moving target**: the aim that lands the

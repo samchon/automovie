@@ -1,5 +1,4 @@
 import { IAutoMovieClampViolation } from "./IAutoMovieClampViolation";
-import { channelKey } from "./channelKey";
 
 /**
  * A clamp that fired this frame, tagged with the channel it constrained.

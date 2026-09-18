@@ -8,9 +8,3 @@
  * @evidence specifications/performance-motion-and-staging/rig-deformation-and-retargeting.md#performance-rig-skin-rigid-morph-deformation Defines the non-colliding root identity used to preserve the deformation basis.
  */
 export const MOTION_ROOT_NODE_ID = "root";
-
-const IDENTITY = {
-  translation: { x: 0, y: 0, z: 0 },
-  rotation: { x: 0, y: 0, z: 0, w: 1 },
-  scale: { x: 1, y: 1, z: 1 },
-};

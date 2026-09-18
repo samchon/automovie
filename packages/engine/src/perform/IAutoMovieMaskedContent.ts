@@ -1,5 +1,4 @@
 import { AutoMovieBodyRegion, AutoMovieHumanoidBone } from "@automovie/interface";
-import { compareCodeUnits } from "../text/compareCodeUnits";
 
 /**
  * What one action's clip lost to its region mask, for the caller that must

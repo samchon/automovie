@@ -4,6 +4,31 @@ import { getConstraint } from "../rom/getConstraint";
 import { IAutoMovieRecoilPush } from "./IAutoMovieRecoilPush";
 
 /**
+ * Scale one input deflection down the recoil chain. An absent or zero push is
+ * represented as `null`, the pose model's resting axis, so a zero-excluding ROM
+ * does not drag an untouched axis to its minimum and the resulting pose remains
+ * legal under the same validator. A non-zero deflection stays explicit for the
+ * shared whole-joint ROM clamp.
+ */
+const scaledPushAxis = (value: number | null, scale: number): number | null => {
+  if (value === null) return null;
+  const scaled = value * scale;
+  return scaled === 0 ? null : scaled;
+};
+
+const readPushAxis = (
+  axis: keyof IAutoMovieRecoilPush,
+  value: number | undefined,
+): number | null => {
+  if (value === undefined || value === 0) return null;
+  if (!Number.isFinite(value))
+    throw new RangeError(
+      `impact recoil push ${axis} must be finite, but was ${value}`,
+    );
+  return value;
+};
+
+/**
  * Build the **flinch** a struck body yields under an impact: the reactive
  * `push` (a deflection driven by the impulse) propagates down a `chain` of
  * bones (from the contact bone toward the body) losing strength by `falloff`

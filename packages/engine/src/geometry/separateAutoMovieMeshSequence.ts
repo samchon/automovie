@@ -1,6 +1,14 @@
 import { measureAutoMovieMeshClearance } from "./measureAutoMovieMeshClearance";
 import { IAutoMovieMesh } from "@automovie/interface";
 
+type Triangle = {
+  points: number[][];
+  vertices: number[];
+  ordinal: number;
+  area: number;
+  bounds: number[];
+};
+
 /**
  * Separate an ordered mesh sequence along one positive local axis, retaining
  * every shape, normal and transverse coordinate. Each earlier/later pair passes
@@ -114,52 +122,6 @@ function triangles(mesh: IAutoMovieMesh, axes: number[]): Triangle[] {
     });
   }
   return result;
-}
-
-function side(a: number[], b: number[], p: number[]): number {
-  return (b[0] - a[0]) * (p[1] - a[1]) - (b[1] - a[1]) * (p[0] - a[0]);
-}
-
-function barycentric(triangle: Triangle, p: number[]): number[] {
-  const [a, b, c] = triangle.points;
-  const beta = side(a, p, c) / triangle.area,
-    gamma = side(a, b, p) / triangle.area;
-  return [1 - beta - gamma, beta, gamma];
-}
-
-function depth(triangle: Triangle, weights: number[]): number {
-  const [a, b, c] = triangle.points;
-  return a[2] * weights[0] + b[2] * weights[1] + c[2] * weights[2];
-}
-
-function clip(points: number[][], triangle: Triangle): number[][] {
-  let polygon = points;
-  const sign = Math.sign(triangle.area);
-  for (let edge = 0; edge < 3; edge++) {
-    const a = triangle.points[edge],
-      b = triangle.points[(edge + 1) % 3];
-    const input = polygon;
-    polygon = [];
-    for (let i = 0; i < input.length; i++) {
-      const current = input[i],
-        previous = input[(i + input.length - 1) % input.length];
-      const dc = sign * side(a, b, current),
-        dp = sign * side(a, b, previous);
-      if (!Number.isFinite(dc) || !Number.isFinite(dp))
-        throw new Error("Mesh clearance clipping must remain finite.");
-      if (dc >= 0 !== dp >= 0) {
-        // Normalize before dividing: dp-dc can overflow for finite opposite
-        // signs, whereas these bounded signed ratios retain the same crossing.
-        const scale = Math.max(Math.abs(dp), Math.abs(dc));
-        const t = dp / scale / (dp / scale - dc / scale);
-        polygon.push(
-          [0, 1].map((axis) => previous[axis] * (1 - t) + current[axis] * t),
-        );
-      }
-      if (dc >= 0) polygon.push(current);
-    }
-  }
-  return polygon;
 }
 
 function side(a: number[], b: number[], p: number[]): number {

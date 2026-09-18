@@ -2,6 +2,9 @@ import { IAutoMovieDesignPoint, IAutoMovieDesignSourceFrame, IAutoMovieVector3 }
 import { Quaternion } from "../math/Quaternion";
 import { designFrameScale } from "./designFrameScale";
 
+/** Direction vectors shorter than this are treated as having no direction. */
+const AXIS_EPSILON = 1e-12;
+
 /**
  * Map one source-space point onto world metres through its frame.
  *
@@ -54,4 +57,13 @@ export const designReferenceWorldPoint = (
     y: rotated.y + transform.translation.y,
     z: rotated.z + transform.translation.z,
   };
+};
+
+const lengthOf = (value: IAutoMovieVector3): number =>
+  Math.hypot(value.x, value.y, value.z);
+
+const unit = (value: IAutoMovieVector3): IAutoMovieVector3 => {
+  const length = lengthOf(value);
+  if (length <= AXIS_EPSILON) return value;
+  return { x: value.x / length, y: value.y / length, z: value.z / length };
 };

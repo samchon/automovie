@@ -6,6 +6,18 @@ import { softBodyRestConfiguration } from "./softBodyRestConfiguration";
 import { validateSoftBodyDomain } from "./validateSoftBodyDomain";
 import { validateAutoMovieSoftFurnishingDomainOwnership } from "./validateAutoMovieSoftFurnishingDomainOwnership";
 
+const FURNISHING_KINDS = new Set([
+  "curtain",
+  "blind",
+  "rug",
+  "cushion",
+  "bed-linen",
+  "membrane",
+  "other",
+]);
+
+const FURNISHING_MODES = new Set(["rest", "simulated"]);
+
 /**
  * Validate the bindings that make independent soft-body domains a building's
  * furnishings.
@@ -198,19 +210,3 @@ export const validateSoftFurnishings = (props: {
 
   return out.toValidation();
 };
-
-/** Code-unit order without locale-dependent collation. */
-const compareCodeUnits = (left: string, right: string): number =>
-  left < right ? -1 : left > right ? 1 : 0;
-
-const FURNISHING_KINDS = new Set([
-
-  "curtain",
-  "blind",
-  "rug",
-  "cushion",
-  "bed-linen",
-  "membrane",
-  "other",
-]);
-const FURNISHING_MODES = new Set(["rest", "simulated"]);

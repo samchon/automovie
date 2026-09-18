@@ -1,7 +1,3 @@
-import { IAutoMovieJointPose } from "@automovie/interface";
-import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
-import { toRigAngle } from "../rom/toRigAngle";
-
 /**
  * A field-located malformed joint-axis basis issue.
  *
@@ -33,16 +29,3 @@ export interface IAutoMovieJointAxesIssue {
    */
   value: unknown;
 }
-
-const readAngle = (
-  joint: Pick<IAutoMovieJointPose, "flexion" | "abduction" | "twist">,
-  axis: (typeof JOINT_AXES)[number],
-  frame: IAutoMovieRestFrame[(typeof JOINT_AXES)[number]] | undefined,
-): number => {
-  const value = joint[axis];
-  if (value !== null && !Number.isFinite(value))
-    throw new Error(
-      `jointToQuaternion ${axis} must be finite or null, but was ${value}`,
-    );
-  return toRigAngle(value, frame) ?? 0;
-};

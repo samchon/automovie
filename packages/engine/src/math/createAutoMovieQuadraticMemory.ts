@@ -1,5 +1,13 @@
+import data from "./quadraticKernelBytes.json";
 import { IAutoMovieQuadraticHeap } from "./IAutoMovieQuadraticHeap";
-import { createAutoMovieQuadraticHost } from "./quadraticKernelHost";
+import { createAutoMovieQuadraticHost } from "./createAutoMovieQuadraticHost";
+
+type KernelExports = {
+  memory: WebAssembly.Memory;
+  automovie_alloc(bytes: number): number;
+  automovie_free(address: number): void;
+  automovie_quadratic_solve(...arguments_: number[]): number;
+};
 
 /**
  * Create one independent numerical memory owner. The program adapter retains

@@ -14,7 +14,7 @@ import { decomposeJointRotation } from "./decomposeJointRotation";
 import { clinicalDeviation } from "./clinicalDeviation";
 import { hingedArmArticulation } from "./hingedArmArticulation";
 import { jointRomOvershoot } from "./jointRomOvershoot";
-import { HUMANOID_JOINT_AXES } from "./humanoidJointAxes";
+import { HUMANOID_JOINT_AXES } from "./HUMANOID_JOINT_AXES";
 import { resolvePose } from "./resolvePose";
 
 /** A joint whose three clinical angles are all known numbers. */

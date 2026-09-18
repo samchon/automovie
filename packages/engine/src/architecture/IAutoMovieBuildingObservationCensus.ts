@@ -1,6 +1,3 @@
-import { IAutoMovieVector3 } from "@automovie/interface";
-import { Vector3 } from "../math/Vector3";
-import { AUTOMOVIE_OBSERVATION_EPSILON } from "./AUTOMOVIE_OBSERVATION_EPSILON";
 import { IAutoMovieBuiltEnvelopeCorner } from "./IAutoMovieBuiltEnvelopeCorner";
 import { IAutoMovieBuiltEnvelopeFace } from "./IAutoMovieBuiltEnvelopeFace";
 
@@ -28,16 +25,3 @@ export interface IAutoMovieBuildingObservationCensus {
   /** Connectors landing in one of those spaces, in code-unit order. */
   connectors: string[];
 }
-
-/** Read a plane as a unit normal and its matching offset, or null if degenerate. */
-const unitPlane = (plane: {
-  normal: IAutoMovieVector3;
-  offset: number;
-}): { normal: IAutoMovieVector3; offset: number } | null => {
-  const length = Vector3.length(plane.normal);
-  if (length <= AUTOMOVIE_OBSERVATION_EPSILON) return null;
-  return {
-    normal: Vector3.scale(plane.normal, 1 / length),
-    offset: plane.offset / length,
-  };
-};

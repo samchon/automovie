@@ -33,3 +33,42 @@ export const productionSoundWaveform = (
   }
   return { width, height, rgba };
 };
+
+const assertRasterSize = (width: number, height: number): void => {
+  if (
+    Number.isSafeInteger(width) === false ||
+    Number.isSafeInteger(height) === false ||
+    width <= 0 ||
+    height <= 0
+  )
+    throw new Error(
+      "Sound evidence raster dimensions must be positive integers.",
+    );
+};
+
+const rasterBackground = (width: number, height: number): Uint8Array => {
+  const rgba = new Uint8Array(width * height * 4);
+  for (let index = 0; index < rgba.length; index += 4) {
+    rgba[index] = 8;
+    rgba[index + 1] = 15;
+    rgba[index + 2] = 28;
+    rgba[index + 3] = 255;
+  }
+  return rgba;
+};
+
+const setPixel = (
+  rgba: Uint8Array,
+  width: number,
+  x: number,
+  y: number,
+  red: number,
+  green: number,
+  blue: number,
+): void => {
+  const index = (y * width + x) * 4;
+  rgba[index] = red;
+  rgba[index + 1] = green;
+  rgba[index + 2] = blue;
+  rgba[index + 3] = 255;
+};

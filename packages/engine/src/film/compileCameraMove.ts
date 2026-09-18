@@ -7,6 +7,33 @@ import { FRAMING_HEIGHT_FRACTION } from "./FRAMING_HEIGHT_FRACTION";
 import { IAutoMovieCameraFrameEntry } from "./IAutoMovieCameraFrameEntry";
 import { lookRotation } from "./lookRotation";
 
+/** World up: the horizon a camera keeps level. */
+const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+
+/** A whip pan snaps to its new aim in this many seconds. */
+const WHIP_SECONDS = 0.2;
+
+/** An orbit sweeps this arc over its span, sampled at this many segments. */
+const ORBIT_DEGREES = 45;
+
+const ORBIT_SEGMENTS = 8;
+
+/** A push-in dollies from this to this multiple of the framed distance. */
+const PUSH_IN_FROM = 1.25;
+
+const PUSH_IN_TO = 0.8;
+
+/** A push-in eases in/out over this many segments (a smooth dolly, not a ramp). */
+const PUSH_IN_SEGMENTS = 8;
+
+/** A truck crosses one solved framing distance along the camera's screen-left. */
+const TRUCK_DISTANCE = 1;
+
+const TRUCK_SEGMENTS = 8;
+
+/** Follow moves sample the subject's animated base at this rate (Hz). */
+const FOLLOW_HZ = 4;
+
 /**
  * Compile a shot's `frame` actions into the live camera's motion clip, the
  * deterministic shot grammar: **framing** picks the distance (the fraction of

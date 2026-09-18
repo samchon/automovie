@@ -1,5 +1,4 @@
 import { IAutoMovieConstraintViolation } from "@automovie/interface";
-import { violation } from "./violation";
 import { pushViolation } from "./pushViolation";
 
 /**

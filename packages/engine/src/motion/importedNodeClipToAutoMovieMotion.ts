@@ -1,6 +1,6 @@
 import type { AutoMovieHumanoidBone, AutoMovieInterpolation, IAutoMovieMotion, IAutoMovieQuaternion, IAutoMovieSkeleton } from "@automovie/interface";
 import { decomposeJointRotation } from "../kinematics/decomposeJointRotation";
-import { HUMANOID_JOINT_AXES } from "../kinematics/humanoidJointAxes";
+import { HUMANOID_JOINT_AXES } from "../kinematics/HUMANOID_JOINT_AXES";
 import { Quaternion } from "../math/Quaternion";
 import { channelKey } from "../resolve/channelKey";
 import { sampleClip } from "../resolve/sampleClip";
@@ -220,46 +220,6 @@ export const importedNodeClipToAutoMovieMotion = (
     }),
     gaitCycle: null,
   };
-};
-
-const rootTransform = (
-  value: readonly number[],
-  rest: { x: number; y: number; z: number },
-) => ({
-  translation: {
-    x: value[0]! - rest.x,
-    y: value[1]! - rest.y,
-    z: value[2]! - rest.z,
-  },
-  rotation: { x: 0, y: 0, z: 0, w: 1 },
-  scale: { x: 1, y: 1, z: 1 },
-});
-
-const finiteUnitQuaternion = (
-  value: readonly number[],
-  node: string,
-  time: number,
-): IAutoMovieQuaternion => {
-  if (value.some((component) => !Number.isFinite(component)))
-    throw new Error(
-      `imported motion node "${node}" quaternion at ${time} must contain only finite components`,
-    );
-  const quaternion = {
-    x: value[0]!,
-    y: value[1]!,
-    z: value[2]!,
-    w: value[3]!,
-  };
-  const squaredLength =
-    quaternion.x * quaternion.x +
-    quaternion.y * quaternion.y +
-    quaternion.z * quaternion.z +
-    quaternion.w * quaternion.w;
-  if (Math.abs(squaredLength - 1) > 1e-6)
-    throw new Error(
-      `imported motion node "${node}" quaternion at ${time} must be unit length`,
-    );
-  return quaternion;
 };
 
 const rootTransform = (

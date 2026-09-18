@@ -1,5 +1,7 @@
-import { IAutoMovieBuiltBoundary, IAutoMovieFluidDomain, IAutoMovieFluidDrain, IAutoMovieFluidSource, IAutoMovieServiceNetwork, IAutoMovieServiceNode, IAutoMovieServiceSystem } from "@automovie/interface";
-import { ViolationCollector } from "../validation/ViolationCollector";
+import { IAutoMovieFluidDomain, IAutoMovieFluidDrain, IAutoMovieFluidSource, IAutoMovieServiceNetwork, IAutoMovieServiceNode, IAutoMovieServiceSystem } from "@automovie/interface";
+
+/** Media a floor drain is allowed to discharge into. */
+const WASTE_MEDIUM = "waste-water";
 
 /**
  * Compose a wet zone's plumbing into an independent fluid domain.
@@ -115,94 +117,6 @@ const wastePortsOf = (
       system.medium === WASTE_MEDIUM
     );
   });
-
-/** Resolve the lattice cell a node stands over, refusing one that stands off it. */
-const cellOf = (
-  domain: IAutoMovieFluidDomain,
-  node: IAutoMovieServiceNode,
-  zone: string,
-): { column: number; row: number } => {
-  const column = Math.floor(
-    (node.position.x - domain.grid.origin.x) / domain.grid.cellX,
-  );
-  const row = Math.floor(
-    (node.position.z - domain.grid.origin.z) / domain.grid.cellZ,
-  );
-  if (
-    !(
-      Number.isFinite(column) &&
-      Number.isFinite(row) &&
-      column >= 0 &&
-      row >= 0 &&
-      column < domain.grid.columns &&
-      row < domain.grid.rows
-    )
-  )
-    throw new Error(
-      `wet zone "${zone}" node "${node.id}" stands off the lattice of fluid domain "${domain.id}"`,
-    );
-  return { column, row };
-};
-
-/** Name a derived inflow or outflow, refusing to shadow an authored one. */
-const derivedId = (
-  zone: string,
-  port: string,
-  domain: IAutoMovieFluidDomain,
-  kind: "source" | "drain",
-): string => {
-  const id = `${zone}/${port}`;
-  const taken =
-    kind === "source"
-      ? domain.sources.some((entry) => entry.id === id)
-      : domain.drains.some((entry) => entry.id === id);
-  if (taken)
-    throw new Error(
-      `fluid domain "${domain.id}" already declares a ${kind} named "${id}"`,
-    );
-  return id;
-};
-
-/** Resolve cited boundary ids, reporting unknown, duplicated and foreign ones. */
-const citedBoundaries = (props: {
-  cited: readonly string[];
-  zoneSpace: string;
-  boundaries: ReadonlyMap<string, IAutoMovieBuiltBoundary>;
-  path: string;
-  label: string;
-  out: ViolationCollector;
-}): Set<string> => {
-  const resolved = new Set<string>();
-  props.cited.forEach((id, at) => {
-    const where = `${props.path}[${at}]`;
-    const boundary = props.boundaries.get(id);
-    if (boundary === undefined) {
-      props.out.push(
-        "type",
-        where,
-        `${props.label} "${id}" does not resolve`,
-        id,
-      );
-      return;
-    }
-    if (resolved.has(id))
-      props.out.push(
-        "type",
-        where,
-        `${props.label} "${id}" is declared twice`,
-        id,
-      );
-    resolved.add(id);
-    if (!boundary.spaces.includes(props.zoneSpace))
-      props.out.push(
-        "type",
-        where,
-        `${props.label} "${id}" does not bound zone space "${props.zoneSpace}"`,
-        boundary.spaces,
-      );
-  });
-  return resolved;
-};
 
 /** Resolve the lattice cell a node stands over, refusing one that stands off it. */
 const cellOf = (

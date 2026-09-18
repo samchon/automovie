@@ -1,4 +1,28 @@
-import { AutoMovieHumanoidBone, IAutoMovieJointConstraint } from "@automovie/interface";
+import { AutoMovieHumanoidBone, IAutoMovieAngleRange, IAutoMovieJointConstraint } from "@automovie/interface";
+
+const range = (min: number, max: number): IAutoMovieAngleRange => ({
+  min,
+  max,
+});
+
+const constraint = (
+  flexion: IAutoMovieAngleRange | null,
+  abduction: IAutoMovieAngleRange | null,
+  twist: IAutoMovieAngleRange | null,
+): IAutoMovieJointConstraint => ({ flexion, abduction, twist });
+
+const ballConstraint = (
+  flexion: IAutoMovieAngleRange | null,
+  abduction: IAutoMovieAngleRange | null,
+  twist: IAutoMovieAngleRange | null,
+  swingDeg: number,
+): IAutoMovieJointConstraint => ({ flexion, abduction, twist, swingDeg });
+
+/**
+ * Generic finger phalanx: flexes forward, slight hyperextension, no
+ * abduction/twist.
+ */
+const FINGER = constraint(range(-20, 100), null, null);
 
 /**
  * Default anatomical range-of-motion table for the normalized humanoid, keyed
@@ -121,16 +145,3 @@ export const DEFAULT_HUMANOID_ROM: Partial<
   rightLittleIntermediate: FINGER,
   rightLittleDistal: FINGER,
 };
-
-const ballConstraint = (
-  flexion: IAutoMovieAngleRange | null,
-  abduction: IAutoMovieAngleRange | null,
-  twist: IAutoMovieAngleRange | null,
-  swingDeg: number,
-): IAutoMovieJointConstraint => ({ flexion, abduction, twist, swingDeg });
-
-/**
- * Generic finger phalanx: flexes forward, slight hyperextension, no
- * abduction/twist.
- */
-const FINGER = constraint(range(-20, 100), null, null);

@@ -1,12 +1,36 @@
-import { IAutoMovieBuiltEnvironment } from "@automovie/interface";
+import { IAutoMovieBuiltEnvironment, IAutoMoviePlanarPoint } from "@automovie/interface";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { compareAutoMovieRenderIds } from "../render/compareAutoMovieRenderIds";
 import { builtEnvironmentBuildingOfSpace } from "./builtEnvironmentBuildingOfSpace";
 import { builtSpaceContainsPoint } from "./builtSpaceContainsPoint";
 import { AUTOMOVIE_ENVELOPE_FACADE_LIMIT } from "./AUTOMOVIE_ENVELOPE_FACADE_LIMIT";
+import { AUTOMOVIE_OBSERVATION_EPSILON } from "./AUTOMOVIE_OBSERVATION_EPSILON";
 import { AUTOMOVIE_OBSERVATION_PROBE } from "./AUTOMOVIE_OBSERVATION_PROBE";
 import { IAutoMovieBuiltEnvelopeFace } from "./IAutoMovieBuiltEnvelopeFace";
+
+/** Area-weighted centroid of a planar outline, or its vertex mean when flat. */
+const outlineCentroid = (
+  outline: readonly IAutoMoviePlanarPoint[],
+): IAutoMoviePlanarPoint => {
+  let doubleArea = 0;
+  let x = 0;
+  let y = 0;
+  for (let index = 0; index < outline.length; index++) {
+    const from = outline[index]!;
+    const to = outline[(index + 1) % outline.length]!;
+    const cross = from.x * to.y - to.x * from.y;
+    doubleArea += cross;
+    x += (from.x + to.x) * cross;
+    y += (from.y + to.y) * cross;
+  }
+  if (Math.abs(doubleArea) <= AUTOMOVIE_OBSERVATION_EPSILON)
+    return {
+      x: outline.reduce((sum, point) => sum + point.x, 0) / outline.length,
+      y: outline.reduce((sum, point) => sum + point.y, 0) / outline.length,
+    };
+  return { x: x / (3 * doubleArea), y: y / (3 * doubleArea) };
+};
 
 /**
  * Every exposed separation of every building unit, placed in world space.

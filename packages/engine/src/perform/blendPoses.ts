@@ -1,6 +1,15 @@
 import { AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMoviePose, IAutoMovieTransform } from "@automovie/interface";
 import { IAutoMoviePoseLayer } from "./IAutoMoviePoseLayer";
 
+const AXES = ["flexion", "abduction", "twist"] as const;
+
+interface IAxisAccumulator {
+  /** Summed weight of the layers that set each axis (non-null). */
+  weight: [number, number, number];
+  /** Summed weight×value of those layers. */
+  weighted: [number, number, number];
+}
+
 /**
  * Blend several pose layers by **weighted additive composition**: per bone, per
  * axis (flexion / abduction / twist), the result is the weight-normalized sum

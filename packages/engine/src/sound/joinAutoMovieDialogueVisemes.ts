@@ -3,6 +3,15 @@ import { IAutoMovieDialogueMouthRange } from "./IAutoMovieDialogueMouthRange";
 import { IAutoMovieDialogueSpeakerBinding } from "./IAutoMovieDialogueSpeakerBinding";
 import { IAutoMovieDialogueVisemeCompilation } from "./IAutoMovieDialogueVisemeCompilation";
 
+const DIALOGUE_VISEMES = new Set<IAutoMovieProductionViseme["viseme"]>([
+  "aa",
+  "ih",
+  "ou",
+  "ee",
+  "oh",
+  "rest",
+]);
+
 /**
  * Join final-byte visemes to an explicitly bound actor on emission time.
  *
@@ -104,12 +113,3 @@ export const joinAutoMovieDialogueVisemes = (props: {
     timeline: { line: props.line.id, actor: binding.actor, ranges },
   };
 };
-
-const DIALOGUE_VISEMES = new Set<IAutoMovieProductionViseme["viseme"]>([
-  "aa",
-  "ih",
-  "ou",
-  "ee",
-  "oh",
-  "rest",
-]);

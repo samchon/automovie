@@ -1,4 +1,4 @@
-import { IAutoMovieClip, IAutoMovieInteractionEvent, IAutoMovieLaunchAction, IAutoMovieReactAction, IAutoMovieVector3 } from "@automovie/interface";
+import { IAutoMovieClip, IAutoMovieInteractionEvent, IAutoMovieReactAction, IAutoMovieVector3 } from "@automovie/interface";
 
 /**
  * What compiling a `launch` yields: the flight, and the hit it schedules.
@@ -62,6 +62,3 @@ export interface IAutoMovieLaunchResult {
    */
   events: IAutoMovieInteractionEvent[];
 }
-
-const firstActor = (action: IAutoMovieLaunchAction): string | null =>
-  typeof action.actor === "string" ? action.actor : (action.actor[0] ?? null);

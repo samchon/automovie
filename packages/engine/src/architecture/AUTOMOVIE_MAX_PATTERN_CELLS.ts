@@ -7,18 +7,3 @@
  * @evidence specifications/building-envelope/external-assets-patterns-and-instances.md#building-envelope-repeated-building-budget-failures `AUTOMOVIE_MAX_PATTERN_CELLS` provides the deterministic expansion ceiling used by the repeated-building pattern refusal.
  */
 export const AUTOMOVIE_MAX_PATTERN_CELLS = 1_000_000;
-
-/** Domain constant separating variant draws from every other seeded decision. */
-const VARIANT_DOMAIN = 0x7061_7474;
-
-/** Smallest square metre area counted as real coverage. */
-const AREA_EPSILON = 1e-12;
-
-/** Smallest metre length counted as a real gap or overlap. */
-const LENGTH_EPSILON = 1e-9;
-
-/** Smallest surviving-fraction shortfall counted as a real sliver. */
-const COVERAGE_EPSILON = 1e-12;
-
-/** Greatest relative skew a UV transform is still counted as free of. */
-const SHEAR_EPSILON = 1e-9;

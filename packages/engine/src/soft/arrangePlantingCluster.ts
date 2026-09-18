@@ -1,5 +1,13 @@
-import { IAutoMoviePlantingArrangement, IAutoMoviePlantingCluster, IAutoMoviePlantingPlacement } from "@automovie/interface";
+import { IAutoMoviePlantingArrangement, IAutoMoviePlantingCluster, IAutoMoviePlantingPlacement, IAutoMovieQuaternion, IAutoMovieSoftBounds, IAutoMovieVector3 } from "@automovie/interface";
 import { seededValue } from "../math/seededValue";
+
+const SALT_PLACE_X = 0x706c6378;
+
+const SALT_PLACE_Z = 0x706c637a;
+
+const SALT_PLACE_YAW = 0x79617700;
+
+const SALT_PLACE_SCALE = 0x73636c00;
 
 /**
  * Arrange one planting cluster into deterministic full-TRS placements.
@@ -108,10 +116,101 @@ export const arrangePlantingCluster = (
   };
 };
 
-const SALT_PLACE_X = 0x706c6378;
+/**
+ * The uniform-grid key one ground position falls in.
+ *
+ * The neighbourhood walk offsets the two integer indices rather than the two
+ * coordinates: `floor((x + side)/side)` and `floor(x/side) + 1` are the same
+ * rational number and not always the same double, and a neighbourhood that
+ * misses a cell is a spacing rule that silently stops holding.
+ */
+const cell = (side: number, x: number, z: number): [number, number] => [
+  Math.floor(x / side),
+  Math.floor(z / side),
+];
 
-const SALT_PLACE_Z = 0x706c637a;
+/**
+ * Whether an accepted member already stands closer than the minimum spacing.
+ *
+ * The grid side is the spacing itself, so a member within that distance can
+ * only be in the candidate's own cell or one of the eight around it. Walking
+ * those nine answers exactly what walking every member would, at a cost that
+ * does not grow with the size of the bed.
+ */
+const crowded = (
+  occupied: Map<string, { x: number; z: number }[]>,
+  side: number,
+  spacing: number,
+  x: number,
+  z: number,
+): boolean => {
+  const [cx, cz] = cell(side, x, z);
+  for (let dx = -1; dx <= 1; ++dx)
+    for (let dz = -1; dz <= 1; ++dz) {
+      const bucket = occupied.get(`${cx + dx},${cz + dz}`);
+      if (bucket === undefined) continue;
+      for (const other of bucket) {
+        const ox = other.x - x;
+        const oz = other.z - z;
+        if (ox * ox + oz * oz < spacing) return true;
+      }
+    }
+  return false;
+};
 
-const SALT_PLACE_YAW = 0x79617700;
+/**
+ * A seeded turn about `+y`, blended toward identity by `amount`.
+ *
+ * The half-angle `φ` is drawn straight from the rational parameterization of
+ * the circle — `(cos φ, sin φ) = ((1 − t²)/(1 + t²), 2t/(1 + t²))` on the first
+ * quadrant, lifted to the second by the quarter-turn swap — so a full turn is
+ * covered without a single call to a transcendental function and without a
+ * rejection loop whose failure arm no test could ever reach. The distribution
+ * is uniform in the half-tangent rather than in the angle, which is a stated
+ * property of the jitter, not an approximation of a uniform one.
+ *
+ * Blending is a normalized quaternion interpolation toward identity. `amount`
+ * is therefore a fraction of a rotation rather than a scaled angle, which is
+ * what keeps the whole derivation free of trigonometry.
+ */
+const yaw = (sample: number, amount: number): IAutoMovieQuaternion => {
+  const doubled = 2 * sample;
+  const half = Math.floor(doubled);
+  const t = doubled - half;
+  const denominator = 1 + t * t;
+  const cosine = (1 - t * t) / denominator;
+  const sine = (2 * t) / denominator;
+  // `half === 1` lifts the first quadrant into the second by the quarter-turn
+  // rotation `(c, s) -> (-s, c)`, so `φ` sweeps the whole half-turn that a full
+  // turn of the branch corresponds to.
+  const w = half === 0 ? cosine : -sine;
+  const y = half === 0 ? sine : cosine;
+  const blended = {
+    x: 0,
+    y: amount * (w < 0 ? -y : y),
+    z: 0,
+    w: 1 - amount + amount * (w < 0 ? -w : w),
+  };
+  const length = Math.sqrt(blended.y * blended.y + blended.w * blended.w);
+  return { x: 0, y: blended.y / length, z: 0, w: blended.w / length };
+};
 
-const SALT_PLACE_SCALE = 0x73636c00;
+/** One sample mapped into `[min, max]`. */
+const between = (min: number, max: number, sample: number): number =>
+  min + (max - min) * sample;
+
+/** The world box a point list occupies, or `null` for an empty list. */
+const extents = (points: IAutoMovieVector3[]): IAutoMovieSoftBounds | null => {
+  if (points.length === 0) return null;
+  const low = { x: Infinity, y: Infinity, z: Infinity };
+  const high = { x: -Infinity, y: -Infinity, z: -Infinity };
+  for (const point of points) {
+    low.x = Math.min(low.x, point.x);
+    low.y = Math.min(low.y, point.y);
+    low.z = Math.min(low.z, point.z);
+    high.x = Math.max(high.x, point.x);
+    high.y = Math.max(high.y, point.y);
+    high.z = Math.max(high.z, point.z);
+  }
+  return { min: low, max: high };
+};

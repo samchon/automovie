@@ -1,5 +1,3 @@
-import { IAutoMovieMaterialLayer } from "@automovie/interface";
-
 /**
  * One layer placed on the host's own measuring line.
  *

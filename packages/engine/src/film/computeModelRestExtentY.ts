@@ -1,5 +1,4 @@
 import { IAutoMovieModel } from "@automovie/interface";
-import { tessellate } from "../geometry/tessellate";
 import { computeModelRestExtent } from "./computeModelRestExtent";
 
 /**

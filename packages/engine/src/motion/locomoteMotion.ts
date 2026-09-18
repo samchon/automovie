@@ -1,8 +1,14 @@
 import { IAutoMovieMotion, IAutoMovieVector3 } from "@automovie/interface";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { timeScaleMotion } from "./timeScale";
-import { travelMotion } from "./travel";
+import { timeScaleMotion } from "./timeScaleMotion";
+import { travelMotion } from "./travelMotion";
+
+const assertFiniteVector = (label: string, vector: IAutoMovieVector3): void => {
+  if (!Number.isFinite(vector.x)) throw new Error(`${label}.x must be finite`);
+  if (!Number.isFinite(vector.y)) throw new Error(`${label}.y must be finite`);
+  if (!Number.isFinite(vector.z)) throw new Error(`${label}.z must be finite`);
+};
 
 /**
  * Synthesise the **locomote** action: carry a looping gait clip across a

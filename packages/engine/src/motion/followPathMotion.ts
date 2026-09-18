@@ -1,8 +1,38 @@
-import { IAutoMovieKeyframe, IAutoMovieMotion, IAutoMovieVector3 } from "@automovie/interface";
+import { IAutoMovieKeyframe, IAutoMovieMotion, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import { Quaternion } from "../math/Quaternion";
 import { AutoMoviePathGround } from "./AutoMoviePathGround";
 import { IAutoMoviePathFrame } from "./IAutoMoviePathFrame";
 import { IAutoMoviePathLocomotion } from "./IAutoMoviePathLocomotion";
+
+const IDENTITY_ROT: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
+
+const IDENTITY_SCALE: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };
+
+const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+
+const RAD2DEG = 180 / Math.PI;
+
+const DEG2RAD = Math.PI / 180;
+
+const MIN_SEGMENT = 1e-9;
+
+const DEFAULT_TURN_WINDOW = 0.5;
+
+/** One straight XZ stretch of the polyline, arc-length addressed. */
+interface ISegment {
+  /** Start of the stretch on the ground plan. */
+  x: number;
+  z: number;
+  /** Unit XZ direction. */
+  dirX: number;
+  dirZ: number;
+  /** Facing of this stretch, degrees about +Y. */
+  yawDeg: number;
+  /** Stretch length, meters. */
+  length: number;
+  /** Cumulative arc length at the stretch start. */
+  from: number;
+}
 
 /**
  * Bake a looping gait cycle **along a waypoint path**: curved walking with
@@ -156,129 +186,6 @@ export const followPathMotion = (props: {
     cycles,
   };
 };
-
-/** Validate the waypoints and cut them into arc-length-addressed stretches. */
-const buildSegments = (waypoints: readonly IAutoMovieVector3[]): ISegment[] => {
-  if (waypoints.length < 2)
-    throw new Error("path needs at least two waypoints");
-  for (let i = 0; i < waypoints.length; ++i) {
-    if (!Number.isFinite(waypoints[i]!.x))
-      throw new Error(`path waypoint[${i}].x must be finite`);
-    if (!Number.isFinite(waypoints[i]!.z))
-      throw new Error(`path waypoint[${i}].z must be finite`);
-  }
-  const segments: ISegment[] = [];
-  let from = 0;
-  for (let i = 0; i + 1 < waypoints.length; ++i) {
-    const dx = waypoints[i + 1]!.x - waypoints[i]!.x;
-    const dz = waypoints[i + 1]!.z - waypoints[i]!.z;
-    const stretch = Math.hypot(dx, dz);
-    if (stretch <= MIN_SEGMENT)
-      throw new Error(`path waypoints ${i} and ${i + 1} coincide in XZ`);
-    segments.push({
-      x: waypoints[i]!.x,
-      z: waypoints[i]!.z,
-      dirX: dx / stretch,
-      dirZ: dz / stretch,
-      yawDeg: Math.atan2(dx, dz) * RAD2DEG,
-      length: stretch,
-      from,
-    });
-    from += stretch;
-  }
-  return segments;
-};
-
-/**
- * Half-width of the yaw blend at each corner (indexed by the segment the corner
- * starts): capped so adjacent corners' windows never overlap past a stretch
- * midpoint. Index 0 (the path start) has no corner.
- */
-const cornerHalfWindows = (
-  segments: readonly ISegment[],
-  turnWindow: number,
-): number[] => {
-  const halves = [0];
-  for (let i = 1; i < segments.length; ++i)
-    halves.push(
-      Math.min(
-        turnWindow / 2,
-        segments[i - 1]!.length / 2,
-        segments[i]!.length / 2,
-      ),
-    );
-  return halves;
-};
-
-/** The stretch containing arc length `s`; boundaries go to the earlier one. */
-const segmentIndexAt = (segments: readonly ISegment[], s: number): number => {
-  for (let i = 0; i + 1 < segments.length; ++i)
-    if (s <= segments[i]!.from + segments[i]!.length) return i;
-  return segments.length - 1;
-};
-
-/** Facing at arc length `s`, linearly blended inside a corner window. */
-const yawAt = (
-  segments: readonly ISegment[],
-  halfWindows: readonly number[],
-  s: number,
-): number => {
-  const k = segmentIndexAt(segments, s);
-  const seg = segments[k]!;
-  if (k + 1 < segments.length) {
-    const corner = seg.from + seg.length;
-    const half = halfWindows[k + 1]!;
-    if (half > 0 && s >= corner - half)
-      return blendYaw(
-        seg.yawDeg,
-        segments[k + 1]!.yawDeg,
-        (s - (corner - half)) / (2 * half),
-      );
-  }
-  if (k > 0) {
-    const corner = seg.from;
-    const half = halfWindows[k]!;
-    if (half > 0 && s < corner + half)
-      return blendYaw(
-        segments[k - 1]!.yawDeg,
-        seg.yawDeg,
-        (s - (corner - half)) / (2 * half),
-      );
-  }
-  return seg.yawDeg;
-};
-
-/** Blend from `a` toward `b` (degrees) along the shortest angular arc. */
-const blendYaw = (a: number, b: number, t: number): number =>
-  a + (((((b - a) % 360) + 540) % 360) - 180) * t;
-
-/** Ground height at a plan point: scalar plane, callback, or flat 0. */
-const groundHeightAt = (
-  ground: AutoMoviePathGround | undefined,
-  x: number,
-  z: number,
-): number => {
-  if (ground === undefined) return 0;
-  if (typeof ground === "number") return ground;
-  const y = ground(x, z);
-  if (!Number.isFinite(y))
-    throw new Error(`path ground height at (${x}, ${z}) must be finite`);
-  return y;
-};
-
-const IDENTITY_ROT: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
-
-const IDENTITY_SCALE: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };
-
-const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-
-const RAD2DEG = 180 / Math.PI;
-
-const DEG2RAD = Math.PI / 180;
-
-const MIN_SEGMENT = 1e-9;
-
-const DEFAULT_TURN_WINDOW = 0.5;
 
 /** Validate the waypoints and cut them into arc-length-addressed stretches. */
 const buildSegments = (waypoints: readonly IAutoMovieVector3[]): ISegment[] => {

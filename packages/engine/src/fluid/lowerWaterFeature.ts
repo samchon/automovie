@@ -1,7 +1,6 @@
-import { IAutoMovieBuiltEnvironment, IAutoMovieFluidDomain, IAutoMovieWaterFeature } from "@automovie/interface";
-import { builtEnvironmentContainsPoint } from "../architecture/builtEnvironmentContainsPoint";
-import { sampleFluidSpray } from "./fluidSpray";
-import { fluidSurfaceGeometry } from "./fluidSurface";
+import { IAutoMovieFluidDomain, IAutoMovieWaterFeature } from "@automovie/interface";
+import { sampleFluidSpray } from "./sampleFluidSpray";
+import { fluidSurfaceGeometry } from "./fluidSurfaceGeometry";
 import { sampleFluidDomain } from "./sampleFluidDomain";
 import { simulateFluidDomain } from "./simulateFluidDomain";
 import { IAutoMovieWaterFeatureFrame } from "./IAutoMovieWaterFeatureFrame";
@@ -46,43 +45,4 @@ export const lowerWaterFeature = (props: {
       cameraDistance: props.cameraDistance ?? 0,
     }),
   };
-};
-
-/**
- * The first bed point of the lattice standing outside the basin, or `null`.
- *
- * The points measured are cell centres, because that is where the water is: the
- * free surface carries one vertex per cell at its centre, so the drawn water
- * never reaches past the outermost centres and a rim half a cell wide is not
- * flooded by arithmetic nobody authored.
- *
- * `exhaustive` walks every cell; otherwise only the corner cells are measured,
- * which decides a rectangle against a single convex region exactly. The caller
- * pays the full walk exactly when the basin is not convex, and only for a
- * domain whose own cell budget has already been enforced.
- */
-const strayCell = (props: {
-  environment: IAutoMovieBuiltEnvironment;
-  space: string;
-  domain: IAutoMovieFluidDomain;
-  exhaustive: boolean;
-}): { x: number; y: number; z: number } | null => {
-  const { domain } = props;
-  const span = (length: number): number[] =>
-    props.exhaustive ? Array.from({ length }, (_, at) => at) : [0, length - 1];
-  for (const row of span(domain.grid.rows))
-    for (const column of span(domain.grid.columns)) {
-      const point = {
-        x: domain.grid.origin.x + (column + 0.5) * domain.grid.cellX,
-        y:
-          domain.grid.origin.y + domain.bed[row * domain.grid.columns + column],
-        z: domain.grid.origin.z + (row + 0.5) * domain.grid.cellZ,
-      };
-      if (
-        builtEnvironmentContainsPoint(props.environment, props.space, point) ===
-        false
-      )
-        return point;
-    }
-  return null;
 };

@@ -5,6 +5,3 @@
  * @evidence specifications/interior-space/lighting-acoustics-and-environment.md#interior-space-lighting-optical-state The fixed `isotropic` identifier gates unsupported sky requests before any illuminance samples are emitted.
  */
 export const AUTOMOVIE_DAYLIGHT_SKY_MODEL = "isotropic";
-
-/** Directions and lengths shorter than this are degenerate. */
-const EPSILON = 1e-12;

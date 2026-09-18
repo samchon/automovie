@@ -1,7 +1,7 @@
 import { IAutoMovieProfilePoint } from "./IAutoMovieProfilePoint";
 import { IAutoMovieRegionRing } from "./IAutoMovieRegionRing";
 import { IAutoMovieRegionTriangulation } from "./IAutoMovieRegionTriangulation";
-import { autoMoviePlanarRegionFailure } from "./planarRegion";
+import { autoMoviePlanarRegionFailure } from "./autoMoviePlanarRegionFailure";
 import { signedArea } from "./signedArea";
 
 /**
@@ -50,4 +50,25 @@ export const canonicalRegion = (
     rings,
     area: loops.reduce((total, loop) => total + signedArea(loop.points), 0),
   };
+};
+
+/**
+ * Wind an already copied ring and its original local indices together. The
+ * canonical owner offsets those indices by preceding input ring populations.
+ *
+ * Reversal maps corner `k` to corner `size - 1 - k`, which is a relabelling a
+ * triangulation does not care about and a loft does: the loft refuses sections
+ * whose rings disagree in winding, so every section is reversed or none is, and
+ * corner `k` of one section still answers to corner `k` of the next.
+ */
+const orientedRing = (
+  points: IAutoMovieProfilePoint[],
+  counterClockwise: boolean,
+) => {
+  const sourceIndices = points.map((_point, index) => index);
+  if (signedArea(points) > 0 !== counterClockwise) {
+    points.reverse();
+    sourceIndices.reverse();
+  }
+  return { points, sourceIndices };
 };

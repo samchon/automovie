@@ -1,5 +1,8 @@
-import { IAutoMovieDesignLineage, IAutoMovieValidation } from "@automovie/interface";
+import { IAutoMovieDesignLineage, IAutoMovieDesignStamp, IAutoMovieValidation } from "@automovie/interface";
 import { ViolationCollector } from "../validation/ViolationCollector";
+
+/** A plain SHA-256 content digest as this project writes it. */
+const DIGEST_PATTERN = /^sha256:[0-9a-f]{64}$/;
 
 /**
  * Validate one lineage record as a self-consistent phase, alternative, and
@@ -507,5 +510,128 @@ export const validateDesignLineage = (props: {
   return out.toValidation();
 };
 
-/** A plain SHA-256 content digest as this project writes it. */
-const DIGEST_PATTERN = /^sha256:[0-9a-f]{64}$/;
+/** Every phase that must complete strictly before the given one. */
+const phasesBefore = (
+  lineage: IAutoMovieDesignLineage,
+  phase: string,
+): Set<string> => {
+  const byId = new Map(
+    lineage.phases.map((entry) => [entry.id, entry] as const),
+  );
+  const before = new Set<string>();
+  const queue = [...byId.get(phase)!.requires];
+  while (queue.length > 0) {
+    const current = queue.shift()!;
+    if (before.has(current)) continue;
+    before.add(current);
+    // A prerequisite naming no phase is reported on its own path; walking it
+    // further would only repeat that one defect as an ordering complaint.
+    const next = byId.get(current);
+    if (next !== undefined) queue.push(...next.requires);
+  }
+  return before;
+};
+
+const sameStamp = (
+  a: IAutoMovieDesignStamp,
+  b: IAutoMovieDesignStamp,
+): boolean =>
+  a.revision === b.revision &&
+  a.variant === b.variant &&
+  a.phase === b.phase &&
+  a.configuration === b.configuration;
+
+/** Length-prefix every field so no authored text can forge a separator. */
+const record = (...fields: readonly string[]): string =>
+  fields.map((field) => `${field.length}:${field}`).join("|");
+
+const collectIds = <T extends { id: string }>(
+  records: readonly T[],
+  path: string,
+  label: string,
+  collector: ViolationCollector,
+): Set<string> => {
+  const ids = new Set<string>();
+  records.forEach((entry, index) => {
+    nonEmpty(entry.id, `${path}[${index}].id`, `${label} id`, collector);
+    if (ids.has(entry.id))
+      collector.push(
+        "type",
+        `${path}[${index}].id`,
+        `${label} id "${entry.id}" must be unique`,
+        entry.id,
+      );
+    ids.add(entry.id);
+  });
+  return ids;
+};
+
+const validateReferences = (
+  references: readonly string[],
+  targets: ReadonlySet<string>,
+  path: string,
+  label: string,
+  collector: ViolationCollector,
+): void => {
+  const seen = new Set<string>();
+  references.forEach((reference, index) => {
+    if (!targets.has(reference))
+      collector.push(
+        "type",
+        `${path}[${index}]`,
+        `${label} "${reference}" does not resolve`,
+        reference,
+      );
+    if (seen.has(reference))
+      collector.push(
+        "type",
+        `${path}[${index}]`,
+        `${label} "${reference}" is duplicated`,
+        reference,
+      );
+    seen.add(reference);
+  });
+};
+
+const appendCycles = (
+  nodes: readonly { id: string; links: readonly string[]; path: string }[],
+  label: string,
+  collector: ViolationCollector,
+): void => {
+  const byId = new Map(nodes.map((node) => [node.id, node] as const));
+  const states = new Map<string, "visiting" | "visited">();
+  const visit = (node: {
+    id: string;
+    links: readonly string[];
+    path: string;
+  }): void => {
+    const state = states.get(node.id);
+    if (state === "visited") return;
+    if (state === "visiting") {
+      collector.push(
+        "type",
+        node.path,
+        `${label} graph must be acyclic`,
+        node.links,
+      );
+      return;
+    }
+    states.set(node.id, "visiting");
+    for (const link of node.links) {
+      const next = byId.get(link);
+      if (next !== undefined) visit(next);
+    }
+    states.set(node.id, "visited");
+  };
+  nodes.forEach(visit);
+};
+
+const nonEmpty = (
+  value: string,
+  path: string,
+  label: string,
+  collector: ViolationCollector,
+): void => {
+  if (value.trim().length === 0)
+    collector.push("type", path, `${label} must be non-empty`, value);
+};

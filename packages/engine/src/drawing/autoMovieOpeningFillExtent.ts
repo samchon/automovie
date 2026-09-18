@@ -1,4 +1,5 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
+import { autoMovieDrawingRange } from "./autoMovieDrawingRange";
 import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
 
 /**
@@ -23,4 +24,9 @@ export const autoMovieOpeningFillExtent = (
     width: roundAutoMovieDrawingScalar(Math.max(spanX, spanZ)),
     height: roundAutoMovieDrawingScalar(spanY),
   };
+};
+
+const span = (values: readonly number[]): number => {
+  const range = autoMovieDrawingRange(values);
+  return range.max - range.min;
 };

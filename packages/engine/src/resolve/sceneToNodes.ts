@@ -155,21 +155,3 @@ const lowerArticulationNodes = (
     id: `${prefix}${node.id}`,
     parent: node.parent === null ? rootParent : `${prefix}${node.parent}`,
   }));
-
-/**
- * Lower a prop's articulation joints under its placement: ids and parent refs
- * take the placement prefix, a `null` parent seats directly under the placement
- * group (props declare their own root joint: no synthetic root is added, unlike
- * the skeleton lowering), and every other node field (kind, transform, payload
- * refs) carries verbatim (`forgeProp` already gated well-formedness).
- */
-const lowerArticulationNodes = (
-  articulation: IAutoMoviePropArticulation,
-  prefix: string,
-  rootParent: string,
-): IAutoMovieNode[] =>
-  articulation.nodes.map((node) => ({
-    ...node,
-    id: `${prefix}${node.id}`,
-    parent: node.parent === null ? rootParent : `${prefix}${node.parent}`,
-  }));

@@ -1,4 +1,4 @@
-import type { IAutoMovieSoftBodyDomain } from "@automovie/interface";
+import type { IAutoMovieSoftBodyDomain, IAutoMovieVector3 } from "@automovie/interface";
 
 /**
  * The configuration a panel is in before a single step is integrated: the
@@ -29,3 +29,47 @@ export const softBodyRestConfiguration = (
   domain: IAutoMovieSoftBodyDomain,
   state: string | null = null,
 ): number[] => Array.from(restConfiguration(domain, state));
+
+/**
+ * {@link softBodyRestConfiguration} as the solver's own working buffer.
+ *
+ * The exported form hands back a plain array, which is what a validator and a
+ * consumer want; the solve integrates in place and would otherwise copy the
+ * whole panel twice per seek for nothing.
+ */
+const restConfiguration = (
+  domain: IAutoMovieSoftBodyDomain,
+  state: string | null,
+): Float64Array => {
+  const position = Float64Array.from(domain.rest);
+  const poses = resolveState(domain, state);
+  for (const anchor of domain.anchors) {
+    const moved = poses.get(anchor.id);
+    const target = moved ??
+      anchor.position ?? {
+        x: domain.rest[anchor.particle * 3],
+        y: domain.rest[anchor.particle * 3 + 1],
+        z: domain.rest[anchor.particle * 3 + 2],
+      };
+    position[anchor.particle * 3] = target.x;
+    position[anchor.particle * 3 + 1] = target.y;
+    position[anchor.particle * 3 + 2] = target.z;
+  }
+  return position;
+};
+
+/** The anchor poses one named state applies, or an empty map for the default. */
+const resolveState = (
+  domain: IAutoMovieSoftBodyDomain,
+  state: string | null,
+): Map<string, IAutoMovieVector3> => {
+  const poses = new Map<string, IAutoMovieVector3>();
+  if (state === null) return poses;
+  const named = domain.states.find((candidate) => candidate.id === state);
+  if (named === undefined)
+    throw new Error(
+      `soft body "${domain.id}" does not declare a named state "${state}"`,
+    );
+  for (const pose of named.anchors) poses.set(pose.anchor, pose.position);
+  return poses;
+};

@@ -1,4 +1,11 @@
-import type { IAutoMovieAnalysisRun, IAutoMovieProductionAcousticResponse } from "@automovie/interface";
+import type { IAutoMovieProductionAcousticResponse } from "@automovie/interface";
+
+/** Fixed internal diffuse-response tier: 20 ms taps, at most 32 and 2 s. */
+const TAP_INTERVAL_SECONDS = 0.02;
+
+const MAX_TAPS = 32;
+
+const MAX_TAIL_SECONDS = 2;
 
 /**
  * Apply the shared bounded room-path result to finite, non-empty interleaved
@@ -84,28 +91,3 @@ export const applyAutoMovieInteriorAcousticResponse = (props: {
   }
   return output;
 };
-
-const metricValue = (
-  metrics: Extract<
-    IAutoMovieAnalysisRun["outcome"],
-    { status: "solved" }
-  >["metrics"],
-  key: string,
-): number | null => metrics.find((metric) => metric.key === key)!.value ?? null;
-
-const metricGap = (
-  metrics: Extract<
-    IAutoMovieAnalysisRun["outcome"],
-    { status: "solved" }
-  >["metrics"],
-  key: string,
-): string => metrics.find((candidate) => candidate.key === key)!.gap!.reason;
-
-const DIGEST_PATTERN = /^sha256:[0-9a-f]{64}$/u;
-
-/** Fixed internal diffuse-response tier: 20 ms taps, at most 32 and 2 s. */
-const TAP_INTERVAL_SECONDS = 0.02;
-
-const MAX_TAPS = 32;
-
-const MAX_TAIL_SECONDS = 2;

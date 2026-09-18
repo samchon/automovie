@@ -18,3 +18,11 @@ export const pointInHull = (
       return false;
   return true;
 };
+
+const EPSILON = 1e-9;
+
+const cross = (
+  o: IAutoMovieVector3,
+  a: IAutoMovieVector3,
+  b: IAutoMovieVector3,
+): number => (a.x - o.x) * (b.z - o.z) - (a.z - o.z) * (b.x - o.x);

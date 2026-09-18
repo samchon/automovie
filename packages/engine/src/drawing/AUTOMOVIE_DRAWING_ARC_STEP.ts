@@ -10,6 +10,3 @@
  * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Sets the deterministic `PI / 16` subdivision used to convert profile arcs into canonical outline segments.
  */
 export const AUTOMOVIE_DRAWING_ARC_STEP = Math.PI / 16;
-
-/** Below this the bulge is a straight edge, not an arc anybody can see. */
-const BULGE_EPSILON = 1e-12;

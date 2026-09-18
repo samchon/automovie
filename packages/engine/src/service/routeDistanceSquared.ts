@@ -1,4 +1,4 @@
-import { IAutoMovieServiceNetwork, IAutoMovieServiceSegment, IAutoMovieServiceSystem } from "@automovie/interface";
+import { IAutoMovieServiceSegment } from "@automovie/interface";
 
 /**
  * Squared distance from a point to a run's centre line, in square metres.
@@ -41,20 +41,4 @@ export const routeDistanceSquared = (
     best = Math.min(best, ex * ex + ey * ey + ez * ez);
   }
   return best;
-};
-
-const requireSystem = (
-  network: IAutoMovieServiceNetwork,
-  id: string,
-): IAutoMovieServiceSystem => {
-  const system = network.systems.find((candidate) => candidate.id === id);
-  if (system === undefined)
-    throw new Error(`service network "${network.id}" has no system "${id}"`);
-  return system;
-};
-
-const push = (map: Map<string, string[]>, key: string, value: string): void => {
-  const bucket = map.get(key);
-  if (bucket === undefined) map.set(key, [value]);
-  else bucket.push(value);
 };

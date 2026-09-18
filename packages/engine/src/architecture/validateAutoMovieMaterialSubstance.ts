@@ -88,3 +88,45 @@ export const validateAutoMovieMaterialSubstance = (props: {
   );
   return collector.toValidation();
 };
+
+const nonEmpty = (
+  value: string,
+  path: string,
+  label: string,
+  collector: ViolationCollector,
+): void => {
+  if (value.trim().length === 0)
+    collector.push("type", path, `${label} must be non-empty`, value);
+};
+
+const above = (
+  value: number | null,
+  limit: number,
+  path: string,
+  label: string,
+  collector: ViolationCollector,
+): void => {
+  if (value !== null && (!Number.isFinite(value) || value <= limit))
+    collector.push(
+      "range",
+      path,
+      `${label} must be a finite number > ${limit}, but was ${value}`,
+      value,
+    );
+};
+
+const atLeast = (
+  value: number | null,
+  limit: number,
+  path: string,
+  label: string,
+  collector: ViolationCollector,
+): void => {
+  if (value !== null && (!Number.isFinite(value) || value < limit))
+    collector.push(
+      "range",
+      path,
+      `${label} must be a finite number >= ${limit}, but was ${value}`,
+      value,
+    );
+};

@@ -85,30 +85,3 @@ const applyLightTransformOverride = (
         rotation: override.rotation ?? transform.rotation,
         scale: transform.scale,
       };
-
-/**
- * The light's placement at this instant: the staged transform with whichever of
- * its translation and rotation a track wrote.
- *
- * `scale` is deliberately not animatable and is carried through untouched. A
- * punctual light has no extent for a scale to mean anything about — `three.js`
- * reads none of it, and glTF's `KHR_lights_punctual` defines none — so an
- * animatable scale axis would be a channel that validates, applies, and changes
- * no frame, which is the false green #1339 named.
- *
- * A transform no track touched is returned BY IDENTITY, the same guarantee
- * `resolveShotLighting` gives for a whole light: a shot that dims a lamp
- * without moving it leaves the very transform object the scene staged, so
- * nothing downstream can mistake a re-boxed copy for a move.
- */
-const applyLightTransformOverride = (
-  transform: IAutoMovieTransform,
-  override: IAutoMovieLightOverride,
-): IAutoMovieTransform =>
-  override.position === undefined && override.rotation === undefined
-    ? transform
-    : {
-        translation: override.position ?? transform.translation,
-        rotation: override.rotation ?? transform.rotation,
-        scale: transform.scale,
-      };

@@ -1,6 +1,9 @@
 import { IAutoMovieHalfSpacePlane, IAutoMovieVector3 } from "@automovie/interface";
 import { Vector3 } from "../math/Vector3";
 
+/** A ray whose slope against a plane is under this is parallel to it. */
+const PLANE_EPSILON = 1e-12;
+
 /**
  * Whether a ray from `origin` along a unit `direction` is stopped by one convex
  * solid before `maxDistance`.
@@ -44,6 +47,3 @@ export const autoMovieSolidBlocks = (props: {
   }
   return exit > 0;
 };
-
-/** A ray whose slope against a plane is under this is parallel to it. */
-const PLANE_EPSILON = 1e-12;

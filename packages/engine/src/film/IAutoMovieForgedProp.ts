@@ -1,8 +1,18 @@
 import { IAutoMovieConstraintViolation, IAutoMoviePropSpec } from "@automovie/interface";
 
+/**
+ * A forged prop: the spec gated on both contracts, ready for staging to place
+ * and, when articulated, for `resolveFrame` to constrain and drive through
+ * `bindProfile`.
+ *
+ * @evidence requirements/asset-authoring/validation.md#asset-purpose-validation Exposes a prop to staging only after its model geometry and articulation profile have both been checked against the declared use.
+ * @evidence specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-purpose-inputs IAutoMovieForgedProp realizes purpose-driven prop validation: A forged prop: the spec gated on both contracts, ready for staging to place and, when articulated, for `resolveFrame` to constrain and drive through `bindProfile`.
+ * @author Samchon
+ */
 export type IAutoMovieForgedProp =
   | IAutoMovieForgedProp.ISuccess
   | IAutoMovieForgedProp.IFailure;
+
 export namespace IAutoMovieForgedProp {
   /**
    * The prop passed the model and articulation contracts.

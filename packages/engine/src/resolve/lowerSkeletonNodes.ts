@@ -1,6 +1,12 @@
 import { IAutoMovieNode, IAutoMovieSkeleton } from "@automovie/interface";
 import { MOTION_ROOT_NODE_ID } from "./MOTION_ROOT_NODE_ID";
 
+const IDENTITY = {
+  translation: { x: 0, y: 0, z: 0 },
+  rotation: { x: 0, y: 0, z: 0, w: 1 },
+  scale: { x: 1, y: 1, z: 1 },
+};
+
 /**
  * Lower a skeleton to the node hierarchy {@link composeScene} walks: a `group`
  * root carrying the motion's root transform, then one `bone` node per bone with

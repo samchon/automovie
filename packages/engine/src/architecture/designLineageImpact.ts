@@ -1,5 +1,6 @@
 import { IAutoMovieDesignImpact, IAutoMovieDesignLineage } from "@automovie/interface";
 import { compareCodeUnits } from "../text/compareCodeUnits";
+import { validateDesignLineage } from "./validateDesignLineage";
 
 /**
  * Name exactly the derived artifacts a set of changed identities invalidates.
@@ -65,4 +66,14 @@ export const designLineageImpact = (
       .filter((id) => !invalidated.has(id))
       .sort(compareCodeUnits),
   };
+};
+
+const requireValidLineage = (lineage: IAutoMovieDesignLineage): void => {
+  const validated = validateDesignLineage({ lineage });
+  if (validated.success === false) {
+    const first = validated.violations[0]!;
+    throw new Error(
+      `design lineage "${lineage.id}" is invalid at ${first.path}: ${first.expected}`,
+    );
+  }
 };

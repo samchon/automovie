@@ -1,6 +1,9 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
 import { Vector3 } from "../math/Vector3";
 
+/** Directions shorter than this carry no direction at all. */
+const AXIS_EPSILON = 1e-12;
+
 /**
  * Deterministic cosine-weighted directions over the hemisphere around `normal`.
  *
@@ -60,19 +63,6 @@ export const autoMovieHemisphereDirections = (props: {
     });
   }
   return out;
-};
-
-/** Van der Corput radical inverse in base two. */
-const radicalInverse2 = (index: number): number => {
-  let bits = index >>> 0;
-  let result = 0;
-  let fraction = 0.5;
-  while (bits > 0) {
-    result += (bits & 1) * fraction;
-    bits >>>= 1;
-    fraction *= 0.5;
-  }
-  return result;
 };
 
 /** Van der Corput radical inverse in base two. */

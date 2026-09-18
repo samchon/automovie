@@ -125,32 +125,3 @@ const spaceOwner = (
   environment === undefined || space === undefined
     ? null
     : `space:${environment}/${space}`;
-
-/**
- * Index one binding list by the drawable it places, keeping the smallest id.
- *
- * Two bindings naming one drawable is an authoring contradiction the builder
- * refuses, but the subject still has to be a function of the design rather than
- * of array order, or two runs of the same shot would attribute one pond to two
- * rooms and derive two different palettes for one frame.
- */
-const bindingOf = <Entry extends { id: string }>(
-  entries: readonly Entry[],
-  drawable: (entry: Entry) => string,
-): Map<string, Entry> => {
-  const index = new Map<string, Entry>();
-  for (const entry of [...entries].sort((left, right) =>
-    compareAutoMovieRenderIds(left.id, right.id),
-  ))
-    if (!index.has(drawable(entry))) index.set(drawable(entry), entry);
-  return index;
-};
-
-/** The semantic id of the building space a binding hangs its drawable in. */
-const spaceOwner = (
-  environment: string | undefined,
-  space: string | undefined,
-): string | null =>
-  environment === undefined || space === undefined
-    ? null
-    : `space:${environment}/${space}`;

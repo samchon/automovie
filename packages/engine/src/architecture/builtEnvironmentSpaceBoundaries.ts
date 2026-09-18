@@ -1,4 +1,4 @@
-import { IAutoMovieBuiltBoundary, IAutoMovieBuiltEnvironment, IAutoMovieBuiltPopulation } from "@automovie/interface";
+import { IAutoMovieBuiltBoundary, IAutoMovieBuiltEnvironment } from "@automovie/interface";
 
 /**
  * Return every boundary that encloses or separates a logical space.
@@ -42,4 +42,14 @@ export const builtEnvironmentSpaceBoundaries = (
   return environment.boundaries.filter((boundary) =>
     boundary.spaces.includes(spaceId),
   );
+};
+
+const requireSpace = (
+  environment: IAutoMovieBuiltEnvironment,
+  spaceId: string,
+): void => {
+  if (!environment.spaces.some((space) => space.id === spaceId))
+    throw new Error(
+      `built environment "${environment.id}" has no logical space "${spaceId}"`,
+    );
 };

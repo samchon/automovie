@@ -1,8 +1,18 @@
-import { IAutoMovieAnalysisMetric, IAutoMovieAnalysisRun, IAutoMovieValidation } from "@automovie/interface";
+import { IAutoMovieAnalysisMetric, IAutoMovieAnalysisRun, IAutoMovieAnalysisTarget, IAutoMovieValidation } from "@automovie/interface";
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { AUTOMOVIE_ANALYSIS_MAX_SAMPLES } from "./AUTOMOVIE_ANALYSIS_MAX_SAMPLES";
 import { autoMovieAnalysisRunDigest } from "./autoMovieAnalysisRunDigest";
 import { isAutoMovieAnalysisDomain } from "./isAutoMovieAnalysisDomain";
+
+/** A plain SHA-256 content digest as this project writes it. */
+const DIGEST_PATTERN = /^sha256:[0-9a-f]{64}$/;
+
+/** Whether a value satisfies a target in the declared direction. */
+const satisfied = (
+  value: number,
+  target: number,
+  comparison: IAutoMovieAnalysisTarget["comparison"],
+): boolean => (comparison === "at-least" ? value >= target : value <= target);
 
 /**
  * Validate one analysis run as evidence.
@@ -320,115 +330,12 @@ const validateMetric = (
     );
 };
 
-const validateMetric = (
-  metric: IAutoMovieAnalysisMetric,
+const nonEmpty = (
+  value: string,
   path: string,
+  label: string,
   out: ViolationCollector,
 ): void => {
-  if (metric.value === null) {
-    if (metric.status !== "unsupported" && metric.status !== "not-run")
-      out.push(
-        "type",
-        `${path}.status`,
-        `metric "${metric.key}" produced no value, so its status must be "unsupported" or "not-run", but was ${String(metric.status)}`,
-        metric.status,
-      );
-    if (metric.gap === null)
-      out.push(
-        "type",
-        `${path}.gap`,
-        `metric "${metric.key}" produced no value and must state the reason and the remedy`,
-        metric.gap,
-      );
-    else {
-      nonEmpty(
-        metric.gap.reason,
-        `${path}.gap.reason`,
-        "metric gap reason",
-        out,
-      );
-      nonEmpty(
-        metric.gap.remedy,
-        `${path}.gap.remedy`,
-        "metric gap remedy",
-        out,
-      );
-    }
-    if (metric.target !== null)
-      out.push(
-        "type",
-        `${path}.target`,
-        `metric "${metric.key}" produced no value, so it cannot be compared to a target`,
-        metric.target,
-      );
-    if (metric.comparison !== null)
-      out.push(
-        "type",
-        `${path}.comparison`,
-        `metric "${metric.key}" produced no value, so it carries no comparison`,
-        metric.comparison,
-      );
-    return;
-  }
-  if (!Number.isFinite(metric.value))
-    out.push(
-      "range",
-      `${path}.value`,
-      `metric "${metric.key}" must be a finite value, but was ${metric.value}`,
-      metric.value,
-    );
-  if (metric.gap !== null)
-    out.push(
-      "type",
-      `${path}.gap`,
-      `metric "${metric.key}" carries a value, so it cannot also carry a gap`,
-      metric.gap,
-    );
-  if (metric.status === "untargeted") {
-    if (metric.target !== null || metric.comparison !== null)
-      out.push(
-        "type",
-        `${path}.target`,
-        `metric "${metric.key}" is untargeted, so it must carry neither a target nor a comparison`,
-        metric.target,
-      );
-    return;
-  }
-  if (metric.status !== "meets" && metric.status !== "misses") {
-    out.push(
-      "type",
-      `${path}.status`,
-      `metric "${metric.key}" carries a value, so its status must be "meets", "misses" or "untargeted", but was ${String(metric.status)}`,
-      metric.status,
-    );
-    return;
-  }
-  if (metric.target === null || metric.comparison === null) {
-    out.push(
-      "type",
-      `${path}.target`,
-      `metric "${metric.key}" reports "${metric.status}", so it must carry the target and the direction it was judged against`,
-      metric.target,
-    );
-    return;
-  }
-  if (!Number.isFinite(metric.target)) {
-    out.push(
-      "range",
-      `${path}.target`,
-      `metric "${metric.key}" target must be finite, but was ${metric.target}`,
-      metric.target,
-    );
-    return;
-  }
-  const verdict = satisfied(metric.value, metric.target, metric.comparison)
-    ? "meets"
-    : "misses";
-  if (verdict !== metric.status)
-    out.push(
-      "type",
-      `${path}.status`,
-      `metric "${metric.key}" reports "${metric.status}" while ${metric.value} ${metric.comparison} ${metric.target} ${verdict === "meets" ? "holds" : "fails"}`,
-      metric.status,
-    );
+  if (value.trim().length === 0)
+    out.push("type", path, `${label} must be non-empty`, value);
 };

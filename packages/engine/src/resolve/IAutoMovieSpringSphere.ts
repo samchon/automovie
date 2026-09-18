@@ -1,4 +1,4 @@
-import { IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
+import { IAutoMovieVector3 } from "@automovie/interface";
 
 /**
  * A world-space collision sphere the spring chain keeps out of: a head, a
@@ -26,26 +26,3 @@ export interface IAutoMovieSpringSphere {
    */
   radius: number;
 }
-
-const readWorld = (
-  world: Map<string, number[]>,
-  id: string,
-  role: string,
-): number[] => {
-  const matrix = world.get(id);
-  if (matrix === undefined)
-    throw new Error(`spring driver ${role} node "${id}" was not provided`);
-  return matrix;
-};
-
-const readLocal = (
-  localById: Map<string, IAutoMovieTransform>,
-  id: string,
-): IAutoMovieTransform => {
-  const local = localById.get(id);
-  if (local === undefined)
-    throw new Error(
-      `spring driver local transform node "${id}" was not provided`,
-    );
-  return local;
-};

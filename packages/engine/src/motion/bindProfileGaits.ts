@@ -1,5 +1,16 @@
-import { IAutoMovieMotion, IAutoMovieProfile } from "@automovie/interface";
+import { IAutoMovieGait, IAutoMovieMotion, IAutoMovieProfile } from "@automovie/interface";
 import { gaitMotion } from "./gaitMotion";
+
+const assertUniqueProfileGaitNames = (
+  gaits: readonly IAutoMovieGait[],
+): void => {
+  const seen = new Set<string>();
+  for (const gait of gaits) {
+    if (seen.has(gait.name))
+      throw new Error(`duplicate profile gait name ${gait.name}`);
+    seen.add(gait.name);
+  }
+};
 
 /**
  * Bind a profile's gait set ({@link IAutoMovieProfile.gaits}) onto a concrete

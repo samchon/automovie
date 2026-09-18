@@ -2,6 +2,8 @@ import { AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieSkeleton } from "@auto
 import { AutoMovieSkeletonParentKey } from "./AutoMovieSkeletonParentKey";
 import { IAutoMovieSkeletonTopology } from "./IAutoMovieSkeletonTopology";
 
+const ROOT_PARENT = "__root__";
+
 /**
  * Index a skeleton's parent-child topology once for repeated FK work.
  *

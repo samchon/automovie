@@ -5,6 +5,3 @@
  * @evidence specifications/simulation-effects-and-sound/particles-fire-and-atmosphere.md#particle-fire-refusal-and-claim-boundary Defines the maximum supported decorative spray population.
  */
 export const FLUID_MAX_SPRAY_PARTICLES = 4_096;
-
-const BOUNDARY_KINDS = new Set(["wall", "open"]);
-const EDGES = ["xMin", "xMax", "zMin", "zMax"] as const;

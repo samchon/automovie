@@ -37,3 +37,6 @@ export const nearestHullEdge = (
   }
   return best;
 };
+
+const distanceXZ = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
+  Math.hypot(a.x - b.x, a.z - b.z);

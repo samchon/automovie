@@ -4,8 +4,29 @@ import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { IAutoMovieSpringSphere } from "./IAutoMovieSpringSphere";
 import { IAutoMovieSpringState } from "./IAutoMovieSpringState";
-import { readLocal } from "./readLocal";
-import { readWorld } from "./readWorld";
+
+const readWorld = (
+  world: Map<string, number[]>,
+  id: string,
+  role: string,
+): number[] => {
+  const matrix = world.get(id);
+  if (matrix === undefined)
+    throw new Error(`spring driver ${role} node "${id}" was not provided`);
+  return matrix;
+};
+
+const readLocal = (
+  localById: Map<string, IAutoMovieTransform>,
+  id: string,
+): IAutoMovieTransform => {
+  const local = localById.get(id);
+  if (local === undefined)
+    throw new Error(
+      `spring driver local transform node "${id}" was not provided`,
+    );
+  return local;
+};
 
 /**
  * Advance one spring ({@link IAutoMovieSpringDriver}) by a fixed timestep with
@@ -105,80 +126,6 @@ export const stepSpring = (
     const dec = Matrix4.decompose(currentM);
     world.set(id, Matrix4.compose(next, dec.rotation, dec.scale));
   }
-};
-
-const readCenterDelta = (
-  d: IAutoMovieSpringDriver,
-  world: Map<string, number[]>,
-  state: IAutoMovieSpringState,
-): IAutoMovieVector3 => {
-  if (d.center === null) return Vector3.create();
-
-  const center = Matrix4.position(readWorld(world, d.center, "center"));
-  const prev = state.centers.get(d.center) ?? center;
-  state.centers.set(d.center, center);
-  return Vector3.subtract(center, prev);
-};
-
-const validateSpringInputs = (d: IAutoMovieSpringDriver, dt: number): void => {
-  validateSpringFinite("time step", dt);
-  if (dt <= 0)
-    throw new Error(`spring driver time step must be > 0, but was ${dt}`);
-
-  validateSpringFinite("stiffness", d.stiffness);
-  if (d.stiffness < 0)
-    throw new Error(
-      `spring driver stiffness must be non-negative, but was ${d.stiffness}`,
-    );
-  validateSpringFinite("drag", d.drag);
-  if (d.drag < 0)
-    throw new Error(
-      `spring driver drag must be between 0 and 1, but was ${d.drag}`,
-    );
-  if (d.drag > 1)
-    throw new Error(
-      `spring driver drag must be between 0 and 1, but was ${d.drag}`,
-    );
-  validateSpringFinite("hitRadius", d.hitRadius);
-  if (d.hitRadius <= 0)
-    throw new Error(
-      `spring driver hitRadius must be > 0, but was ${d.hitRadius}`,
-    );
-  validateSpringFinite("gravityPower", d.gravityPower);
-  if (d.gravityPower < 0)
-    throw new Error(
-      `spring driver gravityPower must be non-negative, but was ${d.gravityPower}`,
-    );
-  validateSpringVector("gravityDir", d.gravityDir);
-  if (Vector3.length(d.gravityDir) === 0)
-    throw new Error("spring driver gravityDir must be non-zero");
-};
-
-const validateSpringColliders = (
-  colliders: readonly IAutoMovieSpringSphere[],
-): void => {
-  colliders.forEach((sphere, i) => {
-    validateSpringVector(`colliders[${i}].center`, sphere.center);
-    validateSpringFinite(`colliders[${i}].radius`, sphere.radius);
-    if (sphere.radius <= 0)
-      throw new Error(
-        `spring driver colliders[${i}].radius must be > 0, but was ${sphere.radius}`,
-      );
-  });
-};
-
-const validateSpringVector = (
-  label: string,
-  value: IAutoMovieVector3,
-): void => {
-  validateSpringFinite(`${label}.x`, value.x);
-  validateSpringFinite(`${label}.y`, value.y);
-  validateSpringFinite(`${label}.z`, value.z);
-};
-
-const validateSpringFinite = (label: string, value: number): void => {
-  if (!Number.isFinite(value))
-    throw new Error(`spring driver ${label} must be finite, but was ${value}`);
 };
 
 const readCenterDelta = (

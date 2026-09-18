@@ -7,6 +7,8 @@ import { pointHullDistance } from "../math/pointHullDistance";
 import { ViolationCollector } from "./ViolationCollector";
 import { IAutoMovieSupportResult } from "./IAutoMovieSupportResult";
 
+const DEFAULT_MARGIN = 0.02;
+
 /**
  * Judge whether an object is stably supported: its center of mass, projected
  * onto the ground plane, must fall within the convex hull (plus margin) of its
@@ -117,9 +119,5 @@ export const detectSupportToppling = (props: {
     },
   };
 };
-
-const round = (value: number): number => Math.round(value * 1_000) / 1_000;
-
-const DEFAULT_MARGIN = 0.02;
 
 const round = (value: number): number => Math.round(value * 1_000) / 1_000;

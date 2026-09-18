@@ -5,6 +5,18 @@ import { resolveBeatOpening } from "../film/resolveBeatOpening";
 import { Vector3 } from "../math/Vector3";
 import { ViolationCollector } from "./ViolationCollector";
 
+/** Default world-space position drift tolerated across a cut (metres). */
+const DEFAULT_POSITION_TOLERANCE = 0.05;
+
+/** Default facing drift tolerated across a cut (degrees). */
+const DEFAULT_FACING_TOLERANCE_DEG = 5;
+
+/** The two tolerances a continuity comparison reads, once validated. */
+interface ITolerances {
+  position: number;
+  facingDeg: number;
+}
+
 /**
  * Walk a whole film in playback order and lint every cut boundary: resolve each
  * beat's end and opening snapshots, then compare each beat's opening against
@@ -119,77 +131,6 @@ const compareBoundary = (
     );
   });
 };
-
-/** Position, facing, and mount drift for one actor carried across a cut. */
-const compareActor = (
-  prev: IAutoMovieBeatEndActorState,
-  open: IAutoMovieBeatEndActorState,
-  path: string,
-  tolerances: ITolerances,
-  collector: ViolationCollector,
-): void => {
-  const drift = Vector3.length(
-    Vector3.subtract(open.transform.translation, prev.transform.translation),
-  );
-  if (drift > tolerances.position)
-    collector.warn(
-      "physics",
-      `${path}.transform.translation`,
-      `resume within ${tolerances.position} m of where the previous beat ended`,
-      open.transform.translation,
-      drift - tolerances.position,
-    );
-
-  const facingDeg = angleBetweenDeg(prev.facing, open.facing);
-  if (facingDeg > tolerances.facingDeg)
-    collector.warn(
-      "physics",
-      `${path}.facing`,
-      `resume within ${tolerances.facingDeg} deg of the previous beat's facing`,
-      open.facing,
-      facingDeg - tolerances.facingDeg,
-    );
-
-  if (prev.mount !== null && !sameMount(prev.mount, open.mount))
-    collector.warn(
-      "physics",
-      `${path}.mount`,
-      `keep riding "${prev.mount.parent}"'s "${prev.mount.bone}" the rider ended the previous beat mounted on`,
-      open.mount,
-    );
-};
-
-/**
- * Angle between two facing vectors in degrees; 0 when either is
- * degenerate-equal.
- */
-const angleBetweenDeg = (
-  a: IAutoMovieBeatEndActorState["facing"],
-  b: IAutoMovieBeatEndActorState["facing"],
-): number => {
-  const dot = Vector3.dot(Vector3.normalize(a), Vector3.normalize(b));
-  const clamped = Math.min(1, Math.max(-1, dot));
-  return (Math.acos(clamped) * 180) / Math.PI;
-};
-
-/** Whether the incoming mount preserves the prior persistent coupling exactly. */
-const sameMount = (
-  prev: NonNullable<IAutoMovieBeatEndActorState["mount"]>,
-  open: IAutoMovieBeatEndActorState["mount"],
-): boolean =>
-  open !== null && open.parent === prev.parent && open.bone === prev.bone;
-
-/** Default world-space position drift tolerated across a cut (metres). */
-const DEFAULT_POSITION_TOLERANCE = 0.05;
-
-/** Default facing drift tolerated across a cut (degrees). */
-const DEFAULT_FACING_TOLERANCE_DEG = 5;
-
-/** The two tolerances a continuity comparison reads, once validated. */
-interface ITolerances {
-  position: number;
-  facingDeg: number;
-}
 
 /** Position, facing, and mount drift for one actor carried across a cut. */
 const compareActor = (

@@ -1,9 +1,11 @@
-import { AutoMovieHumanoidBone, IAutoMovieKeyframe, IAutoMoviePose, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
+import { AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieKeyframe, IAutoMoviePose, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
 import { IAutoMovieJointAxes } from "../kinematics/IAutoMovieJointAxes";
+import { IAutoMovieSkeletonTopology } from "../kinematics/IAutoMovieSkeletonTopology";
 import { indexSkeletonTopology } from "../kinematics/indexSkeletonTopology";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { IAutoMovieFootLeg } from "./IAutoMovieFootLeg";
 import { sampleMotion } from "./sampleMotion";
+import { fitChainToTarget } from "./fitChainToTarget";
 
 /**
  * Re-key the sampled frames densely, re-solving every pinned leg onto its
@@ -54,4 +56,38 @@ export const rekeyPlantedFeet = (props: {
     prior = pose;
   });
   return keyframes;
+};
+
+/**
+ * The frame's joints with every pinned leg re-solved onto its target: planted
+ * legs get their {@link fitChainToTarget} articulation, everything else is
+ * carried through unchanged.
+ */
+const plantedJoints = (
+  skeleton: IAutoMovieSkeleton,
+  pose: IAutoMoviePose,
+  legs: readonly IAutoMovieFootLeg[],
+  targets: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieVector3>,
+  topology: IAutoMovieSkeletonTopology,
+  referencePose?: IAutoMoviePose,
+  jointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>,
+  restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>,
+): IAutoMovieJointPose[] => {
+  let joints = pose.joints;
+  for (const leg of legs) {
+    const target = targets.get(leg.foot);
+    if (target === undefined) continue;
+    const fitted = fitChainToTarget({
+      skeleton,
+      pose: { ...pose, joints },
+      chain: { effector: leg.foot, upper: leg.upper, lower: leg.lower },
+      target,
+      topology,
+      referencePose,
+      jointAxes,
+      restFrames,
+    });
+    joints = fitted.joints;
+  }
+  return joints;
 };

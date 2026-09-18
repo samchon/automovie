@@ -35,12 +35,3 @@ export interface IAutoMoviePoseLayer {
    */
   ownsRoot?: boolean;
 }
-
-const AXES = ["flexion", "abduction", "twist"] as const;
-
-interface IAxisAccumulator {
-  /** Summed weight of the layers that set each axis (non-null). */
-  weight: [number, number, number];
-  /** Summed weight×value of those layers. */
-  weighted: [number, number, number];
-}

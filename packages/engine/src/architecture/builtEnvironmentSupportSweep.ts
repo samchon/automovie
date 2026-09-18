@@ -1,5 +1,126 @@
-import { AutoMovieBuiltPlacementBodyLocator, IAutoMovieBuiltEnvironment, IAutoMovieBuiltFloatingBody, IAutoMovieBuiltSupportSweepReport } from "@automovie/interface";
+import { AutoMovieBuiltPlacementBodyLocator, IAutoMovieBuiltEnvironment, IAutoMovieBuiltFloatingBody, IAutoMovieBuiltPlacementBounds, IAutoMovieBuiltSupportSweepReport, IAutoMovieVector3 } from "@automovie/interface";
 import { builtEnvironmentPartBoxes } from "./builtEnvironmentPartBoxes";
+import { builtEnvironmentPlacementBounds } from "./builtEnvironmentPlacementBounds";
+
+/**
+ * Contact slack used when project source does not choose one, in metres. This
+ * is the placement epsilon the prop kernel judges its own contact with, so an
+ * unqualified building relation and an unqualified prop relation call the same
+ * distance "touching".
+ */
+const DEFAULT_SUPPORT_TOLERANCE = 1e-9;
+
+/**
+ * The boxes a locator's body actually fills, one per drawn part where it has
+ * them and the reported box otherwise.
+ *
+ * An element resolves to its parts, because a multi-part body's union box is
+ * mostly air and a test written against it answers about the box rather than
+ * the body. Every other locator has no part structure to consult and keeps the
+ * one box it reports, and so does an element that draws nothing.
+ *
+ * The parts arrive through `lookup` rather than from a fixed source, because
+ * one caller asks about a single pair and another has already resolved the whole
+ * building. The rule about what to do with the answer is the same either way,
+ * and writing it twice is how the two stop agreeing.
+ */
+const solidBoxes = (
+  locator: AutoMovieBuiltPlacementBodyLocator,
+  reported: IAutoMovieBuiltPlacementBounds,
+  lookup: (id: string) => readonly IWorldBox[] | null | undefined,
+): readonly IWorldBox[] => {
+  if (locator.kind !== "element") return [reported];
+  const parts = lookup(locator.id);
+  return parts === null || parts === undefined || parts.length === 0
+    ? [reported]
+    : parts;
+};
+
+/**
+ * Every body of one building, resolved once with its own extent.
+ *
+ * A sweep resolves each body exactly once and then works on boxes. That order is
+ * what makes a whole-building check affordable: resolving an element means
+ * tessellating its model and walking its transform chain, and comparing two boxes
+ * is arithmetic, so the resolutions are the cost and repeating them per pair is
+ * how a sweep becomes unusable.
+ */
+const builtEnvironmentBodies = (
+  environment: IAutoMovieBuiltEnvironment,
+): {
+  resolved: {
+    body: AutoMovieBuiltPlacementBodyLocator;
+    bounds: IAutoMovieBuiltPlacementBounds;
+  }[];
+  unresolved: AutoMovieBuiltPlacementBodyLocator[];
+} => {
+  const resolved: {
+    body: AutoMovieBuiltPlacementBodyLocator;
+    bounds: IAutoMovieBuiltPlacementBounds;
+  }[] = [];
+  const unresolved: AutoMovieBuiltPlacementBodyLocator[] = [];
+  const locators: AutoMovieBuiltPlacementBodyLocator[] = [
+    ...environment.elements.map(
+      (element): AutoMovieBuiltPlacementBodyLocator => ({
+        kind: "element",
+        id: element.id,
+      }),
+    ),
+    ...(environment.populations ?? []).map(
+      (population): AutoMovieBuiltPlacementBodyLocator => ({
+        kind: "population",
+        id: population.set.id,
+      }),
+    ),
+  ];
+  for (const body of locators) {
+    const bounds = builtEnvironmentPlacementBounds({
+      environment,
+      target: body,
+    });
+    if (bounds === null) unresolved.push(body);
+    else resolved.push({ body, bounds });
+  }
+  return { resolved, unresolved };
+};
+
+/** Whether two boxes share footprint area, exact contact excluded. */
+/**
+ * A world-space box, whichever resolution produced it.
+ *
+ * The measuring helpers read six numbers and nothing else, so a part box is
+ * admissible wherever a body's reported bounds are. Keeping them typed as the
+ * reported bounds would have forced a fabricated `basis` onto every part, which
+ * is a claim about how the part was resolved that nobody made.
+ */
+type IWorldBox = { min: IAutoMovieVector3; max: IAutoMovieVector3 };
+
+const footprintOverlaps = (left: IWorldBox, right: IWorldBox): boolean =>
+  left.min.x < right.max.x &&
+  left.max.x > right.min.x &&
+  left.min.z < right.max.z &&
+  left.max.z > right.min.z;
+
+/**
+ * The first index of a top-height-descending list at or below one height.
+ *
+ * A binary search rather than a scan, because the bodies above a subject are the
+ * many in a tall building and reading past them is the cost this ordering exists
+ * to avoid.
+ */
+const firstAtOrBelow = (
+  descending: readonly { bounds: IWorldBox }[],
+  ceiling: number,
+): number => {
+  let low = 0;
+  let high = descending.length;
+  while (low < high) {
+    const middle = (low + high) >>> 1;
+    if (descending[middle]!.bounds.max.y > ceiling) low = middle + 1;
+    else high = middle;
+  }
+  return low;
+};
 
 /**
  * Find every placed body in a building with clear air under it.

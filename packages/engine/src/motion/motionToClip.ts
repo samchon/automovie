@@ -1,4 +1,4 @@
-import { AutoMovieHumanoidBone, IAutoMovieClip, IAutoMovieMotion, IAutoMoviePose, IAutoMovieSkeleton, IAutoMovieTrack } from "@automovie/interface";
+import { AutoMovieHumanoidBone, IAutoMovieMotion, IAutoMoviePose, IAutoMovieSkeleton, IAutoMovieTrack } from "@automovie/interface";
 import { IAutoMovieJointAxes } from "../kinematics/IAutoMovieJointAxes";
 import { jointToQuaternion } from "../kinematics/jointToQuaternion";
 import { Quaternion } from "../math/Quaternion";
@@ -8,6 +8,8 @@ import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { sampleTimes } from "./sampleTimes";
 import { sampleMotion } from "./sampleMotion";
 import { IAutoMovieMotionClipBridge } from "./IAutoMovieMotionClipBridge";
+
+const DEFAULT_SAMPLE_RATE = 24;
 
 /**
  * Bake a humanoid {@link IAutoMovieMotion} (clinical-angle keyframes) into the
@@ -142,33 +144,6 @@ export const motionToClip = (props: {
     nodes,
   };
 };
-
-/** The root node's translation or rotation track from the sampled root. */
-const rootTrack = (
-  times: number[],
-  samples: IAutoMoviePose[],
-  path: "translation" | "rotation",
-  prefix: string,
-): IAutoMovieTrack => {
-  const values: number[] = [];
-  for (const pose of samples) {
-    if (path === "translation") {
-      const t = pose.root?.translation ?? { x: 0, y: 0, z: 0 };
-      values.push(t.x, t.y, t.z);
-    } else {
-      const r = pose.root?.rotation ?? Quaternion.identity();
-      values.push(r.x, r.y, r.z, r.w);
-    }
-  }
-  return {
-    channel: { kind: "node", node: `${prefix}${MOTION_ROOT_NODE_ID}`, path },
-    times: [...times],
-    values,
-    interpolation: "linear",
-  };
-};
-
-const DEFAULT_SAMPLE_RATE = 24;
 
 /** The root node's translation or rotation track from the sampled root. */
 const rootTrack = (

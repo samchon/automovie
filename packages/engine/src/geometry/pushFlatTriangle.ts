@@ -1,6 +1,14 @@
 import { Vector3 } from "../math/Vector3";
 import { IAutoMovieVector3 } from "@automovie/interface";
 
+/** The buffers a flat-shaded builder fills before it becomes a mesh. */
+interface IMeshTarget {
+  positions: number[];
+  normals: number[];
+  uvs: number[];
+  indices: number[];
+}
+
 /**
  * Append one triangle that owns its three corners and its own plane normal.
  *

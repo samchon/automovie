@@ -5,6 +5,24 @@ import { aimRotation } from "./aimRotation";
 import { IAutoMovieChainBone } from "./IAutoMovieChainBone";
 import { IAutoMovieHingedArticulation } from "./IAutoMovieHingedArticulation";
 
+const RAD2DEG = 180 / Math.PI;
+
+/**
+ * Swivel resolution of the candidate sweep, in degrees.
+ *
+ * The sweep is a **bounded, deterministic enumeration**, not solver iteration:
+ * every candidate lands the effector exactly on the target (see
+ * {@link hingedArmArticulation}), so the step decides only which of the equally
+ * exact poses is chosen, never how close the hand gets. One degree over the
+ * circle is 360 candidates per bend branch, each a decompose plus a per-axis
+ * ROM read and no forward kinematics, and the solve runs once per authored
+ * action rather than per frame.
+ */
+const SWIVEL_STEP = 1;
+
+/** Below this the mid joint cannot change the chain's span at all. */
+const SPAN_EPSILON = 1e-9;
+
 /**
  * Analytic two-bone arm IK that **respects the mid joint's hinge**.
  *
@@ -175,21 +193,3 @@ export const hingedArmArticulation = (props: {
     overshoot: chosen.overshoot,
   };
 };
-
-const RAD2DEG = 180 / Math.PI;
-
-/**
- * Swivel resolution of the candidate sweep, in degrees.
- *
- * The sweep is a **bounded, deterministic enumeration**, not solver iteration:
- * every candidate lands the effector exactly on the target (see
- * {@link hingedArmArticulation}), so the step decides only which of the equally
- * exact poses is chosen, never how close the hand gets. One degree over the
- * circle is 360 candidates per bend branch, each a decompose plus a per-axis
- * ROM read and no forward kinematics, and the solve runs once per authored
- * action rather than per frame.
- */
-const SWIVEL_STEP = 1;
-
-/** Below this the mid joint cannot change the chain's span at all. */
-const SPAN_EPSILON = 1e-9;

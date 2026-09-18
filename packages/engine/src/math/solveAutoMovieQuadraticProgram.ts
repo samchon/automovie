@@ -1,6 +1,6 @@
 import { IAutoMovieQuadraticRow } from "./IAutoMovieQuadraticRow";
 import { assembleAutoMovieQuadraticProgram } from "./assembleAutoMovieQuadraticProgram";
-import { solveAutoMovieQuadraticKernel } from "./quadraticKernel";
+import { solveAutoMovieQuadraticKernel } from "./solveAutoMovieQuadraticKernel";
 
 /**
  * Solve a nonempty positive-semidefinite diagonal quadratic program. Finite

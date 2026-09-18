@@ -1,4 +1,4 @@
-import { AutoMovieHumanoidBone, IAutoMovieActionCall, IAutoMovieActionTarget, IAutoMovieBeatEndState, IAutoMovieBlocking, IAutoMovieBlockingCoverage, IAutoMovieCamera, IAutoMovieCameraAction, IAutoMovieClip, IAutoMovieCompiledFormation, IAutoMovieFormationMotion, IAutoMovieGroupTarget, IAutoMovieInteractionEvent, IAutoMovieModel, IAutoMovieMotion, IAutoMoviePerformance, IAutoMoviePropSpec, IAutoMovieScript, IAutoMovieShot, IAutoMovieShotCoverage, IAutoMovieSkeleton, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
+import { AutoMovieHumanoidBone, IAutoMovieActionCall, IAutoMovieActionTarget, IAutoMovieBeatEndState, IAutoMovieBlocking, IAutoMovieBlockingCoverage, IAutoMovieCamera, IAutoMovieCameraAction, IAutoMovieClip, IAutoMovieCompiledFormation, IAutoMovieFormationMotion, IAutoMovieGroupTarget, IAutoMovieInteractionEvent, IAutoMovieModel, IAutoMovieMotion, IAutoMoviePerformance, IAutoMoviePropSpec, IAutoMovieQuaternion, IAutoMovieScript, IAutoMovieShot, IAutoMovieShotCoverage, IAutoMovieSkeleton, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
 import { sampleFormationMotion } from "../sampleFormationMotion";
 import { transformFormationPoint } from "../transformFormationPoint";
 import { armChainFault } from "../kinematics/armChainFault";
@@ -7,6 +7,7 @@ import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { classifyLocomoteGroundDisplacement } from "../motion/classifyLocomoteGroundDisplacement";
 import { plantStanceFeet } from "../motion/plantStanceFeet";
+import { sampleMotion } from "../motion/sampleMotion";
 import { actionRegion } from "../perform/actionRegion";
 import { bodyRegionBones } from "../perform/bodyRegionBones";
 import { IAutoMovieActionSynthesizer } from "../perform/IAutoMovieActionSynthesizer";
@@ -17,7 +18,7 @@ import { resolveTargetPoint } from "../perform/resolveTargetPoint";
 import { scenePlacements } from "../perform/scenePlacements";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { spaceGround } from "../space/spaceGround";
-import { withArticle } from "../text/article";
+import { withArticle } from "../text/withArticle";
 import { compareCodeUnits } from "../text/compareCodeUnits";
 import { validateMotion } from "../validation/validateMotion";
 import { appendLightMotionsArtifact } from "../validation/appendLightMotionsArtifact";
@@ -45,8 +46,90 @@ import { framedBoxOf } from "./framedBoxOf";
 import { nodeSubjectBox } from "./nodeSubjectBox";
 import { nodeSubjectExtent } from "./nodeSubjectExtent";
 import { unionSubjectBoxes } from "./unionSubjectBoxes";
-import { isRecord } from "../validation/isRecord";
 import { IAutoMoviePerformedShot } from "./IAutoMoviePerformedShot";
+
+/**
+ * A node's animated **world** position over shot time: its staged `base` plus
+ * the node-local root displacement of `motion` at that instant, rotated into
+ * the world by the node's staged `facing`. The read shared by a `follow` camera
+ * tracking a walking actor and a `launch` leading a moving target, one place,
+ * one convention (the root is node-local; the renderer applies it under the
+ * same facing).
+ */
+const animatedBaseAt =
+  (
+    base: IAutoMovieVector3,
+    facing: IAutoMovieQuaternion,
+    motion: IAutoMovieMotion,
+  ) =>
+  (seconds: number): IAutoMovieVector3 =>
+    Vector3.add(
+      base,
+      Quaternion.rotateVector(
+        facing,
+        sampleMotion(motion, seconds).pose.root?.translation ?? {
+          x: 0,
+          y: 0,
+          z: 0,
+        },
+      ),
+    );
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null && !Array.isArray(value);
+
+const isFiniteVector3 = (vector: IAutoMovieVector3): boolean =>
+  [vector.x, vector.y, vector.z].every((coordinate) =>
+    Number.isFinite(coordinate),
+  );
+
+const isFiniteQuaternion = (rotation: IAutoMovieQuaternion): boolean =>
+  [rotation.x, rotation.y, rotation.z, rotation.w].every((component) =>
+    Number.isFinite(component),
+  );
+
+const actionActors = (action: IAutoMovieActionCall): string[] =>
+  typeof action.actor === "string"
+    ? [action.actor]
+    : Array.isArray(action.actor)
+      ? action.actor
+      : [];
+
+const EVENT_KIND_ORDER: Record<IAutoMovieInteractionEvent["kind"], number> = {
+  contact: 0,
+  hit: 1,
+  fall: 2,
+  grab: 3,
+  attach: 4,
+  detach: 5,
+  release: 6,
+};
+
+const CAMERA_FRAMINGS = new Set<IAutoMovieCameraAction["framing"]>([
+  "wide",
+  "full",
+  "medium",
+  "close",
+]);
+
+const CAMERA_MOVES = new Set<IAutoMovieCameraAction["move"]>([
+  "static",
+  "follow",
+  "orbit",
+  "push-in",
+  "truck",
+  "whip",
+]);
+
+const orderEvents = (
+  events: readonly IAutoMovieInteractionEvent[],
+): IAutoMovieInteractionEvent[] =>
+  [...events].sort(
+    (a, b) =>
+      a.time - b.time ||
+      EVENT_KIND_ORDER[a.kind] - EVENT_KIND_ORDER[b.kind] ||
+      compareCodeUnits(a.id, b.id),
+  );
 
 /**
  * The PERFORMANCE consumer, fold one beat's action calls into an
@@ -2063,76 +2146,3 @@ export const performShot = (props: {
 
   return { success: true, shot, motions, plants };
 };
-
-/**
- * A node's animated **world** position over shot time: its staged `base` plus
- * the node-local root displacement of `motion` at that instant, rotated into
- * the world by the node's staged `facing`. The read shared by a `follow` camera
- * tracking a walking actor and a `launch` leading a moving target, one place,
- * one convention (the root is node-local; the renderer applies it under the
- * same facing).
- */
-const animatedBaseAt =
-  (
-    base: IAutoMovieVector3,
-    facing: IAutoMovieQuaternion,
-    motion: IAutoMovieMotion,
-  ) =>
-  (seconds: number): IAutoMovieVector3 =>
-    Vector3.add(
-      base,
-      Quaternion.rotateVector(
-        facing,
-        sampleMotion(motion, seconds).pose.root?.translation ?? {
-          x: 0,
-          y: 0,
-          z: 0,
-        },
-      ),
-    );
-
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === "object" && value !== null && !Array.isArray(value);
-
-const isFiniteVector3 = (vector: IAutoMovieVector3): boolean =>
-  [vector.x, vector.y, vector.z].every((coordinate) =>
-    Number.isFinite(coordinate),
-  );
-
-const isFiniteQuaternion = (rotation: IAutoMovieQuaternion): boolean =>
-  [rotation.x, rotation.y, rotation.z, rotation.w].every((component) =>
-    Number.isFinite(component),
-  );
-
-const actionActors = (action: IAutoMovieActionCall): string[] =>
-  typeof action.actor === "string"
-    ? [action.actor]
-    : Array.isArray(action.actor)
-      ? action.actor
-      : [];
-
-const CAMERA_FRAMINGS = new Set<IAutoMovieCameraAction["framing"]>([
-  "wide",
-  "full",
-  "medium",
-  "close",
-]);
-
-const CAMERA_MOVES = new Set<IAutoMovieCameraAction["move"]>([
-  "static",
-  "follow",
-  "orbit",
-  "push-in",
-  "truck",
-  "whip",
-]);
-
-const orderEvents = (
-  events: readonly IAutoMovieInteractionEvent[],
-): IAutoMovieInteractionEvent[] =>
-  [...events].sort(
-    (a, b) =>
-      a.time - b.time ||
-      EVENT_KIND_ORDER[a.kind] - EVENT_KIND_ORDER[b.kind] ||
-      compareCodeUnits(a.id, b.id),
-  );

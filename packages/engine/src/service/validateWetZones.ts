@@ -1,5 +1,24 @@
-import { AutoMovieWetGrade, IAutoMovieBuiltEnvironment, IAutoMovieServiceNetwork, IAutoMovieValidation } from "@automovie/interface";
+import { AutoMovieWetGrade, IAutoMovieBuiltBoundary, IAutoMovieBuiltEnvironment, IAutoMovieServiceNetwork, IAutoMovieServiceNode, IAutoMovieServiceSystem, IAutoMovieValidation } from "@automovie/interface";
 import { ViolationCollector } from "../validation/ViolationCollector";
+
+/**
+ * How much water each grade expects, as the order a handover is measured in.
+ *
+ * The numbers are ordinal only: they say a shower is wetter than a lobby, which
+ * is the entire question a threshold answers, and nothing about litres.
+ */
+const GRADE_ORDER = new Map<string, number>([
+  ["dry", 0],
+  ["damp", 1],
+  ["wet", 2],
+  ["immersed", 3],
+]);
+
+/** Grades whose full waterproofing obligations apply. */
+const TANKED: readonly AutoMovieWetGrade[] = ["wet", "immersed"];
+
+/** Media a floor drain is allowed to discharge into. */
+const WASTE_MEDIUM = "waste-water";
 
 /**
  * Validate the wet and waterproofed regions a network declares.
@@ -221,18 +240,58 @@ export const validateWetZones = (props: {
   return out.toValidation();
 };
 
-/**
- * How much water each grade expects, as the order a handover is measured in.
- *
- * The numbers are ordinal only: they say a shower is wetter than a lobby, which
- * is the entire question a threshold answers, and nothing about litres.
- */
-const GRADE_ORDER = new Map<string, number>([
-  ["dry", 0],
-  ["damp", 1],
-  ["wet", 2],
-  ["immersed", 3],
-]);
+/** The outgoing waste-water ports a node carries, in declaration order. */
+const wastePortsOf = (
+  node: IAutoMovieServiceNode,
+  systems: ReadonlyMap<string, IAutoMovieServiceSystem>,
+): IAutoMovieServiceNode["ports"] =>
+  node.ports.filter((port) => {
+    const system = systems.get(port.system);
+    return (
+      port.direction === "out" &&
+      system !== undefined &&
+      system.discipline === "drainage" &&
+      system.medium === WASTE_MEDIUM
+    );
+  });
 
-/** Grades whose full waterproofing obligations apply. */
-const TANKED: readonly AutoMovieWetGrade[] = ["wet", "immersed"];
+/** Resolve cited boundary ids, reporting unknown, duplicated and foreign ones. */
+const citedBoundaries = (props: {
+  cited: readonly string[];
+  zoneSpace: string;
+  boundaries: ReadonlyMap<string, IAutoMovieBuiltBoundary>;
+  path: string;
+  label: string;
+  out: ViolationCollector;
+}): Set<string> => {
+  const resolved = new Set<string>();
+  props.cited.forEach((id, at) => {
+    const where = `${props.path}[${at}]`;
+    const boundary = props.boundaries.get(id);
+    if (boundary === undefined) {
+      props.out.push(
+        "type",
+        where,
+        `${props.label} "${id}" does not resolve`,
+        id,
+      );
+      return;
+    }
+    if (resolved.has(id))
+      props.out.push(
+        "type",
+        where,
+        `${props.label} "${id}" is declared twice`,
+        id,
+      );
+    resolved.add(id);
+    if (!boundary.spaces.includes(props.zoneSpace))
+      props.out.push(
+        "type",
+        where,
+        `${props.label} "${id}" does not bound zone space "${props.zoneSpace}"`,
+        boundary.spaces,
+      );
+  });
+  return resolved;
+};

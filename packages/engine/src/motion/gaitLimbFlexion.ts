@@ -1,4 +1,19 @@
-import { IAutoMovieGait, IAutoMovieGaitLimb, IAutoMovieJointPose, IAutoMovieTransform } from "@automovie/interface";
+import { IAutoMovieGaitLimb } from "@automovie/interface";
+import { positiveModulo } from "../math/positiveModulo";
+import { cubicBezierEasing } from "./cubicBezierEasing";
+import { ease } from "./ease";
+
+/** Wrap a cycle position into `[0, 1)`. */
+const wrap01 = (x: number): number => positiveModulo(x, 1);
+
+const gaitPhaseEase = (
+  curve: IAutoMovieGaitLimb["stanceEasing"],
+  bezier: IAutoMovieGaitLimb["stanceBezier"],
+  t: number,
+): number =>
+  curve === "cubicBezier" && bezier !== undefined && bezier !== null
+    ? cubicBezierEasing(bezier, t)
+    : ease(curve ?? "linear", t);
 
 /**
  * One limb's flexion (degrees) at cycle time `t`. Over its **stance** fraction
@@ -54,89 +69,3 @@ export const gaitLimbFlexion = (
           );
   return (limb.neutral ?? 0) + swing;
 };
-
-const gaitRoot = (
-  gait: IAutoMovieGait,
-  time: number,
-): IAutoMovieTransform | null => {
-  if (gait.rootBob === undefined) return null;
-  const rootBob = gait.rootBob;
-  if (!Number.isFinite(rootBob.amplitude))
-    throw new Error("gait root bob amplitude must be finite");
-  if (!Number.isFinite(rootBob.phase))
-    throw new Error("gait root bob phase must be finite");
-  if (!Number.isFinite(rootBob.center))
-    throw new Error("gait root bob center must be finite");
-
-  const cycle = wrap01(time / gait.period + rootBob.phase);
-  return {
-    translation: {
-      x: 0,
-      y: rootBob.center + rootBob.amplitude * Math.sin(cycle * Math.PI * 2),
-      z: 0,
-    },
-    rotation: IDENTITY_ROOT.rotation,
-    scale: IDENTITY_ROOT.scale,
-  };
-};
-
-const gaitJoints = (
-  limbs: readonly IAutoMovieGaitLimb[],
-  time: number,
-  period: number,
-): IAutoMovieJointPose[] => {
-  const joints = new Map<IAutoMovieGaitLimb["bone"], IAutoMovieJointPose>();
-  for (const limb of limbs) {
-    let joint = joints.get(limb.bone);
-    if (joint === undefined) {
-      joint = {
-        bone: limb.bone,
-        flexion: null,
-        abduction: null,
-        twist: null,
-      };
-      joints.set(limb.bone, joint);
-    }
-    joint[limb.axis ?? "flexion"] = gaitLimbFlexion(limb, time, period);
-  }
-  return [...joints.values()];
-};
-
-const assertUniqueGaitAxes = (limbs: readonly IAutoMovieGaitLimb[]): void => {
-  const seen = new Set<string>();
-  for (const limb of limbs) {
-    const axis = limb.axis ?? "flexion";
-    const key = `${limb.bone}:${axis}`;
-    if (seen.has(key))
-      throw new Error(`duplicate gait row for ${limb.bone}.${axis}`);
-    seen.add(key);
-  }
-};
-
-const assertUniqueProfileGaitNames = (
-  gaits: readonly IAutoMovieGait[],
-): void => {
-  const seen = new Set<string>();
-  for (const gait of gaits) {
-    if (seen.has(gait.name))
-      throw new Error(`duplicate profile gait name ${gait.name}`);
-    seen.add(gait.name);
-  }
-};
-
-const IDENTITY_ROOT: Pick<IAutoMovieTransform, "rotation" | "scale"> = {
-  rotation: { x: 0, y: 0, z: 0, w: 1 },
-  scale: { x: 1, y: 1, z: 1 },
-};
-
-/** Wrap a cycle position into `[0, 1)`. */
-const wrap01 = (x: number): number => positiveModulo(x, 1);
-
-const gaitPhaseEase = (
-  curve: IAutoMovieGaitLimb["stanceEasing"],
-  bezier: IAutoMovieGaitLimb["stanceBezier"],
-  t: number,
-): number =>
-  curve === "cubicBezier" && bezier !== undefined && bezier !== null
-    ? cubicBezierEasing(bezier, t)
-    : ease(curve ?? "linear", t);

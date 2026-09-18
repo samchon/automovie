@@ -1,18 +1,40 @@
 import { AutoMovieHumanoidBone, IAutoMovieBody, IAutoMovieInteractionEvent, IAutoMovieVector3 } from "@automovie/interface";
-import { IAutoMovieSkeletonTopology } from "../kinematics/IAutoMovieSkeletonTopology";
-import { indexSkeletonTopology } from "../kinematics/indexSkeletonTopology";
-import { resolvePose } from "../kinematics/resolvePose";
+import { IAutoMovieSkeletonTopology, indexSkeletonTopology, resolvePose } from "../kinematics";
 import { Vector3 } from "../math/Vector3";
 import { closestPointsBetweenSegments } from "../math/closestPointsBetweenSegments";
 import { sampleTimes } from "../motion/sampleTimes";
 import { sampleMotion } from "../motion/sampleMotion";
 import { IAutoMovieCollisionResponse } from "../physics/IAutoMovieCollisionResponse";
 import { suggestCollisionResponse } from "../physics/suggestCollisionResponse";
-import { validateCapsule } from "./capsuleProxy";
+import { validateCapsule } from "./validateCapsule";
 import { fkReachableBones } from "./fkReachableBones";
 import { ViolationCollector } from "./ViolationCollector";
 import { IAutoMovieBodyCollisionResult } from "./IAutoMovieBodyCollisionResult";
 import { IAutoMovieCollisionActor } from "./IAutoMovieCollisionActor";
+
+const DEFAULT_SAMPLE_RATE = 24;
+
+const DEFAULT_MASS = 70; // kg: an unspecified body defaults to a human mass
+
+const DEFAULT_RESTITUTION = 0.2;
+
+const DEFAULT_HARDNESS = 0.5;
+
+const DEFAULT_PENETRABILITY = 0.3;
+
+const DEFAULT_GAIN = 0.05; // recoil flexion degrees per unit impulse
+
+const FALLBACK_NORMAL: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+
+interface IPenetration {
+  frame: number;
+  time: number;
+  from: AutoMovieHumanoidBone;
+  otherFrom: AutoMovieHumanoidBone;
+  depth: number;
+  pointA: IAutoMovieVector3;
+  pointB: IAutoMovieVector3;
+}
 
 /**
  * Detect where two actors' capsule proxies interpenetrate over a shot, and,
@@ -141,125 +163,6 @@ export const detectBodyCollision = (props: {
   );
   return { validation: collector.toValidation(), events, response };
 };
-
-/**
- * Validate every capsule of one actor against its own rig, one violation per
- * fault (all capsules are checked so a correction round sees them together).
- * Returns whether the actor's capsules are all usable.
- */
-const validateActorCapsules = (
-  actor: IAutoMovieCollisionActor,
-  path: string,
-  topology: IAutoMovieSkeletonTopology,
-  collector: ViolationCollector,
-): boolean => {
-  const bones = new Set(actor.skeleton.bones.map((bone) => bone.bone));
-  const reachable = fkReachableBones(actor.skeleton, topology);
-  let valid = true;
-  actor.capsules.forEach((capsule, index) => {
-    if (
-      !validateCapsule(
-        capsule,
-        `${path}.capsules[${index}]`,
-        bones,
-        reachable,
-        collector,
-      )
-    )
-      valid = false;
-  });
-  return valid;
-};
-
-const suggestResponse = (
-  props: {
-    a: IAutoMovieCollisionActor;
-    b: IAutoMovieCollisionActor;
-  },
-  penetrations: IPenetration[],
-  rate: number,
-  mapsA: ReadonlyArray<ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieVector3>>,
-  mapsB: ReadonlyArray<ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieVector3>>,
-  gain: number,
-): IAutoMovieCollisionResponse => {
-  const deepest = [...penetrations].sort((x, y) => y.depth - x.depth)[0]!;
-  const prev = Math.max(0, deepest.frame - 1);
-  const velA = velocity(mapsA, deepest.frame, prev, deepest.from, rate);
-  const velB = velocity(mapsB, deepest.frame, prev, deepest.otherFrom, rate);
-
-  const rawNormal = Vector3.subtract(deepest.pointB, deepest.pointA);
-  const normal =
-    Vector3.dot(rawNormal, rawNormal) > 0 ? rawNormal : FALLBACK_NORMAL;
-
-  return suggestCollisionResponse({
-    a: impactBody(props.a.body, velA),
-    b: impactBody(props.b.body, velB),
-    normal,
-    gainDegPerImpulse: gain,
-    chain: [deepest.otherFrom],
-    skeleton: props.b.skeleton,
-  });
-};
-
-const velocity = (
-  maps: ReadonlyArray<ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieVector3>>,
-  frame: number,
-  prev: number,
-  bone: AutoMovieHumanoidBone,
-  rate: number,
-): IAutoMovieVector3 =>
-  Vector3.scale(
-    Vector3.subtract(maps[frame]!.get(bone)!, maps[prev]!.get(bone)!),
-    rate,
-  );
-
-const impactBody = (
-  body: IAutoMovieBody | null,
-  vel: IAutoMovieVector3,
-): {
-  mass: number;
-  velocity: IAutoMovieVector3;
-  restitution: number;
-  hardness: number;
-  penetrability: number;
-} => ({
-  mass: body === null ? DEFAULT_MASS : body.mass,
-  velocity: vel,
-  restitution: body === null ? DEFAULT_RESTITUTION : body.restitution,
-  hardness: DEFAULT_HARDNESS,
-  penetrability: DEFAULT_PENETRABILITY,
-});
-
-const resolveMap = (
-  actor: IAutoMovieCollisionActor,
-  time: number,
-  topology: IAutoMovieSkeletonTopology,
-): Map<AutoMovieHumanoidBone, IAutoMovieVector3> =>
-  new Map(
-    resolvePose(
-      sampleMotion(actor.motion, time).pose,
-      actor.skeleton,
-      actor.jointAxes,
-      actor.restFrames,
-      topology,
-    ).map((bone) => [bone.bone, bone.worldPosition]),
-  );
-
-const round = (value: number): number => Math.round(value * 1_000) / 1_000;
-
-const DEFAULT_SAMPLE_RATE = 24;
-
-const DEFAULT_MASS = 70; // kg: an unspecified body defaults to a human mass
-
-const DEFAULT_RESTITUTION = 0.2;
-
-const DEFAULT_HARDNESS = 0.5;
-
-const DEFAULT_PENETRABILITY = 0.3;
-
-const DEFAULT_GAIN = 0.05; // recoil flexion degrees per unit impulse
-
-const FALLBACK_NORMAL: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
 /**
  * Validate every capsule of one actor against its own rig, one violation per

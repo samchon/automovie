@@ -64,3 +64,17 @@ export const productionPhonemesToVisemes = (props: {
     ];
   return output;
 };
+
+const phonemeViseme = (
+  phoneme: string,
+): IAutoMovieProductionViseme["viseme"] => {
+  const token = phoneme.toLocaleLowerCase("en-US");
+  const matches = (characters: string): boolean =>
+    Array.from(token).some((character) => characters.includes(character));
+  if (matches("aɑɒæʌə")) return "aa";
+  if (matches("iɪɨ")) return "ih";
+  if (matches("uʊw")) return "ou";
+  if (matches("eɛj")) return "ee";
+  if (matches("oɔ")) return "oh";
+  return "rest";
+};

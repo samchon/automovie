@@ -1,4 +1,4 @@
-import { IAutoMovieServiceNetwork } from "@automovie/interface";
+import { IAutoMovieServiceNetwork, IAutoMovieServiceSystem } from "@automovie/interface";
 import { portOwners } from "./portOwners";
 
 /**
@@ -66,4 +66,20 @@ export const serviceSystemReach = (props: {
   return props.network.nodes
     .filter((node) => reached.has(node.id))
     .map((node) => node.id);
+};
+
+const requireSystem = (
+  network: IAutoMovieServiceNetwork,
+  id: string,
+): IAutoMovieServiceSystem => {
+  const system = network.systems.find((candidate) => candidate.id === id);
+  if (system === undefined)
+    throw new Error(`service network "${network.id}" has no system "${id}"`);
+  return system;
+};
+
+const push = (map: Map<string, string[]>, key: string, value: string): void => {
+  const bucket = map.get(key);
+  if (bucket === undefined) map.set(key, [value]);
+  else bucket.push(value);
 };

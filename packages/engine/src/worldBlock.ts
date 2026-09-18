@@ -78,3 +78,13 @@ export const worldBlock = (input: {
     },
   };
 };
+
+const assertText = (value: string, field: string): void => {
+  if (value.trim().length === 0)
+    throw new Error(`${field} must contain non-whitespace text.`);
+};
+
+const assertVector = (value: IAutoMovieVector3, field: string): void => {
+  if ([value.x, value.y, value.z].every(Number.isFinite) === false)
+    throw new Error(`${field} must be finite.`);
+};

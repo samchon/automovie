@@ -1,6 +1,5 @@
 import { IAutoMovieFootprint } from "../space/IAutoMovieFootprint";
 import { IAutoMovieHeightSurface } from "../space/IAutoMovieHeightSurface";
-import { surfaceHeightAt } from "../space/surfaceHeightAt";
 
 /**
  * The world face a prop rests on, as one record both kinds of support answer.

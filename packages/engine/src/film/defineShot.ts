@@ -1,5 +1,4 @@
 import { IAutoMovieDefinedShot, IAutoMovieShotDefinition } from "@automovie/interface";
-import { IAutoMovieCollisionResponse } from "../physics/IAutoMovieCollisionResponse";
 
 /**
  * Register one coding-agent-authored shot.
@@ -17,18 +16,3 @@ export const defineShot = <Context>(
   id: string,
   definition: IAutoMovieShotDefinition<Context>,
 ): IAutoMovieDefinedShot<Context> => ({ id, ...definition });
-
-/**
- * One D010 physical suggestion carried as data.
- *
- * The engine never applies {@link IAutoMovieShotPhysicsAdvice.proposal} by
- * implication. The coding agent may keep it pending, accept it, replace it with
- * a modified response, or reject it with rationale; the decision remains
- * visible beside the build.
- */
-interface IAutoMovieShotPhysicsAdviceBase {
-  /** Stable advice identity chosen by the shot code. */
-  id: string;
-  /** Engine-computed impact, push and optional ROM-bounded recoil. */
-  proposal: IAutoMovieCollisionResponse;
-}

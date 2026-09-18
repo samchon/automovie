@@ -1,4 +1,4 @@
-import { AutoMovieQuantitySubject, AutoMovieQuantityUnit } from "@automovie/interface";
+import { AutoMovieQuantitySubject } from "@automovie/interface";
 
 /**
  * Every subject a report answers for, in the order it answers for them.
@@ -15,15 +15,3 @@ export const AUTOMOVIE_QUANTITY_SUBJECTS: AutoMovieQuantitySubject[] = [
   "opening-count",
   "model-occurrence-count",
 ];
-
-/** The unit each subject is measured in. */
-const UNITS: { [subject in AutoMovieQuantitySubject]: AutoMovieQuantityUnit } =
-  {
-    "space-floor-area": "m2",
-    "space-volume": "m3",
-    "opening-area": "m2",
-    "connector-length": "m",
-    "element-count": "count",
-    "opening-count": "count",
-    "model-occurrence-count": "count",
-  };

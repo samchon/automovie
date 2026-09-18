@@ -1,6 +1,5 @@
 import { AutoMovieHumanoidBone } from "@automovie/interface";
 import { IAutoMovieJointAxes } from "../kinematics/IAutoMovieJointAxes";
-import { resolvePose } from "../kinematics/resolvePose";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 
 /**

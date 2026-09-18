@@ -1,4 +1,4 @@
-import { IAutoMoviePlantingDomain, IAutoMovieValidation } from "@automovie/interface";
+import { IAutoMoviePlantingDomain, IAutoMovieValidation, IAutoMovieVector3 } from "@automovie/interface";
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { plantingBudget } from "./plantingBudget";
 import { PLANTING_MAX_BRANCHES } from "./PLANTING_MAX_BRANCHES";
@@ -304,4 +304,95 @@ export const validatePlantingDomain = (props: {
   }
 
   return out.toValidation();
+};
+
+/** A non-zero finite direction vector. */
+const direction = (
+  out: ViolationCollector,
+  path: string,
+  label: string,
+  value: IAutoMovieVector3,
+): void => {
+  vector(out, path, value);
+  if (
+    Number.isFinite(value.x) &&
+    Number.isFinite(value.y) &&
+    Number.isFinite(value.z) &&
+    value.x * value.x + value.y * value.y + value.z * value.z === 0
+  )
+    out.push("type", path, `${label} must be a non-zero vector`, value);
+};
+
+/** Every component of an authored vector must be a real number. */
+const vector = (
+  out: ViolationCollector,
+  path: string,
+  value: IAutoMovieVector3,
+): void => {
+  for (const axis of ["x", "y", "z"] as const)
+    numeric(
+      out,
+      `${path}.${axis}`,
+      `${axis} component`,
+      value[axis],
+      -Infinity,
+      false,
+      Infinity,
+    );
+};
+
+/** A finite scalar inside `[min, max]`, or `(min, max]` when `exclusive`. */
+const numeric = (
+  out: ViolationCollector,
+  path: string,
+  label: string,
+  value: number,
+  min: number,
+  exclusive: boolean,
+  max: number,
+): void => {
+  if (
+    !Number.isFinite(value) ||
+    (exclusive ? value <= min : value < min) ||
+    value > max
+  )
+    out.push(
+      "range",
+      path,
+      `${label} must be finite within ${exclusive ? "(" : "["}${min}, ${max}]`,
+      value,
+    );
+};
+
+/** A safe integer inside `[min, max]`. */
+const integer = (
+  out: ViolationCollector,
+  path: string,
+  label: string,
+  value: number,
+  min: number,
+  max: number,
+): void => {
+  if (!Number.isSafeInteger(value) || value < min || value > max)
+    out.push(
+      "type",
+      path,
+      `${label} must be an integer within [${min}, ${max}]`,
+      value,
+    );
+};
+
+/** A non-empty id that has not already been used by a sibling. */
+const identity = (
+  out: ViolationCollector,
+  path: string,
+  label: string,
+  id: string,
+  seen: Set<string>,
+): void => {
+  if (id.trim().length === 0)
+    out.push("type", `${path}.id`, `${label} id must be non-empty`, id);
+  else if (seen.has(id))
+    out.push("type", `${path}.id`, `${label} id "${id}" is duplicated`, id);
+  seen.add(id);
 };

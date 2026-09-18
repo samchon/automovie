@@ -1,5 +1,4 @@
 import { IAutoMoviePlanarPoint, IAutoMovieVector3 } from "@automovie/interface";
-import { convexHull2D } from "../math/convexHull2D";
 
 /**
  * One closed ring of a footprint, with the plan projection and the signed area

@@ -1,6 +1,10 @@
-import { IAutoMovieHalfSpacePlane } from "@automovie/interface";
+import { IAutoMovieHalfSpacePlane, IAutoMovieVector3 } from "@automovie/interface";
+import { Vector3 } from "../math/Vector3";
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { AUTOMOVIE_ANALYSIS_MIN_SOLID_PLANES } from "./AUTOMOVIE_ANALYSIS_MIN_SOLID_PLANES";
+
+/** Directions shorter than this carry no direction at all. */
+const AXIS_EPSILON = 1e-12;
 
 /**
  * Check the half-spaces of one convex blocker.
@@ -40,4 +44,23 @@ export const validateSolidPlanes = (
         plane.offset,
       );
   });
+};
+
+const direction = (
+  value: IAutoMovieVector3,
+  path: string,
+  label: string,
+  out: ViolationCollector,
+): void => {
+  for (const axis of ["x", "y", "z"] as const)
+    if (!Number.isFinite(value[axis]))
+      out.push(
+        "range",
+        `${path}.${axis}`,
+        `${label} ${axis} must be finite, but was ${value[axis]}`,
+        value[axis],
+      );
+  const length = Vector3.length(value);
+  if (Number.isFinite(length) && length <= AXIS_EPSILON)
+    out.push("range", path, `${label} must be a non-zero direction`, value);
 };

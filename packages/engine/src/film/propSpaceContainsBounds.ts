@@ -1,4 +1,4 @@
-import { IAutoMovieBuiltEnvironment, IAutoMoviePropBox } from "@automovie/interface";
+import { IAutoMovieBuiltEnvironment, IAutoMoviePropBox, IAutoMovieVector3 } from "@automovie/interface";
 import { builtEnvironmentContainsPoint } from "../architecture/builtEnvironmentContainsPoint";
 import { builtSpaceStatesVolume } from "../architecture/builtSpaceStatesVolume";
 
@@ -29,3 +29,32 @@ export const propSpaceContainsBounds = (props: {
   if (!locates) return true;
   return inside.every((value) => value);
 };
+
+/** Every logical space at or below `root`, by declared parent links. */
+const descendantSpaces = (
+  environment: IAutoMovieBuiltEnvironment,
+  root: string,
+): Set<string> => {
+  const included = new Set([root]);
+  let changed = true;
+  while (changed) {
+    changed = false;
+    for (const space of environment.spaces)
+      if (
+        space.parent !== null &&
+        included.has(space.parent) &&
+        !included.has(space.id)
+      ) {
+        included.add(space.id);
+        changed = true;
+      }
+  }
+  return included;
+};
+
+const boxCorners = (box: IAutoMoviePropBox): IAutoMovieVector3[] =>
+  [box.min.x, box.max.x].flatMap((x) =>
+    [box.min.y, box.max.y].flatMap((y) =>
+      [box.min.z, box.max.z].map((z) => ({ x, y, z })),
+    ),
+  );

@@ -19,3 +19,6 @@ export const pointHullDistance = (
   if (pointInHull(point, hull)) return 0;
   return nearestHullEdge(point, hull).distance;
 };
+
+const distanceXZ = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
+  Math.hypot(a.x - b.x, a.z - b.z);

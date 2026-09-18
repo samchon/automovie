@@ -180,57 +180,6 @@ interface ILimitEntry {
 const positionOf = (m: number[]) => ({ x: m[12]!, y: m[13]!, z: m[14]! });
 
 const toVec3 = (a: number[]) => ({ x: a[0]!, y: a[1]!, z: a[2]! });
-const toQuat = (a: number[]) => ({ x: a[0]!, y: a[1]!, z: a[2]!, w: a[3]! });
-
-const validateSampledNodeChannels = (
-  sampled: Map<string, IAutoMovieSampledChannel>,
-  nodesById: Map<string, IAutoMovieNode>,
-): void => {
-  for (const [key, hit] of sampled) {
-    if (hit.channel.kind !== "node") continue;
-    if (!nodesById.has(hit.channel.node))
-      throw new Error(
-        `sampled channel "${key}" references missing node "${hit.channel.node}"`,
-      );
-  }
-};
-
-/**
- * Seed a spring chain's non-root joints from the state's post-spring positions
- * of the previous frame. A host loop carries its mutated world map across
- * steps; `resolveFrame` composes fresh from the animation every frame, so
- * without this the spring would restart from the animated pose each time and
- * never accumulate sag. Rotation/scale stay animated: spring only owns the
- * position, exactly like {@link stepSpring}'s own write.
- */
-const seedSprungPositions = (
-  chain: readonly string[],
-  world: Map<string, number[]>,
-  state: IAutoMovieSpringState,
-): void => {
-  for (let i = 1; i < chain.length; ++i) {
-    const id = chain[i]!;
-    const carried = state.sprung.get(id);
-    if (carried === undefined) continue;
-    const m = readWorld(world, id, "spring chain");
-    const next = [...m];
-    next[12] = carried.x;
-    next[13] = carried.y;
-    next[14] = carried.z;
-    world.set(id, next);
-  }
-};
-
-/** One limit to apply, tagged with the profile it came from (null = direct). */
-interface ILimitEntry {
-  limit: IAutoMovieChannelLimit;
-  profile: string | null;
-}
-
-/** Translation column of a column-major world matrix. */
-const positionOf = (m: number[]) => ({ x: m[12]!, y: m[13]!, z: m[14]! });
-
-const toVec3 = (a: number[]) => ({ x: a[0]!, y: a[1]!, z: a[2]! });
 
 const toQuat = (a: number[]) => ({ x: a[0]!, y: a[1]!, z: a[2]!, w: a[3]! });
 

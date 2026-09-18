@@ -8,6 +8,8 @@ import { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
 import { IAutoMovieSkeletonTopology } from "./IAutoMovieSkeletonTopology";
 import { indexSkeletonTopology } from "./indexSkeletonTopology";
 
+const ROOT_PARENT = "__root__";
+
 /**
  * Resolve a {@link IAutoMoviePose} against its {@link IAutoMovieSkeleton} into
  * per-bone transforms (forward kinematics).

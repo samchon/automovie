@@ -2,6 +2,16 @@ import type { IAutoMovieColor } from "@automovie/interface";
 import { linearColorToSrgbHex } from "./linearColorToSrgbHex";
 
 /**
+ * The exact `#RRGGBB` swatch form every authored palette string is written in.
+ *
+ * Three separate capture groups rather than one six-digit run, so a channel is
+ * read as a channel instead of a number that happens to be twenty-four bits
+ * wide: shifting a parsed integer would put the decode one bug away from the
+ * transcription this whole module exists to remove.
+ */
+const SRGB_HEX_SWATCH = /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i;
+
+/**
  * Decode one sRGB `#RRGGBB` swatch into the linear color materials are typed
  * in.
  *
@@ -44,11 +54,15 @@ export const srgbHexToLinearColor = (hex: string): IAutoMovieColor => {
 };
 
 /**
- * The exact `#RRGGBB` swatch form every authored palette string is written in.
+ * The sRGB electro-optical transfer function of IEC 61966-2-1.
  *
- * Three separate capture groups rather than one six-digit run, so a channel is
- * read as a channel instead of a number that happens to be twenty-four bits
- * wide: shifting a parsed integer would put the decode one bug away from the
- * transcription this whole module exists to remove.
+ * Written with the standard's own constants rather than three.js's pre-divided
+ * approximations, so the repository's decode is answerable to the specification
+ * instead of to a renderer's rounding. The two agree to every bit a 32-bit
+ * instance color attribute can hold across all 256 channel values, which is why
+ * adopting this one changes no frame the viewer already drew.
  */
-const SRGB_HEX_SWATCH = /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i;
+const srgbChannelToLinear = (component: number): number =>
+  component <= 0.04045
+    ? component / 12.92
+    : Math.pow((component + 0.055) / 1.055, 2.4);

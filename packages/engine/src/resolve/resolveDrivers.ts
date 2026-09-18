@@ -8,7 +8,7 @@ import {
 
 import { Quaternion } from "../math/Quaternion";
 import { channelKey } from "./channelKey";
-import { evaluateDrivenCurve } from "./drivenCurve";
+import { evaluateDrivenCurve } from "./evaluateDrivenCurve";
 import { IAutoMovieSampledChannel } from "./IAutoMovieSampledChannel";
 
 /** The two channel-space drivers this pass resolves (no world transform needed). */

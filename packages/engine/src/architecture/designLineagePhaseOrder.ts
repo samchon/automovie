@@ -1,5 +1,6 @@
 import { IAutoMovieDesignLineage } from "@automovie/interface";
 import { compareCodeUnits } from "../text/compareCodeUnits";
+import { validateDesignLineage } from "./validateDesignLineage";
 
 /**
  * Order the construction plan deterministically.
@@ -33,4 +34,14 @@ export const designLineagePhaseOrder = (
     order.push(next.id);
   }
   return order;
+};
+
+const requireValidLineage = (lineage: IAutoMovieDesignLineage): void => {
+  const validated = validateDesignLineage({ lineage });
+  if (validated.success === false) {
+    const first = validated.violations[0]!;
+    throw new Error(
+      `design lineage "${lineage.id}" is invalid at ${first.path}: ${first.expected}`,
+    );
+  }
 };

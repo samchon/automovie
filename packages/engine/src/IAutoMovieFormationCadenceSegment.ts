@@ -1,5 +1,3 @@
-import { IAutoMovieFormationMotion } from "@automovie/interface";
-
 /**
  * One interval of a unit's shot over which one action runs at one rate.
  *

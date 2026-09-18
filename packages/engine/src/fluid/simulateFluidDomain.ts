@@ -285,3 +285,51 @@ export const simulateFluidDomain = (
     outflowVolume,
   };
 };
+
+/**
+ * One face's velocity after this step's momentum update.
+ *
+ * `before`/`after` are the two cells the face separates in increasing index
+ * order, an absent one already substituted by its dry ghost. The face is silent
+ * — exactly zero, so a still lake stays still — when a wall or solid blocks it,
+ * when neither side holds water, and when the only water present would have to
+ * climb onto ground standing above its own free surface.
+ */
+const faceSpeed = (props: {
+  previous: number;
+  blocked: boolean;
+  bedBefore: number;
+  bedAfter: number;
+  depthBefore: number;
+  depthAfter: number;
+  dry: number;
+  gravity: number;
+  dt: number;
+  span: number;
+  damping: number;
+}): number => {
+  if (props.blocked) return 0;
+  const etaBefore = props.bedBefore + props.depthBefore;
+  const etaAfter = props.bedAfter + props.depthAfter;
+  const wetBefore = props.depthBefore > props.dry;
+  const wetAfter = props.depthAfter > props.dry;
+  if (wetBefore === false && etaAfter <= etaBefore) return 0;
+  if (wetAfter === false && etaBefore <= etaAfter) return 0;
+  return (
+    (props.previous -
+      (props.dt * props.gravity * (etaAfter - etaBefore)) / props.span) /
+    props.damping
+  );
+};
+
+/** Whether a declared source or drain is open at this step's start time. */
+const active = (start: number, end: number | null, time: number): boolean =>
+  time >= start && (end === null || time < end);
+
+/** Whether every value of every array is a real number. */
+const allFinite = (arrays: Float64Array[]): boolean => {
+  for (const values of arrays)
+    for (let index = 0; index < values.length; ++index)
+      if (Number.isFinite(values[index]) === false) return false;
+  return true;
+};

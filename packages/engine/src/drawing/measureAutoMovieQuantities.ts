@@ -1,4 +1,4 @@
-import { AutoMovieQuantityBasis, AutoMovieQuantitySubject, IAutoMovieBuiltEnvironment, IAutoMovieDrawingGap, IAutoMovieQuantityContributor, IAutoMovieQuantityFinding, IAutoMovieQuantityReport } from "@automovie/interface";
+import { AutoMovieQuantityBasis, AutoMovieQuantitySubject, AutoMovieQuantityUnit, IAutoMovieBuiltEnvironment, IAutoMovieDrawingGap, IAutoMovieQuantityContributor, IAutoMovieQuantityFinding, IAutoMovieQuantityReport } from "@automovie/interface";
 import { builtSpaceShellVolume } from "../architecture/builtSpaceShellVolume";
 import { validateBuiltEnvironment } from "../architecture/validateBuiltEnvironment";
 import { Vector3 } from "../math/Vector3";
@@ -12,6 +12,18 @@ import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
 import { AUTOMOVIE_QUANTITY_CELL_UNION_APPROXIMATION } from "./AUTOMOVIE_QUANTITY_CELL_UNION_APPROXIMATION";
 import { AUTOMOVIE_QUANTITY_MAX_CONTRIBUTORS } from "./AUTOMOVIE_QUANTITY_MAX_CONTRIBUTORS";
 import { AUTOMOVIE_QUANTITY_SUBJECTS } from "./AUTOMOVIE_QUANTITY_SUBJECTS";
+
+/** The unit each subject is measured in. */
+const UNITS: { [subject in AutoMovieQuantitySubject]: AutoMovieQuantityUnit } =
+  {
+    "space-floor-area": "m2",
+    "space-volume": "m3",
+    "opening-area": "m2",
+    "connector-length": "m",
+    "element-count": "count",
+    "opening-count": "count",
+    "model-occurrence-count": "count",
+  };
 
 /**
  * Measure everything the design can answer for, and name everything it cannot.
@@ -273,48 +285,3 @@ const canonical = (report: Omit<IAutoMovieQuantityReport, "digest">): string =>
       [gap.subject, gap.status, gap.reason, gap.remedy].join("|"),
     ),
   ].join("\n");
-
-/**
- * Turn one subject's owner tally into its bounded finding.
- *
- * The total is summed over every owner before the bound is applied, so naming
- * fewer owners never changes the number somebody orders against; the omitted
- * count and omitted value are what let a reader reconcile the two.
- */
-const finish = (
-  subject: AutoMovieQuantitySubject,
-  owners: ReadonlyMap<string, number>,
-  bound: number,
-): IAutoMovieQuantityFinding => {
-  const ordered: IAutoMovieQuantityContributor[] = [...owners.entries()]
-    .map(([owner, value]) => ({
-      owner,
-      value: roundAutoMovieDrawingScalar(value),
-    }))
-    .sort(
-      (left, right) =>
-        right.value - left.value ||
-        compareAutoMovieRenderIds(left.owner, right.owner),
-    );
-  const omitted = ordered.slice(bound);
-  const basis: AutoMovieQuantityBasis =
-    subject === "space-volume" ? "approximate" : "exact";
-  return {
-    subject,
-    unit: UNITS[subject],
-    total: roundAutoMovieDrawingScalar(
-      ordered.reduce((sum, entry) => sum + entry.value, 0),
-    ),
-    owners: ordered.length,
-    basis,
-    approximation:
-      basis === "approximate"
-        ? AUTOMOVIE_QUANTITY_CELL_UNION_APPROXIMATION
-        : null,
-    contributors: ordered.slice(0, bound),
-    omittedOwners: omitted.length,
-    omittedValue: roundAutoMovieDrawingScalar(
-      omitted.reduce((sum, entry) => sum + entry.value, 0),
-    ),
-  };
-};

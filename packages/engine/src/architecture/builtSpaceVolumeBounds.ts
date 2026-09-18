@@ -1,6 +1,25 @@
-import { IAutoMovieBuiltSpace, IAutoMoviePlanarPoint, IAutoMovieSubjectBox } from "@automovie/interface";
-import { AUTOMOVIE_OBSERVATION_EPSILON } from "./AUTOMOVIE_OBSERVATION_EPSILON";
+import { IAutoMovieBuiltSpace, IAutoMovieSubjectBox, IAutoMovieVector3 } from "@automovie/interface";
 import { builtConvexCellVertices } from "./builtConvexCellVertices";
+
+/** Grow a box by one point, creating it when there is none yet. */
+const includePoint = (
+  box: IAutoMovieSubjectBox | null,
+  point: IAutoMovieVector3,
+): IAutoMovieSubjectBox =>
+  box === null
+    ? { min: { ...point }, max: { ...point } }
+    : {
+        min: {
+          x: Math.min(box.min.x, point.x),
+          y: Math.min(box.min.y, point.y),
+          z: Math.min(box.min.z, point.z),
+        },
+        max: {
+          x: Math.max(box.max.x, point.x),
+          y: Math.max(box.max.y, point.y),
+          z: Math.max(box.max.z, point.z),
+        },
+      };
 
 /**
  * The world box one logical space's own stated volume occupies.
@@ -25,27 +44,4 @@ export const builtSpaceVolumeBounds = (
     for (const vertex of builtConvexCellVertices(cell))
       box = includePoint(box, vertex);
   return box;
-};
-
-/** Area-weighted centroid of a planar outline, or its vertex mean when flat. */
-const outlineCentroid = (
-  outline: readonly IAutoMoviePlanarPoint[],
-): IAutoMoviePlanarPoint => {
-  let doubleArea = 0;
-  let x = 0;
-  let y = 0;
-  for (let index = 0; index < outline.length; index++) {
-    const from = outline[index]!;
-    const to = outline[(index + 1) % outline.length]!;
-    const cross = from.x * to.y - to.x * from.y;
-    doubleArea += cross;
-    x += (from.x + to.x) * cross;
-    y += (from.y + to.y) * cross;
-  }
-  if (Math.abs(doubleArea) <= AUTOMOVIE_OBSERVATION_EPSILON)
-    return {
-      x: outline.reduce((sum, point) => sum + point.x, 0) / outline.length,
-      y: outline.reduce((sum, point) => sum + point.y, 0) / outline.length,
-    };
-  return { x: x / (3 * doubleArea), y: y / (3 * doubleArea) };
 };

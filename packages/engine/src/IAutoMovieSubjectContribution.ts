@@ -212,33 +212,3 @@ export interface IAutoMovieSubjectContribution {
    */
   instanceSets?: readonly IAutoMovieInstanceSetDesign[];
 }
-
-const CONTRIBUTION_KEYS = [
-  "models",
-  "set",
-  "spaces",
-  "builtEnvironments",
-  "designReferences",
-  "designEvidence",
-  "designLineages",
-  "fluidDomains",
-  "softBodyDomains",
-  "softFurnishings",
-  "plantingDomains",
-  "plantingClusters",
-  "plantingInstallations",
-  "serviceNetworks",
-  "waterFeatures",
-  "props",
-  "actors",
-  "clips",
-  "formationMotions",
-  "formationSlotMotions",
-  "effectCues",
-  "landmarks",
-  "surfaces",
-  "routes",
-  "effectRecipes",
-  "effectZones",
-  "instanceSets",
-] as const;

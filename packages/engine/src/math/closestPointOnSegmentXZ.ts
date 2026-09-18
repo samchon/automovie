@@ -18,31 +18,4 @@ export const closestPointOnSegmentXZ = (
   return { x: start.x + dx * t, y: 0, z: start.z + dz * t };
 };
 
-const EPSILON = 1e-9;
-
-const cross = (
-  o: IAutoMovieVector3,
-  a: IAutoMovieVector3,
-  b: IAutoMovieVector3,
-): number => (a.x - o.x) * (b.z - o.z) - (a.z - o.z) * (b.x - o.x);
-
-const distanceXZ = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
-  Math.hypot(a.x - b.x, a.z - b.z);
-
-const clamp = (value: number): number => Math.min(1, Math.max(0, value));
-
-const dedupeXZ = (
-  points: readonly IAutoMovieVector3[],
-): IAutoMovieVector3[] => {
-  const seen = new Set<string>();
-  const out: IAutoMovieVector3[] = [];
-  for (const p of points) {
-    const key = `${p.x},${p.z}`;
-    if (seen.has(key)) continue;
-    seen.add(key);
-    out.push(p);
-  }
-  return out;
-};
-
 const clamp = (value: number): number => Math.min(1, Math.max(0, value));

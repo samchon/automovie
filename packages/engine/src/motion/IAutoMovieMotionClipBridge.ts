@@ -1,5 +1,4 @@
 import { IAutoMovieClip, IAutoMovieNode } from "@automovie/interface";
-import { MOTION_ROOT_NODE_ID } from "../resolve/MOTION_ROOT_NODE_ID";
 
 /**
  * A humanoid motion lowered onto the general node/clip model: the skeleton as a

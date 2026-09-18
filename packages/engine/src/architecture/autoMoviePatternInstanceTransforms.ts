@@ -1,11 +1,11 @@
-import { IAutoMovieExplicitInstanceTransform } from "@automovie/interface";
+import { IAutoMovieExplicitInstanceTransform, IAutoMovieVector3 } from "@automovie/interface";
 import { Matrix4 } from "../math/Matrix4";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { positive } from "../geometry/positive";
 import { IAutoMoviePatternFaceFrame } from "./IAutoMoviePatternFaceFrame";
 import { IAutoMoviePatternFacet } from "./IAutoMoviePatternFacet";
 import { IAutoMoviePatternInstancing } from "./IAutoMoviePatternInstancing";
+import { IAutoMoviePatternPoint } from "./IAutoMoviePatternPoint";
 import { IAutoMovieSurfacePatternResult } from "./IAutoMovieSurfacePatternResult";
 
 /**
@@ -114,4 +114,83 @@ export const autoMoviePatternInstanceTransforms = (props: {
     transforms.push(slot);
   }
   return { transforms, cut };
+};
+
+/** The panel each zone returns onto, refusing a facet nothing was laid in. */
+const resolveFacets = (
+  result: IAutoMovieSurfacePatternResult,
+  facets: readonly IAutoMoviePatternFacet[],
+): Map<string, IAutoMovieResolvedFacet> => {
+  const zones = new Set(result.quantities.zones.map((one) => one.zone));
+  const panels = new Map<string, IAutoMovieResolvedFacet>();
+  for (const facet of facets) {
+    if (!zones.has(facet.zone))
+      throw new Error(
+        `pattern facet names zone "${facet.zone}", which pattern "${result.id}" did not lay`,
+      );
+    if (panels.has(facet.zone))
+      throw new Error(`pattern facet zone "${facet.zone}" must be unique`);
+    panels.set(
+      facet.zone,
+      resolveFacet(
+        facet.anchor,
+        facet.frame,
+        `pattern facet "${facet.zone}" frame`,
+      ),
+    );
+  }
+  return panels;
+};
+
+/** One panel's orthonormal world basis and the developed point it stands at. */
+interface IAutoMovieResolvedFacet {
+  /** Face-local metre point {@link origin} sits at. */
+  anchor: IAutoMoviePatternPoint;
+  /** World point the panel is measured from. */
+  origin: IAutoMovieVector3;
+  /** Unit world direction of the panel's U axis. */
+  u: IAutoMovieVector3;
+  /** Unit world direction of the panel's V axis. */
+  v: IAutoMovieVector3;
+  /** Unit world face normal, `u × v`. */
+  normal: IAutoMovieVector3;
+}
+
+const resolveFacet = (
+  anchor: IAutoMoviePatternPoint,
+  frame: IAutoMoviePatternFaceFrame,
+  label: string,
+): IAutoMovieResolvedFacet => {
+  const u = unitAxis(frame.u, `${label} u`);
+  const v = unitAxis(frame.v, `${label} v`);
+  finiteVector(frame.origin, `${label} origin`);
+  finitePoint(anchor, `${label} anchor`);
+  if (Math.abs(Vector3.dot(u, v)) > 1e-6)
+    throw new Error(`${label} axes must be perpendicular`);
+  return { anchor, origin: frame.origin, u, v, normal: Vector3.cross(u, v) };
+};
+
+const unitAxis = (
+  axis: IAutoMovieVector3,
+  label: string,
+): IAutoMovieVector3 => {
+  finiteVector(axis, label);
+  if (Math.abs(Vector3.length(axis) - 1) > 1e-6)
+    throw new Error(`${label} must be a unit vector`);
+  return axis;
+};
+
+const finiteVector = (value: IAutoMovieVector3, label: string): void => {
+  if (![value.x, value.y, value.z].every(Number.isFinite))
+    throw new Error(`${label} must be finite`);
+};
+
+const finitePoint = (point: IAutoMoviePatternPoint, label: string): void => {
+  if (!Number.isFinite(point.u) || !Number.isFinite(point.v))
+    throw new Error(`${label} must be finite`);
+};
+
+const positive = (value: number, label: string): void => {
+  if (!Number.isFinite(value) || value <= 0)
+    throw new Error(`${label} must be a finite number > 0`);
 };

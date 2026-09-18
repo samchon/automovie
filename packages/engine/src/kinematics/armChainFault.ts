@@ -1,8 +1,19 @@
 import { AutoMovieHumanoidBone, IAutoMovieSkeleton } from "@automovie/interface";
 import { Vector3 } from "../math/Vector3";
-import { HUMANOID_JOINT_AXES } from "./humanoidJointAxes";
+import { HUMANOID_JOINT_AXES } from "./HUMANOID_JOINT_AXES";
 import { IAutoMovieJointAxes } from "./IAutoMovieJointAxes";
 import { IAutoMovieArmChainFault } from "./IAutoMovieArmChainFault";
+
+/**
+ * Sine of the angle below which a hinge counts as parallel to the segment it
+ * drives. The engine's other geometric degeneracy guards (zero-length segment,
+ * target on the chain root, bend-plane fallback) all use `1e-6`, and this is
+ * the same kind of question asked about an angle rather than a length. A rig
+ * whose elbow is merely CLOSE to parallel still solves: it can bend, just
+ * weakly, and refusing it would be the engine deciding how much articulation is
+ * worth having.
+ */
+const PARALLEL_SINE = 1e-6;
 
 /**
  * Whether an arm chain can be articulated at all by the analytic arm IK,
@@ -79,12 +90,6 @@ export const armChainFault = (
       `has no reach shell, only a fixed radius, so no arm IK pose can be solved for it.`,
   };
 };
-
-const axisText = (axis: { x: number; y: number; z: number }): string =>
-  `${trim(axis.x)}, ${trim(axis.y)}, ${trim(axis.z)}`;
-
-/** Six significant digits, trailing zeros dropped: a readable, stable number. */
-const trim = (value: number): string => String(Number(value.toPrecision(6)));
 
 const axisText = (axis: { x: number; y: number; z: number }): string =>
   `${trim(axis.x)}, ${trim(axis.y)}, ${trim(axis.z)}`;

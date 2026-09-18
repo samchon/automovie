@@ -1,5 +1,8 @@
 import { ITwoBoneIK } from "./ITwoBoneIK";
 
+const acosDeg = (x: number): number =>
+  (Math.acos(Math.min(1, Math.max(-1, x))) * 180) / Math.PI;
+
 /**
  * Solve a two-bone IK chain (upper + lower segment) reaching toward a goal a
  * straight-line `distance` from the root: the closed-form, deterministic
@@ -36,29 +39,6 @@ export const solveTwoBoneIK = (
       ? 0
       : acosDeg((upper * upper + d * d - lower * lower) / (2 * upper * d));
   return { bend, lift, clamped };
-};
-
-const validateSegmentLength = (
-  label: "upper" | "lower",
-  value: number,
-): void => {
-  if (!Number.isFinite(value))
-    throw new Error(
-      `two-bone IK ${label} length must be finite, but was ${value}`,
-    );
-  if (value <= 0)
-    throw new Error(
-      `two-bone IK ${label} length must be > 0, but was ${value}`,
-    );
-};
-
-const validateDistance = (distance: number): void => {
-  if (!Number.isFinite(distance))
-    throw new Error(`two-bone IK distance must be finite, but was ${distance}`);
-  if (distance < 0)
-    throw new Error(
-      `two-bone IK distance must be non-negative, but was ${distance}`,
-    );
 };
 
 const validateSegmentLength = (

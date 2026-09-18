@@ -2,6 +2,17 @@ import type { IAutoMovieMesh, IAutoMovieModel } from "@automovie/interface";
 import { measureAutoMovieMeshCrossings } from "./measureAutoMovieMeshCrossings";
 import { IAutoMovieModelCrossing } from "./IAutoMovieModelCrossing";
 
+const bounds = (mesh: IAutoMovieMesh): { low: number[]; high: number[] } => {
+  const low = [Infinity, Infinity, Infinity];
+  const high = [-Infinity, -Infinity, -Infinity];
+  for (let at = 0; at < mesh.positions.length; at += 3)
+    for (let axis = 0; axis < 3; axis++) {
+      low[axis] = Math.min(low[axis], mesh.positions[at + axis]);
+      high[axis] = Math.max(high[axis], mesh.positions[at + axis]);
+    }
+  return { low, high };
+};
+
 /**
  * Report every pair of a model's parts whose surfaces cross each other.
  *

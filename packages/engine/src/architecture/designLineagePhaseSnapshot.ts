@@ -1,5 +1,6 @@
 import { AutoMovieDesignLifecycleRole, AutoMovieDesignPresence, IAutoMovieDesignLineage, IAutoMovieDesignPhaseSnapshot, IAutoMovieDesignPhaseState } from "@automovie/interface";
 import { compareCodeUnits } from "../text/compareCodeUnits";
+import { validateDesignLineage } from "./validateDesignLineage";
 
 /**
  * Report every declared subject's role and presence once a phase completes.
@@ -73,4 +74,46 @@ export const designLineagePhaseSnapshot = (
     })
     .sort((a, b) => compareCodeUnits(a.subject, b.subject));
   return { phase, states };
+};
+
+const requireValidLineage = (lineage: IAutoMovieDesignLineage): void => {
+  const validated = validateDesignLineage({ lineage });
+  if (validated.success === false) {
+    const first = validated.violations[0]!;
+    throw new Error(
+      `design lineage "${lineage.id}" is invalid at ${first.path}: ${first.expected}`,
+    );
+  }
+};
+
+const requirePhase = (
+  lineage: IAutoMovieDesignLineage,
+  phase: string | null,
+): void => {
+  if (phase !== null && !lineage.phases.some((entry) => entry.id === phase))
+    throw new Error(
+      `design lineage "${lineage.id}" has no construction phase "${phase}"`,
+    );
+};
+
+/** Every phase that must complete strictly before the given one. */
+const phasesBefore = (
+  lineage: IAutoMovieDesignLineage,
+  phase: string,
+): Set<string> => {
+  const byId = new Map(
+    lineage.phases.map((entry) => [entry.id, entry] as const),
+  );
+  const before = new Set<string>();
+  const queue = [...byId.get(phase)!.requires];
+  while (queue.length > 0) {
+    const current = queue.shift()!;
+    if (before.has(current)) continue;
+    before.add(current);
+    // A prerequisite naming no phase is reported on its own path; walking it
+    // further would only repeat that one defect as an ordering complaint.
+    const next = byId.get(current);
+    if (next !== undefined) queue.push(...next.requires);
+  }
+  return before;
 };

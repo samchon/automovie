@@ -1,5 +1,6 @@
-import { IAutoMovieDesignComparison, IAutoMovieDesignDifference, IAutoMovieDesignLineage } from "@automovie/interface";
+import { IAutoMovieDesignComparison, IAutoMovieDesignDifference, IAutoMovieDesignLineage, IAutoMovieDesignVariant } from "@automovie/interface";
 import { compareCodeUnits } from "../text/compareCodeUnits";
+import { validateDesignLineage } from "./validateDesignLineage";
 
 /**
  * Compare two alternatives on the revision they share.
@@ -71,3 +72,29 @@ export const designLineageCompare = (
     differences,
   };
 };
+
+const requireValidLineage = (lineage: IAutoMovieDesignLineage): void => {
+  const validated = validateDesignLineage({ lineage });
+  if (validated.success === false) {
+    const first = validated.violations[0]!;
+    throw new Error(
+      `design lineage "${lineage.id}" is invalid at ${first.path}: ${first.expected}`,
+    );
+  }
+};
+
+const requireVariant = (
+  lineage: IAutoMovieDesignLineage,
+  variant: string,
+): IAutoMovieDesignVariant => {
+  const found = lineage.variants.find((entry) => entry.id === variant);
+  if (found === undefined)
+    throw new Error(
+      `design lineage "${lineage.id}" has no design variant "${variant}"`,
+    );
+  return found;
+};
+
+/** Length-prefix every field so no authored text can forge a separator. */
+const record = (...fields: readonly string[]): string =>
+  fields.map((field) => `${field.length}:${field}`).join("|");

@@ -1,5 +1,3 @@
-import type { IAutoMovieMesh } from "@automovie/interface";
-
 /**
  * Two parts of one built model whose surfaces pass through each other.
  *
@@ -26,14 +24,3 @@ export interface IAutoMovieModelCrossing {
   /** Crossings on either side that lie flat rather than piercing. */
   coplanar: number;
 }
-
-const bounds = (mesh: IAutoMovieMesh): { low: number[]; high: number[] } => {
-  const low = [Infinity, Infinity, Infinity];
-  const high = [-Infinity, -Infinity, -Infinity];
-  for (let at = 0; at < mesh.positions.length; at += 3)
-    for (let axis = 0; axis < 3; axis++) {
-      low[axis] = Math.min(low[axis], mesh.positions[at + axis]);
-      high[axis] = Math.max(high[axis], mesh.positions[at + axis]);
-    }
-  return { low, high };
-};

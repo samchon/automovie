@@ -1,5 +1,3 @@
-import { IAutoMovieMesh } from "@automovie/interface";
-
 /**
  * Flat-array triangle mesh produced by tessellation: parallel `positions` /
  * `normals` (xyz triples) and triangle `indices`. This is the render-ready form

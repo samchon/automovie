@@ -1,4 +1,4 @@
-import { IAutoMovieCapsuleProxy } from "./capsuleProxy";
+import { IAutoMovieCapsuleProxy } from "./validateCapsule";
 
 /**
  * Explicit capsule pair to test for overlap.

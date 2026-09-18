@@ -9,6 +9,9 @@ import { AUTOMOVIE_SABINE_CONSTANT } from "./AUTOMOVIE_SABINE_CONSTANT";
 import { IAutoMovieAcousticReceiver } from "./IAutoMovieAcousticReceiver";
 import { IAutoMovieAcousticRequest } from "./IAutoMovieAcousticRequest";
 
+/** Distances shorter than this are the same point. */
+const EPSILON = 1e-12;
+
 /**
  * Solve one room for reverberation, equipment noise and partition performance.
  *
@@ -278,156 +281,6 @@ export const analyzeAutoMovieAcoustics = (props: {
     outcome: { status: "solved", metrics, samples, warnings },
   });
 };
-
-/** Direct plus diffuse sound pressure level at one receiver. */
-const receiverLevel = (
-  request: IAutoMovieAcousticRequest,
-  receiver: IAutoMovieAcousticReceiver,
-  roomConstant: number,
-): number => {
-  let energy = 0;
-  for (const source of request.sources) {
-    const distance = Vector3.length(
-      Vector3.subtract(receiver.position, source.position),
-    );
-    energy +=
-      Math.pow(10, source.soundPower / 10) *
-      (source.directivity / (4 * Math.PI * distance * distance) +
-        4 / roomConstant);
-  }
-  return 10 * Math.log10(energy);
-};
-
-const validateAcousticRequest = (request: IAutoMovieAcousticRequest): void => {
-  for (const [label, value] of [
-    ["id", request.id],
-    ["subject", request.subject],
-    ["input revision", request.inputRevision],
-  ] as const)
-    if (value.trim().length === 0)
-      throw new Error(`an acoustic study must state a non-blank ${label}`);
-  if (!Number.isFinite(request.volume) || request.volume <= 0)
-    throw new Error(
-      `a room volume must be a finite number above zero, but was ${request.volume}`,
-    );
-  if (request.surfaces.length === 0)
-    throw new Error("an acoustic study needs at least one absorbing surface");
-  const surfaces = new Set<string>();
-  for (const surface of request.surfaces) {
-    if (surface.id.trim().length === 0)
-      throw new Error("every acoustic surface must carry a non-blank id");
-    if (surfaces.has(surface.id))
-      throw new Error(`acoustic surface "${surface.id}" is declared twice`);
-    surfaces.add(surface.id);
-    if (!Number.isFinite(surface.area) || surface.area <= 0)
-      throw new Error(
-        `acoustic surface "${surface.id}" area must be a finite number above zero, but was ${surface.area}`,
-      );
-    if (
-      !Number.isFinite(surface.absorption) ||
-      surface.absorption < 0 ||
-      surface.absorption > 1
-    )
-      throw new Error(
-        `acoustic surface "${surface.id}" absorption must be a fraction within [0, 1], but was ${surface.absorption}`,
-      );
-  }
-  const partitions = new Set<string>();
-  for (const partition of request.partitions) {
-    if (partition.id.trim().length === 0)
-      throw new Error("every acoustic partition must carry a non-blank id");
-    if (partitions.has(partition.id))
-      throw new Error(`acoustic partition "${partition.id}" is declared twice`);
-    partitions.add(partition.id);
-    if (!Number.isFinite(partition.area) || partition.area <= 0)
-      throw new Error(
-        `acoustic partition "${partition.id}" area must be a finite number above zero, but was ${partition.area}`,
-      );
-    if (!Number.isFinite(partition.transmissionLoss))
-      throw new Error(
-        `acoustic partition "${partition.id}" transmission loss must be finite, but was ${partition.transmissionLoss}`,
-      );
-  }
-  const sources = new Set<string>();
-  for (const source of request.sources) {
-    if (source.id.trim().length === 0)
-      throw new Error("every acoustic source must carry a non-blank id");
-    if (sources.has(source.id))
-      throw new Error(`acoustic source "${source.id}" is declared twice`);
-    sources.add(source.id);
-    if (!Number.isFinite(source.soundPower))
-      throw new Error(
-        `acoustic source "${source.id}" sound power must be finite, but was ${source.soundPower}`,
-      );
-    if (!Number.isFinite(source.directivity) || source.directivity <= 0)
-      throw new Error(
-        `acoustic source "${source.id}" directivity must be a finite number above zero, but was ${source.directivity}`,
-      );
-    for (const axis of ["x", "y", "z"] as const)
-      if (!Number.isFinite(source.position[axis]))
-        throw new Error(
-          `acoustic source "${source.id}" position ${axis} must be finite, but was ${source.position[axis]}`,
-        );
-  }
-  if (request.receivers.length > AUTOMOVIE_ANALYSIS_MAX_SAMPLES)
-    throw new Error(
-      `an acoustic study carries one sample per receiver and may not exceed ${AUTOMOVIE_ANALYSIS_MAX_SAMPLES}, but had ${request.receivers.length}`,
-    );
-  const receivers = new Set<string>();
-  for (const receiver of request.receivers) {
-    if (receiver.id.trim().length === 0)
-      throw new Error("every acoustic receiver must carry a non-blank id");
-    if (receivers.has(receiver.id))
-      throw new Error(`acoustic receiver "${receiver.id}" is declared twice`);
-    receivers.add(receiver.id);
-    for (const axis of ["x", "y", "z"] as const)
-      if (!Number.isFinite(receiver.position[axis]))
-        throw new Error(
-          `acoustic receiver "${receiver.id}" position ${axis} must be finite, but was ${receiver.position[axis]}`,
-        );
-    for (const source of request.sources)
-      if (
-        Vector3.length(Vector3.subtract(receiver.position, source.position)) <=
-        EPSILON
-      )
-        throw new Error(
-          `acoustic receiver "${receiver.id}" sits on source "${source.id}", where the inverse square law has no value`,
-        );
-  }
-  assertAutoMovieAnalysisTargets(request.targets);
-};
-
-/** The canonical settings text one acoustic study is digested against. */
-const acousticSettings = (request: IAutoMovieAcousticRequest): string =>
-  JSON.stringify({
-    volume: request.volume,
-    surfaces: request.surfaces.map((surface) => ({
-      id: surface.id,
-      area: surface.area,
-      absorption: surface.absorption,
-    })),
-    partitions: request.partitions.map((partition) => ({
-      id: partition.id,
-      area: partition.area,
-      transmissionLoss: partition.transmissionLoss,
-    })),
-    sources: request.sources.map((source) => ({
-      id: source.id,
-      position: source.position,
-      soundPower: source.soundPower,
-      directivity: source.directivity,
-    })),
-    receivers: request.receivers.map((receiver) => ({
-      id: receiver.id,
-      position: receiver.position,
-    })),
-    targets: request.targets.map((target) => ({
-      key: target.key,
-      unit: target.unit,
-      value: target.value,
-      comparison: target.comparison,
-    })),
-  });
 
 /** Direct plus diffuse sound pressure level at one receiver. */
 const receiverLevel = (

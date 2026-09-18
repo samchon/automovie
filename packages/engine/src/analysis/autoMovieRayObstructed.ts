@@ -1,4 +1,5 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
+
 import { IAutoMovieAnalysisSolid } from "./IAutoMovieAnalysisSolid";
 import { autoMovieSolidBlocks } from "./autoMovieSolidBlocks";
 

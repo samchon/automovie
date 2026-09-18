@@ -86,3 +86,13 @@ export const validateDesignEvidence = (props: {
   });
   return out.toValidation();
 };
+
+const nonEmpty = (
+  value: string,
+  path: string,
+  label: string,
+  out: ViolationCollector,
+): void => {
+  if (value.trim().length === 0)
+    out.push("type", path, `${label} must be non-empty`, value);
+};

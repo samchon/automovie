@@ -1,5 +1,3 @@
-import { AutoMovieTextureMediaType } from "./AutoMovieTextureMediaType";
-
 /**
  * The largest edge a portable target is required to sample.
  *
@@ -14,18 +12,3 @@ import { AutoMovieTextureMediaType } from "./AutoMovieTextureMediaType";
  * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-model-output-failures `AUTO_MOVIE_MAX_TEXTURE_EDGE` supplies the expected bound reported beside an oversized width or height observation.
  */
 export const AUTO_MOVIE_MAX_TEXTURE_EDGE = 8192;
-
-/** Media types a material's PBR slot may bind. */
-const MATERIAL_MEDIA: ReadonlySet<AutoMovieTextureMediaType> = new Set([
-  "image/png",
-  "image/jpeg",
-  "image/webp",
-]);
-
-/** Media types a scene environment may bind. */
-const ENVIRONMENT_MEDIA: ReadonlySet<AutoMovieTextureMediaType> = new Set([
-  "image/png",
-  "image/jpeg",
-  "image/webp",
-  "image/vnd.radiance",
-]);

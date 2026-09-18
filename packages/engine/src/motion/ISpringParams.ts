@@ -21,7 +21,3 @@ export interface ISpringParams {
    */
   damping: number;
 }
-
-const assertFinite = (label: string, value: number): void => {
-  if (!Number.isFinite(value)) throw new Error(`${label} must be finite`);
-};

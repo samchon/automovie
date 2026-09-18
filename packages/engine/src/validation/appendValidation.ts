@@ -1,5 +1,5 @@
 import { IAutoMovieDiagnostic } from "@automovie/interface";
-import { validateModel } from "./validateModel";
+import { validateModel } from "../index";
 
 /** Append engine violations with the shot identity that owns their input. */
 export const appendValidation = (

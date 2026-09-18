@@ -1,7 +1,17 @@
-import { aimRotation } from "../kinematics/aimRotation";
+import { IAutoMovieVector3 } from "@automovie/interface";
 import { Vector3 } from "../math/Vector3";
 import { IAutoMovieProjectile } from "./IAutoMovieProjectile";
 import { IAutoMovieProjectileState } from "./IAutoMovieProjectileState";
+
+const VECTOR_AXES = ["x", "y", "z"] as const;
+
+const assertFiniteVector = (name: string, vector: IAutoMovieVector3): void => {
+  for (const axis of VECTOR_AXES)
+    if (!Number.isFinite(vector[axis]))
+      throw new RangeError(
+        `projectile ${name}.${axis} must be finite, but was ${vector[axis]}`,
+      );
+};
 
 /**
  * Evaluate a {@link IAutoMovieProjectile} at time `t` seconds (closed form, no
@@ -30,12 +40,4 @@ export const projectileAt = (
     ),
     velocity: Vector3.add(p.velocity, Vector3.scale(p.gravity, t)),
   };
-};
-
-const assertFiniteVector = (name: string, vector: IAutoMovieVector3): void => {
-  for (const axis of VECTOR_AXES)
-    if (!Number.isFinite(vector[axis]))
-      throw new RangeError(
-        `projectile ${name}.${axis} must be finite, but was ${vector[axis]}`,
-      );
 };

@@ -32,6 +32,3 @@ const normalizeRawJointAxes = (
 
 const normalizeAxis = (axis: IAutoMovieVector3): IAutoMovieVector3 =>
   Vector3.scale(axis, 1 / Vector3.length(axis));
-
-const normalizeAxis = (axis: IAutoMovieVector3): IAutoMovieVector3 =>
-  Vector3.scale(axis, 1 / Vector3.length(axis));
