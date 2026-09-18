@@ -88,6 +88,7 @@ const graph: ITtscEvidenceGraphConfig = {
               "src/face/anatomy/**/*.ts",
               "src/face/surface/**/*.ts",
               "src/face/mesh/**/*.ts",
+              "src/face/export/**/*.ts",
               "!src/face/**/index.ts",
             ],
             symbol: ["type", "function", "property"],
