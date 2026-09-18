@@ -47,7 +47,7 @@ async function main(): Promise<void> {
   const panel = mountConnectedFacePanel(
     document.querySelector<HTMLDivElement>("#app")!,
     {
-      channels: basis.channels,
+      basis,
       initial,
       studies: studyDocuments.map((document) =>
         parseHumanFaceBasisDocument(JSON.stringify(document)),
