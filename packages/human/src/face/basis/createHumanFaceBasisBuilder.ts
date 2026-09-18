@@ -66,6 +66,35 @@ export function createHumanFaceBasisBuilder(
           );
         weights.set(name, weight);
       }
+    // A per-vertex identity names surfaces and vertices of this basis. A row
+    // that names neither is a document written against something else, and
+    // silently skipping it would build a face that is not the one asked for.
+    for (const [id, rows] of Object.entries(document.identity ?? {})) {
+      const surface = basis.surfaces.find((one) => one.id === id);
+      const vertices = surface === undefined ? 0 : surface.positions.length / 3;
+      if (
+        surface === undefined ||
+        rows.length % 4 !== 0 ||
+        rows.some((value) => !Number.isFinite(value))
+      )
+        throw new Error(
+          "Per-vertex identity needs finite [vertex, dx, dy, dz] rows on a surface this basis declares: " +
+            id,
+        );
+      let previous = -1;
+      for (let i = 0; i < rows.length; i += 4) {
+        const vertex = rows[i];
+        if (!Number.isInteger(vertex) || vertex <= previous || vertex >= vertices)
+          throw new Error(
+            "Per-vertex identity rows are strictly increasing vertices of " +
+              id +
+              ", within its " +
+              vertices +
+              " vertices.",
+          );
+        previous = vertex;
+      }
+    }
     const materials = structuredClone(basis.materials);
     const materialMap = new Map(
       materials.map((material) => [material.id, material]),
@@ -123,6 +152,15 @@ export function createHumanFaceBasisBuilder(
           for (let axis = 0; axis < 3; axis++)
             positions[rows[i] * 3 + axis] += gain * rows[i + axis + 1];
       };
+      // Identity first, because identity is what the neutral is. The channels
+      // then move this face from its own neutral rather than from the shared
+      // one; applying the delta afterwards would make a wider jaw open
+      // differently from a narrow one for no authored reason.
+      const identity = document.identity?.[surface.id];
+      if (identity !== undefined)
+        for (let i = 0; i < identity.length; i += 4)
+          for (let axis = 0; axis < 3; axis++)
+            positions[identity[i] * 3 + axis] += identity[i + axis + 1];
       for (const channel of basis.channels) {
         const weight = weights.get(channel.id) ?? 0;
         if (weight === 0) continue;
