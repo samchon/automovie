@@ -9,8 +9,10 @@
  * has nowhere to ask. That question is direction free, so it is answered here
  * instead of by choosing an axis and hoping.
  *
- * Two triangles in three dimensions cross when an edge of one pierces the other.
- * Testing all six edges both ways catches every transversal crossing. It does
+ * Two triangles in three dimensions cross when an edge of one pierces the other
+ * strictly, passing from one side to the other rather than stopping on it.
+ * Testing all six edges both ways catches every transversal crossing, and the
+ * strictness is what keeps a shared seam from reading as a collision. It does
  * not catch coplanar overlap, where two triangles lie in one plane and no edge
  * leaves it, so that case is decided separately in the shared plane and flagged
  * rather than silently counted as clear. A caller deciding whether a pose is
@@ -107,6 +109,15 @@ const dot = (a: number[], b: number[]): number =>
 
 /**
  * Moller-Trumbore, bounded to the segment rather than extended to a whole ray.
+ *
+ * Every bound is strict, because touching is not crossing. Two shells that meet
+ * along a seam share vertices and edges by construction, and an inclusive test
+ * would report every such seam as a collision, which would make the measure
+ * useless exactly where surfaces are supposed to meet. A segment that ends on
+ * the surface, or shares a corner with it, passes through nothing. Real
+ * penetration puts the crossing strictly inside both the segment and the
+ * triangle, so nothing a caller would want reported is lost.
+ *
  * A parallel segment returns false and is left to the coplanar report.
  */
 const segmentPierces = (
@@ -123,12 +134,12 @@ const segmentPierces = (
   const inverse = 1 / determinant;
   const toOrigin = subtract(origin, triangle[0]);
   const u = dot(toOrigin, perpendicular) * inverse;
-  if (u < 0 || u > 1) return false;
+  if (u <= 0 || u >= 1) return false;
   const along = cross(toOrigin, edge1);
   const v = dot(direction, along) * inverse;
-  if (v < 0 || u + v > 1) return false;
+  if (v <= 0 || u + v >= 1) return false;
   const distance = dot(edge2, along) * inverse;
-  return distance >= 0 && distance <= 1;
+  return distance > 0 && distance < 1;
 };
 
 const pierces = (first: number[][], second: number[][]): boolean => {
@@ -161,9 +172,7 @@ const within = (triangle: number[][], point: number[]): boolean => {
   const signs = [0, 1, 2].map((corner) =>
     side(triangle[corner], triangle[(corner + 1) % 3], point),
   );
-  return (
-    signs.every((value) => value >= 0) || signs.every((value) => value <= 0)
-  );
+  return signs.every((value) => value > 0) || signs.every((value) => value < 0);
 };
 
 const segmentsMeet = (
@@ -174,7 +183,7 @@ const segmentsMeet = (
 ): boolean => {
   const first = side(a, b, c) * side(a, b, d);
   const second = side(c, d, a) * side(c, d, b);
-  return first <= 0 && second <= 0;
+  return first < 0 && second < 0;
 };
 
 /**
@@ -182,9 +191,12 @@ const segmentsMeet = (
  *
  * Coplanarity alone is not a crossing: two triangles can share a plane and sit
  * apart, and reporting that would make the coplanar count meaningless. Both
- * conditions are required, and overlap is decided in the plane by crossing
- * edges or by either triangle containing the other's first corner, which
- * together cover partial overlap and full containment.
+ * conditions are required, and overlap is decided in the plane by properly
+ * crossing edges or by either triangle strictly containing the other's first
+ * corner, which together cover partial overlap and full containment. Both
+ * tests are strict for the same reason the piercing test is: two coplanar
+ * triangles meeting at a shared corner or along a shared edge are touching,
+ * not overlapping, and a seam must not read as a collision.
  */
 const sharePlaneAndOverlap = (
   first: number[][],

@@ -34,7 +34,7 @@ const flat = blade([
  * Scenarios:
  * 1. A blade piercing the interior is reported once, naming both ordinals.
  * 2. The same blade clear of the surface, and the same blade beside it, report nothing.
- * 3. A vertex a millimetre inside crosses and a vertex a millimetre outside does not.
+ * 3. A vertex a millimetre inside crosses, a vertex a millimetre outside does not, and one resting exactly on the surface does not.
  * 4. Coplanar and overlapping is reported with coplanar true; coplanar and apart is not reported.
  * 5. An absent index buffer means consecutive position triples, and malformed buffers refuse.
  * 6. Ordinals follow the first mesh's own triangle order, and neither input is mutated.
@@ -138,6 +138,32 @@ export const test_geometry_mesh_crossings = (): void => {
         [5, 5, 0],
         [6, 5, 0],
         [5, 6, 0],
+      ]),
+    ),
+    [],
+  );
+  // Two shells that meet along a seam share corners by construction; reporting
+  // that as a collision would fire on every place surfaces are meant to meet.
+  TestValidator.equals(
+    "a triangle resting corner to corner on the reference does not cross",
+    measureAutoMovieMeshCrossings(
+      flat,
+      blade([
+        [0.25, 0.25, 0],
+        [0.25, 0.25, 1],
+        [0.75, 0.25, 1],
+      ]),
+    ),
+    [],
+  );
+  TestValidator.equals(
+    "a triangle sharing a whole edge with the reference does not cross",
+    measureAutoMovieMeshCrossings(
+      flat,
+      blade([
+        [0, 0, 0],
+        [1, 0, 0],
+        [0, 0, 1],
       ]),
     ),
     [],

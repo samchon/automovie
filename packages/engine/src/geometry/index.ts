@@ -8,4 +8,5 @@ export * from "./meshDeformation";
 export * from "./meshDepthSampler";
 export * from "./meshClearance";
 export * from "./meshIntersection";
+export * from "./modelCrossings";
 export * from "./meshMinimumClearance";
