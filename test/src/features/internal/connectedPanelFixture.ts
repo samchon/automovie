@@ -33,7 +33,7 @@ export function connectedPanelFixture(
   let fits = 0,
     cancellations = 0;
   const panel = mountConnectedFacePanel(app, {
-    channels: source.basis.channels,
+    basis: source.basis,
     initial: source.document,
     studies: props.studies,
     presets: [
