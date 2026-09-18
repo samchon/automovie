@@ -8,6 +8,11 @@
     "lockLengthMillimetres": {
       "median": 165.5,
       "longest": 215.8
+    },
+    "burialUnderSkin": {
+      "withIdentity": 0.2546,
+      "withoutIdentity": 0.255,
+      "deepestMillimetres": -55.3
     }
   },
   "daniel-radcliffe": {
@@ -19,6 +24,11 @@
     "lockLengthMillimetres": {
       "median": 152.5,
       "longest": 212.3
+    },
+    "burialUnderSkin": {
+      "withIdentity": 0.2898,
+      "withoutIdentity": 0.2898,
+      "deepestMillimetres": -60.62
     }
   },
   "emma-watson": {
@@ -30,6 +40,11 @@
     "lockLengthMillimetres": {
       "median": 461.7,
       "longest": 594.5
+    },
+    "burialUnderSkin": {
+      "withIdentity": 0.1551,
+      "withoutIdentity": 0.1551,
+      "deepestMillimetres": -48.34
     }
   },
   "generated-black-boy-01": {
@@ -41,6 +56,11 @@
     "lockLengthMillimetres": {
       "median": 40.8,
       "longest": 56.9
+    },
+    "burialUnderSkin": {
+      "withIdentity": 0.4637,
+      "withoutIdentity": 0.4636,
+      "deepestMillimetres": -36.73
     }
   },
   "generated-black-girl-01": {
@@ -52,6 +72,11 @@
     "lockLengthMillimetres": {
       "median": 43.1,
       "longest": 414.2
+    },
+    "burialUnderSkin": {
+      "withIdentity": 0.4283,
+      "withoutIdentity": 0.4281,
+      "deepestMillimetres": -48.34
     }
   },
   "generated-korean-boy-01": {
@@ -63,6 +88,11 @@
     "lockLengthMillimetres": {
       "median": 145.4,
       "longest": 229.2
+    },
+    "burialUnderSkin": {
+      "withIdentity": 0.2765,
+      "withoutIdentity": 0.2769,
+      "deepestMillimetres": -60.3
     }
   },
   "generated-white-boy-01": {
@@ -74,6 +104,11 @@
     "lockLengthMillimetres": {
       "median": 144.5,
       "longest": 199.3
+    },
+    "burialUnderSkin": {
+      "withIdentity": 0.3614,
+      "withoutIdentity": 0.3613,
+      "deepestMillimetres": -65.81
     }
   },
   "generated-white-girl-01": {
@@ -85,6 +120,11 @@
     "lockLengthMillimetres": {
       "median": 141.1,
       "longest": 245.5
+    },
+    "burialUnderSkin": {
+      "withIdentity": 0.2655,
+      "withoutIdentity": 0.2655,
+      "deepestMillimetres": -55.28
     }
   },
   "kim-min-jung": {
@@ -96,6 +136,11 @@
     "lockLengthMillimetres": {
       "median": 139.5,
       "longest": 221.2
+    },
+    "burialUnderSkin": {
+      "withIdentity": 0.2765,
+      "withoutIdentity": 0.2768,
+      "deepestMillimetres": -53.59
     }
   },
   "lee-tae-ri": {
@@ -107,6 +152,11 @@
     "lockLengthMillimetres": {
       "median": 151.6,
       "longest": 230.7
+    },
+    "burialUnderSkin": {
+      "withIdentity": 0.2879,
+      "withoutIdentity": 0.2879,
+      "deepestMillimetres": -62.25
     }
   },
   "maggie-smith": {
@@ -118,6 +168,11 @@
     "lockLengthMillimetres": {
       "median": 235.4,
       "longest": 413.7
+    },
+    "burialUnderSkin": {
+      "withIdentity": 0.2186,
+      "withoutIdentity": 0.2186,
+      "deepestMillimetres": -63.62
     }
   },
   "michael-gambon": {
@@ -129,6 +184,11 @@
     "lockLengthMillimetres": {
       "median": 179.5,
       "longest": 215.5
+    },
+    "burialUnderSkin": {
+      "withIdentity": 0.1269,
+      "withoutIdentity": 0.1269,
+      "deepestMillimetres": -52.43
     }
   },
   "oh-seung-yoon": {
@@ -140,6 +200,11 @@
     "lockLengthMillimetres": {
       "median": 150.2,
       "longest": 259.1
+    },
+    "burialUnderSkin": {
+      "withIdentity": 0.2436,
+      "withoutIdentity": 0.2425,
+      "deepestMillimetres": -58.64
     }
   },
   "park-eun-bin": {
@@ -151,6 +216,11 @@
     "lockLengthMillimetres": {
       "median": 136,
       "longest": 193.2
+    },
+    "burialUnderSkin": {
+      "withIdentity": 0.3684,
+      "withoutIdentity": 0.3684,
+      "deepestMillimetres": -66.41
     }
   },
   "rupert-grint": {
@@ -162,6 +232,11 @@
     "lockLengthMillimetres": {
       "median": 145.8,
       "longest": 214
+    },
+    "burialUnderSkin": {
+      "withIdentity": 0.3307,
+      "withoutIdentity": 0.331,
+      "deepestMillimetres": -66.27
     }
   },
   "yoo-seung-ho": {
@@ -173,6 +248,11 @@
     "lockLengthMillimetres": {
       "median": 162.4,
       "longest": 248.3
+    },
+    "burialUnderSkin": {
+      "withIdentity": 0.3734,
+      "withoutIdentity": 0.3734,
+      "deepestMillimetres": -59.28
     }
   },
   "miriam-margolyes": {
@@ -188,7 +268,12 @@
     "authoredFrom": "generated-black-girl-01",
     "why": "tight-curled halo standing clear of the skull; her own authored profile already matches this donor's",
     "finishWhy": "white, faintly warm; the sunlit crown measures 0.90 linear, brighter than any fibre, so the value is the neutral the portrait shows inside the range white hair occupies",
-    "limit": "The donor is a close-cropped curl and the portrait is a halo standing roughly twice the face width. The curl character matches and the volume does not: scaling the guides uniformly was measured and rejected, because a guide runs mostly along and down the scalp, so multiplying it lengthens the strand instead of widening the curl. Reaching her volume needs locks authored at that radius, not a scaled copy."
+    "limit": "The donor is a close-cropped curl and the portrait is a halo standing roughly twice the face width. The curl character matches and the volume does not: scaling the guides uniformly was measured and rejected, because a guide runs mostly along and down the scalp, so multiplying it lengthens the strand instead of widening the curl. Reaching her volume needs locks authored at that radius, not a scaled copy.",
+    "burialUnderSkin": {
+      "withIdentity": 0.4311,
+      "withoutIdentity": 0.4311,
+      "deepestMillimetres": -53.93
+    }
   },
   "kdy1": {
     "cards": 408,
@@ -202,6 +287,12 @@
     },
     "authoredFrom": "generated-korean-boy-01",
     "why": "short side-parted cut; this donor was already the template kdy1's face was authored from",
-    "finishWhy": "near-black and neutral; the tungsten-lit sample measures (0.022, 0.008, 0.001), whose red cast is the room rather than the hair"
-  }
+    "finishWhy": "near-black and neutral; the tungsten-lit sample measures (0.022, 0.008, 0.001), whose red cast is the room rather than the hair",
+    "burialUnderSkin": {
+      "withIdentity": 0.2791,
+      "withoutIdentity": 0.2798,
+      "deepestMillimetres": -60.77
+    }
+  },
+  "_burial": "A station is called buried when its signed distance to the nearest skin triangle is negative. The identity layer moves the scalp, and the reading says it changes nothing: every subject within a tenth of a percentage point and two tenths of a millimetre, none worse. That is the seats riding the surface as the schema intends. The absolute share, a median of 28%, is not a defect count on its own: the skin surface is the whole head, neck and chest, so a lock resting against a shoulder is inside it and counted here. Separating hair that lies on the body from hair that vanishes into the skull needs a question this reading does not ask."
 }

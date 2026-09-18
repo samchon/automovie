@@ -63,7 +63,9 @@
     "michael-gambon": {
       "kilobytes": 116,
       "offSkinShareBefore": 0,
-      "offSkinShareAfter": 0
+      "offSkinShareAfter": 0,
+      "sourceIsGreyscale": true,
+      "note": "The portrait is greyscale, so this appearance carries luminance and no skin chroma. Its baked colour sits 72.7e-3 from the population median, further than any other subject, and that distance is the source rather than the bake. The chroma guard cannot act on it either: there is no chroma to judge, which is why its off-skin reading is 0% before and after."
     },
     "miriam-margolyes": {
       "kilobytes": 124,
