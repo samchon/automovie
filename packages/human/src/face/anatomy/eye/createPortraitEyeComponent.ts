@@ -15,7 +15,7 @@ import { portraitPoint as p } from "../../mesh/portraitPoint";
 import { portraitPart } from "../../mesh/portraitPart";
 import { portraitSpline as interpolate } from "../../mesh/portraitSpline";
 import { portraitFacesInsideLoop } from "../../mesh/portraitFacesInsideLoop";
-import { type IPortraitComponent } from "../../surface/IPortraitComponent";
+import { type IPortraitComponent } from "../../surface/structures/IPortraitComponent";
 import { createPortraitDirectionalContact } from "../../surface/createPortraitDirectionalContact";
 import { portraitEyeSphereIntersection } from "../../surface/portraitEyeSphereIntersection";
 import { refinePortraitSkinBridge } from "../skin/refinePortraitSkinBridge";

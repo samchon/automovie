@@ -1,6 +1,6 @@
 
 import type { IAutoMovieMesh } from "@automovie/interface";
-import type { IPortraitEyeSphere } from "../../surface/IPortraitEyeSphere";
+import type { IPortraitEyeSphere } from "../../surface/structures/IPortraitEyeSphere";
 /**
  * Construct one complete globe independent of eyelid visibility. Single pole
  * vertices and wrapped ring indices avoid collapsed rectangular pole cells.

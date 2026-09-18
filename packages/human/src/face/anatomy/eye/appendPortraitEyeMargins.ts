@@ -1,4 +1,4 @@
-import type { IControlMesh } from "../../mesh/IControlMesh";
+import type { IControlMesh } from "../../mesh/structures/IControlMesh";
 import { portraitEyeLoop } from "./portraitEyeLoop";
 import { portraitEyeLidRows } from "./portraitEyeLidRows";
 import type { IPortraitEyeShape } from "./structures/IPortraitEyeShape";

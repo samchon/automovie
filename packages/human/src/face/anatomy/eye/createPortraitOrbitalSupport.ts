@@ -1,7 +1,7 @@
 import { createAutoMovieMeshDepthSampler } from "@automovie/engine";
 import { portraitPart } from "../../mesh/portraitPart";
 import { createPortraitControlLayer } from "../../surface/createPortraitControlLayer";
-import type { IPortraitSurfaceLayer } from "../../surface/IPortraitSurfaceLayer";
+import type { IPortraitSurfaceLayer } from "../../surface/structures/IPortraitSurfaceLayer";
 import { IPortraitOrbitalSupportShape } from "./structures/IPortraitOrbitalSupportShape";
 
 /**

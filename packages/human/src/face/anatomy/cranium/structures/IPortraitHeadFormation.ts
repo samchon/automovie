@@ -1,6 +1,6 @@
 import type { IPortraitCraniumShape } from "./IPortraitCraniumShape";
-import { IPortraitComponent } from "../../../surface/IPortraitComponent";
-import { IPortraitComponentHost } from "../../../surface/IPortraitComponentHost";
+import { IPortraitComponent } from "../../../surface/structures/IPortraitComponent";
+import { IPortraitComponentHost } from "../../../surface/structures/IPortraitComponentHost";
 import { IPortraitHeadPerformance } from "./IPortraitHeadPerformance";
 import { IPortraitNeckShape } from "./IPortraitNeckShape";
 
@@ -17,10 +17,13 @@ import { IPortraitNeckShape } from "./IPortraitNeckShape";
 export interface IPortraitHeadFormation {
   /** Reference cranial shape, shared by current and colour-reference assembly. */
   cranium?: IPortraitCraniumShape;
+
   /** Reference neck sections and crop, before optional continuation motion. */
   neck?: IPortraitNeckShape;
+
   /** Reference restoration and pose of newly appended cranial/cervical tissue. */
   performance?: IPortraitHeadPerformance;
+
   /** Observed-reference assembly and numerical linear RGB sampling. */
   appearance?: {
     host: IPortraitComponentHost;

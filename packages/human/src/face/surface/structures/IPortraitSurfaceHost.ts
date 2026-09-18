@@ -10,8 +10,10 @@
 export interface IPortraitSurfaceHost {
   /** Final shared skin positions; readers must not mutate them. */
   positions: readonly (readonly number[])[];
+
   /** Oriented shared triangle indices. */
   indices: readonly number[];
+
   /** Flat XYZ normal buffer over the complete shared surface. */
   normals: readonly number[];
 }

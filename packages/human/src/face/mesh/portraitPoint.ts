@@ -1,4 +1,4 @@
-import type { Point } from "./Point";
+import type { Point } from "./structures/Point";
 
 /**
  * Construct one point in the shared millimetre coordinate frame.

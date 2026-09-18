@@ -15,7 +15,7 @@ import { resolveHumanFaceExpression } from "./resolveHumanFaceExpression";
 import { mergeHumanFaceSettings } from "./mergeHumanFaceSettings";
 
 /**
- * Interpret identity independently of edit history: version defaults, basis,
+ * Interpret identity independently of edit history: fixed defaults, basis,
  * intermediate traits, explicit detailed overrides, then independent sides.
  * Observed and current expressions remain separate resolved records. This
  * numerical stage does not fetch, fit a photo, tessellate or accept likeness.
@@ -24,18 +24,13 @@ import { mergeHumanFaceSettings } from "./mergeHumanFaceSettings";
  *
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-document Resolves one standalone face without person-specific package defaults.
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Gives defaults, arrays, detailed overrides and side profiles one deterministic precedence.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document Retains the supported source topology and version interpretation.
+ * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document Retains the supported source topology as the one admitted interpretation.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Applies trait offsets before exact detail and side-specific replacements.
  */
 export function resolveHumanFaceDocument(input: IAutoMovieHumanFaceDocument) {
   const document = structuredClone(input);
-  if (
-    document.version !== "human-face/1" ||
-    document.basis.topology !== "mediapipe-478/1"
-  )
-    throw new Error(
-      "Only the human-face/1 document and mediapipe-478/1 basis are supported.",
-    );
+  if (document.basis.topology !== "mediapipe-478/1")
+    throw new Error("Only the mediapipe-478/1 landmark topology is supported.");
   if (
     [document.id, document.name, document.basis.id].some(
       (value) => value.trim().length === 0,

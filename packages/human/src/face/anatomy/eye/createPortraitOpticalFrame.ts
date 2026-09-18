@@ -5,7 +5,7 @@ import {
 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IPortraitEyeSphere } from "../../surface/IPortraitEyeSphere";
+import type { IPortraitEyeSphere } from "../../surface/structures/IPortraitEyeSphere";
 
 /**
  * A rigid radial frame for an iris and cornea authored around local +Z. The

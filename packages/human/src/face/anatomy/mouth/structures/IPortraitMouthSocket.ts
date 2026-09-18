@@ -10,10 +10,13 @@
 export interface IPortraitMouthSocket {
   /** Closed outer vermilion loop, in boundary order. */
   outer: number[];
+
   /** Upper inner lip from negative to positive X. */
   upper: number[];
+
   /** Lower inner lip in the same direction. */
   lower: number[];
+
   /** A vertex strictly inside the connected vermilion band. */
   lipSeed: number;
 }

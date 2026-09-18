@@ -1,7 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 as Point } from "@automovie/interface";
 
-import type { IPortraitEyeSphere } from "../../surface/IPortraitEyeSphere";
+import type { IPortraitEyeSphere } from "../../surface/structures/IPortraitEyeSphere";
 
 /**
  * Fit an optical body independently of the complete canthal aperture width.

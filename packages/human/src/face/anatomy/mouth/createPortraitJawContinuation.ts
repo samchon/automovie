@@ -1,6 +1,6 @@
 import type { IAutoMovieHumanFaceBindings } from "../../structures/IAutoMovieHumanFaceBindings";
 import type { IAutoMovieHumanFaceExpression } from "../../structures/IAutoMovieHumanFaceExpression";
-import type { IPortraitComponentHost } from "../../surface/IPortraitComponentHost";
+import type { IPortraitComponentHost } from "../../surface/structures/IPortraitComponentHost";
 import { resolveHumanFaceExpression } from "../../document/resolveHumanFaceExpression";
 import type { IPortraitNeckShape } from "../cranium/structures/IPortraitNeckShape";
 import { createPortraitFacePerformanceComponent } from "../cranium/createPortraitFacePerformanceComponent";

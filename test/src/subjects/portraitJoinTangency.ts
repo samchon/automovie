@@ -1,5 +1,5 @@
 import { Vector3 } from "@automovie/engine";
-import type { IPortraitFinalSurfaceHost } from "@automovie/human/face/surface/IPortraitFinalSurfaceHost";
+import type { IPortraitFinalSurfaceHost } from "@automovie/human/face/surface/structures/IPortraitFinalSurfaceHost";
 
 /**
  * Match the first joining row to the actual planes on both sides of its boundary.

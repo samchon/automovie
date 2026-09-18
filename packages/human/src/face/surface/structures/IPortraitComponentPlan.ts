@@ -1,5 +1,5 @@
-import { IPortraitSkinConstraint } from "../anatomy/skin/structures/IPortraitSkinConstraint";
-import { IControlMesh } from "../mesh/IControlMesh";
+import { IPortraitSkinConstraint } from "../../anatomy/skin/structures/IPortraitSkinConstraint";
+import { IControlMesh } from "../../mesh/structures/IControlMesh";
 import { IPortraitFinalSurface } from "./IPortraitFinalSurface";
 import { IPortraitInterior } from "./IPortraitInterior";
 import { IPortraitRegionReplacement } from "./IPortraitRegionReplacement";
@@ -19,8 +19,10 @@ import { IAutoMovieModelPart } from "@automovie/interface";
 export interface IPortraitComponentPlan {
   /** Exact boundary/control positions requested before the host blends skin. */
   constraints: IPortraitSkinConstraint[];
+
   /** Triangle ordinals removed from the original host before this part attaches. */
   cutFaces: number[];
+
   /** Attach common skin topology, then return the consumer of the refined mesh. */
   attach: (
     cage: IControlMesh,
@@ -29,14 +31,19 @@ export interface IPortraitComponentPlan {
   ) => {
     /** Deliberately open skin rims, such as the inner eyelid, in boundary order. */
     openings: number[][];
+
     /** Seeds of fully coincident free rims to weld after refinement; omission keeps deliberate openings. */
     closures?: readonly number[];
+
     /** Optional closed anatomical curves with their own shared subdivision rule. */
     curves?: readonly (readonly number[])[];
+
     /** Replace reserved skin after host refinement, retaining a prebuilt source surface. */
     replacements?: readonly IPortraitRegionReplacement[];
+
     /** Propose shared final positions from the immutable post-layer surface. */
     finalSurface?: IPortraitFinalSurface;
+
     /**
      * Read the sealed refined skin and return owned head-millimetre interiors.
      * The head calls all selected providers before packing any material region.
@@ -44,6 +51,7 @@ export interface IPortraitComponentPlan {
      * that head build; the consumer never generates the same interior twice.
      */
     prepareInteriors?: (refined: IControlMesh) => IPortraitInterior[];
+
     /**
      * Compatibility construction in model metres. Direct callers may use it;
      * the head uses it only when native preparation is absent. It reads the

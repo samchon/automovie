@@ -6,10 +6,10 @@ import { applyPortraitSurfaceLayers } from "../../surface/applyPortraitSurfaceLa
 import { subdivideControlMesh } from "../../mesh/subdivideControlMesh";
 import { appendPortraitCranium } from "./appendPortraitCranium";
 import { appendPortraitNeck } from "./appendPortraitNeck";
-import { IControlMesh } from "../../mesh/IControlMesh";
-import { IPortraitComponent } from "../../surface/IPortraitComponent";
-import { IPortraitComponentHost } from "../../surface/IPortraitComponentHost";
-import { IPortraitSurfaceLayer } from "../../surface/IPortraitSurfaceLayer";
+import { IControlMesh } from "../../mesh/structures/IControlMesh";
+import { IPortraitComponent } from "../../surface/structures/IPortraitComponent";
+import { IPortraitComponentHost } from "../../surface/structures/IPortraitComponentHost";
+import { IPortraitSurfaceLayer } from "../../surface/structures/IPortraitSurfaceLayer";
 import { IPortraitHeadFormation } from "./structures/IPortraitHeadFormation";
 
 /**

@@ -5,7 +5,7 @@ import type { IAutoMovieHumanFaceBindings } from "../../structures/IAutoMovieHum
 import type { IAutoMovieHumanFaceExpression } from "../../structures/IAutoMovieHumanFaceExpression";
 import { portraitPart } from "../../mesh/portraitPart";
 import { portraitSpline } from "../../mesh/portraitSpline";
-import type { IPortraitSurfaceLayer } from "../../surface/IPortraitSurfaceLayer";
+import type { IPortraitSurfaceLayer } from "../../surface/structures/IPortraitSurfaceLayer";
 import { resolveHumanFaceExpression } from "../../document/resolveHumanFaceExpression";
 import { resolvePortraitSkinShape } from "./resolvePortraitSkinShape";
 import { type IPortraitSkinShape } from "./structures/IPortraitSkinShape";

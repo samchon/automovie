@@ -11,6 +11,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 export interface IPortraitEyeSphere {
   /** Sphere centre behind the fitted lid opening. */
   center: IAutoMovieVector3;
+
   /** Positive spherical surface radius in millimetres. */
   radius: number;
 }

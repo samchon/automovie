@@ -1,6 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import { portraitNormals } from "../../mesh/portraitNormals";
-import type { IControlMesh } from "../../mesh/IControlMesh";
+import type { IControlMesh } from "../../mesh/structures/IControlMesh";
 import { portraitNasalRimJets } from "./portraitNasalRimJets";
 import { samplePortraitNasalEntry } from "./samplePortraitNasalEntry";
 import { samplePortraitNasalSection } from "./samplePortraitNasalSection";

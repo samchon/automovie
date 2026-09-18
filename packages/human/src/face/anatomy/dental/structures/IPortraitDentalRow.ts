@@ -13,12 +13,16 @@ import { IPortraitDentalCrown } from "./IPortraitDentalCrown";
 export interface IPortraitDentalRow {
   /** Positive transverse semiaxis of the arch, in mm. */
   halfWidth: number;
+
   /** Positive anterior-to-posterior arch semiaxis, in mm. */
   depth: number;
+
   /** Nonnegative clearance measured along the common arch, in millimetres. */
   gap: number;
+
   /** Optional minimum inter-crown surface gap along local X, in mm. Omission retains nominal arch placement. */
   contactGap?: number;
+
   /** Ordered from anatomical right to left; each crown keeps its own dimensions. */
   crowns: readonly IPortraitDentalCrown[];
 }

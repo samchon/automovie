@@ -1,4 +1,4 @@
-import { IControlMesh } from "../../mesh/IControlMesh";
+import { IControlMesh } from "../../mesh/structures/IControlMesh";
 import { portraitCutBoundary } from "../cranium/portraitCutBoundary";
 import { portraitNasalCavityOffset } from "./portraitNasalCavityOffset";
 import { IPortraitNoseShape } from "./structures/IPortraitNoseShape";

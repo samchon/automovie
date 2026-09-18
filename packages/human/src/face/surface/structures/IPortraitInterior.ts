@@ -14,10 +14,13 @@ import { IAutoMovieMesh } from "@automovie/interface";
 export interface IPortraitInterior {
   /** Stable model-part identity, retained when the mesh is finally packed. */
   id: string;
+
   /** Existing palette identity; preparation does not create a material. */
   material: string;
+
   /** Fresh, placed head-space mesh in millimetres, with its native connectivity. */
   mesh: IAutoMovieMesh;
+
   /**
    * Component-owned directed cycles, such as a crown's cervical cap boundary.
    * Names are unique within this interior. Each cycle contains distinct native
@@ -25,6 +28,7 @@ export interface IPortraitInterior {
    * A cycle may have faces on both sides; it need not be a free boundary.
    */
   loops?: readonly { name: string; vertices: readonly number[] }[];
+
   /**
    * Exact native vertex identity shared with skin (part=null) or another named
    * interior. Equal XYZ alone never declares a join. The head admits these

@@ -2,7 +2,7 @@
  * Shared by parseHumanFaceDocument, serializeHumanFaceDocument, which were one file until each public identity took its own.
  *
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-document Loads the complete independent face document without a measurement runtime.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document Refuses unsupported schema versions and unknown nested fields rather than silently dropping them.
+ * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document Refuses an unsupported landmark topology and unknown nested fields rather than silently dropping them.
  * @author Samchon
  */
 export function assertFinite(value: unknown, ancestors = new Set<object>()): void {

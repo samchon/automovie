@@ -3,8 +3,8 @@ import { portraitPart } from "@automovie/human/face/mesh/portraitPart";
 import { portraitPoint } from "@automovie/human/face/mesh/portraitPoint";
 import { portraitRayIntersection } from "@automovie/human/face/mesh/portraitRayIntersection";
 import type { IPortraitSkinConstraint } from "@automovie/human/face/anatomy/skin/structures/IPortraitSkinConstraint";
-import type { IPortraitComponentHost } from "@automovie/human/face/surface/IPortraitComponentHost";
-import type { IControlMesh } from "@automovie/human/face/mesh/IControlMesh";
+import type { IPortraitComponentHost } from "@automovie/human/face/surface/structures/IPortraitComponentHost";
+import type { IControlMesh } from "@automovie/human/face/mesh/structures/IControlMesh";
 import type { IAutoMovieModelPart } from "@automovie/interface";
 
 /** Optional source-surface attachment of a patch's outer host boundary. */

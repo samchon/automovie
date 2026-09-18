@@ -24,10 +24,13 @@ import { IAutoMovieHumanFaceEndpointScale } from "./IAutoMovieHumanFaceEndpointS
 export interface IAutoMovieHumanFaceChannelScale {
   /** Channel identity, matching the basis channel this measures. */
   id: string;
+
   /** Copied from the channel so a caller can group without a second lookup. */
   kind: "shape" | "expression";
+
   /** Metric effect of the positive endpoint, always present. */
   positive: IAutoMovieHumanFaceEndpointScale;
+
   /** Metric effect of the negative endpoint, or null for a nonnegative control. */
   negative: IAutoMovieHumanFaceEndpointScale | null;
 }

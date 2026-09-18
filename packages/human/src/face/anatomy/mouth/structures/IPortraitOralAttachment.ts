@@ -13,14 +13,19 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 export interface IPortraitOralAttachment {
   /** Anatomical right oral corner in head millimetres. */
   rightCorner: IAutoMovieVector3;
+
   /** Anatomical left corner; the right-to-left chord establishes +X. */
   leftCorner: IAutoMovieVector3;
+
   /** Observed oral anchor, in head millimetres. */
   origin: IAutoMovieVector3;
+
   /** Finite nonzero upward guide independent of the corner chord. */
   up: IAutoMovieVector3;
+
   /** Signed superior displacement along the orthogonalized Y axis, in mm. */
   lift: number;
+
   /** Signed posterior displacement along the frame's Z axis, in mm. */
   recess: number;
 }

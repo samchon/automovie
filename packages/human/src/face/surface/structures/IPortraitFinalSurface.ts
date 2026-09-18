@@ -11,6 +11,7 @@ export type IPortraitFinalSurface = (
 ) => readonly {
   /** Existing shared vertex identity; final shaping never adds topology here. */
   vertex: number;
+
   /** Requested XYZ in the host's millimetre frame. */
   target: readonly number[];
 }[];

@@ -1,5 +1,5 @@
 import { createPortraitEyeComponent } from "@automovie/human/face/anatomy/eye/createPortraitEyeComponent";
-import type { IPortraitComponent } from "@automovie/human/face/surface/IPortraitComponent";
+import type { IPortraitComponent } from "@automovie/human/face/surface/structures/IPortraitComponent";
 import { TestValidator } from "@nestia/e2e";
 
 import {

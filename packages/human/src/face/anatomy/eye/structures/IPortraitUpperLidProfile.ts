@@ -15,9 +15,11 @@ export interface IPortraitUpperLidProfile {
   sections: readonly {
     /** Anatomical medial-to-lateral progress in [0,1], independent of head-X side. */
     at: number;
+
     /** Complete transverse tissue section at this witness. */
     section: IPortraitUpperLidSection;
   }[];
+
   /**
    * Optional fully closed, unfolded sections at exactly the same witnesses and
    * with unchanged attachment distances. Selecting them admits an inward hood

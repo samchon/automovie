@@ -1,4 +1,4 @@
-import { IPortraitComponentHost } from "../surface/IPortraitComponentHost";
+import { IPortraitComponentHost } from "../surface/structures/IPortraitComponentHost";
 import { selectAutoMovieTriangleRegion } from "@automovie/engine";
 
 /**

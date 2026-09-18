@@ -1,4 +1,4 @@
-import type { IPortraitComponentHost } from "../../surface/IPortraitComponentHost";
+import type { IPortraitComponentHost } from "../../surface/structures/IPortraitComponentHost";
 import type { IPortraitEyeSocket } from "../eye/structures/IPortraitEyeSocket";
 import { resolvePortraitFacialFrameShape } from "./resolvePortraitFacialFrameShape";
 import { IPortraitFacialFrameShape } from "./structures/IPortraitFacialFrameShape";

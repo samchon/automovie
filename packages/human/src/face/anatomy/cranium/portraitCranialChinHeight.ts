@@ -1,7 +1,7 @@
 import { facialOval } from "./facialOval";
 
 /**
- * Read the lowest point on this version's facial-oval boundary. Both trait
+ * Read the lowest point on the facial-oval boundary. Both trait
  * interpretation and cranial continuation use this same attachment datum;
  * a singled-out chin landmark cannot substitute for an asymmetric lower oval.
  *

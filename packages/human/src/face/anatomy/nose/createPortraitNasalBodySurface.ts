@@ -1,4 +1,4 @@
-import type { IPortraitFinalSurface } from "../../surface/IPortraitFinalSurface";
+import type { IPortraitFinalSurface } from "../../surface/structures/IPortraitFinalSurface";
 import { createPortraitNasalBody } from "./createPortraitNasalBody";
 import { type IPortraitNasalBodyShape } from "./structures/IPortraitNasalBodyShape";
 import { createPortraitNasalLobules } from "./createPortraitNasalLobules";

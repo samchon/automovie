@@ -1,4 +1,4 @@
-import type { IControlMesh } from "../mesh/IControlMesh";
+import type { IControlMesh } from "../mesh/structures/IControlMesh";
 
 /**
  * Close explicitly requested, geometrically coincident free rims after their

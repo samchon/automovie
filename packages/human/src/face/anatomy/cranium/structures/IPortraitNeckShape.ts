@@ -16,10 +16,13 @@ export interface IPortraitNeckShape {
    * This authored surface envelope is not a measured fat thickness.
    */
   submentalProjection?: number;
+
   /** Upper cervical section below the complete cranial attachment. */
   upper: IPortraitNeckSection;
+
   /** Wider lower section above the crop. */
   lower: IPortraitNeckSection;
+
   /** Last open section. */
   crop: IPortraitNeckSection;
 }

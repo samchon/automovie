@@ -13,6 +13,7 @@ import { IPortraitOrbitalSupportStation } from "./IPortraitOrbitalSupportStation
 export interface IPortraitOrbitalSupportShape {
   /** Positive common interpolation support radius in millimetres. */
   radius: number;
+
   /** One through 32 independently placed sections; explicit empty is invalid. */
   stations: readonly IPortraitOrbitalSupportStation[];
 }

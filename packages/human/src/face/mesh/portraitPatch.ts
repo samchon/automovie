@@ -1,6 +1,6 @@
 
 import type { IAutoMovieMesh } from "@automovie/interface";
-import { Point } from "./Point";
+import { Point } from "./structures/Point";
 import { normalsOf } from "./normalsOf";
 /**
  * Sample a surface over [0,1] squared and triangulate its shared lattice.

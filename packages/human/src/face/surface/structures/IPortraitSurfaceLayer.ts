@@ -13,8 +13,10 @@ import { IPortraitSurfaceHost } from "./IPortraitSurfaceHost";
 export interface IPortraitSurfaceLayer {
   /** Unique stable identity, used for deterministic composition order. */
   id: string;
+
   /** Optional maximum edge length in millimetres around this layer's fields. Omission preserves sampling. */
   sampleSpacing?: number;
+
   /** Derive metric fields from this instance's actual surface attachments. */
   fields: (host: IPortraitSurfaceHost) => IAutoMovieMeshDeformationField[];
 }

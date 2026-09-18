@@ -1,5 +1,5 @@
 import { p } from "./p";
-import type { Point } from "./Point";
+import type { Point } from "./structures/Point";
 
 /**
  * Uniform Catmull-Rom interpolation through at least two ordered landmarks.

@@ -1,4 +1,4 @@
-import { IPortraitEyeSphere } from "./IPortraitEyeSphere";
+import { IPortraitEyeSphere } from "./structures/IPortraitEyeSphere";
 
 /**
  * Front-facing spherical height, shared by sclera and the visible iris layers.

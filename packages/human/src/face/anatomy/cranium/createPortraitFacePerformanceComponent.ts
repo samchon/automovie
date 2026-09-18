@@ -1,6 +1,6 @@
 import type { IAutoMovieHumanFaceBindings } from "../../structures/IAutoMovieHumanFaceBindings";
 import type { IAutoMovieHumanFaceExpression } from "../../structures/IAutoMovieHumanFaceExpression";
-import type { IPortraitComponent } from "../../surface/IPortraitComponent";
+import type { IPortraitComponent } from "../../surface/structures/IPortraitComponent";
 import { resolveHumanFaceExpression } from "../../document/resolveHumanFaceExpression";
 import { portraitJawSkinWeight } from "../mouth/portraitJawSkinWeight";
 import { posePortraitJawPoint } from "../mouth/posePortraitJawPoint";

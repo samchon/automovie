@@ -1,7 +1,7 @@
 import { portraitNormals } from "../mesh/portraitNormals";
-import type { IControlMesh } from "../mesh/IControlMesh";
-import { IPortraitFinalSurface } from "./IPortraitFinalSurface";
-import { IPortraitFinalSurfaceHost } from "./IPortraitFinalSurfaceHost";
+import type { IControlMesh } from "../mesh/structures/IControlMesh";
+import { IPortraitFinalSurface } from "./structures/IPortraitFinalSurface";
+import { IPortraitFinalSurfaceHost } from "./structures/IPortraitFinalSurfaceHost";
 
 /**
  * Collect final component surfaces before applying any of their positions.

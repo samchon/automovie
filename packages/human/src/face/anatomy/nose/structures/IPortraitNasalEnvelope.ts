@@ -14,6 +14,7 @@ import { IPortraitNasalEnvelopeSection } from "./IPortraitNasalEnvelopeSection";
 export interface IPortraitNasalEnvelope {
   /** Nonempty, strictly increasing stations, beginning at zero. */
   sections: readonly IPortraitNasalEnvelopeSection[];
+
   /** Samples per exterior interval and half-vestibule, integer 2..64. */
   segments: number;
 }

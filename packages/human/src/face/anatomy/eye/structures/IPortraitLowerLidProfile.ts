@@ -16,6 +16,7 @@ export interface IPortraitLowerLidProfile {
   sections: readonly {
     /** Medial-to-lateral progress in [0,1]. */
     at: number;
+
     /** Complete transverse tissue section at this progress. */
     section: IPortraitLowerLidSection;
   }[];

@@ -3,12 +3,12 @@ import type { IAutoMovieHumanFaceDocument } from "../structures/IAutoMovieHumanF
 import { assertFinite } from "./assertFinite";
 
 /**
- * Read a version-one face document without fetching its provenance or guessing
+ * Read a face document without fetching its provenance or guessing
  * unknown fields. Shape admission is distinct from constructing a valid model:
  * geometry-dependent topology and attachment admission run during build.
  *
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-document Loads the complete independent face document without a measurement runtime.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document Refuses unsupported schema versions and unknown nested fields rather than silently dropping them.
+ * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document Refuses an unsupported landmark topology and unknown nested fields rather than silently dropping them.
  */
 export function parseHumanFaceDocument(
   text: string,

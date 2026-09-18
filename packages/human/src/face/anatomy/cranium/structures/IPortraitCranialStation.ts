@@ -9,14 +9,19 @@
 export interface IPortraitCranialStation {
   /** Posterior station depth in head Z; stations descend in Z. */
   z: number;
+
   /** Superior station depth in head Z; at least z. */
   crownZ: number;
+
   /** Positive transverse half-width. */
   width: number;
+
   /** Superior envelope height in head Y. */
   crown: number;
+
   /** Inferior envelope height, or offset from the host's chin when chinRelative. */
   floor: number;
+
   /** Omission is absolute Y; true adds the host's lowest facial-oval Y to floor. */
   chinRelative?: boolean;
 }

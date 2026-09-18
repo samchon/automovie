@@ -9,8 +9,10 @@
 export interface IPortraitSkinConstraint {
   /** Existing host vertex identity, retained through assembly and subdivision. */
   vertex: number;
+
   /** Requested XYZ position of that shared attachment vertex, in millimetres. */
   target: number[];
+
   /** Maximum distance along the original skin over which surrounding skin adapts. */
   reach: number;
 }

@@ -12,10 +12,13 @@
 export interface IPortraitReliefCurvePoint {
   /** Resident skin vertex used to follow component replacement. */
   anchor: number;
+
   /** XYZ offset from that live attachment, in construction millimetres. */
   offset: [number, number, number];
+
   /** Positive support radii around this control, in millimetres. */
   radius: [number, number, number];
+
   /** Signed displacement at this control, in millimetres. */
   displacement: [number, number, number];
 }

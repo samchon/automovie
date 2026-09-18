@@ -10,6 +10,7 @@
 export interface IPortraitLowerLidPoint {
   /** Positive distance from the aperture, in millimetres. */
   offset: number;
+
   /** Signed anterior relief relative to the section's support bridge, in mm. */
   projection: number;
 }

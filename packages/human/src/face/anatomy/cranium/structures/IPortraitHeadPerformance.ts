@@ -10,6 +10,7 @@
 export interface IPortraitHeadPerformance {
   /** Restore reference coordinates for construction; do not mutate the input. */
   reference: (point: number[], vertex: number) => number[];
+
   /** Pose one new reference vertex in millimetres; do not mutate the input. */
   pose: (point: number[]) => number[];
 }

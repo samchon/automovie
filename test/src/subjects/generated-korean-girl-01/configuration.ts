@@ -12,10 +12,10 @@ import { createPortraitNoseComponent } from "@automovie/human/face/anatomy/nose/
 import { type IPortraitNoseShape } from "@automovie/human/face/anatomy/nose/structures/IPortraitNoseShape";
 import { createPortraitOrbitalSupport } from "@automovie/human/face/anatomy/eye/createPortraitOrbitalSupport";
 import { type IPortraitOrbitalSupportShape } from "@automovie/human/face/anatomy/eye/structures/IPortraitOrbitalSupportShape";
-import type { IPortraitComponent } from "@automovie/human/face/surface/IPortraitComponent";
+import type { IPortraitComponent } from "@automovie/human/face/surface/structures/IPortraitComponent";
 import { createPortraitReliefCurveLayer } from "@automovie/human/face/anatomy/skin/createPortraitReliefCurveLayer";
 import { createPortraitReliefLayer } from "@automovie/human/face/anatomy/skin/createPortraitReliefLayer";
-import type { IPortraitSurfaceLayer } from "@automovie/human/face/surface/IPortraitSurfaceLayer";
+import type { IPortraitSurfaceLayer } from "@automovie/human/face/surface/structures/IPortraitSurfaceLayer";
 
 import {
   type IPortraitNasalDetail,

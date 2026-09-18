@@ -1,5 +1,5 @@
 import { portraitFacesInsideLoop } from "../../mesh/portraitFacesInsideLoop";
-import { IPortraitComponentHost } from "../../surface/IPortraitComponentHost";
+import { IPortraitComponentHost } from "../../surface/structures/IPortraitComponentHost";
 import { autoMoviePlanarRegionFailure } from "@automovie/engine";
 
 /**

@@ -16,24 +16,28 @@ import type { IAutoMovieMaterial } from "@automovie/interface";
  * @author Samchon
  */
 export interface IAutoMovieHumanFaceBasis {
-  /** Schema discriminator; unsupported versions are refused. */
-  version: "human-face-basis/1";
   /** Immutable revision identity, also stored in every dependent document. */
   id: string;
+
   /** Ordered controls. Evaluation follows this order, never object insertion order. */
   channels: {
     /** Anatomical or performance name unique within this basis. */
     id: string;
+
     /** Identity edits and transient performance remain separate in saved documents. */
     kind: "shape" | "expression";
+
     /** Finite envelope, including zero; weights are refused rather than clamped. */
     minimum: number;
     maximum: number;
+
     /** Endpoint applied with abs(weight) on the positive side. */
     positive: string;
+
     /** Negative-side endpoint, or null for a nonnegative control. */
     negative: string | null;
   }[];
+
   /**
    * Combination correctives, evaluated after the channels that drive them.
    *
@@ -58,6 +62,7 @@ export interface IAutoMovieHumanFaceBasis {
   correctives?: {
     /** Name unique within this basis, distinct from every channel id. */
     id: string;
+
     /**
      * The driving sides. Each names a channel and which of its two endpoints
      * this corrective answers for, because a signed channel reaches two
@@ -68,29 +73,38 @@ export interface IAutoMovieHumanFaceBasis {
       channel: string;
       side: "positive" | "negative";
     }[];
+
     /** Authored gain in (0,1]; the product of a rig row's authored weights. */
     weight: number;
+
     /** Endpoint name, resolved in each surface's targets like any other. */
     target: string;
   }[];
+
   /** Connected skin and separately attached components, in the same head frame. */
   surfaces: {
     id: string;
+
     /** Shared flat XYZ positions, before material or UV seam splitting. */
     positions: number[];
+
     /** Oriented triangles over those shared vertex identities. */
     indices: number[];
+
     /** Sparse [vertex, dx, dy, dz] rows, strictly increasing by vertex per endpoint. */
     targets: Record<string, number[]>;
+
     /** An exact partition of the surface triangles, preserving oriented triples. */
     regions: {
       id: string;
       material: string;
       indices: number[];
+
       /** Flat UV pairs per triangle corner, or null for untextured geometry. */
       uvs: number[] | null;
     }[];
   }[];
+
   /** Resident finishes; the existing static face exporter owns texture admission. */
   materials: IAutoMovieMaterial[];
 }

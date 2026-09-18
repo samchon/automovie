@@ -1,5 +1,5 @@
 import type { IAutoMovieMeshDeformationField } from "@automovie/interface";
-import type { IPortraitSurfaceLayer } from "../../surface/IPortraitSurfaceLayer";
+import type { IPortraitSurfaceLayer } from "../../surface/structures/IPortraitSurfaceLayer";
 import { IPortraitReliefRegion } from "./structures/IPortraitReliefRegion";
 
 /**

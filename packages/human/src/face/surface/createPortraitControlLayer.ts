@@ -1,7 +1,7 @@
 import { compareCodeUnits, createAutoMovieMeshDeformer } from "@automovie/engine";
 import type { IAutoMovieMeshDeformationField } from "@automovie/interface";
-import type { IPortraitSurfaceLayer } from "./IPortraitSurfaceLayer";
-import { IPortraitSurfaceControl } from "./IPortraitSurfaceControl";
+import type { IPortraitSurfaceLayer } from "./structures/IPortraitSurfaceLayer";
+import { IPortraitSurfaceControl } from "./structures/IPortraitSurfaceControl";
 
 /**
  * Interpolate a complete set of anatomical controls with the engine's compact

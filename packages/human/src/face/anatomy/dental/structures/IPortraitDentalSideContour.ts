@@ -10,8 +10,10 @@
 export interface IPortraitDentalSideContour {
   /** Contact-crest height from incisal zero to cervical one, in (0,1); default 0.3. */
   contactHeight?: number;
+
   /** Side's cervical/maximal half-width ratio, in (0,1]; default crown cervicalWidth. */
   cervicalWidth?: number;
+
   /** Incisal corner rise in mm, in [0,height/2); default crown edgeRise. */
   incisalRise?: number;
 }

@@ -1,6 +1,6 @@
-import { IControlMesh } from "../../mesh/IControlMesh";
+import { IControlMesh } from "../../mesh/structures/IControlMesh";
 import { portraitNormals } from "../../mesh/portraitNormals";
-import { IPortraitComponent } from "../../surface/IPortraitComponent";
+import { IPortraitComponent } from "../../surface/structures/IPortraitComponent";
 import { portraitCutBoundary } from "../cranium/portraitCutBoundary";
 import { appendPortraitNasalRimSection } from "./appendPortraitNasalRimSection";
 import { appendPortraitNostrils } from "./appendPortraitNostrils";

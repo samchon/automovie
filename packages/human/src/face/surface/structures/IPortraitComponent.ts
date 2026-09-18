@@ -14,8 +14,10 @@ import { IAutoMovieMaterial } from "@automovie/interface";
 export interface IPortraitComponent {
   /** Optional component-owned finishes; scalar properties follow this part's dimensions. */
   materials?: IAutoMovieMaterial[];
+
   /** Stable instance identity, allowing separate left/right components. */
   id: string;
+
   /** Fit the component's numerical shape to this subject's declared socket. */
   fit: (host: IPortraitComponentHost) => IPortraitComponentPlan;
 }

@@ -1,6 +1,6 @@
 import { p } from "../../mesh/p";
 import { portraitFacesInsideLoop } from "../../mesh/portraitFacesInsideLoop";
-import { IPortraitComponent } from "../../surface/IPortraitComponent";
+import { IPortraitComponent } from "../../surface/structures/IPortraitComponent";
 import { createPortraitInteriorFinisher } from "../../surface/createPortraitInteriorFinisher";
 import { assertPortraitDentalCrown } from "../dental/assertPortraitDentalCrown";
 import { assertPortraitOralLining } from "./assertPortraitOralLining";

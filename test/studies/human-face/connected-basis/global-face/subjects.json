@@ -1,6 +1,5 @@
 [
   {
-    "version": "human-face-basis-document/1",
     "id": "alan-rickman-connected",
     "name": "alan-rickman (connected study)",
     "basis": "mpfb-connected-head-2026-09-18-jaw-corrective",
@@ -159,7 +158,6 @@
     "skin": "alan-rickman"
   },
   {
-    "version": "human-face-basis-document/1",
     "id": "daniel-radcliffe-connected",
     "name": "daniel-radcliffe (connected study)",
     "basis": "mpfb-connected-head-2026-09-18-jaw-corrective",
@@ -322,7 +320,6 @@
     "skin": "daniel-radcliffe"
   },
   {
-    "version": "human-face-basis-document/1",
     "id": "emma-watson-connected",
     "name": "emma-watson (connected study)",
     "basis": "mpfb-connected-head-2026-09-18-jaw-corrective",
@@ -480,7 +477,6 @@
     "skin": "emma-watson"
   },
   {
-    "version": "human-face-basis-document/1",
     "id": "generated-black-boy-01-connected",
     "name": "generated-black-boy-01 (connected study)",
     "basis": "mpfb-connected-head-2026-09-18-jaw-corrective",
@@ -640,7 +636,6 @@
     "skin": "generated-black-boy-01"
   },
   {
-    "version": "human-face-basis-document/1",
     "id": "generated-black-girl-01-connected",
     "name": "generated-black-girl-01 (connected study)",
     "basis": "mpfb-connected-head-2026-09-18-jaw-corrective",
@@ -801,7 +796,6 @@
     "skin": "generated-black-girl-01"
   },
   {
-    "version": "human-face-basis-document/1",
     "id": "generated-korean-boy-01-connected",
     "name": "generated-korean-boy-01 (connected study)",
     "basis": "mpfb-connected-head-2026-09-18-jaw-corrective",
@@ -962,7 +956,6 @@
     "skin": "generated-korean-boy-01"
   },
   {
-    "version": "human-face-basis-document/1",
     "id": "generated-white-boy-01-connected",
     "name": "generated-white-boy-01 (connected study)",
     "basis": "mpfb-connected-head-2026-09-18-jaw-corrective",
@@ -1124,7 +1117,6 @@
     "skin": "generated-white-boy-01"
   },
   {
-    "version": "human-face-basis-document/1",
     "id": "generated-white-girl-01-connected",
     "name": "generated-white-girl-01 (connected study)",
     "basis": "mpfb-connected-head-2026-09-18-jaw-corrective",
@@ -1282,7 +1274,6 @@
     "skin": "generated-white-girl-01"
   },
   {
-    "version": "human-face-basis-document/1",
     "id": "kim-min-jung-connected",
     "name": "kim-min-jung (connected study)",
     "basis": "mpfb-connected-head-2026-09-18-jaw-corrective",
@@ -1439,7 +1430,6 @@
     "skin": "kim-min-jung"
   },
   {
-    "version": "human-face-basis-document/1",
     "id": "lee-tae-ri-connected",
     "name": "lee-tae-ri (connected study)",
     "basis": "mpfb-connected-head-2026-09-18-jaw-corrective",
@@ -1600,7 +1590,6 @@
     "skin": "lee-tae-ri"
   },
   {
-    "version": "human-face-basis-document/1",
     "id": "maggie-smith-connected",
     "name": "maggie-smith (connected study)",
     "basis": "mpfb-connected-head-2026-09-18-jaw-corrective",
@@ -1760,7 +1749,6 @@
     "skin": "maggie-smith"
   },
   {
-    "version": "human-face-basis-document/1",
     "id": "michael-gambon-connected",
     "name": "michael-gambon (connected study)",
     "basis": "mpfb-connected-head-2026-09-18-jaw-corrective",
@@ -1914,7 +1902,6 @@
     "skin": "michael-gambon"
   },
   {
-    "version": "human-face-basis-document/1",
     "id": "miriam-margolyes-connected",
     "name": "miriam-margolyes (connected study)",
     "basis": "mpfb-connected-head-2026-09-18-jaw-corrective",
@@ -2074,7 +2061,6 @@
     "skin": "miriam-margolyes"
   },
   {
-    "version": "human-face-basis-document/1",
     "id": "oh-seung-yoon-connected",
     "name": "oh-seung-yoon (connected study)",
     "basis": "mpfb-connected-head-2026-09-18-jaw-corrective",
@@ -2231,7 +2217,6 @@
     "skin": "oh-seung-yoon"
   },
   {
-    "version": "human-face-basis-document/1",
     "id": "park-eun-bin-connected",
     "name": "park-eun-bin (connected study)",
     "basis": "mpfb-connected-head-2026-09-18-jaw-corrective",
@@ -2394,7 +2379,6 @@
     "skin": "park-eun-bin"
   },
   {
-    "version": "human-face-basis-document/1",
     "id": "rupert-grint-connected",
     "name": "rupert-grint (connected study)",
     "basis": "mpfb-connected-head-2026-09-18-jaw-corrective",
@@ -2556,7 +2540,6 @@
     "skin": "rupert-grint"
   },
   {
-    "version": "human-face-basis-document/1",
     "id": "yoo-seung-ho-connected",
     "name": "yoo-seung-ho (connected study)",
     "basis": "mpfb-connected-head-2026-09-18-jaw-corrective",
@@ -2713,7 +2696,6 @@
     "skin": "yoo-seung-ho"
   },
   {
-    "version": "human-face-basis-document/1",
     "id": "kdy1-connected",
     "name": "kdy1 (connected study)",
     "basis": "mpfb-connected-head-2026-09-18-jaw-corrective",

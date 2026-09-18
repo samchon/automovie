@@ -1,4 +1,4 @@
-import type { IControlMesh } from "../../mesh/IControlMesh";
+import type { IControlMesh } from "../../mesh/structures/IControlMesh";
 
 /**
  * A composed skin may have declared anatomical openings, but no accidental

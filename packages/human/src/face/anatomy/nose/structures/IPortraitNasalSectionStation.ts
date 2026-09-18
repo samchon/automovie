@@ -10,6 +10,7 @@
 export interface IPortraitNasalSectionStation {
   /** Head-Y height relative to the common datum, increasing between stations. */
   height: number;
+
   /** Head-Z depths at the profile's ordered transverse control poles. */
   depths: readonly number[];
 }

@@ -1,4 +1,4 @@
-import { IControlMesh } from "./IControlMesh";
+import { IControlMesh } from "./structures/IControlMesh";
 
 /**
  * Loop subdivision preserving shared edges, boundary curves and face labels.

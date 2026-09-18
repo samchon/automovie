@@ -81,7 +81,15 @@ const graph: ITtscEvidenceGraphConfig = {
           {
             type: "typescript" as const,
             package: "@automovie/human",
-            files: ["src/components/**/*.ts", "src/geometry/**/*.ts"],
+            // The construction surface, as it was selected before the
+            // package moved under `face/`: what was `components/` and
+            // `geometry/` is now `anatomy/`, `surface/` and `mesh/`.
+            files: [
+              "src/face/anatomy/**/*.ts",
+              "src/face/surface/**/*.ts",
+              "src/face/mesh/**/*.ts",
+              "!src/face/**/index.ts",
+            ],
             symbol: ["type", "function", "property"],
             noEvidenceExclude: true,
             requireReview: true,

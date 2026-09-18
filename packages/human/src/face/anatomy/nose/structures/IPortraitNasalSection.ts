@@ -18,14 +18,17 @@ import { IPortraitNasalSectionStation } from "./IPortraitNasalSectionStation";
 export interface IPortraitNasalSection {
   /** Four through 64 strictly increasing local-X control positions, in mm. */
   transverse: readonly number[];
+
   /** Four through 64 strictly increasing local-Y transverse control curves. */
   stations: readonly IPortraitNasalSectionStation[];
+
   /**
    * Positive width of the identity transition at each rectangular domain edge,
    * in mm, no greater than half either domain span. A quintic blend has zero
    * first and second derivatives at the outside join and interior plateau.
    */
   joinWidth: number;
+
   /** Blend from the supplied host to the local loft, in [0,1]; zero is exact identity. */
   influence: number;
 }

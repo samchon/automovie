@@ -1,5 +1,5 @@
 import { p } from "../../mesh/p";
-import { IPortraitInterior } from "../../surface/IPortraitInterior";
+import { IPortraitInterior } from "../../surface/structures/IPortraitInterior";
 import { createPortraitDentalArc } from "../dental/createPortraitDentalArc";
 import { preparePortraitDentalCrown } from "../dental/preparePortraitDentalCrown";
 import { assertPortraitOralLining } from "./assertPortraitOralLining";

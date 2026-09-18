@@ -6,7 +6,7 @@ import { portraitPart } from "../../mesh/portraitPart";
 import { portraitPatch } from "../../mesh/portraitPatch";
 import { portraitSpline } from "../../mesh/portraitSpline";
 import { portraitTube } from "../../mesh/portraitTube";
-import type { IControlMesh } from "../../mesh/IControlMesh";
+import type { IControlMesh } from "../../mesh/structures/IControlMesh";
 import { createPortraitEyebrowFlow } from "./createPortraitEyebrowFlow";
 import { IPortraitEyebrowProfile } from "./IPortraitEyebrowProfile";
 import { assertPortraitEyebrowProfile } from "./assertPortraitEyebrowProfile";

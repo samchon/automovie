@@ -37,7 +37,9 @@ export const test_subject_human_basis = (): void => {
     );
   };
   bad((document) => {
-    document.version = "unknown" as typeof document.version;
+    // The document has no schema version to disagree about; what it must still
+    // refuse is a field it does not understand.
+    (document as unknown as Record<string, unknown>).version = "unknown";
   });
   bad((document) => {
     document.basis.topology = "unknown" as typeof document.basis.topology;

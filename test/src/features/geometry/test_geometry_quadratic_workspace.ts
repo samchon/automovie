@@ -1,4 +1,4 @@
-import { createAutoMovieQuadraticMemory } from "@automovie/engine/math/quadraticKernelMemory";
+import { createAutoMovieQuadraticMemory } from "@automovie/engine/math/createAutoMovieQuadraticMemory";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/predicates";

@@ -10,6 +10,7 @@ import { IPortraitReliefCurvePoint } from "./IPortraitReliefCurvePoint";
 export interface IPortraitReliefCurve {
   /** Anatomical responsibility; unique within the layer. */
   name: string;
+
   /** Ordered controls from the curve root to its terminal attachment. */
   points: readonly IPortraitReliefCurvePoint[];
 }

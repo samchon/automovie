@@ -11,8 +11,10 @@
 export interface IPortraitOralChamber {
   /** Additional transverse half-extent in mm, finite and nonnegative. */
   horizontalExpansion: number;
+
   /** Additional vertical half-extent in mm, finite and nonnegative. */
   verticalExpansion: number;
+
   /** Positive finite depth in mm at which expansion reaches its full weight. */
   transitionDepth: number;
 }

@@ -1,5 +1,5 @@
 import { Vector3 } from "@automovie/engine";
-import type { IPortraitFinalSurfaceHost } from "@automovie/human/face/surface/IPortraitFinalSurfaceHost";
+import type { IPortraitFinalSurfaceHost } from "@automovie/human/face/surface/structures/IPortraitFinalSurfaceHost";
 
 /**
  * Fair only the interior of a labelled joining region along a fixed view ray.

@@ -1,5 +1,4 @@
-export * from "./IControlMesh";
-export * from "./Point";
+export * from "./structures";
 export * from "./assertDirection";
 export * from "./normalsOf";
 export * from "./p";

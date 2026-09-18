@@ -1,5 +1,5 @@
 import { portraitPoint as p } from "../../mesh/portraitPoint";
-import type { IPortraitComponent } from "../../surface/IPortraitComponent";
+import type { IPortraitComponent } from "../../surface/structures/IPortraitComponent";
 import { createPortraitInteriorFinisher } from "../../surface/createPortraitInteriorFinisher";
 import { attachPortraitDentalRow } from "./attachPortraitDentalRow";
 import { preparePortraitDentalRow } from "./preparePortraitDentalRow";

@@ -13,20 +13,28 @@
 export interface IPortraitCornea {
   /** In-plane centre of the iris/corneal aperture; surface supplies its depth. */
   center: { x: number; y: number };
+
   /** Unclipped aperture radius, in millimetres. */
   radius: number;
+
   /** Corneal surface curvature radius, greater than the aperture radius. */
   curvature: number;
+
   /** Underlying spherical curvature radius, at least the corneal curvature. */
   globeRadius: number;
+
   /** Positive axial separation of the two shell surfaces, in millimetres. */
   thickness: number;
+
   /** Front-rim lift from the underlying globe, greater than shell thickness. */
   rimLift: number;
+
   /** Positive visible radial reach at each equally spaced angular column. */
   extents: number[];
+
   /** Positive integral count of concentric rings on each surface. */
   radialSamples: number;
+
   /** Underlying globe surface height, in millimetres, at a head-frame X/Y. */
   surface: (x: number, y: number) => number;
 }

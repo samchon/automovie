@@ -34,8 +34,8 @@ import { resolveHumanFaceDocument } from "../document/resolveHumanFaceDocument";
  * likeness. Static glTF precision/material admission and direct multi-view
  * review remain separate gates after this function returns.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-document Replays one face solely from its versioned anatomical document.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document Resolves a cloned versioned basis and recipe without photo IO, random state or editor history.
+ * @evidence requirements/actors/facial-authoring/contract.md#actor-face-document Replays one face solely from its anatomical document.
+ * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document Resolves a cloned basis and recipe without photo IO, random state or editor history.
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Assembles the resident cranium, eyes, nose, lips, upper dentition, ears and neck.
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-expression Applies independent observed-relative facial performance without moving maxillary teeth with the lip.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Connects numerical part profiles to actual geometry rather than metadata-only controls.

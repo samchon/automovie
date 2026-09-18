@@ -1,4 +1,4 @@
-import type { IControlMesh } from "../mesh/IControlMesh";
+import type { IControlMesh } from "../../mesh/structures/IControlMesh";
 
 /**
  * A component's reserved region replaced after the host has refined its skin.
@@ -15,6 +15,7 @@ import type { IControlMesh } from "../mesh/IControlMesh";
 export interface IPortraitRegionReplacement {
   /** Unique reserved face-region label, inherited through host subdivision. */
   group: number;
+
   /** Append owned millimetre geometry against the fixed refined host boundary. */
   append: (cage: IControlMesh, boundary: readonly number[]) => void;
 }

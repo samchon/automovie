@@ -9,18 +9,21 @@
  * @author Samchon
  */
 export interface IAutoMovieHumanFaceBasisDocument {
-  /** Compact document schema; separate from the immutable geometry schema. */
-  version: "human-face-basis-document/1";
   /** Stable identity of this authored face. */
   id: string;
+
   /** Display name, independent of basis selection. */
   name: string;
+
   /** Must equal the supplied basis identity; no implicit migration occurs. */
   basis: string;
+
   /** Persistent identity edits against the basis's named shape endpoints. */
   shape: Record<string, number>;
+
   /** Current transient expression; omitted channels mean source neutral. */
   expression: Record<string, number>;
+
   /**
    * Optional identity of the seated groom this face wears. Omission is bald,
    * which is what a connected basis carries on its own: the prior has no hair
@@ -29,6 +32,7 @@ export interface IAutoMovieHumanFaceBasisDocument {
    * this identity against the grooms it holds.
    */
   hair?: string | null;
+
   /**
    * Optional identity of the observed appearance this face wears. Omission is
    * the basis's own flat finishes, which is what a connected prior carries: it
@@ -37,6 +41,7 @@ export interface IAutoMovieHumanFaceBasisDocument {
    * this identity against the appearances it holds.
    */
   skin?: string | null;
+
   /** Optional linear RGB and roughness, each in [0,1], by existing material ID. */
   materials?: Record<
     string,

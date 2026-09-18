@@ -2,8 +2,8 @@ import { Vector3, compareCodeUnits, createAutoMovieMeshDeformer } from "@automov
 import { portraitNormals } from "../mesh/portraitNormals";
 import { portraitPart } from "../mesh/portraitPart";
 import { refinePortraitSurfaceSampling } from "./refinePortraitSurfaceSampling";
-import type { IControlMesh } from "../mesh/IControlMesh";
-import { IPortraitSurfaceLayer } from "./IPortraitSurfaceLayer";
+import type { IControlMesh } from "../mesh/structures/IControlMesh";
+import { IPortraitSurfaceLayer } from "./structures/IPortraitSurfaceLayer";
 
 /**
  * Apply anatomical layers after refinement and before shared normals/material

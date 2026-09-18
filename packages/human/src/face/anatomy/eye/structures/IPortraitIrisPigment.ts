@@ -11,6 +11,7 @@
 export interface IPortraitIrisPigment {
   /** Exactly three linear RGB reflectances at progress zero, each in [0,1]. */
   base: readonly number[];
+
   /** Exactly three signed increments; base+variation must also stay in [0,1]. */
   variation: readonly number[];
 }

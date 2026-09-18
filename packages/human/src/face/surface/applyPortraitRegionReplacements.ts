@@ -1,6 +1,6 @@
 import { portraitCutBoundary } from "../anatomy/cranium/portraitCutBoundary";
-import type { IControlMesh } from "../mesh/IControlMesh";
-import { IPortraitRegionReplacement } from "./IPortraitRegionReplacement";
+import type { IControlMesh } from "../mesh/structures/IControlMesh";
+import { IPortraitRegionReplacement } from "./structures/IPortraitRegionReplacement";
 
 /**
  * Resolve every reserved boundary before applying any component replacement.

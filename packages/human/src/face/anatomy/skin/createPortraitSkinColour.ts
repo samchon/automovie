@@ -1,4 +1,4 @@
-import type { IPortraitComponentHost } from "../../surface/IPortraitComponentHost";
+import type { IPortraitComponentHost } from "../../surface/structures/IPortraitComponentHost";
 import { IPortraitSkinColourRegion } from "./structures/IPortraitSkinColourRegion";
 
 /**
