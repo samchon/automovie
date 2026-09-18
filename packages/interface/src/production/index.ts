@@ -1,3 +1,4 @@
+export * from "./constants";
 export * from "./IAutoMovieAssetManifest";
 export * from "./IAutoMovieLegacyImportApplyOutput";
 export * from "./IAutoMovieLegacyImportInventoryEntry";
@@ -11,7 +12,6 @@ export * from "./IAutoMovieLibraryDerivedSourceOwner";
 export * from "./IAutoMovieLibrarySourceOwner";
 export * from "./IAutoMovieMaterializedLibrary";
 export * from "./IAutoMovieMaterializedLibraryOwner";
-export * from "./constants/AUTOMOVIE_DIAGNOSTIC_CODES";
 export * from "./AutoMovieDiagnosticCode";
 export * from "./AutoMovieFilmTime";
 export * from "./AutoMovieProductionPngColor";
