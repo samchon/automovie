@@ -2,6 +2,10 @@
   "basis": "mpfb-connected-head-2026-09-17-binocular-frame",
   "basisSha256": "80e3cbbbc254af3a22392b32dc0cb0767ab789372cb15a8bfc20f06924785fdc",
   "method": "Bounded robust TRF with six equal semantic landmark groups, 52 performance controls, 84 shape controls of which the seventeen left/right pairs are solved as one tied weight each, three whole-face shape starts, every landmark anchored on the outer surface the front camera sees, a commitment-scaled shape regularizer of 0.003 at the basis's root-mean-square channel commitment and 0.015 observed-performance regularity",
+  "fieldNotes": {
+    "rmseBeforeFaceHeight": "This fit's own pose-only baseline: every shape and performance weight at zero with only the camera solved. It is not the previously published solution.",
+    "previousSemanticGroupRms": "The previously published solution, re-evaluated on this fit's anchors so the two share one instrument."
+  },
   "residualInstrument": "Both semantic group residuals are measured on the outer-shell anchors, so the published and candidate solutions share one instrument",
   "frozenSubject": "generated-korean-girl-01",
   "anchorRule": "outer shell",
