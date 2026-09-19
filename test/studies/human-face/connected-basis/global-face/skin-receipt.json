@@ -1,59 +1,58 @@
 {
   "alan-rickman": {
-    "kilobytes": 113
+    "kilobytes": 112
   },
   "daniel-radcliffe": {
     "kilobytes": 128
   },
   "emma-watson": {
-    "kilobytes": 116
+    "kilobytes": 115
   },
   "generated-black-boy-01": {
-    "kilobytes": 107
+    "kilobytes": 109
   },
   "generated-black-girl-01": {
     "kilobytes": 103
   },
   "generated-korean-boy-01": {
-    "kilobytes": 112
+    "kilobytes": 111
   },
   "generated-white-boy-01": {
-    "kilobytes": 117
+    "kilobytes": 116
   },
   "generated-white-girl-01": {
     "kilobytes": 108
   },
   "kdy1": {
-    "kilobytes": 100
+    "kilobytes": 102
   },
   "kim-min-jung": {
-    "kilobytes": 90
+    "kilobytes": 92
   },
   "lee-tae-ri": {
-    "kilobytes": 107
+    "kilobytes": 108
   },
   "maggie-smith": {
     "kilobytes": 111
   },
   "michael-gambon": {
-    "kilobytes": 101
+    "kilobytes": 99
   },
   "miriam-margolyes": {
     "kilobytes": 126
   },
   "oh-seung-yoon": {
-    "kilobytes": 99
+    "kilobytes": 101
   },
   "park-eun-bin": {
-    "kilobytes": 110
+    "kilobytes": 109
   },
   "rupert-grint": {
-    "kilobytes": 108
+    "kilobytes": 106
   },
   "yoo-seung-ho": {
-    "kilobytes": 93
+    "kilobytes": 96
   },
-  "_observationFloor": "The portrait is read only down to model Y = -85 mm. Below the collar a portrait shows what the person was wearing, and the chroma guard cannot see it: dividing a near-black pixel by its own sum gives an unstable chroma that lands anywhere, including inside the skin ellipse, which is the price of ignoring brightness so that a shaded neck still reads as skin. A chest dominated by black lace scored 10.2% off-skin by that test.\n\nThe height is measured. Adding the term the guard leaves out -- a sample darker than half the first percentile of this person own face luminance is not shaded skin -- and reading the published maps in bands of model height put the whole population under 4.3% down to -85 mm, median 0.0 to 0.1%. Below that the worst subject went 26%, 30%, 42%, 35%: generated-white-girl-01 wore a black lace top, generated-white-boy-01 a cream knit whose ribbing was legible in the sheet, daniel-radcliffe a patterned lapel, rupert-grint and park-eun-bin dark garments. After the floor every band below -85 mm is 0.0 to 0.1% for every subject.\n\nThe chest is continued from the median of the lower neck rather than left to the fill. Left to the fill, one stray texel at the collar becomes the whole chest: the first run with the floor put a white block on one shoulder and a dark green one on the other.\n\nThis is a decided exclusion. What ships is a face editor; a chest is not in the photograph to be observed.",
-  "_fillPull": "The push-pull fill raises each pyramid level by bilinear interpolation, not by repeating each coarse texel into a two-by-two block. Repeating is what a push-pull fill usually does and what made it look like one: at the levels that supply a large hole, one texel became a square hundreds of texels across, and the sheet filled with flat rectangles whose edges were visible on the rendered skin. The forty-eight smoothing passes that follow reach a few texels and could not touch a block that size.\n\nMeasured as the largest step inside the reconstructed region, the ninety-nine-point-nine percentile falls by a median of 14.6% and by 28 to 49% on eight subjects, and the share of that region crossed by a sub-quantum step rises from about 88% to about 94%. It changes no observed texel at all: compared texel by texel, the two bakes differ nowhere the photograph decided.\n\nThe first measure tried was the mean absolute Laplacian, which said the change was 87.6% worse on all eighteen. That measure rewards plateaus: a block is flat inside and steep only on its boundary, so its mean is small. The picture and the number disagreed and the number was wrong.",
-  "_renderCensus": "Both changes were judged by a census of the render rather than by looking at it. Each subject is captured in four states -- bald and dressed, lit and clay -- through the shipped editor. The clay toggle puts one uniform material over the whole scene and changes nothing else, so a lit frame is shading times albedo and its clay frame is shading times a constant, and dividing cancels the light and leaves the albedo as the viewer receives it.\n\nFour numbers: painted, an albedo step the geometry does not explain, as a share of visible skin; asymmetry, the relative left-right difference about the head own axis; holes, skin showing through what the hair encloses; fragments, the share of the hair silhouette in specks. All read on the dressed frame, because that is what ships.\n\nAgainst the pre-change population: painted median -1.83 points with no subject worse and the least improved at -0.23, asymmetry median -0.060 with none worse, holes and fragments unmoved. That hair is unmoved was predicted before the reading, on the grounds that its worst subjects are a different set entirely.\n\nThe instrument needed five corrections of its own before it could be trusted, and the last one mattered most: scaling the albedo by the frame median coupled every reading to everything else in the frame, so when the chest stopped being a white shirt michael-gambon face -- not one texel of which had changed -- read 1.50% to 4.28% worse. A local contrast is invariant to that. The regression was the instrument."
+  "_observationFloor": "The portrait is read only down to model Y = -85 mm, and it stops being read over the twenty millimetres above that rather than at the plane. Below the collar a portrait shows what the person was wearing, and the chroma guard cannot see it: dividing a near-black pixel by its own sum gives an unstable chroma that lands anywhere, including inside the skin ellipse, which is the price of ignoring brightness so that a shaded neck still reads as skin. A chest dominated by black lace scored 10.2% off-skin by that test.\n\nThe height is measured. Adding the term the guard leaves out -- a sample darker than half the first percentile of this person own face luminance is not shaded skin -- and reading the published maps in bands of model height put the whole population under 4.3% down to -85 mm, median 0.0 to 0.1%. Below that the worst subject went 26%, 30%, 42%, 35%. After the floor every band below -85 mm is 0.0 to 0.1% for every subject.\n\nThe fade is not decoration. Cut at the plane, the rows at model Y -86 mm went from 5 flagged pixels to 96 on oh-seung-yoon and 21 to 77 on kim-min-jung: a hard line across every neck. Faded, the largest albedo step within five millimetres of the floor falls by 94% across the subjects that had one. This file already knew the rule -- its grazing confidence falls to nothing rather than switching off at the limit, and its own comment says a hard switch is what put a seam down the side of every rendered face -- and the floor was written as a switch anyway.\n\nThe chest is continued from the median of this person face, the band of model Y from -20 to +60 mm. Left to the fill, one stray texel at the collar becomes the whole chest: the first run put a white block on one shoulder and a dark green one on the other. Seeded from the thirty millimetres just above the floor it came out between 0.72 and 1.63 times the face brightness, because in a portrait the underside of a chin is the deepest shadow and a collar the brightest highlight. Seeded from all observed skin it still carried the scalp, which wears the hair the bake painted onto it, and read warmer than the face wherever a portrait shows an open collar.\n\nThis is a decided exclusion. What ships is a face editor; a chest is not in the photograph to be observed.",
+  "_renderCensus": "Every change here was judged by a census of the render rather than by looking at it. Each subject is captured in four states -- bald and dressed, lit and clay -- in four views, through the shipped editor. The clay toggle puts one uniform material over the whole scene and changes nothing else, so a lit frame is shading times albedo and its clay frame is shading times a constant, and dividing cancels the light and leaves the albedo as the viewer receives it.\n\nFive numbers. painted: an albedo step the geometry does not explain, as a share of visible skin. asymmetry: the relative left-right difference about the head own axis, read only where a head is bilaterally symmetric on screen. torso: how far the chest albedo sits from the face, in chroma. holes: skin showing through what the hair encloses. fragments: the share of the hair silhouette in specks.\n\nAgainst the pre-change population: painted -2.11 points, asymmetry -0.092, torso -0.032, holes -0.58 points, fragments -0.0045. Not one of the eighteen subjects is worse on any of the five.\n\nThe instrument was wrong nine times before it could be trusted, and five of those corrections changed a conclusion rather than a decimal. It counted the editor toolbar as scalp. It scaled the albedo by the frame median, which coupled every reading to everything else in the frame, so when the chest stopped being a white shirt michael-gambon face -- not one texel of which had changed -- read 1.50% to 4.28% worse; the regression was the instrument. It mirrored about the frame centre rather than the head. It read the albedo on the bald frame, counting the hairline the bake painted onto the scalp, which the groom covers. It called a bare forehead a bare scalp. It built the hair mask from the clay frames alone, which goes blind where a lock lies flat along the scalp and shades like it, and so called 20% of alan-rickman solid cap of hair a hole. It measured left-right asymmetry in profile views, where mirroring compares a face with the back of a head. Read them in the file."
 }
