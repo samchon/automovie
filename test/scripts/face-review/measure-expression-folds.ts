@@ -17,6 +17,28 @@
  * reported beside the count because one folded sliver and a folded cheek are
  * not the same defect.
  *
+ * What this cannot tell you is whether anyone will see it, and on this face
+ * nobody does. Every material the head is built from is authored double-sided
+ * -- `createPortraitMaterials` sets it on the skin, and the eye, the iris and
+ * the hair do the same -- so a shader handed a triangle facing away flips the
+ * normal back and lights it correctly. A fold is therefore invisible here by
+ * construction, and that is not an accident: the skin is an open mesh that
+ * stops at the neck, and a single-sided one would show that opening as a hole.
+ *
+ * Checked rather than assumed. The three largest folds by area -- the jaw
+ * channels through the teeth, and the two blinks through the lid -- were
+ * photographed against their own before and after: the teeth seam removed
+ * changed the render by not one pixel, and the closed lid carries no off-skin
+ * colour at all. So the ranking this file produces is a ranking of geometric
+ * fault, not of what reaches a viewer, and it must not be read as the second.
+ *
+ * The measure still earns its place. A fold is wrong wherever the asset is
+ * consumed, and a single-sided consumer would show every one of these as a
+ * hole. What reaches this viewer is the other census: a surface passing
+ * through another is about occlusion rather than normals, so being
+ * double-sided does not hide it, and the teeth appearing at the corner of an
+ * open mouth is exactly that.
+ *
  * Usage, from the test package:
  *   ttsx -P tsconfig.json --no-plugins scripts/face-review/measure-expression-folds.ts [subject,...]
  */
