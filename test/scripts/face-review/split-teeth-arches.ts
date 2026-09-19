@@ -127,10 +127,26 @@ const regions = surface.regions.map((region) => {
   };
 });
 
-/** The identity this revision publishes under. */
+/** The identity this revision publishes under, and the one it succeeds. */
 const REVISION = "mpfb-connected-head-2026-09-19-split-arches";
+const SUCCEEDS = "mpfb-connected-head-2026-09-18-jaw-corrective";
 
 if (process.argv.includes("--write")) {
+  // This names one revision and one predecessor, so it may only ever perform
+  // that step. Run against anything else it would stamp an old identity onto a
+  // newer mesh, which is the one thing a revision identity exists to prevent.
+  if (basis.id === REVISION) {
+    console.log("already published as this revision; nothing to do");
+    process.exit(0);
+  }
+  if (basis.id !== SUCCEEDS)
+    throw new Error(
+      `this step succeeds ${SUCCEEDS}, but the basis reads ${basis.id}`,
+    );
+  if (cut === 0)
+    throw new Error(
+      "no seam to cut, yet the basis still names the old revision",
+    );
   const was = basis.id;
   surface.indices = kept;
   surface.regions = regions;
