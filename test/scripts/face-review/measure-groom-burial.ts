@@ -5,61 +5,62 @@
  * it is inside the skull. They call for opposite responses, so the reading has
  * to separate them.
  *
- * Being under the plane of the triangle a lock grows from is not the same as
- * being inside the head, and two wrong readings came from confusing them. The
- * first took the wrong axis of the seat frame and reported locks 380 mm deep,
- * which is deeper than a head is wide. The second took the right axis — the
- * schema names the frame in order, the triangle's first edge, its surface
- * normal, then their cross product — and still read half of every groom as
- * buried, because a head is curved: a lock running a hundred millimetres down
- * the occiput passes under its own root triangle's plane while staying well
- * outside the skull.
+ * Nothing here re-derives where a station lands. Three readings were taken from
+ * a hand-written copy of the seat arithmetic and all three were wrong, each in
+ * a different way: the first took the wrong axis of the seat frame and reported
+ * locks 380 mm deep, which is deeper than a head is wide; the second tested the
+ * station against the plane of its own root triangle, and a head is curved, so
+ * a lock running down the occiput passes under that plane while staying well
+ * outside the skull; the third fixed the plane test and still read a median
+ * 28% of every groom as buried, because the copy put the surface normal on the
+ * frame's second axis and assigned the barycentric weights to the wrong
+ * corners. The frame is `[edge, cross(normal, edge), normal]` and the seat is
+ * `a + edge * u + reach * v`, and the only thing that knows that is
+ * `resolveHumanFaceGroom`, which is what the renderer itself calls.
  *
- * So the station is placed in model space here and given its signed distance to
- * the nearest skin triangle beside this, with the sign from that triangle's own
- * normal. The root sits on the surface by construction and carries nothing, so
- * only the stations after it are written.
+ * So the stations come from that function, in the head space it returns them
+ * in, and this file converts millimetres to metres and does no geometry of its
+ * own. The signed distance to the nearest skin triangle is taken beside this,
+ * with the sign from that triangle's own normal. The root sits on the surface
+ * by construction and carries nothing, so only the stations after it are
+ * written.
  *
  * Each subject is placed twice, with its identity and without, because the
  * per-vertex identity moved the scalp. A seat rides the surface by design, but
  * whether the locks still clear the skin after the surface moved is a
  * measurement rather than a deduction.
  *
- * Usage: ttsx -P tsconfig.json --no-plugins scripts/face-review/measure-groom-burial.ts
+ * Usage: ttsx -P tsconfig.json --no-plugins scripts/face-review/measure-groom-burial.ts [grooms.json(.gz)]
  */
-import fs from "node:fs";
-import { gunzipSync } from "node:zlib";
-
 import {
-  createHumanFaceBasisBuilder,
   type IAutoMovieHumanFaceBasis,
   type IAutoMovieHumanFaceBasisDocument,
   type IAutoMovieHumanFaceGroom,
+  createHumanFaceBasisBuilder,
+  resolveHumanFaceGroom,
 } from "@automovie/human";
+import fs from "node:fs";
+import { gunzipSync } from "node:zlib";
 
 const published = "studies/human-face/connected-basis/global-face";
 const out = "../.shots/human-2469/investigation-2498/groom-burial";
 const basis: IAutoMovieHumanFaceBasis = JSON.parse(
   gunzipSync(fs.readFileSync(`${published}/basis.json.gz`)).toString("utf8"),
 );
+// A candidate archive may be named on the command line, so a re-binding can be
+// read before anything is published over the one in the study.
+const archive = process.argv[2] ?? `${published}/grooms.json.gz`;
 const grooms: Record<string, IAutoMovieHumanFaceGroom> = JSON.parse(
-  gunzipSync(fs.readFileSync(`${published}/grooms.json.gz`)).toString("utf8"),
+  (archive.endsWith(".gz")
+    ? gunzipSync(fs.readFileSync(archive))
+    : fs.readFileSync(archive)
+  ).toString("utf8"),
 );
 const documents: IAutoMovieHumanFaceBasisDocument[] = JSON.parse(
   fs.readFileSync(`${published}/subjects.json`, "utf8"),
 );
 const build = createHumanFaceBasisBuilder(basis);
 fs.mkdirSync(out, { recursive: true });
-
-const unit = (one: number[]): number[] => {
-  const size = Math.hypot(one[0], one[1], one[2]);
-  return size === 0 ? [0, 0, 0] : one.map((value) => value / size);
-};
-const cross = (a: number[], b: number[]): number[] => [
-  a[1] * b[2] - a[2] * b[1],
-  a[2] * b[0] - a[0] * b[2],
-  a[0] * b[1] - a[1] * b[0],
-];
 
 let written = 0;
 for (const document of documents) {
@@ -81,34 +82,12 @@ for (const document of documents) {
     const positions = skin.geometry.mesh.positions;
     const indices = skin.geometry.mesh.indices;
     if (indices === null) throw new Error(`${name}: skin is not indexed`);
+    const shape = resolveHumanFaceGroom({ groom, model });
     const stations: number[] = [];
-    for (const card of groom.cards) {
-      const at = card.triangle * 3;
-      const corner = [0, 1, 2].map((k) =>
-        [0, 1, 2].map((axis) => positions[indices[at + k] * 3 + axis]),
-      );
-      const [u, v] = card.weights;
-      const w = 1 - u - v;
-      const seat = [0, 1, 2].map(
-        (axis) =>
-          u * corner[0][axis] + v * corner[1][axis] + w * corner[2][axis],
-      );
-      const edge = [0, 1, 2].map((axis) => corner[1][axis] - corner[0][axis]);
-      const other = [0, 1, 2].map((axis) => corner[2][axis] - corner[0][axis]);
-      const tangent = unit(edge);
-      const up = unit(cross(edge, other));
-      const across = cross(up, tangent);
-      for (let i = 1; i < card.guide.length; i++) {
-        const station = card.guide[i];
-        for (let axis = 0; axis < 3; axis++)
-          stations.push(
-            seat[axis] +
-              station[0] * tangent[axis] +
-              station[1] * up[axis] +
-              station[2] * across[axis],
-          );
-      }
-    }
+    for (const card of shape.cards)
+      // The renderer hands back millimetres; the surface is measured in metres.
+      for (let i = 1; i < card.guide.length; i++)
+        for (const value of card.guide[i]) stations.push(value / 1000);
     return { positions, indices, stations };
   };
 

@@ -8,16 +8,15 @@
  *
  * Usage: ttsx -P tsconfig.json --no-plugins scripts/face-review/export-surface-pair.ts <subject> <out.json>
  */
-import fs from "node:fs";
-import { gunzipSync } from "node:zlib";
-
 import {
-  buildHumanFace,
-  createHumanFaceBasisBuilder,
   type IAutoMovieHumanFaceBasis,
   type IAutoMovieHumanFaceBasisDocument,
   type IAutoMovieHumanFaceDocument,
+  buildHumanFace,
+  createHumanFaceBasisBuilder,
 } from "@automovie/human";
+import fs from "node:fs";
+import { gunzipSync } from "node:zlib";
 
 const [subject, output] = process.argv.slice(2);
 if (subject === undefined || output === undefined)
@@ -31,7 +30,8 @@ const documents: IAutoMovieHumanFaceBasisDocument[] = JSON.parse(
   fs.readFileSync(`${published}/subjects.json`, "utf8"),
 );
 const document = documents.find((one) => one.id === `${subject}-connected`);
-if (document === undefined) throw new Error(`no connected document for ${subject}`);
+if (document === undefined)
+  throw new Error(`no connected document for ${subject}`);
 
 const study: IAutoMovieHumanFaceDocument = JSON.parse(
   fs.readFileSync(`studies/human-face/${subject}.json`, "utf8"),

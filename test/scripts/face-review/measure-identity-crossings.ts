@@ -12,15 +12,14 @@
  *
  * Usage: ttsx -P tsconfig.json --no-plugins scripts/face-review/measure-identity-crossings.ts
  */
-import fs from "node:fs";
-import { gunzipSync } from "node:zlib";
-
 import { measureAutoMovieModelCrossings } from "@automovie/engine";
 import {
-  createHumanFaceBasisBuilder,
   type IAutoMovieHumanFaceBasis,
   type IAutoMovieHumanFaceBasisDocument,
+  createHumanFaceBasisBuilder,
 } from "@automovie/human";
+import fs from "node:fs";
+import { gunzipSync } from "node:zlib";
 
 const published = "studies/human-face/connected-basis/global-face";
 const basis: IAutoMovieHumanFaceBasis = JSON.parse(

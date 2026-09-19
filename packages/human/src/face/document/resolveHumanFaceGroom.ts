@@ -32,11 +32,17 @@ const seatTriangle = (
 /**
  * Rebuild one surface-seated groom against the face it is currently seated on.
  *
- * Every lock is read back from the triangle it names: the seat is that
- * triangle's barycentric point now, and the frame is that triangle's first
- * edge, normal and their cross product now. Because both are read from the
- * live surface, an edit that moves the skin moves the hair with it, and nothing
- * outside this function has to know that a shape weight changed.
+ * Every lock is read back from the triangle it names. The seat is the corner
+ * the triangle starts at, offset along its two edges by the weights the card
+ * carries. The frame a station rides is ordered `[edge, cross(normal, edge),
+ * normal]`, so a station's third component is its height above the surface and
+ * the first two run along it. That order is written out because naming the
+ * three vectors is not the same as naming the axes they sit on, and a reading
+ * taken from the looser phrasing put the normal on the second axis and called a
+ * median 28% of every published groom buried inside the head. Because seat and
+ * frame are both read from the live surface, an edit that moves the skin moves
+ * the hair with it, and nothing outside this function has to know that a shape
+ * weight changed.
  *
  * The result is a procedural groom profile, so the shared card tessellator
  * handles taper, fibres and curl exactly as it does for an authored hairstyle.
@@ -111,7 +117,9 @@ export function resolveHumanFaceGroom(props: {
         Vector3.create(0, 0, 0),
       );
     // Local metres ride the live frame; the tessellator reads millimetres.
-    const millimetres = (point: IAutoMovieVector3): [number, number, number] => [
+    const millimetres = (
+      point: IAutoMovieVector3,
+    ): [number, number, number] => [
       point.x * 1000,
       point.y * 1000,
       point.z * 1000,
