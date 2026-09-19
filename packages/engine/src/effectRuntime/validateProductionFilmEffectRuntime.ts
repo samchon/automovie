@@ -1,7 +1,7 @@
 import { IAutoMovieCompiledFilmEffect } from "@automovie/interface";
 
-import { productionFrameBoundaryToSeconds } from "../film/productionTimebase";
-import { autoMovieRenderDigest } from "../render/renderDigest";
+import { productionFrameBoundaryToSeconds } from "../film/productionFrameBoundaryToSeconds";
+import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
 import { canonicalizeAutoMovieJson } from "../text/canonicalizeAutoMovieJson";
 import { AutoMovieFilmEffectRuntimeError } from "./AutoMovieFilmEffectRuntimeError";
 import { productionFilmEffectFrameRate } from "./productionFilmEffectFrameRate";

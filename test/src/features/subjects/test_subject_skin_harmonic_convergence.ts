@@ -1,4 +1,4 @@
-import { blendPortraitSkin } from "@automovie/human/geometry/blendPortraitSkin";
+import { blendPortraitSkin } from "@automovie/human/face/anatomy/skin/blendPortraitSkin";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/predicates";

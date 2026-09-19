@@ -1,8 +1,6 @@
-import {
-  portraitEyeLidRows,
-  portraitEyeLoop,
-} from "@automovie/human/components/eyeLidRows";
-import type { IPortraitEyeSocket } from "@automovie/human/components/eyes";
+import { portraitEyeLidRows } from "@automovie/human/face/anatomy/eye/portraitEyeLidRows";
+import { portraitEyeLoop } from "@automovie/human/face/anatomy/eye/portraitEyeLoop";
+import type { IPortraitEyeSocket } from "@automovie/human/face/anatomy/eye/structures/IPortraitEyeSocket";
 import { TestValidator } from "@nestia/e2e";
 
 import { portraitEyeShapeFixture } from "../internal/portraitEyeShapeFixture";

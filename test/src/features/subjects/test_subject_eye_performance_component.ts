@@ -1,4 +1,4 @@
-import { createPortraitEyeComponent } from "@automovie/human/components/eyes";
+import { createPortraitEyeComponent } from "@automovie/human/face/anatomy/eye/createPortraitEyeComponent";
 import { TestValidator } from "@nestia/e2e";
 
 import { portraitEyeHostFixture } from "../internal/portraitEyeHostFixture";

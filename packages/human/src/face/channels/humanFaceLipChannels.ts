@@ -1,0 +1,111 @@
+import { IAutoMovieHumanFaceDetailChannel } from "../structures/IAutoMovieHumanFaceDetailChannel";
+import { createHumanFaceDetailChannel as channel } from "../editor/createHumanFaceDetailChannel";
+
+/**
+ * Declare mouth scalar controls for the common document editor.
+ * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Exposes aperture, commissure, contact and vermilion shape as mouth detail controls.
+ * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Keeps mouth profile paths, signed effects and scalar bounds distinct from the shared oral geometry admission.
+ */
+export const humanFaceLipChannels: readonly IAutoMovieHumanFaceDetailChannel[] =
+  [
+    channel(
+      "mouth",
+      "widthScale",
+      "Oral and vermilion width",
+      "ratio",
+      0.4,
+      1.8,
+      0.01,
+      "Increasing widens both oral corners; decreasing narrows them.",
+    ),
+    channel(
+      "mouth",
+      "openingScale",
+      "Observed oral aperture height scale",
+      "ratio",
+      0.1,
+      2,
+      0.01,
+      "Increasing separates the basis oral margins; decreasing reduces their separation.",
+    ),
+    channel(
+      "mouth",
+      "cornerLift",
+      "Common oral-corner elevation",
+      "mm",
+      -6,
+      8,
+      0.1,
+      "Increasing raises both commissures; decreasing lowers them.",
+    ),
+    channel(
+      "mouth",
+      "upperLipProjection",
+      "Upper vermilion projection",
+      "mm",
+      -5,
+      5,
+      0.05,
+      "Increasing advances the upper lip; decreasing recesses it.",
+    ),
+    channel(
+      "mouth",
+      "lowerLipProjection",
+      "Lower vermilion projection",
+      "mm",
+      -5,
+      5,
+      0.05,
+      "Increasing advances the lower lip; decreasing recesses it.",
+    ),
+    channel(
+      "mouth",
+      "seamProjection",
+      "Oral contact-line projection",
+      "mm",
+      -6,
+      6,
+      0.05,
+      "Increasing advances both oral rims; decreasing deepens the contact line without moving the outer lip boundary.",
+    ),
+    channel(
+      "mouth",
+      "section.upperBody",
+      "Upper vermilion cross-sectional fullness",
+      "mm",
+      0,
+      5,
+      0.05,
+      "Increasing rounds the upper lip body between its boundaries; decreasing flattens it.",
+    ),
+    channel(
+      "mouth",
+      "section.lowerBody",
+      "Lower vermilion cross-sectional fullness",
+      "mm",
+      0,
+      5,
+      0.05,
+      "Increasing rounds the lower lip body between its boundaries; decreasing flattens it.",
+    ),
+    channel(
+      "mouth",
+      "section.upperTubercle",
+      "Central upper-lip tubercle fullness",
+      "mm",
+      0,
+      3,
+      0.05,
+      "Increasing advances the central tubercle; decreasing flattens it.",
+    ),
+    channel(
+      "mouth",
+      "section.lowerPads",
+      "Paired lower-lip pad fullness",
+      "mm",
+      0,
+      3,
+      0.05,
+      "Increasing advances the paired pads; decreasing flattens them.",
+    ),
+  ];

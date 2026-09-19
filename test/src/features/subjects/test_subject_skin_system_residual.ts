@@ -1,4 +1,4 @@
-import { solvePortraitSkinSystem } from "@automovie/human/geometry/solvePortraitSkinSystem";
+import { solvePortraitSkinSystem } from "@automovie/human/face/anatomy/skin/solvePortraitSkinSystem";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, throwsError } from "../internal/predicates";

@@ -1,7 +1,5 @@
-import {
-  type IPortraitCraniumShape,
-  resolvePortraitCraniumShape,
-} from "@automovie/human/components/craniumShape";
+import { resolvePortraitCraniumShape } from "@automovie/human/face/anatomy/cranium/resolvePortraitCraniumShape";
+import { type IPortraitCraniumShape } from "@automovie/human/face/anatomy/cranium/structures/IPortraitCraniumShape";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/predicates";

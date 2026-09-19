@@ -1,7 +1,5 @@
-import {
-  type IPortraitUpperLidSection,
-  createPortraitUpperLidProfile,
-} from "@automovie/human/components/upperLidSection";
+import { createPortraitUpperLidProfile } from "@automovie/human/face/anatomy/eye/createPortraitUpperLidProfile";
+import { type IPortraitUpperLidSection } from "@automovie/human/face/anatomy/eye/structures/IPortraitUpperLidSection";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, throwsError } from "../internal/predicates";

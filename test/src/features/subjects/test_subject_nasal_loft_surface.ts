@@ -1,6 +1,6 @@
-import { createPortraitNasalBodySurface } from "@automovie/human/components/nasalBodySurface";
-import { createPortraitNoseComponent } from "@automovie/human/components/nose";
-import { applyPortraitFinalSurfaces } from "@automovie/human/geometry/portraitFinalSurface";
+import { createPortraitNasalBodySurface } from "@automovie/human/face/anatomy/nose/createPortraitNasalBodySurface";
+import { createPortraitNoseComponent } from "@automovie/human/face/anatomy/nose/createPortraitNoseComponent";
+import { applyPortraitFinalSurfaces } from "@automovie/human/face/surface/applyPortraitFinalSurfaces";
 import { TestValidator } from "@nestia/e2e";
 
 import {

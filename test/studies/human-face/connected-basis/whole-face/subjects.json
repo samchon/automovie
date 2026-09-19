@@ -1,6 +1,5 @@
 [
   {
-    "version": "human-face-basis-document/1",
     "id": "alan-rickman-connected",
     "name": "alan-rickman (connected study)",
     "basis": "mpfb-connected-head-2026-09-17-complete-regions",
@@ -147,7 +146,6 @@
     }
   },
   {
-    "version": "human-face-basis-document/1",
     "id": "daniel-radcliffe-connected",
     "name": "daniel-radcliffe (connected study)",
     "basis": "mpfb-connected-head-2026-09-17-complete-regions",
@@ -299,7 +297,6 @@
     }
   },
   {
-    "version": "human-face-basis-document/1",
     "id": "emma-watson-connected",
     "name": "emma-watson (connected study)",
     "basis": "mpfb-connected-head-2026-09-17-complete-regions",
@@ -447,7 +444,6 @@
     }
   },
   {
-    "version": "human-face-basis-document/1",
     "id": "generated-black-boy-01-connected",
     "name": "generated-black-boy-01 (connected study)",
     "basis": "mpfb-connected-head-2026-09-17-complete-regions",
@@ -597,7 +593,6 @@
     }
   },
   {
-    "version": "human-face-basis-document/1",
     "id": "generated-black-girl-01-connected",
     "name": "generated-black-girl-01 (connected study)",
     "basis": "mpfb-connected-head-2026-09-17-complete-regions",
@@ -749,7 +744,6 @@
     }
   },
   {
-    "version": "human-face-basis-document/1",
     "id": "generated-korean-boy-01-connected",
     "name": "generated-korean-boy-01 (connected study)",
     "basis": "mpfb-connected-head-2026-09-17-complete-regions",
@@ -901,7 +895,6 @@
     }
   },
   {
-    "version": "human-face-basis-document/1",
     "id": "generated-white-boy-01-connected",
     "name": "generated-white-boy-01 (connected study)",
     "basis": "mpfb-connected-head-2026-09-17-complete-regions",
@@ -1055,7 +1048,6 @@
     }
   },
   {
-    "version": "human-face-basis-document/1",
     "id": "generated-white-girl-01-connected",
     "name": "generated-white-girl-01 (connected study)",
     "basis": "mpfb-connected-head-2026-09-17-complete-regions",
@@ -1205,157 +1197,6 @@
     }
   },
   {
-    "version": "human-face-basis-document/1",
-    "id": "jang-su-hye-connected",
-    "name": "jang-su-hye (connected study)",
-    "basis": "mpfb-connected-head-2026-09-17-complete-regions",
-    "shape": {
-      "headWidth": -0.4130289026371173,
-      "headHeight": 0.05595811722027138,
-      "headDepth": -0.13387441946565443,
-      "cheekFullness": -0.27925146439112425,
-      "chinWidth": -0.24418635021724383,
-      "chinHeight": -0.3937647705325995,
-      "chinProjection": -0.01442415437719666,
-      "noseWidth": 0.033635061206542693,
-      "noseHeight": 0.11930494898835602,
-      "noseDepth": 0.2609002324351746,
-      "mouthWidth": -0.41424102473005586,
-      "mouthHeight": -0.5613411868601981,
-      "upperLipHeight": -0.4829030056525007,
-      "lowerLipHeight": 0.16494605683379268,
-      "upperLipVolume": 0.06430444927011253,
-      "lowerLipVolume": -0.005033556899494527,
-      "upperLipWidth": -0.07427799500363363,
-      "lowerLipWidth": -0.0775958123638133,
-      "mouthDepth": 0.0759924132350356,
-      "noseUpperWidth": -0.004755514939783642,
-      "noseMiddleWidth": 0.04172805725416575,
-      "noseLowerWidth": -0.07074644839519903,
-      "nostrilWidth": -0.06437031303581148,
-      "noseFlaring": -0.03975450799142411,
-      "leftEyeScale": 0.130313418798677,
-      "rightEyeScale": 0.29274200810295375,
-      "leftEyeHeight": 0.3871444412469745,
-      "rightEyeHeight": 0.3014259025839819,
-      "posteriorHeadDepth": 1.202102430492648e-7,
-      "templeWidth": -0.20145786513561176,
-      "chinBoneWidth": -0.1533245498357316,
-      "jawPrognathism": -0.09090406925280856,
-      "jawRestHeight": -0.12849304068389522,
-      "noseTipWidth": -0.042005661912833905,
-      "noseBridgeHump": 0.3479601363986176,
-      "noseSeptumAngle": -0.011898622853306935,
-      "neckWidth": -0.004917124904480768,
-      "neckDepth": -0.055787891819305865,
-      "neckUnderChinFullness": -0.00006044630267690862,
-      "leftCheekVolume": -0.11925909108108991,
-      "leftCheekBone": 0.04450948029298836,
-      "leftCheekInner": 0.025206701300869185,
-      "leftEarScale": 0.028926166284077112,
-      "leftEarHeight": -0.06862209159476675,
-      "leftEarDepth": -0.040598162692334606,
-      "leftEarWing": 0.0017693244981577738,
-      "leftEyeBagVolume": 0.0536933338016094,
-      "leftEyeBagHeight": 0.2616811434535006,
-      "rightCheekVolume": 0.391167667762444,
-      "rightCheekBone": 0.12830044292766976,
-      "rightCheekInner": -0.0008549403710900636,
-      "rightEarScale": -0.0422489405537477,
-      "rightEarHeight": 0.026356720794845957,
-      "rightEarDepth": -0.005942476307122772,
-      "rightEarLobe": -0.00013039588964862755,
-      "rightEarWing": 0.00004648139307485122,
-      "rightEyeBagVolume": 0.050676036197075364,
-      "rightEyeBagHeight": 0.14723904891455722,
-      "faceAgeStructure": -0.5427125229256127,
-      "philtrumVolume": 0.0013156399610283614,
-      "foreheadProjection": -0.00031709059325358104,
-      "browElevation": 0.38384390104326555,
-      "browProjection": -0.029785192187852864,
-      "browAngle": -1.24799313915958e-7,
-      "noseTipElevation": -0.08032015696247582,
-      "noseBaseElevation": -0.1427770238073532,
-      "nostrilAngle": 0.04174018407312168,
-      "mouthElevation": 0.10152758709872794,
-      "leftEyeElevation": -0.3197825335001528,
-      "leftEyeLateralPosition": 0.31349958615041423,
-      "leftEyeFoldHeight": 0.0868131341057441,
-      "leftEarRotation": -0.056956394565428774,
-      "rightEyeElevation": -0.05864465690579553,
-      "rightEyeLateralPosition": 0.46773004618726777,
-      "rightEyeFoldHeight": 0.07457860584783355,
-      "rightEarRotation": -0.15285014631688112
-    },
-    "expression": {
-      "browDownLeft": 0.00005752691066730447,
-      "browDownRight": 0.000033251890684438575,
-      "browInnerUp": 0.5681646747668422,
-      "browOuterUpLeft": 0.242871680511132,
-      "browOuterUpRight": 0.14364197314975372,
-      "cheekPuff": 0.018420052062195637,
-      "cheekSquintRight": 0.019580383669231642,
-      "eyeBlinkLeft": 0.04242449955411031,
-      "eyeBlinkRight": 0.008470739426585952,
-      "eyeLookDownLeft": 0.07940892073155473,
-      "eyeLookDownRight": 0.08001542685862884,
-      "eyeLookInLeft": 0.1454687036416383,
-      "eyeLookInRight": 0.039565441288253726,
-      "eyeLookOutLeft": 0.02023779092878956,
-      "eyeLookOutRight": 0.1343298984550086,
-      "eyeLookUpLeft": 0.08914085646771476,
-      "eyeLookUpRight": 0.09936628674600433,
-      "eyeSquintLeft": 0.2775348717947138,
-      "eyeSquintRight": 0.2380867391408799,
-      "eyeWideLeft": 0.015265997274136838,
-      "eyeWideRight": 0.015985574075747296,
-      "jawForward": 0.0000011270485944482785,
-      "jawLeft": 0.00000793237466675876,
-      "jawOpen": 0.01244575503215877,
-      "jawRight": 0.027636175050704447,
-      "mouthClose": 0.055292069529542506,
-      "mouthDimpleLeft": 0.044984119810657815,
-      "mouthDimpleRight": 0.06522344680129458,
-      "mouthFunnel": 0.03573737801295743,
-      "mouthLeft": 0.04007170529863708,
-      "mouthLowerDownLeft": 0.003921257937097317,
-      "mouthLowerDownRight": 0.005380620920633025,
-      "mouthPressLeft": 0.11234691641960905,
-      "mouthPressRight": 0.21145867730784104,
-      "mouthPucker": 0.008705170896060056,
-      "mouthRight": 0.04547577661592546,
-      "mouthRollLower": 0.009046012346809854,
-      "mouthRollUpper": 0.05956281979934046,
-      "mouthShrugLower": 0.0018588029522597256,
-      "mouthShrugUpper": 0.00020889172564866792,
-      "mouthSmileLeft": 0.09205041371911905,
-      "mouthSmileRight": 0.0696397111718553,
-      "mouthStretchLeft": 0.000024967966219954045,
-      "mouthStretchRight": 0.0007379031004634099,
-      "mouthUpperUpLeft": 0.0000018432550622169519,
-      "mouthUpperUpRight": 0.000008389218996233097
-    },
-    "materials": {
-      "skin": {
-        "color": {
-          "r": 0.56,
-          "g": 0.34,
-          "b": 0.29
-        },
-        "roughness": 0.76
-      },
-      "lips": {
-        "color": {
-          "r": 0.48,
-          "g": 0.1,
-          "b": 0.15
-        },
-        "roughness": 0.57
-      }
-    }
-  },
-  {
-    "version": "human-face-basis-document/1",
     "id": "kim-min-jung-connected",
     "name": "kim-min-jung (connected study)",
     "basis": "mpfb-connected-head-2026-09-17-complete-regions",
@@ -1507,7 +1348,6 @@
     }
   },
   {
-    "version": "human-face-basis-document/1",
     "id": "lee-tae-ri-connected",
     "name": "lee-tae-ri (connected study)",
     "basis": "mpfb-connected-head-2026-09-17-complete-regions",
@@ -1655,7 +1495,6 @@
     }
   },
   {
-    "version": "human-face-basis-document/1",
     "id": "maggie-smith-connected",
     "name": "maggie-smith (connected study)",
     "basis": "mpfb-connected-head-2026-09-17-complete-regions",
@@ -1807,7 +1646,6 @@
     }
   },
   {
-    "version": "human-face-basis-document/1",
     "id": "michael-gambon-connected",
     "name": "michael-gambon (connected study)",
     "basis": "mpfb-connected-head-2026-09-17-complete-regions",
@@ -1958,7 +1796,6 @@
     }
   },
   {
-    "version": "human-face-basis-document/1",
     "id": "miriam-margolyes-connected",
     "name": "miriam-margolyes (connected study)",
     "basis": "mpfb-connected-head-2026-09-17-complete-regions",
@@ -2111,7 +1948,6 @@
     }
   },
   {
-    "version": "human-face-basis-document/1",
     "id": "oh-seung-yoon-connected",
     "name": "oh-seung-yoon (connected study)",
     "basis": "mpfb-connected-head-2026-09-17-complete-regions",
@@ -2263,7 +2099,6 @@
     }
   },
   {
-    "version": "human-face-basis-document/1",
     "id": "park-eun-bin-connected",
     "name": "park-eun-bin (connected study)",
     "basis": "mpfb-connected-head-2026-09-17-complete-regions",
@@ -2413,7 +2248,6 @@
     }
   },
   {
-    "version": "human-face-basis-document/1",
     "id": "rupert-grint-connected",
     "name": "rupert-grint (connected study)",
     "basis": "mpfb-connected-head-2026-09-17-complete-regions",
@@ -2564,7 +2398,6 @@
     }
   },
   {
-    "version": "human-face-basis-document/1",
     "id": "yoo-seung-ho-connected",
     "name": "yoo-seung-ho (connected study)",
     "basis": "mpfb-connected-head-2026-09-17-complete-regions",
@@ -2713,7 +2546,6 @@
     }
   },
   {
-    "version": "human-face-basis-document/1",
     "id": "kdy1-connected",
     "name": "kdy1 (connected study)",
     "basis": "mpfb-connected-head-2026-09-17-complete-regions",

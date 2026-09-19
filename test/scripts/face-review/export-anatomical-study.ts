@@ -1,8 +1,6 @@
 import { validateModel } from "@automovie/engine";
-import {
-  portraitDocument,
-  portraitGltfExtensions,
-} from "@automovie/human/geometry/portraitDocument";
+import { portraitDocument } from "@automovie/human/face/export/portraitDocument";
+import { portraitGltfExtensions } from "@automovie/human/face/export/portraitGltfExtensions";
 import { NodeIO } from "@gltf-transform/core";
 import { createHash } from "node:crypto";
 import fs from "node:fs/promises";

@@ -18,6 +18,7 @@ export interface IAutoMovieCapsuleProxy {
    * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-collider-and-solver-transition Makes the collision segment resolve from the evaluated pose.
    */
   from: AutoMovieHumanoidBone;
+
   /**
    * Humanoid bone at the second end of the actor-local segment.
    *
@@ -25,6 +26,7 @@ export interface IAutoMovieCapsuleProxy {
    * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-collider-and-solver-transition Makes the collision segment resolve from the same evaluated pose.
    */
   to: AutoMovieHumanoidBone;
+
   /**
    * Finite strictly positive radius in meters.
    *

@@ -1,7 +1,5 @@
-import {
-  type IPortraitHairShape,
-  buildPortraitHairCards,
-} from "@automovie/human/components/hairCards";
+import { type IPortraitHairShape } from "@automovie/human/face/anatomy/hair/IPortraitHairShape";
+import { buildPortraitHairCards } from "@automovie/human/face/anatomy/hair/buildPortraitHairCards";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, throwsError } from "../internal/predicates";

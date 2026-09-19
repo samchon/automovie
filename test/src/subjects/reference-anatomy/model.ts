@@ -1,18 +1,14 @@
-import {
-  appendPortraitNeck,
-  portraitNeckShape,
-} from "@automovie/human/components/cranium";
-import { createPortraitMaterials } from "@automovie/human/components/materials";
-import { portraitCutBoundary } from "@automovie/human/components/nose";
-import {
-  portraitNormals,
-  portraitPart,
-  portraitPatch,
-  portraitPoint,
-  portraitRegion,
-} from "@automovie/human/geometry/geometry";
-import { portraitEyeSphereIntersection } from "@automovie/human/geometry/portraitEyeSphere";
-import { assertPortraitSkinTopology } from "@automovie/human/geometry/portraitSkinTopology";
+import { appendPortraitNeck } from "@automovie/human/face/anatomy/cranium/appendPortraitNeck";
+import { portraitNeckShape } from "@automovie/human/face/anatomy/cranium/portraitNeckShape";
+import { createPortraitMaterials } from "@automovie/human/face/anatomy/cranium/createPortraitMaterials";
+import { portraitCutBoundary } from "@automovie/human/face/anatomy/cranium/portraitCutBoundary";
+import { portraitNormals } from "@automovie/human/face/mesh/portraitNormals";
+import { portraitPart } from "@automovie/human/face/mesh/portraitPart";
+import { portraitPatch } from "@automovie/human/face/mesh/portraitPatch";
+import { portraitPoint } from "@automovie/human/face/mesh/portraitPoint";
+import { portraitRegion } from "@automovie/human/face/mesh/portraitRegion";
+import { portraitEyeSphereIntersection } from "@automovie/human/face/surface/portraitEyeSphereIntersection";
+import { assertPortraitSkinTopology } from "@automovie/human/face/anatomy/skin/assertPortraitSkinTopology";
 import type { IAutoMovieMesh, IAutoMovieModel } from "@automovie/interface";
 
 import {

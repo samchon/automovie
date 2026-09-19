@@ -1,7 +1,5 @@
-import {
-  appendPortraitNasalRimSection,
-  createPortraitNasalRimSection,
-} from "@automovie/human/components/nasalRimSection";
+import { appendPortraitNasalRimSection } from "@automovie/human/face/anatomy/nose/appendPortraitNasalRimSection";
+import { createPortraitNasalRimSection } from "@automovie/human/face/anatomy/nose/createPortraitNasalRimSection";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, throwsError } from "../internal/predicates";

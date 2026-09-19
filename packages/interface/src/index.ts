@@ -21,3 +21,4 @@ export * from "./authoring";
 export * from "./harness";
 export * from "./production";
 export * from "./render";
+export * from "./AutoMovieInterfaceEvidenceExclusions";

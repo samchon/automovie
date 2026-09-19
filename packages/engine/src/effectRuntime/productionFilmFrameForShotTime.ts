@@ -1,6 +1,6 @@
 import { IAutoMovieProductionFrameRate } from "@automovie/interface";
 
-import { productionFrameBoundaryToSeconds } from "../film/productionTimebase";
+import { productionFrameBoundaryToSeconds } from "../film/productionFrameBoundaryToSeconds";
 import { IAutoMovieFilmEffectClock } from "./IAutoMovieFilmEffectClock";
 import { estimateProductionFilmFrame } from "./estimateProductionFilmFrame";
 import { productionFilmEffectTimelineFrameRate } from "./productionFilmEffectTimelineFrameRate";

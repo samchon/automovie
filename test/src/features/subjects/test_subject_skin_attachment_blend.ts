@@ -1,5 +1,5 @@
-import { blendPortraitSkin } from "@automovie/human/geometry/blendPortraitSkin";
-import type { IPortraitSkinConstraint } from "@automovie/human/geometry/portraitComponents";
+import { blendPortraitSkin } from "@automovie/human/face/anatomy/skin/blendPortraitSkin";
+import type { IPortraitSkinConstraint } from "@automovie/human/face/anatomy/skin/structures/IPortraitSkinConstraint";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, throwsError } from "../internal/predicates";

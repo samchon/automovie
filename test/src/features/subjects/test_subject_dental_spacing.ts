@@ -1,4 +1,4 @@
-import { buildPortraitMouth } from "@automovie/human/components/mouth";
+import { buildPortraitMouth } from "@automovie/human/face/anatomy/mouth/buildPortraitMouth";
 import { TestValidator } from "@nestia/e2e";
 
 import { portraitMouthShape } from "../../subjects/generated-korean-girl-01/configuration";

@@ -1,5 +1,5 @@
 {
-  "basis": "mpfb-connected-head-2026-09-17-binocular-frame",
+  "basis": "mpfb-connected-head-2026-09-18-jaw-corrective",
   "basisSha256": "80e3cbbbc254af3a22392b32dc0cb0767ab789372cb15a8bfc20f06924785fdc",
   "method": "Bounded robust TRF with six equal semantic landmark groups, 52 performance controls, 84 shape controls of which the seventeen left/right pairs are solved as one tied weight each, three whole-face shape starts, every landmark anchored on the outer surface the front camera sees, a commitment-scaled shape regularizer of 0.003 at the basis's root-mean-square channel commitment and 0.015 observed-performance regularity",
   "fieldNotes": {
@@ -638,62 +638,6 @@
           "cost": 0.00012809644535323334,
           "success": true,
           "nfev": 80
-        }
-      ]
-    },
-    {
-      "subject": "jang-su-hye",
-      "source": {
-        "relative": "east-asian/jang-su-hye/jang-su-hye_age-approx-31_symposium-portrait.jpeg",
-        "url": "https://raw.githubusercontent.com/samchon/AutoMovie/f57d3396d1fb2d57b01d851c14130ef7409a822d/.github/issue-assets/human-face-input/originals/east-asian/jang-su-hye/jang-su-hye_age-approx-31_symposium-portrait.jpeg",
-        "bytes": 249739,
-        "sha256": "f47625be7c4192850cfc7c8825d982a409e3cde667974a50ee15eb5d5d66068d",
-        "author": "Not supplied in the issue asset inventory",
-        "license": "Not established; retained locally for user-requested analysis only"
-      },
-      "rmseBeforeFaceHeight": 0.02151824822912274,
-      "rmseAfterFaceHeight": 0.008839524883692402,
-      "semanticGroupRms": {
-        "lips": 0.007240782674577785,
-        "eyes": 0.008396482502029803,
-        "brows": 0.016040036281205726,
-        "outline": 0.009754128490422793,
-        "nose": 0.006480867264904731,
-        "other": 0.008463656382221402
-      },
-      "previousSemanticGroupRms": {
-        "lips": 0.007398067036013903,
-        "eyes": 0.008898956524836028,
-        "brows": 0.016266355787345605,
-        "outline": 0.009301543413175016,
-        "nose": 0.005956918920094163,
-        "other": 0.007682384031876513
-      },
-      "committedShapeMillimetres": 19.704814075344572,
-      "previousCommittedShapeMillimetres": 18.760617084268205,
-      "mirrorDeviationMillimetres": 0.13716368875206297,
-      "previousMirrorDeviationMillimetres": 1.4619203579093605,
-      "identityMirrorDeviationMillimetres": 0.010542995258673781,
-      "previousIdentityMirrorDeviationMillimetres": 1.444356870895263,
-      "glbSha256": "4c1f662a037dcac7a8eac01d447cb2db5bdab8b7355a354182055c755f987535",
-      "parts": 7,
-      "documentSha256": "c81c91a5002b7b4f753c463929cb589cb19bc5decd0167e1c5bf3ba672671c74",
-      "likeness": "unaccepted",
-      "multistart": [
-        {
-          "cost": 0.00006233720918625034,
-          "success": true,
-          "nfev": 23
-        },
-        {
-          "cost": 0.00006640629098645981,
-          "success": true,
-          "nfev": 31
-        },
-        {
-          "cost": 0.00006280245724399248,
-          "success": true,
-          "nfev": 65
         }
       ]
     },

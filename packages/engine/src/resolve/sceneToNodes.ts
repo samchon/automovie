@@ -1,43 +1,6 @@
-import {
-  IAutoMovieModel,
-  IAutoMovieNode,
-  IAutoMoviePropArticulation,
-  IAutoMoviePropSpec,
-  IAutoMovieScene,
-} from "@automovie/interface";
-
-import { lowerSkeletonNodes } from "./skeletonNodes";
-
-/**
- * The prefix every node lowered under one scene placement carries.
- *
- * One law, one owner. The prefix appears in four unrelated places at once: the
- * ids this bridge writes, the `nodePrefix` a profile binds with
- * ({@link bindProfile}), the `nodePrefix` an actor's clip is baked with
- * ({@link motionToClip}), and the channel a shot's `objectMotions` addresses a
- * prop's moving part by. Spelled out at each of them, the four agree until one
- * is edited, and a channel that silently addresses nothing is exactly the drop
- * this package refuses everywhere else.
- *
- * @evidence requirements/map/scope-and-coordinates.md#map-host-scene-placement Establishes the explicit namespace joining one host placement to all of its lowered nodes.
- * @evidence specifications/world-and-site/spatial-reference-and-identity.md#world-site-host-placement-failure Implements the stable placement relation used by downstream transform consumers.
- */
-export const placementNodePrefix = (placement: string): string =>
-  `${placement}/`;
-
-/**
- * The scene-graph id of one node lowered under a placement.
- *
- * A bone of a placed actor and a joint of a placed prop are the same naming
- * question, so they get the same answer: `"frontDoor"` plus `"hinge"` is
- * `"frontDoor/hinge"`, which is what a clip track, a bound profile limit and a
- * viewer lookup must all spell identically.
- *
- * @evidence requirements/map/scope-and-coordinates.md#map-host-scene-placement Preserves the host-to-child relation for a placed object.
- * @evidence specifications/world-and-site/spatial-reference-and-identity.md#world-site-host-placement-failure Produces the canonical child identity for scene-graph lookup.
- */
-export const placementChildNode = (placement: string, child: string): string =>
-  `${placementNodePrefix(placement)}${child}`;
+import { IAutoMovieModel, IAutoMovieNode, IAutoMoviePropArticulation, IAutoMoviePropSpec, IAutoMovieScene } from "@automovie/interface";
+import { lowerSkeletonNodes } from "./lowerSkeletonNodes";
+import { placementNodePrefix } from "./placementNodePrefix";
 
 /**
  * Lower the specialized {@link IAutoMovieScene} onto the general

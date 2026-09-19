@@ -1,4 +1,4 @@
-import { buildPortraitHead } from "@automovie/human/components/head";
+import { buildPortraitHead } from "@automovie/human/face/anatomy/cranium/buildPortraitHead";
 import type { IAutoMovieModelPart } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 

@@ -1,5 +1,5 @@
 import { resolveHumanFaceDocument } from "@automovie/human";
-import { createPortraitNasalBodySurface } from "@automovie/human/components/nasalBodySurface";
+import { createPortraitNasalBodySurface } from "@automovie/human/face/anatomy/nose/createPortraitNasalBodySurface";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFaceFixture } from "../internal/humanFaceFixture";

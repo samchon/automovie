@@ -479,38 +479,6 @@ State: construction admitted; standalone document replay admitted; static glTF a
 | reference | `7781700c80fe4d186175ea3b8bccfe003858aa2741ee2734c83eafb158d29559` |
 | clay | `b6100406229c1a91136e1937c11d593daccfc4e4d471ff51a518fe421e8fbb57` |
 
-## jang-su-hye {#jang-su-hye}
-
-[Replay document](jang-su-hye.json) · [Original selection and quality](inputs.md#input-jang-su-hye). Selected original: `jang-su-hye_age-approx-31_symposium-portrait.jpeg`.
-
-Reference-view comparison shows an overly thick lower vermilion, broad bright eye aperture and coarse brows. The selected portrait has makeup and limited face pixels; do not convert those lighting limits into guessed skin detail.
-
-Front and reference preserve the closed lip seam without exposed enamel in this pose. Both obliques and clay show flat, simplified nostril form, regular lid bands and insufficiently individualized brow distribution. Both profiles and back retain the inferred skull, pinnae and posterior neck lobes. This adult original was explicitly selected over the small childhood group-frame faces; no claim is made that the adult settings reproduce those other ages.
-
-Artifact identities:
-
-| Artifact | SHA-256 |
-| --- | --- |
-| Source image | `f47625be7c4192850cfc7c8825d982a409e3cde667974a50ee15eb5d5d66068d` |
-| Replay document bytes | `d33fab2f57c287bbedd8ae88509401b9f76af8f8b6edb7ac4ae7d3f9eb44da68` |
-| Node model JSON | `eb0d52a197d5318abeb5dd5f9b0867be041bd6b74d8fe5e5855c1c6d954930bb` |
-| Rendered GLB | `20fafe8fd63423ae8c4320d41c031f603cc0b3b4acbc907eb01317e1c9d9793d` |
-| Capture profile | `e87670025717eab4c544133d3fd144e8de6ef33735004bbf54ea47591ec2ae4b` |
-
-State: construction admitted; standalone document replay admitted; static glTF admitted; all 9 captures present; all 9 directly inspected; likeness **unaccepted**. Remaining visible defects are the observations above. Local capture directory: `.shots/face-experiment/human-fitted-jang-su-hye`.
-
-| Directly inspected view | File SHA-256 |
-| --- | --- |
-| calibration | `8acb97c40727614bc332c2defaa89044a5b187bb1c4e4451660930a10617e69e` |
-| front | `2cdb9093d1ff383e4e61c183acb2e43cf97afbe47c8ecb922e9fe136c4fb7e3c` |
-| left-oblique | `0eb1669afda50bcb02a1ecd98918c748d70d70774ddfd2f8e88378d0058db639` |
-| right-oblique | `04c9850200dc4702c5754c10e9404d5652b090ae778eeae5a2e6541d53aba086` |
-| left-profile | `0955d056d366bf28cc6e178f4d3c3c76ab299ec30df395a50807a6bf8d888109` |
-| right-profile | `4751ac0414a4d963d2e85b3f51b53686eacd37fe89c5c3ded69b2f7d6b2086f4` |
-| back | `b21089390354a812c6ec98654849dd68191454392e161763aa1457d7a90b92a3` |
-| reference | `5b700f78ae32a50073a4e2b574e796455af2d81fa9effdd7d14e0d8c3637c8bf` |
-| clay | `33d405401a992b5fc297404cd0d772b871186b8cde7531afe28673366f9a290d` |
-
 ## kim-min-jung {#kim-min-jung}
 
 [Replay document](kim-min-jung.json) · [Original selection and quality](inputs.md#input-kim-min-jung). Selected original: `kim-min-jung_age-26_strike-love.jpg`.
@@ -1287,7 +1255,6 @@ The rebuilt actual editor at `http://127.0.0.1:5187/face.html` loads all eleven 
 | daniel-radcliffe | `227dda17ab7b0b5b12fafdfcbb300431f44df26d522665dd2e21759360aeb4dc` | `6f6abd8fa3ede10895554b0dc0bf70e797cdac01ddf807c2e5c8a652a122ec1f` |
 | generated-black-boy-01 | `dc884c5d003d34a637b59afddc3afbdc9f46fab16dffd9502188231eaa6af539` | `5c05fa28e1e2f8e44f7ebe441d8e20fcbee7b639b5fc2323a817add60cfd0cf7` |
 | generated-white-boy-01 | `3bc1be298f9490653cbf5a7a6047cdb885cc07d5365f1d7c480602496962efb2` | `fb8ab410d1abf713719479f322509bb1812cfbca2483ecc8a5be40c5f75f36da` |
-| jang-su-hye | `626f33d78053b0686de850ae0f40c827e78e05fa5f274b98bd779e3173f1b803` | `865e5512ae9ebcee8d9554b0a2c3297fb029f678648808f65343781abc474e22` |
 | kim-min-jung | `dc40872aa83f93282c6bc75beafe945bec33ec452789ac7f4f7c659c1f17041e` | `e9380317e5210ba7d88e556b85df203d0af847be12e6a84a533b6e49a7c01e5f` |
 | lee-tae-ri | `dc9425881add72169f74f5e42a4df81300abde7017f4dcec015ccf2cd3375b3d` | `dbacf3aed4a38b54f7ef36d204610d8ac78826cd642d25dad3c367e380f61a62` |
 | maggie-smith | `62e5cd5636f1241afb8fde44e161a5fd480d46e049e05a2095887b77c8387e80` | `fb8fe51cde45d1551150ee2ab4a41df84e2a770b3dc060ef3c2169b32c6dada8` |

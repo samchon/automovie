@@ -1,52 +1,13 @@
-import {
-  AutoMovieHumanoidBone,
-  IAutoMovieCamera,
-  IAutoMovieDeliveryCrop,
-  IAutoMoviePose,
-  IAutoMoviePoseKeypoint,
-  IAutoMovieShot,
-  IAutoMovieSkeleton,
-  IAutoMovieTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-
+import { AutoMovieHumanoidBone, IAutoMovieCamera, IAutoMovieDeliveryCrop, IAutoMoviePose, IAutoMoviePoseKeypoint, IAutoMovieShot, IAutoMovieSkeleton, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
 import { resolvePose } from "../kinematics/resolvePose";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { projectToNdc, resolveCameraAt } from "./cameraProjection";
+import { projectToNdc } from "./projectToNdc";
+import { resolveCameraAt } from "./resolveCameraAt";
+import { DEFAULT_KEYPOINT_BONES } from "./constants/DEFAULT_KEYPOINT_BONES";
 
 /** Assumed render aspect (width/height): the scene camera carries no aspect. */
 const DEFAULT_ASPECT = 16 / 9;
-
-/**
- * The OpenPose-style BODY keypoint set: the load-bearing humanoid bones, minus
- * the 30 finger bones (the dimensional tail that pose-conditioned diffusion
- * does not use). A rig that omits a bone simply produces no keypoint for it.
- *
- * @evidence requirements/camera/validation.md#camera-hand-computable-geometry DEFAULT_KEYPOINT_BONES keeps camera geometry hand-computable: The OpenPose-style BODY keypoint set: the load-bearing humanoid bones, minus the 30 finger bones (the dimensional tail that pose-conditioned diffusion does not use). A rig that omits a bone simply produces no keypoint for it.
- * @evidence specifications/camera-light-and-visibility/visibility-and-image-space-observation.md#clv-computable-geometry-results DEFAULT_KEYPOINT_BONES realizes independently computable image geometry: The OpenPose-style BODY keypoint set: the load-bearing humanoid bones, minus the 30 finger bones (the dimensional tail that pose-conditioned diffusion does not use). A rig that omits a bone simply produces no keypoint for it.
- */
-export const DEFAULT_KEYPOINT_BONES: readonly AutoMovieHumanoidBone[] = [
-  "hips",
-  "spine",
-  "chest",
-  "neck",
-  "head",
-  "leftShoulder",
-  "leftUpperArm",
-  "leftLowerArm",
-  "leftHand",
-  "rightShoulder",
-  "rightUpperArm",
-  "rightLowerArm",
-  "rightHand",
-  "leftUpperLeg",
-  "leftLowerLeg",
-  "leftFoot",
-  "rightUpperLeg",
-  "rightLowerLeg",
-  "rightFoot",
-];
 
 /**
  * Project one posed actor's named joints to 2D screen keypoints (#1168), the

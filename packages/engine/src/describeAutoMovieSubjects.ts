@@ -1,0 +1,716 @@
+import { IAutoMovieBuiltEnvironment, IAutoMovieBuiltSpace, IAutoMovieCompiledInstanceSet, IAutoMovieModel, IAutoMovieModelPart, IAutoMovieSubjectArtifact, IAutoMovieSubjectBox, IAutoMovieSubjectDescription, IAutoMovieSubjectMaterial, IAutoMovieSubjectMemberSummary, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
+import { builtEnvironmentDescendantSpaces, builtEnvironmentElementBounds, builtEnvironmentSpaceContentBounds, builtInstanceSetPlacementBounds } from "./architecture";
+import { tessellate } from "./geometry";
+import { resolvePose } from "./kinematics";
+import { Matrix4, Quaternion } from "./math";
+import { compareAutoMovieRenderIds } from "./render";
+import { AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT } from "./constants/AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT";
+
+/**
+ * Enumerate directly stored compiled subjects without expanding placed parts or
+ * compact instance members.
+ *
+ * @evidence requirements/review/subject-description-and-structural-change.md#review-subject-description Lets a reviewer discover stable compiled subject identities without rendering.
+ * @evidence requirements/review/subject-description-and-structural-change.md#review-subject-compiled-truth Measures the inventory from the compiled artifact consumed by render and oracle services.
+ * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-description-record Enumerates prototypes, prototype parts, elements, instance sets, and spaces in deterministic order.
+ * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-description-bounds Derives geometry and space boxes from compiled content and declarations.
+ */
+export const describeAutoMovieSubjects = (
+  artifact: IAutoMovieSubjectArtifact,
+): IAutoMovieSubjectDescription[] => {
+  const context = createDescriptionContext(artifact);
+  const descriptions: IAutoMovieSubjectDescription[] = [];
+  for (const model of context.models.values()) {
+    descriptions.push(describePrototype(context, model));
+    for (const part of model.parts)
+      descriptions.push(describePrototypePart(context, model, part));
+  }
+  for (const node of artifact.compiled.scene.nodes)
+    descriptions.push(describeElement(context, node.id));
+  for (const set of artifact.compiled.instanceSets)
+    descriptions.push(describeInstanceSet(context, set));
+  for (const environment of artifact.compiled.builtEnvironments ?? []) {
+    // A transform-only group stages no node, so the scene walk above never
+    // reaches one. Leaving it out made the inventory of a building smaller than
+    // the building: one authored example carries 30 elements and stages 22, and
+    // the 8 it does not stage include both of its unit roots. They are elements
+    // the record owns, so a census that omits them is a census of the scene
+    // rather than of the work.
+    for (const element of environment.elements)
+      if (element.model === null)
+        descriptions.push(describeElementGroup(context, environment, element));
+    for (const space of environment.spaces)
+      descriptions.push(describeSpace(context, environment, space));
+    // The unit itself. A work holds several independently placed buildings, and
+    // neither the scene walk nor the space tree ever names one: the scene knows
+    // nodes and the space tree knows rooms, so without this the only thing a
+    // reviewer could not address was the whole building.
+    for (const building of environment.buildings)
+      descriptions.push(describeBuilding(context, environment, building));
+  }
+  return descriptions.sort((left, right) =>
+    compareAutoMovieRenderIds(left.id, right.id),
+  );
+};
+
+interface IDescriptionContext {
+  artifact: IAutoMovieSubjectArtifact;
+  models: Map<string, IAutoMovieModel>;
+  builtElements: Map<
+    string,
+    {
+      environment: IAutoMovieBuiltEnvironment;
+      element: IAutoMovieBuiltEnvironment["elements"][number];
+    }
+  >;
+  populationSpaces: Map<string, string>;
+  /**
+   * Child elements of one built element, by that element's node id.
+   *
+   * An element's assignment to a logical space is authored, and an exterior wall,
+   * a foundation, or a structural frame legitimately belongs to no room, so the
+   * space tree is an index over a building rather than a cover of it. The element
+   * hierarchy is the cover: `IAutoMovieBuiltEnvironment.buildings` states that
+   * ownership is total, every element descending from exactly one unit's roots,
+   * so a walk down the parent relation reaches everything the record owns.
+   *
+   * Every child is listed, whether or not the builder staged a node for it,
+   * because a transform-only group is describable in its own right. Substituting
+   * a group's drawn descendants for the group was measured and rejected: on one
+   * authored building it would have made a unit's root space list every staged
+   * node under it, which is a flat dump of the building rather than a way in.
+   */
+  elementChildren: Map<string, string[]>;
+  /**
+   * Rank the membership sample starts at, for every summary this pass builds.
+   *
+   * On the context rather than threaded through eight describe functions,
+   * because it is one property of the request and not of any one subject: a
+   * caller asks a subject for its next page, and every summary that answer
+   * carries is that same page of its own members.
+   */
+  memberOffset: number;
+}
+
+const createDescriptionContext = (
+  artifact: IAutoMovieSubjectArtifact,
+  memberOffset: number = 0,
+): IDescriptionContext => {
+  const models = new Map(
+    artifact.compiled.models.map((model) => [model.id, model] as const),
+  );
+  const builtElements: IDescriptionContext["builtElements"] = new Map();
+  const populationSpaces = new Map<string, string>();
+  for (const environment of artifact.compiled.builtEnvironments ?? []) {
+    for (const model of environment.models) models.set(model.id, model);
+    for (const element of environment.elements)
+      builtElements.set(`${environment.id}/${element.id}`, {
+        environment,
+        element,
+      });
+    for (const population of environment.populations ?? [])
+      populationSpaces.set(
+        population.set.id,
+        spaceId(environment.id, population.space),
+      );
+  }
+  const elementChildren: IDescriptionContext["elementChildren"] = new Map();
+  for (const environment of artifact.compiled.builtEnvironments ?? [])
+    for (const element of environment.elements) {
+      if (element.parent === null) continue;
+      const parent = `${environment.id}/${element.parent}`;
+      const siblings = elementChildren.get(parent) ?? [];
+      siblings.push(elementId(`${environment.id}/${element.id}`));
+      elementChildren.set(parent, siblings);
+    }
+  return {
+    artifact,
+    models,
+    builtElements,
+    populationSpaces,
+    elementChildren,
+    memberOffset,
+  };
+};
+
+const describePrototype = (
+  context: IDescriptionContext,
+  model: IAutoMovieModel,
+): IAutoMovieSubjectDescription => ({
+  version: 1,
+  revision: context.artifact.revision,
+  id: prototypeId(model.id),
+  kind: "prototype",
+  semanticKind: model.skeleton === null ? "object" : "actor",
+  name: model.name,
+  prototype: null,
+  placement: null,
+  owner: null,
+  model: model.id,
+  space: null,
+  transform: null,
+  bounds: {
+    declared: null,
+    content: boundsOf(modelPoints(model)),
+    coordinateSpace: "model",
+  },
+  materials: materialsOf(model),
+  members: summarizeMembers(
+    context,
+    model.parts.map((part) => prototypePartId(model.id, part.id)),
+  ),
+});
+
+const describePrototypePart = (
+  context: IDescriptionContext,
+  model: IAutoMovieModel,
+  part: IAutoMovieModelPart,
+): IAutoMovieSubjectDescription => ({
+  version: 1,
+  revision: context.artifact.revision,
+  id: prototypePartId(model.id, part.id),
+  kind: "part",
+  semanticKind: part.geometry.type,
+  name: part.name,
+  prototype: null,
+  placement: null,
+  owner: prototypeId(model.id),
+  model: model.id,
+  space: null,
+  transform: part.transform === null ? null : structuredClone(part.transform),
+  bounds: {
+    declared: null,
+    content: boundsOf(partPoints(model, part)),
+    coordinateSpace: "model",
+  },
+  materials: partMaterials(model, part),
+  members: summarizeMembers(context, []),
+});
+
+const describeElement = (
+  context: IDescriptionContext,
+  nodeId: string,
+): IAutoMovieSubjectDescription => {
+  const node = context.artifact.compiled.scene.nodes.find(
+    (candidate) => candidate.id === nodeId,
+  )!;
+  const model = context.models.get(node.model);
+  const built = context.builtElements.get(node.id);
+  return {
+    version: 1,
+    revision: context.artifact.revision,
+    id: elementId(node.id),
+    kind: "element",
+    semanticKind: built?.element.kind ?? "scene-node",
+    name: model?.name ?? null,
+    prototype: prototypeId(node.model),
+    placement: elementId(node.id),
+    owner:
+      built?.element.parent === null || built === undefined
+        ? null
+        : elementId(`${built.environment.id}/${built.element.parent}`),
+    model: node.model,
+    space:
+      built?.element.space === null || built === undefined
+        ? null
+        : spaceId(built.environment.id, built.element.space),
+    transform: structuredClone(node.transform),
+    bounds: {
+      declared: null,
+      content:
+        model === undefined
+          ? null
+          : boundsOf(
+              transformPoints(modelPoints(model), nodeMatrix(node.transform)),
+            ),
+      coordinateSpace: "world",
+    },
+    materials: model === undefined ? [] : materialsOf(model),
+    // Parts and child elements together, because both are things this subject
+    // contains and both are ids this surface resolves. Without the children
+    // there is no way down to an element no space claims, and the reviewer who
+    // needs one most is the one who does not know it exists.
+    members: summarizeMembers(context, [
+      ...(model?.parts.map((part) => elementPartId(node.id, part.id)) ?? []),
+      ...(context.elementChildren.get(node.id) ?? []),
+    ]),
+  };
+};
+
+/**
+ * Describe one built element the builder stages no scene node for.
+ *
+ * A transform-only group is an authored element: it has an identity, a kind, a
+ * parent, and a logical space, and other elements hang from it. What it does not
+ * have is geometry, so it was left out of this surface entirely and every id
+ * naming one answered "does not exist". That refusal did not stay inside the
+ * group. A space lists the elements it claims, and one authored building has
+ * both of its unit roots claimed by a space, so a reviewer opening a room was
+ * handed ids that opened nothing while the elements underneath them appeared at
+ * the top of the index as though they hung from nothing at all.
+ *
+ * It therefore states its place the way the rest of the engine already states
+ * it. `builtEnvironmentPlacementBounds` answers `null` for a transform-only
+ * group "because neither states a place a body occupies", and this agrees: no
+ * transform, no content bounds, no materials, no prototype. What it does carry
+ * is the structure a walk needs, which is the whole reason to be able to open
+ * it.
+ */
+const describeElementGroup = (
+  context: IDescriptionContext,
+  environment: IAutoMovieBuiltEnvironment,
+  element: IAutoMovieBuiltEnvironment["elements"][number],
+): IAutoMovieSubjectDescription => {
+  const node = `${environment.id}/${element.id}`;
+  return {
+    version: 1,
+    revision: context.artifact.revision,
+    id: elementId(node),
+    kind: "element",
+    semanticKind: element.kind,
+    name: null,
+    prototype: null,
+    placement: elementId(node),
+    owner:
+      element.parent === null
+        ? null
+        : elementId(`${environment.id}/${element.parent}`),
+    model: null,
+    space:
+      element.space === null ? null : spaceId(environment.id, element.space),
+    transform: null,
+    bounds: { declared: null, content: null, coordinateSpace: "world" },
+    materials: [],
+    members: summarizeMembers(context, context.elementChildren.get(node) ?? []),
+  };
+};
+
+const describeInstanceSet = (
+  context: IDescriptionContext,
+  set: IAutoMovieCompiledInstanceSet,
+): IAutoMovieSubjectDescription => {
+  const model = runtimeModelOf(set);
+  return {
+    version: 1,
+    revision: context.artifact.revision,
+    id: instanceSetId(set.id),
+    kind: "instance-set",
+    semanticKind: set.layout.kind,
+    name: set.id,
+    prototype: model === null ? null : prototypeId(model),
+    placement: instanceSetId(set.id),
+    owner: context.populationSpaces.get(set.id) ?? null,
+    model,
+    space: context.populationSpaces.get(set.id) ?? null,
+    transform: {
+      translation: structuredClone(set.anchor),
+      rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, set.facingDeg),
+      scale: { x: 1, y: 1, z: 1 },
+    },
+    bounds: {
+      declared: null,
+      content: structuredClone(set.bounds),
+      coordinateSpace: "world",
+    },
+    materials:
+      model === null || context.models.has(model) === false
+        ? []
+        : materialsOf(context.models.get(model)!),
+    members: summarizeInstanceMembers(context, set),
+  };
+};
+
+const describeSpace = (
+  context: IDescriptionContext,
+  environment: IAutoMovieBuiltEnvironment,
+  space: IAutoMovieBuiltSpace,
+): IAutoMovieSubjectDescription => ({
+  version: 1,
+  revision: context.artifact.revision,
+  id: spaceId(environment.id, space.id),
+  kind: "space",
+  semanticKind: space.kind,
+  name: space.id,
+  prototype: null,
+  placement: spaceId(environment.id, space.id),
+  owner: space.parent === null ? null : spaceId(environment.id, space.parent),
+  model: null,
+  space: null,
+  transform: null,
+  bounds: {
+    declared: declaredSpaceBounds(space),
+    content: builtEnvironmentSpaceContentBounds(environment, space.id),
+    coordinateSpace: "world",
+  },
+  materials: [],
+  members: summarizeMembers(context, [
+    ...environment.spaces
+      .filter((candidate) => candidate.parent === space.id)
+      .map((candidate) => spaceId(environment.id, candidate.id)),
+    ...environment.elements
+      .filter((element) => element.space === space.id)
+      .map((element) => elementId(`${environment.id}/${element.id}`)),
+    ...(environment.populations ?? [])
+      .filter((population) => population.space === space.id)
+      .map((population) => instanceSetId(population.set.id)),
+  ]),
+});
+
+/**
+ * Every element descending from one building unit's root, the root included.
+ *
+ * `IAutoMovieBuiltEnvironment.buildings` states that ownership is total: every
+ * element descends from exactly one unit's root. So the walk is the census of
+ * the unit, and the space tree is only an index over it -- an exterior wall, a
+ * foundation and a structural frame are claimed by no room at all.
+ */
+const buildingElements = (
+  environment: IAutoMovieBuiltEnvironment,
+  root: string,
+): string[] => {
+  const children = new Map<string | null, string[]>();
+  for (const element of environment.elements)
+    children.set(element.parent, [
+      ...(children.get(element.parent) ?? []),
+      element.id,
+    ]);
+  const output: string[] = [];
+  const walk = (id: string): void => {
+    output.push(id);
+    for (const child of children.get(id) ?? []) walk(child);
+  };
+  walk(root);
+  return output;
+};
+
+const describeBuilding = (
+  context: IDescriptionContext,
+  environment: IAutoMovieBuiltEnvironment,
+  building: IAutoMovieBuiltEnvironment["buildings"][number],
+): IAutoMovieSubjectDescription => {
+  // The unit's own extent, measured over every element it owns rather than
+  // over the rooms it contains. A room-by-room union would leave out exactly
+  // the envelope that makes a building readable from outside.
+  //
+  // The compact populations its rooms hold are folded in for the opposite
+  // reason: a space already answers for the sets placed in it, so a unit whose
+  // only content is a repeated population would otherwise measure nothing while
+  // every room under it measured a box.
+  let content: { min: IAutoMovieVector3; max: IAutoMovieVector3 } | null = null;
+  const include = (box: {
+    min: IAutoMovieVector3;
+    max: IAutoMovieVector3;
+  }): void => {
+    content =
+      content === null
+        ? box
+        : {
+            min: {
+              x: Math.min(content.min.x, box.min.x),
+              y: Math.min(content.min.y, box.min.y),
+              z: Math.min(content.min.z, box.min.z),
+            },
+            max: {
+              x: Math.max(content.max.x, box.max.x),
+              y: Math.max(content.max.y, box.max.y),
+              z: Math.max(content.max.z, box.max.z),
+            },
+          };
+  };
+  for (const id of buildingElements(environment, building.element)) {
+    const box = builtEnvironmentElementBounds(environment, id);
+    if (box !== null) include(box);
+  }
+  const rooms = builtEnvironmentDescendantSpaces(environment, building.space);
+  for (const population of environment.populations ?? [])
+    if (rooms.includes(population.space))
+      include(
+        builtInstanceSetPlacementBounds(
+          population.set,
+          population.prototypeBounds,
+        ),
+      );
+  return {
+    version: 1,
+    revision: context.artifact.revision,
+    id: buildingId(environment.id, building.id),
+    kind: "building",
+    semanticKind: "building",
+    name: building.id,
+    prototype: null,
+    placement: buildingId(environment.id, building.id),
+    owner: null,
+    model: null,
+    space: null,
+    transform: null,
+    bounds: {
+      declared: null,
+      content,
+      coordinateSpace: "world",
+    },
+    materials: [],
+    // The two roots a walk of this unit starts from: the element hierarchy that
+    // covers it and the space tree that indexes it. Naming both is what keeps
+    // the envelope reachable from the unit without pretending a room owns it.
+    members: summarizeMembers(context, [
+      elementId(`${environment.id}/${building.element}`),
+      spaceId(environment.id, building.space),
+    ]),
+  };
+};
+
+const prototypeId = (model: string): string => `prototype:${model}`;
+
+const prototypePartId = (model: string, part: string): string =>
+  `prototype-part:${model}/${part}`;
+
+const elementId = (node: string): string => `element:${node}`;
+
+const elementPartId = (node: string, part: string): string =>
+  `element-part:${node}/${part}`;
+
+const instanceSetId = (set: string): string => `instance-set:${set}`;
+
+const spaceId = (environment: string, space: string): string =>
+  `space:${environment}/${space}`;
+
+const buildingId = (environment: string, building: string): string =>
+  `building:${environment}/${building}`;
+
+const summarizeMembers = (
+  context: IDescriptionContext,
+  ids: readonly string[],
+): IAutoMovieSubjectMemberSummary => {
+  const sorted = [...ids].sort(compareAutoMovieRenderIds);
+  const offset = Math.min(context.memberOffset, sorted.length);
+  const items = sorted.slice(
+    offset,
+    offset + AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT,
+  );
+  return {
+    total: sorted.length,
+    offset,
+    items,
+    omitted: sorted.length - items.length,
+  };
+};
+
+const summarizeInstanceMembers = (
+  context: IDescriptionContext,
+  set: IAutoMovieCompiledInstanceSet,
+): IAutoMovieSubjectMemberSummary => {
+  // Drawn from the slot range rather than from a list, because a compact set
+  // stores a count and not its members. The slot index is zero-padded, so slot
+  // order and id order are the same order and a page names the slots its own
+  // offset claims -- which sorting after an unsliced generation would not.
+  const offset = Math.min(context.memberOffset, set.count);
+  const items = Array.from(
+    {
+      length: Math.min(
+        set.count - offset,
+        AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT,
+      ),
+    },
+    (_, slot) => instanceId(set, offset + slot),
+  ).sort(compareAutoMovieRenderIds);
+  return {
+    total: set.count,
+    offset,
+    items,
+    omitted: set.count - items.length,
+  };
+};
+
+const materialsOf = (model: IAutoMovieModel): IAutoMovieSubjectMaterial[] =>
+  model.materials
+    .map((material) => ({ id: material.id, name: material.name }))
+    .sort((left, right) => compareAutoMovieRenderIds(left.id, right.id));
+
+const partMaterials = (
+  model: IAutoMovieModel,
+  part: IAutoMovieModelPart,
+): IAutoMovieSubjectMaterial[] =>
+  part.material === null
+    ? []
+    : materialsOf({
+        ...model,
+        materials: model.materials.filter(
+          (material) => material.id === part.material,
+        ),
+      });
+
+const modelPoints = (model: IAutoMovieModel): IAutoMovieVector3[] =>
+  model.parts.flatMap((part) => partPoints(model, part));
+
+const partPoints = (
+  model: IAutoMovieModel,
+  part: IAutoMovieModelPart,
+): IAutoMovieVector3[] => {
+  const positions =
+    part.geometry.type === "mesh"
+      ? part.geometry.mesh.positions
+      : tessellate(part.geometry.shape).positions;
+  let matrix =
+    part.transform === null ? Matrix4.identity() : nodeMatrix(part.transform);
+  if (part.attachedBone !== null && model.skeleton !== null) {
+    const bone = resolvePose(
+      { skeleton: model.skeleton.id, root: null, joints: [] },
+      model.skeleton,
+    ).find((candidate) => candidate.bone === part.attachedBone);
+    if (bone !== undefined)
+      matrix = Matrix4.multiply(
+        Matrix4.compose(bone.worldPosition, bone.worldRotation, {
+          x: 1,
+          y: 1,
+          z: 1,
+        }),
+        matrix,
+      );
+  }
+  const points: IAutoMovieVector3[] = [];
+  for (let index = 0; index + 2 < positions.length; index += 3)
+    points.push(
+      transformPoint(
+        {
+          x: positions[index]!,
+          y: positions[index + 1]!,
+          z: positions[index + 2]!,
+        },
+        matrix,
+      ),
+    );
+  return points;
+};
+
+const nodeMatrix = (transform: IAutoMovieTransform): number[] =>
+  Matrix4.compose(transform.translation, transform.rotation, transform.scale);
+
+const transformPoints = (
+  points: readonly IAutoMovieVector3[],
+  matrix: readonly number[],
+): IAutoMovieVector3[] => points.map((point) => transformPoint(point, matrix));
+
+const transformPoint = (
+  point: IAutoMovieVector3,
+  matrix: readonly number[],
+): IAutoMovieVector3 => ({
+  x:
+    matrix[0]! * point.x +
+    matrix[4]! * point.y +
+    matrix[8]! * point.z +
+    matrix[12]!,
+  y:
+    matrix[1]! * point.x +
+    matrix[5]! * point.y +
+    matrix[9]! * point.z +
+    matrix[13]!,
+  z:
+    matrix[2]! * point.x +
+    matrix[6]! * point.y +
+    matrix[10]! * point.z +
+    matrix[14]!,
+});
+
+const boundsOf = (
+  points: readonly IAutoMovieVector3[],
+): IAutoMovieSubjectBox | null => {
+  if (points.length === 0) return null;
+  const first = points[0]!;
+  const min = { ...first };
+  const max = { ...first };
+  for (const point of points.slice(1)) {
+    min.x = Math.min(min.x, point.x);
+    min.y = Math.min(min.y, point.y);
+    min.z = Math.min(min.z, point.z);
+    max.x = Math.max(max.x, point.x);
+    max.y = Math.max(max.y, point.y);
+    max.z = Math.max(max.z, point.z);
+  }
+  return { min, max };
+};
+
+const declaredSpaceBounds = (
+  space: IAutoMovieBuiltSpace,
+): IAutoMovieSubjectBox | null => {
+  if (space.shell !== undefined) return boundsOf(space.shell.vertices);
+  const points = space.cells.flatMap((cell) => {
+    const vertices: IAutoMovieVector3[] = [];
+    for (let left = 0; left < cell.planes.length; ++left)
+      for (let middle = left + 1; middle < cell.planes.length; ++middle)
+        for (let right = middle + 1; right < cell.planes.length; ++right) {
+          const point = intersectPlanes(
+            cell.planes[left]!,
+            cell.planes[middle]!,
+            cell.planes[right]!,
+          );
+          if (
+            point !== null &&
+            cell.planes.every(
+              (plane) =>
+                dot(plane.normal, point) <= plane.offset + Number.EPSILON * 64,
+            )
+          )
+            vertices.push(point);
+        }
+    return vertices;
+  });
+  return boundsOf(points);
+};
+
+const intersectPlanes = (
+  first: IAutoMovieBuiltSpace["cells"][number]["planes"][number],
+  second: IAutoMovieBuiltSpace["cells"][number]["planes"][number],
+  third: IAutoMovieBuiltSpace["cells"][number]["planes"][number],
+): IAutoMovieVector3 | null => {
+  const secondCrossThird = cross(second.normal, third.normal);
+  const determinant = dot(first.normal, secondCrossThird);
+  if (Math.abs(determinant) <= Number.EPSILON) return null;
+  const thirdCrossFirst = cross(third.normal, first.normal);
+  const firstCrossSecond = cross(first.normal, second.normal);
+  return {
+    x:
+      (first.offset * secondCrossThird.x +
+        second.offset * thirdCrossFirst.x +
+        third.offset * firstCrossSecond.x) /
+      determinant,
+    y:
+      (first.offset * secondCrossThird.y +
+        second.offset * thirdCrossFirst.y +
+        third.offset * firstCrossSecond.y) /
+      determinant,
+    z:
+      (first.offset * secondCrossThird.z +
+        second.offset * thirdCrossFirst.z +
+        third.offset * firstCrossSecond.z) /
+      determinant,
+  };
+};
+
+const cross = (
+  left: IAutoMovieVector3,
+  right: IAutoMovieVector3,
+): IAutoMovieVector3 => ({
+  x: left.y * right.z - left.z * right.y,
+  y: left.z * right.x - left.x * right.z,
+  z: left.x * right.y - left.y * right.x,
+});
+
+const dot = (left: IAutoMovieVector3, right: IAutoMovieVector3): number =>
+  left.x * right.x + left.y * right.y + left.z * right.z;
+
+const instanceId = (
+  set: IAutoMovieCompiledInstanceSet,
+  slot: number,
+): string => {
+  const explicit =
+    set.layout.kind === "explicit" ? set.layout.transforms[slot] : undefined;
+  return explicit === undefined
+    ? `instance:${set.id}:slot:${String(slot).padStart(6, "0")}`
+    : `instance:${set.id}:${explicit.id}`;
+};
+
+const runtimeModelOf = (set: IAutoMovieCompiledInstanceSet): string | null =>
+  lodModelOf(set.lod);
+
+const lodModelOf = (lod: IAutoMovieCompiledInstanceSet["lod"]): string | null =>
+  lod[0]?.model ?? null;

@@ -1,8 +1,6 @@
-import {
-  type IPortraitNoseShape,
-  createPortraitNoseComponent,
-} from "@automovie/human/components/nose";
-import { subdivideControlMesh } from "@automovie/human/geometry/subdivideControlMesh";
+import { createPortraitNoseComponent } from "@automovie/human/face/anatomy/nose/createPortraitNoseComponent";
+import { type IPortraitNoseShape } from "@automovie/human/face/anatomy/nose/structures/IPortraitNoseShape";
+import { subdivideControlMesh } from "@automovie/human/face/mesh/subdivideControlMesh";
 import { TestValidator } from "@nestia/e2e";
 
 import {

@@ -10,13 +10,13 @@ import {
   indexSkeletonTopology,
   resolvePose,
 } from "../kinematics";
-import { sampleTimes } from "../motion/sampleClock";
+import { sampleTimes } from "../motion/sampleTimes";
 import { sampleMotion } from "../motion/sampleMotion";
-import { IAutoMovieRestFrame } from "../rom/restFrame";
-import { groundFunction } from "../space/ground";
-import { IAutoMovieCapsuleProxy, validateCapsule } from "./capsuleProxy";
+import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
+import { groundFunction } from "../space/groundFunction";
+import { IAutoMovieCapsuleProxy, validateCapsule } from "./validateCapsule";
 import { fkReachableBones } from "./fkReachableBones";
-import { ViolationCollector } from "./violation";
+import { ViolationCollector } from "./ViolationCollector";
 
 const DEFAULT_FOOT_BONES = ["leftFoot", "rightFoot"] as const;
 

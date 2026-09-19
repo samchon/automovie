@@ -123,39 +123,51 @@ export interface IAutoMovieModel {
   imported?: {
     /** Fixed normalization profile proved from the resident model bytes. */
     profile: "gltf-static-v1" | "gltf-humanoid-v1" | "vrm-humanoid-v1";
+
     /** Exact manifest-owned LOD members in near-to-far order. */
     lod: Array<{
       /** Closed LOD identity. */
       level: "hero" | "near" | "far";
+
       /** Manifest-owned model path. */
       asset: string;
+
       /** SHA-256 of the model bytes compiled for this level. */
       digest: `sha256:${string}`;
+
       /** Fixed normalization profile proved for this level. */
       profile: "gltf-static-v1" | "gltf-humanoid-v1" | "vrm-humanoid-v1";
+
       /** Level-local authoritative humanoid mapping. */
       humanoidBones: Array<{
         /** Normalized automovie/VRM humanoid slot. */
         bone: AutoMovieHumanoidBone;
+
         /** Non-negative glTF node index. */
         node: number;
+
         /** Whether resident skin weights prove visible influence for this bone. */
         weighted: boolean;
       }>;
     }>;
+
     /** Every model, sidecar and proxy byte identity this binding may request. */
     assets: Array<{
       /** Canonical project-relative path. */
       path: string;
+
       /** SHA-256 sealed by the builder. */
       digest: `sha256:${string}`;
     }>;
+
     /** Authoritative normalized humanoid slot to glTF node index mapping. */
     humanoidBones: Array<{
       /** Normalized automovie/VRM humanoid slot. */
       bone: AutoMovieHumanoidBone;
+
       /** Non-negative glTF node index. */
       node: number;
+
       /** Whether resident skin weights prove visible influence for this bone. */
       weighted: boolean;
     }>;

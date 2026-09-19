@@ -1,4 +1,4 @@
-import { createPortraitMouthComponent } from "@automovie/human/components/mouth";
+import { createPortraitMouthComponent } from "@automovie/human/face/anatomy/mouth/createPortraitMouthComponent";
 import { TestValidator } from "@nestia/e2e";
 
 import {

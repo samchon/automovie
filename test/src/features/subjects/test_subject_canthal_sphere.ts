@@ -1,4 +1,4 @@
-import { fitPortraitCanthalSphere } from "@automovie/human/geometry/fitPortraitCanthalSphere";
+import { fitPortraitCanthalSphere } from "@automovie/human/face/anatomy/eye/fitPortraitCanthalSphere";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, throwsError } from "../internal/predicates";

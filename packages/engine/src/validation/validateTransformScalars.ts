@@ -1,6 +1,6 @@
 import { IAutoMovieTransform } from "@automovie/interface";
 
-import { ViolationCollector } from "./violation";
+import { ViolationCollector } from "./ViolationCollector";
 
 const UNIT_QUATERNION_EPSILON = 1e-6;
 

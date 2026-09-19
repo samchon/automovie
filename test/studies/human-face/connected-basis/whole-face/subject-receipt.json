@@ -148,23 +148,6 @@
       "likeness": "unaccepted"
     },
     {
-      "subject": "jang-su-hye",
-      "source": {
-        "relative": "east-asian/jang-su-hye/jang-su-hye_age-approx-31_symposium-portrait.jpeg",
-        "url": "https://raw.githubusercontent.com/samchon/AutoMovie/f57d3396d1fb2d57b01d851c14130ef7409a822d/.github/issue-assets/human-face-input/originals/east-asian/jang-su-hye/jang-su-hye_age-approx-31_symposium-portrait.jpeg",
-        "bytes": 249739,
-        "sha256": "f47625be7c4192850cfc7c8825d982a409e3cde667974a50ee15eb5d5d66068d",
-        "author": "Not supplied in the issue asset inventory",
-        "license": "Not established; retained locally for user-requested analysis only"
-      },
-      "rmseBeforeFaceHeight": 0.022686429532448243,
-      "rmseAfterFaceHeight": 0.010813909263324694,
-      "glbSha256": "644356e319c7f4a3b3b7c6624cd743926f37cff9a2a6d1218ac27ebf6cb20ac1",
-      "parts": 7,
-      "documentSha256": "03485369c6b05210154dd33b951aac30b86231f85a7c227974141e5764fa18c8",
-      "likeness": "unaccepted"
-    },
-    {
       "subject": "kim-min-jung",
       "source": {
         "relative": "east-asian/kim-min-jung/kim-min-jung_age-26_strike-love.jpg",
