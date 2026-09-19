@@ -110,6 +110,15 @@ MATERIAL = 0.02
 #: alone moved the reading by 2.02 points on average and the two together by
 #: 0.63.
 RELIEF = 0.02
+#: Or is grainier by this much than the same pixel bald: a lock is made of
+#: fibres and a scalp is not. The third cue is there because the first two fail
+#: together on the same faces. The lit test cannot see black hair over a scalp
+#: the bake painted black, and the clay test cannot see hair that lies flat and
+#: shades like the surface under it, so oh-seung-yoon and michael-gambon read as
+#: having holes in hair that is plainly there. Adding grain takes michael-gambon
+#: from 6.75% to 0.50% from the front and leaves rupert-grint and alan-rickman
+#: at 0.00%, which is what a cue that finds hair rather than invents it does.
+FIBRE = 0.006
 #: Rows of the frame the editor's own toolbar occupies. The screenshot is of the
 #: canvas, and the toolbar is drawn over it, so without this the buttons read as
 #: part of the head: the first reading put the scalp band across the toolbar and
@@ -130,6 +139,14 @@ def background(image: np.ndarray) -> np.ndarray:
     out = np.all(np.abs(image - image[0, 0]) < 0.02, axis=2)
     out[:TOOLBAR] = True
     return out
+
+
+def grain(plane: np.ndarray, reach: int = 5) -> np.ndarray:
+    """Local standard deviation: how much texture sits inside a few pixels."""
+    level = ndimage.uniform_filter(plane, reach)
+    return np.sqrt(
+        np.maximum(ndimage.uniform_filter(plane * plane, reach) - level * level, 0.0)
+    )
 
 
 def sobel(plane: np.ndarray) -> np.ndarray:
@@ -167,6 +184,7 @@ def census(folder: Path, subject: str) -> dict | None:
             (~skin)
             | (np.abs(dressedLit - lit).max(axis=2) > MATERIAL)
             | (np.abs(dressedClayLuma - clayLuma) > RELIEF)
+            | (grain(dressedLit @ LUMA) > grain(lit @ LUMA) + FIBRE)
         )
         hair = ndimage.binary_closing(hair, np.ones((3, 3)))
         # The albedo is read on the dressed frame, on the skin the viewer is
