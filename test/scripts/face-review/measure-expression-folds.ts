@@ -122,6 +122,14 @@ for (const document of documents) {
     let area = 0;
     const where = new Map<string, number>();
     for (let s = 0; s < posed.length; s++) {
+      // Paired by name, not by position. A pose that added or dropped a part
+      // would otherwise shift the list and put one surface's normals against
+      // another's, which is a reading with no meaning at all rather than a
+      // wrong one.
+      if (posed[s].id !== rest[s]?.id)
+        throw new Error(
+          `${channel} changed the part list: ${rest[s]?.id ?? "(none)"} became ${posed[s].id}`,
+        );
       const now = normalsOf(posed[s]);
       const was = restNormals[s];
       for (let i = 0; i < now.length; i += 3) {

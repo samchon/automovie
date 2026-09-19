@@ -51,11 +51,19 @@ const crossingsOf = (
   document: IAutoMovieHumanFaceBasisDocument,
 ): Map<string, number> => {
   const found = new Map<string, number>();
-  for (const crossing of measureAutoMovieModelCrossings(build(document)))
+  for (const crossing of measureAutoMovieModelCrossings(build(document))) {
+    // The two names are sorted, so a pair is one key whichever way round it is
+    // reported. Left as written, the same two surfaces named in the other order
+    // between rest and pose would read as a pair the pose invented, and a pair
+    // a pose invents is the headline this file exists to produce.
+    const pair = [crossing.part, crossing.other]
+      .sort((a, b) => a.localeCompare(b))
+      .join(" x ");
     found.set(
-      `${crossing.part} x ${crossing.other}`,
-      crossing.triangles + crossing.otherTriangles,
+      pair,
+      (found.get(pair) ?? 0) + crossing.triangles + crossing.otherTriangles,
     );
+  }
   return found;
 };
 
