@@ -30,14 +30,24 @@ const documents: IAutoMovieHumanFaceBasisDocument[] = JSON.parse(
 );
 const build = createHumanFaceBasisBuilder(basis);
 
-/** Every crossing pair of a built model, as `a|b` with its triangle count. */
+/** Every crossing pair of a built model, as `a|b` with its triangle count.
+ *
+ * The two names are sorted, so a pair is one key whichever way round the
+ * measurement named them. Keyed in the order they arrive, the same two surfaces
+ * named the other way between the two builds would read as a pair the identity
+ * layer introduced, which is exactly the finding this file is here to rule out.
+ */
 const pairs = (document: IAutoMovieHumanFaceBasisDocument) => {
   const out = new Map<string, number>();
-  for (const crossing of measureAutoMovieModelCrossings(build(document)))
+  for (const crossing of measureAutoMovieModelCrossings(build(document))) {
+    const pair = [crossing.part, crossing.other]
+      .sort((a, b) => a.localeCompare(b))
+      .join("|");
     out.set(
-      `${crossing.part}|${crossing.other}`,
-      crossing.triangles + crossing.otherTriangles,
+      pair,
+      (out.get(pair) ?? 0) + crossing.triangles + crossing.otherTriangles,
     );
+  }
   return out;
 };
 
