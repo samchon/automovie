@@ -20,22 +20,29 @@
  * where they are, so any per-vertex data indexed against this surface -- the
  * subjects' identity layers -- keeps its meaning.
  *
- * HELD, and kept for that. Applied, it does what it claims: the channels that
- * fold a triangle fall from eight to five on every subject tried, and the three
- * with the largest area -- jawLeft, jawRight, jawForward -- disappear
- * completely, taking the teeth surface from 516 folded triangles across the
- * population to none. The render does not change at all. Photographed at the
- * same poses before and after, the corner of the mouth is identical to the
- * pixel, so the grey sliver that pokes out there when the jaw opens is
- * something else, and the crossing of face skin through teeth that the census
- * reports on jawOpen survives untouched.
+ * What it buys, measured: the channels that fold a triangle fall from eight to
+ * five on every subject tried, and the three largest by area -- jawLeft,
+ * jawRight, jawForward -- disappear completely, taking the teeth surface from
+ * 516 folded triangles across the population to none.
  *
- * Two reasons to hold it rather than ship it. A fix that changes nothing a
- * viewer sees is not worth a basis revision on its own, and it does need one:
- * replay is guaranteed by the basis revision identity, so a mesh that changes
- * under an unchanged id would let a document replay against geometry it was not
- * authored on. When there is a basis revision carrying fixes that do show, this
- * belongs in it.
+ * What it does not buy: any visible change. Photographed at the same poses
+ * before and after, the corner of the mouth is identical to the pixel. That is
+ * expected and not a disappointment -- every material the head is built from is
+ * double-sided, so a folded triangle is lit as though it were not, and the seam
+ * is at the back of the mouth besides. The grey sliver that shows at the
+ * commissure when the jaw opens is a different thing entirely: ray-cast
+ * outward, all 1946 back-teeth vertices have skin outboard of them at neutral
+ * and at jawOpen alike, so no tooth is outside the cheek and what shows through
+ * the opening is a molar, correctly.
+ *
+ * It ships anyway, because a fold is wrong wherever the asset is consumed and a
+ * single-sided consumer would show every one of these as a hole.
+ *
+ * Because it changes the mesh it changes the basis, so this writes the whole
+ * revision rather than the surface alone: the new identity, and the identity
+ * carried by every document, groom and skin published against it. Replay is
+ * guaranteed by that identity, and a mesh that moved under an unchanged one
+ * would let a document replay against geometry it was not authored on.
  *
  * Usage, from the test package:
  *   ttsx -P tsconfig.json --no-plugins scripts/face-review/split-teeth-arches.ts [--write]
@@ -120,9 +127,40 @@ const regions = surface.regions.map((region) => {
   };
 });
 
+/** The identity this revision publishes under. */
+const REVISION = "mpfb-connected-head-2026-09-19-split-arches";
+
 if (process.argv.includes("--write")) {
+  const was = basis.id;
   surface.indices = kept;
   surface.regions = regions;
+  basis.id = REVISION;
   fs.writeFileSync(file, gzipSync(`${JSON.stringify(basis)}\n`, { level: 9 }));
-  console.log(`written to ${file}`);
+
+  // Everything published against the old identity now names the new one. The
+  // skin surface is untouched, so a groom's seat -- a part, a triangle ordinal
+  // and a barycentric point on it -- still means what it meant, and so does a
+  // skin's UV and a subject's per-vertex identity.
+  const subjects = `${published}/subjects.json`;
+  const documents: { basis: string }[] = JSON.parse(
+    fs.readFileSync(subjects, "utf8"),
+  );
+  for (const document of documents)
+    if (document.basis === was) document.basis = REVISION;
+  fs.writeFileSync(subjects, `${JSON.stringify(documents, null, 2)}\n`);
+
+  for (const name of ["grooms", "skins"]) {
+    const path = `${published}/${name}.json.gz`;
+    const records: Record<string, { basis?: string }> = JSON.parse(
+      gunzipSync(fs.readFileSync(path)).toString("utf8"),
+    );
+    for (const record of Object.values(records))
+      if (record.basis === was) record.basis = REVISION;
+    fs.writeFileSync(
+      path,
+      gzipSync(`${JSON.stringify(records)}\n`, { level: 9 }),
+    );
+  }
+  console.log(`revision ${was} -> ${REVISION}`);
+  console.log(`written: basis, ${documents.length} subjects, grooms, skins`);
 } else console.log("dry run; pass --write to apply");
