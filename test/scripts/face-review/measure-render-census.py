@@ -230,7 +230,7 @@ def census(folder: Path, subject: str) -> dict | None:
                 )
             )
             if paired.sum() > 1000
-            else 0.0
+            else None
         )
 
         labels, count = ndimage.label(hair)
@@ -244,14 +244,14 @@ def census(folder: Path, subject: str) -> dict | None:
         # cover what it claims, and it needs no model of where hair belongs.
         solid = ndimage.binary_fill_holes(hair)
         holes = (
-            float((solid & ~hair).sum() / solid.sum()) if solid.sum() > 500 else 0.0
+            float((solid & ~hair).sum() / solid.sum()) if solid.sum() > 500 else None
         )
 
         # Face against chest in the de-lit albedo, by bands placed from model
         # height. The skin spans +138 mm to -144 mm of model Y, so the face sits
         # from 28% to 56% down the bald silhouette and the chest below 79%.
         ys = np.flatnonzero(skin.any(axis=1))
-        torso = 0.0
+        torso = None
         if ys.size:
             top, span = ys[0], ys[-1] - ys[0]
             faceBand = np.zeros_like(inside)
@@ -279,17 +279,24 @@ def census(folder: Path, subject: str) -> dict | None:
             "field": round(
                 float((flagged & smoothField).sum() / max(smoothField.sum(), 1)), 5
             ),
-            "torso": round(torso, 5),
-            "asymmetry": round(asymmetry, 4),
-            "holes": round(holes, 4),
+            "torso": None if torso is None else round(torso, 5),
+            "asymmetry": None if asymmetry is None else round(asymmetry, 4),
+            "holes": None if holes is None else round(holes, 4),
             "fragments": round(fragments, 5),
         }
     if not rows:
         return None
     summary = {}
     for key, where in WHERE.items():
-        taken = [rows[view][key] for view in where if view in rows]
-        summary[key] = round(float(np.mean(taken)), 5) if taken else 0.0
+        taken = [
+            rows[view][key]
+            for view in where
+            if view in rows and rows[view][key] is not None
+        ]
+        # None, never zero. Zero is the best score every one of these can take,
+        # so a measurement that could not be made would otherwise read as a
+        # perfect one and pull a median down with it.
+        summary[key] = round(float(np.mean(taken)), 5) if taken else None
     return {"views": rows, **summary}
 
 
@@ -316,7 +323,17 @@ for subject in subjects:
 if report:
     print()
     for key in WHERE:
-        values = np.array([r[key] for r in report.values()])
+        missing = [name for name, row in report.items() if row[key] is None]
+        if missing:
+            print(
+                f"{key:>10s}  not measurable on {len(missing)}: "
+                + ", ".join(missing[:4])
+            )
+        values = np.array(
+            [r[key] for r in report.values() if r[key] is not None]
+        )
+        if values.size == 0:
+            continue
         order = sorted(report, key=lambda s: report[s][key], reverse=True)[:3]
         scale = 1 if key in ("asymmetry", "torso") else 100
         unit = "" if key in ("asymmetry", "torso") else "%"
@@ -331,7 +348,11 @@ if len(sys.argv) > 2:
     print()
     print(f"against census-{sys.argv[2]}: change per subject, negative is better")
     for key in WHERE:
-        shared = [s for s in report if s in other]
+        shared = [
+            s
+            for s in report
+            if s in other and report[s][key] is not None and other[s][key] is not None
+        ]
         if not shared:
             continue
         delta = np.array([report[s][key] - other[s][key] for s in shared])
