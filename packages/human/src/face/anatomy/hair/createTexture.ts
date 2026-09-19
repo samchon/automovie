@@ -152,4 +152,3 @@ function chunk(name: string, data: Uint8Array): Uint8Array {
   view.setUint32(bytes.length - 4, (crc ^ 0xffffffff) >>> 0);
   return bytes;
 }
-

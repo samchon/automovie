@@ -237,4 +237,3 @@ export function createPortraitMouthComponent(
 }
 
 type Point = IAutoMovieVector3;
-

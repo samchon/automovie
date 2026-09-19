@@ -153,6 +153,3 @@ export function preparePortraitMouth(
 
 type Point = IAutoMovieVector3;
 const pi = Math.PI;
-
-
-

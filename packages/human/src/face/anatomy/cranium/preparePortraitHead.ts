@@ -274,4 +274,3 @@ function finiteContinuationPoint(point: number[]): number[] {
     throw new Error("Head continuation must return finite XYZ millimetres.");
   return [...point];
 }
-
