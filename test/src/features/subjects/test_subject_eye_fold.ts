@@ -1,6 +1,6 @@
-import { createPortraitEyeComponent } from "@automovie/human/components/eyes";
-import { blendPortraitSkin } from "@automovie/human/geometry/blendPortraitSkin";
-import { subdivideControlMesh } from "@automovie/human/geometry/subdivideControlMesh";
+import { createPortraitEyeComponent } from "@automovie/human/face/anatomy/eye/createPortraitEyeComponent";
+import { blendPortraitSkin } from "@automovie/human/face/anatomy/skin/blendPortraitSkin";
+import { subdivideControlMesh } from "@automovie/human/face/mesh/subdivideControlMesh";
 import { TestValidator } from "@nestia/e2e";
 
 import {

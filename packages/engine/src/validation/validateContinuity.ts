@@ -1,16 +1,6 @@
-import {
-  IAutoMovieBeatEndActorState,
-  IAutoMovieBeatEndState,
-  IAutoMovieValidation,
-} from "@automovie/interface";
-
-import {
-  IResolveBeatProps,
-  resolveBeatEnd,
-  resolveBeatOpening,
-} from "../film/resolveBeatEnd";
+import { IAutoMovieBeatEndActorState, IAutoMovieBeatEndState, IAutoMovieValidation } from "@automovie/interface";
 import { Vector3 } from "../math/Vector3";
-import { ViolationCollector } from "./violation";
+import { ViolationCollector } from "./ViolationCollector";
 
 /** Default world-space position drift tolerated across a cut (metres). */
 const DEFAULT_POSITION_TOLERANCE = 0.05;
@@ -75,56 +65,6 @@ export const validateContinuity = (props: {
     tolerances,
     collector,
   );
-  return collector.toValidation();
-};
-
-/**
- * Walk a whole film in playback order and lint every cut boundary: resolve each
- * beat's end and opening snapshots, then compare each beat's opening against
- * the previous beat's end. The single-beat pairwise check is
- * {@link validateContinuity}; this is the film-level linter issue #1172 asks
- * for.
- *
- * The beats are the ordered {@link IResolveBeatProps} the pipeline already
- * builds for {@link resolveBeatEnd} (scene, shot, motions, mounts, plants). A
- * film of zero or one beat has no cut to lint and passes trivially.
- *
- * @evidence requirements/diagnostics/identity-path-and-context.md#diagnostics-path-and-scope `validateFilmContinuity` attaches every cut mismatch to the playback-order beat index whose opening failed to resume prior state.
- * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-path-scope `validateFilmContinuity` maintains separate boundary scopes while aggregating the ordered film-wide continuity findings.
- * @evidence requirements/diagnostics/collection-fail-fast-and-determinism.md#diagnostics-aggregate-boundary `validateFilmContinuity` evaluates every adjacent cut in playback order and returns their located findings in one film-level result.
- * @evidence specifications/validation-and-diagnostics/collection-order-and-termination.md#validation-aggregate-execution The aggregate validator runs the same pairwise continuity check at each boundary without allowing an earlier mismatch to suppress later findings.
- */
-export const validateFilmContinuity = (props: {
-  /** The film's beats, in playback order. */
-  beats: readonly IResolveBeatProps[];
-
-  /** World-space position drift tolerated (metres); defaults to 0.05. */
-  positionTolerance?: number;
-
-  /** Facing drift tolerated (degrees); defaults to 5. */
-  facingToleranceDeg?: number;
-}): IAutoMovieValidation => {
-  const collector = new ViolationCollector();
-  const tolerances = readTolerances(
-    props.positionTolerance,
-    props.facingToleranceDeg,
-    "$input",
-    collector,
-  );
-  if (tolerances === null) return collector.toValidation();
-
-  const snapshots = props.beats.map((beat) => ({
-    end: resolveBeatEnd(beat),
-    opening: resolveBeatOpening(beat),
-  }));
-  for (let i = 1; i < snapshots.length; ++i)
-    compareBoundary(
-      snapshots[i - 1]!.end,
-      snapshots[i]!.opening,
-      `$input.beats[${i}]`,
-      tolerances,
-      collector,
-    );
   return collector.toValidation();
 };
 

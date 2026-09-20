@@ -8,8 +8,8 @@ import {
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { IAutoMovieRestFrame } from "../rom/restFrame";
-import { IAutoMovieJointAxes } from "./jointToQuaternion";
+import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
+import { IAutoMovieJointAxes } from "./IAutoMovieJointAxes";
 import { resolvePose } from "./resolvePose";
 
 /**

@@ -1,5 +1,5 @@
-import { refinePortraitSurfaceSampling } from "@automovie/human/geometry/refinePortraitSurfaceSampling";
-import { sealPortraitContactSeams } from "@automovie/human/geometry/sealPortraitContactSeams";
+import { refinePortraitSurfaceSampling } from "@automovie/human/face/surface/refinePortraitSurfaceSampling";
+import { sealPortraitContactSeams } from "@automovie/human/face/surface/sealPortraitContactSeams";
 import { TestValidator } from "@nestia/e2e";
 
 import { contactSeamFixture } from "../internal/contactSeamFixture";

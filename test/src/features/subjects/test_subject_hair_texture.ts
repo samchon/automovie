@@ -1,4 +1,4 @@
-import { createPortraitHairTexture } from "@automovie/human/components/hairTexture";
+import { createPortraitHairTexture } from "@automovie/human/face/anatomy/hair/createPortraitHairTexture";
 import { TestValidator } from "@nestia/e2e";
 import { PNG } from "pngjs";
 

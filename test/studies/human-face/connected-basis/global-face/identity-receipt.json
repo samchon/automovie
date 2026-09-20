@@ -1,0 +1,562 @@
+{
+  "weight": 40,
+  "damping": 0.02,
+  "observation": "This machine's own detection of the same portraits the published fit named, every digest matching",
+  "depth": "A weak perspective fit of one portrait observes no depth, so the delta lies in the image plane and has no component along the view axis",
+  "anchors": {
+    "projectionMisses": [
+      58,
+      288
+    ]
+  },
+  "subjects": {
+    "alan-rickman": {
+      "cameraConverged": true,
+      "anchorsDropped": 17,
+      "smoothnessWeight": 0.25,
+      "published": null,
+      "landmarkResidualMillimetres": {
+        "before": 3.4012,
+        "after": 2.3304,
+        "worstBefore": 33.0758,
+        "worstAfter": 33.0777
+      },
+      "deltaMillimetres": {
+        "median": 0.1388,
+        "largest": 2.8032
+      },
+      "edgeStepMillimetres": {
+        "median": 0.0282,
+        "worst": 0.51309
+      },
+      "flippedTriangles": 0,
+      "flippedSlivers": 0,
+      "movedVertices": 17272,
+      "crossings": {
+        "pairsAtRest": 7,
+        "pairsWithIdentity": 7,
+        "trianglesAtRest": 2357,
+        "trianglesWithIdentity": 2422,
+        "pairsThatAppeared": []
+      }
+    },
+    "daniel-radcliffe": {
+      "cameraConverged": true,
+      "anchorsDropped": 14,
+      "smoothnessWeight": 0.1,
+      "published": null,
+      "landmarkResidualMillimetres": {
+        "before": 1.1768,
+        "after": 1.0386,
+        "worstBefore": 9.3636,
+        "worstAfter": 9.3631
+      },
+      "deltaMillimetres": {
+        "median": 0.0225,
+        "largest": 0.6484
+      },
+      "edgeStepMillimetres": {
+        "median": 0.00536,
+        "worst": 0.1081
+      },
+      "flippedTriangles": 0,
+      "flippedSlivers": 0,
+      "movedVertices": 14562,
+      "crossings": {
+        "pairsAtRest": 7,
+        "pairsWithIdentity": 7,
+        "trianglesAtRest": 2315,
+        "trianglesWithIdentity": 2337,
+        "pairsThatAppeared": []
+      }
+    },
+    "emma-watson": {
+      "cameraConverged": true,
+      "anchorsDropped": 20,
+      "smoothnessWeight": 0.1,
+      "published": null,
+      "landmarkResidualMillimetres": {
+        "before": 1.6787,
+        "after": 1.4082,
+        "worstBefore": 14.3897,
+        "worstAfter": 14.3901
+      },
+      "deltaMillimetres": {
+        "median": 0.0317,
+        "largest": 0.7232
+      },
+      "edgeStepMillimetres": {
+        "median": 0.00701,
+        "worst": 0.1328
+      },
+      "flippedTriangles": 0,
+      "flippedSlivers": 0,
+      "movedVertices": 15756,
+      "crossings": {
+        "pairsAtRest": 6,
+        "pairsWithIdentity": 6,
+        "trianglesAtRest": 2064,
+        "trianglesWithIdentity": 2155,
+        "pairsThatAppeared": []
+      }
+    },
+    "generated-black-boy-01": {
+      "cameraConverged": true,
+      "anchorsDropped": 9,
+      "smoothnessWeight": 0.25,
+      "published": null,
+      "landmarkResidualMillimetres": {
+        "before": 1.5185,
+        "after": 1.1431,
+        "worstBefore": 13.1245,
+        "worstAfter": 12.9923
+      },
+      "deltaMillimetres": {
+        "median": 0.0821,
+        "largest": 1.4669
+      },
+      "edgeStepMillimetres": {
+        "median": 0.0167,
+        "worst": 0.28003
+      },
+      "flippedTriangles": 0,
+      "flippedSlivers": 0,
+      "movedVertices": 16325,
+      "crossings": {
+        "pairsAtRest": 7,
+        "pairsWithIdentity": 7,
+        "trianglesAtRest": 2527,
+        "trianglesWithIdentity": 2506,
+        "pairsThatAppeared": []
+      }
+    },
+    "generated-black-girl-01": {
+      "cameraConverged": true,
+      "anchorsDropped": 12,
+      "smoothnessWeight": 0.5,
+      "published": null,
+      "landmarkResidualMillimetres": {
+        "before": 1.5762,
+        "after": 1.015,
+        "worstBefore": 12.9948,
+        "worstAfter": 12.9924
+      },
+      "deltaMillimetres": {
+        "median": 0.1232,
+        "largest": 2.4592
+      },
+      "edgeStepMillimetres": {
+        "median": 0.02561,
+        "worst": 0.52845
+      },
+      "flippedTriangles": 0,
+      "flippedSlivers": 0,
+      "movedVertices": 16815,
+      "crossings": {
+        "pairsAtRest": 7,
+        "pairsWithIdentity": 7,
+        "trianglesAtRest": 2148,
+        "trianglesWithIdentity": 2250,
+        "pairsThatAppeared": []
+      }
+    },
+    "generated-korean-boy-01": {
+      "cameraConverged": true,
+      "anchorsDropped": 9,
+      "smoothnessWeight": 0.25,
+      "published": null,
+      "landmarkResidualMillimetres": {
+        "before": 1.2321,
+        "after": 0.941,
+        "worstBefore": 10.2087,
+        "worstAfter": 10.0769
+      },
+      "deltaMillimetres": {
+        "median": 0.064,
+        "largest": 1.1289
+      },
+      "edgeStepMillimetres": {
+        "median": 0.01312,
+        "worst": 0.24014
+      },
+      "flippedTriangles": 0,
+      "flippedSlivers": 1,
+      "movedVertices": 16139,
+      "crossings": {
+        "pairsAtRest": 7,
+        "pairsWithIdentity": 7,
+        "trianglesAtRest": 2503,
+        "trianglesWithIdentity": 2466,
+        "pairsThatAppeared": []
+      }
+    },
+    "generated-white-boy-01": {
+      "cameraConverged": true,
+      "anchorsDropped": 9,
+      "smoothnessWeight": 0.25,
+      "published": null,
+      "landmarkResidualMillimetres": {
+        "before": 1.3101,
+        "after": 1.0146,
+        "worstBefore": 12.6211,
+        "worstAfter": 12.6206
+      },
+      "deltaMillimetres": {
+        "median": 0.0681,
+        "largest": 1.3828
+      },
+      "edgeStepMillimetres": {
+        "median": 0.01383,
+        "worst": 0.24838
+      },
+      "flippedTriangles": 0,
+      "flippedSlivers": 0,
+      "movedVertices": 15992,
+      "crossings": {
+        "pairsAtRest": 7,
+        "pairsWithIdentity": 7,
+        "trianglesAtRest": 2591,
+        "trianglesWithIdentity": 2576,
+        "pairsThatAppeared": []
+      }
+    },
+    "generated-white-girl-01": {
+      "cameraConverged": true,
+      "anchorsDropped": 15,
+      "smoothnessWeight": 0.5,
+      "published": null,
+      "landmarkResidualMillimetres": {
+        "before": 3.1462,
+        "after": 1.8069,
+        "worstBefore": 30.5386,
+        "worstAfter": 30.5401
+      },
+      "deltaMillimetres": {
+        "median": 0.1742,
+        "largest": 4.7311
+      },
+      "edgeStepMillimetres": {
+        "median": 0.03814,
+        "worst": 0.68083
+      },
+      "flippedTriangles": 0,
+      "flippedSlivers": 0,
+      "movedVertices": 17593,
+      "crossings": {
+        "pairsAtRest": 7,
+        "pairsWithIdentity": 7,
+        "trianglesAtRest": 2538,
+        "trianglesWithIdentity": 2651,
+        "pairsThatAppeared": []
+      }
+    },
+    "kim-min-jung": {
+      "cameraConverged": true,
+      "anchorsDropped": 10,
+      "smoothnessWeight": 40,
+      "published": null,
+      "landmarkResidualMillimetres": {
+        "before": 1.49,
+        "after": 0.2145,
+        "worstBefore": 10.0805,
+        "worstAfter": 10.0806
+      },
+      "deltaMillimetres": {
+        "median": 0.2738,
+        "largest": 4.1702
+      },
+      "edgeStepMillimetres": {
+        "median": 0.0567,
+        "worst": 1.1655
+      },
+      "flippedTriangles": 0,
+      "flippedSlivers": 0,
+      "movedVertices": 17720,
+      "crossings": {
+        "pairsAtRest": 6,
+        "pairsWithIdentity": 6,
+        "trianglesAtRest": 2173,
+        "trianglesWithIdentity": 2252,
+        "pairsThatAppeared": []
+      }
+    },
+    "lee-tae-ri": {
+      "cameraConverged": true,
+      "anchorsDropped": 10,
+      "smoothnessWeight": 4,
+      "published": null,
+      "landmarkResidualMillimetres": {
+        "before": 1.1565,
+        "after": 0.3489,
+        "worstBefore": 8.2561,
+        "worstAfter": 8.26
+      },
+      "deltaMillimetres": {
+        "median": 0.1983,
+        "largest": 2.85
+      },
+      "edgeStepMillimetres": {
+        "median": 0.04212,
+        "worst": 0.80254
+      },
+      "flippedTriangles": 0,
+      "flippedSlivers": 0,
+      "movedVertices": 17515,
+      "crossings": {
+        "pairsAtRest": 6,
+        "pairsWithIdentity": 6,
+        "trianglesAtRest": 2349,
+        "trianglesWithIdentity": 2308,
+        "pairsThatAppeared": []
+      }
+    },
+    "maggie-smith": {
+      "cameraConverged": true,
+      "anchorsDropped": 18,
+      "smoothnessWeight": 0.02,
+      "published": null,
+      "landmarkResidualMillimetres": {
+        "before": 1.7901,
+        "after": 1.7227,
+        "worstBefore": 19.1584,
+        "worstAfter": 19.1584
+      },
+      "deltaMillimetres": {
+        "median": 0.0095,
+        "largest": 0.1901
+      },
+      "edgeStepMillimetres": {
+        "median": 0.002,
+        "worst": 0.0372
+      },
+      "flippedTriangles": 0,
+      "flippedSlivers": 0,
+      "movedVertices": 14037,
+      "crossings": {
+        "pairsAtRest": 7,
+        "pairsWithIdentity": 7,
+        "trianglesAtRest": 2605,
+        "trianglesWithIdentity": 2586,
+        "pairsThatAppeared": []
+      }
+    },
+    "michael-gambon": {
+      "cameraConverged": true,
+      "anchorsDropped": 12,
+      "smoothnessWeight": 0.05,
+      "published": null,
+      "landmarkResidualMillimetres": {
+        "before": 2.1574,
+        "after": 1.9581,
+        "worstBefore": 19.3781,
+        "worstAfter": 19.3779
+      },
+      "deltaMillimetres": {
+        "median": 0.0243,
+        "largest": 0.5562
+      },
+      "edgeStepMillimetres": {
+        "median": 0.00512,
+        "worst": 0.14552
+      },
+      "flippedTriangles": 0,
+      "flippedSlivers": 0,
+      "movedVertices": 15477,
+      "crossings": {
+        "pairsAtRest": 6,
+        "pairsWithIdentity": 6,
+        "trianglesAtRest": 2083,
+        "trianglesWithIdentity": 2044,
+        "pairsThatAppeared": []
+      }
+    },
+    "miriam-margolyes": {
+      "cameraConverged": true,
+      "anchorsDropped": 20,
+      "smoothnessWeight": 0.1,
+      "published": null,
+      "landmarkResidualMillimetres": {
+        "before": 1.6069,
+        "after": 1.405,
+        "worstBefore": 12.0154,
+        "worstAfter": 12.0141
+      },
+      "deltaMillimetres": {
+        "median": 0.0351,
+        "largest": 0.8705
+      },
+      "edgeStepMillimetres": {
+        "median": 0.00746,
+        "worst": 0.17987
+      },
+      "flippedTriangles": 0,
+      "flippedSlivers": 0,
+      "movedVertices": 15788,
+      "crossings": {
+        "pairsAtRest": 7,
+        "pairsWithIdentity": 7,
+        "trianglesAtRest": 2729,
+        "trianglesWithIdentity": 2696,
+        "pairsThatAppeared": []
+      }
+    },
+    "oh-seung-yoon": {
+      "cameraConverged": true,
+      "anchorsDropped": 18,
+      "smoothnessWeight": 40,
+      "published": null,
+      "landmarkResidualMillimetres": {
+        "before": 1.8741,
+        "after": 0.3857,
+        "worstBefore": 16.1254,
+        "worstAfter": 16.1261
+      },
+      "deltaMillimetres": {
+        "median": 0.2709,
+        "largest": 5.4373
+      },
+      "edgeStepMillimetres": {
+        "median": 0.06198,
+        "worst": 2.48385
+      },
+      "flippedTriangles": 0,
+      "flippedSlivers": 0,
+      "movedVertices": 17750,
+      "crossings": {
+        "pairsAtRest": 7,
+        "pairsWithIdentity": 7,
+        "trianglesAtRest": 2042,
+        "trianglesWithIdentity": 2071,
+        "pairsThatAppeared": []
+      }
+    },
+    "park-eun-bin": {
+      "cameraConverged": true,
+      "anchorsDropped": 2,
+      "smoothnessWeight": 4,
+      "published": null,
+      "landmarkResidualMillimetres": {
+        "before": 1.0297,
+        "after": 0.2515,
+        "worstBefore": 3.4156,
+        "worstAfter": 1.165
+      },
+      "deltaMillimetres": {
+        "median": 0.196,
+        "largest": 2.7589
+      },
+      "edgeStepMillimetres": {
+        "median": 0.04304,
+        "worst": 0.75548
+      },
+      "flippedTriangles": 0,
+      "flippedSlivers": 0,
+      "movedVertices": 17163,
+      "crossings": {
+        "pairsAtRest": 6,
+        "pairsWithIdentity": 6,
+        "trianglesAtRest": 2157,
+        "trianglesWithIdentity": 2192,
+        "pairsThatAppeared": []
+      }
+    },
+    "rupert-grint": {
+      "cameraConverged": true,
+      "anchorsDropped": 11,
+      "smoothnessWeight": 4,
+      "published": null,
+      "landmarkResidualMillimetres": {
+        "before": 1.6326,
+        "after": 0.4793,
+        "worstBefore": 13.2113,
+        "worstAfter": 13.2117
+      },
+      "deltaMillimetres": {
+        "median": 0.1995,
+        "largest": 4.383
+      },
+      "edgeStepMillimetres": {
+        "median": 0.04554,
+        "worst": 0.84269
+      },
+      "flippedTriangles": 0,
+      "flippedSlivers": 0,
+      "movedVertices": 17594,
+      "crossings": {
+        "pairsAtRest": 7,
+        "pairsWithIdentity": 7,
+        "trianglesAtRest": 2189,
+        "trianglesWithIdentity": 2248,
+        "pairsThatAppeared": []
+      }
+    },
+    "yoo-seung-ho": {
+      "cameraConverged": true,
+      "anchorsDropped": 13,
+      "smoothnessWeight": 1,
+      "published": null,
+      "landmarkResidualMillimetres": {
+        "before": 1.1866,
+        "after": 0.5652,
+        "worstBefore": 7.6931,
+        "worstAfter": 7.6923
+      },
+      "deltaMillimetres": {
+        "median": 0.1075,
+        "largest": 2.599
+      },
+      "edgeStepMillimetres": {
+        "median": 0.0237,
+        "worst": 0.51018
+      },
+      "flippedTriangles": 0,
+      "flippedSlivers": 1,
+      "movedVertices": 16928,
+      "crossings": {
+        "pairsAtRest": 6,
+        "pairsWithIdentity": 6,
+        "trianglesAtRest": 2027,
+        "trianglesWithIdentity": 2142,
+        "pairsThatAppeared": []
+      }
+    },
+    "kdy1": {
+      "cameraConverged": true,
+      "anchorsDropped": 19,
+      "smoothnessWeight": 16,
+      "published": null,
+      "landmarkResidualMillimetres": {
+        "before": 1.7499,
+        "after": 0.4465,
+        "worstBefore": 13.916,
+        "worstAfter": 13.916
+      },
+      "deltaMillimetres": {
+        "median": 0.3033,
+        "largest": 4.1868
+      },
+      "edgeStepMillimetres": {
+        "median": 0.05843,
+        "worst": 2.03885
+      },
+      "flippedTriangles": 0,
+      "flippedSlivers": 0,
+      "movedVertices": 17671,
+      "crossings": {
+        "pairsAtRest": 6,
+        "pairsWithIdentity": 6,
+        "trianglesAtRest": 2559,
+        "trianglesWithIdentity": 2628,
+        "pairsThatAppeared": []
+      }
+    }
+  },
+  "method": "The residual at the published fit's own anchors, diffused over the mesh. Anchors are recomputed by the fit's rule; only the camera is re-solved, against this machine's detection of the same portraits, every digest matching. The smoothness is chosen per subject: the tightest rung of a fixed ladder that turns no triangle over.",
+  "limits": [
+    "A weak perspective fit of one portrait observes no depth, so the delta lies in the image plane and has no component along the view axis",
+    "An anchor outside every triangle, and one whose residual stands three interquartile ranges beyond the rest, is dropped rather than allowed to pull geometry after it",
+    "Rows below a hundredth of a millimetre are dropped: below the mesh's own numerical noise and below anything a render resolves",
+    "The residual reduction is not the same for everyone. Where a portrait was taken at an angle the camera cannot take out, the residual is pose rather than shape, and forcing it into vertices folds the mesh; those subjects take the smoothest field and gain least"
+  ],
+  "selfIntersection": "Measured with measureAutoMovieMeshCrossings by the rule that instrument states: the change from the same face without its identity, not the count. Across all eighteen no crossing pair appeared. The triangle totals move within a few per cent in both directions, 11 up and 7 down, which is the shells that already rest inside each other shifting with the surface they are seated on."
+}

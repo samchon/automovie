@@ -1,4 +1,4 @@
-import { portraitDocument } from "@automovie/human/geometry/portraitDocument";
+import { portraitDocument } from "@automovie/human/face/export/portraitDocument";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/predicates";

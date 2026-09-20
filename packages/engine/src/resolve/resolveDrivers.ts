@@ -7,9 +7,9 @@ import {
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
-import { channelKey } from "./channel";
-import { evaluateDrivenCurve } from "./drivenCurve";
-import { IAutoMovieSampledChannel } from "./sampleClip";
+import { channelKey } from "./channelKey";
+import { evaluateDrivenCurve } from "./evaluateDrivenCurve";
+import { IAutoMovieSampledChannel } from "./IAutoMovieSampledChannel";
 
 /** The two channel-space drivers this pass resolves (no world transform needed). */
 type ValueDriver = IAutoMovieCopyDriver | IAutoMovieDrivenDriver;

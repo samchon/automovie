@@ -16,7 +16,6 @@ export function humanFaceBasisFixture(): {
   document: IAutoMovieHumanFaceBasisDocument;
 } {
   const basis: IAutoMovieHumanFaceBasis = {
-    version: "human-face-basis/1",
     id: "analytic-square/1",
     channels: [
       {
@@ -73,7 +72,6 @@ export function humanFaceBasisFixture(): {
   return {
     basis,
     document: {
-      version: "human-face-basis-document/1",
       id: "square",
       name: "Analytic face",
       basis: basis.id,

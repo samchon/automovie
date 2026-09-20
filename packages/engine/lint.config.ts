@@ -77,6 +77,7 @@ export default {
       { symbol: ["type", "function", "property"] },
     ],
     "evidence/graph": ["error", graph],
+    "evidence/singular": "error",
     "evidence/todo": "error",
   },
 } satisfies ITtscLintConfig;

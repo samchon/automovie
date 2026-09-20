@@ -1,7 +1,5 @@
-import {
-  portraitDocument,
-  portraitGltfExtensions,
-} from "@automovie/human/geometry/portraitDocument";
+import { portraitDocument } from "@automovie/human/face/export/portraitDocument";
+import { portraitGltfExtensions } from "@automovie/human/face/export/portraitGltfExtensions";
 import { NodeIO } from "@gltf-transform/core";
 import type {
   Clearcoat,

@@ -7,7 +7,7 @@ import {
 
 import { compiledFormationSlot } from "./populationRuntime/compiledFormationSlot";
 import { instanceSlot } from "./populationRuntime/instanceSlot";
-import { worldGroundHeight } from "./worldKit";
+import { worldGroundHeight } from "./worldGroundHeight";
 
 /**
  * Build the deterministic helpers a shot source reads through its build context.

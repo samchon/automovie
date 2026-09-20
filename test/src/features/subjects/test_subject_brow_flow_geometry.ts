@@ -1,9 +1,7 @@
-import { type IPortraitEyebrowFlowProfile } from "@automovie/human/components/eyebrowFlow";
-import {
-  assertPortraitEyebrowProfile,
-  buildPortraitEyebrow,
-  portraitEyebrowProfile,
-} from "@automovie/human/components/eyebrows";
+import { type IPortraitEyebrowFlowProfile } from "@automovie/human/face/anatomy/brow/IPortraitEyebrowFlowProfile";
+import { assertPortraitEyebrowProfile } from "@automovie/human/face/anatomy/brow/assertPortraitEyebrowProfile";
+import { buildPortraitEyebrow } from "@automovie/human/face/anatomy/brow/buildPortraitEyebrow";
+import { portraitEyebrowProfile } from "@automovie/human/face/anatomy/brow/portraitEyebrowProfile";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, throwsError } from "../internal/predicates";

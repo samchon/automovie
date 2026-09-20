@@ -1,4 +1,4 @@
-import { assertPortraitSkinTopology } from "@automovie/human/geometry/portraitSkinTopology";
+import { assertPortraitSkinTopology } from "@automovie/human/face/anatomy/skin/assertPortraitSkinTopology";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/predicates";

@@ -5,7 +5,7 @@ import {
   IAutoMovieWorldDesign,
 } from "@automovie/interface";
 
-import { autoMovieRenderDigest } from "../render/renderDigest";
+import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
 import { canonicalizeAutoMovieJson } from "../text/canonicalizeAutoMovieJson";
 import { compareCodeUnits } from "../text/compareCodeUnits";
 

@@ -3,7 +3,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { seededValue } from "./math/random";
+import { seededValue } from "./math/seededValue";
 
 /**
  * The member record one formation slot regenerates to.

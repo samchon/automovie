@@ -1,5 +1,5 @@
 import type { IPortraitSkinColourRegion } from "@automovie/human";
-import type { IControlMesh } from "@automovie/human/geometry/subdivideControlMesh";
+import type { IControlMesh } from "@automovie/human/face/mesh/structures/IControlMesh";
 
 /** A compact origin-centred pigment with unequal radii and RGB attenuation. */
 export const skinColourRegion = (): IPortraitSkinColourRegion => ({

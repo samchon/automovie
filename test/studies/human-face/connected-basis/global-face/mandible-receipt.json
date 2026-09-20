@@ -1,0 +1,139 @@
+{
+  "basis": "mpfb-connected-head-2026-09-20-rigid-mandible",
+  "supersedes": "mpfb-connected-head-2026-09-20-strand-alpha",
+  "surface": "Human.teeth_base",
+  "endpoint": "jawOpen",
+  "vertices": 1884,
+  "screw": {
+    "axis": [
+      0.999999999999901,
+      -4.54417788289304e-7,
+      -3.574867938797837e-8
+    ],
+    "pivotMetres": [
+      -5.0444924192106015e-9,
+      -0.015730625585959144,
+      0.05884926951108916
+    ],
+    "slideMetres": 9.189287464787116e-9,
+    "degrees": 21.155430064603824
+  },
+  "neutralResidualMillimetres": 2.298040799345148,
+  "endpointMovedMillimetres": {
+    "rms": 2.2980407993451606,
+    "worst": 13.427510803231577
+  },
+  "perSubjectResidualMillimetres": {
+    "alan-rickman": {
+      "before": 2.4021409512985623,
+      "after": 0.09038639282864498
+    },
+    "daniel-radcliffe": {
+      "before": 2.4943808564991734,
+      "after": 0.21815586101980475
+    },
+    "emma-watson": {
+      "before": 2.293070368185251,
+      "after": 0.06519415593386177
+    },
+    "generated-black-boy-01": {
+      "before": 2.5642064113809484,
+      "after": 0.31140391621660957
+    },
+    "generated-black-girl-01": {
+      "before": 2.540855076119268,
+      "after": 0.31929580914967287
+    },
+    "generated-korean-boy-01": {
+      "before": 2.308701456036251,
+      "after": 0.044925306527720955
+    },
+    "generated-white-boy-01": {
+      "before": 2.433768270914762,
+      "after": 0.1399225546997322
+    },
+    "generated-white-girl-01": {
+      "before": 2.4184821708481827,
+      "after": 0.15730280019790438
+    },
+    "kim-min-jung": {
+      "before": 2.352792260139167,
+      "after": 0.04738665174853348
+    },
+    "lee-tae-ri": {
+      "before": 2.3321706923162506,
+      "after": 0.006496860966750778
+    },
+    "maggie-smith": {
+      "before": 2.5176312589316363,
+      "after": 0.24296460345023602
+    },
+    "michael-gambon": {
+      "before": 2.3451627489717577,
+      "after": 0.014168554901151072
+    },
+    "miriam-margolyes": {
+      "before": 2.698051498525841,
+      "after": 0.4779906374728576
+    },
+    "oh-seung-yoon": {
+      "before": 2.4132548703591636,
+      "after": 0.1297777327145522
+    },
+    "park-eun-bin": {
+      "before": 2.3332393229527324,
+      "after": 0.018231929566934008
+    },
+    "rupert-grint": {
+      "before": 2.2982421571227003,
+      "after": 0.042075351161498076
+    },
+    "yoo-seung-ho": {
+      "before": 2.2875113588538145,
+      "after": 0.04934265905765795
+    },
+    "kdy1": {
+      "before": 2.3181591802316603,
+      "after": 0.02252943999111488
+    }
+  },
+  "crossingsUnderJawOpen": {
+    "Human.eyebrow001/Human.eyebrow001 x Human/skin": {
+      "before": 613,
+      "after": 613
+    },
+    "Human.eyelashes01/Human.eyelashes01 x Human.low-poly/Human.low-poly": {
+      "before": 661,
+      "after": 661
+    },
+    "Human.eyelashes01/Human.eyelashes01 x Human/skin": {
+      "before": 2395,
+      "after": 2395
+    },
+    "Human.low-poly/Human.low-poly x Human/skin": {
+      "before": 13641,
+      "after": 13641
+    },
+    "Human.teeth_base/Human.teeth_base x Human.tongue01/Human.tongue01": {
+      "before": 11167,
+      "after": 10565
+    },
+    "Human.teeth_base/Human.teeth_base x Human/lips": {
+      "before": 133,
+      "after": 133
+    },
+    "Human.teeth_base/Human.teeth_base x Human/skin": {
+      "before": 4543,
+      "after": 3823
+    },
+    "Human/lips x Human/skin": {
+      "before": 3033,
+      "after": 3033
+    }
+  },
+  "limits": [
+    "A displacement field is not a joint: what is left after identity has moved the arch is (I - R) S and is reported above, not removed.",
+    "The chord an endpoint walks instead of an arc, 1.16 mm at half open, is untouched here.",
+    "The soft tissue's share of jawOpen is unchanged; only the bone was rigid to begin with."
+  ]
+}

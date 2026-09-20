@@ -1,4 +1,4 @@
-import { reservePortraitSkin } from "@automovie/human/geometry/reservePortraitSkin";
+import { reservePortraitSkin } from "@automovie/human/face/anatomy/skin/reservePortraitSkin";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/predicates";

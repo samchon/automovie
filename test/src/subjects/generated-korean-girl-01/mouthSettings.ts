@@ -5,11 +5,9 @@
  * controlNet. These are the unchanged historical inputs, not a new fitting pass.
  * Callers clone a profile before editing it; shared configuration stays fixed.
  */
-import type { IPortraitDentalRow } from "@automovie/human/components/dentalRow";
-import {
-  type IPortraitMouthShape,
-  type IPortraitMouthSocket,
-} from "@automovie/human/components/mouth";
+import type { IPortraitDentalRow } from "@automovie/human/face/anatomy/dental/structures/IPortraitDentalRow";
+import { type IPortraitMouthShape } from "@automovie/human/face/anatomy/mouth/structures/IPortraitMouthShape";
+import { type IPortraitMouthSocket } from "@automovie/human/face/anatomy/mouth/structures/IPortraitMouthSocket";
 
 /** Measured vermilion and inner oral boundaries owned by this subject. */
 export const portraitMouthSocket: IPortraitMouthSocket = {

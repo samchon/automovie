@@ -24,7 +24,7 @@ import type * as Human from "@automovie/human";
  * @evidence {@link Human.resolvePortraitSkinShape} Resolves omission to taut skin with no transient crease driver.
  * @evidenceReview {@link Human.resolvePortraitSkinShape} #76b30c6 Read undefined-only defaults, finite/range refusal and allocation of a fresh complete output. The raw identity assembly unit replayed omitted and explicit zero settings exactly. The historical fit remains separately frozen and its images do not acquire a new likeness verdict.
  * @evidence {@link Human.createPortraitSkinLayer} Separates live surface detail from the frozen historical mesh and its time-capped fit.
- * @evidenceReview {@link Human.createPortraitSkinLayer} #808eed3 Read copied bindings/settings, actual anterior-depth queries, spline paths, regional drivers and conditional local sampling. Hand-plane tests verify centre depth and millimetre pad/descent vectors; unilateral blink fields stay lateral to the selected eye. Zero condition bypasses attachments. Four older candidates show resting folds, but their simplified placement and likeness remain unaccepted.
+ * @evidenceReview {@link Human.createPortraitSkinLayer} #6f8efd5 Read the depth sampler the relief is measured against. Its part is named `skin-morphology-basis`, a working surface and not an exported identity; the split had rewritten that literal to the function's own name too. The layer itself reads the same relief, colour regions and expression it always did, and the only other change in its scope is the path the surface shapes now live at.
  * @evidence {@link Human.refinePortraitSurfaceSampling} Refines only requested field neighbourhoods, leaving an omitted skin condition without additional sampling.
  * @evidenceReview {@link Human.refinePortraitSurfaceSampling} #a329489 Read the complete conforming midpoint loop, contact protection and split masks. Reference XYZ and RGB are copied and linearly interpolated on the exact inserted edges while geometry retains tangent-guided midpoints. Original samples and contact handling remain unchanged. This transports material coordinates, not recovered anatomy.
  * @evidence {@link Human.IPortraitCranialStation} Describes one sagittal section of the superior, inferior and transverse cranial envelopes.
@@ -272,7 +272,7 @@ import type * as Human from "@automovie/human";
  * @evidence {@link Human.portraitGltfExtensions} Declares the optical extension classes registered on this study's GLTF readers and writers.
  * @evidenceReview {@link Human.portraitGltfExtensions} #6fffc2a Compared the four registered classes with the exporter: clearcoat, IOR, transmission and volume are preserved by the actual SDK round trip. An unregistered reader/writer would be a different delivery path and is not covered by the captures.
  * @evidence {@link Human.portraitDocument} Converts the complete static study into resident GLTF material groups and attributes.
- * @evidenceReview {@link Human.portraitDocument} #cb42450 Reread the complete exporter after optional RGB was added. Placement and material merging now carry resident colours to a COLOR_0 VEC3 Float32 accessor; absent colours skip allocation. The final model validator rejects incomplete, nonfinite and out-of-range source RGB. Existing topology, optical closure, PNG deduplication, UV admission and unsupported-resource refusals remain in place. This source inspection does not certify expression-attached pigmentation or a new frozen-study replay; the earlier 11,177,028-byte replay predates this attribute change.
+ * @evidenceReview {@link Human.portraitDocument} #6587397 Reread the complete exporter after the texture slot was widened to the two encodings glTF admits. Placement and material merging now carry resident colours to a COLOR_0 VEC3 Float32 accessor; absent colours skip allocation. The final model validator rejects incomplete, nonfinite and out-of-range source RGB. Existing topology, optical closure, PNG deduplication, UV admission and unsupported-resource refusals remain in place. The slot now accepts a PNG or a JPEG data URI and reads the header rather than trusting the label, so bytes that contradict their declared type refuse; a photographic skin map is megabytes lossless and hundreds of kilobytes as JPEG, which is what the widening is for. Deduplication, finite UV0 and the unsupported-resource refusal are unchanged. This source inspection does not certify expression-attached pigmentation or a new frozen-study replay; the earlier 11,177,028-byte replay predates this attribute change.
  * @evidence {@link Human.IControlMesh} Carries the shared triangular control positions, connectivity and one material label per face.
  * @evidenceReview {@link Human.IControlMesh} #56fc2e5 Read positions, face indices/groups and optional aligned reference XYZ/RGB beside all refinement consumers. Reference is a material coordinate chart, not final rest-state anatomy. Omission stays absent; the type itself does not admit topology or cardinality.
  * @evidence {@link Human.subdivideControlMesh} Refines the connected triangular cage before its shared normals and interiors are finalized.
@@ -308,9 +308,71 @@ import type * as Human from "@automovie/human";
  * @evidence {@link Human.IPortraitHeadFormation.appearance} Pairs observed colour coordinates with current component geometry.
  * @evidenceReview {@link Human.IPortraitHeadFormation.appearance} #255115d Read component order, topology, region, curve and replacement correspondence checks plus finite linear RGB admission. Current final proposals do not replace reference coordinates.
  * @evidence {@link Human.preparePortraitHead} Prepares shared skin and retains component finishers for the actual head consumer.
- * @evidenceReview {@link Human.preparePortraitHead} #f317855 Read the complete extracted fit, blend, cut, attach, continuation, reference, refinement, replacement, final-proposal and RGB path. It returns an unsealed surface without invoking interiors; buildPortraitHead consumes it before common normals and finishing. This is no global collision guarantee.
+ * @evidenceReview {@link Human.preparePortraitHead} #f317855 Read the region list the preparation hands the builder. The skin region is named `head`, which is the part identity the model exports and two scenarios look for by name; the split had rewritten that literal to the function's own name, so the part came out called `buildPortraitHead` and nothing that asked for `head` found it. The literal is back and the scope digests to what it did before the rename.
  * @evidence {@link Human.buildPortraitHead} Consumes prepared shared skin before contact sealing, common normals, material separation and attached interiors.
  * @evidenceReview {@link Human.buildPortraitHead} #0c79f6c Read all preparation, sealing, native staging, admission, skin normal/material and final ordered output branches. The new identity validator runs after all providers and before any packing, so later target parts resolve. A displaced declared join refuses through the actual head consumer; absent and empty providers preserve compatibility semantics. No collision solve or geometric correction runs here.
+ * @evidence {@link Human.advance} Steps a directional surface walk one sample along the recorded ray.
+ * @evidenceReview {@link Human.advance} #4e0d744 Read the single step the four directional owners share. It was one file with them until each public identity took its own, and moving it changed nothing it computes.
+ * @evidence {@link Human.assertDirection} Refuses a degenerate placement direction before a static part is oriented for export.
+ * @evidenceReview {@link Human.assertDirection} #61d6374 Read the direction gate the placement and buffer owners share: a zero or non-finite direction refuses instead of producing an unusable frame.
+ * @evidence {@link Human.buildPortraitCanthalMesh} Builds the canthal tissue that joins the lid margins at both corners.
+ * @evidenceReview {@link Human.buildPortraitCanthalMesh} #df286f6 Read the canthal construction against the performance globe it is fitted to; the corner identities are shared exactly once with the lid rows.
+ * @evidence {@link Human.buildPortraitEyeContactBasis} Combines the cornea and, when resident, the optical globe into the volume lid attachment is constrained against.
+ * @evidenceReview {@link Human.buildPortraitEyeContactBasis} #b588175 Read the combination: the contact basis is the optical volume, not the drawn surface, so lid attachment cannot be constrained against geometry the eye does not have.
+ * @evidence {@link Human.buildPortraitEyeCornea} Builds one closed corneal shell, used for drawing and for optical contact alike.
+ * @evidenceReview {@link Human.buildPortraitEyeCornea} #a9d9f83 Read the shell construction from the eye's metric optical dimensions; one shell serves both consumers, so the drawn cornea and the contact cornea cannot disagree.
+ * @evidence {@link Human.contactFrame} Fixes the frame a directional surface contact is measured in.
+ * @evidenceReview {@link Human.contactFrame} #8c3a4c5 Read the frame the four directional owners share, unchanged by the move into a file of its own.
+ * @evidence {@link Human.createPortraitCanthalIntersection} Intersects an emitted support from either side along the recorded camera ray.
+ * @evidenceReview {@link Human.createPortraitCanthalIntersection} #42b5cc3 Read the single projection: the original point is projected once with no preceding depth shift, so a point in front of the surface stays in front of it.
+ * @evidence {@link Human.createPortraitEyeSupport} Establishes one eye's fixed optical identity before any lid performance is applied.
+ * @evidenceReview {@link Human.createPortraitEyeSupport} #02cf801 Read the ordering: identity is fixed from the shaped observed curves and the forward camera ray first, and performance moves lids over an identity that no longer changes.
+ * @evidence {@link Human.createPortraitEyeSurfaceContact} Resolves the shared skin against this eye's actual optical volume.
+ * @evidenceReview {@link Human.createPortraitEyeSurfaceContact} #65ac636 Read the seam rule: closed margins share the foremost correction along the observation ray, so independent triangle contacts cannot reopen a coincident seam.
+ * @evidence {@link Human.createTexture} Builds the hair texture both the colour and normal maps are generated from.
+ * @evidenceReview {@link Human.createTexture} #d4c38ed Read the shared generator: an invalid curl profile refuses rather than producing a map, and the two callers differ only in what they read out of it.
+ * @evidence {@link Human.cyclic} Closes a circumferential nasal station list without repeating its first sample.
+ * @evidenceReview {@link Human.cyclic} #7a708a7 Read the wrap the envelope shape and its construction share: the ring closes by index rather than by a duplicated sample, so the surface has no seam of its own.
+ * @evidence {@link Human.facialOval} Resolves the chin-relative cranial envelope the cranium and chin height are both measured against.
+ * @evidenceReview {@link Human.facialOval} #abba529 Read the shared oval: both consumers take the whole boundary's actual lowest height, not only the central chin landmark.
+ * @evidence {@link Human.fitPortraitCanthalSphere} Fits the optical body independently of the canthal aperture width.
+ * @evidenceReview {@link Human.fitPortraitCanthalSphere} #af8f53f Read the fit: observed shaped curves in construction millimetres before blink, a forward camera ray, and the canthal midpoint owning the transverse axis.
+ * @evidence {@link Human.frontWeight} States how much of the tongue's forward shaping reaches a given station.
+ * @evidenceReview {@link Human.frontWeight} #c3c0d43 Read the inverted smoothstep: one at the root, zero by the tip, zero slope at both ends. It is a cubic rather than a line so the shaping does not crease where it meets the unshaped surface.
+ * @evidence {@link Human.innerLoop} Binds the replaceable mouth aperture loop the lip triangles and the component both read.
+ * @evidenceReview {@link Human.innerLoop} #0f9aa52 Read the shared loop: the aperture identities are ordered once and both consumers take that order rather than each deriving its own.
+ * @evidence {@link Human.mean} Averages the sample set the optical globe is fitted from.
+ * @evidenceReview {@link Human.mean} #e561883 Read the average the sphere shape and its fit share; it separates the fitted centre from the curvature radius rather than deriving one from the other.
+ * @evidence {@link Human.normalizedRim} Normalises a nostril rim so width and height can be changed independently.
+ * @evidenceReview {@link Human.normalizedRim} #05dca80 Read the normalisation the resize and the fit share: the rim is expressed in its own frame first, so one dimension moves without dragging the other.
+ * @evidence {@link Human.normalsOf} Names the shared normal computation where a patch or tube finishes a mesh.
+ * @evidenceReview {@link Human.normalsOf} #aa8685e Read the alias: it computes nothing different from the named normal owner, and exists so the geometry stays the visible part of a dense expression.
+ * @evidence {@link Human.p} Names the head-frame point constructor where an expression is dense with points.
+ * @evidenceReview {@link Human.p} #cdb476f Read the alias: it constructs nothing different, and exists so the coordinates stay readable where a patch or tube writes dozens in one expression.
+ * @evidence {@link Human.patch} Names the shared patch sampler where a construction samples several surfaces at once.
+ * @evidenceReview {@link Human.patch} #c9b9fe9 Read the alias: it samples nothing different, and exists so the lattice bounds stay the visible part of the line.
+ * @evidence {@link Human.Point} Names the head-frame point every facial construction is written in.
+ * @evidenceReview {@link Human.Point} #9d89fe3 Read the alias: the engine's vector under a name that states the space — millimetres in the head frame, +Z anterior, owned by whoever supplied it.
+ * @evidence {@link Human.portraitEyeLidRows} Produces the lid sample rows both profiles are built from.
+ * @evidenceReview {@link Human.portraitEyeLidRows} #7f62cd0 Read the rows against the socket and shape they are taken from; the mix is the shared one, so upper and lower profiles cannot disagree about a shared station.
+ * @evidence {@link Human.portraitEyeLoop} Orders the socket's aperture identities counterclockwise, sharing both canthi exactly once.
+ * @evidenceReview {@link Human.portraitEyeLoop} #676cf1e Read the ordering: each canthus appears once, so the lower and upper rims join without a duplicated corner.
+ * @evidence {@link Human.project} Projects a point onto the surface a directional contact is measured against.
+ * @evidenceReview {@link Human.project} #2f86238 Read the projection the four directional owners share, unchanged by the move into a file of its own.
+ * @evidence {@link Human.resolvePortraitEyeInputs} Owns and validates one eye's numerical inputs before any host is fitted.
+ * @evidenceReview {@link Human.resolvePortraitEyeInputs} #41af834 Read the ownership: optional profile samplers keep their own copied station populations, so a caller's array cannot be mutated by the fit.
+ * @evidence {@link Human.rimNormal} Gives the nostril rim its outward normal for independent width and height edits.
+ * @evidenceReview {@link Human.rimNormal} #664df76 Read the normal the resize and the fit share; it is taken from the normalised rim, so the two edits stay independent.
+ * @evidence {@link Human.roles} Names the lower-lid tissue offsets separately from the profile that applies them.
+ * @evidenceReview {@link Human.roles} #5a1d068 Read the role names the shape and its construction share: the offsets are named once and applied once.
+ * @evidence {@link Human.rows} States how many rings the lingual surface is sampled along, root to tip.
+ * @evidenceReview {@link Human.rows} #6f5d9d8 Read what it decides and what it does not: the count is a tessellation choice that sets how finely the sample follows the authored profile, and says nothing about the shape that profile describes.
+ * @evidence {@link Human.solvePortraitSkinSystem} Solves the sparse Dirichlet system the skin relief is relaxed on.
+ * @evidenceReview {@link Human.solvePortraitSkinSystem} #2d0ef99 Read the recurrence against Saad, Iterative Methods for Sparse Linear Systems, second edition, Algorithm 9.1: Jacobi-preconditioned conjugate gradients with row-normalised preconditioning.
+ * @evidence {@link Human.triangleArea} Measures a triangle so a degenerate face is not carried into an export.
+ * @evidenceReview {@link Human.triangleArea} #ed48b4d Read the measure the placement and buffer owners share: a zero-area face is dropped rather than exported as a face with no surface.
+ * @evidence {@link Human.unit} Normalises a nasal envelope station to its own circumferential unit.
+ * @evidenceReview {@link Human.unit} #5049873 Read the normalisation the envelope section and its construction share: tissue width, crease and rim are separated before any of them is shaped.
  */
 export const portraitSurfaceReview = {
   scope: "surface construction inspection",

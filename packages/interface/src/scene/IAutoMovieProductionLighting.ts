@@ -1,4 +1,4 @@
-import { IAutoMovieClip } from "../core/IAutoMovieTrack";
+import { IAutoMovieClip } from "../core/IAutoMovieClip";
 import { IAutoMovieLight } from "./IAutoMovieLight";
 
 /**

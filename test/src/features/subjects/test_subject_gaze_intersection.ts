@@ -1,7 +1,5 @@
-import {
-  portraitPoint as p,
-  portraitRayIntersection,
-} from "@automovie/human/geometry/geometry";
+import { portraitPoint as p } from "@automovie/human/face/mesh/portraitPoint";
+import { portraitRayIntersection } from "@automovie/human/face/mesh/portraitRayIntersection";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, throwsError } from "../internal/predicates";

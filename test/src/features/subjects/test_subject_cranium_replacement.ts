@@ -1,8 +1,6 @@
-import {
-  appendPortraitCranium,
-  portraitNeckShape,
-} from "@automovie/human/components/cranium";
-import { buildPortraitHead } from "@automovie/human/components/head";
+import { appendPortraitCranium } from "@automovie/human/face/anatomy/cranium/appendPortraitCranium";
+import { portraitNeckShape } from "@automovie/human/face/anatomy/cranium/portraitNeckShape";
+import { buildPortraitHead } from "@automovie/human/face/anatomy/cranium/buildPortraitHead";
 import { TestValidator } from "@nestia/e2e";
 
 import { referenceControlNet } from "../../subjects/generated-korean-girl-01/controlNet";

@@ -19,7 +19,6 @@ import { humanFaceRecipeFixture } from "./humanFaceRecipeFixture";
 export const humanFaceFixture = (
   id = "unit-face",
 ): IAutoMovieHumanFaceDocument => ({
-  version: "human-face/1",
   id,
   name: id,
   basis: {

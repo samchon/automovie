@@ -1,4 +1,4 @@
-import type { IPortraitUpperLidProfile } from "@automovie/human/components/upperLidSection";
+import type { IPortraitUpperLidProfile } from "@automovie/human/face/anatomy/eye/structures/IPortraitUpperLidProfile";
 
 /** A hand-authored returning hood and its distinct unfolded closed target. */
 export function upperLidFoldFixture(): IPortraitUpperLidProfile {

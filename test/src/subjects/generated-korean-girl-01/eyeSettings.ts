@@ -5,12 +5,10 @@
  * controlNet. These are the unchanged historical inputs, not a new fitting pass.
  * Callers clone a profile before editing it; shared configuration stays fixed.
  */
-import { portraitEyebrowProfile } from "@automovie/human/components/eyebrows";
-import {
-  type IPortraitAegyoSalShape,
-  type IPortraitEyeShape,
-  type IPortraitEyeSocket,
-} from "@automovie/human/components/eyes";
+import { portraitEyebrowProfile } from "@automovie/human/face/anatomy/brow/portraitEyebrowProfile";
+import { type IPortraitAegyoSalShape } from "@automovie/human/face/anatomy/eye/structures/IPortraitAegyoSalShape";
+import { type IPortraitEyeShape } from "@automovie/human/face/anatomy/eye/structures/IPortraitEyeShape";
+import { type IPortraitEyeSocket } from "@automovie/human/face/anatomy/eye/structures/IPortraitEyeSocket";
 
 /** Subject-specific attachments; component implementations contain no landmark IDs. */
 export const portraitEyeSockets: IPortraitEyeSocket[] = [

@@ -1,6 +1,6 @@
-import { createPortraitEyeComponent } from "@automovie/human/components/eyes";
-import { blendPortraitSkin } from "@automovie/human/geometry/blendPortraitSkin";
-import { assertPortraitSkinTopology } from "@automovie/human/geometry/portraitSkinTopology";
+import { createPortraitEyeComponent } from "@automovie/human/face/anatomy/eye/createPortraitEyeComponent";
+import { blendPortraitSkin } from "@automovie/human/face/anatomy/skin/blendPortraitSkin";
+import { assertPortraitSkinTopology } from "@automovie/human/face/anatomy/skin/assertPortraitSkinTopology";
 import { TestValidator } from "@nestia/e2e";
 
 import { portraitEyeShapeFixture } from "../internal/portraitEyeShapeFixture";

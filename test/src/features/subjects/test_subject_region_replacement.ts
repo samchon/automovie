@@ -1,4 +1,4 @@
-import { applyPortraitRegionReplacements } from "@automovie/human/geometry/portraitRegionReplacement";
+import { applyPortraitRegionReplacements } from "@automovie/human/face/surface/applyPortraitRegionReplacements";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/predicates";

@@ -1,6 +1,6 @@
-import { buildPortraitHead } from "@automovie/human/components/head";
-import type { IPortraitNasalBodyShape } from "@automovie/human/components/nasalBody";
-import { createPortraitNoseComponent } from "@automovie/human/components/nose";
+import { buildPortraitHead } from "@automovie/human/face/anatomy/cranium/buildPortraitHead";
+import type { IPortraitNasalBodyShape } from "@automovie/human/face/anatomy/nose/structures/IPortraitNasalBodyShape";
+import { createPortraitNoseComponent } from "@automovie/human/face/anatomy/nose/createPortraitNoseComponent";
 import { TestValidator } from "@nestia/e2e";
 
 import {
