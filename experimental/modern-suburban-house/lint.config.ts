@@ -68,7 +68,7 @@ productionEvidence.models = "evidence";
 productionEvidence.spaces = "review";
 productionEvidence.materials = "evidence";
 productionEvidence.instances = "evidence";
-productionEvidence.systems = "draft";
+productionEvidence.systems = "evidence";
 productionEvidence.spaceSources = "draft";
 productionEvidence.claims = localClaims;
 
