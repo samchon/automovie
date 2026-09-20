@@ -1,5 +1,5 @@
 import { createAutoMovieMeshDeformer } from "@automovie/engine";
-import { createPortraitSkinLayer } from "@automovie/human/components/skin";
+import { createPortraitSkinLayer } from "@automovie/human/face/anatomy/skin/createPortraitSkinLayer";
 import { TestValidator } from "@nestia/e2e";
 
 import { portraitSkinFixture } from "../internal/portraitSkinFixture";

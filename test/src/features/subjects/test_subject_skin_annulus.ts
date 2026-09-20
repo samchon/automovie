@@ -1,4 +1,4 @@
-import { portraitSkinAnnulus } from "@automovie/human/geometry/reservePortraitSkin";
+import { portraitSkinAnnulus } from "@automovie/human/face/anatomy/skin/portraitSkinAnnulus";
 import { TestValidator } from "@nestia/e2e";
 
 import { createPortraitReservationHost } from "../internal/portraitReservation";

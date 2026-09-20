@@ -1,4 +1,4 @@
-import { createPortraitNasalSupport } from "@automovie/human/components/nasalSupport";
+import { createPortraitNasalSupport } from "@automovie/human/face/anatomy/nose/createPortraitNasalSupport";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, throwsError } from "../internal/predicates";

@@ -34,7 +34,6 @@ async function main(): Promise<void> {
       ).text(),
   });
   const initial: IAutoMovieHumanFaceBasisDocument = {
-    version: "human-face-basis-document/1",
     id: "connected-reference",
     name: "CC0 connected reference",
     basis: basis.id,

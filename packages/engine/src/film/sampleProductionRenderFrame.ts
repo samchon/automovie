@@ -2,7 +2,7 @@ import { IAutoMovieFilmTimeline } from "@automovie/interface";
 
 import { IAutoMovieProductionRenderFrame } from "./IAutoMovieProductionRenderFrame";
 import { IAutoMovieProductionRenderLayer } from "./IAutoMovieProductionRenderLayer";
-import { resolveProductionFrameRate } from "./productionTimebase";
+import { resolveProductionFrameRate } from "./resolveProductionFrameRate";
 
 /**
  * Resolve one global frame, including exact dissolve and fade weights.

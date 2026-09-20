@@ -1,4 +1,4 @@
-import { IAutoMovieStage } from "../authoring/IAutoMovieAuthoring";
+import { IAutoMovieStage } from "../authoring/IAutoMovieStage";
 import { IAutoMovieCamera } from "./IAutoMovieCamera";
 import { IAutoMovieFog } from "./IAutoMovieFog";
 import { IAutoMovieLight } from "./IAutoMovieLight";

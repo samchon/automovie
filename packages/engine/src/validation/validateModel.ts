@@ -13,26 +13,21 @@ import type {
   IAutoMovieValidation,
 } from "@automovie/interface";
 
-import { validateExtents, validateMesh } from "./validateModelGeometry";
-import {
-  finiteMinimum,
-  finiteNumber,
-  validateColor,
-  validateTextureBinding,
-} from "./validateModelMaterials";
-import {
-  validateAffordance,
-  validateBody,
-  validateNonEmptyId,
-  validateUniqueValues,
-} from "./validateModelMetadata";
-import {
-  validateJointConstraint,
-  validateSkeletonGraph,
-} from "./validateModelRig";
+import { validateExtents } from "./validateExtents";
+import { validateMesh } from "./validateMesh";
+import { finiteMinimum } from "./finiteMinimum";
+import { finiteNumber } from "./finiteNumber";
+import { validateColor } from "./validateColor";
+import { validateTextureBinding } from "./validateTextureBinding";
+import { validateAffordance } from "./validateAffordance";
+import { validateBody } from "./validateBody";
+import { collectNonEmptyId } from "./collectNonEmptyId";
+import { validateUniqueValues } from "./validateUniqueValues";
+import { validateJointConstraint } from "./validateJointConstraint";
+import { validateSkeletonGraph } from "./validateSkeletonGraph";
 import { validateProfileCapabilities } from "./validateProfileCapabilities";
 import { validateTransformScalars } from "./validateTransformScalars";
-import { ViolationCollector } from "./violation";
+import { ViolationCollector } from "./ViolationCollector";
 
 /**
  * Validate an {@link IAutoMovieModel}: Tier-1 structural/range checks over its
@@ -61,30 +56,30 @@ export const validateModel = (props: {
   const collector = new ViolationCollector();
   const { model } = props;
 
-  validateNonEmptyId(model.id, `${path}.id`, "model id", collector);
+  collectNonEmptyId(model.id, `${path}.id`, "model id", collector);
   if (model.asset !== null)
-    validateNonEmptyId(
+    collectNonEmptyId(
       model.asset,
       `${path}.asset`,
       "model asset id",
       collector,
     );
   if (model.skeleton !== null) {
-    validateNonEmptyId(
+    collectNonEmptyId(
       model.skeleton.id,
       `${path}.skeleton.id`,
       "skeleton id",
       collector,
     );
     model.skeleton.bones.forEach((bone, i) => {
-      validateNonEmptyId(
+      collectNonEmptyId(
         bone.bone,
         `${path}.skeleton.bones[${i}].bone`,
         "skeleton bone",
         collector,
       );
       if (bone.parent !== null)
-        validateNonEmptyId(
+        collectNonEmptyId(
           bone.parent,
           `${path}.skeleton.bones[${i}].parent`,
           "skeleton bone parent",
@@ -127,9 +122,9 @@ export const validateModel = (props: {
 
   model.parts.forEach((part, i) => {
     const pp = `${path}.parts[${i}]`;
-    validateNonEmptyId(part.id, `${pp}.id`, "model part id", collector);
+    collectNonEmptyId(part.id, `${pp}.id`, "model part id", collector);
     if (part.material !== null)
-      validateNonEmptyId(
+      collectNonEmptyId(
         part.material,
         `${pp}.material`,
         "model part material id",
@@ -218,7 +213,7 @@ export const validateModel = (props: {
 
   model.materials.forEach((m, i) => {
     const mp = `${path}.materials[${i}]`;
-    validateNonEmptyId(m.id, `${mp}.id`, "material id", collector);
+    collectNonEmptyId(m.id, `${mp}.id`, "material id", collector);
     validateTextureBinding(
       m.baseColorTexture,
       `${mp}.baseColorTexture`,

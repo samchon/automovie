@@ -4,7 +4,7 @@ import {
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
-import { seededValue } from "../math/random";
+import { seededValue } from "../math/seededValue";
 import { IAutoMovieInstanceSetPlacement } from "./IAutoMovieInstanceSetPlacement";
 import { selectInstancePrototype } from "./selectInstancePrototype";
 

@@ -1,8 +1,6 @@
-import { buildPortraitHead } from "@automovie/human/components/head";
-import type {
-  IPortraitComponent,
-  IPortraitComponentPlan,
-} from "@automovie/human/geometry/portraitComponents";
+import { buildPortraitHead } from "@automovie/human/face/anatomy/cranium/buildPortraitHead";
+import type { IPortraitComponent } from "@automovie/human/face/surface/structures/IPortraitComponent";
+import type { IPortraitComponentPlan } from "@automovie/human/face/surface/structures/IPortraitComponentPlan";
 import { TestValidator } from "@nestia/e2e";
 
 import { referenceControlNet } from "../../subjects/generated-korean-girl-01/controlNet";

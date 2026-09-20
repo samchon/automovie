@@ -1,4 +1,4 @@
-import { createPortraitCheekLayer } from "@automovie/human/components/cheeks";
+import { createPortraitCheekLayer } from "@automovie/human/face/anatomy/cheek/createPortraitCheekLayer";
 import { TestValidator } from "@nestia/e2e";
 
 import { createPortraitCheekFixture } from "../internal/createPortraitCheekFixture";

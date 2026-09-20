@@ -1,17 +1,24 @@
-export * from "./Vector3";
-export * from "./random";
-export * from "./Quaternion";
+export * from "./IAutoMovieClosestSegmentPoints";
+export * from "./IAutoMovieHullEdge";
+export * from "./IAutoMovieQuadraticRow";
 export * from "./Matrix4";
+export * from "./Quaternion";
+export * from "./Vector3";
+export * from "./assembleAutoMovieQuadraticProgram";
+export * from "./closestPointOnSegmentXZ";
+export * from "./closestPointsBetweenSegments";
+export * from "./convexHull2D";
+export * from "./linearColorToSrgbHex";
+export * from "./mixSeed";
+export * from "./nearestHullEdge";
+export * from "./pointHullDistance";
+export * from "./pointInHull";
+export * from "./pointSegmentDistance";
 export * from "./rotationBetween";
-export * from "./segments";
-export * from "./hull";
-export * from "./bisect";
-export * from "./quadraticProgram";
-export * from "./boundedDisplacement";
-export * from "./absoluteDisplacement";
-// Last on purpose. This module is the only one here that imports across a
-// package boundary, and inserting it ahead of `Quaternion` made
-// `Quaternion.fromAxisAngle` undefined inside `stickmanArchetype` while the
-// barrel was still evaluating. Order is load-bearing until that import is
-// erased, so a new sibling goes above this line rather than below it.
-export * from "./colorSpace";
+export * from "./seededValue";
+export * from "./segmentIndex";
+export * from "./segmentSegmentDistance";
+export * from "./solveAutoMovieAbsoluteDisplacement";
+export * from "./solveAutoMovieBoundedDisplacement";
+export * from "./solveAutoMovieQuadraticProgram";
+export * from "./srgbHexToLinearColor";

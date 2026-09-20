@@ -1,6 +1,6 @@
 import { IAutoMovieProductionFrameRate } from "@automovie/interface";
 
-import { canonicalProductionFrameRate } from "../film/productionTimebase";
+import { canonicalProductionFrameRate } from "../film/canonicalProductionFrameRate";
 import { AutoMovieFilmEffectRuntimeError } from "./AutoMovieFilmEffectRuntimeError";
 
 /**

@@ -1,8 +1,6 @@
 import { measureAutoMovieMeshClearance } from "@automovie/engine";
-import {
-  applyPortraitOralContact,
-  fitPortraitOralContact,
-} from "@automovie/human/geometry/portraitOralContact";
+import { applyPortraitOralContact } from "@automovie/human/face/anatomy/mouth/applyPortraitOralContact";
+import { fitPortraitOralContact } from "@automovie/human/face/anatomy/mouth/fitPortraitOralContact";
 import type { IAutoMovieModelPart } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 

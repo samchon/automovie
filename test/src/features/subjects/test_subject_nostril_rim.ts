@@ -1,4 +1,4 @@
-import { fitPortraitNostrilRim } from "@automovie/human/components/nostrilRim";
+import { fitPortraitNostrilRim } from "@automovie/human/face/anatomy/nose/fitPortraitNostrilRim";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/predicates";

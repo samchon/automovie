@@ -18,16 +18,20 @@ export type IAutoMovieHeightRule =
   | {
       /** Flat surface. */
       kind: "constant";
+
       /** Surface height in meters. */
       value: number;
     }
   | {
       /** Planar slope. */
       kind: "plane";
+
       /** Plane height at the world origin. */
       originHeight: number;
+
       /** Height gained per positive X meter. */
       slopeX: number;
+
       /** Height gained per positive Z meter. */
       slopeZ: number;
     }
@@ -60,18 +64,25 @@ export type IAutoMovieHeightRule =
        * digests them with the rest of the design.
        */
       kind: "heightfield";
+
       /** World X of sample column zero, in meters. */
       originX: number;
+
       /** World Z of sample row zero, in meters. */
       originZ: number;
+
       /** Finite column pitch along +X in meters, strictly above zero. */
       spacingX: number;
+
       /** Finite row pitch along +Z in meters, strictly above zero. */
       spacingZ: number;
+
       /** Sample columns along +X; at least two. */
       columns: number;
+
       /** Sample rows along +Z; at least two. */
       rows: number;
+
       /**
        * Finite sample heights in meters, row-major: index `row * columns +
        * column`. Exactly `columns * rows` entries.

@@ -1,5 +1,5 @@
 import { measureAutoMovieMeshClearance } from "@automovie/engine";
-import { portraitDirectionalSurfaceTargets } from "@automovie/human/geometry/portraitDirectionalContact";
+import { portraitDirectionalSurfaceTargets } from "@automovie/human/face/surface/portraitDirectionalSurfaceTargets";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/predicates";

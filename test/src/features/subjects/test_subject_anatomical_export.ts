@@ -1,4 +1,4 @@
-import { portraitMeshBuffers } from "@automovie/human/geometry/portraitMeshBuffers";
+import { portraitMeshBuffers } from "@automovie/human/face/mesh/portraitMeshBuffers";
 import { TestValidator } from "@nestia/e2e";
 
 import {

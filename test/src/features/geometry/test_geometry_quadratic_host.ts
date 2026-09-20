@@ -3,7 +3,7 @@
  * These invoke the actual host imported by quadraticKernelMemory, without a
  * browser, process, clock mock or source-text inspection.
  */
-import { createAutoMovieQuadraticHost } from "@automovie/engine/math/quadraticKernelHost";
+import { createAutoMovieQuadraticHost } from "@automovie/engine/math/createAutoMovieQuadraticHost";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/predicates";

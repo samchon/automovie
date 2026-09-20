@@ -1,6 +1,6 @@
 import { IAutoMovieCompiledInstancePrototype } from "@automovie/interface";
 
-import { seededValue } from "../math/random";
+import { seededValue } from "../math/seededValue";
 
 /**
  * The prototype one instance slot draws, or the explicit one it names.

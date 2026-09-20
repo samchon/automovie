@@ -23,15 +23,21 @@
  * @author Samchon
  */
 export type AutoMovieGuidePass =
+
   /** Ordinary shaded render. */
   | "beauty"
+
   /** Depth-to-grayscale conditioning pass. */
   | "depth"
+
   /** Per-node flat-color segmentation pass. */
   | "mask"
+
   /** Unlit surface-normal pass. */
   | "normal"
+
   /** Silhouette edge pass: white contour lines on black. */
   | "outline"
+
   /** Skeleton-overlay pose pass. */
   | "pose";

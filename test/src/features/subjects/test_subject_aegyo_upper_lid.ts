@@ -1,4 +1,4 @@
-import { appendPortraitEyeMargins } from "@automovie/human/components/eyes";
+import { appendPortraitEyeMargins } from "@automovie/human/face/anatomy/eye/appendPortraitEyeMargins";
 import { TestValidator } from "@nestia/e2e";
 
 import {

@@ -1,11 +1,5 @@
-import {
-  AutoMovieArkitChannel,
-  AutoMovieExpressionPreset,
-  IAutoMovieExpression,
-  IAutoMovieValidation,
-} from "@automovie/interface";
-
-import { ViolationCollector } from "./violation";
+import { AutoMovieArkitChannel, AutoMovieExpressionPreset, IAutoMovieExpression } from "@automovie/interface";
+import { ViolationCollector } from "./ViolationCollector";
 
 /**
  * Validate an {@link IAutoMovieExpression}: Tier-1 range checks the rough types
@@ -64,16 +58,6 @@ export const validateExpression = (props: {
 
   return collector;
 };
-
-/**
- * Convenience wrapper returning a finished {@link IAutoMovieValidation}.
- *
- * @evidence requirements/diagnostics/identity-path-and-context.md#diagnostics-path-and-scope `validateExpressionResult` returns the expression validator's located findings under the default expression root.
- * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-path-scope `validateExpressionResult` converts the collected channel paths into the canonical success-or-error envelope without readdressing them.
- */
-export const validateExpressionResult = (
-  expression: IAutoMovieExpression,
-): IAutoMovieValidation => validateExpression({ expression }).toValidation();
 
 const EXPRESSION_PRESETS = new Set<AutoMovieExpressionPreset>([
   "neutral",

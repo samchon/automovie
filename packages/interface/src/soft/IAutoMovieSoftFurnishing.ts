@@ -1,3 +1,6 @@
+import { AutoMovieSoftFurnishingKind } from "./AutoMovieSoftFurnishingKind";
+import { AutoMovieSoftFurnishingMode } from "./AutoMovieSoftFurnishingMode";
+
 /**
  * The binding that makes an independent soft-body domain a building's
  * furnishing.
@@ -100,26 +103,3 @@ export interface IAutoMovieSoftFurnishing {
    */
   material: string | null;
 }
-
-/**
- * Open-ended enough to name a furnishing, closed enough to validate.
- *
- * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-anchor-host Exposes `AutoMovieSoftFurnishingKind` as the portable data boundary for the interior soft anchor host requirement.
- * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `AutoMovieSoftFurnishingKind` for the interior space soft furnishing planting system contract.
- */
-export type AutoMovieSoftFurnishingKind =
-  | "curtain"
-  | "blind"
-  | "rug"
-  | "cushion"
-  | "bed-linen"
-  | "membrane"
-  | "other";
-
-/**
- * How a bound furnishing is evaluated over shot time.
- *
- * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-simulation-bound Exposes `AutoMovieSoftFurnishingMode` as the portable data boundary for the interior soft simulation bound requirement.
- * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `AutoMovieSoftFurnishingMode` for the interior space soft furnishing planting system contract.
- */
-export type AutoMovieSoftFurnishingMode = "rest" | "simulated";

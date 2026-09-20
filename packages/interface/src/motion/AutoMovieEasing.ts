@@ -15,15 +15,21 @@
  * @author Samchon
  */
 export type AutoMovieEasing =
+
   /** Constant-rate linear blend. */
   | "linear"
+
   /** Slow start. */
   | "easeIn"
+
   /** Slow stop. */
   | "easeOut"
+
   /** Slow start and stop (most natural for body motion). */
   | "easeInOut"
+
   /** No blend: hold, then jump at the next keyframe (snappy / robotic). */
   | "step"
+
   /** Explicit cubic Bézier; control points supplied on the keyframe. */
   | "cubicBezier";

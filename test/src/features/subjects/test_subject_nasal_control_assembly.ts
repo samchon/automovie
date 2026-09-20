@@ -1,5 +1,5 @@
-import { buildPortraitHead } from "@automovie/human/components/head";
-import { createPortraitNoseComponent } from "@automovie/human/components/nose";
+import { buildPortraitHead } from "@automovie/human/face/anatomy/cranium/buildPortraitHead";
+import { createPortraitNoseComponent } from "@automovie/human/face/anatomy/nose/createPortraitNoseComponent";
 import { TestValidator } from "@nestia/e2e";
 
 import { portraitNasalLayerFor } from "../../subjects/generated-korean-girl-01/anatomy";

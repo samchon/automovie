@@ -1,5 +1,5 @@
-import { buildPortraitHead } from "@automovie/human/components/head";
-import { blendPortraitSkin } from "@automovie/human/geometry/blendPortraitSkin";
+import { buildPortraitHead } from "@automovie/human/face/anatomy/cranium/buildPortraitHead";
+import { blendPortraitSkin } from "@automovie/human/face/anatomy/skin/blendPortraitSkin";
 import { TestValidator } from "@nestia/e2e";
 
 import {

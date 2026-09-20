@@ -1,7 +1,5 @@
-import {
-  buildPortraitEars,
-  portraitEarShape,
-} from "@automovie/human/components/ears";
+import { buildPortraitEars } from "@automovie/human/face/anatomy/cranium/buildPortraitEars";
+import { portraitEarShape } from "@automovie/human/face/anatomy/ear/portraitEarShape";
 import type { IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 

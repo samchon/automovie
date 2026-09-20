@@ -1,4 +1,4 @@
-import { createPortraitLipSection } from "@automovie/human/components/lipSection";
+import { createPortraitLipSection } from "@automovie/human/face/anatomy/mouth/createPortraitLipSection";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, throwsError } from "../internal/predicates";

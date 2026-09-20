@@ -1,7 +1,5 @@
-import {
-  type IPortraitNasalLobule,
-  createPortraitNasalLobules,
-} from "@automovie/human/components/nasalLobule";
+import { createPortraitNasalLobules } from "@automovie/human/face/anatomy/nose/createPortraitNasalLobules";
+import { type IPortraitNasalLobule } from "@automovie/human/face/anatomy/nose/structures/IPortraitNasalLobule";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, throwsError } from "../internal/predicates";

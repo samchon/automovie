@@ -4,8 +4,8 @@ import {
   IAutoMovieJointPose,
 } from "@automovie/interface";
 
-import { ViolationCollector } from "../validation/violation";
-import { swingConeAngle } from "./swingCone";
+import { ViolationCollector } from "../validation/ViolationCollector";
+import { swingConeAngle } from "./swingConeAngle";
 
 const AXES = ["flexion", "abduction", "twist"] as const;
 

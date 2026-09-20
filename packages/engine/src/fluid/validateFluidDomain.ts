@@ -1,52 +1,14 @@
-import {
-  IAutoMovieFluidDomain,
-  IAutoMovieValidation,
-} from "@automovie/interface";
-
-import { ViolationCollector } from "../validation/violation";
-import { fluidCourantNumber } from "./shallowWater";
-
-/**
- * Cells one domain may hold, so a lattice cannot silently cost a gigabyte.
- *
- * @evidence requirements/effects-and-simulation/budgets-and-bounded-work.md#effects-budget-refusal Bounds lattice admission with an explicit cell ceiling.
- * @evidence specifications/simulation-effects-and-sound/budget-admission.md#effect-budget-refusal-and-compatibility Defines the compatible maximum accepted lattice population.
- */
-export const FLUID_MAX_CELLS = 65_536;
-
-/**
- * Absolute steps one seek may integrate.
- *
- * @evidence requirements/effects-and-simulation/budgets-and-bounded-work.md#effects-budget-refusal Bounds seek reconstruction before unbounded integration begins.
- * @evidence specifications/simulation-effects-and-sound/budget-admission.md#effect-budget-refusal-and-compatibility Defines the compatible maximum seek workload.
- */
-export const FLUID_MAX_STEPS = 100_000;
-
-/**
- * Sources, and separately drains, one domain may declare.
- *
- * @evidence requirements/effects-and-simulation/budgets-and-bounded-work.md#effects-budget-refusal Bounds declared flow work before execution.
- * @evidence specifications/simulation-effects-and-sound/budget-admission.md#effect-budget-refusal-and-compatibility Fixes the supported source and drain population ceiling.
- */
-export const FLUID_MAX_FLOWS = 256;
-
-/**
- * Spray emitters one domain may declare.
- *
- * @evidence requirements/effects-and-simulation/budgets-and-bounded-work.md#effects-budget-refusal Bounds decorative emitter work independently of the conserved solve.
- * @evidence specifications/simulation-effects-and-sound/budget-admission.md#effect-budget-refusal-and-compatibility Fixes the supported spray-emitter population ceiling.
- */
-export const FLUID_MAX_SPRAYS = 32;
-
-/**
- * Simultaneously live particles one emitter may hold.
- *
- * @evidence requirements/effects-and-simulation/particles-and-emission.md#effects-particle-refusal Refuses an emitter whose live population exceeds the bounded tier.
- * @evidence specifications/simulation-effects-and-sound/particles-fire-and-atmosphere.md#particle-fire-refusal-and-claim-boundary Defines the maximum supported decorative spray population.
- */
-export const FLUID_MAX_SPRAY_PARTICLES = 4_096;
+import { IAutoMovieFluidDomain, IAutoMovieValidation } from "@automovie/interface";
+import { ViolationCollector } from "../validation/ViolationCollector";
+import { fluidCourantNumber } from "./fluidCourantNumber";
+import { FLUID_MAX_CELLS } from "./constants/FLUID_MAX_CELLS";
+import { FLUID_MAX_FLOWS } from "./constants/FLUID_MAX_FLOWS";
+import { FLUID_MAX_SPRAYS } from "./constants/FLUID_MAX_SPRAYS";
+import { FLUID_MAX_SPRAY_PARTICLES } from "./constants/FLUID_MAX_SPRAY_PARTICLES";
+import { FLUID_MAX_STEPS } from "./constants/FLUID_MAX_STEPS";
 
 const BOUNDARY_KINDS = new Set(["wall", "open"]);
+
 const EDGES = ["xMin", "xMax", "zMin", "zMax"] as const;
 
 /**

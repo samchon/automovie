@@ -1,72 +1,7 @@
-import {
-  AutoMovieHumanoidBone,
-  IAutoMovieJointPose,
-  IAutoMoviePose,
-  IAutoMovieSkeleton,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-
-import { Vector3 } from "../math/Vector3";
-import { clampJointRom } from "../rom/clampPose";
-import { getConstraint } from "../rom/humanoidRom";
-
-/**
- * A reactive deflection (degrees) the impact pushes a joint toward.
- *
- * @evidence requirements/effects-and-simulation/rigid-motion-ballistics-and-collision.md#effects-impact-consequence Converts contact impulse into an authored-facing joint reaction cue.
- * @evidence specifications/simulation-effects-and-sound/rigid-collision-and-damage.md#collision-proxy-and-world-contact-output Carries the bounded reaction derived from the contact output.
- */
-export interface IAutoMovieRecoilPush {
-  /**
-   * Flexion deflection in degrees.
-   *
-   * @evidence requirements/effects-and-simulation/rigid-motion-ballistics-and-collision.md#effects-impact-consequence Drives the dominant bend response to an impact.
-   * @evidence specifications/simulation-effects-and-sound/rigid-collision-and-damage.md#collision-proxy-and-world-contact-output Carries one joint-axis component of the contact reaction.
-   */
-  flexion?: number;
-  /**
-   * Abduction deflection in degrees.
-   *
-   * @evidence requirements/effects-and-simulation/rigid-motion-ballistics-and-collision.md#effects-impact-consequence Allows the contact reaction to push the joint laterally.
-   * @evidence specifications/simulation-effects-and-sound/rigid-collision-and-damage.md#collision-proxy-and-world-contact-output Carries the lateral joint-axis component of the reaction.
-   */
-  abduction?: number;
-  /**
-   * Twist deflection in degrees.
-   *
-   * @evidence requirements/effects-and-simulation/rigid-motion-ballistics-and-collision.md#effects-impact-consequence Allows the contact reaction to rotate the joint axially.
-   * @evidence specifications/simulation-effects-and-sound/rigid-collision-and-damage.md#collision-proxy-and-world-contact-output Carries the axial joint component of the reaction.
-   */
-  twist?: number;
-}
-
-/**
- * Bridge an {@link IAutoMovieImpact}'s impulse to a recoil
- * {@link IAutoMovieRecoilPush}: the missing consumer between collision response
- * and flinch. The impulse magnitude (N·s) scaled by `gainDegPerImpulse` becomes
- * the `flexion` the struck body yields; {@link impactRecoil} then bounds that
- * push by joint ROM and spreads it down the chain. Kept deliberately simple
- * (one dominant flexion axis): it is an AI hint, not a solved contact
- * response.
- *
- * @evidence requirements/effects-and-simulation/rigid-motion-ballistics-and-collision.md#effects-impact-consequence Maps the computed impulse magnitude into a deterministic recoil cue.
- * @evidence specifications/simulation-effects-and-sound/rigid-collision-and-damage.md#collision-proxy-and-world-contact-output Bridges the contact output to its bounded pose reaction.
- * @author Samchon
- */
-export const impulseToRecoilPush = (
-  impulse: IAutoMovieVector3,
-  gainDegPerImpulse: number,
-): IAutoMovieRecoilPush => {
-  if (!Number.isFinite(gainDegPerImpulse))
-    throw new RangeError(
-      `recoil push gain must be finite, but was ${gainDegPerImpulse}`,
-    );
-  if (gainDegPerImpulse < 0)
-    throw new RangeError(
-      `recoil push gain must be >= 0, but was ${gainDegPerImpulse}`,
-    );
-  return { flexion: Vector3.length(impulse) * gainDegPerImpulse };
-};
+import { AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMoviePose, IAutoMovieSkeleton } from "@automovie/interface";
+import { clampJointRom } from "../rom/clampJointRom";
+import { getConstraint } from "../rom/getConstraint";
+import { IAutoMovieRecoilPush } from "./IAutoMovieRecoilPush";
 
 /**
  * Scale one input deflection down the recoil chain. An absent or zero push is

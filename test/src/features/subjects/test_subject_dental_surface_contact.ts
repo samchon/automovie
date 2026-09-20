@@ -1,6 +1,6 @@
 import { measureAutoMovieMeshClearance } from "@automovie/engine";
-import { buildPortraitDentalCrown } from "@automovie/human/components/dentalCrown";
-import { buildPortraitDentalRow } from "@automovie/human/components/dentalRow";
+import { buildPortraitDentalCrown } from "@automovie/human/face/anatomy/dental/buildPortraitDentalCrown";
+import { buildPortraitDentalRow } from "@automovie/human/face/anatomy/dental/buildPortraitDentalRow";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/predicates";

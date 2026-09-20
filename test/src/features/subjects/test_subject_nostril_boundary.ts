@@ -1,4 +1,4 @@
-import { portraitCutBoundary } from "@automovie/human/components/nose";
+import { portraitCutBoundary } from "@automovie/human/face/anatomy/cranium/portraitCutBoundary";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/predicates";

@@ -1,4 +1,4 @@
-import { subdivideControlMesh } from "@automovie/human/geometry/subdivideControlMesh";
+import { subdivideControlMesh } from "@automovie/human/face/mesh/subdivideControlMesh";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/predicates";

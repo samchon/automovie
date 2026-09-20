@@ -1,10 +1,8 @@
 import { validateModel } from "@automovie/engine";
-import { portraitNeckShape } from "@automovie/human/components/cranium";
-import { portraitEarShape } from "@automovie/human/components/ears";
-import {
-  portraitDocument,
-  portraitGltfExtensions,
-} from "@automovie/human/geometry/portraitDocument";
+import { portraitNeckShape } from "@automovie/human/face/anatomy/cranium/portraitNeckShape";
+import { portraitEarShape } from "@automovie/human/face/anatomy/ear/portraitEarShape";
+import { portraitDocument } from "@automovie/human/face/export/portraitDocument";
+import { portraitGltfExtensions } from "@automovie/human/face/export/portraitGltfExtensions";
 import { NodeIO } from "@gltf-transform/core";
 import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
