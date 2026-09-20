@@ -1,6 +1,6 @@
 # Global facial morphology
 
-The connected editor selects this revision, `mpfb-connected-head-2026-09-17-binocular-frame`. It adds four whole-head controls to the [regional basis](../whole-face/README.md), giving 84 shape and 52 expression controls. The previous basis, studies and research remain preserved. Saved documents require their exact basis revision.
+The connected editor selects this directory's basis, whose first revision `mpfb-connected-head-2026-09-17-binocular-frame` added four whole-head controls to the [regional basis](../whole-face/README.md), giving 84 shape and 52 expression controls; the [revisions](#revisions) that followed are listed below with their receipts. The previous basis, studies and research remain preserved. Saved documents require their exact basis revision.
 
 ## Source and coordinates
 
@@ -49,6 +49,33 @@ Four candidates were measured and rejected, each preserved as research. Weakenin
 Direct review compared all nineteen subjects against their sources under each solution's own fitted weak-perspective pose on a real device. Heads that had been narrowed and flattened read fuller and closer to their sources, the generated-white-girl-01 cheek and mouth distortion is reduced, and open-mouthed sources recover more aperture and tooth exposure. A heavier brow and orbital shadow appears on several subjects.
 
 Four subjects (alan-rickman, generated-white-girl-01, michael-gambon and kdy1) were then loaded into the built editor itself and captured at front, both three-quarters, both profiles, back and clay under both solutions, because the frontal view is the one the objective optimizes and therefore the least informative one to judge it by. What the other views showed is a silhouette the frontal fit had been free to get wrong. Measuring the cranial vault above the ears across all nineteen subjects, its width spanned 105.1 to 143.2 mm under the previous solution and spans 130.4 to 142.7 mm under this one, and the depth-to-width ratio tightened from 1.317 to 1.561 (standard deviation 0.0698) to 1.344 to 1.472 (0.0383). The two extremes were the two subjects whose frontal residual was worst: alan-rickman's vault was 108.8 mm wide and generated-white-girl-01's 105.1 mm, narrower than any adult skull, and both read in profile as a long head on a thin neck. Both now sit inside the population. The change is not uniformly in one direction. Ten of the nineteen ratios rose, michael-gambon's among them (1.320 to 1.432); what improved is that the population no longer contains impossible outliers, not that every subject moved toward the middle. Generic head appearance, weak older tissue and absent scalp grooming still limit likeness. Registration uses estimated weak perspective, not recovered physical camera intrinsics. These studies remain editable candidates without whole-person likeness acceptance.
+
+## Revisions
+
+The connected editor selects whatever `basis.json.gz` reads as its `id`; every document, groom and appearance in this directory is restamped to that identity when it changes. Each step is a script under `test/scripts/face-review/` that refuses to run on any basis but the one it succeeds, and each leaves a receipt here.
+
+| Revision | Succeeds | Step | Receipt |
+| --- | --- | --- | --- |
+| `mpfb-connected-head-2026-09-17-binocular-frame` | the regional basis | Blender extraction with a common binocular frame | [extraction-receipt.json](extraction-receipt.json) |
+| `mpfb-connected-head-2026-09-18-jaw-corrective` | binocular-frame | `jawOpenMouthCloseEase`, the first authored corrective | [corrective-receipt.json](corrective-receipt.json) |
+| `mpfb-connected-head-2026-09-19-split-arches` | jaw-corrective | `split-teeth-arches.ts`: the dental asset split into a fixed maxillary and a moving mandibular arch | — |
+| `mpfb-connected-head-2026-09-20-face-and-neck` | split-arches | `crop-face-to-neck.ts`: the shared neck clip at Y = -0.145 m | — |
+| `mpfb-connected-head-2026-09-20-tongue-implies-jaw` | face-and-neck | `imply-open-jaw-for-tongue.ts`: `tongueOut` folds `jawOpen` in and `tongueOutJawOpenUnfold` cancels the double count | — |
+| `mpfb-connected-head-2026-09-20-strand-alpha` | tongue-implies-jaw | `mask-brow-and-lash-alpha.ts`: brow and lash strands cut from their cards | — |
+| `mpfb-connected-head-2026-09-20-rigid-mandible` | strand-alpha | `rigidify-jaw-open.ts`: the mandibular arch's `jawOpen` replaced by the measured screw motion | [mandible-receipt.json](mandible-receipt.json) |
+| `mpfb-connected-head-2026-09-20-pair-correctives` | rigid-mandible | `generate-combination-correctives.ts`: every expression pair enumerated on the neutral head, the pairs that invent a crossing solved into correctives and in-betweens | [pair-corrective-receipt.json](pair-corrective-receipt.json) |
+
+### Pair correctives
+
+Fifty-two expression channels make 1,326 pairs, and `enumerate-expression-pairs.ts neutral` wears the neutral head at every one of them. A pair counts only when it makes a pair of surfaces cross that neither channel alone makes cross; measured against the larger single instead, two channels on disjoint regions read as interacting, and shutting both eyes was the first false positive. On the neutral head 667 pairs interact past superposition and 54 invent a surface pair.
+
+Each of the 54 is solved by `push-out.ts` inside a 3 mm budget: the yielding part is pushed clear of the firm one along the side it sat on at rest, because a vertex inside a tooth is near every face of that tooth and the nearest face is as likely to lead into the mouth as out of it, and the push is relaxed over three rings so tissue moves rather than dents. Bone and the globe never yield; between soft parts the enclosed one does, except that a tongue being put out is the agent of its pose and the lips part around it, which the solver measured rather than assumed. A lip triangle through a skin triangle is one surface folding into itself and is named rather than solved: 17 such pairs, all corner folds of dimple, smile, stretch and frown combinations. Four crossings stay beyond the budget and are not published, the poses that put a tongue into shut, puckered or laterally shifted lips.
+
+The activation of a corrective is a product of clamped drivers, which is bilinear, so a corrective solved at full weight lands at a quarter of itself at half weights. A driver may therefore name the weight it peaks at, and its factor becomes a tent that is one there and zero at full; `generate-combination-correctives.ts` wears each pair at (½, 1), (1, ½) and (½, ½) in turn, each with every earlier tier present, measures what crosses at that pose against that pose's own singles, and publishes what remains as such an in-between. The revision carries 44 correctives: the two authored earlier, 34 solved at full weight and 8 in-betweens.
+
+A basis corrective is a field on the neutral head, and the first population verification showed about half of the crossings it clears there remain on the subjects, with or without their per-vertex identity: a subject's shape channels move its lip and its arch by different amounts. A document therefore carries correctives of its own, solved on that face by `generate-subject-correctives.ts` from that subject's own 1,326-pair enumeration on this revision and over the same weight grid, 16 to 78 per subject and 717 in all, recorded in [subject-corrective-receipt.json](subject-corrective-receipt.json).
+
+`verify-combination-correctives.ts` then wears the neutral head and every subject at every enumerated pair and four weights, with and without any pair corrective, and folds the result into [pair-corrective-receipt.json](pair-corrective-receipt.json) under `verification`, so the receipt says what the revision has been verified to do rather than what it was meant to do. Of 5,236 poses over the 19 heads, 5,048 invent no crossing. The 188 that still do are 123 poses of the four tongue combinations above, 18 corner folds of one surface, and 47 subject poses the 3 mm budget could not clear, each named in the subject receipt; once the correctives introduced a crossing a single already had (the neutral's `jawForward + mouthLeft` folding lip into skin). Weights off the {½, 1} grid are not verified.
 
 ## Research continuity
 
