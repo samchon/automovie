@@ -1,4 +1,5 @@
 import { IAutoMovieMesh } from "@automovie/interface";
+
 import { compareCodeUnits } from "../text/compareCodeUnits";
 import { ViolationCollector } from "./ViolationCollector";
 
@@ -30,13 +31,23 @@ export const appendMeshTopology = (
   )
     return;
 
-  const keyOf = (vertex: number): string =>
-    [0, 1, 2]
+  // A welded key is a pure function of one vertex's position, and a vertex
+  // sits on every triangle that uses it. Compute it once per vertex index:
+  // per triangle corner it was three array allocations and a join, and it
+  // dominated the face build's validation cost.
+  const keyCache = new Array<string | undefined>(vertexCount);
+  const keyOf = (vertex: number): string => {
+    const cached = keyCache[vertex];
+    if (cached !== undefined) return cached;
+    const key = [0, 1, 2]
       .map(
         (axis) =>
           Math.round(mesh.positions[vertex * 3 + axis]! * WELD_GRID) || 0,
       )
       .join(",");
+    keyCache[vertex] = key;
+    return key;
+  };
 
   // Undirected edge → incident-triangle count (manifoldness); directed edge →
   // count in that traversal direction (winding consistency).
@@ -50,8 +61,11 @@ export const appendMeshTopology = (
     for (let e = 0; e < 3; ++e) {
       const from = keys[e]!;
       const to = keys[(e + 1) % 3]!;
-      directed.set(`${from}|${to}`, (directed.get(`${from}|${to}`) ?? 0) + 1);
-      const edge = [from, to].sort(compareCodeUnits).join("|");
+      const arrow = `${from}|${to}`;
+      directed.set(arrow, (directed.get(arrow) ?? 0) + 1);
+      // Same canonical string as sorting the pair, without the array.
+      const edge =
+        compareCodeUnits(from, to) <= 0 ? `${from}|${to}` : `${to}|${from}`;
       undirected.set(edge, (undirected.get(edge) ?? 0) + 1);
     }
   }

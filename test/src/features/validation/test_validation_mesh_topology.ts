@@ -245,6 +245,36 @@ export const test_validation_mesh_topology = (): void => {
     3,
   );
 
+  // 8b. the reported identity is the canonical welded edge, not merely a
+  // count. The spec preserves "each welded edge identity", so the string a
+  // consumer reads must be the same edge regardless of which triangle
+  // traversed it first: the smaller welded key by UTF-16 code units, then
+  // "|", then the larger. The three open edges of the tetra are traversed in
+  // both directions across the remaining faces, so this pins both orderings.
+  const key = (x: number, y: number, z: number): string =>
+    [x, y, z].map((c) => Math.round(c * 1e9) || 0).join(",");
+  const v1 = key(1, 0, 0);
+  const v2 = key(0, 1, 0);
+  const v3 = key(0, 0, 1);
+  const canonical = (a: string, b: string): string =>
+    a < b ? `${a}|${b}` : `${b}|${a}`;
+  TestValidator.equals(
+    "each boundary violation names its canonical welded edge",
+    openTetraClosed.success === false
+      ? openTetraClosed.violations.map((v) => v.value).sort()
+      : [],
+    [canonical(v1, v2), canonical(v2, v3), canonical(v3, v1)].sort(),
+  );
+  TestValidator.predicate(
+    "the non-manifold message names the canonical edge and its count",
+    finResult.success === false &&
+      finResult.violations.some((v) =>
+        v.expected.includes(
+          `the edge (${canonical(key(0, 0, 0), v1)}) is shared by 3`,
+        ),
+      ),
+  );
+
   // 9. a tessellated box is per-face geometry: its eight corners are emitted
   // three times each (once per adjoining face), so it is watertight ONLY after
   // the topology check welds coincident positions. Passing `expectClosed`
