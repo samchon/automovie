@@ -2,6 +2,7 @@
 @evidence discovery/core/common.md#shared-local-boundary The instance population needs a production-specific placement boundary for the temple's reviewed rooms, loop, roof, and repeated fit-out subjects; the reusable instance contract does not name these hosts or their route reservations.
 @evidenceReview discovery/core/common.md#shared-local-boundary #ae499c0 Compared the retained instance-specific placement boundary with the shared local-boundary rule and confirmed that the contract names only the temple's host-relative population, route, and prototype interfaces while leaving reusable procedure to its owner.
 @evidence discovery/design/instances.md#work-specific-instance-requirements The retained search covers this production's prototype membership, stable IDs and seeds, host-relative transforms, bounded variation, grounding, overlap refusal, route protection, and worst-case observations.
+@evidenceReview discovery/design/instances.md#work-specific-instance-requirements #95448eb Read the retained search against the temple population and confirmed that it assigns prototype membership, stable IDs and seeds, host-relative transforms, bounded variation, grounding, overlap and route refusal, and worst-case observations to the instance contract without substituting a generic scatter condition.
 -->
 # Ancient civic temple instance contract
 
