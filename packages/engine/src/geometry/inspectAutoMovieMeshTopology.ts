@@ -8,8 +8,9 @@
  */
 import { IAutoMovieMesh } from "@automovie/interface";
 
-import { triangleIndicesOf } from "./triangleIndicesOf";
+import { compareCodeUnits } from "../text/compareCodeUnits";
 import { IAutoMovieMeshTopology } from "./IAutoMovieMeshTopology";
+import { triangleIndicesOf } from "./triangleIndicesOf";
 
 /**
  * Measure a mesh's triangle topology instead of assuming it.
@@ -36,10 +37,20 @@ export const inspectAutoMovieMeshTopology = (
     countNonFinite(mesh.uvs) +
     countNonFinite(mesh.colors ?? null);
   const indices = triangleIndicesOf(mesh, "mesh topology");
-  const key = (at: number): string =>
-    [0, 1, 2]
+  // A welded key is a pure function of one vertex's position, and a vertex
+  // sits on every triangle that uses it. Compute it once per vertex index;
+  // per triangle corner it was three array allocations and a join, the same
+  // cost `appendMeshTopology` removed from the validation verdict.
+  const keyCache = new Array<string | undefined>(mesh.positions.length / 3);
+  const key = (at: number): string => {
+    const cached = keyCache[at];
+    if (cached !== undefined) return cached;
+    const welded = [0, 1, 2]
       .map((axis) => Math.round(mesh.positions[at * 3 + axis]! * WELD_SCALE))
       .join(",");
+    keyCache[at] = welded;
+    return welded;
+  };
   const edges = new Map<string, number>();
   const degenerateTriangles: number[] = [];
   for (let index = 0; index < indices.length; index += 3) {
@@ -51,9 +62,11 @@ export const inspectAutoMovieMeshTopology = (
     for (let edge = 0; edge < 3; ++edge) {
       // The degenerate skip above leaves three distinct corner keys, so the
       // two ends of an edge can never compare equal here.
-      const name = [corners[edge]!, corners[(edge + 1) % 3]!]
-        .sort((left, right) => (left < right ? -1 : 1))
-        .join("|");
+      const from = corners[edge]!;
+      const to = corners[(edge + 1) % 3]!;
+      // Same canonical string as sorting the pair, without the array.
+      const name =
+        compareCodeUnits(from, to) < 0 ? `${from}|${to}` : `${to}|${from}`;
       edges.set(name, (edges.get(name) ?? 0) + 1);
     }
   }
