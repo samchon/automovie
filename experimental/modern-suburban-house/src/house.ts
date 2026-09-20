@@ -613,7 +613,7 @@ const groundSpaces = (): Space[] => [
     "ground",
     "entry",
     v(-4.9, 0.15, -4.5),
-    v(-1.8, 2.65, -3.0),
+    v(-1.7, 2.65, -3.0),
     "wood-oak",
     ["front-door"],
     ["ground/living-room", "ground/stair-hall"],
@@ -622,8 +622,8 @@ const groundSpaces = (): Space[] => [
     "ground/living-room",
     "ground",
     "living",
-    v(-4.9, 0.15, -2.95),
-    v(-1.8, 2.65, -0.2),
+    v(-4.9, 0.15, -3.0),
+    v(-1.7, 2.65, -0.2),
     "wood-oak",
     ["entry-to-living"],
     ["ground/front-entry", "ground/stair-hall"],
@@ -632,8 +632,8 @@ const groundSpaces = (): Space[] => [
     "ground/stair-hall",
     "ground",
     "stair-hall",
-    v(-1.65, 0.15, -4.5),
-    v(1.25, 2.65, 0.1),
+    v(-1.7, 0.15, -4.5),
+    v(1.35, 2.65, 0.1),
     "wood-oak",
     ["entry-to-stair", "connector/stair-ground-to-upper"],
     ["ground/front-entry", "ground/living-room", "ground/kitchen-dining-family", "upper/hall"],
@@ -642,7 +642,7 @@ const groundSpaces = (): Space[] => [
     "ground/kitchen-dining-family",
     "ground",
     "open-common",
-    v(-4.9, 0.15, 0.2),
+    v(-4.9, 0.15, 0.1),
     v(2.7, 2.65, 4.5),
     "wood-oak",
     ["stair-to-common", "kitchen-to-pantry", "dining-rear-slider"],
@@ -695,8 +695,8 @@ const upperSpaces = (): Space[] => [
     "upper/hall",
     "upper",
     "upper-hall",
-    v(-1.4, UPPER_ELEVATION + 0.15, -3.9),
-    v(3.0, UPPER_ELEVATION + UPPER_HEIGHT, 1.15),
+    v(-1.55, UPPER_ELEVATION + 0.15, -3.9),
+    v(3.05, UPPER_ELEVATION + UPPER_HEIGHT, 2.75),
     "carpet-warm-gray",
     ["connector/stair-ground-to-upper", "hall-primary-door", "hall-bedroom-two-door", "hall-bedroom-three-door", "hall-bath-one-door", "hall-linen-door"],
     ["upper/primary-bedroom", "upper/bedroom-two", "upper/bedroom-three", "upper/bathroom-one", "upper/linen-storage", "ground/stair-hall"],
@@ -1030,11 +1030,11 @@ const addGroundPartitions = (elements: Element[], openings: Opening[]): void => 
     openings.push(...result.openings);
   };
   add(partitionWithOpenings("ground/partition/entry-living", "ground", "ground/front-entry", "x", -3.0, MAIN.minX, -1.8, 0, GROUND_HEIGHT, [{ id: "entry-to-living", kind: "door", centerAlongAxis: -3.35, width: 1.2, sillM: 0, height: 2.1, fromSpaceId: "ground/front-entry", toSpaceId: "ground/living-room" }]));
-  add(partitionWithOpenings("ground/partition/living-stair", "ground", "ground/living-room", "z", -1.7, -3.0, 0.1, 0, GROUND_HEIGHT, [
-    { id: "entry-to-stair", kind: "door", centerAlongAxis: -2.45, width: 0.95, sillM: 0, height: 2.1, fromSpaceId: "ground/front-entry", toSpaceId: "ground/stair-hall" },
+  add(partitionWithOpenings("ground/partition/living-stair", "ground", "ground/living-room", "z", -1.7, -4.5, 0.1, 0, GROUND_HEIGHT, [
+    { id: "entry-to-stair", kind: "door", centerAlongAxis: -3.75, width: 0.95, sillM: 0, height: 2.1, fromSpaceId: "ground/front-entry", toSpaceId: "ground/stair-hall" },
     { id: "living-to-stair", kind: "door", centerAlongAxis: -0.75, width: 1.0, sillM: 0, height: 2.1, fromSpaceId: "ground/living-room", toSpaceId: "ground/stair-hall" },
   ]));
-  add(partitionWithOpenings("ground/partition/stair-common", "ground", "ground/stair-hall", "x", 0.1, -1.7, 2.7, 0, GROUND_HEIGHT, [{ id: "stair-to-common", kind: "door", centerAlongAxis: 1.35, width: 1.8, sillM: 0, height: 2.1, fromSpaceId: "ground/stair-hall", toSpaceId: "ground/kitchen-dining-family" }]));
+  add(partitionWithOpenings("ground/partition/stair-common", "ground", "ground/stair-hall", "x", 0.1, -1.7, 2.7, 0, GROUND_HEIGHT, [{ id: "stair-to-common", kind: "door", centerAlongAxis: 0.45, width: 1.8, sillM: 0, height: 2.1, fromSpaceId: "ground/stair-hall", toSpaceId: "ground/kitchen-dining-family" }]));
   add(partitionWithOpenings("ground/partition/service", "ground", "ground/pantry", "z", 2.75, 0.1, 4.5, 0, GROUND_HEIGHT, [{ id: "kitchen-to-pantry", kind: "door", centerAlongAxis: 3.45, width: 0.9, sillM: 0, height: 2.1, fromSpaceId: "ground/kitchen-dining-family", toSpaceId: "ground/pantry" }]));
   add(partitionWithOpenings("ground/partition/pantry-powder", "ground", "ground/pantry", "x", 2.4, 2.75, 5.05, 0, GROUND_HEIGHT, [{ id: "powder-door", kind: "door", centerAlongAxis: 3.7, width: 0.75, sillM: 0, height: 2.1, fromSpaceId: "ground/pantry", toSpaceId: "ground/powder-room" }]));
   add(partitionWithOpenings("ground/partition/powder-mudroom", "ground", "ground/powder-room", "x", 1.3, 2.75, 5.05, 0, GROUND_HEIGHT, [{ id: "mudroom-door", kind: "door", centerAlongAxis: 4.35, width: 0.75, sillM: 0, height: 2.1, fromSpaceId: "ground/powder-room", toSpaceId: "ground/laundry-mudroom" }]));
@@ -1045,11 +1045,11 @@ const addUpperPartitions = (elements: Element[], openings: Opening[]): void => {
     elements.push(result.element);
     openings.push(...result.openings);
   };
-  add(partitionWithOpenings("upper/partition/hall-primary", "upper", "upper/primary-bedroom", "z", -1.48, 1.025, 4.575, UPPER_ELEVATION, UPPER_ELEVATION + UPPER_HEIGHT, [{ id: "hall-primary-door", kind: "door", centerAlongAxis: 2.0, width: 0.9, sillM: 0, height: 2.1, fromSpaceId: "upper/hall", toSpaceId: "upper/primary-bedroom" }]));
-  add(partitionWithOpenings("upper/partition/hall-bedroom-two", "upper", "upper/bedroom-two", "z", -1.48, -3.9, -1.55, UPPER_ELEVATION, UPPER_ELEVATION + UPPER_HEIGHT, [{ id: "hall-bedroom-two-door", kind: "door", centerAlongAxis: -2.7, width: 0.9, sillM: 0, height: 2.1, fromSpaceId: "upper/hall", toSpaceId: "upper/bedroom-two" }]));
-  add(partitionWithOpenings("upper/partition/hall-bedroom-three", "upper", "upper/bedroom-three", "z", 3.0, 1.025, 4.575, UPPER_ELEVATION, UPPER_ELEVATION + UPPER_HEIGHT, [{ id: "hall-bedroom-three-door", kind: "door", centerAlongAxis: 2.3, width: 0.9, sillM: 0, height: 2.1, fromSpaceId: "upper/hall", toSpaceId: "upper/bedroom-three" }]));
-  add(partitionWithOpenings("upper/partition/hall-baths", "upper", "upper/bathroom-one", "z", 3.0, -0.9, 0.95, UPPER_ELEVATION, UPPER_ELEVATION + UPPER_HEIGHT, [{ id: "hall-bath-one-door", kind: "door", centerAlongAxis: 0.1, width: 0.8, sillM: 0, height: 2.1, fromSpaceId: "upper/hall", toSpaceId: "upper/bathroom-one" }]));
-  add(partitionWithOpenings("upper/partition/linen", "upper", "upper/linen-storage", "z", 3.0, -3.9, -1.55, UPPER_ELEVATION, UPPER_ELEVATION + UPPER_HEIGHT, [{ id: "hall-linen-door", kind: "door", centerAlongAxis: -2.7, width: 0.75, sillM: 0, height: 2.1, fromSpaceId: "upper/hall", toSpaceId: "upper/linen-storage" }]));
+  add(partitionWithOpenings("upper/partition/hall-primary", "upper", "upper/primary-bedroom", "z", -1.55, 1.025, 4.575, UPPER_ELEVATION, UPPER_ELEVATION + UPPER_HEIGHT, [{ id: "hall-primary-door", kind: "door", centerAlongAxis: 2.0, width: 0.9, sillM: 0, height: 2.1, fromSpaceId: "upper/hall", toSpaceId: "upper/primary-bedroom" }]));
+  add(partitionWithOpenings("upper/partition/hall-bedroom-two", "upper", "upper/bedroom-two", "z", -1.55, -3.9, -1.55, UPPER_ELEVATION, UPPER_ELEVATION + UPPER_HEIGHT, [{ id: "hall-bedroom-two-door", kind: "door", centerAlongAxis: -2.7, width: 0.9, sillM: 0, height: 2.1, fromSpaceId: "upper/hall", toSpaceId: "upper/bedroom-two" }]));
+  add(partitionWithOpenings("upper/partition/hall-bedroom-three", "upper", "upper/bedroom-three", "z", 3.05, 1.025, 4.575, UPPER_ELEVATION, UPPER_ELEVATION + UPPER_HEIGHT, [{ id: "hall-bedroom-three-door", kind: "door", centerAlongAxis: 2.3, width: 0.9, sillM: 0, height: 2.1, fromSpaceId: "upper/hall", toSpaceId: "upper/bedroom-three" }]));
+  add(partitionWithOpenings("upper/partition/hall-baths", "upper", "upper/bathroom-one", "z", 3.05, -0.9, 0.95, UPPER_ELEVATION, UPPER_ELEVATION + UPPER_HEIGHT, [{ id: "hall-bath-one-door", kind: "door", centerAlongAxis: 0.1, width: 0.8, sillM: 0, height: 2.1, fromSpaceId: "upper/hall", toSpaceId: "upper/bathroom-one" }]));
+  add(partitionWithOpenings("upper/partition/linen", "upper", "upper/linen-storage", "z", 3.05, -3.9, -1.55, UPPER_ELEVATION, UPPER_ELEVATION + UPPER_HEIGHT, [{ id: "hall-linen-door", kind: "door", centerAlongAxis: -2.7, width: 0.75, sillM: 0, height: 2.1, fromSpaceId: "upper/hall", toSpaceId: "upper/linen-storage" }]));
   add(partitionWithOpenings("upper/partition/primary-bath", "upper", "upper/primary-bath", "z", -1.55, 3.0, 4.5, UPPER_ELEVATION, UPPER_ELEVATION + UPPER_HEIGHT, [{ id: "primary-bath-door", kind: "door", centerAlongAxis: 3.75, width: 0.75, sillM: 0, height: 2.1, fromSpaceId: "upper/primary-bedroom", toSpaceId: "upper/primary-bath" }]));
 };
 

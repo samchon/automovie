@@ -35,25 +35,34 @@ Authority and status: `author-adopted` repeated-envelope population. Rows are de
 
 Authority and status: `author-adopted` fixed population. Doors have no per-member geometry variation, hero override, or animation. The service gate remains a terminal access member and cannot create a loop edge.
 
+## Records furniture population {#records-furniture-population}
+
+@evidence principles/design/instances.md#instance-derivation-authority The records furniture population has one shared derivation contract for the table, shelves, chest, and records lamp members, while each member set retains its own stable identity and placement owner.
+@evidence principles/design/instances.md#instance-verification-address The aggregate review checks the records-room threshold-to-centre route, table and shelf clearances, chest contact, and lamp ceiling clearance together because a passing member in isolation can still block the room route as a set.
+@evidence obligations/design/instances.md#instance-prototype-membership The records furniture union is exactly the reviewed records table, two records shelves, one records chest, and the records lamp; no unnamed records prop enters the population.
+@evidence obligations/design/instances.md#instance-placement-review The aggregate is refused if any member overlaps another member, the records-room protected route, or the direct threshold, even when every individual transform is locally valid.
+
+Authority and status: `author-adopted` aggregate handoff required by the settings subject inventory. Member-specific geometry and IDs remain with the four population H2s below and the lamp H2.
+
 ## Altar and plinth population {#altar-and-plinth-population}
 
 @evidence principles/design/instances.md#instance-prototype-boundary The single member reuses `altar-and-plinth-prototype`; no instance override changes its two-part landmark silhouette.
-@evidence principles/design/instances.md#instance-derivation-authority `altar/sanctuary` is derived from the reviewed `sanctuary` room and its `north` observation point, with no model-invented socket or second axis.
-@evidence principles/design/instances.md#instance-verification-address The north-facing sanctuary observation is the representative review because the altar must remain a centered rear landmark while leaving the route to the cardinal points clear.
+@evidence principles/design/instances.md#instance-derivation-authority `altar/sanctuary` is derived from the reviewed `sanctuary` room and its `north` observation point, with no model-invented socket or second axis; its transform remains unresolved because the current north-axis and protected-route constraints are incompatible with the reviewed prototype bounds.
+@evidence principles/design/instances.md#instance-verification-address The north-facing sanctuary observation is the representative review because it exposes the unresolved collision between a centered rear landmark and the north cardinal route.
 @evidence obligations/design/instances.md#instance-prototype-membership The complete set contains one member of `altar-and-plinth-prototype` in `sanctuary`.
-@evidence obligations/design/instances.md#instance-identity-transform The stable ID is `altar/sanctuary`, its origin is the plinth floor contact, and its transform is centered at `(0.00,0.00,7.20)` with seed `temple-altar-v1`.
-@evidence obligations/design/instances.md#instance-placement-review Placement is refused if the plinth crosses the sanctuary room bounds or the reserved route from threshold `(0.00,0.00,6.00)` to center `(0.00,0.00,7.20)`.
+@evidence obligations/design/instances.md#instance-identity-transform The stable ID would be `altar/sanctuary` with a plinth floor-contact origin and seed `temple-altar-v1`, but no transform is adopted: the model bounds X `-0.65..0.65m`, Z `-0.40..0.40m` cannot clear the north route's `0.30m` protection band while remaining on the required north axis inside the sanctuary bounds.
+@evidence obligations/design/instances.md#instance-placement-review Placement must be refused until the owners resolve the conflict between the sanctuary north-axis identity, room bounds X `-3.20..3.20m` and Z `6.00..8.40m`, and the threshold-to-center-to-cardinal protected routes; moving off-axis or outside the room is not an instance-layer repair.
 
-Authority and status: `author-adopted` singleton population. This population places the reviewed altar pair and does not add an axis, socket, iconography, contents, or motion.
+Authority and status: `unresolved` singleton population. This H2 preserves the reviewed altar pair and refuses to open `src/instances` until the closed spatial constraint owner resolves the north-axis versus north-route conflict. It does not add an axis, socket, iconography, contents, or motion.
 
 ## Records table population {#records-table-population}
 
 @evidence principles/design/instances.md#instance-prototype-boundary The one member reuses `records-table-prototype`; its placement does not alter the open underside, tabletop, or four-leg silhouette.
-@evidence principles/design/instances.md#instance-derivation-authority The stable ID `records-table/00` and floor-contact transform are explicit authored values, independent of furniture iteration order.
-@evidence principles/design/instances.md#instance-verification-address The records-room centre route is the review address because the table footprint must leave its 1.20m reserved path and 0.30m protected band open.
+@evidence principles/design/instances.md#instance-derivation-authority The stable ID `records-table/00` and floor-contact transform are explicit authored values, independent of furniture iteration order; its adopted origin is `(10.60,0.00,1.80)` in the records-room southeast fit-out zone.
+@evidence principles/design/instances.md#instance-verification-address The records-room centre route is the review address because the table's `1.20m x 0.60m` footprint at `(10.60,0.00,1.80)` must leave the threshold-to-centre and cardinal route bands open.
 @evidence obligations/design/instances.md#instance-prototype-membership The complete set contains one `records-table-prototype` member in `records-room`.
-@evidence obligations/design/instances.md#instance-identity-transform The member uses origin `(9.40,0.00,1.00)`, zero yaw, scale one, and seed `temple-records-furniture-v1`.
-@evidence obligations/design/instances.md#instance-placement-review The member is refused if its `1.20m x 0.60m` footprint intersects the room route or loses floor contact.
+@evidence obligations/design/instances.md#instance-identity-transform The member uses origin `(10.60,0.00,1.80)`, zero yaw, scale one, and seed `temple-records-furniture-v1`; its bounds are X `10.00..11.20m`, Z `1.50..2.10m`, and Y `0.00..0.76m`.
+@evidence obligations/design/instances.md#instance-placement-review The member is refused if its declared bounds leave `records-room` X `7.40..11.40m`, Z `-0.30..2.30m`, intersect the route protection bands, or lose floor contact.
 
 Authority and status: `author-adopted` singleton work-surface population. The table is not a room boundary, a storage chest, or a second model prototype.
 
@@ -78,6 +87,15 @@ Authority and status: `author-adopted` two-member population. The members are fu
 @evidence obligations/design/instances.md#instance-placement-review The member is refused when its closed bounds overlap the table, shelf, threshold, or reserved route.
 
 Authority and status: `author-adopted` singleton population. Contents, lid motion, and a second records chest are outside this population.
+
+## Storage furniture population {#storage-furniture-population}
+
+@evidence principles/design/instances.md#instance-derivation-authority The storage furniture population shares one host-relative derivation input for shelves, chests, baskets, and the storage lamp, while preserving each member set's explicit IDs and prototype binding.
+@evidence principles/design/instances.md#instance-verification-address The aggregate review checks the storage-room cardinal routes, shelf and chest contacts, basket cavity visibility, and lamp height as one obstruction set.
+@evidence obligations/design/instances.md#instance-prototype-membership The storage furniture union is exactly the reviewed storage shelves, storage chests, storage baskets, and storage lamp members; it adds no furniture prototype or service-yard loop member.
+@evidence obligations/design/instances.md#instance-placement-review The aggregate is refused when any storage member overlaps another member, exits `votive-storage-room`, loses contact, or enters the protected observation route.
+
+Authority and status: `author-adopted` aggregate handoff required by the settings subject inventory. The member H2s below retain the independent population decisions.
 
 ## Storage shelf population {#storage-shelf-population}
 
@@ -123,7 +141,17 @@ Authority and status: `author-adopted` four-member population. Baskets remain op
 
 Authority and status: `author-adopted` singleton population. Display count and wall construction are not delegated to the instance layer.
 
-## Ceramic vessel population {#ceramic-and-basket-population}
+## Ceramic and basket population {#ceramic-and-basket-population}
+
+@evidence principles/design/instances.md#instance-prototype-boundary The combined prop population reuses only the reviewed ceramic-vessel and storage-basket prototypes; vessel scale or basket tone variation cannot cross into a new silhouette or close the basket cavity.
+@evidence principles/design/instances.md#instance-derivation-authority The combined membership is the union of the explicit communal/storage vessel IDs and storage basket IDs, each derived from its named host and seed rather than a shared traversal counter.
+@evidence principles/design/instances.md#instance-verification-address The aggregate review checks communal display readability, shelf contact, open negative space, and route clearance across both prop subsets.
+@evidence obligations/design/instances.md#instance-prototype-membership The union contains six ceramic vessels and four storage baskets, with every member bound to exactly one reviewed prototype and host subset.
+@evidence obligations/design/instances.md#instance-placement-review The aggregate is refused if a vessel or basket floats, leaves its host, occludes the display recess, or intersects a protected route even when the other subset passes.
+
+Authority and status: `author-adopted` aggregate handoff required by the settings subject inventory. The independent ceramic and basket member rules remain in their own H2s.
+
+## Ceramic vessel population {#ceramic-vessel-population}
 
 @evidence principles/design/instances.md#instance-prototype-boundary Six members reuse `ceramic-vessel-prototype`; scale and warm/cool tone variation stay within the prototype silhouette and do not add a new neck or rim design.
 @evidence principles/design/instances.md#instance-derivation-authority IDs `vessel/communal/00..02` and `vessel/storage/00..02` derive from two explicit host subsets and seed `temple-vessels-v1`, not from object creation order.

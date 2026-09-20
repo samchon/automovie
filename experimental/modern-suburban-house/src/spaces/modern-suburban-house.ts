@@ -260,6 +260,14 @@ const horizontalRouteLength = (route: readonly IAutoMovieVector3[]): number =>
     return total + Math.hypot(point.x - previous.x, point.z - previous.z);
   }, 0);
 
+const pointInsideSpace = (point: IAutoMovieVector3, space: Space): boolean =>
+  point.x >= space.bounds.min.x
+  && point.x <= space.bounds.max.x
+  && point.y >= space.bounds.min.y
+  && point.y <= space.bounds.max.y
+  && point.z >= space.bounds.min.z
+  && point.z <= space.bounds.max.z;
+
 const passageRoute = (
   opening: Opening,
   from: Space,
@@ -283,11 +291,24 @@ const passageRoute = (
       (to.bounds.min.z + to.bounds.max.z) / 2,
     ),
   );
-  return [
+  const route = [
     vector(center.x + fromDirection.x * 0.45, floorY, center.z + fromDirection.z * 0.45),
     center,
     vector(center.x + toDirection.x * 0.45, floorY, center.z + toDirection.z * 0.45),
   ];
+  const fromEndpoint = route[0]!;
+  const toEndpoint = route[route.length - 1]!;
+  if (!pointInsideSpace(fromEndpoint, from) || !pointInsideSpace(toEndpoint, to)) {
+    throw new Error(
+      `space-source passage refused: ${opening.id} endpoint outside ${from.id} or ${to.id}`,
+    );
+  }
+  if (!from.adjacentSpaceIds.includes(to.id) || !to.adjacentSpaceIds.includes(from.id)) {
+    throw new Error(
+      `space-source passage refused: ${opening.id} adjacency is not reciprocal for ${from.id} and ${to.id}`,
+    );
+  }
+  return route;
 };
 
 const environmentConnectors = (): IAutoMovieBuiltConnector[] => {
@@ -298,7 +319,16 @@ const environmentConnectors = (): IAutoMovieBuiltConnector[] => {
     if (opening.fromSpaceId === null || opening.toSpaceId === null) continue;
     const from = spaceById.get(opening.fromSpaceId);
     const to = spaceById.get(opening.toSpaceId);
-    if (from === undefined || to === undefined || from.storeyId !== to.storeyId) continue;
+    if (from === undefined || to === undefined) {
+      throw new Error(
+        `space-source passage refused: ${opening.id} has a missing space endpoint`,
+      );
+    }
+    if (from.storeyId !== to.storeyId) {
+      throw new Error(
+        `space-source passage refused: ${opening.id} crosses storeys without the stair connector`,
+      );
+    }
     const key = pairKey(from.id, to.id);
     if (seen.has(key)) continue;
     seen.add(key);
