@@ -1,0 +1,117 @@
+{
+  "recorded": "2026-09-20",
+  "repositories": [
+    {
+      "name": "MPFB2",
+      "url": "https://github.com/makehumancommunity/mpfb2.git",
+      "revision": "817587ceb2ea03ea17a5b47e04396cbb4ddfa2d5",
+      "local": ".references/mpfb2",
+      "license": "GPL-3.0-or-later for the add-on code (used offline inside Blender only, never copied into the runtime); CC0 for the data assets under src/mpfb/data (LICENSE.ASSETS.md)",
+      "use": "neutral base mesh, macro and regional body targets, joint cubes, game_engine rig and weights, mirror table"
+    },
+    {
+      "name": "MPFB extra targets",
+      "url": "https://github.com/makehumancommunity/extra-targets.git",
+      "revision": "7eaba3453134385bb5ea9811ef0b33b85b4b556d",
+      "local": ".references/mpfb-extra-targets",
+      "license": "CC0",
+      "use": "facial expression endpoints of the face track; not consumed by the body basis, pinned so both tracks cite one revision"
+    },
+    {
+      "name": "MakeHuman 1.x",
+      "url": "https://github.com/makehumancommunity/makehuman.git",
+      "revision": "a8bc2d54ff0ac92e78ff71431b1023eda42bf482",
+      "local": ".references/makehuman-official",
+      "license": "AGPL-3.0 for the application code (read only, nothing transplanted); CC0 for data",
+      "use": "measurement modifier catalogue (data/modifiers/measurement_modifiers.json) as the list of measure targets; the Ruler vertex lists inside plugin code are not copied, the body defines its own ISO 7250-1 rulers"
+    },
+    {
+      "name": "OpenRigLogic 5.8",
+      "url": "https://github.com/EpicGames/OpenRigLogic.git",
+      "revision": "7b9e7a88898f51f29aa308acb4877276f27e1507",
+      "local": ".references/metahuman/OpenRigLogic",
+      "license": "MIT (code only; MetaHuman sample assets and the Creator database are not imported)",
+      "use": "evaluation order (RigLogicImpl.cpp), corrective product activation (psdnet/PSDNetImpl.cpp), pose-space RBF interpolation (rbf/cpu), joint evaluation (joints/cpu/CPUJointsEvaluator.cpp)"
+    }
+  ],
+  "anthropometry": {
+    "name": "ANSUR II public working data (2012)",
+    "url": "https://tools.openlab.psu.edu/publicData/",
+    "publisher": "Penn State OPEN Design Lab mirror of the U.S. Army Natick Soldier RD&E Center release",
+    "license": "U.S. Government public data",
+    "files": [
+      {
+        "file": "ANSUR_II_MALE_Public.csv",
+        "bytes": 2000794,
+        "sha256": "0547aea0170e5293de519389981135e75803f02e6d40c77ace740decc0caac64",
+        "subjects": 4082
+      },
+      {
+        "file": "ANSUR_II_FEMALE_Public.csv",
+        "bytes": 976573,
+        "sha256": "ed7e800aa97a4d42f8286b988be2fe1883a2e789588169db959864b707d1757a",
+        "subjects": 1986
+      },
+      {
+        "file": "ANSURII-TR15-007.pdf",
+        "bytes": 7331853,
+        "sha256": "c43cfc2142bb71efaa02581aef5c6ceb813217fcd232b426b68de24ca5e9a740",
+        "role": "measurement definitions and summary statistics"
+      },
+      {
+        "file": "ANSURII-TR11-017.pdf",
+        "bytes": 5224258,
+        "sha256": "d31d6333bbe5cc2a09aa2519c4af4c230735de4caac68fd2148dad3d00dfd42c",
+        "role": "measurer's handbook"
+      },
+      {
+        "file": "ANSURII-MFR.pdf",
+        "bytes": 158682,
+        "sha256": "0b7f419b43e8e65bed0725154e049ce4c7558776cf28efb9b97b6681297702cc",
+        "role": "memorandum for record on the public release"
+      }
+    ],
+    "summary": "anthropometry-percentiles.json, produced by test/scripts/body-review/ansur2-percentiles.py"
+  },
+  "rangeOfMotion": {
+    "primary": {
+      "name": "38 CFR 4.71 Plates I and II, and 4.71a General Rating Formula Note (2)",
+      "edition": "Code of Federal Regulations, Title 38, revised as of July 1, 2025 (GovInfo print), and eCFR title 38 up to date as of 2026-09-17",
+      "urls": [
+        "https://www.govinfo.gov/content/pkg/CFR-2025-title38-vol1/pdf/CFR-2025-title38-vol1-sec4-71.pdf",
+        "https://www.govinfo.gov/content/pkg/CFR-2025-title38-vol1/pdf/CFR-2025-title38-vol1-sec4-71a.pdf",
+        "https://www.ecfr.gov/api/versioner/v1/full/2026-09-17/title-38.xml?section=4.71a"
+      ],
+      "local": ".references/rom/",
+      "license": "U.S. federal regulation, public domain",
+      "values": {
+        "shoulder": { "forwardElevation": [0, 180], "abduction": [0, 180], "externalRotation": [0, 90], "internalRotation": [0, 90] },
+        "elbow": { "flexion": [0, 145] },
+        "forearm": { "pronation": [0, 80], "supination": [0, 85] },
+        "wrist": { "dorsiflexion": [0, 70], "palmarFlexion": [0, 80], "ulnarDeviation": [0, 45], "radialDeviation": [0, 20] },
+        "hip": { "flexion": [0, 125], "abduction": [0, 45] },
+        "knee": { "flexion": [0, 140] },
+        "ankle": { "dorsiflexion": [0, 20], "plantarFlexion": [0, 45] },
+        "cervicalSpine": { "forwardFlexion": [0, 45], "extension": [0, 45], "lateralFlexionEachSide": [0, 45], "rotationEachSide": [0, 80] },
+        "thoracolumbarSpine": { "forwardFlexion": [0, 90], "extension": [0, 30], "lateralFlexionEachSide": [0, 30], "rotationEachSide": [0, 30] }
+      }
+    },
+    "secondary": {
+      "name": "AAOS, Joint Motion: Method of Measuring and Recording (1965), as quoted in issue #2519",
+      "use": "only the axes the primary source does not state",
+      "values": {
+        "shoulder": { "extension": [0, 60] },
+        "hip": { "extension": [0, 30], "internalRotation": [0, 45], "externalRotation": [0, 45] }
+      }
+    },
+    "segmentRatios": {
+      "name": "Drillis and Contini (1966) segment length to stature ratios, as quoted in issue #2519",
+      "values": { "upperArm": 0.186, "forearm": 0.146, "thigh": 0.245, "shank": 0.246 }
+    }
+  },
+  "excluded": [
+    "MetaHuman sample meshes, DNA files and the Creator database",
+    "MakeHuman and MPFB application code at runtime",
+    "third-party redistributions of ANSUR II"
+  ]
+}
