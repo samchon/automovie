@@ -303,4 +303,45 @@ export const test_validation_mesh_topology = (): void => {
     topo(weldedBox, true),
     { success: true },
   );
+
+  // 10. edge incidence is counted on packed pairs of welded vertex ids, which
+  // stay unique only while the vertex count is below 2^26. A mesh at that
+  // count is refused with the limit named, before any per-vertex allocation:
+  // a holey positions array of that length costs nothing to declare, so the
+  // refusal is exercised without materialising 67 million vertices.
+  TestValidator.error(
+    "a mesh at the packed-id limit is refused, not aliased",
+    () =>
+      validateMeshTopology({
+        mesh: {
+          positions: new Array<number>(3 * 2 ** 26),
+          indices: [0, 1, 2],
+          normals: null,
+          uvs: null,
+          skin: null,
+        },
+      }),
+  );
+  TestValidator.predicate(
+    "the refusal names the vertex limit",
+    (() => {
+      try {
+        validateMeshTopology({
+          mesh: {
+            positions: new Array<number>(3 * 2 ** 26),
+            indices: [0, 1, 2],
+            normals: null,
+            uvs: null,
+            skin: null,
+          },
+        });
+        return false;
+      } catch (error) {
+        return (
+          error instanceof Error &&
+          error.message.includes(`fewer than ${2 ** 26} vertices`)
+        );
+      }
+    })(),
+  );
 };
