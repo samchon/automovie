@@ -58,7 +58,7 @@ const activation = (
  * 3. A driver with a peak is an in-between: whole at the peak, gone at full.
  * 4. A surface the document names but the corrective has no rows for is left alone.
  * 5. A document without correctives is exactly what it was.
- * 6. An identity taken by a channel or a basis corrective, an empty or duplicate driver set, a gain outside (0,1], a driver no channel carries, a peak outside (0,1], and malformed rows each refuse.
+ * 6. An identity taken by a channel, a basis corrective or another document corrective, an empty or duplicate driver set, a gain outside (0,1], a driver no channel carries, a peak outside (0,1], and malformed rows each refuse.
  */
 export const test_subject_human_basis_document_correctives = (): void => {
   const { basis, document } = withOwn();
@@ -232,6 +232,16 @@ export const test_subject_human_basis_document_correctives = (): void => {
         createHumanFaceBasisBuilder(b)(d);
       }, reason),
     );
+  TestValidator.predicate(
+    "two document correctives sharing an identity refuse",
+    throwsError(() => {
+      const { basis: b, document: d } = withOwn();
+      createHumanFaceBasisBuilder(b)({
+        ...d,
+        correctives: [...d.correctives!, { ...d.correctives![0] }],
+      });
+    }, "unclaimed identity"),
+  );
   TestValidator.predicate(
     "an identity taken by a basis corrective refuses",
     throwsError(() => {
