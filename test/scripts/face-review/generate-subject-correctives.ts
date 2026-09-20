@@ -37,12 +37,19 @@ import { LIMIT } from "./push-out";
 import {
   type ISolvedCombination,
   type Parts,
+  appearedAt,
   solveCombination,
   wornFrom,
 } from "./solve-combination";
 
-/** The in-between's peak, and the weight the second tier is solved at. */
+/** The in-between's peak, and the weight the later tiers are solved at. */
 const HALF = 0.5;
+/** The weight grid after full weight, each tier worn with every earlier one present. */
+const TIERS: [number, number][] = [
+  [HALF, 1],
+  [1, HALF],
+  [HALF, HALF],
+];
 /** The part a channel makes the agent of its pose, which the lips then part around. */
 const AGENTS: Record<string, string> = {
   tongueOut: "Human.tongue01/Human.tongue01",
@@ -135,6 +142,19 @@ const offending = enumeration.all
   .sort(
     (a, b) => b.interaction - a.interaction || a.pair.localeCompare(b.pair),
   );
+// The later tiers also visit every pair the basis's own receipt names: a pair
+// that does not cross on this face at full weight can still cross at half,
+// where the basis in-between lands beside this face's crossing, and only a
+// pair somebody has enumerated is ever looked at. Half-weight enumeration
+// itself is not run; this is the superset in hand.
+const shared = (
+  JSON.parse(
+    fs.readFileSync(`${published}/pair-corrective-receipt.json`, "utf8"),
+  ) as { combinations: { combination: string }[] }
+).combinations.map((one) => one.combination);
+const later = [
+  ...new Set([...offending.map((one) => one.pair), ...shared]),
+].sort((a, b) => a.localeCompare(b));
 console.log(
   `${subject}: ${offending.length} of ${enumeration.pairs} combinations invent a crossing`,
 );
@@ -145,17 +165,19 @@ for (const surface of basis.surfaces)
     parts.set(region.id, { surface: surface.id, indices: region.indices });
 const build = createHumanFaceBasisBuilder(basis);
 const own: Own[] = [];
-/** This subject worn at one expression, with the correctives solved so far. */
+/** This subject at one expression, with the correctives solved so far. */
+const model = (expression: Record<string, number>) =>
+  build({
+    ...document,
+    expression,
+    hair: undefined,
+    correctives: own.length > 0 ? own : undefined,
+  });
 const wearing = (expression: Record<string, number>) =>
   wornFrom(
     basis,
     new Map(
-      build({
-        ...document,
-        expression,
-        hair: undefined,
-        correctives: own.length > 0 ? own : undefined,
-      }).parts.map((part) => [
+      model(expression).parts.map((part) => [
         part.id,
         (part.geometry as { type: "mesh"; mesh: IAutoMovieMesh }).mesh,
       ]),
@@ -175,7 +197,21 @@ const keep = (
   solved: ISolvedCombination,
 ): boolean => {
   if (!solved.publishable) return false;
-  own.push({ id, inputs, weight: 1, targets: Object.fromEntries(solved.rows) });
+  // Rows are kept to the micrometre the identity rows are kept to; a row that
+  // rounds to nothing is not a moved vertex.
+  const targets: Record<string, number[]> = {};
+  for (const [surface, rows] of solved.rows) {
+    const kept: number[] = [];
+    for (let i = 0; i < rows.length; i += 4) {
+      const [x, y, z] = [1, 2, 3].map(
+        (k) => Math.round(rows[i + k] * 1e6) / 1e6,
+      );
+      if (x === 0 && y === 0 && z === 0) continue;
+      kept.push(rows[i], x, y, z);
+    }
+    if (kept.length > 0) targets[surface] = kept;
+  }
+  own.push({ id, inputs, weight: 1, targets });
   return true;
 };
 const record = (
@@ -228,47 +264,53 @@ for (const one of offending) {
   if (kept) firstTier.set(one.pair, id);
   record(one.pair, "1,1", id, kept, solved);
 }
-console.log(`\n${subject}: second tier at half weight on one channel`);
-for (const one of offending) {
-  const full = firstTier.get(one.pair);
-  if (full === undefined) continue;
-  const [first, second] = one.pair.split(" + ");
-  for (const halved of [first, second]) {
-    const other = halved === first ? second : first;
+// Later tiers: each corrected pair at every grid weight, worn with every
+// earlier tier present, the crossing measured at that pose against its own
+// singles. A single never fires a pair corrective, so the singles are cached
+// across tiers.
+const alone = new Map<string, Set<string>>();
+for (const [wa, wb] of TIERS) {
+  console.log(
+    `\n${subject}: tier at (${wa}, ${wb}), with every earlier tier present`,
+  );
+  for (const pair of later) {
+    const [first, second] = pair.split(" + ");
+    const full = firstTier.get(pair) ?? `${first}${capital(second)}Own`;
+    const expression = { [first]: wa, [second]: wb };
+    const appeared = appearedAt(model, expression, alone);
+    if (appeared.length === 0) {
+      receipts.push({
+        combination: pair,
+        weights: `${wa},${wb}`,
+        corrective: null,
+        crossings: [],
+      });
+      continue;
+    }
+    const label = `${pair} @(${wa},${wb})`;
     const solved = solveCombination(
-      wearing({ [halved]: HALF, [other]: 1 }),
-      one.appeared,
+      wearing(expression),
+      appeared,
       parts,
       atRest,
       limit,
       agentsOf([first, second]),
-      (line) =>
-        console.log(`${`${one.pair} @${halved}=${HALF}`.padEnd(40)} ${line}`),
+      (line) => console.log(`${label.padEnd(40)} ${line}`),
     );
-    const id = `${full}${halved === first ? "First" : "Second"}Half`;
+    const id = `${full}${wa < 1 ? "First" : ""}${wb < 1 ? "Second" : ""}Half`;
     const kept = keep(
       id,
       [
-        {
-          channel: first,
-          side: "positive",
-          ...(halved === first ? { peak: HALF } : {}),
-        },
+        { channel: first, side: "positive", ...(wa < 1 ? { peak: HALF } : {}) },
         {
           channel: second,
           side: "positive",
-          ...(halved === second ? { peak: HALF } : {}),
+          ...(wb < 1 ? { peak: HALF } : {}),
         },
       ],
       solved,
     );
-    record(
-      one.pair,
-      halved === first ? `${HALF},1` : `1,${HALF}`,
-      id,
-      kept,
-      solved,
-    );
+    record(pair, `${wa},${wb}`, id, kept, solved);
   }
 }
 const solved: Solved = { subject, basis: basis.id, correctives: own, receipts };

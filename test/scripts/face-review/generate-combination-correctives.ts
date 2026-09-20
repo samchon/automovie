@@ -44,6 +44,7 @@ import {
   type ISolvedCombination,
   type Parts,
   type Worn,
+  appearedAt,
   solveCombination,
   wornFrom,
 } from "./solve-combination";
@@ -52,8 +53,17 @@ import {
 const REVISION = "mpfb-connected-head-2026-09-20-pair-correctives";
 const SUCCEEDS = "mpfb-connected-head-2026-09-20-rigid-mandible";
 
-/** The second tier's poses: which channel is halved, and the in-between's peak. */
+/** The in-between's peak, and the weight the later tiers are solved at. */
 const HALF = 0.5;
+/**
+ * The weight grid after full weight, in the order it is solved. Each tier is
+ * worn with every earlier tier present, so what it solves is what those leave.
+ */
+const TIERS: [number, number][] = [
+  [HALF, 1],
+  [1, HALF],
+  [HALF, HALF],
+];
 
 /** The part a channel makes the agent of its pose, which the lips then part around. */
 const AGENTS: Record<string, string> = {
@@ -126,10 +136,9 @@ for (const surface of basis.surfaces)
   for (const region of surface.regions)
     parts.set(region.id, { surface: surface.id, indices: region.indices });
 
-/** A builder's head worn at one expression, over shared vertices. */
-const wearer =
-  (build: ReturnType<typeof createHumanFaceBasisBuilder>) =>
-  (expression: Record<string, number>): Worn => {
+/** A builder's neutral head at one expression: the model, and it over shared vertices. */
+const wearer = (build: ReturnType<typeof createHumanFaceBasisBuilder>) => {
+  const model = (expression: Record<string, number>) => {
     const document: IAutoMovieHumanFaceBasisDocument = {
       id: "neutral",
       name: "neutral",
@@ -137,16 +146,20 @@ const wearer =
       shape: {},
       expression,
     };
-    return wornFrom(
+    return build(document);
+  };
+  const worn = (expression: Record<string, number>): Worn =>
+    wornFrom(
       basis,
       new Map(
-        build(document).parts.map((part) => [
+        model(expression).parts.map((part) => [
           part.id,
           (part.geometry as { type: "mesh"; mesh: IAutoMovieMesh }).mesh,
         ]),
       ),
     );
-  };
+  return { model, worn };
+};
 const capital = (id: string) => id[0].toUpperCase() + id.slice(1);
 
 type Corrective = NonNullable<IAutoMovieHumanFaceBasis["correctives"]>[number];
@@ -179,7 +192,7 @@ const verdict = (kept: boolean, id: string, solved: ISolvedCombination) =>
 
 // First tier: every offending pair at full weight on both channels.
 header();
-const wearing = wearer(createHumanFaceBasisBuilder(basis));
+const { worn: wearing } = wearer(createHumanFaceBasisBuilder(basis));
 const atRest = wearing({});
 const chosen = offending.slice(0, budget);
 const firstTier = new Map<string, string>();
@@ -215,63 +228,71 @@ for (const one of chosen) {
   });
 }
 
-// Second tier: each corrected pair at half weight on one channel, worn with
-// the first tier present so only what the half-strength corrective leaves is
-// solved. The in-between's halved driver peaks at ½; the other stays a clamp.
-const staged: IAutoMovieHumanFaceBasis = structuredClone(basis);
-staged.correctives = [...(staged.correctives ?? []), ...correctives];
-for (const surface of staged.surfaces)
-  for (const [id, rows] of targets) {
-    const mine = rows.get(surface.id);
-    if (mine !== undefined) surface.targets[id] = mine;
-  }
-console.log("\nsecond tier: the corrected pairs at half weight on one channel");
-header();
-const wearingStaged = wearer(createHumanFaceBasisBuilder(staged));
-for (const one of chosen) {
-  const full = firstTier.get(one.pair);
-  if (full === undefined) continue;
-  const [first, second] = one.pair.split(" + ");
-  for (const halved of [first, second]) {
-    const other = halved === first ? second : first;
+// Later tiers: each corrected pair at every grid weight, worn with every
+// earlier tier present so only what those leave is solved. The crossing to
+// answer is measured at that pose against its own singles, because a pair
+// that crosses teeth and lips at full weight can cross teeth and skin at
+// half. A halved driver peaks at half, so the in-between is gone at full.
+let staged: IAutoMovieHumanFaceBasis = basis;
+const stage = (): IAutoMovieHumanFaceBasis => {
+  const next = structuredClone(basis);
+  next.correctives = [...(next.correctives ?? []), ...correctives];
+  for (const surface of next.surfaces)
+    for (const [id, rows] of targets) {
+      const mine = rows.get(surface.id);
+      if (mine !== undefined) surface.targets[id] = mine;
+    }
+  return next;
+};
+for (const [wa, wb] of TIERS) {
+  staged = stage();
+  console.log(`\ntier at (${wa}, ${wb}), with every earlier tier present`);
+  header();
+  const { model, worn } = wearer(createHumanFaceBasisBuilder(staged));
+  const alone = new Map<string, Set<string>>();
+  for (const one of chosen) {
+    const [first, second] = one.pair.split(" + ");
+    // A pair without a full-weight corrective can still cross at half weight
+    // and gets an in-between under the name the full one would have had.
+    const full = firstTier.get(one.pair) ?? `${first}${capital(second)}Clear`;
+    const expression = { [first]: wa, [second]: wb };
+    const appeared = appearedAt(model, expression, alone);
+    const label = `${one.pair} @(${wa},${wb})`;
+    if (appeared.length === 0) {
+      receipts.push({
+        combination: one.pair,
+        weights: `${wa},${wb}`,
+        corrective: null,
+        crossings: [],
+      });
+      continue;
+    }
     const solved = solveCombination(
-      wearingStaged({ [halved]: HALF, [other]: 1 }),
-      one.appeared,
+      worn(expression),
+      appeared,
       parts,
       atRest,
       limit,
       agentsOf([first, second]),
-      (line) =>
-        console.log(`${`${one.pair} @${halved}=${HALF}`.padEnd(40)} ${line}`),
+      (line) => console.log(`${label.padEnd(40)} ${line}`),
     );
-    const id = `${full}${halved === first ? "First" : "Second"}Half`;
+    const id = `${full}${wa < 1 ? "First" : ""}${wb < 1 ? "Second" : ""}Half`;
     const kept = keep(
       id,
       [
-        {
-          channel: first,
-          side: "positive",
-          ...(halved === first ? { peak: HALF } : {}),
-        },
+        { channel: first, side: "positive", ...(wa < 1 ? { peak: HALF } : {}) },
         {
           channel: second,
           side: "positive",
-          ...(halved === second ? { peak: HALF } : {}),
+          ...(wb < 1 ? { peak: HALF } : {}),
         },
       ],
       solved,
     );
-    // Nothing to solve at this pose is the first tier having carried it,
-    // which is the outcome that wants no in-between at all.
-    if (
-      solved.outcomes.some(
-        (o) => o.outcome === "repaired" || o.outcome === "beyond the budget",
-      )
-    )
-      verdict(kept, id, solved);
+    verdict(kept, id, solved);
     receipts.push({
       combination: one.pair,
-      weights: halved === first ? `${HALF},1` : `1,${HALF}`,
+      weights: `${wa},${wb}`,
       corrective: kept ? id : null,
       movedVertices: solved.movedVertices,
       creaseMillimetres: solved.creaseMetres * 1000,
@@ -279,6 +300,7 @@ for (const one of chosen) {
     });
   }
 }
+staged = stage();
 
 const counted = (what: string) =>
   receipts
@@ -312,14 +334,6 @@ else {
   for (const corrective of correctives)
     if (taken.has(corrective.id))
       throw new Error(`${corrective.id} is already a channel or corrective`);
-  // The staged basis already carries the first tier; the in-betweens join it.
-  for (const corrective of correctives.slice(firstTier.size)) {
-    staged.correctives!.push(corrective);
-    for (const surface of staged.surfaces) {
-      const mine = targets.get(corrective.id)!.get(surface.id);
-      if (mine !== undefined) surface.targets[corrective.id] = mine;
-    }
-  }
   const was = basis.id;
   staged.id = REVISION;
   fs.writeFileSync(file, gzipSync(`${JSON.stringify(staged)}\n`, { level: 9 }));
@@ -369,6 +383,7 @@ else {
         },
         budgetMillimetres: limit * 1000,
         inBetweenPeak: HALF,
+        weightGrid: [[1, 1], ...TIERS],
         published: correctives.map((one) => one.id),
         combinations: receipts,
         restamped,

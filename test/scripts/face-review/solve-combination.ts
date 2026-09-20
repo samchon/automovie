@@ -27,8 +27,9 @@
  * Consumers: `generate-combination-correctives.ts`. Nothing here reads or
  * writes the published study.
  */
+import { measureAutoMovieModelCrossings } from "@automovie/engine";
 import type { IAutoMovieHumanFaceBasis } from "@automovie/human";
-import type { IAutoMovieMesh } from "@automovie/interface";
+import type { IAutoMovieMesh, IAutoMovieModel } from "@automovie/interface";
 
 import { neighboursOf, pushOut } from "./push-out";
 
@@ -119,6 +120,44 @@ const creaseOf = (
       );
     }
   return worst;
+};
+
+/** The part pairs a built model crosses on, each named once, sorted. */
+export const crossingPairs = (model: IAutoMovieModel): Set<string> => {
+  const found = new Set<string>();
+  for (const crossing of measureAutoMovieModelCrossings(model))
+    found.add(
+      [crossing.part, crossing.other]
+        .sort((a, b) => a.localeCompare(b))
+        .join(" x "),
+    );
+  return found;
+};
+
+/**
+ * The part pairs a pose makes cross that neither of its channels makes cross
+ * alone at the same weight: the enumeration's criterion, asked of one pose.
+ * `alone` is a cache of single-channel crossings keyed `channel@weight`, so a
+ * grid of poses over the same channels builds each single once.
+ */
+export const appearedAt = (
+  build: (expression: Record<string, number>) => IAutoMovieModel,
+  expression: Record<string, number>,
+  alone: Map<string, Set<string>>,
+): string[] => {
+  const singles = new Set<string>();
+  for (const [channel, weight] of Object.entries(expression)) {
+    const key = `${channel}@${weight}`;
+    let found = alone.get(key);
+    if (found === undefined) {
+      found = crossingPairs(build({ [channel]: weight }));
+      alone.set(key, found);
+    }
+    for (const pair of found) singles.add(pair);
+  }
+  return [...crossingPairs(build(expression))]
+    .filter((pair) => !singles.has(pair))
+    .sort((a, b) => a.localeCompare(b));
 };
 
 /** Read a worn head's parts out of the builder's model, over shared vertices. */

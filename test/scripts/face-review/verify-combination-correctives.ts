@@ -191,12 +191,15 @@ const crossed = (
   expression: Record<string, number>,
 ): Set<string> => {
   const found = new Set<string>();
+  // The before of the A/B is the face with no pair corrective anywhere, so
+  // the document's own correctives come off with the basis's.
   for (const crossing of measureAutoMovieModelCrossings(
     build({
       ...document,
       expression,
       hair: undefined,
       identity: withoutIdentity ? undefined : document.identity,
+      correctives: build === before ? undefined : document.correctives,
     }),
   ))
     found.add(
@@ -227,12 +230,27 @@ if (chosen.length === 0)
 
 // Every combination the generator saw, published or not: a pair beyond the
 // budget is reported on every subject too, so the receipt says what it costs.
-const combinations = [
-  ...new Set(receipt.combinations.map((one) => one.combination)),
-];
+// A subject's own enumeration, when it has one, adds the pairs that only it
+// makes cross, so its own correctives are verified as well as the basis's.
+const shared = receipt.combinations.map((one) => one.combination);
 for (const document of chosen) {
   const name = document.id.replace("-connected", "");
   const started = Date.now();
+  const own = `${investigation}/expression-pairs-${name}.json`;
+  const combinations = [
+    ...new Set([
+      ...shared,
+      ...(fs.existsSync(own)
+        ? (
+            JSON.parse(fs.readFileSync(own, "utf8"))[name] as {
+              all: { pair: string; appeared: string[] }[];
+            }
+          ).all
+            .filter((one) => one.appeared.length > 0)
+            .map((one) => one.pair)
+        : []),
+    ]),
+  ];
   // Singles do not depend on the pair correctives (a product with one factor
   // at zero is zero), so one builder serves both sides of the A/B.
   const single = new Map<string, Set<string>>();
