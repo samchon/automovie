@@ -10,7 +10,34 @@ All transforms below use `(X,Y,Z)` metres in the reviewed world frame, with Y as
 @evidence principles/design/instances.md#instance-derivation-authority Column IDs `column/south/00..07`, `column/north/00..07`, `column/west/00..03`, and `column/east/00..03` derive from the ordered perimeter cells and fixed 2.00m spacing, not traversal order.
 @evidence principles/design/instances.md#instance-verification-address The worst cases are the four inside corners and the two columns nearest the south entry, where the 0.30m protected route band must remain clear.
 @evidence obligations/design/instances.md#instance-prototype-membership The complete set is 24 instances of `column-prototype`, with membership determined by the four reviewed colonnade sides and no columns inside rooms or the courtyard.
-@evidence obligations/design/instances.md#instance-identity-transform Each member uses its stable perimeter ID, floor contact origin, Y-up transform, zero rotation on north/south runs, and quarter-turn rotation on west/east runs.
+@evidence obligations/design/instances.md#instance-identity-transform The complete 24-member census below fixes every stable perimeter ID, exact host and surface, floor-contact transform, yaw, prototype world bounds, and reviewed loop cell; no column is represented only by a spacing rule.
+| Member ID | Exact host / surface | Transform | Prototype world bounds | Reviewed cell |
+|---|---|---|---|---|
+| column/south/00 | building / surface/loop-floor | (-7.00, 0.00, -5.15) / yaw 0 degrees | X -7.22..-6.78, Y 0.00..3.20, Z -5.38..-4.93 | loop/south/00 |
+| column/south/01 | building / surface/loop-floor | (-5.00, 0.00, -5.15) / yaw 0 degrees | X -5.22..-4.78, Y 0.00..3.20, Z -5.38..-4.93 | loop/south/01 |
+| column/south/02 | building / surface/loop-floor | (-3.00, 0.00, -5.15) / yaw 0 degrees | X -3.23..-2.77, Y 0.00..3.20, Z -5.38..-4.93 | loop/south/02 |
+| column/south/03 | building / surface/loop-floor | (-1.00, 0.00, -5.15) / yaw 0 degrees | X -1.23..-0.78, Y 0.00..3.20, Z -5.38..-4.93 | loop/south/03 |
+| column/south/04 | building / surface/loop-floor | (1.00, 0.00, -5.15) / yaw 0 degrees | X 0.78..1.23, Y 0.00..3.20, Z -5.38..-4.93 | loop/south/04 |
+| column/south/05 | building / surface/loop-floor | (3.00, 0.00, -5.15) / yaw 0 degrees | X 2.77..3.23, Y 0.00..3.20, Z -5.38..-4.93 | loop/south/05 |
+| column/south/06 | building / surface/loop-floor | (5.00, 0.00, -5.15) / yaw 0 degrees | X 4.78..5.22, Y 0.00..3.20, Z -5.38..-4.93 | loop/south/06 |
+| column/south/07 | building / surface/loop-floor | (7.00, 0.00, -5.15) / yaw 0 degrees | X 6.78..7.22, Y 0.00..3.20, Z -5.38..-4.93 | loop/south/07 |
+| column/north/00 | building / surface/loop-floor | (-7.00, 0.00, 5.15) / yaw 0 degrees | X -7.22..-6.78, Y 0.00..3.20, Z 4.93..5.38 | loop/north/00 |
+| column/north/01 | building / surface/loop-floor | (-5.00, 0.00, 5.15) / yaw 0 degrees | X -5.22..-4.78, Y 0.00..3.20, Z 4.93..5.38 | loop/north/01 |
+| column/north/02 | building / surface/loop-floor | (-3.00, 0.00, 5.15) / yaw 0 degrees | X -3.23..-2.77, Y 0.00..3.20, Z 4.93..5.38 | loop/north/02 |
+| column/north/03 | building / surface/loop-floor | (-1.00, 0.00, 5.15) / yaw 0 degrees | X -1.23..-0.78, Y 0.00..3.20, Z 4.93..5.38 | loop/north/03 |
+| column/north/04 | building / surface/loop-floor | (1.00, 0.00, 5.15) / yaw 0 degrees | X 0.78..1.23, Y 0.00..3.20, Z 4.93..5.38 | loop/north/04 |
+| column/north/05 | building / surface/loop-floor | (3.00, 0.00, 5.15) / yaw 0 degrees | X 2.77..3.23, Y 0.00..3.20, Z 4.93..5.38 | loop/north/05 |
+| column/north/06 | building / surface/loop-floor | (5.00, 0.00, 5.15) / yaw 0 degrees | X 4.78..5.22, Y 0.00..3.20, Z 4.93..5.38 | loop/north/06 |
+| column/north/07 | building / surface/loop-floor | (7.00, 0.00, 5.15) / yaw 0 degrees | X 6.78..7.22, Y 0.00..3.20, Z 4.93..5.38 | loop/north/07 |
+| column/west/00 | building / surface/loop-floor | (-6.55, 0.00, -3.00) / yaw 90 degrees | X -6.77..-6.33, Y 0.00..3.20, Z -3.23..-2.77 | loop/west/00 |
+| column/west/01 | building / surface/loop-floor | (-6.55, 0.00, -1.00) / yaw 90 degrees | X -6.77..-6.33, Y 0.00..3.20, Z -1.23..-0.78 | loop/west/01 |
+| column/west/02 | building / surface/loop-floor | (-6.55, 0.00, 1.00) / yaw 90 degrees | X -6.77..-6.33, Y 0.00..3.20, Z 0.78..1.23 | loop/west/02 |
+| column/west/03 | building / surface/loop-floor | (-6.55, 0.00, 3.00) / yaw 90 degrees | X -6.77..-6.33, Y 0.00..3.20, Z 2.77..3.23 | loop/west/03 |
+| column/east/00 | building / surface/loop-floor | (6.55, 0.00, -3.00) / yaw 270 degrees | X 6.33..6.77, Y 0.00..3.20, Z -3.23..-2.77 | loop/east/00 |
+| column/east/01 | building / surface/loop-floor | (6.55, 0.00, -1.00) / yaw 270 degrees | X 6.33..6.77, Y 0.00..3.20, Z -1.23..-0.78 | loop/east/01 |
+| column/east/02 | building / surface/loop-floor | (6.55, 0.00, 1.00) / yaw 270 degrees | X 6.33..6.77, Y 0.00..3.20, Z 0.78..1.23 | loop/east/02 |
+| column/east/03 | building / surface/loop-floor | (6.55, 0.00, 3.00) / yaw 270 degrees | X 6.33..6.77, Y 0.00..3.20, Z 2.77..3.23 | loop/east/03 |
+The exact physical host for each column is the emitted `building` floor envelope because the end columns intentionally straddle the `colonnade-loop` semantic outer edge by their `0.225m` prototype radius; the final column is still assigned to one reviewed loop cell and does not enter a room or courtyard. The `loop/*` cell is the placement anchor, not a second host.
 @evidence obligations/design/instances.md#instance-placement-review The source must refuse a column whose footprint enters a room threshold, observation reservation, or the courtyard basin clearance.
 
 Authority and status: `author-adopted` instance population derived from the reviewed loop. The four side sequences use 24 members, each with the reviewed column prototype, floor contact at Y `0.00m`, and a fixed seed `temple-columns-v1`. The population has no hero override, LOD tier, motion, or independent geometry.
@@ -21,7 +48,13 @@ Authority and status: `author-adopted` instance population derived from the revi
 @evidence principles/design/instances.md#instance-derivation-authority Row IDs derive from roof host, slope side, row index, and tile index in the reviewed roof bounds; the source never derives identity from array position after filtering.
 @evidence principles/design/instances.md#instance-verification-address The eave, ridge-adjacent row, and each roof-corner tile are the review samples because overlap direction and underside contact can fail there first.
 @evidence obligations/design/instances.md#instance-prototype-membership Membership covers only the repeated low roof cover over the reviewed roof host, including the fixed ridge and edge subsets, and contains no wall, beam, or roof-mass prototype.
-@evidence obligations/design/instances.md#instance-identity-transform Each tile receives a stable row/tile ID, a deterministic transform from the roof slope axes, and the fixed seed `temple-roof-v1`.
+@evidence obligations/design/instances.md#instance-identity-transform The finite roof census below contains exactly 1,204 members: 442 each on the south and north covers and 160 each on the west and east covers. Every row domain, member ID, exact host element, surface, origin formula, yaw, and occupied bound is explicit; `temple-roof-v1` is the fixed seed.
+| Side | Exact member domain and ID | Host / surface | Transform and occupied bounds |
+|---|---|---|---|
+| south | roof-tile/south/r00..r12/c00..c33 (442 members; r 00..12, c 00..33) | building / roof/south-cover / surface/roof-cover | yaw 0 degrees; origin X -12.00 + (23.28/33)c, Y 3.60, Z -9.00 + (4.96/12)r; bounds X origin..origin+0.72, Y 3.60..3.70, Z origin..origin+0.44 |
+| north | roof-tile/north/r00..r12/c00..c33 (442 members; r 00..12, c 00..33) | building / roof/north-cover / surface/roof-cover | yaw 180 degrees; origin X `-12.00 + (23.28/33)c + 0.72`, Y `3.60`, Z `9.00 - (4.96/12)r`; bounds X origin-0.72..origin, Y `3.60..3.70`, Z origin-0.44..origin |
+| west | roof-tile/west/r00..r15/c00..c09 (160 members; r 00..15, c 00..09) | building / roof/west-cover / surface/roof-cover | yaw 90 degrees; origin X `-12.00 + (6.56/15)r`, Y `3.60`, Z `-2.88 + 0.72c`; bounds X origin..origin+0.44, Y `3.60..3.70`, Z origin-0.72..origin |
+| east | roof-tile/east/r00..r15/c00..c09 (160 members; r 00..15, c 00..09) | building / roof/east-cover / surface/roof-cover | yaw 270 degrees; origin X `12.00 - (6.56/15)r`, Y `3.60`, Z `-3.60 + 0.72c`; bounds X origin-0.44..origin, Y `3.60..3.70`, Z origin..origin+0.72 |
 @evidence obligations/design/instances.md#instance-placement-review The population must refuse a tile outside the roof host, with a reversed overlap direction, or without underside contact; it must preserve the host opening and edge limits.
 
 Authority and status: `author-adopted` repeated-envelope population. Rows are derived from the reviewed roof extent and the prototype span `0.72m`; the last tile in each row is a bounded edge member rather than a silently scaled replacement. Variation is limited to the material family value declared by `materials`; broken, glazed, or ornamental tiles are outside scope.
@@ -31,8 +64,17 @@ Authority and status: `author-adopted` repeated-envelope population. Rows are de
 @evidence principles/design/instances.md#instance-prototype-boundary All seven members reuse `door-prototype`; a state or material change cannot alter the reviewed rectangular frame and leaf silhouette.
 @evidence principles/design/instances.md#instance-derivation-authority IDs derive from the seven reviewed opening IDs, and each transform is read from its opening host rather than inferred from room traversal.
 @evidence principles/design/instances.md#instance-verification-address The south entrance and the three east-room doors are the representative set because the entry apron, shared separator faces, and direct thresholds test opposite host conditions.
-@evidence obligations/design/instances.md#instance-prototype-membership Membership is exactly `opening/south-entrance`, `opening/sanctuary-door`, `opening/communal-door`, `opening/administration-door`, `opening/records-door`, `opening/votive-storage-door`, and `opening/service-gate`.
-@evidence obligations/design/instances.md#instance-identity-transform Each ID is `door/<opening-id>`, uses the host opening centre and normal, keeps the leaf at the reviewed frame depth, and has seed `temple-doors-v1`.
+@evidence obligations/design/instances.md#instance-prototype-membership Membership is exactly the seven unprefixed opening record hosts `south-entrance`, `sanctuary-door`, `communal-votive-door`, `administration-door`, `records-door`, `votive-storage-door`, and `service-gate`; the `opening/...` strings are semantic element IDs and are not opening record IDs.
+@evidence obligations/design/instances.md#instance-identity-transform Each ID is `door/<opening-record-id>`, uses the exact opening record host shown below, keeps the leaf at the reviewed frame depth, and has seed `temple-doors-v1`; the seven exact transforms and prototype world bounds are:
+| Member ID | Opening record host | Transform | Prototype world bounds |
+|---|---|---|---|
+| door/south-entrance | south-entrance | (0.00, 0.00, -8.40) / yaw 0 degrees | X -0.73..0.73, Y 0.00..2.32, Z -8.60..-8.20 |
+| door/sanctuary-door | sanctuary-door | (0.00, 0.00, 5.80) / yaw 0 degrees | X -0.73..0.73, Y 0.00..2.32, Z 5.60..6.00 |
+| door/communal-votive-door | communal-votive-door | (-7.20, 0.00, 0.00) / yaw 90 degrees | X -7.40..-7.00, Y 0.00..2.32, Z -0.73..0.73 |
+| door/administration-door | administration-door | (7.20, 0.00, 3.90) / yaw 90 degrees | X 7.00..7.40, Y 0.00..2.32, Z 3.17..4.63 |
+| door/records-door | records-door | (7.20, 0.00, 1.00) / yaw 90 degrees | X 7.00..7.40, Y 0.00..2.32, Z 0.27..1.73 |
+| door/votive-storage-door | votive-storage-door | (7.20, 0.00, -2.95) / yaw 90 degrees | X 7.00..7.40, Y 0.00..2.32, Z -3.68..-2.22 |
+| door/service-gate | service-gate | (12.20, 0.00, 6.80) / yaw 90 degrees | X 12.00..12.40, Y 0.00..2.32, Z 6.07..7.53 |
 @evidence obligations/design/instances.md#instance-placement-review A member is refused if its frame does not bind to exactly one reviewed opening or if its occupied leaf/frame bounds cover the 1.20m room route after the explicit 1.10m door transition.
 
 Authority and status: `author-adopted` fixed population. Doors have no per-member geometry variation, hero override, or animation. The service gate remains a terminal access member and cannot create a loop edge.
@@ -60,10 +102,10 @@ Authority and status: `author-adopted` singleton population. This H2 preserves t
 ## Records table population {#records-table-population}
 
 @evidence principles/design/instances.md#instance-prototype-boundary The one member reuses `records-table-prototype`; its placement does not alter the open underside, tabletop, or four-leg silhouette.
-@evidence principles/design/instances.md#instance-derivation-authority The stable ID `records-table/00` and floor-contact transform are explicit authored values, independent of furniture iteration order; its adopted origin is `(10.60,0.00,1.80)` in the records-room southeast fit-out zone.
-@evidence principles/design/instances.md#instance-verification-address The records-room centre route is the review address because the table's `1.20m x 0.60m` footprint at `(10.60,0.00,1.80)` must leave the threshold-to-centre and cardinal route bands open.
+@evidence principles/design/instances.md#instance-derivation-authority The stable ID `records-table/00` and floor-contact transform are explicit authored values, independent of furniture iteration order; its adopted origin is `(10.80,0.00,0.00)` in the records-room south-east fit-out zone.
+@evidence principles/design/instances.md#instance-verification-address The records-room centre route is the review address because the table's `1.20m x 0.60m` footprint at `(10.80,0.00,0.00)` stays below the center-north reservation while preserving the direct threshold.
 @evidence obligations/design/instances.md#instance-prototype-membership The complete set contains one `records-table-prototype` member in `records-room`.
-@evidence obligations/design/instances.md#instance-identity-transform The member uses origin `(10.60,0.00,1.80)`, zero yaw, scale one, and seed `temple-records-furniture-v1`; its bounds are X `10.00..11.20m`, Z `1.50..2.10m`, and Y `0.00..0.76m`.
+@evidence obligations/design/instances.md#instance-identity-transform The member uses origin `(10.80,0.00,0.00)`, zero yaw, scale one, and seed `temple-records-furniture-v1`; its bounds are X `10.20..11.40m`, Z `-0.30..0.30m`, and Y `0.00..0.76m`.
 @evidence obligations/design/instances.md#instance-placement-review The member is refused if its declared bounds leave `records-room` X `7.40..11.40m`, Z `-0.30..2.30m`, intersect the route protection bands, or lose floor contact.
 
 Authority and status: `author-adopted` singleton work-surface population. The table is not a room boundary, a storage chest, or a second model prototype.
@@ -74,7 +116,7 @@ Authority and status: `author-adopted` singleton work-surface population. The ta
 @evidence principles/design/instances.md#instance-derivation-authority IDs `records-shelf/west` and `records-shelf/east` are explicit members of the records-room set and do not depend on discovery order.
 @evidence principles/design/instances.md#instance-verification-address The two side positions are reviewed against the table clearance and the room corners, where vertical storage can obscure the route or wall host.
 @evidence obligations/design/instances.md#instance-prototype-membership Membership is exactly two records shelf members in `records-room`, both bound to `records-shelf-prototype`.
-@evidence obligations/design/instances.md#instance-identity-transform `records-shelf/west` uses `(8.05,0.00,0.00)` yaw `0°`, world bounds X `7.60..8.50m`, Z `-0.16..0.16m`; `records-shelf/east` uses `(10.85,0.00,0.00)` yaw `0°`, world bounds X `10.40..11.30m`, Z `-0.16..0.16m`; both use floor contact, scale one, and seed `temple-records-furniture-v1`.
+@evidence obligations/design/instances.md#instance-identity-transform `records-shelf/west` uses `(8.05,0.00,-0.14)` yaw 0 degrees, world bounds X `7.60..8.50m`, Z `-0.30..0.02m`; `records-shelf/east` uses `(8.05,0.00,2.12)` yaw 0 degrees, world bounds X `7.60..8.50m`, Z `1.96..2.28m`; both use floor contact, scale one, and seed `temple-records-furniture-v1`.
 @evidence obligations/design/instances.md#instance-placement-review A shelf is refused if its frame leaves the room bounds, intersects the table, or enters the protected route band.
 
 Authority and status: `author-adopted` two-member population. The members are furniture placement only; board count and geometry remain model-owned.
@@ -83,9 +125,9 @@ Authority and status: `author-adopted` two-member population. The members are fu
 
 @evidence principles/design/instances.md#instance-prototype-boundary The single member reuses `records-chest-prototype`; no per-instance override opens the lid or changes its body/lid construction.
 @evidence principles/design/instances.md#instance-derivation-authority `records-chest/00` is an explicit member ID and its transform is anchored to the records-room furniture plan.
-@evidence principles/design/instances.md#instance-verification-address The low storage position beside the records table is the review address because its closed body must remain legible without narrowing the route.
+@evidence principles/design/instances.md#instance-verification-address The north-east records position is the review address because its closed body remains legible above the centre-north reservation without narrowing the route or the south table zone.
 @evidence obligations/design/instances.md#instance-prototype-membership The complete set contains one records chest in `records-room` bound to `records-chest-prototype`.
-@evidence obligations/design/instances.md#instance-identity-transform `records-chest/00` uses floor-contact transform `(8.00,0.00,2.00)`, yaw `0°`, scale one, seed `temple-records-furniture-v1`, and world bounds X `7.60..8.40m`, Z `1.775..2.225m` in the north-west records-room fit-out zone.
+@evidence obligations/design/instances.md#instance-identity-transform `records-chest/00` uses floor-contact transform `(10.80,0.00,1.95)`, yaw 0 degrees, scale one, seed `temple-records-furniture-v1`, and world bounds X `10.40..11.20m`, Z `1.725..2.175m` in the north-east records-room fit-out zone.
 @evidence obligations/design/instances.md#instance-placement-review The member is refused when its closed bounds overlap the table, shelf, threshold, or reserved route.
 
 Authority and status: `author-adopted` singleton population. Contents, lid motion, and a second records chest are outside this population.
@@ -127,7 +169,7 @@ Authority and status: `author-adopted` two-member population. Contents and lid m
 @evidence principles/design/instances.md#instance-derivation-authority IDs `storage-basket/00..03` are explicit and seeded, so their order and transforms remain stable when a shelf is edited.
 @evidence principles/design/instances.md#instance-verification-address The basket nearest the service-yard side and the highest shelf position are worst cases for grounding, collision, and readable negative space.
 @evidence obligations/design/instances.md#instance-prototype-membership The complete set contains four open baskets in `votive-storage-room`, each bound to `storage-basket-prototype` and no alternate basket model.
-@evidence obligations/design/instances.md#instance-identity-transform `storage-basket/00` is on `storage-shelf/south` at `(10.95,1.48,-4.55)` yaw `0°`, scale `1.00`; `storage-basket/01` is on `storage-shelf/middle` at `(10.95,1.13,-2.10)` yaw `6°`, scale `0.98`; `storage-basket/02` is on `storage-shelf/north` at `(10.95,1.48,-1.05)` yaw `-6°`, scale `1.02`; `storage-basket/03` is on the storage-room floor at `(8.15,0.00,-3.90)` yaw `4°`, scale `0.95`; all use seed `temple-storage-props-v1` and remain within the declared `0.95..1.05` range.
+@evidence obligations/design/instances.md#instance-identity-transform `storage-basket/00` is on `storage-shelf/south` at `(10.95,1.48,-4.55)` yaw 0 degrees, scale `1.00`; `storage-basket/01` is on `storage-shelf/middle` at `(10.95,1.13,-2.10)` yaw 6 degrees, scale `0.98`; `storage-basket/02` is on `storage-shelf/north` at `(10.95,1.48,-1.05)` yaw -6 degrees, scale `1.02`; `storage-basket/03` is on the storage-room floor at `(10.00,0.00,-4.60)` yaw 4 degrees, scale `0.95`; all use seed `temple-storage-props-v1` and remain within the declared `0.95..1.05` range.
 @evidence obligations/design/instances.md#instance-placement-review The source refuses an ungrounded basket, a basket whose cavity is occluded by a host, or any member that intersects the route protection band.
 
 Authority and status: `author-adopted` four-member population. Baskets remain open props and cannot become closed chests through variation.
