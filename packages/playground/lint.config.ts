@@ -1,8 +1,17 @@
 import { type ITtscEvidenceGraphConfig, evidence } from "@ttsc/evidence";
 import type { ITtscLintConfig } from "@ttsc/lint";
 
-/** The anatomical editor is a separate application surface; every other new module remains a prototype carrier. */
+/** The anatomical editors are separate application surfaces; every other new module remains a prototype carrier. */
 const prototypeSources = ["src/**/*.ts", "!src/human/**/*.ts"];
+/** The body editor's own adapters, which answer for the body contract and not the face's. */
+const bodySources = [
+  "src/human/connectedBodyPanel.ts",
+  "src/human/bodyPoseControls.ts",
+];
+const faceSources = [
+  "src/human/**/*.ts",
+  ...bodySources.map((one) => "!" + one),
+];
 
 /**
  * The private playground still carries a real deterministic-prototype contract.
@@ -22,7 +31,7 @@ const graph: ITtscEvidenceGraphConfig = {
     {
       name: "face application implements anatomical editor requirements",
       type: "typescript",
-      files: ["src/human/**/*.ts"],
+      files: faceSources,
       symbol: ["type", "function", "property"],
       reference: [
         {
@@ -45,7 +54,7 @@ const graph: ITtscEvidenceGraphConfig = {
     {
       name: "face application implements anatomical editor specifications",
       type: "typescript",
-      files: ["src/human/**/*.ts"],
+      files: faceSources,
       symbol: ["type", "function", "property"],
       reference: [
         {
@@ -62,6 +71,54 @@ const graph: ITtscEvidenceGraphConfig = {
           files: [
             "specifications/asset-and-representation/facial-authoring/**/*.md",
             "!specifications/asset-and-representation/facial-authoring/**/README.md",
+          ],
+          symbol: "h3",
+        },
+      ],
+    },
+    {
+      name: "body application implements body editor requirements",
+      type: "typescript",
+      files: bodySources,
+      symbol: ["type", "function", "property"],
+      reference: [
+        {
+          type: "markdown",
+          root: "../../docs",
+          files: ["requirements/actors/body-authoring/**/README.md"],
+          symbol: "h1",
+        },
+        {
+          type: "markdown",
+          root: "../../docs",
+          files: [
+            "requirements/actors/body-authoring/**/*.md",
+            "!requirements/actors/body-authoring/**/README.md",
+          ],
+          symbol: "h3",
+        },
+      ],
+    },
+    {
+      name: "body application implements body editor specifications",
+      type: "typescript",
+      files: bodySources,
+      symbol: ["type", "function", "property"],
+      reference: [
+        {
+          type: "markdown",
+          root: "../../docs",
+          files: [
+            "specifications/asset-and-representation/body-authoring/**/README.md",
+          ],
+          symbol: "h1",
+        },
+        {
+          type: "markdown",
+          root: "../../docs",
+          files: [
+            "specifications/asset-and-representation/body-authoring/**/*.md",
+            "!specifications/asset-and-representation/body-authoring/**/README.md",
           ],
           symbol: "h3",
         },

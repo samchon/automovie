@@ -12,7 +12,9 @@ const AXES = ["abduction", "twist"] as const;
  * reference resident landmarks, carry a finite unit-length flexion reference
  * that is not parallel to the bone, declare a clinical sign exactly on the
  * axes their constraint leaves mobile (every axis for the unconstrained root),
- * and hold finite ranges that contain both zero and the measured rest angle.
+ * and hold finite ranges that contain both zero and the measured rest angle,
+ * and a swing cone, when declared, must admit every pure-plane extreme of
+ * the flexion and abduction ranges.
  * A corrective's joint driver must name a mobile axis with a ramp inside the
  * clinical reach on its side of the rest.
  * Every surface's skin must bind each vertex to four declared joints with
@@ -126,6 +128,28 @@ export function assertHumanBodyRig(basis: IAutoMovieHumanBodyBasis): void {
             joint.bone +
             "." +
             axisName,
+        );
+    }
+    // A swing cone caps the combined flexion and abduction; each pure-plane
+    // extreme of the ranges must still lie inside it, or the range promises
+    // an angle the pose validator refuses on its own.
+    const cone = joint.constraint?.swingDeg ?? null;
+    if (cone !== null) {
+      const reach = Math.max(
+        ...(["flexion", "abduction"] as const).flatMap((axisName) => {
+          const range = joint.constraint?.[axisName] ?? null;
+          return range === null
+            ? [0]
+            : [
+                Math.abs(range.min - joint.neutral[axisName]),
+                Math.abs(range.max - joint.neutral[axisName]),
+              ];
+        }),
+      );
+      if (!Number.isFinite(cone) || cone < reach)
+        throw new Error(
+          "Body joint swing cone must admit every pure-plane extreme of its ranges: " +
+            joint.bone,
         );
     }
     declared.add(joint.bone);

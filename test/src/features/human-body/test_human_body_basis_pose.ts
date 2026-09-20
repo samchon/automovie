@@ -15,6 +15,9 @@ import { throwsError } from "../internal/predicates";
  * 3. A bone the skeleton lacks, a bone posed twice, and a nonfinite angle
  *    refuse at the builder or the document boundary.
  * 4. The unconstrained root accepts any finite angle.
+ * 5. A swing cone below the flexion range's reach from the rest (90) is
+ *    refused at admission; a cone of exactly 90 is admitted and the pure
+ *    flexion maximum then passes the engine's cone check.
  */
 export const test_human_body_basis_pose = (): void => {
   const { basis, document } = humanBodyBasisFixture();
@@ -75,5 +78,24 @@ export const test_human_body_basis_pose = (): void => {
       ...document,
       pose: [{ bone: "hips", flexion: 170, abduction: 120, twist: -100 }],
     }).model.parts.length === 1,
+  );
+  const coned = (swingDeg: number) => {
+    const fixture = humanBodyBasisFixture();
+    fixture.basis.joints[1].constraint!.swingDeg = swingDeg;
+    return fixture;
+  };
+  TestValidator.predicate(
+    "swing cone below the pure flexion reach refuses",
+    throwsError(() => createHumanBodyBasisBuilder(coned(89).basis)),
+  );
+  const cone = coned(90);
+  TestValidator.predicate(
+    "swing cone at the reach admits and its pure extreme poses",
+    !throwsError(() =>
+      createHumanBodyBasisBuilder(cone.basis)({
+        ...cone.document,
+        pose: [{ bone: "spine", flexion: 90, abduction: null, twist: null }],
+      }),
+    ),
   );
 };
