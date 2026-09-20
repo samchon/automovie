@@ -50,8 +50,8 @@ import {
 } from "./solve-combination";
 
 /** The identity this revision publishes under, and the one it succeeds. */
-const REVISION = "mpfb-connected-head-2026-09-20-pair-correctives";
-const SUCCEEDS = "mpfb-connected-head-2026-09-20-rigid-mandible";
+const REVISION = "mpfb-connected-head-2026-09-21-pair-correctives";
+const SUCCEEDS = "mpfb-connected-head-2026-09-21-single-repaired";
 
 /** The in-between's peak, and the weight the later tiers are solved at. */
 const HALF = 0.5;
