@@ -64,6 +64,8 @@ const activation = (
  * 4. A peak of one is the plain clamp, identical to omitting it.
  * 5. The other driver still multiplies in, so the in-between is still a combination.
  * 6. A peak at zero, above one, or not finite refuses at compile time.
+ * 7. A span names the driver weights the tent fades out at; the factor is the hat between them, zero outside, and a span ending at the peak stays whole past it.
+ * 8. A span whose lower end is not below the peak, whose upper end is below the peak, or that leaves [0,1] refuses.
  */
 export const test_subject_human_basis_corrective_in_between = (): void => {
   const half = withInBetween(0.5);
@@ -107,6 +109,64 @@ export const test_subject_human_basis_corrective_in_between = (): void => {
       throwsError(
         () => createHumanFaceBasisBuilder(withInBetween(peak).basis),
         "in-between",
+      ),
+    );
+
+  // A span names where the tent fades: peaking at three quarters between a
+  // half and one, the input is zero at a half, a half of itself at five
+  // eighths, whole at three quarters, a half again at seven eighths and zero
+  // at one; below the span it is zero rather than negative.
+  const spanned = withInBetween(0.75, { between: [0.5, 1] });
+  const spannedAt = (lift: number) =>
+    activation(
+      spanned.basis,
+      { ...spanned.document, shape: { width: 1 }, expression: { lift } },
+      lift,
+    );
+  TestValidator.predicate(
+    "a spanned in-between rises from its lower end and falls to its upper end",
+    nclose(spannedAt(0.5), 0) &&
+      nclose(spannedAt(0.625), 0.5) &&
+      nclose(spannedAt(0.75), 1) &&
+      nclose(spannedAt(0.875), 0.5) &&
+      nclose(spannedAt(1), 0) &&
+      nclose(spannedAt(0.25), 0),
+  );
+  // A span whose upper end is the peak itself is a ramp that stays whole
+  // past it, which is the clamp a full-weight corrective has.
+  const ramp = withInBetween(1, { between: [0.75, 1] });
+  TestValidator.predicate(
+    "a span ending at the peak ramps up and stays whole",
+    nclose(
+      activation(
+        ramp.basis,
+        { ...ramp.document, shape: { width: 1 }, expression: { lift: 0.875 } },
+        0.875,
+      ),
+      0.5,
+    ) &&
+      nclose(
+        activation(
+          ramp.basis,
+          { ...ramp.document, shape: { width: 1 }, expression: { lift: 0.5 } },
+          0.5,
+        ),
+        0,
+      ),
+  );
+  for (const between of [
+    [0.5, 0.75],
+    [0.75, 0.6],
+    [-0.1, 1],
+    [0.25, 1.5],
+    [Number.NaN, 1],
+  ] as [number, number][])
+    TestValidator.predicate(
+      `a span of ${JSON.stringify(between)} around a peak of 0.5 refuses`,
+      throwsError(
+        () =>
+          createHumanFaceBasisBuilder(withInBetween(0.5, { between }).basis),
+        "spans",
       ),
     );
 };

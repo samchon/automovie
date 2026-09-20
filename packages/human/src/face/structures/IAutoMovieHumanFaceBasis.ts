@@ -59,10 +59,11 @@ export interface IAutoMovieHumanFaceBasis {
    * weight on both drivers lands at a quarter of itself when both are at half,
    * on a pose that may cross by more than a quarter as much. The rig answers
    * that the way every blendshape rig does, with an in-between: a driver may
-   * name the weight it peaks at, and its factor is then a tent that rises to
-   * one there and falls back to zero at full, where the full-weight corrective
-   * has taken over. MetaHuman's `ConditionalTable` is the same device, a
-   * piecewise-linear ramp per input ahead of the product.
+   * name the weight it peaks at and the weights on either side where it fades
+   * out, and its factor is then a tent that rises to one there and falls back
+   * to zero, by default at full, where the full-weight corrective has taken
+   * over. MetaHuman's `ConditionalTable` is the same device, a piecewise-linear
+   * ramp per input ahead of the product.
    *
    * Omission is a basis with no correctives, which is exactly what a purely
    * linear prior is. Nothing here infers a corrective; the endpoint it applies
@@ -84,12 +85,23 @@ export interface IAutoMovieHumanFaceBasis {
 
       /**
        * The driver weight this input is fully present at, in (0,1]; omitted
-       * is 1. Below it the factor is `driver / peak`; above it, when the peak
-       * is under one, the factor falls linearly to zero at a driver of one,
-       * so an in-between corrective is absent from the full pose it was not
-       * solved for.
+       * is 1. Below it the factor rises linearly from zero at `between[0]`;
+       * above it, when the peak is under one, it falls linearly to zero at
+       * `between[1]`, so an in-between corrective is absent from the full
+       * pose it was not solved for.
        */
       peak?: number;
+
+      /**
+       * The driver weights on either side of the peak at which this input
+       * fades to nothing, `[below, above]` with `below < peak <= above`;
+       * omitted is `[0, 1]`. Two in-betweens on one driver whose tents both
+       * span the whole envelope fire into each other's poses, and a tongue
+       * solved at three quarters was measured to re-cross at a half that had
+       * been clear; naming the neighbouring peaks as the span is what makes
+       * each in-between whole at its own weight and absent at its neighbours'.
+       */
+      between?: [number, number];
     }[];
 
     /** Authored gain in (0,1]; the product of a rig row's authored weights. */

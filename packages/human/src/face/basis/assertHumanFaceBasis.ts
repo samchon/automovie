@@ -93,6 +93,24 @@ export function assertHumanFaceBasis(basis: IAutoMovieHumanFaceBasis): void {
             "." +
             input.side,
         );
+      // A span has to hold the peak strictly above its lower end, or the
+      // rise would divide by nothing, and its upper end has to reach the peak
+      // and stay inside the envelope.
+      const peak = input.peak ?? 1;
+      if (
+        input.between !== undefined &&
+        (!input.between.every(Number.isFinite) ||
+          input.between[0] < 0 ||
+          input.between[0] >= peak ||
+          input.between[1] < peak ||
+          input.between[1] > 1)
+      )
+        throw new Error(
+          "A facial corrective in-between spans [below, above] with 0 <= below < peak <= above <= 1: " +
+            input.channel +
+            "." +
+            input.side,
+        );
     }
     endpoints.add(corrective.target);
   }

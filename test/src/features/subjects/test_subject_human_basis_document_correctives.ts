@@ -55,7 +55,7 @@ const activation = (
  * Scenarios:
  * 1. The document corrective fires on the combination and on nothing less; both at half is a quarter.
  * 2. It stacks on a basis corrective over the same drivers rather than replacing it.
- * 3. A driver with a peak is an in-between: whole at the peak, gone at full.
+ * 3. A driver with a peak is an in-between: whole at the peak, gone at full; with a span, zero at the span's lower end.
  * 4. A surface the document names but the corrective has no rows for is left alone.
  * 5. A document without correctives is exactly what it was.
  * 6. An identity taken by a channel, a basis corrective or another document corrective, an empty or duplicate driver set, a gain outside (0,1], a driver no channel carries, a peak outside (0,1], and malformed rows each refuse.
@@ -116,6 +116,35 @@ export const test_subject_human_basis_document_correctives = (): void => {
       { channel: "lift", side: "positive", peak: 0.5 },
     ],
   });
+  const spanned = withOwn({
+    inputs: [
+      { channel: "width", side: "positive" },
+      { channel: "lift", side: "positive", peak: 0.75, between: [0.5, 1] },
+    ],
+  });
+  TestValidator.predicate(
+    "a spanned document in-between is zero at its lower end and whole at its peak",
+    nclose(
+      activation(
+        spanned.basis,
+        { ...spanned.document, shape: { width: 1 }, expression: { lift: 0.5 } },
+        0.5,
+      ),
+      0,
+    ) &&
+      nclose(
+        activation(
+          spanned.basis,
+          {
+            ...spanned.document,
+            shape: { width: 1 },
+            expression: { lift: 0.75 },
+          },
+          0.75,
+        ),
+        1,
+      ),
+  );
   TestValidator.predicate(
     "an in-between document corrective is whole at its peak and gone at full",
     nclose(
@@ -210,6 +239,22 @@ export const test_subject_human_basis_document_correctives = (): void => {
     [
       "no channel carries",
       { inputs: [{ channel: "lift", side: "positive", peak: 2 }] },
+    ],
+    [
+      "no channel carries",
+      {
+        inputs: [
+          { channel: "lift", side: "positive", peak: 0.5, between: [0.5, 1] },
+        ],
+      },
+    ],
+    [
+      "no channel carries",
+      {
+        inputs: [
+          { channel: "lift", side: "positive", peak: 0.5, between: [0, 0.4] },
+        ],
+      },
     ],
     ["surface this basis declares", { targets: { absent: [0, 1, 0, 0] } }],
     ["surface this basis declares", { targets: { [surface]: [0, 1, 0] } }],

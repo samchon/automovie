@@ -136,15 +136,24 @@ export function createHumanFaceBasisBuilder(
       taken.add(corrective.id);
       for (const input of corrective.inputs) {
         const channel = channels.get(input.channel);
+        const peak = input.peak ?? 1;
         if (
           channel === undefined ||
           (input.side === "negative" ? channel.negative : channel.positive) ===
             null ||
           (input.peak !== undefined &&
-            (!Number.isFinite(input.peak) || input.peak <= 0 || input.peak > 1))
+            (!Number.isFinite(input.peak) ||
+              input.peak <= 0 ||
+              input.peak > 1)) ||
+          (input.between !== undefined &&
+            (!input.between.every(Number.isFinite) ||
+              input.between[0] < 0 ||
+              input.between[0] >= peak ||
+              input.between[1] < peak ||
+              input.between[1] > 1))
         )
           throw new Error(
-            "A document corrective drives off a side no channel carries, or peaks outside (0,1]: " +
+            "A document corrective drives off a side no channel carries, peaks outside (0,1], or spans outside 0 <= below < peak <= above <= 1: " +
               input.channel +
               "." +
               input.side,
@@ -189,12 +198,14 @@ export function createHumanFaceBasisBuilder(
     // [0,1] first, and the form matters more than the source: a sum here would
     // fire a corrective on one driver alone, which is the pose it was authored
     // to leave untouched. An input with a peak under one is an in-between: its
-    // factor is a tent over the driver, one at the peak and zero again at one.
+    // factor is a tent over the driver, one at the peak and zero at either end
+    // of its span, which is the whole envelope unless the input names one.
     const activationOf = (corrective: {
       inputs: {
         channel: string;
         side: "positive" | "negative";
         peak?: number;
+        between?: [number, number];
       }[];
       weight: number;
     }): number =>
@@ -204,11 +215,12 @@ export function createHumanFaceBasisBuilder(
           const weight = weights.get(input.channel) ?? 0;
           const driver = input.side === "negative" ? -weight : weight;
           const peak = input.peak ?? 1;
+          const [below, above] = input.between ?? [0, 1];
           const factor =
             driver <= peak
-              ? driver / peak
-              : peak < 1
-                ? (1 - driver) / (1 - peak)
+              ? (driver - below) / (peak - below)
+              : above > peak
+                ? (above - driver) / (above - peak)
                 : 1;
           return total * Math.min(1, Math.max(0, factor));
         }, corrective.weight),

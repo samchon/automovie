@@ -81,11 +81,12 @@ export interface IAutoMovieHumanFaceBasisDocument {
     /** Name unique within this document, distinct from every basis channel and corrective. */
     id: string;
 
-    /** The driving sides, with optional in-between peaks, as a basis corrective's. */
+    /** The driving sides, with optional in-between peaks and spans, as a basis corrective's. */
     inputs: {
       channel: string;
       side: "positive" | "negative";
       peak?: number;
+      between?: [number, number];
     }[];
 
     /** Authored gain in (0,1]. */
