@@ -99,13 +99,18 @@ export function assertHumanBodyBasis(basis: IAutoMovieHumanBodyBasis): void {
       corrective.weight > 1 ||
       corrective.target.trim() === "" ||
       new Set(
-        corrective.inputs.map((input) => input.channel + "/" + input.side),
+        corrective.inputs.map((input) =>
+          "bone" in input
+            ? input.bone + "." + input.axis + "/" + input.side
+            : input.channel + "/" + input.side,
+        ),
       ).size !== corrective.inputs.length
     )
       throw new Error(
         "A body corrective needs distinct drivers, a gain in (0,1] and a named endpoint.",
       );
     for (const input of corrective.inputs) {
+      if ("bone" in input) continue; // joint drivers are admitted with the rig
       const channel = channels.get(input.channel);
       if (channel === undefined || channel[input.side] === null)
         throw new Error(

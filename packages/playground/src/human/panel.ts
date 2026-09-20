@@ -35,16 +35,6 @@ type PreviewAsset = {
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Routes edits and history through validated transactions while guarding stale subject loads.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Keeps display-only controls outside the saved identity and exports the committed document/model pair.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Isolates asynchronous file reads and subject builds before committing their document and model together.
- * @evidenceExclude requirements/actors/body-authoring/README.md#body-requirements The parametric face panel drives the face recipe; the body editor is a separate page that owns the body basis controls.
- * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-connected-basis The face panel evaluates no body basis endpoints, correctives or identity.
- * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-joints The face panel articulates no body joints and applies no skin weights.
- * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-measurements The face panel prints no body measurement.
- * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-document The face panel loads and saves face documents, not body documents.
- * @evidenceExclude specifications/asset-and-representation/body-authoring/README.md#body-specifications The face panel owns none of the body basis, measurement or document boundaries.
- * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-basis The face panel evaluates no body basis endpoints, correctives or identity.
- * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-joints The face panel articulates no body joints and applies no skin weights.
- * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-measurements The face panel prints no body measurement.
- * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-document The face panel loads and saves face documents, not body documents.
  * @evidenceExclude requirements/actors/facial-authoring/README.md#face-requirements The panel delegates model construction and serialization to its preview adapter and records no study verdict; it does not implement detailed facial authoring across document, editor and study review.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-document The panel delegates model construction and serialization to its preview adapter and records no study verdict; it does not implement the standalone human-face recipe, basis and version interpreter.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components The panel delegates model construction and serialization to its preview adapter and records no study verdict; it does not implement named craniofacial components, cavities and attached tissues.

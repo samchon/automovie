@@ -98,7 +98,10 @@ export const test_human_body_measurement = (): void => {
   TestValidator.equals("channel without a rule", width.measurement, null);
   const waist = humanBodyBasisFixture();
   waist.basis.channels[0].id = "measureWaistCirc";
-  waist.basis.correctives![0].inputs[0].channel = "measureWaistCirc";
+  waist.basis.correctives![0].inputs[0] = {
+    side: "positive",
+    channel: "measureWaistCirc",
+  };
   const rules = measureHumanBodyBasisChannels(waist.basis);
   const girth = rules.find(
     (channel) => channel.id === "measureWaistCirc",
@@ -112,7 +115,10 @@ export const test_human_body_measurement = (): void => {
   );
   const tall = humanBodyBasisFixture();
   tall.basis.channels[1].id = "macroHeight";
-  tall.basis.correctives![0].inputs[1].channel = "macroHeight";
+  tall.basis.correctives![0].inputs[1] = {
+    side: "positive",
+    channel: "macroHeight",
+  };
   const height = measureHumanBodyBasisChannels(tall.basis).find(
     (channel) => channel.id === "macroHeight",
   )!.measurement!;
@@ -125,7 +131,10 @@ export const test_human_body_measurement = (): void => {
   );
   const missing = humanBodyBasisFixture();
   missing.basis.channels[0].id = "measureUpperlegHeight";
-  missing.basis.correctives![0].inputs[0].channel = "measureUpperlegHeight";
+  missing.basis.correctives![0].inputs[0] = {
+    side: "positive",
+    channel: "measureUpperlegHeight",
+  };
   const distance = measureHumanBodyBasisChannels(missing.basis).find(
     (channel) => channel.id === "measureUpperlegHeight",
   )!.measurement!;
@@ -136,7 +145,10 @@ export const test_human_body_measurement = (): void => {
   );
   const spanned = humanBodyBasisFixture();
   spanned.basis.channels[1].id = "measureNapetowaistDist";
-  spanned.basis.correctives![0].inputs[1].channel = "measureNapetowaistDist";
+  spanned.basis.correctives![0].inputs[1] = {
+    side: "positive",
+    channel: "measureNapetowaistDist",
+  };
   spanned.basis.landmarks.ids[2] = "joint-neck";
   spanned.basis.joints[1].tail = "joint-neck";
   const nape = measureHumanBodyBasisChannels(spanned.basis).find(

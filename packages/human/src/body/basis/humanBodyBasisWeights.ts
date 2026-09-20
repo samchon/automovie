@@ -15,14 +15,21 @@ import { assertSparseRows } from "./assertSparseRows";
  * The activation is the product form of `createHumanFaceBasisBuilder`:
  * `min(1, weight * product of clamped driver sides)`, zero unless every driver
  * is present. A sum here would fire a corrective on one driver alone, which is
- * the pose it was authored to leave untouched.
+ * the pose it was authored to leave untouched. A joint driver contributes the
+ * ramp `clamp((side * (clinical - neutral) - onset) / (full - onset), 0, 1)`
+ * read from the document's clinical pose, an absent or `null` angle standing
+ * for the rest; the pose itself is validated later by the builder, so this
+ * reads angles without judging them.
  *
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-connected-basis Refuses unsupported channels, out-of-envelope weights and identity rows on surfaces the basis lacks instead of clamping them.
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-basis Computes the `|weight| x endpoint` selection and the product corrective activation the evaluation order applies.
  */
 export function humanBodyBasisWeights(
   basis: IAutoMovieHumanBodyBasis,
-  document: Pick<IAutoMovieHumanBodyBasisDocument, "shape" | "identity">,
+  document: Pick<
+    IAutoMovieHumanBodyBasisDocument,
+    "shape" | "identity" | "pose"
+  >,
 ): {
   weights: Map<string, number>;
   activations: { target: string; activation: number }[];
@@ -54,14 +61,32 @@ export function humanBodyBasisWeights(
       );
     assertSparseRows(rows, surface.positions.length / 3, "identity " + id);
   }
+  const neutral = new Map(
+    basis.joints.map((joint) => [joint.bone, joint.neutral]),
+  );
+  const angles = new Map(
+    (document.pose ?? []).map((joint) => [joint.bone, joint]),
+  );
   const activations = (basis.correctives ?? []).map((corrective) => ({
     target: corrective.target,
     activation: Math.min(
       1,
       corrective.inputs.reduce((total, input) => {
+        const sign = input.side === "negative" ? -1 : 1;
+        if ("bone" in input) {
+          const angle = angles.get(input.bone)?.[input.axis] ?? null;
+          const rest = neutral.get(input.bone)?.[input.axis] ?? 0;
+          const travel = sign * ((angle ?? rest) - rest);
+          return (
+            total *
+            Math.min(
+              1,
+              Math.max(0, (travel - input.onset) / (input.full - input.onset)),
+            )
+          );
+        }
         const weight = weights.get(input.channel) ?? 0;
-        const driver = input.side === "negative" ? -weight : weight;
-        return total * Math.min(1, Math.max(0, driver));
+        return total * Math.min(1, Math.max(0, sign * weight));
       }, corrective.weight),
     ),
   }));

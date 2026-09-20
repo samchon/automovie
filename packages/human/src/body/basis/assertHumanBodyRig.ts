@@ -13,6 +13,8 @@ const AXES = ["abduction", "twist"] as const;
  * that is not parallel to the bone, declare a clinical sign exactly on the
  * axes their constraint leaves mobile (every axis for the unconstrained root),
  * and hold finite ranges that contain both zero and the measured rest angle.
+ * A corrective's joint driver must name a mobile axis with a ramp inside the
+ * clinical reach on its side of the rest.
  * Every surface's skin must bind each vertex to four declared joints with
  * weights that sum to one within a micro tolerance (the payload rounds them
  * to seven decimals). A slot the skin names but the joints do not declare is
@@ -128,6 +130,38 @@ export function assertHumanBodyRig(basis: IAutoMovieHumanBodyBasis): void {
     }
     declared.add(joint.bone);
   }
+  // A joint driver names a mobile axis and a ramp that lies within the
+  // clinical reach on its side of the rest, so a corrective cannot be armed
+  // by an angle the pose validator would refuse or by an axis that never moves.
+  const joints = new Map(basis.joints.map((joint) => [joint.bone, joint]));
+  for (const corrective of basis.correctives ?? [])
+    for (const input of corrective.inputs) {
+      if (!("bone" in input)) continue;
+      const joint = joints.get(input.bone);
+      const range = joint?.constraint?.[input.axis] ?? null;
+      const reach =
+        joint === undefined || range === null
+          ? null
+          : input.side === "positive"
+            ? range.max - joint.neutral[input.axis]
+            : joint.neutral[input.axis] - range.min;
+      if (
+        reach === null ||
+        !Number.isFinite(input.onset) ||
+        !Number.isFinite(input.full) ||
+        input.onset < 0 ||
+        input.full <= input.onset ||
+        input.full > reach + 1e-9
+      )
+        throw new Error(
+          "A body joint driver needs a mobile axis and a ramp inside its clinical reach: " +
+            corrective.id +
+            " " +
+            input.bone +
+            "." +
+            input.axis,
+        );
+    }
   for (const surface of basis.surfaces) {
     const vertices = surface.positions.length / 3;
     const skin = surface.skin;

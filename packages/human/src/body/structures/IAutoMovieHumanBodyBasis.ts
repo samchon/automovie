@@ -80,20 +80,43 @@ export interface IAutoMovieHumanBodyBasis {
   /**
    * Combination correctives, evaluated after the channels that drive them, with
    * the activation `min(1, weight * product of clamped inputs)` of
-   * `createHumanFaceBasisBuilder`. The body's first revision carries the macro
-   * pair residuals: the source blends its macro targets as products of node
-   * weights, so a tall child is not a scaled tall adult, and the difference is
-   * sampled and published here rather than approximated.
+   * `createHumanFaceBasisBuilder`. Two kinds of driver exist. A channel driver
+   * reads a shape weight, and the first revision's macro pair residuals use
+   * it: the source blends its macro targets as products of node weights, so a
+   * tall child is not a scaled tall adult, and the difference is sampled and
+   * published rather than approximated. A joint driver reads a clinical pose
+   * angle as a ramp: zero until the joint has moved `onset` degrees from its
+   * rest toward the named side, one from `full` degrees on, linear between.
+   * That is RigLogic's conditional table applied to a joint, and it is how a
+   * pose corrective (a fold pushed out, a girth restored) fires only where
+   * the census found the defect and not across the whole range.
+   *
+   * Every corrective endpoint is a rest-space displacement applied before the
+   * skin is posed, as MetaHuman applies its pose-space deformations as blend
+   * shapes under the joints; the skinning then carries the correction with
+   * the bone.
    */
   correctives?: {
     /** Name unique within this basis, distinct from every channel id. */
     id: string;
 
-    /** Driving sides; each names a channel and which of its endpoints it answers for. */
-    inputs: {
-      channel: string;
-      side: "positive" | "negative";
-    }[];
+    /** Driving sides; a channel driver or a joint-angle ramp, all multiplied. */
+    inputs: (
+      | {
+          channel: string;
+          side: "positive" | "negative";
+        }
+      | {
+          bone: AutoMovieHumanoidBone;
+          axis: "flexion" | "abduction" | "twist";
+          /** Positive counts clinical degrees above the rest angle, negative below it. */
+          side: "positive" | "negative";
+          /** Degrees from rest at which the ramp leaves zero. */
+          onset: number;
+          /** Degrees from rest at which the ramp reaches one; above `onset` and within the range. */
+          full: number;
+        }
+    )[];
 
     /** Authored gain in (0,1]. */
     weight: number;
