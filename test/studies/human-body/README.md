@@ -43,7 +43,7 @@ The primary source is public and pinned. Where it is silent, the AAOS 1965 gonio
 | Cervical spine, whole chain | flexion / lateral / rotation | -45 to 45 / 45 each side / 80 each side | 4.71a Note (2) |
 | Thoracolumbar spine, whole chain | flexion / lateral / rotation | -30 to 90 / 30 each side / 30 each side | 4.71a Note (2) |
 
-The engine's fallback table `DEFAULT_HUMANOID_ROM` in `@automovie/engine` declares itself an approximate baseline and differs from this record at the elbow (150 against 145), the knee (150 against 140), forearm rotation (90 against 80/85), ulnar deviation (30 against 45) and in giving each spinal and cervical segment the whole chain's clinical range. The body basis carries the clinical values on its own joints through `IAutoMovieBone.constraint` and leaves the engine table, which is part of the specification, to its own topic.
+The engine's fallback table `DEFAULT_HUMANOID_ROM` in `@automovie/engine` declares itself an approximate baseline and differs from this record at the elbow (150 against 145), the knee (150 against 140), forearm rotation (90 against 80/85), ulnar deviation (30 against 45), and in per-segment spine and neck ranges whose sums run well past the chain's clinical total (150 degrees of flexion over three thoracolumbar segments against 90; 90 over two cervical segments against 45). The body basis carries the clinical values on its own joints through `IAutoMovieBone.constraint` and leaves the engine table, which is part of the specification, to its own topic.
 
 ## Frame and correspondence with the face
 
