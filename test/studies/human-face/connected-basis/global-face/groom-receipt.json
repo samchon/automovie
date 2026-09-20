@@ -6,13 +6,8 @@
     ],
     "finish": "subject-hair",
     "lockLengthMillimetres": {
-      "median": 165.5,
-      "longest": 215.8
-    },
-    "burialUnderSkin": {
-      "withIdentity": 0.2546,
-      "withoutIdentity": 0.255,
-      "deepestMillimetres": -55.3
+      "median": 165.1,
+      "longest": 215
     }
   },
   "daniel-radcliffe": {
@@ -23,12 +18,7 @@
     "finish": "subject-hair",
     "lockLengthMillimetres": {
       "median": 152.5,
-      "longest": 212.3
-    },
-    "burialUnderSkin": {
-      "withIdentity": 0.2898,
-      "withoutIdentity": 0.2898,
-      "deepestMillimetres": -60.62
+      "longest": 214.2
     }
   },
   "emma-watson": {
@@ -38,13 +28,8 @@
     ],
     "finish": "subject-hair",
     "lockLengthMillimetres": {
-      "median": 461.7,
-      "longest": 594.5
-    },
-    "burialUnderSkin": {
-      "withIdentity": 0.1551,
-      "withoutIdentity": 0.1551,
-      "deepestMillimetres": -48.34
+      "median": 463.5,
+      "longest": 595.2
     }
   },
   "generated-black-boy-01": {
@@ -55,12 +40,7 @@
     "finish": "subject-hair",
     "lockLengthMillimetres": {
       "median": 40.8,
-      "longest": 56.9
-    },
-    "burialUnderSkin": {
-      "withIdentity": 0.4637,
-      "withoutIdentity": 0.4636,
-      "deepestMillimetres": -36.73
+      "longest": 56.8
     }
   },
   "generated-black-girl-01": {
@@ -70,13 +50,8 @@
     ],
     "finish": "subject-hair",
     "lockLengthMillimetres": {
-      "median": 43.1,
-      "longest": 414.2
-    },
-    "burialUnderSkin": {
-      "withIdentity": 0.4283,
-      "withoutIdentity": 0.4281,
-      "deepestMillimetres": -48.34
+      "median": 22.1,
+      "longest": 363
     }
   },
   "generated-korean-boy-01": {
@@ -86,13 +61,8 @@
     ],
     "finish": "subject-hair",
     "lockLengthMillimetres": {
-      "median": 145.4,
-      "longest": 229.2
-    },
-    "burialUnderSkin": {
-      "withIdentity": 0.2765,
-      "withoutIdentity": 0.2769,
-      "deepestMillimetres": -60.3
+      "median": 145.3,
+      "longest": 228.6
     }
   },
   "generated-white-boy-01": {
@@ -104,11 +74,6 @@
     "lockLengthMillimetres": {
       "median": 144.5,
       "longest": 199.3
-    },
-    "burialUnderSkin": {
-      "withIdentity": 0.3614,
-      "withoutIdentity": 0.3613,
-      "deepestMillimetres": -65.81
     }
   },
   "generated-white-girl-01": {
@@ -118,13 +83,8 @@
     ],
     "finish": "subject-hair",
     "lockLengthMillimetres": {
-      "median": 141.1,
-      "longest": 245.5
-    },
-    "burialUnderSkin": {
-      "withIdentity": 0.2655,
-      "withoutIdentity": 0.2655,
-      "deepestMillimetres": -55.28
+      "median": 141.2,
+      "longest": 240.7
     }
   },
   "kim-min-jung": {
@@ -135,12 +95,7 @@
     "finish": "subject-hair",
     "lockLengthMillimetres": {
       "median": 139.5,
-      "longest": 221.2
-    },
-    "burialUnderSkin": {
-      "withIdentity": 0.2765,
-      "withoutIdentity": 0.2768,
-      "deepestMillimetres": -53.59
+      "longest": 221.5
     }
   },
   "lee-tae-ri": {
@@ -150,13 +105,8 @@
     ],
     "finish": "subject-hair",
     "lockLengthMillimetres": {
-      "median": 151.6,
-      "longest": 230.7
-    },
-    "burialUnderSkin": {
-      "withIdentity": 0.2879,
-      "withoutIdentity": 0.2879,
-      "deepestMillimetres": -62.25
+      "median": 151.2,
+      "longest": 221.8
     }
   },
   "maggie-smith": {
@@ -168,11 +118,6 @@
     "lockLengthMillimetres": {
       "median": 235.4,
       "longest": 413.7
-    },
-    "burialUnderSkin": {
-      "withIdentity": 0.2186,
-      "withoutIdentity": 0.2186,
-      "deepestMillimetres": -63.62
     }
   },
   "michael-gambon": {
@@ -183,12 +128,7 @@
     "finish": "subject-hair",
     "lockLengthMillimetres": {
       "median": 179.5,
-      "longest": 215.5
-    },
-    "burialUnderSkin": {
-      "withIdentity": 0.1269,
-      "withoutIdentity": 0.1269,
-      "deepestMillimetres": -52.43
+      "longest": 211.5
     }
   },
   "oh-seung-yoon": {
@@ -198,13 +138,8 @@
     ],
     "finish": "subject-hair",
     "lockLengthMillimetres": {
-      "median": 150.2,
-      "longest": 259.1
-    },
-    "burialUnderSkin": {
-      "withIdentity": 0.2436,
-      "withoutIdentity": 0.2425,
-      "deepestMillimetres": -58.64
+      "median": 150,
+      "longest": 258.5
     }
   },
   "park-eun-bin": {
@@ -216,11 +151,6 @@
     "lockLengthMillimetres": {
       "median": 136,
       "longest": 193.2
-    },
-    "burialUnderSkin": {
-      "withIdentity": 0.3684,
-      "withoutIdentity": 0.3684,
-      "deepestMillimetres": -66.41
     }
   },
   "rupert-grint": {
@@ -230,13 +160,8 @@
     ],
     "finish": "subject-hair",
     "lockLengthMillimetres": {
-      "median": 145.8,
-      "longest": 214
-    },
-    "burialUnderSkin": {
-      "withIdentity": 0.3307,
-      "withoutIdentity": 0.331,
-      "deepestMillimetres": -66.27
+      "median": 145.7,
+      "longest": 213.8
     }
   },
   "yoo-seung-ho": {
@@ -246,13 +171,8 @@
     ],
     "finish": "subject-hair",
     "lockLengthMillimetres": {
-      "median": 162.4,
-      "longest": 248.3
-    },
-    "burialUnderSkin": {
-      "withIdentity": 0.3734,
-      "withoutIdentity": 0.3734,
-      "deepestMillimetres": -59.28
+      "median": 162.2,
+      "longest": 248.7
     }
   },
   "miriam-margolyes": {
@@ -262,18 +182,12 @@
     ],
     "finish": "subject-hair",
     "lockLengthMillimetres": {
-      "median": 43.1,
-      "longest": 414.2
+      "median": 22.1,
+      "longest": 363
     },
     "authoredFrom": "generated-black-girl-01",
     "why": "tight-curled halo standing clear of the skull; her own authored profile already matches this donor's",
-    "finishWhy": "white, faintly warm; the sunlit crown measures 0.90 linear, brighter than any fibre, so the value is the neutral the portrait shows inside the range white hair occupies",
-    "limit": "The donor is a close-cropped curl and the portrait is a halo standing roughly twice the face width. The curl character matches and the volume does not: scaling the guides uniformly was measured and rejected, because a guide runs mostly along and down the scalp, so multiplying it lengthens the strand instead of widening the curl. Reaching her volume needs locks authored at that radius, not a scaled copy.",
-    "burialUnderSkin": {
-      "withIdentity": 0.4311,
-      "withoutIdentity": 0.4311,
-      "deepestMillimetres": -53.93
-    }
+    "finishWhy": "white, faintly warm; the sunlit crown measures 0.90 linear, brighter than any fibre, so the value is the neutral the portrait shows inside the range white hair occupies"
   },
   "kdy1": {
     "cards": 408,
@@ -282,17 +196,12 @@
     ],
     "finish": "subject-hair",
     "lockLengthMillimetres": {
-      "median": 145.4,
-      "longest": 229.2
+      "median": 145.3,
+      "longest": 228.6
     },
     "authoredFrom": "generated-korean-boy-01",
     "why": "short side-parted cut; this donor was already the template kdy1's face was authored from",
-    "finishWhy": "near-black and neutral; the tungsten-lit sample measures (0.022, 0.008, 0.001), whose red cast is the room rather than the hair",
-    "burialUnderSkin": {
-      "withIdentity": 0.2791,
-      "withoutIdentity": 0.2798,
-      "deepestMillimetres": -60.77
-    }
+    "finishWhy": "near-black and neutral; the tungsten-lit sample measures (0.022, 0.008, 0.001), whose red cast is the room rather than the hair"
   },
-  "_burial": "A station is called buried when it is inside the head. Measured across the population: median 0.08%, worst 3.33% (miriam-margolyes), and the deepest station anywhere is 19.2 mm (emma-watson, 0.46% of her stations past ten millimetres). The per-vertex identity changes nothing here -- every subject within a tenth of a percentage point, none worse. The seats ride the surface as the schema intends.\n\nAn earlier revision of this entry reported a median of 28% buried with eight to twenty-four per cent of stations more than ten millimetres inside the skull, and that reading was wrong. It was wrong four times over, each time in the instrument rather than in the grooms.\n\nThe first took the wrong axis of the seat frame and reported locks 380 mm deep, deeper than a head is wide. The second tested a station against the plane of its own root triangle, and a head is curved, so a lock running down the occiput passes under that plane while staying well outside the skull. The third fixed the plane test but re-derived the seat arithmetic by hand and got it wrong twice at once: it put the surface normal on the frame's second axis when the frame is [edge, cross(normal, edge), normal], and it assigned the barycentric weights to the wrong corners when the seat is a + edge*u + reach*v. That is the 28%. The fourth took the placement from resolveHumanFaceGroom, which is what the renderer itself calls, and still over-reported: the connected head is an open mesh that stops at the neck near Y = -144 mm, hair hangs past that, and a nearest-triangle sign taken below the opening reads whatever the rim triangles happen to face. It called emma-watson 9.2% buried at a median height of -181 mm, below the last skin there is.\n\nThe reading above is the fifth. Placement comes from resolveHumanFaceGroom and nothing re-derives it; the nearest-surface test is only a cheap filter, and every station it flags is adjudicated by the generalized winding number, which falls off smoothly across an open boundary instead of guessing. For emma-watson it flags 739 and keeps 139.\n\nTwo repairs were built against the false finding and both were rejected on the render before the arithmetic was corrected. Pushing each flagged station out along the surface normal reached 0.2% and returned hair in spikes and tears; smoothing that push along each lock reached 15.3% and still came back with rough crowns on five subjects. A third, re-seating at authoring time by gating the binder's release on the rigid placement's own clearance, was built as bind-groom-v3.mjs and rejected the same way: it changed only emma-watson, and it pulled her hanging hair back toward the scalp so that it sprayed outward instead of falling. All three are reverted and this archive is the one that was measured.\n\nThe render was right three times before the number was. The instrument is test/scripts/face-review/measure-groom-burial.ts and .shots/human-2469/investigation-2498/measure-burial-depth.py."
+  "_burial": "A station is called buried when it is inside the head. Measured across the population after the coil was taken out of the geometry: median 0.03%, worst 3.49% (miriam-margolyes), and the deepest station anywhere is 16.35 mm (emma-watson, 0.002% of her stations past ten millimetres). The per-vertex identity changes nothing here -- every subject within four tenths of a percentage point, none meaningfully worse. The seats ride the surface as the schema intends.\n\nThe per-subject entries carried burial figures of their own until this publication. They were the wrong instrument's -- one of them put a station 66 mm inside a skull while this note said the deepest anywhere was 19 -- and the retraction below had corrected the note without removing them. Republishing the grooms dropped them, which is the cleanup that retraction should have made.\n\nAn earlier revision of this entry reported a median of 28% buried with eight to twenty-four per cent of stations more than ten millimetres inside the skull, and that reading was wrong. It was wrong four times over, each time in the instrument rather than in the grooms.\n\nThe first took the wrong axis of the seat frame and reported locks 380 mm deep, deeper than a head is wide. The second tested a station against the plane of its own root triangle, and a head is curved, so a lock running down the occiput passes under that plane while staying well outside the skull. The third fixed the plane test but re-derived the seat arithmetic by hand and got it wrong twice at once: it put the surface normal on the frame's second axis when the frame is [edge, cross(normal, edge), normal], and it assigned the barycentric weights to the wrong corners when the seat is a + edge*u + reach*v. That is the 28%. The fourth took the placement from resolveHumanFaceGroom, which is what the renderer itself calls, and still over-reported: the connected head is an open mesh that stops at the neck near Y = -144 mm, hair hangs past that, and a nearest-triangle sign taken below the opening reads whatever the rim triangles happen to face. It called emma-watson 9.2% buried at a median height of -181 mm, below the last skin there is.\n\nThe reading above is the fifth. Placement comes from resolveHumanFaceGroom and nothing re-derives it; the nearest-surface test is only a cheap filter, and every station it flags is adjudicated by the generalized winding number, which falls off smoothly across an open boundary instead of guessing. For emma-watson it flags 739 and keeps 139.\n\nTwo repairs were built against the false finding and both were rejected on the render before the arithmetic was corrected. Pushing each flagged station out along the surface normal reached 0.2% and returned hair in spikes and tears; smoothing that push along each lock reached 15.3% and still came back with rough crowns on five subjects. A third, re-seating at authoring time by gating the binder's release on the rigid placement's own clearance, was built as bind-groom-v3.mjs and rejected the same way: it changed only emma-watson, and it pulled her hanging hair back toward the scalp so that it sprayed outward instead of falling. All three are reverted and this archive is the one that was measured.\n\nThe render was right three times before the number was. The instrument is test/scripts/face-review/measure-groom-burial.ts and .shots/human-2469/investigation-2498/measure-burial-depth.py."
 }
