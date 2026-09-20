@@ -410,3 +410,56 @@ export const pushOut = (
   }
   return { moved, crossings, solved };
 };
+
+/**
+ * Take back a part's own motion until it is clear of another, and report it.
+ *
+ * A tongue put out through sealed or puckered lips is a pose the channels
+ * describe and the tissue cannot make: the lips would have to open by the
+ * tongue's whole thickness, which no push inside a budget reaches, and it was
+ * measured not to. What the tongue can do is not come out that far. So the
+ * agent's displacement from rest is scaled down by one factor, whole, and the
+ * smallest factor that leaves it clear of the other part is found by
+ * bisection; the corrective is then a scaled copy of the agent's own field,
+ * which is exactly the motion the pose asked for, less. There is no budget,
+ * because a pose that needs the whole motion taken back is the other channel
+ * alone, and that is a face.
+ */
+export const takeBack = (
+  mesh: IAutoMovieMesh,
+  rest: IAutoMovieMesh,
+  other: IAutoMovieMesh,
+): IPushOut & { factor: number } => {
+  const crossingCount = (positions: number[]) =>
+    measureAutoMovieMeshCrossings({ ...mesh, positions }, other).length;
+  const pulled = (factor: number): number[] =>
+    mesh.positions.map(
+      (value, at) => value - factor * (value - rest.positions[at]),
+    );
+  const crossings: number[] = [crossingCount(mesh.positions)];
+  if (crossings[0] === 0)
+    return { moved: new Map(), crossings, solved: true, factor: 0 };
+  if (crossingCount(pulled(1)) > 0) {
+    crossings.push(crossings[0]);
+    return { moved: new Map(), crossings, solved: false, factor: 1 };
+  }
+  let low = 0;
+  let high = 1;
+  for (let step = 0; step < 8; step++) {
+    const middle = (low + high) / 2;
+    const left = crossingCount(pulled(middle));
+    crossings.push(left);
+    if (left === 0) high = middle;
+    else low = middle;
+  }
+  const positions = pulled(high);
+  const moved = new Map<number, number[]>();
+  for (let row = 0; row < mesh.positions.length / 3; row++) {
+    const delta = [0, 1, 2].map(
+      (k) => positions[row * 3 + k] - mesh.positions[row * 3 + k],
+    );
+    if (Math.hypot(delta[0], delta[1], delta[2]) > 1e-9) moved.set(row, delta);
+  }
+  crossings.push(0);
+  return { moved, crossings, solved: true, factor: high };
+};

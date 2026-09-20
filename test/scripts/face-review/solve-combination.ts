@@ -21,8 +21,9 @@
  * at a time. The caller names such agents per combination. Lips and skin are one
  * connected surface, so a lip triangle through a skin triangle is that surface
  * folding into itself, and a push between two bodies does not answer it: the
- * published attempt carried the fold with the shared boundary and grew the
- * crossing from 16 vertices to 63. Those pairs are named and left alone.
+ * first attempt carried the fold with the shared boundary and grew the
+ * crossing from 16 vertices to 63. Those pairs go to `unfold` instead, which
+ * takes back the pose's own pull around the fold rather than pushing either part.
  *
  * Consumers: `generate-combination-correctives.ts`. Nothing here reads or
  * writes the published study.
@@ -31,7 +32,8 @@ import { measureAutoMovieModelCrossings } from "@automovie/engine";
 import type { IAutoMovieHumanFaceBasis } from "@automovie/human";
 import type { IAutoMovieMesh, IAutoMovieModel } from "@automovie/interface";
 
-import { neighboursOf, pushOut } from "./push-out";
+import { neighboursOf, pushOut, takeBack } from "./push-out";
+import { unfold } from "./unfold";
 
 /** Which part gives way, lowest first: rigid never, then skin, then the rest. */
 export const YIELDS = [
@@ -61,6 +63,7 @@ export interface ICrossingOutcome {
     | "beyond the budget"
     | "both rigid"
     | "same surface";
+  /** `same surface` is no longer produced; it names folds an older receipt left alone. */
   yielded?: string;
   crossedVerticesPerRound?: number[];
   movedVertices?: number;
@@ -242,48 +245,106 @@ export const solveCombination = (
       outcomes.push({ surfaces: `${firm} x ${soft}`, outcome: "both rigid" });
       continue;
     }
-    if (parts.get(firm)!.surface === parts.get(soft)!.surface) {
-      outcomes.push({ surfaces: `${firm} x ${soft}`, outcome: "same surface" });
-      continue;
-    }
-    const mesh = partMesh(soft);
-    // Two ways out, for two shapes of crossing. A firm body that sits beside
+    const sameSurface = parts.get(firm)!.surface === parts.get(soft)!.surface;
+    const mesh = sameSurface
+      ? working.get(parts.get(soft)!.surface)!
+      : partMesh(soft);
+    // Three shapes of crossing, three ways out. A firm body that sits beside
     // a soft sheet at rest, teeth behind a lip, leaves by the side the sheet
     // was on, which the rest pose knows and the pose does not. A firm body
     // that passes through the sheet, a tongue through the lip aperture, is
     // not beside it at rest anywhere useful: its rest offset points along the
     // tongue, and a lip pushed that way is chasing the tip. There the sheet
-    // opens around the body, off its nearest face.
-    const { moved, crossings, solved } = pushOut(
-      mesh,
-      partMesh(firm),
-      limit,
-      agents.has(firm)
-        ? undefined
-        : { mesh: partMesh(soft, atRest), into: partMesh(firm, atRest) },
-    );
+    // opens around the body, off its nearest face. And two parts of one
+    // surface through each other are a fold, which has no outside to push
+    // toward and whose pull is taken back instead.
+    const { moved, crossings, solved } = sameSurface
+      ? unfold(
+          mesh,
+          atRest.get(parts.get(soft)!.surface)!,
+          parts.get(firm)!.indices,
+          parts.get(soft)!.indices,
+          limit,
+        )
+      : pushOut(
+          mesh,
+          partMesh(firm),
+          limit,
+          agents.has(firm)
+            ? undefined
+            : { mesh: partMesh(soft, atRest), into: partMesh(firm, atRest) },
+        );
     for (const [vertex, delta] of moved)
       for (let k = 0; k < 3; k++) mesh.positions[vertex * 3 + k] += delta[k];
     let most = 0;
     for (const delta of moved.values())
       most = Math.max(most, Math.hypot(delta[0], delta[1], delta[2]));
+    // What the yielding part cannot clear inside its budget, the other part
+    // clears for it, when it is soft: a tongue through puckered lips is met by
+    // lips that open and a tongue that gives, each inside the same budget,
+    // rather than by lips alone asked for twice as much. Bone and the globe
+    // still never move, and a fold has no other part to give.
+    let shared = 0;
+    let sharedMost = 0;
+    let finallySolved = solved;
+    if (!solved && !sameSurface && YIELDS.indexOf(firm) >= RIGID) {
+      const other = partMesh(firm);
+      // An agent gives by coming out less, not by being pushed: its own motion
+      // is scaled back until it is clear, and the push the lips took toward
+      // it is undone first, because a lip dented three millimetres around a
+      // tongue that then comes out less is a dent and nothing else; the
+      // render showed the chin bulging under a tongue that was no longer
+      // there. Any other soft part is pushed.
+      if (agents.has(firm)) {
+        for (const [vertex, delta] of moved)
+          for (let k = 0; k < 3; k++)
+            mesh.positions[vertex * 3 + k] -= delta[k];
+        moved.clear();
+        most = 0;
+      }
+      const second = agents.has(firm)
+        ? takeBack(other, partMesh(firm, atRest), partMesh(soft))
+        : pushOut(other, partMesh(soft), limit, {
+            mesh: partMesh(firm, atRest),
+            into: partMesh(soft, atRest),
+          });
+      for (const [vertex, delta] of second.moved)
+        for (let k = 0; k < 3; k++) other.positions[vertex * 3 + k] += delta[k];
+      for (const delta of second.moved.values())
+        sharedMost = Math.max(
+          sharedMost,
+          Math.hypot(delta[0], delta[1], delta[2]),
+        );
+      shared = second.moved.size;
+      crossings.push(...second.crossings);
+      finallySolved = second.solved;
+    }
     // Three outcomes, not two: a pair with nothing crossing at this pose is
     // absent, not repaired, and an earlier pair's push may have cleared it.
     const outcome =
-      crossings[0] === 0 ? "absent" : solved ? "repaired" : "beyond the budget";
+      crossings[0] === 0
+        ? "absent"
+        : finallySolved
+          ? "repaired"
+          : "beyond the budget";
     outcomes.push({
       surfaces: `${firm} x ${soft}`,
-      yielded: soft,
+      yielded: sameSurface
+        ? `${soft} and ${firm}`
+        : shared > 0
+          ? `${soft}, then ${firm}`
+          : soft,
       crossedVerticesPerRound: crossings,
-      movedVertices: moved.size,
-      mostMillimetres: most * 1000,
+      movedVertices: moved.size + shared,
+      mostMillimetres: Math.max(most, sharedMost) * 1000,
       outcome,
     });
     log(
       `${short(soft).padEnd(12)} ${short(firm).padEnd(12)}` +
         ` ${String(crossings[0]).padStart(7)}` +
         ` ${String(crossings[crossings.length - 1]).padStart(4)}` +
-        ` ${String(moved.size).padStart(5)} ${(most * 1000).toFixed(2).padStart(5)}` +
+        ` ${String(moved.size + shared).padStart(5)} ${(Math.max(most, sharedMost) * 1000).toFixed(2).padStart(5)}` +
+        (shared > 0 ? `   +${short(firm)} gave ${shared}` : "") +
         (outcome === "repaired" ? "" : `   ${outcome.toUpperCase()}`),
     );
   }
