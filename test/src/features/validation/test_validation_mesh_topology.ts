@@ -1,4 +1,8 @@
-import { tessellateToMesh, validateMeshTopology } from "@automovie/engine";
+import {
+  compareCodeUnits,
+  tessellateToMesh,
+  validateMeshTopology,
+} from "@automovie/engine";
 import { IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -257,13 +261,17 @@ export const test_validation_mesh_topology = (): void => {
   const v2 = key(0, 1, 0);
   const v3 = key(0, 0, 1);
   const canonical = (a: string, b: string): string =>
-    a < b ? `${a}|${b}` : `${b}|${a}`;
+    compareCodeUnits(a, b) <= 0 ? `${a}|${b}` : `${b}|${a}`;
   TestValidator.equals(
     "each boundary violation names its canonical welded edge",
     openTetraClosed.success === false
-      ? openTetraClosed.violations.map((v) => v.value).sort()
+      ? openTetraClosed.violations
+          .map((v) => String(v.value))
+          .sort(compareCodeUnits)
       : [],
-    [canonical(v1, v2), canonical(v2, v3), canonical(v3, v1)].sort(),
+    [canonical(v1, v2), canonical(v2, v3), canonical(v3, v1)].sort(
+      compareCodeUnits,
+    ),
   );
   TestValidator.predicate(
     "the non-manifold message names the canonical edge and its count",
