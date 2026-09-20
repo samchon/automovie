@@ -2,6 +2,8 @@
 
 This document owns repeated membership, stable instance identity, transforms, bounded variation, and placement validity for the reviewed model prototypes. Prototype geometry remains in `docs/models/temple-fit-out.md`, spatial boundaries and reserved routes remain in `docs/spaces/temple.md`, and renderer response remains in `docs/materials/temple.md`.
 
+All transforms below use `(X,Y,Z)` metres in the reviewed world frame, with Y as floor or shelf-contact height and yaw in degrees around the Y axis. Each explicit placement is a deterministic author-adopted input; later source derives only the declared member IDs and checks the resulting prototype bounds against the named host and protected route.
+
 ## Column population {#column-population}
 
 @evidence principles/design/instances.md#instance-prototype-boundary The population reuses `column-prototype` for every porch member; only placement and the declared stone-tone variation may differ, so a silhouette change returns to the model owner.
@@ -47,13 +49,13 @@ Authority and status: `author-adopted` aggregate handoff required by the setting
 ## Altar and plinth population {#altar-and-plinth-population}
 
 @evidence principles/design/instances.md#instance-prototype-boundary The single member reuses `altar-and-plinth-prototype`; no instance override changes its two-part landmark silhouette.
-@evidence principles/design/instances.md#instance-derivation-authority `altar/sanctuary` is derived from the reviewed `sanctuary` room and its `north` observation point, with no model-invented socket or second axis; its transform remains unresolved because the current north-axis and protected-route constraints are incompatible with the reviewed prototype bounds.
-@evidence principles/design/instances.md#instance-verification-address The north-facing sanctuary observation is the representative review because it exposes the unresolved collision between a centered rear landmark and the north cardinal route.
+@evidence principles/design/instances.md#instance-derivation-authority `altar/sanctuary` is derived from the reviewed `sanctuary` room and its `north` observation point, with no model-invented socket or second axis; its adopted floor-contact transform is `(0.00,0.00,8.25)` so the revised model occupies Z `8.15..8.35m` beyond the north protected boundary at `8.10m`.
+@evidence principles/design/instances.md#instance-verification-address The north-facing sanctuary observation is the representative review because it verifies the centered rear landmark, the revised local depth, and the preserved north cardinal route without changing the space graph.
 @evidence obligations/design/instances.md#instance-prototype-membership The complete set contains one member of `altar-and-plinth-prototype` in `sanctuary`.
-@evidence obligations/design/instances.md#instance-identity-transform The stable ID would be `altar/sanctuary` with a plinth floor-contact origin and seed `temple-altar-v1`, but no transform is adopted: the model bounds X `-0.65..0.65m`, Z `-0.40..0.40m` cannot clear the north route's `0.30m` protection band while remaining on the required north axis inside the sanctuary bounds.
-@evidence obligations/design/instances.md#instance-placement-review Placement must be refused until the owners resolve the conflict between the sanctuary north-axis identity, room bounds X `-3.20..3.20m` and Z `6.00..8.40m`, and the threshold-to-center-to-cardinal protected routes; moving off-axis or outside the room is not an instance-layer repair.
+@evidence obligations/design/instances.md#instance-identity-transform The stable ID is `altar/sanctuary` with a plinth floor-contact origin, transform `(0.00,0.00,8.25)`, and seed `temple-altar-v1`; the revised model bounds X `-0.65..0.65m`, local Z `-0.10..0.10m`, and Y `0.00..0.82m` become world Z `8.15..8.35m`, inside the sanctuary bounds and outside the north route's `0.30m` protection band.
+@evidence obligations/design/instances.md#instance-placement-review Placement is accepted only at the centered north-axis transform `(0.00,0.00,8.25)` with the revised depth: its world lower edge `8.15m` leaves the protected route ending at `8.10m` clear, while any deeper prototype or transform below `8.10m` is refused; room bounds remain X `-3.20..3.20m`, Z `6.00..8.40m`.
 
-Authority and status: `unresolved` singleton population. This H2 preserves the reviewed altar pair and refuses to open `src/instances` until the closed spatial constraint owner resolves the north-axis versus north-route conflict. It does not add an axis, socket, iconography, contents, or motion.
+Authority and status: `author-adopted` singleton population. This H2 preserves the reviewed altar pair, adopts `altar/sanctuary` at `(0.00,0.00,8.25)`, and hands the route-clear placement to the later instance source without adding an axis, socket, iconography, contents, or motion.
 
 ## Records table population {#records-table-population}
 
@@ -72,7 +74,7 @@ Authority and status: `author-adopted` singleton work-surface population. The ta
 @evidence principles/design/instances.md#instance-derivation-authority IDs `records-shelf/west` and `records-shelf/east` are explicit members of the records-room set and do not depend on discovery order.
 @evidence principles/design/instances.md#instance-verification-address The two side positions are reviewed against the table clearance and the room corners, where vertical storage can obscure the route or wall host.
 @evidence obligations/design/instances.md#instance-prototype-membership Membership is exactly two records shelf members in `records-room`, both bound to `records-shelf-prototype`.
-@evidence obligations/design/instances.md#instance-identity-transform Each member has a floor-contact transform, seed `temple-records-furniture-v1`, and a fixed scale of one.
+@evidence obligations/design/instances.md#instance-identity-transform `records-shelf/west` uses `(8.05,0.00,0.00)` yaw `0°`, world bounds X `7.60..8.50m`, Z `-0.16..0.16m`; `records-shelf/east` uses `(10.85,0.00,0.00)` yaw `0°`, world bounds X `10.40..11.30m`, Z `-0.16..0.16m`; both use floor contact, scale one, and seed `temple-records-furniture-v1`.
 @evidence obligations/design/instances.md#instance-placement-review A shelf is refused if its frame leaves the room bounds, intersects the table, or enters the protected route band.
 
 Authority and status: `author-adopted` two-member population. The members are furniture placement only; board count and geometry remain model-owned.
@@ -83,7 +85,7 @@ Authority and status: `author-adopted` two-member population. The members are fu
 @evidence principles/design/instances.md#instance-derivation-authority `records-chest/00` is an explicit member ID and its transform is anchored to the records-room furniture plan.
 @evidence principles/design/instances.md#instance-verification-address The low storage position beside the records table is the review address because its closed body must remain legible without narrowing the route.
 @evidence obligations/design/instances.md#instance-prototype-membership The complete set contains one records chest in `records-room` bound to `records-chest-prototype`.
-@evidence obligations/design/instances.md#instance-identity-transform The member uses floor contact, scale one, seed `temple-records-furniture-v1`, and a fixed transform at the south-east furniture zone.
+@evidence obligations/design/instances.md#instance-identity-transform `records-chest/00` uses floor-contact transform `(8.00,0.00,2.00)`, yaw `0°`, scale one, seed `temple-records-furniture-v1`, and world bounds X `7.60..8.40m`, Z `1.775..2.225m` in the north-west records-room fit-out zone.
 @evidence obligations/design/instances.md#instance-placement-review The member is refused when its closed bounds overlap the table, shelf, threshold, or reserved route.
 
 Authority and status: `author-adopted` singleton population. Contents, lid motion, and a second records chest are outside this population.
@@ -103,7 +105,7 @@ Authority and status: `author-adopted` aggregate handoff required by the setting
 @evidence principles/design/instances.md#instance-derivation-authority IDs `storage-shelf/north`, `storage-shelf/middle`, and `storage-shelf/south` are explicit and ordered by the records of the storage room, not by a runtime traversal.
 @evidence principles/design/instances.md#instance-verification-address The three shelves are checked at their room-wall contacts and against the central room route, where a misplaced shelf would block cardinal observation.
 @evidence obligations/design/instances.md#instance-prototype-membership Membership is exactly three storage shelves in `votive-storage-room` bound to `storage-shelf-prototype`.
-@evidence obligations/design/instances.md#instance-identity-transform Each member has scale one, floor contact, seed `temple-storage-furniture-v1`, and an explicit wall-relative transform.
+@evidence obligations/design/instances.md#instance-identity-transform `storage-shelf/north` uses `(10.85,0.00,-1.05)` yaw `0°`, `storage-shelf/middle` uses `(10.85,0.00,-2.10)` yaw `0°`, and `storage-shelf/south` uses `(10.85,0.00,-4.55)` yaw `0°`; each has world bounds X `10.40..11.30m`, Z respectively `-1.22..-0.88m`, `-2.27..-1.93m`, and `-4.72..-4.38m`, scale one, floor contact, and seed `temple-storage-furniture-v1`.
 @evidence obligations/design/instances.md#instance-placement-review A shelf is refused if it leaves `votive-storage-room`, collides with another storage member, or enters its 1.20m observation route and 0.30m protection band.
 
 Authority and status: `author-adopted` three-member population. The set does not create a fourth shelf or change the storage room boundary.
@@ -114,7 +116,7 @@ Authority and status: `author-adopted` three-member population. The set does not
 @evidence principles/design/instances.md#instance-derivation-authority IDs `storage-chest/west` and `storage-chest/east` are explicit, with transforms tied to the storage-room furniture plan.
 @evidence principles/design/instances.md#instance-verification-address The pair is reviewed at the service-facing side of the room and beside the shelves, testing closed storage readability and route clearance together.
 @evidence obligations/design/instances.md#instance-prototype-membership Membership is exactly two storage chest members in `votive-storage-room` bound to `storage-chest-prototype`.
-@evidence obligations/design/instances.md#instance-identity-transform Each member has floor contact, scale one, seed `temple-storage-furniture-v1`, and a fixed transform that preserves the room route.
+@evidence obligations/design/instances.md#instance-identity-transform `storage-chest/west` uses `(8.15,0.00,-4.35)` yaw `0°`, and `storage-chest/east` uses `(8.15,0.00,-1.55)` yaw `0°`; both use scale one, floor contact, seed `temple-storage-furniture-v1`, and world bounds X `7.76..8.54m`, Z respectively `-4.58..-4.12m` and `-1.78..-1.32m`.
 @evidence obligations/design/instances.md#instance-placement-review A member is refused if its body/lid bounds overlap a shelf, the threshold, or the protected route, or if it is not grounded.
 
 Authority and status: `author-adopted` two-member population. Contents and lid motion are outside scope.
@@ -125,7 +127,7 @@ Authority and status: `author-adopted` two-member population. Contents and lid m
 @evidence principles/design/instances.md#instance-derivation-authority IDs `storage-basket/00..03` are explicit and seeded, so their order and transforms remain stable when a shelf is edited.
 @evidence principles/design/instances.md#instance-verification-address The basket nearest the service-yard side and the highest shelf position are worst cases for grounding, collision, and readable negative space.
 @evidence obligations/design/instances.md#instance-prototype-membership The complete set contains four open baskets in `votive-storage-room`, each bound to `storage-basket-prototype` and no alternate basket model.
-@evidence obligations/design/instances.md#instance-identity-transform Each member uses seed `temple-storage-props-v1`, a named shelf or floor host, deterministic yaw, and scale in `0.95..1.05`.
+@evidence obligations/design/instances.md#instance-identity-transform `storage-basket/00` is on `storage-shelf/south` at `(10.95,1.48,-4.55)` yaw `0°`, scale `1.00`; `storage-basket/01` is on `storage-shelf/middle` at `(10.95,1.13,-2.10)` yaw `6°`, scale `0.98`; `storage-basket/02` is on `storage-shelf/north` at `(10.95,1.48,-1.05)` yaw `-6°`, scale `1.02`; `storage-basket/03` is on the storage-room floor at `(8.15,0.00,-3.90)` yaw `4°`, scale `0.95`; all use seed `temple-storage-props-v1` and remain within the declared `0.95..1.05` range.
 @evidence obligations/design/instances.md#instance-placement-review The source refuses an ungrounded basket, a basket whose cavity is occluded by a host, or any member that intersects the route protection band.
 
 Authority and status: `author-adopted` four-member population. Baskets remain open props and cannot become closed chests through variation.
@@ -136,7 +138,7 @@ Authority and status: `author-adopted` four-member population. Baskets remain op
 @evidence principles/design/instances.md#instance-derivation-authority `votive-display/communal` is anchored to the reviewed `communal-votive-room` host and has one explicit transform.
 @evidence principles/design/instances.md#instance-verification-address The west communal room centre is the review address because the display must read from the loop while leaving its threshold and cardinal route open.
 @evidence obligations/design/instances.md#instance-prototype-membership The complete set contains one display member in `communal-votive-room` bound to `votive-display-prototype`.
-@evidence obligations/design/instances.md#instance-identity-transform The member is floor/contact anchored, uses scale one and seed `temple-votive-v1`, and faces the room centre without changing the prototype recess.
+@evidence obligations/design/instances.md#instance-identity-transform `votive-display/communal` uses floor-contact transform `(-9.40,0.00,2.70)`, yaw `180°`, scale one, seed `temple-votive-v1`, and world bounds X `-10.05..-8.75m`, Z `2.50..2.90m`; its front faces the room centre and its recessed field remains the prototype's empty negative space.
 @evidence obligations/design/instances.md#instance-placement-review Placement is refused if the display covers the empty recess, intersects the route reservation, or crosses the communal room bounds.
 
 Authority and status: `author-adopted` singleton population. Display count and wall construction are not delegated to the instance layer.
@@ -157,7 +159,7 @@ Authority and status: `author-adopted` aggregate handoff required by the setting
 @evidence principles/design/instances.md#instance-derivation-authority IDs `vessel/communal/00..02` and `vessel/storage/00..02` derive from two explicit host subsets and seed `temple-vessels-v1`, not from object creation order.
 @evidence principles/design/instances.md#instance-verification-address The three communal display vessels and three storage vessels are reviewed at the display recess and shelf contacts, including the smallest allowed scale.
 @evidence obligations/design/instances.md#instance-prototype-membership The complete set contains six members of `ceramic-vessel-prototype`, split between `communal-votive-room` and `votive-storage-room` as named above.
-@evidence obligations/design/instances.md#instance-identity-transform Each member has a stable host-qualified ID, deterministic yaw, scale in `0.95..1.05`, and a floor or shelf contact datum.
+@evidence obligations/design/instances.md#instance-identity-transform `vessel/communal/00..02` occupy the display ledge at `(-9.85,0.72,2.62)`, `(-9.40,0.72,2.62)`, and `(-8.95,0.72,2.62)` with yaw `0°`, `8°`, and `-8°`; `vessel/storage/00..02` occupy the named shelf contacts at `(10.55,1.48,-1.05)`, `(10.55,1.13,-2.10)`, and `(10.55,1.48,-4.55)` with yaw `0°`, `-6°`, and `6°`; all use stable host-qualified IDs, scale one, and the seed `temple-vessels-v1` within the allowed `0.95..1.05` range.
 @evidence obligations/design/instances.md#instance-placement-review A vessel is refused if it floats, enters a route reservation, exceeds its host shelf or recess, or uses a scale outside the declared range.
 
 Authority and status: `author-adopted` six-member population. Vessels do not gain handles, lids, liquid, or a second prototype through variation.
@@ -168,7 +170,7 @@ Authority and status: `author-adopted` six-member population. Vessels do not gai
 @evidence principles/design/instances.md#instance-derivation-authority IDs `lamp/sanctuary`, `lamp/records`, `lamp/storage`, `lamp/loop/west`, and `lamp/loop/east` are explicit and use seed `temple-lamps-v1`.
 @evidence principles/design/instances.md#instance-verification-address The sanctuary, records, storage, and two loop positions are reviewed because each has a different host ceiling or route clearance.
 @evidence obligations/design/instances.md#instance-prototype-membership Membership is exactly five lamp members bound to `lamp-prototype`, with named room or loop hosts and no unreviewed fixture.
-@evidence obligations/design/instances.md#instance-identity-transform Each lamp uses the prototype's floor-contact origin, a fixed scale of one, explicit yaw, and a host-relative transform.
+@evidence obligations/design/instances.md#instance-identity-transform `lamp/sanctuary` uses `(2.40,0.00,7.20)` yaw `180°`, `lamp/records` uses `(10.95,0.00,0.75)` yaw `180°`, `lamp/storage` uses `(9.60,0.00,-4.60)` yaw `0°`, `lamp/loop/west` uses `(-6.55,0.00,2.50)` yaw `90°`, and `lamp/loop/east` uses `(6.55,0.00,-2.50)` yaw `270°`; all use the prototype's floor-contact origin, scale one, host-relative transform, and seed `temple-lamps-v1`.
 @evidence obligations/design/instances.md#instance-placement-review A lamp is refused if its shade intersects the 3.60m clear-height envelope, falls outside its host, or narrows a reserved route.
 
 Authority and status: `author-adopted` five-member population. Lighting response and illumination process are outside this branch and no animated lamp state is authored.
@@ -179,13 +181,14 @@ Authority and status: `author-adopted` five-member population. Lighting response
 @evidence principles/design/instances.md#instance-derivation-authority IDs `bench/south`, `bench/north`, `bench/west`, and `bench/east` derive from the four loop cells and fixed seed `temple-benches-v1`.
 @evidence principles/design/instances.md#instance-verification-address Each bench is reviewed at its loop cell and nearest corner because the back rail and seat clearance must not intrude into the 2.00m circulation route.
 @evidence obligations/design/instances.md#instance-prototype-membership The complete set contains exactly four members of `bench-prototype`, one in each reviewed loop cell and none in a room or threshold.
-@evidence obligations/design/instances.md#instance-identity-transform Each member uses floor contact, explicit cardinal yaw, scale one, and the stable cell-qualified ID.
+@evidence obligations/design/instances.md#instance-identity-transform `bench/south` uses `(0.00,0.00,-5.15)` yaw `0°`, `bench/north` uses `(0.00,0.00,5.15)` yaw `180°`, `bench/west` uses `(-6.55,0.00,0.00)` yaw `90°`, and `bench/east` uses `(6.55,0.00,0.00)` yaw `270°`; all use floor contact, scale one, explicit cardinal yaw, and their stable cell-qualified IDs.
 @evidence obligations/design/instances.md#instance-placement-review A bench is refused if its seat, legs, or back rail overlaps the loop reservation, a column footprint, a threshold, or another bench.
 
 Authority and status: `author-adopted` four-member population. The benches are static set dressing and do not become route barriers or new structural spaces.
 
 ## Population-wide derivation and review boundary {#population-wide-derivation-and-review}
 
+@evidence discovery/design/instances.md#work-specific-instance-requirements The fourteen population H2s answer this production's distinct repeated-subject search: reviewed prototype membership, stable IDs and seeds, host-relative transforms, bounded variation, grounding, route and overlap refusal, and named worst-case observations; an unnamed or unowned population condition would falsify this complete owner map.
 @evidence principles/design/instances.md#instance-derivation-authority All membership and transform tables above are inputs to one deterministic instance source; no second hand-maintained output list may override them.
 @evidence principles/design/instances.md#instance-verification-address The compiled population review includes every member ID, prototype binding, world bounds, host contact, route clearance, and the worst-case members named by each population.
 @evidence obligations/design/instances.md#instance-prototype-membership The complete delivered population is the union of the fourteen addressable sets above and contains no unnamed repeated object.

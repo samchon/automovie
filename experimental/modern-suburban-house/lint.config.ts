@@ -69,7 +69,7 @@ productionEvidence.spaces = "review";
 productionEvidence.materials = "evidence";
 productionEvidence.instances = "evidence";
 productionEvidence.systems = "evidence";
-productionEvidence.spaceSources = "draft";
+productionEvidence.spaceSources = "evidence";
 productionEvidence.claims = localClaims;
 
 const graph = createAutoMovieEvidenceConfig(productionEvidence);

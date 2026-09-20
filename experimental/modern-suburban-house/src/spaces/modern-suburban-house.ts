@@ -395,7 +395,18 @@ const modernSuburbanHouseEnvironment = (): IAutoMovieBuiltEnvironment => ({
   walkable: environmentSurfaces().map((item) => item.surface.id),
 });
 
-/** Deterministic AutoMovie source owner for the complete modern suburban house. */
+/**
+ * Deterministic AutoMovie source owner for the complete modern suburban house.
+ *
+ * @evidence spaces/house.md The `design` field selects this file as the sole reviewed space-design owner for the exported environment; this source does not register a second spatial document.
+ * @evidence spaces/house.md#building-and-storeys The build callback lowers the reviewed building, two storeys, 15 spaces, 31 openings, 14 same-storey passage pairs, 15 floor surfaces, and the single stair connector into one environment.
+ * @evidence principles/core/source-units.md#source-scope-preservation The export realizes space-source lowering and refuses missing endpoints, cross-storey passages, out-of-room endpoints, and non-reciprocal adjacency without becoming a second space author.
+ * @evidence principles/core/source-units.md#source-substantive-completion The callback returns a complete environment with elements, models, spaces, boundaries, openings, connectors, and surfaces rather than a placeholder or deferred artifact.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The current implementation tested the reviewed room bounds, storey containment, opening references, same-storey routes, single stair route, floor surfaces, and explicit invalid-topology refusals and found no parent topology or interface defect requiring repair.
+ * @evidence obligations/design/space-sources.md#space-source-design-ownership The source registers exactly the reviewed `docs/spaces/house.md` design and emits no unreviewed room, boundary, opening, route, dimension, or access rule.
+ * @evidence obligations/design/space-sources.md#space-source-stable-identities The lowering preserves stable ids for building elements, spaces, boundaries, openings, connectors, surfaces, models, and parent relationships in metre coordinates.
+ * @evidence obligations/design/space-sources.md#space-source-invalid-topology Missing space endpoints, cross-storey passages without the stair connector, endpoint-bound violations, and non-reciprocal adjacency raise `space-source passage refused` errors instead of silently emitting invalid topology.
+ */
 export const modernSuburbanHouseSpaceSource: IAutoMovieLibrarySourceOwner = {
   design: "docs/spaces/house.md#building-and-storeys",
   build: () => ({
