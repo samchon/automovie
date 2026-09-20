@@ -3,7 +3,7 @@ import {
   IAutoMovieModelRecipe,
 } from "@automovie/interface";
 
-import { autoMovieRenderDigest } from "../render/renderDigest";
+import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
 import { canonicalizeAutoMovieJson } from "../text/canonicalizeAutoMovieJson";
 
 /**

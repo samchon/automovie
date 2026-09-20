@@ -1,4 +1,4 @@
-import { fitPortraitEyeSphere } from "@automovie/human/geometry/portraitEyeSphere";
+import { fitPortraitEyeSphere } from "@automovie/human/face/surface/fitPortraitEyeSphere";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/predicates";

@@ -1,4 +1,4 @@
-import { refinePortraitSkinBridge } from "@automovie/human/geometry/refinePortraitSkinBridge";
+import { refinePortraitSkinBridge } from "@automovie/human/face/anatomy/skin/refinePortraitSkinBridge";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/predicates";

@@ -6,7 +6,7 @@ import {
   IAutoMovieValidation,
 } from "@automovie/interface";
 
-import { ViolationCollector } from "./violation";
+import { ViolationCollector } from "./ViolationCollector";
 
 /**
  * Relative slack allowed before a measured UV span is called wrong.

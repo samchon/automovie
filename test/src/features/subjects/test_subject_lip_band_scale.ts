@@ -1,4 +1,4 @@
-import { createPortraitLipBandScale } from "@automovie/human/components/lipSection";
+import { createPortraitLipBandScale } from "@automovie/human/face/anatomy/mouth/createPortraitLipBandScale";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, throwsError } from "../internal/predicates";

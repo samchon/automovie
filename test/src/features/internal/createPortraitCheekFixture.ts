@@ -1,8 +1,6 @@
-import type {
-  IPortraitCheekShape,
-  IPortraitCheekSocket,
-} from "@automovie/human/components/cheeks";
-import type { IPortraitSurfaceHost } from "@automovie/human/geometry/portraitSurface";
+import type { IPortraitCheekShape } from "@automovie/human/face/anatomy/cheek/IPortraitCheekShape";
+import type { IPortraitCheekSocket } from "@automovie/human/face/anatomy/cheek/IPortraitCheekSocket";
+import type { IPortraitSurfaceHost } from "@automovie/human/face/surface/structures/IPortraitSurfaceHost";
 
 /** Independent millimetre attachments with separated volume centres and one straight fold. */
 export function createPortraitCheekFixture(): {

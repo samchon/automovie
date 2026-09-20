@@ -1,6 +1,6 @@
-import { appendPortraitEyeMargins } from "@automovie/human/components/eyes";
-import { createPortraitUpperLidProfile } from "@automovie/human/components/upperLidSection";
-import { subdivideControlMesh } from "@automovie/human/geometry/subdivideControlMesh";
+import { appendPortraitEyeMargins } from "@automovie/human/face/anatomy/eye/appendPortraitEyeMargins";
+import { createPortraitUpperLidProfile } from "@automovie/human/face/anatomy/eye/createPortraitUpperLidProfile";
+import { subdivideControlMesh } from "@automovie/human/face/mesh/subdivideControlMesh";
 import { TestValidator } from "@nestia/e2e";
 
 import { portraitEyeShapeFixture } from "../internal/portraitEyeShapeFixture";

@@ -1,8 +1,6 @@
-import {
-  type IPortraitNasalBodyShape,
-  createPortraitNasalBody,
-  portraitNasalViewRay,
-} from "@automovie/human/components/nasalBody";
+import { createPortraitNasalBody } from "@automovie/human/face/anatomy/nose/createPortraitNasalBody";
+import { portraitNasalViewRay } from "@automovie/human/face/anatomy/nose/portraitNasalViewRay";
+import { type IPortraitNasalBodyShape } from "@automovie/human/face/anatomy/nose/structures/IPortraitNasalBodyShape";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, throwsError } from "../internal/predicates";

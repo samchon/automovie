@@ -1,4 +1,4 @@
-import { createPortraitUpperLidProfile } from "@automovie/human/components/upperLidSection";
+import { createPortraitUpperLidProfile } from "@automovie/human/face/anatomy/eye/createPortraitUpperLidProfile";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/predicates";

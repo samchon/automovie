@@ -1,4 +1,4 @@
-import { createPortraitDentalArc } from "@automovie/human/components/dentalArc";
+import { createPortraitDentalArc } from "@automovie/human/face/anatomy/dental/createPortraitDentalArc";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, throwsError, vclose } from "../internal/predicates";

@@ -1,6 +1,6 @@
 import { IAutoMovieProfile, IAutoMovieValidation } from "@automovie/interface";
 
-import { ViolationCollector } from "./violation";
+import { ViolationCollector } from "./ViolationCollector";
 
 /**
  * Validate the typed semantic capability data carried by model profiles.

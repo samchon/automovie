@@ -6,17 +6,13 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import {
-  polygonInside,
-  polygonIsSimple,
-  polygonsOverlap,
-} from "../architecture/planarGeometry";
-import {
-  IAutoMovieFootprintRing,
-  footprintRing,
-  footprintRingPlacement,
-} from "../space/footprint";
-import { ViolationCollector } from "./violation";
+import { polygonInside } from "../architecture/polygonInside";
+import { polygonIsSimple } from "../architecture/polygonIsSimple";
+import { polygonsOverlap } from "../architecture/polygonsOverlap";
+import { IAutoMovieFootprintRing } from "../space/IAutoMovieFootprintRing";
+import { footprintRing } from "../space/footprintRing";
+import { footprintRingPlacement } from "../space/footprintRingPlacement";
+import { ViolationCollector } from "./ViolationCollector";
 
 const SURFACE_KINDS = ["floor", "platform", "ramp"] as const;
 const MIN_RAMP_AXIS = 1e-9;

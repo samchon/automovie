@@ -1,6 +1,6 @@
-import { createPortraitNasalEnvelope } from "@automovie/human/components/nasalEnvelope";
-import { applyPortraitRegionReplacements } from "@automovie/human/geometry/portraitRegionReplacement";
-import { subdivideControlMesh } from "@automovie/human/geometry/subdivideControlMesh";
+import { createPortraitNasalEnvelope } from "@automovie/human/face/anatomy/nose/createPortraitNasalEnvelope";
+import { applyPortraitRegionReplacements } from "@automovie/human/face/surface/applyPortraitRegionReplacements";
+import { subdivideControlMesh } from "@automovie/human/face/mesh/subdivideControlMesh";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, throwsError } from "../internal/predicates";

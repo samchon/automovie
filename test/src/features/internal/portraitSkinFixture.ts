@@ -1,4 +1,4 @@
-import type { IPortraitSkinShape } from "@automovie/human/components/skinShape";
+import type { IPortraitSkinShape } from "@automovie/human/face/anatomy/skin/structures/IPortraitSkinShape";
 
 import { humanFaceFixture } from "./humanFaceFixture";
 

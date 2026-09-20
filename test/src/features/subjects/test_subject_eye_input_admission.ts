@@ -1,4 +1,4 @@
-import { resolvePortraitEyeInputs } from "@automovie/human/components/eyeComponentInputs";
+import { resolvePortraitEyeInputs } from "@automovie/human/face/anatomy/eye/resolvePortraitEyeInputs";
 import { TestValidator } from "@nestia/e2e";
 
 import { portraitEyeShapeFixture } from "../internal/portraitEyeShapeFixture";

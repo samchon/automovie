@@ -1,8 +1,6 @@
-import {
-  type IPortraitEyeShape,
-  appendPortraitEyeMargins,
-} from "@automovie/human/components/eyes";
-import type { IPortraitUpperLidProfile } from "@automovie/human/components/upperLidSection";
+import { appendPortraitEyeMargins } from "@automovie/human/face/anatomy/eye/appendPortraitEyeMargins";
+import { type IPortraitEyeShape } from "@automovie/human/face/anatomy/eye/structures/IPortraitEyeShape";
+import type { IPortraitUpperLidProfile } from "@automovie/human/face/anatomy/eye/structures/IPortraitUpperLidProfile";
 import { TestValidator } from "@nestia/e2e";
 
 import { portraitEyeShapeFixture } from "../internal/portraitEyeShapeFixture";

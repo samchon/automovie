@@ -1,9 +1,7 @@
-import { portraitLipTriangles } from "@automovie/human/components/mouth";
-import {
-  appendPortraitNostrils,
-  portraitNoseDepth,
-  portraitNostrilContains,
-} from "@automovie/human/components/nose";
+import { portraitLipTriangles } from "@automovie/human/face/anatomy/mouth/portraitLipTriangles";
+import { appendPortraitNostrils } from "@automovie/human/face/anatomy/nose/appendPortraitNostrils";
+import { portraitNoseDepth } from "@automovie/human/face/anatomy/nose/portraitNoseDepth";
+import { portraitNostrilContains } from "@automovie/human/face/anatomy/nose/portraitNostrilContains";
 import { TestValidator } from "@nestia/e2e";
 
 import {

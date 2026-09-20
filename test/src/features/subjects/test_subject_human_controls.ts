@@ -2,9 +2,9 @@ import {
   applyHumanFaceControls,
   humanFaceControlDefinitions,
 } from "@automovie/human";
-import { portraitNeckShape } from "@automovie/human/components/cranium";
-import { resolvePortraitCraniumShape } from "@automovie/human/components/craniumShape";
-import { portraitEarShape } from "@automovie/human/components/ears";
+import { portraitNeckShape } from "@automovie/human/face/anatomy/cranium/portraitNeckShape";
+import { resolvePortraitCraniumShape } from "@automovie/human/face/anatomy/cranium/resolvePortraitCraniumShape";
+import { portraitEarShape } from "@automovie/human/face/anatomy/ear/portraitEarShape";
 import { TestValidator } from "@nestia/e2e";
 
 import { portraitCheekShape } from "../../subjects/generated-korean-girl-01/configuration";

@@ -1,7 +1,5 @@
-import {
-  portraitSkinParameters,
-  resolvePortraitSkinShape,
-} from "@automovie/human/components/skinShape";
+import { portraitSkinParameters } from "@automovie/human/face/anatomy/skin/portraitSkinParameters";
+import { resolvePortraitSkinShape } from "@automovie/human/face/anatomy/skin/resolvePortraitSkinShape";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/predicates";

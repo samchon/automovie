@@ -1,50 +1,5 @@
-/**
- * Per-axis state a {@link dampedSpring} threads across frames.
- *
- * @evidence requirements/motion/secondary-motion.md#motion-secondary-author-solver Separates the solver-owned evolving state from the author's target.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-secondary-motion-boundary-choice Carries the bounded state needed by the selected live secondary-motion path.
- * @author Samchon
- */
-export interface ISpringStep {
-  /**
-   * The sprung value this step.
-   *
-   * @evidence requirements/motion/secondary-motion.md#motion-secondary-author-solver Reports the solver result without rewriting the authored target.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-secondary-motion-boundary-choice Exposes the live channel value produced at the fixed step.
-   */
-  value: number;
-  /**
-   * Velocity carried into the next step.
-   *
-   * @evidence requirements/motion/secondary-motion.md#motion-secondary-author-solver Keeps solver history explicit rather than hidden in global playback state.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-secondary-motion-boundary-choice Supplies the bounded continuation state for the next live step.
-   */
-  velocity: number;
-}
-
-/**
- * Stiffness (pull toward target) and damping (energy bleed) of a spring.
- *
- * @evidence requirements/motion/secondary-motion.md#motion-secondary-author-solver Keeps the author-selected response law distinct from solver state.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-secondary-motion-boundary-choice Declares the parameters of the selected bounded spring response.
- * @author Samchon
- */
-export interface ISpringParams {
-  /**
-   * How hard the spring pulls toward the target. Higher = snappier.
-   *
-   * @evidence requirements/motion/secondary-motion.md#motion-secondary-author-solver Lets the author control target attraction while the solver performs integration.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-secondary-motion-boundary-choice Parameterizes the live secondary response without changing its fixed-step law.
-   */
-  stiffness: number;
-  /**
-   * How fast oscillation decays. Higher = less overshoot.
-   *
-   * @evidence requirements/motion/secondary-motion.md#motion-secondary-author-solver Lets the author bound energy loss while the solver owns the evolving velocity.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-secondary-motion-boundary-choice Controls settlement of the chosen live spring path.
-   */
-  damping: number;
-}
+import { ISpringParams } from "./ISpringParams";
+import { ISpringStep } from "./ISpringStep";
 
 const assertFinite = (label: string, value: number): void => {
   if (!Number.isFinite(value)) throw new Error(`${label} must be finite`);

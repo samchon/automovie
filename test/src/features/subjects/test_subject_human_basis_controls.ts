@@ -21,7 +21,7 @@ export const test_subject_human_basis_controls = (): void => {
   const build = createHumanFaceBasisBuilder(basis),
     neutral = build(document);
   const patches: Partial<IAutoMovieHumanFaceBasisDocument>[] = [
-    { version: "unknown" as never },
+    { version: "unknown" } as never,
     { basis: "different" },
     { id: "" },
     { name: " " },

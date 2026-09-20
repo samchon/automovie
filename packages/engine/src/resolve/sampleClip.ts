@@ -1,43 +1,13 @@
-import {
-  IAutoMovieChannel,
-  IAutoMovieClip,
-  IAutoMovieTrack,
-} from "@automovie/interface";
-
+import { IAutoMovieClip, IAutoMovieTrack } from "@automovie/interface";
 import { Quaternion } from "../math/Quaternion";
-import { segmentIndex } from "../math/bisect";
-import { cubicHermiteValue } from "../math/cubicHermite";
-import {
-  clipDurationFault,
-  clipLoopFault,
-  clipTrackShapeFaults,
-} from "../validation/clipTrackShape";
-import { channelIsRotation, channelKey } from "./channel";
-
-/**
- * One channel's value sampled at an instant, with the channel it targets.
- *
- * @evidence requirements/motion/clips-keyframes-and-interpolation.md#motion-interpolation Carries the typed interpolation result together with its addressed channel.
- * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Defines the per-channel output of clip sampling.
- * @author Samchon
- */
-export interface IAutoMovieSampledChannel {
-  /**
-   * The channel this value belongs to.
-   *
-   * @evidence requirements/motion/clips-keyframes-and-interpolation.md#motion-interpolation Preserves which typed channel selected the interpolation rule for this value.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Keeps each sampled result attached to its source track channel.
-   */
-  channel: IAutoMovieChannel;
-
-  /**
-   * The sampled value, one number per channel component.
-   *
-   * @evidence requirements/motion/clips-keyframes-and-interpolation.md#motion-interpolation Carries the value produced by the channel-appropriate interpolation rule.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Emits the dense channel value resolved from sparse clip keys.
-   */
-  value: number[];
-}
+import { segmentIndex } from "../math/segmentIndex";
+import { cubicHermiteValue } from "../math/cubicHermiteValue";
+import { clipDurationFault } from "../validation/clipDurationFault";
+import { clipLoopFault } from "../validation/clipLoopFault";
+import { clipTrackShapeFaults } from "../validation/clipTrackShapeFaults";
+import { channelIsRotation } from "./channelIsRotation";
+import { channelKey } from "./channelKey";
+import { IAutoMovieSampledChannel } from "./IAutoMovieSampledChannel";
 
 /**
  * The SAMPLE pass: evaluate every track of a clip at time `seconds`, returning
@@ -72,48 +42,6 @@ export const sampleClip = (
       channel: track.channel,
       value: sampleTrack(track, time, clip.duration),
     });
-  }
-  return out;
-};
-
-/**
- * Sample a sequence of clips under shot-time channel authority.
- *
- * Authority is selected independently for every channel: among tracks whose
- * first key has started by `seconds`, the track with the latest first key wins;
- * equal starts go to the later clip in producer order. A future track writes
- * nothing, instead of letting {@link sampleClip}'s before-first-key clamp
- * overwrite the authority that is currently in effect.
- *
- * @evidence requirements/motion/layers-blends-and-transitions.md#motion-layer-channel-ownership Selects one explicit time-qualified owner for every channel across the clip sequence.
- * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-layer-mask-transition-composition Implements channel authority across ordered temporal layers without future-key leakage.
- * @author Samchon
- */
-export const sampleClipSequence = (
-  clips: readonly IAutoMovieClip[],
-  seconds: number,
-): Map<string, IAutoMovieSampledChannel> => {
-  if (!Number.isFinite(seconds))
-    throw new Error(
-      `sampleClipSequence seconds must be finite, but was ${seconds}`,
-    );
-  const sampledByClip = new Map(
-    clips.map((clip) => [clip, sampleClip(clip, seconds)] as const),
-  );
-  const authority = new Map<string, { start: number; clip: IAutoMovieClip }>();
-  for (const clip of clips)
-    for (const track of clip.tracks) {
-      const start = track.times[0]!;
-      if (start > seconds) continue;
-      const key = channelKey(track.channel);
-      const previous = authority.get(key);
-      if (previous === undefined || start >= previous.start)
-        authority.set(key, { start, clip });
-    }
-
-  const out = new Map<string, IAutoMovieSampledChannel>();
-  for (const [key, entry] of authority) {
-    out.set(key, sampledByClip.get(entry.clip)!.get(key)!);
   }
   return out;
 };

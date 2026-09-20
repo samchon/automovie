@@ -1,5 +1,5 @@
 import { createAutoMovieMeshDeformer } from "@automovie/engine";
-import { createPortraitReliefLayer } from "@automovie/human/geometry/portraitRelief";
+import { createPortraitReliefLayer } from "@automovie/human/face/anatomy/skin/createPortraitReliefLayer";
 import { TestValidator } from "@nestia/e2e";
 
 import {

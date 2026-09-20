@@ -7,12 +7,12 @@ import {
   IAutoMovieTransform,
 } from "@automovie/interface";
 
-import { IAutoMovieJointAxes } from "../kinematics/jointToQuaternion";
+import { IAutoMovieJointAxes } from "../kinematics/IAutoMovieJointAxes";
 import { resolveAttachment } from "../kinematics/resolveAttachment";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { sampleMotion } from "../motion/sampleMotion";
-import { IAutoMovieRestFrame } from "../rom/restFrame";
+import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 
 /** The child rides the bone directly: origin on the bone, no extra offset. */
 const IDENTITY_OFFSET: IAutoMovieTransform = {
