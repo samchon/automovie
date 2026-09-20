@@ -104,7 +104,7 @@ const localClaims = [
     document: "contracts/instance-blocking.md",
     account: "accounts/instances/instance-blocking.md",
     layer: "instances",
-    stage: "draft",
+    stage: "evidence",
     populationScope: completePopulation,
   }),
 ];
@@ -115,7 +115,7 @@ export const productionEvidence = {
   settings: "review" as const,
   spaces: "review" as const,
   models: "review" as const,
-  instances: "draft" as const,
+  instances: "evidence" as const,
   modelSources: "review" as const,
   materials: "review" as const,
   spaceSources: "review" as const,

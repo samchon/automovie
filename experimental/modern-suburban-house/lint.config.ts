@@ -64,12 +64,12 @@ export const productionEvidence = {
 productionEvidence.kind = "library";
 productionEvidence.settings = "review";
 productionEvidence.maps = "review";
-productionEvidence.models = "evidence";
+productionEvidence.models = "review";
 productionEvidence.spaces = "review";
-productionEvidence.materials = "evidence";
-productionEvidence.instances = "evidence";
-productionEvidence.systems = "evidence";
-productionEvidence.spaceSources = "evidence";
+productionEvidence.materials = "review";
+productionEvidence.instances = "review";
+productionEvidence.systems = "review";
+productionEvidence.spaceSources = "review";
 productionEvidence.claims = localClaims;
 
 const graph = createAutoMovieEvidenceConfig(productionEvidence);

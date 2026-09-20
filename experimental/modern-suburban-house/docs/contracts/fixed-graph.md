@@ -8,8 +8,11 @@
 @evidence discovery/design/maps.md#work-specific-map-requirements The graph fixes the single lot, attached garage placement, and front-to-rear orientation that the map realizes.
 @evidenceReview discovery/design/maps.md#work-specific-map-requirements #7a5d44e The fixed-graph contract fixes one lot, attached garage placement, and front-to-rear orientation for the map owner; the falsifier would be a map that introduces a detached structure or reverses the declared interface.
 @evidence discovery/design/models.md#work-specific-model-requirements The graph fixes the bounded building representation and fidelity ceiling that the model realizes.
+@evidenceReview discovery/design/models.md#work-specific-model-requirements #e541d95 The fixed-graph contract was reviewed against the model target: its one-house, attached-garage, no-second-stair and no-hidden-service constraints are the authored predicates that the bounded model must preserve; the review would fail if the model introduced a second building, vehicle, void, or unsupported engineering claim.
 @evidence discovery/design/instances.md#work-specific-instance-requirements The graph fixes repeated envelope populations and ordinary fit-out membership that instance realization must preserve.
+@evidenceReview discovery/design/instances.md#work-specific-instance-requirements #95448eb The fixed-graph contract was reviewed against the instance target: its room schedule, attached empty garage, and repeated envelope/fit-out ownership constrain the 79-element/109-part population; the review would fail if instances changed the fixed graph or added vehicle proxies.
 @evidence discovery/design/systems.md#work-specific-system-requirements The graph fixes the daytime lighting and visible-service boundary that systems realization must preserve.
+@evidenceReview discovery/design/systems.md#work-specific-system-requirements #ff5015f The fixed-graph contract was reviewed against the systems target: its visible lighting and explicit hidden-service boundary constrain the 16-fixture source population; the review would fail if systems claimed hidden wiring, HVAC, plumbing, or a new room or connector.
 -->
 # Fixed spatial graph
 
