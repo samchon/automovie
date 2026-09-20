@@ -64,6 +64,8 @@ const summary = (
  * 8. Negative twins: an empty face list, a two-corner face, a non-finite corner, a
  *    collinear face, a reflex face, and a self-intersecting bow-tie face are
  *    each refused, as is a non-planar face.
+ * 9. A mesh at 2^26 vertices is refused with the limit named, since a packed
+ *    pair of welded ids is unique only below it.
  */
 export const test_geometry_procedural_topology = (): void => {
   const prism = extrudeAutoMovieProfile({
@@ -366,4 +368,20 @@ export const test_geometry_procedural_topology = (): void => {
       `${name} is refused by its own diagnostic`,
       throwsError(callback, message),
     );
+  // 9. edge incidence is counted on packed pairs of welded vertex ids, which
+  // stay unique only while the vertex count is below 2^26. A mesh at that
+  // count is refused with the limit named, before anything is read or
+  // allocated: a holey positions array of that length costs nothing to
+  // declare, so the refusal is exercised without 67 million vertices.
+  TestValidator.error(
+    "a mesh at the packed-id limit is refused, not aliased",
+    () =>
+      inspectAutoMovieMeshTopology({
+        positions: new Array<number>(3 * 2 ** 26),
+        indices: [0, 1, 2],
+        normals: null,
+        uvs: null,
+        skin: null,
+      }),
+  );
 };
