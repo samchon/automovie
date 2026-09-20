@@ -17,6 +17,16 @@ import { numberOf, numberParameter } from "./parameterValues";
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-connected-basis This primitive figure catalogue does not provide the connected anatomical face prior or its independent editing document.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-basis Primitive rig construction does not compile sparse facial endpoints or separate connected facial material regions; the human authoring builder owns that operation.
  *
+ * @evidenceExclude requirements/actors/body-authoring/README.md#body-requirements The stickman catalogue constructs a primitive skeleton and body; it does not provide the connected body basis, its joints, measurements or documents.
+ * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-connected-basis This primitive figure catalogue does not compile a licensed connected body prior or its identity layer.
+ * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-joints The stickman rig places joints by height rules, not by shape-following landmarks over a skinned basis.
+ * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-measurements The stickman exposes no anthropometric millimetre channels.
+ * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-document The stickman has no compact body edit document.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/README.md#body-specifications Primitive rig construction owns none of the body basis, measurement or document contracts.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-basis This primitive figure catalogue does not compile a licensed connected body prior or its identity layer.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-joints The stickman rig places joints by height rules, not by shape-following landmarks over a skinned basis.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-measurements The stickman exposes no anthropometric millimetre channels.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-document The stickman has no compact body edit document.
  * @evidenceExclude requirements/actors/facial-authoring/README.md#face-requirements The stickman catalogue constructs a coarse primitive skeleton and body; it does not provide detailed facial authoring across document, editor and study review.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-document The stickman catalogue constructs a coarse primitive skeleton and body; it does not provide the standalone human-face recipe, basis and version interpreter.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components The stickman catalogue constructs a coarse primitive skeleton and body; it does not provide named craniofacial components, cavities and attached tissues.

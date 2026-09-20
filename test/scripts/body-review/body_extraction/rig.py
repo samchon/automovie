@@ -25,6 +25,20 @@ must move the bone away from the midline (or toward the thumb for the wrist),
 and external rotation must carry the anterior surface laterally (supination
 turns the palm forward).
 
+The rest pose is not the clinical zero. The source stands in an A-pose with
+the arms 42 degrees out from the trunk and the elbows already bent about 43
+degrees, so a clinical "abduction 180" must be measured from the anatomical
+position, not from the rest. Each joint therefore also records the clinical
+angle its rest direction sits at (`neutral`), measured in the frame of the
+joint's anatomical zero direction: down for the hanging upper arm, the
+parent's direction for the elbow, wrist and fingers, and the relaxed standing
+rest itself for the trunk, neck, hip, knee, ankle and toes, which is what
+goniometry takes as zero. The builder
+hands these to the engine as the rest frame's neutral, which is what the
+engine's own canonical T-pose table does for its shoulders. A one-axis rest
+(elbow, knee, the A-pose shoulder) is exact; a rest that mixes flexion and
+abduction (the hip, a few degrees) is decomposed in the engine's own order.
+
 Ranges come from the T1 record (`references-receipt.json`): 38 CFR 4.71 first,
 the AAOS values quoted in #2519 where the regulation is silent, the engine's
 own fallback where no clinical figure was pinned (shoulder girdle, foot
@@ -33,6 +47,7 @@ equally across its segments because nothing better is pinned; the receipt
 names that rule.
 """
 import json
+import math
 import os
 
 import numpy as np
@@ -129,7 +144,10 @@ def anatomy(slot, landmarks):
     if slot.endswith("Shoulder") or slot.endswith("UpperArm") or slot.endswith("UpperLeg"):
         return ANTERIOR, lateral, ("surface", lateral)
     if slot.endswith("LowerArm"):
-        return ANTERIOR, None, ("palm", palmar)
+        # The elbow folds in the plane of the arm: toward the shoulder.
+        s_ = "l" if side == "left" else "r"
+        toward_shoulder = unit(landmarks[f"joint-{s_}-shoulder"] - landmarks[f"joint-{s_}-elbow"])
+        return toward_shoulder, None, ("palm", palmar)
     if slot.endswith("Hand"):
         return palmar, radial, None
     if slot.endswith("LowerLeg"):
@@ -153,6 +171,50 @@ def frame(head, tail, reference):
     x = np.cross(y, f)
     z = np.cross(x, y)
     return x, y, z
+
+
+def zero_direction(slot, landmarks, head, tail, parent):
+    """The bone direction at the clinical zero, in the neutral's frame.
+
+    Clinical goniometry takes the relaxed standing posture as zero for the
+    trunk, neck, hip, knee, ankle and toes, so those joints rest at zero here
+    (the source stands flat on the ground with its stance's own lordosis and
+    knee set). The upper limb is the exception the A-pose forces: the arms
+    hang 42 degrees out and the elbows are bent, so the shoulder, elbow, wrist
+    and fingers measure their rest against the anatomical position (arm down,
+    forearm and hand straight along their parent).
+    """
+    if slot.endswith("UpperArm"):
+        return -SUPERIOR
+    if slot.endswith("LowerArm") or slot.endswith("Hand") or any(
+        finger in slot for finger in ("Index", "Middle", "Ring", "Little", "ThumbProximal", "ThumbDistal")
+    ):
+        return unit(landmarks[parent[2]] - landmarks[parent[1]])
+    # Trunk, neck, head, clavicle, hip, knee, foot, toes and the thumb's
+    # carpometacarpal joint: the rest is the zero.
+    return unit(tail - head)
+
+
+def neutral_angles(slot, landmarks, head, tail, parent, reference, abduction_sign):
+    """Clinical flexion and abduction of the rest direction, in the zero frame.
+
+    The engine composes flexion about X, then abduction about Z, so a bone at
+    flexion a and abduction b points at (-sin b cos a, cos b cos a, sin a) in
+    the zero frame; the rest direction is read back through that map.
+    """
+    zero = zero_direction(slot, landmarks, head, tail, parent)
+    # The fold axis is the rest frame's X (a straight elbow has no fold plane
+    # of its own, so the rest pose lends it one), made perpendicular to zero.
+    x_rest, _y_rest, _z_rest = frame(head, tail, reference)
+    x0 = unit(x_rest - np.dot(x_rest, zero) * zero)
+    y0 = zero
+    z0 = np.cross(x0, y0)
+    d = unit(tail - head)
+    dz, dx = float(np.dot(d, z0)), float(np.dot(d, x0))
+    a = math.degrees(math.asin(max(-1.0, min(1.0, dz))))
+    cos_a = math.cos(math.radians(a))
+    b = 0.0 if abs(cos_a) < 1e-9 else math.degrees(math.asin(max(-1.0, min(1.0, -dx / cos_a))))
+    return {"flexion": round(a, 4), "abduction": round(b * (abduction_sign or 1), 4), "twist": 0.0}
 
 
 def signs(slot, landmarks, head, tail):

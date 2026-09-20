@@ -17,8 +17,9 @@ Order, and why it is this order:
    every non-ring face vertex has an exact body twin (`receipt.face_offset`);
    the extraction refuses to continue otherwise, because the neck ring would
    not be shared.
-3. Build the clip stencil on the neutral (`clip.Stencil`) and check the ring
-   against the face's ring.
+3. Find the nipple region from the source's own nipple targets and prepare its
+   biharmonic fill (`flatten`); build the clip stencil on the neutral
+   (`clip.Stencil`) and check the ring against the face's ring.
 4. Sample every endpoint state through MPFB itself: regional targets one at a
    time, macro axes one node at a time, and every macro axis pair at every sign
    combination for the combination correctives. Each state yields the clipped
@@ -46,6 +47,7 @@ from body_extraction import channels as channel_table  # noqa: E402
 from body_extraction import receipt as measure  # noqa: E402
 from body_extraction import rig  # noqa: E402
 from body_extraction.clip import Stencil  # noqa: E402
+from body_extraction.flatten import NippleFlattener  # noqa: E402
 from body_extraction.session import ROOT, Session  # noqa: E402
 
 REVISION = "mpfb-connected-body-2026-09-20-joints-and-measures"
@@ -78,8 +80,19 @@ def main():
     if correspondence["worstMatchMetres"] > 1e-7 or min(correspondence["uvWorstPlain"], correspondence["uvWorstFlipped"]) > 1e-6:
         raise SystemExit("The subdivided body does not reproduce the face basis head or its UVs; refusing to publish.")
     offset = correspondence["offset"]
+    # The nipple region is what the source's own nipple targets move; it is
+    # replaced by a biharmonic fill in every state before the clip (see flatten).
+    region = set()
+    for name in ("breast/nipple-size-incr", "breast/nipple-point-incr"):
+        session.set_target(name, 1.0)
+        moved = np.linalg.norm(session.sample_skin() - neutral_full, axis=1) > 1e-9
+        session.set_target(name, 0.0)
+        region |= set(np.nonzero(moved)[0].tolist())
+    flattener = NippleFlattener(topology, np.array(sorted(region)))
+    flattening = flattener.report(neutral_full)
+    log("nipple flattening", flattening)
     stencil = Stencil(neutral_full, topology, offset)
-    neutral = stencil.evaluate(neutral_full)
+    neutral = stencil.evaluate(flattener.apply(neutral_full))
     ring = measure.ring_agreement(neutral, len(stencil.kept))
     log("ring", ring)
     if ring["faceRing"] != ring["bodyRing"] or ring["worstMetres"] > 1e-7:
@@ -90,7 +103,7 @@ def main():
     landmark_matrix = np.array([landmarks_neutral[name] for name in landmark_ids])
 
     def sample_state():
-        skin = stencil.evaluate(session.sample_skin()) - neutral
+        skin = stencil.evaluate(flattener.apply(session.sample_skin())) - neutral
         marks = rig.landmark_positions(session.sample_helpers(), groups, offset)
         return skin, np.array([marks[name] for name in landmark_ids]) - landmark_matrix
 
@@ -131,7 +144,7 @@ def main():
             correctives.append({"id": pair["id"], "inputs": pair["inputs"], "weight": 1, "target": pair["id"]})
 
     session.restore()
-    recovered = stencil.evaluate(session.sample_skin())
+    recovered = stencil.evaluate(flattener.apply(session.sample_skin()))
     recovery = float(np.abs(recovered - neutral).max())
     landmark_recovery = float(np.abs(np.array([rig.landmark_positions(session.sample_helpers(), groups, offset)[n] for n in landmark_ids]) - landmark_matrix).max())
     log("neutral recovery", recovery, "landmarks", landmark_recovery)
@@ -158,11 +171,33 @@ def main():
     for slot, (parent, head_cube, tail_cube) in cubes.items():
         reference, signs = rig.signs(slot, landmarks_neutral, landmarks_neutral[head_cube], landmarks_neutral[tail_cube])
         constraint, source = limits[slot]
+        # A sign is declared exactly where the constraint leaves the axis mobile
+        # (every axis for the unconstrained root), which is what the package
+        # validator requires; a measured sign on a held axis would be noise.
+        for axis in ("abduction", "twist"):
+            if constraint is not None and constraint.get(axis) is None:
+                signs[axis] = None
+        parent_cubes = None if parent is None else (parent, cubes[parent][1], cubes[parent][2])
+        rest_angles = (
+            {"flexion": 0.0, "abduction": 0.0, "twist": 0.0}
+            if parent_cubes is None
+            else rig.neutral_angles(slot, landmarks_neutral, landmarks_neutral[head_cube], landmarks_neutral[tail_cube], parent_cubes, reference, signs["abduction"])
+        )
+        # A held axis rests at zero by definition; the range check below is
+        # what the package validator repeats.
+        for axis in ("abduction", "twist"):
+            if signs[axis] is None:
+                rest_angles[axis] = 0.0
+        if constraint is not None:
+            for axis, value in rest_angles.items():
+                limit = constraint.get(axis)
+                if limit is not None and not (limit["min"] <= value <= limit["max"]):
+                    raise SystemExit(f"{slot} rests at {axis} {value} outside its clinical range {limit}")
         joints.append({
             "bone": slot, "parent": parent, "head": head_cube, "tail": tail_cube,
-            "reference": [float(v) for v in reference], "signs": signs, "constraint": constraint,
+            "reference": [float(v) for v in reference], "signs": signs, "neutral": rest_angles, "constraint": constraint,
         })
-        joint_record.append({"bone": slot, "constraintSource": source, "signs": signs})
+        joint_record.append({"bone": slot, "constraintSource": source, "signs": signs, "neutral": rest_angles})
 
     weight_rows = stencil.weights(topology["weights"])
     joint_names = [slot for slot in cubes]
@@ -229,6 +264,7 @@ def main():
         "correspondence": correspondence,
         "ring": ring,
         "vertices": {"kept": int(len(stencil.kept)), "ring": int(len(stencil.ring_t)), "triangles": int(len(stencil.indices) // 3)},
+        "nippleFlattening": {**flattening, "definedBy": ["breast/nipple-size-incr", "breast/nipple-point-incr"], "method": "biharmonic fill of the region with two surrounding rings fixed, applied to every state"},
         "endpointRowResolutionMetres": 1e-6,
         "neutralRecoveryMaximumMetres": {"Human": recovery, "landmarks": landmark_recovery},
         "basisMirror": {**mirror, "leftRightEndpointWorstMetres": worst_pair, "pairs": pair_residuals},

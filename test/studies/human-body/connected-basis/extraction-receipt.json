@@ -1,10 +1,10 @@
 {
   "id": "mpfb-connected-body-2026-09-20-joints-and-measures",
-  "recorded": "2026-09-20",
+  "recorded": "2026-09-21",
   "sources": "test/studies/human-body/references-receipt.json",
   "script": {
     "path": "test/scripts/body-review/extract-body-basis.py",
-    "sha256": "b1bcf30a27f5bcdeb190a7f2c5760c78bc665530a7b551d70188f80e97182ce0"
+    "sha256": "660699eb4d7eea2baa810fdff31b76b1f2449de01b5d417bb6791cc46631ec8d"
   },
   "blender": "5.2.0 LTS",
   "frame": {
@@ -32,13 +32,24 @@
     "ring": 200,
     "triangles": 71772
   },
+  "nippleFlattening": {
+    "regionVertices": 538,
+    "boundaryVertices": 128,
+    "maxDisplacementMetres": 0.005664734015792598,
+    "meanDisplacementMetres": 0.0020884690336463495,
+    "definedBy": [
+      "breast/nipple-size-incr",
+      "breast/nipple-point-incr"
+    ],
+    "method": "biharmonic fill of the region with two surrounding rings fixed, applied to every state"
+  },
   "endpointRowResolutionMetres": 1e-06,
   "neutralRecoveryMaximumMetres": {
     "Human": 0.0,
     "landmarks": 0.0
   },
   "basisMirror": {
-    "rmsMetres": 6.295967652974898e-08,
+    "rmsMetres": 6.353476798368417e-08,
     "worstMetres": 3.585773242775758e-07,
     "involution": true,
     "midlineVertices": 143,
@@ -189,79 +200,79 @@
   },
   "endpointDisplacement": {
     "torso/torso-trans-backward": {
-      "rmsMetres": 0.048433595180869204,
+      "rmsMetres": 0.04843359501932782,
       "maxMetres": 0.050000131130218506,
       "movedVertices": 22270
     },
     "torso/torso-trans-forward": {
-      "rmsMetres": 0.04843360140427283,
+      "rmsMetres": 0.04843360169179001,
       "maxMetres": 0.05000010132789612,
       "movedVertices": 22270
     },
     "torso/torso-muscle-pectoral-decr": {
-      "rmsMetres": 0.0031160370274480216,
+      "rmsMetres": 0.003124305029328981,
       "maxMetres": 0.005882888509476563,
       "movedVertices": 2229
     },
     "torso/torso-muscle-pectoral-incr": {
-      "rmsMetres": 0.014971938284137069,
+      "rmsMetres": 0.01502039034798851,
       "maxMetres": 0.033926056594304144,
       "movedVertices": 2329
     },
     "torso/measure-underbust-circ-decr": {
-      "rmsMetres": 0.004484991775090515,
+      "rmsMetres": 0.004491053367822262,
       "maxMetres": 0.008504918839678207,
       "movedVertices": 4976
     },
     "torso/measure-underbust-circ-incr": {
-      "rmsMetres": 0.013347129833759148,
+      "rmsMetres": 0.01335932052944202,
       "maxMetres": 0.025658319587520614,
       "movedVertices": 5138
     },
     "torso/torso-scale-horiz-decr": {
-      "rmsMetres": 0.030601705744308726,
+      "rmsMetres": 0.03060187013002518,
       "maxMetres": 0.0338001549243927,
       "movedVertices": 22312
     },
     "torso/torso-scale-horiz-incr": {
-      "rmsMetres": 0.03122028390923256,
+      "rmsMetres": 0.03122045021171587,
       "maxMetres": 0.034200191497802734,
       "movedVertices": 21604
     },
     "torso/torso-scale-depth-decr": {
-      "rmsMetres": 0.009912495126981597,
-      "maxMetres": 0.017261110246181488,
+      "rmsMetres": 0.009913054910605852,
+      "maxMetres": 0.017396491368486117,
       "movedVertices": 6469
     },
     "torso/torso-scale-depth-incr": {
-      "rmsMetres": 0.017398895935635813,
+      "rmsMetres": 0.017397884070306326,
       "maxMetres": 0.03297317773103714,
       "movedVertices": 6246
     },
     "torso/measure-napetowaist-dist-decr": {
-      "rmsMetres": 0.04198775300584576,
+      "rmsMetres": 0.04198902576032851,
       "maxMetres": 0.046500325202941895,
       "movedVertices": 22660
     },
     "torso/measure-napetowaist-dist-incr": {
-      "rmsMetres": 0.07050317462759131,
+      "rmsMetres": 0.07050523846532476,
       "maxMetres": 0.07841673888401747,
       "movedVertices": 22659
     },
     "torso/measure-waisttohip-dist-decr": {
-      "rmsMetres": 0.046867342678032574,
-      "maxMetres": 0.048000454902648926,
+      "rmsMetres": 0.04686734543886975,
+      "maxMetres": 0.048000335693359375,
       "movedVertices": 23204
     },
     "torso/measure-waisttohip-dist-incr": {
-      "rmsMetres": 0.07489245831798856,
+      "rmsMetres": 0.07489245616439177,
       "maxMetres": 0.07610046863555908,
       "movedVertices": 22396
     },
     "torso/measure-shoulder-dist-decr": {
-      "rmsMetres": 0.012893094503674112,
+      "rmsMetres": 0.012720843810837027,
       "maxMetres": 0.013500213623046875,
-      "movedVertices": 19072
+      "movedVertices": 19592
     },
     "torso/measure-shoulder-dist-incr": {
       "rmsMetres": 0.024108031821981207,
@@ -279,82 +290,82 @@
       "movedVertices": 3331
     },
     "torso/torso-vshape-decr": {
-      "rmsMetres": 0.024646185433466593,
+      "rmsMetres": 0.024617447387948882,
       "maxMetres": 0.026700139045715332,
-      "movedVertices": 20600
+      "movedVertices": 20648
     },
     "torso/torso-vshape-incr": {
-      "rmsMetres": 0.02468936506203018,
+      "rmsMetres": 0.024643714958943515,
       "maxMetres": 0.026700198650360107,
-      "movedVertices": 20528
+      "movedVertices": 20604
     },
     "torso/torso-trans-down": {
-      "rmsMetres": 0.06803935393852291,
+      "rmsMetres": 0.06803935762975158,
       "maxMetres": 0.07020044326782227,
       "movedVertices": 22203
     },
     "torso/torso-trans-up": {
-      "rmsMetres": 0.09821236228069025,
+      "rmsMetres": 0.098212361494322,
       "maxMetres": 0.10000038146972656,
       "movedVertices": 21259
     },
     "torso/torso-muscle-dorsi-decr": {
-      "rmsMetres": 0.008782502674009372,
+      "rmsMetres": 0.008006460089537109,
       "maxMetres": 0.027665902238314246,
-      "movedVertices": 2647
+      "movedVertices": 3185
     },
     "torso/torso-muscle-dorsi-incr": {
-      "rmsMetres": 0.008782505550578041,
+      "rmsMetres": 0.008006462711925347,
       "maxMetres": 0.027665884529414996,
-      "movedVertices": 2647
+      "movedVertices": 3185
     },
     "torso/measure-waist-circ-decr": {
-      "rmsMetres": 0.012009327113456108,
+      "rmsMetres": 0.01201053538859809,
       "maxMetres": 0.027804259232617007,
       "movedVertices": 3840
     },
     "torso/measure-waist-circ-incr": {
-      "rmsMetres": 0.012009327061801786,
+      "rmsMetres": 0.012010535328805758,
       "maxMetres": 0.0278042741550574,
       "movedVertices": 3840
     },
     "torso/measure-frontchest-dist-decr": {
-      "rmsMetres": 0.009643914726477562,
-      "maxMetres": 0.014800027012825012,
+      "rmsMetres": 0.00975336133266239,
+      "maxMetres": 0.015552821409049983,
       "movedVertices": 3019
     },
     "torso/measure-frontchest-dist-incr": {
-      "rmsMetres": 0.007729293656923183,
+      "rmsMetres": 0.007698178321588473,
       "maxMetres": 0.02176446022132362,
       "movedVertices": 2662
     },
     "torso/torso-scale-vert-decr": {
-      "rmsMetres": 0.038691330229763274,
+      "rmsMetres": 0.038692862523372555,
       "maxMetres": 0.04310035705566406,
       "movedVertices": 22756
     },
     "torso/torso-scale-vert-incr": {
-      "rmsMetres": 0.09807979556844379,
+      "rmsMetres": 0.09807497837897934,
       "maxMetres": 0.10280048847198486,
       "movedVertices": 21984
     },
     "torso/measure-bust-circ-decr": {
-      "rmsMetres": 0.016341041472257012,
+      "rmsMetres": 0.01638038708071744,
       "maxMetres": 0.031785479733064954,
       "movedVertices": 4858
     },
     "torso/measure-bust-circ-incr": {
-      "rmsMetres": 0.01863608209297692,
+      "rmsMetres": 0.01863697659079699,
       "maxMetres": 0.043480838405703125,
       "movedVertices": 4918
     },
     "torso/torso-trans-in": {
-      "rmsMetres": 0.04845339444876431,
+      "rmsMetres": 0.04845339443225605,
       "maxMetres": 0.05000019073486328,
       "movedVertices": 22330
     },
     "torso/torso-trans-out": {
-      "rmsMetres": 0.048453394782652925,
+      "rmsMetres": 0.04845339504769561,
       "maxMetres": 0.05000019073486328,
       "movedVertices": 22330
     },
@@ -1269,34 +1280,34 @@
       "movedVertices": 4967
     },
     "hip/hip-scale-horiz-decr": {
-      "rmsMetres": 0.01560872595334114,
+      "rmsMetres": 0.014847688935266898,
       "maxMetres": 0.03692221641540527,
-      "movedVertices": 5117
+      "movedVertices": 5655
     },
     "hip/hip-scale-horiz-incr": {
-      "rmsMetres": 0.015602628083819162,
+      "rmsMetres": 0.014842439871317534,
       "maxMetres": 0.03692224621772766,
-      "movedVertices": 5121
+      "movedVertices": 5659
     },
     "hip/hip-scale-depth-decr": {
-      "rmsMetres": 0.015827879746540475,
+      "rmsMetres": 0.015199034929587485,
       "maxMetres": 0.033600710332393646,
-      "movedVertices": 5399
+      "movedVertices": 5855
     },
     "hip/hip-scale-depth-incr": {
-      "rmsMetres": 0.017328359560660304,
+      "rmsMetres": 0.016640380626431254,
       "maxMetres": 0.036799997091293335,
-      "movedVertices": 5403
+      "movedVertices": 5859
     },
     "hip/hip-waist-down": {
-      "rmsMetres": 0.028500340596251495,
+      "rmsMetres": 0.027185642872626058,
       "maxMetres": 0.05954483723916736,
-      "movedVertices": 4472
+      "movedVertices": 4915
     },
     "hip/hip-waist-up": {
-      "rmsMetres": 0.019153165007408535,
+      "rmsMetres": 0.017700171377601222,
       "maxMetres": 0.03403890132904053,
-      "movedVertices": 2662
+      "movedVertices": 3117
     },
     "hip/hip-trans-backward": {
       "rmsMetres": 0.02873991105463987,
@@ -1389,123 +1400,123 @@
       "movedVertices": 2701
     },
     "breast/breast-point-decr": {
-      "rmsMetres": 0.006110012108663483,
-      "maxMetres": 0.008860099400494975,
+      "rmsMetres": 0.006530276089134035,
+      "maxMetres": 0.010279432910611664,
       "movedVertices": 1383
     },
     "breast/breast-point-incr": {
-      "rmsMetres": 0.015804803482103634,
-      "maxMetres": 0.02374746134569655,
+      "rmsMetres": 0.01509040222751716,
+      "maxMetres": 0.023621364912742422,
       "movedVertices": 978
     },
     "breast/breast-dist-decr": {
-      "rmsMetres": 0.025351041141944797,
-      "maxMetres": 0.03306633299355933,
+      "rmsMetres": 0.02552636954096053,
+      "maxMetres": 0.033659622274066145,
       "movedVertices": 1479
     },
     "breast/breast-dist-incr": {
-      "rmsMetres": 0.014757783880250433,
-      "maxMetres": 0.022895832701405862,
+      "rmsMetres": 0.016047958491971426,
+      "maxMetres": 0.023558476855109214,
       "movedVertices": 1489
     },
     "breast/breast-volume-vert-down": {
-      "rmsMetres": 0.006678506894773204,
+      "rmsMetres": 0.006747673250107432,
       "maxMetres": 0.01432442637522255,
       "movedVertices": 1278
     },
     "breast/breast-volume-vert-up": {
-      "rmsMetres": 0.00650206581909359,
+      "rmsMetres": 0.006533109032927229,
       "maxMetres": 0.017560605732891223,
       "movedVertices": 1735
     },
     "breast/breast-trans-down": {
-      "rmsMetres": 0.02343179575455222,
+      "rmsMetres": 0.02343179514599787,
       "maxMetres": 0.03300034999847412,
       "movedVertices": 2905
     },
     "breast/breast-trans-up": {
-      "rmsMetres": 0.01262359165101521,
+      "rmsMetres": 0.0126235645349071,
       "maxMetres": 0.017800331115722656,
       "movedVertices": 2899
     },
     "macro/gender-female": {
-      "rmsMetres": 0.051053552261073026,
+      "rmsMetres": 0.05106664674003232,
       "maxMetres": 0.07136456647538778,
       "movedVertices": 35987
     },
     "macro/gender-male": {
-      "rmsMetres": 0.05122056523751414,
+      "rmsMetres": 0.05123388983431676,
       "maxMetres": 0.07158489724195082,
       "movedVertices": 35987
     },
     "macro/age-child": {
-      "rmsMetres": 0.20911944128455492,
+      "rmsMetres": 0.20910570382366914,
       "maxMetres": 0.31208718875316166,
       "movedVertices": 35987
     },
     "macro/age-old": {
-      "rmsMetres": 0.02565435073012784,
-      "maxMetres": 0.04057298049033007,
+      "rmsMetres": 0.025678504865522006,
+      "maxMetres": 0.041083698128060835,
       "movedVertices": 35987
     },
     "macro/muscle-min": {
-      "rmsMetres": 0.00907722297185192,
+      "rmsMetres": 0.00907665217180266,
       "maxMetres": 0.026208044799192042,
       "movedVertices": 13203
     },
     "macro/muscle-max": {
-      "rmsMetres": 0.006886627756854934,
+      "rmsMetres": 0.006882815254661052,
       "maxMetres": 0.02082803374011632,
       "movedVertices": 15755
     },
     "macro/weight-min": {
-      "rmsMetres": 0.007161870672047661,
+      "rmsMetres": 0.00716560150988309,
       "maxMetres": 0.018709328173730343,
       "movedVertices": 15711
     },
     "macro/weight-max": {
-      "rmsMetres": 0.006181015657102618,
+      "rmsMetres": 0.00618269520614265,
       "maxMetres": 0.02085117037021018,
       "movedVertices": 16125
     },
     "macro/height-min": {
-      "rmsMetres": 0.228250712306134,
+      "rmsMetres": 0.22824829398901939,
       "maxMetres": 0.32662838102406416,
       "movedVertices": 35987
     },
     "macro/height-max": {
-      "rmsMetres": 0.4262258069613647,
+      "rmsMetres": 0.4262298135073005,
       "maxMetres": 0.6276952863555777,
       "movedVertices": 35987
     },
     "macro/proportions-uncommon": {
-      "rmsMetres": 0.012098397457398545,
+      "rmsMetres": 0.012098419338237998,
       "maxMetres": 0.022602636102775648,
       "movedVertices": 35690
     },
     "macro/proportions-ideal": {
-      "rmsMetres": 0.014441984155784925,
+      "rmsMetres": 0.0144417275593046,
       "maxMetres": 0.03576936307168369,
       "movedVertices": 35985
     },
     "macro/cupsize-min": {
-      "rmsMetres": 0.011289604381132846,
-      "maxMetres": 0.021849755380588674,
+      "rmsMetres": 0.011469169753788705,
+      "maxMetres": 0.02270472015583573,
       "movedVertices": 2079
     },
     "macro/cupsize-max": {
-      "rmsMetres": 0.0373434015751441,
+      "rmsMetres": 0.039866562176068016,
       "maxMetres": 0.08437495819368682,
       "movedVertices": 2018
     },
     "macro/firmness-min": {
-      "rmsMetres": 0.010067981399689396,
-      "maxMetres": 0.01596146729670996,
+      "rmsMetres": 0.01175808114194468,
+      "maxMetres": 0.019740613626802062,
       "movedVertices": 1269
     },
     "macro/firmness-max": {
-      "rmsMetres": 0.004684410103624745,
-      "maxMetres": 0.007809578410397771,
+      "rmsMetres": 0.004840906272441746,
+      "maxMetres": 0.008247822246523453,
       "movedVertices": 1441
     }
   },
@@ -1524,7 +1535,7 @@
             "side": "negative"
           }
         ],
-        "rmsMetres": 0.025928759612960386,
+        "rmsMetres": 0.025948999210720292,
         "maxMetres": 0.038571969907612136,
         "movedVertices": 35987,
         "published": true
@@ -1541,7 +1552,7 @@
             "side": "positive"
           }
         ],
-        "rmsMetres": 0.03892215735647474,
+        "rmsMetres": 0.038922713707813285,
         "maxMetres": 0.06501345402735416,
         "movedVertices": 35987,
         "published": true
@@ -1558,7 +1569,7 @@
             "side": "negative"
           }
         ],
-        "rmsMetres": 0.022957720964789614,
+        "rmsMetres": 0.02297873916570613,
         "maxMetres": 0.03522409132930395,
         "movedVertices": 35987,
         "published": true
@@ -1575,7 +1586,7 @@
             "side": "positive"
           }
         ],
-        "rmsMetres": 0.039014652051789805,
+        "rmsMetres": 0.039015274144994554,
         "maxMetres": 0.06511427982626339,
         "movedVertices": 35987,
         "published": true
@@ -1592,7 +1603,7 @@
             "side": "negative"
           }
         ],
-        "rmsMetres": 0.006143323990583188,
+        "rmsMetres": 0.006141279070139815,
         "maxMetres": 0.022722811697172586,
         "movedVertices": 13203,
         "published": true
@@ -1609,7 +1620,7 @@
             "side": "positive"
           }
         ],
-        "rmsMetres": 0.006752108768632903,
+        "rmsMetres": 0.006756305440871404,
         "maxMetres": 0.020470517062645188,
         "movedVertices": 15755,
         "published": true
@@ -1626,7 +1637,7 @@
             "side": "negative"
           }
         ],
-        "rmsMetres": 0.006038460273785694,
+        "rmsMetres": 0.006036440787449419,
         "maxMetres": 0.022265677589311767,
         "movedVertices": 13201,
         "published": true
@@ -1643,7 +1654,7 @@
             "side": "positive"
           }
         ],
-        "rmsMetres": 0.006701764025859445,
+        "rmsMetres": 0.006706016815985863,
         "maxMetres": 0.020138309798354136,
         "movedVertices": 15755,
         "published": true
@@ -1660,7 +1671,7 @@
             "side": "negative"
           }
         ],
-        "rmsMetres": 0.004270465841496214,
+        "rmsMetres": 0.004270007466754471,
         "maxMetres": 0.012053981486274262,
         "movedVertices": 15708,
         "published": true
@@ -1677,7 +1688,7 @@
             "side": "positive"
           }
         ],
-        "rmsMetres": 0.0037774491949687508,
+        "rmsMetres": 0.0037921939139886995,
         "maxMetres": 0.011655667044521617,
         "movedVertices": 16126,
         "published": true
@@ -1694,7 +1705,7 @@
             "side": "negative"
           }
         ],
-        "rmsMetres": 0.004333512123916037,
+        "rmsMetres": 0.0043328709289803405,
         "maxMetres": 0.01236348928483325,
         "movedVertices": 15711,
         "published": true
@@ -1711,7 +1722,7 @@
             "side": "positive"
           }
         ],
-        "rmsMetres": 0.003780311045128443,
+        "rmsMetres": 0.003795324953480078,
         "maxMetres": 0.011379244896283097,
         "movedVertices": 16126,
         "published": true
@@ -1728,7 +1739,7 @@
             "side": "negative"
           }
         ],
-        "rmsMetres": 0.002236863564035446,
+        "rmsMetres": 0.00223684048338894,
         "maxMetres": 0.0032010236417216666,
         "movedVertices": 35987,
         "published": true
@@ -1745,7 +1756,7 @@
             "side": "positive"
           }
         ],
-        "rmsMetres": 0.004177031478460852,
+        "rmsMetres": 0.004177070586344626,
         "maxMetres": 0.006151379674942842,
         "movedVertices": 35987,
         "published": true
@@ -1762,7 +1773,7 @@
             "side": "negative"
           }
         ],
-        "rmsMetres": 0.0022368631103081103,
+        "rmsMetres": 0.0022368387880189826,
         "maxMetres": 0.003201147229787403,
         "movedVertices": 35987,
         "published": true
@@ -1779,7 +1790,7 @@
             "side": "positive"
           }
         ],
-        "rmsMetres": 0.004177031400462147,
+        "rmsMetres": 0.004177072845730771,
         "maxMetres": 0.006151265034207051,
         "movedVertices": 35987,
         "published": true
@@ -1796,7 +1807,7 @@
             "side": "negative"
           }
         ],
-        "rmsMetres": 0.005985206727797957,
+        "rmsMetres": 0.005985250658755661,
         "maxMetres": 0.011265662546056094,
         "movedVertices": 35690,
         "published": true
@@ -1813,7 +1824,7 @@
             "side": "positive"
           }
         ],
-        "rmsMetres": 0.009693241392096704,
+        "rmsMetres": 0.009693835823455349,
         "maxMetres": 0.01880848734312149,
         "movedVertices": 35986,
         "published": true
@@ -1830,7 +1841,7 @@
             "side": "negative"
           }
         ],
-        "rmsMetres": 0.0058250354415737395,
+        "rmsMetres": 0.005825078824165693,
         "maxMetres": 0.010887917631673343,
         "movedVertices": 35690,
         "published": true
@@ -1847,7 +1858,7 @@
             "side": "positive"
           }
         ],
-        "rmsMetres": 0.009620720437414841,
+        "rmsMetres": 0.009621308371001136,
         "maxMetres": 0.01917719738045725,
         "movedVertices": 35985,
         "published": true
@@ -1864,9 +1875,9 @@
             "side": "negative"
           }
         ],
-        "rmsMetres": 1.4962233186279445e-07,
-        "maxMetres": 5.969770438674131e-07,
-        "movedVertices": 1946,
+        "rmsMetres": 1.445794736002237e-07,
+        "maxMetres": 4.777820964108429e-07,
+        "movedVertices": 1954,
         "published": false
       },
       {
@@ -1881,9 +1892,9 @@
             "side": "positive"
           }
         ],
-        "rmsMetres": 1.550916850451189e-07,
-        "maxMetres": 4.77825663829564e-07,
-        "movedVertices": 1900,
+        "rmsMetres": 1.7728251605764973e-07,
+        "maxMetres": 5.242548157893768e-07,
+        "movedVertices": 1916,
         "published": false
       },
       {
@@ -1898,9 +1909,9 @@
             "side": "negative"
           }
         ],
-        "rmsMetres": 1.5630153838835866e-07,
+        "rmsMetres": 1.506366254005377e-07,
         "maxMetres": 5.979061915796661e-07,
-        "movedVertices": 1958,
+        "movedVertices": 1965,
         "published": false
       },
       {
@@ -1915,9 +1926,9 @@
             "side": "positive"
           }
         ],
-        "rmsMetres": 1.569348280326726e-07,
-        "maxMetres": 5.962327286346195e-07,
-        "movedVertices": 1912,
+        "rmsMetres": 1.8446188357747424e-07,
+        "maxMetres": 6.260828368982259e-07,
+        "movedVertices": 1921,
         "published": false
       },
       {
@@ -1932,9 +1943,9 @@
             "side": "negative"
           }
         ],
-        "rmsMetres": 1.456517341712574e-07,
-        "maxMetres": 5.967910407334801e-07,
-        "movedVertices": 1188,
+        "rmsMetres": 1.3051204031770026e-07,
+        "maxMetres": 3.589448174967141e-07,
+        "movedVertices": 1201,
         "published": false
       },
       {
@@ -1949,9 +1960,9 @@
             "side": "positive"
           }
         ],
-        "rmsMetres": 1.608237267869171e-07,
+        "rmsMetres": 1.7651692907940198e-07,
         "maxMetres": 4.789859998358914e-07,
-        "movedVertices": 1345,
+        "movedVertices": 1357,
         "published": false
       },
       {
@@ -1966,9 +1977,9 @@
             "side": "negative"
           }
         ],
-        "rmsMetres": 1.5046811696835649e-07,
-        "maxMetres": 4.773607396972581e-07,
-        "movedVertices": 1186,
+        "rmsMetres": 1.4486832199164468e-07,
+        "maxMetres": 4.770699320310986e-07,
+        "movedVertices": 1199,
         "published": false
       },
       {
@@ -1983,9 +1994,9 @@
             "side": "positive"
           }
         ],
-        "rmsMetres": 1.7015014530648542e-07,
+        "rmsMetres": 1.5769943572310218e-07,
         "maxMetres": 5.964653956778477e-07,
-        "movedVertices": 1344,
+        "movedVertices": 1350,
         "published": false
       },
       {
@@ -2000,7 +2011,7 @@
             "side": "negative"
           }
         ],
-        "rmsMetres": 0.0049571675078022,
+        "rmsMetres": 0.004959278558911752,
         "maxMetres": 0.01641947298680871,
         "movedVertices": 15380,
         "published": true
@@ -2017,7 +2028,7 @@
             "side": "positive"
           }
         ],
-        "rmsMetres": 0.006450196273382011,
+        "rmsMetres": 0.0064460816749137935,
         "maxMetres": 0.01805149851493874,
         "movedVertices": 16010,
         "published": true
@@ -2034,7 +2045,7 @@
             "side": "negative"
           }
         ],
-        "rmsMetres": 0.004126079426838291,
+        "rmsMetres": 0.004125718478447681,
         "maxMetres": 0.014362773359144087,
         "movedVertices": 13200,
         "published": true
@@ -2051,7 +2062,7 @@
             "side": "positive"
           }
         ],
-        "rmsMetres": 0.004164162269470899,
+        "rmsMetres": 0.004164196929947315,
         "maxMetres": 0.014986116689072246,
         "movedVertices": 15754,
         "published": true
@@ -2068,7 +2079,7 @@
             "side": "negative"
           }
         ],
-        "rmsMetres": 0.004160529728834891,
+        "rmsMetres": 0.004173368792971587,
         "maxMetres": 0.012103400357602212,
         "movedVertices": 15815,
         "published": true
@@ -2085,7 +2096,7 @@
             "side": "positive"
           }
         ],
-        "rmsMetres": 0.0032397851903487973,
+        "rmsMetres": 0.003239746259013155,
         "maxMetres": 0.013453909601562845,
         "movedVertices": 16103,
         "published": true
@@ -2102,7 +2113,7 @@
             "side": "negative"
           }
         ],
-        "rmsMetres": 0.0036127641219701368,
+        "rmsMetres": 0.0036030928484643474,
         "maxMetres": 0.012873031530279244,
         "movedVertices": 15706,
         "published": true
@@ -2119,7 +2130,7 @@
             "side": "positive"
           }
         ],
-        "rmsMetres": 0.00409548108022421,
+        "rmsMetres": 0.004109048367691885,
         "maxMetres": 0.013392469902914051,
         "movedVertices": 16124,
         "published": true
@@ -2136,9 +2147,9 @@
             "side": "negative"
           }
         ],
-        "rmsMetres": 9.071884197592406e-08,
+        "rmsMetres": 9.08164594735463e-08,
         "maxMetres": 4.770708410811702e-07,
-        "movedVertices": 35667,
+        "movedVertices": 35670,
         "published": false
       },
       {
@@ -2153,7 +2164,7 @@
             "side": "positive"
           }
         ],
-        "rmsMetres": 0.08525155833522992,
+        "rmsMetres": 0.08525226263754353,
         "maxMetres": 0.12554309569002753,
         "movedVertices": 35987,
         "published": true
@@ -2170,7 +2181,7 @@
             "side": "negative"
           }
         ],
-        "rmsMetres": 0.004493082444099659,
+        "rmsMetres": 0.004493035422341232,
         "maxMetres": 0.008074901417832757,
         "movedVertices": 35987,
         "published": true
@@ -2187,7 +2198,7 @@
             "side": "positive"
           }
         ],
-        "rmsMetres": 0.007432965490241178,
+        "rmsMetres": 0.007432729947018748,
         "maxMetres": 0.012433312357356438,
         "movedVertices": 35987,
         "published": true
@@ -2204,9 +2215,9 @@
             "side": "negative"
           }
         ],
-        "rmsMetres": 0.0006933538932199665,
+        "rmsMetres": 0.0006920819455240032,
         "maxMetres": 0.007686922516564229,
-        "movedVertices": 35063,
+        "movedVertices": 35192,
         "published": true
       },
       {
@@ -2221,7 +2232,7 @@
             "side": "positive"
           }
         ],
-        "rmsMetres": 0.005158852646679699,
+        "rmsMetres": 0.005159123321117356,
         "maxMetres": 0.018013872584851074,
         "movedVertices": 35782,
         "published": true
@@ -2238,7 +2249,7 @@
             "side": "negative"
           }
         ],
-        "rmsMetres": 0.0007067444163979974,
+        "rmsMetres": 0.0007067445597674397,
         "maxMetres": 0.007814194911271248,
         "movedVertices": 35699,
         "published": true
@@ -2255,7 +2266,7 @@
             "side": "positive"
           }
         ],
-        "rmsMetres": 0.0012310581723985893,
+        "rmsMetres": 0.0012317286679260494,
         "maxMetres": 0.013434680738111361,
         "movedVertices": 35987,
         "published": true
@@ -2272,8 +2283,8 @@
             "side": "negative"
           }
         ],
-        "rmsMetres": 0.008065608954139533,
-        "maxMetres": 0.01665144171098592,
+        "rmsMetres": 0.008082892801503197,
+        "maxMetres": 0.016710124198742658,
         "movedVertices": 2079,
         "published": true
       },
@@ -2289,7 +2300,7 @@
             "side": "positive"
           }
         ],
-        "rmsMetres": 0.004739168081867731,
+        "rmsMetres": 0.005055886792241854,
         "maxMetres": 0.016210533501360678,
         "movedVertices": 1995,
         "published": true
@@ -2306,8 +2317,8 @@
             "side": "negative"
           }
         ],
-        "rmsMetres": 0.004688172132112245,
-        "maxMetres": 0.012001501548604118,
+        "rmsMetres": 0.005616374956849349,
+        "maxMetres": 0.013156864459769366,
         "movedVertices": 3306,
         "published": true
       },
@@ -2323,7 +2334,7 @@
             "side": "positive"
           }
         ],
-        "rmsMetres": 0.011922228640899911,
+        "rmsMetres": 0.011283990886314973,
         "maxMetres": 0.03115671713375181,
         "movedVertices": 2057,
         "published": true
@@ -2340,8 +2351,8 @@
             "side": "negative"
           }
         ],
-        "rmsMetres": 0.006009844550701837,
-        "maxMetres": 0.010171316201391691,
+        "rmsMetres": 0.006760842607595519,
+        "maxMetres": 0.012027833914442768,
         "movedVertices": 1313,
         "published": true
       },
@@ -2357,8 +2368,8 @@
             "side": "positive"
           }
         ],
-        "rmsMetres": 0.0017275002482183633,
-        "maxMetres": 0.004046680991543055,
+        "rmsMetres": 0.0017094617724263512,
+        "maxMetres": 0.003954579959605967,
         "movedVertices": 1458,
         "published": true
       },
@@ -2374,7 +2385,7 @@
             "side": "negative"
           }
         ],
-        "rmsMetres": 0.004414139491565241,
+        "rmsMetres": 0.005524304436473905,
         "maxMetres": 0.01405870526063396,
         "movedVertices": 1385,
         "published": true
@@ -2391,8 +2402,8 @@
             "side": "positive"
           }
         ],
-        "rmsMetres": 0.0033295705469996713,
-        "maxMetres": 0.007755905021862435,
+        "rmsMetres": 0.0043313784634013905,
+        "maxMetres": 0.00869705228797763,
         "movedVertices": 1449,
         "published": true
       },
@@ -2408,7 +2419,7 @@
             "side": "negative"
           }
         ],
-        "rmsMetres": 0.014754711886936363,
+        "rmsMetres": 0.014756522917219472,
         "maxMetres": 0.06967464416035822,
         "movedVertices": 35987,
         "published": true
@@ -2425,7 +2436,7 @@
             "side": "positive"
           }
         ],
-        "rmsMetres": 0.021918581815840745,
+        "rmsMetres": 0.02197490884227664,
         "maxMetres": 0.07884607534077656,
         "movedVertices": 28312,
         "published": true
@@ -2442,7 +2453,7 @@
             "side": "negative"
           }
         ],
-        "rmsMetres": 0.006679768238232771,
+        "rmsMetres": 0.006688503288224575,
         "maxMetres": 0.01766945887133643,
         "movedVertices": 16121,
         "published": true
@@ -2459,7 +2470,7 @@
             "side": "positive"
           }
         ],
-        "rmsMetres": 0.015841258006829236,
+        "rmsMetres": 0.015848170020849664,
         "maxMetres": 0.050779929879937506,
         "movedVertices": 18114,
         "published": true
@@ -2476,7 +2487,7 @@
             "side": "negative"
           }
         ],
-        "rmsMetres": 0.00447371634751674,
+        "rmsMetres": 0.00447366952215491,
         "maxMetres": 0.006402099251530427,
         "movedVertices": 35987,
         "published": true
@@ -2493,7 +2504,7 @@
             "side": "positive"
           }
         ],
-        "rmsMetres": 0.008354032158756993,
+        "rmsMetres": 0.008354113009851368,
         "maxMetres": 0.012302767900413758,
         "movedVertices": 35987,
         "published": true
@@ -2510,7 +2521,7 @@
             "side": "negative"
           }
         ],
-        "rmsMetres": 0.0044737165159945275,
+        "rmsMetres": 0.004473671735936082,
         "maxMetres": 0.0064018271822512554,
         "movedVertices": 35987,
         "published": true
@@ -2527,7 +2538,7 @@
             "side": "positive"
           }
         ],
-        "rmsMetres": 0.008354032950703482,
+        "rmsMetres": 0.008354110075092968,
         "maxMetres": 0.012302873903331355,
         "movedVertices": 35987,
         "published": true
@@ -2544,7 +2555,7 @@
             "side": "negative"
           }
         ],
-        "rmsMetres": 0.0007068042820422686,
+        "rmsMetres": 0.000706804425119878,
         "maxMetres": 0.007814212575945148,
         "movedVertices": 35693,
         "published": true
@@ -2561,7 +2572,7 @@
             "side": "positive"
           }
         ],
-        "rmsMetres": 0.0012409801833960623,
+        "rmsMetres": 0.0012416453788157466,
         "maxMetres": 0.01343447287572099,
         "movedVertices": 35984,
         "published": true
@@ -2578,9 +2589,9 @@
             "side": "negative"
           }
         ],
-        "rmsMetres": 0.0007067849974936092,
+        "rmsMetres": 0.0007067752395269403,
         "maxMetres": 0.007814212892745781,
-        "movedVertices": 35695,
+        "movedVertices": 35696,
         "published": true
       },
       {
@@ -2595,7 +2606,7 @@
             "side": "positive"
           }
         ],
-        "rmsMetres": 0.0013664964513603749,
+        "rmsMetres": 0.0013671005139673632,
         "maxMetres": 0.01343447287572099,
         "movedVertices": 35987,
         "published": true
@@ -2612,7 +2623,7 @@
             "side": "negative"
           }
         ],
-        "rmsMetres": 0.0006553829424759985,
+        "rmsMetres": 0.0006649872795530606,
         "maxMetres": 0.0021344353700542946,
         "movedVertices": 2009,
         "published": true
@@ -2629,9 +2640,9 @@
             "side": "positive"
           }
         ],
-        "rmsMetres": 1.5940450704187985e-07,
-        "maxMetres": 5.9627923294058e-07,
-        "movedVertices": 1892,
+        "rmsMetres": 2.3406574030122197e-07,
+        "maxMetres": 6.597158892466481e-07,
+        "movedVertices": 1902,
         "published": false
       },
       {
@@ -2646,7 +2657,7 @@
             "side": "negative"
           }
         ],
-        "rmsMetres": 0.0021092803968381204,
+        "rmsMetres": 0.0020988663373783527,
         "maxMetres": 0.009296730493076225,
         "movedVertices": 2162,
         "published": true
@@ -2663,9 +2674,9 @@
             "side": "positive"
           }
         ],
-        "rmsMetres": 0.002758215036302144,
+        "rmsMetres": 0.00293252175075706,
         "maxMetres": 0.015125678523913917,
-        "movedVertices": 1966,
+        "movedVertices": 1974,
         "published": true
       },
       {
@@ -2680,9 +2691,9 @@
             "side": "negative"
           }
         ],
-        "rmsMetres": 1.5384237902458114e-07,
-        "maxMetres": 5.9627923294058e-07,
-        "movedVertices": 1182,
+        "rmsMetres": 1.830367857053452e-07,
+        "maxMetres": 4.791598078850963e-07,
+        "movedVertices": 1192,
         "published": false
       },
       {
@@ -2697,9 +2708,9 @@
             "side": "positive"
           }
         ],
-        "rmsMetres": 3.675119543193091e-05,
+        "rmsMetres": 5.201239698053472e-05,
         "maxMetres": 0.00042075018996929155,
-        "movedVertices": 1409,
+        "movedVertices": 1413,
         "published": false
       },
       {
@@ -2714,9 +2725,9 @@
             "side": "negative"
           }
         ],
-        "rmsMetres": 0.00029894985710018674,
+        "rmsMetres": 0.0002978940460462185,
         "maxMetres": 0.0021227439633478866,
-        "movedVertices": 1204,
+        "movedVertices": 1216,
         "published": true
       },
       {
@@ -2731,7 +2742,7 @@
             "side": "positive"
           }
         ],
-        "rmsMetres": 0.0007358318425767214,
+        "rmsMetres": 0.0006175680985257679,
         "maxMetres": 0.0033344480164299055,
         "movedVertices": 1391,
         "published": true
@@ -2748,7 +2759,7 @@
             "side": "negative"
           }
         ],
-        "rmsMetres": 0.004473716446991365,
+        "rmsMetres": 0.00447367006392776,
         "maxMetres": 0.006401950724644543,
         "movedVertices": 35987,
         "published": true
@@ -2765,7 +2776,7 @@
             "side": "positive"
           }
         ],
-        "rmsMetres": 0.008354033772928478,
+        "rmsMetres": 0.008354110154894163,
         "maxMetres": 0.012302992851543492,
         "movedVertices": 35987,
         "published": true
@@ -2782,7 +2793,7 @@
             "side": "negative"
           }
         ],
-        "rmsMetres": 0.0044737161859132405,
+        "rmsMetres": 0.004473669384684494,
         "maxMetres": 0.006401980072773757,
         "movedVertices": 35987,
         "published": true
@@ -2799,7 +2810,7 @@
             "side": "positive"
           }
         ],
-        "rmsMetres": 0.008354033457862963,
+        "rmsMetres": 0.008354111450856077,
         "maxMetres": 0.012303110573985596,
         "movedVertices": 35987,
         "published": true
@@ -2816,7 +2827,7 @@
             "side": "negative"
           }
         ],
-        "rmsMetres": 0.0006065810668527089,
+        "rmsMetres": 0.0006065812342164564,
         "maxMetres": 0.007814202653697056,
         "movedVertices": 35684,
         "published": true
@@ -2833,7 +2844,7 @@
             "side": "positive"
           }
         ],
-        "rmsMetres": 0.0011330045749520362,
+        "rmsMetres": 0.0011298306022213313,
         "maxMetres": 0.0063022790166865385,
         "movedVertices": 35987,
         "published": true
@@ -2850,7 +2861,7 @@
             "side": "negative"
           }
         ],
-        "rmsMetres": 0.00029365958240380974,
+        "rmsMetres": 0.0002936599320004696,
         "maxMetres": 0.004455022499836068,
         "movedVertices": 35676,
         "published": true
@@ -2867,7 +2878,7 @@
             "side": "positive"
           }
         ],
-        "rmsMetres": 0.0004050355969163508,
+        "rmsMetres": 0.00040518390207132106,
         "maxMetres": 0.004019592767713009,
         "movedVertices": 35984,
         "published": true
@@ -2884,9 +2895,9 @@
             "side": "negative"
           }
         ],
-        "rmsMetres": 0.00036796507109711956,
+        "rmsMetres": 0.00036676843017595395,
         "maxMetres": 0.0029506923348188194,
-        "movedVertices": 1989,
+        "movedVertices": 2002,
         "published": true
       },
       {
@@ -2901,9 +2912,9 @@
             "side": "positive"
           }
         ],
-        "rmsMetres": 0.0016629936835886915,
+        "rmsMetres": 0.0017021950844370041,
         "maxMetres": 0.009849772875153994,
-        "movedVertices": 1942,
+        "movedVertices": 1951,
         "published": true
       },
       {
@@ -2918,9 +2929,9 @@
             "side": "negative"
           }
         ],
-        "rmsMetres": 1.571449427106481e-07,
-        "maxMetres": 5.967910407334801e-07,
-        "movedVertices": 1949,
+        "rmsMetres": 1.571462045273605e-07,
+        "maxMetres": 4.805624485015869e-07,
+        "movedVertices": 1962,
         "published": false
       },
       {
@@ -2935,9 +2946,9 @@
             "side": "positive"
           }
         ],
-        "rmsMetres": 1.5645185447307158e-07,
+        "rmsMetres": 1.7606732909544504e-07,
         "maxMetres": 5.9627923294058e-07,
-        "movedVertices": 1892,
+        "movedVertices": 1903,
         "published": false
       },
       {
@@ -2952,8 +2963,8 @@
             "side": "negative"
           }
         ],
-        "rmsMetres": 0.005364575192063675,
-        "maxMetres": 0.009653261337952038,
+        "rmsMetres": 0.006670327717083995,
+        "maxMetres": 0.012388799323628292,
         "movedVertices": 1393,
         "published": true
       },
@@ -2969,7 +2980,7 @@
             "side": "positive"
           }
         ],
-        "rmsMetres": 0.0017287462070891724,
+        "rmsMetres": 0.0018476385129255403,
         "maxMetres": 0.005189275607097109,
         "movedVertices": 1441,
         "published": true
@@ -2986,9 +2997,9 @@
             "side": "negative"
           }
         ],
-        "rmsMetres": 0.0004616711800161614,
+        "rmsMetres": 0.0004954239548827577,
         "maxMetres": 0.0026395150574649194,
-        "movedVertices": 1258,
+        "movedVertices": 1267,
         "published": true
       },
       {
@@ -3003,9 +3014,9 @@
             "side": "positive"
           }
         ],
-        "rmsMetres": 0.00027355428744846956,
+        "rmsMetres": 0.00026876296272156,
         "maxMetres": 0.001535111578710802,
-        "movedVertices": 1369,
+        "movedVertices": 1371,
         "published": true
       },
       {
@@ -3020,9 +3031,9 @@
             "side": "negative"
           }
         ],
-        "rmsMetres": 9.690908357434109e-08,
+        "rmsMetres": 9.746782624289966e-08,
         "maxMetres": 6.078961537520067e-07,
-        "movedVertices": 34762,
+        "movedVertices": 34890,
         "published": false
       },
       {
@@ -3037,9 +3048,9 @@
             "side": "positive"
           }
         ],
-        "rmsMetres": 1.0153988518447146e-07,
+        "rmsMetres": 1.0289760470852497e-07,
         "maxMetres": 5.960471753492235e-07,
-        "movedVertices": 35213,
+        "movedVertices": 35221,
         "published": false
       },
       {
@@ -3054,9 +3065,9 @@
             "side": "negative"
           }
         ],
-        "rmsMetres": 1.3754160155640404e-07,
+        "rmsMetres": 1.3740699769694122e-07,
         "maxMetres": 6.585234342212783e-07,
-        "movedVertices": 34910,
+        "movedVertices": 35028,
         "published": false
       },
       {
@@ -3071,9 +3082,9 @@
             "side": "positive"
           }
         ],
-        "rmsMetres": 1.4196562584170435e-07,
+        "rmsMetres": 1.4356403813232286e-07,
         "maxMetres": 7.162276299997128e-07,
-        "movedVertices": 35337,
+        "movedVertices": 35349,
         "published": false
       },
       {
@@ -3088,9 +3099,9 @@
             "side": "negative"
           }
         ],
-        "rmsMetres": 1.2455606176139278e-07,
-        "maxMetres": 4.769535593175656e-07,
-        "movedVertices": 1971,
+        "rmsMetres": 1.1054715744141418e-07,
+        "maxMetres": 4.183618766476648e-07,
+        "movedVertices": 1974,
         "published": false
       },
       {
@@ -3105,9 +3116,9 @@
             "side": "positive"
           }
         ],
-        "rmsMetres": 1.2580427516034728e-07,
+        "rmsMetres": 1.340412287396838e-07,
         "maxMetres": 4.183328503757412e-07,
-        "movedVertices": 1930,
+        "movedVertices": 1933,
         "published": false
       },
       {
@@ -3122,9 +3133,9 @@
             "side": "negative"
           }
         ],
-        "rmsMetres": 1.689740296345749e-07,
+        "rmsMetres": 1.6017740202524703e-07,
         "maxMetres": 5.964188604411334e-07,
-        "movedVertices": 1968,
+        "movedVertices": 1979,
         "published": false
       },
       {
@@ -3139,9 +3150,9 @@
             "side": "positive"
           }
         ],
-        "rmsMetres": 1.670290438812973e-07,
-        "maxMetres": 5.964188604411334e-07,
-        "movedVertices": 1935,
+        "rmsMetres": 1.8617265866656923e-07,
+        "maxMetres": 4.791598078850963e-07,
+        "movedVertices": 1939,
         "published": false
       },
       {
@@ -3156,9 +3167,9 @@
             "side": "negative"
           }
         ],
-        "rmsMetres": 1.2873105887037902e-07,
-        "maxMetres": 4.773025923385312e-07,
-        "movedVertices": 1211,
+        "rmsMetres": 1.3057925226101183e-07,
+        "maxMetres": 4.1783079185515503e-07,
+        "movedVertices": 1222,
         "published": false
       },
       {
@@ -3173,9 +3184,9 @@
             "side": "positive"
           }
         ],
-        "rmsMetres": 1.3552663292653142e-07,
+        "rmsMetres": 1.6293453090196583e-07,
         "maxMetres": 5.364935406266061e-07,
-        "movedVertices": 1405,
+        "movedVertices": 1410,
         "published": false
       },
       {
@@ -3190,9 +3201,9 @@
             "side": "negative"
           }
         ],
-        "rmsMetres": 1.6323923404173474e-07,
-        "maxMetres": 7.152945413593644e-07,
-        "movedVertices": 1210,
+        "rmsMetres": 1.489002208966757e-07,
+        "maxMetres": 4.773025923385312e-07,
+        "movedVertices": 1220,
         "published": false
       },
       {
@@ -3207,9 +3218,9 @@
             "side": "positive"
           }
         ],
-        "rmsMetres": 1.6848858699062714e-07,
+        "rmsMetres": 1.9432374112423266e-07,
         "maxMetres": 5.968375469514142e-07,
-        "movedVertices": 1366,
+        "movedVertices": 1375,
         "published": false
       },
       {
@@ -3224,9 +3235,9 @@
             "side": "negative"
           }
         ],
-        "rmsMetres": 1.101421236069463e-07,
+        "rmsMetres": 1.0636863237431714e-07,
         "maxMetres": 4.77825663829564e-07,
-        "movedVertices": 1572,
+        "movedVertices": 1704,
         "published": false
       },
       {
@@ -3241,9 +3252,9 @@
             "side": "positive"
           }
         ],
-        "rmsMetres": 1.0660614501042848e-07,
+        "rmsMetres": 1.1348592364551575e-07,
         "maxMetres": 5.967910407334801e-07,
-        "movedVertices": 1519,
+        "movedVertices": 1645,
         "published": false
       },
       {
@@ -3258,9 +3269,9 @@
             "side": "negative"
           }
         ],
-        "rmsMetres": 1.531784445276536e-07,
-        "maxMetres": 4.789280498024284e-07,
-        "movedVertices": 1907,
+        "rmsMetres": 1.7458336905889752e-07,
+        "maxMetres": 5.290538750396171e-07,
+        "movedVertices": 1922,
         "published": false
       },
       {
@@ -3275,9 +3286,9 @@
             "side": "positive"
           }
         ],
-        "rmsMetres": 1.4976538194204217e-07,
+        "rmsMetres": 1.5473787733538248e-07,
         "maxMetres": 5.962326831740902e-07,
-        "movedVertices": 1859,
+        "movedVertices": 1877,
         "published": false
       },
       {
@@ -3292,9 +3303,9 @@
             "side": "negative"
           }
         ],
-        "rmsMetres": 8.299571270424254e-08,
+        "rmsMetres": 1.0247922630634729e-07,
         "maxMetres": 3.5886748369909214e-07,
-        "movedVertices": 862,
+        "movedVertices": 1006,
         "published": false
       },
       {
@@ -3309,9 +3320,9 @@
             "side": "positive"
           }
         ],
-        "rmsMetres": 9.250308239236787e-08,
+        "rmsMetres": 8.900945433343263e-08,
         "maxMetres": 3.5886748369909214e-07,
-        "movedVertices": 1029,
+        "movedVertices": 1169,
         "published": false
       },
       {
@@ -3326,9 +3337,9 @@
             "side": "negative"
           }
         ],
-        "rmsMetres": 1.4773772291398004e-07,
-        "maxMetres": 4.806057638785284e-07,
-        "movedVertices": 1155,
+        "rmsMetres": 2.2599535891758127e-07,
+        "maxMetres": 5.56896905519911e-07,
+        "movedVertices": 1175,
         "published": false
       },
       {
@@ -3343,9 +3354,9 @@
             "side": "positive"
           }
         ],
-        "rmsMetres": 1.5793010918112027e-07,
+        "rmsMetres": 1.5520008071362874e-07,
         "maxMetres": 4.77825663829564e-07,
-        "movedVertices": 1326,
+        "movedVertices": 1337,
         "published": false
       },
       {
@@ -3360,8 +3371,8 @@
             "side": "negative"
           }
         ],
-        "rmsMetres": 0.007983182919312836,
-        "maxMetres": 0.01564840639364622,
+        "rmsMetres": 0.00932337083876644,
+        "maxMetres": 0.01935336677195923,
         "movedVertices": 1940,
         "published": true
       },
@@ -3377,8 +3388,8 @@
             "side": "positive"
           }
         ],
-        "rmsMetres": 0.0039440098143194375,
-        "maxMetres": 0.0076577518950221544,
+        "rmsMetres": 0.004075704431644778,
+        "maxMetres": 0.008087652413536291,
         "movedVertices": 1954,
         "published": true
       },
@@ -3394,8 +3405,8 @@
             "side": "negative"
           }
         ],
-        "rmsMetres": 0.028840199927718444,
-        "maxMetres": 0.05163639449702876,
+        "rmsMetres": 0.02670141953067134,
+        "maxMetres": 0.05007403860919119,
         "movedVertices": 2314,
         "published": true
       },
@@ -3411,8 +3422,8 @@
             "side": "positive"
           }
         ],
-        "rmsMetres": 0.006906429715899745,
-        "maxMetres": 0.017466406973045027,
+        "rmsMetres": 0.00931483904344232,
+        "maxMetres": 0.01990694784877156,
         "movedVertices": 1926,
         "published": true
       }
@@ -3432,6 +3443,11 @@
         "flexion": 1,
         "abduction": -1,
         "twist": 1
+      },
+      "neutral": {
+        "flexion": 0.0,
+        "abduction": 0.0,
+        "twist": 0.0
       }
     },
     {
@@ -3441,6 +3457,11 @@
         "flexion": 1,
         "abduction": -1,
         "twist": 1
+      },
+      "neutral": {
+        "flexion": 0.0,
+        "abduction": 0.0,
+        "twist": 0.0
       }
     },
     {
@@ -3450,6 +3471,11 @@
         "flexion": 1,
         "abduction": -1,
         "twist": 1
+      },
+      "neutral": {
+        "flexion": 0.0,
+        "abduction": 0.0,
+        "twist": 0.0
       }
     },
     {
@@ -3459,6 +3485,11 @@
         "flexion": 1,
         "abduction": -1,
         "twist": 1
+      },
+      "neutral": {
+        "flexion": 0.0,
+        "abduction": 0.0,
+        "twist": 0.0
       }
     },
     {
@@ -3468,6 +3499,11 @@
         "flexion": 1,
         "abduction": -1,
         "twist": 1
+      },
+      "neutral": {
+        "flexion": 0.0,
+        "abduction": 0.0,
+        "twist": 0.0
       }
     },
     {
@@ -3477,6 +3513,11 @@
         "flexion": 1,
         "abduction": -1,
         "twist": 1
+      },
+      "neutral": {
+        "flexion": 0.0,
+        "abduction": 0.0,
+        "twist": 0.0
       }
     },
     {
@@ -3485,7 +3526,12 @@
       "signs": {
         "flexion": 1,
         "abduction": 1,
-        "twist": -1
+        "twist": null
+      },
+      "neutral": {
+        "flexion": -0.0,
+        "abduction": 0.0,
+        "twist": 0.0
       }
     },
     {
@@ -3495,6 +3541,11 @@
         "flexion": 1,
         "abduction": 1,
         "twist": -1
+      },
+      "neutral": {
+        "flexion": 0.1877,
+        "abduction": 41.752,
+        "twist": 0.0
       }
     },
     {
@@ -3504,6 +3555,11 @@
         "flexion": 1,
         "abduction": null,
         "twist": -1
+      },
+      "neutral": {
+        "flexion": 43.0563,
+        "abduction": 0.0,
+        "twist": 0.0
       }
     },
     {
@@ -3513,6 +3569,11 @@
         "flexion": 1,
         "abduction": 1,
         "twist": null
+      },
+      "neutral": {
+        "flexion": 6.5838,
+        "abduction": 10.9919,
+        "twist": 0.0
       }
     },
     {
@@ -3522,6 +3583,11 @@
         "flexion": 1,
         "abduction": 1,
         "twist": -1
+      },
+      "neutral": {
+        "flexion": 0.0,
+        "abduction": -0.0,
+        "twist": 0.0
       }
     },
     {
@@ -3531,6 +3597,11 @@
         "flexion": 1,
         "abduction": null,
         "twist": null
+      },
+      "neutral": {
+        "flexion": 0.0,
+        "abduction": 0.0,
+        "twist": 0.0
       }
     },
     {
@@ -3540,6 +3611,11 @@
         "flexion": 1,
         "abduction": 1,
         "twist": null
+      },
+      "neutral": {
+        "flexion": 0.0,
+        "abduction": -0.0,
+        "twist": 0.0
       }
     },
     {
@@ -3549,6 +3625,11 @@
         "flexion": 1,
         "abduction": null,
         "twist": null
+      },
+      "neutral": {
+        "flexion": 0.0,
+        "abduction": 0.0,
+        "twist": 0.0
       }
     },
     {
@@ -3558,6 +3639,11 @@
         "flexion": 1,
         "abduction": null,
         "twist": null
+      },
+      "neutral": {
+        "flexion": 0.0,
+        "abduction": 0.0,
+        "twist": 0.0
       }
     },
     {
@@ -3567,6 +3653,11 @@
         "flexion": 1,
         "abduction": null,
         "twist": null
+      },
+      "neutral": {
+        "flexion": 18.4454,
+        "abduction": 0.0,
+        "twist": 0.0
       }
     },
     {
@@ -3576,6 +3667,11 @@
         "flexion": 1,
         "abduction": null,
         "twist": null
+      },
+      "neutral": {
+        "flexion": 15.7798,
+        "abduction": 0.0,
+        "twist": 0.0
       }
     },
     {
@@ -3585,6 +3681,11 @@
         "flexion": 1,
         "abduction": null,
         "twist": null
+      },
+      "neutral": {
+        "flexion": 12.3215,
+        "abduction": 0.0,
+        "twist": 0.0
       }
     },
     {
@@ -3594,6 +3695,11 @@
         "flexion": 1,
         "abduction": null,
         "twist": null
+      },
+      "neutral": {
+        "flexion": 12.2427,
+        "abduction": 0.0,
+        "twist": 0.0
       }
     },
     {
@@ -3603,6 +3709,11 @@
         "flexion": 1,
         "abduction": null,
         "twist": null
+      },
+      "neutral": {
+        "flexion": 7.5019,
+        "abduction": 0.0,
+        "twist": 0.0
       }
     },
     {
@@ -3612,6 +3723,11 @@
         "flexion": 1,
         "abduction": null,
         "twist": null
+      },
+      "neutral": {
+        "flexion": 15.9362,
+        "abduction": 0.0,
+        "twist": 0.0
       }
     },
     {
@@ -3621,6 +3737,11 @@
         "flexion": 1,
         "abduction": null,
         "twist": null
+      },
+      "neutral": {
+        "flexion": 5.9007,
+        "abduction": 0.0,
+        "twist": 0.0
       }
     },
     {
@@ -3630,6 +3751,11 @@
         "flexion": 1,
         "abduction": null,
         "twist": null
+      },
+      "neutral": {
+        "flexion": 7.5659,
+        "abduction": 0.0,
+        "twist": 0.0
       }
     },
     {
@@ -3639,6 +3765,11 @@
         "flexion": 1,
         "abduction": null,
         "twist": null
+      },
+      "neutral": {
+        "flexion": 13.5886,
+        "abduction": 0.0,
+        "twist": 0.0
       }
     },
     {
@@ -3648,6 +3779,11 @@
         "flexion": 1,
         "abduction": null,
         "twist": null
+      },
+      "neutral": {
+        "flexion": 7.3886,
+        "abduction": 0.0,
+        "twist": 0.0
       }
     },
     {
@@ -3657,6 +3793,11 @@
         "flexion": 1,
         "abduction": null,
         "twist": null
+      },
+      "neutral": {
+        "flexion": 6.3204,
+        "abduction": 0.0,
+        "twist": 0.0
       }
     },
     {
@@ -3666,6 +3807,11 @@
         "flexion": 1,
         "abduction": null,
         "twist": null
+      },
+      "neutral": {
+        "flexion": 17.9954,
+        "abduction": 0.0,
+        "twist": 0.0
       }
     },
     {
@@ -3675,6 +3821,11 @@
         "flexion": 1,
         "abduction": null,
         "twist": null
+      },
+      "neutral": {
+        "flexion": 9.2097,
+        "abduction": 0.0,
+        "twist": 0.0
       }
     },
     {
@@ -3684,6 +3835,11 @@
         "flexion": 1,
         "abduction": null,
         "twist": null
+      },
+      "neutral": {
+        "flexion": -0.9821,
+        "abduction": 0.0,
+        "twist": 0.0
       }
     },
     {
@@ -3692,7 +3848,12 @@
       "signs": {
         "flexion": 1,
         "abduction": -1,
-        "twist": 1
+        "twist": null
+      },
+      "neutral": {
+        "flexion": -0.0,
+        "abduction": 0.0,
+        "twist": 0.0
       }
     },
     {
@@ -3702,6 +3863,11 @@
         "flexion": 1,
         "abduction": -1,
         "twist": 1
+      },
+      "neutral": {
+        "flexion": 0.1877,
+        "abduction": 41.752,
+        "twist": 0.0
       }
     },
     {
@@ -3711,6 +3877,11 @@
         "flexion": 1,
         "abduction": null,
         "twist": 1
+      },
+      "neutral": {
+        "flexion": 43.0563,
+        "abduction": 0.0,
+        "twist": 0.0
       }
     },
     {
@@ -3720,6 +3891,11 @@
         "flexion": 1,
         "abduction": -1,
         "twist": null
+      },
+      "neutral": {
+        "flexion": 6.5838,
+        "abduction": 10.9919,
+        "twist": 0.0
       }
     },
     {
@@ -3729,6 +3905,11 @@
         "flexion": 1,
         "abduction": -1,
         "twist": 1
+      },
+      "neutral": {
+        "flexion": 0.0,
+        "abduction": 0.0,
+        "twist": 0.0
       }
     },
     {
@@ -3738,6 +3919,11 @@
         "flexion": 1,
         "abduction": null,
         "twist": null
+      },
+      "neutral": {
+        "flexion": 0.0,
+        "abduction": 0.0,
+        "twist": 0.0
       }
     },
     {
@@ -3747,6 +3933,11 @@
         "flexion": 1,
         "abduction": -1,
         "twist": null
+      },
+      "neutral": {
+        "flexion": 0.0,
+        "abduction": 0.0,
+        "twist": 0.0
       }
     },
     {
@@ -3756,6 +3947,11 @@
         "flexion": 1,
         "abduction": null,
         "twist": null
+      },
+      "neutral": {
+        "flexion": 0.0,
+        "abduction": 0.0,
+        "twist": 0.0
       }
     },
     {
@@ -3765,6 +3961,11 @@
         "flexion": 1,
         "abduction": null,
         "twist": null
+      },
+      "neutral": {
+        "flexion": 0.0,
+        "abduction": 0.0,
+        "twist": 0.0
       }
     },
     {
@@ -3774,6 +3975,11 @@
         "flexion": 1,
         "abduction": null,
         "twist": null
+      },
+      "neutral": {
+        "flexion": 18.4454,
+        "abduction": 0.0,
+        "twist": 0.0
       }
     },
     {
@@ -3783,6 +3989,11 @@
         "flexion": 1,
         "abduction": null,
         "twist": null
+      },
+      "neutral": {
+        "flexion": 15.7798,
+        "abduction": 0.0,
+        "twist": 0.0
       }
     },
     {
@@ -3792,6 +4003,11 @@
         "flexion": 1,
         "abduction": null,
         "twist": null
+      },
+      "neutral": {
+        "flexion": 12.3215,
+        "abduction": 0.0,
+        "twist": 0.0
       }
     },
     {
@@ -3801,6 +4017,11 @@
         "flexion": 1,
         "abduction": null,
         "twist": null
+      },
+      "neutral": {
+        "flexion": 12.2427,
+        "abduction": 0.0,
+        "twist": 0.0
       }
     },
     {
@@ -3810,6 +4031,11 @@
         "flexion": 1,
         "abduction": null,
         "twist": null
+      },
+      "neutral": {
+        "flexion": 7.5019,
+        "abduction": 0.0,
+        "twist": 0.0
       }
     },
     {
@@ -3819,6 +4045,11 @@
         "flexion": 1,
         "abduction": null,
         "twist": null
+      },
+      "neutral": {
+        "flexion": 15.9362,
+        "abduction": 0.0,
+        "twist": 0.0
       }
     },
     {
@@ -3828,6 +4059,11 @@
         "flexion": 1,
         "abduction": null,
         "twist": null
+      },
+      "neutral": {
+        "flexion": 5.9007,
+        "abduction": 0.0,
+        "twist": 0.0
       }
     },
     {
@@ -3837,6 +4073,11 @@
         "flexion": 1,
         "abduction": null,
         "twist": null
+      },
+      "neutral": {
+        "flexion": 7.5659,
+        "abduction": 0.0,
+        "twist": 0.0
       }
     },
     {
@@ -3846,6 +4087,11 @@
         "flexion": 1,
         "abduction": null,
         "twist": null
+      },
+      "neutral": {
+        "flexion": 13.5886,
+        "abduction": 0.0,
+        "twist": 0.0
       }
     },
     {
@@ -3855,6 +4101,11 @@
         "flexion": 1,
         "abduction": null,
         "twist": null
+      },
+      "neutral": {
+        "flexion": 7.3886,
+        "abduction": 0.0,
+        "twist": 0.0
       }
     },
     {
@@ -3864,6 +4115,11 @@
         "flexion": 1,
         "abduction": null,
         "twist": null
+      },
+      "neutral": {
+        "flexion": 6.3204,
+        "abduction": 0.0,
+        "twist": 0.0
       }
     },
     {
@@ -3873,6 +4129,11 @@
         "flexion": 1,
         "abduction": null,
         "twist": null
+      },
+      "neutral": {
+        "flexion": 17.9954,
+        "abduction": 0.0,
+        "twist": 0.0
       }
     },
     {
@@ -3882,6 +4143,11 @@
         "flexion": 1,
         "abduction": null,
         "twist": null
+      },
+      "neutral": {
+        "flexion": 9.2097,
+        "abduction": 0.0,
+        "twist": 0.0
       }
     },
     {
@@ -3891,6 +4157,11 @@
         "flexion": 1,
         "abduction": null,
         "twist": null
+      },
+      "neutral": {
+        "flexion": -0.9821,
+        "abduction": 0.0,
+        "twist": 0.0
       }
     }
   ],
@@ -3908,9 +4179,9 @@
     "Joints are hinge/ball approximations at MPFB joint cube centroids; no scapulohumeral rhythm or knee screw-home",
     "No collision, physiological or likeness acceptance"
   ],
-  "uncompressedSha256": "35936cabc63a8a14cecf2f98dfa92eaad5dc74ac52a1a8531344990dfcf697a6",
-  "uncompressedBytes": 107061410,
-  "elapsedSeconds": 212.5,
-  "compressedSha256": "521fc59b587770c98d969712c395ea40ca25b735c7e09dbdcea8293271738a9a",
-  "compressedBytes": 26973920
+  "uncompressedSha256": "d584c51acf60e870ed80ed255bda420a5ac5e7f65183624c34b2c1b743c52418",
+  "uncompressedBytes": 107232270,
+  "elapsedSeconds": 48.5,
+  "compressedSha256": "03808b133c4b6e7fbac05e084f19aa115aa91f120121c7770f6122f7a5d84ad1",
+  "compressedBytes": 27024835
 }
