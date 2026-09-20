@@ -2,10 +2,10 @@ import { validateModel } from "@automovie/engine";
 import type { IAutoMovieModel } from "@automovie/interface";
 import typia from "typia";
 
+import { portraitNormals } from "../mesh/portraitNormals";
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceBasisDocument } from "../structures/IAutoMovieHumanFaceBasisDocument";
 import { assertHumanFaceBasis } from "./assertHumanFaceBasis";
-import { portraitNormals } from "../mesh/portraitNormals";
 import { humanFaceBasisRegion } from "./humanFaceBasisRegion";
 
 /**
@@ -14,10 +14,11 @@ import { humanFaceBasisRegion } from "./humanFaceBasisRegion";
  * resident model through exportHumanFace. Offline modelling tools supply the
  * licensed geometry; none run here and no source photo is needed for replay.
  *
- * For each vertex p, evaluation is p + sum(abs(weight) * endpointDelta), then
- * plus each corrective's endpoint at its own activation. Signed shape controls
- * select distinct authored endpoints. All surfaces use the same channel order;
- * normals are reconstructed before UV/material seams.
+ * For each vertex p, evaluation is identity, then p + sum(abs(weight) *
+ * endpointDelta), then each basis corrective's endpoint at its own activation,
+ * then each document corrective's rows at its activation. Signed shape
+ * controls select distinct authored endpoints. All surfaces use the same
+ * channel order; normals are reconstructed before UV/material seams.
  *
  * Correctives are what a purely linear prior cannot express: two endpoints that
  * move the same tissue sum to a face neither of them describes. The activation
@@ -66,34 +67,90 @@ export function createHumanFaceBasisBuilder(
           );
         weights.set(name, weight);
       }
-    // A per-vertex identity names surfaces and vertices of this basis. A row
+    // A per-vertex field names surfaces and vertices of this basis. A row
     // that names neither is a document written against something else, and
     // silently skipping it would build a face that is not the one asked for.
-    for (const [id, rows] of Object.entries(document.identity ?? {})) {
-      const surface = basis.surfaces.find((one) => one.id === id);
-      const vertices = surface === undefined ? 0 : surface.positions.length / 3;
+    const admitRows = (
+      what: string,
+      fields: Record<string, number[]>,
+    ): void => {
+      for (const [id, rows] of Object.entries(fields)) {
+        const surface = basis.surfaces.find((one) => one.id === id);
+        const vertices =
+          surface === undefined ? 0 : surface.positions.length / 3;
+        if (
+          surface === undefined ||
+          rows.length % 4 !== 0 ||
+          rows.some((value) => !Number.isFinite(value))
+        )
+          throw new Error(
+            what +
+              " needs finite [vertex, dx, dy, dz] rows on a surface this basis declares: " +
+              id,
+          );
+        let previous = -1;
+        for (let i = 0; i < rows.length; i += 4) {
+          const vertex = rows[i];
+          if (
+            !Number.isInteger(vertex) ||
+            vertex <= previous ||
+            vertex >= vertices
+          )
+            throw new Error(
+              what +
+                " rows are strictly increasing vertices of " +
+                id +
+                ", within its " +
+                vertices +
+                " vertices.",
+            );
+          previous = vertex;
+        }
+      }
+    };
+    admitRows("Per-vertex identity", document.identity ?? {});
+    // A document corrective is this face's own answer to a combination, on
+    // top of the basis's. It is admitted like a basis corrective, against the
+    // channels it drives and the names already taken, and its rows like the
+    // identity's, because it is the same kind of field with a different owner.
+    const taken = new Set([
+      ...basis.channels.map((one) => one.id),
+      ...(basis.correctives ?? []).map((one) => one.id),
+    ]);
+    for (const corrective of document.correctives ?? []) {
       if (
-        surface === undefined ||
-        rows.length % 4 !== 0 ||
-        rows.some((value) => !Number.isFinite(value))
+        taken.has(corrective.id) ||
+        corrective.id.trim() === "" ||
+        corrective.inputs.length === 0 ||
+        !Number.isFinite(corrective.weight) ||
+        corrective.weight <= 0 ||
+        corrective.weight > 1 ||
+        new Set(
+          corrective.inputs.map((input) => input.channel + "/" + input.side),
+        ).size !== corrective.inputs.length
       )
         throw new Error(
-          "Per-vertex identity needs finite [vertex, dx, dy, dz] rows on a surface this basis declares: " +
-            id,
+          "A document corrective needs an unclaimed identity, distinct drivers and a gain in (0,1]: " +
+            corrective.id,
         );
-      let previous = -1;
-      for (let i = 0; i < rows.length; i += 4) {
-        const vertex = rows[i];
-        if (!Number.isInteger(vertex) || vertex <= previous || vertex >= vertices)
+      taken.add(corrective.id);
+      for (const input of corrective.inputs) {
+        const channel = channels.get(input.channel);
+        if (
+          channel === undefined ||
+          (input.side === "negative" ? channel.negative : channel.positive) ===
+            null ||
+          (input.peak !== undefined &&
+            (!Number.isFinite(input.peak) || input.peak <= 0 || input.peak > 1))
+        )
           throw new Error(
-            "Per-vertex identity rows are strictly increasing vertices of " +
-              id +
-              ", within its " +
-              vertices +
-              " vertices.",
+            "A document corrective drives off a side no channel carries, or peaks outside (0,1]: " +
+              input.channel +
+              "." +
+              input.side,
           );
-        previous = vertex;
       }
+      admitRows("Document corrective " + corrective.id, corrective.targets);
     }
     const materials = structuredClone(basis.materials);
     const materialMap = new Map(
@@ -131,17 +188,40 @@ export function createHumanFaceBasisBuilder(
     // `min(1, weight * product of clamped inputs)` over a buffer it clamps to
     // [0,1] first, and the form matters more than the source: a sum here would
     // fire a corrective on one driver alone, which is the pose it was authored
-    // to leave untouched.
-    const applied = (basis.correctives ?? []).map((corrective) => ({
-      target: corrective.target,
-      activation: Math.min(
+    // to leave untouched. An input with a peak under one is an in-between: its
+    // factor is a tent over the driver, one at the peak and zero again at one.
+    const activationOf = (corrective: {
+      inputs: {
+        channel: string;
+        side: "positive" | "negative";
+        peak?: number;
+      }[];
+      weight: number;
+    }): number =>
+      Math.min(
         1,
         corrective.inputs.reduce((total, input) => {
           const weight = weights.get(input.channel) ?? 0;
           const driver = input.side === "negative" ? -weight : weight;
-          return total * Math.min(1, Math.max(0, driver));
+          const peak = input.peak ?? 1;
+          const factor =
+            driver <= peak
+              ? driver / peak
+              : peak < 1
+                ? (1 - driver) / (1 - peak)
+                : 1;
+          return total * Math.min(1, Math.max(0, factor));
         }, corrective.weight),
-      ),
+      );
+    const applied = (basis.correctives ?? []).map((corrective) => ({
+      target: corrective.target,
+      activation: activationOf(corrective),
+    }));
+    // This face's own correctives fire by the same rule and land after the
+    // basis's, so they are the residual on top of the shared answer.
+    const own = (document.correctives ?? []).map((corrective) => ({
+      targets: corrective.targets,
+      activation: activationOf(corrective),
     }));
     const parts = basis.surfaces.flatMap((surface) => {
       const positions = surface.positions.slice();
@@ -172,6 +252,14 @@ export function createHumanFaceBasisBuilder(
       for (const corrective of applied)
         if (corrective.activation > 0)
           accumulate(corrective.target, corrective.activation);
+      for (const corrective of own) {
+        const rows = corrective.targets[surface.id];
+        if (corrective.activation <= 0 || rows === undefined) continue;
+        for (let i = 0; i < rows.length; i += 4)
+          for (let axis = 0; axis < 3; axis++)
+            positions[rows[i] * 3 + axis] +=
+              corrective.activation * rows[i + axis + 1];
+      }
       const normals = portraitNormals(positions, surface.indices);
       return surface.regions.map((region) => ({
         id: region.id,

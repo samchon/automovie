@@ -498,7 +498,7 @@ import type { humanFaceStudyDocuments } from "./studies";
  * @evidence {@link Human.assertFinite} Refuses a non-finite scalar in the independent face document, on load and on save alike.
  * @evidenceReview {@link Human.assertFinite} #666cd20 Read the shared finite gate: parse and serialize apply the same admission, so a document that round-trips is a document both ends accept.
  * @evidence {@link Human.assertHumanFaceBasis} Admits immutable connectivity, endpoint correspondence and triangle partitions once, before the builder compiles.
- * @evidenceReview {@link Human.assertHumanFaceBasis} #784d3e1 Read the admission the basis builder calls once: mesh topology, sparse endpoint rows and the region partition are checked together, so a partially admitted basis never reaches evaluation.
+ * @evidenceReview {@link Human.assertHumanFaceBasis} #59f4a74 Read the admission the basis builder calls once: mesh topology, sparse endpoint rows and the region partition are checked together, so a partially admitted basis never reaches evaluation. Reread after corrective in-between peaks: a peak is admitted beside the side it belongs to, finite and in (0,1], because zero would divide the driver and anything past one would never be reached.
  * @evidence {@link Human.assertRegion} Names the editor's replaceable anatomical regions and refuses one it does not own.
  * @evidenceReview {@link Human.assertRegion} #358f74b Read the region gate the value reader and the replacement share: an unnamed region refuses rather than silently addressing nothing.
  * @evidence {@link Human.assertTextSize} Holds a saved document inside the UTF-16 envelope the loader accepts, JSON whitespace included.

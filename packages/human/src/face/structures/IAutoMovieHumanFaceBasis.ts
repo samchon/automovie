@@ -1,5 +1,5 @@
-
 import type { IAutoMovieMaterial } from "@automovie/interface";
+
 /**
  * An immutable, externally authored connected facial surface and its endpoints.
  * The caller supplies licensed geometry; this package supplies no person's mesh.
@@ -55,6 +55,15 @@ export interface IAutoMovieHumanFaceBasis {
    * than from a description of it: `min(1, weight * product of clamped
    * inputs)`.
    *
+   * A product of clamped inputs is bilinear, so a corrective solved at full
+   * weight on both drivers lands at a quarter of itself when both are at half,
+   * on a pose that may cross by more than a quarter as much. The rig answers
+   * that the way every blendshape rig does, with an in-between: a driver may
+   * name the weight it peaks at, and its factor is then a tent that rises to
+   * one there and falls back to zero at full, where the full-weight corrective
+   * has taken over. MetaHuman's `ConditionalTable` is the same device, a
+   * piecewise-linear ramp per input ahead of the product.
+   *
    * Omission is a basis with no correctives, which is exactly what a purely
    * linear prior is. Nothing here infers a corrective; the endpoint it applies
    * has to be authored like any other.
@@ -72,6 +81,15 @@ export interface IAutoMovieHumanFaceBasis {
     inputs: {
       channel: string;
       side: "positive" | "negative";
+
+      /**
+       * The driver weight this input is fully present at, in (0,1]; omitted
+       * is 1. Below it the factor is `driver / peak`; above it, when the peak
+       * is under one, the factor falls linearly to zero at a driver of one,
+       * so an in-between corrective is absent from the full pose it was not
+       * solved for.
+       */
+      peak?: number;
     }[];
 
     /** Authored gain in (0,1]; the product of a rig row's authored weights. */

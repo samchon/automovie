@@ -1,6 +1,7 @@
-
 import { validateMeshTopology } from "@automovie/engine";
+
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
+
 /**
  * Admit immutable connectivity, endpoint correspondence and triangle partitions.
  * Called once by the basis builder after schema admission and ownership cloning.
@@ -75,6 +76,19 @@ export function assertHumanFaceBasis(basis: IAutoMovieHumanFaceBasis): void {
       if (channel === undefined || channel[input.side] === null)
         throw new Error(
           "A facial corrective drives off a side no channel carries: " +
+            input.channel +
+            "." +
+            input.side,
+        );
+      // A peak at zero would divide the driver by it, and one past the driver
+      // envelope's unit would never be reached; both name an in-between that
+      // cannot exist.
+      if (
+        input.peak !== undefined &&
+        (!Number.isFinite(input.peak) || input.peak <= 0 || input.peak > 1)
+      )
+        throw new Error(
+          "A facial corrective in-between peaks in (0,1]: " +
             input.channel +
             "." +
             input.side,
