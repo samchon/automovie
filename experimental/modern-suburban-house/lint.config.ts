@@ -3,6 +3,7 @@ import {
   type IAutoMovieEvidenceConfigProps,
   createAutoMovieEvidenceConfig,
   createBlankAutoMovieProductionEvidence,
+  createAutoMovieProductionObligationClaim,
   evidence,
 } from "@automovie/evidence";
 import type { ITtscLintConfig } from "@ttsc/lint";
@@ -40,6 +41,27 @@ export const productionEvidence = {
     "korean" as AutoMovieProductionLanguage,
   ),
 } satisfies IAutoMovieEvidenceConfigProps;
+
+productionEvidence.kind = "library";
+productionEvidence.settings = "draft";
+productionEvidence.claims = [
+  createAutoMovieProductionObligationClaim({
+    name: "house-observation-denominator",
+    document: "contracts/observation-denominator.md",
+    account: "accounts/settings/observation-denominator.md",
+    layer: "settings",
+    stage: productionEvidence.settings,
+    populationScope: { mode: "complete-production" },
+  }),
+  createAutoMovieProductionObligationClaim({
+    name: "house-surface-ownership",
+    document: "contracts/surface-ownership.md",
+    account: "accounts/settings/surface-ownership.md",
+    layer: "settings",
+    stage: productionEvidence.settings,
+    populationScope: { mode: "complete-production" },
+  }),
+];
 
 const graph = createAutoMovieEvidenceConfig(productionEvidence);
 

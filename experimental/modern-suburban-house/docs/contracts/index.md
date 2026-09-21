@@ -1,0 +1,4 @@
+<!--
+@evidenceExclude discovery/core/settings.md#planned-delivery-backcast 계획한 maps·spaces·models·materials·instances·systems와 matching source 및 viewer를 현재 settings 전체와 대조했다. 대지/식재와 빈 차고를 포함한 공간 정체성은 settings/10-house.md, 공통 좌표·점유체·제작 배분은 settings/00-production.md#coordinate-units·use-profile·build-allocation, 재료 인상·빛·실제 GPU와 CJS 경계·관찰 책임은 settings/20-verification.md#visual-grammar·lighting-state·renderer-boundary·execution-boundary·observation-allocation에 있다. 실제 면적/배치/광학값/반복 간격을 정하는 일은 이 입력을 받는 설계 책임이며 추가적인 생산물 전역 사실을 발명할 권한이 아니다. obligations/core/settings.md의 settings-coverage-map·operative-subject-inventory·design-dependent-subject-conditions와 기존 설정-설계/source 관계로 이 전달을 다룰 수 있어, 역산 조사에서 추가 settings 소유자나 독립 계약은 발견하지 않았다. 지시에서 채택한 observation-denominator.md와 surface-ownership.md는 그대로 유지하며 이 제외가 그 의무나 미구현 공간/뷰어를 제외하지 않는다.
+-->
+# 계획 소비자의 추가 설정 요구 탐색
