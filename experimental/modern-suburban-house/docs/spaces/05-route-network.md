@@ -32,6 +32,8 @@
 
 필요한 검사는 현관에서 표의 각 목적지까지 도달하고 같은 경계 순서로 돌아오는 경로다. 팬트리/파우더룸/침실을 통과하지 않고 공용실과 차고·두 욕실에 닿아야 한다. 거친 개구부의 좌표가 벽 안에 있다는 사실과 실제 문틀/문짝 뒤의 통행은 서로 다른 검사다. 표의 방 하나라도 실제 storey·boundary·opening·connector를 갖지 않으면 소스 인계는 미완료다. 현재 topology 보고와 양방향 통행은 unverified다.
 
+[현관의 분배 바닥](rooms/entry.md#entry-use-routes)에서 계단·거실·서비스로 직접 분기한다. 거실은 [좌석 밖의 앞뒤 경로](rooms/living.md#living-through-route)로 주방에 이어지고, 서비스에서는 [외투 수납](rooms/entry.md#entry-coat-storage)을 쓰고 같은 길로 돌아온다. 위 표의 방/개구부 연결은 그대로이며, 문 조작·좌석·수납 사용의 순차 상태를 통행 상태와 구별한다.
+
 후면 공용부 안의 [주 경로와 주방 접근](rooms/common.md#common-clear-routes)은 같은 room 내부의 통행이다. 주방·식사·가족실에 별도 문이나 복도 edge를 추가하지 않는다. 서비스 진입에서 정원문으로 갈 때는 가구 사용 점유를 돌아가는 주 경로를 소비하고, 거실 쪽 주방 진입과 열린 기기 앞 작업은 별도 상태로 검사한다. 식품 운반은 기존 팬트리 → 서비스 접근 → 공용부 경로를 유지한다.
 
 서비스 접근 → [머드룸 횡단](rooms/laundry.md#laundry-through-route) → 차고 하부 대기 → [차고 내부](rooms/garage-interior.md#garage-use-routes)는 두 세탁 기기 앞 작업과 함께 검사한다. 같은 서비스 접근에서 [파우더룸 기구](rooms/powder.md#powder-fixture-use)로 분기하며 그 방을 차고의 통과실로 쓰지 않는다. 방 사이 edge는 위 표 그대로이고 새 H2들은 그 내부에서 문/설비를 사용하는 순서와 점유의 owner다.
