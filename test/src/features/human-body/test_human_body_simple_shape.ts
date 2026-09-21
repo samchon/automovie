@@ -1,4 +1,5 @@
 import {
+  HUMAN_BODY_MEASUREMENTS,
   HUMAN_BODY_SIMPLE_SHAPE,
   type IAutoMovieHumanBodyBasis,
   type IAutoMovieHumanBodySimpleShape,
@@ -27,7 +28,9 @@ import { nclose } from "../internal/predicates";
  * 2. Every parameter outside its envelope, or not finite, is refused, a
  *    missing required one too; a basis without `macroHeight` or
  *    `macroWeight` is refused, and a tape measurement whose channel the
- *    basis lacks.
+ *    basis lacks or whose rule the surface cannot answer (the bust rule
+ *    reads a landmark the box lacks). The stature channel's rule is a
+ *    height and every tape channel has a rule.
  * 3. Term rows by hand: a 25-year-old man at BMI 22 with muscle 0.5 gets
  *    gender 1, age 0, muscle 0.5, ptosis -0.2 (the lift row only), abs
  *    definition 0.244 (Deurenberg 15.95% less 5% essential, 10.95% on the
@@ -50,7 +53,8 @@ import { nclose } from "../internal/predicates";
  *    beyond the reach is refused.
  * 8. Projection: expanding then projecting returns the sex, age, stature,
  *    mass, muscle and waist requested; a neutral shape projects to the
- *    neutral values (sex 0, age 25, muscle 0).
+ *    neutral values (sex 0, age 25, muscle 0), as does a basis without the
+ *    identity channels; the curve inverse holds at both ends.
  * 9. Residue: applied over a shape with detailed edits on named channels
  *    and an unnamed one, the body's own projected values change nothing, a
  *    changed age moves only what age drives while the edits survive as
@@ -58,6 +62,18 @@ import { nclose } from "../internal/predicates";
  */
 export const test_human_body_simple_shape = (): void => {
   const table = HUMAN_BODY_SIMPLE_SHAPE;
+  // the two tables agree: the stature channel is read by a height rule and
+  // every tape measurement's channel has a rule
+  TestValidator.equals(
+    "stature rule",
+    HUMAN_BODY_MEASUREMENTS[table.solved.stature]?.kind,
+    "height",
+  );
+  for (const entry of table.measurements)
+    TestValidator.predicate(
+      `rule for ${entry.channel}`,
+      HUMAN_BODY_MEASUREMENTS[entry.channel] !== undefined,
+    );
   const { basis: box } = humanBodyBasisFixture();
   const surface = box.surfaces[0];
   const volume = measureHumanBodyVolume(surface.positions, surface.indices);
@@ -105,20 +121,21 @@ export const test_human_body_simple_shape = (): void => {
     channels: [
       ...box.channels,
       ...[
-        ["macroGender", -1],
-        ["macroAge", -1],
-        ["macroMuscle", -1],
-        ["macroFirmness", -1],
-        ["buttocksPtosis", -1],
-        ["absDefinition", 0],
-        ["flankFat", 0],
-      ].map(([id, minimum]) => ({
+        ["macroGender", -1, 1],
+        ["macroAge", -1, 1],
+        // muscle past one, as the published basis carries it
+        ["macroMuscle", -1, 2],
+        ["macroFirmness", -1, 1],
+        ["buttocksPtosis", -1, 1],
+        ["absDefinition", 0, 1],
+        ["flankFat", 0, 1],
+      ].map(([id, minimum, maximum]) => ({
         id: String(id),
         kind: "shape" as const,
         group: "macro",
         mirror: null,
         minimum: Number(minimum),
-        maximum: 1,
+        maximum: Number(maximum),
         positive: "wideTall",
         negative: minimum === 0 ? null : "wideTall",
       })),
@@ -141,6 +158,17 @@ export const test_human_body_simple_shape = (): void => {
         maximum: 1,
         positive: "grown",
         negative: "shrunk",
+      },
+      {
+        // the bust rule reads joint-spine-1, which the box does not have
+        id: "measureBustCirc",
+        kind: "shape",
+        group: "torso",
+        mirror: null,
+        minimum: -1,
+        maximum: 1,
+        positive: "deep",
+        negative: null,
       },
       {
         id: "measureWaistCirc",
@@ -211,6 +239,9 @@ export const test_human_body_simple_shape = (): void => {
     );
   TestValidator.error("a tape measurement without its channel", () =>
     expandHumanBodySimpleShape(basis, { ...base, hipsMetres: 1 }),
+  );
+  TestValidator.error("a tape measurement the surface cannot answer", () =>
+    expandHumanBodySimpleShape(basis, { ...base, bustMetres: 0.9 }),
   );
 
   const young = expandHumanBodySimpleShape(basis, base);
@@ -351,6 +382,19 @@ export const test_human_body_simple_shape = (): void => {
         name === "massKilograms" ? 0.05 : name === "waistMetres" ? 1e-3 : 1e-4,
       ),
     );
+  // the curve inverse holds at its ends: a feminine extreme reads -1, a
+  // muscle worn past the table's last point reads its last abscissa
+  const ends = projectHumanBodySimpleShape(basis, {
+    macroGender: -1,
+    macroMuscle: 2,
+  });
+  TestValidator.equals("sex at the first point", ends.sex, -1);
+  TestValidator.equals("muscle past the last point", ends.muscle, 1);
+  // a basis without the identity channels reads them as neutral
+  const plain = projectHumanBodySimpleShape(box, {});
+  TestValidator.equals("plain sex", plain.sex, 0);
+  TestValidator.equals("plain age", plain.ageYears, 25);
+  TestValidator.equals("plain muscle", plain.muscle, 0);
   const neutral = projectHumanBodySimpleShape(basis, {});
   TestValidator.equals("neutral sex", neutral.sex, 0);
   TestValidator.equals("neutral age", neutral.ageYears, 25);

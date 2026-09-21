@@ -13,8 +13,8 @@ import { measureHumanBodyVolume } from "./measureHumanBodyVolume";
  *
  * Both readings evaluate the shape once through the builder's own path,
  * without a pose, and are what the expansion inverts and the projection
- * reports; a channel with no rule answers null, as does a rule the surface
- * cannot answer.
+ * reports; a rule the surface cannot answer (no section loop, a landmark
+ * the basis lacks) answers null.
  *
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-simple-shape Reads the stature and skin volume a requested height and mass are met against.
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-simple-shape Realizes the height rule plus head allowance and the capped tetrahedron volume the mass model specifies.
@@ -24,14 +24,13 @@ export const measureHumanBodySimpleShape = {
     basis: IAutoMovieHumanBodyBasis,
     shape: Record<string, number>,
   ): number {
-    const rule =
-      HUMAN_BODY_MEASUREMENTS[HUMAN_BODY_SIMPLE_SHAPE.solved.stature];
-    const height =
-      rule === undefined
-        ? null
-        : evaluateHumanBodyMeasurement(basis, shape, rule);
-    if (height === null)
-      throw new Error("A simple body stature needs the basis's height rule.");
+    // the stature channel's rule is a height, which always answers: the
+    // two tables are checked against each other by the simple-tier test
+    const height = evaluateHumanBodyMeasurement(
+      basis,
+      shape,
+      HUMAN_BODY_MEASUREMENTS[HUMAN_BODY_SIMPLE_SHAPE.solved.stature],
+    )!;
     return height + HUMAN_BODY_SIMPLE_SHAPE.stature.headAboveRingMetres;
   },
 
@@ -60,9 +59,12 @@ export const measureHumanBodySimpleShape = {
     shape: Record<string, number>,
     channel: string,
   ): number | null {
-    const rule = HUMAN_BODY_MEASUREMENTS[channel];
-    return rule === undefined
-      ? null
-      : evaluateHumanBodyMeasurement(basis, shape, rule);
+    // every tape channel the table names has a rule (checked by the test);
+    // the rule itself may find no section on a surface and answer null
+    return evaluateHumanBodyMeasurement(
+      basis,
+      shape,
+      HUMAN_BODY_MEASUREMENTS[channel],
+    );
   },
 };
