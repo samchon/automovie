@@ -20,4 +20,6 @@
 
 [maps 입력 인계](site/00-access.md#map-handoff-inputs)가 실현되면 같은 revision의 필지/건물/포장 포함 평면과 두 전면 포트의 전폭 단면, 낮은 포장 가장자리 및 높은 테라스 옆면의 지표 접촉 단면을 추가한다. 처마 아래 지면이 빠지거나 포장 위에 지표가 겹친 곳, 계단을 덮어버린 지표, node의 점만 같고 포트 폭/높이가 다른 곳을 찾는다. 외부 보도에서 두 포트로 들어갔다 돌아오는 경로는 실제 지도 연결이 생긴 뒤에만 검사할 수 있고 현재는 unverified다. 이 접합 질문은 기존 외부·실내 전체 분모와 다섯 참조 질문에 더한다.
 
+[울타리 폐합](site/fence.md#fence-enclosure-plan)은 전체 선과 건물 외피를 함께 보는 평면, 모든 긴 면/꺾임의 안팎 시야, [관리문 양옆 잔여 패널과 벽 접점](site/fence.md#fence-gate-junction), [지표 높이와 기초 점유](site/fence.md#fence-ground-profile)의 단면을 추가한다. 문이 실제 void에 있는지, 짧은 패널을 빠뜨리거나 끝기둥을 벽/포장 안에 넣지 않았는지, 가지/관목이 접합 결함을 가리는지 확인한다. 문을 닫은 경계와 연 뒤의 양방향 관리길 통행을 구별한다. 울타리의 눈에 보이는 모든 면은 실제 산출물에서 포함하고 한 정면 view로 대신하지 않는다.
+
 관찰 뷰어는 [렌더 경계](../settings/20-verification.md#renderer-boundary), [CJS 실행 경계](../settings/20-verification.md#execution-boundary), [프레임 조건](../settings/20-verification.md#frame-condition)을 따른다. 이번 조정자 지정 인계값은 포트 4173과 `--port` 인자다. 이는 향후 구현이 받을 조건이고 실행 명령이 준비됐다는 보고가 아니다. 실제 공간 소스·뷰어·GPU RENDERER·프레임은 미구현/unverified다.
