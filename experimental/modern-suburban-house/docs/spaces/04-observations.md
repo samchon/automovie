@@ -18,4 +18,6 @@
 
 [측면 관리길](site/side-walk.md#side-walk-plan)은 차도 접속의 높이 보간·세 띠의 합류·테라스 아래 대기와의 끝선을, [gate](site/side-walk.md#side-gate-interface)는 닫힘·문 조작·90° 열림과 앞뒤 대기를 추가한다. 앞뒤 두 외부 구역 각각의 기본 시점과 꺾임의 가려진 코너를 유지하며 차도에서 테라스로, 테라스에서 차도로 바구니를 들고 돌아오는 경로를 대조한다. 지표·울타리·식재가 아직 없다는 사실을 빈 장애물 목록이나 완성된 정원으로 해석하지 않는다.
 
+[maps 입력 인계](site/00-access.md#map-handoff-inputs)가 실현되면 같은 revision의 필지/건물/포장 포함 평면과 두 전면 포트의 전폭 단면, 낮은 포장 가장자리 및 높은 테라스 옆면의 지표 접촉 단면을 추가한다. 처마 아래 지면이 빠지거나 포장 위에 지표가 겹친 곳, 계단을 덮어버린 지표, node의 점만 같고 포트 폭/높이가 다른 곳을 찾는다. 외부 보도에서 두 포트로 들어갔다 돌아오는 경로는 실제 지도 연결이 생긴 뒤에만 검사할 수 있고 현재는 unverified다. 이 접합 질문은 기존 외부·실내 전체 분모와 다섯 참조 질문에 더한다.
+
 관찰 뷰어는 [렌더 경계](../settings/20-verification.md#renderer-boundary), [CJS 실행 경계](../settings/20-verification.md#execution-boundary), [프레임 조건](../settings/20-verification.md#frame-condition)을 따른다. 이번 조정자 지정 인계값은 포트 4173과 `--port` 인자다. 이는 향후 구현이 받을 조건이고 실행 명령이 준비됐다는 보고가 아니다. 실제 공간 소스·뷰어·GPU RENDERER·프레임은 미구현/unverified다.
