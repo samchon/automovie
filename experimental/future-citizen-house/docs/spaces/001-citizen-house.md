@@ -45,30 +45,18 @@
 @evidence settings/001-production.md#delivery-scope 주택 한 채의 작은 앞마당 범위를 citizen-site와 전면 보도·현관 도착으로 배정한다. 주변 건물이나 교통망을 새 납품 영역으로 추가하지 않는다.
 @evidence settings/003-spatial-basis.md#coordinate-datum 본채와 같은 metre·Y-up 좌표에서 site bounds와 지면·tread 높이를 정하고 현관 floor datum을 소비한다. reference 픽셀을 측량 치수로 사용하지 않는다.
 @evidence settings/004-observation.md#accessibility-products 세 단차로 구성한 도착 경로를 실물 무장애 인증으로 보고하지 않는 공간 설계상의 경계를 소비한다. 키보드나 음성 제품의 구현 책임을 대지 geometry의 통과로 대신하지 않는다.
-@evidenceReview settings/001-production.md#delivery-scope #e314261 작은 앞마당을 citizen-site로 구체화하고 본채와 현관으로의 도착을 그 안에 둔다. broad world·주변 건물·공공 교통망을 만들지 않는 본문은 집 한 채의 부속 대지라는 부모 범위를 유지한다.
-@evidenceReview settings/003-spatial-basis.md#coordinate-datum #8a862c9 대지와 단차는 본채와 같은 좌표 관례를 직접 참조하고 마지막 landing을 y=0의 현관 바닥에 연결한다. site의 수치는 이번 저작 입력으로 표시되어 reference 픽셀의 측량값이나 별도 높이 기준으로 바뀌지 않는다.
-@evidenceReview settings/004-observation.md#accessibility-products #2e72dbe 현관 도착에 세 단차를 두면서 이 경로가 실물 무장애 인증이나 경사로의 대체물이 아니라고 명시한다. 부모가 구분한 디지털 접근성과 물리적 인증을 대지의 연결성 하나로 합쳐 통과 처리하지 않는다.
 -->
 
 <!--
 @evidence principles/core/common.md#declared-basis 작은 대지와 전면 접근은 납품 범위에서 상속하고, 대지 폭·깊이·보도와 세 단차는 이 H2의 저작 입력으로 명시했다. 본채 높이와 위치는 mass-and-storeys를 소비하며 측량 사실을 주장하지 않는다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 작은 앞마당은 납품 범위에서 받고 대지 외곽과 지면·보도·단차의 수치는 이번 저작 선택으로 밝힌다. 본채 위치와 층 높이는 mass-and-storeys에서 소비하므로 대지 설계의 치수가 실물 측량이나 기존 구현의 승인에서 나온 것처럼 제시되지 않는다.
 @evidence principles/core/common.md#scope-preservation 본채 앞마당과 보도부터 현관문까지의 도착을 포함한다. 식재가 접근을 덮지 못하게 하고 주변 교통망을 새 납품 대상으로 끌어오지 않는다.
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 보도에서 현관까지의 접근과 마지막 landing을 남기고 식재가 그 도착을 점유하지 못하게 한다. 작은 대지를 주변 교통망으로 확대하지 않으면서도 현관 밖 연결을 생략하지 않는다.
 @evidence principles/core/common.md#substantive-completion 대지 외곽, 지면, 보도, 접근 폭, 두 tread와 landing의 위치·높이 및 문과의 접속을 결정했다. 단차를 그리는 source가 계단 개수나 마지막 도착 높이를 발명하지 않아도 된다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 site 경계와 지면, 접근 폭, 두 tread 및 문 앞 landing의 z 범위와 상단 높이가 정해져 있다. 첫 단차의 시작이나 현관에 도착하는 최종 높이를 source가 임의로 정해야 하는 접근로 스케치에 머물지 않는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation settings의 작은 대지와 주택 진입을 실제 site 범위와 전면 보도·계단의 연속 경로로 해석했다. 부모의 좌표 관례에 대지 치수와 지면부터 문까지의 접속 결정을 더한다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 작은 앞마당이라는 납품 대상에 15.60×17.00m의 site 경계와 보도에서 문까지의 단차 접속을 부여했다. 좌표 관례와 실물 인증의 한계는 부모에서 유지하면서 대지 내부의 실제 도착 구성을 이 공간 단위가 추가한다.
 @evidence principles/design/spaces.md#space-topology citizen-site 안에 house가 있으며 보도에서 전면 계단과 landing을 지나 front-entry로 연결된다. 남은 가장자리 식재는 이 도착 route를 점유하지 못한다.
-@evidenceReview principles/design/spaces.md#space-topology #3f8d925 citizen-site는 house를 포함하고 전면 보도에서 계단과 landing을 거쳐 front-entry로 이어진다. 식재는 남은 가장자리에 두며 도착 경로를 점유할 수 없으므로 대지의 포함·접속·장애물 관계가 구분된다.
 @evidence principles/design/spaces.md#space-boundary-authority site bounds와 각 tread는 여기서 소유하고 본채 및 현관문은 각각 mass-and-storeys와 front-entry를 참조한다. 문 위치를 조경 파일에 독립 복제하는 기준을 만들지 않는다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 site bounds와 외부 단차의 배치는 이 H2가 정하지만 본채 datum은 mass-and-storeys, 출입구는 front-entry에서 받는다. 조경 쪽에 현관문의 중심이나 본채 외곽을 별도로 적어 두지 않아 접속 양쪽의 기준이 분리되지 않는다.
 @evidence principles/design/spaces.md#space-verification-address stage-one-verification의 containment·tread 접지·문 threshold와 setting 관찰이 대지 주장을 반증한다. 식재와 창 점검 공간의 간섭도 garden owner의 실물 관찰에 남긴다.
-@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 site/house containment와 단차의 접지·문 threshold는 전수 검증에, 식물의 접지·수관과 창 간섭은 실물 관찰에 연결되어 있다. 대지가 본채를 벗어나거나 마지막 landing이 문에 닿지 않아도 통과할 수 있는 외관 한 장만을 검증으로 지정하지 않았다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work settings의 작은 앞마당, 좌표 관례, 현관 직접 진입을 ground datum과 전면 문 범위에 대조했다. 세 단차로 도착을 구성할 수 있었고 실물 무장애 인증은 부모도 약속하지 않아 경사로나 넓은 외부 망을 추가하는 부모 수정은 필요하지 않았다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 작은 앞마당의 범위, 본채의 좌표 기준, 실물 무장애 인증을 약속하지 않는 접근성 경계를 현재 도착 설계와 대조했다. 이 범위 안에서 지면부터 현관까지 세 단차를 배치할 수 있어 broad world나 인증용 경사로를 부모에게 새로 요구할 모순은 드러나지 않았다.
 @evidence contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements 본채 하나가 있는 대지에서 전면 현관으로만 도착하며 별동·브리지나 두 번째 내부 계단을 도입하지 않는다. 외부 세 단차와 내부 단일 꺾임계단의 역할을 혼동하지 않는다.
-@evidenceReview contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements #d31488d 대지의 접근은 단일 본채의 front-entry에 닿으며 별동이나 브리지로 목적지를 늘리지 않는다. 지면과 1층 사이의 외부 단차는 두 storey를 잇는 내부 단일 꺾임계단을 추가하거나 대체하는 연결로 선언되지 않는다.
 -->
 
 [작은 앞마당의 납품 범위](../settings/001-production.md#delivery-scope)를 site id citizen-site로 배정하며 본채 house를 포함한다. [좌표 관례](../settings/003-spatial-basis.md#coordinate-datum)를 따른다. broad world·주변 건물·공공 교통망은 만들지 않는다. x=-7.80..7.80, z=-8.50..8.50m의 15.60×17.00m 경계를 이번 저작 치수로 채택한다. 지면 기준 y=-0.45m이며 본채의 위치·외곽과 층 datum은 [매스와 층](002-spatial-graph.md#mass-and-storeys)을 소비한다. 이 치수는 측량값이나 기존 산출물 유지 판정이 아니다.
@@ -76,6 +64,11 @@
 전면 보도는 z=-8.50..-7.70m이고, 현관 접근은 x=1.30..2.90m의 폭으로 z=-7.70에서 [출입문](002-spatial-graph.md#front-entry)까지 이어진다. z=-7.44..-7.12의 첫 tread 상단은 y=-0.30, z=-7.12..-6.80의 둘째는 y=-0.15, z=-6.80..-6.00의 문 앞 landing은 y=0이다. 각 rise 0.15m의 세 단계가 지면과 현관을 잇는다. 마지막 landing은 문 구멍을 통해 현관 바닥에 닿고 식재를 놓지 않는다. 이 도착 경로는 [접근성 납품의 구분](../settings/004-observation.md#accessibility-products)에 따라 실물 무장애 인증이나 경사로의 대체물이 아니다.
 
 대지의 남은 가장자리 식재는 이 접근과 창 바로 앞의 점검 폭을 막지 않는다. 조경 전체는 garden owner 한 명이 소유하고 식물별 접지·수관과 창의 간섭을 실물 관찰에서 확인한다. [전수 검증](002-spatial-graph.md#stage-one-verification)은 site/house containment, 세 tread의 접지와 문 threshold, setting·모든 노출 외부 면을 질문한다.
+
+
+캐노피 r2의 [점검·배수 인터페이스](003-surface-ownership.md#roof-face)가 요구하는 양 측면 폭 2.00m 예약대를 garden owner가 지면과 함께 소유한다. 그 예약대는 기존 대지 안에서 고정 수간·관목·화단 턱을 두지 않는 평탄한 잔디 보강 포장으로 남기고 임시 장비 바퀴가 도착할 때 다른 공간으로 이어지는 새 connector를 만들지 않는다. 장비 envelope와 도달 높이의 수치 원본은 roof-face다. 경계 바로 위의 전선·수관도 PV 탈거 공간을 침범하지 않는다. 장비 진입 중 보행자와의 동시 사용이나 차량 하중 인증은 unverified다. 전면 x=-4.30..-2.80,z=-8.50..-6.30의 1.50×2.20m는 내려놓은 cassette와 운반 cart의 임시 예약면으로 쓰며 식재를 놓지 않는다. 이 면은 현관의 x=1.30..2.90 접근과 분리되고 보도를 지나는 유지관리 작업 때만 점유된다. 영구 부속 건물이나 창고를 추가하지 않는다.
+
+[우측 입면 배수관](003-surface-ownership.md#right-face)의 열린 하단 아래에 x=-6.10..-5.55,z=-0.30..0.30, 상단 y=-0.45의 flush 집수 격자를 두고 그 아래 깊이 0.40m의 보이는 집수 공간을 garden owner가 만든다. 관 출구 y=-0.30과 격자 사이 낙차는 0.15m다. roof overflow의 x=-5.90,z=-0.10..0.10 수직 낙수 범위도 이 격자 안이다. 격자는 0.55×0.60m 전체를 위로 드는 탈착 면이고 위에 고정 화분·식재를 놓지 않는다. 지중 배출 연결점은 집수 공간의 -X 벽 하단 y=-0.80, 내경 0.10m로 명시하되 그 바깥 지중 우수망은 납품하지 않는다. 이 접속은 보이는 fixture와 점검 공간을 납품한다는 household 범위의 끝이며 유량·지반 침투·부지 밖 우수 처리의 실물 성능은 unverified다. 격자의 주행 하중 또한 인증하지 않는다. 배수 부재와 장비 여유를 침범하는 기존 식재는 source 구현 시 이 owner가 전·후면의 잔여 식재 구간으로 재배치하며, 현 source 조경이 이미 이 여유를 만족한다고 주장하지 않는다.
 
 ## 공간 관찰의 도출 {#spatial-observation}
 

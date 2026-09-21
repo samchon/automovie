@@ -127,28 +127,22 @@
 
 <!--
 @evidence principles/core/common.md#declared-basis 전면 화면 우측 -X 코어를 서측 외주로 해석하고 후방 공용부·욕실 창만 배정한다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb right=-X 관례와 코어 cell을 근거로 창 없는 전면을 정한다.
 @evidence principles/core/common.md#scope-preservation 앞쪽 위생·수납·설비의 불투명 벽을 유지하고 후단의 두 층 창과 corner return도 생략하지 않는다.
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 후면 창을 전면 위생·수납 구간까지 연장하지 않는다.
 @evidence principles/core/common.md#substantive-completion -X normal·plane 입력과 두 창 owner, 공유 z span 및 floor 대응을 결정했다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 common·bath의 후면 opening과 전면 실체를 면 전체에 배정한다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 우측 opaque core 요구에 후면 두 층의 제한된 창과 전면 폐쇄라는 실제 면 배치를 더한다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 코어 불투명 요구에 후단 두 채광 구간을 한정한다.
 @evidence principles/design/spaces.md#space-topology 서측 house boundary는 코어를 닫고 후단의 각 room에만 지정된 opening이 면한다.
-@evidenceReview principles/design/spaces.md#space-topology #3f8d925 하층 common·상층 bathroom의 같은 Z span이 층별로 대응한다.
 @evidence principles/design/spaces.md#space-boundary-authority minX의 외측/내측 평균에서 plane을 구하고 창의 z span은 opening owner를 소비한다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 right owner가 외벽과 panel joint를 맡고 방 끝을 소비한다.
 @evidence principles/design/spaces.md#space-verification-address side 전체·이음·뒤 corner·각 창의 내부 privacy를 관찰하여 코어 노출과 빠진 return을 검출한다.
-@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 전면 코어 폐쇄와 후면 privacy 창을 우측 전체 관찰에서 대조한다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work 불투명 코어와 후방 채광을 현재 room 배치에 대조해 설비를 다른 입면으로 옮기는 부모 수정이 필요하지 않다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 후단 채광만 열어 코어 기능을 유지할 수 있어 부모의 우측 불투명 요구를 고칠 필요가 없다.
 @evidence contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements 위생·수납·설비는 우측 불투명 벽 안에 두고 필요한 후단 창도 내부 바닥선과 일치시킨다.
-@evidenceReview contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements #d31488d 화면 우측 -X의 설비 코어를 불투명 면으로 유지한다.
 -->
 
 우측은 전면 관찰 화면 기준 -X 서비스 코어 면이다. [매스](002-spatial-graph.md#mass-and-storeys)의 서측 외벽을 사용하고 outward normal은 -X다. plane center는 외측 x와 실내 minX의 평균이다. 전면의 위생·수납·설비 영역을 닫고 후면에 [공용부 측면 유리](#right-common-glazing)와 [욕실 측면 유리](#right-bath-glazing)를 둔다.
 
 큰 불투명 벽체는 위생·설비를 가리며 후면 두 층의 개구는 같은 z span에서 floor line에 맞춘다. [관찰](001-citizen-house.md#spatial-observation)은 side 전체, 벽 이음·각 opening·뒤 모서리와 실내 privacy를 묻는다.
+
+
+캐노피 r2의 [roof 배수 접합](#roof-face)을 y=6.10에서 받는다. 우측 전체 owner는 x=-5.68,z=0의 외경 0.11m·내경 0.10m 수직 배수관을 y=6.10..-0.30까지 만들며, roof owner와 이 단면에서 면을 맞대고 관을 이중으로 생성하지 않는다. clip 중심 높이는 5.80,4.00,2.20,0.40m이고 벽 x=-5.50에서 관의 벽쪽 면까지 연결한다. z=0은 두 층 모두 불투명 서비스 벽이다. 가장 가까운 우측 창 cut Z=3.56에 비해 관 외측 Z=0.055가 3.505m 앞에 있어 개구부를 가리지 않는다. 관의 지면 쪽 끝은 대지 집수구 위에서 아래로 열리며 y=0.10..0.30에 폭 0.08m의 탈착 점검 덮개를 둔다. 관·clip·점검 덮개의 형상과 마감은 우측 입면 owner 한 명이 소유한다. 실물 배수·수밀 작동은 unverified이며 이 부재는 아직 source에 없다.
 
 ## 지붕과 캐노피 {#roof-face}
 
@@ -165,19 +159,62 @@
 @evidence settings/003-spatial-basis.md#envelope-and-privacy 평지붕과 얇은 PV canopy를 실제 span·edge·drip·지지로 배정하여 유리 외피와 같은 본채를 덮게 한다.
 -->
 
-지붕은 [매스 datum](002-spatial-graph.md#mass-and-storeys)의 roof top에서 본채 전체를 덮는 평지붕이다. 지붕은 실내 upper ceiling을 대신하지 않고 구조 몸체 아래 실내 최종 면은 [2층 owner](002-spatial-graph.md#upper-level)가 소유한다. 외곽에 높이 0.12m의 얇은 edge와 밖으로 0.10m 나오는 물끊기를 둔다. 박공·굴뚝·옥상 테라스나 사람이 오르는 새 연결은 만들지 않는다.
+**캐노피 수정 설계 r2. source 구현은 독립 설계 PASS 뒤다.** 이 단면은 reference의 얇은 지지식 PV 캐노피와 v-072의 배수·입면 대응·기울기 질문에 답하는 저작 결정이다. 사진의 픽셀을 치수로 역산하지 않았다. 기존 source는 모듈 면적 전체를 채운 검은 cassette box이며 아래 frame·rail·배수 부재를 아직 생성하지 않는다. 지붕 전체의 owner는 [분해 선언](../settings/003-spatial-basis.md#surface-decomposition)의 main author / src/house/envelope/roof.ts다. roof/canopy의 형상과 마감은 이 owner가 함께 맡는다.
 
-PV 캐노피의 평면은 x=-5.80..5.80, z=-6.70..6.30m이고 underside y=6.70m, 구조 깊이 0.12m다. 지붕 위에 분산된 짧은 지지가 캐노피를 받치며 큰 본채 캔틸레버를 만들지 않는다. 이 범위의 PV·frame 반복 count는 유효 span과 최대 module 폭으로 파생하는 [입면 모듈 인터페이스](002-spatial-graph.md#envelope-interface)를 따른다. [관찰](001-citizen-house.md#spatial-observation)은 노출 상면·하부·모서리·지지와 shadow를 각각 묻는다. 캐노피 치수는 저작 입력이며 구조·발전 성능은 unverified다.
+[매스 datum](002-spatial-graph.md#mass-and-storeys)의 구조 지붕 상단 y=6.40m, 본채 x=-5.50..5.50m·z=-6.00..6.00m, 실내 upper ceiling y=6.10m를 유지한다. 실내 천장은 [2층 owner](002-spatial-graph.md#upper-level)가 맡는다. room·문·층·단일 계단 그래프는 바꾸지 않는다. 박공·굴뚝·옥상 테라스·상시 옥상 출입 connector를 추가하지 않는다. r1의 모든 부재가 같은 y에 놓인다는 결정은 철회한다. 배수가 가능한 방향과 높이를 정하기 위해 캐노피는 +Z로, 방수 지붕은 -X로 각각 1% 기울인다. 건물의 층과 구조 slab를 기울이는 결정이 아니다.
 
-**v-071 이후 외피 부재 수정 설계 — 독립 판정 전, source 미실현.** v-071의 외관 캡처와 reference 01을 대조하면 현재 PV는 열린 캐노피보다 검은 판형 덮개로 읽힌다. 현재 roof source의 cassette가 모듈 면적 전체를 채우는 금속 box인 것은 소스에서 확인했다. 재료만 바꾸어 해결했다고 하지 않고 아래의 분리된 frame·보·rail·기둥 접합으로 교체한다. 기존 평지붕 datum, 캐노피 외곽·하부·깊이, room·문·계단 그래프는 유지한다. 이 개정의 소유자는 지붕 전체를 맡은 main author이며 새 model이나 별도 공간 owner를 만들지 않는다.
+**기울기와 높이.** 모든 수치는 m이며 평면 치수는 world XZ 투영값이다. 캐노피 bounds는 x=-5.80..5.80, z=-6.70..6.30을 유지한다. 하부 기준면 B(z)=6.70+0.01×(6.30-z), 구조 상면 T(z)=B(z)+0.12, PV 상면 P(z)=B(z)+0.131로 정한다. +Z 방향으로 낮아지고 X 방향 fall은 0이다. 명시 tilt는 atan(0.01), 약 0.573°이며 전체 13.00m 길이에서 0.130m 내려간다. 0.12m는 world Y 단면 깊이이고 부재의 상하 face는 B에 평행하다. 단순 회전으로 두께·끝 좌표를 바꾸지 않고 선언 face에서 정점을 도출한다. 아래 표는 이 식의 설계값이며 컴파일 측정값이 아니다.
 
-캐노피의 구조 영역은 y=6.70..6.82m다. X 방향 주보는 z=-5.40,0,5.40m에 놓고 길이 11.60m, Z 폭 0.08m, 높이 0.12m로 한다. 그 아래 지붕 지지는 x=-4.80,0,4.80m와 같은 세 Z 위치의 교점에 둔다. 각 지지는 지붕 y=6.40에 닿는 0.16×0.16m 평면, 두께 0.012m의 base plate, y=6.412..6.688m의 0.08×0.08m 수직 부재, y=6.688..6.70m의 0.12×0.12m cap plate로 구성한다. base→기둥→cap→주보의 면이 맞닿아 공중에 뜬 짧은 기둥이나 roof 위의 빈 접합을 남기지 않는다. 이 단면은 보이는 부재의 저작 선택이며 하중·처짐·내풍·접합 강도 인증은 unverified다.
+| 캐노피 위치 | B 하부 | T frame 상부 | P PV 상부 |
+| --- | --- | --- | --- |
+| 전면 z=-6.70 | 6.830 | 6.950 | 6.961 |
+| 중앙 z=-0.20 | 6.765 | 6.885 | 6.896 |
+| 후면 z=6.30 | 6.700 | 6.820 | 6.831 |
+| 좌·우측 x=±5.80 | 각 z의 B(z) | 각 z의 T(z) | 각 z의 P(z) |
 
-반복 수는 입면 모듈 인터페이스의 최대 폭 1.20m와 최대 길이 1.90m를 소비하여 nx=ceil(11.60/1.20), nz=ceil(13.00/1.90), pitchX=11.60/nx, pitchZ=13.00/nz로 정한다. Z 방향 연속 rail은 X module 경계마다 두고 Z=-6.70..6.30m를 잇는다. rail의 X 폭은 0.08m, 높이는 0.12m이며 구조 영역 안에서 세 주보와 만난다. 내부 rail 중심은 해당 module 경계, 두 외곽 rail 중심만 외곽에서 폭의 절반인 0.04m 안쪽으로 물린다. 따라서 rail이 캐노피 전체 bounds를 넘지 않으면서 각 cassette의 양옆을 지지한다. 주보와 rail은 같은 깊이의 접합 부재로 남기고 교차 node를 하나의 닫힌 solid로 Boolean 합쳤다고 주장하지 않는다.
+방수 지붕의 최종 물길 면은 R(x)=6.43+0.01×(x+5.50)이다. 구조 slab 위의 경사층 두께는 우측 x=-5.50에서 0.030m, 좌측 x=5.50에서 0.140m다. 최종 면은 우측 y=6.430, 중앙 y=6.485, 좌측 y=6.540이며 +Z fall은 0, -X fall은 1%다. 경사층과 방수 최종 면의 전체 owner도 roof다. roof top이라는 구조 datum과 방수 최종 면을 같은 높이로 기록하지 않는다. 전면·후면·좌측 edge는 최종 면 R보다 0.040m 높은 상단, 그 아래 0.12m 높이의 fascia를 갖는다. 외벽 밖 0.10m 물끊기는 이 fascia에 연결한다. 우측은 거터로 열려 있고 물길을 가로막는 같은 높이의 upstand를 두지 않는다. 이 변화는 기존 edge를 어느 높이에 붙일지 미정으로 남겼던 단면을 대체한다.
 
-각 cassette는 module 중앙에 놓고 외측 폭 pitchX-0.04m, 길이 pitchZ-0.04m, 높이 0.12m로 한다. 면 전체를 금속 box로 채우지 않는다. 평면에서 폭 0.03m인 네 테두리 부재가 가운데를 비운다. 양 X측 부재는 외측 길이 전체를 가지며 양 Z측 부재는 두 X측 부재 사이의 내측 폭만 채워 모서리의 금속을 이중으로 겹치지 않는다. PV 판은 외측 cassette 폭·길이에서 각각 0.04m를 뺀 평면과 두께 0.012m를 갖고 y=6.825m에 놓는다. 이로써 PV는 frame 안쪽 가장자리에 0.01m씩 걸치고 상면 y=6.831m를 유지한다. PV 하부 y=6.819m와 frame 상부 y=6.82m의 0.001m 겹침은 안착 접합의 표현이며 두 부재의 Boolean 합집합이나 재료 압축을 뜻하지 않는다. frame 아래에는 면 전체를 덮는 금속 바닥판이 없다. module 사이의 투영 간격은 유지한다. 그 아래 rail·주보가 지나는 부분은 실제 지지재가 보이고, 지지재가 없는 부분은 빈 공간으로 남는다. 틈을 텍스처의 검은 선으로 대체하지 않는다. PV cell 패턴·광학 마감은 후속 외피 모듈·마감 단계의 별도 저작과 판정 대상이다.
+**지지와 열린 모듈.** X 방향 주보 중심은 z=-5.40,0,5.40이며 길이 11.60m, Z 폭 0.08m다. 상하 face는 T(z)/B(z)를 따른다. 각 주보 아래 지지는 x=-4.80,0,4.80과 해당 Z의 교점이다. 지지의 0.24×0.24m pedestal은 아래 face가 R(x), 수평 상단이 R(x중심)+0.030이다. 경사층을 뚫어 구조 slab에 고정하는 접합을 표현하고 pedestal 둘레에 폭 0.030m의 방수 return을 둔다. 고정 강도나 방수 성능 인증을 뜻하지 않는다. pedestal 위 base plate는 평면 0.16×0.16, 두께 0.012m다. 수직 post는 평면 0.08×0.08m, 하단 R(x중심)+0.042, 상단 B(z중심)-0.014다. cap은 평면 0.12×0.12m, 수평 하단 B(z중심)-0.014, 기울어진 상단 B(z)다. cap 두께는 양 Z 끝에서 0.0134..0.0146m가 되어 수평 post와 기울어진 주보 사이가 뜨지 않는다. 이 식에서 가장 짧은 post는 x=4.80,z=5.40의 0.120m, 가장 긴 것은 x=-4.80,z=-5.40의 0.324m다. base→post→cap→주보의 접합과 pedestal 주변으로 우회하는 물길을 함께 구현한다.
 
-수리 후 관찰은 현재 topology에서 파생된 roof-face, canopy-top, canopy-soffit와 노출 모서리 전체에 적용한다. 외관 reference 01과 같은 리뷰 거리에서 edge·frame·module 틈·짧은 지지가 구별되는지 확인하고, 추가로 처마 하부와 base/cap 접합을 가까이 본다. 산출물에서 각 frame 중심 아래 금속 바닥판이 없는지, 모든 cassette가 양측 rail에 닿는지, rail→주보→cap→기둥→base→roof 연결이 끊기지 않는지, 모든 부재가 선언 bounds 안에 있는지 읽는다. UV·광학 개선이나 발전량으로 이 형상 검사를 대신하지 않는다. 기존 단일 판 표현, 이 개정의 실제 frame, 후속 모듈 마감은 같은 카메라·광원에서 비교하며 미생성된 새 캡처는 unverified다.
+반복은 [입면 모듈 인터페이스](002-spatial-graph.md#envelope-interface)의 최대 1.20×1.90m에서 nx=ceil(11.60/1.20), nz=ceil(13.00/1.90), pitchX=11.60/nx, pitchZ=13.00/nz로 도출한다. Z 방향 연속 rail은 각 X module 경계에 두며 폭 0.08m, 상하 face T(z)/B(z), z=-6.70..6.30이다. 내부 중심은 module 경계이고 외곽 중심만 bounds에서 0.04m 안쪽이다. 주보와 rail은 같은 깊이에서 접합하며 교차 node를 Boolean 합집합한 단일 solid라고 주장하지 않는다. frame이 각 rail의 안쪽 0.02m 폭에 걸쳐 양측 지지를 받는다. plan bounds를 넘어 rail 폭을 더하지 않는다.
+
+cassette는 module 중심에 놓이며 외측 투영 폭 pitchX-0.04, 길이 pitchZ-0.04, 높이 0.12m다. 평면 폭 0.03m의 네 frame bar만 만들고 가운데 금속 바닥판을 없앤다. X측 bar는 외측 길이 전체, Z측 bar는 두 X측 bar 사이를 채운다. 모든 bar의 상하 face는 T/B를 따른다. PV의 투영 폭·길이는 외측 cassette에서 각각 0.04m를 뺀 값이며 두께는 world Y로 0.012m, 상면 P, 하부 B+0.119다. 따라서 각 z에서 frame 안쪽에 0.01m 걸치고 0.001m의 안착 겹침을 유지한다. 이 겹침은 접합 표현이며 재료 압축이나 Boolean 합집합이 아니다. frame보다 0.011m 높은 PV 상면에서 +Z 하단 bar로 물이 넘어가며 물을 가두는 돌출 립을 추가하지 않는다. frame 상면도 1% fall을 유지한다. 패널별 전선은 저측 물길과 0.04m module 틈을 가로막지 않고 X측 bar 아래의 폭 0.015m service clip 영역에 둔다. 실제 전력·배선 동작은 납품하지 않는다.
+
+**우수 경로와 끝점.** 캐노피는 방수 포치가 아닌 drip-only PV 지지체다. PV 물은 각 cassette의 +Z 끝에서 열린 module 틈으로 떨어진다. 지지재를 만나는 물은 같은 +Z 경사를 가진 rail의 +Z 끝 또는 주보의 +Z 가장자리로 흐르고, 아래에 본채가 있는 부분은 방수 면 R이 받는다. 전체 cassette 아래에 연속 배수 판을 넣어 열린 하부를 다시 가리지 않는다. 본채 밖 투영 부분의 비와 모듈 낙수는 전면 z=-6.70..-6.00, 후면 z=6.00..6.30, 측면 |x|=5.50..5.80의 대지로 직접 떨어진다. 전면 landing의 해당 부분도 젖는 외부 공간이며 이 캐노피로 비가 차단된다고 하지 않는다. 바람에 따른 낙수 이동과 splash는 unverified다. 캐노피에는 별도 저장 수위나 숨은 drain/overflow가 없고 열린 저측 끝과 module 틈이 연속 방출 경계다.
+
+방수 면 R에 모인 물은 -X로 흘러 x=-5.60까지의 물끊기 끝에서 우측 거터에 들어간다. 거터의 외측 평면 범위는 x=-5.78..-5.58, z=-6.10..6.10m, 판 두께는 0.002m이며 내부 폭은 0.196m다. 거터 바닥 내측 높이 G(z)=6.290+0.005×|z|, 외측 및 양 끝 상단 y=6.450, roof와 만나는 내측 상단 y=6.420으로 정한다. 앞·뒤 양 끝에서 중앙 z=0으로 0.5% 내려가고 끝 바닥은 6.3205, 중앙 바닥은 6.290이다. 우측 roof의 y=6.430 물길은 거터 안으로 열려 있다. outlet 중심은 x=-5.68,z=0, 내경 0.10m다. roof owner가 거터·거름망·outlet부터 y=6.10까지의 관 상단을 만들고, 그 아래는 [우측 전체](#right-face)의 외부 배수관으로 면 접합한다. 거름망은 평면 0.16×0.20m의 위로 분리하는 insert이고 outlet에서 바닥으로 내려오는 물길을 막는 영구 cap은 없다.
+
+outlet 막힘 때의 우회로는 거터 외측 -X face의 z=-0.10..0.10, y=6.380..6.430m 열린 overflow notch다. invert는 중앙 바닥보다 0.090m 높고 방수 지붕의 낮은 면보다 0.050m 낮다. roof owner가 x=-5.90까지 길이 0.12m의 바깥쪽 spout를 이어 준다. overflow는 관에 재합류하지 않고 우측 대지로 보이게 떨어진다. 이 부분만 캐노피 평면 x=-5.80보다 0.10m 나오는 배수 부속이다. 캐노피 bounds에 포함된 지지재로 잘못 측정하지 않는다. 유량·설계 강우·집수 용량과 실제 월류 시험은 unverified다. 그 한계가 경로·낮은 점·출구 치수를 생략할 이유는 아니다.
+
+**입면 기준선 소비.** 다음 표는 opening owner의 유효 span과 glazing-interface의 최대 1.25m 반복을 소비하는 대조표다. 각 span 끝의 jamb 중심은 a-0.02,b+0.02이며 내부 mullion은 a+k×(b-a)/ceil((b-a)/1.25)다. 필수 분할이 있으면 그 선에서 먼저 나눈다. 표의 소수는 읽기 위한 반올림이고 source는 원본 opening 값과 식을 사용한다. 캐노피 격자를 창호에 강제로 맞춰 방이나 개구를 움직이지 않는다.
+
+| 면·opening owner | 유효 span 및 우선 분할 | 소비되는 jamb/mullion 중심 기준선 |
+| --- | --- | --- |
+| 전면 [계단실](#front-stair-glazing), 두 층 | X=-1.20..1.54 | -1.22, -0.286667, 0.626667, 1.56 |
+| 전면 [작업실](#front-flex-glazing), 1층 | X=3.06..5.22 | 3.04, 4.14, 5.24 |
+| 전면 [침실](#front-bedroom-glazing), 2층 | X=1.80..5.22; 하층 jamb X=3.04 우선 | 1.78, 3.04, 4.13, 5.24 |
+| 후면 [공용부](#rear-common-glazing), 1층 | X=-5.22..5.22 | 양끝 ±5.24; 내부 -4.06부터 1.16 간격으로 4.06까지 |
+| 후면 [주침실](#rear-bedroom-glazing), 2층 | X=-2.80..5.22 | -2.82, -1.654286, -0.508571, 0.637143, 1.782857, 2.928571, 4.074286, 5.24 |
+| 후면 [욕실](#rear-bath-glazing), 2층 | X=-4.86..-3.42 | -4.88, -4.14, -3.40 |
+| 좌측 [작업실](#left-flex-glazing)·[침실](#left-bedroom-glazing), 두 층 | Z=-5.40..-2.30 | -5.42, -4.366667, -3.333333, -2.28 |
+| 좌측 [작은 침실 2](#left-child-two-glazing), 2층 | Z=0.35..1.90 | 0.33, 1.125, 1.92 |
+| 우측 [공용부](#right-common-glazing)·[욕실](#right-bath-glazing), 두 층 | Z=3.60..5.40 | 3.58, 4.50, 5.42 |
+
+캐노피 X rail 중심은 내부 -5.80+i×pitchX(i=1..nx-1), 양끝 ±5.76이며 현재 저작 span에서 내부는 -4.64부터 1.16 간격으로 4.64까지다. Z module 경계는 -6.70+j×pitchZ(j=0..nz)다. 이 grid는 roof 위의 독립 지지 grid이고 mullion의 수직 연장선이 아니다. 예를 들어 후면 공용부의 내부 mullion은 인접 rail에서 각각 0.58m, 전면 작업실의 X=4.14 mullion은 rail X=4.64에서 -0.50m 떨어진다. 외곽 rail X=±5.76은 양 끝 창 jamb X=±5.24보다 0.52m 바깥이다. 모든 대응 offset은 위 두 grid의 차로 계산하며 내부 rail마다 가짜 facade mullion을 추가하지 않는다.
+
+지지 중심 x=-4.80,0,4.80은 가장 가까운 해당 rail -4.64,0,4.64와 각각 -0.16,0,+0.16m 차이다. cap은 rail에 직접 닿는 것으로 선언하지 않고 X 주보를 통해 연결한다. 주보의 z=-5.40,0,5.40은 전·후면 외벽에서 0.60m 안쪽이며 측면 mullion으로 내려오는 기둥선이 아니다. 좌측 전면 창 jamb Z=-5.42와 앞 주보의 투영차는 +0.02m, 우측 후면 jamb Z=5.42와 뒤 주보는 -0.02m다. 여기에서도 창틀에 하중을 맡기는 정렬로 해석하지 않는다. 가장 바깥 pedestal 외곽은 |x|=4.92,|z|=5.52이므로 본채 외면까지 X 방향 0.58m, Z 방향 0.48m 이격된다. 방수 return은 그 바깥 0.03m 안에서 끝난다.
+
+개구부 회피 영역은 각 opening의 structural cut을 입면 접선·Y 방향으로 0.10m, 외벽의 법선 방향으로 0.15m 더한 3D 범위다. [현관문](002-spatial-graph.md#front-entry)도 포함한다. 지붕 pedestal·post·cap·주보·rail과 배수관은 이 범위에 들어가지 않는다. 최고 고정창 head 바깥면은 y=6.04이므로 회피 영역 상단은 6.14이며 slab 상단 6.40과도 0.26m 떨어진다. post를 지면까지 연장해 1층·2층 opening을 가리는 해석을 금지한다. frame 바깥의 1층 head y=2.84와 2층 sill y=3.28 사이 층 band, floor y=3.20은 그대로다. gutter 최저 바닥 외측 y=6.288은 상층 head 회피 영역 위에 있고, z=0의 우측 배수관은 가장 가까운 창 structural cut 시작 Z=3.56보다 3.50m 이상 앞에 있다. 문·창·층 band를 roof 부재의 위치에 맞춰 재편하지 않는다.
+
+처마의 본채 외면 대비 수평 돌출은 전면 0.70m, 후면과 좌·우측 각각 0.30m다. 그림자는 특정 태양 시각의 성능값으로 선언하지 않는다. 현재 viewer의 고정 directional key 위치 (-12,18,-8), target (0,0,0)을 대조 조건으로 사용하면 광선 방향 비는 (12,-18,8)이다. 투영 point Q=(x,y,z)에서 전면 z=-6까지 이동하는 값은 t=(-6-z)/8, 투영은 (x+12t,y-18t,-6)이다. 전면 외곽의 하부 B(-6.70)=6.830과 상부 P(-6.70)=6.961에서 +X로 1.05m, 아래로 1.575m 이동하여 각각 y=5.255와 5.386에 도달한다. 외곽 투영의 X 범위는 -4.75..6.85이고 본채에서 -4.75..5.50로 잘린다. 따라서 이 광원 조건의 캐노피 그림자는 전면 2층 창 상부에 걸릴 수 있지만 1층 head까지 차양을 보장하지 않는다. 우측 x=-5.50까지의 투영은 외곽에서 +Z로 0.20m, 아래로 0.45m 이동하며 하부는 y=6.315-0.01z, 상부는 y=6.446-0.01z다. 면의 Z=-6..6에서 하부는 y=6.375..6.255, 상부는 y=6.506..6.386이다. 최고 창 head보다 높아 우측 창을 이 캐노피가 가린다고 주장하지 않는다. 후면·좌측은 이 key의 직사면이 아니므로 캐노피 단독 그림자 면적으로 세지 않는다. 이는 높이·돌출과 광선비의 설계상 envelope 계산이다. 열린 module 틈과 rail이 실제로 만드는 얼룩·가림, 하늘광과 실내등의 합성은 새 GPU 프레임에서 확인해야 하며 현재 unverified다.
+
+**점검·교체 여유.** 캐노피 아래의 roof와 주보 사이를 사람 통로로 쓰지 않는다. 각 cassette는 위에서 푸는 체결점 네 곳으로 고정한다. 체결점은 양 X측 frame bar 위의 선(각 module 경계에서 안쪽 0.030m), 각 cassette Z 끝에서 안쪽 0.070m다. 지름 0.006m fastener와 0.012m head를 표현하며 rail과 frame을 함께 고정한다. 각 체결점에서 frame 상면보다 0.020m 높은 곳부터 0.060×0.060×0.120m 공구 접근 공간을 예약한다. PV 가장자리 위를 손으로 누르거나 glass를 통과해 체결구를 조작하는 경로를 만들지 않는다. 체결·케이블 service clip을 해제한 뒤 cassette 전체를 world +Y로 0.20m 들어 인접 frame·rail을 벗기고, 그 높이 이상에서 옮긴다. cassette 투영 bounds의 각 면에 0.10m를 더한 평면과 P의 최댓값 위 1.20m까지의 공간은 들어 올리고 옮기는 여유다. 해당 소모품을 교체할 때 이 공간에 고정 배선·난간·수관이 들어올 수 없다. 패널 사이 0.04m는 배수·조립 틈이고 보행 폭이 아니다.
+
+외부 점검은 양 측면의 임시 고소작업대가 위에서 수행한다. [대지 owner](001-citizen-house.md#site-access)는 x=5.80..7.80 및 x=-7.80..-5.80, z=-7.30..7.30m에 폭 2.00m의 장비 접근 예약대를 유지한다. 이 범위는 기존 대지 안이고 현관 접근 x=1.30..2.90과 겹치지 않는다. 임시 장비의 요구 envelope는 폭 1.80m 이하, 길이 3.00m 이하, 아웃트리거가 예약대를 넘어가지 않는 형태다. 바스켓은 외측에서 들어와 PV 최고면 위에서 최소 0.60m의 작업 여유를 갖고, 같은 쪽 절반의 가장 먼 cassette까지 수평 7.30m·작업 높이 8.20m에 닿아야 한다. 이 값은 장비 선정에 전달할 요구이며 설치된 장비가 그 조건을 만족한다는 증명은 아니다. 외부 장비의 형상·동작을 새 납품 asset으로 발명하지 않는다. 판정 전 실제 장비·작업 하중·지반과 작업 안전은 unverified다.
+
+roof owner는 거터 상부를 덮는 우측 끝 cassette를 먼저 분리한다. 거름망은 두께 0.020m이며 먼저 +Y로 0.10m 들어 거터 rim을 벗긴 뒤 +X로 0.10m 옮기고 위로 인출한다. 이 이동은 외곽 rail의 X=-5.80..-5.72와 겹치는 거름망 끝을 빼기 위한 것이다. 이동 후 망의 X 범위는 -5.66..-5.50이며 rail의 안쪽 끝에서 0.06m 떨어진다. 인출 경로의 전체 평면 x=-5.80..-5.40,z=-0.20..0.20과 거터 상단 위 0.50m 공간을 확보한다. 이 공간은 망의 단계별 swept volume과 대조하며 rail을 제거해야 하는 작업으로 숨기지 않는다. 내측 지지의 점검은 그 지지 위에 걸리는 cassette를 먼저 들어낸 뒤 지름 0.020m 이내의 카메라·공구를 위에서 내려 pedestal·cap의 양측 0.050m 여유를 통해 관찰한다. 낮은 roof 틈으로 사람이 기어들어간다는 가정은 없다. 클램프·PV/rail 접합·물길·망·outlet·overflow와 관의 점검구를 개별 관찰 대상으로 추가한다. 청소 주기나 원격 장비의 실제 운용 성공은 시뮬레이션하지 않는다.
+
+수리 후 관찰은 현재 topology에서 파생된 roof-face, canopy-top, canopy-soffit, 노출 모서리 전체를 유지하고 배수 끝점·부재 접합·탈거 공간을 더한다. 새 경사면은 단일 y 상수로 관찰 bound를 축약하지 않는다. 원래의 단일 판, 이 개정의 열린 frame, 후속 PV cell·광학 마감은 같은 카메라·광원에서 대조한다. count·부재 bounds·opening 회피·물길 단면·lift 여유는 컴파일된 산출물에서 읽고, 실제 리뷰 거리의 frame·틈·지지·그림자는 GPU에서 본다. 현재 source의 검은 cassette 캡처를 r2 구현 증거로 쓰지 않는다. 구조·처짐·내풍·수밀·배수 용량·발전량·실물 사용성의 인증과 새 형상의 실행·시각 결과는 unverified다.
 
 ## 창호의 공간 인터페이스 {#glazing-interface}
 
