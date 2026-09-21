@@ -29,6 +29,6 @@
 
 ## 높은 제실 채광구 {#clerestories}
 
-제실의 북·남 박공 벽에 각 두 개의 작은 채광구를 둔다. ID는 `window-sanctuary-{north|south}-{west|east}`이며 중심 X=±1.0m, 유효 폭 0.4m, sill Y=4.6m, 유효 높이 0.4m다. 석재 틀 두께는 각 가장자리 0.06m이고 유리는 없다. Z 위치는 각각 [제실 지붕](roofs/sanctuary.md#sanctuary-roof)의 북·남 gable 경계에서 유도한다. 문 인방 위에 있고 다른 방으로 연결되는 출입구가 아니다.
+제실의 북·남 박공 벽에 각 두 개의 작은 채광구를 둔다. ID는 `window-sanctuary-{north|south}-{west|east}`이며 중심 X=±1.0m, 유효 폭 0.4m, sill Y=4.6m, 유효 높이 0.4m다. 석재 틀 두께는 각 가장자리 0.06m이고 유리는 없다. Z 방향 void는 [기준선](building.md#plan-datums)의 북측 벽 north-outer~north-inner와 남측 벽 sanctuary-front~north-ring을 각각 관통한다. [제실 지붕](roofs/sanctuary.md#sanctuary-roof)은 상부 한계를 제공하며 처마 끝선으로 창 위치를 옮기지 않는다. 문 인방 위에 있고 다른 방으로 연결되는 출입구가 아니다.
 
 측면 낮은 벽의 창은 인접 봉헌실 지붕 높이와 겹치는 입력이므로 채택하지 않았다. 처음 제안한 박공 창의 sill Y=4.3m도 북쪽 주랑 지붕의 상단보다 낮아 폐기했다. 현재는 작은 창을 용마루 쪽으로 모으고 높여 덮개 위의 외부로 열리게 했다. 이것은 설계 단면 비교이며 실제 충돌 계측 결과가 아니다. 고정 공간 그래프는 바꾸지 않는다. 판정은 두 박공의 입면과 실내 단면에서 창 윗모서리가 지붕 하부에 닿지 않는지, 깊은 reveal이 읽히는지, 주랑 지붕에 가려 닫힌 구멍이 되지 않는지를 함께 본다. 프레임과 실제 채광은 unverified이며 개구부 개수만으로 밝기를 보증하지 않는다.

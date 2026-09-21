@@ -2,12 +2,16 @@
 
 ## 북쪽 연결 지붕 {#north-canopy}
 
-북쪽 덮개는 [주랑 북쪽 cell](../rooms/colonnade.md#ring-volume)을 덮으며 남쪽 지지선은 court-back, 북쪽은 제실 남벽 중심이다. X 범위는 west-ring~east-ring이다. 남쪽 지지선 위치의 상면을 [공통 기준 높이](assembly.md#roof-junctions)에 두고 북쪽으로 높아지는 단일 경사면을 기본으로 한다. 양끝에서는 제실 박공 단면의 높이를 넘지 않도록 그 plane 교차선으로 자른다. 따라서 후면의 높은 박공을 덮개가 뚫고 나오지 않는다. 서·동 날개와 실제로 겹치는 영역은 assembly가 상부 면 하나만 남긴다.
+북쪽 덮개는 [주랑 북쪽 cell](../rooms/colonnade.md#ring-volume)을 덮으며 남쪽 지지선은 court-back, 북쪽은 제실 남벽 중심이다. 지지 영역의 X 범위는 west-ring~east-ring이다. 남쪽 지지선 위치의 상면을 [공통 기준 높이](assembly.md#roof-junctions)에 두고 북쪽으로 높아지는 단일 경사면을 기본으로 한다. 양끝에서는 제실 박공 단면의 높이를 넘지 않도록 그 plane 교차선으로 자른다. 따라서 후면의 높은 박공을 덮개가 뚫고 나오지 않는다. 서·동 날개와 실제로 겹치는 영역은 assembly가 상부 면 하나만 남긴다.
+
+후보 끝선의 참조면은 서쪽 west-room, 동쪽 east-room, 북쪽 sanctuary-front, 남쪽 court-back이다. 공통 돌출을 각 방향에 적용한 뒤 제실/날개와 합성한다. 중정 쪽 남측 끝과 합성 뒤 마당 쪽에 드러나는 동측 끝은 실제 처마로 읽는다. 특히 동측 끝은 주랑 쪽 벽면 east-ring이 아니라 마당 쪽 벽면 east-room에서 돌출을 잰다. 다른 지붕에 실제로 숨는 후보 끝은 별도 처마나 보이는 끝마개로 만들지 않는다.
 
 source `src/spaces/roofs/colonnade.ts`가 북쪽 덮개의 상면과 외부 끝 두께를 소유한다. 기둥 위 보·서까래 하부는 주랑의 완결 내부 표면에 결속한다. 마당 쪽 북동 주랑 cell도 덮여 있어야 하며 서비스 마당 자체의 하늘은 열려 있다. 관찰은 제실 문 위 접합, 북동 귀퉁이의 덮임, 중정 쪽 처마 하부다. 창을 덮거나 모서리에 구멍이 나면 실패다.
 
 ## 남쪽의 낮은 지붕 {#south-canopy}
 
-남쪽 덮개는 west-court~east-court, court-front~Z=9.95m를 기본 지지 영역으로 삼는다. Z 방향 단면 중점에 X 방향 용마루가 있는 낮은 박공이며 [공통 높이·경사](assembly.md#roof-junctions)를 쓴다. 현관 후퇴벽 바깥의 중앙 notch는 제거하고 [포치 지붕](porch.md#porch-roof)이 그 영역을 맡는다. 현관 뒤 접합의 높이 차이는 실제 닫힌 반환면으로 이어져 틈이나 중복 겹판을 남기지 않는다.
+남쪽 덮개는 west-court~east-court, court-front~Z=9.95m를 기본 지지 영역으로 삼는다. Z 방향 단면 중점에 X 방향 용마루가 있는 낮은 박공이며 [공통 높이·경사](assembly.md#roof-junctions)를 쓴다. 끝선의 참조면은 서쪽 west-court, 동쪽 east-court, 북쪽 court-front, 남쪽 south-outer다. 각 면에 공통 돌출을 바깥쪽으로 적용한다.
+
+중앙 notch는 X 방향으로 [포치 지붕](porch.md#porch-roof)의 양쪽 끝선까지, Z 방향으로 entrance-front부터 남쪽 끝까지 제거한다. 포치 지붕이 이 영역을 맡는다. 절단 폭은 포치 처마까지 포함해 상부 덮개가 포치를 가리지 않게 한다. 포치 뒤쪽과 남쪽 덮개가 겹치는 부분은 assembly 규칙으로 처리한다. 높이 차이의 폐쇄는 [벽 범위와 지붕 끝면의 소유](../junctions.md#gable-closures)를 소비한다.
 
 source는 북쪽과 같은 주랑 지붕 owner다. 이는 한 완결 주랑 덮개의 남북 구성이지 서로 다른 사람이 같은 면을 반씩 만드는 분담이 아니다. 주랑 내부의 보·천장 노출면은 주랑 공간 owner에 남긴다. 정문 위 지붕 단면, 양 날개 교차선, 중정 남쪽 처마 하부를 관찰하고 포치만으로 뒤쪽 주랑까지 덮였다고 세지 않는다.
