@@ -19,15 +19,15 @@ const crossing = (
  * The contact check reads a pose against the source neutral, not against zero.
  *
  * A layered face rests with its shells inside each other on purpose, so the
- * absolute count says nothing about the pose an author is holding. The reading
- * that carries information is what the rest pose did not already have. The
+ * absolute count does not establish anatomical validity. Comparing counts with
+ * the source neutral reports a numerical difference, not penetration depth. The
  * fixture hands out readings by document, so every expected sentence here
  * follows from the two readings rather than from what the panel happens to
  * print.
  *
  * Scenarios:
  * 1. Nothing beyond the rest reading is reported as such, and the rest count is stated so it is not mistaken for zero.
- * 2. A pair absent at rest is reported as new; a pair present at rest with more triangles is reported as deeper.
+ * 2. New pairs, increased counts and their combination are reported without claiming greater penetration depth.
  * 3. Ordinary builds ask for no reading; the check asks, and reuses the rest reading it already took.
  * 4. A build that supplies no reading says so rather than reporting clear.
  * 5. Measuring leaves the committed document and the editor history untouched.
@@ -38,7 +38,7 @@ export const test_subject_connected_panel_contacts =
       crossing("skin", "eyes", 400),
       crossing("teeth", "tongue", 10),
     ];
-    const posed = [
+    let posed = [
       crossing("skin", "eyes", 400),
       crossing("teeth", "tongue", 25),
       crossing("skin", "teeth", 7),
@@ -54,7 +54,7 @@ export const test_subject_connected_panel_contacts =
     TestValidator.equals(
       "a pose matching rest reports nothing new and states the rest count",
       f.element("face-status").textContent,
-      "No surface crosses that the source neutral did not already cross. The neutral itself crosses on 2 pairs by construction.",
+      "No new intersecting pairs or increased triangle counts relative to the source neutral. Source neutral: 2 intersecting pairs. Counts do not measure penetration depth or anatomical validity.",
     );
     TestValidator.equals(
       "the mount build asks for no reading and the check asks for two",
@@ -72,9 +72,9 @@ export const test_subject_connected_panel_contacts =
     const edited = f.panel.snapshot()!.document;
     await f.click("face-contacts");
     TestValidator.equals(
-      "a new pair and a deeper pair are named separately",
+      "new pairs and increased triangle counts are named separately",
       f.element("face-status").textContent,
-      "New since rest: skin x teeth 7/7\nDeeper than rest: teeth x tongue 25/25",
+      "New intersecting pairs: skin x teeth 7/7\nIncreased triangle counts: teeth x tongue 25/25\nSource neutral: 2 intersecting pairs. Counts do not measure penetration depth or anatomical validity.",
     );
     TestValidator.equals(
       "the rest reading is taken once and reused, so the edit and the second check add one each",
@@ -85,6 +85,20 @@ export const test_subject_connected_panel_contacts =
       "an edit survives the measurement",
       f.panel.snapshot()!.document,
       edited,
+    );
+    posed = [crossing("teeth", "tongue", 25)];
+    await f.click("face-contacts");
+    TestValidator.equals(
+      "increased counts alone do not imply a new pair",
+      f.element("face-status").textContent,
+      "Increased triangle counts: teeth x tongue 25/25\nSource neutral: 2 intersecting pairs. Counts do not measure penetration depth or anatomical validity.",
+    );
+    posed = [crossing("skin", "teeth", 7)];
+    await f.click("face-contacts");
+    TestValidator.equals(
+      "new pairs alone do not imply an increase on an existing pair",
+      f.element("face-status").textContent,
+      "New intersecting pairs: skin x teeth 7/7\nSource neutral: 2 intersecting pairs. Counts do not measure penetration depth or anatomical validity.",
     );
     TestValidator.predicate(
       "undo still reaches the state before that edit",

@@ -88,11 +88,16 @@ export function mountConnectedFacePanel<
   const withdraw = (): number => {
     editor?.cancel();
     viewport.cancel();
+    if (editor !== undefined) {
+      draft = editor.snapshot().document;
+      // Rebuild simple projections too: their captured pending group values
+      // must lose authority along with the cancelled numerical draft.
+      controls.refresh();
+    }
     return ++revision;
   };
   const refuse = (error: unknown): void => {
     withdraw();
-    if (editor !== undefined) draft = editor.snapshot().document;
     status(error instanceof Error ? error.message : String(error), "error");
   };
   const refresh = (): void => {
@@ -208,8 +213,8 @@ export function mountConnectedFacePanel<
     }
   };
   // Crossing surfaces are read against the source neutral, not against zero.
-  // This asset rests with its shells inside each other on purpose, so the
-  // absolute count is meaningless and the change from rest is the finding.
+  // These counts include internal tissues. Differences from the source neutral
+  // measure triangle incidence, not penetration depth or anatomical validity.
   // The reading costs seconds, so it runs on request instead of on every edit.
   let rest: IAutoMovieModelCrossing[] | undefined;
   const label = (crossing: IAutoMovieModelCrossing): string =>
@@ -220,7 +225,7 @@ export function mountConnectedFacePanel<
   ): string => {
     const was = new Map(before.map((entry) => [label(entry), entry]));
     const fresh = after.filter((entry) => !was.has(label(entry)));
-    const deeper = after.filter((entry) => {
+    const increased = after.filter((entry) => {
       const earlier = was.get(label(entry));
       return (
         earlier !== undefined &&
@@ -230,15 +235,17 @@ export function mountConnectedFacePanel<
     });
     const line = (entry: IAutoMovieModelCrossing): string =>
       `${label(entry)} ${entry.triangles}/${entry.otherTriangles}`;
-    if (fresh.length === 0 && deeper.length === 0)
-      return `No surface crosses that the source neutral did not already cross. The neutral itself crosses on ${before.length} pairs by construction.`;
+    const reference = `Source neutral: ${before.length} intersecting pairs. Counts do not measure penetration depth or anatomical validity.`;
+    if (fresh.length === 0 && increased.length === 0)
+      return `No new intersecting pairs or increased triangle counts relative to the source neutral. ${reference}`;
     return [
       fresh.length === 0
         ? null
-        : `New since rest: ${fresh.map(line).join(", ")}`,
-      deeper.length === 0
+        : `New intersecting pairs: ${fresh.map(line).join(", ")}`,
+      increased.length === 0
         ? null
-        : `Deeper than rest: ${deeper.map(line).join(", ")}`,
+        : `Increased triangle counts: ${increased.map(line).join(", ")}`,
+      reference,
     ]
       .filter((part) => part !== null)
       .join("\n");
@@ -251,6 +258,7 @@ export function mountConnectedFacePanel<
         const neutral = await viewport.build(props.initial, true);
         const reading = neutral.crossings;
         viewport.dispose(neutral);
+        if (ticket !== revision) return;
         if (reading === null || reading === undefined) {
           status("This build does not supply a crossing reading.", "error");
           return;
