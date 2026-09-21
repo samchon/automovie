@@ -100,17 +100,26 @@ export function createHumanFaceControlMap(props: {
         group,
         value,
         residuals,
-        minimum: group.members.reduce(
-          (minimum, channel, index) =>
-            Math.max(
-              minimum,
-              (channel.minimum < 0 ? -1 : 0) - residuals[index],
-            ),
-          -Infinity,
+        // The admitted origin belongs to the intersection in real arithmetic.
+        // Subtracting a rounded residual (for example 1 - 1/3) can exclude it
+        // by one floating step. Include that known valid anchor explicitly.
+        minimum: Math.min(
+          value,
+          group.members.reduce(
+            (minimum, channel, index) =>
+              Math.max(
+                minimum,
+                (channel.minimum < 0 ? -1 : 0) - residuals[index],
+              ),
+            -Infinity,
+          ),
         ),
-        maximum: residuals.reduce(
-          (maximum, residual) => Math.min(maximum, 1 - residual),
-          Infinity,
+        maximum: Math.max(
+          value,
+          residuals.reduce(
+            (maximum, residual) => Math.min(maximum, 1 - residual),
+            Infinity,
+          ),
         ),
       };
     });

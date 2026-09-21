@@ -1,9 +1,7 @@
 import { IAutoMovieMesh } from "@automovie/interface";
 
+import { weldMeshVertices } from "../math/weldMeshVertices";
 import { ViolationCollector } from "./ViolationCollector";
-
-/** Weld tolerance: ring seams recompute cos/sin with ~1e-16 float error. */
-const WELD_GRID = 1e9;
 
 /**
  * Append mesh-topology violations to a collector, the shared body behind the
@@ -33,23 +31,7 @@ export const appendMeshTopology = (
   // Quantize each source vertex once, then count edges by compact identities.
   // Coordinates still determine welding on every evaluation: deforming two
   // previously distinct vertices onto one grid point must change the verdict.
-  const labels: string[] = [];
-  const welded = new Map<string, number>();
-  const vertices = new Array<number>(vertexCount);
-  for (let vertex = 0; vertex < vertexCount; vertex++) {
-    const offset = vertex * 3;
-    const x = Math.round(mesh.positions[offset]! * WELD_GRID) || 0;
-    const y = Math.round(mesh.positions[offset + 1]! * WELD_GRID) || 0;
-    const z = Math.round(mesh.positions[offset + 2]! * WELD_GRID) || 0;
-    const key = `${x},${y},${z}`;
-    let id = welded.get(key);
-    if (id === undefined) {
-      id = labels.length;
-      welded.set(key, id);
-      labels.push(key);
-    }
-    vertices[vertex] = id;
-  }
+  const { labels, vertices } = weldMeshVertices(mesh.positions);
   type Direction = { from: number; to: number; count: number };
   type Edge = {
     low: number;

@@ -1,4 +1,5 @@
 import { validateModel } from "@automovie/engine";
+import { createMeshWeldPartitionMatcher } from "@automovie/engine/math/createMeshWeldPartitionMatcher";
 import type { IAutoMovieModel } from "@automovie/interface";
 import typia from "typia";
 
@@ -24,7 +25,10 @@ import { createHumanFaceBasisRegion } from "./createHumanFaceBasisRegion";
  * is a product of the clamped driving sides, so it is absent unless the whole
  * combination is, which is what separates a corrective from another control.
  * A new model owns its arrays and materials; neither basis nor edits mutate.
- * The existing model and Float32 exporter admission remain authoritative.
+ * Model structure and materials are admitted on the prepared neutral. Repeated
+ * edits retain that structure and check their welded vertex partition; a changed
+ * partition takes the full model gate again. Finite normal construction and
+ * channel/material domains remain per-edit checks. Export still admits Float32.
  * Linear endpoints do not establish collision-free or physiological movement.
  *
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Evaluates named shape and expression edits on one reusable connected prior without source images.
@@ -47,7 +51,12 @@ export function createHumanFaceBasisBuilder(
       evaluate: createHumanFaceBasisRegion(region),
     })),
   }));
-  return (inputDocument) => {
+  let partitions:
+    | ReturnType<typeof createMeshWeldPartitionMatcher>[]
+    | undefined;
+  const build = (
+    inputDocument: IAutoMovieHumanFaceBasisDocument,
+  ): IAutoMovieModel => {
     const document =
       typia.assertEquals<IAutoMovieHumanFaceBasisDocument>(inputDocument);
     if (
@@ -184,12 +193,35 @@ export function createHumanFaceBasisBuilder(
       body: null,
       asset: null,
     };
-    const validation = validateModel({ model });
-    if (!validation.success)
-      throw new Error(
-        "The evaluated facial basis is not a valid resident model: " +
-          JSON.stringify(validation),
-      );
+    // Fixed indices, UVs, references and resident finishes were admitted on the
+    // neutral. Only deformation can change welded incidence; reuse the verdict
+    // exactly while its equivalence classes stay fixed. Never assume an endpoint
+    // cannot merge or split vertices merely because its scalar is in range.
+    if (
+      partitions === undefined ||
+      parts.some(
+        (part, index) => !partitions![index](part.geometry.mesh.positions),
+      )
+    ) {
+      const validation = validateModel({ model });
+      if (!validation.success)
+        throw new Error(
+          "The evaluated facial basis is not a valid resident model: " +
+            JSON.stringify(validation),
+        );
+      if (partitions === undefined)
+        partitions = parts.map((part) =>
+          createMeshWeldPartitionMatcher(part.geometry.mesh.positions),
+        );
+    }
     return model;
   };
+  build({
+    id: basis.id,
+    name: basis.id,
+    basis: basis.id,
+    shape: {},
+    expression: {},
+  });
+  return build;
 }
