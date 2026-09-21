@@ -56,18 +56,20 @@ import path from "node:path";
 import zlib from "node:zlib";
 
 import {
-  type IDocument,
   type IGroup,
   type IPair,
   axisGroups,
   budgetOf,
-  foldOf,
-  poseState,
   solve,
-  volumeDisplacement,
   withCorrective,
 } from "./poseCorrectiveSolver";
-import { neighboursOf } from "./pushApart";
+import {
+  type IDocument,
+  foldOf,
+  poseState,
+  volumeDisplacement,
+} from "./poseState";
+import { neighboursOf } from "./pushApartGeometry";
 import { segmentHumanBody } from "./segmentHumanBody";
 
 const ROOT = path.resolve(__dirname, "../../..");

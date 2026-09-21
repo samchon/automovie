@@ -1,8 +1,8 @@
 /**
  * Exercise the shipped body editor's transactions on a real GPU: an edit,
  * undo, redo, reset, a document applied from the text area, a document
- * loaded from a file, a contact check, the simple tier expanded and
- * refused beyond its reach, and the exported GLB written to disk
+ * loaded from a file, a contact check, the simple tier expanded and a mass
+ * beyond the basis's reach refused, and the exported GLB written to disk
  * for `verify-editor-export.ts` to compare byte for byte with the package's
  * own export of the same document.
  *
@@ -189,7 +189,7 @@ try {
   assert.match(contacts, /leftUpperArm x leftLowerArm|No skin segment/);
 
   // 8. the simple tier expands into detailed channels and keeps a detailed
-  // edit made on top; a stature past the basis's reach is refused
+  // edit made on top; a mass past the basis's reach is refused
   await page.evaluate(() =>
     window.__connectedBody.change({
       id: "simple",
@@ -218,7 +218,7 @@ try {
   assert.ok(Number.isFinite(state.shape.macroHeight));
   assert.ok(Number.isFinite(state.shape.macroWeight));
   console.log("simple body expanded", state.shape);
-  await set("#simple-statureMetres", "220");
+  await set("#simple-massKilograms", "250");
   await page.click("#simple-apply");
   await page.waitForFunction(
     () => window.__connectedBody.snapshot()?.status === "error",

@@ -41,20 +41,19 @@ import {
   smooth,
   smoothstep,
 } from "./individualityFields";
-import {
-  ANCHORS,
-  type Anchor,
-  type Coordinate,
-  type ICurveTerm,
-  type IEndpointSpec,
-  type IGate,
-  type IRimSelection,
-  type ISkinPoint,
-  type ITraitSpec,
-  type Profile,
-  TRAITS,
-} from "./individualityParameters";
-import { vertexNormals } from "./poseCorrectiveSolver";
+import { ANCHORS, TRAITS } from "./individualityParameters";
+import type {
+  Anchor,
+  Coordinate,
+  ICurveTerm,
+  IEndpointSpec,
+  IGate,
+  IRimSelection,
+  ISkinPoint,
+  ITraitSpec,
+  Profile,
+} from "./individualityTypes";
+import { vertexNormals } from "./poseState";
 
 const ROOT = path.resolve(__dirname, "../../..");
 const STUDY = path.join(ROOT, "test/studies/human-body/connected-basis");

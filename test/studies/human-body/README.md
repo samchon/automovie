@@ -1,6 +1,6 @@
 # Connected body basis studies
 
-This directory holds the reproducible record behind the numerical body basis that `@automovie/human` evaluates below the neck: pinned reference sources, the anthropometric distributions that bound its channels, and the clinical joint ranges its joints are validated against. The basis itself lives in [`connected-basis`](connected-basis/README.md) with its extraction receipt; the study population and the census receipts are added by later topics of [#2519](https://github.com/samchon/automovie/issues/2519). Every receipt cites this file.
+This directory holds the reproducible record behind the numerical body basis that `@automovie/human` evaluates below the neck: pinned reference sources, the anthropometric distributions that bound its channels, and the clinical joint ranges its joints are validated against. The basis itself lives in [`connected-basis`](connected-basis/README.md) with its extraction, pose-corrective, individuality, envelope, joint and census receipts, and with `archetypes.json`, the simple tier's review population. Every receipt cites this file.
 
 The face lives in [`../human-face/connected-basis`](../human-face/connected-basis/README.md). The body is the remainder of the same MPFB base mesh below the neck clip at Y = -0.145 m, so the two studies share the source revision, the license record and the coordinate frame.
 

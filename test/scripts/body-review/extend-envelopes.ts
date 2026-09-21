@@ -51,10 +51,12 @@ const ENVELOPES: Record<string, [number, number]> = {
   outerThighFatRight: [0, 2],
   measureWaistCirc: [-2, 3],
   measureHipsCirc: [-2, 2],
-  measureBustCirc: [-2, 2],
+  // the bust past 1.25 and the thigh past 1.75 cross the hanging arm and the
+  // other thigh in the rest pose (the channel census reads the extremes)
+  measureBustCirc: [-2, 1.25],
   measureUnderbustCirc: [-2, 2],
   measureShoulderDist: [-2, 2],
-  measureThighCirc: [-2, 2],
+  measureThighCirc: [-2, 1.75],
   measureUpperarmCirc: [-2, 2],
   measureCalfCirc: [-2, 2],
   stomachPregnant: [-1, 2],

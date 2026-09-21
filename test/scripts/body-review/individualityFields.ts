@@ -11,7 +11,7 @@
  */
 import type { IAutoMovieHumanBodyBasis } from "@automovie/human";
 
-import { neighboursOf } from "./pushApart";
+import { neighboursOf } from "./pushApartGeometry";
 
 /** A vertex is the mirror of another when their reflections agree this closely, metres. */
 const MIRROR_TOLERANCE = 1e-5;
