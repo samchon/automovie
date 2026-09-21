@@ -29,10 +29,17 @@
  * Subjects are a sample and the sample is named rather than averaged: the
  * subject whose neutral pose already carries the most crossings and the one
  * that carries the fewest, so a pair that only breaks a crowded mouth and a
- * pair that breaks any mouth are told apart.
+ * pair that breaks any mouth are told apart. The name `neutral` is the basis
+ * itself: no shape, no per-vertex identity, no skin. A corrective is a field on
+ * that head and nothing else, so the list of pairs it has to answer is the list
+ * this head produces, not the list one subject happens to produce.
+ *
+ * 1326 pairs is about forty minutes on one core. `--shard i/n` takes every
+ * n-th pair starting at i and writes its own file, so n processes finish in a
+ * fortieth of that; the generator reads the shards back together.
  *
  * Usage, from the test package:
- *   ttsx -P tsconfig.json --no-plugins scripts/face-review/enumerate-expression-pairs.ts [subject,...]
+ *   ttsx -P tsconfig.json --no-plugins scripts/face-review/enumerate-expression-pairs.ts [subject,...] [--shard i/n]
  */
 import { measureAutoMovieModelCrossings } from "@automovie/engine";
 import {
@@ -82,14 +89,46 @@ const at = (rowsOf: Map<string, number>, pair: string) => rowsOf.get(pair) ?? 0;
 const sum = (rowsOf: Map<string, number>) =>
   [...rowsOf.values()].reduce((total, one) => total + one, 0);
 
-const wanted = process.argv[2]?.split(",") ?? [
+const positional = process.argv.slice(2).filter((one) => !one.startsWith("--"));
+const wanted = positional[0]?.split(",") ?? [
   "miriam-margolyes",
   "park-eun-bin",
 ];
-const chosen = documents.filter((one) =>
-  wanted.includes(one.id.replace("-connected", "")),
-);
-if (chosen.length === 0) throw new Error(`no subject named ${wanted.join(", ")}`);
+// `indexOf` gives -1 when the flag is absent, so the value is read only when
+// the flag is there, and a malformed one refuses rather than running nothing.
+const shardAt = process.argv.indexOf("--shard");
+const shard =
+  shardAt < 0
+    ? [0, 1]
+    : (process.argv[shardAt + 1] ?? "").split("/").map(Number);
+if (
+  shard.length !== 2 ||
+  !shard.every(Number.isInteger) ||
+  shard[1] < 1 ||
+  shard[0] < 0 ||
+  shard[0] >= shard[1]
+)
+  throw new Error(
+    `--shard wants i/n with 0 <= i < n, not ${process.argv[shardAt + 1]}`,
+  );
+const [mine, shards] = shard;
+
+/** The basis's own head: the document every corrective is a field on. */
+const neutral: IAutoMovieHumanFaceBasisDocument = {
+  id: "neutral",
+  name: "neutral",
+  basis: basis.id,
+  shape: {},
+  expression: {},
+};
+const chosen = [
+  ...(wanted.includes("neutral") ? [neutral] : []),
+  ...documents.filter((one) =>
+    wanted.includes(one.id.replace("-connected", "")),
+  ),
+];
+if (chosen.length === 0)
+  throw new Error(`no subject named ${wanted.join(", ")}`);
 
 const report: Record<string, unknown> = {};
 for (const document of chosen) {
@@ -115,8 +154,10 @@ for (const document of chosen) {
     together: number;
   }[] = [];
   let done = 0;
+  let ordinal = -1;
   for (let i = 0; i < expressions.length; i++)
     for (let j = i + 1; j < expressions.length; j++) {
+      if (++ordinal % shards !== mine) continue;
       const one = expressions[i];
       const other = expressions[j];
       const both = crossed(document, { [one]: 1, [other]: 1 });
@@ -124,7 +165,11 @@ for (const document of chosen) {
       const right = alone.get(other)!;
       let interaction = 0;
       const appeared: string[] = [];
-      for (const pair of new Set([...both.keys(), ...left.keys(), ...right.keys()])) {
+      for (const pair of new Set([
+        ...both.keys(),
+        ...left.keys(),
+        ...right.keys(),
+      ])) {
         const expected = at(left, pair) + at(right, pair) - at(rest, pair);
         interaction += Math.max(0, at(both, pair) - Math.max(expected, 0));
         if (at(both, pair) > 0 && at(left, pair) === 0 && at(right, pair) === 0)
@@ -150,6 +195,8 @@ for (const document of chosen) {
     restTriangles: sum(rest),
     restPairs: [...rest.keys()].sort((a, b) => a.localeCompare(b)),
     pairs: (expressions.length * (expressions.length - 1)) / 2,
+    shard: `${mine}/${shards}`,
+    visited: done,
     interacting: found.length,
     inventingASurfacePair: inventing.length,
     all: found,
@@ -168,7 +215,8 @@ for (const document of chosen) {
     );
 }
 
+const suffix = shards === 1 ? "" : `.${mine}of${shards}`;
 fs.writeFileSync(
-  "../.shots/human-2469/investigation-2498/expression-pairs.json",
+  `../.shots/human-2469/investigation-2498/expression-pairs-${wanted.join("+")}${suffix}.json`,
   `${JSON.stringify(report, null, 2)}\n`,
 );
