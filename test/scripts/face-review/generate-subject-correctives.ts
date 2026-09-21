@@ -45,14 +45,35 @@ import {
   wornFrom,
 } from "./solve-combination";
 
-/** The in-between's peak, and the weight the later tiers are solved at. */
-const HALF = 0.5;
-/** The weight grid after full weight, each tier worn with every earlier one present. */
-const TIERS: [number, number][] = [
-  [HALF, 1],
-  [1, HALF],
-  [HALF, HALF],
-];
+/**
+ * The weight grid after full weight, in the order it is solved: the coarse
+ * grid {쩍, 1}짼 by default, the fine grid {쩌, 쩍, 쩐, 1}짼 with `--grid fine`,
+ * coarser poses first so each finer one is solved with its neighbours
+ * present. Each tier is worn with every earlier tier present, so what it
+ * solves is what those leave. An in-between's driver spans to the
+ * neighbouring grid weights, so it is whole at its own and absent at theirs.
+ */
+const FINE = process.argv[process.argv.indexOf("--grid") + 1] === "fine";
+const STEPS = FINE ? [0.25, 0.5, 0.75, 1] : [0.5, 1];
+const TIERS: [number, number][] = STEPS.flatMap((a) =>
+  STEPS.map((b) => [a, b] as [number, number]),
+)
+  .filter(([a, b]) => a < 1 || b < 1)
+  .sort(
+    (x, y) =>
+      Math.min(...y) - Math.min(...x) || Math.max(...y) - Math.max(...x),
+  );
+/** The driver weights on either side of a peak where its in-between fades out. */
+const spanOf = (peak: number): [number, number] => {
+  const at = STEPS.indexOf(peak);
+  return [
+    at === 0 ? 0 : STEPS[at - 1],
+    STEPS[Math.min(STEPS.length - 1, at + 1)],
+  ];
+};
+/** A tier's name inside a corrective id: the quarter steps of its weights. */
+const nameOf = (a: number, b: number): string =>
+  `At${Math.round(a * 4)}${Math.round(b * 4)}`;
 /** The part a channel makes the agent of its pose, which the lips then part around. */
 const AGENTS: Record<string, string> = {
   tongueOut: "Human.tongue01/Human.tongue01",
@@ -104,7 +125,7 @@ if (process.argv.includes("--publish")) {
       {
         basis: basis.id,
         budgetMillimetres: LIMIT * 1000,
-        inBetweenPeak: HALF,
+        grid: STEPS,
         subjects: receipt,
         limits: [
           "A document corrective is solved for the shape and identity the document was published with; editing the shape afterwards leaves it as authored.",
@@ -318,15 +339,19 @@ for (const [wa, wb] of TIERS) {
       withoutAgents(wearing, expression),
       (line) => console.log(`${label.padEnd(40)} ${line}`),
     );
-    const id = `${full}${wa < 1 ? "First" : ""}${wb < 1 ? "Second" : ""}Half`;
+    const id = `${full}${nameOf(wa, wb)}`;
     const kept = keep(
       id,
       [
-        { channel: first, side: "positive", ...(wa < 1 ? { peak: HALF } : {}) },
+        {
+          channel: first,
+          side: "positive",
+          ...(wa < 1 ? { peak: wa, between: spanOf(wa) } : {}),
+        },
         {
           channel: second,
           side: "positive",
-          ...(wb < 1 ? { peak: HALF } : {}),
+          ...(wb < 1 ? { peak: wb, between: spanOf(wb) } : {}),
         },
       ],
       solved,

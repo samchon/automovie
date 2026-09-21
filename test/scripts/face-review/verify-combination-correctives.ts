@@ -23,7 +23,7 @@
  * once by naming them.
  *
  * Usage, from the test package:
- *   ttsx -P tsconfig.json --no-plugins scripts/face-review/verify-combination-correctives.ts [subject,...] [--without-identity]
+ *   ttsx -P tsconfig.json --no-plugins scripts/face-review/verify-combination-correctives.ts [subject,...] [--without-identity] [--grid fine]
  *   ttsx -P tsconfig.json --no-plugins scripts/face-review/verify-combination-correctives.ts --summarize
  */
 import { measureAutoMovieModelCrossings } from "@automovie/engine";
@@ -35,13 +35,26 @@ import {
 import fs from "node:fs";
 import { gunzipSync } from "node:zlib";
 
-/** The weights a combination is worn at; the solver only ever saw the first. */
-const WEIGHTS: [number, number][] = [
+/**
+ * The weights a combination is worn at. The solver's grid is {½, 1}²; the
+ * fine grid, `--grid fine`, is {¼, ½, ¾, 1}² and is what says whether the
+ * in-betweens hold between the poses they were solved at.
+ */
+const COARSE: [number, number][] = [
   [1, 1],
   [1, 0.5],
   [0.5, 1],
   [0.5, 0.5],
 ];
+const STEPS = [0.25, 0.5, 0.75, 1];
+const FINE: [number, number][] = STEPS.flatMap((a) =>
+  STEPS.map((b) => [a, b] as [number, number]),
+);
+const WEIGHTS = process.argv.includes("--grid")
+  ? process.argv[process.argv.indexOf("--grid") + 1] === "fine"
+    ? FINE
+    : COARSE
+  : COARSE;
 
 const published = "studies/human-face/connected-basis/global-face";
 const investigation = "../.shots/human-2469/investigation-2498";
@@ -57,6 +70,7 @@ const receipt = JSON.parse(fs.readFileSync(receiptFile, "utf8")) as {
   published: string[];
   combinations: { combination: string; corrective: string | null }[];
   verification?: unknown;
+  verificationFine?: unknown;
 };
 if (receipt.basis !== basis.id)
   throw new Error(
@@ -88,7 +102,7 @@ const withoutIdentity = process.argv.includes("--without-identity");
 
 /** One file per subject, so a run that dies keeps what the others finished. */
 const fileOf = (subject: string) =>
-  `${investigation}/combination-verification-${subject}${withoutIdentity ? "-without-identity" : ""}.json`;
+  `${investigation}/combination-verification-${subject}${withoutIdentity ? "-without-identity" : ""}${WEIGHTS === FINE ? "-fine" : ""}.json`;
 
 if (process.argv.includes("--summarize")) {
   const names = [
@@ -142,7 +156,7 @@ if (process.argv.includes("--summarize")) {
       ]),
     );
   }
-  receipt.verification = {
+  receipt[WEIGHTS === FINE ? "verificationFine" : "verification"] = {
     weights: WEIGHTS.map((one) => one.join(",")),
     poses: held + broke,
     posesWithNoInventedCrossing: held,
