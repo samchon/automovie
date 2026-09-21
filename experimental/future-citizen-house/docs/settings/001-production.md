@@ -194,6 +194,8 @@
 
 검증 명령은 README가 소유한 npm run lint다. 대체 명령·추가 플래그·바이너리 직접 호출로 실패를 피해 가지 않는다. GPU 관찰은 Playwright channel chromium의 WebGL canvas로 수행하고 실제 RENDERER를 기록한다. label과 검사 overlay는 기본 off이며 검사 모드에서만 켠다. 새로운 viewer를 작성하면 시작 명령·cwd·포트·URL을 README와 보고에 적는다. 지원 또는 계측이 없는 결과는 unverified다.
 
+2026-09-21 조정자의 후속 지시에 따라 viewer 실행은 evidence 판정 대기와 독립시킨다. 판정 전 현재 화면을 관찰할 수 있도록 production의 CommonJS TypeScript 서버를 실행하고, 전체 타입·evidence 검증은 기존 npm run lint가 맡는다. 별도 설정 파일, plugin 비활성화, 판정 전 review citation 작성으로 이 분리를 대신하지 않는다. 구체적인 실행기·명령과 확인 상태는 README가 소유한다.
+
 ## 설정 소유 지도 {#settings-coverage-map}
 
 <!--
