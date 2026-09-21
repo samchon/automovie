@@ -286,9 +286,14 @@ function main(): void {
         `${finding.set}:${finding.name}` +
         (t === 1 ? "" : `@${t}`) +
         (u === 1 ? "" : `~${u}`);
-      const suffix = records.filter(
-        (record: { state?: string }) => record.state === state,
-      ).length;
+      // a state solved in an earlier round keeps its corrective in the
+      // shipped basis; a new one for the same state takes the next suffix
+      const taken = new Set(
+        (working.correctives ?? []).map((corrective) => corrective.id),
+      );
+      let suffix = 0;
+      while (taken.has(`state/${state}` + (suffix > 0 ? `#${suffix + 1}` : "")))
+        suffix++;
       const before = pairsOn(working, build, t, u);
       let outcome = "clear";
       let crossing: object | null = null;
