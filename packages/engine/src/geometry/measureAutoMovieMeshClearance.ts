@@ -1,5 +1,6 @@
-import { IAutoMovieMeshClearanceWitness } from "./IAutoMovieMeshClearanceWitness";
 import { IAutoMovieMesh } from "@automovie/interface";
+
+import { IAutoMovieMeshClearanceWitness } from "./IAutoMovieMeshClearanceWitness";
 
 type Triangle = {
   points: number[][];
@@ -111,17 +112,31 @@ function overlaps(a: number[], b: number[]): boolean {
   return a[0] <= b[2] && a[2] >= b[0] && a[1] <= b[3] && a[3] >= b[1];
 }
 
-function* overlappingTriangles(
+/**
+ * The back triangles whose projected bounds touch `bounds`, in depth-first
+ * order with the lower child first: the same order a recursive generator
+ * yielded them, kept because a caller's witnesses, and so the constraint
+ * rows of a solve fed by them, are recorded in this order. A plain visitor
+ * collects into one array; delegating generators walked every yielded
+ * triangle back up through each level of the tree.
+ */
+function overlappingTriangles(
   tree: TriangleTree | null,
   bounds: number[],
-): Generator<Triangle> {
-  if (tree === null || !overlaps(tree.bounds, bounds)) return;
-  if ("triangles" in tree) {
-    for (const triangle of tree.triangles)
-      if (overlaps(triangle.bounds, bounds)) yield triangle;
-  } else
-    for (const child of tree.children)
-      yield* overlappingTriangles(child, bounds);
+): Triangle[] {
+  const found: Triangle[] = [];
+  const visit = (node: TriangleTree | null): void => {
+    if (node === null || !overlaps(node.bounds, bounds)) return;
+    if ("triangles" in node) {
+      for (const triangle of node.triangles)
+        if (overlaps(triangle.bounds, bounds)) found.push(triangle);
+    } else {
+      visit(node.children[0]);
+      visit(node.children[1]);
+    }
+  };
+  visit(tree);
+  return found;
 }
 
 function depthAxes(axis: "x" | "y" | "z"): number[] {

@@ -14,7 +14,9 @@ import { TestValidator } from "@nestia/e2e";
  * 2. A front triangle in a gap has no relationship, while exact vertex contact
  *    remains included. Both rejecting and visiting spatial regions are needed.
  * 3. One front face covers the whole population and reads its deepest plane,
- *    independent of back-face enumeration. All input buffers remain unchanged.
+ *    independent of back-face enumeration, while its witnesses arrive in the
+ *    index's depth-first order along the spread axis. All input buffers remain
+ *    unchanged.
  */
 export const test_geometry_mesh_clearance_spatial = (): void => {
   const mesh = (points: number[][]): IAutoMovieMesh => ({
@@ -75,12 +77,33 @@ export const test_geometry_mesh_clearance_spatial = (): void => {
       [100, -100, 30],
       [0, 100, 30],
     ]);
-    for (const resident of [back, mesh([...patches].reverse().flat())]) {
-      const result = measureAutoMovieMeshClearance(enclosing, resident, "z");
+    for (const [ordinal, resident] of [
+      back,
+      mesh([...patches].reverse().flat()),
+    ].entries()) {
+      const visited: number[] = [];
+      const result = measureAutoMovieMeshClearance(
+        enclosing,
+        resident,
+        "z",
+        (witness) => {
+          if (visited[visited.length - 1] !== witness.backTriangle)
+            visited.push(witness.backTriangle);
+        },
+      );
       TestValidator.equals("one enclosing front face", result.length, 1);
       TestValidator.predicate(
         "deepest among all resident patches",
         Math.abs(result[0].minimum - 14) < 1e-12,
+      );
+      // Witnesses arrive in the index's depth-first order, lower half first,
+      // which for patches spread along one axis is that axis's order: a solve
+      // fed by these witnesses records its constraint rows in this sequence,
+      // so the sequence is part of what the measurement promises.
+      TestValidator.equals(
+        "witnesses follow the resident patches along the spread axis",
+        visited,
+        Array.from({ length: 13 }, (_, i) => (ordinal === 0 ? i : 12 - i)),
       );
     }
     TestValidator.equals("caller-owned positions retained", back, original);
