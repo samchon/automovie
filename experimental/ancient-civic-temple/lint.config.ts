@@ -3,6 +3,7 @@ import {
   type IAutoMovieEvidenceConfigProps,
   createAutoMovieEvidenceConfig,
   createBlankAutoMovieProductionEvidence,
+  createAutoMovieProductionObligationClaim,
   evidence,
 } from "@automovie/evidence";
 import type { ITtscLintConfig } from "@ttsc/lint";
@@ -34,11 +35,26 @@ import { fileURLToPath } from "node:url";
  * and upstream-repair procedure. Film and brief also require reviewed
  * productionSources as the parallel typed assembly input to filmSources.
  */
+const settingsStage = "draft" as const;
+const spacesStage = "disabled" as const;
+
 export const productionEvidence = {
   ...createBlankAutoMovieProductionEvidence(
     fileURLToPath(new URL(".", import.meta.url)),
     "korean" as AutoMovieProductionLanguage,
   ),
+  kind: "library",
+  settings: settingsStage,
+  claims: [
+    createAutoMovieProductionObligationClaim({
+      name: "temple-space-obligations",
+      document: "contracts/obligations-spaces.md",
+      account: "accounts/spaces/temple-obligations.md",
+      layer: "spaces",
+      stage: spacesStage,
+      populationScope: { mode: "complete-production" },
+    }),
+  ],
 } satisfies IAutoMovieEvidenceConfigProps;
 
 const graph = createAutoMovieEvidenceConfig(productionEvidence);
