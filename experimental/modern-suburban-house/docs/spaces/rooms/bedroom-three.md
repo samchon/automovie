@@ -6,4 +6,4 @@
 
 `hall-bedroom-three-door`는 X = [3.07, 3.22]의 도착면/침실 경계에 Z = [-4.46, -3.51], Y = [3.06, 5.26] m의 거친 개구부를 만든다. 최종 유효 폭 목표는 0.85 m다. -Z 문설주 경첩에서 방 안 +X 방향으로 열고 계단 상부참으로 회전하지 않는다. 이 문 앞의 오른쪽 진입 부분은 수납으로 메우지 않는다.
 
-[청회색 침구의 방](../../settings/10-house.md#bedroom-three)으로 전면의 자기 창, 침대·책상·옷장을 둔다. 상층 창이 차고 지붕과 만나는 높이는 외피 설계에서 함께 검사한다. `src/spaces/rooms/bedroom-three.ts`가 소유하며 린넨장과 분리된 두 가려진 코너는 전체 관찰에 추가한다. 비직사각형 면적·창 binding·문 열림과 진입 회전·가구 뒤 시야는 실제 산출물에서 unverified다.
+[청회색 침구의 방](../../settings/10-house.md#bedroom-three)으로 전면의 자기 창, 침대·책상·옷장을 둔다. [오른쪽 지붕과 차고 접합](../envelope/right.md#right-roof-closures)이 정한 외벽 조건을 소비하며 차고 지붕에 걸리는 측면 창을 추가해 채광을 지불하지 않는다. `src/spaces/rooms/bedroom-three.ts`가 소유하며 린넨장과 분리된 두 가려진 코너는 전체 관찰에 추가한다. 비직사각형 면적·창 binding·문 열림과 진입 회전·가구 뒤 시야는 실제 산출물에서 unverified다.

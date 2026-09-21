@@ -6,7 +6,7 @@
 
 | 출발 | 설계 경계/개구부 owner | 도착 및 storey |
 | --- | --- | --- |
-| 외부 포치 | [front-door](rooms/entry.md#entry-plan) | front-entry, ground-storey |
+| [front-porch](porch.md#porch-platform-access) | [front-door](rooms/entry.md#entry-plan) | front-entry, ground-storey |
 | front-entry | [entry-living-door](rooms/living.md#living-plan) | living-room, ground-storey |
 | front-entry | [오른쪽 열린 접속](rooms/service.md#service-access-plan) | service-access, ground-storey |
 | living-room | [living-common-opening](rooms/common.md#common-room-plan) | kitchen-dining-family, ground-storey |
@@ -23,7 +23,7 @@
 | upper-hall | [hall-tub-door](rooms/tub-bath.md#tub-bath-plan) | tub-bathroom, upper-storey |
 | primary-bedroom | [primary-wardrobe-door](rooms/wardrobe.md#primary-wardrobe-plan) | primary-wardrobe, upper-storey |
 
-복도 린넨과 현관 외투장은 각 소비 공간의 실제 opening과 내부 깊이를 갖는 수납이며, 방 경로 edge로 세지 않는다. 창·정원문·차고 정면문·외부 포치/대지 접근의 정확한 개구부는 아직 미완료다. 원점 재검토에서 폐기된 이전 topology나 그 관찰 개수를 다시 쓰지 않는다.
+복도 린넨과 현관 외투장은 각 소비 공간의 실제 opening과 내부 깊이를 갖는 수납이며, 방 경로 edge로 세지 않는다. 포치 바닥·세 챌판·아래 대기 입력은 위 포치 owner가 소유한다. 창·정원문·차고 정면문과 외부 대지 보행길의 정확한 연결은 아직 미완료다. 원점 재검토에서 폐기된 이전 topology나 그 관찰 개수를 다시 쓰지 않는다.
 
 필요한 검사는 현관에서 표의 각 목적지까지 도달하고 같은 경계 순서로 돌아오는 경로다. 팬트리/파우더룸/침실을 통과하지 않고 공용실과 차고·두 욕실에 닿아야 한다. 거친 개구부의 좌표가 벽 안에 있다는 사실과 실제 문틀/문짝 뒤의 통행은 서로 다른 검사다. 표의 방 하나라도 실제 storey·boundary·opening·connector를 갖지 않으면 소스 인계는 미완료다. 현재 topology 보고와 양방향 통행은 unverified다.
 

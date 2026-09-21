@@ -6,10 +6,10 @@
 
 | 완결 면 또는 공유 경계 | 소스 파일 owner | 책임과 접합 |
 | --- | --- | --- |
-| 전면 전체 입면 | `src/spaces/envelope/front.ts` | 본채 전면·포치 접점·차고 전면의 외부 완결 면. 거실/상층 창과 현관/차고문은 실제 방/벽 binding에서 받는다. |
-| 후면 전체 입면 | `src/spaces/envelope/rear.ts` | 후면 공용부의 정원 출입과 상층 창을 포함한다. 테라스 때문에 벽을 숨기지 않는다. |
-| 왼쪽 전체 입면 | `src/spaces/envelope/left.ts` | 벽난로/굴뚝 접면과 창 둘레. 굴뚝 몸체는 같은 외벽 기준을 받는다. |
-| 오른쪽 노출 입면 전체 | `src/spaces/envelope/right.ts` | 차고 바깥 벽과 차고 위 본채의 노출 부분. 가려진 공유 벽과 노출 면을 구별한다. |
+| 전면 전체 입면 | `src/spaces/envelope/front.ts` | [본채 박공 삼각 벽·포치 접점·차고 정면](envelope/front.md#front-roof-closures). 거실/상층 창과 현관/차고문은 실제 방/벽 binding에서 받는다. |
+| 후면 전체 입면 | `src/spaces/envelope/rear.ts` | [본채 지붕 단차·차고 뒤 처마 아래의 후벽](envelope/rear.md#rear-roof-closures), 공용부 정원 출입과 상층 창. 테라스 때문에 벽을 숨기지 않는다. |
+| 왼쪽 전체 입면 | `src/spaces/envelope/left.ts` | [주 지붕 삼각 벽](envelope/left.md#left-roof-closure)과 [벽난로/굴뚝 접면](envelope/left.md#chimney-roof-interface), 창 둘레. |
+| 오른쪽 노출 입면 전체 | `src/spaces/envelope/right.ts` | [본채 지붕 단차·오른쪽 박공·차고 박공과 벽 접합](envelope/right.md#right-roof-closures). 가려진 공유 벽과 노출 면을 구별한다. |
 | 본채/차고 공유 벽체 | `src/spaces/garage.ts` | 구조 기준 한 개와 머드룸 문 void. 두 실 안쪽 면의 owner는 각 실이다. |
 | 주 지붕 전방 경사면과 하부 | `src/spaces/roof/main-front.ts` | 전면 박공과 합류하는 골짜기 경계를 공유 지붕 교차 계산에서 받는다. |
 | 주 지붕 후방 경사면과 하부 | `src/spaces/roof/main-back.ts` | 주 용마루·후면 처마와 마감 경계를 소유한다. |
@@ -19,12 +19,12 @@
 | 본채 오른쪽 낮은 박공 후방 면·하부 | `src/spaces/roof/right-back.ts` | 오른쪽 박공 삼각 벽과 후방 처마 접점. |
 | 차고 지붕 전방 면·하부 | `src/spaces/roof/garage-front.ts` | 차고 정면과 본채 접합의 닫힌 경계. |
 | 차고 지붕 후방 면·하부 | `src/spaces/roof/garage-back.ts` | 차고 후벽·본채 접면과 처마. |
-| 낮은 포치 지붕·하부 | `src/spaces/porch.ts` | 보·기둥과 현관 접근을 함께 소유한다. |
+| 낮은 포치 지붕·하부 | `src/spaces/porch.ts` | [보·기둥·받침](porch.md#porch-roof-columns)과 [바닥/현관 접근](porch.md#porch-platform-access)을 함께 소유한다. |
 | 1층 바닥·천장 공통 경계 | `src/spaces/floors/ground.ts` | 방별 마감 구역의 구조 바탕과 계단 통행 구멍 아래쪽 접합. |
 | 2층 바닥·천장 공통 경계 | `src/spaces/floors/upper.ts` | 1층과 같은 계단 구멍, 상부참·복도 접합, 지붕 아래 천장. |
 | 단일 L형 계단과 보호 경계 | `src/spaces/stair.ts` | 두 flight·중간참·도착·난간의 동일 기준. |
 
-`src/spaces/building.ts`는 외곽·공유 좌표의 조립 owner이고 완결 입면의 개별 부재를 거대 배열로 직접 저작하지 않는다. 지붕 합류선은 `src/spaces/roof/junctions.ts`의 단일 계산을 소비하게 한다. 이것은 경사면 소유를 나누는 두 번째 geometry가 아니라 경사면들이 공유할 경계의 한 권위다. 정확한 지붕 교차 형상은 아직 설계하지 않았고 위 파일들이 존재한다거나 면이 닫혔다고 주장하지 않는다.
+`src/spaces/building.ts`는 외곽·공유 좌표의 조립 owner이고 완결 입면의 개별 부재를 거대 배열로 직접 저작하지 않는다. 지붕 합류선은 `src/spaces/roof/junctions.ts`에서 [단일 높이/교차 경계](roof/00-junctions.md#roof-shared-edges)를 산출하고 각 경사면 owner가 소비한다. 지붕면별 문서는 같은 이름의 `docs/spaces/roof` 파일에 있다. 공유 계산은 경사면을 소유하는 두 번째 geometry가 아니다. 식과 윤곽의 설계 입력을 작성했지만 위 source 파일들은 아직 없고 실제 면 닫힘/census는 unverified다.
 
 ## 방 내부의 완결 면 소유 {#interior-surface-handoff}
 
