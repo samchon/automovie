@@ -154,30 +154,30 @@
 
 <!--
 @evidence principles/core/common.md#declared-basis 평지붕과 PV 캐노피 요구에0.12m edge·0.10m drip 및 명시 canopy span과 높이를 저작값으로 정했다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb roof top 6.40m와 캐노피 범위는 저작 datum이며 reference 픽셀 측량이 아니다.
 @evidence principles/core/common.md#scope-preservation roof 전체와 PV·지지·상면·노출 하부를 남기며 박공·굴뚝·옥상 출입을 새로 발명하지 않는다.
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 지붕·실외 처마만 소유하고 실내 천장 마감을 중복 생성하지 않는다.
 @evidence principles/core/common.md#substantive-completion roof datum과 canopy의 평면·underside·깊이·짧은 지지 및 반복 인터페이스를 지정한다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 edge·캐노피 하부·짧은 지지와 최대 모듈 간격이 지정됐다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 평지붕/PV의 개괄 형식을 본채 밖의 얇은 canopy 범위와 roof edge·drip 결합으로 전개한다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 PV 캐노피에 지지 높이와 반복 범위를 배정한다.
 @evidence principles/design/spaces.md#space-topology 지붕은 본채 전체를 덮고 캐노피는 짧은 지지 위의 부재이며 별도 room이나 접근 connector가 아니다.
-@evidenceReview principles/design/spaces.md#space-topology #3f8d925 캐노피 지지가 본채 지붕에 놓이며 독립된 별동을 만들지 않는다.
 @evidence principles/design/spaces.md#space-boundary-authority roof top은 mass datum, 실내 upper ceiling은 층 owner, PV 반복 count는 canopy span에서 도출한다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 roof owner가 캐노피 상하면을 맡고 upper owner가 실내 ceiling을 맡는다.
 @evidence principles/design/spaces.md#space-verification-address 상면·하부·corner·지지와 shadow를 각각 관찰하며 구조 하중이나 발전량은 unverified로 남긴다.
-@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 노출 roof 상하와 지지를 관찰 대상으로 두어 위에서만 보이는 판으로 검사를 축소하지 않는다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work 평지붕과 얇은 PV 캐노피 조건을 본채 크기와 짧은 지지에 대조했다. 큰 캔틸레버나 옥상 연결을 부모에게 요청할 필요가 없다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 본채 지붕 위에서 캐노피를 지지할 수 있어 부모의 단순 직사각형 매스를 수정할 필요가 없다.
 @evidence contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements 단순한 두 층 상자 위의 PV 캐노피를 유지하고 별도 체적·복층 보이드·추가 계단을 만들지 않는다.
-@evidenceReview contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements #d31488d 평지붕 위 얇은 PV 캐노피를 두고 박공·굴뚝·본채 캔틸레버를 추가하지 않는다.
 @evidence settings/003-spatial-basis.md#envelope-and-privacy 평지붕과 얇은 PV canopy를 실제 span·edge·drip·지지로 배정하여 유리 외피와 같은 본채를 덮게 한다.
-@evidenceReview settings/003-spatial-basis.md#envelope-and-privacy #467ca4b 평지붕과 짧은 지지를 갖춘 PV 부재로 외피 canon을 소비하되 v-071의 단순한 표현은 개선 대상으로 남는다.
 -->
 
 지붕은 [매스 datum](002-spatial-graph.md#mass-and-storeys)의 roof top에서 본채 전체를 덮는 평지붕이다. 지붕은 실내 upper ceiling을 대신하지 않고 구조 몸체 아래 실내 최종 면은 [2층 owner](002-spatial-graph.md#upper-level)가 소유한다. 외곽에 높이 0.12m의 얇은 edge와 밖으로 0.10m 나오는 물끊기를 둔다. 박공·굴뚝·옥상 테라스나 사람이 오르는 새 연결은 만들지 않는다.
 
 PV 캐노피의 평면은 x=-5.80..5.80, z=-6.70..6.30m이고 underside y=6.70m, 구조 깊이 0.12m다. 지붕 위에 분산된 짧은 지지가 캐노피를 받치며 큰 본채 캔틸레버를 만들지 않는다. 이 범위의 PV·frame 반복 count는 유효 span과 최대 module 폭으로 파생하는 [입면 모듈 인터페이스](002-spatial-graph.md#envelope-interface)를 따른다. [관찰](001-citizen-house.md#spatial-observation)은 노출 상면·하부·모서리·지지와 shadow를 각각 묻는다. 캐노피 치수는 저작 입력이며 구조·발전 성능은 unverified다.
+
+**v-071 이후 외피 부재 수정 설계 — 독립 판정 전, source 미실현.** v-071의 외관 캡처와 reference 01을 대조하면 현재 PV는 열린 캐노피보다 검은 판형 덮개로 읽힌다. 현재 roof source의 cassette가 모듈 면적 전체를 채우는 금속 box인 것은 소스에서 확인했다. 재료만 바꾸어 해결했다고 하지 않고 아래의 분리된 frame·보·rail·기둥 접합으로 교체한다. 기존 평지붕 datum, 캐노피 외곽·하부·깊이, room·문·계단 그래프는 유지한다. 이 개정의 소유자는 지붕 전체를 맡은 main author이며 새 model이나 별도 공간 owner를 만들지 않는다.
+
+캐노피의 구조 영역은 y=6.70..6.82m다. X 방향 주보는 z=-5.40,0,5.40m에 놓고 길이 11.60m, Z 폭 0.08m, 높이 0.12m로 한다. 그 아래 지붕 지지는 x=-4.80,0,4.80m와 같은 세 Z 위치의 교점에 둔다. 각 지지는 지붕 y=6.40에 닿는 0.16×0.16m 평면, 두께 0.012m의 base plate, y=6.412..6.688m의 0.08×0.08m 수직 부재, y=6.688..6.70m의 0.12×0.12m cap plate로 구성한다. base→기둥→cap→주보의 면이 맞닿아 공중에 뜬 짧은 기둥이나 roof 위의 빈 접합을 남기지 않는다. 이 단면은 보이는 부재의 저작 선택이며 하중·처짐·내풍·접합 강도 인증은 unverified다.
+
+반복 수는 입면 모듈 인터페이스의 최대 폭 1.20m와 최대 길이 1.90m를 소비하여 nx=ceil(11.60/1.20), nz=ceil(13.00/1.90), pitchX=11.60/nx, pitchZ=13.00/nz로 정한다. Z 방향 연속 rail은 X module 경계마다 두고 Z=-6.70..6.30m를 잇는다. rail의 X 폭은 0.08m, 높이는 0.12m이며 구조 영역 안에서 세 주보와 만난다. 내부 rail 중심은 해당 module 경계, 두 외곽 rail 중심만 외곽에서 폭의 절반인 0.04m 안쪽으로 물린다. 따라서 rail이 캐노피 전체 bounds를 넘지 않으면서 각 cassette의 양옆을 지지한다. 주보와 rail은 같은 깊이의 접합 부재로 남기고 교차 node를 하나의 닫힌 solid로 Boolean 합쳤다고 주장하지 않는다.
+
+각 cassette는 module 중앙에 놓고 외측 폭 pitchX-0.04m, 길이 pitchZ-0.04m, 높이 0.12m로 한다. 면 전체를 금속 box로 채우지 않는다. 평면에서 폭 0.03m인 네 테두리 부재가 가운데를 비운다. 양 X측 부재는 외측 길이 전체를 가지며 양 Z측 부재는 두 X측 부재 사이의 내측 폭만 채워 모서리의 금속을 이중으로 겹치지 않는다. PV 판은 외측 cassette 폭·길이에서 각각 0.04m를 뺀 평면과 두께 0.012m를 갖고 y=6.825m에 놓는다. 이로써 PV는 frame 안쪽 가장자리에 0.01m씩 걸치고 상면 y=6.831m를 유지한다. PV 하부 y=6.819m와 frame 상부 y=6.82m의 0.001m 겹침은 안착 접합의 표현이며 두 부재의 Boolean 합집합이나 재료 압축을 뜻하지 않는다. frame 아래에는 면 전체를 덮는 금속 바닥판이 없다. module 사이의 투영 간격은 유지한다. 그 아래 rail·주보가 지나는 부분은 실제 지지재가 보이고, 지지재가 없는 부분은 빈 공간으로 남는다. 틈을 텍스처의 검은 선으로 대체하지 않는다. PV cell 패턴·광학 마감은 후속 외피 모듈·마감 단계의 별도 저작과 판정 대상이다.
+
+수리 후 관찰은 현재 topology에서 파생된 roof-face, canopy-top, canopy-soffit와 노출 모서리 전체에 적용한다. 외관 reference 01과 같은 리뷰 거리에서 edge·frame·module 틈·짧은 지지가 구별되는지 확인하고, 추가로 처마 하부와 base/cap 접합을 가까이 본다. 산출물에서 각 frame 중심 아래 금속 바닥판이 없는지, 모든 cassette가 양측 rail에 닿는지, rail→주보→cap→기둥→base→roof 연결이 끊기지 않는지, 모든 부재가 선언 bounds 안에 있는지 읽는다. UV·광학 개선이나 발전량으로 이 형상 검사를 대신하지 않는다. 기존 단일 판 표현, 이 개정의 실제 frame, 후속 모듈 마감은 같은 카메라·광원에서 비교하며 미생성된 새 캡처는 unverified다.
 
 ## 창호의 공간 인터페이스 {#glazing-interface}
 

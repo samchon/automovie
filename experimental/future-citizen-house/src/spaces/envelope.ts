@@ -6,7 +6,6 @@ import { right } from "../house/envelope/right";
 import { roof } from "../house/envelope/roof";
 /** Complete exterior surfaces, cut profiles and measured repeating assemblies.
  * @evidence spaces/003-surface-ownership.md envelope가 네 입면과 지붕의 완결 owner를 호출한다. 각 owner가 자기 벽·개구·창호·차양·외부 마감·corner 조각을 함께 만들며 viewer용 대체 외피가 없다.
- * @evidenceReview spaces/003-surface-ownership.md #3b72b8a 003의 다섯 면과 유리 상태·corner 접합을 buildEnvelope가 소비하므로 소유권 문서만 있고 빠진 외피 생산자가 없다.
  * @evidence principles/core/source-units.md#source-scope-preservation 003의 plane·normal·clear span·frame 깊이·캐노피 외곽을 그대로 소비한다. 본채는 평지붕 직사각형이고 박공·굴뚝·옥상 통행이나 새 후문을 추가하지 않는다.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 외피 export는 facade·roof를 반환하며 계단이나 실내 room 경계를 다시 저작하지 않아 003의 표면 책임에 머문다.
  * @evidence principles/core/source-units.md#source-substantive-completion façade는 공개 wall kernel의 닫힌 절삭 mesh, 깊이 있는 frame과 glass, 반복 stone panel·shade를 생성한다. roof는 실제 slab·edge·지지·PV cassette를 내므로 라벨이나 빈 boundary만 남는 구현이 아니다.
@@ -24,7 +23,6 @@ import { roof } from "../house/envelope/roof";
  * @evidence spaces/003-surface-ownership.md#right-face -X 외벽 x=-5.38의 전면 서비스 영역을 불투명하게 닫고 후면 common·bath 두 창만 같은 z span에 둔다.
  * @evidenceReview spaces/003-surface-ownership.md#right-face #8afa1b3 right facade 전면은 불투명으로 남고 후면 두 창만 절단되어 주거 코어의 외피 역할이 구분된다.
  * @evidence spaces/003-surface-ownership.md#roof-face 본채11×12 slab의 top6.40,얇은 edge와 짧은 분산 지지 위에 underside6.70의 PV canopy를 만든다. canopy top과 soffit도 native boundary로 관찰 대상에 포함한다.
- * @evidenceReview spaces/003-surface-ownership.md#roof-face #7a6fb4f roof가 명시된 평지붕·edge·반복 PV와 짧은 지지를 생성하지만 v-071이 지적한 캐노피 표현 밀도는 별도 개선 대상으로 남는다.
  * @evidence spaces/003-surface-ownership.md#glazing-interface clear span 바깥0.04 frame과 내부0.04 mullion을 따로 계산하고 glass에서 frame 점유를 뺀다. 각 독립 span은 ceil(span/1.25)로 등분하며 cut·glass·shade가 같은 측정값을 쓴다.
  * @evidenceReview spaces/003-surface-ownership.md#glazing-interface #2e7ff11 외곽 jamb와 내부 mullion을 뺀 pane 폭을 계산해 glass와 frame이 동일 치수를 중복 점유하지 않는다.
  * @evidence spaces/003-surface-ownership.md#front-stair-glazing stair hole 양 끝에서0.04 안쪽인 x=-1.20..1.54를 하상층으로 나누고 floor+0.12/ceiling-0.10에 glass를 둔다. entry와 upper-storey의 소속을 각 fill element에 기록한다.
