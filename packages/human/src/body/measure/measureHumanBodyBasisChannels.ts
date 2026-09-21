@@ -1,13 +1,9 @@
-import { Vector3 } from "@automovie/engine";
-
 import type { IAutoMovieHumanFaceEndpointScale } from "../../face/structures/IAutoMovieHumanFaceEndpointScale";
-import { evaluateHumanBodyShape } from "../basis/evaluateHumanBodyShape";
-import { humanBodyBasisWeights } from "../basis/humanBodyBasisWeights";
 import { HUMAN_BODY_MEASUREMENTS } from "../constants/HUMAN_BODY_MEASUREMENTS";
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanBodyChannelScale } from "../structures/IAutoMovieHumanBodyChannelScale";
 import type { IAutoMovieHumanBodyMeasurement } from "../structures/IAutoMovieHumanBodyMeasurement";
-import { measureHumanBodySection } from "./measureHumanBodySection";
+import { evaluateHumanBodyMeasurement } from "./evaluateHumanBodyMeasurement";
 
 /**
  * Measure every channel's metric effect on an admitted body basis, in metres.
@@ -64,56 +60,10 @@ export function measureHumanBodyBasisChannels(
       vertices: rowCount,
     };
   };
-  const ring = ringVertices(basis);
   const evaluateRule = (
     rule: IAutoMovieHumanBodyMeasurement,
     shape: Record<string, number>,
-  ): number | null => {
-    const state = humanBodyBasisWeights(basis, { shape });
-    const shaped = evaluateHumanBodyShape(basis, state, undefined);
-    if (rule.kind === "height") {
-      const positions = shaped.surfaces[0];
-      let lowest = Infinity;
-      for (let v = 1; v < positions.length; v += 3)
-        lowest = Math.min(lowest, positions[v]);
-      const top =
-        ring.reduce((sum, v) => sum + positions[v * 3 + 1], 0) / ring.length;
-      return top - lowest;
-    }
-    const from = shaped.landmarks[rule.from];
-    const to = shaped.landmarks[rule.to];
-    if (from === undefined || to === undefined) return null;
-    if (rule.kind === "distance")
-      return Vector3.length(Vector3.subtract(to, from));
-    const axis = Vector3.subtract(to, from);
-    const normal = rule.horizontal
-      ? Vector3.create(0, 1, 0)
-      : Vector3.normalize(axis);
-    let chosen: number | null = null;
-    for (let step = 0; step < rule.steps; step++) {
-      const fraction =
-        rule.range[0] +
-        (rule.steps === 1
-          ? 0
-          : (step * (rule.range[1] - rule.range[0])) / (rule.steps - 1));
-      const point = Vector3.add(from, Vector3.scale(axis, fraction));
-      const section = measureHumanBodySection(
-        shaped.surfaces[0],
-        basis.surfaces[0].indices,
-        { point, normal },
-        point,
-      );
-      if (section === null) continue;
-      const value =
-        rule.kind === "breadth" ? section.breadth : section.perimeter;
-      if (
-        chosen === null ||
-        (rule.pick === "max" ? value > chosen : value < chosen)
-      )
-        chosen = value;
-    }
-    return chosen;
-  };
+  ): number | null => evaluateHumanBodyMeasurement(basis, shape, rule);
   return basis.channels.map((channel) => {
     const rule = HUMAN_BODY_MEASUREMENTS[channel.id];
     return {
@@ -136,20 +86,4 @@ export function measureHumanBodyBasisChannels(
             },
     };
   });
-}
-
-/**
- * Vertices of the first surface lying on the clip plane: the neck ring the
- * height rule measures up to. A basis without such vertices measures height
- * to its highest vertex instead, which keeps an analytic fixture measurable.
- */
-function ringVertices(basis: IAutoMovieHumanBodyBasis): number[] {
-  const positions = basis.surfaces[0].positions;
-  const ring: number[] = [];
-  let highest = 0;
-  for (let v = 0; v < positions.length / 3; v++) {
-    if (Math.abs(positions[v * 3 + 1] + 0.145) < 1e-9) ring.push(v);
-    if (positions[v * 3 + 1] > positions[highest * 3 + 1]) highest = v;
-  }
-  return ring.length === 0 ? [highest] : ring;
 }

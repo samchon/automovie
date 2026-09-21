@@ -9,4 +9,5 @@ export * from "./constants";
 export * from "./document";
 export * from "./export";
 export * from "./measure";
+export * from "./simple";
 export * from "./structures";

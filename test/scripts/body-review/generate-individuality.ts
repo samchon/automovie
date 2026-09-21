@@ -66,11 +66,7 @@ const ROW_THRESHOLD = 1e-6;
 type Channel = IAutoMovieHumanBodyBasis["channels"][number];
 
 /** The anchors every parameter is measured from, resolved once per basis. */
-interface IAnchors {
-  navel: number[];
-  hip: number[];
-  scapula: number[];
-}
+type IAnchors = Record<Exclude<Anchor, "mask">, number[]>;
 
 /** The evaluation context of one trait: its mesh, anchors, mask and coordinate. */
 interface IContext {
@@ -209,14 +205,20 @@ function skinPointOf(
   const origin = anchorOf(context, point.anchor);
   const x = side * (Math.abs(origin[0]) + point.x);
   const y = origin[1] + point.y;
+  const z = origin[2] + (point.z ?? 0);
   let best = -1;
   let bestDistance = Infinity;
   for (let v = 0; v < mesh.vertices; v++) {
-    const facing =
-      mesh.normals[v * 3 + 2] * (point.project === "front" ? 1 : -1);
-    if (facing < FACING) continue;
+    if (point.project !== "nearest") {
+      const facing =
+        mesh.normals[v * 3 + 2] * (point.project === "front" ? 1 : -1);
+      if (facing < FACING) continue;
+    }
     const p = position(mesh, v);
-    const distance = Math.hypot(p[0] - x, p[1] - y);
+    const distance =
+      point.project === "nearest"
+        ? Math.hypot(p[0] - x, p[1] - y, p[2] - z)
+        : Math.hypot(p[0] - x, p[1] - y);
     if (distance < bestDistance) {
       bestDistance = distance;
       best = v;
@@ -235,20 +237,33 @@ function reliefOf(
   const relief = new Float64Array(mesh.vertices);
   const groove = new Float64Array(mesh.vertices);
   for (const curve of curves) {
-    const points = curve.points.map((point) =>
-      skinPointOf(context, point, side),
-    );
-    const { distance } = alongCurve(
-      mesh,
-      points.length === 1 ? [points[0], points[0]] : points,
-    );
-    for (let v = 0; v < mesh.vertices; v++) {
-      if (!Number.isFinite(distance[v])) continue;
-      const shape =
-        bell(0, curve.sigma, distance[v]) *
-        gatesOf(context, curve.gates ?? [], v);
-      relief[v] += curve.amplitude * shape;
-      groove[v] += shape;
+    const copies = curve.repeat?.count ?? 1;
+    const step = curve.repeat?.step ?? [0, 0, 0];
+    for (let copy = 0; copy < copies; copy++) {
+      const points = curve.points.map((point) =>
+        skinPointOf(
+          context,
+          {
+            ...point,
+            x: point.x + step[0] * copy,
+            y: point.y + step[1] * copy,
+            z: (point.z ?? 0) + step[2] * copy,
+          },
+          side,
+        ),
+      );
+      const { distance } = alongCurve(
+        mesh,
+        points.length === 1 ? [points[0], points[0]] : points,
+      );
+      for (let v = 0; v < mesh.vertices; v++) {
+        if (!Number.isFinite(distance[v])) continue;
+        const shape =
+          bell(0, curve.sigma, distance[v]) *
+          gatesOf(context, curve.gates ?? [], v);
+        relief[v] += curve.amplitude * shape;
+        groove[v] += shape;
+      }
     }
   }
   // where curves cross, the groove is one groove, not the sum of two
@@ -437,11 +452,9 @@ function main(): void {
           ),
           0,
         ];
-  const anchors: IAnchors = {
-    navel: anchorOf(ANCHORS.navel),
-    hip: anchorOf(ANCHORS.hip),
-    scapula: anchorOf(ANCHORS.scapula),
-  };
+  const anchors = Object.fromEntries(
+    Object.entries(ANCHORS).map(([name, rule]) => [name, anchorOf(rule)]),
+  ) as IAnchors;
   const channels: Channel[] = [];
   const rows: Record<string, number[]> = {};
   const stats: Record<string, { vertices: number; mostMetres: number }> = {};

@@ -27,6 +27,8 @@
  * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view The engine owns no body editor inputs or display state.
  * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor The engine owns no body editor transaction or worker boundary.
  * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-export The engine does not write a built body to glTF through the human package.
+ * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-simple-shape The engine does not expand simple body parameters; the human package's expansion does.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-simple-shape The engine evaluates no simple-tier table or measured inversion.
  * @evidenceExclude requirements/actors/facial-authoring/README.md#face-requirements The engine consumes authored meshes and generic face rigs; its deterministic playback boundary does not implement detailed facial authoring across document, editor and study review.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-document The engine consumes authored meshes and generic face rigs; its deterministic playback boundary does not implement the standalone human-face recipe, basis and version interpreter.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components The engine consumes authored meshes and generic face rigs; its deterministic playback boundary does not implement named craniofacial components, cavities and attached tissues.

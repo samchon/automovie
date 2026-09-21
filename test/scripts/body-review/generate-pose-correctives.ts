@@ -363,6 +363,19 @@ function main(): void {
         };
         if (outcome === "repaired") clean = angle;
         else if (outcome.startsWith("repaired")) clean = lo;
+        // A full angle the tissue cannot clear (the thigh six centimetres
+        // into the belly at 125 degrees of hip flexion) still leaves the
+        // ramp below it owed: the midpoint between the last clean angle and
+        // this one is queued as its own state, so the corrective reaches as
+        // far as the tissue gives and the receipt says where it stopped.
+        else if (
+          Math.abs(angle - lo) > 4 * RESOLUTION &&
+          !records.some(
+            (record: { state?: string }) =>
+              record.state === `${group.bone}.${group.axis}@${midpoint}`,
+          )
+        )
+          queue.unshift({ angle: midpoint, sample: false });
       } else if (Math.abs(travel(angle)) > Math.abs(travel(clean)))
         clean = angle;
       if (sample) previous = angle;

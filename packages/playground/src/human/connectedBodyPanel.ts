@@ -22,13 +22,14 @@ import type {
 } from "@automovie/interface";
 
 import { renderBodyPoseControls } from "./bodyPoseControls";
+import { renderBodySimpleControls } from "./bodySimpleControls";
 
 /**
  * Mount the body's shape, measurement and pose controls around an injected
  * numerical viewport. Weight ranges, measurement rules, joint ranges and rest
  * angles all come from the admitted basis; the panel formats and binds them.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Provides grouped shape controls in millimetres where a rule exists, clinical joint controls, presets, history, file IO, contact check and orbit/clay/face display for one connected body.
+ * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Provides grouped shape controls in millimetres where a rule exists, clinical joint controls, the simple tier, presets, history, file IO, contact check and orbit/clay/face display for one connected body.
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-measurements Prints each measured channel's neutral and end values in millimetres beside its dimensionless weight.
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Binds scalar controls to numerical edits, states each control's envelope and measured effect, and keeps camera, clay and the companion face outside replay data.
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Shares the face's transactional history and cancels stale file reads and builds by generation.
@@ -108,7 +109,7 @@ export function mountConnectedBodyPanel<
 <main><section><canvas id="body-canvas"></canvas><div class="toolbar views"><button data-view="0">Front</button><button data-view="45">Left ¾</button><button data-view="-45">Right ¾</button><button data-view="90">Left</button><button data-view="-90">Right</button><button data-view="180">Back</button><button id="fit-view">Fit</button><label><input id="clay" type="checkbox"> Clay</label><label><input id="shadows" type="checkbox" checked> Shadows</label><label><input id="face" type="checkbox" checked> Face</label></div></section>
 <aside><h1>Connected body editor</h1><p>Shape in millimetres and joints in clinical degrees on one connected skin</p><a href="connected-face.html">Open connected face editor</a><div id="body-status" role="status">Loading the numerical basis…</div>
 <fieldset id="editing" disabled><div class="toolbar"><button id="body-undo">Undo</button><button id="body-redo">Redo</button><button id="body-reset">Reset</button></div><div class="toolbar"><button id="body-save">Save document</button><button id="body-load">Load document</button><button id="body-glb">Export GLB</button><button id="body-contacts">Check contacts</button><input id="body-file" type="file" accept=".json,application/json" hidden></div>
-<h2>Body presets</h2><div id="shape-presets" class="toolbar"></div><h2>Pose presets</h2><div id="pose-presets" class="toolbar"></div><h2>Controls</h2><select id="control-kind" aria-label="Control group">${groups.map((g) => `<option value="${g}">${g === "macro" ? "Macro (gender, age, weight, muscle, height…)" : "Shape · " + g}</option>`).join("")}<option value="pose">Pose · joints</option></select><p>0 is the source neutral. A measured channel states its girth, length or height in millimetres at neutral and at each end; a joint states its clinical range and rest angle.</p><div id="basis-controls"></div><details><summary>Complete document</summary><textarea id="document-json" aria-label="Complete document"></textarea><button id="document-apply">Apply document</button></details></fieldset></aside></main>`;
+<h2>Simple body</h2><p>Identity-card values and tape measurements, read off the current body and expanded into the detailed channels; age sags and softens, muscle defines only where the body fat lets it.</p><div id="simple-controls"></div><h2>Body presets</h2><div id="shape-presets" class="toolbar"></div><h2>Pose presets</h2><div id="pose-presets" class="toolbar"></div><h2>Controls</h2><select id="control-kind" aria-label="Control group">${groups.map((g) => `<option value="${g}">${g === "macro" ? "Macro (gender, age, weight, muscle, height…)" : "Shape · " + g}</option>`).join("")}<option value="pose">Pose · joints</option></select><p>0 is the source neutral. A measured channel states its girth, length or height in millimetres at neutral and at each end; a joint states its clinical range and rest angle.</p><div id="basis-controls"></div><details><summary>Complete document</summary><textarea id="document-json" aria-label="Complete document"></textarea><button id="document-apply">Apply document</button></details></fieldset></aside></main>`;
   const element = <T extends HTMLElement>(id: string): T =>
     app.querySelector<T>("#" + id)!;
   const viewport = props.viewport(element<HTMLCanvasElement>("body-canvas"));
@@ -150,6 +151,7 @@ export function mountConnectedBodyPanel<
     element<HTMLButtonElement>("body-redo").disabled = !state.canRedo;
     element<HTMLTextAreaElement>("document-json").value =
       serializeHumanBodyBasisDocument(state.document);
+    simple.refresh(state.document.shape);
     renderControls();
   };
   const change = async (
@@ -289,6 +291,17 @@ export function mountConnectedBodyPanel<
       if (success) show(editor!.snapshot().model);
       refresh();
     };
+  const simple = renderBodySimpleControls({
+    dom,
+    container: element("simple-controls"),
+    basis: props.basis,
+    onApply: (expand) =>
+      void change({
+        ...structuredClone(draft),
+        shape: expand(draft.shape),
+      }),
+    onRefuse: refuse,
+  });
   for (const preset of props.shapes) {
     const button = dom.createElement("button");
     button.textContent = preset.name;

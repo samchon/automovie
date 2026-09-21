@@ -97,13 +97,14 @@ export function budgetOf(a: string, b: string): number {
     return a.slice(0, 4) === b.slice(0, 4) ? 0.05 : 0.025;
   if (leg.test(a) && leg.test(b)) return 0.025;
   // the hip fold: the thigh against the groin at 62 degrees and against the
-  // belly at 125, where the lower abdomen and the front of the thigh give by
-  // centimetres as they do in a squat
+  // belly beyond 90, where the lower abdomen and the front of the thigh give
+  // by centimetres as they do in a squat; the knee fold's figure, because
+  // both are a limb folded flat against a soft mass
   if (
     (leg.test(a) && /^(hips|spine|chest|upperChest)$/.test(b)) ||
     (leg.test(b) && /^(hips|spine|chest|upperChest)$/.test(a))
   )
-    return 0.035;
+    return 0.05;
   if (arm.test(a) && arm.test(b)) return 0.025;
   return 0.015;
 }

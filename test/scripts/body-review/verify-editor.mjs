@@ -1,7 +1,8 @@
 /**
  * Exercise the shipped body editor's transactions on a real GPU: an edit,
  * undo, redo, reset, a document applied from the text area, a document
- * loaded from a file, a contact check, and the exported GLB written to disk
+ * loaded from a file, a contact check, the simple tier expanded and
+ * refused beyond its reach, and the exported GLB written to disk
  * for `verify-editor-export.ts` to compare byte for byte with the package's
  * own export of the same document.
  *
@@ -187,7 +188,48 @@ try {
   console.log("contacts:", contacts.trim().slice(0, 200));
   assert.match(contacts, /leftUpperArm x leftLowerArm|No skin segment/);
 
-  // 8. reset returns to the initial document; the GLB goes to disk
+  // 8. the simple tier expands into detailed channels and keeps a detailed
+  // edit made on top; a stature past the basis's reach is refused
+  await page.evaluate(() =>
+    window.__connectedBody.change({
+      id: "simple",
+      name: "simple",
+      basis: window.__connectedBody.document().basis,
+      shape: { measureBustCirc: 0.4 },
+      pose: [],
+    }),
+  );
+  await ready('s.document.id === "simple"');
+  // the inputs read the current body: a bust edit shows as its girth
+  const shown = await page.inputValue("#simple-bustMetres");
+  assert.ok(Number(shown) > 50, "bust girth read off the body: " + shown);
+  await set("#simple-sex", "-1");
+  await set("#simple-ageYears", "68");
+  await set("#simple-statureMetres", "162");
+  await set("#simple-massKilograms", "76");
+  await set("#simple-muscle", "-0.2");
+  await page.click("#simple-apply");
+  await ready("s.document.shape.macroGender === -1");
+  state = await snapshot();
+  assert.equal(state.shape.macroGender, -1);
+  assert.ok(Math.abs(state.shape.measureBustCirc - 0.4) < 1e-6, "the bust edit survives");
+  assert.ok(state.shape.macroAge > 0.6 && state.shape.macroAge < 0.7);
+  assert.ok(state.shape.buttocksPtosis > 0.5);
+  assert.ok(Number.isFinite(state.shape.macroHeight));
+  assert.ok(Number.isFinite(state.shape.macroWeight));
+  console.log("simple body expanded", state.shape);
+  await set("#simple-statureMetres", "220");
+  await page.click("#simple-apply");
+  await page.waitForFunction(
+    () => window.__connectedBody.snapshot()?.status === "error",
+    {},
+    { timeout: 300000 },
+  );
+  state = await snapshot();
+  assert.match(state.error, /beyond this basis/);
+  console.log("refused as expected:", state.error.slice(0, 80));
+
+  // 9. reset returns to the initial document; the GLB goes to disk
   await page.click("#body-reset");
   await ready('s.document.id === "connected-body"');
   const glb = await page.evaluate(() =>

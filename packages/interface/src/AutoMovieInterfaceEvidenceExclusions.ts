@@ -27,6 +27,8 @@
  * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view The interface package owns no body editor inputs or display state.
  * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor The interface package owns no body editor transaction or worker boundary.
  * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-export The interface package does not write a built body to glTF through the human package.
+ * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-simple-shape The interface package does not expand simple body parameters; the human package's expansion does.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-simple-shape The interface package evaluates no simple-tier table or measured inversion.
  * @evidenceExclude requirements/actors/facial-authoring/README.md#face-requirements Portable production schemas represent already-generated meshes and rig facts; they do not define detailed facial authoring across document, editor and study review.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-document Portable production schemas represent already-generated meshes and rig facts; they do not define the standalone human-face recipe, basis and version interpreter.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Portable production schemas represent already-generated meshes and rig facts; they do not define named craniofacial components, cavities and attached tissues.

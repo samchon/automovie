@@ -27,6 +27,8 @@
  * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view The viewer owns no body editor inputs or display state.
  * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor The viewer owns no body editor transaction or worker boundary.
  * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-export The viewer does not write a built body to glTF through the human package.
+ * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-simple-shape The viewer does not expand simple body parameters; the human package's expansion does.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-simple-shape The viewer evaluates no simple-tier table or measured inversion.
  * @evidenceExclude requirements/actors/facial-authoring/README.md#face-requirements The general viewer displays compiled scene state; it does not own detailed facial authoring across document, editor and study review.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-document The general viewer displays compiled scene state; it does not own the standalone human-face recipe, basis and version interpreter.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components The general viewer displays compiled scene state; it does not own named craniofacial components, cavities and attached tissues.

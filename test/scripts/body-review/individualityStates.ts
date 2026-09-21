@@ -17,6 +17,8 @@ export const REVIEW: Record<string, Record<string, number>> = {
   "abs-definition": { absDefinition: 1 },
   "deltoid-definition": { deltoidDefinitionLeft: 1, deltoidDefinitionRight: 1 },
   "scapular-definition": { scapularDefinition: 1 },
+  "skeletal-prominence": { skeletalProminence: 1 },
+  "lean-skeletal": { macroWeight: -1, macroGender: 1, skeletalProminence: 1 },
   "heavy-sagging": {
     macroWeight: 1,
     macroAge: 0.5,

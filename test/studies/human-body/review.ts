@@ -20,6 +20,8 @@ import type * as Human from "@automovie/human";
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-document The study documents exercise the parse and serialize admission and envelope.
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-export The study's built body is what the inspected exporter writes to GLB and glTF.
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-export The exported study body exercises the shared Float32 writer without a rig.
+ * @evidence requirements/actors/body-authoring/contract.md#actor-body-simple-shape The study's basis is what the simple tier's stature and body mass index are solved against.
+ * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-simple-shape The study's ring and skin volume are the measurements the expansion's inversions read.
  * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-editor The browser editor is the playground's; the study review inspects the package sources it calls, not the screen.
  * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view The study review owns no inputs, presets or display state.
  * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor The study review owns no transaction history or worker.
@@ -107,7 +109,31 @@ import type * as Human from "@automovie/human";
  * @evidence {@link Human.exportHumanBody} Read the static export: the face's portrait document and writer applied to the built body model, no rig written.
  * @evidenceReview {@link Human.exportHumanBody} #804228c Read the static export: the face's portrait document and writer applied to the built body model, no rig written.
  * @evidence {@link Human.measureHumanBodyBasisChannels} Read the whole-surface RMS accumulation, the empty-population refusal and the rule evaluation through the same shape path the builder uses.
- * @evidenceReview {@link Human.measureHumanBodyBasisChannels} #43441bf Read the whole-surface RMS accumulation, the empty-population refusal and the rule evaluation through the same shape path the builder uses.
+ * @evidenceReview {@link Human.measureHumanBodyBasisChannels} #36b752d Read the whole-surface RMS accumulation, the empty-population refusal and the rule evaluation through the same shape path the builder uses. Reread after the topological ring: the height rule now measures to the surface's open boundary rather than to a remembered clip plane, so the neck-complement revision measures to its own cut.
+ * @evidence {@link Human.humanBodySurfaceBoundary} Read the directed-edge census: an edge whose reverse no triangle owns is a boundary edge, and its endpoints are the ring.
+ * @evidenceReview {@link Human.humanBodySurfaceBoundary} #b39687f Read the directed-edge census: an edge whose reverse no triangle owns is a boundary edge, and its endpoints are the ring.
+ * @evidence {@link Human.humanBodyClipRing} Read the boundary-first ring with the highest-vertex fallback the closed analytic box needs.
+ * @evidenceReview {@link Human.humanBodyClipRing} #698d924 Read the boundary-first ring with the highest-vertex fallback the closed analytic box needs.
+ * @evidence {@link Human.measureHumanBodyVolume} Read the tetrahedron sum, the boundary cap fanned to the loop centroid with the reversed winding, and the absolute value, against the closed and the opened box.
+ * @evidenceReview {@link Human.measureHumanBodyVolume} #6ad0c75 Read the tetrahedron sum, the boundary cap fanned to the loop centroid with the reversed winding, and the absolute value, against the closed and the opened box.
+ * @evidence {@link Human.evaluateHumanBodyMeasurement} Read the one-rule evaluation: height to the clip ring, landmark distance, and the station walk that keeps the picked closed section, null where the surface cannot answer.
+ * @evidenceReview {@link Human.evaluateHumanBodyMeasurement} #9569629 Read the one-rule evaluation: height to the clip ring, landmark distance, and the station walk that keeps the picked closed section, null where the surface cannot answer.
+ * @evidence {@link Human.humanBodySimpleShapeMath} Read the flat-ended curve, the refusing inversion, the clamped curve inverse, Deurenberg's fat and excess, the parameter record with the body mass index from mass and stature, the term product and Siri's density.
+ * @evidenceReview {@link Human.humanBodySimpleShapeMath} #5cbd41b Read the flat-ended curve, the refusing inversion, the clamped curve inverse, Deurenberg's fat and excess, the parameter record with the body mass index from mass and stature, the term product and Siri's density.
+ * @evidence {@link Human.measureHumanBodySimpleShape} Read the stature (height rule plus head allowance, refused without a rule), the skin volume through the builder's shape path, the mass over the head-and-neck share and the channel rule reading.
+ * @evidenceReview {@link Human.measureHumanBodySimpleShape} #4995410 Read the stature (height rule plus head allowance, refused without a rule), the skin volume through the builder's shape path, the mass over the head-and-neck share and the channel rule reading.
+ * @evidence {@link Human.projectHumanBodySimpleShape} Read the measured stature, the mass fixed point over the fat density, the inverse-first-row identity readings with the other muscle rows removed, and the named tape measurements read back.
+ * @evidenceReview {@link Human.projectHumanBodySimpleShape} #1ebbbe5 Read the measured stature, the mass fixed point over the fat density, the inverse-first-row identity readings with the other muscle rows removed, and the named tape measurements read back.
+ * @evidence {@link Human.expandHumanBodySimpleShape} Read the envelope and missing-value refusals, the product-of-curves rows with envelope saturation and skipped channels, the three-sample inversions for stature, mass and each named tape measurement that refuse beyond their reach or on a channel that does not grow, and the residual composition over an existing shape.
+ * @evidenceReview {@link Human.expandHumanBodySimpleShape} #36bf54b Read the envelope refusals, the derived fat parameters, the product-of-curves rows with envelope saturation and skipped channels, and the two three-sample inversions that refuse beyond their reach or on a channel that does not grow.
+ * @evidence {@link Human.HUMAN_BODY_SIMPLE_SHAPE} Read every row against its pinned source: the age nodes, the sarcopenia gain, the ptosis, apron, android and gynoid curves, the definition gates over excess fat, and the firmness fall.
+ * @evidenceReview {@link Human.HUMAN_BODY_SIMPLE_SHAPE} #2ba3487 Read every row against its pinned source: the age nodes, the sarcopenia gain, the ptosis, apron, android and gynoid curves, the definition gates over excess fat, and the firmness fall.
+ * @evidence {@link Human.IAutoMovieHumanBodySimpleShape} Read the five physical parameters and their units.
+ * @evidenceReview {@link Human.IAutoMovieHumanBodySimpleShape} #39c7889 Read the five physical parameters and their units.
+ * @evidence {@link Human.IAutoMovieHumanBodySimpleShapeTable} Read the table form: envelope, head allowance, mass model, fat estimate and product-of-curves rows.
+ * @evidenceReview {@link Human.IAutoMovieHumanBodySimpleShapeTable} #4e4e16d Read the table form: envelope, head allowance, mass model, fat estimate and product-of-curves rows.
+ * @evidence {@link Human.AutoMovieHumanBodySimpleParameter} Read the five parameters and the derived excess fat a curve may be read over.
+ * @evidenceReview {@link Human.AutoMovieHumanBodySimpleParameter} #168510a Read the five parameters and the derived excess fat a curve may be read over.
  * @evidence {@link Human.admitHumanBodyBasisDocument} Read exact schema admission, finiteness over weights, rows, angles and material scalars, nonblank identities and the duplicate-bone refusal.
  * @evidenceReview {@link Human.admitHumanBodyBasisDocument} #4bd1406 Read exact schema admission, finiteness over weights, rows, angles and material scalars, nonblank identities and the duplicate-bone refusal.
  * @evidence {@link Human.parseHumanBodyBasisDocument} Read the shared UTF-16 envelope, JSON parsing and the admission hand-off.

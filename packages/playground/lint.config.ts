@@ -7,6 +7,7 @@ const prototypeSources = ["src/**/*.ts", "!src/human/**/*.ts"];
 const bodySources = [
   "src/human/connectedBodyPanel.ts",
   "src/human/bodyPoseControls.ts",
+  "src/human/bodySimpleControls.ts",
 ];
 const faceSources = [
   "src/human/**/*.ts",
