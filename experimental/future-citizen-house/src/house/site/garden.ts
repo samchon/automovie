@@ -1,3 +1,16 @@
+/** Complete site surface owner, called once by buildHouse after the envelope.
+ * The supplied build-local Assembly receives paving, drainage and plants in
+ * world metres (+Y up, +Z rear); every element belongs to citizen-site.
+ * Site access is owned by docs/spaces/001-citizen-house.md#site-access. The
+ * canopy-driven relocation and preservation decision is owned by
+ * docs/spaces/003-surface-ownership.md#roof-face and reached through that
+ * site-access unit by citizenHouseSpaceSource's governed evidence relation.
+ * Ground reservations are cut first; the same stable plant IDs and local
+ * forms are then placed outside them. Tree parts move together by one rigid
+ * transform, while hedge and grass groups retain their internal offsets.
+ * auditCanopy reads their native bounds against the maintenance reservations.
+ * This owner does not certify plant growth, drainage capacity or vehicle loads.
+ */
 import { extrudeAutoMovieRegion, transformAutoMovieMesh, Quaternion } from "@automovie/engine";
 import { Assembly, rectangle, v, yaw } from "../assembly";
 import { circle, heightRegion, putMesh } from "../metric-solid";

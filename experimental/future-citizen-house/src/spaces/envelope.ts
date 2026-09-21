@@ -17,7 +17,8 @@ import { roof } from "../house/envelope/roof";
  * @evidence spaces/003-surface-ownership.md#rear-face z=5.88,normal +Z의 후면 벽에 common·primary·bathroom의 독립 opening을 두며 상층 코어 벽 끝을 넘어 유리를 잇지 않는다.
  * @evidence spaces/003-surface-ownership.md#left-face +X 외벽 x=5.38에 작업실과 child-one의 같은 z span, child-two의 별도 창을 구현한다. 전면과의 불투명 return은 삼각 corner 및 wall body로 닫는다.
  * @evidence spaces/003-surface-ownership.md#right-face -X 외벽 x=-5.38의 전면 서비스 영역을 불투명하게 닫고 후면 common·bath 두 창만 같은 z span에 둔다.
- * @evidence spaces/003-surface-ownership.md#roof-face 본채11×12 slab의 top6.40,얇은 edge와 짧은 분산 지지 위에 underside6.70의 PV canopy를 만든다. canopy top과 soffit도 native boundary로 관찰 대상에 포함한다.
+ * @evidence spaces/003-surface-ownership.md#roof-face roof가 B/J/T/P와 R의 경사에서 주보·분절 rail·열린 cassette·지지·거터·outlet·overflow를 만들고 right가 y=6.10 아래 관을 이어 준다. top·soffit도 native boundary로 내며 정비 식재는 이 export가 중복 생성하지 않고 site-access를 실현하는 citizenHouseSpaceSource의 garden 호출에 남긴다.
+ * @evidenceReview spaces/003-surface-ownership.md#roof-face v-075가 roof/right의 경사·배수와 native cassette70·girder3·rail44·post9를 대조해 충실도를 통과시켰다. 동일 구현의 WebGL2 외관·상부·하부 캡처를 열어 셀 간격과 프레임·레일 리듬을 확인했고 검은 연속면의 시각 결함은 PASS로 닫혔다. 이 export는 지붕과 관 연결을 만들며 후면 식재의 실행은 site-access의 garden 소유 관계에 남긴다. 이번 조경 설계 추적 보완의 r3 판정을 대신하지 않는다.
  * @evidence spaces/003-surface-ownership.md#glazing-interface clear span 바깥0.04 frame과 내부0.04 mullion을 따로 계산하고 head·sill·jamb·mullion 깊이는 모두0.14m로 맞춘다. 유리는 frame 안쪽 면 사이를 채우고 반투명/투명 band도 맞닿는다. 낮은 privacy 창의 빈 상부 band는 geometry를 만들지 않는다. 각 독립 span은 ceil(span/1.25)로 등분하며 cut·glass·shade가 같은 측정값을 쓴다.
  * @evidence spaces/003-surface-ownership.md#front-stair-glazing stair hole 양 끝에서0.04 안쪽인 x=-1.20..1.54를 하상층으로 나누고 floor+0.12/ceiling-0.10에 glass를 둔다. entry와 upper-storey의 소속을 각 fill element에 기록한다.
  * @evidence spaces/003-surface-ownership.md#front-flex-glazing x=3.06..5.22의 ground opening이 작업실 clear face 안에 frame까지 들어간다. 낮에는 하부 반투명, 상부 clear이며 사적·야간 상태는 같은 opening의 shade를 내린다.

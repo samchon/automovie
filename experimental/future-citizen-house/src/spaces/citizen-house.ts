@@ -4,7 +4,7 @@ import { buildHouse } from "../house/build";
  * plan inputs; preview and delivery invoke this same CJS producer.
  * @evidence spaces/001-citizen-house.md 집·대지·관찰 입력을 하나의 library 환경으로 등록한다. 실제 조립은 buildHouse이고 topology, surface owner, 방 fit-out이 모두 그 호출에 들어간다.
  * @evidence spaces/001-citizen-house.md#citizen-house-space house를 citizen-site 아래 두 storey의 부모로 만들고 독립된 매스나 추가 계단을 생성하지 않는다. 각 완결 표면의 파일을 buildHouse가 호출한다.
- * @evidence spaces/001-citizen-house.md#site-access garden의 지면·보도·두 디딤판·y=0 landing이 front-entry route에 닿는다. 나무는 줄기·가지·잎의 결정적 부재이며 배경 이미지가 아니다.
+ * @evidence spaces/001-citizen-house.md#site-access buildHouse의 garden 호출이 지면·보도·두 디딤판·y=0 landing과 조경 전체를 만든다. site-access가 소비하는 roof-face의 정비 재배치에 따라 tree-0..3과 hedge의 기존 side/i ID를 후면에 보존하고 front-grass-3..7을 cassette 예약면 밖으로 옮긴다. 같은 호출의 canopy audit가 식물 bounds와 예약대의 겹침을 검사한다.
  * @evidence spaces/001-citizen-house.md#spatial-observation 현재 환경의 cell·surface·connector·boundary.face·opening.profile을 observations가 소비한다. 필수 공간 시점, 모든 외피 면·모서리·개구와 다섯 추가 reference를 내며 null 시점과 이유도 유지한다. GPU 판정은 이 열거와 별개다.
  * @evidence principles/core/source-units.md#source-scope-preservation 이 등록은 001의 단일 집·대지 조립만 소유한다. 방 치수는 plan, 외피는 각 입면 모듈에서 받고 reference를 표면에 붙이거나 독립된 viewer geometry를 만들지 않는다.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 이 export는 001의 library 등록만 담당하고 방 경계나 외피 치수를 viewer 전용 형상으로 다시 정의하지 않는다.
