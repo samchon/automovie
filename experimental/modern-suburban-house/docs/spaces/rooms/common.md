@@ -6,4 +6,4 @@
 
 `living-common-opening`은 앞쪽 경계의 X = [-5.00, -2.15], Y = [0, 2.40] m, `service-common-opening`은 X = [-1.35, 3.07], Y = [0, 2.40] m의 열린 개구부다. 문짝은 없다. 각각 [거실](living.md#living-plan), [서비스 접근의 뒤쪽 띠](service.md#service-access-plan)를 직접 잇는다. 팬트리 뒤쪽 X = [3.22, 5.50] 구간은 닫힌 벽으로 남긴다. 넓은 개구부의 상인방/지지 부재는 외피 단계의 구조 예약 안에서 해결해야 한다.
 
-주방은 왼쪽, 식사는 뒤쪽 정원 출입 가까이, 가족실은 오른쪽에 둔다. 정확한 섬·가전·식탁/6개 의자·3개 스툴·가족실 가구 좌표와 정원문은 아직 미완료다. 앞쪽 두 개구부 사이의 통행을 식탁 의자 사이로만 배정하지 않는다. `src/spaces/rooms/common.ts`가 전체 내부를 소유한다. 두 진입에서 세 기능으로 가는 길, 정원문과 실제 외벽, 03의 공용부 시야 및 각 구석 관찰은 unverified다.
+주방은 왼쪽, 식사는 뒤쪽 정원 출입 가까이, 가족실은 오른쪽에 둔다. [kitchen-rear-window](../envelope/rear.md#kitchen-rear-window), [garden-door](../envelope/rear.md#garden-door), [family-rear-window](../envelope/rear.md#family-rear-window), [family-right-window](../envelope/right.md#family-right-window)를 같은 방의 외벽에 바인딩한다. 정원문 안쪽 대기와 주방 창 아래 상판 높이 예약을 가구 배치가 소비한다. 정확한 섬·가전·식탁/6개 의자·3개 스툴·가족실 가구 좌표는 아직 미완료다. 앞쪽 두 개구부 사이의 통행과 정원문 진입을 식탁 의자 사이로만 배정하지 않는다. `src/spaces/rooms/common.ts`가 전체 내부를 소유한다. 두 진입에서 세 기능으로 가는 길, 정원문과 실제 외벽, 03의 공용부 시야 및 각 구석 관찰은 unverified다.

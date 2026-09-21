@@ -6,4 +6,4 @@
 
 `hall-primary-door`는 Z = [-6.06, -5.91]의 복도/침실 벽에 X = [-2.70, -1.70], Y = [3.06, 5.26] m의 거친 개구부를 만든다. 목표 유효 폭은 0.90 m다. -X 문설주 경첩에서 실내 -Z 방향으로 연다. [옷방 문](wardrobe.md#primary-wardrobe-plan)은 별도 개구부로 소비한다. 복도에서 어느 욕실로 갈 때도 이 두 문을 거치지 않는다.
 
-[성인 둘의 침실](../../settings/10-house.md#primary-bedroom)로 뒤/왼쪽 외벽 창, 큰 침대·양쪽 협탁·서랍장을 배정한다. 정확한 창과 침대/수납 점유는 미완료다. `src/spaces/rooms/primary.ts`가 소유하며 왼쪽 부분까지 방 바닥이 이어지는지와 모든 내부 코너를 검사한다. 실제 면적 비교·문/창 binding·침대 양옆 여유·옷방 접근과 시야는 unverified다.
+[성인 둘의 침실](../../settings/10-house.md#primary-bedroom)로 [primary-rear-window](../envelope/rear.md#primary-rear-window)와 [primary-left-window](../envelope/left.md#primary-left-window)의 void, 큰 침대·양쪽 협탁·서랍장을 배정한다. 침대/수납 점유는 미완료이며 창대 돌출과 커튼 앞 접근을 포함해 배치한다. `src/spaces/rooms/primary.ts`가 소유하며 왼쪽 부분까지 방 바닥이 이어지는지와 모든 내부 코너를 검사한다. 실제 면적 비교·문/창 binding·침대 양옆 여유·옷방 접근과 시야는 unverified다.

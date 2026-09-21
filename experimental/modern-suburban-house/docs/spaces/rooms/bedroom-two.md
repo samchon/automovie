@@ -6,4 +6,4 @@
 
 `hall-bedroom-two-door`는 뒤쪽 공유 벽에서 X = [-3.10, -2.10], Y = [3.06, 5.26] m의 거친 개구부다. 최종 유효 폭 0.90 m를 목표로 한다. +X 문설주 경첩에서 방 안 +Z 방향으로 열고 복도의 계단 보호 경계에 문짝을 세우지 않는다. [복도](upper-hall.md#upper-hall-plan)에서 자기 문으로 바로 들어오며 다른 침실이나 욕실을 지나지 않는다.
 
-[올리브 침구의 방](../../settings/10-house.md#bedroom-two)으로 실현하며 전면 창을 이 방에 배정한다. 침대·책상·장과 창의 정확한 배치는 미완료다. 창 앞, 문 안쪽과 침대 옆 길을 가구 예약으로 재검사한다. `src/spaces/rooms/bedroom-two.ts`가 완결 내부 owner다. 문/창의 실제 binding·자기 공간 안 네 방향과 네 모서리의 시야·가구 접근은 unverified다.
+[올리브 침구의 방](../../settings/10-house.md#bedroom-two)으로 실현하며 [bedroom-two-front-window](../envelope/front.md#bedroom-two-front-window)의 void를 소비한다. 굴뚝 가까운 왼쪽 벽에는 창을 추가하지 않는다. 침대·책상·장의 정확한 배치는 미완료다. 창 앞, 문 안쪽과 침대 옆 길을 가구 예약으로 재검사한다. `src/spaces/rooms/bedroom-two.ts`가 완결 내부 owner다. 문/창의 실제 binding·자기 공간 안 네 방향과 네 모서리의 시야·가구 접근은 unverified다.

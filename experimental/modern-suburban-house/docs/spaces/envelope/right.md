@@ -6,6 +6,26 @@
 
 본채 오른쪽 외벽의 박공 삼각 벽은 [낮은 지붕의 앞/뒤 아래면](../roof/00-junctions.md#roof-profile-datums)에 맞춰 닫는다. 차고 오른쪽 외벽도 자기 Gfront/Gback 아래면에서 별도 삼각 벽을 만든다. 각 삼각 벽은 기존 외벽 두께 안에 있고 겹친 삼각 장식판으로 대체하지 않는다. 본채/차고 공유 벽은 [차고 owner](../00-building.md#attached-garage-extent)가 소유하며 이 파일이 다시 만들지 않는다.
 
-차고 지붕의 왼쪽은 본채 공유 벽 바깥에 붙는다. 그 접촉 높이는 Gfront/Gback과 같으며, 후레싱이 벽을 따라 오르는 높이는 공간 예약 0.15 m로 택한다. 이 후레싱까지 포함한 접합 띠에는 창틀이나 환기구를 겹치지 않는다. 이 값은 방수 성능의 인증이 아니라 시각·기하 접합의 예약이다. [청회색 침실](../rooms/bedroom-three.md#bedroom-three-plan)의 요구 창은 전면에 있고 차고 위 측면에 창을 억지로 더할 필요는 없다. [욕조 욕실](../rooms/tub-bath.md#tub-bath-plan)의 측면 창은 차고 후면 돌출과 함께 다음 개구부 단계에서 정한다.
+차고 지붕의 왼쪽은 본채 공유 벽 바깥에 붙는다. 그 접촉 높이는 Gfront/Gback과 같으며, 후레싱이 벽을 따라 오르는 높이는 공간 예약 0.15 m로 택한다. 이 후레싱까지 포함한 접합 띠에는 창틀이나 환기구를 겹치지 않는다. 이 값은 방수 성능의 인증이 아니라 시각·기하 접합의 예약이다. [청회색 침실](../rooms/bedroom-three.md#bedroom-three-plan)의 요구 창은 전면에 있고 차고 위 측면에 창을 억지로 더할 필요는 없다. [욕조 욕실의 측면 창](#right-openings)은 차고 후면 돌출보다 뒤에 배정한다.
 
 검사 주소는 단차의 앞/뒤 끝과 용마루 지점, 본채와 차고의 오른쪽 삼각 벽, 차고 지붕/본채 벽 접촉선 전체와 모든 해당 창이다. 건물 오른쪽에서 보이는 삼각 면·단차·처마 밑면, 실내 천장 간섭과 실제 수밀 부재/프레임은 unverified다.
+
+## 차고 접합을 피한 측면 채광 {#right-openings}
+
+[공통 개구부 인계](../06-openings.md#external-opening-interface)에 따라 본채 오른쪽 창은 외벽 X = [5.50, 5.75] m, 차고 오른쪽 창은 X = [11.45, 11.70] m에 바인딩한다. 공유 벽을 통과하는 가짜 외부 창은 없다.
+
+본채 우측 서비스실은 공유 벽 때문에 측면 창을 두지 않고 청회색 침실은 자기 전면 창을 사용한다. 실제 외벽/방 binding과 지붕/창/모서리 전체의 내외부 프레임은 unverified다.
+
+## 가족실의 오른쪽 창 {#family-right-window}
+
+`family-right-window`는 [본채 오른쪽 벽](#right-openings)의 Z = [-9.95, -8.25], Y = [0.75, 2.30] m 개구부로 ground-storey의 [kitchen-dining-family](../rooms/common.md#common-room-plan)에 속한다. [공통 인계](../06-openings.md#external-opening-interface)의 수직 창 두 칸이다. 차고 뒤의 노출 외벽에 바인딩하며 후면 창과 같은 가족실을 비춘다. 소파/커튼 앞 접근, 뒤 모서리와 두 창의 일치·실제 내외부 프레임은 unverified다.
+
+## 욕조 욕실의 높은 흐린 창 {#tub-right-window}
+
+`tub-right-window`는 [본채 오른쪽 벽](#right-openings)의 Z = [-8.40, -7.50], Y = [4.56, 5.31] m 개구부로 upper-storey의 [tub-bathroom](../rooms/tub-bath.md#tub-bath-plan)에 속한다. [공통 인계](../06-openings.md#external-opening-interface)의 높은 상부 경첩창 한 칸으로 흐린 유리를 쓴다.
+
+욕실 창 앞쪽 trim 한계 Z = -7.40 m와 [차고 뒤 지붕 돌출](../roof/00-junctions.md#roof-profile-datums) 끝은 분리한다. 높은 sill과 흐린 유리는 프라이버시를 위한 설계 선택이며 기구 배치 뒤 양방향 눈높이에서 검토해야 한다. 열리는 sash는 바깥 +X 방향에 0.25 m 이내의 점유로 예약하고 창 앞 접근/조경과 대조한다. 실제 지붕 간섭·접근·프라이버시·채광/프레임은 unverified다.
+
+## 차고의 측면 채광창 {#garage-right-window}
+
+`garage-right-window`는 [차고 오른쪽 벽](#right-openings)의 Z = [-5.85, -4.25], Y = [1.40, 2.20] m 개구부로 ground-storey의 [garage](../rooms/garage-interior.md#garage-interior-plan)에 속한다. [공통 인계](../06-openings.md#external-opening-interface)의 높은 고정창 두 칸이다. [상부 문 이동 예약](front.md#garage-front-opening)보다 뒤쪽 벽에 놓고 후속 선반/작업대가 창 전체를 막지 않게 한다. 실제 문 레일/수납과의 간섭·안팎 reveal·채광과 차고 내부 읽힘은 unverified다.

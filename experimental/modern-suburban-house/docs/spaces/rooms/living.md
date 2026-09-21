@@ -6,4 +6,4 @@
 
 `entry-living-door`는 X = [-1.95, -1.80]의 현관/거실 공유 벽에 거친 개구부 Z = [-1.35, -0.35], Y = [0, 2.20] m를 만든다. 문틀 뒤 유효 폭 목표는 0.90 m다. -Z 문설주를 경첩으로 삼아 거실 쪽 -X 방향으로 열고, X = [-2.85, -1.95]·Z = [-1.40, -0.35]의 문 앞 바닥에는 가구를 놓지 않는다. 앞쪽 현관에서 보이는 열린 문이 직접 접속을 답한다.
 
-후면 공용부로 통하는 벽 없는 연결은 [공용부 owner](common.md#common-room-plan)가 소유한다. 벽난로의 왼쪽 외벽 접면과 공간 예약은 [굴뚝 owner](../envelope/left.md#chimney-roof-interface)를 소비한다. 넓은 묶음창은 전면에 배정하며 실제 창 좌표와 벽난로 부재는 아직 미완료다. `src/spaces/rooms/living.ts`가 방의 완결 내부를 소유한다. 거실 문과 창이 같은 방 경계를 품는지, 소파/벽난로가 앞뒤 통행을 막는지, 현관에서 거실을 볼 수 있는지가 관찰 질문이다. 실제 순폭·가구 간섭·창/굴뚝 binding·프레임은 unverified다.
+후면 공용부로 통하는 벽 없는 연결은 [공용부 owner](common.md#common-room-plan)가 소유한다. 벽난로의 왼쪽 외벽 접면과 공간 예약은 [굴뚝 owner](../envelope/left.md#chimney-roof-interface)를 소비한다. 창은 [living-front-window](../envelope/front.md#living-front-window)와 [living-left-window](../envelope/left.md#living-left-window)의 동일 void를 소비하며 방 안쪽에서 별도 창 좌표를 만들지 않는다. 벽난로와 창호의 실제 부재는 미완료다. `src/spaces/rooms/living.ts`가 방의 완결 내부를 소유한다. 거실 문과 창이 같은 방 경계를 품는지, 소파/벽난로가 앞뒤 통행을 막는지, 현관에서 거실을 볼 수 있는지가 관찰 질문이다. 실제 순폭·가구 간섭·창/굴뚝 binding·프레임은 unverified다.

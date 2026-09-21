@@ -1,0 +1,13 @@
+# 외부 개구부의 실내외 인계
+
+## 거친 개구부와 충전 부재의 경계 {#external-opening-interface}
+
+이번 배치 O1은 [C4 방 연결](05-route-network.md#room-route-network)과 [R1 지붕](roof/00-junctions.md#roof-profile-datums)을 소비한다. 각 입면의 개구부 H2는 실제 외벽에 만들 거친 직사각 개구부의 세계 좌표 입력이다. X 또는 Z 구간이 수평 폭이고 Y 구간이 바닥 기준이 아닌 세계 높이다. 벽 두께 방향은 [본채/차고 외곽](00-building.md#main-building-extent)의 안쪽 면부터 바깥 면까지 관통한다. 여기서 예정한 id·위치·개수는 compiled 산출물이 아니다.
+
+전면·후면·왼쪽·오른쪽의 개구부 좌표는 각각 [전면](envelope/front.md#front-openings), [후면](envelope/rear.md#rear-openings), [왼쪽](envelope/left.md#left-openings), [오른쪽](envelope/right.md#right-openings) 입면 owner가 소유한다. 기존 front-door만 [현관](rooms/entry.md#entry-plan)의 결정을 그대로 받는다. 방 owner는 같은 id와 void를 소비하고 안쪽 마감/reveal을 맡으며 창을 독립 좌표로 복제하지 않는다. 입면은 한 묶음창의 수직 분할 수를 선언하고 frame/sash/mullion은 유효 폭과 분할 수에서 반복 산출한다. 문짝 속 상부 유리는 그 문짝의 충전 부재이며 별도의 외벽 구멍으로 세지 않는다.
+
+공통 공간 예약으로 외부 trim은 거친 개구부의 좌우/위쪽에서 0.10 m 이내, 창 아래에서도 0.10 m 이내로 택한다. 출입문 아래에는 바닥을 막는 같은 폭의 trim을 돌리지 않는다. 창 frame의 바깥쪽 면은 외벽 날씨 면에서 실내로 0.04 m 물리고 깊이 0.14 m 안에 frame·sash·유리를 배치한다. 이는 벽 안의 창틀 깊이를 확보하는 예약이며 아직 실제 부재 적층은 아니다. 창대와 손잡이가 안쪽 마감 면에서 돌출하는 양은 0.06 m 이내로 예약하고 창 앞 사용 공간 검사에 포함한다. 유리를 검은 불투명 판으로 대신하지 않는다.
+
+거실·침실·주방·가족실의 수직 창은 상하 미닫이 sash, 작은 계단 창은 고정창, 높은 욕실 창은 흐린 유리의 상부 경첩창, 차고 측면은 고정창으로 택한다. 기준 상태에서 외부 문과 모든 창은 닫힌다. 통행 순폭은 거친 폭에서 프레임·열린 문짝·손잡이의 실제 점유를 뺀 산출값으로 판단하며 거친 폭만으로 합격을 주장하지 않는다. 창의 개폐·프라이버시·채광은 실제 부재/시야/조명 이후 unverified다. 이 배치는 피난·환기·열·구조 규정 적합성의 주장이 아니다.
+
+`src/spaces/openings.ts`는 위 공통 예약과 방/입면의 인계 형식을 제공할 예정이고 완결 입면 geometry를 가져가지는 않는다. 모든 실제 개구부와 충전 부재는 [전체 관찰](04-observations.md#spatial-observation-derivation)에 포함한다. 검사 주소는 각 방의 안쪽 reveal에서 같은 외벽 void를 통과한 단면, 닫힌 충전 부재의 정면/측면, 문 열림과 문 앞 대기, 전체 입면 및 모든 내부 관찰이다. 실제 host/storey/room binding·void·부재·GPU 읽힘은 unverified다.
