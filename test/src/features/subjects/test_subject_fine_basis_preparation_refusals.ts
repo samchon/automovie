@@ -8,7 +8,7 @@ import { throwsError } from "../internal/predicates";
  * A preparation cannot silently bind native displacement or attachments to a
  * different correspondence. Refusals occur before any caller data changes.
  * Scenarios:
- * 1. A wrong neutral digest, colliding endpoint or moved source position refuses.
+ * 1. A wrong neutral digest, undeclared endpoint or moved source position refuses.
  * 2. An absent source triangle or a groom seated across the cut refuses.
  * 3. Stale groom, skin and document bindings refuse independently.
  * 4. A missing native endpoint refuses through ordinary basis admission; valid recovery works.
