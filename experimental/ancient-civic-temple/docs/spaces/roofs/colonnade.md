@@ -2,7 +2,7 @@
 
 ## 북쪽 연결 지붕 {#north-canopy}
 
-북쪽 덮개는 [주랑 북쪽 cell](../rooms/colonnade.md#ring-volume)을 덮으며 남쪽 지지선은 court-back, 북쪽은 제실 남벽 중심이다. X 범위는 west-ring~east-ring이다. [공통 지지 높이](assembly.md#roof-junctions)에서 남쪽으로 내려오는 단일 경사면을 기본으로 하되 양끝에서는 제실 박공 단면의 높이를 넘지 않도록 그 plane 교차선으로 자른다. 따라서 후면의 높은 박공을 덮개가 뚫고 나오지 않는다. 서·동 날개와 실제로 겹치는 영역은 assembly가 상부 면 하나만 남긴다.
+북쪽 덮개는 [주랑 북쪽 cell](../rooms/colonnade.md#ring-volume)을 덮으며 남쪽 지지선은 court-back, 북쪽은 제실 남벽 중심이다. X 범위는 west-ring~east-ring이다. 남쪽 지지선 위치의 상면을 [공통 기준 높이](assembly.md#roof-junctions)에 두고 북쪽으로 높아지는 단일 경사면을 기본으로 한다. 양끝에서는 제실 박공 단면의 높이를 넘지 않도록 그 plane 교차선으로 자른다. 따라서 후면의 높은 박공을 덮개가 뚫고 나오지 않는다. 서·동 날개와 실제로 겹치는 영역은 assembly가 상부 면 하나만 남긴다.
 
 source `src/spaces/roofs/colonnade.ts`가 북쪽 덮개의 상면과 외부 끝 두께를 소유한다. 기둥 위 보·서까래 하부는 주랑의 완결 내부 표면에 결속한다. 마당 쪽 북동 주랑 cell도 덮여 있어야 하며 서비스 마당 자체의 하늘은 열려 있다. 관찰은 제실 문 위 접합, 북동 귀퉁이의 덮임, 중정 쪽 처마 하부다. 창을 덮거나 모서리에 구멍이 나면 실패다.
 

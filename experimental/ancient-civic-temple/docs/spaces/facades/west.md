@@ -2,8 +2,8 @@
 
 ## 봉헌실의 연속 외벽 {#west-envelope}
 
-[기준선](../building.md#plan-datums)의 west-outer~west-inner, north-outer~south-outer가 서측 외벽이다. 안쪽은 긴 봉헌실 하나이며 이 면에 추가 출입구·창을 만들지 않는다. 몸체 상단과 기단 관계는 [남측](south.md#south-envelope)의 공통 높이를 소비하고 위에는 서측 날개 지붕의 실제 처마가 돌출한다.
+[기준선](../building.md#plan-datums)의 west-outer~west-inner, north-outer~south-outer가 서측 외벽이다. 안쪽은 긴 봉헌실 하나이며 이 면에 추가 출입구·창을 만들지 않는다. 벽 상단의 지붕 접합과 기단 높이는 [남측](south.md#south-envelope)의 소유를 소비하고 위에는 서측 날개 지붕의 실제 처마가 돌출한다.
 
-source `src/spaces/facades/west.ts`가 전 길이의 외측 회벽·기단 표면과 벽 실체를 소유한다. 북·남 입면과 만나는 수직 모서리는 겹친 벽 끝이 아니라 같은 외곽의 접합이다. 석재·회벽의 연속을 마감 owner가 이 완결 면에 결속하며 임의 패치를 붙이지 않는다. 안쪽 면은 봉헌실 owner가 맡는다.
+source `src/spaces/facades/west.ts`가 전 길이의 외측 회벽·기단 표면과 벽 실체를 소유한다. 북·남 입면과 만나는 두 모서리의 실체 범위는 [대각 접합](../junctions.md#wall-junctions)으로 자르며 서측 완결 외면은 그대로 유지한다. 석재·회벽의 연속을 마감 owner가 이 완결 면에 결속하며 임의 패치를 붙이지 않는다. 안쪽 면은 봉헌실 owner가 맡는다.
 
 서측 정면 관찰과 두 끝 모서리, 처마 아래 관찰로 길이·기단 접지·지붕 두께를 읽는다. 개구부가 없다고 관찰에서 제외하지 않는다. 창을 만들지 않고도 봉헌실 내부가 주랑 문과 실제 환경광에서 읽히는지는 후속 렌더에서 검증한다.
