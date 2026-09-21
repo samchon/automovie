@@ -15,15 +15,15 @@
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation 전체 실내를 외관에 흡수하지 않고 보관실·서비스 마당까지 접근 대상으로 남긴 본문을 확인했다.
-@evidenceReview principles/core/common.md#substantive-completion 마지막 산출물이 실제 3D 검토 뷰어로 정해져 있어 문서만 전달하는 선택은 이 단위를 충족하지 못한다.
-@evidenceReview principles/core/common.md#declared-basis 약 430㎡와 한 채라는 약속은 첫 문장의 사용자 브리프 권위 안에 놓여 있다.
-@evidenceReview principles/core/settings.md#fact-status 신전을 실재 유적이라고 소개하는 문장이 없으며 library의 제작 요구로만 서술한다.
-@evidenceReview principles/core/settings.md#source-support 납품 범위를 뒷받침하는 자료는 이 대화의 건축·인테리어 브리프이고 별도 역사 사례를 빌리지 않았다.
-@evidenceReview principles/core/settings.md#capability-boundary 공간을 볼 수 있다는 약속과 시간축 영화·인물 공연의 제외가 함께 있어 관찰을 공연 제어로 확장할 수 없다.
-@evidenceReview principles/core/settings.md#constraint-sufficiency 인접 대지의 한계가 건물을 읽는 데 필요한 범위로 묶여 도시 전체 제작을 요구하지 않는다.
-@evidenceReview principles/core/settings.md#observable-identity 중정 다음의 제실·봉헌실·업무방도 실제 공간이어야 하므로 외관 모형 하나로 같은 납품이라고 할 수 없다.
-@evidenceReview obligations/core/settings.md#delivery-scope library와 실제 3D 뷰어를 함께 읽었고, 문서나 절개 조감이 마지막 검토 산출물을 대체하지 못한다는 끝 문장까지 범위를 확인했다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 전체 실내를 외관에 흡수하지 않고 보관실·서비스 마당까지 접근 대상으로 남긴 본문을 확인했다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 마지막 산출물이 실제 3D 검토 뷰어로 정해져 있어 문서만 전달하는 선택은 이 단위를 충족하지 못한다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 약 430㎡와 한 채라는 약속은 첫 문장의 사용자 브리프 권위 안에 놓여 있다.
+@evidenceReview principles/core/settings.md#fact-status #93a284a 신전을 실재 유적이라고 소개하는 문장이 없으며 library의 제작 요구로만 서술한다.
+@evidenceReview principles/core/settings.md#source-support #430bca9 납품 범위를 뒷받침하는 자료는 이 대화의 건축·인테리어 브리프이고 별도 역사 사례를 빌리지 않았다.
+@evidenceReview principles/core/settings.md#capability-boundary #83a6f2c 공간을 볼 수 있다는 약속과 시간축 영화·인물 공연의 제외가 함께 있어 관찰을 공연 제어로 확장할 수 없다.
+@evidenceReview principles/core/settings.md#constraint-sufficiency #20cf612 인접 대지의 한계가 건물을 읽는 데 필요한 범위로 묶여 도시 전체 제작을 요구하지 않는다.
+@evidenceReview principles/core/settings.md#observable-identity #4ccb62e 중정 다음의 제실·봉헌실·업무방도 실제 공간이어야 하므로 외관 모형 하나로 같은 납품이라고 할 수 없다.
+@evidenceReview obligations/core/settings.md#delivery-scope #9b7c114 library와 실제 3D 뷰어를 함께 읽었고, 문서나 절개 조감이 마지막 검토 산출물을 대체하지 못한다는 끝 문장까지 범위를 확인했다.
 -->
 
 사용자 브리프를 권위로 삼는 건축·인테리어 library다. 약 430㎡ 단층 시민 신전 한 채, 전체 실내, 그 건물을 읽는 데 필요한 인접 대지, 결정론적 design/source와 실제 3D 검토 뷰어가 납품물이다. 시간축 영화·shot·서사·인물 공연은 범위 밖이다. 외관, 중정, 제실, 봉헌실, 관리실, 기록실, 보관실과 서비스 마당을 실제 공간으로 접근하고 볼 수 있어야 한다. 문서나 절개 조감만으로 납품을 대체하지 않는다.
@@ -43,15 +43,15 @@
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation 다섯 이미지뿐 아니라 모든 필수 관찰 위치를 요구하므로 선택한 한 장면만 맞추는 축소가 배제된다.
-@evidenceReview principles/core/common.md#substantive-completion 형상과 그래프가 충돌할 때 조정자에게 제출하고 해당 저작을 멈추라는 결정까지 끝낸 목표다.
-@evidenceReview principles/core/common.md#declared-basis 이미지의 권위와 고정 그래프의 우선순위는 사용자 지정에서 이어지며 저작자가 새 우선순위를 만들지 않았다.
-@evidenceReview principles/core/settings.md#fact-status 완성한다는 목표형 서술을 확인했고 현재 렌더가 이미 동일하다는 관측형 진술은 없다.
-@evidenceReview principles/core/settings.md#source-support 비교 대상이 사용자 지정 이미지임을 명시했으므로 역사적 원형과 일치한다는 외부 주장으로 읽히지 않는다.
-@evidenceReview principles/core/settings.md#capability-boundary 그래프를 바꿔야 하는 수리는 저작자의 단독 결정 밖에 놓이며 단순 시각 수리와 권한이 구별된다.
-@evidenceReview principles/core/settings.md#constraint-sufficiency 중단 조건이 외형 디테일을 위한 그래프 변경으로 특정돼 외관 취향 때문에 동선을 바꾸는 선택을 거부할 수 있다.
-@evidenceReview principles/core/settings.md#observable-identity 건물 동일성과 각 방 용도라는 두 읽힘을 요구하므로 작은 신전처럼 보여도 기록실이 식별되지 않으면 목표가 남는다.
-@evidenceReview obligations/core/settings.md#governing-aim 공간 그래프를 지키면서 시각 차이를 고친다는 문장이 외형 개선과 연결 보존 사이의 선택을 실제로 결정한다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 다섯 이미지뿐 아니라 모든 필수 관찰 위치를 요구하므로 선택한 한 장면만 맞추는 축소가 배제된다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 형상과 그래프가 충돌할 때 조정자에게 제출하고 해당 저작을 멈추라는 결정까지 끝낸 목표다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 이미지의 권위와 고정 그래프의 우선순위는 사용자 지정에서 이어지며 저작자가 새 우선순위를 만들지 않았다.
+@evidenceReview principles/core/settings.md#fact-status #93a284a 완성한다는 목표형 서술을 확인했고 현재 렌더가 이미 동일하다는 관측형 진술은 없다.
+@evidenceReview principles/core/settings.md#source-support #430bca9 비교 대상이 사용자 지정 이미지임을 명시했으므로 역사적 원형과 일치한다는 외부 주장으로 읽히지 않는다.
+@evidenceReview principles/core/settings.md#capability-boundary #83a6f2c 그래프를 바꿔야 하는 수리는 저작자의 단독 결정 밖에 놓이며 단순 시각 수리와 권한이 구별된다.
+@evidenceReview principles/core/settings.md#constraint-sufficiency #20cf612 중단 조건이 외형 디테일을 위한 그래프 변경으로 특정돼 외관 취향 때문에 동선을 바꾸는 선택을 거부할 수 있다.
+@evidenceReview principles/core/settings.md#observable-identity #4ccb62e 건물 동일성과 각 방 용도라는 두 읽힘을 요구하므로 작은 신전처럼 보여도 기록실이 식별되지 않으면 목표가 남는다.
+@evidenceReview obligations/core/settings.md#governing-aim #5420137 공간 그래프를 지키면서 시각 차이를 고친다는 문장이 외형 개선과 연결 보존 사이의 선택을 실제로 결정한다.
 -->
 
 사용자가 지정한 다섯 이미지와 대조했을 때, 모든 필수 관찰 위치에서 같은 작은 시민 신전과 각 방의 용도가 읽히는 하나의 일관된 건물을 완성한다. 공간 그래프를 지키면서 시각 차이를 고치는 선택이 우선한다. 외형 디테일을 얻으려면 그래프를 바꿔야 하는 경우 조정자에게 해당 충돌을 제출하고 그 부분의 저작을 멈춘다.
@@ -71,15 +71,15 @@
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation 실내 선택과 고정 시점이 외관 궤도 조작과 나란히 있어 내부 접근 UI가 빠지지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion 기본 표시 상태와 편집 금지까지 정해져 후속 viewer가 관찰과 저작 중 어느 역할인지 추측할 필요가 없다.
-@evidenceReview principles/core/common.md#declared-basis 첫머리의 저작자 결정이 조작 권한을 소유하고 실제 통행 증거는 공간/바닥/문 산출물에 따로 귀속한다.
-@evidenceReview principles/core/settings.md#fact-status 방 안의 카메라 위치를 보행 성공의 증거로 삼지 않는 문장을 통해 UI 상태와 물리 결과를 분리했다.
-@evidenceReview principles/core/settings.md#source-support 궤도·공간 선택은 채택한 조작 요구일 뿐 외부 사용성 시험을 통과했다는 인용은 없다.
-@evidenceReview principles/core/settings.md#capability-boundary 관찰자는 시점을 바꾸되 geometry나 공간을 만들지 못하므로 카메라 제어 권한이 건물 편집으로 넘어가지 않는다.
-@evidenceReview principles/core/settings.md#constraint-sufficiency 검사 모드를 켜야 절개·라벨이 나타나고 절개로 납품 프레임을 대체할 수 없다는 조건을 함께 확인했다.
-@evidenceReview principles/core/settings.md#observable-identity 공간 명칭을 화면 밖 패널에 두는 지시가 기본 건물 위의 라벨 난립을 직접 막는다.
-@evidenceReview obligations/core/settings.md#audience-operator-access 보거나 선택할 수 있는 범위와 알 수 없는 통행 사실을 구별했으며 방 안 시점이 접근성 입증으로 오용될 여지를 본문에서 제한한다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 실내 선택과 고정 시점이 외관 궤도 조작과 나란히 있어 내부 접근 UI가 빠지지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 기본 표시 상태와 편집 금지까지 정해져 후속 viewer가 관찰과 저작 중 어느 역할인지 추측할 필요가 없다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 첫머리의 저작자 결정이 조작 권한을 소유하고 실제 통행 증거는 공간/바닥/문 산출물에 따로 귀속한다.
+@evidenceReview principles/core/settings.md#fact-status #93a284a 방 안의 카메라 위치를 보행 성공의 증거로 삼지 않는 문장을 통해 UI 상태와 물리 결과를 분리했다.
+@evidenceReview principles/core/settings.md#source-support #430bca9 궤도·공간 선택은 채택한 조작 요구일 뿐 외부 사용성 시험을 통과했다는 인용은 없다.
+@evidenceReview principles/core/settings.md#capability-boundary #83a6f2c 관찰자는 시점을 바꾸되 geometry나 공간을 만들지 못하므로 카메라 제어 권한이 건물 편집으로 넘어가지 않는다.
+@evidenceReview principles/core/settings.md#constraint-sufficiency #20cf612 검사 모드를 켜야 절개·라벨이 나타나고 절개로 납품 프레임을 대체할 수 없다는 조건을 함께 확인했다.
+@evidenceReview principles/core/settings.md#observable-identity #4ccb62e 공간 명칭을 화면 밖 패널에 두는 지시가 기본 건물 위의 라벨 난립을 직접 막는다.
+@evidenceReview obligations/core/settings.md#audience-operator-access #527f9ff 보거나 선택할 수 있는 범위와 알 수 없는 통행 사실을 구별했으며 방 안 시점이 접근성 입증으로 오용될 여지를 본문에서 제한한다.
 -->
 
 저작자 결정: 운영자는 외관 궤도 보기, 확대·축소, 실내 공간 선택 및 고정 관찰 시점 선택으로 현재 source를 살핀다. 시점 선택은 가상 카메라를 그 위치로 옮기는 검사 기능이다. 카메라가 방 안에 놓였다는 사실은 현관에서 그 방까지 보행하거나 운반할 수 있다는 증거가 아니며 실제 출입 연결은 공간/바닥/문 산출물로 따로 검토한다. 공간 명칭과 선택 조작은 화면 밖 패널에 둔다. 라벨·경로·경계·절개는 기본 꺼짐이고 명시적인 검사 모드에서 켠다. 절개 조감은 검사 수단이며 외관이나 실내 납품 프레임을 대신하지 않는다. 사용자는 geometry를 편집하거나 source에 없는 공간을 UI에서 생성하지 않는다.
@@ -98,14 +98,14 @@
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation 한국어 적용 대상에 문서와 뷰어 조작 설명이 모두 있고 비문·번역판은 명시적으로 제외돼 있다.
-@evidenceReview principles/core/common.md#substantive-completion stage와 threshold까지 풀이해 기술 서술체라는 제목만 남긴 언어 설정이 아니다.
-@evidenceReview principles/core/common.md#declared-basis 한국어 production 선택과 사용자 브리프를 언어 결정의 근거로 직접 연결했다.
-@evidenceReview principles/core/settings.md#fact-status 현대 표준 한국어를 제작 언어로 한정하는 끝 문장이 고대 주민 언어라는 오독을 차단한다.
-@evidenceReview principles/core/settings.md#source-support 고대어 대사나 비문을 납품하지 않는다고 적어 번역·고증 출처를 가진 것처럼 주장하지 않는다.
-@evidenceReview principles/core/settings.md#capability-boundary API와 고정 표식은 원문을 유지하므로 운영 용어 번역이 실행 식별자를 바꿀 권한을 주지 않는다.
-@evidenceReview principles/core/settings.md#constraint-sufficiency 처음 쓰는 화면이나 문서에서 기술 용어를 설명하도록 위치를 정해 설명 책임이 문서 전체 사이로 흩어지지 않는다.
-@evidenceReview principles/core/settings.md#observable-identity 한국어 공간명·조작 설명이라는 화면 표시만 규정하며 신전의 형상이나 극중 음성을 새로 정의하지 않는다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 한국어 적용 대상에 문서와 뷰어 조작 설명이 모두 있고 비문·번역판은 명시적으로 제외돼 있다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 stage와 threshold까지 풀이해 기술 서술체라는 제목만 남긴 언어 설정이 아니다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 한국어 production 선택과 사용자 브리프를 언어 결정의 근거로 직접 연결했다.
+@evidenceReview principles/core/settings.md#fact-status #93a284a 현대 표준 한국어를 제작 언어로 한정하는 끝 문장이 고대 주민 언어라는 오독을 차단한다.
+@evidenceReview principles/core/settings.md#source-support #430bca9 고대어 대사나 비문을 납품하지 않는다고 적어 번역·고증 출처를 가진 것처럼 주장하지 않는다.
+@evidenceReview principles/core/settings.md#capability-boundary #83a6f2c API와 고정 표식은 원문을 유지하므로 운영 용어 번역이 실행 식별자를 바꿀 권한을 주지 않는다.
+@evidenceReview principles/core/settings.md#constraint-sufficiency #20cf612 처음 쓰는 화면이나 문서에서 기술 용어를 설명하도록 위치를 정해 설명 책임이 문서 전체 사이로 흩어지지 않는다.
+@evidenceReview principles/core/settings.md#observable-identity #4ccb62e 한국어 공간명·조작 설명이라는 화면 표시만 규정하며 신전의 형상이나 극중 음성을 새로 정의하지 않는다.
 -->
 
 한국어로 생성된 이 production의 언어 선택과 사용자 브리프를 근거로 제작 문서와 뷰어 운영 설명의 주 언어는 현대 표준 한국어다. 문서는 저작자·관찰자·리뷰어가 같은 결정과 한계를 읽는 기술 서술체로 쓰고, 뷰어의 공간명과 조작 설명도 한국어로 제공한다. 파일 경로·API·source 식별자·명령·계약의 고정 표식은 원문을 유지한다. 운영자가 알아야 하는 기술 용어는 처음 쓰는 화면이나 문서에서 한국어 의미를 함께 설명한다. stage는 계약상 단계 선언, threshold는 공간 안쪽 문턱 직후의 관찰 위치, fit-out은 가구·설비·소품 배치, compiled topology는 현재 소스를 컴파일해 얻은 공간·경계·연결 구조를 뜻한다. 고대어 대사·비문이나 별도 번역판은 납품하지 않는다. 이는 가상 세계 주민의 실제 언어에 관한 역사적 주장이 아니라 제작과 검토를 위한 언어 선택이다.
@@ -125,15 +125,15 @@
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation 축 방향뿐 아니라 원점과 Y=0 바닥을 함께 읽어 높이 기준이 누락되지 않았음을 확인했다.
-@evidenceReview principles/core/common.md#substantive-completion m·rad·s와 도에서 rad로의 변환을 지정해 geometry 구현자가 단위계를 다시 선택할 필요가 없다.
-@evidenceReview principles/core/common.md#declared-basis 오른손 Y-up은 첫머리의 저작자 결정이며 외부 측량에 기대는 문장이 아니다.
-@evidenceReview principles/core/settings.md#fact-status 마지막 문장이 동·남·북을 저작 좌표로 한정하므로 실제 대지 방위를 측정한 값으로 사용할 수 없다.
-@evidenceReview principles/core/settings.md#source-support 지리 측량을 부정한 본문과 m/rad/s 내부 규약 사이에 뒷받침되지 않은 고증 수치는 없다.
-@evidenceReview principles/core/settings.md#capability-boundary 외부 지면과 물면 높이만 공간 설계가 정하며 Y=0의 주랑 바닥은 그 선택에 따라 움직이지 않는다.
-@evidenceReview principles/core/settings.md#constraint-sufficiency +Z 정면·-Z 후면을 동시에 지정하므로 후면 제실 배치를 부호 추측에 맡기지 않는다.
-@evidenceReview principles/core/settings.md#observable-identity 정면에서 본 우측을 +X로 고정해 서비스 날개가 반사된 배치도 허용된다는 해석을 배제한다.
-@evidenceReview obligations/core/settings.md#coordinate-unit-convention 공간과 지붕이 공유할 기준점은 건물 중심, 높이 기준은 주랑 완성 바닥으로 한곳에서 조회할 수 있다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 축 방향뿐 아니라 원점과 Y=0 바닥을 함께 읽어 높이 기준이 누락되지 않았음을 확인했다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 m·rad·s와 도에서 rad로의 변환을 지정해 geometry 구현자가 단위계를 다시 선택할 필요가 없다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 오른손 Y-up은 첫머리의 저작자 결정이며 외부 측량에 기대는 문장이 아니다.
+@evidenceReview principles/core/settings.md#fact-status #93a284a 마지막 문장이 동·남·북을 저작 좌표로 한정하므로 실제 대지 방위를 측정한 값으로 사용할 수 없다.
+@evidenceReview principles/core/settings.md#source-support #430bca9 지리 측량을 부정한 본문과 m/rad/s 내부 규약 사이에 뒷받침되지 않은 고증 수치는 없다.
+@evidenceReview principles/core/settings.md#capability-boundary #83a6f2c 외부 지면과 물면 높이만 공간 설계가 정하며 Y=0의 주랑 바닥은 그 선택에 따라 움직이지 않는다.
+@evidenceReview principles/core/settings.md#constraint-sufficiency #20cf612 +Z 정면·-Z 후면을 동시에 지정하므로 후면 제실 배치를 부호 추측에 맡기지 않는다.
+@evidenceReview principles/core/settings.md#observable-identity #4ccb62e 정면에서 본 우측을 +X로 고정해 서비스 날개가 반사된 배치도 허용된다는 해석을 배제한다.
+@evidenceReview obligations/core/settings.md#coordinate-unit-convention #9c3a393 공간과 지붕이 공유할 기준점은 건물 중심, 높이 기준은 주랑 완성 바닥으로 한곳에서 조회할 수 있다.
 -->
 
 저작자 결정: 오른손 Y-up 좌표계, 길이 m, source 각도 rad, 시간 s를 사용한다. 문서에서 경사와 시야각을 도로 표기한 값은 source에서 rad로 변환한다. 건물 중심의 지상 기준점을 원점으로 삼고 +X는 정면에서 보았을 때 우측·동측, +Z는 정면·남측, -Z는 후면·북측이다. Y=0은 주랑의 완성 바닥 기준이다. 외부 지면과 물면의 높이는 이 기준에 대한 공간 설계값으로 결정한다. 모든 방향 표현은 실제 지리 측량이 아닌 이 저작 좌표를 뜻한다.
@@ -154,16 +154,16 @@
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation 충돌한 필수 위치를 미해결로 남기므로 보조 프레임 추가가 원래 관찰 질문 삭제로 바뀌지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion 프레임·시야각·눈높이 외에 near와 렌즈 포락까지 있어 유효 카메라 배치의 판정 입력이 된다.
-@evidenceReview principles/core/common.md#declared-basis 카메라 조건은 저작자 결정, 대상 분모는 연결된 관찰 계약으로 분리돼 저작자가 시점 수를 임의 축소하지 못한다.
-@evidenceReview principles/core/settings.md#fact-status 0.10m와 0.05m는 가상 장비 조건이라는 본문이 사람 이동 포락과의 혼용을 거부한다.
-@evidenceReview principles/core/settings.md#source-support 1600×1000·50도는 채택한 비교 설정이며 이미지 렌즈를 역산했다는 주장이 아니다.
-@evidenceReview principles/core/settings.md#capability-boundary 카메라 이동은 자기 공간 안의 가까운 유효 위치로 한정하고 질문을 답했는지는 reviewer에게 남긴다.
-@evidenceReview principles/core/settings.md#constraint-sufficiency 렌즈 중심만이 아니라 주변 영역과 근평면의 충돌까지 검사하므로 벽 안에 반쯤 든 카메라를 유효하다고 셀 수 없다.
-@evidenceReview principles/core/settings.md#observable-identity 외부 점유율 70~85%와 실내 수평 네 방향을 함께 정해 좋은 조감 한 장이 방의 불리한 면을 가리지 못한다.
-@evidenceReview obligations/core/settings.md#delivery-review-condition 실내 1.6m와 외부 좌표·target·렌즈 기록을 대조했고, 반복 관찰에서 거리 조건을 복원할 정보가 정해져 있다.
-@evidenceReview obligations/core/settings.md#design-dependent-subject-conditions 벽·기둥·가구를 자르지 않을 가상 렌즈의 반경과 근평면이 명시돼 관찰 위치 설계가 숨은 장비 크기에 의존하지 않는다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 충돌한 필수 위치를 미해결로 남기므로 보조 프레임 추가가 원래 관찰 질문 삭제로 바뀌지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 프레임·시야각·눈높이 외에 near와 렌즈 포락까지 있어 유효 카메라 배치의 판정 입력이 된다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 카메라 조건은 저작자 결정, 대상 분모는 연결된 관찰 계약으로 분리돼 저작자가 시점 수를 임의 축소하지 못한다.
+@evidenceReview principles/core/settings.md#fact-status #93a284a 0.10m와 0.05m는 가상 장비 조건이라는 본문이 사람 이동 포락과의 혼용을 거부한다.
+@evidenceReview principles/core/settings.md#source-support #430bca9 1600×1000·50도는 채택한 비교 설정이며 이미지 렌즈를 역산했다는 주장이 아니다.
+@evidenceReview principles/core/settings.md#capability-boundary #83a6f2c 카메라 이동은 자기 공간 안의 가까운 유효 위치로 한정하고 질문을 답했는지는 reviewer에게 남긴다.
+@evidenceReview principles/core/settings.md#constraint-sufficiency #20cf612 렌즈 중심만이 아니라 주변 영역과 근평면의 충돌까지 검사하므로 벽 안에 반쯤 든 카메라를 유효하다고 셀 수 없다.
+@evidenceReview principles/core/settings.md#observable-identity #4ccb62e 외부 점유율 70~85%와 실내 수평 네 방향을 함께 정해 좋은 조감 한 장이 방의 불리한 면을 가리지 못한다.
+@evidenceReview obligations/core/settings.md#delivery-review-condition #58c63f6 실내 1.6m와 외부 좌표·target·렌즈 기록을 대조했고, 반복 관찰에서 거리 조건을 복원할 정보가 정해져 있다.
+@evidenceReview obligations/core/settings.md#design-dependent-subject-conditions #1f1a0dd 벽·기둥·가구를 자르지 않을 가상 렌즈의 반경과 근평면이 명시돼 관찰 위치 설계가 숨은 장비 크기에 의존하지 않는다.
 -->
 
 저작자 결정: 기본 비교 프레임은 1600×1000, 원근 카메라, 수직 시야각 50도다. 실내 관찰은 수평을 유지하고 외부의 지붕·처마 하부 관찰은 대상이 보이는 상하 기울기를 허용하여 그 값을 기록한다. 각 실내 중심 관찰은 해당 공간 내부 바닥 위 1.6m에서 네 방위를 향한다. threshold 관찰은 문턱 직후 자기 공간 내부에서 맞은편을 본다. 네 안쪽 모서리 관찰은 벽에서 최소 0.3m 떨어진 내부 지점에서 대각 방향을 본다. 저작자 결정인 가상 관찰 장비 조건은 렌즈 중심 주위 반경 0.10m의 비충돌 영역과 near clipping 거리 0.05m다. 이는 사람의 이동 포락이나 실제 촬영 장비의 규격이 아니다. 렌즈 중심뿐 아니라 이 영역과 근평면이 벽·기둥·가구를 자르지 않아야 한다. 지정 위치에서 충돌하면 원래 질문을 미해결로 남기고 자기 공간 내부의 가장 가까운 유효 위치를 보조 관찰로 추가해 원래/실제 좌표와 이동 이유를 기록한다. 보조 프레임이 원래 공간·방향·관찰 질문을 답하는지는 reviewer가 판정한다. 잘 보이는 구도만 남기거나 카메라를 방 밖으로 옮겨 필수 관찰을 대신하지 않는다. 외부 프레임은 각 대상의 전체 형상이 화면의 약 70~85%를 차지하도록 거리를 정하고 좌표·target·렌즈를 관찰과 함께 기록한다. 정확한 대상 수와 위치는 [관찰 계약](../contracts/obligations-spaces.md#compiled-observations)으로 정한다.
@@ -183,15 +183,15 @@
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation 표에서 실내 기능과 독립 물체 정체성을 따로 찾을 수 있어 가구의 모습이 방 이름 아래 사라지지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion 실제 파일 링크와 납품 밖 사실을 함께 분류해 아직 없는 source 목록만 제시하는 개요와 구별된다.
-@evidenceReview principles/core/common.md#declared-basis 표의 근거는 현재 settings 소유이며 승인 상태를 읽는 등록부로 쓰지 않는다고 첫 문장이 한정한다.
-@evidenceReview principles/core/settings.md#fact-status 구현되지 않은 design/source를 미래 분기로 표시해 현재 canon의 존재와 실행 산출물의 존재를 혼동하지 않는다.
-@evidenceReview principles/core/settings.md#source-support 실물 하중·유적 실측·법규 보증이 범위 밖이라는 선언과 일치하며 그런 자료가 확보됐다는 인용은 없다.
-@evidenceReview principles/core/settings.md#capability-boundary 새 필수 사실은 canonical owner에서 고치게 해 이 표의 한 행으로 하위 사실을 덧붙이지 못한다.
-@evidenceReview principles/core/settings.md#constraint-sufficiency 이미지 권위와 기술 경계는 제작 조건, 치수 그래프는 건물로 돌아가도록 서로 다른 소비 질문의 귀착점을 준다.
-@evidenceReview principles/core/settings.md#observable-identity 외피·실내·물체·환경의 링크가 모두 있어 팔레트만으로 물체 실루엣을 대신할 수 없는 소유 구조다.
-@evidenceReview obligations/core/settings.md#settings-coverage-map 현재 일곱 파일의 역할과 계약의 표면/관찰 의무를 대조했고 연대·도시·신격은 누락이 아니라 명시된 외부 범위다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 표에서 실내 기능과 독립 물체 정체성을 따로 찾을 수 있어 가구의 모습이 방 이름 아래 사라지지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 실제 파일 링크와 납품 밖 사실을 함께 분류해 아직 없는 source 목록만 제시하는 개요와 구별된다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 표의 근거는 현재 settings 소유이며 승인 상태를 읽는 등록부로 쓰지 않는다고 첫 문장이 한정한다.
+@evidenceReview principles/core/settings.md#fact-status #93a284a 구현되지 않은 design/source를 미래 분기로 표시해 현재 canon의 존재와 실행 산출물의 존재를 혼동하지 않는다.
+@evidenceReview principles/core/settings.md#source-support #430bca9 실물 하중·유적 실측·법규 보증이 범위 밖이라는 선언과 일치하며 그런 자료가 확보됐다는 인용은 없다.
+@evidenceReview principles/core/settings.md#capability-boundary #83a6f2c 새 필수 사실은 canonical owner에서 고치게 해 이 표의 한 행으로 하위 사실을 덧붙이지 못한다.
+@evidenceReview principles/core/settings.md#constraint-sufficiency #20cf612 이미지 권위와 기술 경계는 제작 조건, 치수 그래프는 건물로 돌아가도록 서로 다른 소비 질문의 귀착점을 준다.
+@evidenceReview principles/core/settings.md#observable-identity #4ccb62e 외피·실내·물체·환경의 링크가 모두 있어 팔레트만으로 물체 실루엣을 대신할 수 없는 소유 구조다.
+@evidenceReview obligations/core/settings.md#settings-coverage-map #e72f282 현재 일곱 파일의 역할과 계약의 표면/관찰 의무를 대조했고 연대·도시·신격은 누락이 아니라 명시된 외부 범위다.
 -->
 
 이 표는 현재 settings의 명시 소유를 가리킨다. 구현 수량이나 승인 여부를 기록하는 목록이 아니다.
@@ -224,15 +224,15 @@
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation 물과 빛 외에 카메라·source producer·판정 권한자도 목록에 있어 결과를 바꾸는 제작 주체가 빠지지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion 각 주체에 사실 소유 링크를 연결해 이름 목록에서 멈추지 않고 능력·권한을 찾아갈 수 있다.
-@evidenceReview principles/core/common.md#declared-basis 이용 공동체는 이용 조건, 제작 행위자는 판정 권한에 연결되므로 두 집단의 권위 근거를 뒤섞지 않는다.
-@evidenceReview principles/core/settings.md#fact-status 사람 형상이 범위 밖이고 제작 행위자는 극중 인물이 아니라는 표의 한정이 분명하다.
-@evidenceReview principles/core/settings.md#source-support 명명된 역사 기관이나 군중을 도입하지 않아 지역 공동체라는 이용 가정을 실존 집단의 자료로 포장하지 않는다.
-@evidenceReview principles/core/settings.md#capability-boundary renderer와 producer가 건물 사실을 추가하지 않는 전달자라는 행은 화면 측의 방 생성 권한을 거부한다.
-@evidenceReview principles/core/settings.md#constraint-sufficiency 이름 없는 군중도 추가하지 않는다는 문장이 목록 밖 인물 에셋을 암묵적으로 요구하지 못하게 한다.
-@evidenceReview principles/core/settings.md#observable-identity 가림·명암·배경을 바꾸는 환경은 환경 소유로 연결되고 새 모습은 이 주체 표에서 중복 정의하지 않는다.
-@evidenceReview obligations/core/settings.md#operative-subject-inventory 공간·집기 목록만으로 끝내지 않고 운영자와 판정자를 포함한 표 전체를 읽었으며 각각 관찰 제어와 제작 권한의 기존 소유가 있다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 물과 빛 외에 카메라·source producer·판정 권한자도 목록에 있어 결과를 바꾸는 제작 주체가 빠지지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 각 주체에 사실 소유 링크를 연결해 이름 목록에서 멈추지 않고 능력·권한을 찾아갈 수 있다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 이용 공동체는 이용 조건, 제작 행위자는 판정 권한에 연결되므로 두 집단의 권위 근거를 뒤섞지 않는다.
+@evidenceReview principles/core/settings.md#fact-status #93a284a 사람 형상이 범위 밖이고 제작 행위자는 극중 인물이 아니라는 표의 한정이 분명하다.
+@evidenceReview principles/core/settings.md#source-support #430bca9 명명된 역사 기관이나 군중을 도입하지 않아 지역 공동체라는 이용 가정을 실존 집단의 자료로 포장하지 않는다.
+@evidenceReview principles/core/settings.md#capability-boundary #83a6f2c renderer와 producer가 건물 사실을 추가하지 않는 전달자라는 행은 화면 측의 방 생성 권한을 거부한다.
+@evidenceReview principles/core/settings.md#constraint-sufficiency #20cf612 이름 없는 군중도 추가하지 않는다는 문장이 목록 밖 인물 에셋을 암묵적으로 요구하지 못하게 한다.
+@evidenceReview principles/core/settings.md#observable-identity #4ccb62e 가림·명암·배경을 바꾸는 환경은 환경 소유로 연결되고 새 모습은 이 주체 표에서 중복 정의하지 않는다.
+@evidenceReview obligations/core/settings.md#operative-subject-inventory #5b6f27b 공간·집기 목록만으로 끝내지 않고 운영자와 판정자를 포함한 표 전체를 읽었으며 각각 관찰 제어와 제작 권한의 기존 소유가 있다.
 -->
 
 이 건물에서 결과를 바꾸는 주체의 분류는 다음과 같다. 이름이 없는 군중을 추가하지 않는다.
@@ -264,15 +264,15 @@
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation 건물 host와 재사용 부재, 환경, UI를 모두 배정해 보이는 것 중 전달자만 있고 제작자가 없는 범주를 남기지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion 모든 보이는 부재를 새 결정론적 geometry로 만들기로 정해 외부 에셋 채택 여부를 다음 층에 미루지 않았다.
-@evidenceReview principles/core/common.md#declared-basis 새 제작과 reference의 비교 전용 사용은 저작자 결정으로 표시돼 사진에서 추출한 자산이라는 오해가 없다.
-@evidenceReview principles/core/settings.md#fact-status 후속 소유 표가 branch 계획임을 부모 review 이후 개방 조건과 대조했으며 현재 구현 완료의 목록으로 쓰지 않는다.
-@evidenceReview principles/core/settings.md#source-support 외부 에셋·생성 이미지·옛 source를 재사용하지 않아 출처나 라이선스를 꾸민 채택 항목이 없다.
-@evidenceReview principles/core/settings.md#capability-boundary 성능 절충은 미세 형상 수준 제안까지이고 필수 부재 삭제로 계산비용을 낮출 권한은 없다.
-@evidenceReview principles/core/settings.md#constraint-sufficiency 반복 부재를 공유 prototype과 배치 규칙으로 처리하도록 해 동일 부재의 수작업 복제가 유일한 제작 해법이 되지 않는다.
-@evidenceReview principles/core/settings.md#observable-identity 기둥·문짝·기와·수반을 실제 입체로 배정한 행은 viewer 평면 그림이 건물 대신 완성되는 것을 막는다.
-@evidenceReview obligations/core/settings.md#subject-breakdown-production-scope maps부터 systems와 viewer까지 새 제작/소비 관계를 추적했고 국소 setting 밖 도시 확장과 외부 자산 채택을 명시적으로 배제했다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 건물 host와 재사용 부재, 환경, UI를 모두 배정해 보이는 것 중 전달자만 있고 제작자가 없는 범주를 남기지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 모든 보이는 부재를 새 결정론적 geometry로 만들기로 정해 외부 에셋 채택 여부를 다음 층에 미루지 않았다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 새 제작과 reference의 비교 전용 사용은 저작자 결정으로 표시돼 사진에서 추출한 자산이라는 오해가 없다.
+@evidenceReview principles/core/settings.md#fact-status #93a284a 후속 소유 표가 branch 계획임을 부모 review 이후 개방 조건과 대조했으며 현재 구현 완료의 목록으로 쓰지 않는다.
+@evidenceReview principles/core/settings.md#source-support #430bca9 외부 에셋·생성 이미지·옛 source를 재사용하지 않아 출처나 라이선스를 꾸민 채택 항목이 없다.
+@evidenceReview principles/core/settings.md#capability-boundary #83a6f2c 성능 절충은 미세 형상 수준 제안까지이고 필수 부재 삭제로 계산비용을 낮출 권한은 없다.
+@evidenceReview principles/core/settings.md#constraint-sufficiency #20cf612 반복 부재를 공유 prototype과 배치 규칙으로 처리하도록 해 동일 부재의 수작업 복제가 유일한 제작 해법이 되지 않는다.
+@evidenceReview principles/core/settings.md#observable-identity #4ccb62e 기둥·문짝·기와·수반을 실제 입체로 배정한 행은 viewer 평면 그림이 건물 대신 완성되는 것을 막는다.
+@evidenceReview obligations/core/settings.md#subject-breakdown-production-scope #d8fa940 maps부터 systems와 viewer까지 새 제작/소비 관계를 추적했고 국소 setting 밖 도시 확장과 외부 자산 채택을 명시적으로 배제했다.
 -->
 
 저작자 결정: 모든 보이는 건물·부재·집기는 새로 만든 결정론적 geometry다. 참고 사진은 비교 자료로만 채택한다. 외부 에셋·생성 이미지·옛 production source를 재사용하지 않는다. 하나의 주거 블록 배경이나 전체 도시를 새 납품물로 확장하지 않는다.
@@ -304,15 +304,15 @@
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation 필수 한국어 설명과 키보드 조작에 더해 미지원 형상 비교의 이용자 결과도 남겨 놓았다.
-@evidenceReview principles/core/common.md#substantive-completion 텍스트 목록은 viewer에 배정하고 음성 트랙의 의도적 부재 이유까지 끝낸 납품 결정이다.
-@evidenceReview principles/core/common.md#declared-basis 첫머리가 저작자 결정이므로 키보드 요구를 외부 인증기관의 판정으로 바꾸지 않는다.
-@evidenceReview principles/core/settings.md#fact-status 현대 건축 접근성 인증은 범위 밖이라고 밝혀 UI 대체 접근 약속과 인증 사실을 구별한다.
-@evidenceReview principles/core/settings.md#source-support 시각장애 운영자의 형상 직접 비교를 지원한다고 주장하지 않아 별도 시험 없이 보편 사용성을 보증하지 않는다.
-@evidenceReview principles/core/settings.md#capability-boundary 설명은 수치/용도의 보조 접근에 한정돼 텍스트 제공을 시각 형상 판정 완료로 사용할 수 없다.
-@evidenceReview principles/core/settings.md#constraint-sufficiency 공간·시점·검사 모드의 키보드 선택과 색 이외 상태 구별을 지정해 단순 문서 링크만으로 접근 요구를 지불하지 못한다.
-@evidenceReview principles/core/settings.md#observable-identity 출입 장애와 단차를 실제 geometry에서 보게 하므로 접근 편의를 위해 시각적으로 숨기는 변경을 허용하지 않는다.
-@evidenceReview obligations/core/settings.md#accessibility-deliverable-states 자막·전사·오디오 설명은 음성 없는 library라 의도적으로 없고, 비시각적 형상 비교는 미지원이라는 서로 다른 분류와 결과를 확인했다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 필수 한국어 설명과 키보드 조작에 더해 미지원 형상 비교의 이용자 결과도 남겨 놓았다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 텍스트 목록은 viewer에 배정하고 음성 트랙의 의도적 부재 이유까지 끝낸 납품 결정이다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 첫머리가 저작자 결정이므로 키보드 요구를 외부 인증기관의 판정으로 바꾸지 않는다.
+@evidenceReview principles/core/settings.md#fact-status #93a284a 현대 건축 접근성 인증은 범위 밖이라고 밝혀 UI 대체 접근 약속과 인증 사실을 구별한다.
+@evidenceReview principles/core/settings.md#source-support #430bca9 시각장애 운영자의 형상 직접 비교를 지원한다고 주장하지 않아 별도 시험 없이 보편 사용성을 보증하지 않는다.
+@evidenceReview principles/core/settings.md#capability-boundary #83a6f2c 설명은 수치/용도의 보조 접근에 한정돼 텍스트 제공을 시각 형상 판정 완료로 사용할 수 없다.
+@evidenceReview principles/core/settings.md#constraint-sufficiency #20cf612 공간·시점·검사 모드의 키보드 선택과 색 이외 상태 구별을 지정해 단순 문서 링크만으로 접근 요구를 지불하지 못한다.
+@evidenceReview principles/core/settings.md#observable-identity #4ccb62e 출입 장애와 단차를 실제 geometry에서 보게 하므로 접근 편의를 위해 시각적으로 숨기는 변경을 허용하지 않는다.
+@evidenceReview obligations/core/settings.md#accessibility-deliverable-states #0ef8d3e 자막·전사·오디오 설명은 음성 없는 library라 의도적으로 없고, 비시각적 형상 비교는 미지원이라는 서로 다른 분류와 결과를 확인했다.
 -->
 
 저작자 결정: 한국어 공간 설명과 관찰 대상의 텍스트 목록, 키보드로 조작 가능한 공간·시점·검사 모드 선택은 필수이며 viewer가 구현한다. 색만으로 상태를 구분하지 않는다. 영화·음성·대사가 없어 자막·대사 전사·오디오 설명 트랙은 의도적으로 없다. 시각장애 운영자가 형상을 직접 비교하는 기능은 지원하지 않으며 공간 설명은 수치/용도의 보조 접근을 제공한다. 현대 건축 접근성 인증은 범위 밖이나 출입 장애·단차는 감추지 않고 실제 geometry로 검토한다.

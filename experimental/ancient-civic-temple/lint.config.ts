@@ -35,7 +35,7 @@ import { fileURLToPath } from "node:url";
  * and upstream-repair procedure. Film and brief also require reviewed
  * productionSources as the parallel typed assembly input to filmSources.
  */
-const settingsStage = "evidence" as const;
+const settingsStage = "review" as const;
 const spacesStage = "disabled" as const;
 
 export const productionEvidence = {

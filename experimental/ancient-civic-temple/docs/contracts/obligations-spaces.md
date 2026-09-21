@@ -2,9 +2,9 @@
 @evidence discovery/core/common.md#shared-local-boundary 사용자 브리프는 대표 view 선택을 허용하지 않고 compiled topology 전체의 관찰 분모를 고정한다. 또한 완결 시각 표면을 입면·방·층별 단독 소유로 최초 공간 설계에 배정하도록 요구하므로 두 독립적인 공간 population 의무를 보존했다.
 @evidence discovery/core/common.md#canonical-realization surface-ownership은 최초 spaces에서 실체 표면별 소유 지도를, compiled-observations는 같은 건물 topology를 소비할 완전 관찰 규칙을 요구한다. temple-space-obligations claim은 spaces의 전체 H2와 예약 aggregate를 선택하며 현재 spaces disabled에 따라 비활성이다. settings의 납품·좌표·검토 조건은 docs/settings/00-delivery.md, 기술·판정 경계는 50-production.md가 소유한다.
 @evidence discovery/core/settings.md#directive-promise-subject-requirements 고정 단층 그래프와 약 430㎡는 10-building.md, reference별 시각 정체성은 20-envelope.md·30-interiors.md·40-environment.md에 배치했다. 00-delivery.md의 operative-subjects는 공동체·운반 포락·분수 물·관찰자·환경까지 소유를 분류하고 인물 구현과 실제 역사 복원은 범위 밖으로 구분한다.
-@evidenceReview discovery/core/common.md#shared-local-boundary 사용자 요구와 공유 공간 의무를 대조했을 때 완결 시각 표면의 최초 단독 배정과 compiled topology 전수 관찰은 각각 별도 실패 경계를 가진다. 회벽 색·방 용도 같은 기존 질문의 구체 답은 새 규칙으로 중복시키지 않았다.
-@evidenceReview discovery/core/common.md#canonical-realization surface-ownership/compiled-observations 두 H2와 temple-space-obligations의 전체 spaces·예약 account 선택을 대조했다. 현재 비활성은 아직 없는 spaces 때문이며 settings의 요구 명시는 실물 표면 배정이나 관찰 완료가 아니다.
-@evidenceReview discovery/core/settings.md#directive-promise-subject-requirements 브리프의 단층·방 관계·규모는 10-building, 다섯 이미지의 부재·집기·환경은 20/30/35/40, 전달·GPU·판정 실패 경계는 50-production에 실제 본문으로 존재한다. operative-subjects의 공동체·물·카메라도 소유가 있고 인물 구현과 역사 복원은 명시 제외다.
+@evidenceReview discovery/core/common.md#shared-local-boundary #ae499c0 사용자 요구와 공유 공간 의무를 대조했을 때 완결 시각 표면의 최초 단독 배정과 compiled topology 전수 관찰은 각각 별도 실패 경계를 가진다. 회벽 색·방 용도 같은 기존 질문의 구체 답은 새 규칙으로 중복시키지 않았다.
+@evidenceReview discovery/core/common.md#canonical-realization #5a6e541 surface-ownership/compiled-observations 두 H2와 temple-space-obligations의 전체 spaces·예약 account 선택을 대조했다. 현재 비활성은 아직 없는 spaces 때문이며 settings의 요구 명시는 실물 표면 배정이나 관찰 완료가 아니다.
+@evidenceReview discovery/core/settings.md#directive-promise-subject-requirements #1c99050 브리프의 단층·방 관계·규모는 10-building, 다섯 이미지의 부재·집기·환경은 20/30/35/40, 전달·GPU·판정 실패 경계는 50-production에 실제 본문으로 존재한다. operative-subjects의 공동체·물·카메라도 소유가 있고 인물 구현과 역사 복원은 명시 제외다.
 -->
 
 # 신전 공간 population의 추가 의무

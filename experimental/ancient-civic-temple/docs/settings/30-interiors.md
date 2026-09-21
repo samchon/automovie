@@ -15,15 +15,15 @@
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation 수반 주변에 돌아갈 포장 여백을 요구하므로 분수 물체만 만들어 중정 기능을 지불할 수 없다.
-@evidenceReview principles/core/common.md#substantive-completion 외경·테두리·수면·물줄기의 상대 높이가 모두 있어 낮은 분수의 비례를 다음 층이 새로 발명하지 않는다.
-@evidenceReview principles/core/common.md#declared-basis 낮은 원형은 브리프와 02·03, 숫자 범위는 저작자에게 귀속돼 형상과 치수의 권위가 구별된다.
-@evidenceReview principles/core/settings.md#fact-status 04의 높은 잔형을 채택하지 않았음을 밝혀 상충하는 두 reference를 동일한 형상 사실로 합치지 않는다.
-@evidenceReview principles/core/settings.md#source-support 02·03의 낮은 원형 수반이 브리프와 일치하고 04와의 차이도 본문에 남아 있다.
-@evidenceReview principles/core/settings.md#capability-boundary 반사·작은 파문은 허용하지만 다중 분사와 안개는 제외돼 물 효과가 건물을 가릴 수 없다.
-@evidenceReview principles/core/settings.md#constraint-sufficiency 물 높이는 테두리 아래, 물줄기 높이는 물면 위로 지정돼 서로 다른 기준을 혼합해 키 큰 분수를 만들지 않는다.
-@evidenceReview principles/core/settings.md#observable-identity 원형 안쪽 벽·바닥과 단일 수직 물줄기를 요구해 원 밖의 사각 물판이 드러나는 결과를 거부한다.
-@evidenceReview obligations/core/settings.md#production-visual-grammar 높은 잔형과 낮은 수반의 충돌은 브리프·02·03 우선으로 해소됐고 다른 reference의 제실 정체성까지 버리는 예외는 아니다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 수반 주변에 돌아갈 포장 여백을 요구하므로 분수 물체만 만들어 중정 기능을 지불할 수 없다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 외경·테두리·수면·물줄기의 상대 높이가 모두 있어 낮은 분수의 비례를 다음 층이 새로 발명하지 않는다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 낮은 원형은 브리프와 02·03, 숫자 범위는 저작자에게 귀속돼 형상과 치수의 권위가 구별된다.
+@evidenceReview principles/core/settings.md#fact-status #93a284a 04의 높은 잔형을 채택하지 않았음을 밝혀 상충하는 두 reference를 동일한 형상 사실로 합치지 않는다.
+@evidenceReview principles/core/settings.md#source-support #430bca9 02·03의 낮은 원형 수반이 브리프와 일치하고 04와의 차이도 본문에 남아 있다.
+@evidenceReview principles/core/settings.md#capability-boundary #83a6f2c 반사·작은 파문은 허용하지만 다중 분사와 안개는 제외돼 물 효과가 건물을 가릴 수 없다.
+@evidenceReview principles/core/settings.md#constraint-sufficiency #20cf612 물 높이는 테두리 아래, 물줄기 높이는 물면 위로 지정돼 서로 다른 기준을 혼합해 키 큰 분수를 만들지 않는다.
+@evidenceReview principles/core/settings.md#observable-identity #4ccb62e 원형 안쪽 벽·바닥과 단일 수직 물줄기를 요구해 원 밖의 사각 물판이 드러나는 결과를 거부한다.
+@evidenceReview obligations/core/settings.md#production-visual-grammar #d867c56 높은 잔형과 낮은 수반의 충돌은 브리프·02·03 우선으로 해소됐고 다른 reference의 제실 정체성까지 버리는 예외는 아니다.
 -->
 
 사용자 브리프와 이미지 02·03을 근거로 중정 중심에 낮은 원형 석조 수반과 단일 수직 물줄기를 둔다. 이미지 04의 높은 잔형 분수는 이 고정 형상을 바꾸지 않는다. 저작자 범위: 수반 외경 1.6~2.2m, 바닥에서 테두리까지 0.4~0.65m, 물은 테두리 아래 0.06~0.12m, 물줄기는 물면 위 0.5~0.9m. 원형 안쪽 벽과 바닥이 물을 담으며 사각 평면이 바깥으로 새어 나오지 않는다. 수반 주위에는 사람이 돌아갈 수 있는 포장된 빈 공간이 있다. 빛을 반사하는 물면과 작은 파문은 허용하되 폭포·다중 분사·안개로 건물을 가리지 않는다.
@@ -43,15 +43,15 @@
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation 제단 외에 감실·채광구·등잔과 분수 시선도 소유해 후면 방을 가구 하나로만 식별하지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion 인체 신상 대신 무문양 감실과 봉헌 용기로 뒤쪽 위계를 정해 금지 형상의 대안을 끝냈다.
-@evidenceReview principles/core/common.md#declared-basis 후면 축은 사용자, 박공과 벽은 04, 신상 대체는 저작자 결정으로 출처를 나눴다.
-@evidenceReview principles/core/settings.md#fact-status 신격의 예배 재현이 아닌 채택한 공간 구성으로 적혀 가상 감실에 역사적 사실 지위를 주지 않는다.
-@evidenceReview principles/core/settings.md#source-support 02의 인체 신상을 채택하지 않았다는 문장이 reference에 대체 용기가 원래 있었다는 허위를 막는다.
-@evidenceReview principles/core/settings.md#capability-boundary 인물/얼굴 코드와 조각을 만들지 않는 한계가 제실 장식에도 직접 적용된다.
-@evidenceReview principles/core/settings.md#constraint-sufficiency 제단 형상은 별도 물체 소유를 따르고 여기서는 접근을 확보해 같은 제단의 치수를 두 곳에서 정하지 않는다.
-@evidenceReview principles/core/settings.md#observable-identity 높은 목재 박공·상부 채광·석단 제단의 위계에 문서 선반 금지가 더해져 기록실과 구별된다.
-@evidenceReview obligations/core/settings.md#production-visual-grammar 무문양 감실 예외가 인체 신상에만 적용되고 황토 벽·붉은 띠·노출 박공은 04의 공통 언어를 유지한다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 제단 외에 감실·채광구·등잔과 분수 시선도 소유해 후면 방을 가구 하나로만 식별하지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 인체 신상 대신 무문양 감실과 봉헌 용기로 뒤쪽 위계를 정해 금지 형상의 대안을 끝냈다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 후면 축은 사용자, 박공과 벽은 04, 신상 대체는 저작자 결정으로 출처를 나눴다.
+@evidenceReview principles/core/settings.md#fact-status #93a284a 신격의 예배 재현이 아닌 채택한 공간 구성으로 적혀 가상 감실에 역사적 사실 지위를 주지 않는다.
+@evidenceReview principles/core/settings.md#source-support #430bca9 02의 인체 신상을 채택하지 않았다는 문장이 reference에 대체 용기가 원래 있었다는 허위를 막는다.
+@evidenceReview principles/core/settings.md#capability-boundary #83a6f2c 인물/얼굴 코드와 조각을 만들지 않는 한계가 제실 장식에도 직접 적용된다.
+@evidenceReview principles/core/settings.md#constraint-sufficiency #20cf612 제단 형상은 별도 물체 소유를 따르고 여기서는 접근을 확보해 같은 제단의 치수를 두 곳에서 정하지 않는다.
+@evidenceReview principles/core/settings.md#observable-identity #4ccb62e 높은 목재 박공·상부 채광·석단 제단의 위계에 문서 선반 금지가 더해져 기록실과 구별된다.
+@evidenceReview obligations/core/settings.md#production-visual-grammar #d867c56 무문양 감실 예외가 인체 신상에만 적용되고 황토 벽·붉은 띠·노출 박공은 04의 공통 언어를 유지한다.
 -->
 
 사용자 고정 후면 축의 작은 제실이다. 이미지 04의 황토 벽, 낮은 붉은 띠, 높은 목재 박공 천장과 서까래, 작은 상부 채광구를 채택한다. 저작자 결정: 낮은 석단 위 두꺼운 석조 제단과 얕은 봉헌 그릇, 좌우 금속 등잔대가 제실의 중심이다. 이미지 02의 인체 신상은 필수 형상으로 채택하지 않고 후면 벽의 작은 무문양 감실과 봉헌 용기로 제단 뒤 위계를 만든다. 인물/얼굴 코드와 조각은 만들지 않는다. 제단의 형상은 [제단](35-objects.md#altar)이 소유하며 공간은 그 주위 접근을 남긴다. 주랑으로 난 축상 출입구를 통해 중정 분수가 보이며 업무실처럼 책상·문서 선반으로 채우지 않는다.
@@ -70,14 +70,14 @@
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation 주랑 문 앞과 탁자 둘레를 모두 비우므로 진열물을 채운 뒤 통행 책임이 사라지지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion 긴 석재 탁자와 벽 진열대의 관계로 공용 봉헌 기능을 완결해 단순 빈 왼쪽 방이 아니다.
-@evidenceReview principles/core/common.md#declared-basis 왼쪽 위치는 사용자 고정이고 02는 기능 관계, 작은 물품 제한은 저작자의 선택이다.
-@evidenceReview principles/core/settings.md#fact-status 손에 들 수 있는 용기를 쓰는 것은 가상 이용 상태이며 역사 의례의 보편 절차로 서술하지 않는다.
-@evidenceReview principles/core/settings.md#source-support 02의 긴 탁자와 벽 진열 관계를 확인했고 그 그림의 픽셀에서 치수 수치를 얻었다는 주장은 없다.
-@evidenceReview principles/core/settings.md#capability-boundary 왕실 보물창고 같은 과시를 피하도록 해 소품 추가가 납품 건물의 사회적 규모를 바꾸지 못한다.
-@evidenceReview principles/core/settings.md#constraint-sufficiency 탁자 형상은 offering-table에 연결해 공간 배치를 위해 독립 물체를 임의로 납작하게 줄이지 못한다.
-@evidenceReview principles/core/settings.md#observable-identity 크기 다른 도기와 얕은 금속 그릇이 긴 공용 탁자에 놓이는 모습은 두루마리 보관 기능과 교환되지 않는다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 주랑 문 앞과 탁자 둘레를 모두 비우므로 진열물을 채운 뒤 통행 책임이 사라지지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 긴 석재 탁자와 벽 진열대의 관계로 공용 봉헌 기능을 완결해 단순 빈 왼쪽 방이 아니다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 왼쪽 위치는 사용자 고정이고 02는 기능 관계, 작은 물품 제한은 저작자의 선택이다.
+@evidenceReview principles/core/settings.md#fact-status #93a284a 손에 들 수 있는 용기를 쓰는 것은 가상 이용 상태이며 역사 의례의 보편 절차로 서술하지 않는다.
+@evidenceReview principles/core/settings.md#source-support #430bca9 02의 긴 탁자와 벽 진열 관계를 확인했고 그 그림의 픽셀에서 치수 수치를 얻었다는 주장은 없다.
+@evidenceReview principles/core/settings.md#capability-boundary #83a6f2c 왕실 보물창고 같은 과시를 피하도록 해 소품 추가가 납품 건물의 사회적 규모를 바꾸지 못한다.
+@evidenceReview principles/core/settings.md#constraint-sufficiency #20cf612 탁자 형상은 offering-table에 연결해 공간 배치를 위해 독립 물체를 임의로 납작하게 줄이지 못한다.
+@evidenceReview principles/core/settings.md#observable-identity #4ccb62e 크기 다른 도기와 얕은 금속 그릇이 긴 공용 탁자에 놓이는 모습은 두루마리 보관 기능과 교환되지 않는다.
 -->
 
 사용자 고정 좌측 공간이며 이미지 02가 기능 관계를 제공한다. 저작자 결정: 길게 놓인 석재 봉헌 탁자, 벽 쪽 목재 진열대, 크기가 다른 도기와 얕은 금속 그릇이 공간을 읽게 한다. 중앙 탁자의 형상은 [봉헌 탁자](35-objects.md#offering-table)가 소유한다. 탁자 둘레의 보행 통로와 주랑 문 앞은 비운다. 물품은 손에 들 수 있는 그릇과 작은 봉헌 용기로 제한하고 왕실 보물창고 같은 과시를 피한다.
@@ -96,14 +96,14 @@
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation 책상·좌석뿐 아니라 작성물·도구 용기·소량 선반 도기도 포함해 업무 흔적이 빠지지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion 하나의 책상과 쌓지 않은 물품 상태를 정해 기록실과 다른 작성실의 밀도를 결정했다.
-@evidenceReview principles/core/common.md#declared-basis 우측 첫 방의 위치와 05의 작업방을 받은 뒤 집기 선택을 저작자 결정으로 표시한다.
-@evidenceReview principles/core/settings.md#fact-status 작성 중 두루마리와 작업 중단을 함께 읽으면 진행되는 인물 행동이 아니라 정지 상태의 흔적임이 드러난다.
-@evidenceReview principles/core/settings.md#source-support 글자를 역사 문서처럼 꾸미지 않는다고 밝혀 05의 문서 외형에서 실제 본문을 외삽하지 않는다.
-@evidenceReview principles/core/settings.md#capability-boundary 좌석 접근은 필요하지만 작업은 멈춰 있어 인물 앉기·쓰기 공연을 이 방이 약속하지 않는다.
-@evidenceReview principles/core/settings.md#constraint-sufficiency 문에서 접근하고 앉을 자리를 남기는 조건이 소량 도기보다 우선해 집기로 책상 진입을 막을 수 없다.
-@evidenceReview principles/core/settings.md#observable-identity 펼친 작성물과 작은 도구 용기를 단일 작업대에 두므로 선반에 기록을 축적하는 방과 구별된다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 책상·좌석뿐 아니라 작성물·도구 용기·소량 선반 도기도 포함해 업무 흔적이 빠지지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 하나의 책상과 쌓지 않은 물품 상태를 정해 기록실과 다른 작성실의 밀도를 결정했다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 우측 첫 방의 위치와 05의 작업방을 받은 뒤 집기 선택을 저작자 결정으로 표시한다.
+@evidenceReview principles/core/settings.md#fact-status #93a284a 작성 중 두루마리와 작업 중단을 함께 읽으면 진행되는 인물 행동이 아니라 정지 상태의 흔적임이 드러난다.
+@evidenceReview principles/core/settings.md#source-support #430bca9 글자를 역사 문서처럼 꾸미지 않는다고 밝혀 05의 문서 외형에서 실제 본문을 외삽하지 않는다.
+@evidenceReview principles/core/settings.md#capability-boundary #83a6f2c 좌석 접근은 필요하지만 작업은 멈춰 있어 인물 앉기·쓰기 공연을 이 방이 약속하지 않는다.
+@evidenceReview principles/core/settings.md#constraint-sufficiency #20cf612 문에서 접근하고 앉을 자리를 남기는 조건이 소량 도기보다 우선해 집기로 책상 진입을 막을 수 없다.
+@evidenceReview principles/core/settings.md#observable-identity #4ccb62e 펼친 작성물과 작은 도구 용기를 단일 작업대에 두므로 선반에 기록을 축적하는 방과 구별된다.
 -->
 
 사용자 고정 우측 첫 방이며 이미지 05의 작은 작업방을 따른다. 저작자 결정: 하나의 목재 책상, 앉을 의자 또는 스툴, 작성 중인 두루마리와 작은 도구 용기, 벽 선반의 소량 도기를 둔다. [책상과 좌석](35-objects.md#workstation)은 문에서 접근하고 앉을 수 있게 하며 쌓인 물품으로 기록실과 혼동시키지 않는다. 작업은 멈춘 상태이며 글자는 읽을 수 있는 역사 문서처럼 꾸미지 않는다.
@@ -122,14 +122,14 @@
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation 선반·궤·열람대에 더해 문/궤 앞 여백까지 포함해 저장 밀도만 채우지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion 건조 보관과 열람 좌석을 결합해 기록실의 상태와 사용을 모두 결정했다.
-@evidenceReview principles/core/common.md#declared-basis 가운데 위치는 사용자, 집기 관계는 02·05, 문서 형상은 scrolls 소유로 추적된다.
-@evidenceReview principles/core/settings.md#fact-status 마른 기록 보관은 이 제작의 상태이며 특정 고대 기록관리 제도라는 외부 일반화를 하지 않는다.
-@evidenceReview principles/core/settings.md#source-support 02·05에서 칸 선반과 궤의 시각 근거를 찾을 수 있고 기록 내용의 출처는 주장하지 않았다.
-@evidenceReview principles/core/settings.md#capability-boundary 물이 방으로 흐르지 않아야 하므로 가까운 중정 분수의 표현이 문서 보관 상태를 침범하지 못한다.
-@evidenceReview principles/core/settings.md#constraint-sufficiency 궤 열림 애니메이션의 납품과 별개로 여닫을 공간은 남기도록 해 닫힌 표시를 무충돌 배치 면제로 쓰지 않는다.
-@evidenceReview principles/core/settings.md#observable-identity 두루마리 칸과 잠금 낮은 궤에 열람대가 결합돼 큰 항아리 위주의 보관실과 교환될 수 없다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 선반·궤·열람대에 더해 문/궤 앞 여백까지 포함해 저장 밀도만 채우지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 건조 보관과 열람 좌석을 결합해 기록실의 상태와 사용을 모두 결정했다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 가운데 위치는 사용자, 집기 관계는 02·05, 문서 형상은 scrolls 소유로 추적된다.
+@evidenceReview principles/core/settings.md#fact-status #93a284a 마른 기록 보관은 이 제작의 상태이며 특정 고대 기록관리 제도라는 외부 일반화를 하지 않는다.
+@evidenceReview principles/core/settings.md#source-support #430bca9 02·05에서 칸 선반과 궤의 시각 근거를 찾을 수 있고 기록 내용의 출처는 주장하지 않았다.
+@evidenceReview principles/core/settings.md#capability-boundary #83a6f2c 물이 방으로 흐르지 않아야 하므로 가까운 중정 분수의 표현이 문서 보관 상태를 침범하지 못한다.
+@evidenceReview principles/core/settings.md#constraint-sufficiency #20cf612 궤 열림 애니메이션의 납품과 별개로 여닫을 공간은 남기도록 해 닫힌 표시를 무충돌 배치 면제로 쓰지 않는다.
+@evidenceReview principles/core/settings.md#observable-identity #4ccb62e 두루마리 칸과 잠금 낮은 궤에 열람대가 결합돼 큰 항아리 위주의 보관실과 교환될 수 없다.
 -->
 
 사용자 고정 우측 가운데 방이다. 이미지 02·05에 근거해 마른 두루마리가 놓인 목재 칸 선반, 잠금 장치가 보이는 낮은 목재 궤, 작은 열람 탁자와 좌석을 둔다. [두루마리](35-objects.md#scrolls)의 형상을 유지한다. 기록은 건조한 보관 상태이고 물은 이 방으로 흐르지 않는다. 문/궤 여닫는 공간과 선반 앞 접근을 남긴다.
@@ -148,14 +148,14 @@
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation 용기·상자·바구니와 반입 동선을 함께 묶어 소품 목록만 완성하는 방이 아니다.
-@evidenceReview principles/core/common.md#substantive-completion 벽을 따르는 크기군별 보관으로 마지막 실내 방의 배치 질서를 정했다.
-@evidenceReview principles/core/common.md#declared-basis 우측 마지막이라는 고정 위치와 02·05의 물품, vessels/baskets의 형상 소유가 각각 연결된다.
-@evidenceReview principles/core/settings.md#fact-status 반복 수량을 이미 존재하는 재고처럼 쓰지 않고 후속 크기군·용도 배치로 남긴다.
-@evidenceReview principles/core/settings.md#source-support 이미지의 항아리·바구니를 취했을 뿐 실제 고대 물류의 수량·용량을 기록했다고 하지 않는다.
-@evidenceReview principles/core/settings.md#capability-boundary 불·연기·불필요한 액체를 제외해 보관실을 설비나 효과 공간으로 바꿀 수 없다.
-@evidenceReview principles/core/settings.md#constraint-sufficiency 크기군 반복도 문과 반입 동선을 가리지 못하므로 저장 밀도는 통행 조건에 종속된다.
-@evidenceReview principles/core/settings.md#observable-identity 큰 항아리와 손잡이 용기·뚜껑 상자가 문서 칸 선반을 대신해 방의 물류 용도를 드러낸다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 용기·상자·바구니와 반입 동선을 함께 묶어 소품 목록만 완성하는 방이 아니다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 벽을 따르는 크기군별 보관으로 마지막 실내 방의 배치 질서를 정했다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 우측 마지막이라는 고정 위치와 02·05의 물품, vessels/baskets의 형상 소유가 각각 연결된다.
+@evidenceReview principles/core/settings.md#fact-status #93a284a 반복 수량을 이미 존재하는 재고처럼 쓰지 않고 후속 크기군·용도 배치로 남긴다.
+@evidenceReview principles/core/settings.md#source-support #430bca9 이미지의 항아리·바구니를 취했을 뿐 실제 고대 물류의 수량·용량을 기록했다고 하지 않는다.
+@evidenceReview principles/core/settings.md#capability-boundary #83a6f2c 불·연기·불필요한 액체를 제외해 보관실을 설비나 효과 공간으로 바꿀 수 없다.
+@evidenceReview principles/core/settings.md#constraint-sufficiency #20cf612 크기군 반복도 문과 반입 동선을 가리지 못하므로 저장 밀도는 통행 조건에 종속된다.
+@evidenceReview principles/core/settings.md#observable-identity #4ccb62e 큰 항아리와 손잡이 용기·뚜껑 상자가 문서 칸 선반을 대신해 방의 물류 용도를 드러낸다.
 -->
 
 사용자 고정 우측 마지막 실내 방이다. 이미지 02·05에 근거한 큰 도기 항아리, 손잡이 달린 운반 용기, 뚜껑 있는 상자와 짠 바구니가 벽을 따라 놓인다. [용기](35-objects.md#vessels)와 [바구니](35-objects.md#baskets)의 형상을 보관물로 배치해 기록실의 문서 선반과 구별한다. 크기군과 용도에 따라 반복을 정하며 문과 반입 동선을 가리지 않는다. 불필요한 액체·불·연기는 없다.
@@ -174,14 +174,14 @@
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation 외부 문과 주랑 직접 출입을 둘 다 요구해 야외 소품 공간이 건물 동선에서 떨어질 수 없다.
-@evidenceReview principles/core/common.md#substantive-completion 하늘이 열린 작업 마당으로 정하면서 두 번째 중정·순환 루프와의 차이를 끝냈다.
-@evidenceReview principles/core/common.md#declared-basis 후면 우측은 사용자 고정이며 낮은 벽·외부 문·운반물은 01·02·05에 연결된다.
-@evidenceReview principles/core/settings.md#fact-status 작은 옥외 작업 상태를 정한 것이며 별채나 숨은 방의 존재를 기정사실로 추가하지 않는다.
-@evidenceReview principles/core/settings.md#source-support 외관과 절개·서비스 이미지가 마당의 관계를 지지하지만 면적 실측치까지 제공한다고 하지 않는다.
-@evidenceReview principles/core/settings.md#capability-boundary 외부 반입이 가능해도 독립 루프로 사용하지 못해 고정된 단일 주랑의 순환 권한을 유지한다.
-@evidenceReview principles/core/settings.md#constraint-sufficiency 문이 실제 바닥에 이어져야 하므로 벽에 문 그림만 붙여 외부 접근을 완료할 수 없다.
-@evidenceReview principles/core/settings.md#observable-identity 낮은 석재 둘레와 소수 운반물·열린 하늘이 중심 분수 중정과 다른 작업 마당을 만든다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 외부 문과 주랑 직접 출입을 둘 다 요구해 야외 소품 공간이 건물 동선에서 떨어질 수 없다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 하늘이 열린 작업 마당으로 정하면서 두 번째 중정·순환 루프와의 차이를 끝냈다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 후면 우측은 사용자 고정이며 낮은 벽·외부 문·운반물은 01·02·05에 연결된다.
+@evidenceReview principles/core/settings.md#fact-status #93a284a 작은 옥외 작업 상태를 정한 것이며 별채나 숨은 방의 존재를 기정사실로 추가하지 않는다.
+@evidenceReview principles/core/settings.md#source-support #430bca9 외관과 절개·서비스 이미지가 마당의 관계를 지지하지만 면적 실측치까지 제공한다고 하지 않는다.
+@evidenceReview principles/core/settings.md#capability-boundary #83a6f2c 외부 반입이 가능해도 독립 루프로 사용하지 못해 고정된 단일 주랑의 순환 권한을 유지한다.
+@evidenceReview principles/core/settings.md#constraint-sufficiency #20cf612 문이 실제 바닥에 이어져야 하므로 벽에 문 그림만 붙여 외부 접근을 완료할 수 없다.
+@evidenceReview principles/core/settings.md#observable-identity #4ccb62e 낮은 석재 둘레와 소수 운반물·열린 하늘이 중심 분수 중정과 다른 작업 마당을 만든다.
 -->
 
 사용자 고정 후면 우측의 작은 옥외 작업 공간이다. 이미지 01·02·05를 근거로 낮은 석재 둘레벽, 포장 바닥, 목재 외부 문, 소수 항아리와 운반 바구니를 둔다. 위는 열려 있지만 두 번째 중앙 중정이나 독립 순환 루프로 사용하지 않는다. 주랑에 직접 출입하고 외부 반입 문도 실제 바닥과 이어진다. 마당 주변의 닫힌 문이 숨은 방을 암시하지 않게 한다.
@@ -200,14 +200,14 @@
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation 수위·물줄기와 꺼진 등잔·주광·음향 부재를 함께 정해 물 설비만 상태 소유를 갖지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion 공급·배수 표현을 노즐과 바닥 관통부에서 끝내므로 지하 설비 범위가 미정으로 남지 않는다.
-@evidenceReview principles/core/common.md#declared-basis 표시 모델·고정 수위·등잔 상태는 저작자 결정이라는 첫 구절의 권위 아래 있다.
-@evidenceReview principles/core/settings.md#fact-status 실제 역사 수리시설 작동 증명이 아니라는 끝 문장이 물줄기를 기술 복원 결과로 오인하지 않게 한다.
-@evidenceReview principles/core/settings.md#source-support 펌프·하수망을 구현하지 않아 고대 수압이나 지하 기술의 정확성을 외부 자료 없이 주장하지 않는다.
-@evidenceReview principles/core/settings.md#capability-boundary 결정론적 물줄기는 가능하지만 수조·펌프실 같은 새 공간 추가는 금지돼 설비가 그래프를 늘리지 못한다.
-@evidenceReview principles/core/settings.md#constraint-sufficiency 꺼진 등잔과 개구부 주광을 동시에 정해 어두운 실내를 불꽃 추가로 임의 보완할 수 없다.
-@evidenceReview principles/core/settings.md#observable-identity 일정 수위의 분수와 불 없는 등잔 상태가 낮의 건조한 건물이라는 환경 설정과 양립한다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 수위·물줄기와 꺼진 등잔·주광·음향 부재를 함께 정해 물 설비만 상태 소유를 갖지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 공급·배수 표현을 노즐과 바닥 관통부에서 끝내므로 지하 설비 범위가 미정으로 남지 않는다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 표시 모델·고정 수위·등잔 상태는 저작자 결정이라는 첫 구절의 권위 아래 있다.
+@evidenceReview principles/core/settings.md#fact-status #93a284a 실제 역사 수리시설 작동 증명이 아니라는 끝 문장이 물줄기를 기술 복원 결과로 오인하지 않게 한다.
+@evidenceReview principles/core/settings.md#source-support #430bca9 펌프·하수망을 구현하지 않아 고대 수압이나 지하 기술의 정확성을 외부 자료 없이 주장하지 않는다.
+@evidenceReview principles/core/settings.md#capability-boundary #83a6f2c 결정론적 물줄기는 가능하지만 수조·펌프실 같은 새 공간 추가는 금지돼 설비가 그래프를 늘리지 못한다.
+@evidenceReview principles/core/settings.md#constraint-sufficiency #20cf612 꺼진 등잔과 개구부 주광을 동시에 정해 어두운 실내를 불꽃 추가로 임의 보완할 수 없다.
+@evidenceReview principles/core/settings.md#observable-identity #4ccb62e 일정 수위의 분수와 불 없는 등잔 상태가 낮의 건조한 건물이라는 환경 설정과 양립한다.
 -->
 
 저작자 결정: 물 공급·배수는 분수 수반 안의 노즐과 숨겨진 바닥 관통부로 끝나는 표시 모델이다. 지하 수조·펌프실·하수망·현대 배관을 별도 공간으로 추가하지 않는다. 수위는 고정이며 물줄기 표현은 source가 소유한 결정론적 상태다. 등잔은 꺼져 있고 실내 밝기는 개구부를 통한 주광으로 얻는다. 음향은 이번 건축 라이브러리에 포함하지 않는다. 이 상태는 실제 역사 수리시설의 작동 증명이 아니다.
