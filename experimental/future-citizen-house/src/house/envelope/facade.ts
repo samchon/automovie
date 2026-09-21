@@ -33,16 +33,21 @@ function glazing(a: Assembly, f: Frame, w: Glazing): void {
     for (let j = 1; j <= count; j++) edges.push(segments[i] + (segments[i + 1] - segments[i]) * j / count);
   }
   for (const [i, u] of edges.entries()) bar(a, f, w.id + "-mullion-" + i, w.room, "metal", u + (i === 0 ? -0.02 : i === edges.length - 1 ? 0.02 : 0), (w.head + w.sill) / 2, 0.04, w.head - w.sill + 0.08, 0.14);
-  for (const [name, y] of [["head", w.head + 0.02], ["sill", w.sill - 0.02]] as const) bar(a, f, w.id + "-" + name, w.room, "metal", (w.a + w.b) / 2, y, w.b - w.a, 0.04, 0.16);
+  for (const [name, y] of [["head", w.head + 0.02], ["sill", w.sill - 0.02]] as const) bar(a, f, w.id + "-" + name, w.room, "metal", (w.a + w.b) / 2, y, w.b - w.a, 0.04, 0.14);
   bar(a, f, w.id + "-drip", w.room, "stone", (w.a + w.b) / 2, w.sill - 0.055, w.b - w.a + 0.12, 0.03, 0.28, 0.025 * f.normal);
   let first: string | null = null;
   for (let i = 0; i < edges.length - 1; i++) {
-    const left = edges[i] + (i === 0 ? 0.0025 : 0.0225), right = edges[i + 1] - (i === edges.length - 2 ? 0.0025 : 0.0225);
+    // Jambs stand outside the effective span; an internal mullion occupies
+    // 0.02m on either side of its centre. No unmodelled gasket leaves an air gap.
+    const left = edges[i] + (i === 0 ? 0 : 0.02), right = edges[i + 1] - (i === edges.length - 2 ? 0 : 0.02);
     const u = (left + right) / 2, width = right - left;
     const split = w.privacy === "lower" ? Math.min(w.head, w.sill + 1.25) : w.head;
     const bands = w.privacy === "lower" ? [[w.sill, split, "frosted"], [split, w.head, "glass"]] as const : [[w.sill, w.head, w.privacy === "all" ? "frosted" : "glass"]] as const;
     for (const [n, band] of bands.entries()) {
-      const id = bar(a, f, w.id + "-pane-" + i + "-" + n, w.room, band[2], u, (band[0] + band[1]) / 2, width, band[1] - band[0] - 0.01, 0.018);
+      // A short privacy window has no upper clear band. Adjacent material
+      // bands otherwise meet: changing optical response must not cut a slit.
+      if (band[1] <= band[0]) continue;
+      const id = bar(a, f, w.id + "-pane-" + i + "-" + n, w.room, band[2], u, (band[0] + band[1]) / 2, width, band[1] - band[0], 0.018);
       first ??= id;
     }
     const drop = w.privacy === "all" ? 0 : a.state.privacy === "day" ? 0.045 : a.state.privacy === "night" || w.privacy === "lower" ? 1 : 0.6;

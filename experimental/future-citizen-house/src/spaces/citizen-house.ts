@@ -3,13 +3,9 @@ import { buildHouse } from "../house/build";
 /** Deterministic library registration. The surface owners consume shared metric
  * plan inputs; preview and delivery invoke this same CJS producer.
  * @evidence spaces/001-citizen-house.md 집·대지·관찰 입력을 하나의 library 환경으로 등록한다. 실제 조립은 buildHouse이고 topology, surface owner, 방 fit-out이 모두 그 호출에 들어간다.
- * @evidenceReview spaces/001-citizen-house.md #4d48e5d 등록값의 build가 집·대지·관찰을 포함한 환경을 반환하며 viewer도 동일 생산자를 호출하므로 001의 전체 범위가 실행된다.
  * @evidence spaces/001-citizen-house.md#citizen-house-space house를 citizen-site 아래 두 storey의 부모로 만들고 독립된 매스나 추가 계단을 생성하지 않는다. 각 완결 표면의 파일을 buildHouse가 호출한다.
- * @evidenceReview spaces/001-citizen-house.md#citizen-house-space #e3da773 buildHouse가 citizen-site 아래 한 house와 두 storey를 조립하므로 library 등록에서 별도 매스가 생기지 않는다.
  * @evidence spaces/001-citizen-house.md#site-access garden의 지면·보도·두 디딤판·y=0 landing이 front-entry route에 닿는다. 나무는 줄기·가지·잎의 결정적 부재이며 배경 이미지가 아니다.
- * @evidenceReview spaces/001-citizen-house.md#site-access #c39dc90 garden의 두 디딤판 뒤 y=0 landing을 front-entry가 소비하여 대지 접근이 실내 그래프와 만난다.
  * @evidence spaces/001-citizen-house.md#spatial-observation 현재 환경의 cell·surface·connector·boundary.face·opening.profile을 observations가 소비한다. 필수 공간 시점, 모든 외피 면·모서리·개구와 다섯 추가 reference를 내며 null 시점과 이유도 유지한다. GPU 판정은 이 열거와 별개다.
- * @evidenceReview spaces/001-citizen-house.md#spatial-observation #a02bde4 observations는 현재 cell과 opening을 열거하고 배치 불가능한 시점도 null로 남겨 대표 카메라만으로 분모를 축소하지 않는다.
  * @evidence principles/core/source-units.md#source-scope-preservation 이 등록은 001의 단일 집·대지 조립만 소유한다. 방 치수는 plan, 외피는 각 입면 모듈에서 받고 reference를 표면에 붙이거나 독립된 viewer geometry를 만들지 않는다.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 이 export는 001의 library 등록만 담당하고 방 경계나 외피 치수를 viewer 전용 형상으로 다시 정의하지 않는다.
  * @evidence principles/core/source-units.md#source-substantive-completion build는 실제 model·element·population·space·boundary·opening·connector·surface를 반환한다. viewer의 명시 상태 역시 같은 buildHouse를 사용하며 결과는 공개 engine의 lowerBuiltEnvironment를 통과해야 표시된다.
