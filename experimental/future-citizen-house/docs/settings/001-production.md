@@ -136,13 +136,13 @@
 @evidence principles/core/settings.md#fact-status review라는 선언과 유효한 현재 판정은 다르며 이전 판정은 무효라고 명시한다.
 @evidence principles/core/settings.md#source-support 단계 수정은 조정자의 현재 정정에 근거하며 exit 2를 검증기 결함이라는 기술 사실로 남기지 않는다.
 @evidence principles/core/settings.md#capability-boundary stage·파일 쓰기·설치 담당은 저작 절차의 권한이며 주택·주민의 생산세계 능력이 아니다. 이 정정은 공간이나 설비가 할 수 있는 동작을 확대하지 않는다.
-@evidence principles/core/settings.md#constraint-sufficiency dependency 설치와 server 시작은 coordinator가 맡고 cache·파생물·임시 파일은 남기지 않는 경계를 준다.
+@evidence principles/core/settings.md#constraint-sufficiency dependency 변경 시 저작자가 root install과 lockfile을 같은 커밋에 포함하고, 상시 server 운영과 임시 실행 검증의 담당을 구분한다. 추적 트리에 파생물을 남기지 않는다.
 @evidence principles/core/settings.md#observable-identity 단계와 쓰기 권한은 생산 절차이며 관찰할 장소나 인물의 정체를 정의하지 않는다. review 선언의 유지가 001#delivery-fidelity의 실제 건물 모습 요구를 변경하지 않는다.
 -->
 
 **권한: 2026-09-21 사용자 직접 지시.** 조정자의 후속 정정에 따라 제자리 재작성을 택한다. 완료했던 settings·spaces·spaceSources의 review 선언을 유지하며 stage는 disabled → draft → evidence → review로만 전진한다. 이전 판정은 무효이며 내용 편집으로 영향받은 검사를 다시 연다. 실제 frame을 다섯 reference와 대조한 독립 read-only reviewer의 현재 판정만 재검토 종료와 이후 전이를 허용한다. 작성자와 observer는 이를 대신 승인하지 않는다.
 
-이 production 내부에서만 저작하고 바깥은 읽기만 한다. packages, 공통 .agents, 다른 production, human face 코드는 수정하지 않는다. 의존성 설치와 server 시작은 coordinator 담당이며 루트 pnpm-lock.yaml도 coordinator가 커밋한다. 캐시·파생물·임시 파일을 남기지 않는다.
+이 production 내부에서만 저작하고 바깥은 읽기만 한다. packages, 공통 .agents, 다른 production, human face 코드는 수정하지 않는다. 2026-09-22 조정자 정정에 따라 의존성을 변경하면 저작자가 저장소 루트에서 pnpm install을 실행하고 변경된 pnpm-lock.yaml을 해당 production과 같은 커밋에 포함한다. 이 경우에만 git add experimental/future-citizen-house pnpm-lock.yaml을 사용한다. 상시 server 운영은 coordinator 담당이며 저작자는 요청된 실행 검증을 위해 잠깐 시작하고 종료한다. 추적 대상 트리에 파생물·캐시·임시 파일을 남기지 않으며 gitignored node_modules/.cache/ttsc는 보존한다.
 
 2026-09-21 후속 지시에 따라 commit·push는 저작자가 맡는다. 공유 브랜치 benchmark/1951-1953-harness에서 git add experimental/future-citizen-house로 이 production만 스테이지하고 feat(experimental): 한 줄 메시지로 커밋한 뒤 git push origin benchmark/1951-1953-harness를 실행한다. 매 turn 끝과 단계 종료·뷰어 작성 시 진행을 저장하며 검증 명령·종료 코드, 커밋 해시와 push 종료 코드를 보고한다. git add -A, 다른 경로 스테이지, master 접촉, pull --rebase, force-push와 이력 재작성은 금지한다. non-fast-forward 또는 도구 거부는 우회하지 않고 실제 오류를 보고한다. 진행 커밋은 미완료 검사의 승인이나 단계 전이를 뜻하지 않는다.
 

@@ -33,7 +33,7 @@
 @evidenceExcludeReview settings/001-production.md#settings-coverage-map #2e9919b 공간 population은 납품 범위·좌표·층 그래프·외피·프라이버시·관찰의 실제 설정 owner를 소비한다. 설정 소유 지도는 그 canon의 위치와 역할을 정리하지만 별도로 배치하거나 치수화할 공간 사실을 추가하지 않아 이 지도를 공간 부모로 중복 지급할 대상은 없다.
 -->
 
-building id house는 [citizen-site](#site-access)의 자식인 단일 본채다. [ground-storey](002-spatial-graph.md#ground-level)와 [upper-storey](002-spatial-graph.md#upper-level) 두 층을 포함하고 각 방은 해당 층에 귀속한다. 본채의 외곽·층 datum·벽 두께는 [매스와 층](002-spatial-graph.md#mass-and-storeys)이 유일하게 소유한다.
+본채 space id house는 [citizen-site](#site-access)의 자식인 단일 본채다. [ground-storey](002-spatial-graph.md#ground-level)와 [upper-storey](002-spatial-graph.md#upper-level) 두 층을 포함하고 각 방은 해당 층에 귀속한다. 엔진의 building unit id citizen-house는 이 전체 대지·본채를 한 단위로 소유하며, 논리 루트는 부모가 없는 citizen-site, 가시 요소 루트는 house-root다. 단위의 논리 루트 바인딩과 본채의 공간 id를 구분하며 별도 건물 단위를 추가하지 않는다. 본채의 외곽·층 datum·벽 두께는 [매스와 층](002-spatial-graph.md#mass-and-storeys)이 유일하게 소유한다.
 
 본채의 닫힌 외주는 [네 입면과 지붕](003-surface-ownership.md#whole-surface-owners)이고 외부와 실내는 그 boundary에 선언된 opening으로만 이어진다. [1층](002-spatial-graph.md#ground-partition)과 [2층](002-spatial-graph.md#upper-partition) 사이 통행은 [단일 계단](002-spatial-graph.md#single-stair) 하나다. 별동·중정·브리지·캔틸레버·추가 계단·복층 거실을 포함하지 않는다. 이는 [고정 그래프](../contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements)의 본채 realization이며 세부 형상은 아직 컴파일 전이다.
 

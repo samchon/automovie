@@ -14,7 +14,8 @@ export const rectangle = (a: number, b: number, y0: number, y1: number) => [
 const palette: Record<string, string> = { stone: "#cec7b6", plaster: "#e7e1d4", felt: "#a59f91", tile: "#767a78", oak: "#b28a58", walnut: "#765238", metal: "#28302f", steel: "#929b98", linen: "#d8d4c7", green: "#69755b", blue: "#697984", leaf: "#527644", soil: "#3c4132", pv: "#203748", glass: "#d2e2dc", frosted: "#b7ccc0", shade: "#aab3a0", glow: "#fff0cc", white: "#eeeae0" };
 export class Assembly {
   readonly wallRecords: { frame: import("./walls").Frame; cuts: import("@automovie/engine").IAutoMovieWallOpening[] }[] = [];
-  readonly environment: IAutoMovieBuiltEnvironment = { version: 1, id: "citizen-house-2080", units: "meter", buildings: [{ id: "citizen-house", element: "house-root", space: "house" }], models: [], modelReferences: [], elements: [], populations: [], spaces: [], boundaries: [], openings: [], connectors: [], surfaces: [], walkable: [] };
+  // One unit includes the house and its site; its logical root has no parent.
+  readonly environment: IAutoMovieBuiltEnvironment = { version: 1, id: "citizen-house-2080", units: "meter", buildings: [{ id: "citizen-house", element: "house-root", space: "citizen-site" }], models: [], modelReferences: [], elements: [], populations: [], spaces: [], boundaries: [], openings: [], connectors: [], surfaces: [], walkable: [] };
   constructor(readonly state: State) {
     this.environment.elements.push({ id: "house-root", kind: "building", parent: null, model: null, space: "house", transform: { translation: v(0, 0, 0), rotation: identity, scale: v(1, 1, 1) } });
   }
