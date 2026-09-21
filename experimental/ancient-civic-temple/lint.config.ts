@@ -36,7 +36,7 @@ import { fileURLToPath } from "node:url";
  * productionSources as the parallel typed assembly input to filmSources.
  */
 const settingsStage = "review" as const;
-const spacesStage = "disabled" as const;
+const spacesStage = "draft" as const;
 
 export const productionEvidence = {
   ...createBlankAutoMovieProductionEvidence(
@@ -45,6 +45,7 @@ export const productionEvidence = {
   ),
   kind: "library",
   settings: settingsStage,
+  spaces: spacesStage,
   claims: [
     createAutoMovieProductionObligationClaim({
       name: "temple-space-obligations",
