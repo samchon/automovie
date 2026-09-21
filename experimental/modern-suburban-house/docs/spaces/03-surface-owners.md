@@ -20,8 +20,8 @@
 | 차고 지붕 전방 면·하부 | `src/spaces/roof/garage-front.ts` | 차고 정면과 본채 접합의 닫힌 경계. |
 | 차고 지붕 후방 면·하부 | `src/spaces/roof/garage-back.ts` | 차고 후벽·본채 접면과 처마. |
 | 낮은 포치 지붕·하부 | `src/spaces/porch.ts` | [보·기둥·받침](porch.md#porch-roof-columns)과 [바닥/현관 접근](porch.md#porch-platform-access)을 함께 소유한다. |
-| 1층 바닥·천장 공통 경계 | `src/spaces/floors/ground.ts` | 방별 마감 구역의 구조 바탕과 계단 통행 구멍 아래쪽 접합. |
-| 2층 바닥·천장 공통 경계 | `src/spaces/floors/upper.ts` | 1층과 같은 계단 구멍, 상부참·복도 접합, 지붕 아래 천장. |
+| 본채 1층 바닥 구조 바탕 | `src/spaces/floors/ground.ts` | 1층 방별 바닥 마감과 계단 하부 대기를 받는다. 층간 구조/1층 천장 몸체를 중복 생성하지 않는다. |
+| 본채 층간 구조와 2층 천장 바탕 | `src/spaces/floors/upper.ts` | [단일 층간 구조](08-floor-assembly.md#interstorey-floor-boundary)와 같은 계단 구멍·상부 도착. 지붕 아래 천장에는 층간 구멍을 복제하지 않는다. 보이는 바닥/천장 마감은 각 방 owner다. |
 | 단일 L형 계단과 보호 경계 | `src/spaces/stair.ts` | 두 flight·중간참·도착·난간의 동일 기준. |
 | 현관 보행길과 차도까지의 연결로 전체 | `src/spaces/site/front-walk.ts` | [T자 보행면](site/front-walk.md#front-walk-plan)은 포치 아래 대기를 포함한다. 포치는 그 대기를 요구하고 별도 바닥을 생성하지 않는다. |
 | 차고 앞 차도 전체 | `src/spaces/site/driveway.ts` | [차도 상면](site/driveway.md#driveway-plan)은 차고 문턱과 전면 포장 끝을 연결하고 보행 연결로의 높이 입력을 제공한다. |
@@ -34,6 +34,8 @@
 `src/spaces/openings.ts`의 [공통 개구부 인계](06-openings.md#external-opening-interface)는 좌표 형식과 부재 예약을 공유할 예정이며 창/문 geometry의 별도 소유자가 아니다. 각 완결 입면 owner가 자기 void와 바깥 trim/충전 부재를 소유하고 방 안쪽 owner가 동일 void의 reveal/마감을 받는다. 문짝 유리·창 내부 분할까지 실제 관찰에서 숨기지 않는다.
 
 일반 실내 칸막이의 공통 몸체는 [공유 경계 배정](07-boundary-assembly.md#interior-boundary-ownership)의 단일 source owner가 생성하고 양쪽 room은 자기 완결 마감을 유지한다. `src/spaces/boundaries.ts`는 [교차부·개구부·문턱](07-boundary-assembly.md#interior-boundary-junctions)의 같은 경계를 전달하는 계산 책임만 가지며 별도 벽/마감을 만들지 않는다. 차고 공유 벽과 계단 구조의 기존 소유는 그대로다.
+
+[층간 구조의 가장자리](08-floor-assembly.md#interstorey-edge-junctions)는 외벽의 두께 구역과 실내 벽 상하 접촉을 같은 경계로 잇는다. 계단 구멍의 몸체는 upper 층판 owner, 그 두께 단면의 보이는 연속 마감은 stair owner, 도착의 보이는 바닥은 upper-hall owner다. 같은 가장자리에 두 번째 층판이나 테두리 마감을 생성하지 않는다.
 
 `src/spaces/site.ts`는 [외부 구역/접속의 조립](site/00-access.md#site-access-interface)만 맡는다. 종전의 포장 전체 한 파일 예약을 소스 저작 전에 완결 보행면·차도·테라스로 구체화했다. 포치 아래 대기와 정원문 바깥 대기는 각 연속 포장 owner에게 통째로 속하며 별도 판으로 쪼개지지 않는다. 측면 관리길은 앞뒤 두 구역이어도 같은 연속 면 owner를 유지하며, 목재 울타리는 문만 다른 파일에서 떼어 만들지 않는다. 대지 경계·보도/도로·지표·식재의 소유 분해와 울타리의 실제 필지 포함·지표 접합은 maps가 아직 없어 미완료다. 이 표를 전체 대지 표면 census 완료로 읽지 않는다.
 
