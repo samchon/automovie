@@ -109,28 +109,28 @@
 ## 작업과 실행의 권한 {#execution-authority}
 
 <!--
-@evidence principles/core/common.md#scope-preservation 쓰기 범위·설치·viewer 기동·검증·산출물 보관의 권한을 모두 배정한다.
-@evidence principles/core/common.md#substantive-completion production 내부 저작, 의존성 선언, 조정자 설치/기동과 npm run lint 전용 검증을 실행 계약으로 정한다.
-@evidence principles/core/common.md#declared-basis 저장소와 타 production·human-face 보호 및 실행 역할은 사용자 직접 지시다.
-@evidence principles/core/settings.md#fact-status 여기의 권한은 제작 절차이지 이미 서버가 열렸거나 검증을 마쳤다는 결과가 아니다.
-@evidence principles/core/settings.md#source-support 명령·소유 경계는 사용자와 README에 연결되며 임의 실행 우회를 지원된 기능처럼 설명하지 않는다.
-@evidence principles/core/settings.md#capability-boundary 저작자는 package.json에 의존성을 선언할 수 있지만 설치·서버 기동은 조정자 몫이다.
-@evidence principles/core/settings.md#constraint-sufficiency viewer 인계의 명령·디렉터리·포트·경로와 금지된 추가 flag/직접 binary를 구체화한다.
-@evidence principles/core/settings.md#observable-identity 실행 권한 단위는 새 시각 대상을 정의하지 않고 외부 capture 경로에 보관할 비교 출력만 지시한다.
+@evidence principles/core/common.md#scope-preservation production 저작·의존성 변경 시 설치·viewer 기동·검증·출력 보관의 담당을 정하고 lockfile 전달은 author-commits에 연결한다.
+@evidence principles/core/common.md#substantive-completion package.json 의존성 변경이 root pnpm install의 조건이며 저작자가 실행한다. viewer는 인계 후 조정자가 기동하고 검증은 npm run lint로 확정한다.
+@evidence principles/core/common.md#declared-basis 기존 production 한정 권한 중 설치만 2026-09-22 사용자 정정으로 바뀌었고 README ownership과 viewer 기동 배정은 유지한다.
+@evidence principles/core/settings.md#fact-status 권한 변경의 날짜와 조건을 명시하며 설치 명령을 정했다는 사실을 설치·lint·viewer 성공으로 서술하지 않는다.
+@evidence principles/core/settings.md#source-support production 밖의 pnpm install은 최신 직접 지시에 한정하고 검증 명령의 근거는 README에 둔다. 실행 결과는 그 지시에서 추정하지 않는다.
+@evidence principles/core/settings.md#capability-boundary 의존성 변경이 있을 때 저작자는 root 설치를 수행하며 변경 lockfile을 넘긴다. viewer 기동과 다른 production·저장소 코드 수정 권한은 얻지 않는다.
+@evidence principles/core/settings.md#constraint-sufficiency 설치의 조건·실행자·디렉터리·명령과 커밋 연결을 정하고 viewer 인계 네 항목 및 검증의 flag/직접 binary 금지를 유지한다.
+@evidence principles/core/settings.md#observable-identity 이 단위는 설치와 관찰 실행의 권한을 소유하며 새로운 형상·재료·장면 상태를 정하지 않는다. 비교 출력의 외부 보관만 요구한다.
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 쓰기·설치·기동·검증·출력 보관을 모두 배정해 구현 외 실행 과정의 책임도 누락하지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 production 저작과 조정자 설치/서버 기동을 나눠 다음 작업자가 누가 실행하는지 다시 정하지 않는다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 사용자 지시와 README ownership이 쓰기/검증 권위이고 커밋은 별도 절차 소유로 연결돼 있다.
-@evidenceReview principles/core/settings.md#fact-status #93a284a 실행할 권한을 선언한 문서이며 의존성이 설치됐거나 서버가 켜졌다는 결과를 보고하지 않는다.
-@evidenceReview principles/core/settings.md#source-support #430bca9 npm run lint의 소유를 README에 연결하고 우회 명령을 공식 검증처럼 제시하지 않았다.
-@evidenceReview principles/core/settings.md#capability-boundary #83a6f2c 저작자는 의존성 선언까지 할 수 있으나 설치·viewer 기동 권한은 조정자에게 있어 자동 설치를 수행할 수 없다.
-@evidenceReview principles/core/settings.md#constraint-sufficiency #20cf612 추가 flag·직접 binary·설정 파일을 금지하고 시작 명령·디렉터리·포트·경로를 인계하도록 구체화했다.
-@evidenceReview principles/core/settings.md#observable-identity #4ccb62e 새 건물 형상을 정하지 않는 실행 단위이며 비교 출력은 외부 capture 경로에 두도록 보관 위치만 소유한다.
+@evidenceReview principles/core/common.md#scope-preservation 의존성 설치 담당이 저작자로 바뀐 뒤에도 viewer 기동은 조정자, 검증은 README 명령, 출력은 외부 capture 경로에 귀속된다. 설치가 끝난 lockfile의 전달도 author-commits로 이어져 실행 책임이 비는 구간이 없다.
+@evidenceReview principles/core/common.md#substantive-completion 의존성을 변경한 저작자는 설치 담당을 다시 묻지 않고 root pnpm install까지 수행할 수 있다. viewer의 시작 정보는 전달하되 기동은 조정자가 한다는 별도 결정을 유지해 설치 허용을 서버 실행으로 넓히지 않는다.
+@evidenceReview principles/core/common.md#declared-basis 설치 권한은 2026-09-22 정정, 파일 배치는 README ownership, 나머지 쓰기 제한은 기존 사용자 지시에서 온다. 변경 lockfile의 전달은 같은 파일의 author-commits를 참조하므로 임의로 만든 root 수정 권한이 아니다.
+@evidenceReview principles/core/settings.md#fact-status pnpm install을 실행할 의무와 설치 성공의 사실은 분리돼 있다. 본문에는 설치 로그나 열린 서버를 주장하는 문장이 없고, 2026-09-22는 지시가 바뀐 날짜로만 쓰인다.
+@evidenceReview principles/core/settings.md#source-support root 설치를 허용하는 범위는 사용자 정정의 package.json 의존성 변경 조건과 일치한다. README는 npm run lint의 소유로 인용되며 설치 성공이나 GPU 지원에 대한 외부 증거로 쓰이지 않는다.
+@evidenceReview principles/core/settings.md#capability-boundary 예외로 가능한 행위는 의존성 변경에 따른 root 설치와 lockfile 전달이다. 서버 기동은 여전히 조정자에게 있고 packages·다른 production·human-face 수정 금지가 남아 있어 이 허용에서 일반 저장소 수정 능력을 추론할 수 없다.
+@evidenceReview principles/core/settings.md#constraint-sufficiency 설치 명령에 실행 디렉터리와 발동 조건을 붙이고 결과 lockfile의 같은 커밋 전달을 연결했다. 검증에는 추가 flag·대체 명령·직접 binary·추가 설정 금지가 있어 pnpm install을 검증 대체로 사용할 여지도 없다.
+@evidenceReview principles/core/settings.md#observable-identity 설치 권한을 고쳐도 신전·실내·배경의 관찰 형태는 이 단위에서 새로 정해지지 않는다. 외부 capture 보관과 viewer 시작 정보는 실행 인계일 뿐 새로운 시각 canon이나 관찰 프레임이 아니다.
 -->
 
-사용자 지시: 저작은 이 production 안에서만 한다. packages/*, 저장소 .agents/*, 다른 production과 human-face 코드를 바꾸지 않는다. 새 파일은 README ownership을 따른다. 의존성은 package.json에 선언만 하고 설치는 조정자가 한다. viewer가 생기면 시작 명령·실행 디렉터리·포트·열어야 할 경로를 인계하고 기동은 조정자가 한다. 커밋과 푸시는 [저작자 커밋 절차](#author-commits)를 따른다. 검증은 README 소유 npm run lint만 사용하고 추가 flag·대체 명령·직접 binary·추가 설정 파일을 쓰지 않는다. 파생 산출물·캐시·임시 파일을 작업 트리에 남기지 않으며 비교용 출력 보관 위치는 coordinator가 정한 외부 capture 경로를 사용한다.
+사용자 지시: 저작은 이 production 안에서만 한다. packages/*, 저장소 .agents/*, 다른 production과 human-face 코드를 바꾸지 않는다. 새 파일은 README ownership을 따른다. 설치 권한에 대한 2026-09-22 사용자 정정이 이전의 조정자 설치 전담 지시를 대체한다. 이 production의 package.json 의존성을 변경하면 저작자가 저장소 루트에서 `pnpm install`을 실행하고 바뀐 `pnpm-lock.yaml`을 production 변경과 같은 커밋에 넣는다. 그 외 root 파일의 수정 권한을 부여하는 예외는 아니다. viewer가 생기면 시작 명령·실행 디렉터리·포트·열어야 할 경로를 인계하고 기동은 조정자가 한다. 커밋과 푸시는 [저작자 커밋 절차](#author-commits)를 따른다. 검증은 README 소유 npm run lint만 사용하고 추가 flag·대체 명령·직접 binary·추가 설정 파일을 쓰지 않는다. 파생 산출물·캐시·임시 파일을 작업 트리에 남기지 않으며 비교용 출력 보관 위치는 coordinator가 정한 외부 capture 경로를 사용한다.
 
 ## 판정과 완료 {#acceptance}
 
@@ -187,25 +187,25 @@
 ## 저작자 커밋 절차 {#author-commits}
 
 <!--
-@evidence principles/core/common.md#scope-preservation 명시 경로 staging부터 commit/push·실패 보고까지 저작자의 배포 책임을 다룬다.
-@evidence principles/core/common.md#substantive-completion 공유 branch에서 add→commit→push를 정하고 non-fast-forward 거부 때 보고만 하도록 절차를 닫는다.
-@evidence principles/core/common.md#declared-basis 2026-09-21 사용자가 정정한 공유 checkout 절차에 따라 pull --rebase를 금지한다.
-@evidence principles/core/settings.md#fact-status branch와 명령은 실행할 절차의 사실이며 push 성공이나 새 커밋 생성의 증거가 아니다.
-@evidence principles/core/settings.md#source-support 실제 명령 문자열을 직접 사용자 지시에 맞춰 적고 공유 checkout 동기화에 관한 별도 가정을 보태지 않는다.
-@evidence principles/core/settings.md#capability-boundary 저작자 소유 경로만 stage하며 master·force-push·남의 변경 stash/수정과 우회 동기화를 허용하지 않는다.
-@evidence principles/core/settings.md#constraint-sufficiency 생성 파일 정리와 ignored wiki 제외, 해시·push 종료 코드 및 차단 오류의 보고 조건을 정한다.
-@evidence principles/core/settings.md#observable-identity 커밋 절차는 시각 대상을 새로 정하는 단위가 아니며 viewer 작성 시에도 동일한 소유 경계만 적용한다.
+@evidence principles/core/common.md#scope-preservation production의 add→commit→push와 보고를 소유하고 의존성 변경 시 lockfile 동봉까지 포함해 전달 단위를 정한다.
+@evidence principles/core/common.md#substantive-completion 일반 변경과 의존성 변경의 명시 add 경로를 구분하며 두 경우 모두 지정 branch에 commit/push한다. non-fast-forward 거부는 보고하고 우회하지 않는다.
+@evidence principles/core/common.md#declared-basis 2026-09-21 공유 checkout 절차와 2026-09-22 lockfile 동일 커밋 정정을 함께 적용하며 설치 조건은 execution-authority에서 받는다.
+@evidence principles/core/settings.md#fact-status 해시·push 종료 코드는 실행 뒤 보고할 결과다. 절차에 lockfile 경로가 있다는 이유로 의존성을 이미 변경·설치했다고 하지 않는다.
+@evidence principles/core/settings.md#source-support 사용자가 지정한 branch와 두 add 명령을 그대로 명시하고 frozen install 실패 방지를 같은 커밋 조건의 직접 근거로 둔다.
+@evidence principles/core/settings.md#capability-boundary root 경로 예외는 해당 의존성 변경으로 바뀐 pnpm-lock.yaml 하나다. 남의 경로 staging·stash·되돌림, master·force-push·히스토리 재작성은 계속 금지한다.
+@evidence principles/core/settings.md#constraint-sufficiency lockfile을 나중 커밋으로 분리하지 않는 조건과 root 파일 금지의 한정 예외를 명시하고 정리·ignored wiki 제외·오류 보고 의무를 유지한다.
+@evidence principles/core/settings.md#observable-identity viewer 작성은 commit 시점에 포함되지만 Git 전달 자체가 건물이나 방의 시각 판정을 대신하는 단위는 아니다.
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 stage부터 push 거부 보고까지 다뤄 커밋만 만들고 전달 성공으로 보고하는 누락을 막는다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 add→commit→push와 non-fast-forward 처리까지 정해 공유 checkout에서 동기화 수단을 새로 고르지 않는다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 2026-09-21 사용자 정정이 pull --rebase 금지의 근거이며 이전 절차를 현재 권위로 남기지 않았다.
-@evidenceReview principles/core/settings.md#fact-status #93a284a branch와 명령은 수행 절차이고 커밋 해시·push 종료 코드는 실제 실행 후 보고할 결과로 나뉜다.
-@evidenceReview principles/core/settings.md#source-support #430bca9 production 명시 경로와 지정 branch가 사용자 문자열을 유지하며 원격 성공을 추측하는 별도 명령을 보태지 않았다.
-@evidenceReview principles/core/settings.md#capability-boundary #83a6f2c 다른 저작자의 stage/수정을 stash하거나 되돌릴 수 없고 master·force-push도 금지돼 공유 작업을 보존한다.
-@evidenceReview principles/core/settings.md#constraint-sufficiency #20cf612 generated/cache/wiki 제외와 차단 오류 보고를 지정해 실행 불가를 무단 우회로 해결하지 못한다.
-@evidenceReview principles/core/settings.md#observable-identity #4ccb62e viewer 작성도 커밋 시점으로 다룰 뿐 커밋 성공이 화면을 검증했다는 시각 조건을 추가하지 않는다.
+@evidenceReview principles/core/common.md#scope-preservation 의존성 선언과 lockfile을 한 번에 전달하는 경우까지 add 경로가 있으며 commit 뒤 push와 종료 코드 보고도 남아 있다. root 파일 전면 금지 때문에 lockfile만 빠지는 이전 누락을 본문 예외가 해소한다.
+@evidenceReview principles/core/common.md#substantive-completion 보통 변경에는 production 경로 하나, 의존성 변경에는 pnpm-lock.yaml을 더한 명령을 선택할 수 있다. 같은 커밋이라는 조건 때문에 설치 결과 전달 시점을 후속 작업자가 새로 정할 필요가 없다.
+@evidenceReview principles/core/common.md#declared-basis 공유 branch·pull 금지는 2026-09-21 지시이고 lockfile 동봉 예외는 2026-09-22 정정이다. 설치가 필요한지는 execution-authority를 따라 판단하므로 staging 절차가 자체적으로 새 설치 권한을 만들지 않는다.
+@evidenceReview principles/core/settings.md#fact-status 본문은 실행할 두 add 경로와 이후 보고할 해시·push 코드를 구별한다. 현재 lockfile 변경이나 원격 수락 결과를 적지 않아 절차의 명시가 성공 기록으로 바뀌지 않는다.
+@evidenceReview principles/core/settings.md#source-support production과 pnpm-lock.yaml을 함께 add하라는 최신 사용자 문자열을 명령에 보존했다. frozen install 사이 실패를 막는 이유도 사용자 지시의 근거이며 CI를 직접 실행해 확인했다는 주장은 없다.
+@evidenceReview principles/core/settings.md#capability-boundary 허용된 root staging은 해당 의존성 변경의 pnpm-lock.yaml뿐이고 다른 저작자의 경로와 수정은 여전히 보호된다. non-fast-forward 거부를 우회하지 않는 조건도 있어 lockfile 예외가 동기화·히스토리 수정 권한으로 번지지 않는다.
+@evidenceReview principles/core/settings.md#constraint-sufficiency 예외가 적용될 때의 add 명령과 같은 커밋 조건을 모두 적었다. lockfile을 별도 후속 커밋에 두거나 다른 root 파일을 함께 stage하는 선택은 본문이 명시적으로 배제한다.
+@evidenceReview principles/core/settings.md#observable-identity Git 전달의 발생 시점에 viewer 작성이 포함돼도 프레임·재료·방 형태는 여기서 새로 정하지 않는다. 성공한 push가 시각 읽힘을 보증한다고 서술하지 않아 acceptance의 독립 판정 범위를 침범하지 않는다.
 -->
 
-사용자 지시(2026-09-21): 저작자가 최소 매 turn 끝, 단계 종료, viewer 작성 때마다 직접 커밋하고 푸시한다. 공유 checkout의 브랜치는 benchmark/1951-1953-harness 하나다. 저장소 루트에서 git add experimental/ancient-civic-temple로 이 production의 명시 경로만 스테이지하고, git commit -m "feat(experimental): <변경 내용 한 줄>", git push origin benchmark/1951-1953-harness 순서로 실행한다. git pull --rebase, git add -A, 다른 production·packages/*·.agents/*·루트 파일 스테이징, master 접촉, force-push, 임의 히스토리 재작성과 다른 저작자 커밋 수정은 금지한다. 다른 저작자의 수정·스테이징을 stash하거나 되돌리지 않는다. push가 non-fast-forward로 거부되면 오류를 보고하고 우회하지 않는다. 커밋 전에 이 production의 생성 산출물·캐시·임시 파일을 정리하고 gitignore된 .wiki는 커밋하지 않는다. 매 turn 커밋 해시와 push 종료 코드를 보고한다. sandbox가 git 또는 네트워크를 막으면 정확한 오류와 종료 코드를 기록하고 우회하지 않는다.
+사용자 지시(2026-09-21, lockfile 예외는 2026-09-22 정정): 저작자가 최소 매 turn 끝, 단계 종료, viewer 작성 때마다 직접 커밋하고 푸시한다. 공유 checkout의 브랜치는 benchmark/1951-1953-harness 하나다. 저장소 루트에서 `git add experimental/ancient-civic-temple`로 이 production의 명시 경로만 스테이지하고, `git commit -m "feat(experimental): <변경 내용 한 줄>"`, `git push origin benchmark/1951-1953-harness` 순서로 실행한다. [실행 권한](#execution-authority)에 따른 의존성 변경 때에는 add 명령을 `git add experimental/ancient-civic-temple pnpm-lock.yaml`로 하여 바뀐 lockfile을 production 변경과 같은 커밋에 넣는다. 둘을 다른 커밋으로 나누면 그 사이 CI의 frozen install이 실패할 수 있으므로 뒤로 미루지 않는다. 이 예외는 해당 의존성 변경으로 바뀐 root `pnpm-lock.yaml` 하나에만 적용된다. `git pull --rebase`, `git add -A`, 다른 production·packages/*·.agents/* 및 이 예외 밖의 루트 파일 스테이징, master 접촉, force-push, 임의 히스토리 재작성과 다른 저작자 커밋 수정은 금지한다. 다른 저작자의 수정·스테이징을 stash하거나 되돌리지 않는다. push가 non-fast-forward로 거부되면 오류를 보고하고 우회하지 않는다. 커밋 전에 이 production의 생성 산출물·캐시·임시 파일을 정리하고 gitignore된 .wiki는 커밋하지 않는다. 매 turn 커밋 해시와 push 종료 코드를 보고한다. sandbox가 git 또는 네트워크를 막으면 정확한 오류와 종료 코드를 기록하고 우회하지 않는다.
