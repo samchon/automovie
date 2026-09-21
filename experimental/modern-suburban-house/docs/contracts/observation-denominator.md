@@ -1,6 +1,8 @@
 <!--
 @evidence discovery/core/common.md#shared-local-boundary 사용자 브리프의 외부 전체 노출면과 각 방의 threshold·네 모서리·네 방위는 대표 표본을 허용하는 일반 검토 계획만으로 보장되지 않아, topology 유래 분모와 양쪽 미완료 목록의 동시 해소를 이 계약의 독립 의무로 채택했다.
+@evidenceReview discovery/core/common.md#shared-local-boundary #ae499c0 일반 검토 계획을 따르는 것만으로 외부 모든 노출면과 방의 고정 질문·양쪽 목록 동시 해소를 강제할 수 없는 차이를 읽었다. 이 파일의 두 H2는 그 반복되는 주택 전용 분모와 완료 경계를 각각 보유한다.
 @evidence discovery/core/common.md#canonical-realization settings/20-verification.md의 observation-allocation과 completion-boundary가 이 계약의 현재 실현이며 lint.config.ts의 house-observation-denominator claim이 settings 전체 H2를 대상으로 선언된다. 실제 시점·개수는 후속 공간 산출물의 책임으로 남겨 현재 문서를 관찰 완료로 취급하지 않는다.
+@evidenceReview discovery/core/common.md#canonical-realization #5a6e541 두 계약 H2를 observation-allocation·completion-boundary와 house-observation-denominator claim까지 추적했다. 현재 settings의 실현은 책임 배분이고 미래 source 관찰 수를 현재 결과로 주장하지 않는다.
 -->
 # 전체 관찰과 완료 분모
 

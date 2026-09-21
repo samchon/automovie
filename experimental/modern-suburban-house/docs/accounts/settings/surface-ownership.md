@@ -3,6 +3,7 @@
 ## 공간 경계에서 부재와 마감까지 {#surface-handoff}
 <!--
 @evidence contracts/surface-ownership.md#whole-surface-owner surface-allocation은 입면·방 내부·층 바닥과 천장·계단 구멍·접합의 owner와 파일을 1단계에 배정하고 build-allocation은 부재·반복·마감 branch의 역할을 나눈다. 같은 완결 면은 branch가 달라도 한 저작자가 동일 기준으로 통합하며 실제 census는 spaces의 인계 산출물로 남는다.
+@evidenceReview contracts/surface-ownership.md#whole-surface-owner #0e24f29 surface-allocation의 사전 파일 배정과 lifecycle의 순서를 함께 읽었다. 외부 면과 방 안쪽 면을 달리 배정해도 공유 벽 기준은 하나이며 실제 surface id census는 아직 unverified로 남아 있다.
 -->
 
 [surface-allocation](../../settings/20-verification.md#surface-allocation)은 [완결 표면 원문](../../contracts/surface-ownership.md#whole-surface-owner)을 1단계 폐쇄 조건으로 삼는다. [lifecycle-boundary](../../settings/20-verification.md#lifecycle-boundary)는 매스·공간 그래프와 이 선언을 함께 닫은 뒤 외피와 반복 모듈로 가도록 정하므로 큰 소스 파일로 외피부터 만들고 뒤늦게 나누는 순서를 허용하지 않는다. 한 명이 전부 구현하는 경우도 표면 및 파일 경계의 누락 사유가 되지 않는다.

@@ -1,7 +1,10 @@
 <!--
 @evidence discovery/core/common.md#shared-local-boundary 일반적인 경계 소유만으로는 입면·방·층의 완결 시각 표면을 1단계 폐쇄 전에 파일과 저작자에 배정하는 시한을 보장하지 못한다. 이 주택에서는 외피를 저작한 뒤 분해하는 실패를 막는 whole-surface-owner를 유지한다.
+@evidenceReview discovery/core/common.md#shared-local-boundary #ae499c0 공유 경계 소유와 달리 완결 시각 면을 1단계 전에 저작자·파일에 배정해야 하는 시한이 독립적으로 남는다. 사후 분해 금지는 이 집의 이전 거대 소스 실패에 직접 대응한다.
 @evidence discovery/core/common.md#canonical-realization settings/20-verification.md#surface-allocation은 실제 표면 목록을 spaces의 첫 인계에 두고 부재·모듈·마감이 그 소유를 이어받도록 정한다. house-surface-ownership claim은 이 계약을 settings H2 모집단에 연결하고 실제 표면 배정 완료라는 주장은 아직 하지 않는다.
+@evidenceReview discovery/core/common.md#canonical-realization #5a6e541 whole-surface-owner가 surface-allocation 및 house-surface-ownership claim으로 연결되고 부재·반복·마감의 동일 면 인계를 요구한다. 이 연결은 실제 면별 배정 완료를 주장하지 않는다.
 @evidence discovery/core/settings.md#directive-promise-subject-requirements 고정 공간 그래프·빈 차고는 settings/10-house.md에, 다섯 입력의 권위와 실제 3D 인계는 settings/20-verification.md에, 가족 사용 가정·접근·제작 범위는 settings/00-production.md에 분리했다. 거대 단일 소스로 완결 표면을 나누지 못했던 실패에서 이 파일의 사전 소유 분해 의무를 별도로 유지했다.
+@evidenceReview discovery/core/settings.md#directive-promise-subject-requirements #1c99050 고정 그래프·빈 차고는 10, 입력 권위·GPU/CJS는 20, 가족 사용체·접근·제작 배분은 00의 실제 owner와 대조했다. 완결 면의 사전 분해 시한만 독립 계약으로 남겨 같은 질문의 별도 규칙 복제를 피했다.
 -->
 # 완결 표면의 소유
 
