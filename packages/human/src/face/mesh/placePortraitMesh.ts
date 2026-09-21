@@ -1,9 +1,10 @@
 import {
   type IAutoMovieMeshTransform,
-  inspectAutoMovieMeshTopology,
+  degenerateAutoMovieTriangles,
   transformAutoMovieMesh,
 } from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
+
 import { assertDirection } from "./assertDirection";
 import { triangleArea } from "./triangleArea";
 
@@ -43,9 +44,7 @@ export function placePortraitMesh(
     { positions: local, indices: null, normals: null, uvs: null, skin: null },
     { rotation: transform.rotation, scale: transform.scale },
   );
-  const redundant = new Set(
-    inspectAutoMovieMeshTopology(reference).degenerateTriangles,
-  );
+  const redundant = new Set(degenerateAutoMovieTriangles(reference));
   for (let face = 0; face < placed.indices!.length; face += 3) {
     if (redundant.has(face / 3)) continue;
     assertDirection(

@@ -8,7 +8,9 @@
  */
 import { IAutoMovieMesh } from "@automovie/interface";
 
+import { AUTOMOVIE_WELD_GRID } from "./AUTOMOVIE_WELD_GRID";
 import { IAutoMovieMeshTopology } from "./IAutoMovieMeshTopology";
+import { degenerateAutoMovieTriangles } from "./degenerateAutoMovieTriangles";
 import { triangleIndicesOf } from "./triangleIndicesOf";
 
 /**
@@ -57,7 +59,9 @@ export const inspectAutoMovieMeshTopology = (
     const cached = idCache[at]!;
     if (cached >= 0) return cached;
     const welded = [0, 1, 2]
-      .map((axis) => Math.round(mesh.positions[at * 3 + axis]! * WELD_SCALE))
+      .map((axis) =>
+        Math.round(mesh.positions[at * 3 + axis]! * AUTOMOVIE_WELD_GRID),
+      )
       .join(",");
     let id = weldIds.get(welded);
     if (id === undefined) {
@@ -72,15 +76,15 @@ export const inspectAutoMovieMeshTopology = (
   // the measurement hashing them.
   const codes = new Float64Array(indices.length);
   let edgeCount = 0;
-  const degenerateTriangles: number[] = [];
+  // Redundancy is one definition shared with every caller that asks only for
+  // it; the skip here reads that answer rather than restating it.
+  const degenerateTriangles = degenerateAutoMovieTriangles(mesh);
+  const redundant = new Set(degenerateTriangles);
   for (let index = 0; index < indices.length; index += 3) {
+    if (redundant.has(index / 3)) continue;
     const a = weldOf(indices[index]!);
     const b = weldOf(indices[index + 1]!);
     const c = weldOf(indices[index + 2]!);
-    if (a === b || b === c || c === a) {
-      degenerateTriangles.push(index / 3);
-      continue;
-    }
     // The degenerate skip above leaves three distinct corner ids, so the two
     // ends of an edge can never compare equal here.
     const corners = [a, b, c];
@@ -126,9 +130,6 @@ export const inspectAutoMovieMeshTopology = (
     volume: sixVolume / 6,
   };
 };
-
-/** Welding grid for topology queries: 1 nm, far below any building tolerance. */
-const WELD_SCALE = 1e9;
 
 /**
  * How many components of one optional attribute buffer are not finite numbers.

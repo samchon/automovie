@@ -476,6 +476,7 @@ export { mergeAutoMovieMeshes } from "./geometry/mergeAutoMovieMeshes";
 export { transformAutoMovieMesh } from "./geometry/transformAutoMovieMesh";
 export { mergeAutoMovieMeshParts } from "./geometry/mergeAutoMovieMeshParts";
 export { inspectAutoMovieMeshTopology } from "./geometry/inspectAutoMovieMeshTopology";
+export { degenerateAutoMovieTriangles } from "./geometry/degenerateAutoMovieTriangles";
 export { selectAutoMovieTriangleRegion } from "./geometry/selectAutoMovieTriangleRegion";
 export { createAutoMovieMeshDeformer } from "./geometry/createAutoMovieMeshDeformer";
 export { createAutoMovieMeshDepthSampler } from "./geometry/createAutoMovieMeshDepthSampler";
