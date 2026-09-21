@@ -190,6 +190,7 @@ try {
 
   // 8. the simple tier expands into detailed channels and keeps a detailed
   // edit made on top; a mass past the basis's reach is refused
+  const earlier = await page.inputValue("#simple-bustMetres");
   await page.evaluate(() =>
     window.__connectedBody.change({
       id: "simple",
@@ -201,14 +202,36 @@ try {
   );
   await ready('s.document.id === "simple"');
   // the inputs read the current body, projected in the worker: a bust
-  // edit shows as its girth once the projection lands
+  // edit shows as its girth once the projection lands, replacing the
+  // previous body's reading
   await page.waitForFunction(
-    () => document.querySelector("#simple-bustMetres").value !== "",
-    {},
+    (before) => {
+      const value = document.querySelector("#simple-bustMetres").value;
+      return value !== "" && value !== before;
+    },
+    earlier,
     { timeout: 300000 },
   );
   const shown = await page.inputValue("#simple-bustMetres");
   assert.ok(Number(shown) > 50, "bust girth read off the body: " + shown);
+  // applying the values as read, nothing edited, leaves the body as it was:
+  // the untouched inputs carry the exact projection, not their display
+  const unchanged = (await snapshot()).shape;
+  await page.click("#simple-apply");
+  await page.waitForFunction(
+    () => document.querySelector("#body-status").dataset.state !== "building",
+    {},
+    { timeout: 600000 },
+  );
+  const reapplied = (await snapshot()).shape;
+  for (const key of new Set([
+    ...Object.keys(unchanged),
+    ...Object.keys(reapplied),
+  ]))
+    assert.ok(
+      Math.abs((reapplied[key] ?? 0) - (unchanged[key] ?? 0)) < 1e-4,
+      `applying unchanged values moved ${key}: ${unchanged[key]} -> ${reapplied[key]}`,
+    );
   await set("#simple-sex", "-1");
   await set("#simple-ageYears", "68");
   await set("#simple-statureMetres", "162");

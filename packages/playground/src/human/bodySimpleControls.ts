@@ -101,8 +101,11 @@ const FIELDS: {
  * values over the current shape, which keeps every detailed edit the simple
  * tier does not name and changes only what the edited values drive; a tape
  * measurement is solved only when the user changed it since it was read, so
- * a blank or untouched one leaves its channel as it was. The simple values never enter the
- * document, because the detailed tier is its canonical form. A refused
+ * a blank or untouched one leaves its channel as it was, and an untouched
+ * required value is the exact projection rather than its rounded display,
+ * so applying unchanged values leaves the body unchanged. The simple values
+ * never enter the document, because the detailed tier is its canonical
+ * form. A refused
  * expansion (a stature, mass or girth the basis cannot reach) is reported
  * through the editor's status, and the document keeps its last valid state.
  *
@@ -136,6 +139,8 @@ export const renderBodySimpleControls = (props: {
   // shown is the body's own reading, and re-solving it after a change of
   // sex or mass would pin a girth the new body no longer has
   const edited = new Set<keyof IAutoMovieHumanBodySimpleShape>();
+  // the last projection, unrounded; the inputs show it to two decimals
+  let exact: IAutoMovieHumanBodySimpleShape | null = null;
   const inputs = new Map<
     keyof IAutoMovieHumanBodySimpleShape,
     HTMLInputElement
@@ -175,6 +180,10 @@ export const renderBodySimpleControls = (props: {
     for (const field of FIELDS) {
       const text = inputs.get(field.key)!.value.trim();
       if (field.optional && (text === "" || !edited.has(field.key))) continue;
+      if (exact !== null && !edited.has(field.key)) {
+        simple[field.key] = exact[field.key]!;
+        continue;
+      }
       // an empty required value is not zero; it has not been read yet
       if (text === "")
         throw new Error(
@@ -212,6 +221,7 @@ export const renderBodySimpleControls = (props: {
       }
       if (ticket !== generation) return;
       edited.clear();
+      exact = projected;
       for (const field of FIELDS) {
         const value = projected[field.key];
         inputs.get(field.key)!.value =
