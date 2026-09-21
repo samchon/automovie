@@ -8,8 +8,8 @@
  *
  * The source's macro nodes are authored bodies, not population limits: its
  * maximum weight reaches 97 kg on a 1.80 m man and its minimum 47 kg on a
- * 1.66 m woman, its hip girth bottoms at 0.96 m and its waist tops at
- * 0.93 m, which leaves the obese, the emaciated, the narrow-hipped and the
+ * 1.66 m woman, its hip tape girth bottoms at 0.80 m (hip channel and
+ * weight at their minimum) and its waist tops at 0.85 m, which leaves the obese, the emaciated, the narrow-hipped and the
  * apron-bellied outside the editor. An endpoint is a linear displacement
  * field, so a weight past one is more of the same field, and the envelope
  * is data on the channel; this step sets the envelopes in `ENVELOPES`,
