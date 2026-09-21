@@ -200,7 +200,13 @@ try {
     }),
   );
   await ready('s.document.id === "simple"');
-  // the inputs read the current body: a bust edit shows as its girth
+  // the inputs read the current body, projected in the worker: a bust
+  // edit shows as its girth once the projection lands
+  await page.waitForFunction(
+    () => document.querySelector("#simple-bustMetres").value !== "",
+    {},
+    { timeout: 300000 },
+  );
   const shown = await page.inputValue("#simple-bustMetres");
   assert.ok(Number(shown) > 50, "bust girth read off the body: " + shown);
   await set("#simple-sex", "-1");
@@ -211,18 +217,24 @@ try {
   await page.click("#simple-apply");
   // the expansion runs its measured inversions in the page, which takes
   // seconds; a refusal would surface as the error status instead
+  // a refusal of the simple tier is the panel's status, not the editor's
+  // transaction, so both are read
   await page.waitForFunction(
     () => {
       const s = window.__connectedBody.snapshot();
       return (
-        s?.status === "error" ||
+        document.querySelector("#body-status").dataset.state === "error" ||
         (s?.status === "ready" && s.document.shape.macroGender === -1)
       );
     },
     {},
     { timeout: 600000 },
   );
-  assert.equal((await snapshot()).error, null, "the simple body applies");
+  assert.notEqual(
+    await page.getAttribute("#body-status", "data-state"),
+    "error",
+    await page.textContent("#body-status"),
+  );
   state = await snapshot();
   assert.equal(state.shape.macroGender, -1);
   assert.ok(
@@ -237,13 +249,13 @@ try {
   await set("#simple-massKilograms", "250");
   await page.click("#simple-apply");
   await page.waitForFunction(
-    () => window.__connectedBody.snapshot()?.status === "error",
+    () => document.querySelector("#body-status").dataset.state === "error",
     {},
-    { timeout: 300000 },
+    { timeout: 600000 },
   );
-  state = await snapshot();
-  assert.match(state.error, /beyond this basis/);
-  console.log("refused as expected:", state.error.slice(0, 80));
+  const refusal = await page.textContent("#body-status");
+  assert.match(refusal, /beyond this basis/);
+  console.log("refused as expected:", refusal.slice(0, 80));
 
   // 9. reset returns to the initial document; the GLB goes to disk
   await page.click("#body-reset");

@@ -96,10 +96,12 @@ const FIELDS: {
  * projects it), so a user reads the body's own stature, mass and girths
  * before changing one. Projection and expansion are the package's measured
  * inversions and take seconds, so both are asked of a worker (`expand`,
- * `project`) and a stale projection is dropped by generation. Applying expands the values over the current shape,
- * which keeps every detailed edit the simple tier does not name and changes
- * only what the edited values drive; a tape measurement left blank is not
- * solved and its channel stays as it was. The simple values never enter the
+ * `project`); a projection that lands after a newer one, or after the user
+ * typed, is dropped, and one that fails is reported. Applying expands the
+ * values over the current shape, which keeps every detailed edit the simple
+ * tier does not name and changes only what the edited values drive; a tape
+ * measurement is solved only when the user changed it since it was read, so
+ * a blank or untouched one leaves its channel as it was. The simple values never enter the
  * document, because the detailed tier is its canonical form. A refused
  * expansion (a stature, mass or girth the basis cannot reach) is reported
  * through the editor's status, and the document keeps its last valid state.
@@ -127,6 +129,13 @@ export const renderBodySimpleControls = (props: {
 }): { refresh: (shape: Record<string, number>) => Promise<void> } => {
   const { dom, container } = props;
   container.replaceChildren();
+  // a projection still in flight when the user types must not overwrite
+  // what was typed: an edit retires every pending projection
+  let generation = 0;
+  // a tape measurement is solved only when the user changed it: the value
+  // shown is the body's own reading, and re-solving it after a change of
+  // sex or mass would pin a girth the new body no longer has
+  const edited = new Set<keyof IAutoMovieHumanBodySimpleShape>();
   const inputs = new Map<
     keyof IAutoMovieHumanBodySimpleShape,
     HTMLInputElement
@@ -147,6 +156,12 @@ export const renderBodySimpleControls = (props: {
     number.step = String(field.step);
     number.placeholder = field.optional ? "blank keeps the body's own" : "";
     label.htmlFor = number.id;
+    const touch = (): void => {
+      generation++;
+      edited.add(field.key);
+    };
+    number.addEventListener("input", touch);
+    number.addEventListener("change", touch);
     note.textContent =
       `${low * field.scale} to ${high * field.scale}${field.unit === "" ? "" : " " + field.unit}` +
       (field.optional ? " · optional, measured on the current body" : "");
@@ -159,7 +174,12 @@ export const renderBodySimpleControls = (props: {
     const simple: Record<string, number> = {};
     for (const field of FIELDS) {
       const text = inputs.get(field.key)!.value.trim();
-      if (text === "" && field.optional) continue;
+      if (field.optional && (text === "" || !edited.has(field.key))) continue;
+      // an empty required value is not zero; it has not been read yet
+      if (text === "")
+        throw new Error(
+          `${field.label} is empty; the body's own values have not been read yet.`,
+        );
       simple[field.key] = Number(text) / field.scale;
     }
     return simple as unknown as IAutoMovieHumanBodySimpleShape;
@@ -179,17 +199,19 @@ export const renderBodySimpleControls = (props: {
   note.textContent =
     "Read off the current body; applying expands through the package's table and measured inversions into the detailed channels below, keeping the detailed edits it does not name.";
   container.append(apply, note);
-  let generation = 0;
   return {
     refresh: async (shape) => {
       const ticket = ++generation;
       let projected: IAutoMovieHumanBodySimpleShape;
       try {
         projected = await props.project(shape);
-      } catch {
+      } catch (error) {
+        // a projection that fails is reported, never left as blank inputs
+        if (ticket === generation) props.onRefuse(error);
         return;
       }
       if (ticket !== generation) return;
+      edited.clear();
       for (const field of FIELDS) {
         const value = projected[field.key];
         inputs.get(field.key)!.value =

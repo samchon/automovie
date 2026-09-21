@@ -183,7 +183,8 @@ export function assertHumanBodyRig(basis: IAutoMovieHumanBodyBasis): void {
             " " +
             input.bone +
             "." +
-            input.axis,
+            input.axis +
+            ` onset ${input.onset} full ${input.full} reach ${reach}`,
         );
     }
   for (const surface of basis.surfaces) {

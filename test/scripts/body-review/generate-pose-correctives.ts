@@ -246,10 +246,10 @@ function main(): void {
     // an incremental run resumes where the shipped correctives stop: the
     // largest published angle on this side is clean, and its volume is
     // already worn
+    // only a crossing corrective says an angle is clean; a volume corrective
+    // is published at a sample whose crossing may still stand
     const reached = shipped.correctives
-      .filter((one) =>
-        one.id.slice(one.id.indexOf("/") + 1).startsWith(label(group) + "@"),
-      )
+      .filter((one) => one.id.startsWith("pose/" + label(group) + "@"))
       .map(
         (one) =>
           group.neutral + (group.side === "positive" ? 1 : -1) * one.full,
