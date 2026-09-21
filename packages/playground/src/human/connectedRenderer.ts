@@ -1,3 +1,5 @@
+import { validateMeshTopology } from "@automovie/engine";
+import { portraitMeshBuffers } from "@automovie/human";
 import type { IAutoMovieMesh, IAutoMovieModel } from "@automovie/interface";
 import {
   AutoMovieTextureCache,
@@ -37,8 +39,12 @@ function disposeGroup(group: THREE.Group): void {
  * Static topology, material and transform changes allocate a new resident group;
  * ordinary deformations reuse the current buffers only at publication. A stale
  * prepared frame can be discarded without touching the displayed face.
+ * Every preparation checks the actual Float32 representation before cache reuse
+ * or texture loading. Export validates its merged material geometry separately;
+ * this boundary validates each local mesh that the GPU will actually receive.
  *
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Keeps pending numerical edits separate from the committed visible face.
+ * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Refuses Float32 surface loss, invalid attributes and topology before resource preparation or publication of a resident frame.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Updates resident geometry while sharing the viewer's material and texture interpretation.
  */
 export function createConnectedFaceRenderer(props: {
@@ -68,7 +74,22 @@ export function createConnectedFaceRenderer(props: {
           part.geometry.mesh.skin !== null
         )
           throw new Error("Connected previews require static resident meshes.");
-        return part.geometry.mesh;
+        const mesh = part.geometry.mesh;
+        const packed = portraitMeshBuffers(mesh);
+        if (
+          !validateMeshTopology({
+            mesh: { ...mesh, positions: Array.from(packed.positions) },
+            expectClosed: model.materials.some(
+              (material) =>
+                material.id === part.material && (material.thickness ?? 0) > 0,
+            ),
+          }).success
+        )
+          throw new Error(
+            "Connected Float32 geometry must preserve its required topology: " +
+              part.id,
+          );
+        return mesh;
       });
       const signature = JSON.stringify({
         materials: model.materials,
