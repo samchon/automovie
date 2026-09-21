@@ -38,7 +38,56 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
     shoulderMetres: [0.2, 0.7],
   },
   identity: { sex: "macroGender", ageYears: "macroAge", muscle: "macroMuscle" },
-  solved: { stature: "macroHeight", mass: "macroWeight" },
+  solved: {
+    stature: "macroHeight",
+    // a kilogram gained is the weight macro plus the regional fat the sex
+    // lays down: android at the flanks, gynoid at the thighs and buttocks,
+    // and the limbs on both
+    mass: {
+      range: "macroWeight",
+      direction: [
+        { channel: "macroWeight", gain: 1, curves: [] },
+        {
+          channel: "flankFat",
+          gain: 0.5,
+          curves: [
+            {
+              parameter: "sex",
+              points: [
+                [-1, 0.6],
+                [1, 1],
+              ],
+            },
+          ],
+        },
+        ...["outerThighFatLeft", "outerThighFatRight"].map(
+          (channel): Term => ({
+            channel,
+            gain: 0.5,
+            curves: [
+              {
+                parameter: "sex",
+                points: [
+                  [-1, 1],
+                  [1, 0.3],
+                ],
+              },
+            ],
+          }),
+        ),
+        ...["upperarmFatLeft", "upperarmFatRight"].map(
+          (channel): Term => ({ channel, gain: 0.5, curves: [] }),
+        ),
+        ...["upperlegFatLeft", "upperlegFatRight"].map(
+          (channel): Term => ({ channel, gain: 0.5, curves: [] }),
+        ),
+        ...["lowerlegFatLeft", "lowerlegFatRight"].map(
+          (channel): Term => ({ channel, gain: 0.3, curves: [] }),
+        ),
+        { channel: "buttocksVolume", gain: 0.4, curves: [] },
+      ],
+    },
+  },
   measurements: [
     { parameter: "waistMetres", channel: "measureWaistCirc" },
     { parameter: "hipsMetres", channel: "measureHipsCirc" },
@@ -135,6 +184,35 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
         },
       ],
     },
+    ...[
+      "upperarmMuscleLeft",
+      "upperarmMuscleRight",
+      "upperarmShoulderMuscleLeft",
+      "upperarmShoulderMuscleRight",
+      "lowerarmMuscleLeft",
+      "lowerarmMuscleRight",
+      "upperlegMuscleLeft",
+      "upperlegMuscleRight",
+      "lowerlegMuscleLeft",
+      "lowerlegMuscleRight",
+      "torsoMusclePectoral",
+      "torsoMuscleDorsi",
+    ].map(
+      // the regional muscle the macro does not carry to a bodybuilder's bulk
+      (channel): Term => ({
+        channel,
+        gain: 0.7,
+        curves: [
+          {
+            parameter: "muscle",
+            points: [
+              [-1, -1],
+              [1, 1],
+            ],
+          },
+        ],
+      }),
+    ),
     {
       // gluteal ptosis with age, more on a heavier body
       channel: "buttocksPtosis",

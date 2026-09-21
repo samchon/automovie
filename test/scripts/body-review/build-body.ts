@@ -5,7 +5,7 @@
  *
  *   pnpm exec ttsx -P test/tsconfig.scripts.json test/scripts/body-review/build-body.ts -- <set> [output-dir] [--basis path]
  *
- * `set` is `neutral`, `poses`, `folds`, `shapes`, `individuality` or `measure`; the output
+ * `set` is `neutral`, `poses`, `folds`, `shapes`, `individuality`, `archetypes` or `measure`; the output
  * directory defaults to `.shots/body-review/<set>`; `--basis` builds another
  * basis file (a candidate revision) instead of the shipped one. Each state is evaluated through the
  * public `createHumanBodyBasisBuilder`, the same path the editor takes, so a
@@ -22,6 +22,7 @@ import {
   type IAutoMovieHumanBodyBasis,
   type IAutoMovieHumanBodyBasisDocument,
   createHumanBodyBasisBuilder,
+  expandHumanBodySimpleShape,
   measureHumanBodyBasisChannels,
 } from "@automovie/human";
 import type { IAutoMovieJointPose } from "@automovie/interface";
@@ -30,6 +31,7 @@ import path from "node:path";
 import zlib from "node:zlib";
 
 import { REVIEW } from "./individualityStates";
+import { SIMPLE_ARCHETYPES } from "./simpleArchetypes";
 
 const ROOT = path.resolve(__dirname, "../../..");
 const BASIS = path.join(
@@ -186,6 +188,64 @@ function main(): void {
     return;
   }
   const build = createHumanBodyBasisBuilder(basis);
+  if (set === "archetypes") {
+    // the simple tier's review population: each archetype expanded through
+    // the package, a refusal recorded as the reach it names
+    const reach: Record<string, string> = {};
+    for (const [name, archetype] of Object.entries(SIMPLE_ARCHETYPES)) {
+      const started = Date.now();
+      let shape: Record<string, number>;
+      try {
+        shape = {
+          ...expandHumanBodySimpleShape(basis, archetype.simple),
+          ...archetype.detail,
+        };
+      } catch (error) {
+        reach[name] = error instanceof Error ? error.message : String(error);
+        console.log(name.padEnd(24), "REFUSED", reach[name]);
+        continue;
+      }
+      const built = build({ id: name, name, basis: basis.id, shape });
+      const geometry = built.model.parts[0].geometry;
+      if (geometry.type !== "mesh") throw new Error("expected a resident mesh");
+      fs.writeFileSync(
+        path.join(output, name + ".json"),
+        JSON.stringify({
+          basis: basis.id,
+          state: name,
+          document: { shape },
+          simple: archetype.simple,
+          positions: geometry.mesh.positions,
+          normals: geometry.mesh.normals,
+          indices: geometry.mesh.indices,
+          bones: built.bones.map((bone) => ({
+            bone: bone.bone,
+            rest: bone.rest.position,
+            posed: bone.posed.position,
+          })),
+          landmarks: built.landmarks,
+          groundY: Math.min(
+            ...geometry.mesh.positions.filter((_, i) => i % 3 === 1),
+          ),
+        }),
+      );
+      console.log(
+        name.padEnd(24),
+        Object.entries(shape)
+          .filter(([id]) => /^macro/.test(id))
+          .map(([id, w]) => `${id.slice(5).toLowerCase()} ${w.toFixed(2)}`)
+          .join(" "),
+        "in",
+        Date.now() - started,
+        "ms",
+      );
+    }
+    fs.writeFileSync(
+      path.join(output, "reach.json"),
+      JSON.stringify({ basis: basis.id, refused: reach }, null, 2) + "\n",
+    );
+    return;
+  }
   const states: [string, Partial<IAutoMovieHumanBodyBasisDocument>][] =
     set === "poses" || set === "folds"
       ? Object.entries(set === "poses" ? POSES : FOLDS).map(([name, pose]) => [

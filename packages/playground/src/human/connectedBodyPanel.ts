@@ -57,7 +57,11 @@ export function mountConnectedBodyPanel<
   props: {
     basis: IAutoMovieHumanBodyBasis;
     initial: IAutoMovieHumanBodyBasisDocument;
-    shapes: { name: string; shape: Record<string, number> }[];
+    /** A preset's shape, or a function that expands it when it is chosen (the simple tier's archetypes take seconds to solve). */
+    shapes: {
+      name: string;
+      shape: Record<string, number> | (() => Record<string, number>);
+    }[];
     poses: { name: string; pose: IAutoMovieJointPose[] }[];
     viewport: (canvas: HTMLCanvasElement) => {
       build: (
@@ -305,8 +309,15 @@ export function mountConnectedBodyPanel<
   for (const preset of props.shapes) {
     const button = dom.createElement("button");
     button.textContent = preset.name;
-    button.onclick = () =>
-      change({ ...structuredClone(draft), shape: { ...preset.shape } });
+    button.onclick = () => {
+      try {
+        const shape =
+          typeof preset.shape === "function" ? preset.shape() : preset.shape;
+        void change({ ...structuredClone(draft), shape: { ...shape } });
+      } catch (error) {
+        refuse(error);
+      }
+    };
     element("shape-presets").append(button);
   }
   for (const preset of props.poses) {

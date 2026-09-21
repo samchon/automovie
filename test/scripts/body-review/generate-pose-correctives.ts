@@ -4,7 +4,7 @@
  *
  * Usage, from the repository root:
  *
- *   pnpm exec ttsx -P test/tsconfig.scripts.json test/scripts/body-review/generate-pose-correctives.ts -- [shard/of] [--only regex] [output-dir]
+ *   pnpm exec ttsx -P test/tsconfig.scripts.json test/scripts/body-review/generate-pose-correctives.ts -- [shard/of] [--only regex] [--incremental] [output-dir]
  *
  * Every mobile joint axis is visited on each side of its rest at the census's
  * two sample angles, in ascending travel, on a working basis that already
@@ -37,7 +37,12 @@
  *
  * Axes are independent (a single-axis state activates no other axis's
  * ramps), so a shard `i/n` takes every n-th axis group and the merge script
- * assembles the shards into one published revision. Nothing here writes into
+ * assembles the shards into one published revision. With `--incremental` the
+ * shipped basis, which already wears its correctives, is the working basis
+ * and only the states the shipped receipt lists as unpublished are visited,
+ * each starting from the largest angle its axis side already has a
+ * corrective at and without a second volume corrective; the merge appends
+ * what is repaired as the next revision. Nothing here writes into
  * `test/studies`.
  */
 import { measureAutoMovieModelCrossings } from "@automovie/engine";
@@ -81,6 +86,7 @@ function main(): void {
   const only = args.includes("--only")
     ? new RegExp(args[args.indexOf("--only") + 1])
     : null;
+  const incremental = args.includes("--incremental");
   const positional = args.filter(
     (arg, at) => !arg.startsWith("--") && args[at - 1] !== "--only",
   );
@@ -103,8 +109,42 @@ function main(): void {
     throw new Error("the census was taken on another revision");
   const label = (group: IGroup): string =>
     `${group.bone}.${group.axis}${group.side === "positive" ? "+" : "-"}`;
+  // the shipped receipt's unpublished states, by axis group, and the
+  // largest angle each group already reaches with a published corrective
+  const shipped: {
+    unpublished: { state: string }[];
+    correctives: { id: string; full: number }[];
+  } = incremental
+    ? JSON.parse(
+        fs.readFileSync(
+          path.join(STUDY, "pose-correctives-receipt.json"),
+          "utf8",
+        ),
+      )
+    : { unpublished: [], correctives: [] };
+  const owed = new Map<string, number[]>();
+  for (const one of shipped.unpublished) {
+    const [bone, rest] = one.state.split(".");
+    const [axis, angle] = rest.split("@");
+    const joint = basis.joints.find((joint) => joint.bone === bone)!;
+    const neutral = joint.neutral[axis as "flexion" | "abduction" | "twist"];
+    const key = `${bone}.${axis}${Number(angle) > neutral ? "+" : "-"}`;
+    owed.set(key, [...(owed.get(key) ?? []), Number(angle)]);
+  }
   const groups = axisGroups(basis)
     .filter((group) => only === null || only.test(label(group)))
+    .filter((group) => !incremental || owed.has(label(group)))
+    .map((group) =>
+      incremental
+        ? {
+            ...group,
+            samples: [...owed.get(label(group))!].sort(
+              (x, y) =>
+                Math.abs(x - group.neutral) - Math.abs(y - group.neutral),
+            ),
+          }
+        : group,
+    )
     .filter((_group, at) => at % count === index);
   console.log(groups.length, "axis groups in this shard");
 
@@ -146,6 +186,7 @@ function main(): void {
         basis: basis.id,
         shard: [index, count],
         only: only === null ? null : only.source,
+        incremental,
         groups: groups.map(label),
         correctives: published,
         rows,
@@ -200,9 +241,30 @@ function main(): void {
     };
     const tag = (kind: string, angle: number, suffix: number): string =>
       `${kind}/${label(group)}@${angle}` + (suffix > 0 ? `#${suffix + 1}` : "");
-    let clean = group.neutral;
-    let previous = group.neutral;
-    const queue = group.samples.map((angle) => ({ angle, sample: true }));
+    // an incremental run resumes where the shipped correctives stop: the
+    // largest published angle on this side is clean, and its volume is
+    // already worn
+    const reached = shipped.correctives
+      .filter((one) =>
+        one.id.slice(one.id.indexOf("/") + 1).startsWith(label(group) + "@"),
+      )
+      .map(
+        (one) =>
+          group.neutral + (group.side === "positive" ? 1 : -1) * one.full,
+      );
+    let clean =
+      reached.length === 0
+        ? group.neutral
+        : reached.reduce((far, angle) =>
+            Math.abs(angle - group.neutral) > Math.abs(far - group.neutral)
+              ? angle
+              : far,
+          );
+    let previous = clean;
+    const queue = group.samples.map((angle) => ({
+      angle,
+      sample: !incremental,
+    }));
     let visits = 0;
     while (queue.length > 0 && visits++ < VISITS) {
       const { angle, sample } = queue.shift()!;
@@ -328,7 +390,13 @@ function main(): void {
               ? "repaired"
               : "repaired; the midpoint of the ramp still crosses and is queued";
           accept(candidate);
-          if (atMid.length > 0)
+          // a ramp whose midpoint still crosses gets an in-between, unless
+          // the ramp is already within the bisection band of its onset: a
+          // contact that starts at the onset needs its displacement at once,
+          // and halving toward the onset forever would publish a chain of
+          // ever-shorter ramps (the left knee did, ten deep) and exhaust the
+          // visits before the full angle was seen again
+          if (atMid.length > 0 && Math.abs(angle - lo) > 4 * RESOLUTION)
             queue.unshift(
               { angle: midpoint, sample: false },
               { angle, sample: false },

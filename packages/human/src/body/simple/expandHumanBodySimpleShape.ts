@@ -1,12 +1,11 @@
 import { HUMAN_BODY_SIMPLE_SHAPE } from "../constants/HUMAN_BODY_SIMPLE_SHAPE";
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanBodySimpleShape } from "../structures/IAutoMovieHumanBodySimpleShape";
+import { humanBodySimpleShapeDirection as direction } from "./humanBodySimpleShapeDirection";
 import { humanBodySimpleShapeMath as math } from "./humanBodySimpleShapeMath";
 import { measureHumanBodySimpleShape as measure } from "./measureHumanBodySimpleShape";
 import { projectHumanBodySimpleShape } from "./projectHumanBodySimpleShape";
 
-/** The weights each measured inversion samples, in order. */
-const SAMPLES = [-1, 0, 1];
 /**
  * The coupled inversions (a girth changes the volume the mass is read from
  * and the mass changes the girth) are solved in rounds with each other worn
@@ -78,9 +77,6 @@ export function expandHumanBodySimpleShape(
   const channels = new Map(
     basis.channels.map((channel) => [channel.id, channel]),
   );
-  for (const id of [table.solved.stature, table.solved.mass])
-    if (!channels.has(id))
-      throw new Error("A simple body shape needs the channel " + id);
   const parameters = math.parameters(simple);
   const shape: Record<string, number> = {};
   for (const row of table.terms) {
@@ -95,26 +91,18 @@ export function expandHumanBodySimpleShape(
     );
   }
   const solve = (
-    channel: string,
+    along: ReturnType<typeof direction.alone>,
     target: number,
     read: (trial: Record<string, number>) => number | null,
     what: string,
   ): void => {
-    const samples: [number, number][] = SAMPLES.map((weight) => {
-      const value = read({ ...shape, [channel]: weight });
-      if (value === null)
-        throw new Error(`A ${what} cannot be measured on this basis.`);
-      return [weight, value];
-    });
-    const weight = math.invert(samples, target);
-    if (weight === null)
-      throw new Error(
-        `A ${what} of ${target} is beyond this basis, which reaches ${samples[0][1].toFixed(3)} to ${samples[2][1].toFixed(3)}.`,
-      );
-    shape[channel] = weight;
+    Object.assign(
+      shape,
+      direction.solve(basis, shape, along, target, read, what),
+    );
   };
   solve(
-    table.solved.stature,
+    direction.alone(basis, table.solved.stature),
     simple.statureMetres,
     (trial) => measure.stature(basis, trial),
     "stature",
@@ -122,23 +110,20 @@ export function expandHumanBodySimpleShape(
   const density = math.density(
     math.fat(simple, parameters.bodyMassIndex).percent,
   );
-  for (const entry of table.measurements)
-    if (simple[entry.parameter] !== undefined && !channels.has(entry.channel))
-      throw new Error("A simple body shape needs the channel " + entry.channel);
   for (let pass = 0; pass < PASSES; pass++) {
     const before = { ...shape };
     for (const entry of table.measurements) {
       const target = simple[entry.parameter];
       if (target === undefined) continue;
       solve(
-        entry.channel,
+        direction.alone(basis, entry.channel),
         target,
         (trial) => measure.channel(basis, trial, entry.channel),
         entry.parameter,
       );
     }
     solve(
-      table.solved.mass,
+      direction.mass(basis, parameters),
       simple.massKilograms,
       (trial) => measure.mass(measure.volume(basis, trial), density),
       "mass",

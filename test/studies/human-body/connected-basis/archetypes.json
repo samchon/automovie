@@ -1,0 +1,117 @@
+{
+  "slender-woman": {
+    "simple": {
+      "sex": -1,
+      "ageYears": 24,
+      "statureMetres": 1.66,
+      "massKilograms": 47,
+      "muscle": 0.1
+    }
+  },
+  "small-bust-wide-hips": {
+    "simple": {
+      "sex": -1,
+      "ageYears": 28,
+      "statureMetres": 1.64,
+      "massKilograms": 52,
+      "muscle": 0.3,
+      "bustMetres": 0.8,
+      "hipsMetres": 0.98
+    }
+  },
+  "thin-no-hips": {
+    "simple": {
+      "sex": -1,
+      "ageYears": 22,
+      "statureMetres": 1.7,
+      "massKilograms": 44,
+      "muscle": -0.3,
+      "hipsMetres": 0.82
+    }
+  },
+  "emaciated-man": {
+    "simple": {
+      "sex": 1,
+      "ageYears": 35,
+      "statureMetres": 1.78,
+      "massKilograms": 50,
+      "muscle": -0.6
+    }
+  },
+  "model-man": {
+    "simple": {
+      "sex": 1,
+      "ageYears": 27,
+      "statureMetres": 1.86,
+      "massKilograms": 78,
+      "muscle": 0.7
+    }
+  },
+  "bodybuilder": {
+    "simple": {
+      "sex": 1,
+      "ageYears": 32,
+      "statureMetres": 1.8,
+      "massKilograms": 100,
+      "muscle": 1
+    }
+  },
+  "muscular-heavy": {
+    "simple": {
+      "sex": 1,
+      "ageYears": 45,
+      "statureMetres": 1.82,
+      "massKilograms": 118,
+      "muscle": 0.8
+    }
+  },
+  "potbelly-thin": {
+    "simple": {
+      "sex": 1,
+      "ageYears": 50,
+      "statureMetres": 1.72,
+      "massKilograms": 66,
+      "muscle": -0.4,
+      "waistMetres": 0.98
+    },
+    "detail": {
+      "stomachOverhang": 0.7
+    }
+  },
+  "obese": {
+    "simple": {
+      "sex": -1,
+      "ageYears": 48,
+      "statureMetres": 1.62,
+      "massKilograms": 110,
+      "muscle": -0.5
+    }
+  },
+  "giant": {
+    "simple": {
+      "sex": 1,
+      "ageYears": 30,
+      "statureMetres": 2.18,
+      "massKilograms": 140,
+      "muscle": 0.6
+    }
+  },
+  "elderly-woman": {
+    "simple": {
+      "sex": -1,
+      "ageYears": 82,
+      "statureMetres": 1.52,
+      "massKilograms": 54,
+      "muscle": -0.7
+    }
+  },
+  "elderly-man": {
+    "simple": {
+      "sex": 1,
+      "ageYears": 85,
+      "statureMetres": 1.65,
+      "massKilograms": 62,
+      "muscle": -0.6
+    }
+  }
+}

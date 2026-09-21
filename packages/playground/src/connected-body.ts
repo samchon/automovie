@@ -9,7 +9,9 @@
 import {
   type IAutoMovieHumanBodyBasis,
   type IAutoMovieHumanBodyBasisDocument,
+  type IAutoMovieHumanBodySimpleShape,
   type IAutoMovieHumanFaceBasisDocument,
+  expandHumanBodySimpleShape,
   serializeHumanBodyBasisDocument,
   serializeHumanFaceBasisDocument,
 } from "@automovie/human";
@@ -23,6 +25,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
+import archetypes from "../../../test/studies/human-body/connected-basis/archetypes.json";
 import faceStudies from "../../../test/studies/human-face/connected-basis/global-face/subjects.json";
 import { readConnectedFaceAsset } from "./human/connectedAsset";
 import { mountConnectedBodyPanel } from "./human/connectedBodyPanel";
@@ -145,6 +148,22 @@ async function main(): Promise<void> {
         { name: "Muscular", shape: { macroMuscle: 1 } },
         { name: "Tall", shape: { macroHeight: 1 } },
         { name: "Short", shape: { macroHeight: -1 } },
+        // the simple tier's review population, each solved on click
+        ...Object.entries(
+          archetypes as Record<
+            string,
+            {
+              simple: IAutoMovieHumanBodySimpleShape;
+              detail?: Record<string, number>;
+            }
+          >,
+        ).map(([name, archetype]) => ({
+          name: name.replace(/-/g, " "),
+          shape: () => ({
+            ...expandHumanBodySimpleShape(basis, archetype.simple),
+            ...archetype.detail,
+          }),
+        })),
       ],
       poses: [
         { name: "A-pose", pose: [] },

@@ -36,8 +36,27 @@ export interface IAutoMovieHumanBodySimpleShapeTable {
    */
   identity: { sex: string; ageYears: string; muscle: string };
 
-  /** The stature and mass channels, solved by measurement. */
-  solved: { stature: string; mass: string };
+  /**
+   * The stature channel, solved by measurement, and the mass direction: the
+   * channels a kilogram is spread over (the source's weight macro and the
+   * regional fat, by sex) as term rows whose products are the direction's
+   * coefficients; the mass is solved as one scalar along that direction,
+   * over the envelope of the channel named `range`.
+   */
+  solved: {
+    stature: string;
+    mass: {
+      range: string;
+      direction: {
+        channel: string;
+        gain: number;
+        curves: {
+          parameter: AutoMovieHumanBodySimpleParameter;
+          points: [number, number][];
+        }[];
+      }[];
+    };
+  };
 
   /** Optional tape measurements: the channel each is solved on, whose rule in `HUMAN_BODY_MEASUREMENTS` reads it. */
   measurements: {

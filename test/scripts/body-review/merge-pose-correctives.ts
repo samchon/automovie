@@ -4,7 +4,7 @@
  * Usage, from the repository root, after every shard of
  * `generate-pose-correctives.ts` has finished:
  *
- *   pnpm exec ttsx -P test/tsconfig.scripts.json test/scripts/body-review/merge-pose-correctives.ts -- [pose-dir] [--patch dir]... [--write]
+ *   pnpm exec ttsx -P test/tsconfig.scripts.json test/scripts/body-review/merge-pose-correctives.ts -- [pose-dir] [--patch dir]... [--incremental] [--write]
  *
  * A `--patch` directory holds a later `--only` run over some axis groups;
  * its records and correctives replace the main shards' for exactly those
@@ -22,7 +22,12 @@
  * carries the hashes of the revision that is now shipped.
  * The merge refuses a shard set with a gap, an axis group no shard or patch
  * visited, shards solved against another revision, and a corrective set that
- * does not admit.
+ * does not admit. With `--incremental` the directory holds a run of the
+ * generator's incremental mode over the shipped basis: its correctives are
+ * appended to the ones already worn, the shipped receipt's records and
+ * correctives are carried forward, the states it repaired leave the
+ * unpublished list, and the revision id takes a `+correctives-N` suffix
+ * counting the incremental rounds.
  */
 import {
   type IAutoMovieHumanBodyBasis,
@@ -75,6 +80,7 @@ interface IShard {
 function main(): void {
   const args = process.argv.slice(2).filter((arg) => arg !== "--");
   const write = args.includes("--write");
+  const incremental = args.includes("--incremental");
   const patches = args
     .map((arg, at) => (arg === "--patch" ? path.resolve(args[at + 1]) : null))
     .filter((one): one is string => one !== null);
@@ -120,12 +126,41 @@ function main(): void {
   );
   const count = main[0].shard[1];
   const seen = new Set(main.map((shard) => shard.shard[0]));
+  if (shards.some((shard) => shard.basis !== basis.id))
+    throw new Error("the shards were solved against another revision");
   if (
-    shards.some((shard) => shard.basis !== basis.id) ||
-    main.some((shard) => shard.shard[1] !== count) ||
-    seen.size !== count
+    !incremental &&
+    (main.some((shard) => shard.shard[1] !== count) || seen.size !== count)
   )
     throw new Error("the shards do not form one census of the shipped basis");
+  // the shipped receipt an incremental round extends
+  const previousReceipt = path.join(STUDY, "pose-correctives-receipt.json");
+  const shipped: {
+    basis: string;
+    correctives: {
+      id: string;
+      state: string;
+      onset: number;
+      full: number;
+      vertices: number;
+      mostPosedMillimetres: number;
+      mostRestMillimetres: number;
+    }[];
+    records: IShard["records"];
+    unpublished: { state: string }[];
+  } | null =
+    incremental && fs.existsSync(previousReceipt)
+      ? JSON.parse(fs.readFileSync(previousReceipt, "utf8"))
+      : null;
+  if (incremental && shipped === null)
+    throw new Error("an incremental round needs the shipped receipt");
+  const round =
+    (basis.id.match(/\+correctives-(\d+)$/)?.[1] ?? "0") === "0"
+      ? 1
+      : Number(basis.id.match(/\+correctives-(\d+)$/)![1]) + 1;
+  const revision = incremental
+    ? `${basis.id.replace(/\+correctives-\d+$/, "")}+correctives-${round}`
+    : REVISION;
 
   // every axis group the main shards took on has been visited, by the shard
   // itself or by a patch that replaced it; a shard stopped short of a group
@@ -133,9 +168,11 @@ function main(): void {
   const visited = new Set(
     shards.flatMap((shard) => shard.records.map((record) => record.group)),
   );
-  const missing = main
-    .flatMap((shard) => shard.groups)
-    .filter((group) => !visited.has(group));
+  const missing = incremental
+    ? []
+    : main
+        .flatMap((shard) => shard.groups)
+        .filter((group) => !visited.has(group));
   if (missing.length > 0)
     throw new Error("axis groups without a record: " + missing.join(", "));
   const correctives = shards.flatMap((shard) => shard.correctives);
@@ -149,7 +186,7 @@ function main(): void {
   const surface = basis.surfaces[0];
   const next: IAutoMovieHumanBodyBasis = {
     ...basis,
-    id: REVISION,
+    id: revision,
     correctives: [...(basis.correctives ?? []), ...correctives],
     surfaces: [
       { ...surface, targets: { ...surface.targets, ...rows } },
@@ -164,9 +201,19 @@ function main(): void {
   const repaired = crossings.filter((record) =>
     record.outcome.startsWith("repaired"),
   );
-  const unpublished = crossings.filter(
-    (record) => !record.outcome.startsWith("repaired"),
-  );
+  // an incremental round's unpublished list is the shipped one less what
+  // this round repaired, plus what this round still could not
+  const repairedNow = new Set(repaired.map((record) => record.state));
+  const unpublished = [
+    ...(shipped?.records ?? []).filter(
+      (record) =>
+        record.crossing !== null &&
+        !record.outcome.startsWith("repaired") &&
+        !repairedNow.has(record.state) &&
+        !records.some((one) => one.state === record.state),
+    ),
+    ...crossings.filter((record) => !record.outcome.startsWith("repaired")),
+  ];
   const mostRest = (id: string): number => {
     let most = 0;
     const list = rows[id] ?? [];
@@ -176,8 +223,9 @@ function main(): void {
   };
   const millimetres = (metres: number): number => Math.round(metres * 1e4) / 10;
   const receipt = {
-    basis: REVISION,
+    basis: revision,
     supersedes: basis.id,
+    incrementalRound: incremental ? round : 0,
     recorded: new Date().toISOString().slice(0, 10),
     method: {
       volume:
@@ -201,32 +249,35 @@ function main(): void {
       ),
       mostPosedMillimetres: millimetres(record.crossing!.mostPosed),
     })),
-    correctives: correctives.map((corrective) => {
-      const record = records.find(
-        (one) =>
-          one.volume?.id === corrective.id ||
-          one.crossing?.id === corrective.id,
-      )!;
-      const crossing =
-        record.crossing?.id === corrective.id ? record.crossing : null;
-      const part = crossing ?? record.volume;
-      if (part === null) throw new Error("a corrective without its record");
-      return {
-        id: corrective.id,
-        state: record.state,
-        onset: part.onset,
-        full: part.full,
-        vertices: (rows[corrective.id]?.length ?? 0) / 4,
-        mostPosedMillimetres: millimetres(part.mostPosed),
-        mostRestMillimetres: millimetres(mostRest(corrective.id)),
-        pairs: crossing?.pairs.map((pair) => pair.part + " x " + pair.other),
-        verification: crossing?.verification.map((step) => ({
-          angle: step.angle,
-          pairs: step.pairs.length,
-        })),
-      };
-    }),
-    records,
+    correctives: [
+      ...(shipped?.correctives ?? []),
+      ...correctives.map((corrective) => {
+        const record = records.find(
+          (one) =>
+            one.volume?.id === corrective.id ||
+            one.crossing?.id === corrective.id,
+        )!;
+        const crossing =
+          record.crossing?.id === corrective.id ? record.crossing : null;
+        const part = crossing ?? record.volume;
+        if (part === null) throw new Error("a corrective without its record");
+        return {
+          id: corrective.id,
+          state: record.state,
+          onset: part.onset,
+          full: part.full,
+          vertices: (rows[corrective.id]?.length ?? 0) / 4,
+          mostPosedMillimetres: millimetres(part.mostPosed),
+          mostRestMillimetres: millimetres(mostRest(corrective.id)),
+          pairs: crossing?.pairs.map((pair) => pair.part + " x " + pair.other),
+          verification: crossing?.verification.map((step) => ({
+            angle: step.angle,
+            pairs: step.pairs.length,
+          })),
+        };
+      }),
+    ],
+    records: [...(shipped?.records ?? []), ...records],
   };
   console.log(
     "states",
@@ -284,7 +335,7 @@ function main(): void {
     console.log("dry run; basis and receipt written beside the shards");
     return;
   }
-  console.log("wrote", REVISION);
+  console.log("wrote", revision);
 }
 
 main();
