@@ -8,6 +8,10 @@
 
 오른쪽 가로 경계의 안정 ID는 북쪽부터 `boundary-yard-storage`, `boundary-storage-records`, `boundary-records-office`다. 이들의 끝과 spine·외벽·현관의 맞닿음은 [벽 접합](junctions.md#wall-junctions)이 정한다. 외곽 모서리의 두 벽을 겹친 상자로 만들지 않으며 후퇴벽·반환벽은 남측 입면의 물리 소유다. 마당과 보관실 사이의 높은 지붕 끝은 [박공 폐쇄](junctions.md#gable-closures)를 소비한다.
 
+공개 `IAutoMovieBuiltBoundary.face`에는 절단 전 host의 위치·회전·윤곽·두께를, `IAutoMovieBuiltOpening.profile`에는 그 host의 local XY로 표현한 실제 void를 배정한다. 문과 채광구의 profile은 네 꼭짓점의 직사각형이며 아래 각 절의 유효 치수와 해당 가장자리의 틀 두께에서 유도한다. profile 없는 관계 레코드를 물리 개구부로 세지 않는다. 실체 벽의 절단과 문틀·문짝 배치는 동일한 host/profile/ID를 소비하며 화면용 좌표나 구멍 목록을 별도로 만들지 않는다.
+
+`builtBoundaryWallCut`은 opening ID를 보존하지만 host 윤곽도 외접 직사각형으로 환원한다. 직사각형 벽의 절단 입력에는 적용할 수 있으나 [박공](junctions.md#gable-closures)의 최종 윤곽을 대신하지 못한다. 두께 방향으로 단면이 일정한 벽은 공개 `extrudeAutoMovieRegion`에 실제 host 윤곽과 void를 반영한 영역을 전달하는 경로를 채택한다. 그 API는 바깥 윤곽과 닿는 hole을 거부하므로 바닥까지 열린 문은 바깥 윤곽의 오목한 절단으로, 벽 안에 완전히 둘러싸인 채광구는 내부 hole로 유도한다. 이 형상 변환도 위의 profile에서 파생하고 새 문 위치를 저작하지 않는다. 모서리 맞댐이나 벽 두께 안에서 달라지는 지붕 하부는 일정 단면 압출만으로 완료했다고 하지 않으며 기존 접합 소유에서 실제 닫힌 실체와 대조한다. 이 경로는 공개 API 조사에 근거한 설계이고 생성된 벽 mesh는 아직 없다.
+
 관찰은 각 경계 양면과 모든 void의 단면을 짝으로 읽는다. 인접 공간이 잘못 연결되거나 문 한쪽에 벽이 남으면 실패다. 닫힌 경계에 보이지 않는 semantic 문을 만들지 않는다. 현재 이 선언은 설계이며 실체 절단은 unverified다.
 
 ## 출입문의 명시 위치 {#doors}
@@ -26,6 +30,8 @@
 | door-service-exterior | 동측 외벽, exterior↔service-yard | Z=-6.4 | 1.1×2.2 | 마당 안 북쪽 |
 
 마당-주랑 접면의 입력 길이는 1.4m이고 문틀을 포함한 void는 1.12m이므로 양끝 벽 여유가 각각 0.14m다. 문틀을 구멍 폭에 덧붙이는 순서를 뒤집어 유효 폭을 잃지 않는다. 모든 문짝은 기둥·부재·사람 포락과 스윙 전 범위에서 비교하고 열린 정지 상태에서 주랑 유효폭을 확인한다. 이 산술은 부재 검증을 대신하지 않는다. 실제 compile에서 프레임·힌지 위치가 달라지면 문 치수를 조용히 복제하지 말고 이 소유를 수정한다.
+
+표의 유효 폭은 열린 문짝과 철물이 남긴 실제 통과 영역에서도 유지해야 한다. 문틀 안쪽 폭만 같다고 통과시키지 않으며 0.05m 문짝의 두께나 손잡이가 침범하면 힌지·틀 단면과 그 소비자를 이 목표에 맞춰 다시 검토한다. `opening.fill` 아래 실제 한 짝 또는 두 짝 element를 배정하고 각 panel의 닫힌 자세와 회전축·한계, `closed`/`open` 상태를 선언한다. 현재 상태는 `open`이며 정문의 두 짝은 위 표의 90도 방향을 따른다. `builtOpeningPanelPlacements`가 읽는 상태와 `lowerBuiltEnvironment`가 그리는 상태를 일치시키고, 여닫힘을 브라우저에서 별도 회전으로 재현하지 않는다. 틀·힌지·손잡이는 실제 부재가 필요하며 operation 레코드만으로 생기지 않는다.
 
 ## 높은 제실 채광구 {#clerestories}
 
