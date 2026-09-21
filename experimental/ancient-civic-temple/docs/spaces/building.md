@@ -48,3 +48,16 @@ building ID는 `temple`이다. source 소유는 `src/spaces/building.ts`이며 b
 `temple` 아래에는 [지상층](storey.md#ground-storey) 하나가 있고 그 아래에 현관, 중정, 주랑, 제실, 봉헌실, 관리실, 기록실, 보관실, 서비스 마당이 있다. 후면 제실과 왼쪽 봉헌실, 오른쪽 세 방은 각각 주랑에 직접 문을 낸다. 서비스 마당도 같은 주랑에 직접 문을 내며 외부 문은 실제 서비스 접근으로 이어진다. 방끼리 연결해야만 도착하는 대상은 없다.
 
 중정 둘레의 고리는 [주랑](rooms/colonnade.md#ring-volume) 하나가 소유한다. 네 변을 서로 다른 방으로 등록하거나 마당 옆에 두 번째 복도를 추가하지 않는다. 방 문은 [경계와 개구부](openings.md)에, 사용 경로는 [통행](circulation.md)에 귀속한다. containment 검사는 모든 공간의 storeyId와 부모 연결을 실제 산출물에서 읽고, 경로 검사는 도달한 ID뿐 아니라 통과한 void·바닥·문짝을 함께 읽는다.
+
+## 외부 접근을 받는 건물 접점 {#approach-contacts}
+
+건물 `temple`은 외부 보행을 아래 두 접점에서 받아 기존 지상층 공간으로 잇는다. 이 ID는 건물 측 바닥·출입 경계의 식별자이며 새 방, 추가 출입문 또는 maps의 대지 접근 노드가 아니다. 좌표는 [기준선](#plan-datums), 바닥 높이는 [층](storey.md#ground-storey), 폭은 실제 계단과 문을 소유하는 설계에서 가져온다. `src/spaces/building.ts`는 이 관계를 내보내고 바닥이나 문 mesh를 복제하지 않는다.
+
+| 접점 ID | 건물 측 연결과 위치 | 접면의 유효 범위 | 외부에서 들어오는 방향 |
+| --- | --- | --- | --- |
+| contact-temple-public | exterior→entrance; 정문 축 X=0, Z=south-outer의 계단 하단 발치 | [현관 계단](rooms/entrance.md#entrance-volume)의 폭, 층 owner의 정문 도로 높이 | -Z; 두 단을 거쳐 상부참과 door-entry로 연결 |
+| contact-temple-service | exterior→service-yard; X=east-outer, Z는 door-service-exterior의 중심 | [외부 서비스 문](openings.md#doors)의 틀을 제외한 유효 폭, 층 owner의 서비스 외부 높이 | -X; 외벽 두께를 관통하는 문턱에서 마당으로 연결 |
+
+정문 접점의 높이는 계단의 하단 발치를 받는 외부 바닥 높이다. 이 높이를 상부참에 복사해 계단을 없애거나, 서비스 문 앞에도 복사해 의도하지 않은 단차를 만들지 않는다. 접면의 평면 일치는 [기준선 허용 오차](#plan-datums)로, 서비스 문턱은 [마당의 단차 한계](rooms/service-yard.md#yard-volume)로 비교한다. 문은 양방향 통과를 검사하며 위 방향은 진입 순서를 표시한다. 경계석·배수 홈·식생·문짝이 유효 접면을 막는지도 실제 통행 포락으로 확인한다.
+
+외부 지면·길·대지 경계 및 world→site의 명명된 접근 노드는 후속 maps가 소유한다. maps는 이 두 건물 접점을 소비해 정문 도로와 서비스 접근의 서로 다른 높이를 잇는 지면을 결정해야 한다. 현재는 maps가 활성화되지 않았고 채택한 대지 경계·외부 노드·종단면도 없다. 따라서 이 접점 설계만으로 world→site→building 접근이나 대지 배치를 완료했다고 하지 않는다. [통행](circulation.md)의 경로 시작은 이 건물 측 접점이고, 외부 구간을 포함한 왕복·접지 검사는 [관찰](observations.md#geometry-observations)에 미완료로 남긴다.

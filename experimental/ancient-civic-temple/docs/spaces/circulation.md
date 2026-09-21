@@ -2,7 +2,7 @@
 
 ## 현관과 주랑의 순환 {#public-route}
 
-공용 시작은 [현관](rooms/entrance.md#entrance-volume)의 도로 접점이다. 두 석단과 상부참을 거쳐 `door-entry`를 통과하면 남쪽 주랑이며 직진하면 중정의 남쪽 턱을 내려 중앙 수반 앞에 선다. 주랑의 순환은 남→동→북→서→남의 같은 바닥이고 어느 모서리에도 문이나 닫힌 벽을 추가하지 않는다. 제실·봉헌실·관리실·기록실·보관실은 각각 자기 [문](openings.md#doors)으로 이 고리에 붙는다.
+공용 시작은 [건물 접점](building.md#approach-contacts) `contact-temple-public`이다. [현관](rooms/entrance.md#entrance-volume)의 두 석단과 상부참을 거쳐 `door-entry`를 통과하면 남쪽 주랑이며 직진하면 중정의 남쪽 턱을 내려 중앙 수반 앞에 선다. 주랑의 순환은 남→동→북→서→남의 같은 바닥이고 어느 모서리에도 문이나 닫힌 벽을 추가하지 않는다. 제실·봉헌실·관리실·기록실·보관실은 각각 자기 [문](openings.md#doors)으로 이 고리에 붙는다.
 
 중정 남쪽 축의 발 디딤 구간은 폭 1.8m, 수평 깊이 0.35m를 예약하고 단높이는 층 높이에서 유도한다. 공간을 연결하는 connector는 이 실제 디딤 면에 닿아야 한다. 주랑에 배정한 여유는 [주랑 cell](rooms/colonnade.md#ring-volume)에서 정하고 이 문서는 다른 폭을 중복 선언하지 않는다. 보행과 운반은 [설정 포락](../settings/10-building.md#use-profile)을 그대로 사용한다.
 
@@ -10,6 +10,6 @@
 
 ## 마당에서 보관실까지의 반입 {#service-route}
 
-서비스 시작은 [서비스 마당](rooms/service-yard.md#yard-volume)의 동쪽 외부 접점이다. `door-service-exterior`→마당→`door-yard`→북동 주랑→`door-storage`→보관실 중앙 순서로 작은 봉헌물을 옮긴다. 외부 접점부터 전 구간이 같은 층 바닥 높이이며 제실이나 기록실을 통과하지 않는다. 이 경로는 기존 주랑의 짧은 구간을 공유하고 별도 순환 복도를 만들지 않는다.
+서비스 시작은 [건물 접점](building.md#approach-contacts) `contact-temple-service`다. `door-service-exterior`→[서비스 마당](rooms/service-yard.md#yard-volume)→`door-yard`→북동 주랑→`door-storage`→보관실 중앙 순서로 작은 봉헌물을 옮긴다. 외부 접점부터 전 구간이 같은 층 바닥 높이이며 제실이나 기록실을 통과하지 않는다. 이 경로는 기존 주랑의 짧은 구간을 공유하고 별도 순환 복도를 만들지 않는다.
 
 운반 포락은 회전 시에도 벽·기둥·열린 문짝을 통과할 수 없다. 특히 좁은 마당 문 앞과 북동 모서리에서 회전을 검사한다. 외부 지면은 maps가 이 접점 높이를 소비해야 하며 정문 도로의 낮은 높이를 서비스 문에도 복사하지 않는다. 양방향 threshold와 바닥 종단면, 가장 가까운 장애물까지의 compiled 거리로 반증한다. 소스 없는 지금은 모든 물리 통과 결과를 unverified로 남긴다.
