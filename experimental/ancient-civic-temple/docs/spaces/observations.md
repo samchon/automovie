@@ -10,6 +10,8 @@
 
 [개구부 소유](openings.md#boundary-ownership)의 같은 boundary/opening ID마다 선언한 profile과 실제 벽 void의 위치·범위·관통 깊이를 대조한다. 바닥까지 열린 문 아래에 벽 띠가 남는지, 높은 창 위 박공이 외접 직사각형으로 메워졌는지, reveal 뒤에 중복 벽이 있는지를 문턱 종단면과 양면에서 확인한다. 닫힌 자세의 문짝 fitting과 열린 자세의 통과 영역도 같은 실제 element를 읽는다. `builtOpeningSweepEnvelope`는 두께 없는 panel 직사각형의 회전/이동을 감싸는 world 상자를 반환하므로 실제 문짝 두께·철물·손잡이의 swept 실체나 장애물 충돌 판정을 대신하지 않는다. 이 상자와 실제 mesh의 검토 범위를 구별하고, 전체 실체의 회전·통과를 재는 수단이 없거나 실행하지 않았다면 해당 질문은 unverified로 남긴다.
 
+[문턱 바닥](storey.md#threshold-support)은 같은 opening ID의 host 깊이 전체를 포함한 종단면과 폭 방향 양끝에서 본다. 양쪽 바닥·문턱의 실제 mesh, support patch와 높이, 귀속 공간의 volume 및 connector를 대조해 빈 틈·중복 바닥·허공의 지지 선언을 구분한다. 외부 서비스 문도 마당의 문턱 끝과 외부 지면이 만나는 부분을 포함한다. 단순한 점 하나의 containment나 끝점 도달로 전체 발 디딤과 운반 포락의 연속성을 대신하지 않는다.
+
 외부 setting 하나, 모든 노출 입면·입면 사이 모서리·노출 지붕·하부·개구부에 안정된 compiled ID를 부여한다. 단층 평면은 Y=1.2m 절단, 지붕 접합과 실내 높이는 문/용마루를 지나는 실제 종횡 단면으로 본다. 각 면의 법선·경계에서 관찰 pose를 유도하고 수동 대표 시점이 전집합을 덮었다고 가정하지 않는다. 카메라 위치·target·렌즈·현재 generation과 렌더 모드를 함께 보여 준다. source owner는 `src/spaces/observations.ts`이며 건물 geometry를 다시 만들지 않는다.
 
 [벽 접합](junctions.md#wall-junctions)의 실제 L/T 접면과 [박공 폐쇄](junctions.md#gable-closures)의 경계 목록을 소비해 각 접합 단면·양면 관찰을 더한다. 물리벽끼리 맞닿는 내부 면과 외부에 노출된 면을 구별해 내부 접면을 마감 누락으로 세지 않는다. 특히 마당-보관실의 높은 끝벽과 주랑 위의 열린 지붕 접합을 서로 다른 경계로 관찰한다. 수평 도면만으로 지붕 위에 돌출한 벽 상단을 통과시키지 않는다.

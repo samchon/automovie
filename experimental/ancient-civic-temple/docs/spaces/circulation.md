@@ -10,6 +10,8 @@
 
 검사는 바닥의 공유 경계를 따라 실제 통과 가능한 문/connector의 순서와 열린 문짝의 방해 여부를 읽는다. 각 문을 왕복하고 고리 네 모서리에서는 회전 포락도 확인한다. 카메라의 자유 이동이나 인접 그래프의 단순 도달만으로 통과라고 세지 않는다. 경로 의미 소유는 `src/spaces/circulation.ts`이고 실제 형상은 방·문·층의 단일 소유를 소비한다.
 
+각 문 통과는 한쪽 방 바닥→[벽 두께 안 문턱](storey.md#threshold-support)→반대쪽 바닥의 순서로 확인한다. connector의 끝점이 방 안에 있다는 사실만으로 그 중간 지지면을 생략하지 않는다. 실제 문턱과 맞닿는 두 바닥의 높이·범위·소유, 열린 문짝 뒤의 유효 통과 영역을 함께 읽으며 서비스 문의 외부 지면 접합도 같은 대상이다.
+
 ## 마당에서 보관실까지의 반입 {#service-route}
 
 서비스 시작은 [건물 접점](building.md#approach-contacts) `contact-temple-service`다. `door-service-exterior`→[서비스 마당](rooms/service-yard.md#yard-volume)→`door-yard`→북동 주랑→`door-storage`→보관실 중앙 순서로 작은 봉헌물을 옮긴다. 외부 접점부터 전 구간이 같은 층 바닥 높이이며 제실이나 기록실을 통과하지 않는다. 이 경로는 기존 주랑의 짧은 구간을 공유하고 별도 순환 복도를 만들지 않는다.

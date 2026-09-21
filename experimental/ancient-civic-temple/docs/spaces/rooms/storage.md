@@ -2,7 +2,9 @@
 
 ## 마당에 가까운 저장 방 {#storage-volume}
 
-공간 ID `storage`는 [기준선](../building.md#plan-datums) east-room~east-inner, storage-back~storage-front다. 북쪽 서비스 마당과 남쪽 기록실 사이에 있고 서쪽의 직접 문으로 주랑에 닿는다. 마당에서 보관실까지의 필수 반입은 마당 문→주랑→보관실 문이며 공유 북벽에 별도 통과방을 만들지 않는다.
+공간 ID `storage`의 본체는 [기준선](../building.md#plan-datums) east-room~east-inner, storage-back~storage-front다. 북쪽 서비스 마당과 남쪽 기록실 사이에 있고 서쪽의 직접 문으로 주랑에 닿는다. 마당에서 보관실까지의 필수 반입은 마당 문→주랑→보관실 문이며 공유 북벽에 별도 통과방을 만들지 않는다.
+
+동측 spine 안 `door-storage`의 문턱 바닥과 통과 부피는 [층의 배정](../storey.md#threshold-support)에 따라 보관실이 소유한다. 이 접점에서도 주랑에서 저장 바닥까지 서비스 반입 높이가 이어져야 한다.
 
 [보관실 정체성](../../settings/30-interiors.md#storage)을 소비해 큰 용기와 상자·바구니를 북·동·남 벽을 따라 놓고 서쪽 문에서 방 중앙까지 빈 진입을 예약한다. 중앙 통로의 폭은 사용 포락의 최소를 깎지 않고 문짝 전체 스윙을 포함해 남긴다. 주랑과 같은 바닥이며 작은 봉헌물 운반에 계단을 요구하지 않는다.
 
