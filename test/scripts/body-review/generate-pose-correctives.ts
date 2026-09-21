@@ -297,13 +297,15 @@ function main(): void {
           withCorrective(
             working,
             id,
-            {
-              bone: group.bone,
-              axis: group.axis,
-              side: group.side,
-              onset: travel(previous),
-              full: travel(angle),
-            },
+            [
+              {
+                bone: group.bone,
+                axis: group.axis,
+                side: group.side,
+                onset: travel(previous),
+                full: travel(angle),
+              },
+            ],
             volumeRest,
           ),
         );
@@ -360,13 +362,15 @@ function main(): void {
           const candidate = withCorrective(
             working,
             id,
-            {
-              bone: group.bone,
-              axis: group.axis,
-              side: group.side,
-              onset,
-              full,
-            },
+            [
+              {
+                bone: group.bone,
+                axis: group.axis,
+                side: group.side,
+                onset,
+                full,
+              },
+            ],
             attempt.rest,
           );
           const candidateBuild = createHumanBodyBasisBuilder(candidate);

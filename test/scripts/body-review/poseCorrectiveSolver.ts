@@ -342,17 +342,16 @@ export function solve(
   return { rest: state.toRest(posed), posed, rounds };
 }
 
-/** A copy of the basis carrying one more corrective and its rest rows. */
+/** A corrective's driver: a clinical joint ramp or a channel side. */
+export type Driver = NonNullable<
+  IAutoMovieHumanBodyBasis["correctives"]
+>[number]["inputs"][number];
+
+/** A copy of the basis carrying one more corrective, driven by the product of `inputs`, and its rest rows. */
 export function withCorrective(
   basis: IAutoMovieHumanBodyBasis,
   id: string,
-  driver: {
-    bone: AutoMovieHumanoidBone;
-    axis: Axis;
-    side: Side;
-    onset: number;
-    full: number;
-  },
+  inputs: Driver[],
   rest: Map<number, number[]>,
 ): IAutoMovieHumanBodyBasis {
   const rows: number[] = [];
@@ -366,7 +365,7 @@ export function withCorrective(
     ...basis,
     correctives: [
       ...(basis.correctives ?? []),
-      { id, inputs: [driver], weight: 1, target: id },
+      { id, inputs, weight: 1, target: id },
     ],
     surfaces: [
       { ...surface, targets: { ...surface.targets, [id]: rows } },
