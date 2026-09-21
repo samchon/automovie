@@ -209,10 +209,26 @@ try {
   await set("#simple-massKilograms", "76");
   await set("#simple-muscle", "-0.2");
   await page.click("#simple-apply");
-  await ready("s.document.shape.macroGender === -1");
+  // the expansion runs its measured inversions in the page, which takes
+  // seconds; a refusal would surface as the error status instead
+  await page.waitForFunction(
+    () => {
+      const s = window.__connectedBody.snapshot();
+      return (
+        s?.status === "error" ||
+        (s?.status === "ready" && s.document.shape.macroGender === -1)
+      );
+    },
+    {},
+    { timeout: 600000 },
+  );
+  assert.equal((await snapshot()).error, null, "the simple body applies");
   state = await snapshot();
   assert.equal(state.shape.macroGender, -1);
-  assert.ok(Math.abs(state.shape.measureBustCirc - 0.4) < 1e-6, "the bust edit survives");
+  assert.ok(
+    Math.abs(state.shape.measureBustCirc - 0.4) < 1e-6,
+    "the bust edit survives",
+  );
   assert.ok(state.shape.macroAge > 0.6 && state.shape.macroAge < 0.7);
   assert.ok(state.shape.buttocksPtosis > 0.5);
   assert.ok(Number.isFinite(state.shape.macroHeight));

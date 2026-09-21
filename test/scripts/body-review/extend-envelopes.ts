@@ -40,13 +40,16 @@ const REVISION = "mpfb-connected-body-2026-09-21-envelopes";
 const ENVELOPES: Record<string, [number, number]> = {
   macroWeight: [-2.5, 4],
   macroMuscle: [-1, 2],
-  upperarmFatLeft: [-1.5, 2.5],
-  upperarmFatRight: [-1.5, 2.5],
-  upperlegFatLeft: [-1.5, 2.5],
-  upperlegFatRight: [-1.5, 2.5],
-  lowerlegFatLeft: [-1.5, 2.5],
-  lowerlegFatRight: [-1.5, 2.5],
-  buttocksVolume: [-1.5, 2.5],
+  // the regional fat fields stop at their authored reach: past one each
+  // field's edge at the knee, elbow or gluteal fold reads as a shelf, so a
+  // heavier body rides the weight macro, whose field covers the whole skin
+  upperarmFatLeft: [-1, 1],
+  upperarmFatRight: [-1, 1],
+  upperlegFatLeft: [-1, 1],
+  upperlegFatRight: [-1, 1],
+  lowerlegFatLeft: [-1, 1],
+  lowerlegFatRight: [-1, 1],
+  buttocksVolume: [-1, 1],
 
   measureWaistCirc: [-2, 3],
   measureHipsCirc: [-2, 2],
