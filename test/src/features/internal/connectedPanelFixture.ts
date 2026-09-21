@@ -1,6 +1,7 @@
 import type { IAutoMovieModelCrossing } from "@automovie/engine";
 import {
   type IAutoMovieHumanFaceBasisDocument,
+  type IAutoMovieHumanFaceControlMap,
   createHumanFaceBasisBuilder,
 } from "@automovie/human";
 import { mountConnectedFacePanel } from "@automovie/playground/src/human/connectedPanel";
@@ -15,6 +16,8 @@ import { humanFaceBasisFixture } from "./humanFaceBasisFixture";
  */
 export function connectedPanelFixture(
   props: {
+    source?: ReturnType<typeof humanFaceBasisFixture>;
+    controlMap?: IAutoMovieHumanFaceControlMap;
     studies?: readonly IAutoMovieHumanFaceBasisDocument[];
     /** Crossing readings by document id, standing in for the worker's measure. */
     crossings?: (
@@ -29,7 +32,7 @@ export function connectedPanelFixture(
     ) => Promise<Uint8Array<ArrayBuffer>>;
   } = {},
 ) {
-  const source = humanFaceBasisFixture();
+  const source = props.source ?? humanFaceBasisFixture();
   const build = createHumanFaceBasisBuilder(source.basis);
   const dom = new JSDOM("<!doctype html><main id='app'></main>");
   const app = dom.window.document.querySelector<HTMLElement>("#app")!;
@@ -45,6 +48,7 @@ export function connectedPanelFixture(
   const panel = mountConnectedFacePanel(app, {
     basis: source.basis,
     initial: source.document,
+    controlMap: props.controlMap,
     studies: props.studies,
     presets: [
       { name: "Lift", expression: { lift: 0.5 } },

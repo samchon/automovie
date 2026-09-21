@@ -10,12 +10,13 @@ import type { IAutoMovieModelCrossing } from "@automovie/engine";
 import {
   type IAutoMovieHumanFaceBasis,
   type IAutoMovieHumanFaceBasisDocument,
-  type IAutoMovieHumanFaceEndpointScale,
+  type IAutoMovieHumanFaceControlMap,
   createHumanFaceEditor,
-  measureHumanFaceBasisChannels,
   parseHumanFaceBasisDocument,
   serializeHumanFaceBasisDocument,
 } from "@automovie/human";
+
+import { mountConnectedFaceControls } from "./connectedControls";
 
 /**
  * Mount editable endpoint controls around an injected numerical viewport.
@@ -38,6 +39,7 @@ export function mountConnectedFacePanel<
     /** Admitted basis; the panel reads its channels and measures their scale. */
     basis: IAutoMovieHumanFaceBasis;
     initial: IAutoMovieHumanFaceBasisDocument;
+    controlMap?: IAutoMovieHumanFaceControlMap;
     /** Application-owned studies; never embedded in the numerical package. */
     studies?: readonly IAutoMovieHumanFaceBasisDocument[];
     presets: { name: string; expression: Record<string, number> }[];
@@ -61,23 +63,6 @@ export function mountConnectedFacePanel<
   },
 ) {
   const dom = app.ownerDocument;
-  // A basis weight is dimensionless, so the envelope alone gives an author a
-  // range without a unit. The package measures what one unit of each endpoint
-  // moves; the panel only formats it. Millimetres because the whole head spans
-  // a few hundred and the smallest authored endpoints move tens of micrometres.
-  const scales = new Map(
-    measureHumanFaceBasisChannels(props.basis).map((scale) => [
-      scale.id,
-      scale,
-    ]),
-  );
-  const millimetres = (metres: number): string => (metres * 1000).toFixed(2);
-  const describe = (
-    sign: string,
-    scale: IAutoMovieHumanFaceEndpointScale,
-  ): string =>
-    `${sign}1 moves ${millimetres(scale.displacement)} mm rms, ` +
-    `${millimetres(scale.peak)} mm peak on ${scale.vertices} vertices`;
   app.innerHTML = `
 <style>
 *{box-sizing:border-box}body{margin:0;background:#161c23;color:#e4eaf0;font:13px/1.5 system-ui}main{display:grid;grid-template-columns:minmax(300px,1fr) 410px;height:100vh}section{position:relative;min-width:0}canvas{width:100%;height:100%;display:block}aside{overflow:auto;padding:20px;background:#10161d}h1{font-size:20px;margin:0}h2{font-size:14px;margin:20px 0 8px}p,small{color:#a9b7c8}button,input,select,textarea{font:inherit;color:inherit;background:#202b37;border:1px solid #405063;border-radius:4px}button{padding:5px 8px;cursor:pointer}button:disabled{opacity:.4}a{color:#a7d1f0}.toolbar{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}.views{position:absolute;top:10px;left:10px;right:10px}fieldset{border:0;padding:0;margin:0}.row{margin:12px 0}.row label{display:block}.row div{display:flex;gap:10px}.row small{display:block;font-size:11px}.row input[type=range]{flex:1;min-width:0}.row input[type=number]{width:85px;padding:3px}textarea{width:100%;height:230px;font:11px monospace;padding:8px}select{width:100%;padding:6px}#face-status{white-space:pre-wrap;background:#1c2834;padding:10px;border-radius:5px;margin:12px 0}#face-status[data-state=error]{background:#422127;color:#ffd2d2}@media(max-width:780px){main{grid-template-columns:1fr;height:auto}section{height:60vh}}
@@ -85,7 +70,7 @@ export function mountConnectedFacePanel<
 <main><section><canvas id="face-canvas"></canvas><div class="toolbar views"><button data-view="0">Front</button><button data-view="45">Left ¾</button><button data-view="-45">Right ¾</button><button data-view="90">Left</button><button data-view="-90">Right</button><button data-view="180">Back</button><button id="fit-view">Fit</button><label><input id="clay" type="checkbox"> Clay</label><label><input id="shadows" type="checkbox" checked> Shadows</label></div></section>
 <aside><h1>Connected face editor</h1><p>Shape and expression on one shared surface</p><a href="face.html">Open procedural face editor</a><div id="face-status" role="status">Loading the numerical basis…</div>
 <fieldset id="editing" disabled><div class="toolbar"><button id="face-undo">Undo</button><button id="face-redo">Redo</button><button id="face-reset">Reset</button></div><div class="toolbar"><button id="face-save">Save document</button><button id="face-load">Load document</button><button id="face-glb">Export GLB</button><button id="face-contacts">Check contacts</button><input id="face-file" type="file" accept=".json,application/json" hidden></div>
-<h2>Expression presets</h2><div id="presets" class="toolbar"></div><h2>Controls</h2><select id="control-kind" aria-label="Control group"><option value="shape">Face shape</option><option value="expression">Expression</option></select><p>0 is the source neutral. Weights interpolate authored endpoints; they are not physical measurements. Each control states how far one unit of its endpoints moves the surface.</p><div id="basis-controls"></div><details><summary>Complete document and appearance</summary><textarea id="document-json" aria-label="Complete document"></textarea><button id="document-apply">Apply document</button></details></fieldset></aside></main>`;
+<h2>Expression presets</h2><div id="presets" class="toolbar"></div><h2>Controls</h2><select id="control-kind" aria-label="Control group"><option value="shape">Face shape</option><option value="expression">Expression</option></select><p id="control-help">0 is the source neutral. Weights interpolate authored endpoints; they are not physical measurements. Each control states how far one unit of its endpoints moves the surface.</p><div id="basis-controls"></div><details><summary>Complete document and appearance</summary><textarea id="document-json" aria-label="Complete document"></textarea><button id="document-apply">Apply document</button></details></fieldset></aside></main>`;
   const element = <T extends HTMLElement>(id: string): T =>
     app.querySelector<T>("#" + id)!;
   const viewport = props.viewport(element<HTMLCanvasElement>("face-canvas"));
@@ -122,7 +107,7 @@ export function mountConnectedFacePanel<
     element<HTMLButtonElement>("face-redo").disabled = !state.canRedo;
     element<HTMLTextAreaElement>("document-json").value =
       serializeHumanFaceBasisDocument(state.document);
-    renderControls();
+    controls.refresh();
   };
   const change = async (
     next: IAutoMovieHumanFaceBasisDocument,
@@ -142,68 +127,13 @@ export function mountConnectedFacePanel<
       refuse(error);
     }
   };
-  const renderControls = (): void => {
-    const kind = element<HTMLSelectElement>("control-kind").value;
-    // Search only changes which controls are shown. It never rewrites weights
-    // or drops an edited region from the complete saved document.
-    const query = element<HTMLInputElement>("control-search")
-      .value.toLowerCase()
-      .replace(/\s/g, "");
-    const container = element("basis-controls");
-    container.replaceChildren();
-    for (const channel of props.basis.channels.filter(
-      (channel) =>
-        channel.kind === kind && channel.id.toLowerCase().includes(query),
-    )) {
-      const row = dom.createElement("div"),
-        label = dom.createElement("label"),
-        entry = dom.createElement("div");
-      row.className = "row";
-      label.textContent = channel.id.replace(/([a-z])([A-Z])/g, "$1 $2");
-      const slider = dom.createElement("input"),
-        number = dom.createElement("input");
-      slider.type = "range";
-      number.type = "number";
-      slider.min = String(channel.minimum);
-      number.min = slider.min;
-      slider.max = String(channel.maximum);
-      number.max = slider.max;
-      slider.step = "0.01";
-      number.step = "any";
-      slider.value = String(
-        editor!.snapshot().document[channel.kind][channel.id] ?? 0,
-      );
-      number.value = slider.value;
-      number.id = "control-" + channel.id;
-      slider.id = number.id + "-slider";
-      label.htmlFor = number.id;
-      slider.setAttribute("aria-label", label.textContent + " slider");
-      const editValue = async (value: string): Promise<void> => {
-        if (value.trim() === "") {
-          refuse("A numeric value is required.");
-          return;
-        }
-        const next = structuredClone(draft);
-        next[channel.kind][channel.id] = Number(value);
-        await change(next);
-      };
-      slider.oninput = () => {
-        number.value = slider.value;
-      };
-      slider.onchange = () => editValue(slider.value);
-      number.onchange = () => editValue(number.value);
-      entry.append(slider, number);
-      const scale = scales.get(channel.id)!,
-        note = dom.createElement("small");
-      note.id = "scale-" + channel.id;
-      note.textContent = [
-        describe("+", scale.positive),
-        ...(scale.negative === null ? [] : [describe("-", scale.negative)]),
-      ].join(" · ");
-      row.append(label, entry, note);
-      container.append(row);
-    }
-  };
+  const controls = mountConnectedFaceControls(app, {
+    basis: props.basis,
+    map: props.controlMap,
+    document: () => draft,
+    change,
+    refuse,
+  });
   for (const button of app.querySelectorAll<HTMLButtonElement>("[data-view]"))
     button.onclick = () => viewport.cameraView(Number(button.dataset.view));
   element("fit-view").onclick = viewport.fitView;
@@ -211,15 +141,6 @@ export function mountConnectedFacePanel<
     viewport.setClay(element<HTMLInputElement>("clay").checked);
   element<HTMLInputElement>("shadows").onchange = () =>
     viewport.setShadows(element<HTMLInputElement>("shadows").checked);
-  element<HTMLSelectElement>("control-kind").onchange = renderControls;
-  const search = dom.createElement("input");
-  search.id = "control-search";
-  search.type = "search";
-  search.placeholder = "Find a control: nose, lip, cheek, ear…";
-  search.setAttribute("aria-label", "Find a facial control");
-  search.style.width = "100%";
-  search.oninput = renderControls;
-  element("basis-controls").before(search);
   // Selecting a study is an ordinary validated transaction, so failed builds
   // retain the previous face and successful selection participates in history.
   const studies = dom.createElement("select");

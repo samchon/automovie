@@ -33,6 +33,18 @@ The [research inventory and references](https://github.com/samchon/automovie/iss
 
 ## Runtime investigation, 2026-09-21
 
+### First implemented coordinate map
+
+[simple-controls.json](simple-controls.json) exposes fourteen groups against the exact current basis: age structure, head width/height, facial fullness, cheek prominence, eye size/spacing, nose size, lip fullness, mouth width, chin projection, jaw width, ear size and under-eye fullness. Fine mode retains every shape and performance coordinate. These groups are an initial authoring view; the current 84 shape channels are not presented as the requested final fine inventory.
+
+For each member weight `w`, normalization is `u = w / maximum` when nonnegative and `u = w / (-minimum)` when negative. The simple coordinate is the group's mean `s`; the residual is `r_i = u_i - s`. Changing to `t` resolves `u_i' = t + r_i`, followed by the signed inverse normalization. Its permitted interval is the intersection of each member's normalized interval minus `r_i`. Therefore paired differences and unlisted detail survive; an out-of-range input refuses rather than removing that detail. Each projection owns an origin and resolves every request from it. Returning to its original coordinate restores the exact saved values and omitted fields. A new projection after save/load recovers the coordinates to floating precision. No simple fields or per-vertex data are added to the document.
+
+The browser uses the same numerical transaction/history owner for both modes. A mode or search change only changes presentation. Pending simple groups compose before evaluation; a refused edit discards the cancelled draft, and a following edit cannot revive it. A prototype-named coordinate exposed an inherited-property lookup defect in the first implementation; owned map lookup now distinguishes missing numeric values from object prototypes.
+
+The age axis remains the existing authored `globalAgeStructure`, not years. In the actual browser, -0.8 and +0.8 visibly changed head proportions and orbital/midface form; they did not synthesize skin ageing or establish demographic calibration. On Radeon 8060S/ANGLE D3D11, three bald neutral age edits took 343–391ms. All eighteen compact subjects were recaptured at six colour and three clay directions; subject selection took 586–1016ms. All 162 images were inspected in six contact sheets. Narrow tooth bands, recurrent orbital ridges, groom attachment and opaque clay-card artifacts remain visible. Source-photo pose registration and the full expression population were not part of this capture; no likeness or anatomical completeness is accepted.
+
+### Resident preview and export
+
 Published documents now contain only numerical controls, material overrides and named resources. A structural comparison of all 18 documents confirmed that removing `identity` and `correctives` preserved every other field. Old geometry remains in Git history. This removal requires renewed anatomical population verification.
 
 The connected preview now keeps its worker resident, sends numerical models directly, stages texture preparation and updates GPU buffers only at publication. GLB encoding is a separate request bound to the committed document at the export click. The fixed source-to-UV correspondence is compiled once. A resource's lookup key can differ from its internal ID; its exact basis binding must match the document.

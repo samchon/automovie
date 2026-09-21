@@ -11,6 +11,7 @@ import {
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
+import simpleControls from "../../../test/studies/human-face/connected-basis/global-face/simple-controls.json";
 import studyDocuments from "../../../test/studies/human-face/connected-basis/global-face/subjects.json";
 import { readConnectedFaceAsset } from "./human/connectedAsset";
 import { mountConnectedFacePanel } from "./human/connectedPanel";
@@ -44,6 +45,7 @@ async function main(): Promise<void> {
     {
       basis,
       initial,
+      controlMap: simpleControls,
       studies: studyDocuments.map((document) =>
         parseHumanFaceBasisDocument(JSON.stringify(document)),
       ),

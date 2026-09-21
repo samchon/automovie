@@ -1,0 +1,125 @@
+{
+  "basis": "mpfb-connected-head-2026-09-21-single-repaired",
+  "groups": [
+    {
+      "id": "age",
+      "label": "Age structure",
+      "description": "Younger to older authored head proportions. This is not age in years or a prediction of individual ageing.",
+      "channels": [
+        "globalAgeStructure"
+      ]
+    },
+    {
+      "id": "headWidth",
+      "label": "Head width",
+      "description": "Narrower to wider head proportions.",
+      "channels": [
+        "headWidth"
+      ]
+    },
+    {
+      "id": "headHeight",
+      "label": "Head height",
+      "description": "Shorter to taller head proportions.",
+      "channels": [
+        "headHeight"
+      ]
+    },
+    {
+      "id": "fullness",
+      "label": "Face fullness",
+      "description": "Less to more facial fullness. This is a facial shape choice, not body weight or body fat percentage.",
+      "channels": [
+        "cheekFullness"
+      ]
+    },
+    {
+      "id": "cheekbones",
+      "label": "Cheek prominence",
+      "description": "Change both cheek regions together while retaining their differences.",
+      "channels": [
+        "leftCheekBone",
+        "rightCheekBone"
+      ]
+    },
+    {
+      "id": "eyes",
+      "label": "Eye size",
+      "description": "Change both eye regions together while retaining their differences.",
+      "channels": [
+        "leftEyeScale",
+        "rightEyeScale"
+      ]
+    },
+    {
+      "id": "eyeSpacing",
+      "label": "Eye spacing",
+      "description": "Bring the eye regions inward or outward, retaining any asymmetric placement.",
+      "channels": [
+        "leftEyeLateralPosition",
+        "rightEyeLateralPosition"
+      ]
+    },
+    {
+      "id": "nose",
+      "label": "Nose size",
+      "description": "Change the authored width, height and depth coordinates together, retaining their relative detail.",
+      "channels": [
+        "noseWidth",
+        "noseHeight",
+        "noseDepth"
+      ]
+    },
+    {
+      "id": "lips",
+      "label": "Lip fullness",
+      "description": "Change upper and lower lip volume together, retaining their difference.",
+      "channels": [
+        "upperLipVolume",
+        "lowerLipVolume"
+      ]
+    },
+    {
+      "id": "mouth",
+      "label": "Mouth width",
+      "description": "Narrower to wider mouth proportions.",
+      "channels": [
+        "mouthWidth"
+      ]
+    },
+    {
+      "id": "chin",
+      "label": "Chin projection",
+      "description": "Move the authored chin form backward or forward.",
+      "channels": [
+        "chinProjection"
+      ]
+    },
+    {
+      "id": "jaw",
+      "label": "Jaw width",
+      "description": "Change the authored lower-face bony width.",
+      "channels": [
+        "chinBoneWidth"
+      ]
+    },
+    {
+      "id": "ears",
+      "label": "Ear size",
+      "description": "Change both ears together while retaining their differences.",
+      "channels": [
+        "leftEarScale",
+        "rightEarScale"
+      ]
+    },
+    {
+      "id": "underEyes",
+      "label": "Under-eye fullness",
+      "description": "Change both under-eye regions together while retaining their differences.",
+      "channels": [
+        "leftEyeBagVolume",
+        "rightEyeBagVolume"
+      ]
+    }
+  ]
+}
