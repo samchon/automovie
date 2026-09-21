@@ -70,7 +70,13 @@ interface IShard {
       vertices: number;
       mostPosed: number;
       pairs: { part: string; other: string }[];
-      verification: { angle: number; pairs: unknown[] }[];
+      /** A single-axis step names its angle; a state step names its pose fraction `t` and shape fraction `u`. */
+      verification: {
+        angle?: number;
+        t?: number;
+        u?: number;
+        pairs: unknown[];
+      }[];
     } | null;
     outcome: string;
     ms: number;
@@ -271,7 +277,9 @@ function main(): void {
           mostRestMillimetres: millimetres(mostRest(corrective.id)),
           pairs: crossing?.pairs.map((pair) => pair.part + " x " + pair.other),
           verification: crossing?.verification.map((step) => ({
-            angle: step.angle,
+            ...(step.angle === undefined ? {} : { angle: step.angle }),
+            ...(step.t === undefined ? {} : { t: step.t }),
+            ...(step.u === undefined ? {} : { u: step.u }),
             pairs: step.pairs.length,
           })),
         };
