@@ -25,7 +25,7 @@
  *   body and worn by every shape, and an extended envelope is a body the
  *   source never posed.
  * - `traits`: every individuality channel at each extreme on each of those
- *   shapes but the child, and the trait review combinations, at rest; a trait is a
+ *   shapes, and the trait review combinations, at rest; a trait is a
  *   displacement field on the neutral tissue and must not fold it on the
  *   bodies that tissue grows or shrinks on.
  *
@@ -348,15 +348,14 @@ function extremeShapes(
 }
 
 /**
- * Every individuality trait at each extreme on each extreme shape but the
- * child (the tissue a trait moves is the tissue a macro already grew or
- * shrank), and the review combinations, at rest.
+ * Every individuality trait at each extreme on each extreme shape (the
+ * tissue a trait moves is the tissue a macro already grew or shrank), and
+ * the review combinations, at rest.
  */
 function traitStates(basis: IAutoMovieHumanBodyBasis): IState[] {
-  const { child: _child, ...extremes } = extremeShapes(basis);
   const macros: Record<string, Record<string, number>> = {
     rest: {},
-    ...extremes,
+    ...extremeShapes(basis),
   };
   const ids = traitChannelIds();
   const traits = basis.channels.filter((channel) => ids.includes(channel.id));
