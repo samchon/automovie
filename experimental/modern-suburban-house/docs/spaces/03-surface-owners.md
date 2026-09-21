@@ -33,6 +33,8 @@
 
 `src/spaces/openings.ts`의 [공통 개구부 인계](06-openings.md#external-opening-interface)는 좌표 형식과 부재 예약을 공유할 예정이며 창/문 geometry의 별도 소유자가 아니다. 각 완결 입면 owner가 자기 void와 바깥 trim/충전 부재를 소유하고 방 안쪽 owner가 동일 void의 reveal/마감을 받는다. 문짝 유리·창 내부 분할까지 실제 관찰에서 숨기지 않는다.
 
+일반 실내 칸막이의 공통 몸체는 [공유 경계 배정](07-boundary-assembly.md#interior-boundary-ownership)의 단일 source owner가 생성하고 양쪽 room은 자기 완결 마감을 유지한다. `src/spaces/boundaries.ts`는 [교차부·개구부·문턱](07-boundary-assembly.md#interior-boundary-junctions)의 같은 경계를 전달하는 계산 책임만 가지며 별도 벽/마감을 만들지 않는다. 차고 공유 벽과 계단 구조의 기존 소유는 그대로다.
+
 `src/spaces/site.ts`는 [외부 구역/접속의 조립](site/00-access.md#site-access-interface)만 맡는다. 종전의 포장 전체 한 파일 예약을 소스 저작 전에 완결 보행면·차도·테라스로 구체화했다. 포치 아래 대기와 정원문 바깥 대기는 각 연속 포장 owner에게 통째로 속하며 별도 판으로 쪼개지지 않는다. 측면 관리길은 앞뒤 두 구역이어도 같은 연속 면 owner를 유지하며, 목재 울타리는 문만 다른 파일에서 떼어 만들지 않는다. 대지 경계·보도/도로·지표·식재의 소유 분해와 울타리의 실제 필지 포함·지표 접합은 maps가 아직 없어 미완료다. 이 표를 전체 대지 표면 census 완료로 읽지 않는다.
 
 ## 방 내부의 완결 면 소유 {#interior-surface-handoff}
