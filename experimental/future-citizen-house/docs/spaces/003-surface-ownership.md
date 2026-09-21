@@ -243,14 +243,15 @@ roof owner는 거터 상부를 덮는 우측 끝 cassette를 먼저 분리한다
 
 <!--
 @evidence principles/core/common.md#declared-basis 외부 고정창의0.04m frame face·0.14m 깊이와 최대1.25m bay는 실물 점유를 정하는 저작값으로 구분한다.
-@evidence principles/core/common.md#scope-preservation 유리·jamb·head·sill·mullion과 reveal을 모두 남겨 사각 구멍이나 표면 색만으로 창호를 대신하지 않는다.
-@evidence principles/core/common.md#substantive-completion effective span과 panel clear의 차이, frame 확장 cut, 우선 분할선 및 count/pitch 도출을 정했다.
+@evidence principles/core/common.md#scope-preservation 유리·jamb·head·sill·mullion·reveal과 하부 고정 루버를 별도 점유로 남기고 기존 roller가 움직일 공간을 보존한다.
+@evidence principles/core/common.md#substantive-completion effective span과 panel clear, frame 확장 cut, 반복 분할에 더해 루버의 경사·브래킷·체결·배수·인출 여유를 같은 창호 단면에서 정했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation curtainwall 요구를 실제 frame 점유와 room/floor 우선 분할을 갖는 반복 공간 규칙으로 구체화한다.
 @evidence principles/design/spaces.md#space-topology 창의 cut은 host 두께를 관통하지만 고정 유리로 채워지며 방 사이 경계를 가로지르는 panel을 허용하지 않는다.
 @evidence principles/design/spaces.md#space-boundary-authority opening은 유효 span을 소유하고 panel과 mullion은 같은 분할선에서 도출하여 glass 폭을 별도 복제하지 않는다.
-@evidence principles/design/spaces.md#space-verification-address 모든 opening의 반복 경계·room/floor 대응과 frame/reveal 연속성을 대조해 겹친 유리나 떠 있는 틀을 검출한다.
+@evidence principles/design/spaces.md#space-verification-address 모든 opening의 반복 경계·room/floor 대응, frame/reveal 연속성, 루버와 roller의 상태별 이격 및 탈거 경로를 실제 부재 bounds에서 대조한다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work curtainwall과 내부 경계 일치 요구를 우선 분할 및 ceil 반복 규칙에 대조했다. bay를 위해 부모 room이나 floor line을 이동할 필요가 없다.
 @evidence contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements 반복 부재를 측정 span과 규칙에서 만들고 모든 유리 panel이 방·바닥선 경계를 지키게 한다.
+@evidence settings/003-spatial-basis.md#privacy-states 하부 반투명 영역 앞의 고정 루버는 낮·사적·야간에 같은 위치이며 기존 roller의 60%·100% 이동과 욕실의 고정 반투명 층을 대신하지 않는다.
 -->
 
 각 opening의 유효 span은 양쪽 jamb의 안쪽 면 사이 거리다. 이 범위에는 내부 mullion의 점유도 포함되고, 개별 유리 panel의 clear 폭과 같지 않다. 모든 외부 고정창의 유효 span 바깥에 면 폭 0.04m, 깊이 0.14m의 head·sill·jamb를 두고 내부 분할선에는 같은 단면의 mullion을 중심 정렬한다. 이 값은 창호 공간 점유를 정하는 저작 입력이고 finish·광학 성능의 인증이 아니다. 실제 host wall의 structural cut은 유효 span에서 frame 면 폭만큼 확장한 윤곽이다. wall 두께를 관통해 cut하고 깊이가 다른 wall과 frame 사이에는 reveal이 연속해서 닿는다.
@@ -271,7 +272,7 @@ roof owner는 거터 상부를 덮는 우측 끝 cassette를 먼저 분리한다
 
 덮개의 외측 두 모서리는 s=±0.018,n=0.068과 s=±0.016,n=0.070을 잇는 0.002×0.002m 모따기로 정한다. solid box 한 개를 그대로 두고 선만 그려 이 분해를 대신하지 않는다. 본체·web·압착판·덮개는 접하는 별도 실체다. 유효 pane clear가 L..R이면 실제 유리 끝은 L-0.006..R+0.006, 높이는 sill-0.006..head+0.006으로 받침 안에 들어간다. 유효 채광 윤곽은 바뀌지 않는다. 이 6mm는 glass와 metal을 관통 중첩시키는 값이 아니다. glass 끝은 abs(s)=0.014까지, web은 abs(s)<=0.010까지만 있어 0.004m의 빈 가장자리 여유가 남는다. 가스켓은 유리 두 face에 접하며 유리 부피 안으로 들어가지 않는다. 외곽 jamb의 벽 쪽에는 유리 받침을 복제하지 않는다. 각 pane 하단의 접선 1/4·3/4에는 폭 min(0.05,pane clear폭/8), Y=sill-0.010..sill-0.006, n=-0.009..0.009의 setting block을 둔다. block은 sill web 상면과 유리 하단을 실제로 이어 0.004m의 가장자리 여유를 떠 있는 유리로 남기지 않는다.
 
-수직 jamb·mullion은 sill-0.04..head+0.04로 연속한다. 수평 head·sill은 각 bay의 인접 수직 부재 안쪽 면 사이에서 끝내 맞댄다. 유리 받침은 각 pane 둘레에 적용하되 수직 strip을 유리 높이 전체로 두고 수평 strip을 그 사이에서 끝낸다. 네 모서리에서 가스켓을 두 번 겹치지 않는다. 하부 반투명 띠와 상부 유리의 상태 경계는 기존 Y를 유지하고 광학 띠 사이에는 새로운 금속 transom이나 공기 틈을 넣지 않는다. 실제 유리의 늘어난 상하 0.006m 부분만 인접 끝 띠의 상태를 이어 받는다. 광학 값, shade drop 비율과 외부 차양은 기존 privacy owner의 입력을 그대로 쓰며 별도 광학 설계의 승인을 대신하지 않는다.
+수직 jamb·mullion은 sill-0.04..head+0.04로 연속한다. 수평 head·sill은 각 bay의 인접 수직 부재 안쪽 면 사이에서 끝내 맞댄다. 유리 받침은 각 pane 둘레에 적용하되 수직 strip을 유리 높이 전체로 두고 수평 strip을 그 사이에서 끝낸다. 네 모서리에서 가스켓을 두 번 겹치지 않는다. 하부 반투명 띠와 상부 유리의 상태 경계는 기존 Y를 유지하고 광학 띠 사이에는 새로운 금속 transom이나 공기 틈을 넣지 않는다. 실제 유리의 늘어난 상하 0.006m 부분만 인접 끝 띠의 상태를 이어 받는다. 광학 값과 shade drop 비율은 기존 privacy owner의 입력을 그대로 쓴다. 아래 고정 외부 루버는 이 창호에 붙는 실제 점유를 정하며 별도 광학 설계의 승인을 대신하지 않는다.
 
 perimeter reveal은 structural cut의 네 변에서 cut 안쪽으로만 폭을 내는 금속 return으로 닫는다. 실내측은 폭 0.004m, n=-0.120..-0.070이며 외측은 폭 0.006m, n=0.070..0.120이다. 외측 폭은 모따기 후 덮개 끝 face와 0.002m 폭으로 실제 맞닿게 정한다. 실내측은 본체 끝 face에 0.004m 폭으로 닿는다. 수직 return이 cut 높이 전체를 맡고 수평 return은 그 사이에서 끝낸다. 어느 return도 유효 clear에 도달하지 않는다. 실내 return 끝은 room lining의 n=-0.120 경계에, 외측은 외장 면 n=0.120에 닿는다. 기존 벽의 cut side를 지우거나 얇은 return 뒤에 다른 opening을 만들지 않는다. room은 기존 cut을 소비하는 lining만 소유하고 이 금속 return을 중복 생성하지 않는다.
 
@@ -291,9 +292,41 @@ perimeter reveal은 structural cut의 네 변에서 cut 안쪽으로만 폭을 �
 
 panel마다 접선 1/4·3/4, Y=3.06에 고정 clip을 둔다. clip 폭은 min(0.05,panel폭/6), 높이 0.02, 깊이는 n=0.120..0.138이며 벽과 plate 뒷면에 면 접합한다. 매입 고정부는 별도 직경 0.006m shaft로 n=0.110..0.138까지 표현하고 clip·벽과의 매입 겹침을 기계적 접합 표현으로만 기록한다. 아래 return에는 같은 접선 1/4·3/4 위치에 폭 0.010m, n=0.122..0.137의 아래로 열린 배수 slot을 뚫는다. 각 panel의 내부 물은 하부 slot으로 방출되며 실내나 floor void에 합류하는 관은 없다. 상단 0.004m 틈은 n=0.120..0.140의 seal로 닫고 하단 틈은 n=0.120..0.122에서만 닫아 slot의 출구를 덮지 않는다. seal과 두 side seal이 겹치는 모서리는 side가 전체 높이를 소유하고 horizontal이 그 사이에서 끝낸다. 방수·구조 강도·배수량은 unverified다.
 
+**고정 외부 루버의 창호 접합 설계.** 이 추가 설계는 v-071의 외부 차양 단서를 창호의 지지·가림·접근 관계로 구체화한다. reference04의 측면 창 하부에 보이는 수평 부재와 틈을 형식의 근거로 삼고 치수는 아래 저작값으로 정한다. 현재 source에는 roller box·내려오는 면·hem만 있고 이 고정 루버는 없다. 독립 설계 PASS 뒤 구현할 대상으로 남긴다. 각 전체 입면 owner가 창과 그 루버를 함께 소유하며 입면을 별도 작성자나 표면 파일로 분할하지 않는다. 실내 room owner는 이 차양을 중복 생성하지 않는다.
+
+루버는 [프라이버시 상태](../settings/003-spatial-basis.md#privacy-states)가 정한 작업실·침실의 하부 반투명 영역 앞에만 부착한다. 아래 표의 opening은 각각 기존 유효 span·sill·head·우선 bay를 그대로 제공한다. 공용부·계단 창과 욕실에는 이 하부 루버를 추가하지 않는다. 그 창들의 기존 roller·고정 반투명 층 및 [지붕 캐노피](#roof-face)는 유지한다. 루버를 새 실내 경계나 출입 개구로 해석하지 않으며 방·층·문·계단 연결은 변하지 않는다.
+
+| 전체 입면 owner | 루버를 받는 기존 opening |
+| --- | --- |
+| front | [front-flex-glazing](#front-flex-glazing), [front-bedroom-glazing](#front-bedroom-glazing) |
+| rear | [rear-bedroom-glazing](#rear-bedroom-glazing) |
+| left | [left-flex-glazing](#left-flex-glazing), [left-bedroom-glazing](#left-bedroom-glazing), [left-child-two-glazing](#left-child-two-glazing) |
+
+opening의 sill을 S, 기존 하부 반투명 띠 상단을 F=min(head,S+1.25)로 두고 같은 bay 분할선을 소비한다. 루버의 수직 범위는 그 띠 안에서만 정한다. Y 양 끝 여유 0.04를 제외한 L=F-S-0.08에 대해 k=ceil(L/0.08), p=L/k, j=0..k-1의 날개 안쪽 상면 높이 H(j)=S+0.04+(j+0.5)p다. 이 식은 현재 선택된 창들의 F-S=1.25에 적용하며 새로 추가된 짧은 창을 자동 축약하지 않는다. L<=0 또는 날개·체결구의 간격이 아래 최소값보다 작으면 해당 입력의 설계 재검토가 필요하다. 최대 0.08 pitch는 제작 입력이며 실제 개수와 간격은 컴파일 결과에서 읽는다. 한 날개가 room 우선 분할선·jamb·층선을 가로지르지 않는다.
+
+법선 n은 위 창틀 단면과 같은 C 기준이다. 각 jamb의 부재 중심과 내부 mullion 중심마다 하나의 세로 지지대를 둔다. 지지대의 접선 중심을 m이라 하면 외곽은 접선 m±0.009, n=0.190..0.215, Y=S+0.020..F-0.020이다. 단면 벽 두께 0.002의 닫힌 사각 관이며 양 끝의 0.002 두께 cap은 관 내부에 들어간다. 인접 bay가 공유하는 지지대는 한 번만 생성한다. 이 지지대는 기존 mullion의 0.04 면 폭 안에 투영되고 유리 clear 가운데에 새로운 수직선을 만들지 않는다.
+
+날개는 인접 지지대 안쪽 face 사이에 끝판을 0.003씩 두고 그 사이에서 끝나는 두께 0.006의 판이다. 법선 범위는 n=0.215..0.285이고 상면은 Y=H(j)-0.40(n-0.215), 하면은 상면-0.006이다. 외측으로 0.028m 낮아지는 40% 경사이며 tilt=atan(0.40), 약 21.801°다. 사진에서 얻은 각도가 아니다. 끝판은 날개 양 끝에 접하고 n=0.190..0.285, Y=H(j)-0.036..H(j)+0.002를 차지한다. 끝판과 날개는 서로 관통하지 않고 접선 방향 face에서 만난다. 현재 입력의 날개 수직 투영 높이는 0.034m이며 인접 날개 사이 p-0.034의 틈이 열린다. 끝판 사이에는 p-0.038의 틈이 남는다. 유리 앞에 연속 불투명 판이나 가로선 texture를 두어 이 빈 공간을 대신하지 않는다.
+
+각 끝판은 n=0.202, Y=H(j)-0.017에서 접선 방향 M4 체결구로 세로 관의 측벽에 고정한다. source는 지름 0.0045 수용 구멍과 지름 0.004 몸체·지름 0.007 높이 0.003 head를 같은 축에서 생성한다. 관 내부의 나사 받침은 외경 0.006, 길이 0.006이며 반대쪽 bay의 받침과 중앙에서 겹치지 않는다. head는 끝판의 bay 쪽에 놓이고 몸체는 끝판과 관 측벽을 지나 받침에서 끝난다. 체결구 이외의 부재 관통 중첩을 지지 방식으로 쓰지 않는다. 공구 접근은 각 head에서 bay 안쪽 접선 방향으로 길이 0.060, 지름 0.006의 축 공간이며 이 공간의 n=0.199..0.205는 날개 안쪽 n=0.215보다 뒤에 있다. 실제 공구 취급 성공이나 체결 강도의 인증은 아니다.
+
+각 세로 지지대를 창틀에 연결하는 고정 arm은 접선 m±0.009, 높이 0.018, n=0.070..0.190이다. 중심 Y는 S+0.04+p-0.017 및 S+0.04+(k-1)p-0.017로 도출하여 각각 첫 두 날개와 마지막 두 날개 사이에 놓는다. arm은 창틀 덮개와 세로 관 뒷면에 면 접합한다. 각 arm 중심에는 법선 방향 지름 0.006 몸체를 n=-0.050..0.215, head 지름 0.012·높이 0.006을 n=0.215..0.221로 둔다. 같은 축의 지름 0.0065 수용 구멍을 덮개·압착판·web·본체·arm·관에 적용하고 유리와 가스켓은 뚫지 않는다. 본체 안의 마지막 0.010 구간이 체결을 받는 것으로 표현한다. cap만으로 하중을 받는 떠 있는 arm을 만들지 않는다. 관 앞면에서 외측으로 길이 0.080·지름 0.018의 공구 공간을 예약한다. 인발·풍압·처짐 검토는 unverified다.
+
+날개 상면의 물은 외측 낮은 끝 n=0.285로 흘러 drip-only로 떨어진다. 날개를 뒤쪽 유리나 창틀의 배수구에 연결하지 않는다. 0.006 두께의 외측 끝 아래에서 낙수하므로 뒤쪽으로 돌아가는 수평 받침이나 끝을 막는 상향 턱을 두지 않는다. 세로 관 하단 cap에는 n=0.2025, 접선 m±0.0035 중 실제 bay가 있는 쪽에 지름 0.004의 아래로 열린 배수 구멍을 두며 지지대 바닥 안에 물이 갇히지 않는 경로를 표현한다. 최종 낙수는 해당 입면 아래 기존 외부 포장·식재 지면으로 이어진다. 낙수의 접선 범위가 현관 문짝·현관 접근 구역과 교차하면 실패로 두고 source에서 회피를 위해 창을 이동하지 않는다. 빗물 비산·배수량·수밀 성능은 unverified다.
+
+기존 roller의 실제 n 점유는 box 0.100..0.180, sheet 0.137..0.143, hem 0.131..0.149다. 루버는 하부 띠 안에 있고 box는 head 부근이므로 두 체적을 함께 대조한다. sheet/hem과 가장 가까운 고정 지지대 n=0.190 사이에는 적어도 0.041의 법선 간격이 남는다. arm은 mullion 면 폭 안에 있어 bay clear의 sheet/hem과 접선 방향으로 떨어진다. 낮·사적·야간 상태에서 루버·지지·체결 좌표는 동일하고 기존 roller의 내려온 면적만 부모의 상태 입력을 따른다. 100% roller가 내려와도 날개가 유리나 hem을 관통하지 않아야 한다. 고정 루버의 음영만으로 프라이버시나 일사 차단 성능이 입증됐다고 하지 않는다.
+
+청소와 교체는 외부에서 수행한다. 날개 양 끝의 접선 체결구를 해제한 뒤 끝판을 포함한 한 날개를 외측 +n으로 0.20m 평행 인출한다. 지지대 전체를 먼저 떼거나 이웃 bay를 해체하지 않는다. 처음 0.030m는 접합을 벗기는 구간으로 실제 part의 swept volume을 검사하며 시작 face 접촉과 체적 관통을 구분한다. n 이동량 0.030m 이후에는 실제 bounds의 접선·Y 양 끝에 각각 0.010을 더한 여유도 유지해야 한다. 아직 맞닿아 있는 최초 자세에 그 여유를 적용하여 정상 접합을 충돌로 세지 않는다. 하부 roller를 올려 유리와 지지대 사이를 청소하며 외부 루버를 움직이는 별도 거주 상태는 추가하지 않는다.
+
+유리를 교체할 때는 해당 bay의 모든 날개를 먼저 뺀다. 공유 지지대를 분리하는 경우 그 양쪽 bay의 날개를 먼저 제거한다. 지지대의 앞쪽 체결구 두 곳을 풀고 각 몸체를 +n으로 0.285m 뽑아 창틀과 관을 완전히 벗긴 뒤 지지대와 arm을 +n으로 0.20m 인출한다. 긴 고정 몸체의 인출과 짧은 공구 회전 공간을 같은 값으로 취급하지 않는다. 그 뒤 위 단면의 외측 덮개, 압착판·외측 가스켓, 유리 순으로 분리한다. 교체 중 유리 지지와 실제 정비 성공은 unverified다.
+
+고정 부재의 최대 n=0.285는 외벽면 n=0.120에서 0.165m 돌출한 값이다. 좌측 고정 끝 X=5.665는 [캐노피 정비 예약대](#roof-face)의 시작 X=5.80보다 0.135m 안쪽이다. front/rear 끝은 각각 Z=-6.165/6.165이며 본채 corner를 넘어 옆 입면까지 감싸지 않는다. 날개와 공구의 임시 인출은 정비 작업일 때만 기존 외부 작업 공간을 사용한다. 상층 접근은 같은 캐노피용 외부 고소작업대의 예약대와 요구 envelope를 소비한다. 장비 형상을 새 source 자산으로 만들거나 현관 접근·조경·지붕 지지 배치를 바꾸지 않는다. 실제 장비 도달·작업 안전은 unverified다.
+
 **검증 주소.** source 구현 뒤 같은 environment에서 네 exposed face의 방향과 profile, 전 window의 유효/structural/유리 seat 범위, frame 깊이와 cap 모따기, gasket 면 접합, reveal 끝, spandrel interval·slot·clip·실제 돌출량을 읽는다. 명시 치수의 tolerance는 1e-7m다. pane가 web을 관통하거나 head가 mullion과 중첩되는지, lining이 유리를 가리는지, 새 부재가 기존 개구·창 차양의 체적을 가리는지도 검사한다. 비교는 기존 pane·room·door 좌표와 승인된 설계값을 함께 사용하며 수동 count를 결과로 쓰지 않는다.
 
-GPU 관찰은 네 전체 입면과 모든 corner·opening, 각 room의 기존 threshold·네 corner·중심 네 방향을 유지한다. 추가로 각 window의 head/jamb와 sill/jamb 접합, 각 band 양 끝·이음·하부 slot을 실제 부재 bounds에서 관찰한다. 첫·마지막 bay와 가장 짧은 유리의 접합은 확대해서도 읽는다. 다섯 reference 장면은 같은 FOV50·기본 조명·낮 상태로 기존 source와 대조한다. 정면에서는 일정한 frame 폭과 층간 dark band, 비스듬한 외부와 방 안에서는 cap·압착판의 깊이와 return을 구분할 수 있어야 한다. 현재 캡처는 단순 box frame의 비교 기준일 뿐 이 새 단면의 구현 증거가 아니다. 형상 판정 후에도 재료 질감·반사, 전기변색과 차양, 가구·설비·조경은 각 후속 설계 및 관찰 대상으로 남는다.
+루버는 선택된 모든 opening의 첫·마지막·room 경계 bay, 최하단·최상단 날개에서 실제 k/p·tilt·끝판·공구 축·관과 창틀의 체결을 확인한다. 세 privacy 상태의 같은 부재 transform을 대조하고 roller의 실제 bounds와 전수 교차 검사한다. 현재 입력에서 날개 틈 p-0.034>=0.040, 끝판 틈 p-0.038>=0.036, sheet/hem와 관의 법선 간격>=0.041, 고정 부재와 좌측 장비 예약대의 간격>=0.135가 기준이다. 인출 swept volume과 기존 window·이웃 루버·corner·현관 접근·정비 예약대도 함께 읽는다. 실패한 입력을 개수 축소·지지대 삭제·roller 숨김으로 통과시키지 않는다. 새 geometry의 생성·충돌·낙수 경로는 아직 unverified다.
+
+GPU 관찰은 네 전체 입면과 모든 corner·opening, 각 room의 기존 threshold·네 corner·중심 네 방향을 유지한다. 추가로 각 window의 head/jamb와 sill/jamb 접합, 각 band 양 끝·이음·하부 slot을 실제 부재 bounds에서 관찰한다. 첫·마지막 bay와 가장 짧은 유리의 접합은 확대해서도 읽는다. 다섯 reference 장면은 같은 FOV50·기본 조명·낮 상태로 기존 source와 대조한다. 정면에서는 일정한 frame 폭과 층간 dark band, 비스듬한 외부와 방 안에서는 cap·압착판의 깊이와 return을 구분할 수 있어야 한다. reference04의 측면 하부에서 고정 날개와 밝은 틈, 그 뒤의 반투명 유리가 분리되어야 하며 사적·야간에는 실제 roller가 그 뒤에서 내려와야 한다. reference01에서는 하부 차양을 더해도 창·층·얇은 PV 처마의 기존 비례가 읽혀야 한다. 새 루버의 끝판·arm과 최상·최하 날개도 actual bounds에서 추가 관찰하며 대표 reference로 그 주소들을 대체하지 않는다. 현재 캡처는 단순 box frame의 비교 기준일 뿐 이 새 단면의 구현 증거가 아니다. 형상 판정 후에도 재료 질감·반사, 전기변색·roller의 광학 표현, 가구·설비·조경은 각 후속 설계 및 관찰 대상으로 남는다.
 
 ## 전면 계단실 유리 {#front-stair-glazing}
 
