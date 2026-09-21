@@ -1,7 +1,7 @@
 import { builtSpaceVolumeBounds, builtSpaceContainsPoint, builtConvexCellVertices, builtEnvironmentEnvelopeFaces, builtEnvironmentEnvelopeCorners, builtSpaceObservationStations, Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieBuiltEnvironment, IAutoMovieVector3 } from "@automovie/interface";
 import { v } from "./assembly";
-export type Observation = { id: string; space: string; role: string; pose: { position: IAutoMovieVector3; target: IAutoMovieVector3 } | null; reason: string; section?: { height: number; remove: "above" | "below" }; fov: number };
+export type Observation = { id: string; space: string; role: string; cameraSpace?: string; pose: { position: IAutoMovieVector3; target: IAutoMovieVector3 } | null; reason: string; section?: { height: number; remove: "above" | "below" }; fov: number };
 /** Every question is derived from the produced cells, connectors and faces.
  * Failed positions are retained. No station uses a second room coordinate list. */
 export function observations(e: IAutoMovieBuiltEnvironment): Observation[] {
@@ -87,10 +87,12 @@ export function observations(e: IAutoMovieBuiltEnvironment): Observation[] {
     if (upper) add("references", "02-section-axonometric", "inspection-reference", Vector3.add(center, v(12, 17, -19)), center, "Reference 2 is inspection only", { height: upper.min.y + 1.2, remove: "above" });
   }
   for (const [id, room] of [["03-common-room", "common-room"], ["04-flex-room", "flex-workroom"], ["05-upper-private-floor", "upper-corridor"]]) {
-    const space = e.spaces.find((s) => s.id === room), b = space ? builtSpaceVolumeBounds(space) : null;
-    const p = b ? v(b.max.x - 0.40, floorOf(room, b.min.y) + 1.6, b.max.z - 0.40) : null;
-    const target = b ? v((b.min.x + b.max.x) / 2, p!.y - 0.1, b.min.z + 0.3) : null;
-    add("references", id, "reference", p && space && builtSpaceContainsPoint(space, p) ? p : null, target, "Same produced room; interior camera; no wall removal");
+    // The reference comparison starts on the actual arrival, not a bounding-box
+    // corner that may be inside a tall cabinet. Required room stations remain.
+    const arrival = out.find((s) => s.space === room && s.id === "threshold");
+    out.push({ id, space: "references", role: "reference", cameraSpace: room,
+      pose: arrival?.pose ?? null, fov: 50,
+      reason: "Reference room arrival; no wall removal; " + (arrival?.reason ?? "Required room threshold unavailable") });
   }
   return out;
 }

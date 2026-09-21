@@ -99,7 +99,7 @@ function selectStation() {
   const station = payload.stations.find((entry) => entry.space === spaceSelect.value && entry.id === stationSelect.value);
   if (!station) return;
   observation = station.space + "/" + station.id;
-  observationSpace = station.pose ? station.space : null;
+  observationSpace = station.pose ? station.cameraSpace ?? station.space : null;
   if (!station.pose) { status.textContent = observation + ": 카메라 위치 unverified"; report(); return; }
   setSection(station.section);
   camera.fov = station.fov; camera.updateProjectionMatrix();
