@@ -44,6 +44,7 @@ export const productionEvidence = {
 
 productionEvidence.kind = "library";
 productionEvidence.settings = "review";
+productionEvidence.spaces = "draft";
 productionEvidence.claims = [
   createAutoMovieProductionObligationClaim({
     name: "house-observation-denominator",
@@ -59,6 +60,22 @@ productionEvidence.claims = [
     account: "accounts/settings/surface-ownership.md",
     layer: "settings",
     stage: productionEvidence.settings,
+    populationScope: { mode: "complete-production" },
+  }),
+  createAutoMovieProductionObligationClaim({
+    name: "house-space-observation-denominator",
+    document: "contracts/observation-denominator.md",
+    account: "accounts/spaces/observation-denominator.md",
+    layer: "spaces",
+    stage: productionEvidence.spaces,
+    populationScope: { mode: "complete-production" },
+  }),
+  createAutoMovieProductionObligationClaim({
+    name: "house-space-surface-ownership",
+    document: "contracts/surface-ownership.md",
+    account: "accounts/spaces/surface-ownership.md",
+    layer: "spaces",
+    stage: productionEvidence.spaces,
     populationScope: { mode: "complete-production" },
   }),
 ];

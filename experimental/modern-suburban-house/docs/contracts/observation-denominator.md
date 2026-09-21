@@ -1,4 +1,5 @@
 <!--
+@evidence discovery/design/spaces.md#work-specific-space-requirements 고정된 방 이름 목록이 실제로 연결된 공간을 보장하지 않았던 실패와 사용자 전수 관찰 요구를 다시 대조했다. spaces/04-observations.md#spatial-observation-derivation은 공간·입면·지붕·개구부 산출물에서 질문을 파생할 책임을 맡고 house-space-observation-denominator claim이 spaces 전체에 이 계약을 연결한다. 현재 외곽·층·계단 예약은 draft이며 실제 도달성·카메라·관찰 수는 unverified다.
 @evidence discovery/core/common.md#shared-local-boundary 사용자 브리프의 외부 전체 노출면과 각 방의 threshold·네 모서리·네 방위는 대표 표본을 허용하는 일반 검토 계획만으로 보장되지 않아, topology 유래 분모와 양쪽 미완료 목록의 동시 해소를 이 계약의 독립 의무로 채택했다.
 @evidenceReview discovery/core/common.md#shared-local-boundary #ae499c0 일반 검토 계획을 따르는 것만으로 외부 모든 노출면과 방의 고정 질문·양쪽 목록 동시 해소를 강제할 수 없는 차이를 읽었다. 이 파일의 두 H2는 그 반복되는 주택 전용 분모와 완료 경계를 각각 보유한다.
 @evidence discovery/core/common.md#canonical-realization settings/20-verification.md의 observation-allocation과 completion-boundary가 이 계약의 현재 실현이며 lint.config.ts의 house-observation-denominator claim이 settings 전체 H2를 대상으로 선언된다. 실제 시점·개수는 후속 공간 산출물의 책임으로 남겨 현재 문서를 관찰 완료로 취급하지 않는다.
