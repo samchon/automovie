@@ -31,8 +31,9 @@ import { nclose } from "../internal/predicates";
  * 3. Term rows by hand: a 25-year-old man at BMI 22 with muscle 0.5 gets
  *    gender 1, age 0, muscle 0.5, ptosis -0.2 (the lift row only), abs
  *    definition 0.244 (Deurenberg 15.95% less 5% essential, 10.95% on the
- *    band) and flank fat only from the mass direction (half the solved
- *    scalar on a man); rows for channels the basis lacks are skipped.
+ *    band) and no flank fat (its row starts at BMI 22 and the mass
+ *    direction leaves the banded depots alone); rows for channels the
+ *    basis lacks are skipped.
  * 4. Saturation: a 90-year-old at BMI 30 with muscle -1 gets ptosis 1 (the
  *    product 1.2 saturates) and muscle -1 (the sarcopenia row cannot go
  *    below the envelope); age 90 reads the last curve point.
@@ -218,12 +219,9 @@ export const test_human_body_simple_shape = (): void => {
   TestValidator.equals("muscle", young.macroMuscle, 0.5);
   TestValidator.predicate("ptosis lift", nclose(young.buttocksPtosis, -0.2));
   TestValidator.predicate("abs definition", nclose(young.absDefinition, 0.244));
-  // no flank row fires at BMI 22, but the mass direction lays half its
-  // scalar on a man's flanks
-  TestValidator.predicate(
-    "flank fat along the mass direction",
-    nclose(young.flankFat, Math.max(0, 0.5 * young.macroWeight)),
-  );
+  // no flank row fires at BMI 22, and the mass direction leaves the banded
+  // flank depot alone
+  TestValidator.predicate("no flank fat", nclose(young.flankFat, 0));
   TestValidator.equals("skipped row", young.stomachOverhang, undefined);
   TestValidator.predicate(
     "stature 1.75 m ring",

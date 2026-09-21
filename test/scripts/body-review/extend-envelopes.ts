@@ -47,8 +47,7 @@ const ENVELOPES: Record<string, [number, number]> = {
   lowerlegFatLeft: [-1.5, 2.5],
   lowerlegFatRight: [-1.5, 2.5],
   buttocksVolume: [-1.5, 2.5],
-  outerThighFatLeft: [0, 2],
-  outerThighFatRight: [0, 2],
+
   measureWaistCirc: [-2, 3],
   measureHipsCirc: [-2, 2],
   // the bust past 1.25 and the thigh past 1.75 cross the hanging arm and the
@@ -61,7 +60,11 @@ const ENVELOPES: Record<string, [number, number]> = {
   measureCalfCirc: [-2, 2],
   stomachPregnant: [-1, 2],
   stomachOverhang: [0, 1.5],
-  flankFat: [0, 2],
+  // the banded depots stay at their authored reach: past one their bell
+  // bands read as lumps rather than as more fat
+  flankFat: [0, 1],
+  outerThighFatLeft: [0, 1],
+  outerThighFatRight: [0, 1],
 };
 
 /** The statures, in metres, and the age at which the mass reach is read. */

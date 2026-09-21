@@ -5,7 +5,7 @@
  *
  *   pnpm exec ttsx -P test/tsconfig.scripts.json test/scripts/body-review/build-body.ts -- <set> [output-dir] [--basis path]
  *
- * `set` is `neutral`, `poses`, `folds`, `shapes`, `individuality`, `archetypes` or `measure`; the output
+ * `set` is `neutral`, `poses`, `folds`, `shapes`, `individuality`, `archetypes`, `variants` (every shape in the output directory's `variants.json`) or `measure`; the output
  * directory defaults to `.shots/body-review/<set>`; `--basis` builds another
  * basis file (a candidate revision) instead of the shipped one. Each state is evaluated through the
  * public `createHumanBodyBasisBuilder`, the same path the editor takes, so a
@@ -252,11 +252,17 @@ function main(): void {
           name,
           { pose },
         ])
-      : set === "shapes" || set === "individuality"
-        ? Object.entries(set === "shapes" ? SHAPES : REVIEW).map(
-            ([name, shape]) => [name, { shape }],
-          )
-        : [["neutral", {}]];
+      : set === "variants"
+        ? Object.entries(
+            JSON.parse(
+              fs.readFileSync(path.join(output, "variants.json"), "utf8"),
+            ) as Record<string, Record<string, number>>,
+          ).map(([name, shape]) => [name, { shape }])
+        : set === "shapes" || set === "individuality"
+          ? Object.entries(set === "shapes" ? SHAPES : REVIEW).map(
+              ([name, shape]) => [name, { shape }],
+            )
+          : [["neutral", {}]];
   for (const [name, edit] of states) {
     const started = Date.now();
     const built = build({

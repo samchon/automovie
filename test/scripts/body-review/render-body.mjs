@@ -43,9 +43,14 @@ const states =
   positional[1] === undefined
     ? fs
         .readdirSync(setDir)
+        // a state file carries a mesh; receipts beside it (the channel
+        // measurements, the archetypes' reach) do not
         .filter(
           (file) =>
-            file.endsWith(".json") && file !== "channel-measurements.json",
+            file.endsWith(".json") &&
+            fs
+              .readFileSync(path.join(setDir, file), "utf8")
+              .includes('"positions"'),
         )
         .map((file) => file.slice(0, -5))
         .sort()
