@@ -1,435 +1,466 @@
 /** Author the missing correctives by solving them, not by noticing them.
  *
- * The enumeration of all 1326 expression pairs says thirty-eight combinations
- * put a surface through a surface that neither side puts it through, and the
- * basis carries two correctives against them. Writing the other thirty-six by
- * hand would be the same reactive method that produced the first two, one
- * pose at a time, with no statement of when the list ends. The list already
- * ends; what is missing is a procedure that answers every item of it the same
- * way.
+ * The enumeration of every expression pair on the neutral head says which
+ * combinations put a surface through a surface that neither side puts it
+ * through. Writing those correctives by hand would be the same reactive method
+ * that produced the first two, one pose at a time, with no statement of when
+ * the list ends. The list already ends; what is missing is a procedure that
+ * answers every item of it the same way, and this is it.
  *
- * The procedure. A combination's pose is built on the neutral head, because a
- * corrective endpoint is a displacement field on the basis and not on a
- * subject. The surfaces that cross are found. One of them yields -- which one
- * is not a judgement call but a standing order, below -- and its crossed
- * vertices are pushed to the far side of the surface they have entered, plus a
- * clearance. The push is then relaxed over the surface so that what results is
- * a soft tissue moving, not a dent: a lip that clears the teeth by denting
- * itself around one incisor has not been corrected, it has been damaged.
- * Pushing and relaxing alternate until nothing crosses or the budget runs out,
- * and a pair that runs out is reported unsolved rather than published.
+ * The procedure, in two tiers. A combination's pose is built on the neutral
+ * head -- no shape, no per-vertex identity, no skin -- because a corrective
+ * endpoint is a displacement field on the basis and not on a subject.
+ * `solveCombination` pushes what crosses clear inside a budget and the
+ * displacement is the corrective, firing on the product of the two channels so
+ * a single channel alone is left exactly as authored. That is the first tier,
+ * at full weight on both channels. A product is bilinear, so at (1, ½) the
+ * same corrective lands at half strength on a pose that may still cross; the
+ * second tier wears each corrected pair at (1, ½) and (½, 1) with the first
+ * tier present, solves what remains, and publishes it as an in-between whose
+ * halved driver peaks at ½ and is gone again at full.
  *
- * Which surface yields, and why. Bone does not deform, so teeth never move and
- * whatever they are inside of does. Between two soft surfaces the one that is
- * enclosed yields, because a tongue is in a mouth and lips are not in a tongue.
- * Hair-like surfaces yield to skin for the same reason a brow sits on a face.
- *
- * What this cannot do, and says so. The pose is neutral, so a corrective it
- * writes is checked against every subject afterwards and the ones it fails to
- * clear are named. And a corrective is a repair, not an acceptance: it removes
- * a measured crossing and says nothing about whether the face is one somebody
- * would make.
+ * What it refuses. A pair the budget cannot clear is reported and not
+ * published; a pair whose crossing this head does not show is absent, not
+ * repaired; a fold of one surface into itself is named and left to a solver
+ * that does not exist yet. And a corrective is a repair, not an acceptance: it
+ * removes a measured crossing and says nothing about whether the face is one
+ * somebody would make. `verify-combination-correctives.ts` is what says
+ * whether the published revision holds on every subject.
  *
  * Usage, from the test package:
- *   ttsx -P tsconfig.json --no-plugins scripts/face-review/generate-combination-correctives.ts [--pairs N] [--write]
+ *   ttsx -P tsconfig.json --no-plugins scripts/face-review/generate-combination-correctives.ts [--pairs N] [--limit mm] [--write]
  */
-import { measureAutoMovieMeshCrossings } from "@automovie/engine";
-import type { IAutoMovieMesh } from "@automovie/interface";
 import {
   type IAutoMovieHumanFaceBasis,
   type IAutoMovieHumanFaceBasisDocument,
   createHumanFaceBasisBuilder,
 } from "@automovie/human";
+import type { IAutoMovieMesh } from "@automovie/interface";
 import fs from "node:fs";
-import { gunzipSync } from "node:zlib";
+import { gunzipSync, gzipSync } from "node:zlib";
 
-/** Which surface gives way, lowest first: bone never, then skin, then the rest. */
-const YIELDS = [
-  "Human.teeth_base/Human.teeth_base",
-  "Human/skin",
-  "Human/lips",
-  "Human.eyebrow001/Human.eyebrow001",
-  "Human.eyelashes01/Human.eyelashes01",
-  "Human.tongue01/Human.tongue01",
-];
+import { LIMIT } from "./push-out";
+import {
+  type ISolvedCombination,
+  type Parts,
+  type Worn,
+  anchoredBy,
+  appearedAt,
+  crossingPairs,
+  moverOf,
+  solveCombination,
+  wornFrom,
+} from "./solve-combination";
 
-/** How far past the surface it entered a pushed vertex is put, in metres. */
-const CLEARANCE = 0.0005;
-/** Rounds of pushing and relaxing before a pair is called unsolved. */
-const ROUNDS = 24;
+/** The identity this revision publishes under, and the one it succeeds. */
+const REVISION = "mpfb-connected-head-2026-09-21-pair-correctives";
+const SUCCEEDS = "mpfb-connected-head-2026-09-21-single-repaired";
+
 /**
- * The most a corrective may move any vertex, in metres.
- *
- * Without it the solver clears everything and means nothing: told to keep
- * pushing until the triangles part, it threw a lip 38 mm and a tongue 178 mm,
- * which clears the crossing and destroys the face. A corrective is a repair of
- * a pose, and a repair that has to move a lip four centimetres is not saying
- * the lip is wrong. It is saying the pose is. So the budget is what soft tissue
- * over a dental arch actually has to give -- a few millimetres -- and a
- * combination that cannot be repaired inside it is reported as a pose the rig
- * should not have been asked for, rather than published as a corrective.
+ * The weight grid after full weight, in the order it is solved: the coarse
+ * grid {쩍, 1}짼 by default, the fine grid {쩌, 쩍, 쩐, 1}짼 with `--grid fine`,
+ * coarser poses first so each finer one is solved with its neighbours
+ * present. Each tier is worn with every earlier tier present, so what it
+ * solves is what those leave. An in-between's driver spans to the
+ * neighbouring grid weights, so it is whole at its own and absent at theirs.
  */
-const LIMIT = 0.003;
-/** How much of a pushed vertex's motion its neighbours take on, per round. */
-const RELAX = 0.5;
-/** Rounds of relaxation after each push. */
-const SMOOTHING = 6;
+const FINE = process.argv[process.argv.indexOf("--grid") + 1] === "fine";
+const STEPS = FINE ? [0.25, 0.5, 0.75, 1] : [0.5, 1];
+const TIERS: [number, number][] = STEPS.flatMap((a) =>
+  STEPS.map((b) => [a, b] as [number, number]),
+)
+  .filter(([a, b]) => a < 1 || b < 1)
+  .sort(
+    (x, y) =>
+      Math.min(...y) - Math.min(...x) || Math.max(...y) - Math.max(...x),
+  );
+/** The driver weights on either side of a peak where its in-between fades out. */
+const spanOf = (peak: number): [number, number] => {
+  const at = STEPS.indexOf(peak);
+  return [
+    at === 0 ? 0 : STEPS[at - 1],
+    STEPS[Math.min(STEPS.length - 1, at + 1)],
+  ];
+};
+/** A tier's name inside a corrective id: the quarter steps of its weights. */
+const nameOf = (a: number, b: number): string =>
+  `At${Math.round(a * 4)}${Math.round(b * 4)}`;
+
+/** The part a channel makes the agent of its pose, which the lips then part around. */
+const AGENTS: Record<string, string> = {
+  tongueOut: "Human.tongue01/Human.tongue01",
+};
+const agentsOf = (channels: string[]): ReadonlySet<string> =>
+  new Set(
+    channels.flatMap((one) => (AGENTS[one] === undefined ? [] : [AGENTS[one]])),
+  );
+/** The pose without the channels that make an agent: what an agent's take-back returns to. */
+const withoutAgents = (
+  wear: (expression: Record<string, number>) => Worn,
+  expression: Record<string, number>,
+): Worn =>
+  wear(
+    Object.fromEntries(
+      Object.entries(expression).filter(
+        ([channel]) => AGENTS[channel] === undefined,
+      ),
+    ),
+  );
 
 const published = "studies/human-face/connected-basis/global-face";
+const investigation = "../.shots/human-2469/investigation-2498";
+const file = `${published}/basis.json.gz`;
 const basis: IAutoMovieHumanFaceBasis = JSON.parse(
-  gunzipSync(fs.readFileSync(`${published}/basis.json.gz`)).toString("utf8"),
+  gunzipSync(fs.readFileSync(file)).toString("utf8"),
 );
-const documents: IAutoMovieHumanFaceBasisDocument[] = JSON.parse(
-  fs.readFileSync(`${published}/subjects.json`, "utf8"),
-);
-const found = JSON.parse(
-  fs.readFileSync(
-    "../.shots/human-2469/investigation-2498/expression-pairs.json",
-    "utf8",
-  ),
-) as Record<
-  string,
-  { all: { pair: string; interaction: number; appeared: string[] }[] }
->;
 
-const offending = Object.values(found)[0]
-  .all.filter((one) => one.appeared.length > 0)
-  .sort((a, b) => b.interaction - a.interaction);
+/** The enumeration's shards read back together, in the order they were cut. */
+const shards = fs
+  .readdirSync(investigation)
+  .filter((name) => /^expression-pairs-neutral(\.\d+of\d+)?\.json$/.test(name))
+  .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+if (shards.length === 0)
+  throw new Error(
+    "no neutral-head enumeration; run enumerate-expression-pairs.ts neutral first",
+  );
+type Found = { pair: string; interaction: number; appeared: string[] };
+const found: Found[] = [];
+let visited = 0;
+let expected = 0;
+for (const name of shards) {
+  const report = JSON.parse(fs.readFileSync(`${investigation}/${name}`, "utf8"))
+    .neutral as { all: Found[]; visited: number; pairs: number };
+  found.push(...report.all);
+  visited += report.visited;
+  expected = report.pairs;
+}
+if (visited !== expected)
+  throw new Error(
+    `the shards visited ${visited} of ${expected} pairs; some are missing`,
+  );
+const offending = found
+  .filter((one) => one.appeared.length > 0)
+  .sort(
+    (a, b) => b.interaction - a.interaction || a.pair.localeCompare(b.pair),
+  );
 // `indexOf` gives -1 when the flag is absent, and argv[0] is the interpreter,
 // so reading argv[index + 1] without checking turns "all of them" into NaN and
 // the whole run into nothing. It did, once, silently.
 const asked = process.argv.indexOf("--pairs");
 const budget =
-  asked < 0 ? offending.length : Number(process.argv[asked + 1] ?? offending.length);
+  asked < 0
+    ? offending.length
+    : Number(process.argv[asked + 1] ?? offending.length);
 if (!Number.isFinite(budget) || budget <= 0)
   throw new Error(`--pairs wants a count, not ${process.argv[asked + 1]}`);
+const limitAt = process.argv.indexOf("--limit");
+const limit = limitAt < 0 ? LIMIT : Number(process.argv[limitAt + 1]) / 1000;
+if (!Number.isFinite(limit) || limit <= 0)
+  throw new Error(
+    `--limit wants millimetres, not ${process.argv[limitAt + 1]}`,
+  );
 console.log(
-  `${offending.length} combinations invent a crossing; ` +
+  `${offending.length} of ${visited} combinations invent a crossing on the neutral head; ` +
     `${Math.min(budget, offending.length)} to be solved`,
 );
 
-const build = createHumanFaceBasisBuilder(basis);
-/** The neutral head wearing one expression, as part id to mesh. */
-const wearing = (expression: Record<string, number>) => {
-  const blank: IAutoMovieHumanFaceBasisDocument = {
-    ...documents[0],
-    shape: {},
-    expression,
-    hair: undefined,
-  };
-  const parts = new Map<string, IAutoMovieMesh>();
-  for (const part of build(blank).parts)
-    if (part.geometry.type === "mesh") parts.set(part.id, part.geometry.mesh);
-  return parts;
-};
+const parts: Parts = new Map();
+for (const surface of basis.surfaces)
+  for (const region of surface.regions)
+    parts.set(region.id, { surface: surface.id, indices: region.indices });
 
-const triangles = (mesh: IAutoMovieMesh): number[] =>
-  mesh.indices ?? [...new Array(mesh.positions.length / 3).keys()];
-
-/** Vertices of `mesh` that take part in a triangle crossing `into`. */
-const crossedVertices = (mesh: IAutoMovieMesh, into: IAutoMovieMesh): Set<number> => {
-  const rows = triangles(mesh);
-  const hit = new Set<number>();
-  for (const crossing of measureAutoMovieMeshCrossings(mesh, into))
-    for (let corner = 0; corner < 3; corner++)
-      hit.add(rows[crossing.triangle * 3 + corner]);
-  return hit;
-};
-
-/** The neighbours of each vertex, over a mesh's own triangles. */
-const neighboursOf = (mesh: IAutoMovieMesh): Set<number>[] => {
-  const rows = triangles(mesh);
-  const near: Set<number>[] = [...new Array(mesh.positions.length / 3)].map(
-    () => new Set<number>(),
-  );
-  for (let at = 0; at + 2 < rows.length; at += 3)
-    for (let corner = 0; corner < 3; corner++) {
-      const here = rows[at + corner];
-      near[here].add(rows[at + ((corner + 1) % 3)]);
-      near[here].add(rows[at + ((corner + 2) % 3)]);
-    }
-  return near;
-};
-
-/** Closest point to `point` inside triangle `abc`, by Ericson's region test. */
-const closestInTriangle = (
-  point: number[],
-  a: number[],
-  b: number[],
-  c: number[],
-): number[] => {
-  const sub = (x: number[], y: number[]) => [x[0] - y[0], x[1] - y[1], x[2] - y[2]];
-  const dot = (x: number[], y: number[]) => x[0] * y[0] + x[1] * y[1] + x[2] * y[2];
-  const mix = (x: number[], y: number[], t: number) =>
-    [0, 1, 2].map((k) => x[k] + (y[k] - x[k]) * t);
-  const ab = sub(b, a);
-  const ac = sub(c, a);
-  const ap = sub(point, a);
-  const d1 = dot(ab, ap);
-  const d2 = dot(ac, ap);
-  if (d1 <= 0 && d2 <= 0) return a;
-  const bp = sub(point, b);
-  const d3 = dot(ab, bp);
-  const d4 = dot(ac, bp);
-  if (d3 >= 0 && d4 <= d3) return b;
-  const vc = d1 * d4 - d3 * d2;
-  if (vc <= 0 && d1 >= 0 && d3 <= 0) return mix(a, b, d1 / (d1 - d3));
-  const cp = sub(point, c);
-  const d5 = dot(ab, cp);
-  const d6 = dot(ac, cp);
-  if (d6 >= 0 && d5 <= d6) return c;
-  const vb = d5 * d2 - d1 * d6;
-  if (vb <= 0 && d2 >= 0 && d6 <= 0) return mix(a, c, d2 / (d2 - d6));
-  const va = d3 * d6 - d5 * d4;
-  if (va <= 0 && d4 - d3 >= 0 && d5 - d6 >= 0)
-    return mix(b, c, (d4 - d3) / (d4 - d3 + (d5 - d6)));
-  const denominator = va + vb + vc;
-  return [0, 1, 2].map(
-    (k) => a[k] + (ab[k] * vb) / denominator + (ac[k] * vc) / denominator,
-  );
-};
-
-/**
- * A mesh's triangles in a uniform grid, with their planes, for nearest queries.
- *
- * Projecting onto the nearest *vertex* was tried first and does not converge:
- * a dental arch is coarse enough that its nearest vertex can be millimetres
- * from its nearest surface, so a lip pushed to a vertex is still inside the
- * tooth. The nearest point on the nearest triangle is where a surface is.
- */
-const gridOf = (mesh: IAutoMovieMesh) => {
-  const rows = triangles(mesh);
-  const corners: number[][][] = [];
-  const planes: number[][] = [];
-  let span = 0;
-  for (let at = 0; at + 2 < rows.length; at += 3) {
-    const triangle = [rows[at], rows[at + 1], rows[at + 2]].map((row) =>
-      [0, 1, 2].map((k) => mesh.positions[row * 3 + k]),
-    );
-    corners.push(triangle);
-    const u = [0, 1, 2].map((k) => triangle[1][k] - triangle[0][k]);
-    const v = [0, 1, 2].map((k) => triangle[2][k] - triangle[0][k]);
-    const cross = [
-      u[1] * v[2] - u[2] * v[1],
-      u[2] * v[0] - u[0] * v[2],
-      u[0] * v[1] - u[1] * v[0],
-    ];
-    const size = Math.hypot(cross[0], cross[1], cross[2]);
-    planes.push(size > 0 ? cross.map((one) => one / size) : [0, 0, 1]);
-    span += Math.max(
-      ...[0, 1, 2].map(
-        (k) =>
-          Math.max(triangle[0][k], triangle[1][k], triangle[2][k]) -
-          Math.min(triangle[0][k], triangle[1][k], triangle[2][k]),
-      ),
-    );
-  }
-  const cell = Math.max(span / Math.max(corners.length, 1), 1e-6);
-  const key = (x: number, y: number, z: number) => `${x},${y},${z}`;
-  const of = (point: number[]) =>
-    point.map((one) => Math.floor(one / cell)) as [number, number, number];
-  const grid = new Map<string, number[]>();
-  for (const [index, triangle] of corners.entries()) {
-    const low = of([0, 1, 2].map((k) => Math.min(...triangle.map((p) => p[k]))));
-    const high = of([0, 1, 2].map((k) => Math.max(...triangle.map((p) => p[k]))));
-    for (let x = low[0]; x <= high[0]; x++)
-      for (let y = low[1]; y <= high[1]; y++)
-        for (let z = low[2]; z <= high[2]; z++) {
-          const at = key(x, y, z);
-          const bucket = grid.get(at);
-          if (bucket === undefined) grid.set(at, [index]);
-          else bucket.push(index);
-        }
-  }
-
-  /** The nearest surface point, its outward normal, and the signed distance. */
-  return (point: number[]): { at: number[]; normal: number[]; away: number } => {
-    const middle = of(point);
-    let best = 0;
-    let bestPoint = corners[0][0];
-    let nearest = Infinity;
-    for (let reach = 1; reach <= 6; reach++) {
-      for (let x = middle[0] - reach; x <= middle[0] + reach; x++)
-        for (let y = middle[1] - reach; y <= middle[1] + reach; y++)
-          for (let z = middle[2] - reach; z <= middle[2] + reach; z++)
-            for (const index of grid.get(key(x, y, z)) ?? []) {
-              const on = closestInTriangle(point, ...(corners[index] as [number[], number[], number[]]));
-              const apart =
-                (on[0] - point[0]) ** 2 +
-                (on[1] - point[1]) ** 2 +
-                (on[2] - point[2]) ** 2;
-              if (apart < nearest) {
-                nearest = apart;
-                best = index;
-                bestPoint = on;
-              }
-            }
-      // One ring past the first hit, so a nearer triangle in the next cell is
-      // not missed by stopping at the first cell that had anything in it.
-      if (nearest < Infinity && Math.sqrt(nearest) < cell * (reach - 1)) break;
-    }
-    const normal = planes[best];
-    return {
-      at: bestPoint,
-      normal,
-      away: [0, 1, 2].reduce(
-        (total, k) => total + (point[k] - bestPoint[k]) * normal[k],
-        0,
-      ),
+/** A builder's neutral head at one expression: the model, and it over shared vertices. */
+const wearer = (build: ReturnType<typeof createHumanFaceBasisBuilder>) => {
+  const model = (expression: Record<string, number>) => {
+    const document: IAutoMovieHumanFaceBasisDocument = {
+      id: "neutral",
+      name: "neutral",
+      basis: basis.id,
+      shape: {},
+      expression,
     };
+    return build(document);
   };
-};
-
-/**
- * Move `mesh` out of `into`, and report the displacement it took.
- *
- * Push and relax alternate. The push puts every crossed vertex on the far side
- * of the surface it has entered, plus a clearance; the relax spreads that over
- * the neighbourhood so the result is a surface moving rather than a row of
- * vertices yanked past their neighbours. Only vertices the push has touched,
- * and their neighbours, take part: a lip that clears the teeth by moving the
- * whole lip is not a corrective, it is a different lip.
- */
-const pushOut = (
-  mesh: IAutoMovieMesh,
-  into: IAutoMovieMesh,
-): { moved: Map<number, number[]>; crossings: number[]; solved: boolean } => {
-  const nearestOn = gridOf(into);
-  const near = neighboursOf(mesh);
-  const working: IAutoMovieMesh = { ...mesh, positions: [...mesh.positions] };
-  const crossings: number[] = [];
-  let solved = false;
-  for (let round = 0; round < ROUNDS; round++) {
-    const hit = crossedVertices(working, into);
-    crossings.push(hit.size);
-    if (hit.size === 0) {
-      solved = true;
-      break;
-    }
-    const touched = new Set<number>(hit);
-    for (const row of hit) {
-      const point = [0, 1, 2].map((k) => working.positions[row * 3 + k]);
-      const { at, normal, away } = nearestOn(point);
-      // A vertex already outside can still belong to a triangle that crosses:
-      // three corners clear of a tooth say nothing about the face between them
-      // passing through it. Projecting such a vertex to the surface would move
-      // it backwards, so it is carried further out instead, a clearance at a
-      // time, until its triangle has nothing left to cross. That plateau at 87
-      // vertices was exactly this -- every one of them was already outside,
-      // every push was skipped, and the count stopped falling.
-      const outward = Math.max(away, 0) + CLEARANCE * (round + 1);
-      for (let k = 0; k < 3; k++)
-        working.positions[row * 3 + k] = at[k] + normal[k] * outward;
-      // Never past the budget, measured from where the vertex started.
-      const moved = [0, 1, 2].map(
-        (k) => working.positions[row * 3 + k] - mesh.positions[row * 3 + k],
-      );
-      const far = Math.hypot(moved[0], moved[1], moved[2]);
-      if (far > LIMIT)
-        for (let k = 0; k < 3; k++)
-          working.positions[row * 3 + k] =
-            mesh.positions[row * 3 + k] + (moved[k] / far) * LIMIT;
-      for (const neighbour of near[row]) touched.add(neighbour);
-    }
-    for (let sweep = 0; sweep < SMOOTHING; sweep++) {
-      const before = [...working.positions];
-      for (const row of touched) {
-        if (hit.has(row)) continue;
-        // Relaxation is bounded too, or the neighbours carry the budget past
-        // itself one ring at a time.
-        const around = near[row];
-        if (around.size === 0) continue;
-        const middle = [0, 0, 0];
-        for (const neighbour of around)
-          for (let k = 0; k < 3; k++) middle[k] += before[neighbour * 3 + k];
-        const blended = [0, 1, 2].map(
-          (k) =>
-            before[row * 3 + k] * (1 - RELAX) +
-            (middle[k] / around.size) * RELAX,
-        );
-        const drift = [0, 1, 2].map((k) => blended[k] - mesh.positions[row * 3 + k]);
-        const far = Math.hypot(drift[0], drift[1], drift[2]);
-        for (let k = 0; k < 3; k++)
-          working.positions[row * 3 + k] =
-            far > LIMIT
-              ? mesh.positions[row * 3 + k] + (drift[k] / far) * LIMIT
-              : blended[k];
-      }
-    }
-  }
-  const moved = new Map<number, number[]>();
-  for (let row = 0; row < mesh.positions.length / 3; row++) {
-    const delta = [0, 1, 2].map(
-      (k) => working.positions[row * 3 + k] - mesh.positions[row * 3 + k],
+  const worn = (expression: Record<string, number>): Worn =>
+    wornFrom(
+      basis,
+      new Map(
+        model(expression).parts.map((part) => [
+          part.id,
+          (part.geometry as { type: "mesh"; mesh: IAutoMovieMesh }).mesh,
+        ]),
+      ),
     );
-    if (Math.hypot(delta[0], delta[1], delta[2]) > 1e-9) moved.set(row, delta);
-  }
-  return { moved, crossings, solved };
+  return { model, worn };
 };
+const capital = (id: string) => id[0].toUpperCase() + id.slice(1);
 
-console.log();
-console.log(
-  `${"combination".padEnd(44)} ${"surface".padEnd(14)} ${"crossed".padStart(8)}` +
-    ` ${"left".padStart(5)} ${"moved".padStart(6)} ${"most".padStart(7)}`,
-);
+type Corrective = NonNullable<IAutoMovieHumanFaceBasis["correctives"]>[number];
+const correctives: Corrective[] = [];
+const targets = new Map<string, Map<string, number[]>>();
 const receipts: Record<string, unknown>[] = [];
-for (const one of offending.slice(0, budget)) {
-  const [first, second] = one.pair.split(" + ");
-  const parts = wearing({ [first]: 1, [second]: 1 });
-  for (const appeared of one.appeared) {
-    const [a, b] = appeared.split(" x ");
-    const rankOf = (id: string) =>
-      YIELDS.indexOf(id) < 0 ? YIELDS.length : YIELDS.indexOf(id);
-    const [firm, soft] = rankOf(a) < rankOf(b) ? [a, b] : [b, a];
-    const mesh = parts.get(soft);
-    const into = parts.get(firm);
-    if (mesh === undefined || into === undefined) continue;
-    const { moved, crossings, solved } = pushOut(mesh, into);
-    let most = 0;
-    for (const delta of moved.values())
-      most = Math.max(most, Math.hypot(delta[0], delta[1], delta[2]));
-    // Three outcomes, not two. A crossing the enumeration found on a subject
-    // and this does not find on the neutral head is not repaired, it is absent:
-    // identity moved the surfaces into each other and a basis-level corrective,
-    // which is a field on the neutral, has nothing to act on. Counting those as
-    // successes would report the generator solving what it never saw.
-    const outcome =
-      crossings[0] === 0 ? "absent on the neutral head" : solved ? "repaired" : "beyond the budget";
-    receipts.push({
-      combination: one.pair,
-      surfaces: appeared,
-      yielded: soft,
-      crossedVerticesPerRound: crossings,
-      movedVertices: moved.size,
-      mostMillimetres: most * 1000,
-      solved,
-      outcome,
-    });
-    console.log(
-      `${one.pair.padEnd(44)} ${(soft.split("/").pop() ?? soft).replace("Human.", "").padEnd(14)}` +
-        ` ${String(crossings[0]).padStart(8)}` +
-        ` ${String(crossings[crossings.length - 1]).padStart(5)}` +
-        ` ${String(moved.size).padStart(6)}` +
-        ` ${(most * 1000).toFixed(2).padStart(7)}` +
-        (solved ? "" : "   UNSOLVED"),
-    );
+
+/** Keep a solved combination as a corrective when it earned publication. */
+const keep = (
+  id: string,
+  inputs: Corrective["inputs"],
+  solved: ISolvedCombination,
+): boolean => {
+  if (!solved.publishable) return false;
+  correctives.push({ id, inputs, weight: 1, target: id });
+  targets.set(id, solved.rows);
+  return true;
+};
+
+const header = () =>
+  console.log(
+    `\n${"combination".padEnd(40)} ${"yields".padEnd(12)} ${"to".padEnd(12)}` +
+      ` ${"crossed".padStart(7)} ${"left".padStart(4)} ${"moved".padStart(5)} ${"most".padStart(5)}`,
+  );
+const verdict = (kept: boolean, id: string, solved: ISolvedCombination) =>
+  console.log(
+    `${"".padEnd(40)} ${(kept ? `-> ${id}` : "-> not published").padEnd(46)}` +
+      ` crease ${(solved.creaseMetres * 1000).toFixed(2)} mm`,
+  );
+
+// First tier: every offending pair at full weight on both channels.
+header();
+const { model: modelAt, worn: wearing } = wearer(
+  createHumanFaceBasisBuilder(basis),
+);
+const atRest = wearing({});
+const mover = moverOf(wearing, atRest, parts);
+// Singles never fire a pair corrective, so what a single crosses is the same
+// under every tier and is cached across them; with the rest it is the
+// baseline a handed-on crossing is read against.
+const alone = new Map<string, Set<string>>();
+const restPairs = crossingPairs(modelAt({}));
+const baselineOf = (expression: Record<string, number>): Set<string> => {
+  const set = new Set(restPairs);
+  for (const [channel, weight] of Object.entries(expression)) {
+    const key = `${channel}@${weight}`;
+    let found = alone.get(key);
+    if (found === undefined) {
+      found = crossingPairs(modelAt({ [channel]: weight }));
+      alone.set(key, found);
+    }
+    for (const pair of found) set.add(pair);
   }
+  return set;
+};
+const chosen = offending.slice(0, budget);
+const firstTier = new Map<string, string>();
+for (const one of chosen) {
+  const [first, second] = one.pair.split(" + ");
+  const expression = { [first]: 1, [second]: 1 };
+  const solved = solveCombination(
+    wearing(expression),
+    one.appeared,
+    parts,
+    atRest,
+    limit,
+    agentsOf([first, second]),
+    anchoredBy(wearing, atRest, mover, expression),
+    withoutAgents(wearing, expression),
+    (line) => console.log(`${one.pair.padEnd(40)} ${line}`),
+    baselineOf(expression),
+  );
+  const id = `${first}${capital(second)}Clear`;
+  const kept = keep(
+    id,
+    [
+      { channel: first, side: "positive" },
+      { channel: second, side: "positive" },
+    ],
+    solved,
+  );
+  if (kept) firstTier.set(one.pair, id);
+  verdict(kept, id, solved);
+  receipts.push({
+    combination: one.pair,
+    weights: "1,1",
+    corrective: kept ? id : null,
+    movedVertices: solved.movedVertices,
+    creaseMillimetres: solved.creaseMetres * 1000,
+    crossings: solved.outcomes,
+  });
 }
 
-fs.writeFileSync(
-  "../.shots/human-2469/investigation-2498/combination-correctives.json",
-  `${JSON.stringify(receipts, null, 2)}
-`,
-);
+// Later tiers: each corrected pair at every grid weight, worn with every
+// earlier tier present so only what those leave is solved. The crossing to
+// answer is measured at that pose against its own singles, because a pair
+// that crosses teeth and lips at full weight can cross teeth and skin at
+// half. A halved driver peaks at half, so the in-between is gone at full.
+let staged: IAutoMovieHumanFaceBasis = basis;
+const stage = (): IAutoMovieHumanFaceBasis => {
+  const next = structuredClone(basis);
+  next.correctives = [...(next.correctives ?? []), ...correctives];
+  for (const surface of next.surfaces)
+    for (const [id, rows] of targets) {
+      const mine = rows.get(surface.id);
+      if (mine !== undefined) surface.targets[id] = mine;
+    }
+  return next;
+};
+for (const [wa, wb] of TIERS) {
+  staged = stage();
+  console.log(`\ntier at (${wa}, ${wb}), with every earlier tier present`);
+  header();
+  const { model, worn } = wearer(createHumanFaceBasisBuilder(staged));
+  for (const one of chosen) {
+    const [first, second] = one.pair.split(" + ");
+    // A pair without a full-weight corrective can still cross at half weight
+    // and gets an in-between under the name the full one would have had.
+    const full = firstTier.get(one.pair) ?? `${first}${capital(second)}Clear`;
+    const expression = { [first]: wa, [second]: wb };
+    const appeared = appearedAt(model, expression, alone);
+    const label = `${one.pair} @(${wa},${wb})`;
+    if (appeared.length === 0) {
+      receipts.push({
+        combination: one.pair,
+        weights: `${wa},${wb}`,
+        corrective: null,
+        crossings: [],
+      });
+      continue;
+    }
+    const solved = solveCombination(
+      worn(expression),
+      appeared,
+      parts,
+      atRest,
+      limit,
+      agentsOf([first, second]),
+      anchoredBy(worn, atRest, mover, expression),
+      withoutAgents(worn, expression),
+      (line) => console.log(`${label.padEnd(40)} ${line}`),
+      baselineOf(expression),
+    );
+    const id = `${full}${nameOf(wa, wb)}`;
+    const kept = keep(
+      id,
+      [
+        {
+          channel: first,
+          side: "positive",
+          ...(wa < 1 ? { peak: wa, between: spanOf(wa) } : {}),
+        },
+        {
+          channel: second,
+          side: "positive",
+          ...(wb < 1 ? { peak: wb, between: spanOf(wb) } : {}),
+        },
+      ],
+      solved,
+    );
+    verdict(kept, id, solved);
+    receipts.push({
+      combination: one.pair,
+      weights: `${wa},${wb}`,
+      corrective: kept ? id : null,
+      movedVertices: solved.movedVertices,
+      creaseMillimetres: solved.creaseMetres * 1000,
+      crossings: solved.outcomes,
+    });
+  }
+}
+staged = stage();
+
 const counted = (what: string) =>
-  receipts.filter((one) => one.outcome === what).length;
+  receipts
+    .flatMap((one) => one.crossings as { outcome: string }[])
+    .filter((one) => one.outcome === what).length;
 console.log(
-  `
-of ${receipts.length} crossings: ${counted("repaired")} repaired inside ` +
-    `${(LIMIT * 1000).toFixed(0)} mm, ${counted("beyond the budget")} beyond it, ` +
-    `${counted("absent on the neutral head")} absent on the neutral head`,
+  `\n${chosen.length} combinations, ${firstTier.size} published at full weight, ` +
+    `${correctives.length - firstTier.size} in-betweens; over both tiers ` +
+    `${counted("repaired")} crossings repaired inside ${(limit * 1000).toFixed(0)} mm, ` +
+    `${counted("beyond the budget")} beyond it, ${counted("absent")} absent, ` +
+    `${counted("both rigid")} between rigid parts, ${counted("same surface")} folds of one surface`,
 );
-console.log(
-  "a crossing absent on the neutral head is one identity put there; a basis " +
-    "corrective is a field on the neutral and cannot reach it",
+fs.writeFileSync(
+  `${investigation}/combination-correctives.json`,
+  `${JSON.stringify(receipts, null, 2)}\n`,
 );
+
+if (process.argv.includes("--write") === false)
+  console.log("dry run; pass --write to publish");
+else if (basis.id === REVISION)
+  console.log("already published as this revision; nothing to do");
+else {
+  if (basis.id !== SUCCEEDS)
+    throw new Error(
+      `this step succeeds ${SUCCEEDS}, but the basis reads ${basis.id}`,
+    );
+  const taken = new Set([
+    ...basis.channels.map((one) => one.id),
+    ...(basis.correctives ?? []).map((one) => one.id),
+  ]);
+  for (const corrective of correctives)
+    if (taken.has(corrective.id))
+      throw new Error(`${corrective.id} is already a channel or corrective`);
+  const was = basis.id;
+  staged.id = REVISION;
+  fs.writeFileSync(file, gzipSync(`${JSON.stringify(staged)}\n`, { level: 9 }));
+
+  // Everything authored against the basis follows it. The mandible step did
+  // not restamp the grooms and skins, so those still read two revisions back;
+  // neither seats on anything a corrective or the bone moved, so they are
+  // carried forward here and what they read before is recorded.
+  const restamp = (path: string, zipped: boolean): Record<string, number> => {
+    const raw = zipped
+      ? gunzipSync(fs.readFileSync(path)).toString("utf8")
+      : fs.readFileSync(path, "utf8");
+    const parsed: unknown = JSON.parse(raw);
+    const records: { basis?: string }[] = Array.isArray(parsed)
+      ? parsed
+      : Object.values(parsed as Record<string, { basis?: string }>);
+    const read: Record<string, number> = {};
+    for (const record of records) {
+      read[record.basis ?? "none"] = (read[record.basis ?? "none"] ?? 0) + 1;
+      record.basis = REVISION;
+    }
+    const text = Array.isArray(parsed)
+      ? `${JSON.stringify(parsed, null, 2)}\n`
+      : `${JSON.stringify(parsed)}\n`;
+    fs.writeFileSync(
+      path,
+      zipped ? gzipSync(text, { level: 9 }) : Buffer.from(text, "utf8"),
+    );
+    console.log(`  ${path}: ${JSON.stringify(read)} -> ${REVISION}`);
+    return read;
+  };
+  const restamped = {
+    subjects: restamp(`${published}/subjects.json`, false),
+    grooms: restamp(`${published}/grooms.json.gz`, true),
+    skins: restamp(`${published}/skins.json.gz`, true),
+  };
+  fs.writeFileSync(
+    `${published}/pair-corrective-receipt.json`,
+    `${JSON.stringify(
+      {
+        basis: REVISION,
+        supersedes: was,
+        enumeration: {
+          pairs: expected,
+          inventingASurfacePair: offending.length,
+          shards,
+        },
+        budgetMillimetres: limit * 1000,
+        grid: STEPS,
+        weightGrid: [[1, 1], ...TIERS],
+        published: correctives.map((one) => one.id),
+        combinations: receipts,
+        restamped,
+        limits: [
+          "A corrective removes a crossing measured on the neutral head; verify-combination-correctives.ts reports what remains on each subject and at the weights the in-betweens were not solved for.",
+          "A combination beyond the budget is not published: the basis has no way to say that two channels must not be driven to their extremes together.",
+          "A crossing identity alone produces is not on the neutral head and no basis-level field reaches it.",
+          "A lip triangle through a skin triangle is one surface folding into itself; push-out between two bodies does not answer it and those pairs are listed as 'same surface'.",
+        ],
+      },
+      null,
+      2,
+    )}\n`,
+  );
+  console.log(`published ${REVISION}, succeeding ${was}`);
+}

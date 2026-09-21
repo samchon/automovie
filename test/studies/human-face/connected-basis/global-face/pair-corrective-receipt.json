@@ -1,0 +1,6491 @@
+{
+  "basis": "mpfb-connected-head-2026-09-21-pair-correctives",
+  "supersedes": "mpfb-connected-head-2026-09-21-single-repaired",
+  "enumeration": {
+    "pairs": 1326,
+    "inventingASurfacePair": 109,
+    "shards": [
+      "expression-pairs-neutral.0of12.json",
+      "expression-pairs-neutral.1of12.json",
+      "expression-pairs-neutral.2of12.json",
+      "expression-pairs-neutral.3of12.json",
+      "expression-pairs-neutral.4of12.json",
+      "expression-pairs-neutral.5of12.json",
+      "expression-pairs-neutral.6of12.json",
+      "expression-pairs-neutral.7of12.json",
+      "expression-pairs-neutral.8of12.json",
+      "expression-pairs-neutral.9of12.json",
+      "expression-pairs-neutral.10of12.json",
+      "expression-pairs-neutral.11of12.json"
+    ]
+  },
+  "budgetMillimetres": 3,
+  "grid": [
+    0.5,
+    1
+  ],
+  "weightGrid": [
+    [
+      1,
+      1
+    ],
+    [
+      0.5,
+      1
+    ],
+    [
+      1,
+      0.5
+    ],
+    [
+      0.5,
+      0.5
+    ]
+  ],
+  "published": [
+    "mouthCloseTongueOutClear",
+    "jawForwardJawLeftClear",
+    "jawForwardJawRightClear",
+    "mouthRightTongueOutClear",
+    "mouthLeftTongueOutClear",
+    "mouthPuckerTongueOutClear",
+    "jawOpenMouthLeftClear",
+    "mouthFunnelTongueOutClear",
+    "jawLeftTongueOutClear",
+    "jawRightTongueOutClear",
+    "jawOpenMouthRightClear",
+    "jawLeftJawOpenClear",
+    "jawForwardJawOpenClear",
+    "jawOpenJawRightClear",
+    "jawForwardMouthRollUpperClear",
+    "jawOpenMouthSmileRightClear",
+    "mouthRollUpperMouthShrugUpperClear",
+    "mouthShrugLowerTongueOutClear",
+    "jawOpenMouthFunnelClear",
+    "jawForwardTongueOutClear",
+    "jawOpenMouthShrugLowerClear",
+    "mouthSmileLeftTongueOutClear",
+    "mouthSmileRightTongueOutClear",
+    "jawOpenMouthSmileLeftClear",
+    "jawOpenMouthPuckerClear",
+    "jawRightMouthRollUpperClear",
+    "jawLeftMouthRollUpperClear",
+    "cheekPuffTongueOutClear",
+    "mouthLeftMouthRightClear",
+    "jawForwardMouthCloseClear",
+    "jawOpenMouthShrugUpperClear",
+    "mouthShrugUpperTongueOutClear",
+    "mouthRollUpperMouthSmileLeftClear",
+    "mouthLowerDownLeftTongueOutClear",
+    "eyeLookUpRightEyeWideRightClear",
+    "eyeLookUpLeftEyeWideLeftClear",
+    "mouthRollUpperMouthSmileRightClear",
+    "jawOpenMouthRollUpperClear",
+    "mouthLowerDownRightTongueOutClear",
+    "mouthRollUpperTongueOutClear",
+    "mouthRollUpperMouthUpperUpLeftClear",
+    "mouthRollUpperMouthUpperUpRightClear",
+    "jawOpenTongueOutClear",
+    "jawOpenMouthLowerDownRightClear",
+    "mouthRightMouthRollUpperClear",
+    "browDownLeftEyeWideLeftClear",
+    "browDownRightEyeWideRightClear",
+    "jawOpenMouthLowerDownLeftClear",
+    "mouthCloseMouthRollUpperClear",
+    "mouthLeftMouthRollUpperClear",
+    "mouthFunnelMouthRollUpperClear",
+    "mouthFunnelMouthSmileLeftClear",
+    "mouthFunnelMouthSmileRightClear",
+    "mouthUpperUpRightTongueOutClear",
+    "mouthFunnelMouthLeftClear",
+    "mouthRollLowerTongueOutClear",
+    "mouthFunnelMouthRightClear",
+    "jawLeftMouthRightClear",
+    "jawOpenMouthRollLowerClear",
+    "mouthDimpleLeftTongueOutClear",
+    "mouthFunnelMouthPuckerClear",
+    "jawRightMouthLeftClear",
+    "jawOpenMouthDimpleLeftClear",
+    "jawOpenMouthDimpleRightClear",
+    "jawOpenMouthPressLeftClear",
+    "jawOpenMouthPressRightClear",
+    "mouthFunnelMouthUpperUpLeftClear",
+    "jawLeftMouthFunnelClear",
+    "mouthPuckerMouthRollUpperClear",
+    "jawOpenMouthUpperUpLeftClear",
+    "mouthDimpleRightMouthStretchRightClear",
+    "mouthSmileLeftMouthStretchLeftClear",
+    "mouthSmileRightMouthStretchRightClear",
+    "jawForwardMouthRightClear",
+    "mouthDimpleLeftMouthStretchLeftClear",
+    "jawForwardMouthLeftClear",
+    "jawLeftJawRightClear",
+    "jawLeftMouthLeftClear",
+    "mouthFunnelMouthStretchRightClear",
+    "mouthSmileLeftMouthSmileRightClear",
+    "mouthPuckerMouthSmileRightClear",
+    "mouthDimpleLeftMouthSmileLeftClear",
+    "mouthPuckerMouthSmileLeftClear",
+    "mouthUpperUpLeftTongueOutClear",
+    "mouthPressLeftTongueOutClear",
+    "mouthFrownRightMouthFunnelClear",
+    "mouthFunnelMouthStretchLeftClear",
+    "jawRightMouthRightClear",
+    "mouthPressRightTongueOutClear",
+    "mouthDimpleRightMouthSmileLeftClear",
+    "mouthFrownLeftMouthRollUpperClear",
+    "cheekPuffMouthPuckerClear",
+    "mouthDimpleLeftMouthSmileRightClear",
+    "mouthRollUpperMouthStretchLeftClear",
+    "mouthSmileLeftMouthStretchRightClear",
+    "mouthDimpleRightMouthFrownRightClear",
+    "mouthPuckerMouthUpperUpLeftClear",
+    "mouthPuckerMouthUpperUpRightClear",
+    "mouthFrownRightMouthStretchRightClear",
+    "eyeWideLeftNoseSneerLeftClear",
+    "eyeWideRightNoseSneerRightClear",
+    "mouthDimpleLeftMouthDimpleRightClear",
+    "mouthDimpleLeftMouthStretchRightClear",
+    "mouthDimpleRightMouthStretchLeftClear",
+    "mouthFrownRightMouthSmileLeftClear",
+    "mouthRollUpperMouthStretchRightClear",
+    "cheekSquintRightMouthRollUpperClear",
+    "mouthDimpleLeftMouthFrownRightClear",
+    "mouthSmileRightMouthStretchLeftClear",
+    "mouthLeftTongueOutClearAt24",
+    "mouthSmileRightTongueOutClearAt24",
+    "mouthRightMouthRollUpperClearAt24",
+    "mouthLeftMouthRollUpperClearAt24",
+    "mouthCloseTongueOutClearAt42",
+    "jawOpenMouthLeftClearAt42",
+    "jawLeftTongueOutClearAt42",
+    "jawRightTongueOutClearAt42",
+    "jawOpenMouthRightClearAt42",
+    "mouthShrugLowerTongueOutClearAt42",
+    "jawForwardTongueOutClearAt42",
+    "mouthSmileLeftTongueOutClearAt42",
+    "mouthSmileRightTongueOutClearAt42",
+    "mouthLowerDownLeftTongueOutClearAt42",
+    "mouthLowerDownRightTongueOutClearAt42",
+    "mouthRollLowerTongueOutClearAt42",
+    "mouthDimpleLeftTongueOutClearAt42",
+    "mouthPressLeftTongueOutClearAt42",
+    "mouthPressRightTongueOutClearAt42",
+    "mouthCloseTongueOutClearAt22",
+    "mouthRightTongueOutClearAt22",
+    "mouthLeftTongueOutClearAt22",
+    "mouthShrugLowerTongueOutClearAt22",
+    "jawOpenTongueOutClearAt22",
+    "mouthRollLowerTongueOutClearAt22"
+  ],
+  "combinations": [
+    {
+      "combination": "mouthClose + tongueOut",
+      "weights": "1,1",
+      "corrective": "mouthCloseTongueOutClear",
+      "movedVertices": 9163,
+      "creaseMillimetres": 8.010542135414603,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 8,
+          "tookBack": 0.9765625,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            51,
+            47,
+            28,
+            52,
+            18,
+            35,
+            18,
+            18,
+            42,
+            18,
+            18,
+            30,
+            18,
+            18,
+            42,
+            18,
+            18,
+            18,
+            27,
+            18,
+            21,
+            30,
+            18,
+            18,
+            55,
+            53,
+            45,
+            15,
+            8,
+            2,
+            0,
+            0,
+            2,
+            0
+          ],
+          "movedVertices": 9163,
+          "mostMillimetres": 33.253796513731615,
+          "outcome": "repaired"
+        },
+        {
+          "surfaces": "Human.tongue01/Human.tongue01 x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            0
+          ],
+          "movedVertices": 0,
+          "mostMillimetres": 0,
+          "outcome": "absent"
+        }
+      ]
+    },
+    {
+      "combination": "jawForward + jawLeft",
+      "weights": "1,1",
+      "corrective": "jawForwardJawLeftClear",
+      "movedVertices": 539,
+      "creaseMillimetres": 4.27814136511,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            37,
+            8,
+            0
+          ],
+          "movedVertices": 115,
+          "mostMillimetres": 3.000000000000005,
+          "outcome": "repaired"
+        },
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            154,
+            65,
+            13,
+            0
+          ],
+          "movedVertices": 442,
+          "mostMillimetres": 3.00000000000001,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "jawForward + jawRight",
+      "weights": "1,1",
+      "corrective": "jawForwardJawRightClear",
+      "movedVertices": 539,
+      "creaseMillimetres": 4.27803322059575,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            37,
+            8,
+            0
+          ],
+          "movedVertices": 115,
+          "mostMillimetres": 2.9999999999999996,
+          "outcome": "repaired"
+        },
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            154,
+            68,
+            13,
+            0
+          ],
+          "movedVertices": 442,
+          "mostMillimetres": 3.0000000000000115,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthRight + tongueOut",
+      "weights": "1,1",
+      "corrective": "mouthRightTongueOutClear",
+      "movedVertices": 1303,
+      "creaseMillimetres": 4.35560509704738,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            92,
+            60,
+            29,
+            52,
+            30,
+            28,
+            20,
+            12,
+            40,
+            28,
+            5,
+            6,
+            7,
+            0
+          ],
+          "movedVertices": 353,
+          "mostMillimetres": 3.000000000000012,
+          "outcome": "repaired"
+        },
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            8,
+            0
+          ],
+          "movedVertices": 68,
+          "mostMillimetres": 3.0000000000000053,
+          "outcome": "repaired"
+        },
+        {
+          "surfaces": "Human.tongue01/Human.tongue01 x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips, then Human.tongue01/Human.tongue01",
+          "crossedVerticesPerRound": [
+            70,
+            42,
+            29,
+            28,
+            37,
+            28,
+            29,
+            29,
+            38,
+            29,
+            29,
+            29,
+            39,
+            29,
+            29,
+            29,
+            38,
+            29,
+            29,
+            29,
+            39,
+            29,
+            29,
+            29,
+            35,
+            0,
+            28,
+            24,
+            14,
+            0,
+            3,
+            0,
+            0,
+            0
+          ],
+          "movedVertices": 898,
+          "mostMillimetres": 14.108808339461605,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthLeft + tongueOut",
+      "weights": "1,1",
+      "corrective": "mouthLeftTongueOutClear",
+      "movedVertices": 1372,
+      "creaseMillimetres": 5.623192694319294,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            93,
+            53,
+            45,
+            38,
+            43,
+            18,
+            21,
+            16,
+            27,
+            16,
+            11,
+            14,
+            29,
+            4,
+            0
+          ],
+          "movedVertices": 364,
+          "mostMillimetres": 3.0000000000000124,
+          "outcome": "repaired"
+        },
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            22,
+            0
+          ],
+          "movedVertices": 131,
+          "mostMillimetres": 3.000000000000002,
+          "outcome": "repaired"
+        },
+        {
+          "surfaces": "Human.tongue01/Human.tongue01 x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips, then Human.tongue01/Human.tongue01",
+          "crossedVerticesPerRound": [
+            69,
+            42,
+            29,
+            28,
+            40,
+            29,
+            29,
+            32,
+            32,
+            29,
+            38,
+            29,
+            32,
+            31,
+            29,
+            31,
+            32,
+            36,
+            29,
+            29,
+            37,
+            29,
+            29,
+            36,
+            35,
+            0,
+            28,
+            24,
+            14,
+            0,
+            6,
+            0,
+            3,
+            0
+          ],
+          "movedVertices": 898,
+          "mostMillimetres": 14.22939644492709,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthPucker + tongueOut",
+      "weights": "1,1",
+      "corrective": "mouthPuckerTongueOutClear",
+      "movedVertices": 1203,
+      "creaseMillimetres": 7.875743745041316,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 8,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            74,
+            50,
+            23,
+            47,
+            4,
+            0
+          ],
+          "movedVertices": 305,
+          "mostMillimetres": 5.986972207164421,
+          "outcome": "repaired"
+        },
+        {
+          "surfaces": "Human.tongue01/Human.tongue01 x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips, then Human.tongue01/Human.tongue01",
+          "crossedVerticesPerRound": [
+            103,
+            45,
+            34,
+            38,
+            38,
+            34,
+            38,
+            34,
+            34,
+            38,
+            42,
+            34,
+            34,
+            34,
+            38,
+            38,
+            34,
+            34,
+            34,
+            42,
+            34,
+            34,
+            34,
+            39,
+            92,
+            0,
+            69,
+            44,
+            0,
+            25,
+            6,
+            0,
+            6,
+            0
+          ],
+          "movedVertices": 898,
+          "mostMillimetres": 13.26469160120322,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "jawOpen + mouthLeft",
+      "weights": "1,1",
+      "corrective": "jawOpenMouthLeftClear",
+      "movedVertices": 502,
+      "creaseMillimetres": 5.1821197849301255,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            101,
+            45,
+            49,
+            28,
+            39,
+            25,
+            33,
+            21,
+            15,
+            12,
+            11,
+            11,
+            7,
+            0
+          ],
+          "movedVertices": 392,
+          "mostMillimetres": 3.0000000000000133,
+          "outcome": "repaired"
+        },
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            22,
+            0
+          ],
+          "movedVertices": 131,
+          "mostMillimetres": 3.0000000000000027,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthFunnel + tongueOut",
+      "weights": "1,1",
+      "corrective": "mouthFunnelTongueOutClear",
+      "movedVertices": 837,
+      "creaseMillimetres": 4.3293298031792675,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            94,
+            115,
+            37,
+            39,
+            32,
+            38,
+            10,
+            10,
+            11,
+            0
+          ],
+          "movedVertices": 621,
+          "mostMillimetres": 3.0000000000000084,
+          "outcome": "repaired"
+        },
+        {
+          "surfaces": "Human.tongue01/Human.tongue01 x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            49,
+            17,
+            0
+          ],
+          "movedVertices": 226,
+          "mostMillimetres": 3.0000000000000058,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "jawLeft + tongueOut",
+      "weights": "1,1",
+      "corrective": "jawLeftTongueOutClear",
+      "movedVertices": 367,
+      "creaseMillimetres": 5.172495835538007,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            79,
+            59,
+            33,
+            22,
+            35,
+            15,
+            19,
+            13,
+            24,
+            12,
+            7,
+            3,
+            0
+          ],
+          "movedVertices": 264,
+          "mostMillimetres": 3.0000000000000053,
+          "outcome": "repaired"
+        },
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            0
+          ],
+          "movedVertices": 0,
+          "mostMillimetres": 0,
+          "outcome": "absent"
+        },
+        {
+          "surfaces": "Human.tongue01/Human.tongue01 x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            23,
+            0
+          ],
+          "movedVertices": 109,
+          "mostMillimetres": 2.9999999999999987,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "jawRight + tongueOut",
+      "weights": "1,1",
+      "corrective": "jawRightTongueOutClear",
+      "movedVertices": 437,
+      "creaseMillimetres": 10.161477193993466,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 8,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            78,
+            82,
+            16,
+            43,
+            42,
+            9,
+            7,
+            10,
+            4,
+            7,
+            10,
+            9,
+            0
+          ],
+          "movedVertices": 309,
+          "mostMillimetres": 7.999999999999998,
+          "outcome": "repaired"
+        },
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            6,
+            0
+          ],
+          "movedVertices": 39,
+          "mostMillimetres": 3.0000000000000018,
+          "outcome": "repaired"
+        },
+        {
+          "surfaces": "Human.tongue01/Human.tongue01 x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            27,
+            0
+          ],
+          "movedVertices": 117,
+          "mostMillimetres": 2.999999999999996,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "jawOpen + mouthRight",
+      "weights": "1,1",
+      "corrective": "jawOpenMouthRightClear",
+      "movedVertices": 430,
+      "creaseMillimetres": 7.225341286972781,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 8,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            91,
+            47,
+            26,
+            40,
+            31,
+            21,
+            6,
+            8,
+            0
+          ],
+          "movedVertices": 384,
+          "mostMillimetres": 8.000000000000007,
+          "outcome": "repaired"
+        },
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            12,
+            0
+          ],
+          "movedVertices": 57,
+          "mostMillimetres": 3.0000000000000036,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "jawLeft + jawOpen",
+      "weights": "1,1",
+      "corrective": "jawLeftJawOpenClear",
+      "movedVertices": 411,
+      "creaseMillimetres": 14.68857398293858,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 8,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            82,
+            84,
+            30,
+            54,
+            22,
+            24,
+            19,
+            17,
+            10,
+            10,
+            4,
+            13,
+            0
+          ],
+          "movedVertices": 352,
+          "mostMillimetres": 8.000000000000012,
+          "outcome": "repaired"
+        },
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            21,
+            10,
+            0
+          ],
+          "movedVertices": 72,
+          "mostMillimetres": 3.0000000000000084,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "jawForward + jawOpen",
+      "weights": "1,1",
+      "corrective": "jawForwardJawOpenClear",
+      "movedVertices": 297,
+      "creaseMillimetres": 5.860959145941297,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            62,
+            32,
+            22,
+            9,
+            12,
+            14,
+            6,
+            6,
+            7,
+            3,
+            4,
+            5,
+            5,
+            8,
+            7,
+            10,
+            7,
+            0
+          ],
+          "movedVertices": 203,
+          "mostMillimetres": 3.000000000000007,
+          "outcome": "repaired"
+        },
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            27,
+            13,
+            5,
+            0
+          ],
+          "movedVertices": 114,
+          "mostMillimetres": 3.000000000000007,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "jawOpen + jawRight",
+      "weights": "1,1",
+      "corrective": "jawOpenJawRightClear",
+      "movedVertices": 406,
+      "creaseMillimetres": 14.69928874975089,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 8,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            80,
+            80,
+            34,
+            50,
+            31,
+            21,
+            19,
+            14,
+            16,
+            24,
+            4,
+            13,
+            0
+          ],
+          "movedVertices": 352,
+          "mostMillimetres": 7.999999999999998,
+          "outcome": "repaired"
+        },
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            17,
+            9,
+            0
+          ],
+          "movedVertices": 65,
+          "mostMillimetres": 3.0000000000000053,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "jawForward + mouthRollUpper",
+      "weights": "1,1",
+      "corrective": "jawForwardMouthRollUpperClear",
+      "movedVertices": 4609,
+      "creaseMillimetres": 3.5967969835858766,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/lips",
+          "budgetMillimetres": 3,
+          "tookBack": 0.7890625,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            126,
+            113,
+            112,
+            114,
+            116,
+            118,
+            118,
+            118,
+            118,
+            118,
+            118,
+            118,
+            118,
+            118,
+            118,
+            118,
+            118,
+            118,
+            118,
+            118,
+            118,
+            118,
+            118,
+            118,
+            138,
+            92,
+            40,
+            0,
+            0,
+            6,
+            0,
+            0,
+            2,
+            0
+          ],
+          "movedVertices": 4609,
+          "mostMillimetres": 8.174162185222453,
+          "outcome": "repaired"
+        },
+        {
+          "surfaces": "Human/lips x Human.tongue01/Human.tongue01",
+          "budgetMillimetres": 3,
+          "yielded": "Human.tongue01/Human.tongue01",
+          "crossedVerticesPerRound": [
+            0
+          ],
+          "movedVertices": 0,
+          "mostMillimetres": 0,
+          "outcome": "absent"
+        }
+      ]
+    },
+    {
+      "combination": "jawOpen + mouthSmileRight",
+      "weights": "1,1",
+      "corrective": "jawOpenMouthSmileRightClear",
+      "movedVertices": 274,
+      "creaseMillimetres": 8.27994676951433,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 8,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            61,
+            33,
+            25,
+            32,
+            13,
+            5,
+            12,
+            9,
+            11,
+            0
+          ],
+          "movedVertices": 224,
+          "mostMillimetres": 8,
+          "outcome": "repaired"
+        },
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            7,
+            0
+          ],
+          "movedVertices": 50,
+          "mostMillimetres": 2.1766264828048483,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthRollUpper + mouthShrugUpper",
+      "weights": "1,1",
+      "corrective": "mouthRollUpperMouthShrugUpperClear",
+      "movedVertices": 357,
+      "creaseMillimetres": 3.315738194133147,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            36,
+            14,
+            10,
+            6,
+            4,
+            0
+          ],
+          "movedVertices": 152,
+          "mostMillimetres": 3.0000000000000067,
+          "outcome": "repaired"
+        },
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            106,
+            0
+          ],
+          "movedVertices": 232,
+          "mostMillimetres": 2.9426112609057564,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthShrugLower + tongueOut",
+      "weights": "1,1",
+      "corrective": "mouthShrugLowerTongueOutClear",
+      "movedVertices": 391,
+      "creaseMillimetres": 7.220765320851157,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 8,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            59,
+            23,
+            34,
+            14,
+            13,
+            12,
+            17,
+            9,
+            0
+          ],
+          "movedVertices": 227,
+          "mostMillimetres": 7.052083072794425,
+          "outcome": "repaired"
+        },
+        {
+          "surfaces": "Human.tongue01/Human.tongue01 x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            34,
+            0
+          ],
+          "movedVertices": 174,
+          "mostMillimetres": 3.0000000000000058,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "jawOpen + mouthFunnel",
+      "weights": "1,1",
+      "corrective": "jawOpenMouthFunnelClear",
+      "movedVertices": 630,
+      "creaseMillimetres": 4.036015942423591,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            100,
+            78,
+            79,
+            37,
+            32,
+            12,
+            0
+          ],
+          "movedVertices": 630,
+          "mostMillimetres": 3.0000000000000084,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "jawForward + tongueOut",
+      "weights": "1,1",
+      "corrective": "jawForwardTongueOutClear",
+      "movedVertices": 296,
+      "creaseMillimetres": 5.184266725378304,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            62,
+            40,
+            27,
+            22,
+            4,
+            15,
+            6,
+            4,
+            12,
+            9,
+            4,
+            8,
+            6,
+            5,
+            4,
+            0
+          ],
+          "movedVertices": 224,
+          "mostMillimetres": 3.0000000000000084,
+          "outcome": "repaired"
+        },
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            19,
+            5,
+            0
+          ],
+          "movedVertices": 93,
+          "mostMillimetres": 3.0000000000000098,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "jawOpen + mouthShrugLower",
+      "weights": "1,1",
+      "corrective": "jawOpenMouthShrugLowerClear",
+      "movedVertices": 208,
+      "creaseMillimetres": 7.902643238530978,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 8,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            67,
+            30,
+            18,
+            24,
+            18,
+            20,
+            9,
+            14,
+            4,
+            7,
+            4,
+            6,
+            0
+          ],
+          "movedVertices": 208,
+          "mostMillimetres": 8.000000000000002,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthSmileLeft + tongueOut",
+      "weights": "1,1",
+      "corrective": "mouthSmileLeftTongueOutClear",
+      "movedVertices": 293,
+      "creaseMillimetres": 4.181082531083416,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            61,
+            24,
+            33,
+            12,
+            18,
+            24,
+            13,
+            13,
+            6,
+            8,
+            10,
+            10,
+            0
+          ],
+          "movedVertices": 243,
+          "mostMillimetres": 3.000000000000007,
+          "outcome": "repaired"
+        },
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            7,
+            0
+          ],
+          "movedVertices": 50,
+          "mostMillimetres": 2.1855120090673577,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthSmileRight + tongueOut",
+      "weights": "1,1",
+      "corrective": "mouthSmileRightTongueOutClear",
+      "movedVertices": 288,
+      "creaseMillimetres": 3.2701185406815236,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            60,
+            16,
+            46,
+            6,
+            8,
+            25,
+            0
+          ],
+          "movedVertices": 238,
+          "mostMillimetres": 3.000000000000004,
+          "outcome": "repaired"
+        },
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            7,
+            0
+          ],
+          "movedVertices": 50,
+          "mostMillimetres": 2.1766264828048483,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "jawOpen + mouthSmileLeft",
+      "weights": "1,1",
+      "corrective": "jawOpenMouthSmileLeftClear",
+      "movedVertices": 259,
+      "creaseMillimetres": 6.454529903330621,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 8,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            56,
+            24,
+            38,
+            19,
+            9,
+            19,
+            10,
+            6,
+            6,
+            3,
+            12,
+            13,
+            0
+          ],
+          "movedVertices": 209,
+          "mostMillimetres": 7.999999999999995,
+          "outcome": "repaired"
+        },
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            7,
+            0
+          ],
+          "movedVertices": 50,
+          "mostMillimetres": 2.1855120090673577,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "jawOpen + mouthPucker",
+      "weights": "1,1",
+      "corrective": "jawOpenMouthPuckerClear",
+      "movedVertices": 307,
+      "creaseMillimetres": 7.554330343853037,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 8,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            72,
+            56,
+            21,
+            27,
+            0
+          ],
+          "movedVertices": 307,
+          "mostMillimetres": 6.626294594470053,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "jawRight + mouthRollUpper",
+      "weights": "1,1",
+      "corrective": "jawRightMouthRollUpperClear",
+      "movedVertices": 4609,
+      "creaseMillimetres": 1.691562937825061,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/lips",
+          "budgetMillimetres": 3,
+          "tookBack": 0.37109375,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            94,
+            55,
+            31,
+            29,
+            29,
+            29,
+            29,
+            29,
+            29,
+            29,
+            29,
+            29,
+            29,
+            29,
+            29,
+            29,
+            29,
+            29,
+            29,
+            29,
+            29,
+            29,
+            29,
+            29,
+            103,
+            0,
+            54,
+            0,
+            40,
+            20,
+            7,
+            2,
+            0,
+            0
+          ],
+          "movedVertices": 4609,
+          "mostMillimetres": 3.8442841960204612,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "jawLeft + mouthRollUpper",
+      "weights": "1,1",
+      "corrective": "jawLeftMouthRollUpperClear",
+      "movedVertices": 4609,
+      "creaseMillimetres": 1.691562937825061,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/lips",
+          "budgetMillimetres": 3,
+          "tookBack": 0.37109375,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            94,
+            52,
+            31,
+            28,
+            28,
+            28,
+            28,
+            28,
+            28,
+            28,
+            28,
+            28,
+            28,
+            28,
+            28,
+            28,
+            28,
+            28,
+            28,
+            28,
+            28,
+            28,
+            28,
+            28,
+            103,
+            0,
+            54,
+            0,
+            40,
+            20,
+            7,
+            2,
+            0,
+            0
+          ],
+          "movedVertices": 4609,
+          "mostMillimetres": 3.8442841960204612,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "cheekPuff + tongueOut",
+      "weights": "1,1",
+      "corrective": "cheekPuffTongueOutClear",
+      "movedVertices": 461,
+      "creaseMillimetres": 4.8719001522052405,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            29,
+            14,
+            14,
+            12,
+            10,
+            13,
+            14,
+            0
+          ],
+          "movedVertices": 211,
+          "mostMillimetres": 3.0000000000000075,
+          "outcome": "repaired"
+        },
+        {
+          "surfaces": "Human.tongue01/Human.tongue01 x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            66,
+            27,
+            14,
+            0
+          ],
+          "movedVertices": 254,
+          "mostMillimetres": 3.0000000000000058,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthLeft + mouthRight",
+      "weights": "1,1",
+      "corrective": "mouthLeftMouthRightClear",
+      "movedVertices": 234,
+      "creaseMillimetres": 2.515267606414373,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            22,
+            0
+          ],
+          "movedVertices": 100,
+          "mostMillimetres": 2.216869934601357,
+          "outcome": "repaired"
+        },
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            48,
+            0
+          ],
+          "movedVertices": 156,
+          "mostMillimetres": 3.0000000000000004,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "jawForward + mouthClose",
+      "weights": "1,1",
+      "corrective": "jawForwardMouthCloseClear",
+      "movedVertices": 169,
+      "creaseMillimetres": 3.000000000000005,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            59,
+            23,
+            7,
+            0
+          ],
+          "movedVertices": 169,
+          "mostMillimetres": 3.0000000000000098,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "jawOpen + mouthShrugUpper",
+      "weights": "1,1",
+      "corrective": "jawOpenMouthShrugUpperClear",
+      "movedVertices": 180,
+      "creaseMillimetres": 4.283941047211381,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            19,
+            0
+          ],
+          "movedVertices": 100,
+          "mostMillimetres": 2.999999999999998,
+          "outcome": "repaired"
+        },
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            20,
+            0
+          ],
+          "movedVertices": 98,
+          "mostMillimetres": 3.000000000000004,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthShrugUpper + tongueOut",
+      "weights": "1,1",
+      "corrective": "mouthShrugUpperTongueOutClear",
+      "movedVertices": 180,
+      "creaseMillimetres": 4.283941047211381,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            19,
+            0
+          ],
+          "movedVertices": 100,
+          "mostMillimetres": 2.999999999999998,
+          "outcome": "repaired"
+        },
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            20,
+            0
+          ],
+          "movedVertices": 98,
+          "mostMillimetres": 3.000000000000004,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthRollUpper + mouthSmileLeft",
+      "weights": "1,1",
+      "corrective": "mouthRollUpperMouthSmileLeftClear",
+      "movedVertices": 261,
+      "creaseMillimetres": 4.430026317282535,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            20,
+            10,
+            13,
+            11,
+            0
+          ],
+          "movedVertices": 135,
+          "mostMillimetres": 3.0000000000000115,
+          "outcome": "repaired"
+        },
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            44,
+            0
+          ],
+          "movedVertices": 136,
+          "mostMillimetres": 3.0000000000000067,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthLowerDownLeft + tongueOut",
+      "weights": "1,1",
+      "corrective": "mouthLowerDownLeftTongueOutClear",
+      "movedVertices": 186,
+      "creaseMillimetres": 3.353793358685517,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            27,
+            10,
+            0
+          ],
+          "movedVertices": 113,
+          "mostMillimetres": 3.0000000000000075,
+          "outcome": "repaired"
+        },
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            0
+          ],
+          "movedVertices": 0,
+          "mostMillimetres": 0,
+          "outcome": "absent"
+        },
+        {
+          "surfaces": "Human.tongue01/Human.tongue01 x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            10,
+            0
+          ],
+          "movedVertices": 73,
+          "mostMillimetres": 2.4541804475277003,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "eyeLookUpRight + eyeWideRight",
+      "weights": "1,1",
+      "corrective": "eyeLookUpRightEyeWideRightClear",
+      "movedVertices": 45,
+      "creaseMillimetres": 2.127240128828449,
+      "crossings": [
+        {
+          "surfaces": "Human.eyebrow001/Human.eyebrow001 x Human.eyelashes01/Human.eyelashes01",
+          "budgetMillimetres": 3,
+          "yielded": "Human.eyelashes01/Human.eyelashes01",
+          "crossedVerticesPerRound": [
+            9,
+            0
+          ],
+          "movedVertices": 45,
+          "mostMillimetres": 2.5537866538258975,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "eyeLookUpLeft + eyeWideLeft",
+      "weights": "1,1",
+      "corrective": "eyeLookUpLeftEyeWideLeftClear",
+      "movedVertices": 45,
+      "creaseMillimetres": 2.1272401311087656,
+      "crossings": [
+        {
+          "surfaces": "Human.eyebrow001/Human.eyebrow001 x Human.eyelashes01/Human.eyelashes01",
+          "budgetMillimetres": 3,
+          "yielded": "Human.eyelashes01/Human.eyelashes01",
+          "crossedVerticesPerRound": [
+            9,
+            0
+          ],
+          "movedVertices": 45,
+          "mostMillimetres": 2.553786653181616,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthRollUpper + mouthSmileRight",
+      "weights": "1,1",
+      "corrective": "mouthRollUpperMouthSmileRightClear",
+      "movedVertices": 257,
+      "creaseMillimetres": 3.912122911570327,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            17,
+            10,
+            9,
+            4,
+            12,
+            5,
+            4,
+            0
+          ],
+          "movedVertices": 131,
+          "mostMillimetres": 3.000000000000012,
+          "outcome": "repaired"
+        },
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            44,
+            0
+          ],
+          "movedVertices": 136,
+          "mostMillimetres": 3.000000000000003,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "jawOpen + mouthRollUpper",
+      "weights": "1,1",
+      "corrective": "jawOpenMouthRollUpperClear",
+      "movedVertices": 300,
+      "creaseMillimetres": 3.622377790238031,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            16,
+            20,
+            12,
+            13,
+            20,
+            5,
+            0
+          ],
+          "movedVertices": 189,
+          "mostMillimetres": 3.0000000000000133,
+          "outcome": "repaired"
+        },
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            32,
+            9,
+            0
+          ],
+          "movedVertices": 130,
+          "mostMillimetres": 3.000000000000005,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthLowerDownRight + tongueOut",
+      "weights": "1,1",
+      "corrective": "mouthLowerDownRightTongueOutClear",
+      "movedVertices": 183,
+      "creaseMillimetres": 4.2248784031163975,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            24,
+            9,
+            4,
+            12,
+            6,
+            4,
+            0
+          ],
+          "movedVertices": 119,
+          "mostMillimetres": 3.0000000000000084,
+          "outcome": "repaired"
+        },
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            0
+          ],
+          "movedVertices": 0,
+          "mostMillimetres": 0,
+          "outcome": "absent"
+        },
+        {
+          "surfaces": "Human.tongue01/Human.tongue01 x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            8,
+            0
+          ],
+          "movedVertices": 64,
+          "mostMillimetres": 2.4666361207062457,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthRollUpper + tongueOut",
+      "weights": "1,1",
+      "corrective": "mouthRollUpperTongueOutClear",
+      "movedVertices": 300,
+      "creaseMillimetres": 3.622377790238031,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            16,
+            20,
+            12,
+            13,
+            20,
+            5,
+            0
+          ],
+          "movedVertices": 189,
+          "mostMillimetres": 3.0000000000000133,
+          "outcome": "repaired"
+        },
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            32,
+            9,
+            0
+          ],
+          "movedVertices": 130,
+          "mostMillimetres": 3.000000000000005,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthRollUpper + mouthUpperUpLeft",
+      "weights": "1,1",
+      "corrective": "mouthRollUpperMouthUpperUpLeftClear",
+      "movedVertices": 276,
+      "creaseMillimetres": 3.240035419987858,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            11,
+            6,
+            22,
+            0
+          ],
+          "movedVertices": 116,
+          "mostMillimetres": 3.000000000000002,
+          "outcome": "repaired"
+        },
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            52,
+            0
+          ],
+          "movedVertices": 174,
+          "mostMillimetres": 3.0000000000000053,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthRollUpper + mouthUpperUpRight",
+      "weights": "1,1",
+      "corrective": "mouthRollUpperMouthUpperUpRightClear",
+      "movedVertices": 276,
+      "creaseMillimetres": 3.5770891710596744,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            7,
+            6,
+            21,
+            0
+          ],
+          "movedVertices": 116,
+          "mostMillimetres": 3.0000000000000067,
+          "outcome": "repaired"
+        },
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            52,
+            0
+          ],
+          "movedVertices": 174,
+          "mostMillimetres": 3.0000000000000027,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "jawOpen + tongueOut",
+      "weights": "1,1",
+      "corrective": "jawOpenTongueOutClear",
+      "movedVertices": 146,
+      "creaseMillimetres": 6.627062226240248,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 8,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            24,
+            24,
+            13,
+            24,
+            12,
+            10,
+            11,
+            24,
+            0
+          ],
+          "movedVertices": 146,
+          "mostMillimetres": 8.000000000000002,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "jawOpen + mouthLowerDownRight",
+      "weights": "1,1",
+      "corrective": "jawOpenMouthLowerDownRightClear",
+      "movedVertices": 82,
+      "creaseMillimetres": 3.300650996204679,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            19,
+            7,
+            0
+          ],
+          "movedVertices": 82,
+          "mostMillimetres": 3.0000000000000075,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthRight + mouthRollUpper",
+      "weights": "1,1",
+      "corrective": "mouthRightMouthRollUpperClear",
+      "movedVertices": 284,
+      "creaseMillimetres": 4.111947458537602,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            11,
+            9,
+            15,
+            11,
+            9,
+            3,
+            4,
+            7,
+            0
+          ],
+          "movedVertices": 157,
+          "mostMillimetres": 3.000000000000009,
+          "outcome": "repaired"
+        },
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            29,
+            0
+          ],
+          "movedVertices": 137,
+          "mostMillimetres": 3.0000000000000027,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "browDownLeft + eyeWideLeft",
+      "weights": "1,1",
+      "corrective": "browDownLeftEyeWideLeftClear",
+      "movedVertices": 38,
+      "creaseMillimetres": 2.9812720574418483,
+      "crossings": [
+        {
+          "surfaces": "Human.eyebrow001/Human.eyebrow001 x Human.eyelashes01/Human.eyelashes01",
+          "budgetMillimetres": 3,
+          "yielded": "Human.eyelashes01/Human.eyelashes01",
+          "crossedVerticesPerRound": [
+            5,
+            4,
+            0
+          ],
+          "movedVertices": 38,
+          "mostMillimetres": 3.0000000000000124,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "browDownRight + eyeWideRight",
+      "weights": "1,1",
+      "corrective": "browDownRightEyeWideRightClear",
+      "movedVertices": 38,
+      "creaseMillimetres": 2.981272453657986,
+      "crossings": [
+        {
+          "surfaces": "Human.eyebrow001/Human.eyebrow001 x Human.eyelashes01/Human.eyelashes01",
+          "budgetMillimetres": 3,
+          "yielded": "Human.eyelashes01/Human.eyelashes01",
+          "crossedVerticesPerRound": [
+            5,
+            4,
+            0
+          ],
+          "movedVertices": 38,
+          "mostMillimetres": 3.000000000000005,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "jawOpen + mouthLowerDownLeft",
+      "weights": "1,1",
+      "corrective": "jawOpenMouthLowerDownLeftClear",
+      "movedVertices": 90,
+      "creaseMillimetres": 3.82177601328033,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            16,
+            10,
+            10,
+            10,
+            0
+          ],
+          "movedVertices": 90,
+          "mostMillimetres": 3.000000000000005,
+          "outcome": "repaired"
+        },
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            0
+          ],
+          "movedVertices": 0,
+          "mostMillimetres": 0,
+          "outcome": "absent"
+        }
+      ]
+    },
+    {
+      "combination": "mouthClose + mouthRollUpper",
+      "weights": "1,1",
+      "corrective": "mouthCloseMouthRollUpperClear",
+      "movedVertices": 126,
+      "creaseMillimetres": 4.211697272718672,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            36,
+            0
+          ],
+          "movedVertices": 126,
+          "mostMillimetres": 3.000000000000003,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthLeft + mouthRollUpper",
+      "weights": "1,1",
+      "corrective": "mouthLeftMouthRollUpperClear",
+      "movedVertices": 266,
+      "creaseMillimetres": 3.838313113754367,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            9,
+            12,
+            9,
+            7,
+            11,
+            0
+          ],
+          "movedVertices": 139,
+          "mostMillimetres": 3.0000000000000115,
+          "outcome": "repaired"
+        },
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            29,
+            0
+          ],
+          "movedVertices": 137,
+          "mostMillimetres": 2.9999999999999996,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthFunnel + mouthRollUpper",
+      "weights": "1,1",
+      "corrective": "mouthFunnelMouthRollUpperClear",
+      "movedVertices": 212,
+      "creaseMillimetres": 4.506192085034717,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            41,
+            33,
+            4,
+            16,
+            12,
+            0
+          ],
+          "movedVertices": 212,
+          "mostMillimetres": 3.000000000000006,
+          "outcome": "repaired"
+        },
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            0
+          ],
+          "movedVertices": 0,
+          "mostMillimetres": 0,
+          "outcome": "absent"
+        }
+      ]
+    },
+    {
+      "combination": "mouthFunnel + mouthSmileLeft",
+      "weights": "1,1",
+      "corrective": "mouthFunnelMouthSmileLeftClear",
+      "movedVertices": 162,
+      "creaseMillimetres": 4.020013525435605,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            9,
+            21,
+            7,
+            4,
+            4,
+            0
+          ],
+          "movedVertices": 162,
+          "mostMillimetres": 3.000000000000007,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthFunnel + mouthSmileRight",
+      "weights": "1,1",
+      "corrective": "mouthFunnelMouthSmileRightClear",
+      "movedVertices": 161,
+      "creaseMillimetres": 4.178284710845987,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            13,
+            3,
+            15,
+            3,
+            0
+          ],
+          "movedVertices": 161,
+          "mostMillimetres": 3.000000000000009,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthUpperUpRight + tongueOut",
+      "weights": "1,1",
+      "corrective": "mouthUpperUpRightTongueOutClear",
+      "movedVertices": 161,
+      "creaseMillimetres": 4.101419266096164,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            19,
+            4,
+            4,
+            16,
+            12,
+            15,
+            6,
+            12,
+            5,
+            0
+          ],
+          "movedVertices": 161,
+          "mostMillimetres": 3.000000000000007,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthFunnel + mouthLeft",
+      "weights": "1,1",
+      "corrective": "mouthFunnelMouthLeftClear",
+      "movedVertices": 220,
+      "creaseMillimetres": 4.328160350193308,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            22,
+            16,
+            5,
+            13,
+            8,
+            6,
+            6,
+            11,
+            7,
+            0
+          ],
+          "movedVertices": 220,
+          "mostMillimetres": 3.00000000000001,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthRollLower + tongueOut",
+      "weights": "1,1",
+      "corrective": "mouthRollLowerTongueOutClear",
+      "movedVertices": 151,
+      "creaseMillimetres": 5.908101706566679,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            14,
+            13,
+            21,
+            0
+          ],
+          "movedVertices": 151,
+          "mostMillimetres": 3.000000000000012,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthFunnel + mouthRight",
+      "weights": "1,1",
+      "corrective": "mouthFunnelMouthRightClear",
+      "movedVertices": 228,
+      "creaseMillimetres": 3.8799084038833427,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            24,
+            16,
+            19,
+            15,
+            4,
+            6,
+            10,
+            12,
+            0
+          ],
+          "movedVertices": 228,
+          "mostMillimetres": 3.00000000000001,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "jawLeft + mouthRight",
+      "weights": "1,1",
+      "corrective": "jawLeftMouthRightClear",
+      "movedVertices": 124,
+      "creaseMillimetres": 3.3602097255320915,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            13,
+            8,
+            15,
+            6,
+            3,
+            5,
+            9,
+            0
+          ],
+          "movedVertices": 124,
+          "mostMillimetres": 3.0000000000000075,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "jawOpen + mouthRollLower",
+      "weights": "1,1",
+      "corrective": "jawOpenMouthRollLowerClear",
+      "movedVertices": 122,
+      "creaseMillimetres": 4.046590986771736,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            13,
+            12,
+            8,
+            9,
+            6,
+            10,
+            6,
+            0
+          ],
+          "movedVertices": 122,
+          "mostMillimetres": 3.000000000000007,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthDimpleLeft + tongueOut",
+      "weights": "1,1",
+      "corrective": "mouthDimpleLeftTongueOutClear",
+      "movedVertices": 154,
+      "creaseMillimetres": 4.46539127662564,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            7,
+            8,
+            7,
+            22,
+            15,
+            0
+          ],
+          "movedVertices": 154,
+          "mostMillimetres": 3.000000000000004,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthFunnel + mouthPucker",
+      "weights": "1,1",
+      "corrective": "mouthFunnelMouthPuckerClear",
+      "movedVertices": 160,
+      "creaseMillimetres": 3.8638508880283657,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            14,
+            11,
+            11,
+            5,
+            0
+          ],
+          "movedVertices": 160,
+          "mostMillimetres": 3.00000000000001,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "jawRight + mouthLeft",
+      "weights": "1,1",
+      "corrective": "jawRightMouthLeftClear",
+      "movedVertices": 124,
+      "creaseMillimetres": 3.3602329780330358,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            13,
+            8,
+            15,
+            6,
+            3,
+            5,
+            9,
+            0
+          ],
+          "movedVertices": 124,
+          "mostMillimetres": 3.0000000000000053,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "jawOpen + mouthDimpleLeft",
+      "weights": "1,1",
+      "corrective": "jawOpenMouthDimpleLeftClear",
+      "movedVertices": 133,
+      "creaseMillimetres": 5.594983964668604,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            4,
+            13,
+            21,
+            10,
+            15,
+            4,
+            10,
+            6,
+            6,
+            4,
+            6,
+            4,
+            6,
+            4,
+            5,
+            4,
+            5,
+            7,
+            5,
+            4,
+            11,
+            0
+          ],
+          "movedVertices": 133,
+          "mostMillimetres": 3.000000000000006,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "jawOpen + mouthDimpleRight",
+      "weights": "1,1",
+      "corrective": "jawOpenMouthDimpleRightClear",
+      "movedVertices": 135,
+      "creaseMillimetres": 5.965332857152926,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            9,
+            9,
+            22,
+            15,
+            8,
+            11,
+            5,
+            3,
+            7,
+            9,
+            5,
+            11,
+            7,
+            0
+          ],
+          "movedVertices": 135,
+          "mostMillimetres": 3.000000000000007,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "jawOpen + mouthPressLeft",
+      "weights": "1,1",
+      "corrective": "jawOpenMouthPressLeftClear",
+      "movedVertices": 124,
+      "creaseMillimetres": 5.029004841758939,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            6,
+            17,
+            3,
+            17,
+            11,
+            9,
+            6,
+            6,
+            0
+          ],
+          "movedVertices": 124,
+          "mostMillimetres": 3.0000000000000067,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "jawOpen + mouthPressRight",
+      "weights": "1,1",
+      "corrective": "jawOpenMouthPressRightClear",
+      "movedVertices": 96,
+      "creaseMillimetres": 4.423681338085729,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            7,
+            13,
+            0
+          ],
+          "movedVertices": 96,
+          "mostMillimetres": 3.000000000000005,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthFunnel + mouthUpperUpLeft",
+      "weights": "1,1",
+      "corrective": "mouthFunnelMouthUpperUpLeftClear",
+      "movedVertices": 83,
+      "creaseMillimetres": 3.0000000000000018,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            4,
+            7,
+            5,
+            0
+          ],
+          "movedVertices": 83,
+          "mostMillimetres": 3.0000000000000058,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "jawLeft + mouthFunnel",
+      "weights": "1,1",
+      "corrective": "jawLeftMouthFunnelClear",
+      "movedVertices": 83,
+      "creaseMillimetres": 3.000000000000001,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            4,
+            7,
+            5,
+            5,
+            0
+          ],
+          "movedVertices": 83,
+          "mostMillimetres": 3.000000000000009,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthPucker + mouthRollUpper",
+      "weights": "1,1",
+      "corrective": "mouthPuckerMouthRollUpperClear",
+      "movedVertices": 124,
+      "creaseMillimetres": 3.000000000000001,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            22,
+            17,
+            0
+          ],
+          "movedVertices": 124,
+          "mostMillimetres": 3.000000000000001,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "jawOpen + mouthUpperUpLeft",
+      "weights": "1,1",
+      "corrective": "jawOpenMouthUpperUpLeftClear",
+      "movedVertices": 127,
+      "creaseMillimetres": 4.347726314014569,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            7,
+            3,
+            13,
+            6,
+            7,
+            15,
+            0
+          ],
+          "movedVertices": 127,
+          "mostMillimetres": 3.000000000000005,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthDimpleRight + mouthStretchRight",
+      "weights": "1,1",
+      "corrective": "mouthDimpleRightMouthStretchRightClear",
+      "movedVertices": 4,
+      "creaseMillimetres": 0.6505168998550359,
+      "crossings": [
+        {
+          "surfaces": "Human/skin x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips and Human/skin",
+          "crossedVerticesPerRound": [
+            3,
+            1,
+            1,
+            2,
+            0
+          ],
+          "movedVertices": 4,
+          "mostMillimetres": 0.6505168998550359,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthSmileLeft + mouthStretchLeft",
+      "weights": "1,1",
+      "corrective": "mouthSmileLeftMouthStretchLeftClear",
+      "movedVertices": 3,
+      "creaseMillimetres": 0.3019251446548696,
+      "crossings": [
+        {
+          "surfaces": "Human/skin x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips and Human/skin",
+          "crossedVerticesPerRound": [
+            1,
+            1,
+            3,
+            0
+          ],
+          "movedVertices": 3,
+          "mostMillimetres": 0.1957830967567366,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthSmileRight + mouthStretchRight",
+      "weights": "1,1",
+      "corrective": "mouthSmileRightMouthStretchRightClear",
+      "movedVertices": 1,
+      "creaseMillimetres": 0.30663483794776597,
+      "crossings": [
+        {
+          "surfaces": "Human/skin x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips and Human/skin",
+          "crossedVerticesPerRound": [
+            1,
+            0
+          ],
+          "movedVertices": 1,
+          "mostMillimetres": 0.30663483794776597,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "jawForward + mouthRight",
+      "weights": "1,1",
+      "corrective": "jawForwardMouthRightClear",
+      "movedVertices": 69,
+      "creaseMillimetres": 1.9463844692215444,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            9,
+            0
+          ],
+          "movedVertices": 69,
+          "mostMillimetres": 1.9463844692215444,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthDimpleLeft + mouthStretchLeft",
+      "weights": "1,1",
+      "corrective": "mouthDimpleLeftMouthStretchLeftClear",
+      "movedVertices": 4,
+      "creaseMillimetres": 0.47904584333783795,
+      "crossings": [
+        {
+          "surfaces": "Human/skin x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips and Human/skin",
+          "crossedVerticesPerRound": [
+            2,
+            4,
+            1,
+            1,
+            0
+          ],
+          "movedVertices": 4,
+          "mostMillimetres": 0.47904584333783795,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "jawForward + mouthLeft",
+      "weights": "1,1",
+      "corrective": "jawForwardMouthLeftClear",
+      "movedVertices": 69,
+      "creaseMillimetres": 1.9460512773333907,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            9,
+            0
+          ],
+          "movedVertices": 69,
+          "mostMillimetres": 1.9460512773333907,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "jawLeft + jawRight",
+      "weights": "1,1",
+      "corrective": "jawLeftJawRightClear",
+      "movedVertices": 77,
+      "creaseMillimetres": 5.070351024991675,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            7,
+            7,
+            0
+          ],
+          "movedVertices": 77,
+          "mostMillimetres": 3.0000000000000053,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "jawLeft + mouthLeft",
+      "weights": "1,1",
+      "corrective": "jawLeftMouthLeftClear",
+      "movedVertices": 43,
+      "creaseMillimetres": 3.6376745987802264,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            7,
+            0
+          ],
+          "movedVertices": 43,
+          "mostMillimetres": 3.0000000000000036,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthFunnel + mouthStretchRight",
+      "weights": "1,1",
+      "corrective": "mouthFunnelMouthStretchRightClear",
+      "movedVertices": 76,
+      "creaseMillimetres": 3.0000000000000018,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            5,
+            4,
+            8,
+            0
+          ],
+          "movedVertices": 76,
+          "mostMillimetres": 3.000000000000007,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthSmileLeft + mouthSmileRight",
+      "weights": "1,1",
+      "corrective": "mouthSmileLeftMouthSmileRightClear",
+      "movedVertices": 67,
+      "creaseMillimetres": 3.1858582349945435,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            6,
+            4,
+            0
+          ],
+          "movedVertices": 60,
+          "mostMillimetres": 2.8829089547057483,
+          "outcome": "repaired"
+        },
+        {
+          "surfaces": "Human/skin x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips and Human/skin",
+          "crossedVerticesPerRound": [
+            9,
+            8,
+            2,
+            3,
+            0
+          ],
+          "movedVertices": 12,
+          "mostMillimetres": 0.8168989873546252,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthPucker + mouthSmileRight",
+      "weights": "1,1",
+      "corrective": "mouthPuckerMouthSmileRightClear",
+      "movedVertices": 60,
+      "creaseMillimetres": 3.3346522800319347,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            6,
+            5,
+            0
+          ],
+          "movedVertices": 60,
+          "mostMillimetres": 2.9999999999999956,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthDimpleLeft + mouthSmileLeft",
+      "weights": "1,1",
+      "corrective": "mouthDimpleLeftMouthSmileLeftClear",
+      "movedVertices": 2,
+      "creaseMillimetres": 0.3708720401826492,
+      "crossings": [
+        {
+          "surfaces": "Human/skin x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips and Human/skin",
+          "crossedVerticesPerRound": [
+            1,
+            2,
+            0
+          ],
+          "movedVertices": 2,
+          "mostMillimetres": 0.3708720401826492,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthPucker + mouthSmileLeft",
+      "weights": "1,1",
+      "corrective": "mouthPuckerMouthSmileLeftClear",
+      "movedVertices": 60,
+      "creaseMillimetres": 3.334592834388472,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            6,
+            5,
+            0
+          ],
+          "movedVertices": 60,
+          "mostMillimetres": 3.0000000000000004,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthUpperUpLeft + tongueOut",
+      "weights": "1,1",
+      "corrective": "mouthUpperUpLeftTongueOutClear",
+      "movedVertices": 153,
+      "creaseMillimetres": 3.8488113134138713,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            8,
+            3,
+            3,
+            20,
+            7,
+            9,
+            6,
+            10,
+            9,
+            0
+          ],
+          "movedVertices": 153,
+          "mostMillimetres": 3.0000000000000044,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthPressLeft + tongueOut",
+      "weights": "1,1",
+      "corrective": "mouthPressLeftTongueOutClear",
+      "movedVertices": 139,
+      "creaseMillimetres": 5.506148097510515,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            5,
+            16,
+            3,
+            12,
+            13,
+            7,
+            6,
+            8,
+            9,
+            0
+          ],
+          "movedVertices": 139,
+          "mostMillimetres": 3.0000000000000058,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthFrownRight + mouthFunnel",
+      "weights": "1,1",
+      "corrective": "mouthFrownRightMouthFunnelClear",
+      "movedVertices": 60,
+      "creaseMillimetres": 3.424413690041095,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            6,
+            0
+          ],
+          "movedVertices": 60,
+          "mostMillimetres": 3.000000000000006,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthFunnel + mouthStretchLeft",
+      "weights": "1,1",
+      "corrective": "mouthFunnelMouthStretchLeftClear",
+      "movedVertices": 83,
+      "creaseMillimetres": 3.0000000000000013,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            5,
+            6,
+            5,
+            5,
+            0
+          ],
+          "movedVertices": 83,
+          "mostMillimetres": 3.0000000000000107,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "jawRight + mouthRight",
+      "weights": "1,1",
+      "corrective": "jawRightMouthRightClear",
+      "movedVertices": 43,
+      "creaseMillimetres": 3.6350832588857562,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            7,
+            0
+          ],
+          "movedVertices": 43,
+          "mostMillimetres": 2.9999999999999987,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthPressRight + tongueOut",
+      "weights": "1,1",
+      "corrective": "mouthPressRightTongueOutClear",
+      "movedVertices": 96,
+      "creaseMillimetres": 3.433475112293942,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            4,
+            15,
+            0
+          ],
+          "movedVertices": 96,
+          "mostMillimetres": 3.0000000000000044,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthDimpleRight + mouthSmileLeft",
+      "weights": "1,1",
+      "corrective": "mouthDimpleRightMouthSmileLeftClear",
+      "movedVertices": 11,
+      "creaseMillimetres": 0.5227913711852659,
+      "crossings": [
+        {
+          "surfaces": "Human/skin x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips and Human/skin",
+          "crossedVerticesPerRound": [
+            7,
+            7,
+            4,
+            4,
+            4,
+            0
+          ],
+          "movedVertices": 11,
+          "mostMillimetres": 0.5227913711852659,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthFrownLeft + mouthRollUpper",
+      "weights": "1,1",
+      "corrective": "mouthFrownLeftMouthRollUpperClear",
+      "movedVertices": 116,
+      "creaseMillimetres": 3.5073685319195076,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            6,
+            6,
+            19,
+            0
+          ],
+          "movedVertices": 116,
+          "mostMillimetres": 3.000000000000003,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "cheekPuff + mouthPucker",
+      "weights": "1,1",
+      "corrective": "cheekPuffMouthPuckerClear",
+      "movedVertices": 52,
+      "creaseMillimetres": 3.0000000000000013,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            4,
+            0
+          ],
+          "movedVertices": 52,
+          "mostMillimetres": 3.000000000000005,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthDimpleLeft + mouthSmileRight",
+      "weights": "1,1",
+      "corrective": "mouthDimpleLeftMouthSmileRightClear",
+      "movedVertices": 6,
+      "creaseMillimetres": 0.2927579947127558,
+      "crossings": [
+        {
+          "surfaces": "Human/skin x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips and Human/skin",
+          "crossedVerticesPerRound": [
+            5,
+            2,
+            0
+          ],
+          "movedVertices": 6,
+          "mostMillimetres": 0.29252588753702474,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthRollUpper + mouthStretchLeft",
+      "weights": "1,1",
+      "corrective": "mouthRollUpperMouthStretchLeftClear",
+      "movedVertices": 117,
+      "creaseMillimetres": 3.188199909360821,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            5,
+            4,
+            15,
+            5,
+            0
+          ],
+          "movedVertices": 117,
+          "mostMillimetres": 3.0000000000000018,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthSmileLeft + mouthStretchRight",
+      "weights": "1,1",
+      "corrective": "mouthSmileLeftMouthStretchRightClear",
+      "movedVertices": 10,
+      "creaseMillimetres": 0.5668721393635561,
+      "crossings": [
+        {
+          "surfaces": "Human/skin x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips and Human/skin",
+          "crossedVerticesPerRound": [
+            5,
+            5,
+            6,
+            4,
+            1,
+            1,
+            1,
+            3,
+            2,
+            2,
+            2,
+            3,
+            1,
+            1,
+            1,
+            3,
+            1,
+            1,
+            0
+          ],
+          "movedVertices": 10,
+          "mostMillimetres": 0.5668721393635561,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthDimpleRight + mouthFrownRight",
+      "weights": "1,1",
+      "corrective": "mouthDimpleRightMouthFrownRightClear",
+      "movedVertices": 5,
+      "creaseMillimetres": 0.5773702893571699,
+      "crossings": [
+        {
+          "surfaces": "Human/skin x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips and Human/skin",
+          "crossedVerticesPerRound": [
+            3,
+            2,
+            1,
+            1,
+            1,
+            1,
+            1,
+            0
+          ],
+          "movedVertices": 5,
+          "mostMillimetres": 0.5773702893571699,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthPucker + mouthUpperUpLeft",
+      "weights": "1,1",
+      "corrective": "mouthPuckerMouthUpperUpLeftClear",
+      "movedVertices": 52,
+      "creaseMillimetres": 2.9422966545377016,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            4,
+            0
+          ],
+          "movedVertices": 52,
+          "mostMillimetres": 2.839504894939386,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthPucker + mouthUpperUpRight",
+      "weights": "1,1",
+      "corrective": "mouthPuckerMouthUpperUpRightClear",
+      "movedVertices": 52,
+      "creaseMillimetres": 2.942291519054774,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            4,
+            0
+          ],
+          "movedVertices": 52,
+          "mostMillimetres": 2.839502387487925,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthFrownRight + mouthStretchRight",
+      "weights": "1,1",
+      "corrective": "mouthFrownRightMouthStretchRightClear",
+      "movedVertices": 2,
+      "creaseMillimetres": 0.15403020561740605,
+      "crossings": [
+        {
+          "surfaces": "Human/skin x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips and Human/skin",
+          "crossedVerticesPerRound": [
+            2,
+            1,
+            0
+          ],
+          "movedVertices": 2,
+          "mostMillimetres": 0.15403020561740605,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "eyeWideLeft + noseSneerLeft",
+      "weights": "1,1",
+      "corrective": "eyeWideLeftNoseSneerLeftClear",
+      "movedVertices": 30,
+      "creaseMillimetres": 1.867611281172637,
+      "crossings": [
+        {
+          "surfaces": "Human.eyebrow001/Human.eyebrow001 x Human.eyelashes01/Human.eyelashes01",
+          "budgetMillimetres": 3,
+          "yielded": "Human.eyelashes01/Human.eyelashes01",
+          "crossedVerticesPerRound": [
+            3,
+            0
+          ],
+          "movedVertices": 30,
+          "mostMillimetres": 2.0704477107418047,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "eyeWideRight + noseSneerRight",
+      "weights": "1,1",
+      "corrective": "eyeWideRightNoseSneerRightClear",
+      "movedVertices": 30,
+      "creaseMillimetres": 1.8676177353572943,
+      "crossings": [
+        {
+          "surfaces": "Human.eyebrow001/Human.eyebrow001 x Human.eyelashes01/Human.eyelashes01",
+          "budgetMillimetres": 3,
+          "yielded": "Human.eyelashes01/Human.eyelashes01",
+          "crossedVerticesPerRound": [
+            3,
+            0
+          ],
+          "movedVertices": 30,
+          "mostMillimetres": 2.070449225385747,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthDimpleLeft + mouthDimpleRight",
+      "weights": "1,1",
+      "corrective": "mouthDimpleLeftMouthDimpleRightClear",
+      "movedVertices": 4,
+      "creaseMillimetres": 0.6285245366204643,
+      "crossings": [
+        {
+          "surfaces": "Human/skin x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips and Human/skin",
+          "crossedVerticesPerRound": [
+            3,
+            3,
+            3,
+            2,
+            2,
+            1,
+            1,
+            0
+          ],
+          "movedVertices": 4,
+          "mostMillimetres": 0.6226139031766398,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthDimpleLeft + mouthStretchRight",
+      "weights": "1,1",
+      "corrective": "mouthDimpleLeftMouthStretchRightClear",
+      "movedVertices": 4,
+      "creaseMillimetres": 0.5442918457563104,
+      "crossings": [
+        {
+          "surfaces": "Human/skin x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips and Human/skin",
+          "crossedVerticesPerRound": [
+            3,
+            3,
+            0
+          ],
+          "movedVertices": 4,
+          "mostMillimetres": 0.5052786880764794,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthDimpleRight + mouthStretchLeft",
+      "weights": "1,1",
+      "corrective": "mouthDimpleRightMouthStretchLeftClear",
+      "movedVertices": 4,
+      "creaseMillimetres": 0.4747079243634107,
+      "crossings": [
+        {
+          "surfaces": "Human/skin x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips and Human/skin",
+          "crossedVerticesPerRound": [
+            4,
+            3,
+            2,
+            0
+          ],
+          "movedVertices": 4,
+          "mostMillimetres": 0.4747079243634107,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthFrownRight + mouthSmileLeft",
+      "weights": "1,1",
+      "corrective": "mouthFrownRightMouthSmileLeftClear",
+      "movedVertices": 1,
+      "creaseMillimetres": 0.06035676069239188,
+      "crossings": [
+        {
+          "surfaces": "Human/skin x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips and Human/skin",
+          "crossedVerticesPerRound": [
+            1,
+            0
+          ],
+          "movedVertices": 1,
+          "mostMillimetres": 0.06035676069239188,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthRollUpper + mouthStretchRight",
+      "weights": "1,1",
+      "corrective": "mouthRollUpperMouthStretchRightClear",
+      "movedVertices": 112,
+      "creaseMillimetres": 3.195024254648547,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            5,
+            3,
+            15,
+            4,
+            0
+          ],
+          "movedVertices": 112,
+          "mostMillimetres": 3.0000000000000036,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "cheekSquintRight + mouthRollUpper",
+      "weights": "1,1",
+      "corrective": "cheekSquintRightMouthRollUpperClear",
+      "movedVertices": 120,
+      "creaseMillimetres": 3.4383575958570627,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            4,
+            3,
+            17,
+            4,
+            7,
+            4,
+            5,
+            4,
+            0
+          ],
+          "movedVertices": 120,
+          "mostMillimetres": 3.000000000000006,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthDimpleLeft + mouthFrownRight",
+      "weights": "1,1",
+      "corrective": "mouthDimpleLeftMouthFrownRightClear",
+      "movedVertices": 2,
+      "creaseMillimetres": 0.28167428559096247,
+      "crossings": [
+        {
+          "surfaces": "Human/skin x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips and Human/skin",
+          "crossedVerticesPerRound": [
+            1,
+            1,
+            2,
+            1,
+            1,
+            1,
+            1,
+            1,
+            0
+          ],
+          "movedVertices": 2,
+          "mostMillimetres": 0.28167428559096247,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthSmileRight + mouthStretchLeft",
+      "weights": "1,1",
+      "corrective": "mouthSmileRightMouthStretchLeftClear",
+      "movedVertices": 1,
+      "creaseMillimetres": 0.08179160339491305,
+      "crossings": [
+        {
+          "surfaces": "Human/skin x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips and Human/skin",
+          "crossedVerticesPerRound": [
+            1,
+            0
+          ],
+          "movedVertices": 1,
+          "mostMillimetres": 0.08179160339491305,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthClose + tongueOut",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawForward + jawLeft",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawForward + jawRight",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthRight + tongueOut",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthLeft + tongueOut",
+      "weights": "0.5,1",
+      "corrective": "mouthLeftTongueOutClearAt24",
+      "movedVertices": 92,
+      "creaseMillimetres": 3.5471083565013957,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            3,
+            0
+          ],
+          "movedVertices": 33,
+          "mostMillimetres": 3.0000000000000067,
+          "outcome": "repaired"
+        },
+        {
+          "surfaces": "Human.tongue01/Human.tongue01 x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            4,
+            0
+          ],
+          "movedVertices": 59,
+          "mostMillimetres": 1.1653248664024984,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthPucker + tongueOut",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawOpen + mouthLeft",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthFunnel + tongueOut",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawLeft + tongueOut",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawRight + tongueOut",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawOpen + mouthRight",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawLeft + jawOpen",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawForward + jawOpen",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawOpen + jawRight",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawForward + mouthRollUpper",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawOpen + mouthSmileRight",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthRollUpper + mouthShrugUpper",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthShrugLower + tongueOut",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawOpen + mouthFunnel",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawForward + tongueOut",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawOpen + mouthShrugLower",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthSmileLeft + tongueOut",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthSmileRight + tongueOut",
+      "weights": "0.5,1",
+      "corrective": "mouthSmileRightTongueOutClearAt24",
+      "movedVertices": 152,
+      "creaseMillimetres": 5.496626035237907,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            5,
+            9,
+            15,
+            26,
+            6,
+            10,
+            15,
+            9,
+            5,
+            3,
+            5,
+            9,
+            8,
+            9,
+            3,
+            0
+          ],
+          "movedVertices": 152,
+          "mostMillimetres": 3.0000000000000027,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "jawOpen + mouthSmileLeft",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawOpen + mouthPucker",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawRight + mouthRollUpper",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawLeft + mouthRollUpper",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "cheekPuff + tongueOut",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthLeft + mouthRight",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawForward + mouthClose",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawOpen + mouthShrugUpper",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthShrugUpper + tongueOut",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthRollUpper + mouthSmileLeft",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthLowerDownLeft + tongueOut",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "eyeLookUpRight + eyeWideRight",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "eyeLookUpLeft + eyeWideLeft",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthRollUpper + mouthSmileRight",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawOpen + mouthRollUpper",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthLowerDownRight + tongueOut",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthRollUpper + tongueOut",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthRollUpper + mouthUpperUpLeft",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthRollUpper + mouthUpperUpRight",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawOpen + tongueOut",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawOpen + mouthLowerDownRight",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthRight + mouthRollUpper",
+      "weights": "0.5,1",
+      "corrective": "mouthRightMouthRollUpperClearAt24",
+      "movedVertices": 50,
+      "creaseMillimetres": 4.169213581175128,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            7,
+            0
+          ],
+          "movedVertices": 50,
+          "mostMillimetres": 3.000000000000002,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "browDownLeft + eyeWideLeft",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "browDownRight + eyeWideRight",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawOpen + mouthLowerDownLeft",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthClose + mouthRollUpper",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthLeft + mouthRollUpper",
+      "weights": "0.5,1",
+      "corrective": "mouthLeftMouthRollUpperClearAt24",
+      "movedVertices": 50,
+      "creaseMillimetres": 3.9651383585809348,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            7,
+            0
+          ],
+          "movedVertices": 50,
+          "mostMillimetres": 3.000000000000003,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthFunnel + mouthRollUpper",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthFunnel + mouthSmileLeft",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthFunnel + mouthSmileRight",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthUpperUpRight + tongueOut",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthFunnel + mouthLeft",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthRollLower + tongueOut",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthFunnel + mouthRight",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawLeft + mouthRight",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawOpen + mouthRollLower",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthDimpleLeft + tongueOut",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthFunnel + mouthPucker",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawRight + mouthLeft",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawOpen + mouthDimpleLeft",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawOpen + mouthDimpleRight",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawOpen + mouthPressLeft",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawOpen + mouthPressRight",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthFunnel + mouthUpperUpLeft",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawLeft + mouthFunnel",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthPucker + mouthRollUpper",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawOpen + mouthUpperUpLeft",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthDimpleRight + mouthStretchRight",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthSmileLeft + mouthStretchLeft",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthSmileRight + mouthStretchRight",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawForward + mouthRight",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthDimpleLeft + mouthStretchLeft",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawForward + mouthLeft",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawLeft + jawRight",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawLeft + mouthLeft",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthFunnel + mouthStretchRight",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthSmileLeft + mouthSmileRight",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthPucker + mouthSmileRight",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthDimpleLeft + mouthSmileLeft",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthPucker + mouthSmileLeft",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthUpperUpLeft + tongueOut",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthPressLeft + tongueOut",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthFrownRight + mouthFunnel",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthFunnel + mouthStretchLeft",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawRight + mouthRight",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthPressRight + tongueOut",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthDimpleRight + mouthSmileLeft",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthFrownLeft + mouthRollUpper",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "cheekPuff + mouthPucker",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthDimpleLeft + mouthSmileRight",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthRollUpper + mouthStretchLeft",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthSmileLeft + mouthStretchRight",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthDimpleRight + mouthFrownRight",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthPucker + mouthUpperUpLeft",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthPucker + mouthUpperUpRight",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthFrownRight + mouthStretchRight",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "eyeWideLeft + noseSneerLeft",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "eyeWideRight + noseSneerRight",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthDimpleLeft + mouthDimpleRight",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthDimpleLeft + mouthStretchRight",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthDimpleRight + mouthStretchLeft",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthFrownRight + mouthSmileLeft",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthRollUpper + mouthStretchRight",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "cheekSquintRight + mouthRollUpper",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthDimpleLeft + mouthFrownRight",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthSmileRight + mouthStretchLeft",
+      "weights": "0.5,1",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthClose + tongueOut",
+      "weights": "1,0.5",
+      "corrective": "mouthCloseTongueOutClearAt42",
+      "movedVertices": 1044,
+      "creaseMillimetres": 6.62147746031772,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 8,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            23,
+            18,
+            14,
+            17,
+            11,
+            8,
+            12,
+            10,
+            0
+          ],
+          "movedVertices": 146,
+          "mostMillimetres": 8.000000000000009,
+          "outcome": "repaired"
+        },
+        {
+          "surfaces": "Human.tongue01/Human.tongue01 x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin, then Human.tongue01/Human.tongue01",
+          "crossedVerticesPerRound": [
+            25,
+            15,
+            11,
+            5,
+            15,
+            5,
+            13,
+            9,
+            16,
+            10,
+            15,
+            11,
+            11,
+            11,
+            11,
+            11,
+            11,
+            11,
+            11,
+            11,
+            11,
+            11,
+            11,
+            11,
+            98,
+            0,
+            0,
+            58,
+            0,
+            32,
+            13,
+            0,
+            6,
+            0
+          ],
+          "movedVertices": 898,
+          "mostMillimetres": 2.7735264257061276,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "jawForward + jawLeft",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawForward + jawRight",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthRight + tongueOut",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthLeft + tongueOut",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthPucker + tongueOut",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawOpen + mouthLeft",
+      "weights": "1,0.5",
+      "corrective": "jawOpenMouthLeftClearAt42",
+      "movedVertices": 33,
+      "creaseMillimetres": 3.5471083554218903,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            3,
+            0
+          ],
+          "movedVertices": 33,
+          "mostMillimetres": 3,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthFunnel + tongueOut",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawLeft + tongueOut",
+      "weights": "1,0.5",
+      "corrective": "jawLeftTongueOutClearAt42",
+      "movedVertices": 232,
+      "creaseMillimetres": 4.933201067552675,
+      "crossings": [
+        {
+          "surfaces": "Human.tongue01/Human.tongue01 x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            7,
+            0
+          ],
+          "movedVertices": 40,
+          "mostMillimetres": 3.000000000000005,
+          "outcome": "repaired"
+        },
+        {
+          "surfaces": "Human.tongue01/Human.tongue01 x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            65,
+            31,
+            14,
+            26,
+            7,
+            8,
+            14,
+            4,
+            17,
+            0
+          ],
+          "movedVertices": 193,
+          "mostMillimetres": 3.000000000000009,
+          "outcome": "repaired"
+        },
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            7,
+            0
+          ],
+          "movedVertices": 43,
+          "mostMillimetres": 3.0000000000000036,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "jawRight + tongueOut",
+      "weights": "1,0.5",
+      "corrective": "jawRightTongueOutClearAt42",
+      "movedVertices": 198,
+      "creaseMillimetres": 4.072130304630758,
+      "crossings": [
+        {
+          "surfaces": "Human.tongue01/Human.tongue01 x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            67,
+            30,
+            20,
+            17,
+            18,
+            4,
+            7,
+            18,
+            7,
+            4,
+            16,
+            0
+          ],
+          "movedVertices": 198,
+          "mostMillimetres": 3.00000000000001,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "jawOpen + mouthRight",
+      "weights": "1,0.5",
+      "corrective": "jawOpenMouthRightClearAt42",
+      "movedVertices": 34,
+      "creaseMillimetres": 4.201570194666647,
+      "crossings": [
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            4,
+            0
+          ],
+          "movedVertices": 34,
+          "mostMillimetres": 3.0000000000000044,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "jawLeft + jawOpen",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawForward + jawOpen",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawOpen + jawRight",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawForward + mouthRollUpper",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawOpen + mouthSmileRight",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthRollUpper + mouthShrugUpper",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthShrugLower + tongueOut",
+      "weights": "1,0.5",
+      "corrective": "mouthShrugLowerTongueOutClearAt42",
+      "movedVertices": 1039,
+      "creaseMillimetres": 4.8833708110154825,
+      "crossings": [
+        {
+          "surfaces": "Human.tongue01/Human.tongue01 x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            22,
+            0
+          ],
+          "movedVertices": 85,
+          "mostMillimetres": 3.0000000000000107,
+          "outcome": "repaired"
+        },
+        {
+          "surfaces": "Human.tongue01/Human.tongue01 x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips, then Human.tongue01/Human.tongue01",
+          "crossedVerticesPerRound": [
+            29,
+            18,
+            14,
+            14,
+            14,
+            14,
+            14,
+            14,
+            14,
+            14,
+            14,
+            14,
+            14,
+            14,
+            14,
+            14,
+            14,
+            14,
+            14,
+            14,
+            14,
+            14,
+            14,
+            14,
+            92,
+            0,
+            0,
+            74,
+            0,
+            38,
+            24,
+            8,
+            4,
+            0
+          ],
+          "movedVertices": 898,
+          "mostMillimetres": 2.894114531171611,
+          "outcome": "repaired"
+        },
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            6,
+            14,
+            8,
+            14,
+            8,
+            0
+          ],
+          "movedVertices": 120,
+          "mostMillimetres": 3.0000000000000098,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "jawOpen + mouthFunnel",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawForward + tongueOut",
+      "weights": "1,0.5",
+      "corrective": "jawForwardTongueOutClearAt42",
+      "movedVertices": 191,
+      "creaseMillimetres": 3.3046284326920805,
+      "crossings": [
+        {
+          "surfaces": "Human.tongue01/Human.tongue01 x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            63,
+            13,
+            17,
+            39,
+            4,
+            0
+          ],
+          "movedVertices": 191,
+          "mostMillimetres": 3.0000000000000075,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "jawOpen + mouthShrugLower",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthSmileLeft + tongueOut",
+      "weights": "1,0.5",
+      "corrective": "mouthSmileLeftTongueOutClearAt42",
+      "movedVertices": 1018,
+      "creaseMillimetres": 5.913313900058282,
+      "crossings": [
+        {
+          "surfaces": "Human.tongue01/Human.tongue01 x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            7,
+            3,
+            0
+          ],
+          "movedVertices": 46,
+          "mostMillimetres": 3.0000000000000093,
+          "outcome": "repaired"
+        },
+        {
+          "surfaces": "Human.tongue01/Human.tongue01 x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips, then Human.tongue01/Human.tongue01",
+          "crossedVerticesPerRound": [
+            32,
+            21,
+            12,
+            12,
+            21,
+            8,
+            22,
+            8,
+            19,
+            8,
+            19,
+            8,
+            20,
+            8,
+            21,
+            8,
+            21,
+            8,
+            20,
+            8,
+            21,
+            8,
+            21,
+            8,
+            104,
+            0,
+            0,
+            69,
+            32,
+            18,
+            15,
+            10,
+            7,
+            0
+          ],
+          "movedVertices": 898,
+          "mostMillimetres": 3.8588193748954818,
+          "outcome": "repaired"
+        },
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            12,
+            13,
+            3,
+            21,
+            0
+          ],
+          "movedVertices": 117,
+          "mostMillimetres": 3.0000000000000107,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthSmileRight + tongueOut",
+      "weights": "1,0.5",
+      "corrective": "mouthSmileRightTongueOutClearAt42",
+      "movedVertices": 1027,
+      "creaseMillimetres": 5.985657301970001,
+      "crossings": [
+        {
+          "surfaces": "Human.tongue01/Human.tongue01 x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            12,
+            3,
+            3,
+            0
+          ],
+          "movedVertices": 60,
+          "mostMillimetres": 3.0000000000000107,
+          "outcome": "repaired"
+        },
+        {
+          "surfaces": "Human.tongue01/Human.tongue01 x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips, then Human.tongue01/Human.tongue01",
+          "crossedVerticesPerRound": [
+            33,
+            21,
+            14,
+            11,
+            15,
+            11,
+            15,
+            12,
+            12,
+            12,
+            12,
+            12,
+            12,
+            12,
+            12,
+            12,
+            12,
+            12,
+            12,
+            12,
+            12,
+            12,
+            12,
+            12,
+            111,
+            0,
+            10,
+            0,
+            0,
+            0,
+            0,
+            2,
+            0,
+            0
+          ],
+          "movedVertices": 898,
+          "mostMillimetres": 4.039701533093708,
+          "outcome": "repaired"
+        },
+        {
+          "surfaces": "Human.teeth_base/Human.teeth_base x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            17,
+            15,
+            4,
+            9,
+            13,
+            12,
+            0
+          ],
+          "movedVertices": 128,
+          "mostMillimetres": 3.0000000000000053,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "jawOpen + mouthSmileLeft",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawOpen + mouthPucker",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawRight + mouthRollUpper",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawLeft + mouthRollUpper",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "cheekPuff + tongueOut",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthLeft + mouthRight",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawForward + mouthClose",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawOpen + mouthShrugUpper",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthShrugUpper + tongueOut",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthRollUpper + mouthSmileLeft",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthLowerDownLeft + tongueOut",
+      "weights": "1,0.5",
+      "corrective": "mouthLowerDownLeftTongueOutClearAt42",
+      "movedVertices": 74,
+      "creaseMillimetres": 3.1156070237183915,
+      "crossings": [
+        {
+          "surfaces": "Human.tongue01/Human.tongue01 x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            3,
+            7,
+            6,
+            8,
+            0
+          ],
+          "movedVertices": 74,
+          "mostMillimetres": 3.0000000000000053,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "eyeLookUpRight + eyeWideRight",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "eyeLookUpLeft + eyeWideLeft",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthRollUpper + mouthSmileRight",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawOpen + mouthRollUpper",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthLowerDownRight + tongueOut",
+      "weights": "1,0.5",
+      "corrective": "mouthLowerDownRightTongueOutClearAt42",
+      "movedVertices": 77,
+      "creaseMillimetres": 2.881814400841788,
+      "crossings": [
+        {
+          "surfaces": "Human.tongue01/Human.tongue01 x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            4,
+            13,
+            0
+          ],
+          "movedVertices": 77,
+          "mostMillimetres": 2.881814400841788,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthRollUpper + tongueOut",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthRollUpper + mouthUpperUpLeft",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthRollUpper + mouthUpperUpRight",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawOpen + tongueOut",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawOpen + mouthLowerDownRight",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthRight + mouthRollUpper",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "browDownLeft + eyeWideLeft",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "browDownRight + eyeWideRight",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawOpen + mouthLowerDownLeft",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthClose + mouthRollUpper",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthLeft + mouthRollUpper",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthFunnel + mouthRollUpper",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthFunnel + mouthSmileLeft",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthFunnel + mouthSmileRight",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthUpperUpRight + tongueOut",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthFunnel + mouthLeft",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthRollLower + tongueOut",
+      "weights": "1,0.5",
+      "corrective": "mouthRollLowerTongueOutClearAt42",
+      "movedVertices": 898,
+      "creaseMillimetres": 1.009948767202329,
+      "crossings": [
+        {
+          "surfaces": "Human.tongue01/Human.tongue01 x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips, then Human.tongue01/Human.tongue01",
+          "crossedVerticesPerRound": [
+            72,
+            49,
+            31,
+            23,
+            19,
+            22,
+            24,
+            19,
+            19,
+            19,
+            19,
+            19,
+            22,
+            19,
+            24,
+            19,
+            19,
+            19,
+            19,
+            19,
+            19,
+            22,
+            19,
+            24,
+            117,
+            0,
+            87,
+            0,
+            56,
+            45,
+            16,
+            5,
+            2,
+            0
+          ],
+          "movedVertices": 898,
+          "mostMillimetres": 5.788229062343222,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthFunnel + mouthRight",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawLeft + mouthRight",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawOpen + mouthRollLower",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthDimpleLeft + tongueOut",
+      "weights": "1,0.5",
+      "corrective": "mouthDimpleLeftTongueOutClearAt42",
+      "movedVertices": 101,
+      "creaseMillimetres": 3.8605800495566327,
+      "crossings": [
+        {
+          "surfaces": "Human.tongue01/Human.tongue01 x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            3,
+            21,
+            6,
+            24,
+            0
+          ],
+          "movedVertices": 101,
+          "mostMillimetres": 3.000000000000004,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthFunnel + mouthPucker",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawRight + mouthLeft",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawOpen + mouthDimpleLeft",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawOpen + mouthDimpleRight",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawOpen + mouthPressLeft",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawOpen + mouthPressRight",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthFunnel + mouthUpperUpLeft",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawLeft + mouthFunnel",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthPucker + mouthRollUpper",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawOpen + mouthUpperUpLeft",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthDimpleRight + mouthStretchRight",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthSmileLeft + mouthStretchLeft",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthSmileRight + mouthStretchRight",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawForward + mouthRight",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthDimpleLeft + mouthStretchLeft",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawForward + mouthLeft",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawLeft + jawRight",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawLeft + mouthLeft",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthFunnel + mouthStretchRight",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthSmileLeft + mouthSmileRight",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthPucker + mouthSmileRight",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthDimpleLeft + mouthSmileLeft",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthPucker + mouthSmileLeft",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthUpperUpLeft + tongueOut",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthPressLeft + tongueOut",
+      "weights": "1,0.5",
+      "corrective": "mouthPressLeftTongueOutClearAt42",
+      "movedVertices": 120,
+      "creaseMillimetres": 3.9072362105666065,
+      "crossings": [
+        {
+          "surfaces": "Human.tongue01/Human.tongue01 x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            7,
+            0
+          ],
+          "movedVertices": 46,
+          "mostMillimetres": 3.000000000000012,
+          "outcome": "repaired"
+        },
+        {
+          "surfaces": "Human.tongue01/Human.tongue01 x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            20,
+            4,
+            21,
+            0
+          ],
+          "movedVertices": 83,
+          "mostMillimetres": 3.000000000000009,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthFrownRight + mouthFunnel",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthFunnel + mouthStretchLeft",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawRight + mouthRight",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthPressRight + tongueOut",
+      "weights": "1,0.5",
+      "corrective": "mouthPressRightTongueOutClearAt42",
+      "movedVertices": 120,
+      "creaseMillimetres": 3.34532824505505,
+      "crossings": [
+        {
+          "surfaces": "Human.tongue01/Human.tongue01 x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin",
+          "crossedVerticesPerRound": [
+            5,
+            0
+          ],
+          "movedVertices": 38,
+          "mostMillimetres": 3.0000000000000115,
+          "outcome": "repaired"
+        },
+        {
+          "surfaces": "Human.tongue01/Human.tongue01 x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            22,
+            6,
+            22,
+            4,
+            10,
+            0
+          ],
+          "movedVertices": 91,
+          "mostMillimetres": 3.0000000000000018,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthDimpleRight + mouthSmileLeft",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthFrownLeft + mouthRollUpper",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "cheekPuff + mouthPucker",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthDimpleLeft + mouthSmileRight",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthRollUpper + mouthStretchLeft",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthSmileLeft + mouthStretchRight",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthDimpleRight + mouthFrownRight",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthPucker + mouthUpperUpLeft",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthPucker + mouthUpperUpRight",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthFrownRight + mouthStretchRight",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "eyeWideLeft + noseSneerLeft",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "eyeWideRight + noseSneerRight",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthDimpleLeft + mouthDimpleRight",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthDimpleLeft + mouthStretchRight",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthDimpleRight + mouthStretchLeft",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthFrownRight + mouthSmileLeft",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthRollUpper + mouthStretchRight",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "cheekSquintRight + mouthRollUpper",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthDimpleLeft + mouthFrownRight",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthSmileRight + mouthStretchLeft",
+      "weights": "1,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthClose + tongueOut",
+      "weights": "0.5,0.5",
+      "corrective": "mouthCloseTongueOutClearAt22",
+      "movedVertices": 898,
+      "creaseMillimetres": 0.2010774462044676,
+      "crossings": [
+        {
+          "surfaces": "Human.tongue01/Human.tongue01 x Human/skin",
+          "budgetMillimetres": 3,
+          "yielded": "Human/skin, then Human.tongue01/Human.tongue01",
+          "crossedVerticesPerRound": [
+            16,
+            13,
+            3,
+            3,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            5,
+            7,
+            7,
+            7,
+            7,
+            7,
+            6,
+            78,
+            0,
+            0,
+            0,
+            30,
+            0,
+            6,
+            0,
+            0,
+            0
+          ],
+          "movedVertices": 898,
+          "mostMillimetres": 1.1524171875832272,
+          "outcome": "repaired"
+        },
+        {
+          "surfaces": "Human.tongue01/Human.tongue01 x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            0
+          ],
+          "movedVertices": 0,
+          "mostMillimetres": 0,
+          "outcome": "absent"
+        }
+      ]
+    },
+    {
+      "combination": "jawForward + jawLeft",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawForward + jawRight",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthRight + tongueOut",
+      "weights": "0.5,0.5",
+      "corrective": "mouthRightTongueOutClearAt22",
+      "movedVertices": 70,
+      "creaseMillimetres": 2.6494486297570172,
+      "crossings": [
+        {
+          "surfaces": "Human.tongue01/Human.tongue01 x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            10,
+            0
+          ],
+          "movedVertices": 70,
+          "mostMillimetres": 2.2933840605307054,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthLeft + tongueOut",
+      "weights": "0.5,0.5",
+      "corrective": "mouthLeftTongueOutClearAt22",
+      "movedVertices": 70,
+      "creaseMillimetres": 2.691864400185959,
+      "crossings": [
+        {
+          "surfaces": "Human.tongue01/Human.tongue01 x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            10,
+            0
+          ],
+          "movedVertices": 70,
+          "mostMillimetres": 2.2256886837226535,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthPucker + tongueOut",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawOpen + mouthLeft",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthFunnel + tongueOut",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawLeft + tongueOut",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawRight + tongueOut",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawOpen + mouthRight",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawLeft + jawOpen",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawForward + jawOpen",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawOpen + jawRight",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawForward + mouthRollUpper",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawOpen + mouthSmileRight",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthRollUpper + mouthShrugUpper",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthShrugLower + tongueOut",
+      "weights": "0.5,0.5",
+      "corrective": "mouthShrugLowerTongueOutClearAt22",
+      "movedVertices": 58,
+      "creaseMillimetres": 3.330485157494351,
+      "crossings": [
+        {
+          "surfaces": "Human.tongue01/Human.tongue01 x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            14,
+            0
+          ],
+          "movedVertices": 58,
+          "mostMillimetres": 2.605477679329663,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "jawOpen + mouthFunnel",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawForward + tongueOut",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawOpen + mouthShrugLower",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthSmileLeft + tongueOut",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthSmileRight + tongueOut",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawOpen + mouthSmileLeft",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawOpen + mouthPucker",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawRight + mouthRollUpper",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawLeft + mouthRollUpper",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "cheekPuff + tongueOut",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthLeft + mouthRight",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawForward + mouthClose",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawOpen + mouthShrugUpper",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthShrugUpper + tongueOut",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthRollUpper + mouthSmileLeft",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthLowerDownLeft + tongueOut",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "eyeLookUpRight + eyeWideRight",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "eyeLookUpLeft + eyeWideLeft",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthRollUpper + mouthSmileRight",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawOpen + mouthRollUpper",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthLowerDownRight + tongueOut",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthRollUpper + tongueOut",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthRollUpper + mouthUpperUpLeft",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthRollUpper + mouthUpperUpRight",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawOpen + tongueOut",
+      "weights": "0.5,0.5",
+      "corrective": "jawOpenTongueOutClearAt22",
+      "movedVertices": 124,
+      "creaseMillimetres": 3.6181142517200766,
+      "crossings": [
+        {
+          "surfaces": "Human.tongue01/Human.tongue01 x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            13,
+            5,
+            6,
+            8,
+            12,
+            0
+          ],
+          "movedVertices": 124,
+          "mostMillimetres": 3.000000000000006,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "jawOpen + mouthLowerDownRight",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthRight + mouthRollUpper",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "browDownLeft + eyeWideLeft",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "browDownRight + eyeWideRight",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawOpen + mouthLowerDownLeft",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthClose + mouthRollUpper",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthLeft + mouthRollUpper",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthFunnel + mouthRollUpper",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthFunnel + mouthSmileLeft",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthFunnel + mouthSmileRight",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthUpperUpRight + tongueOut",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthFunnel + mouthLeft",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthRollLower + tongueOut",
+      "weights": "0.5,0.5",
+      "corrective": "mouthRollLowerTongueOutClearAt22",
+      "movedVertices": 129,
+      "creaseMillimetres": 2.5430004666176713,
+      "crossings": [
+        {
+          "surfaces": "Human.tongue01/Human.tongue01 x Human/lips",
+          "budgetMillimetres": 3,
+          "yielded": "Human/lips",
+          "crossedVerticesPerRound": [
+            25,
+            0
+          ],
+          "movedVertices": 129,
+          "mostMillimetres": 1.9352704981621054,
+          "outcome": "repaired"
+        }
+      ]
+    },
+    {
+      "combination": "mouthFunnel + mouthRight",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawLeft + mouthRight",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawOpen + mouthRollLower",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthDimpleLeft + tongueOut",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthFunnel + mouthPucker",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawRight + mouthLeft",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawOpen + mouthDimpleLeft",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawOpen + mouthDimpleRight",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawOpen + mouthPressLeft",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawOpen + mouthPressRight",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthFunnel + mouthUpperUpLeft",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawLeft + mouthFunnel",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthPucker + mouthRollUpper",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawOpen + mouthUpperUpLeft",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthDimpleRight + mouthStretchRight",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthSmileLeft + mouthStretchLeft",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthSmileRight + mouthStretchRight",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawForward + mouthRight",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthDimpleLeft + mouthStretchLeft",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawForward + mouthLeft",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawLeft + jawRight",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawLeft + mouthLeft",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthFunnel + mouthStretchRight",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthSmileLeft + mouthSmileRight",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthPucker + mouthSmileRight",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthDimpleLeft + mouthSmileLeft",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthPucker + mouthSmileLeft",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthUpperUpLeft + tongueOut",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthPressLeft + tongueOut",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthFrownRight + mouthFunnel",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthFunnel + mouthStretchLeft",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "jawRight + mouthRight",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthPressRight + tongueOut",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthDimpleRight + mouthSmileLeft",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthFrownLeft + mouthRollUpper",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "cheekPuff + mouthPucker",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthDimpleLeft + mouthSmileRight",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthRollUpper + mouthStretchLeft",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthSmileLeft + mouthStretchRight",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthDimpleRight + mouthFrownRight",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthPucker + mouthUpperUpLeft",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthPucker + mouthUpperUpRight",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthFrownRight + mouthStretchRight",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "eyeWideLeft + noseSneerLeft",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "eyeWideRight + noseSneerRight",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthDimpleLeft + mouthDimpleRight",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthDimpleLeft + mouthStretchRight",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthDimpleRight + mouthStretchLeft",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthFrownRight + mouthSmileLeft",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthRollUpper + mouthStretchRight",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "cheekSquintRight + mouthRollUpper",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthDimpleLeft + mouthFrownRight",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    },
+    {
+      "combination": "mouthSmileRight + mouthStretchLeft",
+      "weights": "0.5,0.5",
+      "corrective": null,
+      "crossings": []
+    }
+  ],
+  "restamped": {
+    "subjects": {
+      "mpfb-connected-head-2026-09-21-single-repaired": 18
+    },
+    "grooms": {
+      "mpfb-connected-head-2026-09-21-single-repaired": 18
+    },
+    "skins": {
+      "mpfb-connected-head-2026-09-21-single-repaired": 18
+    }
+  },
+  "limits": [
+    "A corrective removes a crossing measured on the neutral head; verify-combination-correctives.ts reports what remains on each subject and at the weights the in-betweens were not solved for.",
+    "A combination beyond the budget is not published: the basis has no way to say that two channels must not be driven to their extremes together.",
+    "A crossing identity alone produces is not on the neutral head and no basis-level field reaches it.",
+    "A lip triangle through a skin triangle is one surface folding into itself; push-out between two bodies does not answer it and those pairs are listed as 'same surface'."
+  ]
+}
