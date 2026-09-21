@@ -48,6 +48,20 @@ export const YIELDS = [
 /** Parts that never yield; a crossing between two of them is not solvable here. */
 export const RIGID = 2;
 
+/**
+ * What the oral lining may give where the mandible swings out from under it,
+ * in metres. The skin part is one surface from the brow to the floor of the
+ * mouth, and where it meets the teeth it is that floor, attached to the bone
+ * and dropping with it; the census measured the authored floor lagging the
+ * gum block by up to eight millimetres, five past what soft tissue over an
+ * arch is allowed. The second budget is tried only where the first fails.
+ */
+export const LINING_LIMIT = 0.008;
+const LINING: [string, string] = [
+  "Human.teeth_base/Human.teeth_base",
+  "Human/skin",
+];
+
 /** A head worn at one expression: surface id to a mesh over shared vertices. */
 export type Worn = Map<string, IAutoMovieMesh>;
 
@@ -65,6 +79,9 @@ export interface ICrossingOutcome {
     | "same surface";
   /** `same surface` is no longer produced; it names folds an older receipt left alone. */
   yielded?: string;
+  budgetMillimetres?: number;
+  /** The factor of its own motion the soft part gave back, when it had to. */
+  tookBack?: number;
   crossedVerticesPerRound?: number[];
   movedVertices?: number;
   mostMillimetres?: number;
@@ -163,6 +180,67 @@ export const appearedAt = (
     .sort((a, b) => a.localeCompare(b));
 };
 
+/**
+ * Which parts each channel moves at full weight, read off the worn head: a
+ * part whose shared positions differ from rest. Cached per channel, so a
+ * grid of poses over the same channels costs one single build each.
+ */
+export const moverOf = (
+  worn: (expression: Record<string, number>) => Worn,
+  atRest: Worn,
+  parts: Parts,
+): ((channel: string) => Set<string>) => {
+  const moves = new Map<string, Set<string>>();
+  return (channel) => {
+    let found = moves.get(channel);
+    if (found === undefined) {
+      found = new Set();
+      const posed = worn({ [channel]: 1 });
+      for (const [part, { surface, indices }] of parts) {
+        const now = posed.get(surface)!.positions;
+        const rest = atRest.get(surface)!.positions;
+        if (
+          indices.some(
+            (v) =>
+              now[v * 3] !== rest[v * 3] ||
+              now[v * 3 + 1] !== rest[v * 3 + 1] ||
+              now[v * 3 + 2] !== rest[v * 3 + 2],
+          )
+        )
+          found.add(part);
+      }
+      moves.set(channel, found);
+    }
+    return found;
+  };
+};
+
+/**
+ * The head worn by only those channels of `expression` that move `part`, or
+ * at rest when none does: what a take-back on the other part returns to.
+ */
+export const anchoredBy = (
+  worn: (expression: Record<string, number>) => Worn,
+  atRest: Worn,
+  mover: (channel: string) => Set<string>,
+  expression: Record<string, number>,
+): ((part: string) => Worn) => {
+  const cache = new Map<string, Worn>();
+  return (part) => {
+    let found = cache.get(part);
+    if (found === undefined) {
+      const keep = Object.fromEntries(
+        Object.entries(expression).filter(([channel]) =>
+          mover(channel).has(part),
+        ),
+      );
+      found = Object.keys(keep).length === 0 ? atRest : worn(keep);
+      cache.set(part, found);
+    }
+    return found;
+  };
+};
+
 /** Read a worn head's parts out of the builder's model, over shared vertices. */
 export const wornFrom = (
   basis: IAutoMovieHumanFaceBasis,
@@ -207,8 +285,19 @@ export const wornFrom = (
  *
  * `appeared` names the part pairs in the enumeration's "a x b" spelling.
  * `atRest` decides which side of a firm part each vertex belongs on, `agents`
- * names the parts this pose makes firm, and `log` receives one line per part
- * pair for the console.
+ * names the parts this pose makes firm, `anchored` gives the head worn by
+ * only the channels of this pose that move a named part, `withoutAgents` the
+ * head worn without the channels that make an agent, and `log` receives one
+ * line per part pair for the console.
+ *
+ * What a take-back returns to is not rest but the pose less the channel that
+ * did the crossing. A lip rolled over the incisors with the jaw thrust
+ * forward is unrolled and the jaw stays thrust, because the lip's carry on
+ * the jaw is not what put it through the teeth and taking it back too would
+ * leave the lip at rest in front of teeth that have moved, which was measured
+ * to cross by more than the pose did; so the soft part returns to `anchored`
+ * by the firm one. A tongue that cannot come out returns to the pose without
+ * `tongueOut`, which is `withoutAgents`, and keeps whatever the jaw did.
  */
 export const solveCombination = (
   worn: Worn,
@@ -217,6 +306,8 @@ export const solveCombination = (
   atRest: Worn,
   limit: number,
   agents: ReadonlySet<string>,
+  anchored: (part: string) => Worn,
+  withoutAgents: Worn,
   log: (line: string) => void,
 ): ISolvedCombination => {
   const working: Worn = new Map(
@@ -258,7 +349,17 @@ export const solveCombination = (
     // opens around the body, off its nearest face. And two parts of one
     // surface through each other are a fold, which has no outside to push
     // toward and whose pull is taken back instead.
-    const { moved, crossings, solved } = sameSurface
+    const push = (budget: number) =>
+      pushOut(
+        mesh,
+        partMesh(firm),
+        budget,
+        agents.has(firm)
+          ? undefined
+          : { mesh: partMesh(soft, atRest), into: partMesh(firm, atRest) },
+      );
+    let budget = limit;
+    let first = sameSurface
       ? unfold(
           mesh,
           atRest.get(parts.get(soft)!.surface)!,
@@ -266,14 +367,17 @@ export const solveCombination = (
           parts.get(soft)!.indices,
           limit,
         )
-      : pushOut(
-          mesh,
-          partMesh(firm),
-          limit,
-          agents.has(firm)
-            ? undefined
-            : { mesh: partMesh(soft, atRest), into: partMesh(firm, atRest) },
-        );
+      : push(limit);
+    if (
+      !first.solved &&
+      firm === LINING[0] &&
+      soft === LINING[1] &&
+      LINING_LIMIT > limit
+    ) {
+      budget = LINING_LIMIT;
+      first = push(budget);
+    }
+    const { moved, crossings, solved } = first;
     for (const [vertex, delta] of moved)
       for (let k = 0; k < 3; k++) mesh.positions[vertex * 3 + k] += delta[k];
     let most = 0;
@@ -287,6 +391,32 @@ export const solveCombination = (
     let shared = 0;
     let sharedMost = 0;
     let finallySolved = solved;
+    let tookBack = 0;
+    if (!solved && !sameSurface && YIELDS.indexOf(firm) < RIGID) {
+      // Bone cannot give and the soft part could not clear it inside what
+      // tissue gives; what remains is that the soft part came this far at all.
+      // Its own motion from rest is scaled back until it is clear of the
+      // bone: a lip rolled over the incisors with the jaw thrust forward
+      // unrolls, which is what a lip against teeth does.
+      for (const [vertex, delta] of moved)
+        for (let k = 0; k < 3; k++) mesh.positions[vertex * 3 + k] -= delta[k];
+      moved.clear();
+      most = 0;
+      const back = takeBack(
+        mesh,
+        partMesh(soft, anchored(firm)),
+        partMesh(firm),
+      );
+      for (const [vertex, delta] of back.moved)
+        for (let k = 0; k < 3; k++) mesh.positions[vertex * 3 + k] += delta[k];
+      for (const [vertex, delta] of back.moved) {
+        moved.set(vertex, delta);
+        most = Math.max(most, Math.hypot(delta[0], delta[1], delta[2]));
+      }
+      crossings.push(...back.crossings);
+      finallySolved = back.solved;
+      tookBack = back.factor;
+    }
     if (!solved && !sameSurface && YIELDS.indexOf(firm) >= RIGID) {
       const other = partMesh(firm);
       // An agent gives by coming out less, not by being pushed: its own motion
@@ -303,7 +433,7 @@ export const solveCombination = (
         most = 0;
       }
       const second = agents.has(firm)
-        ? takeBack(other, partMesh(firm, atRest), partMesh(soft))
+        ? takeBack(other, partMesh(firm, withoutAgents), partMesh(soft))
         : pushOut(other, partMesh(soft), limit, {
             mesh: partMesh(firm, atRest),
             into: partMesh(soft, atRest),
@@ -329,6 +459,8 @@ export const solveCombination = (
           : "beyond the budget";
     outcomes.push({
       surfaces: `${firm} x ${soft}`,
+      budgetMillimetres: budget * 1000,
+      ...(tookBack > 0 ? { tookBack } : {}),
       yielded: sameSurface
         ? `${soft} and ${firm}`
         : shared > 0
@@ -345,6 +477,8 @@ export const solveCombination = (
         ` ${String(crossings[crossings.length - 1]).padStart(4)}` +
         ` ${String(moved.size + shared).padStart(5)} ${(Math.max(most, sharedMost) * 1000).toFixed(2).padStart(5)}` +
         (shared > 0 ? `   +${short(firm)} gave ${shared}` : "") +
+        (tookBack > 0 ? `   took back ${(tookBack * 100).toFixed(0)}%` : "") +
+        (budget !== limit ? `   @${(budget * 1000).toFixed(0)}mm` : "") +
         (outcome === "repaired" ? "" : `   ${outcome.toUpperCase()}`),
     );
   }

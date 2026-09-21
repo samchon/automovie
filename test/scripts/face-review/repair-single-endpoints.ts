@@ -42,13 +42,6 @@ import {
 const REVISION = "mpfb-connected-head-2026-09-21-single-repaired";
 const SUCCEEDS = "mpfb-connected-head-2026-09-20-rigid-mandible";
 
-/**
- * What the oral lining may give where the mandible swings out from under it,
- * in metres: the mouth floor is attached to the bone and drops with it, and
- * the census measured the authored floor lagging the gum block by up to this.
- */
-const LINING_LIMIT = 0.008;
-
 /** The part a channel makes the agent of its pose. */
 const AGENTS: Record<string, string> = {
   tongueOut: "Human.tongue01/Human.tongue01",
@@ -165,36 +158,18 @@ for (const channel of basis.channels) {
   const agents = new Set(
     AGENTS[channel.id] === undefined ? [] : [AGENTS[channel.id]],
   );
-  // Soft tissue over a dental arch gives a few millimetres; the floor of the
-  // mouth under a mandible that swings away from it gives what the mandible
-  // took, which the census measured at up to eight. The first budget is
-  // tried first and the second only where it fails, and the receipt says
-  // which one the endpoint needed.
-  let budget = limit;
-  let solved = solveCombination(
+  // One channel alone: whatever it moves, a take-back returns to rest.
+  const solved = solveCombination(
     worn({ [channel.id]: 1 }),
     appeared,
     parts,
     atRest,
-    budget,
+    limit,
     agents,
+    () => atRest,
+    atRest,
     (line) => console.log(`${channel.id.padEnd(20)} ${line}`),
   );
-  if (!solved.publishable && LINING_LIMIT > limit) {
-    budget = LINING_LIMIT;
-    solved = solveCombination(
-      worn({ [channel.id]: 1 }),
-      appeared,
-      parts,
-      atRest,
-      budget,
-      agents,
-      (line) =>
-        console.log(
-          `${`${channel.id} @${budget * 1000}mm`.padEnd(20)} ${line}`,
-        ),
-    );
-  }
   console.log(
     `${"".padEnd(20)} ${(solved.publishable ? "-> folded into " + channel.positive : "-> left as authored").padEnd(46)}` +
       ` crease ${(solved.creaseMetres * 1000).toFixed(2)} mm`,
@@ -217,7 +192,6 @@ for (const channel of basis.channels) {
     channel: channel.id,
     endpoint: channel.positive,
     repaired: solved.publishable,
-    budgetMillimetres: budget * 1000,
     movedVertices: solved.movedVertices,
     creaseMillimetres: solved.creaseMetres * 1000,
     crossings: solved.outcomes,
@@ -257,6 +231,8 @@ for (const [peak, between] of PEAKS) {
       atRest,
       limit,
       agents,
+      () => atRest,
+      atRest,
       (line) => console.log(`${`${id} @${peak}`.padEnd(20)} ${line}`),
     );
     const name = `${id}At${String(peak).replace("0.", "")}`;

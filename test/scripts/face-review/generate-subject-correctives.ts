@@ -37,7 +37,10 @@ import { LIMIT } from "./push-out";
 import {
   type ISolvedCombination,
   type Parts,
+  type Worn,
+  anchoredBy,
   appearedAt,
+  moverOf,
   solveCombination,
   wornFrom,
 } from "./solve-combination";
@@ -189,6 +192,18 @@ const agentsOf = (channels: string[]): ReadonlySet<string> =>
   new Set(
     channels.flatMap((one) => (AGENTS[one] === undefined ? [] : [AGENTS[one]])),
   );
+/** The pose without the channels that make an agent: what an agent's take-back returns to. */
+const withoutAgents = (
+  wear: (expression: Record<string, number>) => Worn,
+  expression: Record<string, number>,
+): Worn =>
+  wear(
+    Object.fromEntries(
+      Object.entries(expression).filter(
+        ([channel]) => AGENTS[channel] === undefined,
+      ),
+    ),
+  );
 
 const receipts: unknown[] = [];
 const keep = (
@@ -240,16 +255,20 @@ const record = (
   });
 };
 
+const mover = moverOf(wearing, atRest, parts);
 const firstTier = new Map<string, string>();
 for (const one of offending) {
   const [first, second] = one.pair.split(" + ");
+  const expression = { [first]: 1, [second]: 1 };
   const solved = solveCombination(
-    wearing({ [first]: 1, [second]: 1 }),
+    wearing(expression),
     one.appeared,
     parts,
     atRest,
     limit,
     agentsOf([first, second]),
+    anchoredBy(wearing, atRest, mover, expression),
+    withoutAgents(wearing, expression),
     (line) => console.log(`${one.pair.padEnd(40)} ${line}`),
   );
   const id = `${first}${capital(second)}Own`;
@@ -295,6 +314,8 @@ for (const [wa, wb] of TIERS) {
       atRest,
       limit,
       agentsOf([first, second]),
+      anchoredBy(wearing, atRest, mover, expression),
+      withoutAgents(wearing, expression),
       (line) => console.log(`${label.padEnd(40)} ${line}`),
     );
     const id = `${full}${wa < 1 ? "First" : ""}${wb < 1 ? "Second" : ""}Half`;
