@@ -97,17 +97,18 @@ const FIELDS: {
  * before changing one. Projection and expansion are the package's measured
  * inversions and take seconds, so both are asked of a worker (`expand`,
  * `project`); a projection that lands after a newer one, or after the user
- * typed, is dropped, and one that fails is reported. Applying expands the
- * values over the current shape, which keeps every detailed edit the simple
- * tier does not name and changes only what the edited values drive; a tape
- * measurement is solved only when the user changed it since it was read, so
- * a blank or untouched one leaves its channel as it was, and an untouched
- * required value is the exact projection rather than its rounded display,
- * so applying unchanged values leaves the body unchanged. The simple values
- * never enter the document, because the detailed tier is its canonical
- * form. A refused
- * expansion (a stature, mass or girth the basis cannot reach) is reported
- * through the editor's status, and the document keeps its last valid state.
+ * typed, is dropped, and one that fails is reported; likewise an expansion
+ * that lands after a newer Apply, or after the body was edited, is dropped.
+ * Applying expands the values over the current shape, which keeps every
+ * detailed edit the simple tier does not name and changes only what the
+ * edited values drive; a tape measurement is solved only when the user
+ * changed it since it was read, so a blank or untouched one leaves its
+ * channel as it was, and an untouched required value is the exact projection
+ * rather than its rounded display, so applying unchanged values leaves the
+ * body unchanged. The simple values never enter the document, because the
+ * detailed tier is its canonical form. A refused expansion (a stature, mass
+ * or girth the basis cannot reach) is reported through the editor's status,
+ * and the document keeps its last valid state.
  *
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-simple-shape Lets a user author a body from sex, age, stature, mass, muscle and tape measurements, read back off the current body and expanded into the stored channel weights.
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-simple-shape Bounds each input by the specified envelope, applies the expansion over the current shape and leaves blank measurements unsolved.
@@ -196,12 +197,21 @@ export const renderBodySimpleControls = (props: {
   const apply = dom.createElement("button");
   apply.id = "simple-apply";
   apply.textContent = "Apply simple body";
+  // an expansion is solved over the shape the body had when Apply was
+  // pressed; a newer Apply, or an edit of the body while it solved, wins, so
+  // a late expansion never overwrites what the user did after pressing
+  let applying = 0;
   apply.onclick = async () => {
+    const ticket = ++applying;
+    const over = props.current();
     props.onBusy("Solving the simple body against the basis…");
     try {
-      props.onApply(await props.expand(read(), props.current()));
+      const shape = await props.expand(read(), over);
+      if (ticket === applying && sameShape(props.current(), over))
+        props.onApply(shape);
     } catch (error) {
-      props.onRefuse(error);
+      if (ticket === applying && sameShape(props.current(), over))
+        props.onRefuse(error);
     }
   };
   const note = dom.createElement("small");
@@ -232,3 +242,11 @@ export const renderBodySimpleControls = (props: {
     },
   };
 };
+
+/** Whether two detailed shapes name the same channels at the same weights. */
+const sameShape = (
+  a: Record<string, number>,
+  b: Record<string, number>,
+): boolean =>
+  Object.keys(a).length === Object.keys(b).length &&
+  Object.entries(a).every(([channel, weight]) => b[channel] === weight);
