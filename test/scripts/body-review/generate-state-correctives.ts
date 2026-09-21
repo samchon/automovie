@@ -158,7 +158,7 @@ function main(): void {
         shard: [index, count],
         only: null,
         incremental: true,
-        groups: findings.map((finding) => finding.name),
+        groups: findings.map((finding) => `${finding.set}:${finding.name}`),
         correctives: published,
         rows,
         records,
