@@ -43,7 +43,7 @@ export const productionEvidence = {
 } satisfies IAutoMovieEvidenceConfigProps;
 
 productionEvidence.kind = "library";
-productionEvidence.settings = "draft";
+productionEvidence.settings = "evidence";
 productionEvidence.claims = [
   createAutoMovieProductionObligationClaim({
     name: "house-observation-denominator",
