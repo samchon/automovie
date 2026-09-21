@@ -1,6 +1,10 @@
-import { lowerBuiltEnvironment, tessellateToMesh, materializeCompiledInstanceSet, instanceSlot, Quaternion, builtEnvironmentBuildingCensus, builtSpaceObservationStations, srgbHexToLinearColor } from "@automovie/engine";
-import type { IAutoMovieLibraryBuildContext, IAutoMovieVector3, IAutoMovieQuaternion, IAutoMovieColor } from "@automovie/interface";
-import { citizenHouseSpaceSource } from "../spaces/citizen-house";
+import { passageClearance } from "../house/passage-clearance";
+import { lowerBuiltEnvironment, tessellateToMesh, materializeCompiledInstanceSet, instanceSlot, Quaternion, builtEnvironmentBuildingCensus, srgbHexToLinearColor } from "@automovie/engine";
+import type { IAutoMovieVector3, IAutoMovieQuaternion, IAutoMovieColor } from "@automovie/interface";
+import { buildHouse } from "../house/build";
+import { initialState, type State } from "../house/assembly";
+import { observations } from "../house/observations";
+import { auditHouse } from "../house/audit";
 
 type ViewerPlacement = {
   node: string; model: string; position: IAutoMovieVector3;
@@ -9,15 +13,10 @@ type ViewerPlacement = {
 };
 
 /** Resolve the actual library producer through the public engine for display. */
-export function createViewerPayload() {
-  const context: IAutoMovieLibraryBuildContext = {
-    production: "future-citizen-house", branch: "spaces",
-    design: "docs/spaces/001-citizen-house.md", anchor: "citizen-house-space",
-    derivedArtifacts: {},
-  };
-  const contribution = citizenHouseSpaceSource.build(context);
-  const environment = contribution.environments[0];
-  if (!environment) throw new Error("citizenHouseSpaceSource returned no environment");
+export function createViewerPayload(state: State = initialState) {
+  const environment = buildHouse(state);
+  const audit = auditHouse(environment);
+  if (audit.errors.length) throw new Error(audit.errors.join("\n"));
   const lowered = lowerBuiltEnvironment(environment);
   const models = environment.models.map((model) => {
     if (model.skeleton || model.asset) throw new Error(model.id + ": this static house viewer requires generated rigid parts");
@@ -56,11 +55,12 @@ export function createViewerPayload() {
   for (const placement of placements)
     if (!models.some((model) => model.id === placement.model))
       throw new Error(placement.node + ": unresolved model " + placement.model);
+  const clearance = passageClearance({ environment, models, placements });
   return {
-    environment, models, placements,
+    environment, models, placements, audit, state, clearance,
     census: builtEnvironmentBuildingCensus(environment),
-    stations: environment.spaces.flatMap((space) => builtSpaceObservationStations(environment, space.id).map((station) => ({ ...station, space: space.id }))),
+    stations: observations(environment),
     // This is renderer transport, not a clearance report or persisted project.
-    observationBasis: "Engine diagnostic stations; production eye/inset and complete exterior/reference observations remain unverified.",
+    observationBasis: "Current environment cells, surfaces, connectors, faces and opening profiles; eye 1.60m, inset 0.25m; failed positions retained. Cylinder clearance and visual verdict are separate.",
   };
 }

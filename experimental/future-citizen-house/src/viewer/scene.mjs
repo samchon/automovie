@@ -2,19 +2,16 @@
 import * as THREE from "three";
 /** @typedef {ReturnType<typeof import('./payload.js').createViewerPayload>} Payload */
 /** @typedef {import('@automovie/interface').IAutoMovieMaterial} Material */
-
-/** Upload the producer's part buffers and declared material coefficients. @param {Payload} payload */
+/** Upload current engine buffers. Instancing shares draw calls, never the source
+ * identities or transforms: each mesh carries its exact placement-id array.
+ * @param {Payload} payload */
 export function uploadHouse(payload) {
-  const root = new THREE.Group();
-  root.name = payload.environment.id;
-  /** @type {Map<string, THREE.Group>} */
-  const templates = new Map();
+  const root = new THREE.Group(); root.name = payload.environment.id;
   for (const model of payload.models) {
-    if (!payload.placements.some((placement) => placement.model === model.id)) continue;
-    const group = new THREE.Group();
-    const materials = new Map(model.materials.map((entry) => [entry.id, uploadMaterial(entry)]));
+    const placements = payload.placements.filter((p) => p.model === model.id);
+    if (!placements.length) continue;
     for (const part of model.parts) {
-      if (part.mesh.skin) throw new Error(model.id + "/" + part.id + ": static mesh required");
+      if (part.mesh.skin) throw new Error(model.id + ": static mesh required");
       const geometry = new THREE.BufferGeometry();
       geometry.setAttribute("position", new THREE.Float32BufferAttribute(part.mesh.positions, 3));
       if (part.mesh.normals) geometry.setAttribute("normal", new THREE.Float32BufferAttribute(part.mesh.normals, 3));
@@ -22,46 +19,31 @@ export function uploadHouse(payload) {
       if (part.mesh.colors) geometry.setAttribute("color", new THREE.Float32BufferAttribute(part.mesh.colors, 3));
       if (part.mesh.indices) geometry.setIndex(part.mesh.indices);
       if (!part.mesh.normals) geometry.computeVertexNormals();
-      const material = part.material === null ? undefined : materials.get(part.material);
-      if (!material) throw new Error(model.id + "/" + part.id + ": missing material");
-      const drawMaterial = material.clone();
-      drawMaterial.vertexColors = Boolean(part.mesh.colors);
-      const mesh = new THREE.Mesh(geometry, drawMaterial);
-      mesh.name = part.id;
-      mesh.castShadow = drawMaterial.transmission === 0;
-      mesh.receiveShadow = true;
-      if (part.transform) {
-        mesh.position.copy(part.transform.translation);
-        mesh.quaternion.copy(part.transform.rotation);
-        mesh.scale.copy(part.transform.scale);
+      const entry = model.materials.find((m) => m.id === part.material);
+      if (!entry) throw new Error(model.id + ": missing material");
+      const material = uploadMaterial(entry); material.vertexColors = Boolean(part.mesh.colors);
+      const mesh = new THREE.InstancedMesh(geometry, material, placements.length);
+      mesh.name = model.id + "/" + part.id; mesh.userData.placements = placements.map((p) => p.node);
+      mesh.castShadow = material.transmission === 0; mesh.receiveShadow = true;
+      const local = new THREE.Matrix4();
+      if (part.transform) local.compose(new THREE.Vector3().copy(part.transform.translation), new THREE.Quaternion().copy(part.transform.rotation), new THREE.Vector3().copy(part.transform.scale));
+      for (const [i, p] of placements.entries()) {
+        const world = new THREE.Matrix4().compose(new THREE.Vector3().copy(p.position), new THREE.Quaternion().copy(p.rotation), new THREE.Vector3().copy(p.scale));
+        mesh.setMatrixAt(i, world.multiply(local));
+        // Instance colour multiplies the material; divide by its base to preserve
+        // the engine palette's absolute linear colour rather than tint it twice.
+        if (p.palette) mesh.setColorAt(i, new THREE.Color(p.palette.r / Math.max(entry.baseColor.r, 1e-6), p.palette.g / Math.max(entry.baseColor.g, 1e-6), p.palette.b / Math.max(entry.baseColor.b, 1e-6)));
+        else mesh.setColorAt(i, new THREE.Color(1, 1, 1));
       }
-      group.add(mesh);
+      mesh.instanceMatrix.needsUpdate = true; if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+      mesh.computeBoundingBox(); mesh.computeBoundingSphere(); root.add(mesh);
+      if (entry.emissive) for (const p of placements) {
+        const light = new THREE.PointLight(0xffdbac, 12, 6, 2); light.position.copy(p.position); light.position.y -= 0.08; root.add(light);
+      }
     }
-    templates.set(model.id, group);
-    for (const material of materials.values()) material.dispose();
   }
-  for (const placement of payload.placements) {
-    const template = templates.get(placement.model);
-    if (!template) throw new Error(placement.node + ": missing prototype");
-    const instance = template.clone(true);
-    instance.name = placement.node;
-    instance.traverse((object) => {
-      if (!(object instanceof THREE.Mesh)) return;
-      if (!(object.material instanceof THREE.MeshPhysicalMaterial)) throw new Error(placement.node + ": expected physical material");
-      object.material = object.material.clone();
-      if (placement.palette) object.material.color.setRGB(placement.palette.r, placement.palette.g, placement.palette.b);
-    });
-    instance.position.copy(placement.position);
-    instance.quaternion.copy(placement.rotation);
-    instance.scale.copy(placement.scale);
-    root.add(instance);
-  }
-  for (const template of templates.values()) template.traverse((object) => {
-    if (object instanceof THREE.Mesh && !Array.isArray(object.material)) object.material.dispose();
-  });
   return root;
 }
-
 /** @param {Material} entry */
 function uploadMaterial(entry) {
   if (entry.baseColorTexture || entry.normalTexture || entry.metallicRoughnessTexture || entry.occlusionTexture || entry.emissiveTexture)

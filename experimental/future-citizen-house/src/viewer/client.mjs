@@ -17,6 +17,9 @@ const status = required("#status", HTMLElement);
 const spaceSelect = required("#space", HTMLSelectElement);
 const stationSelect = required("#station", HTMLSelectElement);
 const inspection = required("#inspection", HTMLInputElement);
+const privacy = required("#privacy", HTMLSelectElement);
+const flex = required("#flex", HTMLSelectElement);
+const section = required("#section", HTMLSelectElement);
 const details = required("#details", HTMLElement);
 
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: true });
@@ -24,6 +27,7 @@ renderer.setPixelRatio(1);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1;
+renderer.localClippingEnabled = true;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 const gl = renderer.getContext();
@@ -72,11 +76,12 @@ function reset() {
   controls.update();
   observation = "free";
   observationSpace = null;
+  setSection();
   report();
 }
 function report() {
   if (!payload) return;
-  details.textContent = JSON.stringify({ source: payload.basis, selectedSpace: spaceSelect.value, cameraSpace: observationSpace, observation, inspection: inspection.checked, renderer: hardware, eye: camera.position.toArray(), target: controls.target.toArray(), census: payload.census, observationBasis: payload.observationBasis }, null, 2);
+  details.textContent = JSON.stringify({ source: payload.basis, selectedSpace: spaceSelect.value, cameraSpace: observationSpace, observation, inspection: inspection.checked, renderer: hardware, eye: camera.position.toArray(), target: controls.target.toArray(), census: payload.census, state: payload.state, audit: payload.audit, clearance: payload.clearance, observations: { total: payload.stations.length, unavailable: payload.stations.filter((s) => !s.pose).map((s) => s.space + "/" + s.id) }, observationBasis: payload.observationBasis }, null, 2);
 }
 function selectSpace() {
   if (!payload || !running) return;
@@ -96,6 +101,8 @@ function selectStation() {
   observation = station.space + "/" + station.id;
   observationSpace = station.pose ? station.space : null;
   if (!station.pose) { status.textContent = observation + ": 카메라 위치 unverified"; report(); return; }
+  setSection(station.section);
+  camera.fov = station.fov; camera.updateProjectionMatrix();
   camera.position.copy(station.pose.position);
   controls.target.copy(station.pose.target);
   controls.update();
@@ -116,19 +123,23 @@ function fail(error) {
   report();
 }
 async function load() {
-  const response = await fetch("/scene", { cache: "no-store" });
+  const response = await fetch("/scene?privacy=" + privacy.value + "&flex=" + flex.value, { cache: "no-store" });
   if (!response.ok) throw new Error(await response.text());
   payload = await response.json();
   if (!payload) throw new Error("Missing scene payload");
+  if (house) { scene.remove(house); disposeHouse(house); }
+  if (outline) { scene.remove(outline); outline.geometry.dispose(); if (!Array.isArray(outline.material)) outline.material.dispose(); }
   house = uploadHouse(payload);
   scene.add(house);
   outline = new THREE.Box3Helper(new THREE.Box3().setFromObject(house), 0x26725a);
   outline.visible = false;
   scene.add(outline);
+  spaceSelect.replaceChildren(new Option("외부 전체", "exterior"), new Option("레퍼런스 추가 관찰", "references"));
   for (const space of payload.environment.spaces) spaceSelect.add(new Option(space.id + " · " + space.kind, space.id));
   selectSpace();
   reset();
-  status.textContent = "현재 source의 3D 검사 도구 · 건물 및 관찰 집합 승인 미완료";
+  const blocked = payload.clearance.filter((c) => c.status === "blocked");
+  status.textContent = blocked.length ? "통행 충돌 " + blocked.length + "건 · 검사 정보에서 실제 장애물 id를 확인하세요" : "현재 source · 시각 판정 전 · 계단 원통 검사는 unverified";
   async function checkBasis() {
     try {
       const latest = await fetch("/basis", { cache: "no-store" });
@@ -137,10 +148,28 @@ async function load() {
       if (value.basis !== payload?.basis) throw new Error("Source 기준이 변경되었습니다. 조정자 재시작이 필요합니다.");
     } catch (error) { fail(error); }
   }
+  window.clearInterval(poll);
   poll = window.setInterval(() => { void checkBasis(); }, 3000);
 }
+/** @param {{height: number; remove: "above" | "below"} | undefined} [cut] */
+function setSection(cut) {
+  if (!house) return;
+  const planes = cut && inspection.checked ? [new THREE.Plane(new THREE.Vector3(0, cut.remove === "above" ? -1 : 1, 0), cut.remove === "above" ? cut.height : -cut.height)] : [];
+  house.traverse((object) => { if (object instanceof THREE.Mesh) for (const material of Array.isArray(object.material) ? object.material : [object.material]) { material.clippingPlanes = planes; material.clipShadows = true; material.needsUpdate = true; } });
+}
+section.addEventListener("change", () => {
+  if (!payload || !inspection.checked) return;
+  const selected = payload.environment.spaces.find((s) => s.id === (section.value === "ground" ? "ground-storey" : "upper-storey"));
+  const surface = selected && payload.environment.surfaces.find((s) => payload?.environment.spaces.find((r) => r.id === s.space)?.parent === selected.id);
+  const height = surface?.surface.height;
+  setSection(section.value === "none" || height?.kind !== "constant" ? undefined : { height: height.value + 1.2, remove: "above" });
+  observation = "manual-section"; report();
+});
+for (const selector of [privacy, flex]) selector.addEventListener("change", () => { void load().catch(fail); });
 inspection.addEventListener("change", () => {
   stationSelect.disabled = !inspection.checked;
+  section.disabled = !inspection.checked;
+  if (!inspection.checked) { section.value = "none"; setSection(); }
   if (outline) outline.visible = inspection.checked;
   report();
 });
@@ -187,6 +216,10 @@ Object.assign(window, { houseViewer: {
   renderer: () => hardware,
   basis: () => payload?.basis ?? null,
   valid: () => running && house !== null,
+  observations: () => payload?.stations ?? [],
+  audit: () => payload?.audit ?? null,
+  /** @param {string} space @param {string} id */
+  select: (space, id) => { inspection.checked = true; stationSelect.disabled = false; section.disabled = false; spaceSelect.value = space; selectSpace(); stationSelect.value = id; selectStation(); },
   /** @param {number} x @param {number} y @param {number} width @param {number} height */
   readPixels: (x, y, width, height) => { if (!running || !house) throw new Error("No current frame"); const pixels = new Uint8Array(width * height * 4); gl.finish(); gl.readPixels(x, y, width, height, gl.RGBA, gl.UNSIGNED_BYTE, pixels); return Array.from(pixels); },
 } });

@@ -29,7 +29,7 @@ async function main(): Promise<void> {
   if (!Number.isInteger(port) || port < 1 || port > 65535)
     throw new Error("--port must be an integer between 1 and 65535");
   const basis = await sourceBasis();
-  const payload = createViewerPayload();
+  const payloads = new Map([["day/work", createViewerPayload()]]);
   const threeBuild = dirname(require.resolve("three"));
   const threeRoot = resolve(threeBuild, "..");
   const files = new Map([
@@ -45,13 +45,20 @@ async function main(): Promise<void> {
     response.setHeader("Cache-Control", "no-store");
     try {
       if (request.method !== "GET") { response.writeHead(405).end(); return; }
-      const path = new URL(request.url ?? "/", "http://127.0.0.1").pathname;
+      const url = new URL(request.url ?? "/", "http://127.0.0.1");
+      const path = url.pathname;
       if (path === "/scene" || path === "/basis") {
         if (await sourceBasis() !== basis) {
           response.writeHead(409, { "Content-Type": "application/json" }).end(JSON.stringify({ error: "Source changed. Coordinator must restart the viewer after npm run lint." }));
           return;
         }
-        response.writeHead(200, { "Content-Type": "application/json" }).end(JSON.stringify(path === "/basis" ? { basis } : { basis, ...payload }));
+        if (path === "/basis") { response.writeHead(200, { "Content-Type": "application/json" }).end(JSON.stringify({ basis })); return; }
+        const privacy = url.searchParams.get("privacy") ?? "day", flex = url.searchParams.get("flex") ?? "work";
+        if ((privacy !== "day" && privacy !== "private" && privacy !== "night") || (flex !== "work" && flex !== "guest")) { response.writeHead(400).end("Invalid named house state"); return; }
+        const key = privacy + "/" + flex;
+        let payload = payloads.get(key);
+        if (!payload) { payload = createViewerPayload({ privacy, flex }); payloads.set(key, payload); }
+        response.writeHead(200, { "Content-Type": "application/json" }).end(JSON.stringify({ basis, ...payload }));
         return;
       }
       const file = files.get(path);
