@@ -6,6 +6,7 @@ import typia from "typia";
 import { portraitNormals } from "../mesh/portraitNormals";
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceBasisDocument } from "../structures/IAutoMovieHumanFaceBasisDocument";
+import { applyHumanFaceRigidGroups } from "./applyHumanFaceRigidGroups";
 import { assertHumanFaceBasis } from "./assertHumanFaceBasis";
 import { createHumanFaceBasisRegion } from "./createHumanFaceBasisRegion";
 
@@ -19,17 +20,21 @@ import { createHumanFaceBasisRegion } from "./createHumanFaceBasisRegion";
  * then each shared basis corrective's endpoint at its own activation. Signed shape
  * controls select distinct authored endpoints. All surfaces use the same
  * channel order; normals are reconstructed before UV/material seams.
+ * Declared rigid groups use a separate shape-only reference and replace their
+ * performance target with fixed or least-squares proper rigid motion before
+ * normal reconstruction. Shape-only correctives belong to that reference.
  *
- * Correctives are what a purely linear prior cannot express: two endpoints that
- * move the same tissue sum to a face neither of them describes. The activation
- * is a product of the clamped driving sides, so it is absent unless the whole
- * combination is, which is what separates a corrective from another control.
+ * Correctives supply authored interactions absent from a linear sum. Their
+ * activation is a product of the clamped driving sides and vanishes when any
+ * driver is absent. They must be justified by the measured combined shape;
+ * overlapping endpoint support alone does not establish an incorrect sum.
  * A new model owns its arrays and materials; neither basis nor edits mutate.
  * Model structure and materials are admitted on the prepared neutral. Repeated
  * edits retain that structure and check their welded vertex partition; a changed
  * partition takes the full model gate again. Finite normal construction and
  * channel/material domains remain per-edit checks. Export still admits Float32.
- * Linear endpoints do not establish collision-free or physiological movement.
+ * Neither linear endpoints nor a rigid fit establish nonpenetration or a
+ * physiological joint trajectory.
  *
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Evaluates named shape and expression edits on one reusable connected prior without source images.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-basis Admits sparse correspondence once, applies deterministic endpoint selection and reconstructs common normals before region separation.
@@ -149,15 +154,26 @@ export function createHumanFaceBasisBuilder(
     const applied = (basis.correctives ?? []).map((corrective) => ({
       target: corrective.target,
       activation: activationOf(corrective),
+      shapeOnly: corrective.inputs.every(
+        (input) => channels.get(input.channel)!.kind === "shape",
+      ),
     }));
     const parts = surfaces.flatMap(({ surface, regions }) => {
       const positions = surface.positions.slice();
-      const accumulate = (name: string, gain: number): void => {
+      const shape =
+        (surface.rigidGroups?.length ?? 0) > 0
+          ? surface.positions.slice()
+          : undefined;
+      const accumulate = (
+        name: string,
+        gain: number,
+        destination = positions,
+      ): void => {
         const rows = surface.targets[name];
         if (rows === undefined) return;
         for (let i = 0; i < rows.length; i += 4)
           for (let axis = 0; axis < 3; axis++)
-            positions[rows[i] * 3 + axis] += gain * rows[i + axis + 1];
+            destination[rows[i] * 3 + axis] += gain * rows[i + axis + 1];
       };
       for (const channel of basis.channels) {
         const weight = weights.get(channel.id) ?? 0;
@@ -166,10 +182,21 @@ export function createHumanFaceBasisBuilder(
           weight < 0 ? channel.negative! : channel.positive,
           Math.abs(weight),
         );
+        if (shape !== undefined && channel.kind === "shape")
+          accumulate(
+            weight < 0 ? channel.negative! : channel.positive,
+            Math.abs(weight),
+            shape,
+          );
       }
       for (const corrective of applied)
-        if (corrective.activation > 0)
+        if (corrective.activation > 0) {
           accumulate(corrective.target, corrective.activation);
+          if (shape !== undefined && corrective.shapeOnly)
+            accumulate(corrective.target, corrective.activation, shape);
+        }
+      if (shape !== undefined)
+        applyHumanFaceRigidGroups(surface.rigidGroups!, shape, positions);
       const normals = portraitNormals(positions, surface.indices);
       return regions.map(({ region, evaluate }) => ({
         id: region.id,

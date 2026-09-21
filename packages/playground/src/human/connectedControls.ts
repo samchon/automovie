@@ -155,6 +155,7 @@ export function mountConnectedFaceControls(
           label: channel.id.replace(/([a-z])([A-Z])/g, "$1 $2"),
           value: document[channel.kind][channel.id] ?? 0,
           description: [
+            ...(channel.description === undefined ? [] : [channel.description]),
             describe("+", scale.positive),
             ...(scale.negative === null ? [] : [describe("-", scale.negative)]),
           ].join(" · "),

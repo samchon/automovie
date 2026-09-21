@@ -24,6 +24,9 @@ export interface IAutoMovieHumanFaceBasis {
     /** Anatomical or performance name unique within this basis. */
     id: string;
 
+    /** Optional authored sign/shape meaning; it does not certify a biological range. */
+    description?: string;
+
     /** Identity edits and transient performance remain separate in saved documents. */
     kind: "shape" | "expression";
 
@@ -41,12 +44,12 @@ export interface IAutoMovieHumanFaceBasis {
   /**
    * Combination correctives, evaluated after the channels that drive them.
    *
-   * Linear endpoints added together are wrong wherever two of them move the
-   * same tissue: a jaw that opens and a mouth that closes each describe a
-   * reachable face, and their sum describes teeth through a lip. A corrective
-   * is the authored difference between the sum and the face that combination
-   * should actually be, and it is applied in proportion to how much of the
-   * combination is present.
+   * Linear addition cannot describe every tissue interaction. For example,
+   * independently authored jaw opening and mouth closure may sum to a pose
+   * where teeth pass through a lip. A corrective is the authored difference
+   * between that sum and the intended combined shape, activated only over the
+   * declared driving combination. Sharing tissue alone does not establish that
+   * an additive combination is wrong; the combined result needs verification.
    *
    * The activation is a product, not a sum, which is what makes it a
    * corrective rather than another control: it is zero unless every driving
@@ -123,6 +126,24 @@ export interface IAutoMovieHumanFaceBasis {
 
     /** Sparse [vertex, dx, dy, dz] rows, strictly increasing by vertex per endpoint. */
     targets: Record<string, number[]>;
+
+    /**
+     * Disjoint complete components whose expression preserves the edited shape.
+     * The reference includes shape channels and shape-only correctives. A fixed
+     * group stays at that reference; a fitted group follows the closest proper
+     * rotation and translation to the ordinary expression/corrective target.
+     * This constrains internal distances, not its anatomical joint trajectory.
+     * Group membership is shared basis data, never per-person sculpting. No
+     * triangle may straddle a group boundary. Omission retains linear behavior.
+     */
+    rigidGroups?: {
+      /** Nonempty identity unique within this surface. */
+      id: string;
+      /** Strictly increasing resident vertex identities, without shared membership. */
+      vertices: number[];
+      /** Cranium-fixed or least-squares moving component. */
+      motion: "fixed" | "fit";
+    }[];
 
     /** An exact partition of the surface triangles, preserving oriented triples. */
     regions: {

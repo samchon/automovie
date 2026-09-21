@@ -54,6 +54,12 @@ export const test_subject_human_basis_admission = (): void => {
       b.channels[0].positive = " ";
     },
     (b) => {
+      b.channels[0].description = " \t";
+    },
+    (b) => {
+      (b.channels[0] as unknown as Record<string, unknown>).description = 42;
+    },
+    (b) => {
       b.channels[0].negative = null;
     },
     (b) => {
@@ -164,6 +170,7 @@ export const test_subject_human_basis_admission = (): void => {
     3,
   );
   const tiny = humanFaceBasisFixture();
+  tiny.basis.channels[0].description = "Negative narrows; positive widens.";
   tiny.basis.surfaces[0].targets.wide = [0, 1e-12, 0, 0];
   TestValidator.equals(
     "finite nonzero sparse endpoint",
