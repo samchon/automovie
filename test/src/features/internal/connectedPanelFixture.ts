@@ -23,6 +23,10 @@ export function connectedPanelFixture(
     build?: (
       document: IAutoMovieHumanFaceBasisDocument,
     ) => Promise<ReturnType<typeof connectedPanelModel>>;
+    /** File encoding is independently delayed or refused without changing edits. */
+    export?: (
+      document: IAutoMovieHumanFaceBasisDocument,
+    ) => Promise<Uint8Array<ArrayBuffer>>;
   } = {},
 ) {
   const source = humanFaceBasisFixture();
@@ -47,6 +51,8 @@ export function connectedPanelFixture(
       { name: "Neutral", expression: {} },
     ],
     viewport: () => ({
+      export:
+        props.export ?? (async (document) => connectedPanelModel(document).glb),
       build:
         props.build ??
         (async (document, measure) => {

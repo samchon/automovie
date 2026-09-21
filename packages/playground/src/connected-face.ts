@@ -7,17 +7,15 @@
 import {
   type IAutoMovieHumanFaceBasisDocument,
   parseHumanFaceBasisDocument,
-  serializeHumanFaceBasisDocument,
 } from "@automovie/human";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
 import studyDocuments from "../../../test/studies/human-face/connected-basis/global-face/subjects.json";
 import { readConnectedFaceAsset } from "./human/connectedAsset";
 import { mountConnectedFacePanel } from "./human/connectedPanel";
-import { createHumanViewport } from "./human/viewport";
-import { createHumanPreviewWorkerPort } from "./human/workerPort";
+import { createConnectedFaceViewport } from "./human/connectedViewport";
+import { createHumanResidentPort } from "./human/residentPort";
 
 async function main(): Promise<void> {
   const basis = await readConnectedFaceAsset({
@@ -40,9 +38,7 @@ async function main(): Promise<void> {
     shape: {},
     expression: {},
   };
-  let viewport!: ReturnType<
-    typeof createHumanViewport<IAutoMovieHumanFaceBasisDocument>
-  >;
+  let viewport!: ReturnType<typeof createConnectedFaceViewport>;
   const panel = mountConnectedFacePanel(
     document.querySelector<HTMLDivElement>("#app")!,
     {
@@ -62,9 +58,8 @@ async function main(): Promise<void> {
         { name: "Pucker", expression: { mouthPucker: 0.5 } },
       ],
       viewport: (canvas) => {
-        const loader = new GLTFLoader();
-        return (viewport = createHumanViewport({
-          serialize: serializeHumanFaceBasisDocument,
+        const loader = new THREE.TextureLoader();
+        return (viewport = createConnectedFaceViewport({
           canvas,
           pixelRatio: devicePixelRatio,
           renderer: new THREE.WebGLRenderer({
@@ -74,13 +69,13 @@ async function main(): Promise<void> {
           }),
           orbit: (camera) => new OrbitControls(camera, canvas),
           worker: () =>
-            createHumanPreviewWorkerPort(
+            createHumanResidentPort(
               new Worker(
                 new URL("./connected-face-worker.ts", import.meta.url),
                 { type: "module" },
               ),
             ),
-          decode: async (bytes) => (await loader.parseAsync(bytes, "")).scene,
+          loadTexture: (asset) => loader.loadAsync(asset),
           observeResize: (resize) => {
             new ResizeObserver(resize).observe(canvas);
           },

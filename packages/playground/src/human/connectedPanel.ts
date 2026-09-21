@@ -29,7 +29,6 @@ import {
  */
 export function mountConnectedFacePanel<
   Model extends {
-    glb: Uint8Array<ArrayBuffer>;
     parts: number;
     crossings?: IAutoMovieModelCrossing[] | null;
   },
@@ -48,6 +47,9 @@ export function mountConnectedFacePanel<
         measure?: boolean,
       ) => Promise<Model>;
       cancel: () => void;
+      export: (
+        document: IAutoMovieHumanFaceBasisDocument,
+      ) => Promise<Uint8Array<ArrayBuffer>>;
       publish: (model: Model) => void;
       dispose: (model: Model) => void;
       fitView: () => void;
@@ -269,13 +271,20 @@ export function mountConnectedFacePanel<
       "application/json",
     );
   };
-  element("face-glb").onclick = () => {
+  element("face-glb").onclick = async () => {
     const state = editor!.snapshot();
-    props.download(
-      state.document.id + ".glb",
-      state.model.glb,
-      "model/gltf-binary",
-    );
+    const ticket = revision;
+    const button = element<HTMLButtonElement>("face-glb");
+    button.disabled = true;
+    try {
+      const bytes = await viewport.export(state.document);
+      props.download(state.document.id + ".glb", bytes, "model/gltf-binary");
+    } catch (error) {
+      if (ticket === revision)
+        status(error instanceof Error ? error.message : String(error), "error");
+    } finally {
+      button.disabled = false;
+    }
   };
   // Crossing surfaces are read against the source neutral, not against zero.
   // This asset rests with its shells inside each other on purpose, so the

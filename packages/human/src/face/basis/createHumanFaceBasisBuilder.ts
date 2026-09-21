@@ -6,7 +6,7 @@ import { portraitNormals } from "../mesh/portraitNormals";
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceBasisDocument } from "../structures/IAutoMovieHumanFaceBasisDocument";
 import { assertHumanFaceBasis } from "./assertHumanFaceBasis";
-import { humanFaceBasisRegion } from "./humanFaceBasisRegion";
+import { createHumanFaceBasisRegion } from "./createHumanFaceBasisRegion";
 
 /**
  * Compile a caller-owned connected facial prior into a deterministic builder.
@@ -40,6 +40,13 @@ export function createHumanFaceBasisBuilder(
   const channels = new Map(
     basis.channels.map((channel) => [channel.id, channel]),
   );
+  const surfaces = basis.surfaces.map((surface) => ({
+    surface,
+    regions: surface.regions.map((region) => ({
+      region,
+      evaluate: createHumanFaceBasisRegion(region),
+    })),
+  }));
   return (inputDocument) => {
     const document =
       typia.assertEquals<IAutoMovieHumanFaceBasisDocument>(inputDocument);
@@ -134,7 +141,7 @@ export function createHumanFaceBasisBuilder(
       target: corrective.target,
       activation: activationOf(corrective),
     }));
-    const parts = basis.surfaces.flatMap((surface) => {
+    const parts = surfaces.flatMap(({ surface, regions }) => {
       const positions = surface.positions.slice();
       const accumulate = (name: string, gain: number): void => {
         const rows = surface.targets[name];
@@ -155,13 +162,13 @@ export function createHumanFaceBasisBuilder(
         if (corrective.activation > 0)
           accumulate(corrective.target, corrective.activation);
       const normals = portraitNormals(positions, surface.indices);
-      return surface.regions.map((region) => ({
+      return regions.map(({ region, evaluate }) => ({
         id: region.id,
         name: region.id,
         material: region.material,
         geometry: {
           type: "mesh" as const,
-          mesh: humanFaceBasisRegion(positions, normals, region),
+          mesh: evaluate(positions, normals),
         },
         attachedBone: null,
         transform: null,

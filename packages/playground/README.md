@@ -1,6 +1,6 @@
 # @automovie/playground
 
-Browser development surfaces for inspecting engine geometry, poses, motion, cameras and object placement. Most pages use the AutoMovie viewer; the anatomical face editor loads its actual exported GLB with Three.js.
+Browser development surfaces for inspecting engine geometry, poses, motion, cameras and object placement. The connected face editor renders resident numerical geometry through the AutoMovie viewer. The procedural face page retains its exported GLB preview.
 
 ## Run
 
@@ -14,7 +14,9 @@ The default development URL is `http://127.0.0.1:5173`. The development command 
 
 ## Anatomical face editor
 
-Open `/connected-face.html` for the [connected whole-face study](../../test/studies/human-face/connected-basis/global-face/README.md). Its selected CC0 basis exposes 84 shape and 52 expression controls. The study selector loads nineteen compact documents, including `kdy1`; search filters the visible controls without changing hidden values. Each control states what one unit of its endpoints moves on the surface, in millimetres, so a dimensionless weight carries the unit its envelope alone does not. Selection, numerical edits, presets and document loading share undo/redo and last-valid-state recovery. Save document preserves the exact basis revision, and Export GLB downloads the current static face. These studies have no scalp groom and retain the linked study's unresolved likeness limits.
+Open `/connected-face.html` for the [connected whole-face study](../../test/studies/human-face/connected-basis/global-face/README.md). Its selected CC0 basis exposes 84 shape and 52 expression controls. The study selector loads eighteen compact documents, including `kdy1`; search filters the visible controls without changing hidden values. Each control states what one unit of its endpoints moves on the surface, in millimetres, so a dimensionless weight carries the unit its envelope alone does not. Selection, numerical edits, presets and document loading share undo/redo and last-valid-state recovery. Save document preserves the exact basis revision. Documents can name separately authored skin maps and seated grooms; they contain no per-vertex sculpt or per-subject corrective fields. The linked study records unresolved anatomical and likeness limits.
+
+The connected worker stays alive across edits. It compiles the basis once and returns resident geometry directly; GLB is encoded only when Export GLB is clicked. Export captures that click's committed document and can finish while later edits continue. Pending or refused previews leave the displayed buffers unchanged. Successful deformations update existing buffers; changed topology or materials stage a replacement group. Texture preparation preserves the exporter's glTF UV orientation. This architecture does not itself establish an interactive latency budget; the current investigation and measurements are tracked in [#2533](https://github.com/samchon/automovie/issues/2533).
 
 Open `/face.html`. The editor consumes [human](../human/README.md) and the nineteen numerical [subject documents](../../test/studies/human-face), not photographs or a live fitting service. The old face-package page and `/head.html` have been retired.
 
@@ -26,7 +28,7 @@ Appearance exposes linear RGB, surface roughness and clearcoat strength for skin
 
 A rejected edit preserves the last valid document/model. Undo, redo and reset operate on successful edits. Save/load JSON keeps the complete numerical basis and explicit overrides. GLB is self-contained; glTF downloads include sibling buffers and any resident PNG images, which must stay alongside the JSON file. Downloaded meshes represent the current built expression, not a rigged animation. Generated geometry and unresolved likeness are separate outcomes.
 
-Pure editor adapter tests live in the workspace test package and import this private application's `src/human` modules through its workspace dependency. They construct an in-memory DOM or renderer port without starting a browser. `viewport` owns scene publication, disposal, lighting and frame state; `workerPort` adapts browser messages and `workerHandler` owns parsing, construction and export failure replies. Manual frame completion applies the current clay and orbit state before drawing, just as the animation loop does. Actual GPU captures remain a separate visual check.
+Pure editor adapter tests live in the workspace test package and import this private application's `src/human` modules through its workspace dependency. They construct an in-memory DOM or renderer port without starting a browser. `previewStage` owns lighting, camera and scene membership. `viewport` composes the procedural page's disposable GLB path; `connectedViewport` composes resident numerical requests, staged geometry and explicit export. `residentWorker` correlates replies and recovers after transport failure. Manual frame completion applies the current clay and orbit state before drawing, just as the animation loop does. Actual GPU captures remain a separate visual check.
 
 ## Other pages
 
