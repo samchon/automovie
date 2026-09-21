@@ -1,5 +1,5 @@
 import { IAutoMovieMesh } from "@automovie/interface";
-import { compareCodeUnits } from "../text/compareCodeUnits";
+
 import { ViolationCollector } from "./ViolationCollector";
 
 /** Weld tolerance: ring seams recompute cos/sin with ~1e-16 float error. */
@@ -30,57 +30,103 @@ export const appendMeshTopology = (
   )
     return;
 
-  const keyOf = (vertex: number): string =>
-    [0, 1, 2]
-      .map(
-        (axis) =>
-          Math.round(mesh.positions[vertex * 3 + axis]! * WELD_GRID) || 0,
-      )
-      .join(",");
-
-  // Undirected edge → incident-triangle count (manifoldness); directed edge →
-  // count in that traversal direction (winding consistency).
-  const undirected = new Map<string, number>();
-  const directed = new Map<string, number>();
+  // Quantize each source vertex once, then count edges by compact identities.
+  // Coordinates still determine welding on every evaluation: deforming two
+  // previously distinct vertices onto one grid point must change the verdict.
+  const labels: string[] = [];
+  const welded = new Map<string, number>();
+  const vertices = new Array<number>(vertexCount);
+  for (let vertex = 0; vertex < vertexCount; vertex++) {
+    const offset = vertex * 3;
+    const x = Math.round(mesh.positions[offset]! * WELD_GRID) || 0;
+    const y = Math.round(mesh.positions[offset + 1]! * WELD_GRID) || 0;
+    const z = Math.round(mesh.positions[offset + 2]! * WELD_GRID) || 0;
+    const key = `${x},${y},${z}`;
+    let id = welded.get(key);
+    if (id === undefined) {
+      id = labels.length;
+      welded.set(key, id);
+      labels.push(key);
+    }
+    vertices[vertex] = id;
+  }
+  type Direction = { from: number; to: number; count: number };
+  type Edge = {
+    low: number;
+    high: number;
+    count: number;
+    forward?: Direction;
+    reverse?: Direction;
+  };
+  const undirected = new Map<string, Edge>();
+  const directed: Direction[] = [];
   for (let i = 0; i < indices.length; i += 3) {
-    const keys = [indices[i]!, indices[i + 1]!, indices[i + 2]!].map(keyOf);
+    const a = vertices[indices[i]!]!;
+    const b = vertices[indices[i + 1]!]!;
+    const c = vertices[indices[i + 2]!]!;
     // A triangle with a repeated welded vertex (a pole ring, a collapsed cap)
     // carries no surface: skip it, exactly as the watertightness oracle does.
-    if (new Set(keys).size < 3) continue;
+    if (a === b || b === c || c === a) continue;
+    const corners = [a, b, c];
     for (let e = 0; e < 3; ++e) {
-      const from = keys[e]!;
-      const to = keys[(e + 1) % 3]!;
-      directed.set(`${from}|${to}`, (directed.get(`${from}|${to}`) ?? 0) + 1);
-      const edge = [from, to].sort(compareCodeUnits).join("|");
-      undirected.set(edge, (undirected.get(edge) ?? 0) + 1);
+      const from = corners[e]!;
+      const to = corners[(e + 1) % 3]!;
+      const low = Math.min(from, to),
+        high = Math.max(from, to);
+      // A string of integer IDs avoids a numeric pair encoding's safe-integer
+      // ceiling; coordinate strings are reconstructed only for violations.
+      const key = `${low}/${high}`;
+      let edge = undirected.get(key);
+      if (edge === undefined) {
+        edge = { low, high, count: 0 };
+        undirected.set(key, edge);
+      }
+      edge.count++;
+      const side = from === low ? "forward" : "reverse";
+      let direction = edge[side];
+      if (direction === undefined) {
+        direction = { from, to, count: 0 };
+        edge[side] = direction;
+        directed.push(direction);
+      }
+      direction.count++;
     }
   }
 
-  for (const [edge, count] of undirected)
+  const label = (edge: Edge): string => {
+    const a = labels[edge.low]!,
+      b = labels[edge.high]!;
+    return a < b ? `${a}|${b}` : `${b}|${a}`;
+  };
+  for (const edge of undirected.values()) {
+    const count = edge.count;
     if (count > 2)
       collector.push(
         "topology",
         `${path}.indices`,
-        `a 2-manifold mesh edge is shared by at most 2 triangles, but the edge (${edge}) is shared by ${count}`,
+        `a 2-manifold mesh edge is shared by at most 2 triangles, but the edge (${label(edge)}) is shared by ${count}`,
         count,
       );
+  }
 
-  for (const [edge, count] of directed)
+  for (const edge of directed) {
+    const count = edge.count;
     if (count > 1)
       collector.push(
         "topology",
         `${path}.indices`,
-        `triangles adjacent on an edge must wind in opposite directions, but the directed edge (${edge}) appears ${count} times (a flipped triangle)`,
+        `triangles adjacent on an edge must wind in opposite directions, but the directed edge (${labels[edge.from]}|${labels[edge.to]}) appears ${count} times (a flipped triangle)`,
         count,
       );
+  }
 
   if (expectClosed)
-    for (const [edge, count] of undirected)
-      if (count === 1)
+    for (const edge of undirected.values())
+      if (edge.count === 1)
         collector.push(
           "topology",
           `${path}.indices`,
-          `a closed mesh has every edge shared by 2 triangles, but the edge (${edge}) is a boundary (open) edge`,
-          edge,
+          `a closed mesh has every edge shared by 2 triangles, but the edge (${label(edge)}) is a boundary (open) edge`,
+          label(edge),
         );
 };
