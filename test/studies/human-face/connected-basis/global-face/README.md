@@ -4,7 +4,7 @@ The connected editor selects this directory's basis, whose first revision `mpfb-
 
 ## Current investigation
 
-Issue [#2533](https://github.com/samchon/automovie/issues/2533) and Draft PR [#2534](https://github.com/samchon/automovie/pull/2534) start from `mpfb-connected-head-2026-09-21-single-repaired`, with 136 channels and 23 shared correctives. The published 18 documents now omit all per-document vertex fields. Earlier counts and crossing results below describe their named historical revisions, not acceptance of this current population. [Parameter editor research](parameter-editor.md) records the current acceptance criteria and links the self-contained face and future-body research issues.
+Issue [#2533](https://github.com/samchon/automovie/issues/2533) and Draft PR [#2534](https://github.com/samchon/automovie/pull/2534) started from `mpfb-connected-head-2026-09-21-single-repaired`, with 136 channels and 23 shared correctives. The current `mpfb-connected-head-2026-09-21-fine-141-rigid` basis has 141 shape channels, 52 expression channels, the same 23 correctives, 26 simple groups and four rigid performance components. All 18 documents contain numerical controls and resource identities; no per-document vertex fields are replayed. [Preparation receipt](preparation-receipt.json) records reproducible source commits and admission counts. Earlier counts and crossing results below describe their named historical revisions. [Parameter editor research](parameter-editor.md) records current editor/export observations, unresolved anatomical interactions and the self-contained face and future-body research issues.
 
 ## Source and coordinates
 
@@ -63,12 +63,13 @@ The connected editor selects whatever `basis.json.gz` reads as its `id`; every d
 | `mpfb-connected-head-2026-09-17-binocular-frame` | the regional basis | Blender extraction with a common binocular frame | [extraction-receipt.json](extraction-receipt.json) |
 | `mpfb-connected-head-2026-09-18-jaw-corrective` | binocular-frame | `jawOpenMouthCloseEase`, the first authored corrective | [corrective-receipt.json](corrective-receipt.json) |
 | `mpfb-connected-head-2026-09-19-split-arches` | jaw-corrective | `split-teeth-arches.ts`: the dental asset split into a fixed maxillary and a moving mandibular arch | — |
-| `mpfb-connected-head-2026-09-20-face-and-neck` | split-arches | `crop-face-to-neck.ts`: the shared neck clip at Y = -0.145 m | — |
+| `mpfb-connected-head-2026-09-20-face-and-neck` | split-arches | `crop-face-to-neck.ts`: centroid-selected triangles around the shared Y = -0.085 m neck boundary | — |
 | `mpfb-connected-head-2026-09-20-tongue-implies-jaw` | face-and-neck | `imply-open-jaw-for-tongue.ts`: `tongueOut` folds `jawOpen` in and `tongueOutJawOpenUnfold` cancels the double count | — |
 | `mpfb-connected-head-2026-09-20-strand-alpha` | tongue-implies-jaw | `mask-brow-and-lash-alpha.ts`: brow and lash strands cut from their cards | — |
 | `mpfb-connected-head-2026-09-20-rigid-mandible` | strand-alpha | `rigidify-jaw-open.ts`: the mandibular arch's `jawOpen` replaced by the measured screw motion | [mandible-receipt.json](mandible-receipt.json) |
 | `mpfb-connected-head-2026-09-21-single-repaired` | rigid-mandible | `repair-single-endpoints.ts`: the six channels that put a surface through a surface on their own repaired in their endpoints, with single-driver in-betweens where a fraction of the weight still crossed | [single-repair-receipt.json](single-repair-receipt.json) |
 | `mpfb-connected-head-2026-09-21-pair-correctives` | single-repaired | `generate-combination-correctives.ts`: every expression pair enumerated on the neutral head, the pairs that invent a crossing solved into correctives and in-betweens over the {½, 1}² grid | [pair-corrective-receipt.json](pair-corrective-receipt.json) |
+| `mpfb-connected-head-2026-09-21-fine-141-rigid` | single-repaired and compact documents at `e166c64a` | `prepare-fine-basis.ts`: 57 curated native shape channels, 26 simple groups, four rigid components and one shared affine neck cut; all personal numeric values retained | [preparation-receipt.json](preparation-receipt.json) |
 
 ### Single channels first
 
