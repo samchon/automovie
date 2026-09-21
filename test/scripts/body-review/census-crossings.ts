@@ -19,10 +19,13 @@
  *   extremes against the elbow and knee flexion extremes. Single-axis
  *   correctives are solved alone; this is where two of them meet.
  * - `shapes`: every published pose corrective's full angle again on the macro
- *   extremes (female, male, child, old, heavy, thin, muscular), since a
- *   corrective is solved on the neutral body and worn by every shape.
- * - `traits`: every individuality channel at each extreme on each macro
- *   extreme, and the trait review combinations, at rest; a trait is a
+ *   extremes (female, male, child, old, heavy, thin, muscular at the source's
+ *   unit node) and on every channel whose published envelope reaches past
+ *   that node, at each far end, since a corrective is solved on the neutral
+ *   body and worn by every shape, and an extended envelope is a body the
+ *   source never posed.
+ * - `traits`: every individuality channel at each extreme on each of those
+ *   shapes but the child, and the trait review combinations, at rest; a trait is a
  *   displacement field on the neutral tissue and must not fold it on the
  *   bodies that tissue grows or shrinks on.
  *
@@ -319,21 +322,41 @@ function comboStates(basis: IAutoMovieHumanBodyBasis): IState[] {
   return states;
 }
 
-/** Every published pose corrective's full angle, on each macro extreme. */
 /**
- * Every individuality trait at each extreme on each macro extreme (the
- * tissue a trait moves is the tissue a macro already grew or shrank), and
- * the review combinations, at rest.
+ * The shapes the posed and traited censuses run on: each macro at the
+ * source's unit node, where its authored target ends, and every channel
+ * whose published envelope reaches past that node at each far end, where
+ * the extension extrapolates the target and no source pose was ever worn.
  */
-function traitStates(basis: IAutoMovieHumanBodyBasis): IState[] {
-  const macros: Record<string, Record<string, number>> = {
-    rest: {},
+function extremeShapes(
+  basis: IAutoMovieHumanBodyBasis,
+): Record<string, Record<string, number>> {
+  const shapes: Record<string, Record<string, number>> = {
     female: { macroGender: -1 },
     male: { macroGender: 1 },
+    child: { macroAge: -1 },
     old: { macroAge: 1 },
     heavy: { macroWeight: 1 },
     thin: { macroWeight: -1 },
     muscular: { macroMuscle: 1 },
+  };
+  for (const channel of basis.channels)
+    for (const end of [channel.minimum, channel.maximum])
+      if (Math.abs(end) > 1)
+        shapes[`${channel.id}@${end}`] = { [channel.id]: end };
+  return shapes;
+}
+
+/**
+ * Every individuality trait at each extreme on each extreme shape but the
+ * child (the tissue a trait moves is the tissue a macro already grew or
+ * shrank), and the review combinations, at rest.
+ */
+function traitStates(basis: IAutoMovieHumanBodyBasis): IState[] {
+  const { child: _child, ...extremes } = extremeShapes(basis);
+  const macros: Record<string, Record<string, number>> = {
+    rest: {},
+    ...extremes,
   };
   const ids = traitChannelIds();
   const traits = basis.channels.filter((channel) => ids.includes(channel.id));
@@ -351,6 +374,7 @@ function traitStates(basis: IAutoMovieHumanBodyBasis): IState[] {
   return states;
 }
 
+/** Every published pose corrective's full angle, on each extreme shape. */
 function shapeStates(basis: IAutoMovieHumanBodyBasis): IState[] {
   const joints = new Map(basis.joints.map((joint) => [joint.bone, joint]));
   const states = new Map<string, IAutoMovieJointPose[]>();
@@ -370,16 +394,7 @@ function shapeStates(basis: IAutoMovieHumanBodyBasis): IState[] {
         },
       ]);
     }
-  const shapes: Record<string, Record<string, number>> = {
-    female: { macroGender: -1 },
-    male: { macroGender: 1 },
-    child: { macroAge: -1 },
-    old: { macroAge: 1 },
-    heavy: { macroWeight: 1 },
-    thin: { macroWeight: -1 },
-    muscular: { macroMuscle: 1 },
-  };
-  return Object.entries(shapes).flatMap(([label, shape]) =>
+  return Object.entries(extremeShapes(basis)).flatMap(([label, shape]) =>
     [...states.entries()].map(([name, pose]) => ({
       name: `${label}:${name}`,
       document: { shape, pose },

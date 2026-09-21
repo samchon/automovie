@@ -119,6 +119,26 @@ export function assertHumanBodyBasis(basis: IAutoMovieHumanBodyBasis): void {
             "." +
             input.side,
         );
+      // a weight ramp lies inside the envelope on its side, so no admitted
+      // weight arms a corrective past its end and every ramp can reach one
+      const onset = input.onset ?? 0;
+      const full = input.full ?? 1;
+      const extent =
+        input.side === "positive" ? channel.maximum : -channel.minimum;
+      if (
+        !Number.isFinite(onset) ||
+        !Number.isFinite(full) ||
+        onset < 0 ||
+        full <= onset ||
+        full > extent + 1e-9
+      )
+        throw new Error(
+          "A body channel driver needs a ramp inside its envelope: " +
+            corrective.id +
+            " " +
+            input.channel +
+            `.${input.side} onset ${onset} full ${full} extent ${extent}`,
+        );
     }
     endpoints.add(corrective.target);
   }

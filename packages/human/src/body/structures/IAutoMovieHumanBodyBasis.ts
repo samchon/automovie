@@ -84,7 +84,10 @@ export interface IAutoMovieHumanBodyBasis {
    * reads a shape weight, and the first revision's macro pair residuals use
    * it: the source blends its macro targets as products of node weights, so a
    * tall child is not a scaled tall adult, and the difference is sampled and
-   * published rather than approximated. A joint driver reads a clinical pose
+   * published rather than approximated. A channel driver may carry its own
+   * ramp over the weight, so a corrective solved at an envelope extreme past
+   * the source's unit node stays off at the node, where the body it corrects
+   * does not yet exist. A joint driver reads a clinical pose
    * angle as a ramp: zero until the joint has moved `onset` degrees from its
    * rest toward the named side, one from `full` degrees on, linear between.
    * That is RigLogic's conditional table applied to a joint, and it is how a
@@ -105,6 +108,10 @@ export interface IAutoMovieHumanBodyBasis {
       | {
           channel: string;
           side: "positive" | "negative";
+          /** Weight toward `side` at which the ramp leaves zero; zero when absent. */
+          onset?: number;
+          /** Weight toward `side` at which the ramp reaches one; one when absent, above `onset` and within the envelope on that side. */
+          full?: number;
         }
       | {
           bone: AutoMovieHumanoidBone;

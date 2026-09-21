@@ -37,6 +37,11 @@ type JointDriver = {
  *    `full` beyond the clinical reach on its side (the reach shrinking with a
  *    rest offset), with a nonfinite bound, or duplicated; a ramp that exactly
  *    reaches the range on either side is admitted.
+ * 5. A channel driver's own ramp: with `width` extended to 3, a positive
+ *    ramp from 1 to 3 is off at 1, half at 2 and whole at 3; a negative ramp
+ *    with only `onset` reaches one at the default `full` of one; admission refuses a ramp
+ *    past the envelope on its side, a negative onset, `full <= onset` and a
+ *    nonfinite bound, and admits one that ends exactly on the envelope.
  */
 export const test_human_body_basis_pose_corrective = (): void => {
   const withFold = (
@@ -213,4 +218,108 @@ export const test_human_body_basis_pose_corrective = (): void => {
       refused,
     );
   }
+
+  // 5. a channel driver's weight ramp
+  const weighted = (
+    driver: {
+      side: "positive" | "negative";
+      onset?: number;
+      full?: number;
+    },
+    minimum = -1,
+    maximum = 3,
+  ) => {
+    const fixture = humanBodyBasisFixture();
+    fixture.basis.channels[0].minimum = minimum;
+    fixture.basis.channels[0].maximum = maximum;
+    fixture.basis.correctives!.push({
+      id: "fold",
+      inputs: [{ channel: "width", ...driver }],
+      weight: 1,
+      target: "fold",
+    });
+    fixture.basis.surfaces[0].targets.fold = [0, 0, 0, 0.02];
+    return fixture;
+  };
+  const upper = weighted({ side: "positive", onset: 1, full: 3 });
+  const lower = weighted({ side: "negative", onset: 0.5 }, -2, 1);
+  const zOf = (
+    fixture: ReturnType<typeof weighted>,
+    shape: Record<string, number>,
+  ) =>
+    at(
+      createHumanBodyBasisBuilder(fixture.basis)({
+        ...fixture.document,
+        shape,
+      }),
+      0,
+    ).z;
+  // against the same basis with the fold driven by `tall`, absent from the
+  // shape, so the difference is the ramp alone
+  const zOff = (fixture: ReturnType<typeof weighted>, width: number) =>
+    zOf(fixture, { width }) -
+    zOf(
+      {
+        ...fixture,
+        basis: {
+          ...fixture.basis,
+          correctives: fixture.basis.correctives!.map((corrective) =>
+            corrective.id === "fold"
+              ? {
+                  ...corrective,
+                  inputs: [{ channel: "tall", side: "positive" as const }],
+                }
+              : corrective,
+          ),
+        },
+      },
+      { width },
+    );
+  for (const [title, fixture, width, expected] of [
+    ["off at the ramp's onset", upper, 1, 0],
+    ["half way along the weight", upper, 2, 0.01],
+    ["whole at the envelope", upper, 3, 0.02],
+    ["a positive ramp ignores the negative side", upper, -1, 0],
+    ["a negative ramp with only an onset", lower, -0.75, 0.01],
+    ["whole at the default full", lower, -1, 0.02],
+    ["and held past it", lower, -2, 0.02],
+  ] as const)
+    TestValidator.predicate(title, nclose(zOff(fixture, width), expected));
+  for (const [title, fixture, refused] of [
+    [
+      "past the positive envelope",
+      weighted({ side: "positive", full: 3.5 }),
+      true,
+    ],
+    [
+      "ends on the envelope",
+      weighted({ side: "negative", onset: 0, full: 1 }),
+      false,
+    ],
+    [
+      "past the negative envelope",
+      weighted({ side: "negative", full: 1.5 }),
+      true,
+    ],
+    [
+      "negative weight onset",
+      weighted({ side: "positive", onset: -0.5 }),
+      true,
+    ],
+    [
+      "weight full at onset",
+      weighted({ side: "positive", onset: 2, full: 2 }),
+      true,
+    ],
+    [
+      "nonfinite weight full",
+      weighted({ side: "positive", full: Number.NaN }),
+      true,
+    ],
+  ] as const)
+    TestValidator.equals(
+      title,
+      throwsError(() => createHumanBodyBasisBuilder(fixture.basis)),
+      refused,
+    );
 };

@@ -14,7 +14,9 @@ import { assertSparseRows } from "./assertSparseRows";
  *
  * The activation is the product form of `createHumanFaceBasisBuilder`:
  * `min(1, weight * product of clamped driver sides)`, zero unless every driver
- * is present. A sum here would fire a corrective on one driver alone, which is
+ * is present. A channel driver contributes the ramp
+ * `clamp((side * weight - onset) / (full - onset), 0, 1)`, which with its
+ * defaults `onset = 0`, `full = 1` is the face builder's clamped side. A sum here would fire a corrective on one driver alone, which is
  * the pose it was authored to leave untouched. A joint driver contributes the
  * ramp `clamp((side * (clinical - neutral) - onset) / (full - onset), 0, 1)`
  * read from the document's clinical pose, an absent or `null` angle standing
@@ -86,7 +88,14 @@ export function humanBodyBasisWeights(
           );
         }
         const weight = weights.get(input.channel) ?? 0;
-        return total * Math.min(1, Math.max(0, sign * weight));
+        const onset = input.onset ?? 0;
+        return (
+          total *
+          Math.min(
+            1,
+            Math.max(0, (sign * weight - onset) / ((input.full ?? 1) - onset)),
+          )
+        );
       }, corrective.weight),
     ),
   }));

@@ -14,16 +14,20 @@
  * angles). Its corrective is driven by one channel driver per nonzero shape
  * channel, on that channel's side, and one clinical ramp per posed joint
  * axis, all multiplied as `createHumanFaceBasisBuilder` fires a corrective;
- * RigLogic's PSD over a pose and a shape. The ramps' onset is measured as
- * the largest fraction `t` of the pose (every angle scaled from its rest)
- * at which nothing crosses on that shape, bisected to 2.5 degrees of the
- * widest travel, and each ramp runs from `t` times its travel to its full
- * travel. The push is the same solve as the single-axis generator, on the
+ * RigLogic's PSD over a pose and a shape. The channel ramps' onset is the
+ * largest fraction `u` of the shape (every weight scaled from zero) at
+ * which the whole pose crosses nothing, bisected to 0.05 of the largest
+ * weight, so a corrective solved at an envelope extreme stays off on the
+ * bodies short of it; each channel ramp runs from `u` times its weight to
+ * its weight. The joint ramps' onset is the largest fraction `t` of the pose
+ * (every angle scaled from its rest) at which nothing crosses on the whole
+ * shape, bisected to 2.5 degrees of the widest travel, and each joint ramp
+ * runs from `t` times its travel to its full travel. The push is the same solve as the single-axis generator, on the
  * shaped and posed skin, carried to the rest frame through the same
  * blended rotations; the candidate is verified through the public builder
  * and the census instrument at the full state and at the midpoint of the
- * ramp, an in-between queued as its own state while the ramp is wider than
- * the bisection band. The output is a shard the pose merge appends in its
+ * joint ramp and of the channel ramp, a joint in-between queued as its own
+ * state while the ramp is wider than the bisection band. The output is a shard the pose merge appends in its
  * incremental mode. Nothing here writes into `test/studies`.
  */
 import { measureAutoMovieModelCrossings } from "@automovie/engine";
@@ -50,6 +54,8 @@ const ROOT = path.resolve(__dirname, "../../..");
 const STUDY = path.join(ROOT, "test/studies/human-body/connected-basis");
 /** Bisection of the pose fraction stops when the widest travel moves less than this, degrees. */
 const RESOLUTION = 2.5;
+/** Bisection of the shape fraction stops when the largest weight moves less than this. */
+const WEIGHT_RESOLUTION = 0.05;
 /** Outer passes of solve-then-verify per state before it is given up. */
 const PASSES = 2;
 /** Visits per finding, counting queued midpoints and revisits. */
@@ -164,12 +170,18 @@ function main(): void {
     const widest = Math.max(
       ...posed.map((one) => Math.abs(one.angle - one.rest)),
     );
-    // the state at fraction t of the pose, shape kept whole
-    const document = (t: number): IDocument => ({
+    const heaviest = Math.max(
+      0,
+      ...Object.values(shape).map((weight) => Math.abs(weight)),
+    );
+    // the state at fraction t of the pose and fraction u of the shape
+    const document = (t: number, u = 1): IDocument => ({
       id: "state",
       name: "state",
       basis: working.id,
-      shape,
+      shape: Object.fromEntries(
+        Object.entries(shape).map(([channel, weight]) => [channel, u * weight]),
+      ),
       pose: (finding.document.pose ?? []).map((joint) => ({
         bone: joint.bone,
         flexion: null,
@@ -189,11 +201,12 @@ function main(): void {
       candidate: IAutoMovieHumanBodyBasis,
       candidateBuild: ReturnType<typeof createHumanBodyBasisBuilder>,
       t: number,
+      u = 1,
     ): IPair[] =>
       measureAutoMovieModelCrossings(
         segmentHumanBody(
           candidate,
-          candidateBuild({ ...document(t), basis: candidate.id }),
+          candidateBuild({ ...document(t, u), basis: candidate.id }),
         ).model,
       ).map(({ part, other, triangles, otherTriangles }) => ({
         part,
@@ -209,12 +222,25 @@ function main(): void {
       published.push(corrective);
       rows[corrective.id] = candidate.surfaces[0].targets[corrective.id];
     };
+    // the largest fraction of the shape the whole pose wears cleanly, read
+    // once on the basis as the finding found it
+    let worn = 0;
+    if (heaviest > 0 && pairsOn(working, build, 1).length > 0) {
+      let high = 1;
+      while ((high - worn) * heaviest > WEIGHT_RESOLUTION) {
+        const middle = (worn + high) / 2;
+        if (pairsOn(working, build, 1, middle).length === 0) worn = middle;
+        else high = middle;
+      }
+    }
     const drivers = (onset: number, full: number): Driver[] => [
       ...Object.entries(shape)
         .filter(([, weight]) => weight !== 0)
         .map(([channel, weight]) => ({
           channel,
           side: weight < 0 ? ("negative" as const) : ("positive" as const),
+          onset: worn * Math.abs(weight),
+          full: Math.abs(weight),
         })),
       ...posed.map((one) => ({
         bone: one.bone,
@@ -274,9 +300,13 @@ function main(): void {
           const candidateBuild = createHumanBodyBasisBuilder(candidate);
           const atFull = pairsOn(candidate, candidateBuild, t);
           const atMid = pairsOn(candidate, candidateBuild, midpoint);
+          const lighter = (worn + 1) / 2;
+          const atLighter =
+            heaviest > 0 ? pairsOn(candidate, candidateBuild, t, lighter) : [];
           verification = [
             { t, pairs: atFull },
             { t: midpoint, pairs: atMid },
+            ...(heaviest > 0 ? [{ t, u: lighter, pairs: atLighter }] : []),
           ];
           if (atFull.length > 0) {
             const total = (list: IPair[]): number =>
@@ -286,9 +316,11 @@ function main(): void {
             continue;
           }
           outcome =
-            atMid.length === 0
+            atMid.length === 0 && atLighter.length === 0
               ? "repaired"
-              : "repaired; the midpoint of the ramp still crosses and is queued";
+              : atMid.length > 0
+                ? "repaired; the midpoint of the joint ramp still crosses and is queued"
+                : "repaired; the midpoint of the channel ramp still crosses";
           accept(candidate);
           if (atMid.length > 0 && (t - lo) * widest > 4 * RESOLUTION)
             queue.unshift(midpoint, t);
@@ -296,6 +328,7 @@ function main(): void {
         }
         crossing = {
           id,
+          worn,
           onset: lo,
           full: t,
           probes,
