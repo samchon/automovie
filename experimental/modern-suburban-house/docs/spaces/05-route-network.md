@@ -34,4 +34,6 @@
 
 후면 공용부 안의 [주 경로와 주방 접근](rooms/common.md#common-clear-routes)은 같은 room 내부의 통행이다. 주방·식사·가족실에 별도 문이나 복도 edge를 추가하지 않는다. 서비스 진입에서 정원문으로 갈 때는 가구 사용 점유를 돌아가는 주 경로를 소비하고, 거실 쪽 주방 진입과 열린 기기 앞 작업은 별도 상태로 검사한다. 식품 운반은 기존 팬트리 → 서비스 접근 → 공용부 경로를 유지한다.
 
+서비스 접근 → [머드룸 횡단](rooms/laundry.md#laundry-through-route) → 차고 하부 대기 → [차고 내부](rooms/garage-interior.md#garage-use-routes)는 두 세탁 기기 앞 작업과 함께 검사한다. 같은 서비스 접근에서 [파우더룸 기구](rooms/powder.md#powder-fixture-use)로 분기하며 그 방을 차고의 통과실로 쓰지 않는다. 방 사이 edge는 위 표 그대로이고 새 H2들은 그 내부에서 문/설비를 사용하는 순서와 점유의 owner다.
+
 표면 source 분배는 [완결 표면 소유](03-surface-owners.md#interior-surface-handoff)를 소비하고, 방이 실제로 만들어지면 [전체 관찰 파생](04-observations.md#spatial-observation-derivation)에 모두 들어간다. L형 현관·서비스·복도·주침실과 린넨에 의해 파인 청회색 침실의 숨는 코너는 기본 네 모서리 외에 질문을 더한다. 표를 고정 관찰 개수나 대표 view 선택표로 사용하지 않는다.
