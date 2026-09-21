@@ -131,21 +131,21 @@
 
 <!--
 @evidence principles/core/common.md#declared-basis 2026-09-21 조정자 후속 정정을 직접 권한으로 삼아 앞선 all-draft 명령을 대체한다.
-@evidenceReview principles/core/common.md#declared-basis 후속 조정자의 날짜별 정정을 권한으로 명시하여 제자리 재작성과 공유 브랜치 절차를 묵시적 관행으로 취급하지 않는다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 후속 조정자의 날짜별 정정을 권한으로 명시하여 제자리 재작성과 공유 브랜치 절차를 묵시적 관행으로 취급하지 않는다.
 @evidence principles/core/common.md#scope-preservation 제자리 재작성 중 모든 활성 층의 review 선언을 유지하고 이전 시각 판정은 재사용하지 않는다.
-@evidenceReview principles/core/common.md#scope-preservation production 내부 저작과 의존성 변경 때의 lockfile 예외만 허용하여 commit 권한을 다른 production 수정으로 넓히지 않는다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 production 내부 저작과 의존성 변경 때의 lockfile 예외만 허용하여 commit 권한을 다른 production 수정으로 넓히지 않는다.
 @evidence principles/core/common.md#substantive-completion 단계의 순방향 유지와 재검토 권한, production-only 수정 및 설치·서버·git 담당 경계를 확정한다.
-@evidenceReview principles/core/common.md#substantive-completion 검증·스테이지 유지·실행 주체·명시 경로 commit·push 실패 처리가 정해져 운영 재개 조건을 추측할 필요가 없다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 검증·스테이지 유지·실행 주체·명시 경로 commit·push 실패 처리가 정해져 운영 재개 조건을 추측할 필요가 없다.
 @evidence principles/core/settings.md#fact-status review라는 선언과 유효한 현재 판정은 다르며 이전 판정은 무효라고 명시한다.
-@evidenceReview principles/core/settings.md#fact-status 운영 규칙은 사용자 권한으로, 현재 검사의 완료 여부는 별도로 서술하여 진행 commit을 PASS 사실로 바꾸지 않는다.
+@evidenceReview principles/core/settings.md#fact-status #93a284a 운영 규칙은 사용자 권한으로, 현재 검사의 완료 여부는 별도로 서술하여 진행 commit을 PASS 사실로 바꾸지 않는다.
 @evidence principles/core/settings.md#source-support 단계 수정은 조정자의 현재 정정에 근거하며 exit 2를 검증기 결함이라는 기술 사실로 남기지 않는다.
-@evidenceReview principles/core/settings.md#source-support 9월 21일의 stage·git 정정과 22일의 dependency 정정을 근거로 연결해 승인 주체나 설치 권한을 외부 추정에서 가져오지 않는다.
+@evidenceReview principles/core/settings.md#source-support #430bca9 9월 21일의 stage·git 정정과 22일의 dependency 정정을 근거로 연결해 승인 주체나 설치 권한을 외부 추정에서 가져오지 않는다.
 @evidence principles/core/settings.md#capability-boundary stage·파일 쓰기·설치 담당은 저작 절차의 권한이며 주택·주민의 생산세계 능력이 아니다. 이 정정은 공간이나 설비가 할 수 있는 동작을 확대하지 않는다.
-@evidenceReview principles/core/settings.md#capability-boundary 저작자와 observer는 독립 판정을 대신할 수 없고 지속 server 운영도 coordinator 책임으로 한정된다.
+@evidenceReview principles/core/settings.md#capability-boundary #83a6f2c 저작자와 observer는 독립 판정을 대신할 수 없고 지속 server 운영도 coordinator 책임으로 한정된다.
 @evidence principles/core/settings.md#constraint-sufficiency dependency 변경 시 저작자가 root install과 lockfile을 같은 커밋에 포함하고, 상시 server 운영과 임시 실행 검증의 담당을 구분한다. 추적 트리에 파생물을 남기지 않는다.
-@evidenceReview principles/core/settings.md#constraint-sufficiency 전진 stage·동일 commit의 lockfile·금지된 rebase와 force-push가 명시되어 공유 checkout에서 따를 제약이 충분하다.
+@evidenceReview principles/core/settings.md#constraint-sufficiency #20cf612 전진 stage·동일 commit의 lockfile·금지된 rebase와 force-push가 명시되어 공유 checkout에서 따를 제약이 충분하다.
 @evidence principles/core/settings.md#observable-identity 단계와 쓰기 권한은 생산 절차이며 관찰할 장소나 인물의 정체를 정의하지 않는다. review 선언의 유지가 001#delivery-fidelity의 실제 건물 모습 요구를 변경하지 않는다.
-@evidenceReview principles/core/settings.md#observable-identity 관찰 가능한 납품의 재검토는 현재 frame과 다섯 reference의 독립 대조로 정해져 과거 판정만으로 같은 production을 식별하지 않는다.
+@evidenceReview principles/core/settings.md#observable-identity #4ccb62e 관찰 가능한 납품의 재검토는 현재 frame과 다섯 reference의 독립 대조로 정해져 과거 판정만으로 같은 production을 식별하지 않는다.
 -->
 
 **권한: 2026-09-21 사용자 직접 지시.** 조정자의 후속 정정에 따라 제자리 재작성을 택한다. 완료했던 settings·spaces·spaceSources의 review 선언을 유지하며 stage는 disabled → draft → evidence → review로만 전진한다. 이전 판정은 무효이며 내용 편집으로 영향받은 검사를 다시 연다. 실제 frame을 다섯 reference와 대조한 독립 read-only reviewer의 현재 판정만 재검토 종료와 이후 전이를 허용한다. 작성자와 observer는 이를 대신 승인하지 않는다.
