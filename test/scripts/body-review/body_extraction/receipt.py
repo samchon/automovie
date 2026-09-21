@@ -41,6 +41,14 @@ def load_face_human():
     return basis["id"], np.array(surface["positions"], dtype=np.float64).reshape(-1, 3), np.array(region["indices"]), np.array(region["uvs"]).reshape(-1, 2)
 
 
+def load_face_surface_triangles():
+    """Every triangle the face basis keeps on its skin surface, all regions."""
+    with gzip.open(FACE_BASIS, "rt", encoding="utf-8") as file:
+        basis = json.load(file)
+    surface = next(s for s in basis["surfaces"] if s["id"] == "Human")
+    return np.array(surface["indices"], dtype=np.int64).reshape(-1, 3)
+
+
 def _tree(points):
     tree = kdtree.KDTree(len(points))
     for index, point in enumerate(points):
@@ -78,9 +86,14 @@ def face_offset(neutral_full, topology):
         plain = max(plain, min(max(abs(u - bu), abs(v - bv)) for bu, bv in body_uv[twin]))
         flipped = max(flipped, min(max(abs(u - bu), abs(v - (1.0 - bv))) for bu, bv in body_uv[twin]))
         count += 1
+    # the face's kept triangles over body vertex indices, for the complement
+    face_triangles = set()
+    for triangle in load_face_surface_triangles():
+        face_triangles.add(tuple(sorted(twins[int(v)] for v in triangle)))
     return {
         "faceBasis": face_id,
         "offset": offset,
+        "faceTriangles": face_triangles,
         "matchedVertices": len(twins),
         "worstMatchMetres": worst,
         "uvCornersCompared": count,
@@ -90,17 +103,46 @@ def face_offset(neutral_full, topology):
     }
 
 
-def ring_agreement(neutral_clipped, ring_start):
-    """Compare the body ring with the face ring at the clip plane."""
-    _id, face_positions, _i, _u = load_face_human()
-    face_ring = face_positions[np.abs(face_positions[:, 1] - CUT_Y) < 1e-9]
-    body_ring = neutral_clipped[ring_start:]
-    tree = _tree(body_ring)
+def _boundary_vertices(indices):
+    """Vertices on edges used by exactly one triangle."""
+    edges = {}
+    flat = np.asarray(indices).reshape(-1, 3)
+    for a, b, c in flat:
+        for u, v in ((a, b), (b, c), (c, a)):
+            key = (int(min(u, v)), int(max(u, v)))
+            edges[key] = edges.get(key, 0) + 1
+    vertices = set()
+    for (u, v), count in edges.items():
+        if count == 1:
+            vertices.add(u)
+            vertices.add(v)
+    return sorted(vertices)
+
+
+def boundary_agreement(neutral_clipped, body_indices):
+    """Compare the body's open boundary with the face's neck crop loop.
+
+    The face has three boundary loops (the crop loop and the two mouth loops);
+    only the crop loop lies below the chin, so it is the face boundary between
+    Y = -0.10 and -0.07 m. Every body boundary vertex must be one of those
+    points exactly, and the counts must agree, or the two bases do not meet.
+    """
+    _id, face_positions, face_indices, _u = load_face_human()
+    face_boundary = [v for v in _boundary_vertices(face_indices) if -0.10 < face_positions[v][1] < -0.07]
+    face_loop = face_positions[face_boundary]
+    body_boundary = _boundary_vertices(body_indices)
+    body_loop = neutral_clipped[body_boundary]
+    tree = _tree(body_loop)
     worst = 0.0
-    for point in face_ring:
+    for point in face_loop:
         _co, _index, distance = tree.find(Vector(point.tolist()))
         worst = max(worst, distance)
-    return {"faceRing": int(len(face_ring)), "bodyRing": int(len(body_ring)), "worstMetres": worst}
+    return {
+        "faceLoop": int(len(face_loop)),
+        "bodyBoundary": int(len(body_boundary)),
+        "worstMetres": worst,
+        "bodyBoundaryYMetres": [float(body_loop[:, 1].min()), float(body_loop[:, 1].max())] if len(body_loop) else None,
+    }
 
 
 def mirror_pairs(neutral_clipped):

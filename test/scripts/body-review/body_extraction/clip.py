@@ -131,3 +131,75 @@ class Stencil:
                 merged[bone] = merged.get(bone, 0.0) + t * weight
             rows.append(list(merged.items()))
         return rows
+
+
+class Complement:
+    """The body as the complement of the face basis's kept triangles.
+
+    The shipped face basis no longer ends at the plane: `crop-face-to-neck`
+    removed the invented bust below the collar and left the head open at a
+    loop of 120 vertices that follows the neck's own slope (about -81 to -90
+    mm). The plane clip therefore left a band of neck belonging to neither
+    basis, and the editor showed the face floating over the shoulders. The
+    body is now everything of the same triangulated source that the face does
+    not keep, so the two meet along the face's own loop by vertex identity,
+    with no ring stencil and no interpolated vertex: every body vertex is a
+    source vertex and every boundary vertex is one the face also carries.
+
+    `face_triangles` are the face's kept triangles as sorted triples of body
+    vertex indices (the head correspondence maps them). Triangulation is the
+    same fan from loop 0 the face used, so the triangle sets partition the
+    source exactly and the boundary edges coincide.
+    """
+
+    def __init__(self, neutral, topology, offset, face_triangles):
+        self.offset = offset
+        loop_start, loop_total = topology["loop_start"], topology["loop_total"]
+        loop_vertex, loop_uv = topology["loop_vertex"], topology["loop_uv"]
+        used = np.zeros(len(neutral), dtype=bool)
+        triangles = []
+        dropped = 0
+        for polygon in range(len(loop_start)):
+            start, total = int(loop_start[polygon]), int(loop_total[polygon])
+            loops = [(int(loop_vertex[start + k]), loop_uv[start + k]) for k in range(total)]
+            for k in range(1, total - 1):
+                corners = [loops[0], loops[k], loops[k + 1]]
+                key = tuple(sorted(vertex for vertex, _ in corners))
+                if key in face_triangles:
+                    dropped += 1
+                    continue
+                for vertex, _ in corners:
+                    used[vertex] = True
+                triangles.append(corners)
+        if dropped != len(face_triangles):
+            raise ValueError("The face keeps %d triangles but %d of them were found in the source; the correspondence is not one to one." % (len(face_triangles), dropped))
+        self.kept = np.nonzero(used)[0]
+        self.dropped = dropped
+        self.renumber = -np.ones(len(neutral), dtype=np.int64)
+        self.renumber[self.kept] = np.arange(len(self.kept))
+        self.ring_t = np.zeros(0, dtype=np.float64)
+        indices = []
+        uvs = []
+        for corners in triangles:
+            for vertex, uv in corners:
+                indices.append(int(self.renumber[vertex]))
+                uvs.append((float(uv[0]), float(uv[1])))
+        self.indices = np.array(indices, dtype=np.int64)
+        self.uvs = np.array(uvs, dtype=np.float64)
+
+    @property
+    def vertex_count(self):
+        return len(self.kept)
+
+    def evaluate(self, sample):
+        """Kept positions in the face frame for one full-mesh Blender sample."""
+        blender = sample[self.kept]
+        face = np.empty_like(blender)
+        face[:, 0] = blender[:, 0]
+        face[:, 1] = blender[:, 2] - self.offset
+        face[:, 2] = -blender[:, 1]
+        return face
+
+    def weights(self, base_weights):
+        """Per-vertex bone weight rows for the kept vertices, Blender's own."""
+        return [base_weights[int(vertex)] for vertex in self.kept]

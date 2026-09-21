@@ -46,11 +46,11 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from body_extraction import channels as channel_table  # noqa: E402
 from body_extraction import receipt as measure  # noqa: E402
 from body_extraction import rig  # noqa: E402
-from body_extraction.clip import Stencil  # noqa: E402
+from body_extraction.clip import Complement  # noqa: E402
 from body_extraction.flatten import NippleFlattener  # noqa: E402
 from body_extraction.session import ROOT, Session  # noqa: E402
 
-REVISION = "mpfb-connected-body-2026-09-20-joints-and-measures"
+REVISION = "mpfb-connected-body-2026-09-21-coronal-limits"
 OUTPUT = os.path.join(ROOT, "test", "studies", "human-body", "connected-basis")
 CORRECTIVE_THRESHOLD_METRES = 0.0005
 SKIN_MATERIAL = {
@@ -76,7 +76,8 @@ def main():
     log("neutral skin", neutral_full.shape, "helpers", helpers_neutral.shape)
 
     correspondence = measure.face_offset(neutral_full, topology)
-    log("face correspondence", correspondence)
+    face_triangles = correspondence.pop("faceTriangles")
+    log("face correspondence", correspondence, "faceTriangles", len(face_triangles))
     if correspondence["worstMatchMetres"] > 1e-7 or min(correspondence["uvWorstPlain"], correspondence["uvWorstFlipped"]) > 1e-6:
         raise SystemExit("The subdivided body does not reproduce the face basis head or its UVs; refusing to publish.")
     offset = correspondence["offset"]
@@ -91,12 +92,12 @@ def main():
     flattener = NippleFlattener(topology, np.array(sorted(region)))
     flattening = flattener.report(neutral_full)
     log("nipple flattening", flattening)
-    stencil = Stencil(neutral_full, topology, offset)
+    stencil = Complement(neutral_full, topology, offset, face_triangles)
     neutral = stencil.evaluate(flattener.apply(neutral_full))
-    ring = measure.ring_agreement(neutral, len(stencil.kept))
-    log("ring", ring)
-    if ring["faceRing"] != ring["bodyRing"] or ring["worstMetres"] > 1e-7:
-        raise SystemExit("The body ring does not coincide with the face ring; refusing to publish.")
+    ring = measure.boundary_agreement(neutral, stencil.indices)
+    log("boundary", ring)
+    if ring["faceLoop"] != ring["bodyBoundary"] or ring["worstMetres"] > 1e-7:
+        raise SystemExit("The body boundary does not coincide with the face's neck crop loop; refusing to publish.")
     groups = rig.landmark_groups()
     landmark_ids = list(groups.keys())
     landmarks_neutral = rig.landmark_positions(helpers_neutral, groups, offset)
@@ -260,10 +261,10 @@ def main():
         "sources": "test/studies/human-body/references-receipt.json",
         "script": {"path": "test/scripts/body-review/extract-body-basis.py", "sha256": script_digest},
         "blender": __import__("bpy").app.version_string,
-        "frame": {"offset": offset, "groundY": float(neutral[:, 1].min()), "cutY": -0.145},
+        "frame": {"offset": offset, "groundY": float(neutral[:, 1].min()), "cut": "complement of the face basis surface triangles; the boundary is the face's neck crop loop"},
         "correspondence": correspondence,
-        "ring": ring,
-        "vertices": {"kept": int(len(stencil.kept)), "ring": int(len(stencil.ring_t)), "triangles": int(len(stencil.indices) // 3)},
+        "boundary": ring,
+        "vertices": {"kept": int(len(stencil.kept)), "droppedToFace": int(stencil.dropped), "triangles": int(len(stencil.indices) // 3)},
         "nippleFlattening": {**flattening, "definedBy": ["breast/nipple-size-incr", "breast/nipple-point-incr"], "method": "biharmonic fill of the region with two surrounding rings fixed, applied to every state"},
         "endpointRowResolutionMetres": 1e-6,
         "neutralRecoveryMaximumMetres": {"Human": recovery, "landmarks": landmark_recovery},

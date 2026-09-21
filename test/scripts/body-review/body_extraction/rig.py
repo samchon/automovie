@@ -259,15 +259,44 @@ def constraints():
             "twist": _range(-cervical["rotationEachSide"][1] / 2, cervical["rotationEachSide"][1] / 2),
         }, "38 CFR 4.71a Note (2) cervical totals split equally over two segments")
     out["hips"] = (None, "root; its orientation is the pose root, not a joint range")
-    finger = ({"flexion": _range(-20, 100), "abduction": None, "twist": None}, "engine DEFAULT_HUMANOID_ROM generic phalanx; no clinical figure pinned")
+    # 38 CFR 4.71a, digits II-V note (1): MCP 0-90, PIP 0-100, DIP 0-70 or 80
+    # (the larger figure taken). Hyperextension is not in the schedule; the
+    # engine table's 20 is kept at the MCP and 10 at the DIP, below the AAOS
+    # normals (45 and 20), and the PIP does not hyperextend. The thumb is not
+    # given angles by the schedule (it is rated by the gap to the fingers), so
+    # its three joints take the AAOS normals: CMC flexion 15 / extension 20,
+    # MCP flexion 60 / extension 10, IP flexion 80 / extension 20. The first
+    # revision gave every phalanx the generic -20..100, which let the thumb
+    # metacarpal fold 100 degrees through the palm, a pose no thumb reaches.
+    digits = {
+        "Proximal": ({"flexion": _range(-20, 90), "abduction": None, "twist": None}, "38 CFR 4.71a digits II-V note (1) MCP 0-90; hyperextension 20 from the engine table"),
+        "Intermediate": ({"flexion": _range(0, 100), "abduction": None, "twist": None}, "38 CFR 4.71a digits II-V note (1) PIP 0-100"),
+        "Distal": ({"flexion": _range(-10, 80), "abduction": None, "twist": None}, "38 CFR 4.71a digits II-V note (1) DIP 0-80; hyperextension 10 from the engine table"),
+    }
+    thumb = {
+        "ThumbMetacarpal": ({"flexion": _range(-20, 15), "abduction": None, "twist": None}, "AAOS thumb CMC flexion 15, extension 20; palmar and radial abduction not yet driven (held)"),
+        "ThumbProximal": ({"flexion": _range(-10, 60), "abduction": None, "twist": None}, "AAOS thumb MCP flexion 60, extension 10"),
+        "ThumbDistal": ({"flexion": _range(-20, 80), "abduction": None, "twist": None}, "AAOS thumb IP flexion 80, extension 20"),
+    }
     for side in ("left", "right"):
-        out[f"{side}Shoulder"] = ({"flexion": _range(-15, 30), "abduction": _range(-30, 30), "twist": None}, "engine DEFAULT_HUMANOID_ROM; no clinical figure pinned for the shoulder girdle")
+        # AAOS shoulder girdle: elevation 40, depression 10; protraction and
+        # retraction keep the engine table's figures because the sign of this
+        # frame's flexion against protraction is not pinned. The engine's
+        # depression of 30 drove the hanging arm 5 cm into the chest wall, a
+        # pose no shoulder girdle reaches.
+        out[f"{side}Shoulder"] = ({"flexion": _range(-15, 30), "abduction": _range(-10, 40), "twist": None}, "AAOS shoulder girdle elevation 40 / depression 10; protraction and retraction from the engine table, sign unpinned")
         out[f"{side}UpperArm"] = ({
             "flexion": _range(-secondary["shoulder"]["extension"][1], primary["shoulder"]["forwardElevation"][1]),
-            "abduction": _range(-30, primary["shoulder"]["abduction"][1]),
+            # Adduction past the hanging arm is measured clinically with the
+            # arm carried in front of the trunk; in the coronal plane alone,
+            # which is the only plane a single-axis range describes, the arm
+            # can only press against the side of the chest. The range stops
+            # at 10 degrees of that pressing; the coupled adduction-with-
+            # flexion path is not modelled and is recorded as a limit.
+            "abduction": _range(-10, primary["shoulder"]["abduction"][1]),
             "twist": _range(-primary["shoulder"]["internalRotation"][1], primary["shoulder"]["externalRotation"][1]),
             "swingDeg": 180,
-        }, "38 CFR 4.71 Plate I; extension AAOS; adduction 30 and swing headroom from the engine table")
+        }, "38 CFR 4.71 Plate I; extension AAOS; adduction limited to 10 in the coronal plane (crossing the trunk needs flexion, not modelled); swing headroom from the engine table")
         out[f"{side}LowerArm"] = ({
             "flexion": _range(0, primary["elbow"]["flexion"][1]),
             "abduction": None,
@@ -280,18 +309,26 @@ def constraints():
         }, "38 CFR 4.71 Plate I")
         out[f"{side}UpperLeg"] = ({
             "flexion": _range(-secondary["hip"]["extension"][1], primary["hip"]["flexion"][1]),
-            "abduction": _range(-30, primary["hip"]["abduction"][1]),
+            # The same coronal-plane reading as the shoulder: a thigh can press
+            # against the other thigh but crosses it only with flexion.
+            "abduction": _range(-10, primary["hip"]["abduction"][1]),
             "twist": _range(-secondary["hip"]["internalRotation"][1], secondary["hip"]["externalRotation"][1]),
-            "swingDeg": 120,
-        }, "38 CFR 4.71 Plate II; extension and rotation AAOS; adduction 30 and swing cone from the engine table")
+            "swingDeg": primary["hip"]["flexion"][1],
+        }, "38 CFR 4.71 Plate II; extension and rotation AAOS; adduction limited to 10 in the coronal plane (crossing the other thigh needs flexion, not modelled); the swing cone equals the pinned flexion so every pure-plane clinical maximum stays admissible (the engine table's 120 sat below the 125 flexion and refused it)")
         out[f"{side}LowerLeg"] = ({"flexion": _range(0, primary["knee"]["flexion"][1]), "abduction": None, "twist": None}, "38 CFR 4.71 Plate II")
         out[f"{side}Foot"] = ({
             "flexion": _range(-primary["ankle"]["plantarFlexion"][1], primary["ankle"]["dorsiflexion"][1]),
             "abduction": _range(-25, 25),
             "twist": None,
         }, "38 CFR 4.71 Plate II; inversion/eversion from the engine table")
-        out[f"{side}Toes"] = ({"flexion": _range(-40, 80), "abduction": None, "twist": None}, "engine DEFAULT_HUMANOID_ROM; no clinical figure pinned")
+        # AAOS first metatarsophalangeal joint: extension (dorsiflexion) 70,
+        # flexion 45; the positive direction of this frame is dorsiflexion.
+        out[f"{side}Toes"] = ({"flexion": _range(-45, 70), "abduction": None, "twist": None}, "AAOS MTP extension 70 (positive here) / flexion 45")
         for slot in BONES:
-            if slot.startswith(side) and any(f in slot for f in ("Thumb", "Index", "Middle", "Ring", "Little")):
-                out[slot] = finger
+            if not slot.startswith(side):
+                continue
+            if "Thumb" in slot:
+                out[slot] = thumb[slot[len(side):]]
+            elif any(f in slot for f in ("Index", "Middle", "Ring", "Little")):
+                out[slot] = digits[next(k for k in digits if slot.endswith(k))]
     return out

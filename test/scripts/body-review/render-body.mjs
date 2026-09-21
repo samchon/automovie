@@ -3,9 +3,12 @@
  *
  * Usage, from the repository root, after `build-body.ts` wrote the set:
  *
- *   node test/scripts/body-review/render-body.mjs <set> [state,...] [--joints]
+ *   node test/scripts/body-review/render-body.mjs <set> [state,...] [--joints] [--focus bone[,bone] --distance m]
  *
  * Frames land in `.shots/body-review/<set>/frames/<state>-<view>-<mode>.png`
+ * (with `--focus`, `<state>-<bone>-<view>-<mode>.png`, the camera aimed at
+ * that posed joint from `--distance` metres, 0.6 by default, so a fold is
+ * inspected up close rather than guessed at from a full-figure frame)
  * with a `renderer.json` naming the unmasked device. A software rasterizer
  * (SwiftShader, llvmpipe, WARP, Basic Render Driver) is a failure, not a
  * frame: the harness asks Playwright for the real Chromium channel and refuses
@@ -25,7 +28,14 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, "../../..");
 const args = process.argv.slice(2).filter((arg) => arg !== "--");
 const joints = args.includes("--joints");
-const positional = args.filter((arg) => !arg.startsWith("--"));
+const option = (name) =>
+  args.includes(name) ? args[args.indexOf(name) + 1] : undefined;
+const focuses = option("--focus")?.split(",") ?? [null];
+const distance = Number(option("--distance") ?? 0.6);
+const positional = args.filter(
+  (arg, at) =>
+    !arg.startsWith("--") && !["--focus", "--distance"].includes(args[at - 1]),
+);
 const set = positional[0];
 if (set === undefined) throw new Error("name the built set to render");
 const setDir = path.join(root, ".shots/body-review", set);
@@ -33,7 +43,10 @@ const states =
   positional[1] === undefined
     ? fs
         .readdirSync(setDir)
-        .filter((file) => file.endsWith(".json") && file !== "channel-measurements.json")
+        .filter(
+          (file) =>
+            file.endsWith(".json") && file !== "channel-measurements.json",
+        )
         .map((file) => file.slice(0, -5))
         .sort()
     : positional[1].split(",");
@@ -75,7 +88,9 @@ const { chromium } = await import(
 );
 const browser = await chromium.launch({ channel: "chromium", headless: true });
 try {
-  const page = await browser.newPage({ viewport: { width: 900, height: 1200 } });
+  const page = await browser.newPage({
+    viewport: { width: 900, height: 1200 },
+  });
   let device = "unknown";
   page.on("console", (message) => {
     const text = message.text();
@@ -83,26 +98,49 @@ try {
   });
   await page.goto(`http://127.0.0.1:${port}/`);
   await page.waitForFunction(() => window.__bodyReview !== undefined);
-  if (/swiftshader|llvmpipe|softpipe|software|basic render|warp|unknown/i.test(device))
+  if (
+    /swiftshader|llvmpipe|softpipe|software|basic render|warp|unknown/i.test(
+      device,
+    )
+  )
     throw new Error("Software rasterizer refused: " + device);
   fs.writeFileSync(
     path.join(frames, "renderer.json"),
-    JSON.stringify({ device, captured: new Date().toISOString(), states }, null, 2) + "\n",
+    JSON.stringify(
+      { device, captured: new Date().toISOString(), states },
+      null,
+      2,
+    ) + "\n",
   );
   console.log("RENDERER", device);
-  const views = ["front", "left-three-quarter", "left", "back", "right"];
+  const views =
+    focuses[0] === null
+      ? ["front", "left-three-quarter", "left", "back", "right"]
+      : [
+          "front",
+          "left-three-quarter",
+          "left",
+          "back",
+          "right",
+          "right-three-quarter",
+          "top",
+        ];
   for (const state of states) {
     await page.evaluate((name) => window.__bodyReview.load(name), state);
-    for (const view of views)
-      for (const mode of ["skin", "clay"]) {
-        await page.evaluate(
-          ([v, m, j]) => window.__bodyReview.view(v, m, j),
-          [view, mode, joints],
-        );
-        await page.locator("canvas").screenshot({
-          path: path.join(frames, `${state}-${view}-${mode}.png`),
-        });
-      }
+    for (const focus of focuses)
+      for (const view of views)
+        for (const mode of ["skin", "clay"]) {
+          await page.evaluate(
+            ([v, m, j, f, d]) => window.__bodyReview.view(v, m, j, f, d),
+            [view, mode, joints, focus, focus === null ? 4.6 : distance],
+          );
+          await page.locator("canvas").screenshot({
+            path: path.join(
+              frames,
+              `${state}-${focus === null ? "" : focus + "-"}${view}-${mode}.png`,
+            ),
+          });
+        }
     console.log("captured", state);
   }
 } finally {

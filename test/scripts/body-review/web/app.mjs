@@ -24,12 +24,19 @@ renderer.outputColorSpace = THREE.SRGBColorSpace;
 document.body.append(renderer.domElement);
 const gl = renderer.getContext();
 const debug = gl.getExtension("WEBGL_debug_renderer_info");
-const device = debug ? gl.getParameter(debug.UNMASKED_RENDERER_WEBGL) : "unknown";
+const device = debug
+  ? gl.getParameter(debug.UNMASKED_RENDERER_WEBGL)
+  : "unknown";
 console.log("RENDERER", device);
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x06080c);
-const camera = new THREE.PerspectiveCamera(28, innerWidth / innerHeight, 0.01, 50);
+const camera = new THREE.PerspectiveCamera(
+  28,
+  innerWidth / innerHeight,
+  0.01,
+  50,
+);
 const key = new THREE.DirectionalLight(0xfff1e0, 2.6);
 key.position.set(2.5, 4, 3);
 const fill = new THREE.DirectionalLight(0xbfd4ff, 0.7);
@@ -65,6 +72,8 @@ scene.add(bar);
 let mesh = null;
 let joints = null;
 let state = "none";
+let bones = new Map();
+let groundY = 0;
 
 async function load(name) {
   const record = await (await fetch(`/data/${name}.json`)).json();
@@ -73,8 +82,14 @@ async function load(name) {
     mesh.geometry.dispose();
   }
   const geometry = new THREE.BufferGeometry();
-  geometry.setAttribute("position", new THREE.Float32BufferAttribute(record.positions, 3));
-  geometry.setAttribute("normal", new THREE.Float32BufferAttribute(record.normals, 3));
+  geometry.setAttribute(
+    "position",
+    new THREE.Float32BufferAttribute(record.positions, 3),
+  );
+  geometry.setAttribute(
+    "normal",
+    new THREE.Float32BufferAttribute(record.normals, 3),
+  );
   geometry.setIndex(record.indices);
   mesh = new THREE.Mesh(geometry, skin);
   joints = new THREE.Group();
@@ -88,12 +103,18 @@ async function load(name) {
   joints.visible = false;
   group.add(mesh, joints);
   group.position.set(0, -record.groundY, 0);
+  bones = new Map(record.bones.map((bone) => [bone.bone, bone.posed]));
+  groundY = record.groundY;
   state = name;
   label.textContent = `${record.basis}\n${name}\n${device}`;
   render();
 }
 
-function view(name, mode, showJoints) {
+/**
+ * Frame the whole body from a canonical view, or, with `focus`, a posed joint
+ * seen from `distance` metres so a fold at that joint fills the frame.
+ */
+function view(name, mode, showJoints, focus = null, distance = 4.6) {
   const angles = {
     front: 0,
     "left-three-quarter": 45,
@@ -101,11 +122,19 @@ function view(name, mode, showJoints) {
     back: 180,
     right: -90,
     "right-three-quarter": -45,
+    top: 0,
   };
   const yaw = ((angles[name] ?? 0) * Math.PI) / 180;
-  const distance = 4.6;
-  camera.position.set(Math.sin(yaw) * distance, 1.0, Math.cos(yaw) * distance);
-  camera.lookAt(0, 0.9, 0);
+  const at = focus === null ? { x: 0, y: 0.9, z: 0 } : bones.get(focus);
+  if (at === undefined) throw new Error("no posed bone named " + focus);
+  const target = focus === null ? at : { x: at.x, y: at.y - groundY, z: at.z };
+  const pitch = name === "top" ? Math.PI / 2 - 0.05 : 0;
+  camera.position.set(
+    target.x + Math.sin(yaw) * Math.cos(pitch) * distance,
+    target.y + (focus === null ? 0.1 : Math.sin(pitch) * distance),
+    target.z + Math.cos(yaw) * Math.cos(pitch) * distance,
+  );
+  camera.lookAt(target.x, target.y, target.z);
   mesh.material = mode === "clay" ? clay : skin;
   joints.visible = Boolean(showJoints);
   render();

@@ -32,11 +32,14 @@ interface IRecord {
   pairs: IPair[];
   fresh: IPair[];
   grown: IPair[];
+  refused?: string;
 }
 interface IShard {
   basis: string;
   set: string;
   shard: [number, number];
+  /** States the shard was asked to measure; the record count must reach it. */
+  expected: number;
   rest: IPair[];
   states: IRecord[];
 }
@@ -52,7 +55,7 @@ function main(): void {
     fs.readFileSync(path.join(dir, "rest.json"), "utf8"),
   ) as { basis: string; pairs: IPair[] };
   const sets: Record<string, object> = {};
-  for (const set of ["channels", "joints"]) {
+  for (const set of ["channels", "joints", "combos", "shapes", "traits"]) {
     const files = fs
       .readdirSync(dir)
       .filter(
@@ -79,7 +82,15 @@ function main(): void {
         throw new Error(
           `${set}: a shard was read against another basis or baseline`,
         );
+    // a shard that stopped early is a census with a hole; the first census
+    // lost 51 joint states this way and read as complete
+    for (const shard of shards)
+      if (shard.states.length !== shard.expected)
+        throw new Error(
+          `${set}: shard ${shard.shard[0]}/${shard.shard[1]} recorded ${shard.states.length} of ${shard.expected} states`,
+        );
     const states = shards.flatMap((shard) => shard.states);
+    const refused = states.filter((state) => state.refused !== undefined);
     const findings = states
       .filter((state) => state.fresh.length > 0 || state.grown.length > 0)
       .map((state) => ({
@@ -96,8 +107,12 @@ function main(): void {
       }
     sets[set] = {
       states: states.length,
-      clean: states.length - findings.length,
+      clean: states.length - findings.length - refused.length,
       withFindings: findings.length,
+      refused: refused.map((state) => ({
+        name: state.name,
+        reason: state.refused,
+      })),
       pairsByFrequency: [...pairs.entries()]
         .sort((a, b) => b[1] - a[1])
         .map(([pair, count]) => ({ pair, states: count })),
@@ -108,9 +123,11 @@ function main(): void {
       "states",
       states.length,
       "clean",
-      states.length - findings.length,
+      states.length - findings.length - refused.length,
       "with findings",
       findings.length,
+      "refused",
+      refused.length,
     );
     for (const [pair, n] of [...pairs.entries()]
       .sort((a, b) => b[1] - a[1])

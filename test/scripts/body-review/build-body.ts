@@ -3,10 +3,11 @@
  *
  * Usage, from the repository root:
  *
- *   pnpm exec ttsx -P test/tsconfig.scripts.json test/scripts/body-review/build-body.ts -- <set> [output-dir]
+ *   pnpm exec ttsx -P test/tsconfig.scripts.json test/scripts/body-review/build-body.ts -- <set> [output-dir] [--basis path]
  *
- * `set` is `neutral`, `poses`, `shapes` or `measure`; the output directory
- * defaults to `.shots/body-review/<set>`. Each state is evaluated through the
+ * `set` is `neutral`, `poses`, `folds`, `shapes`, `individuality` or `measure`; the output
+ * directory defaults to `.shots/body-review/<set>`; `--basis` builds another
+ * basis file (a candidate revision) instead of the shipped one. Each state is evaluated through the
  * public `createHumanBodyBasisBuilder`, the same path the editor takes, so a
  * frame captured from these files shows what the package produces and not a
  * script's own arithmetic. The `measure` set writes the channel scales instead
@@ -27,6 +28,8 @@ import type { IAutoMovieJointPose } from "@automovie/interface";
 import fs from "node:fs";
 import path from "node:path";
 import zlib from "node:zlib";
+
+import { REVIEW } from "./individualityStates";
 
 const ROOT = path.resolve(__dirname, "../../..");
 const BASIS = path.join(
@@ -85,6 +88,37 @@ const POSES: Record<string, IAutoMovieJointPose[]> = {
   "wrist-flex": [joint("leftHand", 80), joint("rightHand", -70)],
 };
 
+/** The folded census states one joint at a time, for close-up review of the pose correctives. */
+const FOLDS: Record<string, IAutoMovieJointPose[]> = {
+  "elbow-90": [joint("leftLowerArm", 90)],
+  "elbow-110": [joint("leftLowerArm", 110)],
+  "elbow-145": [joint("leftLowerArm", 145)],
+  "knee-70": [joint("rightLowerLeg", 70)],
+  "knee-105": [joint("rightLowerLeg", 105)],
+  "knee-140": [joint("rightLowerLeg", 140)],
+  "hip-flex-62": [joint("leftUpperLeg", 62.5)],
+  "hip-flex-125": [joint("leftUpperLeg", 125)],
+  "hip-adduct-30": [joint("leftUpperLeg", null, -30)],
+  "arm-adduct-15": [joint("leftUpperArm", null, -15)],
+  "arm-adduct-30": [joint("leftUpperArm", null, -30)],
+  "arm-flex-180": [joint("leftUpperArm", 180)],
+  "arm-abduct-180": [joint("leftUpperArm", null, 180)],
+  "arm-twist-90": [joint("leftUpperArm", null, null, 90)],
+  "arm-twist-m90": [joint("leftUpperArm", null, null, -90)],
+  "wrist-flex-80": [joint("leftHand", 80)],
+  "toes-80": [joint("leftToes", 80)],
+  "fingers-100": [
+    joint("leftIndexProximal", 100),
+    joint("leftMiddleProximal", 100),
+    joint("leftRingProximal", 100),
+    joint("leftLittleProximal", 100),
+  ],
+  "thumb-100": [
+    joint("leftThumbMetacarpal", 100),
+    joint("leftThumbProximal", 100),
+  ],
+};
+
 /** Macro and a few regional extremes, one channel at a time. */
 const SHAPES: Record<string, Record<string, number>> = {
   "macro-gender-female": { macroGender: -1 },
@@ -109,13 +143,19 @@ const SHAPES: Record<string, Record<string, number>> = {
 
 function main(): void {
   const args = process.argv.slice(2).filter((arg) => arg !== "--");
-  const set = args[0] ?? "neutral";
+  const basisPath = args.includes("--basis")
+    ? path.resolve(args[args.indexOf("--basis") + 1])
+    : BASIS;
+  const positional = args.filter(
+    (arg, at) => !arg.startsWith("--") && args[at - 1] !== "--basis",
+  );
+  const set = positional[0] ?? "neutral";
   const output = path.resolve(
-    args[1] ?? path.join(ROOT, ".shots/body-review", set),
+    positional[1] ?? path.join(ROOT, ".shots/body-review", set),
   );
   fs.mkdirSync(output, { recursive: true });
   const basis: IAutoMovieHumanBodyBasis = JSON.parse(
-    zlib.gunzipSync(fs.readFileSync(BASIS)).toString("utf8"),
+    zlib.gunzipSync(fs.readFileSync(basisPath)).toString("utf8"),
   );
   console.log(
     "basis",
@@ -147,10 +187,15 @@ function main(): void {
   }
   const build = createHumanBodyBasisBuilder(basis);
   const states: [string, Partial<IAutoMovieHumanBodyBasisDocument>][] =
-    set === "poses"
-      ? Object.entries(POSES).map(([name, pose]) => [name, { pose }])
-      : set === "shapes"
-        ? Object.entries(SHAPES).map(([name, shape]) => [name, { shape }])
+    set === "poses" || set === "folds"
+      ? Object.entries(set === "poses" ? POSES : FOLDS).map(([name, pose]) => [
+          name,
+          { pose },
+        ])
+      : set === "shapes" || set === "individuality"
+        ? Object.entries(set === "shapes" ? SHAPES : REVIEW).map(
+            ([name, shape]) => [name, { shape }],
+          )
         : [["neutral", {}]];
   for (const [name, edit] of states) {
     const started = Date.now();
