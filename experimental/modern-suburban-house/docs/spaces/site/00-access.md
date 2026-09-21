@@ -12,6 +12,8 @@
 
 현관 경로는 front-walk → front-porch의 아래 대기 → 외부 세 단 → 포치 → front-door → front-entry다. 차도에서 현관으로 걸어올 때는 driveway → front-walk의 가로 연결로 → 같은 포치 경로를 쓴다. 차고의 실내 진입은 기존 [머드룸 연결](../rooms/laundry.md#laundry-plan)이며 외부 차고문은 기본 닫힘을 유지한다. 차고문 작동 검사를 할 때만 열린 상태의 차도/차고 문턱 접속을 관찰한다. 자동차나 차량 주행 과제를 추가하지 않는다.
 
-후면 경로는 kitchen-dining-family → [garden-door](../envelope/rear.md#garden-door) → garden-terrace의 대기 → 중앙 보행 띠 → 테라스 외부 단 → garden-lower-landing이다. 아래 대기에서 실제 정원 지표로의 연결은 maps가 지표를 채택한 뒤 완성한다. 전후 마당을 잇는 측면 관리 경로와 울타리 gate도 해당 경계와 함께 남은 항목이며, 잔디를 통과할 수 있다는 말로 열린 연결을 대신하지 않는다.
+후면 경로는 kitchen-dining-family → [garden-door](../envelope/rear.md#garden-door) → garden-terrace의 대기 → 중앙 보행 띠 → 테라스 외부 단 → garden-lower-landing이다. 아래 대기의 바깥 끝은 [측면 관리길](side-walk.md#side-walk-plan)을 통해 차도로 이어진다. 그 길의 앞뒤 구역과 [울타리 문](side-walk.md#side-gate-interface)은 별도 내부 연결이며 외부 node를 늘리지 않는다. 실제 정원 지표와 울타리 전체 경계는 maps 입력과 함께 남은 항목이고, 잔디를 통과할 수 있다는 말로 열린 연결을 대신하지 않는다.
+
+maps에 넘기는 포장 접속은 기존 전면 두 포트 외에 측면 관리길의 전체 외곽·식재 제외 여유, 테라스/아래 대기와 같은 상면에서 이어지는 지표다. 이는 필지 형상이나 울타리 선을 대신 확정하는 값이 아니다. [전체 표면 인계](../03-surface-owners.md#exterior-surface-handoff)는 관리길과 목재 울타리의 파일 책임을 미리 배정하고 실제 세계 경계·지표·식재 census는 미완료로 둔다.
 
 각 경로는 [사용 점유체](../../settings/00-production.md#use-profile)와 바구니 폭을 소비한다. 보행면의 단면과 위에서 돌아 내려오는 시야, 문짝 개방 및 후속 가구/식재 점유를 포함한 양방향 통행을 [전체 관찰](../04-observations.md#spatial-observation-derivation)에 추가한다. 외부 구역도 threshold·각 코너·중심 방향의 질문을 부담하고 T자 보행길의 오목한 접점에는 질문을 더한다. 설계 경로는 compiled topology나 관찰 수를 대신하지 않으며 실제 통행·표면 연결은 unverified다.

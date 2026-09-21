@@ -16,4 +16,6 @@
 
 [대지 내부 접근](site/00-access.md#site-local-routes)은 보행길의 포치 축, T자 교차점과 차도 접속, 차고 문턱과 도로 쪽 끝, 정원문 대기·테라스 중앙 경로·외부 단·아래 대기의 평면/단면을 추가한다. 외부 포장 구역의 threshold·코너·중심 방향을 포함하고 전면 보도에서 집으로, 공용부에서 정원으로 나갔다 돌아오는 양방향 시야를 관찰한다. 아직 없는 maps 경계/지표/도로 연결은 합격한 edge로 세지 않는다. 식재·가구 이후 점유와 모든 실제 노출 면의 질문은 그대로 추가되며 여기 나열한 접점만으로 분모를 고정하지 않는다.
 
+[측면 관리길](site/side-walk.md#side-walk-plan)은 차도 접속의 높이 보간·세 띠의 합류·테라스 아래 대기와의 끝선을, [gate](site/side-walk.md#side-gate-interface)는 닫힘·문 조작·90° 열림과 앞뒤 대기를 추가한다. 앞뒤 두 외부 구역 각각의 기본 시점과 꺾임의 가려진 코너를 유지하며 차도에서 테라스로, 테라스에서 차도로 바구니를 들고 돌아오는 경로를 대조한다. 지표·울타리·식재가 아직 없다는 사실을 빈 장애물 목록이나 완성된 정원으로 해석하지 않는다.
+
 관찰 뷰어는 [렌더 경계](../settings/20-verification.md#renderer-boundary), [CJS 실행 경계](../settings/20-verification.md#execution-boundary), [프레임 조건](../settings/20-verification.md#frame-condition)을 따른다. 이번 조정자 지정 인계값은 포트 4173과 `--port` 인자다. 이는 향후 구현이 받을 조건이고 실행 명령이 준비됐다는 보고가 아니다. 실제 공간 소스·뷰어·GPU RENDERER·프레임은 미구현/unverified다.

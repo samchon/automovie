@@ -26,12 +26,14 @@
 | 현관 보행길과 차도까지의 연결로 전체 | `src/spaces/site/front-walk.ts` | [T자 보행면](site/front-walk.md#front-walk-plan)은 포치 아래 대기를 포함한다. 포치는 그 대기를 요구하고 별도 바닥을 생성하지 않는다. |
 | 차고 앞 차도 전체 | `src/spaces/site/driveway.ts` | [차도 상면](site/driveway.md#driveway-plan)은 차고 문턱과 전면 포장 끝을 연결하고 보행 연결로의 높이 입력을 제공한다. |
 | 정원 테라스·외부 단·아래 대기 | `src/spaces/site/terrace.ts` | [테라스](site/terrace.md#garden-terrace-plan)는 정원문 바깥 대기를 포함하며 [단과 아래 대기](site/terrace.md#garden-steps-plan)를 통해 지표로 나간다. |
+| 차도에서 테라스 아래까지의 측면 관리 보행면 전체 | `src/spaces/site/side-walk.ts` | [세 띠의 연속 보행면](site/side-walk.md#side-walk-plan)과 경사 접속·gate 양쪽 대기를 통째로 소유한다. |
+| 목재 울타리 전체와 측면 문·기둥 | `src/spaces/site/fence.ts` | [gate의 void·회전·대기](site/side-walk.md#side-gate-interface)를 소비할 단일 완결 면 owner다. 전체 울타리 선과 maps 경계·지표 접합은 미완료다. |
 
 `src/spaces/building.ts`는 외곽·공유 좌표의 조립 owner이고 완결 입면의 개별 부재를 거대 배열로 직접 저작하지 않는다. 지붕 합류선은 `src/spaces/roof/junctions.ts`에서 [단일 높이/교차 경계](roof/00-junctions.md#roof-shared-edges)를 산출하고 각 경사면 owner가 소비한다. 지붕면별 문서는 같은 이름의 `docs/spaces/roof` 파일에 있다. 공유 계산은 경사면을 소유하는 두 번째 geometry가 아니다. 식과 윤곽의 설계 입력을 작성했지만 위 source 파일들은 아직 없고 실제 면 닫힘/census는 unverified다.
 
 `src/spaces/openings.ts`의 [공통 개구부 인계](06-openings.md#external-opening-interface)는 좌표 형식과 부재 예약을 공유할 예정이며 창/문 geometry의 별도 소유자가 아니다. 각 완결 입면 owner가 자기 void와 바깥 trim/충전 부재를 소유하고 방 안쪽 owner가 동일 void의 reveal/마감을 받는다. 문짝 유리·창 내부 분할까지 실제 관찰에서 숨기지 않는다.
 
-`src/spaces/site.ts`는 [외부 구역/접속의 조립](site/00-access.md#site-access-interface)만 맡는다. 종전의 포장 전체 한 파일 예약을 소스 저작 전에 완결 보행면·차도·테라스로 구체화했다. 포치 아래 대기와 정원문 바깥 대기는 각 연속 포장 owner에게 통째로 속하며 별도 판으로 쪼개지지 않는다. 대지 경계·보도/도로·지표·식재/울타리의 소유 분해는 maps 경계와 후속 설계가 아직 없어 미완료다. 이 표를 전체 대지 표면 census 완료로 읽지 않는다.
+`src/spaces/site.ts`는 [외부 구역/접속의 조립](site/00-access.md#site-access-interface)만 맡는다. 종전의 포장 전체 한 파일 예약을 소스 저작 전에 완결 보행면·차도·테라스로 구체화했다. 포치 아래 대기와 정원문 바깥 대기는 각 연속 포장 owner에게 통째로 속하며 별도 판으로 쪼개지지 않는다. 측면 관리길은 앞뒤 두 구역이어도 같은 연속 면 owner를 유지하며, 목재 울타리는 문만 다른 파일에서 떼어 만들지 않는다. 대지 경계·보도/도로·지표·식재의 소유 분해와 울타리 전체 선은 maps 경계와 후속 설계가 아직 없어 미완료다. 이 표를 전체 대지 표면 census 완료로 읽지 않는다.
 
 ## 방 내부의 완결 면 소유 {#interior-surface-handoff}
 
