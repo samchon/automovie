@@ -49,7 +49,6 @@ export function clipHumanFaceBasisSurface(
     for (let offset = 0; offset < region.indices.length; offset += 3) {
       const ids = region.indices.slice(offset, offset + 3);
       const inside = ids.map((v) => height(v) >= minimumY);
-      if (inside.every(Boolean)) retained.set(offset / 3, indices.length / 3);
       const polygon: { vertex: number; uv: number[] | null }[] = [];
       const uv = (corner: number): number[] | null =>
         region.uvs === null
@@ -93,6 +92,9 @@ export function clipHumanFaceBasisSurface(
       for (let corner = 1; corner + 1 < polygon.length; corner++) {
         const triangle = [polygon[0], polygon[corner], polygon[corner + 1]];
         if (new Set(triangle.map((v) => v.vertex)).size < 3) continue;
+        // An admitted source may contain a repeated-corner triangle. Record
+        // correspondence only after confirming that its triangle is emitted.
+        if (inside.every(Boolean)) retained.set(offset / 3, indices.length / 3);
         indices.push(...triangle.map((v) => v.vertex));
         if (uvs !== null) uvs.push(...triangle.flatMap((v) => v.uv!));
       }

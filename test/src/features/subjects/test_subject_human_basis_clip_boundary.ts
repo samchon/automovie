@@ -1,3 +1,4 @@
+import { createHumanFaceBasisBuilder } from "@automovie/human";
 import { clipHumanFaceBasisSurface } from "@automovie/human/face/basis/clipHumanFaceBasisSurface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -11,6 +12,7 @@ import { throwsError } from "../internal/predicates";
  * 2. A plane touching only an edge or corner emits no degenerate triangle.
  * 3. A discarded component loses its rigid group; clipped membership stays complete.
  * 4. Nonfinite planes and unrepresentable edge fractions refuse; recovery works.
+ * 5. An admitted repeated-corner triangle that is discarded cannot retain an attachment mapping.
  */
 export const test_subject_human_basis_clip_boundary = (): void => {
   const source = humanFaceBasisFixture().basis.surfaces[0];
@@ -84,5 +86,41 @@ export const test_subject_human_basis_clip_boundary = (): void => {
     "recovery",
     clipHumanFaceBasisSurface(corner, 1).surface.indices,
     [],
+  );
+  const degenerate = humanFaceBasisFixture();
+  const repeated = degenerate.basis.surfaces[0];
+  repeated.indices.splice(0, 3, 0, 0, 1);
+  repeated.regions[0].indices = [0, 0, 1];
+  createHumanFaceBasisBuilder(degenerate.basis)(degenerate.document);
+  const clipped = clipHumanFaceBasisSurface(repeated, -1);
+  TestValidator.equals(
+    "repeated-corner triangle is actually discarded",
+    clipped.surface.regions[0].indices,
+    [],
+  );
+  TestValidator.equals(
+    "discarded triangle has no surviving seat",
+    clipped.retainedTriangles.get(repeated.regions[0].id)!.size,
+    0,
+  );
+  TestValidator.equals(
+    "other region's retained seat stays valid",
+    clipped.retainedTriangles.get(repeated.regions[1].id)!.get(0),
+    0,
+  );
+  repeated.regions = [
+    { ...repeated.regions[0], indices: repeated.indices.slice(), uvs: null },
+  ];
+  const single = clipHumanFaceBasisSurface(repeated, -1);
+  const seats = single.retainedTriangles.get(repeated.regions[0].id)!;
+  TestValidator.equals(
+    "discarded corner cannot alias a later triangle",
+    seats.has(0),
+    false,
+  );
+  TestValidator.equals(
+    "surviving triangle shifts within the same region",
+    seats.get(1),
+    0,
   );
 };

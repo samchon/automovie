@@ -13,6 +13,7 @@ import { throwsError } from "../internal/predicates";
  * 3. Stale groom, skin and document bindings refuse independently.
  * 4. A missing native endpoint refuses through ordinary basis admission; valid recovery works.
  * 5. Rigid membership cannot name an absent surface.
+ * 6. A discarded repeated-corner triangle cannot alias a later groom seat; a valid seat still prepares.
  */
 export const test_subject_fine_basis_preparation_refusals = (): void => {
   type Input = ReturnType<typeof fineBasisPreparationFixture>;
@@ -64,5 +65,24 @@ export const test_subject_fine_basis_preparation_refusals = (): void => {
     prepareFineBasisArtifacts(fineBasisPreparationFixture()).receipt
       .admittedAddedEndpoints,
     3,
+  );
+  const degenerate = fineBasisPreparationFixture();
+  for (const basis of [degenerate.basis, degenerate.source]) {
+    basis.surfaces[0].indices.splice(0, 3, 0, 0, 1);
+    basis.surfaces[0].regions[0].indices.splice(0, 3, 0, 0, 1);
+  }
+  degenerate.grooms.locks.cards[0].triangle = 0;
+  TestValidator.predicate(
+    "discarded source seat refuses instead of moving to a later face",
+    throwsError(
+      () => prepareFineBasisArtifacts(degenerate),
+      "Groom seat crosses the new cut",
+    ),
+  );
+  degenerate.grooms.locks.cards[0].triangle = 1;
+  TestValidator.equals(
+    "retained source seat still prepares",
+    prepareFineBasisArtifacts(degenerate).grooms.locks.cards[0].triangle,
+    0,
   );
 };
