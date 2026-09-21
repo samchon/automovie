@@ -21,8 +21,9 @@
 | 차고 지붕 후방 면·하부 | `src/spaces/roof/garage-back.ts` | 차고 후벽·본채 접면과 처마. |
 | 낮은 포치 지붕·하부 | `src/spaces/porch.ts` | [보·기둥·받침](porch.md#porch-roof-columns)과 [바닥/현관 접근](porch.md#porch-platform-access)을 함께 소유한다. |
 | 본채 1층 바닥 구조 바탕 | `src/spaces/floors/ground.ts` | 1층 방별 바닥 마감과 계단 하부 대기를 받는다. 층간 구조/1층 천장 몸체를 중복 생성하지 않는다. |
-| 본채 층간 구조와 2층 천장 바탕 | `src/spaces/floors/upper.ts` | [단일 층간 구조](08-floor-assembly.md#interstorey-floor-boundary)와 같은 계단 구멍·상부 도착. 지붕 아래 천장에는 층간 구멍을 복제하지 않는다. 보이는 바닥/천장 마감은 각 방 owner다. |
-| 단일 L형 계단과 보호 경계 | `src/spaces/stair.ts` | 두 flight·중간참·도착·난간의 동일 기준. |
+| 본채 층간 구조와 2층 천장 바탕 | `src/spaces/floors/upper.ts` | [단일 층간 구조](08-floor-assembly.md#interstorey-floor-boundary)와 같은 계단 구멍·상부 도착. [최상부 천장 바탕](09-ceiling-assembly.md#upper-ceiling-closure)에는 층간 구멍을 복제하지 않는다. 보이는 바닥/천장 마감은 각 방 owner다. |
+| 차고의 독립 천장 바탕 | `src/spaces/garage.ts` | [차고 천장](09-ceiling-assembly.md#garage-ceiling-closure)의 구조/벽 접점. 보이는 전체 천장 마감은 garage-interior owner다. |
+| 단일 L형 계단과 보호 경계 | `src/spaces/stair.ts` | 두 flight·중간참·도착·난간의 동일 기준과 [계단실 위 높은 천장 마감](09-ceiling-assembly.md#upper-ceiling-closure). |
 | 현관 보행길과 차도까지의 연결로 전체 | `src/spaces/site/front-walk.ts` | [T자 보행면](site/front-walk.md#front-walk-plan)은 포치 아래 대기를 포함한다. 포치는 그 대기를 요구하고 별도 바닥을 생성하지 않는다. |
 | 차고 앞 차도 전체 | `src/spaces/site/driveway.ts` | [차도 상면](site/driveway.md#driveway-plan)은 차고 문턱과 전면 포장 끝을 연결하고 보행 연결로의 높이 입력을 제공한다. |
 | 정원 테라스·외부 단·아래 대기 | `src/spaces/site/terrace.ts` | [테라스](site/terrace.md#garden-terrace-plan)는 정원문 바깥 대기를 포함하며 [단과 아래 대기](site/terrace.md#garden-steps-plan)를 통해 지표로 나간다. |
