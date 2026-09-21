@@ -34,6 +34,14 @@
 
 [CJS 경계](../settings/50-production.md#runtime-boundary)를 따른다. `src/viewer/server.cts`가 CJS 환경에서 생산 source와 공개 engine을 호출하고 현재 environment, 실제 mesh·transform·material, 같은 generation의 관찰 정보를 클라이언트로 전달하는 경로를 계획한다. 브라우저는 Node/engine 런타임을 import하지 않으며 실제 3D 원근·조명·그림자·깊이로 받은 geometry를 그린다. 건물을 client 데이터로 다시 만들지 않는다. 실행 코드는 src, HTML·스타일 자산은 public에 둔다.
 
+서버는 같은 environment를 공개 `lowerBuiltEnvironment`에 전달해 현재 문짝 상태와 부모·자식 변환이 반영된 element 배치를 얻고, 원래 environment는 공간·경계·개구부 계측에 함께 사용한다. lowering의 `set`은 실제 model이 결속된 element의 world 배치이며 경계 선언에서 벽이나 지붕을 생성하는 기능이 아니다. 따라서 건물의 보이는 실체는 [표면 소유](ownership.md#surface-map)에 배정된 source가 실제 element/model로 공급한다. 논리 volume·boundary·외접 상자를 그 실체로 대체하지 않는다.
+
+전달은 node·element·model·part의 식별 관계와 geometry, 재료 결속을 보존한다. primitive는 서버 쪽 공개 tessellation으로 삼각형 데이터를 얻고, explicit mesh는 원본 positions·normals·UV·색·indices와 각 속성의 부재를 보존한다. `tessellateToMesh`의 UV는 `null`이므로 텍스처 좌표가 생겼다고 간주하지 않는다. 필요한 UV는 geometry와 materials의 소유자가 준비하며 전달자가 임의 좌표를 덧씌우지 않는다. element의 world 변환과 model part의 local 변환은 서로 다른 값으로 유지하고, 같은 변환을 정점과 node 양쪽에 중복 적용하지 않는다. model 내부 재료와 전체 model population에서 찾는 재료를 구별하며, 결속된 재료를 찾지 못한 경우 다른 색의 기본 재료로 성공 화면을 만들지 않는다.
+
+support patch는 발 디딤과 계측의 선언이며 기본 화면의 물리 바닥이 아니다. 바닥·계단·지면은 실제 authored geometry로 그린다. support와 논리 경계는 명시적 검사 모드에서만 구별해 표시하고, 기본 화면의 색·깊이·그림자에 참여시켜 빠진 구조체를 가리지 않는다. 낮은 마당의 논리 상한도 같은 이유로 하늘을 막는 면으로 만들지 않는다. 기존 viewer helper 중 engine을 runtime import하는 경로는 브라우저에서 직접 사용하지 않으며, 서버 산출물을 소비하는 렌더 코드가 이 모듈 경계를 지킨다.
+
+반복 population이 추가되면 lowering이 돌려주는 authored `IAutoMovieInstanceSetDesign`과 실제 compiled 반복 산출물을 구별한다. 반복 소유자의 같은 규칙·입력에서 나온 prototype와 배치 결과를 전달하며, 화면 쪽에서 기둥·기와 개수나 간격을 다시 정하지 않는다. 아직 컴파일하지 않은 set을 compiled 수량으로 보고하거나 전송하지 못한 반복을 조용히 빼지 않는다. viewer·관찰·계측은 동일한 현재 generation을 소비하고, 전송용 값은 런타임 전달에만 쓰며 별도 JSON 프로젝트 저장소로 기록하지 않는다.
+
 서버 인자는 `--port`를 받고 기본 포트는 사용자 지정 4175다. 관찰 UI는 화면 밖의 한국어 공간·관찰 선택, 외관 궤도·확대·축소와 명시적 검사 모드를 갖는다. 라벨·경로·경계·절개는 기본 꺼짐이다. compilation 실패 시 이전 성공 화면을 남기지 않고 현재 오류를 보여 주며 그 상태를 정상 납품이라고 하지 않는다. 코드·의존성·시작 명령은 source 착수 시 package.json에 배정하고 서버 기동은 조정자가 한다. 2026-09-22 사용자 정정에 따라 의존성을 변경할 때는 저작자가 저장소 루트에서 `pnpm install`을 실행하고 production과 바뀐 `pnpm-lock.yaml`을 같은 커밋에 넣는다.
 
-이 문서는 viewer 설계이고 실행 가능한 viewer나 시작 명령이 아직 아니다. source 진입의 부모 gate를 조정자에게 확인 중이며 우회 source 경로·임의 selector·ESM 전환을 사용하지 않는다. 실제 GPU 캡처, RENDERER, 빈 화면 여부, 모든 방의 reference 판독은 unverified다. 페이지가 생기면 실행 디렉터리·명령·포트·경로를 따로 인계한다.
+이 문서는 viewer 설계이고 실행 가능한 viewer나 시작 명령이 아직 아니다. spaces는 draft이며 source 진입은 spaces의 독립 판정과 review 단계 조건을 따른다. 우회 source 경로·임의 selector·ESM 전환을 사용하지 않는다. 공개 API를 읽은 위 설계도 실제 CJS 로딩·전송·GPU 실행 성공의 증거가 아니다. 실제 GPU 캡처, RENDERER, 빈 화면 여부, 모든 방의 reference 판독은 unverified다. 페이지가 생기면 실행 디렉터리·명령·포트·경로를 따로 인계한다.
