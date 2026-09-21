@@ -28,8 +28,10 @@
  * shaped and posed skin, carried to the rest frame through the same
  * blended rotations; the candidate is verified through the public builder
  * and the census instrument at the full state and at the midpoint of the
- * joint ramp and of the channel ramp, a joint in-between queued as its own
- * state while the ramp is wider than the bisection band. The output is a shard the pose merge appends in its
+ * joint ramp and of the channel ramp, an in-between of either ramp that
+ * still crosses queued as its own state (at the midpoint fraction of the
+ * pose, or of the shape) while that ramp is wider than four bisection
+ * bands. The output is a shard the pose merge appends in its
  * incremental mode. Nothing here writes into `test/studies`.
  */
 import { measureAutoMovieModelCrossings } from "@automovie/engine";
@@ -61,7 +63,7 @@ const WEIGHT_RESOLUTION = 0.05;
 /** Outer passes of solve-then-verify per state before it is given up. */
 const PASSES = 2;
 /** Visits per finding, counting queued midpoints and revisits. */
-const VISITS = 6;
+const VISITS = 8;
 
 interface IFinding {
   name: string;
@@ -246,14 +248,21 @@ function main(): void {
         else high = middle;
       }
     }
-    const drivers = (onset: number, full: number): Driver[] => [
+    // joint ramps from `onset` to `full` of the pose, channel ramps from
+    // `from` to `to` of the shape
+    const drivers = (
+      onset: number,
+      full: number,
+      from: number,
+      to: number,
+    ): Driver[] => [
       ...Object.entries(shape)
         .filter(([, weight]) => weight !== 0)
         .map(([channel, weight]) => ({
           channel,
           side: weight < 0 ? ("negative" as const) : ("positive" as const),
-          onset: worn * Math.abs(weight),
-          full: Math.abs(weight),
+          onset: from * Math.abs(weight),
+          full: to * Math.abs(weight),
         })),
       ...posed.map((one) => ({
         bone: one.bone,
@@ -264,17 +273,23 @@ function main(): void {
         full: full * Math.abs(one.angle - one.rest),
       })),
     ];
+    // the pose fraction clean on the whole shape and the shape fraction
+    // clean on the whole pose, each raised as the in-betweens are repaired
     let clean = 0;
-    const queue = [1];
+    let cleanWeight = worn;
+    const queue: { t: number; u: number }[] = [{ t: 1, u: 1 }];
     let visits = 0;
     while (queue.length > 0 && visits++ < VISITS) {
-      const t = queue.shift()!;
+      const { t, u } = queue.shift()!;
       const started = Date.now();
-      const state = `${finding.set}:${finding.name}` + (t === 1 ? "" : `@${t}`);
+      const state =
+        `${finding.set}:${finding.name}` +
+        (t === 1 ? "" : `@${t}`) +
+        (u === 1 ? "" : `~${u}`);
       const suffix = records.filter(
         (record: { state?: string }) => record.state === state,
       ).length;
-      const before = pairsOn(working, build, t);
+      const before = pairsOn(working, build, t, u);
       let outcome = "clear";
       let crossing: object | null = null;
       if (before.length > 0) {
@@ -283,19 +298,20 @@ function main(): void {
         const probes: { t: number; pairs: number }[] = [];
         while ((hi - lo) * widest > RESOLUTION) {
           const mid = (lo + hi) / 2;
-          const pairs = pairsOn(working, build, mid);
+          const pairs = pairsOn(working, build, mid, u);
           probes.push({ t: mid, pairs: pairs.length });
           if (pairs.length === 0) lo = mid;
           else hi = mid;
         }
         const midpoint = (lo + t) / 2;
+        const lighter = (cleanWeight + u) / 2;
         const id = `state/${state}` + (suffix > 0 ? `#${suffix + 1}` : "");
         outcome = "beyond the budget";
         let attempt: ReturnType<typeof solve> | null = null;
         let verification: object[] = [];
         let pairs = before;
         for (let pass = 0; pass < PASSES && pairs.length > 0; pass++) {
-          const current = poseState(working, build, document(t));
+          const current = poseState(working, build, document(t, u));
           attempt = solve(
             current,
             pairs,
@@ -307,18 +323,17 @@ function main(): void {
           const candidate = withCorrective(
             working,
             id,
-            drivers(lo, t),
+            drivers(lo, t, cleanWeight, u),
             attempt.rest,
           );
           const candidateBuild = createHumanBodyBasisBuilder(candidate);
-          const atFull = pairsOn(candidate, candidateBuild, t);
-          const atMid = pairsOn(candidate, candidateBuild, midpoint);
-          const lighter = (worn + 1) / 2;
+          const atFull = pairsOn(candidate, candidateBuild, t, u);
+          const atMid = pairsOn(candidate, candidateBuild, midpoint, u);
           const atLighter =
             heaviest > 0 ? pairsOn(candidate, candidateBuild, t, lighter) : [];
           verification = [
-            { t, pairs: atFull },
-            { t: midpoint, pairs: atMid },
+            { t, u, pairs: atFull },
+            { t: midpoint, u, pairs: atMid },
             ...(heaviest > 0 ? [{ t, u: lighter, pairs: atLighter }] : []),
           ];
           if (atFull.length > 0) {
@@ -333,15 +348,22 @@ function main(): void {
               ? "repaired"
               : atMid.length > 0
                 ? "repaired; the midpoint of the joint ramp still crosses and is queued"
-                : "repaired; the midpoint of the channel ramp still crosses";
+                : "repaired; the midpoint of the channel ramp still crosses and is queued";
           accept(candidate);
           if (atMid.length > 0 && (t - lo) * widest > 4 * RESOLUTION)
-            queue.unshift(midpoint, t);
+            queue.unshift({ t: midpoint, u }, { t, u });
+          else if (
+            atMid.length === 0 &&
+            atLighter.length > 0 &&
+            (u - cleanWeight) * heaviest > 4 * WEIGHT_RESOLUTION
+          )
+            queue.unshift({ t, u: lighter }, { t, u });
           pairs = [];
         }
         crossing = {
           id,
-          worn,
+          worn: cleanWeight,
+          weight: u,
           onset: lo,
           full: t,
           probes,
@@ -361,14 +383,20 @@ function main(): void {
           rounds: attempt?.rounds ?? {},
           verification,
         };
-        if (outcome === "repaired") clean = t;
-        else if (outcome.startsWith("repaired")) clean = lo;
-      } else clean = Math.max(clean, t);
+        if (outcome === "repaired") {
+          if (u === 1) clean = t;
+          if (t === 1) cleanWeight = u;
+        } else if (outcome.includes("joint ramp") && u === 1) clean = lo;
+      } else {
+        if (u === 1) clean = Math.max(clean, t);
+        if (t === 1) cleanWeight = Math.max(cleanWeight, u);
+      }
       records.push({
         group: `${finding.set}:${finding.name}`,
         state,
         angle: t,
         travel: t,
+        weight: u,
         volume: null,
         crossing,
         outcome,
@@ -377,6 +405,7 @@ function main(): void {
       console.log(
         `${finding.set}:${finding.name}`.padEnd(52),
         String(t).padStart(8),
+        String(u).padStart(8),
         "cross",
         before.length === 0 ? "-" : summarize(before),
         outcome,
