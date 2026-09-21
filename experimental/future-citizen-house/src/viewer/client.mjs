@@ -2,6 +2,7 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { uploadHouse, disposeHouse } from "./scene.mjs";
+import { daylight } from "./illumination.mjs";
 /** @typedef {ReturnType<typeof import('./payload.js').createViewerPayload> & {basis: string}} Payload */
 
 async function start() {
@@ -35,7 +36,10 @@ const debug = gl.getExtension("WEBGL_debug_renderer_info");
 const hardware = debug ? String(gl.getParameter(debug.UNMASKED_RENDERER_WEBGL)) : null;
 console.info("RENDERER", hardware ?? "unverified: debug renderer information unavailable");
 const scene = new THREE.Scene();
-scene.background = new THREE.Color("#dce3e5");
+const lighting = daylight(renderer);
+scene.background = lighting.sky;
+scene.environment = lighting.environment.texture;
+scene.environmentIntensity = 0.8;
 const camera = new THREE.PerspectiveCamera(50, 1, 0.02, 300);
 const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = false;
@@ -45,13 +49,14 @@ const sky = new THREE.HemisphereLight(0xe8f1ff, 0x887b65, 1.25);
 const sun = new THREE.DirectionalLight(0xffefdb, 3);
 sun.position.set(-12, 18, -8);
 sun.castShadow = true;
-sun.shadow.mapSize.set(2048, 2048);
+sun.shadow.mapSize.set(4096, 4096);
 sun.shadow.camera.left = -18;
 sun.shadow.camera.right = 18;
 sun.shadow.camera.top = 18;
 sun.shadow.camera.bottom = -18;
 sun.shadow.camera.far = 70;
-sun.shadow.normalBias = 0.015;
+sun.shadow.normalBias = 0.003;
+sun.shadow.bias = -0.00005;
 scene.add(sky, sun, sun.target);
 /** @type {Payload | null} */
 let payload = null;
@@ -155,7 +160,13 @@ async function load() {
 function setSection(cut) {
   if (!house) return;
   const planes = cut && inspection.checked ? [new THREE.Plane(new THREE.Vector3(0, cut.remove === "above" ? -1 : 1, 0), cut.remove === "above" ? cut.height : -cut.height)] : [];
-  house.traverse((object) => { if (object instanceof THREE.Mesh) for (const material of Array.isArray(object.material) ? object.material : [object.material]) { material.clippingPlanes = planes; material.clipShadows = true; material.needsUpdate = true; } });
+  house.traverse((object) => {
+    if (object instanceof THREE.Light && object.userData.emitter instanceof THREE.Vector3)
+      object.visible = planes.every(plane => plane.distanceToPoint(object.userData.emitter) >= 0);
+    if (object instanceof THREE.Mesh) for (const material of [...(Array.isArray(object.material) ? object.material : [object.material]), ...(object.customDepthMaterial ? [object.customDepthMaterial] : [])]) {
+      material.clippingPlanes = planes; material.clipShadows = true; material.needsUpdate = true;
+    }
+  });
 }
 section.addEventListener("change", () => {
   if (!payload || !inspection.checked) return;
@@ -229,6 +240,7 @@ window.addEventListener("pagehide", () => {
   outline?.geometry.dispose();
   if (outline && !Array.isArray(outline.material)) outline.material.dispose();
   renderer.dispose();
+  lighting.dispose();
 });
 try { await load(); draw(); } catch (error) { fail(error); }
 }

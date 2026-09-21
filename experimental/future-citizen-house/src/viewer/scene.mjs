@@ -21,10 +21,15 @@ export function uploadHouse(payload) {
       if (!part.mesh.normals) geometry.computeVertexNormals();
       const entry = model.materials.find((m) => m.id === part.material);
       if (!entry) throw new Error(model.id + ": missing material");
-      const material = uploadMaterial(entry); material.vertexColors = Boolean(part.mesh.colors);
+      const material = uploadMaterial(entry, payload.textures); material.vertexColors = Boolean(part.mesh.colors);
       const mesh = new THREE.InstancedMesh(geometry, material, placements.length);
       mesh.name = model.id + "/" + part.id; mesh.userData.placements = placements.map((p) => p.node);
       mesh.castShadow = material.transmission === 0; mesh.receiveShadow = true;
+      if (material.map && material.transparent) {
+        // Opaque portions of a thin laminate cast a patterned shadow. The clear
+        // portion remains glass in beauty; the depth pass is an approximation.
+        mesh.customDepthMaterial = new THREE.MeshDepthMaterial({ depthPacking: THREE.RGBADepthPacking, map: material.map, alphaTest: 0.6 });
+      }
       const local = new THREE.Matrix4();
       if (part.transform) local.compose(new THREE.Vector3().copy(part.transform.translation), new THREE.Quaternion().copy(part.transform.rotation), new THREE.Vector3().copy(part.transform.scale));
       for (const [i, p] of placements.entries()) {
@@ -38,23 +43,53 @@ export function uploadHouse(payload) {
       mesh.instanceMatrix.needsUpdate = true; if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
       mesh.computeBoundingBox(); mesh.computeBoundingSphere(); root.add(mesh);
       if (entry.emissive) for (const p of placements) {
-        const light = new THREE.PointLight(0xffdbac, 12, 6, 2); light.position.copy(p.position); light.position.y -= 0.08; root.add(light);
+        // These authored household luminaires emit downward. An isotropic point
+        // leaking through a ceiling creates false rooftop specular highlights.
+        const light = new THREE.SpotLight(0xffdbac, 12, 6, Math.PI / 2.5, 0.55, 2);
+        light.position.copy(p.position); light.position.y -= 0.08;
+        light.target.position.copy(light.position); light.target.position.y -= 1;
+        light.userData.emitter = new THREE.Vector3().copy(p.position);
+        root.add(light, light.target);
       }
     }
   }
   return root;
 }
-/** @param {Material} entry */
-function uploadMaterial(entry) {
-  if (entry.baseColorTexture || entry.normalTexture || entry.metallicRoughnessTexture || entry.occlusionTexture || entry.emissiveTexture)
+/** @param {Material} entry @param {Payload["textures"]} assets */
+function uploadMaterial(entry, assets) {
+  if (entry.normalTexture || entry.metallicRoughnessTexture || entry.occlusionTexture || entry.emissiveTexture)
     throw new Error(entry.id + ": texture resource binding has not been supplied to this viewer");
+  let map = null;
+  if (entry.baseColorTexture) {
+    /** @type {import('@automovie/interface').IAutoMovieTextureReference} */
+    const binding = typeof entry.baseColorTexture === "string" ? { asset: entry.baseColorTexture, texCoord: 0, colorSpace: "srgb" } : entry.baseColorTexture;
+    if (binding.texCoord !== 0) throw new Error(entry.id + ": viewer only uploads the native primary UV set");
+    const asset = assets.find(value => value.id === binding.asset);
+    if (!asset) throw new Error(binding.asset + ": missing texture asset");
+    map = new THREE.DataTexture(new Uint8Array(asset.rgba), asset.width, asset.height, THREE.RGBAFormat);
+    map.colorSpace = binding.colorSpace === "linear" ? THREE.LinearSRGBColorSpace : THREE.SRGBColorSpace;
+    const wrap = { clamp: THREE.ClampToEdgeWrapping, repeat: THREE.RepeatWrapping, mirror: THREE.MirroredRepeatWrapping };
+    map.wrapS = wrap[binding.sampler?.wrapS ?? "clamp"]; map.wrapT = wrap[binding.sampler?.wrapT ?? "clamp"];
+    const filters = { nearest: THREE.NearestFilter, linear: THREE.LinearFilter, nearestMipmapLinear: THREE.NearestMipmapLinearFilter, linearMipmapLinear: THREE.LinearMipmapLinearFilter };
+    map.minFilter = filters[binding.sampler?.minFilter ?? "linearMipmapLinear"];
+    map.magFilter = binding.sampler?.magFilter === "nearest" ? THREE.NearestFilter : THREE.LinearFilter;
+    map.generateMipmaps = true; map.anisotropy = 8;
+    if (binding.transform) {
+      map.repeat.set(binding.transform.scale.x, binding.transform.scale.y);
+      map.offset.set(binding.transform.offset.x, binding.transform.offset.y);
+      map.rotation = THREE.MathUtils.degToRad(binding.transform.rotationDeg);
+    }
+    map.needsUpdate = true;
+  }
   return new THREE.MeshPhysicalMaterial({
     name: entry.id,
+    map,
     color: new THREE.Color(entry.baseColor.r, entry.baseColor.g, entry.baseColor.b),
     roughness: entry.roughness, metalness: entry.metallic,
     emissive: entry.emissive ? new THREE.Color(entry.emissive.r, entry.emissive.g, entry.emissive.b) : new THREE.Color(0, 0, 0),
     opacity: entry.opacity,
     transparent: entry.alphaMode === "blend" || (entry.alphaMode === undefined && entry.opacity < 1),
+    depthWrite: entry.alphaMode !== "blend",
     alphaTest: entry.alphaMode === "mask" ? (entry.alphaCutoff ?? 0.5) : 0,
     side: entry.doubleSided ? THREE.DoubleSide : THREE.FrontSide,
     transmission: entry.transmission ?? 0, ior: entry.ior ?? 1.5,
@@ -66,11 +101,17 @@ function uploadMaterial(entry) {
 export function disposeHouse(root) {
   const geometries = new Set();
   const materials = new Set();
+  const textures = new Set();
   root.traverse((object) => {
     if (!(object instanceof THREE.Mesh)) return;
     geometries.add(object.geometry);
     for (const material of Array.isArray(object.material) ? object.material : [object.material]) materials.add(material);
+    if (object.customDepthMaterial) materials.add(object.customDepthMaterial);
   });
   for (const geometry of geometries) geometry.dispose();
-  for (const material of materials) material.dispose();
+  for (const material of materials) {
+    if ("map" in material && material.map instanceof THREE.Texture) textures.add(material.map);
+    material.dispose();
+  }
+  for (const texture of textures) texture.dispose();
 }

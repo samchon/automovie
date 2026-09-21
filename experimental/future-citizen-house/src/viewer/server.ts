@@ -37,6 +37,7 @@ async function main(): Promise<void> {
     ["/viewer.css", resolve(productionRoot, "public/viewer.css")],
     ["/src/viewer/client.mjs", resolve(productionRoot, "src/viewer/client.mjs")],
     ["/src/viewer/scene.mjs", resolve(productionRoot, "src/viewer/scene.mjs")],
+    ["/src/viewer/illumination.mjs", resolve(productionRoot, "src/viewer/illumination.mjs")],
     ["/vendor/three.module.js", resolve(threeBuild, "three.module.js")],
     ["/vendor/three.core.js", resolve(threeBuild, "three.core.js")],
     ["/vendor/OrbitControls.js", resolve(threeRoot, "examples/jsm/controls/OrbitControls.js")],

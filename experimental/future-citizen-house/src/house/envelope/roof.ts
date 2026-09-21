@@ -5,6 +5,7 @@ import { Quaternion } from "@automovie/engine";
 import type { IAutoMovieModelPart } from "@automovie/interface";
 import { Assembly, rectangle, v } from "../assembly";
 import { datum } from "../plan";
+import { fitCellTexture } from "../canopy-finish";
 import { circle, heightRegion, putMesh, tubeMesh, type Height, type Point } from "../metric-solid";
 export const canopy = { minX: -5.8, maxX: 5.8, minZ: -6.7, maxZ: 6.3, girders: [-5.4, 0, 5.4], supports: [-4.8, 0, 4.8], nx: Math.ceil(11.6 / 1.2), nz: Math.ceil(13 / 1.9) };
 export const B = (z: number) => 6.70 + 0.01 * (canopy.maxZ - z);
@@ -16,7 +17,7 @@ export const G = (z: number) => 6.290 + 0.005 * Math.abs(z);
 type Solid = (id: string, plan: Point[], low: Height, high: Height, material?: string, holes?: Point[][], blind?: Height) => string;
 type Flat = (id: string, x0: number, x1: number, z0: number, z1: number, y0: number, y1: number) => string;
 export function roof(a: Assembly): void {
-  const solid: Solid = (id, plan, low, high, material = "metal", holes = [], blind) => putMesh(a, id, "house", material, heightRegion(plan, low, high, holes, blind), "roof-member");
+  const solid: Solid = (id, plan, low, high, material = "canopy-metal", holes = [], blind) => putMesh(a, id, "house", material, heightRegion(plan, low, high, holes, blind), "roof-member");
   const flat: Flat = (id, x0, x1, z0, z1, y0, y1) => solid(id, rectangle(x0, x1, z0, z1), () => y0, () => y1);
   const slab = a.box("roof-slab", "house", "stone", 0, 6.254, 0, 11, 0.292, 12);
   const weather = solid("roof-weather", rectangle(-5.5, 5.5, -6, 6), () => datum.roof, x => R(x), "stone");
@@ -36,19 +37,25 @@ export function roof(a: Assembly): void {
   for (const side of [-1, 1]) {
     const x0 = side < 0 ? -w / 2 : w / 2 - 0.03, bx = side * (px / 2 - 0.030);
     const bz = [-l / 2 + 0.070, l / 2 - 0.070];
-    part("frame-x-" + side, "metal", rectangle(x0, x0 + 0.03, -l / 2, l / 2), j, t, bz.map(z => circle(bx, z, 0.00325, 16)));
+    part("frame-x-" + side, "canopy-metal", rectangle(x0, x0 + 0.03, -l / 2, l / 2), j, t, bz.map(z => circle(bx, z, 0.00325, 16)));
     const z0 = side < 0 ? -l / 2 : l / 2 - 0.03;
-    part("frame-z-" + side, "metal", rectangle(-w / 2 + 0.03, w / 2 - 0.03, z0, z0 + 0.03), j, t);
+    part("frame-z-" + side, "canopy-metal", rectangle(-w / 2 + 0.03, w / 2 - 0.03, z0, z0 + 0.03), j, t);
     for (const z of bz) {
       part("bolt-" + side + "-" + z, "steel", circle(bx, z, 0.003, 16), (x, z) => j(x, z) - 0.010, t);
       part("head-" + side + "-" + z, "steel", circle(bx, z, 0.006, 12), t, (x, z) => t(x, z) + 0.008);
     }
     const cx = side < 0 ? -px / 2 + 0.050 : px / 2 - 0.065;
-    for (const z of [-l / 4, l / 4]) part("clip-" + side + "-" + z, "metal", rectangle(cx, cx + 0.015, z - 0.010, z + 0.010), (x, z) => j(x, z) + 0.005, (x, z) => j(x, z) + 0.015);
-    part("panel-wire-" + side, "metal", rectangle(cx + 0.005, cx + 0.010, -l / 4, l / 4), (x, z) => j(x, z) + 0.007, (x, z) => j(x, z) + 0.012);
+    for (const z of [-l / 4, l / 4]) part("clip-" + side + "-" + z, "canopy-metal", rectangle(cx, cx + 0.015, z - 0.010, z + 0.010), (x, z) => j(x, z) + 0.005, (x, z) => j(x, z) + 0.015);
+    part("panel-wire-" + side, "canopy-metal", rectangle(cx + 0.005, cx + 0.010, -l / 4, l / 4), (x, z) => j(x, z) + 0.007, (x, z) => j(x, z) + 0.012);
   }
   part("pv", "pv", rectangle(-(w - 0.04) / 2, (w - 0.04) / 2, -(l - 0.04) / 2, (l - 0.04) / 2), (_, z) => 0.149 - 0.01 * z, (_, z) => 0.161 - 0.01 * z);
-  a.environment.models.push({ id: "canopy-cassette", name: "Drilled open cassette", origin: "generated", skeleton: null, asset: null, body: null, materials: [a.material("metal"), a.material("steel"), a.material("pv")], parts });
+  const pv = a.material("pv");
+  const surface = parts.at(-1)!.geometry;
+  if (surface.type !== "mesh" || !surface.mesh.uvs || !surface.mesh.normals) throw new Error("PV metric face attributes required");
+  const uv = surface.mesh.uvs, normals = surface.mesh.normals;
+  const top = Array.from({ length: normals.length / 3 }, (_, i) => i).filter(i => normals[i * 3 + 1] > 0.9);
+  pv.baseColorTexture = fitCellTexture(Math.min(...top.map(i => uv[i * 2])), Math.max(...top.map(i => uv[i * 2])), Math.min(...top.map(i => uv[i * 2 + 1])), Math.max(...top.map(i => uv[i * 2 + 1])));
+  a.environment.models.push({ id: "canopy-cassette", name: "Drilled open cassette", origin: "generated", skeleton: null, asset: null, body: null, materials: [a.material("canopy-metal"), a.material("steel"), pv], parts });
   const cassetteIds: string[] = [], bolts: { x: number; z: number }[] = [];
   for (let i = 0; i < canopy.nx; i++) for (let k = 0; k < canopy.nz; k++) {
     const x = canopy.minX + (i + 0.5) * px, z = canopy.minZ + (k + 0.5) * pz;
@@ -61,7 +68,7 @@ export function roof(a: Assembly): void {
     for (const x of canopy.supports) {
       const id = "canopy-support-" + x + "-" + zg;
       structure.push(solid(id + "-pedestal", rectangle(x - 0.12, x + 0.12, zg - 0.12, zg + 0.12), x => R(x), () => R(x) + 0.03, "stone"));
-      solid(id + "-flashing", rectangle(x - 0.15, x + 0.15, zg - 0.15, zg + 0.15), x => R(x), x => R(x) + 0.002, "metal", [rectangle(x - 0.12, x + 0.12, zg - 0.12, zg + 0.12)]);
+      solid(id + "-flashing", rectangle(x - 0.15, x + 0.15, zg - 0.15, zg + 0.15), x => R(x), x => R(x) + 0.002, "canopy-metal", [rectangle(x - 0.12, x + 0.12, zg - 0.12, zg + 0.12)]);
       flat(id + "-base", x - 0.08, x + 0.08, zg - 0.08, zg + 0.08, R(x) + 0.03, R(x) + 0.042);
       structure.push(flat(id + "-post", x - 0.04, x + 0.04, zg - 0.04, zg + 0.04, R(x) + 0.042, B(zg) - 0.014));
       structure.push(solid(id + "-cap", rectangle(x - 0.06, x + 0.06, zg - 0.06, zg + 0.06), () => B(zg) - 0.014, (_, z) => B(z)));
@@ -75,7 +82,7 @@ export function roof(a: Assembly): void {
     for (let k = 0; k < ends.length; k += 2) {
       const z0 = ends[k], z1 = ends[k + 1];
       const holes = bolts.filter(p => Math.abs(p.x - x) < 0.04 && p.z > z0 && p.z < z1).map(p => circle(p.x, p.z, 0.00325, 16));
-      structure.push(solid("canopy-rail-" + i + "-" + k / 2, rectangle(x - 0.04, x + 0.04, z0, z1), (_, z) => B(z), (_, z) => J(z), "metal", holes, (_, z) => J(z) - 0.010));
+      structure.push(solid("canopy-rail-" + i + "-" + k / 2, rectangle(x - 0.04, x + 0.04, z0, z1), (_, z) => B(z), (_, z) => J(z), "canopy-metal", holes, (_, z) => J(z) - 0.010));
     }
     for (const zg of canopy.girders) for (const side of [-1, 1]) {
       const start = side < 0 ? zg - 0.046 : zg + 0.04;
@@ -110,7 +117,7 @@ function drainage(a: Assembly, solid: Solid, flat: Flat): void {
     const arc = (radius: number) => Array.from({ length: 17 }, (_, i) => ({ x: -5.68 + radius * Math.cos(i * Math.PI / 16), y: side * radius * Math.sin(i * Math.PI / 16) }));
     solid("gutter-outlet-rim-" + side, [...arc(0.055), ...arc(0.05).reverse()], () => 6.280, (_, z) => G(z) - 0.002);
   }
-  putMesh(a, "gutter-outlet-neck", "house", "metal", tubeMesh(-5.68, 0, 6.10, 6.280, 0.055, 0.05), "drainage");
+  putMesh(a, "gutter-outlet-neck", "house", "canopy-metal", tubeMesh(-5.68, 0, 6.10, 6.280, 0.055, 0.05), "drainage");
   for (const [i, xs] of [[-5.778, -5.750], [-5.610, -5.582]].entries()) flat("gutter-grate-ledge-" + i, xs[0], xs[1], -0.14, 0.14, 6.408, 6.410);
   const holes = Array.from({ length: 7 }, (_, i) => rectangle(-0.067 + i * 0.020, -0.053 + i * 0.020, -0.08, 0.08));
   const model = a.model("gutter-grate-model", "steel", { type: "mesh", mesh: heightRegion(rectangle(-0.08, 0.08, -0.10, 0.10), () => 0, () => 0.020, holes) });

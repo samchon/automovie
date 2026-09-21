@@ -65,3 +65,11 @@ Run the applicable [Author process Self-Review](.agents/skills/review-verificati
 [v-073 제출 설계](docs/spaces/003-surface-ownership.md#roof-face)를 [지붕 owner](src/house/envelope/roof.ts), [우측 입면](src/house/envelope/right.ts), [대지](src/house/site/garden.ts)가 구현한다. 설계 문서의 기존 source 부재 설명은 v-073 제출 당시의 기록으로 보존했다. 현재 소스는 열린 frame과 PV, 주보·분절 rail·기둥, 경사 지붕, 거터·배수관·집수구를 실제 geometry로 생성한다. 고정 방·층·문·계단의 그래프는 유지한다.
 
 뷰어의 `/scene` 응답에는 같은 `buildHouse()`가 실행한 `canopyAudit`가 포함된다. 실제 부품 bounds·개구부 확장 영역·거름망 인출 경로·개수를 읽을 수 있으며 기존 관찰에 부재별 검사 위치가 추가된다. 이 수치와 일부 GPU 캡처는 전체 시각 합격이나 구조·배수·장비 성능 인증을 뜻하지 않는다. 독립 시각 판정과 후속 커튼월·유리·마감·가구·조경 설계가 남아 있다. 관찰용 입면 normal의 기존 방향 문제도 다음 입면 설계에 남긴다.
+
+## 캐노피 시각 재검토 v-074
+
+v-074는 캐노피 치수·부재·배수 구현을 통과시키고 검은 연속 PV 면의 시각 표현을 거부했다. 현재 수리는 승인된 mesh·배치·간격을 유지하고 [캐노피 재질](src/house/canopy-finish.ts), 표면 owner의 material binding, [뷰어 조명](src/viewer/illumination.mjs)을 바꾼다. PV 셀은 실제 mesh의 미터 단위 UV에 맞춘 반복 재질이며 사진이나 대체 geometry가 아니다. 셀 사이 유리는 얇은 표면의 alpha 합성, 그림자는 셀 mask로 근사한다. 실물의 광투과율·굴절·발전 성능으로 해석하지 않는다.
+
+하늘 환경은 모든 카메라에서 같은 반사광을 제공한다. 기존 태양 방향과 노출은 유지하며 그림자 해상도를 높였다. 실내 등기구는 하향 조명으로 투영하고 절개에서 제거된 광원도 함께 제외하여 하부 검사에 남던 가짜 광점을 막는다. 관찰은 기존 필수 집합과 다섯 reference를 유지한다. 새 표현의 합격은 독립 시각 재판정이 결정한다.
+
+전면 조경 감소는 v-073의 양측 2m 유지관리 장비 접근대와 전면 cassette 작업대를 비운 의도된 이동이다. 나무 4개와 관목 48개 그룹은 후면으로 옮겼으며 해당 형상을 삭제하지 않았다. 이전보다 전면이 빈 인상은 남아 있고 후속 조경 설계가 해결해야 한다. 장비 접근을 막는 기존 배치로 복원하지 않았다.
