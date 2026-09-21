@@ -35,4 +35,6 @@ maps에 넘기는 포장 접속은 기존 전면 두 포트 외에 측면 관리
 
 [본채/차고 바닥 아래 지지](../10-ground-floor.md#ground-support-handoff)는 이 지표 입력을 받은 뒤 건물 쪽 채움·기단/기초의 하단을 정한다. maps의 외부 완성 지표를 지지면이나 기초 바닥 깊이로 대신하지 않는다. [네 건물 출입 경계](../10-ground-floor.md#ground-threshold-junctions)의 완성 높이와 단은 유지하며 외부 지표로 문턱을 덮어 접촉을 만든 것으로 처리하지 않는다.
 
+외부 바탕의 입력은 [낮은 포장 두께](01-paving-support.md#paving-depth-reservation)와 [높은 포치/테라스 지지](01-paving-support.md#raised-platform-support)에서 받는다. [포장 접촉](01-paving-support.md#paving-contact-handoff)은 서로 다른 바탕 아래면과 노출 옆면·매립 구역을 구별하며, 그 제작상 하단을 maps의 외부 완성 지표로 채택하지 않는다. 실제 지지면/기초와 두 전면 포트의 연결은 여전히 미완료다.
+
 인계 검사에는 필지 포함 평면, 두 포트의 전체 단면, 차도 양옆과 두 경사 연결로의 접합, 테라스 상면·챌판·아래 대기·지표를 함께 지나는 단면을 추가한다. 허용 오차는 [공유 기준](../01-storeys.md#storey-datums)을 소비한다. 실제 source가 생기면 같은 산출물의 world/site/space 식별자·변환·경계·접촉을 읽고 [전체 관찰](../04-observations.md#spatial-observation-derivation)에서 양방향 시야를 확인한다. 입력 표의 행 수는 surface나 observation 개수가 아니며 현재 포함·접지·연결·식재 간섭은 unverified다.

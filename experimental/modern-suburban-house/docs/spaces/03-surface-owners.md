@@ -43,6 +43,8 @@
 
 `src/spaces/site.ts`는 [외부 구역/접속의 조립](site/00-access.md#site-access-interface)만 맡는다. 종전의 포장 전체 한 파일 예약을 소스 저작 전에 완결 보행면·차도·테라스로 구체화했다. 포치 아래 대기와 정원문 바깥 대기는 각 연속 포장 owner에게 통째로 속하며 별도 판으로 쪼개지지 않는다. 측면 관리길은 앞뒤 두 구역이어도 같은 연속 면 owner를 유지하며, 목재 울타리는 문만 다른 파일에서 떼어 만들지 않는다. 대지 경계·보도/도로·지표·식재의 소유 분해와 울타리의 실제 필지 포함·지표 접합은 maps가 아직 없어 미완료다. 이 표를 전체 대지 표면 census 완료로 읽지 않는다.
 
+[외부 포장 바탕](site/01-paving-support.md#paving-depth-reservation)과 [높은 평탄면 지지](site/01-paving-support.md#raised-platform-support)도 위의 각 완결 포장/porch 파일이 함께 소유한다. site 조립 파일은 별도 바탕이나 지지 상자를 만들지 않는다. [차도/보행길 접촉과 문기둥 접합](site/01-paving-support.md#paving-contact-handoff)은 원래 owner의 동일 끝선에서 닫고 실제 지지 하단/지표는 후속 입력을 기다린다.
+
 ## 방 내부의 완결 면 소유 {#interior-surface-handoff}
 
 아래 owner는 각 방의 모든 안쪽 벽·천장·바닥 마감 구역과 개구부 둘레를 한 저작자가 통합할 책임을 가진다. 구조 벽과 층판은 외곽/공유 기준을 소비하며 외피와 별도 방 좌표를 발명하지 않는다. 문·창의 실제 void는 경계 owner, 문짝·창호 부재와 reveal의 일치 책임은 그 면 owner에게 전달된다. 모든 담당은 `/root`다.

@@ -12,7 +12,7 @@
 
 보행면 바깥 0.20 m는 줄기·관목·울타리 기초·바위가 들어오지 않는 여유다. 그 여유를 통로 폭에 더하지 않는다. [문기둥 접속](#side-gate-interface)만 경계를 따라 허용하고 실제 기둥·문짝/손잡이를 뺀 순폭을 별도로 검사한다. maps가 받아야 할 필지 범위는 이 전체 보행면과 여유를 포함해야 하며, 실제 경계와 맞지 않으면 이 배치나 그 경계의 저작 owner에서 해결한다. 보행면 위 지표 중복, 포장 아래 빈틈, 처마/가지의 머리 공간은 미검증이다.
 
-`src/spaces/site/side-walk.ts`가 연속 상면·옆면과 차도 접속을 소유한다. 포장 원형·줄눈·마감은 같은 owner의 후속 저작이다. 두 꺾임, 경사 연결의 두 끝, 아래 대기와의 경계에서 [사람/바구니](../../settings/00-production.md#use-profile)의 양방향 이동을 평면/단면과 [전체 관찰](../04-observations.md#spatial-observation-derivation)에 추가한다. 실제 구역·표면·접촉·통행과 01/03의 마당 읽힘은 unverified다.
+`src/spaces/site/side-walk.ts`가 연속 상면·옆면과 차도 접속을 소유한다. 바탕은 [보행 포장 두께](01-paving-support.md#paving-depth-reservation)와 [접촉/문기둥 인계](01-paving-support.md#paving-contact-handoff)를 소비하며 포장 원형·줄눈·마감은 같은 owner의 후속 저작이다. 두 꺾임, 경사 연결의 두 끝, 아래 대기와의 경계에서 [사람/바구니](../../settings/00-production.md#use-profile)의 양방향 이동을 평면/단면과 [전체 관찰](../04-observations.md#spatial-observation-derivation)에 추가한다. 실제 구역·표면·접촉·통행과 01/03의 마당 읽힘은 unverified다.
 
 ## 측면 울타리 문과 양쪽 대기 {#side-gate-interface}
 

@@ -8,4 +8,4 @@
 
 이 경사는 기존 두 바닥을 연결하는 저작 치수이며 지리적 측량·배수 성능·차량 주행성의 검증값이 아니다. 문은 기준 상태에서 닫고 [빈 차고](../rooms/garage-interior.md#garage-interior-plan)의 관찰은 머드룸에서 한다. 차량·주차 표시·가짜 실루엣을 넣지 않는다. 차도/연결로 위에는 식재나 수납을 배치하지 않으며 양옆에 0.20 m의 식재 점유 제외 여유를 남긴다. 외부 보도와 도로로의 접속은 map/space 인터페이스 미완료로 남긴다.
 
-완결 차도 상면과 가장자리 owner는 `src/spaces/site/driveway.ts`다. 포장 두께·줄눈·재료는 이 면의 후속 저작이며 임의 사각 패치를 복제하지 않는다. 차고 문턱, 양옆 문설주, 연결로 접점과 바깥 포트의 종횡 단면을 [전체 관찰](../04-observations.md#spatial-observation-derivation)에 넣는다. 최종 표면의 경사/폭/연결 높이, 열린 문 기구와의 간섭, 콘크리트와 그림자·01의 읽힘은 unverified다.
+완결 차도 상면과 가장자리 owner는 `src/spaces/site/driveway.ts`다. 바탕은 [차도 두께 예약](01-paving-support.md#paving-depth-reservation)과 [보행길 접촉](01-paving-support.md#paving-contact-handoff)을 소비한다. 줄눈·재료는 같은 면의 후속 저작이며 임의 사각 패치를 복제하지 않는다. 차고 문턱, 양옆 문설주, 연결로 접점과 바깥 포트의 종횡 단면을 [전체 관찰](../04-observations.md#spatial-observation-derivation)에 넣는다. 최종 표면의 경사/폭/연결 높이, 열린 문 기구와의 간섭, 콘크리트와 그림자·01의 읽힘은 unverified다.
