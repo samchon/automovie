@@ -49,3 +49,13 @@ When the task needs a model view, building walkthrough, or film playback, follow
 - Execute production and measurement functions over typed values. Images, media, and reader-facing documents are outputs; serialized project state is not an authoring product.
 
 Run the applicable [Author process Self-Review](.agents/skills/review-verification/self-review.md) before handing off a completed authoring, evidence, review, or stage-transition boundary.
+
+## 현재 재작성
+
+2026-09-21 조정자 정정에 따라 제자리 재작성을 진행한다. settings·spaces·spaceSources의 선언은 review에 유지하며 이전 판정은 무효다. 수정된 본문과 source가 다시 연 검사 및 실제 GPU 화면 대조를 독립 reviewer가 재검토한다. [원점 재검토](.wiki/99-worklog/2026-09-21-reassessment.md#restart-review)와 [저작 권한](docs/settings/001-production.md#runtime-and-restart)이 범위와 결정을 소유한다.
+
+불합격한 Canvas2D 구현을 제거하고 production 내부 CJS 서버 → 공개 engine → WebGL 클라이언트 경로를 작성했다. 새 집 형상은 아직 재작성 전이며 이 도구도 GPU 실행 전이다. three와 @types/three는 package.json에 선언했고 조정자가 설치했다. 현재 RENDERER와 다섯 reference의 화면 일치는 unverified다.
+
+조정자 시작 명령은 이 production 디렉터리에서 `npm run viewer -- --port 4174`다. `--port`는 1–65535 범위의 정수를 받으며 생략 시 1953의 배정 포트인 4174를 사용한다. 열 경로는 `http://127.0.0.1:4174/`다. `npm run lint`의 열린 error 수리 후 실행한다. 고정 크기 캡처 경로는 `http://127.0.0.1:4174/?capture=1`이며 canvas가 1600×1000 CSS pixel, pixel ratio 1을 사용한다. 서버 시작과 기존 프로세스 교체는 조정자가 맡는다. source 수정은 기존 화면을 무효화하므로 lint 후 조정자가 서버를 재시작한다.
+
+현재 구현은 원근·PBR·방향광/그림자·키보드 조작·검사 모드의 엔진 진단 위치를 제공하는 도구 준비다. 가변 침대/유리 상태, 완전한 파생 관찰 집합, 질감 리소스와 등기구를 포함한 최종 viewer 납품은 미완료다. 엔진 진단 위치를 최종 저작 카메라나 공간 승인으로 세지 않는다.

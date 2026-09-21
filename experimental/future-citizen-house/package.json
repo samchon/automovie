@@ -1,7 +1,7 @@
 {
   "name": "future-citizen-house",
   "private": true,
-  "type": "module",
+  "type": "commonjs",
   "version": "0.1.0",
   "license": "MIT",
   "description": "An AutoMovie coding-agent production repository.",
@@ -14,8 +14,8 @@
       "ESNext",
       "DOM"
     ],
-    "module": "esnext",
-    "moduleResolution": "bundler",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "esModuleInterop": true,
     "newLine": "lf",
     "strict": true,
@@ -34,7 +34,9 @@
         "transform": "@ttsc/lint",
         "configFile": "lint.config.ts"
       }
-    ]
+    ],
+    "allowJs": true,
+    "checkJs": true
   },
   "include": [
     "lint.config.ts",
@@ -43,7 +45,7 @@
   "scripts": {
     "lint": "ttsc --cache-dir node_modules/.cache/ttsc --noEmit -p package.json",
     "format": "ttsc format --cache-dir node_modules/.cache/ttsc -p package.json",
-    "viewer": "vite --host 127.0.0.1"
+    "viewer": "ttsx -P package.json src/viewer/server.ts"
   },
   "dependencies": {
     "@automovie/archetypes": "workspace:^",
@@ -53,7 +55,8 @@
     "@automovie/ingest": "workspace:^",
     "@automovie/interface": "workspace:^",
     "@automovie/production": "workspace:^",
-    "@automovie/render": "workspace:^"
+    "@automovie/render": "workspace:^",
+    "three": "^0.186.0"
   },
   "devDependencies": {
     "@automovie/evidence": "workspace:^",
@@ -62,6 +65,7 @@
     "@types/node": "^22.19.17",
     "ttsc": "^0.29.0",
     "typescript": "^7.0.2",
-    "vite": "catalog:vite"
+    "vite": "catalog:vite",
+    "@types/three": "^0.186.0"
   }
 }

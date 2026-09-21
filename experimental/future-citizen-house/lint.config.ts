@@ -8,7 +8,6 @@ import {
   evidence,
 } from "@automovie/evidence";
 import type { ITtscLintConfig } from "@ttsc/lint";
-import { fileURLToPath } from "node:url";
 
 /**
  * The sole tracked production kind, population scope, branch-stage, and local
@@ -38,7 +37,7 @@ import { fileURLToPath } from "node:url";
  */
 export const productionEvidence = {
   ...createBlankAutoMovieProductionEvidence(
-    fileURLToPath(new URL(".", import.meta.url)),
+    __dirname,
     "korean" as AutoMovieProductionLanguage,
   ),
   kind: "library",
@@ -53,6 +52,7 @@ export const productionEvidence = {
         "settings/001-production.md",
         "settings/002-household.md",
         "settings/003-spatial-basis.md",
+        "settings/004-observation.md",
       ],
       obligationFiles: [
         "obligations/core/common.md",
@@ -63,7 +63,11 @@ export const productionEvidence = {
     }),
     ...createAutoMoviePopulationAccountClaims({
       layer: "spaces",
-      populationFiles: ["spaces/001-citizen-house.md"],
+      populationFiles: [
+        "spaces/001-citizen-house.md",
+        "spaces/002-spatial-graph.md",
+        "spaces/003-surface-ownership.md",
+      ],
       obligationFiles: [
         "obligations/core/common.md",
         "obligations/design/spaces.md",
@@ -74,7 +78,7 @@ export const productionEvidence = {
     createAutoMovieProductionPrincipleClaim({
       name: "Citizen house spatial requirements are realized by the authored space",
       document: "contracts/citizen-house-spatial-requirements.md",
-      files: ["spaces/001-citizen-house.md"],
+      files: ["spaces/*.md"],
       layer: "spaces",
       stage: "review",
       populationScope: { mode: "complete-production" },

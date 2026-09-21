@@ -1,79 +1,115 @@
 # 시민 주택 공간 설계
 
 ## 시민 주택 공간 {#citizen-house-space}
+
 <!--
-@evidence principles/core/common.md#declared-basis This space H2 declares the one-box, two-storey spatial basis used by the source.
-@evidence principles/core/common.md#scope-preservation This space H2 preserves the fixed graph and does not add a courtyard, bridge, void, second stair, or branch corridor.
-@evidence principles/core/common.md#substantive-completion This space H2 names the complete room, envelope, opening, circulation, and fit-out realization expected downstream.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation This space H2 carries forward the settings dimensions, privacy basis, and household program into the spatial realization.
-@evidence principles/design/spaces.md#space-boundary-authority This space H2 owns the rectangular house boundary and its logical room cells.
-@evidence principles/design/spaces.md#space-topology This space H2 owns the storey, room, opening, and single-stair topology.
-@evidence principles/design/spaces.md#space-verification-address This space H2 names the source owner and the compiled spatial observations used to verify it.
-  @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work The reviewed settings facts are sufficient: the household is an ordinary family residence, the adopted Y-up metre frame uses an 11×12m building footprint, front is -Z, the single dogleg stair is the only storey transition, and the three privacy states plus the complete observation population are already explicit; no parent settings or map defect had to be repaired by this space layout.
-  @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 Checked the settings household, coordinate, stair, privacy, and observation declarations against the space bounds and topology and found no parent defect to repair.
-@evidence settings/001-production.md#delivery-scope This space H2 realizes the library delivery scope inherited from production settings.
-@evidence settings/001-production.md#governing-aim This space H2 realizes the governing everyday-household aim.
-@evidence settings/001-production.md#production-visual-grammar This space H2 realizes the declared material and visual grammar.
-@evidence settings/001-production.md#delivery-review-condition This space H2 realizes the topology that supplies the required review population.
-@evidence settings/001-production.md#roles-and-accessibility This space H2 supports the source/viewer role and access boundary.
-@evidence settings/002-household.md#household-program This space H2 realizes the household scope.
-@evidence settings/002-household.md#ground-program This space H2 realizes the ground-floor program.
-@evidence settings/002-household.md#upper-program This space H2 realizes the upper-floor program.
-@evidence settings/002-household.md#program-boundary This space H2 preserves the household program boundary.
-@evidence settings/003-spatial-basis.md#coordinate-datum This space H2 realizes the declared coordinate datum and target dimensions.
-@evidence settings/003-spatial-basis.md#ground-graph This space H2 realizes the ground-floor graph.
-@evidence settings/003-spatial-basis.md#upper-graph This space H2 realizes the upper-floor graph.
-@evidence settings/003-spatial-basis.md#envelope-and-privacy This space H2 realizes the envelope and privacy strategy.
-@evidence settings/003-spatial-basis.md#surface-decomposition This space H2 realizes the surface ownership declaration.
-@evidence contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements This space H2 realizes the production-local spatial contract.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb Read the shared declared-basis checklist and checked the one-box two-storey spatial basis.
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 Read the shared scope checklist and checked the fixed graph has no added courtyard, bridge, void, second stair, or branch corridor.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 Read the shared completion checklist and checked the complete room, envelope, opening, circulation, and fit-out scope.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 Read the inherited-units checklist and checked settings dimensions, privacy, and household program are carried into spaces.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 Read the boundary-authority checklist and checked the rectangular house boundary and room cells.
-@evidenceReview principles/design/spaces.md#space-topology #3f8d925 Read the topology checklist and checked storeys, rooms, openings, and the single stair.
-@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 Read the verification-address checklist and checked the source and compiled observation address.
-@evidenceReview settings/001-production.md#delivery-scope #545ec14 Read the delivery-scope setting and checked this space realizes the declared library boundary.
-@evidenceReview settings/001-production.md#governing-aim #6aa36a1 Read the governing-aim setting and checked the everyday-household aim is realized spatially.
-@evidenceReview settings/001-production.md#production-visual-grammar #709df3f Read the visual-grammar setting and checked the material language is carried into the space design.
-@evidenceReview settings/001-production.md#delivery-review-condition #a699a94 Read the review-condition setting and checked the topology supplies the required observation population.
-@evidenceReview settings/001-production.md#roles-and-accessibility #9b9957a Read the roles-and-accessibility setting and checked the source/viewer boundary.
-@evidenceReview settings/002-household.md#household-program #d1603e2 Read the household-program setting and checked the household scope is realized.
-@evidenceReview settings/002-household.md#ground-program #e9f92d2 Read the ground-program setting and checked the first-floor program is realized.
-@evidenceReview settings/002-household.md#upper-program #432cac8 Read the upper-program setting and checked the second-floor program is realized.
-@evidenceReview settings/002-household.md#program-boundary #c992c25 Read the program-boundary setting and checked the household boundary is preserved.
-@evidenceReview settings/003-spatial-basis.md#coordinate-datum #2e42a76 Read the coordinate-datum setting and checked target dimensions and datum are realized.
-@evidenceReview settings/003-spatial-basis.md#ground-graph #0a9d729 Read the ground-graph setting and checked the ground topology is realized.
-@evidenceReview settings/003-spatial-basis.md#upper-graph #c816b45 Read the upper-graph setting and checked the upper topology is realized.
-@evidenceReview settings/003-spatial-basis.md#envelope-and-privacy #3aab158 Read the envelope-and-privacy setting and checked the envelope and privacy strategy are realized.
-@evidenceReview settings/003-spatial-basis.md#surface-decomposition #417fe6a Read the surface-decomposition setting and checked the surface ownership declaration is realized.
-@evidenceReview contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements #83336e9 Read the local contract and checked the space H2 preserves its fixed graph and curtainwall/privacy requirements.
+@evidence principles/core/common.md#declared-basis 단일 본채와 금지 연결은 사용자 고정 그래프에서 받고, house를 citizen-site 아래 두 storey의 부모로 두는 주소 관계를 이 공간 단위에서 정했다. 외곽과 층 높이는 별도 datum owner를 링크한다.
+@evidence principles/core/common.md#scope-preservation 집 전체를 대지·두 층·방·외주와 한 계단의 관계로 배정하고, 어느 입면이나 실내를 대표 화면 밖의 무소유 공간으로 남기지 않는다. 인테리어를 제외한 외관만의 집으로 납품 범위를 줄이지 않는다.
+@evidence principles/core/common.md#substantive-completion 본채의 부모와 자식, 외부와 실내를 가르는 경계, 층 사이 유일한 연결이 결정되어 있다. 구현자는 house의 계층을 새로 고르지 않고 링크된 층과 표면 결정을 조합한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation settings의 한 채·두 층 요구를 house, citizen-site, ground-storey, upper-storey의 포함 관계와 외주·층별 결정의 소비 주소로 구체화했다. 이 계층 배정은 납품 범위의 문장만 반복하는 것이 아니다.
+@evidence principles/design/spaces.md#space-topology 본채는 site에 포함되고 두 층을 포함하며 외주 opening과 단일 계단만으로 외부·층간 연결을 가진다. 별동이나 별도 계단을 mesh의 우연한 접촉으로 추가할 수 없다.
+@evidence principles/design/spaces.md#space-boundary-authority 본채 크기와 두께는 002의 mass-and-storeys, 방 연결은 두 partition, 외피는 003의 입면들이 소유한다. 이 조립 관계 H2는 그 값을 다시 적거나 다른 외곽으로 덮어쓰지 않는다.
+@evidence principles/design/spaces.md#space-verification-address 전체 공간 관찰과 stage-one-verification을 통해 house/site 포함, room/storey 귀속, 층간 계단과 외주의 불연속을 묻는다. 단순히 집 이름이 존재하는 것으로 이 관계를 검증하지 않는다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work settings/001의 단일 library 납품과 settings/003의 두 층·한 계단을 house의 계층 및 외주 분담과 대조했다. 이 구조에 추가 world나 별동이 필요하지 않아 부모 범위를 수정하지 않았으며 maps는 선택되지 않았다.
+@evidence contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements 한 본채·두 storey·단일 계단을 집 수준에서 고정하고 중정·브리지·캔틸레버·복층 거실을 추가하지 않는다. 실제 통행과 curtainwall 대응은 연결한 세부 owner와 컴파일 검증이 답해야 한다.
+@evidence settings/001-production.md#delivery-scope 시간축 없는 집 하나의 범위를 site, house, 두 storey와 각 실내의 포함 관계로 실현한다. reference를 geometry asset으로 끼워 넣는 별도 장소를 만들지 않는다.
+@evidence settings/001-production.md#governing-aim 현관에서 생활 구역과 단일 계단으로 이어지는 관계를 두 partition의 직접 소비로 남겨, 외관을 닮게 하는 추가 체적보다 일상 동선을 우선한다.
+@evidence settings/003-spatial-basis.md#surface-decomposition 외주의 완결 표면과 각 층·방의 구현 책임을 settings의 단독 배정으로 연결한다. 집 조립 owner가 같은 창호나 바닥을 중복 생성할 권한을 갖지 않는다.
+@evidenceExclude settings/001-production.md#module-boundary 선택된 spaces 세 파일의 site/building/storey/room, wall·opening·stair, 입면·corner와 관찰 도출을 대조했다. 이 결정들은 typed topology의 포함·치수·연결·가시성 관계이며 어느 H2도 engine을 어느 모듈 로더로 실행할지 결정하거나 그 형식을 입력으로 사용하지 않는다. 관찰 도출 역시 컴파일 산출물의 face/cell을 소비할 뿐 CJS에서 수치가 달라지는 규칙이 아니다. CJS 서버·Node import 경계는 이 population 밖의 실행 도구가 settings에서 직접 소비한다.
+@evidenceExclude settings/001-production.md#settings-coverage-map 설정 population의 canon 배분 지도는 이 본채의 방이나 경계를 하나 더 만들지 않는다. 공간은 그 지도 문장을 복사하지 않고 납품 범위·층 그래프·외피·관찰의 실제 설정 H2를 각각 소비한다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb house의 단일 본채 성격과 금지된 체적은 고정 그래프에 근거하고, citizen-site 아래에 두 storey를 두는 식별 관계는 이 설계의 결정이다. 외곽과 층 datum은 mass-and-storeys를 가리켜 여기서 치수를 독립적으로 추정하지 않는다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 house 아래의 두 층과 각 방을 남기고 외주 전체를 네 입면과 지붕으로 연결한다. 외관만 있는 모형으로 범위를 줄이거나 화면에 안 잡힌 층의 실내를 납품 밖으로 빼는 해석은 이 포함 관계와 맞지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 building의 parent와 두 storey의 주소, 외부로 통하는 opening의 소속, 층 사이 유일한 계단이 정해져 있다. 다음 구현 단계가 집의 계층이나 외피와 내부 연결의 조립 방식을 새로 선택해야 하는 빈 이름에 머물지 않는다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 납품 범위의 ‘주택 한 채’와 생활 동선의 요구를 house–citizen-site 및 ground-storey·upper-storey의 주소 관계로 바꾸고, 분할과 외피의 실제 설계 owner를 연결했다. 이 부모들은 그러한 id와 설계 파일 간 결합을 이미 정해 놓지 않았다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 house가 대지 안에 있고 방들이 두 storey에 속하며 외주 boundary의 opening과 단일 계단으로 외부 및 층간 통행이 이어진다. 이 관계는 mesh가 우연히 맞닿는 모습을 해석하지 않고 본문과 연결된 partition에서 읽을 수 있다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 집 조립은 mass-and-storeys의 외곽·datum·두께를 다시 수치로 소유하지 않는다. 방 배치는 두 partition으로, 닫힌 외주는 외피의 완결 표면으로 넘겨 같은 집에 두 번째 크기나 경계가 생기지 않게 한다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 포함·도달·외피 불연속을 전체 공간 관찰과 stage-one-verification에 연결했다. house라는 id가 존재해도 room의 층 귀속이나 계단 연결이 어긋나면 이 검증 역할에서 실패할 수 있어 이름 등록을 검증으로 대신하지 않는다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 단일 library의 납품 범위와 두 층·한 계단의 조건을 집의 포함 구조 및 외주 분담에 대조했다. 이 집 수준의 조립에는 별동이나 추가 world가 필요하지 않았고 maps도 선택되지 않아 이 단위 때문에 부모의 규모·연결 권한을 바꿀 근거는 없다.
+@evidenceReview contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements #d31488d 집 수준에서는 한 본채 아래 두 층을 두고 그 사이 통행을 single-stair로 한정하며 중정·브리지·추가 계단과 복층 거실을 배제한다. 세부 room 연결과 curtainwall 대응은 링크된 설계와 미지급 컴파일 검사에 남겨 이 조립 문장만으로 고정 그래프의 실현을 승인하지 않는다.
+@evidenceReview settings/001-production.md#delivery-scope #e314261 재사용할 집의 공간 범위를 citizen-site, house, 두 storey와 그 안의 방으로 배정한다. 별동이나 추가 체적을 만드는 납품으로 확장하지 않으며 외피와 실내를 같은 본채의 구성으로 유지한다.
+@evidenceReview settings/001-production.md#governing-aim #e9869fc 1층과 2층 partition 및 단일 계단을 집 조립의 직접 입력으로 삼아 현관 이후의 생활 동선을 보존한다. 외관을 꾸미기 위해 추가 계단이나 분리된 체적을 허용하는 조립이라면 이 지배 목적을 소비한 현재 관계가 성립하지 않는다.
+@evidenceReview settings/003-spatial-basis.md#surface-decomposition #0076c6d 작성자와 파일 배정은 표면 분해 선언으로 연결하고 이 집 단위는 그 결과를 조합한다. 각 입면·층·방의 완결 표면을 다시 생성하는 별도 소유 목록을 여기 만들지 않아 조립과 표면 저작의 책임이 겹치지 않는다.
+@evidenceExcludeReview settings/001-production.md#module-boundary #6450145 세 spaces 파일의 포함 계층, clear 경계, opening·계단·입면 및 관찰 도출을 모두 대조했으며 어느 결정도 CJS나 ESM을 공간 입력으로 삼지 않는다. stage-one-verification이 컴파일 뒤의 검사를 요구하는 사실도 모듈 로더의 선택은 아니므로, 이 foundation target의 직접 소비는 공간 population 밖의 실행 source와 viewer에 남는다.
+@evidenceExcludeReview settings/001-production.md#settings-coverage-map #2e9919b 공간 population은 납품 범위·좌표·층 그래프·외피·프라이버시·관찰의 실제 설정 owner를 소비한다. 설정 소유 지도는 그 canon의 위치와 역할을 정리하지만 별도로 배치하거나 치수화할 공간 사실을 추가하지 않아 이 지도를 공간 부모로 중복 지급할 대상은 없다.
 -->
 
-**Status:** latest independent read-only reviewer가 다섯 reference를 실제로 모두 열어 확인한 source 결손을 반영해 stair guard/rail, 식재 형상, common kitchen fit-out와 warm practical light, 열린 flex sliding-door를 보강했다. coordinator의 current source GPU 관찰과 다섯 reference 재비교를 기록했지만, 이 보강 이후의 독립 최종 stage 판정은 아직 주장하지 않으며 Canvas2D 경로에서 warm emissive가 화면에 보이는지는 `unverified`다. 측정하지 않은 건물 성능이나 인체 사용성 인증도 여전히 주장하지 않는다.
+building id house는 [citizen-site](#site-access)의 자식인 단일 본채다. [ground-storey](002-spatial-graph.md#ground-level)와 [upper-storey](002-spatial-graph.md#upper-level) 두 층을 포함하고 각 방은 해당 층에 귀속한다. 본채의 외곽·층 datum·벽 두께는 [매스와 층](002-spatial-graph.md#mass-and-storeys)이 유일하게 소유한다.
 
-이 H2는 `citizen-house` building 하나, `ground-storey`와 `upper-storey` 두 level, 외부 `site-pad`와 모든 내부 room을 포함하는 하나의 environment graph를 소유한다. `house` building root의 plan bounds는 x=-5.5..5.5, z=-6.0..6.0인 11.0×12.0m이며, `site-pad`는 그 root 계층에 귀속된 15.6×17.0m의 외부 site context다. 모든 logical room은 정확히 한 storey의 child다. source는 `src/spaces/citizen-house.ts#citizenHouseSpaceSource` 하나가 이 H2를 carrier로 내보낸다.
+본채의 닫힌 외주는 [네 입면과 지붕](003-surface-ownership.md#whole-surface-owners)이고 외부와 실내는 그 boundary에 선언된 opening으로만 이어진다. [1층](002-spatial-graph.md#ground-partition)과 [2층](002-spatial-graph.md#upper-partition) 사이 통행은 [단일 계단](002-spatial-graph.md#single-stair) 하나다. 별동·중정·브리지·캔틸레버·추가 계단·복층 거실을 포함하지 않는다. 이는 [고정 그래프](../contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements)의 본채 realization이며 세부 형상은 아직 컴파일 전이다.
 
-1층 graph는 `entry → common-room`, `entry → flex-workroom`, `entry → powder-utility`, `common-room → storage-1f`, `entry → upper-corridor`의 단일 꺾임계단이다. `common-room`은 living, dining, kitchen을 나누지 않는 하나의 연속 room이다. 2층 graph는 `upper-corridor`에서 `primary-bedroom`, `child-bedroom-1`, `child-bedroom-2`, `upper-bathroom`, `upper-storage`, `upper-service`로 직접 문이 난다. upper corridor 외의 corridor를 만들지 않으며, 모든 연결은 `passage` 또는 유일한 `stair` connector다.
+완결 표면의 작성자와 파일 배정은 [표면 분해 선언](../settings/003-spatial-basis.md#surface-decomposition)에 보존한다. [전체 공간 관찰](#spatial-observation)과 [검증 역할](002-spatial-graph.md#stage-one-verification)이 포함·도달·외피 불연속을 반증한다. 현재 review 선언은 이전 시각 승인을 뜻하지 않는다. 기각된 구현과 선택한 제자리 재작성의 근거는 [원점 재검토 기록](../../.wiki/99-worklog/2026-09-21-reassessment.md#restart-review)에 남아 있다.
 
-외피는 front stair curtainwall, front flex curtainwall, rear common curtainwall, left return envelope, right opaque service envelope로 분해한다. 각 curtainwall population은 명명된 room bounds의 x span을 `width=(maxX-minX)/count`로 나누고 center와 width를 같은 bounds에서 파생하며, 0.12m assembly의 inner face가 room의 front/rear z boundary에 정확히 놓이고 sill/head는 해당 room의 floor와 ceiling line에 맞춘다. glass fill은 material 상태로 clear·electrochromic·translucent 역할을 나타내며 실제 shader나 전기 장치의 성능을 대신 주장하지 않는다.
+## 대지와 전면 접근 {#site-access}
 
-명시 fit-out은 entry bench/shoe storage/charging niche, flex desk/chair/shelf/folding surface/hidden storage와 열린 sliding-pocket door, common sofa/table/media wall/reading light/dining table six seats/kitchen island/sink/cooktop/refrigerator/pantry/recycling cabinet/base cabinetry/three stools/warm practical fixtures, ground core utility and storage, primary bed/bedside/wardrobe/desk, 두 child bed/wardrobe/desk, upper bathroom vanity/toilet/shower-tub/towel storage, corridor lighting, upper storage cabinets다. 단일 꺾임계단에는 기존 tread와 landing에 이어 dark metal guard와 handrail을 둔다. 노출된 front/rear curtainwall의 room 쪽에는 각 대응 room bounds에서 폭과 높이를 유도한 roller shade를 둔다. site planting bed는 반복 hedge와 trunk·다층 crown으로 식재 형상을 읽히게 한다. 지붕에는 roof slab, 지붕 구조 상단에서 y=6.20..6.80으로만 올라가는 네 개의 support post를 가진 four-sided supported PV canopy, repeated solar/slat modules와 shading fins를 둔다.
+<!--
+@evidence settings/001-production.md#delivery-scope 주택 한 채의 작은 앞마당 범위를 citizen-site와 전면 보도·현관 도착으로 배정한다. 주변 건물이나 교통망을 새 납품 영역으로 추가하지 않는다.
+@evidence settings/003-spatial-basis.md#coordinate-datum 본채와 같은 metre·Y-up 좌표에서 site bounds와 지면·tread 높이를 정하고 현관 floor datum을 소비한다. reference 픽셀을 측량 치수로 사용하지 않는다.
+@evidence settings/004-observation.md#accessibility-products 세 단차로 구성한 도착 경로를 실물 무장애 인증으로 보고하지 않는 공간 설계상의 경계를 소비한다. 키보드나 음성 제품의 구현 책임을 대지 geometry의 통과로 대신하지 않는다.
+@evidenceReview settings/001-production.md#delivery-scope #e314261 작은 앞마당을 citizen-site로 구체화하고 본채와 현관으로의 도착을 그 안에 둔다. broad world·주변 건물·공공 교통망을 만들지 않는 본문은 집 한 채의 부속 대지라는 부모 범위를 유지한다.
+@evidenceReview settings/003-spatial-basis.md#coordinate-datum #8a862c9 대지와 단차는 본채와 같은 좌표 관례를 직접 참조하고 마지막 landing을 y=0의 현관 바닥에 연결한다. site의 수치는 이번 저작 입력으로 표시되어 reference 픽셀의 측량값이나 별도 높이 기준으로 바뀌지 않는다.
+@evidenceReview settings/004-observation.md#accessibility-products #2e72dbe 현관 도착에 세 단차를 두면서 이 경로가 실물 무장애 인증이나 경사로의 대체물이 아니라고 명시한다. 부모가 구분한 디지털 접근성과 물리적 인증을 대지의 연결성 하나로 합쳐 통과 처리하지 않는다.
+-->
 
-**공간별 관찰 owner.**
+<!--
+@evidence principles/core/common.md#declared-basis 작은 대지와 전면 접근은 납품 범위에서 상속하고, 대지 폭·깊이·보도와 세 단차는 이 H2의 저작 입력으로 명시했다. 본채 높이와 위치는 mass-and-storeys를 소비하며 측량 사실을 주장하지 않는다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 작은 앞마당은 납품 범위에서 받고 대지 외곽과 지면·보도·단차의 수치는 이번 저작 선택으로 밝힌다. 본채 위치와 층 높이는 mass-and-storeys에서 소비하므로 대지 설계의 치수가 실물 측량이나 기존 구현의 승인에서 나온 것처럼 제시되지 않는다.
+@evidence principles/core/common.md#scope-preservation 본채 앞마당과 보도부터 현관문까지의 도착을 포함한다. 식재가 접근을 덮지 못하게 하고 주변 교통망을 새 납품 대상으로 끌어오지 않는다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 보도에서 현관까지의 접근과 마지막 landing을 남기고 식재가 그 도착을 점유하지 못하게 한다. 작은 대지를 주변 교통망으로 확대하지 않으면서도 현관 밖 연결을 생략하지 않는다.
+@evidence principles/core/common.md#substantive-completion 대지 외곽, 지면, 보도, 접근 폭, 두 tread와 landing의 위치·높이 및 문과의 접속을 결정했다. 단차를 그리는 source가 계단 개수나 마지막 도착 높이를 발명하지 않아도 된다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 site 경계와 지면, 접근 폭, 두 tread 및 문 앞 landing의 z 범위와 상단 높이가 정해져 있다. 첫 단차의 시작이나 현관에 도착하는 최종 높이를 source가 임의로 정해야 하는 접근로 스케치에 머물지 않는다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation settings의 작은 대지와 주택 진입을 실제 site 범위와 전면 보도·계단의 연속 경로로 해석했다. 부모의 좌표 관례에 대지 치수와 지면부터 문까지의 접속 결정을 더한다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 작은 앞마당이라는 납품 대상에 15.60×17.00m의 site 경계와 보도에서 문까지의 단차 접속을 부여했다. 좌표 관례와 실물 인증의 한계는 부모에서 유지하면서 대지 내부의 실제 도착 구성을 이 공간 단위가 추가한다.
+@evidence principles/design/spaces.md#space-topology citizen-site 안에 house가 있으며 보도에서 전면 계단과 landing을 지나 front-entry로 연결된다. 남은 가장자리 식재는 이 도착 route를 점유하지 못한다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 citizen-site는 house를 포함하고 전면 보도에서 계단과 landing을 거쳐 front-entry로 이어진다. 식재는 남은 가장자리에 두며 도착 경로를 점유할 수 없으므로 대지의 포함·접속·장애물 관계가 구분된다.
+@evidence principles/design/spaces.md#space-boundary-authority site bounds와 각 tread는 여기서 소유하고 본채 및 현관문은 각각 mass-and-storeys와 front-entry를 참조한다. 문 위치를 조경 파일에 독립 복제하는 기준을 만들지 않는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 site bounds와 외부 단차의 배치는 이 H2가 정하지만 본채 datum은 mass-and-storeys, 출입구는 front-entry에서 받는다. 조경 쪽에 현관문의 중심이나 본채 외곽을 별도로 적어 두지 않아 접속 양쪽의 기준이 분리되지 않는다.
+@evidence principles/design/spaces.md#space-verification-address stage-one-verification의 containment·tread 접지·문 threshold와 setting 관찰이 대지 주장을 반증한다. 식재와 창 점검 공간의 간섭도 garden owner의 실물 관찰에 남긴다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 site/house containment와 단차의 접지·문 threshold는 전수 검증에, 식물의 접지·수관과 창 간섭은 실물 관찰에 연결되어 있다. 대지가 본채를 벗어나거나 마지막 landing이 문에 닿지 않아도 통과할 수 있는 외관 한 장만을 검증으로 지정하지 않았다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work settings의 작은 앞마당, 좌표 관례, 현관 직접 진입을 ground datum과 전면 문 범위에 대조했다. 세 단차로 도착을 구성할 수 있었고 실물 무장애 인증은 부모도 약속하지 않아 경사로나 넓은 외부 망을 추가하는 부모 수정은 필요하지 않았다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 작은 앞마당의 범위, 본채의 좌표 기준, 실물 무장애 인증을 약속하지 않는 접근성 경계를 현재 도착 설계와 대조했다. 이 범위 안에서 지면부터 현관까지 세 단차를 배치할 수 있어 broad world나 인증용 경사로를 부모에게 새로 요구할 모순은 드러나지 않았다.
+@evidence contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements 본채 하나가 있는 대지에서 전면 현관으로만 도착하며 별동·브리지나 두 번째 내부 계단을 도입하지 않는다. 외부 세 단차와 내부 단일 꺾임계단의 역할을 혼동하지 않는다.
+@evidenceReview contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements #d31488d 대지의 접근은 단일 본채의 front-entry에 닿으며 별동이나 브리지로 목적지를 늘리지 않는다. 지면과 1층 사이의 외부 단차는 두 storey를 잇는 내부 단일 꺾임계단을 추가하거나 대체하는 연결로 선언되지 않는다.
+-->
 
-compiled topology에서 setting one, exposed elevation four, every exposed corner, roof/top underside, every opening/entry를 얻는다. 각 room의 threshold, 네 inside corners, room center의 +X/-X/+Z/-Z를 별도 observation target으로 파생한다. 이 문서에 대표 view를 임의로 골라 분모를 줄이는 규칙은 없다. 다섯 reference의 외관·절개 조감·common room·flex room·upper private area는 이 population에 추가되는 질문이며, section axonometric은 inspection-only다.
+[작은 앞마당의 납품 범위](../settings/001-production.md#delivery-scope)를 site id citizen-site로 배정하며 본채 house를 포함한다. [좌표 관례](../settings/003-spatial-basis.md#coordinate-datum)를 따른다. broad world·주변 건물·공공 교통망은 만들지 않는다. x=-7.80..7.80, z=-8.50..8.50m의 15.60×17.00m 경계를 이번 저작 치수로 채택한다. 지면 기준 y=-0.45m이며 본채의 위치·외곽과 층 datum은 [매스와 층](002-spatial-graph.md#mass-and-storeys)을 소비한다. 이 치수는 측량값이나 기존 산출물 유지 판정이 아니다.
 
-**저작자 계측 기록.** coordinator의 current source GPU 관찰은 `ANGLE (AMD Radeon 8060S, D3D11)`, canvas 1개, HTTP 200을 보고했고 compiled topology panel에서 `citizen-house-2080`, 17 spaces, 126 elements, 8 populations, 90 population members, 15 boundaries, 15 openings, 11 connectors, 13 surfaces를 대조했다. coordinator 관찰에는 `models` 축이 없었다. 현재 source의 `MODELS` 배열과 environment의 `models: MODELS` binding을 별도 compiled-source 계측으로 확인한 model count는 16이며, 이전 log의 15/14 models 문장은 coordinator 관찰로 귀속하지 않고 폐기한다. 이전 101 elements 기록은 네 fit-out 수리 전 수치이므로 현재 기록으로 대체한다. 수·id·바인딩·치수는 이 viewer panel이 답하는 범위를 넘어가므로 이 단락에서 새로 주장하지 않고, 파생 JSON·receipt도 production에 남기지 않는다. 따라서 현재 topology observation population은 environment setting 1개, 네 exposed elevation과 그 모서리·roof/top underside·opening/entry 집합, 그리고 12개 room 각각의 threshold·4 inside corners·중심의 4방위 질문으로 유지한다. 이 단락은 coordinator 관찰과 별도 source 계측을 구분한 저작 기록이며, 독립 reviewer의 판정은 다음 검증 경계에 별도로 기록한다.
+전면 보도는 z=-8.50..-7.70m이고, 현관 접근은 x=1.30..2.90m의 폭으로 z=-7.70에서 [출입문](002-spatial-graph.md#front-entry)까지 이어진다. z=-7.44..-7.12의 첫 tread 상단은 y=-0.30, z=-7.12..-6.80의 둘째는 y=-0.15, z=-6.80..-6.00의 문 앞 landing은 y=0이다. 각 rise 0.15m의 세 단계가 지면과 현관을 잇는다. 마지막 landing은 문 구멍을 통해 현관 바닥에 닿고 식재를 놓지 않는다. 이 도착 경로는 [접근성 납품의 구분](../settings/004-observation.md#accessibility-products)에 따라 실물 무장애 인증이나 경사로의 대체물이 아니다.
 
-**검증 경계.**
+대지의 남은 가장자리 식재는 이 접근과 창 바로 앞의 점검 폭을 막지 않는다. 조경 전체는 garden owner 한 명이 소유하고 식물별 접지·수관과 창의 간섭을 실물 관찰에서 확인한다. [전수 검증](002-spatial-graph.md#stage-one-verification)은 site/house containment, 세 tread의 접지와 문 threshold, setting·모든 노출 외부 면을 질문한다.
 
-이전 독립 read-only reviewer는 최신 fit-out 보강 전 source의 compiled topology와 GPU 장면, viewer의 실제 source 연결, 층별 plan partition과 section clipping, canopy·building root·curtainwall 좌표를 확인하고 PASS로 판정했다. 다만 당시 네 번의 reference 종료 기록은 이미지를 실제로 열지 않은 상태의 기록이어서 철회한다.
+## 공간 관찰의 도출 {#spatial-observation}
 
-latest independent reviewer는 current source의 직전 revision과 다섯 reference를 실제로 5/5 열어 stair guard/rail, 식재 형상, common kitchen stools/cabinetry와 warm practical light, 열린 flex sliding-door, upper corridor glazing/guard 결손을 확인했다. 현재 source에는 앞의 네 항목을 보강했고 coordinator의 current GPU 관찰도 그 수리된 scene과 18개 증가한 element count를 확인했다.
+<!--
+@evidence principles/core/common.md#declared-basis raster와 eye는 settings/004의 관찰 장치, 전체 분모는 settings/001의 종료 조건에서 상속한다. 그 분모를 boundary face·opening profile·cell·surface·connector에 연결하고 L자 추가 질문을 정하는 것이 이 H2의 공간 결정이다.
+@evidence principles/core/common.md#scope-preservation setting·모든 노출 외부 면과 모서리·지붕/하부·개구 및 모든 공간의 threshold·corner·cardinal을 남긴다. 실패 위치나 두 L자 방 때문에 어려운 관찰을 지우지 않고 다섯 reference도 추가한다.
+@evidence principles/core/common.md#substantive-completion 평면은 cell와 벽·문·route, 계단 단면은 tread·구멍·도착, 입면은 bay와 층·방 경계를 함께 보도록 결정했다. 검사 도구가 보기 좋은 몇 방향을 임의 분모로 고를 수 없다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모가 정한 외부·실내 관찰 역할을 현재 집의 경계와 두 L자 방의 오목 모서리·연장부에 배정하고, 계단과 bay의 반례를 드러낼 plan/section/elevation 조합을 더했다.
+@evidence principles/design/spaces.md#space-topology 각 시점은 해당 공간 내부나 노출 면의 바깥이라는 포함 관계를 답해야 한다. cell 밖 L자 corner는 다른 위치로 성공 처리하지 않고 별도 실패 주소를 유지한다.
+@evidence principles/design/spaces.md#space-boundary-authority 카메라 조건은 관찰 장치에서, 위치와 수의 최종 기준은 현재 컴파일 topology에서 읽는다. 이 문서가 source와 다른 방 경계나 opening 목록을 관찰용 사본으로 소유하지 않는다.
+@evidence principles/design/spaces.md#space-verification-address 평면·단면·입면·실내외 원근이 각각 드러낼 단절·slab 충돌·bay 불일치를 구분하고 실패 id와 source·상태·URL·RENDERER의 연결을 요구한다. frame 자체로 치수 계측을 대체하지 않는다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work settings/004의 0.25m inset, 내부 eye와 실패 id 유지 조건을 두 L자 방·작은 core에 대조했다. 조건을 만족하지 않는 위치를 실패로 남기는 규칙이 이미 있어 임의 축소나 부모 camera 조건 변경으로 회피할 필요가 없다.
+@evidence contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements 고정 그래프의 room/storey·문·단일 계단과 curtainwall의 room/floor 대응을 각각 실제 topology와 화면의 질문으로 남긴다. 절개 조감이나 다섯 대표 reference로 전수 분모를 대신하지 않는다.
+@evidence settings/001-production.md#delivery-review-condition 컴파일된 외피와 공간에서 질문을 파생하고 실패 id도 남기며 다섯 reference를 그 위에 더한다. 검사 수단인 절개를 기본 납품 외관으로 세지 않는다.
+@evidence settings/001-production.md#delivery-fidelity 실내 원근과 외부 실제 geometry 관찰을 평면·단면 진단과 구별한다. 공간 라벨이나 box cell이 보인다는 것만으로 방과 부재가 읽힌다고 승인하지 않는다.
+@evidence settings/004-observation.md#review-apparatus settings가 소유한 raster·lens·eye와 공간 안 시점 조건을 그대로 소비하고 compiled normal/bounds에서 외부 관찰을 산출하게 한다. camera 위치가 성립하지 않는 경우를 실패 id로 보존한다.
+@evidence settings/004-observation.md#accessibility-products 텍스트로 읽을 공간·관찰 id를 topology에서 파생하는 공간 입력을 제공하며 실패 id도 목록에서 지우지 않는다. 이 관계는 공간 질문의 식별 가능한 설계를 답하고, 키보드·focus·자막 등의 UI 납품이나 시각 판정의 비시각 동등성을 구현했다는 뜻이 아니다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb raster·lens·eye는 관찰 장치에서 받고 전체 관찰 분모는 종료 조건을 따른다. 현재 집의 boundary.face·opening.profile·cell·surface·connector에 질문을 붙이고 두 L자 방의 추가 관찰을 정하는 부분이 이 공간 설계의 몫으로 구별된다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 외부의 노출 면·모서리·지붕·하부·개구와 실내의 threshold·모서리·중심 방위를 모두 남긴다. L자 방에서 성립하지 않는 위치를 삭제하거나 다섯 reference 화면으로 전체 분모를 치환하지 않아 어려운 관찰도 완료 조건에 남는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 평면에서는 cell·벽·개구·connector, 계단 단면에서는 tread·route·slab opening·도착 바닥, 입면에서는 jamb·floor line·bay를 함께 대조하도록 정했다. 도구 구현자가 어떤 관계를 겹쳐 보아야 할지 새로 발명하거나 임의의 대표 view만 선택할 여지가 없다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 관찰 조건을 현재 경계와 개구·cell에 연결하고 두 L자 방의 오목 모서리와 연장부를 추가 질문으로 지정한다. 계단 단면과 입면에서 함께 볼 부재 관계도 정하여 카메라 조건을 다시 적는 것 이상의 공간별 반증 구성을 제공한다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 외부 관찰은 해당 면의 world normal 쪽 바깥에, 실내 관찰은 자기 공간 내부에 있어야 한다. L자 cell 밖의 box corner를 성공 시점으로 바꾸지 않으므로 관찰 설계 역시 방의 안팎과 경계를 보존한다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 카메라 장치의 수치는 settings owner를 소비하고 관찰 id와 위치의 기준은 현재 컴파일된 face·cell·opening 등에 둔다. 검사 편의를 위해 다른 방 경계나 수동 개구 목록을 병렬로 소유하지 않아 source와 관찰 사본이 따로 바뀌는 구조를 허용하지 않는다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 문과 벽을 지나가는 connector는 평면에서, slab과 계단 도착의 충돌은 단면에서, bay와 방·층 경계의 불일치는 입면에서 드러나게 한다. 각 반례를 실패 id·source·상태·URL·RENDERER에 연결하므로 관계가 깨진 위치를 추적할 수 있으며 현재 결과는 unverified로 남긴다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 관찰 장치의 0.25m inset과 내부 눈높이·중심 조건을 두 L자 방과 작은 코어 공간에 대조했다. 부모가 이미 성립하지 않는 위치의 실패 id 보존과 추가 관찰을 허용하므로, 어려운 위치를 감추기 위해 camera 기준이나 전체 분모를 부모에서 낮출 필요는 없다.
+@evidenceReview contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements #d31488d room/storey 귀속과 문·단일 계단의 연결, curtainwall의 room/floor 대응을 실제 topology 및 각 공간의 화면에서 반증하도록 남긴다. 절개 조감이나 reference 몇 장을 통과하면 이 고정 그래프의 전수 검사가 끝난다는 대체 조건을 만들지 않았다.
+@evidenceReview settings/001-production.md#delivery-review-condition #c796e5c 질문은 컴파일된 경계·개구·공간에서 도출하고 실패 id도 분모에 유지하며 다섯 reference는 추가한다. 절개 진단을 납품용 외관으로 세지 않으므로 종료 조건이 대표 화면의 성공 수로 축소되지 않는다.
+@evidenceReview settings/001-production.md#delivery-fidelity #374c8c8 평면·계단 단면·입면의 진단과 방 안 원근·외부 실제 geometry 관찰을 구별하고 전자가 후자를 대신할 수 없게 한다. 논리 cell이나 검사용 겹침이 보인다는 사실만으로 생활 공간과 부재의 읽힘을 승인하지 않는다.
+@evidenceReview settings/004-observation.md#review-apparatus #1872595 raster·lens·eye를 관찰 장치에서 직접 받으며 외부 거리는 compiled bounds와 FOV, 관찰 방향은 실제 면의 world normal을 사용한다. 자기 공간 밖인 L자 corner는 실패로 남겨 장치 조건을 만족하지 않은 시점을 정상 내부 관찰로 기록하지 않는다.
+@evidenceReview settings/004-observation.md#accessibility-products #2e72dbe 공간·관찰 id를 topology에서 도출하고 실패한 id까지 유지하여 텍스트로 식별할 질문 목록의 공간 입력을 제공한다. 이 설계 관계는 focus·키보드 조작이나 비시각 동등성의 구현 완료를 뜻하지 않으며 실제 UI 납품은 viewer에 남는다.
+-->
 
-다섯 reference와 current source를 다시 대조한 결과, 외관 reference는 two-storey glazed box, opaque service wall, supported PV canopy, planting, warm-light source에 대응한다. 절개 axonometric은 두 층 room graph, 연속 common room, 단일 stair, furniture, openings에 대응하며 void를 추가하지 않는다. common-room reference는 rear glazing, island, stools, cabinetry와 practical fixtures에 대응하고, flex-room reference는 desk/shelf, privacy screen, curtainwall, parked open sliding-pocket door에 대응한다. upper-private-floor reference의 doors, storage, corridor spine과 기존 전면 upper opening은 답하지만, corridor end glazing과 stair void/유리 guard는 고정 graph가 배제하므로 존재한다고 주장하지 않는다.
+[관찰 장치](../settings/004-observation.md#review-apparatus)의 raster·lens·eye 조건을 소비한다. 산출물의 boundary.face·opening.profile·space cell·surface·connector를 기준으로 전체 관찰 id를 도출하며 실패한 id도 분모에 남긴다. 검사 도구 구현은 src/viewer가 소유하고 이 H2는 어떤 공간 관계를 관찰해야 하는지 소유한다.
 
-기존 `front-upper-glass-opening`은 `child-bedroom-1`이 소유하는 2층 전면 curtainwall 질문에는 답하지만, 외피에 닿지 않는 `upper-corridor`의 끝 유리나 shade를 답하지 않는다. 계단의 guard/handrail은 기존 `single-dogleg-stair` connector 관계 위의 source element로 닫혔고, reference의 유리 재료 여부는 이 spaces graph의 결손으로 주장하지 않는다. `house-warm-light`의 emissive 속성은 source에 존재하지만 현재 Canvas2D viewer 경로는 emissive를 그리지 않으므로 화면의 따뜻한 빛은 `unverified`다.
+대지 setting 1개, 모든 외부 boundary의 정면, 인접 노출 face가 만나는 모서리, 지붕 상면과 노출 하부, 모든 opening·출입구를 묻는다. 외부 카메라는 해당 면의 world normal 쪽 바깥에서 면 중심을 향하고 거리는 compiled bounds와 FOV로 산출한다. 실내는 각 space의 threshold, 네 안쪽 모서리, 내부 중심에서 네 방위를 묻는다. box corner가 L자 방 밖이면 성공 위치로 덮어쓰지 않고 실패 id를 남기며 두 L자 방의 오목 모서리·연장부를 추가한다.
 
-이 current-source 관찰과 다섯 reference 재비교는 독립 reviewer에게 제출할 evidence이며, 독립 최종 stage 판정은 아직 완료로 주장하지 않는다. 법규·구조·에너지·설비 작동·인체 사용성처럼 별도 측정하지 않은 항목은 계속 `unverified`다.
+평면은 room cell·shared wall·opening·connector를 같은 좌표로 겹쳐 보고, 계단 단면은 tread·route·slab opening·도착 바닥을 함께 본다. 입면은 room jamb·floor line과 bay를 대조한다. 이 진단은 납품용 절개 장면이 아니며 방 안 원근과 외부 실제 geometry 관찰을 대신하지 않는다. 다섯 reference 질문은 이 전체 분모에 추가한다. [전수 검증](002-spatial-graph.md#stage-one-verification)의 각 반례가 실패 id·source·상태·URL·실제 RENDERER에 연결되어야 하며 현재 관찰 결과는 unverified다.

@@ -743,22 +743,6 @@ const citizenHouseEnvironment = (): IAutoMovieBuiltEnvironment => ({
  * Every repeated envelope member is derived from a count and spacing rule; the
  * source does not read files, clocks, network state, or unseeded randomness.
  *
- * @evidence spaces/001-citizen-house.md The source realizes the complete authored citizen-house space document.
- * @evidenceReview spaces/001-citizen-house.md #0e33f58 Read the complete authored file as the sole spaces deliverable and checked that its status, fixed-graph declaration, surface-decomposition owner, observation denominator, reference comparison, and explicit unverified limits are all carried by this one environment source without an omitted sibling unit.
- * @evidence spaces/001-citizen-house.md#citizen-house-space The source realizes the space H2's room graph, envelope, openings, connectors, surfaces, and fit-out carrier.
- * @evidenceReview spaces/001-citizen-house.md#citizen-house-space #0f26cee Read the complete H2 topology and traced its 11×12m house root, two storeys, room-owned envelope, 15 openings, 11 connectors, and single-stair guard realization into the current 17-space/126-element environment; the front upper opening belongs to child-bedroom-1, so corridor-end glazing remains a fixed-graph exclusion and Canvas2D warm emissive appearance remains unverified.
- * @evidence principles/core/source-units.md#source-scope-preservation The source stays within the selected spaces owner and does not create a second production branch.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 Read the source scope checklist and checked this export stays within the selected spaces owner.
- * @evidence principles/core/source-units.md#source-substantive-completion The source publishes the complete environment carrier required by its selected space design.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Read the source completion checklist and checked the environment publishes the required complete carrier.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The selected space parent explicitly supplies the 11×12m house footprint, separate site context, two floor lines, room bounds, boundary/opening graph, single stair route, and measured curtainwall population rules; the current source compile implements those exact interfaces without inventing a topology or clearance decision, so no parent space defect was exposed.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 Checked the current compiled spaces, site and house bounds, room-derived bay transforms, boundaries, openings, routes, and surfaces against the selected space parent and found no unowned source decision.
- * @evidence obligations/design/space-sources.md#space-source-design-ownership The source registers the exact space H2 it realizes.
- * @evidenceReview obligations/design/space-sources.md#space-source-design-ownership #c0afa1f Read the source-ownership obligation and checked the export registers the exact space H2.
- * @evidence obligations/design/space-sources.md#space-source-stable-identities The source assigns stable identities to spaces, elements, populations, openings, connectors, and surfaces.
- * @evidenceReview obligations/design/space-sources.md#space-source-stable-identities #8f4bb4a Read the stable-identities obligation and checked all spaces, elements, populations, openings, connectors, and surfaces have stable ids.
- * @evidence obligations/design/space-sources.md#space-source-invalid-topology The source carries the topology through the engine's built-environment validation boundary.
- * @evidenceReview obligations/design/space-sources.md#space-source-invalid-topology #030592d Read the invalid-topology obligation and checked the source's built topology passes the engine validation boundary.
  */
 export const citizenHouseSpaceSource: IAutoMovieLibrarySourceOwner = {
   design: "docs/spaces/001-citizen-house.md#citizen-house-space",
