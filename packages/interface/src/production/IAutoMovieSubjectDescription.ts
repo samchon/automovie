@@ -1,175 +1,8 @@
 import { IAutoMovieTransform } from "../geometry/IAutoMovieTransform";
-import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
-import { IAutoMovieCompiledShotSource } from "./IAutoMovieProductionBuild";
-
-/**
- * Kinds of stable subjects available from one compiled shot artifact.
- *
- * A building unit is a subject of its own rather than the union of its rooms.
- * The space tree is an index over a building and claims no envelope, so an
- * exterior wall, a foundation and a structural frame belong to no room; a
- * reviewer asking what one whole work is has to address the unit itself.
- *
- * @evidence requirements/review/subject-description-and-structural-change.md#review-subject-description Distinguishes the subject roles a reviewer may describe without merging prototype and placement.
- * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-description-record Types the role namespace carried by every compiled-subject description.
- */
-export type AutoMovieSubjectKind =
-  | "building"
-  | "element"
-  | "part"
-  | "prototype"
-  | "instance-set"
-  | "instance"
-  | "space";
-
-/**
- * One compiled shot paired with the revision that makes its answers fresh.
- *
- * @evidence requirements/review/subject-description-and-structural-change.md#review-subject-description Binds every subject answer to the compiled revision that supplied it.
- * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-description-record Supplies the artifact and revision inputs of deterministic subject inspection.
- */
-export interface IAutoMovieSubjectArtifact {
-  /**
-   * Stable content or compile revision of {@link compiled}.
-   *
-   * @evidence requirements/review/subject-description-and-structural-change.md#review-subject-description Makes the answer's source revision explicit to the reviewer.
-   * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-description-record Types the revision copied into every description record.
-   */
-  revision: string;
-  /**
-   * Fully compiled shot data inspected by the engine.
-   *
-   * @evidence requirements/review/subject-description-and-structural-change.md#review-subject-compiled-truth Makes render-consumed compiled data the authority for subject answers.
-   * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-description-bounds Supplies the compiled geometry and placement facts measured by inspection.
-   */
-  compiled: IAutoMovieCompiledShotSource;
-}
-
-/**
- * Inclusive axis-aligned box in the description's stated coordinate space.
- *
- * @evidence requirements/review/subject-description-and-structural-change.md#review-subject-compiled-truth Exposes measurable compiled subject extent without requiring a render.
- * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-description-bounds Types the measured minimum and maximum corners.
- */
-export interface IAutoMovieSubjectBox {
-  /**
-   * Inclusive minimum corner in metres.
-   *
-   * @evidence requirements/review/subject-description-and-structural-change.md#review-subject-compiled-truth Reports the lower coordinate limits of compiled subject content.
-   * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-description-bounds Types the box minimum produced by deterministic measurement.
-   */
-  min: IAutoMovieVector3;
-  /**
-   * Inclusive maximum corner in metres.
-   *
-   * @evidence requirements/review/subject-description-and-structural-change.md#review-subject-compiled-truth Reports the upper coordinate limits of compiled subject content.
-   * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-description-bounds Types the box maximum produced by deterministic measurement.
-   */
-  max: IAutoMovieVector3;
-}
-
-/**
- * Declared and measured extents kept separate for honest inspection.
- *
- * @evidence requirements/review/subject-description-and-structural-change.md#review-subject-compiled-truth Keeps a logical space's declared volume distinct from what its placed content actually fills.
- * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-description-bounds Types the separate declared and content measurements.
- */
-export interface IAutoMovieSubjectBounds {
-  /**
-   * Authored or builder-declared extent, or null when none exists.
-   *
-   * @evidence requirements/review/subject-description-and-structural-change.md#review-subject-compiled-truth Preserves absence instead of fabricating a declared extent.
-   * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-description-bounds Carries the independently derived logical-space or compact-set declaration.
-   */
-  declared: IAutoMovieSubjectBox | null;
-  /**
-   * Extent measured from resident compiled content, or null when empty.
-   *
-   * @evidence requirements/review/subject-description-and-structural-change.md#review-subject-compiled-truth Reports actual compiled geometry independently from declarations.
-   * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-description-bounds Carries the deterministic content measurement or explicit absence.
-   */
-  content: IAutoMovieSubjectBox | null;
-  /**
-   * Coordinate basis shared by both non-null boxes.
-   *
-   * @evidence requirements/review/subject-description-and-structural-change.md#review-subject-description Makes spatial answers judgeable without an implicit coordinate frame.
-   * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-description-bounds Distinguishes model-local prototype boxes from world-space placement and space boxes.
-   */
-  coordinateSpace: "model" | "world";
-}
-
-/**
- * One material directly used by the described subject.
- *
- * @evidence requirements/review/subject-description-and-structural-change.md#review-subject-description Makes subject material composition available to a reviewer.
- * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-description-record Types the compact material projection of the compiled model.
- */
-export interface IAutoMovieSubjectMaterial {
-  /**
-   * Stable material id inside its model.
-   *
-   * @evidence requirements/review/subject-description-and-structural-change.md#review-subject-description Identifies the material a subject uses.
-   * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-description-record Carries the compiled material identity.
-   */
-  id: string;
-  /**
-   * Human-readable compiled material name, or null when unnamed.
-   *
-   * @evidence requirements/review/subject-description-and-structural-change.md#review-subject-description Gives material identity a reviewable label when one was authored.
-   * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-description-record Projects the compiled material label without inventing one.
-   */
-  name: string | null;
-}
-
-/**
- * Bounded inventory summary used for subject members and diff consequences.
- *
- * @evidence requirements/review/subject-description-and-structural-change.md#review-subject-diff-tolerance-fanout Prevents review output from expanding with every repeated member.
- * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-diff-tolerance-fanout Types an exact total with a bounded deterministic id sample.
- */
-export interface IAutoMovieSubjectMemberSummary {
-  /**
-   * Exact number of members represented by the summary.
-   *
-   * @evidence requirements/review/subject-description-and-structural-change.md#review-subject-description Reports complete subject membership cardinality despite bounded output.
-   * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-description-record Types the exact membership total.
-   */
-  total: number;
-  /**
-   * Code-unit-sorted bounded sample of stable member ids.
-   *
-   * @evidence requirements/review/subject-description-and-structural-change.md#review-subject-diff-tolerance-fanout Keeps repeated membership inspectable without unbounded expansion.
-   * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-diff-tolerance-fanout Carries the deterministic bounded sample.
-   */
-  items: string[];
-  /**
-   * Rank of the first member present in {@link items}, within the sorted whole.
-   *
-   * The bound is what keeps one answer finite, and a bound with no way past it
-   * makes everything after the first page unreachable by descent: a building
-   * root that owns 988 children names 64 of them and reports the rest omitted,
-   * with nothing to ask next. Stating where the sample starts is what turns a
-   * truncation into a page — a caller reads on until `offset + items.length`
-   * reaches {@link total}. It is `0` wherever nothing asked for a later page,
-   * which is every diff consequence and every whole-inventory description.
-   *
-   * @evidence requirements/review/subject-description-and-structural-change.md#review-subject-diff-tolerance-fanout Keeps the bound while leaving membership beyond it addressable, so bounded output does not become unreachable membership.
-   * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-diff-tolerance-fanout Types the deterministic sample's starting rank alongside its exact total.
-   */
-  offset: number;
-  /**
-   * Number of members not present in {@link items}.
-   *
-   * Counted across the whole, so it covers the members before {@link offset} as
-   * well as those after the sample. It answers "is this everything?" and never
-   * "how much is left", which two different callers would otherwise read the
-   * same field as.
-   *
-   * @evidence requirements/review/subject-description-and-structural-change.md#review-subject-diff-tolerance-fanout Makes truncation explicit rather than silently incomplete.
-   * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-diff-tolerance-fanout Types the exact omitted-member count.
-   */
-  omitted: number;
-}
+import { AutoMovieSubjectKind } from "./AutoMovieSubjectKind";
+import { IAutoMovieSubjectBounds } from "./IAutoMovieSubjectBounds";
+import { IAutoMovieSubjectMaterial } from "./IAutoMovieSubjectMaterial";
+import { IAutoMovieSubjectMemberSummary } from "./IAutoMovieSubjectMemberSummary";
 
 /**
  * Renderer-independent answer to "what is this compiled subject?".
@@ -185,6 +18,7 @@ export interface IAutoMovieSubjectDescription {
    * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-description-record Types the first description schema.
    */
   version: 1;
+
   /**
    * Revision of the compiled artifact that supplied this answer.
    *
@@ -192,6 +26,7 @@ export interface IAutoMovieSubjectDescription {
    * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-description-record Carries the artifact revision correlation key.
    */
   revision: string;
+
   /**
    * Namespaced stable subject id.
    *
@@ -199,6 +34,7 @@ export interface IAutoMovieSubjectDescription {
    * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-description-record Follows the role-specific subject id namespace.
    */
   id: string;
+
   /**
    * Structural role of this subject.
    *
@@ -206,6 +42,7 @@ export interface IAutoMovieSubjectDescription {
    * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-description-record Types the subject-role discriminator.
    */
   kind: AutoMovieSubjectKind;
+
   /**
    * Open compiled semantic label such as a building-element or space kind.
    *
@@ -213,6 +50,7 @@ export interface IAutoMovieSubjectDescription {
    * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-description-record Carries the source-owned semantic kind.
    */
   semanticKind: string;
+
   /**
    * Human-readable compiled name, or null when unnamed.
    *
@@ -220,6 +58,7 @@ export interface IAutoMovieSubjectDescription {
    * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-description-record Carries the optional compiled display name.
    */
   name: string | null;
+
   /**
    * Reusable prototype subject used by this placement, or null.
    *
@@ -227,6 +66,7 @@ export interface IAutoMovieSubjectDescription {
    * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-description-record Links a placement to its reusable model or part subject.
    */
   prototype: string | null;
+
   /**
    * Placement subject represented by this record, or null for reusable data.
    *
@@ -234,6 +74,7 @@ export interface IAutoMovieSubjectDescription {
    * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-description-record Links placed subjects to their stable placement address.
    */
   placement: string | null;
+
   /**
    * Immediate owning subject, or null for a root subject.
    *
@@ -241,6 +82,7 @@ export interface IAutoMovieSubjectDescription {
    * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-description-record Carries the owner link of the subject hierarchy.
    */
   owner: string | null;
+
   /**
    * Compiled runtime model id supplying geometry, or null.
    *
@@ -248,6 +90,7 @@ export interface IAutoMovieSubjectDescription {
    * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-description-record Carries the runtime model relation.
    */
   model: string | null;
+
   /**
    * Owning logical-space subject, or null.
    *
@@ -255,6 +98,7 @@ export interface IAutoMovieSubjectDescription {
    * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-description-record Carries the explicit logical-space relation.
    */
   space: string | null;
+
   /**
    * Model- or world-placement transform when the subject has one, otherwise null.
    *
@@ -262,6 +106,7 @@ export interface IAutoMovieSubjectDescription {
    * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-description-record Carries the compiled placement or part transform.
    */
   transform: IAutoMovieTransform | null;
+
   /**
    * Declared and measured spatial extent.
    *
@@ -269,6 +114,7 @@ export interface IAutoMovieSubjectDescription {
    * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-description-bounds Carries coordinate-explicit declared and content boxes.
    */
   bounds: IAutoMovieSubjectBounds;
+
   /**
    * Code-unit-sorted materials directly used by the subject.
    *
@@ -276,6 +122,7 @@ export interface IAutoMovieSubjectDescription {
    * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-description-record Projects material identity and name from compiled models.
    */
   materials: IAutoMovieSubjectMaterial[];
+
   /**
    * Exact member count and bounded stable-id sample.
    *

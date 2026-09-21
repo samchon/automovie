@@ -1,66 +1,12 @@
-import {
-  IAutoMovieSoftBodyDomain,
-  IAutoMovieSoftCollider,
-  IAutoMovieValidation,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-
-import { ViolationCollector } from "../validation/violation";
-import { softBodyTravelNumber } from "./softBody";
-
-/**
- * Particles one panel may hold, so a lattice cannot silently cost a gigabyte.
- *
- * @evidence requirements/effects-and-simulation/soft-bodies-and-deformation.md#effects-soft-discretization-identity Bounds the particle topology carried by one stable domain identity.
- * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-static-moving-anchor-input Makes the bounded particle lattice part of the solver-domain contract.
- * @author Samchon
- */
-export const SOFT_MAX_PARTICLES = 16_384;
-
-/**
- * Absolute steps one seek may integrate.
- *
- * @evidence requirements/effects-and-simulation/soft-bodies-and-deformation.md#effects-soft-solver-state Bounds replay work needed to derive one complete solver state.
- * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-collider-and-solver-transition Makes step admission finite before state transition.
- * @author Samchon
- */
-export const SOFT_MAX_STEPS = 100_000;
-
-/**
- * Constraint relaxation sweeps one step may cost.
- *
- * @evidence requirements/effects-and-simulation/soft-bodies-and-deformation.md#effects-soft-solver-state Bounds deterministic constraint work per solver state transition.
- * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-collider-and-solver-transition Applies the declared iteration cap during ordered transition.
- * @author Samchon
- */
-export const SOFT_MAX_ITERATIONS = 64;
-
-/**
- * Anchors one panel may declare.
- *
- * @evidence requirements/effects-and-simulation/soft-bodies-and-deformation.md#effects-soft-anchors Bounds the static and moving attachment inventory.
- * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-static-moving-anchor-input Keeps anchor evaluation finite at each fixed-step boundary.
- * @author Samchon
- */
-export const SOFT_MAX_ANCHORS = 4_096;
-
-/**
- * Named anchor states one panel may declare.
- *
- * @evidence requirements/effects-and-simulation/soft-bodies-and-deformation.md#effects-soft-solver-state Bounds named solver-state alternatives carried by one domain.
- * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-collider-and-solver-transition Keeps state selection inside a finite deterministic transition input.
- * @author Samchon
- */
-export const SOFT_MAX_STATES = 32;
-
-/**
- * Colliders one panel may be kept out of.
- *
- * @evidence requirements/effects-and-simulation/soft-bodies-and-deformation.md#effects-soft-colliders Bounds the shared proxy inventory presented to the solver.
- * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-collider-and-solver-transition Keeps ordered collision projection finite.
- * @author Samchon
- */
-export const SOFT_MAX_COLLIDERS = 64;
+import { IAutoMovieSoftBodyDomain, IAutoMovieSoftCollider, IAutoMovieValidation, IAutoMovieVector3 } from "@automovie/interface";
+import { ViolationCollector } from "../validation/ViolationCollector";
+import { softBodyTravelNumber } from "./softBodyTravelNumber";
+import { SOFT_MAX_ANCHORS } from "./constants/SOFT_MAX_ANCHORS";
+import { SOFT_MAX_COLLIDERS } from "./constants/SOFT_MAX_COLLIDERS";
+import { SOFT_MAX_ITERATIONS } from "./constants/SOFT_MAX_ITERATIONS";
+import { SOFT_MAX_PARTICLES } from "./constants/SOFT_MAX_PARTICLES";
+import { SOFT_MAX_STATES } from "./constants/SOFT_MAX_STATES";
+import { SOFT_MAX_STEPS } from "./constants/SOFT_MAX_STEPS";
 
 /**
  * Validate a soft-body domain's lattice, budgets, stability, anchors, states

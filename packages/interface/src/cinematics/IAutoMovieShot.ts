@@ -1,7 +1,9 @@
-import { IAutoMovieClip } from "../core/IAutoMovieTrack";
-import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
-import { IAutoMovieCameraClearanceReport } from "../scene/IAutoMovieCamera";
+import { IAutoMovieClip } from "../core/IAutoMovieClip";
+import { IAutoMovieCameraClearanceReport } from "../scene/IAutoMovieCameraClearanceReport";
 import { IAutoMovieInteractionEvent } from "./IAutoMovieInteractionEvent";
+import { IAutoMovieCameraIntent } from "./IAutoMovieCameraIntent";
+import { IAutoMovieShotCoverage } from "./IAutoMovieShotCoverage";
+import { IAutoMovieShotPerformance } from "./IAutoMovieShotPerformance";
 
 /**
  * A shot: one continuous take (a scene, the camera that frames it, the camera's
@@ -152,127 +154,4 @@ export interface IAutoMovieShot {
    * @evidence specifications/camera-light-and-visibility/framing-axis-and-camera-path.md#clv-camera-path-direct-sampling Types `duration` for the clv camera path direct sampling system contract.
    */
   duration: number;
-}
-
-/**
- * One frame span's directorial camera intent (#1187): what the take frames and
- * how, plus the two lens intents the fixed move grammar could not carry: the
- * focus subject (resolved to a world point) and the focal length. INTENT only:
- * `fovY` on the scene camera stays the geometric truth, and depth-of-field blur
- * is deliberately out of scope (diffusion's job).
- *
- * @evidence requirements/camera/axis-eyeline-and-screen-direction.md#camera-grammar-time-sampling Exposes `IAutoMovieCameraIntent` as the portable data boundary for the camera grammar time sampling requirement.
- * @evidence specifications/camera-light-and-visibility/framing-axis-and-camera-path.md#clv-grammar-sampling-findings Types `IAutoMovieCameraIntent` for the clv grammar sampling findings system contract.
- */
-export interface IAutoMovieCameraIntent {
-  /**
-   * Shot-local start (seconds) of the frame span this intent covers.
-   *
-   * @evidence requirements/camera/axis-eyeline-and-screen-direction.md#camera-grammar-time-sampling Exposes `start` as the portable data boundary for the camera grammar time sampling requirement.
-   * @evidence specifications/camera-light-and-visibility/framing-axis-and-camera-path.md#clv-grammar-sampling-findings Types `start` for the clv grammar sampling findings system contract.
-   */
-  start: number;
-
-  /**
-   * How tight the framing is.
-   *
-   * @evidence requirements/camera/axis-eyeline-and-screen-direction.md#camera-grammar-time-sampling Exposes `framing` as the portable data boundary for the camera grammar time sampling requirement.
-   * @evidence specifications/camera-light-and-visibility/framing-axis-and-camera-path.md#clv-grammar-sampling-findings Types `framing` for the clv grammar sampling findings system contract.
-   */
-  framing: "wide" | "full" | "medium" | "close";
-
-  /**
-   * How the camera behaves over the span.
-   *
-   * @evidence requirements/camera/axis-eyeline-and-screen-direction.md#camera-grammar-time-sampling Exposes `move` as the portable data boundary for the camera grammar time sampling requirement.
-   * @evidence specifications/camera-light-and-visibility/framing-axis-and-camera-path.md#clv-grammar-sampling-findings Types `move` for the clv grammar sampling findings system contract.
-   */
-  move: "static" | "follow" | "orbit" | "push-in" | "truck" | "whip";
-
-  /**
-   * Resolved world focus point, or `null` when the action named none.
-   *
-   * @evidence requirements/camera/axis-eyeline-and-screen-direction.md#camera-grammar-time-sampling Exposes `focus` as the portable data boundary for the camera grammar time sampling requirement.
-   * @evidence specifications/camera-light-and-visibility/framing-axis-and-camera-path.md#clv-grammar-sampling-findings Types `focus` for the clv grammar sampling findings system contract.
-   */
-  focus: IAutoMovieVector3 | null;
-
-  /**
-   * Lens intent in millimetres, or `null` when the action named none.
-   *
-   * @evidence requirements/camera/axis-eyeline-and-screen-direction.md#camera-grammar-time-sampling Exposes `focalLength` as the portable data boundary for the camera grammar time sampling requirement.
-   * @evidence specifications/camera-light-and-visibility/framing-axis-and-camera-path.md#clv-grammar-sampling-findings Types `focalLength` for the clv grammar sampling findings system contract.
-   */
-  focalLength: number | null;
-}
-
-/**
- * One alternate camera take covering the shot's beat (#1187): the staged camera
- * that plays the angle, its compiled move, and its per-span directorial intent.
- * Same contract as the hero take, plural: a beat blocked for several angles
- * assembles one take per staged camera, and a render/diffusion host picks or
- * intercuts them without re-performing the shot.
- *
- * @evidence requirements/camera/position-and-movement.md#camera-path-time-sampling Exposes `IAutoMovieShotCoverage` as the portable data boundary for the camera path time sampling requirement.
- * @evidence specifications/camera-light-and-visibility/framing-axis-and-camera-path.md#clv-camera-path-direct-sampling Types `IAutoMovieShotCoverage` for the clv camera path direct sampling system contract.
- */
-export interface IAutoMovieShotCoverage {
-  /**
-   * Id of the scene camera this take plays on (never the hero `camera`).
-   *
-   * @evidence requirements/camera/position-and-movement.md#camera-path-time-sampling Exposes `camera` as the portable data boundary for the camera path time sampling requirement.
-   * @evidence specifications/camera-light-and-visibility/framing-axis-and-camera-path.md#clv-camera-path-direct-sampling Types `camera` for the clv camera path direct sampling system contract.
-   */
-  camera: string;
-
-  /**
-   * The covering camera's move: a clip of its transform tracks, compiled by the
-   * same framing grammar as the hero `cameraMotion`. `null` for a locked-off
-   * (static) covering camera.
-   *
-   * @evidence requirements/camera/position-and-movement.md#camera-path-time-sampling Exposes `cameraMotion` as the portable data boundary for the camera path time sampling requirement.
-   * @evidence specifications/camera-light-and-visibility/framing-axis-and-camera-path.md#clv-camera-path-direct-sampling Types `cameraMotion` for the clv camera path direct sampling system contract.
-   */
-  cameraMotion: IAutoMovieClip | null;
-
-  /**
-   * This take's directorial intent per frame span, the same record the hero
-   * take carries on `cameraIntent`. Empty when the angle had no frame actions.
-   *
-   * @evidence requirements/camera/position-and-movement.md#camera-path-time-sampling Exposes `cameraIntent` as the portable data boundary for the camera path time sampling requirement.
-   * @evidence specifications/camera-light-and-visibility/framing-axis-and-camera-path.md#clv-camera-path-direct-sampling Types `cameraIntent` for the clv camera path direct sampling system contract.
-   */
-  cameraIntent: IAutoMovieCameraIntent[];
-}
-
-/**
- * What one scene node does during a shot.
- *
- * @evidence requirements/camera/framing-and-shot-size.md#camera-framing-delivery-gate Exposes `IAutoMovieShotPerformance` as the portable data boundary for the camera framing delivery gate requirement.
- * @evidence specifications/camera-light-and-visibility/camera-state-projection-and-gate.md#clv-sensor-gate-delivery-mapping Types `IAutoMovieShotPerformance` for the clv sensor gate delivery mapping system contract.
- */
-export interface IAutoMovieShotPerformance {
-  /**
-   * Id of the scene node performing.
-   *
-   * @evidence requirements/camera/framing-and-shot-size.md#camera-framing-delivery-gate Exposes `node` as the portable data boundary for the camera framing delivery gate requirement.
-   * @evidence specifications/camera-light-and-visibility/camera-state-projection-and-gate.md#clv-sensor-gate-delivery-mapping Types `node` for the clv sensor gate delivery mapping system contract.
-   */
-  node: string;
-
-  /**
-   * Id of the motion clip it plays, or `null` to hold its pose.
-   *
-   * @evidence requirements/camera/framing-and-shot-size.md#camera-framing-delivery-gate Exposes `motion` as the portable data boundary for the camera framing delivery gate requirement.
-   * @evidence specifications/camera-light-and-visibility/camera-state-projection-and-gate.md#clv-sensor-gate-delivery-mapping Types `motion` for the clv sensor gate delivery mapping system contract.
-   */
-  motion: string | null;
-
-  /**
-   * Seconds into the shot at which this performance begins.
-   *
-   * @evidence requirements/camera/framing-and-shot-size.md#camera-framing-delivery-gate Exposes `startOffset` as the portable data boundary for the camera framing delivery gate requirement.
-   * @evidence specifications/camera-light-and-visibility/camera-state-projection-and-gate.md#clv-sensor-gate-delivery-mapping Types `startOffset` for the clv sensor gate delivery mapping system contract.
-   */
-  startOffset: number;
 }

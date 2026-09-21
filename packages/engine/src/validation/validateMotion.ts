@@ -8,7 +8,7 @@ import {
 
 import { validateExpression } from "./validateExpression";
 import { validatePose } from "./validatePose";
-import { ViolationCollector } from "./violation";
+import { ViolationCollector } from "./ViolationCollector";
 
 /**
  * Maximum per-axis angular speed (degrees per second) the temporal verifier

@@ -9,6 +9,7 @@ Keep time in seconds, space in right-handed Y-up metres, and randomness in expli
 Read each applicable sibling in full before acting:
 
 - [Design branches](design-branches.md) separates map, model, space, material, instance, motion, and system ownership.
+- [Implementation strategy](implementation-strategy.md) compares reuse and new implementation when the method is uncertain or repeated corrections fail to improve the consumed result.
 - [Models and motions](models-and-motions.md) covers bounded representation, articulation, and deterministic change.
 - [Geometry](geometry.md) owns operation selection, topology and attribute consequences, deterministic explicit meshes, and geometry verification.
 - [Ownership](ownership.md) separates author-, builder-, and renderer-owned bytes.

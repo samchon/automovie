@@ -1,8 +1,6 @@
-import {
-  attachPortraitDentalRow,
-  buildPortraitDentalRow,
-} from "@automovie/human/components/dentalRow";
-import { portraitPoint as p } from "@automovie/human/geometry/geometry";
+import { attachPortraitDentalRow } from "@automovie/human/face/anatomy/dental/attachPortraitDentalRow";
+import { buildPortraitDentalRow } from "@automovie/human/face/anatomy/dental/buildPortraitDentalRow";
+import { portraitPoint as p } from "@automovie/human/face/mesh/portraitPoint";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, throwsError } from "../internal/predicates";
@@ -98,7 +96,7 @@ export const test_subject_dental_row = (): void => {
       "invalid frame refuses",
       throwsError(
         () => attachPortraitDentalRow(row, { ...frame, ...patch }),
-        "Dental attachment",
+        "Oral attachment",
       ),
     );
   TestValidator.predicate(

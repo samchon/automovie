@@ -1,5 +1,5 @@
-import { blendPortraitSkin } from "@automovie/human/geometry/blendPortraitSkin";
-import type { IPortraitSkinConstraint } from "@automovie/human/geometry/portraitComponents";
+import { blendPortraitSkin } from "@automovie/human/face/anatomy/skin/blendPortraitSkin";
+import type { IPortraitSkinConstraint } from "@automovie/human/face/anatomy/skin/structures/IPortraitSkinConstraint";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, throwsError } from "../internal/predicates";
@@ -37,6 +37,11 @@ export const test_subject_skin_attachment_blend = (): void => {
   }));
   const result = blendPortraitSkin(points, indices, pins);
   TestValidator.predicate("harmonic centre", nclose(result[0][2], 1));
+  TestValidator.equals(
+    "repeated triangle corner contributes no self displacement",
+    blendPortraitSkin(points, [...indices, 0, 0, 1], pins),
+    result,
+  );
   TestValidator.equals("exact attachment", result[1], [1, 0, 4]);
   TestValidator.equals("nearby disconnected marker", result[5], points[5]);
   TestValidator.equals("outside geodesic reach", result[6], points[6]);
@@ -98,8 +103,8 @@ export const test_subject_skin_attachment_blend = (): void => {
     "coincident edge stays finite",
     coincident.flat().every(Number.isFinite),
   );
-  // A long strip uses the finite refinement budget. Positive averaging must
-  // retain the boundary maximum principle before full harmonic convergence.
+  // A converged positive-weight Dirichlet field retains the boundary maximum
+  // principle, including along an extended patch rather than just one fan.
   const strip = Array.from({ length: 31 }, (_, x) => [
     [x, 0, 0],
     [x, 1, 0],

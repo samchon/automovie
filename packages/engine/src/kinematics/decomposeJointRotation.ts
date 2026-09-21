@@ -2,12 +2,11 @@ import { IAutoMovieQuaternion } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { IAutoMovieRestFrame, toClinicalAngle } from "../rom/restFrame";
-import {
-  DEFAULT_JOINT_AXES,
-  IAutoMovieJointAxes,
-  normalizeJointAxes,
-} from "./jointToQuaternion";
+import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
+import { toClinicalAngle } from "../rom/toClinicalAngle";
+import { DEFAULT_JOINT_AXES } from "./constants/DEFAULT_JOINT_AXES";
+import { IAutoMovieJointAxes } from "./IAutoMovieJointAxes";
+import { normalizeJointAxes } from "./normalizeJointAxes";
 
 const RAD2DEG = 180 / Math.PI;
 const QUATERNION_AXES = ["x", "y", "z", "w"] as const;

@@ -1,0 +1,11 @@
+{
+  "generated": "Clarabel public Rust API bridge; regenerate with vendor/clarabel/build.cmake",
+  "clarabel": "0.11.1",
+  "upstreamRevision": "25540f559592068d0c8a80e46ded1b21760212a1",
+  "compiler": "rustc 1.90.0 (1159e78c4 2025-09-14), wasm32-wasip1",
+  "flags": "@RUST_FLAGS@",
+  "bridgeSha256": "@BRIDGE_SHA@",
+  "lockSha256": "@LOCK_SHA@",
+  "sha256": "@KERNEL_SHA@",
+  "hex": "@KERNEL_HEX@"
+}

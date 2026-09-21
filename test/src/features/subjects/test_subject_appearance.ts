@@ -1,4 +1,4 @@
-import { createPortraitMaterials } from "@automovie/human/components/materials";
+import { createPortraitMaterials } from "@automovie/human/face/anatomy/cranium/createPortraitMaterials";
 import { TestValidator } from "@nestia/e2e";
 
 import { buildReferencePortrait } from "../../subjects/generated-korean-girl-01/model";

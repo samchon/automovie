@@ -15,11 +15,14 @@ type AutoMovieNodeTrackPath = "translation" | "rotation" | "scale" | "weights";
 
 /**
  * The automovie-core payload an imported glTF/GLB resolves to.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-basis External scene import reads evaluated meshes and animation; it does not interpret facial basis endpoints or compact numerical editing documents.
  *
  * @evidence requirements/asset-authoring/external-assets.md#asset-external-scene-graph-preservation Preserves source nodes and animations as stable project-native identities.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/README.md#face-specifications Ingest maps an already-parsed external scene and animations; it does not author or validate the complete face construction, application and review boundary.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document Ingest maps an already-parsed external scene and animations; it does not author or validate human-face version admission and photo-independent basis interpretation.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Ingest maps an already-parsed external scene and animations; it does not author or validate cranial, cervical, ocular, nasal, oral and auricular surface assembly.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-skin-condition External-scene interpretation preserves supplied meshes and animation tracks; it does not synthesize anatomical skin fields or locally subdivide a portrait surface.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-skin-colour External asset interpretation reads already authored geometry; it does not reconstruct numerical facial pigmentation or reference tissue.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Ingest maps an already-parsed external scene and animations; it does not author or validate ordered face defaults, trait offsets, array replacement and asymmetric detail.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-attachments Ingest maps an already-parsed external scene and animations; it does not author or validate face-part cut ownership and final-surface attachment correspondence.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-expression Ingest maps an already-parsed external scene and animations; it does not author or validate the neutral/observed/current face solve and fixed optical identity.

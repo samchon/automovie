@@ -1,0 +1,83 @@
+{
+  "basis": "mpfb-connected-head-2026-09-18-jaw-corrective",
+  "supersedes": "mpfb-connected-head-2026-09-17-binocular-frame",
+  "corrective": {
+    "id": "jawOpenMouthCloseEase",
+    "inputs": [
+      {
+        "channel": "jawOpen",
+        "side": "positive"
+      },
+      {
+        "channel": "mouthClose",
+        "side": "positive"
+      }
+    ],
+    "weight": 1,
+    "target": "jawOpenMouthCloseEase"
+  },
+  "hinge": {
+    "axis": [
+      0.9999999999998961,
+      -4.544177882893016e-7,
+      -3.574867938797849e-8
+    ],
+    "pivotMetres": [
+      -4.067691247533046e-9,
+      -0.050375649268526876,
+      0.17493440812592173
+    ],
+    "openingDegrees": 21.15543006460393,
+    "rigidResidualMillimetres": 2.2980407993451535,
+    "backRotationDegrees": 10,
+    "movedVertices": 1884
+  },
+  "crossingTriangles": {
+    "neutral": {
+      "skinTeeth": 0,
+      "teethTongue": [
+        491,
+        410
+      ]
+    },
+    "combinationBefore": {
+      "skinTeeth": [
+        84,
+        278
+      ],
+      "teethTongue": [
+        341,
+        214
+      ]
+    },
+    "combinationAfter": {
+      "skinTeeth": 0,
+      "teethTongue": [
+        201,
+        124
+      ]
+    },
+    "jawOpenAlone": {
+      "skinTeeth": [
+        60,
+        111
+      ],
+      "teethTongue": [
+        341,
+        214
+      ]
+    },
+    "mouthCloseAlone": {
+      "skinTeeth": 0,
+      "teethTongue": [
+        491,
+        410
+      ]
+    }
+  },
+  "limits": [
+    "The corrective removes the measured crossing; it is not an anatomical or likeness acceptance.",
+    "jawOpen alone still crosses 60/111 by its own endpoint; that is a separate pose and a separate corrective.",
+    "Teeth against tongue is a rest property of this asset and is reported, not corrected."
+  ]
+}

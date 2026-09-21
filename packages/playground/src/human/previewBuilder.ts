@@ -1,19 +1,19 @@
-import {
-  type IAutoMovieHumanFaceDocument,
-  serializeHumanFaceDocument,
-} from "@automovie/human";
+import type { IAutoMovieModelCrossing } from "@automovie/engine";
+import type { IAutoMovieHumanFaceDocument } from "@automovie/human";
 import type { JSONDocument } from "@gltf-transform/core";
 
 type Artifact = {
   glb: Uint8Array<ArrayBuffer>;
   gltf: JSONDocument;
   parts: number;
+  /** Absent when the port does not measure, null when this request did not ask. */
+  crossings?: IAutoMovieModelCrossing[] | null;
 };
 type Reply = ({ success: true } & Artifact) | { success: false; error: string };
 type WorkerPort = {
   onError: (message: string) => void;
   onReply: (reply: Reply) => void;
-  send: (text: string) => void;
+  send: (text: string, measure?: boolean) => void;
   terminate: () => void;
 };
 
@@ -26,7 +26,12 @@ type WorkerPort = {
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Prevents superseded worker or decoder results from becoming the displayed face after a newer request or file load.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Shares a request generation across worker completion and asynchronous decoding, releasing obsolete renderer resources.
  */
-export function createHumanPreviewBuilder<Model>(props: {
+export function createHumanPreviewBuilder<
+  Model,
+  Document = IAutoMovieHumanFaceDocument,
+>(props: {
+  /** Admission and serialization belong to the selected numerical document format. */
+  serialize: (document: Document) => string;
   worker: () => WorkerPort;
   decode: (artifact: Artifact) => Promise<Model>;
   dispose: (model: Model) => void;
@@ -41,12 +46,10 @@ export function createHumanPreviewBuilder<Model>(props: {
     active = undefined;
     rejectActive = undefined;
   };
-  const build = async (
-    document: IAutoMovieHumanFaceDocument,
-  ): Promise<Model> => {
+  const build = async (document: Document, measure = false): Promise<Model> => {
     cancel();
     const ticket = generation;
-    const text = serializeHumanFaceDocument(document);
+    const text = props.serialize(document);
     const worker = props.worker();
     active = worker;
     let artifact: Artifact;
@@ -63,7 +66,7 @@ export function createHumanPreviewBuilder<Model>(props: {
           );
         worker.onReply = (reply) =>
           reply.success ? resolve(reply) : reject(new Error(reply.error));
-        worker.send(text);
+        worker.send(text, measure);
       });
     } finally {
       worker.terminate();

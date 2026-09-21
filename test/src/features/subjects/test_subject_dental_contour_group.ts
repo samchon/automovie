@@ -1,5 +1,5 @@
-import { buildPortraitDentalRow } from "@automovie/human/components/dentalRow";
-import { buildPortraitMouth } from "@automovie/human/components/mouth";
+import { buildPortraitDentalRow } from "@automovie/human/face/anatomy/dental/buildPortraitDentalRow";
+import { buildPortraitMouth } from "@automovie/human/face/anatomy/mouth/buildPortraitMouth";
 import type { IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 

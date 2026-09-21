@@ -3,7 +3,7 @@ import {
   IAutoMovieModelRecipe,
 } from "@automovie/interface";
 
-import { productionRuntimeModelId } from "../productionIdentity";
+import { productionRuntimeModelId } from "../productionRuntimeModelId";
 import { compiledLodRecipeDigest } from "./compiledLodRecipeDigest";
 
 /**

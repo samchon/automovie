@@ -1,6 +1,6 @@
 import { IAutoMovieCompiledFilmEffect } from "@automovie/interface";
 
-import { IAutoMovieEffectSample } from "../effect";
+import { IAutoMovieEffectSample } from "../IAutoMovieEffectSample";
 
 /**
  * One film-owned effect and its deterministic engine sample.

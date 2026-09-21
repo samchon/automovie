@@ -1,9 +1,7 @@
-import {
-  type IPortraitReliefCurve,
-  type IPortraitReliefRegion,
-  createPortraitReliefCurveLayer,
-  createPortraitReliefLayer,
-} from "@automovie/human/geometry/portraitRelief";
+import { createPortraitReliefCurveLayer } from "@automovie/human/face/anatomy/skin/createPortraitReliefCurveLayer";
+import { createPortraitReliefLayer } from "@automovie/human/face/anatomy/skin/createPortraitReliefLayer";
+import { type IPortraitReliefCurve } from "@automovie/human/face/anatomy/skin/structures/IPortraitReliefCurve";
+import { type IPortraitReliefRegion } from "@automovie/human/face/anatomy/skin/structures/IPortraitReliefRegion";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, throwsError } from "../internal/predicates";

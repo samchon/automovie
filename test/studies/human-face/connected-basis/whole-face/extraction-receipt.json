@@ -1,0 +1,24 @@
+{
+  "sourceBlend": "7bd7b59bec110ccd77a874c6977b1c761c18493e6c28272b5cb070299eaa47c9",
+  "basis": "368146c389a100ce29ba2ab012fdf3ad4cfa4fd6277fb438d4d03df1b9a2593e",
+  "neutralRecoveryMaximumMetres": {
+    "Human": 0.0,
+    "Human.eyebrow001": 0.0,
+    "Human.eyelashes01": 0.0,
+    "Human.low-poly": 0.0,
+    "Human.teeth_base": 0.0,
+    "Human.tongue01": 0.0
+  },
+  "cropMinimumYMetres": -0.145,
+  "channels": 132,
+  "surfaceCount": 6,
+  "limits": [
+    "Authored upstream prior, not individual anatomy",
+    "Linear endpoint interpolation, not a rigid joint rig",
+    "No collision or likeness acceptance"
+  ],
+  "compressedSha256": "24c70acd589794b3d6355c2f22a53686dc561eab1912e41516e9ae4658548732",
+  "compressedBytes": 17181264,
+  "previousBasis": "mpfb-connected-head-2026-09-17-clipped",
+  "previousControlsAndNeutralExact": true
+}

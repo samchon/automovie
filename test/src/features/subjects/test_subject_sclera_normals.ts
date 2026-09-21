@@ -1,8 +1,8 @@
-import { buildPortraitEye } from "@automovie/human/components/eyes";
-import { portraitPoint } from "@automovie/human/geometry/geometry";
+import { buildPortraitEye } from "@automovie/human/face/anatomy/eye/buildPortraitEye";
+import { portraitPoint } from "@automovie/human/face/mesh/portraitPoint";
 import { TestValidator } from "@nestia/e2e";
 
-import { portraitEyeShape } from "../../subjects/generated-korean-girl-01/configuration";
+import { portraitEyeShapeFixture } from "../internal/portraitEyeShapeFixture";
 import { nclose } from "../internal/predicates";
 
 /**
@@ -15,6 +15,7 @@ import { nclose } from "../internal/predicates";
  *    keeps both collapsed end rows valid rather than emitting zero normals.
  */
 export const test_subject_sclera_normals = (): void => {
+  const portraitEyeShape = portraitEyeShapeFixture();
   for (const offset of [
     [0, 0, 0],
     [3, 4, 5],

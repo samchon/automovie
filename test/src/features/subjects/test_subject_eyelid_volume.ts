@@ -1,11 +1,9 @@
-import {
-  type IPortraitEyeShape,
-  appendPortraitEyeMargins,
-  createPortraitEyeComponent,
-} from "@automovie/human/components/eyes";
+import { appendPortraitEyeMargins } from "@automovie/human/face/anatomy/eye/appendPortraitEyeMargins";
+import { createPortraitEyeComponent } from "@automovie/human/face/anatomy/eye/createPortraitEyeComponent";
+import { type IPortraitEyeShape } from "@automovie/human/face/anatomy/eye/structures/IPortraitEyeShape";
 import { TestValidator } from "@nestia/e2e";
 
-import { portraitEyeShape } from "../../subjects/generated-korean-girl-01/configuration";
+import { portraitEyeShapeFixture } from "../internal/portraitEyeShapeFixture";
 import { throwsError } from "../internal/predicates";
 
 /**
@@ -20,6 +18,7 @@ import { throwsError } from "../internal/predicates";
  * 3. Zero dimensions are valid; negative and nonfinite tissue sizes refuse.
  */
 export const test_subject_eyelid_volume = (): void => {
+  const portraitEyeShape = portraitEyeShapeFixture();
   const host = {
     positions: [
       [-2, 0, 0],
@@ -58,8 +57,8 @@ export const test_subject_eyelid_volume = (): void => {
   const neutral = {
     ...portraitEyeShape,
     aegyoSal: undefined,
-    // This scenario pins the basic scalar path, independently of a subject's
-    // selected detailed section. Profile replacement has its own scenarios.
+    // Basic scalar displacement is measured on the analytic plane. Detailed
+    // profile replacement has its own scenarios and contributes no relief here.
     lowerLidProfile: undefined,
     foldWidth: 0,
     foldDepth: 0,

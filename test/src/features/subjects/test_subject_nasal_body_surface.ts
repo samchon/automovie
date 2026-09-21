@@ -1,6 +1,6 @@
-import type { IPortraitNasalBodyShape } from "@automovie/human/components/nasalBody";
-import { createPortraitNasalBodySurface } from "@automovie/human/components/nasalBodySurface";
-import { applyPortraitFinalSurfaces } from "@automovie/human/geometry/portraitFinalSurface";
+import type { IPortraitNasalBodyShape } from "@automovie/human/face/anatomy/nose/structures/IPortraitNasalBodyShape";
+import { createPortraitNasalBodySurface } from "@automovie/human/face/anatomy/nose/createPortraitNasalBodySurface";
+import { applyPortraitFinalSurfaces } from "@automovie/human/face/surface/applyPortraitFinalSurfaces";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, throwsError } from "../internal/predicates";

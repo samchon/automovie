@@ -1,8 +1,6 @@
 import { createAutoMovieMeshDeformer } from "@automovie/engine";
-import {
-  type IPortraitOrbitalSupportShape,
-  createPortraitOrbitalSupport,
-} from "@automovie/human/components/orbitalSupport";
+import { createPortraitOrbitalSupport } from "@automovie/human/face/anatomy/eye/createPortraitOrbitalSupport";
+import { type IPortraitOrbitalSupportShape } from "@automovie/human/face/anatomy/eye/structures/IPortraitOrbitalSupportShape";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, throwsError } from "../internal/predicates";

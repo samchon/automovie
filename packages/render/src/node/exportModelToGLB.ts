@@ -30,9 +30,12 @@ import type { Document, Material, Node } from "@gltf-transform/core";
  * equals what the viewer computes for a soup anyway.
  *
  * @evidence requirements/product/scope-and-exclusions.md#product-editor-export-exclusion Limits this operation to one model artifact instead of claiming generic scene editing or export.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-basis This serializer consumes an evaluated model; connected facial basis admission, numerical editing and common-normal construction precede serialization in the human builder.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/README.md#face-specifications The generic exporter serializes supplied model nodes and basic materials; it does not implement the complete face construction, application and review boundary.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document The generic exporter serializes supplied model nodes and basic materials; it does not implement human-face version admission and photo-independent basis interpretation.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components The generic exporter serializes supplied model nodes and basic materials; it does not implement cranial, cervical, ocular, nasal, oral and auricular surface assembly.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-skin-condition Static serialization consumes already-constructed skin triangles; anatomical field synthesis and portrait-local subdivision precede this exporter.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-skin-colour Static export preserves supplied RGB attributes; it does not bind pigmentation to reference anatomy or transport tissue through expressions.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls The generic exporter serializes supplied model nodes and basic materials; it does not implement ordered face defaults, trait offsets, array replacement and asymmetric detail.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-attachments The generic exporter serializes supplied model nodes and basic materials; it does not implement face-part cut ownership and final-surface attachment correspondence.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-expression The generic exporter serializes supplied model nodes and basic materials; it does not implement the neutral/observed/current face solve and fixed optical identity.
@@ -368,6 +371,18 @@ export const exportModelToGLB = async (
           .createAccessor()
           .setType("VEC3")
           .setArray(new Float32Array(t.normals))
+          .setBuffer(buffer),
+      );
+    if (
+      part.geometry.type === "mesh" &&
+      part.geometry.mesh.colors !== undefined
+    )
+      prim.setAttribute(
+        "COLOR_0",
+        doc
+          .createAccessor()
+          .setType("VEC3")
+          .setArray(new Float32Array(part.geometry.mesh.colors))
           .setBuffer(buffer),
       );
     if (t.indices.length !== 0)

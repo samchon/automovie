@@ -1,36 +1,21 @@
-import {
-  IAutoMovieActionCall,
-  IAutoMovieActionTarget,
-  IAutoMovieBeatEndActorState,
-  IAutoMovieBeatEndState,
-  IAutoMovieKeyframe,
-  IAutoMovieMotion,
-  IAutoMoviePose,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-
+import { IAutoMovieActionCall, IAutoMovieActionTarget, IAutoMovieBeatEndActorState, IAutoMovieBeatEndState, IAutoMovieKeyframe, IAutoMovieMotion, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
 import { aimYawPitch } from "../kinematics/aimYawPitch";
-import { gazeChainJoints } from "../kinematics/gazeChain";
-import { HUMANOID_JOINT_AXES } from "../kinematics/humanoidJointAxes";
+import { gazeChainJoints } from "../kinematics/gazeChainJoints";
 import { reachPose } from "../kinematics/reachPose";
-import { resolvePose } from "../kinematics/resolvePose";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { holdMotion } from "../motion/arrange";
-import { ease } from "../motion/easing";
-import { gaitMotion } from "../motion/gait";
-import { gestureMotion } from "../motion/gesture";
-import {
-  classifyLocomoteGroundDisplacement,
-  locomoteMotion,
-} from "../motion/locomote";
-import { reactMotion } from "../motion/react";
-import { sampleMotion } from "../motion/sampleMotion";
-import { timeScaleMotion } from "../motion/timeScale";
+import { holdMotion } from "../motion/holdMotion";
+import { ease } from "../motion/ease";
+import { gaitMotion } from "../motion/gaitMotion";
+import { gestureMotion } from "../motion/gestureMotion";
+import { classifyLocomoteGroundDisplacement } from "../motion/classifyLocomoteGroundDisplacement";
+import { locomoteMotion } from "../motion/locomoteMotion";
+import { reactMotion } from "../motion/reactMotion";
+import { timeScaleMotion } from "../motion/timeScaleMotion";
 import { IAutoMovieActorContext } from "./IAutoMovieActorContext";
-import { IAutoMovieActionSynthesizer } from "./compilePerformance";
+import { IAutoMovieActionSynthesizer } from "./IAutoMovieActionSynthesizer";
 import { resolveTargetPoint } from "./resolveTargetPoint";
+import { IAutoMovieActorWorldFrame } from "./IAutoMovieActorWorldFrame";
 
 /** Keyframes per gait cycle the reference synthesiser bakes. */
 const GAIT_SAMPLES = 8;
@@ -58,37 +43,6 @@ const assertUniqueActorGaits = (
     seen.add(gait.name);
   }
 };
-
-/**
- * The actor root's shot-local world transform at one sampled instant.
- *
- * @evidence requirements/motion/root-motion-and-trajectories.md#motion-root-authority-mode Represents the actor root produced by the selected motion authority.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-kinematics-procedural-gait-rule Defines the sampled world-frame result of procedural root trajectory resolution.
- * @author Samchon
- */
-export interface IAutoMovieActorWorldFrame {
-  /**
-   * Actor-root position in world space.
-   *
-   * @evidence requirements/motion/root-motion-and-trajectories.md#motion-root-authority-mode Carries the world translation produced by the selected root authority.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-kinematics-procedural-gait-rule Emits the sampled world root required by procedural trajectory consumers.
-   */
-  position: IAutoMovieVector3;
-  /**
-   * Actor-root orientation in world space.
-   *
-   * @evidence requirements/motion/root-motion-and-trajectories.md#motion-facing-travel Preserves root orientation independently from the translated travel path.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-kinematics-procedural-gait-rule Carries the sampled root rotation used to interpret local target space.
-   */
-  rotation: IAutoMovieQuaternion;
-  /**
-   * Authored yaw in degrees retained for locomotion synthesis.
-   *
-   * @evidence requirements/motion/root-motion-and-trajectories.md#motion-facing-travel Exposes the resolved facing direction separately from root displacement.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-kinematics-procedural-gait-rule Reports the sampled facing state of the procedural trajectory.
-   */
-  facingDeg: number;
-}
 
 const staticActorWorldFrame = (
   context: IAutoMovieActorContext,
@@ -145,33 +99,6 @@ const resumedRuntime = (
     if (nodes.has(actor.node))
       nodes.set(actor.node, actor.transform.translation);
   return { contexts: liveContexts, nodes };
-};
-
-/**
- * Resolve a motion root on top of the actor's staged world transform.
- *
- * @evidence requirements/motion/root-motion-and-trajectories.md#motion-root-authority-mode Composes clip-local root motion with the authored staged transform without double authority.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-kinematics-procedural-gait-rule Produces the world root at one sampled instant.
- */
-export const resolveActorWorldFrame = (
-  context: IAutoMovieActorContext,
-  motion: IAutoMovieMotion | undefined,
-  seconds: number,
-): IAutoMovieActorWorldFrame | null => {
-  if (motion === undefined) return null;
-  const root = sampleMotion(motion, seconds).pose.root;
-  if (root === null) return null;
-  const staged = staticActorWorldFrame(context);
-  const rotation = Quaternion.multiply(staged.rotation, root.rotation);
-  const forward = Quaternion.rotateVector(rotation, { x: 0, y: 0, z: 1 });
-  return {
-    position: Vector3.add(
-      staged.position,
-      Quaternion.rotateVector(staged.rotation, root.translation),
-    ),
-    rotation,
-    facingDeg: (Math.atan2(forward.x, forward.z) * 180) / Math.PI,
-  };
 };
 
 /** Drop a world point into an actor's model space (undo its live frame). */
@@ -355,46 +282,6 @@ const dynamicJabClip = (props: {
       return weightedArmPose(props.skeleton, pose, weight);
     },
   });
-};
-
-/**
- * Resolve a bone target into world coordinates from a sampled actor motion.
- *
- * @evidence requirements/motion/constraints-and-inverse-kinematics.md#motion-constraint-target-space Resolves a moving bone target into the explicit world space consumed by IK.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-contact-phase-weight-support Transforms a sampled rig-bone position into world target space.
- */
-export const resolveBoneTarget = (
-  target: IAutoMovieActionTarget,
-  contexts: ReadonlyMap<string, IAutoMovieActorContext>,
-  motions: Readonly<Record<string, IAutoMovieMotion>> | undefined,
-  seconds: number,
-): IAutoMovieVector3 | null => {
-  if (target.kind !== "bone") return null;
-  const context = contexts.get(target.node);
-  if (context?.rig === undefined) return null;
-  const motion = motions?.[target.node];
-  const pose =
-    motion === undefined
-      ? context.restPose
-      : sampleMotion(motion, seconds).pose;
-  const resolved = resolvePose(
-    pose,
-    context.rig,
-    HUMANOID_JOINT_AXES,
-    context.restFrames,
-  ).find((entry) => entry.bone === target.bone);
-  if (resolved === undefined) return null;
-  const facing = Quaternion.fromAxisAngle(
-    { x: 0, y: 1, z: 0 },
-    context.facingDeg,
-  );
-  return Vector3.add(
-    context.position,
-    // `resolvePose` starts its FK walk at `pose.root.translation`, so its
-    // world position already carries locomotion exactly once. Rotate that
-    // model-space point into the staged facing, then translate to the actor.
-    Quaternion.rotateVector(facing, resolved.worldPosition),
-  );
 };
 
 /** A rest → strike → rest jab: snap out to `pose` early, then retract. */

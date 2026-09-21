@@ -1,0 +1,1202 @@
+{
+  "basis": "mpfb-connected-head-2026-09-18-jaw-corrective",
+  "basisSha256": "80e3cbbbc254af3a22392b32dc0cb0767ab789372cb15a8bfc20f06924785fdc",
+  "method": "Bounded robust TRF with six equal semantic landmark groups, 52 performance controls, 84 shape controls of which the seventeen left/right pairs are solved as one tied weight each, three whole-face shape starts, every landmark anchored on the outer surface the front camera sees, a commitment-scaled shape regularizer of 0.003 at the basis's root-mean-square channel commitment and 0.015 observed-performance regularity",
+  "fieldNotes": {
+    "rmseBeforeFaceHeight": "This fit's own pose-only baseline: every shape and performance weight at zero with only the camera solved. It is not the previously published solution.",
+    "previousSemanticGroupRms": "The previously published solution, re-evaluated on this fit's anchors so the two share one instrument."
+  },
+  "residualInstrument": "Both semantic group residuals are measured on the outer-shell anchors, so the published and candidate solutions share one instrument",
+  "frozenSubject": "generated-korean-girl-01",
+  "anchorRule": "outer shell",
+  "basisMirror": {
+    "vertices": 17927,
+    "unmatched": 0,
+    "involution": true,
+    "midlineVertices": 237,
+    "tiedShapePairs": 17,
+    "neutralPairingRootMeanSquareMillimetres": 0.00009828730374210329,
+    "worstNeutralPairingMillimetres": 0.00036561884806125697,
+    "worstEndpointMirrorResidualMillimetres": 0.008368528240541288
+  },
+  "identitySymmetry": "The seventeen left/right shape pairs are tied, so the fitted identity is symmetric by construction. Performance channels stay free because the detector reports a separate score per side.",
+  "mirrorDeviationMillimetresBefore": 1.2599971513224955,
+  "mirrorDeviationMillimetresAfter": 0.6502866416299343,
+  "identityMirrorDeviationMillimetresBefore": 0.9937124590873182,
+  "identityMirrorDeviationMillimetresAfter": 0.008813717001982574,
+  "repairedAnchors": [
+    {
+      "landmark": 33,
+      "imagePlaneDistance": 0.00004689809408725224,
+      "moved": 0.018001946578118103,
+      "previousZ": 0.10821564466974093,
+      "anchorZ": 0.1262175301590498
+    },
+    {
+      "landmark": 58,
+      "imagePlaneDistance": 0.0007408833628675681,
+      "moved": null,
+      "previousZ": null,
+      "anchorZ": 0.07502714407744557
+    },
+    {
+      "landmark": 88,
+      "imagePlaneDistance": 0.00021831073459927292,
+      "moved": 0.09309236421120264,
+      "previousZ": 0.047109654683434164,
+      "anchorZ": 0.14020176291423084
+    },
+    {
+      "landmark": 95,
+      "imagePlaneDistance": 0.00012088321648474783,
+      "moved": 0.09076432996284012,
+      "previousZ": 0.047803895576562776,
+      "anchorZ": 0.13856814504104792
+    },
+    {
+      "landmark": 158,
+      "imagePlaneDistance": 0.00022901217634196705,
+      "moved": 0.029733928281593155,
+      "previousZ": 0.10382211557035878,
+      "anchorZ": 0.1335551619073558
+    },
+    {
+      "landmark": 159,
+      "imagePlaneDistance": 0.0006090593545135088,
+      "moved": 0.030175504488428515,
+      "previousZ": 0.10356801750569794,
+      "anchorZ": 0.13373737477153722
+    },
+    {
+      "landmark": 160,
+      "imagePlaneDistance": 0.0010548685802172903,
+      "moved": 0.028140933326266798,
+      "previousZ": 0.10443716082624475,
+      "anchorZ": 0.13255831622128256
+    },
+    {
+      "landmark": 161,
+      "imagePlaneDistance": 0.0015190197124436977,
+      "moved": 0.02515486491800549,
+      "previousZ": 0.10576579975846181,
+      "anchorZ": 0.1308747584815214
+    },
+    {
+      "landmark": 178,
+      "imagePlaneDistance": 0.0001872455135489883,
+      "moved": 0.09657876437503393,
+      "previousZ": 0.047056567293621517,
+      "anchorZ": 0.14363515015403616
+    },
+    {
+      "landmark": 191,
+      "imagePlaneDistance": 0.00025353209194345296,
+      "moved": 0.09275383363313468,
+      "previousZ": 0.04774282109520362,
+      "anchorZ": 0.1404963082270715
+    },
+    {
+      "landmark": 246,
+      "imagePlaneDistance": 0.0016879019676178605,
+      "moved": 0.019657742877651135,
+      "previousZ": 0.10687827665541069,
+      "anchorZ": 0.12646342005523178
+    },
+    {
+      "landmark": 288,
+      "imagePlaneDistance": 0.00014958512359104981,
+      "moved": null,
+      "previousZ": null,
+      "anchorZ": 0.07491328373725584
+    },
+    {
+      "landmark": 318,
+      "imagePlaneDistance": 0.00026376198995290296,
+      "moved": 0.09195825214677292,
+      "previousZ": 0.04730264705286567,
+      "anchorZ": 0.1392605209272769
+    },
+    {
+      "landmark": 324,
+      "imagePlaneDistance": 0.0001722846807655187,
+      "moved": 0.08989805073952564,
+      "previousZ": 0.04808755739893094,
+      "anchorZ": 0.13798544305123703
+    },
+    {
+      "landmark": 384,
+      "imagePlaneDistance": 0.00018441796199769237,
+      "moved": 0.026026293411496874,
+      "previousZ": 0.10527568587883737,
+      "anchorZ": 0.13130132590471605
+    },
+    {
+      "landmark": 385,
+      "imagePlaneDistance": 0.000020552984219399566,
+      "moved": 0.02987923667822675,
+      "previousZ": 0.10378162849740946,
+      "anchorZ": 0.13366085810676068
+    },
+    {
+      "landmark": 386,
+      "imagePlaneDistance": 0.0001297345290931153,
+      "moved": 0.02996656082000858,
+      "previousZ": 0.1037255291354105,
+      "anchorZ": 0.13369180912361114
+    },
+    {
+      "landmark": 387,
+      "imagePlaneDistance": 0.0002261131160643975,
+      "moved": 0.027348858627395573,
+      "previousZ": 0.10495864986136956,
+      "anchorZ": 0.13230657375112787
+    },
+    {
+      "landmark": 388,
+      "imagePlaneDistance": 0.0005250387524491167,
+      "moved": 0.023386568605345364,
+      "previousZ": 0.10653917249912286,
+      "anchorZ": 0.12991984668617212
+    },
+    {
+      "landmark": 402,
+      "imagePlaneDistance": 0.00014957662875932583,
+      "moved": 0.09599937827453368,
+      "previousZ": 0.04697495832301315,
+      "anchorZ": 0.14297422006980545
+    },
+    {
+      "landmark": 415,
+      "imagePlaneDistance": 0.0001807321313283081,
+      "moved": 0.09238615929041849,
+      "previousZ": 0.04793910439859451,
+      "anchorZ": 0.14032508690855802
+    },
+    {
+      "landmark": 466,
+      "imagePlaneDistance": 0.0006154898887205413,
+      "moved": 0.019886132961035155,
+      "previousZ": 0.10785953818466644,
+      "anchorZ": 0.12773614393969543
+    }
+  ],
+  "commitmentReferenceMetres": 0.002364645094507096,
+  "equalGroupRootMeanBefore": 0.010889438362989516,
+  "equalGroupRootMeanAfter": 0.011024024368018191,
+  "committedShapeMillimetresBefore": 14.90594959023789,
+  "committedShapeMillimetresAfter": 15.182616238270095,
+  "limits": [
+    "Single-image depth is inferred",
+    "Detector landmarks are not anatomical measurements",
+    "Projection residual is not likeness",
+    "No scalp groom on this prior",
+    "Fitted weak-perspective registration does not recover physical camera intrinsics"
+  ],
+  "subjects": [
+    {
+      "subject": "alan-rickman",
+      "source": {
+        "relative": "white/alan-rickman/alan-rickman_age-65_portrait.jpg",
+        "url": "https://raw.githubusercontent.com/samchon/AutoMovie/f57d3396d1fb2d57b01d851c14130ef7409a822d/.github/issue-assets/human-face-input/originals/white/alan-rickman/alan-rickman_age-65_portrait.jpg",
+        "bytes": 2248735,
+        "sha256": "6f96dff142f3200a9823391b6301ec2cd32526dec0153d3455c036a1a1ebfa5c",
+        "author": "Not supplied in the issue asset inventory",
+        "license": "Not established; retained locally for user-requested analysis only"
+      },
+      "rmseBeforeFaceHeight": 0.02456990411989925,
+      "rmseAfterFaceHeight": 0.013079771903339173,
+      "semanticGroupRms": {
+        "lips": 0.01872204556070672,
+        "eyes": 0.008490018920995138,
+        "brows": 0.012059501878111492,
+        "outline": 0.01731455496735616,
+        "nose": 0.009600259107224113,
+        "other": 0.01230227173387745
+      },
+      "previousSemanticGroupRms": {
+        "lips": 0.018864729227848695,
+        "eyes": 0.0071508685240907035,
+        "brows": 0.011744862808321948,
+        "outline": 0.016221781614242474,
+        "nose": 0.00849227980516145,
+        "other": 0.011935538054490132
+      },
+      "committedShapeMillimetres": 16.56910698049722,
+      "previousCommittedShapeMillimetres": 19.13918898051648,
+      "mirrorDeviationMillimetres": 1.5937864671671513,
+      "previousMirrorDeviationMillimetres": 2.42589486801198,
+      "identityMirrorDeviationMillimetres": 0.006814487447484717,
+      "previousIdentityMirrorDeviationMillimetres": 1.6415191069019424,
+      "glbSha256": "474740012804edc595f3fad1528c97c1d9d290980117e315a9b9e81b210fe0a9",
+      "parts": 7,
+      "documentSha256": "a2774b8cbcb1e30398356fa82a6bfd3406caedfb4bd6619382cab799dfbf3c97",
+      "likeness": "unaccepted",
+      "multistart": [
+        {
+          "cost": 0.00010999730462030272,
+          "success": true,
+          "nfev": 36
+        },
+        {
+          "cost": 0.00010967342763735973,
+          "success": true,
+          "nfev": 46
+        },
+        {
+          "cost": 0.00011109798086629888,
+          "success": true,
+          "nfev": 75
+        }
+      ]
+    },
+    {
+      "subject": "daniel-radcliffe",
+      "source": {
+        "relative": "white/daniel-radcliffe/daniel-radcliffe_age-13_chamber-of-secrets-premiere.jpg",
+        "url": "https://raw.githubusercontent.com/samchon/AutoMovie/f57d3396d1fb2d57b01d851c14130ef7409a822d/.github/issue-assets/human-face-input/originals/white/daniel-radcliffe/daniel-radcliffe_age-13_chamber-of-secrets-premiere.jpg",
+        "bytes": 716981,
+        "sha256": "07fefaaaa62b12cd47ea9b16da23ef7045c1784f6cde2e963118d86b7de0d48f",
+        "author": "Not supplied in the issue asset inventory",
+        "license": "Not established; retained locally for user-requested analysis only"
+      },
+      "rmseBeforeFaceHeight": 0.023808536285374392,
+      "rmseAfterFaceHeight": 0.00877314164357765,
+      "semanticGroupRms": {
+        "lips": 0.015741541241565633,
+        "eyes": 0.0069342221576865586,
+        "brows": 0.011473566922798335,
+        "outline": 0.00748135371762391,
+        "nose": 0.0070405152687502345,
+        "other": 0.007699470858566666
+      },
+      "previousSemanticGroupRms": {
+        "lips": 0.01567270386086851,
+        "eyes": 0.007346346211839141,
+        "brows": 0.011828928803745182,
+        "outline": 0.0072409617973490945,
+        "nose": 0.00711302065721394,
+        "other": 0.007556444439851862
+      },
+      "committedShapeMillimetres": 11.563729347988831,
+      "previousCommittedShapeMillimetres": 10.355981480767715,
+      "mirrorDeviationMillimetres": 0.5759850697017683,
+      "previousMirrorDeviationMillimetres": 0.6296812770093839,
+      "identityMirrorDeviationMillimetres": 0.008314664973443789,
+      "previousIdentityMirrorDeviationMillimetres": 0.2764934087355147,
+      "glbSha256": "03fedb2026afb58d70f6a2250b9b5595775f7b0c8f0acf721e6359cbcc12dc2a",
+      "parts": 7,
+      "documentSha256": "46fa021edfbf5ea411270d53e6371d12c2a26bb83575b53641ee14464da1e30a",
+      "likeness": "unaccepted",
+      "multistart": [
+        {
+          "cost": 0.00005630068424984366,
+          "success": true,
+          "nfev": 35
+        },
+        {
+          "cost": 0.00005618529344405628,
+          "success": true,
+          "nfev": 29
+        },
+        {
+          "cost": 0.000058899057604928294,
+          "success": true,
+          "nfev": 36
+        }
+      ]
+    },
+    {
+      "subject": "emma-watson",
+      "source": {
+        "relative": "white/emma-watson/emma-watson_age-24_british-fashion-awards.jpg",
+        "url": "https://raw.githubusercontent.com/samchon/AutoMovie/f57d3396d1fb2d57b01d851c14130ef7409a822d/.github/issue-assets/human-face-input/originals/white/emma-watson/emma-watson_age-24_british-fashion-awards.jpg",
+        "bytes": 375192,
+        "sha256": "64f7bb7d4f390a9246a4b9ffa9b6aa88c7f9f04a96fc484d25eddb3ccc4eab87",
+        "author": "Not supplied in the issue asset inventory",
+        "license": "Not established; retained locally for user-requested analysis only"
+      },
+      "rmseBeforeFaceHeight": 0.01677948100038216,
+      "rmseAfterFaceHeight": 0.007745526808545198,
+      "semanticGroupRms": {
+        "lips": 0.007324522312183471,
+        "eyes": 0.0060119493220994165,
+        "brows": 0.007528249846698601,
+        "outline": 0.009896123962913766,
+        "nose": 0.006408725582778509,
+        "other": 0.00778050584443264
+      },
+      "previousSemanticGroupRms": {
+        "lips": 0.007632434584752524,
+        "eyes": 0.00511431585444026,
+        "brows": 0.007374666346697151,
+        "outline": 0.00872319347978417,
+        "nose": 0.006032318172538514,
+        "other": 0.007479894227501262
+      },
+      "committedShapeMillimetres": 12.083378553871835,
+      "previousCommittedShapeMillimetres": 12.033584349074749,
+      "mirrorDeviationMillimetres": 1.4818286323468117,
+      "previousMirrorDeviationMillimetres": 2.118849545589075,
+      "identityMirrorDeviationMillimetres": 0.006315599293519024,
+      "previousIdentityMirrorDeviationMillimetres": 1.3590722132339381,
+      "glbSha256": "054b9c44d961f5dc55c867daa2787990f169fe4aee562431dd49602835001d17",
+      "parts": 7,
+      "documentSha256": "9eb8d88a89efb7959875e6de630908b00477218738c43375e92553a265c25baf",
+      "likeness": "unaccepted",
+      "multistart": [
+        {
+          "cost": 0.00003519010258265194,
+          "success": true,
+          "nfev": 44
+        },
+        {
+          "cost": 0.000035105884477523784,
+          "success": true,
+          "nfev": 36
+        },
+        {
+          "cost": 0.00003517392663531744,
+          "success": true,
+          "nfev": 57
+        }
+      ]
+    },
+    {
+      "subject": "generated-black-boy-01",
+      "source": {
+        "relative": "black/generated-black-boy-01/generated-black-boy-01_age-15_front-smile.png",
+        "url": "https://raw.githubusercontent.com/samchon/AutoMovie/f57d3396d1fb2d57b01d851c14130ef7409a822d/.github/issue-assets/human-face-input/originals/black/generated-black-boy-01/generated-black-boy-01_age-15_front-smile.png",
+        "bytes": 1991708,
+        "sha256": "ca4a2f3a214df183e9fde84f5f5f001d3fe5f2a20b179afb67ecba4b4359c13e",
+        "author": "Not supplied in the issue asset inventory",
+        "license": "Not established; retained locally for user-requested analysis only"
+      },
+      "rmseBeforeFaceHeight": 0.02342329825392871,
+      "rmseAfterFaceHeight": 0.010282164158860341,
+      "semanticGroupRms": {
+        "lips": 0.01593251145321317,
+        "eyes": 0.007658950374913494,
+        "brows": 0.012126517554442212,
+        "outline": 0.012290493266984778,
+        "nose": 0.005034381381523117,
+        "other": 0.009490178639726187
+      },
+      "previousSemanticGroupRms": {
+        "lips": 0.01589584772278378,
+        "eyes": 0.007963333580720308,
+        "brows": 0.012147738305263767,
+        "outline": 0.011824258323688512,
+        "nose": 0.004683301726885318,
+        "other": 0.009325874611756772
+      },
+      "committedShapeMillimetres": 17.898657303798856,
+      "previousCommittedShapeMillimetres": 17.57193823577469,
+      "mirrorDeviationMillimetres": 0.4598988775120449,
+      "previousMirrorDeviationMillimetres": 0.840226632971908,
+      "identityMirrorDeviationMillimetres": 0.012479427619539133,
+      "previousIdentityMirrorDeviationMillimetres": 0.611902236404552,
+      "glbSha256": "9c2c18dc636845a3a170f39c89e234c21f4108115bba12cf553d87e1fc2501de",
+      "parts": 7,
+      "documentSha256": "344facf44e8466b76fd72f6cf4dbdd5f7668e80a4c8e6fecaebab916cf2db87e",
+      "likeness": "unaccepted",
+      "multistart": [
+        {
+          "cost": 0.00007487914446192751,
+          "success": true,
+          "nfev": 35
+        },
+        {
+          "cost": 0.00007798887145885625,
+          "success": true,
+          "nfev": 32
+        },
+        {
+          "cost": 0.00007249495519707384,
+          "success": true,
+          "nfev": 35
+        }
+      ]
+    },
+    {
+      "subject": "generated-black-girl-01",
+      "source": {
+        "relative": "black/generated-black-girl-01/generated-black-girl-01_age-15_front-smile.png",
+        "url": "https://raw.githubusercontent.com/samchon/AutoMovie/f57d3396d1fb2d57b01d851c14130ef7409a822d/.github/issue-assets/human-face-input/originals/black/generated-black-girl-01/generated-black-girl-01_age-15_front-smile.png",
+        "bytes": 2502364,
+        "sha256": "fe80a9623d1f6760110722508b4a37b2c127e79ba3a2b056ee9ac789b7c7242a",
+        "author": "Not supplied in the issue asset inventory",
+        "license": "Not established; retained locally for user-requested analysis only"
+      },
+      "rmseBeforeFaceHeight": 0.027013877314576887,
+      "rmseAfterFaceHeight": 0.011460512798088882,
+      "semanticGroupRms": {
+        "lips": 0.017731921144696457,
+        "eyes": 0.009095039836218267,
+        "brows": 0.017058846074645504,
+        "outline": 0.012640364117406197,
+        "nose": 0.005031075518817973,
+        "other": 0.010382740901388
+      },
+      "previousSemanticGroupRms": {
+        "lips": 0.0175913689718224,
+        "eyes": 0.00962023460317126,
+        "brows": 0.016919569361967788,
+        "outline": 0.012594421440973424,
+        "nose": 0.0047372242289628564,
+        "other": 0.010074826289605963
+      },
+      "committedShapeMillimetres": 18.491268215375854,
+      "previousCommittedShapeMillimetres": 18.6793486611394,
+      "mirrorDeviationMillimetres": 0.2697030145679299,
+      "previousMirrorDeviationMillimetres": 0.7689470383652487,
+      "identityMirrorDeviationMillimetres": 0.00959759385921089,
+      "previousIdentityMirrorDeviationMillimetres": 0.6991485263179766,
+      "glbSha256": "cb0676a04851a4bcdc91d2520820cc13c621b3006bfb70c5b75e9c01421eb3cb",
+      "parts": 7,
+      "documentSha256": "25577abd718791034aaca8770b727b9c264c248cd4e467c25a09d1e785c98a36",
+      "likeness": "unaccepted",
+      "multistart": [
+        {
+          "cost": 0.00009611356690414359,
+          "success": true,
+          "nfev": 34
+        },
+        {
+          "cost": 0.00009594235787188672,
+          "success": true,
+          "nfev": 37
+        },
+        {
+          "cost": 0.00009855081344719973,
+          "success": true,
+          "nfev": 39
+        }
+      ]
+    },
+    {
+      "subject": "generated-korean-boy-01",
+      "source": {
+        "relative": "east-asian/generated-korean-boy-01/generated-korean-boy-01_age-15_front-smile.png",
+        "url": "https://raw.githubusercontent.com/samchon/AutoMovie/f57d3396d1fb2d57b01d851c14130ef7409a822d/.github/issue-assets/human-face-input/originals/east-asian/generated-korean-boy-01/generated-korean-boy-01_age-15_front-smile.png",
+        "bytes": 1828762,
+        "sha256": "81cfa3b9d3d7c28b8f4758db11a0546e05852a47fb1c46b84eb1cab28f701331",
+        "author": "Not supplied in the issue asset inventory",
+        "license": "Not established; retained locally for user-requested analysis only"
+      },
+      "rmseBeforeFaceHeight": 0.017996685661270426,
+      "rmseAfterFaceHeight": 0.008843588879121851,
+      "semanticGroupRms": {
+        "lips": 0.012187480657932436,
+        "eyes": 0.007918536304851925,
+        "brows": 0.013235361685720478,
+        "outline": 0.008603458438754548,
+        "nose": 0.0046194079368518486,
+        "other": 0.00833887106947271
+      },
+      "previousSemanticGroupRms": {
+        "lips": 0.011959277575066072,
+        "eyes": 0.008715138018637212,
+        "brows": 0.013639990283488524,
+        "outline": 0.008962104975664686,
+        "nose": 0.004354660660530979,
+        "other": 0.007880677248671815
+      },
+      "committedShapeMillimetres": 14.431104469681504,
+      "previousCommittedShapeMillimetres": 13.600793065645465,
+      "mirrorDeviationMillimetres": 0.1810697390671384,
+      "previousMirrorDeviationMillimetres": 0.37107281667001196,
+      "identityMirrorDeviationMillimetres": 0.007419047017809532,
+      "previousIdentityMirrorDeviationMillimetres": 0.29064192163948327,
+      "glbSha256": "24923868a09439b8ae7acead42e5c42a8e07387eaf26d4402b1f91a49bd940f5",
+      "parts": 7,
+      "documentSha256": "e1990e38748b3dd164d20873cd93160d7e155cd814f7a3e777f4d18a0ecd9735",
+      "likeness": "unaccepted",
+      "multistart": [
+        {
+          "cost": 0.00005793350440888164,
+          "success": true,
+          "nfev": 36
+        },
+        {
+          "cost": 0.00005649876868019072,
+          "success": true,
+          "nfev": 40
+        },
+        {
+          "cost": 0.00006046095719260543,
+          "success": true,
+          "nfev": 38
+        }
+      ]
+    },
+    {
+      "subject": "generated-white-boy-01",
+      "source": {
+        "relative": "white/generated-white-boy-01/generated-white-boy-01_age-15_front-smile.png",
+        "url": "https://raw.githubusercontent.com/samchon/AutoMovie/f57d3396d1fb2d57b01d851c14130ef7409a822d/.github/issue-assets/human-face-input/originals/white/generated-white-boy-01/generated-white-boy-01_age-15_front-smile.png",
+        "bytes": 2456627,
+        "sha256": "b6f4b18d0de389e4fa74255576aa30efca080d77d858231120bc3314d85df12c",
+        "author": "Not supplied in the issue asset inventory",
+        "license": "Not established; retained locally for user-requested analysis only"
+      },
+      "rmseBeforeFaceHeight": 0.020187076892480674,
+      "rmseAfterFaceHeight": 0.00904615454713016,
+      "semanticGroupRms": {
+        "lips": 0.01614903674551211,
+        "eyes": 0.006468199994320766,
+        "brows": 0.008755596258758472,
+        "outline": 0.009175638571707707,
+        "nose": 0.005567959939830596,
+        "other": 0.008194463600131036
+      },
+      "previousSemanticGroupRms": {
+        "lips": 0.016338344069585432,
+        "eyes": 0.0066054381373318385,
+        "brows": 0.008865267815274898,
+        "outline": 0.009041621275365692,
+        "nose": 0.005266187500451069,
+        "other": 0.008012197623267292
+      },
+      "committedShapeMillimetres": 13.093010486400274,
+      "previousCommittedShapeMillimetres": 12.416946577533023,
+      "mirrorDeviationMillimetres": 0.1769736399188086,
+      "previousMirrorDeviationMillimetres": 0.5529311918988343,
+      "identityMirrorDeviationMillimetres": 0.009184278505771666,
+      "previousIdentityMirrorDeviationMillimetres": 0.5155612575203148,
+      "glbSha256": "e75fbe10447824857c77ec1380752395d2e209eb62fa3bd118d88bbd358212b6",
+      "parts": 7,
+      "documentSha256": "7be14123cb993d74befa66d34ee53476a85c8ffe1815a7f51be3adb7f7778ab1",
+      "likeness": "unaccepted",
+      "multistart": [
+        {
+          "cost": 0.00005610020144045723,
+          "success": true,
+          "nfev": 37
+        },
+        {
+          "cost": 0.000055317479622601616,
+          "success": true,
+          "nfev": 29
+        },
+        {
+          "cost": 0.00005463736977504291,
+          "success": true,
+          "nfev": 28
+        }
+      ]
+    },
+    {
+      "subject": "generated-white-girl-01",
+      "source": {
+        "relative": "white/generated-white-girl-01/generated-white-girl-01-age-14.png",
+        "url": "https://raw.githubusercontent.com/samchon/AutoMovie/f57d3396d1fb2d57b01d851c14130ef7409a822d/.github/issue-assets/human-face-input/originals/white/generated-white-girl-01/generated-white-girl-01-age-14.png",
+        "bytes": 1238454,
+        "sha256": "58cae33a788066f88a6b5f1a26894569802a22cbf2aff9d2f511c787543ee316",
+        "author": "Not supplied in the issue asset inventory",
+        "license": "Not established; retained locally for user-requested analysis only"
+      },
+      "rmseBeforeFaceHeight": 0.030266351380220876,
+      "rmseAfterFaceHeight": 0.013974196458804152,
+      "semanticGroupRms": {
+        "lips": 0.01847340920185464,
+        "eyes": 0.007934311276545602,
+        "brows": 0.014289659133169883,
+        "outline": 0.020557783707208836,
+        "nose": 0.008450570358841834,
+        "other": 0.01315833652861642
+      },
+      "previousSemanticGroupRms": {
+        "lips": 0.018721593977126593,
+        "eyes": 0.007559839513457471,
+        "brows": 0.013571850050888339,
+        "outline": 0.01816716771487072,
+        "nose": 0.008190557586827563,
+        "other": 0.012570345346614676
+      },
+      "committedShapeMillimetres": 19.599971892656924,
+      "previousCommittedShapeMillimetres": 20.911786315482143,
+      "mirrorDeviationMillimetres": 1.5456963373644395,
+      "previousMirrorDeviationMillimetres": 2.9877665184213633,
+      "identityMirrorDeviationMillimetres": 0.010923138930286765,
+      "previousIdentityMirrorDeviationMillimetres": 2.4235184133327823,
+      "glbSha256": "48e505e9ac2cfbf11776f6ee1dd925ea091721a002bb9ded104e3f0f90ae381f",
+      "parts": 7,
+      "documentSha256": "39ecc9567f4b1c879526ed8b57226d8a4d70ee39d5bed8ac7a8575ea03053be8",
+      "likeness": "unaccepted",
+      "multistart": [
+        {
+          "cost": 0.00012440150480581163,
+          "success": true,
+          "nfev": 29
+        },
+        {
+          "cost": 0.00012358397104866888,
+          "success": true,
+          "nfev": 73
+        },
+        {
+          "cost": 0.00012809644535323334,
+          "success": true,
+          "nfev": 80
+        }
+      ]
+    },
+    {
+      "subject": "kim-min-jung",
+      "source": {
+        "relative": "east-asian/kim-min-jung/kim-min-jung_age-26_strike-love.jpg",
+        "url": "https://raw.githubusercontent.com/samchon/AutoMovie/f57d3396d1fb2d57b01d851c14130ef7409a822d/.github/issue-assets/human-face-input/originals/east-asian/kim-min-jung/kim-min-jung_age-26_strike-love.jpg",
+        "bytes": 77932,
+        "sha256": "a2dfa2081c49b8055e5da5d871883bbb0eeb890f34719c8ab6801f564c9799a5",
+        "author": "Not supplied in the issue asset inventory",
+        "license": "Not established; retained locally for user-requested analysis only"
+      },
+      "rmseBeforeFaceHeight": 0.018208597934505376,
+      "rmseAfterFaceHeight": 0.008438761684650485,
+      "semanticGroupRms": {
+        "lips": 0.006172931580885811,
+        "eyes": 0.0079254442963842,
+        "brows": 0.015454129982330577,
+        "outline": 0.01035910714840078,
+        "nose": 0.007854343745307014,
+        "other": 0.00789025893990829
+      },
+      "previousSemanticGroupRms": {
+        "lips": 0.0063126405111008,
+        "eyes": 0.00828778022601884,
+        "brows": 0.015358512248945244,
+        "outline": 0.010048026015185733,
+        "nose": 0.007733270714787257,
+        "other": 0.007639936129438191
+      },
+      "committedShapeMillimetres": 14.487775479875936,
+      "previousCommittedShapeMillimetres": 13.72350849512874,
+      "mirrorDeviationMillimetres": 0.7811162966351046,
+      "previousMirrorDeviationMillimetres": 1.1836868464665944,
+      "identityMirrorDeviationMillimetres": 0.009381823263132135,
+      "previousIdentityMirrorDeviationMillimetres": 0.8314675998648429,
+      "glbSha256": "843df6aa342771e74c08bd9bd367d485d0d4ca4ef182ce15f80e4305a7c95d96",
+      "parts": 7,
+      "documentSha256": "4763dd32e75f7cebf35676a4bfc06d1e7e8dbb1fe37adace5284a6527d2ac0c8",
+      "likeness": "unaccepted",
+      "multistart": [
+        {
+          "cost": 0.00005619806276499291,
+          "success": true,
+          "nfev": 35
+        },
+        {
+          "cost": 0.00006177552556690267,
+          "success": true,
+          "nfev": 106
+        },
+        {
+          "cost": 0.00005836221278491673,
+          "success": true,
+          "nfev": 36
+        }
+      ]
+    },
+    {
+      "subject": "lee-tae-ri",
+      "source": {
+        "relative": "east-asian/lee-tae-ri/lee-tae-ri_age-31_handsome-trot.jpg",
+        "url": "https://raw.githubusercontent.com/samchon/AutoMovie/f57d3396d1fb2d57b01d851c14130ef7409a822d/.github/issue-assets/human-face-input/originals/east-asian/lee-tae-ri/lee-tae-ri_age-31_handsome-trot.jpg",
+        "bytes": 654202,
+        "sha256": "a833496a8302bcb15ff9f8b1d44a86c33492a8ac69ea9a12c6f1f26d468b9e1e",
+        "author": "Not supplied in the issue asset inventory",
+        "license": "Not established; retained locally for user-requested analysis only"
+      },
+      "rmseBeforeFaceHeight": 0.0180230518501523,
+      "rmseAfterFaceHeight": 0.00786434808955855,
+      "semanticGroupRms": {
+        "lips": 0.005533526273932004,
+        "eyes": 0.007058378737222078,
+        "brows": 0.012724593138141454,
+        "outline": 0.01038443159352968,
+        "nose": 0.004669349768333072,
+        "other": 0.00764772381699684
+      },
+      "previousSemanticGroupRms": {
+        "lips": 0.00546032911850535,
+        "eyes": 0.0069010216933116765,
+        "brows": 0.01242840074707577,
+        "outline": 0.010378518920891495,
+        "nose": 0.004719341262456453,
+        "other": 0.007464981735907676
+      },
+      "committedShapeMillimetres": 14.659172743540877,
+      "previousCommittedShapeMillimetres": 14.132839056005833,
+      "mirrorDeviationMillimetres": 0.5766577422918777,
+      "previousMirrorDeviationMillimetres": 0.7309215764627297,
+      "identityMirrorDeviationMillimetres": 0.009092071575845155,
+      "previousIdentityMirrorDeviationMillimetres": 0.567946610872527,
+      "glbSha256": "652913ce957162abcda8ea0339a6939ef31376c09b524052a5965ac81c4f603a",
+      "parts": 7,
+      "documentSha256": "c6cceb51f53d6276f393fde7bcaca64451881e8f7d2485099e0c178112e90f16",
+      "likeness": "unaccepted",
+      "multistart": [
+        {
+          "cost": 0.00004595720439520328,
+          "success": true,
+          "nfev": 34
+        },
+        {
+          "cost": 0.00004589655235954787,
+          "success": true,
+          "nfev": 102
+        },
+        {
+          "cost": 0.0000436849274455759,
+          "success": true,
+          "nfev": 39
+        }
+      ]
+    },
+    {
+      "subject": "maggie-smith",
+      "source": {
+        "relative": "white/maggie-smith/maggie-smith_age-80_lady-in-the-van-photocall.jpg",
+        "url": "https://raw.githubusercontent.com/samchon/AutoMovie/f57d3396d1fb2d57b01d851c14130ef7409a822d/.github/issue-assets/human-face-input/originals/white/maggie-smith/maggie-smith_age-80_lady-in-the-van-photocall.jpg",
+        "bytes": 216182,
+        "sha256": "e07e4c4d67083255248c126bc765a159192420007da7e5582e23ef65348760d8",
+        "author": "Not supplied in the issue asset inventory",
+        "license": "Not established; retained locally for user-requested analysis only"
+      },
+      "rmseBeforeFaceHeight": 0.018859750270824913,
+      "rmseAfterFaceHeight": 0.010023984766882994,
+      "semanticGroupRms": {
+        "lips": 0.020216821268329514,
+        "eyes": 0.008628771284394345,
+        "brows": 0.011065258317239741,
+        "outline": 0.008239439006210514,
+        "nose": 0.0054947517305313776,
+        "other": 0.008471096654716523
+      },
+      "previousSemanticGroupRms": {
+        "lips": 0.020091863770302594,
+        "eyes": 0.008652799832033603,
+        "brows": 0.011180134489240047,
+        "outline": 0.008335802758258092,
+        "nose": 0.0051556197251645414,
+        "other": 0.008256621083571463
+      },
+      "committedShapeMillimetres": 15.31466065309189,
+      "previousCommittedShapeMillimetres": 14.865513341758966,
+      "mirrorDeviationMillimetres": 0.6587350566610062,
+      "previousMirrorDeviationMillimetres": 0.9911646344733941,
+      "identityMirrorDeviationMillimetres": 0.008825481467927748,
+      "previousIdentityMirrorDeviationMillimetres": 0.6966371252580135,
+      "glbSha256": "519a3c0f6c8db5bf210dd8d21217e76d8de7c70f08cf8662555cdc97a68c252a",
+      "parts": 7,
+      "documentSha256": "414a06eb630f9d33501f830a0da0500f909f0471aa9b06956c2e80a0ad51be40",
+      "likeness": "unaccepted",
+      "multistart": [
+        {
+          "cost": 0.00007644893610780619,
+          "success": true,
+          "nfev": 31
+        },
+        {
+          "cost": 0.00007771277887103133,
+          "success": true,
+          "nfev": 47
+        },
+        {
+          "cost": 0.00007516874675102345,
+          "success": true,
+          "nfev": 38
+        }
+      ]
+    },
+    {
+      "subject": "michael-gambon",
+      "source": {
+        "relative": "white/michael-gambon/michael-gambon_age-72_portrait.jpg",
+        "url": "https://raw.githubusercontent.com/samchon/AutoMovie/f57d3396d1fb2d57b01d851c14130ef7409a822d/.github/issue-assets/human-face-input/originals/white/michael-gambon/michael-gambon_age-72_portrait.jpg",
+        "bytes": 163723,
+        "sha256": "e8b37987276f848e75bf1c4367287a16a3e169612354eea993fef8031c9b68ac",
+        "author": "Not supplied in the issue asset inventory",
+        "license": "Not established; retained locally for user-requested analysis only"
+      },
+      "rmseBeforeFaceHeight": 0.016445068133286132,
+      "rmseAfterFaceHeight": 0.011216692053864354,
+      "semanticGroupRms": {
+        "lips": 0.006494840670829469,
+        "eyes": 0.010883469499686545,
+        "brows": 0.021454640405077975,
+        "outline": 0.016510172716561508,
+        "nose": 0.004316353928515488,
+        "other": 0.010363192316128549
+      },
+      "previousSemanticGroupRms": {
+        "lips": 0.006767132875312341,
+        "eyes": 0.012097329104568105,
+        "brows": 0.022280112320970602,
+        "outline": 0.016610537498988224,
+        "nose": 0.0050204417478283084,
+        "other": 0.00992250522821774
+      },
+      "committedShapeMillimetres": 13.886931542929691,
+      "previousCommittedShapeMillimetres": 12.581214008175923,
+      "mirrorDeviationMillimetres": 0.6703507040612374,
+      "previousMirrorDeviationMillimetres": 0.8976581155476587,
+      "identityMirrorDeviationMillimetres": 0.00952389894536228,
+      "previousIdentityMirrorDeviationMillimetres": 0.5702638920440517,
+      "glbSha256": "7fdda9a17e6bafecb5ed3f29a3a7773e34c491d19808c6af7209b07c29e722d4",
+      "parts": 7,
+      "documentSha256": "514636885b89b22995b1a94db2760d5be605ba164b58e3ab4da4b37eb4fc98a7",
+      "likeness": "unaccepted",
+      "multistart": [
+        {
+          "cost": 0.00009304295763810554,
+          "success": true,
+          "nfev": 45
+        },
+        {
+          "cost": 0.00010799749532972655,
+          "success": true,
+          "nfev": 33
+        },
+        {
+          "cost": 0.00010006981652176285,
+          "success": true,
+          "nfev": 47
+        }
+      ]
+    },
+    {
+      "subject": "miriam-margolyes",
+      "source": {
+        "relative": "white/miriam-margolyes/miriam-margolyes_age-71_portrait.jpg",
+        "url": "https://raw.githubusercontent.com/samchon/AutoMovie/f57d3396d1fb2d57b01d851c14130ef7409a822d/.github/issue-assets/human-face-input/originals/white/miriam-margolyes/miriam-margolyes_age-71_portrait.jpg",
+        "bytes": 2612964,
+        "sha256": "7101f8b6fb4745ac3786df89bc6e08fd98cbc3709f2cfdae7af651392ddfa69e",
+        "author": "Not supplied in the issue asset inventory",
+        "license": "Not established; retained locally for user-requested analysis only"
+      },
+      "rmseBeforeFaceHeight": 0.031246220558827646,
+      "rmseAfterFaceHeight": 0.013192832614659549,
+      "semanticGroupRms": {
+        "lips": 0.03212574443488108,
+        "eyes": 0.006717725802711361,
+        "brows": 0.008287409385515948,
+        "outline": 0.012656489333744686,
+        "nose": 0.005406799629985128,
+        "other": 0.009886573782017112
+      },
+      "previousSemanticGroupRms": {
+        "lips": 0.032082921988936926,
+        "eyes": 0.006018968535242798,
+        "brows": 0.008215504292599981,
+        "outline": 0.012421164662602768,
+        "nose": 0.005279133777044445,
+        "other": 0.009783671531726216
+      },
+      "committedShapeMillimetres": 13.958698867833283,
+      "previousCommittedShapeMillimetres": 13.381201689769723,
+      "mirrorDeviationMillimetres": 1.0410127954811226,
+      "previousMirrorDeviationMillimetres": 1.235756154503225,
+      "identityMirrorDeviationMillimetres": 0.0061103093464332965,
+      "previousIdentityMirrorDeviationMillimetres": 0.7983516871299706,
+      "glbSha256": "16726c8ae9d53a298611e5056b2af6e0ca36f9c02cf365af7f4f36d1692efcb1",
+      "parts": 7,
+      "documentSha256": "d82d5ac966b5b18611a7693bea1ec2dd47d9745b320ab00e8fef60a8b5ec7918",
+      "likeness": "unaccepted",
+      "multistart": [
+        {
+          "cost": 0.00013039326223693198,
+          "success": true,
+          "nfev": 41
+        },
+        {
+          "cost": 0.00013084875342009615,
+          "success": true,
+          "nfev": 76
+        },
+        {
+          "cost": 0.00013126858775199592,
+          "success": true,
+          "nfev": 93
+        }
+      ]
+    },
+    {
+      "subject": "oh-seung-yoon",
+      "source": {
+        "relative": "east-asian/oh-seung-yoon/oh-seung-yoon_age-approx-16_lunar-new-year-interview.jpg",
+        "url": "https://raw.githubusercontent.com/samchon/AutoMovie/f57d3396d1fb2d57b01d851c14130ef7409a822d/.github/issue-assets/human-face-input/originals/east-asian/oh-seung-yoon/oh-seung-yoon_age-approx-16_lunar-new-year-interview.jpg",
+        "bytes": 156701,
+        "sha256": "d93c3883b75951d92268144227bbf75f4cf1b6242393b6530c264eb73168cbde",
+        "author": "Not supplied in the issue asset inventory",
+        "license": "Not established; retained locally for user-requested analysis only"
+      },
+      "rmseBeforeFaceHeight": 0.02053860805420515,
+      "rmseAfterFaceHeight": 0.010583422551478058,
+      "semanticGroupRms": {
+        "lips": 0.014712642218973119,
+        "eyes": 0.008476678299901673,
+        "brows": 0.013763214114154276,
+        "outline": 0.012643236698955215,
+        "nose": 0.007178671789118834,
+        "other": 0.00985373362722208
+      },
+      "previousSemanticGroupRms": {
+        "lips": 0.01476017013906459,
+        "eyes": 0.007879081951493241,
+        "brows": 0.014294642920095475,
+        "outline": 0.012134330260097475,
+        "nose": 0.007040978441080273,
+        "other": 0.009312599607863107
+      },
+      "committedShapeMillimetres": 17.356511878942758,
+      "previousCommittedShapeMillimetres": 16.33991684269078,
+      "mirrorDeviationMillimetres": 0.48141570654952126,
+      "previousMirrorDeviationMillimetres": 1.3527191223062756,
+      "identityMirrorDeviationMillimetres": 0.007384130105488947,
+      "previousIdentityMirrorDeviationMillimetres": 1.1652889423923576,
+      "glbSha256": "c801d57ef82e5563195c0d8615ca3c1b2b5165afb5e370ef0667a2dd675f2b04",
+      "parts": 7,
+      "documentSha256": "006afe6f9cbe872342f4e3a51be9cf2564acf30c7da6416e8c25732760cd6762",
+      "likeness": "unaccepted",
+      "multistart": [
+        {
+          "cost": 0.00007779975415371276,
+          "success": true,
+          "nfev": 39
+        },
+        {
+          "cost": 0.00008068688614432757,
+          "success": true,
+          "nfev": 44
+        },
+        {
+          "cost": 0.00007921424416940845,
+          "success": true,
+          "nfev": 56
+        }
+      ]
+    },
+    {
+      "subject": "park-eun-bin",
+      "source": {
+        "relative": "east-asian/park-eun-bin/park-eun-bin_age-20_minas-stationery-premiere.jpg",
+        "url": "https://raw.githubusercontent.com/samchon/AutoMovie/f57d3396d1fb2d57b01d851c14130ef7409a822d/.github/issue-assets/human-face-input/originals/east-asian/park-eun-bin/park-eun-bin_age-20_minas-stationery-premiere.jpg",
+        "bytes": 100381,
+        "sha256": "a9797e47d076de402e10e0b48b3ab9a665b9dd79f3f3dcf8753cafeb63ec02ff",
+        "author": "Not supplied in the issue asset inventory",
+        "license": "Not established; retained locally for user-requested analysis only"
+      },
+      "rmseBeforeFaceHeight": 0.016377270430982433,
+      "rmseAfterFaceHeight": 0.007495844657833548,
+      "semanticGroupRms": {
+        "lips": 0.006431132921195594,
+        "eyes": 0.006049811872838556,
+        "brows": 0.01162465036182416,
+        "outline": 0.008629712274756462,
+        "nose": 0.005340314114503655,
+        "other": 0.007420924303478177
+      },
+      "previousSemanticGroupRms": {
+        "lips": 0.006409283318937877,
+        "eyes": 0.006151800389164451,
+        "brows": 0.011701599410334829,
+        "outline": 0.007714671378711201,
+        "nose": 0.005365182518754976,
+        "other": 0.007240105858202815
+      },
+      "committedShapeMillimetres": 13.57963661557256,
+      "previousCommittedShapeMillimetres": 12.706905407509025,
+      "mirrorDeviationMillimetres": 0.4011740332792088,
+      "previousMirrorDeviationMillimetres": 0.9772335237782973,
+      "identityMirrorDeviationMillimetres": 0.009781862331362525,
+      "previousIdentityMirrorDeviationMillimetres": 0.9032150427361924,
+      "glbSha256": "5bb57f14e98ee078c416415f62efccdc12c4db346876e11091283b749863bcbe",
+      "parts": 7,
+      "documentSha256": "4ef8682a6fc480b5079beea979a56ea19bc60a133861d3aab555f8208d1aa9b6",
+      "likeness": "unaccepted",
+      "multistart": [
+        {
+          "cost": 0.00003940458847526771,
+          "success": true,
+          "nfev": 33
+        },
+        {
+          "cost": 0.00004086569844837611,
+          "success": true,
+          "nfev": 46
+        },
+        {
+          "cost": 0.00003830343764871595,
+          "success": true,
+          "nfev": 30
+        }
+      ]
+    },
+    {
+      "subject": "rupert-grint",
+      "source": {
+        "relative": "white/rupert-grint/rupert-grint_age-14_chamber-of-secrets-premiere.jpg",
+        "url": "https://raw.githubusercontent.com/samchon/AutoMovie/f57d3396d1fb2d57b01d851c14130ef7409a822d/.github/issue-assets/human-face-input/originals/white/rupert-grint/rupert-grint_age-14_chamber-of-secrets-premiere.jpg",
+        "bytes": 426154,
+        "sha256": "ef48f1a310bc63f2f19fb04d2407692b07386be85995f7c2fdf3582dbc29ffbe",
+        "author": "Not supplied in the issue asset inventory",
+        "license": "Not established; retained locally for user-requested analysis only"
+      },
+      "rmseBeforeFaceHeight": 0.019222103627314562,
+      "rmseAfterFaceHeight": 0.008542706970635848,
+      "semanticGroupRms": {
+        "lips": 0.007108736943724034,
+        "eyes": 0.007397699004872437,
+        "brows": 0.013308980835965174,
+        "outline": 0.010366010723664514,
+        "nose": 0.005815672496737286,
+        "other": 0.008373854583596933
+      },
+      "previousSemanticGroupRms": {
+        "lips": 0.007228973060925552,
+        "eyes": 0.007118187758615588,
+        "brows": 0.013132098962345436,
+        "outline": 0.009599880514897392,
+        "nose": 0.005482022039913274,
+        "other": 0.008095853368045712
+      },
+      "committedShapeMillimetres": 13.445437278223334,
+      "previousCommittedShapeMillimetres": 13.52337064285027,
+      "mirrorDeviationMillimetres": 0.33340289523294986,
+      "previousMirrorDeviationMillimetres": 1.5416633363172523,
+      "identityMirrorDeviationMillimetres": 0.01020982000862732,
+      "previousIdentityMirrorDeviationMillimetres": 1.451196623854859,
+      "glbSha256": "07a7a0b82485da61ec03dc2d3189c1685d0f941f72439d97b3b361d9883c4ffc",
+      "parts": 7,
+      "documentSha256": "9a2e1a418035a01eaf061fa7d4175db485cac2e1f8a631fbe4e1dacd9d4676c6",
+      "likeness": "unaccepted",
+      "multistart": [
+        {
+          "cost": 0.00004951805092138217,
+          "success": true,
+          "nfev": 36
+        },
+        {
+          "cost": 0.00005017478302950999,
+          "success": true,
+          "nfev": 36
+        },
+        {
+          "cost": 0.00004835268077086929,
+          "success": true,
+          "nfev": 39
+        }
+      ]
+    },
+    {
+      "subject": "yoo-seung-ho",
+      "source": {
+        "relative": "east-asian/yoo-seung-ho/yoo-seung-ho_age-22_the-magician.png",
+        "url": "https://raw.githubusercontent.com/samchon/AutoMovie/f57d3396d1fb2d57b01d851c14130ef7409a822d/.github/issue-assets/human-face-input/originals/east-asian/yoo-seung-ho/yoo-seung-ho_age-22_the-magician.png",
+        "bytes": 290691,
+        "sha256": "546557eca12ac82a3f52dfd19f2b25ae867bbeb7c4e449bb6c517816785df56f",
+        "author": "Not supplied in the issue asset inventory",
+        "license": "Not established; retained locally for user-requested analysis only"
+      },
+      "rmseBeforeFaceHeight": 0.011507095273950437,
+      "rmseAfterFaceHeight": 0.007692121221793683,
+      "semanticGroupRms": {
+        "lips": 0.012368514943867393,
+        "eyes": 0.007759564943594241,
+        "brows": 0.01351504246246998,
+        "outline": 0.009488910076395806,
+        "nose": 0.003877165015079829,
+        "other": 0.0062616189024320545
+      },
+      "previousSemanticGroupRms": {
+        "lips": 0.012317711095179802,
+        "eyes": 0.007755698086401925,
+        "brows": 0.013434696642342845,
+        "outline": 0.008904928825763657,
+        "nose": 0.003510587563919799,
+        "other": 0.005938828057107566
+      },
+      "committedShapeMillimetres": 10.013905297579319,
+      "previousCommittedShapeMillimetres": 9.978430387069437,
+      "mirrorDeviationMillimetres": 0.7652128883030029,
+      "previousMirrorDeviationMillimetres": 1.1518262249815105,
+      "identityMirrorDeviationMillimetres": 0.005880169497904803,
+      "previousIdentityMirrorDeviationMillimetres": 0.9398851236871141,
+      "glbSha256": "8304061f81aa9ab89191d0192536c95e5c6fc37fe1a7294b07e51362671d1b94",
+      "parts": 7,
+      "documentSha256": "478fe2bb09d74f86c00116a27380b40b75365b868a54c3897c200a10342bf1bb",
+      "likeness": "unaccepted",
+      "multistart": [
+        {
+          "cost": 0.000049250516710960875,
+          "success": true,
+          "nfev": 35
+        },
+        {
+          "cost": 0.000050074094739957235,
+          "success": true,
+          "nfev": 35
+        },
+        {
+          "cost": 0.00004953536137295433,
+          "success": true,
+          "nfev": 36
+        }
+      ]
+    },
+    {
+      "subject": "kdy1",
+      "source": {
+        "relative": "east-asian/kdy1.png",
+        "url": null,
+        "sha256": "b5faf9013533b1e75dee734174d81db00dbc2e61fe1abe925f0248529929b009"
+      },
+      "rmseBeforeFaceHeight": 0.020168658553307055,
+      "rmseAfterFaceHeight": 0.00944314019421955,
+      "semanticGroupRms": {
+        "lips": 0.007032837036409088,
+        "eyes": 0.010674934266840653,
+        "brows": 0.0172106134735162,
+        "outline": 0.0117994795678766,
+        "nose": 0.004736575016684343,
+        "other": 0.008829109489522919
+      },
+      "previousSemanticGroupRms": {
+        "lips": 0.007060556764893683,
+        "eyes": 0.011336964160424418,
+        "brows": 0.017197758918301997,
+        "outline": 0.011384972547029106,
+        "nose": 0.004295605825578092,
+        "other": 0.008518311866176782
+      },
+      "committedShapeMillimetres": 18.331936843926265,
+      "previousCommittedShapeMillimetres": 18.50995759335941,
+      "mirrorDeviationMillimetres": 0.2242626060755643,
+      "previousMirrorDeviationMillimetres": 1.7200260934433098,
+      "identityMirrorDeviationMillimetres": 0.009679823589845376,
+      "previousIdentityMirrorDeviationMillimetres": 1.6940701198373487,
+      "glbSha256": "f943c068b58bb6d96d3cd6a459baebd1a62c505ff3a3594dec532b054cfec221",
+      "parts": 7,
+      "documentSha256": "6297b827286e84811a91f402ac84236ecc85de7c5b33f22e8ac39df4fc5d7566",
+      "likeness": "unaccepted",
+      "multistart": [
+        {
+          "cost": 0.00006992944853932706,
+          "success": true,
+          "nfev": 32
+        },
+        {
+          "cost": 0.00007050162650327899,
+          "success": true,
+          "nfev": 35
+        },
+        {
+          "cost": 0.00006935579565036042,
+          "success": true,
+          "nfev": 32
+        }
+      ]
+    }
+  ]
+}

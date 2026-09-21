@@ -27,7 +27,9 @@ const graph: ITtscEvidenceGraphConfig = {
       name: "public interface exports implement requirements",
       type: "typescript",
       files: publicSurface,
-      evidenceExcludeCarriers: ["src/AutoMovieInterfaceEvidenceExclusions.ts"],
+      evidenceExcludeCarriers: [
+        "src/**/AutoMovieInterface*EvidenceExclusions.ts",
+      ],
       symbol: ["type", "function", "property"],
       reference: [
         {
@@ -48,7 +50,9 @@ const graph: ITtscEvidenceGraphConfig = {
       name: "public interface exports implement specifications",
       type: "typescript",
       files: publicSurface,
-      evidenceExcludeCarriers: ["src/AutoMovieInterfaceEvidenceExclusions.ts"],
+      evidenceExcludeCarriers: [
+        "src/**/AutoMovieInterface*EvidenceExclusions.ts",
+      ],
       symbol: ["type", "function", "property"],
       reference: [
         {
@@ -72,6 +76,7 @@ export default {
   extends: "../../config/lint.config.ts",
   plugins: { evidence },
   rules: {
+    "evidence/singular": "error",
     "evidence/documented": [
       "error",
       { symbol: ["type", "function", "property"] },

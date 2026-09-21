@@ -1,1 +1,1 @@
-export * from "./atmosphere";
+export * from "./sceneFogTransmittance";

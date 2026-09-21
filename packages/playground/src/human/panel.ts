@@ -1,19 +1,22 @@
+/**
+ * Face-panel lifecycle and transaction coordinator. This owner arbitrates
+ * subject reads and worker builds by revision, preserves the last valid model
+ * on refusal, and binds history and export to the same committed snapshot.
+ * The numerical control view reads that snapshot but submits event-time drafts
+ * through this owner's guarded edit path. Viewport camera and clay state stay
+ * outside saved identity. A stale completed build is disposed before publication.
+ */
 import {
   type IAutoMovieHumanFaceDocument,
   createHumanFaceEditor,
-  createPortraitMaterials,
-  humanFaceControlDefinitions,
-  humanFaceDetailChannels,
-  humanFaceExpressionDefinitions,
-  humanFaceRegionValue,
   humanFaceRegions,
   parseHumanFaceDocument,
   replaceHumanFaceRegion,
-  resolveHumanFaceExpression,
   serializeHumanFaceDocument,
-  setHumanFaceDetail,
 } from "@automovie/human";
 import type { JSONDocument } from "@gltf-transform/core";
+
+import { renderHumanFaceControls } from "./panelControls";
 
 type PreviewAsset = {
   glb: Uint8Array<ArrayBuffer>;
@@ -35,6 +38,8 @@ type PreviewAsset = {
  * @evidenceExclude requirements/actors/facial-authoring/README.md#face-requirements The panel delegates model construction and serialization to its preview adapter and records no study verdict; it does not implement detailed facial authoring across document, editor and study review.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-document The panel delegates model construction and serialization to its preview adapter and records no study verdict; it does not implement the standalone human-face recipe, basis and version interpreter.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components The panel delegates model construction and serialization to its preview adapter and records no study verdict; it does not implement named craniofacial components, cavities and attached tissues.
+ * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-skin-condition The panel exposes shared numerical controls but delegates persistent and expression-driven tissue fields to the human builder; it does not model skin morphology.
+ * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-skin-colour The browser adapter submits numerical documents to the human builder; it does not evaluate pigmentation fields or assemble corresponding skin cages.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement The panel delegates model construction and serialization to its preview adapter and records no study verdict; it does not implement anatomical detail overrides and side-specific part replacement.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-expression The panel delegates model construction and serialization to its preview adapter and records no study verdict; it does not implement observed-relative eyelid, oral, dental and gaze performance.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-export The panel delegates model construction and serialization to its preview adapter and records no study verdict; it does not implement validated anatomical face GLTF/GLB serialization.
@@ -43,6 +48,8 @@ type PreviewAsset = {
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/README.md#face-specifications The panel delegates model construction and serialization to its preview adapter and records no study verdict; it does not implement the complete face construction, application and review boundary.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document The panel delegates model construction and serialization to its preview adapter and records no study verdict; it does not implement human-face version admission and photo-independent basis interpretation.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components The panel delegates model construction and serialization to its preview adapter and records no study verdict; it does not implement cranial, cervical, ocular, nasal, oral and auricular surface assembly.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-skin-condition The panel delegates skin field synthesis and conforming local tessellation to the human builder; it does not implement either numerical operation.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-skin-colour The browser adapter submits numerical documents to the human builder; it does not evaluate pigmentation fields or assemble corresponding skin cages.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls The panel delegates model construction and serialization to its preview adapter and records no study verdict; it does not implement ordered face defaults, trait offsets, array replacement and asymmetric detail.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-attachments The panel delegates model construction and serialization to its preview adapter and records no study verdict; it does not implement face-part cut ownership and final-surface attachment correspondence.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-expression The panel delegates model construction and serialization to its preview adapter and records no study verdict; it does not implement the neutral/observed/current face solve and fixed optical identity.
@@ -66,6 +73,7 @@ export function mountHumanFacePanel<Model extends PreviewAsset>(
       fitView: () => void;
       cameraView: (degrees: number) => void;
       setClay: (enabled: boolean) => void;
+      setShadows: (enabled: boolean) => void;
     };
     /** The browser host owns actual file publication; the panel selects committed bytes. */
     download: (filename: string, bytes: BlobPart, mime: string) => void;
@@ -92,13 +100,14 @@ textarea{width:100%;height:250px;padding:8px;font:11px/1.4 ui-monospace,monospac
 @media(max-width:780px){#human-editor{grid-template-columns:1fr;height:auto}#viewport{height:60vh}#face-panel{height:auto;overflow:visible}}
 </style>
 <main id="human-editor"><section id="viewport"><canvas id="face-canvas"></canvas><div id="view-tools">
-<button data-view="0">Front</button><button data-view="45">Left ¾</button><button data-view="-45">Right ¾</button><button data-view="90">Left</button><button data-view="-90">Right</button><button data-view="180">Back</button><button id="fit-view">Fit</button><label><input id="clay" type="checkbox"> Clay</label>
+<button data-view="0">Front</button><button data-view="45">Left ¾</button><button data-view="-45">Right ¾</button><button data-view="90">Left</button><button data-view="-90">Right</button><button data-view="180">Back</button><button id="fit-view">Fit</button><label><input id="clay" type="checkbox"> Clay</label><label><input id="shadows" type="checkbox" checked> Shadows</label>
 </div><div id="view-note">Drag to orbit · wheel to zoom · static expression pose</div></section>
-<aside id="face-panel"><h1>Human · face editor</h1><p>Procedural anatomy · numerical replay · no runtime photograph</p><div id="face-status" role="status">Choose a face document.</div>
+<aside id="face-panel"><h1>Human · face editor</h1><p>Procedural anatomy · numerical replay · no runtime photograph</p><a href="connected-face.html">Connected reference editor</a><div id="face-status" role="status">Choose a face document.</div>
 <h2>Subject</h2><select id="face-subject" aria-label="Subject"></select><p class="hint" id="source-note"></p>
 <div class="toolbar"><button id="face-undo">Undo</button><button id="face-redo">Redo</button><button id="face-reset">Reset subject</button></div>
 <div class="toolbar"><button id="face-save">Save document</button><button id="face-load">Load document</button><button id="face-glb">Export GLB</button><button id="face-gltf">Export glTF + buffers</button><input id="face-file" type="file" accept=".json,application/json" hidden></div>
 <h2>Region</h2><div class="inline"><select id="face-region" aria-label="Region"></select><select id="face-side" aria-label="Side"><option value="">Common</option><option value="right">Right</option><option value="left">Left</option></select></div>
+<select id="face-hair-layer" aria-label="Hair layer" hidden></select>
 <h2>Intermediate controls</h2><p class="hint">Offsets from the basis. Exact detailed overrides take precedence.</p><div id="intermediate-controls"></div>
 <h2>Detailed anatomy</h2><p class="hint">Values below are the applied profile. ↶ removes only that detailed override.</p><div id="detail-controls"></div>
 <details><summary>Complete region profile / replacement</summary><p class="hint">Arrays replace their entire population. This edits the selected region only; unknown fields and invalid combinations refuse.</p><textarea id="region-json" aria-label="Complete region profile"></textarea><div class="toolbar"><button id="region-apply">Replace region</button><button id="region-inherit">Inherit region</button></div></details>
@@ -115,10 +124,14 @@ textarea{width:100%;height:250px;padding:8px;font:11px/1.4 ui-monospace,monospac
   let subjectRevision = 0;
   let selectedRegion: Region = "eye";
   let selectedSide: Side | undefined;
+  let selectedHairLayer: string | undefined;
   const setStatus = (message: string, state = "ready"): void => {
     const target = element("face-status");
     target.textContent = message;
     target.dataset.state = state;
+    if (state === "ready" || state === "error")
+      element<HTMLSelectElement>("face-subject").value =
+        editor?.snapshot().document.id ?? "";
   };
   const withdraw = (): number => {
     const revision = ++subjectRevision;
@@ -136,67 +149,8 @@ textarea{width:100%;height:250px;padding:8px;font:11px/1.4 ui-monospace,monospac
   element("fit-view").onclick = fitView;
   element<HTMLInputElement>("clay").onchange = () =>
     viewport.setClay(element<HTMLInputElement>("clay").checked);
-  const numberRow = (
-    container: HTMLElement,
-    props: {
-      id: string;
-      label: string;
-      value: number;
-      minimum: number;
-      maximum: number;
-      step: number;
-      hint: string;
-      change: (value: number) => Promise<void>;
-      inherit?: () => Promise<void>;
-    },
-  ): void => {
-    const row = document.createElement("div");
-    row.className = "number-row";
-    const label = document.createElement("label");
-    label.htmlFor = props.id;
-    label.textContent = props.label;
-    label.title = props.hint;
-    const entry = document.createElement("div");
-    entry.className = "entry";
-    const slider = document.createElement("input");
-    slider.type = "range";
-    slider.min = String(props.minimum);
-    slider.max = String(props.maximum);
-    slider.step = String(props.step);
-    slider.value = String(props.value);
-    slider.id = props.id + "-slider";
-    slider.setAttribute("aria-label", props.label + " slider");
-    const number = document.createElement("input");
-    number.type = "number";
-    number.min = slider.min;
-    number.max = slider.max;
-    number.step = "any";
-    number.value = String(Number(props.value.toFixed(6)));
-    number.id = props.id;
-    slider.oninput = () => {
-      number.value = slider.value;
-    };
-    slider.onchange = () => props.change(Number(slider.value));
-    number.onchange = () => {
-      if (number.value.trim() === "") {
-        refuse("A numeric value is required.");
-        return;
-      }
-      return props.change(Number(number.value));
-    };
-    entry.append(slider, number);
-    if (props.inherit) {
-      const reset = document.createElement("button");
-      reset.textContent = "↶";
-      reset.title = "Remove this override";
-      reset.onclick = props.inherit;
-      entry.append(reset);
-    }
-    const hint = document.createElement("small");
-    hint.textContent = props.hint;
-    row.append(label, entry, hint);
-    container.append(row);
-  };
+  element<HTMLInputElement>("shadows").onchange = () =>
+    viewport.setShadows(element<HTMLInputElement>("shadows").checked);
   const change = async (next: IAutoMovieHumanFaceDocument): Promise<void> => {
     const revision = ++subjectRevision;
     // Only controls rendered from a committed document can supply a candidate.
@@ -243,166 +197,16 @@ textarea{width:100%;height:250px;padding:8px;font:11px/1.4 ui-monospace,monospac
       selectedSide = undefined;
       side.value = "";
     }
-    const intermediate = element("intermediate-controls"),
-      details = element("detail-controls"),
-      expressions = element("expression-controls"),
-      appearance = element("appearance-controls");
-    intermediate.replaceChildren();
-    details.replaceChildren();
-    expressions.replaceChildren();
-    appearance.replaceChildren();
-    const regions: Record<string, string> = {
-      frame: "frame",
-      eye: "eyes",
-      ear: "ears",
-      cheek: "cheeks",
-      nose: "nose",
-      mouth: "mouth",
-      cranium: "cranium",
-      neck: "neck",
-    };
-    // Resolve once for this view. Each row reads the published metadata path on
-    // that same final profile, rather than reinterpreting the whole basis per row.
-    const regionProfile = humanFaceRegionValue(
+    selectedHairLayer = renderHumanFaceControls({
+      app,
       face,
-      selectedRegion,
-      selectedSide,
-    );
-    for (const definition of humanFaceControlDefinitions.filter(
-      (item) => item.region === regions[selectedRegion],
-    ))
-      numberRow(intermediate, {
-        ...definition,
-        id: `trait-${definition.id}`,
-        value: face.controls?.[definition.id] ?? 0,
-        label: definition.label,
-        hint: `${definition.unit}; neutral 0. ${definition.effect}`,
-        change: (value) =>
-          attempt(() => ({
-            ...draft!,
-            controls: { ...draft!.controls, [definition.id]: value },
-          })),
-      });
-    for (const definition of humanFaceDetailChannels.filter(
-      (item) => item.region === selectedRegion,
-    )) {
-      let field: unknown = regionProfile;
-      for (const key of definition.path)
-        field = (field as Record<string, unknown> | undefined)?.[key];
-      if (field === undefined) continue;
-      const value = field as number;
-      numberRow(details, {
-        ...definition,
-        id: `detail-${definition.id.replaceAll(".", "-")}`,
-        label: definition.meaning,
-        value,
-        hint: `${definition.unit}. ${definition.effect}`,
-        change: (value) =>
-          attempt(() =>
-            setHumanFaceDetail(draft!, definition.id, value, selectedSide),
-          ),
-        inherit: () =>
-          attempt(() =>
-            setHumanFaceDetail(draft!, definition.id, undefined, selectedSide),
-          ),
-      });
-    }
-    element<HTMLTextAreaElement>("region-json").value = JSON.stringify(
-      regionProfile ?? null,
-      null,
-      2,
-    );
-    const expression = resolveHumanFaceExpression(face.expression);
-    for (const definition of humanFaceExpressionDefinitions) {
-      const sides = definition.paired
-        ? (["right", "left"] as const)
-        : [undefined];
-      for (const owner of sides) {
-        const value = expression[definition.id];
-        numberRow(expressions, {
-          ...definition,
-          id: `expression-${definition.id}-${owner ?? "common"}`,
-          label: `${definition.label}${owner ? ` · ${owner}` : ""}`,
-          value: typeof value === "number" ? value : value[owner as Side],
-          hint: `${definition.unit}; neutral 0.`,
-          change: (value) =>
-            attempt(() => {
-              const current = resolveHumanFaceExpression(draft!.expression);
-              return {
-                ...draft!,
-                expression: {
-                  ...current,
-                  [definition.id]:
-                    owner === undefined
-                      ? value
-                      : {
-                          ...(current[definition.id] as Record<Side, number>),
-                          [owner]: value,
-                        },
-                },
-              };
-            }),
-        });
-      }
-    }
-    const hairMaterial = humanFaceRegionValue(face, "hair")?.material;
-    for (const material of face.appearance ?? createPortraitMaterials()) {
-      if (
-        !["skin", "lips", "brows", "teeth"].includes(material.id) &&
-        material.id !== hairMaterial
-      )
-        continue;
-      for (const component of ["r", "g", "b"] as const)
-        numberRow(appearance, {
-          id: `material-${material.id}-${component}`,
-          label: `${material.id} · ${component.toUpperCase()}`,
-          value: material.baseColor[component],
-          minimum: 0,
-          maximum: 1,
-          step: 0.005,
-          hint: "Linear RGB reflectance",
-          change: (value) =>
-            attempt(() => ({
-              ...draft!,
-              appearance: (draft!.appearance ?? createPortraitMaterials()).map(
-                (item) =>
-                  item.id === material.id
-                    ? {
-                        ...item,
-                        baseColor: {
-                          ...item.baseColor,
-                          [component]: value,
-                          hex: null,
-                        },
-                      }
-                    : item,
-              ),
-            })),
-        });
-      for (const [property, label] of [
-        ["roughness", "Surface roughness"],
-        ["clearcoat", "Clearcoat strength"],
-      ] as const)
-        numberRow(appearance, {
-          id: `material-${material.id}-${property}`,
-          label: `${material.id}: ${label}`,
-          value: material[property] ?? 0,
-          minimum: 0,
-          maximum: 1,
-          step: 0.01,
-          hint: "Unit interval; changes surface response without changing shape.",
-          change: (value) =>
-            attempt(() => ({
-              ...draft!,
-              appearance: (draft!.appearance ?? createPortraitMaterials()).map(
-                (item) =>
-                  item.id === material.id
-                    ? { ...item, [property]: value }
-                    : item,
-              ),
-            })),
-        });
-    }
+      region: selectedRegion,
+      side: () => selectedSide,
+      hairLayer: selectedHairLayer,
+      draft: () => draft!,
+      attempt,
+      refuse,
+    });
   };
   const choose = async (
     document: IAutoMovieHumanFaceDocument,
@@ -470,6 +274,10 @@ textarea{width:100%;height:250px;padding:8px;font:11px/1.4 ui-monospace,monospac
   element<HTMLSelectElement>("face-side").onchange = (event) => {
     selectedSide =
       ((event.currentTarget as HTMLSelectElement).value as Side) || undefined;
+    refresh();
+  };
+  element<HTMLSelectElement>("face-hair-layer").onchange = (event) => {
+    selectedHairLayer = (event.currentTarget as HTMLSelectElement).value;
     refresh();
   };
   for (const action of ["undo", "redo", "reset"] as const)

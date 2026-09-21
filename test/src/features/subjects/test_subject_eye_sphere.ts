@@ -1,9 +1,7 @@
-import { portraitPoint as p } from "@automovie/human/geometry/geometry";
-import {
-  fitPortraitEyeSphere,
-  portraitEyeSphereHeight,
-  portraitEyeSphereIntersection,
-} from "@automovie/human/geometry/portraitEyeSphere";
+import { portraitPoint as p } from "@automovie/human/face/mesh/portraitPoint";
+import { fitPortraitEyeSphere } from "@automovie/human/face/surface/fitPortraitEyeSphere";
+import { portraitEyeSphereHeight } from "@automovie/human/face/surface/portraitEyeSphereHeight";
+import { portraitEyeSphereIntersection } from "@automovie/human/face/surface/portraitEyeSphereIntersection";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, throwsError } from "../internal/predicates";

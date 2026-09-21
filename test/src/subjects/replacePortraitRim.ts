@@ -1,6 +1,6 @@
-import { portraitCutBoundary } from "@automovie/human/components/nose";
-import { blendPortraitSkin } from "@automovie/human/geometry/blendPortraitSkin";
-import { portraitNormals } from "@automovie/human/geometry/geometry";
+import { portraitCutBoundary } from "@automovie/human/face/anatomy/cranium/portraitCutBoundary";
+import { blendPortraitSkin } from "@automovie/human/face/anatomy/skin/blendPortraitSkin";
+import { portraitNormals } from "@automovie/human/face/mesh/portraitNormals";
 import type { IAutoMovieMesh } from "@automovie/interface";
 
 /**

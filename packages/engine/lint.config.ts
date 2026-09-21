@@ -27,7 +27,7 @@ const graph: ITtscEvidenceGraphConfig = {
       name: "public engine exports implement requirements",
       type: "typescript",
       files: publicLeaves,
-      evidenceExcludeCarriers: ["src/AutoMovieEngineEvidenceExclusions.ts"],
+      evidenceExcludeCarriers: ["src/**/AutoMovieEngine*EvidenceExclusions.ts"],
       symbol: ["type", "function", "property"],
       reference: [
         {
@@ -48,7 +48,7 @@ const graph: ITtscEvidenceGraphConfig = {
       name: "public engine exports implement specifications",
       type: "typescript",
       files: publicLeaves,
-      evidenceExcludeCarriers: ["src/AutoMovieEngineEvidenceExclusions.ts"],
+      evidenceExcludeCarriers: ["src/**/AutoMovieEngine*EvidenceExclusions.ts"],
       symbol: ["type", "function", "property"],
       reference: [
         {
@@ -77,6 +77,7 @@ export default {
       { symbol: ["type", "function", "property"] },
     ],
     "evidence/graph": ["error", graph],
+    "evidence/singular": "error",
     "evidence/todo": "error",
   },
 } satisfies ITtscLintConfig;

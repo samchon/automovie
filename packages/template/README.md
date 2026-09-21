@@ -16,6 +16,8 @@ Every rendered project is self-contained:
 
 The scaffold's [static-document policy](./scaffold/README.md#static-document-updates) owns installed instructions, contracts, and other project files. Updating the package does not update those files.
 
+Initial scaffold candidates validate local targets and heading links from every shipped Markdown skill topic as well as the five `SKILL.md` routers and `AGENTS.md`. The complete installation population includes referenced README, configuration and asset files. Router frontmatter and H1-only shape apply to entry points; conditional procedures keep their own headings. A broken sibling route refuses creation before publication. Later project-owned edits follow the static-document policy.
+
 Generated graph evaluation never resolves evidence targets from `node_modules/@automovie/template`. The package ships the scaffold bytes that become project-owned inputs; `@automovie/evidence` supplies the reusable graph mechanics that validate those local inputs.
 
 The scaffold supplies no production content, viewer stub, template variant, or provider-specific hook. Its [ownership boundary](./scaffold/README.md#ownership) governs source, static assets, and configuration. The coding agent authors the concrete runtime and view its requested production needs; creation does not register an MCP client.

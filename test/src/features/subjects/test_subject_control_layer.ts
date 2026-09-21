@@ -1,5 +1,5 @@
 import { createAutoMovieMeshDeformer } from "@automovie/engine";
-import { createPortraitControlLayer } from "@automovie/human/geometry/portraitControlLayer";
+import { createPortraitControlLayer } from "@automovie/human/face/surface/createPortraitControlLayer";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, throwsError } from "../internal/predicates";

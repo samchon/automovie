@@ -1,7 +1,5 @@
-import {
-  appendPortraitNeck,
-  portraitNeckShape,
-} from "@automovie/human/components/cranium";
+import { appendPortraitNeck } from "@automovie/human/face/anatomy/cranium/appendPortraitNeck";
+import { portraitNeckShape } from "@automovie/human/face/anatomy/cranium/portraitNeckShape";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/predicates";

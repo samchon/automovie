@@ -1,5 +1,5 @@
-import { assertPortraitSkinTopology } from "@automovie/human/geometry/portraitSkinTopology";
-import { subdivideControlMesh } from "@automovie/human/geometry/subdivideControlMesh";
+import { assertPortraitSkinTopology } from "@automovie/human/face/anatomy/skin/assertPortraitSkinTopology";
+import { subdivideControlMesh } from "@automovie/human/face/mesh/subdivideControlMesh";
 import { TestValidator } from "@nestia/e2e";
 
 import {

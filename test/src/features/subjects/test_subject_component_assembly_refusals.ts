@@ -1,8 +1,6 @@
-import { buildPortraitHead } from "@automovie/human/components/head";
-import type {
-  IPortraitComponent,
-  IPortraitComponentPlan,
-} from "@automovie/human/geometry/portraitComponents";
+import { buildPortraitHead } from "@automovie/human/face/anatomy/cranium/buildPortraitHead";
+import type { IPortraitComponent } from "@automovie/human/face/surface/structures/IPortraitComponent";
+import type { IPortraitComponentPlan } from "@automovie/human/face/surface/structures/IPortraitComponentPlan";
 import { TestValidator } from "@nestia/e2e";
 
 import { referenceControlNet } from "../../subjects/generated-korean-girl-01/controlNet";
@@ -109,27 +107,30 @@ export const test_subject_component_assembly_refusals = (): void => {
       ),
     ),
   );
-  TestValidator.predicate(
-    "unregistered region refused",
-    throwsError(() =>
-      buildPortraitHead(
-        host,
-        [
-          {
-            ...part,
-            fit: () => ({
-              ...plan,
-              attach: (cage) => {
-                cage.groups[0] = 999;
-                return { openings: [], finish: () => [] };
+  for (const invalid of [-1, 0.5, 1])
+    TestValidator.predicate(
+      "negative, fractional or unregistered region refused",
+      throwsError(
+        () =>
+          buildPortraitHead(
+            host,
+            [
+              {
+                ...part,
+                fit: () => ({
+                  ...plan,
+                  attach: (cage) => {
+                    cage.groups[0] = invalid;
+                    return { openings: [], finish: () => [] };
+                  },
+                }),
               },
-            }),
-          },
-        ],
-        0,
+            ],
+            0,
+          ),
+        "registered material region",
       ),
-    ),
-  );
+    );
   TestValidator.predicate(
     "missing triangle region refused",
     throwsError(() =>

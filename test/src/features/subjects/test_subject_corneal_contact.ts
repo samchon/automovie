@@ -1,15 +1,13 @@
 import { createAutoMovieMeshDepthSampler } from "@automovie/engine";
-import {
-  type IPortraitEyeShape,
-  appendPortraitEyeMargins,
-  createPortraitEyeComponent,
-} from "@automovie/human/components/eyes";
-import { blendPortraitSkin } from "@automovie/human/geometry/blendPortraitSkin";
-import { applyPortraitFinalSurfaces } from "@automovie/human/geometry/portraitFinalSurface";
-import { subdivideControlMesh } from "@automovie/human/geometry/subdivideControlMesh";
+import { appendPortraitEyeMargins } from "@automovie/human/face/anatomy/eye/appendPortraitEyeMargins";
+import { createPortraitEyeComponent } from "@automovie/human/face/anatomy/eye/createPortraitEyeComponent";
+import { type IPortraitEyeShape } from "@automovie/human/face/anatomy/eye/structures/IPortraitEyeShape";
+import { blendPortraitSkin } from "@automovie/human/face/anatomy/skin/blendPortraitSkin";
+import { applyPortraitFinalSurfaces } from "@automovie/human/face/surface/applyPortraitFinalSurfaces";
+import { subdivideControlMesh } from "@automovie/human/face/mesh/subdivideControlMesh";
 import { TestValidator } from "@nestia/e2e";
 
-import { portraitEyeShape } from "../../subjects/generated-korean-girl-01/configuration";
+import { portraitEyeShapeFixture } from "../internal/portraitEyeShapeFixture";
 import { throwsError } from "../internal/predicates";
 
 /**
@@ -29,6 +27,7 @@ import { throwsError } from "../internal/predicates";
  *    subdivision/final projection. The globe-only twin still penetrates there.
  */
 export const test_subject_corneal_contact = (): void => {
+  const portraitEyeShape = portraitEyeShapeFixture();
   // Contact consumes an eye and its shared support, not a cranium, ears or
   // unrelated facial regions. The annulus keeps all positive/negative contact
   // populations while making repeated mode comparisons small pure units.
@@ -70,7 +69,7 @@ export const test_subject_corneal_contact = (): void => {
   };
   const shape: IPortraitEyeShape = {
     ...portraitEyeShape,
-    // Isolate contact from the subject's optional tissue-section replacement.
+    // Isolate contact from optional tissue-section replacement.
     lowerLidProfile: undefined,
     cornealBoundary: "limbus",
     lidContact: undefined,
