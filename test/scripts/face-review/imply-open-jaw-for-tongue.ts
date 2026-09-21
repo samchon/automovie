@@ -155,7 +155,6 @@ if (process.argv.includes("--write") === false) {
   };
   restamp(`${published}/subjects.json`, false);
   restamp(`${published}/grooms.json.gz`, true);
-  restamp(`${published}/skins.json.gz`, true);
 
   console.log(`revision ${was} -> ${REVISION}`);
 }

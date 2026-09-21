@@ -13,9 +13,7 @@ import {
   type IAutoMovieHumanFaceBasisDocument,
   type IAutoMovieHumanFaceControlMap,
   type IAutoMovieHumanFaceGroom,
-  type IAutoMovieHumanFaceSkin,
   appendHumanFaceGroom,
-  applyHumanFaceSkin,
   createHumanFaceBasisBuilder,
   createHumanFaceControlMap,
 } from "@automovie/human";
@@ -49,7 +47,6 @@ export function prepareFineBasisArtifacts(input: {
     NonNullable<IAutoMovieHumanFaceBasis["surfaces"][number]["rigidGroups"]>
   >;
   grooms: Record<string, IAutoMovieHumanFaceGroom>;
-  skins: Record<string, IAutoMovieHumanFaceSkin>;
   documents: IAutoMovieHumanFaceBasisDocument[];
   controls: IAutoMovieHumanFaceControlMap;
   revision: string;
@@ -63,7 +60,6 @@ export function prepareFineBasisArtifacts(input: {
     native,
     components,
     grooms,
-    skins,
     documents,
     controls,
     revision,
@@ -159,10 +155,6 @@ export function prepareFineBasisArtifacts(input: {
       seats++;
     }
   }
-  for (const skin of Object.values(skins)) {
-    if (skin.basis !== oldId) throw new Error("Unexpected skin binding.");
-    skin.basis = revision;
-  }
   for (const document of documents) {
     if (document.basis !== oldId)
       throw new Error("Unexpected document binding.");
@@ -173,8 +165,6 @@ export function prepareFineBasisArtifacts(input: {
   const build = createHumanFaceBasisBuilder(basis);
   for (const document of documents) {
     let model = build(document);
-    if (document.skin)
-      model = applyHumanFaceSkin({ model, skin: skins[document.skin] });
     if (document.hair)
       model = appendHumanFaceGroom({ model, groom: grooms[document.hair] });
     project(document.shape);
@@ -199,7 +189,6 @@ export function prepareFineBasisArtifacts(input: {
   return {
     basis,
     grooms,
-    skins,
     documents,
     controls,
     receipt: {

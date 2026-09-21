@@ -2,9 +2,7 @@ import { measureAutoMovieModelCrossings } from "@automovie/engine";
 import {
   type IAutoMovieHumanFaceBasis,
   type IAutoMovieHumanFaceGroom,
-  type IAutoMovieHumanFaceSkin,
   appendHumanFaceGroom,
-  applyHumanFaceSkin,
   createHumanFaceBasisBuilder,
   exportHumanFace,
   parseHumanFaceBasisDocument,
@@ -14,7 +12,9 @@ import {
  * Prepare reusable numerical resources for one connected face worker.
  * Both preview and export evaluate the same compact document. Preview returns
  * the resident model directly; only an explicit export constructs a GLB.
- * Resource lookup keys and exact basis binding are checked before attachment.
+ * Pigmentation is part of the numerical document and builder. Hair still uses
+ * legacy resource keys and exact basis binding; its parameter migration remains
+ * separate work. No individual skin-image lookup participates in either path.
  *
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Preserves one admitted document's geometry across preview and export.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Separates numerical evaluation from file encoding in a resident worker.
@@ -22,11 +22,9 @@ import {
 export function createConnectedFaceRuntime(props: {
   basis: IAutoMovieHumanFaceBasis;
   grooms: Record<string, IAutoMovieHumanFaceGroom>;
-  skins: Record<string, IAutoMovieHumanFaceSkin>;
 }) {
   const evaluate = createHumanFaceBasisBuilder(props.basis);
   const grooms = new Map(Object.entries(props.grooms));
-  const skins = new Map(Object.entries(props.skins));
   return async (request: {
     document: string;
     operation: "preview" | "export";
@@ -34,14 +32,6 @@ export function createConnectedFaceRuntime(props: {
   }) => {
     const document = parseHumanFaceBasisDocument(request.document);
     let model = evaluate(document);
-    if (document.skin !== undefined && document.skin !== null) {
-      const skin = skins.get(document.skin);
-      if (skin === undefined || skin.basis !== document.basis)
-        throw new Error(
-          "This basis does not carry the named appearance: " + document.skin,
-        );
-      model = applyHumanFaceSkin({ model, skin });
-    }
     if (document.hair !== undefined && document.hair !== null) {
       const groom = grooms.get(document.hair);
       if (groom === undefined || groom.basis !== document.basis)

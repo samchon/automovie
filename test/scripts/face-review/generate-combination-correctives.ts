@@ -432,7 +432,6 @@ else {
   const restamped = {
     subjects: restamp(`${published}/subjects.json`, false),
     grooms: restamp(`${published}/grooms.json.gz`, true),
-    skins: restamp(`${published}/skins.json.gz`, true),
   };
   fs.writeFileSync(
     `${published}/pair-corrective-receipt.json`,

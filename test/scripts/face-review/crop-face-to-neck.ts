@@ -140,17 +140,6 @@ if (process.argv.includes("--write") === false) {
       if (document.basis === was) document.basis = REVISION;
     fs.writeFileSync(subjects, `${JSON.stringify(documents, null, 2)}\n`);
 
-    const skins = `${published}/skins.json.gz`;
-    const painted: Record<string, { basis?: string }> = JSON.parse(
-      gunzipSync(fs.readFileSync(skins)).toString("utf8"),
-    );
-    for (const record of Object.values(painted))
-      if (record.basis === was) record.basis = REVISION;
-    fs.writeFileSync(
-      skins,
-      gzipSync(`${JSON.stringify(painted)}\n`, { level: 9 }),
-    );
-
     console.log(`revision ${was} -> ${REVISION}`);
     console.log("every groom seat survived the cut");
   }

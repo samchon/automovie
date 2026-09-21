@@ -3,7 +3,6 @@
 import {
   type IAutoMovieHumanFaceBasis,
   type IAutoMovieHumanFaceGroom,
-  type IAutoMovieHumanFaceSkin,
 } from "@automovie/human";
 
 import { readConnectedFaceAsset } from "./human/connectedAsset";
@@ -31,10 +30,7 @@ const gzipped = <Payload>(name: string) =>
 const prepared = Promise.all([
   gzipped<IAutoMovieHumanFaceBasis>("basis.json.gz"),
   gzipped<Record<string, IAutoMovieHumanFaceGroom>>("grooms.json.gz"),
-  gzipped<Record<string, IAutoMovieHumanFaceSkin>>("skins.json.gz"),
-]).then(([basis, grooms, skins]) =>
-  createConnectedFaceRuntime({ basis, grooms, skins }),
-);
+]).then(([basis, grooms]) => createConnectedFaceRuntime({ basis, grooms }));
 const handle = createHumanResidentHandler({
   prepare: prepared,
   send: (reply) => {

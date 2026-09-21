@@ -32,9 +32,9 @@ export const test_subject_fine_basis_preparation = (): void => {
     [input.revision, input.revision],
   );
   TestValidator.equals(
-    "skin binding",
-    result.skins.colour.basis,
-    input.revision,
+    "numerical pigmentation preserved",
+    result.documents[0].skin,
+    input.documents[0].skin,
   );
   TestValidator.equals(
     "groom binding",
@@ -91,7 +91,6 @@ export const test_subject_fine_basis_preparation = (): void => {
   empty.components = {};
   empty.documents = [];
   empty.grooms = {};
-  empty.skins = {};
   empty.controls.groups = [];
   const bare = prepareFineBasisArtifacts(empty);
   TestValidator.equals("empty population", bare.receipt.admittedDocuments, 0);

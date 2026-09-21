@@ -1,6 +1,20 @@
 import type * as Human from "@automovie/human";
 
 /**
+ * @evidence {@link Human.IPortraitColourField} Read the complete five-field numerical reflectance envelope and both consumers. It stores a centre, positive support radii, linear attenuation and strength, with no image or vertex payload. Units follow the caller; connected documents use metres.
+ * @evidenceReview {@link Human.IPortraitColourField} #e5cac1c Read the complete five-field numerical reflectance envelope and both consumers. It stores a centre, positive support radii, linear attenuation and strength, with no image or vertex payload. Units follow the caller; connected documents use metres.
+ * @evidence {@link Human.IPortraitColourField.name} Read nonblank unique-name admission and lexical composition order. Renaming can change multiplication order at floating precision, but insertion order cannot.
+ * @evidenceReview {@link Human.IPortraitColourField.name} #cc4fa07 Read nonblank unique-name admission and lexical composition order. Renaming can change multiplication order at floating precision, but insertion order cannot.
+ * @evidence {@link Human.IPortraitColourField.center} Read finite XYZ admission and reference-space sampling. Connected coordinates are neutral basis metres and do not follow the current expression before evaluation.
+ * @evidenceReview {@link Human.IPortraitColourField.center} #7d37121 Read finite XYZ admission and reference-space sampling. Connected coordinates are neutral basis metres and do not follow the current expression before evaluation.
+ * @evidence {@link Human.IPortraitColourField.radius} Read strictly positive finite support radii in the same unit as the centre. They bound the compact ellipsoid without changing geometry.
+ * @evidenceReview {@link Human.IPortraitColourField.radius} #a0f6c2b Read strictly positive finite support radii in the same unit as the centre. They bound the compact ellipsoid without changing geometry.
+ * @evidence {@link Human.IPortraitColourField.gain} Read three finite linear RGB attenuation values in [0,1]. White preserves reflectance; this field does not encode illumination or pigment concentrations.
+ * @evidenceReview {@link Human.IPortraitColourField.gain} #2a32603 Read three finite linear RGB attenuation values in [0,1]. White preserves reflectance; this field does not encode illumination or pigment concentrations.
+ * @evidence {@link Human.IPortraitColourField.strength} Read finite inclusive [0,1] strength. Zero is the identity and one applies the full bounded support kernel.
+ * @evidenceReview {@link Human.IPortraitColourField.strength} #c4d192b Read finite inclusive [0,1] strength. Zero is the identity and one applies the full bounded support kernel.
+ * @evidence {@link Human.createPortraitColourField} Read cloned fields, unique names, finite tuple and range admission, lexical composition, bounded C2 support and sample refusal. The procedural adapter and connected builder use this one formula; source vertex sampling does not establish subvertex detail.
+ * @evidenceReview {@link Human.createPortraitColourField} #34e66cb Read cloned fields, unique names, finite tuple and range admission, lexical composition, bounded C2 support and sample refusal. The procedural adapter and connected builder use this one formula; source vertex sampling does not establish subvertex detail.
  * Shared topology, skin, cranium, materials and model export.
  * The frozen study root retains this domain through the native evidence graph.
  * Existing source inspections and historical capture limitations are preserved
@@ -10,7 +24,7 @@ import type * as Human from "@automovie/human";
  * @evidence {@link Human.IPortraitSkinColourRegion} Inspects all six fields against reference binding, finite admission and the document consumer.
  * @evidenceReview {@link Human.IPortraitSkinColourRegion} #08e7c87 Read the six fields and their constructor admission: a unique nonblank name, resident anchor, finite millimetre offset, positive support radii, bounded linear RGB attenuation and strength. It is numerical authoring data, not a biological pigment estimate or a photograph texture.
  * @evidence {@link Human.createPortraitSkinColour} Inspects owned name-ordered compact colour multiplication after reference refinement.
- * @evidenceReview {@link Human.createPortraitSkinColour} #c25a3ee Read input/anchor ownership, name sorting, all numeric refusals, compact quartic support and multiplicative linear RGB. The kernel is bounded at floating-point zero distance. Independent centre, half-radius, outside and narrow-field probes pass; evaluation reads reference coordinates, never scene light or current pose.
+ * @evidenceReview {@link Human.createPortraitSkinColour} #bf2ca9b Read the complete adapter after extracting the colour kernel. It owns host-anchor and offset admission plus centre overflow, then delegates cloned absolute fields to createPortraitColourField. The centre/half-radius/boundary/refusal scenarios pass after extraction; no rendered likeness is accepted here.
  * @evidence {@link Human.IPortraitHeadPerformance} Separates reference continuation from resident performed components.
  * @evidenceReview {@link Human.IPortraitHeadPerformance} #70fcd9a Read both callbacks and their assembler consumer. Only appended cranium and neck vertices receive the pose; shared facial IDs remain current. This protocol alone promises no anatomical realism.
  * @evidence {@link Human.IPortraitHeadPerformance.reference} Provides reference coordinates for continuation formation.

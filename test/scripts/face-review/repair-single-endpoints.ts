@@ -322,7 +322,6 @@ else {
   };
   restamp(`${published}/subjects.json`, false);
   restamp(`${published}/grooms.json.gz`, true);
-  restamp(`${published}/skins.json.gz`, true);
   fs.writeFileSync(
     `${published}/single-repair-receipt.json`,
     `${JSON.stringify(

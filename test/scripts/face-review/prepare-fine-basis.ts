@@ -3,7 +3,7 @@
  * ttsx -P tsconfig.scripts.json --no-plugins scripts/face-review/prepare-fine-basis.ts OUTPUT
  *
  * Historical Git blobs supply the unchanged neutral correspondence and the
- * last compact documents. Tracked native endpoint fields and their curation
+ * source geometry. Current numerical documents, tracked native endpoints and curation
  * supply the added shape coordinates. No private Blender file or worklog is
  * needed to replay preparation. Native extraction provenance is recorded in
  * fine-controls.json; this entry does not rerun Blender extraction.
@@ -20,7 +20,6 @@ import {
   type IAutoMovieHumanFaceBasisDocument,
   type IAutoMovieHumanFaceControlMap,
   type IAutoMovieHumanFaceGroom,
-  type IAutoMovieHumanFaceSkin,
 } from "@automovie/human";
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
@@ -65,13 +64,12 @@ const grooms = read<Record<string, IAutoMovieHumanFaceGroom>>(
   "grooms.json.gz",
   compact,
 );
-const skins = read<Record<string, IAutoMovieHumanFaceSkin>>(
-  "skins.json.gz",
-  compact,
-);
-const documents = read<IAutoMovieHumanFaceBasisDocument[]>(
-  "subjects.json",
-  compact,
+const documents = read<IAutoMovieHumanFaceBasisDocument[]>("subjects.json").map(
+  (document) => {
+    if (document.basis !== revision)
+      throw new Error("Published documents need the expected prepared basis.");
+    return { ...document, basis: basis.id };
+  },
 );
 const controls = read<IAutoMovieHumanFaceControlMap>("simple-controls.json");
 const prepared = prepareFineBasisArtifacts({
@@ -81,7 +79,6 @@ const prepared = prepareFineBasisArtifacts({
   native,
   components,
   grooms,
-  skins,
   documents,
   controls,
   revision,
@@ -92,7 +89,6 @@ fs.mkdirSync(output, { recursive: true });
 for (const [name, value] of Object.entries({
   "basis.json.gz": prepared.basis,
   "grooms.json.gz": prepared.grooms,
-  "skins.json.gz": prepared.skins,
   "subjects.json": prepared.documents,
   "simple-controls.json": prepared.controls,
   "preparation-receipt.json": {

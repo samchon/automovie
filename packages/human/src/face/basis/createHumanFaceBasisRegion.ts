@@ -5,15 +5,21 @@ import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFace
 /**
  * Compile a material region's fixed source-to-UV correspondence once.
  * The admitted basis owns topology; an evaluation only gathers common deformed
- * positions and normals. Every result owns its arrays, including static indices
+ * positions, normals and optional reference colour. Every result owns its arrays, including static indices
  * and UVs, so mutating a preview cannot alter later evaluations.
  *
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Preserves connected positions and normals across fixed material and UV seams.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-basis Compiles immutable region correspondence before repeated numerical evaluation.
+ * @evidence requirements/actors/facial-authoring/contract.md#actor-face-skin-colour Keeps pigment attached to its source vertex across material and UV boundaries.
+ * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-skin-colour Gathers optional reference RGB through the same fixed source correspondence as geometry.
  */
 export function createHumanFaceBasisRegion(
   region: IAutoMovieHumanFaceBasis["surfaces"][number]["regions"][number],
-): (positions: number[], normals: number[]) => IAutoMovieMesh {
+): (
+  positions: number[],
+  normals: number[],
+  colors?: number[],
+) => IAutoMovieMesh {
   const vertices = new Map<string, number>();
   const sources: number[] = [];
   const indices: number[] = [];
@@ -30,7 +36,7 @@ export function createHumanFaceBasisRegion(
     }
     indices.push(index);
   });
-  return (positions, normals) => {
+  return (positions, normals, colors) => {
     const gather = (values: number[]): number[] => {
       const output = new Array<number>(sources.length * 3);
       for (let i = 0; i < sources.length; i++)
@@ -44,6 +50,7 @@ export function createHumanFaceBasisRegion(
       indices: indices.slice(),
       uvs: uvs?.slice() ?? null,
       skin: null,
+      ...(colors === undefined ? {} : { colors: gather(colors) }),
     };
   };
 }

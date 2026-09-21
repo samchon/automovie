@@ -1,3 +1,5 @@
+import type { IPortraitColourField } from "../anatomy/skin/structures/IPortraitColourField";
+
 /**
  * Compact edits against a separately supplied immutable facial basis.
  * Zero is the source neutral; omitted channels are zero. Negative controls use
@@ -34,13 +36,14 @@ export interface IAutoMovieHumanFaceBasisDocument {
   hair?: string | null;
 
   /**
-   * Optional identity of the observed appearance this face wears. Omission is
-   * the basis's own flat finishes, which is what a connected prior carries: it
-   * has one base colour per material and no maps for skin. The appearance is a
-   * separate resource, like the basis and the groom, and the consumer resolves
-   * this identity against the appearances it holds.
+   * Numerical pigmentation by basis surface identity. Field centres and radii
+   * use metres in the immutable neutral basis, so shape and expression carry
+   * the same tissue colours. Omission, null and an empty record add no fields.
+   * These compact envelopes carry no image or per-vertex colour array.
+   * Global colour and roughness remain in materials. A surface's fields apply
+   * across its material regions with their common vertex correspondence.
    */
-  skin?: string | null;
+  skin?: Record<string, IPortraitColourField[]> | null;
 
   /** Optional linear RGB and roughness, each in [0,1], by existing material ID. */
   materials?: Record<

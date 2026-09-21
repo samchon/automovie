@@ -12,4 +12,3 @@ export * from "./IAutoMovieHumanFaceExpression";
 export * from "./IAutoMovieHumanFaceGroom";
 export * from "./IAutoMovieHumanFaceGroomCard";
 export * from "./IAutoMovieHumanFaceRecipe";
-export * from "./IAutoMovieHumanFaceSkin";

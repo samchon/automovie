@@ -154,8 +154,7 @@
         "roughness": 0.57
       }
     },
-    "hair": "alan-rickman",
-    "skin": "alan-rickman"
+    "hair": "alan-rickman"
   },
   {
     "id": "daniel-radcliffe-connected",
@@ -316,8 +315,7 @@
         "roughness": 0.57
       }
     },
-    "hair": "daniel-radcliffe",
-    "skin": "daniel-radcliffe"
+    "hair": "daniel-radcliffe"
   },
   {
     "id": "emma-watson-connected",
@@ -473,8 +471,7 @@
         "roughness": 0.57
       }
     },
-    "hair": "emma-watson",
-    "skin": "emma-watson"
+    "hair": "emma-watson"
   },
   {
     "id": "generated-black-boy-01-connected",
@@ -632,8 +629,7 @@
         "roughness": 0.57
       }
     },
-    "hair": "generated-black-boy-01",
-    "skin": "generated-black-boy-01"
+    "hair": "generated-black-boy-01"
   },
   {
     "id": "generated-black-girl-01-connected",
@@ -792,8 +788,7 @@
         "roughness": 0.57
       }
     },
-    "hair": "generated-black-girl-01",
-    "skin": "generated-black-girl-01"
+    "hair": "generated-black-girl-01"
   },
   {
     "id": "generated-korean-boy-01-connected",
@@ -952,8 +947,7 @@
         "roughness": 0.57
       }
     },
-    "hair": "generated-korean-boy-01",
-    "skin": "generated-korean-boy-01"
+    "hair": "generated-korean-boy-01"
   },
   {
     "id": "generated-white-boy-01-connected",
@@ -1113,8 +1107,7 @@
         "roughness": 0.57
       }
     },
-    "hair": "generated-white-boy-01",
-    "skin": "generated-white-boy-01"
+    "hair": "generated-white-boy-01"
   },
   {
     "id": "generated-white-girl-01-connected",
@@ -1270,8 +1263,7 @@
         "roughness": 0.57
       }
     },
-    "hair": "generated-white-girl-01",
-    "skin": "generated-white-girl-01"
+    "hair": "generated-white-girl-01"
   },
   {
     "id": "kim-min-jung-connected",
@@ -1426,8 +1418,7 @@
         "roughness": 0.57
       }
     },
-    "hair": "kim-min-jung",
-    "skin": "kim-min-jung"
+    "hair": "kim-min-jung"
   },
   {
     "id": "lee-tae-ri-connected",
@@ -1586,8 +1577,7 @@
         "roughness": 0.57
       }
     },
-    "hair": "lee-tae-ri",
-    "skin": "lee-tae-ri"
+    "hair": "lee-tae-ri"
   },
   {
     "id": "maggie-smith-connected",
@@ -1745,8 +1735,7 @@
         "roughness": 0.57
       }
     },
-    "hair": "maggie-smith",
-    "skin": "maggie-smith"
+    "hair": "maggie-smith"
   },
   {
     "id": "michael-gambon-connected",
@@ -1898,8 +1887,7 @@
         "roughness": 0.57
       }
     },
-    "hair": "michael-gambon",
-    "skin": "michael-gambon"
+    "hair": "michael-gambon"
   },
   {
     "id": "miriam-margolyes-connected",
@@ -2058,7 +2046,6 @@
         "roughness": 0.57
       }
     },
-    "skin": "miriam-margolyes",
     "hair": "miriam-margolyes"
   },
   {
@@ -2214,8 +2201,7 @@
         "roughness": 0.57
       }
     },
-    "hair": "oh-seung-yoon",
-    "skin": "oh-seung-yoon"
+    "hair": "oh-seung-yoon"
   },
   {
     "id": "park-eun-bin-connected",
@@ -2376,8 +2362,7 @@
         "roughness": 0.57
       }
     },
-    "hair": "park-eun-bin",
-    "skin": "park-eun-bin"
+    "hair": "park-eun-bin"
   },
   {
     "id": "rupert-grint-connected",
@@ -2537,8 +2522,7 @@
         "roughness": 0.57
       }
     },
-    "hair": "rupert-grint",
-    "skin": "rupert-grint"
+    "hair": "rupert-grint"
   },
   {
     "id": "yoo-seung-ho-connected",
@@ -2693,8 +2677,7 @@
         "roughness": 0.57
       }
     },
-    "hair": "yoo-seung-ho",
-    "skin": "yoo-seung-ho"
+    "hair": "yoo-seung-ho"
   },
   {
     "id": "kdy1-connected",
@@ -2833,7 +2816,6 @@
       "mouthUpperUpRight": 0.00007641862650435841,
       "noseSneerLeft": 0.000040436661577653273
     },
-    "skin": "kdy1",
     "hair": "kdy1"
   }
 ]

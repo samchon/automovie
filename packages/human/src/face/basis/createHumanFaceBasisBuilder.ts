@@ -3,6 +3,7 @@ import { createMeshWeldPartitionMatcher } from "@automovie/engine/math/createMes
 import type { IAutoMovieModel } from "@automovie/interface";
 import typia from "typia";
 
+import { createPortraitColourField } from "../anatomy/skin/createPortraitColourField";
 import { portraitNormals } from "../mesh/portraitNormals";
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceBasisDocument } from "../structures/IAutoMovieHumanFaceBasisDocument";
@@ -23,6 +24,9 @@ import { createHumanFaceBasisRegion } from "./createHumanFaceBasisRegion";
  * Declared rigid groups use a separate shape-only reference and replace their
  * performance target with fixed or least-squares proper rigid motion before
  * normal reconstruction. Shape-only correctives belong to that reference.
+ * Pigmentation is sampled on immutable neutral source coordinates, then
+ * gathered with the same region correspondence. It changes no position or
+ * normal and follows both shape and expression. Fields contain no image data.
  *
  * Correctives supply authored interactions absent from a linear sum. Their
  * activation is a product of the clamped driving sides and vanishes when any
@@ -38,6 +42,8 @@ import { createHumanFaceBasisRegion } from "./createHumanFaceBasisRegion";
  *
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Evaluates named shape and expression edits on one reusable connected prior without source images.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-basis Admits sparse correspondence once, applies deterministic endpoint selection and reconstructs common normals before region separation.
+ * @evidence requirements/actors/facial-authoring/contract.md#actor-face-skin-colour Carries numerical pigment with shared tissue correspondence independently of pose and illumination.
+ * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-skin-colour Samples metre-space envelopes on neutral vertices before gathering colours across material and UV seams.
  */
 export function createHumanFaceBasisBuilder(
   input: IAutoMovieHumanFaceBasis,
@@ -72,6 +78,10 @@ export function createHumanFaceBasisBuilder(
         "Facial edits need nonempty identities and the exact compiled basis revision.",
       );
     const weights = new Map<string, number>();
+    const surfaceIds = new Set(basis.surfaces.map((surface) => surface.id));
+    for (const id of Object.keys(document.skin ?? {}))
+      if (!surfaceIds.has(id))
+        throw new Error("Pigmentation needs a resident basis surface: " + id);
     for (const kind of ["shape", "expression"] as const)
       for (const [name, weight] of Object.entries(document[kind])) {
         const channel = channels.get(name);
@@ -159,6 +169,16 @@ export function createHumanFaceBasisBuilder(
       ),
     }));
     const parts = surfaces.flatMap(({ surface, regions }) => {
+      const fields = Object.hasOwn(document.skin ?? {}, surface.id)
+        ? document.skin![surface.id]
+        : undefined;
+      let colors: number[] | undefined;
+      if (fields !== undefined) {
+        const sample = createPortraitColourField(fields);
+        colors = [];
+        for (let vertex = 0; vertex < surface.positions.length; vertex += 3)
+          colors.push(...sample(surface.positions.slice(vertex, vertex + 3)));
+      }
       const positions = surface.positions.slice();
       const shape =
         (surface.rigidGroups?.length ?? 0) > 0
@@ -204,7 +224,7 @@ export function createHumanFaceBasisBuilder(
         material: region.material,
         geometry: {
           type: "mesh" as const,
-          mesh: evaluate(positions, normals),
+          mesh: evaluate(positions, normals, colors),
         },
         attachedBone: null,
         transform: null,

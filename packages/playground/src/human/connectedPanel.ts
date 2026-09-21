@@ -16,6 +16,7 @@ import {
   serializeHumanFaceBasisDocument,
 } from "@automovie/human";
 
+import { mountConnectedFaceAppearance } from "./connectedAppearance";
 import { mountConnectedFaceControls } from "./connectedControls";
 
 /**
@@ -93,6 +94,7 @@ export function mountConnectedFacePanel<
       // Rebuild simple projections too: their captured pending group values
       // must lose authority along with the cancelled numerical draft.
       controls.refresh();
+      appearance.refresh();
     }
     return ++revision;
   };
@@ -113,6 +115,7 @@ export function mountConnectedFacePanel<
     element<HTMLTextAreaElement>("document-json").value =
       serializeHumanFaceBasisDocument(state.document);
     controls.refresh();
+    appearance.refresh();
   };
   const change = async (
     next: IAutoMovieHumanFaceBasisDocument,
@@ -135,6 +138,12 @@ export function mountConnectedFacePanel<
   const controls = mountConnectedFaceControls(app, {
     basis: props.basis,
     map: props.controlMap,
+    document: () => draft,
+    change,
+    refuse,
+  });
+  const appearance = mountConnectedFaceAppearance(app, {
+    basis: props.basis,
     document: () => draft,
     change,
     refuse,

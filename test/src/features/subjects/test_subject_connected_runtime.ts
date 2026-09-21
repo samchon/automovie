@@ -1,7 +1,4 @@
-import {
-  type IAutoMovieHumanFaceGroom,
-  type IAutoMovieHumanFaceSkin,
-} from "@automovie/human";
+import { type IAutoMovieHumanFaceGroom } from "@automovie/human";
 import { createConnectedFaceRuntime } from "@automovie/playground/src/human/connectedRuntime";
 import { TestValidator } from "@nestia/e2e";
 
@@ -14,15 +11,11 @@ import { humanFaceBasisFixture } from "../internal/humanFaceBasisFixture";
  * Scenarios:
  * 1. Plain and null-resource previews preserve numerical shape and skip contacts.
  * 2. Requested contacts are supplied; explicit export returns actual GLB bytes.
- * 3. Known skin/groom keys attach their resources; missing or foreign ones refuse.
+ * 3. Numeric pigmentation is evaluated locally; unknown or foreign grooms refuse.
+ * 4. Old skin resource names refuse rather than silently recovering photographs.
  */
 export const test_subject_connected_runtime = async (): Promise<void> => {
   const { basis, document } = humanFaceBasisFixture();
-  const skin: IAutoMovieHumanFaceSkin = {
-    id: "appearance-resource",
-    basis: basis.id,
-    maps: {},
-  };
   const groom: IAutoMovieHumanFaceGroom = {
     id: "hair-resource",
     basis: basis.id,
@@ -55,7 +48,6 @@ export const test_subject_connected_runtime = async (): Promise<void> => {
   };
   const runtime = createConnectedFaceRuntime({
     basis,
-    skins: { skin, foreign: { ...skin, basis: "other" } },
     grooms: { hair: groom, foreign: { ...groom, basis: "other" } },
   });
   for (const resources of [{}, { skin: null, hair: null }]) {
@@ -97,7 +89,11 @@ export const test_subject_connected_runtime = async (): Promise<void> => {
   );
   const attached = await runtime({
     operation: "preview",
-    document: JSON.stringify({ ...document, skin: "skin", hair: "hair" }),
+    document: JSON.stringify({
+      ...document,
+      skin: { square: [] },
+      hair: "hair",
+    }),
   });
   if (attached.operation !== "preview") throw new Error("Expected preview.");
   TestValidator.predicate(

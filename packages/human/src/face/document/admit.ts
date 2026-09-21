@@ -1,4 +1,6 @@
 import typia from "typia";
+
+import { createPortraitColourField } from "../anatomy/skin/createPortraitColourField";
 import { IAutoMovieHumanFaceBasisDocument } from "../structures/IAutoMovieHumanFaceBasisDocument";
 
 /**
@@ -10,6 +12,8 @@ import { IAutoMovieHumanFaceBasisDocument } from "../structures/IAutoMovieHumanF
  */
 export function admit(input: unknown): IAutoMovieHumanFaceBasisDocument {
   const document = typia.assertEquals<IAutoMovieHumanFaceBasisDocument>(input);
+  for (const fields of Object.values(document.skin ?? {}))
+    createPortraitColourField(fields);
   const values = [
     ...Object.values(document.shape),
     ...Object.values(document.expression),
