@@ -12,6 +12,7 @@ import {
  * Presentation changes never write a document. Simple input lowers from one
  * captured fine origin, combining pending group values before a transaction;
  * fine input composes with the latest draft. The panel owns admission/history.
+ * Only owned document coordinates are authored values; omission displays zero.
  *
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Exposes editable and searchable fine shape and performance channels.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Shows current values, effective domains and endpoint displacement without changing replay on a mode switch.
@@ -153,7 +154,9 @@ export function mountConnectedFaceControls(
         append({
           ...channel,
           label: channel.id.replace(/([a-z])([A-Z])/g, "$1 $2"),
-          value: document[channel.kind][channel.id] ?? 0,
+          value: Object.hasOwn(document[channel.kind], channel.id)
+            ? document[channel.kind][channel.id]
+            : 0,
           description: [
             ...(channel.description === undefined ? [] : [channel.description]),
             describe("+", scale.positive),
