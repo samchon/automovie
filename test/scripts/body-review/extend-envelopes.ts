@@ -38,7 +38,7 @@ const REVISION = "mpfb-connected-body-2026-09-21-envelopes";
 
 /** The envelope each channel is published with, in units of its endpoints. */
 const ENVELOPES: Record<string, [number, number]> = {
-  macroWeight: [-2.5, 4],
+  macroWeight: [-2.5, 5.5],
   macroMuscle: [-1, 2],
   // the regional fat fields stop at their authored reach: past one each
   // field's edge at the knee, elbow or gluteal fold reads as a shelf, so a
@@ -51,7 +51,7 @@ const ENVELOPES: Record<string, [number, number]> = {
   lowerlegFatRight: [-1, 1],
   buttocksVolume: [-1, 1],
 
-  measureWaistCirc: [-2, 3],
+  measureWaistCirc: [-2, 3.5],
   measureHipsCirc: [-2, 2],
   // the bust past 1.25 and the thigh past 1.75 cross the hanging arm and the
   // other thigh in the rest pose (the channel census reads the extremes)

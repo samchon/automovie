@@ -1,9 +1,6 @@
 import {
   HUMAN_BODY_SIMPLE_SHAPE,
-  type IAutoMovieHumanBodyBasis,
   type IAutoMovieHumanBodySimpleShape,
-  expandHumanBodySimpleShape,
-  projectHumanBodySimpleShape,
 } from "@automovie/human";
 
 /** The simple parameters as inputs: label, unit, display scale and step; the optional ones may be left blank. */
@@ -97,7 +94,9 @@ const FIELDS: {
  *
  * The inputs show what the current detailed shape measures (`refresh`
  * projects it), so a user reads the body's own stature, mass and girths
- * before changing one. Applying expands the values over the current shape,
+ * before changing one. Projection and expansion are the package's measured
+ * inversions and take seconds, so both are asked of a worker (`expand`,
+ * `project`) and a stale projection is dropped by generation. Applying expands the values over the current shape,
  * which keeps every detailed edit the simple tier does not name and changes
  * only what the edited values drive; a tape measurement left blank is not
  * solved and its channel stays as it was. The simple values never enter the
@@ -111,12 +110,21 @@ const FIELDS: {
 export const renderBodySimpleControls = (props: {
   dom: Document;
   container: HTMLElement;
-  basis: IAutoMovieHumanBodyBasis;
-  onApply: (
-    expand: (shape: Record<string, number>) => Record<string, number>,
-  ) => void;
+  /** The expansion over the current shape, solved off the page's thread. */
+  expand: (
+    simple: IAutoMovieHumanBodySimpleShape,
+    over: Record<string, number>,
+  ) => Promise<Record<string, number>>;
+  /** The projection of a detailed shape, solved off the page's thread. */
+  project: (
+    shape: Record<string, number>,
+  ) => Promise<IAutoMovieHumanBodySimpleShape>;
+  /** The current detailed shape the expansion applies over. */
+  current: () => Record<string, number>;
+  onApply: (shape: Record<string, number>) => void;
   onRefuse: (error: unknown) => void;
-}): { refresh: (shape: Record<string, number>) => void } => {
+  onBusy: (text: string) => void;
+}): { refresh: (shape: Record<string, number>) => Promise<void> } => {
   const { dom, container } = props;
   container.replaceChildren();
   const inputs = new Map<
@@ -159,12 +167,10 @@ export const renderBodySimpleControls = (props: {
   const apply = dom.createElement("button");
   apply.id = "simple-apply";
   apply.textContent = "Apply simple body";
-  apply.onclick = () => {
+  apply.onclick = async () => {
+    props.onBusy("Solving the simple body against the basis…");
     try {
-      const simple = read();
-      props.onApply((shape) =>
-        expandHumanBodySimpleShape(props.basis, simple, shape),
-      );
+      props.onApply(await props.expand(read(), props.current()));
     } catch (error) {
       props.onRefuse(error);
     }
@@ -173,9 +179,17 @@ export const renderBodySimpleControls = (props: {
   note.textContent =
     "Read off the current body; applying expands through the package's table and measured inversions into the detailed channels below, keeping the detailed edits it does not name.";
   container.append(apply, note);
+  let generation = 0;
   return {
-    refresh: (shape) => {
-      const projected = projectHumanBodySimpleShape(props.basis, shape);
+    refresh: async (shape) => {
+      const ticket = ++generation;
+      let projected: IAutoMovieHumanBodySimpleShape;
+      try {
+        projected = await props.project(shape);
+      } catch {
+        return;
+      }
+      if (ticket !== generation) return;
       for (const field of FIELDS) {
         const value = projected[field.key];
         inputs.get(field.key)!.value =

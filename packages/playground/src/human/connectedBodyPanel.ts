@@ -11,6 +11,7 @@ import {
   type IAutoMovieHumanBodyBasis,
   type IAutoMovieHumanBodyBasisDocument,
   type IAutoMovieHumanBodyChannelScale,
+  type IAutoMovieHumanBodySimpleShape,
   createHumanFaceEditor,
   measureHumanBodyBasisChannels,
   parseHumanBodyBasisDocument,
@@ -57,10 +58,10 @@ export function mountConnectedBodyPanel<
   props: {
     basis: IAutoMovieHumanBodyBasis;
     initial: IAutoMovieHumanBodyBasisDocument;
-    /** A preset's shape, or a function that expands it when it is chosen (the simple tier's archetypes take seconds to solve). */
+    /** A preset's shape, or a function that solves it when it is chosen (the simple tier's archetypes take seconds, off the page's thread). */
     shapes: {
       name: string;
-      shape: Record<string, number> | (() => Record<string, number>);
+      shape: Record<string, number> | (() => Promise<Record<string, number>>);
     }[];
     poses: { name: string; pose: IAutoMovieJointPose[] }[];
     viewport: (canvas: HTMLCanvasElement) => {
@@ -78,6 +79,16 @@ export function mountConnectedBodyPanel<
     };
     /** Seat the companion face on the published body, or hide it. */
     seat: (model: Model | null) => void;
+    /** The simple tier, solved off the page's thread. */
+    simple: {
+      expand: (
+        simple: IAutoMovieHumanBodySimpleShape,
+        over: Record<string, number>,
+      ) => Promise<Record<string, number>>;
+      project: (
+        shape: Record<string, number>,
+      ) => Promise<IAutoMovieHumanBodySimpleShape>;
+    };
     download: (filename: string, bytes: BlobPart, mime: string) => void;
   },
 ) {
@@ -155,7 +166,7 @@ export function mountConnectedBodyPanel<
     element<HTMLButtonElement>("body-redo").disabled = !state.canRedo;
     element<HTMLTextAreaElement>("document-json").value =
       serializeHumanBodyBasisDocument(state.document);
-    simple.refresh(state.document.shape);
+    void simple.refresh(state.document.shape);
     renderControls();
   };
   const change = async (
@@ -298,21 +309,24 @@ export function mountConnectedBodyPanel<
   const simple = renderBodySimpleControls({
     dom,
     container: element("simple-controls"),
-    basis: props.basis,
-    onApply: (expand) =>
-      void change({
-        ...structuredClone(draft),
-        shape: expand(draft.shape),
-      }),
+    expand: props.simple.expand,
+    project: props.simple.project,
+    current: () => draft.shape,
+    onApply: (shape) => void change({ ...structuredClone(draft), shape }),
     onRefuse: refuse,
+    onBusy: (text) => status(text, "building"),
   });
   for (const preset of props.shapes) {
     const button = dom.createElement("button");
     button.textContent = preset.name;
-    button.onclick = () => {
+    button.onclick = async () => {
       try {
+        if (typeof preset.shape === "function")
+          status("Solving the " + preset.name + " preset…", "building");
         const shape =
-          typeof preset.shape === "function" ? preset.shape() : preset.shape;
+          typeof preset.shape === "function"
+            ? await preset.shape()
+            : preset.shape;
         void change({ ...structuredClone(draft), shape: { ...shape } });
       } catch (error) {
         refuse(error);

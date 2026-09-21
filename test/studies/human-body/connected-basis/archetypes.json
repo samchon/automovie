@@ -72,7 +72,7 @@
       "statureMetres": 1.72,
       "massKilograms": 66,
       "muscle": -0.4,
-      "waistMetres": 0.98
+      "waistMetres": 0.96
     },
     "detail": {
       "stomachOverhang": 0.7
@@ -83,7 +83,7 @@
       "sex": -1,
       "ageYears": 48,
       "statureMetres": 1.62,
-      "massKilograms": 110,
+      "massKilograms": 94,
       "muscle": -0.5
     }
   },

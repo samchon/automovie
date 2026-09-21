@@ -40,26 +40,12 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
   identity: { sex: "macroGender", ageYears: "macroAge", muscle: "macroMuscle" },
   solved: {
     stature: "macroHeight",
-    // a kilogram gained is the weight macro plus the regional fat on the
-    // limbs and buttocks, all smooth source fields; the sex-specific depots
-    // (flank, outer thigh) are term rows over the body mass index instead,
-    // because their fields are bands that turn to lumps when a kilogram
-    // scales them without limit
+    // a kilogram is the weight macro's field, which covers the whole skin
+    // smoothly; the regional fat fields, stacked on it past their authored
+    // reach, stood as shelves at the knee and the elbow on the sheet
     mass: {
       range: "macroWeight",
-      direction: [
-        { channel: "macroWeight", gain: 1, curves: [] },
-        ...["upperarmFatLeft", "upperarmFatRight"].map(
-          (channel): Term => ({ channel, gain: 0.5, curves: [] }),
-        ),
-        ...["upperlegFatLeft", "upperlegFatRight"].map(
-          (channel): Term => ({ channel, gain: 0.5, curves: [] }),
-        ),
-        ...["lowerlegFatLeft", "lowerlegFatRight"].map(
-          (channel): Term => ({ channel, gain: 0.3, curves: [] }),
-        ),
-        { channel: "buttocksVolume", gain: 0.4, curves: [] },
-      ],
+      direction: [{ channel: "macroWeight", gain: 1, curves: [] }],
     },
   },
   measurements: [

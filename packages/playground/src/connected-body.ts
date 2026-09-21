@@ -11,7 +11,6 @@ import {
   type IAutoMovieHumanBodyBasisDocument,
   type IAutoMovieHumanBodySimpleShape,
   type IAutoMovieHumanFaceBasisDocument,
-  expandHumanBodySimpleShape,
   serializeHumanBodyBasisDocument,
   serializeHumanFaceBasisDocument,
 } from "@automovie/human";
@@ -132,11 +131,43 @@ async function main(): Promise<void> {
       viewport.companion.place(matrix);
     });
   };
+  // the simple tier's measured inversions run in their own worker
+  const simpleWorker = new Worker(
+    new URL("./connected-body-simple-worker.ts", import.meta.url),
+    { type: "module" },
+  );
+  let simpleTicket = 0;
+  const pending = new Map<
+    number,
+    { resolve: (value: never) => void; reject: (error: Error) => void }
+  >();
+  simpleWorker.onmessage = (
+    event: MessageEvent<{ id: number; result?: unknown; error?: string }>,
+  ) => {
+    const waiting = pending.get(event.data.id);
+    if (waiting === undefined) return;
+    pending.delete(event.data.id);
+    if (event.data.error !== undefined)
+      waiting.reject(new Error(event.data.error));
+    else waiting.resolve(event.data.result as never);
+  };
+  const ask = <T>(request: object): Promise<T> =>
+    new Promise<T>((resolve, reject) => {
+      const id = ++simpleTicket;
+      pending.set(id, { resolve: resolve as (value: never) => void, reject });
+      simpleWorker.postMessage({ id, ...request });
+    });
   const panel = mountConnectedBodyPanel(
     document.querySelector<HTMLDivElement>("#app")!,
     {
       basis,
       initial,
+      simple: {
+        expand: (simple, over) =>
+          ask<Record<string, number>>({ kind: "expand", simple, over }),
+        project: (shape) =>
+          ask<IAutoMovieHumanBodySimpleShape>({ kind: "project", shape }),
+      },
       shapes: [
         { name: "Neutral", shape: {} },
         { name: "Female", shape: { macroGender: -1 } },
@@ -159,8 +190,11 @@ async function main(): Promise<void> {
           >,
         ).map(([name, archetype]) => ({
           name: name.replace(/-/g, " "),
-          shape: () => ({
-            ...expandHumanBodySimpleShape(basis, archetype.simple),
+          shape: async () => ({
+            ...(await ask<Record<string, number>>({
+              kind: "expand",
+              simple: archetype.simple,
+            })),
             ...archetype.detail,
           }),
         })),
