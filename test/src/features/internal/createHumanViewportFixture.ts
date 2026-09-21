@@ -32,18 +32,22 @@ export function createHumanViewportFixture(
   const state: {
     extension: { UNMASKED_RENDERER_WEBGL: number } | null;
     group: THREE.Group;
+    moved: boolean;
   } = {
     extension: { UNMASKED_RENDERER_WEBGL: 37446 },
     group: new THREE.Group(),
+    /** What the orbit reports for the next frame, as OrbitControls would. */
+    moved: false,
   };
   const orbit = {
     target: new THREE.Vector3(),
     enableDamping: false,
     minDistance: 0,
     maxDistance: Infinity,
-    update: () => {
+    update: (): boolean => {
       events.push("orbit");
       camera.lookAt(orbit.target);
+      return state.moved;
     },
   };
   const renderer: Options["renderer"] = {

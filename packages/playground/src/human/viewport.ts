@@ -60,6 +60,7 @@ export function createHumanViewport<
     enableDamping: boolean;
     minDistance: number;
     maxDistance: number;
+    /** True when the camera moved this frame, as OrbitControls reports. */
     update: () => unknown;
   };
   worker: Parameters<typeof createHumanPreviewBuilder<BuiltFace>>[0]["worker"];
@@ -147,6 +148,15 @@ export function createHumanViewport<
     setSize: (width, height) => renderer.setSize(width, height, false),
   });
   cameraView(0);
+  // The scene has no animation of its own: between edits and camera moves,
+  // every frame would repaint the same pixels. Drawing 300,000 shadowed
+  // triangles per frame regardless costs the CPU the face worker needs, and
+  // measured +3-4 s on a 10 s edit on the reference machine. So a frame draws
+  // only when something it shows has changed: the published face, clay,
+  // shadows, the canvas size, a camera preset, or the orbit reporting that
+  // the camera moved (damping keeps reporting movement until it settles).
+  // A manual capture always draws, since its caller wants the current state.
+  let dirty = true;
   const publish = (built: BuiltFace): void => {
     if (active !== built) {
       if (active !== undefined) {
@@ -155,30 +165,41 @@ export function createHumanViewport<
       }
       active = built;
       scene.add(built.group);
+      dirty = true;
     }
   };
   const resize = (): void => {
     const rect = canvas.getBoundingClientRect();
     resizeCamera(rect.width, rect.height);
+    dirty = true;
   };
   props.observeResize(resize);
   resize();
-  const render = (): void => {
-    orbit.update();
+  const render = (force: boolean): void => {
+    const moved = orbit.update() === true;
+    if (!force && !moved && !dirty) return;
+    dirty = false;
     scene.overrideMaterial = clayEnabled ? clay : null;
     renderer.render(scene, camera);
   };
-  renderer.setAnimationLoop(render);
+  renderer.setAnimationLoop(() => render(false));
 
   return {
     build,
     cancel,
     publish,
     dispose: (model: BuiltFace) => dispose(model.group),
-    fitView,
-    cameraView,
+    fitView: (): void => {
+      fitView();
+      dirty = true;
+    },
+    cameraView: (index: number): void => {
+      cameraView(index);
+      dirty = true;
+    },
     setClay: (enabled: boolean): void => {
       clayEnabled = enabled;
+      dirty = true;
     },
     // A cast-shadow boundary can resemble a crease in the anatomical surface.
     // Toggle only the shadow casters: direct light, materials, geometry and the
@@ -186,9 +207,10 @@ export function createHumanViewport<
     // Changing the light's shadow count also refreshes Three's shader variant.
     setShadows: (enabled: boolean): void => {
       for (const light of shadowLights) light.castShadow = enabled;
+      dirty = true;
     },
     finish: () => {
-      render();
+      render(true);
       renderer.getContext().finish();
     },
     renderer: () => {

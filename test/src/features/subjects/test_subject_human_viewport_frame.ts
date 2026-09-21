@@ -14,6 +14,10 @@ import { nclose } from "../internal/predicates";
  * 3. Resize updates the camera; renderer reporting uses debug and basic enums.
  * 4. Pixel ratios above the sampling cap clamp, while a smaller ratio survives.
  * 5. Shadow isolation preserves light direction, power and the scene population.
+ * 6. A frame with nothing changed updates the orbit and draws nothing; a frame
+ *    after the orbit reports movement, a camera preset, a fit, a resize, a
+ *    shadow toggle or a published face draws exactly once, and a manual
+ *    capture always draws.
  */
 export const test_subject_human_viewport_frame = (): void => {
   const f = createHumanViewportFixture();
@@ -141,4 +145,81 @@ export const test_subject_human_viewport_frame = (): void => {
     nclose(low.ratios[0], 1.25),
   );
   f.frames[0].clay!.dispose();
+  const drawn = (): number => f.frames.length;
+  const frameDraws = (action: () => void): number => {
+    const before = drawn();
+    action();
+    f.frame();
+    return drawn() - before;
+  };
+  // The scenarios above resized and toggled shadows without a frame since;
+  // the first frame owes them one draw, and only then is the loop idle.
+  TestValidator.equals(
+    "pending changes draw once",
+    frameDraws(() => {}),
+    1,
+  );
+  TestValidator.equals(
+    "an idle frame draws nothing",
+    frameDraws(() => {}),
+    0,
+  );
+  TestValidator.equals(
+    "an idle frame still updates the orbit",
+    f.events.slice(-1),
+    ["orbit"],
+  );
+  f.state.moved = true;
+  TestValidator.equals(
+    "a frame after camera movement draws once",
+    frameDraws(() => {}),
+    1,
+  );
+  f.state.moved = false;
+  TestValidator.equals(
+    "movement does not linger",
+    frameDraws(() => {}),
+    0,
+  );
+  TestValidator.equals(
+    "a camera preset draws once",
+    frameDraws(() => f.viewport.cameraView(1)),
+    1,
+  );
+  TestValidator.equals(
+    "a fit draws once",
+    frameDraws(() => f.viewport.fitView()),
+    1,
+  );
+  TestValidator.equals(
+    "a resize draws once",
+    frameDraws(() => f.resize()),
+    1,
+  );
+  TestValidator.equals(
+    "a shadow toggle draws once",
+    frameDraws(() => f.viewport.setShadows(true)),
+    1,
+  );
+  TestValidator.equals(
+    "a published face draws once",
+    frameDraws(() =>
+      f.viewport.publish({
+        glb: new Uint8Array(),
+        gltf: { json: { asset: { version: "2.0" } }, resources: {} },
+        parts: 0,
+        crossings: null,
+        group: new THREE.Group(),
+      }),
+    ),
+    1,
+  );
+  TestValidator.equals(
+    "republishing the same face draws nothing",
+    frameDraws(() => {}),
+    0,
+  );
+  const captures = drawn();
+  f.viewport.finish();
+  TestValidator.equals("a manual capture always draws", drawn() - captures, 1);
 };
