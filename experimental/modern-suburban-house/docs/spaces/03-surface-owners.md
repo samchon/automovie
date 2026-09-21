@@ -23,11 +23,15 @@
 | 1층 바닥·천장 공통 경계 | `src/spaces/floors/ground.ts` | 방별 마감 구역의 구조 바탕과 계단 통행 구멍 아래쪽 접합. |
 | 2층 바닥·천장 공통 경계 | `src/spaces/floors/upper.ts` | 1층과 같은 계단 구멍, 상부참·복도 접합, 지붕 아래 천장. |
 | 단일 L형 계단과 보호 경계 | `src/spaces/stair.ts` | 두 flight·중간참·도착·난간의 동일 기준. |
-| 대지 안의 접근·외부 대기·포장 면 | `src/spaces/site.ts` | 포치/차고/정원 문턱에 닿는 외부 바닥. [정원문 바깥 대기](envelope/rear.md#garden-door) 예약을 소비하며 전체 대지 설계는 아직 미완료다. |
+| 현관 보행길과 차도까지의 연결로 전체 | `src/spaces/site/front-walk.ts` | [T자 보행면](site/front-walk.md#front-walk-plan)은 포치 아래 대기를 포함한다. 포치는 그 대기를 요구하고 별도 바닥을 생성하지 않는다. |
+| 차고 앞 차도 전체 | `src/spaces/site/driveway.ts` | [차도 상면](site/driveway.md#driveway-plan)은 차고 문턱과 전면 포장 끝을 연결하고 보행 연결로의 높이 입력을 제공한다. |
+| 정원 테라스·외부 단·아래 대기 | `src/spaces/site/terrace.ts` | [테라스](site/terrace.md#garden-terrace-plan)는 정원문 바깥 대기를 포함하며 [단과 아래 대기](site/terrace.md#garden-steps-plan)를 통해 지표로 나간다. |
 
 `src/spaces/building.ts`는 외곽·공유 좌표의 조립 owner이고 완결 입면의 개별 부재를 거대 배열로 직접 저작하지 않는다. 지붕 합류선은 `src/spaces/roof/junctions.ts`에서 [단일 높이/교차 경계](roof/00-junctions.md#roof-shared-edges)를 산출하고 각 경사면 owner가 소비한다. 지붕면별 문서는 같은 이름의 `docs/spaces/roof` 파일에 있다. 공유 계산은 경사면을 소유하는 두 번째 geometry가 아니다. 식과 윤곽의 설계 입력을 작성했지만 위 source 파일들은 아직 없고 실제 면 닫힘/census는 unverified다.
 
 `src/spaces/openings.ts`의 [공통 개구부 인계](06-openings.md#external-opening-interface)는 좌표 형식과 부재 예약을 공유할 예정이며 창/문 geometry의 별도 소유자가 아니다. 각 완결 입면 owner가 자기 void와 바깥 trim/충전 부재를 소유하고 방 안쪽 owner가 동일 void의 reveal/마감을 받는다. 문짝 유리·창 내부 분할까지 실제 관찰에서 숨기지 않는다.
+
+`src/spaces/site.ts`는 [외부 구역/접속의 조립](site/00-access.md#site-access-interface)만 맡는다. 종전의 포장 전체 한 파일 예약을 소스 저작 전에 완결 보행면·차도·테라스로 구체화했다. 포치 아래 대기와 정원문 바깥 대기는 각 연속 포장 owner에게 통째로 속하며 별도 판으로 쪼개지지 않는다. 대지 경계·보도/도로·지표·식재/울타리의 소유 분해는 maps 경계와 후속 설계가 아직 없어 미완료다. 이 표를 전체 대지 표면 census 완료로 읽지 않는다.
 
 ## 방 내부의 완결 면 소유 {#interior-surface-handoff}
 

@@ -36,7 +36,7 @@
 
 ## 닫힌 차고문과 상부 이동 예약 {#garage-front-opening}
 
-`garage-front-door`는 [차고](../rooms/garage-interior.md#garage-interior-plan)의 전면 벽 Z = [-0.55, -0.30] m에 X = [6.10, 11.10], Y = [-0.15, 2.15] m의 거친 개구부로 택한다. 바닥은 [차고 datum](../01-storeys.md#ground-threshold-datums)이고 최종 유효 폭 목표는 4.80 m, 높이는 2.15 m다. 두 대 폭의 분절 패널문 하나이며 가운데 고정 기둥이나 두 개의 독립 문으로 나누지 않는다. 차도 바닥 접속은 아직 미완료다.
+`garage-front-door`는 [차고](../rooms/garage-interior.md#garage-interior-plan)의 전면 벽 Z = [-0.55, -0.30] m에 X = [6.10, 11.10], Y = [-0.15, 2.15] m의 거친 개구부로 택한다. 바닥은 [차고 datum](../01-storeys.md#ground-threshold-datums)이고 최종 유효 폭 목표는 4.80 m, 높이는 2.15 m다. 두 대 폭의 분절 패널문 하나이며 가운데 고정 기둥이나 두 개의 독립 문으로 나누지 않는다. [차도 상면](../site/driveway.md#driveway-plan)은 이 문턱 바닥과 바깥 벽면에서 접하며 실제 void/문틀 뒤의 접합은 unverified다.
 
 닫힌 문은 네 수평 패널로 나누며 높이는 전체 문짝의 유효 높이에서 같은 간격으로 산출한다. 맨 위 패널 안의 채광 유리는 네 열로 반복 배치하고 나머지 패널에는 불투명한 사각 분절을 둔다. 실제 frame·패널 두께·레일·곡선 가이드의 geometry는 후속 부재가 소유한다. 패널 수와 반복을 외벽의 별도 opening 수로 잘못 보고하지 않는다.
 

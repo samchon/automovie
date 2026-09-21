@@ -6,6 +6,9 @@
 
 | 출발 | 설계 경계/개구부 owner | 도착 및 storey |
 | --- | --- | --- |
+| front-walk | [포치 아래 대기를 포함한 보행면](site/front-walk.md#front-walk-plan) → [외부 세 단](porch.md#porch-platform-access) | front-porch, ground-storey 외부 |
+| driveway | [가로 연결로](site/front-walk.md#front-walk-plan) | front-walk, ground-storey 외부 |
+| driveway | [garage-front-door](envelope/front.md#garage-front-opening), 개방 검사 상태 | garage, ground-storey |
 | [front-porch](porch.md#porch-platform-access) | [front-door](rooms/entry.md#entry-plan) | front-entry, ground-storey |
 | front-entry | [entry-living-door](rooms/living.md#living-plan) | living-room, ground-storey |
 | front-entry | [오른쪽 열린 접속](rooms/service.md#service-access-plan) | service-access, ground-storey |
@@ -15,7 +18,8 @@
 | service-access | [service-laundry-door](rooms/laundry.md#laundry-plan) | laundry-mudroom, ground-storey |
 | service-access | [service-pantry-door](rooms/pantry.md#pantry-plan) | pantry, ground-storey |
 | laundry-mudroom | [laundry-garage-door](rooms/laundry.md#laundry-plan) | [garage](rooms/garage-interior.md#garage-interior-plan), ground-storey |
-| kitchen-dining-family | [garden-door와 안팎 대기](envelope/rear.md#garden-door) | 정원 쪽 외부 대기, ground-storey |
+| kitchen-dining-family | [garden-door와 안팎 대기](envelope/rear.md#garden-door) | [garden-terrace](site/terrace.md#garden-terrace-plan), ground-storey 외부 |
+| garden-terrace | [중앙 경로와 외부 단](site/terrace.md#garden-steps-plan) | [garden-lower-landing](site/terrace.md#garden-lower-landing-plan), ground-storey 외부 |
 | front-entry 하부 대기 | [main-stair 두 flight와 중간참](02-stair.md#stair-reservation) | [upper-hall 도착면](rooms/upper-hall.md#upper-hall-plan), upper-storey |
 | upper-hall | [hall-bedroom-two-door](rooms/bedroom-two.md#bedroom-two-plan) | bedroom-two, upper-storey |
 | upper-hall | [hall-bedroom-three-door](rooms/bedroom-three.md#bedroom-three-plan) | bedroom-three, upper-storey |
@@ -24,7 +28,7 @@
 | upper-hall | [hall-tub-door](rooms/tub-bath.md#tub-bath-plan) | tub-bathroom, upper-storey |
 | primary-bedroom | [primary-wardrobe-door](rooms/wardrobe.md#primary-wardrobe-plan) | primary-wardrobe, upper-storey |
 
-복도 린넨과 현관 외투장은 각 소비 공간의 실제 opening과 내부 깊이를 갖는 수납이며, 방 경로 edge로 세지 않는다. 포치 바닥·세 챌판·아래 대기 입력은 위 포치 owner가 소유한다. [외부 창/문 인계](06-openings.md#external-opening-interface)가 거친 개구부를 배치했고 실제 부재·외부 보행길·정원 대기에서 지면으로의 접속·차고문 앞 차도 연결은 아직 미완료다. 원점 재검토에서 폐기된 이전 topology나 그 관찰 개수를 다시 쓰지 않는다.
+복도 린넨과 현관 외투장은 각 소비 공간의 실제 opening과 내부 깊이를 갖는 수납이며, 방 경로 edge로 세지 않는다. 포치 바닥·세 챌판·아래 대기 입력은 위 포치 owner가 소유하고 아래 대기 표면은 연속 보행길이 소비한다. [외부 창/문 인계](06-openings.md#external-opening-interface)와 [대지 내부 접근](site/00-access.md#site-local-routes)을 연결했으나 실제 부재·maps의 보도/도로와 지표 binding·측면 관리 경로는 미완료다. 원점 재검토에서 폐기된 이전 topology나 그 관찰 개수를 다시 쓰지 않는다.
 
 필요한 검사는 현관에서 표의 각 목적지까지 도달하고 같은 경계 순서로 돌아오는 경로다. 팬트리/파우더룸/침실을 통과하지 않고 공용실과 차고·두 욕실에 닿아야 한다. 거친 개구부의 좌표가 벽 안에 있다는 사실과 실제 문틀/문짝 뒤의 통행은 서로 다른 검사다. 표의 방 하나라도 실제 storey·boundary·opening·connector를 갖지 않으면 소스 인계는 미완료다. 현재 topology 보고와 양방향 통행은 unverified다.
 
