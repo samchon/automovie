@@ -45,18 +45,18 @@
 @evidence settings/001-production.md#delivery-scope 주택 한 채의 작은 앞마당 범위를 citizen-site와 전면 보도·현관 도착으로 배정한다. 주변 건물이나 교통망을 새 납품 영역으로 추가하지 않는다.
 @evidence settings/003-spatial-basis.md#coordinate-datum 본채와 같은 metre·Y-up 좌표에서 site bounds와 지면·tread 높이를 정하고 현관 floor datum을 소비한다. reference 픽셀을 측량 치수로 사용하지 않는다.
 @evidence settings/004-observation.md#accessibility-products 세 단차로 구성한 도착 경로를 실물 무장애 인증으로 보고하지 않는 공간 설계상의 경계를 소비한다. 키보드나 음성 제품의 구현 책임을 대지 geometry의 통과로 대신하지 않는다.
-@evidenceReview settings/001-production.md#delivery-scope site의 15.60×17.00m 안에 집·앞마당과 임시 작업 예약면을 배정했다. 배수망은 집수구 접속 밖을 납품하지 않아 작은 대지라는 범위를 주변 기반시설로 확대하지 않는다.
-@evidenceReview settings/003-spatial-basis.md#coordinate-datum 같은 m·Y-up의 y=-0.45 지면에서 세 번 0.15m 올라 현관 y=0에 닿는다. 집수구도 이 지면 아래 깊이로 정의하여 관·보도에 다른 높이 기준을 만들지 않는다.
-@evidenceReview settings/004-observation.md#accessibility-products 세 단차와 flush 격자를 정하면서도 무장애 인증·주행 하중을 미검증으로 명시했다. 물리적 도착을 그렸다는 사실로 viewer의 키보드 대안이나 비시각 동등성을 인증하지 않는다.
-@evidenceReview principles/core/common.md#declared-basis 작은 앞마당은 delivery-scope에서, 집 datum은 mass에서 받고 site 경계·tread는 지역 저작값으로 선언했다. 장비 reach는 roof 원본을 참조해 조경자가 별도의 장비 성능을 가정하지 않는다.
-@evidenceReview principles/core/common.md#scope-preservation 현관 접근·식재와 함께 두 유지관리 예약대 및 관 아래 집수 공간을 garden에 남겼다. 식재를 우선해 작업 여유를 지우거나 집수구 밖 우수망까지 납품했다고 할 수 없다.
-@evidenceReview principles/core/common.md#substantive-completion 두 tread·landing의 구간과 높이, staging pad와 flush 집수구의 범위·깊이·출구를 정했다. 지면 아래 어디로 관을 끝낼지나 cassette를 어디 내려놓을지 구현자가 발명해야 하는 상태가 아니다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation 작은 대지와 현관 도착이라는 부모 조건을 실제 세 단차·예약대·집수구로 전개했다. roof가 요구한 여유를 기존 대지 안에서 점유 금지 구역과 식재 재배치로 해결하는 것이 site의 추가 결정이다.
-@evidenceReview principles/design/spaces.md#space-topology 보도에서 landing을 거쳐 front-entry에 닿는 한 도착 경로를 유지한다. 양 측면 예약대는 임시 장비 공간이며 집에 새 출입 connector나 별동을 만들지 않는다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority site는 지면·계단과 집수구를 소유하고 현관문은 front-entry, 장비 envelope는 roof를 소비한다. 관과 격자 사이 0.15m 낙차가 두 owner의 접합 결과로 명시되어 독립된 출구 높이를 복제하지 않는다.
-@evidenceReview principles/design/spaces.md#space-verification-address containment·tread 접지·문 threshold와 식재의 접근 간섭을 전수 관찰에 붙였다. 예약대나 PV 탈거 공간을 수관이 침범해도 조경의 외관 한 장만 보고 성공 처리할 수 없다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work 작은 앞마당과 현관 직접 진입은 세 단차로 이어지며 2m 장비 예약대도 기존 site 경계 안이다. 장비·하중 인증은 부모의 약속이 아니므로 대지를 넓히거나 경사로를 추가하는 settings 수정이 필요하지 않다.
-@evidenceReview contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements 외부 세 단차는 한 현관으로만 이어지고 내부 꺾임계단을 대체하지 않는다. 임시 장비·cart의 예약면을 별동·브리지나 두 번째 주택 출입 동선으로 만들지 않았다.
+@evidenceReview settings/001-production.md#delivery-scope #e314261 site의 15.60×17.00m 안에 집·앞마당과 임시 작업 예약면을 배정했다. 배수망은 집수구 접속 밖을 납품하지 않아 작은 대지라는 범위를 주변 기반시설로 확대하지 않는다.
+@evidenceReview settings/003-spatial-basis.md#coordinate-datum #8a862c9 같은 m·Y-up의 y=-0.45 지면에서 세 번 0.15m 올라 현관 y=0에 닿는다. 집수구도 이 지면 아래 깊이로 정의하여 관·보도에 다른 높이 기준을 만들지 않는다.
+@evidenceReview settings/004-observation.md#accessibility-products #2e72dbe 세 단차와 flush 격자를 정하면서도 무장애 인증·주행 하중을 미검증으로 명시했다. 물리적 도착을 그렸다는 사실로 viewer의 키보드 대안이나 비시각 동등성을 인증하지 않는다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 작은 앞마당은 delivery-scope에서, 집 datum은 mass에서 받고 site 경계·tread는 지역 저작값으로 선언했다. 장비 reach는 roof 원본을 참조해 조경자가 별도의 장비 성능을 가정하지 않는다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 현관 접근·식재와 함께 두 유지관리 예약대 및 관 아래 집수 공간을 garden에 남겼다. 식재를 우선해 작업 여유를 지우거나 집수구 밖 우수망까지 납품했다고 할 수 없다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 두 tread·landing의 구간과 높이, staging pad와 flush 집수구의 범위·깊이·출구를 정했다. 지면 아래 어디로 관을 끝낼지나 cassette를 어디 내려놓을지 구현자가 발명해야 하는 상태가 아니다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 작은 대지와 현관 도착이라는 부모 조건을 실제 세 단차·예약대·집수구로 전개했다. roof가 요구한 여유를 기존 대지 안에서 점유 금지 구역과 식재 재배치로 해결하는 것이 site의 추가 결정이다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 보도에서 landing을 거쳐 front-entry에 닿는 한 도착 경로를 유지한다. 양 측면 예약대는 임시 장비 공간이며 집에 새 출입 connector나 별동을 만들지 않는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 site는 지면·계단과 집수구를 소유하고 현관문은 front-entry, 장비 envelope는 roof를 소비한다. 관과 격자 사이 0.15m 낙차가 두 owner의 접합 결과로 명시되어 독립된 출구 높이를 복제하지 않는다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 containment·tread 접지·문 threshold와 식재의 접근 간섭을 전수 관찰에 붙였다. 예약대나 PV 탈거 공간을 수관이 침범해도 조경의 외관 한 장만 보고 성공 처리할 수 없다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 작은 앞마당과 현관 직접 진입은 세 단차로 이어지며 2m 장비 예약대도 기존 site 경계 안이다. 장비·하중 인증은 부모의 약속이 아니므로 대지를 넓히거나 경사로를 추가하는 settings 수정이 필요하지 않다.
+@evidenceReview contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements #d31488d 외부 세 단차는 한 현관으로만 이어지고 내부 꺾임계단을 대체하지 않는다. 임시 장비·cart의 예약면을 별동·브리지나 두 번째 주택 출입 동선으로 만들지 않았다.
 -->
 
 <!--

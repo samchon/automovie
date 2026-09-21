@@ -135,15 +135,15 @@
 @evidence principles/design/spaces.md#space-verification-address side 전체·이음·뒤 corner·각 창의 내부 privacy를 관찰하여 코어 노출과 빠진 return을 검출한다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work 불투명 코어와 후방 채광을 현재 room 배치에 대조해 설비를 다른 입면으로 옮기는 부모 수정이 필요하지 않다.
 @evidence contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements 위생·수납·설비는 우측 불투명 벽 안에 두고 필요한 후단 창도 내부 바닥선과 일치시킨다.
-@evidenceReview principles/core/common.md#declared-basis -X 서비스 면은 mass와 전면 좌표 관례에서, 관 상단 접합은 roof-face에서 받는다. 관 중심과 clip 높이는 이 면이 소유하는 배치로 구별된다.
-@evidenceReview principles/core/common.md#scope-preservation 불투명 코어와 후단 두 층 창을 유지한 채 관·clip·점검 덮개를 우측 전체 owner에 더했다. 배수관이 별도 소유자에게 떨어져 입면 마감의 일부가 무소유로 남지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion 관의 내외경·상하단, 네 clip 높이와 점검 덮개 범위를 정했다. roof 단면에서 대지 집수구까지 연결할 위치를 source가 임의로 정할 필요가 없다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation 부모의 opaque core에 후단 유리 span과 창을 피하는 중앙 배수선이라는 외주 배치를 더했다. 코어를 가린다는 말만 반복하지 않고 외부 부속의 점유를 결정한다.
-@evidenceReview principles/design/spaces.md#space-topology 관은 두 층의 불투명 벽 바깥에 있고 아래로 열린 끝은 대지 집수구 위에 놓인다. 서비스실 내부를 새로운 배수 통로나 출입 공간으로 만들지 않는다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority 외벽 plane은 mass의 minX를, 두 창 span은 개별 opening을 따른다. y=6.10에서 roof 관을 받되 아래만 생성하도록 끝을 나누어 외피 접합이 이중으로 저작되지 않는다.
-@evidenceReview principles/design/spaces.md#space-verification-address 관의 외측 Z=0.055와 가까운 창 cut 시작 3.56의 간격이 명시되어 창 가림을 수치로 반증할 수 있다. side·뒤 모서리·실내 privacy 관찰은 나머지 코어와 return의 누락도 질문한다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work 서비스 코어의 불투명 앞부분과 후방 채광 배치에 관 중심 Z=0을 대조했다. 배수 부속을 위해 설비실을 옮기거나 부모의 창·방 구성을 바꿔야 할 충돌은 없다.
-@evidenceReview contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements 두 층의 후단 창을 유지하고 배수관은 그 앞의 opaque 면에 붙인다. 우측 위생·수납·설비를 드러내는 개구 확대나 floor line 변경을 요구하지 않는다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb -X 서비스 면은 mass와 전면 좌표 관례에서, 관 상단 접합은 roof-face에서 받는다. 관 중심과 clip 높이는 이 면이 소유하는 배치로 구별된다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 불투명 코어와 후단 두 층 창을 유지한 채 관·clip·점검 덮개를 우측 전체 owner에 더했다. 배수관이 별도 소유자에게 떨어져 입면 마감의 일부가 무소유로 남지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 관의 내외경·상하단, 네 clip 높이와 점검 덮개 범위를 정했다. roof 단면에서 대지 집수구까지 연결할 위치를 source가 임의로 정할 필요가 없다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 opaque core에 후단 유리 span과 창을 피하는 중앙 배수선이라는 외주 배치를 더했다. 코어를 가린다는 말만 반복하지 않고 외부 부속의 점유를 결정한다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 관은 두 층의 불투명 벽 바깥에 있고 아래로 열린 끝은 대지 집수구 위에 놓인다. 서비스실 내부를 새로운 배수 통로나 출입 공간으로 만들지 않는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 외벽 plane은 mass의 minX를, 두 창 span은 개별 opening을 따른다. y=6.10에서 roof 관을 받되 아래만 생성하도록 끝을 나누어 외피 접합이 이중으로 저작되지 않는다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 관의 외측 Z=0.055와 가까운 창 cut 시작 3.56의 간격이 명시되어 창 가림을 수치로 반증할 수 있다. side·뒤 모서리·실내 privacy 관찰은 나머지 코어와 return의 누락도 질문한다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 서비스 코어의 불투명 앞부분과 후방 채광 배치에 관 중심 Z=0을 대조했다. 배수 부속을 위해 설비실을 옮기거나 부모의 창·방 구성을 바꿔야 할 충돌은 없다.
+@evidenceReview contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements #d31488d 두 층의 후단 창을 유지하고 배수관은 그 앞의 opaque 면에 붙인다. 우측 위생·수납·설비를 드러내는 개구 확대나 floor line 변경을 요구하지 않는다.
 -->
 
 우측은 전면 관찰 화면 기준 -X 서비스 코어 면이다. [매스](002-spatial-graph.md#mass-and-storeys)의 서측 외벽을 사용하고 outward normal은 -X다. plane center는 외측 x와 실내 minX의 평균이다. 전면의 위생·수납·설비 영역을 닫고 후면에 [공용부 측면 유리](#right-common-glazing)와 [욕실 측면 유리](#right-bath-glazing)를 둔다.
@@ -166,16 +166,16 @@
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work 평지붕과 얇은 PV 캐노피 조건을 본채 크기와 짧은 지지에 대조했다. 큰 캔틸레버나 옥상 연결을 부모에게 요청할 필요가 없다.
 @evidence contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements 단순한 두 층 상자 위의 PV 캐노피를 유지하고 별도 체적·복층 보이드·추가 계단을 만들지 않는다.
 @evidence settings/003-spatial-basis.md#envelope-and-privacy 평지붕과 얇은 PV canopy를 실제 span·edge·drip·지지로 배정하여 유리 외피와 같은 본채를 덮게 한다.
-@evidenceReview principles/core/common.md#declared-basis 구조 datum은 mass에서 받고 B/J/T/P와 R은 r2 저작식으로 명명했다. 사진 비례나 기존 box 높이를 새 경사의 근거로 쓰지 않는다.
-@evidenceReview principles/core/common.md#scope-preservation 지붕 상면·노출 하부부터 배수 끝점과 탈거 여유까지 roof에 남기고 관 하단과 집수구는 right/site owner로 연결했다. 캐노피 하부를 연속 판으로 다시 막아 열린 모듈을 생략할 수 없다.
-@evidenceReview principles/core/common.md#substantive-completion v-073은 서로 다른 두 fall, 맞댐 plate 구간, gutter 저점·overflow와 망 인출 순서를 확인했다. 구현자가 우수 방향이나 지지 중첩 해소 방식을 다시 결정해야 했던 v-072의 빈칸이 없어졌다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation 부모의 얇은 지지식 PV 요구에 경사면 식, rail 절단과 frame 안착, 외부 장비에서의 탈거 동선을 추가했다. 이는 평지붕 문구의 재서술이 아니라 부재가 차지하고 비워야 할 공간 결정이다.
-@evidenceReview principles/design/spaces.md#space-topology pedestal은 본채 지붕 위에 있고 cassette는 주보·rail 위에 앉는다. 낮은 하부를 사람 통로나 새 옥상 connector로 해석하지 않아 유지관리 접근이 거주 공간 그래프를 바꾸지 않는다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority 구조 slab·실내 천장·각 창 cut의 원본을 연결하고 B/J/T/P는 roof, module 최대 pitch는 envelope-interface에서 받는다. 관의 y=6.10 접합을 정해 두 입면 owner가 같은 관을 중복 생성하지 않는다.
-@evidenceReview principles/design/spaces.md#space-verification-address 창 cut의 확장 영역, post 길이와 망 swept volume은 컴파일 측정으로 반증하고 열린 틈·지지·그림자는 새 GPU 프레임에 남겼다. 기존 cassette 캡처만 통과해도 이들 새 부재가 승인되는 구조가 아니다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work 부모의 11×12m 본채·평지붕·짧은 지지 조건 안에서 9개 pedestal과 외부 장비 접근이 배정된다. r2는 roof와 site의 자식 설계를 고쳤으며 부모의 방 구성·상시 옥상 동선을 늘려야 할 모순은 드러나지 않았다.
-@evidenceReview contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements 캐노피 기둥을 지면까지 연장하지 않고 모든 문·창의 확장 회피 영역을 지정했다. 태양광 지지체 때문에 방 경계·단일 계단이나 층 band를 이동하는 해석을 배제한다.
-@evidenceReview settings/003-spatial-basis.md#envelope-and-privacy 0.15m 구조 단면과 그 위 PV, 짧은 지지는 부모의 얇은 평지붕 캐노피를 공간으로 구체화한다. 독립 rail grid를 가짜 facade mullion으로 내려 보내지 않아 유리의 방·층 대응을 유지한다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 구조 datum은 mass에서 받고 B/J/T/P와 R은 r2 저작식으로 명명했다. 사진 비례나 기존 box 높이를 새 경사의 근거로 쓰지 않는다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 지붕 상면·노출 하부부터 배수 끝점과 탈거 여유까지 roof에 남기고 관 하단과 집수구는 right/site owner로 연결했다. 캐노피 하부를 연속 판으로 다시 막아 열린 모듈을 생략할 수 없다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 v-073은 서로 다른 두 fall, 맞댐 plate 구간, gutter 저점·overflow와 망 인출 순서를 확인했다. 구현자가 우수 방향이나 지지 중첩 해소 방식을 다시 결정해야 했던 v-072의 빈칸이 없어졌다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 얇은 지지식 PV 요구에 경사면 식, rail 절단과 frame 안착, 외부 장비에서의 탈거 동선을 추가했다. 이는 평지붕 문구의 재서술이 아니라 부재가 차지하고 비워야 할 공간 결정이다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 pedestal은 본채 지붕 위에 있고 cassette는 주보·rail 위에 앉는다. 낮은 하부를 사람 통로나 새 옥상 connector로 해석하지 않아 유지관리 접근이 거주 공간 그래프를 바꾸지 않는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 구조 slab·실내 천장·각 창 cut의 원본을 연결하고 B/J/T/P는 roof, module 최대 pitch는 envelope-interface에서 받는다. 관의 y=6.10 접합을 정해 두 입면 owner가 같은 관을 중복 생성하지 않는다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 창 cut의 확장 영역, post 길이와 망 swept volume은 컴파일 측정으로 반증하고 열린 틈·지지·그림자는 새 GPU 프레임에 남겼다. 기존 cassette 캡처만 통과해도 이들 새 부재가 승인되는 구조가 아니다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 부모의 11×12m 본채·평지붕·짧은 지지 조건 안에서 9개 pedestal과 외부 장비 접근이 배정된다. r2는 roof와 site의 자식 설계를 고쳤으며 부모의 방 구성·상시 옥상 동선을 늘려야 할 모순은 드러나지 않았다.
+@evidenceReview contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements #d31488d 캐노피 기둥을 지면까지 연장하지 않고 모든 문·창의 확장 회피 영역을 지정했다. 태양광 지지체 때문에 방 경계·단일 계단이나 층 band를 이동하는 해석을 배제한다.
+@evidenceReview settings/003-spatial-basis.md#envelope-and-privacy #467ca4b 0.15m 구조 단면과 그 위 PV, 짧은 지지는 부모의 얇은 평지붕 캐노피를 공간으로 구체화한다. 독립 rail grid를 가짜 facade mullion으로 내려 보내지 않아 유리의 방·층 대응을 유지한다.
 -->
 
 **캐노피 수정 설계 r2 보완. source 구현은 독립 설계 PASS 뒤다.** 이 단면은 reference의 얇은 지지식 PV 캐노피와 v-072의 배수·입면 대응·기울기 질문에 답하는 저작 결정이다. 사진의 픽셀을 치수로 역산하지 않았다. 기존 source는 모듈 면적 전체를 채운 검은 cassette box이며 아래 frame·rail·배수 부재를 아직 생성하지 않는다. 지붕 전체의 owner는 [분해 선언](../settings/003-spatial-basis.md#surface-decomposition)의 main author / src/house/envelope/roof.ts다. roof/canopy의 형상과 마감은 이 owner가 함께 맡는다.

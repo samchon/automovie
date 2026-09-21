@@ -1539,16 +1539,16 @@ child-bedroom-1의 짧은 연장부 전면은 계단 opening 북측에서 내벽
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work 외피와 고정 그래프의 우선 관계를 room 기반 bay·PV span에 대조했다. 외관을 위해 부모 그래프나 층선을 바꿀 이유는 없다.
 @evidence contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements 커튼월 베이를 내부 방·바닥선에 맞추고 단일 본채의 대지 진입을 실제 개구에 연결한다.
 @evidence settings/003-spatial-basis.md#envelope-and-privacy 전면·후면 유리와 PV 캐노피를 방·층 및 roof span을 소비하는 외피에 배정한다. 프라이버시 재질 상태의 시각 성공은 이 인터페이스만으로 주장하지 않는다.
-@evidenceReview principles/core/common.md#declared-basis bay는 opening/room과 층 datum, PV count는 roof span과 최대 pitch에서 도출한다. r2의 판 크기를 reference 픽셀이나 별도 임의 폭에서 가져오지 않는다.
-@evidenceReview principles/core/common.md#scope-preservation 방·층 경계에 맞는 창호와 PV 반복, landing과 문 sill의 연결이 모두 남아 있다. 캐노피를 수정하며 기존 외부 진입 접합을 질문에서 빼지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion ceil count와 0.04m frame 사이 gap을 정하고 PV 자체 크기는 roof의 안착 단면으로 연결했다. frame gap을 곧 panel 크기라고 잘못 복제할 여지가 제거되었다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation 부모의 curtainwall/PV 요구를 bay의 room·층 대응과 측정 span에서 반복 수를 얻는 인터페이스로 바꾸었다. 재료 표현을 반복하는 대신 공간 점유를 계산할 입력의 소유자를 지정한다.
-@evidenceReview principles/design/spaces.md#space-topology 각 외피는 room clear 외주를 닫고 현관 opening은 대지 landing에 이어진다. 모듈 반복을 위해 방 경계나 floor line을 제거하는 연결 변경은 허용하지 않는다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority cassette 외측은 pitch-0.04를 쓰되 PV 판은 roof-face의 seat를 적용해 얻는다. 부모와 roof가 서로 다른 panel 치수를 소유하던 가능성을 단일 파생 경로로 닫았다.
-@evidenceReview principles/design/spaces.md#space-verification-address bay/방·층 경계와 landing/sill을 같은 전수 검증에 남겼다. PV 반복이 맞더라도 문 앞 단절이나 유리가 방을 가로지르는 결과는 별도로 실패할 수 있다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work 고정 room 외주와 floor datum에서 창호를 나누고 기존 roof span을 등분할 수 있다. cassette gap 해석은 자식의 안착 인터페이스 수정으로 해결되며 부모의 공간 그래프를 바꿀 이유가 없다.
-@evidenceReview contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements 외관을 크게 만들기 위한 방 이동과 floor band 삭제를 금지하고 현관 sill을 대지 landing에 잇는다. PV count를 맞추려고 curtainwall의 내부 경계 대응을 희생하지 않는다.
-@evidenceReview settings/003-spatial-basis.md#envelope-and-privacy 부모가 맡긴 정확한 bay·반복 범위를 opening과 roof owner로 연결한다. 전면·후면 유리 및 얇은 PV를 같은 본채 외주에 두되 이 인터페이스를 tint나 shade의 시각 성공으로 취급하지 않는다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb bay는 opening/room과 층 datum, PV count는 roof span과 최대 pitch에서 도출한다. r2의 판 크기를 reference 픽셀이나 별도 임의 폭에서 가져오지 않는다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 방·층 경계에 맞는 창호와 PV 반복, landing과 문 sill의 연결이 모두 남아 있다. 캐노피를 수정하며 기존 외부 진입 접합을 질문에서 빼지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 ceil count와 0.04m frame 사이 gap을 정하고 PV 자체 크기는 roof의 안착 단면으로 연결했다. frame gap을 곧 panel 크기라고 잘못 복제할 여지가 제거되었다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 curtainwall/PV 요구를 bay의 room·층 대응과 측정 span에서 반복 수를 얻는 인터페이스로 바꾸었다. 재료 표현을 반복하는 대신 공간 점유를 계산할 입력의 소유자를 지정한다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 각 외피는 room clear 외주를 닫고 현관 opening은 대지 landing에 이어진다. 모듈 반복을 위해 방 경계나 floor line을 제거하는 연결 변경은 허용하지 않는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 cassette 외측은 pitch-0.04를 쓰되 PV 판은 roof-face의 seat를 적용해 얻는다. 부모와 roof가 서로 다른 panel 치수를 소유하던 가능성을 단일 파생 경로로 닫았다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 bay/방·층 경계와 landing/sill을 같은 전수 검증에 남겼다. PV 반복이 맞더라도 문 앞 단절이나 유리가 방을 가로지르는 결과는 별도로 실패할 수 있다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 고정 room 외주와 floor datum에서 창호를 나누고 기존 roof span을 등분할 수 있다. cassette gap 해석은 자식의 안착 인터페이스 수정으로 해결되며 부모의 공간 그래프를 바꿀 이유가 없다.
+@evidenceReview contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements #d31488d 외관을 크게 만들기 위한 방 이동과 floor band 삭제를 금지하고 현관 sill을 대지 landing에 잇는다. PV count를 맞추려고 curtainwall의 내부 경계 대응을 희생하지 않는다.
+@evidenceReview settings/003-spatial-basis.md#envelope-and-privacy #467ca4b 부모가 맡긴 정확한 bay·반복 범위를 opening과 roof owner로 연결한다. 전면·후면 유리 및 얇은 PV를 같은 본채 외주에 두되 이 인터페이스를 tint나 shade의 시각 성공으로 취급하지 않는다.
 -->
 
 각 room의 clear 외주와 [층 datum](#mass-and-storeys)을 [외피 boundary](003-surface-ownership.md#whole-surface-owners)가 소비한다. [창호 인터페이스](003-surface-ownership.md#glazing-interface)가 반복 bay를 결정하고 각 opening H2가 host·span·sill·head를 소유한다. 외피를 더 크게 보이게 하려고 방 경계를 옮기거나 floor line을 지우지 않는다.
