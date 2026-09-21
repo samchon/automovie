@@ -5,7 +5,7 @@
 @evidence discovery/design/spaces.md#work-specific-space-requirements 중정 구멍이 있는 한 주랑의 내부 모서리·cell 관찰과 전 입면/개구부 관찰은 대표 view만으로 줄일 수 없으므로 compiled-observations가 추가 공간 의무다. docs/spaces/observations.md가 전집합과 미해결 위치 보존을, rooms/colonnade.md가 오목한 실제 영역을, ownership.md가 모든 완결 면의 단독 경로를 정한다. 문 순폭·동선·층·경계는 공유 공간 의무의 구체 답이며 새 법규나 접근 인증을 채택하지 않는다.
 @evidence discovery/core/settings.md#directive-promise-subject-requirements 고정 단층 그래프와 약 430㎡는 10-building.md, reference별 시각 정체성은 20-envelope.md·30-interiors.md·40-environment.md에 배치했다. 00-delivery.md의 operative-subjects는 공동체·운반 포락·분수 물·관찰자·환경까지 소유를 분류하고 인물 구현과 실제 역사 복원은 범위 밖으로 구분한다.
 @evidenceReview discovery/core/common.md#shared-local-boundary #ae499c0 사용자 요구와 공유 공간 의무를 대조했을 때 완결 시각 표면의 최초 단독 배정과 compiled topology 전수 관찰은 각각 별도 실패 경계를 가진다. 회벽 색·방 용도 같은 기존 질문의 구체 답은 새 규칙으로 중복시키지 않았다.
-@evidenceReview discovery/core/common.md#canonical-realization spaces draft의 ownership 표를 입면·방·층·지붕 파일과, observations의 전집합 규칙을 고리 주랑 cell 설계와 대조했다. 두 계약 target과 전체 spaces/예약 account claim은 유지되며 draft의 coverage 비활성은 compiled 관찰 완료가 아니다. source 경로는 후속 소유 지정으로 분명히 표시돼 있다.
+@evidenceReview discovery/core/common.md#canonical-realization #5a6e541 spaces draft의 ownership 표를 입면·방·층·지붕 파일과, observations의 전집합 규칙을 고리 주랑 cell 설계와 대조했다. 두 계약 target과 전체 spaces/예약 account claim은 유지되며 draft의 coverage 비활성은 compiled 관찰 완료가 아니다. source 경로는 후속 소유 지정으로 분명히 표시돼 있다.
 @evidenceReview discovery/core/settings.md#directive-promise-subject-requirements #1c99050 브리프의 단층·방 관계·규모는 10-building, 다섯 이미지의 부재·집기·환경은 20/30/35/40, 전달·GPU·판정 실패 경계는 50-production에 실제 본문으로 존재한다. operative-subjects의 공동체·물·카메라도 소유가 있고 인물 구현과 역사 복원은 명시 제외다.
 -->
 
