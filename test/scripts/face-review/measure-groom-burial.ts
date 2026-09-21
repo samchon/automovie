@@ -25,10 +25,9 @@
  * by construction and carries nothing, so only the stations after it are
  * written.
  *
- * Each subject is placed twice, with its identity and without, because the
- * per-vertex identity moved the scalp. A seat rides the surface by design, but
- * whether the locks still clear the skin after the surface moved is a
- * measurement rather than a deduction.
+ * Each subject is evaluated from its numerical shape controls. The seat
+ * follows that surface; clearance of the remaining guide stations still
+ * requires measurement against the resulting scalp.
  *
  * Usage: ttsx -P tsconfig.json --no-plugins scripts/face-review/measure-groom-burial.ts [grooms.json(.gz)]
  */
@@ -91,15 +90,14 @@ for (const document of documents) {
     return { positions, indices, stations };
   };
 
-  const withIdentity = place(document);
-  const without = place({ ...document, identity: undefined });
+  const placed = place(document);
   fs.writeFileSync(
     `${out}/${name}.json`,
-    JSON.stringify({ subject: name, withIdentity, without }),
+    JSON.stringify({ subject: name, placed }),
   );
   written++;
   console.log(
-    `${name.padEnd(26)} ${withIdentity.stations.length / 3} stations placed`,
+    `${name.padEnd(26)} ${placed.stations.length / 3} stations placed`,
   );
 }
 console.log(`${written} grooms written for measurement`);

@@ -23,7 +23,7 @@
  * once by naming them.
  *
  * Usage, from the test package:
- *   ttsx -P tsconfig.json --no-plugins scripts/face-review/verify-combination-correctives.ts [subject,...] [--without-identity] [--grid fine]
+ *   ttsx -P tsconfig.json --no-plugins scripts/face-review/verify-combination-correctives.ts [subject,...] [--grid fine]
  *   ttsx -P tsconfig.json --no-plugins scripts/face-review/verify-combination-correctives.ts --summarize
  */
 import {
@@ -96,17 +96,9 @@ type Verified = {
   >;
 };
 
-/**
- * `--without-identity` drops each subject's per-vertex identity, leaving the
- * shape channels: the experiment that separates a crossing the shape channels
- * made, which move the teeth with the skin, from one the identity layer made,
- * which moves the skin alone.
- */
-const withoutIdentity = process.argv.includes("--without-identity");
-
 /** One file per subject, so a run that dies keeps what the others finished. */
 const fileOf = (subject: string) =>
-  `${investigation}/combination-verification-${subject}${withoutIdentity ? "-without-identity" : ""}${WEIGHTS === FINE ? "-fine" : ""}.json`;
+  `${investigation}/combination-verification-${subject}${WEIGHTS === FINE ? "-fine" : ""}.json`;
 
 if (process.argv.includes("--summarize")) {
   const names = [
@@ -234,14 +226,11 @@ const crossed = (
   expression: Record<string, number>,
 ): Set<string> => {
   const found = new Set<string>();
-  // The before of the A/B is the face with no pair corrective anywhere, so
-  // the document's own correctives come off with the basis's.
+  // Both arms use the same compact document; only the shared basis differs.
   const model = build({
     ...document,
     expression,
     hair: undefined,
-    identity: withoutIdentity ? undefined : document.identity,
-    correctives: build === before ? undefined : document.correctives,
   });
   for (const crossing of measureAutoMovieModelCrossings(model))
     found.add(
@@ -258,8 +247,6 @@ const crossed = (
           ...document,
           expression: {},
           hair: undefined,
-          identity: withoutIdentity ? undefined : document.identity,
-          correctives: undefined,
         }),
       );
       restFansOf.set(document.id, restFans);

@@ -24,3 +24,9 @@ These are joint conditions for each anatomical group. A correction that clears o
 ## Initial state
 
 The investigation starts at master commit `d6be8fd9` after PR #2522. Its published documents still admit `identity` and `correctives`; its preview creates a worker for each request, rebuilds and validates a model, exports GLB, decodes GLB and replaces the scene. Measurements reported in #2533 belong to the previous environment and require local reproduction. The new work is delivered through one Draft PR.
+
+## Canonical detail and simple controls
+
+The user's additional requirement is tracked in [#2535](https://github.com/samchon/automovie/issues/2535). The finest numerical parameters are authoritative. Simple controls must resolve through explicit transformations to that representation; an intermediate tier is optional. Research includes proportions, outline, fullness, skeletal prominence, feature placement and shape, asymmetry, skin, hair and performance as well as age. A mode change must preserve detailed edits, and repeated application must not accumulate drift.
+
+The [research inventory and references](https://github.com/samchon/automovie/issues/2535#issuecomment-5757654846) distinguish documented authoring methods from anatomical studies and local reproduction. [Body research issue #2536](https://github.com/samchon/automovie/issues/2536) separately preserves shared-control questions, sources and limits for a future checkout without `.wiki`. This PR's implementation scope is facial effects and their attachment boundaries only; it does not introduce a body editor or interpret facial authoring weights as measured whole-body attributes.
