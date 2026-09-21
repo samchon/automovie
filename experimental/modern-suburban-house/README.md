@@ -14,10 +14,6 @@ Scaffold installation is one-way. After creation, `AGENTS.md`, `CLAUDE.md`, `.ag
 
 Use ordinary coding-agent tools for authoring. Scaffold creation does not register an MCP client or write client configuration.
 
-## Production status
-
-This production is selected as a `library` in `lint.config.ts`. Its authored settings, site map, spatial graph, surface ownership, finishes, fit-out, lighting boundary, and deterministic house library are under `docs` and `src`. The garage is intentionally empty of vehicles.
-
 ## First run
 
 ```bash
@@ -25,7 +21,7 @@ npm install --package-lock=false
 npm run lint
 ```
 
-The source graph is authored and can be inspected through the exports in `src/index.ts`. The commands below are the project-owned routes for structural checks and live source inspection.
+The blank scaffold is intentionally incomplete. Select the production kind through the routed lifecycle procedure, author its prerequisites, then use the commands below at the stages their linked procedures name.
 
 ## Canonical command routes
 
@@ -35,11 +31,8 @@ Use the commands declared in `package.json`:
 | --- | --- |
 | `npm run lint` | Check the complete TypeScript program and active authored evidence. |
 | `npm run format` | Format source with the configured compiler formatter. |
-| `npm run viewer` | Serve the persistent source-backed live viewer at `http://127.0.0.1:4173/`. |
 
-This library supplies deterministic building data and derived review observations, not a film build, capture, render, or publication command. A consuming AutoMovie adapter may lower the named parts and module laws to the installed public runtime API without introducing a second design owner.
-
-The live viewer is a source inspection tool. Start `npm run viewer`, open `http://127.0.0.1:4173/`, and refresh after saving source; the server reloads `src/house.ts` for each source request. Drag to rotate, Shift-drag to move, use the wheel to zoom, and select a storey, section, or room. The page does not replace compiled quantities, ids, bindings, dimensions, or independent review.
+The scaffold provides instructions, contracts, and source lint, not prewritten production or viewer code. Author only the concrete source the requested work needs through the packages' public APIs. It supplies no film build, capture, render, or publication command.
 
 The installed `automovie` CLI separately provides Markdown TOC maintenance, external-asset inspection, and capability routes. Read its local help before invoking a command. These operations do not authorize a project state store.
 

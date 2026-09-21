@@ -3,7 +3,6 @@ import {
   type IAutoMovieEvidenceConfigProps,
   createAutoMovieEvidenceConfig,
   createBlankAutoMovieProductionEvidence,
-  createAutoMovieProductionObligationClaim,
   evidence,
 } from "@automovie/evidence";
 import type { ITtscLintConfig } from "@ttsc/lint";
@@ -35,91 +34,11 @@ import { fileURLToPath } from "node:url";
  * and upstream-repair procedure. Film and brief also require reviewed
  * productionSources as the parallel typed assembly input to filmSources.
  */
-const blankProductionEvidence = createBlankAutoMovieProductionEvidence(
-  fileURLToPath(new URL(".", import.meta.url)),
-  "korean" as AutoMovieProductionLanguage,
-);
-
-const completePopulation = { mode: "complete-production" } as const;
-
-const localClaims = [
-  createAutoMovieProductionObligationClaim({
-    name: "temple-settings-reference-boundary",
-    document: "contracts/reference-boundary.md",
-    account: "accounts/settings/reference-boundary.md",
-    layer: "settings",
-    stage: "review",
-    populationScope: completePopulation,
-  }),
-  createAutoMovieProductionObligationClaim({
-    name: "temple-settings-measurement-truth",
-    document: "contracts/measurement-truth.md",
-    account: "accounts/settings/measurement-truth.md",
-    layer: "settings",
-    stage: "review",
-    populationScope: completePopulation,
-  }),
-  createAutoMovieProductionObligationClaim({
-    name: "temple-settings-stage-integrity",
-    document: "contracts/stage-integrity.md",
-    account: "accounts/settings/stage-integrity.md",
-    layer: "settings",
-    stage: "review",
-    populationScope: completePopulation,
-  }),
-  createAutoMovieProductionObligationClaim({
-    name: "temple-spaces-fixed-graph",
-    document: "contracts/fixed-graph.md",
-    account: "accounts/settings/fixed-graph.md",
-    layer: "settings",
-    stage: "review",
-    populationScope: completePopulation,
-  }),
-  createAutoMovieProductionObligationClaim({
-    name: "temple-spaces-observation-set",
-    document: "contracts/compiled-observation-set.md",
-    account: "accounts/settings/observation-set.md",
-    layer: "settings",
-    stage: "review",
-    populationScope: completePopulation,
-  }),
-  createAutoMovieProductionObligationClaim({
-    name: "temple-spaces-surface-ownership",
-    document: "contracts/surface-ownership.md",
-    account: "accounts/settings/surface-ownership.md",
-    layer: "settings",
-    stage: "review",
-    populationScope: completePopulation,
-  }),
-  createAutoMovieProductionObligationClaim({
-    name: "temple-model-blocking",
-    document: "contracts/model-blocking.md",
-    account: "accounts/models/model-blocking.md",
-    layer: "models",
-    stage: "review",
-    populationScope: completePopulation,
-  }),
-  createAutoMovieProductionObligationClaim({
-    name: "temple-instance-blocking",
-    document: "contracts/instance-blocking.md",
-    account: "accounts/instances/instance-blocking.md",
-    layer: "instances",
-    stage: "review",
-    populationScope: completePopulation,
-  }),
-];
-
 export const productionEvidence = {
-  ...blankProductionEvidence,
-  kind: "library" as const,
-  settings: "review" as const,
-  spaces: "review" as const,
-  models: "review" as const,
-  instances: "review" as const,
-  modelSources: "review" as const,
-  materials: "review" as const,
-  spaceSources: "review" as const,
-  claims: localClaims,
+  ...createBlankAutoMovieProductionEvidence(
+    fileURLToPath(new URL(".", import.meta.url)),
+    "korean" as AutoMovieProductionLanguage,
+  ),
 } satisfies IAutoMovieEvidenceConfigProps;
 
 const graph = createAutoMovieEvidenceConfig(productionEvidence);

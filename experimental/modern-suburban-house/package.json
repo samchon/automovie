@@ -41,8 +41,7 @@
   ],
   "scripts": {
     "lint": "ttsc --cache-dir node_modules/.cache/ttsc --noEmit -p package.json",
-    "format": "ttsc format --cache-dir node_modules/.cache/ttsc -p package.json",
-    "viewer": "node src/viewer/server.mjs"
+    "format": "ttsc format --cache-dir node_modules/.cache/ttsc -p package.json"
   },
   "dependencies": {
     "@automovie/archetypes": "workspace:^",
