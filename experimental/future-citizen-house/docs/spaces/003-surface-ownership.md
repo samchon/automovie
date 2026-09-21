@@ -4,30 +4,19 @@
 
 <!--
 @evidence settings/001-production.md#production-visual-grammar 불투명 서비스 벽·틀·유리·차양을 서로 다른 공간 점유로 구별해 시각 문법의 실제 부재 기반을 제공한다. 색과 광학·조명 구현의 성공을 공간 문서에서 주장하지 않는다.
-@evidenceReview settings/001-production.md#production-visual-grammar #a673c40 입면·층·방의 geometry와 material을 같은 완결 면의 owner에 귀속하여 공통 재료 언어를 서로 덧칠하는 구현으로 쪼개지 않는다.
 -->
 
 <!--
 @evidence principles/core/common.md#declared-basis 본채와 표면 분해 선언을 받아 외피를 네 입면과 지붕으로 나누고 datum에서 두께와 층선을 받는다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb settings의 surface-decomposition 배정을 공간 source 파일 책임으로 소비한다.
 @evidence principles/core/common.md#scope-preservation 외벽·개구·틀·shade·return을 각 완결 표면의 범위에 남기고 실내 floor/ceiling 책임도 연결한다.
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 같은 입면을 stair·flex 조각의 별도 소유권으로 나누지 않는다.
 @evidence principles/core/common.md#substantive-completion 입면·층·방의 접합 책임과 외부 boundary의 enclosing house를 지정하여 외피에 이중 소유나 무소유 면을 남기지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 실내 lining과 floor·ceiling 및 외부 return의 생성 책임까지 구분한다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 단독 표면 소유를 실제 외피의 다섯 face와 내외 마감 및 corner 접합의 공간 관계로 전개한다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 단독 소유 규칙에 실제 접합과 조립 소비 관계를 더한다.
 @evidence principles/design/spaces.md#space-topology 외부 전체 face는 house를 둘러싸고 개별 room/storey의 창 대응은 opening과 cell 위치에서 판정한다.
-@evidenceReview principles/design/spaces.md#space-topology #3f8d925 외피·room lining·storey 면이 각각 같은 공간 경계를 공유한다.
 @evidence principles/design/spaces.md#space-boundary-authority 외곽·층선·두께는 mass datum 하나를 쓰며 입면이 room별 창폭을 따로 복제하지 않는다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 portal은 한 번 생성하고 양면 요구만 전달하여 동일 문짝을 중복 저작하지 않는다.
 @evidence principles/design/spaces.md#space-verification-address normal·thickness·접합선·opening profile·층선 일치를 전체 공간 관찰에 연결하고 현재 형상은 unverified로 남긴다.
-@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 seam 변경은 이웃 표면도 재검증하게 하여 파일별 완료로 틈을 숨기지 않는다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work 단일 본채와 완결 표면의 단독 소유를 다섯 외피면 및 층/방 접합에 대조했다. 부모의 표면을 더 쪼개거나 별도 체적을 허용할 필요가 없다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 부모 배정으로 실제 외측·내측·수평면 책임이 구분되어 소유권 규칙을 수정할 필요가 없다.
 @evidence contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements 단일 직사각형 외피가 내부 방·층 경계를 소비하도록 하며 화면을 위해 고정 그래프를 바꾸지 않는다.
-@evidenceReview contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements #d31488d 네 입면·지붕·각 층·각 방을 온전한 표면 단위로 배정한다.
 @evidence settings/003-spatial-basis.md#surface-decomposition 각 입면이 구조 return·창호·shade·마감을 함께 맡고 층·방과의 최종 면 중복을 금지하는 소유 배정을 소비한다.
-@evidenceReview settings/003-spatial-basis.md#surface-decomposition #0076c6d 표면 하나의 geometry와 material을 한 owner가 맡고 helper는 배치를 소유하지 않는다.
 -->
 
 [house](001-citizen-house.md#citizen-house-space)의 외피는 [전면](#front-face), [후면](#rear-face), [좌측](#left-face), [우측](#right-face), [지붕](#roof-face)의 다섯 완결 표면이다. 각 면은 하나의 owner가 모든 구조 return·개구·틀·shade·마감을 소유한다. 작성자와 source 파일은 [분해 선언](../settings/003-spatial-basis.md#surface-decomposition)을 따른다. 개구부 H2는 같은 입면 내부의 주소이며 작성자를 분할하지 않는다.
@@ -39,6 +28,19 @@
 [시각 문법](../settings/001-production.md#production-visual-grammar)이 구별하는 불투명 서비스 벽·금속 틀·유리·차양은 같은 외주 안에서 서로 다른 실제 점유를 가진다. 여기서는 그 공간 경계만 정하고 색·광학·빛의 구현은 후속 source에서 이 canon을 소비한다.
 
 각 face의 실제 boundary normal·thickness·접합선·opening profile과 바닥선 일치를 [전체 공간 관찰](001-citizen-house.md#spatial-observation)에서 검사한다. 현재 형상·재료 관찰은 unverified다.
+
+**입면 관찰 경계 수정 설계.** 아래 결정은 v-071의 커튼월 부재 단서와 기존 벽 중심면의 관찰 방향 오류를 수리하는 설계다. 아직 source 구현이나 새 GPU 판정 결과가 아니다. 본문의 각 입면이 쓰는 plane center는 절삭·부재 배치용 중심 C를 뜻한다. 외부 boundary의 face는 외측 기준면 O에 둔다. 벽 중심에서 내외 공간을 구분하려는 기존 해석을 폐기한다. 외벽 두께 d와 내외측 위치는 [매스](002-spatial-graph.md#mass-and-storeys)에서 받고 O=C+(d/2)N으로 도출한다. N은 해당 입면의 외측 단위 방향이다.
+
+| 전체 입면 owner | 절삭 중심 C의 법선 좌표 | 외측 면 O | N | 외측 전체 span |
+| --- | --- | --- | --- | --- |
+| front | Z=-5.88 | Z=-6.00 | (0,0,-1) | X=-5.50..5.50 |
+| rear | Z=5.88 | Z=6.00 | (0,0,1) | X=-5.50..5.50 |
+| left | X=5.38 | X=5.50 | (1,0,0) | Z=-6.00..6.00 |
+| right | X=-5.38 | X=-5.50 | (-1,0,0) | Z=-6.00..6.00 |
+
+표의 숫자는 기존 datum의 파생 설계값이다. 네 face의 접선 중심과 Y 중심은 기존 outline 중심을 유지하며 높이는 ground floor..upper ceiling이다. 외부 모서리 prism까지 포함한 전체 span도 유지한다. 두께는 d 그대로이고 회전은 local +Z가 N을 향한다. local U의 부호와 모든 opening profile의 접선·Y 좌표는 기존 절삭 좌표에서 유지하여 좌우 반전이나 문 폭 변화를 만들지 않는다. opening profile은 O에 투영한 유효 개구 윤곽이며 실제 wall cut과 reveal은 그 안쪽으로 d를 관통한다. 유리와 문짝의 world transform, 문 힌지와 open/closed 상태, connector endpoint, room lining의 절삭 입력은 C를 계속 소비한다. 외측 face로 고친다는 이유로 이 실물을 0.12m 밀어내지 않는다. 내부 두-room shared boundary는 이 변경의 대상이 아니다.
+
+경계의 소유자는 각 전체 입면이며 facade helper는 C와 O를 구분해 생성한다. viewer가 normal을 ID별로 뒤집거나 engine의 containment probe를 바꾸는 경로를 두지 않는다. 네 면 모두 native exposed normal이 N과 일치하고 O+0.001N은 house 밖, O-0.001N은 house 안에 있어야 한다. 검사 중심은 각 face의 실제 centroid다. tolerance는 좌표 1e-7m, 방향 dot(N,actual)>1-1e-7로 정한다. 같은 산출물에서 opening profile의 세계 접선·Y 범위와 actual cut, 문짝 bounds와 connector endpoint의 변경 전후 차이도 읽는다. 이 검사는 camera를 보기 좋게 옮기는 것으로 대체하지 않는다. [관찰 집합](001-citizen-house.md#spatial-observation)의 전체 입면·모서리·개구 질문을 유지하며 실물 돌출 부재는 자신의 actual bounds에서 추가 관찰한다. 외측 기본 면보다 돌출되는 [층간 덮개](#glazing-interface)의 0.020m는 부재 점유에 포함하되 body volume이나 벽 두께를 늘린 값으로 보고하지 않는다.
 
 ## 전면 전체 {#front-face}
 
@@ -241,28 +243,57 @@ roof owner는 거터 상부를 덮는 우측 끝 cassette를 먼저 분리한다
 
 <!--
 @evidence principles/core/common.md#declared-basis 외부 고정창의0.04m frame face·0.14m 깊이와 최대1.25m bay는 실물 점유를 정하는 저작값으로 구분한다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 최대 bay 1.25m와 frame 치수는 저작 입력으로 선언한다.
 @evidence principles/core/common.md#scope-preservation 유리·jamb·head·sill·mullion과 reveal을 모두 남겨 사각 구멍이나 표면 색만으로 창호를 대신하지 않는다.
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 glazing은 채광·privacy 개구이며 임의의 출입 connector를 추가하지 않는다.
 @evidence principles/core/common.md#substantive-completion effective span과 panel clear의 차이, frame 확장 cut, 우선 분할선 및 count/pitch 도출을 정했다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 jamb·head·sill·mullion 차감과 structural cut 확장이 정해졌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation curtainwall 요구를 실제 frame 점유와 room/floor 우선 분할을 갖는 반복 공간 규칙으로 구체화한다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 창호 실물 요구에 glass clear를 산출할 반복 규칙을 더한다.
 @evidence principles/design/spaces.md#space-topology 창의 cut은 host 두께를 관통하지만 고정 유리로 채워지며 방 사이 경계를 가로지르는 panel을 허용하지 않는다.
-@evidenceReview principles/design/spaces.md#space-topology #3f8d925 각 pane은 소속 room 외피에 붙고 floor band를 관통하지 않는다.
 @evidence principles/design/spaces.md#space-boundary-authority opening은 유효 span을 소유하고 panel과 mullion은 같은 분할선에서 도출하여 glass 폭을 별도 복제하지 않는다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 room·floor 경계를 먼저 고정하고 남은 span에서 mullion을 나눈다.
 @evidence principles/design/spaces.md#space-verification-address 모든 opening의 반복 경계·room/floor 대응과 frame/reveal 연속성을 대조해 겹친 유리나 떠 있는 틀을 검출한다.
-@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 frame 깊이·cut 포함과 bay 정렬을 실제 부재 bounds로 검사한다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work curtainwall과 내부 경계 일치 요구를 우선 분할 및 ceil 반복 규칙에 대조했다. bay를 위해 부모 room이나 floor line을 이동할 필요가 없다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 부모가 정한 room·floor 기준으로 반복을 나눌 수 있어 공간 그래프 수정이 필요하지 않다.
 @evidence contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements 반복 부재를 측정 span과 규칙에서 만들고 모든 유리 panel이 방·바닥선 경계를 지키게 한다.
-@evidenceReview contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements #d31488d frame·pane·shade를 분리하여 커튼월을 벽의 사각 구멍으로 대신하지 않는다.
 -->
 
 각 opening의 유효 span은 양쪽 jamb의 안쪽 면 사이 거리다. 이 범위에는 내부 mullion의 점유도 포함되고, 개별 유리 panel의 clear 폭과 같지 않다. 모든 외부 고정창의 유효 span 바깥에 면 폭 0.04m, 깊이 0.14m의 head·sill·jamb를 두고 내부 분할선에는 같은 단면의 mullion을 중심 정렬한다. 이 값은 창호 공간 점유를 정하는 저작 입력이고 finish·광학 성능의 인증이 아니다. 실제 host wall의 structural cut은 유효 span에서 frame 면 폭만큼 확장한 윤곽이다. wall 두께를 관통해 cut하고 깊이가 다른 wall과 frame 사이에는 reveal이 연속해서 닿는다.
 
 각 opening의 유효 길이를 1.25m 이하인 bay로 나눈다. room/floor/채택된 하층 jamb의 중심선을 우선 분할선으로 사용하고 각 독립 span마다 count=ceil(span/1.25), pitch=span/count로 정한다. 각 panel은 인접 frame의 안쪽 면 사이를 채우며 mullion의 점유 폭을 유리에서 제외한다. module record를 수작업 복제하지 않는다. 바닥선이나 방 경계를 가로지르는 유리 panel은 만들지 않는다. 모든 opening에서 이 실제 반복 경계와 room/floor를 [관찰](001-citizen-house.md#spatial-observation)로 대조한다.
+
+**창틀·층간 접합 수정 설계.** v-071이 지적한 단순한 frame과 spandrel 표현을 이 인터페이스의 실제 단면으로 보완한다. 기존 0.04m 면 폭·0.14m 깊이, opening의 유효 span·sill·head, bay 우선 분할은 유지한다. 사진의 치수를 추측하지 않는다. 아래는 저작 입력이며 제작 제품의 시험값이 아니다. window·부재는 각 전체 입면 owner가 소유하고 새로 쪼갠 파일에 표면 책임을 넘기지 않는다. 방과 계단 그래프, 캐노피의 승인된 기준선·배수·지지는 그대로다.
+
+단면은 벽 중심 C에서 외측으로 증가하는 n을 사용한다. 외벽은 n=-0.120..0.120, 창틀은 n=-0.070..0.070, 유리는 n=-0.009..0.009다. 창틀의 길이 방향에 직각인 단면 좌표를 s라 하고 부재 중심을 s=0으로 둔다. 아래 단면을 jamb·mullion·head·sill에 공통 적용한다. 깊이를 바꾸기 위해 pane나 벽을 이동하지 않는다.
+
+| 부재 | s 범위 | n 범위 및 접합 |
+| --- | --- | --- |
+| 실내측 본체 | -0.020..0.020 | -0.070..-0.015 |
+| 중앙 연결 web | -0.010..0.010 | -0.015..0.015; 본체와 압착판에 면 접합 |
+| 외측 압착판 | -0.020..0.020 | 0.015..0.035 |
+| 외측 덮개 | -0.018..0.018 | 0.035..0.070; 양측 본체보다 0.002씩 들어감 |
+| 유리 받침·가스켓 | glass가 접하는 쪽의 abs(s)=0.014..0.020 | 실내 -0.015..-0.009, 외측 0.009..0.015 |
+
+덮개의 외측 두 모서리는 s=±0.018,n=0.068과 s=±0.016,n=0.070을 잇는 0.002×0.002m 모따기로 정한다. solid box 한 개를 그대로 두고 선만 그려 이 분해를 대신하지 않는다. 본체·web·압착판·덮개는 접하는 별도 실체다. 유효 pane clear가 L..R이면 실제 유리 끝은 L-0.006..R+0.006, 높이는 sill-0.006..head+0.006으로 받침 안에 들어간다. 유효 채광 윤곽은 바뀌지 않는다. 이 6mm는 glass와 metal을 관통 중첩시키는 값이 아니다. glass 끝은 abs(s)=0.014까지, web은 abs(s)<=0.010까지만 있어 0.004m의 빈 가장자리 여유가 남는다. 가스켓은 유리 두 face에 접하며 유리 부피 안으로 들어가지 않는다. 외곽 jamb의 벽 쪽에는 유리 받침을 복제하지 않는다. 각 pane 하단의 접선 1/4·3/4에는 폭 min(0.05,pane clear폭/8), Y=sill-0.010..sill-0.006, n=-0.009..0.009의 setting block을 둔다. block은 sill web 상면과 유리 하단을 실제로 이어 0.004m의 가장자리 여유를 떠 있는 유리로 남기지 않는다.
+
+수직 jamb·mullion은 sill-0.04..head+0.04로 연속한다. 수평 head·sill은 각 bay의 인접 수직 부재 안쪽 면 사이에서 끝내 맞댄다. 유리 받침은 각 pane 둘레에 적용하되 수직 strip을 유리 높이 전체로 두고 수평 strip을 그 사이에서 끝낸다. 네 모서리에서 가스켓을 두 번 겹치지 않는다. 하부 반투명 띠와 상부 유리의 상태 경계는 기존 Y를 유지하고 광학 띠 사이에는 새로운 금속 transom이나 공기 틈을 넣지 않는다. 실제 유리의 늘어난 상하 0.006m 부분만 인접 끝 띠의 상태를 이어 받는다. 광학 값, shade drop 비율과 외부 차양은 기존 privacy owner의 입력을 그대로 쓰며 별도 광학 설계의 승인을 대신하지 않는다.
+
+perimeter reveal은 structural cut의 네 변에서 cut 안쪽으로만 폭을 내는 금속 return으로 닫는다. 실내측은 폭 0.004m, n=-0.120..-0.070이며 외측은 폭 0.006m, n=0.070..0.120이다. 외측 폭은 모따기 후 덮개 끝 face와 0.002m 폭으로 실제 맞닿게 정한다. 실내측은 본체 끝 face에 0.004m 폭으로 닿는다. 수직 return이 cut 높이 전체를 맡고 수평 return은 그 사이에서 끝낸다. 어느 return도 유효 clear에 도달하지 않는다. 실내 return 끝은 room lining의 n=-0.120 경계에, 외측은 외장 면 n=0.120에 닿는다. 기존 벽의 cut side를 지우거나 얇은 return 뒤에 다른 opening을 만들지 않는다. room은 기존 cut을 소비하는 lining만 소유하고 이 금속 return을 중복 생성하지 않는다.
+
+**층간 스팬드럴 덮개.** 아래층 head+0.04와 위층 sill-0.04 사이가 floor y=3.20을 포함하며 아래 head=2.80·위 sill=3.32인 위아래 window 쌍에만 적용한다. 유효 span의 frame 포함 범위를 교집합해 band의 접선 범위를 얻는다. 이에 해당하는 것은 front의 stair 쌍과 flex/child-one 쌍, rear의 common/primary 쌍, left의 flex/child-one 쌍, right의 common/bath 쌍이다. 높은 sill의 rear bath와 left child-two를 임의로 floor까지 유리로 늘리지 않는다. 기존 층간 벽의 Y 범위는 2.84..3.28이다. 위층 창의 기존 sill drip은 중심 sill-0.055, 높이 0.030, 법선 중심 n=0.025·깊이 0.280, 접선 폭 유효 span+0.120을 유지한다. 따라서 drip 하단 3.25..상단 3.28을 덮개에서 빼고, 실제 metal band는 Y=2.84..3.25만 차지한다. 창의 물끊기를 panel 속에 중첩시키거나 지우지 않는다. 이는 기존 층간 벽을 덮는 고정 부재이며 새 opening이나 거주 공간이 아니다.
+
+| 전체 입면 | 해당 band의 접선 범위 |
+| --- | --- |
+| front 계단 | X=-1.24..1.58 |
+| front 작업실 위 | X=3.02..5.26 |
+| rear 주침실 아래 | X=-2.84..5.26 |
+| left 전면 쌍 | Z=-5.44..-2.26 |
+| right 후면 쌍 | Z=3.56..5.44 |
+
+각 band는 위층 window의 내부 mullion 중심으로 나누되 band 끝에서 0.08m 미만인 선은 제외한다. 끝의 20mm짜리 가짜 panel을 만들지 않기 위한 결정이다. 양 끝 jamb 중심은 분할선에 다시 넣지 않는다. 아래층과 위층의 기존 mullion이 다르면 floor band에서 각각 끝나며 아래 grid를 맞추려고 상층 room이나 승인된 bay를 바꾸지 않는다. 예를 들어 front의 아래 4.14와 위 4.13 차이는 유지하고 덮개 이음은 위층 4.13에 둔다. 이 값은 캐노피 설계의 opening 기준선과 충돌하지 않는다. panel 수는 이 파생 interval에서 도출하며 손으로 복제하지 않는다.
+
+기존 층간 벽·slab·그 외장 substrate는 유지하고 외측 면에 두께 0.002m의 접힌 금속 cassette를 부착한다. 각 interval 양 끝에서 0.002m, 실제 metal band 위아래에서 0.004m를 물려 panel 외곽을 정한다. panel Y는 2.844..3.246이며 위쪽 0.004m seal이 drip 하단 3.25에 닿는다. front plate는 n=0.138..0.140, 위아래·좌우 return은 n=0.120..0.138로 본체 외장에 닿는다. return 폭은 해당 panel 외곽에서 안쪽 0.002m이며 수직 return이 전체 높이, 수평 return이 그 사이를 맡는다. 인접 cassette 사이 0.004m 이음과 band 양 끝 0.002m 이음은 n=0.120..0.138의 어두운 seal로 닫는다. 구조 slab나 기존 벽을 밀거나 삭제하지 않고 0.020m 돌출 덮개라는 부재 치수로 읽는다. 기존 외장에 coplanar 색 패치를 그리는 방식은 아니다.
+
+panel마다 접선 1/4·3/4, Y=3.06에 고정 clip을 둔다. clip 폭은 min(0.05,panel폭/6), 높이 0.02, 깊이는 n=0.120..0.138이며 벽과 plate 뒷면에 면 접합한다. 매입 고정부는 별도 직경 0.006m shaft로 n=0.110..0.138까지 표현하고 clip·벽과의 매입 겹침을 기계적 접합 표현으로만 기록한다. 아래 return에는 같은 접선 1/4·3/4 위치에 폭 0.010m, n=0.122..0.137의 아래로 열린 배수 slot을 뚫는다. 각 panel의 내부 물은 하부 slot으로 방출되며 실내나 floor void에 합류하는 관은 없다. 상단 0.004m 틈은 n=0.120..0.140의 seal로 닫고 하단 틈은 n=0.120..0.122에서만 닫아 slot의 출구를 덮지 않는다. seal과 두 side seal이 겹치는 모서리는 side가 전체 높이를 소유하고 horizontal이 그 사이에서 끝낸다. 방수·구조 강도·배수량은 unverified다.
+
+**검증 주소.** source 구현 뒤 같은 environment에서 네 exposed face의 방향과 profile, 전 window의 유효/structural/유리 seat 범위, frame 깊이와 cap 모따기, gasket 면 접합, reveal 끝, spandrel interval·slot·clip·실제 돌출량을 읽는다. 명시 치수의 tolerance는 1e-7m다. pane가 web을 관통하거나 head가 mullion과 중첩되는지, lining이 유리를 가리는지, 새 부재가 기존 개구·창 차양의 체적을 가리는지도 검사한다. 비교는 기존 pane·room·door 좌표와 승인된 설계값을 함께 사용하며 수동 count를 결과로 쓰지 않는다.
+
+GPU 관찰은 네 전체 입면과 모든 corner·opening, 각 room의 기존 threshold·네 corner·중심 네 방향을 유지한다. 추가로 각 window의 head/jamb와 sill/jamb 접합, 각 band 양 끝·이음·하부 slot을 실제 부재 bounds에서 관찰한다. 첫·마지막 bay와 가장 짧은 유리의 접합은 확대해서도 읽는다. 다섯 reference 장면은 같은 FOV50·기본 조명·낮 상태로 기존 source와 대조한다. 정면에서는 일정한 frame 폭과 층간 dark band, 비스듬한 외부와 방 안에서는 cap·압착판의 깊이와 return을 구분할 수 있어야 한다. 현재 캡처는 단순 box frame의 비교 기준일 뿐 이 새 단면의 구현 증거가 아니다. 형상 판정 후에도 재료 질감·반사, 전기변색과 차양, 가구·설비·조경은 각 후속 설계 및 관찰 대상으로 남는다.
 
 ## 전면 계단실 유리 {#front-stair-glazing}
 
