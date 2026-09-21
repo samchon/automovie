@@ -10,7 +10,7 @@
 
 공개 `IAutoMovieBuiltBoundary.face`에는 절단 전 host의 위치·회전·윤곽·두께를, `IAutoMovieBuiltOpening.profile`에는 그 host의 local XY로 표현한 실제 void를 배정한다. 문과 채광구의 profile은 네 꼭짓점의 직사각형이며 아래 각 절의 유효 치수와 해당 가장자리의 틀 두께에서 유도한다. profile 없는 관계 레코드를 물리 개구부로 세지 않는다. 실체 벽의 절단과 문틀·문짝 배치는 동일한 host/profile/ID를 소비하며 화면용 좌표나 구멍 목록을 별도로 만들지 않는다.
 
-`builtBoundaryWallCut`은 opening ID를 보존하지만 host 윤곽도 외접 직사각형으로 환원한다. 직사각형 벽의 절단 입력에는 적용할 수 있으나 [박공](junctions.md#gable-closures)의 최종 윤곽을 대신하지 못한다. 두께 방향으로 단면이 일정한 벽은 공개 `extrudeAutoMovieRegion`에 실제 host 윤곽과 void를 반영한 영역을 전달하는 경로를 채택한다. 그 API는 바깥 윤곽과 닿는 hole을 거부하므로 바닥까지 열린 문은 바깥 윤곽의 오목한 절단으로, 벽 안에 완전히 둘러싸인 채광구는 내부 hole로 유도한다. 이 형상 변환도 위의 profile에서 파생하고 새 문 위치를 저작하지 않는다. 모서리 맞댐이나 벽 두께 안에서 달라지는 지붕 하부는 일정 단면 압출만으로 완료했다고 하지 않으며 기존 접합 소유에서 실제 닫힌 실체와 대조한다. 이 경로는 공개 API 조사에 근거한 설계이고 생성된 벽 mesh는 아직 없다.
+`builtBoundaryWallCut`은 opening ID를 보존하지만 host 윤곽도 외접 직사각형으로 환원한다. 직사각형 벽의 절단 입력에는 적용할 수 있으나 [박공](junctions.md#gable-closures)의 최종 윤곽을 대신하지 못한다. 두께 방향으로 단면이 일정한 벽은 공개 `extrudeAutoMovieRegion`에 실제 host 윤곽과 void를 반영한 영역을 전달하는 경로를 채택한다. 그 API는 바깥 윤곽과 닿는 hole을 거부하므로 실제 host 끝에 닿는 절단은 바깥 윤곽의 오목한 부분으로, 벽 안에 완전히 둘러싸인 절단은 내부 hole로 유도한다. 바닥 아래까지 연장한 벽에서는 문도 내부 hole일 수 있으므로 문/창 이름만으로 두 경우를 나누지 않는다. 이 형상 변환은 위의 profile과 [문턱 슬래브 예약](storey.md#threshold-support)에서 파생하고 새 문 위치나 유효 치수를 저작하지 않는다. 모서리 맞댐이나 벽 두께 안에서 달라지는 지붕 하부는 일정 단면 압출만으로 완료했다고 하지 않으며 기존 접합 소유에서 실제 닫힌 실체와 대조한다. 이 경로는 공개 API 조사에 근거한 설계이고 생성된 벽 mesh는 아직 없다.
 
 관찰은 각 경계 양면과 모든 void의 단면을 짝으로 읽는다. 인접 공간이 잘못 연결되거나 문 한쪽에 벽이 남으면 실패다. 닫힌 경계에 보이지 않는 semantic 문을 만들지 않는다. 현재 이 선언은 설계이며 실체 절단은 unverified다.
 
