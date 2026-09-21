@@ -64,16 +64,16 @@
 <!--
 @evidence principles/core/common.md#scope-preservation 실제 건물 canvas의 원근·깊이·재질·그림자와 GPU 캡처 경로를 맡아 화면 모사로 3D 요구를 대신하지 않는다.
 @evidence principles/core/common.md#substantive-completion 검사 모드 calibration과 실제 canvas의 RENDERER 보고, 빈 화면·오류·overlay의 실패 조건까지 정해 렌더 확인의 경계를 완성한다.
-@evidence principles/core/common.md#declared-basis 사용자가 지정한 저장소 viewer-verification skill의 chromium 경로를 따르며 캡처 API 선택은 설치본을 읽을 source에 배분한다.
+@evidence principles/core/common.md#declared-basis 사용자 「저작 브리프 — 현대 미국 교외 2층 단독주택」의 「이번의 기준」이 지정한 Playwright channel: "chromium"과 실제 건물 canvas의 RENDERER 보고를 따르며 캡처 API 선택은 설치본을 읽을 source에 배분한다.
 @evidence principles/core/settings.md#fact-status GPU와 3D는 이행할 요구이지 현재 하드웨어 사용을 확인한 결과가 아니며 실제 renderer 문자열은 아직 보고할 값이 없다.
-@evidence principles/core/settings.md#source-support channel 문자열은 사용자가 지목한 skill 경로에 근거하고 구현 API의 세부는 기억이 아닌 설치된 문서에서 확인하도록 한다.
+@evidence principles/core/settings.md#source-support Playwright channel: "chromium"과 RENDERER 보고의 직접 근거는 사용자 브리프 「이번의 기준」의 GPU 검토 지시이며, 이 항목은 그 요구를 채택한다. 구현 API의 세부는 source가 설치된 문서에서 확인할 사항이다.
 @evidence principles/core/settings.md#capability-boundary 라벨은 기본 화면을 가릴 수 없고 별도 빈 canvas의 probe나 기본 헤드리스 결과가 건물 GPU 프레임을 대체할 수 없다.
 @evidence principles/core/settings.md#constraint-sufficiency 렌더 완료 동기화와 실제 canvas 식별이 있어야 캡처를 해석할 수 있으며 빈 화면과 오류 배너는 성공으로 취급하지 않는다.
 @evidence principles/core/settings.md#observable-identity 원근과 깊이·재질·그림자로 부재가 보이는 건물 화면을 요구하고 calibration은 검사 모드에 한정해 주택 인상을 보존한다.
 @evidence obligations/core/settings.md#delivery-review-condition 실제 건물 canvas에서 Playwright channel: "chromium"의 WebGL 프레임과 RENDERER를 읽으며 별도 probe·빈 화면·오류·가리는 overlay를 이 주택의 재현 가능한 리뷰 출력으로 인정하지 않는다.
 -->
 
-사용자 지정 경로는 원근 camera·WebGL 깊이·재질·조명·그림자를 사용하는 실제 3D viewer다. 라벨 기본 꺼짐과 검사 모드 분리는 00-production.md#operator-access를 따른다. GPU 검토는 저장소 viewer-verification skill의 Playwright channel: "chromium"을 사용하고 건물을 그리는 실제 canvas의 RENDERER 문자열을 보고한다. 기본 헤드리스 채널의 소프트웨어 래스터 결과나 별도 빈 canvas의 하드웨어 probe는 건물 GPU 프레임의 증거가 아니다. 캡처가 빈 화면·에러 배너·건물을 가리는 overlay이면 결함이다. 수동 calibration 형상을 검사 모드에서 먼저 보고 축·scale·깊이를 확인하며, preserveDrawingBuffer와 렌더 완료 동기화 등 실제 캡처 경계는 source가 읽은 API로 구현한다.
+사용자 지정 경로는 원근 camera·WebGL 깊이·재질·조명·그림자를 사용하는 실제 3D viewer다. 라벨 기본 꺼짐과 검사 모드 분리는 00-production.md#operator-access를 따른다. GPU 검토는 사용자의 주택 저작 브리프 「이번의 기준」에서 명시적으로 지정한 Playwright channel: "chromium"을 사용하고 건물을 그리는 실제 canvas의 RENDERER 문자열을 보고한다. 기본 헤드리스 채널의 소프트웨어 래스터 결과나 별도 빈 canvas의 하드웨어 probe는 건물 GPU 프레임의 증거가 아니다. 캡처가 빈 화면·에러 배너·건물을 가리는 overlay이면 결함이다. 수동 calibration 형상을 검사 모드에서 먼저 보고 축·scale·깊이를 확인하며, preserveDrawingBuffer와 렌더 완료 동기화 등 실제 캡처 경계는 source가 읽은 API로 구현한다.
 
 ## 리뷰 프레임 조건 {#frame-condition}
 <!--
