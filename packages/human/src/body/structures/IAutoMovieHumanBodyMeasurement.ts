@@ -7,7 +7,9 @@
  * `range` covers, perpendicular to the segment (or horizontal when `horizontal`
  * is set, which is what ISO 7250-1 asks of trunk girths), keeps the closed
  * section loop nearest the segment point, and reports the largest or smallest
- * perimeter found. A `distance` is the straight distance between two
+ * tape girth found: the perimeter of the loop's convex hull, which bridges
+ * the concavities a tape bridges (the gluteal cleft, the inframammary fold)
+ * as ISO 8559-1 and ANSUR girths are taken. A `distance` is the straight distance between two
  * landmarks. A `height` is the vertical distance from the surface's lowest
  * point to the mean of its clip-ring vertices, the body's stand-in for stature
  * while the head belongs to another basis. A `breadth` is the X extent of the
@@ -27,7 +29,7 @@ export type IAutoMovieHumanBodyMeasurement =
       /** Fractions of the segment, inclusive, sampled at `steps` evenly spaced planes. */
       range: [number, number];
       steps: number;
-      /** Take the largest or the smallest perimeter over the sampled planes. */
+      /** Take the largest or the smallest value over the sampled planes. */
       pick: "max" | "min";
       /** Cut horizontally (trunk girths) instead of perpendicular to the segment. */
       horizontal: boolean;

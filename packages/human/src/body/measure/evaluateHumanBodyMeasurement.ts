@@ -16,10 +16,12 @@ import { measureHumanBodySection } from "./measureHumanBodySection";
  * the value the built body has at rest. A `height` reads from the surface's
  * lowest point to the mean of its clip ring; a `distance` is the straight
  * landmark-to-landmark length; a `girth` or `breadth` walks the rule's
- * stations, cuts the surface at each and keeps the largest or smallest closed
- * section as the rule picks. A landmark the basis lacks, or a station set on
- * which no closed loop exists, answers null. This is the instrument the
- * channel measurement report and the simple tier's inversions share.
+ * stations, cuts the surface at each and keeps the largest or smallest
+ * closed section as the rule picks, a girth read as a tape reads it (the
+ * section's convex hull perimeter, `measureHumanBodySection`). A landmark
+ * the basis lacks, or a station set on which no closed loop exists, answers
+ * null. This is the instrument the channel measurement report and the simple
+ * tier's inversions share.
  *
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-measurements Computes a rule's value on the shaped surface, the number the editor prints and the simple tier solves against.
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-measurements Realizes the three rule kinds, the station walk and the null answers the specification lists.
@@ -68,7 +70,7 @@ export function evaluateHumanBodyMeasurement(
       point,
     );
     if (section === null) continue;
-    const value = rule.kind === "breadth" ? section.breadth : section.perimeter;
+    const value = rule.kind === "breadth" ? section.breadth : section.girth;
     if (
       chosen === null ||
       (rule.pick === "max" ? value > chosen : value < chosen)

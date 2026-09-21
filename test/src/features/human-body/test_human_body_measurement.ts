@@ -24,6 +24,11 @@ import { nclose } from "../internal/predicates";
  *    and reports null values for a rule whose landmarks the basis lacks and no
  *    measurement for a channel without a rule.
  * 5. An empty surface population is refused.
+ * 6. A tape bridges concavities: a prism whose unit-square section has a
+ *    notch 0.5 deep and 0.2 wide in one side reports the contour perimeter
+ *    3.8 + 2 * hypot(0.1, 0.5) and the tape girth 4 (the square's), cut
+ *    across a vertical prism and across one lying along X, so both plane
+ *    frames are exercised; on the convex box the girth equals the perimeter.
  */
 export const test_human_body_measurement = (): void => {
   const { basis } = humanBodyBasisFixture();
@@ -40,6 +45,7 @@ export const test_human_body_measurement = (): void => {
       "box girth at " + height,
       section !== null &&
         nclose(section.perimeter, 1.2) &&
+        nclose(section.girth, 1.2) &&
         nclose(section.breadth, 0.2) &&
         nclose(section.centroid.y, height),
     );
@@ -165,4 +171,46 @@ export const test_human_body_measurement = (): void => {
     refused = true;
   }
   TestValidator.predicate("empty surfaces refuse", refused);
+  // 6. a notched prism: the contour dips into the notch, the tape does not
+  const notched = [
+    [0, 0],
+    [1, 0],
+    [1, 1],
+    [0.6, 1],
+    [0.5, 0.5],
+    [0.4, 1],
+    [0, 1],
+  ];
+  const prism = (along: "y" | "x") => {
+    const positions: number[] = [];
+    for (const level of [0, 2])
+      for (const [a, b] of notched)
+        positions.push(...(along === "y" ? [a, level, b] : [level, a, b]));
+    const indices: number[] = [];
+    const n = notched.length;
+    for (let i = 0; i < n; i++) {
+      const j = (i + 1) % n;
+      indices.push(i, j, n + j, i, n + j, n + i);
+    }
+    return { positions, indices };
+  };
+  const contour = 3.8 + 2 * Math.hypot(0.1, 0.5);
+  for (const along of ["y", "x"] as const) {
+    const { positions, indices } = prism(along);
+    const normal = along === "y" ? { x: 0, y: 1, z: 0 } : { x: 1, y: 0, z: 0 };
+    const point =
+      along === "y" ? { x: 0.5, y: 1, z: 0.5 } : { x: 1, y: 0.5, z: 0.5 };
+    const section = measureHumanBodySection(
+      positions,
+      indices,
+      { point, normal },
+      point,
+    );
+    TestValidator.predicate(
+      "a tape bridges the notch across a prism along " + along,
+      section !== null &&
+        nclose(section.perimeter, contour) &&
+        nclose(section.girth, 4),
+    );
+  }
 };

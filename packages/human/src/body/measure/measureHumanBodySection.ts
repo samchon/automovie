@@ -2,7 +2,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 /**
  * Cut a triangle surface with a plane and return the closed section loop
- * nearest a seed point, with its perimeter and X extent.
+ * nearest a seed point, with its perimeter, its tape girth and X extent.
  *
  * This is the instrument behind every girth the body reports, so it holds no
  * anatomy: the caller chooses the plane and the seed. Each triangle whose
@@ -19,6 +19,12 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
  * measurement, and null is returned when no closed loop exists. Cost is
  * linear in the triangle count per call.
  *
+ * The perimeter follows the contour into every concavity; the girth is the
+ * perimeter of the loop's convex hull in the plane, which is what a tape
+ * pulled around the body reads: it bridges the gluteal cleft, the
+ * inframammary fold and the navel as the ISO 8559-1 and ANSUR tape girths
+ * do, and equals the perimeter on a convex section.
+ *
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-measurements Computes the closed section contour a girth rule reads on the evaluated surface.
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-measurements Realizes the plane cut, closed-loop chaining and seed-nearest selection the girth rule specifies.
  */
@@ -27,7 +33,12 @@ export function measureHumanBodySection(
   indices: number[],
   plane: { point: IAutoMovieVector3; normal: IAutoMovieVector3 },
   seed: IAutoMovieVector3,
-): { perimeter: number; breadth: number; centroid: IAutoMovieVector3 } | null {
+): {
+  perimeter: number;
+  girth: number;
+  breadth: number;
+  centroid: IAutoMovieVector3;
+} | null {
   const count = positions.length / 3;
   const distance = new Float64Array(count);
   for (let v = 0; v < count; v++)
@@ -69,8 +80,15 @@ export function measureHumanBodySection(
     }
   }
   const visited = new Set<string>();
+  // an orthonormal frame of the plane, for the hull
+  const n = plane.normal;
+  const helper =
+    Math.abs(n.x) < 0.9 ? { x: 1, y: 0, z: 0 } : { x: 0, y: 1, z: 0 };
+  const u = normalize(cross(n, helper));
+  const w = cross(n, u);
   let best: {
     perimeter: number;
+    girth: number;
     breadth: number;
     centroid: IAutoMovieVector3;
   } | null = null;
@@ -120,8 +138,64 @@ export function measureHumanBodySection(
     );
     if (gap < bestDistance) {
       bestDistance = gap;
-      best = { perimeter, breadth: maxX - minX, centroid };
+      best = {
+        perimeter,
+        girth: hullPerimeter(
+          loop.map((key) => {
+            const p = points.get(key)!;
+            return [
+              p[0] * u.x + p[1] * u.y + p[2] * u.z,
+              p[0] * w.x + p[1] * w.y + p[2] * w.z,
+            ];
+          }),
+        ),
+        breadth: maxX - minX,
+        centroid,
+      };
     }
   }
   return best;
+}
+
+/** Perimeter of the convex hull of planar points, Andrew's monotone chain. */
+function hullPerimeter(points: number[][]): number {
+  const sorted = points
+    .slice()
+    .sort((a, b) => (a[0] === b[0] ? a[1] - b[1] : a[0] - b[0]));
+  const turn = (o: number[], a: number[], b: number[]): number =>
+    (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+  const half = (list: number[][]): number[][] => {
+    const chain: number[][] = [];
+    for (const p of list) {
+      while (
+        chain.length >= 2 &&
+        turn(chain[chain.length - 2], chain[chain.length - 1], p) <= 0
+      )
+        chain.pop();
+      chain.push(p);
+    }
+    chain.pop();
+    return chain;
+  };
+  const hull = [...half(sorted), ...half(sorted.slice().reverse())];
+  let perimeter = 0;
+  for (let i = 0; i < hull.length; i++) {
+    const p = hull[i];
+    const q = hull[(i + 1) % hull.length];
+    perimeter += Math.hypot(q[0] - p[0], q[1] - p[1]);
+  }
+  return perimeter;
+}
+
+function cross(a: IAutoMovieVector3, b: IAutoMovieVector3): IAutoMovieVector3 {
+  return {
+    x: a.y * b.z - a.z * b.y,
+    y: a.z * b.x - a.x * b.z,
+    z: a.x * b.y - a.y * b.x,
+  };
+}
+
+function normalize(a: IAutoMovieVector3): IAutoMovieVector3 {
+  const size = Math.hypot(a.x, a.y, a.z);
+  return { x: a.x / size, y: a.y / size, z: a.z / size };
 }
