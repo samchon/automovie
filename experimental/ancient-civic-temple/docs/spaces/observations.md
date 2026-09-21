@@ -4,7 +4,9 @@
 
 [관찰 계약](../contracts/obligations-spaces.md#compiled-observations)과 [검토 프레임](../settings/00-delivery.md#review-condition)을 그대로 소비한다. 입력은 한 generation의 실제 built environment와 lowering 산출물이며 viewer와 계측이 같은 값을 쓴다. `builtEnvironmentBuildingCensus`의 외피·지붕·처마 하부·모서리·외부 출입 population을 소비하되 내부 개구부는 별도 actual boundary/opening 전집합에서 더한다. 이 API의 현재 source를 읽은 설계이며 아직 실행 결과는 없다.
 
-공간마다 실제 volume 내부의 threshold, 네 안쪽 모서리, 중심 네 방위를 만든다. `builtSpaceObservationStations`가 반환한 위치도 현재 공간 내부·렌즈 포락·near 비충돌인지 확인한다. 주랑은 외접 상자 중심이 구멍에 놓일 수 있으므로 여섯 cell 중심과 외측·내측·현관 notch의 모든 모서리를 추가한다. 반환 불가/null이나 충돌한 원 질문은 지우지 않고 unverified로 남겨 자기 공간 안 가장 가까운 유효 보조 위치와 함께 표시한다. 모든 공간의 개구부 양면도 누락하지 않는다.
+공간마다 실제 volume 내부의 threshold, 네 안쪽 모서리, 중심 네 방위를 만든다. `builtSpaceObservationStations`가 반환한 위치도 현재 공간 내부·렌즈 포락·near 비충돌인지 확인한다. 이 함수는 외접 상자 중심이 공간 밖이면 유효한 첫 cell의 꼭짓점 평균을 내부 기준점으로 택한다. 따라서 반환된 중심 네 방위만으로 주랑 전체를 읽었다고 판단하지 않는다. [주랑의 여섯 평면 영역](rooms/colonnade.md#ring-volume) 각각에서 실제 built cell과의 결속 및 내부 위치를 확인한 중심 네 방위, 합집합의 외측·내측·현관 notch 모서리를 더한다. 추가 cell의 계산 접면을 새 방 모서리로 세지 않는다.
+
+기본 threshold 위치는 개구부 중심에서 공간 기준점 쪽으로 이동해 내부 점을 찾는다. 구멍 있는 주랑에서는 같은 공간 내부라는 사실만으로 해당 문 바로 안쪽의 도착을 보여 준다고 할 수 없다. 실제 opening ID·boundary face와 관찰 위치의 관계를 읽어 문턱 쪽에 서는지 별도로 확인하고 필요한 보조 관찰을 추가한다. 반환 불가/null이나 충돌한 원 질문은 지우지 않고 unverified로 남겨 자기 공간 안 가장 가까운 유효 보조 위치와 함께 표시한다. 모든 공간의 개구부 양면도 누락하지 않는다.
 
 외부 setting 하나, 모든 노출 입면·입면 사이 모서리·노출 지붕·하부·개구부에 안정된 compiled ID를 부여한다. 단층 평면은 Y=1.2m 절단, 지붕 접합과 실내 높이는 문/용마루를 지나는 실제 종횡 단면으로 본다. 각 면의 법선·경계에서 관찰 pose를 유도하고 수동 대표 시점이 전집합을 덮었다고 가정하지 않는다. 카메라 위치·target·렌즈·현재 generation과 렌더 모드를 함께 보여 준다. source owner는 `src/spaces/observations.ts`이며 건물 geometry를 다시 만들지 않는다.
 

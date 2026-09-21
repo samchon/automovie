@@ -4,6 +4,8 @@
 
 공용 시작은 [건물 접점](building.md#approach-contacts) `contact-temple-public`이다. [현관](rooms/entrance.md#entrance-volume)의 두 석단과 상부참을 거쳐 `door-entry`를 통과하면 남쪽 주랑이며 직진하면 중정의 남쪽 턱을 내려 중앙 수반 앞에 선다. 주랑의 순환은 남→동→북→서→남의 같은 바닥이고 어느 모서리에도 문이나 닫힌 벽을 추가하지 않는다. 제실·봉헌실·관리실·기록실·보관실은 각각 자기 [문](openings.md#doors)으로 이 고리에 붙는다.
 
+주랑 내부 순환은 한 `colonnade` volume 안의 연속 경로다. 공개 `IAutoMovieBuiltConnector`는 서로 다른 공간을 잇고 `validateBuiltEnvironment`는 동일한 from/to를 거부하므로, 고리를 표현하려고 `colonnade → colonnade` connector를 만들거나 cell을 별도 공간으로 승격하지 않는다. 방 문과 중정 단차는 서로 다른 실제 공간의 connector로 연결하고, 주랑 내부의 순환 검사는 합집합 안의 경로와 실제 바닥·장애물·회전 포락을 함께 읽는다. 이 구분은 topology 표현 계획이며 route 실측 결과가 아니다.
+
 중정 남쪽 축의 발 디딤 구간은 폭 1.8m, 수평 깊이 0.35m를 예약하고 단높이는 층 높이에서 유도한다. 공간을 연결하는 connector는 이 실제 디딤 면에 닿아야 한다. 주랑에 배정한 여유는 [주랑 cell](rooms/colonnade.md#ring-volume)에서 정하고 이 문서는 다른 폭을 중복 선언하지 않는다. 보행과 운반은 [설정 포락](../settings/10-building.md#use-profile)을 그대로 사용한다.
 
 검사는 바닥의 공유 경계를 따라 실제 통과 가능한 문/connector의 순서와 열린 문짝의 방해 여부를 읽는다. 각 문을 왕복하고 고리 네 모서리에서는 회전 포락도 확인한다. 카메라의 자유 이동이나 인접 그래프의 단순 도달만으로 통과라고 세지 않는다. 경로 의미 소유는 `src/spaces/circulation.ts`이고 실제 형상은 방·문·층의 단일 소유를 소비한다.
