@@ -26,12 +26,16 @@
  *   ttsx -P tsconfig.json --no-plugins scripts/face-review/verify-combination-correctives.ts [subject,...] [--without-identity] [--grid fine]
  *   ttsx -P tsconfig.json --no-plugins scripts/face-review/verify-combination-correctives.ts --summarize
  */
-import { measureAutoMovieModelCrossings } from "@automovie/engine";
+import {
+  measureAutoMovieMeshCrossings,
+  measureAutoMovieModelCrossings,
+} from "@automovie/engine";
 import {
   type IAutoMovieHumanFaceBasis,
   type IAutoMovieHumanFaceBasisDocument,
   createHumanFaceBasisBuilder,
 } from "@automovie/human";
+import type { IAutoMovieMesh, IAutoMovieModel } from "@automovie/interface";
 import fs from "node:fs";
 import { gunzipSync } from "node:zlib";
 
@@ -199,6 +203,31 @@ const after = createHumanFaceBasisBuilder(basis);
 const before = createHumanFaceBasisBuilder(stripped);
 
 /** Surface pairs crossing, keyed both ways round the same. */
+/**
+ * The lips and the skin are one surface, and at rest four fans at their seam
+ * already cross by a fraction of a millimetre. A pose that merely brings
+ * those same four back, after a single happened to open them, has folded
+ * nothing; so for that one part pair the crossing is read per triangle pair
+ * and the rest pose's own fans are exempt, which is the rule the unfold
+ * solver clears against. Every other part pair is read as a pair.
+ */
+const SEAM: [string, string] = ["Human/lips", "Human/skin"];
+const seamFans = (model: IAutoMovieModel): Set<string> => {
+  const meshOf = (id: string) =>
+    (
+      model.parts.find((part) => part.id === id)!.geometry as {
+        type: "mesh";
+        mesh: IAutoMovieMesh;
+      }
+    ).mesh;
+  return new Set(
+    measureAutoMovieMeshCrossings(meshOf(SEAM[0]), meshOf(SEAM[1])).map(
+      (one) => `${one.triangle}/${one.other}`,
+    ),
+  );
+};
+/** Each subject's rest has its own fans; a run over several keeps each. */
+const restFansOf = new Map<string, Set<string>>();
 const crossed = (
   build: typeof after,
   document: IAutoMovieHumanFaceBasisDocument,
@@ -207,20 +236,37 @@ const crossed = (
   const found = new Set<string>();
   // The before of the A/B is the face with no pair corrective anywhere, so
   // the document's own correctives come off with the basis's.
-  for (const crossing of measureAutoMovieModelCrossings(
-    build({
-      ...document,
-      expression,
-      hair: undefined,
-      identity: withoutIdentity ? undefined : document.identity,
-      correctives: build === before ? undefined : document.correctives,
-    }),
-  ))
+  const model = build({
+    ...document,
+    expression,
+    hair: undefined,
+    identity: withoutIdentity ? undefined : document.identity,
+    correctives: build === before ? undefined : document.correctives,
+  });
+  for (const crossing of measureAutoMovieModelCrossings(model))
     found.add(
       [crossing.part, crossing.other]
         .sort((a, b) => a.localeCompare(b))
         .join(" x "),
     );
+  const seam = [...SEAM].sort((a, b) => a.localeCompare(b)).join(" x ");
+  if (found.has(seam)) {
+    let restFans = restFansOf.get(document.id);
+    if (restFans === undefined) {
+      restFans = seamFans(
+        build({
+          ...document,
+          expression: {},
+          hair: undefined,
+          identity: withoutIdentity ? undefined : document.identity,
+          correctives: undefined,
+        }),
+      );
+      restFansOf.set(document.id, restFans);
+    }
+    const fans = seamFans(model);
+    if ([...fans].every((key) => restFans.has(key))) found.delete(seam);
+  }
   return found;
 };
 

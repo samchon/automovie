@@ -46,6 +46,7 @@ import {
   type Worn,
   anchoredBy,
   appearedAt,
+  crossingPairs,
   moverOf,
   solveCombination,
   wornFrom,
@@ -224,9 +225,29 @@ const verdict = (kept: boolean, id: string, solved: ISolvedCombination) =>
 
 // First tier: every offending pair at full weight on both channels.
 header();
-const { worn: wearing } = wearer(createHumanFaceBasisBuilder(basis));
+const { model: modelAt, worn: wearing } = wearer(
+  createHumanFaceBasisBuilder(basis),
+);
 const atRest = wearing({});
 const mover = moverOf(wearing, atRest, parts);
+// Singles never fire a pair corrective, so what a single crosses is the same
+// under every tier and is cached across them; with the rest it is the
+// baseline a handed-on crossing is read against.
+const alone = new Map<string, Set<string>>();
+const restPairs = crossingPairs(modelAt({}));
+const baselineOf = (expression: Record<string, number>): Set<string> => {
+  const set = new Set(restPairs);
+  for (const [channel, weight] of Object.entries(expression)) {
+    const key = `${channel}@${weight}`;
+    let found = alone.get(key);
+    if (found === undefined) {
+      found = crossingPairs(modelAt({ [channel]: weight }));
+      alone.set(key, found);
+    }
+    for (const pair of found) set.add(pair);
+  }
+  return set;
+};
 const chosen = offending.slice(0, budget);
 const firstTier = new Map<string, string>();
 for (const one of chosen) {
@@ -242,6 +263,7 @@ for (const one of chosen) {
     anchoredBy(wearing, atRest, mover, expression),
     withoutAgents(wearing, expression),
     (line) => console.log(`${one.pair.padEnd(40)} ${line}`),
+    baselineOf(expression),
   );
   const id = `${first}${capital(second)}Clear`;
   const kept = keep(
@@ -285,7 +307,6 @@ for (const [wa, wb] of TIERS) {
   console.log(`\ntier at (${wa}, ${wb}), with every earlier tier present`);
   header();
   const { model, worn } = wearer(createHumanFaceBasisBuilder(staged));
-  const alone = new Map<string, Set<string>>();
   for (const one of chosen) {
     const [first, second] = one.pair.split(" + ");
     // A pair without a full-weight corrective can still cross at half weight
@@ -313,6 +334,7 @@ for (const [wa, wb] of TIERS) {
       anchoredBy(worn, atRest, mover, expression),
       withoutAgents(worn, expression),
       (line) => console.log(`${label.padEnd(40)} ${line}`),
+      baselineOf(expression),
     );
     const id = `${full}${nameOf(wa, wb)}`;
     const kept = keep(

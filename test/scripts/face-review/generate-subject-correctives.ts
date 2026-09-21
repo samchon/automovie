@@ -40,6 +40,7 @@ import {
   type Worn,
   anchoredBy,
   appearedAt,
+  crossingPairs,
   moverOf,
   solveCombination,
   wornFrom,
@@ -277,6 +278,24 @@ const record = (
 };
 
 const mover = moverOf(wearing, atRest, parts);
+// Singles never fire a pair corrective, so what a single crosses is the same
+// under every tier and is cached across them; with the rest it is the
+// baseline a handed-on crossing is read against.
+const alone = new Map<string, Set<string>>();
+const restPairs = crossingPairs(model({}));
+const baselineOf = (expression: Record<string, number>): Set<string> => {
+  const set = new Set(restPairs);
+  for (const [channel, weight] of Object.entries(expression)) {
+    const key = `${channel}@${weight}`;
+    let found = alone.get(key);
+    if (found === undefined) {
+      found = crossingPairs(model({ [channel]: weight }));
+      alone.set(key, found);
+    }
+    for (const pair of found) set.add(pair);
+  }
+  return set;
+};
 const firstTier = new Map<string, string>();
 for (const one of offending) {
   const [first, second] = one.pair.split(" + ");
@@ -291,6 +310,7 @@ for (const one of offending) {
     anchoredBy(wearing, atRest, mover, expression),
     withoutAgents(wearing, expression),
     (line) => console.log(`${one.pair.padEnd(40)} ${line}`),
+    baselineOf(expression),
   );
   const id = `${first}${capital(second)}Own`;
   const kept = keep(
@@ -308,7 +328,6 @@ for (const one of offending) {
 // earlier tier present, the crossing measured at that pose against its own
 // singles. A single never fires a pair corrective, so the singles are cached
 // across tiers.
-const alone = new Map<string, Set<string>>();
 for (const [wa, wb] of TIERS) {
   console.log(
     `\n${subject}: tier at (${wa}, ${wb}), with every earlier tier present`,
@@ -338,6 +357,7 @@ for (const [wa, wb] of TIERS) {
       anchoredBy(wearing, atRest, mover, expression),
       withoutAgents(wearing, expression),
       (line) => console.log(`${label.padEnd(40)} ${line}`),
+      baselineOf(expression),
     );
     const id = `${full}${nameOf(wa, wb)}`;
     const kept = keep(

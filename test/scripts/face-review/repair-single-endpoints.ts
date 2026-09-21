@@ -40,7 +40,7 @@ import {
 
 /** The identity this revision publishes under, and the one it succeeds. */
 const REVISION = "mpfb-connected-head-2026-09-21-single-repaired";
-const SUCCEEDS = "mpfb-connected-head-2026-09-20-rigid-mandible";
+const SUCCEEDS = "mpfb-connected-head-2026-09-21-jaw-arc";
 
 /** The part a channel makes the agent of its pose. */
 const AGENTS: Record<string, string> = {
