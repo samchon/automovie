@@ -1,0 +1,15 @@
+# 상층 계단참과 짧은 복도
+
+## 하나의 복도에서 다섯 방으로 {#upper-hall-plan}
+
+`upper-hall`은 upper-storey의 복도 하나다. [위 계단](../02-stair.md#stair-reservation) 끝에서 X = [1.87, 3.07]·Z = [-4.71, -3.41] m의 도착 부분으로 들어와 -Z로 돌아, X = [-3.20, 3.07]·Z = [-5.91, -4.71] m의 가로 부분에 닿는다. 두 직사각형을 합친 L형이며 서로 다른 복도나 숨은 우회로로 나누지 않는다. 순폭 예약은 양 구간 1.20 m, 가로 구간 길이는 6.27 m다. 도착 부분의 Z 방향 깊이는 1.30 m다.
+
+도착면의 +X 쪽은 [청회색 침실](bedroom-three.md#bedroom-three-plan), 가로 부분의 앞쪽 왼쪽은 [올리브 침실](bedroom-two.md#bedroom-two-plan), 뒤쪽은 [주침실](primary.md#primary-plan)과 [샤워 욕실](shower-bath.md#shower-bath-plan), 오른쪽 끝은 [욕조 욕실](tub-bath.md#tub-bath-plan)의 실제 문으로 열린다. 문 좌표와 경첩측은 각 방 owner가 소유하며 복도 바닥으로 돌출하는 문짝을 추가하지 않는다. 가로 부분 앞쪽의 중앙은 [계단 구멍의 뒤쪽 보호 경계](../02-stair.md#stair-floor-opening)다. 도착하는 +X 끝을 막지 않는다.
+
+`src/spaces/rooms/upper-hall.ts`가 완결 내부와 아래 린넨 접면을 소유한다. FOV로 통로를 넓혀 보이게 하는 대신 계단 끝의 회전, 다섯 출입문, 두 팔 끝에서 되돌아오는 길을 같은 사용 프로필로 검사한다. 전면 작은 창은 [계단실](../02-stair.md#stair-floor-opening)에 바인딩되고 복도에 별도 가짜 창을 만들지 않는다. 실제 두 팔의 순폭·문틀·회전·각 구석과 가려진 코너의 추가 관찰은 unverified다.
+
+## 도착면 앞쪽 린넨장 {#upper-linen-storage}
+
+[복도 도착면](#upper-hall-plan)의 앞쪽에 닫힌 린넨장을 둔다. 장 안쪽 X = [1.87, 3.07], Z = [-3.26, -2.66] m, 높이 2.20 m를 예약한다. 복도와 장 사이의 Z = [-3.41, -3.26] 경계에 `upper-linen-opening`, X = [1.97, 2.97], 바닥부터 높이 2.20 m의 개구부를 두고 미닫이 문짝을 사용한다. 문을 열 때 계단 도착 바닥으로 회전하지 않는다.
+
+양 옆/뒤의 0.15 m 칸막이까지 포함한 X = [1.72, 3.22]·Z = [-3.26, -2.51] m 예약은 [청회색 침실](bedroom-three.md#bedroom-three-plan)의 바닥에서 뺀다. 깊이 0.60 m의 선반장으로 사람이 들어가는 방은 아니다. [복도 수납의 정체성](../../settings/10-house.md#storage)을 따르며 선반·접힌 수건·실제 안쪽 깊이를 후속 fit-out에서 구현한다. 장의 작동과 상부참 사용, 내부와 문틀의 읽힘은 unverified다.

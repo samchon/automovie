@@ -41,10 +41,11 @@
 | 세탁·머드룸 | `src/spaces/rooms/laundry.ts` |
 | 빈 차고 내부 | `src/spaces/rooms/garage-interior.ts` |
 | 상층 복도와 린넨 수납 접면 | `src/spaces/rooms/upper-hall.ts` |
-| 주침실과 자기 옷 수납 | `src/spaces/rooms/primary.ts` |
+| 주침실 | `src/spaces/rooms/primary.ts` |
+| 주침실에서 들어가는 별도 옷방 | `src/spaces/rooms/wardrobe.ts` |
 | 올리브 침구의 작은 침실과 자기 수납 | `src/spaces/rooms/bedroom-two.ts` |
 | 청회색 침구의 작은 침실과 자기 수납 | `src/spaces/rooms/bedroom-three.ts` |
 | 유리 부스 샤워 욕실 | `src/spaces/rooms/shower-bath.ts` |
 | 욕조 욕실 | `src/spaces/rooms/tub-bath.ts` |
 
-사람이 들어가는 수납실을 별도 공간으로 채택하면 새 공간의 완결 면과 source 파일, 전체 관찰을 추가한다. 현재 표의 수납 접면이라는 표현은 실제 방을 숨기거나 관찰을 줄이는 분류가 아니다. 방별 최종 경계·문·창·storey binding을 작성할 때 이 배정과 일치하는지 확인한다. 방의 면 개수를 표의 행 수로 대체하지 않는다. 표의 소스 파일은 아직 없고 실제 census는 unverified이며 이 문서만으로 1단계 표면 인계를 완료하지 않는다.
+[별도 옷방](rooms/wardrobe.md#primary-wardrobe-plan)은 사람이 들어가는 공간으로 채택했으므로 자기 파일·전체 관찰을 추가했다. 얕은 [복도 린넨장](rooms/upper-hall.md#upper-linen-storage)과 [현관 외투장](rooms/entry.md#entry-coat-storage)은 소비하는 방의 접면이다. 이 분류로 실제 방의 질문을 줄이지 않는다. 방별 경계·문·창·storey binding은 [동선 인계](05-route-network.md#room-route-network)의 방 owner와 대조한다. 방의 면 개수를 표의 행 수로 대체하지 않는다. 표의 소스 파일은 아직 없고 실제 census는 unverified이며 이 문서만으로 1단계 표면 인계를 완료하지 않는다.
