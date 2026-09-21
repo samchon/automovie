@@ -4,9 +4,13 @@
 
 <!--
 @evidence obligations/core/common.md#purpose-fit 001의 포함·도착·관찰,002의 내부 구획·접속,003의 외피·개구라는 전체 파일 역할을 배정한다. 어느 하나가 빠지면 대지와 집, 방 도달, 안팎 경계 중 해당 결정이 소실된다.
+@evidenceReview obligations/core/common.md#purpose-fit 76개 H2가 cell·문·계단·외피·관찰의 결정을 나눠 실제 공간 제작을 안내하므로 film 줄거리나 단순 완료 목록으로 공간 층을 대신하지 않는다.
 @evidence obligations/core/common.md#layer-boundary 세 파일은 공간 관계와 점유 치수를 정하고 실행 이력·작성자 배정·재료 구현은 각자의 다른 owner로 넘긴다. source와 GPU 결과를 공간 설계 본문으로 대체하지 않는다.
+@evidenceReview obligations/core/common.md#layer-boundary 001의 집·대지·관찰, 002의 내부 구획, 003의 외피 소유를 공간 층으로 모으고 실행 소스와 결과 판정을 별도 owner에 남긴다.
 @evidence obligations/core/common.md#production-language 설명과 저작 판단은 한국어로 읽히고 room/storey id와 좌표축은 정확한 수정 주소로 유지한다. 별도 관객 언어 전환이나 미설명 대사층을 넣지 않는다.
+@evidenceReview obligations/core/common.md#production-language 세 공간 문서의 설명은 한국어이고 room·source ID만 정확한 식별자로 유지하여 영문 코드가 본문 결정을 대신하지 않는다.
 @evidence obligations/core/common.md#proportionate-development 현재3파일76 H2의 주석 제외 본문 분포와 보존된 이전1 H2의 혼합 역할을 비교했다. 중요 계단·L자·접합·창호는 결합 규칙을 더하고 과거 전체 snapshot 및 새 source/관찰 수는 없는 수단으로 추정하지 않고 unverified로 남긴다.
+@evidenceReview obligations/core/common.md#proportionate-development 현재 3·54·19개 H2의 집·실내·외피 분량을 이전 단일 5674자 owner와 구분해 비교하며 모든 설계 밀도를 동일 글자 수로 맞추지 않는다.
 -->
 
 공간 설계는 세 역할로 나뉜다. 001은 site→house→storey 포함과 전면 도착 및 관찰의 도출, 002는 두 층 datum·방·문·계단·내부 shared wall과 접합, 003은 외주의 면·고정창·roof/canopy 및 외부 corner를 소유한다. 이전 구현의 기각 이력은 .wiki worklog, 작성자와 파일 배정은 settings/003#surface-decomposition에 있고 공간 결정을 대신하지 않는다.
