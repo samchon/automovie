@@ -21,7 +21,7 @@
  * that touch the same region, because fifty-two channels make thirteen hundred
  * pairs and most of them share no vertices at all.
  *
- * Usage, from the test package:
+ * Usage, from the test package (`neutral` is the basis's own head):
  *   ttsx -P tsconfig.json --no-plugins scripts/face-review/measure-expression-crossings.ts [subject,...]
  */
 import { measureAutoMovieModelCrossings } from "@automovie/engine";
@@ -68,10 +68,19 @@ const crossingsOf = (
 };
 
 const wanted = process.argv[2]?.split(",");
+/** The basis's own head, named `neutral`: what a basis-level repair is measured on. */
+const neutral: IAutoMovieHumanFaceBasisDocument = {
+  id: "neutral",
+  name: "neutral",
+  basis: basis.id,
+  shape: {},
+  expression: {},
+};
 const report: Record<string, Record<string, unknown>> = {};
-for (const document of documents) {
+for (const document of [neutral, ...documents]) {
   const name = document.id.replace("-connected", "");
-  if (wanted !== undefined && !wanted.includes(name)) continue;
+  if (wanted === undefined ? name === "neutral" : !wanted.includes(name))
+    continue;
   const started = Date.now();
   const rest = crossingsOf({ ...document, expression: {} });
   const rows: { channel: string; appeared: string[]; grew: number }[] = [];
@@ -81,7 +90,7 @@ for (const document of documents) {
     let grew = 0;
     for (const [pair, triangles] of posed) {
       const before = rest.get(pair);
-      if (before === undefined) appeared.push(pair);
+      if (before === undefined) appeared.push(`${pair} (${triangles})`);
       else if (triangles > before) grew += triangles - before;
     }
     if (appeared.length > 0 || grew > 0) rows.push({ channel, appeared, grew });
@@ -96,7 +105,7 @@ for (const document of documents) {
       `${rows.length} of ${expressions.length} channels add a crossing ` +
       `(${Date.now() - started} ms)`,
   );
-  for (const row of rows.slice(0, 6))
+  for (const row of rows)
     console.log(
       `    ${row.channel.padEnd(24)} ` +
         (row.appeared.length > 0 ? `new: ${row.appeared.join(", ")}  ` : "") +
