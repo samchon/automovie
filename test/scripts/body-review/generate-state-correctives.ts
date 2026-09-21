@@ -6,7 +6,9 @@
  * `combos` set).
  *
  * Usage, from the repository root, on a shipped basis whose census receipt
- * lists the findings:
+ * lists the findings (or on a later incremental round of that revision,
+ * so the rest findings of the `channels` and `traits` sets can be solved and
+ * merged before the posed ones are, which then find them already clear):
  *
  *   pnpm exec ttsx -P test/tsconfig.scripts.json test/scripts/body-review/generate-state-correctives.ts -- [shard/of] [--set shapes,combos] [output-dir]
  *
@@ -92,7 +94,16 @@ function main(): void {
   } = JSON.parse(
     fs.readFileSync(path.join(STUDY, "census-receipt.json"), "utf8"),
   );
-  if (census.basis !== basis.id)
+  // the census may be a round behind: a basis that only appended corrective
+  // rounds to the censused revision still carries every state it listed, and
+  // each finding is measured again on the working basis before it is solved
+  const round = (id: string): [string, number] => [
+    id.replace(/\+correctives-\d+$/, ""),
+    Number(/\+correctives-(\d+)$/.exec(id)?.[1] ?? "0"),
+  ];
+  const [censusRoot, censusRound] = round(census.basis);
+  const [basisRoot, basisRound] = round(basis.id);
+  if (censusRoot !== basisRoot || basisRound < censusRound)
     throw new Error("the census was taken on another revision");
   const findings = sets
     .flatMap((set) =>
@@ -167,7 +178,9 @@ function main(): void {
           rest: neutral.get(joint.bone)![axis],
         })),
     );
+    // a rest finding (the channels and traits sets) has no travel to bisect
     const widest = Math.max(
+      0,
       ...posed.map((one) => Math.abs(one.angle - one.rest)),
     );
     const heaviest = Math.max(
