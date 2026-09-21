@@ -41,7 +41,7 @@ type JointDriver = {
  *    ramp from 1 to 3 is off at 1, half at 2 and whole at 3; a negative ramp
  *    with only `onset` reaches one at the default `full` of one; admission refuses a ramp
  *    past the envelope on its side, a negative onset, `full <= onset` and a
- *    nonfinite bound, and admits one that ends exactly on the envelope.
+ *    nonfinite onset or full, and admits one that ends exactly on the envelope.
  */
 export const test_human_body_basis_pose_corrective = (): void => {
   const withFold = (
@@ -309,6 +309,11 @@ export const test_human_body_basis_pose_corrective = (): void => {
     [
       "weight full at onset",
       weighted({ side: "positive", onset: 2, full: 2 }),
+      true,
+    ],
+    [
+      "nonfinite weight onset",
+      weighted({ side: "positive", onset: Number.NEGATIVE_INFINITY }),
       true,
     ],
     [
