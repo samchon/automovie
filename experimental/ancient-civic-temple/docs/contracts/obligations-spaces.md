@@ -6,7 +6,7 @@
 
 # 신전 공간 population의 추가 의무
 
-이 문서는 사용자 브리프의 완결 표면 단독 소유와 topology 전체 관찰이라는 두 독립 조건을 spaces에 배정한다. 일반적인 공간 사용·형상·재료의 사실은 settings 및 공유 공간 계약이 소유한다. 현재 실현은 settings 초안과 이 계약/claim의 선언이며 공간 설계나 compiled 관찰 완료를 뜻하지 않는다.
+이 문서는 사용자 브리프의 완결 표면 단독 소유와 topology 전체 관찰이라는 두 독립 조건을 spaces에 배정한다. 일반적인 공간 사용·형상·재료의 사실은 settings 및 공유 공간 계약이 소유한다. settings와 이 계약/claim의 선언은 공간 설계나 compiled 관찰 완료를 뜻하지 않는다.
 
 ## 완결 표면의 소유 {#surface-ownership}
 
