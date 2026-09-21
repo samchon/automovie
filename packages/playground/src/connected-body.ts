@@ -104,7 +104,16 @@ async function main(): Promise<void> {
     },
     dispose: () => {},
   });
-  let neutralHead: IAutoMovieVector3 | undefined;
+  // The face is built in the neutral body's frame, so it is seated relative
+  // to the neutral head joint, read off the basis rather than off whichever
+  // body happened to be shown first.
+  const headJoint = basis.joints.find((one) => one.bone === "head")!;
+  const headMark = basis.landmarks.ids.indexOf(headJoint.head);
+  const neutralHead: IAutoMovieVector3 = {
+    x: basis.landmarks.positions[headMark * 3],
+    y: basis.landmarks.positions[headMark * 3 + 1],
+    z: basis.landmarks.positions[headMark * 3 + 2],
+  };
   const seat = (model: { extras?: Record<string, unknown> } | null): void => {
     if (model === null) {
       viewport.companion.show(undefined);
@@ -113,7 +122,6 @@ async function main(): Promise<void> {
     const bones = (model.extras?.bones ?? []) as Bones;
     const head = bones.find((one) => one.bone === "head");
     if (head === undefined) return;
-    neutralHead ??= head.rest.position;
     // The face follows the head bone as skin bound to it would: the posed
     // transform undoes the rest rotation about the neutral head position.
     const q = (r: IAutoMovieQuaternion) =>
