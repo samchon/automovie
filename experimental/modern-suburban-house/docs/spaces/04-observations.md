@@ -14,6 +14,8 @@
 
 [본채 최상부 천장](09-ceiling-assembly.md#upper-ceiling-closure)은 상층 전체와 계단실의 반사 천장 평면/단면을, [차고 천장](09-ceiling-assembly.md#garage-ceiling-closure)은 전면문 레일과 네 벽 접점을 추가한다. [낮은 지붕 아래 여유](09-ceiling-assembly.md#ceiling-roof-clearance)는 실내 끝선·모서리·지붕 단차·계단 위와 차고 공유 벽에서 실제 부재까지 함께 읽는다. 지붕까지 뚫린 계단실, 계단을 가로막는 낮은 천장, 천장/지붕 또는 레일의 충돌, 수납/난간 위 천장 띠 누락과 중복 마감을 찾는다. 설계식의 여유를 실측으로 대신하지 않으며 방별 기본 관찰을 모두 유지한다.
 
+[본채 지상층 바탕](10-ground-floor.md#main-ground-floor-base)과 [차고 바탕](10-ground-floor.md#garage-ground-floor-base)은 전체 바닥 평면·칸막이/계단/수납의 발치와 마감 전환 단면을 추가한다. [네 건물 출입 단면](10-ground-floor.md#ground-threshold-junctions)은 중앙과 양 문설주에서 지지 바탕·문틀·완성 바닥을 함께 읽는다. 실제 지표를 받은 뒤에는 [지지 하단 인계](10-ground-floor.md#ground-support-handoff)의 건물 둘레·공유 벽·외부 포장 접점을 검사한다. 층간 구멍이 잘못 복제된 1층 바닥, 문 아래의 빈띠/겹친 벽, 사라진 머드룸 한 단, 공중에 뜬 바탕과 지표에 묻힌 출입을 찾는다. 지표가 없는 현재 상태를 접지 합격으로 세지 않는다.
+
 [현관 분배](rooms/entry.md#entry-use-routes)는 두 실문의 열림·매트·계단 대기, [외투장](rooms/entry.md#entry-coat-storage)은 물건/미닫이·사용자와 서비스 띠, [거실 좌석](rooms/living.md#living-furniture-use)과 [앞뒤 경로](rooms/living.md#living-through-route)는 벽난로 돌출·테이블·좌석/책장 사용·두 창을 평면/단면과 자기 실 내부 시점에서 대조한다. 문 조작 중과 통과 중, 독서 의자 사용과 책장 횡단을 구별하며 앞뒤 주 경로를 좌석 점유로 줄이지 않는다. 02/04의 현관·거실·계단 관계와 기본 전체 시점은 모두 유지한다.
 
 [공용부의 사용/통행 예약](rooms/common.md#common-clear-routes)은 닫힌 기기와 꺼낸 식사 의자·스툴을 배치한 평면, 각각 열린 냉장고/오븐/식기세척기 앞 작업, 싱크 섬/후면 창/상부장 단면을 추가한다. 중앙 서비스 진입에서 가족실과 정원문으로 가는 경로, 거실에서 주방을 통해 같은 후면으로 나오는 경로를 양방향으로 대조한다. 좌석별 점유의 합집합과 그 전체 bbox를 구별하고 실제 기구 문·손잡이·커튼까지 읽는다. 기구 작업 때문에 막힌 곳을 주 동선으로 중복 계상하거나 식당의 여섯 사용 좌석을 줄여 통과시키지 않는다.

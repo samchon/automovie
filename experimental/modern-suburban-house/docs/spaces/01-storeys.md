@@ -21,3 +21,5 @@
 이 항목의 source 책임은 포치의 `src/spaces/porch.ts`와 차고의 `src/spaces/garage.ts`이며 datum의 canonical 값은 `src/spaces/storeys.ts`가 제공한다. 외부 보행길과 차도는 대지 입력과 접촉해야 한다. 필요한 관찰은 정면 진입 단면과 차고/머드룸 문턱 단면 및 양방향 진입 시야이며 실제 통행·기구 간섭 결과는 unverified다.
 
 차고의 상부 경계는 [차고 천장 폐합](09-ceiling-assembly.md#garage-ceiling-closure)이 이 천장 datum과 자기 지붕/벽 사이에서 정한다. 본채 층간 바닥이나 외부 포치 지붕을 차고 천장으로 대체하지 않는다.
+
+[본채 1층 바탕](10-ground-floor.md#main-ground-floor-base)과 [차고 바탕](10-ground-floor.md#garage-ground-floor-base)은 각각의 완성 높이에서 아래로 예약한다. [건물 출입 단면](10-ground-floor.md#ground-threshold-junctions)이 벽 두께 안의 지지와 기존 머드룸 한 단을 배정하며, [지지 하단](10-ground-floor.md#ground-support-handoff)은 실제 지표 입력을 받은 뒤 정할 미완료다.

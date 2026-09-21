@@ -10,6 +10,8 @@
 
 이 방에서 보이는 천장은 [차고 천장 폐합](../09-ceiling-assembly.md#garage-ceiling-closure)의 동일 경계를 소비한다. 공통 바탕은 garage 구조 owner가 맡고 이 방은 자기 전체 천장 마감과 벽 접촉을 통합한다. 지붕 아래 빈 부피나 문 레일을 숨기기 위해 천장을 올리거나 임의 구멍을 남기지 않는다.
 
+바닥은 [낮은 차고 바탕](../10-ground-floor.md#garage-ground-floor-base)의 동일 윗면을 소비하고 [전면 문턱](../10-ground-floor.md#ground-threshold-junctions)까지 연속해서 이 방 owner가 마감한다. 머드룸의 높은 문턱/챌면은 laundry owner가 한 번 생성하며 이 방에서 별도 단이나 판을 포개지 않는다. 실제 지표와 바탕 아래 지지는 아직 미완료다.
+
 ## 후벽 선반과 공구 작업대 {#garage-storage-use}
 
 같은 garage/ground-storey의 후벽에 수납을 모아 중앙 바닥과 서쪽 머드룸 대기를 비운다. 선반의 평면 예약은 X = [7.15, 8.85] m, Z는 [차고 후벽 안쪽 면](../00-building.md#attached-garage-extent)부터 -5.85 m까지이며 전체 높이는 차고 바닥 위 2.05 m다. 다섯 선반의 상면 높이는 차고 바닥 위 0.20 m부터 0.40 m 간격으로 산출한다. 기둥·선반 두께·상자/용기는 이 몸체 안에 담으며 앞쪽으로 쌓아 [통로](#garage-use-routes)를 줄이지 않는다. 사람이 서는 선반 앞 바닥은 X가 선반 폭과 같고 Z = [-5.85, -4.80] m다.

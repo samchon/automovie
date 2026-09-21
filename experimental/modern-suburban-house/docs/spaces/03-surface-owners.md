@@ -20,7 +20,8 @@
 | 차고 지붕 전방 면·하부 | `src/spaces/roof/garage-front.ts` | 차고 정면과 본채 접합의 닫힌 경계. |
 | 차고 지붕 후방 면·하부 | `src/spaces/roof/garage-back.ts` | 차고 후벽·본채 접면과 처마. |
 | 낮은 포치 지붕·하부 | `src/spaces/porch.ts` | [보·기둥·받침](porch.md#porch-roof-columns)과 [바닥/현관 접근](porch.md#porch-platform-access)을 함께 소유한다. |
-| 본채 1층 바닥 구조 바탕 | `src/spaces/floors/ground.ts` | 1층 방별 바닥 마감과 계단 하부 대기를 받는다. 층간 구조/1층 천장 몸체를 중복 생성하지 않는다. |
+| 본채 1층 바닥 구조 바탕 | `src/spaces/floors/ground.ts` | [연속 바탕](10-ground-floor.md#main-ground-floor-base)과 [문 아래 지지](10-ground-floor.md#ground-threshold-junctions)를 받는다. 보이는 방 마감은 각 room, 문턱은 원래 문 owner가 맡고 층간 구조/1층 천장을 중복 생성하지 않는다. |
+| 차고의 낮은 바닥 바탕 | `src/spaces/garage.ts` | [독립 차고 바탕](10-ground-floor.md#garage-ground-floor-base)과 전면문 아래 지지. 노출 콘크리트 상면은 garage-interior, 머드룸의 높은 문턱/챌면은 laundry owner다. |
 | 본채 층간 구조와 2층 천장 바탕 | `src/spaces/floors/upper.ts` | [단일 층간 구조](08-floor-assembly.md#interstorey-floor-boundary)와 같은 계단 구멍·상부 도착. [최상부 천장 바탕](09-ceiling-assembly.md#upper-ceiling-closure)에는 층간 구멍을 복제하지 않는다. 보이는 바닥/천장 마감은 각 방 owner다. |
 | 차고의 독립 천장 바탕 | `src/spaces/garage.ts` | [차고 천장](09-ceiling-assembly.md#garage-ceiling-closure)의 구조/벽 접점. 보이는 전체 천장 마감은 garage-interior owner다. |
 | 단일 L형 계단과 보호 경계 | `src/spaces/stair.ts` | 두 flight·중간참·도착·난간의 동일 기준과 [계단실 위 높은 천장 마감](09-ceiling-assembly.md#upper-ceiling-closure). |
@@ -37,6 +38,8 @@
 일반 실내 칸막이의 공통 몸체는 [공유 경계 배정](07-boundary-assembly.md#interior-boundary-ownership)의 단일 source owner가 생성하고 양쪽 room은 자기 완결 마감을 유지한다. `src/spaces/boundaries.ts`는 [교차부·개구부·문턱](07-boundary-assembly.md#interior-boundary-junctions)의 같은 경계를 전달하는 계산 책임만 가지며 별도 벽/마감을 만들지 않는다. 차고 공유 벽과 계단 구조의 기존 소유는 그대로다.
 
 [층간 구조의 가장자리](08-floor-assembly.md#interstorey-edge-junctions)는 외벽의 두께 구역과 실내 벽 상하 접촉을 같은 경계로 잇는다. 계단 구멍의 몸체는 upper 층판 owner, 그 두께 단면의 보이는 연속 마감은 stair owner, 도착의 보이는 바닥은 upper-hall owner다. 같은 가장자리에 두 번째 층판이나 테두리 마감을 생성하지 않는다.
+
+[지상층 바닥 아래 지지](10-ground-floor.md#ground-support-handoff)는 본채/차고 실내 바탕 아래와 외벽/공유 벽의 기단 구역을 구별한다. 기단의 노출 수직 마감은 기존 완결 입면 owner가 통합하며 바닥 owner가 별도 외장 띠를 덧씌우지 않는다. 실제 지표·지지 하단·기초와 접촉 census는 아직 미완료다.
 
 `src/spaces/site.ts`는 [외부 구역/접속의 조립](site/00-access.md#site-access-interface)만 맡는다. 종전의 포장 전체 한 파일 예약을 소스 저작 전에 완결 보행면·차도·테라스로 구체화했다. 포치 아래 대기와 정원문 바깥 대기는 각 연속 포장 owner에게 통째로 속하며 별도 판으로 쪼개지지 않는다. 측면 관리길은 앞뒤 두 구역이어도 같은 연속 면 owner를 유지하며, 목재 울타리는 문만 다른 파일에서 떼어 만들지 않는다. 대지 경계·보도/도로·지표·식재의 소유 분해와 울타리의 실제 필지 포함·지표 접합은 maps가 아직 없어 미완료다. 이 표를 전체 대지 표면 census 완료로 읽지 않는다.
 
