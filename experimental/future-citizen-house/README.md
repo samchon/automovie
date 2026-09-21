@@ -59,3 +59,9 @@ Run the applicable [Author process Self-Review](.agents/skills/review-verificati
 조정자 시작 명령은 이 production 디렉터리에서 `npm run viewer -- --port 4174`다. `--port`는 1–65535 범위의 정수를 받으며 생략 시 1953의 배정 포트인 4174를 사용한다. 열 경로는 `http://127.0.0.1:4174/`다. 이 명령은 `tsx`로 TypeScript 서버를 실행하며 review citation의 미작성 여부를 시작 조건으로 삼지 않는다. [tsx의 공식 실행 계약](https://tsx.hirok.io/typescript)에 따라 타입·evidence 검증은 기존 `npm run lint`가 전체 source와 같은 package.json compilerOptions로 수행한다. 검사 plugin·stage·requireReview와 engine의 CommonJS 경계는 유지한다. 런타임의 문법·모듈 로딩·native geometry 오류는 그대로 실패하며, 서버 실행 성공은 lint 통과나 독립 시각 판정을 뜻하지 않는다. 고정 크기 캡처 경로는 `http://127.0.0.1:4174/?capture=1`이며 canvas가 1600×1000 CSS pixel, pixel ratio 1을 사용한다. 서버 시작과 기존 프로세스 교체는 조정자가 맡는다. source 수정은 기존 화면을 무효화하므로 lint 후 조정자가 서버를 재시작한다.
 
 현재 구현은 원근·PBR·그림자·등기구 광원·키보드 조작, 낮/사적/야간 차폐와 작업/손님 침대 상태를 제공한다. 같은 CJS producer의 현재 cell·surface·connector·face·opening에서 관찰 목록을 도출하고 실패한 위치도 남긴다. 절개와 외곽선은 검사 모드에서만 켜진다. 공개 engine 진단, room/storey 포함·도달, 개별 tread bounds와 실제 삼각형에 대한 문 통행 원통 검사 결과를 정보 패널에서 읽는다. 방 안 전체 동선과 계단 상승의 연속 원통 충돌, 구조·법규·에너지·실제 설비 성능 및 GPU 시각 판정은 unverified다. 이 소스 구현을 화면 승인으로 세지 않는다.
+
+## 캐노피 r2 구현
+
+[v-073 제출 설계](docs/spaces/003-surface-ownership.md#roof-face)를 [지붕 owner](src/house/envelope/roof.ts), [우측 입면](src/house/envelope/right.ts), [대지](src/house/site/garden.ts)가 구현한다. 설계 문서의 기존 source 부재 설명은 v-073 제출 당시의 기록으로 보존했다. 현재 소스는 열린 frame과 PV, 주보·분절 rail·기둥, 경사 지붕, 거터·배수관·집수구를 실제 geometry로 생성한다. 고정 방·층·문·계단의 그래프는 유지한다.
+
+뷰어의 `/scene` 응답에는 같은 `buildHouse()`가 실행한 `canopyAudit`가 포함된다. 실제 부품 bounds·개구부 확장 영역·거름망 인출 경로·개수를 읽을 수 있으며 기존 관찰에 부재별 검사 위치가 추가된다. 이 수치와 일부 GPU 캡처는 전체 시각 합격이나 구조·배수·장비 성능 인증을 뜻하지 않는다. 독립 시각 판정과 후속 커튼월·유리·마감·가구·조경 설계가 남아 있다. 관찰용 입면 normal의 기존 방향 문제도 다음 입면 설계에 남긴다.

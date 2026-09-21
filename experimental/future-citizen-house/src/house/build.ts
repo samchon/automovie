@@ -15,7 +15,8 @@ import { corridor } from "./rooms/corridor";
 import { bathroom } from "./rooms/bathroom";
 import { storageUpper } from "./rooms/storage-upper";
 import { serviceUpper } from "./rooms/service-upper";
-export function buildHouse(state: State = initialState) {
+import { auditCanopy } from "./canopy-audit";
+export function buildHouse(state: State = initialState, report?: (audit: ReturnType<typeof auditCanopy>) => void) {
   const a = new Assembly(state);
   structure(a); envelope(a); garden(a);
   entry(a); flex(a); common(a); powder(a); storageGround(a);
@@ -23,5 +24,8 @@ export function buildHouse(state: State = initialState) {
   a.environment.walkable = a.environment.surfaces.map((s) => s.surface.id);
   const result = auditHouse(a.environment);
   if (result.errors.length) throw new Error(result.errors.join("\n"));
+  const canopy = auditCanopy(a);
+  if (canopy.errors.length) throw new Error(canopy.errors.join("\n"));
+  report?.(canopy);
   return a.environment;
 }

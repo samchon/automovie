@@ -1,10 +1,11 @@
 import { builtSpaceVolumeBounds, builtSpaceContainsPoint, builtConvexCellVertices, builtEnvironmentEnvelopeFaces, builtEnvironmentEnvelopeCorners, builtSpaceObservationStations, Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieBuiltEnvironment, IAutoMovieVector3 } from "@automovie/interface";
 import { v } from "./assembly";
+import type { auditCanopy } from "./canopy-audit";
 export type Observation = { id: string; space: string; role: string; cameraSpace?: string; pose: { position: IAutoMovieVector3; target: IAutoMovieVector3 } | null; reason: string; section?: { height: number; remove: "above" | "below" }; fov: number };
 /** Every question is derived from the produced cells, connectors and faces.
  * Failed positions are retained. No station uses a second room coordinate list. */
-export function observations(e: IAutoMovieBuiltEnvironment): Observation[] {
+export function observations(e: IAutoMovieBuiltEnvironment, canopy?: ReturnType<typeof auditCanopy>): Observation[] {
   const out: Observation[] = [];
   const add = (space: string, id: string, role: string, position: IAutoMovieVector3 | null, target: IAutoMovieVector3 | null, reason = "", section?: { height: number; remove: "above" | "below" }) => out.push({ id, space, role, pose: position && target ? { position, target } : null, reason, ...(section === undefined ? {} : { section }), fov: 50 });
   const boundsOf = (id: string) => { const s = e.spaces.find((s) => s.id === id); return s ? builtSpaceVolumeBounds(s) : null; };
@@ -15,9 +16,13 @@ export function observations(e: IAutoMovieBuiltEnvironment): Observation[] {
     return heights.length ? Math.min(...heights) : fallback;
   };
   for (const space of e.spaces) {
-    const bounds = builtSpaceVolumeBounds(space);
+    let bounds = builtSpaceVolumeBounds(space);
     if (!bounds) { for (const id of ["threshold", "corner-0", "corner-1", "corner-2", "corner-3", "center-x-", "center-x+", "center-z-", "center-z+"]) add(space.id, id, "interior", null, null, "No closed volume"); continue; }
     const y = floorOf(space.id, bounds.min.y) + 1.6;
+    if (space.kind === "building") {
+      const occupied = space.cells.filter(c => { const ys = builtConvexCellVertices(c).map(p => p.y); return y >= Math.min(...ys) && y <= Math.max(...ys); });
+      bounds = builtSpaceVolumeBounds({ ...space, cells: occupied }) ?? bounds;
+    }
     let center = v((bounds.min.x + bounds.max.x) / 2, y, (bounds.min.z + bounds.max.z) / 2);
     let rationale = "volume-bounds center at floor+1.60m";
     if (!builtSpaceContainsPoint(space, center)) {
@@ -42,12 +47,14 @@ export function observations(e: IAutoMovieBuiltEnvironment): Observation[] {
       const p = v(endpoint.x + dir.x * (0.25 - fromFace), y, endpoint.z + dir.z * (0.25 - fromFace));
       add(space.id, "threshold", "threshold", inside(p), center, "connector " + threshold.id + "; inner face +0.25m");
     } else {
-      const descendants = e.spaces.filter((s) => s.parent === space.id);
+      const family = new Set([space.id]);
+      for (let i = 0; i < e.spaces.length; i++) for (const s of e.spaces) if (s.parent && family.has(s.parent)) family.add(s.id);
+      const descendants = e.spaces.filter((s) => s.id !== space.id && family.has(s.id));
       const child = descendants.map((s) => e.connectors.find((c) => c.to === s.id)).find((c) => c);
       const p = child ? { ...child.route.at(-1)!, y } : v(bounds.min.x + 0.25, y, bounds.min.z + 0.25);
       add(space.id, "threshold", "threshold", inside(p), center, child ? "container threshold inherited from " + child.id : "container boundary inset; no passage claimed");
     }
-    if (space.cells.length > 1) for (const [ci, cell] of space.cells.entries()) {
+    if (space.kind === "room" && space.cells.length > 1) for (const [ci, cell] of space.cells.entries()) {
       const vertices = builtConvexCellVertices(cell), xs = vertices.map((p) => p.x), zs = vertices.map((p) => p.z);
       for (const [sx, sz] of [[-1, -1], [-1, 1], [1, -1], [1, 1]]) {
         const p = v(sx < 0 ? Math.min(...xs) + 0.25 : Math.max(...xs) - 0.25, y, sz < 0 ? Math.min(...zs) + 0.25 : Math.max(...zs) - 0.25);
@@ -60,7 +67,7 @@ export function observations(e: IAutoMovieBuiltEnvironment): Observation[] {
     const radius = Math.max(...face.vertices.map((p) => Vector3.length(Vector3.subtract(p, face.centroid))));
     const distance = radius / Math.sin(25 * Math.PI / 180) * 1.08;
     const direction = Math.abs(face.normal.y) > 0.9 ? Vector3.normalize(Vector3.add(face.normal, v(0, 0, -0.35))) : face.normal;
-    add("exterior", face.boundary, face.aspect, Vector3.add(face.centroid, Vector3.scale(direction, distance)), face.centroid, "compiled envelope normal and full extent", face.normal.y < -0.9 ? { height: face.centroid.y - 0.05, remove: "below" } : undefined);
+    add("exterior", face.boundary, face.aspect, Vector3.add(face.centroid, Vector3.scale(direction, distance)), face.centroid, "compiled envelope normal and full extent", face.normal.y < -0.9 ? { height: Math.min(...face.vertices.map(p => p.y)) - 0.05, remove: "below" } : undefined);
   }
   for (const corner of builtEnvironmentEnvelopeCorners(e)) {
     const vertices = faces.filter((f) => corner.facades.includes(f.boundary)).flatMap((f) => f.vertices);
@@ -93,6 +100,16 @@ export function observations(e: IAutoMovieBuiltEnvironment): Observation[] {
     out.push({ id, space: "references", role: "reference", cameraSpace: room,
       pose: arrival?.pose ?? null, fov: 50,
       reason: "Reference room arrival; no wall removal; " + (arrival?.reason ?? "Required room threshold unavailable") });
+  }
+  if (canopy) {
+    const details = canopy.members.filter(m => /^(gutter-|overflow-|catch-|right-inspection|right-downpipe|canopy-support|canopy-endplate|canopy-rail)/.test(m.id));
+    const cassettes = canopy.cassetteParts.flatMap(c => c.parts.filter(p => /^(head-|clip-|pv$)/.test(p.id)).map(p => ({ id: c.id + "/" + p.id, box: p.box })));
+    for (const item of [...details, ...cassettes]) {
+      const center = Vector3.scale(Vector3.add(item.box.min, item.box.max), 0.5);
+      const size = Vector3.length(Vector3.subtract(item.box.max, item.box.min));
+      const offset = Vector3.scale(Vector3.normalize(v(-1, 1.2, -0.5)), Math.max(0.12, size * 1.6));
+      add("exterior", "detail/" + item.id, "assembly-detail", Vector3.add(center, offset), center, "Current native placed part bounds; detail supplements all required observations");
+    }
   }
   return out;
 }

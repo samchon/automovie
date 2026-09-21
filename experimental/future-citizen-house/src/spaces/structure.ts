@@ -5,7 +5,6 @@ import { upper } from "../house/storeys/upper";
 import { stair } from "../house/circulation/stair";
 /** Realize the clear cells, shared boundaries, floors and one stair together.
  * @evidence spaces/002-spatial-graph.md 이 함수는 topology·두 storey·단일 stair를 조립하여 002의 매스, 방 경계, 문과 계단을 실물과 native graph로 함께 반환한다.
- * @evidenceReview spaces/002-spatial-graph.md #1dff087 전체 002의 room·wall·portal·stair를 plan과 topology로 소비하며 내부 fit-out도 같은 cell 범위에 조립한다.
  * @evidence principles/core/source-units.md#source-scope-preservation plan의 clear cell과 datum으로만 shared wall을 도출하고 002가 금지한 별도 복도·계단·보이드를 추가하지 않는다. 바닥·천장·partition은 각 층의 파일이 소유한다.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 바닥·분할·계단과 내부 가구까지만 이 조립이 맡고 외부 커튼월 표면은 envelope owner에 남긴다.
  * @evidence principles/core/source-units.md#source-substantive-completion topology는 실제 convex cells, partitions는 공개 wall kernel로 절삭한 solid와 opening operation, stair는 18개 tread 및 참을 만든다. 위임 대상은 모두 현재 호출되는 구체 함수이며 빈 source wrapper가 아니다.
@@ -119,7 +118,6 @@ import { stair } from "../house/circulation/stair";
  * @evidence spaces/002-spatial-graph.md#wall-junctions 층의 clear cell과 wall strip으로 분할한 평면에서 두 wall 끝이 접하고 room·stair hole 밖에 남는 작은 직사각형만 junction으로 만든다. 정렬한 인접 boundary id로 안정 id를 만들고 그 boundary들이 같은 element를 참조한다.
  * @evidenceReview spaces/002-spatial-graph.md#wall-junctions #0c7c374 벽 끝 접합의 남은 실체만 별도 ID로 채워 room cell·opening·계단 hole 안에 보강 덩어리를 추가하지 않는다.
  * @evidence spaces/002-spatial-graph.md#envelope-interface 외피는 같은 plan datum·clear edge에서 절삭 범위와 bay를 소비하고 캐노피는1.20×1.90 최대 pitch로 등분한다. 대지 landing과 현관 sill은 같은 y=0이다.
- * @evidenceReview spaces/002-spatial-graph.md#envelope-interface #dbaf727 층·방 datum을 외피 개구 입력에 전달하므로 facade가 실내와 무관한 두 번째 층선을 만들지 않는다.
  * @evidence spaces/002-spatial-graph.md#stage-one-verification auditHouse가 native validation, room/storey 포함, entry 도달, stair 수, endpoint와 tread bounds를 출력한다. observations는 모든 필수·추가 질문을 유지한다. 연속 원통 충돌과 현재 GPU 판정은 측정했다고 주장하지 않고 limits에 unverified로 낸다.
  * @evidenceReview spaces/002-spatial-graph.md#stage-one-verification #dfb57ae native audit가 storey 포함과 entry 도달을 검사하지만 연속 인체 통행·성능 인증을 그 결과로 주장하지 않는다.
  */
