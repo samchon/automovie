@@ -2,6 +2,7 @@ import { validateMeshTopology } from "@automovie/engine";
 
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
 import { assertHumanFaceArticulation } from "./assertHumanFaceArticulation";
+import { assertHumanFaceContact } from "./assertHumanFaceContact";
 
 /**
  * Admit immutable connectivity, endpoint correspondence and triangle partitions,
@@ -240,4 +241,5 @@ export function assertHumanFaceBasis(basis: IAutoMovieHumanFaceBasis): void {
       "Every declared facial endpoint must move at least one resident surface or drive a joint.",
     );
   assertHumanFaceArticulation(basis, endpoints);
+  assertHumanFaceContact(basis);
 }
