@@ -40,6 +40,22 @@
 
 관찰 뷰어는 [렌더 경계](../settings/20-verification.md#renderer-boundary), [CJS 실행 경계](../settings/20-verification.md#execution-boundary), [프레임 조건](../settings/20-verification.md#frame-condition)을 따른다. 이번 조정자 지정 인계값은 포트 4173과 `--port` 인자다. 이는 향후 구현이 받을 조건이고 실행 명령이 준비됐다는 보고가 아니다. 실제 공간 소스·뷰어·GPU RENDERER·프레임은 미구현/unverified다.
 
+## 다섯 참조에 더하는 공간 비교 {#reference-spatial-comparisons}
+
+[레퍼런스 권위](../settings/20-verification.md#reference-authority)를 현재 공간 owner에 연결한다. 아래 비교는 [산출물 전체 관찰](#spatial-observation-derivation)에 추가할 질문이며 대표 view로 그 분모를 대체하지 않는다. 현재는 설계 문서 사이의 인계다. 실제 카메라 위치·방향·관찰 id는 같은 revision의 compiled 경계와 [프레임 조건](../settings/20-verification.md#frame-condition)에서 정하고 자기 공간 포함을 확인해야 한다. 참조의 카메라를 흉내 내려고 방 밖으로 물러나거나 벽을 지우지 않는다.
+
+| 참조 | 공간과 관찰의 배정 | 현재 설계를 반증할 비교 |
+| --- | --- | --- |
+| 01 외관 | 온전한 외피의 전면 접근과 두 앞 모서리. [외곽](00-building.md#main-building-extent), [지붕군](roof/00-junctions.md#roof-mass-allocation), [포치](porch.md#porch-roof-columns), [전면 개구부](envelope/front.md#front-openings), [굴뚝](envelope/left.md#chimney-roof-interface), [대지 접근](site/00-access.md#site-access-interface)을 함께 본다. | 왼쪽 교차 박공·오른쪽 낮은 지붕·더 낮은 붙박이 차고의 위계, 거실창과 현관을 덮는 포치, 창과 실제 방의 대응, 기둥/처마/굴뚝/단의 깊이를 비교한다. 포장만 있고 지표·나무·식재가 없으면 외부 setting 질문이 남는다. |
+| 02 절개 조감 | [두 storey](01-storeys.md#storey-datums)의 평면과 절개를 검사 모드에서만 본다. [모든 방 연결](05-route-network.md#room-route-network), [같은 계단 구멍](02-stair.md#stair-floor-opening), [공유 경계](07-boundary-assembly.md#interior-boundary-ownership)를 대조한다. | 끊긴 방, 문 뒤의 막힌 벽, 두 번째 층간 연결, 추가 보이드, 머드룸을 거치지 않는 차고 연결을 찾는다. 차고는 사용자 지시대로 비우며 참조의 차량을 채우지 않는다. 절개에서 잘 보이는 배치가 온전한 외피의 내부 관찰을 지불하지 않는다. |
+| 03 후면 공용부 | 같은 [kitchen-dining-family](rooms/common.md#common-room-plan) 안에서 주방/싱크 섬·식사 자리·가족 좌석과 [정원문](envelope/rear.md#garden-door)을 보는 내부 시점을 파생한다. 앞쪽 두 진입과 문 너머 [테라스](site/terrace.md#garden-terrace-plan)도 함께 읽는다. | 하나의 방 안 세 기능, 섬의 세 좌석과 식탁 여섯 좌석, 주방 창/정원문의 관계, 의자를 꺼낸 뒤의 경로를 비교한다. 계단과 공용부 사이의 실제 시야는 [계단 뒤 분리벽](02-stair.md#stair-boundary-heights)을 포함한 현 경계로 관찰하며 사진처럼 보이게 그 벽을 임의 제거하지 않는다. |
+| 04 현관·거실·계단 | [현관 분배 바닥](rooms/entry.md#entry-use-routes) 내부에서 현관문, [거실 출입](rooms/living.md#living-plan), [아래 flight](02-stair.md#stair-reservation)의 직접 관계를 읽는다. 거실의 벽난로/좌석은 같은 실 내부의 보충 시점으로 잇는다. | 현관에서 세 방향으로 실제 분기하는지, 문과 난간에 가려 계단 출발을 찾을 수 없는지, 거실의 창·벽난로·좌석이 자기 방으로 읽히는지를 비교한다. 현관 시점에서 가려진 거실을 투명 벽이나 다른 집의 가구 배치로 보충하지 않는다. |
+| 05 상층 사적 구역 | [상부 도착과 하나의 복도](rooms/upper-hall.md#upper-hall-plan), [계단 창](envelope/front.md#stair-front-window), 각 침실/욕실의 자기 threshold와 [린넨장](rooms/upper-hall.md#upper-linen-storage)을 연결해 본다. | 다섯 실문이 같은 짧은 복도에 닿는지, 계단/복도 보호와 수납이 도착을 막는지, 방별 카펫·욕실 타일·창호·문이 같은 집으로 읽히는지를 비교한다. 문을 열린 상태로 관찰한 결과와 실제 문 조작/통과 검사는 구별한다. |
+
+이 배정은 [전체 표면 소유](03-surface-owners.md#exterior-surface-handoff)와 방별 owner를 그대로 소비한다. maps가 맡는 필지·외부 보도/도로·지표·식재 입력은 [map 인계](site/00-access.md#map-handoff-inputs)가 미완료로 노출하며 spaces의 포장 치수로 대체하지 않는다. 지표를 받은 뒤 결정할 [건물 지지 하단](10-ground-floor.md#ground-support-handoff)과 [포장/문기둥 접지](site/01-paving-support.md#paving-contact-handoff)도 함께 남는다. 부재 원형·마감·반복·조명은 [제작 배분](../settings/00-production.md#build-allocation)의 해당 branch가 실현할 일이다. 공간 설계 문서를 읽은 결과를 그 부재나 빛의 관찰 결과로 옮기지 않는다.
+
+현재 다섯 비교 모두 실제 프레임·RENDERER·compiled topology/surface census가 없어 unverified이며 관찰자 목록도 미수령이다. spaces 초안의 문서 검토와 실제 1단계 폐쇄를 구별한다. 모든 공간의 실제 storey 귀속·문/계단/복도를 통한 도달과 소유된 표면 산출물 없이 [1단계 완료](../settings/20-verification.md#lifecycle-boundary)를 선언하지 않는다. 공간 그래프를 바꾸어야만 해소되는 참조 충돌이 관찰되면 [지배 목표](../settings/00-production.md#governing-aim)에 따라 조정자에게 올린다.
+
 ## 공간 산출물에서 실제 렌더로 넘기는 경계 {#engine-render-handoff}
 
 설치된 공개 엔진의 `lowerBuiltEnvironment`는 환경을 검증하고 실제 model을 가진 element를 세계 변환의 set으로 내리며 원래 built environment도 보존한다. 논리적인 room·boundary·opening 선언만으로 벽·바닥·창호 메쉬를 생성하지 않는다. 후속 CJS 서버는 같은 저작 입력에서 만든 실제 models/elements와 논리 topology를 이 경로로 전달하고, 브라우저에 별도 집 좌표를 하드코딩하지 않는다. 비직사각 공간은 `IAutoMovieBuiltSpace`의 볼록 cell 합집합 또는 닫힌 shell 중 한 표현을 사용하며 그 전체 bbox를 방의 부피로 바꾸지 않는다. 현재는 API 소스 조사이며 환경 입력·서버 응답·렌더 연결은 없다.
