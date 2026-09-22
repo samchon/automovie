@@ -17,6 +17,9 @@
  *   lips and both central incisors and narrow enough to exclude the canines.
  * - Crown root rings have twelve vertices in this source; loops of up to
  *   sixteen are sealed, the two gum sheets (96 and 102 vertices) stay open.
+ *   Each globe is open at its posterior pole by a ring of thirty-two
+ *   vertices, sealed the same way, so the lids and lashes keep their rest
+ *   clearance over the cornea as it turns under them and as they close.
  * - `mouthClose` is the ARKit face unit MPFB ships ("closes the lips while
  *   the jaw remains open"), a delta over the open jaw, and is decomposed as
  *   a companion of `jawOpen`.
@@ -25,10 +28,11 @@
  * - The lip and lining budget is Holdaway's upper lip thickness, the
  *   distance from the vermilion point to the labial surface of the upper
  *   incisor, measured at 13.41 mm (Saudi Dent J 2011, n=93; the classic
- *   norm is 13 to 14 mm). The tongue's budget is its own height along the
- *   opening direction, measured here: a push larger than the tongue is the
- *   tongue in the wrong place, not a deformation; the passage rule states
- *   the cases that matter and the receipt records what the source authored.
+ *   norm is 13 to 14 mm). The tongue's and the lashes' budgets are their
+ *   own height along the vertical, measured here: a push larger than the
+ *   tissue is the tissue in the wrong place, not a deformation; the passage
+ *   rule states the cases that matter and the receipt records what the
+ *   source authored.
  * - Tolerance 0.05 mm absorbs the seven-decimal rounding of published rows.
  */
 import type {
@@ -78,13 +82,17 @@ const prepared = prepareContactBasis({
     channel: "tongueOut",
     slabMetres: 0.002,
   },
-  colliders: [{ surface: "Human.teeth_base", maximumRingVertices: 16 }],
+  colliders: [
+    { surface: "Human.teeth_base", maximumRingVertices: 16 },
+    { surface: "Human.low-poly", maximumRingVertices: 40 },
+  ],
   soft: [
     {
       surface: "Human",
       budget: { metres: HOLDAWAY_UPPER_LIP_THICKNESS_METRES },
     },
     { surface: "Human.tongue01", budget: { extent: true } },
+    { surface: "Human.eyelashes01", budget: { extent: true } },
   ],
   toleranceMetres: 0.00005,
   decimals: 7,
