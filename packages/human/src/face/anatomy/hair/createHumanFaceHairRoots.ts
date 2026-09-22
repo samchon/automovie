@@ -4,6 +4,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import type { IAutoMovieHumanFaceHair } from "../../structures/IAutoMovieHumanFaceHair";
 import { humanFaceHairEnvelope } from "./humanFaceHairEnvelope";
 import { humanFaceHairSequence } from "./humanFaceHairSequence";
+import { humanFaceHairlineBoundary } from "./humanFaceHairlineBoundary";
 
 /**
  * Compile the neutral area measure of one shared anatomical growth domain.
@@ -107,16 +108,7 @@ export function createHumanFaceHairRoots(props: {
       const magnitude = Vector3.length(direction);
       if (!Number.isFinite(magnitude) || magnitude === 0)
         throw new Error("The hair chart is singular at a sampled root.");
-      const horizontal = Math.hypot(direction.x, direction.z);
-      // At the polar axis azimuth is undefined. Both limits have theta=0 or
-      // pi; the minimum boundary is the intersection of those azimuth limits.
-      const boundary =
-        horizontal === 0
-          ? Math.min(...Object.values(layer.hairline))
-          : (direction.x / horizontal) ** 2 *
-              (direction.x < 0 ? layer.hairline.right : layer.hairline.left) +
-            (direction.z / horizontal) ** 2 *
-              (direction.z < 0 ? layer.hairline.back : layer.hairline.front);
+      const boundary = humanFaceHairlineBoundary(direction, layer.hairline);
       const polar = Math.acos(
         Math.max(-1, Math.min(1, direction.y / magnitude)),
       );

@@ -3,11 +3,13 @@ import type {
   buildHumanFaceHairMesh,
   createHumanFaceHairBuilder,
   createHumanFaceHairRoots,
+  createHumanFaceScalpTint,
   evaluateHumanFaceHairDirection,
   humanFaceHairContact,
   humanFaceHairFrame,
   humanFaceHairLength,
   humanFaceHairSequence,
+  humanFaceHairlineBoundary,
   integrateHumanFaceHairCurve,
   interpolateHumanFaceHairStrands,
 } from "@automovie/human";
@@ -19,7 +21,7 @@ import type {
  * @evidence {@link Human.assertHumanFaceHair} Read strict schema equality, finite/range checks, unique layer names and combined interval budget. Shared domain lookup and actual contact remain builder responsibilities.
  * @evidenceReview {@link Human.assertHumanFaceHair} #b04dec7 Read both optional root and part envelope paths, including finite centres and strictly positive finite spreads at zero count. Structural equality, identities and allocation remain enforced before construction; no new visual acceptance is claimed for this frozen subject. Reread the guide admission: fraction in (0,1], integral neighbours in [1,8].
  * @evidence {@link createHumanFaceHairRoots} Read neutral area-CDF sampling, square-root barycentric seats, polar masking and retained candidate identities. Failed budgets refuse; no personal guide is selected.
- * @evidenceReview {@link createHumanFaceHairRoots} #0c7e04a Read neutral area sampling followed by polar and base-13 Gaussian rejection. Sequence identities and barycentric seats are retained, omitted regions admit every candidate, and exhausted local populations explicitly refuse.
+ * @evidenceReview {@link createHumanFaceHairRoots} #dab10dd Read neutral area sampling followed by polar and base-13 Gaussian rejection. Sequence identities and barycentric seats are retained, omitted regions admit every candidate, and exhausted local populations explicitly refuse. Reread the hairline boundary now read through `humanFaceHairlineBoundary`, unchanged.
  * @evidence {@link humanFaceHairSequence} Read the radical inverse shared by deterministic roots, length variation and phase. Inputs come from admitted integer seeds/candidate ordinals.
  * @evidenceReview {@link humanFaceHairSequence} #7f7fc99 Read the radical inverse shared by deterministic roots, length variation and phase. Inputs come from admitted integer seeds/candidate ordinals.
  * @evidence {@link humanFaceHairFrame} Read finite direction admission and least-aligned-axis transverse conditioning. This convention chooses a ribbon frame without replacing a cancelled growth field.
@@ -32,6 +34,10 @@ import type {
  * @evidenceReview {@link humanFaceHairLength} #ba22710 Read the length lifted out of the integrator unchanged and its singular-chart refusal; a strand takes its own regional length rather than its guides'.
  * @evidence {@link interpolateHumanFaceHairStrands} Read the guide interpolation: nearest same-side guides by scalp distance, exponential weights against the guides' mean spacing, equal arc-length blending and scaling to the strand's own length.
  * @evidenceReview {@link interpolateHumanFaceHairStrands} #9e3bad5 Read the part gate, the cut-off at twice the spacing with the nearest-guide fallback, the single-guide case, and the refusals for no guide, a zero-length guide and a collapsed blend; no contact query is made here, the builder projects the result.
+ * @evidence {@link createHumanFaceScalpTint} Read the scalp tint: coverage from the hairline transition ramp and the root region envelope on the neutral, the densest layer's colour, and the clamped gain toward the hair colour over the skin finish.
+ * @evidenceReview {@link createHumanFaceScalpTint} #e9b2882 Read the 20 mm transition converted to a polar angle per vertex, the smoothstep ramp, the root-region product, empty layers skipped, the per-vertex region material read after document overrides, and gains clamped to [0,1] so a lighter hair leaves the skin.
+ * @evidence {@link humanFaceHairlineBoundary} Read the hairline boundary blended from the four authored angles by the squared horizontal chart components, shared by root sampling and scalp coverage.
+ * @evidenceReview {@link humanFaceHairlineBoundary} #1fab004 Read the blend lifted out of root sampling unchanged and the polar-axis minimum.
  * @evidence {@link integrateHumanFaceHairCurve} Read metric emergence, signed-distance projection, bounded chords and exact terminal length. The free-strip bound does not accept root fans or hair-to-hair intersection.
  * @evidenceReview {@link integrateHumanFaceHairCurve} #fa861d6 Read the shared scale-derived contact allowance and h + epsilon chord admission, including final extension by at most epsilon. The nearest-endpoint bound pays for both from the remaining contact allowance. Same-input Float32 GLB bytes remained exact in the 1,024-root probe; root-fan and hair-to-hair clearance remain unproved.
  * @evidence {@link buildHumanFaceHairMesh} Read actual-station meshing, minimal transverse transport, root fan, arc-length taper and finite-area refusal. No spline refit changes the measured curve.
