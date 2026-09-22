@@ -18,11 +18,16 @@ import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBody
  * document's joints copied and the coupled entries added or replaced.
  *
  * Per coupling, in basis order: the source's elevation is the engine's
- * `swingConeAngle` of its flexion and abduction travel from the joint's rest,
- * an absent entry or a null axis standing for the rest, so the empty document
- * has elevation zero on every joint. The curve then gives zero at and below
- * its first knot, the linear interpolation between the two knots that bracket
- * the elevation, and the last ordinate past the last knot. A zero ordinate
+ * `swingConeAngle` of its clinical flexion and abduction, an absent entry or
+ * a null axis standing for the rest angle, so it is the humerothoracic
+ * elevation the literature's rhythm is tabulated against and the same
+ * measure the engine's cone check reads; the empty document has each joint
+ * at its rest elevation (the A-pose arm at about 42 degrees), and a hanging
+ * or adducted arm sits below it. The curve then gives zero at and below its
+ * first knot, which admission places at or above the source's rest
+ * elevation so the rest, the hanging arm and every pose below the rest add
+ * nothing, the linear interpolation between the two knots that bracket the
+ * elevation, and the last ordinate past the last knot. A zero ordinate
  * changes nothing, which keeps a document below every onset identical to what
  * the builder posed before couplings existed. A nonzero ordinate is added to
  * the output joint's angle on the output axis, the document's angle when the
@@ -40,7 +45,7 @@ import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBody
  * before, with the coupled angle in the diagnostic.
  *
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-joints Applies the basis's declared joint couplings so an elevated arm moves its girdle with it, adding to the document's clinical angles without storing the addition in the document.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-joints Evaluates each coupling's elevation measure through the swing cone from the rest and its piecewise-linear curve, adding the ordinate to the output axis before the pose is validated.
+ * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-joints Evaluates each coupling's elevation measure through the swing cone of the clinical angles and its piecewise-linear curve, adding the ordinate to the output axis before the pose is validated.
  */
 export function resolveHumanBodyCouplings(
   basis: Pick<IAutoMovieHumanBodyBasis, "joints" | "couplings">,
@@ -68,8 +73,8 @@ export function resolveHumanBodyCouplings(
     const rest = neutral.get(coupling.source.bone)!;
     const source = pose.find((joint) => joint.bone === coupling.source.bone);
     const elevation = swingConeAngle(
-      (source?.flexion ?? rest.flexion) - rest.flexion,
-      (source?.abduction ?? rest.abduction) - rest.abduction,
+      source?.flexion ?? rest.flexion,
+      source?.abduction ?? rest.abduction,
     );
     const degrees = evaluateCurve(coupling.curve, elevation);
     if (degrees === 0) continue;
@@ -92,13 +97,17 @@ export function resolveHumanBodyCouplings(
 
 /**
  * The piecewise-linear curve at one elevation: zero at and below the first
- * knot (the first ordinate is zero by admission, so the curve is continuous
- * there), linear inside the bracketing segment, the last ordinate held past
- * the last knot. Admission guarantees at least two knots strictly increasing
- * in elevation, so every segment has a nonzero width.
+ * knot (the first ordinate is zero and the first knot sits at or above the
+ * source's rest elevation by admission, so the curve is continuous there and
+ * the rest adds nothing), linear inside the bracketing segment, the last
+ * ordinate held past the last knot. Admission guarantees at least two knots
+ * strictly increasing in elevation, so every segment has a nonzero width.
+ * The nanodegree tolerance at the first knot absorbs the cone formula's float
+ * error at a rest angle (`2 acos(cos 10)` lands above 20 by one ulp), so a
+ * curve authored to start exactly at the rest elevation adds nothing at rest.
  */
 function evaluateCurve(curve: [number, number][], elevation: number): number {
-  if (!(elevation > curve[0][0])) return 0;
+  if (!(elevation > curve[0][0] + 1e-9)) return 0;
   for (let i = 1; i < curve.length; i++) {
     const [x0, y0] = curve[i - 1];
     const [x1, y1] = curve[i];

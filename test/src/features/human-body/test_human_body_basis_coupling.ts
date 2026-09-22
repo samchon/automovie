@@ -30,12 +30,16 @@ type Patch = (basis: IAutoMovieHumanBodyBasis) => void;
  * 1. The curve: spine flexion 20 and 30 add nothing, 45 adds 10 (first
  *    segment), 60 adds 20 (a knot), 75 adds 35 (second segment), 90 adds 50
  *    (the last knot), and the empty document leaves the chest at rest.
- * 2. The measure is the swing cone from the rest: with the spine's abduction
- *    widened to 90, flexion 60 with abduction 60 has elevation
+ * 2. The measure is the swing cone of the clinical angles: with the spine's
+ *    abduction widened to 90, flexion 60 with abduction 60 has elevation
  *    `2 acos(cos 30 cos 30) = 2 acos 0.75` and adds `20 + (that - 60)`,
  *    flexion 90 with abduction 90 has elevation 120 and holds the last
- *    ordinate 50, abduction 60 alone adds 20, and with the spine resting at
- *    flexion 20 a document flexion of 50 adds nothing and 65 adds 10.
+ *    ordinate 50, and abduction 60 alone adds 20. With the spine resting at
+ *    flexion 20 the rest elevation is 20: the empty document and a flexion
+ *    of 10 below the rest add nothing, a curve whose first knot sits exactly
+ *    at that rest elevation adds no entry at rest (the cone formula's float
+ *    error at 20 degrees is absorbed), and a flexion of 50 adds 40/3 (its
+ *    clinical elevation, not its 30 degrees of travel).
  * 3. The ordinate adds to what the document wrote: chest flexion 30 with
  *    spine 45 gives 40; a chest entry with only abduction 5 keeps it and
  *    gains flexion 10; a second coupling into the chest's abduction
@@ -50,9 +54,10 @@ type Patch = (basis: IAutoMovieHumanBodyBasis) => void;
  *    the range (the reach shrinking with a rest offset), an unknown source
  *    or output, a self coupling, a chain whose output is another coupling's
  *    source, a duplicate output axis, a blank or duplicate id, a single
- *    knot, a nonzero first ordinate, a negative first abscissa, a
- *    nonincreasing abscissa and a nonfinite knot refuse; the adjacent
- *    admitted twins pass, and an empty table is admitted.
+ *    knot, a nonzero first ordinate, a first abscissa below the source's
+ *    rest elevation (negative at rest elevation 0, or 19 when the spine
+ *    rests at flexion 20), a nonincreasing abscissa and a nonfinite knot
+ *    refuse; the adjacent admitted twins pass, and an empty table is admitted.
  * 6. A corrective ramp on chest flexion (onset 30, full 60, `fold` moving
  *    the hips-bound vertex 0 by +0.02 in Z) fires on the coupled angle:
  *    spine 90 (chest 50) gives two thirds, spine 45 (chest 10) nothing,
@@ -81,6 +86,13 @@ export const test_human_body_basis_coupling = (): void => {
       [90, -6],
     ],
   };
+  const curveFrom = (first: number): Coupling => ({
+    ...rhythm,
+    curve: [
+      [first, 0],
+      [90, 50],
+    ],
+  });
   const withChest = (couplings?: Coupling[], patch?: Patch) => {
     const fixture = humanBodyBasisFixture();
     fixture.basis.landmarks.ids.push("joint-neck");
@@ -176,15 +188,25 @@ export const test_human_body_basis_coupling = (): void => {
   const rested = withChest([rhythm], offset);
   const rest = createHumanBodyBasisBuilder(rested.basis);
   TestValidator.predicate(
-    "elevation counts from the rest angle",
+    "the rest and a pose below it add nothing",
+    qclose(chestOf(rest(rested.document)), twin([], offset)) &&
+      qclose(
+        chestOf(rest({ ...rested.document, pose: [spine(10)] })),
+        twin([spine(10)], offset),
+      ),
+  );
+  const knotted = withChest([curveFrom(20)], offset);
+  TestValidator.equals(
+    "a first knot at the rest elevation adds no entry at rest",
+    chestOf(createHumanBodyBasisBuilder(knotted.basis)(knotted.document)),
+    twin([], offset),
+  );
+  TestValidator.predicate(
+    "elevation is the clinical angle, not the travel from the rest",
     qclose(
       chestOf(rest({ ...rested.document, pose: [spine(50)] })),
-      twin([spine(50)], offset),
-    ) &&
-      qclose(
-        chestOf(rest({ ...rested.document, pose: [spine(65)] })),
-        twin([spine(65), chest(10)], offset),
-      ),
+      twin([spine(50), chest(40 / 3)], offset),
+    ),
   );
 
   // 3. addition to the document's own angle, and a second coupling
@@ -242,6 +264,9 @@ export const test_human_body_basis_coupling = (): void => {
   };
   const chestOffset: Patch = (basis) => {
     basis.joints[2].neutral.flexion = 20;
+  };
+  const spineOffset: Patch = (basis) => {
+    basis.joints[1].neutral.flexion = 20;
   };
   const curve = (...knots: [number, number][]): Coupling => ({
     ...rhythm,
@@ -345,6 +370,18 @@ export const test_human_body_basis_coupling = (): void => {
     ["nonzero first ordinate", [curve([30, 1], [90, 50])], undefined, true],
     ["negative first abscissa", [curve([-1, 0], [90, 50])], undefined, true],
     ["zero first abscissa", [curve([0, 0], [90, 50])], undefined, false],
+    [
+      "first abscissa below the rest elevation",
+      [curveFrom(19)],
+      spineOffset,
+      true,
+    ],
+    [
+      "first abscissa at the rest elevation",
+      [curveFrom(20)],
+      spineOffset,
+      false,
+    ],
     ["repeated abscissa", [curve([30, 0], [30, 50])], undefined, true],
     [
       "decreasing abscissa",

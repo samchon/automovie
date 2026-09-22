@@ -1,3 +1,4 @@
+import { swingConeAngle } from "@automovie/engine";
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
@@ -18,8 +19,9 @@ const AXES = ["abduction", "twist"] as const;
  * A corrective's joint driver must name a mobile axis with a ramp inside the
  * clinical reach on its side of the rest. A coupling must name declared
  * joints, an open output axis that no coupling drives from or drives twice,
- * and a finite, strictly increasing curve that starts at zero and keeps every
- * rest-plus-ordinate inside that axis's range.
+ * and a finite, strictly increasing curve that starts at zero no lower than
+ * the source's rest elevation and keeps every rest-plus-ordinate inside that
+ * axis's range.
  * Every surface's skin must bind each vertex to four declared joints with
  * weights that sum to one within a micro tolerance (the payload rounds them
  * to seven decimals). A slot the skin names but the joints do not declare is
@@ -193,10 +195,15 @@ export function assertHumanBodyRig(basis: IAutoMovieHumanBodyBasis): void {
   // A coupling is a declared driver, so everything it names must resolve and
   // everything it can add must already be admissible: declared source and
   // output joints, an open output axis (the unconstrained root has none), at
-  // least two finite knots strictly increasing in elevation from a
-  // nonnegative first abscissa, a first ordinate of zero so the rest stays the
-  // rest, and every rest-plus-ordinate inside the axis's range, so a coupling
-  // alone never produces an angle the pose validator refuses. An output joint
+  // least two finite knots strictly increasing in elevation, the first at or
+  // above the source's rest elevation (the swing cone of its rest angles) with
+  // a zero ordinate so the rest and every pose below it add nothing, and every
+  // rest-plus-ordinate inside the axis's range, so a coupling alone never
+  // produces an angle the pose validator refuses. The rest elevation is read
+  // through the same cone formula the evaluation uses, whose pure-plane
+  // result carries float error (`2 acos(cos 10)` is not exactly 20), so a
+  // first knot authored at the rest angle is admitted within a nanodegree
+  // and the evaluation treats that nanodegree as below the knot. An output joint
   // that is any coupling's source (its own included) would chain, and a
   // second coupling into one axis would add twice, so both are refused.
   const sources = new Set(
@@ -205,6 +212,7 @@ export function assertHumanBodyRig(basis: IAutoMovieHumanBodyBasis): void {
   const outputs = new Set<string>();
   const couplingIds = new Set<string>();
   for (const coupling of basis.couplings ?? []) {
+    const source = joints.get(coupling.source.bone);
     const output = joints.get(coupling.output.bone);
     const range = output?.constraint?.[coupling.output.axis] ?? null;
     const key = coupling.output.bone + "." + coupling.output.axis;
@@ -212,13 +220,15 @@ export function assertHumanBodyRig(basis: IAutoMovieHumanBodyBasis): void {
     if (
       coupling.id.trim() === "" ||
       couplingIds.has(coupling.id) ||
-      !joints.has(coupling.source.bone) ||
+      source === undefined ||
       output === undefined ||
       range === null ||
       sources.has(coupling.output.bone) ||
       outputs.has(key) ||
       curve.length < 2 ||
-      curve[0][0] < 0 ||
+      curve[0][0] <
+        swingConeAngle(source.neutral.flexion, source.neutral.abduction) -
+          1e-9 ||
       curve[0][1] !== 0 ||
       curve.some(
         ([elevation, degrees], i) =>
@@ -230,7 +240,7 @@ export function assertHumanBodyRig(basis: IAutoMovieHumanBodyBasis): void {
       )
     )
       throw new Error(
-        "A body coupling needs a unique id, declared joints, an open output axis no coupling drives from or twice, and a zero-based increasing curve inside the axis's range: " +
+        "A body coupling needs a unique id, declared joints, an open output axis no coupling drives from or twice, and an increasing curve starting at zero from the source's rest elevation inside the axis's range: " +
           coupling.id +
           " " +
           coupling.source.bone +

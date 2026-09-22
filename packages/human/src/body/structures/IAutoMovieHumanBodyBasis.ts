@@ -226,13 +226,16 @@ export interface IAutoMovieHumanBodyBasis {
    * function and range are data of the basis, the builder applies it in a
    * stated order, the editor shows the addition beside the joint row, and the
    * document never stores it. `source.measure` is `elevation`, the engine's
-   * `swingConeAngle` of the source joint's flexion and abduction travel from
-   * its rest (an absent or null document angle stands for the rest), so the
-   * abscissa counts degrees away from the pose the basis was extracted in and
-   * a curve authored from the literature's hanging-arm figures subtracts the
-   * rest elevation first. The curve is piecewise linear over `[elevation,
-   * degrees]` knots: zero at and below the first knot, linear between knots,
-   * the last ordinate held past the last knot. The ordinate is added to the
+   * `swingConeAngle` of the source joint's clinical flexion and abduction (an
+   * absent or null document angle stands for the rest angle): the
+   * humerothoracic elevation from the hanging arm that the literature
+   * tabulates and that the engine's cone check reads, so the rest pose itself
+   * has an elevation (the A-pose arm about 42 degrees) and a hanging or
+   * adducted arm lies below it. The curve is piecewise linear over
+   * `[elevation, degrees]` knots: zero at and below the first knot, linear
+   * between knots, the last ordinate held past the last knot; a shipped
+   * shoulder curve therefore starts at the rest elevation, approximating
+   * Inman's 30 degree onset as zero up to it. The ordinate is added to the
    * output joint's clinical angle on `output.axis`, the document's angle when
    * it has one and the rest angle otherwise; the sum is validated like any
    * document angle and refused past the range, never clamped.
@@ -240,9 +243,10 @@ export interface IAutoMovieHumanBodyBasis {
    * Admission (`assertHumanBodyRig`) requires a unique nonblank `id`, declared
    * source and output joints, an output axis the output joint's constraint
    * leaves open (which excludes the unconstrained root), at least two finite
-   * knots strictly increasing in elevation from a nonnegative first abscissa,
-   * a first ordinate of zero so the rest stays the rest, every `rest +
-   * ordinate` inside the output axis's clinical range, no output joint that
+   * knots strictly increasing in elevation, the first at or above the source
+   * joint's rest elevation with an ordinate of zero so the rest, the hanging
+   * arm and every pose below the rest add nothing, every `rest + ordinate`
+   * inside the output axis's clinical range, no output joint that
    * is any coupling's source (so no chain and no cycle), and no output axis
    * driven twice. Correctives read the coupled angles, so a joint ramp on the
    * girdle fires on an automatic elevation exactly as on an authored one.
@@ -255,7 +259,7 @@ export interface IAutoMovieHumanBodyBasis {
     source: {
       bone: AutoMovieHumanoidBone;
 
-      /** Combined flexion and abduction swing away from the rest, in degrees. */
+      /** Swing cone of the clinical flexion and abduction, in degrees from the anatomical zero. */
       measure: "elevation";
     };
 
@@ -265,7 +269,7 @@ export interface IAutoMovieHumanBodyBasis {
       axis: "flexion" | "abduction" | "twist";
     };
 
-    /** `[elevation, degrees]` knots, strictly increasing in elevation, the first ordinate zero. */
+    /** `[elevation, degrees]` knots, strictly increasing in elevation from the source's rest elevation or above, the first ordinate zero. */
     curve: [number, number][];
   }[];
 
