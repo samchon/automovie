@@ -14,6 +14,8 @@
 
 계단의 예정 source owner는 `src/spaces/stair.ts`다. 디딤별 위치는 위 개수·진행 방향·시작점에서 반복 산출하며 손으로 같은 레코드를 복제하지 않는다. 비교 대상은 단 수, 진행 방향, 두 도착면과 실제 단의 접속이며 좌표 허용 오차는 [외곽의 설계 대조 기준](00-building.md#main-building-extent)을 소비한다. 현재 값은 저작 입력이며 계단 산출물·단면·양방향 통행은 unverified다.
 
+공개 `IAutoMovieBuiltConnector`의 `route`와 `elements`는 한 연결에 두 flight·중간참의 경로와 실제 부재를 묶을 수 있다. 그러나 `steps`는 count/rise/run 한 묶음뿐이며 `validateBuiltEnvironment`는 count × rise를 전체 경로의 높이차, count × run을 중간참까지 포함한 전체 수평 경로 길이와 비교한다. 이 집의 챌판 수·디딤 깊이·참 길이를 그 단일 반복 요약으로 그대로 옮길 수 있다고 가정하지 않는다. 참 길이를 디딤 깊이에 평균하거나 route를 짧게 고쳐 맞추지 않는다. flight별 실제 단 형상과 단일 연결의 표현을 함께 성립시키는 source 인계는 미해결이며, `steps`를 생략해 검사가 사라진 상태도 단 수/디딤 검증 완료로 세지 않는다. 고정 그래프·단 수·참은 유지하고 이 API 집계의 한계를 조정자에게 이관한다. 실제 단을 재는 공개 경로가 확보되기 전 해당 계측은 unverified다.
+
 ## 계단 구멍과 전면 창의 경계 {#stair-floor-opening}
 
 [위 경로](#stair-reservation)와 하부 대기 면적에 한정하여, 층판 구멍은 X = [-1.80, -0.65]·Z = [-4.56, -0.25]의 세로 부분과 X = [-0.65, 1.87]·Z = [-4.56, -3.41]의 가로 부분을 합친 L형이다. 계단 전면 끝이 본채 안쪽 전면에 닿으므로 [상층 전면의 작은 계단 창](../settings/10-house.md#openings)은 실제 계단 공간으로 열린다. void·높이는 [stair-front-window](envelope/front.md#stair-front-window)를 소비하고 실제 창호는 후속 부재에서 구현한다. 창 뒤를 침실로 바꾸거나 전면에 가짜 창을 붙이지 않는다.

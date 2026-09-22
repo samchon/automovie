@@ -39,3 +39,11 @@
 [울타리 폐합](site/fence.md#fence-enclosure-plan)은 전체 선과 건물 외피를 함께 보는 평면, 모든 긴 면/꺾임의 안팎 시야, [관리문 양옆 잔여 패널과 벽 접점](site/fence.md#fence-gate-junction), [지표 높이와 기초 점유](site/fence.md#fence-ground-profile)의 단면을 추가한다. 문이 실제 void에 있는지, 짧은 패널을 빠뜨리거나 끝기둥을 벽/포장 안에 넣지 않았는지, 가지/관목이 접합 결함을 가리는지 확인한다. 문을 닫은 경계와 연 뒤의 양방향 관리길 통행을 구별한다. 울타리의 눈에 보이는 모든 면은 실제 산출물에서 포함하고 한 정면 view로 대신하지 않는다.
 
 관찰 뷰어는 [렌더 경계](../settings/20-verification.md#renderer-boundary), [CJS 실행 경계](../settings/20-verification.md#execution-boundary), [프레임 조건](../settings/20-verification.md#frame-condition)을 따른다. 이번 조정자 지정 인계값은 포트 4173과 `--port` 인자다. 이는 향후 구현이 받을 조건이고 실행 명령이 준비됐다는 보고가 아니다. 실제 공간 소스·뷰어·GPU RENDERER·프레임은 미구현/unverified다.
+
+## 공간 산출물에서 실제 렌더로 넘기는 경계 {#engine-render-handoff}
+
+설치된 공개 엔진의 `lowerBuiltEnvironment`는 환경을 검증하고 실제 model을 가진 element를 세계 변환의 set으로 내리며 원래 built environment도 보존한다. 논리적인 room·boundary·opening 선언만으로 벽·바닥·창호 메쉬를 생성하지 않는다. 후속 CJS 서버는 같은 저작 입력에서 만든 실제 models/elements와 논리 topology를 이 경로로 전달하고, 브라우저에 별도 집 좌표를 하드코딩하지 않는다. 비직사각 공간은 `IAutoMovieBuiltSpace`의 볼록 cell 합집합 또는 닫힌 shell 중 한 표현을 사용하며 그 전체 bbox를 방의 부피로 바꾸지 않는다. 현재는 API 소스 조사이며 환경 입력·서버 응답·렌더 연결은 없다.
+
+`@automovie/viewer`의 `buildScene`은 실제 모델 노드와 원근 카메라·조명을 구성하고 `mountViewer`는 WebGLRenderer를 생성한다. 반면 `buildSpaceObject`의 standable surface는 기본 beauty에서 색과 깊이를 쓰지 않는 검사용 바닥이다. 그 선언만으로 보이는 층판이나 대지가 생겼다고 판단하지 않는다. 실제 바닥/지붕/벽 메쉬·재료와 그림자를 만드는 조명, shadow map 및 물체의 cast/receive 참여를 모두 소비하는 실행 경로가 필요하다. CJS 서버 쪽 엔진 해석, 클라이언트 의존성 연결, 실제 GPU 및 RENDERER는 아직 unverified이며 함수의 존재를 뷰어 준비로 보고하지 않는다.
+
+`builtEnvironmentBuildingCensus`와 `builtSpaceObservationStations`를 사용하더라도 [전체 분모](#spatial-observation-derivation)를 줄이지 않는다. 후자는 공간 부피에서 중심 네 방향·bbox 코너에서 안으로 옮긴 네 시점·각 boundary opening의 threshold를 파생하고, 내부 pose를 찾지 못하면 null을 반환할 수 있다. null이나 같은 장소로 모인 시점을 성공한 관찰로 세지 않는다. 이 집의 L형 계단실·복도 등에서 빠진 실제 안쪽 꺾임은 같은 compiled 경계로부터 추가하고 각 pose의 자기 공간 내부 위치를 확인해야 한다. helper 결과의 개수·좌표를 이번 문서에서 미리 선언하거나 기본 네 코너가 모든 오목 코너를 답했다고 주장하지 않는다. 실제 호출·전수 관찰·다섯 참조 대조는 unverified다.
