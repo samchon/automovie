@@ -26,7 +26,9 @@ const HAIRLINE_TRANSITION_METRES = 0.02;
  * the transition zone at the hairline (its depth converted to a polar angle
  * at the vertex's distance from the domain origin), times the layer's root
  * region envelope, so a fringe tints only where its roots grow. Where
- * layers overlap the densest layer's colour wins. The tint is a multiplier
+ * layers overlap the densest layer's colour wins; a greying layer contributes
+ * the mixture its proportion of unpigmented fibres makes, since that is what
+ * stands over the scalp. The tint is a multiplier
  * on the skin's own finish at that vertex, `1 + (hair / skin - 1) * coverage`
  * per channel, clamped to [0, 1] like every pigmentation gain, so a
  * document's material override of the skin or the hair is respected and a
@@ -116,7 +118,13 @@ export function createHumanFaceScalpTint(
           humanFaceHairEnvelope(point, layer.rootRegion);
         if (coverage <= entry.weight[vertex]) continue;
         entry.weight[vertex] = coverage;
-        entry.colour[vertex] = layer.finish.color;
+        // The scalp under a greying head sees the mixture, not the pigment:
+        // that proportion of the fibres over it is unpigmented.
+        const grey = layer.finish.grey ?? 0;
+        entry.colour[vertex] =
+          grey === 0
+            ? layer.finish.color
+            : layer.finish.color.map((value) => value + (1 - value) * grey);
       }
     }
     for (const [surfaceId, entry] of best) {

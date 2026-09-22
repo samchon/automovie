@@ -127,6 +127,17 @@ export namespace IAutoMovieHumanFaceHair {
      * Linear RGB/roughness in [0,1] and procedural fibre appearance. Painted
      * fibres are integral in [1,32], coverage in [0.1,1], normal/shade in [0,1].
      * This generates shared-formula pixels and stores no personal bitmap.
+     *
+     * `color` is the pigmented fibre's own colour. Greying is a follicle's own
+     * switch, so a greying head is an admixture of white and pigmented fibres
+     * rather than one faded colour: `grey` is the proportion of the painted
+     * fibres left unpigmented, in [0,1], and each painted fibre takes one side
+     * of that switch by its own deterministic coordinate. Absent or zero
+     * paints every fibre pigmented, which is the population before this field
+     * existed. Greying runs temples first, then frontal, vertex and parietal,
+     * with the occipital region last, so a head that is grey only at the
+     * temples is a layer of its own with its own `rootRegion` and proportion,
+     * not a field invented here.
      */
     finish: {
       color: [number, number, number];
@@ -135,6 +146,7 @@ export namespace IAutoMovieHumanFaceHair {
       coverage: number;
       normal: number;
       shade: number;
+      grey?: number;
     };
   }
 
