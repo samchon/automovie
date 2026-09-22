@@ -16,7 +16,38 @@
 
 필수 접합은 front/right 모서리, front/rear floor-band 위아래와 opening 끝, door leaf/jamb/head, 첫 계단/꺾임참/마지막 단, oak/tile 문턱, worktop/edge/sink, sofa의 평면/곡면 seam, 각 texture의 두 반복 주기 경계다. 각 접합의 부재 ID와 표면 정상 방향을 기록한다. grain 늘어남, 뒤집힌 face, 이중 tint, 눈에 띄는 타일 경계, moiré와 가짜 geometry 읽힘이 실패다.
 
-`validateTextureScale`은 현재 전달 모델의 실제 primary UV와 선언된 surface-metres binding에 실행한다. 원본 unit mesh와 실제 scale의 차이는 별도 world-space U/V 길이 대조로 확인한다. API의 checkable 수·primitive/무UV/unsupported 수와 findings를 함께 남기고 지원 밖 표면은 unverified다. 구현 시 기존 canopy audit처럼 동일 producer에서 수행하여 viewer의 현재 산출물에 결과를 붙인다. README의 `npm run lint`는 canonical source/evidence 검사이며 이 정적 명령이 geometry 측정까지 실행했다고 주장하지 않는다. 별도 대체 CLI나 우회 설정을 만들지 않고 실제 producer의 해당 측정을 실행·읽지 못하면 unverified로 보고한다.
+native 함수는 `import { validateTextureScale } from "@automovie/engine"`으로 사용한다. [구현 모듈](../../../../packages/engine/src/validation/validateTextureScale.ts)은 [validation index](../../../../packages/engine/src/validation/index.ts)와 [engine root index](../../../../packages/engine/src/index.ts)에서 공개된다. `@automovie/engine/validation`이나 저장소 내부 파일을 import하는 계약이 아니다. 입력은 `{ models: readonly IAutoMovieModel[] }`, 반환은 `IAutoMovieValidation`이며 두 타입 모두 `@automovie/interface`의 root export다. 입력에는 `buildHouse()`가 만든 현재 `environment.models`를 원래 순서대로 준다. texture를 받는 variant에는 이미 실제 scale을 반영한 primary UV가 있어야 한다. 이 함수는 모델이나 UV를 수정하지 않고 placement/part transform·tessellation·이미지 파일을 읽거나 수행하지 않는다.
+
+[IAutoMovieValidation](../../../../packages/interface/src/validation/IAutoMovieValidation.ts)의 반환은 `{ success: true; warnings?: IAutoMovieConstraintViolation[] }` 또는 `{ success: false; violations: IAutoMovieConstraintViolation[] }`다. 성공의 warnings는 발생했을 때만 존재한다. 실패의 violations에는 error와 warning이 함께 남는다. 각 [IAutoMovieConstraintViolation](../../../../packages/interface/src/validation/IAutoMovieConstraintViolation.ts)은 `kind`, `severity: "error" | "warning"`, `path`, `expected`, `value` 및 선택적 `overshoot`, `node`를 가진다. 이 함수의 path는 `$input.models[i].parts[j].material.<slot>.<u|v>`이며 입력 순서와 model/part ID를 함께 기록해 위치를 해석한다. 별도의 `errors`, `findings`, `checkableCount` 필드나 출력 파일을 반환한다고 가정하지 않는다.
+
+함수는 mesh의 유한하고 양수인 U/V span을 측정한다. structured texture binding의 `coordinateSource: "normalized"`가 span > 1 + 1e-9이면 `kind: "type"`, severity error를 반환한다. `surface-metres`에서는 유한한 0 아닌 transform scale을 가진 축의 tile=1/abs(scale)이 span×(1+1e-9)보다 크면 `kind: "range"`, severity warning이다. 해당 축의 sampler가 clamp이면 이 tile 경고는 내지 않는다. primitive, UV 부재·비유한/퇴화 span, material 부재/미해결, string binding, 생략된 coordinateSource, `source-uv`는 이 측정으로 검증되지 않는다. surface-metres 축에 scale이 없거나 0/비유한이어도 검사하지 않으므로 별도 binding 검사의 오류를 성공으로 바꾸지 않는다. 이 native 오류·경고의 severity와 원문은 보존하고 warning만 있다는 이유로 실패나 시각 합격을 만들지 않는다.
+
+PASS 후 구현할 production 호출 owner는 `src/materials/observation.ts`의 `auditMaterialTextureScale`이며, 위 engine 함수와 interface 타입을 package root에서 import한다. 입력은 `{ models: readonly IAutoMovieModel[] }`이고 반환 형식은 아래 `MaterialTextureScaleAudit`다. 이 wrapper는 동일 models를 native 함수에 한 번 전달하고 결과를 그대로 `validation`에 담는다. native가 반환하지 않는 검사 범위만 별도로 집계하며 측정값을 대체하지 않는다.
+
+```typescript
+type MaterialTextureScaleAudit = {
+  validation: IAutoMovieValidation;
+  models: number;
+  parts: number;
+  partsWithoutTexture: number;
+  axes: {
+    path: string;
+    model: string;
+    part: string;
+    slot: "baseColorTexture" | "metallicRoughnessTexture" |
+      "normalTexture" | "occlusionTexture" | "emissiveTexture";
+    axis: "u" | "v";
+    status: "checked" | "clamped" | "unverified";
+    reason: string;
+  }[];
+};
+```
+
+axes는 입력 model/part 순서, schema에 적은 slot 순서, u/v 순서로 모든 존재하는 texture binding을 열거한다. null/undefined slot은 binding 수에서 빼되, texture가 없는 part는 `partsWithoutTexture`에 센다. material이 null/미해결이면 해당 part도 그 수에 포함하고 material 문제는 [바인딩 검사](#binding-census)에 남긴다. `checked`는 위 native 비교가 실행 가능한 축, `clamped`는 surface-metres에서 유효한 scale과 span이 있지만 clamp로 tile 비교를 생략한 축, 나머지는 `unverified`다. reason은 `normalized-span`, `surface-metres-tile`, `clamp-fit`, `primitive`, `missing-uv`, `invalid-or-degenerate-uv`, `string-binding`, `missing-coordinate-source`, `source-uv`, `invalid-or-missing-scale` 중 실제 첫 조건 하나다. 미검사 사유의 우선순위는 geometry → UV → binding 형식 → coordinateSource → scale → clamp다. 조건별 수는 axes에서 집계하고 checkable 수는 `checked` 수다. 입력 model/part가 0이거나 checkable 수가 0인 결과를 전체 검사 통과로 읽지 않는다. clamped 면의 fit과 무texture 면은 각각 접합/광택 관찰 대상에 남는다.
+
+[src/house/build.ts](../../src/house/build.ts)는 모든 표면 owner의 모델 생성과 기존 house/canopy audit 뒤 이 wrapper를 호출한다. 반환 environment의 모델 배열과 검사 입력은 같아야 한다. 기존 canopy report 인자는 유지하고 세 번째 선택적 `materialReport: (audit: MaterialTextureScaleAudit) => void` callback으로 이 결과를 전달하도록 구현한다. callback 유무와 관계없이 검사는 실행하며, callback에 원본 결과를 전달한 뒤 native success=false이면 모든 violation의 path/expected를 message에 담은 `Error`를 던지고 원본 audit를 cause에 보존한다. 예기치 않은 API 예외도 성공으로 치환하지 않는다. [src/viewer/payload.ts](../../src/viewer/payload.ts)는 wrapper를 별도로 재실행하지 않고 같은 build 호출의 callback 결과를 `materialTextureScaleAudit` 필드로 전달한다. 따라서 library의 `citizenHouseSpaceSource`도 같은 검사를 실행한다. 이 schema·callback·파일은 이번 draft에서 구현되었다는 주장이 아니다.
+
+원본 unit mesh와 실제 scale의 차이는 별도 world-space U/V 길이 대조로 확인한다. native span 검사는 실제 길이의 등거리성·UV seam·곡면 pole·재료 시각 합격을 인증하지 않으며 그 결과는 위 거리/접합 표본과 함께 읽는다. README의 `npm run lint`는 canonical source/evidence 검사이며 이 정적 명령이 geometry 측정까지 실행했다고 주장하지 않는다. 별도 대체 CLI나 우회 설정을 만들지 않고 실제 producer의 해당 측정을 실행·읽지 못하면 unverified로 보고한다.
 
 ## 집 전체와 레퍼런스 {#reference-material-samples}
 
