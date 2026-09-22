@@ -2,7 +2,15 @@
 
 The connected editor selects this directory's basis, whose first revision `mpfb-connected-head-2026-09-17-binocular-frame` added four whole-head controls to the [regional basis](../whole-face/README.md), giving 84 shape and 52 expression controls; the [revisions](#revisions) that followed are listed below with their receipts. The previous basis, studies and research remain preserved. Saved documents require their exact basis revision.
 
+The user's 2026-09-22 instruction requires [reassessment of the representation and evaluation architecture](architecture-reassessment.md) after repeated local corrections. That investigation compares current code with MetaHuman, FLAME, GNM and procedural hair references, includes a pinned GNM data audit, and distinguishes numerical migration from anatomical acceptance.
+
+## Current investigation
+
+Issue [#2533](https://github.com/samchon/automovie/issues/2533) and Draft PR [#2534](https://github.com/samchon/automovie/pull/2534) started from `mpfb-connected-head-2026-09-21-single-repaired`, with 136 channels and 23 shared correctives. The current `mpfb-connected-head-2026-09-22-numerical-hair` basis has 141 shape channels, 52 expression channels, the same 23 correctives, 26 simple groups and four rigid performance components. All 18 documents contain numerical facial, pigmentation and hair controls. They contain no personal vertex fields, bitmap references or groom resource keys. [Fine-basis preparation](preparation-receipt.json) and [numerical-hair migration](numerical-hair-migration.json) record their separate revisions and provenance. Earlier counts and crossing results below describe their named historical revisions. [Parameter editor research](parameter-editor.md) records editor/export observations, unresolved anatomical interactions and the self-contained face and future-body research issues. Numerical representation does not establish anatomical validity or accepted likeness.
+
 ## Source and coordinates
+
+The [numerical hair migration](numerical-hair.md) records shared scalp provenance, preparation/export commands and remaining visual limitations. The personal guide archive has been removed from this directory. The current numerical study inputs are initial authored candidates whose runtime and visual results must be read separately from the historical studies below.
 
 The pinned [CC0 source and license record](../README.md#sources-and-license) applies. MPFB's macro target service supplies age structure, sexual dimorphism, adiposity and muscularity endpoints. These are dimensionless authored morphological axes, not estimates of a person's age, sex, body mass or health. The source macro values are recorded in [extraction-receipt.json](extraction-receipt.json); the source population mixture remains unchanged.
 
@@ -59,12 +67,13 @@ The connected editor selects whatever `basis.json.gz` reads as its `id`; every d
 | `mpfb-connected-head-2026-09-17-binocular-frame` | the regional basis | Blender extraction with a common binocular frame | [extraction-receipt.json](extraction-receipt.json) |
 | `mpfb-connected-head-2026-09-18-jaw-corrective` | binocular-frame | `jawOpenMouthCloseEase`, the first authored corrective | [corrective-receipt.json](corrective-receipt.json) |
 | `mpfb-connected-head-2026-09-19-split-arches` | jaw-corrective | `split-teeth-arches.ts`: the dental asset split into a fixed maxillary and a moving mandibular arch | — |
-| `mpfb-connected-head-2026-09-20-face-and-neck` | split-arches | `crop-face-to-neck.ts`: the shared neck clip at Y = -0.145 m | — |
+| `mpfb-connected-head-2026-09-20-face-and-neck` | split-arches | `crop-face-to-neck.ts`: centroid-selected triangles around the shared Y = -0.085 m neck boundary | — |
 | `mpfb-connected-head-2026-09-20-tongue-implies-jaw` | face-and-neck | `imply-open-jaw-for-tongue.ts`: `tongueOut` folds `jawOpen` in and `tongueOutJawOpenUnfold` cancels the double count | — |
 | `mpfb-connected-head-2026-09-20-strand-alpha` | tongue-implies-jaw | `mask-brow-and-lash-alpha.ts`: brow and lash strands cut from their cards | — |
 | `mpfb-connected-head-2026-09-20-rigid-mandible` | strand-alpha | `rigidify-jaw-open.ts`: the mandibular arch's `jawOpen` replaced by the measured screw motion | [mandible-receipt.json](mandible-receipt.json) |
 | `mpfb-connected-head-2026-09-21-single-repaired` | rigid-mandible | `repair-single-endpoints.ts`: the six channels that put a surface through a surface on their own repaired in their endpoints, with single-driver in-betweens where a fraction of the weight still crossed | [single-repair-receipt.json](single-repair-receipt.json) |
 | `mpfb-connected-head-2026-09-21-pair-correctives` | single-repaired | `generate-combination-correctives.ts`: every expression pair enumerated on the neutral head, the pairs that invent a crossing solved into correctives and in-betweens over the {½, 1}² grid | [pair-corrective-receipt.json](pair-corrective-receipt.json) |
+| `mpfb-connected-head-2026-09-21-fine-141-rigid` | single-repaired and compact documents at `e166c64a` | `prepare-fine-basis.ts`: 57 curated native shape channels, 26 simple groups, four rigid components and one shared affine neck cut; all personal numeric values retained | [preparation-receipt.json](preparation-receipt.json) |
 
 ### Single channels first
 
@@ -78,7 +87,7 @@ Each of the 109 is solved by `solve-combination.ts`, one part pair at a time on 
 
 The activation of a corrective is a product of clamped drivers, which is bilinear, so a corrective solved at full weight lands at a quarter of itself at half weights. A driver may therefore name the weight it peaks at and the weights on either side where it fades to nothing, and its factor becomes a tent that is one there and zero at its neighbours; `generate-combination-correctives.ts` wears each pair at (½, 1), (1, ½) and (½, ½) in turn, each with every earlier tier present, measures what crosses at that pose against that pose's own singles, and publishes what remains as such an in-between. The revision carries 134 correctives: the two authored earlier, three single-driver in-betweens from the repair step, 109 solved at full weight and 25 pair in-betweens, and not one of the 109 combinations stays beyond its budget.
 
-A basis corrective is a field on the neutral head, and the first population verification showed about half of the crossings it clears there remain on the subjects, with or without their per-vertex identity: a subject's shape channels move its lip and its arch by different amounts. A document therefore carries correctives of its own, solved on that face by `generate-subject-correctives.ts` from that subject's own 1,326-pair enumeration on this revision and over the same weight grid, 12 to 137 per subject and 907 in all, recorded in [subject-corrective-receipt.json](subject-corrective-receipt.json); on every one of the eighteen, no combination stayed beyond its budget.
+The earlier population experiment stored per-subject vertex correctives. Issue #2533 rejects that representation: published documents now contain numerical shape/expression controls, material overrides and resource identities only. Legacy geometry is retained in Git history rather than replayed by the editor. Shared shape/expression interactions must be repaired and verified in the basis. The earlier per-document crossing result does not establish validity of these compact documents; their population verification is pending.
 
 `verify-combination-correctives.ts` then wears the neutral head and every subject at every enumerated pair and four weights, with and without any pair corrective, and folds the result into [pair-corrective-receipt.json](pair-corrective-receipt.json) under `verification`, so the receipt says what the revision has been verified to do rather than what it was meant to do. Weights off the {½, 1} grid are the fine grid `--grid fine` measures separately.
 

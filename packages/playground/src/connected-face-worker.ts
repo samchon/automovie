@@ -1,83 +1,43 @@
 /// <reference lib="webworker" />
-/** A disposable worker loads the selected basis and uses the shared request owner. */
-import { measureAutoMovieModelCrossings } from "@automovie/engine";
-import {
-  appendHumanFaceGroom,
-  applyHumanFaceSkin,
-  createHumanFaceBasisBuilder,
-  exportHumanFace,
-  type IAutoMovieHumanFaceBasis,
-  type IAutoMovieHumanFaceGroom,
-  type IAutoMovieHumanFaceSkin,
-  parseHumanFaceBasisDocument,
-} from "@automovie/human";
-
+/**
+ * Prepare the application's one shared basis once per resident worker. A literal
+ * module-relative URL gives the bundler that exact asset dependency; an arbitrary
+ * filename template would also package historical personal data in the directory.
+ * Numerical documents never select an external resource.
+ */
 import { readConnectedFaceAsset } from "./human/connectedAsset";
-import { createHumanFaceWorkerHandler } from "./human/workerHandler";
+import {
+  type ConnectedFaceRequest,
+  createConnectedFaceRuntime,
+} from "./human/connectedRuntime";
+import { createHumanResidentHandler } from "./human/residentHandler";
 
 const scope = self as unknown as DedicatedWorkerGlobalScope;
-const gzipped = <Payload,>(name: string) =>
-  readConnectedFaceAsset<Payload>({
-    read: () =>
-      fetch(
-        new URL(
-          `../../../test/studies/human-face/connected-basis/global-face/${name}`,
-          import.meta.url,
-        ),
+const prepared = readConnectedFaceAsset({
+  read: () =>
+    fetch(
+      new URL(
+        "../../../test/studies/human-face/connected-basis/global-face/basis.json.gz",
+        import.meta.url,
       ),
-    decode: (bytes) =>
-      new Response(
-        new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip")),
-      ).text(),
-  });
-const prepared = Promise.all([
-  gzipped<IAutoMovieHumanFaceBasis>("basis.json.gz"),
-  gzipped<Record<string, IAutoMovieHumanFaceGroom>>("grooms.json.gz"),
-  gzipped<Record<string, IAutoMovieHumanFaceSkin>>("skins.json.gz"),
-]).then(([basis, grooms, skins]) => {
-  const evaluate = createHumanFaceBasisBuilder(basis);
-  return createHumanFaceWorkerHandler({
-    parse: parseHumanFaceBasisDocument,
-    // A connected basis has no hair surface, so a face is bald until its
-    // document names a groom. An unknown name refuses rather than quietly
-    // building the same bald head, which would look like a groom that failed
-    // to render instead of one this build does not carry.
-    build: (document) => {
-      let model = evaluate(document);
-      if (document.skin !== undefined && document.skin !== null) {
-        const skin = skins[document.skin];
-        if (skin === undefined)
-          throw new Error(
-            "This build does not carry the appearance this face names: " +
-              document.skin,
-          );
-        model = applyHumanFaceSkin({ model, skin });
-      }
-      if (document.hair === undefined || document.hair === null) return model;
-      const groom = grooms[document.hair];
-      if (groom === undefined)
-        throw new Error(
-          "This build does not carry the groom this face names: " +
-            document.hair,
-        );
-      return appendHumanFaceGroom({ model, groom });
-    },
-    measure: measureAutoMovieModelCrossings,
-    export: exportHumanFace,
-    send: (reply, transfer) => scope.postMessage(reply, { transfer }),
-  });
+    ),
+  decode: (bytes) =>
+    new Response(
+      new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip")),
+    ).text(),
+}).then((basis) => createConnectedFaceRuntime({ basis }));
+const handle = createHumanResidentHandler({
+  prepare: prepared,
+  send: (reply) => {
+    const transfer =
+      reply.success && reply.value.operation === "export"
+        ? [reply.value.glb.buffer]
+        : [];
+    scope.postMessage(reply, { transfer });
+  },
 });
-scope.onmessage = async (
-  event: MessageEvent<{ document: string; measure?: boolean }>,
+scope.onmessage = (
+  event: MessageEvent<{ id: number; input: ConnectedFaceRequest }>,
 ) => {
-  try {
-    await (
-      await prepared
-    )(event.data.document, event.data.measure === true);
-  } catch (error) {
-    scope.postMessage({
-      success: false,
-      error: error instanceof Error ? error.message : String(error),
-    });
-  }
+  void handle(event.data);
 };

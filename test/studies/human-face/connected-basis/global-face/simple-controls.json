@@ -1,0 +1,229 @@
+{
+  "basis": "mpfb-connected-head-2026-09-22-numerical-hair",
+  "groups": [
+    {
+      "id": "age",
+      "label": "Age structure",
+      "description": "Younger to older authored head proportions. This is not age in years or a prediction of individual ageing.",
+      "channels": [
+        "globalAgeStructure"
+      ]
+    },
+    {
+      "id": "headWidth",
+      "label": "Head width",
+      "description": "Narrower to wider head proportions.",
+      "channels": [
+        "headWidth"
+      ]
+    },
+    {
+      "id": "headHeight",
+      "label": "Head height",
+      "description": "Shorter to taller head proportions.",
+      "channels": [
+        "headHeight"
+      ]
+    },
+    {
+      "id": "fullness",
+      "label": "Face fullness",
+      "description": "Less to more facial fullness. This is a facial shape choice, not body weight or body fat percentage.",
+      "channels": [
+        "cheekFullness"
+      ]
+    },
+    {
+      "id": "cheekbones",
+      "label": "Cheek prominence",
+      "description": "Change both cheek regions together while retaining their differences.",
+      "channels": [
+        "leftCheekBone",
+        "rightCheekBone"
+      ]
+    },
+    {
+      "id": "eyes",
+      "label": "Eye size",
+      "description": "Change both eye regions together while retaining their differences.",
+      "channels": [
+        "leftEyeScale",
+        "rightEyeScale"
+      ]
+    },
+    {
+      "id": "eyeSpacing",
+      "label": "Eye spacing",
+      "description": "Bring the eye regions inward or outward, retaining any asymmetric placement.",
+      "channels": [
+        "leftEyeLateralPosition",
+        "rightEyeLateralPosition"
+      ]
+    },
+    {
+      "id": "nose",
+      "label": "Nose size",
+      "description": "Change the authored width, height and depth coordinates together, retaining their relative detail.",
+      "channels": [
+        "noseWidth",
+        "noseHeight",
+        "noseDepth"
+      ]
+    },
+    {
+      "id": "lips",
+      "label": "Lip fullness",
+      "description": "Change upper and lower lip volume together, retaining their difference.",
+      "channels": [
+        "upperLipVolume",
+        "lowerLipVolume"
+      ]
+    },
+    {
+      "id": "mouth",
+      "label": "Mouth width",
+      "description": "Narrower to wider mouth proportions.",
+      "channels": [
+        "mouthWidth"
+      ]
+    },
+    {
+      "id": "chin",
+      "label": "Chin projection",
+      "description": "Move the authored chin form backward or forward.",
+      "channels": [
+        "chinProjection"
+      ]
+    },
+    {
+      "id": "jaw",
+      "label": "Jaw width",
+      "description": "Change the authored lower-face bony width.",
+      "channels": [
+        "chinBoneWidth"
+      ]
+    },
+    {
+      "id": "ears",
+      "label": "Ear size",
+      "description": "Change both ears together while retaining their differences.",
+      "channels": [
+        "leftEarScale",
+        "rightEarScale"
+      ]
+    },
+    {
+      "id": "underEyes",
+      "label": "Under-eye fullness",
+      "description": "Change both under-eye regions together while retaining their differences.",
+      "channels": [
+        "leftEyeBagVolume",
+        "rightEyeBagVolume"
+      ]
+    },
+    {
+      "id": "dimorphism",
+      "label": "Facial dimorphism",
+      "description": "Change the source dimorphism field. This is an authored facial shape axis, not a person's sex or gender.",
+      "channels": [
+        "globalSexualDimorphism"
+      ]
+    },
+    {
+      "id": "overallFullness",
+      "label": "Overall facial fullness",
+      "description": "Change the shared adiposity shape field across the face. It does not specify body weight or fat percentage.",
+      "channels": [
+        "globalAdiposity"
+      ]
+    },
+    {
+      "id": "definition",
+      "label": "Facial definition",
+      "description": "Change the source muscularity shape field across the face. This does not estimate muscle mass or physical fitness.",
+      "channels": [
+        "globalMuscularity"
+      ]
+    },
+    {
+      "id": "cheekElevation",
+      "label": "Cheek height",
+      "description": "Lower or raise both cheek regions, preserving their difference.",
+      "channels": [
+        "leftCheekElevation",
+        "rightCheekElevation"
+      ]
+    },
+    {
+      "id": "eyeOpening",
+      "label": "Eye opening at rest",
+      "description": "Change the central, medial and lateral aperture-height fields together, preserving asymmetry and regional detail.",
+      "channels": [
+        "leftEyeHeight",
+        "rightEyeHeight",
+        "leftMedialEyeApertureHeight",
+        "rightMedialEyeApertureHeight",
+        "leftLateralEyeApertureHeight",
+        "rightLateralEyeApertureHeight"
+      ]
+    },
+    {
+      "id": "outerEyeTilt",
+      "label": "Outer eye-corner height",
+      "description": "Lower or raise both outer corners while retaining inner-corner placement and left/right differences.",
+      "channels": [
+        "leftLateralCanthusElevation",
+        "rightLateralCanthusElevation"
+      ]
+    },
+    {
+      "id": "eyelidFold",
+      "label": "Upper eyelid-fold height",
+      "description": "Lower or raise both upper-lid folds, preserving their difference.",
+      "channels": [
+        "leftEyeFoldHeight",
+        "rightEyeFoldHeight"
+      ]
+    },
+    {
+      "id": "noseCurve",
+      "label": "Nose profile curve",
+      "description": "Move from the authored concave to convex nasal profile.",
+      "channels": [
+        "nasalDorsumCurvature"
+      ]
+    },
+    {
+      "id": "mouthCorners",
+      "label": "Mouth corners at rest",
+      "description": "Lower or raise the corners at rest. A performed smile is controlled separately.",
+      "channels": [
+        "mouthCornerRestElevation"
+      ]
+    },
+    {
+      "id": "cupidsBow",
+      "label": "Cupid's bow",
+      "description": "Change the definition of the central upper-lip bow.",
+      "channels": [
+        "cupidsBowDefinition"
+      ]
+    },
+    {
+      "id": "browHeight",
+      "label": "Brow height at rest",
+      "description": "Lower or raise the shared brow field before expression.",
+      "channels": [
+        "browElevation"
+      ]
+    },
+    {
+      "id": "chinCleft",
+      "label": "Chin cleft",
+      "description": "Decrease or increase the central chin cleft.",
+      "channels": [
+        "chinCleft"
+      ]
+    }
+  ]
+}

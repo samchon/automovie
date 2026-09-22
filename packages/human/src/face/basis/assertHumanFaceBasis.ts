@@ -1,6 +1,7 @@
 import { validateMeshTopology } from "@automovie/engine";
 
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
+import { assertHumanFaceRigidGroups } from "./assertHumanFaceRigidGroups";
 
 /**
  * Admit immutable connectivity, endpoint correspondence and triangle partitions.
@@ -27,6 +28,10 @@ export function assertHumanFaceBasis(basis: IAutoMovieHumanFaceBasis): void {
   );
   const endpoints = new Set<string>();
   for (const channel of basis.channels) {
+    if (channel.description !== undefined && channel.description.trim() === "")
+      throw new Error(
+        "A supplied facial channel description must be nonempty.",
+      );
     if (
       ![channel.minimum, channel.maximum].every(Number.isFinite) ||
       channel.minimum > 0 ||
@@ -136,6 +141,7 @@ export function assertHumanFaceBasis(basis: IAutoMovieHumanFaceBasis): void {
       throw new Error(
         "Facial neutral buffers need finite XYZ and resident triangles.",
       );
+    assertHumanFaceRigidGroups(surface);
     const mesh = {
       positions: surface.positions,
       indices: surface.indices,

@@ -1,0 +1,11 @@
+{
+  "revision": "mpfb-connected-head-2026-09-21-fine-141-rigid",
+  "minimumY": -0.085,
+  "remappedGroomSeats": 8614,
+  "addedShapeChannels": 57,
+  "admittedAddedEndpoints": 106,
+  "admittedDocuments": 18,
+  "rigidComponents": 4,
+  "compactSource": "e166c64a8cff9423d0924d00450f01ec8b964777",
+  "connectivitySource": "0c75de1e377a7901ce4a8dd942d4718f27d32d8b"
+}
