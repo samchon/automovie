@@ -28,10 +28,6 @@ async function main(): Promise<void> {
           import.meta.url,
         ),
       ),
-    decode: (bytes) =>
-      new Response(
-        new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip")),
-      ).text(),
   });
   const initial: IAutoMovieHumanFaceBasisDocument = {
     id: "connected-reference",

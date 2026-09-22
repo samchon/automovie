@@ -2,13 +2,13 @@
 /** A disposable worker loads the selected basis and uses the shared request owner. */
 import { measureAutoMovieModelCrossings } from "@automovie/engine";
 import {
+  type IAutoMovieHumanFaceBasis,
+  type IAutoMovieHumanFaceGroom,
+  type IAutoMovieHumanFaceSkin,
   appendHumanFaceGroom,
   applyHumanFaceSkin,
   createHumanFaceBasisBuilder,
   exportHumanFace,
-  type IAutoMovieHumanFaceBasis,
-  type IAutoMovieHumanFaceGroom,
-  type IAutoMovieHumanFaceSkin,
   parseHumanFaceBasisDocument,
 } from "@automovie/human";
 
@@ -16,7 +16,7 @@ import { readConnectedFaceAsset } from "./human/connectedAsset";
 import { createHumanFaceWorkerHandler } from "./human/workerHandler";
 
 const scope = self as unknown as DedicatedWorkerGlobalScope;
-const gzipped = <Payload,>(name: string) =>
+const gzipped = <Payload>(name: string) =>
   readConnectedFaceAsset<Payload>({
     read: () =>
       fetch(
@@ -25,10 +25,6 @@ const gzipped = <Payload,>(name: string) =>
           import.meta.url,
         ),
       ),
-    decode: (bytes) =>
-      new Response(
-        new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip")),
-      ).text(),
   });
 const prepared = Promise.all([
   gzipped<IAutoMovieHumanFaceBasis>("basis.json.gz"),
