@@ -4,6 +4,10 @@ Issue [#2533](https://github.com/samchon/automovie/issues/2533) requires a face 
 
 ## Acceptance surface
 
+### Architecture reassessment, 2026-09-22
+
+The [current reassessment](architecture-reassessment.md) supersedes personal tuning as the main implementation strategy. The numerical-hair checkpoint `28db475a` removed the remaining personal groom archive and migrated all eighteen documents; the image-free migration observations below predate it. That checkpoint passed GitHub build, all 1,369 test scenarios and deploy. Representation, articulation, tissue coupling and hierarchical hair generation remain under review; neither passing CI nor successful export establishes anatomical completion.
+
 ### Parameter-only correction, 2026-09-22
 
 The user explicitly rejected individual images or geometry hidden behind resource names. The earlier 28,263,028 to 115,648 byte comparison counted only `subjects.json`: it excluded 3,076,248 compressed bytes of individual skin images and 3,528,872 compressed bytes of individual groom coordinates. The audit is preserved in [#2533](https://github.com/samchon/automovie/issues/2533#issuecomment-5765398774). That size reduction did not prove complete parameterization.
