@@ -68,6 +68,10 @@ export function prepareFineBasisArtifacts(input: {
     minimumY,
   } = structuredClone(input);
   const oldId = basis.id;
+  // Oral contact names vertices and closure triangles on the cut surface;
+  // like hair correspondence it is prepared again on the clipped revision.
+  if (basis.contact !== undefined)
+    throw new Error("Prepare oral contact after facial clipping.");
   assertHumanFaceBasis(basis);
   for (const entry of entries)
     basis.channels.push({
