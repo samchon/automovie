@@ -2,9 +2,11 @@
  * 판정된 공간 owner들을 한 번 평가하는 순수 조립 진입점.
  * 지붕 envelope를 먼저 구하고 동일 결과로 현관·제실·주랑 cell을 만든다.
  * 반환값은 공간 source draft의 기하 입력이며 완성 BuiltEnvironment가 아니다.
- * 벽/바닥/개구부 실체, support, connector, 외부 지면, 렌더는 아직 결속 전이다.
+ * 바닥은 실제 mesh/support를 반환한다. 벽/개구부 실체, connector,
+ * 외부 지면 및 renderer 결속은 아직 구현 전이다.
  * viewer/계측의 후속 소비자가 별도 좌표나 cell을 재저작하지 않게 공유한다.
  */
+import { createTempleFloors } from "./floors";
 import { templeSpaceHierarchy } from "./spaces/building";
 import { templeDoorPassages, templeClerestories } from "./spaces/openings";
 import { templeRoofEnvelope } from "./spaces/roofs/assembly";
@@ -22,6 +24,7 @@ export const createTempleSpatialLayout = () => {
   const roof = templeRoofEnvelope();
   return {
     roof,
+    floors: createTempleFloors(),
     spaces: templeSpaceHierarchy([
       templeEntrance(roof), templeCourtyard(), templeColonnade(roof),
       templeSanctuary(roof), templeOffering(), templeAdministration(),

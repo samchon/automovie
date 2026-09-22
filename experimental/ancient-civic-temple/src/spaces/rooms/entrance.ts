@@ -4,6 +4,7 @@
  * 아래 디딤/참 입력은 이후 바닥 geometry가 그대로 소비할 단독 소유다.
  */
 import type { IAutoMovieBuiltSpace } from "@automovie/interface";
+import { roomFloorInput } from "../../geometry/floor-input";
 import type { RoofPatch } from "../../geometry/planar-domain";
 import { roofedCells, thresholdCells } from "../../geometry/spatial-cells";
 import { templePlan as p } from "../building";
@@ -28,6 +29,11 @@ export const templeEntranceFloors = () => {
       north: p.entranceFront, south: p.southOuter, floor: y.floor },
   ];
 };
+
+/** 실제 단높이와 양측 기둥 받침, 후퇴벽 안 문턱을 함께 반환한다. */
+export const templeEntranceFloor = () => roomFloorInput(
+  "entrance", templeEntranceFloors(), templeDoorPassages, y.slabThickness, y.floor,
+);
 
 export const templeEntrance = (roof: readonly RoofPatch[]): IAutoMovieBuiltSpace => ({
   id: "entrance", kind: "entrance", parent: y.storey, fidelity: "exact",

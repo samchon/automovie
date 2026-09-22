@@ -11,7 +11,8 @@
   "compilerOptions": {
     "target": "esnext",
     "lib": [
-      "ESNext"
+      "ESNext",
+      "DOM"
     ],
     "module": "esnext",
     "moduleResolution": "bundler",

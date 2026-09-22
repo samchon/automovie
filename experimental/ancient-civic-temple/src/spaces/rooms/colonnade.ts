@@ -4,6 +4,7 @@
  * 않는다. 주랑 표면의 단독 소유는 이 파일에 남으며 부재 충돌은 별도다.
  */
 import type { IAutoMovieBuiltSpace } from "@automovie/interface";
+import { roomFloorInput } from "../../geometry/floor-input";
 import type { RoofPatch } from "../../geometry/planar-domain";
 import { roofedCells } from "../../geometry/spatial-cells";
 import { templePlan as p } from "../building";
@@ -18,6 +19,12 @@ export const templeColonnadeRegions = [
   { id: "southwest", west: p.westRing, east: p.westPorchOuter, north: p.entranceBack, south: p.southInner },
   { id: "southeast", west: p.eastPorchOuter, east: p.eastRing, north: p.entranceBack, south: p.southInner },
 ] as const;
+
+/** cell 분해선을 물리 이음선으로 만들지 않는 한 고리 바닥 입력. */
+export const templeColonnadeFloor = () => roomFloorInput(
+  "colonnade", templeColonnadeRegions.map((region) => ({ ...region, floor: y.floor })),
+  [], y.slabThickness, y.floor,
+);
 
 export const templeColonnade = (roof: readonly RoofPatch[]): IAutoMovieBuiltSpace => ({
   id: "colonnade", kind: "colonnade", parent: y.storey, fidelity: "exact",
