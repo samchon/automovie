@@ -1,30 +1,25 @@
 import {
-  type IAutoMovieHumanBodyBasis,
   type IAutoMovieHumanBodyBuild,
   createHumanBodyBasisBuilder,
 } from "@automovie/human";
-import type {
-  IAutoMovieJointPose,
-  IAutoMovieQuaternion,
-} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { humanBodyBasisFixture } from "../internal/humanBodyBasisFixture";
+import {
+  type HumanBodyBasisPatch,
+  humanBodyCouplingFixture,
+} from "../internal/humanBodyCouplingFixture";
 import { nclose, qclose, throwsError } from "../internal/predicates";
-
-type Coupling = NonNullable<IAutoMovieHumanBodyBasis["couplings"]>[number];
-type Patch = (basis: IAutoMovieHumanBodyBasis) => void;
 
 /**
  * A declared coupling adds a bounded angle to another joint before the pose
  * is validated, and a corrective ramp reads the sum.
  *
- * The analytic box gains a third bone `chest` above the spine (`joint-spine-2`
- * to a new `joint-neck` at (0,3,0), the spine's ranges and rest copied), so
- * every rest frame is the identity and a spine flexion `s` plus a chest
- * flexion `c` leaves the chest's world rotation at `s + c` degrees about +X.
- * The coupling `rhythm` reads the spine's elevation and adds to the chest's
- * flexion along `[[30, 0], [60, 20], [90, 50]]`.
+ * The fixture is the three-bone analytic box of `humanBodyCouplingFixture`:
+ * every rest frame is the identity, a spine flexion `s` plus a chest flexion
+ * `c` leaves the chest's world rotation at `s + c` degrees about +X, and the
+ * coupling `rhythm` reads the spine's elevation and adds to the chest's
+ * flexion along `[[30, 0], [60, 20], [90, 50]]`. Admission of the table is
+ * its own scenario (`test_human_body_basis_coupling_admission`).
  *
  * Scenarios:
  * 1. The curve: spine flexion 20 and 30 add nothing, 45 adds 10 (first
@@ -54,88 +49,18 @@ type Patch = (basis: IAutoMovieHumanBodyBasis) => void;
  *    range of [-6, 10] at spine 90 lands on -6 and passes, where the interpolation
  *    `y0 + (y1 - y0)(x - x0)/(x1 - x0)` rounds to -6.000000000000001 and
  *    would refuse the range's own end.
- * 5. Admission: a held or root output axis, an ordinate past either side of
- *    the range (the reach shrinking with a rest offset), an unknown source
- *    or output, a self coupling, a chain whose output is another coupling's
- *    source, a duplicate output axis, a blank or duplicate id, a single
- *    knot, a nonzero first ordinate, a first abscissa below the source's
- *    rest elevation (negative at rest elevation 0, or 19 when the spine
- *    rests at flexion 20), a nonincreasing abscissa and a nonfinite knot
- *    refuse; the adjacent admitted twins pass, and an empty table is admitted.
- * 6. A corrective ramp on chest flexion (onset 30, full 60, `fold` moving
+ * 5. A corrective ramp on chest flexion (onset 30, full 60, `fold` moving
  *    the hips-bound vertex 0 by +0.02 in Z) fires on the coupled angle:
  *    spine 90 (chest 50) gives two thirds, spine 45 (chest 10) nothing,
  *    chest 40 with spine 45 (chest 50) two thirds, and the same spine 90 on
  *    a coupling-free basis nothing.
- * 7. A basis without couplings and one with an empty table pose the chest
+ * 6. A basis without couplings and one with an empty table pose the chest
  *    exactly as the spine alone does.
  */
 export const test_human_body_basis_coupling = (): void => {
-  const rhythm: Coupling = {
-    id: "rhythm",
-    source: { bone: "spine", measure: "elevation" },
-    output: { bone: "chest", axis: "flexion" },
-    curve: [
-      [30, 0],
-      [60, 20],
-      [90, 50],
-    ],
-  };
-  const retraction: Coupling = {
-    id: "retraction",
-    source: { bone: "spine", measure: "elevation" },
-    output: { bone: "chest", axis: "abduction" },
-    curve: [
-      [30, 0],
-      [90, -6],
-    ],
-  };
-  const curveFrom = (first: number): Coupling => ({
-    ...rhythm,
-    curve: [
-      [first, 0],
-      [90, 50],
-    ],
-  });
-  const withChest = (couplings?: Coupling[], patch?: Patch) => {
-    const fixture = humanBodyBasisFixture();
-    fixture.basis.landmarks.ids.push("joint-neck");
-    fixture.basis.landmarks.positions.push(0, 3, 0);
-    fixture.basis.joints.push({
-      ...structuredClone(fixture.basis.joints[1]),
-      bone: "chest",
-      parent: "spine",
-      head: "joint-spine-2",
-      tail: "joint-neck",
-    });
-    if (couplings !== undefined) fixture.basis.couplings = couplings;
-    patch?.(fixture.basis);
-    return fixture;
-  };
-  const chestOf = (built: IAutoMovieHumanBodyBuild): IAutoMovieQuaternion =>
-    built.bones.find((one) => one.bone === "chest")!.posed.rotation;
-  const aboutX = (degrees: number): IAutoMovieQuaternion => {
-    const half = (degrees * Math.PI) / 360;
-    return { x: Math.sin(half), y: 0, z: 0, w: Math.cos(half) };
-  };
-  const spine = (
-    flexion: number | null,
-    abduction: number | null = null,
-  ): IAutoMovieJointPose => ({
-    bone: "spine",
-    flexion,
-    abduction,
-    twist: null,
-  });
-  const chest = (
-    flexion: number | null,
-    abduction: number | null = null,
-  ): IAutoMovieJointPose => ({
-    bone: "chest",
-    flexion,
-    abduction,
-    twist: null,
-  });
+  const { rhythm, retraction, curveFrom, withChest, chestOf, aboutX } =
+    humanBodyCouplingFixture;
+  const { spine, chest, twin } = humanBodyCouplingFixture;
 
   // 1. the curve, read off the chest's world rotation about +X
   const coupled = withChest([rhythm]);
@@ -162,14 +87,8 @@ export const test_human_body_basis_coupling = (): void => {
 
   // 2. the measure is the swing cone from the rest; each case equals the
   // explicit chest pose on a coupling-free basis
-  const wide: Patch = (basis) => {
+  const wide: HumanBodyBasisPatch = (basis) => {
     basis.joints[1].constraint!.abduction = { min: -90, max: 90 };
-  };
-  const twin = (pose: IAutoMovieJointPose[], patch?: Patch) => {
-    const plain = withChest(undefined, patch);
-    return chestOf(
-      createHumanBodyBasisBuilder(plain.basis)({ ...plain.document, pose }),
-    );
   };
   const swung = withChest([rhythm], wide);
   const swing = createHumanBodyBasisBuilder(swung.basis);
@@ -186,7 +105,7 @@ export const test_human_body_basis_coupling = (): void => {
         twin([...pose, chest(addition)], wide),
       ),
     );
-  const offset: Patch = (basis) => {
+  const offset: HumanBodyBasisPatch = (basis) => {
     basis.joints[1].neutral.flexion = 20;
   };
   const rested = withChest([rhythm], offset);
@@ -287,158 +206,8 @@ export const test_human_body_basis_coupling = (): void => {
       ),
   );
 
-  // 5. admission
-  const held: Patch = (basis) => {
-    basis.joints[2].constraint!.twist = null;
-    basis.joints[2].signs.twist = null;
-  };
-  const chestOffset: Patch = (basis) => {
-    basis.joints[2].neutral.flexion = 20;
-  };
-  const spineOffset: Patch = (basis) => {
-    basis.joints[1].neutral.flexion = 20;
-  };
-  const curve = (...knots: [number, number][]): Coupling => ({
-    ...rhythm,
-    curve: knots,
-  });
-  const backward: Coupling = {
-    ...rhythm,
-    id: "backward",
-    source: { bone: "chest", measure: "elevation" },
-    output: { bone: "spine", axis: "flexion" },
-  };
-  const twist: Coupling = {
-    ...rhythm,
-    output: { bone: "chest", axis: "twist" },
-    curve: [
-      [30, 0],
-      [90, 10],
-    ],
-  };
-  const cases: [string, Coupling[], Patch | undefined, boolean][] = [
-    ["held output axis", [twist], held, true],
-    ["open output axis", [twist], undefined, false],
-    [
-      "root output",
-      [{ ...rhythm, output: { bone: "hips", axis: "flexion" } }],
-      undefined,
-      true,
-    ],
-    [
-      "ordinate past the positive range",
-      [curve([30, 0], [90, 91])],
-      undefined,
-      true,
-    ],
-    [
-      "ordinate on the positive range",
-      [curve([30, 0], [90, 90])],
-      undefined,
-      false,
-    ],
-    [
-      "ordinate past the negative range",
-      [curve([30, 0], [90, -31])],
-      undefined,
-      true,
-    ],
-    [
-      "ordinate on the negative range",
-      [curve([30, 0], [90, -30])],
-      undefined,
-      false,
-    ],
-    [
-      "reach shrinks with the rest offset",
-      [curve([30, 0], [90, 71])],
-      chestOffset,
-      true,
-    ],
-    [
-      "reach with the rest offset",
-      [curve([30, 0], [90, 70])],
-      chestOffset,
-      false,
-    ],
-    [
-      "unknown source",
-      [{ ...rhythm, source: { bone: "leftUpperArm", measure: "elevation" } }],
-      undefined,
-      true,
-    ],
-    [
-      "unknown output",
-      [{ ...rhythm, output: { bone: "neck", axis: "flexion" } }],
-      undefined,
-      true,
-    ],
-    [
-      "self coupling",
-      [{ ...rhythm, output: { bone: "spine", axis: "flexion" } }],
-      undefined,
-      true,
-    ],
-    ["chain through the output", [rhythm, backward], undefined, true],
-    ["chain declared first", [backward, rhythm], undefined, true],
-    ["the backward coupling alone", [backward], undefined, false],
-    [
-      "duplicate output axis",
-      [rhythm, { ...rhythm, id: "again" }],
-      undefined,
-      true,
-    ],
-    ["two output axes", [rhythm, retraction], undefined, false],
-    ["blank id", [{ ...rhythm, id: " " }], undefined, true],
-    [
-      "duplicate id",
-      [rhythm, { ...retraction, id: "rhythm" }],
-      undefined,
-      true,
-    ],
-    ["single knot", [curve([30, 0])], undefined, true],
-    ["nonzero first ordinate", [curve([30, 1], [90, 50])], undefined, true],
-    ["negative first abscissa", [curve([-1, 0], [90, 50])], undefined, true],
-    ["zero first abscissa", [curve([0, 0], [90, 50])], undefined, false],
-    [
-      "first abscissa below the rest elevation",
-      [curveFrom(19)],
-      spineOffset,
-      true,
-    ],
-    [
-      "first abscissa at the rest elevation",
-      [curveFrom(20)],
-      spineOffset,
-      false,
-    ],
-    ["repeated abscissa", [curve([30, 0], [30, 50])], undefined, true],
-    [
-      "decreasing abscissa",
-      [curve([30, 0], [90, 50], [60, 20])],
-      undefined,
-      true,
-    ],
-    [
-      "nonfinite abscissa",
-      [curve([30, 0], [Number.POSITIVE_INFINITY, 50])],
-      undefined,
-      true,
-    ],
-    ["nonfinite ordinate", [curve([30, 0], [90, Number.NaN])], undefined, true],
-    ["empty table", [], undefined, false],
-  ];
-  for (const [title, couplings, patch, refused] of cases) {
-    const fixture = withChest(couplings, patch);
-    TestValidator.equals(
-      title,
-      throwsError(() => createHumanBodyBasisBuilder(fixture.basis)),
-      refused,
-    );
-  }
-
-  // 6. a corrective ramp reads the coupled angle
-  const folded: Patch = (basis) => {
+  // 5. a corrective ramp reads the coupled angle
+  const folded: HumanBodyBasisPatch = (basis) => {
     basis.correctives!.push({
       id: "fold",
       inputs: [
@@ -494,7 +263,7 @@ export const test_human_body_basis_coupling = (): void => {
     ),
   );
 
-  // 7. no couplings, absent or empty, is the spine alone
+  // 6. no couplings, absent or empty, is the spine alone
   const empty = withChest([]);
   TestValidator.predicate(
     "an absent and an empty table both leave the chest to the document",
