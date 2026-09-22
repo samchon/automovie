@@ -31,8 +31,7 @@ export const test_subject_connected_hair_fields = (): void => {
     expected.push({ id, path, scale });
   };
   for (const key of ["count", "seed", "lengthVariation"]) add(key, [key]);
-  for (const key of ["width", "samplingStep", "clearance"])
-    add(key, [key], 1000);
+  for (const key of ["samplingStep", "clearance"]) add(key, [key], 1000);
   for (const key of ["front", "left", "right", "back"])
     add(`hairline-${key}`, ["hairline", key], 180 / Math.PI);
   for (let at = 0; at < 6; at++) add(`length-${at}`, ["lengthAxes", at], 1000);

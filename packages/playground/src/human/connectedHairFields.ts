@@ -35,17 +35,14 @@ export function connectedHairFields(layer: Layer): Field[] {
     "count",
     "seed",
     "lengthVariation",
-    "width",
     "samplingStep",
     "clearance",
   ] as const) {
-    const metric =
-      key === "width" || key === "samplingStep" || key === "clearance";
+    const metric = key === "samplingStep" || key === "clearance";
     const labels = {
       count: "Strip count",
       seed: "Distribution seed",
       lengthVariation: "Length variation",
-      width: "Strip width",
       samplingStep: "Sampling step",
       clearance: "Surface clearance",
     };

@@ -27,6 +27,12 @@ export namespace IAutoMovieHumanFaceHair {
    * Every length includes its root-to-strip transition. Sampling step is a
    * numerical accuracy setting, distinct from painted fibres and lock count.
    *
+   * A ribbon has no authored width. It stands for the whole neighbourhood of
+   * one root, so its width is the side of the scalp that root is responsible
+   * for, which the population measures from its own local density. Thinner
+   * hair is a smaller `count` or a lower `finish.coverage`, never a narrower
+   * ribbon, and the `clearance` below is the fibre path's, not the ribbon's.
+   *
    * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Expresses each scalp population through shared generation rules and scalar edits.
    * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-parametric-hair Names the reference domain, reproducible population and independent length, flow, curl and finish fields.
    * @author Samchon
@@ -75,8 +81,6 @@ export namespace IAutoMovieHumanFaceHair {
      * every root is a guide, which is the flat population.
      */
     guides?: { fraction: number; neighbours: number; clump?: number };
-    /** Maximum ribbon width in metres, positive and at most 0.04. */
-    width: number;
     /** Positive maximum integration step in metres, at most 0.005. */
     samplingStep: number;
     /** Nonnegative requested free-strip clearance from the skin, in metres. */

@@ -23,7 +23,6 @@ import { nclose, throwsError } from "../internal/predicates";
  */
 export const test_subject_human_hair_strand_growth = (): void => {
   const layer = {
-    width: 0.004,
     samplingStep: 0.002,
     clearance: 0.001,
   };
@@ -92,7 +91,7 @@ export const test_subject_human_hair_strand_growth = (): void => {
     [2, 1, 0],
   ]);
   const narrow = humanFaceHairContact({
-    layer: { width: 0.04, samplingStep: 0.001, clearance: 0.0005 },
+    layer: { samplingStep: 0.001, clearance: 0.0205 },
     root: Vector3.create(),
     length: 0.05,
     query: createAutoMovieSignedMeshQuery({

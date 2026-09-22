@@ -177,7 +177,6 @@
             0.12
           ],
           "lengthVariation": 0.08,
-          "width": 0.004,
           "samplingStep": 0.003,
           "clearance": 0.0005,
           "flow": [
@@ -429,7 +428,6 @@
             0.085
           ],
           "lengthVariation": 0.08,
-          "width": 0.004,
           "samplingStep": 0.003,
           "clearance": 0.0005,
           "flow": [
@@ -517,7 +515,6 @@
             0.065
           ],
           "lengthVariation": 0.08,
-          "width": 0.002,
           "samplingStep": 0.003,
           "clearance": 0.0005,
           "flow": [
@@ -748,7 +745,6 @@
             0.4
           ],
           "lengthVariation": 0.08,
-          "width": 0.004,
           "samplingStep": 0.003,
           "clearance": 0.0005,
           "flow": [
@@ -997,7 +993,6 @@
             0.03
           ],
           "lengthVariation": 0.08,
-          "width": 0.004,
           "samplingStep": 0.002,
           "clearance": 0.0005,
           "flow": [
@@ -1219,7 +1214,6 @@
             0.4
           ],
           "lengthVariation": 0.08,
-          "width": 0.004,
           "samplingStep": 0.0023333333333333335,
           "clearance": 0.0005,
           "flow": [
@@ -1469,7 +1463,6 @@
             0.045
           ],
           "lengthVariation": 0.08,
-          "width": 0.004,
           "samplingStep": 0.003,
           "clearance": 0.0005,
           "flow": [
@@ -1720,7 +1713,6 @@
             0.04
           ],
           "lengthVariation": 0.08,
-          "width": 0.004,
           "samplingStep": 0.003,
           "clearance": 0.0005,
           "flow": [
@@ -1967,7 +1959,6 @@
             0.35
           ],
           "lengthVariation": 0.08,
-          "width": 0.004,
           "samplingStep": 0.003,
           "clearance": 0.0005,
           "flow": [
@@ -2185,7 +2176,6 @@
             0.1
           ],
           "lengthVariation": 0.08,
-          "width": 0.004,
           "samplingStep": 0.003,
           "clearance": 0.0005,
           "flow": [
@@ -2245,7 +2235,6 @@
             0.055
           ],
           "lengthVariation": 0.08,
-          "width": 0.002,
           "samplingStep": 0.003,
           "clearance": 0.0005,
           "flow": [
@@ -2479,7 +2468,6 @@
             0.105
           ],
           "lengthVariation": 0.08,
-          "width": 0.004,
           "samplingStep": 0.003,
           "clearance": 0.0005,
           "flow": [
@@ -2728,7 +2716,6 @@
             0.18
           ],
           "lengthVariation": 0.08,
-          "width": 0.004,
           "samplingStep": 0.003,
           "clearance": 0.0005,
           "flow": [
@@ -2971,7 +2958,6 @@
             0.11
           ],
           "lengthVariation": 0.08,
-          "width": 0.004,
           "samplingStep": 0.003,
           "clearance": 0.0005,
           "flow": [
@@ -3193,7 +3179,6 @@
             0.18
           ],
           "lengthVariation": 0.08,
-          "width": 0.004,
           "samplingStep": 0.003,
           "clearance": 0.0005,
           "flow": [
@@ -3253,7 +3238,6 @@
             0.07
           ],
           "lengthVariation": 0.08,
-          "width": 0.002,
           "samplingStep": 0.003,
           "clearance": 0.0005,
           "flow": [
@@ -3483,7 +3467,6 @@
             0.1
           ],
           "lengthVariation": 0.08,
-          "width": 0.004,
           "samplingStep": 0.003,
           "clearance": 0.0005,
           "flow": [
@@ -3571,7 +3554,6 @@
             0.085
           ],
           "lengthVariation": 0.08,
-          "width": 0.002,
           "samplingStep": 0.003,
           "clearance": 0.0005,
           "flow": [
@@ -3807,7 +3789,6 @@
             0.135
           ],
           "lengthVariation": 0.08,
-          "width": 0.004,
           "samplingStep": 0.003,
           "clearance": 0.0005,
           "flow": [
@@ -3895,7 +3876,6 @@
             0.085
           ],
           "lengthVariation": 0.08,
-          "width": 0.002,
           "samplingStep": 0.003,
           "clearance": 0.0005,
           "flow": [
@@ -4130,7 +4110,6 @@
             0.085
           ],
           "lengthVariation": 0.08,
-          "width": 0.004,
           "samplingStep": 0.003,
           "clearance": 0.0005,
           "flow": [
@@ -4376,7 +4355,6 @@
             0.055
           ],
           "lengthVariation": 0.08,
-          "width": 0.004,
           "samplingStep": 0.003,
           "clearance": 0.0005,
           "flow": [
@@ -4464,7 +4442,6 @@
             0.07
           ],
           "lengthVariation": 0.08,
-          "width": 0.002,
           "samplingStep": 0.003,
           "clearance": 0.0005,
           "flow": [
@@ -4678,7 +4655,6 @@
             0.055
           ],
           "lengthVariation": 0.08,
-          "width": 0.004,
           "samplingStep": 0.003,
           "clearance": 0.0005,
           "flow": [
