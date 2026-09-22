@@ -21,7 +21,8 @@ import type {
  * off the arc, so joints, their landmarks and the skin weights are part of
  * this contract from the first revision rather than a later layer. Evaluation
  * is identity, then channels, then correctives, then landmarks, then the rest
- * skeleton, then the pose, then skinning (`createHumanBodyBasisBuilder`).
+ * skeleton, then the pose with the declared couplings added, then skinning
+ * (`createHumanBodyBasisBuilder`).
  *
  * Every endpoint name (`channels[].positive`, `negative`, `correctives[].target`)
  * resolves in each surface's `targets` and in `landmarks.targets` alike, so one
@@ -200,6 +201,72 @@ export interface IAutoMovieHumanBodyBasis {
 
     /** Range of motion in clinical degrees, or null for the root. */
     constraint: IAutoMovieJointConstraint | null;
+  }[];
+
+  /**
+   * Declared joint couplings: one joint's motion adding a bounded angle to
+   * another joint's clinical axis, applied by the builder to the document's
+   * pose before that pose is validated and resolved
+   * (`resolveHumanBodyCouplings`). The shoulder is why they exist. The upper
+   * arm's flexion and abduction ranges are the shoulder complex's (180
+   * degrees), but a document angle turns one bone, the humerus, so an arm
+   * overhead left the girdle where the rest put it and the humerus turning
+   * 180 degrees against it. The intended data is the scapulohumeral rhythm:
+   * Inman, Saunders and Abbott 1944 (J Bone Joint Surg 26:1) measured
+   * glenohumeral to scapulothoracic motion at about 2:1 past 30 degrees of
+   * elevation, and Ludewig et al. 2009 (J Bone Joint Surg Am 91:378) put the
+   * clavicle at about 11 degrees of elevation and 16 degrees of retraction at
+   * full arm elevation; a basis that declares the rhythm carries those
+   * figures as curves from each upper arm's elevation to its girdle bone's
+   * abduction and flexion, and a basis that declares nothing poses exactly
+   * as before.
+   *
+   * A coupling is a declared driver in the sense of the rig control driver
+   * requirement rather than a hidden corrective: its input, output, bounded
+   * function and range are data of the basis, the builder applies it in a
+   * stated order, the editor shows the addition beside the joint row, and the
+   * document never stores it. `source.measure` is `elevation`, the engine's
+   * `swingConeAngle` of the source joint's flexion and abduction travel from
+   * its rest (an absent or null document angle stands for the rest), so the
+   * abscissa counts degrees away from the pose the basis was extracted in and
+   * a curve authored from the literature's hanging-arm figures subtracts the
+   * rest elevation first. The curve is piecewise linear over `[elevation,
+   * degrees]` knots: zero at and below the first knot, linear between knots,
+   * the last ordinate held past the last knot. The ordinate is added to the
+   * output joint's clinical angle on `output.axis`, the document's angle when
+   * it has one and the rest angle otherwise; the sum is validated like any
+   * document angle and refused past the range, never clamped.
+   *
+   * Admission (`assertHumanBodyRig`) requires a unique nonblank `id`, declared
+   * source and output joints, an output axis the output joint's constraint
+   * leaves open (which excludes the unconstrained root), at least two finite
+   * knots strictly increasing in elevation from a nonnegative first abscissa,
+   * a first ordinate of zero so the rest stays the rest, every `rest +
+   * ordinate` inside the output axis's clinical range, no output joint that
+   * is any coupling's source (so no chain and no cycle), and no output axis
+   * driven twice. Correctives read the coupled angles, so a joint ramp on the
+   * girdle fires on an automatic elevation exactly as on an authored one.
+   */
+  couplings?: {
+    /** Name unique among the couplings, shown beside the coupled joint row. */
+    id: string;
+
+    /** The driving joint and the measure read from it. */
+    source: {
+      bone: AutoMovieHumanoidBone;
+
+      /** Combined flexion and abduction swing away from the rest, in degrees. */
+      measure: "elevation";
+    };
+
+    /** The driven joint and the clinical axis the ordinate is added to. */
+    output: {
+      bone: AutoMovieHumanoidBone;
+      axis: "flexion" | "abduction" | "twist";
+    };
+
+    /** `[elevation, degrees]` knots, strictly increasing in elevation, the first ordinate zero. */
+    curve: [number, number][];
   }[];
 
   /** Connected skin surfaces in the shared frame. */
