@@ -13,8 +13,9 @@ import { nclose, throwsError, vclose } from "../internal/predicates";
  * 1. A lock normal to a unit cube stays straight, rooted and exactly 50 mm long;
  *    averaged mesh rows reproduce its centreline and UV v measures that length.
  * 2. Short emergence and a singular length chart refuse instead of shortening.
- * 3. Empty curves remain empty; antiparallel transport, a subnormal width and
- *    a missing per-curve width refuse.
+ * 3. Empty curves remain empty; antiparallel transport, a subnormal width, a
+ *    station left on the surface with no room for its ribbon and a missing
+ *    per-curve width refuse.
  */
 export const test_subject_human_numerical_hair_curve = (): void => {
   const layer = createNumericalHairFixture().layers[0];
@@ -131,6 +132,18 @@ export const test_subject_human_numerical_hair_curve = (): void => {
         widths: [Number.MIN_VALUE],
         query: props.query,
       }),
+    ),
+  );
+  TestValidator.predicate(
+    "a station with no room for its ribbon refuses",
+    throwsError(
+      () =>
+        buildHumanFaceHairMesh(
+          [{ ...curve, points: [props.root, Vector3.create(1, 0.6, 0.5)] }],
+          layer,
+          { widths: [0.002], query: props.query },
+        ),
+      "too close to the surface",
     ),
   );
   TestValidator.predicate(
