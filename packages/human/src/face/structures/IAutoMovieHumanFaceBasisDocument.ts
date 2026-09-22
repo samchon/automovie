@@ -1,4 +1,5 @@
 import type { IPortraitColourField } from "../anatomy/skin/structures/IPortraitColourField";
+import type { IAutoMovieHumanFaceHair } from "./IAutoMovieHumanFaceHair";
 
 /**
  * Compact edits against a separately supplied immutable facial basis.
@@ -27,13 +28,11 @@ export interface IAutoMovieHumanFaceBasisDocument {
   expression: Record<string, number>;
 
   /**
-   * Optional identity of the seated groom this face wears. Omission is bald,
-   * which is what a connected basis carries on its own: the prior has no hair
-   * surface, so a face only has hair because its document named one. The groom
-   * itself is a separate resource, like the basis, and the consumer resolves
-   * this identity against the grooms it holds.
+   * Optional numerical scalp populations on the basis's shared growth domains.
+   * Omission, null or empty layers is bald. Every lock is generated from fields;
+   * no identity-dependent groom resource or personal guide coordinates resolve.
    */
-  hair?: string | null;
+  hair?: IAutoMovieHumanFaceHair | null;
 
   /**
    * Numerical pigmentation by basis surface identity. Field centres and radii

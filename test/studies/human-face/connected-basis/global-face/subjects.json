@@ -2,7 +2,7 @@
   {
     "id": "alan-rickman-connected",
     "name": "alan-rickman (connected study)",
-    "basis": "mpfb-connected-head-2026-09-21-fine-141-rigid",
+    "basis": "mpfb-connected-head-2026-09-22-numerical-hair",
     "shape": {
       "headWidth": -0.21632129539659278,
       "headHeight": 0.1367818148632647,
@@ -154,12 +154,99 @@
         "roughness": 0.57
       }
     },
-    "hair": "alan-rickman"
+    "hair": {
+      "layers": [
+        {
+          "id": "scalp",
+          "surface": "Human",
+          "domain": "scalp",
+          "count": 1024,
+          "seed": 17,
+          "hairline": {
+            "front": 0.8,
+            "left": 1.55,
+            "right": 1.55,
+            "back": 2.1
+          },
+          "lengthAxes": [
+            0.09,
+            0.09,
+            0.13,
+            0.05,
+            0.11,
+            0.12
+          ],
+          "lengthVariation": 0.08,
+          "width": 0.004,
+          "samplingStep": 0.003,
+          "clearance": 0.0005,
+          "flow": [
+            0,
+            -0.55,
+            -1
+          ],
+          "lift": {
+            "strength": 0.2,
+            "reach": 0.035
+          },
+          "curl": {
+            "mode": "wave",
+            "angle": 0.18,
+            "wavelength": 0.07,
+            "reach": 0.025
+          },
+          "taper": {
+            "tipWidth": 0.2,
+            "start": 0.6
+          },
+          "finish": {
+            "color": [
+              0.76,
+              0.68,
+              0.56
+            ],
+            "roughness": 0.73,
+            "fibres": 24,
+            "coverage": 0.95,
+            "normal": 0.2,
+            "shade": 1
+          },
+          "part": {
+            "normal": [
+              1,
+              0,
+              0
+            ],
+            "offset": -0.025,
+            "transitionWidth": 0.004,
+            "bias": [
+              0,
+              0,
+              -0.3
+            ],
+            "strength": 4,
+            "reach": 0.035,
+            "region": {
+              "center": [
+                0,
+                0.1,
+                0.08
+              ],
+              "spread": [
+                0.25,
+                0.25,
+                0.07
+              ]
+            }
+          }
+        }
+      ]
+    }
   },
   {
     "id": "daniel-radcliffe-connected",
     "name": "daniel-radcliffe (connected study)",
-    "basis": "mpfb-connected-head-2026-09-21-fine-141-rigid",
+    "basis": "mpfb-connected-head-2026-09-22-numerical-hair",
     "shape": {
       "headWidth": -0.14419439444168386,
       "headHeight": 0.08076531952354073,
@@ -315,12 +402,167 @@
         "roughness": 0.57
       }
     },
-    "hair": "daniel-radcliffe"
+    "hair": {
+      "layers": [
+        {
+          "id": "scalp",
+          "surface": "Human",
+          "domain": "scalp",
+          "count": 1024,
+          "seed": 17,
+          "hairline": {
+            "front": 1,
+            "left": 1.55,
+            "right": 1.55,
+            "back": 2.1
+          },
+          "lengthAxes": [
+            0.075,
+            0.075,
+            0.1,
+            0.045,
+            0.085,
+            0.085
+          ],
+          "lengthVariation": 0.08,
+          "width": 0.004,
+          "samplingStep": 0.003,
+          "clearance": 0.0005,
+          "flow": [
+            0,
+            -1,
+            -0.15
+          ],
+          "lift": {
+            "strength": 0.2,
+            "reach": 0.025
+          },
+          "curl": {
+            "mode": "wave",
+            "angle": 0.15,
+            "wavelength": 0.06,
+            "reach": 0.025
+          },
+          "taper": {
+            "tipWidth": 0.2,
+            "start": 0.6
+          },
+          "finish": {
+            "color": [
+              0.028,
+              0.018,
+              0.011
+            ],
+            "roughness": 0.73,
+            "fibres": 24,
+            "coverage": 0.95,
+            "normal": 0.2,
+            "shade": 1
+          },
+          "part": {
+            "normal": [
+              1,
+              0,
+              0
+            ],
+            "offset": -0.008,
+            "transitionWidth": 0.004,
+            "bias": [
+              0,
+              0,
+              -0.3
+            ],
+            "strength": 4,
+            "reach": 0.035,
+            "region": {
+              "center": [
+                0,
+                0.1,
+                0.08
+              ],
+              "spread": [
+                0.25,
+                0.25,
+                0.07
+              ]
+            }
+          }
+        },
+        {
+          "id": "fringe",
+          "surface": "Human",
+          "domain": "scalp",
+          "count": 256,
+          "seed": 1453,
+          "hairline": {
+            "front": 1,
+            "left": 1.55,
+            "right": 1.55,
+            "back": 2.1
+          },
+          "lengthAxes": [
+            0.065,
+            0.065,
+            0.065,
+            0.065,
+            0.065,
+            0.065
+          ],
+          "lengthVariation": 0.08,
+          "width": 0.002,
+          "samplingStep": 0.003,
+          "clearance": 0.0005,
+          "flow": [
+            -0.35,
+            -1,
+            0.7
+          ],
+          "lift": {
+            "strength": 0.08,
+            "reach": 0.01
+          },
+          "curl": {
+            "mode": "wave",
+            "angle": 0.15,
+            "wavelength": 0.06,
+            "reach": 0.025
+          },
+          "taper": {
+            "tipWidth": 0.2,
+            "start": 0.6
+          },
+          "finish": {
+            "color": [
+              0.028,
+              0.018,
+              0.011
+            ],
+            "roughness": 0.73,
+            "fibres": 24,
+            "coverage": 0.95,
+            "normal": 0.2,
+            "shade": 1
+          },
+          "rootRegion": {
+            "center": [
+              0,
+              0.11,
+              0.115
+            ],
+            "spread": [
+              0.04,
+              0.03,
+              0.035
+            ]
+          }
+        }
+      ]
+    }
   },
   {
     "id": "emma-watson-connected",
     "name": "emma-watson (connected study)",
-    "basis": "mpfb-connected-head-2026-09-21-fine-141-rigid",
+    "basis": "mpfb-connected-head-2026-09-22-numerical-hair",
     "shape": {
       "headWidth": 0.01719157504012354,
       "headHeight": 0.0035971738377070027,
@@ -471,12 +713,99 @@
         "roughness": 0.57
       }
     },
-    "hair": "emma-watson"
+    "hair": {
+      "layers": [
+        {
+          "id": "scalp",
+          "surface": "Human",
+          "domain": "scalp",
+          "count": 1024,
+          "seed": 17,
+          "hairline": {
+            "front": 1,
+            "left": 1.55,
+            "right": 1.55,
+            "back": 2.1
+          },
+          "lengthAxes": [
+            0.4,
+            0.36,
+            0.43,
+            0.28,
+            0.39,
+            0.4
+          ],
+          "lengthVariation": 0.08,
+          "width": 0.004,
+          "samplingStep": 0.003,
+          "clearance": 0.0005,
+          "flow": [
+            0,
+            -1,
+            0
+          ],
+          "lift": {
+            "strength": 0.12,
+            "reach": 0.025
+          },
+          "curl": {
+            "mode": "wave",
+            "angle": 0.6,
+            "wavelength": 0.09,
+            "reach": 0.025
+          },
+          "taper": {
+            "tipWidth": 0.2,
+            "start": 0.6
+          },
+          "finish": {
+            "color": [
+              0.095,
+              0.048,
+              0.019
+            ],
+            "roughness": 0.73,
+            "fibres": 24,
+            "coverage": 0.95,
+            "normal": 0.2,
+            "shade": 1
+          },
+          "part": {
+            "normal": [
+              1,
+              0,
+              0
+            ],
+            "offset": -0.025,
+            "transitionWidth": 0.004,
+            "bias": [
+              0,
+              0,
+              -0.3
+            ],
+            "strength": 4,
+            "reach": 0.035,
+            "region": {
+              "center": [
+                0,
+                0.1,
+                0.08
+              ],
+              "spread": [
+                0.25,
+                0.25,
+                0.07
+              ]
+            }
+          }
+        }
+      ]
+    }
   },
   {
     "id": "generated-black-boy-01-connected",
     "name": "generated-black-boy-01 (connected study)",
-    "basis": "mpfb-connected-head-2026-09-21-fine-141-rigid",
+    "basis": "mpfb-connected-head-2026-09-22-numerical-hair",
     "shape": {
       "headWidth": -0.14328040296794559,
       "headHeight": 0.1015997121074854,
@@ -629,12 +958,71 @@
         "roughness": 0.57
       }
     },
-    "hair": "generated-black-boy-01"
+    "hair": {
+      "layers": [
+        {
+          "id": "scalp",
+          "surface": "Human",
+          "domain": "scalp",
+          "count": 1024,
+          "seed": 17,
+          "hairline": {
+            "front": 1.1,
+            "left": 1.55,
+            "right": 1.55,
+            "back": 2.1
+          },
+          "lengthAxes": [
+            0.025,
+            0.025,
+            0.042,
+            0.02,
+            0.032,
+            0.03
+          ],
+          "lengthVariation": 0.08,
+          "width": 0.004,
+          "samplingStep": 0.002,
+          "clearance": 0.0005,
+          "flow": [
+            0,
+            -1,
+            0
+          ],
+          "lift": {
+            "strength": 1,
+            "reach": 0.03
+          },
+          "curl": {
+            "mode": "helix",
+            "angle": 1.05,
+            "wavelength": 0.024,
+            "reach": 0.025
+          },
+          "taper": {
+            "tipWidth": 0.2,
+            "start": 0.6
+          },
+          "finish": {
+            "color": [
+              0.009,
+              0.006,
+              0.005
+            ],
+            "roughness": 0.94,
+            "fibres": 24,
+            "coverage": 0.95,
+            "normal": 0.2,
+            "shade": 1
+          }
+        }
+      ]
+    }
   },
   {
     "id": "generated-black-girl-01-connected",
     "name": "generated-black-girl-01 (connected study)",
-    "basis": "mpfb-connected-head-2026-09-21-fine-141-rigid",
+    "basis": "mpfb-connected-head-2026-09-22-numerical-hair",
     "shape": {
       "headWidth": -0.30097483094693617,
       "headHeight": 0.15275383036912965,
@@ -788,12 +1176,99 @@
         "roughness": 0.57
       }
     },
-    "hair": "generated-black-girl-01"
+    "hair": {
+      "layers": [
+        {
+          "id": "scalp",
+          "surface": "Human",
+          "domain": "scalp",
+          "count": 1024,
+          "seed": 17,
+          "hairline": {
+            "front": 1.05,
+            "left": 1.55,
+            "right": 1.55,
+            "back": 2.1
+          },
+          "lengthAxes": [
+            0.38,
+            0.38,
+            0.44,
+            0.27,
+            0.38,
+            0.4
+          ],
+          "lengthVariation": 0.08,
+          "width": 0.004,
+          "samplingStep": 0.0023333333333333335,
+          "clearance": 0.0005,
+          "flow": [
+            0,
+            -1,
+            0
+          ],
+          "lift": {
+            "strength": 0.3,
+            "reach": 0.04
+          },
+          "curl": {
+            "mode": "helix",
+            "angle": 0.85,
+            "wavelength": 0.028,
+            "reach": 0.025
+          },
+          "taper": {
+            "tipWidth": 0.2,
+            "start": 0.6
+          },
+          "finish": {
+            "color": [
+              0.012,
+              0.007,
+              0.005
+            ],
+            "roughness": 0.94,
+            "fibres": 24,
+            "coverage": 0.95,
+            "normal": 0.2,
+            "shade": 1
+          },
+          "part": {
+            "normal": [
+              1,
+              0,
+              0
+            ],
+            "offset": 0,
+            "transitionWidth": 0.004,
+            "bias": [
+              0,
+              0,
+              -0.3
+            ],
+            "strength": 4,
+            "reach": 0.035,
+            "region": {
+              "center": [
+                0,
+                0.1,
+                0.08
+              ],
+              "spread": [
+                0.25,
+                0.25,
+                0.07
+              ]
+            }
+          }
+        }
+      ]
+    }
   },
   {
     "id": "generated-korean-boy-01-connected",
     "name": "generated-korean-boy-01 (connected study)",
-    "basis": "mpfb-connected-head-2026-09-21-fine-141-rigid",
+    "basis": "mpfb-connected-head-2026-09-22-numerical-hair",
     "shape": {
       "headWidth": -0.2766879029455006,
       "headHeight": 0.08957223698417179,
@@ -947,12 +1422,99 @@
         "roughness": 0.57
       }
     },
-    "hair": "generated-korean-boy-01"
+    "hair": {
+      "layers": [
+        {
+          "id": "scalp",
+          "surface": "Human",
+          "domain": "scalp",
+          "count": 1024,
+          "seed": 17,
+          "hairline": {
+            "front": 1,
+            "left": 1.55,
+            "right": 1.55,
+            "back": 2.1
+          },
+          "lengthAxes": [
+            0.035,
+            0.035,
+            0.085,
+            0.02,
+            0.07,
+            0.045
+          ],
+          "lengthVariation": 0.08,
+          "width": 0.004,
+          "samplingStep": 0.003,
+          "clearance": 0.0005,
+          "flow": [
+            0,
+            -1,
+            -0.2
+          ],
+          "lift": {
+            "strength": 0.25,
+            "reach": 0.025
+          },
+          "curl": {
+            "mode": "wave",
+            "angle": 0.12,
+            "wavelength": 0.055,
+            "reach": 0.025
+          },
+          "taper": {
+            "tipWidth": 0.2,
+            "start": 0.6
+          },
+          "finish": {
+            "color": [
+              0.023,
+              0.018,
+              0.015
+            ],
+            "roughness": 0.73,
+            "fibres": 24,
+            "coverage": 0.95,
+            "normal": 0.2,
+            "shade": 1
+          },
+          "part": {
+            "normal": [
+              1,
+              0,
+              0
+            ],
+            "offset": 0.008,
+            "transitionWidth": 0.004,
+            "bias": [
+              0,
+              0,
+              -0.3
+            ],
+            "strength": 4,
+            "reach": 0.035,
+            "region": {
+              "center": [
+                0,
+                0.1,
+                0.08
+              ],
+              "spread": [
+                0.25,
+                0.25,
+                0.07
+              ]
+            }
+          }
+        }
+      ]
+    }
   },
   {
     "id": "generated-white-boy-01-connected",
     "name": "generated-white-boy-01 (connected study)",
-    "basis": "mpfb-connected-head-2026-09-21-fine-141-rigid",
+    "basis": "mpfb-connected-head-2026-09-22-numerical-hair",
     "shape": {
       "headWidth": -0.10871872190194158,
       "headHeight": 0.1295620657450308,
@@ -1107,12 +1669,99 @@
         "roughness": 0.57
       }
     },
-    "hair": "generated-white-boy-01"
+    "hair": {
+      "layers": [
+        {
+          "id": "scalp",
+          "surface": "Human",
+          "domain": "scalp",
+          "count": 1024,
+          "seed": 17,
+          "hairline": {
+            "front": 1.05,
+            "left": 1.55,
+            "right": 1.55,
+            "back": 2.1
+          },
+          "lengthAxes": [
+            0.03,
+            0.03,
+            0.075,
+            0.02,
+            0.055,
+            0.04
+          ],
+          "lengthVariation": 0.08,
+          "width": 0.004,
+          "samplingStep": 0.003,
+          "clearance": 0.0005,
+          "flow": [
+            -0.2,
+            -1,
+            -0.2
+          ],
+          "lift": {
+            "strength": 0.4,
+            "reach": 0.03
+          },
+          "curl": {
+            "mode": "wave",
+            "angle": 0.35,
+            "wavelength": 0.055,
+            "reach": 0.025
+          },
+          "taper": {
+            "tipWidth": 0.2,
+            "start": 0.6
+          },
+          "finish": {
+            "color": [
+              0.075,
+              0.043,
+              0.024
+            ],
+            "roughness": 0.73,
+            "fibres": 24,
+            "coverage": 0.95,
+            "normal": 0.2,
+            "shade": 1
+          },
+          "part": {
+            "normal": [
+              1,
+              0,
+              0
+            ],
+            "offset": -0.02,
+            "transitionWidth": 0.004,
+            "bias": [
+              0,
+              0,
+              -0.3
+            ],
+            "strength": 4,
+            "reach": 0.035,
+            "region": {
+              "center": [
+                0,
+                0.1,
+                0.08
+              ],
+              "spread": [
+                0.25,
+                0.25,
+                0.07
+              ]
+            }
+          }
+        }
+      ]
+    }
   },
   {
     "id": "generated-white-girl-01-connected",
     "name": "generated-white-girl-01 (connected study)",
-    "basis": "mpfb-connected-head-2026-09-21-fine-141-rigid",
+    "basis": "mpfb-connected-head-2026-09-22-numerical-hair",
     "shape": {
       "headWidth": -0.032921385087665414,
       "headHeight": 0.02350585561485061,
@@ -1263,12 +1912,71 @@
         "roughness": 0.57
       }
     },
-    "hair": "generated-white-girl-01"
+    "hair": {
+      "layers": [
+        {
+          "id": "scalp",
+          "surface": "Human",
+          "domain": "scalp",
+          "count": 1024,
+          "seed": 17,
+          "hairline": {
+            "front": 0.95,
+            "left": 1.55,
+            "right": 1.55,
+            "back": 2.1
+          },
+          "lengthAxes": [
+            0.3,
+            0.3,
+            0.39,
+            0.25,
+            0.35,
+            0.35
+          ],
+          "lengthVariation": 0.08,
+          "width": 0.004,
+          "samplingStep": 0.003,
+          "clearance": 0.0005,
+          "flow": [
+            0,
+            -1,
+            -0.3
+          ],
+          "lift": {
+            "strength": 0.1,
+            "reach": 0.02
+          },
+          "curl": {
+            "mode": "wave",
+            "angle": 0.08,
+            "wavelength": 0.08,
+            "reach": 0.025
+          },
+          "taper": {
+            "tipWidth": 0.2,
+            "start": 0.6
+          },
+          "finish": {
+            "color": [
+              0.06,
+              0.032,
+              0.019
+            ],
+            "roughness": 0.73,
+            "fibres": 24,
+            "coverage": 0.95,
+            "normal": 0.2,
+            "shade": 1
+          }
+        }
+      ]
+    }
   },
   {
     "id": "kim-min-jung-connected",
     "name": "kim-min-jung (connected study)",
-    "basis": "mpfb-connected-head-2026-09-21-fine-141-rigid",
+    "basis": "mpfb-connected-head-2026-09-22-numerical-hair",
     "shape": {
       "headWidth": -0.16994681164962133,
       "headHeight": 0.05454993462577807,
@@ -1418,12 +2126,139 @@
         "roughness": 0.57
       }
     },
-    "hair": "kim-min-jung"
+    "hair": {
+      "layers": [
+        {
+          "id": "scalp",
+          "surface": "Human",
+          "domain": "scalp",
+          "count": 1024,
+          "seed": 17,
+          "hairline": {
+            "front": 1,
+            "left": 1.55,
+            "right": 1.55,
+            "back": 2.1
+          },
+          "lengthAxes": [
+            0.065,
+            0.065,
+            0.13,
+            0.04,
+            0.105,
+            0.1
+          ],
+          "lengthVariation": 0.08,
+          "width": 0.004,
+          "samplingStep": 0.003,
+          "clearance": 0.0005,
+          "flow": [
+            0,
+            -0.3,
+            -1
+          ],
+          "lift": {
+            "strength": 0.12,
+            "reach": 0.02
+          },
+          "curl": {
+            "mode": "wave",
+            "angle": 0.05,
+            "wavelength": 0.06,
+            "reach": 0.025
+          },
+          "taper": {
+            "tipWidth": 0.2,
+            "start": 0.6
+          },
+          "finish": {
+            "color": [
+              0.009,
+              0.006,
+              0.005
+            ],
+            "roughness": 0.73,
+            "fibres": 24,
+            "coverage": 0.95,
+            "normal": 0.2,
+            "shade": 1
+          }
+        },
+        {
+          "id": "fringe",
+          "surface": "Human",
+          "domain": "scalp",
+          "count": 256,
+          "seed": 1453,
+          "hairline": {
+            "front": 1,
+            "left": 1.55,
+            "right": 1.55,
+            "back": 2.1
+          },
+          "lengthAxes": [
+            0.055,
+            0.055,
+            0.055,
+            0.055,
+            0.055,
+            0.055
+          ],
+          "lengthVariation": 0.08,
+          "width": 0.002,
+          "samplingStep": 0.003,
+          "clearance": 0.0005,
+          "flow": [
+            -0.35,
+            -1,
+            0.7
+          ],
+          "lift": {
+            "strength": 0.08,
+            "reach": 0.01
+          },
+          "curl": {
+            "mode": "wave",
+            "angle": 0.05,
+            "wavelength": 0.06,
+            "reach": 0.025
+          },
+          "taper": {
+            "tipWidth": 0.2,
+            "start": 0.6
+          },
+          "finish": {
+            "color": [
+              0.009,
+              0.006,
+              0.005
+            ],
+            "roughness": 0.73,
+            "fibres": 24,
+            "coverage": 0.95,
+            "normal": 0.2,
+            "shade": 1
+          },
+          "rootRegion": {
+            "center": [
+              0,
+              0.11,
+              0.115
+            ],
+            "spread": [
+              0.04,
+              0.03,
+              0.035
+            ]
+          }
+        }
+      ]
+    }
   },
   {
     "id": "lee-tae-ri-connected",
     "name": "lee-tae-ri (connected study)",
-    "basis": "mpfb-connected-head-2026-09-21-fine-141-rigid",
+    "basis": "mpfb-connected-head-2026-09-22-numerical-hair",
     "shape": {
       "headWidth": -0.1321221610190711,
       "headHeight": 0.1188071368156422,
@@ -1577,12 +2412,99 @@
         "roughness": 0.57
       }
     },
-    "hair": "lee-tae-ri"
+    "hair": {
+      "layers": [
+        {
+          "id": "scalp",
+          "surface": "Human",
+          "domain": "scalp",
+          "count": 1024,
+          "seed": 17,
+          "hairline": {
+            "front": 1,
+            "left": 1.55,
+            "right": 1.55,
+            "back": 2.1
+          },
+          "lengthAxes": [
+            0.095,
+            0.095,
+            0.145,
+            0.065,
+            0.105,
+            0.105
+          ],
+          "lengthVariation": 0.08,
+          "width": 0.004,
+          "samplingStep": 0.003,
+          "clearance": 0.0005,
+          "flow": [
+            0,
+            -1,
+            -0.05
+          ],
+          "lift": {
+            "strength": 0.18,
+            "reach": 0.03
+          },
+          "curl": {
+            "mode": "wave",
+            "angle": 0.3,
+            "wavelength": 0.065,
+            "reach": 0.025
+          },
+          "taper": {
+            "tipWidth": 0.2,
+            "start": 0.6
+          },
+          "finish": {
+            "color": [
+              0.012,
+              0.009,
+              0.008
+            ],
+            "roughness": 0.73,
+            "fibres": 24,
+            "coverage": 0.95,
+            "normal": 0.2,
+            "shade": 1
+          },
+          "part": {
+            "normal": [
+              1,
+              0,
+              0
+            ],
+            "offset": 0,
+            "transitionWidth": 0.004,
+            "bias": [
+              0,
+              0,
+              -0.3
+            ],
+            "strength": 4,
+            "reach": 0.035,
+            "region": {
+              "center": [
+                0,
+                0.1,
+                0.08
+              ],
+              "spread": [
+                0.25,
+                0.25,
+                0.07
+              ]
+            }
+          }
+        }
+      ]
+    }
   },
   {
     "id": "maggie-smith-connected",
     "name": "maggie-smith (connected study)",
-    "basis": "mpfb-connected-head-2026-09-21-fine-141-rigid",
+    "basis": "mpfb-connected-head-2026-09-22-numerical-hair",
     "shape": {
       "headWidth": -0.15998379022793405,
       "headHeight": 0.15132059397286912,
@@ -1735,12 +2657,99 @@
         "roughness": 0.57
       }
     },
-    "hair": "maggie-smith"
+    "hair": {
+      "layers": [
+        {
+          "id": "scalp",
+          "surface": "Human",
+          "domain": "scalp",
+          "count": 1024,
+          "seed": 17,
+          "hairline": {
+            "front": 0.9,
+            "left": 1.55,
+            "right": 1.55,
+            "back": 2.1
+          },
+          "lengthAxes": [
+            0.15,
+            0.15,
+            0.2,
+            0.1,
+            0.16,
+            0.18
+          ],
+          "lengthVariation": 0.08,
+          "width": 0.004,
+          "samplingStep": 0.003,
+          "clearance": 0.0005,
+          "flow": [
+            0,
+            -1,
+            -0.1
+          ],
+          "lift": {
+            "strength": 0.25,
+            "reach": 0.035
+          },
+          "curl": {
+            "mode": "wave",
+            "angle": 0.2,
+            "wavelength": 0.08,
+            "reach": 0.025
+          },
+          "taper": {
+            "tipWidth": 0.2,
+            "start": 0.6
+          },
+          "finish": {
+            "color": [
+              0.45,
+              0.32,
+              0.22
+            ],
+            "roughness": 0.73,
+            "fibres": 24,
+            "coverage": 0.95,
+            "normal": 0.2,
+            "shade": 1
+          },
+          "part": {
+            "normal": [
+              1,
+              0,
+              0
+            ],
+            "offset": 0.025,
+            "transitionWidth": 0.004,
+            "bias": [
+              0,
+              0,
+              -0.3
+            ],
+            "strength": 4,
+            "reach": 0.035,
+            "region": {
+              "center": [
+                0,
+                0.1,
+                0.08
+              ],
+              "spread": [
+                0.25,
+                0.25,
+                0.07
+              ]
+            }
+          }
+        }
+      ]
+    }
   },
   {
     "id": "michael-gambon-connected",
     "name": "michael-gambon (connected study)",
-    "basis": "mpfb-connected-head-2026-09-21-fine-141-rigid",
+    "basis": "mpfb-connected-head-2026-09-22-numerical-hair",
     "shape": {
       "headWidth": -0.09607843620429035,
       "headHeight": -0.023221640542795283,
@@ -1887,12 +2896,71 @@
         "roughness": 0.57
       }
     },
-    "hair": "michael-gambon"
+    "hair": {
+      "layers": [
+        {
+          "id": "scalp",
+          "surface": "Human",
+          "domain": "scalp",
+          "count": 1024,
+          "seed": 17,
+          "hairline": {
+            "front": 0.55,
+            "left": 1.55,
+            "right": 1.55,
+            "back": 2.1
+          },
+          "lengthAxes": [
+            0.085,
+            0.085,
+            0.12,
+            0.065,
+            0.09,
+            0.11
+          ],
+          "lengthVariation": 0.08,
+          "width": 0.004,
+          "samplingStep": 0.003,
+          "clearance": 0.0005,
+          "flow": [
+            0,
+            -0.4,
+            -1
+          ],
+          "lift": {
+            "strength": 0.3,
+            "reach": 0.035
+          },
+          "curl": {
+            "mode": "wave",
+            "angle": 0.3,
+            "wavelength": 0.06,
+            "reach": 0.025
+          },
+          "taper": {
+            "tipWidth": 0.2,
+            "start": 0.6
+          },
+          "finish": {
+            "color": [
+              0.5,
+              0.5,
+              0.5
+            ],
+            "roughness": 0.73,
+            "fibres": 24,
+            "coverage": 0.95,
+            "normal": 0.2,
+            "shade": 1
+          }
+        }
+      ]
+    }
   },
   {
     "id": "miriam-margolyes-connected",
     "name": "miriam-margolyes (connected study)",
-    "basis": "mpfb-connected-head-2026-09-21-fine-141-rigid",
+    "basis": "mpfb-connected-head-2026-09-22-numerical-hair",
     "shape": {
       "headWidth": 0.10955686052421654,
       "headHeight": -0.1354776231017277,
@@ -2046,12 +3114,139 @@
         "roughness": 0.57
       }
     },
-    "hair": "miriam-margolyes"
+    "hair": {
+      "layers": [
+        {
+          "id": "scalp",
+          "surface": "Human",
+          "domain": "scalp",
+          "count": 1024,
+          "seed": 17,
+          "hairline": {
+            "front": 1.05,
+            "left": 1.55,
+            "right": 1.55,
+            "back": 2.1
+          },
+          "lengthAxes": [
+            0.155,
+            0.155,
+            0.2,
+            0.1,
+            0.165,
+            0.18
+          ],
+          "lengthVariation": 0.08,
+          "width": 0.004,
+          "samplingStep": 0.003,
+          "clearance": 0.0005,
+          "flow": [
+            0,
+            -1,
+            0
+          ],
+          "lift": {
+            "strength": 0.65,
+            "reach": 0.06
+          },
+          "curl": {
+            "mode": "helix",
+            "angle": 1,
+            "wavelength": 0.04,
+            "reach": 0.025
+          },
+          "taper": {
+            "tipWidth": 0.2,
+            "start": 0.6
+          },
+          "finish": {
+            "color": [
+              0.52,
+              0.5,
+              0.48
+            ],
+            "roughness": 0.94,
+            "fibres": 24,
+            "coverage": 0.95,
+            "normal": 0.2,
+            "shade": 1
+          }
+        },
+        {
+          "id": "fringe",
+          "surface": "Human",
+          "domain": "scalp",
+          "count": 256,
+          "seed": 1453,
+          "hairline": {
+            "front": 1.05,
+            "left": 1.55,
+            "right": 1.55,
+            "back": 2.1
+          },
+          "lengthAxes": [
+            0.07,
+            0.07,
+            0.07,
+            0.07,
+            0.07,
+            0.07
+          ],
+          "lengthVariation": 0.08,
+          "width": 0.002,
+          "samplingStep": 0.003,
+          "clearance": 0.0005,
+          "flow": [
+            -0.35,
+            -1,
+            0.7
+          ],
+          "lift": {
+            "strength": 0.08,
+            "reach": 0.01
+          },
+          "curl": {
+            "mode": "helix",
+            "angle": 1,
+            "wavelength": 0.04,
+            "reach": 0.025
+          },
+          "taper": {
+            "tipWidth": 0.2,
+            "start": 0.6
+          },
+          "finish": {
+            "color": [
+              0.52,
+              0.5,
+              0.48
+            ],
+            "roughness": 0.94,
+            "fibres": 24,
+            "coverage": 0.95,
+            "normal": 0.2,
+            "shade": 1
+          },
+          "rootRegion": {
+            "center": [
+              0,
+              0.11,
+              0.115
+            ],
+            "spread": [
+              0.04,
+              0.03,
+              0.035
+            ]
+          }
+        }
+      ]
+    }
   },
   {
     "id": "oh-seung-yoon-connected",
     "name": "oh-seung-yoon (connected study)",
-    "basis": "mpfb-connected-head-2026-09-21-fine-141-rigid",
+    "basis": "mpfb-connected-head-2026-09-22-numerical-hair",
     "shape": {
       "headWidth": -0.14621778961613513,
       "headHeight": 0.045378305918042504,
@@ -2201,12 +3396,167 @@
         "roughness": 0.57
       }
     },
-    "hair": "oh-seung-yoon"
+    "hair": {
+      "layers": [
+        {
+          "id": "scalp",
+          "surface": "Human",
+          "domain": "scalp",
+          "count": 1024,
+          "seed": 17,
+          "hairline": {
+            "front": 1,
+            "left": 1.55,
+            "right": 1.55,
+            "back": 2.1
+          },
+          "lengthAxes": [
+            0.085,
+            0.085,
+            0.125,
+            0.065,
+            0.11,
+            0.1
+          ],
+          "lengthVariation": 0.08,
+          "width": 0.004,
+          "samplingStep": 0.003,
+          "clearance": 0.0005,
+          "flow": [
+            0,
+            -1,
+            -0.1
+          ],
+          "lift": {
+            "strength": 0.18,
+            "reach": 0.025
+          },
+          "curl": {
+            "mode": "wave",
+            "angle": 0.1,
+            "wavelength": 0.065,
+            "reach": 0.025
+          },
+          "taper": {
+            "tipWidth": 0.2,
+            "start": 0.6
+          },
+          "finish": {
+            "color": [
+              0.014,
+              0.01,
+              0.008
+            ],
+            "roughness": 0.73,
+            "fibres": 24,
+            "coverage": 0.95,
+            "normal": 0.2,
+            "shade": 1
+          },
+          "part": {
+            "normal": [
+              1,
+              0,
+              0
+            ],
+            "offset": -0.025,
+            "transitionWidth": 0.004,
+            "bias": [
+              0,
+              0,
+              -0.3
+            ],
+            "strength": 4,
+            "reach": 0.035,
+            "region": {
+              "center": [
+                0,
+                0.1,
+                0.08
+              ],
+              "spread": [
+                0.25,
+                0.25,
+                0.07
+              ]
+            }
+          }
+        },
+        {
+          "id": "fringe",
+          "surface": "Human",
+          "domain": "scalp",
+          "count": 256,
+          "seed": 1453,
+          "hairline": {
+            "front": 1,
+            "left": 1.55,
+            "right": 1.55,
+            "back": 2.1
+          },
+          "lengthAxes": [
+            0.085,
+            0.085,
+            0.085,
+            0.085,
+            0.085,
+            0.085
+          ],
+          "lengthVariation": 0.08,
+          "width": 0.002,
+          "samplingStep": 0.003,
+          "clearance": 0.0005,
+          "flow": [
+            -0.35,
+            -1,
+            0.7
+          ],
+          "lift": {
+            "strength": 0.08,
+            "reach": 0.01
+          },
+          "curl": {
+            "mode": "wave",
+            "angle": 0.1,
+            "wavelength": 0.065,
+            "reach": 0.025
+          },
+          "taper": {
+            "tipWidth": 0.2,
+            "start": 0.6
+          },
+          "finish": {
+            "color": [
+              0.014,
+              0.01,
+              0.008
+            ],
+            "roughness": 0.73,
+            "fibres": 24,
+            "coverage": 0.95,
+            "normal": 0.2,
+            "shade": 1
+          },
+          "rootRegion": {
+            "center": [
+              0,
+              0.11,
+              0.115
+            ],
+            "spread": [
+              0.04,
+              0.03,
+              0.035
+            ]
+          }
+        }
+      ]
+    }
   },
   {
     "id": "park-eun-bin-connected",
     "name": "park-eun-bin (connected study)",
-    "basis": "mpfb-connected-head-2026-09-21-fine-141-rigid",
+    "basis": "mpfb-connected-head-2026-09-22-numerical-hair",
     "shape": {
       "headWidth": -0.1642515472027471,
       "headHeight": 0.12540294461983814,
@@ -2362,12 +3712,167 @@
         "roughness": 0.57
       }
     },
-    "hair": "park-eun-bin"
+    "hair": {
+      "layers": [
+        {
+          "id": "scalp",
+          "surface": "Human",
+          "domain": "scalp",
+          "count": 1024,
+          "seed": 17,
+          "hairline": {
+            "front": 1,
+            "left": 1.55,
+            "right": 1.55,
+            "back": 2.1
+          },
+          "lengthAxes": [
+            0.095,
+            0.095,
+            0.15,
+            0.06,
+            0.12,
+            0.135
+          ],
+          "lengthVariation": 0.08,
+          "width": 0.004,
+          "samplingStep": 0.003,
+          "clearance": 0.0005,
+          "flow": [
+            0,
+            -0.5,
+            -1
+          ],
+          "lift": {
+            "strength": 0.1,
+            "reach": 0.025
+          },
+          "curl": {
+            "mode": "wave",
+            "angle": 0.12,
+            "wavelength": 0.07,
+            "reach": 0.025
+          },
+          "taper": {
+            "tipWidth": 0.2,
+            "start": 0.6
+          },
+          "finish": {
+            "color": [
+              0.019,
+              0.012,
+              0.008
+            ],
+            "roughness": 0.73,
+            "fibres": 24,
+            "coverage": 0.95,
+            "normal": 0.2,
+            "shade": 1
+          },
+          "part": {
+            "normal": [
+              1,
+              0,
+              0
+            ],
+            "offset": -0.025,
+            "transitionWidth": 0.004,
+            "bias": [
+              0,
+              0,
+              -0.3
+            ],
+            "strength": 4,
+            "reach": 0.035,
+            "region": {
+              "center": [
+                0,
+                0.1,
+                0.08
+              ],
+              "spread": [
+                0.25,
+                0.25,
+                0.07
+              ]
+            }
+          }
+        },
+        {
+          "id": "fringe",
+          "surface": "Human",
+          "domain": "scalp",
+          "count": 256,
+          "seed": 1453,
+          "hairline": {
+            "front": 1,
+            "left": 1.55,
+            "right": 1.55,
+            "back": 2.1
+          },
+          "lengthAxes": [
+            0.085,
+            0.085,
+            0.085,
+            0.085,
+            0.085,
+            0.085
+          ],
+          "lengthVariation": 0.08,
+          "width": 0.002,
+          "samplingStep": 0.003,
+          "clearance": 0.0005,
+          "flow": [
+            -0.35,
+            -1,
+            0.7
+          ],
+          "lift": {
+            "strength": 0.08,
+            "reach": 0.01
+          },
+          "curl": {
+            "mode": "wave",
+            "angle": 0.12,
+            "wavelength": 0.07,
+            "reach": 0.025
+          },
+          "taper": {
+            "tipWidth": 0.2,
+            "start": 0.6
+          },
+          "finish": {
+            "color": [
+              0.019,
+              0.012,
+              0.008
+            ],
+            "roughness": 0.73,
+            "fibres": 24,
+            "coverage": 0.95,
+            "normal": 0.2,
+            "shade": 1
+          },
+          "rootRegion": {
+            "center": [
+              0,
+              0.11,
+              0.115
+            ],
+            "spread": [
+              0.04,
+              0.03,
+              0.035
+            ]
+          }
+        }
+      ]
+    }
   },
   {
     "id": "rupert-grint-connected",
     "name": "rupert-grint (connected study)",
-    "basis": "mpfb-connected-head-2026-09-21-fine-141-rigid",
+    "basis": "mpfb-connected-head-2026-09-22-numerical-hair",
     "shape": {
       "headWidth": -0.04806101701215676,
       "headHeight": 0.05477567938155129,
@@ -2522,12 +4027,99 @@
         "roughness": 0.57
       }
     },
-    "hair": "rupert-grint"
+    "hair": {
+      "layers": [
+        {
+          "id": "scalp",
+          "surface": "Human",
+          "domain": "scalp",
+          "count": 1024,
+          "seed": 17,
+          "hairline": {
+            "front": 1,
+            "left": 1.55,
+            "right": 1.55,
+            "back": 2.1
+          },
+          "lengthAxes": [
+            0.065,
+            0.065,
+            0.11,
+            0.045,
+            0.09,
+            0.085
+          ],
+          "lengthVariation": 0.08,
+          "width": 0.004,
+          "samplingStep": 0.003,
+          "clearance": 0.0005,
+          "flow": [
+            0,
+            -0.8,
+            -0.4
+          ],
+          "lift": {
+            "strength": 0.45,
+            "reach": 0.04
+          },
+          "curl": {
+            "mode": "wave",
+            "angle": 0.3,
+            "wavelength": 0.07,
+            "reach": 0.025
+          },
+          "taper": {
+            "tipWidth": 0.2,
+            "start": 0.6
+          },
+          "finish": {
+            "color": [
+              0.16,
+              0.06,
+              0.017
+            ],
+            "roughness": 0.73,
+            "fibres": 24,
+            "coverage": 0.95,
+            "normal": 0.2,
+            "shade": 1
+          },
+          "part": {
+            "normal": [
+              1,
+              0,
+              0
+            ],
+            "offset": 0.015,
+            "transitionWidth": 0.004,
+            "bias": [
+              0,
+              0,
+              -0.3
+            ],
+            "strength": 4,
+            "reach": 0.035,
+            "region": {
+              "center": [
+                0,
+                0.1,
+                0.08
+              ],
+              "spread": [
+                0.25,
+                0.25,
+                0.07
+              ]
+            }
+          }
+        }
+      ]
+    }
   },
   {
     "id": "yoo-seung-ho-connected",
     "name": "yoo-seung-ho (connected study)",
-    "basis": "mpfb-connected-head-2026-09-21-fine-141-rigid",
+    "basis": "mpfb-connected-head-2026-09-22-numerical-hair",
     "shape": {
       "headWidth": -0.04682910582488017,
       "headHeight": 0.023046590402676176,
@@ -2677,12 +4269,167 @@
         "roughness": 0.57
       }
     },
-    "hair": "yoo-seung-ho"
+    "hair": {
+      "layers": [
+        {
+          "id": "scalp",
+          "surface": "Human",
+          "domain": "scalp",
+          "count": 1024,
+          "seed": 17,
+          "hairline": {
+            "front": 1,
+            "left": 1.55,
+            "right": 1.55,
+            "back": 2.1
+          },
+          "lengthAxes": [
+            0.045,
+            0.045,
+            0.095,
+            0.025,
+            0.085,
+            0.055
+          ],
+          "lengthVariation": 0.08,
+          "width": 0.004,
+          "samplingStep": 0.003,
+          "clearance": 0.0005,
+          "flow": [
+            0,
+            -1,
+            -0.1
+          ],
+          "lift": {
+            "strength": 0.2,
+            "reach": 0.025
+          },
+          "curl": {
+            "mode": "wave",
+            "angle": 0.12,
+            "wavelength": 0.06,
+            "reach": 0.025
+          },
+          "taper": {
+            "tipWidth": 0.2,
+            "start": 0.6
+          },
+          "finish": {
+            "color": [
+              0.025,
+              0.018,
+              0.013
+            ],
+            "roughness": 0.73,
+            "fibres": 24,
+            "coverage": 0.95,
+            "normal": 0.2,
+            "shade": 1
+          },
+          "part": {
+            "normal": [
+              1,
+              0,
+              0
+            ],
+            "offset": -0.02,
+            "transitionWidth": 0.004,
+            "bias": [
+              0,
+              0,
+              -0.3
+            ],
+            "strength": 4,
+            "reach": 0.035,
+            "region": {
+              "center": [
+                0,
+                0.1,
+                0.08
+              ],
+              "spread": [
+                0.25,
+                0.25,
+                0.07
+              ]
+            }
+          }
+        },
+        {
+          "id": "fringe",
+          "surface": "Human",
+          "domain": "scalp",
+          "count": 256,
+          "seed": 1453,
+          "hairline": {
+            "front": 1,
+            "left": 1.55,
+            "right": 1.55,
+            "back": 2.1
+          },
+          "lengthAxes": [
+            0.07,
+            0.07,
+            0.07,
+            0.07,
+            0.07,
+            0.07
+          ],
+          "lengthVariation": 0.08,
+          "width": 0.002,
+          "samplingStep": 0.003,
+          "clearance": 0.0005,
+          "flow": [
+            -0.35,
+            -1,
+            0.7
+          ],
+          "lift": {
+            "strength": 0.08,
+            "reach": 0.01
+          },
+          "curl": {
+            "mode": "wave",
+            "angle": 0.12,
+            "wavelength": 0.06,
+            "reach": 0.025
+          },
+          "taper": {
+            "tipWidth": 0.2,
+            "start": 0.6
+          },
+          "finish": {
+            "color": [
+              0.025,
+              0.018,
+              0.013
+            ],
+            "roughness": 0.73,
+            "fibres": 24,
+            "coverage": 0.95,
+            "normal": 0.2,
+            "shade": 1
+          },
+          "rootRegion": {
+            "center": [
+              0,
+              0.11,
+              0.115
+            ],
+            "spread": [
+              0.04,
+              0.03,
+              0.035
+            ]
+          }
+        }
+      ]
+    }
   },
   {
     "id": "kdy1-connected",
     "name": "kdy1 (connected study)",
-    "basis": "mpfb-connected-head-2026-09-21-fine-141-rigid",
+    "basis": "mpfb-connected-head-2026-09-22-numerical-hair",
     "shape": {
       "headWidth": -0.1663319127017783,
       "headHeight": 0.05669548953187567,
@@ -2816,6 +4563,93 @@
       "mouthUpperUpRight": 0.00007641862650435841,
       "noseSneerLeft": 0.000040436661577653273
     },
-    "hair": "kdy1"
+    "hair": {
+      "layers": [
+        {
+          "id": "scalp",
+          "surface": "Human",
+          "domain": "scalp",
+          "count": 1024,
+          "seed": 17,
+          "hairline": {
+            "front": 1,
+            "left": 1.55,
+            "right": 1.55,
+            "back": 2.1
+          },
+          "lengthAxes": [
+            0.04,
+            0.04,
+            0.09,
+            0.025,
+            0.07,
+            0.055
+          ],
+          "lengthVariation": 0.08,
+          "width": 0.004,
+          "samplingStep": 0.003,
+          "clearance": 0.0005,
+          "flow": [
+            0,
+            -1,
+            -0.15
+          ],
+          "lift": {
+            "strength": 0.25,
+            "reach": 0.03
+          },
+          "curl": {
+            "mode": "wave",
+            "angle": 0.15,
+            "wavelength": 0.06,
+            "reach": 0.025
+          },
+          "taper": {
+            "tipWidth": 0.2,
+            "start": 0.6
+          },
+          "finish": {
+            "color": [
+              0.022,
+              0.017,
+              0.014
+            ],
+            "roughness": 0.73,
+            "fibres": 24,
+            "coverage": 0.95,
+            "normal": 0.2,
+            "shade": 1
+          },
+          "part": {
+            "normal": [
+              1,
+              0,
+              0
+            ],
+            "offset": 0,
+            "transitionWidth": 0.004,
+            "bias": [
+              0,
+              0,
+              -0.3
+            ],
+            "strength": 4,
+            "reach": 0.035,
+            "region": {
+              "center": [
+                0,
+                0.1,
+                0.08
+              ],
+              "spread": [
+                0.25,
+                0.25,
+                0.07
+              ]
+            }
+          }
+        }
+      ]
+    }
   }
 ]

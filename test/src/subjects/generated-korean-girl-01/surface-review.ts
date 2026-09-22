@@ -1,6 +1,34 @@
 import type * as Human from "@automovie/human";
+import type {
+  buildHumanFaceHairMesh,
+  createHumanFaceHairBuilder,
+  createHumanFaceHairRoots,
+  evaluateHumanFaceHairDirection,
+  humanFaceHairFrame,
+  humanFaceHairSequence,
+  integrateHumanFaceHairCurve,
+} from "@automovie/human";
 
 /**
+ * The new numerical scalp path is inspected as shared construction source.
+ * This frozen procedural subject has not migrated to it and receives no new
+ * visual or anatomical acceptance from the following source observations.
+ * @evidence {@link Human.assertHumanFaceHair} Read strict schema equality, finite/range checks, unique layer names and combined interval budget. Shared domain lookup and actual contact remain builder responsibilities.
+ * @evidenceReview {@link Human.assertHumanFaceHair} #b08ddd8 Read both optional root and part envelope paths, including finite centres and strictly positive finite spreads at zero count. Structural equality, identities and allocation remain enforced before construction; no new visual acceptance is claimed for this frozen subject.
+ * @evidence {@link createHumanFaceHairRoots} Read neutral area-CDF sampling, square-root barycentric seats, polar masking and retained candidate identities. Failed budgets refuse; no personal guide is selected.
+ * @evidenceReview {@link createHumanFaceHairRoots} #0c7e04a Read neutral area sampling followed by polar and base-13 Gaussian rejection. Sequence identities and barycentric seats are retained, omitted regions admit every candidate, and exhausted local populations explicitly refuse.
+ * @evidence {@link humanFaceHairSequence} Read the radical inverse shared by deterministic roots, length variation and phase. Inputs come from admitted integer seeds/candidate ordinals.
+ * @evidenceReview {@link humanFaceHairSequence} #7f7fc99 Read the radical inverse shared by deterministic roots, length variation and phase. Inputs come from admitted integer seeds/candidate ordinals.
+ * @evidence {@link humanFaceHairFrame} Read finite direction admission and least-aligned-axis transverse conditioning. This convention chooses a ribbon frame without replacing a cancelled growth field.
+ * @evidenceReview {@link humanFaceHairFrame} #03ce90a Read finite direction admission and least-aligned-axis transverse conditioning. This convention chooses a ribbon frame without replacing a cancelled growth field.
+ * @evidence {@link evaluateHumanFaceHairDirection} Read projected parting, optional Gaussian influence, outward lift and wave/helix modulation. Static kinematic styling is not a physical rod solve.
+ * @evidenceReview {@link evaluateHumanFaceHairDirection} #bb25244 Read the extracted envelope call against its former expression: optional uniform weight, independent-axis squared distance and exponential weight are unchanged. Parting, lift and wave/helix order remain kinematic; no new visual acceptance is claimed.
+ * @evidence {@link integrateHumanFaceHairCurve} Read metric emergence, signed-distance projection, bounded chords and exact terminal length. The free-strip bound does not accept root fans or hair-to-hair intersection.
+ * @evidenceReview {@link integrateHumanFaceHairCurve} #e251bb3 Read the shared scale-derived contact allowance and h + epsilon chord admission, including final extension by at most epsilon. The nearest-endpoint bound pays for both from the remaining contact allowance. Same-input Float32 GLB bytes remained exact in the 1,024-root probe; root-fan and hair-to-hair clearance remain unproved.
+ * @evidence {@link buildHumanFaceHairMesh} Read actual-station meshing, minimal transverse transport, root fan, arc-length taper and finite-area refusal. No spline refit changes the measured curve.
+ * @evidenceReview {@link buildHumanFaceHairMesh} #2d9fcf6 Read first-bend frame initialization and straight-curve fallback beside the reproduced planar-width failure. Minimal transport, root fan, measured UV/taper and finite-area refusal retain the same centreline. This source inspection neither regenerates this frozen person nor accepts the new hair population.
+ * @evidence {@link createHumanFaceHairBuilder} Read shared source/domain ownership, barycentric current roots, closed contact queries and procedural finishes. The connected editor consumes it; this frozen subject remains on its separately recorded path.
+ * @evidenceReview {@link createHumanFaceHairBuilder} #d36b594 Read shared source/domain ownership, barycentric current roots, closed contact queries and procedural finishes. The connected editor consumes it; this frozen subject remains on its separately recorded path.
  * @evidence {@link Human.IPortraitColourField} Read the complete five-field numerical reflectance envelope and both consumers. It stores a centre, positive support radii, linear attenuation and strength, with no image or vertex payload. Units follow the caller; connected documents use metres.
  * @evidenceReview {@link Human.IPortraitColourField} #e5cac1c Read the complete five-field numerical reflectance envelope and both consumers. It stores a centre, positive support radii, linear attenuation and strength, with no image or vertex payload. Units follow the caller; connected documents use metres.
  * @evidence {@link Human.IPortraitColourField.name} Read nonblank unique-name admission and lexical composition order. Renaming can change multiplication order at floating precision, but insertion order cannot.

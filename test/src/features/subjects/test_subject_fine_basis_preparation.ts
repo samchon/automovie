@@ -56,8 +56,20 @@ export const test_subject_fine_basis_preparation = (): void => {
     admittedDocuments: 2,
     rigidComponents: 1,
   });
+  TestValidator.equals(
+    "historical bare input has no groom",
+    input.documents[1].hair,
+    undefined,
+  );
+  TestValidator.equals(
+    "prepared bare input has no groom",
+    result.documents[1].hair,
+    undefined,
+  );
+  const { hair: inputHair, ...bareInput } = input.documents[1];
+  const { hair: preparedHair, ...bareResult } = result.documents[1];
   const model = createHumanFaceBasisBuilder(result.basis)({
-    ...result.documents[1],
+    ...bareResult,
     shape: { depth: 1 },
   });
   const geometry = model.parts[0].geometry;
@@ -66,9 +78,9 @@ export const test_subject_fine_basis_preparation = (): void => {
     "forward endpoint",
     nclose(geometry.mesh.positions[2], 0.1),
   );
-  const before = createHumanFaceBasisBuilder(input.basis)(input.documents[1]);
+  const before = createHumanFaceBasisBuilder(input.basis)(bareInput);
   const performed = createHumanFaceBasisBuilder(result.basis)({
-    ...result.documents[1],
+    ...bareResult,
     expression: { lift: 1 },
   });
   TestValidator.equals(

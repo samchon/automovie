@@ -9,6 +9,7 @@
  * Positive implementation citations remain on the actual public exports.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Generic playback consumes the model already evaluated by the human authoring builder; it does not own reusable facial identity and expression documents.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-basis Engine mesh validation checks the evaluated result; facial basis admission, ordered endpoint evaluation and pre-seam normals belong to the human builder.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-parametric-hair Generic signed mesh queries provide a geometric primitive; scalp sampling, numerical styling documents, curve integration and strip assembly are human authoring responsibilities.
  * An exclusion neither implements a feature nor approves a rendered asset.
  * Add a boundary at its semantic owner and retain native graph validation.
  *

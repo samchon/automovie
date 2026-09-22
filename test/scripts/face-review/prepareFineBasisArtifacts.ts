@@ -7,6 +7,10 @@
  * remaps region-local groom seats before admitting documents and endpoints.
  * A refusal leaves caller data intact. No per-person weight is fitted here.
  * The returned receipt records finite admission, not anatomical acceptance.
+ * This historical preparation stage reads pre-migration groom-key documents.
+ * Its output is an intermediate for numerical hair migration, not a current
+ * editor document. The current builder receives only the face coordinates;
+ * legacy attachment inspection remains explicit in this offline stage.
  */
 import {
   type IAutoMovieHumanFaceBasis,
@@ -47,7 +51,9 @@ export function prepareFineBasisArtifacts(input: {
     NonNullable<IAutoMovieHumanFaceBasis["surfaces"][number]["rigidGroups"]>
   >;
   grooms: Record<string, IAutoMovieHumanFaceGroom>;
-  documents: IAutoMovieHumanFaceBasisDocument[];
+  documents: (Omit<IAutoMovieHumanFaceBasisDocument, "hair"> & {
+    hair?: string | null;
+  })[];
   controls: IAutoMovieHumanFaceControlMap;
   revision: string;
   cutSurface: string;
@@ -164,9 +170,9 @@ export function prepareFineBasisArtifacts(input: {
   const project = createHumanFaceControlMap({ basis, map: controls });
   const build = createHumanFaceBasisBuilder(basis);
   for (const document of documents) {
-    let model = build(document);
-    if (document.hair)
-      model = appendHumanFaceGroom({ model, groom: grooms[document.hair] });
+    const { hair, ...face } = document;
+    let model = build(face);
+    if (hair) model = appendHumanFaceGroom({ model, groom: grooms[hair] });
     project(document.shape);
   }
   // Admit every added endpoint through the same builder as editor evaluation.

@@ -3,6 +3,7 @@ import { createMeshWeldPartitionMatcher } from "@automovie/engine/math/createMes
 import type { IAutoMovieModel } from "@automovie/interface";
 import typia from "typia";
 
+import { createHumanFaceHairBuilder } from "../anatomy/hair/createHumanFaceHairBuilder";
 import { createPortraitColourField } from "../anatomy/skin/createPortraitColourField";
 import { portraitNormals } from "../mesh/portraitNormals";
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
@@ -52,6 +53,7 @@ export function createHumanFaceBasisBuilder(
     typia.assertEquals<IAutoMovieHumanFaceBasis>(input),
   );
   assertHumanFaceBasis(basis);
+  const buildHair = createHumanFaceHairBuilder(basis);
   const channels = new Map(
     basis.channels.map((channel) => [channel.id, channel]),
   );
@@ -168,6 +170,7 @@ export function createHumanFaceBasisBuilder(
         (input) => channels.get(input.channel)!.kind === "shape",
       ),
     }));
+    const evaluated = new Map<string, readonly number[]>();
     const parts = surfaces.flatMap(({ surface, regions }) => {
       const fields = Object.hasOwn(document.skin ?? {}, surface.id)
         ? document.skin![surface.id]
@@ -218,6 +221,7 @@ export function createHumanFaceBasisBuilder(
       if (shape !== undefined)
         applyHumanFaceRigidGroups(surface.rigidGroups!, shape, positions);
       const normals = portraitNormals(positions, surface.indices);
+      evaluated.set(surface.id, positions);
       return regions.map(({ region, evaluate }) => ({
         id: region.id,
         name: region.id,
@@ -259,6 +263,28 @@ export function createHumanFaceBasisBuilder(
       if (partitions === undefined)
         partitions = parts.map((part) =>
           createMeshWeldPartitionMatcher(part.geometry.mesh.positions),
+        );
+    }
+    if (document.hair !== undefined && document.hair !== null) {
+      const hair = buildHair(document.hair, evaluated);
+      if (
+        hair.parts.some((part) =>
+          model.parts.some((resident) => resident.id === part.id),
+        ) ||
+        hair.materials.some((material) =>
+          model.materials.some((resident) => resident.id === material.id),
+        )
+      )
+        throw new Error(
+          "Numerical hair identities collide with resident face geometry or finishes.",
+        );
+      model.parts.push(...hair.parts);
+      model.materials.push(...hair.materials);
+      const validation = validateModel({ model });
+      if (!validation.success)
+        throw new Error(
+          "The numerical hairstyle did not form a valid resident model: " +
+            JSON.stringify(validation),
         );
     }
     return model;

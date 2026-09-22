@@ -3,7 +3,7 @@
  * ttsx -P tsconfig.scripts.json --no-plugins scripts/face-review/prepare-fine-basis.ts OUTPUT
  *
  * Historical Git blobs supply the unchanged neutral correspondence and the
- * source geometry. Current numerical documents, tracked native endpoints and curation
+ * source geometry. Pinned historical documents, tracked native endpoints and curation
  * supply the added shape coordinates. No private Blender file or worklog is
  * needed to replay preparation. Native extraction provenance is recorded in
  * fine-controls.json; this entry does not rerun Blender extraction.
@@ -13,11 +13,12 @@
  * groom seats only when their complete source triangle survives. All models
  * are admitted before output, and the output directory must be new. This
  * entry prepares review artifacts; publication remains an explicit copy after
- * editor/export verification. It never changes per-person shape weights.
+ * editor/export verification. It never changes per-person shape weights. Its
+ * groom-key documents are a historical intermediate; numerical hair preparation
+ * and scalar migration must follow before these are current editor documents.
  */
 import {
   type IAutoMovieHumanFaceBasis,
-  type IAutoMovieHumanFaceBasisDocument,
   type IAutoMovieHumanFaceControlMap,
   type IAutoMovieHumanFaceGroom,
 } from "@automovie/human";
@@ -34,6 +35,7 @@ import {
 
 const compact = "e166c64a8cff9423d0924d00450f01ec8b964777";
 const original = "0c75de1e377a7901ce4a8dd942d4718f27d32d8b";
+const documentsSource = "3bc7702058484fc8aa9bd2f648023c466abf98d2";
 const revision = "mpfb-connected-head-2026-09-21-fine-141-rigid";
 const published = "studies/human-face/connected-basis/global-face";
 const output = process.argv[2];
@@ -64,14 +66,17 @@ const grooms = read<Record<string, IAutoMovieHumanFaceGroom>>(
   "grooms.json.gz",
   compact,
 );
-const documents = read<IAutoMovieHumanFaceBasisDocument[]>("subjects.json").map(
-  (document) => {
-    if (document.basis !== revision)
-      throw new Error("Published documents need the expected prepared basis.");
-    return { ...document, basis: basis.id };
-  },
+const documents = read<
+  Parameters<typeof prepareFineBasisArtifacts>[0]["documents"]
+>("subjects.json", documentsSource).map((document) => {
+  if (document.basis !== revision)
+    throw new Error("Published documents need the expected prepared basis.");
+  return { ...document, basis: basis.id };
+});
+const controls = read<IAutoMovieHumanFaceControlMap>(
+  "simple-controls.json",
+  documentsSource,
 );
-const controls = read<IAutoMovieHumanFaceControlMap>("simple-controls.json");
 const prepared = prepareFineBasisArtifacts({
   basis,
   source,
@@ -95,6 +100,7 @@ for (const [name, value] of Object.entries({
     ...prepared.receipt,
     compactSource: compact,
     connectivitySource: original,
+    documentsSource,
   },
 })) {
   const json =

@@ -29,7 +29,10 @@
  * follows that surface; clearance of the remaining guide stations still
  * requires measurement against the resulting scalp.
  *
- * Usage: ttsx -P tsconfig.json --no-plugins scripts/face-review/measure-groom-burial.ts [grooms.json(.gz)]
+ * Historical diagnostic only. Restore the three original basis/subjects/grooms
+ * files into an explicit input directory from their recorded Git revision. The
+ * current numerical hair documents have no groom key and are not inputs here.
+ * Usage: ttsx -P tsconfig.scripts.json scripts/face-review/measure-groom-burial.ts HISTORICAL_DIRECTORY NEW_OUTPUT_DIRECTORY
  */
 import {
   type IAutoMovieHumanFaceBasis,
@@ -39,25 +42,28 @@ import {
   resolveHumanFaceGroom,
 } from "@automovie/human";
 import fs from "node:fs";
+import path from "node:path";
 import { gunzipSync } from "node:zlib";
 
-const published = "studies/human-face/connected-basis/global-face";
-const out = "../.shots/human-2469/investigation-2498/groom-burial";
+const published = process.argv[2];
+const out = process.argv[3];
+if (published === undefined || out === undefined || fs.existsSync(out))
+  throw new Error(
+    "Supply a historical source directory and a new output directory.",
+  );
 const basis: IAutoMovieHumanFaceBasis = JSON.parse(
   gunzipSync(fs.readFileSync(`${published}/basis.json.gz`)).toString("utf8"),
 );
-// A candidate archive may be named on the command line, so a re-binding can be
-// read before anything is published over the one in the study.
-const archive = process.argv[2] ?? `${published}/grooms.json.gz`;
+const archive = path.join(published, "grooms.json.gz");
 const grooms: Record<string, IAutoMovieHumanFaceGroom> = JSON.parse(
   (archive.endsWith(".gz")
     ? gunzipSync(fs.readFileSync(archive))
     : fs.readFileSync(archive)
   ).toString("utf8"),
 );
-const documents: IAutoMovieHumanFaceBasisDocument[] = JSON.parse(
-  fs.readFileSync(`${published}/subjects.json`, "utf8"),
-);
+const documents: (Omit<IAutoMovieHumanFaceBasisDocument, "hair"> & {
+  hair?: string | null;
+})[] = JSON.parse(fs.readFileSync(`${published}/subjects.json`, "utf8"));
 const build = createHumanFaceBasisBuilder(basis);
 fs.mkdirSync(out, { recursive: true });
 
@@ -90,7 +96,8 @@ for (const document of documents) {
     return { positions, indices, stations };
   };
 
-  const placed = place(document);
+  const { hair: _historicalKey, ...face } = document;
+  const placed = place(face);
   fs.writeFileSync(
     `${out}/${name}.json`,
     JSON.stringify({ subject: name, placed }),

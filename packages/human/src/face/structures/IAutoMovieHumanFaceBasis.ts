@@ -128,6 +128,27 @@ export interface IAutoMovieHumanFaceBasis {
     targets: Record<string, number[]>;
 
     /**
+     * Optional shared anatomical hair-growth domains. Triangle ordinals refer
+     * to this surface's complete indices, before material or UV separation.
+     * Each nonempty domain has unique ascending ordinals and a finite neutral
+     * chart origin in metres. These regions are common to every identity.
+     */
+    hairDomains?: {
+      id: string;
+      origin: [number, number, number];
+      triangles: number[];
+    }[];
+
+    /**
+     * Optional oriented triangles over resident vertices closing an otherwise
+     * open contact surface. They participate only in numerical hair collision
+     * queries, never visible geometry. The completed surface must be embedded,
+     * closed and outward oriented; deformation must preserve those premises.
+     * This is shared collision topology, not personal offsets or a fitted mesh.
+     */
+    hairContactClosure?: number[];
+
+    /**
      * Disjoint complete components whose expression preserves the edited shape.
      * The reference includes shape channels and shape-only correctives. A fixed
      * group stays at that reference; a fitted group follows the closest proper

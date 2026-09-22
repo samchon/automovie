@@ -1,5 +1,6 @@
 import typia from "typia";
 
+import { assertHumanFaceHair } from "../anatomy/hair/assertHumanFaceHair";
 import { createPortraitColourField } from "../anatomy/skin/createPortraitColourField";
 import { IAutoMovieHumanFaceBasisDocument } from "../structures/IAutoMovieHumanFaceBasisDocument";
 
@@ -12,6 +13,8 @@ import { IAutoMovieHumanFaceBasisDocument } from "../structures/IAutoMovieHumanF
  */
 export function admit(input: unknown): IAutoMovieHumanFaceBasisDocument {
   const document = typia.assertEquals<IAutoMovieHumanFaceBasisDocument>(input);
+  if (document.hair !== undefined && document.hair !== null)
+    assertHumanFaceHair(document.hair);
   for (const fields of Object.values(document.skin ?? {}))
     createPortraitColourField(fields);
   const values = [

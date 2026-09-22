@@ -112,7 +112,7 @@ export function fineBasisPreparationFixture(): Parameters<
     },
     documents: [
       { ...document, hair: "locks", skin: { square: [] } },
-      { ...document, id: "bare" },
+      { ...document, id: "bare", hair: undefined },
     ],
     controls: {
       basis: basis.id,

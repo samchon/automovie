@@ -3,6 +3,7 @@ import type {
   IAutoMovieHumanFaceBasisDocument,
 } from "@automovie/human";
 
+import { mountConnectedFaceHair } from "./connectedHair";
 import { mountConnectedFacePigmentation } from "./connectedPigmentation";
 
 /**
@@ -108,10 +109,12 @@ export function mountConnectedFaceAppearance(
   };
   select.onchange = refresh;
   const pigmentation = mountConnectedFacePigmentation(app, props);
+  const hair = mountConnectedFaceHair(app, props);
   return {
     refresh: () => {
       refresh();
       pigmentation.refresh();
+      hair.refresh();
     },
   };
 }

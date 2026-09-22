@@ -1,8 +1,9 @@
 /**
  * Browser entry for the reusable connected-prior editor. Native browser IO
  * resolves one application-selected CC0 basis; all editing, history, numerical
- * admission and rendering delegate to the same package/viewport owners as the
- * ordinary face page. The selected photo never participates in this replay.
+ * admission and rendering delegate to the human package and resident viewport.
+ * Both face.html and connected-face.html mount this same numerical editor.
+ * The selected photo never participates in this replay.
  */
 import {
   type IAutoMovieHumanFaceBasisDocument,

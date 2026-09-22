@@ -4,10 +4,13 @@ import type { humanFaceAnatomySchemaReview } from "./anatomy-schema-review";
 import type { humanFaceConnectedReview } from "./connected-review";
 import type { humanFaceDetailReview } from "./detail-review";
 import type { humanFaceInteriorReview } from "./interior-review";
+import type { humanFaceNumericalHairReview } from "./numerical-hair-review";
 import type { humanFaceOcularReview } from "./ocular-review";
 import type { humanFaceStudyDocuments } from "./studies";
 
 /**
+ * @evidence {@link humanFaceNumericalHairReview} Retains inspection of the new numerical hair schema and actual connected builder path, with population migration and visual acceptance still pending.
+ * @evidenceReview {@link humanFaceNumericalHairReview} #ced8e40 Read the updated contact/chord arithmetic inspection and its same-input Float32 byte comparison. The carrier still distinguishes shared source inspection from unfinished personal-document migration and population acceptance.
  * @evidence {@link Human.IPortraitColourField} Read the complete five-field numerical reflectance envelope and both consumers. It stores a centre, positive support radii, linear attenuation and strength, with no image or vertex payload. Units follow the caller; connected documents use metres.
  * @evidenceReview {@link Human.IPortraitColourField} #e5cac1c Read the complete five-field numerical reflectance envelope and both consumers. It stores a centre, positive support radii, linear attenuation and strength, with no image or vertex payload. Units follow the caller; connected documents use metres.
  * @evidence {@link Human.IPortraitColourField.name} Read nonblank unique-name admission and lexical composition order. Renaming can change multiplication order at floating precision, but insertion order cannot.
@@ -343,7 +346,7 @@ import type { humanFaceStudyDocuments } from "./studies";
  * @evidence {@link humanFaceStudyDocuments} Binds the actual eighteen editor-consumed numerical documents to the per-person image and construction account.
  * @evidenceReview {@link humanFaceStudyDocuments} #3aac1f7 Read all eighteen direct JSON imports and their stable registry keys against the actual panel's sorted document list. Each selected item is serialized and parsed before construction; no built-in person or image-fetching code enters the human package. Current independent replay preserves every saved model identity. The population is eighteen rather than nineteen because one subject was removed at the owner's request: its import, registry key, replay document and both inventory records are gone together, so nothing here names a document that no longer exists.
  * @evidence {@link Human.admit} Shares one finite-scalar admission between loading and saving the flat basis document.
- * @evidenceReview {@link Human.admit} #5d494b8 Reread exact schema, common colour-field admission, finite shape/expression/material values and nonblank metadata. Save and load now call this same owner before JSON can erase nonfinite values; unknown surface IDs remain the builder responsibility.
+ * @evidenceReview {@link Human.admit} #5272322 Read exact schema plus shared numerical-hair and colour-field admission before finite shape/expression/material and nonblank identity checks. Loading and saving reject legacy hair keys and malformed numerical fields; shared domain names remain the compiled builder's responsibility. No generated guides or images are reconstructed by document admission.
  * @evidence {@link Human.advance} Steps a directional surface walk one sample along the recorded ray.
  * @evidenceReview {@link Human.advance} #4e0d744 Read the single step the four directional owners share. It was one file with them until each public identity took its own, and moving it changed nothing it computes.
  * @evidence {@link Human.assertDetailValue} Refuses a detail edit outside the channel's own declared range before it is written.

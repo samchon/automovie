@@ -1,10 +1,10 @@
 /// <reference lib="webworker" />
-/** A resident worker prepares the shared numerical resources once per page. */
-import {
-  type IAutoMovieHumanFaceBasis,
-  type IAutoMovieHumanFaceGroom,
-} from "@automovie/human";
-
+/**
+ * Prepare the application's one shared basis once per resident worker. A literal
+ * module-relative URL gives the bundler that exact asset dependency; an arbitrary
+ * filename template would also package historical personal data in the directory.
+ * Numerical documents never select an external resource.
+ */
 import { readConnectedFaceAsset } from "./human/connectedAsset";
 import {
   type ConnectedFaceRequest,
@@ -13,24 +13,19 @@ import {
 import { createHumanResidentHandler } from "./human/residentHandler";
 
 const scope = self as unknown as DedicatedWorkerGlobalScope;
-const gzipped = <Payload>(name: string) =>
-  readConnectedFaceAsset<Payload>({
-    read: () =>
-      fetch(
-        new URL(
-          `../../../test/studies/human-face/connected-basis/global-face/${name}`,
-          import.meta.url,
-        ),
+const prepared = readConnectedFaceAsset({
+  read: () =>
+    fetch(
+      new URL(
+        "../../../test/studies/human-face/connected-basis/global-face/basis.json.gz",
+        import.meta.url,
       ),
-    decode: (bytes) =>
-      new Response(
-        new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip")),
-      ).text(),
-  });
-const prepared = Promise.all([
-  gzipped<IAutoMovieHumanFaceBasis>("basis.json.gz"),
-  gzipped<Record<string, IAutoMovieHumanFaceGroom>>("grooms.json.gz"),
-]).then(([basis, grooms]) => createConnectedFaceRuntime({ basis, grooms }));
+    ),
+  decode: (bytes) =>
+    new Response(
+      new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip")),
+    ).text(),
+}).then((basis) => createConnectedFaceRuntime({ basis }));
 const handle = createHumanResidentHandler({
   prepare: prepared,
   send: (reply) => {

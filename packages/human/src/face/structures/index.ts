@@ -11,4 +11,5 @@ export * from "./IAutoMovieHumanFaceEndpointScale";
 export * from "./IAutoMovieHumanFaceExpression";
 export * from "./IAutoMovieHumanFaceGroom";
 export * from "./IAutoMovieHumanFaceGroomCard";
+export * from "./IAutoMovieHumanFaceHair";
 export * from "./IAutoMovieHumanFaceRecipe";

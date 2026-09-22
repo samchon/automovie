@@ -18,6 +18,9 @@ type Stencil = { a: number; b: number; t: number };
  * an absent mapping never means permission to discard that attachment. The
  * caller also assigns a new basis revision and updates every dependent binding.
  * The cut is open; it creates no cap or anatomy below the declared boundary.
+ * Prepare numerical hair domains/contact closure after clipping. Their triangle
+ * and vertex correspondence cannot be copied through a new cut; supplied hair
+ * metadata refuses so this operation never leaves a stale closed collider.
  *
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Maintains one shared facial correspondence when preparing an attachment boundary.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-basis Clips neutral connectivity with shared affine endpoint and corner-UV correspondence.
@@ -28,6 +31,13 @@ export function clipHumanFaceBasisSurface(
 ): { surface: Surface; retainedTriangles: Map<string, Map<number, number>> } {
   if (!Number.isFinite(minimumY))
     throw new Error("Facial clipping needs a finite Y plane.");
+  if (
+    source.hairDomains !== undefined ||
+    source.hairContactClosure !== undefined
+  )
+    throw new Error(
+      "Prepare hair domains and contact closure after facial clipping.",
+    );
   const stencils: Stencil[] = [];
   const vertices = new Map<string, number>();
   const resident = (a: number, b = a, t = 0): number => {

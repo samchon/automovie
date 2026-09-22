@@ -13,8 +13,19 @@ import { throwsError } from "../internal/predicates";
  * 3. A discarded component loses its rigid group; clipped membership stays complete.
  * 4. Nonfinite planes and unrepresentable edge fractions refuse; recovery works.
  * 5. An admitted repeated-corner triangle that is discarded cannot retain an attachment mapping.
+ * 6. Shared hair domains/closure refuse a new cut instead of retaining stale correspondence.
  */
 export const test_subject_human_basis_clip_boundary = (): void => {
+  for (const metadata of [{ hairDomains: [] }, { hairContactClosure: [] }])
+    TestValidator.predicate(
+      "hair metadata must follow clipping",
+      throwsError(() =>
+        clipHumanFaceBasisSurface(
+          { ...humanFaceBasisFixture().basis.surfaces[0], ...metadata },
+          0.5,
+        ),
+      ),
+    );
   const source = humanFaceBasisFixture().basis.surfaces[0];
   const retained = clipHumanFaceBasisSurface(source, 0);
   TestValidator.equals("whole surface retained", retained.surface, source);
