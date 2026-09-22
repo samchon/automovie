@@ -17,7 +17,9 @@ import { nclose, throwsError } from "../internal/predicates";
  * 1. Stations are projected to the contact clearance, the root is left where
  *    it is, and the strand keeps its own length and clearance.
  * 2. A contact whose projection refuses grows the strand by the integrator
- *    instead.
+ *    instead, and so does a blend whose stations stand further apart than the
+ *    step its guides were integrated with, which has no clearance argument
+ *    left between them.
  * 3. That refusal is the contact rule's own, in a slot narrower than the
  *    clearance it must keep.
  */
@@ -32,10 +34,18 @@ export const test_subject_human_hair_strand_growth = (): void => {
   });
   const root = Vector3.create(0, 0.1, 0);
   const contact = humanFaceHairContact({ layer, root, length: 0.05, query });
-  const inside = Vector3.create(0, 0.05, 0);
+  // 1.5 mm above the apex is nearer the surface than the 2 mm clearance, so
+  // the projection moves it out; the station beyond it already stands clear.
+  const near = Vector3.create(0, 0.1015, 0);
+  const stretched = {
+    points: [root, Vector3.create(0, 0.15, 0)],
+    length: 0.3,
+    clearance: 0.002,
+    normal: Vector3.create(0, 1, 0),
+  };
   const placed = growHumanFaceHairStrand({
     strand: {
-      points: [root, inside, Vector3.create(0, 0.2, 0)],
+      points: [root, near, Vector3.create(0, 0.1035, 0)],
       length: 0.05,
       normal: Vector3.create(0, 1, 0),
     },
@@ -52,9 +62,22 @@ export const test_subject_human_hair_strand_growth = (): void => {
           .signedDistance,
         contact.clearance,
       ) &&
-      nclose(placed.points[2].y, 0.2) &&
+      nclose(placed.points[2].y, 0.1035) &&
       nclose(placed.length, 0.05) &&
       nclose(placed.clearance, contact.clearance - contact.epsilon),
+  );
+  TestValidator.equals(
+    "a strand whose stations outrun the step is grown",
+    growHumanFaceHairStrand({
+      strand: {
+        points: [root, near, Vector3.create(0, 0.4, 0)],
+        length: 0.3,
+        normal: Vector3.create(0, 1, 0),
+      },
+      contact,
+      integrate: () => stretched,
+    }),
+    stretched,
   );
   const grown = {
     points: [root, Vector3.create(0, 0.3, 0)],
@@ -72,7 +95,7 @@ export const test_subject_human_hair_strand_growth = (): void => {
     "a strand the projection refuses is grown",
     growHumanFaceHairStrand({
       strand: {
-        points: [root, inside],
+        points: [root, Vector3.create(0, 0.05, 0)],
         length: 0.05,
         normal: Vector3.create(0, 1, 0),
       },
