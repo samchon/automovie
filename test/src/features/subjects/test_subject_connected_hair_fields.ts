@@ -10,7 +10,8 @@ import { nclose } from "../internal/predicates";
  * Scenarios:
  * 1. Every scalar has its documented canonical path and metre/degree display scale.
  * 2. A write changes only that path and returns the same scalar on readback.
- * 3. Optional part and region fields disappear when their structures are absent.
+ * 3. Optional guide, part and region fields disappear when their structures
+ *    are absent.
  */
 export const test_subject_connected_hair_fields = (): void => {
   const layer = createNumericalHairFixture().layers[0];
@@ -23,6 +24,7 @@ export const test_subject_connected_hair_fields = (): void => {
     reach: 0.05,
     region: { center: [0, 0, 0], spread: [0.1, 0.1, 0.1] },
   };
+  layer.guides = { fraction: 0.125, neighbours: 4 };
   const expected: { id: string; path: (string | number)[]; scale: number }[] =
     [];
   const add = (id: string, path: (string | number)[], scale = 1): void => {
@@ -53,6 +55,8 @@ export const test_subject_connected_hair_fields = (): void => {
   for (const key of ["offset", "transitionWidth", "reach"])
     add(`part-${key}`, ["part", key], 1000);
   add("part-strength", ["part", "strength"]);
+  add("guides-fraction", ["guides", "fraction"]);
+  add("guides-neighbours", ["guides", "neighbours"]);
   const fields = connectedHairFields(layer);
   TestValidator.equals(
     "complete fine controls",
@@ -91,6 +95,12 @@ export const test_subject_connected_hair_fields = (): void => {
   TestValidator.equals(
     "part controls require a part",
     connectedHairFields(layer).some((field) => field.id.startsWith("part-")),
+    false,
+  );
+  delete layer.guides;
+  TestValidator.equals(
+    "guide controls require a guide hierarchy",
+    connectedHairFields(layer).some((field) => field.id.startsWith("guides-")),
     false,
   );
 };
