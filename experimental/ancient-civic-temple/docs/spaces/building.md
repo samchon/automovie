@@ -3,20 +3,6 @@
 ## 외곽과 치수 선택 {#footprint}
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 도로를 면적에 넣지 않는 본문 덕분에 후퇴 현관까지 포함한 신전 범위가 430.5㎡ 안에 남는다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 폐기 후보의 얕은 제실과 현재 깊이 5.5m를 비교한 선택이 있어 면적 숫자만 적은 평면이 아니다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 21×20.5의 산술을 compiled 값과 구별하고 사진 픽셀에서 얻지 않았다고 명시했다.
-@evidenceReview principles/design/spaces.md#space-topology #3f8d925 왼쪽 봉헌실을 쪼개지 않은 채 중앙 고리와 우측 작업실을 수용하는 관계를 읽었다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 범위와 조립을 building.ts에 남기면서 완결 외피를 입면 owner로 보내는 경계가 있다.
-@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 실제 범위의 불일치와 두 번째 층·중정의 발생을 실패로 삼아 이 외곽 결정을 반증할 수 있다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모가 허용한 거의 정방형 규모에서 벽 두께와 제실/중정의 유효 깊이를 추가 결정했다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 면적과 제단 조건을 후보에 대조한 결과는 제단 축소가 아니라 평면 선택 변경이다. 상위 요구를 버린 근거는 없다.
-@evidenceReview settings/10-building.md#scale #4d1f683 외벽 바깥선 안의 서비스 마당도 분모에 들어가며 도로는 빠져 부모 면적 정의와 맞는다.
-@evidenceReview settings/10-building.md#fixed-graph #afadc4e 후면·좌측·우측이라는 방 배치가 외곽 선택의 내부 관계로 남고 별도 중정은 없다.
-@evidenceReview settings/35-objects.md#altar #53d6be8 제실을 깊게 고른 사유가 제단과 운반의 수용이며 제단을 축소해 통과시켰다는 주장이 없다.
--->
-
-<!--
 @evidence principles/core/common.md#scope-preservation 외벽 바깥선 안에 주랑·중정·서비스 마당·후퇴 현관을 함께 넣고 도로를 제외해 약 430㎡의 분모를 유지한다.
 @evidence principles/core/common.md#substantive-completion 21×20.5m와 외벽 0.6m·내부벽 0.3m를 선택하고 폐기한 얕은 제실 후보와 비교해 치수 선택을 끝냈다.
 @evidence principles/core/common.md#declared-basis 고정 그래프와 면적 범위를 부모로 명시하고 430.5㎡는 사진 측량이 아닌 선택 입력의 산술로 구분한다.
@@ -30,6 +16,20 @@
 @evidence settings/35-objects.md#altar 제단을 판으로 줄이는 대신 제실 깊이를 확보하는 대안을 선택한다.
 -->
 
+<!--
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 도로를 면적에 넣지 않는 본문 덕분에 후퇴 현관까지 포함한 신전 범위가 430.5㎡ 안에 남는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 폐기 후보의 얕은 제실과 현재 깊이 5.5m를 비교한 선택이 있어 면적 숫자만 적은 평면이 아니다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 21×20.5의 산술을 compiled 값과 구별하고 사진 픽셀에서 얻지 않았다고 명시했다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 왼쪽 봉헌실을 쪼개지 않은 채 중앙 고리와 우측 작업실을 수용하는 관계를 읽었다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 범위와 조립을 building.ts에 남기면서 완결 외피를 입면 owner로 보내는 경계가 있다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 실제 범위의 불일치와 두 번째 층·중정의 발생을 실패로 삼아 이 외곽 결정을 반증할 수 있다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모가 허용한 거의 정방형 규모에서 벽 두께와 제실/중정의 유효 깊이를 추가 결정했다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 면적과 제단 조건을 후보에 대조한 결과는 제단 축소가 아니라 평면 선택 변경이다. 상위 요구를 버린 근거는 없다.
+@evidenceReview settings/10-building.md#scale #4d1f683 외벽 바깥선 안의 서비스 마당도 분모에 들어가며 도로는 빠져 부모 면적 정의와 맞는다.
+@evidenceReview settings/10-building.md#fixed-graph #afadc4e 후면·좌측·우측이라는 방 배치가 외곽 선택의 내부 관계로 남고 별도 중정은 없다.
+@evidenceReview settings/35-objects.md#altar #53d6be8 제실을 깊게 고른 사유가 제단과 운반의 수용이며 제단을 축소해 통과시켰다는 주장이 없다.
+-->
+
 이 설계는 [고정 그래프](../settings/10-building.md#fixed-graph)와 [면적 범위](../settings/10-building.md#scale)를 소비한다. 외벽 바깥선은 X=-10.5~10.5m, Z=-10.25~10.25m인 하나의 직사각형이다. 선택한 입력 면적은 21×20.5=430.5㎡이며 장변/단변 비는 약 1.024다. 주랑·중정·서비스 마당·후퇴한 현관도 이 외곽 안에 있고 도로는 밖이다. 이 산술은 설계 입력의 비교이며 compiled 계측 결과가 아니다.
 
 외벽 두께는 0.6m, 내부 경계벽은 0.3m다. 좌우 방의 유효 깊이는 4m로 잡고, 그 사이에 기둥 기단이 놓인 주랑과 중앙 중정을 배정한다. 북쪽 제실은 넓은 전면 축과 제단 앞 접근을 얻고, 오른쪽 세 방은 같은 깊이의 작성·열람·저장 작업실로 나눈다. 왼쪽 봉헌실은 길지만 별도 복도나 뒷방으로 자르지 않는다. 벽 진열과 긴 탁자의 사용 구역으로 길이를 읽힌다.
@@ -41,18 +41,6 @@ building ID는 `temple`이다. source 소유는 `src/spaces/building.ts`이며 b
 ## 공유 평면 기준선 {#plan-datums}
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 현관 반환벽의 안팎까지 표에 있어 후퇴부를 별도 임의 치수로 메울 필요가 없다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 기준선 표와 0.001m 대조값이 함께 있으므로 하위 경계 일치의 입력이 완결된다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 0.001m를 고대 측량 정밀도가 아닌 저작 허용값으로 한정한 문장을 확인했다.
-@evidenceReview principles/design/spaces.md#space-topology #3f8d925 yard-front와 storage-back 사이를 하나의 벽 두께로 읽게 해 맞닿은 방의 경계를 뒤집지 않는다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 문 중심은 opening에, 공유 X/Z 선은 이 표에 남겨 서로 다른 치수 책임을 구별했다.
-@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 공유 선이 바뀔 때 방·입면·roof·문·관찰을 다시 읽도록 한 범위가 경계 불일치를 드러낸다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 앞/뒤 좌표 약속만 있던 부모에 업무방 전후 끝과 현관 후퇴선의 실제 값을 더했다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 부모의 m·Y-up·앞뒤 규약으로 표의 부호와 순서를 읽을 수 있고 변환 보정은 요구되지 않는다.
-@evidenceReview settings/00-delivery.md#coordinates #4d2b0d4 서동 X의 반대 부호와 북→남 Z 순서를 좌표 본문과 대조했다.
--->
-
-<!--
 @evidence principles/core/common.md#scope-preservation 외벽 양면부터 중정·주랑·업무방·현관 반환벽까지 하위 경계가 소비할 X/Z 선을 빠짐없이 이름 붙인다.
 @evidence principles/core/common.md#substantive-completion 벽 양면 사이 두께와 방 전후 끝을 표의 수치로 확정하고 공유 입력 비교 허용값 0.001m를 정한다.
 @evidence principles/core/common.md#declared-basis 좌표 규약을 상속하고 허용값은 유적 측량 정밀도가 아닌 저작 일치 비교용이라고 밝힌다.
@@ -62,6 +50,18 @@ building ID는 `temple`이다. source 소유는 `src/spaces/building.ts`이며 b
 @evidence principles/core/inherited-units.md#derived-parent-differentiation Y-up 좌표 약속을 현관 후퇴부와 세 업무방까지 구별하는 실제 X/Z 기준선으로 구체화한다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work 00-delivery의 m 단위와 앞/뒤·좌/우 규약으로 모든 기준선의 부호와 순서를 정할 수 있어 다른 좌표계나 부모 보정이 필요하지 않았다.
 @evidence settings/00-delivery.md#coordinates X와 Z의 부호 및 북쪽에서 남쪽으로의 배열을 생산 좌표 규약에 맞춘다.
+-->
+
+<!--
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 현관 반환벽의 안팎까지 표에 있어 후퇴부를 별도 임의 치수로 메울 필요가 없다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 기준선 표와 0.001m 대조값이 함께 있으므로 하위 경계 일치의 입력이 완결된다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 0.001m를 고대 측량 정밀도가 아닌 저작 허용값으로 한정한 문장을 확인했다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 yard-front와 storage-back 사이를 하나의 벽 두께로 읽게 해 맞닿은 방의 경계를 뒤집지 않는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 문 중심은 opening에, 공유 X/Z 선은 이 표에 남겨 서로 다른 치수 책임을 구별했다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 공유 선이 바뀔 때 방·입면·roof·문·관찰을 다시 읽도록 한 범위가 경계 불일치를 드러낸다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 앞/뒤 좌표 약속만 있던 부모에 업무방 전후 끝과 현관 후퇴선의 실제 값을 더했다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 부모의 m·Y-up·앞뒤 규약으로 표의 부호와 순서를 읽을 수 있고 변환 보정은 요구되지 않는다.
+@evidenceReview settings/00-delivery.md#coordinates #4d2b0d4 서동 X의 반대 부호와 북→남 Z 순서를 좌표 본문과 대조했다.
 -->
 
 [좌표 규약](../settings/00-delivery.md#coordinates)을 그대로 쓴다. 아래 기준선은 벽면·공간 경계의 단일 치수 소유다. 다른 파일은 이름을 참조하고 수치를 복사하지 않는다. `west`와 `east` 쌍은 X 부호만 반대다. Z는 북쪽에서 남쪽 순이며 문 위치의 별도 국소 치수는 해당 개구부 owner가 정한다.
@@ -98,20 +98,6 @@ building ID는 `temple`이다. source 소유는 `src/spaces/building.ts`이며 b
 ## 연결의 위계 {#containment}
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 서비스 마당까지 같은 지상층 목록에 있으며 방끼리 통과해야 하는 막힌 목적지가 없다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 부모 위계와 문/고리/경로의 참조 주소가 있어 이름 목록 뒤의 연결 결정을 찾을 수 있다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb settings의 단층 조건이 temple 아래 지상층 하나라는 구체 부모 관계의 권위다.
-@evidenceReview principles/design/spaces.md#space-topology #3f8d925 네 변을 별도 방으로 등록하지 말라는 본문이 하나의 주랑 identity를 보존한다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 부모 목록이 door 위치나 고리 윤곽을 다시 정하지 않고 각 owner로 보낸다.
-@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 storeyId 대조만으로 끝내지 않고 void·바닥·문짝을 읽어 명목상 도달의 오판을 막는다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 방 배치를 직접 출입과 부모 identity로 전개해 settings의 이름 목록 이상을 제공한다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 서비스 외부 문과 주랑 직접 문은 동시에 가능하며 다른 방 관통을 상위 조건으로 추가하지 않았다.
-@evidenceReview settings/10-building.md#fixed-graph #afadc4e 현관·중정·주랑·제실·봉헌실·업무방·마당의 한 층 귀속이 모두 본문에 있다.
-@evidenceReview settings/10-building.md#civic-identity #62ab7cd 기록·관리·보관 기능을 제실에 흡수하지 않고 연결된 개별 방으로 유지했다.
-@evidenceReview obligations/design/spaces.md#space-reference-topology #5053f99 층의 parent와 문/경로 owner를 함께 추적할 수 있어 주소 없는 연결이 남지 않는다.
--->
-
-<!--
 @evidence principles/core/common.md#scope-preservation 현관부터 서비스 마당까지 전부 temple의 유일 지상층 아래에 두며 방끼리 통과해야만 도착하는 대상을 만들지 않는다.
 @evidence principles/core/common.md#substantive-completion building·storey·공간의 부모와 주랑·문·사용 경로의 담당 주소를 결정한다.
 @evidence principles/core/common.md#declared-basis settings의 건물 연결 조건을 temple과 지상층의 명명된 위계로 실현한다.
@@ -125,24 +111,25 @@ building ID는 `temple`이다. source 소유는 `src/spaces/building.ts`이며 b
 @evidence obligations/design/spaces.md#space-reference-topology temple→temple-ground→모든 공간의 부모와 주랑 직접 출입 관계를 명명하고 문/경로 owner로 연결한다.
 -->
 
+<!--
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 서비스 마당까지 같은 지상층 목록에 있으며 방끼리 통과해야 하는 막힌 목적지가 없다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 부모 위계와 문/고리/경로의 참조 주소가 있어 이름 목록 뒤의 연결 결정을 찾을 수 있다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb settings의 단층 조건이 temple 아래 지상층 하나라는 구체 부모 관계의 권위다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 네 변을 별도 방으로 등록하지 말라는 본문이 하나의 주랑 identity를 보존한다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 부모 목록이 door 위치나 고리 윤곽을 다시 정하지 않고 각 owner로 보낸다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 storeyId 대조만으로 끝내지 않고 void·바닥·문짝을 읽어 명목상 도달의 오판을 막는다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 방 배치를 직접 출입과 부모 identity로 전개해 settings의 이름 목록 이상을 제공한다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 서비스 외부 문과 주랑 직접 문은 동시에 가능하며 다른 방 관통을 상위 조건으로 추가하지 않았다.
+@evidenceReview settings/10-building.md#fixed-graph #afadc4e 현관·중정·주랑·제실·봉헌실·업무방·마당의 한 층 귀속이 모두 본문에 있다.
+@evidenceReview settings/10-building.md#civic-identity #62ab7cd 기록·관리·보관 기능을 제실에 흡수하지 않고 연결된 개별 방으로 유지했다.
+@evidenceReview obligations/design/spaces.md#space-reference-topology #5053f99 층의 parent와 문/경로 owner를 함께 추적할 수 있어 주소 없는 연결이 남지 않는다.
+-->
+
 `temple` 아래에는 [지상층](storey.md#ground-storey) 하나가 있고 그 아래에 현관, 중정, 주랑, 제실, 봉헌실, 관리실, 기록실, 보관실, 서비스 마당이 있다. 후면 제실과 왼쪽 봉헌실, 오른쪽 세 방은 각각 주랑에 직접 문을 낸다. 서비스 마당도 같은 주랑에 직접 문을 내며 외부 문은 실제 서비스 접근으로 이어진다. 방끼리 연결해야만 도착하는 대상은 없다.
 
 중정 둘레의 고리는 [주랑](rooms/colonnade.md#ring-volume) 하나가 소유한다. 네 변을 서로 다른 방으로 등록하거나 마당 옆에 두 번째 복도를 추가하지 않는다. 방 문은 [경계와 개구부](openings.md)에, 사용 경로는 [통행](circulation.md)에 귀속한다. containment 검사는 모든 공간의 storeyId와 부모 연결을 실제 산출물에서 읽고, 경로 검사는 도달한 ID뿐 아니라 통과한 void·바닥·문짝을 함께 읽는다.
 
 ## 외부 접근을 받는 건물 접점 {#approach-contacts}
-
-<!--
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 정문 발치와 서비스 문턱을 별도 행으로 남겨 낮은 도로가 두 진입에 잘못 복제되지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 두 contact의 연결·범위·진입 방향이 표에 있어 외부 소비자가 건물 접면을 선택할 수 있다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 위치/높이/폭은 기존 owner에서 가져오고 아직 없는 maps 노드를 사실처럼 쓰지 않는다.
-@evidenceReview principles/design/spaces.md#space-topology #3f8d925 contact를 새 방이나 대지 접근 노드로 승격하지 않는 문장이 위계 중복을 막는다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 building은 접면 관계만 내보내므로 계단이나 문 mesh의 두 번째 생성자가 아니다.
-@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 경계석·배수 홈·문짝까지 왕복 포락에 대조하도록 해 접점 좌표만 맞는 막힘도 실패가 된다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 일반 접근 요구를 public/service 안정 ID와 서로 다른 진입 면으로 나눴다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 정문 석단과 서비스 무단차는 두 접점에서 양립한다. 미정 maps 종단면을 추정해 부모가 충분하다고 단정하지 않았다.
-@evidenceReview settings/10-building.md#ground-access #be07d7d 서비스 행이 층 owner의 서비스 외부 높이를 소비하여 정문 계단 높이와 구별된다.
-@evidenceReview settings/40-environment.md#site #f317e20 외부 길이 건물 접면에서 실제로 이어져야 하며 world→site 완료는 아직 주장하지 않는다.
--->
 
 <!--
 @evidence principles/core/common.md#scope-preservation 정문 계단 발치와 서비스 문턱을 별도 접점으로 두어 서로 다른 외부 높이의 접근을 모두 남긴다.
@@ -155,6 +142,19 @@ building ID는 `temple`이다. source 소유는 `src/spaces/building.ts`이며 b
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work 10-building의 정문 국소 석단과 서비스 무단차 조건, 40-environment의 외부 길 연속성을 대조했다. 두 접점으로 양립하며 미정인 대지 경로를 임의 부모 값으로 메우지 않았다.
 @evidence settings/10-building.md#ground-access 정문 계단 하단 높이를 서비스 문턱에 복사하지 않고 서비스 진입은 마당과 이어지는 높이로 소비한다.
 @evidence settings/40-environment.md#site 도로와 외부 서비스 길이 실제 건물 접면에 이어져야 한다는 요구를 maps가 받을 두 인터페이스로 제공한다.
+-->
+
+<!--
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 정문 발치와 서비스 문턱을 별도 행으로 남겨 낮은 도로가 두 진입에 잘못 복제되지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 두 contact의 연결·범위·진입 방향이 표에 있어 외부 소비자가 건물 접면을 선택할 수 있다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 위치/높이/폭은 기존 owner에서 가져오고 아직 없는 maps 노드를 사실처럼 쓰지 않는다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 contact를 새 방이나 대지 접근 노드로 승격하지 않는 문장이 위계 중복을 막는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 building은 접면 관계만 내보내므로 계단이나 문 mesh의 두 번째 생성자가 아니다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 경계석·배수 홈·문짝까지 왕복 포락에 대조하도록 해 접점 좌표만 맞는 막힘도 실패가 된다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 일반 접근 요구를 public/service 안정 ID와 서로 다른 진입 면으로 나눴다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 정문 석단과 서비스 무단차는 두 접점에서 양립한다. 미정 maps 종단면을 추정해 부모가 충분하다고 단정하지 않았다.
+@evidenceReview settings/10-building.md#ground-access #be07d7d 서비스 행이 층 owner의 서비스 외부 높이를 소비하여 정문 계단 높이와 구별된다.
+@evidenceReview settings/40-environment.md#site #f317e20 외부 길이 건물 접면에서 실제로 이어져야 하며 world→site 완료는 아직 주장하지 않는다.
 -->
 
 건물 `temple`은 외부 보행을 아래 두 접점에서 받아 기존 지상층 공간으로 잇는다. 이 ID는 건물 측 바닥·출입 경계의 식별자이며 새 방, 추가 출입문 또는 maps의 대지 접근 노드가 아니다. 좌표는 [기준선](#plan-datums), 바닥 높이는 [층](storey.md#ground-storey), 폭은 실제 계단과 문을 소유하는 설계에서 가져온다. `src/spaces/building.ts`는 이 관계를 내보내고 바닥이나 문 mesh를 복제하지 않는다.

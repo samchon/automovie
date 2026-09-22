@@ -3,11 +3,11 @@
 ## 파일 역할과 공간 납품 {#file-roles}
 
 <!--
-@evidenceReview obligations/core/common.md#purpose-fit #7b32c66 26파일을 기준/경계/동선/입면/방/roof/소유/관찰의 서로 다른 결과에 대조했다. 기준선만으로는 접합이 닫히지 않고 방 목록만으로는 실제 관찰이 정해지지 않는 등 각 파일을 뺄 때의 후속 결손이 본문에 구체적으로 설명돼 있다.
+@evidence obligations/core/common.md#purpose-fit 26개 파일을 기준 평면/높이·경계/접합·동선·입면·방·roof·표면 소유·관찰 역할로 대조했다. 방 목록만 남기면 물리 접합과 외관이 비고, 외피만 남기면 각 방의 직접 문과 이용 영역이 비는 서로 다른 후속 결정을 아래 지도에 기록한다.
 -->
 
 <!--
-@evidence obligations/core/common.md#purpose-fit 26개 파일을 기준 평면/높이·경계/접합·동선·입면·방·roof·표면 소유·관찰 역할로 대조했다. 방 목록만 남기면 물리 접합과 외관이 비고, 외피만 남기면 각 방의 직접 문과 이용 영역이 비는 서로 다른 후속 결정을 아래 지도에 기록한다.
+@evidenceReview obligations/core/common.md#purpose-fit #7b32c66 26파일을 기준/경계/동선/입면/방/roof/소유/관찰의 서로 다른 결과에 대조했다. 기준선만으로는 접합이 닫히지 않고 방 목록만으로는 실제 관찰이 정해지지 않는 등 각 파일을 뺄 때의 후속 결손이 본문에 구체적으로 설명돼 있다.
 -->
 
 이 population은 한 단층 신전의 건물 내부와 외피를 함께 설계한다. [building](../../spaces/building.md)은 외곽·공유 기준선·부모 위계·외부 접점을, [storey](../../spaces/storey.md)는 높이·문턱 지지·외벽 하단을 소유한다. 둘 중 하나가 없으면 방의 평면만 맞아도 도로·문턱·지면을 같은 건물로 연결할 수 없다. [openings](../../spaces/openings.md)는 경계 identity와 실제 void/문/창 위치를, [junctions](../../spaces/junctions.md)는 벽 끝/박공의 폐쇄를 정한다. 후자는 개구부 표만으로는 막을 수 없는 모서리 중첩·roof 아래 누광을 다룬다. [circulation](../../spaces/circulation.md)은 공용/서비스의 서로 다른 시작과 주랑 경유 순서를 정한다.
@@ -19,11 +19,11 @@ roofs의 [assembly](../../spaces/roofs/assembly.md)는 높이·두께·돌출·�
 ## 공간과 다른 제작 분기의 경계 {#layer-routing}
 
 <!--
-@evidenceReview obligations/core/common.md#layer-boundary #5271f94 전체 방/입면/roof의 수치는 공간 경계와 예약에 쓰이며 물체 곡면·기와 반복·roughness·조명값을 결정한 단위는 없다. 외부 지면과 조립 전달도 maps와 viewer에 배정해 spaces의 결정과 소비 입력을 구별했다.
+@evidence obligations/core/common.md#layer-boundary building부터 각 방/roof까지는 경계·부피·연결·접합·접근 예약을 정한다. 기둥/수반/집기 실체, 마감 수치, 반복 population, 외부 지면과 조명은 해당 후속 분기에 남으며 viewer 전달도 공간 geometry를 재작성하지 않는다고 명시돼 있다.
 -->
 
 <!--
-@evidence obligations/core/common.md#layer-boundary building부터 각 방/roof까지는 경계·부피·연결·접합·접근 예약을 정한다. 기둥/수반/집기 실체, 마감 수치, 반복 population, 외부 지면과 조명은 해당 후속 분기에 남으며 viewer 전달도 공간 geometry를 재작성하지 않는다고 명시돼 있다.
+@evidenceReview obligations/core/common.md#layer-boundary #5271f94 전체 방/입면/roof의 수치는 공간 경계와 예약에 쓰이며 물체 곡면·기와 반복·roughness·조명값을 결정한 단위는 없다. 외부 지면과 조립 전달도 maps와 viewer에 배정해 spaces의 결정과 소비 입력을 구별했다.
 -->
 
 26개 파일은 spaces의 topology·외피·치수·표면 배정·관찰 설계다. room 문서의 책상/제단/수반 언급은 방이 수용할 중심·접근·관계의 입력이며 prototype의 곡면·보 단면·기와 mesh를 만드는 설계가 아니다. roof 문서의 경사 매스와 닫힘은 건물 외피가 소유하고 기와/서까래 반복 상세는 후속 모델/반복 분기가 소비한다. 입면의 회벽·기단은 그 재료가 덮을 표면 경계이며 roughness·UV·색 수치는 materials가 소유한다.
@@ -33,11 +33,11 @@ building의 두 접점과 storey의 외벽 하단은 maps가 줄 외부 지면�
 ## 작업 언어와 식별 표기 {#working-language}
 
 <!--
-@evidenceReview obligations/core/common.md#production-language #3ef4142 작성·건조 보관·반입의 차이는 한국어 본문으로 설명되고 영어는 source/API 주소와 좌표 표기에 한정된다. 행렬/반공간도 단위와 부호가 설명돼 파일명 추측으로 방 용도를 알아내야 하는 부분이 없다.
+@evidence obligations/core/common.md#production-language 방의 역할·기준선·단차·실패 조건은 한국어로 읽히고 영어는 temple/colonnade 같은 identity, cells/profile 같은 API 필드와 예정 source 주소에 쓰인다. 아래 비교에서 문서 용도와 실행 식별자를 구분했다.
 -->
 
 <!--
-@evidence obligations/core/common.md#production-language 방의 역할·기준선·단차·실패 조건은 한국어로 읽히고 영어는 temple/colonnade 같은 identity, cells/profile 같은 API 필드와 예정 source 주소에 쓰인다. 아래 비교에서 문서 용도와 실행 식별자를 구분했다.
+@evidenceReview obligations/core/common.md#production-language #3ef4142 작성·건조 보관·반입의 차이는 한국어 본문으로 설명되고 영어는 source/API 주소와 좌표 표기에 한정된다. 행렬/반공간도 단위와 부호가 설명돼 파일명 추측으로 방 용도를 알아내야 하는 부분이 없다.
 -->
 
 [언어 설정](../../settings/00-delivery.md#working-language)에 따라 설계의 결정·이유·관찰은 한국어 기술 서술이다. 관리실의 작성, 기록실의 건조 보관/열람, 보관실의 봉헌물 반입이 한국어로 구별되어 영어 파일명을 추측할 필요가 없다. west/east와 north/south 기준선은 building의 X/Z 표에, cell의 반공간은 colonnade의 부등식에 뜻이 있고 단위 m와 경사 도수는 생산 좌표 규약을 따른다. source 각도 변환과 API의 정확한 철자는 구현 시에도 유지한다.
@@ -47,11 +47,11 @@ viewer-path의 한국어 설명과 키보드 조작은 설계 요구이며 이�
 ## 규모와 전개 분량의 비교 {#proportion}
 
 <!--
-@evidenceReview obligations/core/common.md#proportionate-development #78feb28 전체26파일/37 H2를 역할별 문자 분포와 읽었다. 관찰·개구부·기준선은 다수 접합/실패를 다뤄 길고 짧은 east roof도 끝선·공유벽·하부 소유를 결정한다. a4c1d468 대비 매스/동선 본문 축소가 없고 observations의 접근 UI 보완만 늘어난 비교는 주석 증가를 생산량으로 세지 않는다.
+@evidence obligations/core/common.md#proportionate-development 현재 26파일/37 H2를 전체로 읽고 본문 분량을 역할별로 비교했다. 관찰·개구부·기준선은 다수 경계/실패 경우를 다루어 길고 단일 날개/방은 상위 공유 결정을 소비해 짧다. v-077 제출본과 파일/단위 수 및 본문을 비교해 매스·동선 축소가 없음을 기록한다.
 -->
 
 <!--
-@evidence obligations/core/common.md#proportionate-development 현재 26파일/37 H2를 전체로 읽고 본문 분량을 역할별로 비교했다. 관찰·개구부·기준선은 다수 경계/실패 경우를 다루어 길고 단일 날개/방은 상위 공유 결정을 소비해 짧다. v-077 제출본과 파일/단위 수 및 본문을 비교해 매스·동선 축소가 없음을 기록한다.
+@evidenceReview obligations/core/common.md#proportionate-development #78feb28 전체26파일/37 H2를 역할별 문자 분포와 읽었다. 관찰·개구부·기준선은 다수 접합/실패를 다뤄 길고 짧은 east roof도 끝선·공유벽·하부 소유를 결정한다. a4c1d468 대비 매스/동선 본문 축소가 없고 observations의 접근 UI 보완만 늘어난 비교는 주석 증가를 생산량으로 세지 않는다.
 -->
 
 비교 기준은 21×20.5m 단층, 같은 층의 아홉 공간, 네 외측 입면, 하나의 주랑, 여섯 roof 문서가 다루는 외피다. 이 숫자는 authored 설계의 분포이며 compiled census가 아니다. 현재는 26파일/37 H2다. 아래 문자 수는 해당 Markdown에서 HTML 주석·제목 줄·공백 문자를 제거한 본문 길이다. 링크/표 표기 문자는 남겼으므로 독자용 어절 수나 geometry 양으로 읽지 않는다. evidence 문장이 길어져 생긴 분량은 이 비교에 포함하지 않았다.

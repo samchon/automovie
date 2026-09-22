@@ -3,19 +3,6 @@
 ## 주랑에 직접 닿는 열린 마당 {#yard-volume}
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 서쪽 주랑 문과 동쪽 외부 문, 낮은 벽과 열린 하늘을 모두 포함한다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 두 문턱의 소유와 Y=0 바닥, 유한 cap의 의미가 있어 마당 공기 영역도 주소화된다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 상한은 roof 기준을 받되 actual 빈 공간과 외부 지면은 아직 확인되지 않았다고 구별한다.
-@evidenceReview principles/design/spaces.md#space-topology #3f8d925 제실 쪽 서벽 대신 주랑 접면 안에 문을 놓아 제실을 서비스 통로로 쓰지 않는다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 내측 면/벽 상부는 마당, 바깥은 입면에 남고 cap은 실체 지붕을 생성하지 않는다.
-@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 두 threshold와 외부→주랑 관찰이 포함돼 마당 중앙 한 장만으로 단절을 숨길 수 없다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 서비스 마당 용도에 직접 문 접면과 북동 물품 자리, 동고 바닥을 더했다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 두 출입과 서비스 단차 한계를 제실 관통 없이 적용할 수 있어 고정 그래프를 수정하지 않았다.
-@evidenceReview settings/30-interiors.md#service-yard #bc0ce16 운반 용기/바구니는 북동 모서리로 보내 두 문 사이의 반입을 비운다.
-@evidenceReview settings/10-building.md#ground-access #be07d7d 문턱 0.02m 이하와 Y=0 바닥을 같이 명시해 외부 문을 떠 있는 출입으로 두지 않는다.
--->
-
-<!--
 @evidence principles/core/common.md#scope-preservation 후면 우측 마당의 열린 하늘·낮은 벽·동쪽 외부 문·서쪽 주랑 문과 소수 운반물을 함께 배정한다.
 @evidence principles/core/common.md#substantive-completion 서쪽 직접 문은 north-ring~yard-front 접면 안에 두고 두 문턱 귀속·Y=0 바닥·논리 상한을 결정한다.
 @evidence principles/core/common.md#declared-basis 본체 범위는 기준선, 문턱/높이는 층, 논리 상한은 roof 공통 기준을 소비하며 외부 지면과 actual 빈 공간은 미검증으로 남긴다.
@@ -26,6 +13,19 @@
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work service-yard의 두 출입과 ground-access의 서비스 단차 한계를 대조했다. 제실을 통로로 쓰지 않는 접면이 있어 고정 그래프나 운반 조건을 바꾸지 않았다.
 @evidence settings/30-interiors.md#service-yard 낮은 외벽과 열린 하늘을 유지하고 항아리/바구니는 두 문 사이를 피한 북동 모서리에 예약한다.
 @evidence settings/10-building.md#ground-access 외부 서비스 문과 주랑 문 사이를 같은 Y=0 바닥 및 낮은 문턱으로 연결한다.
+-->
+
+<!--
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 서쪽 주랑 문과 동쪽 외부 문, 낮은 벽과 열린 하늘을 모두 포함한다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 두 문턱의 소유와 Y=0 바닥, 유한 cap의 의미가 있어 마당 공기 영역도 주소화된다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 상한은 roof 기준을 받되 actual 빈 공간과 외부 지면은 아직 확인되지 않았다고 구별한다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 제실 쪽 서벽 대신 주랑 접면 안에 문을 놓아 제실을 서비스 통로로 쓰지 않는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 내측 면/벽 상부는 마당, 바깥은 입면에 남고 cap은 실체 지붕을 생성하지 않는다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 두 threshold와 외부→주랑 관찰이 포함돼 마당 중앙 한 장만으로 단절을 숨길 수 없다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 서비스 마당 용도에 직접 문 접면과 북동 물품 자리, 동고 바닥을 더했다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 두 출입과 서비스 단차 한계를 제실 관통 없이 적용할 수 있어 고정 그래프를 수정하지 않았다.
+@evidenceReview settings/30-interiors.md#service-yard #bc0ce16 운반 용기/바구니는 북동 모서리로 보내 두 문 사이의 반입을 비운다.
+@evidenceReview settings/10-building.md#ground-access #be07d7d 문턱 0.02m 이하와 Y=0 바닥을 같이 명시해 외부 문을 떠 있는 출입으로 두지 않는다.
 -->
 
 공간 ID `service-yard`의 본체는 [기준선](../building.md#plan-datums) east-room~east-inner, north-inner~yard-front다. 서쪽은 제실과 북쪽 주랑, 남쪽은 보관실, 북·동쪽은 낮은 외벽이다. 주랑과 만나는 서쪽 경계 구간은 north-ring~yard-front이며 그 안에 직접 문을 놓는다. 이 접면 밖 제실 쪽에 문을 내어 제실을 서비스 통로로 쓰지 않는다.

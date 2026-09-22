@@ -3,19 +3,6 @@
 ## 벽과 void의 단일 소유 {#boundary-ownership}
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 spine의 인접 공간 변화와 문 양면을 같은 절단에 묶어 한쪽 벽만 열린 상태를 허용하지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 boundary ID와 local XY profile, 끝에 닿는 절단/내부 hole의 구별이 구현할 경계 입력을 완성한다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 공개 API의 직사각 환원 한계를 읽은 설계이며 생성된 벽 mesh가 있다고 주장하지 않는다.
-@evidenceReview principles/design/spaces.md#space-topology #3f8d925 봉헌실/제실과 봉헌실/주랑 구간을 구별하고 닫힌 벽의 semantic 문만으로 연결을 세지 않는다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 입면은 외벽, boundaries는 내부벽, 방은 자기 면을 소비하므로 벽 실체가 중복되지 않는다.
-@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 양면과 관통 단면을 짝으로 읽어 profile이 있어도 벽이 남는 경우를 실패로 남겼다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모 개구부 약속에 안정 ID·실제 절단 윤곽·물리 생성 owner를 추가했다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 박공을 직사각형으로 만드는 API 경로 대신 실제 윤곽을 쓰는 경로를 택해 부모 박공/깊은 문 요구를 버리지 않았다.
-@evidenceReview settings/20-envelope.md#openings #4053d90 문짝을 붙인 사실을 void 생성으로 세지 않는 본문이 실제 관통 요구를 지킨다.
-@evidenceReview obligations/design/spaces.md#space-envelope-interface #4b397de 같은 host/profile이 외벽·내벽 양면 및 문틀을 지배하고 실제 절단 깊이는 단면에서 대조한다.
--->
-
-<!--
 @evidence principles/core/common.md#scope-preservation spine·가로 벽·현관 후퇴부의 인접 관계와 같은 구멍을 보는 벽 양면을 하나의 경계 절단에 연결한다.
 @evidence principles/core/common.md#substantive-completion 안정 boundary ID, host face와 local XY opening profile, 끝에 닿는 절단과 내부 hole의 표현 차이를 결정한다.
 @evidence principles/core/common.md#declared-basis 공유 기준선과 공개 타입/API의 표현 범위를 근거로 하고 아직 생성된 벽 mesh가 없음을 밝힌다.
@@ -26,6 +13,19 @@
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work openings의 깊은 reveal과 fixed-graph의 직접 문을 같은 host 절단으로 표현할 수 있었다. 박공을 직사각형으로 환원하는 API 한계는 형상 경로 선택으로 다루고 부모의 박공·문 요구를 약화하지 않았다.
 @evidence settings/20-envelope.md#openings 문틀·문짝과 별개로 벽 양면이 공유하는 실제 관통 void를 요구한다.
 @evidence obligations/design/spaces.md#space-envelope-interface 외벽/내벽 양면이 같은 boundary face와 opening profile을 소비하게 하고 실제 절단 깊이를 단면에서 대조한다.
+-->
+
+<!--
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 spine의 인접 공간 변화와 문 양면을 같은 절단에 묶어 한쪽 벽만 열린 상태를 허용하지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 boundary ID와 local XY profile, 끝에 닿는 절단/내부 hole의 구별이 구현할 경계 입력을 완성한다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 공개 API의 직사각 환원 한계를 읽은 설계이며 생성된 벽 mesh가 있다고 주장하지 않는다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 봉헌실/제실과 봉헌실/주랑 구간을 구별하고 닫힌 벽의 semantic 문만으로 연결을 세지 않는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 입면은 외벽, boundaries는 내부벽, 방은 자기 면을 소비하므로 벽 실체가 중복되지 않는다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 양면과 관통 단면을 짝으로 읽어 profile이 있어도 벽이 남는 경우를 실패로 남겼다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모 개구부 약속에 안정 ID·실제 절단 윤곽·물리 생성 owner를 추가했다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 박공을 직사각형으로 만드는 API 경로 대신 실제 윤곽을 쓰는 경로를 택해 부모 박공/깊은 문 요구를 버리지 않았다.
+@evidenceReview settings/20-envelope.md#openings #4053d90 문짝을 붙인 사실을 void 생성으로 세지 않는 본문이 실제 관통 요구를 지킨다.
+@evidenceReview obligations/design/spaces.md#space-envelope-interface #4b397de 같은 host/profile이 외벽·내벽 양면 및 문틀을 지배하고 실제 절단 깊이는 단면에서 대조한다.
 -->
 
 [공유 기준선](building.md#plan-datums)이 두께와 접면을 정하고 이 파일은 각 물리 경계의 ID·인접 관계·void를 소유한다. 외벽 실체는 해당 입면 source가 만들고 내부벽 실체는 `src/spaces/boundaries.ts`가 만든다. 방 파일은 그 벽의 자기 쪽 표면을 참조할 뿐 두 번째 벽을 생성하지 않는다. 같은 벽에 뚫린 문·창은 이 경계의 절단 결과를 내·외부에서 함께 쓴다. 문짝이나 틀을 붙였다고 void가 생겼다고 세지 않는다.
@@ -43,19 +43,6 @@
 ## 출입문의 명시 위치 {#doors}
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 마당의 두 문까지 각 경계·연결·스윙을 정해 공용 문만으로 목록을 끝내지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 유효 폭/높이에서 틀 0.06m를 더하는 순서와 실제 panel 상태를 정했다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 마당 접면 1.4m와 void 1.12m의 여유를 입력 산술로 한정해 실체 검증과 구별했다.
-@evidenceReview principles/design/spaces.md#space-topology #3f8d925 방 문은 방 안으로, 정문은 현관 쪽으로 열어 주랑을 문 스윙으로 막지 않는다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 후속 hinge/model이 폭을 조용히 복제하지 말고 이 owner를 수정하도록 단일 치수 책임을 유지한다.
-@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 문짝 두께·손잡이가 남긴 열린 통과 영역도 읽게 해 문틀 안 폭만으로 통과시킬 수 없다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 최소 폭 요구에 각 방의 다른 중심·높이·열림 방향과 상태 binding을 더했다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 좁은 마당 접면에도 틀 포함 void와 양끝 벽 여유가 남아 부모 폭을 줄이지 않았다.
-@evidenceReview settings/10-building.md#use-profile #00a6851 설정의 통과 최소는 열린 문짝/철물 뒤 실제 영역에도 유지해야 한다고 명시했다.
-@evidenceReview settings/20-envelope.md#openings #4053d90 opening.fill의 실제 panel과 closed/open 상태가 같은 lowering 경로를 써서 브라우저의 별도 회전이 개구부를 대신하지 않는다.
--->
-
-<!--
 @evidence principles/core/common.md#scope-preservation 정문·제실·봉헌실·세 업무방·마당의 두 문 각각에 연결 경계와 스윙을 배정한다.
 @evidence principles/core/common.md#substantive-completion 유효 폭/높이와 중심, 문틀 0.06m·문짝 예산 0.05m 및 open/closed 상태의 소비 관계를 정한다.
 @evidence principles/core/common.md#declared-basis 유효 통과 기준은 설정에서 받고 틀을 더한 void와 좁은 마당 접면의 벽 여유는 선택 입력의 산술로 구분한다.
@@ -66,6 +53,19 @@
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work use-profile의 방 문/정문 최소와 openings의 열린 목재 문 요구를 직접 문 접면에 대조했다. 마당 접면도 틀을 포함한 void를 수용해 부모 폭이나 그래프를 줄이지 않았다.
 @evidence settings/10-building.md#use-profile 표의 유효 치수는 열린 문짝·철물을 뺀 실제 통과에서도 유지해야 한다.
 @evidence settings/20-envelope.md#openings reveal·문설주·인방·실제 panel과 닫힘/열림 상태를 같은 opening 소유에 묶는다.
+-->
+
+<!--
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 마당의 두 문까지 각 경계·연결·스윙을 정해 공용 문만으로 목록을 끝내지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 유효 폭/높이에서 틀 0.06m를 더하는 순서와 실제 panel 상태를 정했다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 마당 접면 1.4m와 void 1.12m의 여유를 입력 산술로 한정해 실체 검증과 구별했다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 방 문은 방 안으로, 정문은 현관 쪽으로 열어 주랑을 문 스윙으로 막지 않는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 후속 hinge/model이 폭을 조용히 복제하지 말고 이 owner를 수정하도록 단일 치수 책임을 유지한다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 문짝 두께·손잡이가 남긴 열린 통과 영역도 읽게 해 문틀 안 폭만으로 통과시킬 수 없다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 최소 폭 요구에 각 방의 다른 중심·높이·열림 방향과 상태 binding을 더했다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 좁은 마당 접면에도 틀 포함 void와 양끝 벽 여유가 남아 부모 폭을 줄이지 않았다.
+@evidenceReview settings/10-building.md#use-profile #00a6851 설정의 통과 최소는 열린 문짝/철물 뒤 실제 영역에도 유지해야 한다고 명시했다.
+@evidenceReview settings/20-envelope.md#openings #4053d90 opening.fill의 실제 panel과 closed/open 상태가 같은 lowering 경로를 써서 브라우저의 별도 회전이 개구부를 대신하지 않는다.
 -->
 
 아래 치수는 프레임을 제외한 유효 통과 폭·높이이고 중심은 벽 길이 방향의 좌표다. Y=0 문턱으로 [층 높이](storey.md#ground-storey)를 잇는다. 개구부 원형 폭은 양쪽 문틀 각 0.06m를 더해 유도하고 head도 틀 두께 0.06m를 더한다. 인방·문설주는 벽 두께를 관통하는 reveal을 가지며 문짝 두께 예산은 0.05m다. 문은 기본 열림이며 실제 회전축과 열린 폭을 후속 model/instance가 이 통과 영역에 맞춘다.
@@ -88,19 +88,6 @@
 ## 높은 제실 채광구 {#clerestories}
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 북남 박공의 작은 채광구는 방 사이 출입구가 아니며 유리도 추가하지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 안정 window ID·중심 X·sill·유효 폭/높이·틀 두께가 있어 작은 창도 실제 void로 주소화된다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 낮은 측벽/낮은 sill 후보의 roof 충돌 사유를 남겼고 현재 위치도 설계 비교라고 한정했다.
-@evidenceReview principles/design/spaces.md#space-topology #3f8d925 덮개 위 외부로 열리도록 높이고 제실에서 이웃 방으로 통하는 새 연결은 만들지 않는다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 Z 관통 범위는 벽 기준선, 상부 한계는 제실 roof를 소비해 처마 끝이 창 위치를 바꾸지 않는다.
-@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 창 윗모서리·reveal·주랑 roof 가림을 함께 보므로 단순 구멍 개수로 채광을 보증하지 않는다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 상부 채광 약속에 박공 내 위치와 실제 유효 크기를 추가해 roof 충돌을 피하도록 했다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 창을 높인 후보로 상부 채광과 깊은 틀을 유지할 수 있어 부모 roof 높이 변경이나 창 삭제가 요구되지 않았다.
-@evidenceReview settings/30-interiors.md#sanctuary #f53612f 제실의 노출 박공 내부에 남는 높은 작은 창으로 부모 채광의 공간 관계를 지킨다.
-@evidenceReview settings/20-envelope.md#openings #4053d90 0.4m 유효 폭/높이와 각 가장자리 틀을 구별하고 같은 벽 두께의 reveal을 남긴다.
--->
-
-<!--
 @evidence principles/core/common.md#scope-preservation 제실의 높은 채광을 북·남 박공의 작은 구멍으로 남기고 출입구나 인접 방 연결로 바꾸지 않는다.
 @evidence principles/core/common.md#substantive-completion window ID와 X=±1.0m, sill Y=4.6m, 유효 0.4×0.4m 및 틀/관통 벽 범위를 고른다.
 @evidence principles/core/common.md#declared-basis 낮은 측벽 창과 sill Y=4.3m를 지붕 단면 충돌 때문에 폐기했으며 현재 값도 실측 아닌 설계 비교 결과로 한정한다.
@@ -111,6 +98,19 @@
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work sanctuary의 상부 채광과 openings의 깊은 틀을 대조했다. 배치 후보를 높여 해결할 수 있으므로 창을 없애거나 부모 roof 높이를 바꿀 결함은 드러나지 않았다.
 @evidence settings/30-interiors.md#sanctuary 노출 박공 내부에 필요한 높은 채광을 양쪽 박공 벽에서 확보한다.
 @evidence settings/20-envelope.md#openings 작은 구멍도 유효 치수와 틀 두께를 분리하고 벽 두께를 관통하는 reveal로 다룬다.
+-->
+
+<!--
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 북남 박공의 작은 채광구는 방 사이 출입구가 아니며 유리도 추가하지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 안정 window ID·중심 X·sill·유효 폭/높이·틀 두께가 있어 작은 창도 실제 void로 주소화된다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 낮은 측벽/낮은 sill 후보의 roof 충돌 사유를 남겼고 현재 위치도 설계 비교라고 한정했다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 덮개 위 외부로 열리도록 높이고 제실에서 이웃 방으로 통하는 새 연결은 만들지 않는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 Z 관통 범위는 벽 기준선, 상부 한계는 제실 roof를 소비해 처마 끝이 창 위치를 바꾸지 않는다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 창 윗모서리·reveal·주랑 roof 가림을 함께 보므로 단순 구멍 개수로 채광을 보증하지 않는다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 상부 채광 약속에 박공 내 위치와 실제 유효 크기를 추가해 roof 충돌을 피하도록 했다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 창을 높인 후보로 상부 채광과 깊은 틀을 유지할 수 있어 부모 roof 높이 변경이나 창 삭제가 요구되지 않았다.
+@evidenceReview settings/30-interiors.md#sanctuary #f53612f 제실의 노출 박공 내부에 남는 높은 작은 창으로 부모 채광의 공간 관계를 지킨다.
+@evidenceReview settings/20-envelope.md#openings #4053d90 0.4m 유효 폭/높이와 각 가장자리 틀을 구별하고 같은 벽 두께의 reveal을 남긴다.
 -->
 
 제실의 북·남 박공 벽에 각 두 개의 작은 채광구를 둔다. ID는 `window-sanctuary-{north|south}-{west|east}`이며 중심 X=±1.0m, 유효 폭 0.4m, sill Y=4.6m, 유효 높이 0.4m다. 석재 틀 두께는 각 가장자리 0.06m이고 유리는 없다. Z 방향 void는 [기준선](building.md#plan-datums)의 북측 벽 north-outer~north-inner와 남측 벽 sanctuary-front~north-ring을 각각 관통한다. [제실 지붕](roofs/sanctuary.md#sanctuary-roof)은 상부 한계를 제공하며 처마 끝선으로 창 위치를 옮기지 않는다. 문 인방 위에 있고 다른 방으로 연결되는 출입구가 아니다.

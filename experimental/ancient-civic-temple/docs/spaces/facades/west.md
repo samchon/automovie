@@ -3,18 +3,6 @@
 ## 봉헌실의 연속 외벽 {#west-envelope}
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 창이 없는 면도 두 끝과 처마 아래 관찰을 남겨 서측 전체를 생략할 수 없다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 전 길이의 무창 벽, 대각 끝 접합과 지면 접촉을 정해 서벽 실체의 경계를 닫는다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb west 기준선과 south 높이 규칙을 소비하며 별도 벽 높이를 새로 고르지 않는다.
-@evidenceReview principles/design/spaces.md#space-topology #3f8d925 안쪽은 봉헌실 하나이고 새 외부 출입구 없이 기존 주랑 문으로 접근한다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 대각 절단 뒤에도 서측 외면은 west, 안쪽은 offering에 남아 모서리로 소유가 분열되지 않는다.
-@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 길이·접지·roof 두께를 외부에서 읽고 무창 방의 밝기는 실제 렌더 질문으로 남긴다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 회벽 요구에 창 없는 장벽의 구체 범위와 대각 끝 접합을 추가했다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 연속 회벽과 봉헌실 직접 문은 양립한다. 무창 주광은 미검증으로 남겼고 상위 요구를 바꾸지 않았다.
-@evidenceReview settings/20-envelope.md#walls #35026c5 회벽·기단을 전 길이의 닫힌 실체에 결속하며 임의 패치로 대신하지 않는다.
--->
-
-<!--
 @evidence principles/core/common.md#scope-preservation 긴 봉헌실의 서측 외벽 전 길이와 양끝 모서리·기단·처마 아래를 관찰 대상에서 빼지 않는다.
 @evidence principles/core/common.md#substantive-completion 추가 창/출입구가 없는 서벽 범위와 연속 외측 표면, 북남 모서리 절단·지면 접촉을 정한다.
 @evidence principles/core/common.md#declared-basis west 기준선과 남측 기단/상단 규칙, junctions의 대각 접합을 가져와 별도 벽 높이를 발명하지 않는다.
@@ -24,6 +12,18 @@
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 연속 회벽 요구를 창 없는 봉헌실 서측 외벽과 대각 끝 접합의 단독 면 소유로 확정한다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work walls의 연속 회벽과 offering-room의 주랑 출입을 대조했다. 추가 외부 창 없이도 요구된 연결을 유지할 수 있으며 실제 주광 읽힘은 부모를 임의 수정하지 않고 렌더 질문으로 남겼다.
 @evidence settings/20-envelope.md#walls 외벽 전 길이의 회벽·기단을 실제 닫힌 벽 표면에 연속 결속한다.
+-->
+
+<!--
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 창이 없는 면도 두 끝과 처마 아래 관찰을 남겨 서측 전체를 생략할 수 없다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 전 길이의 무창 벽, 대각 끝 접합과 지면 접촉을 정해 서벽 실체의 경계를 닫는다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb west 기준선과 south 높이 규칙을 소비하며 별도 벽 높이를 새로 고르지 않는다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 안쪽은 봉헌실 하나이고 새 외부 출입구 없이 기존 주랑 문으로 접근한다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 대각 절단 뒤에도 서측 외면은 west, 안쪽은 offering에 남아 모서리로 소유가 분열되지 않는다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 길이·접지·roof 두께를 외부에서 읽고 무창 방의 밝기는 실제 렌더 질문으로 남긴다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 회벽 요구에 창 없는 장벽의 구체 범위와 대각 끝 접합을 추가했다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 연속 회벽과 봉헌실 직접 문은 양립한다. 무창 주광은 미검증으로 남겼고 상위 요구를 바꾸지 않았다.
+@evidenceReview settings/20-envelope.md#walls #35026c5 회벽·기단을 전 길이의 닫힌 실체에 결속하며 임의 패치로 대신하지 않는다.
 -->
 
 [기준선](../building.md#plan-datums)의 west-outer~west-inner, north-outer~south-outer가 서측 외벽이다. 안쪽은 긴 봉헌실 하나이며 이 면에 추가 출입구·창을 만들지 않는다. 벽 상단의 지붕 접합과 기단 높이는 [남측](south.md#south-envelope)의 소유를 소비하고 위에는 서측 날개 지붕의 실제 처마가 돌출한다.

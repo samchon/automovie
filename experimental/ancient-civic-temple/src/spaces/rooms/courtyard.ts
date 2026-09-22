@@ -1,0 +1,29 @@
+/**
+ * docs/spaces/rooms/courtyard.md#court-volume의 열린 중정과 분수 소비 입력.
+ * 유한 cell 상한은 관찰 귀속용이며 천장 mesh/그림자/clipping이 아니다.
+ * 수반과 물줄기는 후속 prototype/system 소유로 geometry를 여기서 복제하지 않는다.
+ */
+import type { IAutoMovieBuiltSpace } from "@automovie/interface";
+import { levelCell } from "../../geometry/spatial-cells";
+import { templePlan as p } from "../building";
+import { templeRoofRules } from "../roofs/assembly";
+import { templeLevels as y } from "../storey";
+
+export const templeCourtyardPlan = {
+  west: p.westCourt, east: p.eastCourt, north: p.courtBack, south: p.courtFront,
+} as const;
+
+export const templeCourtyard = (): IAutoMovieBuiltSpace => ({
+  id: "courtyard", kind: "courtyard", parent: y.storey, fidelity: "exact",
+  cells: [levelCell("courtyard.body", templeCourtyardPlan, y.courtyard, templeRoofRules.supportHeight)],
+});
+
+/** 방 경계의 산술 중심과 m 단위 부재 입력. 분수의 구현 완료를 뜻하지 않는다. */
+export const templeFountainInputs = () => ({
+  center: { x: (p.westCourt + p.eastCourt) / 2, y: y.courtyard,
+    z: (p.courtBack + p.courtFront) / 2 },
+  outerDiameter: 2,
+  rimHeight: y.courtyard + 0.52,
+  waterHeight: y.courtyard + 0.52 - 0.08,
+  jetTop: y.courtyard + 0.52 - 0.08 + 0.65,
+});
