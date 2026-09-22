@@ -238,6 +238,10 @@
                 0.07
               ]
             }
+          },
+          "guides": {
+            "fraction": 0.125,
+            "neighbours": 4
           }
         }
       ]
@@ -486,6 +490,10 @@
                 0.07
               ]
             }
+          },
+          "guides": {
+            "fraction": 0.125,
+            "neighbours": 4
           }
         },
         {
@@ -554,6 +562,10 @@
               0.03,
               0.035
             ]
+          },
+          "guides": {
+            "fraction": 0.125,
+            "neighbours": 4
           }
         }
       ]
@@ -797,6 +809,10 @@
                 0.07
               ]
             }
+          },
+          "guides": {
+            "fraction": 0.125,
+            "neighbours": 4
           }
         }
       ]
@@ -1014,6 +1030,10 @@
             "coverage": 0.95,
             "normal": 0.2,
             "shade": 1
+          },
+          "guides": {
+            "fraction": 0.125,
+            "neighbours": 4
           }
         }
       ]
@@ -1260,6 +1280,10 @@
                 0.07
               ]
             }
+          },
+          "guides": {
+            "fraction": 0.125,
+            "neighbours": 4
           }
         }
       ]
@@ -1506,6 +1530,10 @@
                 0.07
               ]
             }
+          },
+          "guides": {
+            "fraction": 0.125,
+            "neighbours": 4
           }
         }
       ]
@@ -1753,6 +1781,10 @@
                 0.07
               ]
             }
+          },
+          "guides": {
+            "fraction": 0.125,
+            "neighbours": 4
           }
         }
       ]
@@ -1968,6 +2000,10 @@
             "coverage": 0.95,
             "normal": 0.2,
             "shade": 1
+          },
+          "guides": {
+            "fraction": 0.125,
+            "neighbours": 4
           }
         }
       ]
@@ -2182,6 +2218,10 @@
             "coverage": 0.95,
             "normal": 0.2,
             "shade": 1
+          },
+          "guides": {
+            "fraction": 0.125,
+            "neighbours": 4
           }
         },
         {
@@ -2250,6 +2290,10 @@
               0.03,
               0.035
             ]
+          },
+          "guides": {
+            "fraction": 0.125,
+            "neighbours": 4
           }
         }
       ]
@@ -2496,6 +2540,10 @@
                 0.07
               ]
             }
+          },
+          "guides": {
+            "fraction": 0.125,
+            "neighbours": 4
           }
         }
       ]
@@ -2741,6 +2789,10 @@
                 0.07
               ]
             }
+          },
+          "guides": {
+            "fraction": 0.125,
+            "neighbours": 4
           }
         }
       ]
@@ -2952,6 +3004,10 @@
             "coverage": 0.95,
             "normal": 0.2,
             "shade": 1
+          },
+          "guides": {
+            "fraction": 0.125,
+            "neighbours": 4
           }
         }
       ]
@@ -3170,6 +3226,10 @@
             "coverage": 0.95,
             "normal": 0.2,
             "shade": 1
+          },
+          "guides": {
+            "fraction": 0.125,
+            "neighbours": 4
           }
         },
         {
@@ -3238,6 +3298,10 @@
               0.03,
               0.035
             ]
+          },
+          "guides": {
+            "fraction": 0.125,
+            "neighbours": 4
           }
         }
       ]
@@ -3480,6 +3544,10 @@
                 0.07
               ]
             }
+          },
+          "guides": {
+            "fraction": 0.125,
+            "neighbours": 4
           }
         },
         {
@@ -3548,6 +3616,10 @@
               0.03,
               0.035
             ]
+          },
+          "guides": {
+            "fraction": 0.125,
+            "neighbours": 4
           }
         }
       ]
@@ -3796,6 +3868,10 @@
                 0.07
               ]
             }
+          },
+          "guides": {
+            "fraction": 0.125,
+            "neighbours": 4
           }
         },
         {
@@ -3864,6 +3940,10 @@
               0.03,
               0.035
             ]
+          },
+          "guides": {
+            "fraction": 0.125,
+            "neighbours": 4
           }
         }
       ]
@@ -4111,6 +4191,10 @@
                 0.07
               ]
             }
+          },
+          "guides": {
+            "fraction": 0.125,
+            "neighbours": 4
           }
         }
       ]
@@ -4353,6 +4437,10 @@
                 0.07
               ]
             }
+          },
+          "guides": {
+            "fraction": 0.125,
+            "neighbours": 4
           }
         },
         {
@@ -4421,6 +4509,10 @@
               0.03,
               0.035
             ]
+          },
+          "guides": {
+            "fraction": 0.125,
+            "neighbours": 4
           }
         }
       ]
@@ -4647,6 +4739,10 @@
                 0.07
               ]
             }
+          },
+          "guides": {
+            "fraction": 0.125,
+            "neighbours": 4
           }
         }
       ]
