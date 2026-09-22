@@ -53,6 +53,50 @@ export interface IAutoMovieHumanFaceBasisDocument {
   identity?: Record<string, number[]>;
 
   /**
+   * Optional correctives of this face alone, evaluated after the basis's.
+   *
+   * A basis corrective is a field on the shared neutral, and it clears the
+   * crossing it was solved on: two channels driving the neutral head's lip
+   * through the neutral head's teeth. This face's teeth are not there. Its
+   * shape channels and its identity have moved the lip and the arch by
+   * different amounts, so the same field lands a few millimetres from where
+   * this face crosses, and a population verification showed exactly that:
+   * about half the crossings the neutral's correctives clear on the neutral
+   * remain on the subjects, with or without the per-vertex identity.
+   *
+   * MetaHuman does not have this problem because it does not share a rig: a
+   * character's DNA carries that character's own correctives. This is the
+   * same separation, on top of the shared one rather than instead of it. A
+   * document corrective has the basis corrective's drivers, gain and
+   * activation, including in-between peaks, but carries its endpoint here, as
+   * sparse `[vertex, dx, dy, dz]` rows per surface like `identity`, because
+   * it belongs to this face and no other.
+   *
+   * They are solved for the shape and identity this document was published
+   * with; editing the shape channels afterwards leaves them as authored, as
+   * it leaves the identity. Omission is the basis's correctives alone, which
+   * is what every document built before this field was.
+   */
+  correctives?: {
+    /** Name unique within this document, distinct from every basis channel and corrective. */
+    id: string;
+
+    /** The driving sides, with optional in-between peaks and spans, as a basis corrective's. */
+    inputs: {
+      channel: string;
+      side: "positive" | "negative";
+      peak?: number;
+      between?: [number, number];
+    }[];
+
+    /** Authored gain in (0,1]. */
+    weight: number;
+
+    /** Sparse `[vertex, dx, dy, dz]` rows by surface, strictly increasing by vertex. */
+    targets: Record<string, number[]>;
+  }[];
+
+  /**
    * Optional identity of the seated groom this face wears. Omission is bald,
    * which is what a connected basis carries on its own: the prior has no hair
    * surface, so a face only has hair because its document named one. The groom
