@@ -12,6 +12,23 @@
  * An exclusion neither implements a feature nor approves a rendered asset.
  * Add a boundary at its semantic owner and retain native graph validation.
  *
+ * @evidenceExclude requirements/actors/body-authoring/README.md#body-requirements The interface types the generic skeleton, pose and model vocabulary; the body basis, its documents and measurements are typed by the human package.
+ * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-connected-basis No interface type carries sparse body endpoints, correctives, landmarks or identity; the body basis is a human package structure over the generic model types.
+ * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-joints The interface's bone, constraint and pose types are what the body basis projects onto; landmark-defined pivots and skin weights over a basis are human package structures.
+ * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-measurements No interface type describes anthropometric rules; they are human package constants.
+ * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-document The compact body document is a human package structure, not an authoring AST the LLM emits.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/README.md#body-specifications The interface provides the generic vocabulary the body specification refers to, not the body basis, measurement or document contracts.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-basis No interface type carries sparse body endpoints, correctives, landmarks or identity; the body basis is a human package structure over the generic model types.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-joints The interface's bone, constraint and pose types are what the body basis projects onto; landmark-defined pivots and skin weights over a basis are human package structures.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-measurements No interface type describes anthropometric rules; they are human package constants.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-document The compact body document is a human package structure, not an authoring AST the LLM emits.
+ * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-editor The interface package hosts no body editing screen; the playground page does.
+ * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-export The interface package does not serialize a built body; the human package's exporter does.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view The interface package owns no body editor inputs or display state.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor The interface package owns no body editor transaction or worker boundary.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-export The interface package does not write a built body to glTF through the human package.
+ * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-simple-shape The interface package does not expand simple body parameters; the human package's expansion does.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-simple-shape The interface package evaluates no simple-tier table or measured inversion.
  * @evidenceExclude requirements/actors/facial-authoring/README.md#face-requirements Portable production schemas represent already-generated meshes and rig facts; they do not define detailed facial authoring across document, editor and study review.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-document Portable production schemas represent already-generated meshes and rig facts; they do not define the standalone human-face recipe, basis and version interpreter.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Portable production schemas represent already-generated meshes and rig facts; they do not define named craniofacial components, cavities and attached tissues.

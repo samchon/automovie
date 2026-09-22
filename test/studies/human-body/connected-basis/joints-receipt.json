@@ -1,0 +1,2202 @@
+{
+  "basis": "mpfb-connected-body-2026-09-20-joints-and-measures",
+  "worstExclusiveRmsMetres": 0.000011432365500662893,
+  "worstRadiusDeviationMetres": 0.00010941503479226788,
+  "segments": [
+    {
+      "bone": "spine",
+      "axis": "flexion",
+      "clinical": 15,
+      "rig": 15,
+      "exclusiveVertices": 0,
+      "exclusiveRms": null,
+      "exclusiveDegrees": null,
+      "dominantVertices": 1059,
+      "dominantRms": 0.004792067358320412,
+      "radiusDeviation": 0,
+      "chordSagittaIfLinear": 0
+    },
+    {
+      "bone": "spine",
+      "axis": "abduction",
+      "clinical": 5,
+      "rig": 5,
+      "exclusiveVertices": 0,
+      "exclusiveRms": null,
+      "exclusiveDegrees": null,
+      "dominantVertices": 1059,
+      "dominantRms": 0.0013068173395859562,
+      "radiusDeviation": 0,
+      "chordSagittaIfLinear": 0
+    },
+    {
+      "bone": "spine",
+      "axis": "twist",
+      "clinical": 5,
+      "rig": 5,
+      "exclusiveVertices": 0,
+      "exclusiveRms": null,
+      "exclusiveDegrees": null,
+      "dominantVertices": 1059,
+      "dominantRms": 0.001739605041670203,
+      "radiusDeviation": 0,
+      "chordSagittaIfLinear": 0
+    },
+    {
+      "bone": "chest",
+      "axis": "flexion",
+      "clinical": 15,
+      "rig": 15,
+      "exclusiveVertices": 0,
+      "exclusiveRms": null,
+      "exclusiveDegrees": null,
+      "dominantVertices": 1139,
+      "dominantRms": 0.0033673528328637247,
+      "radiusDeviation": 0,
+      "chordSagittaIfLinear": 0
+    },
+    {
+      "bone": "chest",
+      "axis": "abduction",
+      "clinical": 5,
+      "rig": 5,
+      "exclusiveVertices": 0,
+      "exclusiveRms": null,
+      "exclusiveDegrees": null,
+      "dominantVertices": 1139,
+      "dominantRms": 0.0015111302105625236,
+      "radiusDeviation": 0,
+      "chordSagittaIfLinear": 0
+    },
+    {
+      "bone": "chest",
+      "axis": "twist",
+      "clinical": 5,
+      "rig": 5,
+      "exclusiveVertices": 0,
+      "exclusiveRms": null,
+      "exclusiveDegrees": null,
+      "dominantVertices": 1139,
+      "dominantRms": 0.001593153646680391,
+      "radiusDeviation": 0,
+      "chordSagittaIfLinear": 0
+    },
+    {
+      "bone": "upperChest",
+      "axis": "flexion",
+      "clinical": 15,
+      "rig": 15,
+      "exclusiveVertices": 0,
+      "exclusiveRms": null,
+      "exclusiveDegrees": null,
+      "dominantVertices": 4138,
+      "dominantRms": 0.00401091909112223,
+      "radiusDeviation": 0,
+      "chordSagittaIfLinear": 0
+    },
+    {
+      "bone": "upperChest",
+      "axis": "abduction",
+      "clinical": 5,
+      "rig": 5,
+      "exclusiveVertices": 0,
+      "exclusiveRms": null,
+      "exclusiveDegrees": null,
+      "dominantVertices": 4138,
+      "dominantRms": 0.0012117902592644692,
+      "radiusDeviation": 0,
+      "chordSagittaIfLinear": 0
+    },
+    {
+      "bone": "upperChest",
+      "axis": "twist",
+      "clinical": 5,
+      "rig": 5,
+      "exclusiveVertices": 0,
+      "exclusiveRms": null,
+      "exclusiveDegrees": null,
+      "dominantVertices": 4138,
+      "dominantRms": 0.0015949800592204738,
+      "radiusDeviation": 0,
+      "chordSagittaIfLinear": 0
+    },
+    {
+      "bone": "neck",
+      "axis": "flexion",
+      "clinical": 11.25,
+      "segment": null
+    },
+    {
+      "bone": "neck",
+      "axis": "abduction",
+      "clinical": 11.25,
+      "segment": null
+    },
+    {
+      "bone": "neck",
+      "axis": "twist",
+      "clinical": 20,
+      "segment": null
+    },
+    {
+      "bone": "head",
+      "axis": "flexion",
+      "clinical": 11.25,
+      "segment": null
+    },
+    {
+      "bone": "head",
+      "axis": "abduction",
+      "clinical": 11.25,
+      "segment": null
+    },
+    {
+      "bone": "head",
+      "axis": "twist",
+      "clinical": 20,
+      "segment": null
+    },
+    {
+      "bone": "leftShoulder",
+      "axis": "flexion",
+      "clinical": 15,
+      "rig": 15,
+      "exclusiveVertices": 0,
+      "exclusiveRms": null,
+      "exclusiveDegrees": null,
+      "dominantVertices": 150,
+      "dominantRms": 0.0024502168779976016,
+      "radiusDeviation": 0,
+      "chordSagittaIfLinear": 0
+    },
+    {
+      "bone": "leftShoulder",
+      "axis": "abduction",
+      "clinical": 15,
+      "rig": 15,
+      "exclusiveVertices": 0,
+      "exclusiveRms": null,
+      "exclusiveDegrees": null,
+      "dominantVertices": 150,
+      "dominantRms": 0.002033375738230276,
+      "radiusDeviation": 0,
+      "chordSagittaIfLinear": 0
+    },
+    {
+      "bone": "leftUpperArm",
+      "axis": "flexion",
+      "clinical": 90.09385,
+      "rig": 89.90615,
+      "exclusiveVertices": 196,
+      "exclusiveRms": 0.000011432365500662893,
+      "exclusiveDegrees": 89.90875304275806,
+      "dominantVertices": 1504,
+      "dominantRms": 0.016331868495870778,
+      "radiusDeviation": 0.00010941492054140911,
+      "chordSagittaIfLinear": 0.05743086168536126
+    },
+    {
+      "bone": "leftUpperArm",
+      "axis": "abduction",
+      "clinical": 110.876,
+      "rig": 69.124,
+      "exclusiveVertices": 196,
+      "exclusiveRms": 0.00000970116934418083,
+      "exclusiveDegrees": 69.12551449347275,
+      "dominantVertices": 1504,
+      "dominantRms": 0.010594167480669853,
+      "radiusDeviation": 0.0000776674033334257,
+      "chordSagittaIfLinear": 0.03467435866638694
+    },
+    {
+      "bone": "leftUpperArm",
+      "axis": "twist",
+      "clinical": 45,
+      "rig": 45,
+      "exclusiveVertices": 196,
+      "exclusiveRms": 0.000002004541298989692,
+      "exclusiveDegrees": 44.999342778143976,
+      "dominantVertices": 1504,
+      "dominantRms": 0.0071552494536159155,
+      "radiusDeviation": 0.0000033686462307391807,
+      "chordSagittaIfLinear": 0.014955352724287416
+    },
+    {
+      "bone": "leftLowerArm",
+      "axis": "flexion",
+      "clinical": 94.02815,
+      "rig": 50.971849999999996,
+      "exclusiveVertices": 512,
+      "exclusiveRms": 0.0000019622163559588927,
+      "exclusiveDegrees": 50.9719192233474,
+      "dominantVertices": 1314,
+      "dominantRms": 0.0038359594587065414,
+      "radiusDeviation": 0.000018765962228453614,
+      "chordSagittaIfLinear": 0.018748198857248554
+    },
+    {
+      "bone": "leftLowerArm",
+      "axis": "twist",
+      "clinical": 42.5,
+      "rig": 42.5,
+      "exclusiveVertices": 512,
+      "exclusiveRms": 0.0000011523253151301574,
+      "exclusiveDegrees": 42.49988844387167,
+      "dominantVertices": 1314,
+      "dominantRms": 0.0033466267091615816,
+      "radiusDeviation": 0.0000064946347512265246,
+      "chordSagittaIfLinear": 0.013099817853461215
+    },
+    {
+      "bone": "leftHand",
+      "axis": "flexion",
+      "clinical": -31.7081,
+      "rig": 38.2919,
+      "exclusiveVertices": 327,
+      "exclusiveRms": 1.000607316100613e-15,
+      "exclusiveDegrees": 38.29190000000008,
+      "dominantVertices": 1569,
+      "dominantRms": 0.0014483336038183354,
+      "radiusDeviation": 1.2351231148954867e-15,
+      "chordSagittaIfLinear": 0.004894107409744513
+    },
+    {
+      "bone": "leftHand",
+      "axis": "abduction",
+      "clinical": -17.00405,
+      "rig": 27.99595,
+      "exclusiveVertices": 327,
+      "exclusiveRms": 6.534148659992045e-16,
+      "exclusiveDegrees": 27.995949999999997,
+      "dominantVertices": 1569,
+      "dominantRms": 0.001376428598143539,
+      "radiusDeviation": 1.2351231148954867e-15,
+      "chordSagittaIfLinear": 0.0026274460962430937
+    },
+    {
+      "bone": "leftUpperLeg",
+      "axis": "flexion",
+      "clinical": 62.5,
+      "rig": 62.5,
+      "exclusiveVertices": 398,
+      "exclusiveRms": 7.208067895248419e-16,
+      "exclusiveDegrees": 62.50000000000006,
+      "dominantVertices": 1900,
+      "dominantRms": 0.014330366068327759,
+      "radiusDeviation": 2.7755575615628914e-16,
+      "chordSagittaIfLinear": 0.04827153216667032
+    },
+    {
+      "bone": "leftUpperLeg",
+      "axis": "abduction",
+      "clinical": 22.5,
+      "rig": 22.5,
+      "exclusiveVertices": 398,
+      "exclusiveRms": 1.4082043364110094e-16,
+      "exclusiveDegrees": 22.5000000000001,
+      "dominantVertices": 1900,
+      "dominantRms": 0.004995587080167461,
+      "radiusDeviation": 1.6653345369377348e-16,
+      "chordSagittaIfLinear": 0.006392831442455334
+    },
+    {
+      "bone": "leftUpperLeg",
+      "axis": "twist",
+      "clinical": 22.5,
+      "rig": 22.5,
+      "exclusiveVertices": 398,
+      "exclusiveRms": 6.993170616040673e-16,
+      "exclusiveDegrees": 22.500000000000004,
+      "dominantVertices": 1900,
+      "dominantRms": 0.004790959538163911,
+      "radiusDeviation": 1.3877787807814457e-16,
+      "chordSagittaIfLinear": 0.006392831442455334
+    },
+    {
+      "bone": "leftLowerLeg",
+      "axis": "flexion",
+      "clinical": 70,
+      "rig": 70,
+      "exclusiveVertices": 154,
+      "exclusiveRms": 7.22144327740372e-16,
+      "exclusiveDegrees": 70.00000000000016,
+      "dominantVertices": 1389,
+      "dominantRms": 0.006909607556953855,
+      "radiusDeviation": 8.049116928532385e-16,
+      "chordSagittaIfLinear": 0.027490186184400352
+    },
+    {
+      "bone": "leftFoot",
+      "axis": "flexion",
+      "clinical": -22.5,
+      "rig": 22.5,
+      "exclusiveVertices": 1039,
+      "exclusiveRms": 1.1732125911017008e-15,
+      "exclusiveDegrees": 22.5000000000001,
+      "dominantVertices": 2083,
+      "dominantRms": 0.001820453234425292,
+      "radiusDeviation": 2.2898349882893854e-15,
+      "chordSagittaIfLinear": 0.0024676807333729126
+    },
+    {
+      "bone": "leftFoot",
+      "axis": "abduction",
+      "clinical": 12.5,
+      "rig": 12.5,
+      "exclusiveVertices": 1039,
+      "exclusiveRms": 4.908505058068162e-15,
+      "exclusiveDegrees": 12.499999999999943,
+      "dominantVertices": 2083,
+      "dominantRms": 0.000909670105051191,
+      "radiusDeviation": 2.3037127760972e-15,
+      "chordSagittaIfLinear": 0.000763324157846814
+    },
+    {
+      "bone": "leftToes",
+      "axis": "flexion",
+      "clinical": 40,
+      "rig": 40,
+      "exclusiveVertices": 3853,
+      "exclusiveRms": 0.0000026675851250175677,
+      "exclusiveDegrees": 39.99899048898562,
+      "dominantVertices": 4775,
+      "dominantRms": 0.0015050135998117813,
+      "radiusDeviation": 0.000015162938604582066,
+      "chordSagittaIfLinear": 0.0043146017768454096
+    },
+    {
+      "bone": "leftThumbMetacarpal",
+      "axis": "flexion",
+      "clinical": 50,
+      "rig": 50,
+      "exclusiveVertices": 0,
+      "exclusiveRms": null,
+      "exclusiveDegrees": null,
+      "dominantVertices": 120,
+      "dominantRms": 0.0032205881962845836,
+      "radiusDeviation": 0,
+      "chordSagittaIfLinear": 0
+    },
+    {
+      "bone": "leftThumbProximal",
+      "axis": "flexion",
+      "clinical": 59.2227,
+      "rig": 40.777300000000004,
+      "exclusiveVertices": 45,
+      "exclusiveRms": 1.561770229205595e-11,
+      "exclusiveDegrees": 40.777300071337095,
+      "dominantVertices": 497,
+      "dominantRms": 0.0018165562135473313,
+      "radiusDeviation": 1.0720591081536668e-15,
+      "chordSagittaIfLinear": 0.0015662846514899837
+    },
+    {
+      "bone": "leftThumbDistal",
+      "axis": "flexion",
+      "clinical": 57.8899,
+      "rig": 42.110099999999996,
+      "exclusiveVertices": 200,
+      "exclusiveRms": 1.5707547017773335e-15,
+      "exclusiveDegrees": 42.110099999999996,
+      "dominantVertices": 560,
+      "dominantRms": 0.001193861240518585,
+      "radiusDeviation": 1.259409243559162e-15,
+      "chordSagittaIfLinear": 0.001931580053759269
+    },
+    {
+      "bone": "leftIndexProximal",
+      "axis": "flexion",
+      "clinical": 56.16075,
+      "rig": 43.83925,
+      "exclusiveVertices": 0,
+      "exclusiveRms": null,
+      "exclusiveDegrees": null,
+      "dominantVertices": 552,
+      "dominantRms": 0.00161027114011869,
+      "radiusDeviation": 0,
+      "chordSagittaIfLinear": 0
+    },
+    {
+      "bone": "leftIndexIntermediate",
+      "axis": "flexion",
+      "clinical": 56.12135,
+      "rig": 43.87865,
+      "exclusiveVertices": 1,
+      "exclusiveRms": null,
+      "exclusiveDegrees": null,
+      "dominantVertices": 510,
+      "dominantRms": 0.001412757906309748,
+      "radiusDeviation": 1.1830814106161824e-15,
+      "chordSagittaIfLinear": 0.0014065305131910084
+    },
+    {
+      "bone": "leftIndexDistal",
+      "axis": "flexion",
+      "clinical": 53.75095,
+      "rig": 46.249050000000004,
+      "exclusiveVertices": 226,
+      "exclusiveRms": 1.597896053384788e-15,
+      "exclusiveDegrees": 46.24905000000008,
+      "dominantVertices": 598,
+      "dominantRms": 0.001099129801973976,
+      "radiusDeviation": 1.5890067039947553e-15,
+      "chordSagittaIfLinear": 0.0021266661776917508
+    },
+    {
+      "bone": "leftMiddleProximal",
+      "axis": "flexion",
+      "clinical": 57.9681,
+      "rig": 42.0319,
+      "exclusiveVertices": 4,
+      "exclusiveRms": 8.626395116355689e-7,
+      "exclusiveDegrees": 90.33418939058606,
+      "dominantVertices": 533,
+      "dominantRms": 0.002417805738379393,
+      "radiusDeviation": 1.4085954624931674e-15,
+      "chordSagittaIfLinear": 0.001376145664704165
+    },
+    {
+      "bone": "leftMiddleIntermediate",
+      "axis": "flexion",
+      "clinical": 52.95035,
+      "rig": 47.04965,
+      "exclusiveVertices": 0,
+      "exclusiveRms": null,
+      "exclusiveDegrees": null,
+      "dominantVertices": 462,
+      "dominantRms": 0.0014053154524243864,
+      "radiusDeviation": 0,
+      "chordSagittaIfLinear": 0
+    },
+    {
+      "bone": "leftMiddleDistal",
+      "axis": "flexion",
+      "clinical": 53.78295,
+      "rig": 46.21705,
+      "exclusiveVertices": 246,
+      "exclusiveRms": 1.165857742330916e-15,
+      "exclusiveDegrees": 46.21705000000005,
+      "dominantVertices": 653,
+      "dominantRms": 0.0009779633723480455,
+      "radiusDeviation": 1.6930901125533637e-15,
+      "chordSagittaIfLinear": 0.0020290053625772763
+    },
+    {
+      "bone": "leftRingProximal",
+      "axis": "flexion",
+      "clinical": 56.7943,
+      "rig": 43.2057,
+      "exclusiveVertices": 17,
+      "exclusiveRms": 4.0736615864372254e-16,
+      "exclusiveDegrees": 43.20569999999921,
+      "dominantVertices": 589,
+      "dominantRms": 0.0020627226022197904,
+      "radiusDeviation": 1.4155343563970746e-15,
+      "chordSagittaIfLinear": 0.0017085189891556376
+    },
+    {
+      "bone": "leftRingIntermediate",
+      "axis": "flexion",
+      "clinical": 53.6943,
+      "rig": 46.3057,
+      "exclusiveVertices": 8,
+      "exclusiveRms": 4.0157281424659084e-10,
+      "exclusiveDegrees": 46.30770515348452,
+      "dominantVertices": 440,
+      "dominantRms": 0.0013433215918680224,
+      "radiusDeviation": 1.3600232051658168e-15,
+      "chordSagittaIfLinear": 0.0014710923825762196
+    },
+    {
+      "bone": "leftRingDistal",
+      "axis": "flexion",
+      "clinical": 53.1602,
+      "rig": 46.839800000000004,
+      "exclusiveVertices": 325,
+      "exclusiveRms": 2.097731754765402e-15,
+      "exclusiveDegrees": 46.83980000000003,
+      "dominantVertices": 628,
+      "dominantRms": 0.0009613460729826166,
+      "radiusDeviation": 1.6757428777935957e-15,
+      "chordSagittaIfLinear": 0.0022278059512225966
+    },
+    {
+      "bone": "leftLittleProximal",
+      "axis": "flexion",
+      "clinical": 58.9977,
+      "rig": 41.002300000000005,
+      "exclusiveVertices": 0,
+      "exclusiveRms": null,
+      "exclusiveDegrees": null,
+      "dominantVertices": 528,
+      "dominantRms": 0.001375289140653401,
+      "radiusDeviation": 0,
+      "chordSagittaIfLinear": 0
+    },
+    {
+      "bone": "leftLittleIntermediate",
+      "axis": "flexion",
+      "clinical": 54.60485,
+      "rig": 45.39515,
+      "exclusiveVertices": 0,
+      "exclusiveRms": null,
+      "exclusiveDegrees": null,
+      "dominantVertices": 461,
+      "dominantRms": 0.0009344412274087434,
+      "radiusDeviation": 0,
+      "chordSagittaIfLinear": 0
+    },
+    {
+      "bone": "leftLittleDistal",
+      "axis": "flexion",
+      "clinical": 49.50895,
+      "rig": 50.49105,
+      "exclusiveVertices": 314,
+      "exclusiveRms": 1.4308013076172794e-15,
+      "exclusiveDegrees": 50.4910500000001,
+      "dominantVertices": 620,
+      "dominantRms": 0.0008662417294394107,
+      "radiusDeviation": 1.4710455076283324e-15,
+      "chordSagittaIfLinear": 0.0019266040782226497
+    },
+    {
+      "bone": "rightShoulder",
+      "axis": "flexion",
+      "clinical": 15,
+      "rig": 15,
+      "exclusiveVertices": 0,
+      "exclusiveRms": null,
+      "exclusiveDegrees": null,
+      "dominantVertices": 153,
+      "dominantRms": 0.0024576757816532555,
+      "radiusDeviation": 0,
+      "chordSagittaIfLinear": 0
+    },
+    {
+      "bone": "rightShoulder",
+      "axis": "abduction",
+      "clinical": 15,
+      "rig": 15,
+      "exclusiveVertices": 0,
+      "exclusiveRms": null,
+      "exclusiveDegrees": null,
+      "dominantVertices": 153,
+      "dominantRms": 0.0020520160026884678,
+      "radiusDeviation": 0,
+      "chordSagittaIfLinear": 0
+    },
+    {
+      "bone": "rightUpperArm",
+      "axis": "flexion",
+      "clinical": 90.09385,
+      "rig": 89.90615,
+      "exclusiveVertices": 197,
+      "exclusiveRms": 0.000011415502323761503,
+      "exclusiveDegrees": 89.90850748264974,
+      "dominantVertices": 1512,
+      "dominantRms": 0.01633209282689172,
+      "radiusDeviation": 0.00010941503479226788,
+      "chordSagittaIfLinear": 0.05743088595393934
+    },
+    {
+      "bone": "rightUpperArm",
+      "axis": "abduction",
+      "clinical": 110.876,
+      "rig": 69.124,
+      "exclusiveVertices": 197,
+      "exclusiveRms": 0.000009681897955657479,
+      "exclusiveDegrees": 69.12549037977185,
+      "dominantVertices": 1512,
+      "dominantRms": 0.01068753882214916,
+      "radiusDeviation": 0.00007766744222416355,
+      "chordSagittaIfLinear": 0.03467437331874207
+    },
+    {
+      "bone": "rightUpperArm",
+      "axis": "twist",
+      "clinical": 45,
+      "rig": 45,
+      "exclusiveVertices": 197,
+      "exclusiveRms": 0.0000020024112445530623,
+      "exclusiveDegrees": 44.999403821957415,
+      "dominantVertices": 1512,
+      "dominantRms": 0.007144957322968853,
+      "radiusDeviation": 0.0000033686303343577473,
+      "chordSagittaIfLinear": 0.014955359043975727
+    },
+    {
+      "bone": "rightLowerArm",
+      "axis": "flexion",
+      "clinical": 94.02815,
+      "rig": 50.971849999999996,
+      "exclusiveVertices": 469,
+      "exclusiveRms": 0.0000020494980727749054,
+      "exclusiveDegrees": 50.97194072987199,
+      "dominantVertices": 1317,
+      "dominantRms": 0.003885207692122175,
+      "radiusDeviation": 0.000018765963889687265,
+      "chordSagittaIfLinear": 0.018748190205559432
+    },
+    {
+      "bone": "rightLowerArm",
+      "axis": "twist",
+      "clinical": 42.5,
+      "rig": 42.5,
+      "exclusiveVertices": 469,
+      "exclusiveRms": 0.0000012036616712125913,
+      "exclusiveDegrees": 42.499892006164835,
+      "dominantVertices": 1317,
+      "dominantRms": 0.0033388453964614834,
+      "radiusDeviation": 0.0000064946301560828146,
+      "chordSagittaIfLinear": 0.013099811808317761
+    },
+    {
+      "bone": "rightHand",
+      "axis": "flexion",
+      "clinical": -31.7081,
+      "rig": 38.2919,
+      "exclusiveVertices": 317,
+      "exclusiveRms": 7.533028830140014e-16,
+      "exclusiveDegrees": 38.291900000000055,
+      "dominantVertices": 1561,
+      "dominantRms": 0.0014434586906096711,
+      "radiusDeviation": 1.2490009027033011e-15,
+      "chordSagittaIfLinear": 0.0048941091788802385
+    },
+    {
+      "bone": "rightHand",
+      "axis": "abduction",
+      "clinical": -17.00405,
+      "rig": 27.99595,
+      "exclusiveVertices": 317,
+      "exclusiveRms": 1.3014094046023355e-15,
+      "exclusiveDegrees": 27.995950000000022,
+      "dominantVertices": 1561,
+      "dominantRms": 0.0013710086736589825,
+      "radiusDeviation": 1.2351231148954867e-15,
+      "chordSagittaIfLinear": 0.002627447046019706
+    },
+    {
+      "bone": "rightUpperLeg",
+      "axis": "flexion",
+      "clinical": 62.5,
+      "rig": 62.5,
+      "exclusiveVertices": 392,
+      "exclusiveRms": 1.836674817570951e-16,
+      "exclusiveDegrees": 62.50000000000004,
+      "dominantVertices": 1912,
+      "dominantRms": 0.014321658629114714,
+      "radiusDeviation": 2.7755575615628914e-16,
+      "chordSagittaIfLinear": 0.048271532249839065
+    },
+    {
+      "bone": "rightUpperLeg",
+      "axis": "abduction",
+      "clinical": 22.5,
+      "rig": 22.5,
+      "exclusiveVertices": 392,
+      "exclusiveRms": 4.0802411358876395e-16,
+      "exclusiveDegrees": 22.500000000000036,
+      "dominantVertices": 1912,
+      "dominantRms": 0.0049755878597084885,
+      "radiusDeviation": 1.6653345369377348e-16,
+      "chordSagittaIfLinear": 0.006392831453469771
+    },
+    {
+      "bone": "rightUpperLeg",
+      "axis": "twist",
+      "clinical": 22.5,
+      "rig": 22.5,
+      "exclusiveVertices": 392,
+      "exclusiveRms": 6.015957254977884e-16,
+      "exclusiveDegrees": 22.499999999999904,
+      "dominantVertices": 1912,
+      "dominantRms": 0.004795470339075307,
+      "radiusDeviation": 1.6653345369377348e-16,
+      "chordSagittaIfLinear": 0.006392831453469771
+    },
+    {
+      "bone": "rightLowerLeg",
+      "axis": "flexion",
+      "clinical": 70,
+      "rig": 70,
+      "exclusiveVertices": 503,
+      "exclusiveRms": 9.546579881494134e-16,
+      "exclusiveDegrees": 70.00000000000009,
+      "dominantVertices": 1379,
+      "dominantRms": 0.0071435010746643025,
+      "radiusDeviation": 8.187894806610529e-16,
+      "chordSagittaIfLinear": 0.06146409562867265
+    },
+    {
+      "bone": "rightFoot",
+      "axis": "flexion",
+      "clinical": -22.5,
+      "rig": 22.5,
+      "exclusiveVertices": 1059,
+      "exclusiveRms": 2.6971881295273854e-15,
+      "exclusiveDegrees": 22.500000000000036,
+      "dominantVertices": 2076,
+      "dominantRms": 0.0017614516791563072,
+      "radiusDeviation": 2.2620794126737565e-15,
+      "chordSagittaIfLinear": 0.00246768049149166
+    },
+    {
+      "bone": "rightFoot",
+      "axis": "abduction",
+      "clinical": 12.5,
+      "rig": 12.5,
+      "exclusiveVertices": 1059,
+      "exclusiveRms": 1.852084046469692e-15,
+      "exclusiveDegrees": 12.500000000000004,
+      "dominantVertices": 2076,
+      "dominantRms": 0.0008754424126134948,
+      "radiusDeviation": 2.3175905639050143e-15,
+      "chordSagittaIfLinear": 0.0007633240830260316
+    },
+    {
+      "bone": "rightToes",
+      "axis": "flexion",
+      "clinical": 40,
+      "rig": 40,
+      "exclusiveVertices": 3838,
+      "exclusiveRms": 0.0000027195343107026555,
+      "exclusiveDegrees": 39.99903696636386,
+      "dominantVertices": 4778,
+      "dominantRms": 0.0015043834668507499,
+      "radiusDeviation": 0.000015162938604582066,
+      "chordSagittaIfLinear": 0.0043146014134242275
+    },
+    {
+      "bone": "rightThumbMetacarpal",
+      "axis": "flexion",
+      "clinical": 50,
+      "rig": 50,
+      "exclusiveVertices": 0,
+      "exclusiveRms": null,
+      "exclusiveDegrees": null,
+      "dominantVertices": 113,
+      "dominantRms": 0.003210079721300063,
+      "radiusDeviation": 0,
+      "chordSagittaIfLinear": 0
+    },
+    {
+      "bone": "rightThumbProximal",
+      "axis": "flexion",
+      "clinical": 59.2227,
+      "rig": 40.777300000000004,
+      "exclusiveVertices": 49,
+      "exclusiveRms": 8.052124292586247e-12,
+      "exclusiveDegrees": 40.777300036441375,
+      "dominantVertices": 503,
+      "dominantRms": 0.001813524475113431,
+      "radiusDeviation": 1.0720591081536668e-15,
+      "chordSagittaIfLinear": 0.0015662864950944846
+    },
+    {
+      "bone": "rightThumbDistal",
+      "axis": "flexion",
+      "clinical": 57.8899,
+      "rig": 42.110099999999996,
+      "exclusiveVertices": 203,
+      "exclusiveRms": 1.1203696540978119e-15,
+      "exclusiveDegrees": 42.11010000000003,
+      "dominantVertices": 557,
+      "dominantRms": 0.001210857283411672,
+      "radiusDeviation": 1.2455314557513475e-15,
+      "chordSagittaIfLinear": 0.0019315757711919354
+    },
+    {
+      "bone": "rightIndexProximal",
+      "axis": "flexion",
+      "clinical": 56.16075,
+      "rig": 43.83925,
+      "exclusiveVertices": 0,
+      "exclusiveRms": null,
+      "exclusiveDegrees": null,
+      "dominantVertices": 545,
+      "dominantRms": 0.0015588258282879927,
+      "radiusDeviation": 0,
+      "chordSagittaIfLinear": 0
+    },
+    {
+      "bone": "rightIndexIntermediate",
+      "axis": "flexion",
+      "clinical": 56.12135,
+      "rig": 43.87865,
+      "exclusiveVertices": 1,
+      "exclusiveRms": null,
+      "exclusiveDegrees": null,
+      "dominantVertices": 509,
+      "dominantRms": 0.0014217217420374633,
+      "radiusDeviation": 1.1345091532888318e-15,
+      "chordSagittaIfLinear": 0.0014065296832836889
+    },
+    {
+      "bone": "rightIndexDistal",
+      "axis": "flexion",
+      "clinical": 53.75095,
+      "rig": 46.249050000000004,
+      "exclusiveVertices": 220,
+      "exclusiveRms": 1.4200048010008122e-15,
+      "exclusiveDegrees": 46.2490500000001,
+      "dominantVertices": 596,
+      "dominantRms": 0.001113770578747477,
+      "radiusDeviation": 1.582067810090848e-15,
+      "chordSagittaIfLinear": 0.0021266661776917508
+    },
+    {
+      "bone": "rightMiddleProximal",
+      "axis": "flexion",
+      "clinical": 57.9681,
+      "rig": 42.0319,
+      "exclusiveVertices": 3,
+      "exclusiveRms": 9.529498751367206e-7,
+      "exclusiveDegrees": 90.3346265301385,
+      "dominantVertices": 537,
+      "dominantRms": 0.0024332709836814813,
+      "radiusDeviation": 1.394717674685353e-15,
+      "chordSagittaIfLinear": 0.0013761498103246647
+    },
+    {
+      "bone": "rightMiddleIntermediate",
+      "axis": "flexion",
+      "clinical": 52.95035,
+      "rig": 47.04965,
+      "exclusiveVertices": 0,
+      "exclusiveRms": null,
+      "exclusiveDegrees": null,
+      "dominantVertices": 460,
+      "dominantRms": 0.0014059169460795713,
+      "radiusDeviation": 0,
+      "chordSagittaIfLinear": 0
+    },
+    {
+      "bone": "rightMiddleDistal",
+      "axis": "flexion",
+      "clinical": 53.78295,
+      "rig": 46.21705,
+      "exclusiveVertices": 247,
+      "exclusiveRms": 1.4994002741462123e-15,
+      "exclusiveDegrees": 46.21705000000007,
+      "dominantVertices": 656,
+      "dominantRms": 0.0009977491844572835,
+      "radiusDeviation": 1.6896206656014101e-15,
+      "chordSagittaIfLinear": 0.0020289980249709864
+    },
+    {
+      "bone": "rightRingProximal",
+      "axis": "flexion",
+      "clinical": 56.7943,
+      "rig": 43.2057,
+      "exclusiveVertices": 19,
+      "exclusiveRms": 3.635093769516096e-16,
+      "exclusiveDegrees": 43.20570000000024,
+      "dominantVertices": 598,
+      "dominantRms": 0.002115841616209014,
+      "radiusDeviation": 1.4242079737769586e-15,
+      "chordSagittaIfLinear": 0.001708519565375862
+    },
+    {
+      "bone": "rightRingIntermediate",
+      "axis": "flexion",
+      "clinical": 53.6943,
+      "rig": 46.3057,
+      "exclusiveVertices": 8,
+      "exclusiveRms": 3.453140372648885e-10,
+      "exclusiveDegrees": 46.30594151034716,
+      "dominantVertices": 435,
+      "dominantRms": 0.001349916707508357,
+      "radiusDeviation": 1.3634926521177704e-15,
+      "chordSagittaIfLinear": 0.0014710923825762196
+    },
+    {
+      "bone": "rightRingDistal",
+      "axis": "flexion",
+      "clinical": 53.1602,
+      "rig": 46.839800000000004,
+      "exclusiveVertices": 317,
+      "exclusiveRms": 1.899241890599702e-15,
+      "exclusiveDegrees": 46.83980000000003,
+      "dominantVertices": 623,
+      "dominantRms": 0.0009600614730179958,
+      "radiusDeviation": 1.6792123247455493e-15,
+      "chordSagittaIfLinear": 0.002227809502081324
+    },
+    {
+      "bone": "rightLittleProximal",
+      "axis": "flexion",
+      "clinical": 58.9977,
+      "rig": 41.002300000000005,
+      "exclusiveVertices": 0,
+      "exclusiveRms": null,
+      "exclusiveDegrees": null,
+      "dominantVertices": 533,
+      "dominantRms": 0.001397742431175548,
+      "radiusDeviation": 0,
+      "chordSagittaIfLinear": 0
+    },
+    {
+      "bone": "rightLittleIntermediate",
+      "axis": "flexion",
+      "clinical": 54.60485,
+      "rig": 45.39515,
+      "exclusiveVertices": 0,
+      "exclusiveRms": null,
+      "exclusiveDegrees": null,
+      "dominantVertices": 464,
+      "dominantRms": 0.0009363671976035539,
+      "radiusDeviation": 0,
+      "chordSagittaIfLinear": 0
+    },
+    {
+      "bone": "rightLittleDistal",
+      "axis": "flexion",
+      "clinical": 49.50895,
+      "rig": 50.49105,
+      "exclusiveVertices": 318,
+      "exclusiveRms": 9.490792267279045e-16,
+      "exclusiveDegrees": 50.491050000000094,
+      "dominantVertices": 622,
+      "dominantRms": 0.0008535133933482047,
+      "radiusDeviation": 1.4727802311043092e-15,
+      "chordSagittaIfLinear": 0.0019266040782226497
+    }
+  ],
+  "ranges": [
+    {
+      "bone": "hips",
+      "basis": null,
+      "engine": null,
+      "differs": []
+    },
+    {
+      "bone": "spine",
+      "basis": {
+        "flexion": {
+          "min": -10,
+          "max": 30
+        },
+        "abduction": {
+          "min": -10,
+          "max": 10
+        },
+        "twist": {
+          "min": -10,
+          "max": 10
+        }
+      },
+      "engine": {
+        "flexion": {
+          "min": -30,
+          "max": 80
+        },
+        "abduction": {
+          "min": -35,
+          "max": 35
+        },
+        "twist": {
+          "min": -45,
+          "max": 45
+        }
+      },
+      "differs": [
+        "flexion",
+        "abduction",
+        "twist"
+      ]
+    },
+    {
+      "bone": "chest",
+      "basis": {
+        "flexion": {
+          "min": -10,
+          "max": 30
+        },
+        "abduction": {
+          "min": -10,
+          "max": 10
+        },
+        "twist": {
+          "min": -10,
+          "max": 10
+        }
+      },
+      "engine": {
+        "flexion": {
+          "min": -20,
+          "max": 40
+        },
+        "abduction": {
+          "min": -25,
+          "max": 25
+        },
+        "twist": {
+          "min": -35,
+          "max": 35
+        }
+      },
+      "differs": [
+        "flexion",
+        "abduction",
+        "twist"
+      ]
+    },
+    {
+      "bone": "upperChest",
+      "basis": {
+        "flexion": {
+          "min": -10,
+          "max": 30
+        },
+        "abduction": {
+          "min": -10,
+          "max": 10
+        },
+        "twist": {
+          "min": -10,
+          "max": 10
+        }
+      },
+      "engine": {
+        "flexion": {
+          "min": -15,
+          "max": 30
+        },
+        "abduction": {
+          "min": -20,
+          "max": 20
+        },
+        "twist": {
+          "min": -30,
+          "max": 30
+        }
+      },
+      "differs": [
+        "flexion",
+        "abduction",
+        "twist"
+      ]
+    },
+    {
+      "bone": "neck",
+      "basis": {
+        "flexion": {
+          "min": -22.5,
+          "max": 22.5
+        },
+        "abduction": {
+          "min": -22.5,
+          "max": 22.5
+        },
+        "twist": {
+          "min": -40,
+          "max": 40
+        }
+      },
+      "engine": {
+        "flexion": {
+          "min": -50,
+          "max": 45
+        },
+        "abduction": {
+          "min": -40,
+          "max": 40
+        },
+        "twist": {
+          "min": -70,
+          "max": 70
+        }
+      },
+      "differs": [
+        "flexion",
+        "abduction",
+        "twist"
+      ]
+    },
+    {
+      "bone": "head",
+      "basis": {
+        "flexion": {
+          "min": -22.5,
+          "max": 22.5
+        },
+        "abduction": {
+          "min": -22.5,
+          "max": 22.5
+        },
+        "twist": {
+          "min": -40,
+          "max": 40
+        }
+      },
+      "engine": {
+        "flexion": {
+          "min": -50,
+          "max": 45
+        },
+        "abduction": {
+          "min": -40,
+          "max": 40
+        },
+        "twist": {
+          "min": -70,
+          "max": 70
+        }
+      },
+      "differs": [
+        "flexion",
+        "abduction",
+        "twist"
+      ]
+    },
+    {
+      "bone": "leftShoulder",
+      "basis": {
+        "flexion": {
+          "min": -15,
+          "max": 30
+        },
+        "abduction": {
+          "min": -30,
+          "max": 30
+        },
+        "twist": null
+      },
+      "engine": {
+        "flexion": {
+          "min": -15,
+          "max": 30
+        },
+        "abduction": {
+          "min": -30,
+          "max": 30
+        },
+        "twist": null
+      },
+      "differs": []
+    },
+    {
+      "bone": "leftUpperArm",
+      "basis": {
+        "flexion": {
+          "min": -60,
+          "max": 180
+        },
+        "abduction": {
+          "min": -30,
+          "max": 180
+        },
+        "twist": {
+          "min": -90,
+          "max": 90
+        },
+        "swingDeg": 180
+      },
+      "engine": {
+        "flexion": {
+          "min": -60,
+          "max": 180
+        },
+        "abduction": {
+          "min": -30,
+          "max": 180
+        },
+        "twist": {
+          "min": -90,
+          "max": 90
+        },
+        "swingDeg": 180
+      },
+      "differs": []
+    },
+    {
+      "bone": "leftLowerArm",
+      "basis": {
+        "flexion": {
+          "min": 0,
+          "max": 145
+        },
+        "abduction": null,
+        "twist": {
+          "min": -80,
+          "max": 85
+        }
+      },
+      "engine": {
+        "flexion": {
+          "min": 0,
+          "max": 150
+        },
+        "abduction": null,
+        "twist": {
+          "min": -90,
+          "max": 90
+        }
+      },
+      "differs": [
+        "flexion",
+        "twist"
+      ]
+    },
+    {
+      "bone": "leftHand",
+      "basis": {
+        "flexion": {
+          "min": -70,
+          "max": 80
+        },
+        "abduction": {
+          "min": -45,
+          "max": 20
+        },
+        "twist": null
+      },
+      "engine": {
+        "flexion": {
+          "min": -80,
+          "max": 70
+        },
+        "abduction": {
+          "min": -30,
+          "max": 20
+        },
+        "twist": null
+      },
+      "differs": [
+        "flexion",
+        "abduction"
+      ]
+    },
+    {
+      "bone": "leftUpperLeg",
+      "basis": {
+        "flexion": {
+          "min": -30,
+          "max": 125
+        },
+        "abduction": {
+          "min": -30,
+          "max": 45
+        },
+        "twist": {
+          "min": -45,
+          "max": 45
+        },
+        "swingDeg": 120
+      },
+      "engine": {
+        "flexion": {
+          "min": -30,
+          "max": 120
+        },
+        "abduction": {
+          "min": -30,
+          "max": 45
+        },
+        "twist": {
+          "min": -45,
+          "max": 45
+        },
+        "swingDeg": 120
+      },
+      "differs": [
+        "flexion"
+      ]
+    },
+    {
+      "bone": "leftLowerLeg",
+      "basis": {
+        "flexion": {
+          "min": 0,
+          "max": 140
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "engine": {
+        "flexion": {
+          "min": 0,
+          "max": 150
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "differs": [
+        "flexion"
+      ]
+    },
+    {
+      "bone": "leftFoot",
+      "basis": {
+        "flexion": {
+          "min": -45,
+          "max": 20
+        },
+        "abduction": {
+          "min": -25,
+          "max": 25
+        },
+        "twist": null
+      },
+      "engine": {
+        "flexion": {
+          "min": -50,
+          "max": 20
+        },
+        "abduction": {
+          "min": -25,
+          "max": 25
+        },
+        "twist": null
+      },
+      "differs": [
+        "flexion"
+      ]
+    },
+    {
+      "bone": "leftToes",
+      "basis": {
+        "flexion": {
+          "min": -40,
+          "max": 80
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "engine": {
+        "flexion": {
+          "min": -40,
+          "max": 80
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "differs": []
+    },
+    {
+      "bone": "leftThumbMetacarpal",
+      "basis": {
+        "flexion": {
+          "min": -20,
+          "max": 100
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "engine": {
+        "flexion": {
+          "min": -20,
+          "max": 100
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "differs": []
+    },
+    {
+      "bone": "leftThumbProximal",
+      "basis": {
+        "flexion": {
+          "min": -20,
+          "max": 100
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "engine": {
+        "flexion": {
+          "min": -20,
+          "max": 100
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "differs": []
+    },
+    {
+      "bone": "leftThumbDistal",
+      "basis": {
+        "flexion": {
+          "min": -20,
+          "max": 100
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "engine": {
+        "flexion": {
+          "min": -20,
+          "max": 100
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "differs": []
+    },
+    {
+      "bone": "leftIndexProximal",
+      "basis": {
+        "flexion": {
+          "min": -20,
+          "max": 100
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "engine": {
+        "flexion": {
+          "min": -20,
+          "max": 100
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "differs": []
+    },
+    {
+      "bone": "leftIndexIntermediate",
+      "basis": {
+        "flexion": {
+          "min": -20,
+          "max": 100
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "engine": {
+        "flexion": {
+          "min": -20,
+          "max": 100
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "differs": []
+    },
+    {
+      "bone": "leftIndexDistal",
+      "basis": {
+        "flexion": {
+          "min": -20,
+          "max": 100
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "engine": {
+        "flexion": {
+          "min": -20,
+          "max": 100
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "differs": []
+    },
+    {
+      "bone": "leftMiddleProximal",
+      "basis": {
+        "flexion": {
+          "min": -20,
+          "max": 100
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "engine": {
+        "flexion": {
+          "min": -20,
+          "max": 100
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "differs": []
+    },
+    {
+      "bone": "leftMiddleIntermediate",
+      "basis": {
+        "flexion": {
+          "min": -20,
+          "max": 100
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "engine": {
+        "flexion": {
+          "min": -20,
+          "max": 100
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "differs": []
+    },
+    {
+      "bone": "leftMiddleDistal",
+      "basis": {
+        "flexion": {
+          "min": -20,
+          "max": 100
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "engine": {
+        "flexion": {
+          "min": -20,
+          "max": 100
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "differs": []
+    },
+    {
+      "bone": "leftRingProximal",
+      "basis": {
+        "flexion": {
+          "min": -20,
+          "max": 100
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "engine": {
+        "flexion": {
+          "min": -20,
+          "max": 100
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "differs": []
+    },
+    {
+      "bone": "leftRingIntermediate",
+      "basis": {
+        "flexion": {
+          "min": -20,
+          "max": 100
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "engine": {
+        "flexion": {
+          "min": -20,
+          "max": 100
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "differs": []
+    },
+    {
+      "bone": "leftRingDistal",
+      "basis": {
+        "flexion": {
+          "min": -20,
+          "max": 100
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "engine": {
+        "flexion": {
+          "min": -20,
+          "max": 100
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "differs": []
+    },
+    {
+      "bone": "leftLittleProximal",
+      "basis": {
+        "flexion": {
+          "min": -20,
+          "max": 100
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "engine": {
+        "flexion": {
+          "min": -20,
+          "max": 100
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "differs": []
+    },
+    {
+      "bone": "leftLittleIntermediate",
+      "basis": {
+        "flexion": {
+          "min": -20,
+          "max": 100
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "engine": {
+        "flexion": {
+          "min": -20,
+          "max": 100
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "differs": []
+    },
+    {
+      "bone": "leftLittleDistal",
+      "basis": {
+        "flexion": {
+          "min": -20,
+          "max": 100
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "engine": {
+        "flexion": {
+          "min": -20,
+          "max": 100
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "differs": []
+    },
+    {
+      "bone": "rightShoulder",
+      "basis": {
+        "flexion": {
+          "min": -15,
+          "max": 30
+        },
+        "abduction": {
+          "min": -30,
+          "max": 30
+        },
+        "twist": null
+      },
+      "engine": {
+        "flexion": {
+          "min": -15,
+          "max": 30
+        },
+        "abduction": {
+          "min": -30,
+          "max": 30
+        },
+        "twist": null
+      },
+      "differs": []
+    },
+    {
+      "bone": "rightUpperArm",
+      "basis": {
+        "flexion": {
+          "min": -60,
+          "max": 180
+        },
+        "abduction": {
+          "min": -30,
+          "max": 180
+        },
+        "twist": {
+          "min": -90,
+          "max": 90
+        },
+        "swingDeg": 180
+      },
+      "engine": {
+        "flexion": {
+          "min": -60,
+          "max": 180
+        },
+        "abduction": {
+          "min": -30,
+          "max": 180
+        },
+        "twist": {
+          "min": -90,
+          "max": 90
+        },
+        "swingDeg": 180
+      },
+      "differs": []
+    },
+    {
+      "bone": "rightLowerArm",
+      "basis": {
+        "flexion": {
+          "min": 0,
+          "max": 145
+        },
+        "abduction": null,
+        "twist": {
+          "min": -80,
+          "max": 85
+        }
+      },
+      "engine": {
+        "flexion": {
+          "min": 0,
+          "max": 150
+        },
+        "abduction": null,
+        "twist": {
+          "min": -90,
+          "max": 90
+        }
+      },
+      "differs": [
+        "flexion",
+        "twist"
+      ]
+    },
+    {
+      "bone": "rightHand",
+      "basis": {
+        "flexion": {
+          "min": -70,
+          "max": 80
+        },
+        "abduction": {
+          "min": -45,
+          "max": 20
+        },
+        "twist": null
+      },
+      "engine": {
+        "flexion": {
+          "min": -80,
+          "max": 70
+        },
+        "abduction": {
+          "min": -30,
+          "max": 20
+        },
+        "twist": null
+      },
+      "differs": [
+        "flexion",
+        "abduction"
+      ]
+    },
+    {
+      "bone": "rightUpperLeg",
+      "basis": {
+        "flexion": {
+          "min": -30,
+          "max": 125
+        },
+        "abduction": {
+          "min": -30,
+          "max": 45
+        },
+        "twist": {
+          "min": -45,
+          "max": 45
+        },
+        "swingDeg": 120
+      },
+      "engine": {
+        "flexion": {
+          "min": -30,
+          "max": 120
+        },
+        "abduction": {
+          "min": -30,
+          "max": 45
+        },
+        "twist": {
+          "min": -45,
+          "max": 45
+        },
+        "swingDeg": 120
+      },
+      "differs": [
+        "flexion"
+      ]
+    },
+    {
+      "bone": "rightLowerLeg",
+      "basis": {
+        "flexion": {
+          "min": 0,
+          "max": 140
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "engine": {
+        "flexion": {
+          "min": 0,
+          "max": 150
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "differs": [
+        "flexion"
+      ]
+    },
+    {
+      "bone": "rightFoot",
+      "basis": {
+        "flexion": {
+          "min": -45,
+          "max": 20
+        },
+        "abduction": {
+          "min": -25,
+          "max": 25
+        },
+        "twist": null
+      },
+      "engine": {
+        "flexion": {
+          "min": -50,
+          "max": 20
+        },
+        "abduction": {
+          "min": -25,
+          "max": 25
+        },
+        "twist": null
+      },
+      "differs": [
+        "flexion"
+      ]
+    },
+    {
+      "bone": "rightToes",
+      "basis": {
+        "flexion": {
+          "min": -40,
+          "max": 80
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "engine": {
+        "flexion": {
+          "min": -40,
+          "max": 80
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "differs": []
+    },
+    {
+      "bone": "rightThumbMetacarpal",
+      "basis": {
+        "flexion": {
+          "min": -20,
+          "max": 100
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "engine": {
+        "flexion": {
+          "min": -20,
+          "max": 100
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "differs": []
+    },
+    {
+      "bone": "rightThumbProximal",
+      "basis": {
+        "flexion": {
+          "min": -20,
+          "max": 100
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "engine": {
+        "flexion": {
+          "min": -20,
+          "max": 100
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "differs": []
+    },
+    {
+      "bone": "rightThumbDistal",
+      "basis": {
+        "flexion": {
+          "min": -20,
+          "max": 100
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "engine": {
+        "flexion": {
+          "min": -20,
+          "max": 100
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "differs": []
+    },
+    {
+      "bone": "rightIndexProximal",
+      "basis": {
+        "flexion": {
+          "min": -20,
+          "max": 100
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "engine": {
+        "flexion": {
+          "min": -20,
+          "max": 100
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "differs": []
+    },
+    {
+      "bone": "rightIndexIntermediate",
+      "basis": {
+        "flexion": {
+          "min": -20,
+          "max": 100
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "engine": {
+        "flexion": {
+          "min": -20,
+          "max": 100
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "differs": []
+    },
+    {
+      "bone": "rightIndexDistal",
+      "basis": {
+        "flexion": {
+          "min": -20,
+          "max": 100
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "engine": {
+        "flexion": {
+          "min": -20,
+          "max": 100
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "differs": []
+    },
+    {
+      "bone": "rightMiddleProximal",
+      "basis": {
+        "flexion": {
+          "min": -20,
+          "max": 100
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "engine": {
+        "flexion": {
+          "min": -20,
+          "max": 100
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "differs": []
+    },
+    {
+      "bone": "rightMiddleIntermediate",
+      "basis": {
+        "flexion": {
+          "min": -20,
+          "max": 100
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "engine": {
+        "flexion": {
+          "min": -20,
+          "max": 100
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "differs": []
+    },
+    {
+      "bone": "rightMiddleDistal",
+      "basis": {
+        "flexion": {
+          "min": -20,
+          "max": 100
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "engine": {
+        "flexion": {
+          "min": -20,
+          "max": 100
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "differs": []
+    },
+    {
+      "bone": "rightRingProximal",
+      "basis": {
+        "flexion": {
+          "min": -20,
+          "max": 100
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "engine": {
+        "flexion": {
+          "min": -20,
+          "max": 100
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "differs": []
+    },
+    {
+      "bone": "rightRingIntermediate",
+      "basis": {
+        "flexion": {
+          "min": -20,
+          "max": 100
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "engine": {
+        "flexion": {
+          "min": -20,
+          "max": 100
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "differs": []
+    },
+    {
+      "bone": "rightRingDistal",
+      "basis": {
+        "flexion": {
+          "min": -20,
+          "max": 100
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "engine": {
+        "flexion": {
+          "min": -20,
+          "max": 100
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "differs": []
+    },
+    {
+      "bone": "rightLittleProximal",
+      "basis": {
+        "flexion": {
+          "min": -20,
+          "max": 100
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "engine": {
+        "flexion": {
+          "min": -20,
+          "max": 100
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "differs": []
+    },
+    {
+      "bone": "rightLittleIntermediate",
+      "basis": {
+        "flexion": {
+          "min": -20,
+          "max": 100
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "engine": {
+        "flexion": {
+          "min": -20,
+          "max": 100
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "differs": []
+    },
+    {
+      "bone": "rightLittleDistal",
+      "basis": {
+        "flexion": {
+          "min": -20,
+          "max": 100
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "engine": {
+        "flexion": {
+          "min": -20,
+          "max": 100
+        },
+        "abduction": null,
+        "twist": null
+      },
+      "differs": []
+    }
+  ]
+}

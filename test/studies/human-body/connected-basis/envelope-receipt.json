@@ -1,0 +1,248 @@
+{
+  "basis": "mpfb-connected-body-2026-09-21-envelopes",
+  "supersedes": "mpfb-connected-body-2026-09-21-individuality",
+  "recorded": "2026-09-21",
+  "envelopes": {
+    "macroWeight": [
+      -2.5,
+      5.5
+    ],
+    "macroMuscle": [
+      -1,
+      2
+    ],
+    "upperarmFatLeft": [
+      -1,
+      1
+    ],
+    "upperarmFatRight": [
+      -1,
+      1
+    ],
+    "upperlegFatLeft": [
+      -1,
+      1
+    ],
+    "upperlegFatRight": [
+      -1,
+      1
+    ],
+    "lowerlegFatLeft": [
+      -1,
+      1
+    ],
+    "lowerlegFatRight": [
+      -1,
+      1
+    ],
+    "buttocksVolume": [
+      -1,
+      1
+    ],
+    "measureWaistCirc": [
+      -2,
+      3.5
+    ],
+    "measureHipsCirc": [
+      -2,
+      2
+    ],
+    "measureBustCirc": [
+      -2,
+      1.25
+    ],
+    "measureUnderbustCirc": [
+      -2,
+      2
+    ],
+    "measureShoulderDist": [
+      -2,
+      2
+    ],
+    "measureThighCirc": [
+      -2,
+      1.75
+    ],
+    "measureUpperarmCirc": [
+      -2,
+      2
+    ],
+    "measureCalfCirc": [
+      -2,
+      2
+    ],
+    "stomachPregnant": [
+      -1,
+      2
+    ],
+    "stomachOverhang": [
+      0,
+      1.5
+    ],
+    "flankFat": [
+      0,
+      1
+    ],
+    "outerThighFatLeft": [
+      0,
+      1
+    ],
+    "outerThighFatRight": [
+      0,
+      1
+    ]
+  },
+  "reach": {
+    "ageYears": 30,
+    "mass": [
+      {
+        "statureMetres": 1.55,
+        "sex": -1,
+        "heightWeight": -0.13118241384427454,
+        "massKilograms": [
+          31.15698380405662,
+          86.60254524886832
+        ]
+      },
+      {
+        "statureMetres": 1.55,
+        "sex": 1,
+        "heightWeight": -0.49041672338935155,
+        "massKilograms": [
+          40.485233370810676,
+          92.79337646217418
+        ]
+      },
+      {
+        "statureMetres": 1.75,
+        "sex": -1,
+        "heightWeight": 0.24642767860664505,
+        "massKilograms": [
+          43.55796380841092,
+          112.25956477148866
+        ]
+      },
+      {
+        "statureMetres": 1.75,
+        "sex": 1,
+        "heightWeight": 0.06077385934368512,
+        "massKilograms": [
+          53.554033977736474,
+          118.03262128639375
+        ]
+      },
+      {
+        "statureMetres": 1.95,
+        "sex": -1,
+        "heightWeight": 0.5607016737820013,
+        "massKilograms": [
+          59.51436377772138,
+          143.00859202770758
+        ]
+      },
+      {
+        "statureMetres": 1.95,
+        "sex": 1,
+        "heightWeight": 0.374965717701653,
+        "massKilograms": [
+          71.84110282220223,
+          150.65550158963723
+        ]
+      }
+    ],
+    "girths": [
+      {
+        "channel": "measureWaistCirc",
+        "envelope": [
+          -2,
+          3.5
+        ],
+        "metres": [
+          0.5000243609663535,
+          1.0137726905978457
+        ]
+      },
+      {
+        "channel": "measureHipsCirc",
+        "envelope": [
+          -2,
+          2
+        ],
+        "metres": [
+          0.7861967542714384,
+          1.2946165756326558
+        ]
+      },
+      {
+        "channel": "measureBustCirc",
+        "envelope": [
+          -2,
+          1.25
+        ],
+        "metres": [
+          0.6950581804499559,
+          1.0447741620136732
+        ]
+      },
+      {
+        "channel": "measureUnderbustCirc",
+        "envelope": [
+          -2,
+          2
+        ],
+        "metres": [
+          0.6441618779852502,
+          0.7902607891269033
+        ]
+      },
+      {
+        "channel": "measureShoulderDist",
+        "envelope": [
+          -2,
+          2
+        ],
+        "metres": [
+          0.2864327265262604,
+          0.4396327265262604
+        ]
+      },
+      {
+        "channel": "measureThighCirc",
+        "envelope": [
+          -2,
+          1.75
+        ],
+        "metres": [
+          0.47796642347750745,
+          0.7002503895683131
+        ]
+      },
+      {
+        "channel": "measureUpperarmCirc",
+        "envelope": [
+          -2,
+          2
+        ],
+        "metres": [
+          0.2710237021764209,
+          0.4431563586957444
+        ]
+      },
+      {
+        "channel": "measureCalfCirc",
+        "envelope": [
+          -2,
+          2
+        ],
+        "metres": [
+          0.19882156771973358,
+          0.536430220894202
+        ]
+      }
+    ]
+  },
+  "uncompressedSha256": "244901f4fad95d671902eb239dc260a1958a192405ef96a2e2e6118571c71791",
+  "uncompressedBytes": 110706679,
+  "compressedSha256": "8a60deb7c32196ee72a0dfba64055e56a5675d5c5e60fca5b5adb08427840115",
+  "compressedBytes": 28068819
+}

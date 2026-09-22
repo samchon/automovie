@@ -31,6 +31,15 @@ import type { Document, Material, Node } from "@gltf-transform/core";
  *
  * @evidence requirements/product/scope-and-exclusions.md#product-editor-export-exclusion Limits this operation to one model artifact instead of claiming generic scene editing or export.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-basis This serializer consumes an evaluated model; connected facial basis admission, numerical editing and common-normal construction precede serialization in the human builder.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/README.md#body-specifications The generic exporter serializes supplied models; it owns none of the body basis, joint, measurement or document boundaries.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-basis This serializer consumes an evaluated static body model and holds no basis endpoints or correctives.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-joints Static serialization writes already skinned positions; landmark-defined joints and clinical rest frames belong to the human package.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-measurements The exporter measures no girth or length.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-document The exporter never reads a compact body document.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view The static exporter owns no body editor inputs or display state.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor The static exporter owns no body editor transaction or worker boundary.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-export The static exporter does not write a built body to glTF through the human package.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-simple-shape The static exporter evaluates no simple-tier table or measured inversion.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/README.md#face-specifications The generic exporter serializes supplied model nodes and basic materials; it does not implement the complete face construction, application and review boundary.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document The generic exporter serializes supplied model nodes and basic materials; it does not implement human-face version admission and photo-independent basis interpretation.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components The generic exporter serializes supplied model nodes and basic materials; it does not implement cranial, cervical, ocular, nasal, oral and auricular surface assembly.
