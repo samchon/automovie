@@ -37,6 +37,8 @@
 
 일반 실내 칸막이의 공통 몸체는 [공유 경계 배정](07-boundary-assembly.md#interior-boundary-ownership)의 단일 source owner가 생성하고 양쪽 room은 자기 완결 마감을 유지한다. `src/spaces/boundaries.ts`는 [교차부·개구부·문턱](07-boundary-assembly.md#interior-boundary-junctions)의 같은 경계를 전달하는 계산 책임만 가지며 별도 벽/마감을 만들지 않는다. 차고 공유 벽과 계단 구조의 기존 소유는 그대로다.
 
+[외벽 모서리와 지붕 단차 접합](07-boundary-assembly.md#exterior-boundary-junctions)은 앞뒤 입면/공유 벽이 받는 단일 구조 몸체와 각 완결 입면의 마감을 구별한다. [벽 상단의 지붕 접촉](roof/00-junctions.md#roof-wall-head-junctions)은 지붕 교차 계산에서 받아 벽 두께 전체에 적용한다. 공유 계산이나 공통 몸체를 이유로 위 표의 입면·지붕·방 표면 소유를 바꾸지 않는다.
+
 [층간 구조의 가장자리](08-floor-assembly.md#interstorey-edge-junctions)는 외벽의 두께 구역과 실내 벽 상하 접촉을 같은 경계로 잇는다. 계단 구멍의 몸체는 upper 층판 owner, 그 두께 단면의 보이는 연속 마감은 stair owner, 도착의 보이는 바닥은 upper-hall owner다. 같은 가장자리에 두 번째 층판이나 테두리 마감을 생성하지 않는다.
 
 [지상층 바닥 아래 지지](10-ground-floor.md#ground-support-handoff)는 본채/차고 실내 바탕 아래와 외벽/공유 벽의 기단 구역을 구별한다. 기단의 노출 수직 마감은 기존 완결 입면 owner가 통합하며 바닥 owner가 별도 외장 띠를 덧씌우지 않는다. 실제 지표·지지 하단·기초와 접촉 census는 아직 미완료다.

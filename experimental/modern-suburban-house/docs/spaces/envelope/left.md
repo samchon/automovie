@@ -4,6 +4,8 @@
 
 `src/spaces/envelope/left.ts`가 왼쪽 완결 입면을 소유한다. [본채 왼쪽 외벽](../00-building.md#main-building-extent)의 평면에서 [주 지붕 앞/뒤 아래면](../roof/00-junctions.md#roof-profile-datums)까지 삼각 벽으로 닫는다. 전면 박공은 왼쪽 모서리에서 같은 지붕군의 교차선을 소비하므로 왼쪽 외벽에 또 하나의 분리된 상자를 덧붙이지 않는다. 처마 돌출은 지붕 owner가 소유하고 벽이 돌출 끝까지 부풀어 방 폭을 바꾸지 않는다.
 
+[벽 두께 안의 지붕 배정](../roof/00-junctions.md#roof-wall-head-junctions)도 같은 교차선을 소비한다. [앞뒤 모서리와 굴뚝 몸체의 배정](../07-boundary-assembly.md#exterior-boundary-junctions)에 따라 직선 벽의 끝과 공통 몸체를 나누되, 왼쪽 전체의 노출 마감은 이 owner가 연속해서 닫는다.
+
 왼쪽 벽에는 아래 [굴뚝 접면](#chimney-roof-interface), 거실·주침실·올리브 침실의 실제 경계를 바인딩한다. [측면 창](#left-openings)은 굴뚝을 피하는 위치에 배정한다. 왼쪽 전체 입면과 두 모서리, 삼각 벽과 지붕 아래면의 접촉, 각 방 창의 실내외 일치가 검사 주소다. 실제 면과 창 census·실루엣/재료 판정은 unverified다.
 
 ## 굴뚝 뒤에서 방으로 열리는 창 {#left-openings}
