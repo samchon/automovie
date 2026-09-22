@@ -1,3 +1,4 @@
+/** Geometry operations and their contracts, also re-exported by the engine root. */
 export * from "./IAutoMovieLoftSection";
 export * from "./IAutoMovieMeshAssembly";
 export * from "./IAutoMovieMeshClearanceWitness";
@@ -18,6 +19,7 @@ export * from "./buildAutoMovieRegionFace";
 export * from "./buildAutoMovieWall";
 export * from "./createAutoMovieMeshDeformer";
 export * from "./createAutoMovieMeshDepthSampler";
+export * from "./createAutoMovieSignedMeshQuery";
 export * from "./extrudeAutoMovieProfile";
 export * from "./extrudeAutoMovieRegion";
 export * from "./inspectAutoMovieMeshTopology";
