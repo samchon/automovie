@@ -105,13 +105,18 @@ export function resolveHumanBodyCouplings(
  * The nanodegree tolerance at the first knot absorbs the cone formula's float
  * error at a rest angle (`2 acos(cos 10)` lands above 20 by one ulp), so a
  * curve authored to start exactly at the rest elevation adds nothing at rest.
+ * An elevation on a knot reads that knot as the start of the next segment (a
+ * zero offset, the knot's own ordinate) or as the held last ordinate, never
+ * as the end of the segment before it, whose interpolation can round past
+ * the ordinate by an ulp and turn one admitted on the range's end into one
+ * the pose validator refuses.
  */
 function evaluateCurve(curve: [number, number][], elevation: number): number {
   if (!(elevation > curve[0][0] + 1e-9)) return 0;
   for (let i = 1; i < curve.length; i++) {
     const [x0, y0] = curve[i - 1];
     const [x1, y1] = curve[i];
-    if (elevation <= x1) return y0 + ((y1 - y0) * (elevation - x0)) / (x1 - x0);
+    if (elevation < x1) return y0 + ((y1 - y0) * (elevation - x0)) / (x1 - x0);
   }
   return curve[curve.length - 1][1];
 }

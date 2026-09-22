@@ -49,7 +49,11 @@ type Patch = (basis: IAutoMovieHumanBodyBasis) => void;
  * 4. The sum is validated, never clamped: spine 90 with chest 41 (sum 91)
  *    refuses and chest 40 (sum 90) passes; on the abduction coupling,
  *    chest -5 (sum -11) refuses and -4 (sum -10) passes; the document's pose
- *    is unchanged by a build.
+ *    is unchanged by a build. A knot's ordinate is the curve's value at that
+ *    knot exactly: `[[0.1, 0], [90, -6], [120, -6]]` into a chest abduction
+ *    range of [-6, 10] at spine 90 lands on -6 and passes, where the interpolation
+ *    `y0 + (y1 - y0)(x - x0)/(x1 - x0)` rounds to -6.000000000000001 and
+ *    would refuse the range's own end.
  * 5. Admission: a held or root output axis, an ordinate past either side of
  *    the range (the reach shrinking with a rest offset), an unknown source
  *    or output, a self coupling, a chain whose output is another coupling's
@@ -255,6 +259,32 @@ export const test_human_body_basis_coupling = (): void => {
     "the document is not mutated",
     JSON.stringify(document),
     before,
+  );
+
+  const edge = withChest(
+    [
+      rhythm,
+      {
+        ...retraction,
+        curve: [
+          [0.1, 0],
+          [90, -6],
+          [120, -6],
+        ],
+      },
+    ],
+    (basis) => {
+      basis.joints[2].constraint!.abduction = { min: -6, max: 10 };
+    },
+  );
+  const edged = createHumanBodyBasisBuilder(edge.basis);
+  TestValidator.predicate(
+    "the last knot's ordinate lands on the range's end exactly",
+    !throwsError(() => edged({ ...edge.document, pose: [spine(90)] })) &&
+      qclose(
+        chestOf(edged({ ...edge.document, pose: [spine(90)] })),
+        twin([spine(90), chest(50, -6)]),
+      ),
   );
 
   // 5. admission
