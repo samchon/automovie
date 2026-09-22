@@ -23,7 +23,7 @@
 | driveway | [경사 보간 앞 연결로](site/side-walk.md#side-walk-plan) | side-front-access, ground-storey 외부 |
 | side-front-access | [side-yard-gate](site/side-walk.md#side-gate-interface), 개방 검사 상태 | side-rear-access, ground-storey 외부 |
 | side-rear-access | [뒤쪽 가로 길과 아래 대기의 끝선](site/side-walk.md#side-walk-plan) | garden-lower-landing, ground-storey 외부 |
-| front-entry 하부 대기 | [main-stair 두 flight와 중간참](02-stair.md#stair-reservation) | [upper-hall 도착면](rooms/upper-hall.md#upper-hall-plan), upper-storey |
+| front-entry 하부 대기 | [main-stair 두 flight와 중간참을 묶는 단일 연결](02-stair.md#stair-connector-handoff) | [upper-hall 도착면](rooms/upper-hall.md#upper-hall-plan), upper-storey |
 | upper-hall | [hall-bedroom-two-door](rooms/bedroom-two.md#bedroom-two-plan) | bedroom-two, upper-storey |
 | upper-hall | [hall-bedroom-three-door](rooms/bedroom-three.md#bedroom-three-plan) | bedroom-three, upper-storey |
 | upper-hall | [hall-primary-door](rooms/primary.md#primary-plan) | primary-bedroom, upper-storey |
@@ -34,6 +34,8 @@
 복도 린넨과 현관 외투장은 각 소비 공간의 실제 opening과 내부 깊이를 갖는 수납이며, 방 경로 edge로 세지 않는다. 포치 바닥·세 챌판·아래 대기 입력은 위 포치 owner가 소유하고 아래 대기 표면은 연속 보행길이 소비한다. [외부 창/문 인계](06-openings.md#external-opening-interface)와 [대지 내부 접근](site/00-access.md#site-local-routes), 측면 관리길의 앞뒤 연결을 예약했으나 실제 부재·maps의 보도/도로와 지표 binding·울타리 전체 경계는 미완료다. 원점 재검토에서 폐기된 이전 topology나 그 관찰 개수를 다시 쓰지 않는다.
 
 필요한 검사는 현관에서 표의 각 목적지까지 도달하고 같은 경계 순서로 돌아오는 경로다. 팬트리/파우더룸/침실을 통과하지 않고 공용실과 차고·두 욕실에 닿아야 한다. 거친 개구부의 좌표가 벽 안에 있다는 사실과 실제 문틀/문짝 뒤의 통행은 서로 다른 검사다. 표의 방 하나라도 실제 storey·boundary·opening·connector를 갖지 않으면 소스 인계는 미완료다. 현재 topology 보고와 양방향 통행은 unverified다.
+
+`builtEnvironmentAdjacentSpaces`는 같은 boundary의 반대쪽 공간을 개구부 유무와 관계없이 반환한다. 그 목록을 그대로 사람의 도달 그래프로 쓰면 막힌 칸막이나 층판을 통과한 것으로 오판한다. 위 표의 사람 경로는 통행용 문/열린 접속의 실제 boundary·void와 해당 조작 상태, 또는 저작된 connector에 근거해야 한다. 창·벽·천장만 공유하는 인접성은 통행 edge가 아니다. 문을 조작해 갈 수 있는 연결과 문이 닫힌 현재 상태에서 즉시 통과할 수 있는 연결도 구별한다. connector의 중간 landing은 실제 참의 공간으로 읽고, `main-stair`는 [동일 계단 연결](02-stair.md#stair-connector-handoff)의 중간 stop으로 현관과 상층 복도 양쪽에서 닿는다. 이 인계는 기존 공간/문/층을 추가하지 않으며 실제 도달 여부는 compiled 부재와 상태가 생긴 뒤에만 판정한다.
 
 이 표의 외부 시작점은 아직 house-site 안 포장이다. [map 입력 인계](site/00-access.md#map-handoff-inputs)가 실제 외부 보도와 한 node의 두 포트를 결합하면 그 보도에서 시작하는 접근/복귀를 같은 경로 앞에 붙인다. 포트의 중심점만 이어 붙이거나 관리길을 세 번째 도로 포트로 취급하지 않는다. 필지/지표가 없는 현재 표만으로 도로에서 각 방까지 도달했다고 보고하지 않는다.
 

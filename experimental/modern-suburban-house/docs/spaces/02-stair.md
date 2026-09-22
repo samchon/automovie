@@ -14,7 +14,15 @@
 
 계단의 예정 source owner는 `src/spaces/stair.ts`다. 디딤별 위치는 위 개수·진행 방향·시작점에서 반복 산출하며 손으로 같은 레코드를 복제하지 않는다. 비교 대상은 단 수, 진행 방향, 두 도착면과 실제 단의 접속이며 좌표 허용 오차는 [외곽의 설계 대조 기준](00-building.md#main-building-extent)을 소비한다. 현재 값은 저작 입력이며 계단 산출물·단면·양방향 통행은 unverified다.
 
-공개 `IAutoMovieBuiltConnector`의 `route`와 `elements`는 한 연결에 두 flight·중간참의 경로와 실제 부재를 묶을 수 있다. 그러나 `steps`는 count/rise/run 한 묶음뿐이며 `validateBuiltEnvironment`는 count × rise를 전체 경로의 높이차, count × run을 중간참까지 포함한 전체 수평 경로 길이와 비교한다. 이 집의 챌판 수·디딤 깊이·참 길이를 그 단일 반복 요약으로 그대로 옮길 수 있다고 가정하지 않는다. 참 길이를 디딤 깊이에 평균하거나 route를 짧게 고쳐 맞추지 않는다. flight별 실제 단 형상과 단일 연결의 표현을 함께 성립시키는 source 인계는 미해결이며, `steps`를 생략해 검사가 사라진 상태도 단 수/디딤 검증 완료로 세지 않는다. 고정 그래프·단 수·참은 유지하고 이 API 집계의 한계를 조정자에게 이관한다. 실제 단을 재는 공개 경로가 확보되기 전 해당 계측은 unverified다.
+## 하나의 연결에 속하는 두 flight와 중간참 {#stair-connector-handoff}
+
+[계단 공간과 단별 치수](#stair-reservation)는 유지한다. 후속 `IAutoMovieBuiltConnector`는 `main-stair-connection` 하나로, kind는 stair, from은 front-entry, to는 upper-hall, bidirectional은 true로 저작한다. route의 양 끝은 각각 기존 하부 대기와 상부 도착면 내부에 두며, 아래 flight → 중간참에서 한 번 꺾임 → 위 flight의 실제 진행 순서를 따른다. 두 flight를 별도의 층간 계단으로 등록하거나 계단실을 통과하지 않는 직선으로 두 층을 연결하지 않는다. 실제 두 flight·참·보호 부재는 같은 connector의 elements로 인계한다.
+
+기존 main-stair 공간은 ground-storey 귀속을 유지하고 connector의 중간 landing으로도 참조한다. landing의 위치는 중간참 평면의 X/Z 중심과 그 참의 높이에서 정한다. 이 점을 route의 꺾임 station으로 포함하며 `landings.at`은 시작에서 그 점까지의 3D polyline 길이를 전체 route 길이로 나눈 값이다. 단순히 station 배열의 중간 index나 0.5로 고정하지 않는다. 중간참을 별도 방·층·두 번째 계단으로 만들지 않고 `landings.space`는 main-stair를 가리킨다. 참의 physical boundary와 실제 지지 면은 stair owner에 남는다.
+
+공개 타입의 `steps`는 count/rise/run 한 묶음이고 `validateBuiltEnvironment`는 count × rise를 전체 경로의 높이차, count × run을 참과 접근 부분까지 포함한 전체 수평 경로 길이와 비교한다. 이 집은 같은 간격의 디딤 외에 중간참의 회전과 상하부 대기의 접속을 가지므로 전체 connector에 그 균일 반복 요약을 기입하지 않는다. 공개 구현의 선택 필드 조건과 저장소 `test/src/features/architecture/test_architecture_built_connector.ts`의 steps 없는 spiral stair 사례를 읽어 이 입력 형태를 확인했다. 테스트를 실행했거나 이 집의 계단이 검증됐다는 뜻은 아니다. C19에서 미해결로 남긴 connector 표현은 이 형태로 선택하되, steps 생략이 단 수·치수 검사를 지불하지 않는다는 한계는 유지한다. 평균 run을 만들거나 기존 단 수·참·route를 바꿔 집계를 맞추는 안은 채택하지 않는다.
+
+연결 검사와 실제 단 검사를 구별한다. connector 조회는 front-entry/main-stair/upper-hall에서 같은 연결을 찾아야 하고 landing의 산출 위치는 같은 참 위에 있어야 한다. `builtConnectorGeometry`는 route의 높이차·길이·station을 읽으며 실제 디딤이나 난간을 재지 않는다. 챌판 수·각 높이·디딤 깊이·참·보호 부재 뒤 순폭과 머리 공간은 렌더가 소비하는 실제 부재에서 읽어야 한다. 그 계측 경로와 geometry가 없는 현재는 unverified로 남기고 route 산술이나 테스트 사례로 대신하지 않는다. [전체 관찰](04-observations.md#spatial-observation-derivation)은 계단 공간 자체의 threshold·안쪽 코너·중심 방향 및 양방향 통행을 그대로 포함한다.
 
 ## 계단 구멍과 전면 창의 경계 {#stair-floor-opening}
 
