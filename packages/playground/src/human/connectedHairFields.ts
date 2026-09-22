@@ -175,6 +175,14 @@ export function connectedHairFields(layer: Layer): Field[] {
         x.guides!.neighbours = value;
       },
     );
+    add(
+      "guides-clump",
+      "Clump toward guides",
+      (x) => x.guides!.clump ?? 0,
+      (x, value) => {
+        x.guides!.clump = value;
+      },
+    );
   }
   if (layer.part !== undefined) {
     for (let axis = 0; axis < 3; axis++)
