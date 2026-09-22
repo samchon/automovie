@@ -209,16 +209,21 @@ function main(): void {
   );
   // an incremental round's unpublished list is the shipped one less what
   // this round repaired, plus what this round still could not
+  // each state once, by its latest attempt
   const repairedNow = new Set(repaired.map((record) => record.state));
   const unpublished = [
-    ...(shipped?.records ?? []).filter(
-      (record) =>
-        record.crossing !== null &&
-        !record.outcome.startsWith("repaired") &&
-        !repairedNow.has(record.state) &&
-        !records.some((one) => one.state === record.state),
-    ),
-    ...crossings.filter((record) => !record.outcome.startsWith("repaired")),
+    ...new Map(
+      [
+        ...(shipped?.records ?? []).filter(
+          (record) =>
+            record.crossing !== null &&
+            !record.outcome.startsWith("repaired") &&
+            !repairedNow.has(record.state) &&
+            !records.some((one) => one.state === record.state),
+        ),
+        ...crossings.filter((record) => !record.outcome.startsWith("repaired")),
+      ].map((record) => [record.state, record] as const),
+    ).values(),
   ];
   const mostRest = (id: string): number => {
     let most = 0;
