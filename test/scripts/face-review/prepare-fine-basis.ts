@@ -59,9 +59,6 @@ const entries = read<{ entries: FineBasisEntry[] }>(
   "fine-controls.json",
 ).entries;
 const native = read<FineBasisNative>("fine-native-targets.json.gz");
-const components = read<{
-  surfaces: Parameters<typeof prepareFineBasisArtifacts>[0]["components"];
-}>("rigid-components.json").surfaces;
 const grooms = read<Record<string, IAutoMovieHumanFaceGroom>>(
   "grooms.json.gz",
   compact,
@@ -82,7 +79,6 @@ const prepared = prepareFineBasisArtifacts({
   source,
   entries,
   native,
-  components,
   grooms,
   documents,
   controls,
