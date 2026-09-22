@@ -20,6 +20,13 @@ const requireDirection = humanFaceHairFrame.direction;
  * without being integrated itself. A projection that does not converge in 64
  * steps refuses.
  *
+ * The rule also carries the step its clearance was built from, because that
+ * is the chord a curve may span and still keep the requested clearance along
+ * its whole length: distance to a closed set is 1-Lipschitz, so two stations
+ * half a step beyond the clearance, no further apart than one step, keep it
+ * between them. A curve that is not integrated has to be held to the same
+ * chord to inherit that guarantee.
+ *
  * The clearance is the fibre's own, not the rendered ribbon's: half a step is
  * what a straight segment between two projected stations may sag by, and the
  * requested clearance is the free distance the document asks its hair to keep.
@@ -37,6 +44,7 @@ export function humanFaceHairContact(props: {
   query: ReturnType<typeof createAutoMovieSignedMeshQuery>;
 }): {
   clearance: number;
+  step: number;
   epsilon: number;
   sample: (p: IAutoMovieVector3) => ReturnType<typeof props.query>;
   outward: (
@@ -86,5 +94,5 @@ export function humanFaceHairContact(props: {
       "Numerical hair contact did not converge on the closed surface.",
     );
   };
-  return { clearance, epsilon, sample, outward, project };
+  return { clearance, step: h, epsilon, sample, outward, project };
 }
