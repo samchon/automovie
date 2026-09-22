@@ -70,9 +70,11 @@ export namespace IAutoMovieHumanFaceHair {
      * contact as guides; every other root is a strand interpolated from its
      * `neighbours` (integral in [1,8]) nearest guides on the same side of the
      * part, weighted by scalp distance against the guides' own mean spacing.
-     * Absent, every root is a guide, which is the flat population.
+     * Optional `clump` in [0,1] gathers strands toward their nearest guide,
+     * nothing at the root and that fraction of the way at the tip. Absent,
+     * every root is a guide, which is the flat population.
      */
-    guides?: { fraction: number; neighbours: number };
+    guides?: { fraction: number; neighbours: number; clump?: number };
     /** Maximum ribbon width in metres, positive and at most 0.04. */
     width: number;
     /** Positive maximum integration step in metres, at most 0.005. */

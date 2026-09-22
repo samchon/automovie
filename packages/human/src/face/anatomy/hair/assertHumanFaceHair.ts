@@ -68,10 +68,12 @@ export function assertHumanFaceHair(input: IAutoMovieHumanFaceHair): void {
       (!positive(layer.guides.fraction) ||
         layer.guides.fraction > 1 ||
         !Number.isInteger(layer.guides.neighbours) ||
-        !bounded(layer.guides.neighbours, 1, 8))
+        !bounded(layer.guides.neighbours, 1, 8) ||
+        (layer.guides.clump !== undefined &&
+          !bounded(layer.guides.clump, 0, 1)))
     )
       throw new Error(
-        "Hair guides need a fraction in (0,1] and one to eight neighbours.",
+        "Hair guides need a fraction in (0,1], one to eight neighbours and a clump in [0,1].",
       );
     const part = layer.part;
     if (part !== undefined) {
