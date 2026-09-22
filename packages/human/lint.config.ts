@@ -1,11 +1,55 @@
 import { type ITtscEvidenceGraphConfig, evidence } from "@ttsc/evidence";
 import type { ITtscLintConfig } from "@ttsc/lint";
 
-/** All authored public definitions owe both contracts; barrels only re-export their carriers. */
-const publicLeaves = ["src/**/*.ts", "!src/**/index.ts"];
+/**
+ * Authored public definitions owe both contracts; barrels only re-export
+ * their carriers. The body folder is assigned to the body contract and the
+ * residual population (everything that is not the body) answers for the face,
+ * so a new source file under `src/` owes a contract by default.
+ */
+const bodyLeaves = ["src/body/**/*.ts", "!src/**/index.ts"];
+const publicLeaves = ["src/**/*.ts", "!src/body/**/*.ts", "!src/**/index.ts"];
+
+const contract = (
+  name: string,
+  files: string[],
+  layer: "requirements/actors" | "specifications/asset-and-representation",
+  topic: "facial-authoring" | "body-authoring",
+): ITtscEvidenceGraphConfig["claims"][number] => ({
+  name,
+  type: "typescript",
+  files,
+  symbol: ["type", "function", "property"],
+  reference: [
+    {
+      type: "markdown",
+      root: "../../docs",
+      files: [`${layer}/${topic}/**/README.md`],
+      symbol: "h1",
+    },
+    {
+      type: "markdown",
+      root: "../../docs",
+      files: [`${layer}/${topic}/**/*.md`, `!${layer}/${topic}/**/README.md`],
+      symbol: "h3",
+    },
+  ],
+});
 
 const graph: ITtscEvidenceGraphConfig = {
   claims: [
+    contract(
+      "human body exports implement body requirements",
+      bodyLeaves,
+      "requirements/actors",
+      "body-authoring",
+    ),
+    contract(
+      "human body exports implement body specifications",
+      bodyLeaves,
+      "specifications/asset-and-representation",
+      "body-authoring",
+    ),
     {
       name: "human public exports implement face requirements",
       type: "typescript",
