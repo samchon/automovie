@@ -4,16 +4,7 @@ import type { IAutoMovieMaterial } from "@automovie/interface";
 import type { IAutoMovieHumanFaceBasis } from "../../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceHair } from "../../structures/IAutoMovieHumanFaceHair";
 import { humanFaceHairEnvelope } from "./humanFaceHairEnvelope";
-import { humanFaceHairlineBoundary } from "./humanFaceHairlineBoundary";
-
-/**
- * The depth of the hairline's transition zone, over which hair density rises
- * from the first sparse single hairs to the full scalp density: 2 to 3 cm in
- * the hair restoration literature recorded in the project's hair research
- * note; the shallow end is used, so a hairline reads crisp rather than
- * receding.
- */
-const HAIRLINE_TRANSITION_METRES = 0.02;
+import { humanFaceHairlineCoverage } from "./humanFaceHairlineCoverage";
 
 /**
  * Compile the shared scalp tint rule: under a hair population the scalp
@@ -101,21 +92,11 @@ export function createHumanFaceScalpTint(
           positions[3 * vertex + 2],
         );
         const direction = Vector3.subtract(point, origin);
-        const distance = Vector3.length(direction);
-        if (!(distance > 0)) continue;
-        const polar = Math.acos(
-          Math.max(-1, Math.min(1, direction.y / distance)),
-        );
-        const inside =
-          (humanFaceHairlineBoundary(direction, layer.hairline) - polar) /
-          (HAIRLINE_TRANSITION_METRES / distance);
-        if (inside <= 0) continue;
-        const ramp = Math.min(1, inside);
+        if (!(Vector3.length(direction) > 0)) continue;
         const coverage =
-          ramp *
-          ramp *
-          (3 - 2 * ramp) *
+          humanFaceHairlineCoverage(direction, layer.hairline) *
           humanFaceHairEnvelope(point, layer.rootRegion);
+        if (coverage <= 0) continue;
         if (coverage <= entry.weight[vertex]) continue;
         entry.weight[vertex] = coverage;
         // The scalp under a greying head sees the mixture, not the pigment:

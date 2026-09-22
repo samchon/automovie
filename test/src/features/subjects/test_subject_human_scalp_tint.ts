@@ -60,7 +60,9 @@ export const test_subject_human_scalp_tint = (): void => {
     ) && pigmented[0] < full[0],
   );
   const front = structuredClone(document.hair!);
-  front.layers[0].hairline.front = Math.PI / 2 + 0.1;
+  // The fixture's crown vertex stands 100 mm from the chart origin, so half of
+  // the 10 mm transition zone is 0.05 radians of slack at that distance.
+  front.layers[0].hairline.front = Math.PI / 2 + 0.05;
   const half = tint(front, basis.materials).get("head")!;
   const expected = 0.5 * 0.5 * (3 - 2 * 0.5);
   TestValidator.predicate(

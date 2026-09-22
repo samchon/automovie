@@ -14,6 +14,7 @@ export * from "./humanFaceHairDensity";
 export * from "./humanFaceHairFrame";
 export * from "./humanFaceHairLength";
 export * from "./humanFaceHairlineBoundary";
+export * from "./humanFaceHairlineCoverage";
 export * from "./humanFaceHairSequence";
 export * from "./integrateHumanFaceHairCurve";
 export * from "./interpolateHumanFaceHairStrands";
