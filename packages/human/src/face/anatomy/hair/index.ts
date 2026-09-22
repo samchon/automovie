@@ -8,6 +8,7 @@ export * from "./createHumanFaceHairBuilder";
 export * from "./createHumanFaceHairRoots";
 export * from "./createHumanFaceScalpTint";
 export * from "./evaluateHumanFaceHairDirection";
+export * from "./growHumanFaceHairStrand";
 export * from "./humanFaceHairContact";
 export * from "./humanFaceHairFrame";
 export * from "./humanFaceHairLength";

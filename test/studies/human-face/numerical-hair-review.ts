@@ -6,6 +6,7 @@ import type {
   createHumanFaceHairRoots,
   createHumanFaceScalpTint,
   evaluateHumanFaceHairDirection,
+  growHumanFaceHairStrand,
   humanFaceHairContact,
   humanFaceHairFrame,
   humanFaceHairLength,
@@ -81,12 +82,14 @@ import type {
  * @evidenceReview {@link createHumanFaceScalpTint} #e9b2882 Read the 20 mm transition converted to a polar angle per vertex, the smoothstep ramp, the root-region product, empty layers skipped, the per-vertex region material read after document overrides, and gains clamped to [0,1] so a lighter hair leaves the skin.
  * @evidence {@link humanFaceHairlineBoundary} Read the hairline boundary blended from the four authored angles by the squared horizontal chart components, shared by root sampling and scalp coverage.
  * @evidenceReview {@link humanFaceHairlineBoundary} #1fab004 Read the blend lifted out of root sampling unchanged and the polar-axis minimum.
+ * @evidence {@link growHumanFaceHairStrand} Read the placement of one interpolated strand: every station after the root projected by the guides' contact rule, and the strand grown by the integrator when that projection refuses.
+ * @evidenceReview {@link growHumanFaceHairStrand} #1dd4bea Read that the root is kept, the projected stations sit at the contact clearance, the reported clearance is the contact's less its allowance, and a refusing projection falls back to the integrator; the analytic scenario drives both branches and the narrow interior that makes the contact refuse.
  * @evidence {@link integrateHumanFaceHairCurve} Read neutral regional length, seeded phase, signed-distance contact, chord bisection and final metric truncation. Arithmetic allowance is explicit; root-fan and hair-to-hair clearance remain unproved.
  * @evidenceReview {@link integrateHumanFaceHairCurve} #fa861d6 Read the shared scale-derived contact allowance and h + epsilon chord admission, including final extension by at most epsilon. The nearest-endpoint bound pays for both from the remaining contact allowance. Same-input Float32 GLB bytes remained exact in the 1,024-root probe; root-fan and hair-to-hair clearance remain unproved.
  * @evidence {@link buildHumanFaceHairMesh} Read single-root fan, paired metric rows, minimal frame transport, measured UV/taper and nondegenerate triangle refusal. It meshes the integrator's stations without Catmull-Rom interpolation.
  * @evidenceReview {@link buildHumanFaceHairMesh} #2d9fcf6 Read the first nonparallel tangent's emergence plane, straight-curve normal fallback and subsequent minimal transport. The analytic planar-width scenario failed before this correction. This inspection does not accept root-fan contact or current population appearance; the integrator's stations and measured UV/taper remain the geometry owners.
  * @evidence {@link createHumanFaceHairBuilder} Read shared domain/closure admission, neutral/current correspondence, owned construction and procedural finishes. The actual connected builder now calls this function; personal documents and population acceptance remain unfinished.
- * @evidenceReview {@link createHumanFaceHairBuilder} #c74bf42 Read shared domain/closure admission, neutral/current correspondence, owned construction and procedural finishes. The actual connected builder now calls this function; personal documents and population acceptance remain unfinished. Reread the guide selection by the root's own Halton identity, integration of guides only, same-side interpolation of the rest, projection of every strand station by the guides' contact rule, and the station budget over both.
+ * @evidenceReview {@link createHumanFaceHairBuilder} #0e62e14 Read shared domain/closure admission, neutral/current correspondence, owned construction and procedural finishes. The actual connected builder now calls this function; personal documents and population acceptance remain unfinished. Reread the guide selection by the root's own Halton identity, integration of guides only, same-side interpolation of the rest, projection of every strand station by the guides' contact rule, and the station budget over both. Reread the strand placement delegated to `growHumanFaceHairStrand`, with the station budget counting whichever curve comes back.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-parametric-hair Records source inspection and remaining root-fan, migration and population verification gaps for the shared numerical path. It does not accept the current rendered population.
  */
 export const humanFaceNumericalHairReview =

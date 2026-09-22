@@ -10,6 +10,7 @@ import { assertHumanFaceHair } from "./assertHumanFaceHair";
 import { buildHumanFaceHairMesh } from "./buildHumanFaceHairMesh";
 import { createHumanFaceHairRoots } from "./createHumanFaceHairRoots";
 import { createPortraitHairMaterial } from "./createPortraitHairMaterial";
+import { growHumanFaceHairStrand } from "./growHumanFaceHairStrand";
 import { humanFaceHairContact } from "./humanFaceHairContact";
 import { humanFaceHairSequence } from "./humanFaceHairSequence";
 import { integrateHumanFaceHairCurve } from "./integrateHumanFaceHairCurve";
@@ -213,29 +214,40 @@ export function createHumanFaceHairBuilder(input: IAutoMovieHumanFaceBasis) {
           "Numerical hair exceeds its million-station assembled budget.",
         );
       // Interpolated strands keep the clearance their guides were integrated
-      // with: every station after the root is projected by the same contact
-      // rule, which is cheap beside integration and keeps the population on
-      // the outside of the closed collider.
+      // with, and a strand the projection cannot place is grown instead
+      // (`growHumanFaceHairStrand`).
       const strandOrdinal = new Map(
         strandIndices.map((at, ordinal) => [at, ordinal]),
       );
-      const curves = seats.map((_, at) => {
+      const curves = seats.map(({ root, seated, normal }, at) => {
         const guide = integrated.get(at);
         if (guide !== undefined) return guide;
         const strand = strands[strandOrdinal.get(at)!];
-        const contact = humanFaceHairContact({
-          layer,
-          root: strand.points[0],
-          length: strand.length,
-          query,
+        const grown = growHumanFaceHairStrand({
+          strand,
+          contact: humanFaceHairContact({
+            layer,
+            root: strand.points[0],
+            length: strand.length,
+            query,
+          }),
+          integrate: () =>
+            integrateHumanFaceHairCurve({
+              layer,
+              origin: domain.origin,
+              reference: root.point,
+              root: seated,
+              normal,
+              sequence: root.sequence,
+              query,
+            }),
         });
-        return {
-          ...strand,
-          points: strand.points.map((point, index) =>
-            index === 0 ? point : contact.project(point),
-          ),
-          clearance: contact.clearance - contact.epsilon,
-        };
+        stations += grown.points.length - strand.points.length;
+        if (stations > 1_000_000)
+          throw new Error(
+            "Numerical hair exceeds its million-station assembled budget.",
+          );
+        return grown;
       });
       const id = "numerical-hair:" + layer.id;
       const material = createPortraitHairMaterial(
