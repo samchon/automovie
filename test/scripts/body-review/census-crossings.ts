@@ -18,7 +18,7 @@
  *   extremes, four combinations per pair, plus the shoulder and hip abduction
  *   extremes against the elbow and knee flexion extremes. Single-axis
  *   correctives are solved alone; this is where two of them meet.
- * - `shapes`: every published pose corrective's full angle again on the macro
+ * - `shapes`: every published single-axis pose corrective's full angle again on the macro
  *   extremes (female, male, child, old, heavy, thin, muscular at the source's
  *   unit node) and on every channel whose published envelope reaches past
  *   that node, at each far end, since a corrective is solved on the neutral
@@ -377,9 +377,11 @@ function traitStates(basis: IAutoMovieHumanBodyBasis): IState[] {
 function shapeStates(basis: IAutoMovieHumanBodyBasis): IState[] {
   const joints = new Map(basis.joints.map((joint) => [joint.bone, joint]));
   const states = new Map<string, IAutoMovieJointPose[]>();
+  // the single-axis correctives' angles; a state corrective was solved and
+  // verified on its own shape, and its ramps repeat a single-axis angle
   for (const corrective of basis.correctives ?? [])
     for (const input of corrective.inputs) {
-      if (!("bone" in input)) continue;
+      if (!("bone" in input) || corrective.id.startsWith("state/")) continue;
       const angle =
         joints.get(input.bone)!.neutral[input.axis] +
         (input.side === "positive" ? 1 : -1) * input.full;
