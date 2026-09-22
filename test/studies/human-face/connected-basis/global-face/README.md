@@ -153,7 +153,7 @@ Every published document was built through the actual connected runtime and rend
 
 **After the derived width.** The run above predates the density-derived ribbon width. Three subjects were rebuilt and re-rendered after it: the ribbons are 8.1 mm wide where 4 mm was authored, the hair lies 2.0 mm above the scalp instead of 4.0 mm, and no ribbon vertex lies deeper than a micrometre inside the skin. The crossing census is unaffected by hair; a full eighteen-subject re-render is a housekeeping follow-up, not a pending question.
 
-**Known findings.** One subject's front view shows a rectangular region where the hair in front of the face is not drawn; the same model's largest hair triangle is 145 mm² and its skin-only render is clean, so it is a capture-viewer artifact of alpha-tested double-sided ribbons rather than generated geometry. The renders are review evidence, not an anatomical or likeness acceptance.
+**Known findings.** An earlier reading of one subject's front view, a rectangular region where the hair in front of the face seemed not to be drawn, was wrong and is withdrawn. Compared pixel by pixel against the same model rendered without hair, that region is exactly where no ribbon stands in front of the face: the hair parts around it, its straight lower edge is the model's own neck cut and its straight sides are the curtains' inner edges. The hair alone, the skin alone and a render with the ribbons alpha-masked opaque instead of blended all agree, so no viewer artifact remains to chase. The renders are review evidence, not an anatomical or likeness acceptance.
 
 ## Research continuity
 
