@@ -68,6 +68,7 @@ export const test_subject_connected_preview = async (): Promise<void> => {
     operation: "preview",
     model,
     articulation: null,
+    contact: null,
     crossings: null,
   };
   const file: ConnectedFaceResult = {
