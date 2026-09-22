@@ -34,9 +34,10 @@ import { interpolateHumanFaceHairStrands } from "./interpolateHumanFaceHairStran
  * remain the shared source and deformation's premises, not automatic anatomy.
  *
  * A ribbon's width is not authored: each root's seated neighbourhood measures
- * the scalp that root stands for (`humanFaceHairDensity`) against the area its
- * own sampler accepted, so a thinned hairline widens its ribbons exactly as far
- * as it thinned them, and a larger head widens them with it.
+ * the scalp that root stands for (`humanFaceHairDensity`), against the share of
+ * the domain its own sampler accepted taken on this face's own triangles, so a
+ * thinned hairline widens its ribbons exactly as far as it thinned them and a
+ * larger head widens them with it.
  *
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Reuses one anatomical domain and shared generator across numerical identities.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-parametric-hair Connects numerical roots, fields, contact, strips and procedural finish to current face geometry.
@@ -69,6 +70,7 @@ export function createHumanFaceHairBuilder(input: IAutoMovieHumanFaceBasis) {
             domain.id,
             {
               origin: Vector3.create(...domain.origin),
+              triangles: domain.triangles,
               sample: createHumanFaceHairRoots({
                 positions: surface.positions,
                 indices: surface.indices,
@@ -128,8 +130,34 @@ export function createHumanFaceHairBuilder(input: IAutoMovieHumanFaceBasis) {
         throw new Error(
           "Numerical hair requires its declared resident surface and growth domain.",
         );
-      const { roots, area } = domain.sample(layer);
+      const { roots, share } = domain.sample(layer);
       if (roots.length === 0) continue;
+      // The share is of the neutral domain the sampler measured; the area a
+      // population grows on is that share of the same triangles as they stand
+      // on this face, so a larger head grows on more of it.
+      const area =
+        share *
+        domain.triangles.reduce((total, triangle) => {
+          const points = source.surface.indices
+            .slice(3 * triangle, 3 * triangle + 3)
+            .map((id) =>
+              Vector3.create(
+                current[id * 3],
+                current[id * 3 + 1],
+                current[id * 3 + 2],
+              ),
+            );
+          return (
+            total +
+            Vector3.length(
+              Vector3.cross(
+                Vector3.subtract(points[1], points[0]),
+                Vector3.subtract(points[2], points[0]),
+              ),
+            ) /
+              2
+          );
+        }, 0);
       let query = queries.get(layer.surface);
       if (query === undefined) {
         query = createAutoMovieSignedMeshQuery({
