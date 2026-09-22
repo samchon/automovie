@@ -1,12 +1,16 @@
 import { validateModel } from "@automovie/engine";
+import { createMeshWeldPartitionMatcher } from "@automovie/engine/math/createMeshWeldPartitionMatcher";
 import type { IAutoMovieModel } from "@automovie/interface";
 import typia from "typia";
 
+import { createHumanFaceHairBuilder } from "../anatomy/hair/createHumanFaceHairBuilder";
+import { createPortraitColourField } from "../anatomy/skin/createPortraitColourField";
 import { portraitNormals } from "../mesh/portraitNormals";
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceBasisDocument } from "../structures/IAutoMovieHumanFaceBasisDocument";
+import { applyHumanFaceRigidGroups } from "./applyHumanFaceRigidGroups";
 import { assertHumanFaceBasis } from "./assertHumanFaceBasis";
-import { humanFaceBasisRegion } from "./humanFaceBasisRegion";
+import { createHumanFaceBasisRegion } from "./createHumanFaceBasisRegion";
 
 /**
  * Compile a caller-owned connected facial prior into a deterministic builder.
@@ -14,22 +18,33 @@ import { humanFaceBasisRegion } from "./humanFaceBasisRegion";
  * resident model through exportHumanFace. Offline modelling tools supply the
  * licensed geometry; none run here and no source photo is needed for replay.
  *
- * For each vertex p, evaluation is identity, then p + sum(abs(weight) *
- * endpointDelta), then each basis corrective's endpoint at its own activation,
- * then each document corrective's rows at its activation. Signed shape
+ * For each vertex p, evaluation is p + sum(abs(weight) * endpointDelta),
+ * then each shared basis corrective's endpoint at its own activation. Signed shape
  * controls select distinct authored endpoints. All surfaces use the same
  * channel order; normals are reconstructed before UV/material seams.
+ * Declared rigid groups use a separate shape-only reference and replace their
+ * performance target with fixed or least-squares proper rigid motion before
+ * normal reconstruction. Shape-only correctives belong to that reference.
+ * Pigmentation is sampled on immutable neutral source coordinates, then
+ * gathered with the same region correspondence. It changes no position or
+ * normal and follows both shape and expression. Fields contain no image data.
  *
- * Correctives are what a purely linear prior cannot express: two endpoints that
- * move the same tissue sum to a face neither of them describes. The activation
- * is a product of the clamped driving sides, so it is absent unless the whole
- * combination is, which is what separates a corrective from another control.
+ * Correctives supply authored interactions absent from a linear sum. Their
+ * activation is a product of the clamped driving sides and vanishes when any
+ * driver is absent. They must be justified by the measured combined shape;
+ * overlapping endpoint support alone does not establish an incorrect sum.
  * A new model owns its arrays and materials; neither basis nor edits mutate.
- * The existing model and Float32 exporter admission remain authoritative.
- * Linear endpoints do not establish collision-free or physiological movement.
+ * Model structure and materials are admitted on the prepared neutral. Repeated
+ * edits retain that structure and check their welded vertex partition; a changed
+ * partition takes the full model gate again. Finite normal construction and
+ * channel/material domains remain per-edit checks. Export still admits Float32.
+ * Neither linear endpoints nor a rigid fit establish nonpenetration or a
+ * physiological joint trajectory.
  *
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Evaluates named shape and expression edits on one reusable connected prior without source images.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-basis Admits sparse correspondence once, applies deterministic endpoint selection and reconstructs common normals before region separation.
+ * @evidence requirements/actors/facial-authoring/contract.md#actor-face-skin-colour Carries numerical pigment with shared tissue correspondence independently of pose and illumination.
+ * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-skin-colour Samples metre-space envelopes on neutral vertices before gathering colours across material and UV seams.
  */
 export function createHumanFaceBasisBuilder(
   input: IAutoMovieHumanFaceBasis,
@@ -38,10 +53,23 @@ export function createHumanFaceBasisBuilder(
     typia.assertEquals<IAutoMovieHumanFaceBasis>(input),
   );
   assertHumanFaceBasis(basis);
+  const buildHair = createHumanFaceHairBuilder(basis);
   const channels = new Map(
     basis.channels.map((channel) => [channel.id, channel]),
   );
-  return (inputDocument) => {
+  const surfaces = basis.surfaces.map((surface) => ({
+    surface,
+    regions: surface.regions.map((region) => ({
+      region,
+      evaluate: createHumanFaceBasisRegion(region),
+    })),
+  }));
+  let partitions:
+    | ReturnType<typeof createMeshWeldPartitionMatcher>[]
+    | undefined;
+  const build = (
+    inputDocument: IAutoMovieHumanFaceBasisDocument,
+  ): IAutoMovieModel => {
     const document =
       typia.assertEquals<IAutoMovieHumanFaceBasisDocument>(inputDocument);
     if (
@@ -52,6 +80,10 @@ export function createHumanFaceBasisBuilder(
         "Facial edits need nonempty identities and the exact compiled basis revision.",
       );
     const weights = new Map<string, number>();
+    const surfaceIds = new Set(basis.surfaces.map((surface) => surface.id));
+    for (const id of Object.keys(document.skin ?? {}))
+      if (!surfaceIds.has(id))
+        throw new Error("Pigmentation needs a resident basis surface: " + id);
     for (const kind of ["shape", "expression"] as const)
       for (const [name, weight] of Object.entries(document[kind])) {
         const channel = channels.get(name);
@@ -67,100 +99,6 @@ export function createHumanFaceBasisBuilder(
           );
         weights.set(name, weight);
       }
-    // A per-vertex field names surfaces and vertices of this basis. A row
-    // that names neither is a document written against something else, and
-    // silently skipping it would build a face that is not the one asked for.
-    const admitRows = (
-      what: string,
-      fields: Record<string, number[]>,
-    ): void => {
-      for (const [id, rows] of Object.entries(fields)) {
-        const surface = basis.surfaces.find((one) => one.id === id);
-        const vertices =
-          surface === undefined ? 0 : surface.positions.length / 3;
-        if (
-          surface === undefined ||
-          rows.length % 4 !== 0 ||
-          rows.some((value) => !Number.isFinite(value))
-        )
-          throw new Error(
-            what +
-              " needs finite [vertex, dx, dy, dz] rows on a surface this basis declares: " +
-              id,
-          );
-        let previous = -1;
-        for (let i = 0; i < rows.length; i += 4) {
-          const vertex = rows[i];
-          if (
-            !Number.isInteger(vertex) ||
-            vertex <= previous ||
-            vertex >= vertices
-          )
-            throw new Error(
-              what +
-                " rows are strictly increasing vertices of " +
-                id +
-                ", within its " +
-                vertices +
-                " vertices.",
-            );
-          previous = vertex;
-        }
-      }
-    };
-    admitRows("Per-vertex identity", document.identity ?? {});
-    // A document corrective is this face's own answer to a combination, on
-    // top of the basis's. It is admitted like a basis corrective, against the
-    // channels it drives and the names already taken, and its rows like the
-    // identity's, because it is the same kind of field with a different owner.
-    const taken = new Set([
-      ...basis.channels.map((one) => one.id),
-      ...(basis.correctives ?? []).map((one) => one.id),
-    ]);
-    for (const corrective of document.correctives ?? []) {
-      if (
-        taken.has(corrective.id) ||
-        corrective.id.trim() === "" ||
-        corrective.inputs.length === 0 ||
-        !Number.isFinite(corrective.weight) ||
-        corrective.weight <= 0 ||
-        corrective.weight > 1 ||
-        new Set(
-          corrective.inputs.map((input) => input.channel + "/" + input.side),
-        ).size !== corrective.inputs.length
-      )
-        throw new Error(
-          "A document corrective needs an unclaimed identity, distinct drivers and a gain in (0,1]: " +
-            corrective.id,
-        );
-      taken.add(corrective.id);
-      for (const input of corrective.inputs) {
-        const channel = channels.get(input.channel);
-        const peak = input.peak ?? 1;
-        if (
-          channel === undefined ||
-          (input.side === "negative" ? channel.negative : channel.positive) ===
-            null ||
-          (input.peak !== undefined &&
-            (!Number.isFinite(input.peak) ||
-              input.peak <= 0 ||
-              input.peak > 1)) ||
-          (input.between !== undefined &&
-            (!input.between.every(Number.isFinite) ||
-              input.between[0] < 0 ||
-              input.between[0] >= peak ||
-              input.between[1] < peak ||
-              input.between[1] > 1))
-        )
-          throw new Error(
-            "A document corrective drives off a side no channel carries, peaks outside (0,1], or spans outside 0 <= below < peak <= above <= 1: " +
-              input.channel +
-              "." +
-              input.side,
-          );
-      }
-      admitRows("Document corrective " + corrective.id, corrective.targets);
-    }
     const materials = structuredClone(basis.materials);
     const materialMap = new Map(
       materials.map((material) => [material.id, material]),
@@ -228,31 +166,38 @@ export function createHumanFaceBasisBuilder(
     const applied = (basis.correctives ?? []).map((corrective) => ({
       target: corrective.target,
       activation: activationOf(corrective),
+      shapeOnly: corrective.inputs.every(
+        (input) => channels.get(input.channel)!.kind === "shape",
+      ),
     }));
-    // This face's own correctives fire by the same rule and land after the
-    // basis's, so they are the residual on top of the shared answer.
-    const own = (document.correctives ?? []).map((corrective) => ({
-      targets: corrective.targets,
-      activation: activationOf(corrective),
-    }));
-    const parts = basis.surfaces.flatMap((surface) => {
+    const evaluated = new Map<string, readonly number[]>();
+    const parts = surfaces.flatMap(({ surface, regions }) => {
+      const fields = Object.hasOwn(document.skin ?? {}, surface.id)
+        ? document.skin![surface.id]
+        : undefined;
+      let colors: number[] | undefined;
+      if (fields !== undefined) {
+        const sample = createPortraitColourField(fields);
+        colors = [];
+        for (let vertex = 0; vertex < surface.positions.length; vertex += 3)
+          colors.push(...sample(surface.positions.slice(vertex, vertex + 3)));
+      }
       const positions = surface.positions.slice();
-      const accumulate = (name: string, gain: number): void => {
+      const shape =
+        (surface.rigidGroups?.length ?? 0) > 0
+          ? surface.positions.slice()
+          : undefined;
+      const accumulate = (
+        name: string,
+        gain: number,
+        destination = positions,
+      ): void => {
         const rows = surface.targets[name];
         if (rows === undefined) return;
         for (let i = 0; i < rows.length; i += 4)
           for (let axis = 0; axis < 3; axis++)
-            positions[rows[i] * 3 + axis] += gain * rows[i + axis + 1];
+            destination[rows[i] * 3 + axis] += gain * rows[i + axis + 1];
       };
-      // Identity first, because identity is what the neutral is. The channels
-      // then move this face from its own neutral rather than from the shared
-      // one; applying the delta afterwards would make a wider jaw open
-      // differently from a narrow one for no authored reason.
-      const identity = document.identity?.[surface.id];
-      if (identity !== undefined)
-        for (let i = 0; i < identity.length; i += 4)
-          for (let axis = 0; axis < 3; axis++)
-            positions[identity[i] * 3 + axis] += identity[i + axis + 1];
       for (const channel of basis.channels) {
         const weight = weights.get(channel.id) ?? 0;
         if (weight === 0) continue;
@@ -260,26 +205,30 @@ export function createHumanFaceBasisBuilder(
           weight < 0 ? channel.negative! : channel.positive,
           Math.abs(weight),
         );
+        if (shape !== undefined && channel.kind === "shape")
+          accumulate(
+            weight < 0 ? channel.negative! : channel.positive,
+            Math.abs(weight),
+            shape,
+          );
       }
       for (const corrective of applied)
-        if (corrective.activation > 0)
+        if (corrective.activation > 0) {
           accumulate(corrective.target, corrective.activation);
-      for (const corrective of own) {
-        const rows = corrective.targets[surface.id];
-        if (corrective.activation <= 0 || rows === undefined) continue;
-        for (let i = 0; i < rows.length; i += 4)
-          for (let axis = 0; axis < 3; axis++)
-            positions[rows[i] * 3 + axis] +=
-              corrective.activation * rows[i + axis + 1];
-      }
+          if (shape !== undefined && corrective.shapeOnly)
+            accumulate(corrective.target, corrective.activation, shape);
+        }
+      if (shape !== undefined)
+        applyHumanFaceRigidGroups(surface.rigidGroups!, shape, positions);
       const normals = portraitNormals(positions, surface.indices);
-      return surface.regions.map((region) => ({
+      evaluated.set(surface.id, positions);
+      return regions.map(({ region, evaluate }) => ({
         id: region.id,
         name: region.id,
         material: region.material,
         geometry: {
           type: "mesh" as const,
-          mesh: humanFaceBasisRegion(positions, normals, region),
+          mesh: evaluate(positions, normals, colors),
         },
         attachedBone: null,
         transform: null,
@@ -295,12 +244,57 @@ export function createHumanFaceBasisBuilder(
       body: null,
       asset: null,
     };
-    const validation = validateModel({ model });
-    if (!validation.success)
-      throw new Error(
-        "The evaluated facial basis is not a valid resident model: " +
-          JSON.stringify(validation),
-      );
+    // Fixed indices, UVs, references and resident finishes were admitted on the
+    // neutral. Only deformation can change welded incidence; reuse the verdict
+    // exactly while its equivalence classes stay fixed. Never assume an endpoint
+    // cannot merge or split vertices merely because its scalar is in range.
+    if (
+      partitions === undefined ||
+      parts.some(
+        (part, index) => !partitions![index](part.geometry.mesh.positions),
+      )
+    ) {
+      const validation = validateModel({ model });
+      if (!validation.success)
+        throw new Error(
+          "The evaluated facial basis is not a valid resident model: " +
+            JSON.stringify(validation),
+        );
+      if (partitions === undefined)
+        partitions = parts.map((part) =>
+          createMeshWeldPartitionMatcher(part.geometry.mesh.positions),
+        );
+    }
+    if (document.hair !== undefined && document.hair !== null) {
+      const hair = buildHair(document.hair, evaluated);
+      if (
+        hair.parts.some((part) =>
+          model.parts.some((resident) => resident.id === part.id),
+        ) ||
+        hair.materials.some((material) =>
+          model.materials.some((resident) => resident.id === material.id),
+        )
+      )
+        throw new Error(
+          "Numerical hair identities collide with resident face geometry or finishes.",
+        );
+      model.parts.push(...hair.parts);
+      model.materials.push(...hair.materials);
+      const validation = validateModel({ model });
+      if (!validation.success)
+        throw new Error(
+          "The numerical hairstyle did not form a valid resident model: " +
+            JSON.stringify(validation),
+        );
+    }
     return model;
   };
+  build({
+    id: basis.id,
+    name: basis.id,
+    basis: basis.id,
+    shape: {},
+    expression: {},
+  });
+  return build;
 }
