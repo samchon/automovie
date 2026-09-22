@@ -24,7 +24,7 @@ export const test_subject_connected_hair_fields = (): void => {
     reach: 0.05,
     region: { center: [0, 0, 0], spread: [0.1, 0.1, 0.1] },
   };
-  layer.guides = { fraction: 0.125, neighbours: 4 };
+  layer.guides = { fraction: 0.125, neighbours: 4, clump: 0.2 };
   const expected: { id: string; path: (string | number)[]; scale: number }[] =
     [];
   const add = (id: string, path: (string | number)[], scale = 1): void => {
@@ -57,6 +57,7 @@ export const test_subject_connected_hair_fields = (): void => {
   add("part-strength", ["part", "strength"]);
   add("guides-fraction", ["guides", "fraction"]);
   add("guides-neighbours", ["guides", "neighbours"]);
+  add("guides-clump", ["guides", "clump"]);
   const fields = connectedHairFields(layer);
   TestValidator.equals(
     "complete fine controls",
