@@ -37,8 +37,10 @@ const { perpendicular, direction: requireDirection } = humanFaceHairFrame;
  * since the nearest surface point is that far away; such a half width is taken
  * without a query. A wider one is measured, and where it would enter, the half
  * width is solved back by a safeguarded Newton step on the corner's own signed
- * distance, falling back on that provable bound, which is positive because a
- * station stands at least half a sampling step beyond the requested clearance.
+ * distance, falling back on that provable bound. The bound is positive for
+ * every station the integrator or the contact placed, which stand at least
+ * half a sampling step beyond the requested clearance; a station that does not
+ * refuses rather than meshing a pinched or inside-out ribbon.
  * Both sides take the tighter of the two half widths, so a ribbon stays
  * centred on the fibre it stands for instead of sliding off it. A ribbon
  * therefore narrows where the scalp is close and opens to its full covering
@@ -86,6 +88,10 @@ export function buildHumanFaceHairMesh(
   ): number => {
     const bound = free - layer.clearance;
     if (radius <= bound) return radius;
+    if (!(bound > 0))
+      throw new Error(
+        "A numerical hair station stands too close to the surface for its own ribbon.",
+      );
     let fitted = radius;
     for (let attempt = 0; attempt < 8; attempt++) {
       const corner = Vector3.add(station, Vector3.scale(across, fitted));
