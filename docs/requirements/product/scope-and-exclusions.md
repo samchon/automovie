@@ -6,7 +6,7 @@
 
 ### 인물 외형의 경계 {#product-detailed-likeness-exclusion}
 
-인물 proxy는 정체성, 자세, 동작, 시선, 접촉과 연출을 정확히 전달해야 한다. 명시적 수치와 해부학적 부품으로 얼굴 형태와 표정을 저작하는 범위는 [얼굴 저작 요구사항](../actors/facial-authoring/contract.md)에 따른다. 이 범위는 사진에서 자동으로 완벽한 닮음을 복원한다는 약속이 아니며 각 인물의 닮음은 실제 출력과 사진을 비교해 따로 판정한다. 수치로 저작하는 눈썹과 면 기반 머리카락은 얼굴 자산 범위에 포함한다. 개별 모발의 물리 시뮬레이션, 몸통과 동물의 사실적 외형은 이 범위에 포함되지 않는다.
+인물 proxy는 정체성, 자세, 동작, 시선, 접촉과 연출을 정확히 전달해야 한다. 명시적 수치와 해부학적 부품으로 얼굴 형태와 표정을 저작하는 범위는 [얼굴 저작 요구사항](../actors/facial-authoring/contract.md)에 따른다. 이 범위는 사진에서 자동으로 완벽한 닮음을 복원한다는 약속이 아니며 각 인물의 닮음은 실제 출력과 사진을 비교해 따로 판정한다. 수치로 저작하는 눈썹과 면 기반 머리카락은 얼굴 자산 범위에 포함한다. 목 절단면 아래 신체를 실측 단위 채널과 관절로 저작하는 범위는 [신체 저작 요구사항](../actors/body-authoring/contract.md)에 따르며, 그 역시 체형의 자동 복원 약속이 아니다. 개별 모발의 물리 시뮬레이션, 의복, 사실적 피부 질감과 동물의 사실적 외형은 이 범위에 포함되지 않는다.
 
 ### 완성 콘텐츠 카탈로그의 제외 {#product-content-catalogue-exclusion}
 
@@ -18,7 +18,7 @@ AutoMovie와 새 project의 시작 구조는 작품별 건물, 가구, 복식, �
 
 ### 편집기와 export의 제외 {#product-editor-export-exclusion}
 
-제품은 범용 interactive 3D 편집기나 scene export 도구가 아니다. 얼굴 부품의 수치 편집과 정적 얼굴 자산의 GLTF/GLB 내보내기는 [얼굴 저작 요구사항](../actors/facial-authoring/contract.md)에 명시된 제한된 저작 경로이다. 일반 작품의 저작은 project source에서 이루어지고 결과는 AutoMovie의 결정론적 검증과 렌더 경로 안에서 판단한다.
+제품은 범용 interactive 3D 편집기나 scene export 도구가 아니다. 얼굴 부품의 수치 편집과 정적 얼굴 자산의 GLTF/GLB 내보내기는 [얼굴 저작 요구사항](../actors/facial-authoring/contract.md)에, 신체 기저의 수치 편집은 [신체 저작 요구사항](../actors/body-authoring/contract.md)에 명시된 제한된 저작 경로이다. 일반 작품의 저작은 project source에서 이루어지고 결과는 AutoMovie의 결정론적 검증과 렌더 경로 안에서 판단한다.
 
 ### 제외의 변경 조건 {#product-exclusion-reopening}
 

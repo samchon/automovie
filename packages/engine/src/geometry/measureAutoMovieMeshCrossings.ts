@@ -99,17 +99,40 @@ const segmentPierces = (
   return distance > 0 && distance < 1;
 };
 
+const coincide = (a: number[], b: number[]): boolean =>
+  a[0] === b[0] && a[1] === b[1] && a[2] === b[2];
+
+/**
+ * A segment that begins or ends at a corner of the other triangle sits on its
+ * boundary, and the strict bounds above are meant to exclude it. In floating
+ * point they do not always: the barycentric coordinates of that corner come
+ * out as a rounding residue rather than as an exact zero, so two triangles of
+ * one connected surface that share a vertex could report each other. The
+ * shared corner is therefore excluded by identity before the arithmetic. A
+ * fold through a shared vertex still reports, because its other edges cross.
+ */
+const touchesCorner = (point: number[], triangle: number[][]): boolean =>
+  triangle.some((corner) => coincide(point, corner));
+
 const pierces = (first: number[][], second: number[][]): boolean => {
   for (const [from, to] of [
     [0, 1],
     [1, 2],
     [2, 0],
-  ])
+  ]) {
     if (
-      segmentPierces(first[from], first[to], second) ||
+      !touchesCorner(first[from], second) &&
+      !touchesCorner(first[to], second) &&
+      segmentPierces(first[from], first[to], second)
+    )
+      return true;
+    if (
+      !touchesCorner(second[from], first) &&
+      !touchesCorner(second[to], first) &&
       segmentPierces(second[from], second[to], first)
     )
       return true;
+  }
   return false;
 };
 

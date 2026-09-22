@@ -12,6 +12,23 @@
  * An exclusion neither implements a feature nor approves a rendered asset.
  * Add a boundary at its semantic owner and retain native graph validation.
  *
+ * @evidenceExclude requirements/actors/body-authoring/README.md#body-requirements The viewer draws the posed model the human body builder emits; it evaluates no basis, joint, measurement or document.
+ * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-connected-basis The viewer consumes the evaluated static body model and holds no basis endpoints or correctives.
+ * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-joints The viewer draws already skinned positions; landmark-defined joints and skinning belong to the human package.
+ * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-measurements The viewer displays no girth or length; measurement belongs to the human package.
+ * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-document The viewer never reads a compact body document.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/README.md#body-specifications The viewer projects the body builder's result and owns none of the body basis, measurement or document contracts.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-basis The viewer consumes the evaluated static body model and holds no basis endpoints or correctives.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-joints The viewer draws already skinned positions; landmark-defined joints and skinning belong to the human package.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-measurements The viewer displays no girth or length; measurement belongs to the human package.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-document The viewer never reads a compact body document.
+ * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-editor The viewer hosts no body editing screen; the playground page does.
+ * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-export The viewer does not serialize a built body; the human package's exporter does.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view The viewer owns no body editor inputs or display state.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor The viewer owns no body editor transaction or worker boundary.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-export The viewer does not write a built body to glTF through the human package.
+ * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-simple-shape The viewer does not expand simple body parameters; the human package's expansion does.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-simple-shape The viewer evaluates no simple-tier table or measured inversion.
  * @evidenceExclude requirements/actors/facial-authoring/README.md#face-requirements The general viewer displays compiled scene state; it does not own detailed facial authoring across document, editor and study review.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-document The general viewer displays compiled scene state; it does not own the standalone human-face recipe, basis and version interpreter.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components The general viewer displays compiled scene state; it does not own named craniofacial components, cavities and attached tissues.
