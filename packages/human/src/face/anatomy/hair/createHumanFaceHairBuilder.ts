@@ -308,6 +308,7 @@ export function createHumanFaceHairBuilder(input: IAutoMovieHumanFaceBasis) {
           coverage: layer.finish.coverage,
           fibreNormalScale: layer.finish.normal,
           fibreShadeStrength: layer.finish.shade,
+          grey: layer.finish.grey,
         },
       );
       materials.push(material);

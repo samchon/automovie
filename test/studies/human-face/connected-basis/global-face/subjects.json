@@ -200,15 +200,16 @@
           },
           "finish": {
             "color": [
-              0.76,
-              0.68,
-              0.56
+              0.52,
+              0.36,
+              0.12
             ],
             "roughness": 0.73,
             "fibres": 24,
             "coverage": 0.95,
             "normal": 0.2,
-            "shade": 1
+            "shade": 1,
+            "grey": 0.5
           },
           "part": {
             "normal": [
@@ -2739,15 +2740,16 @@
           },
           "finish": {
             "color": [
-              0.45,
-              0.32,
-              0.22
+              0.3125,
+              0.15,
+              0.025
             ],
             "roughness": 0.73,
             "fibres": 24,
             "coverage": 0.95,
             "normal": 0.2,
-            "shade": 1
+            "shade": 1,
+            "grey": 0.2
           },
           "part": {
             "normal": [
@@ -2981,15 +2983,16 @@
           },
           "finish": {
             "color": [
-              0.5,
-              0.5,
-              0.5
+              0.0909,
+              0.0909,
+              0.0909
             ],
             "roughness": 0.73,
             "fibres": 24,
             "coverage": 0.95,
             "normal": 0.2,
-            "shade": 1
+            "shade": 1,
+            "grey": 0.45
           },
           "guides": {
             "fraction": 0.125,
@@ -3202,15 +3205,16 @@
           },
           "finish": {
             "color": [
-              0.52,
-              0.5,
-              0.48
+              0.1273,
+              0.0909,
+              0.0545
             ],
             "roughness": 0.94,
             "fibres": 24,
             "coverage": 0.95,
             "normal": 0.2,
-            "shade": 1
+            "shade": 1,
+            "grey": 0.45
           },
           "guides": {
             "fraction": 0.125,
@@ -3261,15 +3265,16 @@
           },
           "finish": {
             "color": [
-              0.52,
-              0.5,
-              0.48
+              0.1273,
+              0.0909,
+              0.0545
             ],
             "roughness": 0.94,
             "fibres": 24,
             "coverage": 0.95,
             "normal": 0.2,
-            "shade": 1
+            "shade": 1,
+            "grey": 0.45
           },
           "rootRegion": {
             "center": [

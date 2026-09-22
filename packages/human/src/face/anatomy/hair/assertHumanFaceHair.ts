@@ -109,7 +109,8 @@ export function assertHumanFaceHair(input: IAutoMovieHumanFaceHair): void {
       !bounded(layer.finish.fibres, 1, 32) ||
       !bounded(layer.finish.coverage, 0.1, 1) ||
       !bounded(layer.finish.normal, 0, 1) ||
-      !bounded(layer.finish.shade, 0, 1)
+      !bounded(layer.finish.shade, 0, 1) ||
+      (layer.finish.grey !== undefined && !bounded(layer.finish.grey, 0, 1))
     )
       throw new Error(
         "Hair curl, taper and fibre appearance need resolved finite parameters.",
