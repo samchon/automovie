@@ -80,7 +80,15 @@
           if (part.mesh.normals) geometry.setAttribute("normal", new THREE.Float32BufferAttribute(part.mesh.normals, 3));
           if (part.mesh.uvs) geometry.setAttribute("uv", new THREE.Float32BufferAttribute(part.mesh.uvs, 2));
           if (part.mesh.indices) geometry.setIndex(part.mesh.indices);
-          group.add(new THREE.Mesh(geometry, materials.get(part.material)));
+          // Vertex colours (pigmentation, scalp tint) multiply the finish, as
+          // they do in the exported glTF; a clay view ignores them.
+          let material = materials.get(part.material);
+          if (part.mesh.colors && options.clay !== true) {
+            geometry.setAttribute("color", new THREE.Float32BufferAttribute(part.mesh.colors, 3));
+            material = material.clone();
+            material.vertexColors = true;
+          }
+          group.add(new THREE.Mesh(geometry, material));
         }
         scene.add(group);
         const target = new THREE.Vector3(...(options.target ?? [0, 0, 0.06]));
