@@ -14,7 +14,6 @@ import { nclose } from "../internal/predicates";
  *    zero fields leave the independent attachment unchanged.
  * 3. All bindings update, bare/decorated documents build, and input data stays owned.
  * 4. No curation or documents is a valid empty preparation population.
- * 5. Frozen rigid membership reaches the real builder and preserves a fixed attachment.
  */
 export const test_subject_fine_basis_preparation = (): void => {
   const input = fineBasisPreparationFixture();
@@ -54,7 +53,6 @@ export const test_subject_fine_basis_preparation = (): void => {
     addedShapeChannels: 2,
     admittedAddedEndpoints: 3,
     admittedDocuments: 2,
-    rigidComponents: 1,
   });
   TestValidator.equals(
     "historical bare input has no groom",
@@ -84,9 +82,12 @@ export const test_subject_fine_basis_preparation = (): void => {
     expression: { lift: 1 },
   });
   TestValidator.equals(
-    "prepared rigid membership performs",
+    "independent attachment performs as before",
     performed.parts[2],
-    before.parts[2],
+    createHumanFaceBasisBuilder(input.basis)({
+      ...bareInput,
+      expression: { lift: 1 },
+    }).parts[2],
   );
   TestValidator.equals(
     "independent attachment unchanged",
@@ -100,17 +101,11 @@ export const test_subject_fine_basis_preparation = (): void => {
   );
   const empty = fineBasisPreparationFixture();
   empty.entries = [];
-  empty.components = {};
   empty.documents = [];
   empty.grooms = {};
   empty.controls.groups = [];
   const bare = prepareFineBasisArtifacts(empty);
   TestValidator.equals("empty population", bare.receipt.admittedDocuments, 0);
-  TestValidator.equals(
-    "empty rigid declaration",
-    bare.receipt.rigidComponents,
-    0,
-  );
   TestValidator.equals(
     "empty curation",
     bare.receipt.admittedAddedEndpoints,

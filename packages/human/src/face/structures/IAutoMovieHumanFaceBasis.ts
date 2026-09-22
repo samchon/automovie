@@ -114,6 +114,113 @@ export interface IAutoMovieHumanFaceBasis {
     target: string;
   }[];
 
+  /**
+   * Named points that move with the shape and define the joints: the
+   * centroids of the source's joint cubes, in the head frame. Their endpoint
+   * rows use the same sparse `[landmark, dx, dy, dz]` format as a surface,
+   * indexed into `ids`, and are resolved by endpoint name alongside the
+   * surfaces, so a shape channel that widens the head carries the globe
+   * centres with it. Expression endpoints carry no landmark row: a joint's
+   * position is identity, its motion is articulation. Required whenever
+   * `articulation` is declared.
+   */
+  landmarks?: {
+    ids: string[];
+
+    /** Flat XYZ per landmark, in the basis frame. */
+    positions: number[];
+
+    /** Sparse rows per endpoint name, strictly increasing by landmark. */
+    targets: Record<string, number[]>;
+  };
+
+  /**
+   * The articulated performance the basis evaluates before tissue detail:
+   * one mandible and two globes, each a rigid transform driven by expression
+   * channels and applied through the surfaces' `attachments` before the
+   * residual expression endpoints are read. Expression rows on an attached
+   * surface are therefore rest-space residuals over the articulation, the
+   * way a pose-space blend shape sits under a joint; the preparation that
+   * publishes a basis measures them from the source and records the fit.
+   *
+   * The jaw is a rotation about a transverse axis through the condylar axis
+   * point plus a translation coupled to it. Opening rotates by
+   * `opening.degrees * weight` and translates the whole mandible by
+   * `opening.translation * weight`, which is the in vivo coupling of condylar
+   * translation to rotation the preparation cites; protrusion and each
+   * laterotrusion add their own translation. The condylar axis point is the
+   * `pivot` landmark plus `axisOffset`, derived once from the source's own
+   * full-open transform under that coupling, and it follows the landmark
+   * through every shape channel. The summed sagittal translation of opening
+   * and protrusion may not exceed `translationLimitMetres`, which is what
+   * closes the bottom of the envelope of motion: a jaw already fully open has
+   * no protrusive capacity left, and a document asking for it is refused
+   * rather than clamped.
+   *
+   * Each eye rotates about its `center` landmark by the gaze channels listed,
+   * each an authored unit axis, the degrees reached at weight one and the
+   * globe translation that accompanies it, fitted from the source globe's own
+   * endpoint; the rotations compose in list order and the translations add. Lids are tissue and carry no globe weight: their gaze coupling is
+   * whatever the source authored in the residual rows. Omission of the whole
+   * field keeps a purely linear basis.
+   */
+  articulation?: {
+    jaw: {
+      /** Landmark id of the source jaw pivot. */
+      pivot: string;
+
+      /** Metre offset from that landmark to the condylar axis point. */
+      axisOffset: [number, number, number];
+
+      /** Unit rotation axis; a positive angle opens the mouth. */
+      axis: [number, number, number];
+
+      opening: {
+        channel: string;
+        /** Rotation at weight one, in degrees. */
+        degrees: number;
+        /** Mandibular translation at weight one, in metres, coupled linearly with the angle. */
+        translation: [number, number, number];
+      };
+
+      protrusion: {
+        channel: string;
+        /** Mandibular translation at weight one, in metres. */
+        translation: [number, number, number];
+      };
+
+      laterotrusion: {
+        left: { channel: string; translation: [number, number, number] };
+        right: { channel: string; translation: [number, number, number] };
+      };
+
+      /** Supported magnitude of the summed opening and protrusion translation, in metres. */
+      translationLimitMetres: number;
+    };
+
+    eyes: {
+      /** Attachment owner name, `leftEye` or `rightEye`. */
+      id: string;
+
+      /** Landmark id of the globe's rotation centre. */
+      center: string;
+
+      /**
+       * Gaze channels; each rotates about `axis` by `degrees * weight` and
+       * translates the globe by `translation * weight`, the small eccentric
+       * shift the source authored with its lids (the ocular literature
+       * reports a varying, eccentric centre of rotation; the preparation
+       * records each channel's figure and bounds it).
+       */
+      gaze: {
+        channel: string;
+        axis: [number, number, number];
+        degrees: number;
+        translation: [number, number, number];
+      }[];
+    }[];
+  };
+
   /** Connected skin and separately attached components, in the same head frame. */
   surfaces: {
     id: string;
@@ -149,21 +256,22 @@ export interface IAutoMovieHumanFaceBasis {
     hairContactClosure?: number[];
 
     /**
-     * Disjoint complete components whose expression preserves the edited shape.
-     * The reference includes shape channels and shape-only correctives. A fixed
-     * group stays at that reference; a fitted group follows the closest proper
-     * rotation and translation to the ordinary expression/corrective target.
-     * This constrains internal distances, not its anatomical joint trajectory.
-     * Group membership is shared basis data, never per-person sculpting. No
-     * triangle may straddle a group boundary. Omission retains linear behavior.
+     * Optional sparse attachment of this surface's vertices to the articulated
+     * owners of `articulation` (`jaw`, `leftEye`, `rightEye`). Rows are
+     * `[vertex, weight]` pairs, strictly increasing by vertex, with each weight
+     * in (0, 1] and the weights of one vertex over all owners summing to at
+     * most one; the remainder is the cranium, which the head frame holds
+     * still. A vertex bound to one owner with weight one moves as that bone,
+     * which is what makes a tooth or a globe rigid without a post-hoc fit, and
+     * a blended vertex takes the weighted mean of its owners' rigid images.
+     * Weights are shared basis data measured from the source, never a
+     * person's sculpt. Omission or an empty list attaches the whole surface to
+     * the cranium.
      */
-    rigidGroups?: {
-      /** Nonempty identity unique within this surface. */
-      id: string;
-      /** Strictly increasing resident vertex identities, without shared membership. */
-      vertices: number[];
-      /** Cranium-fixed or least-squares moving component. */
-      motion: "fixed" | "fit";
+    attachments?: {
+      /** An owner `articulation` declares: `jaw`, or an eye's `id`. */
+      owner: string;
+      rows: number[];
     }[];
 
     /** An exact partition of the surface triangles, preserving oriented triples. */
