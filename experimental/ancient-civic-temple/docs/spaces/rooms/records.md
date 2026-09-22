@@ -2,6 +2,20 @@
 
 ## 건조 문서 보관과 열람 {#records-volume}
 
+<!--
+@evidence principles/core/common.md#scope-preservation 건조 두루마리 보관·궤·열람대와 서쪽 직접 문을 남기고 관리실 또는 보관실을 통한 접근을 만들지 않는다.
+@evidence principles/core/common.md#substantive-completion 북벽 칸 선반·동쪽 궤/열람대와 선반 앞 0.9m 이상 접근을 배정한다.
+@evidence principles/core/common.md#declared-basis 방 전후 경계는 기준선, 건조 보관 역할은 기록실 설정, 문턱은 층의 배정을 따른다.
+@evidence principles/design/spaces.md#space-topology 남북 공유 벽과 동쪽 외벽은 추가 구멍 없이 닫고 서쪽 문만 주랑에 연결한다.
+@evidence principles/design/spaces.md#space-boundary-authority 내벽·바닥·낮은 천장은 records가 소유하되 두루마리 수량은 instances에 남긴다.
+@evidence principles/design/spaces.md#space-verification-address 선반 전면·궤 앞과 서쪽 threshold를 내부 기본 관찰에 더해 열람 접근과 작성실 혼동을 확인한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 문서 보관 정체성에 북쪽 선반·동쪽 열람과 수치화한 전면 접근 깊이를 더한다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work records의 건조 상태와 scrolls/chests의 보관 방식을 검토했다. 같은 층의 문턱과 빈 선반 전면으로 접근을 예약할 수 있어 물길이나 별도 보관실을 부모에 추가하지 않았다.
+@evidence settings/30-interiors.md#records 선반·궤·열람대가 있는 건조 방으로 배정하고 분수 물길을 연결하지 않는다.
+@evidence settings/35-objects.md#scrolls 북쪽 칸 선반의 두루마리 보관 역할을 유지하며 수량은 후속 배치에 맡긴다.
+@evidence settings/35-objects.md#chests 동쪽 낮은 궤 앞 여백은 닫힌 표시 상태에서도 관찰 대상으로 남긴다.
+-->
+
 공간 ID `records`의 본체 경계는 [기준선](../building.md#plan-datums) east-room~east-inner, records-back~records-front다. 남쪽 관리실·북쪽 보관실과 공유 벽을 가지며 각 공유 벽은 개구부 없이 닫혀 있다. 서쪽 주랑으로 직접 문을 내고 동쪽 외벽에는 창을 추가하지 않는다.
 
 동측 spine 안 `door-records`의 문턱 바닥과 통과 부피는 [층의 배정](../storey.md#threshold-support)에 따라 기록실이 소유한다. 방 본체의 건조 바닥이 이 구간을 지나 주랑 쪽 벽면까지 이어진다.

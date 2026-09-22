@@ -2,6 +2,19 @@
 
 ## 구멍 있는 하나의 주랑 공간 {#ring-volume}
 
+<!--
+@evidence principles/core/common.md#scope-preservation 중정 구멍과 현관 후퇴부를 제외한 연속 주랑 전체를 한 공간으로 보존하고 모든 직접 문 앞의 여유를 남긴다.
+@evidence principles/core/common.md#substantive-completion 겹치지 않는 여섯 평면 영역과 경사 하부에 따른 볼록 cell 분해, 기단/주두 돌출 예산을 정한다.
+@evidence principles/core/common.md#declared-basis 기준선과 합성 roof를 입력으로 사용하며 공개 cells/contains 표현 가능성과 실제 containment 성공을 구별한다.
+@evidence principles/design/spaces.md#space-topology colonnade 하나의 cell 합집합으로 고리를 표현하고 계산 접면에 벽·문·독립 복도를 추가하지 않는다.
+@evidence principles/design/spaces.md#space-boundary-authority 바닥·노출 천장은 주랑의 완결 소유로 유지하고 기둥 prototype이나 기준선 상수를 여기서 복제하지 않는다.
+@evidence principles/design/spaces.md#space-verification-address 영역 내부·열린 접면 양쪽·중정 구멍·반환벽의 점과 각 영역 중심 네 방위를 대조해 외접 상자 오인을 찾는다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 연속 주랑 요구를 구멍과 notch가 있는 실제 영역, 기둥 돌출 후 여유 예산으로 결정한다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work colonnade의 기둥 열과 use-profile의 유효폭 최소를 여섯 영역에 대조했다. 북·동·서 1.75m와 남 1.60m 예산을 남겨 부모 최소를 줄이지 않았고 실제 배치 검사는 별도로 남겼다.
+@evidence settings/20-envelope.md#colonnade 기둥은 중정 경계 쪽에 두고 한 고리의 노출 하부와 바닥을 끊지 않는다.
+@evidence settings/10-building.md#use-profile 명목 폭에서 기단/주두 돌출을 뺀 예산을 구분하고 열린 문짝·집기까지 놓은 후 유효폭을 다시 검사한다.
+-->
+
 공간 ID `colonnade`는 [지상층](../storey.md#ground-storey)의 내부/반외부 연결 공간이다. 평면은 [공유 기준선](../building.md#plan-datums)의 west-ring~east-ring, north-ring~south-inner 사각 영역에서 중정과 현관 후퇴부를 뺀 하나의 연결 영역이다. 중정 구멍을 포함하는 외접 상자 전체를 실내로 선언하지 않는다.
 
 내부가 겹치지 않는 평면 영역은 북쪽(west-ring~east-ring, north-ring~court-back), 서쪽(west-ring~west-court, court-back~court-front), 동쪽(east-court~east-ring, court-back~court-front), 남쪽(west-ring~east-ring, court-front~entrance-back), 남서 꼬리(west-ring~west-porch-outer, entrance-back~south-inner), 남동 꼬리(east-porch-outer~east-ring, entrance-back~south-inner)다. 반환벽 두께는 영역 밖에 남기고 현관 쪽 빈 공간에도 포함하지 않는다. 이 분해는 공간 내부를 설명하는 도구이며 새 방이나 독립 복도가 아니다. 인접 영역의 접면은 막힌 벽 없이 맞닿는다.

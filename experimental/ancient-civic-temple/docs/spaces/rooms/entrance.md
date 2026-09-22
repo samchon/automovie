@@ -2,6 +2,19 @@
 
 ## 정문과 포치의 깊이 {#entrance-volume}
 
+<!--
+@evidence principles/core/common.md#scope-preservation 직사각 외곽 안에 후퇴 현관·두 석단·상부참·기둥 받침과 후퇴벽 문턱을 함께 수용한다.
+@evidence principles/core/common.md#substantive-completion 단높이 0.12m·디딤 0.35m·폭 1.8m, 참 깊이와 기둥 중심 및 구간별 cell 아래 경계를 결정한다.
+@evidence principles/core/common.md#declared-basis 현관 범위는 평면 기준선에서, 높이는 도로/층에서 받고 표의 Z 구간은 디딤 깊이에서 뺀 산술이라고 명시한다.
+@evidence principles/design/spaces.md#space-topology 한 entrance 안에서 계단과 양측 받침의 cell만 나누며 정문에서 주랑·중정 축까지 새 방을 끼우지 않는다.
+@evidence principles/design/spaces.md#space-boundary-authority 계단·참·안쪽 반환면은 현관, 바깥면은 남측 입면, 지붕은 porch owner로 나눈다.
+@evidence principles/design/spaces.md#space-verification-address 도로부터 열린 문까지의 종단면에서 실제 디딤과 cell 아래 경계를 대조하고 문 양면 및 기둥 받침 단면도 본다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 포치와 낮은 석단이라는 설정을 도로 높이차를 메우는 두 단의 단면·기둥 자리로 구체화한다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work entrance-porch의 두 원주와 ground-access의 단높이/디딤 한계를 대조했다. 외곽 안 후퇴부에 두 단과 참을 배정할 수 있어 도로로 돌출하거나 부모 단차를 바꾸지 않았다.
+@evidence settings/20-envelope.md#entrance-porch 두 기둥의 같은 높이 받침과 보·박공 접촉을 현관 안에 예약한다.
+@evidence settings/10-building.md#ground-access 실제 수평 디딤과 두 챌면으로 정문 높이차를 해결하고 경사 support로 대신하지 않는다.
+-->
+
 공간 ID `entrance`의 본체는 [평면 기준선](../building.md#plan-datums)의 west-porch-inner~east-porch-inner, entrance-front~south-outer에 놓인 지붕 있는 외부 전이 공간이다. 뒤의 후퇴벽은 entrance-back~entrance-front이고 그 중앙 실제 양개문이 주랑으로 통한다. 정문 축에서 중정 중심까지 시선을 꺾는 벽이나 방은 없다. 양옆 반환벽은 porch-inner~porch-outer 사이의 실제 두께를 가지며 정면 외피와 이어진다.
 
 후퇴벽 안 `door-entry`의 문턱 바닥과 통과 부피는 [층의 배정](../storey.md#threshold-support)에 따라 이 현관에 귀속하며 상부참에서 주랑 쪽 벽면까지 연속한다.

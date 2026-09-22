@@ -2,6 +2,20 @@
 
 ## 현관과 주랑의 순환 {#public-route}
 
+<!--
+@evidence principles/core/common.md#scope-preservation 정문 접점부터 두 단·문·중정까지의 축과 주랑 네 변의 순환, 각 방 직접 출입을 같은 경로 설계에 남긴다.
+@evidence principles/core/common.md#substantive-completion exterior→entrance와 entrance→colonnade를 구별하고 중정 남쪽 디딤 폭·깊이 및 왕복 검사 순서를 정한다.
+@evidence principles/core/common.md#declared-basis 이동 포락은 설정에서, 단면과 높이는 현관/층에서 소비하며 API 반환은 실제 충돌 결과가 아니라고 한정한다.
+@evidence principles/design/spaces.md#space-topology 동일 공간 from/to connector 대신 한 colonnade 합집합 안 경로를 써서 표현 편의로 고리를 여러 방으로 나누지 않는다.
+@evidence principles/design/spaces.md#space-boundary-authority 경로 의미만 circulation이 소유하고 문·계단·바닥 치수는 기존 opening·현관·층 주소에서 가져온다.
+@evidence principles/design/spaces.md#space-verification-address 문마다 양방향 문턱 연속성과 고리 모서리 회전 포락을 검사해 그래프 도달과 카메라 이동만의 통과를 거부한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 단일 주랑이라는 부모 관계에 실제 정문/중정 진입 순서와 동일 공간 경로의 표현 방식을 더한다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work fixed-graph의 직접 출입과 use-profile의 보행·운반 포락을 단차 조건과 함께 읽었다. 한 고리 내부 경로와 방 문으로 수용하므로 두 번째 복도나 새 이용자 조건을 부모에 요구하지 않았다.
+@evidence settings/10-building.md#fixed-graph 남→동→북→서→남의 유일 고리에 모든 방의 문을 붙인다.
+@evidence settings/10-building.md#use-profile 문과 모서리의 왕복·회전에 설정의 보행/운반 포락을 그대로 적용한다.
+@evidence obligations/design/spaces.md#space-access-circulation 공용 진입과 단일 고리의 실제 문·바닥·회전 포락을 연결하고 서비스 경로는 다음 단위가 별도 접점에서 같은 주랑에 잇는다.
+-->
+
 공용 시작은 [건물 접점](building.md#approach-contacts) `contact-temple-public`이다. [현관](rooms/entrance.md#entrance-volume)의 두 석단과 상부참을 거쳐 `door-entry`를 통과하면 남쪽 주랑이며 직진하면 중정의 남쪽 턱을 내려 중앙 수반 앞에 선다. 주랑의 순환은 남→동→북→서→남의 같은 바닥이고 어느 모서리에도 문이나 닫힌 벽을 추가하지 않는다. 제실·봉헌실·관리실·기록실·보관실은 각각 자기 [문](openings.md#doors)으로 이 고리에 붙는다.
 
 주랑 내부 순환은 한 `colonnade` volume 안의 연속 경로다. 공개 `IAutoMovieBuiltConnector`는 서로 다른 공간을 잇고 `validateBuiltEnvironment`는 동일한 from/to를 거부하므로, 고리를 표현하려고 `colonnade → colonnade` connector를 만들거나 cell을 별도 공간으로 승격하지 않는다. 방 문과 중정 단차는 서로 다른 실제 공간의 connector로 연결하고, 주랑 내부의 순환 검사는 합집합 안의 경로와 실제 바닥·장애물·회전 포락을 함께 읽는다. 이 구분은 topology 표현 계획이며 route 실측 결과가 아니다.
@@ -15,6 +29,19 @@
 각 문 통과는 한쪽 방 바닥→[벽 두께 안 문턱](storey.md#threshold-support)→반대쪽 바닥의 순서로 확인한다. connector의 끝점이 방 안에 있다는 사실만으로 그 중간 지지면을 생략하지 않는다. 실제 문턱과 맞닿는 두 바닥의 높이·범위·소유, 열린 문짝 뒤의 유효 통과 영역을 함께 읽으며 서비스 문의 외부 지면 접합도 같은 대상이다.
 
 ## 마당에서 보관실까지의 반입 {#service-route}
+
+<!--
+@evidence principles/core/common.md#scope-preservation 외부 서비스 문부터 마당·주랑·보관실까지 반입 전 구간을 포함하며 제실이나 기록실 통과를 요구하지 않는다.
+@evidence principles/core/common.md#substantive-completion contact-temple-service에서 door-service-exterior·door-yard·door-storage를 거치는 도착 순서와 높이 조건을 확정한다.
+@evidence principles/core/common.md#declared-basis 사용 포락과 서비스 높이는 설정/층의 기존 입력이며 외부 지면은 maps가 소비할 미구현 조건이다.
+@evidence principles/design/spaces.md#space-topology 마당과 보관실의 공유 벽을 뚫지 않고 북동 주랑의 짧은 구간으로 연결해 별도 루프를 만들지 않는다.
+@evidence principles/design/spaces.md#space-boundary-authority 접점·문 위치·바닥은 각각 building/openings/storey에서 받고 이 단위는 반입 순서와 회전을 맡는다.
+@evidence principles/design/spaces.md#space-verification-address 좁은 마당 문 앞·북동 모서리 회전과 양방향 threshold의 실제 장애물 거리를 반증 항목으로 지정한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 서비스 마당 허용을 제실에 들어가지 않는 명명된 문 세 개의 반입 경로로 좁힌다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work 작은 봉헌물의 운반 포락과 서비스 문턱 한계를 이 경로에 적용했다. 계단이나 제실 관통 없이 같은 높이로 계획할 수 있어 사용 범위를 고치지 않았다.
+@evidence settings/10-building.md#ground-access 외부 문부터 보관실까지 같은 층 높이를 이어 정문 석단 조건과 혼동하지 않는다.
+@evidence settings/30-interiors.md#service-yard 외부 반입과 주랑 직접 출입을 마당의 두 문을 잇는 경로로 사용한다.
+-->
 
 서비스 시작은 [건물 접점](building.md#approach-contacts) `contact-temple-service`다. `door-service-exterior`→[서비스 마당](rooms/service-yard.md#yard-volume)→`door-yard`→북동 주랑→`door-storage`→보관실 중앙 순서로 작은 봉헌물을 옮긴다. 외부 접점부터 전 구간이 같은 층 바닥 높이이며 제실이나 기록실을 통과하지 않는다. 이 경로는 기존 주랑의 짧은 구간을 공유하고 별도 순환 복도를 만들지 않는다.
 

@@ -2,6 +2,24 @@
 
 ## 전체 경계와 공간의 관찰 {#geometry-observations}
 
+<!--
+@evidence principles/core/common.md#scope-preservation 실제 외피/개구부 전집합과 각 공간 내부 관찰에 고리 주랑·단차·roof/지면 접합 및 다섯 reference 질문을 더하고 실패한 질문을 지우지 않는다.
+@evidence principles/core/common.md#substantive-completion census와 실제 opening/volume을 입력으로 한 pose 유도, 내부성·눈높이·충돌 대조, 원 질문과 보조 관찰의 보존 규칙을 정한다.
+@evidence principles/core/common.md#declared-basis 설정의 검토 조건과 compiled-observations를 소비하며 API 기본 위치·높이·sweep 상자의 한계를 실제 geometry 측정과 구분한다.
+@evidence principles/design/spaces.md#space-topology 주랑의 중정 구멍·notch·문 도착면과 열린 마당의 논리 cap을 구별해 방 밖 위치나 계산 접면으로 내부 관찰을 대체하지 않는다.
+@evidence principles/design/spaces.md#space-boundary-authority 현재 environment와 lowering의 같은 ID/binding을 읽고 입력 수량이나 별도 화면 좌표를 compiled 목록으로 복사하지 않는다.
+@evidence principles/design/spaces.md#space-verification-address 벽 void·문턱·L/T 접합·박공·처마·북동 덮임·외벽 접지를 각각 actual 단면/면 관계와 연결하고 수단이 없으면 unverified로 남긴다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모의 관찰 조건을 이 신전의 구멍 있는 주랑, 현관 계단, 북동 canopy, 마당 두 threshold에서 반증할 구체 질문으로 확장한다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work review-condition의 바닥 위 1.6m·내부 렌즈 조건을 기본 API 반환과 비교했다. API가 다른 높이를 줄 수 있다는 사실은 원 질문을 보존하고 보조 pose를 유도하는 공간 관찰 설계로 처리하며 부모 눈높이를 낮추지 않았다.
+@evidence settings/00-delivery.md#review-condition API 기본 pose를 실제 바닥 위 요구 눈높이와 장비 포락에 대조하고 충돌한 원 질문도 미해결로 남긴다.
+@evidence settings/00-delivery.md#governing-aim 대표 구도만 남기지 않고 모든 공간/경계 질문에 다섯 reference의 같은 건물·방 정체성 비교를 더한다.
+@evidence settings/50-production.md#references 외관·절개 검사·분수 중정·제실·기록/서비스 비교는 topology 관찰 전집합을 대신하지 않는 추가 질문이다.
+@evidence settings/50-production.md#measurement-truth census·거리·binding과 프레임의 역할을 분리하고 실제 실행 없는 수량/통과/접지를 unverified로 남긴다.
+@evidence settings/50-production.md#acceptance 절개를 전달 프레임으로 세지 않고 원 질문이 남은 상태를 시각 완료로 선언하지 않는다.
+@evidence obligations/design/spaces.md#space-review-set 현재 topology에서 유한한 외부/내부 관찰을 유도하고 각 접합·문·이동 포락의 반증 위치를 배정한다.
+@evidence contracts/obligations-spaces.md#compiled-observations 외부 setting·전 입면/모서리/roof/하부/개구부와 각 공간 threshold/모서리/네 방위를 보존하며 오목한 주랑에는 추가 내부 관찰을 더한다.
+-->
+
 [관찰 계약](../contracts/obligations-spaces.md#compiled-observations)과 [검토 프레임](../settings/00-delivery.md#review-condition)을 그대로 소비한다. 입력은 한 generation의 실제 built environment와 lowering 산출물이며 viewer와 계측이 같은 값을 쓴다. `builtEnvironmentBuildingCensus`의 외피·지붕·처마 하부·모서리·외부 출입 population을 소비하되 내부 개구부는 별도 actual boundary/opening 전집합에서 더한다. 이 API의 현재 source를 읽은 설계이며 아직 실행 결과는 없다.
 
 공간마다 실제 volume 내부의 threshold, 네 안쪽 모서리, 중심 네 방위를 만든다. `builtSpaceObservationStations`가 반환한 위치도 현재 공간 내부·렌즈 포락·near 비충돌인지 확인한다. 이 함수는 외접 상자 중심이 공간 밖이면 유효한 첫 cell의 꼭짓점 평균을 내부 기준점으로 택한다. 따라서 반환된 중심 네 방위만으로 주랑 전체를 읽었다고 판단하지 않는다. [주랑의 여섯 평면 영역](rooms/colonnade.md#ring-volume) 각각에서 실제 built cell과의 결속 및 내부 위치를 확인한 중심 네 방위, 합집합의 외측·내측·현관 notch 모서리를 더한다. 추가 cell의 계산 접면을 새 방 모서리로 세지 않는다.
@@ -34,6 +52,27 @@
 
 ## 원래 소스를 그리는 뷰어 {#viewer-path}
 
+<!--
+@evidence principles/core/common.md#scope-preservation source 실체·현재 문 상태·계측 generation·한국어 관찰 UI와 GPU 결과를 하나의 전달 경로에 배정한다.
+@evidence principles/core/common.md#substantive-completion server.cts→공개 lowering/tessellation→클라이언트의 전달 경계와 식별자/변환/재료 보존, 오류 표시 및 포트 인자를 정한다.
+@evidence principles/core/common.md#declared-basis CJS 경계와 사용자 4175/설치 권한을 소비하고 API 조사에 근거한 경로 설계는 아직 실행 가능한 viewer가 아니라고 명시한다.
+@evidence principles/design/spaces.md#space-topology 원래 environment의 공간/경계는 계측에 보존하고 실제 element/model만 기본 화면에 그려 논리 cap·support·AABB가 구조체를 대신하지 못한다.
+@evidence principles/design/spaces.md#space-boundary-authority 서버는 원래 geometry와 world/local 변환을 전달하고 브라우저가 건물·반복 수량·UV·재료를 새로 저작하지 않는다.
+@evidence principles/design/spaces.md#space-verification-address 현재 CJS 로딩·전송·GPU·RENDERER·빈 화면과 reference 판독을 별도 미검증 항목으로 두며 오래된 성공 화면을 현재 실패에 남기지 않는다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation CJS producer 약속을 lowering의 현재 operation 및 part local/world 변환을 보존하는 구체 전달 인터페이스로 좁힌다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work runtime-boundary의 CJS producer와 gpu-observation의 실제 캡처 조건을 공개 API 입력/출력에 대조했다. UV 부재와 authored set 구별을 전달 설계에 남길 수 있어 engine ESM 전환이나 대체 성공 기준을 부모에 요구하지 않았다.
+@evidence settings/00-delivery.md#delivery-scope 공간 library의 현재 source를 실제 3D로 열어 보는 viewer 경로를 제공하며 별도 영화나 client 건물을 만들지 않는다.
+@evidence settings/00-delivery.md#operator-access 외관 궤도/확대와 공간·관찰 선택을 화면 밖 패널로 두고 라벨·경계·절개는 검사 모드에서만 켠다.
+@evidence settings/00-delivery.md#working-language 공간·관찰 선택과 설명을 한국어 UI로 배정하고 source/API 식별자는 전달에 보존한다.
+@evidence settings/00-delivery.md#operative-subjects producer·renderer·관찰 UI의 역할을 나누어 전달자가 geometry나 공간을 새로 만들지 못하게 한다.
+@evidence settings/00-delivery.md#accessibility 공간 설명·대상 텍스트 목록과 키보드 선택을 실제 관찰 UI의 구현 조건으로 포함한다.
+@evidence settings/50-production.md#runtime-boundary CJS 서버에서 engine을 호출하고 브라우저에는 실제 산출물만 보내 runtime ESM import를 피한다.
+@evidence settings/50-production.md#fidelity 실제 mesh·재료·깊이·그림자를 그리며 논리 volume과 support를 기본 화면의 물리 실체로 대체하지 않는다.
+@evidence settings/50-production.md#gpu-observation GPU 캡처와 RENDERER·빈 화면 여부는 아직 unverified이며 API를 읽은 사실로 성공을 주장하지 않는다.
+@evidence settings/50-production.md#execution-authority 코드/의존성은 source 착수 때 package.json에 배정하고 서버 기동은 조정자에게 맡긴다.
+@evidence settings/50-production.md#author-commits 의존성 변경 시 root pnpm install과 바뀐 lockfile의 production 동시 commit 조건을 viewer 실행 인계에 포함한다.
+-->
+
 [CJS 경계](../settings/50-production.md#runtime-boundary)를 따른다. `src/viewer/server.cts`가 CJS 환경에서 생산 source와 공개 engine을 호출하고 현재 environment, 실제 mesh·transform·material, 같은 generation의 관찰 정보를 클라이언트로 전달하는 경로를 계획한다. 브라우저는 Node/engine 런타임을 import하지 않으며 실제 3D 원근·조명·그림자·깊이로 받은 geometry를 그린다. 건물을 client 데이터로 다시 만들지 않는다. 실행 코드는 src, HTML·스타일 자산은 public에 둔다.
 
 서버는 같은 environment를 공개 `lowerBuiltEnvironment`에 전달해 현재 문짝 상태와 부모·자식 변환이 반영된 element 배치를 얻고, 원래 environment는 공간·경계·개구부 계측에 함께 사용한다. lowering의 `set`은 실제 model이 결속된 element의 world 배치이며 경계 선언에서 벽이나 지붕을 생성하는 기능이 아니다. 따라서 건물의 보이는 실체는 [표면 소유](ownership.md#surface-map)에 배정된 source가 실제 element/model로 공급한다. 논리 volume·boundary·외접 상자를 그 실체로 대체하지 않는다.
@@ -46,4 +85,6 @@ support patch는 발 디딤과 계측의 선언이며 기본 화면의 물리 �
 
 서버 인자는 `--port`를 받고 기본 포트는 사용자 지정 4175다. 관찰 UI는 화면 밖의 한국어 공간·관찰 선택, 외관 궤도·확대·축소와 명시적 검사 모드를 갖는다. 라벨·경로·경계·절개는 기본 꺼짐이다. compilation 실패 시 이전 성공 화면을 남기지 않고 현재 오류를 보여 주며 그 상태를 정상 납품이라고 하지 않는다. 코드·의존성·시작 명령은 source 착수 시 package.json에 배정하고 서버 기동은 조정자가 한다. 2026-09-22 사용자 정정에 따라 의존성을 변경할 때는 저작자가 저장소 루트에서 `pnpm install`을 실행하고 production과 바뀐 `pnpm-lock.yaml`을 같은 커밋에 넣는다.
 
-이 문서는 viewer 설계이고 실행 가능한 viewer나 시작 명령이 아직 아니다. spaces는 draft이며 source 진입은 spaces의 독립 판정과 review 단계 조건을 따른다. 우회 source 경로·임의 selector·ESM 전환을 사용하지 않는다. 공개 API를 읽은 위 설계도 실제 CJS 로딩·전송·GPU 실행 성공의 증거가 아니다. 실제 GPU 캡처, RENDERER, 빈 화면 여부, 모든 방의 reference 판독은 unverified다. 페이지가 생기면 실행 디렉터리·명령·포트·경로를 따로 인계한다.
+관찰 UI는 공간 설명과 관찰 대상의 텍스트 목록을 제공하고 공간·시점·검사 모드 선택을 키보드로 조작할 수 있어야 한다. 선택/실패 상태를 색만으로 표시하지 않는다. 이는 공간 관찰에 필요한 접근 인터페이스이며 실제 조작 성공은 viewer source와 관찰에서 확인한다.
+
+이 문서는 viewer 설계이고 실행 가능한 viewer나 시작 명령이 아직 아니다. 현재 단계의 단일 선언은 lint.config.ts이며 source 진입은 spaces의 독립 판정과 review 단계 조건을 따른다. 우회 source 경로·임의 selector·ESM 전환을 사용하지 않는다. 공개 API를 읽은 위 설계도 실제 CJS 로딩·전송·GPU 실행 성공의 증거가 아니다. 실제 GPU 캡처, RENDERER, 빈 화면 여부, 모든 방의 reference 판독은 unverified다. 페이지가 생기면 실행 디렉터리·명령·포트·경로를 따로 인계한다.

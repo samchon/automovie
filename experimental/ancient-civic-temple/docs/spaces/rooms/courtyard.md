@@ -2,6 +2,20 @@
 
 ## 중앙의 열린 공간 {#court-volume}
 
+<!--
+@evidence principles/core/common.md#scope-preservation 중정의 열린 하늘·낮은 바닥·연속 석재 턱·중앙의 낮은 원형 수반과 한 물줄기를 함께 유지한다.
+@evidence principles/core/common.md#substantive-completion 유한 논리 상한의 의미와 수반 외경 2.0m·테두리 0.52m·수위/물줄기 높이의 소비 입력을 정한다.
+@evidence principles/core/common.md#declared-basis 중심은 경계 중점, 바닥은 층, 논리 상한은 공통 roof 기준을 소비하며 수반 수치는 model/system에 줄 설계 선택이다.
+@evidence principles/design/spaces.md#space-topology 네 변이 같은 주랑에 열리고 남쪽 축의 단차로 진입하며 논리 상한은 물리 천장이나 새 층이 아니다.
+@evidence principles/design/spaces.md#space-boundary-authority 바닥/턱은 중정 소유지만 분수 prototype을 복제하지 않고 논리 bounds로 시선·빛을 자르지 않는다.
+@evidence principles/design/spaces.md#space-verification-address 모서리·중심 네 방위·남쪽 단차와 수반 둘레 여백을 보고 원 밖 물판이나 높은 잔형으로의 변형을 실패로 남긴다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 설정의 낮은 분수를 중정의 실제 산술 중심과 물면/테두리 상대 높이에 결속한다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work fountain의 낮은 원형 수반과 services의 표시용 단일 물줄기를 적용해도 새 수조실이나 중정 추가가 필요하지 않았다. 공개 공간 상한은 표현용 논리 범위로만 정해 부모의 열린 하늘을 유지했다.
+@evidence settings/30-interiors.md#fountain 수반을 경계 중점에 놓고 외경·낮은 테두리·단일 물줄기의 공간 입력을 제공한다.
+@evidence settings/30-interiors.md#services 물면과 물줄기는 후속 model/system 소비 입력이며 실제 수리시설의 구현 결과로 주장하지 않는다.
+@evidence settings/20-envelope.md#stone-floors 중정 바닥과 주랑 사이 연속 석재 턱을 실제 낮은 단면으로 남긴다.
+-->
+
 공간 ID `courtyard`는 [기준선](../building.md#plan-datums)의 west-court~east-court, court-back~court-front 안에 있다. 완성면은 [층 높이](../storey.md#ground-storey)를 따르고 하늘은 열려 있다. 북·남·동·서 모두 같은 주랑에 접하며 새 문이나 닫힌 벽을 그 사이에 넣지 않는다. 주 출입 threshold는 남쪽 축의 한 단 내려가는 접점이다. 다른 가장자리의 연속 석재 턱도 실제 단면으로 남긴다.
 
 논리 공간의 아래 경계는 완성 바닥 Y=-0.12m, 위 경계는 [주변 지붕의 공통 기준](../roofs/assembly.md#roof-junctions) Y=3.55m를 소비한다. 처마대까지의 낮은 마당 공기 영역을 유한한 공간으로 식별하려는 설계 선택이다. 위 경계는 하늘을 닫는 천장이나 물리 지붕이 아니며 mesh·재료·그림자·보행 지지면을 만들지 않는다. 현재 평면과 두 높이로 닫힌 `cells` 범위를 선언하되, 그 범위를 비어 있는 통과 영역이라고 간주하지 않는다. 분수·돌출 처마·부재와 관찰 장비의 충돌은 실제 형상으로 별도 확인한다. 논리 상한은 관찰 위치의 공간 귀속에 쓰고 시선·조명·화면의 clipping에는 쓰지 않는다. 중정 안에서도 상한 너머의 하늘과 실제 지붕을 보며, 그 위에 숨은 층이나 두 번째 공간을 만들지 않는다.

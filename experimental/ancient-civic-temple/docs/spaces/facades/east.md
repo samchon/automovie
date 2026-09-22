@@ -2,6 +2,19 @@
 
 ## 서비스 출입이 있는 업무 날개 {#east-envelope}
 
+<!--
+@evidence principles/core/common.md#scope-preservation 세 업무방과 서비스 마당의 바깥면, 서비스 문과 낮은 벽으로 바뀌는 roof 끝을 동측 입면에 포함한다.
+@evidence principles/core/common.md#substantive-completion 업무방 상단과 낮은 마당 벽의 상단 소유를 구별하고 서비스 문턱 슬래브가 들어갈 벽 부피를 비우도록 한다.
+@evidence principles/core/common.md#declared-basis east 기준선 및 남/북 입면의 높이 규칙을 소비하고 문 void는 기존 문 owner에서 받는다.
+@evidence principles/design/spaces.md#space-topology 서비스 외부 문만 열고 업무방마다 바깥 문을 추가하지 않으며 마당의 하늘과 보관실 끝벽을 구별한다.
+@evidence principles/design/spaces.md#space-boundary-authority 동측 벽 실체/외피는 east, 방 내면은 각 방, 외부 지면은 maps로 남겨 Y=0 지면을 임의 복제하지 않는다.
+@evidence principles/design/spaces.md#space-verification-address 입면 두 끝과 서비스 문 양면·높이 변화 단면으로 부유한 문과 없는 방을 암시하는 폐쇄를 찾는다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 서비스 마당 외부 출입을 업무 날개 북쪽의 높이 변화와 실제 외벽 문턱 접점에 배정한다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work service-yard의 외부 반입과 openings의 깊은 문설주/인방을 동측 외벽에 대조했다. 업무방에 추가 문을 만들지 않고도 마당으로 접근하므로 고정 방 그래프를 고치지 않았다.
+@evidence settings/30-interiors.md#service-yard 동쪽 외부 문과 낮은 마당 외벽이 실제 마당으로 이어지고 하늘은 열려 있도록 한다.
+@evidence settings/20-envelope.md#openings 서비스 문에서도 깊은 문설주·인방·목재 문짝이 같은 실제 void를 소비한다.
+-->
+
 [기준선](../building.md#plan-datums)의 east-inner~east-outer가 동측 외벽이다. 남쪽부터 관리실·기록실·보관실, 북쪽은 서비스 마당의 바깥면이다. 업무방 벽 상단의 지붕 접합은 [남측](south.md#south-envelope), 낮은 마당 벽은 [북측](north.md#north-envelope)을 소비한다. 외부 서비스 문의 실제 void는 [문 owner](../openings.md#doors)에서 받고 방마다 바깥 출입문을 추가하지 않는다.
 
 source `src/spaces/facades/east.ts`가 동측 완결 외피와 벽 실체를 소유하고 내측은 각 방에 남긴다. 양끝은 [모서리 접합](../junctions.md#wall-junctions)을 소비한다. 업무 날개 지붕은 마당 경계에서 끝나 하늘을 열어 두며 그 북쪽 박공은 [기존 공유 벽](../junctions.md#gable-closures)이 닫는다. 서비스 문에는 깊은 문설주·인방·목재 문짝이 읽혀야 하며 Y=0의 실제 외부 접점이 문턱에 닿는다.
