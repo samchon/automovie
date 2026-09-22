@@ -1,6 +1,17 @@
 # 방 경계와 연결의 소스 인계
 
 ## 문으로 답하는 두 층 동선 {#room-route-network}
+<!--
+@evidence principles/core/common.md#scope-preservation 외부 접근부터 각 방과 옷방까지 되돌아오는 연결을 빠짐없이 인계한다.
+@evidence principles/core/common.md#substantive-completion 방별 문 owner와 storey를 연결표에 배정하고 실내 작업 경로도 잇는다.
+@evidence principles/core/common.md#declared-basis 표의 이름을 예정 id로 밝히며 compiled 도달 결과로 쓰지 않는다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 고정 연결 요구를 실제 문·열린 접속·단일 connector 경로로 분해한다.
+@evidence principles/design/spaces.md#space-topology 팬트리·파우더룸·침실을 다른 필수 방의 통과실로 쓰지 않는다.
+@evidence principles/design/spaces.md#space-boundary-authority 문 좌표는 각 방 owner에 남겨 연결표가 독립 치수를 갖지 않는다.
+@evidence principles/design/spaces.md#space-verification-address 인접 공간 조회와 통행을 구분하고 모든 목적지 왕복을 요구한다.
+@evidence settings/10-house.md#service-band 서비스에서 세 실로 분기하고 차고에는 머드룸을 거쳐 직접 연결한다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work 현관의 직접 분배·서비스 분기·복도 다섯 방의 요구를 실제 개구부 owner로 연결할 수 있어 부모 그래프의 변경은 없었다.
+-->
 
 아래 이름은 이번 spaces draft에서 소스로 넘길 식별자다. 컴파일된 id·개수·binding으로 보고하지 않는다. 본채와 차고는 [외곽](00-building.md#main-building-extent), 두 층은 [storey](01-storeys.md#storey-datums), 유일한 층간 연결은 [main-stair](02-stair.md#stair-reservation)가 소유한다. 방의 마감 안쪽 경계·입구·예약 사용 공간은 각각 링크한 owner가 결정한다. 표는 그 값을 복사하지 않고 연결 순서를 인계한다.
 

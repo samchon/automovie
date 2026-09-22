@@ -1,6 +1,17 @@
 # 본채와 붙박이 차고
 
 ## 본채 외곽과 면적 {#main-building-extent}
+<!--
+@evidence principles/core/common.md#scope-preservation 차고·포치를 뺀 두 층 본채의 면적과 안쪽 한계를 모두 지정한다.
+@evidence principles/core/common.md#substantive-completion 11.50 m 폭과 10.70 m 깊이를 서비스 띠·계단·공용부 배치 여유로 결정했다.
+@evidence principles/core/common.md#declared-basis 246.10㎡는 선택한 외곽의 곱이며 산출물 계측값이 아님을 밝힌다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 규모 범위에서 같은 직사각 두 층과 0.25 m 외벽 예약을 선택한다.
+@evidence principles/design/spaces.md#space-topology 현관·서비스·상층 복도 그래프를 외곽 선택으로 변경하지 않는다.
+@evidence principles/design/spaces.md#space-boundary-authority 방 분할은 방 owner에 두고 이곳은 외곽·벽 두께만 소유한다.
+@evidence principles/design/spaces.md#space-verification-address 두 층 평면과 면적 0.01㎡·경계 0.001 m 비교를 지정한다.
+@evidence settings/10-house.md#house-scale 차고 제외 두 층의 246.10㎡ 산술은 235–255㎡ 목표 안의 외곽 선택이다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work 규모의 폭·깊이 범위와 현관/서비스/복도 연결을 함께 대조해 외곽을 택할 수 있었으며 부모 범위 수정은 필요하지 않았다.
+-->
 
 이 spaces draft의 외곽 선택은 [규모](../settings/10-house.md#house-scale)와 [좌표](../settings/00-production.md#coordinate-units)를 따른다. 본채 외벽 바깥 기준은 X = [-5.75, 5.75] m, Z = [-10.70, 0] m다. 두 층에 같은 직사각 외곽을 사용한다. 폭 11.50 m와 깊이 10.70 m의 곱은 층당 123.05㎡, 두 층 합은 246.10㎡다. 이것은 저작 입력의 산술이며 컴파일된 면적 계측 결과가 아니다. 차고·포치·대지는 이 값에 포함하지 않는다. 전면 박공은 지붕의 교차 형상으로 만들며 방 바닥을 돌출시키지 않는다.
 
@@ -11,6 +22,17 @@
 검증 주소는 향후 `src/spaces/building.ts`의 본채 외곽과 두 storey, 그 산출물을 소비할 면적·경계 보고다. 필요한 관찰은 두 층 평면, 전후·좌우 입면 및 중앙 계단 단면이다. 면적 허용 오차는 저작 입력 산술과 산출 외곽의 비교에서 0.01㎡, 경계 일치 허용 오차는 0.001 m로 선택한다. 이는 측량 정밀도나 시공 허용 오차의 주장이 아니다.
 
 ## 붙박이 빈 차고의 접면 {#attached-garage-extent}
+<!--
+@evidence principles/core/common.md#scope-preservation 별동 없이 붙은 빈 차고와 머드룸 직접 접면을 배정한다.
+@evidence principles/core/common.md#substantive-completion 외곽과 마감 안쪽을 구별해 5.70 m × 5.90 m 예약 순내부를 정한다.
+@evidence principles/core/common.md#declared-basis 6.20 m·6.40 m 선택은 차고 설정의 외곽 범위를 따른다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 본채에서 정면을 0.30 m 물린 공유 벽 구간을 추가로 결정한다.
+@evidence principles/design/spaces.md#space-topology 정면문과 머드룸 문이 각각 전면·공유 벽의 void여야 한다.
+@evidence principles/design/spaces.md#space-boundary-authority 겹친 외곽의 0.25 m 구간을 차고 owner의 한 벽으로 배정한다.
+@evidence principles/design/spaces.md#space-verification-address 이중 벽·별동·머드룸 밖 출입을 실패 조건으로 지정한다.
+@evidence settings/10-house.md#garage 두 대용 외곽 범위에서 빈 바닥을 예약하고 차량이나 주차 성능을 주장하지 않는다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work 빈 단층 차고의 폭·깊이와 직접 머드룸 연결을 검토했고 본채와 한 벽을 공유하는 배치로 충족해 설정 결함을 드러내지 않았다.
+-->
 
 [빈 차고](../settings/10-house.md#garage)는 본채 오른쪽에 하나의 단층 볼륨으로 붙는다. 외곽은 X = [5.50, 11.70] m, Z = [-6.70, -0.30] m로 택한다. 폭 6.20 m·깊이 6.40 m는 차고 외곽 범위 안이다. 본채보다 정면을 0.30 m 뒤로 물리고 본채 후면을 넘지 않는다. 본채와 차고가 공유하는 벽은 X = [5.50, 5.75] m 안의 하나의 0.25 m 벽체다. 두 외곽의 겹침은 두 벽을 겹쳐 그리는 지시가 아니라 하나의 공유 벽을 양쪽 면적 경계가 참조한다는 뜻이다.
 

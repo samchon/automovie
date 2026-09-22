@@ -1,6 +1,17 @@
 # 단일 계단의 공간 예약
 
 ## 두 층을 잇는 L형 경로 {#stair-reservation}
+<!--
+@evidence principles/core/common.md#scope-preservation 현관과 복도를 잇는 유일한 두 flight와 중간참을 모두 배정한다.
+@evidence principles/core/common.md#substantive-completion 18 × 0.17 m를 아래 8·위 10 챌판으로 나누고 0.28 m 디딤을 정한다.
+@evidence principles/core/common.md#declared-basis 층 기준 3.06 m에서 참 높이와 진행 길이를 산출한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation L형 요구를 -Z 상승 후 +X 회전의 실제 평면 예약으로 만든다.
+@evidence principles/design/spaces.md#space-topology ground-storey 계단 공간에서 upper-storey 도착면으로 한 번만 연결한다.
+@evidence principles/design/spaces.md#space-boundary-authority 디딤 위치는 개수·방향·시작점에서 산출하고 동일 레코드 복제를 금한다.
+@evidence principles/design/spaces.md#space-verification-address 단 수·방향·참 접속을 단면과 양방향 통행으로 대조한다.
+@evidence settings/10-house.md#stair 두 직선 flight와 90° 중간참을 한 main-stair에 담고 다른 층간 길을 두지 않는다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work 중앙 단일 계단과 사용 폭을 층고에 적용해 두 flight를 배정했으며 부모의 L형·유일 연결을 바꾸지 않아도 된다.
+-->
 
 [단일 꺾임계단](../settings/10-house.md#stair)의 설계 입력으로 C4를 채택한다. `main-stair`는 [현관](rooms/entry.md#entry-plan)의 하부 대기에서 -Z 방향으로 올라간 뒤 중간참에서 +X 방향으로 한 번 꺾이고 [상층 복도](rooms/upper-hall.md#upper-hall-plan)의 도착면으로 이어진다. 두 flight와 중간참의 계단 공간은 ground-storey에 귀속시키고 연결의 목적지는 upper-storey의 상부 도착면이다. 두 storey 사이에는 이 계단 연결 하나만 둔다. 계단 아래를 통과해야 거실이나 후면 공용부에 도착하는 경로는 만들지 않는다.
 
@@ -15,6 +26,17 @@
 계단의 예정 source owner는 `src/spaces/stair.ts`다. 디딤별 위치는 위 개수·진행 방향·시작점에서 반복 산출하며 손으로 같은 레코드를 복제하지 않는다. 비교 대상은 단 수, 진행 방향, 두 도착면과 실제 단의 접속이며 좌표 허용 오차는 [외곽의 설계 대조 기준](00-building.md#main-building-extent)을 소비한다. 현재 값은 저작 입력이며 계단 산출물·단면·양방향 통행은 unverified다.
 
 ## 하나의 연결에 속하는 두 flight와 중간참 {#stair-connector-handoff}
+<!--
+@evidence principles/core/common.md#scope-preservation 논리 연결·중간 stop과 실제 단별 검사 책임을 함께 남긴다.
+@evidence principles/core/common.md#substantive-completion 단일 connector와 참 중심의 route station·길이 비율을 선택한다.
+@evidence principles/core/common.md#declared-basis 공개 타입과 steps 검증 구현을 읽은 조건을 계측 결과와 구별한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 설정의 한 계단을 bidirectional 연결 하나와 물리 부재 묶음으로 인계한다.
+@evidence principles/design/spaces.md#space-topology front-entry에서 main-stair 참을 지나 upper-hall로 가는 순서를 보존한다.
+@evidence principles/design/spaces.md#space-boundary-authority 단 치수는 stair-reservation에서 받고 connector의 평균 run으로 바꾸지 않는다.
+@evidence principles/design/spaces.md#space-verification-address landing의 실제 참 포함과 단별 부재 측정을 route 길이 검사와 분리한다.
+@evidence settings/10-house.md#stair 두 flight를 별도 계단으로 등록하지 않고 같은 connector 안의 참과 부재로 묶는다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work 설정은 한 계단과 실제 단 검사를 요구하므로 steps 요약의 한계는 엔진 인계에서 드러내면 되며 부모를 완화할 이유가 없었다.
+-->
 
 [계단 공간과 단별 치수](#stair-reservation)는 유지한다. 후속 `IAutoMovieBuiltConnector`는 `main-stair-connection` 하나로, kind는 stair, from은 front-entry, to는 upper-hall, bidirectional은 true로 저작한다. route의 양 끝은 각각 기존 하부 대기와 상부 도착면 내부에 두며, 아래 flight → 중간참에서 한 번 꺾임 → 위 flight의 실제 진행 순서를 따른다. 두 flight를 별도의 층간 계단으로 등록하거나 계단실을 통과하지 않는 직선으로 두 층을 연결하지 않는다. 실제 두 flight·참·보호 부재는 같은 connector의 elements로 인계한다.
 
@@ -25,6 +47,17 @@
 연결 검사와 실제 단 검사를 구별한다. connector 조회는 front-entry/main-stair/upper-hall에서 같은 연결을 찾아야 하고 landing의 산출 위치는 같은 참 위에 있어야 한다. `builtConnectorGeometry`는 route의 높이차·길이·station을 읽으며 실제 디딤이나 난간을 재지 않는다. 챌판 수·각 높이·디딤 깊이·참·보호 부재 뒤 순폭과 머리 공간은 렌더가 소비하는 실제 부재에서 읽어야 한다. 그 계측 경로와 geometry가 없는 현재는 unverified로 남기고 route 산술이나 테스트 사례로 대신하지 않는다. [전체 관찰](04-observations.md#spatial-observation-derivation)은 계단 공간 자체의 threshold·안쪽 코너·중심 방향 및 양방향 통행을 그대로 포함한다.
 
 ## 계단 구멍과 전면 창의 경계 {#stair-floor-opening}
+<!--
+@evidence principles/core/common.md#scope-preservation flight·참·하부 대기 위의 구멍과 전면 창·보호 띠를 함께 정한다.
+@evidence principles/core/common.md#substantive-completion 세로·가로 예약을 합한 L형과 +X 열린 도착 끝을 결정한다.
+@evidence principles/core/common.md#declared-basis 경로 예약을 구멍의 근거로 삼고 창 void는 전면 창 owner에서 받는다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 설정의 실제 통행 구멍을 본채 앞 안쪽 면에 닿는 L형으로 특정한다.
+@evidence principles/design/spaces.md#space-topology 침실이나 거실을 비우지 않고 계단실 위는 높은 천장으로 닫는다.
+@evidence principles/design/spaces.md#space-boundary-authority upper 층판과 방 마감이 같은 구멍을 소비하며 따로 절단하지 않는다.
+@evidence principles/design/spaces.md#space-verification-address 두 층 구멍 불일치·창 뒤 침실·참을 막는 난간을 단면에서 찾는다.
+@evidence settings/10-house.md#openings 작은 상층 전면 창 뒤에 실제 계단실을 두고 가짜 창을 허용하지 않는다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work 계단 창의 실제 실 바인딩과 복층 보이드 금지를 대조해 구멍을 계단실에 한정했으며 부모 요구의 충돌은 없었다.
+-->
 
 [위 경로](#stair-reservation)와 하부 대기 면적에 한정하여, 층판 구멍은 X = [-1.80, -0.65]·Z = [-4.56, -0.25]의 세로 부분과 X = [-0.65, 1.87]·Z = [-4.56, -3.41]의 가로 부분을 합친 L형이다. 계단 전면 끝이 본채 안쪽 전면에 닿으므로 [상층 전면의 작은 계단 창](../settings/10-house.md#openings)은 실제 계단 공간으로 열린다. void·높이는 [stair-front-window](envelope/front.md#stair-front-window)를 소비하고 실제 창호는 후속 부재에서 구현한다. 창 뒤를 침실로 바꾸거나 전면에 가짜 창을 붙이지 않는다.
 
@@ -35,6 +68,17 @@
 계단실 위의 [높은 천장 폐합](09-ceiling-assembly.md#upper-ceiling-closure)은 같은 구멍과 그 둘레 중 천장 높이에서 노출되는 보호 띠를 마감 구역으로 소비한다. [경계 높이](#stair-boundary-heights)에 따라 뒤쪽 난간 위까지 닫되 완전 높이 벽 구역은 제외하며, upper-storey 천장 높이에서 복도 마감과 만난다. 공통 바탕은 upper 층 owner, 계단실에서 보이는 마감은 이 계단 owner다. ground-storey 소속을 이유로 낮은 천장판을 계단 위에 생성하지 않는다.
 
 ## 난간과 통행의 순폭 예약 {#stair-clearance}
+<!--
+@evidence principles/core/common.md#scope-preservation 양 flight·중간참의 순폭과 디딤별 머리 공간을 남긴다.
+@evidence principles/core/common.md#substantive-completion 1.15 m 안에 양쪽 0.075 m를 예약해 계산상 1.00 m를 확보한다.
+@evidence principles/core/common.md#declared-basis 계산 폭은 use-profile 목표와의 설계 비교이고 실제 난간 계측은 아니다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 설정의 통행 목표에 손잡이·기둥이 사용할 점유 상한을 더한다.
+@evidence principles/design/spaces.md#space-topology 하부 대기와 상부 복도를 잇고 아래 외투장을 통로로 세지 않는다.
+@evidence principles/design/spaces.md#space-boundary-authority 경로 폭은 stair-reservation, 양 대기는 현관·복도의 바닥을 소비한다.
+@evidence principles/design/spaces.md#space-verification-address 기둥 돌출·90° 회전·각 단 머리 공간에 동일 사람/바구니를 적용한다.
+@evidence settings/00-production.md#use-profile 0.95 m 계단 목표와 2.00 m 머리 공간을 사람·바구니를 줄이지 않고 검사한다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work 0.60 × 0.45 × 1.90 m 사람과 0.75 m 바구니를 기존 L형 경로에 적용할 점유 예약이 가능해 프로필 변경은 없었다.
+-->
 
 [경로](#stair-reservation)의 1.15 m 폭 안에서 양쪽 손잡이·난간의 수평 점유를 각각 0.075 m 이내로 예약한다. 계산상 남는 폭은 1.00 m로 [사용자 프로필](../settings/00-production.md#use-profile)의 0.95 m 목표보다 0.05 m 크다. 이것은 실제 난간 점유를 계측한 합격값이 아니다. 기둥·손잡이 끝·접합판 중 하나라도 예약선을 넘으면 같은 단의 순폭을 다시 검사하고 해당 부재를 고친다. 중간참도 두 방향 각각 1.00 m 통행 영역을 남겨야 한다.
 
@@ -43,6 +87,17 @@
 검사 주소는 `src/spaces/stair.ts`에서 파생할 단별 단면과 90° 회전 경로, 참 양쪽 시야다. 점유체를 줄이지 않고 0.60 × 0.45 × 1.90 m 사람과 0.75 m 폭 바구니를 같은 경로에 적용한다. 평면 입력의 정합과 실제 회전·머리 공간·시각적 계단 읽힘은 구별하며 후자는 모두 unverified다.
 
 ## 계단 곁 벽과 열린 보호 경계의 높이 {#stair-boundary-heights}
+<!--
+@evidence principles/core/common.md#scope-preservation 계단 둘레의 방 벽·난간·아래 막음과 열린 도착을 모두 배정한다.
+@evidence principles/core/common.md#substantive-completion 경사 손잡이 0.90 m와 복도 보호 1.05 m를 구별한다.
+@evidence principles/core/common.md#declared-basis 구멍 평면과 난간 점유 예약을 받아 높이별 역할을 저작 선택한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 한 계단의 재료 설정을 각 높이에서 벽붙이 또는 열린 보호로 배정한다.
+@evidence principles/design/spaces.md#space-topology 아래 서비스와 위 복도를 붙이지 않고 +X 도착 위는 열어 둔다.
+@evidence principles/design/spaces.md#space-boundary-authority 같은 높이의 분리벽과 난간 패널을 중복 생성하지 않는다.
+@evidence principles/design/spaces.md#space-verification-address 현관 시야·참 양쪽·손잡이 단면·외투장 위를 관찰 주소로 둔다.
+@evidence settings/10-house.md#stair 목재 손잡이와 검은 난간살은 열린 가장자리를 보호하며 참의 통행을 가로막지 않는다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work 계단 설정의 열린 도착과 실제 보호 요구를 높이별로 검사했고 방 분리벽과 함께 성립해 부모 수정 없이 배정했다.
+-->
 
 [계단 구멍 둘레의 평면 띠](#stair-floor-opening)는 모두 같은 높이의 벽을 뜻하지 않는다. 같은 main-stair의 높이별 경계 역할을 아래처럼 택한다. 방 안쪽 한계와 두 flight/참은 유지하며, 계단 출발과 도착을 닫는 새 벽은 없다. 구조 바탕은 `src/spaces/stair.ts`, 인접 방의 마감은 [완결 면 배정](03-surface-owners.md#interior-surface-handoff)을 유지한다.
 

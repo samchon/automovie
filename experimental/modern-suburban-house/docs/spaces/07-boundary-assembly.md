@@ -1,6 +1,17 @@
 # 벽 경계와 접합의 조립
 
 ## 방 사이의 한 벽체와 두 안쪽 면 {#interior-boundary-ownership}
+<!--
+@evidence principles/core/common.md#scope-preservation 두 층의 공유 칸막이·양쪽 마감과 기존 예외 구조를 배정한다.
+@evidence principles/core/common.md#substantive-completion 맞닿는 실 쌍마다 공통 몸체 생성 파일을 하나로 정한다.
+@evidence principles/core/common.md#declared-basis 방 안쪽 윤곽과 두께는 원래 방/외곽에서 받아 평균하지 않는다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 표면 소유 요구에 실 사이 공통 몸체의 생성 책임을 더한다.
+@evidence principles/design/spaces.md#space-topology 현관/서비스와 상부 도착은 열린 채 두고 통행 edge로 벽 전체를 지우지 않는다.
+@evidence principles/design/spaces.md#space-boundary-authority 계단·차고 구조와 양 room 마감의 소유를 분리한다.
+@evidence principles/design/spaces.md#space-verification-address 상대가 하나뿐인 벽·겹친 방·중복 몸체를 평면/단면에서 찾는다.
+@evidence settings/20-verification.md#surface-allocation 한 공유 구조와 양쪽 완결 마감을 따로 배정해 같은 벽을 두 번 생성하지 않는다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work 외부·내부 완결 표면 구분과 하나의 공유 기준을 실제 방 쌍에 적용할 수 있어 설정 수정은 필요하지 않았다.
+-->
 
 이 설계는 [두 storey](01-storeys.md#storey-datums) 안에서 기존 방 사이의 칸막이를 한 번만 생성하기 위한 공간 인계다. 방의 마감 안쪽 윤곽, 칸막이 예약 두께, 문 위치는 [방 연결](05-route-network.md#room-route-network)이 가리키는 원래 owner를 소비한다. 여기서 방 좌표를 다시 정하거나 두 room의 중간선을 평균하여 서로 다른 입력을 숨기지 않는다. 같은 storey에서 맞닿는 두 실의 안쪽 경계와 그 사이 벽 예약이 일치하지 않으면 조립을 멈추고 원래 평면을 고친다.
 
@@ -27,6 +38,17 @@
 `src/spaces/boundaries.ts`는 방·벽·개구부의 동일 경계 인계와 아래 접합 계산을 맡을 예정이며, 벽 geometry나 입면/방 마감을 소유하지 않는다. 조립은 각 경계의 두 상대 공간, storey, 구간, 높이 역할, 구조 바탕 owner, 양쪽 마감 owner를 함께 전달한다. 상대가 하나뿐인 실내 벽, 설명 없는 겹친 방, owner 없는 접면 또는 두 구조 owner가 같은 접면을 생성한 상태는 실패다. 실내의 한쪽이 계단 아래 비통행 영역인 경우 그 역할을 명시하며 새로운 방이나 숨은 통로로 세지 않는다. 전체 층 평면·해당 높이 단면·공유 면 census가 검사 주소이고 실제 조립은 unverified다.
 
 ## 모서리와 문턱에서 끊기지 않는 경계 {#interior-boundary-junctions}
+<!--
+@evidence principles/core/common.md#scope-preservation L/T/십자 접합과 void·부착물 지지·문 아래 바닥을 함께 인계한다.
+@evidence principles/core/common.md#substantive-completion 일반 접합 owner를 경로 사전식 첫 항목으로 결정해 평가 순서 의존을 없앤다.
+@evidence principles/core/common.md#declared-basis 원래 방 윤곽과 겹치는 높이에서만 접합 영역을 산출한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 한 구조 기준 요구를 단부 분할과 문턱 중앙 전환선으로 구체화한다.
+@evidence principles/design/spaces.md#space-topology 높이가 다른 계단 면을 합치거나 절단된 문을 접합 몸체로 막지 않는다.
+@evidence principles/design/spaces.md#space-boundary-authority 문짝은 원래 문 owner가 한 번 만들고 반대 방은 그 부재를 본다.
+@evidence principles/design/spaces.md#space-verification-address 양 방 시야와 문 열림/닫힘 단면으로 틈·막힘·부착물 간섭을 검사한다.
+@evidence settings/10-house.md#openings 실제 void와 문 부재를 양 방이 공유하며 벽 구멍과 닫힌 문 상태를 구별한다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work 설정의 실제 문틀/문턱과 통행 상태를 대조해 접합 절단을 배정했고 문을 지우거나 부모 출입을 바꿀 필요가 없었다.
+-->
 
 위 공유 칸막이는 같은 높이에서 만나는 끝점·L자·T자·십자 접합을 공유한다. 한 직선 벽의 단부가 다른 벽 중심까지 무조건 연장되거나, 양쪽 모두 안쪽 면에서 끝나 모서리에 구멍이 생기지 않게 한다. `src/spaces/boundaries.ts`는 [원래 방 윤곽과 두께](#interior-boundary-ownership)에서 만남의 평면 구역을 산출하고, 높이 구간이 겹치는 부분만 하나의 접합으로 다룬다. 층이 다르거나 계단 위아래에 있는 면의 평면 투영이 겹친다는 이유만으로 합치지 않는다.
 
@@ -43,6 +65,17 @@
 검사는 두 층의 모든 실내 공유 벽과 실제 개구부, 그 벽이 만나는 모든 접합에 대해 높이별 단면과 양쪽 방 안 시야를 추가한다. 닫힌 문/열린 문, 서로 다른 바닥 마감, 계단 곁의 위아래 경계도 함께 읽는다. [경계 허용 오차](00-building.md#main-building-extent)는 같은 경계 입력의 일치 비교에 쓰며 작은 틈을 숨길 권한이 아니다. 공개 엔진에서 이 공통 몸체/절단/면 인계를 표현할 수 있는지 아직 실행하지 않았고 지원하지 않는다면 표현 한계를 기록해 조정자에게 올린다. 실제 id·중복/빈틈·문턱 연속·순폭·표면 census와 프레임은 unverified다.
 
 ## 외벽 모서리와 지붕 단차의 단일 몸체 {#exterior-boundary-junctions}
+<!--
+@evidence principles/core/common.md#scope-preservation 본채·차고 모서리와 지붕 단차·굴뚝의 중복 몸체를 배정한다.
+@evidence principles/core/common.md#substantive-completion 앞뒤 벽 두께 구역을 해당 입면이 받고 측벽 몸체를 그 안쪽에서 끝낸다.
+@evidence principles/core/common.md#declared-basis 기존 외곽과 지붕 아래면을 받아 겹치는 높이만 분할한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 하나의 공유 기준을 단차 끝과 차고 공유 벽의 우선 소유로 구체화한다.
+@evidence principles/design/spaces.md#space-topology 낮은 차고 지붕에서 본채 벽을 자르거나 굴뚝 화구를 막지 않는다.
+@evidence principles/design/spaces.md#space-boundary-authority 구조 모서리 owner가 달라도 옆면의 연속 마감 소유는 유지한다.
+@evidence principles/design/spaces.md#space-verification-address 외벽 모든 모서리·단차 교차·공유 벽 끝의 높이별 점유를 대조한다.
+@evidence settings/20-verification.md#surface-allocation 접합 몸체의 단일 생성과 입면별 완결 마감을 구별해 모서리 소유를 이어 준다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work 공유 구조 하나와 완결 면 분해를 외벽 단차에 적용했고 두 요구가 충돌하지 않아 부모를 고치지 않았다.
+-->
 
 이 접합은 [본채 외벽](00-building.md#main-building-extent)과 [차고 외벽/공유 벽](00-building.md#attached-garage-extent)의 예약 안에서 만나는 외부 경계를 잇는다. 각 입면의 외측 면, 방의 안쪽 면, 기존 문·창·storey 관계를 유지하고 별도 방이나 출입구를 만들지 않는다. 지붕에 닿는 상단은 [벽 두께 전체의 지붕 접촉](roof/00-junctions.md#roof-wall-head-junctions)을 소비하며 서로 다른 지붕 높이를 평균하지 않는다. 실내 칸막이의 접합은 위 [별도 배정](#interior-boundary-junctions)을 유지한다.
 
