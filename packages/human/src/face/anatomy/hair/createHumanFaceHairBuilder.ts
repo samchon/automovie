@@ -10,7 +10,10 @@ import { assertHumanFaceHair } from "./assertHumanFaceHair";
 import { buildHumanFaceHairMesh } from "./buildHumanFaceHairMesh";
 import { createHumanFaceHairRoots } from "./createHumanFaceHairRoots";
 import { createPortraitHairMaterial } from "./createPortraitHairMaterial";
+import { humanFaceHairContact } from "./humanFaceHairContact";
+import { humanFaceHairSequence } from "./humanFaceHairSequence";
 import { integrateHumanFaceHairCurve } from "./integrateHumanFaceHairCurve";
+import { interpolateHumanFaceHairStrands } from "./interpolateHumanFaceHairStrands";
 
 /**
  * Compile shared growth correspondence, then generate numerical hair on a face.
@@ -131,7 +134,11 @@ export function createHumanFaceHairBuilder(input: IAutoMovieHumanFaceBasis) {
         });
         queries.set(layer.surface, query);
       }
-      const curves = roots.map((root) => {
+      const guided = layer.guides;
+      const isGuide = (sequence: number): boolean =>
+        guided === undefined ||
+        humanFaceHairSequence(sequence, 17) < guided.fraction;
+      const seats = roots.map((root) => {
         const ids = source.surface.indices.slice(
           root.triangle * 3,
           root.triangle * 3 + 3,
@@ -154,6 +161,14 @@ export function createHumanFaceHairBuilder(input: IAutoMovieHumanFaceBasis) {
             Vector3.subtract(points[2], points[0]),
           ),
         );
+        return { root, seated, normal };
+      });
+      const integrated = new Map<
+        number,
+        ReturnType<typeof integrateHumanFaceHairCurve>
+      >();
+      seats.forEach(({ root, seated, normal }, at) => {
+        if (!isGuide(root.sequence)) return;
         const curve = integrateHumanFaceHairCurve({
           layer,
           origin: domain.origin,
@@ -168,7 +183,59 @@ export function createHumanFaceHairBuilder(input: IAutoMovieHumanFaceBasis) {
           throw new Error(
             "Numerical hair exceeds its million-station assembled budget.",
           );
-        return curve;
+        integrated.set(at, curve);
+      });
+      if (integrated.size === 0)
+        throw new Error(
+          "A guided hair layer selected no guide among its roots; raise the guide fraction or the count.",
+        );
+      const strandIndices = seats
+        .map((_, at) => at)
+        .filter((at) => !integrated.has(at));
+      const strands = interpolateHumanFaceHairStrands({
+        layer,
+        origin: domain.origin,
+        guides: [...integrated].map(([at, curve]) => ({
+          root: seats[at].seated,
+          reference: seats[at].root.point,
+          points: curve.points,
+        })),
+        strands: strandIndices.map((at) => ({
+          root: seats[at].seated,
+          reference: seats[at].root.point,
+          sequence: seats[at].root.sequence,
+          normal: seats[at].normal,
+        })),
+      });
+      for (const strand of strands) stations += strand.points.length;
+      if (stations > 1_000_000)
+        throw new Error(
+          "Numerical hair exceeds its million-station assembled budget.",
+        );
+      // Interpolated strands keep the clearance their guides were integrated
+      // with: every station after the root is projected by the same contact
+      // rule, which is cheap beside integration and keeps the population on
+      // the outside of the closed collider.
+      const strandOrdinal = new Map(
+        strandIndices.map((at, ordinal) => [at, ordinal]),
+      );
+      const curves = seats.map((_, at) => {
+        const guide = integrated.get(at);
+        if (guide !== undefined) return guide;
+        const strand = strands[strandOrdinal.get(at)!];
+        const contact = humanFaceHairContact({
+          layer,
+          root: strand.points[0],
+          length: strand.length,
+          query,
+        });
+        return {
+          ...strand,
+          points: strand.points.map((point, index) =>
+            index === 0 ? point : contact.project(point),
+          ),
+          clearance: contact.clearance - contact.epsilon,
+        };
       });
       const id = "numerical-hair:" + layer.id;
       const material = createPortraitHairMaterial(
