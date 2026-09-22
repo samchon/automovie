@@ -34,6 +34,7 @@ export const createNumericalHairFixture = (): IAutoMovieHumanFaceHair => ({
         coverage: 0.8,
         normal: 0.2,
         shade: 1,
+        grey: 0.25,
       },
     },
   ],
