@@ -81,6 +81,7 @@ export function createPortraitHairMaterial(
             shape.fibres,
             shape.coverage,
             shape.fibreCurl,
+            mixture,
           ),
           normalScale: scale,
         }),

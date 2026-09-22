@@ -1,5 +1,6 @@
 import {
   createPortraitHairMaterial,
+  createPortraitHairNormalTexture,
   createPortraitHairTexture,
 } from "@automovie/human";
 import { TestValidator } from "@nestia/e2e";
@@ -20,9 +21,11 @@ import { throwsError } from "../internal/predicates";
  *    micrometres thick.
  * 3. A proportion in between paints both, and more of it leaves more fibres
  *    unpigmented.
- * 4. A greying finish becomes its own unpigmented fibre, which the pigment is
+ * 4. The relief map follows the same fibres as the colour, so a greying
+ *    proportion reaches it too.
+ * 5. A greying finish becomes its own unpigmented fibre, which the pigment is
  *    then a multiplier of.
- * 5. A proportion outside the unit interval and a pigment outside the unit
+ * 6. A proportion outside the unit interval and a pigment outside the unit
  *    cube refuse.
  */
 export const test_subject_human_hair_pigment = (): void => {
@@ -110,6 +113,22 @@ export const test_subject_human_hair_pigment = (): void => {
   TestValidator.predicate(
     "more greying leaves more fibres unpigmented",
     read(paint(0.25)).runs < half.runs && half.runs < read(paint(0.75)).runs,
+  );
+  // The relief has to describe the fibre the colour does, so the mixture
+  // reaches the normal map too: its thicker unpigmented fibres move the
+  // transverse normals.
+  TestValidator.predicate(
+    "the relief follows the same fibres",
+    createPortraitHairNormalTexture(7, fibres, 0.5) ===
+      createPortraitHairNormalTexture(7, fibres, 0.5, undefined, {
+        pigment: [0, 0, 0],
+        grey: 0,
+      }) &&
+      createPortraitHairNormalTexture(7, fibres, 0.5) !==
+        createPortraitHairNormalTexture(7, fibres, 0.5, undefined, {
+          pigment: [0, 0, 0],
+          grey: 1,
+        }),
   );
   TestValidator.equals(
     "an ungreyed finish keeps its authored colour",
