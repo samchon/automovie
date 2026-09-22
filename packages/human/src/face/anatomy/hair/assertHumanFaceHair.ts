@@ -51,8 +51,6 @@ export function assertHumanFaceHair(input: IAutoMovieHumanFaceHair): void {
       ) ||
       !layer.lengthAxes.every(positive) ||
       !bounded(layer.lengthVariation, 0, 1) ||
-      !positive(layer.width) ||
-      layer.width > 0.04 ||
       !positive(layer.samplingStep) ||
       layer.samplingStep > 0.005 ||
       !nonnegative(layer.clearance) ||
@@ -61,7 +59,7 @@ export function assertHumanFaceHair(input: IAutoMovieHumanFaceHair): void {
       !positive(layer.lift.reach)
     )
       throw new Error(
-        "Hair roots, lengths, widths and flow need finite admitted numerical fields.",
+        "Hair roots, lengths, steps and flow need finite admitted numerical fields.",
       );
     if (
       layer.guides !== undefined &&

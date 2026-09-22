@@ -12,6 +12,7 @@ import { createHumanFaceHairRoots } from "./createHumanFaceHairRoots";
 import { createPortraitHairMaterial } from "./createPortraitHairMaterial";
 import { growHumanFaceHairStrand } from "./growHumanFaceHairStrand";
 import { humanFaceHairContact } from "./humanFaceHairContact";
+import { humanFaceHairDensity } from "./humanFaceHairDensity";
 import { humanFaceHairSequence } from "./humanFaceHairSequence";
 import { integrateHumanFaceHairCurve } from "./integrateHumanFaceHairCurve";
 import { interpolateHumanFaceHairStrands } from "./interpolateHumanFaceHairStrands";
@@ -31,6 +32,11 @@ import { interpolateHumanFaceHairStrands } from "./interpolateHumanFaceHairStran
  * The caller composes these owned parts/materials and checks resident identity
  * collisions. Closed queries verify topology; embeddedness/outward orientation
  * remain the shared source and deformation's premises, not automatic anatomy.
+ *
+ * A ribbon's width is not authored: each root's seated neighbourhood measures
+ * the scalp that root stands for (`humanFaceHairDensity`) against the area its
+ * own sampler accepted, so a thinned hairline widens its ribbons exactly as far
+ * as it thinned them, and a larger head widens them with it.
  *
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Reuses one anatomical domain and shared generator across numerical identities.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-parametric-hair Connects numerical roots, fields, contact, strips and procedural finish to current face geometry.
@@ -122,7 +128,7 @@ export function createHumanFaceHairBuilder(input: IAutoMovieHumanFaceBasis) {
         throw new Error(
           "Numerical hair requires its declared resident surface and growth domain.",
         );
-      const roots = domain.sample(layer);
+      const { roots, area } = domain.sample(layer);
       if (roots.length === 0) continue;
       let query = queries.get(layer.surface);
       if (query === undefined) {
@@ -283,7 +289,16 @@ export function createHumanFaceHairBuilder(input: IAutoMovieHumanFaceBasis) {
         material: material.id,
         attachedBone: null,
         transform: null,
-        geometry: { type: "mesh", mesh: buildHumanFaceHairMesh(curves, layer) },
+        geometry: {
+          type: "mesh",
+          mesh: buildHumanFaceHairMesh(curves, layer, {
+            widths: humanFaceHairDensity({
+              roots: seats.map((seat) => seat.seated),
+              area,
+            }),
+            query,
+          }),
+        },
       });
     }
     return { parts, materials };

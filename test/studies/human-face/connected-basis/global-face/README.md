@@ -151,6 +151,8 @@ Every published document was built through the actual connected runtime and rend
 
 **States.** Nineteen documents (the eighteen plus the bald neutral) across fourteen states, 266 entries. `tongue-closed` is refused by name on all nineteen, as the passage rule requires. Rest, both gazes, lateral gaze and blink cross the teeth on none of them but one, whose lining touches its own gums at rest as the source authored it. The lining crosses more as the jaw opens (101 triangles at half opening, 138 at full, 469 with the lips closed, medians), which is the vestibular lining below the modelled gum's open base where no collider exists; that is a data follow-up, stated rather than hidden. Lip against teeth stays at zero except under laterotrusion, where the arches slide as the census records.
 
+**After the derived width.** The run above predates the density-derived ribbon width. Three subjects were rebuilt and re-rendered after it: the ribbons are 8.1 mm wide where 4 mm was authored, the hair lies 2.0 mm above the scalp instead of 4.0 mm, and no ribbon vertex lies deeper than a micrometre inside the skin. The crossing census is unaffected by hair; a full eighteen-subject re-render is a housekeeping follow-up, not a pending question.
+
 **Known findings.** One subject's front view shows a rectangular region where the hair in front of the face is not drawn; the same model's largest hair triangle is 145 mm² and its skin-only render is clean, so it is a capture-viewer artifact of alpha-tested double-sided ribbons rather than generated geometry. The renders are review evidence, not an anatomical or likeness acceptance.
 
 ## Research continuity

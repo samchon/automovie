@@ -50,9 +50,7 @@ export const test_subject_human_numerical_hair_guided = (): void => {
   let inside = 0;
   for (let at = 0; at < hair.mesh.positions.length / 3; at++) {
     if (hair.mesh.uvs![2 * at + 1] === 0) continue;
-    if (
-      query(hair.mesh.positions.slice(3 * at, 3 * at + 3)).signedDistance < 0
-    )
+    if (query(hair.mesh.positions.slice(3 * at, 3 * at + 3)).signedDistance < 0)
       inside++;
   }
   TestValidator.equals("strands stay outside the head", inside, 0);

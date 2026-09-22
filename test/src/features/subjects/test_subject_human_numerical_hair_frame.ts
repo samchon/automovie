@@ -1,7 +1,8 @@
-import { Vector3 } from "@automovie/engine";
+import { Vector3, createAutoMovieSignedMeshQuery } from "@automovie/engine";
 import { buildHumanFaceHairMesh } from "@automovie/human/face/anatomy/hair/buildHumanFaceHairMesh";
 import { TestValidator } from "@nestia/e2e";
 
+import { createSignedVoxelUnion } from "../internal/createSignedMeshFixture";
 import { nclose, vclose } from "../internal/predicates";
 
 /**
@@ -16,8 +17,18 @@ import { nclose, vclose } from "../internal/predicates";
  * 2. Cyclic coordinate rotations preserve that geometric result, including
  *    directions for which a least-aligned world-axis root frame happens to work.
  * 3. The root and every station centre remain exactly on the input polyline.
+ *
+ * The transported frame is the subject here, so the surface stands ten metres
+ * away and never narrows a ribbon against itself.
  */
 export const test_subject_human_numerical_hair_frame = (): void => {
+  const union = createSignedVoxelUnion([[0, 0, 0]]);
+  const distant = createAutoMovieSignedMeshQuery({
+    ...union,
+    positions: union.positions.map((value, at) =>
+      at % 3 === 0 ? value + 10 : value,
+    ),
+  });
   const original = [
     Vector3.create(0, 0, 0),
     Vector3.create(0, 0, 0.004),
@@ -38,7 +49,8 @@ export const test_subject_human_numerical_hair_frame = (): void => {
     const across = rotate(Vector3.create(1, 0, 0));
     const mesh = buildHumanFaceHairMesh(
       [{ points, normal, length: 0.006, clearance: 0.003 }],
-      { width: 0.002, taper: { tipWidth: 1, start: 0 } },
+      { clearance: 0, taper: { tipWidth: 1, start: 0 } },
+      { widths: [0.002], query: distant },
     );
     const point = (id: number) =>
       Vector3.create(

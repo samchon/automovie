@@ -21,13 +21,15 @@ const requireDirection = humanFaceHairFrame.direction;
  * It owns every point and includes emergence distance in the authored length.
  *
  * Distance to a closed set is 1-Lipschitz. Free stations use clearance
- * width/2 + step/2 + requested clearance, so their connecting segments retain
- * width/2 clearance for every strip point. A scale-derived arithmetic allowance
+ * step/2 + requested clearance, so their connecting segments retain the
+ * requested clearance along their whole length, which is the fibre path's own
+ * guarantee; the ribbon meshed on it is wider than that path and
+ * `buildHumanFaceHairMesh` keeps its corners outside. A scale-derived allowance
  * is added before contact iteration. Contact admission consumes one allowance;
  * chord admission and terminal truncation can each consume half an allowance
  * under the nearest-endpoint distance bound. This avoids bisecting a free step
  * solely because coordinate subtraction rounded its length above the nominal
- * step. The root fan is a separate boundary transition; this free-strip
+ * step. The root fan is a separate boundary transition; this free-path
  * argument does not prove root-fan or hair-to-hair nonintersection.
  *
  * Contact projects outside, then step bisection limits chord length. The last
@@ -73,7 +75,7 @@ export function integrateHumanFaceHairCurve(props: {
   let cumulative = Vector3.length(Vector3.subtract(launch, props.root));
   if (!Number.isFinite(length) || cumulative >= length)
     throw new Error(
-      "Hair length cannot accommodate emergence and full strip width.",
+      "Hair length cannot accommodate its emergence clearance.",
     );
   let p = launch;
   for (

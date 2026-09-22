@@ -21,7 +21,6 @@ export const createNumericalHairFixture = (): IAutoMovieHumanFaceHair => ({
       },
       lengthAxes: [0.05, 0.05, 0.05, 0.05, 0.05, 0.05],
       lengthVariation: 0,
-      width: 0.001,
       samplingStep: 0.002,
       clearance: 0.001,
       flow: [0, -1, -0.3],

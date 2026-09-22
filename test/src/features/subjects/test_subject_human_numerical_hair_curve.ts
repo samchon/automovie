@@ -13,7 +13,8 @@ import { nclose, throwsError, vclose } from "../internal/predicates";
  * 1. A lock normal to a unit cube stays straight, rooted and exactly 50 mm long;
  *    averaged mesh rows reproduce its centreline and UV v measures that length.
  * 2. Short emergence and a singular length chart refuse instead of shortening.
- * 3. Empty curves remain empty; antiparallel transport and subnormal width refuse.
+ * 3. Empty curves remain empty; antiparallel transport, a subnormal width and
+ *    a missing per-curve width refuse.
  */
 export const test_subject_human_numerical_hair_curve = (): void => {
   const layer = createNumericalHairFixture().layers[0];
@@ -52,7 +53,10 @@ export const test_subject_human_numerical_hair_curve = (): void => {
       1e-12,
     ),
   );
-  const mesh = buildHumanFaceHairMesh([curve], layer);
+  const mesh = buildHumanFaceHairMesh([curve], layer, {
+    widths: [0.002],
+    query: props.query,
+  });
   TestValidator.equals(
     "single fan then paired rows",
     mesh.positions.length / 3,
@@ -96,7 +100,8 @@ export const test_subject_human_numerical_hair_curve = (): void => {
   );
   TestValidator.equals(
     "empty mesh",
-    buildHumanFaceHairMesh([], layer).positions,
+    buildHumanFaceHairMesh([], layer, { widths: [], query: props.query })
+      .positions,
     [],
   );
   TestValidator.predicate(
@@ -115,13 +120,26 @@ export const test_subject_human_numerical_hair_curve = (): void => {
           },
         ],
         layer,
+        { widths: [0.002], query: props.query },
       ),
     ),
   );
   TestValidator.predicate(
     "unrepresentable ribbon width refuses",
     throwsError(() =>
-      buildHumanFaceHairMesh([curve], { ...layer, width: Number.MIN_VALUE }),
+      buildHumanFaceHairMesh([curve], layer, {
+        widths: [Number.MIN_VALUE],
+        query: props.query,
+      }),
+    ),
+  );
+  TestValidator.predicate(
+    "a ribbon without its own width refuses",
+    throwsError(() =>
+      buildHumanFaceHairMesh([curve], layer, {
+        widths: [],
+        query: props.query,
+      }),
     ),
   );
 };
