@@ -16,9 +16,10 @@ import { nclose, throwsError } from "../internal/predicates";
  *    absent and underflowing envelopes are respectively one and zero.
  * 2. Rejection matches the independent base-13 probability inequality on an
  *    analytic octahedron, retaining seats and the prefix when count increases.
- * 3. An unmasked population reports its whole growth domain as the area it
- *    grows on, and the localized one reports the smaller share its rejection
- *    left, which is what a small population reads its density from.
+ * 3. An unmasked population reports the whole growth domain as the share of it
+ *    the population grows on, and the localized one reports the smaller share
+ *    its rejection left, which is what a small population reads its density
+ *    from once the caller takes it on the current shape.
  * 4. Translation of both mesh/chart and region preserves weights and identities.
  * 5. Finite regions admit without mutation; nonfinite centres, nonpositive or
  *    infinite spreads refuse even when the population count is zero.
@@ -95,15 +96,15 @@ export const test_subject_human_numerical_hair_regions = (): void => {
   }, 0);
   TestValidator.predicate(
     "an unrejected population grows on its whole domain",
-    nclose(unmasked.area, area),
+    nclose(unmasked.share * area, area),
   );
   layer.rootRegion = envelope;
   const population = sample({ ...layer, count: 64 });
   const roots = population.roots;
   TestValidator.equals("probability and unchanged seats", roots, expected);
   TestValidator.predicate(
-    "rejection reports the smaller area it left",
-    population.area > 0 && population.area < area / 2,
+    "rejection reports the smaller share it left",
+    population.share > 0 && population.share * area < area / 2,
   );
   TestValidator.equals(
     "local prefix",
