@@ -51,6 +51,7 @@ export const test_subject_connected_hair_fields = (): void => {
   for (const key of ["tipWidth", "start"]) add(`taper-${key}`, ["taper", key]);
   for (const key of ["roughness", "fibres", "coverage", "normal", "shade"])
     add(`finish-${key}`, ["finish", key]);
+  add("finish-grey", ["finish", "grey"]);
   for (const key of ["offset", "transitionWidth", "reach"])
     add(`part-${key}`, ["part", key], 1000);
   add("part-strength", ["part", "strength"]);

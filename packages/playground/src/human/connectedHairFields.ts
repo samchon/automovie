@@ -155,6 +155,16 @@ export function connectedHairFields(layer: Layer): Field[] {
         x.finish[key] = value;
       },
     );
+  // Greying is optional in the document and zero means the same as absent, so
+  // the control is always here and an untouched layer keeps its own absence.
+  add(
+    "finish-grey",
+    "Unpigmented fibre proportion",
+    (x) => x.finish.grey ?? 0,
+    (x, value) => {
+      x.finish.grey = value;
+    },
+  );
   if (layer.guides !== undefined) {
     add(
       "guides-fraction",
