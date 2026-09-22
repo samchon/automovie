@@ -16,6 +16,8 @@ import { numberOf, numberParameter } from "./parameterValues";
  * The catalogue's articulated figure: one height-driven primitive rig.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-connected-basis This primitive figure catalogue does not provide the connected anatomical face prior or its independent editing document.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-basis Primitive rig construction does not compile sparse facial endpoints or separate connected facial material regions; the human authoring builder owns that operation.
+ * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-articulation This primitive figure catalogue carries no facial joints, landmarks or attachment weights.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-articulation Primitive rig construction evaluates no facial rest layer, landmark articulation or sparse attachment posing.
  *
  * @evidenceExclude requirements/actors/body-authoring/README.md#body-requirements The stickman catalogue constructs a primitive skeleton and body; it does not provide the connected body basis, its joints, measurements or documents.
  * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-connected-basis This primitive figure catalogue does not compile a licensed connected body prior or its identity layer.

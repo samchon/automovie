@@ -10,7 +10,7 @@ import { throwsError } from "../internal/predicates";
  * Scenarios:
  * 1. A wholly retained surface preserves its data and region-local triangle ordinals.
  * 2. A plane touching only an edge or corner emits no degenerate triangle.
- * 3. A discarded component loses its rigid group; clipped membership stays complete.
+ * 3. A discarded component loses its attachment; a clipped edge blends its weights.
  * 4. Nonfinite planes and unrepresentable edge fractions refuse; recovery works.
  * 5. An admitted repeated-corner triangle that is discarded cannot retain an attachment mapping.
  * 6. Shared hair domains/closure refuse a new cut instead of retaining stale correspondence.
@@ -67,14 +67,20 @@ export const test_subject_human_basis_clip_boundary = (): void => {
     indices: [4, 5, 6],
     uvs: null,
   });
-  source.rigidGroups = [
-    { id: "kept", vertices: [0, 1, 2, 3], motion: "fit" },
-    { id: "removed", vertices: [4, 5, 6], motion: "fixed" },
+  source.attachments = [
+    { owner: "jaw", rows: [0, 1, 1, 1, 2, 0.5, 3, 1] },
+    { owner: "leftEye", rows: [4, 1, 5, 1, 6, 1] },
   ];
   const result = clipHumanFaceBasisSurface(source, 0.5);
-  TestValidator.equals("complete surviving group", result.surface.rigidGroups, [
-    { id: "kept", vertices: [0, 1, 2, 3, 4], motion: "fit" },
-  ]);
+  // Clipped vertices are numbered as met: the (0,2) and (1,2) edge points,
+  // vertex 2, the (0,3) edge point and vertex 3; each edge point blends the
+  // weights of its ends at the neutral intersection, and an attachment that
+  // survives on no vertex is omitted rather than published empty.
+  TestValidator.equals(
+    "surviving attachment keeps rows and blends the clipped edges",
+    result.surface.attachments,
+    [{ owner: "jaw", rows: [0, 0.75, 1, 0.75, 2, 0.5, 3, 1, 4, 1] }],
+  );
   TestValidator.equals(
     "discarded seats are absent",
     result.retainedTriangles.get("below")!.size,

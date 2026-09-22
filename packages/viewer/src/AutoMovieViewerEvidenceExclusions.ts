@@ -9,6 +9,8 @@
  * Positive implementation citations remain on the actual public exports.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-connected-basis The viewer displays evaluated geometry and does not interpret reusable facial bases or compact editing documents.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-basis GPU display consumes completed mesh parts; sparse endpoint evaluation and normals before material separation happen in the human builder.
+ * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-articulation The viewer displays posed geometry and does not evaluate facial joints, landmarks or attachment weights.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-articulation GPU display consumes completed mesh parts; landmark articulation and attachment posing happen before it.
  * An exclusion neither implements a feature nor approves a rendered asset.
  * Add a boundary at its semantic owner and retain native graph validation.
  *

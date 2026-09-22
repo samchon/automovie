@@ -143,13 +143,21 @@ export function clipHumanFaceBasisSurface(
     regions,
     targets,
   };
-  if (source.rigidGroups !== undefined)
-    surface.rigidGroups = source.rigidGroups.flatMap((group) => {
-      const members = new Set(group.vertices);
-      const vertices = stencils.flatMap(({ a }, i) =>
-        members.has(a) ? [i] : [],
-      );
-      return vertices.length === 0 ? [] : [{ ...group, vertices }];
+  // An attachment weight travels like a position: a retained vertex keeps its
+  // row, a ring vertex takes the affine blend of its edge ends, and a row that
+  // blends to nothing is omitted rather than published as a zero weight.
+  if (source.attachments !== undefined)
+    surface.attachments = source.attachments.flatMap((attachment) => {
+      const weights = new Map<number, number>();
+      for (let i = 0; i < attachment.rows.length; i += 2)
+        weights.set(attachment.rows[i], attachment.rows[i + 1]);
+      const rows: number[] = [];
+      stencils.forEach(({ a, b, t }, index) => {
+        const weight =
+          (1 - t) * (weights.get(a) ?? 0) + t * (weights.get(b) ?? 0);
+        if (weight > 0) rows.push(index, weight);
+      });
+      return rows.length === 0 ? [] : [{ owner: attachment.owner, rows }];
     });
   return { surface, retainedTriangles };
 }
