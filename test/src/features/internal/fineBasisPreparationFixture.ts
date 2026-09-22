@@ -40,9 +40,6 @@ export function fineBasisPreparationFixture(): Parameters<
     basis,
     source: structuredClone(basis),
     entries,
-    components: {
-      attachment: [{ id: "fixed", vertices: [0, 1, 2], motion: "fixed" }],
-    },
     native: {
       surfaces: basis.surfaces.map((one, index) => {
         const bytes = Buffer.alloc(one.positions.length * 8);

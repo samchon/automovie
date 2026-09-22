@@ -2,7 +2,7 @@
  * Pure preparation of a shared fine facial basis and its dependent bindings.
  * prepare-fine-basis.ts supplies historical/curated data and writes the result.
  * This owner clones all inputs, checks native neutral correspondence, adds
- * named endpoints, applies frozen rigid membership, clips the selected surface
+ * named endpoints, clips the selected surface
  * on a neutral metre Y plane, then
  * remaps region-local groom seats before admitting documents and endpoints.
  * A refusal leaves caller data intact. No per-person weight is fitted here.
@@ -46,10 +46,6 @@ export function prepareFineBasisArtifacts(input: {
   source: IAutoMovieHumanFaceBasis;
   entries: FineBasisEntry[];
   native: FineBasisNative;
-  components: Record<
-    string,
-    NonNullable<IAutoMovieHumanFaceBasis["surfaces"][number]["rigidGroups"]>
-  >;
   grooms: Record<string, IAutoMovieHumanFaceGroom>;
   documents: (Omit<IAutoMovieHumanFaceBasisDocument, "hair"> & {
     hair?: string | null;
@@ -64,7 +60,6 @@ export function prepareFineBasisArtifacts(input: {
     source,
     entries,
     native,
-    components,
     grooms,
     documents,
     controls,
@@ -107,12 +102,6 @@ export function prepareFineBasisArtifacts(input: {
       }
   }
 
-  for (const [id, groups] of Object.entries(components)) {
-    const surface = basis.surfaces.find((one) => one.id === id);
-    if (surface === undefined)
-      throw new Error(`Rigid component surface is absent: ${id}`);
-    surface.rigidGroups = groups;
-  }
   const skin = basis.surfaces.find((one) => one.id === cutSurface)!;
   const full = source.surfaces.find((one) => one.id === skin.id)!;
   if (JSON.stringify(full.positions) !== JSON.stringify(skin.positions))
@@ -204,10 +193,6 @@ export function prepareFineBasisArtifacts(input: {
       addedShapeChannels: entries.length,
       admittedAddedEndpoints: endpoints,
       admittedDocuments: documents.length,
-      rigidComponents: Object.values(components).reduce(
-        (sum, groups) => sum + groups.length,
-        0,
-      ),
     },
   };
 }

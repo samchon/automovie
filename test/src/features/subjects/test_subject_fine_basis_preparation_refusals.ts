@@ -12,15 +12,11 @@ import { throwsError } from "../internal/predicates";
  * 2. An absent source triangle or a groom seated across the cut refuses.
  * 3. Stale groom/document bindings and absent pigment surfaces refuse independently.
  * 4. A missing native endpoint refuses through ordinary basis admission; valid recovery works.
- * 5. Rigid membership cannot name an absent surface.
- * 6. A discarded repeated-corner triangle cannot alias a later groom seat; a valid seat still prepares.
+ * 5. A discarded repeated-corner triangle cannot alias a later groom seat; a valid seat still prepares.
  */
 export const test_subject_fine_basis_preparation_refusals = (): void => {
   type Input = ReturnType<typeof fineBasisPreparationFixture>;
   const mutations: ((input: Input) => void)[] = [
-    (input) => {
-      input.components.absent = input.components.attachment;
-    },
     (input) => {
       input.native.surfaces[0].neutralFloat64LESha256 = "wrong";
     },

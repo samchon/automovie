@@ -1,10 +1,11 @@
 import { validateMeshTopology } from "@automovie/engine";
 
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
-import { assertHumanFaceRigidGroups } from "./assertHumanFaceRigidGroups";
+import { assertHumanFaceArticulation } from "./assertHumanFaceArticulation";
 
 /**
- * Admit immutable connectivity, endpoint correspondence and triangle partitions.
+ * Admit immutable connectivity, endpoint correspondence and triangle partitions,
+ * then the landmarks, articulation and attachments that ride on them.
  * Called once by the basis builder after schema admission and ownership cloning.
  * This rejects broken data before an edit can allocate a partially formed model.
  * A valid topological surface may still self-intersect; this is not collision
@@ -141,7 +142,6 @@ export function assertHumanFaceBasis(basis: IAutoMovieHumanFaceBasis): void {
       throw new Error(
         "Facial neutral buffers need finite XYZ and resident triangles.",
       );
-    assertHumanFaceRigidGroups(surface);
     const mesh = {
       positions: surface.positions,
       indices: surface.indices,
@@ -209,8 +209,35 @@ export function assertHumanFaceBasis(basis: IAutoMovieHumanFaceBasis): void {
     if (triangles.size !== 0)
       throw new Error("Facial regions cannot omit resident triangles.");
   }
-  if ([...endpoints].some((name) => !residentEndpoints.has(name)))
+  // An endpoint whose whole effect is a joint motion has no residual row to
+  // publish: the articulation is what it moves. Every other endpoint must
+  // reach a surface, or a channel would evaluate to a silent no-op.
+  const jaw = basis.articulation?.jaw;
+  const articulated = new Set(
+    jaw === undefined
+      ? []
+      : [
+          jaw.opening.channel,
+          jaw.protrusion.channel,
+          jaw.laterotrusion.left.channel,
+          jaw.laterotrusion.right.channel,
+          ...basis.articulation!.eyes.flatMap((eye) =>
+            eye.gaze.map((gaze) => gaze.channel),
+          ),
+        ],
+  );
+  const drivenEndpoints = new Set(
+    basis.channels
+      .filter((channel) => articulated.has(channel.id))
+      .map((channel) => channel.positive),
+  );
+  if (
+    [...endpoints].some(
+      (name) => !residentEndpoints.has(name) && !drivenEndpoints.has(name),
+    )
+  )
     throw new Error(
-      "Every declared facial endpoint must move at least one resident surface.",
+      "Every declared facial endpoint must move at least one resident surface or drive a joint.",
     );
+  assertHumanFaceArticulation(basis, endpoints);
 }
