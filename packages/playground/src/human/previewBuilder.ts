@@ -8,6 +8,8 @@ type Artifact = {
   parts: number;
   /** Absent when the port does not measure, null when this request did not ask. */
   crossings?: IAutoMovieModelCrossing[] | null;
+  /** Facts the worker describes beside the bytes; absent when it describes none. */
+  extras?: Record<string, unknown>;
 };
 type Reply = ({ success: true } & Artifact) | { success: false; error: string };
 type WorkerPort = {

@@ -8,6 +8,9 @@ const sharedSources = [
   "src/subjects/**/*.ts",
   ...subjects.map((subject) => `!src/subjects/${subject}/**/*.ts`),
 ];
+// The body folder of the human package is inspected by the body study review;
+// the face reviews keep the residual population, so a new human source file
+// owes an inspection somewhere by default.
 // Domain review carriers remain attached to the root construction record.
 // Match their explicit suffix, so a future preview.ts is still source to review.
 const studyReviews = [
@@ -171,7 +174,7 @@ const graph: ITtscEvidenceGraphConfig = {
         {
           type: "typescript",
           package: "@automovie/human",
-          files: ["src/**/*.ts", "!src/**/index.ts"],
+          files: ["src/**/*.ts", "!src/body/**/*.ts", "!src/**/index.ts"],
           symbol: ["type", "function", "property"],
           noEvidenceExclude: true,
           requireReview: true,
@@ -197,6 +200,60 @@ const graph: ITtscEvidenceGraphConfig = {
         requireReview: true,
         noEvidenceExclude: true,
       },
+    },
+    {
+      name: "portable body construction source is inspected",
+      type: "typescript",
+      files: ["studies/human-body/review.ts"],
+      symbol: "property",
+      reference: {
+        type: "typescript",
+        package: "@automovie/human",
+        files: ["src/body/**/*.ts", "!src/**/index.ts"],
+        symbol: ["type", "function", "property"],
+        noEvidenceExclude: true,
+        requireReview: true,
+      },
+    },
+    {
+      name: "portable body studies retain the provenance and review contract",
+      type: "typescript",
+      files: ["studies/human-body/**/*.ts"],
+      symbol: ["type", "function", "property"],
+      reference: [
+        {
+          type: "markdown",
+          root: "../docs",
+          files: ["requirements/actors/body-authoring/**/README.md"],
+          symbol: "h1",
+        },
+        {
+          type: "markdown",
+          root: "../docs",
+          files: [
+            "requirements/actors/body-authoring/**/*.md",
+            "!requirements/actors/body-authoring/**/README.md",
+          ],
+          symbol: "h3",
+        },
+        {
+          type: "markdown",
+          root: "../docs",
+          files: [
+            "specifications/asset-and-representation/body-authoring/**/README.md",
+          ],
+          symbol: "h1",
+        },
+        {
+          type: "markdown",
+          root: "../docs",
+          files: [
+            "specifications/asset-and-representation/body-authoring/**/*.md",
+            "!specifications/asset-and-representation/body-authoring/**/README.md",
+          ],
+          symbol: "h3",
+        },
+      ],
     },
     {
       name: "portable face studies retain the provenance and review contract",

@@ -1,0 +1,103 @@
+import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
+import type { IAutoMovieHumanBodyBasisDocument } from "../structures/IAutoMovieHumanBodyBasisDocument";
+import { assertSparseRows } from "./assertSparseRows";
+
+/**
+ * The control state one document asks of one admitted basis.
+ *
+ * This is the boundary between a document and the geometry: channel weights
+ * checked against their envelopes, corrective activations computed from those
+ * weights, and identity rows checked against the surfaces they name. It reads
+ * both inputs and mutates neither; the builder applies the result and the
+ * measuring code uses the same function so a channel measured at +1 is
+ * exactly the channel the builder would evaluate at +1.
+ *
+ * The activation is the product form of `createHumanFaceBasisBuilder`:
+ * `min(1, weight * product of clamped driver sides)`, zero unless every driver
+ * is present. A channel driver contributes the ramp
+ * `clamp((side * weight - onset) / (full - onset), 0, 1)`, which with its
+ * defaults `onset = 0`, `full = 1` is the face builder's clamped side. A sum here would fire a corrective on one driver alone, which is
+ * the pose it was authored to leave untouched. A joint driver contributes the
+ * ramp `clamp((side * (clinical - neutral) - onset) / (full - onset), 0, 1)`
+ * read from the document's clinical pose, an absent or `null` angle standing
+ * for the rest; the pose itself is validated later by the builder, so this
+ * reads angles without judging them.
+ *
+ * @evidence requirements/actors/body-authoring/contract.md#actor-body-connected-basis Refuses unsupported channels, out-of-envelope weights and identity rows on surfaces the basis lacks instead of clamping them.
+ * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-basis Computes the `|weight| x endpoint` selection and the product corrective activation the evaluation order applies.
+ */
+export function humanBodyBasisWeights(
+  basis: IAutoMovieHumanBodyBasis,
+  document: Pick<
+    IAutoMovieHumanBodyBasisDocument,
+    "shape" | "identity" | "pose"
+  >,
+): {
+  weights: Map<string, number>;
+  activations: { target: string; activation: number }[];
+} {
+  const channels = new Map(
+    basis.channels.map((channel) => [channel.id, channel]),
+  );
+  const weights = new Map<string, number>();
+  for (const [name, weight] of Object.entries(document.shape)) {
+    const channel = channels.get(name);
+    if (
+      channel === undefined ||
+      !Number.isFinite(weight) ||
+      weight < channel.minimum ||
+      weight > channel.maximum
+    )
+      throw new Error("Unsupported or out-of-domain body control: " + name);
+    weights.set(name, weight);
+  }
+  // A per-vertex identity names surfaces and vertices of this basis. A row
+  // that names neither is a document written against something else, and
+  // silently skipping it would build a body that is not the one asked for.
+  for (const [id, rows] of Object.entries(document.identity ?? {})) {
+    const surface = basis.surfaces.find((one) => one.id === id);
+    if (surface === undefined)
+      throw new Error(
+        "Per-vertex identity names a surface this basis does not declare: " +
+          id,
+      );
+    assertSparseRows(rows, surface.positions.length / 3, "identity " + id);
+  }
+  const neutral = new Map(
+    basis.joints.map((joint) => [joint.bone, joint.neutral]),
+  );
+  const angles = new Map(
+    (document.pose ?? []).map((joint) => [joint.bone, joint]),
+  );
+  const activations = (basis.correctives ?? []).map((corrective) => ({
+    target: corrective.target,
+    activation: Math.min(
+      1,
+      corrective.inputs.reduce((total, input) => {
+        const sign = input.side === "negative" ? -1 : 1;
+        if ("bone" in input) {
+          const angle = angles.get(input.bone)?.[input.axis] ?? null;
+          const rest = neutral.get(input.bone)?.[input.axis] ?? 0;
+          const travel = sign * ((angle ?? rest) - rest);
+          return (
+            total *
+            Math.min(
+              1,
+              Math.max(0, (travel - input.onset) / (input.full - input.onset)),
+            )
+          );
+        }
+        const weight = weights.get(input.channel) ?? 0;
+        const onset = input.onset ?? 0;
+        return (
+          total *
+          Math.min(
+            1,
+            Math.max(0, (sign * weight - onset) / ((input.full ?? 1) - onset)),
+          )
+        );
+      }, corrective.weight),
+    ),
+  }));
+  return { weights, activations };
+}

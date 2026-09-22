@@ -13,6 +13,23 @@
  * An exclusion neither implements a feature nor approves a rendered asset.
  * Add a boundary at its semantic owner and retain native graph validation.
  *
+ * @evidenceExclude requirements/actors/body-authoring/README.md#body-requirements The engine supplies forward kinematics, range validation and mesh checks the human body builder calls; it does not own the connected body basis, its documents or its measurements.
+ * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-connected-basis The engine validates the evaluated resident model and topology; compiling sparse body endpoints, correctives and identity belongs to the human package.
+ * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-joints The engine resolves clinical poses and range violations on any skeleton; deriving joints from shape-following landmarks and skinning a basis surface belongs to the human body builder.
+ * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-measurements Girth, distance and height rules over a body basis belong to the human package; the engine offers no anthropometric measurement.
+ * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-document The engine reads models and poses, not compact body edit documents.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/README.md#body-specifications The engine implements the generic pose and validation contracts the body specification builds on, not the body basis, measurement or document boundaries themselves.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-basis The engine validates the evaluated resident model and topology; compiling sparse body endpoints, correctives and identity belongs to the human package.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-joints The engine resolves clinical poses and range violations on any skeleton; deriving joints from shape-following landmarks and skinning a basis surface belongs to the human body builder.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-measurements Girth, distance and height rules over a body basis belong to the human package; the engine offers no anthropometric measurement.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-document The engine reads models and poses, not compact body edit documents.
+ * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-editor The engine hosts no body editing screen; the playground page does.
+ * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-export The engine does not serialize a built body; the human package's exporter does.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view The engine owns no body editor inputs or display state.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor The engine owns no body editor transaction or worker boundary.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-export The engine does not write a built body to glTF through the human package.
+ * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-simple-shape The engine does not expand simple body parameters; the human package's expansion does.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-simple-shape The engine evaluates no simple-tier table or measured inversion.
  * @evidenceExclude requirements/actors/facial-authoring/README.md#face-requirements The engine consumes authored meshes and generic face rigs; its deterministic playback boundary does not implement detailed facial authoring across document, editor and study review.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-document The engine consumes authored meshes and generic face rigs; its deterministic playback boundary does not implement the standalone human-face recipe, basis and version interpreter.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components The engine consumes authored meshes and generic face rigs; its deterministic playback boundary does not implement named craniofacial components, cavities and attached tissues.
