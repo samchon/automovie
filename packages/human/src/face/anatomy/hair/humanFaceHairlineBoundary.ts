@@ -8,8 +8,8 @@ import type { IAutoMovieHumanFaceHair } from "../../structures/IAutoMovieHumanFa
  * back, left, right) blended by the squared horizontal components of the
  * direction, so the boundary is smooth all around the head. On the polar
  * axis, where azimuth is undefined, it is the smallest of the four. Root
- * sampling accepts a root whose polar angle is inside this boundary, and the
- * scalp coverage ramps up across it, so both read one hairline.
+ * sampling and the scalp's own coverage both read it, so a document states
+ * one hairline.
  *
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Reads one shared hairline rule from four scalar angles for every identity.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-parametric-hair Blends the front, back, left and right hairline angles by the squared horizontal chart components.
