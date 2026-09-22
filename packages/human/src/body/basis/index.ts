@@ -4,5 +4,6 @@ export * from "./assertSparseRows";
 export * from "./createHumanBodyBasisBuilder";
 export * from "./evaluateHumanBodyShape";
 export * from "./humanBodyBasisWeights";
+export * from "./resolveHumanBodyCouplings";
 export * from "./resolveHumanBodySkeleton";
 export * from "./skinHumanBodySurface";

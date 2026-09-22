@@ -298,7 +298,10 @@ export interface IAutoMovieHumanBodyBasis {
 
     /**
      * Four influences per shared vertex, glTF style: `boneIndices[4v..4v+3]`
-     * index `joints` and `weights[4v..4v+3]` sum to one. A vertex bound to one
+     * index `joints` and `weights[4v..4v+3]` sum to one. The weights blend the
+     * bones' `posed ∘ rest⁻¹` transforms as unit dual quaternions, so a shared
+     * vertex follows one rigid screw motion between its bones and keeps its
+     * distance from the joint at a fold or a twist, and a vertex bound to one
      * bone with weight one moves rigidly with it, which is the property the
      * rigid-segment check measures.
      */

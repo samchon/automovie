@@ -32,8 +32,8 @@ import { skinHumanBodySurface } from "./skinHumanBodySurface";
  * couplings added (`resolveHumanBodyCouplings`, called inside
  * `humanBodyBasisWeights` so the corrective ramps read the same coupled
  * angles), validated against each joint's clinical range and resolved by the
- * engine's forward kinematics with the basis's measured signs, then linear
- * blend skinning (`skinHumanBodySurface`), then common normals and material
+ * engine's forward kinematics with the basis's measured signs, then dual
+ * quaternion skinning (`skinHumanBodySurface`), then common normals and material
  * regions. The couplings are added before validation so a girdle angle the
  * document wrote plus the rhythm an elevated arm adds is refused past the
  * girdle's range rather than clamped, and the document keeps only what the
