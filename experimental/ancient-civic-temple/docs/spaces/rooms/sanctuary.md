@@ -3,6 +3,20 @@
 ## 제단을 향한 방 {#sanctuary-volume}
 
 <!--
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 직접 문·박공 내부·감실·등잔·제단 접근을 모두 한 제실의 관찰 대상으로 남긴다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 제단 뒤 0.7m 이상과 앞 1.5m 이상을 예약하고 문 스윙과 겹치지 않게 했다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 경계와 roof 상한은 공유 owner에서 받고 제단 폭은 설정 원래 크기를 유지한다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 봉헌실·마당으로 새 통과 문을 내지 않으며 평천장으로 박공 내부를 숨기지 않는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 채광 void는 openings가 소유하고 집기 mesh·석단은 fit-out이 맡아 방이 이를 재저작하지 않는다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 문턱은 제단 위계, 단면은 깊이/박공, 모서리는 누광/누락을 묻게 구분했다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 후면 제실 약속에 북쪽 제단 축과 앞뒤 활동 깊이, 중정으로 열린 시선을 더했다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 감실/용기와 원래 제단 크기로 접근을 예약하며 인체 신상이나 축소 제단이 필요하다고 결론내리지 않았다.
+@evidenceReview settings/30-interiors.md#sanctuary #f53612f 후면 무문양 감실과 열린 문에서 수반을 보는 축이 중심 위계를 유지한다.
+@evidenceReview settings/35-objects.md#altar #53d6be8 제단 크기 예산을 줄이지 않은 채 앞뒤 여백을 배정한 본문을 확인했다.
+@evidenceReview settings/35-objects.md#lampstands #5522e15 좌우 등잔은 중심 위계의 자리만 정하고 형상은 후속 집기 소유에 남긴다.
+-->
+
+<!--
 @evidence principles/core/common.md#scope-preservation 후면 축 제실의 직접 문·박공 내부·제단 접근·감실·등잔과 중정으로의 시선을 한 방에 배정한다.
 @evidence principles/core/common.md#substantive-completion 제단을 북쪽 축에 놓고 뒤 0.7m 이상·앞 1.5m 이상 활동 깊이와 문 스윙 비중첩을 예약한다.
 @evidence principles/core/common.md#declared-basis 방 범위는 기준선, 위 경계는 제실 roof, 제단 크기와 역할은 제실/제단 설정을 소비한다.

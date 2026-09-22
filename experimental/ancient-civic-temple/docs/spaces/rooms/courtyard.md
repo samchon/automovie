@@ -3,6 +3,20 @@
 ## 중앙의 열린 공간 {#court-volume}
 
 <!--
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 열린 하늘과 낮은 바닥, 원형 수반을 같이 보존하며 추가 나무·가림막·수조를 넣지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 논리 cap의 역할과 수반/물면/물줄기의 상대 높이가 정해져 열린 공간도 유한하게 주소화된다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 중심은 경계 중점이고 cap은 roof 기준을 소비한다. 수반 수치는 후속 소비 입력이라고 구별했다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 네 변이 같은 주랑에 열려 있으며 상한으로 물리 천장이나 새 층을 만들 수 없다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 논리 bounds를 렌더 clipping에 쓰지 않고 수반 prototype도 중정 파일에 복제하지 않는다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 남쪽 threshold와 수반 둘레를 보며 원 밖 물판·높은 잔형을 별도 실패로 지정했다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 분수 정체성에 실제 중정 중심과 테두리 대비 물높이를 결속한 추가 공간 결정이 있다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 낮은 수반과 단일 물줄기는 새 수조실 없이 배치 가능하며 논리 cap으로 열린 하늘을 폐쇄하지 않았다.
+@evidenceReview settings/30-interiors.md#fountain #0bf9fe2 외경 2.0m의 수반을 산술 중심에서 움직여 다른 물체와 맞추지 않도록 고정했다.
+@evidenceReview settings/30-interiors.md#services #731a6e0 model/system 입력과 실제 수리시설 구현의 차이를 본문이 유지한다.
+@evidenceReview settings/20-envelope.md#stone-floors #784828d 주랑보다 낮은 바닥과 연속 석재 턱을 남겨 바닥 재료 요구를 평평한 한 판으로 축소하지 않는다.
+-->
+
+<!--
 @evidence principles/core/common.md#scope-preservation 중정의 열린 하늘·낮은 바닥·연속 석재 턱·중앙의 낮은 원형 수반과 한 물줄기를 함께 유지한다.
 @evidence principles/core/common.md#substantive-completion 유한 논리 상한의 의미와 수반 외경 2.0m·테두리 0.52m·수위/물줄기 높이의 소비 입력을 정한다.
 @evidence principles/core/common.md#declared-basis 중심은 경계 중점, 바닥은 층, 논리 상한은 공통 roof 기준을 소비하며 수반 수치는 model/system에 줄 설계 선택이다.

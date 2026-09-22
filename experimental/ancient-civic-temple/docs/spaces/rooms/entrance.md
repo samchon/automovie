@@ -3,6 +3,19 @@
 ## 정문과 포치의 깊이 {#entrance-volume}
 
 <!--
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 중앙 디딤뿐 아니라 양측 기둥 받침과 후퇴벽 문턱까지 현관 안에 남겼다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 둘째 디딤과 참의 같은 높이를 명시해 깊이 예산에서 불필요한 세 번째 챌면을 만들지 않는다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb Z 구간 표는 south-outer에서 두 디딤을 뺀 산술이며 별도 측량값으로 제시하지 않는다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 높이별 cell이 늘어도 entrance 하나이며 정문 축과 중정 사이에 새 방을 끼우지 않는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 안쪽 반환면과 바깥 정면, 포치 roof를 각각 다른 완결 표면의 기존 owner로 보낸다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 종단면과 문 양면 threshold에서 도로→디딤→참→주랑이 실제 이어지는지를 묻게 했다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 포치 약속에 두 단의 실제 수평 면과 같은 높이의 두 기둥 받침 위치를 추가했다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 기둥 예산과 단높이/디딤 제약을 후퇴부 안에서 함께 적용해 외곽 확장이 필요하지 않았다.
+@evidenceReview settings/20-envelope.md#entrance-porch #a164498 기둥 받침이 서로 다른 디딤 높이에 걸치지 않고 보·박공에 닿아야 한다는 조건이 있다.
+@evidenceReview settings/10-building.md#ground-access #be07d7d 경사 support로 계단을 덮지 않는 본문이 부모의 실제 석단 접근을 보존한다.
+-->
+
+<!--
 @evidence principles/core/common.md#scope-preservation 직사각 외곽 안에 후퇴 현관·두 석단·상부참·기둥 받침과 후퇴벽 문턱을 함께 수용한다.
 @evidence principles/core/common.md#substantive-completion 단높이 0.12m·디딤 0.35m·폭 1.8m, 참 깊이와 기둥 중심 및 구간별 cell 아래 경계를 결정한다.
 @evidence principles/core/common.md#declared-basis 현관 범위는 평면 기준선에서, 높이는 도로/층에서 받고 표의 Z 구간은 디딤 깊이에서 뺀 산술이라고 명시한다.

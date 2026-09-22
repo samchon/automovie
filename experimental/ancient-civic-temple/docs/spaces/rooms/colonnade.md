@@ -3,6 +3,19 @@
 ## 구멍 있는 하나의 주랑 공간 {#ring-volume}
 
 <!--
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 중정 구멍과 현관 notch를 빼고 모든 직접 문 앞을 잇는 고리 전체를 다룬다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 여섯 평면 영역과 roof에 따른 추가 볼록 분해를 구별해 고정 cell 수로 잘못 구현하지 않게 했다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb cells API의 표현 가능성과 아직 없는 production containment 결과를 구분했다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 한 레코드의 합집합이며 계산 접면은 벽이나 독립 복도가 아니라는 문장이 고리를 유지한다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 주랑 바닥/천장을 한 owner에 남기고 기둥 prototype의 표면은 models로 보낸다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 중정 구멍과 반환벽 안의 반증점도 읽게 하므로 외접 상자만 선언한 구현은 실패한다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 연속 주랑에 오목 영역과 기단 돌출 뒤의 여유 예산을 더했다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 명목 폭에서 돌출을 뺀 1.75m·1.60m는 배치 전 예산이며 부모 최소의 실제 충족을 발명하지 않았다.
+@evidenceReview settings/20-envelope.md#colonnade #486e66f 기둥 열은 중정 경계 쪽이고 네 변의 바닥/노출 하부는 연결된 공간에 남는다.
+@evidenceReview settings/10-building.md#use-profile #00a6851 문짝·집기까지 놓은 후 유효폭을 다시 검사하도록 해 예산을 통과 측정으로 쓰지 않는다.
+-->
+
+<!--
 @evidence principles/core/common.md#scope-preservation 중정 구멍과 현관 후퇴부를 제외한 연속 주랑 전체를 한 공간으로 보존하고 모든 직접 문 앞의 여유를 남긴다.
 @evidence principles/core/common.md#substantive-completion 겹치지 않는 여섯 평면 영역과 경사 하부에 따른 볼록 cell 분해, 기단/주두 돌출 예산을 정한다.
 @evidence principles/core/common.md#declared-basis 기준선과 합성 roof를 입력으로 사용하며 공개 cells/contains 표현 가능성과 실제 containment 성공을 구별한다.

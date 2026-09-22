@@ -3,6 +3,19 @@
 ## 작성 작업의 첫 방 {#office-volume}
 
 <!--
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 작성 책상과 소량 용기가 주된 쓰임이고 기록실의 선반 밀도로 대체되지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 동쪽 책상과 서쪽 스툴 인출, 남쪽 문 스윙이 명시돼 방 안 작업의 방향이 정해진다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 본체 경계와 문턱을 각각 building과 storey에서 받아 임의 면적을 추가하지 않는다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 북쪽 공유벽은 닫히고 서쪽 직접 문만 실내 접근이라 기록실을 우회 통로로 쓰지 않는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 관리실 내부 표면과 동측 roof·집기 prototype의 책임이 분리돼 있다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 책상에서 문으로 돌아오는 관찰은 정면 문턱 시점만으로 가려지는 스툴 방해를 묻는다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 관리 업무라는 부모 용도에 동벽 책상과 서쪽 인출 방향을 추가했다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 단일 책상과 좌석 인출을 한 방 안에 배정했고 가구 종류 변경이나 기록실 관통이 필요하지 않았다.
+@evidenceReview settings/30-interiors.md#administration #8260ef7 작성 도구/소량 용기의 밀도가 이웃 기록실과 구별되는 조건으로 본문에 있다.
+@evidenceReview settings/35-objects.md#workstation #496e768 문 스윙을 남벽 쪽으로 받아 서쪽 인출과 책상 진입을 함께 비워야 한다.
+-->
+
+<!--
 @evidence principles/core/common.md#scope-preservation 우측 첫 방에 작성 책상·스툴 인출·소량 용기를 배정하고 기록실과 다른 사용 밀도를 유지한다.
 @evidence principles/core/common.md#substantive-completion 책상은 동벽 가까이, 스툴은 서쪽 통로로 빠지고 문은 남쪽 벽 쪽으로 열리는 예약을 정한다.
 @evidence principles/core/common.md#declared-basis 남동측 본체는 기준선에서 받고 책상 역할은 관리실 설정, 문턱 귀속은 층 배정에서 소비한다.

@@ -3,6 +3,19 @@
 ## 두 기둥 위의 입구 지붕 {#porch-roof}
 
 <!--
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 작은 삼각 박공뿐 아니라 두 원주→보→roof 받침과 뒤쪽 접합도 요구한다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 지지 상면 Y=3.42m와 네 끝 참조면이 있어 포치 roof가 장식 삼각형으로 끝나지 않는다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 이전 Y=3.38m 후보의 하한 위반과 0.04m 보정 사유가 입력 산술로 기록돼 있다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 바닥/기둥은 외곽 안에 남고 처마만 밖으로 나가며 뒤끝은 남쪽 canopy와 합성한다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 포치 roof는 상면·트림 결속면·외부 하부만 맡아 현관 바닥이나 원주를 복제하지 않는다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 문턱 올려다봄과 뒤끝 단면을 포함해 보와 roof 사이 받침 공백을 찾도록 했다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 포치 정체성에 별도 상면 기준과 반환벽 바깥 기준 처마 단면을 추가했다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 상면을 높인 공간 수리로 처마 하한을 지켜 부모 높이 한계를 낮추지 않았다.
+@evidenceReview settings/20-envelope.md#entrance-porch #a164498 보가 상면 수치가 아닌 실제 하부면에 접촉해야 하므로 지붕이 뜬 장식을 허용하지 않는다.
+@evidenceReview settings/20-envelope.md#roof-form #e18ede4 낮던 끝 높이 후보를 버리고 새 끝 상면 약 3.218m를 입력 비교로만 제시했다.
+-->
+
+<!--
 @evidence principles/core/common.md#scope-preservation 정면의 작은 삼각 박공과 두 원주→보→roof 지지, 외부 처마 및 뒤쪽 주랑 접합을 함께 배정한다.
 @evidence principles/core/common.md#substantive-completion porch 지지선의 상면 Y=3.42m, 축상 용마루와 반환벽 바깥면을 기준으로 한 네 후보 끝을 결정한다.
 @evidence principles/core/common.md#declared-basis 경사·두께는 assembly를 소비하며 이전 높이의 처마 하한 위반 때문에 상면을 높인 산술을 기록한다.

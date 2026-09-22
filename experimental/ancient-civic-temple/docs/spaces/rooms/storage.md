@@ -3,6 +3,20 @@
 ## 마당에 가까운 저장 방 {#storage-volume}
 
 <!--
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 큰 용기·상자·바구니를 다루며 문서 선반으로 방 역할을 바꾸는 경우를 실패로 남긴다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 북·동·남 벽 저장과 서쪽 문→중앙의 빈 진입이 정해져 반입의 목적지가 분명하다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 통로는 사용 포락, 문턱은 층을 소비하며 임의 서비스 계단을 추가하지 않는다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 마당 공유벽을 뚫지 않고 마당 문→주랑→보관실 문을 거친다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 보관실의 표면과 문턱은 이 owner지만 물품 형상/수량을 구현했다고 주장하지 않는다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 마당에서 양방향 반입을 검사해 큰 항아리가 문을 가린 배치도 실패로 삼는다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 저장 용도에 벽 쪽 물품 영역과 서쪽 빈 반입 축을 구체적으로 더했다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 작은 봉헌물 운반을 동고의 주랑 경로에 배정해 새 북벽 문이나 계단을 요구하지 않았다.
+@evidenceReview settings/30-interiors.md#storage #c1137b6 중앙을 비운 벽 쪽 저장이 기록실과 다른 용기/상자/바구니 사용을 지킨다.
+@evidenceReview settings/35-objects.md#vessels #33b80a7 큰 항아리로 문이 가려지면 물체만이 아니라 빈 진입 예약도 함께 수리한다.
+@evidenceReview settings/35-objects.md#baskets #a70a8f6 바구니가 들어갈 벽 쪽 영역과 비워 둘 운반 통로를 함께 읽었다.
+-->
+
+<!--
 @evidence principles/core/common.md#scope-preservation 동측 마지막 실내 방에 큰 용기·상자·바구니와 마당에서의 반입을 배정하고 기록실 선반으로 바꾸지 않는다.
 @evidence principles/core/common.md#substantive-completion 북·동·남 벽을 저장에 쓰고 서쪽 문부터 중앙까지 문 스윙을 포함한 빈 진입을 예약한다.
 @evidence principles/core/common.md#declared-basis 본체는 storage 기준선, 물품은 보관실 설정, 통로 최소는 사용 포락, 문턱 높이는 층에서 받는다.

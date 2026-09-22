@@ -3,6 +3,19 @@
 ## 마당 앞에서 끝나는 덮개 {#east-roof}
 
 <!--
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 세 업무방과 동쪽 주랑을 덮되 후면 마당 하늘은 별도 열린 영역으로 남는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 북쪽 끝을 마당/보관실 공유벽 위에 두고 Z축 용마루의 짧은 날개를 정했다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb yard-front에서 북쪽 돌출을 재므로 공유벽 중심을 처마 참조면으로 바꾸지 않는다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 주랑 위 겹침은 canopy와 합성하지만 마당을 지붕 아래 방으로 만들지 않는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 업무방 낮은 천장과 주랑 노출 하부는 각 공간이 받고 east는 외부 roof를 소유한다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 마당에서 북쪽 끝을 올려다보는 관찰이 열린 마당/덮인 보관실의 뒤바뀜을 드러낸다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 연속 업무방 요구에 열린 마당 앞에서 멈출 공유벽과 실제 돌출 참조면을 더했다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 짧은 날개의 끝에서 처마만 남기면 열린 마당과 roof 요구가 양립해 방을 줄일 필요가 없다.
+@evidenceReview settings/30-interiors.md#service-yard #bc0ce16 마당으로 넘어가는 것은 돌출 처마뿐이며 업무 roof의 본체를 연장하지 않는다.
+@evidenceReview settings/20-envelope.md#roof-form #e18ede4 Z 방향 용마루와 외벽/중정 기준 처마가 우측 날개의 실제 경사 매스를 정한다.
+-->
+
+<!--
 @evidence principles/core/common.md#scope-preservation 세 업무방과 동쪽 주랑을 덮으면서 후면 서비스 마당의 열린 하늘을 보존한다.
 @evidence principles/core/common.md#substantive-completion 동측 지지선과 Z=-2.3~9.95m 영역, 마당/보관실 공유벽 위 북쪽 끝을 정한다.
 @evidence principles/core/common.md#declared-basis 높이·경사·돌출은 공통 접합, 경계 참조면은 기준선을 소비하고 공유벽 중심에서 처마를 재지 않는다.

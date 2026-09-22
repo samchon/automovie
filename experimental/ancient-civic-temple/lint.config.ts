@@ -36,7 +36,7 @@ import { fileURLToPath } from "node:url";
  * productionSources as the parallel typed assembly input to filmSources.
  */
 const settingsStage = "review" as const;
-const spacesStage = "evidence" as const;
+const spacesStage = "review" as const;
 
 export const productionEvidence = {
   ...createBlankAutoMovieProductionEvidence(

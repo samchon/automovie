@@ -3,6 +3,10 @@
 ## 완결 표면 배정의 범위 {#surface-population}
 
 <!--
+@evidenceReview contracts/obligations-spaces.md#surface-ownership #1a50ebe ownership 표를 모든 room/입면/roof와 문턱·junctions에 대조했다. 벽 하나의 두 마감, 내부 접면, 문턱 전 깊이, 외부 처마와 실내 하부가 각각 귀속되고 계산 분해가 공동 표면 소유를 만들지 않는다. 실제 compiled binding 역검사는 별도 미완료로 남았다.
+-->
+
+<!--
 @evidence contracts/obligations-spaces.md#surface-ownership ownership 표의 입면·방·층·roof 주소를 각 공간/입면/roof의 실제 소유 문장과 대조했다. 공유벽의 한 실체와 양면 마감, 문턱, 박공, 처마 하부를 아래와 같이 구별하며 compiled binding은 아직 없음을 남긴다.
 -->
 
@@ -13,6 +17,10 @@
 이것으로 지불한 것은 최초 설계의 소유 분해다. 현재 source/compiled 면이 없으므로 실제 모든 면의 누락·중복 binding은 unverified다. 해당 역검사를 통과하지 않은 상태로 사용자 매스·공간 단계의 시각 완료를 선언하지 않는다. 외부 setting은 maps/models 소유이며 건물 표면에 합쳐 저작하지 않는다.
 
 ## 관찰 전집합과 미해결의 보존 {#observation-population}
+
+<!--
+@evidenceReview contracts/obligations-spaces.md#compiled-observations #09b52ea observations와 각 지역 질문을 함께 읽었다. 고리 주랑의 여섯 영역/notch, 마당 두 문턱, 현관 단면을 더하며 null·충돌 원 질문을 보조 pose로 삭제하지 않는다. 다섯 reference가 이 전집합에 더해지고 실제 수량/프레임의 부재도 보존돼 있다.
+-->
 
 <!--
 @evidence contracts/obligations-spaces.md#compiled-observations observations의 전집합 유도와 각 room/입면/roof의 지역 질문을 함께 읽었다. 고리 주랑의 추가 영역·모서리와 마당 두 threshold, 원 pose 실패 보존 및 다섯 reference 추가를 배정하고 실제 목록/프레임의 부재를 별도로 기록한다.

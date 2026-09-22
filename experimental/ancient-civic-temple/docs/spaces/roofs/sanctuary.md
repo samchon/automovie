@@ -3,6 +3,18 @@
 ## 후면 축의 용마루 {#sanctuary-roof}
 
 <!--
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 높은 박공의 두 경사면과 외부 하부, 높은 창 위 두께까지 한 roof에 남겼다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 X=0의 Z 방향 용마루와 네 후보 끝 참조면이 있어 후면 축 roof를 재현할 입력이 있다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 약 5.873m는 공통 경사에서 계산한 매스 값이며 기와/목재가 완성됐다는 주장이 아니다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 후보 처마를 합성에서 잘라도 제실의 벽이나 층을 이동시키지 않는다고 명시했다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 박공 벽 외면과 방 내부 하부를 roof 상면 소유에서 분리해 같은 면의 이중 저작을 막는다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 창 위 roof 두께와 내부 높은 단면을 함께 보므로 외관 실루엣만의 검사가 아니다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 높은 후면 roof 약속에 양 지지선과 축상 용마루의 방향/높이를 추가했다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 공통 경사로 계산한 제실 용마루가 설정 허용 안이라 상한 확대나 방 축소가 필요하지 않았다.
+@evidenceReview settings/20-envelope.md#roof-form #e18ede4 낮은 날개 위 박공을 남기면서 설정 허용 높이 안의 매스를 선택했다.
+-->
+
+<!--
 @evidence principles/core/common.md#scope-preservation 후면 제실의 높은 박공·양 경사면·용마루·외부 처마와 높은 창 위 roof 두께를 남긴다.
 @evidence principles/core/common.md#substantive-completion X=±5.75m와 전후 지지선, X=0의 Z 방향 용마루 및 네 후보 끝 참조면을 정한다.
 @evidence principles/core/common.md#declared-basis 공통 경사/높이로 계산한 약 5.873m를 설정 허용과 비교하며 실제 기와나 목재 완성이 아니라고 밝힌다.

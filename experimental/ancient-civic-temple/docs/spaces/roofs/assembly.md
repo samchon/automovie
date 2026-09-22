@@ -3,6 +3,19 @@
 ## 공통 지지 높이와 겹침 해소 {#roof-junctions}
 
 <!--
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 겹침 상면뿐 아니라 제거할 하부 slab와 노출 끝, 실내외 하부까지 접합 범위에 넣었다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 상면·경사·법선 두께와 max 선택/동고 순서가 있어 단순 교차판을 남기는 구현을 거부한다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 0.18/cos(22도)는 입력에서 유도한 수직 두께이고 예시 끝 높이를 실측이라 하지 않는다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 낮은 중복 slab를 없애되 열린 주랑에 새 벽이나 천장 위 접근 공간을 만들지 않는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 plane 조각을 잘라도 원래 roof surface ID를 유지하고 내부 하부는 room으로 보낸다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 교차선 전부와 양쪽 perspective를 요구해 한쪽에서 가린 누광·열린 끝도 찾게 했다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정의 경사지붕에 평행 하부면과 동고 소유 우선순위라는 합성 결정을 더했다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 지지선부터 잰 돌출 후보를 폐기하고 바깥면 기준으로 수리했으므로 부모 처마 요구를 낮추지 않았다.
+@evidenceReview settings/20-envelope.md#roof-form #e18ede4 노출 변의 참조면을 외벽 바깥면/중정 경계로 구별해 실제 돌출을 남긴다.
+@evidenceReview settings/20-envelope.md#ceilings #c397437 낮은 널판 위 구조 틈은 비거주이며 실내 노출 하부와 외부 처마를 서로 다른 표면으로 배정한다.
+-->
+
+<!--
 @evidence principles/core/common.md#scope-preservation 모든 roof 후보의 상하 면·노출 끝·겹침과 실내/외 처마 하부의 소유를 공통 접합에 포함한다.
 @evidence principles/core/common.md#substantive-completion 상면 Y=3.55m·경사 22도·법선 두께 0.18m·수평 돌출 0.35m와 높이 최대 선택/동고 우선순위를 정한다.
 @evidence principles/core/common.md#declared-basis roof-form을 소비하며 수직 두께와 후보 끝 높이는 삼각함수 입력 산술로 표시하고 compiled 결과와 구별한다.

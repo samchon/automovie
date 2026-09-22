@@ -3,6 +3,19 @@
 ## 긴 낮은 날개 {#west-roof}
 
 <!--
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 봉헌실과 서쪽 주랑을 함께 덮고 양 박공 끝과 양쪽 처마를 모두 관찰한다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 두 X 지지선 중점의 Z축 용마루와 네 끝 참조면을 정해 긴 날개가 닫힌다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 공통 높이/경사와 공간별 천장 방식을 소비하므로 같은 roof가 같은 실내 천장을 뜻하지 않는다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 중정 경계를 넘는 것은 좁은 처마뿐이고 전체 중정을 덮는 연장은 금지된다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 서측 roof 외부를 나누지 않으며 봉헌실 널판과 주랑 노출 보의 면은 각 공간에 남는다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 제실 교차선과 두 박공 끝을 포함해 교차판 깜빡임과 내부 roof 누락을 찾는다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 낮은 날개 요구를 봉헌실 장축과 중정을 침범하지 않는 끝선으로 구체화했다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 하나의 날개 아래 널판/노출 하부를 구별할 수 있어 부모 천장을 통일할 이유가 없었다.
+@evidenceReview settings/20-envelope.md#roof-form #e18ede4 외벽 중심은 높이 계산에만 쓰고 노출 처마 길이는 실제 외벽 바깥에서 잰다.
+@evidenceReview settings/20-envelope.md#ceilings #c397437 봉헌실의 낮은 널판과 주랑의 노출 보가 각기 다른 실내 owner에 남아 있다.
+-->
+
+<!--
 @evidence principles/core/common.md#scope-preservation 봉헌실과 서쪽 주랑을 함께 덮고 남북 박공·외측/중정측 처마·제실 교차선을 남긴다.
 @evidence principles/core/common.md#substantive-completion 두 X 지지선 사이 중점에 Z 방향 용마루를 놓고 외벽 바깥면/중정 경계로 네 후보 끝을 정한다.
 @evidence principles/core/common.md#declared-basis 경사·두께·합성은 assembly에서 받고 실내의 서로 다른 천장 방식은 ceilings를 소비한다.

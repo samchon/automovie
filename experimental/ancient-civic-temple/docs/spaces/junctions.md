@@ -3,6 +3,18 @@
 ## 벽 끝과 모서리의 맞닿음 {#wall-junctions}
 
 <!--
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 외곽 L 접합뿐 아니라 spine T와 현관 반환부도 포함하고 방/문 관계는 바꾸지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 모서리의 등거리 대각면과 가지 벽의 접면 종료 규칙이 체적 중첩을 해소한다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 같은 두께의 모서리 배정은 공유 기준선과 인접 관계에서 유도된다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 내부 접촉면은 새 통로나 노출 마감이 아니라 기존 벽의 맞닿음으로 정의된다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 junctions는 절단 계산만 맡고 벽과 외측 완결 면은 입면/boundaries에 남는다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 모든 L/T의 단면/양면에서 빈 틈·중복·내부 끝마개를 대조해 모서리 하나만의 확인을 거부한다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 연속 회벽 요구에 서로 다른 입면 실체가 겹치지 않는 대각 영역 배정을 더했다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 직사각 외곽과 두꺼운 벽을 대각/T 접합으로 함께 유지할 수 있어 외곽 변형이 필요하지 않았다.
+@evidenceReview settings/20-envelope.md#walls #35026c5 외측 면 전 길이를 각 입면에 남겨 겹친 상자의 끝이 회벽 모서리를 대신하지 않는다.
+-->
+
+<!--
 @evidence principles/core/common.md#scope-preservation 네 외곽 모서리·spine T 접합·현관 반환부를 모두 처리하되 방 수나 통행 관계를 바꾸지 않는다.
 @evidence principles/core/common.md#substantive-completion 외곽은 등거리 대각면, 가지 벽은 관통벽 접면에서 끝내는 규칙으로 중복 체적을 없앤다.
 @evidence principles/core/common.md#declared-basis 공유 기준선과 경계 인접성을 입력으로 받아 같은 두께의 모서리 영역 배정을 유도한다.
@@ -23,6 +35,19 @@
 접면의 양쪽 element와 면 주소는 보존하되 접촉 내부 면을 노출 마감이나 두꺼운 틈으로 그리지 않는다. 외부/방 쪽의 완결 시각 표면은 [소유 지도](ownership.md#surface-map)를 유지한다. 판정은 [관찰 소유](observations.md#geometry-observations)의 실제 모든 L/T 접합 단면에서 빈 틈·중복 체적·노출된 내부 끝마개를 읽고 공유 기준선의 허용 오차와 비교한다. 아직 이 접합을 구현하거나 측정한 결과는 없으므로 unverified다.
 
 ## 박공과 지붕 아래의 닫힌 경계 {#gable-closures}
+
+<!--
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 마당-보관실 끝벽과 포치 뒤 높이차까지 배정해 보이는 정면 박공만 닫지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 벽 연장과 roof 끝면만의 폐쇄를 접점 표로 구별해 열린 주랑의 높이차를 처리한다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 실제 roof 하부가 벽 상단을 정하며 이 H2는 경사/높이를 새로 선택하지 않는다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 주랑 위 구간에는 바닥부터의 벽이 없고 마당 앞 기존 끝벽만 roof 아래까지 이어진다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 박공 양면과 내부 하부를 기존 입면/방/roof로 돌려 junctions가 표면 공동 소유가 되지 않는다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 창/문 head와 박공 단면을 함께 읽어 벽 돌출·누광·마당 폐쇄·통행 차단을 반증한다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 박공 약속에 기존 벽 범위와 roof-only 폐쇄 범위를 구별한 접점별 결정을 추가했다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 순환을 막지 않고 높이차만 닫는 방법이 있어 새 방이나 평천장을 부모에 요구하지 않았다.
+@evidenceReview settings/20-envelope.md#roof-form #e18ede4 처마 기준에서 벽을 수평 절단하지 않고 각 위치의 경사 하부까지 닫는다.
+@evidenceReview settings/20-envelope.md#ceilings #c397437 낮은 천장 위 빈틈에 내부용 마감/문/관찰 방을 새로 만들지 않아 노출 하부와 비거주 틈을 구별한다.
+-->
 
 <!--
 @evidence principles/core/common.md#scope-preservation 날개·제실·포치 박공, 마당-보관실 끝벽과 열린 주랑 위 높이 차이를 각각 폐쇄 owner에 배정한다.

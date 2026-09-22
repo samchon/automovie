@@ -3,6 +3,20 @@
 ## 건조 문서 보관과 열람 {#records-volume}
 
 <!--
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 두루마리·궤·열람 역할을 건조 방에 남기고 옆방을 통과하는 문을 만들지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 북쪽 선반 앞 0.9m 이상을 비우고 동쪽 열람/궤를 배정해 접근을 수치로 제한한다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb records 기준선과 층의 문턱을 소비하므로 건조 상태가 임의의 높은 바닥을 뜻하지 않는다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 남북 공유벽과 동쪽 외벽이 닫혀 있고 서쪽 주랑 문만 접근한다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 두루마리 수량은 instances에 남아 기록실 공간 owner가 population을 발명하지 않는다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 선반 전면과 궤 앞을 추가 관찰해 닫힌 궤 표시 뒤의 접근 누락도 찾도록 했다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 문서 보관 용도에서 선반의 북벽 방향과 전면 깊이를 새로 결정했다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 건조 보관과 궤의 사용을 같은 높이 바닥에서 예약했으며 물길이나 추가 방으로 해결하지 않았다.
+@evidenceReview settings/30-interiors.md#records #9a95707 분수 물길을 연결하지 않는 본문이 기록실의 건조 조건과 일치한다.
+@evidenceReview settings/35-objects.md#scrolls #eba3a8f 두루마리 칸 선반은 북벽에 실제 역할이 있고 수량만 후속 결정으로 남는다.
+@evidenceReview settings/35-objects.md#chests #7077398 궤가 닫힌 표시 상태여도 앞의 여백 검사는 면제되지 않는다고 명시했다.
+-->
+
+<!--
 @evidence principles/core/common.md#scope-preservation 건조 두루마리 보관·궤·열람대와 서쪽 직접 문을 남기고 관리실 또는 보관실을 통한 접근을 만들지 않는다.
 @evidence principles/core/common.md#substantive-completion 북벽 칸 선반·동쪽 궤/열람대와 선반 앞 0.9m 이상 접근을 배정한다.
 @evidence principles/core/common.md#declared-basis 방 전후 경계는 기준선, 건조 보관 역할은 기록실 설정, 문턱은 층의 배정을 따른다.

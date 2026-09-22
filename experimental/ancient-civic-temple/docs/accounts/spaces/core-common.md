@@ -3,6 +3,10 @@
 ## 파일 역할과 공간 납품 {#file-roles}
 
 <!--
+@evidenceReview obligations/core/common.md#purpose-fit #7b32c66 26파일을 기준/경계/동선/입면/방/roof/소유/관찰의 서로 다른 결과에 대조했다. 기준선만으로는 접합이 닫히지 않고 방 목록만으로는 실제 관찰이 정해지지 않는 등 각 파일을 뺄 때의 후속 결손이 본문에 구체적으로 설명돼 있다.
+-->
+
+<!--
 @evidence obligations/core/common.md#purpose-fit 26개 파일을 기준 평면/높이·경계/접합·동선·입면·방·roof·표면 소유·관찰 역할로 대조했다. 방 목록만 남기면 물리 접합과 외관이 비고, 외피만 남기면 각 방의 직접 문과 이용 영역이 비는 서로 다른 후속 결정을 아래 지도에 기록한다.
 -->
 
@@ -15,6 +19,10 @@ roofs의 [assembly](../../spaces/roofs/assembly.md)는 높이·두께·돌출·�
 ## 공간과 다른 제작 분기의 경계 {#layer-routing}
 
 <!--
+@evidenceReview obligations/core/common.md#layer-boundary #5271f94 전체 방/입면/roof의 수치는 공간 경계와 예약에 쓰이며 물체 곡면·기와 반복·roughness·조명값을 결정한 단위는 없다. 외부 지면과 조립 전달도 maps와 viewer에 배정해 spaces의 결정과 소비 입력을 구별했다.
+-->
+
+<!--
 @evidence obligations/core/common.md#layer-boundary building부터 각 방/roof까지는 경계·부피·연결·접합·접근 예약을 정한다. 기둥/수반/집기 실체, 마감 수치, 반복 population, 외부 지면과 조명은 해당 후속 분기에 남으며 viewer 전달도 공간 geometry를 재작성하지 않는다고 명시돼 있다.
 -->
 
@@ -25,6 +33,10 @@ building의 두 접점과 storey의 외벽 하단은 maps가 줄 외부 지면�
 ## 작업 언어와 식별 표기 {#working-language}
 
 <!--
+@evidenceReview obligations/core/common.md#production-language #3ef4142 작성·건조 보관·반입의 차이는 한국어 본문으로 설명되고 영어는 source/API 주소와 좌표 표기에 한정된다. 행렬/반공간도 단위와 부호가 설명돼 파일명 추측으로 방 용도를 알아내야 하는 부분이 없다.
+-->
+
+<!--
 @evidence obligations/core/common.md#production-language 방의 역할·기준선·단차·실패 조건은 한국어로 읽히고 영어는 temple/colonnade 같은 identity, cells/profile 같은 API 필드와 예정 source 주소에 쓰인다. 아래 비교에서 문서 용도와 실행 식별자를 구분했다.
 -->
 
@@ -33,6 +45,10 @@ building의 두 접점과 storey의 외벽 하단은 maps가 줄 외부 지면�
 viewer-path의 한국어 설명과 키보드 조작은 설계 요구이며 이미 UI가 구현됐다는 주장이 아니다. unverified는 실제 계측·렌더가 없는 항목의 상태로 일관되게 쓰고 입력 산술과 실행 결과를 섞지 않는다. 현재 납품에 없는 고대 언어 비문·영화 자막·인물 대사를 spaces 문서가 만들어 내지 않는다.
 
 ## 규모와 전개 분량의 비교 {#proportion}
+
+<!--
+@evidenceReview obligations/core/common.md#proportionate-development #78feb28 전체26파일/37 H2를 역할별 문자 분포와 읽었다. 관찰·개구부·기준선은 다수 접합/실패를 다뤄 길고 짧은 east roof도 끝선·공유벽·하부 소유를 결정한다. a4c1d468 대비 매스/동선 본문 축소가 없고 observations의 접근 UI 보완만 늘어난 비교는 주석 증가를 생산량으로 세지 않는다.
+-->
 
 <!--
 @evidence obligations/core/common.md#proportionate-development 현재 26파일/37 H2를 전체로 읽고 본문 분량을 역할별로 비교했다. 관찰·개구부·기준선은 다수 경계/실패 경우를 다루어 길고 단일 날개/방은 상위 공유 결정을 소비해 짧다. v-077 제출본과 파일/단위 수 및 본문을 비교해 매스·동선 축소가 없음을 기록한다.

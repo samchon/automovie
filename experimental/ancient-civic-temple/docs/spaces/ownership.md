@@ -3,6 +3,25 @@
 ## 입면·방·층·지붕의 소유 지도 {#surface-map}
 
 <!--
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 문턱·박공·외부 처마까지 귀속시켜 방 바닥과 입면 상면만 남기는 소유 누락을 막는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 design anchor와 예정 source 경로를 짝짓고 안정 surface ID와 단독 저작 규칙을 정했다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 이 지도는 사용자 의무의 설계 답이며 아직 없는 compiled host binding과 구별돼 있다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 한 공유벽의 양쪽 마감과 내부 접촉면을 구별해 실체/시각 면을 같은 것으로 세지 않는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 cell 분해나 반복이 완결 면을 나눌 권한이 없고 독립 물체 표면은 prototype 하나에 남는다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 실제 노출 면에서 역검사해 누락·이중 owner·없는 경계가 있으면 최초 공간 단계를 닫지 않는다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 settings의 분기 구분을 각 입면/방/roof의 단독 파일과 접합 면의 귀속으로 구체화했다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 물리벽 하나와 양면 마감을 구별하면 공간/독립 물체/마감/반복 분담이 유지되어 부모 분담 수정은 필요하지 않았다.
+@evidenceReview settings/00-delivery.md#build-scope #50da3a2 기둥·문·수반의 전체 표면을 model로 보내면서 외피 host와 방 표면은 spaces에 남겼다.
+@evidenceReview obligations/design/spaces.md#addressable-spatial-decisions #9c97153 기준·문·접합·표면·관찰 owner를 전체 문서와 대조했고 junctions는 새 완결 면 owner가 아니다.
+@evidenceReview contracts/obligations-spaces.md#surface-ownership #1a50ebe 방 바닥에 wall-depth 문턱도 포함하며 roof 하부와 박공까지 표에서 귀속시켜 최초 분해를 지급한다.
+@evidenceExcludeReview settings/00-delivery.md#coverage-map #fe00d39 전체37 H2는 실제 settings 단위를 소비하며 settings 파일 소유 목록 자체를 다시 완성하는 host는 없다.
+@evidenceExcludeReview settings/40-environment.md#neighborhood #e59feec 입면·방·roof·관찰 어디에도 이웃 건물 치수/배치를 결정한 본문은 없고 외부 setting은 maps/models에 남아 있다.
+@evidenceExcludeReview settings/40-environment.md#vegetation #bdc9c1c 중정은 빈 보행 영역이며 나무/풀 prototype나 배치 규칙을 정한 공간 H2가 없다. 식생은 maps/models 몫이다.
+@evidenceExcludeReview settings/40-environment.md#distant-terrain #e91dc6c 26문서는 신전 경계와 관찰을 정할 뿐 40~100m 능선의 실제 형상을 정하지 않는다.
+@evidenceExcludeReview settings/40-environment.md#daylight #eac4028 창과 roof의 가림은 결정됐지만 태양 고도·광원 방향·노출을 정하는 host는 없고 실제 조명 수치는 systems에 남는다.
+-->
+
+<!--
 @evidence principles/core/common.md#scope-preservation 입면·방 바닥/내벽/천장·층·roof/처마의 완결 표면을 표로 배정하고 문턱과 박공의 노출 면까지 같은 소유에 포함한다.
 @evidence principles/core/common.md#substantive-completion 각 완결 표면에 design와 후속 source 주소를 짝짓고 surface.<owner>.<face> 식별 및 단독 저작 규칙을 정한다.
 @evidence principles/core/common.md#declared-basis 사용자 surface-ownership 의무를 실제 기준 평면과 연결하며 예정 source 경로와 compiled host binding을 구별한다.

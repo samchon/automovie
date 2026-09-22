@@ -3,6 +3,20 @@
 ## 하나의 지상층 {#ground-storey}
 
 <!--
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 중정/도로의 국소 단차와 제단 석단을 별도 층으로 등록하지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 완성면·구조 두께·널판/보 높이를 함께 정해 바닥과 천장의 단면 입력이 있다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 생산 Y 기준과 바닥 접근을 소비하며 실체 단차 통과는 unverified라고 한정했다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 천장 위 구조 틈에 진입 문·바닥·사다리가 없고 제실/주랑은 경사 하부를 따른다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 층은 공통 높이/두께만 맡고 방 마감과 제단 석단을 새로 만들지 않는다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 종횡 단면과 문턱에서 끊긴 주랑 또는 0.02m 초과 서비스 단차가 반증된다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 단층 약속을 공간별 완성면과 2.92m 보 아래 예산으로 실제 단면화했다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 낮은 널판/노출 박공과 정문 두 단·중정 한 단이 양립하므로 층 수나 접근 제한을 수정하지 않았다.
+@evidenceReview settings/00-delivery.md#coordinates #4d2b0d4 주랑 완성면 Y=0에서 모든 방과 도로를 같은 m 좌표로 비교한다.
+@evidenceReview settings/10-building.md#ground-access #be07d7d 정문 도로와 서비스 외부 높이를 구별해 한쪽의 석단을 다른 쪽에 복사하지 않는다.
+@evidenceReview settings/20-envelope.md#ceilings #c397437 봉헌실/업무방의 널판은 제실/주랑에 적용되지 않아 공간별 천장 정체성을 유지한다.
+-->
+
+<!--
 @evidence principles/core/common.md#scope-preservation 모든 공간을 temple-ground에 귀속하고 중정·정문·제단의 국소 높이차가 새 층을 만들지 않게 한다.
 @evidence principles/core/common.md#substantive-completion 주랑 Y=0, 중정 -0.12m, 정문 도로 -0.24m와 바닥 두께·낮은 천장·보의 높이 예산을 결정한다.
 @evidence principles/core/common.md#declared-basis 생산 좌표와 바닥 접근 허용값을 소비한 설계 높이이며 실제 단차 검사는 unverified로 구분한다.
@@ -25,6 +39,19 @@ storey ID `temple-ground`의 부모는 `temple`이다. [건물 연결](building.
 같은 storey에 속한다는 표지만으로 단차를 검증하지 않는다. source 소유 `src/spaces/storey.ts`는 각 바닥 host의 완성면과 두께를 실제 공간 바닥에 묶는다. 관찰은 Y 기준의 종·횡단면, 각 문턱과 중정 가장자리다. 주랑의 바닥이 끊기거나 서비스 경로에 0.02m를 넘는 차이가 생기면 실패이며 현재 실체 검사는 unverified다.
 
 ## 벽 두께를 건너는 문턱 바닥 {#threshold-support}
+
+<!--
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 벽 양면 사이 바닥과 통과 부피도 배정해 각 방 본체만 만든 빈 문턱을 막는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 슬래브 예약과 유효 support/cell을 구별하고 문별 단독 소유를 정했다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 깊이는 host 양면, 폭은 opening 바닥 절단에서 유도하며 일반 두께를 소비한다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 cell 연장은 기존 void 안에만 있고 문틀이나 닫힌 벽은 통과 공간에 포함하지 않는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 주랑이 아닌 방 하나에 문턱 전체를 줘 두 방의 반씩 바닥이나 문 model의 중복을 막는다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 mesh 상면·support·volume·connector를 함께 대조하므로 선언된 지지만으로 허공을 통과시킬 수 없다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 문턱 한계를 wall-depth 전체의 슬래브/통과 cell 규칙으로 더 구체화했다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 낮은 문턱과 실제 reveal은 같은 높이 관통 바닥에서 양립하여 상위 단차 한계를 완화하지 않았다.
+@evidenceReview settings/10-building.md#ground-access #be07d7d 단순 연결선 외에 실제 발 디딤과 support 높이를 비교하도록 남겼다.
+@evidenceReview settings/20-envelope.md#openings #4053d90 문 양면이 같은 reveal 깊이의 관통 구간을 소비해 벽 두께만큼의 바닥 공백을 막는다.
+-->
 
 <!--
 @evidence principles/core/common.md#scope-preservation 모든 주랑 문과 외부 서비스 문에 벽 두께를 건너는 바닥·통과 부피를 배정해 본체 사이의 빈 구간을 남기지 않는다.
@@ -50,6 +77,18 @@ storey ID `temple-ground`의 부모는 `temple`이다. [건물 연결](building.
 방 문서의 직사각형은 방 본체다. 벽 두께 안의 유효 폭·높이 통과 부피를 그 방의 `cells` 합집합에 추가해 문턱 지지면도 해당 공간 안에 있도록 한다. 이것은 기존 개구부 안의 연장이며 새 공간·벽·문을 만들지 않는다. 문틀 자리나 닫힌 벽을 통과 volume에 포함하지 않고, 주랑 또는 외부의 반대쪽 공간과는 열린 접면만 공유한다. 실제 `IAutoMovieBuiltSurface.space`, support 높이와 mesh 상면, room volume, connector의 진입·도착 위치를 같은 산출물에서 대조해야 한다. 지금은 설계이며 물리 연속성·귀속·충돌은 unverified다.
 
 ## 외벽 하단과 지면의 접촉 {#wall-ground-contact}
+
+<!--
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 낮은 마당 벽과 현관 반환부까지 같은 하단 규칙에 포함해 일부 외벽의 부유를 면제하지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 접촉선 최저 지면/인접 완성면 중 낮은 값에서 바닥 두께를 빼도록 계산이 정해져 있다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb maps 지면이 아직 없으므로 하단 Y를 미검증으로 남기고 매입 여유를 구조 보증으로 부풀리지 않는다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 아래 벽 연장은 기존 평면 안이며 방 cell·support·층의 확장으로 해석되지 않는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 지면은 maps, 실체는 입면, 계산은 storey로 나뉘고 문턱 예약은 기존 바닥에서 받는다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 묻힌 석단과 문 위 벽 띠도 실패 항목이라 단순한 벽 최저점 검사만으로 완료할 수 없다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 접지 요구에 변화하는 외부 지면을 소비할 공통 하단 유도식을 더했다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 미정 지면을 후속 maps 입력으로 드러냈고 임의 지형이나 지지력 주장을 부모에 추가하지 않았다.
+@evidenceReview settings/40-environment.md#site #f317e20 외벽 접촉선 전체의 지면을 읽도록 해 한 점이 닿았다는 이유로 긴 벽의 부유를 통과시키지 않는다.
+-->
 
 <!--
 @evidence principles/core/common.md#scope-preservation 네 입면·낮은 마당 벽·현관 후퇴벽과 반환벽에 같은 하단 유도를 적용하고 서비스 문턱도 접지 검사에 포함한다.

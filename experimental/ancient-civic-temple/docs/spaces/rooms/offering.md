@@ -3,6 +3,20 @@
 ## 긴 공용 봉헌 공간 {#offering-volume}
 
 <!--
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 긴 방 뒤를 숨은 방으로 자르지 않고 양측 탁자 사용과 벽 진열을 함께 남겼다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 Z 장축 탁자·북서 진열·문 축 비움이 실제 사용 배치여서 방 이름만의 설계가 아니다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 저층 천장은 west roof를 소비하며 물체 역할은 공동 봉헌실 부모에서 온다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 동쪽 문이 주랑에 직접 닿고 제실을 통한 우회가 없어 원래 방 관계를 유지한다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 봉헌 탁자를 제단 복제로 만들지 않으며 공간 표면과 독립 물체를 구별했다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 장축 양끝 보조 관찰을 더해 중앙 시점으로 숨길 수 있는 긴 방 끝을 드러낸다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 공동 봉헌 약속에 긴 탁자 방향과 문 축의 빈 접근을 구체적으로 더했다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 낮고 긴 탁자의 양측 사용은 한 방에서 계획돼 새 의례 무대나 뒷방을 요구하지 않는다.
+@evidenceReview settings/30-interiors.md#offering-room #4ab2b52 벽 진열과 탁자 사이에 주랑 문 축의 통과를 남기는 문장이 공동 이용을 지탱한다.
+@evidenceReview settings/35-objects.md#offering-table #a0460a4 탁자의 Z 장축 배치와 양측 사용 조건을 부모의 낮고 긴 물체 정체성에 대조했다.
+@evidenceReview settings/35-objects.md#shelves #d686d25 진열 우선 벽이 북·서쪽으로 정해져 문 앞을 선반으로 채우는 해석을 허용하지 않는다.
+-->
+
+<!--
 @evidence principles/core/common.md#scope-preservation 긴 좌측 방을 숨은 뒷방으로 나누지 않고 봉헌 탁자·벽 진열·주랑 직접 문과 양측 이용을 배정한다.
 @evidence principles/core/common.md#substantive-completion 탁자 장축을 Z로 두고 북/서쪽 진열과 문 축의 빈 통과 구간을 정해 긴 방의 사용 방식을 결정한다.
 @evidence principles/core/common.md#declared-basis 평면은 기준선, 낮은 천장은 서측 roof, 집기 역할은 공동 봉헌실 설정에서 받는다.
