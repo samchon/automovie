@@ -14,6 +14,7 @@ import {
   createHumanFaceEditor,
   parseHumanFaceBasisDocument,
   serializeHumanFaceBasisDocument,
+  type summarizeHumanFaceArticulation,
 } from "@automovie/human";
 
 import { mountConnectedFaceAppearance } from "./connectedAppearance";
@@ -32,6 +33,7 @@ import { mountConnectedFaceControls } from "./connectedControls";
 export function mountConnectedFacePanel<
   Model extends {
     parts: number;
+    articulation?: ReturnType<typeof summarizeHumanFaceArticulation>;
     crossings?: IAutoMovieModelCrossing[] | null;
   },
 >(
@@ -105,9 +107,21 @@ export function mountConnectedFacePanel<
   const refresh = (): void => {
     const state = editor!.snapshot();
     draft = state.document;
+    // The joint line reads what the builder posed: opening in degrees, the
+    // mandible's translation against its sagittal budget, each gaze angle.
+    const joints = state.model.articulation;
+    const articulated =
+      joints === undefined || joints === null
+        ? ""
+        : `
+Jaw ${joints.jaw.degrees.toFixed(1)}° open, ${(joints.jaw.translationMetres * 1000).toFixed(1)} of ${(joints.jaw.budgetMetres * 1000).toFixed(1)} mm condylar travel · ` +
+          joints.eyes
+            .map((eye) => `${eye.id} ${eye.degrees.toFixed(1)}°`)
+            .join(", ");
     status(
       state.error ??
-        `${state.document.name}\n${state.model.parts} material regions · committed numerical state`,
+        `${state.document.name}
+${state.model.parts} material regions · committed numerical state${articulated}`,
       state.status,
     );
     element<HTMLButtonElement>("face-undo").disabled = !state.canUndo;
