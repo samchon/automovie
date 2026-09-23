@@ -41,6 +41,8 @@ async function main(): Promise<void> {
     expression: {},
   };
   let viewport!: ReturnType<typeof createConnectedFaceViewport>;
+  let camera!: THREE.PerspectiveCamera;
+  let orbit!: OrbitControls;
   const panel = mountConnectedFacePanel(
     document.querySelector<HTMLDivElement>("#app")!,
     {
@@ -70,7 +72,10 @@ async function main(): Promise<void> {
             antialias: true,
             preserveDrawingBuffer: true,
           }),
-          orbit: (camera) => new OrbitControls(camera, canvas),
+          orbit: (stageCamera) => {
+            camera = stageCamera;
+            return (orbit = new OrbitControls(stageCamera, canvas));
+          },
           worker: () =>
             createHumanResidentPort(
               new Worker(
@@ -99,6 +104,24 @@ async function main(): Promise<void> {
       snapshot: panel.snapshot,
       document: () => panel.snapshot()?.document,
       camera: viewport.cameraView,
+      // A review places the camera where a photograph's was: position and
+      // target in metres, vertical field of view in degrees. It moves the
+      // display camera only, as an orbit drag would, and lifts the orbit's
+      // distance limits and damping so the placement is exact.
+      look: (view: {
+        position: [number, number, number];
+        target: [number, number, number];
+        fov: number;
+      }): void => {
+        orbit.enableDamping = false;
+        orbit.minDistance = 0;
+        orbit.maxDistance = Infinity;
+        orbit.target.set(...view.target);
+        camera.position.set(...view.position);
+        camera.fov = view.fov;
+        camera.updateProjectionMatrix();
+        orbit.update();
+      },
       finish: viewport.finish,
       renderer: viewport.renderer,
     },
