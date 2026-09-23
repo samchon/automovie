@@ -14,7 +14,7 @@ import {
   exportHumanBody,
   parseHumanBodyBasisDocument,
   segmentHumanBodyModel,
-  solveHumanBodyArmsDown,
+  stepHumanBodyArmsDown,
 } from "@automovie/human";
 import type { IAutoMovieModel } from "@automovie/interface";
 
@@ -32,7 +32,11 @@ import type {
  * (the same entries in the same order as one `measureAutoMovieModelCrossings`
  * call), handing the thread back every `sliceMs`; a request that arrives in
  * the meantime is evaluated in that gap, and the reading it supersedes is
- * abandoned at its next slice and answers with no reading.
+ * abandoned at its next slice and answers with no reading. An arms-down
+ * solve is driven the same way, a build and crossing read at a time
+ * (`stepHumanBodyArmsDown`), and refuses as superseded when a later request
+ * arrives.
+ *
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Reuses one admitted body prior for preview edits and on-demand contact checks.
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-export Encodes the committed static body only when export is requested.
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Keeps the body numerical builder resident across edit transactions.
@@ -103,7 +107,23 @@ export function createConnectedBodyRuntime(
     // caller cannot bypass document admission by reusing a previous string.
     const document = parseHumanBodyBasisDocument(request.document);
     if (request.operation === "armsDown") {
-      const solved = solveHumanBodyArmsDown(basis, evaluate, document);
+      // the same slicing as a contact reading: a step at a time, abandoned
+      // when a later request supersedes it
+      const steps = stepHumanBodyArmsDown(basis, evaluate, document);
+      let since = Date.now();
+      let next = steps.next();
+      while (next.done !== true) {
+        if (Date.now() - since >= sliceMs) {
+          await yieldThread();
+          since = Date.now();
+        }
+        if (received !== mine)
+          throw new Error(
+            "The arms-down solve was superseded by a later request.",
+          );
+        next = steps.next();
+      }
+      const solved = next.value;
       return {
         operation: "armsDown",
         pose: solved.pose ?? [],
