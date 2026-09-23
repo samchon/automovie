@@ -22,7 +22,11 @@
  * dev server's own answer for that request (its index page, because the asset
  * lies outside the playground root) is never read. The editor's control map
  * and study list stay the published ones, so a candidate basis must keep the
- * published basis identity. The canvas is 900 by 900 pixels at device
+ * published basis identity. The dev server hands the page the browser build
+ * of `@automovie/human` (`lib/browser`), not its source, so a capture refuses
+ * to start while any source file is newer than that build: an edit the build
+ * lacks would otherwise be measured as absent, or a document field it does
+ * not know refused. The canvas is 900 by 900 pixels at device
  * pixel ratio 1. The `RENDERER` string is logged and written into
  * `captures.json` beside each camera, in the format the measurement reads,
  * with the view named `reference-yaw`.
@@ -40,6 +44,27 @@ const [study, output, poseFile, base = "http://127.0.0.1:5173"] =
 if (study === undefined || output === undefined || poseFile === undefined)
   throw new Error(
     "Supply a study directory, an output directory and a pose file.",
+  );
+const newest = (directory) =>
+  fs
+    .readdirSync(directory, { withFileTypes: true })
+    .reduce(
+      (latest, entry) =>
+        Math.max(
+          latest,
+          entry.isDirectory()
+            ? newest(path.join(directory, entry.name))
+            : fs.statSync(path.join(directory, entry.name)).mtimeMs,
+        ),
+      0,
+    );
+const human = path.resolve("../packages/human");
+if (
+  newest(path.join(human, "src")) >
+  fs.statSync(path.join(human, "lib/browser/index.js")).mtimeMs
+)
+  throw new Error(
+    "@automovie/human changed after its browser build; run pnpm --filter @automovie/human build.",
   );
 const documents = JSON.parse(
   fs.readFileSync(path.join(study, "subjects.json"), "utf8"),
