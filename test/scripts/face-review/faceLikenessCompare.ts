@@ -45,6 +45,10 @@ import {
   faceLikenessUncoveredShare,
   warpFaceLikenessMask,
 } from "./faceLikenessMasks";
+import {
+  faceLikenessTeethLengths,
+  measureFaceLikenessTeeth,
+} from "./faceLikenessTeeth";
 
 /** Detector blendshapes compared between photograph and render. */
 export const FACE_LIKENESS_BLENDSHAPES = [
@@ -89,6 +93,11 @@ export interface IFaceLikenessComparison {
   detectorPoseDifferenceDegrees: number;
   eyeAperture: { right: IFaceLikenessPair; left: IFaceLikenessPair };
   mouthCornerLift: IFaceLikenessPair;
+  /** Visible incisors along the mouth midline (`faceLikenessTeethLengths`). */
+  teeth: Record<
+    "upperExposure" | "lowerExposure" | "gap",
+    { reference: number | null; render: number | null }
+  >;
   blendshapes: Record<string, IFaceLikenessPair>;
   hair: {
     head: IFaceLikenessOverlap;
@@ -226,6 +235,14 @@ export function compareFaceLikeness(props: {
       reference: faceLikenessMouthCornerLift(fixed),
       render: faceLikenessMouthCornerLift(moving),
     },
+    teeth: teethPairs(
+      faceLikenessTeethLengths(
+        measureFaceLikenessTeeth(reference.image, fixed),
+      ),
+      faceLikenessTeethLengths(
+        measureFaceLikenessTeeth(portrait.image, moving),
+      ),
+    ),
     blendshapes,
     hair: {
       head: faceLikenessMaskOverlap(
@@ -313,6 +330,11 @@ export function summarizeFaceLikeness(
       2,
     mouthCornerLiftSignedError: (row) =>
       row.mouthCornerLift.render - row.mouthCornerLift.reference,
+    upperIncisorExposureSignedError: (row) =>
+      difference(row.teeth.upperExposure),
+    lowerIncisorExposureSignedError: (row) =>
+      difference(row.teeth.lowerExposure),
+    incisalGapSignedError: (row) => difference(row.teeth.gap),
     cheekDeltaE76: (row) =>
       mean([row.colour.cheekRight.deltaE76, row.colour.cheekLeft.deltaE76]),
     irisDeltaE76: (row) =>
@@ -404,4 +426,21 @@ function difference(value: {
   return value.reference === null || value.render === null
     ? null
     : value.render - value.reference;
+}
+
+function teethPairs(
+  reference: ReturnType<typeof faceLikenessTeethLengths>,
+  render: ReturnType<typeof faceLikenessTeethLengths>,
+): IFaceLikenessComparison["teeth"] {
+  return {
+    upperExposure: {
+      reference: reference.upperExposure,
+      render: render.upperExposure,
+    },
+    lowerExposure: {
+      reference: reference.lowerExposure,
+      render: render.lowerExposure,
+    },
+    gap: { reference: reference.gap, render: render.gap },
+  };
 }

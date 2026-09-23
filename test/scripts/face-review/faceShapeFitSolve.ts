@@ -11,6 +11,7 @@
  *   sum_k omega_k |S(project(x_k)) - y_k|^2 / iod^2
  *     + lambda sum_c prior_c ((u_c - u0_c)^2 + (v_c - v0_c)^2)
  *     + mu sum_pairs (w_left - w_right)^2
+ *     + sum_bounds omega_b h(n_b . (S(project(x_b)) - y_b))^2 / iod^2
  *
  * over `0 <= u_c <= max_c`, `0 <= v_c <= -min_c`: detector landmarks `y_k`
  * of the photograph, the 2D similarity `S` that best maps the projected
@@ -21,7 +22,12 @@
  * sigma_p gives lambda = (sigma_n / sigma_p)^2), and a symmetry prior on
  * paired left and right channels, because a face is nearly symmetric and a
  * photograph's residual head pose would otherwise be absorbed as one-sided
- * shape. The projection is linearized per iteration (Gauss-Newton); each
+ * shape. A bound observes one more model point along one photograph
+ * direction only: exactly (h the identity), or at or beyond the target
+ * point (h = min(0, .)), or at or before it (h = max(0, .)), for a point the
+ * detector does not trace but the image shows or hides, such as an incisal
+ * edge; a one-sided row enters an iteration only while it is violated. The
+ * projection is linearized per iteration (Gauss-Newton); each
  * iteration's quadratic is solved exactly under the box constraints by a
  * primal active-set method. The result is a set of shared channel weights,
  * never a vertex, and the caller rebuilds the document to relinearize.
@@ -54,6 +60,23 @@ export interface IFaceShapeFitVariable {
   prior?: number;
 }
 
+/**
+ * One model point observed along a single photograph direction, exactly or
+ * as a one-sided limit.
+ */
+export interface IFaceShapeFitBound {
+  /** Index into `base` and every variable's displacement. */
+  point: number;
+  /** Photograph point, pixels. */
+  target: FaceLikenessPoint;
+  /** Unit photograph direction along which the point is observed. */
+  direction: FaceLikenessPoint;
+  /** At the target, at or beyond it along the direction, or at or before. */
+  relation: "at" | "atOrBeyond" | "atOrBefore";
+  /** Weight omega_b, on the landmarks' scale. */
+  weight: number;
+}
+
 /** Everything one fit step reads. */
 export interface IFaceShapeFitProblem {
   /** Built landmark points at the current weights, metres. */
@@ -71,6 +94,8 @@ export interface IFaceShapeFitProblem {
   /** Reference inter-ocular distance of the photograph, pixels. */
   interocular: number;
   iterations: number;
+  /** Extra points observed along one direction; none when omitted. */
+  bounds?: readonly IFaceShapeFitBound[];
 }
 
 /** Fitted magnitudes per variable and the data cost before and after. */
@@ -100,20 +125,49 @@ export function solveFaceShapeFit(problem: IFaceShapeFitProblem): {
           ),
       ),
     );
+  const bounds = problem.bounds ?? [];
+  /** The violated or exact part of a bound's signed distance. */
+  const excess = (
+    bound: IFaceShapeFitBound,
+    similarity: ReturnType<typeof fit>,
+    projected: readonly FaceLikenessPoint[],
+  ): number => {
+    const [px, py] = applyFaceLikenessSimilarity(
+      similarity,
+      projected[bound.point]!,
+    );
+    const along =
+      bound.direction[0] * (px - bound.target[0]) +
+      bound.direction[1] * (py - bound.target[1]);
+    return bound.relation === "at"
+      ? along
+      : bound.relation === "atOrBeyond"
+        ? Math.min(0, along)
+        : Math.max(0, along);
+  };
   const dataCost = (magnitudes: readonly number[]): number => {
     const projected = points(magnitudes).map((point) =>
       faceShapeFitProject(problem.view, point),
     );
     const similarity = fit(projected);
-    return used.reduce((sum, k) => {
-      const [px, py] = applyFaceLikenessSimilarity(similarity, projected[k]!);
-      const [tx, ty] = problem.target[k]!;
-      return (
-        sum +
-        (problem.weight[k]! * ((px - tx) ** 2 + (py - ty) ** 2)) /
-          problem.interocular ** 2
-      );
-    }, 0);
+    return (
+      used.reduce((sum, k) => {
+        const [px, py] = applyFaceLikenessSimilarity(similarity, projected[k]!);
+        const [tx, ty] = problem.target[k]!;
+        return (
+          sum +
+          (problem.weight[k]! * ((px - tx) ** 2 + (py - ty) ** 2)) /
+            problem.interocular ** 2
+        );
+      }, 0) +
+      bounds.reduce(
+        (sum, bound) =>
+          sum +
+          (bound.weight * excess(bound, similarity, projected) ** 2) /
+            problem.interocular ** 2,
+        0,
+      )
+    );
   };
   const fit = (projected: readonly FaceLikenessPoint[]) =>
     fitFaceLikenessSimilarity(
@@ -130,10 +184,8 @@ export function solveFaceShapeFit(problem: IFaceShapeFitProblem): {
     const s = fit(projected);
     // Residual rows r = S(P(x)) - y and their Jacobian by magnitude.
     const rows: { r: number; g: number[]; w: number }[] = [];
-    for (const k of used) {
-      const [px, py] = applyFaceLikenessSimilarity(s, projected[k]!);
+    const gradient = (k: number): [number[], number[]] => {
       const jp = projectionJacobian(problem.view, world[k]!);
-      const w = problem.weight[k]! / problem.interocular ** 2;
       const gx: number[] = [];
       const gy: number[] = [];
       for (const variable of problem.variables) {
@@ -154,8 +206,27 @@ export function solveFaceShapeFit(problem: IFaceShapeFitProblem): {
       const [u, v] = projected[k]!;
       gx.push(u, -v, 1, 0);
       gy.push(v, u, 0, 1);
+      return [gx, gy];
+    };
+    for (const k of used) {
+      const [px, py] = applyFaceLikenessSimilarity(s, projected[k]!);
+      const [gx, gy] = gradient(k);
+      const w = problem.weight[k]! / problem.interocular ** 2;
       rows.push({ r: px - problem.target[k]![0], g: gx, w });
       rows.push({ r: py - problem.target[k]![1], g: gy, w });
+    }
+    for (const bound of bounds) {
+      const r = excess(bound, s, projected);
+      if (r === 0 && bound.relation !== "at") continue;
+      const [gx, gy] = gradient(bound.point);
+      rows.push({
+        r,
+        g: gx.map(
+          (value, i) =>
+            bound.direction[0] * value + bound.direction[1] * gy[i]!,
+        ),
+        w: bound.weight / problem.interocular ** 2,
+      });
     }
     // Quadratic model in the step delta: 1/2 delta' H delta + b' delta,
     // over the shape magnitudes followed by the four similarity parameters.

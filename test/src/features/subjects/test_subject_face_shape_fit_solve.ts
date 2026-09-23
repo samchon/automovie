@@ -28,8 +28,15 @@ type Point = [number, number, number];
  *    only the left half stretched in the photograph (a twist no similarity
  *    imitates): without the symmetry prior the fit is (0.6, 0); with a
  *    strong one both approach 0.3.
- * 4. Fewer than three usable landmarks refuse.
- * 5. The bounded quadratic returns the interior, a clipped and a two-bound
+ * 4. A thirteenth point the photograph shows only as an incisal edge, moved
+ *    down 2 cm per unit by a channel no landmark sees: a bound at the
+ *    photograph of magnitude 0.5 recovers 0.5; an at-or-below bound there
+ *    lifts a start of 0 to 0.5, an at-or-above one pulls a start of 0.8 up
+ *    to 0.5, and each is inactive, leaving its start, from the side it
+ *    allows (the width starting fitted, so no early similarity moves the
+ *    edge); the bound's violation counts in the data cost.
+ * 5. Fewer than three usable landmarks refuse.
+ * 6. The bounded quadratic returns the interior, a clipped and a two-bound
  *    optimum (the last needs a bound released and another taken), and a
  *    singular system refuses.
  */
@@ -184,6 +191,75 @@ export const test_subject_face_shape_fit_solve = (): void => {
     "symmetry prior",
     nclose(symmetric[0]!, symmetric[1]!, 1e-3) &&
       Math.abs(symmetric[0]! - 0.3) < 0.05,
+  );
+  const jaw = [...stretch.map((): Point => [0, 0, 0]), [0, -0.02, 0] as Point];
+  const edgeAt = (magnitude: number) =>
+    faceShapeFitProject(view, [0, -0.03 - 0.02 * magnitude, 0.06]);
+  const withEdge = (
+    relation: "at" | "atOrBeyond" | "atOrBefore",
+    current: number,
+    width = 0.6,
+  ) =>
+    solveFaceShapeFit(
+      problem({
+        // The linearization point is the build at the current weights.
+        base: [
+          ...base.map(
+            (p, k): Point => [p[0] + width * stretch[k]![0], p[1], p[2]],
+          ),
+          [0, -0.03 - 0.02 * current, 0.06],
+        ],
+        target: [...photograph(0.6), null],
+        weight: [...base.map(() => 1), 0],
+        variables: [
+          {
+            channel: "width",
+            side: "positive",
+            current: width,
+            maximum: 1,
+            displacement: [...stretch, [0, 0, 0]],
+          },
+          {
+            channel: "jawOpen",
+            side: "positive",
+            current,
+            maximum: 1,
+            displacement: jaw,
+          },
+        ],
+        bounds: [
+          {
+            point: 12,
+            target: edgeAt(0.5),
+            direction: [0, 1],
+            relation,
+            weight: 1,
+          },
+        ],
+      }),
+    );
+  const exact = withEdge("at", 0, 0);
+  TestValidator.predicate(
+    "edge observed",
+    nclose(exact.magnitudes[1]!, 0.5, 1e-3) &&
+      nclose(exact.magnitudes[0]!, 0.6, 1e-3) &&
+      exact.costBefore > exact.costAfter,
+  );
+  TestValidator.predicate(
+    "at or below lifts",
+    nclose(withEdge("atOrBeyond", 0).magnitudes[1]!, 0.5, 1e-3),
+  );
+  TestValidator.predicate(
+    "at or below allows",
+    nclose(withEdge("atOrBeyond", 0.8).magnitudes[1]!, 0.8, 1e-6),
+  );
+  TestValidator.predicate(
+    "at or above pulls",
+    nclose(withEdge("atOrBefore", 0.8).magnitudes[1]!, 0.5, 1e-3),
+  );
+  TestValidator.predicate(
+    "at or above allows",
+    nclose(withEdge("atOrBefore", 0).magnitudes[1]!, 0, 1e-6),
   );
   TestValidator.predicate(
     "too few landmarks",

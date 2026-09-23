@@ -27,6 +27,13 @@
  *   lateral jaw and the lip-closure companion are kept as the document has
  *   them.
  *
+ * The landmarks trace the lips but never the teeth, so a smile's lower lip
+ * is matched as well by opening the jaw as by lowering the lip. The upper
+ * incisors ride the skull and the lower ones the mandible, so the two
+ * incisal edges (`faceIncisalEdges`) are fitted points too, observed where
+ * the photograph's midline shows them (`measureFaceLikenessTeeth`): at an
+ * edge, or at or beyond one a lip or the other arch hides.
+ *
  * The face oval, a silhouette the anchors follow only approximately, counts
  * half, and a shape channel seen almost only through it is held as tightly
  * as a symmetry-breaking one (`heldBySilhouette`). Landmarks are read from a hair-free build (hair does not move a face
@@ -45,14 +52,18 @@ import fs from "node:fs";
 import path from "node:path";
 import { gunzipSync } from "node:zlib";
 
+import { faceIncisalEdges } from "./faceIncisalEdges";
 import { faceLikenessInterocular } from "./faceLikenessGeometry";
 import {
   type IFaceLikenessDetections,
   indexFaceLikenessDetections,
+  readFaceLikenessImage,
   readFaceLikenessJson,
 } from "./faceLikenessIo";
+import { measureFaceLikenessTeeth } from "./faceLikenessTeeth";
 import { faceShapeFitView } from "./faceShapeFitCamera";
 import {
+  type IFaceShapeFitBound,
   type IFaceShapeFitVariable,
   solveFaceShapeFit,
 } from "./faceShapeFitSolve";
@@ -148,6 +159,35 @@ const poses = readFaceLikenessJson<
 >(poseFile!);
 const build = createHumanFaceBasisBuilder(basis);
 const human = basis.surfaces.find((surface) => surface.id === "Human")!;
+const edges = faceIncisalEdges(basis);
+const dentition = basis.surfaces.find(
+  (surface) => surface.id === edges.surface,
+)!;
+const EDGES = [edges.upper, edges.lower];
+
+// An incisal edge is independent of the landmarks' correlated errors, so on
+// their scale it weighs (sigma_n / sigma_t)^2 * 468 / 68, where sigma_t
+// combines the profile's reading error, 0.01 inter-ocular, with how far an
+// edge sits from where this basis puts it, the spread of resting incisal
+// display between people: 2.69 mm in men and 2.24 mm in women (n = 150,
+// PMC6340193), 2.5 mm pooled, over the basis's eye-joint distance.
+const eye = (id: string) => {
+  const at = basis.landmarks!.ids.indexOf(id);
+  return basis.landmarks!.positions.slice(3 * at, 3 * at + 3);
+};
+const [leftEye, rightEye] = basis.articulation!.eyes.map((one) =>
+  eye(one.center),
+) as [number[], number[]];
+const eyeDistance = Math.hypot(
+  ...leftEye.map((value, axis) => value - rightEye[axis]!),
+);
+const TEETH_WEIGHT =
+  ((0.02 / Math.hypot(0.01, 0.0025 / eyeDistance)) ** 2 * 468) / 68;
+const RELATION = {
+  at: "at",
+  atOrBelow: "atOrBeyond",
+  atOrAbove: "atOrBefore",
+} as const;
 const shape = basis.channels.filter((channel) => channel.kind === "shape");
 const expression = basis.channels.filter((channel) =>
   EXPRESSIONS.includes(channel.id),
@@ -199,8 +239,19 @@ const shapeMovesFor = (list: IAnchors) => {
         map.set(flat[i]!, [flat[i + 1]!, flat[i + 2]!, flat[i + 3]!]);
     rows.set(endpoint, map);
   }
-  const displacement = (endpoint: string | null) =>
-    list.map(({ anchor }): [number, number, number] => {
+  const edgeRow = (endpoint: string, vertex: number) => {
+    const flat = dentition.targets[endpoint] ?? [];
+    for (let i = 0; i < flat.length; i += 4)
+      if (flat[i] === vertex)
+        return [flat[i + 1]!, flat[i + 2]!, flat[i + 3]!] as [
+          number,
+          number,
+          number,
+        ];
+    return [0, 0, 0] as [number, number, number];
+  };
+  const displacement = (endpoint: string | null) => [
+    ...list.map(({ anchor }): [number, number, number] => {
       const map = endpoint === null ? undefined : rows.get(endpoint);
       if (anchor === null || map === undefined) return [0, 0, 0];
       return [0, 1, 2].map((axis) =>
@@ -210,7 +261,11 @@ const shapeMovesFor = (list: IAnchors) => {
           0,
         ),
       ) as [number, number, number];
-    });
+    }),
+    ...EDGES.map((vertex): [number, number, number] =>
+      endpoint === null ? [0, 0, 0] : edgeRow(endpoint, vertex),
+    ),
+  ];
   return shape.map((channel) => ({
     channel,
     positive: displacement(channel.positive),
@@ -234,6 +289,8 @@ const silhouetteOnly = (
   let oval = 0;
   let all = 0;
   displacement.forEach((d, k) => {
+    // The incisal edges follow the landmarks and are no silhouette evidence.
+    if (k >= 468) return;
     const energy = d[0] ** 2 + d[1] ** 2 + d[2] ** 2;
     all += energy;
     if (OVAL.has(k)) oval += energy;
@@ -252,7 +309,10 @@ const heldBySilhouette = (
       (move.negative !== null && silhouetteOnly(move.negative) ? 25 : 1),
   }));
 
-/** Landmark points of a document's hair-free build, or null when refused. */
+/**
+ * Landmark points of a document's hair-free build followed by its two
+ * incisal edges, or null when refused.
+ */
 const landmarksAt = (
   list: IAnchors,
   document: IAutoMovieHumanFaceBasisDocument,
@@ -264,11 +324,22 @@ const landmarksAt = (
     return null;
   }
   const positions = faceShapeFitSurfacePositions(basis, model, "Human");
-  return list.map(({ anchor }) =>
-    anchor === null
-      ? ([0, 0, 0.2] as [number, number, number])
-      : faceShapeFitAnchorPoint(positions, anchor),
-  );
+  const teeth = faceShapeFitSurfacePositions(basis, model, edges.surface);
+  return [
+    ...list.map(({ anchor }) =>
+      anchor === null
+        ? ([0, 0, 0.2] as [number, number, number])
+        : faceShapeFitAnchorPoint(positions, anchor),
+    ),
+    ...EDGES.map(
+      (vertex) =>
+        [
+          teeth[3 * vertex]!,
+          teeth[3 * vertex + 1]!,
+          teeth[3 * vertex + 2]!,
+        ] as [number, number, number],
+    ),
+  ];
 };
 
 /** Blend two channel records by a fraction, dropping zeros and rounding. */
@@ -315,10 +386,41 @@ for (const document of documents) {
   );
   const landmarks = (candidate: IAutoMovieHumanFaceBasisDocument) =>
     landmarksAt(list, candidate);
-  const target = photo.face.landmarks
-    .slice(0, 468)
-    .map((point, k) => (list[k]!.anchor === null ? null : point));
-  const weight = target.map((_, k) => (OVAL.has(k) ? 0.5 : 1));
+  const target = [
+    ...photo.face.landmarks
+      .slice(0, 468)
+      .map((point, k) => (list[k]!.anchor === null ? null : point)),
+    null,
+    null,
+  ];
+  const weight = target.map((_, k) => (k >= 468 ? 0 : OVAL.has(k) ? 0.5 : 1));
+  const teeth = measureFaceLikenessTeeth(
+    readFaceLikenessImage(path.join(path.dirname(detectionFile!), photo.rgb!)),
+    photo.face.landmarks,
+  );
+  const bounds: IFaceShapeFitBound[] =
+    teeth === null
+      ? []
+      : [teeth.upper, teeth.lower].flatMap((edge, k) =>
+          edge === null
+            ? []
+            : [
+                {
+                  point: 468 + k,
+                  target: edge.point,
+                  direction: teeth.down,
+                  relation: RELATION[edge.relation],
+                  weight: TEETH_WEIGHT,
+                },
+              ],
+        );
+  console.log(
+    subject,
+    "incisal edges",
+    teeth === null
+      ? "not shown"
+      : `upper ${teeth.upper?.relation ?? "-"}, lower ${teeth.lower?.relation ?? "-"}`,
+  );
   const view = faceShapeFitView({ ...pose, pitch: pose.pitch ?? 0 });
   const costs: string[] = [];
   for (let outer = 0; outer < 3; ++outer) {
@@ -384,6 +486,7 @@ for (const document of documents) {
       mu,
       interocular: faceLikenessInterocular(photo.face.landmarks),
       iterations: 6,
+      bounds,
     });
     costs.push(result.costBefore.toFixed(4), result.costAfter.toFixed(4));
     const nextShape: Record<string, number> = {};

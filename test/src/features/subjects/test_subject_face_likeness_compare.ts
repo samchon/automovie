@@ -41,10 +41,12 @@ const turned = (angle: number): number[][] => [
  * 4. Skin over sclera luminance is 1 on the fixture, whose sclera ring is
  *    skin coloured; a sclera painted (3, 3, 3) is read on the CIE linear
  *    segment, a black one gives no ratio, and so does missing skin.
- * 5. The summary takes medians over subjects and counts only present
+ * 5. The fixture's closed mouth measures no teeth on either side.
+ * 6. The summary takes medians over subjects and counts only present
  *    values: a subject whose irises were not sampled adds nothing to the
- *    iris signals and nothing is counted as zero; an empty population has
- *    null medians and zero counts.
+ *    iris signals and nothing is counted as zero; incisor signals are the
+ *    render minus the photograph where both were measured; an empty
+ *    population has null medians and zero counts.
  */
 export const test_subject_face_likeness_compare = (): void => {
   const face: IFaceLikenessObservation = {
@@ -199,6 +201,28 @@ export const test_subject_face_likeness_compare = (): void => {
     nclose(painted([3, 3, 3])! / (skinY / darkY), 1, 1e-6),
   );
   TestValidator.equals("black sclera", painted([0, 0, 0]), null);
+  const none = { reference: null, render: null };
+  TestValidator.equals("no teeth", same.teeth, {
+    upperExposure: none,
+    lowerExposure: none,
+    gap: none,
+  });
+  const smiling = {
+    ...same,
+    teeth: {
+      upperExposure: { reference: 0.12, render: 0.08 },
+      lowerExposure: { reference: 0.03, render: 0 },
+      gap: { reference: null, render: 0.05 },
+    },
+  };
+  const teethSummary = summarizeFaceLikeness([smiling, same]);
+  TestValidator.predicate(
+    "incisor errors",
+    nclose(teethSummary.upperIncisorExposureSignedError!.median!, -0.04) &&
+      teethSummary.upperIncisorExposureSignedError!.count === 1 &&
+      nclose(teethSummary.lowerIncisorExposureSignedError!.median!, -0.03) &&
+      teethSummary.incisalGapSignedError!.count === 0,
+  );
   const summary = summarizeFaceLikeness([same, taller, blind]);
   TestValidator.predicate(
     "sclera ratio error",

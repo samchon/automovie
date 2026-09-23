@@ -5,6 +5,8 @@ import {
   createHumanFaceBasisBuilder,
 } from "@automovie/human";
 
+import { faceIncisalEdges } from "./faceIncisalEdges";
+
 /**
  * Place a contact basis's dentition at the population's resting incisal
  * display, as a new basis revision.
@@ -25,10 +27,7 @@ import {
  * their vertex identities, and the real builder must admit the neutral and
  * every document before the revision is returned.
  *
- * The contact's incisal pair is where the two crowns meet, which is not
- * their edges, so each edge is read from the crown that holds the pair's
- * vertex: the connected component of the dentition surface, lowest vertex
- * for the upper crown and highest for the lower. Display is the upper lip
+ * The incisal edges are `faceIncisalEdges`'s. Display is the upper lip
  * seam's height minus the upper edge's; overbite and overjet are the
  * cephalometric edge-to-edge distances, vertical and forward. Documents and
  * controls are restamped to the new revision; nothing else in them changes.
@@ -108,38 +107,16 @@ interface IDentalMeasure {
 
 function measureDental(basis: IAutoMovieHumanFaceBasis): IDentalMeasure {
   const contact = basis.contact!;
-  const teeth = basis.surfaces.find(
-    (one) => one.id === contact.incisors.surface,
-  )!;
-  const parent = Array.from(
-    { length: teeth.positions.length / 3 },
-    (_, index) => index,
-  );
-  const root = (vertex: number): number => {
-    while (parent[vertex] !== vertex) vertex = parent[vertex]!;
-    return vertex;
-  };
-  for (let t = 0; t < teeth.indices.length; t += 3)
-    for (let k = 1; k < 3; ++k)
-      parent[root(teeth.indices[t + k]!)] = root(teeth.indices[t]!);
-  const crown = (vertex: number) =>
-    parent.flatMap((_, other) => (root(other) === root(vertex) ? [other] : []));
+  const edges = faceIncisalEdges(basis);
+  const teeth = basis.surfaces.find((one) => one.id === edges.surface)!;
   const y = (vertex: number) => teeth.positions[3 * vertex + 1]!;
   const z = (vertex: number) => teeth.positions[3 * vertex + 2]!;
-  if (root(contact.incisors.upper) === root(contact.incisors.lower))
-    throw new Error("The incisal pair must lie on two separate crowns.");
-  const upperEdge = crown(contact.incisors.upper).reduce((best, vertex) =>
-    y(vertex) < y(best) ? vertex : best,
-  );
-  const lowerEdge = crown(contact.incisors.lower).reduce((best, vertex) =>
-    y(vertex) > y(best) ? vertex : best,
-  );
   const lips = basis.surfaces.find((one) => one.id === contact.lips.surface)!;
   return {
-    upperEdge,
-    lowerEdge,
-    displayMetres: lips.positions[3 * contact.lips.upper + 1]! - y(upperEdge),
-    overbiteMetres: y(lowerEdge) - y(upperEdge),
-    overjetMetres: z(upperEdge) - z(lowerEdge),
+    upperEdge: edges.upper,
+    lowerEdge: edges.lower,
+    displayMetres: lips.positions[3 * contact.lips.upper + 1]! - y(edges.upper),
+    overbiteMetres: y(edges.lower) - y(edges.upper),
+    overjetMetres: z(edges.upper) - z(edges.lower),
   };
 }
