@@ -1,7 +1,7 @@
 {
   "name": "ancient-civic-temple",
   "private": true,
-  "type": "module",
+  "type": "commonjs",
   "version": "0.1.0",
   "license": "MIT",
   "description": "An AutoMovie coding-agent production repository.",
@@ -14,8 +14,8 @@
       "ESNext",
       "DOM"
     ],
-    "module": "esnext",
-    "moduleResolution": "bundler",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "esModuleInterop": true,
     "newLine": "lf",
     "strict": true,
@@ -29,6 +29,8 @@
     "noEmitOnError": true,
     "inlineSourceMap": true,
     "inlineSources": true,
+    "allowJs": true,
+    "checkJs": true,
     "plugins": [
       {
         "transform": "@ttsc/lint",
@@ -42,7 +44,8 @@
   ],
   "scripts": {
     "lint": "ttsc --cache-dir node_modules/.cache/ttsc --noEmit -p package.json",
-    "format": "ttsc format --cache-dir node_modules/.cache/ttsc -p package.json"
+    "format": "ttsc format --cache-dir node_modules/.cache/ttsc -p package.json",
+    "viewer": "tsx src/viewer/server.cts"
   },
   "dependencies": {
     "@automovie/archetypes": "workspace:^",
@@ -52,14 +55,17 @@
     "@automovie/ingest": "workspace:^",
     "@automovie/interface": "workspace:^",
     "@automovie/production": "workspace:^",
-    "@automovie/render": "workspace:^"
+    "@automovie/render": "workspace:^",
+    "three": "catalog:three"
   },
   "devDependencies": {
     "@automovie/evidence": "workspace:^",
     "@automovie/template": "workspace:^",
     "@ttsc/lint": "^0.29.0",
     "@types/node": "^22.19.17",
+    "@types/three": "catalog:three",
     "ttsc": "^0.29.0",
+    "tsx": "^4.23.15",
     "typescript": "^7.0.2"
   }
 }

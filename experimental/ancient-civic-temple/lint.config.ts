@@ -7,7 +7,6 @@ import {
   evidence,
 } from "@automovie/evidence";
 import type { ITtscLintConfig } from "@ttsc/lint";
-import { fileURLToPath } from "node:url";
 
 /**
  * The sole tracked production kind, population scope, branch-stage, and local
@@ -40,7 +39,7 @@ const spacesStage = "review" as const;
 
 export const productionEvidence = {
   ...createBlankAutoMovieProductionEvidence(
-    fileURLToPath(new URL(".", import.meta.url)),
+    __dirname,
     "korean" as AutoMovieProductionLanguage,
   ),
   kind: "library",

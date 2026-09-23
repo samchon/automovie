@@ -6,6 +6,7 @@
  */
 import type { IAutoMovieOpeningProfile } from "@automovie/interface";
 import type { DoorPassage } from "../geometry/spatial-cells";
+import type { WallVoid } from "../geometry/wall-solids";
 import { templePlan as p } from "./building";
 import { templeLevels as y } from "./storey";
 
@@ -71,3 +72,32 @@ export const templeClerestories = () => ["north", "south"].flatMap((end) =>
     ] } satisfies IAutoMovieOpeningProfile,
   })),
 );
+
+/**
+ * 벽 실체에서 비울 문 void. 길이 방향은 유효 폭+양쪽 틀, 수직은 문턱
+ * 슬래브 아랫면부터 head+틀까지다. 문턱 슬래브 부피를 벽에서 비우는
+ * storey.md#threshold-support 예약과 같은 값을 소비한다.
+ */
+export const templeDoorVoid = (door: DoorPassage): WallVoid => ({
+  id: door.id,
+  from: door.center - door.width / 2 - door.frame,
+  to: door.center + door.width / 2 + door.frame,
+  bottom: y.floor - y.slabThickness,
+  top: y.floor + door.height + door.frame,
+});
+
+/** boundary ID 접두어로 한 벽이 받는 문 void만 고른다. */
+export const templeDoorVoidsOn = (boundaryPrefix: string): WallVoid[] =>
+  templeDoorPassages.filter((door) => door.boundary.startsWith(boundaryPrefix)).map(templeDoorVoid);
+
+/** 박공 채광구의 실제 void. 틀 두께를 포함한 profile 범위와 같다. */
+export const templeClerestoryVoidsOn = (boundary: string): WallVoid[] =>
+  templeClerestories().filter((window) => window.boundary === boundary).map((window) => {
+    const xs = window.profile.outline.map((point) => point.x);
+    const ys = window.profile.outline.map((point) => point.y);
+    return {
+      id: window.id,
+      from: Math.min(...xs), to: Math.max(...xs),
+      bottom: Math.min(...ys), top: Math.max(...ys),
+    };
+  });
