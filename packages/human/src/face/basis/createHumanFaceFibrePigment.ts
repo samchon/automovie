@@ -16,11 +16,15 @@ import type { IAutoMovieHumanFaceBasisDocument } from "../structures/IAutoMovieH
  * override may now carry `pigment`, the fibres' linear RGB albedo, and
  * `density`, a factor on their coverage.
  *
- * For a pigment, each covered texel (alpha above zero) keeps its luminance
- * relative to the coverage-weighted mean luminance of all covered texels,
- * which is the texture's own fibre-to-fibre and root-to-tip variation, and
- * takes the pigment times that ratio, held to [0,1]; the material's
- * base-colour factor becomes white so the pigment is not multiplied again.
+ * For a pigment, the reference is the median luminance of the texels the
+ * card draws (coverage at or above its mask cutoff, every covered texel for
+ * a blended card), the typical fibre. Each covered texel takes the pigment
+ * times its luminance over that reference, held at one: a darker texel keeps
+ * its shade (the card's own fibre-to-fibre and root-to-tip variation), while
+ * the source's brighter texels, which are coverage fringes whose colour bled
+ * from the authoring background, are painted at the pigment itself rather
+ * than lighter than any fibre. The material's base-colour factor becomes
+ * white so the pigment is not multiplied again.
  * For a density, each texel's coverage is multiplied by it and held to one,
  * so a factor below one thins the fibres under the material's own cutoff and
  * one above one fills them. Colour is computed in linear RGB and encoded as
@@ -36,7 +40,7 @@ import type { IAutoMovieHumanFaceBasisDocument } from "../structures/IAutoMovieH
  *
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Makes brow and lash fibre colour and density authored values painted by one rule on the shared cards.
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Expresses brow and lash differences as numerical material values over the common basis textures instead of personal images.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-fibre Repaints covered texels from the pigment and the texture's own luminance ratio and scales coverage by the density.
+ * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-fibre Repaints covered texels from the pigment and their luminance under the drawn texels' median, held at one, and scales coverage by the density.
  */
 export function createHumanFaceFibrePigment(): (
   overrides: IAutoMovieHumanFaceBasisDocument["materials"],
@@ -72,7 +76,10 @@ export function createHumanFaceFibrePigment(): (
       if (result?.key !== key) {
         let source = decoded.get(id);
         if (source === undefined) {
-          source = decode(material.baseColorTexture);
+          source = decode(
+            material.baseColorTexture,
+            material.alphaMode === "mask" ? (material.alphaCutoff ?? 0.5) : 0,
+          );
           decoded.set(id, source);
         }
         result = {
@@ -94,25 +101,26 @@ export function createHumanFaceFibrePigment(): (
   };
 }
 
-/** A decoded fibre texture and the coverage-weighted mean luminance. */
+/** A decoded fibre texture and the median luminance of its drawn texels. */
 interface IDecodedFibres {
   width: number;
   height: number;
   rgba: Uint8Array;
-  mean: number;
+  reference: number;
 }
 
-function decode(uri: string): IDecodedFibres {
+function decode(uri: string, cutoff: number): IDecodedFibres {
   const image = decodePortraitPng(uri);
-  let weighted = 0;
-  let coverage = 0;
+  const drawn: number[] = [];
   for (let texel = 0; texel < image.width * image.height; ++texel) {
     const alpha = image.rgba[4 * texel + 3]! / 255;
-    if (alpha === 0) continue;
-    weighted += alpha * luminance(image.rgba, texel);
-    coverage += alpha;
+    if (alpha > 0 && alpha >= cutoff) drawn.push(luminance(image.rgba, texel));
   }
-  return { ...image, mean: coverage === 0 ? 0 : weighted / coverage };
+  drawn.sort((a, b) => a - b);
+  return {
+    ...image,
+    reference: drawn.length === 0 ? 0 : drawn[Math.floor(drawn.length / 2)]!,
+  };
 }
 
 function paint(
@@ -126,9 +134,11 @@ function paint(
     if (alpha === 0) continue;
     if (pigment !== undefined) {
       const ratio =
-        source.mean === 0 ? 1 : luminance(source.rgba, texel) / source.mean;
+        source.reference === 0
+          ? 1
+          : Math.min(1, luminance(source.rgba, texel) / source.reference);
       for (let c = 0; c < 3; ++c)
-        rgba[4 * texel + c] = toByte(Math.min(1, pigment[c]! * ratio));
+        rgba[4 * texel + c] = toByte(pigment[c]! * ratio);
     }
     if (density !== undefined)
       rgba[4 * texel + 3] = Math.min(255, Math.round(alpha * density));

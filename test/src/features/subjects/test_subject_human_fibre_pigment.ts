@@ -18,9 +18,10 @@ const srgb = (linear: number): number =>
   );
 
 /**
- * A 2 x 2 fibre card: texel 0 uncovered, texel 1 dark (sRGB 20) at full
- * coverage, texel 2 lighter (sRGB 60) at half coverage (128), texel 3 the
- * dark colour again at a quarter (64); masked at 0.15 like the basis brow.
+ * A 2 x 2 fibre card masked at 0.15 like the basis brow: texel 0 sRGB 10 at
+ * coverage 30, under the cutoff; texel 1 sRGB 20 at full coverage; texel 2
+ * a bright fringe, sRGB 60 at half coverage (128); texel 3 sRGB 10 at a
+ * quarter (64).
  */
 const card = (): IAutoMovieMaterial => ({
   id: "brow",
@@ -34,7 +35,7 @@ const card = (): IAutoMovieMaterial => ({
     width: 2,
     height: 2,
     rgba: new Uint8Array([
-      0, 0, 0, 0, 20, 20, 20, 255, 60, 60, 60, 128, 20, 20, 20, 64,
+      10, 10, 10, 30, 20, 20, 20, 255, 60, 60, 60, 128, 10, 10, 10, 64,
     ]),
   }),
   doubleSided: true,
@@ -46,14 +47,14 @@ const card = (): IAutoMovieMaterial => ({
  * Fibre pigment and density on a coverage card.
  * Scenarios:
  * 1. A pigment repaints each covered texel as the pigment times its
- *    luminance over the coverage-weighted mean luminance, held to one: with
- *    grey texels of linear luminance l1 (sRGB 20) and l2 (sRGB 60) at
- *    coverage 1, 128/255 and 64/255, the mean is their coverage-weighted
- *    average; the
- *    uncovered texel and every alpha are unchanged and the base-colour
- *    factor becomes white.
- * 2. A density halves or doubles coverage (128 to 64, 64 to 128, 255 held
- *    at 255) and keeps colour and the base-colour factor.
+ *    luminance over the median luminance of the drawn texels (1, 2 and 3,
+ *    so sRGB 20), held at one: texel 1 takes the pigment, the brighter
+ *    fringe the pigment too, the darker texels (0 and 3) the pigment times
+ *    l(10) / l(20); every alpha is unchanged and the base-colour factor
+ *    becomes white. A card with no texel at its cutoff paints the pigment
+ *    itself, and a blended card draws every covered texel (median sRGB 20).
+ * 2. A density halves or doubles coverage (30 to 15, 128 to 64, 64 to 128,
+ *    255 held at 255) and keeps colour and the base-colour factor.
  * 3. Repeating the same override reuses the same texture string; a new
  *    value paints a new one; omission and an override with only colour or
  *    roughness leave the material byte for byte.
@@ -70,27 +71,57 @@ export const test_subject_human_fibre_pigment = (): void => {
     const c = byte / 255;
     return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
   };
-  const l1 = toLinear(20);
-  const l2 = toLinear(60);
-  const [half, quarter] = [128 / 255, 64 / 255];
-  const mean = ((1 + quarter) * l1 + half * l2) / (1 + half + quarter);
+  const dark = toLinear(10) / toLinear(20);
   const painted = [card()];
   rule({ brow: { pigment: [0.3, 0.12, 0.05] } }, painted);
   const image = decodePortraitPng(painted[0]!.baseColorTexture as string);
   const expected = (ratio: number) =>
-    [0.3, 0.12, 0.05].map((value) => srgb(Math.min(1, value * ratio)));
+    [0.3, 0.12, 0.05].map((value) => srgb(value * ratio));
   TestValidator.equals("pigment by luminance ratio", Array.from(image.rgba), [
-    0,
-    0,
-    0,
-    0,
-    ...expected(l1 / mean),
+    ...expected(dark),
+    30,
+    ...expected(1),
     255,
-    ...expected(l2 / mean),
+    ...expected(1),
     128,
-    ...expected(l1 / mean),
+    ...expected(dark),
     64,
   ]);
+  const faint = [
+    {
+      ...card(),
+      baseColorTexture: encodePortraitPng({
+        width: 1,
+        height: 1,
+        rgba: new Uint8Array([20, 20, 20, 30]),
+      }),
+    },
+  ];
+  // A rule belongs to one basis and caches by material id, so another
+  // card is painted by a rule of its own.
+  createHumanFaceFibrePigment()(
+    { brow: { pigment: [0.3, 0.12, 0.05] } },
+    faint,
+  );
+  TestValidator.equals(
+    "nothing drawn",
+    Array.from(
+      decodePortraitPng(faint[0]!.baseColorTexture as string).rgba,
+    ).slice(0, 3),
+    expected(1),
+  );
+  const blended = [{ ...card(), alphaMode: "blend" as const }];
+  createHumanFaceFibrePigment()(
+    { brow: { pigment: [0.3, 0.12, 0.05] } },
+    blended,
+  );
+  TestValidator.equals(
+    "blend draws every covered texel",
+    Array.from(
+      decodePortraitPng(blended[0]!.baseColorTexture as string).rgba,
+    ).slice(4, 7),
+    expected(1),
+  );
   TestValidator.equals(
     "white factor",
     [painted[0]!.baseColor.r, painted[0]!.baseColor.g, painted[0]!.baseColor.b],
@@ -107,8 +138,8 @@ export const test_subject_human_fibre_pigment = (): void => {
       factor: materials[0]!.baseColor.r,
     };
   });
-  TestValidator.equals("thinned", densities[0]!.alpha, [0, 128, 64, 32]);
-  TestValidator.equals("filled", densities[1]!.alpha, [0, 255, 255, 128]);
+  TestValidator.equals("thinned", densities[0]!.alpha, [15, 128, 64, 32]);
+  TestValidator.equals("filled", densities[1]!.alpha, [60, 255, 255, 128]);
   TestValidator.equals("factor kept", densities[1]!.factor, 0.5);
 
   const again = [card()];
