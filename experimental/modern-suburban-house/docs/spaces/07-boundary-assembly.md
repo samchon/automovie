@@ -5,7 +5,7 @@
 @evidence principles/core/common.md#scope-preservation 두 층의 방 사이 공유 칸막이마다 공통 몸체 생성 owner와 양쪽 마감 owner, 열린 접속의 유지, 계단·차고·수납 구조의 예외를 맡는다.
 @evidence principles/core/common.md#substantive-completion 맞닿는 실 쌍마다 공통 구조 바탕의 source owner를 표로 정하고 일반 칸막이 높이를 해당 storey의 완성 바닥에서 천장까지로 둔다.
 @evidence principles/core/common.md#declared-basis 방 안쪽 윤곽·칸막이 두께·문 위치는 05가 가리키는 원래 owner에서 받고 두 방의 중간선을 평균하지 않으며 불일치하면 원래 평면을 고친다고 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation surface-allocation의 공유 구조 하나를 방 쌍별 생성 파일로 배정해 양쪽 방이 같은 칸막이를 두 번 만들지 않게 한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation surface-allocation이 선언하라고 한 "각 방 내부의 완결 면"과 "접합의 owner"에 맞닿는 실 쌍마다 공통 구조 바탕의 소스 owner 하나를 더해 양쪽 방이 같은 칸막이를 두 번 만들지 않게 한다.
 @evidence principles/design/spaces.md#space-topology 현관과 서비스의 열린 접속과 계단 끝의 복도 도착은 벽 없이 두고 거실/서비스와 공용부 사이는 상인방 아래 void 외의 전면 칸막이를 닫는다.
 @evidence principles/design/spaces.md#space-boundary-authority 공유 벽은 garage.ts, 계단 보호/분리는 stair.ts, 외투장·린넨장은 entry·upper-hall이 유지하고 boundaries.ts는 경계 계산만 하며 벽 geometry를 소유하지 않는다.
 @evidence principles/design/spaces.md#space-verification-address 상대가 하나뿐인 실내 벽, 설명 없는 겹친 방, owner 없는 접면, 두 구조 owner가 같은 접면을 만든 상태를 층 평면·높이 단면·공유 면 census에서 찾는다.
@@ -45,7 +45,7 @@
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 한 구조 기준 요구에 문서 행 순서나 런타임 평가 순서에 흔들리지 않는 접합 배정 규칙과 부착물이 닫힌 벽 구간에만 붙는 조건을 더한다.
 @evidence principles/design/spaces.md#space-topology 층이 다르거나 계단 위아래에 있는 면을 평면 투영 겹침만으로 합치지 않고 머드룸 한 단·포치·정원문·계단 구멍에는 같은 높이 규칙을 적용하지 않는다.
 @evidence principles/design/spaces.md#space-boundary-authority 문틀·문짝은 원래 문 owner가 한 번 생성하고 반대 방은 그 반대 면을 관찰하며 외벽·공유 벽·계단 구조와 만나는 접합은 그 기존 owner가 받는다.
-@evidence principles/design/spaces.md#space-verification-address 두 층의 모든 공유 벽·개구부·접합의 높이별 단면과 양쪽 방 시야, 닫힌/열린 문과 서로 다른 바닥 마감을 읽게 한다.
+@evidence principles/design/spaces.md#space-verification-address 두 층의 모든 실내 공유 벽과 그 실제 개구부, 그 벽이 만나는 모든 접합의 높이별 단면과 양쪽 방 안 시야에서 닫힌/열린 문과 서로 다른 바닥 마감을 함께 읽게 한다.
 @evidence settings/10-house.md#openings 실제 void와 문 부재를 양 방이 공유하며 벽 구멍과 닫힌 문 상태를 구별한다.
 @evidence settings/00-production.md#build-allocation 공개 엔진이 이 공통 몸체/절단/면 인계를 지원하지 않으면 표현 한계를 기록해 조정자에게 올리도록 정해, 엔진에 없는 기능을 제한 기록으로 다루는 배분을 따른다.
 @evidenceExclude settings/20-verification.md#implementation-boundary spaces 47개 문서에는 편집 범위·의존성 선언·설치·lockfile 제출을 정하거나 소비하는 공간 결정이 없다. 이 H2처럼 엔진 기능 부족을 다루는 문장은 기록과 조정자 이관만 말하며 그 배분은 build-allocation이 소유한다.
@@ -71,7 +71,7 @@
 @evidence principles/core/common.md#scope-preservation 본채·차고 외벽 모서리, 차고 앞뒤 벽의 왼쪽 끝, 단차 벽과 앞뒤 외벽의 교차, 굴뚝과 본채 벽의 중복 구역에서 공통 몸체의 단일 배정을 맡는다.
 @evidence principles/core/common.md#substantive-completion 앞뒤 모서리 몸체는 front/rear, 차고 앞뒤 벽의 왼쪽 끝은 garage 공유 벽 owner가 받고 측벽 직선 몸체는 앞뒤 벽의 안쪽 면에서 끝나게 한다.
 @evidence principles/core/common.md#declared-basis 외곽은 00, 벽 상단은 roof-wall-head-junctions에서 받고 서로 다른 지붕 높이를 평균하지 않으며 실제로 겹치는 높이 구간만 공유한다고 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation surface-allocation의 공유 구조 하나를 외벽 모서리별 우선 owner 표로 만들고 몸체 배정이 옆면의 연속 마감 소유를 바꾸지 않게 한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation surface-allocation의 "여러 소유자의 독립 기준을 허용하지 않는다"를 본채·차고 외벽 모서리, 차고 앞뒤 벽의 왼쪽 끝, 단차 벽 교차마다 단일 우선 owner를 두는 표로 구체화하고 몸체 배정이 옆면의 연속 마감 소유를 바꾸지 않게 한다.
 @evidence principles/design/spaces.md#space-topology 본채/차고 공유 벽의 상부를 본채 지붕 아래까지 이어 차고 지붕/천장에서 본채 경계를 자르지 않고 굴뚝 중복 구역에서 거실 화구 접면을 막지 않는다.
 @evidence principles/design/spaces.md#space-boundary-authority front가 받는 모서리 몸체의 옆면 마감은 left/right 입면 owner의 연속 면으로 남고 boundaries.ts는 구역과 높이만 계산한다.
 @evidence principles/design/spaces.md#space-verification-address 모든 외벽 모서리·공유 벽 두 끝·단차 교차·굴뚝 접점의 높이별 평면과 상단 단면에서 몸체 합집합·교집합과 void 재폐쇄를 읽게 한다.
@@ -88,7 +88,7 @@
 | 본채 뒤쪽 두 모서리 | rear 입면 owner가 뒤 벽 두께 안의 모서리 몸체를 받는다. left/right 직선 몸체는 뒤 벽의 안쪽 면에서 끝난다. |
 | 차고 오른쪽 앞/뒤 모서리 | 각각 front/rear 입면 owner가 받는다. 차고 right 직선 몸체는 두 벽의 안쪽 면 사이에서 끝난다. |
 | 차고 앞/뒤 벽의 왼쪽 끝 | 기존 garage 공유 벽 owner를 우선한다. 두 차고 벽은 공유 벽의 차고 쪽 면에서 끝나며 본채 벽 두께 안에 겹친 끝기둥을 만들지 않는다. |
-| 본채 지붕 단차 벽의 앞/뒤 외벽 접합 | 실제로 겹치는 앞/뒤 외벽 두께 안의 몸체는 각각 front/rear owner가 받는다. right owner의 단차 벽은 그 구역을 제외하고, 외벽 바깥 처마 구간과 외벽 안쪽 지붕 구간의 나머지를 잇는다. |
+| [본채 지붕 단차](../settings/10-house.md#main-mass) 벽의 앞/뒤 외벽 접합 | 실제로 겹치는 앞/뒤 외벽 두께 안의 몸체는 각각 front/rear owner가 받는다. right owner의 단차 벽은 그 구역을 제외하고, 외벽 바깥 처마 구간과 외벽 안쪽 지붕 구간의 나머지를 잇는다. |
 
 이 배정은 평면의 모서리 사각형을 모든 높이에 일괄 복제하는 규칙이 아니다. 각 몸체의 아래/위 경계가 실제로 겹치는 높이 구간만 공유하고 문·창 void도 동일하게 제외한다. 본채/차고 공유 벽의 상부는 본채 지붕 아래까지 이어지며 차고 지붕/천장에서 본채 경계를 잘라 버리지 않는다. 차고 지붕 위에서 바깥에 드러나는 면은 기존 right 입면 owner가 유지한다. 왼쪽 굴뚝과 본채 벽의 중복 구역도 기존 left owner 안에서 한 몸체 경계로 통합하며 거실의 화구 접면을 다시 막지 않는다.
 

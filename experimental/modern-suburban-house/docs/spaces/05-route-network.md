@@ -4,13 +4,13 @@
 <!--
 @evidence principles/core/common.md#scope-preservation 외부 포장부터 상층 옷방까지의 모든 출발-경계-도착, 수납의 경로 제외, 도달·귀환 검사, 인접성과 통행의 구별, maps 이후의 외부 시작점을 맡는다.
 @evidence principles/core/common.md#substantive-completion 방별 문 또는 열린 접속의 owner와 도착 storey를 한 연결 표로 정하고 계단을 front-entry 하부 대기에서 upper-hall 도착면으로 가는 단일 connector로 넣는다.
-@evidence principles/core/common.md#declared-basis 표의 이름은 소스로 넘길 식별자이며 compiled id·개수·binding이 아니고 문 좌표는 링크한 방 owner가 결정한다고 밝힌다.
+@evidence principles/core/common.md#declared-basis 표의 이름은 소스로 넘길 식별자이며 compiled id·개수·binding이 아니고 방의 마감 안쪽 경계·입구·예약 사용 공간은 표에 링크한 각 owner가 결정한다고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 설정의 고정 그래프를 builtEnvironmentAdjacentSpaces의 경계 인접성과 분리해 통행용 문·열린 접속·connector만 사람 경로 edge로 세는 규칙을 더한다.
 @evidence principles/design/spaces.md#space-topology 팬트리·파우더룸·침실을 통과하지 않고 공용실·차고·두 욕실에 닿아야 하며, 실내에서 차고로 가는 edge는 laundry-garage-door 하나이고 garage-front-door는 개방 검사 상태에서만 driveway와 garage를 잇는 외부 edge다.
 @evidence principles/design/spaces.md#space-boundary-authority 표는 방 owner의 좌표를 복사하지 않고 연결 순서만 인계하며 층간 연결은 main-stair, 두 층은 storey owner가 소유한다.
 @evidence principles/design/spaces.md#space-verification-address 현관에서 각 목적지까지 갔다 같은 경계 순서로 돌아오는 경로를 검사하고 거친 개구부 좌표와 문틀/문짝 뒤 통행을 다른 검사로 둔다.
-@evidence settings/10-house.md#service-band 서비스에서 세 실로 분기하고 차고에는 머드룸을 거쳐 직접 연결한다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work entry의 직접 분배, service-band의 세 실 분기와 머드룸-차고 연결, upper-hall의 세 침실·두 욕실·수납 직접 접근을 표의 개구부 owner에 대조했고 모두 문이나 열린 접속으로 이어져 부모 그래프 변경이 없었다.
+@evidence settings/10-house.md#service-band service-access에서 service-powder-door·service-laundry-door·service-pantry-door로 파우더룸·세탁 머드룸·팬트리에 분기하고 laundry-mudroom의 laundry-garage-door로 차고에 닿는다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work entry의 거실·계단 직접 분배, service-band의 파우더룸·세탁 머드룸·팬트리 분기와 머드룸-차고 연결, upper-hall의 세 침실·두 욕실 직접 접근을 표의 문·열린 접속·main-stair connector에 대조했고 복도 린넨은 소비 공간의 실제 opening을 갖는 수납으로 두어 방 경로 edge로 세지 않아 부모 그래프 변경이 없었다.
 @evidence obligations/design/spaces.md#space-reference-topology 외부 포장부터 상층 옷방까지 모든 공간의 출발-경계/개구부-도착과 storey를 한 표로 이어 이름 없는 경계를 건너는 연결이 없게 한다.
 @evidence obligations/design/spaces.md#space-access-circulation 현관에서 각 목적지까지 갔다 돌아오는 경로와 팬트리/파우더룸/침실 비통과, 창·벽만 공유하는 인접성을 통행 edge에서 제외하는 규칙을 배정한다.
 -->
@@ -52,7 +52,7 @@
 
 이 표의 외부 시작점은 아직 house-site 안 포장이다. [map 입력 인계](site/00-access.md#map-handoff-inputs)가 실제 외부 보도와 한 node의 두 포트를 결합하면 그 보도에서 시작하는 접근/복귀를 같은 경로 앞에 붙인다. 포트의 중심점만 이어 붙이거나 관리길을 세 번째 도로 포트로 취급하지 않는다. 필지/지표가 없는 현재 표만으로 도로에서 각 방까지 도달했다고 보고하지 않는다.
 
-[현관의 분배 바닥](rooms/entry.md#entry-use-routes)에서 계단·거실·서비스로 직접 분기한다. 거실은 [좌석 밖의 앞뒤 경로](rooms/living.md#living-through-route)로 주방에 이어지고, 서비스에서는 [외투 수납](rooms/entry.md#entry-coat-storage)을 쓰고 같은 길로 돌아온다. 위 표의 방/개구부 연결은 그대로이며, 문 조작·좌석·수납 사용의 순차 상태를 통행 상태와 구별한다.
+[현관의 분배 바닥](rooms/entry.md#entry-use-routes)에서 계단·거실·서비스로 [직접 분기한다](../settings/10-house.md#entry). 거실은 [좌석 밖의 앞뒤 경로](rooms/living.md#living-through-route)로 주방에 이어지고, 서비스에서는 [외투 수납](rooms/entry.md#entry-coat-storage)을 쓰고 같은 길로 돌아온다. 위 표의 방/개구부 연결은 그대로이며, 문 조작·좌석·수납 사용의 순차 상태를 통행 상태와 구별한다.
 
 후면 공용부 안의 [주 경로와 주방 접근](rooms/common.md#common-clear-routes)은 같은 room 내부의 통행이다. 주방·식사·가족실에 별도 문이나 복도 edge를 추가하지 않는다. 서비스 진입에서 정원문으로 갈 때는 가구 사용 점유를 돌아가는 주 경로를 소비하고, 거실 쪽 주방 진입과 열린 기기 앞 작업은 별도 상태로 검사한다. 식품 운반은 기존 팬트리 → 서비스 접근 → 공용부 경로를 유지한다.
 
@@ -60,6 +60,6 @@
 
 서비스 접근 → [팬트리 사용 통로](rooms/pantry.md#pantry-use-route) → [선반 식품](rooms/pantry.md#pantry-storage-use)의 경로는 같은 문으로 돌아와 서비스 뒤쪽 개구부와 공용부 주방으로 이어진다. 팬트리 뒤벽을 통과하는 새 edge는 없다. 문 조작과 꺼내기/회전 상태를 따로 검사하고, 서비스 통로에 내려둔 물건을 지운 채 통행을 판정하지 않는다.
 
-상층의 내부 사용 경로는 [주침실](rooms/primary.md#primary-furniture-use)·[올리브 침실](rooms/bedroom-two.md#bedroom-two-furniture-use)·[청회색 침실](rooms/bedroom-three.md#bedroom-three-furniture-use)·[샤워 욕실](rooms/shower-bath.md#shower-fixture-use)·[욕조 욕실](rooms/tub-bath.md#tub-fixture-use)이 자기 문에서 가구/기구까지 소유한다. 옷방은 계속 주침실에만 연결되며 두 욕실은 복도에서 직접 접근한다. 의자·열린 수납·문 조작을 생략해서 위 방 연결 표의 통행을 합격으로 바꾸지 않는다.
+상층의 내부 사용 경로는 [주침실](rooms/primary.md#primary-furniture-use)·[올리브 침실](rooms/bedroom-two.md#bedroom-two-furniture-use)·[청회색 침실](rooms/bedroom-three.md#bedroom-three-furniture-use)·[샤워 욕실](rooms/shower-bath.md#shower-fixture-use)·[욕조 욕실](rooms/tub-bath.md#tub-fixture-use)이 자기 문에서 가구/기구까지 소유한다. 옷방은 계속 주침실에만 연결되며 두 욕실은 [복도에서 직접 접근한다](../settings/10-house.md#upper-hall). 의자·열린 수납·문 조작을 생략해서 위 방 연결 표의 통행을 합격으로 바꾸지 않는다.
 
 표면 source 분배는 [완결 표면 소유](03-surface-owners.md#interior-surface-handoff)를 소비하고, 방이 실제로 만들어지면 [전체 관찰 파생](04-observations.md#spatial-observation-derivation)에 모두 들어간다. L형 현관·서비스·복도·주침실과 린넨에 의해 파인 청회색 침실의 숨는 코너는 기본 네 모서리 외에 질문을 더한다. 표를 고정 관찰 개수나 대표 view 선택표로 사용하지 않는다.

@@ -9,7 +9,7 @@
 @evidence principles/design/spaces.md#space-topology 울타리 양 끝이 본채 왼쪽 벽과 차고 오른쪽 앞 모서리에 닿고 건물 외피가 나머지 정원 경계를 이어 앞마당을 횡단하지 않는다.
 @evidence principles/design/spaces.md#space-boundary-authority 울타리 내부 지표는 maps, 테라스·관리길은 각 spaces owner가 소유하고 울타리는 별도 바닥을 만들지 않는다.
 @evidence principles/design/spaces.md#space-verification-address 전체 평면과 양쪽 벽 접점, 모든 꺾임의 안팎 시야로 폐합을 검사한다.
-@evidence settings/10-house.md#site-identity 우측의 목재 울타리를 정원을 감싸는 하나의 선으로 만들고 이웃집이나 배경 판을 두지 않는다.
+@evidence settings/10-house.md#site-identity 우측의 목재 울타리를 기존 관리문에서 정원 뒤까지 다섯 연속 구간으로 잇고 기존 건물 외피와 함께 정원 쪽 경계를 이루어 앞마당을 가로지르지 않게 한다.
 @evidence obligations/design/spaces.md#space-access-circulation 정원의 닫힌 경계를 울타리와 건물 외피로 배정하고 관리문 외의 숨은 통행 틈을 남기지 않는다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work site-identity의 우측 목재 울타리와 maps 소유 경계를 대조했고 울타리 선을 건물·관리길에서 도출할 수 있어 부모 수정이 없었다.
 -->

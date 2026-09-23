@@ -3,8 +3,8 @@
 ## 거친 개구부와 충전 부재의 경계 {#external-opening-interface}
 <!--
 @evidence principles/core/common.md#scope-preservation 외벽 거친 개구부의 좌표 형식과 소유, 벽 절단 인계, trim·창틀 깊이·창대 돌출 예약, 방별 창 작동 종류와 기준 상태, 관찰을 맡는다.
-@evidence principles/core/common.md#substantive-completion trim 0.10 m, 창틀 바깥 면 0.04 m 후퇴와 깊이 0.14 m, 창대·손잡이 안쪽 돌출 0.06 m 이내를 예약하고 방별 창 작동 종류를 정한다.
-@evidence principles/core/common.md#declared-basis 방 연결은 05, 높이는 roof-profile-datums에서 받고 builtBoundaryWallCut·extrudeAutoMovieRegion 적용 조건은 공개 API를 읽고 정한 인계이며 실제 절단 결과가 아니라고 밝힌다.
+@evidence principles/core/common.md#substantive-completion 외부 trim을 거친 개구부 둘레 0.10 m 이내로, 창틀 바깥 면을 날씨 면에서 0.04 m 물린 깊이 0.14 m 안에, 창대·손잡이 안쪽 돌출을 0.06 m 이내로 예약하고 방·창 종류별 작동 방식을 정한다.
+@evidence principles/core/common.md#declared-basis 방 연결은 05, 지붕 높이는 roof-profile-datums, 벽 두께 방향은 본채/차고 외곽에서 받고 builtBoundaryWallCut·extrudeAutoMovieRegion 적용 조건은 공개 API를 읽고 정한 인계이며 실제 절단 결과가 아니라고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation openings 설정의 두께 있는 frame·sash·유리를 외벽 두께 안의 충전 위치와 상하 미닫이·고정·상부 경첩 작동 종류로 정한다.
 @evidence principles/design/spaces.md#space-topology 각 입면 void가 방 안쪽 reveal까지 관통하고 문짝 상부 유리를 별도 외벽 구멍으로 세지 않으며 기준 상태에서 외부 문과 모든 창을 닫는다.
 @evidence principles/design/spaces.md#space-boundary-authority 개구부 좌표는 네 입면 owner, front-door만 entry owner가 소유하고 방은 같은 id의 reveal만 맡으며 openings.ts는 입면 geometry를 가져가지 않는다.

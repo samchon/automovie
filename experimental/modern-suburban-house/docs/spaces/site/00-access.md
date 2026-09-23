@@ -17,7 +17,7 @@
 
 `house-site`는 [본채와 차고](../00-building.md#main-building-extent), 포치와 아래의 외부 접근 구역을 포함할 site다. 건물에 딸린 보행길·차도·테라스는 [ground-storey](../01-storeys.md#storey-datums)의 외부 구역으로도 바인딩한다. 실내 방이나 별도 층을 추가하지 않는다. 좌표는 [공통 기준](../../settings/00-production.md#coordinate-units)을 사용한다. `src/spaces/site.ts`는 이 containment와 접속의 조립 owner이며 포장·지형을 직접 중복 생성하지 않는다.
 
-이 문서는 전면 포장의 바깥 끝을 Z = 6.50 m에 둔다. 이 선은 spaces가 요구하는 포장 끝이며 필지 경계나 공공 보도 선의 선언이 아니다. 같은 선 위 [현관 보행길](front-walk.md#front-walk-plan)의 끝과 [차고 차도](driveway.md#driveway-plan)의 끝은 모두 기존 [앞 보행길 datum](../01-storeys.md#ground-threshold-datums)에 닿는다. maps는 실제 필지 경계와 보도·연석·도로, 하나의 이름 있는 `house-site-access` node를 소유하고 이 두 접속 단면을 그 node의 보행/차도 포트로 받아야 한다. 별개의 두 외부 네트워크를 발명하지 않는다.
+이 문서는 [대지와 식재](../../settings/10-house.md#site-identity)의 앞 보도에 차고 진입 차도와 현관 보행길이 닿을 전면 포장의 바깥 끝을 Z = 6.50 m에 둔다. 이 선은 spaces가 요구하는 포장 끝이며 필지 경계나 공공 보도 선의 선언이 아니다. 같은 선 위 [현관 보행길](front-walk.md#front-walk-plan)의 끝과 [차고 차도](driveway.md#driveway-plan)의 끝은 모두 기존 [앞 보행길 datum](../01-storeys.md#ground-threshold-datums)에 닿는다. maps는 실제 필지 경계와 보도·연석·도로, 하나의 이름 있는 `house-site-access` node를 소유하고 이 두 접속 단면을 그 node의 보행/차도 포트로 받아야 한다. 별개의 두 외부 네트워크를 발명하지 않는다.
 
 현재 maps는 disabled이며 채택된 경계/node가 없다. 따라서 house-site의 세계 경계와 이 두 포트의 외부 연결은 미완료이고, 아래 내부 경로를 외부 도로까지 이어진 것으로 보고하지 않는다. maps가 아직 저작되지 않았으므로 map geometry를 이 문서에 미리 복사하지 않는다. 상위 boundary가 채택되면 포장 끝·좌표 변환·높이·폭을 양쪽에서 대조하고 불일치는 해당 설계 owner에서 고친다. 실제 map/space binding은 unverified다.
 
@@ -37,7 +37,7 @@
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work porch-entry의 직접 접근, site-identity의 테라스·울타리, garage의 닫힌 기준 상태를 대조했고 내부 경로로 모두 이어져 부모 수정이 없었다.
 -->
 
-현관 경로는 [front-walk](front-walk.md#front-walk-plan) → front-porch의 아래 대기 → 외부 세 단 → [포치](../porch.md#porch-platform-access) → [front-door](../rooms/entry.md#entry-plan) → front-entry다. 차도에서 현관으로 걸어올 때는 [driveway](driveway.md#driveway-plan) → front-walk의 가로 연결로 → 같은 포치 경로를 쓴다. 차고의 실내 진입은 기존 [머드룸 연결](../rooms/laundry.md#laundry-plan)이며 외부 차고문은 기본 닫힘을 유지한다. 차고문 작동 검사를 할 때만 열린 상태의 차도/차고 문턱 접속을 관찰한다. 자동차나 차량 주행 과제를 추가하지 않는다.
+이 H2는 [현관 포치와 외부 진입](../../settings/10-house.md#porch-entry)의 포치·현관 직접 접근과 [대지와 식재](../../settings/10-house.md#site-identity)의 후면 테라스·우측 목재 울타리를 house-site 안의 구간 순서로 잇는다. 현관 경로는 [front-walk](front-walk.md#front-walk-plan) → front-porch의 아래 대기 → 외부 세 단 → [포치](../porch.md#porch-platform-access) → [front-door](../rooms/entry.md#entry-plan) → front-entry다. 차도에서 현관으로 걸어올 때는 [driveway](driveway.md#driveway-plan) → front-walk의 가로 연결로 → 같은 포치 경로를 쓴다. 차고의 실내 진입은 기존 [머드룸 연결](../rooms/laundry.md#laundry-plan)이며 외부 차고문은 [기본 닫힘](../../settings/10-house.md#garage)을 유지한다. 차고문 작동 검사를 할 때만 열린 상태의 차도/차고 문턱 접속을 관찰한다. 자동차나 차량 주행 과제를 추가하지 않는다.
 
 후면 경로는 kitchen-dining-family → [garden-door](../envelope/rear.md#garden-door) → [garden-terrace](terrace.md#garden-terrace-plan)의 대기 → 중앙 보행 띠 → [테라스 외부 단](terrace.md#garden-steps-plan) → [garden-lower-landing](terrace.md#garden-lower-landing-plan)이다. 아래 대기의 바깥 끝은 [측면 관리길](side-walk.md#side-walk-plan)을 통해 차도로 이어진다. 그 길의 앞뒤 구역과 [울타리 문](side-walk.md#side-gate-interface)은 별도 내부 연결이며 외부 node를 늘리지 않는다. [울타리 선](fence.md#fence-enclosure-plan)은 건물/관리길에서 도출하지만 실제 정원 지표·필지 포함·폐합은 maps 입력과 함께 남은 항목이다. 잔디를 통과할 수 있다는 말로 열린 연결을 대신하지 않는다.
 
@@ -59,7 +59,7 @@ maps에 넘기는 포장 접속은 기존 전면 두 포트 외에 측면 관리
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work coordinate-units의 원점과 +Z 전면, site-identity의 maps 소유 지표를 대조했고 maps가 disabled라 map 부모 결함을 시험할 수 없으며 settings는 인계 조건을 정하기에 충분해 부모 수정이 없었다.
 -->
 
-이 H2는 `house-site`가 maps로부터 받아야 할 입력과 거부할 불일치를 소유한다. 실제 필지·외부 네트워크·지형은 maps owner의 답이며, 아래 요구만으로 maps가 채택되거나 연결된 것은 아니다. 좌표·높이의 원본은 링크한 spaces/settings owner에 유지하고 지표에 맞추기 위해 건물이나 계단을 뷰어에서 따로 이동하지 않는다.
+이 H2는 `house-site`가 maps로부터 받아야 할 입력과 거부할 불일치를 소유한다. [대지와 식재](../../settings/10-house.md#site-identity)가 구체 경계·식재 위치·지표 경사를 maps의 저작 선택으로 두므로 실제 필지·외부 네트워크·지형은 maps owner의 답이며, 아래 요구만으로 maps가 채택되거나 연결된 것은 아니다. 좌표·높이의 원본은 링크한 spaces/settings owner에 유지하고 지표에 맞추기 위해 건물이나 계단을 뷰어에서 따로 이동하지 않는다.
 
 | 받을 입력 | 소비하는 spaces 값과 접속 조건 |
 | --- | --- |

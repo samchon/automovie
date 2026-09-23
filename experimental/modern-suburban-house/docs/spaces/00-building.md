@@ -6,12 +6,12 @@
 @evidence principles/core/common.md#substantive-completion 외벽 바깥 기준 X = [-5.75, 5.75] m, Z = [-10.70, 0] m와 마감 안쪽 X = [-5.50, 5.50] m, Z = [-10.45, -0.25] m를 확정해 방 owner가 소비할 외곽을 남긴다.
 @evidence principles/core/common.md#declared-basis 폭 11.50 m는 왼쪽 거실·중앙 계단과 진입·우측 서비스를 함께 놓을 여유, 깊이 10.70 m는 전면 생활부와 후면 공용부를 둘 범위라는 저작 선택이고 246.10㎡는 그 곱의 산술이라고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 규모 설정의 범위에서 한 외곽을 고르고 전면 박공을 방 바닥 돌출이 아닌 지붕의 교차 형상으로 만든다는 공간 결정을 더한다.
-@evidence principles/design/spaces.md#space-topology 두 storey가 같은 직사각 외곽을 공유하고 차고·포치·대지는 이 외곽 밖이며 방 분할과 문은 05가 잇는 방 owner에 있다는 포함 관계를 정한다.
-@evidence principles/design/spaces.md#space-boundary-authority 이 H2는 외곽·벽 두께·안쪽 한계만 소유하고, 외곽 선택으로 settings의 현관·서비스 띠·상층 복도 그래프를 바꿀 권한이 생기지 않는다고 적는다.
+@evidence principles/design/spaces.md#space-topology 두 storey가 같은 직사각 외곽을 공유하고 차고·포치·대지를 이 외곽의 면적 값에 넣지 않으며 방 분할과 문 위치는 동선 인계가 잇는 방별 owner에 둔다는 포함 관계를 정한다.
+@evidence principles/design/spaces.md#space-boundary-authority 방 분할과 문 위치는 동선 인계가 잇는 방별 owner, 외벽 0.25 m 예약 안의 구조·외장 조합은 후속 부재 설계에 두고 외곽 선택으로 settings의 현관·서비스 띠·상층 복도 그래프를 바꿀 권한이 생기지 않는다고 적는다.
 @evidence principles/design/spaces.md#space-verification-address 두 층 평면·네 입면·중앙 계단 단면에서 면적 0.01㎡, 경계 0.001 m 허용 오차로 입력 산술과 산출 외곽을 비교하게 한다.
 @evidence settings/10-house.md#house-scale 차고 제외 두 층의 246.10㎡ 산술은 235–255㎡ 목표 안의 외곽 선택이다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work house-scale의 폭 11.2–11.8 m·깊이 10.4–11.0 m·235–255㎡와 entry·service-band·upper-hall의 연결 요구를 대조했고 11.50 m × 10.70 m 외곽이 모든 범위 안에서 세 그래프를 담아 부모 수정이 없었다.
-@evidence obligations/design/spaces.md#space-reference-topology 본채 외벽 바깥 기준 X = [-5.75, 5.75] m, Z = [-10.70, 0] m를 두 층의 공통 building 프레임으로 두고 방·입면·지붕이 이 외곽과 안쪽 한계를 참조하게 한다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work house-scale의 폭 11.2–11.8 m·깊이 10.4–11.0 m·235–255㎡를 대조했고 11.50 m·10.70 m·246.10㎡가 세 범위 안에 들며 이 외곽 선택이 entry·service-band·upper-hall의 그래프를 바꾸지 않아 부모 수정이 없었다.
+@evidence obligations/design/spaces.md#space-reference-topology 본채 외벽 바깥 기준 X = [-5.75, 5.75] m, Z = [-10.70, 0] m를 두 층이 함께 쓰는 하나의 직사각 building 외곽으로 두고 방의 유효 치수를 벽 중심선이 아닌 최종 안쪽 면 사이에서 읽게 한다.
 @evidence obligations/design/spaces.md#space-envelope-interface 외벽 두께 0.25 m와 마감 안쪽 한계 X = [-5.50, 5.50] m, Z = [-10.45, -0.25] m를 함께 정해 외부 매스와 실내 유효 치수가 같은 벽을 공유하게 한다.
 -->
 
@@ -38,6 +38,6 @@
 
 [빈 차고](../settings/10-house.md#garage)는 본채 오른쪽에 하나의 단층 볼륨으로 붙는다. 외곽은 X = [5.50, 11.70] m, Z = [-6.70, -0.30] m로 택한다. 폭 6.20 m·깊이 6.40 m는 차고 외곽 범위 안이다. 본채보다 정면을 0.30 m 뒤로 물리고 본채 후면을 넘지 않는다. 본채와 차고가 공유하는 벽은 X = [5.50, 5.75] m 안의 하나의 0.25 m 벽체다. 두 외곽의 겹침은 두 벽을 겹쳐 그리는 지시가 아니라 하나의 공유 벽을 양쪽 면적 경계가 참조한다는 뜻이다.
 
-나머지 차고 외벽도 0.25 m 예약을 사용한다. 마감 안쪽 X = [5.75, 11.45] m, Z = [-6.45, -0.55] m로부터 얻는 5.70 m × 5.90 m는 가구와 문 레일을 넣기 전의 예약 순내부다. 수납 설치 후 여유나 두 대 차량의 주차 성능을 측정한 값으로 쓰지 않는다. 차량은 저작하지 않는다. 차고의 정면 개구부·머드룸 문은 각각 정면 면과 공유 벽의 실제 void로 저작해야 한다. 머드룸 문의 좌표·대기는 [세탁·머드룸](rooms/laundry.md#laundry-plan)의 결정을 받는다. 임의의 서비스 통로를 머드룸이라고 이름만 바꾸어 직접 접면을 지불하지 않는다.
+나머지 차고 외벽도 0.25 m 예약을 사용한다. 마감 안쪽 X = [5.75, 11.45] m, Z = [-6.45, -0.55] m로부터 얻는 5.70 m × 5.90 m는 가구와 문 레일을 넣기 전의 예약 순내부다. 수납 설치 후 여유나 두 대 차량의 주차 성능을 측정한 값으로 쓰지 않는다. 차량은 저작하지 않는다. 차고의 정면 개구부·머드룸 문은 각각 정면 면과 공유 벽의 실제 void로 저작해야 한다. 머드룸 문의 좌표·대기는 [세탁·머드룸](rooms/laundry.md#laundry-plan)의 결정을 받는다. [서비스 띠](../settings/10-house.md#service-band)가 요구한 차고 출입문과 머드룸의 직접 접면을 임의의 서비스 통로에 머드룸이라는 이름만 붙여 지불하지 않는다.
 
 검증할 실패는 공유 벽의 이중 두께, 머드룸 밖으로 연결된 차고문, 별동 차고, 닫힌 정면문을 제거해야만 가능한 내부 관찰이다. 차고 바닥·천장·레일·수납은 후속 단계의 완성 범위이며 현재 이 외곽 선언은 그 구현을 주장하지 않는다. `src/spaces/garage.ts`가 공유 벽의 동일 경계 id를 소비하고 `src/spaces/envelope/front.ts`가 차고 정면을 포함한 전체 전면을 소유하도록 배정한다.

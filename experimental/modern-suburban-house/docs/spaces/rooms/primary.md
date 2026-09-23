@@ -10,7 +10,7 @@
 @evidence principles/design/spaces.md#space-boundary-authority 옷방 문은 wardrobe owner의 별도 개구부, 두 창은 rear·left 입면 owner의 void로 소비하고 이 H2는 hall-primary-door만 소유한다.
 @evidence principles/design/spaces.md#space-verification-address 왼쪽 부분까지 방 바닥이 이어지는지와 모든 내부 코너, 면적 비교·문/창 binding·옷방 접근을 검사한다.
 @evidence settings/10-house.md#primary-bedroom 가장 큰 침실을 복도에서 직접 들어가게 하고 욕실을 통과하거나 방을 통과해 공용 욕실에 가는 길을 만들지 않는다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work primary-bedroom의 직접 출입·비통과·별도 옷 수납과 house-scale의 본채 외곽을 대조했고 두 직사각형 합집합이 가장 큰 방이 되어 부모 수정이 없었다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work primary-bedroom의 직접 출입·비통과·별도 옷 수납 조건을 대조했고 복도에서 여는 hall-primary-door, 별도 개구부인 옷방 문, 두 직사각형을 합친 upper-storey의 가장 큰 침실로 성립해 부모 수정이 없었다.
 -->
 
 `primary-bedroom`은 upper-storey의 가장 큰 침실이다. 마감 안쪽은 X = [-5.50, 0.75]·Z = [-10.45, -6.06] m의 뒤쪽 본체와 X = [-5.50, -3.35]·Z = [-6.06, -4.71] m의 왼쪽 부분을 합친다. 앞쪽 왼편은 자녀 침실, 앞쪽 오른편은 [복도](upper-hall.md#upper-hall-plan), 오른쪽은 샤워 욕실/옷방, 뒤·왼쪽은 [본채 외벽](../00-building.md#main-building-extent)이다. 작은 자녀실보다 넓은 잠자리 주변과 옷 수납을 확보하되 상층 욕실의 필수 통과실이 되지 않는다.
@@ -28,11 +28,11 @@
 @evidence principles/design/spaces.md#space-topology 모든 가구와 사용을 primary-bedroom 안에 두고 넓은 왼쪽 부분을 통과실이나 두 번째 침실로 나누지 않는다.
 @evidence principles/design/spaces.md#space-boundary-authority 옷방 문 안팎 대기와 회전은 wardrobe owner, 창대/손잡이는 06에서 그대로 소비한다.
 @evidence principles/design/spaces.md#space-verification-address 문 개방·침대 양옆·발치·두 창·열린 서랍·옷방 진입의 평면/단면과 02·05 시야를 검사한다.
-@evidence settings/10-house.md#primary-bedroom 성인 둘의 침대·양옆 협탁과 조명·낮은 서랍장·창과 얇은 커튼을 공간 점유로 둔다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work primary-bedroom의 가구 목록과 "양옆과 발치의 사용 여유"를 뒤쪽 본체에 적용했고 협탁 뒤를 유일 통로로 세지 않고도 성립해 부모 수정이 없었다.
+@evidence settings/10-house.md#primary-bedroom 성인 둘의 침대·양쪽 협탁과 등·낮은 서랍장을 평면 예약으로 두고 두 창의 커튼을 방 안쪽 돌출 0.12 m 안에 둔다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work primary-bedroom의 가구 목록과 "양옆과 발치의 사용 여유"를 침대 발치 띠 X = [-2.50, -1.50] m와 왼쪽 부분에서 접근하는 서랍장 앞 작업에 적용했고 협탁 뒤를 유일한 통로로 세지 않고도 성립해 부모 수정이 없었다.
 -->
 
-같은 primary-bedroom/upper-storey 안에서 침대 머리를 오른쪽의 창 없는 욕실 공유 벽 쪽으로 둔다. 두 외벽 창과 옷방 문을 침대 머리판으로 가리지 않기 위한 선택이다. 아래 평면은 world X/Z m, 높이는 [상층 완성 바닥](../01-storeys.md#storey-datums) 기준이며 몸체·손잡이의 최대 점유 입력이다. 특정 침대/가구 제품 규격을 뜻하지 않는다.
+같은 primary-bedroom/upper-storey 안에 [주침실 설정](../../settings/10-house.md#primary-bedroom)의 가구를 두며 침대 머리를 오른쪽의 창 없는 욕실 공유 벽 쪽으로 둔다. 두 외벽 창과 옷방 문을 침대 머리판으로 가리지 않기 위한 선택이다. 아래 평면은 world X/Z m, 높이는 [상층 완성 바닥](../01-storeys.md#storey-datums) 기준이며 몸체·손잡이의 최대 점유 입력이다. 특정 침대/가구 제품 규격을 뜻하지 않는다.
 
 | 가구 | 평면 예약 | 높이와 사용 방향 |
 | --- | --- | --- |

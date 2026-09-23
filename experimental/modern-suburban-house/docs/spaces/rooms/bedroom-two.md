@@ -9,8 +9,8 @@
 @evidence principles/design/spaces.md#space-topology 앞·왼쪽 외벽, 오른쪽 계단실, 뒤쪽 복도/주침실과 인접하고 다른 침실이나 욕실을 지나지 않고 들어온다.
 @evidence principles/design/spaces.md#space-boundary-authority 계단실 왼쪽 경계와 전면 창 void를 원래 owner에서 소비하고 복도의 계단 보호 경계에 문짝을 세우지 않는다.
 @evidence principles/design/spaces.md#space-verification-address 문/창 binding, 자기 공간 안 네 방향과 네 모서리의 시야, 가구 접근을 검사한다.
-@evidence settings/10-house.md#bedroom-two 자녀 한 명의 독립 공간으로 복도에서 직접 들어가며 bedroom-three와 별도 id·문·경계를 갖게 한다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work bedroom-two의 직접 출입·자기 창·별도 id와 upper-hall의 짧은 복도를 대조했고 3.55 × 4.31 m 방이 성립해 부모 수정이 없었다.
+@evidence settings/10-house.md#bedroom-two 한 자녀의 침대·책상·옷장과 별도 보행길을 넣는 방으로 복도에서 hall-bedroom-two-door로 바로 들어오고 다른 침실이나 욕실을 지나지 않게 한다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work bedroom-two의 직접 출입·자기 창·별도 id를 대조했고 복도에서 자기 문으로 바로 들어오는 3.55 × 4.31 m 방으로 성립해 부모 수정이 없었다.
 -->
 
 `bedroom-two`는 upper-storey의 전면 왼쪽 방이다. 마감 안쪽 X = [-5.50, -1.95], Z = [-4.56, -0.25] m다. 앞·왼쪽은 [본채 외벽](../00-building.md#main-building-extent), 오른쪽은 [계단실 왼쪽 경계](../02-stair.md#stair-floor-opening), 뒤쪽은 Z = [-4.71, -4.56]의 복도/주침실 경계다. 순내부 예약 3.55 × 4.31 m는 한 자녀의 침대·책상·옷장과 별도 보행길을 넣기 위한 선택이다.
@@ -26,7 +26,7 @@
 @evidence principles/core/common.md#declared-basis 높이는 상층 완성 바닥 기준이며 수치는 몸체·닫힌 문/손잡이의 상한 예약이라고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation "침대를 지나 창과 수납에 접근할 수 있어야"를 협탁 오른쪽과 침대 오른쪽 바닥을 돌아 창에 닿는 경로로 만든다.
 @evidence principles/design/spaces.md#space-topology 복도의 자기 문에서 세 기능과 전면 창으로 분기하며 다른 방으로 통과하지 않는다.
-@evidence principles/design/spaces.md#space-boundary-authority 옷장 몸체를 bedroom-two-plan이 계단실 경계로 정한 방 오른쪽 안쪽 면까지로 두고 전면 창 void 안쪽의 커튼 돌출을 0.12 m 이내로 제한한다.
+@evidence principles/design/spaces.md#space-boundary-authority 옷장 몸체를 방 오른쪽 안쪽 면까지로 두고 커튼은 전면 창 안쪽 돌출 0.12 m 이내로 제한해 창대를 포함한 순폭을 다시 읽는다.
 @evidence principles/design/spaces.md#space-verification-address 문 회전·의자 사용·옷장 조작·침대 측면·창 접근의 평면과 02 및 자기 공간 안 시야를 검사한다.
 @evidence settings/10-house.md#bedroom-two 침대·협탁과 조명·책상과 의자·옷 수납을 두고 벽과 가구 틈을 유일한 출입 경로로 삼지 않는다.
 @evidence settings/00-production.md#use-profile 책상 의자를 물려 앉는 사용 범위에 사람 폭을 줄이지 않고 적용한다.

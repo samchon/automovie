@@ -14,7 +14,7 @@
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work garage의 차도·차량 금지와 site-identity의 콘크리트 차도를 두 datum 사이 경사에 적용했고 측량/주행성 주장 없이 성립해 부모 수정이 없었다.
 -->
 
-`driveway`는 house-site/ground-storey의 외부 포장 구역이다. 뒤쪽은 [garage-front-door](../envelope/front.md#garage-front-opening)의 바깥 벽면, 앞쪽은 [전면 포장 끝](00-access.md#site-access-interface), 왼쪽은 [현관 가로 연결로](front-walk.md#front-walk-plan), 오른쪽은 [측면 관리길의 앞 연결로](side-walk.md#side-walk-plan)에 열린다. X 범위는 차고의 거친 문 개구부 양쪽에 각각 0.20 m를 더해 정한다. 문과 다른 중심을 따로 저작하지 않는다. 두 연결로 밖의 우측/좌측 가장자리는 지표와 만나는 경계이며 별도 도로로 연결하지 않는다.
+`driveway`는 [대지와 식재](../../settings/10-house.md#site-identity)의 차고 진입 콘크리트 차도이며 house-site/ground-storey의 외부 포장 구역이다. 뒤쪽은 [garage-front-door](../envelope/front.md#garage-front-opening)의 바깥 벽면, 앞쪽은 [전면 포장 끝](00-access.md#site-access-interface), 왼쪽은 [현관 가로 연결로](front-walk.md#front-walk-plan), 오른쪽은 [측면 관리길의 앞 연결로](side-walk.md#side-walk-plan)에 열린다. X 범위는 차고의 거친 문 개구부 양쪽에 각각 0.20 m를 더해 정한다. 문과 다른 중심을 따로 저작하지 않는다. 두 연결로 밖의 우측/좌측 가장자리는 지표와 만나는 경계이며 별도 도로로 연결하지 않는다.
 
 상면 D(Z)는 차고 쪽 끝의 [차고 완성 바닥](../01-storeys.md#ground-threshold-datums)과 앞쪽 끝의 같은 owner가 정한 보행길 높이를 선형 보간한다. `u = (Z - 차고문 바깥 Z) / (전면 포장 끝 Z - 차고문 바깥 Z)`, `D(Z) = (1 - u) × 차고 바닥 Y + u × 앞 보행길 Y`다. 측방 경사는 추가하지 않는다. 외벽 두께 안의 문턱 바닥은 차고 바닥 owner가 바깥 벽면까지 연장하고 차도는 그 선에서 끝나므로 바닥이 겹치지 않는다. 거친 문 폭과 최종 문틀/레일을 뺀 순폭을 구별한다.
 

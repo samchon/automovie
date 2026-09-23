@@ -15,7 +15,7 @@
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work porch-entry의 직접 접근과 0.35–0.55 m 포치 높이, site-identity의 보행길, use-profile의 바구니 폭을 대조했고 T자 보행면으로 성립해 부모 수정이 없었다.
 -->
 
-`front-walk`는 house-site/ground-storey의 외부 보행 구역이다. [현관 포치](../porch.md#porch-platform-access)의 첫 챌판 앞에서 [전면 포장 끝](00-access.md#site-access-interface)까지 이어진다. 폭과 중심 X는 포치의 진입 계단을 그대로 소비하고, 안쪽 끝 Z는 그 첫 챌판 위치에서 산출한다. 상면 Y는 [앞 보행길 datum](../01-storeys.md#ground-threshold-datums)이다. 포치가 요구하는 아래 평탄 대기 전체를 이 한 면 안에 포함하며 그곳에 두 번째 바닥을 겹치지 않는다.
+`front-walk`는 [대지와 식재](../../settings/10-house.md#site-identity)의 현관 보행길이며 house-site/ground-storey의 외부 보행 구역이다. [현관 포치](../porch.md#porch-platform-access)의 첫 챌판 앞에서 [전면 포장 끝](00-access.md#site-access-interface)까지 이어진다. 폭과 중심 X는 포치의 진입 계단을 그대로 소비하고, 안쪽 끝 Z는 그 첫 챌판 위치에서 산출한다. 상면 Y는 [앞 보행길 datum](../01-storeys.md#ground-threshold-datums)이다. 포치가 요구하는 아래 평탄 대기 전체를 이 한 면 안에 포함하며 그곳에 두 번째 바닥을 겹치지 않는다.
 
 차도와의 가로 연결로는 Z = [4.25, 5.45] m, X는 이 보행길의 오른쪽 끝부터 [차도](driveway.md#driveway-plan)의 왼쪽 끝까지다. 세로 길과 가로 길을 하나의 T자 보행 구역으로 합치고 접점에 턱·연석·화분을 두지 않는다. 연결로의 횡단별 높이는 왼쪽의 보행길 상면과 오른쪽의 차도 상면 D(Z)를 직선 보간한다. `t = (X - 보행길 오른쪽 X) / (차도 왼쪽 X - 보행길 오른쪽 X)`, 상면은 `(1 - t) × 보행길 Y + t × D(Z)`다. 차도 쪽을 수평 바닥으로 잘라 작은 단차를 남기지 않는다.
 

@@ -6,12 +6,12 @@
 @evidence principles/core/common.md#substantive-completion 본채 후벽을 주/낮은 뒤 지붕 아래면까지, 차고 후벽을 Gback 아래면까지 닫고 X 분할면의 단차 벽은 오른쪽 입면에 맡기는 폐합을 정한다.
 @evidence principles/core/common.md#declared-basis 후벽 평면은 main-building-extent와 attached-garage-extent, 아래면은 roof-profile-datums, 몸체 배정은 exterior-boundary-junctions에서 받는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 주 지붕과 더 낮은 오른쪽 지붕의 높이 차를 후벽 상단의 단차로 바꾸고 교차 박공 삼각 벽을 후면에 복제하지 않는다.
-@evidence principles/design/spaces.md#space-topology 본채 후면 아래는 kitchen-dining-family, 위는 primary-bedroom·primary-wardrobe에 속하고 본채와 차고 후벽은 서로 다른 Z의 두 평면이다.
-@evidence principles/design/spaces.md#space-boundary-authority +X 단차 벽과 사이의 노출 측면은 오른쪽 입면 owner, 처마 돌출은 지붕 owner가 소유하고 이 H2는 두 번째 벽을 겹치지 않는다.
+@evidence principles/design/spaces.md#space-topology 본채 후면 아래는 연속 공용부, 위는 주침실과 별도 옷방에 바인딩되고 본채와 차고 후벽은 서로 다른 Z의 두 평면이다.
+@evidence principles/design/spaces.md#space-boundary-authority +X 단차 벽은 오른쪽 입면 owner, 뒤 처마 돌출은 지붕 owner가 소유하고 두 후벽 사이의 노출 측면은 오른쪽 입면 owner와 같은 모서리를 소비하며 이 H2는 같은 모서리에 두 번째 벽을 겹치지 않는다.
 @evidence principles/design/spaces.md#space-verification-address 후면 전체, 본채와 차고의 두 뒤 모서리, 양쪽 처마 아래, 본채 단차의 후방 끝을 반증 주소로 둔다.
 @evidence settings/10-house.md#main-mass 본채 오른쪽 끝의 더 낮은 지붕이 만드는 높이 차를 후벽 상단에서 닫는다.
 @evidence settings/10-house.md#garage 차고의 낮은 박공 지붕 아래 후벽을 본채 후벽과 별도 평면으로 닫는다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work main-mass의 두 지붕 높이 관계와 garage의 낮은 박공·깊이 6.0–6.6 m를 후면 폐합에 적용했고 두 후벽이 서로 다른 Z에서 닫혀 부모 수정이 없었다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work main-mass의 두 지붕 높이 관계와 garage의 낮은 박공·깊이 6.0–6.6 m를 후면 폐합에 대조했고 두 후벽이 서로 다른 Z에서 닫혀 부모 수정이 없었다.
 -->
 
 `src/spaces/envelope/rear.ts`가 본채와 차고의 후면 완결 입면을 소유한다. [본채 후벽](../00-building.md#main-building-extent)은 기존 외벽 두께 안에서 [주/낮은 뒤 지붕 아래면](../roof/00-junctions.md#roof-profile-datums)까지 닫힌다. 두 지붕은 X 분할면에서 높이가 다르므로 후면 벽 상단도 그 단차를 소비한다. 그곳의 +X 방향 단차 벽은 [오른쪽 입면](right.md#right-roof-closures) 소유이고 후면 owner는 같은 모서리에 두 번째 벽을 겹치지 않는다. 전면 교차 박공의 삼각 벽을 후면에 복제하지 않는다.
@@ -34,42 +34,42 @@
 @evidence settings/10-house.md#common-room 주방·식당·가족실을 하나의 연속 공간으로 두어 후면 창마다 칸막이 방을 만들지 않는다.
 @evidence settings/20-verification.md#lighting-state 창이 없는 옷방의 밝기를 채광 결과로 추정하지 않고 후속 실내 조명으로 관찰하게 한다.
 @evidence obligations/design/spaces.md#space-envelope-interface 후면 입면의 개구부를 공용부 세 기능과 주침실의 실내 배치에 묶고 옷방·차고 쪽을 닫아 안팎이 같은 후벽을 설명하게 한다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work common-room의 연속 공간·정원 출입 가까운 식탁과 storage의 옷 수납 요구를 후벽에 대조했고 옷방 뒤를 닫아도 설정과 충돌하지 않아 부모 수정이 없었다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work common-room의 연속 공간·정원 출입과 storage의 옷 수납 요구를 후벽에 대조했고 옷방 뒤를 닫아도 설정과 충돌하지 않아 부모 수정이 없었다.
 -->
 
-본채 후벽 Z = [-10.70, -10.45] m에 [공통 인계](../06-openings.md#external-opening-interface)를 적용한다. 세 공용 기능은 하나의 kitchen-dining-family 공간 안에 있으며 창마다 별도 방을 만들지 않는다. 정원문 옆 주방 창은 03의 조리대 위 창과 유리문 관계에서 채택했다.
+[본채 외곽](../00-building.md#main-building-extent)의 뒤 바깥 면 Z = -10.70 m에서 0.25 m 외벽 예약만큼 들어온 본채 후벽 Z = [-10.70, -10.45] m에 [공통 인계](../06-openings.md#external-opening-interface)를 적용한다. 아래 개구부는 각각 자기 방에 바인딩한다. ground-storey의 [kitchen-dining-family](../rooms/common.md#common-room-plan)에는 [주방 창](#kitchen-rear-window)·[정원문](#garden-door)·[가족실 창](#family-rear-window)의 세 개구부를, upper-storey의 [primary-bedroom](../rooms/primary.md#primary-plan)에는 [주침실 창](#primary-rear-window)을 둔다. 세 공용 기능은 하나의 kitchen-dining-family 공간 안에 있으며 창마다 별도 방을 만들지 않는다. 정원문 옆 주방 창은 03의 조리대 위 창과 유리문 관계에서 채택했다.
 
-옷방 뒤 벽은 기존 옷걸이/선반을 위해 닫고, 차고 후벽에도 추가 문이나 창을 두지 않는다. 창이 없는 방의 밝기는 후속 조명으로 관찰하며 채광 결과로 추정하지 않는다. 아래 창/정원문의 방 binding과 뒤 처마/각 모서리의 실제 읽힘은 unverified다.
+[침실 옷 수납](../../settings/10-house.md#storage)인 옷방의 뒤 벽은 [옷방의 후면 옷걸이/선반 예약](../rooms/wardrobe.md#primary-wardrobe-plan)을 위해 닫고, 차고 후벽에도 추가 문이나 창을 두지 않는다. 창이 없는 방의 밝기는 후속 조명으로 관찰하며 채광 결과로 추정하지 않는다. 아래 창/정원문의 방 binding과 뒤 처마/각 모서리의 실제 읽힘은 unverified다.
 
 ## 주방 조리대 위의 후면 창 {#kitchen-rear-window}
 <!--
 @evidence principles/core/common.md#scope-preservation 주방 조리대 위 후면 창 하나와 그 아래 상판 높이 상한을 맡는다.
 @evidence principles/core/common.md#substantive-completion 후벽의 X = [-4.50, -3.30], Y = [1.15, 2.30] m 개구부와 아래 상판 0.91 m 이하 예약을 정한다.
-@evidence principles/core/common.md#declared-basis 창틀은 공통 인계, 상판 높이는 가구 상한의 저작 선택이며 제품 규격이 아니라고 밝힌다.
+@evidence principles/core/common.md#declared-basis 창틀은 공통 인계에서 받고 상판 높이 0.91 m 이하는 창 아래 trim과 함께 공간을 남기는 가구의 상한 예약이라고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation "창은 외벽과 조리 배치에 종속시키고 싱크를 관통하지 않는다"를 창 하단과 상판 상한의 높이 관계로 만든다.
-@evidence principles/design/spaces.md#space-topology 창을 ground-storey kitchen-dining-family 후벽의 주방 구역, 정원문 왼쪽에 속하게 한다.
-@evidence principles/design/spaces.md#space-boundary-authority 창 아래 상판 상한은 이 H2가 정하고 주방 L형 수납의 평면은 common-kitchen-wall-reservation이 소비한다.
+@evidence principles/design/spaces.md#space-topology 창을 ground-storey kitchen-dining-family 후벽의 X = [-4.50, -3.30] m 구간, 아래 상판 위에 속하게 한다.
+@evidence principles/design/spaces.md#space-boundary-authority 창 아래 상판 높이 상한은 이 H2가 정하고 common-kitchen-wall-reservation이 뒤쪽 상판에서 그 상한을 소비하며 하부장·상부장의 평면을 정한다.
 @evidence principles/design/spaces.md#space-verification-address 조리대/창 단면, 정원문과의 관계, 03의 부재 읽힘을 반증 관찰로 둔다.
 @evidence settings/10-house.md#kitchen-equipment 수도꼭지나 상부장을 창호에 관통시키지 않도록 창 하단 Y = 1.15 m와 상판 0.91 m 이하를 분리한다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work kitchen-equipment의 창 종속·싱크 비관통과 "두 수도꼭지를 필수 중복 설비로 해석하지 않는다"를 대조했고 싱크를 섬에 두어 창 아래에 수도꼭지가 없어 부모 수정이 없었다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work kitchen-equipment의 창 종속·싱크 비관통과 "두 수도꼭지를 필수 중복 설비로 해석하지 않는다"를 대조했고 창 하단 Y = 1.15 m를 상판 상한 0.91 m 위에 두어 수도꼭지나 상부장이 창호를 관통하지 않아 부모 수정이 없었다.
 -->
 
-`kitchen-rear-window`는 [후벽](#rear-openings)의 X = [-4.50, -3.30], Y = [1.15, 2.30] m 개구부로 ground-storey의 [kitchen-dining-family](../rooms/common.md#common-room-plan)에 속한다. [공통 인계](../06-openings.md#external-opening-interface)의 수직 창 한 칸이다. 아래 상판은 높이 0.91 m 이하로 예약하여 창 아래 trim과 함께 공간을 남긴다. 가구의 상한 예약이며 수도꼭지나 상부장을 창호에 관통시키지 않는다. 조리대/창 단면·정원문과의 관계·03의 부재 읽힘은 unverified다.
+`kitchen-rear-window`는 [후벽](#rear-openings)의 X = [-4.50, -3.30], Y = [1.15, 2.30] m 개구부로 ground-storey의 [kitchen-dining-family](../rooms/common.md#common-room-plan)에 속한다. [공통 인계](../06-openings.md#external-opening-interface)의 수직 창 한 칸이다. 아래 상판은 높이 0.91 m 이하로 예약하여 창 아래 trim과 함께 공간을 남긴다. 가구의 상한 예약이며 수도꼭지나 상부장을 창호에 관통시키지 않는다. 이 상한은 [벽 주방의 뒤쪽 상판](../rooms/common.md#common-kitchen-wall-reservation)이 소비하며 하부장·상부장의 평면은 그 owner가 정한다. 조리대/창 단면·정원문과의 관계·03의 부재 읽힘은 unverified다.
 
 ## 가족실의 후면 묶음창 {#family-rear-window}
 <!--
-@evidence principles/core/common.md#scope-preservation 가족실 좌석을 비추는 후면 묶음창 하나를 맡는다.
+@evidence principles/core/common.md#scope-preservation 가족실 좌석과 같은 방에 두는 후면 묶음창 하나를 맡는다.
 @evidence principles/core/common.md#substantive-completion 후벽의 X = [2.75, 4.75], Y = [0.75, 2.30] m 개구부와 수직 창 두 칸을 정한다.
 @evidence principles/core/common.md#declared-basis 창틀은 공통 인계, 위치는 가족실 좌석이 우측이라는 설정에서 받는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 가족실 좌석의 우측 배치를 자기 창이 같은 방 안에 있는 후면 개구부로 만들고 별도 가족실 벽을 두지 않는다.
 @evidence principles/design/spaces.md#space-topology 창을 kitchen-dining-family의 후벽 오른쪽에 속하게 한다.
-@evidence principles/design/spaces.md#space-boundary-authority 창틀·창대 돌출은 06에서 받고 가족실 좌석 예약은 common-family-reservation이 소비한다.
+@evidence principles/design/spaces.md#space-boundary-authority 창틀·창대 돌출은 06에서 받고 창 앞 소파와 창대 접근은 common-family-reservation이 이 창을 소비해 배치한다.
 @evidence principles/design/spaces.md#space-verification-address 소파/커튼/창대 앞 접근, 오른쪽 모서리에서 측면 창과의 만남, 채광을 반증 관찰로 둔다.
 @evidence settings/10-house.md#common-room 가족실 좌석을 우측에 둔 공용부의 일부로 이 창을 같은 방에 둔다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work common-room의 "가족실 좌석은 우측"과 완전 높이 칸막이 금지를 후벽 오른쪽 창에 대조했고 하나의 방 안에서 성립해 부모 수정이 없었다.
 -->
 
-`family-rear-window`는 [후벽](#rear-openings)의 X = [2.75, 4.75], Y = [0.75, 2.30] m 개구부다. ground-storey의 [kitchen-dining-family](../rooms/common.md#common-room-plan)에 속하고 [공통 인계](../06-openings.md#external-opening-interface)의 수직 창 두 칸을 갖는다. 가족실 좌석과 자기 창이 같은 방 안에 있으며 별도 가족실 벽을 추가하지 않는다. 소파/커튼/창대 앞 접근, 오른쪽 모서리에서 측면 창과의 만남·실제 채광/프레임은 unverified다.
+`family-rear-window`는 [후벽](#rear-openings)의 X = [2.75, 4.75], Y = [0.75, 2.30] m 개구부다. ground-storey의 [kitchen-dining-family](../rooms/common.md#common-room-plan)에 속하고 [공통 인계](../06-openings.md#external-opening-interface)의 수직 창 두 칸을 갖는다. 가족실 좌석과 자기 창이 같은 방 안에 있으며 별도 가족실 벽을 추가하지 않는다. 창의 위치는 [가족실 좌석을 우측에 두는 설정](../../settings/10-house.md#common-room)을 따르고, 창 앞 소파와 창대 접근은 [가족실 좌석 예약](../rooms/common.md#common-family-reservation)이 이 창을 소비해 배치한다. 소파/커튼/창대 앞 접근, 오른쪽 모서리에서 측면 창과의 만남·실제 채광/프레임은 unverified다.
 
 ## 주침실의 후면 묶음창 {#primary-rear-window}
 <!--
@@ -78,13 +78,13 @@
 @evidence principles/core/common.md#declared-basis 창의 소속은 primary-plan의 뒤쪽 본체 후벽, 옷방 쪽을 닫는 결정은 rear-openings에서 받는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 주침실 창을 뒤 처마 아래 본체 후벽에 두고 옷방까지 걸치지 않게 폭을 제한하는 결정을 더한다.
 @evidence principles/design/spaces.md#space-topology 창을 upper-storey primary-bedroom 후벽에 속하게 하고 같은 후벽의 옷방 구간으로 넘기지 않는다.
-@evidence principles/design/spaces.md#space-boundary-authority 옷방 X 구간과 뒤 지붕 아래면은 다른 owner에서 소비한다.
+@evidence principles/design/spaces.md#space-boundary-authority 옷방 구간은 rear-openings와 primary-wardrobe-plan, 뒤 처마와 지붕 아래면은 roof-profile-datums에서 받고 이 H2는 창 좌표와 수직 창 두 칸을 정한다.
 @evidence principles/design/spaces.md#space-verification-address 뒤 처마 아래 창 단면, 침대 양옆에서 창/서랍장에 닿는 경로를 반증 관찰로 둔다.
-@evidence settings/10-house.md#primary-bedroom 가장 큰 침실의 창과 얇은 커튼을 후면 두 칸 창으로 실현한다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work primary-bedroom의 창·커튼 요구와 storage의 옷 수납 요구를 대조했고 창이 옷방 X 구간 전에서 끝나 부모 수정이 없었다.
+@evidence settings/10-house.md#primary-bedroom 주침실에 요구된 창을 upper-storey primary-bedroom 후벽의 수직 창 두 칸으로 실현한다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work primary-bedroom의 창 요구와 storage의 옷 수납 요구를 대조했고 창이 옷방 X 구간 전에서 끝나 부모 수정이 없었다.
 -->
 
-`primary-rear-window`는 [후벽](#rear-openings)의 X = [-3.85, -1.45], Y = [3.91, 5.31] m 개구부다. upper-storey의 [primary-bedroom](../rooms/primary.md#primary-plan)에 속하고 [공통 인계](../06-openings.md#external-opening-interface)의 수직 창 두 칸을 갖는다. 옷방까지 걸치는 창으로 확장하지 않는다. 뒤 처마 아래 창 단면과 침대 양옆에서 창/서랍장에 닿는 경로, 실제 내외부 프레임은 unverified다.
+`primary-rear-window`는 [후벽](#rear-openings)의 X = [-3.85, -1.45], Y = [3.91, 5.31] m 개구부다. upper-storey [primary-bedroom](../rooms/primary.md#primary-plan)의 뒤쪽 본체 후벽에 속하고 [공통 인계](../06-openings.md#external-opening-interface)의 수직 창 두 칸을 갖는다. 같은 후벽의 [침실 옷 수납](../../settings/10-house.md#storage)인 옷방 구간은 [후면 배치](#rear-openings)가 [옷방의 후면 수납](../rooms/wardrobe.md#primary-wardrobe-plan)을 위해 닫으므로 옷방까지 걸치는 창으로 확장하지 않는다. 창 위의 뒤 처마와 지붕 아래면은 [지붕 높이 owner](../roof/00-junctions.md#roof-profile-datums)에서 받는다. 뒤 처마 아래 창 단면과 침대 양옆에서 창/서랍장에 닿는 경로, 실제 내외부 프레임은 unverified다.
 
 ## 공용부에서 정원으로 나가는 문 {#garden-door}
 <!--

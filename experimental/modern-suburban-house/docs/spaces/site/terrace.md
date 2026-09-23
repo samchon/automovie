@@ -13,7 +13,7 @@
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work site-identity의 작은 포장 테라스·식탁과 의자, common-room의 정원 출입을 대조했고 문 대기를 포함한 포장으로 성립해 부모 수정이 없었다.
 -->
 
-`garden-terrace`는 house-site/ground-storey의 외부 공간이다. X = [-1.80, 4.50] m, 바깥 끝 Z = -14.40 m의 포장으로 택하고 집 쪽 끝은 [본채 후벽](../00-building.md#main-building-extent)의 바깥 면을 소비한다. 상면은 [garden-door 바깥 대기](../envelope/rear.md#garden-door)의 높이에 맞춘다. 그 대기는 이 테라스에 포함되는 사용 구역이며 별도 겹친 판을 만들지 않는다. 집 쪽은 정원문과 실제 후벽, 바깥쪽은 아래 외부 단, 양옆은 지표와 맞닿는 낮은 포장 단부다. 지붕이나 벽을 추가해 공용부를 증축하지 않는다.
+`garden-terrace`는 [대지와 식재](../../settings/10-house.md#site-identity)가 공용부에서 닿게 둔 작은 포장 테라스이며 house-site/ground-storey의 외부 공간이다. X = [-1.80, 4.50] m, 바깥 끝 Z = -14.40 m의 포장으로 택하고 집 쪽 끝은 [본채 후벽](../00-building.md#main-building-extent)의 바깥 면을 소비한다. 상면은 [garden-door 바깥 대기](../envelope/rear.md#garden-door)의 높이에 맞춘다. 그 대기는 이 테라스에 포함되는 사용 구역이며 별도 겹친 판을 만들지 않는다. 집 쪽은 [공용부 정원 출입](../../settings/10-house.md#common-room)의 정원문과 실제 후벽, 바깥쪽은 아래 외부 단, 양옆은 지표와 맞닿는 낮은 포장 단부다. 지붕이나 벽을 추가해 공용부를 증축하지 않는다.
 
 문 앞 대기를 지나 바깥 외부 단까지 이어지는 보행 띠는 정원문 중심 X를 축으로 폭 1.50 m다. 가구 사용 예약은 X = [1.50, 4.20], Z = [-14.10, -11.40] m이며 식탁과 의자의 꺼낸 상태까지 이 안에 담도록 후속 가구 owner에 인계한다. 별도 식탁 geometry나 좌석 수는 이 단계에서 복제하지 않는다. 문짝의 회전 영역과 대기, 중앙 경로는 가구 예약에 들어가지 않는다. 03의 정원문 너머에서 작은 야외 식사 자리가 읽히도록 한 저작 선택이며 사진 치수를 추정한 값이 아니다.
 
@@ -24,15 +24,15 @@
 @evidence principles/core/common.md#scope-preservation 테라스와 아래 대기를 잇는 외부 단의 개수·높이·깊이·폭과 owner, 열린 가장자리의 미완료를 맡는다.
 @evidence principles/core/common.md#substantive-completion -Z로 0.15 m씩 내려가는 챌판 세 개와 깊이 0.30 m의 수평 디딤 두 개를 정한다.
 @evidence principles/core/common.md#declared-basis 폭/중심 X는 테라스 중앙 보행 띠, 첫 챌판 위치는 테라스 바깥 끝에서 받는다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 테라스에서 정원 지표로 나가는 관계를 세 챌판·두 디딤의 외부 연결 구역으로 만든다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 위 테라스의 중앙 보행 띠와 아래 대기 사이의 높이 차를 -Z로 0.15 m씩 내려가는 세 챌판과 깊이 0.30 m 두 디딤의 외부 연결 구역으로 만들고 층간 main-stair와 구별한다.
 @evidence principles/design/spaces.md#space-topology garden-steps는 house-site/ground-storey의 외부 연결 구역이며 층간 연결 main-stair를 복제하거나 바꾸지 않는다.
 @evidence principles/design/spaces.md#space-boundary-authority 세 번째 디딤을 아래 대기에 겹치지 않고 단·하부는 src/spaces/site/terrace.ts가 소유한다.
 @evidence principles/design/spaces.md#space-verification-address 위에서 내려다보는 첫 단의 읽힘, 아래에서 돌아오는 마지막 단과 문짝/가구를 검사한다.
-@evidence settings/10-house.md#site-identity 후면 정원의 테라스를 정원 지표로 잇는 외부 단을 둔다.
+@evidence settings/10-house.md#site-identity 테라스 바깥 끝에서 아래 대기로 내려가는 세 챌판·두 디딤의 외부 단을 둔다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work site-identity의 테라스와 stair의 "별도 계단·사다리"가 층간 연결에 한정됨을 대조했고 외부 단이 층간 연결이 아니어서 부모 수정이 없었다.
 -->
 
-`garden-steps`는 house-site/ground-storey의 외부 연결 구역이며 위 테라스와 [아래 대기](#garden-lower-landing-plan)를 잇는다. 층간 연결인 [main-stair](../02-stair.md#stair-reservation)를 복제하거나 바꾸지 않는다. 폭/중심 X는 테라스 중앙 보행 띠를 소비하고 첫 챌판은 테라스 바깥 끝에 둔다. -Z로 나아가며 0.15 m씩 내려가는 챌판 세 개와 깊이 0.30 m의 수평 디딤 두 개를 둔다. 별도 세 번째 디딤을 아래 대기에 겹치지 않는다.
+`garden-steps`는 house-site/ground-storey의 외부 연결 구역이며 위 테라스와 [아래 대기](#garden-lower-landing-plan)를 잇는다. [층간 연결](../../settings/10-house.md#stair)인 [main-stair](../02-stair.md#stair-reservation)를 복제하거나 바꾸지 않는다. 폭/중심 X는 테라스 중앙 보행 띠를 소비하고 첫 챌판은 테라스 바깥 끝에 둔다. -Z로 나아가며 0.15 m씩 내려가는 챌판 세 개와 깊이 0.30 m의 수평 디딤 두 개를 둔다. 별도 세 번째 디딤을 아래 대기에 겹치지 않는다.
 
 단·하부의 owner는 `src/spaces/site/terrace.ts`다. 위에서 내려다보는 첫 단의 읽힘, 아래에서 돌아오는 마지막 단과 문짝/가구를 검사한다. 낮은 테라스의 열린 가장자리와 지지·마감·접지 그림자를 포함한 실제 경계는 unverified이며 난간/배수/구조 인증을 완료한 결과가 아니다.
 

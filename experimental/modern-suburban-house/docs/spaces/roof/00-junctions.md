@@ -15,7 +15,7 @@
 
 [본채와 차고 외곽](../00-building.md#main-building-extent), [두 층 천장](../01-storeys.md#storey-datums)을 유지하며 [설정의 지붕군](../../settings/10-house.md#main-mass)을 배치한다. 본채 주 지붕과 오른쪽 낮은 지붕의 용마루는 X 방향이고, 왼쪽 전면 박공의 용마루는 Z 방향이다. 오른쪽 지붕은 본채 안에서 낮아지는 부분이며 독립 동·추가 층·바닥 돌출을 만들지 않는다. 차고는 자신의 단층 외곽 위에 더 낮은 X 방향 박공 지붕을 갖는다.
 
-주 지붕과 오른쪽 지붕을 가르는 평면은 X = 1.60 m다. 두 지붕의 공통 용마루 평면 Z는 본채 전후 외벽의 중간에서 산출한다. 주 지붕은 본채 왼쪽부터 이 분할면까지, 낮은 지붕은 분할면부터 본채 오른쪽까지 담당한다. 전면 박공의 벽 기준 양 끝은 X = [-5.75, -1.80] m, 전면 벽은 본채의 Z = 0 m다. 중심은 양 끝의 평균이다. 이 폭은 전면 거실/왼쪽 자녀실 위를 덮고 그 오른쪽 [작은 계단 창](../02-stair.md#stair-floor-opening)을 별도 정면 구간에 두기 위한 선택이다.
+주 지붕과 오른쪽 지붕을 가르는 평면은 X = 1.60 m다. 두 지붕의 공통 용마루 평면 Z는 본채 전후 외벽의 중간에서 산출한다. 주 지붕은 본채 왼쪽부터 이 분할면까지, 낮은 지붕은 분할면부터 본채 오른쪽까지 담당한다. 전면 박공의 벽 기준 양 끝은 X = [-5.75, -1.80] m, 전면 벽은 본채의 Z = 0 m다. 중심은 양 끝의 평균이다. 이 폭은 전면 거실/왼쪽 자녀실 위를 덮고 그 오른쪽 [계단/복도용의 더 작은 창](../../settings/10-house.md#openings)인 [작은 계단 창](../02-stair.md#stair-floor-opening)을 별도 정면 구간에 두기 위한 선택이다.
 
 차고 용마루의 Z는 [차고 전후 외벽](../00-building.md#attached-garage-extent)의 평균이다. 본채와 닿는 서쪽에서는 지붕을 공유 벽 바깥 면 X = 5.75 m에 접합하고 본채 내부로 지붕판을 밀어 넣지 않는다. 전면 포치는 [자기 지붕/기둥 owner](../porch.md#porch-roof-columns)가 담당한다. 이 배치는 외부에서 읽힐 매스의 저작 입력이며 실제 실루엣 비교는 unverified다.
 
@@ -24,7 +24,7 @@
 @evidence principles/core/common.md#scope-preservation 각 지붕의 날씨 면 높이 함수, 외벽선 높이·자유 돌출·수직 아래면 두께 표, 유한 후보 영역, 천장 대조로의 인계를 맡는다.
 @evidence principles/core/common.md#substantive-completion 기울기 8/12·9/12·7/12·5/12, 외벽선 높이 6.30·5.95·2.95 m, 아래면 수직 0.24 m와 Mfront·Mback·F·Gfront·Gback 식을 정한다.
 @evidence principles/core/common.md#declared-basis 본채 세 경사는 설정의 30–38° 범위 안, 차고 5/12는 낮은 부속 지붕의 선택이며 식의 벽 좌표는 외곽 owner 값을 대입한 표기라고 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 설정의 경사·처마 범위를 실제 기울기·외벽선 높이·0.24 m 수직 예약으로 고정하고 F를 X = [a - e, b + e] 유한 영역에서만 쓰게 한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 설정의 경사·처마 범위를 8/12·9/12·7/12 기울기와 0.40 m 자유 돌출로 고정하고 외벽선 높이·0.24 m 수직 예약을 더하며 F를 X = [a - e, b + e], Z = [본채 용마루 Z, 본채 전면 Z + e] 유한 영역에서만 쓰게 한다.
 @evidence principles/design/spaces.md#space-topology F를 본채 뒤 지붕까지 연장하지 않고 X 분할면에는 돌출을 더하지 않으며 차고 영역은 서쪽 공유 벽 바깥 면에서 끝낸다.
 @evidence principles/design/spaces.md#space-boundary-authority 천장 owner는 이 아래면 함수를 소비해 대조하고 별도 경사나 처마 높이를 발명하지 않으며 외곽이 바뀌면 외곽 owner에서 식을 다시 산출한다.
 @evidence principles/design/spaces.md#space-verification-address 가장 낮은 본채 외벽선 아래면이 2층 천장 위 0.05 m라는 산술을 headroom 결과로 쓰지 않고 실제 실내 윤곽에서 대조하게 한다.
@@ -41,7 +41,7 @@
 | 본채 오른쪽 낮은 지붕 | 5.95 | 0.40 | 0.24 |
 | 차고 | 2.95 | 0.35, 본채 접합에는 돌출 없음 | 0.24 |
 
-본채 주 지붕의 앞 면은 `Mfront(Z) = 6.30 - (8/12) × Z`, 뒤 면은 `Mback(Z) = 6.30 + (8/12) × (Z + 10.70)`다. 낮은 지붕은 같은 전후 벽/용마루 위치에서 높이 5.95와 기울기 7/12를 대입한 `Rfront`, `Rback`을 쓴다. 차고 앞 면은 `Gfront(Z) = 2.95 - (5/12) × (Z + 0.30)`, 뒤 면은 `Gback(Z) = 2.95 + (5/12) × (Z + 6.70)`다. 각 지붕은 앞뒤 높이가 같은 공통 용마루에서 나뉜다. 식의 벽 좌표는 독립 입력이 아니라 [외곽 owner](../00-building.md#attached-garage-extent)의 값을 대입한 표기이며 외곽이 바뀌면 그 owner에서 다시 산출한다.
+본채 주 지붕의 앞 면은 `Mfront(Z) = 6.30 - (8/12) × Z`, 뒤 면은 `Mback(Z) = 6.30 + (8/12) × (Z + 10.70)`다. 낮은 지붕은 같은 전후 벽/용마루 위치에서 높이 5.95와 기울기 7/12를 대입한 `Rfront`, `Rback`을 쓴다. 차고 앞 면은 `Gfront(Z) = 2.95 - (5/12) × (Z + 0.30)`, 뒤 면은 `Gback(Z) = 2.95 + (5/12) × (Z + 6.70)`다. 각 지붕은 앞뒤 높이가 같은 공통 용마루에서 나뉜다. 식의 벽 좌표는 독립 입력이 아니라 [본채](../00-building.md#main-building-extent)/[차고](../00-building.md#attached-garage-extent) 외곽 owner의 값을 대입한 표기이며 외곽이 바뀌면 그 owner에서 다시 산출한다.
 
 전면 박공은 자기 벽 기준 구간의 왼쪽 끝을 `a`, 오른쪽 끝을 `b`라 할 때 `F(X) = 6.30 + (9/12) × min(X - a, b - X)`다. 박공 중심에서 양쪽 면이 만나고 앞쪽 처마 영역에서는 같은 식을 연장한다. 경사면 아래면은 해당 날씨 면에서 Y 방향으로 0.24 m 내린 평면이다. 이 값은 수직 예약 두께이며 지붕에 수직한 재료 두께와 혼동하지 않는다. 구조·보드·지붕재의 실제 적층은 후속 외피/모듈 단계가 예약 안에서 구현한다.
 
@@ -59,7 +59,7 @@
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 설정의 "골짜기와 합류부에 빈틈이나 중첩 지붕판을 남기지 않는다"를 등고 경계로 나눈 우세 영역과 박공 용마루가 등고 경계 중심점에서 끝나는 규칙으로 만든다.
 @evidence principles/design/spaces.md#space-topology X = 1.60 m 단차는 오른쪽 입면 owner의 단차 벽으로 닫고 옥상 통로나 세 번째 실로 쓰지 않으며 주 지붕을 낮은 면 위로 중복 돌출시키지 않는다.
 @evidence principles/design/spaces.md#space-boundary-authority 주/박공 용마루·두 골짜기·처마·사선·단차·차고 벽 접합을 서로 다른 경계 역할로 보존하고 단차 벽은 right, 굴뚝 절단은 left의 굴뚝 접면에서 받는다.
-@evidence principles/design/spaces.md#space-verification-address 골짜기 틈·중첩, 굴뚝 절단, 법선/UV와 01 프레임을 unverified로 두고 불투명 정점 배열 복사 없이 식에서 면 윤곽을 생성하게 한다.
+@evidence principles/design/spaces.md#space-verification-address 엔진 실행·경계 census·법선/UV·빈틈/중첩과 01 프레임 대조를 unverified로 두고 불투명 정점 배열 복사 없이 식에서 면 윤곽을 생성하게 한다.
 @evidence settings/10-house.md#main-mass 골짜기에서 빈틈이나 중첩 판을 남기지 않도록 우세 영역만 소유한다.
 @evidence settings/00-production.md#build-allocation 일반 Boolean이나 메쉬 병합 성능을 전제하지 않고 명시적 면 구성이 공개 엔진 경로에서 표현되지 않으면 한계를 기록해 조정자에게 이관하도록 정한다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work main-mass의 "골짜기와 합류부에 빈틈이나 중첩 지붕판을 남기지 않는다"와 박공 9/12·주 지붕 8/12 기울기를 합류 경계에 대조했고 등고 경계 하나로 성립해 부모 수정이 없었다.
@@ -78,7 +78,7 @@ X = 1.60 m에서는 주 지붕과 낮은 지붕의 높이가 다르므로 억지
 @evidence principles/core/common.md#scope-preservation 본채·차고 외벽 두께 전체의 상단, 전면 박공 교차선과 높은/낮은 지붕 분할이 벽 두께를 지나는 구역, 굴뚝과 낮은 부속 지붕의 예외를 맡는다.
 @evidence principles/core/common.md#substantive-completion 각 외벽의 안팎 윗선과 그 사이 상단이 해당 X/Z에 배정된 지붕 아래면 함수를 따르게 하고 외측 높이의 평평한 압출이나 내측 높이로의 관통을 금한다.
 @evidence principles/core/common.md#declared-basis 내측과 외측의 높이 차 약 0.1667/0.1458/0.1042 m는 기울기와 외벽 두께의 곱이라는 설계식 산술이며 벽이나 틈의 측정값이 아니라고 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 삼각 벽 폐합 요구에 벽 두께 전체의 상단 접촉과 교차선·분할면에서 두께 구역을 나누는 규칙을 더한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 본채·차고 외곽의 벽 두께와 roof-profile-datums의 아래면 함수에 벽 두께 전체의 상단 접촉과 roof-shared-edges 교차선·높은/낮은 지붕 분할면에서 두께 구역을 나누는 규칙을 더한다.
 @evidence principles/design/spaces.md#space-topology 아래쪽 차고/포치 지붕이 본채 벽 옆에 붙는 선을 본채 벽 상단으로 쓰지 않고 지붕을 뚫는 굴뚝을 이 상단에서 자르지 않는다.
 @evidence principles/design/spaces.md#space-boundary-authority junctions.ts는 상단 경계를 계산해 넘기고 몸체는 07의 모서리/단차 배정에 따라 각 입면/공유 벽 owner가 같은 상단에서 끝낸다.
 @evidence principles/design/spaces.md#space-verification-address 모든 앞뒤 외벽의 외측/중간/내측 단면, 외벽 모서리, 박공 교차선이 벽 두께를 지나는 부분, 단차의 앞뒤 끝, 차고 공유 벽에서 벽 상단과 아래면을 비교하게 한다.

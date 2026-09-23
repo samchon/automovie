@@ -9,11 +9,11 @@
 @evidence principles/design/spaces.md#space-topology 층간 L형 구멍을 1층 바닥에서 빼지 않고 계단 아래 외투장 바닥을 사람의 통과 경로로 추가하지 않는다.
 @evidence principles/design/spaces.md#space-boundary-authority ground.ts가 공통 바탕을 한 번 소유하고 각 방은 자기 안쪽 윤곽과 문턱 전환선을 소비하며 외투장 내부는 entry, 계단에 가려진 바탕은 ground owner다.
 @evidence principles/design/spaces.md#space-verification-address 1층 전체 평면, 모든 실내 문 아래, 칸막이/계단 발치, 외투장, 다른 마감 사이 단면에서 완성 높이·바탕 연속·겹침/빈틈을 보게 한다.
-@evidence settings/10-house.md#stair 통행 개구부는 2층 구조 바닥과 아래층 천장에만 요구되므로 1층 바탕에서 층간 L형 구멍을 빼지 않는다.
+@evidence settings/10-house.md#stair 계단 아래에서도 1층 바탕을 잇고 층간 L형 구멍을 빼지 않으며 첫 챌판 앞 하부 대기를 별도 디딤 없는 기존 현관 바닥으로 둔다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work stair의 "2층 구조 바닥과 아래층 천장에는 실제 통행 개구부"와 main-mass의 두 층 본채를 1층 바탕에 대조했고 구멍 없는 연속 바탕이 둘과 양립해 부모 수정이 없었다.
 -->
 
-본채 ground-storey의 바탕은 [마감 안쪽 외곽](00-building.md#main-building-extent) 전체를 받는 연속 지면 지지 방식으로 택한다. 지하실·사람이 드나드는 바닥 밑 공간·새 계단을 만들지 않는다. 완성 높이는 [ground-storey datum](01-storeys.md#storey-datums)을 소비한다. 실내 칸막이와 계단 아래에서도 바탕은 이어지고 [층간 L형 구멍](02-stair.md#stair-floor-opening)을 이 바닥에서 빼지 않는다. 첫 챌판 앞 하부 대기는 기존 현관 바닥이며 별도 계단 디딤을 더하지 않는다.
+[두 층 본채](../settings/10-house.md#main-mass)의 ground-storey 바탕은 [마감 안쪽 외곽](00-building.md#main-building-extent) 전체를 받는 연속 지면 지지 방식으로 택한다. 지하실·사람이 드나드는 바닥 밑 공간·새 계단을 만들지 않는다. 완성 높이는 [ground-storey datum](01-storeys.md#storey-datums)을 소비한다. 실내 칸막이와 계단 아래에서도 바탕은 이어지고 [층간 L형 구멍](02-stair.md#stair-floor-opening)을 이 바닥에서 빼지 않는다. 첫 챌판 앞 하부 대기는 기존 현관 바닥이며 별도 계단 디딤을 더하지 않는다.
 
 완성 바닥에서 아래로 마감/깔개 묶음 0.025 m, 그 아래 지지 바탕 0.15 m를 예약한다. 바탕 아래면은 완성 바닥에서 두 예약의 합만큼 내린 높이다. 이 예약은 평탄한 실내 마감과 그 아래 받침을 구별하기 위한 공간 선택이고 구조 부재의 용량·재료 성능을 검증한 값이 아니다. 마루·타일 등 실제 마감이 달라도 같은 묶음 안에서 바탕 높이를 맞추며 파우더룸이나 세탁실 문 앞에 의도하지 않은 단을 만들지 않는다. 층간 구조와 같은 숫자가 있어도 [그 구조의 적층](08-floor-assembly.md#interstorey-floor-boundary)을 1층에 복사하는 규칙은 아니다.
 
@@ -30,8 +30,8 @@
 @evidence principles/design/spaces.md#space-topology 본채 바닥을 차고로 늘리거나 차고를 본채 높이로 올리지 않아 머드룸의 한 단이 남고 지하 공간을 두지 않는다.
 @evidence principles/design/spaces.md#space-boundary-authority 공통 바탕은 garage.ts, 노출 윗면과 실내 마감은 garage-interior.ts가 소유하며 같은 높이에 두 번째 불투명 바닥판을 포개지 않는다.
 @evidence principles/design/spaces.md#space-verification-address 차고 바닥 전체 평면, 전면문 양 끝, 머드룸의 단, 선반/작업대 발치와 네 벽 하단 단면에서 겹친 몸체·떠 있는 레일/선반·다른 문턱 높이를 찾게 한다.
-@evidence settings/10-house.md#garage 차량 없이도 바닥·레일·선반이 실제로 접하는 차고 내부를 설계한다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work garage의 "콘크리트 바닥"과 laundry-mudroom의 "차고의 거친 콘크리트와 구별된다"를 대조했고 낮은 독립 바탕으로 머드룸 한 단과 함께 성립해 부모 수정이 없었다.
+@evidence settings/10-house.md#garage 콘크리트 바닥을 차고 완성 바닥 아래 0.15 m의 독립 바탕으로 두어 수납/레일의 발치가 차량 없이 이 실제 바닥을 소비하게 한다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work garage의 "콘크리트 바닥"을 차고 바탕에 대조했고 본채 바닥을 연장하지 않는 낮은 독립 바탕이 머드룸 한 단과 함께 성립해 부모 수정이 없었다.
 -->
 
 차고의 바탕은 [차고 안쪽 외곽](00-building.md#attached-garage-extent)을 받으며 [자기 완성 바닥](01-storeys.md#ground-threshold-datums)에서 아래로 0.15 m를 예약한다. 본채 바닥을 이쪽으로 연장하거나 차고를 본채 높이로 올리지 않는다. 이 차고는 지면에 연속해서 지지되는 콘크리트 바닥으로 계획하며 지하 공간은 없다. 실내 바닥은 기존 대기/수납/문 이동 예약이 소비하는 평탄면을 유지한다. 배수 경사를 새로 발명하여 머드룸 한 단이나 전면 문턱 높이를 바꾸지 않는다. 실제 배수·구조 성능은 아직 검증하지 않았다.
@@ -44,8 +44,8 @@
 <!--
 @evidence principles/core/common.md#scope-preservation front-door·garden-door·garage-front-door·laundry-garage-door 네 개구부 아래 벽 두께를 지나는 바탕과 문턱의 완결 소유를 맡는다.
 @evidence principles/core/common.md#substantive-completion 네 경계마다 바탕이 어느 벽 면까지 이어지고 문턱 상면·챌면을 누가 맡는지 표로 정하고 현관 문턱 돌출을 양쪽 완성 바닥 위 0.02 m 이내로 둔다.
-@evidence principles/core/common.md#declared-basis 각 문의 거친 void 폭과 안팎 벽 면은 원래 문 owner에서, 완성 높이는 두 datum에서 받는다고 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 실제 문턱 요구에 세 평탄 접속과 머드룸의 한 단이라는 서로 다른 지지 방식을 더하고 한 단의 상면·챌면을 laundry owner 하나에 둔다.
+@evidence principles/core/common.md#declared-basis 각 문의 거친 void 폭과 안팎 벽 면은 원래 문 owner에서 받고 front-door 아래는 현관·포치 두 완성 바닥의 datum을, laundry-garage-door 아래는 본채 완성 높이와 차고의 기존 낮은 datum을 유지한다고 밝힌다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 실제 문턱 요구에 벽 두께를 지나는 지지 바탕과 문설주 받침·문턱의 같은 단면 맞물림을 더하고 머드룸의 기존 한 단은 상면·챌면을 laundry owner 하나에 둔다.
 @evidence principles/design/spaces.md#space-topology 창 아래나 닫힌 벽 아래까지 바닥 마감을 늘리지 않고 머드룸 쪽에 새로운 디딤판이나 두 번째 단을 두지 않는다.
 @evidence principles/design/spaces.md#space-boundary-authority 문 아래 바탕 예약과 벽 몸체가 겹치는 구역은 바닥 owner가 한 번 생성하고 벽 owner는 그 예약을 제외한다.
 @evidence principles/design/spaces.md#space-verification-address 네 출입구의 중앙과 양 문설주 단면, 안팎 대기, 닫힌/열린 문 아래에서 빈틈·겹침·의도하지 않은 턱과 머드룸 한 단의 위치를 읽게 한다.
@@ -60,7 +60,7 @@
 | [front-door](rooms/entry.md#entry-plan): 현관 ↔ 포치 | 본채 ground 바탕이 전면 벽의 바깥 면까지 이어지고 [포치 바닥](porch.md#porch-platform-access)은 그 면에서 만난다. 두 완성 바닥의 datum을 유지한다. | `src/spaces/envelope/front.ts`가 벽 두께 안의 문턱/충전을 맡는다. 상면 돌출은 양쪽 완성 바닥 위 0.02 m 이내로 예약하고 실내 entry 마감과 바깥 porch 마감은 각 안팎 벽 면에서 만난다. |
 | [garden-door](envelope/rear.md#garden-door): 공용부 ↔ 테라스 | 본채 ground 바탕이 후벽 바깥 면까지 이어지고 [테라스](site/terrace.md#garden-terrace-plan)가 그 면에서 만난다. | `src/spaces/envelope/rear.ts`가 기존 문턱 돌출 한계를 소비한다. common 바닥은 안쪽 면까지, terrace 바닥은 바깥 면부터이며 같은 문턱판을 두 실에서 만들지 않는다. |
 | [garage-front-door](envelope/front.md#garage-front-opening): 차고 ↔ 차도 | 차고 바탕이 자기 전면 벽 바깥 면까지 이어지고 [차도](site/driveway.md#driveway-plan)가 같은 끝선 높이에서 만난다. | `src/spaces/rooms/garage-interior.ts`가 벽 두께 안까지 연속된 콘크리트 상면을 맡고 front owner의 닫힌 문 하부 밀폐재가 이 면에 닿는다. 바닥을 가로막는 별도 높은 문턱은 없다. |
-| [laundry-garage-door](rooms/laundry.md#laundry-plan): 머드룸 ↔ 차고 | 본채 ground 바탕이 공유 벽의 차고 쪽 면까지 높은 문턱을 받친다. 차고 바닥은 그 면에서 기존 낮은 datum으로 끝나므로 기존 한 단이 남는다. | `src/spaces/rooms/laundry.ts`가 문턱 상면과 차고 쪽에 노출된 챌면을 통째로 맡는다. 상면은 본채 완성 높이에 맞추고 차고 바닥은 그 챌면 아래끝에 닿는다. 새로운 디딤판이나 두 번째 단을 추가하지 않는다. |
+| [laundry-garage-door](rooms/laundry.md#laundry-plan): [머드룸 ↔ 차고](../settings/10-house.md#service-band) | 본채 ground 바탕이 공유 벽의 차고 쪽 면까지 높은 문턱을 받친다. 차고 바닥은 그 면에서 기존 낮은 datum으로 끝나므로 기존 한 단이 남는다. | `src/spaces/rooms/laundry.ts`가 문턱 상면과 차고 쪽에 노출된 챌면을 통째로 맡는다. 상면은 본채 완성 높이에 맞추고 차고 바닥은 그 챌면 아래끝에 닿는다. 새로운 디딤판이나 두 번째 단을 추가하지 않는다. |
 
 각 문 아래의 바탕 예약과 벽 몸체가 겹치는 구역은 위 바닥 owner가 한 번만 생성하고 벽 owner는 그 예약을 제외한다. 개구부 Y 하한 아래에 벽을 남긴 채 바닥을 포개지 않는다. 그보다 아래의 기단/지지 접합은 [지면 인계](#ground-support-handoff)를 따르며 문 아래 전체 벽을 지면까지 삭제하지 않는다. 문설주의 받침과 문턱은 같은 단면에서 맞물려야 한다. 보이는 문턱/챌면 마감도 기존 바탕/벽과 겹치는 별도 면을 남기지 않고 해당 경계의 한 소유자가 닫는다.
 
@@ -75,7 +75,7 @@
 @evidence principles/design/spaces.md#space-topology 바탕 아래 빈 공중층을 두지 않고 본채 바탕을 포치·테라스·차도 아래로 넓히지 않으며 지표로 완성 바닥을 덮지 않는다.
 @evidence principles/design/spaces.md#space-boundary-authority 실내 바탕 가장자리를 외장 밖으로 내밀어 기단 띠를 중복 생성하지 않고 지하 접합에서도 두 owner가 같은 면에서 만나게 한다.
 @evidence principles/design/spaces.md#space-verification-address 두 바닥 아래면, 건물 둘레, 공유 벽, 네 출입 경계, 포치/테라스/차도 접점의 높이별 단면과 외부 낮은 시야를 두게 한다.
-@evidence settings/10-house.md#site-identity 측량값을 가정하지 않고 저작 maps 지표와 건물 지지의 실제 접촉을 요구한다.
+@evidence settings/10-house.md#site-identity 임의의 수평 지표나 지반 성능을 확정하지 않고 maps의 실제 외부 지표와 접촉선을 받은 뒤 건물 지지 하단과 기단을 정하게 한다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work site-identity의 "지표 경사는 maps의 저작 선택"을 건물 지지에 대조했고 maps가 disabled라 지지 하단을 미결로 노출하는 인계로 두어 부모 수정이 없었다.
 -->
 

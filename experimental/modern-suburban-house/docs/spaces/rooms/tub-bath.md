@@ -10,7 +10,7 @@
 @evidence principles/design/spaces.md#space-boundary-authority 오른쪽 외벽 창은 tub-right-window에서 소비하고 이 방에만 바인딩한다.
 @evidence principles/design/spaces.md#space-verification-address 변기나 세면장을 넘지 않고 욕조에 닿는 경로, 창의 접근/프라이버시, 모든 구석과 부재 읽힘을 검사한다.
 @evidence settings/10-house.md#tub-bathroom 샤워 욕실과 벽을 사이에 둔 독립 욕실로 두고 한 실의 좌우 구역으로 합치지 않는다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work tub-bathroom의 자기 문·독립 실·욕조 접근 조건과 upper-hall의 짧은 복도를 대조했고 복도 끝 문으로 성립해 부모 수정이 없었다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work tub-bathroom의 자기 문·독립 실·욕조 접근 조건을 대조했고 복도에 닿는 왼쪽 벽의 hall-tub-door와 샤워 욕실·침실 쪽 통과문 없는 독립 실로 성립해 부모 수정이 없었다.
 -->
 
 `tub-bathroom`은 upper-storey의 오른쪽 독립 욕실이다. 마감 안쪽 X = [3.22, 5.50], Z = [-8.80, -4.71] m다. 오른쪽은 본채 외벽, 앞쪽은 청회색 침실과 Z = [-4.71, -4.56]의 벽, 뒤쪽은 옷방과 Z = [-8.95, -8.80]의 벽이다. 왼쪽 X = [3.07, 3.22]의 벽은 앞 부분에서 [복도](upper-hall.md#upper-hall-plan), 뒤 부분에서 [샤워 욕실](shower-bath.md#shower-bath-plan)에 닿는다.
@@ -28,12 +28,12 @@
 @evidence principles/design/spaces.md#space-topology 실문을 연 뒤 왼쪽 띠로 욕조에 접근하고 기구를 넘거나 다른 방을 통해 돌아오지 않는다.
 @evidence principles/design/spaces.md#space-boundary-authority 수건걸이는 interior-boundary-junctions의 실제 벽/개구부 인계를 소비해 문 뒤 닫힌 구간에 둔다.
 @evidence principles/design/spaces.md#space-verification-address 기구 위에 올라서야 가능한 창 조작을 합격으로 처리하지 않고 커튼을 펴거나 걷은 프라이버시와 두 방향 진입을 검사한다.
-@evidence settings/10-house.md#tub-bathroom 욕조 가장자리·샤워 수전·커튼 레일/커튼·거울·수건이 욕조 욕실 기능을 드러내도록 공간 예약을 둔다.
+@evidence settings/10-house.md#tub-bathroom 욕조 가장자리 높이 0.55 m, 뒤쪽 끝의 욕조 수전/샤워기, X = 4.62 m의 커튼 레일과 뒤쪽 끝에 모으는 커튼, 세면장 위 거울, 문 뒤 닫힌 구간의 수건걸이를 공간 예약으로 둔다.
 @evidence settings/00-production.md#use-profile 실제 문/기구/수전/커튼·창·수건을 소비한 평면과 단면에서 같은 사용체로 경로를 검사한다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work tub-bathroom의 기구 목록·비넘김 경로와 use-profile을 뒤쪽으로 긴 실에 적용했고 수건 예약 수정은 이 H2 안에서 해결돼 부모 수정이 없었다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work tub-bathroom의 기구 목록·비넘김 경로와 use-profile을 오른쪽 기구 열과 왼쪽 주 경로 X = [3.32, 4.22] m에 적용했고 수건걸이를 문 뒤 닫힌 구간 Z = [-6.85, -6.10] m로 옮겨 이 H2 안에서 해결해 부모 수정이 없었다.
 -->
 
-같은 tub-bathroom/upper-storey의 오른쪽에 앞에서부터 세면장·변기·욕조를 놓고 왼쪽 바닥으로 잇는다. 아래 world X/Z m의 오른쪽 끝은 모두 [방 안쪽 면](#tub-bath-plan)이며 높이는 상층 완성 바닥 기준이다. 표의 몸체와 사용은 별개 점유다.
+같은 tub-bathroom/upper-storey의 오른쪽에 [욕조 욕실 설정](../../settings/10-house.md#tub-bathroom)의 세면장·변기·욕조를 앞에서부터 놓고 왼쪽 바닥으로 잇는다. 아래 world X/Z m의 오른쪽 끝은 모두 [방 안쪽 면](#tub-bath-plan)이며 높이는 상층 완성 바닥 기준이다. 표의 몸체와 사용은 별개 점유다.
 
 | 기구 | 몸체 예약 | 사용과 높이 |
 | --- | --- | --- |

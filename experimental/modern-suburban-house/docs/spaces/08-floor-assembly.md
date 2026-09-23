@@ -27,7 +27,7 @@ upper-storey의 실문 아래는 [문턱 중앙면의 마감 인계](07-boundary
 
 ## 외벽과 계단 가장자리에서 닫히는 층간 단면 {#interstorey-edge-junctions}
 <!--
-@evidence principles/core/common.md#scope-preservation 층간 구조의 외벽 둘레, 실내 칸막이 상하 접촉, 계단 뒤 분리벽과 층판의 겹침, 계단 구멍 수직 단면 마감, 마지막 챌판과 도착 바닥, 차고 쪽 공유 벽을 맡는다.
+@evidence principles/core/common.md#scope-preservation 층간 구조의 외벽 둘레, 실내 칸막이 상하 접촉, 계단 뒤 분리벽과 층판의 겹침, 계단 구멍 수직 단면 마감, 마지막 챌판과 도착 바닥, 기존 차고 구조 owner를 유지하는 차고 쪽 공유 벽 접점을 맡는다.
 @evidence principles/core/common.md#substantive-completion 계단 구멍 단면 마감을 최대 0.015 m 두께로 층판 쪽에 들여 원래 통행 구멍의 완성 경계를 좁히지 않게 한다.
 @evidence principles/core/common.md#declared-basis 외벽 안쪽 면은 00, 칸막이 높이 역할은 07, 계단 경계 높이는 stair-boundary-heights에서 받는다고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 표면 분해 조건을 계단실 연속 수직 마감은 stair, 구조 가장자리는 upper, 도착 바닥은 upper-hall로 나누는 소유로 세분한다.

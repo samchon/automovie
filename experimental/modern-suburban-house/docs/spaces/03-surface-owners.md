@@ -14,7 +14,7 @@
 @evidence contracts/surface-ownership.md#whole-surface-owner 입면·지붕 경사면·포치·층 바탕·계단·포장·울타리의 각 완결 면을 소스 저작 전에 한 source 파일에 통째로 배정하고 building·junctions·openings·site 계산 파일이 표면을 소유하지 않게 한다.
 -->
 
-[완결 표면 계약](../contracts/surface-ownership.md#whole-surface-owner)을 첫 소스 저작 전에 적용한다. 아래 표는 작성할 소스 파일의 책임을 예약한다. 담당 저작자는 모두 이 production의 단일 저작자다. 다른 저작자에게 위임하려면 완결 면 하나를 통째로 넘기며 같은 면의 부재·반복·마감을 따로 넘기지 않는다. 현재는 source 파일이 아직 없어 파일 배정 의도이며, 실제 surface id·면 개수·누락/중복 census를 완료한 선언이 아니다.
+[표면 분해 인계](../settings/20-verification.md#surface-allocation)에 따라 [완결 표면 계약](../contracts/surface-ownership.md#whole-surface-owner)을 첫 소스 저작 전에 적용한다. 아래 표는 작성할 소스 파일의 책임을 예약한다. 담당 저작자는 모두 이 production의 단일 저작자다. 다른 저작자에게 위임하려면 완결 면 하나를 통째로 넘기며 같은 면의 부재·반복·마감을 따로 넘기지 않는다. 현재는 source 파일이 아직 없어 파일 배정 의도이며, 실제 surface id·면 개수·누락/중복 census를 완료한 선언이 아니다.
 
 | 완결 면 또는 공유 경계 | 소스 파일 owner | 책임과 접합 |
 | --- | --- | --- |
@@ -63,7 +63,7 @@
 <!--
 @evidence principles/core/common.md#scope-preservation 실내 공간 책임마다 안쪽 벽·천장·바닥·개구부 둘레를 방 파일에 배정하고 옷방·린넨장·외투장의 분류를 맡는다.
 @evidence principles/core/common.md#substantive-completion 방마다 src/spaces/rooms 아래 한 파일을 완결 내부 owner로 정하고 사람이 들어가는 옷방은 자기 파일로 분리한다.
-@evidence principles/core/common.md#declared-basis 방 경계·문·창·storey는 05의 방 owner에서 받고 source 파일이 아직 없어 census는 unverified라고 밝힌다.
+@evidence principles/core/common.md#declared-basis 방별 경계·문·창·storey binding은 동선 인계의 방 owner와 대조하고 표의 source 파일이 아직 없어 실제 census는 unverified라고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation storage 설정의 "사람이 들어가는 수납실을 공간으로 저작하면 다른 방과 같은 전체 관찰을 부담한다"를 옷방은 방, 린넨장·외투장은 소비 방의 접면이라는 분류로 적용한다.
 @evidence principles/design/spaces.md#space-topology 린넨장은 upper-hall, 외투장은 entry의 접면으로 두고 수납 이름으로 방의 질문을 없애지 않는다.
 @evidence principles/design/spaces.md#space-boundary-authority 구조 벽과 층판은 외곽/공유 기준을 소비하고 문·창 void는 경계 owner, 문짝·창호와 reveal의 일치는 면 owner로 넘겨 방이 별도 좌표를 발명하지 않는다.
@@ -73,7 +73,7 @@
 @evidence contracts/surface-ownership.md#whole-surface-owner 각 방의 안쪽 벽·천장·바닥·reveal을 그 방의 한 room 파일에 배정하고 사람이 들어가는 옷방은 자기 파일로, 린넨장·외투장은 소비하는 방의 접면으로 구분한다.
 -->
 
-아래 owner는 각 방의 모든 안쪽 벽·천장·바닥 마감 구역과 개구부 둘레를 한 저작자가 통합할 책임을 가진다. 구조 벽과 층판은 외곽/공유 기준을 소비하며 외피와 별도 방 좌표를 발명하지 않는다. 문·창의 실제 void는 경계 owner, 문짝·창호 부재와 reveal의 일치 책임은 그 면 owner에게 전달된다. 모든 담당은 같은 단일 저작자다.
+[표면 분해 인계](../settings/20-verification.md#surface-allocation)가 요구한 각 방 내부의 완결 면에 대해, 아래 owner는 각 방의 모든 안쪽 벽·천장·바닥 마감 구역과 개구부 둘레를 한 저작자가 통합할 책임을 가진다. 구조 벽과 층판은 외곽/공유 기준을 소비하며 외피와 별도 방 좌표를 발명하지 않는다. 문·창의 실제 void는 경계 owner, 문짝·창호 부재와 reveal의 일치 책임은 그 면 owner에게 전달된다. 모든 담당은 같은 단일 저작자다.
 
 | 공간 책임 | 소스 파일 owner |
 | --- | --- |
@@ -93,4 +93,4 @@
 | 유리 부스 샤워 욕실 | `src/spaces/rooms/shower-bath.ts` |
 | 욕조 욕실 | `src/spaces/rooms/tub-bath.ts` |
 
-[별도 옷방](rooms/wardrobe.md#primary-wardrobe-plan)은 사람이 들어가는 공간으로 채택했으므로 자기 파일·전체 관찰을 추가했다. 얕은 [복도 린넨장](rooms/upper-hall.md#upper-linen-storage)과 [현관 외투장](rooms/entry.md#entry-coat-storage)은 소비하는 방의 접면이다. 이 분류로 실제 방의 질문을 줄이지 않는다. 방별 경계·문·창·storey binding은 [동선 인계](05-route-network.md#room-route-network)의 방 owner와 대조한다. 방의 면 개수를 표의 행 수로 대체하지 않는다. 표의 소스 파일은 아직 없고 실제 census는 unverified이며 이 문서만으로 1단계 표면 인계를 완료하지 않는다.
+[별도 옷방](rooms/wardrobe.md#primary-wardrobe-plan)은 사람이 들어가는 공간으로 채택했으므로 [수납](../settings/10-house.md#storage)의 조건대로 자기 파일·전체 관찰을 추가했다. 얕은 [복도 린넨장](rooms/upper-hall.md#upper-linen-storage)과 [현관 외투장](rooms/entry.md#entry-coat-storage)은 소비하는 방의 접면이다. 이 분류로 실제 방의 질문을 줄이지 않는다. 방별 경계·문·창·storey binding은 [동선 인계](05-route-network.md#room-route-network)의 방 owner와 대조한다. 방의 면 개수를 표의 행 수로 대체하지 않는다. 표의 소스 파일은 아직 없고 실제 census는 unverified이며 이 문서만으로 1단계 표면 인계를 완료하지 않는다.

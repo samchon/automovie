@@ -6,7 +6,7 @@
 @evidence principles/core/common.md#substantive-completion 3.06 m를 18 × 0.17 m로 나눠 아래 8·위 10 챌판, 디딤 0.28 m, 중간참 Y = 1.36 m, 진행 길이 아래 1.96 m·위 2.52 m를 정하고 세 부분의 평면 예약 표를 둔다.
 @evidence principles/core/common.md#declared-basis 높이 3.06 m는 storey-datums에서 받고 각 구간의 마지막 챌판이 다음 참에 도달하므로 참을 디딤으로 다시 세지 않는 산출 규칙을 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 설정의 L형 계단을 현관 하부 대기에서 -Z로 오른 뒤 중간참에서 +X로 한 번 꺾는 실제 진행 방향과 X = [-1.80, -0.65] 경로로 정한다.
-@evidence principles/design/spaces.md#space-topology 두 flight와 중간참을 ground-storey 계단 공간에 두고 목적지는 upper-storey 도착면이며 두 storey 사이에 이 연결 하나만 두고 계단 아래를 통과하는 경로를 만들지 않는다.
+@evidence principles/design/spaces.md#space-topology 두 flight와 중간참을 ground-storey 계단 공간에 두고 목적지는 upper-storey 도착면이며 두 storey 사이에 이 연결 하나만 두고 계단 아래를 통과해야 거실이나 후면 공용부에 닿는 경로를 만들지 않는다.
 @evidence principles/design/spaces.md#space-boundary-authority 디딤 위치는 개수·진행 방향·시작점에서 반복 산출하고 손으로 같은 레코드를 복제하지 않으며 좌표 허용 오차는 main-building-extent에서 받는다.
 @evidence principles/design/spaces.md#space-verification-address 단 수, 진행 방향, 두 도착면과 실제 단의 접속을 계단 산출물·단면·양방향 통행으로 대조하게 한다.
 @evidence settings/10-house.md#stair 두 직선 flight와 90° 중간참을 한 main-stair에 담고 다른 층간 길을 두지 않는다.
@@ -38,7 +38,7 @@
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work stair의 "두 직선 flight와 중간참"과 "단면으로 검토"를 connector 형태에 대조했고 steps를 생략해도 단별 검사를 부재에서 요구할 수 있어 부모 수정이 없었다.
 -->
 
-[계단 공간과 단별 치수](#stair-reservation)는 유지한다. 후속 `IAutoMovieBuiltConnector`는 `main-stair-connection` 하나로, kind는 stair, from은 front-entry, to는 upper-hall, bidirectional은 true로 저작한다. route의 양 끝은 각각 기존 하부 대기와 상부 도착면 내부에 두며, 아래 flight → 중간참에서 한 번 꺾임 → 위 flight의 실제 진행 순서를 따른다. 두 flight를 별도의 층간 계단으로 등록하거나 계단실을 통과하지 않는 직선으로 두 층을 연결하지 않는다. 실제 두 flight·참·보호 부재는 같은 connector의 elements로 인계한다.
+[단일 꺾임계단](../settings/10-house.md#stair)을 실현한 [계단 공간과 단별 치수](#stair-reservation)는 유지한다. 후속 `IAutoMovieBuiltConnector`는 `main-stair-connection` 하나로, kind는 stair, from은 front-entry, to는 upper-hall, bidirectional은 true로 저작한다. route의 양 끝은 각각 기존 하부 대기와 상부 도착면 내부에 두며, 아래 flight → 중간참에서 한 번 꺾임 → 위 flight의 실제 진행 순서를 따른다. 두 flight를 별도의 층간 계단으로 등록하거나 계단실을 통과하지 않는 직선으로 두 층을 연결하지 않는다. 실제 두 flight·참·보호 부재는 같은 connector의 elements로 인계한다.
 
 기존 main-stair 공간은 ground-storey 귀속을 유지하고 connector의 중간 landing으로도 참조한다. landing의 위치는 중간참 평면의 X/Z 중심과 그 참의 높이에서 정한다. 이 점을 route의 꺾임 station으로 포함하며 `landings.at`은 시작에서 그 점까지의 3D polyline 길이를 전체 route 길이로 나눈 값이다. 단순히 station 배열의 중간 index나 0.5로 고정하지 않는다. 중간참을 별도 방·층·두 번째 계단으로 만들지 않고 `landings.space`는 main-stair를 가리킨다. 참의 physical boundary와 실제 지지 면은 stair owner에 남는다.
 
@@ -61,7 +61,7 @@
 
 [위 경로](#stair-reservation)와 하부 대기 면적에 한정하여, 층판 구멍은 X = [-1.80, -0.65]·Z = [-4.56, -0.25]의 세로 부분과 X = [-0.65, 1.87]·Z = [-4.56, -3.41]의 가로 부분을 합친 L형이다. 계단 전면 끝이 본채 안쪽 전면에 닿으므로 [상층 전면의 작은 계단 창](../settings/10-house.md#openings)은 실제 계단 공간으로 열린다. void·높이는 [stair-front-window](envelope/front.md#stair-front-window)를 소비하고 실제 창호는 후속 부재에서 구현한다. 창 뒤를 침실로 바꾸거나 전면에 가짜 창을 붙이지 않는다.
 
-구멍은 두 flight·중간참·하부 대기 위의 계단실에만 속한다. 거실·현관 분배 바닥·침실을 추가로 비우는 복층 보이드는 없다. 통행 구멍의 동일 경계를 [단일 층간 구조](08-floor-assembly.md#interstorey-floor-boundary)의 `src/spaces/floors/upper.ts`와 위층 바닥/아래층 천장의 방별 마감 owner가 소비한다. 계단 쪽에 보이는 수직 두께 마감과 상부 도착은 [가장자리 인계](08-floor-assembly.md#interstorey-edge-junctions)를 따른다. 계단실 위는 본채 2층 천장으로 닫힌다. 구멍을 지붕까지 연장하지 않는다.
+구멍은 [단일 꺾임계단](../settings/10-house.md#stair)이 요구한 실제 통행 개구부이며 두 flight·중간참·하부 대기 위의 계단실에만 속한다. 거실·현관 분배 바닥·침실을 추가로 비우는 복층 보이드는 없다. 통행 구멍의 동일 경계를 [단일 층간 구조](08-floor-assembly.md#interstorey-floor-boundary)의 `src/spaces/floors/upper.ts`와 위층 바닥/아래층 천장의 방별 마감 owner가 소비한다. 계단 쪽에 보이는 수직 두께 마감과 상부 도착은 [가장자리 인계](08-floor-assembly.md#interstorey-edge-junctions)를 따른다. 계단실 위는 본채 2층 천장으로 닫힌다. 구멍을 지붕까지 연장하지 않는다.
 
 구멍 왼쪽의 보호/분리 경계는 X = [-1.95, -1.80], 세로 구간 오른쪽은 X = [-0.65, -0.50], 가로 구간 앞쪽은 Z = [-3.41, -3.26], 뒤쪽은 Z = [-4.71, -4.56]의 0.15 m 예약이다. 이들은 각 인접 방의 안쪽 끝과 접하며 같은 벽을 두 번 만들지 않는다. 위 flight의 +X 끝은 상부참으로 통하는 열린 경계이므로 막는 난간을 놓지 않는다. 전면 창/계단 단면, 두 층의 같은 구멍, 방 바닥의 구멍 침범, 인접 벽 중복 및 참을 막는 난간이 검사 질문이다. 현재 실제 surface id와 단면 관찰은 unverified다.
 
@@ -88,18 +88,18 @@
 
 ## 계단 곁 벽과 열린 보호 경계의 높이 {#stair-boundary-heights}
 <!--
-@evidence principles/core/common.md#scope-preservation 계단 둘레 여섯 경계의 높이 역할, 경사 손잡이와 복도 보호 높이, 난간살 간격 상한, 계단 아래 막음과 외투장 opening을 맡는다.
+@evidence principles/core/common.md#scope-preservation 계단 둘레 여섯 경계의 높이 역할, 경사 손잡이와 복도 보호 높이, 난간살 간격 상한, 외투장 opening만 소비하는 계단 아래 막음을 맡는다.
 @evidence principles/core/common.md#substantive-completion 경사 손잡이 상단을 디딤 코 위 0.90 m, 복도 추락 경계 보호를 upper-storey 바닥 위 1.05 m로 정하고 난간살 빈 간격과 맨 아래 빈 높이를 0.10 m 이하로 둔다.
 @evidence principles/core/common.md#declared-basis 높이와 간격 상한은 이 집의 저작 선택이며 안전 법규 적합성 인증이 아니고 반복 개수는 후속 모듈이 구간 길이에서 산출한다고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 설정의 검은 수직 철제 난간살·목재 손잡이를 경계별로 닫힌 분리벽·열린 난간·벽붙이 손잡이·열린 도착으로 배정한다.
 @evidence principles/design/spaces.md#space-topology 계단 뒤쪽은 두 층 바닥 사이를 분리벽으로 닫아 아래 서비스 통로와 위 복도를 같은 실로 잇지 않고 위 flight의 +X 도착 끝은 상층 바닥 높이부터 연다.
-@evidence principles/design/spaces.md#space-boundary-authority 구조 바탕은 stair.ts, 인접 방 마감은 03의 방 owner가 유지하고 벽이 있는 높이에 난간 패널을 중복 생성하지 않으며 모든 부재는 0.075 m 예약 안에 둔다.
+@evidence principles/design/spaces.md#space-boundary-authority 구조 바탕은 stair.ts, 인접 방 마감은 03의 완결 면 배정이 유지하고 벽이 있는 높이에 난간 패널을 중복 생성하지 않으며 모든 기둥·벽붙이 손잡이·난간살의 통행 쪽 점유를 stair-clearance의 양쪽 0.075 m 예약 안에 둔다.
 @evidence principles/design/spaces.md#space-verification-address 현관에서 보이는 아래 flight, 중간참 두 방향, 디딤별 손잡이 단면, 상부 도착과 복도 가장자리, 외투장 위 단면을 관찰로 둔다.
 @evidence settings/10-house.md#stair 목재 손잡이와 검은 난간살은 열린 가장자리를 보호하며 참의 통행을 가로막지 않는다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work stair의 "중간참과 상부참에 닫힌 벽이나 난간이 통로를 가로지르지 않는다"와 난간 재료를 여섯 경계에 적용했고 열린 도착과 보호가 함께 성립해 부모 수정이 없었다.
 -->
 
-[계단 구멍 둘레의 평면 띠](#stair-floor-opening)는 모두 같은 높이의 벽을 뜻하지 않는다. 같은 main-stair의 높이별 경계 역할을 아래처럼 택한다. 방 안쪽 한계와 두 flight/참은 유지하며, 계단 출발과 도착을 닫는 새 벽은 없다. 구조 바탕은 `src/spaces/stair.ts`, 인접 방의 마감은 [완결 면 배정](03-surface-owners.md#interior-surface-handoff)을 유지한다.
+[계단 구멍 둘레의 평면 띠](#stair-floor-opening)는 모두 같은 높이의 벽을 뜻하지 않는다. [단일 꺾임계단](../settings/10-house.md#stair)의 검은 수직 철제 난간살·목재 손잡이와 참의 통로를 벽이나 난간이 가로지르지 않는다는 조건을 받아 같은 main-stair의 높이별 경계 역할을 아래처럼 택한다. 방 안쪽 한계와 두 flight/참은 유지하며, 계단 출발과 도착을 닫는 새 벽은 없다. 구조 바탕은 `src/spaces/stair.ts`, 인접 방의 마감은 [완결 면 배정](03-surface-owners.md#interior-surface-handoff)을 유지한다.
 
 | 경계 | 바닥·벽·보호의 높이 역할 |
 | --- | --- |

@@ -7,8 +7,8 @@
 @evidence principles/core/common.md#declared-basis 차고 쪽 0.15 m 단차는 ground-threshold-datums, 높은 문턱의 지지는 ground-threshold-junctions에서 받는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation "우측 띠와 차고 사이의 완충실"을 서쪽 칸막이와 동쪽 공유 벽의 두 문이 마주 보고 -Z 문설주에서 머드룸 안으로 열리는 배치로 만든다.
 @evidence principles/design/spaces.md#space-topology 서비스 접근과 차고를 잇는 두 실문을 같은 connector로 합치지 않고 이 방을 차고에 가는 유일한 내부 경로로 둔다.
-@evidence principles/design/spaces.md#space-boundary-authority 두 opening id를 이 방과 공유 벽 owner가 소비하고 높은 문턱/챌면만 이 방 owner가 생성한다.
-@evidence principles/design/spaces.md#space-verification-address 문턱 단면, 양방향 바구니 이동, 세탁 작업과 횡단의 간섭을 반증 관찰로 둔다.
+@evidence principles/design/spaces.md#space-boundary-authority 두 opening id를 src/spaces/rooms/laundry.ts와 공유 벽 owner가 소비하고 높은 문턱의 상면/노출 챌면은 ground-threshold-junctions가 이 방 owner에게 배정한 것으로 받는다.
+@evidence principles/design/spaces.md#space-verification-address 차고 하부 대기 X = [5.75, 6.80]과 머드룸 상부 대기 X = [4.45, 5.50]을 깎는 문틀·90° 문짝의 순폭, 문턱 단면, 양방향 바구니 이동을 반증 관찰로 둔다.
 @evidence settings/10-house.md#laundry-mudroom 서비스 띠와 차고 사이 완충실에 세탁 설비와 신발/외투 기능을 함께 둔다.
 @evidence settings/10-house.md#service-band 차고 출입문이 머드룸과 직접 맞닿게 공유 벽에 laundry-garage-door를 둔다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work laundry-mudroom의 완충실·차고 직접 연결과 garage의 머드룸 관찰 경로를 대조했고 마주 보는 두 문으로 성립해 부모 수정이 없었다.
@@ -18,7 +18,7 @@
 
 `service-laundry-door`와 `laundry-garage-door`는 각각 서쪽 칸막이와 동쪽 공유 벽에서 거친 개구부 Z = [-4.40, -3.35], Y = [0, 2.20] m를 소유한다. 두 문 모두 최종 유효 폭 0.95 m를 목표로 하고 -Z 문설주에서 머드룸 안으로 열린다. 개구부가 마주 보며 열린 문짝은 뒤쪽 가장자리로 향한다. 두 문을 같은 connector로 합치지 않는다. 차고 쪽 0.15 m 단차는 [기존 문턱 datum](../01-storeys.md#ground-threshold-datums)을 받는다.
 
-기기·상판/상부장과 벤치/걸이는 [세탁 작업 예약](#laundry-equipment-use)을 소비한다. 앞쪽 작업과 뒤쪽 두 실문 사이의 [횡단 경로](#laundry-through-route)를 구별하며 기기를 열어 놓았다는 이유로 집과 차고 사이의 유일한 내부 경로가 끊기지 않게 한다.
+기기·상판/상부장과 벤치/걸이는 [세탁 작업 예약](#laundry-equipment-use)을 소비한다. 앞쪽 작업과 뒤쪽 두 실문 사이의 [횡단 경로](#laundry-through-route)를 구별하며 기기를 열어 놓았다는 이유로 [차고 내부 관찰도 거치는](../../settings/10-house.md#garage) 집과 차고 사이의 유일한 내부 경로가 끊기지 않게 한다.
 
 차고 쪽 하부 대기 X = [5.75, 6.80]·Z = [-4.43, -3.38]와 머드룸 상부 대기 X = [4.45, 5.50]·Z = [-4.43, -3.38] m를 예약한다. 문틀과 90° 열린 문짝이 이 영역을 깎는 양도 실제 순폭에 포함한다. `src/spaces/rooms/laundry.ts`와 공유 벽 owner가 같은 두 opening id를 소비한다. 문턱 단면·양방향 바구니 이동·세탁 작업과 횡단의 간섭은 unverified다.
 
@@ -31,7 +31,7 @@
 @evidence principles/core/common.md#declared-basis 기기 값은 특정 제품 규격이 아니며 앞벽 방향 벤치를 열린 기기 작업과 겹칠 수 있어 폐기했다는 근거를 남긴다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation "나란한 앞문식 세탁기·건조기, 상부장/선반, 접는 상판, 신발 벤치와 외투 걸이"를 오른쪽 기기 벽과 왼쪽 벽 벤치의 배치로 만든다.
 @evidence principles/design/spaces.md#space-topology 모든 설비를 laundry-mudroom 안에 두고 별도 방이나 문을 추가하지 않는다.
-@evidence principles/design/spaces.md#space-boundary-authority 실 외곽·문·층 datum은 laundry-plan에서 유지하고 기기 원형과 배치의 수정은 이 공간 입력으로 되돌린다.
+@evidence principles/design/spaces.md#space-boundary-authority 벤치를 왼쪽 벽 방향으로 바꾸면서 실 외곽·문·층 datum은 유지했고 실제 경첩·문 지름·손잡이가 이 공간 예약을 넘으면 기기 원형과 배치로 돌아와 수정한다.
 @evidence principles/design/spaces.md#space-verification-address 두 기기 수·몸체/작동 범위·접는 상판·벤치/외투 점유와 작업/횡단 분리를 관찰 집합에서 검사한다.
 @evidence settings/10-house.md#laundry-mudroom 두 기기의 실제 깊이와 원형 도어, 세탁기 앞 바구니 작업 공간을 공간 예약으로 둔다.
 @evidence settings/00-production.md#use-profile 열린 문 앞 바구니 작업에 사람 깊이를 X, 바구니 포함 폭을 Z로 적용한다.
@@ -55,14 +55,14 @@
 @evidence principles/core/common.md#declared-basis 문 유효폭 목표는 laundry-plan, 작업 구역은 laundry-equipment-use, 한 단의 높이는 문턱 datum에서 받는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation "세탁기 앞 바구니 작업 공간과 차고에서 집으로 들어오는 경로가 겹쳐 막히지 않게"를 앞쪽 작업 구역과 뒤쪽 횡단 띠의 분리로 만든다.
 @evidence principles/design/spaces.md#space-topology 머드룸 상부 대기에서 차고 하부 대기로 내려가 garage-use-routes로 이어지는 연결을 정한다.
-@evidence principles/design/spaces.md#space-boundary-authority 두 사용을 다른 색으로 표시하는 대신 문틀·문짝 두께·손잡이 뒤의 실제 폭을 원래 문 owner 값으로 읽는다.
+@evidence principles/design/spaces.md#space-boundary-authority 두 문을 90° 연 기준에서 문틀·문짝 두께·손잡이 뒤에도 laundry-plan의 문 유효폭 목표와 0.90 m 띠가 남게 하고 두 사용을 다른 색 표시로 대신하지 않는다.
 @evidence principles/design/spaces.md#space-verification-address 두 문을 열고 바구니를 든 사람의 양방향 통과 평면/문턱 단면, 기기별 문 개방과 작업자를 더한 상태를 검사한다.
 @evidence settings/00-production.md#use-profile 횡단 띠에 0.90 m 폭을 요구하고 문 회전 중과 통과 중을 동시 통행으로 주장하지 않는다.
-@evidence settings/10-house.md#laundry-mudroom 세탁 작업과 차고에서 집으로 들어오는 경로를 분리한다.
-@evidence obligations/design/spaces.md#space-access-circulation 집과 차고 사이의 유일한 내부 경로에 기기를 열어도 남는 횡단 띠를 배정한다.
+@evidence settings/10-house.md#laundry-mudroom 세탁 작업을 앞쪽 작업 구역에 두고 차고에서 집으로 들어오는 경로를 Z = [-4.32, -3.42] m 뒤쪽 횡단 띠로 분리한다.
+@evidence obligations/design/spaces.md#space-access-circulation 머드룸 상부 대기에서 차고 하부 대기로 이어지는 두 출입문 사이에 열린 기기와 기기 앞 작업자가 침범하지 않는 Z = [-4.32, -3.42] m 횡단 띠를 배정한다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work laundry-mudroom의 작업/경로 비충돌과 use-profile의 0.90 m 통로를 두 문 사이에 적용했고 0.90 m 폭의 뒤쪽 띠가 성립해 부모 수정이 없었다.
 -->
 
-이 경로는 [두 출입문과 양쪽 대기](#laundry-plan)를 잇는 같은 방 안의 바닥 띠다. X는 방의 왼쪽 안쪽 면부터 오른쪽 안쪽 면까지, Z = [-4.32, -3.42] m를 사용 점유가 침범하지 않는 횡단 예약으로 둔다. 실 출입문 두 개를 각각 90° 연 기준에서 문틀·문짝 두께·손잡이 뒤에도 이 띠의 0.90 m 폭과 [문 유효폭 목표](#laundry-plan)가 남아야 한다. 열린 세탁기/건조기·기기 앞 작업자는 [앞쪽 작업 구역](#laundry-equipment-use)에 있고 바구니 운반자는 이 뒤쪽 띠를 지난다. 두 사용을 단순히 다른 색으로 표시하고 실제 충돌을 무시하지 않는다.
+이 경로는 [두 출입문과 양쪽 대기](#laundry-plan)를 잇는 같은 방 안의 바닥 띠다. X는 방의 왼쪽 안쪽 면부터 오른쪽 안쪽 면까지, Z = [-4.32, -3.42] m를 사용 점유가 침범하지 않는 횡단 예약으로 둔다. 실 출입문 두 개를 각각 90° 연 기준에서 문틀·문짝 두께·손잡이 뒤에도 이 띠의 [연속 통로 폭 목표](../../settings/00-production.md#use-profile)인 0.90 m 폭과 [문 유효폭 목표](#laundry-plan)가 남아야 한다. [세탁기 앞 바구니 작업과 차고에서 집으로 들어오는 경로가 겹쳐 막히지 않게](../../settings/10-house.md#laundry-mudroom) 열린 세탁기/건조기·기기 앞 작업자는 [앞쪽 작업 구역](#laundry-equipment-use)에 있고 바구니 운반자는 이 뒤쪽 띠를 지난다. 두 사용을 단순히 다른 색으로 표시하고 실제 충돌을 무시하지 않는다.
 
-실문이 회전하는 동안의 부채꼴은 통과 예약과 다르다. 문을 조작한 다음 통과하고, 반대편 사람이 문을 여닫는 순간까지 동시 통행이라고 주장하지 않는다. 머드룸의 상부 대기에서 차고의 하부 대기로 내려갈 때는 기존 한 단의 높이와 문턱 경계를 소비한다. 하부 대기는 [차고 내부 경로](garage-interior.md#garage-use-routes)에 이어지며 물건 보관 면적에 넣지 않는다. 두 문을 열고 바구니를 든 사람이 양방향으로 통과하는 평면/문턱 단면, 기기별 문 개방과 작업자를 더한 상태, 문 조작 시 대기 위치를 검사한다. 현재는 설계 입력이며 실제 충돌·회전·도달성은 unverified다.
+실문이 회전하는 동안의 부채꼴은 통과 예약과 다르다. 문을 조작한 다음 통과하고, 반대편 사람이 문을 여닫는 순간까지 동시 통행이라고 주장하지 않는다. 머드룸의 상부 대기에서 차고의 하부 대기로 내려갈 때는 [기존 한 단의 높이](../01-storeys.md#ground-threshold-datums)와 문턱 경계를 소비한다. 하부 대기는 [차고 내부 경로](garage-interior.md#garage-use-routes)에 이어지며 물건 보관 면적에 넣지 않는다. 두 문을 열고 바구니를 든 사람이 양방향으로 통과하는 평면/문턱 단면, 기기별 문 개방과 작업자를 더한 상태, 문 조작 시 대기 위치를 검사한다. 현재는 설계 입력이며 실제 충돌·회전·도달성은 unverified다.

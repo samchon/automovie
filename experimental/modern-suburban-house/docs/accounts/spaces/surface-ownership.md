@@ -2,7 +2,7 @@
 
 ## 소스 저작 전에 닫힌 표면 배정 {#space-surface-ownership}
 <!--
-@evidence contracts/surface-ownership.md#whole-surface-owner 03의 두 표가 입면·지붕 경사면·포치·층 바탕·계단·포장·울타리와 각 방 내부를 source 파일에 배정하고, 47개 문서 본문의 모든 `src/spaces/...` 경로를 대조한 결과 각 입면·지붕면·방·대지 문서가 03과 같은 파일을 자기 owner로 적었다. 계산 파일은 표면을 소유하지 않으며 실제 surface census는 source 이후로 남는다.
+@evidence contracts/surface-ownership.md#whole-surface-owner 03의 외부 표면 배정과 방 내부 배정이 입면별·방별·층별 owner와 source 파일을 선언하고, 47개 문서 본문의 `src/spaces/...` 경로를 03과 대조한 결과 네 입면·여덟 지붕 경사면·열다섯 방 문서와 대지 포장·울타리 문서가 03과 같은 파일을 자기 owner로 적었으며 03 밖의 경로는 datum만 소유하는 `src/spaces/storeys.ts` 하나다. `building.ts`·`roof/junctions.ts`·`openings.ts`·`boundaries.ts`·`site.ts`는 표면을 소유하지 않고 실제 surface id·면 개수·census는 source 이후로 남는다.
 -->
 
 [원문 계약](../../contracts/surface-ownership.md#whole-surface-owner)은 1단계를 닫을 때 입면별·방별·층별 소유자와 저작 파일을 선언하고 한 표면을 쪼개지 않기를 요구한다. spaces에서는 [외부 표면 배정](../../spaces/03-surface-owners.md#exterior-surface-handoff)과 [방 내부 배정](../../spaces/03-surface-owners.md#interior-surface-handoff)이 이 선언을 맡는다.

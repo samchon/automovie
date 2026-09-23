@@ -19,7 +19,7 @@
 
 `src/spaces/floors/upper.ts`가 본채의 이 공통 바탕을 한 번 소유하고 [각 upper-storey 방 owner](03-surface-owners.md#interior-surface-handoff)가 자기 방 안에서 보이는 천장을 소유한다. 방별 완성 천장 윤곽은 그 방의 안쪽 벽 면에서 끝나며 인접 방이 같은 마감판을 다시 만들지 않는다. 칸막이 위의 숨은 바탕은 연속되고 낮은 붙박이장 때문에 지붕까지 열린 구멍을 남기지 않는다. 방/수납 분할은 기존 owner를 소비하며 천장 분할을 이유로 새 공간을 만들지 않는다.
 
-[main-stair](02-stair.md#stair-floor-opening) 위의 마감은 `src/spaces/stair.ts`가 완결 면을 맡는다. 평면은 기존 계단 구멍의 투영과, 그 둘레 보호/분리 띠 중 천장 높이에서 노출되는 부분을 합친다. [경계별 높이 역할](02-stair.md#stair-boundary-heights)을 소비하여 천장까지 닿는 침실 분리벽 부분은 제외하고, 낮은 뒤쪽 벽과 난간 위의 띠는 모서리까지 이 계단 천장에 포함한다. 뒤쪽의 마감 끝은 기존 상층 복도의 안쪽 끝과 만나므로 보호 띠 위에 빈틈이나 중복 판이 남지 않는다. 이는 높은 천장 마감의 배정이며 층간 구멍/바닥과 난간 높이는 바꾸지 않는다. 이 계단은 ground-storey 소속이어도 자기 위쪽 천장에는 upper-storey의 완성 천장 높이를 소비한다. ground-storey 천장 높이의 판을 계단 중간에 덧씌우지 않는다. 위층 복도의 열린 도착 위에서도 같은 높이의 두 소유 면이 만나 상부 경계가 끊기지 않는다. 기존 전면 계단 창은 그대로 계단실에 바인딩한다.
+[main-stair](02-stair.md#stair-floor-opening) 위의 마감은 `src/spaces/stair.ts`가 완결 면을 맡는다. 평면은 기존 계단 구멍의 투영과, 그 둘레 보호/분리 띠 중 천장 높이에서 노출되는 부분을 합친다. [경계별 높이 역할](02-stair.md#stair-boundary-heights)을 소비하여 천장까지 닿는 침실 분리벽 부분은 제외하고, 낮은 뒤쪽 벽과 난간 위의 띠는 모서리까지 이 계단 천장에 포함한다. 뒤쪽의 마감 끝은 기존 상층 복도의 안쪽 끝과 만나므로 보호 띠 위에 빈틈이나 중복 판이 남지 않는다. 이는 높은 천장 마감의 배정이며 층간 구멍/바닥과 난간 높이는 바꾸지 않는다. [복층 보이드가 없는](../settings/10-house.md#stair) 이 계단은 ground-storey 소속이어도 자기 위쪽 천장에는 upper-storey의 완성 천장 높이를 소비한다. ground-storey 천장 높이의 판을 계단 중간에 덧씌우지 않는다. 위층 복도의 열린 도착 위에서도 같은 높이의 두 소유 면이 만나 상부 경계가 끊기지 않는다. 기존 전면 계단 창은 그대로 계단실에 바인딩한다.
 
 검사는 상층 반사 천장 평면, 계단 출발부터 높은 창/천장까지의 단면, 상층의 모든 방과 계단실에서 위를 보는 관찰이다. 계단 구멍을 복제한 구멍, 낮은 수납/난간 위 누락, 방 경계의 겹친 마감, 계단을 가로막는 아래층 천장판을 찾는다. [공유 허용 오차](01-storeys.md#storey-datums)로 높이/접촉을 대조하며 실제 바탕·마감·공간 binding·순높이·프레임은 unverified다.
 
@@ -32,7 +32,7 @@
 @evidence principles/design/spaces.md#space-topology 본채 바닥/천장을 공유 벽 너머로 늘리지 않고 차고 지붕 밑에 방·수납층·추가 계단을 두지 않는다.
 @evidence principles/design/spaces.md#space-boundary-authority 바탕은 garage.ts, 보이는 전체 천장은 garage-interior.ts가 소유하고 처마 밑면은 지붕 owner의 외부 면으로 남긴다.
 @evidence principles/design/spaces.md#space-verification-address 차고 반사 천장 평면, 전면 레일을 따라 지붕까지 보는 단면, 공유 벽 접점, 네 안쪽 모서리와 문 닫힘/열림 시야를 두게 한다.
-@evidence settings/10-house.md#garage 문 레일·천장·수납을 갖춘 빈 차고의 상부 공간을 낮은 박공 아래 닫는다.
+@evidence settings/10-house.md#garage 빈 차고의 내부 천장을 차고 지붕 아래에서 닫고 열린 전면 패널/가이드 예약을 완성 천장 아래에 유지하며 후벽 선반/작업대 높이는 차고 내부 owner에서 소비한다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work garage의 "문 레일/상부 구조, 콘크리트 바닥과 내부 천장"과 닫힌 문 기준을 대조했고 가이드 예약과 천장 바탕을 분리해 성립해 부모 수정이 없었다.
 -->
 
@@ -47,19 +47,19 @@
 ## 낮은 지붕과 천장 바탕의 접합 여유 {#ceiling-roof-clearance}
 <!--
 @evidence principles/core/common.md#scope-preservation 본채와 차고 천장 예약 상단을 실제 실내 윤곽 위 지붕 아래면과 대조하고 벽 두께 구역·지붕 단차·굴뚝 주변의 접촉을 맡는다.
-@evidence principles/core/common.md#substantive-completion 평탄 천장 예약 상단과 지붕 아래면 사이 최소 0.010 m 분리 목표를 두고 본채와 차고의 가장 낮은 두 구간의 식을 적는다.
+@evidence principles/core/common.md#substantive-completion 평탄 천장 예약 상단과 지붕 아래면 사이 최소 0.010 m 분리 목표를 두고 본채의 가장 낮은 대조 구간인 오른쪽 지붕 아래 전후 실내 끝선과 차고 전후 실내 끝선의 식을 적는다.
 @evidence principles/core/common.md#declared-basis 약 0.0158 m와 0.0842 m는 지붕·외벽 두께·완성 천장과 이 문서의 예약을 대입한 표기이며 산출물 계측이 아니라고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 설정의 순높이와 지붕 경사 범위에 천장 바탕 위의 분리 조건을 더하고 대조 위치를 외벽 바깥 선이 아닌 실내 끝선으로 정한다.
 @evidence principles/design/spaces.md#space-topology 본채 외벽 바깥 선이나 처마 끝의 낮은 높이를 실내 천장 윤곽 높이로 쓰지 않고 천장을 각 실내 평면의 안쪽 면까지로 둔다.
 @evidence principles/design/spaces.md#space-boundary-authority 벽 두께 구역은 입면/공유 벽 owner가 roof-wall-head-junctions의 아래면까지 닫고 천장 바탕은 안쪽 벽 면에서 끝나며 지붕 날씨 면에서 두께를 다시 정하지 않는다.
 @evidence principles/design/spaces.md#space-verification-address 모든 지붕 배정 구역의 천장 단면, 낮은 앞뒤 끝선, 네 외벽 모서리, 지붕 단차 아래, 계단실 위, 차고 공유 벽/레일 구간을 읽고 숫자 두 개만으로 통과시키지 않는다.
 @evidence settings/10-house.md#main-mass 상층 순높이와 낮은 지붕을 동시에 유지할 천장 상부 여유를 설계한다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work main-mass의 2층 순높이 2.50–2.65 m와 경사 30–38°, garage의 "낮은 박공 지붕"을 실내 끝선 대조에 적용했고 두 최저 구간에 분리 여유가 남아 부모 범위 수정이 없었다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work main-mass의 2층 순높이 2.50–2.65 m와 경사 30–38°, garage의 "낮은 박공 지붕"을 실내 끝선 대조에 적용했고 본채 최저 대조 구간과 차고 전후 실내 끝선에 분리 여유가 남아 부모 범위 수정이 없었다.
 -->
 
 천장은 [본채 실내 평면](00-building.md#main-building-extent)과 [차고 실내 평면](00-building.md#attached-garage-extent) 각각의 안쪽 면까지이고, 지붕은 [자기 외곽과 교차 경계](roof/00-junctions.md#roof-shared-edges)를 갖는다. 각 천장 예약 상단을 그 평면 위에 실제로 배정된 지붕의 아래면과 비교한다. 지붕 날씨 면에서 임의 두께를 다시 정하지 않고 [기존 아래면 함수](roof/00-junctions.md#roof-profile-datums)를 소비한다. 본채 외벽 바깥 선이나 처마 끝의 더 낮은 높이를 실내 천장 윤곽의 높이로 혼동하지 않는다.
 
-평탄 천장 예약의 상단과 지붕 아래면 사이에는 최소 0.010 m의 분리 여유를 설계 목표로 둔다. 현재 입력에서 본채의 가장 낮은 대조 구간은 오른쪽 지붕 아래 전후 실내 끝선이다. 그 아래면과 상층 천장 예약 상단의 차는 `(5.95 + (7/12) × 0.25 - 0.24) - (5.66 + 0.18)`로 약 0.0158 m다. 차고의 전후 실내 끝선에서는 `(2.95 + (5/12) × 0.25 - 0.24) - (2.55 + 0.18)`로 약 0.0842 m다. 식의 값은 위 링크의 지붕·외벽 두께·완성 천장과 이 문서의 점유 예약을 대입한 표기다. 독립 치수 입력으로 복제하지 않으며 원래 owner가 바뀌면 같은 관계로 다시 산출한다. 이는 설계식 대조이고 실제 산출물 계측이나 구조/환기/단열 적합성 결과가 아니다.
+평탄 천장 예약의 상단과 지붕 아래면 사이에는 최소 0.010 m의 분리 여유를 설계 목표로 둔다. 현재 입력에서 본채의 가장 낮은 대조 구간은 오른쪽 지붕 아래 전후 실내 끝선이다. 그 아래면과 상층 천장 예약 상단의 차는 `(5.95 + (7/12) × 0.25 - 0.24) - (5.66 + 0.18)`로 약 0.0158 m다. [차고의 낮은 박공 지붕](../settings/10-house.md#garage) 아래 전후 실내 끝선에서는 `(2.95 + (5/12) × 0.25 - 0.24) - (2.55 + 0.18)`로 약 0.0842 m다. 식의 값은 위 링크의 지붕·외벽 두께, [두 storey](01-storeys.md#storey-datums)와 [차고](01-storeys.md#ground-threshold-datums)의 완성 천장, 이 문서의 [점유 예약](#upper-ceiling-closure)을 대입한 표기다. 독립 치수 입력으로 복제하지 않으며 원래 owner가 바뀌면 같은 관계로 다시 산출한다. 이는 설계식 대조이고 실제 산출물 계측이나 구조/환기/단열 적합성 결과가 아니다.
 
 천장 바탕은 안쪽 벽 면에서 끝나고 외벽 두께 구역은 입면/공유 벽 owner가 [각 위치의 지붕 아래면](roof/00-junctions.md#roof-wall-head-junctions)까지 닫는다. 외측 벽 높이를 안쪽까지 수평 연장하여 천장 옆에 틈을 남기지 않는다. 벽에 받치는 단부는 그 벽과 하나의 접촉 경계를 공유하며 두 owner가 같은 접합 몸체를 포개지 않는다. 지붕 단차·박공 교차·굴뚝 주변의 실제 부재는 각 지붕/입면 owner를 소비하고, 천장 예약 바깥으로 내려오는 부재가 생기면 단면과 해당 실의 순높이를 다시 검사한다. 지지 부재의 의도된 접합은 이 평탄 예약 사이의 분리 여유와 구별해 명시하며 관통/겹침을 임의 접합으로 인정하지 않는다.
 

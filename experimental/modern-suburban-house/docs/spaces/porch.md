@@ -7,13 +7,13 @@
 @evidence principles/core/common.md#declared-basis 높이·단 수·디딤 깊이는 ground-threshold-datums에서 받고 전체 Z 위치는 포치 앞끝과 디딤 깊이에서 역순으로 산출한다고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 포치 설정이 검토하라고 한 난간 유무를 01처럼 외부 난간 없는 열린 포치로 정하고 낮은 화분·발판을 진입 폭 밖에 둔다.
 @evidence principles/design/spaces.md#space-topology front-porch는 ground-storey 외부 부속이고 뒤는 본채 전면, 앞은 보행 접근이며 거실을 지나지 않고 포치에서 front-door로 들어간다.
-@evidence principles/design/spaces.md#space-boundary-authority 아래 평탄 대기 바닥은 front-walk가 소유하고 porch.ts는 포치 바닥·챌판·디딤만 만들며 포치 바닥을 세 번째 디딤으로 중복 생성하지 않는다.
+@evidence principles/design/spaces.md#space-boundary-authority 아래 평탄 대기 바닥은 front-walk가 보행길과 한 완결 면으로 소유하고 porch.ts는 포치 바닥·챌판·디딤을 소유하되 아래 대기 바닥과 세 번째 디딤을 중복 생성하지 않는다.
 @evidence principles/design/spaces.md#space-verification-address 현관문/세 단/아래 대기의 축, 위에서 아래로 돌아 나오는 길, 포치 가장자리와 접지·그림자를 관찰하게 한다.
-@evidence settings/10-house.md#porch-entry 거실창과 현관 앞의 높은 바닥에 앞 보행길에서 세 단으로 직접 접근한다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work porch-entry의 유효 깊이 1.6–2.0 m·0.35–0.55 m 상승과 "내부 계단 난간을 생략할 근거로 쓰지 않는다"를 대조했고 열린 포치가 두 범위 안에서 실내 난간과 별개로 성립해 부모 수정이 없었다.
+@evidence settings/10-house.md#porch-entry 현관 보행길이 아래 평탄 대기에서 0.15 m 세 챌판으로 포치 바닥에 오르고 거실을 지나지 않고 front-door로 들어가는 직접 접근을 만든다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work porch-entry의 0.35–0.55 m 상승과 "내부 계단 난간을 생략할 근거로 쓰지 않는다"를 대조했고 -0.45 m 접근에서 0.15 m 세 챌판으로 오르는 상승과 실내 계단 난간을 생략하지 않는 열린 포치로 둘 다 성립해 부모 수정이 없었다.
 -->
 
-`front-porch`는 ground-storey의 외부 부속 공간이다. [기존 바닥/접근 높이](01-storeys.md#ground-threshold-datums)를 유지한다. 바닥 외곽은 X = [-5.75, 2.20], Z = [0, 2.20] m다. 뒤쪽은 [본채 전면](00-building.md#main-building-extent), 앞쪽은 보행 접근, 위는 아래 포치 지붕이다. 실내 현관문은 [front-door](rooms/entry.md#entry-plan)를 소비한다. 거실을 통과하지 않고 포치에서 현관으로 진입한다.
+`front-porch`는 ground-storey의 외부 부속 공간이다. [기존 바닥/접근 높이와 세 단의 챌판 높이·디딤 깊이](01-storeys.md#ground-threshold-datums)를 유지한다. 바닥 외곽은 X = [-5.75, 2.20], Z = [0, 2.20] m다. 뒤쪽은 [본채 전면](00-building.md#main-building-extent), 앞쪽은 보행 접근, 위는 아래 포치 지붕이다. 실내 현관문은 [front-door](rooms/entry.md#entry-plan)를 소비한다. 거실을 통과하지 않고 포치에서 현관으로 진입한다.
 
 진입 계단 폭은 1.50 m이며 현관문 개구부 중심 X에 맞춰 배치한다. 0.15 m의 세 챌판은 기존 -0.45 m 접근에서 포치 바닥까지 오른다. 별도 수평 디딤은 두 개로 각각 깊이 0.30 m이고 마지막 챌판은 포치 바닥으로 도달한다. 포치 바닥을 세 번째 독립 디딤으로 중복 생성하지 않는다. 첫 챌판 앞에는 같은 폭과 깊이 1.20 m의 평탄 대기를 둔다. 전체 Z 위치는 포치 앞끝과 디딤 깊이에서 역순으로 산출한다.
 
@@ -30,7 +30,7 @@
 @evidence principles/design/spaces.md#space-topology 포치 지붕이 거실창과 현관문을 덮고 차고 정면을 넘지 않으며 상층 창과 trim은 지붕 벽 접합보다 위에 남긴다.
 @evidence principles/design/spaces.md#space-boundary-authority 지붕·아래면·기둥·머리·받침·보의 완결 면은 porch.ts가 소유하고 상층 창 배치는 front-openings에서 받는다.
 @evidence principles/design/spaces.md#space-verification-address 정면 전체, 두 끝 모서리, 출입 축 단면과 포치 아래 네 방향에서 보/머리/받침을 포함한 최저 구조점과 지붕/기둥 접합을 보게 한다.
-@evidence settings/10-house.md#porch-entry 낮은 지붕을 흰 사각 기둥과 머리·받침·보가 받는 관계로 설계한다.
+@evidence settings/10-house.md#porch-entry 포치 지붕을 0.25 m 사각 몸통과 0.35 m 머리·받침의 세 기둥, 앞 보, 보 위 받침 부재가 받아 보 위에서 떠 있지 않게 설계한다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work porch-entry의 "왼쪽 거실창과 중앙에서 오른쪽에 놓인 현관문을 함께 덮으며 차고 정면을 가리지 않는다"와 부재 목록을 세 기둥 배치에 대조했고 X = [-6.10, 2.55] m 지붕으로 둘 다 성립해 부모 수정이 없었다.
 -->
 

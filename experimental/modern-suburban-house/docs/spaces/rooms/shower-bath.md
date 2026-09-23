@@ -7,10 +7,10 @@
 @evidence principles/core/common.md#declared-basis 예약 순내부 2.17 × 2.74 m가 설비 사용에 충분하다는 검증은 아직 없다고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation "상층 복도에서 직접 들어가는 첫 욕실"을 -X 문설주 경첩·실내 -Z 열림의 문과 네 내부 경계 실로 만든다.
 @evidence principles/design/spaces.md#space-topology 앞쪽 복도, 왼쪽 주침실, 오른쪽 욕조 욕실, 뒤쪽 옷방과 공유 벽으로 인접하고 주침실에 출입문을 추가하지 않는다.
-@evidence principles/design/spaces.md#space-boundary-authority 네 공유 벽의 X/Z 구간을 원래 방 경계와 같게 소비하고 실제 외벽이 없는 곳에 창을 넣지 않는다.
-@evidence principles/design/spaces.md#space-verification-address 방 문과 샤워문의 동시 열림, 세 기능과 좁은 구석 시야를 검사한다.
+@evidence principles/design/spaces.md#space-boundary-authority 왼쪽 주침실 X = [0.75, 0.90], 오른쪽 욕조 욕실 X = [3.07, 3.22], 뒤쪽 옷방 Z = [-8.95, -8.80]의 공유 벽과 앞쪽 복도 벽을 경계로 두고 실제 외벽이 없는 곳에 창을 넣지 않는다.
+@evidence principles/design/spaces.md#space-verification-address hall-shower-door와 샤워문의 동시 열림, 예약 순내부 2.17 × 2.74 m 안의 세 기능과 좁은 구석 시야를 검사한다.
 @evidence settings/10-house.md#shower-bathroom 상층 복도에서 직접 들어가는 첫 욕실로 두고 주침실 전용 욕실로 바꾸지 않는다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work shower-bathroom의 직접 출입·주침실 비경유와 upper-hall의 짧은 복도를 대조했고 네 내부 경계 실로 성립해 부모 수정이 없었다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work shower-bathroom의 "상층 복도에서 직접 들어가는 첫 욕실"과 주침실 비경유 조건을 대조했고 복도 쪽 hall-shower-door와 네 내부 경계 실로 성립해 부모 수정이 없었다.
 -->
 
 `shower-bathroom`은 upper-storey의 별도 욕실이다. 마감 안쪽 X = [0.90, 3.07], Z = [-8.80, -6.06] m다. 앞쪽은 [복도](upper-hall.md#upper-hall-plan), 왼쪽은 주침실과 X = [0.75, 0.90]의 공유 벽, 오른쪽은 욕조 욕실과 X = [3.07, 3.22]의 공유 벽, 뒤쪽은 옷방과 Z = [-8.95, -8.80]의 공유 벽이다. 네 면이 내부 경계인 실이며 실제 외벽이 없는 곳에 창을 넣지 않는다.
@@ -30,10 +30,10 @@
 @evidence principles/design/spaces.md#space-verification-address 문 두 개의 개방, 부스 진입, 세면장/변기 사용, 05의 재료 구분과 모든 구석을 전체 관찰에 둔다.
 @evidence settings/10-house.md#shower-bathroom 유리 샤워부스·세면대·변기·거울·수건을 두고 샤워문과 실 출입문이 기구 사용을 동시에 막지 않게 한다.
 @evidence settings/00-production.md#use-profile 실문·유리/레일·손잡이·거울/수건을 넣은 뒤 같은 사용체로 진입 순서와 문 조작 대기를 다시 검사한다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work shower-bathroom의 기구 목록·문 비충돌과 use-profile을 네 내부 경계의 좁은 실에 적용했고 미닫이 부스로 성립해 부모 수정이 없었다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work shower-bathroom의 기구 목록·문 비충돌과 use-profile을 부스·변기·세면장 배치에 적용했고 세 겹 미닫이 부스와 실문 회전 밖의 부스 앞 대기로 성립해 부모 수정이 없었다.
 -->
 
-같은 shower-bathroom/upper-storey의 뒤쪽 왼편에 부스, 뒤쪽 오른편에 변기, 앞쪽 오른편에 세면장을 둔다. 샤워부스를 별도 방 id로 만들어 욕실의 질문을 옮기지 않는다. world X/Z m 기준 부스는 X가 방 왼쪽 안쪽 면부터 2.15 m까지, Z는 뒤쪽 안쪽 면부터 -7.70 m까지다. 유리 상단은 상층 바닥 위 2.10 m, 바닥/턱 상면은 0.02 m 이내로 예약한다. 실제 방수·배수 성능의 주장이 아니다.
+같은 shower-bathroom/upper-storey에서 [샤워 욕실 설정](../../settings/10-house.md#shower-bathroom)의 기구를 뒤쪽 왼편 부스, 뒤쪽 오른편 변기, 앞쪽 오른편 세면장으로 둔다. 샤워부스를 별도 방 id로 만들어 욕실의 질문을 옮기지 않는다. world X/Z m 기준 부스는 X가 방 왼쪽 안쪽 면부터 2.15 m까지, Z는 뒤쪽 안쪽 면부터 -7.70 m까지다. 유리 상단은 상층 바닥 위 2.10 m, 바닥/턱 상면은 0.02 m 이내로 예약한다. 실제 방수·배수 성능의 주장이 아니다.
 
 부스 앞쪽 +Z 경계는 세 겹으로 포개지는 미닫이 유리로 택한다. 패널과 레일은 부스 점유 안에서 움직이고 오른쪽에 모여 왼쪽 통과 폭 0.80 m 이상을 남겨야 한다. 검은 손잡이·유리문·도기/타일의 읽힘은 유지한다. 앞쪽 대기는 X = [0.95, 1.85], Z = [-7.65, -7.05] m다. [실 출입문](#shower-bath-plan)의 90° 열린 문짝/손잡이가 이 대기에 들어오지 않아야 한다. 외여닫이 유리문은 실문 또는 오른쪽 기구 접근을 막을 수 있어 선택하지 않았다. 패널 폭·겹침·frame 뒤 실제 유효 폭은 후속 원형에서 확인한다.
 

@@ -7,7 +7,7 @@
 @evidence principles/core/common.md#declared-basis 박공 중심은 roof-mass-allocation, 높이 F는 roof-profile-datums, 뒤쪽 윤곽은 roof-shared-edges에서 받고 사선 모서리와 아래면을 끝낼 삼각 벽 상단 선은 front-roof-closures에서 받는다고 링크로 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 전방 박공 가운데 -X 쪽 경사면을 이 owner에 떼어 주고 드러난 사선 모서리와 아래면을 실제 두께로 끝내 전면 삼각 벽 상단과 맞추게 한다.
 @evidence principles/design/spaces.md#space-topology 앞은 전면 돌출과 삼각 벽, 오른쪽은 박공 용마루, 뒤와 왼쪽 합류는 주 지붕 앞 면과 만난다.
-@evidence principles/design/spaces.md#space-boundary-authority 뒤쪽 윤곽은 junctions가 계산한 골짜기를 그대로 소비하고 삼각 벽의 높이는 front-roof-closures가 소유해 이 면이 벽 상단을 따로 정하지 않는다.
+@evidence principles/design/spaces.md#space-boundary-authority 뒤쪽 윤곽은 roof-shared-edges가 계산한 골짜기를 소비하고 드러난 사선 모서리와 아래면은 front-roof-closures가 닫는 전면 삼각 벽의 상단과 일치시킨다.
 @evidence principles/design/spaces.md#space-verification-address 왼쪽 모서리에서 골짜기가 처마로 빠지는 끝, 전면에서 보이는 경사 두께와 그림자를 검사하게 한다.
 @evidence settings/10-house.md#main-mass 전면 박공의 왼쪽 경사와 아래면을 실제 삼각 벽 상단에 맞춘다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work main-mass의 "각 박공은 실제 삼각 벽과 양쪽 경사 지붕, 처마 밑면으로 닫혀야 한다"를 -X 면에 대조했고 뒤와 왼쪽이 주 지붕 앞 면과 합류하며 골짜기가 왼쪽 모서리에서 처마로 빠지는 면이 전면 삼각 벽 상단까지 닫혀 부모 수정이 없었다.
