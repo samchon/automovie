@@ -25,6 +25,7 @@ import {
   faceLikenessCheekColour,
   faceLikenessHairColour,
   faceLikenessIrisColour,
+  faceLikenessScleraColour,
 } from "./faceLikenessColour";
 import {
   type FaceLikenessPoint,
@@ -99,6 +100,16 @@ export interface IFaceLikenessComparison {
     cheekLeft: IFaceLikenessColourPair;
     irisRight: IFaceLikenessColourPair;
     irisLeft: IFaceLikenessColourPair;
+    scleraRight: IFaceLikenessColourPair;
+    scleraLeft: IFaceLikenessColourPair;
+    /**
+     * Cheek over sclera luminance (CIE Y) within one image: exposure and a
+     * grey illuminant cancel, so the two sides compare skin albedo.
+     */
+    skinOverScleraLuminance: {
+      reference: number | null;
+      render: number | null;
+    };
     hair: IFaceLikenessColourPair;
     irisMinusSkinLightness: { reference: number | null; render: number | null };
     hairMinusSkinLightness: { reference: number | null; render: number | null };
@@ -159,12 +170,20 @@ export function compareFaceLikeness(props: {
       faceLikenessCheekColour(portrait.image, moving, "left", portrait.hair),
     ),
     irisRight: pair(
-      iris(reference.image, fixed, "right"),
-      iris(portrait.image, moving, "right"),
+      eye(faceLikenessIrisColour, reference.image, fixed, "right"),
+      eye(faceLikenessIrisColour, portrait.image, moving, "right"),
     ),
     irisLeft: pair(
-      iris(reference.image, fixed, "left"),
-      iris(portrait.image, moving, "left"),
+      eye(faceLikenessIrisColour, reference.image, fixed, "left"),
+      eye(faceLikenessIrisColour, portrait.image, moving, "left"),
+    ),
+    scleraRight: pair(
+      eye(faceLikenessScleraColour, reference.image, fixed, "right"),
+      eye(faceLikenessScleraColour, portrait.image, moving, "right"),
+    ),
+    scleraLeft: pair(
+      eye(faceLikenessScleraColour, reference.image, fixed, "left"),
+      eye(faceLikenessScleraColour, portrait.image, moving, "left"),
     ),
     hair: pair(
       faceLikenessHairColour(
@@ -241,6 +260,22 @@ export function compareFaceLikeness(props: {
         reference: relative([colours.hair.reference], "reference"),
         render: relative([colours.hair.render], "render"),
       },
+      skinOverScleraLuminance: {
+        reference: luminanceRatio(
+          skin("reference"),
+          meanLightness([
+            colours.scleraRight.reference,
+            colours.scleraLeft.reference,
+          ]),
+        ),
+        render: luminanceRatio(
+          skin("render"),
+          meanLightness([
+            colours.scleraRight.render,
+            colours.scleraLeft.render,
+          ]),
+        ),
+      },
     },
   };
 }
@@ -287,6 +322,8 @@ export function summarizeFaceLikeness(
       difference(row.colour.irisMinusSkinLightness),
     hairMinusSkinLightnessError: (row) =>
       difference(row.colour.hairMinusSkinLightness),
+    skinOverScleraLuminanceError: (row) =>
+      difference(row.colour.skinOverScleraLuminance),
   };
   const summary: Record<string, { median: number | null; count: number }> = {};
   for (const [name, read] of Object.entries(signals)) {
@@ -301,7 +338,8 @@ export function summarizeFaceLikeness(
   return summary;
 }
 
-function iris(
+function eye(
+  sampler: typeof faceLikenessIrisColour,
   image: IFaceLikenessImage,
   points: readonly FaceLikenessPoint[],
   side: "left" | "right",
@@ -309,10 +347,21 @@ function iris(
   // The refined-iris groups are assigned to an eye by containment, so a
   // detector that orders them differently cannot swap left and right.
   for (const group of [0, 1] as const) {
-    const sample = faceLikenessIrisColour(image, points, group);
+    const sample = sampler(image, points, group);
     if (sample?.side === side) return sample.colour;
   }
   return null;
+}
+
+/** CIE Y of skin over sclera from their CIELAB lightness, or null. */
+function luminanceRatio(
+  skin: number | null,
+  sclera: number | null,
+): number | null {
+  if (skin === null || sclera === null) return null;
+  const y = (lightness: number) =>
+    lightness > 8 ? ((lightness + 16) / 116) ** 3 : lightness / (24389 / 27);
+  return y(sclera) === 0 ? null : y(skin) / y(sclera);
 }
 
 function pair(

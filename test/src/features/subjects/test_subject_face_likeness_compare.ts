@@ -38,7 +38,10 @@ const turned = (angle: number): number[][] => [
  *    colours. Irises moved out of both apertures leave the iris colour and
  *    its relative lightness missing, and render hair over every pixel leaves
  *    no cheek skin, so the hair-relative lightness is missing too.
- * 4. The summary takes medians over subjects and counts only present
+ * 4. Skin over sclera luminance is 1 on the fixture, whose sclera ring is
+ *    skin coloured; a sclera painted (3, 3, 3) is read on the CIE linear
+ *    segment, a black one gives no ratio, and so does missing skin.
+ * 5. The summary takes medians over subjects and counts only present
  *    values: a subject whose irises were not sampled adds nothing to the
  *    iris signals and nothing is counted as zero; an empty population has
  *    null medians and zero counts.
@@ -161,7 +164,46 @@ export const test_subject_face_likeness_compare = (): void => {
     covered.colour.hairMinusSkinLightness.render,
     null,
   );
+  TestValidator.equals(
+    "no skin, no sclera ratio",
+    covered.colour.skinOverScleraLuminance.render,
+    null,
+  );
+  // The fixture's sclera ring is skin coloured, so skin over sclera is 1.
+  TestValidator.predicate(
+    "sclera ratio",
+    nclose(same.colour.skinOverScleraLuminance.reference!, 1) &&
+      nclose(same.colour.skinOverScleraLuminance.render!, 1),
+  );
+  const painted = (rgb: readonly [number, number, number]) => {
+    const copy = createFaceLikenessImage();
+    for (let y = 0; y < 300; ++y)
+      for (let x = 0; x < 300; ++x) {
+        const r = Math.min(
+          Math.hypot(x + 0.5 - 130, y + 0.5 - 140),
+          Math.hypot(x + 0.5 - 170, y + 0.5 - 140),
+        );
+        if (r >= 3.45 && r <= 6.6) copy.rgb.set(rgb, 3 * (y * 300 + x));
+      }
+    return compareFaceLikeness({
+      reference: { face, image: copy, hair },
+      portrait: { face, image, hair },
+      frame: { face, hair },
+    }).colour.skinOverScleraLuminance.reference;
+  };
+  const skinY =
+    ((faceLikenessSrgbToLab(...FACE_LIKENESS_SKIN)[0] + 16) / 116) ** 3;
+  const darkY = faceLikenessSrgbToLab(3, 3, 3)[0] / (24389 / 27);
+  TestValidator.predicate(
+    "dark sclera on the linear segment",
+    nclose(painted([3, 3, 3])! / (skinY / darkY), 1, 1e-6),
+  );
+  TestValidator.equals("black sclera", painted([0, 0, 0]), null);
   const summary = summarizeFaceLikeness([same, taller, blind]);
+  TestValidator.predicate(
+    "sclera ratio error",
+    nclose(summary.skinOverScleraLuminanceError!.median!, 0),
+  );
   TestValidator.equals("iris count", summary.irisDeltaE76!.count, 2);
   TestValidator.equals("iris median", summary.irisDeltaE76!.median, 0);
   TestValidator.equals("hair count", summary.hairIouHead!.count, 3);

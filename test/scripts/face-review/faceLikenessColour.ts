@@ -160,24 +160,9 @@ export function faceLikenessIrisColour(
   points: readonly FaceLikenessPoint[],
   group: 0 | 1,
 ): { side: "left" | "right"; colour: IFaceLikenessColour | null } | null {
-  const [centre, ...rim] = FACE_LIKENESS_IRIS_GROUPS[group].map(
-    (index) => points[index]!,
-  );
-  const [cx, cy] = centre!;
-  const side = (["right", "left"] as const).find((candidate) =>
-    faceLikenessInsidePolygon(
-      FACE_LIKENESS_EYE_CONTOURS[candidate].map((index) => points[index]!),
-      cx,
-      cy,
-    ),
-  );
-  if (side === undefined) return null;
-  const aperture = FACE_LIKENESS_EYE_CONTOURS[side].map(
-    (index) => points[index]!,
-  );
-  const radius =
-    rim.reduce((sum, [x, y]) => sum + Math.hypot(x - cx, y - cy), 0) /
-    rim.length;
+  const eye = locateEye(points, group);
+  if (eye === null) return null;
+  const { side, aperture, cx, cy, radius } = eye;
   return {
     side,
     colour: faceLikenessSampleColour(
@@ -195,6 +180,45 @@ export function faceLikenessIrisColour(
   };
 }
 
+/**
+ * Sclera beside one refined-iris group: the lid aperture's pixels between
+ * 1.15 and 2.2 iris radii from the iris centre. The inner bound stays clear
+ * of the limbus; the outer one stops short of the canthi, where the pink
+ * caruncle and the lid margins would bias the median. The sclera is the
+ * nearest thing to a neutral reflector a portrait carries, so a skin or iris
+ * colour divided by it cancels the exposure and illuminant colour of that
+ * image. Null when the centre lies in neither aperture.
+ */
+export function faceLikenessScleraColour(
+  image: IFaceLikenessImage,
+  points: readonly FaceLikenessPoint[],
+  group: 0 | 1,
+): { side: "left" | "right"; colour: IFaceLikenessColour | null } | null {
+  const eye = locateEye(points, group);
+  if (eye === null) return null;
+  const { side, aperture, cx, cy, radius } = eye;
+  return {
+    side,
+    colour: faceLikenessSampleColour(
+      image,
+      (x, y) => {
+        const r = Math.hypot(x - cx, y - cy);
+        return (
+          r >= 1.15 * radius &&
+          r <= 2.2 * radius &&
+          faceLikenessInsidePolygon(aperture, x, y)
+        );
+      },
+      {
+        x0: cx - 2.2 * radius,
+        y0: cy - 2.2 * radius,
+        x1: cx + 2.2 * radius,
+        y1: cy + 2.2 * radius,
+      },
+    ),
+  };
+}
+
 /** Median CIELAB of every set hair pixel inside the region. */
 export function faceLikenessHairColour(
   image: IFaceLikenessImage,
@@ -208,6 +232,44 @@ export function faceLikenessHairColour(
     (x, y) => hair.data[Math.floor(y) * image.width + Math.floor(x)] !== 0,
     region,
   );
+}
+
+/**
+ * The eye whose lid aperture contains a refined-iris group's centre, with
+ * that aperture and the iris centre and mean rim radius. Assigning the group
+ * by containment keeps a detector's group order from swapping the eyes.
+ */
+function locateEye(
+  points: readonly FaceLikenessPoint[],
+  group: 0 | 1,
+): {
+  side: "left" | "right";
+  aperture: FaceLikenessPoint[];
+  cx: number;
+  cy: number;
+  radius: number;
+} | null {
+  const [centre, ...rim] = FACE_LIKENESS_IRIS_GROUPS[group].map(
+    (index) => points[index]!,
+  );
+  const [cx, cy] = centre!;
+  const side = (["right", "left"] as const).find((candidate) =>
+    faceLikenessInsidePolygon(
+      FACE_LIKENESS_EYE_CONTOURS[candidate].map((index) => points[index]!),
+      cx,
+      cy,
+    ),
+  );
+  if (side === undefined) return null;
+  return {
+    side,
+    aperture: FACE_LIKENESS_EYE_CONTOURS[side].map((index) => points[index]!),
+    cx,
+    cy,
+    radius:
+      rim.reduce((sum, [x, y]) => sum + Math.hypot(x - cx, y - cy), 0) /
+      rim.length,
+  };
 }
 
 /** Even-odd point-in-polygon test. */
