@@ -37,9 +37,13 @@ import {
 import { mountConnectedBodyPanel } from "./human/connectedBodyPanel";
 import { createConnectedBodyPort } from "./human/connectedBodyPort";
 import { createConnectedBodyViewport } from "./human/connectedBodyViewport";
-import { createHumanPreviewBuilder } from "./human/previewBuilder";
+import type {
+  ConnectedFaceRequest,
+  ConnectedFaceResult,
+} from "./human/connectedRuntime";
 import { prepareHumanPreview } from "./human/previewScene";
-import { createHumanPreviewWorkerPort } from "./human/workerPort";
+import { createHumanResidentPort } from "./human/residentPort";
+import { createHumanResidentWorker } from "./human/residentWorker";
 
 type Transform = {
   position: IAutoMovieVector3;
@@ -99,25 +103,35 @@ async function main(): Promise<void> {
     ).scene;
   let viewport!: ReturnType<typeof createConnectedBodyViewport>;
   // The face is one neutral build of the connected face basis, decoded once.
-  // Its worker is the face page's own; the body page only asks it for bytes.
-  const face = createHumanPreviewBuilder<
-    { group: THREE.Group },
-    IAutoMovieHumanFaceBasisDocument
-  >({
-    serialize: serializeHumanFaceBasisDocument,
-    worker: () =>
-      createHumanPreviewWorkerPort(
-        new Worker(new URL("./connected-face-worker.ts", import.meta.url), {
-          type: "module",
-        }),
-      ),
-    decode: async (artifact) => {
-      const group = await decode(artifact.glb);
+  // Its worker is the face page's own resident worker; the body page asks it
+  // for one exported file through the same request protocol the face page
+  // uses and draws that file, so a change of the face worker's protocol
+  // reaches this page through its types rather than as a failure at runtime.
+  const faceWorker = createHumanResidentWorker<
+    ConnectedFaceRequest,
+    ConnectedFaceResult
+  >(() =>
+    createHumanResidentPort(
+      new Worker(new URL("./connected-face-worker.ts", import.meta.url), {
+        type: "module",
+      }),
+    ),
+  );
+  const face = {
+    build: async (
+      document: IAutoMovieHumanFaceBasisDocument,
+    ): Promise<{ group: THREE.Group }> => {
+      const result = await faceWorker.request({
+        operation: "export",
+        document: serializeHumanFaceBasisDocument(document),
+      }).result;
+      if (result.operation !== "export")
+        throw new Error("Expected an exported companion face.");
+      const group = await decode(result.glb);
       prepareHumanPreview(group, viewport.renderer() === undefined ? 1 : 8);
       return { group };
     },
-    dispose: () => {},
-  });
+  };
   // The face document names the face basis revision, which is the id the
   // basis asset opens with; reading it off the head of the stream is all this
   // page needs of the face basis. The build is display only, so its failure
