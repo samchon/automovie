@@ -4,8 +4,8 @@
 <!--
 @evidence obligations/core/common.md#purpose-fit 00-production은 전달·조작·사용체와 제작 책임, 10-house는 실제 집과 각 생활 공간의 정체성, 20-verification은 참조·렌더·관찰·권한을 맡는다. 하나를 없애면 각각 사용자 접근 조건, 방별 설계 기준, 결과를 읽고 제출할 조건이 사라지므로 세 파일 모두 같은 주택 전달에 필요하다.
 @evidenceReview obligations/core/common.md#purpose-fit #7b32c66 00을 빼면 사용체·조작 조건, 10을 빼면 집·방 정체성, 20을 빼면 그림과 제출 판단 조건이 없어진다는 본문의 비교를 세 파일 전체와 대조했다. 정적 library에 영화·대사 파일을 만들지 않은 이유도 일치한다.
-@evidence obligations/core/common.md#layer-boundary 세 파일은 채택 사실·정체성·제약을 정하며 방 좌표와 부재 생성은 spaces/models, 광학값은 materials, 실행기와 렌더 동기화는 source로 넘긴다. 비교 카메라의 초기값과 사용체 크기는 구현 코드가 아니라 설계를 제한하는 settings 조건이다.
-@evidenceReview obligations/core/common.md#layer-boundary #5271f94 세 파일은 사실·제약을 소유하고 방 좌표·부재 생성·광학값은 각각 design/source로 배분한다. 비교 카메라 초기값은 허용 관찰 조건이지 실행 코드가 아니므로 다른 전문 문서 역할이 섞이지 않았다.
+@evidence obligations/core/common.md#layer-boundary 세 파일은 채택 사실·정체성·제약을 정하며 방 좌표와 부재 생성은 spaces/models, 광학값은 materials, 구체 entry·API와 렌더 동기화는 source로 넘긴다. 조정자가 지시한 뷰어 실행기 `tsx`와 포트 4173은 viewer-handoff 한 곳의 운영 조건이고, 비교 카메라의 초기값과 사용체 크기는 구현 코드가 아니라 설계를 제한하는 settings 조건이다.
+@evidenceReview obligations/core/common.md#layer-boundary #5271f94 세 파일은 사실·제약을 소유하고 방 좌표·부재 생성·광학값은 design, entry·API·렌더 동기화는 source로 배분한다. 뷰어 실행기와 포트는 조정자 지시에서 온 운영 조건으로 viewer-handoff만 정하고 execution-boundary는 그것을 가리키므로 source 단계와 settings가 같은 결정을 나눠 갖지 않는다.
 @evidence obligations/core/common.md#proportionate-development 주택 정체성의 22개 H2는 두 작은 침실·두 욕실·차고·서비스실을 각각 다루고, 전달 조건 10개와 검증 조건 17개는 전체 집의 사용·관찰을 지탱한다. 주석을 뺀 본문 배분과 승인된 draft를 비교했을 때 새 evidence가 방 설명을 대체하거나 줄인 곳은 없으며 작은 수납보다 계단·지붕·개구부에 더 많은 관계 조건을 배분했다.
 @evidenceReview obligations/core/common.md#proportionate-development #78feb28 00의 10 H2/2700자, 10의 22/4572, 20의 17/5234를 본문 배분과 함께 읽었다. 계단·지붕·개구부의 관계 서술은 팬트리의 좁은 보관 기능보다 깊고 두 침실·두 욕실·차고가 별도 기능을 가져 수치만 부풀린 분해가 아니다.
 -->

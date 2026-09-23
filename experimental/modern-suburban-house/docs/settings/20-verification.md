@@ -222,8 +222,8 @@ settings 전체 관찰 의무의 원문은 ../contracts/observation-denominator.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 서버 측 CJS 공개 API와 일시 응답값을 선택해 엔진 directory re-export 문제를 하위 층의 미정 선택으로 남기지 않는다.
 @evidence principles/core/common.md#declared-basis CommonJS 유지와 우회 금지는 사용자 결정이고 서버 측 해석은 그 경계를 지키기 위한 이 production의 선택이다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 엔진 CommonJS 유지의 권위는 사용자이고 서버/브라우저 분리는 이 production의 구현 선택이라고 쓰인다.
-@evidence principles/core/settings.md#fact-status 서버 구조는 채택안이며 구체 실행기·API·의존성의 사용 가능성은 설치본을 읽은 뒤 확정할 미검증 사항이다.
-@evidenceReview principles/core/settings.md#fact-status #93a284a 구체 entry·API·의존성은 설치본을 읽고 결정할 값이며 이미 존재하는 실행 경로로 제시되지 않았다.
+@evidence principles/core/settings.md#fact-status 서버 구조는 채택안이며 구체 entry·API·의존성의 사용 가능성은 설치본을 읽은 뒤 확정할 미검증 사항이고, 뷰어 실행기는 viewer-handoff가 조정자 지시로 이미 정한 사실로 따른다.
+@evidenceReview principles/core/settings.md#fact-status #93a284a 구체 entry·API·의존성은 설치본을 읽고 결정할 값으로 남기고 실행기는 viewer-handoff를 가리키기만 해, 같은 결정을 이 H2가 source 단계의 미정으로 다시 선언하지 않는다.
 @evidence principles/core/settings.md#source-support 엔진 경계는 사용자에게서 인계된 조건으로 쓰고 기억한 패키지 API나 ESM 설정을 지원 사실로 주장하지 않는다.
 @evidenceReview principles/core/settings.md#source-support #430bca9 엔진 모듈 방식은 명시 사용자 경계로 다루며 아직 읽지 않은 API 동작을 성공 사실로 인용하지 않는다.
 @evidence principles/core/settings.md#capability-boundary 서버는 source와 다른 집을 만들 수 없고 directory re-export를 monkeypatch·hardcode·우회 설정으로 통과시킬 수 없다.
@@ -234,7 +234,7 @@ settings 전체 관찰 의무의 원문은 ../contracts/observation-denominator.
 @evidenceReview principles/core/settings.md#observable-identity #4ccb62e 서버와 화면이 같은 집의 산출물을 공유해야 하므로 브라우저에 별도 보기 좋은 모델을 보여 주는 것은 이 경계 밖이다.
 -->
 
-사용자 지시로 @automovie/engine의 CommonJS 경계를 유지한다. 엔진을 ESM으로 바꾸거나 directory re-export를 monkeypatch·hardcode·우회 설정으로 통과시키지 않는다. viewer 구현의 선택은 서버 측 CJS에서 공개 엔진 API로 현재 source를 해석하고 그 산출물을 브라우저에 전달하는 구조다. 서버는 별도 집을 생성하지 않고 응답 데이터는 일시적인 전송값이며 추가 JSON 상태 파일을 남기지 않는다. 생성된 package.json의 기존 도구 설정 자체를 엔진 ESM 전환의 허가로 해석하지 않는다. 구체 entry·실행기·API·의존성은 설치본을 읽고 source 단계에서 결정하며 선언과 설치 권한은 implementation-boundary에 따른다. renderer가 경계를 못 지키면 조정자에게 제한을 보고하고 저장소 코드를 바꾸지 않는다.
+사용자 지시로 @automovie/engine의 CommonJS 경계를 유지한다. 엔진을 ESM으로 바꾸거나 directory re-export를 monkeypatch·hardcode·우회 설정으로 통과시키지 않는다. viewer 구현의 선택은 서버 측 CJS에서 공개 엔진 API로 현재 source를 해석하고 그 산출물을 브라우저에 전달하는 구조다. 서버는 별도 집을 생성하지 않고 응답 데이터는 일시적인 전송값이며 추가 JSON 상태 파일을 남기지 않는다. 생성된 package.json의 기존 도구 설정 자체를 엔진 ESM 전환의 허가로 해석하지 않는다. 구체 entry·API·의존성은 설치본을 읽고 source 단계에서 결정한다. 뷰어 실행 스크립트의 실행기는 [viewer-handoff](#viewer-handoff)가 정하고 이 H2는 다시 정하지 않는다. 의존성의 선언과 설치 절차는 implementation-boundary에 따른다. renderer가 경계를 못 지키면 조정자에게 제한을 보고하고 저장소 코드를 바꾸지 않는다.
 
 ## 저작 순서 {#lifecycle-boundary}
 <!--
@@ -282,25 +282,25 @@ settings 전체 관찰 의무의 원문은 ../contracts/observation-denominator.
 
 ## 편집과 의존성 경계 {#implementation-boundary}
 <!--
-@evidence principles/core/common.md#scope-preservation 허용 편집 범위와 의존성 선언·설치 권한을 맡아 이 production 저작이 저장소나 다른 저작물로 번지지 않게 한다.
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 production 저작 파일과 보호할 packages·.agents·다른 production·루트·human face를 명시해 편집 범위를 빠뜨리지 않는다.
-@evidence principles/core/common.md#substantive-completion 금지 경로와 파일 추가의 ownership 절차를 명시하여 필요한 도구가 없을 때도 작업 경계를 판단할 수 있다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 파일 추가는 README ownership, 의존성은 package.json 선언과 조정자 설치로 정해 임의 파일 배치를 막는다.
-@evidence principles/core/common.md#declared-basis production 안 편집과 조정자 설치는 사용자 지시이며 파일 위치는 README ownership과 연결한다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 편집 범위와 설치 권한을 사용자 허용에 근거지어 저장소 전역 권한이 있는 것처럼 쓰지 않는다.
-@evidence principles/core/settings.md#fact-status 필요 의존성은 아직 설치된 기능이라는 뜻이 아니라 package.json에 선언할 선택이고 설치는 별도 권한이다.
-@evidenceReview principles/core/settings.md#fact-status #93a284a 설치된 기능의 부재를 실제 제한으로 다루며 새 의존성이 이미 설치됐다는 상태를 선언하지 않는다.
+@evidence principles/core/common.md#scope-preservation 허용 편집 범위, 루트 pnpm-lock.yaml의 단일 예외, 의존성 선언과 설치·lockfile 제출 절차를 맡아 이 production 저작이 저장소나 다른 저작물로 번지지 않게 한다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 production 저작 파일, 보호할 packages·.agents·다른 production·루트·human face, 그리고 루트에서 유일하게 바뀔 수 있는 pnpm-lock.yaml과 그 제출 시점까지 이 H2에 모여 편집 범위가 빠지지 않는다.
+@evidence principles/core/common.md#substantive-completion 의존성은 이 production의 package.json에 선언하고, 바꾼 turn에 루트에서 pnpm install을 실행해 갱신된 lockfile을 같은 커밋에 넣으며 lockfile은 손으로 편집하지 않는다고 정한다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 선언 위치, 설치 명령과 실행 위치, lockfile의 제출 시점과 손 편집 금지가 모두 정해져 source 단계가 의존성을 추가할 때 추가로 정할 절차가 남지 않는다.
+@evidence principles/core/common.md#declared-basis production 안 편집 범위는 사용자 지시이고 루트 pnpm install과 lockfile 동시 커밋은 조정자의 g4 인계 지시이며 파일 위치는 README ownership과 연결한다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 편집 범위는 사용자 허용, 설치와 lockfile 제출은 g4 인계 지시로 출처를 나누어 적어 저장소 전역 편집 권한이 있는 것처럼 쓰지 않는다.
+@evidence principles/core/settings.md#fact-status package.json에 선언한 의존성은 pnpm install을 실행해 lockfile이 바뀌기 전까지는 선언일 뿐이고 설치된 기능이 아니다.
+@evidenceReview principles/core/settings.md#fact-status #93a284a 선언과 설치를 다른 상태로 구별하고 설치된 기능의 부재를 실제 제한으로 다루어 새 의존성이 이미 쓸 수 있다고 선언하지 않는다.
 @evidence principles/core/settings.md#source-support 지원 기능은 설치본 확인으로 판단하며 패키지 이름을 아는 것만으로 사용 가능하다고 주장하지 않는다.
 @evidenceReview principles/core/settings.md#source-support #430bca9 읽지 않은 패키지 기능을 근거로 저장소를 고칠 수 있다는 기술 주장을 하지 않고 execution-boundary에 종속시킨다.
-@evidence principles/core/settings.md#capability-boundary packages·.agents·다른 production·루트·human face 코드는 편집할 수 없고 의존성을 직접 설치할 수도 없다.
-@evidenceReview principles/core/settings.md#capability-boundary #83a6f2c 엔진 기능이 부족해도 저장소 수정·우회 설정으로 보충하지 못하도록 저작 능력의 한계를 명시한다.
-@evidence principles/core/settings.md#constraint-sufficiency 새 파일은 ownership을 먼저 읽고 기능 부재가 있어도 저장소 수정이나 우회 설정을 사용하지 않는 경계를 둔다.
-@evidenceReview principles/core/settings.md#constraint-sufficiency #20cf612 의존성 선언 파일을 기존 package.json 하나로 한정하고 파일 추가 전 ownership을 요구해 구성 경계를 분명히 했다.
+@evidence principles/core/settings.md#capability-boundary packages·.agents·다른 production·human face 코드와 lockfile 밖의 루트 파일은 편집할 수 없고 lockfile도 손으로 고치지 않고 pnpm install의 결과로만 바꾼다.
+@evidenceReview principles/core/settings.md#capability-boundary #83a6f2c 루트에서 허용된 변화는 설치가 만든 lockfile 하나로 한정되고 엔진 기능 부족을 저장소 수정·우회 설정으로 보충할 수 없어 저작 능력의 한계가 분명하다.
+@evidence principles/core/settings.md#constraint-sufficiency lockfile을 빠뜨린 커밋이 공유 브랜치의 설치를 깨뜨리는 조건을 적어 의존성 변경과 lockfile을 한 커밋에 묶고, 새 파일은 ownership을 먼저 읽게 한다.
+@evidenceReview principles/core/settings.md#constraint-sufficiency #20cf612 의존성 선언 파일은 기존 package.json 하나, 설치 결과는 같은 커밋의 lockfile로 한정해 의존성을 바꾼 저작자가 무엇을 언제 함께 제출할지 추측할 여지가 없다.
 @evidence principles/core/settings.md#observable-identity 이 경계는 주택 외관을 추가로 정의하지 않으며 execution-boundary의 현재 source와 연결된 3D만 구현 대상으로 유지한다.
-@evidenceReview principles/core/settings.md#observable-identity #4ccb62e 이 H2의 책임은 편집 경계이며 보호된 얼굴 코드를 건드려 새 사람 모델을 만드는 방향으로 집의 범위를 넓히지 않는다.
+@evidenceReview principles/core/settings.md#observable-identity #4ccb62e 이 H2의 책임은 편집과 의존성 경계이며 보호된 얼굴 코드를 건드려 새 사람 모델을 만드는 방향으로 집의 범위를 넓히지 않는다.
 -->
 
-사용자가 허용한 편집 범위는 이 production의 저작 파일이다. packages, .agents, 다른 production, 저장소 루트 파일 및 human face 코드는 편집하지 않는다. 파일을 추가하기 전에 README의 ownership을 따른다. 필요한 의존성은 기존 package.json에 선언만 하고 설치는 조정자가 한다. 엔진과 뷰어의 모듈 경계는 execution-boundary에 따르며 설치된 기능의 부재를 저장소 수정이나 우회 설정으로 보충하지 않는다.
+사용자가 허용한 편집 범위는 이 production의 저작 파일이다. packages, .agents, 다른 production, 저장소 루트 파일 및 human face 코드는 편집하지 않는다. 예외는 하나다. 조정자의 인계 지시에 따라 의존성을 바꾼 turn에는 저장소 루트에서 `pnpm install`을 실행하고 그 결과로 바뀐 `pnpm-lock.yaml`을 같은 커밋에 넣는다. lockfile을 빠뜨린 커밋은 공유 브랜치의 설치와 CI를 깨뜨리기 때문이다. lockfile은 손으로 편집하지 않고 설치가 만든 결과만 제출한다. 파일을 추가하기 전에 README의 ownership을 따른다. 필요한 의존성은 이 production의 package.json에 선언한다. 엔진과 뷰어의 모듈 경계는 execution-boundary에 따르며 설치된 기능의 부재를 저장소 수정이나 우회 설정으로 보충하지 않는다.
 
 ## 정규 검증 명령 {#validation-boundary}
 <!--
@@ -326,9 +326,9 @@ settings 전체 관찰 의무의 원문은 ../contracts/observation-denominator.
 
 ## 커밋과 푸시 {#submission-boundary}
 <!--
-@evidence principles/core/common.md#scope-preservation 이 production만의 staging·commit·push와 오류 보고를 맡아 공유 checkout에서 남의 변경을 제출 범위에 넣지 않는다.
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 명시 경로 stage부터 commit·push와 종료 코드 보고까지 정해 제출 책임을 조정자에게 남기지 않는다.
-@evidence principles/core/common.md#substantive-completion 명시 경로 add부터 commit과 지정 브랜치 push까지 정하고 non-fast-forward 거부의 처리까지 제출 절차를 완성한다.
+@evidence principles/core/common.md#scope-preservation 이 production 경로와 의존성 변경 turn의 pnpm-lock.yaml만의 staging·commit·push와 오류 보고를 맡아 공유 checkout에서 남의 변경을 제출 범위에 넣지 않는다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 명시 경로와 lockfile의 stage부터 commit·push와 종료 코드 보고까지 정해 제출 책임을 조정자에게 남기지 않고 lockfile을 다른 커밋으로 흘리지 않는다.
+@evidence principles/core/common.md#substantive-completion 명시 경로 add, 의존성 변경 turn의 lockfile add, commit과 지정 브랜치 push, non-fast-forward 거부의 처리까지 제출 절차를 완성한다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 공유 checkout에서 pull --rebase를 빼고 non-fast-forward 거부 처리를 정해 실제 사용할 Git 절차가 닫혀 있다.
 @evidence principles/core/common.md#declared-basis 저작자 직접 제출과 pull --rebase 금지는 사용자의 최신 정정에 따른 것으로 이전 제출 지시를 대체한다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 현재 사용자 정정에 따른다고 밝히며 이전 커밋 금지나 rebase 절차를 현재 권위로 유지하지 않는다.
@@ -336,15 +336,15 @@ settings 전체 관찰 의무의 원문은 ../contracts/observation-denominator.
 @evidenceReview principles/core/settings.md#fact-status #93a284a 커밋 해시와 push 종료 코드는 실제 제출 뒤 남길 결과로 쓰였으며 미실행 push의 성공을 선언하지 않는다.
 @evidence principles/core/settings.md#source-support 제출 방식은 현재 사용자 명령으로 지지하며 네트워크 상태나 원격 동기화를 실행 없이 성공했다고 추정하지 않는다.
 @evidenceReview principles/core/settings.md#source-support #430bca9 공유 checkout이라는 사용자 환경을 근거로 하며 원격 성공이나 네트워크 가용성을 외부 확인 사실처럼 주장하지 않는다.
-@evidence principles/core/settings.md#capability-boundary 다른 경로 staging·타인 변경 stash·master·force-push·히스토리 재작성이 금지되고 non-fast-forward를 우회할 수 없다.
-@evidenceReview principles/core/settings.md#capability-boundary #83a6f2c 타인 경로 stage·stash·커밋 수정과 master·force-push·히스토리 재작성을 금지해 제출 권한의 한계를 지킨다.
+@evidence principles/core/settings.md#capability-boundary production 경로와 lockfile 밖의 다른 경로 staging·타인 변경 stash·master·force-push·히스토리 재작성이 금지되고 non-fast-forward를 우회할 수 없다.
+@evidenceReview principles/core/settings.md#capability-boundary #83a6f2c 루트에서는 implementation-boundary가 허용한 lockfile 하나만 stage하고 타인 경로 stage·stash·커밋 수정과 master·force-push·히스토리 재작성을 금지해 제출 권한의 한계를 지킨다.
 @evidence principles/core/settings.md#constraint-sufficiency 최소 turn 끝과 단계 폐쇄 때 명시 경로를 제출하며 파생 파일 정리 및 해시·push 종료 코드 보고를 요구한다.
 @evidenceReview principles/core/settings.md#constraint-sufficiency #20cf612 non-fast-forward와 Git·네트워크 오류는 정확한 오류·코드 보고로 끝내게 하여 자동 우회가 허용되지 않는다.
 @evidence principles/core/settings.md#observable-identity 제출은 현재 주택 소스의 재현 가능한 경계를 보존하는 행위이며 커밋이나 push 성공을 화면의 완성으로 취급하지 않는다.
 @evidenceReview principles/core/settings.md#observable-identity #4ccb62e .wiki와 캐시를 결과물에 섞지 않고 현재 저작 변경을 제출하므로 작업 기록 자체가 완성된 집으로 제시되지 않는다.
 -->
 
-사용자의 현재 지시에 따라 저작자가 최소 매 turn 끝과 단계 폐쇄/뷰어 구현 때 커밋·푸시한다. 파생 산출물·캐시·임시 파일을 정리하고 저장소 루트에서 git add experimental/modern-suburban-house, git commit -m "feat(experimental): <변경 요약>", git push origin benchmark/1951-1953-harness 순서로 제출한다. 조정자와 저작자들이 같은 checkout·로컬 브랜치를 공유하므로 git pull --rebase는 실행하지 않는다. 다른 저작자의 경로를 스테이지하거나 미커밋 변경을 stash하지 않고 다른 저작자의 커밋도 수정하지 않는다. git add -A, master 접촉, force-push와 히스토리 재작성은 금지한다. .wiki는 gitignore된 작업 이력이므로 커밋하지 않는다. 매 turn 보고에 커밋 해시와 git push 종료 코드를 남긴다. push가 non-fast-forward로 거부되거나 Git·네트워크 오류가 발생하면 정확한 오류와 종료 코드를 보고하고 우회하지 않는다.
+사용자의 현재 지시에 따라 저작자가 최소 매 turn 끝과 단계 폐쇄/뷰어 구현 때 커밋·푸시한다. 파생 산출물·캐시·임시 파일을 정리하고 저장소 루트에서 git add experimental/modern-suburban-house, git commit -m "feat(experimental): <변경 요약>", git push origin benchmark/1951-1953-harness 순서로 제출한다. [implementation-boundary](#implementation-boundary)에 따라 의존성을 바꿔 pnpm-lock.yaml이 갱신된 turn에는 git add pnpm-lock.yaml을 명시 경로로 더해 같은 커밋에 넣는다. 조정자와 저작자들이 같은 checkout·로컬 브랜치를 공유하므로 git pull --rebase는 실행하지 않는다. 다른 저작자의 경로를 스테이지하거나 미커밋 변경을 stash하지 않고 다른 저작자의 커밋도 수정하지 않는다. git add -A, master 접촉, force-push와 히스토리 재작성은 금지한다. .wiki는 gitignore된 작업 이력이므로 커밋하지 않는다. 매 turn 보고에 커밋 해시와 git push 종료 코드를 남긴다. push가 non-fast-forward로 거부되거나 Git·네트워크 오류가 발생하면 정확한 오류와 종료 코드를 보고하고 우회하지 않는다.
 
 ## 뷰어 실행 인계 {#viewer-handoff}
 <!--

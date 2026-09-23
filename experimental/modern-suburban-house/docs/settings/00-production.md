@@ -232,12 +232,12 @@
 @evidenceReview principles/core/settings.md#source-support #430bca9 외부 생성 이미지 서비스는 채택하지 않았으므로 조사하지 않은 공급자 기능·가격을 품질 근거로 호출하지 않는다.
 @evidence principles/core/settings.md#capability-boundary batch/instance 최적화는 허용하지만 성능을 이유로 방·면·질문을 없앨 수 없고 무시드 변동도 금지된다.
 @evidenceReview principles/core/settings.md#capability-boundary #83a6f2c 성능을 이유로 방·면·질문을 생략하지 못하고 무시드 변동도 금지해 자원 대응의 허용 범위를 한정했다.
-@evidence principles/core/settings.md#constraint-sufficiency 설치가 필요한 기능은 조정자 의존성으로 드러내도록 하여 부족한 API를 몰래 저장소 수정으로 메우지 못한다.
-@evidenceReview principles/core/settings.md#constraint-sufficiency #20cf612 기능 부족은 실제 제한과 조정자 의존성으로 기록하도록 하므로 비공개 저장소 수정을 대체 수단으로 허용하지 않는다.
+@evidence principles/core/settings.md#constraint-sufficiency 설치된 공개 엔진에 없는 기능은 실제 제한으로 기록해 조정자에게 올리고 외부 패키지는 implementation-boundary의 선언·설치 절차로만 들여 부족한 API를 몰래 저장소 수정으로 메우지 못한다.
+@evidenceReview principles/core/settings.md#constraint-sufficiency #20cf612 엔진 기능 부족은 제한 기록과 조정자 보고, 외부 패키지 부족은 선언·설치 절차로 갈라 두어 어느 경우에도 비공개 저장소 수정을 대체 수단으로 허용하지 않는다.
 @evidence principles/core/settings.md#observable-identity 주택·가구·수목을 실제 형상으로 build하고 레퍼런스는 관찰 입력으로만 사용해 사진판이 외형을 대신하지 않게 한다.
 @evidenceReview principles/core/settings.md#observable-identity #4ccb62e 주택과 수목을 실제 형상으로 만들고 사진을 texture로 복사하지 않는 배분이 사진판 재현과 구별된다.
-@evidence obligations/core/settings.md#subject-breakdown-production-scope 주택·가구·기구·수목을 직접 build, 다섯 사진을 비교 입력으로 adopt, 반복·관찰을 derive로 나누고 maps부터 systems와 matching source를 배정하며 자원 부족을 방 생략 대신 표현 보존 및 조정자 의존성으로 처리한다.
+@evidence obligations/core/settings.md#subject-breakdown-production-scope 주택·가구·기구·수목을 직접 build, 다섯 사진을 비교 입력으로 adopt, 반복·관찰을 derive로 나누고 maps부터 systems와 matching source를 배정하며 자원 부족을 방 생략 대신 표현 보존과 제한 기록으로 처리한다.
 @evidenceReview obligations/core/settings.md#subject-breakdown-production-scope #d8fa940 주택·가구·식재는 build, 사진은 비교 입력 adopt, 반복·관찰은 derive다. branch별 담당과 자원 부족 시 표현 보존·제한 기록이 있어 placeholder나 데모 집을 계획된 자산으로 섞지 않는다.
 -->
 
-주택 외형·각 방·계단·문·창·차고·가구·설비·소품·식재는 production 안에서 build한다. 레퍼런스는 눈으로 비교할 입력으로 adopt하며 asset geometry나 texture로 복사하지 않는다. 대지와 외부 접근은 maps, 방 경계·외피·동선은 spaces, 실제 부재·가구·수목 원형은 models, 표면 표현은 materials, 외장 반복 및 가구·식재 개체는 instances, 조명은 systems가 소유한다. 반복 결과와 관찰은 이 설계에서 derive한다. 각 matching source branch와 뷰어는 같은 산출물을 소비하며 복제한 데모 집을 갖지 않는다. 명시적 랜덤 seed 없는 변동과 외부 생성 이미지 서비스는 채택하지 않는다. 설치된 공개 엔진 기능을 검토한 뒤 자원 부족은 batch/instance 등 표현 보존 방식으로 다루며 성능을 이유로 방·면·질문을 생략하지 않는다. 필요한 기능이나 의존성이 없으면 실제 제한과 조정자 의존성을 기록한다.
+주택 외형·각 방·계단·문·창·차고·가구·설비·소품·식재는 production 안에서 build한다. 레퍼런스는 눈으로 비교할 입력으로 adopt하며 asset geometry나 texture로 복사하지 않는다. 대지와 외부 접근은 maps, 방 경계·외피·동선은 spaces, 실제 부재·가구·수목 원형은 models, 표면 표현은 materials, 외장 반복 및 가구·식재 개체는 instances, 조명은 systems가 소유한다. 반복 결과와 관찰은 이 설계에서 derive한다. 각 matching source branch와 뷰어는 같은 산출물을 소비하며 복제한 데모 집을 갖지 않는다. 명시적 랜덤 seed 없는 변동과 외부 생성 이미지 서비스는 채택하지 않는다. 설치된 공개 엔진 기능을 검토한 뒤 자원 부족은 batch/instance 등 표현 보존 방식으로 다루며 성능을 이유로 방·면·질문을 생략하지 않는다. 설치된 공개 엔진에 필요한 기능이 없으면 실제 제한을 기록해 조정자에게 올리고, 필요한 외부 패키지는 [편집과 의존성 경계](20-verification.md#implementation-boundary)의 절차로 선언·설치한다.

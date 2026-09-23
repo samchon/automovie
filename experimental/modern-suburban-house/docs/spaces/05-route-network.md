@@ -6,7 +6,7 @@
 @evidence principles/core/common.md#substantive-completion 방별 문 또는 열린 접속의 owner와 도착 storey를 한 연결 표로 정하고 계단을 front-entry 하부 대기에서 upper-hall 도착면으로 가는 단일 connector로 넣는다.
 @evidence principles/core/common.md#declared-basis 표의 이름은 소스로 넘길 식별자이며 compiled id·개수·binding이 아니고 문 좌표는 링크한 방 owner가 결정한다고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 설정의 고정 그래프를 builtEnvironmentAdjacentSpaces의 경계 인접성과 분리해 통행용 문·열린 접속·connector만 사람 경로 edge로 세는 규칙을 더한다.
-@evidence principles/design/spaces.md#space-topology 팬트리·파우더룸·침실을 통과하지 않고 공용실·차고·두 욕실에 닿아야 하며 차고에는 laundry-garage-door로만 들어간다.
+@evidence principles/design/spaces.md#space-topology 팬트리·파우더룸·침실을 통과하지 않고 공용실·차고·두 욕실에 닿아야 하며, 실내에서 차고로 가는 edge는 laundry-garage-door 하나이고 garage-front-door는 개방 검사 상태에서만 driveway와 garage를 잇는 외부 edge다.
 @evidence principles/design/spaces.md#space-boundary-authority 표는 방 owner의 좌표를 복사하지 않고 연결 순서만 인계하며 층간 연결은 main-stair, 두 층은 storey owner가 소유한다.
 @evidence principles/design/spaces.md#space-verification-address 현관에서 각 목적지까지 갔다 같은 경계 순서로 돌아오는 경로를 검사하고 거친 개구부 좌표와 문틀/문짝 뒤 통행을 다른 검사로 둔다.
 @evidence settings/10-house.md#service-band 서비스에서 세 실로 분기하고 차고에는 머드룸을 거쳐 직접 연결한다.

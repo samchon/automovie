@@ -24,7 +24,7 @@
 ## 크기와 접합 표본 {#scale-and-junction-samples}
 
 <!--
-@evidence principles/core/common.md#scope-preservation 모든 새 texture family의 최소·최대 면과 UV 방향, 1m·3m·12m 거리와 정면·30° 사선, 네 입면 층간 띠 끝·slab 외곽·junction 면·계단 구멍 절단면을 포함한 필수 접합 목록과 native validateTextureScale 호출을 한 표본 집합에 두고, 좁은 방에서 불가능한 거리도 이유와 함께 남긴다.
+@evidence principles/core/common.md#scope-preservation 모든 새 texture family의 최소·최대 면과 UV 방향, 1m·3m·12m 거리와 정면·30° 사선, 네 입면 층간 띠 끝과 띠 끝을 가로지르는 두 panel member·slab 외곽·junction 면·계단 구멍 절단면을 포함한 필수 접합 목록과 native validateTextureScale 호출을 한 표본 집합에 두고, 좁은 방에서 불가능한 거리도 이유와 함께 남긴다.
 @evidence principles/core/common.md#substantive-completion 중성 배경 #808080, hemisphere 1·directional 2와 45° 위치, exposure 1·1600×1000·DPR1·FOV50, 1m 기준 막대, validateTextureScale의 입력·반환·경고 조건, MaterialTextureScaleAudit schema와 build·payload의 호출 경로까지 정해 검사자가 조건을 고르지 않는다.
 @evidence principles/core/common.md#declared-basis raster·FOV는 review-apparatus, 검증 명령은 verification-boundary, 함수 계약은 engine과 interface 원본에서 받고 중성 조명값과 표본 선택 규칙은 이 층의 선택이다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 관찰 장치는 방과 외관의 원근 프레임만 정한다. 이 H2는 texture 반복·접합·scale을 격리해 반증하는 중성 장면과 native span 검사의 production wrapper를 더한다.
@@ -41,7 +41,7 @@
 
 중성 검사에는 sRGB #808080 배경, D65에 가까운 흰 hemisphere intensity=1, 흰 directional intensity=2를 local 표면 법선에서 45° 위치에 둔다. tone mapping은 기존 viewer와 같고 exposure=1, 1600×1000/DPR1, 동일 camera FOV50으로 고정한다. 1m의 단색 기준 막대를 검사 모드에만 두고 texture 주기와 함께 촬영한다. production beauty의 기존 illumination/PMREM은 바꾸지 않는다. 광도 단위와 이 장면은 실측 조명 인증이 아니다.
 
-필수 접합은 front/right 모서리, 네 입면 floor-band의 위아래와 frame 바깥선의 띠 끝, 같은 평면을 이루던 slab 외곽의 제거, 공용부 전면벽 두 junction 도장 면과 욕실 동측 tile 벽 junction 면, 계단 구멍 slab 절단면과 ceiling의 이음, door leaf/jamb/head, 첫 계단/꺾임참/마지막 단, oak/tile 문턱, worktop/edge/sink, sofa의 평면/곡면 seam, 각 texture의 두 반복 주기 경계다. 각 접합의 부재 ID와 표면 정상 방향을 기록한다. grain 늘어남, 뒤집힌 face, 이중 tint, 눈에 띄는 타일 경계, moiré와 가짜 geometry 읽힘이 실패다.
+필수 접합은 front/right 모서리, 네 입면 floor-band의 위아래와 frame 바깥선의 띠 끝, 띠 끝을 가로지르는 `front-face-stone-panels:1-4-0`·`rear-face-stone-panels:2-3-0`의 panel 안 도장 경계, slab 외곽이 외장 평면에 나오지 않는지, 공용부 전면벽 두 junction 도장 면과 욕실 동측 tile 벽 junction 면(`upper-bathroom/corner-1`에서 보이는 x=-3.02, z=2.40..2.58의 -X면), 계단 구멍 slab 절단면과 ceiling의 이음, door leaf/jamb/head, 첫 계단/꺾임참/마지막 단, oak/tile 문턱, worktop/edge/sink, sofa의 평면/곡면 seam, 각 texture의 두 반복 주기 경계다. 각 접합의 부재 ID와 표면 정상 방향을 기록한다. grain 늘어남, 뒤집힌 face, 이중 tint, 눈에 띄는 타일 경계, moiré와 가짜 geometry 읽힘이 실패다.
 
 native 함수는 `import { validateTextureScale } from "@automovie/engine"`으로 사용한다. [구현 모듈](../../../../packages/engine/src/validation/validateTextureScale.ts)은 [validation index](../../../../packages/engine/src/validation/index.ts)와 [engine root index](../../../../packages/engine/src/index.ts)에서 공개된다. `@automovie/engine/validation`이나 저장소 내부 파일을 import하는 계약이 아니다. 입력은 `{ models: readonly IAutoMovieModel[] }`, 반환은 `IAutoMovieValidation`이며 두 타입 모두 `@automovie/interface`의 root export다. 입력에는 `buildHouse()`가 만든 현재 `environment.models`를 원래 순서대로 준다. texture를 받는 variant에는 이미 실제 scale을 반영한 primary UV가 있어야 한다. 이 함수는 모델이나 UV를 수정하지 않고 placement/part transform·tessellation·이미지 파일을 읽거나 수행하지 않는다.
 
@@ -107,7 +107,7 @@ axes는 입력 model/part 순서, schema에 적은 slot 순서, u/v 순서로 �
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 부모는 선택할 수 있는 상태와 그 공간 의미만 준다. 이 H2는 상태 변화가 재료 census와 관찰 면에 미치는 차이를 같은 producer로 비교하는 규칙을 더한다.
 @evidence principles/design/materials.md#material-construction-appearance 낮아진 transmission은 렌더 근사이며 실물 시선 차단·에너지·광학 성능 측정이 아니라고 나눠 상태 외관을 성능으로 읽지 않는다.
 @evidence principles/design/materials.md#material-binding-interface 새 프라이버시 상태·동작 경로·차양 geometry를 이 검사에서 발명하지 않고 기존 상태가 만든 실제 부재에만 결합한 재료를 비교한다.
-@evidence principles/design/materials.md#material-verification-address 같은 문턱에서 문 grain과 hardware의 움직임, 같은 opening의 유리 band와 screen 범위, guest bed 직물과 painted panel의 배정을 상태 쌍으로 반증한다.
+@evidence principles/design/materials.md#material-verification-address 같은 문턱에서 문 grain과 hardware의 움직임, 같은 opening의 유리 band와 screen 범위, guest bed의 linen·white·green 직물과 painted panel의 배정을 상태 쌍으로 반증한다.
 @evidenceExclude upstream/design/materials.md#parent-revision-from-material-work operator-access의 privacy·flex 선택, privacy-states의 60%·100% drop과 tint, flex-states의 두 정지 형상, 기존 문 closed/open operation을 대조했다. 상태 입력이 모두 부모에 있어 수리가 필요 없었다.
 @evidence settings/004-observation.md#operator-access 뷰어가 허용하는 privacy 세 상태와 flex 두 상태를 같은 producer의 명시 입력으로 조합한다.
 @evidence settings/003-spatial-basis.md#privacy-states 낮·사적·야간의 tint·고정 반투명 층·shade drop이 서로 다른 속성이라는 결정을 상태별 유리·screen 표본으로 나눠 본다.
@@ -116,4 +116,4 @@ axes는 입력 model/part 순서, schema에 적은 slot 순서, u/v 순서로 �
 
 현재 명시 상태 privacy=day/private/night와 flex=work/guest의 6개 조합을 동일 source producer에 준다. 이 상태들이 만드는 실제 부재 및 바인딩 census를 비교하고 유리·screen·folding bed가 영향을 받는 모든 opening/room 관찰을 반복한다. 나머지 집 전체 관찰은 기본 day/work에서 완주하고, 다른 상태가 바꾼 부재·재료의 영향 면은 빠짐없이 추가한다. 동일한 두 상태도 동일하다는 사실을 기록한다.
 
-door closed/open은 실제 기존 operation에 적용하여 문 grain과 hardware의 움직임을 같은 문턱에서 대조한다. 프레임 유지, 유리의 transparent/frosted band, screen의 내려온 범위, guest bed의 흰 직물과 painted panel 배정이 반례 표본이다. 새 프라이버시 상태·동작 경로·차양 geometry를 이 검사에서 발명하지 않는다. 낮아진 transmission은 렌더 근사이며 실물 시선 차단·에너지·광학 성능의 측정은 unverified다.
+door closed/open은 실제 기존 operation에 적용하여 문 grain과 hardware의 움직임을 같은 문턱에서 대조한다. 프레임 유지, 유리의 transparent/frosted band, screen의 내려온 범위, guest bed의 linen mattress·흰 pillow·green duvet 직물과 painted panel 배정이 반례 표본이다. 새 프라이버시 상태·동작 경로·차양 geometry를 이 검사에서 발명하지 않는다. 낮아진 transmission은 렌더 근사이며 실물 시선 차단·에너지·광학 성능의 측정은 unverified다.

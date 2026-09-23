@@ -9,7 +9,7 @@
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 부모는 세 방이 위생·설비 공간이라는 사실과 타일 판 분할만 준다. 이 H2는 도기·금속·목재와 구분되는 짙은 무광 타일 응답과 새 줄눈망 없이 실제 틈만 쓰는 규칙을 결정한다.
 @evidence principles/design/materials.md#material-construction-appearance 기존 tile 판 두께와 틈은 geometry 그대로 두고 입자는 명도 texture로만 쓰며 벽돌 무늬나 줄눈 texture로 구조를 흉내 내지 않는다.
 @evidence principles/design/materials.md#material-binding-interface 바닥 X/Z, 벽 수평/수직의 metric UV로 결합하고 세면기 bowl처럼 같은 색 이름의 다른 역할에는 결합하지 않는다.
-@evidence principles/design/materials.md#material-verification-address 습식 방 표본에서 도기·금속·목재와의 구분, 문턱의 oak/tile 경계, 물체 아래 남은 바닥 면, 욕실 동측 tile 벽이 junction 면에서 도장 띠로 끊기지 않는지를 반증한다.
+@evidence principles/design/materials.md#material-verification-address 습식 방 표본에서 도기·금속·목재와의 구분, 문턱의 oak/tile 경계, 물체 아래 남은 바닥 면을, 그 면을 실제로 담는 upper-bathroom/corner-1·corner-3 관찰과 007 접합 표본에서 욕실 동측 tile 벽이 junction 면에서 도장 띠로 끊기지 않는지를 반증한다.
 @evidenceExclude upstream/design/materials.md#parent-revision-from-material-work powder-utility·upper-bathroom·upper-service의 clear cell과 .45m tile pitch, powder·욕실 lining과 두 문턱의 위치를 대조했다. 습식 면과 목재 면의 경계가 실제 문과 벽에 있어 부모 수리가 필요 없었다.
 @evidence settings/001-production.md#governing-aim 세척 공간이 실제 문 너머의 습식 마감으로 식별되도록 oak 방과 다른 타일 응답을 준다.
 @evidence spaces/002-spatial-graph.md#powder-utility 1층 powder의 tile 바닥판과 tile lining 네 면이 이 마감을 받는다.
@@ -26,7 +26,7 @@
 
 `wet-tile`은 powder-utility, upper-bathroom, upper-service의 floor-boards와 tile lining, 그리고 upper-bathroom 동측 tile 벽 안 x=-3.02..-2.84, z=2.40..2.58에 드러나는 층 owner junction의 -X면이다. 이 junction 면은 복도·주침실 벽 끝 사이에서 욕실 lining과 같은 면에 놓이므로 tile 벽을 도장 띠로 끊지 않도록 [실내 도장](005-soft-finishes.md#plaster-paint)의 junction 규칙에 따라 이 마감이 받는다. floor owner의 .45m pitch, 잘린 타일, 실제 틈과 room lining을 유지한다. 색 #6f746f, roughness=.65, `tile-grain` 512²·.45×.45m, 2..6mm 입자의 선형 평균 .98·범위 .95..1.00이다. 기존 tile 판의 두께는 geometry 값 그대로이고 새 줄눈망이나 벽돌 무늬는 그리지 않는다.
 
-바닥 X/Z, 벽 수평/수직의 metric UV를 사용한다. 세면기 bowl의 기존 tile색에는 이 마감을 쓰지 않는다. [습식 방 검사](007-observation.md#reference-material-samples)에서 도기·금속·목재와 구분하고 문턱의 oak/tile 경계 및 물체 아래 남은 바닥 면을 확인한다. 욕실 중심에서 +X를 보는 관찰과 동측 벽 모서리 관찰은 junction 면이 좌우 tile lining과 한 마감으로 이어지는지를 반증한다. 방수층·배수 경사·마찰 성능은 이 재료 설정의 인증 범위 밖이다.
+바닥 X/Z, 벽 수평/수직의 metric UV를 사용한다. 세면기 bowl의 기존 tile색에는 이 마감을 쓰지 않는다. [습식 방 검사](007-observation.md#reference-material-samples)에서 도기·금속·목재와 구분하고 문턱의 oak/tile 경계 및 물체 아래 남은 바닥 면을 확인한다. 이 junction 면은 욕실의 `upper-bathroom/corner-1` 관찰에서 정면으로, `corner-3` 관찰에서 비스듬한 선으로 보이며, [접합 표본](007-observation.md#scale-and-junction-samples)의 욕실 동측 tile 벽 junction 항목이 같은 면을 가까이서 연다. 이 세 표본이 junction 면이 좌우 tile lining과 한 마감으로 이어지는지를 반증한다. 중심 +X 관찰은 (-4.14, 3.52)에서 1.12m 떨어진 벽을 수평 반각 36.7°(세로 FOV 50°, 화면비 1.6)로 보아 약 z=2.68..4.36만 담으므로 이 면을 반증하지 못한다. 방수층·배수 경사·마찰 성능은 이 재료 설정의 인증 범위 밖이다.
 
 ## 조리대 석재 {#worktop-stone}
 

@@ -3,7 +3,7 @@
 ## 파일 역할과 층 경계 {#population-roles}
 <!--
 @evidence obligations/core/common.md#purpose-fit 00·01·05는 외곽·층·연결 순서, 02는 유일한 층간 연결, 03은 표면 분해, 04는 관찰 파생과 렌더 인계, 06–10과 roof/00은 개구부·벽·층판·천장·지상층·지붕 교차의 공유 경계, envelope·roof 경사면·porch·rooms·site는 각 완결 면과 방을 맡는다. 05가 없으면 도달 검사의 연결 순서가, 03이 없으면 1단계 표면 분해 시한이, roof/00이 없으면 여덟 경사면의 높이·교차가 각 파일에서 따로 발명된다.
-@evidence obligations/core/common.md#layer-boundary 47개 파일은 포함·인접·치수·통행·점유 예약과 관찰 질문의 파생만 정하고 부재 원형은 models, 표면 표현은 materials, 반복 배치는 instances, 조명은 systems, 필지·지표·외부 도로는 maps로 넘긴다. 04의 engine-render-handoff는 공간 면이 model element로 넘어가야 한다는 조건과 standable surface의 한계만 남기며, 뷰어 포트 4173·`--port`·실행기·카메라·조명·그림자 조건은 settings의 viewer-handoff·renderer-boundary·lighting-state가 소유한다.
+@evidence obligations/core/common.md#layer-boundary 47개 파일은 포함·인접·치수·통행·점유 예약과 관찰 질문의 파생만 정하고 부재 원형은 models, 표면 표현은 materials, 반복 배치는 instances, 조명은 systems, 필지·지표·외부 도로는 maps로 넘긴다. 04의 engine-render-handoff는 공간 면이 model element로 넘어가야 한다는 조건, 비직사각 공간의 볼록 cell 합집합 또는 닫힌 shell 표현, standable surface의 한계, 관찰 helper의 null 처리와 landing 검증의 한계라는 공간 결정만 남기며, 뷰어 포트 4173·`--port`·실행기·카메라·조명·그림자 조건은 settings의 viewer-handoff·renderer-boundary·lighting-state가 소유한다.
 -->
 
 비교 모집단은 `docs/spaces` 아래 47개 파일 전체다. 이 account는 파일 사이의 역할 배분과 층 경계만 답하며 각 H2의 원칙 답변을 대신하지 않는다.
@@ -12,7 +12,7 @@
 
 나머지 파일은 완결 표면 하나 또는 방 하나를 맡는다. 네 입면, 여덟 지붕 경사면, 포치, 열다섯 실내 공간, 일곱 대지 파일이 그 단위다. 이 분해는 [표면 소유 계약](../../contracts/surface-ownership.md#whole-surface-owner)이 요구하는 파일 경계와 같다. 파일 하나를 지우면 그 면이나 방의 경계·개구부·사용 예약이 다른 파일의 산문 속으로 들어가거나 사라진다.
 
-층 경계는 각 owner가 스스로 밝힌다. 가구·기기·선반의 표는 점유 상한 예약이며 원형·다리·손잡이 형상은 models, 세 스툴·여섯 의자의 배치는 instances, 재료와 광학값은 materials, 방별 광원은 systems가 소비한다. 필지·외부 보도·지표·식재는 [maps 인계](../../spaces/site/00-access.md#map-handoff-inputs)가 받을 입력으로만 적고 spaces가 대신 정하지 않는다. [렌더 인계](../../spaces/04-observations.md#engine-render-handoff)는 공간 면이 같은 surface owner의 model element로 넘어가야 한다는 조건과, 걷는 면의 standable surface가 보이는 바닥이 아니라는 한계만 남긴다. [관찰 파생](../../spaces/04-observations.md#spatial-observation-derivation)도 pose의 카메라 조건은 [프레임 조건](../../settings/20-verification.md#frame-condition)에서 받을 뿐이다. 뷰어의 포트 4173과 `--port`, 실행기, 기동 확인은 [뷰어 실행 인계](../../settings/20-verification.md#viewer-handoff)가, 카메라·재질·깊이는 [실제 3D 렌더 경계](../../settings/20-verification.md#renderer-boundary)가, 조명과 그림자는 [빛과 기준 상태](../../settings/20-verification.md#lighting-state)가 소유하며 spaces 문서는 그 값을 정하지 않는다. 이 배분이 실제 source에서 지켜지는지는 source가 없는 현재 unverified다.
+층 경계는 각 owner가 스스로 밝힌다. 가구·기기·선반의 표는 점유 상한 예약이며 원형·다리·손잡이 형상은 models, 세 스툴·여섯 의자의 배치는 instances, 재료와 광학값은 materials, 방별 광원은 systems가 소비한다. 필지·외부 보도·지표·식재는 [maps 인계](../../spaces/site/00-access.md#map-handoff-inputs)가 받을 입력으로만 적고 spaces가 대신 정하지 않는다. [렌더 인계](../../spaces/04-observations.md#engine-render-handoff)는 공간 결정만 남긴다. 공간 면이 같은 surface owner의 model element로 넘어가야 한다는 조건, 비직사각 공간을 볼록 cell 합집합 또는 닫힌 shell로 표현하는 방식, 걷는 면의 standable surface가 보이는 바닥이 아니라는 한계, 관찰 helper가 null을 돌려준 pose를 성공으로 세지 않는 규칙, landing 검증이 참 내부 포함을 보증하지 않는다는 한계다. [관찰 파생](../../spaces/04-observations.md#spatial-observation-derivation)도 pose의 카메라 조건은 [프레임 조건](../../settings/20-verification.md#frame-condition)에서 받을 뿐이다. 뷰어의 포트 4173과 `--port`, 실행기, 기동 확인은 [뷰어 실행 인계](../../settings/20-verification.md#viewer-handoff)가, 카메라·재질·깊이는 [실제 3D 렌더 경계](../../settings/20-verification.md#renderer-boundary)가, 조명과 그림자는 [빛과 기준 상태](../../settings/20-verification.md#lighting-state)가 소유하며 spaces 문서는 그 값을 정하지 않는다. 이 배분이 실제 source에서 지켜지는지는 source가 없는 현재 unverified다.
 
 ## 작업 언어의 일관성 {#population-language}
 <!--
