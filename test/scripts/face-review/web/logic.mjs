@@ -41,7 +41,9 @@ export function portraitWebCapturePose(poses, id, hairMask) {
       (!Number.isFinite(pose.distance) || pose.distance <= 0)) ||
     (pose.target !== undefined &&
       (pose.target.length !== 3 ||
-        pose.target.some((value) => !Number.isFinite(value))))
+        pose.target.some((value) => !Number.isFinite(value)))) ||
+    (pose.fov !== undefined &&
+      (!Number.isFinite(pose.fov) || pose.fov <= 0 || pose.fov >= 180))
   )
     throw new Error(
       "A matched face view needs a finite measured camera pose and frame.",
@@ -52,6 +54,7 @@ export function portraitWebCapturePose(poses, id, hairMask) {
     hairMask,
     ...(pose.distance === undefined ? {} : { distance: pose.distance }),
     ...(pose.target === undefined ? {} : { target: [...pose.target] }),
+    ...(pose.fov === undefined ? {} : { fov: pose.fov }),
   };
 }
 

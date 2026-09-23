@@ -17,7 +17,8 @@ import { nclose, throwsError } from "../internal/predicates";
  *    right.
  * 3. Every pixel's ray, followed any distance, projects back to that pixel,
  *    also for a pitched and yawed camera.
- * 4. A point behind the camera refuses.
+ * 4. A camera that carries its own field of view uses it by default.
+ * 5. A point behind the camera refuses.
  */
 export const test_subject_face_shape_fit_camera = (): void => {
   const front = faceShapeFitView({
@@ -73,6 +74,17 @@ export const test_subject_face_shape_fit_camera = (): void => {
       );
     }
   }
+  const lens = faceShapeFitView({
+    yaw: 0,
+    pitch: 0,
+    distance: 2,
+    target: [0, 0, 0.06],
+    fov: 9,
+  });
+  TestValidator.predicate(
+    "the camera's own field is the default",
+    nclose(lens.halfTangent, Math.tan((4.5 * Math.PI) / 180)),
+  );
   TestValidator.predicate(
     "behind the camera",
     throwsError(

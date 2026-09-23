@@ -8,6 +8,8 @@ import { throwsError } from "../internal/predicates";
  * Scenarios:
  * 1. A finite subject pose carries the same yaw and pitch into both passes,
  *    including zero and the admitted angular endpoints, without input mutation.
+ *    A pose's vertical field of view travels with it; a field outside
+ *    (0, 180) degrees refuses.
  * 2. A missing pose map or model ID and nonfinite or out-of-range angles refuse
  *    instead of silently falling back to the front camera.
  */
@@ -44,6 +46,15 @@ export const test_subject_face_web_capture_pose = (): void => {
     target: [0, -0.19, 0.06],
   });
   options.target![1] = 0;
+  TestValidator.equals(
+    "a portrait lens travels with the pose",
+    portraitWebCapturePose(
+      { face: { yaw: 3, pitch: 0, distance: 2, fov: 8.8 } },
+      "face",
+      false,
+    ),
+    { yaw: 3, pitch: 0, hairMask: false, distance: 2, fov: 8.8 },
+  );
   TestValidator.equals(
     "frame stays caller-owned",
     framed.face.target,
@@ -94,6 +105,9 @@ export const test_subject_face_web_capture_pose = (): void => {
     { distance: NaN },
     { target: [0, 0] },
     { target: [0, Infinity, 0] },
+    { fov: 0 },
+    { fov: 180 },
+    { fov: NaN },
   ])
     TestValidator.predicate(
       "invalid full-hair frame refuses",

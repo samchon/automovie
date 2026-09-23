@@ -60,6 +60,7 @@ export interface IFaceLikenessCaptures {
       pitch: number;
       distance: number;
       target: [number, number, number];
+      fov?: number;
     };
   }[];
 }

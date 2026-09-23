@@ -12,6 +12,7 @@ export declare function portraitWebCapturePose(
       pitch: number;
       distance?: number;
       target?: [number, number, number];
+      fov?: number;
     } | null
   > | null,
   id: string,
@@ -22,6 +23,7 @@ export declare function portraitWebCapturePose(
   hairMask: boolean;
   distance?: number;
   target?: number[];
+  fov?: number;
 };
 export declare function resetPortraitWebSubject(subject: {
   matrixAutoUpdate: boolean;

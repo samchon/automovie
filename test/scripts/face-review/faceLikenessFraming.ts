@@ -33,6 +33,8 @@ export interface IFaceLikenessCamera {
   pitch: number;
   distance: number;
   target: [number, number, number];
+  /** Vertical field of view in degrees; the capture's 28 when omitted. */
+  fov?: number;
 }
 
 /**
@@ -90,6 +92,7 @@ export function planFaceLikenessFrame(props: {
   return {
     yaw: camera.yaw,
     pitch: camera.pitch,
+    ...(camera.fov === undefined ? {} : { fov: camera.fov }),
     distance: extent / (2 * halfTangent),
     target: [0, 1, 2].map(
       (axis) => camera.target[axis]! + uc * right[axis]! + vc * up[axis]!,

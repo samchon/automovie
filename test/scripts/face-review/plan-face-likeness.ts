@@ -3,7 +3,7 @@
  * test package:
  *
  *   ttsx -P tsconfig.scripts.json --no-plugins scripts/face-review/plan-face-likeness.ts manifest REFS OUT.json LABEL=RENDERS ...
- *   ttsx ... plan-face-likeness.ts yaw DETECTIONS OUT.json
+ *   ttsx ... plan-face-likeness.ts yaw DETECTIONS OUT.json [DISTANCE]
  *   ttsx ... plan-face-likeness.ts frame DETECTIONS_DIR CAPTURES OUT.json
  *
  * The published subjects and their photograph hashes come from the tracked
@@ -18,7 +18,9 @@
  *    `frame` for the captures of steps 3 and 4, which share file names. A photograph that is absent or whose SHA-256
  *    differs from the receipt is left out and reported as missing.
  * 3. `yaw` writes a pose file of detector-calibrated yaws
- *    (`faceLikenessPlan.ts`) at the default portrait distance; the capture
+ *    (`faceLikenessPlan.ts`) at the default portrait distance, or at an
+ *    optional longer distance whose narrower field keeps the same framing
+ *    (a portrait lens rather than the review's close view); the capture
  *    of `reference-yaw` and `reference-yaw-hair-mask` with it is the
  *    portrait capture.
  * 4. `frame` reads the detections of the photographs and the portrait
@@ -108,9 +110,17 @@ if (command === "manifest") {
   }
   write(output, { images, missing });
 } else if (command === "yaw") {
-  const [detections, output] = args;
+  const [detections, output, distanceText] = args;
   if (detections === undefined || output === undefined)
-    throw new Error("yaw DETECTIONS OUT.json");
+    throw new Error("yaw DETECTIONS OUT.json [DISTANCE]");
+  // A longer distance keeps the portrait's framing with a narrower field:
+  // tan(fov / 2) scales by the review distance over the new one.
+  const distance = Number(distanceText ?? PORTRAIT_DISTANCE);
+  const fov =
+    (360 / Math.PI) *
+    Math.atan(
+      (Math.tan((FOV_DEGREES * Math.PI) / 360) * PORTRAIT_DISTANCE) / distance,
+    );
   const byId = indexFaceLikenessDetections(
     readFaceLikenessJson<IFaceLikenessDetections>(detections),
   );
@@ -129,8 +139,9 @@ if (command === "manifest") {
       poses[row.subject] = {
         yaw: row.yaw,
         pitch: 0,
-        distance: PORTRAIT_DISTANCE,
+        distance,
         target: PORTRAIT_TARGET,
+        ...(distance === PORTRAIT_DISTANCE ? {} : { fov }),
       };
   write(output, poses);
   write(output.replace(/\.json$/, ".plan.json"), plan);
@@ -172,7 +183,7 @@ if (command === "manifest") {
       ),
       region: faceLikenessRegionUnion(hair === null ? [head] : [head, hair]),
       viewport: VIEWPORT,
-      fovDegrees: FOV_DEGREES,
+      fovDegrees: camera.fov ?? FOV_DEGREES,
       margin: FRAME_MARGIN,
     });
   }

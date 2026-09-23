@@ -12,6 +12,7 @@ import { nclose, throwsError } from "../internal/predicates";
  * 1. With the identity similarity, a region equal to the whole 900 px render
  *    keeps the direction and target and scales the 0.62 m distance by the
  *    10% margin; the same region at zero margin reproduces the camera.
+ *    A camera's field of view is carried to the framed camera.
  * 2. A region of the render's right half at yaw 0 moves the target +x by a
  *    quarter of the plane width and needs half the distance at zero margin;
  *    at yaw 90 the screen right is world -z, so the target moves along -z.
@@ -51,6 +52,12 @@ export const test_subject_face_likeness_framing = (): void => {
       nclose(whole.target[2], 0.06),
   );
   TestValidator.predicate("same camera", nclose(plan({}).distance, 0.62));
+  TestValidator.equals(
+    "a lens field travels with the framed camera",
+    plan({ camera: { ...camera, fov: 9 } }).fov,
+    9,
+  );
+  TestValidator.equals("no field without one", plan({}).fov, undefined);
 
   const half = plan({ region: { x0: 450, y0: 0, x1: 900, y1: 450 } });
   TestValidator.predicate("half distance", nclose(half.distance, 0.31));

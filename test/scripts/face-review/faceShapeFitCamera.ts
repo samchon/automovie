@@ -29,7 +29,7 @@ export interface IFaceShapeFitView {
 export function faceShapeFitView(
   camera: IFaceLikenessCamera,
   viewport = 900,
-  fovDegrees = 28,
+  fovDegrees = camera.fov ?? 28,
 ): IFaceShapeFitView {
   const yaw = (camera.yaw * Math.PI) / 180;
   const pitch = (camera.pitch * Math.PI) / 180;
