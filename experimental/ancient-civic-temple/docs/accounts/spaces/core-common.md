@@ -3,18 +3,18 @@
 ## 파일 역할과 공간 납품 {#file-roles}
 
 <!--
-@evidence obligations/core/common.md#purpose-fit 27개 파일을 기준 평면/높이·경계/접합·동선·입면·방·roof·표면 소유·관찰·대지 역할로 대조했다. 방 목록만 남기면 물리 접합과 외관이 비고, 외피만 남기면 각 방의 직접 문과 이용 영역이 비며, 대지가 없으면 두 접점이 이어질 외부 공간과 외벽 하단이 읽을 지면이 비고, junctions의 단면 규칙이 없으면 네 입면의 석재 띠가 모서리에서 어긋나는 서로 다른 후속 결정을 아래 지도에 기록한다.
+@evidence obligations/core/common.md#purpose-fit 27개 파일을 기준 평면/높이·경계/접합·동선·입면·방·roof·표면 소유·관찰·대지 역할로 대조했다. 방 목록만 남기면 물리 접합과 외관이 비고, 외피만 남기면 각 방의 직접 문과 이용 영역이 비며, 대지가 없으면 두 접점이 이어질 외부 공간과 외벽 하단이 읽을 지면이 비고, junctions의 단면 규칙이 없으면 네 입면의 석재 띠가 모서리에서 어긋나며, ownership의 띠 분할이 없으면 주랑·제실의 적갈색 띠가 붙을 표면이 없는 서로 다른 후속 결정을 아래 지도에 기록한다.
 -->
 
 <!--
-@evidenceReview obligations/core/common.md#purpose-fit #7b32c66 27파일을 각 역할의 결과에 다시 대조했다. 기준선만으로는 접합이 닫히지 않고, 방 목록만으로는 관찰이 정해지지 않으며, site를 빼면 접점과 외벽 하단이 허공을 가리키고, 기단·코핑 단면을 입면마다 두면 모서리 만남이 두 번 정해진다는 결손이 본문에 적혀 있다.
+@evidenceReview obligations/core/common.md#purpose-fit 27파일을 각 역할의 결과에 다시 대조했다. 기준선·방 목록·site·junctions 단면에 더해, ownership의 하부 띠 분할을 빼면 materials가 주랑·제실 벽 하부에만 적갈색을 결속할 경계가 사라진다는 결손이 본문 첫 문단의 ownership 문장으로 드러난다.
 -->
 
 이 population은 한 단층 신전의 건물 내부와 외피를 함께 설계한다. [building](../../spaces/building.md)은 외곽·공유 기준선·부모 위계·외부 접점을, [storey](../../spaces/storey.md)는 높이·문턱 지지·외벽 하단을 소유한다. 둘 중 하나가 없으면 방의 평면만 맞아도 도로·문턱·지면을 같은 건물로 연결할 수 없다. [openings](../../spaces/openings.md)는 경계 identity와 실제 void/문/창 위치를, [junctions](../../spaces/junctions.md)는 벽 끝/박공의 폐쇄와 외벽 기단·코핑의 단면을 정한다. 후자는 개구부 표만으로는 막을 수 없는 모서리 중첩·roof 아래 누광과, 네 입면이 따로 정하면 모서리에서 어긋날 석재 띠의 만남을 다룬다. [circulation](../../spaces/circulation.md)은 공용/서비스의 서로 다른 시작과 주랑 경유 순서를 정한다.
 
 [남측](../../spaces/facades/south.md)·[북측](../../spaces/facades/north.md)·[서측](../../spaces/facades/west.md)·[동측](../../spaces/facades/east.md)은 각각 후퇴 현관, 높은 박공/낮은 마당 벽, 긴 무창 봉헌실 벽, 외부 서비스 출입의 완결 외면을 소유한다. 서로를 대체하면 후면과 옆면의 실제 닫힘이 사라진다. rooms의 [현관](../../spaces/rooms/entrance.md)·[중정](../../spaces/rooms/courtyard.md)·[주랑](../../spaces/rooms/colonnade.md)·[제실](../../spaces/rooms/sanctuary.md)·[봉헌실](../../spaces/rooms/offering.md)·[관리실](../../spaces/rooms/administration.md)·[기록실](../../spaces/rooms/records.md)·[보관실](../../spaces/rooms/storage.md)·[서비스 마당](../../spaces/rooms/service-yard.md)은 각각 자기 volume·접근·내부 표면과 용도별 예약을 가져 공간명만 나열한 방을 남기지 않는다.
 
-roofs의 [assembly](../../spaces/roofs/assembly.md)는 높이·두께·돌출·겹침 선택을, [sanctuary](../../spaces/roofs/sanctuary.md)·[west](../../spaces/roofs/west.md)·[east](../../spaces/roofs/east.md)·[porch](../../spaces/roofs/porch.md)·[colonnade](../../spaces/roofs/colonnade.md)는 각 지지 영역·끝선·관찰을 담당한다. 공통 계산만으로 각 roof의 끝을 고를 수 없고, 개별 roof만으로는 교차부의 중복을 해소할 수 없다. [ownership](../../spaces/ownership.md)은 이 소유를 완결 표면 단위로 잇는다. [observations](../../spaces/observations.md)는 전체 질문을 현재 산출물에서 유도하고 그 값을 그릴 viewer 경로를 정해 대표 외관 하나만으로 실내 누락이 가려지는 것을 막는다.
+roofs의 [assembly](../../spaces/roofs/assembly.md)는 높이·두께·돌출·겹침 선택을, [sanctuary](../../spaces/roofs/sanctuary.md)·[west](../../spaces/roofs/west.md)·[east](../../spaces/roofs/east.md)·[porch](../../spaces/roofs/porch.md)·[colonnade](../../spaces/roofs/colonnade.md)는 각 지지 영역·끝선·관찰을 담당한다. 공통 계산만으로 각 roof의 끝을 고를 수 없고, 개별 roof만으로는 교차부의 중복을 해소할 수 없다. [ownership](../../spaces/ownership.md)은 이 소유를 완결 표면 단위로 잇고 주랑·제실 벽 하부 띠처럼 한 방 안의 높이 경계로 생기는 표면 분할을 정한다. [observations](../../spaces/observations.md)는 전체 질문을 현재 산출물에서 유도하고 그 값을 그릴 viewer 경로를 정해 대표 외관 하나만으로 실내 누락이 가려지는 것을 막는다.
 
 [site](../../spaces/site.md)는 건물과 다른 소유 단위로 대지 범위·지면 높이·포장 구획·두 connector·배치 구역·먼 능선을 정한다. 이 파일이 없으면 building의 두 접점이 이어질 외부 공간이 없고 storey의 외벽 하단이 읽을 지면이 없어 건물이 허공에 뜬 채 남는다. 반대로 대지가 건물 파일에 섞이면 외벽 경계가 방과 대지 두 공간을 가져 입면 census가 사라지므로 별도 파일과 별도 뿌리로 둔다.
 
@@ -49,14 +49,14 @@ viewer-path의 한국어 설명과 키보드 조작은 설계 요구이며 이�
 ## 규모와 전개 분량의 비교 {#proportion}
 
 <!--
-@evidence obligations/core/common.md#proportionate-development 현재 27파일/44 H2를 전체로 읽고 본문 분량을 역할별로 비교했다. 관찰·개구부·기준선·대지·접합은 다수 경계/실패 경우를 다루어 길고 단일 날개/방은 상위 공유 결정을 소비해 짧다. v-077 제출본과 파일/단위 수 및 본문을 비교해 매스·동선 축소가 없음을 기록한다.
+@evidence obligations/core/common.md#proportionate-development 현재 27파일/45 H2를 전체로 읽고 본문 분량을 역할별로 비교했다. 관찰·개구부·기준선·대지·접합·표면 소유는 다수 경계/실패 경우를 다루어 길고 단일 날개/방은 상위 공유 결정을 소비해 짧다. v-077 제출본과 파일/단위 수 및 본문을 비교해 매스·동선 축소가 없음을 기록한다.
 -->
 
 <!--
-@evidenceReview obligations/core/common.md#proportionate-development #78feb28 27파일/44 H2의 문자 분포를 같은 방식으로 다시 쟀고 junctions만 1956→3726으로 늘어 그 증가가 새 기단·코핑 단면 H2에서 왔다고 표와 본문이 일치한다. 짧아진 두 roof 문서의 결정 유지와 a4c1d468 대비 매스/동선 결정의 보존도 그대로 적혀 있다.
+@evidenceReview obligations/core/common.md#proportionate-development 27파일/45 H2를 같은 방식으로 다시 쟀고 ownership이 2748→3695로 늘어 그 증가가 새 하부 띠 H2에서 왔다고 표와 본문이 일치한다. junctions·site의 증가와 짧아진 두 roof 문서의 결정 유지, a4c1d468 대비 매스/동선 보존도 그대로 적혀 있다.
 -->
 
-비교 기준은 21×20.5m 단층, 같은 층의 아홉 공간, 네 외측 입면, 하나의 주랑, 여섯 roof 문서가 다루는 외피와 그 둘레의 국소 대지다. 이 숫자는 authored 설계의 분포이며 compiled census가 아니다. 현재는 27파일/44 H2다. 아래 문자 수는 해당 Markdown에서 HTML 주석·제목 줄·공백 문자를 제거한 본문 길이다. 링크/표 표기 문자는 남겼으므로 독자용 어절 수나 geometry 양으로 읽지 않는다. evidence 문장이 길어져 생긴 분량은 이 비교에 포함하지 않았다.
+비교 기준은 21×20.5m 단층, 같은 층의 아홉 공간, 네 외측 입면, 하나의 주랑, 여섯 roof 문서가 다루는 외피와 그 둘레의 국소 대지다. 이 숫자는 authored 설계의 분포이며 compiled census가 아니다. 현재는 27파일/45 H2다. 아래 문자 수는 해당 Markdown에서 HTML 주석·제목 줄·공백 문자를 제거한 본문 길이다. 링크/표 표기 문자는 남겼으므로 독자용 어절 수나 geometry 양으로 읽지 않는다. evidence 문장이 길어져 생긴 분량은 이 비교에 포함하지 않았다.
 
 | 역할 | 파일/H2 | 파일별 본문 문자 수 |
 | --- | --- | --- |
@@ -67,9 +67,9 @@ viewer-path의 한국어 설명과 키보드 조작은 설계 요구이며 이�
 | 제실·봉헌실 | 2/2 | 733·646 |
 | 관리실·기록실·보관실·마당 | 4/4 | 624·580·577·960 |
 | assembly·sanctuary·west·east·porch·colonnade roof | 6/7 | 1780·810·909·801·650·1488 |
-| ownership·observations | 2/3 | 2748·6369 |
+| ownership·observations | 2/4 | 3695·6369 |
 | site | 1/6 | 5507 |
 
 주랑과 현관이 다른 방보다 긴 이유는 각각 구멍 있는 합집합과 구간별 계단 바닥을 따로 결정하기 때문이다. 가장 짧은 porch roof도 두 지지선·앞끝 돌출·후퇴벽 위 뒤끝·삼각 막음의 소유·하부 관찰을 갖는다. site는 범위·지면 식·구획표·connector·배치 구역·능선을 여섯 H2로 나눠 결정하므로 건물 한 문서보다 길다. 반대로 observations는 topology 전집합, 반환 pose의 한계, 실제 문턱/접합/지면, 전송 경계를 모두 책임져 단일 대표 view 설명으로 줄일 수 없다. 동일한 골격의 일반 방보다 이 인터페이스들에 상세가 집중된 것은 납품 효과에 맞는다.
 
-부모 settings는 허용 범위와 방/부재 정체성을 정하고 spaces는 실제 기준선·벽 두께·문 중심·roof 지지선·순환·대지 구획 및 소유를 더했다. 같은 settings 문장을 방 이름만 바꿔 늘린 분포가 아니다. v-077 판정 제출본 a4c1d46870fb186cbf29c5b112a5476a2bfeb0e4와 같은 방식으로 비교하면 기존 26파일은 모두 남았고 매스·치수·동선 결정도 빠지지 않았다. 기존 파일 중 roofs/colonnade(1583→1488)와 roofs/porch(704→650)만 짧아졌는데, 파라펫 뒤 외쪽 경사로 바꾸며 폐기한 최소 높이 제한·notch 문장이 빠진 결과이고 두 문서의 지지선·끝선·하부 소유 결정은 그대로다. 늘어난 분량은 파라펫·안쪽 경사 지붕 재설계(assembly 1164→1780 등), 채광구 여덟 개(openings), 대지 이관에 따른 접점·접지·관찰 문장(building·storey·observations), 새 site(5507), junctions의 기단·코핑 단면 H2(1956→3726)에서 왔다. 새 account와 주석은 공간 수를 늘린 것으로 세지 않는다. 이 분포 비교는 실제 구현 깊이·통과·시각 품질의 완료 판정이 아니며 모두 후속 소스/프레임에서 별도로 검토해야 한다.
+부모 settings는 허용 범위와 방/부재 정체성을 정하고 spaces는 실제 기준선·벽 두께·문 중심·roof 지지선·순환·대지 구획 및 소유를 더했다. 같은 settings 문장을 방 이름만 바꿔 늘린 분포가 아니다. v-077 판정 제출본 a4c1d46870fb186cbf29c5b112a5476a2bfeb0e4와 같은 방식으로 비교하면 기존 26파일은 모두 남았고 매스·치수·동선 결정도 빠지지 않았다. 기존 파일 중 roofs/colonnade(1583→1488)와 roofs/porch(704→650)만 짧아졌는데, 파라펫 뒤 외쪽 경사로 바꾸며 폐기한 최소 높이 제한·notch 문장이 빠진 결과이고 두 문서의 지지선·끝선·하부 소유 결정은 그대로다. 늘어난 분량은 파라펫·안쪽 경사 지붕 재설계(assembly 1164→1780 등), 채광구 여덟 개(openings), 대지 이관에 따른 접점·접지·관찰 문장(building·storey·observations), 새 site(5507), junctions의 기단·코핑 단면 H2(1956→3726), ownership의 실내 하부 띠 H2(2489→3695)에서 왔다. 새 account와 주석은 공간 수를 늘린 것으로 세지 않는다. 이 분포 비교는 실제 구현 깊이·통과·시각 품질의 완료 판정이 아니며 모두 후속 소스/프레임에서 별도로 검토해야 한다.

@@ -65,3 +65,43 @@ surface ID는 `surface.<owner>.<face>`로 안정되게 정하고 실제 boundary
 표의 방 바닥은 [문턱 귀속](storey.md#threshold-support)에 배정된 벽 두께 안 문턱까지 포함한다. 같은 문턱을 주랑과 방이 반씩 만들거나 문 model이 별도 바닥으로 덮지 않는다. 계측용 support patch나 계산 cell의 분해도 이 완결 표면 소유를 나누지 않는다.
 
 이 지도는 compiled host binding이 아니다. source가 생기면 실제 모든 노출 면을 역으로 읽어 빠진 면·두 owner가 붙은 면·존재하지 않는 경계를 분모에 남긴다. 한 누락이라도 있으면 최초 공간 단계는 닫히지 않는다. 대지의 지면·경계석·먼 능선 표면은 [대지](site.md#site-extent) owner가 건물과 다른 소유 단위로 만든다. 이웃 외피·나무·풀의 전체 표면은 각 model prototype 한 소유이고 instances가 [배치 구역](site.md#placement-zones) 안에 둔다. 대지 표면을 건물 표면에 섞지 않는다.
+
+## 주랑과 제실 벽의 하부 띠 {#interior-dado}
+
+<!--
+@evidence principles/core/common.md#scope-preservation 주랑 전 둘레와 제실 네 벽의 하부 띠를 함께 나누고 띠를 두지 않는 방과 외부 입면을 명시해 적용 범위를 닫는다.
+@evidence principles/core/common.md#substantive-completion 띠 윗선 Y=0.60m, 두 dado 표면 ID, 문에서의 끊김과 묻힌 면의 처리를 정해 source가 경계를 새로 고르지 않게 한다.
+@evidence principles/core/common.md#declared-basis 띠의 존재와 범위는 material-language·sanctuary 설정에서 받고 0.60m는 이미지 03·04의 문 높이 비교에서 고른 저작 값이라고 밝힌다.
+@evidence principles/design/spaces.md#space-topology 띠는 기존 주랑·제실 벽 마감 위의 면 분할일 뿐 새 공간·경계·턱을 만들지 않고 문 통과를 막지 않는다.
+@evidence principles/design/spaces.md#space-boundary-authority 벽 실체는 기존 입면·경계 owner, 두 dado 표면은 주랑·제실 방 owner에 남고 재료 값은 materials로 보낸다.
+@evidence principles/design/spaces.md#space-verification-address 주랑 여섯 영역·제실 네 벽·문 양옆에서 다른 방으로 샌 띠, 높이 불일치, 문을 가로지른 띠, 겹친 표면을 실패로 둔다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 설정의 낮은 적갈색 띠라는 색 관계를 높이·표면 ID·적용 방이 정해진 공간 표면 분할로 바꾼다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work material-language의 띠 범위, walls의 높이 경계, sanctuary의 낮은 붉은 띠와 방별 문 높이를 대조했다. 기존 벽 마감을 한 수평선으로 나누면 모두 성립해 부모를 고치지 않았다.
+@evidence settings/20-envelope.md#material-language 적갈색 띠를 중정 둘레(주랑 벽)와 제실 벽 하부에만 두고 업무방은 밝은 회벽으로 남긴다.
+@evidence settings/20-envelope.md#walls 띠의 재료 경계를 임의 패치가 아니라 바닥 위 일정 높이의 수평 경계에 둔다.
+@evidence settings/30-interiors.md#sanctuary 이미지 04의 낮은 붉은 띠를 제실 네 벽 하부의 dado 표면으로 받는다.
+@evidence contracts/obligations-spaces.md#surface-ownership 새 dado 표면을 각 방의 완결 표면으로 귀속시키고 한 벽 면이 두 표면에 겹치지 않게 한다.
+-->
+
+<!--
+@evidenceReview principles/core/common.md#scope-preservation 주랑 여섯 영역과 제실 네 벽이 대상이고 봉헌실·업무방·마당·외부가 제외로 열거돼 적갈색 띠를 방 하나에만 두는 축소나 모든 방으로의 확대가 남지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion 0.60m 수평선과 두 표면 ID, 문에서의 끊김이 적혀 environment가 분할 높이와 대상을 추정하지 않는다.
+@evidenceReview principles/core/common.md#declared-basis 띠의 범위는 설정 링크에서, 0.60m는 이미지 03·04에서 약 0.5~0.75m로 읽은 범위 안의 저작 값이며 실측이 아니라고 구별했다.
+@evidenceReview principles/design/spaces.md#space-topology 같은 평면의 면 분할이고 턱·돌출이 없다고 적어 띠가 주랑 통행이나 제실 문 통과에 새 장애를 만들지 않는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority 소유 지도의 주랑·제실 행을 그대로 따르며 dado 표면도 같은 방 owner라서 입면이나 materials가 이 면을 새로 소유하지 않는다.
+@evidenceReview principles/design/spaces.md#space-verification-address owner 색 검사와 납품 보기를 함께 쓰라는 문장이 재료가 없는 현재에도 띠 경계를 반증할 수단을 준다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation 부모는 색 관계와 범위만 줬고 윗선 높이·표면 ID·문에서의 끊김은 공간 층이 더한 결정이다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work 세 설정 조건이 기존 벽 마감의 한 수평 분할로 함께 성립해 부모의 색 관계나 방별 용도를 고칠 결함이 없었다.
+@evidenceReview settings/20-envelope.md#material-language 부모의 중정·제실 띠와 밝은 업무방이 대상 두 표면과 제외 목록으로 그대로 옮겨졌다.
+@evidenceReview settings/20-envelope.md#walls 띠 경계가 바닥 위 일정 높이의 수평선이라 부모의 높이 경계를 따르는 재료 경계 원칙에 맞는다.
+@evidenceReview settings/30-interiors.md#sanctuary 제실 네 벽 하부의 sanctuary.dado가 이미지 04의 낮은 붉은 띠를 받는다.
+@evidenceReview contracts/obligations-spaces.md#surface-ownership 두 dado 표면이 각 방 owner의 완결 표면으로 귀속되고 한 면이 두 표면에 겹치면 실패로 명시돼 단독 소유가 유지된다.
+-->
+
+[재료 관계](../settings/20-envelope.md#material-language)는 적갈색 띠가 중정과 제실 벽 하부를 연속해서 따르고 업무방은 밝은 회벽을 유지한다고 정한다. [외피 canon](../settings/20-envelope.md#walls)은 재료 경계가 부재와 높이 경계를 따르게 하고, [제실](../settings/30-interiors.md#sanctuary)은 이미지 04의 낮은 붉은 띠를 채택한다. 이 H2는 그 경계를 공간 표면의 분할로 정한다. 중정을 둘러싼 벽은 [주랑](rooms/colonnade.md#ring-volume)의 벽 마감 `surface.colonnade.wall`이고 제실은 [제실](rooms/sanctuary.md#sanctuary-volume)의 벽 마감 `surface.sanctuary.wall`이다.
+
+저작자 결정: 띠의 윗선은 두 방의 완성 바닥 Y=0 위 0.60m 수평선이다. 이미지 03·04에서 문 높이에 견준 띠 윗선이 약 0.5~0.75m로 읽혀 그 안에서 고른 값이며 실측은 아니다. 윗선 아래 면은 `surface.colonnade.dado`와 `surface.sanctuary.dado`, 위는 원래 벽 마감 ID로 남는다. 두 방의 띠는 같은 높이로 이어지고 문 void와 문틀에서만 끊긴다. 봉헌실·관리실·기록실·보관실·서비스 마당과 외부 입면에는 띠를 두지 않는다.
+
+이 분할은 벽 실체와 두께를 바꾸지 않는 같은 평면의 면 분할이며 새 공간·경계·부재가 아니다. 띠 윗선에 턱이나 돌출을 만들지 않는다. 바닥 아래로 묻힌 벽 면도 띠 표면에 들지만 바닥 slab 뒤에 가려진다. 표면 소유는 위 [소유 지도](#surface-map)의 주랑·제실 행을 따르며 두 dado 표면도 각 방 owner의 완결 표면이다. 색·거칠기·마모는 materials가 두 dado 표면에 결속한다. 대상 표면과 높이는 `src/spaces/ownership.ts`가 내보내고 environment가 해당 벽 면을 그 높이에서 나눈다.
+
+관찰은 주랑 여섯 영역의 벽, 제실 네 벽, 각 문 양옆의 띠 끝을 owner 색 검사와 납품 보기에서 함께 본다. 띠가 업무방·봉헌실이나 외부로 새거나, 두 방의 높이가 다르거나, 문 void를 가로지르거나, 한 벽 면이 두 표면에 겹치면 실패다.

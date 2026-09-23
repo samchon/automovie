@@ -27,6 +27,7 @@ import { templeEastWalls } from "./facades/east";
 import { templeNorthWalls } from "./facades/north";
 import { templePlinthRise, templeSouthWalls } from "./facades/south";
 import { templeWallTrim } from "./junctions";
+import { templeDadoFaces } from "./ownership";
 import { templeWestWalls } from "./facades/west";
 import { templeClerestories, templeDoorPassages, templeDoorProfile } from "./openings";
 import { templeRoofEnvelope } from "./roofs/assembly";
@@ -73,7 +74,7 @@ export const createTempleEnvironment = () => {
     plinthSurface: (outer) => outer.replace(/.outer$/, ".plinth"),
   };
   const models: IAutoMovieModel[] = [
-    ...walls.map((w) => surfaceModel(`model.${w.id}`, w.id, cullCoincidentVerticalFaces(wallFaces(w, roof)))),
+    ...walls.map((w) => surfaceModel(`model.${w.id}`, w.id, templeDadoFaces(cullCoincidentVerticalFaces(wallFaces(w, roof))))),
     ...["roof-sanctuary", "roof-west", "roof-east", "roof-colonnade", "roof-porch"].map((owner) =>
       surfaceModel(`model.${owner}`, owner, roofVisible.filter((f) => (roofOwner.get(f) ?? ownerOf(f.surface)) === owner))),
     surfaceModel("model.trim-coping", "trim-coping", copingFaces(trim)),
