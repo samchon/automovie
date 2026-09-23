@@ -7,32 +7,55 @@
   convention: red sits at +X (the subject's anatomical left, which appears on
   the viewer's right in the front view) and green at +Y. The key light is a
   directional lamp from the upper left so planes read; clay swaps every
-  material for one untextured grey.
+  material for one untextured grey. Hair-mask mode keeps the same camera and
+  geometry but writes visible hair white and everything else black; the hair
+  texture's alpha still cuts its fibres before depth testing.
 -->
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <title>Articulation review</title>
     <style>
-      body { margin: 0; background: #202830; }
-      canvas { display: block; }
+      body {
+        margin: 0;
+        background: #202830;
+      }
+      canvas {
+        display: block;
+      }
     </style>
     <script type="importmap">
-      { "imports": { "three": "../../../node_modules/three/build/three.module.js" } }
+      {
+        "imports": {
+          "three": "../../../node_modules/three/build/three.module.js"
+        }
+      }
     </script>
   </head>
   <body>
     <canvas id="view" width="900" height="900"></canvas>
     <script type="module">
       import * as THREE from "three";
+
+      import {
+        portraitWebHairMaskPart,
+        portraitWebHairMaskPixels,
+      } from "./logic.mjs";
+
       const canvas = document.getElementById("view");
-      const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: true });
+      const renderer = new THREE.WebGLRenderer({
+        canvas,
+        antialias: true,
+        preserveDrawingBuffer: true,
+      });
       renderer.setPixelRatio(1);
       renderer.setSize(900, 900, false);
       renderer.outputColorSpace = THREE.SRGBColorSpace;
       const gl = renderer.getContext();
       const debug = gl.getExtension("WEBGL_debug_renderer_info");
-      window.RENDERER = debug ? gl.getParameter(debug.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER);
+      window.RENDERER = debug
+        ? gl.getParameter(debug.UNMASKED_RENDERER_WEBGL)
+        : gl.getParameter(gl.RENDERER);
       const scene = new THREE.Scene();
       scene.background = new THREE.Color(0x202830);
       const key = new THREE.DirectionalLight(0xffffff, 2.6);
@@ -44,26 +67,42 @@
       let group = null;
       const markers = new THREE.Group();
       const marker = (color, position) => {
-        const mesh = new THREE.Mesh(new THREE.SphereGeometry(0.006, 12, 12), new THREE.MeshBasicMaterial({ color }));
+        const mesh = new THREE.Mesh(
+          new THREE.SphereGeometry(0.006, 12, 12),
+          new THREE.MeshBasicMaterial({ color }),
+        );
         mesh.position.set(...position);
         return mesh;
       };
-      markers.add(marker(0xff3030, [0.11, 0.03, 0.12]), marker(0x30ff30, [0, 0.16, 0.12]));
+      markers.add(
+        marker(0xff3030, [0.11, 0.03, 0.12]),
+        marker(0x30ff30, [0, 0.16, 0.12]),
+      );
       scene.add(markers);
       window.show = async (model, options) => {
         if (group !== null) scene.remove(group);
         group = new THREE.Group();
+        scene.background.set(options.hairMask === true ? 0x000000 : 0x202830);
+        markers.visible = options.hairMask !== true;
         const materials = new Map();
         for (const material of model.materials) {
           const clay = options.clay === true;
           const mat = new THREE.MeshStandardMaterial({
-            color: clay ? 0xb8b0a4 : new THREE.Color(material.baseColor.r, material.baseColor.g, material.baseColor.b),
+            color: clay
+              ? 0xb8b0a4
+              : new THREE.Color(
+                  material.baseColor.r,
+                  material.baseColor.g,
+                  material.baseColor.b,
+                ),
             roughness: clay ? 0.85 : material.roughness,
             metalness: 0,
             side: THREE.DoubleSide,
           });
           if (!clay && material.texture) {
-            const texture = await new Promise((resolve, reject) => loader.load(material.texture, resolve, undefined, reject));
+            const texture = await new Promise((resolve, reject) =>
+              loader.load(material.texture, resolve, undefined, reject),
+            );
             texture.flipY = false;
             texture.colorSpace = THREE.SRGBColorSpace;
             mat.map = texture;
@@ -74,19 +113,64 @@
         }
         for (const part of model.parts) {
           if (part.mesh === null) continue;
-          if (options.only !== undefined && !options.only.some((prefix) => part.id.startsWith(prefix))) continue;
+          if (
+            options.only !== undefined &&
+            !options.only.some((prefix) => part.id.startsWith(prefix))
+          )
+            continue;
           const geometry = new THREE.BufferGeometry();
-          geometry.setAttribute("position", new THREE.Float32BufferAttribute(part.mesh.positions, 3));
-          if (part.mesh.normals) geometry.setAttribute("normal", new THREE.Float32BufferAttribute(part.mesh.normals, 3));
-          if (part.mesh.uvs) geometry.setAttribute("uv", new THREE.Float32BufferAttribute(part.mesh.uvs, 2));
+          geometry.setAttribute(
+            "position",
+            new THREE.Float32BufferAttribute(part.mesh.positions, 3),
+          );
+          if (part.mesh.normals)
+            geometry.setAttribute(
+              "normal",
+              new THREE.Float32BufferAttribute(part.mesh.normals, 3),
+            );
+          if (part.mesh.uvs)
+            geometry.setAttribute(
+              "uv",
+              new THREE.Float32BufferAttribute(part.mesh.uvs, 2),
+            );
           if (part.mesh.indices) geometry.setIndex(part.mesh.indices);
           // Vertex colours (pigmentation, scalp tint) multiply the finish, as
           // they do in the exported glTF; a clay view ignores them.
           let material = materials.get(part.material);
           if (part.mesh.colors && options.clay !== true) {
-            geometry.setAttribute("color", new THREE.Float32BufferAttribute(part.mesh.colors, 3));
+            geometry.setAttribute(
+              "color",
+              new THREE.Float32BufferAttribute(part.mesh.colors, 3),
+            );
             material = material.clone();
             material.vertexColors = true;
+          }
+          if (options.hairMask === true) {
+            const hair = portraitWebHairMaskPart(part.id);
+            const maskMaterial = new THREE.MeshBasicMaterial({
+              color: hair ? 0xffffff : 0x000000,
+              side: THREE.DoubleSide,
+            });
+            if (hair && material.map) {
+              const source = material.map.image;
+              const alphaCanvas = document.createElement("canvas");
+              alphaCanvas.width = source.width;
+              alphaCanvas.height = source.height;
+              const context = alphaCanvas.getContext("2d");
+              context.drawImage(source, 0, 0);
+              const pixels = context.getImageData(
+                0,
+                0,
+                source.width,
+                source.height,
+              );
+              pixels.data.set(portraitWebHairMaskPixels(pixels.data));
+              context.putImageData(pixels, 0, 0);
+              maskMaterial.map = new THREE.CanvasTexture(alphaCanvas);
+              maskMaterial.map.flipY = false;
+              maskMaterial.alphaTest = 0.45;
+            }
+            material = maskMaterial;
           }
           group.add(new THREE.Mesh(geometry, material));
         }

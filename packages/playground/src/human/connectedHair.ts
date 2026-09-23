@@ -15,6 +15,9 @@ import { connectedHairFields } from "./connectedHairFields";
  * their ratios; only those fine lengths are stored. All other coordinates remain
  * independently editable. New layers are an explicit generic styling starting
  * point in head metres, with no named portrait preset or hidden groom resource.
+ * A gathering block is submitted atomically because an individual anchor or
+ * radius may be unreachable until its companion lengths and tail are authored.
+ * Rejected input remains in the visible draft so a user can correct it.
  *
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Makes numeric hair layers, enums and a detail-preserving simple length control directly editable.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Sends fine canonical hair values through the same document transaction as facial shape and colour.
@@ -61,6 +64,7 @@ export function mountConnectedFaceHair(
   remove.id = "hair-remove";
   remove.textContent = "Remove layer";
   const entries = dom.createElement("div");
+  const gatherDrafts = new Map<string, Record<string, string>>();
   section.append(summary, help, domain, add, selected, remove, entries);
   app.querySelector("#face-appearance")!.after(section);
 
@@ -244,6 +248,132 @@ export function mountConnectedFaceHair(
         });
       labelled(entries, "Localize parting", region);
     }
+    const gathering = dom.createElement("details");
+    gathering.id = "hair-gather";
+    const gatheringTitle = dom.createElement("summary");
+    gatheringTitle.textContent = "Gather at a scalp tie";
+    gathering.append(gatheringTitle);
+    const guidance = dom.createElement("p");
+    guidance.textContent =
+      "Set the tie position and tail together. Every root must have enough length to reach the tie. Applying gathering sets the guide fraction to one. Tail radius and reach may both be left blank.";
+    gathering.append(guidance);
+    const saved = layer.gather;
+    const values: Record<string, string> = {
+      polar:
+        saved === undefined ? "" : String((saved.anchor.polar * 180) / Math.PI),
+      azimuth:
+        saved === undefined
+          ? ""
+          : String((saved.anchor.azimuth * 180) / Math.PI),
+      radius: saved === undefined ? "" : String(saved.radius * 1000),
+      strength: saved === undefined ? "1" : String(saved.strength),
+      tailX: String(saved?.tail.direction[0] ?? 0),
+      tailY: String(saved?.tail.direction[1] ?? -1),
+      tailZ: String(saved?.tail.direction[2] ?? 0),
+      spreadRadius:
+        saved?.tail.spread === undefined
+          ? ""
+          : String(saved.tail.spread.radius * 1000),
+      spreadReach:
+        saved?.tail.spread === undefined
+          ? ""
+          : String(saved.tail.spread.reach * 1000),
+      ...gatherDrafts.get(id),
+    };
+    const inputs = {} as Record<keyof typeof values, HTMLInputElement>;
+    for (const [key, label] of [
+      ["polar", "Tie polar angle (degrees from crown)"],
+      ["azimuth", "Tie azimuth (degrees from front)"],
+      ["radius", "Tie radius (mm)"],
+      ["strength", "Gather strength"],
+      ["tailX", "Tail direction X left"],
+      ["tailY", "Tail direction Y up"],
+      ["tailZ", "Tail direction Z forward"],
+      ["spreadRadius", "Tail volume radius (mm, optional)"],
+      ["spreadReach", "Tail volume transition (mm, optional)"],
+    ] as const) {
+      const input = dom.createElement("input");
+      input.id = `hair-gather-${key}`;
+      input.type = "number";
+      input.step = "any";
+      input.value = values[key];
+      inputs[key] = input;
+      labelled(gathering, label, input);
+    }
+    const applyGather = dom.createElement("button");
+    applyGather.id = "hair-gather-apply";
+    applyGather.textContent =
+      saved === undefined ? "Add gathering" : "Apply gathering";
+    applyGather.onclick = async () => {
+      const draft = Object.fromEntries(
+        Object.entries(inputs).map(([key, input]) => [key, input.value]),
+      );
+      gatherDrafts.set(id, draft);
+      try {
+        const read = (key: string, scale = 1): number => {
+          const raw = draft[key];
+          if (raw.trim() === "")
+            throw new Error("Gathering fields need complete finite numbers.");
+          const value = Number(raw) / scale;
+          if (!Number.isFinite(value))
+            throw new Error("Gathering fields need complete finite numbers.");
+          return value;
+        };
+        const optional =
+          draft.spreadRadius!.trim() !== "" || draft.spreadReach!.trim() !== "";
+        const gather: NonNullable<IAutoMovieHumanFaceHair.Layer["gather"]> = {
+          anchor: {
+            polar: read("polar", 180 / Math.PI),
+            azimuth: read("azimuth", 180 / Math.PI),
+          },
+          radius: read("radius", 1000),
+          strength: read("strength"),
+          tail: {
+            direction: [read("tailX"), read("tailY"), read("tailZ")],
+            ...(optional
+              ? {
+                  spread: {
+                    radius: read("spreadRadius", 1000),
+                    reach: read("spreadReach", 1000),
+                  },
+                }
+              : {}),
+          },
+        };
+        const next = structuredClone(props.document());
+        const current = next.hair?.layers.find((item) => item.id === id);
+        if (current === undefined)
+          throw new Error("This hair layer is no longer present.");
+        current.gather = gather;
+        if (current.guides !== undefined) current.guides.fraction = 1;
+        await props.change(next);
+        // The panel's editor returns a resolved promise on a refused build.
+        // Its committed document and status, not promise resolution, decide
+        // whether the draft can be discarded.
+        if (
+          app.querySelector<HTMLElement>("#face-status")?.dataset.state ===
+            "error" ||
+          JSON.stringify(props.document()) !== JSON.stringify(next)
+        )
+          return;
+        gatherDrafts.delete(id);
+        refresh();
+      } catch (error) {
+        props.refuse(error);
+      }
+    };
+    const removeGather = dom.createElement("button");
+    removeGather.id = "hair-gather-remove";
+    removeGather.textContent = "Remove gathering";
+    removeGather.disabled = saved === undefined;
+    removeGather.onclick = () => {
+      gatherDrafts.delete(id);
+      return editLayer(id, (item) => {
+        delete item.gather;
+      });
+    };
+    gathering.append(applyGather, removeGather);
+    entries.append(gathering);
     const fine = dom.createElement("details"),
       title = dom.createElement("summary");
     title.textContent = "Fine hair parameters";
