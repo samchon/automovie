@@ -20,6 +20,7 @@ import {
 } from "@automovie/human";
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
+import { createBodyContactWatch } from "./bodyContactWatch";
 import { renderBodyPoseControls } from "./bodyPoseControls";
 import { type BodyPosePreset, renderBodyPosePresets } from "./bodyPosePresets";
 import { renderBodyShoulderControls } from "./bodyShoulderControls";
@@ -157,6 +158,14 @@ export function mountConnectedBodyPanel<
     if (editor !== undefined) draft = editor.snapshot().document;
     status(error instanceof Error ? error.message : String(error), "error");
   };
+  const contacts = createBodyContactWatch({
+    build: viewport.build,
+    dispose: viewport.dispose,
+    isCurrent: intents.isCurrent,
+    report: (text) => {
+      element("body-status").textContent += String.fromCharCode(10) + text;
+    },
+  });
   const show = (model: Model): void => {
     viewport.publish(model);
     props.seat(element<HTMLInputElement>("face").checked ? model : null);
@@ -187,6 +196,7 @@ export function mountConnectedBodyPanel<
     if (!intents.isCurrent(ticket)) return;
     if (success) show(editor!.snapshot().model);
     refresh();
+    if (success) void contacts.after(editor!.snapshot().document, ticket);
   };
   const applyText = async (
     text: string,
@@ -418,8 +428,6 @@ export function mountConnectedBodyPanel<
   // The body's rest crosses nothing by construction (the shipped census says
   // so, between segments and within each), so the reading is absolute: any
   // entry is a finding, and a segment named twice passes through itself.
-  const line = (entry: IAutoMovieModelCrossing): string =>
-    `${entry.part} x ${entry.other} ${entry.triangles}/${entry.otherTriangles}`;
   element("body-contacts").onclick = async () => {
     const ticket = withdraw();
     status("Measuring which skin segments cross…", "building");
@@ -428,13 +436,10 @@ export function mountConnectedBodyPanel<
       const reading = posed.crossings;
       viewport.dispose(posed);
       if (!intents.isCurrent(ticket)) return;
+      const text = contacts.describe(reading);
       status(
-        reading === null || reading === undefined
-          ? "This build does not supply a crossing reading."
-          : reading.length === 0
-            ? "No skin segment crosses itself or another in this pose."
-            : "Crossing segments: " + reading.map(line).join(", "),
-        reading === null || reading === undefined ? "error" : "ready",
+        text ?? "This build does not supply a crossing reading.",
+        text === null ? "error" : "ready",
       );
     } catch (error) {
       if (intents.isCurrent(ticket)) refuse(error);
