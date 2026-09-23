@@ -1,7 +1,6 @@
 import {
   HUMAN_BODY_MEASUREMENTS,
   HUMAN_BODY_SIMPLE_SHAPE,
-  type IAutoMovieHumanBodyBasis,
   type IAutoMovieHumanBodySimpleShape,
   expandHumanBodySimpleShape,
   humanBodyClipRing,
@@ -14,6 +13,7 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 import { humanBodyBasisFixture } from "../internal/humanBodyBasisFixture";
+import { humanBodySimpleFixture } from "../internal/humanBodySimpleFixture";
 import { nclose } from "../internal/predicates";
 
 /**
@@ -100,112 +100,8 @@ export const test_human_body_simple_shape = (): void => {
     [4],
   );
 
-  const wide = [0, 1, 2, 3, 4, 5, 6, 7].flatMap((v) => [
-    v,
-    surface.positions[v * 3] > 0 ? 0.05 : -0.05,
-    0,
-    0,
-  ]);
-  const narrow = [0, 1, 2, 3, 4, 5, 6, 7].flatMap((v) => [
-    v,
-    surface.positions[v * 3] > 0 ? -0.02 : 0.02,
-    0,
-    0,
-  ]);
-  const deep = [0, 1, 2, 3, 4, 5, 6, 7].flatMap((v) => [
-    v,
-    0,
-    0,
-    surface.positions[v * 3 + 2] > 0 ? 0.03 : -0.03,
-  ]);
-  const macros = (
-    weightPositive: number[],
-    weightNegative: number[],
-  ): IAutoMovieHumanBodyBasis => ({
-    ...box,
-    channels: [
-      ...box.channels,
-      ...[
-        ["macroGender", -1, 1],
-        ["macroAge", -1, 1],
-        // muscle past one, as the published basis carries it
-        ["macroMuscle", -1, 2],
-        ["macroFirmness", -1, 1],
-        ["buttocksPtosis", -1, 1],
-        ["absDefinition", 0, 1],
-        ["flankFat", 0, 1],
-      ].map(([id, minimum, maximum]) => ({
-        id: String(id),
-        kind: "shape" as const,
-        group: "macro",
-        mirror: null,
-        minimum: Number(minimum),
-        maximum: Number(maximum),
-        positive: "wideTall",
-        negative: minimum === 0 ? null : "wideTall",
-      })),
-      {
-        id: "macroHeight",
-        kind: "shape",
-        group: "macro",
-        mirror: null,
-        minimum: -1,
-        maximum: 1,
-        positive: "raised",
-        negative: "lowered",
-      },
-      {
-        id: "macroWeight",
-        kind: "shape",
-        group: "macro",
-        mirror: null,
-        minimum: -1,
-        maximum: 1,
-        positive: "grown",
-        negative: "shrunk",
-      },
-      {
-        // the bust rule reads joint-spine-1, which the box does not have
-        id: "measureBustCirc",
-        kind: "shape",
-        group: "torso",
-        mirror: null,
-        minimum: -1,
-        maximum: 1,
-        positive: "deep",
-        negative: null,
-      },
-      {
-        id: "measureWaistCirc",
-        kind: "shape",
-        group: "torso",
-        mirror: null,
-        minimum: -1,
-        maximum: 1,
-        positive: "deep",
-        negative: "shallow",
-      },
-    ],
-    correctives: [],
-    surfaces: [
-      {
-        ...surface,
-        // seven tenths of the box's width and depth put its body mass index
-        // reach at about 13 to 31, a human band
-        positions: surface.positions.map((value, at) =>
-          at % 3 === 1 ? value : value * 0.7,
-        ),
-        targets: {
-          ...surface.targets,
-          lowered: [4, 0, -0.5, 0, 5, 0, -0.5, 0, 6, 0, -0.5, 0, 7, 0, -0.5, 0],
-          grown: weightPositive,
-          shrunk: weightNegative,
-          deep,
-          shallow: deep.map((value, at) => (at % 4 === 0 ? value : -value / 3)),
-        },
-      },
-    ],
-  });
+  const { wide, narrow } = humanBodySimpleFixture.weights;
+  const macros = humanBodySimpleFixture.basis;
   const basis = macros(wide, narrow);
   const head = table.stature.headAboveRingMetres;
   const stature = 1.75 + head;
