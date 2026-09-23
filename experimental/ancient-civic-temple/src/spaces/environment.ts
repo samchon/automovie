@@ -165,7 +165,7 @@ export const createTempleEnvironment = () => {
   if (!validation.success) {
     throw new Error(`temple/environment: ${validation.violations.map((v) => `${v.path}: ${v.expected}`).join("\n")}`);
   }
-  return { environment, walls, roof, wallBottom: bottom, floors, site };
+  return { environment, walls, roof, wallBottom: bottom, floors, site, trim };
 };
 
 /** 차집합으로 새로 만든 지붕 면의 owner는 surface 이름의 roof owner다. */

@@ -13,6 +13,8 @@ export interface RoofRules {
   leanSlope: number;
   /** 박공 경사(rad). */
   gableSlope: number;
+  /** 동측 박공만의 경사(rad). 남쪽 끝 용마루가 코핑 아래에 들도록 제실·포치보다 낮다. */
+  eastGableSlope: number;
   /** 지붕 매스의 법선 두께(m). */
   normalThickness: number;
   /** 열린 처마 끝의 수평 돌출(m). */

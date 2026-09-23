@@ -173,7 +173,7 @@ source owner는 `src/spaces/site/ground.ts`다. 관찰은 조감의 구획 평�
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 구역 밖 금지와 시선 보호가 같이 적혀 이웃과 나무를 건물 바로 앞 거리에 두는 배치가 범위 안으로 들어오지 않는다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 네 구역의 좌표표와 후퇴·띠·금지 폭이 적혀 instances가 구역 경계를 새로 정할 필요가 없다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 높이·비가림은 설정 링크, 1.5m 후퇴와 0.6m 띠는 저작 결정으로 나뉘어 있다.
-@evidenceReview principles/design/spaces.md#space-topology #3f8d925 구역이 모두 포장 가장자리에서 1.5m 물러난 이웃 바닥 위라는 관계가 좌표 전에 적혀 포장과의 겹침을 막는다.
+@evidenceReview principles/design/spaces.md#space-topology 표 바로 뒤 문단이 구역은 모두 포장 가장자리에서 1.5m 물러난 이웃 바닥 위이고 포장·경계석·두 접근 포장에는 개체를 두지 않는다고 적어, 좌표표와 함께 포장과 겹치지 않는 관계를 준다.
 @evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 이 H2는 개체 수나 크기를 하나도 정하지 않고 instances·models에 남겨 배치 결정을 두 번 저작하지 않는다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 시선을 막는 개체는 구역 안이라도 거부된다는 조건이 조감 대조만 통과하는 배치를 실패로 돌린다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정은 높이·비가림만 주었고 구역 좌표와 풀 띠는 공간 층이 더한 결정이다.

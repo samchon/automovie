@@ -144,7 +144,7 @@ function populate(payload) {
 /** @param {Payload} payload */
 function refillStations(payload) {
   const space = spaceSelect.value;
-  const list = payload.observations.filter((o) => space === "" ? o.group === "exterior" : o.space === space);
+  const list = payload.observations.filter((o) => space === "" ? o.group === "exterior" || o.group === "junction" : o.space === space);
   stationSelect.replaceChildren(...list.map((o) => new Option(`${o.label}${o.position === null ? " (pose 없음)" : ""}`, o.id)));
 }
 

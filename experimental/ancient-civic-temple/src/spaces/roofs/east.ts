@@ -17,5 +17,5 @@ export const templeEastRoof = (rules: RoofRules) => gablePlanes({
   })],
   supportLow: p.eastCourt, supportHigh: (p.eastOuter + p.eastInner) / 2,
   height: rules.courtEave, highHeight: rules.eastWallSupport,
-  slope: rules.gableSlope, thickness: roofVerticalThickness(rules, rules.gableSlope),
+  slope: rules.eastGableSlope, thickness: roofVerticalThickness(rules, rules.eastGableSlope),
 });

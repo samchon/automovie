@@ -37,6 +37,17 @@ export interface WallTrimInput {
 
 interface Tagged { rect: PlanRectangle; surface: string; owner: string; core: boolean }
 
+/** 격자 합집합의 한 칸: 평면 사각형 위 하단·상단 평면 사이의 실체. */
+export interface TrimCell {
+  rect: PlanRectangle;
+  bottom: HeightPlane;
+  top: HeightPlane;
+  surface: string;
+  owner: string;
+  /** 코핑 칸의 아랫면이 벽 받침면 위에 놓여 가려지는지. */
+  onBed: boolean;
+}
+
 const eps = 1e-7;
 const inside = (r: PlanRectangle, p: PlanPoint) =>
   p.x > r.west + eps && p.x < r.east - eps && p.z > r.north + eps && p.z < r.south - eps;
@@ -73,7 +84,7 @@ const gridCells = (tags: readonly Tagged[], reject: (center: PlanPoint) => boole
  * 핵으로 삼는다. 같은 높이의 인접 기둥끼리는 합집합으로 잇고, 벽 평면의
  * 끝(모서리·자유 끝)에서만 길이 방향으로 돌출한다.
  */
-export const copingFaces = (input: WallTrimInput): WallFace[] => {
+export const copingCells = (input: WallTrimInput): TrimCell[] => {
   const { walls, roof, profile } = input;
   const e = profile.copingProjection;
   const byHeight = new Map<number, Tagged[]>();
@@ -103,24 +114,30 @@ export const copingFaces = (input: WallTrimInput): WallFace[] => {
       beds.push({ polygon: column.polygon, surface: `surface.${wall.owner}.joint`, height: top.height - top.coping });
     }
   }
-  const faces: WallFace[] = [];
+  const result: TrimCell[] = [];
   for (const [height, tags] of byHeight) {
     const thickness = walls.flatMap((w) => w.segments).find((s) => s.top.kind === "flat" && s.top.height === height && s.top.coping !== undefined);
     const t = thickness?.top.kind === "flat" ? thickness.top.coping ?? 0 : 0;
     const others = beds.filter((b) => Math.abs(b.height - (height - t)) > 1e-9).map((b) => b.polygon);
     const cells = gridCells(tags, (center) => [...blockers, ...others].some((polygon) => containsPoint(polygon, center)));
     for (const { rect, tag } of cells) {
-      const polygon = rectanglePolygon(rect);
       const center = { x: (rect.west + rect.east) / 2, z: (rect.north + rect.south) / 2 };
-      const onBed = beds.some((b) => b.height === height - t && containsPoint(b.polygon, center));
-      for (const face of prismFaces(polygon, { x: 0, z: 0, constant: height - t }, { x: 0, z: 0, constant: height })) {
-        const bed = face.side === "bottom" && onBed;
-        faces.push({ surface: bed ? `surface.${tag.owner}.joint` : tag.surface, corners: face.corners });
-      }
+      result.push({
+        rect, bottom: { x: 0, z: 0, constant: height - t }, top: { x: 0, z: 0, constant: height },
+        surface: tag.surface, owner: tag.owner,
+        onBed: beds.some((b) => b.height === height - t && containsPoint(b.polygon, center)),
+      });
     }
   }
-  return cullCoincidentVerticalFaces(faces);
+  return result;
 };
+
+/** 코핑 칸의 면. 받침면 위의 아랫면만 가려진 joint이고 돌출부 아랫면은 코핑이다. */
+export const copingFaces = (input: WallTrimInput): WallFace[] => cullCoincidentVerticalFaces(
+  copingCells(input).flatMap((cell) => prismFaces(rectanglePolygon(cell.rect), cell.bottom, cell.top).map((face) => ({
+    surface: face.side === "bottom" && cell.onBed ? `surface.${cell.owner}.joint` : cell.surface, corners: face.corners,
+  }))),
+);
 
 /**
  * 기단: 외곽선 위에 놓인 바깥면 중 벽 하단에서 시작해 기단 상단보다 높이
@@ -128,7 +145,7 @@ export const copingFaces = (input: WallTrimInput): WallFace[] => {
  * 면(개구부 아래)은 건너뛰어 void 앞을 막지 않는다. 네 바깥 모서리는 띠끼리
  * 잇는 정사각 칸을 더한다. 칸은 지면 경사 전환선에서 나뉘어 상단이 평면이다.
  */
-export const plinthFaces = (input: WallTrimInput): WallFace[] => {
+export const plinthCells = (input: WallTrimInput): TrimCell[] => {
   const { walls, roof, profile, outline: o } = input;
   const d = profile.plinthProjection;
   const tags: Tagged[] = [];
@@ -173,19 +190,23 @@ export const plinthFaces = (input: WallTrimInput): WallFace[] => {
     const cuts = [t.rect.north, ...zBreaks.filter((z) => z > t.rect.north + 1e-9 && z < t.rect.south - 1e-9), t.rect.south];
     return cuts.slice(0, -1).map((north, i) => ({ ...t, rect: { ...t.rect, north, south: cuts[i + 1]! } }));
   });
-  const faces: WallFace[] = [];
-  for (const { rect, tag } of gridCells(split, () => false)) {
+  return gridCells(split, () => false).map(({ rect, tag }) => {
     const center = { x: (rect.west + rect.east) / 2, z: (rect.north + rect.south) / 2 };
     const ground = input.grade(center);
-    const top = { ...ground, constant: ground.constant + profile.plinthRise };
-    for (const face of prismFaces(rectanglePolygon(rect), { x: 0, z: 0, constant: bottom }, top)) {
-      const back = face.side === "edge" && isBackFace(rect, face.normal, o);
-      const hidden = face.side === "bottom" || back;
-      faces.push({ surface: hidden ? `surface.${tag.owner}.joint` : tag.surface, corners: face.corners });
-    }
-  }
-  return cullCoincidentVerticalFaces(faces);
+    return {
+      rect, bottom: { x: 0, z: 0, constant: bottom }, top: { ...ground, constant: ground.constant + profile.plinthRise },
+      surface: tag.surface, owner: tag.owner, onBed: false,
+    };
+  });
 };
+
+/** 기단 칸의 면. 묻힌 아랫면과 벽에 붙은 뒷면은 가려진 joint다. */
+export const plinthFaces = (input: WallTrimInput): WallFace[] => cullCoincidentVerticalFaces(
+  plinthCells(input).flatMap((cell) => prismFaces(rectanglePolygon(cell.rect), cell.bottom, cell.top).map((face) => {
+    const hidden = face.side === "bottom" || (face.side === "edge" && isBackFace(cell.rect, face.normal, input.outline));
+    return { surface: hidden ? `surface.${cell.owner}.joint` : cell.surface, corners: face.corners };
+  })),
+);
 
 /** 기단 칸의 옆면 중 외곽선 위에서 벽 쪽을 향한 면(벽과 맞닿는 가려진 면). */
 const isBackFace = (rect: PlanRectangle, normal: PlanPoint, o: PlanRectangle): boolean =>
