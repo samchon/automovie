@@ -6,6 +6,7 @@ import type {
 
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanBodyShoulderPose } from "../structures/IAutoMovieHumanBodyShoulderPose";
+import { resolveHumanBodyPelvifemoralRhythm } from "./resolveHumanBodyPelvifemoralRhythm";
 
 /**
  * Add the basis's declared couplings to a document's clinical pose.
@@ -37,6 +38,14 @@ import type { IAutoMovieHumanBodyShoulderPose } from "../structures/IAutoMovieHu
  * source, so reading every source from the document rather than from the
  * running result is exact and the order of the couplings cannot matter.
  *
+ * The returned joints are the coupled document angles: with a declared
+ * pelvifemoral rhythm the legs' flexion stays trunk-relative, which is what
+ * forward kinematics and the corrective ramps read. The rhythm's additions
+ * (the root's posterior tilt, the lumbar joint's and the hips' pelvic-relative
+ * change, `resolveHumanBodyPelvifemoralRhythm`) join the contribution list
+ * for the editor; the builder applies them to the pose it validates and
+ * turns the pelvis by the tilt.
+ *
  * The sum is not judged here. A duplicate joint in the document stays
  * duplicated (its first entry receives the addition), an unknown joint stays
  * unknown, and a sum past the output axis's range stays past it, so the
@@ -44,10 +53,13 @@ import type { IAutoMovieHumanBodyShoulderPose } from "../structures/IAutoMovieHu
  * before, with the coupled angle in the diagnostic.
  *
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-joints Applies the basis's declared joint couplings so an elevated arm moves its girdle with it, adding to the document's clinical angles without storing the addition in the document.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-joints Reads the TT total elevation on upper-arm sources and the swing cone on other sources, applies the declared curve to the girdle axis and validates the resulting sum.
+ * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-joints Reads the TT total elevation on upper-arm sources and the swing cone on other sources, applies the declared curve to the girdle axis, lists the pelvifemoral rhythm's additions, and leaves the sums to pose validation.
  */
 export function resolveHumanBodyCouplings(
-  basis: Pick<IAutoMovieHumanBodyBasis, "joints" | "couplings">,
+  basis: Pick<
+    IAutoMovieHumanBodyBasis,
+    "joints" | "couplings" | "pelvifemoral"
+  >,
   pose: readonly IAutoMovieJointPose[],
   shoulders: readonly IAutoMovieHumanBodyShoulderPose[] = [],
 ): {
@@ -99,7 +111,13 @@ export function resolveHumanBodyCouplings(
     else joints[index] = next;
     contributions.push({ coupling: coupling.id, bone, axis, degrees });
   }
-  return { joints, contributions };
+  return {
+    joints,
+    contributions: [
+      ...contributions,
+      ...resolveHumanBodyPelvifemoralRhythm(basis, joints).contributions,
+    ],
+  };
 }
 
 /**

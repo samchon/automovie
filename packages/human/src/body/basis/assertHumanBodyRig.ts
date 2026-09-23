@@ -2,6 +2,7 @@ import { swingConeAngle } from "@automovie/engine";
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
+import { assertHumanBodyPelvifemoral } from "./assertHumanBodyPelvifemoral";
 import { humanBodyShoulderOrientationDistance } from "./humanBodyShoulderOrientationDistance";
 import { humanBodyShoulderReaches } from "./humanBodyShoulderReaches";
 
@@ -26,7 +27,8 @@ const AXES = ["abduction", "twist"] as const;
  * joints, an open output axis that no coupling drives from or drives twice,
  * and a finite, strictly increasing curve that starts at zero no lower than
  * the source's TT or generic rest elevation and keeps every rest-plus-ordinate inside that
- * axis's range.
+ * axis's range. A declared pelvifemoral rhythm is admitted by
+ * `assertHumanBodyPelvifemoral`.
  * Every surface's skin must bind each vertex to four declared joints with
  * weights that sum to one within a micro tolerance (the payload rounds them
  * to seven decimals). A slot the skin names but the joints do not declare is
@@ -397,6 +399,7 @@ export function assertHumanBodyRig(basis: IAutoMovieHumanBodyBasis): void {
     couplingIds.add(coupling.id);
     outputs.add(key);
   }
+  assertHumanBodyPelvifemoral(basis);
   for (const surface of basis.surfaces) {
     const vertices = surface.positions.length / 3;
     const skin = surface.skin;
