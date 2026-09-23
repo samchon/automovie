@@ -34,9 +34,13 @@ export const test_subject_human_numerical_hair_roots = (): void => {
     origin: [0, 0, 0],
   });
   const layer = createNumericalHairFixture().layers[0];
-  TestValidator.equals("empty population", sample({ ...layer, count: 0 }), []);
-  const roots = sample({ ...layer, count: 64 });
-  TestValidator.equals("stable prefix", sample(layer), roots.slice(0, 2));
+  TestValidator.equals(
+    "empty population",
+    sample({ ...layer, count: 0 }).roots,
+    [],
+  );
+  const roots = sample({ ...layer, count: 64 }).roots;
+  TestValidator.equals("stable prefix", sample(layer).roots, roots.slice(0, 2));
   for (const root of roots) {
     TestValidator.predicate(
       "barycentric partition",
@@ -64,7 +68,7 @@ export const test_subject_human_numerical_hair_roots = (): void => {
       right: Math.PI / 2,
       back: Math.PI / 2,
     },
-  });
+  }).roots;
   for (const root of masked) {
     TestValidator.predicate("upper hemisphere", root.point.y >= 0);
     const original = roots.find((item) => item.sequence === root.sequence);
@@ -78,7 +82,7 @@ export const test_subject_human_numerical_hair_roots = (): void => {
   mesh.indices!.fill(0);
   TestValidator.equals(
     "compiled source owned",
-    sample({ ...layer, count: 64 }),
+    sample({ ...layer, count: 64 }).roots,
     roots,
   );
   for (const triangles of [[], [0]])

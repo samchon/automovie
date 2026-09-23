@@ -10,9 +10,9 @@ import { humanFaceHairFrame } from "./humanFaceHairFrame";
 const requireDirection = humanFaceHairFrame.direction;
 
 /**
- * The surface contact one hair curve keeps: its clearance (half the ribbon
- * width, half a sampling step and the requested clearance, plus a rounding
- * allowance scaled to the root, length and widths) and a projection that
+ * The surface contact one hair curve keeps: its clearance (half a sampling
+ * step and the requested clearance, plus a rounding allowance scaled to the
+ * root, length and step) and a projection that
  * moves a point outside the closed collider to exactly that clearance along
  * the nearest feature, repeating until it holds. Guides call the projection
  * at every integration step; interpolated strands call it on every station,
@@ -20,19 +20,31 @@ const requireDirection = humanFaceHairFrame.direction;
  * without being integrated itself. A projection that does not converge in 64
  * steps refuses.
  *
+ * The rule also carries the step its clearance was built from, because that
+ * is the chord a curve may span and still keep the requested clearance along
+ * its whole length: distance to a closed set is 1-Lipschitz, so two stations
+ * half a step beyond the clearance, no further apart than one step, keep it
+ * between them. A curve that is not integrated has to be held to the same
+ * chord to inherit that guarantee.
+ *
+ * The clearance is the fibre's own, not the rendered ribbon's: half a step is
+ * what a straight segment between two projected stations may sag by, and the
+ * requested clearance is the free distance the document asks its hair to keep.
+ * A ribbon is far wider than the fibre path it stands for, and paying for that
+ * width here would lift every strand off the scalp by half a ribbon; the mesh
+ * owner keeps the ribbon's own corners outside instead.
+ *
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Keeps guides and interpolated strands outside the shared surface by one rule.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-parametric-hair States the clearance from width, step and requested clearance and projects along the nearest feature of the closed collider.
+ * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-parametric-hair States the fibre clearance from the step and the requested clearance and projects along the nearest feature of the closed collider.
  */
 export function humanFaceHairContact(props: {
-  layer: Pick<
-    IAutoMovieHumanFaceHair.Layer,
-    "width" | "samplingStep" | "clearance"
-  >;
+  layer: Pick<IAutoMovieHumanFaceHair.Layer, "samplingStep" | "clearance">;
   root: IAutoMovieVector3;
   length: number;
   query: ReturnType<typeof createAutoMovieSignedMeshQuery>;
 }): {
   clearance: number;
+  step: number;
   epsilon: number;
   sample: (p: IAutoMovieVector3) => ReturnType<typeof props.query>;
   outward: (
@@ -51,11 +63,10 @@ export function humanFaceHairContact(props: {
       Math.abs(props.root.y),
       Math.abs(props.root.z),
       props.length,
-      layer.width,
       h,
       layer.clearance,
     );
-  const clearance = layer.width / 2 + h / 2 + layer.clearance + 2 * epsilon;
+  const clearance = h / 2 + layer.clearance + 2 * epsilon;
   const sample = (p: IAutoMovieVector3) => query([p.x, p.y, p.z]);
   const outward = (p: IAutoMovieVector3, hit: ReturnType<typeof sample>) =>
     hit.distance === 0
@@ -83,5 +94,5 @@ export function humanFaceHairContact(props: {
       "Numerical hair contact did not converge on the closed surface.",
     );
   };
-  return { clearance, epsilon, sample, outward, project };
+  return { clearance, step: h, epsilon, sample, outward, project };
 }

@@ -16,8 +16,12 @@ import { nclose, throwsError } from "../internal/predicates";
  *    absent and underflowing envelopes are respectively one and zero.
  * 2. Rejection matches the independent base-13 probability inequality on an
  *    analytic octahedron, retaining seats and the prefix when count increases.
- * 3. Translation of both mesh/chart and region preserves weights and identities.
- * 4. Finite regions admit without mutation; nonfinite centres, nonpositive or
+ * 3. An unmasked population reports the whole growth domain as the share of it
+ *    the population grows on, and the localized one reports the smaller share
+ *    its rejection left, which is what a small population reads its density
+ *    from once the caller takes it on the current shape.
+ * 4. Translation of both mesh/chart and region preserves weights and identities.
+ * 5. Finite regions admit without mutation; nonfinite centres, nonpositive or
  *    infinite spreads refuse even when the population count is zero.
  */
 export const test_subject_human_numerical_hair_regions = (): void => {
@@ -57,7 +61,7 @@ export const test_subject_human_numerical_hair_regions = (): void => {
   };
   const sample = createHumanFaceHairRoots(input);
   const layer = createNumericalHairFixture().layers[0];
-  const candidates = sample({ ...layer, count: 1024 });
+  const candidates = sample({ ...layer, count: 1024 }).roots;
   const expected = candidates
     .filter(
       ({ sequence, point: p }) =>
@@ -66,19 +70,56 @@ export const test_subject_human_numerical_hair_regions = (): void => {
     )
     .slice(0, 64);
   TestValidator.equals("enough independent candidates", expected.length, 64);
+  const unmasked = sample({ ...layer, count: 64 });
+  const area = input.triangles.reduce((sum, triangle) => {
+    const points = input.indices
+      .slice(3 * triangle, 3 * triangle + 3)
+      .map((id) =>
+        Vector3.create(
+          ...(input.positions.slice(3 * id, 3 * id + 3) as [
+            number,
+            number,
+            number,
+          ]),
+        ),
+      );
+    return (
+      sum +
+      Vector3.length(
+        Vector3.cross(
+          Vector3.subtract(points[1], points[0]),
+          Vector3.subtract(points[2], points[0]),
+        ),
+      ) /
+        2
+    );
+  }, 0);
+  TestValidator.predicate(
+    "an unrejected population grows on its whole domain",
+    nclose(unmasked.share * area, area),
+  );
   layer.rootRegion = envelope;
-  const roots = sample({ ...layer, count: 64 });
+  const population = sample({ ...layer, count: 64 });
+  const roots = population.roots;
   TestValidator.equals("probability and unchanged seats", roots, expected);
+  TestValidator.predicate(
+    "rejection reports the smaller share it left",
+    population.share > 0 && population.share * area < area / 2,
+  );
   TestValidator.equals(
     "local prefix",
-    sample({ ...layer, count: 16 }),
+    sample({ ...layer, count: 16 }).roots,
     roots.slice(0, 16),
   );
   const moved = createHumanFaceHairRoots({
     ...input,
     positions: input.positions.map((value, at) => value + [2, -3, 4][at % 3]),
     origin: [2, -3, 4],
-  })({ ...layer, count: 64, rootRegion: { ...envelope, center: [2, -3, 4] } });
+  })({
+    ...layer,
+    count: 64,
+    rootRegion: { ...envelope, center: [2, -3, 4] },
+  }).roots;
   TestValidator.equals(
     "translated sequence",
     moved.map((r) => r.sequence),

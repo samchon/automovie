@@ -25,6 +25,13 @@ import { humanFaceHairlineBoundary } from "./humanFaceHairlineBoundary";
  * candidates is a construction budget; exhaustion refuses the request rather
  * than inventing roots outside the domain. Arrays are copied on compilation.
  *
+ * The sampler also reports the share of the domain its own acceptance covers:
+ * candidates are uniform over the neutral domain, so the share of them the
+ * hairline and the region admit is the share of that domain those masks leave.
+ * The caller multiplies it by the domain's area on the current shape, which is
+ * the area the population actually grows on, and a density reads that when a
+ * population is too small to measure its own neighbourhoods.
+ *
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Uses common anatomical correspondence for numerically authored populations.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-parametric-hair Samples stable area roots without storing individual guide coordinates.
  */
@@ -70,7 +77,16 @@ export function createHumanFaceHairRoots(props: {
       IAutoMovieHumanFaceHair.Layer,
       "count" | "seed" | "hairline" | "rootRegion"
     >,
-  ) => {
+  ): {
+    roots: {
+      sequence: number;
+      triangle: number;
+      weights: [number, number, number];
+      point: IAutoMovieVector3;
+      normal: IAutoMovieVector3;
+    }[];
+    share: number;
+  } => {
     const roots: {
       sequence: number;
       triangle: number;
@@ -78,11 +94,13 @@ export function createHumanFaceHairRoots(props: {
       point: IAutoMovieVector3;
       normal: IAutoMovieVector3;
     }[] = [];
+    let candidates = 0;
     for (
       let candidate = 1;
       roots.length < layer.count && candidate <= 1_000_000;
       candidate++
     ) {
+      candidates = candidate;
       const sequence = layer.seed + candidate;
       const target = humanFaceHairSequence(sequence, 2) * area;
       let low = 0,
@@ -130,6 +148,9 @@ export function createHumanFaceHairRoots(props: {
       throw new Error(
         "The hairline exhausted its million-candidate root sampling budget.",
       );
-    return roots;
+    return {
+      roots,
+      share: candidates === 0 ? 1 : roots.length / candidates,
+    };
   };
 }

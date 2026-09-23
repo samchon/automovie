@@ -29,6 +29,10 @@ type StrandRoot = {
  * their roots are blended at equal arc-length fractions, and the blend is
  * scaled to the strand's own regional length, so two guides of different
  * lengths give a strand of its own length rather than a compromise.
+ * Optional `clump` then pulls each station toward the nearest guide's
+ * station at the same arc fraction by the clump amount times that fraction,
+ * so strands leave the scalp apart and gather into their guide toward the
+ * tips; the reported length is then the clumped curve's own.
  *
  * This is the guide interpolation of a hair hierarchy (Houdini's skin
  * coordinate weights, the Disney volume-to-guide-to-strand tree) with the
@@ -160,11 +164,28 @@ export function interpolateHumanFaceHairStrands(props: {
       strand.sequence,
     );
     const scale = length / blended;
+    // Clumping pulls a strand toward its nearest guide's own station at the
+    // same arc fraction, by the clump amount times that fraction: nothing at
+    // the root, the whole amount at the tip, the linear profile of a groom's
+    // clump operator. The guide is the strand's clump centre.
+    const clump = layer.guides?.clump ?? 0;
+    const centre = chosen[0].entry;
+    const points = offsets.map((offset, at) => {
+      const own = Vector3.add(strand.root, Vector3.scale(offset, scale));
+      if (clump === 0) return own;
+      const fraction = at / (offsets.length - 1);
+      const target = Vector3.add(centre.guide.points[0], centre.at(fraction));
+      return Vector3.add(
+        own,
+        Vector3.scale(Vector3.subtract(target, own), clump * fraction),
+      );
+    });
+    let travelled = 0;
+    for (let at = 1; at < points.length; at++)
+      travelled += distance(points[at], points[at - 1]);
     return {
-      points: offsets.map((offset) =>
-        Vector3.add(strand.root, Vector3.scale(offset, scale)),
-      ),
-      length,
+      points,
+      length: clump === 0 ? length : travelled,
       normal: { ...strand.normal },
     };
   });

@@ -85,7 +85,7 @@ export const test_subject_numerical_hair_migration = (): void => {
       p.controls.basis = "stale";
     },
     (p: typeof input) => {
-      p.hairstyles[1].hair!.layers[0].width = -1;
+      p.hairstyles[1].hair!.layers[0].samplingStep = -1;
     },
     (p: typeof input) => {
       p.documents[0].shape.translate = 2;
