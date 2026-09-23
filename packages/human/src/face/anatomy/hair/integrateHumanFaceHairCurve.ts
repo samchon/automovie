@@ -5,6 +5,7 @@ import {
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IAutoMovieHumanFaceHair } from "../../structures/IAutoMovieHumanFaceHair";
+import { createHumanFaceHairTailSpread } from "./createHumanFaceHairTailSpread";
 import { evaluateHumanFaceHairDirection } from "./evaluateHumanFaceHairDirection";
 import { humanFaceHairContact } from "./humanFaceHairContact";
 import { humanFaceHairEmergence } from "./humanFaceHairEmergence";
@@ -58,8 +59,15 @@ export function integrateHumanFaceHairCurve(props: {
   normal: IAutoMovieVector3;
   sequence: number;
   query: ReturnType<typeof createAutoMovieSignedMeshQuery>;
+  gatherAnchor?: IAutoMovieVector3;
+  gatherDirection?: (point: IAutoMovieVector3) => IAutoMovieVector3;
 }) {
   const { layer, query } = props;
+  if (
+    layer.gather !== undefined &&
+    (props.gatherAnchor === undefined || props.gatherDirection === undefined)
+  )
+    throw new Error("Gathered hair needs its attached scalp anchor.");
   const length = humanFaceHairLength(
     layer,
     props.origin,
@@ -67,6 +75,76 @@ export function integrateHumanFaceHairCurve(props: {
     props.sequence,
   );
   const phase = 2 * Math.PI * humanFaceHairSequence(props.sequence, 11);
+  const gather = layer.gather;
+  const tailLayer =
+    gather === undefined
+      ? undefined
+      : {
+          ...layer,
+          flow: gather.tail.direction,
+          part: undefined,
+          lift: { ...layer.lift, strength: 0 },
+        };
+  let tied = false;
+  let tieDistance = 0;
+  let spread: ((distance: number) => IAutoMovieVector3) | undefined;
+  const enterTie = (point: IAutoMovieVector3, distance: number): void => {
+    tied = true;
+    tieDistance = distance;
+    if (gather?.tail.spread !== undefined)
+      spread = createHumanFaceHairTailSpread({
+        axis: Vector3.create(...gather.tail.direction),
+        anchor: props.gatherAnchor!,
+        entry: point,
+        root: props.root,
+        phase: 2 * Math.PI * humanFaceHairSequence(props.sequence, 23),
+        radialFraction: Math.sqrt(humanFaceHairSequence(props.sequence, 29)),
+        ...gather.tail.spread,
+      });
+  };
+  if (
+    gather !== undefined &&
+    Vector3.length(Vector3.subtract(props.gatherAnchor!, props.root)) <=
+      gather.radius
+  )
+    enterTie(props.root, 0);
+  let nearestTie =
+    gather === undefined
+      ? Infinity
+      : Vector3.length(Vector3.subtract(props.gatherAnchor!, props.root));
+  let nearestPoint = props.root;
+  const desired = (
+    point: IAutoMovieVector3,
+    normal: IAutoMovieVector3,
+    distance: number,
+  ): IAutoMovieVector3 => {
+    if (tied) {
+      const tail = evaluateHumanFaceHairDirection({
+        layer: tailLayer!,
+        root: props.reference,
+        normal,
+        distance: distance - tieDistance,
+        phase,
+      });
+      return spread === undefined
+        ? tail
+        : requireDirection(Vector3.add(tail, spread(distance - tieDistance)));
+    }
+    const ordinary = evaluateHumanFaceHairDirection({
+      layer,
+      root: props.reference,
+      normal,
+      distance,
+      phase,
+    });
+    if (gather === undefined) return ordinary;
+    return requireDirection(
+      Vector3.add(
+        Vector3.scale(ordinary, 1 - gather.strength),
+        Vector3.scale(props.gatherDirection!(point), gather.strength),
+      ),
+    );
+  };
   const h = layer.samplingStep;
   const {
     clearance,
@@ -86,13 +164,7 @@ export function integrateHumanFaceHairCurve(props: {
             hairline: layer.hairline,
             chart: Vector3.subtract(props.reference, props.origin),
             normal: props.normal,
-            field: evaluateHumanFaceHairDirection({
-              layer,
-              root: props.reference,
-              normal: requireDirection(props.normal),
-              distance: 0,
-              phase,
-            }),
+            field: desired(props.root, requireDirection(props.normal), 0),
           }),
         ),
         clearance,
@@ -110,14 +182,22 @@ export function integrateHumanFaceHairCurve(props: {
     iteration++
   ) {
     const hit = sample(p);
+    if (gather !== undefined) {
+      const gap = Vector3.length(Vector3.subtract(props.gatherAnchor!, p));
+      if (gap < nearestTie) {
+        nearestTie = gap;
+        nearestPoint = p;
+      }
+    }
     const normal = outward(p, hit);
-    let direction = evaluateHumanFaceHairDirection({
-      layer,
-      root: props.reference,
-      normal,
-      distance: cumulative,
-      phase,
-    });
+    if (
+      gather !== undefined &&
+      !tied &&
+      Vector3.length(Vector3.subtract(props.gatherAnchor!, p)) <= gather.radius
+    ) {
+      enterTie(p, cumulative);
+    }
+    let direction = desired(p, normal, cumulative);
     if (
       hit.signedDistance <= clearance + h &&
       Vector3.dot(direction, normal) < 0
@@ -185,6 +265,30 @@ export function integrateHumanFaceHairCurve(props: {
     const distance = taken.distance;
     if (!(distance > epsilon) || !Number.isFinite(distance))
       throw new Error("Contact blocks a representable numerical hair step.");
+    if (gather !== undefined && !tied) {
+      const remaining = Math.min(1, (length - cumulative) / distance);
+      const end = Vector3.add(
+        p,
+        Vector3.scale(Vector3.subtract(q, p), remaining),
+      );
+      const segment = Vector3.subtract(end, p);
+      const fromTie = Vector3.subtract(p, props.gatherAnchor!);
+      const a = Vector3.dot(segment, segment);
+      const b = 2 * Vector3.dot(fromTie, segment);
+      const c = Vector3.dot(fromTie, fromTie) - gather.radius ** 2;
+      const discriminant = b * b - 4 * a * c;
+      if (discriminant >= 0) {
+        const fraction = (-b - Math.sqrt(discriminant)) / (2 * a);
+        if (fraction >= 0 && fraction <= 1) {
+          q = Vector3.add(p, Vector3.scale(segment, fraction));
+          cumulative += Vector3.length(Vector3.subtract(q, p));
+          enterTie(q, cumulative);
+          if (fraction > 0) points.push(q);
+          p = q;
+          continue;
+        }
+      }
+    }
     if (distance >= length - cumulative - epsilon) {
       q = Vector3.add(
         p,
@@ -197,6 +301,10 @@ export function integrateHumanFaceHairCurve(props: {
   }
   if (cumulative !== length)
     throw new Error("Numerical hair exhausted its metric integration budget.");
+  if (gather !== undefined && !tied)
+    throw new Error(
+      `A gathered lock ended before it reached its scalp tie: sequence ${props.sequence}, nearest ${nearestTie} m at ${JSON.stringify(nearestPoint)}, anchor ${JSON.stringify(props.gatherAnchor)}, final ${Vector3.length(Vector3.subtract(props.gatherAnchor!, p))} m.`,
+    );
   return {
     points,
     length,

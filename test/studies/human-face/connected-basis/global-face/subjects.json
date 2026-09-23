@@ -1952,12 +1952,12 @@
             "back": 2.1
           },
           "lengthAxes": [
-            0.3,
-            0.3,
-            0.39,
-            0.25,
-            0.35,
-            0.35
+            0.5,
+            0.5,
+            0.55,
+            0.45,
+            0.55,
+            0.55
           ],
           "lengthVariation": 0.08,
           "samplingStep": 0.003,
@@ -2022,8 +2022,27 @@
             "shade": 1
           },
           "guides": {
-            "fraction": 0.125,
+            "fraction": 1,
             "neighbours": 4
+          },
+          "gather": {
+            "anchor": {
+              "polar": 0.7,
+              "azimuth": -2.1
+            },
+            "radius": 0.015,
+            "strength": 1,
+            "tail": {
+              "direction": [
+                -0.25,
+                -1,
+                0
+              ],
+              "spread": {
+                "radius": 0.04,
+                "reach": 0.08
+              }
+            }
           }
         }
       ]

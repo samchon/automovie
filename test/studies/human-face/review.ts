@@ -9,8 +9,8 @@ import type { humanFaceOcularReview } from "./ocular-review";
 import type { humanFaceStudyDocuments } from "./studies";
 
 /**
- * @evidence {@link humanFaceNumericalHairReview} Retains inspection of the new numerical hair schema and actual connected builder path, with population migration and visual acceptance still pending.
- * @evidenceReview {@link humanFaceNumericalHairReview} #ced8e40 Read the updated contact/chord arithmetic inspection and its same-input Float32 byte comparison. The carrier still distinguishes shared source inspection from unfinished personal-document migration and population acceptance.
+ * @evidence {@link humanFaceNumericalHairReview} Retains inspection of the numerical scalp, guide and gathered-tail construction path separately from photographic likeness.
+ * @evidenceReview {@link humanFaceNumericalHairReview} #c51ac68 Read the shared hair source review after the 18 documents were migrated: it now covers polar tie attachment, current-surface descent, exact tie events, and deterministic filled tail cross-sections beside unchanged contact and ribbon rules. Its source inspection is not photographic likeness acceptance.
  * @evidence {@link Human.IPortraitColourField} Read the complete five-field numerical reflectance envelope and both consumers. It stores a centre, positive support radii, linear attenuation and strength, with no image or vertex payload. Units follow the caller; connected documents use metres.
  * @evidenceReview {@link Human.IPortraitColourField} #e5cac1c Read the complete five-field numerical reflectance envelope and both consumers. It stores a centre, positive support radii, linear attenuation and strength, with no image or vertex payload. Units follow the caller; connected documents use metres.
  * @evidence {@link Human.IPortraitColourField.name} Read nonblank unique-name admission and lexical composition order. Renaming can change multiplication order at floating precision, but insertion order cannot.
