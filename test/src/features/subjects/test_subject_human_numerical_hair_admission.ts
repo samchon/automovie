@@ -20,7 +20,6 @@ export const test_subject_human_numerical_hair_admission = (): void => {
   assertHumanFaceHair(input);
   layer.count = 0;
   layer.seed = 0xffffffff;
-  layer.width = 0.04;
   layer.clearance = 0;
   layer.lengthVariation = 1;
   layer.lift.strength = 0;

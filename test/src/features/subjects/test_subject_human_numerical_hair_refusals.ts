@@ -64,12 +64,6 @@ export const test_subject_human_numerical_hair_refusals = (): void => {
       l.lengthVariation = 1.1;
     },
     (l) => {
-      l.width = 0;
-    },
-    (l) => {
-      l.width = 0.041;
-    },
-    (l) => {
       l.samplingStep = 0;
     },
     (l) => {

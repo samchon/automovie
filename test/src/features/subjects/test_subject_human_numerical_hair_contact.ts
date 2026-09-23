@@ -15,7 +15,9 @@ import { nclose } from "../internal/predicates";
  * x=1. Its two perpendicular walls force a leftward lock to turn upward.
  * Scenarios:
  * 1. Integration retains its authored 50 mm length around the reentrant wall.
- * 2. All free ribbon vertices retain the requested clearance from the solid.
+ * 2. All free ribbon vertices retain the requested clearance from the solid,
+ *    although the ribbon is five times as wide as the clearance its fibre was
+ *    integrated with: the mesh owner narrows it against the same walls.
  * 3. Measured free chords obey the step bound including arithmetic allowance.
  */
 export const test_subject_human_numerical_hair_contact = (): void => {
@@ -60,7 +62,10 @@ export const test_subject_human_numerical_hair_contact = (): void => {
     "bounded free steps",
     lengths.slice(1).every((value) => value <= layer.samplingStep + 1e-12),
   );
-  const mesh = buildHumanFaceHairMesh([curve], layer);
+  const mesh = buildHumanFaceHairMesh([curve], layer, {
+    widths: [0.01],
+    query,
+  });
   for (let at = 3; at < mesh.positions.length; at += 3)
     TestValidator.predicate(
       "free strip retains requested clearance",
