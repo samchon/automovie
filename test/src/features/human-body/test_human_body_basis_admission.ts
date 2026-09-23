@@ -75,7 +75,10 @@ export const test_human_body_basis_admission = (): void => {
     [
       "corrective drives a missing side",
       (b) => {
-        b.correctives![0].inputs[1].side = "negative";
+        const driver = b.correctives![0].inputs[1];
+        if (!("channel" in driver))
+          throw new Error("Expected a channel driver.");
+        driver.side = "negative";
       },
     ],
     [

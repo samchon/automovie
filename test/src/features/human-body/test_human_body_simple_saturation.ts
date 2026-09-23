@@ -2,13 +2,14 @@ import {
   HUMAN_BODY_SIMPLE_SHAPE,
   type IAutoMovieHumanBodyBasis,
   type IAutoMovieHumanBodySimpleShape,
+  createHumanBodyBasisBuilder,
   expandHumanBodySimpleShape,
   humanBodySimpleShapeMath,
 } from "@automovie/human";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanBodyBasisFixture } from "../internal/humanBodyBasisFixture";
-import { nclose } from "../internal/predicates";
+import { nclose, throwsError } from "../internal/predicates";
 
 /**
  * A channel's weight is the sum of every term row naming it, saturated once
@@ -32,8 +33,9 @@ import { nclose } from "../internal/predicates";
  *    give -0.06.
  * 2. On the ordinary envelope [-1, 1] the same body gives the same -0.01:
  *    the narrowed envelope did not change what the rows sum to.
- * 3. On a maximum of -0.05 the sum -0.01 still saturates, to -0.05: the
- *    envelope binds on the sum, not only on a row.
+ * 3. A maximum of -0.05 is refused by basis admission because it excludes
+ *    neutral zero. On the admitted envelope [-0.005, 0.1], the row sum
+ *    0.15 - 0.16 = -0.01 falls below the minimum and saturates to -0.005.
  */
 export const test_human_body_simple_saturation = (): void => {
   const table = HUMAN_BODY_SIMPLE_SHAPE;
@@ -54,13 +56,19 @@ export const test_human_body_simple_saturation = (): void => {
     positive,
     negative,
   });
-  const basis = (ptosisMaximum: number): IAutoMovieHumanBodyBasis => ({
+  const basis = (
+    ptosisMinimum: number,
+    ptosisMaximum: number,
+  ): IAutoMovieHumanBodyBasis => ({
     ...box,
     channels: [
       ...box.channels,
       macro("macroHeight", 1, "raised", "lowered"),
       macro("macroWeight", 1, "wide", "narrow"),
-      macro("buttocksPtosis", ptosisMaximum, "wideTall", "wideTall"),
+      {
+        ...macro("buttocksPtosis", ptosisMaximum, "wideTall", "wideTall"),
+        minimum: ptosisMinimum,
+      },
     ],
     correctives: [],
     surfaces: [
@@ -95,19 +103,32 @@ export const test_human_body_simple_saturation = (): void => {
   TestValidator.predicate("the first row alone is 0.15", nclose(alone, 0.15));
   TestValidator.predicate("and exceeds the narrowed maximum", alone > 0.1);
 
-  const narrowed = expandHumanBodySimpleShape(basis(0.1), simple);
+  TestValidator.predicate(
+    "a neutral-excluding maximum is refused",
+    throwsError(
+      () => createHumanBodyBasisBuilder(basis(-1, -0.05)),
+      "neutral-containing envelope",
+    ),
+  );
+  const narrowedBasis = basis(-1, 0.1);
+  createHumanBodyBasisBuilder(narrowedBasis);
+  const narrowed = expandHumanBodySimpleShape(narrowedBasis, simple);
   TestValidator.predicate(
     "the sum is saturated, not each row",
     nclose(narrowed.buttocksPtosis, -0.01),
   );
-  const ordinary = expandHumanBodySimpleShape(basis(1), simple);
+  const ordinaryBasis = basis(-1, 1);
+  createHumanBodyBasisBuilder(ordinaryBasis);
+  const ordinary = expandHumanBodySimpleShape(ordinaryBasis, simple);
   TestValidator.predicate(
     "the ordinary envelope gives the same sum",
     nclose(ordinary.buttocksPtosis, -0.01),
   );
-  const bound = expandHumanBodySimpleShape(basis(-0.05), simple);
+  const lowerBasis = basis(-0.005, 0.1);
+  createHumanBodyBasisBuilder(lowerBasis);
+  const bound = expandHumanBodySimpleShape(lowerBasis, simple);
   TestValidator.predicate(
-    "the sum still saturates at the envelope",
-    nclose(bound.buttocksPtosis, -0.05),
+    "the row sum saturates at the admitted lower bound",
+    nclose(bound.buttocksPtosis, -0.005),
   );
 };

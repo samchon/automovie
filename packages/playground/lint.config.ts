@@ -8,6 +8,16 @@ const bodySources = [
   "src/human/connectedBodyPanel.ts",
   "src/human/bodyPoseControls.ts",
   "src/human/bodySimpleControls.ts",
+  "src/human/bodyShoulderControls.ts",
+  "src/human/bodySimpleWorkerTransport.ts",
+  "src/human/createBodyIntentGate.ts",
+  "src/human/connectedBodyGeometry.ts",
+  "src/human/connectedBodyPort.ts",
+  "src/human/connectedBodyPreview.ts",
+  "src/human/connectedBodyProtocol.ts",
+  "src/human/connectedBodyRenderer.ts",
+  "src/human/connectedBodyRuntime.ts",
+  "src/human/connectedBodyViewport.ts",
 ];
 const faceSources = [
   "src/human/**/*.ts",

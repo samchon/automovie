@@ -13,9 +13,9 @@
 import {
   type IAutoMovieHumanBodyBasis,
   type IAutoMovieHumanBodyBasisDocument,
+  type IAutoMovieHumanBodyShoulderPose,
   type IAutoMovieHumanBodySimpleShape,
   type IAutoMovieHumanFaceBasisDocument,
-  serializeHumanBodyBasisDocument,
   serializeHumanFaceBasisDocument,
 } from "@automovie/human";
 import type {
@@ -29,14 +29,16 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
 import archetypes from "../../../test/studies/human-body/connected-basis/archetypes.json";
+import { createBodySimpleWorkerTransport } from "./human/bodySimpleWorkerTransport";
 import {
   readConnectedAssetRevision,
   readConnectedFaceAsset,
 } from "./human/connectedAsset";
 import { mountConnectedBodyPanel } from "./human/connectedBodyPanel";
+import { createConnectedBodyPort } from "./human/connectedBodyPort";
+import { createConnectedBodyViewport } from "./human/connectedBodyViewport";
 import { createHumanPreviewBuilder } from "./human/previewBuilder";
 import { prepareHumanPreview } from "./human/previewScene";
-import { createHumanViewport } from "./human/viewport";
 import { createHumanPreviewWorkerPort } from "./human/workerPort";
 
 type Transform = {
@@ -55,6 +57,18 @@ const joint = (
   abduction: number | null = null,
   twist: number | null = null,
 ): IAutoMovieJointPose => ({ bone, flexion, abduction, twist });
+
+const shoulder = (
+  bone: IAutoMovieHumanBodyShoulderPose["bone"],
+  plane: number,
+  elevation: number,
+  axialRotation = 0,
+): IAutoMovieHumanBodyShoulderPose => ({
+  bone,
+  plane,
+  elevation,
+  axialRotation,
+});
 
 async function main(): Promise<void> {
   const basis = await readConnectedFaceAsset<IAutoMovieHumanBodyBasis>({
@@ -83,9 +97,7 @@ async function main(): Promise<void> {
         "",
       )
     ).scene;
-  let viewport!: ReturnType<
-    typeof createHumanViewport<IAutoMovieHumanBodyBasisDocument>
-  >;
+  let viewport!: ReturnType<typeof createConnectedBodyViewport>;
   // The face is one neutral build of the connected face basis, decoded once.
   // Its worker is the face page's own; the body page only asks it for bytes.
   const face = createHumanPreviewBuilder<
@@ -176,31 +188,15 @@ async function main(): Promise<void> {
     });
   };
   // the simple tier's measured inversions run in their own worker
-  const simpleWorker = new Worker(
-    new URL("./connected-body-simple-worker.ts", import.meta.url),
-    { type: "module" },
+  const { ask } = createBodySimpleWorkerTransport(
+    () =>
+      new Worker(
+        new URL("./connected-body-simple-worker.ts", import.meta.url),
+        {
+          type: "module",
+        },
+      ),
   );
-  let simpleTicket = 0;
-  const pending = new Map<
-    number,
-    { resolve: (value: never) => void; reject: (error: Error) => void }
-  >();
-  simpleWorker.onmessage = (
-    event: MessageEvent<{ id: number; result?: unknown; error?: string }>,
-  ) => {
-    const waiting = pending.get(event.data.id);
-    if (waiting === undefined) return;
-    pending.delete(event.data.id);
-    if (event.data.error !== undefined)
-      waiting.reject(new Error(event.data.error));
-    else waiting.resolve(event.data.result as never);
-  };
-  const ask = <T>(request: object): Promise<T> =>
-    new Promise<T>((resolve, reject) => {
-      const id = ++simpleTicket;
-      pending.set(id, { resolve: resolve as (value: never) => void, reject });
-      simpleWorker.postMessage({ id, ...request });
-    });
   const panel = mountConnectedBodyPanel(
     document.querySelector<HTMLDivElement>("#app")!,
     {
@@ -247,20 +243,18 @@ async function main(): Promise<void> {
         { name: "A-pose", pose: [] },
         {
           name: "T-pose",
-          pose: [
-            joint("leftUpperArm", null, 90),
-            joint("rightUpperArm", null, 90),
-            joint("leftLowerArm", 0),
-            joint("rightLowerArm", 0),
+          pose: [joint("leftLowerArm", 0), joint("rightLowerArm", 0)],
+          shoulders: [
+            shoulder("leftUpperArm", 0, 90),
+            shoulder("rightUpperArm", 0, 90),
           ],
         },
         {
           name: "Arms down",
-          pose: [
-            joint("leftUpperArm", null, 0),
-            joint("rightUpperArm", null, 0),
-            joint("leftLowerArm", 0),
-            joint("rightLowerArm", 0),
+          pose: [joint("leftLowerArm", 0), joint("rightLowerArm", 0)],
+          shoulders: [
+            shoulder("leftUpperArm", 0, 0),
+            shoulder("rightUpperArm", 0, 0),
           ],
         },
         {
@@ -269,9 +263,9 @@ async function main(): Promise<void> {
         },
         {
           name: "Arms overhead",
-          pose: [
-            joint("leftUpperArm", null, 170),
-            joint("rightUpperArm", null, 170),
+          shoulders: [
+            shoulder("leftUpperArm", 0, 180),
+            shoulder("rightUpperArm", 0, 180),
           ],
         },
         {
@@ -304,11 +298,9 @@ async function main(): Promise<void> {
         },
       ],
       viewport: (canvas) =>
-        (viewport = createHumanViewport({
-          serialize: serializeHumanBodyBasisDocument,
+        (viewport = createConnectedBodyViewport({
           canvas,
           pixelRatio: devicePixelRatio,
-          extent: 1,
           renderer: new THREE.WebGLRenderer({
             canvas,
             antialias: true,
@@ -316,13 +308,13 @@ async function main(): Promise<void> {
           }),
           orbit: (camera) => new OrbitControls(camera, canvas),
           worker: () =>
-            createHumanPreviewWorkerPort(
+            createConnectedBodyPort(
               new Worker(
                 new URL("./connected-body-worker.ts", import.meta.url),
                 { type: "module" },
               ),
             ),
-          decode: async (bytes) => (await loader.parseAsync(bytes, "")).scene,
+          loadTexture: (asset) => new THREE.TextureLoader().loadAsync(asset),
           observeResize: (resize) => {
             new ResizeObserver(resize).observe(canvas);
           },
