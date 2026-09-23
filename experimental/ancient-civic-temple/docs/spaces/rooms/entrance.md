@@ -16,16 +16,16 @@
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation 두 단과 상부참, 양측 받침 위 두 기둥, 기둥 위 보와 후퇴벽 문턱까지 현관 안에 남겨 정면 포치의 부재가 빠지지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion 기둥 중심 Z=10.00m와 보 폭 0.30m가 적혀 보가 기둥 머리에 얹히는 위치를 source가 새로 고르지 않는다.
-@evidenceReview principles/core/common.md#declared-basis Z 구간 표는 south-outer에서 두 디딤을 뺀 산술이고, 기둥 기단 앞면을 south-outer에 맞춘 선택도 삼각 막음 위치에서 유도했다고 밝힌다.
-@evidenceReview principles/design/spaces.md#space-topology 기둥을 앞으로 옮겨도 entrance 하나 안의 cell과 받침만 쓰며 정문 축과 중정 사이에 새 방을 끼우지 않는다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority 보 위 삼각 막음은 남측 입면, 안쪽 반환면과 석단은 현관, 포치 roof는 porch owner로 남아 한 면의 이중 저작이 없다.
-@evidenceReview principles/design/spaces.md#space-verification-address 기둥 받침을 지나는 평행 단면과 종단면을 적어 기둥이 첫 디딤 옆 받침 위에 서는지 확인하게 했다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation 포치 약속을 두 단의 수평 면, 받침 위 기둥 자리, 정면 쪽 보 위치로 구체화했다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work 기둥을 받침 앞끝으로 옮기는 것은 현관 안 배치 조정이며 단높이·디딤 제약과 외곽을 바꾸지 않아 부모 수정이 필요 없었다.
-@evidenceReview settings/20-envelope.md#entrance-porch 기둥 두 개가 같은 높이 받침에 서고 그 위 보가 삼각 막음과 포치를 받쳐 부모의 원주·보·박공 연결을 따른다.
-@evidenceReview settings/10-building.md#ground-access 첫 디딤과 둘째 디딤의 두 챌면만 두고 받침 위 기둥이 디딤 면을 점유하지 않아 실제 석단 접근이 유지된다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 두 단과 상부참, 양측 받침 위 두 기둥, 기둥 위 보와 후퇴벽 문턱까지 현관 안에 남겨 정면 포치의 부재가 빠지지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 기둥 중심 Z=10.00m와 보 폭 0.30m가 적혀 보가 기둥 머리에 얹히는 위치를 source가 새로 고르지 않는다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb Z 구간 표는 south-outer에서 두 디딤을 뺀 산술이고, 기둥 기단 앞면을 south-outer에 맞춘 선택도 삼각 막음 위치에서 유도했다고 밝힌다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 기둥을 앞으로 옮겨도 entrance 하나 안의 cell과 받침만 쓰며 정문 축과 중정 사이에 새 방을 끼우지 않는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 보 위 삼각 막음은 남측 입면, 안쪽 반환면과 석단은 현관, 포치 roof는 porch owner로 남아 한 면의 이중 저작이 없다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 기둥 받침을 지나는 평행 단면과 종단면을 적어 기둥이 첫 디딤 옆 받침 위에 서는지 확인하게 했다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 포치 약속을 두 단의 수평 면, 받침 위 기둥 자리, 정면 쪽 보 위치로 구체화했다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 기둥을 받침 앞끝으로 옮기는 것은 현관 안 배치 조정이며 단높이·디딤 제약과 외곽을 바꾸지 않아 부모 수정이 필요 없었다.
+@evidenceReview settings/20-envelope.md#entrance-porch #a164498 기둥 두 개가 같은 높이 받침에 서고 그 위 보가 삼각 막음과 포치를 받쳐 부모의 원주·보·박공 연결을 따른다.
+@evidenceReview settings/10-building.md#ground-access #be07d7d 첫 디딤과 둘째 디딤의 두 챌면만 두고 받침 위 기둥이 디딤 면을 점유하지 않아 실제 석단 접근이 유지된다.
 -->
 
 공간 ID `entrance`의 본체는 [평면 기준선](../building.md#plan-datums)의 west-porch-inner~east-porch-inner, entrance-front~south-outer에 놓인 지붕 있는 외부 전이 공간이다. 뒤의 후퇴벽은 entrance-back~entrance-front이고 그 중앙 실제 양개문이 주랑으로 통한다. 정문 축에서 중정 중심까지 시선을 꺾는 벽이나 방은 없다. 양옆 반환벽은 porch-inner~porch-outer 사이의 실제 두께를 가지며 정면 외피와 이어진다.
