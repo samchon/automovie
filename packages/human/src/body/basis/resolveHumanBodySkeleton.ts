@@ -19,12 +19,11 @@ import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBody
  * from head to tail, X equal to `Y x F` where F is the flexion reference with
  * its component along Y removed, Z equal to `X x Y`. That frame is the
  * engine's default clinical basis, so `resolvePose` needs no per-bone axis
- * table; what it needs is the per-side sign of abduction and twist and the
- * clinical angle each axis rests at, which the basis measured and this
- * function hands over as `IAutoMovieRestFrame`s. A positive flexion therefore
- * always swings a bone toward its reference, a clinical angle is read from
- * the anatomical zero rather than from the A-pose, and the sense of the other
- * two axes is data rather than a convention a reader has to reconstruct.
+ * table for non-humeral joints; what it needs is the per-side sign of
+ * abduction and twist and the clinical angle each axis rests at, which the
+ * basis hands over as `IAutoMovieRestFrame`s. The upper-arm Euler axes are
+ * held and its bone frame serves as the skin's rest orientation; the separate
+ * TT shoulder resolver computes its clinical goal after the girdle moves.
  *
  * The rest transform of a bone is its world frame expressed in its parent's:
  * the root keeps its world frame and head as translation. Because the

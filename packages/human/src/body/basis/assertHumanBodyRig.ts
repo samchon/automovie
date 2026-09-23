@@ -2,6 +2,7 @@ import { swingConeAngle } from "@automovie/engine";
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
+import { humanBodyShoulderOrientationDistance } from "./humanBodyShoulderOrientationDistance";
 
 const AXES = ["abduction", "twist"] as const;
 
@@ -10,17 +11,18 @@ const AXES = ["abduction", "twist"] as const;
  *
  * Called by `assertHumanBodyBasis` after the surfaces are known valid. The
  * joints must form one tree rooted at `hips` in parent-before-child order,
- * reference resident landmarks, carry a finite unit-length flexion reference
+ * reference resident landmarks, carry a finite unit-length frame reference
  * that is not parallel to the bone, declare a clinical sign exactly on the
- * axes their constraint leaves mobile (every axis for the unconstrained root),
- * and hold finite ranges that contain both zero and the measured rest angle,
- * and a swing cone, when declared, must admit every pure-plane extreme of
- * the flexion and abduction ranges.
- * A corrective's joint driver must name a mobile axis with a ramp inside the
- * clinical reach on its side of the rest. A coupling must name declared
+ * axes their generic constraint leaves mobile, and hold finite ranges that
+ * contain zero and the measured rest angle. An upper arm additionally needs
+ * an explicit thorax TT coordinate contract whose neutral elevation and
+ * plane match the source landmarks; its old generic axes must be held. The
+ * swing cone, when declared for another joint, admits each pure-plane extreme.
+ * A corrective's joint driver names a mobile generic axis or a TT shoulder
+ * elevation/axial axis with a ramp inside its reach. A coupling names declared
  * joints, an open output axis that no coupling drives from or drives twice,
  * and a finite, strictly increasing curve that starts at zero no lower than
- * the source's rest elevation and keeps every rest-plus-ordinate inside that
+ * the source's TT or generic rest elevation and keeps every rest-plus-ordinate inside that
  * axis's range.
  * Every surface's skin must bind each vertex to four declared joints with
  * weights that sum to one within a micro tolerance (the payload rounds them
@@ -28,7 +30,7 @@ const AXES = ["abduction", "twist"] as const;
  * refused, because it would skin to nothing.
  *
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-joints Refuses a rig whose joints, pivots, signs or ranges could not be evaluated as declared.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-joints Checks the tree order, landmark references, frame reference, sign-to-constraint agreement, the coupling table's open axes, acyclic sources and in-range curves, and the four-influence unit-sum skin.
+ * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-joints Checks the tree, measured upper-arm TT neutrals, held obsolete axes, coupling elevation source and in-range curves, and four-influence unit-sum skin.
  */
 export function assertHumanBodyRig(basis: IAutoMovieHumanBodyBasis): void {
   const landmarks = new Set(basis.landmarks.ids);
@@ -157,7 +159,69 @@ export function assertHumanBodyRig(basis: IAutoMovieHumanBodyBasis): void {
             joint.bone,
         );
     }
+    const upperArm =
+      joint.bone === "leftUpperArm" || joint.bone === "rightUpperArm";
+    if (upperArm !== (joint.shoulder !== undefined))
+      throw new Error(
+        "Upper arms need an explicit thorax-tt shoulder contract; old fixed-axis bases cannot be reinterpreted: " +
+          joint.bone,
+      );
+    if (joint.shoulder !== undefined) {
+      const shoulder = joint.shoulder;
+      const side = joint.bone === "leftUpperArm" ? 1 : -1;
+      const expectedElevation =
+        (Math.acos(Math.max(-1, Math.min(1, -axis[1] / length))) * 180) /
+        Math.PI;
+      const expectedPlane =
+        (Math.atan2(axis[2], side * axis[0]) * 180) / Math.PI;
+      if (
+        shoulder.coordinates !== "thorax-tt" ||
+        joint.constraint === null ||
+        (["flexion", "abduction", "twist"] as const).some(
+          (name) =>
+            joint.constraint?.[name] !== null || joint.neutral[name] !== 0,
+        ) ||
+        (joint.constraint.swingDeg !== null &&
+          joint.constraint.swingDeg !== undefined) ||
+        joint.signs.abduction !== null ||
+        joint.signs.twist !== null ||
+        !Number.isFinite(shoulder.neutral.plane) ||
+        shoulder.neutral.plane < -180 ||
+        shoulder.neutral.plane >= 180 ||
+        !Number.isFinite(shoulder.neutral.elevation) ||
+        Math.abs(shoulder.neutral.elevation - expectedElevation) > 0.01 ||
+        Math.abs(shoulder.neutral.plane - expectedPlane) > 0.01 ||
+        shoulder.neutral.axialRotation !== 0 ||
+        shoulder.range.elevation.min !== 0 ||
+        !Number.isFinite(shoulder.range.elevation.max) ||
+        shoulder.range.elevation.max > 180 ||
+        shoulder.range.elevation.max < shoulder.neutral.elevation ||
+        !Number.isFinite(shoulder.range.axialRotation.min) ||
+        !Number.isFinite(shoulder.range.axialRotation.max) ||
+        shoulder.range.axialRotation.min > 0 ||
+        shoulder.range.axialRotation.max < 0 ||
+        shoulder.range.axialRotation.min >= shoulder.range.axialRotation.max
+      )
+        throw new Error(
+          "Body thorax-tt shoulders need a measured A-pose, held Euler axes, total elevation [0, <=180] and a valid axial range: " +
+            joint.bone,
+        );
+    }
     declared.add(joint.bone);
+  }
+  const parentOf = new Map(
+    basis.joints.map((joint) => [joint.bone, joint.parent]),
+  );
+  for (const joint of basis.joints) {
+    if (joint.shoulder === undefined) continue;
+    let ancestor = joint.parent;
+    while (ancestor !== null && ancestor !== "upperChest")
+      ancestor = parentOf.get(ancestor) ?? null;
+    if (ancestor !== "upperChest")
+      throw new Error(
+        "Thorax-relative shoulder needs upperChest as an ancestor: " +
+          joint.bone,
+      );
   }
   // A joint driver names a mobile axis and a ramp that lies within the
   // clinical reach on its side of the rest, so a corrective cannot be armed
@@ -165,15 +229,55 @@ export function assertHumanBodyRig(basis: IAutoMovieHumanBodyBasis): void {
   const joints = new Map(basis.joints.map((joint) => [joint.bone, joint]));
   for (const corrective of basis.correctives ?? [])
     for (const input of corrective.inputs) {
+      if ("shoulder" in input) {
+        const shoulder = joints.get(input.shoulder)?.shoulder;
+        const goal = { bone: input.shoulder, ...input.orientation };
+        const rest =
+          shoulder === undefined
+            ? null
+            : { bone: input.shoulder, ...shoulder.neutral };
+        if (
+          shoulder === undefined ||
+          !Number.isFinite(goal.plane) ||
+          goal.plane < -180 ||
+          goal.plane >= 180 ||
+          !Number.isFinite(goal.elevation) ||
+          goal.elevation < shoulder.range.elevation.min ||
+          goal.elevation > shoulder.range.elevation.max ||
+          !Number.isFinite(goal.axialRotation) ||
+          goal.axialRotation < shoulder.range.axialRotation.min ||
+          goal.axialRotation > shoulder.range.axialRotation.max ||
+          !Number.isFinite(input.innerDegrees) ||
+          !Number.isFinite(input.outerDegrees) ||
+          input.innerDegrees < 0 ||
+          input.innerDegrees >= input.outerDegrees ||
+          input.outerDegrees > 180 ||
+          (rest !== null &&
+            humanBodyShoulderOrientationDistance(rest, goal) <
+              input.outerDegrees)
+        )
+          throw new Error(
+            "A body shoulder corrective needs an admitted TT centre, finite nested geodesic radii and zero rest activation: " +
+              corrective.id,
+          );
+        continue;
+      }
       if (!("bone" in input)) continue;
       const joint = joints.get(input.bone);
-      const range = joint?.constraint?.[input.axis] ?? null;
+      const range =
+        input.axis === "elevation"
+          ? (joint?.shoulder?.range[input.axis] ?? null)
+          : (joint?.constraint?.[input.axis] ?? null);
+      const neutral =
+        input.axis === "elevation"
+          ? (joint?.shoulder?.neutral[input.axis] ?? 0)
+          : (joint?.neutral[input.axis] ?? 0);
       const reach =
         joint === undefined || range === null
           ? null
           : input.side === "positive"
-            ? range.max - joint.neutral[input.axis]
-            : joint.neutral[input.axis] - range.min;
+            ? range.max - neutral
+            : neutral - range.min;
       if (
         reach === null ||
         !Number.isFinite(input.onset) ||
@@ -192,6 +296,28 @@ export function assertHumanBodyRig(basis: IAutoMovieHumanBodyBasis): void {
             ` onset ${input.onset} full ${input.full} reach ${reach}`,
         );
     }
+  for (const corrective of basis.correctives ?? []) {
+    const kernels = corrective.inputs.filter(
+      (input): input is Extract<typeof input, { shoulder: string }> =>
+        "shoulder" in input,
+    );
+    for (let first = 0; first < kernels.length; first++)
+      for (let second = first + 1; second < kernels.length; second++) {
+        const a = kernels[first];
+        const b = kernels[second];
+        if (
+          a.shoulder === b.shoulder &&
+          humanBodyShoulderOrientationDistance(
+            { bone: a.shoulder, ...a.orientation },
+            { bone: b.shoulder, ...b.orientation },
+          ) === 0
+        )
+          throw new Error(
+            "A body corrective cannot multiply equivalent shoulder orientation kernels: " +
+              corrective.id,
+          );
+      }
+  }
   // A coupling is a declared driver, so everything it names must resolve and
   // everything it can add must already be admissible: declared source and
   // output joints, an open output axis (the unconstrained root has none), at
@@ -227,7 +353,8 @@ export function assertHumanBodyRig(basis: IAutoMovieHumanBodyBasis): void {
       outputs.has(key) ||
       curve.length < 2 ||
       curve[0][0] <
-        swingConeAngle(source.neutral.flexion, source.neutral.abduction) -
+        (source.shoulder?.neutral.elevation ??
+          swingConeAngle(source.neutral.flexion, source.neutral.abduction)) -
           1e-9 ||
       curve[0][1] !== 0 ||
       curve.some(

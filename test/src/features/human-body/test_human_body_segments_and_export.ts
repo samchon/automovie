@@ -1,3 +1,4 @@
+import { measureAutoMovieModelCrossings } from "@automovie/engine";
 import {
   createHumanBodyBasisBuilder,
   exportHumanBody,
@@ -114,6 +115,142 @@ export const test_human_body_segments_and_export = async (): Promise<void> => {
     [named(sources), named(seamed.sources)],
     [2, 3],
   );
+  TestValidator.equals(
+    "a UV seam alone is not a crossing",
+    measureAutoMovieModelCrossings(seamed.model),
+    [],
+  );
+  const regions = humanBodyBasisFixture();
+  const two = regions.basis.surfaces[0];
+  regions.basis.materials.push({
+    ...regions.basis.materials[0],
+    id: "alternate",
+  });
+  two.regions = [
+    { ...two.regions[0], id: "box/first", indices: two.indices.slice(0, 18) },
+    {
+      ...two.regions[0],
+      id: "box/second",
+      material: "alternate",
+      indices: two.indices.slice(18),
+    },
+  ];
+  const builtRegions = createHumanBodyBasisBuilder(regions.basis)(
+    regions.document,
+  );
+  const segmentedRegions = segmentHumanBodyModel(regions.basis, builtRegions);
+  TestValidator.equals(
+    "every material region reaches the segment partition",
+    segmentedRegions.model.parts.reduce(
+      (count, part) =>
+        count +
+        (part.geometry.type === "mesh"
+          ? part.geometry.mesh.indices!.length / 3
+          : 0),
+      0,
+    ),
+    12,
+  );
+  TestValidator.predicate(
+    "both region identities remain stable on their bone segments",
+    segmentedRegions.model.parts.some((part) =>
+      part.id.endsWith("box/first"),
+    ) &&
+      segmentedRegions.model.parts.some((part) =>
+        part.id.endsWith("box/second"),
+      ) &&
+      segmentedRegions.model.parts.every((part) =>
+        segmentedRegions.sources.has(part.id),
+      ),
+  );
+  TestValidator.predicate(
+    "both resident materials follow their source regions",
+    segmentedRegions.model.parts.some((part) => part.material === "skin") &&
+      segmentedRegions.model.parts.some(
+        (part) => part.material === "alternate",
+      ),
+  );
+  TestValidator.equals(
+    "a material seam alone is not a crossing",
+    measureAutoMovieModelCrossings(segmentedRegions.model),
+    [],
+  );
+  TestValidator.predicate(
+    "a built model missing a declared region refuses partition",
+    throwsError(() =>
+      segmentHumanBodyModel(regions.basis, {
+        ...builtRegions,
+        model: {
+          ...builtRegions.model,
+          parts: builtRegions.model.parts.slice(0, 1),
+        },
+      }),
+    ),
+  );
+  const probe = {
+    ...builtRegions.model.parts[0],
+    id: "interior-probe",
+    geometry: {
+      type: "mesh" as const,
+      mesh: {
+        positions: [0, 1.9, 0, 0.05, 2.1, 0, -0.05, 2.1, 0.1],
+        normals: [0, 0, 1, 0, 0, 1, 0, 0, 1],
+        indices: [0, 1, 2],
+        uvs: null,
+        skin: null,
+      },
+    },
+  };
+  const contacts = measureAutoMovieModelCrossings({
+    ...segmentedRegions.model,
+    parts: [...segmentedRegions.model.parts, probe],
+  });
+  TestValidator.predicate(
+    "a crossing only on the second region reaches contact measurement",
+    contacts.some(
+      (contact) =>
+        (contact.part.includes("box/second") &&
+          contact.other === "interior-probe") ||
+        (contact.other.includes("box/second") &&
+          contact.part === "interior-probe"),
+    ) &&
+      !contacts.some(
+        (contact) =>
+          contact.part.includes("box/first") &&
+          contact.other === "interior-probe",
+      ),
+  );
+  const surfaces = humanBodyBasisFixture();
+  const first = surfaces.basis.surfaces[0];
+  surfaces.basis.surfaces.push({
+    ...first,
+    id: "other-box",
+    positions: first.positions.map((value, i) =>
+      i % 3 === 0 ? value + 1 : value,
+    ),
+    regions: first.regions.map((region) => ({
+      ...region,
+      id: "other-box/skin",
+    })),
+  });
+  const segmentedSurfaces = segmentHumanBodyModel(
+    surfaces.basis,
+    createHumanBodyBasisBuilder(surfaces.basis)(surfaces.document),
+  );
+  TestValidator.predicate(
+    "both surfaces contribute all triangles and distinct source ordinals",
+    segmentedSurfaces.model.parts.reduce(
+      (count, part) =>
+        count +
+        (part.geometry.type === "mesh"
+          ? part.geometry.mesh.indices!.length / 3
+          : 0),
+      0,
+    ) === 24 &&
+      [...segmentedSurfaces.sources.values()]
+        .flat()
+        .some((source) => source >= 8),
+  );
   TestValidator.predicate(
     "a built population that does not match the walk refuses",
     throwsError(() =>
@@ -166,4 +303,20 @@ export const test_human_body_segments_and_export = async (): Promise<void> => {
     "glTF",
   );
   TestValidator.equals("one mesh in the glTF", gltf.json.meshes?.length, 1);
+  const exportedRegions = await exportHumanBody(builtRegions.model);
+  TestValidator.equals(
+    "static export preserves both material-region triangle populations",
+    exportedRegions.gltf.json.meshes?.reduce(
+      (count, mesh) =>
+        count +
+        mesh.primitives.reduce(
+          (sum, primitive) =>
+            sum +
+            exportedRegions.gltf.json.accessors![primitive.indices!].count,
+          0,
+        ),
+      0,
+    ),
+    36,
+  );
 };

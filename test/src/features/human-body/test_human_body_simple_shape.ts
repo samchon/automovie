@@ -5,6 +5,7 @@ import {
   type IAutoMovieHumanBodySimpleShape,
   expandHumanBodySimpleShape,
   humanBodyClipRing,
+  humanBodySimpleShapeMath,
   humanBodySurfaceBoundary,
   measureHumanBodySimpleShape,
   measureHumanBodyVolume,
@@ -31,7 +32,11 @@ import { nclose } from "../internal/predicates";
  *    basis lacks or whose rule the surface cannot answer (the bust rule
  *    reads a landmark the box lacks). The stature channel's rule is a
  *    height and every tape channel has a rule.
- * 3. Term rows by hand: a 25-year-old man at BMI 22 with muscle 0.5 gets
+ * 3. The two Deurenberg regressions at ages 11, 15, 16 and adult, for both
+ *    sexes, and their authored fractional-age bridge are checked against
+ *    hand arithmetic. Jensen's pediatric head-and-neck share and its bridge
+ *    to the adult approximation are also checked by hand. Term rows by hand:
+ *    a 25-year-old man at BMI 22 with muscle 0.5 gets
  *    gender 1, age 0, muscle 0.5, ptosis -0.2 (the lift row only), abs
  *    definition 0.244 (Deurenberg 15.95% less 5% essential, 10.95% on the
  *    band) and no flank fat (its row starts at BMI 22 and the mass
@@ -44,10 +49,10 @@ import { nclose } from "../internal/predicates";
  *    and a 1.9 m ring to -0.2; a stature the samples do not reach is refused
  *    with the reach.
  * 6. Mass: the solved weight reproduces the requested kilograms when the
- *    result is measured back at the same density, a heavier request solves
- *    heavier, the fat fraction saturates at both ends of its trusted band
- *    without breaking the round trip, and a mass beyond the samples is
- *    refused; a weight channel that shrinks the body as it grows is refused.
+ *    result is measured back at the same age-specific density and head share,
+ *    a heavier request solves heavier, the density is bounded at both ends
+ *    of its trusted fat band, and an adult or child mass beyond the samples
+ *    is refused; a weight channel that shrinks the body as it grows is refused.
  * 7. A waist given in metres is solved on its channel and measured back
  *    with the mass still met (the two are solved against each other); one
  *    beyond the reach is refused.
@@ -212,6 +217,84 @@ export const test_human_body_simple_shape = (): void => {
     muscle: 0.5,
   };
 
+  const fatCases = [
+    { ageYears: 11, sex: 1, percent: 20.3 },
+    { ageYears: 11, sex: -1, percent: 23.9 },
+    { ageYears: 15, sex: 1, percent: 17.5 },
+    { ageYears: 15, sex: -1, percent: 21.1 },
+    { ageYears: 15.5, sex: 1, percent: 14.2575 },
+    { ageYears: 15.5, sex: -1, percent: 21.4575 },
+    { ageYears: 16, sex: 1, percent: 11.48 },
+    { ageYears: 16, sex: -1, percent: 22.28 },
+    { ageYears: 30, sex: 1, percent: 14.7 },
+    { ageYears: 30, sex: -1, percent: 25.5 },
+  ];
+  for (const sample of fatCases)
+    TestValidator.predicate(
+      `Deurenberg ${sample.ageYears} ${sample.sex}`,
+      nclose(humanBodySimpleShapeMath.fat(sample, 20).percent, sample.percent),
+    );
+  const absRow = table.terms.find((row) => row.channel === "absDefinition")!;
+  for (const sample of [
+    { ageYears: 11, sex: 1, definition: 0 },
+    { ageYears: 11, sex: -1, definition: 0.496 },
+    { ageYears: 15, sex: 1, definition: 0.24 },
+    { ageYears: 15, sex: -1, definition: 0.845 },
+    { ageYears: 16, sex: 1, definition: 0.926 },
+    { ageYears: 16, sex: -1, definition: 0.7552 },
+  ])
+    TestValidator.predicate(
+      `age-specific definition ${sample.ageYears} ${sample.sex}`,
+      nclose(
+        humanBodySimpleShapeMath.term(
+          absRow,
+          humanBodySimpleShapeMath.parameters({
+            sex: sample.sex,
+            ageYears: sample.ageYears,
+            statureMetres: 1.5,
+            massKilograms: 45,
+            muscle: 1,
+          }),
+        ),
+        sample.definition,
+      ),
+    );
+  for (const [ageYears, fraction] of [
+    [11, 0.11047128],
+    [15, 0.081158],
+    [15.5, 0.081079],
+    [16, 0.081],
+    [30, 0.081],
+  ]) {
+    TestValidator.predicate(
+      `head and neck ${ageYears}`,
+      nclose(humanBodySimpleShapeMath.headAndNeckFraction(ageYears), fraction),
+    );
+    TestValidator.predicate(
+      `mass share ${ageYears}`,
+      nclose(
+        measureHumanBodySimpleShape.mass(0.1, 1, ageYears),
+        100 / (1 - fraction),
+      ),
+    );
+  }
+  TestValidator.predicate(
+    "density floors an out-of-band fat estimate",
+    nclose(
+      humanBodySimpleShapeMath.density(0),
+      table.mass.siri.numerator /
+        (table.mass.fatFraction[0] + table.mass.siri.offset),
+    ),
+  );
+  TestValidator.predicate(
+    "density ceils an out-of-band fat estimate",
+    nclose(
+      humanBodySimpleShapeMath.density(100),
+      table.mass.siri.numerator /
+        (table.mass.fatFraction[1] + table.mass.siri.offset),
+    ),
+  );
+
   for (const name of Object.keys(table.limits) as (keyof typeof table.limits)[])
     for (const value of [
       table.limits[name][0] - 0.001,
@@ -278,14 +361,12 @@ export const test_human_body_simple_shape = (): void => {
     shape: Record<string, number>,
     simple: IAutoMovieHumanBodySimpleShape,
   ): number => {
-    const parameters = HUMAN_BODY_SIMPLE_SHAPE.fat;
     const bodyMassIndex =
       simple.massKilograms / (simple.statureMetres * simple.statureMetres);
-    const fatPercent =
-      parameters.bodyMassIndex * bodyMassIndex +
-      parameters.ageYears * simple.ageYears +
-      (parameters.male * (simple.sex + 1)) / 2 +
-      parameters.intercept;
+    const fatPercent = humanBodySimpleShapeMath.fat(
+      simple,
+      bodyMassIndex,
+    ).percent;
     const fat = Math.min(
       table.mass.fatFraction[1],
       Math.max(table.mass.fatFraction[0], fatPercent / 100),
@@ -294,6 +375,7 @@ export const test_human_body_simple_shape = (): void => {
     return measureHumanBodySimpleShape.mass(
       measureHumanBodySimpleShape.volume(basis, shape),
       density,
+      simple.ageYears,
     );
   };
   const reach = [-1, 1].map((weight) =>
@@ -302,8 +384,8 @@ export const test_human_body_simple_shape = (): void => {
   const requests: IAutoMovieHumanBodySimpleShape[] = [
     { ...base, massKilograms: reach[0] + 0.25 * (reach[1] - reach[0]) },
     { ...base, massKilograms: reach[0] + 0.75 * (reach[1] - reach[0]) },
-    // the fat fraction floors: a boy of 11 at BMI 15.4 estimates 4.8% fat
-    { ...base, ageYears: 11, massKilograms: 15.4 * stature * stature },
+    // a boy of 11 at BMI 16.5 is in the pediatric regime (15.015% fat)
+    { ...base, ageYears: 11, massKilograms: 16.5 * stature * stature },
     // and ceils: a woman of 90 at BMI 30 estimates 51% fat
     {
       ...base,
@@ -327,12 +409,41 @@ export const test_human_body_simple_shape = (): void => {
       nclose(massOf(shape, requests[at]), requests[at].massKilograms, 1e-4),
     ),
   );
+  for (const ageYears of [11, 15, 15.5, 16, 30])
+    for (const sex of [-1, 1]) {
+      const requested: IAutoMovieHumanBodySimpleShape = {
+        ...base,
+        ageYears,
+        sex,
+        massKilograms: 20 * stature * stature,
+        muscle: 0,
+      };
+      const expanded = expandHumanBodySimpleShape(basis, requested);
+      TestValidator.predicate(
+        `regime mass ${ageYears} ${sex}`,
+        nclose(massOf(expanded, requested), requested.massKilograms, 1e-4),
+      );
+      const projected = projectHumanBodySimpleShape(basis, expanded);
+      TestValidator.predicate(
+        `regime projection ${ageYears} ${sex}`,
+        nclose(projected.massKilograms, requested.massKilograms, 0.05) &&
+          nclose(projected.ageYears, ageYears) &&
+          nclose(projected.sex, sex),
+      );
+    }
   TestValidator.predicate(
     "heavier solves heavier",
     solved[1].macroWeight > solved[0].macroWeight,
   );
   TestValidator.error("mass beyond the reach", () =>
     expandHumanBodySimpleShape(basis, { ...base, massKilograms: 250 }),
+  );
+  TestValidator.error("child underweight mass beyond the reach", () =>
+    expandHumanBodySimpleShape(basis, {
+      ...base,
+      ageYears: 11,
+      massKilograms: 15.4 * stature * stature,
+    }),
   );
   TestValidator.error("a weight channel that shrinks", () =>
     expandHumanBodySimpleShape(macros(narrow, wide), base),
