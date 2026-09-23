@@ -1,5 +1,5 @@
 {
-  "revision": "mpfb-connected-head-2026-09-23-contact",
+  "revision": "mpfb-connected-head-2026-09-23-ocular-contact",
   "source": "mpfb-connected-head-2026-09-23-articulated",
   "lips": {
     "upper": 15892,
@@ -26,6 +26,16 @@
         96,
         102
       ],
+      "reachMm": 20.776
+    },
+    {
+      "surface": "Human.low-poly",
+      "sealedRings": 2,
+      "ringVertices": [
+        32
+      ],
+      "closureTriangles": 60,
+      "openLoops": [],
       "reachMm": 20.776
     }
   ],
@@ -56,13 +66,19 @@
       "surface": "Human",
       "budgetMm": 13.41,
       "authoredExcessMm": 6.147,
-      "restCrownOverlapMm": 0
+      "restCrownOverlapMm": 2.291
     },
     {
       "surface": "Human.tongue01",
       "budgetMm": 20.776,
       "authoredExcessMm": 1.763,
       "restCrownOverlapMm": 1.476
+    },
+    {
+      "surface": "Human.eyelashes01",
+      "budgetMm": 14.25,
+      "authoredExcessMm": 1.23,
+      "restCrownOverlapMm": 0.243
     }
   ],
   "probedEndpointRefusals": [
@@ -89,8 +105,8 @@
     ]
   },
   "admittedDocuments": 18,
-  "recorded": "2026-09-22T13:13:29.868Z",
-  "elapsedSeconds": 519.5,
+  "recorded": "2026-09-22T14:10:36.742Z",
+  "elapsedSeconds": 1416.8,
   "citations": {
     "closureSemantics": "MPFB faceservice.py: mouthClose 'Closes the lips while the jaw remains open' (ARKit face unit).",
     "lipBudget": "Holdaway upper lip thickness, vermilion point to upper incisor labial surface, 13.41 +- 2.70 mm (Saudi Dent J 2011, n=93); norm 13-14 mm.",
@@ -112,8 +128,8 @@
   },
   "outputs": {
     "basis": {
-      "sha256": "20e88f6d80594c52db9f707af27fc951962b547a08286605f03da3094089c15c",
-      "bytes": 18575481
+      "sha256": "a5765d20913eb1129d45822be5939846ca8a4aecd551a31f9448d7d02634a2de",
+      "bytes": 18575778
     }
   }
 }

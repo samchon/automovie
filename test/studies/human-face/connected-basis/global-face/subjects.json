@@ -2,7 +2,7 @@
   {
     "id": "alan-rickman-connected",
     "name": "alan-rickman (connected study)",
-    "basis": "mpfb-connected-head-2026-09-23-contact",
+    "basis": "mpfb-connected-head-2026-09-23-ocular-contact",
     "shape": {
       "headWidth": -0.21632129539659278,
       "headHeight": 0.1367818148632647,
@@ -246,7 +246,7 @@
   {
     "id": "daniel-radcliffe-connected",
     "name": "daniel-radcliffe (connected study)",
-    "basis": "mpfb-connected-head-2026-09-23-contact",
+    "basis": "mpfb-connected-head-2026-09-23-ocular-contact",
     "shape": {
       "headWidth": -0.14419439444168386,
       "headHeight": 0.08076531952354073,
@@ -562,7 +562,7 @@
   {
     "id": "emma-watson-connected",
     "name": "emma-watson (connected study)",
-    "basis": "mpfb-connected-head-2026-09-23-contact",
+    "basis": "mpfb-connected-head-2026-09-23-ocular-contact",
     "shape": {
       "headWidth": 0.01719157504012354,
       "headHeight": 0.0035971738377070027,
@@ -805,7 +805,7 @@
   {
     "id": "generated-black-boy-01-connected",
     "name": "generated-black-boy-01 (connected study)",
-    "basis": "mpfb-connected-head-2026-09-23-contact",
+    "basis": "mpfb-connected-head-2026-09-23-ocular-contact",
     "shape": {
       "headWidth": -0.14328040296794559,
       "headHeight": 0.1015997121074854,
@@ -1022,7 +1022,7 @@
   {
     "id": "generated-black-girl-01-connected",
     "name": "generated-black-girl-01 (connected study)",
-    "basis": "mpfb-connected-head-2026-09-23-contact",
+    "basis": "mpfb-connected-head-2026-09-23-ocular-contact",
     "shape": {
       "headWidth": -0.30097483094693617,
       "headHeight": 0.15275383036912965,
@@ -1268,7 +1268,7 @@
   {
     "id": "generated-korean-boy-01-connected",
     "name": "generated-korean-boy-01 (connected study)",
-    "basis": "mpfb-connected-head-2026-09-23-contact",
+    "basis": "mpfb-connected-head-2026-09-23-ocular-contact",
     "shape": {
       "headWidth": -0.2766879029455006,
       "headHeight": 0.08957223698417179,
@@ -1514,7 +1514,7 @@
   {
     "id": "generated-white-boy-01-connected",
     "name": "generated-white-boy-01 (connected study)",
-    "basis": "mpfb-connected-head-2026-09-23-contact",
+    "basis": "mpfb-connected-head-2026-09-23-ocular-contact",
     "shape": {
       "headWidth": -0.10871872190194158,
       "headHeight": 0.1295620657450308,
@@ -1761,7 +1761,7 @@
   {
     "id": "generated-white-girl-01-connected",
     "name": "generated-white-girl-01 (connected study)",
-    "basis": "mpfb-connected-head-2026-09-23-contact",
+    "basis": "mpfb-connected-head-2026-09-23-ocular-contact",
     "shape": {
       "headWidth": -0.032921385087665414,
       "headHeight": 0.02350585561485061,
@@ -1976,7 +1976,7 @@
   {
     "id": "kim-min-jung-connected",
     "name": "kim-min-jung (connected study)",
-    "basis": "mpfb-connected-head-2026-09-23-contact",
+    "basis": "mpfb-connected-head-2026-09-23-ocular-contact",
     "shape": {
       "headWidth": -0.16994681164962133,
       "headHeight": 0.05454993462577807,
@@ -2258,7 +2258,7 @@
   {
     "id": "lee-tae-ri-connected",
     "name": "lee-tae-ri (connected study)",
-    "basis": "mpfb-connected-head-2026-09-23-contact",
+    "basis": "mpfb-connected-head-2026-09-23-ocular-contact",
     "shape": {
       "headWidth": -0.1321221610190711,
       "headHeight": 0.1188071368156422,
@@ -2504,7 +2504,7 @@
   {
     "id": "maggie-smith-connected",
     "name": "maggie-smith (connected study)",
-    "basis": "mpfb-connected-head-2026-09-23-contact",
+    "basis": "mpfb-connected-head-2026-09-23-ocular-contact",
     "shape": {
       "headWidth": -0.15998379022793405,
       "headHeight": 0.15132059397286912,
@@ -2749,7 +2749,7 @@
   {
     "id": "michael-gambon-connected",
     "name": "michael-gambon (connected study)",
-    "basis": "mpfb-connected-head-2026-09-23-contact",
+    "basis": "mpfb-connected-head-2026-09-23-ocular-contact",
     "shape": {
       "headWidth": -0.09607843620429035,
       "headHeight": -0.023221640542795283,
@@ -2960,7 +2960,7 @@
   {
     "id": "miriam-margolyes-connected",
     "name": "miriam-margolyes (connected study)",
-    "basis": "mpfb-connected-head-2026-09-23-contact",
+    "basis": "mpfb-connected-head-2026-09-23-ocular-contact",
     "shape": {
       "headWidth": 0.10955686052421654,
       "headHeight": -0.1354776231017277,
@@ -3246,7 +3246,7 @@
   {
     "id": "oh-seung-yoon-connected",
     "name": "oh-seung-yoon (connected study)",
-    "basis": "mpfb-connected-head-2026-09-23-contact",
+    "basis": "mpfb-connected-head-2026-09-23-ocular-contact",
     "shape": {
       "headWidth": -0.14621778961613513,
       "headHeight": 0.045378305918042504,
@@ -3556,7 +3556,7 @@
   {
     "id": "park-eun-bin-connected",
     "name": "park-eun-bin (connected study)",
-    "basis": "mpfb-connected-head-2026-09-23-contact",
+    "basis": "mpfb-connected-head-2026-09-23-ocular-contact",
     "shape": {
       "headWidth": -0.1642515472027471,
       "headHeight": 0.12540294461983814,
@@ -3872,7 +3872,7 @@
   {
     "id": "rupert-grint-connected",
     "name": "rupert-grint (connected study)",
-    "basis": "mpfb-connected-head-2026-09-23-contact",
+    "basis": "mpfb-connected-head-2026-09-23-ocular-contact",
     "shape": {
       "headWidth": -0.04806101701215676,
       "headHeight": 0.05477567938155129,
@@ -4119,7 +4119,7 @@
   {
     "id": "yoo-seung-ho-connected",
     "name": "yoo-seung-ho (connected study)",
-    "basis": "mpfb-connected-head-2026-09-23-contact",
+    "basis": "mpfb-connected-head-2026-09-23-ocular-contact",
     "shape": {
       "headWidth": -0.04682910582488017,
       "headHeight": 0.023046590402676176,
@@ -4429,7 +4429,7 @@
   {
     "id": "kdy1-connected",
     "name": "kdy1 (connected study)",
-    "basis": "mpfb-connected-head-2026-09-23-contact",
+    "basis": "mpfb-connected-head-2026-09-23-ocular-contact",
     "shape": {
       "headWidth": -0.1663319127017783,
       "headHeight": 0.05669548953187567,

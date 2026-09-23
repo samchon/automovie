@@ -19,6 +19,9 @@ import {
  * lip vertex exactly onto the upper one, and a `press` row that drives a
  * lower lip corner 0.05 inside a face of the lower crown. The tongue is a fixed tetrahedron
  * 0.3 tall behind the incisal plane whose `out` row carries it 0.6 forward.
+ * A closed `globe` octahedron of L1 radius 0.2 at (0, 2, 1) stands in for an
+ * eye: nothing touches it, so it is a second rigid collider the preparation
+ * seals with no ring and the resolution queries without effect.
  */
 export function humanFaceContactFixture(): {
   basis: IAutoMovieHumanFaceBasis;
@@ -162,6 +165,20 @@ export function humanFaceContactFixture(): {
             id: "mouth/all",
             material: "lips",
             indices: [0, 1, 2, 3, 5, 4],
+            uvs: null,
+          },
+        ],
+      },
+      {
+        id: "globe",
+        positions: octahedron(2).positions,
+        indices: [...octahedron(2).upper, ...octahedron(2).lower],
+        targets: {},
+        regions: [
+          {
+            id: "globe/all",
+            material: "skin",
+            indices: [...octahedron(2).upper, ...octahedron(2).lower],
             uvs: null,
           },
         ],

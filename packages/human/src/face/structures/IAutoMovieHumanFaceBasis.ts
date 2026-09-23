@@ -225,7 +225,7 @@ export interface IAutoMovieHumanFaceBasis {
    * The coupled oral contact the basis evaluates after articulation: lip
    * closure scaled to the aperture it has to close, the tongue's passage
    * through the incisors and lips, and soft tissue kept outside the rigid
-   * dental surfaces. Every quantity is measured on the evaluated document,
+   * dental and ocular surfaces. Every quantity is measured on the evaluated document,
    * never read from a per-person table, and an impossible combination is
    * refused by name with the millimetres that decide it rather than clamped.
    *
@@ -241,9 +241,10 @@ export interface IAutoMovieHumanFaceBasis {
    * channel: a tongue past the incisal plane must be thinner, over the slab
    * about that plane, than both apertures, because a constant-volume muscular
    * hydrostat cannot be pressed through closed teeth or sealed lips.
-   * `colliders` are rigid dental surfaces with `closure` triangles that seal
-   * each crown at its root ring and a `reachMetres` within which an open gum
-   * sheet's orientation still tells its sides apart. `soft` surfaces keep, at
+   * `colliders` are rigid surfaces, the dental arches and the globes, with
+   * `closure` triangles that seal each crown at its root ring or a globe at
+   * its posterior pole and a `reachMetres` within which an open gum sheet's
+   * orientation still tells its sides apart. `soft` surfaces keep, at
    * every vertex, the clearance they have in the shape-only rest state: a
    * vertex pushed past that floor is moved back to it along the nearest
    * feature, and a push beyond `budgetMetres` refuses the document. The
@@ -268,7 +269,7 @@ export interface IAutoMovieHumanFaceBasis {
     /** Tongue surface, its protrusion channel and the slab half-width about the incisal plane, in metres. */
     passage: { surface: string; channel: string; slabMetres: number };
 
-    /** Rigid dental colliders: closure triangles over resident vertices and the sheet reach in metres. */
+    /** Rigid colliders (dental arches, globes): closure triangles over resident vertices and the sheet reach in metres. */
     colliders: { surface: string; closure: number[]; reachMetres: number }[];
 
     /** Soft surfaces held outside the colliders, each with the metres it may be pushed before refusal. */
