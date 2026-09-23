@@ -18,7 +18,12 @@
  * surface point, and a fit would then bend unrelated channels (neck, ears)
  * to close that gap. Interior landmarks barely move between views. Each of
  * the 468 mesh landmarks of every view is cast back along its capture ray
- * onto the built neutral `Human` surface (`faceShapeFitSurface.ts`). The
+ * onto the built neutral `Human` surface (`faceShapeFitSurface.ts`), with
+ * the other opaque surfaces (globes, teeth, tongue; the brow and lash cards
+ * are coverage and do not hide) as occluders, so a lid-margin or inner-lip
+ * landmark whose ray slips past the visible edge is held on the skin rim
+ * instead of the socket or the pharynx behind it (`anchorFaceShapeFitRay`,
+ * tolerance 1 mm). The
  * ten iris landmarks lie on the globe, which moves with gaze, and are not
  * anchored. The output records the basis id, the detector and every
  * render's hash and camera. An anchor is shared data of the basis and a
@@ -40,8 +45,8 @@ import {
 } from "./faceLikenessIo";
 import { faceShapeFitRay, faceShapeFitView } from "./faceShapeFitCamera";
 import {
+  anchorFaceShapeFitRay,
   faceShapeFitSurfacePositions,
-  raycastFaceShapeFitSurface,
 } from "./faceShapeFitSurface";
 
 const [study, detectionFile, captureFile, output] = process.argv.slice(2);
@@ -65,6 +70,21 @@ const model = createHumanFaceBasisBuilder(basis)({
 });
 const surface = basis.surfaces.find((one) => one.id === "Human")!;
 const positions = faceShapeFitSurfacePositions(basis, model, "Human");
+const occluders = basis.surfaces
+  .filter(
+    (one) =>
+      one.id !== "Human" &&
+      one.regions.every((region) => {
+        const mode = basis.materials.find(
+          (material) => material.id === region.material,
+        )?.alphaMode;
+        return mode !== "mask" && mode !== "blend";
+      }),
+  )
+  .map((one) => ({
+    positions: faceShapeFitSurfacePositions(basis, model, one.id),
+    indices: one.indices,
+  }));
 const views: Record<string, unknown> = {};
 for (const capture of readFaceLikenessJson<IFaceLikenessCaptures>(captureFile!)
   .captures) {
@@ -77,18 +97,14 @@ for (const capture of readFaceLikenessJson<IFaceLikenessCaptures>(captureFile!)
   const anchors = detection.face.landmarks
     .slice(0, 468)
     .map((pixel, landmark) => {
-      const hit = raycastFaceShapeFitSurface(
+      const anchor = anchorFaceShapeFitRay({
         positions,
-        surface.indices,
-        faceShapeFitRay(view, pixel),
-      );
-      return {
-        landmark,
-        anchor:
-          hit === null
-            ? null
-            : { vertices: hit.vertices, weights: hit.weights },
-      };
+        indices: surface.indices,
+        occluders,
+        ray: faceShapeFitRay(view, pixel),
+        tolerance: 0.001,
+      });
+      return { landmark, anchor };
     });
   views[capture.model] = {
     renderSha256: detection.sha256,

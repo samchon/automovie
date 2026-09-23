@@ -2,6 +2,7 @@ import { createHumanFaceBasisBuilder } from "@automovie/human";
 import { TestValidator } from "@nestia/e2e";
 
 import {
+  anchorFaceShapeFitRay,
   faceShapeFitAnchorPoint,
   faceShapeFitSurfacePositions,
   raycastFaceShapeFitSurface,
@@ -19,7 +20,15 @@ import { nclose, throwsError } from "../internal/predicates";
  *    (0, 2, 3) at distance 1 with weights reproducing that point; a ray
  *    through (2, 2) misses; a ray parallel to the plane misses; the nearer
  *    of two stacked hits wins.
- * 3. A model without a region part and an unknown surface refuse.
+ * 3. With an occluder: the unit square lifted to z = 0.3 as the skin and a
+ *    square over x 1.1..2 at z = 0 as a globe, rays down -Z from z = 1 (a
+ *    direction of length 2, so distances are converted): a ray through the
+ *    skin keeps its own hit; a ray through the globe beside the skin is on
+ *    the visible edge and takes the skin vertex nearest its line, (1, 0),
+ *    even when a vertex on its line exists behind the camera; skin wholly
+ *    behind a globe lifted to z = 0.5 and a ray that meets nothing give
+ *    null.
+ * 4. A model without a region part and an unknown surface refuse.
  */
 export const test_subject_face_shape_fit_surface = (): void => {
   const { basis, document } = humanFaceBasisFixture();
@@ -95,6 +104,58 @@ export const test_subject_face_shape_fit_surface = (): void => {
       direction: [0, 0, -1],
     }) === null,
   );
+
+  const skin = square.positions.map((value, k) => (k % 3 === 2 ? 0.3 : value));
+  const globe = {
+    positions: [1.1, 0, 0, 2, 0, 0, 2, 1, 0, 1.1, 1, 0],
+    indices: square.indices,
+  };
+  const down = (x: number, y: number) => ({
+    origin: [x, y, 1],
+    direction: [0, 0, -2],
+  });
+  const anchor = (
+    ray: ReturnType<typeof down>,
+    occluders = [globe],
+    surface = skin,
+  ) =>
+    anchorFaceShapeFitRay({
+      positions: surface,
+      indices: square.indices,
+      occluders,
+      ray,
+      tolerance: 0.001,
+    });
+  TestValidator.equals(
+    "own hit",
+    anchor(down(0.25, 0.75))?.vertices,
+    [0, 2, 3],
+  );
+  TestValidator.equals("visible edge", anchor(down(1.5, 0.4)), {
+    vertices: [1, 1, 1],
+    weights: [1, 0, 0],
+  });
+  const front = {
+    positions: [0, 0, 0.5, 2, 0, 0.5, 2, 1, 0.5, 0, 1, 0.5],
+    indices: square.indices,
+  };
+  TestValidator.equals(
+    "globe in front of the skin",
+    anchor(down(0.25, 0.75), [front], square.positions),
+    null,
+  );
+  TestValidator.equals(
+    "behind the camera",
+    anchorFaceShapeFitRay({
+      positions: [...skin, 1.5, 0.4, 2],
+      indices: square.indices,
+      occluders: [globe],
+      ray: down(1.5, 0.4),
+      tolerance: 0.001,
+    })?.vertices,
+    [1, 1, 1],
+  );
+  TestValidator.equals("nothing", anchor(down(3, 3)), null);
 
   const model = build({ ...document, shape: {}, expression: {} });
   TestValidator.predicate(

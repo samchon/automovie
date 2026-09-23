@@ -93,6 +93,71 @@ export function raycastFaceShapeFitSurface(
   return best;
 }
 
+/**
+ * Anchor one landmark ray on a surface that other opaque surfaces may hide.
+ *
+ * The detector places a lid-margin or inner-lip landmark on the visible edge
+ * between the skin and the globe or the teeth, and its ray can pass that
+ * edge by a pixel: then the nearest skin hit lies behind the globe or the
+ * teeth, on the socket or the pharynx, centimetres from the edge. So the
+ * surface's own nearest hit is the anchor only when no occluder (the
+ * `occluders`, nearest hit over all) lies in front of it by more than
+ * `tolerance` metres. Otherwise the landmark is on the visible edge, and it
+ * is anchored at the surface vertex nearest the ray line among those no
+ * deeper along the ray than the occluder's hit plus `tolerance`, the skin
+ * rim that bounds what the camera sees. A ray that meets nothing, or an
+ * occluded one with no vertex in front of the occluder, gives null.
+ */
+export function anchorFaceShapeFitRay(props: {
+  positions: readonly number[];
+  indices: readonly number[];
+  occluders: readonly {
+    positions: readonly number[];
+    indices: readonly number[];
+  }[];
+  ray: { origin: readonly number[]; direction: readonly number[] };
+  tolerance: number;
+}): IFaceShapeFitAnchor | null {
+  const hit = raycastFaceShapeFitSurface(
+    props.positions,
+    props.indices,
+    props.ray,
+  );
+  let occluded = Infinity;
+  for (const occluder of props.occluders) {
+    const other = raycastFaceShapeFitSurface(
+      occluder.positions,
+      occluder.indices,
+      props.ray,
+    );
+    if (other !== null) occluded = Math.min(occluded, other.distance);
+  }
+  // Hit distances are in units of the ray direction; compare in metres.
+  const o = props.ray.origin;
+  const d = props.ray.direction;
+  const length = Math.hypot(d[0]!, d[1]!, d[2]!);
+  if (
+    hit !== null &&
+    hit.distance * length <= occluded * length + props.tolerance
+  )
+    return { vertices: hit.vertices, weights: hit.weights };
+  if (occluded === Infinity) return null;
+  let best = -1;
+  let nearest = Infinity;
+  for (let vertex = 0; vertex < props.positions.length / 3; ++vertex) {
+    const offset = [0, 1, 2].map(
+      (k) => props.positions[3 * vertex + k]! - o[k]!,
+    );
+    const along = dot(offset, d) / length;
+    if (along <= 0 || along > occluded * length + props.tolerance) continue;
+    const across = Math.hypot(
+      ...offset.map((value, k) => value - (along * d[k]!) / length),
+    );
+    if (across < nearest) [nearest, best] = [across, vertex];
+  }
+  return best < 0 ? null : { vertices: [best, best, best], weights: [1, 0, 0] };
+}
+
 /** The anchored point on a surface's positions. */
 export function faceShapeFitAnchorPoint(
   positions: readonly number[],
