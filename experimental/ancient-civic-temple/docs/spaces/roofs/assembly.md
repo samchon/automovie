@@ -16,16 +16,16 @@
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation 날개 합성·골·높이 차이 끝면·떠 있는 처마·파라펫 끝·하부 소유가 한 H2에 있고, 코핑과 만나는 세 지붕의 관계는 gable-closures 표로 넘겨 빠진 접점이 없다.
-@evidenceReview principles/core/common.md#substantive-completion 네 지지 높이와 세 경사(12·22·19도), 두께·돌출이 모두 수치로 있고 동측만 19도인 이유가 본문에 있어 source가 경사를 따로 고르지 않는다.
-@evidenceReview principles/core/common.md#declared-basis 서측 약 4.56m와 제실 용마루 약 7.67m는 입력 산술이며 겹침은 스캔으로 잰다고 적어 산술과 측정이 구별된다.
-@evidenceReview principles/design/spaces.md#space-topology 골은 중정 네 안쪽 모서리에만 생기고 제실 처마는 낮은 지붕을 지우지 않고 떠 있어 주랑 통행과 아래 방의 덮임이 유지된다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority 잘린 조각과 끝면이 원래 roof owner의 surface ID에 남고 실내 하부는 방 owner라 assembly가 표면을 가져가지 않는다.
-@evidenceReview principles/design/spaces.md#space-verification-address 22도 동측 박공과 5.05m 제실 지지가 남측·북측 코핑을 뚫은 사례를 본문에 적고 겹침을 스캔으로 재게 해 산술만으로 관통 없음을 통과시키지 않는다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation 설정은 경사·높이 범위만 줬고 세 합성 단위와 지지 높이, 동측 전용 경사는 공간 층의 결정이다.
-@evidenceReview upstream/design/spaces.md#settings-and-map-revision-from-space-work 첫 렌더 대조에서 드러난 roof-form 범위 결함과 그 수리가 적혀 있고, 이번 두 수정은 그 범위 안(19도≥18도, 7.67m≤7.8m)이라 부모를 다시 고치지 않았다.
-@evidenceReview settings/20-envelope.md#roof-form 외쪽 12도는 10~16도, 박공 19·22도는 18~28도, 제실 약 7.67m는 6.8~7.8m, 코핑 4.85m는 4.5~5.2m 안에 있다.
-@evidenceReview settings/20-envelope.md#ceilings 주랑·제실의 노출 하부는 방 owner, 널판 천장 위 틈은 비거주로 남아 지붕 하부가 새 공간이 되지 않는다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 날개 합성·골·높이 차이 끝면·떠 있는 처마·파라펫 끝·하부 소유가 한 H2에 있고, 코핑과 만나는 세 지붕의 관계는 gable-closures 표로 넘겨 빠진 접점이 없다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 네 지지 높이와 세 경사(12·22·19도), 두께·돌출이 모두 수치로 있고 동측만 19도인 이유가 본문에 있어 source가 경사를 따로 고르지 않는다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 서측 약 4.56m와 제실 용마루 약 7.67m는 입력 산술이며 겹침은 스캔으로 잰다고 적어 산술과 측정이 구별된다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 골은 중정 네 안쪽 모서리에만 생기고 제실 처마는 낮은 지붕을 지우지 않고 떠 있어 주랑 통행과 아래 방의 덮임이 유지된다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 잘린 조각과 끝면이 원래 roof owner의 surface ID에 남고 실내 하부는 방 owner라 assembly가 표면을 가져가지 않는다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 22도 동측 박공과 5.05m 제실 지지가 남측·북측 코핑을 뚫은 사례를 본문에 적고 겹침을 스캔으로 재게 해 산술만으로 관통 없음을 통과시키지 않는다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정은 경사·높이 범위만 줬고 세 합성 단위와 지지 높이, 동측 전용 경사는 공간 층의 결정이다.
+@evidenceReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 첫 렌더 대조에서 드러난 roof-form 범위 결함과 그 수리가 적혀 있고, 이번 두 수정은 그 범위 안(19도≥18도, 7.67m≤7.8m)이라 부모를 다시 고치지 않았다.
+@evidenceReview settings/20-envelope.md#roof-form #7269ea1 외쪽 12도는 10~16도, 박공 19·22도는 18~28도, 제실 약 7.67m는 6.8~7.8m, 코핑 4.85m는 4.5~5.2m 안에 있다.
+@evidenceReview settings/20-envelope.md#ceilings #c397437 주랑·제실의 노출 하부는 방 owner, 널판 천장 위 틈은 비거주로 남아 지붕 하부가 새 공간이 되지 않는다.
 -->
 
 [경사지붕 설정](../../settings/20-envelope.md#roof-form)을 소비한다. 지붕은 세 합성 단위로 나뉜다. 날개 단위는 [서측 외쪽 지붕](west.md#west-roof), [북쪽](colonnade.md#north-canopy)·[남쪽](colonnade.md#south-canopy) 주랑 외쪽 지붕, [동측 박공](east.md#east-roof)이며 중정을 둘러싸는 하나의 기와 지붕이다. [제실 박공](sanctuary.md#sanctuary-roof)과 [포치 박공](porch.md#porch-roof)은 각각 별도 단위다. 각 지붕의 높이는 owner가 정한 지지선 위치의 상면 높이에서 유도한다. 중정 쪽 주랑 처마 지지선(west-court·east-court·court-back·court-front)의 상면은 Y=3.20m, 동측 박공의 동측 외벽 중심 지지선은 3.55m, 제실 박공 지지선은 5.35m, 포치 박공 지지선은 4.00m다. 이 값은 지붕 상면의 기준이고 보나 벽의 실제 받침 높이가 아니다.

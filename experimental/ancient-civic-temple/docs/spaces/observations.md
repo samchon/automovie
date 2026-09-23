@@ -21,21 +21,21 @@
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation 주랑의 중정 쪽 안쪽 모서리·현관 몸체 모서리와 junction 묶음, 단면 네 항목까지 목록에 넣어 이전에 빠졌던 접합·골·처마 질문이 분모에서 사라지지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion 1.05m 떨어진 모서리 pose, junction pose 목록, pose 없는 단면 항목과 스캔의 격자·깊이 한계가 적혀 관찰 목록을 source가 그대로 만들 수 있다.
-@evidenceReview principles/core/common.md#declared-basis 엔진 네 모서리가 외접 상자 근처라는 한계와 스캔 수치가 틈·단면 판독을 대신하지 않는다는 한계를 명시해 측정 범위를 넘겨 주장하지 않는다.
-@evidenceReview principles/design/spaces.md#space-topology 주랑 구멍의 안쪽 모서리와 현관 몸체를 외측 모서리와 구별해 세워, 오목한 합집합을 외접 상자 관찰로 대신하지 않는다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority viewer·계측·스캔이 같은 environment의 실체를 읽고 입력 수량이나 별도 화면 좌표를 compiled 결과로 복사하지 않는다.
-@evidenceReview principles/design/spaces.md#space-verification-address 제실 처마의 파라펫 통과와 동측 박공 남쪽 끝이 junction pose로, 실체 겹침이 스캔 쌍 수로 들어가 리뷰가 찾은 두 관통 부류를 다음부터 목록이 잡는다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation 일반 관찰 조건에 이 신전의 주랑 안쪽 모서리·현관 몸체·골·떠 있는 처마·파라펫 만남을 묻는 지역 질문을 더했다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work 반환 pose가 다른 높이를 주어도 부모 1.6m 조건을 낮추지 않고 원 질문과 보조 pose를 함께 남겨 부모 수정이 필요하지 않았다.
-@evidenceReview settings/00-delivery.md#review-condition 실제 바닥과 대지 support 위 눈높이, 주랑 모서리 pose의 1.6m 눈높이를 쓰고 충돌한 원 질문을 지우지 않는다.
-@evidenceReview settings/00-delivery.md#governing-aim 건물/방 정체성의 reference 질문이 topology·접합 전집합 위에 추가돼 좋은 대표 시점 하나로 끝낼 수 없다.
-@evidenceReview settings/50-production.md#references 절개를 검사로 한정하고 다섯 reference를 기존 필수 관찰의 대체로 쓰지 않는다.
-@evidenceReview settings/50-production.md#measurement-truth 겹침은 스캔 수치로, 자기 자신으로 읽힘은 프레임으로 나누고 단면처럼 재는 수단이 없는 항목은 unverified로 남긴다.
-@evidenceReview settings/50-production.md#acceptance 원 질문이나 단면 항목이 unverified로 남은 상태를 완료로 선언하지 않는다는 끝 조건을 유지한다.
-@evidenceReview obligations/design/spaces.md#space-review-set plan·단면·입면·내부·대지·접합 관찰과 실체 겹침 스캔을 각 경계/접합에 배정해 유한하지만 누락 없는 검토를 요구한다.
-@evidenceReview contracts/obligations-spaces.md#compiled-observations 외부 전 노출 면과 각 공간의 threshold/모서리/네 방위에 주랑의 추가 내부 경계 모서리 여섯을 더해 계약의 오목 공간 조건을 채운다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 주랑의 중정 쪽 안쪽 모서리·현관 몸체 모서리와 junction 묶음, 단면 네 항목까지 목록에 넣어 이전에 빠졌던 접합·골·처마 질문이 분모에서 사라지지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 1.05m 떨어진 모서리 pose, junction pose 목록, pose 없는 단면 항목과 스캔의 격자·깊이 한계가 적혀 관찰 목록을 source가 그대로 만들 수 있다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 엔진 네 모서리가 외접 상자 근처라는 한계와 스캔 수치가 틈·단면 판독을 대신하지 않는다는 한계를 명시해 측정 범위를 넘겨 주장하지 않는다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 주랑 구멍의 안쪽 모서리와 현관 몸체를 외측 모서리와 구별해 세워, 오목한 합집합을 외접 상자 관찰로 대신하지 않는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 viewer·계측·스캔이 같은 environment의 실체를 읽고 입력 수량이나 별도 화면 좌표를 compiled 결과로 복사하지 않는다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 제실 처마의 파라펫 통과와 동측 박공 남쪽 끝이 junction pose로, 실체 겹침이 스캔 쌍 수로 들어가 리뷰가 찾은 두 관통 부류를 다음부터 목록이 잡는다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 일반 관찰 조건에 이 신전의 주랑 안쪽 모서리·현관 몸체·골·떠 있는 처마·파라펫 만남을 묻는 지역 질문을 더했다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 반환 pose가 다른 높이를 주어도 부모 1.6m 조건을 낮추지 않고 원 질문과 보조 pose를 함께 남겨 부모 수정이 필요하지 않았다.
+@evidenceReview settings/00-delivery.md#review-condition #6daf6ae 실제 바닥과 대지 support 위 눈높이, 주랑 모서리 pose의 1.6m 눈높이를 쓰고 충돌한 원 질문을 지우지 않는다.
+@evidenceReview settings/00-delivery.md#governing-aim #df3c7b2 건물/방 정체성의 reference 질문이 topology·접합 전집합 위에 추가돼 좋은 대표 시점 하나로 끝낼 수 없다.
+@evidenceReview settings/50-production.md#references #eb34a79 절개를 검사로 한정하고 다섯 reference를 기존 필수 관찰의 대체로 쓰지 않는다.
+@evidenceReview settings/50-production.md#measurement-truth #c6e89a8 겹침은 스캔 수치로, 자기 자신으로 읽힘은 프레임으로 나누고 단면처럼 재는 수단이 없는 항목은 unverified로 남긴다.
+@evidenceReview settings/50-production.md#acceptance #2c49b7f 원 질문이나 단면 항목이 unverified로 남은 상태를 완료로 선언하지 않는다는 끝 조건을 유지한다.
+@evidenceReview obligations/design/spaces.md#space-review-set #86bcab4 plan·단면·입면·내부·대지·접합 관찰과 실체 겹침 스캔을 각 경계/접합에 배정해 유한하지만 누락 없는 검토를 요구한다.
+@evidenceReview contracts/obligations-spaces.md#compiled-observations #09b52ea 외부 전 노출 면과 각 공간의 threshold/모서리/네 방위에 주랑의 추가 내부 경계 모서리 여섯을 더해 계약의 오목 공간 조건을 채운다.
 -->
 
 [관찰 계약](../contracts/obligations-spaces.md#compiled-observations)과 [검토 프레임](../settings/00-delivery.md#review-condition)을 그대로 소비한다. 입력은 한 generation의 실제 built environment와 lowering 산출물이며 viewer와 계측이 같은 값을 쓴다. `builtEnvironmentBuildingCensus`의 외피·지붕·처마 하부·모서리·외부 출입 population을 소비하되 내부 개구부는 별도 actual boundary/opening 전집합에서 더한다. 이 census는 host face를 가진 단일 공간 경계만 입면으로 세며 지붕은 경계 face가 아니어서 지붕·처마 하부 population이 비므로, 네 방향 지붕 조감과 네 입면의 처마 하부 관찰을 source owner가 별도로 더한다.
@@ -92,24 +92,24 @@
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation 현재 source·문 상태·관찰 generation과 한국어 UI, GPU 확인이 한 전달 경로에 묶여 그림만 다른 시점의 결과가 되지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion CJS producer에서 mesh/변환/재료를 전송하는 순서와 오류·포트 처리, 시작 명령·경로가 구체적이다.
-@evidenceReview principles/core/common.md#declared-basis 마지막 문단이 저작자 GPU 확인을 전달 경로 동작의 증거로만 한정하고 방별 reference 판독과 구별해 더는 viewer가 없다는 낡은 문장이 남지 않는다.
-@evidenceReview principles/design/spaces.md#space-topology 논리 cap·support·외접 상자는 기본 실체 화면에 그리지 않아 누락 구조를 검사 도형으로 감출 수 없다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority part local과 element world를 분리하고 UV/재료 부재도 보존해 client가 새 건물을 만들지 않는다.
-@evidenceReview principles/design/spaces.md#space-verification-address 오류 시 이전 화면을 버리고 RENDERER·콘솔·빈 캔버스를 매번 다시 확인하는 조건이 오래된 성공 화면을 증거로 쓰는 것을 막는다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation 부모 CJS 약속을 lowering의 문 상태와 part/world 변환을 보존하는 구체 전송 경계로 좁혔다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work UV 부재와 authored set 한계를 전달 계약에 드러낼 수 있어 ESM 전환이나 소프트웨어 캡처의 성공 인정이 필요하지 않았다.
-@evidenceReview settings/00-delivery.md#delivery-scope 공간 library의 실제 source를 보는 경로이며 client용 복제 건물이나 영화로 납품을 바꾸지 않는다.
-@evidenceReview settings/00-delivery.md#operator-access 라벨·경계·절개는 명시 검사에서만 켜고 공간 선택 패널은 화면 밖에 둔다.
-@evidenceReview settings/00-delivery.md#working-language 공간/관찰 선택과 설명을 한국어로 제공하고 API 식별자는 정확히 보존한다.
-@evidenceReview settings/00-delivery.md#operative-subjects producer가 실체를 만들고 renderer는 전달받은 값을 그려 관찰 UI가 geometry 저작자가 되지 않는다.
-@evidenceReview settings/00-delivery.md#accessibility 텍스트 목록·키보드 선택·색 외 상태 표시를 관찰 UI 조건으로 두고 실제 조작 성공은 source와 관찰에서 확인한다고 적었다.
-@evidenceReview settings/50-production.md#runtime-boundary 브라우저에서 Node/engine runtime을 import하지 않고 CJS 서버만 engine을 호출한다.
-@evidenceReview settings/50-production.md#fidelity 원근·조명·그림자·깊이는 실제 mesh에 적용하고 support를 바닥으로 대체하지 않는다.
-@evidenceReview settings/50-production.md#gpu-observation chromium 채널에서 하드웨어 RENDERER·콘솔 오류·빈 캔버스를 확인하는 방법이 적혀 소프트웨어 렌더나 빈 화면을 GPU 성공으로 셀 수 없다.
-@evidenceReview settings/50-production.md#execution-authority package.json의 viewer script가 시작 명령을 가지고 서버를 띄워 두는 역할은 조정자로 나뉘어 있다.
-@evidenceReview settings/50-production.md#author-commits 의존성 변경 때 root pnpm install과 lockfile 동시 commit을 명시해 frozen install의 불일치를 막는다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 현재 source·문 상태·관찰 generation과 한국어 UI, GPU 확인이 한 전달 경로에 묶여 그림만 다른 시점의 결과가 되지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 CJS producer에서 mesh/변환/재료를 전송하는 순서와 오류·포트 처리, 시작 명령·경로가 구체적이다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 마지막 문단이 저작자 GPU 확인을 전달 경로 동작의 증거로만 한정하고 방별 reference 판독과 구별해 더는 viewer가 없다는 낡은 문장이 남지 않는다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 논리 cap·support·외접 상자는 기본 실체 화면에 그리지 않아 누락 구조를 검사 도형으로 감출 수 없다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 part local과 element world를 분리하고 UV/재료 부재도 보존해 client가 새 건물을 만들지 않는다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 오류 시 이전 화면을 버리고 RENDERER·콘솔·빈 캔버스를 매번 다시 확인하는 조건이 오래된 성공 화면을 증거로 쓰는 것을 막는다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모 CJS 약속을 lowering의 문 상태와 part/world 변환을 보존하는 구체 전송 경계로 좁혔다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 UV 부재와 authored set 한계를 전달 계약에 드러낼 수 있어 ESM 전환이나 소프트웨어 캡처의 성공 인정이 필요하지 않았다.
+@evidenceReview settings/00-delivery.md#delivery-scope #142c909 공간 library의 실제 source를 보는 경로이며 client용 복제 건물이나 영화로 납품을 바꾸지 않는다.
+@evidenceReview settings/00-delivery.md#operator-access #e19a32a 라벨·경계·절개는 명시 검사에서만 켜고 공간 선택 패널은 화면 밖에 둔다.
+@evidenceReview settings/00-delivery.md#working-language #ba75eb7 공간/관찰 선택과 설명을 한국어로 제공하고 API 식별자는 정확히 보존한다.
+@evidenceReview settings/00-delivery.md#operative-subjects #78af323 producer가 실체를 만들고 renderer는 전달받은 값을 그려 관찰 UI가 geometry 저작자가 되지 않는다.
+@evidenceReview settings/00-delivery.md#accessibility #e5000b9 텍스트 목록·키보드 선택·색 외 상태 표시를 관찰 UI 조건으로 두고 실제 조작 성공은 source와 관찰에서 확인한다고 적었다.
+@evidenceReview settings/50-production.md#runtime-boundary #3eb9810 브라우저에서 Node/engine runtime을 import하지 않고 CJS 서버만 engine을 호출한다.
+@evidenceReview settings/50-production.md#fidelity #bb89317 원근·조명·그림자·깊이는 실제 mesh에 적용하고 support를 바닥으로 대체하지 않는다.
+@evidenceReview settings/50-production.md#gpu-observation #b0ab4b5 chromium 채널에서 하드웨어 RENDERER·콘솔 오류·빈 캔버스를 확인하는 방법이 적혀 소프트웨어 렌더나 빈 화면을 GPU 성공으로 셀 수 없다.
+@evidenceReview settings/50-production.md#execution-authority #cf13b03 package.json의 viewer script가 시작 명령을 가지고 서버를 띄워 두는 역할은 조정자로 나뉘어 있다.
+@evidenceReview settings/50-production.md#author-commits #f2218c8 의존성 변경 때 root pnpm install과 lockfile 동시 commit을 명시해 frozen install의 불일치를 막는다.
 -->
 
 [CJS 경계](../settings/50-production.md#runtime-boundary)를 따른다. `src/viewer/server.cts`가 CJS 환경에서 생산 source와 공개 engine을 호출하고 현재 environment, 실제 mesh·transform·material, 같은 generation의 관찰 정보를 클라이언트로 전달한다. 브라우저는 Node/engine 런타임을 import하지 않으며 실제 3D 원근·조명·그림자·깊이로 받은 geometry를 그린다. 건물을 client 데이터로 다시 만들지 않는다. 실행 코드는 src, HTML·스타일 자산은 public에 둔다.

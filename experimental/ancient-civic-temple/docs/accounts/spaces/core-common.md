@@ -53,7 +53,7 @@ viewer-path의 한국어 설명과 키보드 조작은 설계 요구이며 이�
 -->
 
 <!--
-@evidenceReview obligations/core/common.md#proportionate-development 표의 27파일 값을 `npm run self-check`가 같은 방식으로 다시 출력해 일치하고(site 5518, storey 3143 포함), 늘어난 파일은 v-077→현재 값과 그 파일을 바꾼 변경만 적어 증가분을 한 변경에 잘못 몰지 않는다.
+@evidenceReview obligations/core/common.md#proportionate-development #78feb28 표의 27파일 값을 `npm run self-check`가 같은 방식으로 다시 출력해 일치하고(site 5518, storey 3143 포함), 늘어난 파일은 v-077→현재 값과 그 파일을 바꾼 변경만 적어 증가분을 한 변경에 잘못 몰지 않는다.
 -->
 
 비교 기준은 21×20.5m 단층, 같은 층의 아홉 공간, 네 외측 입면, 하나의 주랑, 여섯 roof 문서가 다루는 외피와 그 둘레의 국소 대지다. 이 숫자는 authored 설계의 분포이며 compiled census가 아니다. 현재는 27파일/45 H2다. 아래 문자 수는 해당 Markdown에서 HTML 주석·제목 줄·공백 문자를 제거한 본문의 유니코드 코드 포인트 수이며 `npm run self-check`가 같은 방식으로 파일마다 출력한다. 링크/표 표기 문자는 남겼으므로 독자용 어절 수나 geometry 양으로 읽지 않는다. evidence 문장이 길어져 생긴 분량은 이 비교에 포함하지 않았다.

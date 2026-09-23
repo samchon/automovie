@@ -19,19 +19,19 @@
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation 문턱·박공·외부 처마와 대지 표면에 더해 내부 경계벽 reveal 행이 생겨, 역검사에서 owner 없이 방출되던 표면이 표 밖에 남지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion 각 행이 design anchor와 source 경로를 짝짓고 surface.<owner>.<face> ID와 단독 저작 규칙을 정했다.
-@evidenceReview principles/core/common.md#declared-basis 표는 설계 답이고, 방출 surface ID의 owner 열거와 표 행의 대조가 별도 역검사라고 마지막 문단이 구별한다.
-@evidenceReview principles/design/spaces.md#space-topology 한 공유벽의 양쪽 마감과 내부 접촉면을 구별해 실체와 시각 면을 같은 것으로 세지 않는다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority cell 분해나 반복이 완결 면을 나눌 권한이 없고 독립 물체와 이웃·식생의 표면은 prototype 하나에 남는다.
-@evidenceReview principles/design/spaces.md#space-verification-address 역검사를 `npm run self-check`의 owner 열거로 수행한다고 적어, 누락 owner가 하나라도 있으면 1단계를 닫지 않는 조건을 실제로 적용할 수단이 있다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation settings의 분기 배정을 각 입면·방·roof·대지·내부 경계벽의 단독 파일과 접합 면의 귀속으로 구체화했다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work 물리벽과 양면 마감, reveal을 구별하면 분담이 유지돼 이 표면 지도에서 드러난 부모 결함은 없고, 대지 행 수정은 site의 upstream 보고로 분리돼 있다.
-@evidenceReview settings/00-delivery.md#build-scope 고친 build-scope의 대지 행이 표의 두 대지 행으로, 독립 물체 행이 prototype 소유 문장으로 대응한다.
-@evidenceReview obligations/design/spaces.md#addressable-spatial-decisions 기준·문·접합·표면·관찰·대지·내부 경계벽 owner를 전체 문서와 대조했고 junctions는 새 완결 면 owner가 아니다.
-@evidenceReview contracts/obligations-spaces.md#surface-ownership 방 바닥의 벽 두께 문턱, roof 하부·박공, 대지 표면, 내부 경계벽 reveal까지 표에서 귀속시켜 최초 분해를 지급한다.
-@evidenceExcludeReview settings/00-delivery.md#coverage-map 현재 27파일 45 H2 어디에도 settings 파일 소유 목록 자체를 다시 완성하는 host는 없다.
-@evidenceExcludeReview settings/40-environment.md#daylight 창·roof·대지 표면의 가림은 결정됐지만 태양 고도·광원 방향·노출을 정하는 host는 없고 조명 수치는 systems에 남는다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 문턱·박공·외부 처마와 대지 표면에 더해 내부 경계벽 reveal 행이 생겨, 역검사에서 owner 없이 방출되던 표면이 표 밖에 남지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 각 행이 design anchor와 source 경로를 짝짓고 surface.<owner>.<face> ID와 단독 저작 규칙을 정했다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 표는 설계 답이고, 방출 surface ID의 owner 열거와 표 행의 대조가 별도 역검사라고 마지막 문단이 구별한다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 한 공유벽의 양쪽 마감과 내부 접촉면을 구별해 실체와 시각 면을 같은 것으로 세지 않는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 cell 분해나 반복이 완결 면을 나눌 권한이 없고 독립 물체와 이웃·식생의 표면은 prototype 하나에 남는다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 역검사를 `npm run self-check`의 owner 열거로 수행한다고 적어, 누락 owner가 하나라도 있으면 1단계를 닫지 않는 조건을 실제로 적용할 수단이 있다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 settings의 분기 배정을 각 입면·방·roof·대지·내부 경계벽의 단독 파일과 접합 면의 귀속으로 구체화했다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 물리벽과 양면 마감, reveal을 구별하면 분담이 유지돼 이 표면 지도에서 드러난 부모 결함은 없고, 대지 행 수정은 site의 upstream 보고로 분리돼 있다.
+@evidenceReview settings/00-delivery.md#build-scope #8d597f9 고친 build-scope의 대지 행이 표의 두 대지 행으로, 독립 물체 행이 prototype 소유 문장으로 대응한다.
+@evidenceReview obligations/design/spaces.md#addressable-spatial-decisions #9c97153 기준·문·접합·표면·관찰·대지·내부 경계벽 owner를 전체 문서와 대조했고 junctions는 새 완결 면 owner가 아니다.
+@evidenceReview contracts/obligations-spaces.md#surface-ownership #1a50ebe 방 바닥의 벽 두께 문턱, roof 하부·박공, 대지 표면, 내부 경계벽 reveal까지 표에서 귀속시켜 최초 분해를 지급한다.
+@evidenceExcludeReview settings/00-delivery.md#coverage-map #fe00d39 현재 27파일 45 H2 어디에도 settings 파일 소유 목록 자체를 다시 완성하는 host는 없다.
+@evidenceExcludeReview settings/40-environment.md#daylight #eac4028 창·roof·대지 표면의 가림은 결정됐지만 태양 고도·광원 방향·노출을 정하는 host는 없고 조명 수치는 systems에 남는다.
 -->
 
 [추가 공간 의무](../contracts/obligations-spaces.md#surface-ownership)를 실제 평면 경계와 연결한다. 아래의 source 경로는 각 완결 표면의 단독 저작 owner다. 표가 있다는 사실은 compiled binding의 역검사 통과를 뜻하지 않는다. 저작자는 이번 production 세션 한 명이고 fan-out이 생겨도 하나의 행이 가진 완결 표면을 여러 사람에게 나누지 않는다. 내부벽의 물리 topology는 [boundaries](openings.md#boundary-ownership) 한 소유이며 마주 보는 두 마감은 각각의 방 소유다.

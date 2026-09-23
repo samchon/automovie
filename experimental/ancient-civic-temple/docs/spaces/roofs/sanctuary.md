@@ -15,15 +15,15 @@
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation 두 경사면·용마루·네 끝 처마와 창 위 두께에 더해 서쪽 처마가 봉헌실 파라펫 위를 지나는 끝까지 다뤄 처마 한쪽의 만남을 빠뜨리지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion 5.35m 지지와 X=0 용마루, 네 끝 참조면과 0.35m 돌출이 있어 제실 박공의 모든 끝선을 source가 새로 고르지 않는다.
-@evidenceReview principles/core/common.md#declared-basis 약 7.67m·5.15m·4.95m가 22도 산술이고 처마 하부가 코핑 윗면보다 약 0.10m 높다는 비교가 적혀 있으며 기와·목재 완성을 주장하지 않는다.
-@evidenceReview principles/design/spaces.md#space-topology 서·남·동 처마가 아래 지붕이나 마당 위에 떠 있고 제실 벽이나 층을 옮기지 않는다는 관계가 끝선 문단에 있다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority 처마 하부와 봉헌실 파라펫의 관계는 gable-closures로 넘기고 이 H2는 roof 상부·외부 하부만 소유해 같은 접점을 두 곳이 정하지 않는다.
-@evidenceReview principles/design/spaces.md#space-verification-address 떠 있는 처마 아래 틈의 관찰 요구가 있고, 5.05m일 때 서쪽 처마가 코핑을 관통한 결함을 올린 지지 높이로 고쳐 이 틈 관찰이 실제로 비어 있게 되었다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation 설정의 가장 높은 후면 박공에 5.35m 지지와 축상 용마루, 떠 있는 처마를 더한 것이 이 단위의 결정이다.
-@evidenceReview upstream/design/spaces.md#settings-and-map-revision-from-space-work 과거 6.2m 상한 수리가 적혀 있고 현재 용마루 약 7.67m도 수리된 6.8~7.8m 안이라 부모를 다시 고칠 결함은 없다.
-@evidenceReview settings/20-envelope.md#roof-form 용마루 약 7.67m가 6.8~7.8m 안이고 처마까지 코핑보다 높아 가장 높은 후면 매스라는 부모 조건을 지킨다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 두 경사면·용마루·네 끝 처마와 창 위 두께에 더해 서쪽 처마가 봉헌실 파라펫 위를 지나는 끝까지 다뤄 처마 한쪽의 만남을 빠뜨리지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 5.35m 지지와 X=0 용마루, 네 끝 참조면과 0.35m 돌출이 있어 제실 박공의 모든 끝선을 source가 새로 고르지 않는다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 약 7.67m·5.15m·4.95m가 22도 산술이고 처마 하부가 코핑 윗면보다 약 0.10m 높다는 비교가 적혀 있으며 기와·목재 완성을 주장하지 않는다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 서·남·동 처마가 아래 지붕이나 마당 위에 떠 있고 제실 벽이나 층을 옮기지 않는다는 관계가 끝선 문단에 있다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 처마 하부와 봉헌실 파라펫의 관계는 gable-closures로 넘기고 이 H2는 roof 상부·외부 하부만 소유해 같은 접점을 두 곳이 정하지 않는다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 떠 있는 처마 아래 틈의 관찰 요구가 있고, 5.05m일 때 서쪽 처마가 코핑을 관통한 결함을 올린 지지 높이로 고쳐 이 틈 관찰이 실제로 비어 있게 되었다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정의 가장 높은 후면 박공에 5.35m 지지와 축상 용마루, 떠 있는 처마를 더한 것이 이 단위의 결정이다.
+@evidenceReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 과거 6.2m 상한 수리가 적혀 있고 현재 용마루 약 7.67m도 수리된 6.8~7.8m 안이라 부모를 다시 고칠 결함은 없다.
+@evidenceReview settings/20-envelope.md#roof-form #7269ea1 용마루 약 7.67m가 6.8~7.8m 안이고 처마까지 코핑보다 높아 가장 높은 후면 매스라는 부모 조건을 지킨다.
 -->
 
 [제실 공간](../rooms/sanctuary.md#sanctuary-volume) 위의 박공 지지선은 X=±5.75m다. 지지선 위치의 상면은 [공통 지지 높이](assembly.md#roof-junctions)의 제실 값 5.35m이고 용마루는 X=0의 Z 방향 직선이며 박공은 북·남을 향한다. 이 매스의 계산 용마루는 약 7.67m로 [설정 허용 높이](../../settings/20-envelope.md#roof-form) 6.8~7.8m 안이고 외곽 파라펫 코핑보다 높은 가장 높은 매스로 읽힌다. 서·동 처마 끝 상면은 약 5.15m, 그 하부는 약 4.95m다. 서쪽 처마는 north-outer 너머까지 봉헌실 구간 북측 파라펫 위를 지나므로 그 하부가 코핑 윗면 4.85m보다 약 0.10m 높아야 하며 이 관계는 [박공과 파라펫 폐쇄](../junctions.md#gable-closures)가 소유한다.

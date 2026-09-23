@@ -145,7 +145,7 @@ building ID는 `temple`이다. source 소유는 `src/spaces/building.ts`이며 b
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation 표의 두 행이 정문 발치와 서비스 문턱을 별도 접점으로 두고, 마지막 문단이 두 높이(정문 도로 -0.24m, 서비스 외부 Y=0)를 대지 지면이 잇는다고 적어 두 진입을 한 높이로 합치는 축소가 남지 않는다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 표의 두 행이 정문 발치와 서비스 문턱을 별도 접점으로 두고, 마지막 문단이 두 높이(정문 도로 -0.24m, 서비스 외부 Y=0)를 대지 지면이 잇는다고 적어 두 진입을 한 높이로 합치는 축소가 남지 않는다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 두 contact의 연결 공간·위치·유효 범위·진입 방향이 표 네 열에 채워져 대지 connector가 받을 접면을 새로 고르지 않는다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 마지막 문단이 외부 지면·길·경계석을 대지 owner로 돌리고 위치·높이·폭은 기준선·층·계단/문 링크에서 받아 이 H2가 새로 정한 값이 없다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 contact가 새 방·추가 출입문·대지 쪽 공간이 아니라는 문장과 temple-site의 두 connector가 받는다는 문장이 함께 있어 외부와 건물의 연결이 하나로 읽힌다.

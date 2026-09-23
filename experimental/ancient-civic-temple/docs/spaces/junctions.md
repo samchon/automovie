@@ -15,15 +15,15 @@
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation 외곽 네 모서리, spine과 가로벽 T 접합, 현관 후퇴벽·반환벽 끝이 모두 규칙에 들어 방 수나 문을 바꾸지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion 등거리 대각면과 관통벽 접면에서 끝나는 가지 벽의 X 범위가 기준선 이름으로 적혀 source가 접합 위치를 새로 고르지 않는다.
-@evidenceReview principles/core/common.md#declared-basis 모서리 배정은 기준선과 경계 인접성에서 유도되고 source 문장이 이미 있는 junctions.ts를 가리켜 예정 표현이 남지 않는다.
-@evidenceReview principles/design/spaces.md#space-topology 접촉 내부 면을 새 통로나 노출 마감으로 세지 않는다는 문장이 L/T 접합을 닫는 접면으로 한정한다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority 현관 후퇴벽·반환벽은 남측 외피의 물리 소유이고 boundaries가 두 번째 실체를 만들지 않는다고 적어 이중 저작이 없다.
-@evidenceReview principles/design/spaces.md#space-verification-address 겹친 체적은 스캔 수치, 틈·끝마개는 화면, 단면은 unverified로 나눠 재는 수단과 남은 공백이 본문 마지막 문단에 구별돼 있다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation 부모의 연속 회벽 요구에 대각 맞댐과 가지 벽 끝 범위라는 접합 규칙을 더했다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work 직사각 외곽과 0.6m 외벽이 대각·T 접합으로 함께 성립해 부모 외곽을 바꿀 필요가 없었다.
-@evidenceReview settings/20-envelope.md#walls 네 입면의 바깥 면이 전 길이로 원래 입면에 남아 겹친 상자 끝이 회벽 모서리를 대신하지 않는다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 외곽 네 모서리, spine과 가로벽 T 접합, 현관 후퇴벽·반환벽 끝이 모두 규칙에 들어 방 수나 문을 바꾸지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 등거리 대각면과 관통벽 접면에서 끝나는 가지 벽의 X 범위가 기준선 이름으로 적혀 source가 접합 위치를 새로 고르지 않는다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 모서리 배정은 기준선과 경계 인접성에서 유도되고 source 문장이 이미 있는 junctions.ts를 가리켜 예정 표현이 남지 않는다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 접촉 내부 면을 새 통로나 노출 마감으로 세지 않는다는 문장이 L/T 접합을 닫는 접면으로 한정한다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 현관 후퇴벽·반환벽은 남측 외피의 물리 소유이고 boundaries가 두 번째 실체를 만들지 않는다고 적어 이중 저작이 없다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 겹친 체적은 스캔 수치, 틈·끝마개는 화면, 단면은 unverified로 나눠 재는 수단과 남은 공백이 본문 마지막 문단에 구별돼 있다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 연속 회벽 요구에 대각 맞댐과 가지 벽 끝 범위라는 접합 규칙을 더했다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 직사각 외곽과 0.6m 외벽이 대각·T 접합으로 함께 성립해 부모 외곽을 바꿀 필요가 없었다.
+@evidenceReview settings/20-envelope.md#walls #35026c5 네 입면의 바깥 면이 전 길이로 원래 입면에 남아 겹친 상자 끝이 회벽 모서리를 대신하지 않는다.
 -->
 
 [공유 기준선](building.md#plan-datums)과 [경계의 인접 관계](openings.md#boundary-ownership)를 소비한다. 이 결정은 방의 수·경계·문·통행을 바꾸지 않고, 같은 벽 교차부를 두 실체가 동시에 차지하지 않게 한다. source `src/spaces/junctions.ts`는 경계의 절단 입력과 접면 관계를 계산하고 완결 입면이나 방 표면을 소유하지 않는다. 물리벽은 기존 입면 또는 boundaries 소유가 그 입력으로 만든다.
@@ -50,16 +50,16 @@
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation 표가 동측 박공 남쪽 끝의 코핑 관계와 제실 서쪽 처마의 봉헌실 파라펫 통과를 새 행으로 가져 리뷰에서 드러난 두 접점을 모두 포함한다.
-@evidenceReview principles/core/common.md#substantive-completion 두 새 행에 용마루 약 4.53m·기와 약 4.63m 대 코핑 아랫면 4.69m, 처마 하부 약 4.95m 대 코핑 윗면 4.85m가 적혀 접점마다 여유가 수치로 정해진다.
-@evidenceReview principles/core/common.md#declared-basis 높이는 합성 roof와 남측 입면에서 소비하고 표는 벽 연장·표면 귀속·여유만 적어 지붕 높이를 이 H2가 새로 정하지 않는다.
-@evidenceReview principles/design/spaces.md#space-topology 제실 처마와 파라펫 사이 틈을 외부로 두고 파라펫·서측 spine이 양쪽을 닫는다고 적어 새 벽이나 옥상 공간을 만들지 않는다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority 용마루 덮개 줄이 코핑 돌출 끝에서 멈춘다는 규칙을 표에 두고 덮개 배치는 models/instances에 남겨 표면 소유를 가져가지 않는다.
-@evidenceReview principles/design/spaces.md#space-verification-address 관찰 문단이 외피 겹침 스캔의 겹친 쌍이 하나라도 있으면 실패라고 정해, 조감에서 가려진 코핑 관통도 수치로 드러난다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation 파라펫·박공 요구에 접점별 벽 연장과 띠 분할, roof-only 폐쇄, 코핑과의 여유 규칙을 더했다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work 두 관통은 spaces의 지붕 선택에서 생긴 결함이고 수리된 부모 범위 안에서 고쳐져 부모 설정을 바꿀 필요가 없었다.
-@evidenceReview settings/20-envelope.md#roof-form 서측·남측·북측 봉헌실 구간 파라펫이 외쪽 지붕 끝 위로 솟고 동측 박공 용마루도 코핑 아래에 머물러 부모의 파라펫 정면이 유지된다.
-@evidenceReview settings/20-envelope.md#ceilings 낮은 천장 위 빈틈에 내부용 마감/문/관찰 방을 새로 만들지 않아 노출 하부와 비거주 틈을 구별한다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 표가 동측 박공 남쪽 끝의 코핑 관계와 제실 서쪽 처마의 봉헌실 파라펫 통과를 새 행으로 가져 리뷰에서 드러난 두 접점을 모두 포함한다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 두 새 행에 용마루 약 4.53m·기와 약 4.63m 대 코핑 아랫면 4.69m, 처마 하부 약 4.95m 대 코핑 윗면 4.85m가 적혀 접점마다 여유가 수치로 정해진다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 높이는 합성 roof와 남측 입면에서 소비하고 표는 벽 연장·표면 귀속·여유만 적어 지붕 높이를 이 H2가 새로 정하지 않는다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 제실 처마와 파라펫 사이 틈을 외부로 두고 파라펫·서측 spine이 양쪽을 닫는다고 적어 새 벽이나 옥상 공간을 만들지 않는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 용마루 덮개 줄이 코핑 돌출 끝에서 멈춘다는 규칙을 표에 두고 덮개 배치는 models/instances에 남겨 표면 소유를 가져가지 않는다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 관찰 문단이 외피 겹침 스캔의 겹친 쌍이 하나라도 있으면 실패라고 정해, 조감에서 가려진 코핑 관통도 수치로 드러난다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 파라펫·박공 요구에 접점별 벽 연장과 띠 분할, roof-only 폐쇄, 코핑과의 여유 규칙을 더했다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 두 관통은 spaces의 지붕 선택에서 생긴 결함이고 수리된 부모 범위 안에서 고쳐져 부모 설정을 바꿀 필요가 없었다.
+@evidenceReview settings/20-envelope.md#roof-form #7269ea1 서측·남측·북측 봉헌실 구간 파라펫이 외쪽 지붕 끝 위로 솟고 동측 박공 용마루도 코핑 아래에 머물러 부모의 파라펫 정면이 유지된다.
+@evidenceReview settings/20-envelope.md#ceilings #c397437 낮은 천장 위 빈틈에 내부용 마감/문/관찰 방을 새로 만들지 않아 노출 하부와 비거주 틈을 구별한다.
 -->
 
 [지붕 합성](roofs/assembly.md#roof-junctions)의 상면·평행 하부면과 [코핑 높이](facades/south.md#south-envelope)를 소비한다. 지붕 밑 벽의 상단은 벽 두께 안 각 위치의 실제 지붕 하부까지 닫고, 외쪽 지붕의 높은 끝이 닿는 외곽 벽은 지붕 위로 코핑까지 솟는 파라펫이다. 지붕에 닿는 벽 면은 지붕 하부 아래의 실내/주랑 마감, 지붕 두께 안의 가려진 접면, 지붕 상면 위의 외면으로 나뉜다. 처마 기준 높이에서 수평으로 자르거나 그 높이를 경사지붕 위로 돌출시키지 않으며 주랑의 열린 cell 사이에 새로운 바닥부터의 막음벽을 만들지 않는다.
@@ -98,16 +98,16 @@
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation 코핑 대상 다섯 종류의 윗단과 기단 대상 외곽 바깥면이 열거되고, 빠지는 곳은 서비스 문 앞과 현관 후퇴부 두 곳으로 이유와 함께 한정돼 있다.
-@evidenceReview principles/core/common.md#substantive-completion 0.16·0.06·0.04m와 받침면 높이, 정면 0.41m·북쪽 0.65m 기단 상단이 적혀 source가 단면을 새로 고를 여지가 없다.
-@evidenceReview principles/core/common.md#declared-basis 네 높이 입력은 각 owner 링크로 받고 두께·돌출만 저작자 결정이라고 표시해 소비한 값과 새 결정이 구별된다.
-@evidenceReview principles/design/spaces.md#space-topology 기단이 현관 후퇴부와 서비스 문 앞에서 끊긴다는 문장이 두 출입 경로에 턱을 만들지 않고, 파라펫 뒤 새 공간도 없다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority 코핑·기단 표면을 각 입면과 서비스 마당의 기존 ID로 남기고 지붕과의 여유 표는 gable-closures에 두어 한 관계를 두 곳이 정하지 않는다.
-@evidenceReview principles/design/spaces.md#space-verification-address 코핑 아랫면과 만나는 세 지붕의 높이(약 4.66·3.95·4.63m)와 제실 처마 여유(약 0.10m)를 적고 스캔 겹침 0으로 확인하게 해, 서측 한 곳만 본 이전 산술의 공백을 닫았다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation 부모는 석재 기단·코핑의 존재와 두 높이만 줬고 두께·돌출·모서리·높은 벽 끝 규칙은 이 공간 단위가 더했다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work 코핑 관통 두 곳은 지붕 owner의 선택을 범위 안에서 바꿔 고쳐졌고 코핑 범위·기단 높이는 그대로라 부모 결함이 아니었다.
-@evidenceReview settings/20-envelope.md#walls 기단이 회벽 면 위 색 띠가 아니라 0.04m 앞으로 나온 실제 띠라서 재료 경계가 부재 경계를 따른다는 부모 조건을 지킨다.
-@evidenceReview settings/20-envelope.md#roof-form 파라펫 윗단이 석재 코핑으로 끝나고 코핑과 만나는 세 지붕 상면이 모두 코핑 아래에 머물러 외곽 파라펫 정면이 유지된다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 코핑 대상 다섯 종류의 윗단과 기단 대상 외곽 바깥면이 열거되고, 빠지는 곳은 서비스 문 앞과 현관 후퇴부 두 곳으로 이유와 함께 한정돼 있다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 0.16·0.06·0.04m와 받침면 높이, 정면 0.41m·북쪽 0.65m 기단 상단이 적혀 source가 단면을 새로 고를 여지가 없다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 네 높이 입력은 각 owner 링크로 받고 두께·돌출만 저작자 결정이라고 표시해 소비한 값과 새 결정이 구별된다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 기단이 현관 후퇴부와 서비스 문 앞에서 끊긴다는 문장이 두 출입 경로에 턱을 만들지 않고, 파라펫 뒤 새 공간도 없다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 코핑·기단 표면을 각 입면과 서비스 마당의 기존 ID로 남기고 지붕과의 여유 표는 gable-closures에 두어 한 관계를 두 곳이 정하지 않는다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 코핑 아랫면과 만나는 세 지붕의 높이(약 4.66·3.95·4.63m)와 제실 처마 여유(약 0.10m)를 적고 스캔 겹침 0으로 확인하게 해, 서측 한 곳만 본 이전 산술의 공백을 닫았다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모는 석재 기단·코핑의 존재와 두 높이만 줬고 두께·돌출·모서리·높은 벽 끝 규칙은 이 공간 단위가 더했다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 코핑 관통 두 곳은 지붕 owner의 선택을 범위 안에서 바꿔 고쳐졌고 코핑 범위·기단 높이는 그대로라 부모 결함이 아니었다.
+@evidenceReview settings/20-envelope.md#walls #35026c5 기단이 회벽 면 위 색 띠가 아니라 0.04m 앞으로 나온 실제 띠라서 재료 경계가 부재 경계를 따른다는 부모 조건을 지킨다.
+@evidenceReview settings/20-envelope.md#roof-form #7269ea1 파라펫 윗단이 석재 코핑으로 끝나고 코핑과 만나는 세 지붕 상면이 모두 코핑 아래에 머물러 외곽 파라펫 정면이 유지된다.
 -->
 
 [외피 canon](../settings/20-envelope.md#walls)의 연한 석재 기단과 [남측 입면](facades/south.md#south-envelope)의 석재 코핑을 네 입면과 마당 벽에 같은 단면으로 준다. 높이는 각 owner에서 받는다. 파라펫 코핑 상단 4.85m와 기단 상단(각 접지면 위 0.65m)은 남측 입면, 마당 벽 상단 2.55m는 [북측 입면](facades/north.md#north-envelope), 지면은 [대지 지면](site.md#site-grade), 벽 하단은 [층](storey.md#wall-ground-contact)이 소유한다. 이 H2는 두께·돌출과 모서리에서의 만남만 정하고 새 표면 owner가 되지 않는다.
