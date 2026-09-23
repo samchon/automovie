@@ -210,6 +210,7 @@ export function createHumanBodyBasisBuilder(
       const positions = skinHumanBodySurface(
         shaped.surfaces[index],
         surface.skin,
+        basis.joints,
         transforms,
       );
       const normals = portraitNormals(positions, surface.indices);

@@ -16,16 +16,28 @@ import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBody
  * rigid transform is one unit dual quaternion `q̂ = q + ε d`: the real part
  * `q = posed.rotation ⊗ rest.rotation⁻¹` is the rotation and the dual part
  * `d = ½ (t ⊗ q)` carries the translation `t = posed.position − q(rest.position)`
- * as a pure quaternion. A vertex p with influences (bone_i, w_i) blends
- * `Σ w_i q̂_i`, each `q̂_i` first flipped to the hemisphere of the vertex's
- * first nonzero influence (q̂ and −q̂ name the same transform, so the flip
- * changes nothing but keeps the sum from cancelling), divides both parts by
- * the real part's norm, and applies the result as a rigid transform: `p' =
- * q(p) + 2 (d ⊗ q*)`, the product read as a vector. Positions are metres in
- * the basis frame, rotations are world frames from the pose resolver, and
- * the blended real part's norm is never below the first influence's weight
- * because every later real part was aligned to it, so the division never
- * meets zero.
+ * as a pure quaternion. q̂ and −q̂ name the same transform, and which of the
+ * two a bone contributes decides which way round the blend travels, so the
+ * sign is chosen once per bone for the whole skin: walking the skeleton
+ * parent before child, each bone's q̂ is flipped into its parent's
+ * hemisphere. A vertex p with influences (bone_i, w_i) then blends
+ * `Σ w_i q̂_i` with those signs, divides both parts by the real part's norm,
+ * and applies the result as a rigid transform: `p' = q(p) + 2 (d ⊗ q*)`, the
+ * product read as a vector. Positions are metres in the basis frame and
+ * rotations are world frames from the pose resolver.
+ *
+ * Choosing the sign per vertex against its first influence, as an earlier
+ * revision did, is order-dependent and tears the skin when a bone turns near
+ * a half turn from its rest: the arm raised forward overhead is 180 degrees
+ * from the A-pose, nearly orthogonal in quaternion space to the girdle and
+ * the upper chest it blends with, so a vertex whose first influence was the
+ * arm could flip the girdle and the chest to opposite signs, and two almost
+ * equal rotations cancelled, while its neighbour with the chest first did
+ * not. With parent-aligned signs every vertex travels the arc the skeleton
+ * travelled, the blend is invariant to the order influences are listed in,
+ * and it cannot cancel while each joint turns less than a half turn from its
+ * parent: parent and child real parts then have a nonnegative dot, so the
+ * sum of positively weighted aligned parts stays away from zero.
  *
  * The linear blend this replaces averaged the influences' rigid images, which
  * is a mean of rotation matrices: as two influences approach 180 degrees
@@ -59,6 +71,11 @@ import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBody
 export function skinHumanBodySurface(
   positions: number[],
   skin: IAutoMovieHumanBodyBasis["surfaces"][number]["skin"],
+  /** Every bone parent before child, as the basis declares its joints. */
+  joints: readonly Pick<
+    IAutoMovieHumanBodyBasis["joints"][number],
+    "bone" | "parent"
+  >[],
   transforms: Map<
     AutoMovieHumanoidBone,
     {
@@ -67,10 +84,16 @@ export function skinHumanBodySurface(
     }
   >,
 ): number[] {
-  const bones = skin.joints.map((bone) => {
-    const transform = transforms.get(bone);
+  const aligned = new Map<
+    AutoMovieHumanoidBone,
+    { real: IAutoMovieQuaternion; dual: IAutoMovieQuaternion }
+  >();
+  for (const joint of joints) {
+    const transform = transforms.get(joint.bone);
     if (transform === undefined)
-      throw new Error("Body skin names a joint without transforms: " + bone);
+      throw new Error(
+        "Body skin names a joint without transforms: " + joint.bone,
+      );
     const real = Quaternion.multiply(
       transform.posed.rotation,
       Quaternion.inverse(transform.rest.rotation),
@@ -79,24 +102,34 @@ export function skinHumanBodySurface(
       transform.posed.position,
       Quaternion.rotateVector(real, transform.rest.position),
     );
-    return {
-      real,
-      dual: scale(Quaternion.multiply({ ...translation, w: 0 }, real), 0.5),
-    };
+    const dual = scale(
+      Quaternion.multiply({ ...translation, w: 0 }, real),
+      0.5,
+    );
+    const parent =
+      joint.parent === null ? undefined : aligned.get(joint.parent);
+    const sign = parent !== undefined && dot(parent.real, real) < 0 ? -1 : 1;
+    aligned.set(joint.bone, {
+      real: scale(real, sign),
+      dual: scale(dual, sign),
+    });
+  }
+  const bones = skin.joints.map((bone) => {
+    const found = aligned.get(bone);
+    if (found === undefined)
+      throw new Error("Body skin names a joint without transforms: " + bone);
+    return found;
   });
   const output = new Array<number>(positions.length);
   for (let v = 0; v < positions.length / 3; v++) {
     const real = { x: 0, y: 0, z: 0, w: 0 };
     const dual = { x: 0, y: 0, z: 0, w: 0 };
-    let pivot: IAutoMovieQuaternion | null = null;
     for (let k = 0; k < 4; k++) {
       const weight = skin.weights[v * 4 + k];
       if (weight === 0) continue;
       const bone = bones[skin.boneIndices[v * 4 + k]];
-      pivot ??= bone.real;
-      const sign = dot(pivot, bone.real) < 0 ? -weight : weight;
-      accumulate(real, bone.real, sign);
-      accumulate(dual, bone.dual, sign);
+      accumulate(real, bone.real, weight);
+      accumulate(dual, bone.dual, weight);
     }
     const size = Math.hypot(real.x, real.y, real.z, real.w);
     const rotation = scale(real, 1 / size);
