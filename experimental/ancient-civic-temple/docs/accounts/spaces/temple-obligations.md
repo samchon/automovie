@@ -7,7 +7,7 @@
 -->
 
 <!--
-@evidenceReview contracts/obligations-spaces.md#surface-ownership ownership 표를 모든 room/입면/roof/대지와 문턱·junctions에 대조했다. 벽 하나의 두 마감, 내부 접면, 문턱 전 깊이, 외부 처마와 실내 하부, 입면별 coping·plinth와 마당 wall-top, 대지 두 행이 각각 한 표면으로 귀속되고 모서리 칸도 겹치지 않는다. compiled 면의 역검사를 수행하지 않았다고 본문이 밝힌다.
+@evidenceReview contracts/obligations-spaces.md#surface-ownership #1a50ebe ownership 표를 모든 room/입면/roof/대지와 문턱·junctions에 대조했다. 벽 하나의 두 마감, 내부 접면, 문턱 전 깊이, 외부 처마와 실내 하부, 입면별 coping·plinth와 마당 wall-top, 대지 두 행이 각각 한 표면으로 귀속되고 모서리 칸도 겹치지 않는다. compiled 면의 역검사를 수행하지 않았다고 본문이 밝힌다.
 -->
 
 [ownership](../../spaces/ownership.md#surface-map)은 남북서동 외측 면을 각 입면에, 아홉 공간의 내측 면/바닥/천장을 각 room에, 기준과 구조체 공유 접합을 storey에, roof 상부/외부 처마 하부를 roof owner에, 대지 흙띠·경계석·포장·먼 능선을 [대지](../../spaces/site.md) owner에 배정한다. 각 행의 source 주소는 후속 단독 owner 지정이며 현재 존재하는 TypeScript라는 주장이 아니다. 모든 room과 입면/roof 문서를 읽었고 물리벽은 입면 또는 boundaries 하나가 만들고 서로 마주 보는 두 마감은 각 공간에 남기는 관계가 일치했다.
