@@ -63,6 +63,16 @@ export function assertHumanFaceHair(input: IAutoMovieHumanFaceHair): void {
       throw new Error(
         "Hair roots, lengths, widths and flow need finite admitted numerical fields.",
       );
+    if (
+      layer.guides !== undefined &&
+      (!positive(layer.guides.fraction) ||
+        layer.guides.fraction > 1 ||
+        !Number.isInteger(layer.guides.neighbours) ||
+        !bounded(layer.guides.neighbours, 1, 8))
+    )
+      throw new Error(
+        "Hair guides need a fraction in (0,1] and one to eight neighbours.",
+      );
     const part = layer.part;
     if (part !== undefined) {
       if (
