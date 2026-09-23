@@ -111,8 +111,8 @@ import { stair } from "../house/circulation/stair";
  * @evidenceReview spaces/002-spatial-graph.md#wall-bath-primary #4d85462 bath-primary의 X 경계는 양 room 사이를 폐쇄하여 주침실에서 욕실로 임의 출입을 만들지 않는다.
  * @evidence spaces/002-spatial-graph.md#wall-service-corridor-front 설비실 큰 cell 뒤와 corridor 앞의 겹치는 x segment에는 opening을 넣지 않는다. 문 중심이 segment 안에 드는지 판정해 측면 출입 벽과 구분한다.
  * @evidenceReview spaces/002-spatial-graph.md#wall-service-corridor-front #07903a5 service-corridor-front Z 벽은 폐쇄된 채 유지되고 서비스 출입은 서측 X 벽에만 남는다.
- * @evidence spaces/002-spatial-graph.md#stair-enclosure hole 서·동 edge 밖에 두 측벽을 두고 child-one 연장부 앞의 북측 return을 닫는다. 복도 도착 구간을 wall로 막지 않는다.
- * @evidenceReview spaces/002-spatial-graph.md#stair-enclosure #9c38fe3 계단 서측 설비실과 동측 child-one 벽을 hole 밖에 두어 열린 상층 도착을 벽체로 가로막지 않는다.
+ * @evidence spaces/002-spatial-graph.md#stair-enclosure hole 서·동 edge 밖에 두 측벽을 z=-5.76부터 두고 child-one 연장부 앞의 북측 return을 닫는다. 계단 쪽 lining은 slab 상면 3.184부터 서·동측은 z=-5.766까지 만들고 구멍 가장자리의 두 junction도 3.184에서 시작한다. 복도 도착 구간을 wall로 막지 않는다.
+ * @evidenceReview spaces/002-spatial-graph.md#stair-enclosure #8152e06 partitions의 두 측벽 frame이 a=-datum.innerZ(-5.76)에서 시작하고, stair의 lining이 frame.floor 대신 slabTop(1)=3.184에서 시작하며 z축 frame은 -5.766까지 늘어나는 것을 코드로 읽었다. junction 생성에서 hole 경계에 면이 놓이고 겹침이 있는 칸만 3.184에서 시작한다. compiled scene에서 바뀐 요소는 두 측벽 body, 세 lining, 두 room lining, 두 junction의 bounds뿐이고 id 4652개와 audit 통과는 그대로였다. 복도 도착 x=-1.24..0.12는 여전히 벽 없이 열려 있다.
  * @evidence spaces/002-spatial-graph.md#wall-entry-storage 현관과 하층 수납의 x edge 사이 벽은 폐쇄 상태로 생성한다. 수납의 실제 route는 common-storage뿐이다.
  * @evidenceReview spaces/002-spatial-graph.md#wall-entry-storage #f5f7f83 entry-storage X 벽은 개구 없이 생성되어 수납 접근은 common-storage 연결 하나로 유지된다.
  * @evidence spaces/002-spatial-graph.md#wall-junctions 층의 clear cell과 wall strip으로 분할한 평면에서 두 wall 끝이 접하고 room·stair hole 밖에 남는 작은 직사각형만 junction으로 만든다. 정렬한 인접 boundary id로 안정 id를 만들고 그 boundary들이 같은 element를 참조한다.

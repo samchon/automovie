@@ -3,6 +3,7 @@
 import { Assembly } from "../assembly";
 import { datum, portals, rooms, sharedWalls, stairHole, type Rect } from "../plan";
 import { cutWall, doorCuts, doorway, localCut, wallFrame, type Frame } from "../walls";
+import { slabTop } from "./floors";
 export function partitions(a: Assembly, level: 0 | 1): void {
   for (const wall of sharedWalls().filter((w) => w.level === level)) {
     const frame = wallFrame(wall);
@@ -20,9 +21,11 @@ export function partitions(a: Assembly, level: 0 | 1): void {
     for (const portal of portals.filter((p) => p.wall === wall.id)) doorway(a, frame, portal);
   }
   if (level === 1) {
+    // The side walls close each room's whole clear edge from the front wall on.
+    const front = -datum.innerZ;
     const sideFrames: Frame[] = [
-      { id: "stair-west-enclosure", along: "z", normal: 1, plane: stairHole[0] - datum.wall / 2, a: stairHole[2], b: stairHole[3] - datum.wall, spaces: ["upper-service", "upper-storey"], floor: 3.2, top: 6.1, depth: datum.wall },
-      { id: "stair-east-enclosure", along: "z", normal: 1, plane: stairHole[1] + datum.wall / 2, a: stairHole[2], b: stairHole[3], spaces: ["child-bedroom-1", "upper-storey"], floor: 3.2, top: 6.1, depth: datum.wall },
+      { id: "stair-west-enclosure", along: "z", normal: 1, plane: stairHole[0] - datum.wall / 2, a: front, b: stairHole[3] - datum.wall, spaces: ["upper-service", "upper-storey"], floor: 3.2, top: 6.1, depth: datum.wall },
+      { id: "stair-east-enclosure", along: "z", normal: 1, plane: stairHole[1] + datum.wall / 2, a: front, b: stairHole[3], spaces: ["child-bedroom-1", "upper-storey"], floor: 3.2, top: 6.1, depth: datum.wall },
       { id: "stair-north-bedroom-return", along: "x", normal: 1, plane: stairHole[3] + datum.wall / 2, a: 0.3, b: stairHole[1], spaces: ["child-bedroom-1", "upper-storey"], floor: 3.2, top: 6.1, depth: datum.wall },
     ];
     for (const frame of sideFrames) cutWall(a, frame, [], "plaster", frame.id, 0, datum.wall - 0.012);
@@ -45,7 +48,13 @@ export function partitions(a: Assembly, level: 0 | 1): void {
     const touches = records.filter((_, k) => { const r = wallRects[k]; return xs[i] <= r[1] + 1e-6 && xs[i + 1] >= r[0] - 1e-6 && zs[j] <= r[3] + 1e-6 && zs[j + 1] >= r[2] - 1e-6; }).map((r) => r.frame.id).sort((a, b) => a.localeCompare(b));
     if (touches.length < 2) continue;
     const id = "junction-" + touches.join("--") + "-" + i + "-" + j;
-    a.box(id, level ? "upper-storey" : "ground-storey", "plaster", x, datum.floors[level] + 1.45, z, w, 2.9, d);
+    // A junction face on the stair hole edge continues the hole's vertical face
+    // down to the slab top instead of leaving the floor-finish slot open.
+    const hole = level === 1 && (
+      (Math.abs(xs[i + 1] - stairHole[0]) < 1e-6 || Math.abs(xs[i] - stairHole[1]) < 1e-6) && Math.min(zs[j + 1], stairHole[3]) - Math.max(zs[j], stairHole[2]) > 1e-6 ||
+      (Math.abs(zs[j + 1] - stairHole[2]) < 1e-6 || Math.abs(zs[j] - stairHole[3]) < 1e-6) && Math.min(xs[i + 1], stairHole[1]) - Math.max(xs[i], stairHole[0]) > 1e-6);
+    const base = hole ? slabTop(1) : datum.floors[level];
+    a.box(id, level ? "upper-storey" : "ground-storey", "plaster", x, (base + datum.ceilings[level]) / 2, z, w, datum.ceilings[level] - base, d);
     for (const boundary of a.environment.boundaries.filter((b) => touches.includes(b.id))) boundary.elements.push(id);
   }
 }

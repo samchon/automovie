@@ -1446,12 +1446,12 @@ room id upper-service의 parent는 [upper-storey](#upper-level)다. clear plan�
 ## 계단 구멍의 상층 측벽 {#stair-enclosure}
 
 <!--
-@evidence principles/core/common.md#declared-basis 계단 hole과 상층 두 room의 clear edge를 입력으로 닫힌 측벽과 열린 복도 도착을 구분한다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 서측 service·동측 child-one cell과 stair-hole 외곽을 함께 소비한다.
+@evidence principles/core/common.md#declared-basis 계단 hole과 상층 두 room의 clear edge, 층의 16mm 바닥 마감 두께와 전면 외벽 body 실내 면을 입력으로 닫힌 측벽, 계단 쪽 마감면의 범위, 열린 복도 도착을 구분한다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 측벽 위치는 서측 upper-service·동측 child-bedroom-1 cell과 stair-hole 외곽의 clear edge 평균에서, 측벽의 전면 시작은 방 clear edge z=-5.76에서, 계단 쪽 마감의 하단 3.184와 전면 끝 z=-5.766은 층 마감 16mm와 외벽 body 실내 면에서 온다고 본문이 밝힌다. 0.126m 틈과 16mm slot은 이전 source의 관찰로, 판정 번호와 날짜를 붙여 저작 결정과 구분했다.
 @evidence principles/core/common.md#scope-preservation 계단 통과 구멍과 독립 침실·설비실을 모두 남기고 slab hole 안에 벽을 밀어 넣어 headroom을 줄이지 않는다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 계단 enclosure를 거실 보이드나 두 번째 계단 경계로 늘리지 않는다.
-@evidence principles/core/common.md#substantive-completion 동서 측벽과 child1 연장부 전면의 폐쇄, 복도 도착의 개방 및0.18m 후퇴 수리 이유를 정했다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 벽을 hole 밖에 두고 child-one 앞면을 물리는 접합 조건이 정해졌다.
+@evidence principles/core/common.md#substantive-completion 동서 측벽과 child1 연장부 전면의 폐쇄, 복도 도착의 개방 및0.18m 후퇴 수리 이유에 더해 측벽의 전면 시작점, 구멍을 향한 마감면과 두 junction 면의 slab 상면 시작, 전면 strip 윗면과 외벽 실내 면의 노출 범위와 owner를 정했다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 벽을 hole 밖에 두고 child-one 앞면을 물리는 접합 조건 외에, 구멍 수직 면이 하층 천장 끝·slab 절단면·마감면으로 틈 없이 이어지도록 마감면 하단과 전면 끝, 가장자리 junction 두 면을 좌표로 지정했다. 남는 strip 윗면과 외벽 실내 면 두 띠도 x·y·z 범위와 층·전면 owner를 적어 구현자가 구멍 가장자리의 면을 새로 고르지 않는다. 그 면의 마감은 materials로 넘겨 이 단위가 재료를 결정하지 않는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 단일 계단의 상층 접속에 방 경계와 구멍 가장자리 사이 실제 벽 두께를 확보하는 결정을 더했다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 한 계단에 headroom을 막지 않는 주변 실체 배치를 추가한다.
 @evidence principles/design/spaces.md#space-topology 계단은 북측 복도로만 도착하고 설비실·작은 침실 쪽에는 닫힌 경계가 있어 그 방으로 새지 않는다.
@@ -1469,6 +1469,10 @@ room id upper-service의 parent는 [upper-storey](#upper-level)다. clear plan�
 [계단 바닥 개구](#stair-opening)의 서측과 [upper-service](#upper-service)의 동측, 동측과 [child-bedroom-1](#child-bedroom-1)의 서측 사이에 각각 [내벽 두께](#mass-and-storeys)의 닫힌 측벽을 둔다. 위치는 서로 마주보는 clear edge의 평균이다. 복도에 닿는 북측 도착 구간은 열고, child-bedroom-1의 연장부에 닿는 북측 구간은 방 외주 앞에 두께를 확보한 벽으로 닫는다.
 
 child-bedroom-1의 짧은 연장부 전면은 계단 opening 북측에서 내벽 두께만큼 물러난다. 이 관계를 확보하기 위해 기존 z=-1.80 후보를 z=-1.62로 수리했으며 방의 현재 cell이 그 값을 소유한다. slab 구멍 안에 벽 두께를 넣어 상부 tread의 headroom을 줄이지 않는다. 전면의 얇은 slab strip은 계단 opening edge의 구조 여유이고 다른 room/corridor가 아니다. [전수 검증](#stage-one-verification)의 상층 plan·계단 section·실물 충돌에서 이 세 경계와 열린 도착을 대조한다.
+
+**측벽 범위와 구멍 면의 연속.** 두 측벽의 몸체는 다른 내벽처럼 방 clear edge인 전면 z=-5.76에서 시작해 upper-service와 child-bedroom-1의 clear edge 전체를 계단 void에서 닫는다. 방의 6mm lining이 없는 void 쪽에서는 측벽의 계단 쪽 마감면이 전면 외벽 body의 실내 면 z=-5.766까지 이어진다. 층의 16mm 바닥 마감(y=3.184..3.20)은 방 cell 안에만 있으므로, 구멍을 향하는 측벽·return의 계단 쪽 마감면과 구멍 가장자리에 면이 놓인 두 junction(서측 벽 북쪽 끝의 x=-1.24 면, child-bedroom-1 return 서쪽 끝의 z=-1.80 면)은 slab 상면 y=3.184에서 upper ceiling 6.10까지 이어진다. 그래서 구멍의 수직 면은 하층 천장 끝, slab 절단면 2.908..3.184, 그 위 마감면 사이에 틈이 없다. 이전 source는 측벽을 z=-5.64에서 끝내고 계단 쪽 마감을 3.20에서 시작해, 두 방이 0.126m 틈으로 void에 열리고 구멍 가장자리에 16mm slot이 남았다(2026-09-24 materials r4 판정 F2).
+
+전면 slab strip 윗면(x=-1.24..1.58, z=-5.766..-5.64, y=3.184)과 그 위 전면 외벽 body의 실내 면(같은 x 범위에서 창 cut 아래 y=3.184..3.28과 head 위 6.04..6.10)은 구멍 안의 노출면으로 남는다. 앞의 것은 층 owner, 뒤의 것은 전면 입면 owner의 면이며 사람이 서거나 물건을 두는 선반이 아니다. 두 면의 마감은 materials가 정한다.
 
 ## 현관·1층 수납 측면 경계 {#wall-entry-storage}
 

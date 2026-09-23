@@ -1,4 +1,6 @@
 import { cutWall } from "../walls";
+import { datum } from "../plan";
+import { slabTop } from "../storeys/floors";
 import { Assembly, v } from "../assembly";
 /** One switchback, two flights and their shared landing. Step dimensions belong
  * to these solids; connector.steps is omitted because its run is the entire
@@ -6,7 +8,11 @@ import { Assembly, v } from "../assembly";
 export function stair(a: Assembly): void {
   for (const { frame } of a.wallRecords.filter((r) => r.frame.spaces.includes("upper-storey") && r.frame.spaces.length === 2)) {
     const coordinate = frame.along === "x" ? -3.5 : 0.14;
-    cutWall(a, frame, [], "plaster", frame.id + "-stair-lining", Math.sign(coordinate - frame.plane) * (frame.depth / 2 - 0.003), 0.006, false);
+    // The hole face is lined from the slab top, below the storey floor finish,
+    // and over the 6 mm room-lining zone to the front facade body: the stair
+    // void has no room lining of its own.
+    const front = frame.along === "z" && frame.a <= -datum.innerZ + 1e-6 ? { a: -(datum.innerZ + 0.006) } : {};
+    cutWall(a, { ...frame, ...front, floor: slabTop(1) }, [], "plaster", frame.id + "-stair-lining", Math.sign(coordinate - frame.plane) * (frame.depth / 2 - 0.003), 0.006, false);
   }
   const rise = 3.2 / 18, going = 0.28, ids: string[] = [];
   const route = [v(0.86, 0, -1.65)];
