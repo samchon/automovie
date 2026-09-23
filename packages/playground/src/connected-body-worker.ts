@@ -25,10 +25,6 @@ const prepared = readConnectedFaceAsset<IAutoMovieHumanBodyBasis>({
         import.meta.url,
       ),
     ),
-  decode: (bytes) =>
-    new Response(
-      new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip")),
-    ).text(),
 }).then((basis) => {
   const evaluate = createHumanBodyBasisBuilder(basis);
   return createHumanFaceWorkerHandler({
