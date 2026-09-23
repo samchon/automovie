@@ -6,7 +6,8 @@ import type { IAutoMovieHumanFaceContactSummary } from "../structures/IAutoMovie
 type Contact = NonNullable<IAutoMovieHumanFaceBasis["contact"]>;
 
 /**
- * Keep soft tissue outside the rigid dental surfaces by the rest floor rule:
+ * Keep soft tissue outside the rigid dental and ocular surfaces by the rest
+ * floor rule:
  * every soft vertex keeps at least the clearance it has in the shape-only
  * rest state, so tissue the source authored touching or slightly inside a
  * tooth at rest is left there, and only tissue that a pose pushed deeper is
@@ -127,7 +128,7 @@ export function resolveHumanFaceContact(
         if (excess <= contact.toleranceMetres) continue;
         if (excess > soft.budgetMetres)
           throw new Error(
-            `${soft.surface} penetrates a dental surface by ${mm(excess)} mm at vertex ${vertex}, past its ${mm(soft.budgetMetres)} mm tissue budget.`,
+            `${soft.surface} penetrates a rigid surface by ${mm(excess)} mm at vertex ${vertex}, past its ${mm(soft.budgetMetres)} mm tissue budget.`,
           );
         deepest = Math.max(deepest, excess);
         push ??= [0, 0, 0];

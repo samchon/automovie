@@ -102,7 +102,7 @@ export const test_subject_human_contact_resolution = (): void => {
           expression: { press: 1 },
         }),
       [
-        "mouth penetrates a dental surface by 28.87 mm at vertex 4",
+        "mouth penetrates a rigid surface by 28.87 mm at vertex 4",
         "20.00 mm tissue budget",
       ],
     ),

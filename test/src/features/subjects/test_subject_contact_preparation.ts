@@ -20,7 +20,8 @@ import { nclose, throwsError } from "../internal/predicates";
  *    band: the lip seam (0, 3) at 0.1 and the incisal pair (3, 8) at 0.2; a
  *    band with no pair refuses.
  * 2. The open crown's four-vertex ring is sealed by two fan triangles wound
- *    for positive volume and the sealed surface admits as a sheet; a loop
+ *    against its rim, the closed crown counts as sealed as it stands, and the
+ *    sealed surface admits as a sheet; a loop
  *    above the ring limit stays open and is recorded; a forked boundary and
  *    an inward-wound crown refuse.
  * 3. The raw closure delta the source authored over its open jaw becomes the
@@ -28,7 +29,7 @@ import { nclose, throwsError } from "../internal/predicates";
  *    with its magnitude, the tongue's budget is its own height along the
  *    opening direction (0.3) with the authored excess recorded as zero and
  *    the tongue-through-teeth endpoint recorded as refused, the reach is the
- *    largest budget,
+ *    largest budget, a closed second collider seals no ring,
  *    documents and controls are restamped and the receipt carries the
  *    neutral apertures.
  * 4. A repeated revision, a linear basis, a prepared basis, absent surfaces,
@@ -63,7 +64,10 @@ export const test_subject_contact_preparation = (): void => {
     midlineBandMetres: 0.01,
     closure: { channel: "close", reference: "open" },
     passage: { surface: "tongue", channel: "out", slabMetres: 0.5 },
-    colliders: [{ surface: "teeth", maximumRingVertices: 6 }],
+    colliders: [
+      { surface: "teeth", maximumRingVertices: 6 },
+      { surface: "globe", maximumRingVertices: 6 },
+    ],
     soft: [
       { surface: "mouth", budget: { metres: 0.5 } },
       { surface: "tongue", budget: { extent: true as const } },
@@ -132,7 +136,7 @@ export const test_subject_contact_preparation = (): void => {
       open: sealed.openLoops,
       sealedTriangles: sealed.sealedTriangles.length / 3,
     },
-    { rings: [4], triangles: 2, open: [], sealedTriangles: 4 },
+    { rings: [4], triangles: 2, open: [], sealedTriangles: 12 },
   );
   const query = createAutoMovieSignedMeshQuery(
     {
@@ -200,7 +204,10 @@ export const test_subject_contact_preparation = (): void => {
       contact.lips.lower === 3 &&
       contact.incisors.upper === 3 &&
       contact.incisors.lower === 8 &&
-      contact.colliders[0].closure.length === 6,
+      contact.colliders[0].closure.length === 6 &&
+      contact.colliders[1].surface === "globe" &&
+      contact.colliders[1].closure.length === 0 &&
+      prepared.receipt.colliders[1].sealedRings === 0,
   );
   TestValidator.equals(
     "documents and controls are restamped",
