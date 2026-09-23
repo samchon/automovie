@@ -10,9 +10,11 @@ import type {
  *
  * The caller supplies licensed geometry; this package supplies no person's
  * mesh. Coordinates and sparse differences use metres in a right-handed Y-up,
- * Z-forward frame shared with the face basis: the ring of vertices at
- * Y = -0.145 m is the same set of points in both, which is what lets a
- * separate combination stage join them by position instead of by a transform.
+ * Z-forward frame shared with the face basis. In the shipped body, the
+ * nonplanar collar boundary has 120 vertices with Y between -0.0902116299 m
+ * and -0.0807635784 m. These are the face collar's same source vertices in
+ * the common frame, so a separate combination stage can join the two by
+ * position instead of by a transform.
  * The ground therefore sits well below the origin; a consumer that wants the
  * feet at zero translates the whole model by the neutral's lowest Y.
  *
@@ -38,9 +40,9 @@ import type {
  * other owners (clothing to a production's own assets, hair to the face's
  * groom, ethnicity to the face track that declined it too).
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-connected-basis Carries the neutral, identity-ready surfaces, signed channels with explicit mirrors, correctives, landmarks and weights one document replays without Blender.
+ * @evidence requirements/actors/body-authoring/contract.md#actor-body-connected-basis Carries the shared face/body collar vertices, neutral identity-ready surfaces, signed channels with explicit mirrors, correctives, landmarks and weights one document replays without Blender.
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-joints Puts the joints, their landmark-defined pivots and their clinical limits inside the basis contract instead of a later layer.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-basis Fixes the shared frame, the sparse row format, the channel envelope and the product activation this type is evaluated under.
+ * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-basis Fixes the shared face/body collar frame, the sparse row format, the channel envelope and the product activation this type is evaluated under.
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-joints Declares each joint by landmark ids, flexion reference, measured clinical signs and range, and each surface's four-influence skin.
  * @author Samchon
  */
