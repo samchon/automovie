@@ -4,6 +4,7 @@ import type { IAutoMovieModel } from "@automovie/interface";
 import typia from "typia";
 
 import { createHumanFaceHairBuilder } from "../anatomy/hair/createHumanFaceHairBuilder";
+import { createHumanFaceScalpTint } from "../anatomy/hair/createHumanFaceScalpTint";
 import { createPortraitColourField } from "../anatomy/skin/createPortraitColourField";
 import { portraitNormals } from "../mesh/portraitNormals";
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
@@ -46,7 +47,9 @@ import { resolveHumanFaceContact } from "./resolveHumanFaceContact";
  * purely linear prior; a basis without contact stops after posing.
  *
  * Pigmentation is sampled on immutable neutral source coordinates, then
- * gathered with the same region correspondence. It changes no position or
+ * gathered with the same region correspondence; the scalp under a hair
+ * document's populations is tinted toward the hair colour by
+ * `createHumanFaceScalpTint`, as a further gain on it. It changes no position or
  * normal and follows both shape and articulated expression. Fields contain no
  * image data. A new model owns its arrays and materials; neither basis nor
  * edits mutate. Model structure and materials are admitted on the prepared
@@ -77,6 +80,7 @@ export function createHumanFaceBasisBuilder(
   );
   assertHumanFaceBasis(basis);
   const buildHair = createHumanFaceHairBuilder(basis);
+  const scalpTint = createHumanFaceScalpTint(basis);
   const surfaces = basis.surfaces.map((surface) => ({
     surface,
     regions: surface.regions.map((region) => ({
@@ -241,6 +245,7 @@ export function createHumanFaceBasisBuilder(
       };
     }
     const evaluated = new Map<string, readonly number[]>();
+    const tints = scalpTint(document.hair, materials);
     const parts = surfaces.flatMap(({ surface, regions }) => {
       const fields = Object.hasOwn(document.skin ?? {}, surface.id)
         ? document.skin![surface.id]
@@ -252,6 +257,14 @@ export function createHumanFaceBasisBuilder(
         for (let vertex = 0; vertex < surface.positions.length; vertex += 3)
           colors.push(...sample(surface.positions.slice(vertex, vertex + 3)));
       }
+      // The scalp under hair takes the hair's colour, as a further gain on
+      // whatever pigmentation the document painted.
+      const tint = tints.get(surface.id);
+      if (tint !== undefined)
+        colors =
+          colors === undefined
+            ? tint.slice()
+            : colors.map((value, at) => value * tint[at]);
       const positions = posed.get(surface.id)!;
       const normals = portraitNormals(positions, surface.indices);
       evaluated.set(surface.id, positions);

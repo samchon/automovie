@@ -103,6 +103,7 @@ void (async () => {
                     normals: part.geometry.mesh.normals,
                     indices: part.geometry.mesh.indices,
                     uvs: part.geometry.mesh.uvs,
+                    colors: part.geometry.mesh.colors ?? null,
                   }
                 : null,
           })),
