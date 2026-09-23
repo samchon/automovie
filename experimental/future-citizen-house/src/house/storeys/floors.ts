@@ -10,8 +10,13 @@ export function subtract(rect: Rect, cut: Rect): Rect[] {
   if (x1 <= x0 || z1 <= z0) return [rect];
   return [[rect[0], x0, rect[2], rect[3]], [x1, rect[1], rect[2], rect[3]], [x0, x1, rect[2], z0], [x0, x1, z1, rect[3]]].filter((r) => r[1] - r[0] > 1e-7 && r[3] - r[2] > 1e-7).map((r) => [r[0], r[1], r[2], r[3]]);
 }
-export function horizontal(a: Assembly, id: string, space: string, y0: number, y1: number, material: string, hole: boolean): void {
-  const pieces = hole ? subtract([-5.5, 5.5, -6, 6], stairHole) : [[-5.5, 5.5, -6, 6] as Rect];
+export const outline: Rect = [datum.minX, datum.maxX, datum.minZ, datum.maxZ];
+/** A floor slab inside the enclosure bears to the exterior wall centreline, so
+ * its edge stays buried in the facade body instead of repeating the outer face
+ * that the facade owner already closes (settings/003#surface-decomposition). */
+export const bearing: Rect = [-(datum.innerX + datum.outerWall / 2), datum.innerX + datum.outerWall / 2, -(datum.innerZ + datum.outerWall / 2), datum.innerZ + datum.outerWall / 2];
+export function horizontal(a: Assembly, id: string, space: string, y0: number, y1: number, material: string, hole: boolean, plan: Rect = outline): void {
+  const pieces = hole ? subtract(plan, stairHole) : [plan];
   pieces.forEach((r, i) => a.box(id + "-" + i, space, material, (r[0] + r[1]) / 2, (y0 + y1) / 2, (r[2] + r[3]) / 2, r[1] - r[0], y1 - y0, r[3] - r[2]));
 }
 export function floorFinish(a: Assembly, level: 0 | 1): void {

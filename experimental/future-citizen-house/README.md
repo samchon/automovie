@@ -58,6 +58,8 @@ Run the applicable [Author process Self-Review](.agents/skills/review-verificati
 
 조정자 시작 명령은 이 production 디렉터리에서 `npm run viewer -- --port 4174`다. `--port`는 1–65535 범위의 정수를 받으며 생략 시 1953의 배정 포트인 4174를 사용한다. 열 경로는 `http://127.0.0.1:4174/`다. 이 명령은 `tsx`로 TypeScript 서버를 실행하며 review citation의 미작성 여부를 시작 조건으로 삼지 않는다. [tsx의 공식 실행 계약](https://tsx.hirok.io/typescript)에 따라 타입·evidence 검증은 기존 `npm run lint`가 전체 source와 같은 package.json compilerOptions로 수행한다. 검사 plugin·stage·requireReview와 engine의 CommonJS 경계는 유지한다. 런타임의 문법·모듈 로딩·native geometry 오류는 그대로 실패하며, 서버 실행 성공은 lint 통과나 독립 시각 판정을 뜻하지 않는다. 고정 크기 캡처 경로는 `http://127.0.0.1:4174/?capture=1`이며 canvas가 1600×1000 CSS pixel, pixel ratio 1을 사용한다. 서버 시작과 기존 프로세스 교체는 조정자가 맡는다. source 수정은 기존 화면을 무효화하므로 lint 후 조정자가 서버를 재시작한다.
 
+2026-09-24에 upper slab 네 piece의 평면 범위를 외벽 중심면(x=±5.38, z=±5.88)까지로 줄였다. 이전에는 외곽 x=±5.50, z=±6.00까지 뻗어 y=2.908..3.184에서 입면 stone panel 외면과 같은 평면을 이뤘다. [표면 분해](docs/settings/003-spatial-basis.md#surface-decomposition)의 "동일한 면을 두 번 생성하지 않는다"를 어기던 source 결함이고, 재료 [층간 띠](docs/materials/002-exterior-solids.md#opaque-floor-band) 결합의 선행 조건이다. slab piece 수·ID·계단 구멍과 외관은 그대로이며 slab 가장자리는 외벽 몸체 안에 묻힌다.
+
 현재 구현은 원근·PBR·그림자·등기구 광원·키보드 조작, 낮/사적/야간 차폐와 작업/손님 침대 상태를 제공한다. 같은 CJS producer의 현재 cell·surface·connector·face·opening에서 관찰 목록을 도출하고 실패한 위치도 남긴다. 절개와 외곽선은 검사 모드에서만 켜진다. 공개 engine 진단, room/storey 포함·도달, 개별 tread bounds와 실제 삼각형에 대한 문 통행 원통 검사 결과를 정보 패널에서 읽는다. 방 안 전체 동선과 계단 상승의 연속 원통 충돌, 구조·법규·에너지·실제 설비 성능은 unverified다. 후속 재료·창호·차양·가구·조경의 구현과 해당 시각 판정은 별도로 남아 있다.
 
 ## 캐노피 r2 구현
