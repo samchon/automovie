@@ -7,6 +7,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import type { IAutoMovieHumanFaceHair } from "../../structures/IAutoMovieHumanFaceHair";
 import { evaluateHumanFaceHairDirection } from "./evaluateHumanFaceHairDirection";
 import { humanFaceHairContact } from "./humanFaceHairContact";
+import { humanFaceHairEmergence } from "./humanFaceHairEmergence";
 import { humanFaceHairFrame } from "./humanFaceHairFrame";
 import { humanFaceHairLength } from "./humanFaceHairLength";
 import { humanFaceHairSequence } from "./humanFaceHairSequence";
@@ -19,6 +20,10 @@ const requireDirection = humanFaceHairFrame.direction;
  * regional length and phase remain tied to its neutral root/sequence identity.
  * The returned polyline is the geometry later meshed, without a spline refit.
  * It owns every point and includes emergence distance in the authored length.
+ * The first step out of the root is not the surface normal but the exit angle
+ * that place on the scalp carries, tilted toward the field the hair is combed
+ * by (`humanFaceHairEmergence`), so hair lies against the head instead of
+ * standing off it.
  *
  * Distance to a closed set is 1-Lipschitz. Free stations use clearance
  * step/2 + requested clearance, so their connecting segments retain the
@@ -65,18 +70,34 @@ export function integrateHumanFaceHairCurve(props: {
     outward,
     project: contact,
   } = humanFaceHairContact({ layer, root: props.root, length, query });
+  // A follicle is not a pin: the hair leaves the scalp at its own exit angle,
+  // tilted toward the field it is combed by (`humanFaceHairEmergence`).
   const launch = contact(
     Vector3.add(
       props.root,
-      Vector3.scale(requireDirection(props.normal), clearance),
+      Vector3.scale(
+        requireDirection(
+          humanFaceHairEmergence({
+            hairline: layer.hairline,
+            chart: Vector3.subtract(props.reference, props.origin),
+            normal: props.normal,
+            field: evaluateHumanFaceHairDirection({
+              layer,
+              root: props.reference,
+              normal: requireDirection(props.normal),
+              distance: 0,
+              phase,
+            }),
+          }),
+        ),
+        clearance,
+      ),
     ),
   );
   const points = [{ ...props.root }, launch];
   let cumulative = Vector3.length(Vector3.subtract(launch, props.root));
   if (!Number.isFinite(length) || cumulative >= length)
-    throw new Error(
-      "Hair length cannot accommodate its emergence clearance.",
-    );
+    throw new Error("Hair length cannot accommodate its emergence clearance.");
   let p = launch;
   for (
     let iteration = 0;
