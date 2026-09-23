@@ -159,6 +159,19 @@ export function mountConnectedFaceHair(
         else delete item.rootRegion;
       });
     labelled(entries, "Localize roots", roots);
+    // The guide hierarchy integrates an eighth of the roots and grows the
+    // rest from their four nearest same-side guides, the ratio a production
+    // groom uses; the fields below edit both once it is on.
+    const guides = dom.createElement("input");
+    guides.id = "hair-guides";
+    guides.type = "checkbox";
+    guides.checked = layer.guides !== undefined;
+    guides.onchange = () =>
+      editLayer(id, (item) => {
+        if (guides.checked) item.guides = { fraction: 0.125, neighbours: 4 };
+        else delete item.guides;
+      });
+    labelled(entries, "Guide hierarchy", guides);
     const mean = dom.createElement("input");
     mean.id = "hair-mean-length";
     mean.type = "number";

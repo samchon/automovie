@@ -13,8 +13,8 @@ type Field = {
  * Describe the numerical hair editor's fine coordinates. The panel owns DOM and
  * document transactions; these descriptors only read or write one supplied
  * layer. Metres display as millimetres and radians as degrees. Relative flow,
- * colour and ratios retain their declared units. Optional part and region
- * coordinates appear only when their complete structures exist. The document
+ * colour and ratios retain their declared units. Optional guide, part and
+ * region coordinates appear only when their complete structures exist. The document
  * admission boundary owns ranges and coupled constraints, without UI clamping.
  *
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Exposes every fine numerical styling coordinate independently of subject identity.
@@ -158,6 +158,24 @@ export function connectedHairFields(layer: Layer): Field[] {
         x.finish[key] = value;
       },
     );
+  if (layer.guides !== undefined) {
+    add(
+      "guides-fraction",
+      "Guide fraction",
+      (x) => x.guides!.fraction,
+      (x, value) => {
+        x.guides!.fraction = value;
+      },
+    );
+    add(
+      "guides-neighbours",
+      "Guides per strand",
+      (x) => x.guides!.neighbours,
+      (x, value) => {
+        x.guides!.neighbours = value;
+      },
+    );
+  }
   if (layer.part !== undefined) {
     for (let axis = 0; axis < 3; axis++)
       for (const key of ["normal", "bias"] as const)

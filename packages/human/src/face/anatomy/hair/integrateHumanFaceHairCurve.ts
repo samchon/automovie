@@ -6,7 +6,9 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IAutoMovieHumanFaceHair } from "../../structures/IAutoMovieHumanFaceHair";
 import { evaluateHumanFaceHairDirection } from "./evaluateHumanFaceHairDirection";
+import { humanFaceHairContact } from "./humanFaceHairContact";
 import { humanFaceHairFrame } from "./humanFaceHairFrame";
+import { humanFaceHairLength } from "./humanFaceHairLength";
 import { humanFaceHairSequence } from "./humanFaceHairSequence";
 
 const requireDirection = humanFaceHairFrame.direction;
@@ -46,65 +48,21 @@ export function integrateHumanFaceHairCurve(props: {
   query: ReturnType<typeof createAutoMovieSignedMeshQuery>;
 }) {
   const { layer, query } = props;
-  const radial = Vector3.subtract(props.reference, props.origin);
-  const axes = [radial.x, radial.y, radial.z];
-  const sum = axes.reduce((total, value) => total + Math.abs(value), 0);
-  if (!Number.isFinite(sum) || sum === 0)
-    throw new Error("Hair length needs a nonsingular neutral chart direction.");
-  const regional = axes.reduce(
-    (total, value, axis) =>
-      total +
-      (Math.abs(value) / sum) *
-        layer.lengthAxes[2 * axis + (value < 0 ? 1 : 0)],
-    0,
+  const length = humanFaceHairLength(
+    layer,
+    props.origin,
+    props.reference,
+    props.sequence,
   );
-  const length =
-    regional *
-    (1 +
-      layer.lengthVariation *
-        (2 * humanFaceHairSequence(props.sequence, 7) - 1));
   const phase = 2 * Math.PI * humanFaceHairSequence(props.sequence, 11);
   const h = layer.samplingStep;
-  const epsilon =
-    128 *
-    Number.EPSILON *
-    Math.max(
-      Math.abs(props.root.x),
-      Math.abs(props.root.y),
-      Math.abs(props.root.z),
-      length,
-      layer.width,
-      h,
-      layer.clearance,
-    );
-  const clearance = layer.width / 2 + h / 2 + layer.clearance + 2 * epsilon;
-  const sample = (p: IAutoMovieVector3) => query([p.x, p.y, p.z]);
-  const outward = (p: IAutoMovieVector3, hit: ReturnType<typeof sample>) =>
-    hit.distance === 0
-      ? Vector3.create(hit.normal[0], hit.normal[1], hit.normal[2])
-      : requireDirection(
-          Vector3.scale(
-            Vector3.subtract(
-              p,
-              Vector3.create(hit.point[0], hit.point[1], hit.point[2]),
-            ),
-            hit.signedDistance < 0 ? -1 : 1,
-          ),
-        );
-  const contact = (input: IAutoMovieVector3): IAutoMovieVector3 => {
-    let p = input;
-    for (let attempt = 0; attempt < 64; attempt++) {
-      const hit = sample(p);
-      if (hit.signedDistance >= clearance - epsilon) return p;
-      p = Vector3.add(
-        Vector3.create(hit.point[0], hit.point[1], hit.point[2]),
-        Vector3.scale(outward(p, hit), clearance),
-      );
-    }
-    throw new Error(
-      "Numerical hair contact did not converge on the closed surface.",
-    );
-  };
+  const {
+    clearance,
+    epsilon,
+    sample,
+    outward,
+    project: contact,
+  } = humanFaceHairContact({ layer, root: props.root, length, query });
   const launch = contact(
     Vector3.add(
       props.root,

@@ -64,6 +64,15 @@ export namespace IAutoMovieHumanFaceHair {
     lengthAxes: [number, number, number, number, number, number];
     /** Seeded fractional length amplitude in [0,1]. */
     lengthVariation: number;
+    /**
+     * The guide hierarchy: `fraction` in (0,1] of the roots, chosen by their
+     * own sample identity, are integrated through the fields and the surface
+     * contact as guides; every other root is a strand interpolated from its
+     * `neighbours` (integral in [1,8]) nearest guides on the same side of the
+     * part, weighted by scalp distance against the guides' own mean spacing.
+     * Absent, every root is a guide, which is the flat population.
+     */
+    guides?: { fraction: number; neighbours: number };
     /** Maximum ribbon width in metres, positive and at most 0.04. */
     width: number;
     /** Positive maximum integration step in metres, at most 0.005. */
