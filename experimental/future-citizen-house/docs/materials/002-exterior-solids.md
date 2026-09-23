@@ -2,6 +2,25 @@
 
 ## 밝은 석재 패널 {#limestone-panels}
 
+<!--
+@evidence principles/core/common.md#scope-preservation 네 입면의 stone panel population·wall body·corner prism·창 아래 drip·지붕 가장자리 stone 부재를 모두 이 마감에 두고 대지 포장·실내 타일은 배정 밖이라고 적어, 외벽의 밝은 불투명 면에 무소유 부분이 남지 않는다.
+@evidence principles/core/common.md#substantive-completion #c9c3b5·roughness .82, limestone-grain 512²·0.64m 반복, 평균 .98·범위 .94..1.00, 입자 2..8mm와 구름무늬 40..100mm, member 계수 .98..1.02를 정해 구현이 석재 외관을 고르지 않는다.
+@evidence principles/core/common.md#declared-basis 밝은 무채색 외벽은 production-visual-grammar와 envelope-and-privacy에서, 0.016m 패널과 wall body는 입면 owner의 기존 geometry에서 받고 색·grain 수치는 이 층의 저작 선택이라고 구분한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모는 "밝은 석재 계열 불투명 면"까지만 말한다. 이 H2는 honed 석재의 무광 응답, 0.64m 반복의 입자 규모, member 변화 폭과 실제 패널 간격을 texture로 덮지 않는 규칙을 더한다.
+@evidence principles/design/materials.md#material-construction-appearance 기존 패널·wall body를 물리 부재로 두고 grain은 선형 명도 변화로만, 빛과 그림자는 geometry와 조명으로만 만든다고 나눠 날카로운 점·가짜 균열로 구조를 흉내 내지 않는다.
+@evidence principles/design/materials.md#material-binding-interface 입면 local 수평 U/수직 V를 쓰고 corner는 두 실제 면의 투영이 만나는 모서리로 두며, 패널 간격과 opening recess를 texture로 덮지 않는 호환 조건을 둔다.
+@evidence principles/design/materials.md#material-verification-address ref01의 패널성·저광택, 모서리와 1층/2층 이음, front와 right의 동일 재료 읽힘은 reference-material-samples에서, 근접 입자와 원거리 평균색은 scale-and-junction-samples에서 반증한다.
+@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work 네 입면의 stone panel 분할과 0.004m 간격, wall body 두께, corner miter prism, 창 아래 drip, roof-slab 가장자리와 시각 문법의 외벽 색을 대조했다. 패널이 이미 실제 이음을 가져 재료가 형상이나 부모 소유를 바꿀 필요가 없었다.
+@evidence settings/001-production.md#production-visual-grammar 밝은 무채색 외벽과 흰 면을 칠로 데우지 않는 규칙을 #c9c3b5 무광 석재와 ±2% member 변화로 구체화한다.
+@evidence settings/003-spatial-basis.md#envelope-and-privacy 밝은 석재 계열 불투명 면이라는 외피 공통 재료 언어를 네 입면의 불투명 부재 마감으로 받는다.
+@evidence spaces/003-surface-ownership.md#front-face 전면 -Z 외벽에서 계단실·작업실 유리와 현관문 밖에 남는 panel과 코어 불투명 벽을 전면 owner가 이 석재로 배정한다.
+@evidence spaces/003-surface-ownership.md#rear-face 후면 +Z 외벽에서 공용부·주침실 유리 밖 panel과 욕실 창을 둘러싼 닫힌 벽을 후면 owner가 이 석재로 배정한다.
+@evidence spaces/003-surface-ownership.md#left-face +X 좌측의 불투명 return과 세 창 사이 panel을 좌측 owner가 같은 석재로 받아 옆면이 다른 재료로 읽히지 않게 한다.
+@evidence spaces/003-surface-ownership.md#right-face -X 서비스 코어의 큰 불투명 벽과 panel joint를 우측 owner가 같은 석재로 받아 ref01의 밝은 코어 벽 읽힘을 맡는다.
+@evidence spaces/003-surface-ownership.md#envelope-corners 대각 분할된 corner prism의 두 삼각형이 각자 입면 좌표로 같은 석재를 받아 모서리를 이음 없는 한 장의 돌로 위장하지 않는다.
+@evidence spaces/003-surface-ownership.md#roof-face roof owner가 소유한 지붕 가장자리의 stone 부재를 외피와 같은 석재로 받아 입면 위 끝단의 재료가 끊기지 않게 한다.
+-->
+
 마감 `limestone-honed`는 외피의 밝은 무광 석재다. 기존 0.016m 패널 및 배후 wall body의 geometry는 유지한다. 입면별 `*-stone-panels`와 해당 wall body·corner stone, 창 아래 `*-drip` 석재, 지붕 가장자리의 stone 부재는 각 외피 owner가 배정한다. 대지 포장·실내 타일에는 배정하지 않는다. [바인딩](001-binding-and-scale.md#surface-bindings)의 입면 local 수평 U/수직 V를 사용한다.
 
 색 #c9c3b5, roughness=.82다. `limestone-grain`은 512², 0.64×0.64m 반복이다. 기준색에 곱할 선형 무채색 texture 평균 .98, 범위 .94..1.00로 만들며 2..8mm 입자와 40..100mm 완만한 구름무늬를 혼합한다. 날카로운 검은 점·벽돌줄·가짜 균열은 없다. 별도 member의 기준색 변화는 각 RGB 채널에 같은 sRGB 계수 .98..1.02만 허용한다. 빛과 그림자는 geometry와 조명이 만든다.
@@ -10,7 +29,30 @@
 
 ## 불투명 층간 띠 {#opaque-floor-band}
 
-현재 front/rear 외벽의 층간 불투명 띠는 별도 유리 spandrel 부재가 아니라 기존 stone wall/panel의 일부다. 해당 입면 owner가 `floor-band-finish`라는 면 역할을 부여한다. 세계 y=2.84..3.28m이며, 수평 범위는 같은 입면에서 아래층/위층 glazing opening 구간의 교집합 합집합이다. 문/불투명 jamb 위로 띠를 연장하지 않는다. 범위는 각 입면의 실제 Glazing 입력 a/b 및 native opening.profile로 도출하며 raycast나 그림에서 찾지 않는다.
+<!--
+@evidence principles/core/common.md#scope-preservation 아래 head 2.80·위 sill 3.32의 창 쌍이 있는 네 입면 구간을 모두 띠로 정하고, 쌍이 없는 rear bath·left child-two, 문과 불투명 jamb, 방 안쪽 lining과 절단면은 적용 밖으로 적어 층간 면의 배정 누락이나 과잉이 없다.
+@evidence principles/core/common.md#substantive-completion y=2.84..3.28, #454d4a·roughness .82, grain 비율의 채널별 저장, floor-band/<owner>/<element-or-member> ID, 256 texel/m 해상도와 4096 상한, 경계 오차 1 texel까지 정해 구현이 띠 표현을 발명하지 않는다.
+@evidence principles/core/common.md#declared-basis y 범위와 쌍 규칙은 mass-and-storeys·glazing-interface에서, 수평 범위는 각 opening의 Glazing a/b에서 도출하고, 도장 색·두께는 이 층의 선택이며 금속 spandrel 깊이는 후속 창호 판정으로 남는다고 밝힌다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation glazing-interface는 0.020m 금속 덮개라는 아직 구현되지 않은 부재를 정했을 뿐 현재 층간 면은 석재다. 이 H2는 그 사이 현재 부재를 짙은 무광 도장 면으로 읽히게 하는 유한 clamp texture 배정을 새로 결정한다.
+@evidence principles/design/materials.md#material-construction-appearance 명목 0.08mm 도막을 석재 위 표면층으로 두고 새 slab·금속 보·그림자 선·불투명 유리층을 그리지 않으며 실제 틈과 cut을 유지해, 도장 외관을 금속 spandrel 구조로 가장하지 않는다.
+@evidence principles/design/materials.md#material-binding-interface 기존 mesh의 외향 삼각형만 같은 owner 안의 별도 material part로 묶고 위치·면적·법선을 유지하며, surface-metres·clamp와 면별 U/V extent로 띠 경계를 둔다.
+@evidence principles/design/materials.md#material-verification-address 경계 y·opening 회피·외향/반환면 배정과 도장이 새 부재처럼 떠 보이는지를 scale-and-junction-samples의 층간 표본에서, 띠의 색·반사를 ref01 대조에서 반증한다.
+@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work mass-and-storeys의 2층 바닥 3.20·외벽 두께, glazing-interface의 head/sill과 층간 덮개 쌍 규칙, 아홉 opening의 a/b를 대조했다. 부모는 띠 범위를 모두 도출할 수 있게 정했고 금속 덮개가 아직 없는 것은 부모 결함이 아니라 후속 창호 구현의 순서다.
+@evidence settings/003-spatial-basis.md#envelope-and-privacy floor/transom과 room/jamb 경계를 맞춘다는 외피 canon을 층선 사이의 짙은 무광 띠로 읽히게 한다.
+@evidence spaces/002-spatial-graph.md#mass-and-storeys 1층 천장 2.90과 2층 바닥 3.20 사이 층간 구조대를 띠 y=2.84..3.28이 걸치는 수직 위치의 근거로 쓴다.
+@evidence spaces/003-surface-ownership.md#glazing-interface 아래 head 2.80·위 sill 3.32 쌍에만 층간 덮개를 두는 규칙과 그 Y 범위를 띠의 적용 조건으로 그대로 받는다.
+@evidence spaces/003-surface-ownership.md#front-stair-glazing 계단실 아래·위 두 opening의 X=-1.20..1.54 교집합이 전면 첫 띠 구간이 된다.
+@evidence spaces/003-surface-ownership.md#front-flex-glazing 작업실 전면창 X=3.06..5.22가 위층 침실 창과 겹치는 구간을 전면 둘째 띠로 제공한다.
+@evidence spaces/003-surface-ownership.md#front-bedroom-glazing 침실 전면창 X=1.80..5.22 중 아래 작업실 창과 겹치는 3.06..5.22만 띠가 되고 계단 쪽 1.80..3.06은 아래 창이 없어 석재로 남는다.
+@evidence spaces/003-surface-ownership.md#rear-common-glazing 공용부 전폭 창 X=-5.22..5.22 가운데 위 주침실 창과 겹치는 -2.80..5.22가 후면 띠 구간이 된다.
+@evidence spaces/003-surface-ownership.md#rear-bedroom-glazing 주침실 후면창 X=-2.80..5.22 전체가 아래 공용부 창 위에 놓여 후면 띠의 폭을 정한다.
+@evidence spaces/003-surface-ownership.md#left-flex-glazing 작업실 측면창 Z=-5.40..-2.30이 위 작은 침실 1 창과 같은 범위라 좌측 띠의 아래 쌍이 된다.
+@evidence spaces/003-surface-ownership.md#left-bedroom-glazing 작은 침실 1 측면창이 하층 Z span을 그대로 받아 좌측 띠의 위 쌍을 이룬다.
+@evidence spaces/003-surface-ownership.md#right-common-glazing 공용부 측면창 Z=3.60..5.40이 우측 띠의 아래 쌍이다.
+@evidence spaces/003-surface-ownership.md#right-bath-glazing 욕실 측면창이 sill 3.32로 하층 공용부 창과 쌍을 이뤄 우측 띠 Z=3.60..5.40을 만든다.
+-->
+
+현재 네 입면의 층간 불투명 띠는 별도 유리 spandrel 부재가 아니라 기존 stone wall/panel의 일부다. 해당 입면 owner가 `floor-band-finish`라는 면 역할을 부여한다. 세계 y=2.84..3.28m이며, 수평 범위는 같은 입면에서 아래층 head 2.80과 위층 sill 3.32로 마주보는 glazing opening 쌍의 구간 교집합 합집합이다. 이는 [창호 인터페이스](../spaces/003-surface-ownership.md#glazing-interface)의 층간 덮개 쌍 규칙과 같아 front의 stair·flex/child-one, rear의 common/primary, left의 flex/child-one, right의 common/bath 쌍이 띠를 받는다. 높은 sill의 rear bath와 left child-two는 쌍이 아니므로 띠를 만들지 않는다. 문/불투명 jamb 위로 띠를 연장하지 않는다. 범위는 각 입면의 실제 Glazing 입력 a/b 및 native opening.profile로 도출하며 raycast나 그림에서 찾지 않는다.
 
 기존 석재 위 명목 0.08mm의 짙은 무광 도장으로 선택한다. 색 #454d4a, roughness=.82, metallic=0이며 기존 limestone-grain을 같은 비율로 소비한다. 기존 mesh의 외향 삼각형을 동일 owner 안에서 별도 material part로 묶고 그 면의 metric 좌표를 기준으로 해당 띠만 baseColorTexture에 적용한다. 실제 틈과 opening cut은 그대로다. 양쪽 경계는 같은 패널의 도장 경계다. 추가 slab, 금속 보, 그림자 선, 불투명 유리층을 그리지 않는다. 별도 금속 spandrel 깊이와 접합은 후속 창호 설계의 판정 대상이다.
 
@@ -20,11 +62,42 @@
 
 ## 도장 금속 {#coated-metal}
 
+<!--
+@evidence principles/core/common.md#scope-preservation 창호 jamb/mullion/head/sill·shade-box·금속 hem, 문 hardware, 실내 계단 난간, 가구의 metal 다리·frame·손잡이, 등기구 metal trim을 이 마감에 두고 drip 석재·canopy-metal·PV frame·화면·hob·기기 외장은 제외해 metal 이름 부재의 배정이 겹치지 않는다.
+@evidence principles/core/common.md#substantive-completion #293332·roughness .38·metallic 0, 명목 0.08mm 도막, texture 없음과 bare metal의 .65를 쓰지 않는 이유까지 정해 구현이 금속 응답을 고를 일이 없다.
+@evidence principles/core/common.md#declared-basis 차콜 frame은 시각 문법, 부재 목록은 glazing-interface·door-interface·single-stair의 기존 부재에서 받고, 도장 위 반사라는 해석과 수치는 이 층의 선택이다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모는 어두운 금속 frame과 부재 위치만 정한다. 이 H2는 그것이 도장된 비금속 반사 응답이라는 결정과 새 bevel 없이 기존 모서리·면 방향이 광택 폭을 만든다는 규칙을 더한다.
+@evidence principles/design/materials.md#material-construction-appearance 금속 기재 위 명목 0.08mm 도막을 구조 사실로, metallic=0·roughness .38을 그 도막의 렌더 응답으로 두어 도장 frame을 bare metal처럼 보이게 하지 않는다.
+@evidence principles/design/materials.md#material-binding-interface 창호 owner와 방·계단 owner가 각자 부재를 유지한 채 역할 주소로만 결합하고, texture가 없어 좌표 요구가 없으며 canopy·PV frame에는 결합하지 않는다는 호환 경계를 둔다.
+@evidence principles/design/materials.md#material-verification-address 프레임이 검은 구멍이 아니라 기존 깊이로 빛을 받는 부재로 읽히는지를 외관·공용부·상층 reference 표본에서 반증하고, 얕은 frame 깊이의 한계는 창호 단계로 남긴다.
+@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work glazing-interface의 0.04m 면 폭·0.14m 깊이 부재와 roller box·hem, door-interface의 hardware, single-stair의 baluster·handrail 위치를 대조했다. 결합에 필요한 부재 주소가 모두 있어 부모 수리가 필요 없었다.
+@evidence settings/001-production.md#production-visual-grammar 차콜 frame이라는 재료 관계를 도장 금속의 짙은 색과 중간 광택으로 옮긴다.
+@evidence spaces/003-surface-ownership.md#glazing-interface jamb·mullion·head·sill과 shade-box·hem의 기존 부재를 각 입면 owner가 이 도장 금속으로 배정한다.
+@evidence spaces/002-spatial-graph.md#door-interface 문짝에서 파생되는 handle hardware를 해당 방 owner가 이 도장 금속으로 받는다.
+@evidence spaces/002-spatial-graph.md#single-stair tread pitch를 따르는 baluster·handrail과 참 난간을 계단 owner가 이 마감으로 받아 목재 디딤판과 광택을 구분한다.
+-->
+
 `frame-coated`는 curtainwall jamb/mullion/head/sill과 shade-box/금속 hem, 문 hardware, 실내 계단 난간, 가구의 metal 다리·frame·손잡이와 등기구 metal trim에 배정한다. 창 아래 drip은 석재를 유지한다. 창호 owner와 방/계단 owner가 각각 자기 부재를 유지한다. 명목 0.08mm 도막이며 색 #293332, roughness=.38, metallic=0이다. 도장 위 반사를 나타내므로 bare metal의 metallic=.65를 유지하지 않는다. texture는 없고 기존 기하의 모서리와 면 방향이 광택 폭을 만든다. 새 bevel을 이 항목에서 추가하지 않는다.
 
 캐노피 구조의 `canopy-metal`과 PV frame에는 이 재료를 덮지 않는다. 검은 화면·hob·기기 외장도 금속 이름만 보고 이 재료로 바꾸지 않으며 [보존 재료](006-wet-and-joinery.md#retained-surfaces)를 따른다. [외관/공용부/상층](007-observation.md#reference-material-samples)에서 프레임이 검은 구멍이 아니라 빛을 받는 기존 깊이의 부재로 읽히는지 본다. geometry가 얕은 한계는 별도 창호 단계에 남긴다.
 
 ## 노출 금속과 반사판 {#exposed-steel}
+
+<!--
+@evidence principles/core/common.md#scope-preservation 수전·싱크·가전 손잡이·hob ring·계단 steel stringer·기존 steel hardware를 steel-satin으로, 욕실과 powder의 거울 역할을 mirror-proxy로 나누고 식재·집수구 같은 보존 site 부재는 제외해 노출 금속면의 배정을 끝낸다.
+@evidence principles/core/common.md#substantive-completion steel-satin #b4bcb8·metallic .85·roughness .24와 mirror-proxy #d6ddda·metallic 1·roughness .06을 정해 두 반사 응답을 구현이 고르지 않는다.
+@evidence principles/core/common.md#declared-basis 부재는 방·계단 owner의 기존 rod·box·mesh에서 받고, 금속 응답과 환경맵 거울 근사는 이 층의 선택이며 합금·부식·위생 성능은 이 값이 표현하지 않는다고 밝힌다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 프로그램은 sink·cooktop·거울이 있다는 사실만 준다. 이 H2는 노출 금속과 거울을 서로 다른 두 응답으로 나누고 현재 환경 반사의 한계를 결정한다.
+@evidence principles/design/materials.md#material-construction-appearance 기존 형상·양각·곡률을 유지한 채 금속성은 metallic·roughness 근사로만 표현하고, 방 안 물체의 정확한 거울상은 지원하지 않는다고 구분해 다른 화면이나 사진으로 가리지 않는다.
+@evidence principles/design/materials.md#material-binding-interface texture가 없어 좌표 요구가 없고 수전·싱크·stringer·mirror라는 역할 주소로만 결합하며 site 부재로 확장하지 않는 경계를 둔다.
+@evidence principles/design/materials.md#material-verification-address 싱크·수전·손잡이와 거울을 공용부·욕실 표본에서 각각 주소로 열고, 부재가 비금속 회색 플라스틱처럼 읽히면 이 H2의 실패로 둔다.
+@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work common-room 주방의 island sink·tap·hob·oven handle, powder와 욕실의 basin tap·spout·거울·shower 부속, single-stair의 steel stringer를 대조했다. 모두 이미 분리된 element라 부모 형상이나 소유를 고칠 결함이 없었다.
+@evidence settings/002-household.md#ground-program 주방의 sink와 induction cooktop이 식별되도록 수전·싱크·hob ring에 노출 금속 응답을 준다.
+@evidence spaces/002-spatial-graph.md#common-room 연속 공용부 주방의 island sink·tap과 wall bank의 hob ring·oven handle을 공용부 owner가 이 금속으로 배정한다.
+@evidence spaces/002-spatial-graph.md#powder-utility powder 세면대의 tap·spout은 steel-satin, 그 위 거울은 mirror-proxy로 나눈다.
+@evidence spaces/002-spatial-graph.md#upper-bathroom 욕실 vanity 수전·거울과 shower riser·head·drain을 같은 두 역할로 받는다.
+@evidence spaces/002-spatial-graph.md#single-stair 두 flight의 steel stringer를 노출 금속으로 두어 도장 난간과 반사가 구분되게 한다.
+-->
 
 `steel-satin`은 수도꼭지, 싱크, 가전 손잡이·hob ring과 계단 steel stringer/기존 steel hardware에 배정한다. 기존 rod/box/mesh와 양각·곡률을 유지하며 기하를 재료로 보충하지 않는다. 색 #b4bcb8, metallic=.85, roughness=.24, texture 없음이다. 식재/집수구 등 보존 대상으로 명시한 site 부재에는 확장하지 않는다. 실물 합금 조성·부식·위생 성능은 이 값이 표현하지 않는다.
 
