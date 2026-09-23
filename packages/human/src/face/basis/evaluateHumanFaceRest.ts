@@ -18,7 +18,9 @@ import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFace
  * The returned buffers are fresh copies; the basis is never mutated. A
  * surface that carries no row for an endpoint is left where it is, which is
  * how the admission's "every endpoint moves something" rule and a per-surface
- * sparse payload coexist.
+ * sparse payload coexist. Channels named in `except` are skipped, which is
+ * how a contact basis holds its closure channel back for the aperture-scaled
+ * pass; their correctives still activate on the raw weights.
  *
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Produces the deterministic rest surface that the same document yields regardless of edit order.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-basis Applies `|weight| x endpoint` in channel order, then activation-scaled correctives, to surfaces and landmarks by endpoint name.
@@ -29,6 +31,7 @@ export function evaluateHumanFaceRest(
     weights: ReadonlyMap<string, number>;
     activations: readonly { target: string; activation: number }[];
   },
+  except: ReadonlySet<string> = new Set(),
 ): { surfaces: number[][]; landmarks: Record<string, IAutoMovieVector3> } {
   const accumulate = (
     positions: number[],
@@ -48,7 +51,7 @@ export function evaluateHumanFaceRest(
   ): void => {
     for (const channel of basis.channels) {
       const weight = state.weights.get(channel.id) ?? 0;
-      if (weight === 0) continue;
+      if (weight === 0 || except.has(channel.id)) continue;
       accumulate(
         positions,
         targets,

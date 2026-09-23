@@ -1,0 +1,119 @@
+{
+  "revision": "mpfb-connected-head-2026-09-23-contact",
+  "source": "mpfb-connected-head-2026-09-23-articulated",
+  "lips": {
+    "upper": 15892,
+    "lower": 16040,
+    "gapMetres": 0.0008862674039674556,
+    "gapMm": 0.886
+  },
+  "incisors": {
+    "upper": 3806,
+    "lower": 2593,
+    "gapMetres": 0.0003214092746227038,
+    "gapMm": 0.321
+  },
+  "midlineBandMm": 6,
+  "colliders": [
+    {
+      "surface": "Human.teeth_base",
+      "sealedRings": 32,
+      "ringVertices": [
+        12
+      ],
+      "closureTriangles": 320,
+      "openLoops": [
+        96,
+        102
+      ],
+      "reachMm": 20.776
+    }
+  ],
+  "closure": {
+    "channel": "mouthClose",
+    "reference": "jawOpen",
+    "decomposed": {
+      "Human": {
+        "maxDeltaMm": 11.861,
+        "rows": 9173
+      }
+    },
+    "removedCorrectives": [
+      {
+        "id": "jawOpenMouthCloseEase",
+        "maxMm": 11.861
+      }
+    ]
+  },
+  "passage": {
+    "surface": "Human.tongue01",
+    "channel": "tongueOut",
+    "slabMetres": 0.002,
+    "slabMm": 2
+  },
+  "soft": [
+    {
+      "surface": "Human",
+      "budgetMm": 13.41,
+      "authoredExcessMm": 6.147,
+      "restCrownOverlapMm": 0
+    },
+    {
+      "surface": "Human.tongue01",
+      "budgetMm": 20.776,
+      "authoredExcessMm": 1.763,
+      "restCrownOverlapMm": 1.476
+    }
+  ],
+  "probedEndpointRefusals": [
+    {
+      "endpoint": "tongueOut",
+      "refused": "The tongue cannot pass the incisors: tongueOut puts a 9.6 mm tongue through a 0.3 mm gap; jawOpen must open it by at least 9.3 mm more."
+    }
+  ],
+  "toleranceMm": 0.05,
+  "neutral": {
+    "interlabialMm": 0.882,
+    "interincisalMm": 0.313,
+    "referenceInterlabialMm": 34.033,
+    "referenceInterincisalMm": 26.469,
+    "up": [
+      4.5441778844032165e-7,
+      0.9999999999998967,
+      -1.6244835790340145e-14
+    ],
+    "forward": [
+      3.5748679306979985e-8,
+      3.1554436208840472e-30,
+      0.9999999999999994
+    ]
+  },
+  "admittedDocuments": 18,
+  "recorded": "2026-09-22T13:13:29.868Z",
+  "elapsedSeconds": 519.5,
+  "citations": {
+    "closureSemantics": "MPFB faceservice.py: mouthClose 'Closes the lips while the jaw remains open' (ARKit face unit).",
+    "lipBudget": "Holdaway upper lip thickness, vermilion point to upper incisor labial surface, 13.41 +- 2.70 mm (Saudi Dent J 2011, n=93); norm 13-14 mm.",
+    "tonguePassage": "Kier & Smith 1985, muscular hydrostat: constant volume, so a tongue cannot be pressed through closed teeth or sealed lips."
+  },
+  "inputs": {
+    "basis": {
+      "sha256": "6cf4464e37fe70e353c8b645fd871b30fc2ad1a2924adf75aa40014d9cbc4120",
+      "bytes": 18623082
+    },
+    "subjects": {
+      "sha256": "6eb9e7c926d95a3a23dc73257787df911a4344d86dcec79ed5c0647f064043e9",
+      "bytes": 154065
+    },
+    "controls": {
+      "sha256": "4a55ee31fcd2c5aa16af4950a8f47b45f2c4a7f48e68e271efe14d7070deed75",
+      "bytes": 6346
+    }
+  },
+  "outputs": {
+    "basis": {
+      "sha256": "20e88f6d80594c52db9f707af27fc951962b547a08286605f03da3094089c15c",
+      "bytes": 18575481
+    }
+  }
+}

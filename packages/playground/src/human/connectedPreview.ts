@@ -60,6 +60,7 @@ export function createConnectedFacePreview(props: {
         frame,
         parts: result.model.parts.length,
         articulation: result.articulation,
+        contact: result.contact,
         crossings: result.crossings,
       };
     },
