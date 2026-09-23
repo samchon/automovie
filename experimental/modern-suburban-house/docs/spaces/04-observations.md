@@ -59,7 +59,7 @@
 
 [울타리 폐합](site/fence.md#fence-enclosure-plan)은 전체 선과 건물 외피를 함께 보는 평면, 모든 긴 면/꺾임의 안팎 시야, [관리문 양옆 잔여 패널과 벽 접점](site/fence.md#fence-gate-junction), [지표 높이와 기초 점유](site/fence.md#fence-ground-profile)의 단면을 추가한다. 문이 실제 void에 있는지, 짧은 패널을 빠뜨리거나 끝기둥을 벽/포장 안에 넣지 않았는지, 가지/관목이 접합 결함을 가리는지 확인한다. 문을 닫은 경계와 연 뒤의 양방향 관리길 통행을 구별한다. 울타리의 눈에 보이는 모든 면은 실제 산출물에서 포함하고 한 정면 view로 대신하지 않는다.
 
-각 관찰 pose의 눈높이·시야각·near 같은 카메라 조건은 [프레임 조건](../settings/20-verification.md#frame-condition)을 소비하고, 경계 때문에 시점을 자기 공간 안쪽으로 옮겼다면 그 근거를 pose와 함께 기록한다. 이 H2가 인계하는 것은 질문과 자기 공간 내부 pose의 파생 규칙이다. 그 관찰을 보여 줄 뷰어의 렌더링·실행·포트 조건은 settings의 표현과 검증 조건이 소유하므로 이 공간 문서에서 정하지 않는다. 실제 공간 소스·뷰어·GPU RENDERER·프레임은 미구현/unverified다.
+각 관찰 pose의 눈높이·시야각·near 같은 카메라 조건은 [프레임 조건](../settings/20-verification.md#frame-condition)을 소비하고, 경계 때문에 시점을 자기 공간 안쪽으로 옮겼다면 그 근거를 pose와 함께 기록한다. 이 H2가 인계하는 것은 질문과 자기 공간 내부 pose의 파생 규칙이다. 그 관찰을 보여 줄 뷰어의 렌더링·실행·포트 조건은 settings의 표현과 검증 조건이 소유하므로 이 공간 문서에서 정하지 않는다. 집을 그리는 공간 소스와 그 GPU 프레임은 아직 없어 이 관찰들은 unverified다.
 
 ## 다섯 참조에 더하는 공간 비교 {#reference-spatial-comparisons}
 <!--

@@ -23,19 +23,19 @@
 
 ## 거실·침실·계단의 창과 현관문 {#front-openings}
 <!--
-@evidence principles/core/common.md#scope-preservation 거실의 세 칸 창, 상층 두 침실 창, 작은 계단 창의 위계와 함께 파우더룸·서비스 접근 전면에 창을 두지 않는 결정까지 전면 개구부 전부를 배정한다.
-@evidence principles/core/common.md#substantive-completion 전면 벽 두께 방향 Z = [-0.25, 0] m를 모든 전면 개구부의 관통 구간으로 정하고 각 창을 자기 방/계단에 하나씩 바인딩한다.
-@evidence principles/core/common.md#declared-basis 창의 위계는 01에서 채택했고 치수는 방 폭·지붕·포치 여유에서 저작 선택했다고 근거를 구별한다.
+@evidence principles/core/common.md#scope-preservation 거실의 세 칸 창, 상층 두 침실 창, 작은 계단 창의 위계와 파우더룸·서비스 접근 전면에 창을 두지 않는 결정까지 본채 전면 벽의 창 배치를 맡고, 현관문 void는 entry-plan, 차고문은 garage-front-opening에 남긴다.
+@evidence principles/core/common.md#substantive-completion 본채 전면 벽의 두께 방향 Z = [-0.25, 0] m를 그 벽 창들의 관통 구간으로 정하고 각 창을 자기 방/계단에 하나씩 바인딩한다.
+@evidence principles/core/common.md#declared-basis 창의 위계는 01에서 채택했고 벽 두께 구간은 링크한 본채 외곽의 외벽 예약에서 받았으며 치수는 방 폭·지붕·포치 여유에서 저작 선택했다고 근거를 구별한다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation openings 설정의 넓은 묶음창·침실 창들·더 작은 계단 창의 위계를 어느 방의 몇 칸 창인지와 창이 없는 전면 구간으로 확정한다.
-@evidence principles/design/spaces.md#space-topology 각 전면 창이 living-room·bedroom-two·main-stair·bedroom-three 중 자기 공간의 외벽에만 속하고 파우더룸과 서비스 접근의 전면은 닫힌 벽으로 남는다.
-@evidence principles/design/spaces.md#space-boundary-authority 전면 벽 두께 방향 Z = [-0.25, 0] m는 본채 외곽의 Z = 0 m 바깥 면과 0.25 m 외벽 예약에서 나온 구간으로만 쓰고 창틀 깊이는 06, 각 창 좌표는 하위 창 H2가 소유한다.
+@evidence principles/design/spaces.md#space-topology 각 전면 창이 거실·상층 두 침실·계단 가운데 자기 공간의 외벽에 속하고 파우더룸과 서비스 접근의 전면은 창 없는 닫힌 벽으로 남는다.
+@evidence principles/design/spaces.md#space-boundary-authority 본채 전면 벽의 Z = [-0.25, 0] m를 링크한 본채 외곽의 Z = 0 m 바깥 면과 0.25 m 외벽 예약에서 받고, 창틀은 06 공통 인계, 현관문 void는 entry owner, 차고문은 garage-front-opening에 두어 창 배치 밖의 경계를 다시 정하지 않는다.
 @evidence principles/design/spaces.md#space-verification-address 입면과 방 내부 양쪽에서 창 위계와 밝기가 같은 방으로 읽히는지를 실제 프레임의 비교 대상으로 남긴다.
-@evidence settings/10-house.md#openings 전면 거실의 넓은 묶음창, 상층 침실 창들, 계단/복도용의 더 작은 창이라는 위계를 전면 벽의 실제 방 바인딩으로 나눈다.
-@evidence obligations/design/spaces.md#space-envelope-interface 전면 입면의 개구부 각각을 거실·두 침실·계단실의 실내 경계와 하나씩 묶어 외부 창 위계와 방 배치가 서로 다른 집을 묘사하지 않게 한다.
+@evidence settings/10-house.md#openings 전면 거실의 넓은 묶음창, 상층 침실 창들, 계단/복도용의 더 작은 창이라는 위계를 본채 전면 벽의 실제 방 바인딩으로 나눈다.
+@evidence obligations/design/spaces.md#space-envelope-interface 본채 전면 벽의 창을 아래 창 H2마다 거실·상층 두 침실·계단 가운데 자기 방/계단 하나에 바인딩해 외부 창 위계와 방 배치가 서로 다른 집을 묘사하지 않게 한다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work openings의 "창을 배정한 방과 그 창을 품은 외벽이 같아야 한다"와 01의 전면 위계를 전면 방 배치에 대조했고 파우더룸 전면을 창 없이 닫아도 설정 요구와 충돌하지 않았다.
 -->
 
-[공통 개구부 인계](../06-openings.md#external-opening-interface)를 적용한다. 본채 전면 벽의 두께 방향은 Z = [-0.25, 0] m다. 아래 창들은 각각 자기 방/계단에 바인딩한다. 거실의 넓은 세 칸 창, 상층의 두 칸 침실 창과 작은 계단 창의 위계를 01에서 채택했으며 치수는 방 폭·지붕·포치 여유에서 선택했다. 파우더룸과 서비스 접근의 전면에는 창을 추가하지 않는다. 입면/방 내부 양쪽의 창 위계·밝기는 실제 프레임에서 unverified다.
+[공통 개구부 인계](../06-openings.md#external-opening-interface)를 적용한다. 본채 전면 벽의 두께 방향은 [본채 외곽](../00-building.md#main-building-extent)의 Z = 0 m 바깥 면에서 0.25 m 외벽 예약만큼 들어온 Z = [-0.25, 0] m다. 아래 창들은 각각 자기 방/계단에 바인딩한다. 거실의 넓은 세 칸 창, 상층 두 침실의 두 칸 창과 작은 계단 창의 위계를 01에서 채택했으며 치수는 방 폭·지붕·포치 여유에서 선택했다. 파우더룸과 서비스 접근의 전면에는 창을 추가하지 않는다. 제목의 현관문은 void를 [현관](../rooms/entry.md#entry-plan)에 남기고 외부 충전만 [목재 현관문](#front-entry-filling)이 맡으며, 차고문은 [닫힌 차고문](#garage-front-opening)이 맡는다. 입면/방 내부 양쪽의 창 위계·밝기는 실제 프레임에서 unverified다.
 
 ## 포치 아래 거실 묶음창 {#living-front-window}
 <!--

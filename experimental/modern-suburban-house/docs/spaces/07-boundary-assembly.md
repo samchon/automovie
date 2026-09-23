@@ -47,7 +47,8 @@
 @evidence principles/design/spaces.md#space-boundary-authority 문틀·문짝은 원래 문 owner가 한 번 생성하고 반대 방은 그 반대 면을 관찰하며 외벽·공유 벽·계단 구조와 만나는 접합은 그 기존 owner가 받는다.
 @evidence principles/design/spaces.md#space-verification-address 두 층의 모든 공유 벽·개구부·접합의 높이별 단면과 양쪽 방 시야, 닫힌/열린 문과 서로 다른 바닥 마감을 읽게 한다.
 @evidence settings/10-house.md#openings 실제 void와 문 부재를 양 방이 공유하며 벽 구멍과 닫힌 문 상태를 구별한다.
-@evidence settings/20-verification.md#implementation-boundary 공개 엔진이 이 공통 몸체/절단/면 인계를 지원하지 않으면 표현 한계를 기록해 조정자에게 올리도록 정한다.
+@evidence settings/00-production.md#build-allocation 공개 엔진이 이 공통 몸체/절단/면 인계를 지원하지 않으면 표현 한계를 기록해 조정자에게 올리도록 정해, 엔진에 없는 기능을 제한 기록으로 다루는 배분을 따른다.
+@evidenceExclude settings/20-verification.md#implementation-boundary spaces 47개 문서에는 편집 범위·의존성 선언·설치·lockfile 제출을 정하거나 소비하는 공간 결정이 없다. 이 H2처럼 엔진 기능 부족을 다루는 문장은 기록과 조정자 이관만 말하며 그 배분은 build-allocation이 소유한다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work openings의 "문은 문짝·경첩측·손잡이·문틀·문턱이 구별된다"를 실내 문 절단과 문턱 전환에 적용했고 문 owner 한 곳이 부재를 만들어 부모 수정이 없었다.
 -->
 

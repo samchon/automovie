@@ -61,7 +61,7 @@
 @evidence principles/design/spaces.md#space-boundary-authority 주/박공 용마루·두 골짜기·처마·사선·단차·차고 벽 접합을 서로 다른 경계 역할로 보존하고 단차 벽은 right, 굴뚝 절단은 left의 굴뚝 접면에서 받는다.
 @evidence principles/design/spaces.md#space-verification-address 골짜기 틈·중첩, 굴뚝 절단, 법선/UV와 01 프레임을 unverified로 두고 불투명 정점 배열 복사 없이 식에서 면 윤곽을 생성하게 한다.
 @evidence settings/10-house.md#main-mass 골짜기에서 빈틈이나 중첩 판을 남기지 않도록 우세 영역만 소유한다.
-@evidence settings/20-verification.md#implementation-boundary 일반 Boolean이나 메쉬 병합 성능을 전제하지 않고 명시적 면 구성이 공개 엔진 경로에서 표현되지 않으면 한계를 기록해 조정자에게 이관하도록 정한다.
+@evidence settings/00-production.md#build-allocation 일반 Boolean이나 메쉬 병합 성능을 전제하지 않고 명시적 면 구성이 공개 엔진 경로에서 표현되지 않으면 한계를 기록해 조정자에게 이관하도록 정한다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work main-mass의 "골짜기와 합류부에 빈틈이나 중첩 지붕판을 남기지 않는다"와 박공 9/12·주 지붕 8/12 기울기를 합류 경계에 대조했고 등고 경계 하나로 성립해 부모 수정이 없었다.
 -->
 

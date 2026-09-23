@@ -12,4 +12,4 @@
 
 [다섯 참조 비교](../../spaces/04-observations.md#reference-spatial-comparisons)는 이 분모에 추가되며 대체하지 않는다. 02 절개는 검사 모드의 비교일 뿐이고 온전한 외피의 내부 관찰을 대신하지 않는다.
 
-[완료 경계](../../contracts/observation-denominator.md#dual-completion)는 저작자와 관찰자의 두 목록이 모두 비고 독립 리뷰어가 실제 그림을 판정해야 닫힌다. 관찰자 목록은 아직 받지 않았고, compiled topology·GPU 프레임·RENDERER도 없다. 따라서 spaces의 evidence 지불은 문서 관계의 완성일 뿐이며 어떤 방이나 입면의 시각 완료도 뜻하지 않는다.
+[완료 경계](../../contracts/observation-denominator.md#dual-completion)는 저작자와 관찰자의 두 목록이 모두 비고 독립 리뷰어가 실제 그림을 판정해야 닫힌다. 관찰자 목록은 아직 받지 않았고, 집의 compiled topology와 그 GPU 프레임·RENDERER도 없다. 따라서 spaces의 evidence 지불은 문서 관계의 완성일 뿐이며 어떤 방이나 입면의 시각 완료도 뜻하지 않는다.

@@ -232,8 +232,8 @@
 @evidenceReview principles/core/settings.md#source-support #430bca9 외부 생성 이미지 서비스는 채택하지 않았으므로 조사하지 않은 공급자 기능·가격을 품질 근거로 호출하지 않는다.
 @evidence principles/core/settings.md#capability-boundary batch/instance 최적화는 허용하지만 성능을 이유로 방·면·질문을 없앨 수 없고 무시드 변동도 금지된다.
 @evidenceReview principles/core/settings.md#capability-boundary #83a6f2c 성능을 이유로 방·면·질문을 생략하지 못하고 무시드 변동도 금지해 자원 대응의 허용 범위를 한정했다.
-@evidence principles/core/settings.md#constraint-sufficiency 설치된 공개 엔진에 없는 기능은 실제 제한으로 기록해 조정자에게 올리고 외부 패키지는 implementation-boundary의 선언·설치 절차로만 들여 부족한 API를 몰래 저장소 수정으로 메우지 못한다.
-@evidenceReview principles/core/settings.md#constraint-sufficiency #20cf612 엔진 기능 부족은 제한 기록과 조정자 보고, 외부 패키지 부족은 선언·설치 절차로 갈라 두어 어느 경우에도 비공개 저장소 수정을 대체 수단으로 허용하지 않는다.
+@evidence principles/core/settings.md#constraint-sufficiency 설치된 공개 엔진에 필요한 기능이 없을 때는 실제 제한을 기록해 조정자에게 올리고 필요한 외부 패키지는 implementation-boundary의 절차로 선언·설치한다고 두 부족의 처리를 각각 정한다.
+@evidenceReview principles/core/settings.md#constraint-sufficiency #20cf612 엔진 기능 부족은 제한 기록과 조정자 보고로, 외부 패키지 필요는 편집과 의존성 경계의 선언·설치 절차로 갈라 두어 기능이 모자랄 때 저작자가 따를 경로가 정해져 있다.
 @evidence principles/core/settings.md#observable-identity 주택·가구·수목을 실제 형상으로 build하고 레퍼런스는 관찰 입력으로만 사용해 사진판이 외형을 대신하지 않게 한다.
 @evidenceReview principles/core/settings.md#observable-identity #4ccb62e 주택과 수목을 실제 형상으로 만들고 사진을 texture로 복사하지 않는 배분이 사진판 재현과 구별된다.
 @evidence obligations/core/settings.md#subject-breakdown-production-scope 주택·가구·기구·수목을 직접 build, 다섯 사진을 비교 입력으로 adopt, 반복·관찰을 derive로 나누고 maps부터 systems와 matching source를 배정하며 자원 부족을 방 생략 대신 표현 보존과 제한 기록으로 처리한다.
