@@ -2,7 +2,6 @@ import type { IAutoMovieJointPose } from "@automovie/interface";
 
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanBodyBasisDocument } from "../structures/IAutoMovieHumanBodyBasisDocument";
-import { assertSparseRows } from "./assertSparseRows";
 import { resolveHumanBodyCouplings } from "./resolveHumanBodyCouplings";
 
 /**
@@ -11,11 +10,10 @@ import { resolveHumanBodyCouplings } from "./resolveHumanBodyCouplings";
  * This is the boundary between a document and the geometry: channel weights
  * checked against their envelopes, the document's pose with the basis's
  * declared couplings added (`resolveHumanBodyCouplings`), corrective
- * activations computed from those weights and that coupled pose, and identity
- * rows checked against the surfaces they name. It reads both inputs and
- * mutates neither; the builder applies the result, posing the returned
- * `pose` rather than the document's, and the measuring code uses the same
- * function so a channel measured at +1 is exactly the channel the builder
+ * activations computed from those weights and that coupled pose. It reads both
+ * inputs and mutates neither; the builder applies the result, posing the
+ * returned `pose` rather than the document's, and the measuring code uses the
+ * same function so a channel measured at +1 is exactly the channel the builder
  * would evaluate at +1. The measurement path passes no pose, which leaves
  * every coupling at its zero and every joint ramp off.
  *
@@ -31,15 +29,12 @@ import { resolveHumanBodyCouplings } from "./resolveHumanBodyCouplings";
  * added exactly as on one the document wrote; the pose itself is validated
  * later by the builder, so this reads angles without judging them.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-connected-basis Refuses unsupported channels, out-of-envelope weights and identity rows on surfaces the basis lacks instead of clamping them.
+ * @evidence requirements/actors/body-authoring/contract.md#actor-body-connected-basis Refuses unsupported channels and out-of-envelope weights instead of clamping them.
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-basis Computes the `|weight| x endpoint` selection and the product corrective activation the evaluation order applies.
  */
 export function humanBodyBasisWeights(
   basis: IAutoMovieHumanBodyBasis,
-  document: Pick<
-    IAutoMovieHumanBodyBasisDocument,
-    "shape" | "identity" | "pose"
-  >,
+  document: Pick<IAutoMovieHumanBodyBasisDocument, "shape" | "pose">,
 ): {
   weights: Map<string, number>;
   activations: { target: string; activation: number }[];
@@ -61,18 +56,6 @@ export function humanBodyBasisWeights(
     )
       throw new Error("Unsupported or out-of-domain body control: " + name);
     weights.set(name, weight);
-  }
-  // A per-vertex identity names surfaces and vertices of this basis. A row
-  // that names neither is a document written against something else, and
-  // silently skipping it would build a body that is not the one asked for.
-  for (const [id, rows] of Object.entries(document.identity ?? {})) {
-    const surface = basis.surfaces.find((one) => one.id === id);
-    if (surface === undefined)
-      throw new Error(
-        "Per-vertex identity names a surface this basis does not declare: " +
-          id,
-      );
-    assertSparseRows(rows, surface.positions.length / 3, "identity " + id);
   }
   const neutral = new Map(
     basis.joints.map((joint) => [joint.bone, joint.neutral]),
