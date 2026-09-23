@@ -11,6 +11,8 @@
 @evidence principles/design/spaces.md#space-verification-address 두 층 평면과 면적 0.01㎡·경계 0.001 m 비교를 지정한다.
 @evidence settings/10-house.md#house-scale 차고 제외 두 층의 246.10㎡ 산술은 235–255㎡ 목표 안의 외곽 선택이다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work 규모의 폭·깊이 범위와 현관/서비스/복도 연결을 함께 대조해 외곽을 택할 수 있었으며 부모 범위 수정은 필요하지 않았다.
+@evidence obligations/design/spaces.md#space-reference-topology 본채 외벽 바깥 기준 X = [-5.75, 5.75] m, Z = [-10.70, 0] m를 두 층의 공통 building 프레임으로 두고 방·입면·지붕이 이 외곽과 안쪽 한계를 참조하게 한다.
+@evidence obligations/design/spaces.md#space-envelope-interface 외벽 두께 0.25 m와 마감 안쪽 한계 X = [-5.50, 5.50] m, Z = [-10.45, -0.25] m를 함께 정해 외부 매스와 실내 유효 치수가 같은 벽을 공유하게 한다.
 -->
 
 이 spaces draft의 외곽 선택은 [규모](../settings/10-house.md#house-scale)와 [좌표](../settings/00-production.md#coordinate-units)를 따른다. 본채 외벽 바깥 기준은 X = [-5.75, 5.75] m, Z = [-10.70, 0] m다. 두 층에 같은 직사각 외곽을 사용한다. 폭 11.50 m와 깊이 10.70 m의 곱은 층당 123.05㎡, 두 층 합은 246.10㎡다. 이것은 저작 입력의 산술이며 컴파일된 면적 계측 결과가 아니다. 차고·포치·대지는 이 값에 포함하지 않는다. 전면 박공은 지붕의 교차 형상으로 만들며 방 바닥을 돌출시키지 않는다.

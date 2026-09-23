@@ -1,6 +1,17 @@
 # 앞쪽 파우더룸
 
 ## 단일 출입과 기구 예약 {#powder-plan}
+<!--
+@evidence principles/core/common.md#scope-preservation powder-room의 경계, 단일 실문, 변기·세면대 예약, 노출 입면 구분과 비통과 조건을 맡는다.
+@evidence principles/core/common.md#substantive-completion 마감 안쪽 X = [3.22, 5.50], Z = [-1.90, -0.25] m, 문 개구부 Z = [-1.65, -0.70] m와 유효 폭 0.85 m, 변기 X = [4.75, 5.50]·Z = [-1.65, -0.95], 세면대 X = [3.65, 4.25]·Z = [-0.70, -0.25] m를 정한다.
+@evidence principles/core/common.md#declared-basis 기구 박스는 최종 제품 치수가 아닌 사용 공간을 먼저 남기는 상한이라고 밝힌다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 서비스 통로에서 직접 들어가는 작은 화장실을 -Z 문설주 경첩·실내 +X 열림과 변기/세면대의 벽 배치로 만든다.
+@evidence principles/design/spaces.md#space-topology 파우더룸은 서비스 띠 앞쪽의 독립실이고 차고나 다른 실로 이어지는 문이 없다.
+@evidence principles/design/spaces.md#space-boundary-authority 오른쪽 벽은 차고 접합을 소비하고 차고 전면보다 앞의 짧은 끝만 외부 노출로 두어 오른쪽 전체를 입면으로 중복 저작하지 않는다.
+@evidence principles/design/spaces.md#space-verification-address 문틀·기구·사용 동작과 작은 방의 자기 공간 안 관찰을 검사 대상으로 둔다.
+@evidence settings/10-house.md#powder 변기와 세면대만 두고 욕조·샤워와 두 번째 통행문이 없는 독립 작은 화장실로 만든다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work powder의 단일 출입·욕조 없음·기구 사용 공간 검토와 service-band의 비통과 조건을 대조했고 X = [3.22, 5.50], Z = [-1.90, -0.25] m 실에 두 기구가 들어가 부모 수정이 없었다.
+-->
 
 `powder-room`은 ground-storey, 서비스 띠의 앞쪽 독립실이다. 마감 안쪽 X = [3.22, 5.50], Z = [-1.90, -0.25] m다. 전면은 [본채 외벽](../00-building.md#main-building-extent), 뒤는 Z = [-2.05, -1.90]의 세탁실 칸막이, 서쪽은 [서비스 칸막이](service.md#service-access-plan)다. 오른쪽 벽은 [차고 접합](../00-building.md#attached-garage-extent)을 소비하며 차고 전면보다 앞인 짧은 끝만 외부에 노출된다. 오른쪽 전체를 노출 입면으로 중복 저작하지 않는다. [설정](../../settings/10-house.md#powder)에 따라 변기와 세면대만 두고 차고나 다른 실로 이어지는 문은 없다.
 
@@ -9,6 +20,18 @@
 변기 앞과 세면대 앞은 [사용/문 조작 예약](#powder-fixture-use)을 소비한다. `src/spaces/rooms/powder.ts`가 소유하며 후속 fit-out은 이 예약 안의 실제 기구로 다시 측정한다. 문틀·기구·사용 동작과 작은 방의 자기 공간 안 관찰은 unverified다.
 
 ## 손씻기와 변기 접근 및 문 조작 {#powder-fixture-use}
+<!--
+@evidence principles/core/common.md#scope-preservation 변기와 세면대의 사용 바닥, 순차 사용, 문 조작 대기, 거울과 수건의 위치를 맡는다.
+@evidence principles/core/common.md#substantive-completion 변기 전면 사용 X = [4.15, 4.75], Z = [-1.60, -1.00] m, 세면대 앞 X = [3.65, 4.25], Z = [-1.15, -0.70] m, 문 대기 X = [4.25, 4.85], Z = [-0.85, -0.40] m를 정한다.
+@evidence principles/core/common.md#declared-basis 높이는 방의 완성 바닥 기준이며 사람의 폭/깊이는 use-profile을 기구 방향에 맞춰 적용한다고 밝힌다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation "변기와 세면대의 점유 및 사용 공간을 따로 검토"를 두 사용 바닥과 문 회전 중의 대기 위치로 나눈다.
+@evidence principles/design/spaces.md#space-topology 두 기구 앞 사용을 같은 powder-room 안의 순차 사용으로 두고 문을 제거해 통행을 만들지 않는다.
+@evidence principles/design/spaces.md#space-boundary-authority 기구 몸체 예약은 powder-plan에서 받고 수건 돌출과 대기를 분리한다.
+@evidence principles/design/spaces.md#space-verification-address 사용 순서의 실제 점유, 문 손잡이 접근, 작은 방 안의 모든 관찰과 화장실 읽힘을 공간 관찰에 포함한다.
+@evidence settings/10-house.md#powder 변기·세면대·거울·수건을 두고 두 기구의 사용 공간을 따로 예약한다.
+@evidence settings/00-production.md#use-profile 사람 점유체의 폭은 X, 깊이는 Z에 적용해 문 대기를 예약한다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work powder의 기구 목록·프라이버시 문과 use-profile의 점유체를 두 사용 바닥과 문 대기에 적용했고 순차 사용으로 성립해 부모 수정이 없었다.
+-->
 
 같은 powder-room/ground-storey 안의 [두 기구](#powder-plan)에 대한 사용 공간이다. 변기는 오른쪽 벽을 등지고 -X를 향하며 좌면 높이 0.43 m·최대 높이 0.82 m의 공간 입력으로 둔다. 전면 사용 바닥은 X = [4.15, 4.75], Z = [-1.60, -1.00] m다. 세면대는 전면 벽을 등지고 -Z를 향하며 상면 높이 0.85 m, 앞쪽 사용 바닥은 X = [3.65, 4.25], Z = [-1.15, -0.70] m다. 모든 높이는 방의 완성 바닥 기준이다. 사람의 폭/깊이는 [사용체](../../settings/00-production.md#use-profile)를 기구 방향에 맞춰 적용하고 기구의 손잡이/수전까지 기존 몸체 예약 안에 둔다.
 

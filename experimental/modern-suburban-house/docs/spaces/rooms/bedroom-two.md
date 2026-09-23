@@ -1,6 +1,17 @@
 # 전면 왼쪽 자녀 침실
 
 ## 올리브 침실의 자기 경계 {#bedroom-two-plan}
+<!--
+@evidence principles/core/common.md#scope-preservation bedroom-two의 경계, 복도 쪽 자기 문, 전면 창 소비, 굴뚝 쪽 창 배제, 가구 사용 배정과 source owner를 맡는다.
+@evidence principles/core/common.md#substantive-completion 마감 안쪽 X = [-5.50, -1.95], Z = [-4.56, -0.25] m, hall-bedroom-two-door X = [-3.10, -2.10] m와 유효 폭 0.90 m를 정한다.
+@evidence principles/core/common.md#declared-basis 순내부 3.55 × 4.31 m를 한 자녀의 침대·책상·옷장과 별도 보행길을 넣기 위한 선택으로 밝힌다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation "복도에서 직접 들어가며 자기 외벽 창"을 +X 문설주 경첩·방 안 +Z 열림의 문과 전면 창 소비로 만든다.
+@evidence principles/design/spaces.md#space-topology 앞·왼쪽 외벽, 오른쪽 계단실, 뒤쪽 복도/주침실과 인접하고 다른 침실이나 욕실을 지나지 않고 들어온다.
+@evidence principles/design/spaces.md#space-boundary-authority 계단실 왼쪽 경계와 전면 창 void를 원래 owner에서 소비하고 복도의 계단 보호 경계에 문짝을 세우지 않는다.
+@evidence principles/design/spaces.md#space-verification-address 문/창 binding, 자기 공간 안 네 방향과 네 모서리의 시야, 가구 접근을 검사한다.
+@evidence settings/10-house.md#bedroom-two 자녀 한 명의 독립 공간으로 복도에서 직접 들어가며 bedroom-three와 별도 id·문·경계를 갖게 한다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work bedroom-two의 직접 출입·자기 창·별도 id와 upper-hall의 짧은 복도를 대조했고 3.55 × 4.31 m 방이 성립해 부모 수정이 없었다.
+-->
 
 `bedroom-two`는 upper-storey의 전면 왼쪽 방이다. 마감 안쪽 X = [-5.50, -1.95], Z = [-4.56, -0.25] m다. 앞·왼쪽은 [본채 외벽](../00-building.md#main-building-extent), 오른쪽은 [계단실 왼쪽 경계](../02-stair.md#stair-floor-opening), 뒤쪽은 Z = [-4.71, -4.56]의 복도/주침실 경계다. 순내부 예약 3.55 × 4.31 m는 한 자녀의 침대·책상·옷장과 별도 보행길을 넣기 위한 선택이다.
 
@@ -9,6 +20,18 @@
 [올리브 침구의 방](../../settings/10-house.md#bedroom-two)으로 실현하며 [bedroom-two-front-window](../envelope/front.md#bedroom-two-front-window)의 void를 소비한다. 굴뚝 가까운 왼쪽 벽에는 창을 추가하지 않는다. [침대·책상·장의 사용](#bedroom-two-furniture-use)은 창 앞, 문 안쪽과 침대 옆 길을 함께 예약한다. `src/spaces/rooms/bedroom-two.ts`가 완결 내부 owner다. 문/창의 실제 binding·자기 공간 안 네 방향과 네 모서리의 시야·가구 접근은 unverified다.
 
 ## 올리브 침실의 잠자리·공부·옷 수납 {#bedroom-two-furniture-use}
+<!--
+@evidence principles/core/common.md#scope-preservation 자녀 침대, 협탁과 등, 책상과 의자 사용, 옷장, 창 접근 경로, 커튼 돌출을 배정한다.
+@evidence principles/core/common.md#substantive-completion 네 가구의 평면·높이·방향 표와 의자 사용 X = [-4.90, -4.15], Z = [-1.45, -0.70] m, 옷장 앞 사용 X = [-3.15, -2.55] m를 정한다.
+@evidence principles/core/common.md#declared-basis 높이는 상층 완성 바닥 기준이며 수치는 몸체·닫힌 문/손잡이의 상한 예약이라고 밝힌다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation "침대를 지나 창과 수납에 접근할 수 있어야"를 협탁 오른쪽과 침대 오른쪽 바닥을 돌아 창에 닿는 경로로 만든다.
+@evidence principles/design/spaces.md#space-topology 복도의 자기 문에서 세 기능과 전면 창으로 분기하며 다른 방으로 통과하지 않는다.
+@evidence principles/design/spaces.md#space-boundary-authority 옷장 몸체를 bedroom-two-plan이 계단실 경계로 정한 방 오른쪽 안쪽 면까지로 두고 전면 창 void 안쪽의 커튼 돌출을 0.12 m 이내로 제한한다.
+@evidence principles/design/spaces.md#space-verification-address 문 회전·의자 사용·옷장 조작·침대 측면·창 접근의 평면과 02 및 자기 공간 안 시야를 검사한다.
+@evidence settings/10-house.md#bedroom-two 침대·협탁과 조명·책상과 의자·옷 수납을 두고 벽과 가구 틈을 유일한 출입 경로로 삼지 않는다.
+@evidence settings/00-production.md#use-profile 책상 의자를 물려 앉는 사용 범위에 사람 폭을 줄이지 않고 적용한다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work bedroom-two의 가구 목록·창과 수납 접근 조건과 use-profile을 방에 적용했고 가구를 넘지 않는 창 경로가 성립해 부모 수정이 없었다.
+-->
 
 같은 bedroom-two/upper-storey에서 침대는 뒤쪽 왼편, 책상은 왼쪽 벽의 전면 창 가까이, 옷장은 오른쪽 벽에 둔다. 복도의 자기 문에서 세 기능과 전면 창으로 분기하며 다른 방으로 통과하지 않는다. 아래 world X/Z m는 몸체·닫힌 문/손잡이의 상한 예약이고 높이는 상층 완성 바닥 기준이다.
 

@@ -11,6 +11,7 @@
 @evidence principles/design/spaces.md#space-verification-address 실내외 단면·닫힌 충전·열린 문 점유로 거친 폭과 순폭을 구분한다.
 @evidence settings/10-house.md#openings 사각 구멍으로 창호를 대신하지 않도록 벽·틀·유리·살대의 깊이와 충전을 분리한다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work 입면과 방이 같은 창을 가져야 한다는 조건 및 문 상태를 검토했고 실제 void와 충전 예약으로 실현 가능해 부모 변경은 없다.
+@evidence obligations/design/spaces.md#space-envelope-interface 입면 owner가 거친 개구부 좌표를, 방 owner가 같은 id의 안쪽 reveal을 소유하게 하고 창틀을 날씨 면에서 0.04 m 물린 깊이 0.14 m 안에 두어 안팎이 같은 void를 쓰게 한다.
 -->
 
 이번 배치 O1은 [C4 방 연결](05-route-network.md#room-route-network)과 [R1 지붕](roof/00-junctions.md#roof-profile-datums)을 소비한다. 각 입면의 개구부 H2는 실제 외벽에 만들 거친 직사각 개구부의 세계 좌표 입력이다. X 또는 Z 구간이 수평 폭이고 Y 구간이 바닥 기준이 아닌 세계 높이다. 벽 두께 방향은 [본채/차고 외곽](00-building.md#main-building-extent)의 안쪽 면부터 바깥 면까지 관통한다. 여기서 예정한 id·위치·개수는 compiled 산출물이 아니다.

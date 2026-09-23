@@ -11,6 +11,8 @@
 @evidence principles/design/spaces.md#space-verification-address 인접 공간 조회와 통행을 구분하고 모든 목적지 왕복을 요구한다.
 @evidence settings/10-house.md#service-band 서비스에서 세 실로 분기하고 차고에는 머드룸을 거쳐 직접 연결한다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work 현관의 직접 분배·서비스 분기·복도 다섯 방의 요구를 실제 개구부 owner로 연결할 수 있어 부모 그래프의 변경은 없었다.
+@evidence obligations/design/spaces.md#space-reference-topology 외부 포장부터 상층 옷방까지 모든 공간의 출발-경계/개구부-도착과 storey를 한 표로 이어 이름 없는 경계를 건너는 연결이 없게 한다.
+@evidence obligations/design/spaces.md#space-access-circulation 현관에서 각 목적지까지 갔다 돌아오는 경로와 팬트리/파우더룸/침실 비통과, 창·벽만 공유하는 인접성을 통행 edge에서 제외하는 규칙을 배정한다.
 -->
 
 아래 이름은 이번 spaces draft에서 소스로 넘길 식별자다. 컴파일된 id·개수·binding으로 보고하지 않는다. 본채와 차고는 [외곽](00-building.md#main-building-extent), 두 층은 [storey](01-storeys.md#storey-datums), 유일한 층간 연결은 [main-stair](02-stair.md#stair-reservation)가 소유한다. 방의 마감 안쪽 경계·입구·예약 사용 공간은 각각 링크한 owner가 결정한다. 표는 그 값을 복사하지 않고 연결 순서를 인계한다.

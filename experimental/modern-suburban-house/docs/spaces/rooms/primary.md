@@ -1,6 +1,17 @@
 # 뒤쪽 왼편 주침실
 
 ## 복도와 옷방에 직접 닿는 주침실 {#primary-plan}
+<!--
+@evidence principles/core/common.md#scope-preservation primary-bedroom의 뒤쪽 본체와 왼쪽 부분, 복도 문, 옷방 문의 소비, 두 창과 가구 사용 배정, 비통과 조건을 맡는다.
+@evidence principles/core/common.md#substantive-completion 뒤쪽 본체 X = [-5.50, 0.75]·Z = [-10.45, -6.06] m와 왼쪽 부분 X = [-5.50, -3.35]·Z = [-6.06, -4.71] m, hall-primary-door X = [-2.70, -1.70] m와 유효 폭 0.90 m를 정한다.
+@evidence principles/core/common.md#declared-basis 외벽은 main-building-extent, 두 창은 입면 owner, 옷방 문은 wardrobe owner에서 받는다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation "상층의 가장 큰 침실로 복도에서 직접 들어간다"를 두 직사각형 합집합과 -X 문설주 경첩·실내 -Z 열림으로 만든다.
+@evidence principles/design/spaces.md#space-topology 앞쪽 왼편 자녀 침실, 앞쪽 오른편 복도, 오른쪽 샤워 욕실/옷방과 인접하고 어느 욕실로 가는 길도 이 방을 거치지 않는다.
+@evidence principles/design/spaces.md#space-boundary-authority 옷방 문은 wardrobe owner의 별도 개구부, 두 창은 rear·left 입면 owner의 void로 소비하고 이 H2는 hall-primary-door만 소유한다.
+@evidence principles/design/spaces.md#space-verification-address 왼쪽 부분까지 방 바닥이 이어지는지와 모든 내부 코너, 면적 비교·문/창 binding·옷방 접근을 검사한다.
+@evidence settings/10-house.md#primary-bedroom 가장 큰 침실을 복도에서 직접 들어가게 하고 욕실을 통과하거나 방을 통과해 공용 욕실에 가는 길을 만들지 않는다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work primary-bedroom의 직접 출입·비통과·별도 옷 수납과 house-scale의 본채 외곽을 대조했고 두 직사각형 합집합이 가장 큰 방이 되어 부모 수정이 없었다.
+-->
 
 `primary-bedroom`은 upper-storey의 가장 큰 침실이다. 마감 안쪽은 X = [-5.50, 0.75]·Z = [-10.45, -6.06] m의 뒤쪽 본체와 X = [-5.50, -3.35]·Z = [-6.06, -4.71] m의 왼쪽 부분을 합친다. 앞쪽 왼편은 자녀 침실, 앞쪽 오른편은 [복도](upper-hall.md#upper-hall-plan), 오른쪽은 샤워 욕실/옷방, 뒤·왼쪽은 [본채 외벽](../00-building.md#main-building-extent)이다. 작은 자녀실보다 넓은 잠자리 주변과 옷 수납을 확보하되 상층 욕실의 필수 통과실이 되지 않는다.
 
@@ -9,6 +20,17 @@
 [성인 둘의 침실](../../settings/10-house.md#primary-bedroom)로 [primary-rear-window](../envelope/rear.md#primary-rear-window)와 [primary-left-window](../envelope/left.md#primary-left-window)의 void를 소비하고 [침대·양쪽 협탁·서랍장 사용](#primary-furniture-use)을 배정한다. `src/spaces/rooms/primary.ts`가 소유하며 왼쪽 부분까지 방 바닥이 이어지는지와 모든 내부 코너를 검사한다. 실제 면적 비교·문/창 binding·침대 양옆 여유·옷방 접근과 시야는 unverified다.
 
 ## 두 사람의 잠자리와 옷방 접근 {#primary-furniture-use}
+<!--
+@evidence principles/core/common.md#scope-preservation 성인 둘의 침대, 양쪽 협탁과 등, 낮은 서랍장, 발치 띠, 옷방 접근, 두 창의 커튼을 배정한다.
+@evidence principles/core/common.md#substantive-completion 침대 X = [-1.50, 0.65], Z = [-8.65, -7.05] m와 머리 +X, 두 협탁, 서랍장, 발치 띠 X = [-2.50, -1.50] m를 정한다.
+@evidence principles/core/common.md#declared-basis 침대 머리를 창 없는 욕실 공유 벽 쪽에 둔 근거를 두 외벽 창과 옷방 문을 가리지 않기 위한 선택으로 밝힌다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation "큰 방이라는 차이는 침대만 키우는 대신 양옆과 발치의 사용 여유 및 수납"을 발치 띠에서 양옆과 옷방으로 분기하는 배치로 만든다.
+@evidence principles/design/spaces.md#space-topology 모든 가구와 사용을 primary-bedroom 안에 두고 넓은 왼쪽 부분을 통과실이나 두 번째 침실로 나누지 않는다.
+@evidence principles/design/spaces.md#space-boundary-authority 옷방 문 안팎 대기와 회전은 wardrobe owner, 창대/손잡이는 06에서 그대로 소비한다.
+@evidence principles/design/spaces.md#space-verification-address 문 개방·침대 양옆·발치·두 창·열린 서랍·옷방 진입의 평면/단면과 02·05 시야를 검사한다.
+@evidence settings/10-house.md#primary-bedroom 성인 둘의 침대·양옆 협탁과 조명·낮은 서랍장·창과 얇은 커튼을 공간 점유로 둔다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work primary-bedroom의 가구 목록과 "양옆과 발치의 사용 여유"를 뒤쪽 본체에 적용했고 협탁 뒤를 유일 통로로 세지 않고도 성립해 부모 수정이 없었다.
+-->
 
 같은 primary-bedroom/upper-storey 안에서 침대 머리를 오른쪽의 창 없는 욕실 공유 벽 쪽으로 둔다. 두 외벽 창과 옷방 문을 침대 머리판으로 가리지 않기 위한 선택이다. 아래 평면은 world X/Z m, 높이는 [상층 완성 바닥](../01-storeys.md#storey-datums) 기준이며 몸체·손잡이의 최대 점유 입력이다. 특정 침대/가구 제품 규격을 뜻하지 않는다.
 

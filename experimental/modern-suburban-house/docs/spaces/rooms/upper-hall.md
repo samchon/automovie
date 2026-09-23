@@ -1,6 +1,18 @@
 # 상층 계단참과 짧은 복도
 
 ## 하나의 복도에서 다섯 방으로 {#upper-hall-plan}
+<!--
+@evidence principles/core/common.md#scope-preservation upper-hall의 L형 두 부분, 다섯 방의 문 위치 소유 관계, 계단 보호 경계, 전면 창의 소속, source owner를 맡는다.
+@evidence principles/core/common.md#substantive-completion 도착 부분 X = [1.87, 3.07]·Z = [-4.71, -3.41] m와 가로 부분 X = [-3.20, 3.07]·Z = [-5.91, -4.71] m, 순폭 1.20 m, 가로 길이 6.27 m를 정한다.
+@evidence principles/core/common.md#declared-basis 도착은 stair-reservation의 위 계단 끝, 계단 보호 경계는 stair-floor-opening에서 받고 문 좌표는 각 방 owner에 있다고 밝힌다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation "계단 상부참에서 시작하는 짧은 복도 하나"를 도착에서 -Z로 돌아 가로 부분에 닿는 하나의 L형으로 만든다.
+@evidence principles/design/spaces.md#space-topology 복도에서 청회색 침실·올리브 침실·주침실·샤워 욕실·욕조 욕실의 실제 문으로 직접 열리고 서로 다른 복도나 우회로로 나누지 않는다.
+@evidence principles/design/spaces.md#space-boundary-authority 문 좌표와 경첩측은 각 방 owner, 전면 작은 창은 계단실 owner에서 소비하고 복도에 가짜 창을 만들지 않는다.
+@evidence principles/design/spaces.md#space-verification-address 계단 끝의 회전, 다섯 출입문, 두 팔 끝에서 되돌아오는 길을 같은 사용 프로필로 검사한다.
+@evidence settings/10-house.md#upper-hall 거대한 빈 홀이나 숨은 길 없이 세 침실·두 욕실·수납에 직접 닿는 짧은 복도로 만든다.
+@evidence obligations/design/spaces.md#space-access-circulation 순폭 1.20 m의 두 부분에 계단 끝의 회전, 다섯 출입문, 두 팔 끝에서 되돌아오는 길을 같은 사용 프로필로 배정한다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work upper-hall의 직접 접근·짧은 복도와 stair의 상부참을 대조했고 1.20 m L형 복도에서 다섯 문이 성립해 부모 수정이 없었다.
+-->
 
 `upper-hall`은 upper-storey의 복도 하나다. [위 계단](../02-stair.md#stair-reservation) 끝에서 X = [1.87, 3.07]·Z = [-4.71, -3.41] m의 도착 부분으로 들어와 -Z로 돌아, X = [-3.20, 3.07]·Z = [-5.91, -4.71] m의 가로 부분에 닿는다. 두 직사각형을 합친 L형이며 서로 다른 복도나 숨은 우회로로 나누지 않는다. 순폭 예약은 양 구간 1.20 m, 가로 구간 길이는 6.27 m다. 도착 부분의 Z 방향 깊이는 1.30 m다.
 
@@ -9,6 +21,18 @@
 `src/spaces/rooms/upper-hall.ts`가 완결 내부와 아래 린넨 접면을 소유한다. FOV로 통로를 넓혀 보이게 하는 대신 계단 끝의 회전, 다섯 출입문, 두 팔 끝에서 되돌아오는 길을 같은 사용 프로필로 검사한다. 전면 작은 창은 [계단실](../02-stair.md#stair-floor-opening)에 바인딩되고 복도에 별도 가짜 창을 만들지 않는다. 실제 두 팔의 순폭·문틀·회전·각 구석과 가려진 코너의 추가 관찰은 unverified다.
 
 ## 도착면 앞쪽 린넨장 {#upper-linen-storage}
+<!--
+@evidence principles/core/common.md#scope-preservation 도착면 앞쪽의 닫힌 린넨장, 개구부와 미닫이, 청회색 침실에서 뺀 예약, 다섯 선반과 순차 사용을 맡는다.
+@evidence principles/core/common.md#substantive-completion 장 안쪽 X = [1.87, 3.07], Z = [-3.26, -2.66] m, 높이 2.20 m, upper-linen-opening X = [1.97, 2.97], 선반을 0.25 m부터 0.38 m 간격으로 다섯 단을 정한다.
+@evidence principles/core/common.md#declared-basis 복도 수납의 정체성은 storage 설정, 도착면은 upper-hall-plan에서 받는다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation "계단참에 가까운 복도 수납에는 린넨 선반과 접힌 수건"을 도착면 앞의 깊이 0.60 m 선반장과 회전하지 않는 미닫이로 만든다.
+@evidence principles/design/spaces.md#space-topology 린넨장은 사람이 들어가는 방이 아닌 upper-hall의 접면이며 칸막이 포함 예약을 청회색 침실 바닥에서 뺀다.
+@evidence principles/design/spaces.md#space-boundary-authority X = [1.72, 3.22]·Z = [-3.26, -2.51] m 예약은 이 H2가 소유하고 bedroom-three는 이를 소비해 바닥에 다시 넣지 않는다.
+@evidence principles/design/spaces.md#space-verification-address 선반·문/물건 점유와 사람의 순차 사용을 평면/단면 및 05 시야에서 검사한다.
+@evidence settings/10-house.md#storage 복도 수납에 린넨 선반과 접힌 수건을 두고 실제 안쪽 깊이를 갖게 한다.
+@evidence settings/10-house.md#upper-hall 문들이 가까이 있어도 계단 도착 여유가 막히지 않도록 미닫이와 남은 문틀이 도착 경로를 침범하지 않게 한다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work storage의 린넨 선반·수건과 upper-hall의 도착 여유를 대조했고 미닫이 선반장으로 성립해 부모 수정이 없었다.
+-->
 
 [복도 도착면](#upper-hall-plan)의 앞쪽에 닫힌 린넨장을 둔다. 장 안쪽 X = [1.87, 3.07], Z = [-3.26, -2.66] m, 높이 2.20 m를 예약한다. 복도와 장 사이의 Z = [-3.41, -3.26] 경계에 `upper-linen-opening`, X = [1.97, 2.97], 바닥부터 높이 2.20 m의 개구부를 두고 미닫이 문짝을 사용한다. 문을 열 때 계단 도착 바닥으로 회전하지 않는다.
 

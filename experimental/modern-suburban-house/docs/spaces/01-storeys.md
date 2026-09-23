@@ -11,6 +11,8 @@
 @evidence principles/design/spaces.md#space-verification-address 모든 방 소속과 도착 높이·대응 구멍을 0.001 m로 대조한다.
 @evidence settings/00-production.md#coordinate-units 전면 중앙 바닥 원점과 +Y를 두 storey 완성 높이의 공통 기준으로 쓴다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work 좌표 원점과 본채 순높이 범위를 검사해 층판 예약과 계단 높이를 동시에 배정할 수 있어 부모 수정은 없었다.
+@evidence obligations/design/spaces.md#space-reference-topology `ground-storey` Y = 0 m와 `upper-storey` Y = 3.06 m 두 storey만 두고 각 실의 공간 레코드가 storey를 직접 참조하게 한다.
+@evidence obligations/design/spaces.md#space-envelope-interface 두 층의 완성 천장 Y = 2.75 m와 5.66 m, 사이 0.31 m 예약을 외피 층판과 실내 순높이가 함께 소비하게 한다.
 -->
 
 [좌표 기준](../settings/00-production.md#coordinate-units)을 받아 `ground-storey`의 완성 바닥은 Y = 0 m, `upper-storey`는 Y = 3.06 m로 정한다. 본채에는 이 두 storey만 있다. 차고와 현관 포치는 ground-storey의 부속 공간이며 지붕 속 공간을 사람이 사용하는 세 번째 층으로 만들지 않는다. 각 실의 공간 레코드는 해당 storey를 직접 참조해야 하며 건물 전체의 자식이라는 이유로 storey 소속을 생략하지 않는다.

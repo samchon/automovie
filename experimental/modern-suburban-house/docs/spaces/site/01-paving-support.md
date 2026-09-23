@@ -1,6 +1,17 @@
 # 외부 보행면 아래의 바탕과 지지
 
 ## 낮은 포장의 두께와 경사 바탕 {#paving-depth-reservation}
+<!--
+@evidence principles/core/common.md#scope-preservation 세 낮은 보행면과 차도의 바탕 두께, 아래면 산출, 두 경사 연결로의 근사 오차와 분할, 합집합 안의 중복 바탕 금지를 맡는다.
+@evidence principles/core/common.md#substantive-completion 보행면 바탕 0.12 m와 driveway 0.15 m, `q = h11 - h10 - h01 + h00`와 최대 차이 `|q| / (4 × nX × nZ)`, 각 연결로를 X/Z 최소 네 구간으로 나누는 분할을 정한다.
+@evidence principles/core/common.md#declared-basis 두께는 공간 점유 선택이고 콘크리트 배합·지지력 검증값이 아니며 약 0.013235 m와 0.000827 m는 저작 식의 해석이지 메시 측정이 아니라고 밝힌다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 대지 설정의 콘크리트 차도와 현관 보행길에 보이는 바탕 두께와 원래 높이식을 지키는 삼각형 분할 규칙을 더한다.
+@evidence principles/design/spaces.md#space-topology 각 바탕이 house-site/ground-storey의 해당 포장 owner에 속하고 연결로 끝선의 분할이 차도와 평탄 길의 공유 경계에 전달된다.
+@evidence principles/design/spaces.md#space-boundary-authority 상면은 front-walk·side-walk·garden-lower-landing·driveway owner가 소유하고 바탕은 같은 owner가 함께 소유해 두 번째 불투명 판을 덧씌우지 않는다.
+@evidence principles/design/spaces.md#space-verification-address 두 경사 연결로의 모든 셀 대각선 중점과 공유 끝선, T자 접합과 관리길 꺾임의 실제 높이를 원래 보간식과 대조한다.
+@evidence settings/10-house.md#site-identity 차고 진입 콘크리트 차도와 현관 보행길이 두께 있는 포장으로 읽히도록 바탕을 예약한다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work site-identity의 콘크리트 차도·보행길과 "측량/토목 인증이 아니다"를 대조했고 두께를 점유 예약으로 둘 수 있어 부모 수정이 없었다.
+-->
 
 [house-site/ground-storey의 외부 접근](00-access.md#site-local-routes) 중 현관 보행길·측면 관리길·정원 아래 대기의 상면은 각각 [front-walk](front-walk.md#front-walk-plan), [side-walk](side-walk.md#side-walk-plan), [garden-lower-landing](terrace.md#garden-lower-landing-plan)이 소유한다. 이 세 보행면의 바탕 두께는 상면에서 Y 방향으로 0.12 m, [driveway](driveway.md#driveway-plan)는 0.15 m를 예약한다. 이는 마감까지 포함한 공간 점유 선택이며 콘크리트 배합·철근·줄눈·지지력·차량 하중을 검증한 값이 아니다. 자동차나 별도 주차 구역을 추가하지 않는다.
 
@@ -15,6 +26,18 @@
 검사는 각 포장의 상면/아래면과 세로·가로 단면, 두 경사 연결로의 모든 셀 대각선 중점과 공유 끝선, T자 접합과 관리길 꺾임이다. 꼭짓점뿐 아니라 삼각형 내부의 실제 높이를 원래 보간식과 대조하며, 인접한 포장의 공유 경계와 수직 두께도 같은 산출물에서 읽는다. [공유 허용 오차](../01-storeys.md#storey-datums)로 높이식·수직 두께·빈틈/중복을 대조하고 [전체 관찰](../04-observations.md#spatial-observation-derivation)을 유지한다. 두께 입력과 근사 오차의 해석은 실제 지지나 경사 연결 측정이 아니며 바탕·표면·통행·접지는 unverified다.
 
 ## 높은 포치와 테라스의 닫힌 단면 {#raised-platform-support}
+<!--
+@evidence principles/core/common.md#scope-preservation 높은 포치와 테라스의 상부판, 가장자리 지지벽, 내부 채움, 외부 단 몸체, 포치 세 기둥 아래 지지를 맡는다.
+@evidence principles/core/common.md#substantive-completion 평탄면 외곽 안쪽에 폭 0.15 m 가장자리 지지벽을 두고 상부판 아래부터 자기 낮은 대기의 바탕 아래면까지 닫는 단면을 정한다.
+@evidence principles/core/common.md#declared-basis 상부판 두께는 paving-depth-reservation, 기둥 받침 평면은 porch-roof-columns에서 받고 공통 하단이 지도 지표나 기초 깊이가 아니라고 밝힌다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 포치의 "주변 보도보다 0.35–0.55 m 높고 실제 단"과 테라스를 떠 있는 판이 아닌 닫힌 몸체로 만드는 지지 배정을 더한다.
+@evidence principles/design/spaces.md#space-topology 평탄면 아래를 사람이 쓰는 빈 공간 없이 채우고 끝 지지벽과 단 몸체가 공유 면에서 접하게 한다.
+@evidence principles/design/spaces.md#space-boundary-authority 포치 아래 대기는 front-walk, 정원 단과 아래 대기는 terrace owner가 유지하고 기둥 위치나 개수를 복제하지 않는다.
+@evidence principles/design/spaces.md#space-verification-address 두 평탄면 전체 외곽, 단의 중앙/양옆, 상부판과 지지벽의 만남, 포치 기둥 세 곳의 수직 단면에서 떠 있는 판과 묻힌 단을 찾는다.
+@evidence settings/10-house.md#porch-entry 주변 보도보다 높은 포치 바닥과 실제 단을 닫힌 지지 몸체로 받친다.
+@evidence settings/10-house.md#site-identity 후면 정원의 작은 포장 테라스를 같은 방식의 닫힌 단면으로 받친다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work porch-entry의 0.35–0.55 m 높이·실제 단과 site-identity의 테라스를 지지 단면에 적용했고 기존 단 높이/깊이를 바꾸지 않고 성립해 부모 수정이 없었다.
+-->
 
 [현관 포치](../porch.md#porch-platform-access)와 [정원 테라스](terrace.md#garden-terrace-plan)는 자기 높은 평탄면과 외부 단을 유지한다. 두 평탄면의 상부판 두께는 [보행 포장 예약](#paving-depth-reservation)을 소비한다. 각 평탄면의 외곽 안쪽에 폭 0.15 m의 가장자리 지지벽을 예약하고, 상부판 아래부터 자기 낮은 대기의 바탕 아래면까지 닫는다. 이 하단은 포치 앞/정원 뒤의 기존 대기와 접합할 건물 쪽 기준이며 지도 지표나 기초 바닥 깊이가 아니다. 지지벽을 상면 위로 올려 새 연석·난간을 만들거나 기존 순폭을 줄이지 않는다.
 
@@ -27,6 +50,17 @@
 검사는 두 높은 평탄면의 전체 외곽, 각 단의 중앙/양옆, 상부판과 끝 지지벽의 만남, 낮은 대기 접점, 포치 기둥 세 곳의 수직 단면이다. [전체 관찰](../04-observations.md#spatial-observation-derivation)에 이를 더하여 떠 있는 판/기둥, 지지벽에 묻힌 단, 중복 대기 바닥, 상면 위로 튀어나온 지지를 찾는다. 실제 부재·지반/기초·배수·구조 성능·그림자와 01/03 참조 읽힘은 unverified다.
 
 ## 포장 사이와 지표에서 끝나는 지지 {#paving-contact-handoff}
+<!--
+@evidence principles/core/common.md#scope-preservation 포장 사이의 상면/아래면 접촉, 건물 출입 접점, 전면 포트, 지표와 바탕 아래 지지, 문기둥 기초 예외, 지표 높이 조회의 식별 순서를 맡는다.
+@evidence principles/core/common.md#substantive-completion 보행길과 더 두꺼운 차도의 접점에서 상면을 먼저 일치시키고 나머지 깊은 단면을 driveway owner에 배정하는 규칙을 정한다.
+@evidence principles/core/common.md#declared-basis 건물 쪽 접점은 ground-threshold-junctions, 전면 끝은 site-access-interface, 지표는 map-handoff-inputs에서 받는다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 대지 설정의 포장·울타리 관계를 서로 다른 두께의 바탕이 만나는 숨은 공유 경계와 문기둥 기초의 분할 단면으로 만든다.
+@evidence principles/design/spaces.md#space-topology 각 완결 포장 owner가 자기 평면 외곽에서 끝나고 정원 아래 대기와 관리길이 같은 두께로 끝선에서 만난다.
+@evidence principles/design/spaces.md#space-boundary-authority 차이를 덮는 독립 마감 띠를 양쪽에서 만들지 않고 외부 완성 지표를 구조 지지면으로 간주하지 않는다.
+@evidence principles/design/spaces.md#space-verification-address 검사점의 footprint와 모든 후보 표면의 id·owner·보행 가능 여부·높이를 먼저 식별하고 footprint 밖의 연장 높이를 접촉으로 세지 않는다.
+@evidence settings/10-house.md#site-identity 우측 목재 울타리의 문기둥과 관리길 포장이 같은 단면에서 겹치지 않도록 기초와 바탕을 분할한다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work site-identity의 포장·울타리와 "측량/토목 인증이 아니다"를 접촉 규칙에 대조했고 설정이 바탕 두께를 정하지 않아도 설계에서 배정할 수 있어 부모 수정이 없었다.
+-->
 
 각 완결 포장 owner는 자기 평면 외곽에서 끝나고 상대의 상면/아래면을 동일 좌표로 소비한다. 보행길과 더 두꺼운 차도의 접점에서는 상면이 먼저 일치해야 하며 아래면까지 맞추려고 보행면을 낮추지 않는다. 높이가 겹치는 두 바탕의 접촉 구간은 숨은 공유 경계이고, 더 깊은 차도 바탕의 나머지 단면은 driveway owner의 책임이다. 그 차이를 덮는 독립 마감 띠를 양쪽에서 만들지 않는다. 정원 아래 대기와 관리길은 같은 두께 예약으로 끝선에서 만나며 바닥을 포개지 않는다.
 

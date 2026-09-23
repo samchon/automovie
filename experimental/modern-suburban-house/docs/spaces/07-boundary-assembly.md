@@ -75,6 +75,7 @@
 @evidence principles/design/spaces.md#space-verification-address 외벽 모든 모서리·단차 교차·공유 벽 끝의 높이별 점유를 대조한다.
 @evidence settings/20-verification.md#surface-allocation 접합 몸체의 단일 생성과 입면별 완결 마감을 구별해 모서리 소유를 이어 준다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work 공유 구조 하나와 완결 면 분해를 외벽 단차에 적용했고 두 요구가 충돌하지 않아 부모를 고치지 않았다.
+@evidence obligations/design/spaces.md#space-envelope-interface 외벽 모서리·차고 공유 벽 끝·지붕 단차의 몸체를 하나의 구조 owner에 배정해 외부 입면과 방 안쪽 면이 같은 모서리를 두 번 만들지 않게 한다.
 -->
 
 이 접합은 [본채 외벽](00-building.md#main-building-extent)과 [차고 외벽/공유 벽](00-building.md#attached-garage-extent)의 예약 안에서 만나는 외부 경계를 잇는다. 각 입면의 외측 면, 방의 안쪽 면, 기존 문·창·storey 관계를 유지하고 별도 방이나 출입구를 만들지 않는다. 지붕에 닿는 상단은 [벽 두께 전체의 지붕 접촉](roof/00-junctions.md#roof-wall-head-junctions)을 소비하며 서로 다른 지붕 높이를 평균하지 않는다. 실내 칸막이의 접합은 위 [별도 배정](#interior-boundary-junctions)을 유지한다.
