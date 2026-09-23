@@ -102,11 +102,25 @@ export function createConnectedBodyRenderer(props: {
       let group: THREE.Group | undefined;
       try {
         await textures.prime(model.materials.flatMap(materialTextureBindings));
-        // buildModel accepts array-like mesh attributes. This cast is confined
-        // to the viewer boundary: the transport owns typed arrays, whereas the
-        // portable IAutoMovieModel type declares ordinary number arrays.
+        // Float32 attributes are array-like, but Three's setIndex treats a
+        // Uint32Array as an already constructed BufferAttribute. Materialize
+        // indices only when allocating a new resident group; deformation
+        // previews reuse this group's index buffer.
+        const viewModel = {
+          ...model,
+          parts: model.parts.map((part) => ({
+            ...part,
+            geometry: {
+              type: "mesh" as const,
+              mesh: {
+                ...part.geometry.mesh,
+                indices: Array.from(part.geometry.mesh.indices),
+              },
+            },
+          })),
+        };
         const built = buildModel(
-          model as unknown as IAutoMovieModel,
+          viewModel as unknown as IAutoMovieModel,
           textures.resolve,
         );
         group = built.object;

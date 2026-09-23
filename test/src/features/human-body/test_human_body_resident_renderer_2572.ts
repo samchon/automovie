@@ -55,7 +55,11 @@ export const test_human_body_resident_renderer_2572 =
     const positions = mesh.geometry.getAttribute(
       "position",
     ) as THREE.BufferAttribute;
-    TestValidator.equals("initial position", positions.getX(1), 1);
+    TestValidator.predicate(
+      "initial positions and indices are GPU BufferAttributes",
+      positions.getX(1) === 1 &&
+        mesh.geometry.getIndex() instanceof THREE.BufferAttribute,
+    );
     const edited = await renderer.prepare(makeModel(2));
     TestValidator.equals(
       "prepare does not touch display",
