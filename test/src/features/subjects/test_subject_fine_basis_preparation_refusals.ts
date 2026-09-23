@@ -56,6 +56,23 @@ export const test_subject_fine_basis_preparation_refusals = (): void => {
     );
     TestValidator.equals("refusal preserves caller", input, saved);
   }
+  const contact = fineBasisPreparationFixture();
+  contact.basis.contact = {
+    lips: { surface: "skin", upper: 0, lower: 1 },
+    incisors: { surface: "skin", upper: 0, lower: 1 },
+    closure: { channel: "a", reference: "b" },
+    passage: { surface: "skin", channel: "a", slabMetres: 1 },
+    colliders: [],
+    soft: [],
+    toleranceMetres: 0,
+  };
+  TestValidator.predicate(
+    "oral contact is prepared after clipping",
+    throwsError(
+      () => prepareFineBasisArtifacts(contact),
+      "Prepare oral contact after facial clipping",
+    ),
+  );
   TestValidator.equals(
     "valid recovery",
     prepareFineBasisArtifacts(fineBasisPreparationFixture()).receipt

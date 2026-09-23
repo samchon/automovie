@@ -10,6 +10,7 @@ import type { IAutoMovieModelCrossing } from "@automovie/engine";
 import {
   type IAutoMovieHumanFaceBasis,
   type IAutoMovieHumanFaceBasisDocument,
+  type IAutoMovieHumanFaceContactSummary,
   type IAutoMovieHumanFaceControlMap,
   createHumanFaceEditor,
   parseHumanFaceBasisDocument,
@@ -34,6 +35,7 @@ export function mountConnectedFacePanel<
   Model extends {
     parts: number;
     articulation?: ReturnType<typeof summarizeHumanFaceArticulation>;
+    contact?: IAutoMovieHumanFaceContactSummary | null;
     crossings?: IAutoMovieModelCrossing[] | null;
   },
 >(
@@ -118,10 +120,28 @@ Jaw ${joints.jaw.degrees.toFixed(1)}° open, ${(joints.jaw.translationMetres * 1
           joints.eyes
             .map((eye) => `${eye.id} ${eye.degrees.toFixed(1)}°`)
             .join(", ");
+    // The contact line reads what the contact stage measured and did: both
+    // apertures, the closure ratio, the tongue's passage and every push.
+    const contact = state.model.contact;
+    const contacted =
+      contact === undefined || contact === null
+        ? ""
+        : `
+Lips ${(contact.interlabialMetres * 1000).toFixed(1)} mm, incisors ${(contact.interincisalMetres * 1000).toFixed(1)} mm apart · closure ×${contact.closureRatio.toFixed(2)}` +
+          (contact.passage === null
+            ? ""
+            : ` · tongue ${(contact.passage.protrudingMetres * 1000).toFixed(1)} mm out, ${(contact.passage.thicknessMetres * 1000).toFixed(1)} mm thick`) +
+          contact.resolved
+            .filter((entry) => entry.vertices > 0)
+            .map(
+              (entry) =>
+                ` · ${entry.surface}: ${entry.vertices} vertices held out of the teeth (${(entry.maxDepthMetres * 1000).toFixed(2)} mm)`,
+            )
+            .join("");
     status(
       state.error ??
         `${state.document.name}
-${state.model.parts} material regions · committed numerical state${articulated}`,
+${state.model.parts} material regions · committed numerical state${articulated}${contacted}`,
       state.status,
     );
     element<HTMLButtonElement>("face-undo").disabled = !state.canUndo;

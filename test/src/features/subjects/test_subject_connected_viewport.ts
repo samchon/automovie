@@ -49,6 +49,7 @@ export const test_subject_connected_viewport = async (): Promise<void> => {
         operation: "preview",
         model: createHumanFaceBasisBuilder(basis)(document),
         articulation: null,
+        contact: null,
         crossings: null,
       },
     },

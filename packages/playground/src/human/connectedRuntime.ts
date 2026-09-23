@@ -1,6 +1,7 @@
 import { measureAutoMovieModelCrossings } from "@automovie/engine";
 import {
   type IAutoMovieHumanFaceBasis,
+  type IAutoMovieHumanFaceContactSummary,
   createHumanFaceBasisBuilder,
   exportHumanFace,
   parseHumanFaceBasisDocument,
@@ -23,7 +24,12 @@ import {
 export function createConnectedFaceRuntime(props: {
   basis: IAutoMovieHumanFaceBasis;
 }) {
-  const evaluate = createHumanFaceBasisBuilder(props.basis);
+  let contact: IAutoMovieHumanFaceContactSummary | null = null;
+  const evaluate = createHumanFaceBasisBuilder(props.basis, {
+    observe: (summary) => {
+      contact = summary;
+    },
+  });
   return async (request: {
     document: string;
     operation: "preview" | "export";
@@ -39,6 +45,7 @@ export function createConnectedFaceRuntime(props: {
       operation: "preview" as const,
       model,
       articulation: summarizeHumanFaceArticulation(props.basis, document),
+      contact,
       crossings:
         request.measure === true ? measureAutoMovieModelCrossings(model) : null,
     };
