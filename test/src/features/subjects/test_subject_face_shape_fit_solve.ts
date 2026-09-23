@@ -22,7 +22,8 @@ type Point = [number, number, number];
  *    cost falls to nearly zero; a negative-side variable recovers the
  *    opposite stretch.
  * 2. A maximum of 0.4 stops the fit at the bound; a strong prior keeps the
- *    fit near the current value.
+ *    fit near the current value, whether from lambda or from a variable's
+ *    own prior multiplier on a moderate lambda.
  * 3. Left and right channels stretching their own halves vertically, with
  *    only the left half stretched in the photograph (a twist no similarity
  *    imitates): without the symmetry prior the fit is (0.6, 0); with a
@@ -118,6 +119,26 @@ export const test_subject_face_shape_fit_solve = (): void => {
   );
   TestValidator.predicate("bound", nclose(bounded.magnitudes[0]!, 0.4, 1e-9));
   const held = solveFaceShapeFit(problem({ lambda: 1e3 }));
+  const heldBySpread = solveFaceShapeFit(
+    problem({
+      lambda: 1,
+      variables: [
+        {
+          channel: "width",
+          side: "positive",
+          current: 0,
+          maximum: 1,
+          displacement: stretch,
+          prior: 1e3,
+        },
+      ],
+    }),
+  );
+  TestValidator.predicate(
+    "a per-variable prior multiplies lambda",
+    heldBySpread.magnitudes[0]! < 0.01 &&
+      solveFaceShapeFit(problem({ lambda: 1 })).magnitudes[0]! > 0.1,
+  );
   TestValidator.predicate("strong prior holds", held.magnitudes[0]! < 0.01);
 
   // Vertical stretch of each half: a one-sided one is a twist no similarity

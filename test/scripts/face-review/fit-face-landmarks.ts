@@ -6,7 +6,8 @@
  *     STUDY ANCHORS DETECTIONS POSES OUTPUT.json [LAMBDA MU]
  *
  * STUDY holds `basis.json.gz` and `subjects.json`; ANCHORS is the
- * `anchor-face-landmarks.ts` output on the same basis; DETECTIONS holds the
+ * `anchor-face-landmarks.ts` output on the same basis, whose view of each
+ * subject's camera anchors that subject's landmarks; DETECTIONS holds the
  * photographs as `photo:<subject>` (`detect-face-likeness.py`); POSES is the
  * `plan-face-likeness.ts yaw` pose file, whose camera the fit projects
  * through.
@@ -59,6 +60,10 @@ import {
   faceShapeFitAnchorPoint,
   faceShapeFitSurfacePositions,
 } from "./faceShapeFitSurface";
+import {
+  faceShapeFitAsymmetry,
+  faceShapeFitMirror,
+} from "./faceShapeFitSymmetry";
 
 /** MediaPipe FACEMESH_FACE_OVAL, the silhouette landmarks. */
 const OVAL = new Set([
@@ -105,7 +110,11 @@ if (output === undefined || fs.existsSync(output))
   throw new Error(
     "Supply STUDY ANCHORS DETECTIONS POSES and a new OUTPUT.json.",
   );
-const lambda = Number(lambdaText ?? "0.0016");
+// lambda = (sigma_n / sigma_p)^2 * N / N_eff: landmark noise 0.02
+// inter-ocular, parameter spread 0.5, and 468 mesh landmarks carrying about
+// the information of the 68-point annotation they densify, because their
+// errors (detector bias, pose, expression) are strongly correlated.
+const lambda = Number(lambdaText ?? String(((0.02 / 0.5) ** 2 * 468) / 68));
 const mu = Number(muText ?? "0.01");
 const basis = JSON.parse(
   gunzipSync(fs.readFileSync(path.join(study!, "basis.json.gz"))).toString(
@@ -115,9 +124,10 @@ const basis = JSON.parse(
 const documents = readFaceLikenessJson<IAutoMovieHumanFaceBasisDocument[]>(
   path.join(study!, "subjects.json"),
 );
+type IAnchors = { landmark: number; anchor: IFaceShapeFitAnchor | null }[];
 const anchors = readFaceLikenessJson<{
   basis: string;
-  anchors: { landmark: number; anchor: IFaceShapeFitAnchor | null }[];
+  views: Record<string, { anchors: IAnchors }>;
 }>(anchorFile!);
 if (anchors.basis !== basis.id)
   throw new Error("The anchors belong to another basis.");
@@ -155,39 +165,65 @@ const pairs: [string, string][] = [
   ),
 ];
 
-// Shape endpoints are linear: their landmark displacement is read once from
-// the sparse rows of the anchors' vertices.
-const needed = new Set(
-  anchors.anchors.flatMap((one) => one.anchor?.vertices ?? []),
+// A channel without a left/right partner whose field is not mirror
+// symmetric (a lateral slide) has a population spread five times narrower.
+const mirror = faceShapeFitMirror(human.positions);
+const paired = new Set(pairs.flat());
+const priorOf = (channel: string, endpoint: string | null) =>
+  paired.has(channel) || endpoint === null
+    ? 1
+    : faceShapeFitAsymmetry(human.targets[endpoint] ?? [], mirror) > 0.5
+      ? 25
+      : 1;
+console.log(
+  "held symmetry-breaking endpoints",
+  shape.flatMap((channel) =>
+    [channel.positive, channel.negative].filter(
+      (endpoint) => endpoint !== null && priorOf(channel.id, endpoint) > 1,
+    ),
+  ),
 );
-const rows = new Map<string, Map<number, [number, number, number]>>();
-for (const [endpoint, flat] of Object.entries(human.targets)) {
-  const map = new Map<number, [number, number, number]>();
-  for (let i = 0; i < flat.length; i += 4)
-    if (needed.has(flat[i]!))
-      map.set(flat[i]!, [flat[i + 1]!, flat[i + 2]!, flat[i + 3]!]);
-  rows.set(endpoint, map);
-}
-const displacement = (endpoint: string | null) =>
-  anchors.anchors.map(({ anchor }): [number, number, number] => {
-    const map = endpoint === null ? undefined : rows.get(endpoint);
-    if (anchor === null || map === undefined) return [0, 0, 0];
-    return [0, 1, 2].map((axis) =>
-      anchor.vertices.reduce(
-        (sum, vertex, k) =>
-          sum + anchor.weights[k]! * (map.get(vertex)?.[axis] ?? 0),
-        0,
-      ),
-    ) as [number, number, number];
-  });
-const shapeMoves = shape.map((channel) => ({
-  channel,
-  positive: displacement(channel.positive),
-  negative: channel.negative === null ? null : displacement(channel.negative),
-}));
+
+/**
+ * Shape endpoints are linear: their displacement at one view's anchors is
+ * read from the sparse rows of the anchored vertices.
+ */
+const shapeMovesFor = (list: IAnchors) => {
+  const needed = new Set(list.flatMap((one) => one.anchor?.vertices ?? []));
+  const rows = new Map<string, Map<number, [number, number, number]>>();
+  for (const [endpoint, flat] of Object.entries(human.targets)) {
+    const map = new Map<number, [number, number, number]>();
+    for (let i = 0; i < flat.length; i += 4)
+      if (needed.has(flat[i]!))
+        map.set(flat[i]!, [flat[i + 1]!, flat[i + 2]!, flat[i + 3]!]);
+    rows.set(endpoint, map);
+  }
+  const displacement = (endpoint: string | null) =>
+    list.map(({ anchor }): [number, number, number] => {
+      const map = endpoint === null ? undefined : rows.get(endpoint);
+      if (anchor === null || map === undefined) return [0, 0, 0];
+      return [0, 1, 2].map((axis) =>
+        anchor.vertices.reduce(
+          (sum, vertex, k) =>
+            sum + anchor.weights[k]! * (map.get(vertex)?.[axis] ?? 0),
+          0,
+        ),
+      ) as [number, number, number];
+    });
+  return shape.map((channel) => ({
+    channel,
+    positive: displacement(channel.positive),
+    negative: channel.negative === null ? null : displacement(channel.negative),
+    positivePrior: priorOf(channel.id, channel.positive),
+    negativePrior: priorOf(channel.id, channel.negative),
+  }));
+};
 
 /** Landmark points of a document's hair-free build, or null when refused. */
-const landmarks = (document: IAutoMovieHumanFaceBasisDocument) => {
+const landmarksAt = (
+  list: IAnchors,
+  document: IAutoMovieHumanFaceBasisDocument,
+) => {
   let model;
   try {
     model = build({ ...document, hair: null });
@@ -195,7 +231,7 @@ const landmarks = (document: IAutoMovieHumanFaceBasisDocument) => {
     return null;
   }
   const positions = faceShapeFitSurfacePositions(basis, model, "Human");
-  return anchors.anchors.map(({ anchor }) =>
+  return list.map(({ anchor }) =>
     anchor === null
       ? ([0, 0, 0.2] as [number, number, number])
       : faceShapeFitAnchorPoint(positions, anchor),
@@ -224,14 +260,19 @@ for (const document of documents) {
   const subject = document.id.replace(/-connected$/u, "");
   const photo = photos.get(`photo:${subject}`);
   const pose = poses[subject];
-  if (!photo?.face || pose === undefined) {
+  const view_ = anchors.views[subject];
+  if (!photo?.face || pose === undefined || view_ === undefined) {
     console.log(subject, "unchanged");
     continue;
   }
   const original = structuredClone(document);
+  const list = view_.anchors;
+  const shapeMoves = shapeMovesFor(list);
+  const landmarks = (candidate: IAutoMovieHumanFaceBasisDocument) =>
+    landmarksAt(list, candidate);
   const target = photo.face.landmarks
     .slice(0, 468)
-    .map((point, k) => (anchors.anchors[k]!.anchor === null ? null : point));
+    .map((point, k) => (list[k]!.anchor === null ? null : point));
   const weight = target.map((_, k) => (OVAL.has(k) ? 0.5 : 1));
   const view = faceShapeFitView({ ...pose, pitch: pose.pitch ?? 0 });
   const costs: string[] = [];
@@ -239,7 +280,7 @@ for (const document of documents) {
     const base = landmarks(document);
     if (base === null) break;
     const variables: IFaceShapeFitVariable[] = shapeMoves.flatMap(
-      ({ channel, positive, negative }) => {
+      ({ channel, positive, negative, positivePrior, negativePrior }) => {
         const w = document.shape[channel.id] ?? 0;
         const sides: IFaceShapeFitVariable[] = [];
         if (channel.maximum > 0)
@@ -249,6 +290,7 @@ for (const document of documents) {
             current: Math.max(w, 0),
             maximum: channel.maximum,
             displacement: positive,
+            prior: positivePrior,
           });
         if (negative !== null && channel.minimum < 0)
           sides.push({
@@ -257,6 +299,7 @@ for (const document of documents) {
             current: Math.max(-w, 0),
             maximum: -channel.minimum,
             displacement: negative,
+            prior: negativePrior,
           });
         return sides;
       },
@@ -350,6 +393,27 @@ for (const document of documents) {
     document.shape = original.shape;
     document.expression = original.expression;
   }
+  const changes = [
+    ...Object.keys({ ...original.shape, ...document.shape }).map((id) => [
+      id,
+      (document.shape[id] ?? 0) - (original.shape[id] ?? 0),
+    ]),
+    ...Object.keys({ ...original.expression, ...document.expression }).map(
+      (id) => [
+        id,
+        (document.expression[id] ?? 0) - (original.expression[id] ?? 0),
+      ],
+    ),
+  ] as [string, number][];
+  console.log(
+    subject,
+    "largest changes",
+    changes
+      .sort((x, y) => Math.abs(y[1]) - Math.abs(x[1]))
+      .slice(0, 5)
+      .map(([id, value]) => `${id} ${value.toFixed(2)}`)
+      .join(", "),
+  );
   console.log(
     subject,
     costs.join(" "),

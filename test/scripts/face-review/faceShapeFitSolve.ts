@@ -9,7 +9,7 @@
  * built positions at the current weights `u0`, `v0`. The fit minimizes
  *
  *   sum_k omega_k |S(project(x_k)) - y_k|^2 / iod^2
- *     + lambda sum_c ((u_c - u0_c)^2 + (v_c - v0_c)^2)
+ *     + lambda sum_c prior_c ((u_c - u0_c)^2 + (v_c - v0_c)^2)
  *     + mu sum_pairs (w_left - w_right)^2
  *
  * over `0 <= u_c <= max_c`, `0 <= v_c <= -min_c`: detector landmarks `y_k`
@@ -47,6 +47,11 @@ export interface IFaceShapeFitVariable {
   maximum: number;
   /** Displacement of each landmark at magnitude one, metres. */
   displacement: readonly (readonly [number, number, number])[];
+  /**
+   * Multiplier of lambda for this variable, default one: a channel whose
+   * population spread is narrower (a symmetry-breaking one) is held harder.
+   */
+  prior?: number;
 }
 
 /** Everything one fit step reads. */
@@ -164,8 +169,9 @@ export function solveFaceShapeFit(problem: IFaceShapeFitProblem): {
         for (let j = 0; j < m; ++j) H[i]![j] += row.w * row.g[i]! * row.g[j]!;
       }
     problem.variables.forEach((variable, i) => {
-      H[i]![i] += problem.lambda;
-      b[i] += problem.lambda * (x[i]! - variable.current);
+      const lambda = problem.lambda * (variable.prior ?? 1);
+      H[i]![i] += lambda;
+      b[i] += lambda * (x[i]! - variable.current);
     });
     const signed = (i: number) =>
       problem.variables[i]!.side === "positive" ? 1 : -1;
