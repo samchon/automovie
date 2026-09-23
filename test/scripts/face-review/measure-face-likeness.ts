@@ -17,16 +17,20 @@
  * masks exist, the two captures used one GPU renderer, and every image shows
  * exactly one detected face; otherwise its row keeps the reason and no
  * value. The receipt records every input hash, camera and instrument so a
- * later candidate can be compared under the same condition, and the
- * population medians of `faceLikenessCompare.ts` over compared subjects.
+ * later candidate can be compared under the same condition, the
+ * population medians of `faceLikenessCompare.ts` over compared subjects,
+ * and the cross-identification of `faceLikenessIdentify.ts`: whether each
+ * portrait render is nearer its own photograph than every other subject's.
  */
 import fs from "node:fs";
 import path from "node:path";
 
 import {
+  type IFaceLikenessComparison,
   compareFaceLikeness,
   summarizeFaceLikeness,
 } from "./faceLikenessCompare";
+import { identifyFaceLikeness } from "./faceLikenessIdentify";
 import {
   type IFaceLikenessCaptures,
   type IFaceLikenessDetections,
@@ -73,6 +77,7 @@ const views = readFaceLikenessJson<{ basis: string }>(
   path.join(models!, "views.json"),
 );
 
+const measured: (IFaceLikenessComparison & { subject: string })[] = [];
 const rows = subjects.map(({ subject }) => {
   const missing = manifest.missing.find((entry) => entry.subject === subject);
   if (missing !== undefined) return { subject, status: missing.status };
@@ -143,31 +148,25 @@ const rows = subjects.map(({ subject }) => {
       status: "face-detection-failed",
       detectedFaces: detected,
     };
-  return {
-    ...base,
-    status: "measured",
-    ...compareFaceLikeness({
-      reference: {
-        face: photo.face,
-        image: readFaceLikenessImage(path.join(directory!, photo.rgb!)),
-        hair: readFaceLikenessMask(path.join(directory!, photo.hairMask!)),
-      },
-      portrait: {
-        face: portraitDetection.face,
-        image: readFaceLikenessImage(files.portrait),
-        hair: readFaceLikenessMask(files.portraitHair),
-      },
-      frame: {
-        face: frameDetection.face,
-        hair: readFaceLikenessMask(files.frameHair),
-      },
-    }),
-  };
+  const comparison = compareFaceLikeness({
+    reference: {
+      face: photo.face,
+      image: readFaceLikenessImage(path.join(directory!, photo.rgb!)),
+      hair: readFaceLikenessMask(path.join(directory!, photo.hairMask!)),
+    },
+    portrait: {
+      face: portraitDetection.face,
+      image: readFaceLikenessImage(files.portrait),
+      hair: readFaceLikenessMask(files.portraitHair),
+    },
+    frame: {
+      face: frameDetection.face,
+      hair: readFaceLikenessMask(files.frameHair),
+    },
+  });
+  measured.push({ subject, ...comparison });
+  return { ...base, status: "measured", ...comparison };
 });
-const measured = rows.filter(
-  (row): row is Extract<(typeof rows)[number], { status: "measured" }> =>
-    row.status === "measured",
-);
 fs.writeFileSync(
   output,
   JSON.stringify(
@@ -182,6 +181,14 @@ fs.writeFileSync(
         framePoseFileSha256: frameCaptures.poseFileSha256,
       },
       summary: summarizeFaceLikeness(measured),
+      identification: identifyFaceLikeness(
+        measured.map((row) => ({
+          subject: row.subject,
+          render: byId.get(`portrait:${row.subject}__reference-yaw`)!.face!
+            .landmarks,
+          photo: byId.get(`photo:${row.subject}`)!.face!.landmarks,
+        })),
+      ),
       subjects: rows,
     },
     null,
