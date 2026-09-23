@@ -37,6 +37,11 @@
     <script type="module">
       import * as THREE from "three";
 
+      import {
+        portraitWebHairMaskPart,
+        portraitWebHairMaskPixels,
+      } from "./logic.mjs";
+
       const canvas = document.getElementById("view");
       const renderer = new THREE.WebGLRenderer({
         canvas,
@@ -141,7 +146,7 @@
             material.vertexColors = true;
           }
           if (options.hairMask === true) {
-            const hair = part.id.startsWith("numerical-hair:");
+            const hair = portraitWebHairMaskPart(part.id);
             const maskMaterial = new THREE.MeshBasicMaterial({
               color: hair ? 0xffffff : 0x000000,
               side: THREE.DoubleSide,
@@ -159,11 +164,7 @@
                 source.width,
                 source.height,
               );
-              for (let offset = 0; offset < pixels.data.length; offset += 4)
-                pixels.data[offset] =
-                  pixels.data[offset + 1] =
-                  pixels.data[offset + 2] =
-                    255;
+              pixels.data.set(portraitWebHairMaskPixels(pixels.data));
               context.putImageData(pixels, 0, 0);
               maskMaterial.map = new THREE.CanvasTexture(alphaCanvas);
               maskMaterial.map.flipY = false;

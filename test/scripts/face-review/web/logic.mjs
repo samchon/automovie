@@ -1,5 +1,48 @@
-/** Pure inspection choices shared by the browser and its unit scenarios. */
+/**
+ * Pure inspection choices for the browser face review harness. The capture
+ * page and unit scenarios call these functions with explicitly supplied IDs,
+ * pixels, camera values or export records. `resetPortraitWebSubject` alone
+ * mutates the supplied scene object's matrix before a bounds read; the other
+ * inputs remain caller-owned, and the page owns WebGL resources. The hair ID
+ * mask relies on emitted part identity and texture alpha, so its silhouette
+ * reflects visible fibres at the capture camera without inferring hair from
+ * a rendered colour.
+ */
 export const portraitWebModes = ["colour", "clay", "wireframe"];
+
+/** Identify numerical hair independently of a subject or material colour. */
+export function portraitWebHairMaskPart(id) {
+  return id.startsWith("numerical-hair:");
+}
+
+/** Keep fibre alpha while making even a black hair texture a white ID mask. */
+export function portraitWebHairMaskPixels(rgba) {
+  if (rgba.length % 4 !== 0)
+    throw new Error("Hair mask needs complete RGBA pixels.");
+  const white = new Uint8ClampedArray(rgba.length);
+  for (let offset = 0; offset < rgba.length; offset += 4) {
+    white[offset] = white[offset + 1] = white[offset + 2] = 255;
+    white[offset + 3] = rgba[offset + 3];
+  }
+  return white;
+}
+
+/** Use an externally measured view without silently inventing a missing pose. */
+export function portraitWebCapturePose(poses, id, hairMask) {
+  const pose = poses?.[id];
+  if (
+    pose === undefined ||
+    pose === null ||
+    !Number.isFinite(pose.yaw) ||
+    !Number.isFinite(pose.pitch) ||
+    Math.abs(pose.yaw) > 180 ||
+    Math.abs(pose.pitch) >= 90
+  )
+    throw new Error(
+      "A matched face view needs a finite measured yaw and pitch.",
+    );
+  return { yaw: pose.yaw, pitch: pose.pitch, hairMask };
+}
 
 /** Reset the subject frame before a close camera reads child world bounds. */
 export function resetPortraitWebSubject(subject) {

@@ -1,5 +1,14 @@
-/** Typed entry points for pure inspection logic, separate from model construction. */
+/** Typed inputs and outputs for the capture page's pure inspection decisions. */
 export declare const portraitWebModes: readonly ["colour", "clay", "wireframe"];
+export declare function portraitWebHairMaskPart(id: string): boolean;
+export declare function portraitWebHairMaskPixels(
+  rgba: Uint8ClampedArray,
+): Uint8ClampedArray;
+export declare function portraitWebCapturePose(
+  poses: Record<string, { yaw: number; pitch: number } | null> | null,
+  id: string,
+  hairMask: boolean,
+): { yaw: number; pitch: number; hairMask: boolean };
 export declare function resetPortraitWebSubject(subject: {
   matrixAutoUpdate: boolean;
   matrix: { identity(): unknown };
