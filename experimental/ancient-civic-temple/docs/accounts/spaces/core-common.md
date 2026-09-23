@@ -7,7 +7,7 @@
 -->
 
 <!--
-@evidenceReview obligations/core/common.md#purpose-fit 27파일을 각 역할의 결과에 다시 대조했다. 기준선·방 목록·site·junctions 단면에 더해, ownership의 하부 띠 분할을 빼면 materials가 주랑·제실 벽 하부에만 적갈색을 결속할 경계가 사라진다는 결손이 본문 첫 문단의 ownership 문장으로 드러난다.
+@evidenceReview obligations/core/common.md#purpose-fit #7b32c66 27파일을 각 역할의 결과에 다시 대조했다. 기준선·방 목록·site·junctions 단면에 더해, ownership의 하부 띠 분할을 빼면 materials가 주랑·제실 벽 하부에만 적갈색을 결속할 경계가 사라진다는 결손이 본문 첫 문단의 ownership 문장으로 드러난다.
 -->
 
 이 population은 한 단층 신전의 건물 내부와 외피를 함께 설계한다. [building](../../spaces/building.md)은 외곽·공유 기준선·부모 위계·외부 접점을, [storey](../../spaces/storey.md)는 높이·문턱 지지·외벽 하단을 소유한다. 둘 중 하나가 없으면 방의 평면만 맞아도 도로·문턱·지면을 같은 건물로 연결할 수 없다. [openings](../../spaces/openings.md)는 경계 identity와 실제 void/문/창 위치를, [junctions](../../spaces/junctions.md)는 벽 끝/박공의 폐쇄와 외벽 기단·코핑의 단면을 정한다. 후자는 개구부 표만으로는 막을 수 없는 모서리 중첩·roof 아래 누광과, 네 입면이 따로 정하면 모서리에서 어긋날 석재 띠의 만남을 다룬다. [circulation](../../spaces/circulation.md)은 공용/서비스의 서로 다른 시작과 주랑 경유 순서를 정한다.
@@ -53,7 +53,7 @@ viewer-path의 한국어 설명과 키보드 조작은 설계 요구이며 이�
 -->
 
 <!--
-@evidenceReview obligations/core/common.md#proportionate-development 27파일/45 H2를 같은 방식으로 다시 쟀고 ownership이 2748→3695로 늘어 그 증가가 새 하부 띠 H2에서 왔다고 표와 본문이 일치한다. junctions·site의 증가와 짧아진 두 roof 문서의 결정 유지, a4c1d468 대비 매스/동선 보존도 그대로 적혀 있다.
+@evidenceReview obligations/core/common.md#proportionate-development #78feb28 27파일/45 H2를 같은 방식으로 다시 쟀고 ownership이 2748→3695로 늘어 그 증가가 새 하부 띠 H2에서 왔다고 표와 본문이 일치한다. junctions·site의 증가와 짧아진 두 roof 문서의 결정 유지, a4c1d468 대비 매스/동선 보존도 그대로 적혀 있다.
 -->
 
 비교 기준은 21×20.5m 단층, 같은 층의 아홉 공간, 네 외측 입면, 하나의 주랑, 여섯 roof 문서가 다루는 외피와 그 둘레의 국소 대지다. 이 숫자는 authored 설계의 분포이며 compiled census가 아니다. 현재는 27파일/45 H2다. 아래 문자 수는 해당 Markdown에서 HTML 주석·제목 줄·공백 문자를 제거한 본문 길이다. 링크/표 표기 문자는 남겼으므로 독자용 어절 수나 geometry 양으로 읽지 않는다. evidence 문장이 길어져 생긴 분량은 이 비교에 포함하지 않았다.

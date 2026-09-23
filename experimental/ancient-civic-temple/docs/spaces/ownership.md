@@ -84,18 +84,18 @@ surface ID는 `surface.<owner>.<face>`로 안정되게 정하고 실제 boundary
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation 주랑 여섯 영역과 제실 네 벽이 대상이고 봉헌실·업무방·마당·외부가 제외로 열거돼 적갈색 띠를 방 하나에만 두는 축소나 모든 방으로의 확대가 남지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion 0.60m 수평선과 두 표면 ID, 문에서의 끊김이 적혀 environment가 분할 높이와 대상을 추정하지 않는다.
-@evidenceReview principles/core/common.md#declared-basis 띠의 범위는 설정 링크에서, 0.60m는 이미지 03·04에서 약 0.5~0.75m로 읽은 범위 안의 저작 값이며 실측이 아니라고 구별했다.
-@evidenceReview principles/design/spaces.md#space-topology 같은 평면의 면 분할이고 턱·돌출이 없다고 적어 띠가 주랑 통행이나 제실 문 통과에 새 장애를 만들지 않는다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority 소유 지도의 주랑·제실 행을 그대로 따르며 dado 표면도 같은 방 owner라서 입면이나 materials가 이 면을 새로 소유하지 않는다.
-@evidenceReview principles/design/spaces.md#space-verification-address owner 색 검사와 납품 보기를 함께 쓰라는 문장이 재료가 없는 현재에도 띠 경계를 반증할 수단을 준다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation 부모는 색 관계와 범위만 줬고 윗선 높이·표면 ID·문에서의 끊김은 공간 층이 더한 결정이다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work 세 설정 조건이 기존 벽 마감의 한 수평 분할로 함께 성립해 부모의 색 관계나 방별 용도를 고칠 결함이 없었다.
-@evidenceReview settings/20-envelope.md#material-language 부모의 중정·제실 띠와 밝은 업무방이 대상 두 표면과 제외 목록으로 그대로 옮겨졌다.
-@evidenceReview settings/20-envelope.md#walls 띠 경계가 바닥 위 일정 높이의 수평선이라 부모의 높이 경계를 따르는 재료 경계 원칙에 맞는다.
-@evidenceReview settings/30-interiors.md#sanctuary 제실 네 벽 하부의 sanctuary.dado가 이미지 04의 낮은 붉은 띠를 받는다.
-@evidenceReview contracts/obligations-spaces.md#surface-ownership 두 dado 표면이 각 방 owner의 완결 표면으로 귀속되고 한 면이 두 표면에 겹치면 실패로 명시돼 단독 소유가 유지된다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 주랑 여섯 영역과 제실 네 벽이 대상이고 봉헌실·업무방·마당·외부가 제외로 열거돼 적갈색 띠를 방 하나에만 두는 축소나 모든 방으로의 확대가 남지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 0.60m 수평선과 두 표면 ID, 문에서의 끊김이 적혀 environment가 분할 높이와 대상을 추정하지 않는다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 띠의 범위는 설정 링크에서, 0.60m는 이미지 03·04에서 약 0.5~0.75m로 읽은 범위 안의 저작 값이며 실측이 아니라고 구별했다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 같은 평면의 면 분할이고 턱·돌출이 없다고 적어 띠가 주랑 통행이나 제실 문 통과에 새 장애를 만들지 않는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 소유 지도의 주랑·제실 행을 그대로 따르며 dado 표면도 같은 방 owner라서 입면이나 materials가 이 면을 새로 소유하지 않는다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 owner 색 검사와 납품 보기를 함께 쓰라는 문장이 재료가 없는 현재에도 띠 경계를 반증할 수단을 준다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모는 색 관계와 범위만 줬고 윗선 높이·표면 ID·문에서의 끊김은 공간 층이 더한 결정이다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 세 설정 조건이 기존 벽 마감의 한 수평 분할로 함께 성립해 부모의 색 관계나 방별 용도를 고칠 결함이 없었다.
+@evidenceReview settings/20-envelope.md#material-language #25e6ffa 부모의 중정·제실 띠와 밝은 업무방이 대상 두 표면과 제외 목록으로 그대로 옮겨졌다.
+@evidenceReview settings/20-envelope.md#walls #35026c5 띠 경계가 바닥 위 일정 높이의 수평선이라 부모의 높이 경계를 따르는 재료 경계 원칙에 맞는다.
+@evidenceReview settings/30-interiors.md#sanctuary #f53612f 제실 네 벽 하부의 sanctuary.dado가 이미지 04의 낮은 붉은 띠를 받는다.
+@evidenceReview contracts/obligations-spaces.md#surface-ownership #1a50ebe 두 dado 표면이 각 방 owner의 완결 표면으로 귀속되고 한 면이 두 표면에 겹치면 실패로 명시돼 단독 소유가 유지된다.
 -->
 
 [재료 관계](../settings/20-envelope.md#material-language)는 적갈색 띠가 중정과 제실 벽 하부를 연속해서 따르고 업무방은 밝은 회벽을 유지한다고 정한다. [외피 canon](../settings/20-envelope.md#walls)은 재료 경계가 부재와 높이 경계를 따르게 하고, [제실](../settings/30-interiors.md#sanctuary)은 이미지 04의 낮은 붉은 띠를 채택한다. 이 H2는 그 경계를 공간 표면의 분할로 정한다. 중정을 둘러싼 벽은 [주랑](rooms/colonnade.md#ring-volume)의 벽 마감 `surface.colonnade.wall`이고 제실은 [제실](rooms/sanctuary.md#sanctuary-volume)의 벽 마감 `surface.sanctuary.wall`이다.
