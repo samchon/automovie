@@ -6,7 +6,7 @@
  */
 import type { WallSpec } from "../../geometry/wall-solids";
 import { templePlan as p } from "../building";
-import { templeOuterWallPlans } from "../junctions";
+import { templeOuterWallPlans, templeWallTrim } from "../junctions";
 import { templeParapetTop } from "./south";
 
 export const templeWestWalls = (bottom: number): WallSpec[] => [{
@@ -14,11 +14,11 @@ export const templeWestWalls = (bottom: number): WallSpec[] => [{
   plan: templeOuterWallPlans().west,
   segments: [
     { from: p.northOuter, to: p.northInner, low: "surface.facade-west.outer", high: "joint",
-      top: { kind: "flat", height: templeParapetTop, surface: "surface.facade-west.coping" } },
+      top: { kind: "flat", height: templeParapetTop, surface: "surface.facade-west.coping", coping: templeWallTrim.copingThickness } },
     { from: p.northInner, to: p.southInner, low: "surface.facade-west.outer", high: "surface.offering.wall",
-      top: { kind: "flat", height: templeParapetTop, surface: "surface.facade-west.coping" },
+      top: { kind: "flat", height: templeParapetTop, surface: "surface.facade-west.coping", coping: templeWallTrim.copingThickness },
       highSplit: { tier: "wing", above: "surface.facade-west.parapet-back" } },
     { from: p.southInner, to: p.southOuter, low: "surface.facade-west.outer", high: "joint",
-      top: { kind: "flat", height: templeParapetTop, surface: "surface.facade-west.coping" } },
+      top: { kind: "flat", height: templeParapetTop, surface: "surface.facade-west.coping", coping: templeWallTrim.copingThickness } },
   ],
 }];

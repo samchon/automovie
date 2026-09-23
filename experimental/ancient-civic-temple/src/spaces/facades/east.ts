@@ -6,7 +6,7 @@
  */
 import type { WallSpec } from "../../geometry/wall-solids";
 import { templePlan as p } from "../building";
-import { templeOuterWallPlans } from "../junctions";
+import { templeOuterWallPlans, templeWallTrim } from "../junctions";
 import { templeDoorVoidsOn } from "../openings";
 import { templeYardWallTop } from "./north";
 import { templeParapetTop } from "./south";
@@ -14,7 +14,7 @@ import { templeParapetTop } from "./south";
 const outer = "surface.facade-east.outer";
 const roof = { kind: "roof", tier: "wing" } as const;
 const yardTop = {
-  kind: "flat", height: templeYardWallTop, surface: "surface.service-yard.wall-top",
+  kind: "flat", height: templeYardWallTop, surface: "surface.service-yard.wall-top", coping: templeWallTrim.copingThickness,
 } as const;
 
 export const templeEastWalls = (bottom: number): WallSpec[] => [{
@@ -32,6 +32,6 @@ export const templeEastWalls = (bottom: number): WallSpec[] => [{
     { from: p.officeBack, to: p.southInner, low: "surface.administration.wall", high: outer, top: roof },
     // 남측 파라펫과 만나는 모서리 칸은 같은 코핑 높이의 기둥으로 올린다.
     { from: p.southInner, to: p.southOuter, low: "joint", high: outer,
-      top: { kind: "flat", height: templeParapetTop, surface: "surface.facade-east.coping" } },
+      top: { kind: "flat", height: templeParapetTop, surface: "surface.facade-east.coping", coping: templeWallTrim.copingThickness } },
   ],
 }];

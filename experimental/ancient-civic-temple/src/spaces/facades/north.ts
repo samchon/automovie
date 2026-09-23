@@ -6,13 +6,15 @@
  */
 import type { WallSpec } from "../../geometry/wall-solids";
 import { templePlan as p } from "../building";
-import { templeOuterWallPlans } from "../junctions";
+import { templeOuterWallPlans, templeWallTrim } from "../junctions";
 import { templeClerestoryVoidsOn } from "../openings";
 import { templeParapetTop } from "./south";
 
 const outer = "surface.facade-north.outer";
 const sanctuary = { kind: "roof", tier: "sanctuary" } as const;
-const coping = { kind: "flat", height: templeParapetTop, surface: "surface.facade-north.coping" } as const;
+const coping = {
+  kind: "flat", height: templeParapetTop, surface: "surface.facade-north.coping", coping: templeWallTrim.copingThickness,
+} as const;
 const wing = { tier: "wing", above: "surface.facade-north.parapet-back" } as const;
 
 /** 마당 벽 상단(m). 입면 설계의 단일 값이며 보관실 박공에 복사하지 않는다. */
@@ -29,6 +31,6 @@ export const templeNorthWalls = (bottom: number): WallSpec[] => [{
     { from: p.westRing, to: p.eastRing, low: outer, high: "surface.sanctuary.wall", top: sanctuary },
     { from: p.eastRing, to: p.eastRoom, low: outer, high: "joint", top: sanctuary },
     { from: p.eastRoom, to: p.eastOuter, low: outer, high: "surface.service-yard.wall",
-      top: { kind: "flat", height: templeYardWallTop, surface: "surface.service-yard.wall-top" } },
+      top: { kind: "flat", height: templeYardWallTop, surface: "surface.service-yard.wall-top", coping: templeWallTrim.copingThickness } },
   ],
 }];

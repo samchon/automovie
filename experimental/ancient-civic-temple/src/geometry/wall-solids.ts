@@ -16,7 +16,11 @@ import { levelPlane, prismFaces } from "./prism";
 
 export type WallTop =
   | { kind: "roof"; tier: RoofPatch["tier"] }
-  | { kind: "flat"; height: number; surface: string };
+  | {
+    kind: "flat"; height: number; surface: string;
+    /** 석재 코핑 두께(m). 있으면 벽 실체는 height-coping에서 가려진 받침면으로 끝나고 코핑은 wall-trim이 만든다. */
+    coping?: number;
+  };
 
 /** 긴 면을 옆 지붕으로 나누는 규칙. within 기본값은 joint(가려진 접면)다. */
 export interface WallFaceSplit {
@@ -141,7 +145,7 @@ export const wallColumns = (wall: WallSpec, roof: readonly RoofPatch[]): WallCol
     const pieces: Array<{ polygon: PlanPoint[]; top: HeightPlane }> = [];
     const top = segment.top;
     if (top.kind === "flat") {
-      pieces.push({ polygon: strip, top: levelPlane(top.height) });
+      pieces.push({ polygon: strip, top: levelPlane(top.height - (top.coping ?? 0)) });
     } else {
       let covered = 0;
       for (const patch of roof.filter((r) => r.tier === top.tier)) {
@@ -189,7 +193,9 @@ export const wallFaces = (wall: WallSpec, roof: readonly RoofPatch[]): WallFace[
       for (const face of prismFaces(column.polygon, interval.bottom, interval.top)) {
         if (face.side === "top") {
           const owner = !interval.uppermost ? "reveal"
-            : column.segment.top.kind === "flat" ? column.segment.top.surface : "bearing";
+            : column.segment.top.kind === "flat"
+              ? column.segment.top.coping === undefined ? column.segment.top.surface : "joint"
+              : "bearing";
           faces.push({ surface: surface(owner), corners: face.corners });
           continue;
         }

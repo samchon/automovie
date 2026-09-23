@@ -31,6 +31,13 @@ export const templeOuterWallPlans = () => ({
   ],
 }) satisfies Record<string, PlanPoint[]>;
 
+/**
+ * docs/spaces/junctions.md#plinth-coping의 외벽 석재 단면(m). 코핑은 평평한
+ * 윗단(파라펫·마당 벽)에 얹히는 두께와 긴 면·자유 끝의 돌출, 기단은 외곽
+ * 바깥면에서의 돌출이다. 기단 상단 높이는 남측 입면(templePlinthRise)이 소유한다.
+ */
+export const templeWallTrim = { copingThickness: 0.16, copingProjection: 0.06, plinthProjection: 0.04 } as const;
+
 /** T 접합으로 끝난 내부/현관 벽의 직사각형 host 평면(planar-domain 방향). */
 export const templeWallRect = (west: number, east: number, north: number, south: number): PlanPoint[] => [
   { x: west, z: north }, { x: east, z: north }, { x: east, z: south }, { x: west, z: south },

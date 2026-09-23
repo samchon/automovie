@@ -80,3 +80,41 @@
 마당의 낮은 북·동 외벽 높이를 보관실 북쪽 박공에 복사하지 않는다. 파라펫은 지붕 위 외면과 코핑을 입면에 남기고 그 뒤에 올라갈 공간이나 난간을 만들지 않는다. 다른 지붕에 붙어 숨은 절단면을 외부 띠로 추가하지 않고, 낮은 천장 위 구조 빈틈에는 내부용 새 마감·문·층·관찰 방을 만들지 않는다. source에서 접합 계산은 junctions와 벽 띠 분할, 벽 실체는 기존 경계, 지붕 실체는 각 roof owner가 받는다.
 
 관찰은 파라펫과 지붕의 만남 전 구간, 모든 박공 끝의 양면·지붕 하부 단면, 제실 처마와 아래 지붕 사이, 마당에서 보관실 북쪽 끝을 올려다보는 위치를 포함한다. 높은 창 void와 문 head의 상단도 이 단면에 함께 놓는다. 누광 틈, 지붕을 뚫는 벽 상단, 코핑 아래로 드러난 지붕 끝, 마당 하늘의 잘못된 폐쇄, 주랑 통행을 가르는 막음 중 하나라도 있으면 해당 접합과 소비자를 수리한다. 실체·그림자·방 읽힘은 source와 GPU 관찰에서 확인한다.
+
+## 외벽 기단과 코핑의 단면 {#plinth-coping}
+
+<!--
+@evidence principles/core/common.md#scope-preservation 네 입면·반환벽·후퇴벽 양끝·남동 모서리·마당 벽의 코핑과 외곽 바깥면 전체의 기단을 한 단면 규칙에 넣고 개구부·현관 후퇴부의 예외를 함께 정한다.
+@evidence principles/core/common.md#substantive-completion 코핑 두께 0.16m·돌출 0.06m, 기단 돌출 0.04m, 벽 실체가 코핑 아래에서 끝나는 높이와 모서리·T 접합·높은 벽 끝의 처리를 정한다.
+@evidence principles/core/common.md#declared-basis 4.85m·0.65m는 남측 입면, 2.55m는 북측 입면, 지면은 site, 하단은 storey에서 받고 두께·돌출은 저작자 결정으로 표시한다.
+@evidence principles/design/spaces.md#space-topology 코핑과 기단은 기존 벽 위·앞에 붙는 실체이며 파라펫 뒤 통로나 새 공간, 현관·서비스 문 통과를 막는 턱을 만들지 않는다.
+@evidence principles/design/spaces.md#space-boundary-authority 높이 값은 각 owner를 소비하고 표면은 입면·서비스 마당 소유로 남기며 이 H2는 단면과 만남만 소유한다.
+@evidence principles/design/spaces.md#space-verification-address 모서리 만남, 파라펫 뒤 지붕과 코핑 아랫면, 높은 벽 끝, 서비스 문 앞, 동·서 기단 경사에서 틈·겹침·관통·막힘·부유를 실패로 둔다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 외피 canon의 석재 기단과 남측의 석재 코핑이라는 부모 요구를 두께·돌출·모서리 규칙을 가진 실제 단면으로 바꾼다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work walls의 석재 기단, roof-form의 코핑 파라펫 범위, 남측의 4.85m·0.65m와 대지 지면을 대조했다. 코핑 두께를 벽 상단 안으로 넣어 4.85m를 지키면서 지붕보다 높게 둘 수 있어 부모를 고치지 않았다.
+@evidence settings/20-envelope.md#walls 연한 석재 기단을 황토 회벽과 다른 실제 두께의 띠로 나눠 재료 경계가 부재·높이 경계를 따르게 한다.
+@evidence settings/20-envelope.md#roof-form 외곽 파라펫 윗단을 석재 코핑으로 마감하고 코핑 아랫면을 외쪽 지붕 상면보다 높게 둔다.
+-->
+
+<!--
+@evidenceReview principles/core/common.md#scope-preservation 코핑 대상 다섯 종류의 윗단과 기단 대상 외곽 바깥면이 모두 열거되고, 빠지는 곳은 서비스 문 앞과 현관 후퇴부 두 곳으로 이유와 함께 한정돼 있다.
+@evidenceReview principles/core/common.md#substantive-completion 0.16·0.06·0.04m와 받침면 높이, 정면 0.41m·북쪽 0.65m 기단 상단이 적혀 source가 단면을 새로 고를 여지가 없다.
+@evidenceReview principles/core/common.md#declared-basis 네 높이 입력은 각 owner 링크로 받고 두께·돌출만 저작자 결정이라고 표시해 소비한 값과 새 결정이 구별된다.
+@evidenceReview principles/design/spaces.md#space-topology 기단이 현관 후퇴부와 서비스 문 앞에서 끊긴다는 문장이 두 출입 경로에 턱을 만들지 않고, 파라펫 뒤 새 공간도 없다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority 코핑·기단 표면을 각 입면과 서비스 마당의 기존 ID로 남기고 모서리 칸의 소유 규칙까지 정해 한 칸을 두 owner가 만들지 않는다.
+@evidenceReview principles/design/spaces.md#space-verification-address 코핑과 지붕 사이 4.66m 대 4.69m의 여유를 파라펫 뒤 관찰로 확인하게 해 산술만으로 관통 없음을 통과시키지 않는다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation 부모는 석재 기단·코핑의 존재와 두 높이만 줬고 두께·돌출·모서리·높은 벽 끝 규칙은 이 공간 단위가 더했다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work 코핑을 벽 상단 안으로 넣어 4.85m와 지붕 여유가 함께 성립함을 보였고 부모의 코핑 범위나 기단 높이에서 결함이 드러나지 않았다.
+@evidenceReview settings/20-envelope.md#walls 기단이 회벽 면 위 색 띠가 아니라 0.04m 앞으로 나온 실제 띠라서 재료 경계가 부재 경계를 따른다는 부모 조건을 지킨다.
+@evidenceReview settings/20-envelope.md#roof-form 파라펫 윗단이 석재 코핑으로 끝나고 서측 외쪽 지붕 상면이 코핑 아래에 머물러 외곽 파라펫 정면이 유지된다.
+-->
+
+[외피 canon](../settings/20-envelope.md#walls)의 연한 석재 기단과 [남측 입면](facades/south.md#south-envelope)의 석재 코핑을 네 입면과 마당 벽에 같은 단면으로 준다. 높이는 각 owner에서 받는다. 파라펫 코핑 상단 4.85m와 기단 상단(각 접지면 위 0.65m)은 남측 입면, 마당 벽 상단 2.55m는 [북측 입면](facades/north.md#north-envelope), 지면은 [대지 지면](site.md#site-grade), 벽 하단은 [층](storey.md#wall-ground-contact)이 소유한다. 이 H2는 두께·돌출과 모서리에서의 만남만 정하고 새 표면 owner가 되지 않는다.
+
+저작자 결정: 코핑은 두께 0.16m의 석재 띠이며 평평한 윗단(파라펫, 반환벽, 후퇴벽 양끝 칸, 남동 모서리 칸, 마당 벽)의 상단을 윗면으로 삼는다. 벽 실체는 그 상단보다 0.16m 낮은 곳에서 끝나고 그 윗면은 코핑 아래의 가려진 받침면이 된다. 코핑은 벽의 양쪽 긴 면과 벽 평면의 끝(바깥 모서리·자유 끝)에서 0.06m 돌출하고, 같은 높이의 코핑끼리는 모서리와 T 접합에서 끊김 없이 한 덩어리로 잇는다. 더 높은 벽(제실·동측 박공 아래 벽)으로 이어지는 끝은 돌출하지 않고 그 벽 면에서 끝나며, 돌출분이 다른 벽 실체 안으로 들어가는 칸은 만들지 않는다. 서측 외쪽 지붕이 파라펫에 닿는 가장 높은 상면은 입력 산술상 약 4.56m이고 기와 약 0.10m를 더해도 약 4.66m라 코핑 아랫면 4.69m보다 낮다.
+
+기단은 건물 외곽선 위 바깥면(네 입면과 두 반환벽의 거리 쪽 끝면) 앞에 0.04m 돌출한 석재 띠다. 아래는 공통 외벽 하단까지 지면 속에 묻히고 위는 각 위치 지면 위 0.65m로 지면과 나란하다. 따라서 정면은 Y=0.41m, yard-front 북쪽은 Y=0.65m이고 동·서 입면은 그 사이를 경사로 잇는다. 네 바깥 모서리에서 두 띠는 정사각 칸으로 이어진다. 외부 서비스 문처럼 벽이 기단 상단보다 낮게 끝나는 개구부 앞과 현관 후퇴부(X=±1.65 사이)에는 두지 않는다. 기단 뒤의 벽 바깥면과 묻힌 아랫면은 가려진 접면이다.
+
+표면은 입면별 `surface.facade-<면>.coping`과 `surface.facade-<면>.plinth`이며 마당 벽 위 코핑은 [서비스 마당](rooms/service-yard.md#yard-volume)이 이미 소유한 `surface.service-yard.wall-top`이다. 바깥 모서리 칸은 기단이면 남·북 입면, 코핑이면 조립 순서(북·서·동·남)에서 먼저 오는 입면의 표면을 받아 한 칸에 두 표면을 겹치지 않는다. 단면 수치는 `src/spaces/junctions.ts`, 기단 높이는 `src/spaces/facades/south.ts`가 내보내고 유도 계산은 `src/geometry/wall-trim.ts`가 맡으며 environment가 코핑·기단 두 model로 조립한다.
+
+관찰은 네 바깥 모서리의 코핑·기단 만남, 파라펫 뒤 지붕과 코핑 아랫면 사이, 코핑이 제실 박공 벽·동측 처마 벽에 닿는 끝, 서비스 문 앞 기단 끊김, 동·서 입면의 기단 경사다. 코핑과 벽 사이 틈, 모서리의 빠진 칸이나 겹친 칸, 지붕을 뚫는 코핑, 문 void를 막거나 지면 위에 뜬 기단 중 하나라도 있으면 실패다. 마감 색·줄눈·블록 분할은 materials가 이 표면에 결속한다.

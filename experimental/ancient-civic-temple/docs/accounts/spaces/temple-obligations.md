@@ -3,16 +3,16 @@
 ## 완결 표면 배정의 범위 {#surface-population}
 
 <!--
-@evidence contracts/obligations-spaces.md#surface-ownership ownership 표의 입면·방·층·roof·대지 주소를 각 공간/입면/roof/대지의 실제 소유 문장과 대조했다. 공유벽의 한 실체와 양면 마감, 문턱, 박공, 처마 하부, 건물과 다른 소유 단위인 대지 표면을 아래와 같이 구별하며 compiled 역검사는 아직 없음을 남긴다.
+@evidence contracts/obligations-spaces.md#surface-ownership ownership 표의 입면·방·층·roof·대지 주소를 각 공간/입면/roof/대지의 실제 소유 문장과 대조했다. 공유벽의 한 실체와 양면 마감, 문턱, 박공, 처마 하부, 외벽 기단·코핑, 건물과 다른 소유 단위인 대지 표면을 아래와 같이 구별하며 compiled 역검사는 아직 없음을 남긴다.
 -->
 
 <!--
-@evidenceReview contracts/obligations-spaces.md#surface-ownership #1a50ebe ownership 표를 모든 room/입면/roof/대지와 문턱·junctions에 대조했다. 벽 하나의 두 마감, 내부 접면, 문턱 전 깊이, 외부 처마와 실내 하부, 대지 두 행이 각각 귀속되고 계산 분해가 공동 표면 소유를 만들지 않는다. compiled 면의 역검사를 수행하지 않았다고 본문이 밝힌다.
+@evidenceReview contracts/obligations-spaces.md#surface-ownership ownership 표를 모든 room/입면/roof/대지와 문턱·junctions에 대조했다. 벽 하나의 두 마감, 내부 접면, 문턱 전 깊이, 외부 처마와 실내 하부, 입면별 coping·plinth와 마당 wall-top, 대지 두 행이 각각 한 표면으로 귀속되고 모서리 칸도 겹치지 않는다. compiled 면의 역검사를 수행하지 않았다고 본문이 밝힌다.
 -->
 
 [ownership](../../spaces/ownership.md#surface-map)은 남북서동 외측 면을 각 입면에, 아홉 공간의 내측 면/바닥/천장을 각 room에, 기준과 구조체 공유 접합을 storey에, roof 상부/외부 처마 하부를 roof owner에, 대지 흙띠·경계석·포장·먼 능선을 [대지](../../spaces/site.md) owner에 배정한다. 각 행의 source 주소는 후속 단독 owner 지정이며 현재 존재하는 TypeScript라는 주장이 아니다. 모든 room과 입면/roof 문서를 읽었고 물리벽은 입면 또는 boundaries 하나가 만들고 서로 마주 보는 두 마감은 각 공간에 남기는 관계가 일치했다.
 
-[threshold-support](../../spaces/storey.md#threshold-support)는 문턱 전체를 주랑이 아닌 방에 주며 실제 벽 두께 안 예약과 cell 연장을 함께 다룬다. [junctions](../../spaces/junctions.md)는 맞댐과 박공 연장의 계산을 맡고 새 완결 표면 소유자가 아니다. [roof assembly](../../spaces/roofs/assembly.md#roof-junctions)의 면 분할도 원래 surface ID에 남으며 외부 처마와 내부 천장 하부를 구별한다. 독립 기둥·문·수반·집기는 prototype 전체 표면을 별도 model 한 소유가 만들고 방 파일은 그 배치/접촉을 소비한다.
+[threshold-support](../../spaces/storey.md#threshold-support)는 문턱 전체를 주랑이 아닌 방에 주며 실제 벽 두께 안 예약과 cell 연장을 함께 다룬다. [junctions](../../spaces/junctions.md)는 맞댐과 박공 연장, 외벽 기단·코핑 단면의 계산을 맡고 새 완결 표면 소유자가 아니다. 코핑과 기단 표면은 각 입면의 coping·plinth ID이고 마당 벽 위 코핑은 서비스 마당의 wall-top이며 모서리 칸도 한 표면만 받는다. [roof assembly](../../spaces/roofs/assembly.md#roof-junctions)의 면 분할도 원래 surface ID에 남으며 외부 처마와 내부 천장 하부를 구별한다. 독립 기둥·문·수반·집기는 prototype 전체 표면을 별도 model 한 소유가 만들고 방 파일은 그 배치/접촉을 소비한다.
 
 이것으로 지불한 것은 최초 설계의 소유 분해다. compiled 면 전부를 역으로 읽는 누락·중복 binding 검사는 아직 수행하지 않았으므로 unverified다. 해당 역검사를 통과하지 않은 상태로 사용자 매스·공간 단계의 시각 완료를 선언하지 않는다. 대지 표면은 건물과 다른 소유 단위이고 이웃·식생 개체는 models/instances 소유이며 건물 표면에 합쳐 저작하지 않는다.
 

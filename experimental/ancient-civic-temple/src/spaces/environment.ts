@@ -19,12 +19,14 @@ import {
 import { cullCoincidentVerticalFaces } from "../geometry/face-culling";
 import { roofSlabFaces, roofStepClosures, type UndersideRegion } from "../geometry/roof-solids";
 import { wallFaces, wallHostOutline, type WallSpec } from "../geometry/wall-solids";
+import { copingFaces, plinthFaces, type WallTrimInput } from "../geometry/wall-trim";
 import { templeInteriorWalls } from "./boundaries";
 import { templeConnectors } from "./circulation";
 import { templePlan as p, templeSpaceHierarchy } from "./building";
 import { templeEastWalls } from "./facades/east";
 import { templeNorthWalls } from "./facades/north";
-import { templeSouthWalls } from "./facades/south";
+import { templePlinthRise, templeSouthWalls } from "./facades/south";
+import { templeWallTrim } from "./junctions";
 import { templeWestWalls } from "./facades/west";
 import { templeClerestories, templeDoorPassages, templeDoorProfile } from "./openings";
 import { templeRoofEnvelope } from "./roofs/assembly";
@@ -37,7 +39,7 @@ import { templeRecords, templeRecordsCeiling, templeRecordsPlan } from "./rooms/
 import { templeSanctuary, templeSanctuaryPlan } from "./rooms/sanctuary";
 import { templeServiceYard } from "./rooms/service-yard";
 import { createTempleSite } from "./site/assembly";
-import { templeSiteContactMinimum } from "./site/extent";
+import { templeSiteContactMinimum, templeSiteGradeBreaks, templeSiteGradePlane } from "./site/extent";
 import { templeStorage, templeStorageCeiling, templeStoragePlan } from "./rooms/storage";
 import { templeLevels as y, templeWallBottom } from "./storey";
 
@@ -62,17 +64,27 @@ export const createTempleEnvironment = () => {
   }));
   const roofVisible = cullCoincidentVerticalFaces([...roofFaces.flatMap((r) => r.faces), ...roofStepClosures(roof)]);
   const roofOwner = new Map(roofFaces.flatMap((r) => r.faces.map((f) => [f, r.owner] as const)));
+  const trim: WallTrimInput = {
+    walls, roof,
+    profile: { ...templeWallTrim, plinthRise: templePlinthRise },
+    outline: { west: p.westOuter, east: p.eastOuter, north: p.northOuter, south: p.southOuter },
+    grade: (at) => templeSiteGradePlane(at.z),
+    gradeBreaks: templeSiteGradeBreaks,
+    plinthSurface: (outer) => outer.replace(/.outer$/, ".plinth"),
+  };
   const models: IAutoMovieModel[] = [
     ...walls.map((w) => surfaceModel(`model.${w.id}`, w.id, cullCoincidentVerticalFaces(wallFaces(w, roof)))),
     ...["roof-sanctuary", "roof-west", "roof-east", "roof-colonnade", "roof-porch"].map((owner) =>
       surfaceModel(`model.${owner}`, owner, roofVisible.filter((f) => (roofOwner.get(f) ?? ownerOf(f.surface)) === owner))),
+    surfaceModel("model.trim-coping", "trim-coping", copingFaces(trim)),
+    surfaceModel("model.trim-plinth", "trim-plinth", plinthFaces(trim)),
     surfaceModel("model.floors", "floors", floors.faces.map((f) => ({ surface: f.surface, corners: f.corners }))),
     surfaceModel("model.ceilings", "ceilings", [
       ...templeOfferingCeiling(), ...templeAdministrationCeiling(),
       ...templeRecordsCeiling(), ...templeStorageCeiling(),
     ]),
   ];
-  const kinds: Record<string, string> = { wall: "wall", roof: "roof", floors: "floor", ceilings: "ceiling" };
+  const kinds: Record<string, string> = { wall: "wall", roof: "roof", floors: "floor", ceilings: "ceiling", trim: "trim" };
   const elements: IAutoMovieBuiltElement[] = [
     { id: "temple.root", kind: "building", parent: null, transform: identityTransform(), model: null, space: y.building },
     ...models.map((m) => ({

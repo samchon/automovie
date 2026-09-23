@@ -7,11 +7,14 @@
  */
 import type { WallSpec } from "../../geometry/wall-solids";
 import { templePlan as p } from "../building";
-import { templeInteriorWallEnds, templeOuterWallPlans, templeWallRect } from "../junctions";
+import { templeInteriorWallEnds, templeOuterWallPlans, templeWallRect, templeWallTrim } from "../junctions";
 import { templeDoorVoidsOn } from "../openings";
 
 /** 외곽 파라펫 코핑 상단(m). 서·북 입면이 같은 값을 소비한다. */
 export const templeParapetTop = 4.85;
+
+/** 외곽 바깥면 석재 기단 상단의 접지면 위 높이(m). 네 입면이 같은 값을 소비한다. */
+export const templePlinthRise = 0.65;
 
 /** 포치 삼각 막음의 아랫면(m): 기둥 위 수평 보가 받는 높이. */
 export const templePedimentBase = 3.5;
@@ -20,7 +23,9 @@ const outer = "surface.facade-south.outer";
 const back = "surface.facade-south.parapet-back";
 const colonnade = "surface.colonnade.wall";
 const entrance = "surface.entrance.return";
-const coping = { kind: "flat", height: templeParapetTop, surface: "surface.facade-south.coping" } as const;
+const coping = {
+  kind: "flat", height: templeParapetTop, surface: "surface.facade-south.coping", coping: templeWallTrim.copingThickness,
+} as const;
 const wing = { tier: "wing", above: back } as const;
 
 export const templeSouthWalls = (bottom: number): WallSpec[] => {
