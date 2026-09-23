@@ -1,0 +1,131 @@
+{
+  "description": "Recorded facts about each subject, read from the source inventory path (age in years from the file name, ancestry from the inventory folder) and, for sex, from the subject name or public record; kdy1 has no source photograph in the inventory and no recorded age or sex.",
+  "subjects": {
+    "alan-rickman": {
+      "ageYears": 65,
+      "ageApproximate": false,
+      "sex": "male",
+      "ancestry": "european",
+      "source": "white/alan-rickman/alan-rickman_age-65_portrait.jpg"
+    },
+    "daniel-radcliffe": {
+      "ageYears": 13,
+      "ageApproximate": false,
+      "sex": "male",
+      "ancestry": "european",
+      "source": "white/daniel-radcliffe/daniel-radcliffe_age-13_chamber-of-secrets-premiere.jpg"
+    },
+    "emma-watson": {
+      "ageYears": 24,
+      "ageApproximate": false,
+      "sex": "female",
+      "ancestry": "european",
+      "source": "white/emma-watson/emma-watson_age-24_british-fashion-awards.jpg"
+    },
+    "generated-black-boy-01": {
+      "ageYears": 15,
+      "ageApproximate": false,
+      "sex": "male",
+      "ancestry": "african",
+      "source": "black/generated-black-boy-01/generated-black-boy-01_age-15_front-smile.png"
+    },
+    "generated-black-girl-01": {
+      "ageYears": 15,
+      "ageApproximate": false,
+      "sex": "female",
+      "ancestry": "african",
+      "source": "black/generated-black-girl-01/generated-black-girl-01_age-15_front-smile.png"
+    },
+    "generated-korean-boy-01": {
+      "ageYears": 15,
+      "ageApproximate": false,
+      "sex": "male",
+      "ancestry": "asian",
+      "source": "east-asian/generated-korean-boy-01/generated-korean-boy-01_age-15_front-smile.png"
+    },
+    "generated-white-boy-01": {
+      "ageYears": 15,
+      "ageApproximate": false,
+      "sex": "male",
+      "ancestry": "european",
+      "source": "white/generated-white-boy-01/generated-white-boy-01_age-15_front-smile.png"
+    },
+    "generated-white-girl-01": {
+      "ageYears": 14,
+      "ageApproximate": false,
+      "sex": "female",
+      "ancestry": "european",
+      "source": "white/generated-white-girl-01/generated-white-girl-01-age-14.png"
+    },
+    "kim-min-jung": {
+      "ageYears": 26,
+      "ageApproximate": false,
+      "sex": "female",
+      "ancestry": "asian",
+      "source": "east-asian/kim-min-jung/kim-min-jung_age-26_strike-love.jpg"
+    },
+    "lee-tae-ri": {
+      "ageYears": 31,
+      "ageApproximate": false,
+      "sex": "female",
+      "ancestry": "asian",
+      "source": "east-asian/lee-tae-ri/lee-tae-ri_age-31_handsome-trot.jpg"
+    },
+    "maggie-smith": {
+      "ageYears": 80,
+      "ageApproximate": false,
+      "sex": "female",
+      "ancestry": "european",
+      "source": "white/maggie-smith/maggie-smith_age-80_lady-in-the-van-photocall.jpg"
+    },
+    "michael-gambon": {
+      "ageYears": 72,
+      "ageApproximate": false,
+      "sex": "male",
+      "ancestry": "european",
+      "source": "white/michael-gambon/michael-gambon_age-72_portrait.jpg"
+    },
+    "miriam-margolyes": {
+      "ageYears": 71,
+      "ageApproximate": false,
+      "sex": "female",
+      "ancestry": "european",
+      "source": "white/miriam-margolyes/miriam-margolyes_age-71_portrait.jpg"
+    },
+    "oh-seung-yoon": {
+      "ageYears": 16,
+      "ageApproximate": true,
+      "sex": "male",
+      "ancestry": "asian",
+      "source": "east-asian/oh-seung-yoon/oh-seung-yoon_age-approx-16_lunar-new-year-interview.jpg"
+    },
+    "park-eun-bin": {
+      "ageYears": 20,
+      "ageApproximate": false,
+      "sex": "female",
+      "ancestry": "asian",
+      "source": "east-asian/park-eun-bin/park-eun-bin_age-20_minas-stationery-premiere.jpg"
+    },
+    "rupert-grint": {
+      "ageYears": 14,
+      "ageApproximate": false,
+      "sex": "male",
+      "ancestry": "european",
+      "source": "white/rupert-grint/rupert-grint_age-14_chamber-of-secrets-premiere.jpg"
+    },
+    "yoo-seung-ho": {
+      "ageYears": 22,
+      "ageApproximate": false,
+      "sex": "male",
+      "ancestry": "asian",
+      "source": "east-asian/yoo-seung-ho/yoo-seung-ho_age-22_the-magician.png"
+    },
+    "kdy1": {
+      "ageYears": null,
+      "ageApproximate": false,
+      "sex": null,
+      "ancestry": "asian",
+      "source": "east-asian/kdy1.png"
+    }
+  }
+}

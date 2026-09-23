@@ -103,6 +103,7 @@ await page.waitForFunction(
 const renderer = await page.evaluate(() => window.__connectedFace.renderer());
 console.log("RENDERER:", renderer);
 const captures = [];
+const refused = [];
 for (const document_ of documents) {
   const subject = document_.id.replace(/-connected$/u, "");
   const pose = poses[subject];
@@ -116,9 +117,12 @@ for (const document_ of documents) {
   await page.waitForFunction(
     (id) => {
       const status = document.querySelector("#face-status");
+      // A refused document leaves the previous one applied, so an error
+      // ends the wait as well as a built document does.
       return (
-        status?.dataset.state !== "building" &&
-        window.__connectedFace.document()?.id === id
+        status?.dataset.state === "error" ||
+        (status?.dataset.state !== "building" &&
+          window.__connectedFace.document()?.id === id)
       );
     },
     document_.id,
@@ -127,8 +131,12 @@ for (const document_ of documents) {
   const state = await page.evaluate(
     () => document.querySelector("#face-status").dataset.state,
   );
-  if (state === "error")
-    throw new Error(`${subject}: ${await page.textContent("#face-status")}`);
+  if (state === "error") {
+    const reason = await page.textContent("#face-status");
+    console.error(`${subject} refused: ${reason}`);
+    refused.push({ model: subject, reason });
+    continue;
+  }
   const target = pose.target ?? [0, 0, 0.06];
   const distance = pose.distance ?? 0.62;
   const yaw = ((pose.yaw ?? 0) * Math.PI) / 180;
@@ -180,6 +188,7 @@ fs.writeFileSync(
       renderer,
       poseFileSha256: createHash("sha256").update(poseBytes).digest("hex"),
       captures,
+      refused,
     },
     null,
     2,
