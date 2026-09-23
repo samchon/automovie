@@ -8,9 +8,8 @@
  */
 import { validateBuiltEnvironment } from "@automovie/engine";
 import type {
-  IAutoMovieBoundaryFace, IAutoMovieBuiltBoundary, IAutoMovieBuiltConnector,
-  IAutoMovieBuiltElement, IAutoMovieBuiltEnvironment, IAutoMovieBuiltOpening,
-  IAutoMovieBuiltSpace, IAutoMovieModel, IAutoMovieVector3,
+  IAutoMovieBoundaryFace, IAutoMovieBuiltBoundary,
+  IAutoMovieBuiltElement, IAutoMovieBuiltEnvironment, IAutoMovieBuiltOpening, IAutoMovieModel,
 } from "@automovie/interface";
 import { createTempleFloors } from "../floors";
 import { identityTransform, surfaceModel } from "../geometry/model-parts";
@@ -21,6 +20,7 @@ import { cullCoincidentVerticalFaces } from "../geometry/face-culling";
 import { roofSlabFaces, roofStepClosures, type UndersideRegion } from "../geometry/roof-solids";
 import { wallFaces, wallHostOutline, type WallSpec } from "../geometry/wall-solids";
 import { templeInteriorWalls } from "./boundaries";
+import { templeConnectors } from "./circulation";
 import { templePlan as p, templeSpaceHierarchy } from "./building";
 import { templeEastWalls } from "./facades/east";
 import { templeNorthWalls } from "./facades/north";
@@ -141,19 +141,7 @@ export const createTempleEnvironment = (input: TempleEnvironmentInput) => {
       id: window.id, kind: "window", boundary: window.boundary, fill: null, profile: window.profile,
     })),
   ];
-  const connectors: IAutoMovieBuiltConnector[] = [
-    ...templeDoorPassages.filter((door) => door.adjacent !== "exterior").map((door) => {
-      const [a, b] = [door.wallLow - 0.3, door.wallHigh + 0.3].map((offset): IAutoMovieVector3 =>
-        door.axis === "x" ? { x: door.center, y: y.floor, z: offset } : { x: offset, y: y.floor, z: door.center });
-      const roomFirst = spaceContains(spaces, door.room, a!);
-      return {
-        id: `connector.${door.id}`, kind: "passage" as const, from: door.room, to: door.adjacent,
-        bidirectional: true, route: roomFirst ? [a!, b!] : [b!, a!],
-        width: door.width, clearHeight: door.height, elements: [],
-      };
-    }),
-    courtyardStep(roof),
-  ];
+  const connectors = templeConnectors(spaces, roof);
   const environment: IAutoMovieBuiltEnvironment = {
     version: 1, id: "temple", units: "meter",
     buildings: [{ id: y.building, element: "temple.root", space: y.building }],
@@ -165,23 +153,6 @@ export const createTempleEnvironment = (input: TempleEnvironmentInput) => {
     throw new Error(`temple/environment: ${validation.violations.map((v) => `${v.path}: ${v.expected}`).join("\n")}`);
   }
   return { environment, walls, roof, wallBottom: bottom, floors };
-};
-
-/**
- * 남쪽 축의 한 단 내려가는 중정 접점(circulation.md의 폭 1.8m 디딤 구간).
- * 유효 높이는 경로 위 실제 합성 지붕 하부에서 읽고, 열린 하늘 구간은 제외한다.
- */
-const courtyardStep = (roof: ReturnType<typeof templeRoofEnvelope>): IAutoMovieBuiltConnector => {
-  const route = [{ x: 0, y: y.floor, z: p.courtFront + 0.4 }, { x: 0, y: y.courtyard, z: p.courtFront - 0.4 }];
-  const clear = route.flatMap((point) => roof
-    .filter((patch) => patch.polygon.every((q, i) =>
-      planeHeight(edgeInside(q, patch.polygon[(i + 1) % patch.polygon.length]!), point) >= 0))
-    .map((patch) => planeHeight(patch.height, point) - patch.thickness - point.y));
-  if (clear.length === 0) throw new Error("temple/environment: 중정 단 위 지붕 하부를 찾지 못했습니다.");
-  return {
-    id: "connector.courtyard-south-step", kind: "passage", from: "colonnade", to: "courtyard",
-    bidirectional: true, width: 1.8, clearHeight: Math.min(...clear), elements: [], route,
-  };
 };
 
 /** 차집합으로 새로 만든 지붕 면의 owner는 surface 이름의 roof owner다. */
@@ -207,8 +178,3 @@ const exteriorFloorMinimum = (inputs: ReturnType<typeof createTempleFloors>["inp
   if (touching.length === 0) throw new Error("temple/environment: 외벽에 닿는 바닥이 없습니다.");
   return Math.min(...touching.map((slab) => slab.floor));
 };
-
-/** 공개 cell 반공간 정의 그대로의 포함 판정(1e-9 m). */
-const spaceContains = (spaces: readonly IAutoMovieBuiltSpace[], id: string, point: IAutoMovieVector3): boolean =>
-  spaces.find((s) => s.id === id)?.cells.some((cell) => cell.planes.every((plane) =>
-    plane.normal.x * point.x + plane.normal.y * (point.y + 0.01) + plane.normal.z * point.z <= plane.offset + 1e-9)) ?? false;

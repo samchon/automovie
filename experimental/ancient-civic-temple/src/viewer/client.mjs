@@ -78,8 +78,8 @@ let current = null;
 let station = null;
 const planCut = new THREE.Plane(new THREE.Vector3(0, -1, 0), 1.2);
 
-/** @type {{ ready: boolean, renderer: string, error: string | null, stations: string[], select: (id: string) => boolean }} */
-const handle = { ready: false, renderer: rendererName, error: null, stations: [], select: (id) => selectStation(id) };
+/** @type {{ ready: boolean, renderer: string, error: string | null, stations: string[], select: (id: string) => boolean, look: (position: number[], target: number[]) => boolean }} */
+const handle = { ready: false, renderer: rendererName, error: null, stations: [], select: (id) => selectStation(id), look: (position, target) => look(position, target) };
 Object.assign(window, { templeViewer: handle });
 
 /** @param {string} message */
@@ -168,6 +168,23 @@ function selectStation(id) {
   camera.lookAt(controls.target);
   controls.update();
   describe();
+  return true;
+}
+
+/**
+ * 검사용 자유 시점. 관찰 목록에 없는 위치이며 기록할 때는 좌표를 함께 남긴다.
+ * @param {number[]} position @param {number[]} target
+ */
+function look(position, target) {
+  if (position.length !== 3 || target.length !== 3) return false;
+  camera.position.set(position[0] ?? 0, position[1] ?? 0, position[2] ?? 0);
+  controls.target.set(target[0] ?? 0, target[1] ?? 0, target[2] ?? 0);
+  camera.lookAt(controls.target);
+  controls.update();
+  station = null;
+  details.textContent = `자유 시점(관찰 목록 밖)
+카메라: (${position.join(", ")})
+target: (${target.join(", ")})`;
   return true;
 }
 
