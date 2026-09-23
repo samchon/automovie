@@ -22,8 +22,9 @@ import { throwsError } from "../internal/predicates";
  *    rest flexion; a nonzero first ordinate; a knot that does not increase
  *    in flexion; an ordinate that falls; a non-finite knot; an ordinate past
  *    the lumbar range (`[[0, 0], [100, 91]]`).
- * 3. A coupling into the lumbar joint's abduction is not a second driver of
- *    the rhythm's axis and admits.
+ * 3. A coupling into the lumbar joint's abduction, or into the flexion of a
+ *    joint outside the chain (a knee), is not a second driver of the
+ *    rhythm's axes and admits.
  */
 export const test_human_body_pelvifemoral_admission = (): void => {
   const admits = (
@@ -159,6 +160,33 @@ export const test_human_body_pelvifemoral_admission = (): void => {
       ),
     );
   }
+  TestValidator.predicate(
+    "a coupling into a flexion outside the chain is not a second driver",
+    admits((basis) => {
+      basis.landmarks.ids.push("left-ankle");
+      basis.landmarks.positions.push(0.1, -2.2, 0);
+      basis.joints.push({
+        ...structuredClone(
+          basis.joints.find((joint) => joint.bone === "leftUpperLeg")!,
+        ),
+        bone: "leftLowerLeg",
+        parent: "leftUpperLeg",
+        head: "left-knee",
+        tail: "left-ankle",
+      });
+      basis.couplings = [
+        {
+          id: "knee",
+          source: { bone: "rightUpperLeg", measure: "elevation" },
+          output: { bone: "leftLowerLeg", axis: "flexion" },
+          curve: [
+            [0, 0],
+            [90, 5],
+          ],
+        },
+      ];
+    }),
+  );
   TestValidator.predicate(
     "a coupling into the lumbar abduction is not a second driver",
     admits((basis) => {

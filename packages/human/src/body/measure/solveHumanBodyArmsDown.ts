@@ -99,17 +99,12 @@ export function solveHumanBodyArmsDown(
     const parts = segmentHumanBodyModel(
       basis,
       build({ ...document, pose, shoulders: goals(elevations) }),
-    ).model.parts.flatMap((part) =>
-      part.geometry.type === "mesh"
-        ? [
-            {
-              bone: part.id.split("/")[0],
-              id: part.id,
-              mesh: part.geometry.mesh,
-            },
-          ]
-        : [],
-    );
+    ).model.parts.map((part) => ({
+      // the partition emits the builder's resident meshes only
+      bone: part.id.split("/")[0],
+      id: part.id,
+      mesh: (part.geometry as { mesh: IAutoMovieMesh }).mesh,
+    }));
     return chains.map((chain) => {
       const found = new Map<string, number>();
       for (const own of parts.filter((part) => chain.has(part.bone)))

@@ -41,10 +41,13 @@ import { skinHumanBodySurface } from "./skinHumanBodySurface";
  * The document's non-humeral clinical angles gain the declared couplings
  * (`resolveHumanBodyCouplings`, called inside `humanBodyBasisWeights` so the
  * corrective ramps read the same coupled angles) and are validated by the
- * engine. The separately authored TT humerothoracic goals are checked
- * against the basis's clinical reach (`humanBodyShoulderReaches`: the plane's
- * joint-sinus maximum and the axial range) and resolved from the thorax after the engine's forward
- * kinematics and the girdle's movement, then dual
+ * engine, together with the pelvic-relative reading a declared pelvifemoral
+ * rhythm gives them (`resolveHumanBodyPelvifemoralRhythm`). The separately
+ * authored TT humerothoracic goals are checked against the basis's clinical
+ * reach (`humanBodyShoulderReaches`: the plane's joint-sinus maximum and the
+ * axial range) and resolved from the thorax after the engine's forward
+ * kinematics and the girdle's movement; the rhythm then turns the pelvis
+ * about the hip centres, then dual
  * quaternion skinning (`skinHumanBodySurface`), then common normals and material
  * regions. The couplings are added before validation so a girdle angle the
  * document wrote plus the rhythm an elevated arm adds is refused past the
