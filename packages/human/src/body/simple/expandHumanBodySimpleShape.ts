@@ -24,7 +24,10 @@ const CONVERGENCE = 1e-5;
  * derived ones (Deurenberg's body fat from the mass and stature, and that
  * fat less the sex's essential fat); a row naming a channel the basis lacks
  * is skipped, so an older revision without the individuality channels still
- * expands its macros, and a sum past a channel's envelope saturates at it.
+ * expands its macros, and the sum of a channel's rows is saturated once at
+ * the channel's envelope, never row by row, because the projection reads an
+ * identity back as the first row's inverse of the weight less the other rows,
+ * which is only the sum's inverse.
  * The measured values are then solved in turn, each with the weights so far
  * worn: the height channel is sampled at -1, 0 and +1 and the stature (ring
  * height above the ground plus the head allowance) inverted linearly
@@ -78,17 +81,22 @@ export function expandHumanBodySimpleShape(
     basis.channels.map((channel) => [channel.id, channel]),
   );
   const parameters = math.parameters(simple);
+  // the rows naming a channel are summed first and the sum saturated once:
+  // saturating after each row would let a row past the envelope lose the
+  // part a later row on the same channel takes back, and the projection
+  // reads the muscle as the first row's inverse after the other rows are
+  // subtracted from the weight, which is the sum's inverse
+  const sums = new Map<string, number>();
+  for (const row of table.terms)
+    if (channels.has(row.channel))
+      sums.set(
+        row.channel,
+        (sums.get(row.channel) ?? 0) + math.term(row, parameters),
+      );
   const shape: Record<string, number> = {};
-  for (const row of table.terms) {
-    const channel = channels.get(row.channel);
-    if (channel === undefined) continue;
-    shape[row.channel] = Math.min(
-      channel.maximum,
-      Math.max(
-        channel.minimum,
-        (shape[row.channel] ?? 0) + math.term(row, parameters),
-      ),
-    );
+  for (const [id, sum] of sums) {
+    const channel = channels.get(id)!;
+    shape[id] = Math.min(channel.maximum, Math.max(channel.minimum, sum));
   }
   const solve = (
     along: ReturnType<typeof direction.alone>,

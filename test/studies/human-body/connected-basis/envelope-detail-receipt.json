@@ -1,0 +1,554 @@
+{
+  "basis": "mpfb-connected-body-2026-09-21-envelopes-raw+sym+digits+rhythm+single+combos+envelope",
+  "supersedes": "mpfb-connected-body-2026-09-21-envelopes-raw+sym+digits+rhythm+single+combos",
+  "method": "each channel endpoint worn past its authored node is low-passed as a vector (its motion) and the residual's thickness along the rest surface's normal is split into a smooth part (implicit heat diffusion over the skin, cotangent Laplacian with a lumped mass, diffusion length 40 mm, the motion pass at 150 mm, the neck boundary held) and a detail part; one corrective per extended side ramps from the node to the envelope's end and subtracts the detail's extrapolation along the normal, so past the node the thickness detail stays at the node's while the smooth thickness and the tangential part grow with the weight; the individuality channels, generated fields of a clinical grade, keep their linear extension",
+  "sigmaMetres": 0.04,
+  "correctives": [
+    {
+      "id": "envelope/measureUnderbustCirc.positive",
+      "channel": "measureUnderbustCirc",
+      "side": "positive",
+      "end": 2,
+      "detailFraction": 0.098,
+      "worstRemovedAtEndMillimetres": 5,
+      "rows": 26494
+    },
+    {
+      "id": "envelope/measureUnderbustCirc.negative",
+      "channel": "measureUnderbustCirc",
+      "side": "negative",
+      "end": 2,
+      "detailFraction": 0.099,
+      "worstRemovedAtEndMillimetres": 1.7,
+      "rows": 25049
+    },
+    {
+      "id": "envelope/measureShoulderDist.positive",
+      "channel": "measureShoulderDist",
+      "side": "positive",
+      "end": 2,
+      "detailFraction": 0.059,
+      "worstRemovedAtEndMillimetres": 8,
+      "rows": 24476
+    },
+    {
+      "id": "envelope/measureShoulderDist.negative",
+      "channel": "measureShoulderDist",
+      "side": "negative",
+      "end": 2,
+      "detailFraction": 0.054,
+      "worstRemovedAtEndMillimetres": 3.5,
+      "rows": 24092
+    },
+    {
+      "id": "envelope/measureHipsCirc.positive",
+      "channel": "measureHipsCirc",
+      "side": "positive",
+      "end": 2,
+      "detailFraction": 0.087,
+      "worstRemovedAtEndMillimetres": 4.1,
+      "rows": 27627
+    },
+    {
+      "id": "envelope/measureHipsCirc.negative",
+      "channel": "measureHipsCirc",
+      "side": "negative",
+      "end": 2,
+      "detailFraction": 0.087,
+      "worstRemovedAtEndMillimetres": 2,
+      "rows": 20911
+    },
+    {
+      "id": "envelope/measureWaistCirc.positive",
+      "channel": "measureWaistCirc",
+      "side": "positive",
+      "end": 3.5,
+      "detailFraction": 0.095,
+      "worstRemovedAtEndMillimetres": 7.1,
+      "rows": 27346
+    },
+    {
+      "id": "envelope/measureWaistCirc.negative",
+      "channel": "measureWaistCirc",
+      "side": "negative",
+      "end": 2,
+      "detailFraction": 0.095,
+      "worstRemovedAtEndMillimetres": 2.8,
+      "rows": 24340
+    },
+    {
+      "id": "envelope/measureBustCirc.positive",
+      "channel": "measureBustCirc",
+      "side": "positive",
+      "end": 1.25,
+      "detailFraction": 0.109,
+      "worstRemovedAtEndMillimetres": 1.4,
+      "rows": 24513
+    },
+    {
+      "id": "envelope/measureBustCirc.negative",
+      "channel": "measureBustCirc",
+      "side": "negative",
+      "end": 2,
+      "detailFraction": 0.137,
+      "worstRemovedAtEndMillimetres": 8.8,
+      "rows": 25467
+    },
+    {
+      "id": "envelope/measureUpperarmCirc.positive",
+      "channel": "measureUpperarmCirc",
+      "side": "positive",
+      "end": 2,
+      "detailFraction": 0.22,
+      "worstRemovedAtEndMillimetres": 4.4,
+      "rows": 21583
+    },
+    {
+      "id": "envelope/measureUpperarmCirc.negative",
+      "channel": "measureUpperarmCirc",
+      "side": "negative",
+      "end": 2,
+      "detailFraction": 0.22,
+      "worstRemovedAtEndMillimetres": 4.4,
+      "rows": 21583
+    },
+    {
+      "id": "envelope/measureCalfCirc.positive",
+      "channel": "measureCalfCirc",
+      "side": "positive",
+      "end": 2,
+      "detailFraction": 0.114,
+      "worstRemovedAtEndMillimetres": 2.7,
+      "rows": 12671
+    },
+    {
+      "id": "envelope/measureCalfCirc.negative",
+      "channel": "measureCalfCirc",
+      "side": "negative",
+      "end": 2,
+      "detailFraction": 0.114,
+      "worstRemovedAtEndMillimetres": 2.7,
+      "rows": 12671
+    },
+    {
+      "id": "envelope/measureThighCirc.positive",
+      "channel": "measureThighCirc",
+      "side": "positive",
+      "end": 1.75,
+      "detailFraction": 0.124,
+      "worstRemovedAtEndMillimetres": 2.1,
+      "rows": 16516
+    },
+    {
+      "id": "envelope/measureThighCirc.negative",
+      "channel": "measureThighCirc",
+      "side": "negative",
+      "end": 2,
+      "detailFraction": 0.124,
+      "worstRemovedAtEndMillimetres": 1.8,
+      "rows": 16168
+    },
+    {
+      "id": "envelope/stomachPregnant.positive",
+      "channel": "stomachPregnant",
+      "side": "positive",
+      "end": 2,
+      "detailFraction": 0.141,
+      "worstRemovedAtEndMillimetres": 16,
+      "rows": 30511
+    },
+    {
+      "id": "envelope/macroMuscle.positive",
+      "channel": "macroMuscle",
+      "side": "positive",
+      "end": 2,
+      "detailFraction": 0.186,
+      "worstRemovedAtEndMillimetres": 5.9,
+      "rows": 36559
+    },
+    {
+      "id": "envelope/macroWeight.positive",
+      "channel": "macroWeight",
+      "side": "positive",
+      "end": 5.5,
+      "detailFraction": 0.111,
+      "worstRemovedAtEndMillimetres": 22.1,
+      "rows": 36608
+    },
+    {
+      "id": "envelope/macroWeight.negative",
+      "channel": "macroWeight",
+      "side": "negative",
+      "end": 2.5,
+      "detailFraction": 0.144,
+      "worstRemovedAtEndMillimetres": 7.3,
+      "rows": 36625
+    }
+  ],
+  "retiredStateCorrectives": [
+    "state/shapes:stomachPregnant@2:rightUpperArm.abduction@-10",
+    "state/shapes:measureBustCirc@1.25:leftUpperArm.flexion@131.55691575927736",
+    "state/shapes:measureBustCirc@1.25:rightUpperArm.flexion@131.55691575927736",
+    "state/shapes:measureBustCirc@-2:leftUpperArm.flexion@131.55691575927736",
+    "state/shapes:measureUnderbustCirc@2:leftUpperArm.flexion@131.55691575927736@0.828125~0.125",
+    "state/shapes:measureUnderbustCirc@2:leftUpperArm.flexion@131.55691575927736@0.828125~0.25",
+    "state/shapes:measureUnderbustCirc@2:leftUpperArm.flexion@131.55691575927736@0.875~0.25",
+    "state/shapes:measureUnderbustCirc@2:leftUpperArm.flexion@131.55691575927736@0.875~0.5",
+    "state/shapes:measureUnderbustCirc@2:leftUpperArm.flexion@131.55691575927736@0.875",
+    "state/shapes:measureUnderbustCirc@2:leftUpperArm.flexion@131.55691575927736",
+    "state/shapes:measureUnderbustCirc@2:rightUpperArm.abduction@-10",
+    "state/shapes:stomachPregnant@2:rightUpperLeg.flexion@95.703125",
+    "state/shapes:stomachPregnant@2:leftUpperArm.abduction@-10",
+    "state/shapes:measureBustCirc@1.25:leftUpperArm.flexion@147.68997734375@0.8712158203125",
+    "state/shapes:measureBustCirc@1.25:rightUpperArm.abduction@-5@0.5",
+    "state/shapes:measureBustCirc@1.25:rightUpperArm.abduction@-5",
+    "state/shapes:measureBustCirc@1.25:leftUpperArm.twist@90#2",
+    "state/shapes:measureBustCirc@1.25:leftUpperArm.twist@90@0.515625",
+    "state/shapes:measureBustCirc@1.25:leftUpperArm.twist@90",
+    "state/shapes:measureBustCirc@1.25:rightUpperArm.flexion@137.60681385345458@0.921875",
+    "state/shapes:measureBustCirc@-2:leftUpperArm.flexion@147.68997734375@0.921875",
+    "state/shapes:measureBustCirc@-2:leftUpperArm.flexion@147.68997734375",
+    "state/shapes:measureBustCirc@-2:rightUpperArm.flexion@147.68997734375@0.878662109375",
+    "state/shapes:measureBustCirc@-2:rightUpperArm.flexion@147.68997734375@0.921875",
+    "state/shapes:measureUnderbustCirc@2:leftUpperArm.flexion@147.68997734375",
+    "state/shapes:measureUnderbustCirc@2:rightUpperLeg.flexion@95.703125",
+    "state/shapes:measureUnderbustCirc@2:rightUpperArm.abduction@-5@0.671875",
+    "state/shapes:measureUnderbustCirc@2:rightUpperArm.abduction@-5",
+    "state/shapes:measureUnderbustCirc@2:leftUpperArm.twist@90",
+    "state/shapes:measureUnderbustCirc@2:rightUpperArm.flexion@137.60681385345458@0.921875",
+    "state/shapes:measureUnderbustCirc@2:leftUpperArm.abduction@-10",
+    "state/shapes:measureUnderbustCirc@-2:rightUpperArm.flexion@147.68997734375@0.9140625",
+    "state/shapes:stomachPregnant@2:rightUpperLeg.flexion@62.5",
+    "state/shapes:stomachPregnant@2:leftUpperLeg.flexion@95.703125@0.7265625",
+    "state/shapes:stomachPregnant@2:leftUpperLeg.flexion@95.703125",
+    "state/shapes:measureBustCirc@1.25:leftUpperArm.flexion@123.49038496704102#2",
+    "state/shapes:measureBustCirc@1.25:leftUpperArm.flexion@123.49038496704102@0.9140625",
+    "state/shapes:measureBustCirc@1.25:leftUpperArm.flexion@123.49038496704102",
+    "state/shapes:measureBustCirc@1.25:rightUpperArm.twist@90@0.515625",
+    "state/shapes:measureBustCirc@1.25:rightUpperArm.twist@90",
+    "state/shapes:measureBustCirc@1.25:rightUpperArm.flexion@123.49038496704102#2",
+    "state/shapes:measureBustCirc@1.25:rightUpperArm.flexion@123.49038496704102@0.9140625#2",
+    "state/shapes:measureBustCirc@1.25:rightUpperArm.flexion@123.49038496704102@0.87109375~0.5",
+    "state/shapes:measureBustCirc@1.25:rightUpperArm.flexion@123.49038496704102@0.9140625~0.5",
+    "state/shapes:measureBustCirc@1.25:rightUpperArm.flexion@123.49038496704102@0.9140625",
+    "state/shapes:measureBustCirc@1.25:rightUpperArm.flexion@123.49038496704102",
+    "state/shapes:measureBustCirc@1.25:leftUpperArm.abduction@-5@0.5",
+    "state/shapes:measureBustCirc@1.25:leftUpperArm.abduction@-5",
+    "state/shapes:measureBustCirc@-2:rightUpperArm.flexion@123.49038496704102#2",
+    "state/shapes:measureBustCirc@-2:rightUpperArm.flexion@123.49038496704102~0.5",
+    "state/shapes:measureBustCirc@-2:rightUpperArm.flexion@123.49038496704102",
+    "state/shapes:measureUnderbustCirc@2:rightUpperArm.twist@90~0.5",
+    "state/shapes:measureUnderbustCirc@2:rightUpperArm.twist@90",
+    "state/shapes:measureUnderbustCirc@2:rightUpperArm.flexion@123.49038496704102@0.85400390625~0.125",
+    "state/shapes:measureUnderbustCirc@2:rightUpperArm.flexion@123.49038496704102@0.85400390625~0.25",
+    "state/shapes:measureUnderbustCirc@2:rightUpperArm.flexion@123.49038496704102@0.85400390625~0.5",
+    "state/shapes:measureUnderbustCirc@2:rightUpperArm.flexion@123.49038496704102@0.8984375~0.5",
+    "state/shapes:measureUnderbustCirc@2:rightUpperArm.flexion@123.49038496704102@0.8984375",
+    "state/shapes:measureUnderbustCirc@2:rightUpperArm.flexion@123.49038496704102",
+    "state/shapes:measureUnderbustCirc@2:leftUpperArm.abduction@-5",
+    "state/shapes:measureUnderbustCirc@-2:rightUpperArm.flexion@123.49038496704102",
+    "state/shapes:measureThighCirc@1.75:rightLowerLeg.flexion@140",
+    "state/shapes:measureThighCirc@1.75:rightUpperLeg.flexion@95.703125",
+    "state/shapes:measureWaistCirc@3.5:rightUpperLeg.flexion@95.703125",
+    "state/shapes:measureWaistCirc@3.5:rightUpperArm.abduction@-5",
+    "state/shapes:measureWaistCirc@3.5:leftUpperArm.abduction@-10",
+    "state/shapes:measureThighCirc@1.75:leftLowerLeg.flexion@140@0.9453125",
+    "state/shapes:measureThighCirc@1.75:leftLowerLeg.flexion@140",
+    "state/shapes:measureThighCirc@1.75:leftUpperLeg.flexion@95.703125",
+    "state/shapes:measureWaistCirc@3.5:leftUpperLeg.flexion@95.703125",
+    "state/shapes:measureWaistCirc@3.5:leftUpperArm.abduction@-5",
+    "state/shapes:macroWeight@5.5:rightLowerArm.flexion@145",
+    "state/shapes:macroWeight@5.5:rightUpperLeg.flexion@80.74951171875@0.9375",
+    "state/shapes:macroWeight@5.5:rightUpperLeg.flexion@80.74951171875",
+    "state/shapes:macroWeight@5.5:rightUpperArm.abduction@-10@0.734375~0.5",
+    "state/shapes:macroWeight@5.5:rightUpperArm.abduction@-10@0.734375",
+    "state/shapes:macroWeight@5.5:rightHand.abduction@-45~0.5",
+    "state/shapes:macroWeight@5.5:rightHand.abduction@-45#2",
+    "state/shapes:macroWeight@5.5:rightHand.abduction@-45@0.671875",
+    "state/shapes:macroWeight@5.5:rightHand.abduction@-45",
+    "state/shapes:macroWeight@5.5:leftUpperLeg.flexion@62.5",
+    "state/shapes:macroWeight@-2.5:rightLowerArm.flexion@145",
+    "state/shapes:measureCalfCirc@2:leftLowerLeg.flexion@93.37890625@0.8359375",
+    "state/shapes:measureCalfCirc@2:leftLowerLeg.flexion@93.37890625",
+    "state/shapes:measureHipsCirc@2:rightUpperLeg.flexion@80.74951171875~0.5",
+    "state/shapes:measureHipsCirc@2:rightUpperLeg.flexion@80.74951171875",
+    "state/shapes:macroWeight@5.5:leftHand.abduction@-45@0.5078125",
+    "state/shapes:macroWeight@5.5:leftHand.abduction@-45@0.671875",
+    "state/shapes:macroWeight@5.5:leftHand.abduction@-45",
+    "state/shapes:macroWeight@5.5:leftUpperArm.flexion@147.68997734375@0.89337158203125",
+    "state/shapes:macroWeight@5.5:leftUpperArm.flexion@147.68997734375@0.9296875",
+    "state/shapes:macroWeight@5.5:rightLowerLeg.flexion@140",
+    "state/shapes:macroWeight@5.5:leftHand.flexion@80@0.734375",
+    "state/shapes:macroWeight@5.5:leftHand.flexion@80",
+    "state/shapes:macroWeight@5.5:rightUpperLeg.flexion@95.703125",
+    "state/shapes:macroWeight@5.5:rightUpperArm.abduction@-5@0.53125~0.5",
+    "state/shapes:macroWeight@5.5:rightUpperArm.abduction@-5@0.53125",
+    "state/shapes:macroWeight@5.5:leftUpperArm.twist@90",
+    "state/shapes:macroWeight@5.5:rightUpperArm.flexion@137.60681385345458@0.8419189453125",
+    "state/shapes:macroWeight@5.5:rightUpperArm.flexion@147.68997734375@0.7099652290344238~0.5",
+    "state/shapes:macroWeight@5.5:rightUpperArm.flexion@147.68997734375@0.7099652290344238",
+    "state/shapes:macroWeight@5.5:leftUpperArm.abduction@-10@0.734375",
+    "state/shapes:macroWeight@-2.5:leftUpperArm.flexion@147.68997734375",
+    "state/shapes:macroWeight@-2.5:rightLowerLeg.flexion@140",
+    "state/shapes:macroWeight@-2.5:leftHand.flexion@80",
+    "state/shapes:macroWeight@-2.5:rightUpperArm.flexion@147.68997734375~0.5",
+    "state/shapes:macroWeight@-2.5:rightUpperArm.flexion@147.68997734375",
+    "state/shapes:measureCalfCirc@2:rightLowerLeg.flexion@140@0.71875",
+    "state/shapes:measureCalfCirc@2:rightLowerLeg.flexion@140",
+    "state/shapes:measureCalfCirc@-2:rightUpperLeg.flexion@95.703125",
+    "state/shapes:measureHipsCirc@2:rightUpperArm.abduction@-5",
+    "state/shapes:macroWeight@5.5:rightHand.flexion@80",
+    "state/shapes:macroWeight@5.5:leftUpperArm.flexion@123.49038496704102@0.953125",
+    "state/shapes:macroWeight@5.5:leftUpperArm.flexion@123.49038496704102#2",
+    "state/shapes:macroWeight@5.5:leftUpperArm.flexion@123.49038496704102~0.5#2",
+    "state/shapes:macroWeight@5.5:leftUpperArm.flexion@123.49038496704102@0.890625~0.25",
+    "state/shapes:macroWeight@5.5:leftUpperArm.flexion@123.49038496704102@0.890625~0.5",
+    "state/shapes:macroWeight@5.5:leftUpperArm.flexion@123.49038496704102~0.5",
+    "state/shapes:macroWeight@5.5:leftUpperArm.flexion@123.49038496704102",
+    "state/shapes:macroWeight@5.5:leftLowerLeg.flexion@140",
+    "state/shapes:macroWeight@5.5:rightUpperArm.twist@90@0.578125",
+    "state/shapes:macroWeight@5.5:rightUpperArm.twist@90",
+    "state/shapes:macroWeight@5.5:leftLowerArm.flexion@145@0.6015625",
+    "state/shapes:macroWeight@5.5:leftLowerArm.flexion@145@0.734375",
+    "state/shapes:macroWeight@5.5:leftLowerArm.flexion@145",
+    "state/shapes:macroWeight@5.5:rightUpperLeg.flexion@62.5@0.35546875",
+    "state/shapes:macroWeight@5.5:rightUpperLeg.flexion@62.5@0.53125",
+    "state/shapes:macroWeight@5.5:rightUpperLeg.flexion@62.5",
+    "state/shapes:macroWeight@5.5:rightUpperArm.flexion@123.49038496704102@0.498046875",
+    "state/shapes:macroWeight@5.5:rightUpperArm.flexion@123.49038496704102@0.6640625",
+    "state/shapes:macroWeight@5.5:leftUpperLeg.flexion@95.703125@0.5234375",
+    "state/shapes:macroWeight@5.5:leftUpperArm.abduction@-5@0.53125",
+    "state/shapes:macroWeight@-2.5:rightHand.flexion@80",
+    "state/shapes:macroWeight@-2.5:leftLowerLeg.flexion@140",
+    "state/shapes:macroWeight@-2.5:leftLowerArm.flexion@145@0.7265625",
+    "state/shapes:macroWeight@-2.5:leftLowerArm.flexion@145",
+    "state/shapes:measureCalfCirc@2:leftLowerLeg.flexion@140",
+    "state/shapes:measureHipsCirc@2:rightUpperLeg.flexion@62.5",
+    "state/shapes:measureHipsCirc@2:leftUpperLeg.flexion@95.703125#3",
+    "state/shapes:measureHipsCirc@2:leftUpperLeg.flexion@95.703125~0.25",
+    "state/shapes:measureHipsCirc@2:leftUpperLeg.flexion@95.703125~0.5",
+    "state/shapes:measureHipsCirc@2:leftUpperLeg.flexion@95.703125#2",
+    "state/shapes:measureHipsCirc@2:leftUpperLeg.flexion@95.703125@0.71875",
+    "state/shapes:measureHipsCirc@2:leftUpperLeg.flexion@95.703125",
+    "state/shapes:measureHipsCirc@2:leftUpperArm.abduction@-5",
+    "state/shapes:measureUpperarmCirc@2:rightLowerArm.flexion@145",
+    "state/shapes:measureUpperarmCirc@2:leftLowerArm.flexion@94.6254763671875",
+    "state/shapes:measureShoulderDist@-2:leftUpperArm.flexion@131.55691575927736@0.9609375",
+    "state/shapes:measureShoulderDist@-2:rightUpperArm.abduction@-10",
+    "state/shapes:macroMuscle@2:leftUpperArm.flexion@147.68997734375@0.9609375",
+    "state/shapes:macroMuscle@2:rightLowerLeg.flexion@140#2",
+    "state/shapes:macroMuscle@2:rightLowerLeg.flexion@140@0.921875~0.5",
+    "state/shapes:macroMuscle@2:rightLowerLeg.flexion@140~0.5",
+    "state/shapes:macroMuscle@2:rightLowerLeg.flexion@140",
+    "state/shapes:macroMuscle@2:rightUpperArm.abduction@-5",
+    "state/shapes:macroMuscle@2:leftUpperArm.twist@90@0.875",
+    "state/shapes:macroMuscle@2:leftUpperArm.twist@90",
+    "state/shapes:macroMuscle@2:rightUpperArm.flexion@147.68997734375~0.5",
+    "state/shapes:macroMuscle@2:rightUpperArm.flexion@147.68997734375",
+    "state/shapes:measureUpperarmCirc@2:leftUpperArm.flexion@147.68997734375@0.890625#2",
+    "state/shapes:measureUpperarmCirc@2:leftUpperArm.flexion@147.68997734375@0.8359375",
+    "state/shapes:measureUpperarmCirc@2:leftUpperArm.flexion@147.68997734375@0.890625",
+    "state/shapes:measureUpperarmCirc@2:leftUpperArm.flexion@147.68997734375",
+    "state/shapes:measureUpperarmCirc@2:rightUpperArm.abduction@-5",
+    "state/shapes:measureUpperarmCirc@2:leftUpperArm.twist@90~0.5",
+    "state/shapes:measureUpperarmCirc@2:leftUpperArm.twist@90",
+    "state/shapes:measureUpperarmCirc@2:rightUpperArm.flexion@147.68997734375@0.890625",
+    "state/shapes:measureUpperarmCirc@2:rightUpperArm.flexion@147.68997734375",
+    "state/shapes:measureUpperarmCirc@-2:rightUpperArm.flexion@147.68997734375",
+    "state/shapes:measureShoulderDist@2:leftUpperArm.flexion@147.68997734375@0.9375",
+    "state/shapes:measureShoulderDist@2:leftUpperArm.flexion@147.68997734375",
+    "state/shapes:measureShoulderDist@2:rightUpperArm.flexion@147.68997734375@0.878662109375",
+    "state/shapes:measureShoulderDist@2:rightUpperArm.flexion@147.68997734375@0.921875",
+    "state/shapes:measureShoulderDist@-2:rightUpperArm.abduction@-5",
+    "state/shapes:measureShoulderDist@-2:leftUpperArm.twist@90",
+    "state/shapes:measureShoulderDist@-2:rightUpperArm.flexion@137.60681385345458",
+    "state/shapes:measureShoulderDist@-2:rightUpperArm.flexion@147.68997734375@0.8671875",
+    "state/shapes:measureShoulderDist@-2:rightUpperArm.flexion@147.68997734375",
+    "state/shapes:measureShoulderDist@-2:leftUpperArm.abduction@-10",
+    "state/shapes:macroMuscle@2:leftUpperArm.flexion@123.49038496704102#2",
+    "state/shapes:macroMuscle@2:leftUpperArm.flexion@123.49038496704102@0.87109375~0.25",
+    "state/shapes:macroMuscle@2:leftUpperArm.flexion@123.49038496704102@0.9140625~0.25",
+    "state/shapes:macroMuscle@2:leftUpperArm.flexion@123.49038496704102@0.9140625~0.5",
+    "state/shapes:macroMuscle@2:leftUpperArm.flexion@123.49038496704102@0.9140625",
+    "state/shapes:macroMuscle@2:leftUpperArm.flexion@123.49038496704102",
+    "state/shapes:macroMuscle@2:leftLowerLeg.flexion@140~0.5",
+    "state/shapes:macroMuscle@2:leftLowerLeg.flexion@140",
+    "state/shapes:macroMuscle@2:rightUpperArm.twist@90@0.8125",
+    "state/shapes:macroMuscle@2:rightUpperArm.twist@90@0.875",
+    "state/shapes:macroMuscle@2:rightUpperArm.twist@90",
+    "state/shapes:macroMuscle@2:leftLowerArm.flexion@145",
+    "state/shapes:macroMuscle@2:rightUpperArm.flexion@123.49038496704102#2",
+    "state/shapes:macroMuscle@2:rightUpperArm.flexion@123.49038496704102@0.87109375~0.5",
+    "state/shapes:macroMuscle@2:rightUpperArm.flexion@123.49038496704102@0.9140625~0.5",
+    "state/shapes:macroMuscle@2:rightUpperArm.flexion@123.49038496704102@0.9140625",
+    "state/shapes:macroMuscle@2:rightUpperArm.flexion@123.49038496704102",
+    "state/shapes:macroMuscle@2:leftUpperArm.abduction@-5",
+    "state/shapes:measureUpperarmCirc@2:rightLowerArm.flexion@109.95685312500001@0.765625",
+    "state/shapes:measureUpperarmCirc@2:rightLowerArm.flexion@109.95685312500001",
+    "state/shapes:measureUpperarmCirc@2:rightUpperArm.twist@90~0.5",
+    "state/shapes:measureUpperarmCirc@2:rightUpperArm.twist@90",
+    "state/shapes:measureUpperarmCirc@2:leftLowerArm.flexion@145#2",
+    "state/shapes:measureUpperarmCirc@2:leftLowerArm.flexion@145@0.6875",
+    "state/shapes:measureUpperarmCirc@2:leftLowerArm.flexion@145",
+    "state/shapes:measureUpperarmCirc@2:rightUpperArm.flexion@123.49038496704102",
+    "state/shapes:measureUpperarmCirc@2:leftUpperArm.abduction@-5",
+    "state/shapes:measureShoulderDist@2:leftUpperArm.flexion@123.49038496704102",
+    "state/shapes:measureShoulderDist@2:rightUpperArm.flexion@123.49038496704102",
+    "state/shapes:measureShoulderDist@-2:leftUpperArm.flexion@123.49038496704102@0.9375",
+    "state/shapes:measureShoulderDist@-2:rightUpperArm.flexion@123.49038496704102#2",
+    "state/shapes:measureShoulderDist@-2:rightUpperArm.flexion@123.49038496704102@0.9375",
+    "state/shapes:measureShoulderDist@-2:rightUpperArm.flexion@123.49038496704102",
+    "state/shapes:measureShoulderDist@-2:leftUpperArm.abduction@-5",
+    "state/channels:macroWeight@5.5"
+  ],
+  "uncompressedSha256": "99655a6c9fcec54fd9504e5037cd1b5e142e352ce1721cd1be48f9f9d25c00f2",
+  "reach": {
+    "basis": "mpfb-connected-body-2026-09-23-sym+digits+rhythm+envelope+correctives-r3",
+    "mass": [
+      {
+        "statureMetres": 1.55,
+        "sex": -1,
+        "heightWeight": -0.13118241384427454,
+        "massKilograms": [
+          31.2,
+          86.7
+        ]
+      },
+      {
+        "statureMetres": 1.55,
+        "sex": 1,
+        "heightWeight": -0.49041672338935155,
+        "massKilograms": [
+          40.5,
+          92.8
+        ]
+      },
+      {
+        "statureMetres": 1.75,
+        "sex": -1,
+        "heightWeight": 0.24642767860664505,
+        "massKilograms": [
+          43.6,
+          112.4
+        ]
+      },
+      {
+        "statureMetres": 1.75,
+        "sex": 1,
+        "heightWeight": 0.06077385934368512,
+        "massKilograms": [
+          53.6,
+          118
+        ]
+      },
+      {
+        "statureMetres": 1.95,
+        "sex": -1,
+        "heightWeight": 0.5607016737820013,
+        "massKilograms": [
+          59.6,
+          143.1
+        ]
+      },
+      {
+        "statureMetres": 1.95,
+        "sex": 1,
+        "heightWeight": 0.374965717701653,
+        "massKilograms": [
+          71.9,
+          150.6
+        ]
+      }
+    ],
+    "girths": [
+      {
+        "channel": "measureUnderbustCirc",
+        "envelope": [
+          -2,
+          2
+        ],
+        "metres": [
+          0.644,
+          0.792
+        ]
+      },
+      {
+        "channel": "measureShoulderDist",
+        "envelope": [
+          -2,
+          2
+        ],
+        "metres": [
+          0.286,
+          0.44
+        ]
+      },
+      {
+        "channel": "measureHipsCirc",
+        "envelope": [
+          -2,
+          2
+        ],
+        "metres": [
+          0.791,
+          1.277
+        ]
+      },
+      {
+        "channel": "measureWaistCirc",
+        "envelope": [
+          -2,
+          3.5
+        ],
+        "metres": [
+          0.503,
+          1.009
+        ]
+      },
+      {
+        "channel": "measureBustCirc",
+        "envelope": [
+          -2,
+          1.25
+        ],
+        "metres": [
+          0.685,
+          1.041
+        ]
+      },
+      {
+        "channel": "measureUpperarmCirc",
+        "envelope": [
+          -2,
+          2
+        ],
+        "metres": [
+          0.264,
+          0.424
+        ]
+      },
+      {
+        "channel": "measureCalfCirc",
+        "envelope": [
+          -2,
+          2
+        ],
+        "metres": [
+          0.203,
+          0.526
+        ]
+      },
+      {
+        "channel": "measureThighCirc",
+        "envelope": [
+          -2,
+          1.75
+        ],
+        "metres": [
+          0.476,
+          0.69
+        ]
+      }
+    ]
+  }
+}

@@ -27,11 +27,17 @@ import { skinHumanBodySurface } from "./skinHumanBodySurface";
  * supply the licensed geometry; none run here and no photograph is needed for
  * replay. The order per document is fixed and is what the specification
  * states: identity, channels, correctives (`evaluateHumanBodyShape`), then
- * landmarks to a rest skeleton (`resolveHumanBodySkeleton`), then the pose
- * validated against each joint's clinical range and resolved by the engine's
- * forward kinematics with the basis's measured signs, then linear blend
- * skinning (`skinHumanBodySurface`), then common normals and material
- * regions. The face basis builder is the template; what differs is
+ * landmarks to a rest skeleton (`resolveHumanBodySkeleton`), then the pose,
+ * which is the document's clinical angles with the basis's declared
+ * couplings added (`resolveHumanBodyCouplings`, called inside
+ * `humanBodyBasisWeights` so the corrective ramps read the same coupled
+ * angles), validated against each joint's clinical range and resolved by the
+ * engine's forward kinematics with the basis's measured signs, then dual
+ * quaternion skinning (`skinHumanBodySurface`), then common normals and material
+ * regions. The couplings are added before validation so a girdle angle the
+ * document wrote plus the rhythm an elevated arm adds is refused past the
+ * girdle's range rather than clamped, and the document keeps only what the
+ * author wrote. The face basis builder is the template; what differs is
  * everything after the shape.
  *
  * A new model owns its arrays and materials; neither basis nor document is
@@ -41,9 +47,9 @@ import { skinHumanBodySurface } from "./skinHumanBodySurface";
  * Skinning does not establish collision-free or physiological movement.
  *
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-connected-basis Evaluates named shape edits on one reusable body prior without source images, refusing a document that names another basis revision.
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-joints Bends joints by clinical angles checked against their ranges and skins the surface with rigid bone transforms.
+ * @evidence requirements/actors/body-authoring/contract.md#actor-body-joints Bends joints by clinical angles, the basis's declared couplings added, checked against their ranges and skins the surface with rigid bone transforms.
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-basis Runs the identity, channel, corrective, landmark, skeleton, pose and skin order once per document over an admitted basis.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-joints Validates the sparse clinical pose, resolves it through the engine with the basis's sign frames and recomputes normals after skinning.
+ * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-joints Validates the sparse clinical pose after the couplings are added, resolves it through the engine with the basis's sign frames and recomputes normals after skinning.
  * @evidenceExclude requirements/actors/body-authoring/README.md#body-requirements This domain index also covers the editing screen, export and census review; the builder owns evaluation, not the complete authoring workflow.
  * @evidenceExclude specifications/asset-and-representation/body-authoring/README.md#body-specifications This index joins evaluation, measurement, document and later editor boundaries; the builder does not own the browser adapter or the review process.
  * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-editor This renderer-independent evaluator exposes no DOM, camera or file picker; the playground body page binds those to it.
@@ -76,7 +82,7 @@ export function createHumanBodyBasisBuilder(
     const pose: IAutoMoviePose = {
       skeleton: skeleton.id,
       root: null,
-      joints: document.pose ?? [],
+      joints: state.pose,
     };
     const violations = validatePose({ pose, skeleton });
     if (violations.items.length > 0)

@@ -1,7 +1,7 @@
 {
-  "basis": "mpfb-connected-body-2026-09-20-joints-and-measures",
-  "worstExclusiveRmsMetres": 0.000011432365500662893,
-  "worstRadiusDeviationMetres": 0.00010941503479226788,
+  "basis": "mpfb-connected-body-2026-09-21-envelopes-raw+sym+digits+rhythm",
+  "worstExclusiveRmsMetres": 0.000011473154017897545,
+  "worstRadiusDeviationMetres": 4.166805789296291e-15,
   "segments": [
     {
       "bone": "spine",
@@ -12,7 +12,7 @@
       "exclusiveRms": null,
       "exclusiveDegrees": null,
       "dominantVertices": 1059,
-      "dominantRms": 0.004792067358320412,
+      "dominantRms": 0.004718677192763664,
       "radiusDeviation": 0,
       "chordSagittaIfLinear": 0
     },
@@ -25,7 +25,7 @@
       "exclusiveRms": null,
       "exclusiveDegrees": null,
       "dominantVertices": 1059,
-      "dominantRms": 0.0013068173395859562,
+      "dominantRms": 0.0013046286239318742,
       "radiusDeviation": 0,
       "chordSagittaIfLinear": 0
     },
@@ -38,7 +38,7 @@
       "exclusiveRms": null,
       "exclusiveDegrees": null,
       "dominantVertices": 1059,
-      "dominantRms": 0.001739605041670203,
+      "dominantRms": 0.0017374180628321467,
       "radiusDeviation": 0,
       "chordSagittaIfLinear": 0
     },
@@ -51,7 +51,7 @@
       "exclusiveRms": null,
       "exclusiveDegrees": null,
       "dominantVertices": 1139,
-      "dominantRms": 0.0033673528328637247,
+      "dominantRms": 0.003226303928256523,
       "radiusDeviation": 0,
       "chordSagittaIfLinear": 0
     },
@@ -64,7 +64,7 @@
       "exclusiveRms": null,
       "exclusiveDegrees": null,
       "dominantVertices": 1139,
-      "dominantRms": 0.0015111302105625236,
+      "dominantRms": 0.0015102269131476186,
       "radiusDeviation": 0,
       "chordSagittaIfLinear": 0
     },
@@ -77,7 +77,7 @@
       "exclusiveRms": null,
       "exclusiveDegrees": null,
       "dominantVertices": 1139,
-      "dominantRms": 0.001593153646680391,
+      "dominantRms": 0.0015914413563376812,
       "radiusDeviation": 0,
       "chordSagittaIfLinear": 0
     },
@@ -89,8 +89,8 @@
       "exclusiveVertices": 0,
       "exclusiveRms": null,
       "exclusiveDegrees": null,
-      "dominantVertices": 4138,
-      "dominantRms": 0.00401091909112223,
+      "dominantVertices": 4464,
+      "dominantRms": 0.0038841464496815192,
       "radiusDeviation": 0,
       "chordSagittaIfLinear": 0
     },
@@ -102,8 +102,8 @@
       "exclusiveVertices": 0,
       "exclusiveRms": null,
       "exclusiveDegrees": null,
-      "dominantVertices": 4138,
-      "dominantRms": 0.0012117902592644692,
+      "dominantVertices": 4464,
+      "dominantRms": 0.0011784744286872668,
       "radiusDeviation": 0,
       "chordSagittaIfLinear": 0
     },
@@ -115,8 +115,8 @@
       "exclusiveVertices": 0,
       "exclusiveRms": null,
       "exclusiveDegrees": null,
-      "dominantVertices": 4138,
-      "dominantRms": 0.0015949800592204738,
+      "dominantVertices": 4464,
+      "dominantRms": 0.0015387691787131336,
       "radiusDeviation": 0,
       "chordSagittaIfLinear": 0
     },
@@ -124,37 +124,79 @@
       "bone": "neck",
       "axis": "flexion",
       "clinical": 11.25,
-      "segment": null
+      "rig": 11.25,
+      "exclusiveVertices": 0,
+      "exclusiveRms": null,
+      "exclusiveDegrees": null,
+      "dominantVertices": 801,
+      "dominantRms": 0.0012702457975826008,
+      "radiusDeviation": 0,
+      "chordSagittaIfLinear": 0
     },
     {
       "bone": "neck",
       "axis": "abduction",
       "clinical": 11.25,
-      "segment": null
+      "rig": 11.25,
+      "exclusiveVertices": 0,
+      "exclusiveRms": null,
+      "exclusiveDegrees": null,
+      "dominantVertices": 801,
+      "dominantRms": 0.0015671720288140875,
+      "radiusDeviation": 0,
+      "chordSagittaIfLinear": 0
     },
     {
       "bone": "neck",
       "axis": "twist",
       "clinical": 20,
-      "segment": null
+      "rig": 20,
+      "exclusiveVertices": 0,
+      "exclusiveRms": null,
+      "exclusiveDegrees": null,
+      "dominantVertices": 801,
+      "dominantRms": 0.0032983911867377285,
+      "radiusDeviation": 0,
+      "chordSagittaIfLinear": 0
     },
     {
       "bone": "head",
       "axis": "flexion",
       "clinical": 11.25,
-      "segment": null
+      "rig": 11.25,
+      "exclusiveVertices": 0,
+      "exclusiveRms": null,
+      "exclusiveDegrees": null,
+      "dominantVertices": 45,
+      "dominantRms": 0.000782072949056094,
+      "radiusDeviation": 0,
+      "chordSagittaIfLinear": 0
     },
     {
       "bone": "head",
       "axis": "abduction",
       "clinical": 11.25,
-      "segment": null
+      "rig": 11.25,
+      "exclusiveVertices": 0,
+      "exclusiveRms": null,
+      "exclusiveDegrees": null,
+      "dominantVertices": 45,
+      "dominantRms": 0.0009324798296654745,
+      "radiusDeviation": 0,
+      "chordSagittaIfLinear": 0
     },
     {
       "bone": "head",
       "axis": "twist",
       "clinical": 20,
-      "segment": null
+      "rig": 20,
+      "exclusiveVertices": 0,
+      "exclusiveRms": null,
+      "exclusiveDegrees": null,
+      "dominantVertices": 45,
+      "dominantRms": 0.0006389023153449862,
+      "radiusDeviation": 0,
+      "chordSagittaIfLinear": 0
     },
     {
       "bone": "leftShoulder",
@@ -164,21 +206,21 @@
       "exclusiveVertices": 0,
       "exclusiveRms": null,
       "exclusiveDegrees": null,
-      "dominantVertices": 150,
-      "dominantRms": 0.0024502168779976016,
+      "dominantVertices": 236,
+      "dominantRms": 0.0026696706044061404,
       "radiusDeviation": 0,
       "chordSagittaIfLinear": 0
     },
     {
       "bone": "leftShoulder",
       "axis": "abduction",
-      "clinical": 15,
-      "rig": 15,
+      "clinical": 20,
+      "rig": 20,
       "exclusiveVertices": 0,
       "exclusiveRms": null,
       "exclusiveDegrees": null,
-      "dominantVertices": 150,
-      "dominantRms": 0.002033375738230276,
+      "dominantVertices": 236,
+      "dominantRms": 0.0037909662011283785,
       "radiusDeviation": 0,
       "chordSagittaIfLinear": 0
     },
@@ -188,11 +230,11 @@
       "clinical": 90.09385,
       "rig": 89.90615,
       "exclusiveVertices": 196,
-      "exclusiveRms": 0.000011432365500662893,
-      "exclusiveDegrees": 89.90875304275806,
-      "dominantVertices": 1504,
-      "dominantRms": 0.016331868495870778,
-      "radiusDeviation": 0.00010941492054140911,
+      "exclusiveRms": 0.000011444408087048169,
+      "exclusiveDegrees": 85.51785087493293,
+      "dominantVertices": 1502,
+      "dominantRms": 0.01716956372070043,
+      "radiusDeviation": 4.440892098500626e-16,
       "chordSagittaIfLinear": 0.05743086168536126
     },
     {
@@ -201,11 +243,11 @@
       "clinical": 110.876,
       "rig": 69.124,
       "exclusiveVertices": 196,
-      "exclusiveRms": 0.00000970116934418083,
-      "exclusiveDegrees": 69.12551449347275,
-      "dominantVertices": 1504,
-      "dominantRms": 0.010594167480669853,
-      "radiusDeviation": 0.0000776674033334257,
+      "exclusiveRms": 0.000009740225444406724,
+      "exclusiveDegrees": 74.96639187800768,
+      "dominantVertices": 1502,
+      "dominantRms": 0.012876242451149206,
+      "radiusDeviation": 6.38378239159465e-16,
       "chordSagittaIfLinear": 0.03467435866638694
     },
     {
@@ -214,11 +256,11 @@
       "clinical": 45,
       "rig": 45,
       "exclusiveVertices": 196,
-      "exclusiveRms": 0.000002004541298989692,
-      "exclusiveDegrees": 44.999342778143976,
-      "dominantVertices": 1504,
-      "dominantRms": 0.0071552494536159155,
-      "radiusDeviation": 0.0000033686462307391807,
+      "exclusiveRms": 0.000002011729293354317,
+      "exclusiveDegrees": 44.999448784055694,
+      "dominantVertices": 1502,
+      "dominantRms": 0.007085034846225695,
+      "radiusDeviation": 1.942890293094024e-16,
       "chordSagittaIfLinear": 0.014955352724287416
     },
     {
@@ -226,12 +268,12 @@
       "axis": "flexion",
       "clinical": 94.02815,
       "rig": 50.971849999999996,
-      "exclusiveVertices": 512,
-      "exclusiveRms": 0.0000019622163559588927,
-      "exclusiveDegrees": 50.9719192233474,
-      "dominantVertices": 1314,
-      "dominantRms": 0.0038359594587065414,
-      "radiusDeviation": 0.000018765962228453614,
+      "exclusiveVertices": 466,
+      "exclusiveRms": 0.000002057757882639703,
+      "exclusiveDegrees": 50.97188571542479,
+      "dominantVertices": 1312,
+      "dominantRms": 0.0039340389952676035,
+      "radiusDeviation": 1.3600232051658168e-15,
       "chordSagittaIfLinear": 0.018748198857248554
     },
     {
@@ -239,12 +281,12 @@
       "axis": "twist",
       "clinical": 42.5,
       "rig": 42.5,
-      "exclusiveVertices": 512,
-      "exclusiveRms": 0.0000011523253151301574,
-      "exclusiveDegrees": 42.49988844387167,
-      "dominantVertices": 1314,
-      "dominantRms": 0.0033466267091615816,
-      "radiusDeviation": 0.0000064946347512265246,
+      "exclusiveVertices": 466,
+      "exclusiveRms": 0.0000012074318528871592,
+      "exclusiveDegrees": 42.49988661130976,
+      "dominantVertices": 1312,
+      "dominantRms": 0.0033582285123394317,
+      "radiusDeviation": 8.881784197001252e-16,
       "chordSagittaIfLinear": 0.013099817853461215
     },
     {
@@ -253,12 +295,12 @@
       "clinical": -31.7081,
       "rig": 38.2919,
       "exclusiveVertices": 327,
-      "exclusiveRms": 1.000607316100613e-15,
-      "exclusiveDegrees": 38.29190000000008,
-      "dominantVertices": 1569,
-      "dominantRms": 0.0014483336038183354,
-      "radiusDeviation": 1.2351231148954867e-15,
-      "chordSagittaIfLinear": 0.004894107409744513
+      "exclusiveRms": 9.620031066305355e-16,
+      "exclusiveDegrees": 38.291900000000055,
+      "dominantVertices": 1376,
+      "dominantRms": 0.0015825613063441704,
+      "radiusDeviation": 1.4155343563970746e-15,
+      "chordSagittaIfLinear": 0.004894107409744509
     },
     {
       "bone": "leftHand",
@@ -266,12 +308,12 @@
       "clinical": -17.00405,
       "rig": 27.99595,
       "exclusiveVertices": 327,
-      "exclusiveRms": 6.534148659992045e-16,
-      "exclusiveDegrees": 27.995949999999997,
-      "dominantVertices": 1569,
-      "dominantRms": 0.001376428598143539,
-      "radiusDeviation": 1.2351231148954867e-15,
-      "chordSagittaIfLinear": 0.0026274460962430937
+      "exclusiveRms": 6.321237229065094e-16,
+      "exclusiveDegrees": 27.99594999999997,
+      "dominantVertices": 1376,
+      "dominantRms": 0.0014803234184945098,
+      "radiusDeviation": 1.3808398868775384e-15,
+      "chordSagittaIfLinear": 0.002627446096243092
     },
     {
       "bone": "leftUpperLeg",
@@ -279,11 +321,11 @@
       "clinical": 62.5,
       "rig": 62.5,
       "exclusiveVertices": 398,
-      "exclusiveRms": 7.208067895248419e-16,
-      "exclusiveDegrees": 62.50000000000006,
+      "exclusiveRms": 8.071418606240923e-16,
+      "exclusiveDegrees": 62.49999999999999,
       "dominantVertices": 1900,
-      "dominantRms": 0.014330366068327759,
-      "radiusDeviation": 2.7755575615628914e-16,
+      "dominantRms": 0.014798945856742162,
+      "radiusDeviation": 9.43689570931383e-16,
       "chordSagittaIfLinear": 0.04827153216667032
     },
     {
@@ -292,11 +334,11 @@
       "clinical": 22.5,
       "rig": 22.5,
       "exclusiveVertices": 398,
-      "exclusiveRms": 1.4082043364110094e-16,
-      "exclusiveDegrees": 22.5000000000001,
+      "exclusiveRms": 1.801808245078959e-16,
+      "exclusiveDegrees": 22.500000000000036,
       "dominantVertices": 1900,
-      "dominantRms": 0.004995587080167461,
-      "radiusDeviation": 1.6653345369377348e-16,
+      "dominantRms": 0.005013634364894276,
+      "radiusDeviation": 3.3306690738754696e-16,
       "chordSagittaIfLinear": 0.006392831442455334
     },
     {
@@ -305,11 +347,11 @@
       "clinical": 22.5,
       "rig": 22.5,
       "exclusiveVertices": 398,
-      "exclusiveRms": 6.993170616040673e-16,
-      "exclusiveDegrees": 22.500000000000004,
+      "exclusiveRms": 6.433330648345471e-16,
+      "exclusiveDegrees": 22.499999999999975,
       "dominantVertices": 1900,
-      "dominantRms": 0.004790959538163911,
-      "radiusDeviation": 1.3877787807814457e-16,
+      "dominantRms": 0.0047851570519370275,
+      "radiusDeviation": 1.6653345369377348e-16,
       "chordSagittaIfLinear": 0.006392831442455334
     },
     {
@@ -317,13 +359,13 @@
       "axis": "flexion",
       "clinical": 70,
       "rig": 70,
-      "exclusiveVertices": 154,
-      "exclusiveRms": 7.22144327740372e-16,
-      "exclusiveDegrees": 70.00000000000016,
-      "dominantVertices": 1389,
-      "dominantRms": 0.006909607556953855,
-      "radiusDeviation": 8.049116928532385e-16,
-      "chordSagittaIfLinear": 0.027490186184400352
+      "exclusiveVertices": 156,
+      "exclusiveRms": 5.40040571061707e-16,
+      "exclusiveDegrees": 69.99999999999994,
+      "dominantVertices": 1396,
+      "dominantRms": 0.007279651087398656,
+      "radiusDeviation": 3.4416913763379853e-15,
+      "chordSagittaIfLinear": 0.030430896830873598
     },
     {
       "bone": "leftFoot",
@@ -331,11 +373,11 @@
       "clinical": -22.5,
       "rig": 22.5,
       "exclusiveVertices": 1039,
-      "exclusiveRms": 1.1732125911017008e-15,
-      "exclusiveDegrees": 22.5000000000001,
-      "dominantVertices": 2083,
-      "dominantRms": 0.001820453234425292,
-      "radiusDeviation": 2.2898349882893854e-15,
+      "exclusiveRms": 1.352056036628668e-15,
+      "exclusiveDegrees": 22.500000000000036,
+      "dominantVertices": 2077,
+      "dominantRms": 0.0017812157893970211,
+      "radiusDeviation": 2.8727020762175925e-15,
       "chordSagittaIfLinear": 0.0024676807333729126
     },
     {
@@ -344,75 +386,75 @@
       "clinical": 12.5,
       "rig": 12.5,
       "exclusiveVertices": 1039,
-      "exclusiveRms": 4.908505058068162e-15,
+      "exclusiveRms": 2.683148747587742e-15,
       "exclusiveDegrees": 12.499999999999943,
-      "dominantVertices": 2083,
-      "dominantRms": 0.000909670105051191,
-      "radiusDeviation": 2.3037127760972e-15,
+      "dominantVertices": 2077,
+      "dominantRms": 0.0009141268137256524,
+      "radiusDeviation": 2.373101715136272e-15,
       "chordSagittaIfLinear": 0.000763324157846814
     },
     {
       "bone": "leftToes",
       "axis": "flexion",
-      "clinical": 40,
-      "rig": 40,
+      "clinical": 35,
+      "rig": 35,
       "exclusiveVertices": 3853,
-      "exclusiveRms": 0.0000026675851250175677,
-      "exclusiveDegrees": 39.99899048898562,
+      "exclusiveRms": 0.0000021711144009882376,
+      "exclusiveDegrees": 34.99909682468199,
       "dominantVertices": 4775,
-      "dominantRms": 0.0015050135998117813,
-      "radiusDeviation": 0.000015162938604582066,
-      "chordSagittaIfLinear": 0.0043146017768454096
+      "dominantRms": 0.0010839693481806672,
+      "radiusDeviation": 4.166805789296291e-15,
+      "chordSagittaIfLinear": 0.003145273313272406
     },
     {
       "bone": "leftThumbMetacarpal",
       "axis": "flexion",
-      "clinical": 50,
-      "rig": 50,
+      "clinical": -10,
+      "rig": 10,
       "exclusiveVertices": 0,
       "exclusiveRms": null,
       "exclusiveDegrees": null,
-      "dominantVertices": 120,
-      "dominantRms": 0.0032205881962845836,
+      "dominantVertices": 117,
+      "dominantRms": 0.0006277434724258496,
       "radiusDeviation": 0,
       "chordSagittaIfLinear": 0
     },
     {
       "bone": "leftThumbProximal",
       "axis": "flexion",
-      "clinical": 59.2227,
-      "rig": 40.777300000000004,
+      "clinical": 39.2227,
+      "rig": 20.777300000000004,
       "exclusiveVertices": 45,
-      "exclusiveRms": 1.561770229205595e-11,
-      "exclusiveDegrees": 40.777300071337095,
+      "exclusiveRms": 4.055650095105736e-16,
+      "exclusiveDegrees": 20.777299999998824,
       "dominantVertices": 497,
-      "dominantRms": 0.0018165562135473313,
-      "radiusDeviation": 1.0720591081536668e-15,
-      "chordSagittaIfLinear": 0.0015662846514899837
+      "dominantRms": 0.000938364014671895,
+      "radiusDeviation": 9.610368056911511e-16,
+      "chordSagittaIfLinear": 0.0004098354629015334
     },
     {
       "bone": "leftThumbDistal",
       "axis": "flexion",
-      "clinical": 57.8899,
-      "rig": 42.110099999999996,
+      "clinical": 47.8899,
+      "rig": 32.110099999999996,
       "exclusiveVertices": 200,
-      "exclusiveRms": 1.5707547017773335e-15,
-      "exclusiveDegrees": 42.110099999999996,
+      "exclusiveRms": 1.2091814551423306e-15,
+      "exclusiveDegrees": 32.11010000000003,
       "dominantVertices": 560,
-      "dominantRms": 0.001193861240518585,
-      "radiusDeviation": 1.259409243559162e-15,
-      "chordSagittaIfLinear": 0.001931580053759269
+      "dominantRms": 0.0009328307371327578,
+      "radiusDeviation": 1.304512053934559e-15,
+      "chordSagittaIfLinear": 0.0011284250772619075
     },
     {
       "bone": "leftIndexProximal",
       "axis": "flexion",
-      "clinical": 56.16075,
-      "rig": 43.83925,
+      "clinical": 51.16075,
+      "rig": 38.83925,
       "exclusiveVertices": 0,
       "exclusiveRms": null,
       "exclusiveDegrees": null,
-      "dominantVertices": 552,
-      "dominantRms": 0.00161027114011869,
+      "dominantVertices": 604,
+      "dominantRms": 0.0014949173604640695,
       "radiusDeviation": 0,
       "chordSagittaIfLinear": 0
     },
@@ -425,35 +467,35 @@
       "exclusiveRms": null,
       "exclusiveDegrees": null,
       "dominantVertices": 510,
-      "dominantRms": 0.001412757906309748,
-      "radiusDeviation": 1.1830814106161824e-15,
-      "chordSagittaIfLinear": 0.0014065305131910084
+      "dominantRms": 0.0010218296021245463,
+      "radiusDeviation": 1.961972251329769e-15,
+      "chordSagittaIfLinear": 0.0010366120667031488
     },
     {
       "bone": "leftIndexDistal",
       "axis": "flexion",
-      "clinical": 53.75095,
-      "rig": 46.249050000000004,
+      "clinical": 43.75095,
+      "rig": 36.249050000000004,
       "exclusiveVertices": 226,
-      "exclusiveRms": 1.597896053384788e-15,
-      "exclusiveDegrees": 46.24905000000008,
+      "exclusiveRms": 5.608809719073355e-15,
+      "exclusiveDegrees": 36.249049999996345,
       "dominantVertices": 598,
-      "dominantRms": 0.001099129801973976,
-      "radiusDeviation": 1.5890067039947553e-15,
-      "chordSagittaIfLinear": 0.0021266661776917508
+      "dominantRms": 0.0008873772388498747,
+      "radiusDeviation": 2.213507155346406e-15,
+      "chordSagittaIfLinear": 0.0013133052893973386
     },
     {
       "bone": "leftMiddleProximal",
       "axis": "flexion",
-      "clinical": 57.9681,
-      "rig": 42.0319,
+      "clinical": 52.9681,
+      "rig": 37.0319,
       "exclusiveVertices": 4,
-      "exclusiveRms": 8.626395116355689e-7,
-      "exclusiveDegrees": 90.33418939058606,
-      "dominantVertices": 533,
-      "dominantRms": 0.002417805738379393,
-      "radiusDeviation": 1.4085954624931674e-15,
-      "chordSagittaIfLinear": 0.001376145664704165
+      "exclusiveRms": 1.3293104079137978e-10,
+      "exclusiveDegrees": 90.25535345721056,
+      "dominantVertices": 576,
+      "dominantRms": 0.0021729460928502703,
+      "radiusDeviation": 1.2490009027033011e-15,
+      "chordSagittaIfLinear": 0.001392206239774804
     },
     {
       "bone": "leftMiddleIntermediate",
@@ -464,35 +506,35 @@
       "exclusiveRms": null,
       "exclusiveDegrees": null,
       "dominantVertices": 462,
-      "dominantRms": 0.0014053154524243864,
+      "dominantRms": 0.0010937166535124098,
       "radiusDeviation": 0,
       "chordSagittaIfLinear": 0
     },
     {
       "bone": "leftMiddleDistal",
       "axis": "flexion",
-      "clinical": 53.78295,
-      "rig": 46.21705,
+      "clinical": 43.78295,
+      "rig": 36.21705,
       "exclusiveVertices": 246,
-      "exclusiveRms": 1.165857742330916e-15,
-      "exclusiveDegrees": 46.21705000000005,
+      "exclusiveRms": 1.587219796922269e-15,
+      "exclusiveDegrees": 36.21704999999995,
       "dominantVertices": 653,
-      "dominantRms": 0.0009779633723480455,
-      "radiusDeviation": 1.6930901125533637e-15,
-      "chordSagittaIfLinear": 0.0020290053625772763
+      "dominantRms": 0.0007818107793334373,
+      "radiusDeviation": 2.3869795029440866e-15,
+      "chordSagittaIfLinear": 0.00125251191382447
     },
     {
       "bone": "leftRingProximal",
       "axis": "flexion",
-      "clinical": 56.7943,
-      "rig": 43.2057,
+      "clinical": 51.7943,
+      "rig": 38.2057,
       "exclusiveVertices": 17,
-      "exclusiveRms": 4.0736615864372254e-16,
-      "exclusiveDegrees": 43.20569999999921,
-      "dominantVertices": 589,
-      "dominantRms": 0.0020627226022197904,
-      "radiusDeviation": 1.4155343563970746e-15,
-      "chordSagittaIfLinear": 0.0017085189891556376
+      "exclusiveRms": 4.05861620806246e-16,
+      "exclusiveDegrees": 38.20569999999978,
+      "dominantVertices": 622,
+      "dominantRms": 0.0017971050261729256,
+      "radiusDeviation": 2.1163626406917047e-15,
+      "chordSagittaIfLinear": 0.0013994069504175187
     },
     {
       "bone": "leftRingIntermediate",
@@ -500,36 +542,36 @@
       "clinical": 53.6943,
       "rig": 46.3057,
       "exclusiveVertices": 8,
-      "exclusiveRms": 4.0157281424659084e-10,
-      "exclusiveDegrees": 46.30770515348452,
+      "exclusiveRms": 2.766081930652345e-10,
+      "exclusiveDegrees": 46.30621984897689,
       "dominantVertices": 440,
-      "dominantRms": 0.0013433215918680224,
-      "radiusDeviation": 1.3600232051658168e-15,
-      "chordSagittaIfLinear": 0.0014710923825762196
+      "dominantRms": 0.0011126445748879665,
+      "radiusDeviation": 2.3141211169530607e-15,
+      "chordSagittaIfLinear": 0.001136962430980042
     },
     {
       "bone": "leftRingDistal",
       "axis": "flexion",
-      "clinical": 53.1602,
-      "rig": 46.839800000000004,
+      "clinical": 43.1602,
+      "rig": 36.839800000000004,
       "exclusiveVertices": 325,
-      "exclusiveRms": 2.097731754765402e-15,
-      "exclusiveDegrees": 46.83980000000003,
+      "exclusiveRms": 1.406657391628783e-15,
+      "exclusiveDegrees": 36.83979999999991,
       "dominantVertices": 628,
-      "dominantRms": 0.0009613460729826166,
-      "radiusDeviation": 1.6757428777935957e-15,
-      "chordSagittaIfLinear": 0.0022278059512225966
+      "dominantRms": 0.0007857522715460445,
+      "radiusDeviation": 2.633310236532793e-15,
+      "chordSagittaIfLinear": 0.0013854579417192398
     },
     {
       "bone": "leftLittleProximal",
       "axis": "flexion",
-      "clinical": 58.9977,
-      "rig": 41.002300000000005,
+      "clinical": 53.9977,
+      "rig": 36.002300000000005,
       "exclusiveVertices": 0,
       "exclusiveRms": null,
       "exclusiveDegrees": null,
-      "dominantVertices": 528,
-      "dominantRms": 0.001375289140653401,
+      "dominantVertices": 592,
+      "dominantRms": 0.0011970158093831625,
       "radiusDeviation": 0,
       "chordSagittaIfLinear": 0
     },
@@ -542,22 +584,22 @@
       "exclusiveRms": null,
       "exclusiveDegrees": null,
       "dominantVertices": 461,
-      "dominantRms": 0.0009344412274087434,
+      "dominantRms": 0.0007782600111078406,
       "radiusDeviation": 0,
       "chordSagittaIfLinear": 0
     },
     {
       "bone": "leftLittleDistal",
       "axis": "flexion",
-      "clinical": 49.50895,
-      "rig": 50.49105,
+      "clinical": 39.50895,
+      "rig": 40.49105,
       "exclusiveVertices": 314,
-      "exclusiveRms": 1.4308013076172794e-15,
-      "exclusiveDegrees": 50.4910500000001,
+      "exclusiveRms": 1.8945442676609215e-15,
+      "exclusiveDegrees": 40.491050000000534,
       "dominantVertices": 620,
-      "dominantRms": 0.0008662417294394107,
-      "radiusDeviation": 1.4710455076283324e-15,
-      "chordSagittaIfLinear": 0.0019266040782226497
+      "dominantRms": 0.0007117345528408903,
+      "radiusDeviation": 2.7582103268031233e-15,
+      "chordSagittaIfLinear": 0.0012462237234370354
     },
     {
       "bone": "rightShoulder",
@@ -567,21 +609,21 @@
       "exclusiveVertices": 0,
       "exclusiveRms": null,
       "exclusiveDegrees": null,
-      "dominantVertices": 153,
-      "dominantRms": 0.0024576757816532555,
+      "dominantVertices": 234,
+      "dominantRms": 0.0026836622115660918,
       "radiusDeviation": 0,
       "chordSagittaIfLinear": 0
     },
     {
       "bone": "rightShoulder",
       "axis": "abduction",
-      "clinical": 15,
-      "rig": 15,
+      "clinical": 20,
+      "rig": 20,
       "exclusiveVertices": 0,
       "exclusiveRms": null,
       "exclusiveDegrees": null,
-      "dominantVertices": 153,
-      "dominantRms": 0.0020520160026884678,
+      "dominantVertices": 234,
+      "dominantRms": 0.003806433379066229,
       "radiusDeviation": 0,
       "chordSagittaIfLinear": 0
     },
@@ -590,12 +632,12 @@
       "axis": "flexion",
       "clinical": 90.09385,
       "rig": 89.90615,
-      "exclusiveVertices": 197,
-      "exclusiveRms": 0.000011415502323761503,
-      "exclusiveDegrees": 89.90850748264974,
-      "dominantVertices": 1512,
-      "dominantRms": 0.01633209282689172,
-      "radiusDeviation": 0.00010941503479226788,
+      "exclusiveVertices": 195,
+      "exclusiveRms": 0.000011473154017897545,
+      "exclusiveDegrees": 85.51790065015825,
+      "dominantVertices": 1511,
+      "dominantRms": 0.01720463307977844,
+      "radiusDeviation": 4.718447854656915e-16,
       "chordSagittaIfLinear": 0.05743088595393934
     },
     {
@@ -603,12 +645,12 @@
       "axis": "abduction",
       "clinical": 110.876,
       "rig": 69.124,
-      "exclusiveVertices": 197,
-      "exclusiveRms": 0.000009681897955657479,
-      "exclusiveDegrees": 69.12549037977185,
-      "dominantVertices": 1512,
-      "dominantRms": 0.01068753882214916,
-      "radiusDeviation": 0.00007766744222416355,
+      "exclusiveVertices": 195,
+      "exclusiveRms": 0.000009765439102333482,
+      "exclusiveDegrees": 74.96639747282477,
+      "dominantVertices": 1511,
+      "dominantRms": 0.013014976617421327,
+      "radiusDeviation": 5.828670879282072e-16,
       "chordSagittaIfLinear": 0.03467437331874207
     },
     {
@@ -616,12 +658,12 @@
       "axis": "twist",
       "clinical": 45,
       "rig": 45,
-      "exclusiveVertices": 197,
-      "exclusiveRms": 0.0000020024112445530623,
-      "exclusiveDegrees": 44.999403821957415,
-      "dominantVertices": 1512,
-      "dominantRms": 0.007144957322968853,
-      "radiusDeviation": 0.0000033686303343577473,
+      "exclusiveVertices": 195,
+      "exclusiveRms": 0.0000020167547746983723,
+      "exclusiveDegrees": 44.99945156569732,
+      "dominantVertices": 1511,
+      "dominantRms": 0.007073241374187248,
+      "radiusDeviation": 1.942890293094024e-16,
       "chordSagittaIfLinear": 0.014955359043975727
     },
     {
@@ -630,11 +672,11 @@
       "clinical": 94.02815,
       "rig": 50.971849999999996,
       "exclusiveVertices": 469,
-      "exclusiveRms": 0.0000020494980727749054,
-      "exclusiveDegrees": 50.97194072987199,
+      "exclusiveRms": 0.0000020511726997193373,
+      "exclusiveDegrees": 50.97188558171585,
       "dominantVertices": 1317,
-      "dominantRms": 0.003885207692122175,
-      "radiusDeviation": 0.000018765963889687265,
+      "dominantRms": 0.00393897780756505,
+      "radiusDeviation": 1.3877787807814457e-15,
       "chordSagittaIfLinear": 0.018748190205559432
     },
     {
@@ -643,11 +685,11 @@
       "clinical": 42.5,
       "rig": 42.5,
       "exclusiveVertices": 469,
-      "exclusiveRms": 0.0000012036616712125913,
-      "exclusiveDegrees": 42.499892006164835,
+      "exclusiveRms": 0.0000012035455729310357,
+      "exclusiveDegrees": 42.499886194085235,
       "dominantVertices": 1317,
-      "dominantRms": 0.0033388453964614834,
-      "radiusDeviation": 0.0000064946301560828146,
+      "dominantRms": 0.0033604344270331574,
+      "radiusDeviation": 8.81239525796218e-16,
       "chordSagittaIfLinear": 0.013099811808317761
     },
     {
@@ -656,12 +698,12 @@
       "clinical": -31.7081,
       "rig": 38.2919,
       "exclusiveVertices": 317,
-      "exclusiveRms": 7.533028830140014e-16,
-      "exclusiveDegrees": 38.291900000000055,
-      "dominantVertices": 1561,
-      "dominantRms": 0.0014434586906096711,
-      "radiusDeviation": 1.2490009027033011e-15,
-      "chordSagittaIfLinear": 0.0048941091788802385
+      "exclusiveRms": 9.355386063458615e-16,
+      "exclusiveDegrees": 38.291899999999956,
+      "dominantVertices": 1354,
+      "dominantRms": 0.0015680170017213324,
+      "radiusDeviation": 1.4016565685892601e-15,
+      "chordSagittaIfLinear": 0.004894109178880234
     },
     {
       "bone": "rightHand",
@@ -669,12 +711,12 @@
       "clinical": -17.00405,
       "rig": 27.99595,
       "exclusiveVertices": 317,
-      "exclusiveRms": 1.3014094046023355e-15,
-      "exclusiveDegrees": 27.995950000000022,
-      "dominantVertices": 1561,
-      "dominantRms": 0.0013710086736589825,
-      "radiusDeviation": 1.2351231148954867e-15,
-      "chordSagittaIfLinear": 0.002627447046019706
+      "exclusiveRms": 1.371096970222764e-15,
+      "exclusiveDegrees": 27.99594999999997,
+      "dominantVertices": 1354,
+      "dominantRms": 0.0014742007107838976,
+      "radiusDeviation": 1.3808398868775384e-15,
+      "chordSagittaIfLinear": 0.002627447046019704
     },
     {
       "bone": "rightUpperLeg",
@@ -682,11 +724,11 @@
       "clinical": 62.5,
       "rig": 62.5,
       "exclusiveVertices": 392,
-      "exclusiveRms": 1.836674817570951e-16,
-      "exclusiveDegrees": 62.50000000000004,
-      "dominantVertices": 1912,
-      "dominantRms": 0.014321658629114714,
-      "radiusDeviation": 2.7755575615628914e-16,
+      "exclusiveRms": 2.9765405453770545e-16,
+      "exclusiveDegrees": 62.49999999999995,
+      "dominantVertices": 1910,
+      "dominantRms": 0.0147339377497093,
+      "radiusDeviation": 9.43689570931383e-16,
       "chordSagittaIfLinear": 0.048271532249839065
     },
     {
@@ -695,11 +737,11 @@
       "clinical": 22.5,
       "rig": 22.5,
       "exclusiveVertices": 392,
-      "exclusiveRms": 4.0802411358876395e-16,
-      "exclusiveDegrees": 22.500000000000036,
-      "dominantVertices": 1912,
-      "dominantRms": 0.0049755878597084885,
-      "radiusDeviation": 1.6653345369377348e-16,
+      "exclusiveRms": 2.875025396459308e-16,
+      "exclusiveDegrees": 22.499999999999975,
+      "dominantVertices": 1910,
+      "dominantRms": 0.00495189130418345,
+      "radiusDeviation": 3.3306690738754696e-16,
       "chordSagittaIfLinear": 0.006392831453469771
     },
     {
@@ -708,10 +750,10 @@
       "clinical": 22.5,
       "rig": 22.5,
       "exclusiveVertices": 392,
-      "exclusiveRms": 6.015957254977884e-16,
-      "exclusiveDegrees": 22.499999999999904,
-      "dominantVertices": 1912,
-      "dominantRms": 0.004795470339075307,
+      "exclusiveRms": 6.558559023752144e-16,
+      "exclusiveDegrees": 22.499999999999975,
+      "dominantVertices": 1910,
+      "dominantRms": 0.0047694067747113735,
       "radiusDeviation": 1.6653345369377348e-16,
       "chordSagittaIfLinear": 0.006392831453469771
     },
@@ -720,102 +762,102 @@
       "axis": "flexion",
       "clinical": 70,
       "rig": 70,
-      "exclusiveVertices": 503,
-      "exclusiveRms": 9.546579881494134e-16,
-      "exclusiveDegrees": 70.00000000000009,
-      "dominantVertices": 1379,
-      "dominantRms": 0.0071435010746643025,
-      "radiusDeviation": 8.187894806610529e-16,
-      "chordSagittaIfLinear": 0.06146409562867265
+      "exclusiveVertices": 154,
+      "exclusiveRms": 6.776304071315696e-16,
+      "exclusiveDegrees": 69.99999999999996,
+      "dominantVertices": 1375,
+      "dominantRms": 0.007390651604708898,
+      "radiusDeviation": 3.4416913763379853e-15,
+      "chordSagittaIfLinear": 0.030430896830873598
     },
     {
       "bone": "rightFoot",
       "axis": "flexion",
       "clinical": -22.5,
       "rig": 22.5,
-      "exclusiveVertices": 1059,
-      "exclusiveRms": 2.6971881295273854e-15,
-      "exclusiveDegrees": 22.500000000000036,
-      "dominantVertices": 2076,
-      "dominantRms": 0.0017614516791563072,
-      "radiusDeviation": 2.2620794126737565e-15,
-      "chordSagittaIfLinear": 0.00246768049149166
+      "exclusiveVertices": 1036,
+      "exclusiveRms": 1.7250198172965236e-15,
+      "exclusiveDegrees": 22.5000000000001,
+      "dominantVertices": 2081,
+      "dominantRms": 0.001789940727619519,
+      "radiusDeviation": 2.6645352591003757e-15,
+      "chordSagittaIfLinear": 0.0024676804914916615
     },
     {
       "bone": "rightFoot",
       "axis": "abduction",
       "clinical": 12.5,
       "rig": 12.5,
-      "exclusiveVertices": 1059,
-      "exclusiveRms": 1.852084046469692e-15,
+      "exclusiveVertices": 1036,
+      "exclusiveRms": 1.2164830864482325e-15,
       "exclusiveDegrees": 12.500000000000004,
-      "dominantVertices": 2076,
-      "dominantRms": 0.0008754424126134948,
-      "radiusDeviation": 2.3175905639050143e-15,
-      "chordSagittaIfLinear": 0.0007633240830260316
+      "dominantVertices": 2081,
+      "dominantRms": 0.0009156077252270017,
+      "radiusDeviation": 2.55351295663786e-15,
+      "chordSagittaIfLinear": 0.0007633240830260319
     },
     {
       "bone": "rightToes",
       "axis": "flexion",
-      "clinical": 40,
-      "rig": 40,
-      "exclusiveVertices": 3838,
-      "exclusiveRms": 0.0000027195343107026555,
-      "exclusiveDegrees": 39.99903696636386,
+      "clinical": 35,
+      "rig": 35,
+      "exclusiveVertices": 3836,
+      "exclusiveRms": 0.00000219678275217174,
+      "exclusiveDegrees": 34.99910169244854,
       "dominantVertices": 4778,
-      "dominantRms": 0.0015043834668507499,
-      "radiusDeviation": 0.000015162938604582066,
-      "chordSagittaIfLinear": 0.0043146014134242275
+      "dominantRms": 0.001081253285080414,
+      "radiusDeviation": 3.611694276983712e-15,
+      "chordSagittaIfLinear": 0.0031452730963920554
     },
     {
       "bone": "rightThumbMetacarpal",
       "axis": "flexion",
-      "clinical": 50,
-      "rig": 50,
+      "clinical": -10,
+      "rig": 10,
       "exclusiveVertices": 0,
       "exclusiveRms": null,
       "exclusiveDegrees": null,
       "dominantVertices": 113,
-      "dominantRms": 0.003210079721300063,
+      "dominantRms": 0.0006282418658746516,
       "radiusDeviation": 0,
       "chordSagittaIfLinear": 0
     },
     {
       "bone": "rightThumbProximal",
       "axis": "flexion",
-      "clinical": 59.2227,
-      "rig": 40.777300000000004,
+      "clinical": 39.2227,
+      "rig": 20.777300000000004,
       "exclusiveVertices": 49,
-      "exclusiveRms": 8.052124292586247e-12,
-      "exclusiveDegrees": 40.777300036441375,
+      "exclusiveRms": 5.48845301682779e-16,
+      "exclusiveDegrees": 20.77729999999868,
       "dominantVertices": 503,
-      "dominantRms": 0.001813524475113431,
-      "radiusDeviation": 1.0720591081536668e-15,
-      "chordSagittaIfLinear": 0.0015662864950944846
+      "dominantRms": 0.0009375355983716468,
+      "radiusDeviation": 9.922618282587337e-16,
+      "chordSagittaIfLinear": 0.00040983594530075965
     },
     {
       "bone": "rightThumbDistal",
       "axis": "flexion",
-      "clinical": 57.8899,
-      "rig": 42.110099999999996,
+      "clinical": 47.8899,
+      "rig": 32.110099999999996,
       "exclusiveVertices": 203,
-      "exclusiveRms": 1.1203696540978119e-15,
-      "exclusiveDegrees": 42.11010000000003,
+      "exclusiveRms": 8.218595027432906e-16,
+      "exclusiveDegrees": 32.11010000000003,
       "dominantVertices": 557,
-      "dominantRms": 0.001210857283411672,
-      "radiusDeviation": 1.2455314557513475e-15,
-      "chordSagittaIfLinear": 0.0019315757711919354
+      "dominantRms": 0.0009314789528220663,
+      "radiusDeviation": 1.169203622808368e-15,
+      "chordSagittaIfLinear": 0.001128422575394918
     },
     {
       "bone": "rightIndexProximal",
       "axis": "flexion",
-      "clinical": 56.16075,
-      "rig": 43.83925,
+      "clinical": 51.16075,
+      "rig": 38.83925,
       "exclusiveVertices": 0,
       "exclusiveRms": null,
       "exclusiveDegrees": null,
-      "dominantVertices": 545,
-      "dominantRms": 0.0015588258282879927,
+      "dominantVertices": 601,
+      "dominantRms": 0.0014894647505943517,
       "radiusDeviation": 0,
       "chordSagittaIfLinear": 0
     },
@@ -828,35 +870,35 @@
       "exclusiveRms": null,
       "exclusiveDegrees": null,
       "dominantVertices": 509,
-      "dominantRms": 0.0014217217420374633,
-      "radiusDeviation": 1.1345091532888318e-15,
-      "chordSagittaIfLinear": 0.0014065296832836889
+      "dominantRms": 0.0010251978477882127,
+      "radiusDeviation": 2.3522850334245504e-15,
+      "chordSagittaIfLinear": 0.00103661253025421
     },
     {
       "bone": "rightIndexDistal",
       "axis": "flexion",
-      "clinical": 53.75095,
-      "rig": 46.249050000000004,
+      "clinical": 43.75095,
+      "rig": 36.249050000000004,
       "exclusiveVertices": 220,
-      "exclusiveRms": 1.4200048010008122e-15,
-      "exclusiveDegrees": 46.2490500000001,
+      "exclusiveRms": 1.2884197884201833e-15,
+      "exclusiveDegrees": 36.249049999999954,
       "dominantVertices": 596,
-      "dominantRms": 0.001113770578747477,
-      "radiusDeviation": 1.582067810090848e-15,
-      "chordSagittaIfLinear": 0.0021266661776917508
+      "dominantRms": 0.0008980416930893082,
+      "radiusDeviation": 2.3418766925686896e-15,
+      "chordSagittaIfLinear": 0.0013133052893973423
     },
     {
       "bone": "rightMiddleProximal",
       "axis": "flexion",
-      "clinical": 57.9681,
-      "rig": 42.0319,
+      "clinical": 52.9681,
+      "rig": 37.0319,
       "exclusiveVertices": 3,
-      "exclusiveRms": 9.529498751367206e-7,
-      "exclusiveDegrees": 90.3346265301385,
-      "dominantVertices": 537,
-      "dominantRms": 0.0024332709836814813,
-      "radiusDeviation": 1.394717674685353e-15,
-      "chordSagittaIfLinear": 0.0013761498103246647
+      "exclusiveRms": 0.0000014482192795898446,
+      "exclusiveDegrees": 90.25222604032355,
+      "dominantVertices": 585,
+      "dominantRms": 0.002193829996646275,
+      "radiusDeviation": 1.339206523454095e-15,
+      "chordSagittaIfLinear": 0.0013922083665345066
     },
     {
       "bone": "rightMiddleIntermediate",
@@ -867,35 +909,35 @@
       "exclusiveRms": null,
       "exclusiveDegrees": null,
       "dominantVertices": 460,
-      "dominantRms": 0.0014059169460795713,
+      "dominantRms": 0.0010944565465455399,
       "radiusDeviation": 0,
       "chordSagittaIfLinear": 0
     },
     {
       "bone": "rightMiddleDistal",
       "axis": "flexion",
-      "clinical": 53.78295,
-      "rig": 46.21705,
+      "clinical": 43.78295,
+      "rig": 36.21705,
       "exclusiveVertices": 247,
-      "exclusiveRms": 1.4994002741462123e-15,
-      "exclusiveDegrees": 46.21705000000007,
+      "exclusiveRms": 1.980362558533081e-15,
+      "exclusiveDegrees": 36.21704999999995,
       "dominantVertices": 656,
-      "dominantRms": 0.0009977491844572835,
-      "radiusDeviation": 1.6896206656014101e-15,
-      "chordSagittaIfLinear": 0.0020289980249709864
+      "dominantRms": 0.0007971098458201554,
+      "radiusDeviation": 2.615963001773025e-15,
+      "chordSagittaIfLinear": 0.0012525073842951419
     },
     {
       "bone": "rightRingProximal",
       "axis": "flexion",
-      "clinical": 56.7943,
-      "rig": 43.2057,
+      "clinical": 51.7943,
+      "rig": 38.2057,
       "exclusiveVertices": 19,
-      "exclusiveRms": 3.635093769516096e-16,
-      "exclusiveDegrees": 43.20570000000024,
-      "dominantVertices": 598,
-      "dominantRms": 0.002115841616209014,
-      "radiusDeviation": 1.4242079737769586e-15,
-      "chordSagittaIfLinear": 0.001708519565375862
+      "exclusiveRms": 5.022713905529011e-16,
+      "exclusiveDegrees": 38.20569999999888,
+      "dominantVertices": 629,
+      "dominantRms": 0.0018196455478425924,
+      "radiusDeviation": 2.0469737016526324e-15,
+      "chordSagittaIfLinear": 0.001399405680986575
     },
     {
       "bone": "rightRingIntermediate",
@@ -903,36 +945,36 @@
       "clinical": 53.6943,
       "rig": 46.3057,
       "exclusiveVertices": 8,
-      "exclusiveRms": 3.453140372648885e-10,
-      "exclusiveDegrees": 46.30594151034716,
+      "exclusiveRms": 2.786686431950018e-10,
+      "exclusiveDegrees": 46.30621829826602,
       "dominantVertices": 435,
-      "dominantRms": 0.001349916707508357,
-      "radiusDeviation": 1.3634926521177704e-15,
-      "chordSagittaIfLinear": 0.0014710923825762196
+      "dominantRms": 0.0011171787725418143,
+      "radiusDeviation": 2.2325891135821507e-15,
+      "chordSagittaIfLinear": 0.001136958113479615
     },
     {
       "bone": "rightRingDistal",
       "axis": "flexion",
-      "clinical": 53.1602,
-      "rig": 46.839800000000004,
+      "clinical": 43.1602,
+      "rig": 36.839800000000004,
       "exclusiveVertices": 317,
-      "exclusiveRms": 1.899241890599702e-15,
-      "exclusiveDegrees": 46.83980000000003,
+      "exclusiveRms": 1.2962471290399607e-15,
+      "exclusiveDegrees": 36.83980000000002,
       "dominantVertices": 623,
-      "dominantRms": 0.0009600614730179958,
-      "radiusDeviation": 1.6792123247455493e-15,
-      "chordSagittaIfLinear": 0.002227809502081324
+      "dominantRms": 0.0007844793108510451,
+      "radiusDeviation": 2.5951463200613034e-15,
+      "chordSagittaIfLinear": 0.0013854601499750452
     },
     {
       "bone": "rightLittleProximal",
       "axis": "flexion",
-      "clinical": 58.9977,
-      "rig": 41.002300000000005,
+      "clinical": 53.9977,
+      "rig": 36.002300000000005,
       "exclusiveVertices": 0,
       "exclusiveRms": null,
       "exclusiveDegrees": null,
-      "dominantVertices": 533,
-      "dominantRms": 0.001397742431175548,
+      "dominantVertices": 602,
+      "dominantRms": 0.0011955501722886214,
       "radiusDeviation": 0,
       "chordSagittaIfLinear": 0
     },
@@ -945,22 +987,22 @@
       "exclusiveRms": null,
       "exclusiveDegrees": null,
       "dominantVertices": 464,
-      "dominantRms": 0.0009363671976035539,
+      "dominantRms": 0.0007786574857080415,
       "radiusDeviation": 0,
       "chordSagittaIfLinear": 0
     },
     {
       "bone": "rightLittleDistal",
       "axis": "flexion",
-      "clinical": 49.50895,
-      "rig": 50.49105,
+      "clinical": 39.50895,
+      "rig": 40.49105,
       "exclusiveVertices": 318,
-      "exclusiveRms": 9.490792267279045e-16,
-      "exclusiveDegrees": 50.491050000000094,
+      "exclusiveRms": 2.04232511163915e-15,
+      "exclusiveDegrees": 40.49105000000014,
       "dominantVertices": 622,
-      "dominantRms": 0.0008535133933482047,
-      "radiusDeviation": 1.4727802311043092e-15,
-      "chordSagittaIfLinear": 0.0019266040782226497
+      "dominantRms": 0.0007015481654431021,
+      "radiusDeviation": 2.7200464103316335e-15,
+      "chordSagittaIfLinear": 0.001246223723437042
     }
   ],
   "ranges": [
@@ -1158,8 +1200,8 @@
           "max": 30
         },
         "abduction": {
-          "min": -30,
-          "max": 30
+          "min": -10,
+          "max": 40
         },
         "twist": null
       },
@@ -1174,7 +1216,9 @@
         },
         "twist": null
       },
-      "differs": []
+      "differs": [
+        "abduction"
+      ]
     },
     {
       "bone": "leftUpperArm",
@@ -1184,7 +1228,7 @@
           "max": 180
         },
         "abduction": {
-          "min": -30,
+          "min": -10,
           "max": 180
         },
         "twist": {
@@ -1208,7 +1252,9 @@
         },
         "swingDeg": 180
       },
-      "differs": []
+      "differs": [
+        "abduction"
+      ]
     },
     {
       "bone": "leftLowerArm",
@@ -1276,14 +1322,14 @@
           "max": 125
         },
         "abduction": {
-          "min": -30,
+          "min": -10,
           "max": 45
         },
         "twist": {
           "min": -45,
           "max": 45
         },
-        "swingDeg": 120
+        "swingDeg": 125
       },
       "engine": {
         "flexion": {
@@ -1301,7 +1347,8 @@
         "swingDeg": 120
       },
       "differs": [
-        "flexion"
+        "flexion",
+        "abduction"
       ]
     },
     {
@@ -1358,8 +1405,8 @@
       "bone": "leftToes",
       "basis": {
         "flexion": {
-          "min": -40,
-          "max": 80
+          "min": -45,
+          "max": 70
         },
         "abduction": null,
         "twist": null
@@ -1372,14 +1419,16 @@
         "abduction": null,
         "twist": null
       },
-      "differs": []
+      "differs": [
+        "flexion"
+      ]
     },
     {
       "bone": "leftThumbMetacarpal",
       "basis": {
         "flexion": {
           "min": -20,
-          "max": 100
+          "max": 15
         },
         "abduction": null,
         "twist": null
@@ -1392,14 +1441,16 @@
         "abduction": null,
         "twist": null
       },
-      "differs": []
+      "differs": [
+        "flexion"
+      ]
     },
     {
       "bone": "leftThumbProximal",
       "basis": {
         "flexion": {
-          "min": -20,
-          "max": 100
+          "min": -10,
+          "max": 60
         },
         "abduction": null,
         "twist": null
@@ -1412,14 +1463,16 @@
         "abduction": null,
         "twist": null
       },
-      "differs": []
+      "differs": [
+        "flexion"
+      ]
     },
     {
       "bone": "leftThumbDistal",
       "basis": {
         "flexion": {
           "min": -20,
-          "max": 100
+          "max": 80
         },
         "abduction": null,
         "twist": null
@@ -1432,14 +1485,16 @@
         "abduction": null,
         "twist": null
       },
-      "differs": []
+      "differs": [
+        "flexion"
+      ]
     },
     {
       "bone": "leftIndexProximal",
       "basis": {
         "flexion": {
           "min": -20,
-          "max": 100
+          "max": 90
         },
         "abduction": null,
         "twist": null
@@ -1452,13 +1507,15 @@
         "abduction": null,
         "twist": null
       },
-      "differs": []
+      "differs": [
+        "flexion"
+      ]
     },
     {
       "bone": "leftIndexIntermediate",
       "basis": {
         "flexion": {
-          "min": -20,
+          "min": 0,
           "max": 100
         },
         "abduction": null,
@@ -1472,14 +1529,16 @@
         "abduction": null,
         "twist": null
       },
-      "differs": []
+      "differs": [
+        "flexion"
+      ]
     },
     {
       "bone": "leftIndexDistal",
       "basis": {
         "flexion": {
-          "min": -20,
-          "max": 100
+          "min": -10,
+          "max": 80
         },
         "abduction": null,
         "twist": null
@@ -1492,14 +1551,16 @@
         "abduction": null,
         "twist": null
       },
-      "differs": []
+      "differs": [
+        "flexion"
+      ]
     },
     {
       "bone": "leftMiddleProximal",
       "basis": {
         "flexion": {
           "min": -20,
-          "max": 100
+          "max": 90
         },
         "abduction": null,
         "twist": null
@@ -1512,13 +1573,15 @@
         "abduction": null,
         "twist": null
       },
-      "differs": []
+      "differs": [
+        "flexion"
+      ]
     },
     {
       "bone": "leftMiddleIntermediate",
       "basis": {
         "flexion": {
-          "min": -20,
+          "min": 0,
           "max": 100
         },
         "abduction": null,
@@ -1532,14 +1595,16 @@
         "abduction": null,
         "twist": null
       },
-      "differs": []
+      "differs": [
+        "flexion"
+      ]
     },
     {
       "bone": "leftMiddleDistal",
       "basis": {
         "flexion": {
-          "min": -20,
-          "max": 100
+          "min": -10,
+          "max": 80
         },
         "abduction": null,
         "twist": null
@@ -1552,14 +1617,16 @@
         "abduction": null,
         "twist": null
       },
-      "differs": []
+      "differs": [
+        "flexion"
+      ]
     },
     {
       "bone": "leftRingProximal",
       "basis": {
         "flexion": {
           "min": -20,
-          "max": 100
+          "max": 90
         },
         "abduction": null,
         "twist": null
@@ -1572,13 +1639,15 @@
         "abduction": null,
         "twist": null
       },
-      "differs": []
+      "differs": [
+        "flexion"
+      ]
     },
     {
       "bone": "leftRingIntermediate",
       "basis": {
         "flexion": {
-          "min": -20,
+          "min": 0,
           "max": 100
         },
         "abduction": null,
@@ -1592,14 +1661,16 @@
         "abduction": null,
         "twist": null
       },
-      "differs": []
+      "differs": [
+        "flexion"
+      ]
     },
     {
       "bone": "leftRingDistal",
       "basis": {
         "flexion": {
-          "min": -20,
-          "max": 100
+          "min": -10,
+          "max": 80
         },
         "abduction": null,
         "twist": null
@@ -1612,14 +1683,16 @@
         "abduction": null,
         "twist": null
       },
-      "differs": []
+      "differs": [
+        "flexion"
+      ]
     },
     {
       "bone": "leftLittleProximal",
       "basis": {
         "flexion": {
           "min": -20,
-          "max": 100
+          "max": 90
         },
         "abduction": null,
         "twist": null
@@ -1632,13 +1705,15 @@
         "abduction": null,
         "twist": null
       },
-      "differs": []
+      "differs": [
+        "flexion"
+      ]
     },
     {
       "bone": "leftLittleIntermediate",
       "basis": {
         "flexion": {
-          "min": -20,
+          "min": 0,
           "max": 100
         },
         "abduction": null,
@@ -1652,14 +1727,16 @@
         "abduction": null,
         "twist": null
       },
-      "differs": []
+      "differs": [
+        "flexion"
+      ]
     },
     {
       "bone": "leftLittleDistal",
       "basis": {
         "flexion": {
-          "min": -20,
-          "max": 100
+          "min": -10,
+          "max": 80
         },
         "abduction": null,
         "twist": null
@@ -1672,7 +1749,9 @@
         "abduction": null,
         "twist": null
       },
-      "differs": []
+      "differs": [
+        "flexion"
+      ]
     },
     {
       "bone": "rightShoulder",
@@ -1682,8 +1761,8 @@
           "max": 30
         },
         "abduction": {
-          "min": -30,
-          "max": 30
+          "min": -10,
+          "max": 40
         },
         "twist": null
       },
@@ -1698,7 +1777,9 @@
         },
         "twist": null
       },
-      "differs": []
+      "differs": [
+        "abduction"
+      ]
     },
     {
       "bone": "rightUpperArm",
@@ -1708,7 +1789,7 @@
           "max": 180
         },
         "abduction": {
-          "min": -30,
+          "min": -10,
           "max": 180
         },
         "twist": {
@@ -1732,7 +1813,9 @@
         },
         "swingDeg": 180
       },
-      "differs": []
+      "differs": [
+        "abduction"
+      ]
     },
     {
       "bone": "rightLowerArm",
@@ -1800,14 +1883,14 @@
           "max": 125
         },
         "abduction": {
-          "min": -30,
+          "min": -10,
           "max": 45
         },
         "twist": {
           "min": -45,
           "max": 45
         },
-        "swingDeg": 120
+        "swingDeg": 125
       },
       "engine": {
         "flexion": {
@@ -1825,7 +1908,8 @@
         "swingDeg": 120
       },
       "differs": [
-        "flexion"
+        "flexion",
+        "abduction"
       ]
     },
     {
@@ -1882,8 +1966,8 @@
       "bone": "rightToes",
       "basis": {
         "flexion": {
-          "min": -40,
-          "max": 80
+          "min": -45,
+          "max": 70
         },
         "abduction": null,
         "twist": null
@@ -1896,14 +1980,16 @@
         "abduction": null,
         "twist": null
       },
-      "differs": []
+      "differs": [
+        "flexion"
+      ]
     },
     {
       "bone": "rightThumbMetacarpal",
       "basis": {
         "flexion": {
           "min": -20,
-          "max": 100
+          "max": 15
         },
         "abduction": null,
         "twist": null
@@ -1916,14 +2002,16 @@
         "abduction": null,
         "twist": null
       },
-      "differs": []
+      "differs": [
+        "flexion"
+      ]
     },
     {
       "bone": "rightThumbProximal",
       "basis": {
         "flexion": {
-          "min": -20,
-          "max": 100
+          "min": -10,
+          "max": 60
         },
         "abduction": null,
         "twist": null
@@ -1936,14 +2024,16 @@
         "abduction": null,
         "twist": null
       },
-      "differs": []
+      "differs": [
+        "flexion"
+      ]
     },
     {
       "bone": "rightThumbDistal",
       "basis": {
         "flexion": {
           "min": -20,
-          "max": 100
+          "max": 80
         },
         "abduction": null,
         "twist": null
@@ -1956,14 +2046,16 @@
         "abduction": null,
         "twist": null
       },
-      "differs": []
+      "differs": [
+        "flexion"
+      ]
     },
     {
       "bone": "rightIndexProximal",
       "basis": {
         "flexion": {
           "min": -20,
-          "max": 100
+          "max": 90
         },
         "abduction": null,
         "twist": null
@@ -1976,13 +2068,15 @@
         "abduction": null,
         "twist": null
       },
-      "differs": []
+      "differs": [
+        "flexion"
+      ]
     },
     {
       "bone": "rightIndexIntermediate",
       "basis": {
         "flexion": {
-          "min": -20,
+          "min": 0,
           "max": 100
         },
         "abduction": null,
@@ -1996,14 +2090,16 @@
         "abduction": null,
         "twist": null
       },
-      "differs": []
+      "differs": [
+        "flexion"
+      ]
     },
     {
       "bone": "rightIndexDistal",
       "basis": {
         "flexion": {
-          "min": -20,
-          "max": 100
+          "min": -10,
+          "max": 80
         },
         "abduction": null,
         "twist": null
@@ -2016,14 +2112,16 @@
         "abduction": null,
         "twist": null
       },
-      "differs": []
+      "differs": [
+        "flexion"
+      ]
     },
     {
       "bone": "rightMiddleProximal",
       "basis": {
         "flexion": {
           "min": -20,
-          "max": 100
+          "max": 90
         },
         "abduction": null,
         "twist": null
@@ -2036,13 +2134,15 @@
         "abduction": null,
         "twist": null
       },
-      "differs": []
+      "differs": [
+        "flexion"
+      ]
     },
     {
       "bone": "rightMiddleIntermediate",
       "basis": {
         "flexion": {
-          "min": -20,
+          "min": 0,
           "max": 100
         },
         "abduction": null,
@@ -2056,14 +2156,16 @@
         "abduction": null,
         "twist": null
       },
-      "differs": []
+      "differs": [
+        "flexion"
+      ]
     },
     {
       "bone": "rightMiddleDistal",
       "basis": {
         "flexion": {
-          "min": -20,
-          "max": 100
+          "min": -10,
+          "max": 80
         },
         "abduction": null,
         "twist": null
@@ -2076,14 +2178,16 @@
         "abduction": null,
         "twist": null
       },
-      "differs": []
+      "differs": [
+        "flexion"
+      ]
     },
     {
       "bone": "rightRingProximal",
       "basis": {
         "flexion": {
           "min": -20,
-          "max": 100
+          "max": 90
         },
         "abduction": null,
         "twist": null
@@ -2096,13 +2200,15 @@
         "abduction": null,
         "twist": null
       },
-      "differs": []
+      "differs": [
+        "flexion"
+      ]
     },
     {
       "bone": "rightRingIntermediate",
       "basis": {
         "flexion": {
-          "min": -20,
+          "min": 0,
           "max": 100
         },
         "abduction": null,
@@ -2116,14 +2222,16 @@
         "abduction": null,
         "twist": null
       },
-      "differs": []
+      "differs": [
+        "flexion"
+      ]
     },
     {
       "bone": "rightRingDistal",
       "basis": {
         "flexion": {
-          "min": -20,
-          "max": 100
+          "min": -10,
+          "max": 80
         },
         "abduction": null,
         "twist": null
@@ -2136,14 +2244,16 @@
         "abduction": null,
         "twist": null
       },
-      "differs": []
+      "differs": [
+        "flexion"
+      ]
     },
     {
       "bone": "rightLittleProximal",
       "basis": {
         "flexion": {
           "min": -20,
-          "max": 100
+          "max": 90
         },
         "abduction": null,
         "twist": null
@@ -2156,13 +2266,15 @@
         "abduction": null,
         "twist": null
       },
-      "differs": []
+      "differs": [
+        "flexion"
+      ]
     },
     {
       "bone": "rightLittleIntermediate",
       "basis": {
         "flexion": {
-          "min": -20,
+          "min": 0,
           "max": 100
         },
         "abduction": null,
@@ -2176,14 +2288,16 @@
         "abduction": null,
         "twist": null
       },
-      "differs": []
+      "differs": [
+        "flexion"
+      ]
     },
     {
       "bone": "rightLittleDistal",
       "basis": {
         "flexion": {
-          "min": -20,
-          "max": 100
+          "min": -10,
+          "max": 80
         },
         "abduction": null,
         "twist": null
@@ -2196,7 +2310,9 @@
         "abduction": null,
         "twist": null
       },
-      "differs": []
+      "differs": [
+        "flexion"
+      ]
     }
   ]
 }

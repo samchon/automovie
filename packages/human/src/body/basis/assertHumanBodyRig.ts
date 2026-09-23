@@ -1,3 +1,4 @@
+import { swingConeAngle } from "@automovie/engine";
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
@@ -16,14 +17,18 @@ const AXES = ["abduction", "twist"] as const;
  * and a swing cone, when declared, must admit every pure-plane extreme of
  * the flexion and abduction ranges.
  * A corrective's joint driver must name a mobile axis with a ramp inside the
- * clinical reach on its side of the rest.
+ * clinical reach on its side of the rest. A coupling must name declared
+ * joints, an open output axis that no coupling drives from or drives twice,
+ * and a finite, strictly increasing curve that starts at zero no lower than
+ * the source's rest elevation and keeps every rest-plus-ordinate inside that
+ * axis's range.
  * Every surface's skin must bind each vertex to four declared joints with
  * weights that sum to one within a micro tolerance (the payload rounds them
  * to seven decimals). A slot the skin names but the joints do not declare is
  * refused, because it would skin to nothing.
  *
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-joints Refuses a rig whose joints, pivots, signs or ranges could not be evaluated as declared.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-joints Checks the tree order, landmark references, frame reference, sign-to-constraint agreement and four-influence unit-sum skin.
+ * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-joints Checks the tree order, landmark references, frame reference, sign-to-constraint agreement, the coupling table's open axes, acyclic sources and in-range curves, and the four-influence unit-sum skin.
  */
 export function assertHumanBodyRig(basis: IAutoMovieHumanBodyBasis): void {
   const landmarks = new Set(basis.landmarks.ids);
@@ -187,6 +192,64 @@ export function assertHumanBodyRig(basis: IAutoMovieHumanBodyBasis): void {
             ` onset ${input.onset} full ${input.full} reach ${reach}`,
         );
     }
+  // A coupling is a declared driver, so everything it names must resolve and
+  // everything it can add must already be admissible: declared source and
+  // output joints, an open output axis (the unconstrained root has none), at
+  // least two finite knots strictly increasing in elevation, the first at or
+  // above the source's rest elevation (the swing cone of its rest angles) with
+  // a zero ordinate so the rest and every pose below it add nothing, and every
+  // rest-plus-ordinate inside the axis's range, so a coupling alone never
+  // produces an angle the pose validator refuses. The rest elevation is read
+  // through the same cone formula the evaluation uses, whose pure-plane
+  // result carries float error (`2 acos(cos 10)` is not exactly 20), so a
+  // first knot authored at the rest angle is admitted within a nanodegree
+  // and the evaluation treats that nanodegree as below the knot. An output joint
+  // that is any coupling's source (its own included) would chain, and a
+  // second coupling into one axis would add twice, so both are refused.
+  const sources = new Set(
+    (basis.couplings ?? []).map((coupling) => coupling.source.bone),
+  );
+  const outputs = new Set<string>();
+  const couplingIds = new Set<string>();
+  for (const coupling of basis.couplings ?? []) {
+    const source = joints.get(coupling.source.bone);
+    const output = joints.get(coupling.output.bone);
+    const range = output?.constraint?.[coupling.output.axis] ?? null;
+    const key = coupling.output.bone + "." + coupling.output.axis;
+    const curve = coupling.curve;
+    if (
+      coupling.id.trim() === "" ||
+      couplingIds.has(coupling.id) ||
+      source === undefined ||
+      output === undefined ||
+      range === null ||
+      sources.has(coupling.output.bone) ||
+      outputs.has(key) ||
+      curve.length < 2 ||
+      curve[0][0] <
+        swingConeAngle(source.neutral.flexion, source.neutral.abduction) -
+          1e-9 ||
+      curve[0][1] !== 0 ||
+      curve.some(
+        ([elevation, degrees], i) =>
+          !Number.isFinite(elevation) ||
+          !Number.isFinite(degrees) ||
+          (i > 0 && elevation <= curve[i - 1][0]) ||
+          output.neutral[coupling.output.axis] + degrees < range.min ||
+          output.neutral[coupling.output.axis] + degrees > range.max,
+      )
+    )
+      throw new Error(
+        "A body coupling needs a unique id, declared joints, an open output axis no coupling drives from or twice, and an increasing curve starting at zero from the source's rest elevation inside the axis's range: " +
+          coupling.id +
+          " " +
+          coupling.source.bone +
+          " -> " +
+          key,
+      );
+    couplingIds.add(coupling.id);
+    outputs.add(key);
+  }
   for (const surface of basis.surfaces) {
     const vertices = surface.positions.length / 3;
     const skin = surface.skin;

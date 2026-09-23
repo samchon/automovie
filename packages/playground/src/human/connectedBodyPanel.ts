@@ -15,6 +15,7 @@ import {
   createHumanFaceEditor,
   measureHumanBodyBasisChannels,
   parseHumanBodyBasisDocument,
+  resolveHumanBodyCouplings,
   serializeHumanBodyBasisDocument,
 } from "@automovie/human";
 import type {
@@ -224,6 +225,8 @@ export function mountConnectedBodyPanel<
         basis: props.basis,
         bone,
         pose: draft.pose ?? [],
+        coupled: resolveHumanBodyCouplings(props.basis, draft.pose ?? [])
+          .contributions,
         onChange: (pose) => {
           void change({ ...structuredClone(draft), pose });
         },

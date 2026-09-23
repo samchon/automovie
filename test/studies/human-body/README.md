@@ -18,7 +18,7 @@ The downloaded files live under the gitignored `.references/` directory at the p
 
 ## Anthropometry
 
-[`anthropometry-percentiles.json`](anthropometry-percentiles.json) is produced by [`test/scripts/body-review/ansur2-percentiles.py`](../../scripts/body-review/ansur2-percentiles.py), which refuses a source CSV whose SHA256 differs from the receipt. For each measurement the body basis exposes as a millimetre channel, or uses to check a joint pivot, it records per sex the sample size, the 5th, 50th and 95th nearest-rank percentiles, the mean and the population standard deviation. Units are millimetres as published; `weightkg` is in tenths of a kilogram.
+[`anthropometry-percentiles.json`](anthropometry-percentiles.json) was produced from the pinned ANSUR II working data by a nearest-rank percentile pass that refused a source CSV whose SHA256 differed from the receipt; the receipt names the producing script and the repository no longer keeps review tooling, so a regeneration re-derives it from the receipt's definitions. For each measurement the body basis exposes as a millimetre channel, or uses to check a joint pivot, it records per sex the sample size, the 5th, 50th and 95th nearest-rank percentiles, the mean and the population standard deviation. Units are millimetres as published; `weightkg` is in tenths of a kilogram.
 
 These distributions decide what a channel's authored endpoints have to reach, not what they are: the endpoints stay the CC0 targets as authored, and a channel whose reach does not cover the 5th to 95th percentile is recorded as such in the basis receipt rather than stretched.
 

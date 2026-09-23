@@ -4,7 +4,11 @@
  * rendering delegate to the same package/viewport owners as the connected
  * face page. The neutral connected face is built once by the face worker and
  * shown seated on the body's head bone, so the whole figure is judged
- * together; it never enters the body document or its export.
+ * together; it never enters the body document or its export. The face
+ * document names the face basis revision read off the head of the basis
+ * asset, so this page loads no face study and never parses the face basis
+ * itself. A companion that cannot be built is reported on the status line and
+ * body editing continues without it.
  */
 import {
   type IAutoMovieHumanBodyBasis,
@@ -25,8 +29,10 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
 import archetypes from "../../../test/studies/human-body/connected-basis/archetypes.json";
-import faceStudies from "../../../test/studies/human-face/connected-basis/global-face/subjects.json";
-import { readConnectedFaceAsset } from "./human/connectedAsset";
+import {
+  readConnectedAssetRevision,
+  readConnectedFaceAsset,
+} from "./human/connectedAsset";
 import { mountConnectedBodyPanel } from "./human/connectedBodyPanel";
 import { createHumanPreviewBuilder } from "./human/previewBuilder";
 import { prepareHumanPreview } from "./human/previewScene";
@@ -59,10 +65,6 @@ async function main(): Promise<void> {
           import.meta.url,
         ),
       ),
-    decode: (bytes) =>
-      new Response(
-        new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip")),
-      ).text(),
   });
   const initial: IAutoMovieHumanBodyBasisDocument = {
     id: "connected-body",
@@ -104,6 +106,33 @@ async function main(): Promise<void> {
     },
     dispose: () => {},
   });
+  // The face document names the face basis revision, which is the id the
+  // basis asset opens with; reading it off the head of the stream is all this
+  // page needs of the face basis. The build is display only, so its failure
+  // settles as a value to report where the body is seated, never as a page
+  // error.
+  const faceReady: Promise<{ group: THREE.Group } | Error> =
+    readConnectedAssetRevision({
+      read: () =>
+        fetch(
+          new URL(
+            "../../../test/studies/human-face/connected-basis/global-face/basis.json.gz",
+            import.meta.url,
+          ),
+        ),
+    })
+      .then((revision) =>
+        face.build({
+          id: "companion-face",
+          name: "companion face",
+          basis: revision,
+          shape: {},
+          expression: {},
+        }),
+      )
+      .catch((error: unknown) =>
+        error instanceof Error ? error : new Error(String(error)),
+      );
   // The face is built in the neutral body's frame, so it is seated relative
   // to the neutral head joint, read off the basis rather than off whichever
   // body happened to be shown first.
@@ -134,7 +163,14 @@ async function main(): Promise<void> {
       .makeTranslation(v(head.posed.position))
       .multiply(new THREE.Matrix4().makeRotationFromQuaternion(rotation))
       .multiply(new THREE.Matrix4().makeTranslation(v(neutralHead).negate()));
+    // This runs after the panel has written this body's status, so a
+    // companion failure is appended to that line rather than overwritten by it.
     void faceReady.then((built) => {
+      if (built instanceof Error) {
+        document.querySelector<HTMLDivElement>("#body-status")!.textContent +=
+          "\nCompanion face unavailable: " + built.message;
+        return;
+      }
       viewport.companion.show(built.group);
       viewport.companion.place(matrix);
     });
@@ -302,15 +338,6 @@ async function main(): Promise<void> {
       },
     },
   );
-  // the face study's documents name the face basis revision the worker
-  // compiled, which is all the neutral companion needs to know about it
-  const faceReady = face.build({
-    id: "companion-face",
-    name: "companion face",
-    basis: faceStudies[0].basis,
-    shape: {},
-    expression: {},
-  });
   Object.assign(window, {
     __connectedBody: {
       snapshot: panel.snapshot,
