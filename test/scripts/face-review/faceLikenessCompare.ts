@@ -22,6 +22,7 @@
 import {
   type IFaceLikenessColour,
   type IFaceLikenessImage,
+  faceLikenessBrowColour,
   faceLikenessCheekColour,
   faceLikenessHairColour,
   faceLikenessIrisColour,
@@ -111,6 +112,9 @@ export interface IFaceLikenessComparison {
     irisLeft: IFaceLikenessColourPair;
     scleraRight: IFaceLikenessColourPair;
     scleraLeft: IFaceLikenessColourPair;
+    /** The darkest tenth of each brow outline, hair excluded. */
+    browRight: IFaceLikenessColourPair;
+    browLeft: IFaceLikenessColourPair;
     /**
      * Cheek over sclera luminance (CIE Y) within one image: exposure and a
      * grey illuminant cancel, so the two sides compare skin albedo.
@@ -193,6 +197,14 @@ export function compareFaceLikeness(props: {
     scleraLeft: pair(
       eye(faceLikenessScleraColour, reference.image, fixed, "left"),
       eye(faceLikenessScleraColour, portrait.image, moving, "left"),
+    ),
+    browRight: pair(
+      faceLikenessBrowColour(reference.image, fixed, "right", reference.hair),
+      faceLikenessBrowColour(portrait.image, moving, "right", portrait.hair),
+    ),
+    browLeft: pair(
+      faceLikenessBrowColour(reference.image, fixed, "left", reference.hair),
+      faceLikenessBrowColour(portrait.image, moving, "left", portrait.hair),
     ),
     hair: pair(
       faceLikenessHairColour(
@@ -340,6 +352,8 @@ export function summarizeFaceLikeness(
     irisDeltaE76: (row) =>
       mean([row.colour.irisRight.deltaE76, row.colour.irisLeft.deltaE76]),
     hairDeltaE76: (row) => row.colour.hair.deltaE76,
+    browDeltaE76: (row) =>
+      mean([row.colour.browRight.deltaE76, row.colour.browLeft.deltaE76]),
     irisMinusSkinLightnessError: (row) =>
       difference(row.colour.irisMinusSkinLightness),
     hairMinusSkinLightnessError: (row) =>

@@ -287,3 +287,68 @@ export function faceLikenessInsidePolygon(
   }
   return inside;
 }
+
+/** Brow outlines (upper edge then lower edge) of the 468-point mesh. */
+export const FACE_LIKENESS_BROW_OUTLINES = {
+  right: [70, 63, 105, 66, 107, 55, 65, 52, 53, 46],
+  left: [300, 293, 334, 296, 336, 285, 295, 282, 283, 276],
+} as const;
+
+/**
+ * Brow fibres of one side: the median CIELAB of the darkest tenth (by L*) of
+ * the pixels inside the brow outline, hair excluded. A brow is fibres over
+ * skin, so its most covered pixels are its darkest for any fibre darker than
+ * the skin beneath, and a pale brow reads close to the skin it barely
+ * covers, which is what the eye sees too. Null when hair (a fringe) covers
+ * more than half of the outline or nothing remains.
+ */
+export function faceLikenessBrowColour(
+  image: IFaceLikenessImage,
+  points: readonly FaceLikenessPoint[],
+  side: "left" | "right",
+  hair?: IFaceLikenessMask,
+): IFaceLikenessColour | null {
+  if (
+    hair !== undefined &&
+    (hair.width !== image.width || hair.height !== image.height)
+  )
+    throw new Error("The hair mask must share the image frame.");
+  const outline = FACE_LIKENESS_BROW_OUTLINES[side].map(
+    (index) => points[index]!,
+  );
+  const xs = outline.map(([x]) => x);
+  const ys = outline.map(([, y]) => y);
+  const labs: [number, number, number][] = [];
+  let inside = 0;
+  for (
+    let y = Math.max(0, Math.floor(Math.min(...ys)));
+    y < Math.min(image.height, Math.ceil(Math.max(...ys)));
+    ++y
+  )
+    for (
+      let x = Math.max(0, Math.floor(Math.min(...xs)));
+      x < Math.min(image.width, Math.ceil(Math.max(...xs)));
+      ++x
+    ) {
+      if (!faceLikenessInsidePolygon(outline, x + 0.5, y + 0.5)) continue;
+      ++inside;
+      const index = y * image.width + x;
+      if (hair?.data[index]) continue;
+      labs.push(
+        faceLikenessSrgbToLab(
+          image.rgb[3 * index]!,
+          image.rgb[3 * index + 1]!,
+          image.rgb[3 * index + 2]!,
+        ),
+      );
+    }
+  if (labs.length === 0 || labs.length < inside / 2) return null;
+  labs.sort((a, b) => a[0] - b[0]);
+  const darkest = labs.slice(0, Math.max(1, Math.floor(labs.length / 10)));
+  return {
+    lab: [0, 1, 2].map(
+      (c) => faceLikenessMedian(darkest.map((lab) => lab[c]!))!,
+    ) as [number, number, number],
+    pixels: darkest.length,
+  };
+}
