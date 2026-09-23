@@ -416,7 +416,8 @@ export function mountConnectedBodyPanel<
     }
   };
   // The body's rest crosses nothing by construction (the shipped census says
-  // so), so the reading is absolute: any pair is a finding.
+  // so, between segments and within each), so the reading is absolute: any
+  // entry is a finding, and a segment named twice passes through itself.
   const line = (entry: IAutoMovieModelCrossing): string =>
     `${entry.part} x ${entry.other} ${entry.triangles}/${entry.otherTriangles}`;
   element("body-contacts").onclick = async () => {
@@ -431,7 +432,7 @@ export function mountConnectedBodyPanel<
         reading === null || reading === undefined
           ? "This build does not supply a crossing reading."
           : reading.length === 0
-            ? "No skin segment crosses another in this pose."
+            ? "No skin segment crosses itself or another in this pose."
             : "Crossing segments: " + reading.map(line).join(", "),
         reading === null || reading === undefined ? "error" : "ready",
       );

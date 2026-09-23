@@ -1,6 +1,7 @@
 import type { IAutoMovieMesh, IAutoMovieModel } from "@automovie/interface";
-import { measureAutoMovieMeshCrossings } from "./measureAutoMovieMeshCrossings";
+
 import { IAutoMovieModelCrossing } from "./IAutoMovieModelCrossing";
+import { measureAutoMovieMeshCrossings } from "./measureAutoMovieMeshCrossings";
 
 const bounds = (mesh: IAutoMovieMesh): { low: number[]; high: number[] } => {
   const low = [Infinity, Infinity, Infinity];
@@ -44,7 +45,21 @@ const bounds = (mesh: IAutoMovieMesh): { low: number[]; high: number[] } => {
  * couple of seconds, which is a deliberate check rather than something to run
  * on every keystroke.
  *
+ * A part is a pair only with the others by default, because a layered part
+ * (a lid wrapping an eyeball) is authored as its own shell. A continuous skin
+ * partitioned into segments is the opposite case: two triangles of one
+ * segment passing through each other (touching toes, a fold swallowing its
+ * own crease) is exactly the penetration the partition was made to find, and
+ * the pairwise count cannot see it. `withinParts` adds, before a part's pairs,
+ * one entry whose `part` and `other` are that part, counting its triangles a
+ * non-identical triangle of the same part crosses. The same strict test
+ * applies: a triangle against itself, triangles sharing an edge or a corner
+ * without folding through each other, and a seam's duplicated corners are
+ * touching, not crossing; a fold through a shared corner still reports
+ * because its other edges cross.
+ *
  * @param model A built model, whatever composed it.
+ * @param options `withinParts` also counts each part against itself.
  * @returns One entry per crossing pair, empty when nothing crosses.
  *
  * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Judges the result of composing operations by topology rather than by whether each operation reported success.
@@ -52,6 +67,7 @@ const bounds = (mesh: IAutoMovieMesh): { low: number[]; high: number[] } => {
  */
 export function measureAutoMovieModelCrossings(
   model: IAutoMovieModel,
+  options: { withinParts?: boolean } = {},
 ): IAutoMovieModelCrossing[] {
   const parts = model.parts
     .filter((part) => part.geometry.type === "mesh")
@@ -61,7 +77,21 @@ export function measureAutoMovieModelCrossings(
       return { id: part.id, mesh, ...bounds(mesh) };
     });
   const contacts: IAutoMovieModelCrossing[] = [];
-  for (let first = 0; first < parts.length; first++)
+  for (let first = 0; first < parts.length; first++) {
+    if (options.withinParts === true) {
+      const own = measureAutoMovieMeshCrossings(
+        parts[first].mesh,
+        parts[first].mesh,
+      );
+      if (own.length > 0)
+        contacts.push({
+          part: parts[first].id,
+          other: parts[first].id,
+          triangles: own.length,
+          otherTriangles: own.length,
+          coplanar: own.filter((entry) => entry.coplanar).length,
+        });
+    }
     for (let second = first + 1; second < parts.length; second++) {
       const here = parts[first];
       const there = parts[second];
@@ -86,5 +116,6 @@ export function measureAutoMovieModelCrossings(
           theirs.filter((entry) => entry.coplanar).length,
       });
     }
+  }
   return contacts;
 }

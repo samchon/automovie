@@ -50,6 +50,9 @@ export function createConnectedBodyRuntime(basis: IAutoMovieHumanBodyBasis) {
       crossings: request.measure
         ? measureAutoMovieModelCrossings(
             segmentHumanBodyModel(basis, built).model,
+            // one continuous skin partitioned by bone: a segment passing
+            // through itself is penetration the pairwise count cannot see
+            { withinParts: true },
           )
         : null,
       extras: { bones: built.bones, landmarks: built.landmarks },
