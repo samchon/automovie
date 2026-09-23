@@ -1,0 +1,47 @@
+{
+  "source": "mpfb-connected-head-2026-09-23-ocular-contact",
+  "revision": "mpfb-connected-head-2026-09-23-dental",
+  "shiftMetres": -0.002827374458312989,
+  "bound": "overbite",
+  "before": {
+    "upperEdge": 3847,
+    "lowerEdge": 2591,
+    "displayMetres": -0.0005626678466796875,
+    "overbiteMetres": 0.0016726255416870117,
+    "overjetMetres": 0.0009626001119613647
+  },
+  "after": {
+    "upperEdge": 3847,
+    "lowerEdge": 2591,
+    "displayMetres": 0.0022647066116333048,
+    "overbiteMetres": 0.004500000000000004,
+    "overjetMetres": 0.0009626001119613647
+  },
+  "movedVertices": 1984,
+  "recorded": "2026-09-23T13:30:29.250Z",
+  "citations": {
+    "display": "Vig RG, Brundo GC. The kinetics of anterior tooth display. J Prosthet Dent 1978;39(5):502-4: maxillary incisor display at rest 1.91 mm (men), 3.40 mm (women).",
+    "displayReplication": "Misch 2011, 104 adults aged 30 to 59: 2.5 mm (men), 3.8 mm (women); as reported by the Oral Health Group clinical guideline for the vertical position of the maxillary incisal edge.",
+    "occlusion": "Ricketts RM, A foundation for cephalometric communication, Am J Orthod 1960;46:330-57, as tabulated by PMC10198690 (J Clin Exp Dent 2023) Table 1: normal overbite 2.5 +- 2 mm, normal overjet 2.5 +- 2.5 mm. Lowering the maxillary arch alone deepens the overbite by the shift and leaves the overjet."
+  },
+  "inputs": {
+    "basis": {
+      "sha256": "a5765d20913eb1129d45822be5939846ca8a4aecd551a31f9448d7d02634a2de",
+      "bytes": 18575778
+    },
+    "subjects": {
+      "sha256": "bc626c7e284776f436803f43f1de14878fedf618ed1cca2f8ab8641ee6a1dd52",
+      "bytes": 164024
+    },
+    "controls": {
+      "sha256": "3f46f27f196667f11c54f73a1d1c21b49d93318688ceb12c63f2cd93550443cc",
+      "bytes": 6349
+    }
+  },
+  "outputs": {
+    "basis": {
+      "sha256": "e6e37a3db32bbf3bbab6cf99bb8d84e7c37c96544a8f15c33dad42b73dab3104",
+      "bytes": 18575966
+    }
+  }
+}
