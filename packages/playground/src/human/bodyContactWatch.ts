@@ -11,8 +11,10 @@ import type { IAutoMovieHumanBodyBasisDocument } from "@automovie/human";
  * once the author has paused for `delayMs`, through the same worker request
  * and segment partition the Check contacts button uses, and appends the
  * result to the status line. A newer intent at any point (a slider moved,
- * a preset chosen) discards the reading, and the preview it would have
- * delayed is never queued behind it for longer than the pause.
+ * a preset chosen) discards the reading. The worker takes the reading in
+ * slices and evaluates a request that arrives between them first, abandoning
+ * the superseded reading (`createConnectedBodyRuntime`), so the next preview
+ * waits at most one slice behind it rather than the whole reading.
  *
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Reports skin passing through skin on every committed body instead of only when the author asks.
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Reads the committed document's contact after a pause and discards the reading when a newer intent supersedes it.
