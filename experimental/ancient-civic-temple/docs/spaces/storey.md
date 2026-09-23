@@ -79,32 +79,34 @@ storey ID `temple-ground`의 부모는 `temple`이다. [건물 연결](building.
 ## 외벽 하단과 지면의 접촉 {#wall-ground-contact}
 
 <!--
-@evidence principles/core/common.md#scope-preservation 네 입면·낮은 마당 벽·현관 후퇴벽과 반환벽에 같은 하단 유도를 적용하고 서비스 문턱도 접지 검사에 포함한다.
-@evidence principles/core/common.md#substantive-completion 외부 접촉선의 최저 지면과 인접 완성면 중 낮은 값에서 바닥 두께를 빼는 하단 계산을 결정한다.
-@evidence principles/core/common.md#declared-basis 실제 높이장은 maps 입력으로 남겨 아직 없는 지면에서 Y값을 발명하지 않고 매입 여유도 구조계산으로 주장하지 않는다.
+@evidence principles/core/common.md#scope-preservation 네 입면·파라펫·낮은 마당 벽·현관 후퇴벽과 반환벽에 같은 하단 유도를 적용하고 서비스 문턱도 접지 검사에 포함한다.
+@evidence principles/core/common.md#substantive-completion 외부 접촉선의 최저 지면과 인접 완성면 중 낮은 값에서 바닥 두께를 빼는 하단 계산과, maps 이전의 잠정 접촉 입력을 결정한다.
+@evidence principles/core/common.md#declared-basis maps 전에는 판정된 정문 도로 접점 Y=-0.24m만 잠정 최저값으로 쓰고 대지 후보나 Y=0을 넣지 않으며 매입 여유도 구조계산으로 주장하지 않는다.
 @evidence principles/design/spaces.md#space-topology 외벽을 기존 평면 안에서 아래로 닫고 지면 아래 연장 때문에 방 cell·보행 support·층을 늘리지 않는다.
-@evidence principles/design/spaces.md#space-boundary-authority maps는 지면, 원래 입면은 벽 실체, 층은 하단 계산만 맡으며 문턱 예약을 기존 바닥에서 받는다.
+@evidence principles/design/spaces.md#space-boundary-authority maps는 지면, 원래 입면은 벽 실체, 층은 하단 계산과 잠정 입력만 맡으며 문턱 예약을 기존 바닥에서 받는다.
 @evidence principles/design/spaces.md#space-verification-address 지면·벽 하단·슬래브를 같은 단면에서 읽어 부유·체적 중첩·묻힌 석단·문 위 벽 띠를 각각 실패로 삼는다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 기단이 지면에 닿아야 한다는 환경 조건을 변하는 지면에 반응하는 공통 외벽 하단 규칙으로 바꾼다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work site의 길 연속성과 기단 접촉을 검토했다. 실제 지면을 후속 maps가 공급하는 인터페이스로 해결되며 미정 높이 때문에 부모에 임의 지형이나 구조 보증을 추가하지 않았다.
-@evidence settings/40-environment.md#site 벽 가장자리 흙과 외부 접근 지면이 실제 외벽에 맞닿도록 접촉선 전체에서 하단을 유도한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 기단이 지면에 닿아야 한다는 환경 조건을 변하는 지면에 반응하는 공통 외벽 하단 규칙과 알려진 최저 접점으로 바꾼다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work site의 길 연속성과 기단 접촉을 검토했다. 실제 지면을 후속 maps가 공급하는 인터페이스와 판정된 건물 접점의 잠정 입력으로 해결되며 부모에 임의 지형이나 구조 보증을 추가하지 않았다.
+@evidence settings/40-environment.md#site 벽 가장자리 흙과 외부 접근 지면이 실제 외벽에 맞닿도록 접촉선 전체에서 하단을 유도하고 알려진 가장 낮은 접점보다 벽을 높게 끝내지 않는다.
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 낮은 마당 벽과 현관 반환부까지 같은 하단 규칙에 포함해 일부 외벽의 부유를 면제하지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 접촉선 최저 지면/인접 완성면 중 낮은 값에서 바닥 두께를 빼도록 계산이 정해져 있다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb maps 지면이 아직 없으므로 하단 Y를 미검증으로 남기고 매입 여유를 구조 보증으로 부풀리지 않는다.
-@evidenceReview principles/design/spaces.md#space-topology #3f8d925 아래 벽 연장은 기존 평면 안이며 방 cell·support·층의 확장으로 해석되지 않는다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 지면은 maps, 실체는 입면, 계산은 storey로 나뉘고 문턱 예약은 기존 바닥에서 받는다.
-@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 묻힌 석단과 문 위 벽 띠도 실패 항목이라 단순한 벽 최저점 검사만으로 완료할 수 없다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 접지 요구에 변화하는 외부 지면을 소비할 공통 하단 유도식을 더했다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 미정 지면을 후속 maps 입력으로 드러냈고 임의 지형이나 지지력 주장을 부모에 추가하지 않았다.
-@evidenceReview settings/40-environment.md#site #f317e20 외벽 접촉선 전체의 지면을 읽도록 해 한 점이 닿았다는 이유로 긴 벽의 부유를 통과시키지 않는다.
+@evidenceReview principles/core/common.md#scope-preservation 파라펫과 낮은 마당 벽, 현관 반환부까지 같은 하단 규칙에 포함해 일부 외벽의 부유를 면제하지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion 하단 유도식과 maps 이전의 잠정 입력이 함께 정해져 지면이 없어도 벽 실체를 만들 입력이 비지 않는다.
+@evidenceReview principles/core/common.md#declared-basis 잠정 입력은 이미 판정된 정문 도로 접점이며 대지 후보·Y=0이 아니라고 구별하고, 실제 하단은 maps 뒤 바뀔 수 있다고 적었다.
+@evidenceReview principles/design/spaces.md#space-topology 아래 벽 연장은 기존 평면 안이며 방 cell·support·층의 확장으로 해석되지 않는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority 지면은 maps, 실체는 입면, 계산과 잠정 입력은 storey로 나뉘고 문턱 예약은 기존 바닥에서 받는다.
+@evidenceReview principles/design/spaces.md#space-verification-address 묻힌 석단과 문 위 벽 띠도 실패 항목이고 잠정 하단의 접촉은 unverified라 단순한 벽 최저점 검사만으로 완료할 수 없다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation 부모의 접지 요구에 변화하는 외부 지면을 소비할 공통 하단 유도식과 최소 매입 깊이의 잠정값을 더했다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work 미정 지면을 maps 입력과 판정된 접점의 잠정값으로 다뤄 임의 지형이나 지지력 주장을 부모에 추가하지 않았다.
+@evidenceReview settings/40-environment.md#site 외벽 접촉선 전체의 지면을 읽고 정문 접점보다 높게 벽을 끝내지 않아 긴 벽의 부유를 통과시키지 않는다.
 -->
 
-[환경의 접지 요구](../settings/40-environment.md#site)를 소비한다. 외부 지면의 높이장은 후속 maps가 소유하며 이 층에서 새 경사나 지형을 만들지 않는다. 실제 외벽 바깥 접촉선을 따라 읽은 지면의 최저 높이와, 외벽에 닿는 바닥·석단의 최저 완성면 중 낮은 값에서 [일반 바닥 두께](#ground-storey)를 뺀 높이를 공통 외벽 하단으로 선택한다. 이 매입 여유는 렌더에서 노출 틈을 남기지 않을 형상 입력이며 지반 지지력·기초 구조계산이나 고대 시공 치수의 주장으로 쓰지 않는다. 아직 지면 산출물이 없으므로 공통 하단의 실제 Y값은 unverified이며 Y=0이나 대지 후보 수치를 대신 넣지 않는다.
+[환경의 접지 요구](../settings/40-environment.md#site)를 소비한다. 외부 지면의 높이장은 후속 maps가 소유하며 이 층에서 새 경사나 지형을 만들지 않는다. 실제 외벽 바깥 접촉선을 따라 읽은 지면의 최저 높이와, 외벽에 닿는 바닥·석단의 최저 완성면 중 낮은 값에서 [일반 바닥 두께](#ground-storey)를 뺀 높이를 공통 외벽 하단으로 선택한다. 이 매입 여유는 렌더에서 노출 틈을 남기지 않을 형상 입력이며 지반 지지력·기초 구조계산이나 고대 시공 치수의 주장으로 쓰지 않는다.
 
-네 외벽과 현관 후퇴벽·반환벽은 같은 하단을 소비해 기존 평면 두께 안에서 지붕/기존 벽 상단까지 닫힌 실체로 이어진다. 낮은 마당 벽도 같은 하단에서 시작하고 상단은 기존 입면을 따른다. 공통 모서리의 아래쪽도 [맞댐](junctions.md#wall-junctions)을 유지한다. 이는 외곽 확대나 새 기단 덩어리의 추가가 아니며, 지하층·통로·관찰 공간을 만들지 않는다. 지면에 묻힌 벽 부분 때문에 방 `cells`나 보행 support를 아래로 늘리지 않는다. 벽 실체와 완결 표면은 원래 입면 owner가 유지하고 이 층은 하단 계산만 소유한다.
+maps의 지면 산출물이 생기기 전에는 이미 판정된 건물 측 최저 외부 접점인 [정문 도로 접점](#ground-storey) Y=-0.24m를 외부 접촉 최저값의 잠정 입력으로 쓴다. 이 값은 대지 후보나 Y=0 일괄값이 아니라 외벽이 적어도 닿아야 하는 알려진 지면 높이다. maps가 더 낮은 접촉을 공급하면 그 값으로 대체되어 벽은 그만큼 더 내려간다. 따라서 현재 공통 하단(입력 산술상 -0.42m)은 최소 매입 깊이이며 실제 접지·매입 결과는 unverified다.
+
+네 외벽과 현관 후퇴벽·반환벽은 같은 하단을 소비해 기존 평면 두께 안에서 지붕/코핑/기존 벽 상단까지 닫힌 실체로 이어진다. 낮은 마당 벽도 같은 하단에서 시작하고 상단은 기존 입면을 따른다. 공통 모서리의 아래쪽도 [맞댐](junctions.md#wall-junctions)을 유지한다. 이는 외곽 확대나 새 기단 덩어리의 추가가 아니며, 지하층·통로·관찰 공간을 만들지 않는다. 지면에 묻힌 벽 부분 때문에 방 `cells`나 보행 support를 아래로 늘리지 않는다. 벽 실체와 완결 표면은 원래 입면 owner가 유지하고 이 층은 하단 계산만 소유한다.
 
 벽의 아래 연장도 [문턱 슬래브 예약](#threshold-support)을 소비한다. 지면/포장은 건물의 실제 노출 외측 면에서 만나고 방 바닥·중정·현관 석단 위에 중복 지면을 남기지 않는다. 지도와 건물의 접합에서 각 면의 소유를 보존하며 임의의 두 번째 바닥으로 틈을 감추지 않는다.
 

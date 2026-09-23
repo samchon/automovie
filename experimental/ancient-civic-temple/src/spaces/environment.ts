@@ -18,7 +18,7 @@ import {
   edgeInside, planeHeight, rectanglePolygon, type PlanPoint,
 } from "../geometry/planar-domain";
 import { cullCoincidentVerticalFaces } from "../geometry/face-culling";
-import { roofSlabFaces, type UndersideRegion } from "../geometry/roof-solids";
+import { roofSlabFaces, roofStepClosures, type UndersideRegion } from "../geometry/roof-solids";
 import { wallFaces, wallHostOutline, type WallSpec } from "../geometry/wall-solids";
 import { templeInteriorWalls } from "./boundaries";
 import { templePlan as p, templeSpaceHierarchy } from "./building";
@@ -27,7 +27,7 @@ import { templeNorthWalls } from "./facades/north";
 import { templeSouthWalls } from "./facades/south";
 import { templeWestWalls } from "./facades/west";
 import { templeClerestories, templeDoorPassages, templeDoorProfile } from "./openings";
-import { templeRoofEnvelope, templeRoofRules } from "./roofs/assembly";
+import { templeRoofEnvelope } from "./roofs/assembly";
 import { templeAdministration, templeAdministrationCeiling, templeAdministrationPlan } from "./rooms/administration";
 import { templeColonnade, templeColonnadeRegions } from "./rooms/colonnade";
 import { templeCourtyard } from "./rooms/courtyard";
@@ -46,7 +46,6 @@ export interface TempleEnvironmentInput {
 
 export const createTempleEnvironment = (input: TempleEnvironmentInput) => {
   const roof = templeRoofEnvelope();
-  const thickness = templeRoofRules.verticalThickness;
   const floors = createTempleFloors();
   const bottom = templeWallBottom(input.exteriorContactMinimum, exteriorFloorMinimum(floors.inputs));
   const walls: WallSpec[] = [
@@ -61,12 +60,12 @@ export const createTempleEnvironment = (input: TempleEnvironmentInput) => {
     ...walls.map((w) => ({ polygon: w.plan, surface: (owner: string) => `surface.${owner}.bearing` })),
   ];
   const roofFaces = roof.map((patch) => ({
-    owner: patch.owner, faces: roofSlabFaces([patch], thickness, regions),
+    owner: patch.owner, faces: roofSlabFaces([patch], regions),
   }));
-  const roofVisible = cullCoincidentVerticalFaces(roofFaces.flatMap((r) => r.faces));
+  const roofVisible = cullCoincidentVerticalFaces([...roofFaces.flatMap((r) => r.faces), ...roofStepClosures(roof)]);
   const roofOwner = new Map(roofFaces.flatMap((r) => r.faces.map((f) => [f, r.owner] as const)));
   const models: IAutoMovieModel[] = [
-    ...walls.map((w) => surfaceModel(`model.${w.id}`, w.id, cullCoincidentVerticalFaces(wallFaces(w, roof, thickness)))),
+    ...walls.map((w) => surfaceModel(`model.${w.id}`, w.id, cullCoincidentVerticalFaces(wallFaces(w, roof)))),
     ...["roof-sanctuary", "roof-west", "roof-east", "roof-colonnade", "roof-porch"].map((owner) =>
       surfaceModel(`model.${owner}`, owner, roofVisible.filter((f) => (roofOwner.get(f) ?? ownerOf(f.surface)) === owner))),
     surfaceModel("model.floors", "floors", floors.faces.map((f) => ({ surface: f.surface, corners: f.corners }))),
@@ -98,7 +97,7 @@ export const createTempleEnvironment = (input: TempleEnvironmentInput) => {
     return {
       origin: w.axis === "x" ? { x: 0, y: 0, z: mid } : { x: mid, y: 0, z: 0 },
       rotation: w.axis === "x" ? { x: 0, y: 0, z: 0, w: 1 } : { x: 0, y: -Math.SQRT1_2, z: 0, w: Math.SQRT1_2 },
-      outline: wallHostOutline(w, roof, thickness, from, to, mid),
+      outline: wallHostOutline(w, roof, from, to, mid),
       thickness: high - low,
     };
   };
@@ -153,7 +152,7 @@ export const createTempleEnvironment = (input: TempleEnvironmentInput) => {
         width: door.width, clearHeight: door.height, elements: [],
       };
     }),
-    courtyardStep(roof, thickness),
+    courtyardStep(roof),
   ];
   const environment: IAutoMovieBuiltEnvironment = {
     version: 1, id: "temple", units: "meter",
@@ -172,12 +171,12 @@ export const createTempleEnvironment = (input: TempleEnvironmentInput) => {
  * 남쪽 축의 한 단 내려가는 중정 접점(circulation.md의 폭 1.8m 디딤 구간).
  * 유효 높이는 경로 위 실제 합성 지붕 하부에서 읽고, 열린 하늘 구간은 제외한다.
  */
-const courtyardStep = (roof: ReturnType<typeof templeRoofEnvelope>, thickness: number): IAutoMovieBuiltConnector => {
+const courtyardStep = (roof: ReturnType<typeof templeRoofEnvelope>): IAutoMovieBuiltConnector => {
   const route = [{ x: 0, y: y.floor, z: p.courtFront + 0.4 }, { x: 0, y: y.courtyard, z: p.courtFront - 0.4 }];
   const clear = route.flatMap((point) => roof
     .filter((patch) => patch.polygon.every((q, i) =>
       planeHeight(edgeInside(q, patch.polygon[(i + 1) % patch.polygon.length]!), point) >= 0))
-    .map((patch) => planeHeight(patch.height, point) - thickness - point.y));
+    .map((patch) => planeHeight(patch.height, point) - patch.thickness - point.y));
   if (clear.length === 0) throw new Error("temple/environment: 중정 단 위 지붕 하부를 찾지 못했습니다.");
   return {
     id: "connector.courtyard-south-step", kind: "passage", from: "colonnade", to: "courtyard",

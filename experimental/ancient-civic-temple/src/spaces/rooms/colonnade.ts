@@ -8,7 +8,6 @@ import { roomFloorInput } from "../../geometry/floor-input";
 import type { RoofPatch } from "../../geometry/planar-domain";
 import { roofedCells } from "../../geometry/spatial-cells";
 import { templePlan as p } from "../building";
-import { templeRoofRules } from "../roofs/assembly";
 import { templeLevels as y } from "../storey";
 
 export const templeColonnadeRegions = [
@@ -29,6 +28,6 @@ export const templeColonnadeFloor = () => roomFloorInput(
 export const templeColonnade = (roof: readonly RoofPatch[]): IAutoMovieBuiltSpace => ({
   id: "colonnade", kind: "colonnade", parent: y.storey, fidelity: "exact",
   cells: templeColonnadeRegions.flatMap((region) => roofedCells(
-    `colonnade.${region.id}`, region, y.floor, roof, templeRoofRules.verticalThickness,
+    `colonnade.${region.id}`, region, y.floor, roof.filter((patch) => patch.tier === "wing"),
   )),
 });

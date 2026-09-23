@@ -57,10 +57,9 @@ export const levelCell = (
   id, rectanglePolygon(rect), floor, { x: 0, z: 0, constant: ceiling },
 );
 
-/** 실제 합성 지붕 조각별로 분해하고 방 평면 전체의 덮임을 요구한다. */
+/** 실제 합성 지붕 조각별로 분해하고 방 평면 전체의 덮임을 요구한다. 하부는 조각의 수직 두께만큼 낮다. */
 export const roofedCells = (
-  id: string, rect: PlanRectangle, floor: number,
-  roof: readonly RoofPatch[], verticalThickness: number,
+  id: string, rect: PlanRectangle, floor: number, roof: readonly RoofPatch[],
 ): IAutoMovieConvexSpaceCell[] => {
   const bounds = rectanglePolygon(rect);
   let covered = 0;
@@ -69,7 +68,7 @@ export const roofedCells = (
     if (inside.length === 0) return [];
     covered += area(inside);
     return [polygonCell(`${id}.${patch.id}`, inside, floor, {
-      ...patch.height, constant: patch.height.constant - verticalThickness,
+      ...patch.height, constant: patch.height.constant - patch.thickness,
     })];
   });
   if (Math.abs(covered - area(bounds)) > 1e-6) {

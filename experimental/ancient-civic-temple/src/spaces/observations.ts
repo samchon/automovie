@@ -87,7 +87,7 @@ const exteriorObservations = (environment: IAutoMovieBuiltEnvironment): TempleOb
   const center = { x: 0, y: 2.2, z: 0 };
   const out: TempleObservation[] = [{
     id: "exterior.setting", group: "exterior", space: null, role: "setting", label: "외부 setting · 정면 좌측 조감",
-    position: { x: -22, y: 17, z: 30 }, target: { x: 0, y: 1.6, z: 0 }, note: null,
+    position: { x: -8, y: 15, z: 27 }, target: { x: 0, y: 1.2, z: 0.5 }, note: null,
   }];
   for (const face of census?.facades ?? []) {
     const width = Math.max(...face.vertices.map((v) => Math.hypot(v.x - face.centroid.x, v.z - face.centroid.z))) * 2;

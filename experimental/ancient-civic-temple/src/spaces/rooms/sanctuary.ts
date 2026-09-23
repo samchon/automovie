@@ -8,7 +8,6 @@ import type { RoofPatch } from "../../geometry/planar-domain";
 import { roofedCells, thresholdCells } from "../../geometry/spatial-cells";
 import { templePlan as p } from "../building";
 import { templeDoorPassages } from "../openings";
-import { templeRoofRules } from "../roofs/assembly";
 import { templeLevels as y } from "../storey";
 
 export const templeSanctuaryPlan = {
@@ -24,7 +23,7 @@ export const templeSanctuaryFloor = () => roomFloorInput(
 export const templeSanctuary = (roof: readonly RoofPatch[]): IAutoMovieBuiltSpace => ({
   id: "sanctuary", kind: "sanctuary", parent: y.storey, fidelity: "exact",
   cells: [
-    ...roofedCells("sanctuary.body", templeSanctuaryPlan, y.floor, roof, templeRoofRules.verticalThickness),
+    ...roofedCells("sanctuary.body", templeSanctuaryPlan, y.floor, roof.filter((patch) => patch.tier === "sanctuary")),
     ...thresholdCells("sanctuary", templeDoorPassages, y.floor),
   ],
 });

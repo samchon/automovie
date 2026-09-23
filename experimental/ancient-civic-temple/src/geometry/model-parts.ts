@@ -13,13 +13,17 @@ export const surfaceModel = (id: string, name: string, faces: readonly WallFace[
   const surfaces = [...new Set(faces.map((face) => face.surface))].sort((a, b) => a.localeCompare(b));
   return {
     id, name, origin: "generated", skeleton: null, body: null, materials: [], asset: null,
-    parts: surfaces.map((surface) => ({
-      id: surface, name: null, material: null, attachedBone: null, transform: null,
-      geometry: {
-        type: "mesh",
-        mesh: buildAutoMoviePolyhedron(faces.filter((face) => face.surface === surface).map((face) => face.corners)),
-      },
-    })),
+    parts: surfaces.map((surface) => {
+      const corners = faces.filter((face) => face.surface === surface).map((face) => face.corners);
+      try {
+        return {
+          id: surface, name: null, material: null, attachedBone: null, transform: null,
+          geometry: { type: "mesh", mesh: buildAutoMoviePolyhedron(corners) },
+        };
+      } catch (error) {
+        throw new Error(`${id}/${surface}: ${error instanceof Error ? error.message : String(error)}`, { cause: error });
+      }
+    }),
   };
 };
 

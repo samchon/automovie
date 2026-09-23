@@ -2,14 +2,14 @@
  * 뷰어 전송값. 실제 production producer와 공개 engine lowering을 CJS에서
  * 한 번 실행하고, 결과 geometry·배치·공간·관찰을 그대로 클라이언트에 넘긴다.
  * 건물을 다시 만들지 않으며 재료가 결속되지 않은 part는 null로 전달한다.
- * 외부 지면은 maps가 아직 없으므로 공급하지 않고, 외벽 하단 계산에는 현재
- * 판정된 건물 측 최저 접점(정문 도로 Y=-0.24m)을 잠정 입력으로 쓴다.
+ * 외부 지면은 maps가 아직 없으므로 공급하지 않고, 외벽 하단 계산에는 층
+ * 소유의 잠정 외부 접촉(판정된 정문 도로 접점)을 쓴다.
  */
 import { builtEnvironmentBuildingCensus, lowerBuiltEnvironment, tessellateToMesh } from "@automovie/engine";
 import type { IAutoMovieMesh, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import { createTempleEnvironment } from "../spaces/environment";
 import { templeObservations, templeSpaceNames } from "../spaces/observations";
-import { templeLevels } from "../spaces/storey";
+import { templeProvisionalExteriorContact } from "../spaces/storey";
 
 export interface ViewerPart {
   id: string;
@@ -26,7 +26,7 @@ export interface ViewerPlacement {
 }
 
 export const createViewerPayload = () => {
-  const built = createTempleEnvironment({ exteriorContactMinimum: templeLevels.publicRoad });
+  const built = createTempleEnvironment({ exteriorContactMinimum: templeProvisionalExteriorContact() });
   const environment = built.environment;
   const lowered = lowerBuiltEnvironment(environment);
   const models = environment.models.map((model) => ({
@@ -78,6 +78,7 @@ export const createViewerPayload = () => {
       "재료 미결속: materials 층이 아직 열리지 않아 모든 표면을 중성 클레이로 표시합니다.",
       "외부 지면 없음: maps 층 미개시. 외벽 하단은 정문 접점 Y=-0.24m 기준 잠정값 " + built.wallBottom.toFixed(2) + "m입니다.",
       "독립 부재 없음: 기둥·문짝·문틀·기와·수반·집기는 models 층 소유로 아직 없습니다.",
+      "조명 미결정: systems 층 미개시. 뷰어는 설정 주광의 방향·고도(정면 좌측 위 45°)만 따르고 강도·노출은 검토용 기본값입니다.",
     ],
   };
 };

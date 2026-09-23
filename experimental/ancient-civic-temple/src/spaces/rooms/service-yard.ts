@@ -23,7 +23,7 @@ export const templeServiceYardFloor = () => roomFloorInput(
 export const templeServiceYard = (): IAutoMovieBuiltSpace => ({
   id: "service-yard", kind: "service-yard", parent: y.storey, fidelity: "exact",
   cells: [
-    levelCell("service-yard.body", templeServiceYardPlan, y.floor, templeRoofRules.supportHeight),
+    levelCell("service-yard.body", templeServiceYardPlan, y.floor, templeRoofRules.courtEave),
     ...thresholdCells("service-yard", templeDoorPassages, y.floor),
   ],
 });

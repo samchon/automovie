@@ -37,43 +37,46 @@
 ## 박공과 지붕 아래의 닫힌 경계 {#gable-closures}
 
 <!--
-@evidence principles/core/common.md#scope-preservation 날개·제실·포치 박공, 마당-보관실 끝벽과 열린 주랑 위 높이 차이를 각각 폐쇄 owner에 배정한다.
-@evidence principles/core/common.md#substantive-completion 벽 두께 안 roof 하부까지의 상단과 roof-only 높이 차이 폐쇄를 구분한 접점 표를 제공한다.
-@evidence principles/core/common.md#declared-basis 높이와 경사 자체는 합성된 roof를 소비하며 이 표는 기존 벽의 연장과 노출 표면 귀속을 정한다.
-@evidence principles/design/spaces.md#space-topology 마당 앞 높은 끝벽과 주랑 위 열린 접합을 구분해 지붕 접합을 바닥부터 막는 새 벽으로 만들지 않는다.
-@evidence principles/design/spaces.md#space-boundary-authority 박공 외면·실내 하부·roof 끝면의 담당을 기존 입면·방·roof에 돌리고 junctions가 새 표면 owner가 되지 않는다.
-@evidence principles/design/spaces.md#space-verification-address 박공 양면과 하부 단면에 창·문 head를 놓아 누광·벽 돌출·마당 폐쇄·주랑 차단을 각각 찾는다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 박공 및 노출 천장 요구에 벽 연장과 roof 끝면만으로 닫는 접점별 경계를 더한다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work roof-form의 박공과 ceilings의 제실/주랑 노출 하부를 고정 순환에 대조했다. 통행을 막지 않는 roof 높이 차이 폐쇄가 가능해 새 방이나 평천장으로 부모를 고치지 않았다.
-@evidence settings/20-envelope.md#roof-form 처마 기준에서 벽을 수평 절단하지 않고 박공과 경사 roof 하부까지 이어 닫는다.
+@evidence principles/core/common.md#scope-preservation 외쪽 지붕 끝의 파라펫, 제실·동측·포치 박공, 제실 측벽과 떠 있는 처마, 날개 안 높이 차이를 각각 폐쇄 owner에 배정한다.
+@evidence principles/core/common.md#substantive-completion 파라펫이 지붕 위로 솟아 닫는 끝, 벽 두께 안 roof 하부까지의 상단, roof-only 높이 차이 폐쇄와 떠 있는 처마를 구분한 접점 표를 제공한다.
+@evidence principles/core/common.md#declared-basis 높이와 경사는 합성된 roof, 코핑 높이는 남측 입면을 소비하며 이 표는 기존 벽의 연장과 노출 표면 귀속만 정한다.
+@evidence principles/design/spaces.md#space-topology 파라펫·제실 벽·후퇴벽처럼 이미 있는 경계만 연장하고 주랑 위 높이 차이를 바닥부터 막는 새 벽이나 옥상 공간을 만들지 않는다.
+@evidence principles/design/spaces.md#space-boundary-authority 벽 면을 지붕 아래 실내 마감·지붕 두께 안 접면·지붕 위 외면으로 나눠 기존 입면·방·roof에 돌리고 junctions가 새 표면 owner가 되지 않는다.
+@evidence principles/design/spaces.md#space-verification-address 파라펫과 지붕의 만남, 박공 양면과 하부 단면, 제실 처마 아래, 문 head·창을 함께 놓아 누광·벽 돌출·마당 폐쇄·주랑 차단을 찾는다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 파라펫과 박공 요구에 벽 연장·띠 분할·roof 끝면만으로 닫는 접점별 경계를 더한다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work 수리된 roof-form의 파라펫·외쪽·박공과 ceilings의 노출 하부를 고정 순환에 대조했다. 기존 벽 연장과 roof 끝면만으로 닫혀 이 접합이 부모에 추가 결함을 드러내지 않았다.
+@evidence settings/20-envelope.md#roof-form 외쪽 지붕 끝을 코핑 파라펫 뒤에 숨기고 박공 아래 벽은 경사 하부까지 닫는다.
 @evidence settings/20-envelope.md#ceilings 비거주 구조 틈은 추가 실내로 만들지 않고 제실·주랑의 노출 하부를 기존 공간 표면에 남긴다.
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 마당-보관실 끝벽과 포치 뒤 높이차까지 배정해 보이는 정면 박공만 닫지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 벽 연장과 roof 끝면만의 폐쇄를 접점 표로 구별해 열린 주랑의 높이차를 처리한다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 실제 roof 하부가 벽 상단을 정하며 이 H2는 경사/높이를 새로 선택하지 않는다.
-@evidenceReview principles/design/spaces.md#space-topology #3f8d925 주랑 위 구간에는 바닥부터의 벽이 없고 마당 앞 기존 끝벽만 roof 아래까지 이어진다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 박공 양면과 내부 하부를 기존 입면/방/roof로 돌려 junctions가 표면 공동 소유가 되지 않는다.
-@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 창/문 head와 박공 단면을 함께 읽어 벽 돌출·누광·마당 폐쇄·통행 차단을 반증한다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 박공 약속에 기존 벽 범위와 roof-only 폐쇄 범위를 구별한 접점별 결정을 추가했다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 순환을 막지 않고 높이차만 닫는 방법이 있어 새 방이나 평천장을 부모에 요구하지 않았다.
-@evidenceReview settings/20-envelope.md#roof-form #e18ede4 처마 기준에서 벽을 수평 절단하지 않고 각 위치의 경사 하부까지 닫는다.
-@evidenceReview settings/20-envelope.md#ceilings #c397437 낮은 천장 위 빈틈에 내부용 마감/문/관찰 방을 새로 만들지 않아 노출 하부와 비거주 틈을 구별한다.
+@evidenceReview principles/core/common.md#scope-preservation 파라펫 뒤 외쪽 끝과 제실 측벽, 후퇴벽 북면, 떠 있는 처마 아래까지 표에 올려 보이는 정면 박공만 닫는 누락을 막는다.
+@evidenceReview principles/core/common.md#substantive-completion 파라펫 연장·경사 하부 상단·roof-only 끝면·떠 있는 처마를 행별로 구별해 source가 접점마다 닫는 방식을 새로 고르지 않는다.
+@evidenceReview principles/core/common.md#declared-basis 코핑 4.85m는 남측 입면, 지붕 높이는 합성 roof에서 오고 이 H2는 벽의 범위와 면 소유만 적는다.
+@evidenceReview principles/design/spaces.md#space-topology 주랑 위 날개 높이 차이는 roof 끝면으로만 닫고 파라펫·제실 벽·후퇴벽 같은 기존 경계만 올려 새 벽이나 옥상 통로가 없다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority 벽 면을 지붕 선으로 세 띠로 나눠 실내 마감은 방, 지붕 위 외면은 입면에 돌리고 가려진 접면을 노출 마감으로 세지 않는다.
+@evidenceReview principles/design/spaces.md#space-verification-address 파라펫 만남과 제실 처마 아래를 단면 관찰에 넣어 조감에서 가린 누광과 벽 돌출을 반증할 수 있다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation 파라펫·박공 요구에 접점별 벽 연장과 띠 분할, roof-only 폐쇄를 구별한 결정을 추가했다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work 수리된 부모 범위 안에서 기존 경계 연장만으로 모든 끝이 닫혀 새 방·평천장·그래프 변경이 필요하지 않았다.
+@evidenceReview settings/20-envelope.md#roof-form 서측·남측·북측 봉헌실 구간 파라펫이 외쪽 지붕 끝 위로 솟고 박공 아래 벽이 경사 하부까지 닫혀 부모의 파라펫·박공 표현을 따른다.
+@evidenceReview settings/20-envelope.md#ceilings 낮은 천장 위 빈틈에 내부용 마감/문/관찰 방을 새로 만들지 않아 노출 하부와 비거주 틈을 구별한다.
 -->
 
-[지붕 합성](roofs/assembly.md#roof-junctions)의 상면·평행 하부면을 소비한다. 지붕 밑 벽의 상단은 벽 두께 안 각 위치의 실제 지붕 하부까지 닫는다. 처마 기준 높이에서 수평으로 자르거나 그 높이를 경사지붕 위로 돌출시키지 않는다. 아래 표는 기존 경계의 높이와 노출 면을 배정하며 주랑의 열린 cell 사이에 새로운 바닥부터의 막음벽을 만들지 않는다.
+[지붕 합성](roofs/assembly.md#roof-junctions)의 상면·평행 하부면과 [코핑 높이](facades/south.md#south-envelope)를 소비한다. 지붕 밑 벽의 상단은 벽 두께 안 각 위치의 실제 지붕 하부까지 닫고, 외쪽 지붕의 높은 끝이 닿는 외곽 벽은 지붕 위로 코핑까지 솟는 파라펫이다. 지붕에 닿는 벽 면은 지붕 하부 아래의 실내/주랑 마감, 지붕 두께 안의 가려진 접면, 지붕 상면 위의 외면으로 나뉜다. 처마 기준 높이에서 수평으로 자르거나 그 높이를 경사지붕 위로 돌출시키지 않으며 주랑의 열린 cell 사이에 새로운 바닥부터의 막음벽을 만들지 않는다.
 
 | 지붕 끝/접점 | 실체 경계와 노출 표면 소유 |
 | --- | --- |
-| 서측 날개 북·남 박공 | 북·남 외벽의 연장. 바깥은 해당 입면, 아래 방 쪽은 봉헌실/주랑 소유 |
+| 서측 외쪽 지붕의 서·북·남 끝 | 서측 외벽, 북측 외벽의 봉헌실 구간, 남측 외벽이 코핑까지 솟는 파라펫. 지붕 아래는 봉헌실/주랑, 지붕 위 파라펫 뒷면과 코핑은 해당 입면 소유 |
+| 남쪽 주랑 외쪽 지붕의 남쪽 끝과 두 꼬리 | 남측 파라펫과 두 반환벽 파라펫. 반환벽의 주랑 쪽 면은 지붕 아래 주랑, 지붕 위는 남측 입면 소유 |
+| 북쪽 주랑 외쪽 지붕의 북쪽 끝 | boundary-sanctuary-south가 제실 박공 하부까지 솟아 닫음. 주랑 쪽 면은 지붕 아래와 위 모두 주랑, 제실 쪽은 제실 소유 |
+| 서측 외쪽 지붕의 제실 쪽 끝 | 서측 spine의 제실 구간이 제실 박공 하부까지 솟아 닫음. 봉헌실 쪽 면은 지붕 아래 봉헌실, 지붕 위로 드러난 제실 서측벽 외면은 서측 입면 소유 |
 | 제실 북·남 박공 | 북측 외벽과 boundary-sanctuary-south의 연장. 북쪽 바깥은 북측 입면, 남쪽은 주랑, 제실 쪽은 제실 소유 |
-| 동측 날개 북쪽, 마당과 맞닿는 구간 | boundary-yard-storage를 지붕 하부까지 연장. 마당 쪽은 service-yard, 보관실 천장 아래쪽은 storage 소유 |
-| 동측 날개 북쪽, 주랑 위 구간 | 북쪽 주랑 덮개와 합성된 지붕 접합. 낮은 지붕 상면과 높은 지붕 하부 사이의 노출 높이 차이만 동측 roof owner의 외측 끝면으로 닫으며 기존 주랑 cell 사이를 바닥부터 막는 벽은 없음 |
-| 동측 날개 남쪽 박공 | 남측 외벽의 연장. 바깥은 남측 입면, 아래 방 쪽은 관리실/주랑 소유 |
-| 포치 정면 박공 | 포치 수평 보 위 삼각 막음. 남측 입면 소유이며 보 아래 현관 통과 공간은 열림 |
-| 포치 뒤와 남쪽 덮개의 높이 차이 | 현관 후퇴벽·반환벽의 평면 범위 안에서는 기존 벽을 연장해 폐쇄. 그 범위를 넘어선 notch 가장자리는 두 roof 면 사이의 높이 차이만 남쪽 주랑 roof의 끝면으로 닫고 아래 주랑은 열어 둠. 벽 쪽의 현관/주랑 마감과 바깥 면은 기존 소유 유지 |
+| 제실 처마 아래 | 서·남 처마는 봉헌실·북쪽 주랑 지붕 위에, 동쪽 처마는 마당 위에 떠 있음. 처마와 아래 지붕 사이는 외부이며 제실 측벽·남벽의 외면이 실내를 닫음 |
+| 동측 박공 북쪽, 마당과 맞닿는 구간 | boundary-yard-storage를 동측 박공 하부까지 연장. 마당 쪽은 service-yard, 보관실 천장 아래쪽은 storage 소유 |
+| 동측 박공 남쪽 끝과 남동 모서리 | 남측 파라펫이 박공보다 높아 닫음. 동측 외벽의 남동 모서리 칸은 코핑 높이로 올라 파라펫과 동측 처마 벽을 이음. 바깥은 남측·동측 입면 소유 |
+| 포치 박공 | 앞: 기둥 위 보가 받는 삼각 막음(남측 입면 소유), 옆: 두 반환벽 파라펫, 뒤: 현관 후퇴벽이 포치 하부까지 올라 받치고 닫음. 후퇴벽 북면 중 남쪽 외쪽 지붕 위로 드러난 부분은 남측 입면 소유 |
+| 날개 단위 안의 높이 차이 | 높은 조각 owner의 수직 끝면이 낮은 조각 상면까지 닫음. 주랑 cell 사이를 바닥부터 막는 벽은 없음 |
 
-마당의 낮은 북·동 외벽 높이를 보관실 북쪽 박공에 복사하지 않는다. 지붕이 교차하는 곳에서는 합성 뒤 노출된 끝 단면과 표에 명시된 높이 차이를 닫고, 다른 지붕에 붙어 숨은 절단면을 외부 띠로 추가하지 않는다. 낮은 천장 위 구조 빈틈에는 내부용 새 마감·문·층·관찰 방을 만들지 않는다. source에서 접합 계산은 junctions, 벽 실체는 기존 경계, 지붕 실체는 각 roof owner가 받는다.
+마당의 낮은 북·동 외벽 높이를 보관실 북쪽 박공에 복사하지 않는다. 파라펫은 지붕 위 외면과 코핑을 입면에 남기고 그 뒤에 올라갈 공간이나 난간을 만들지 않는다. 다른 지붕에 붙어 숨은 절단면을 외부 띠로 추가하지 않고, 낮은 천장 위 구조 빈틈에는 내부용 새 마감·문·층·관찰 방을 만들지 않는다. source에서 접합 계산은 junctions와 벽 띠 분할, 벽 실체는 기존 경계, 지붕 실체는 각 roof owner가 받는다.
 
-관찰은 모든 박공 끝의 양면·지붕 하부 단면과 마당에서 보관실 북쪽 끝을 올려다보는 위치를 포함한다. 높은 창 void와 문 head의 상단도 이 단면에 함께 놓는다. 누광 틈, 지붕을 뚫는 벽 상단, 마당 하늘의 잘못된 폐쇄, 주랑 통행을 가르는 막음 중 하나라도 있으면 해당 접합과 소비자를 수리한다. 실체·그림자·방 읽힘은 unverified다.
+관찰은 파라펫과 지붕의 만남 전 구간, 모든 박공 끝의 양면·지붕 하부 단면, 제실 처마와 아래 지붕 사이, 마당에서 보관실 북쪽 끝을 올려다보는 위치를 포함한다. 높은 창 void와 문 head의 상단도 이 단면에 함께 놓는다. 누광 틈, 지붕을 뚫는 벽 상단, 코핑 아래로 드러난 지붕 끝, 마당 하늘의 잘못된 폐쇄, 주랑 통행을 가르는 막음 중 하나라도 있으면 해당 접합과 소비자를 수리한다. 실체·그림자·방 읽힘은 source와 GPU 관찰에서 확인한다.

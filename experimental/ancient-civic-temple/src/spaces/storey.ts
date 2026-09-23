@@ -34,3 +34,10 @@ export const templeWallBottom = (
   return Math.min(outsideContactMinimum, adjacentFloorMinimum) -
     templeLevels.slabThickness;
 };
+
+/**
+ * docs/spaces/storey.md#wall-ground-contact의 maps 이전 잠정 외부 접촉 최저값.
+ * 판정된 건물 측 최저 외부 접점(정문 도로)이며 대지 후보나 Y=0 일괄값이 아니다.
+ * maps가 더 낮은 접촉을 공급하면 호출자가 그 값으로 대체한다.
+ */
+export const templeProvisionalExteriorContact = (): number => templeLevels.publicRoad;

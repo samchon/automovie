@@ -6,12 +6,18 @@
  */
 export interface PlanPoint { x: number; z: number }
 export interface HeightPlane { x: number; z: number; constant: number }
+/**
+ * 지붕 상면 조각. tier는 합성 단위(날개 지붕은 서로 합성, 제실·포치는 그
+ * 위에 떠 있는 별도 단위)이고 thickness는 상면에서 하부까지의 수직 두께다.
+ */
 export interface RoofPatch {
   id: string;
   owner: string;
   surface: string;
+  tier: "wing" | "sanctuary" | "porch";
   polygon: PlanPoint[];
   height: HeightPlane;
+  thickness: number;
 }
 export interface PlanRectangle {
   west: number; east: number; north: number; south: number;
@@ -79,6 +85,38 @@ export const partitionPlan = (
     inside = clipPlan(inside, plane);
   }
   return { inside, outside };
+};
+
+/**
+ * 면으로 내보낼 조각의 정리: 0.1mm 이내 중복점과 일직선 점을 없애고
+ * 1mm² 미만 조각은 빈 배열로 돌려준다. 형상 끝선을 옮기지 않는다.
+ */
+export const simplifyPlan = (points: readonly PlanPoint[]): PlanPoint[] => {
+  let ring = points.filter((p, i) => {
+    const next = points[(i + 1) % points.length]!;
+    return Math.hypot(p.x - next.x, p.z - next.z) > 1e-4;
+  });
+  let changed = true;
+  while (changed && ring.length >= 3) {
+    changed = false;
+    for (let i = 0; i < ring.length; ++i) {
+      const a = ring[(i + ring.length - 1) % ring.length]!;
+      const b = ring[i]!;
+      const c = ring[(i + 1) % ring.length]!;
+      const cross = (b.x - a.x) * (c.z - a.z) - (b.z - a.z) * (c.x - a.x);
+      if (Math.abs(cross) < 1e-8) {
+        ring = ring.filter((_, j) => j !== i);
+        changed = true;
+        break;
+      }
+    }
+  }
+  if (ring.length < 3) return [];
+  const doubleArea = ring.reduce((sum, p, i) => {
+    const next = ring[(i + 1) % ring.length]!;
+    return sum + p.x * next.z - next.x * p.z;
+  }, 0);
+  return doubleArea > 2e-6 ? ring : [];
 };
 
 /** 끝점 중복과 면적 0을 제거하며 빈 영역을 삼각형으로 바꾸지 않는다. */

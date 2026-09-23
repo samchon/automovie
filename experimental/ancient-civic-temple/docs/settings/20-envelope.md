@@ -29,28 +29,32 @@
 ## 경사지붕과 처마 {#roof-form}
 
 <!--
-@evidence principles/core/common.md#scope-preservation 낮은 날개·높은 제실 박공·주랑 덮개·열린 중정과 처마 하부까지 지붕이 담당할 면을 정한다.
-@evidence principles/core/common.md#substantive-completion 처마 3.2~3.8m·제실 용마루 5.0~6.2m·경사 18~28도·돌출 0.3~0.6m를 준다.
-@evidence principles/core/common.md#declared-basis 이미지 01·03·04의 실루엣을 따르되 높이와 경사 범위는 저작자의 허용값이다.
-@evidence principles/core/settings.md#fact-status 제시한 높이는 Y=0 기준 설계 범위이지 사진으로 잰 지붕 치수가 아니다.
-@evidence principles/core/settings.md#source-support 곡면 기와와 박공·서까래 끝의 시각 근거를 외관·중정·제실 이미지로 한정한다.
-@evidence principles/core/settings.md#capability-boundary 지붕은 주랑을 가리되 중앙 중정을 덮지 않으며 굴뚝·난간을 임의로 추가하지 않는다.
-@evidence principles/core/settings.md#constraint-sufficiency 범위 내 단면·배수·접합은 지붕 설계가 결정하고 slab 위 무늬로 박공을 대체하지 못한다.
-@evidence principles/core/settings.md#observable-identity 붉은 곡면 기와의 낮은 날개 위로 후면 박공이 솟고 보·서까래·겹친 기와 두께가 아래에서도 읽혀야 한다.
+@evidence principles/core/common.md#scope-preservation 안쪽으로 기우는 외쪽 날개·동측 박공·솟은 제실 박공·파라펫 코핑·포치 박공과 처마 하부까지 지붕이 드러내는 면을 모두 정한다.
+@evidence principles/core/common.md#substantive-completion 처마 지지 3.2~3.8m·코핑 4.5~5.2m·제실 용마루 6.8~7.8m·외쪽 10~16도·박공 18~28도·돌출 0.3~0.6m로 하위 지붕 설계의 선택 범위를 닫는다.
+@evidence principles/core/common.md#declared-basis 파라펫 뒤 외쪽 경사와 동측 가운데 용마루는 이미지 01, 노출 하부는 03·04가 근거이며 수치 범위는 저작자 허용값으로 구분한다.
+@evidence principles/core/settings.md#fact-status 외쪽 10~16도와 제실 6.8~7.8m는 7m 깊이 날개를 파라펫 안에 넣으려는 설계 범위이고 사진에서 잰 물매나 높이가 아니다.
+@evidence principles/core/settings.md#source-support 외관 이미지 01에서 코핑 뒤로 내려오는 서측 기와면과 동측 용마루를 볼 수 있게 가리키되 경사 수치를 그 자료의 측정값으로 제시하지 않는다.
+@evidence principles/core/settings.md#capability-boundary 지붕은 주랑을 덮고 중정을 열어 두며 파라펫을 난간이나 올라갈 공간으로 쓰지 않고 굴뚝을 추가하지 않는다.
+@evidence principles/core/settings.md#constraint-sufficiency 외쪽·박공·파라펫의 구분과 범위가 있어 날개마다 가운데 용마루와 바깥 처마를 둔 해석이나 slab 위 무늬를 결함으로 판정할 수 있다.
+@evidence principles/core/settings.md#observable-identity 코핑을 얹은 높은 회벽 파라펫 뒤로 안쪽 기와 경사가 보이고 그 위로 제실 박공이 가장 높이 솟는 실루엣을 고정한다.
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 지붕 상면만 아니라 처마 아래 보·서까래 끝과 기와 두께까지 보이는 요소로 포함한다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 처마·용마루·경사·돌출의 허용 범위가 있어 slab만 놓는 선택을 초기에 거부할 수 있다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 낮은 날개와 후면 박공은 이미지 근거이며 Y=0 기준 수치는 저작자 허용 범위라고 분리했다.
-@evidenceReview principles/core/settings.md#fact-status #93a284a 제실 5.0~6.2m는 가능한 설계 높이이고 사진의 원래 높이를 복원했다는 결과가 아니다.
-@evidenceReview principles/core/settings.md#source-support #430bca9 01·03·04에서 박공·기와·노출 하부를 확인할 수 있으나 18~28도 경사는 그 자료의 실측값으로 제시하지 않았다.
-@evidenceReview principles/core/settings.md#capability-boundary #83a6f2c 주랑은 덮고 중앙 중정은 완전히 열어 두므로 지붕을 연장해 중정을 실내 홀로 바꾸지 못한다.
-@evidenceReview principles/core/settings.md#constraint-sufficiency #20cf612 접합·배수는 지붕 설계의 결정으로 남기면서 굴뚝·난간을 임의 추가하지 못하도록 예외 경계를 닫았다.
-@evidenceReview principles/core/settings.md#observable-identity #4ccb62e 붉은 곡면 기와의 낮은 날개 위로 제실 박공이 솟는 실루엣을 요구해 동일 높이 상자 지붕을 배제한다.
+@evidenceReview principles/core/common.md#scope-preservation 날개 외쪽 경사와 동측 박공뿐 아니라 파라펫 윗단의 석재 코핑, 포치 박공과 처마 아래 보·서까래 끝까지 지붕 쪽 가시 요소로 남겼다.
+@evidenceReview principles/core/common.md#substantive-completion 코핑 4.5~5.2m와 외쪽 10~16도를 함께 정해 두어 서측 날개를 가운데 용마루로 되돌리거나 코핑 없는 벽 끝으로 처리하는 하위 설계를 여기서 거부할 수 있다.
+@evidenceReview principles/core/common.md#declared-basis 서측 외쪽 경사와 동측 용마루는 이미지 01의 관찰로, 처마 지지·코핑·용마루 수치는 저작자 허용값으로 나뉘어 적혀 있다.
+@evidenceReview principles/core/settings.md#fact-status 제실 용마루 6.8~7.8m와 외쪽 10~16도는 서측 날개 깊이와 코핑 높이를 맞춘 허용 범위로 서술되며, 사진의 지붕을 측량했다는 문장이 없다.
+@evidenceReview principles/core/settings.md#source-support 이미지 01의 서측 코핑과 그 안쪽 기와면을 지목했고 경사 10~16도는 형태 판단에서 고른 범위라고 밝혀 자료가 주지 않은 치수를 끌어오지 않았다.
+@evidenceReview principles/core/settings.md#capability-boundary 파라펫을 벽체 연장으로 한정하고 굴뚝·난간을 막아, 지붕 범위를 늘려 중정을 덮거나 옥상 통로를 만드는 확장을 허용하지 않는다.
+@evidenceReview principles/core/settings.md#constraint-sufficiency 외쪽 날개와 동측 박공이 역할별로 갈려 있어 모든 날개에 같은 박공을 씌운 실루엣도 이 기준으로 불합격시킬 수 있다.
+@evidenceReview principles/core/settings.md#observable-identity 높은 코핑 뒤 안쪽 기와면과 그 위의 가장 높은 제실 박공을 요구해 같은 높이의 상자 지붕이나 바깥 처마만 드러나는 날개 박공을 배제한다.
 -->
 
-근거는 이미지 01·03·04다. 흙빛 붉은 곡면 기와가 낮은 날개 지붕을 덮고 후면 제실의 박공이 그 위로 읽힌다. 중앙 중정은 완전히 열려 있으며 그 둘레의 지붕은 주랑을 비로부터 가린다. 저작자 허용 범위(Y=0 기준): 외벽 처마 높이 3.2~3.8m, 제실 최고 용마루 5.0~6.2m, 경사 18~28도, 처마 돌출 0.3~0.6m. 지붕 설계가 이 범위 안에서 단면·배수·접합을 결정한다. 처마 하부에는 보와 서까래 끝, 기와의 겹침과 두께가 보인다. flat slab 위에 기와 무늬만 올려 박공을 대신하지 않는다. 굴뚝이나 난간은 이 신전의 고정 요소로 요구되지 않아 임의 추가하지 않는다.
+근거는 이미지 01·03·04다. 흙빛 붉은 곡면 기와 지붕은 중정 쪽으로 기울어 주랑 처마에서 빗물을 모으는 안쪽 경사가 기본이다. 이미지 01처럼 서측 날개와 남·북 주랑은 외곽 쪽이 높은 외쪽 지붕이며 그 높은 끝은 정면·서측과 후면 봉헌실 구간의 외곽 파라펫 뒤에 숨는다. 파라펫은 회벽 위에 석재 코핑을 얹은 수평 윗단으로 읽힌다. 동측 업무 날개는 이미지 01의 가운데 용마루 박공이고, 후면 제실의 박공은 코핑보다 높이 솟아 건물에서 가장 높은 매스로 읽힌다. 정면 포치의 작은 박공은 두 파라펫 사이에 물린다. 중앙 중정은 완전히 열려 있으며 그 둘레의 지붕은 주랑을 비로부터 가린다.
+
+저작자 허용 범위(Y=0 기준): 중정 쪽 주랑 처마와 동측 외벽 처마의 지지 상면 3.2~3.8m, 외곽 파라펫 코핑 상단 4.5~5.2m, 제실 최고 용마루 6.8~7.8m, 외쪽 지붕 경사 10~16도, 박공 경사 18~28도, 노출 처마 돌출 0.3~0.6m. 외쪽 지붕의 낮은 경사는 약 7m 깊이의 서측 날개가 코핑 높이 안에 들도록 한 저작자 선택이며 이미지 01의 완만한 외쪽 기와면과 대조한 형태 판단이다. 역사적 물매의 실측이나 방수 계산의 결과가 아니고 기와의 겹침 방식은 후속 모델이 정한다.
+
+지붕 설계가 이 범위 안에서 단면·배수·접합을 결정한다. 처마 하부에는 보와 서까래 끝, 기와의 겹침과 두께가 보인다. flat slab 위에 기와 무늬만 올려 박공이나 외쪽 경사를 대신하지 않는다. 굴뚝이나 난간은 이 신전의 고정 요소로 요구되지 않아 임의 추가하지 않으며 파라펫은 난간이 아니라 외벽의 연장이다.
 
 ## 정면 포치 {#entrance-porch}
 

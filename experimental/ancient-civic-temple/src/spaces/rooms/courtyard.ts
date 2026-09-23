@@ -41,7 +41,7 @@ export const templeCourtyardOwnsCurb = (face: FloorBoundaryFace): boolean => {
 
 export const templeCourtyard = (): IAutoMovieBuiltSpace => ({
   id: "courtyard", kind: "courtyard", parent: y.storey, fidelity: "exact",
-  cells: [levelCell("courtyard.body", templeCourtyardPlan, y.courtyard, templeRoofRules.supportHeight)],
+  cells: [levelCell("courtyard.body", templeCourtyardPlan, y.courtyard, templeRoofRules.courtEave)],
 });
 
 /** 방 경계의 산술 중심과 m 단위 부재 입력. 분수의 구현 완료를 뜻하지 않는다. */

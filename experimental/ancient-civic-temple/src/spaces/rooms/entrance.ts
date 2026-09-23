@@ -9,7 +9,6 @@ import type { RoofPatch } from "../../geometry/planar-domain";
 import { roofedCells, thresholdCells } from "../../geometry/spatial-cells";
 import { templePlan as p } from "../building";
 import { templeDoorPassages } from "../openings";
-import { templeRoofRules } from "../roofs/assembly";
 import { templeLevels as y } from "../storey";
 
 export const templeEntranceSteps = { width: 1.8, tread: 0.35, rise: 0.12 } as const;
@@ -39,7 +38,7 @@ export const templeEntrance = (roof: readonly RoofPatch[]): IAutoMovieBuiltSpace
   id: "entrance", kind: "entrance", parent: y.storey, fidelity: "exact",
   cells: [
     ...templeEntranceFloors().flatMap((region) => roofedCells(
-      `entrance.${region.id}`, region, region.floor, roof, templeRoofRules.verticalThickness,
+      `entrance.${region.id}`, region, region.floor, roof.filter((patch) => patch.tier === "porch"),
     )),
     ...thresholdCells("entrance", templeDoorPassages, y.floor),
   ],

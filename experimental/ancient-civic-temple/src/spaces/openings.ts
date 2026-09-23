@@ -56,22 +56,27 @@ export const templeDoorProfile = (door: DoorPassage): IAutoMovieOpeningProfile =
   ] };
 };
 
-/** 양쪽 박공에서 같은 공간/층 좌표를 소비하는 실제 창 절단 입력. */
-export const templeClerestories = () => ["north", "south"].flatMap((end) =>
-  [-1, 1].map((center) => ({
-    id: `window-sanctuary-${end}-${center < 0 ? "west" : "east"}`,
-    boundary: end === "north" ? "boundary-north.sanctuary" : "boundary-sanctuary-south",
-    wallLow: end === "north" ? p.northOuter : p.sanctuaryFront,
-    wallHigh: end === "north" ? p.northInner : p.northRing,
-    clearWidth: 0.4, clearHeight: 0.4, sill: 4.6, frame: 0.06,
+/**
+ * 제실 박공(북·남, X=±1.0m, sill 4.6m)과 측벽(서·동 spine, Z=-8.0/-5.8m,
+ * sill 4.0m)의 실제 창 절단 입력. profile의 x는 host 길이 좌표다.
+ */
+export const templeClerestories = () => {
+  const window = (id: string, boundary: string, center: number, sill: number, wallLow: number, wallHigh: number) => ({
+    id, boundary, wallLow, wallHigh, clearWidth: 0.4, clearHeight: 0.4, sill, frame: 0.06,
     profile: { outline: [
-      { x: center - 0.4 / 2 - 0.06, y: 4.6 - 0.06 },
-      { x: center + 0.4 / 2 + 0.06, y: 4.6 - 0.06 },
-      { x: center + 0.4 / 2 + 0.06, y: 4.6 + 0.4 + 0.06 },
-      { x: center - 0.4 / 2 - 0.06, y: 4.6 + 0.4 + 0.06 },
+      { x: center - 0.4 / 2 - 0.06, y: sill - 0.06 },
+      { x: center + 0.4 / 2 + 0.06, y: sill - 0.06 },
+      { x: center + 0.4 / 2 + 0.06, y: sill + 0.4 + 0.06 },
+      { x: center - 0.4 / 2 - 0.06, y: sill + 0.4 + 0.06 },
     ] } satisfies IAutoMovieOpeningProfile,
-  })),
-);
+  });
+  return [
+    ...[-1, 1].map((c) => window(`window-sanctuary-north-${c < 0 ? "west" : "east"}`, "boundary-north.sanctuary", c, 4.6, p.northOuter, p.northInner)),
+    ...[-1, 1].map((c) => window(`window-sanctuary-south-${c < 0 ? "west" : "east"}`, "boundary-sanctuary-south", c, 4.6, p.sanctuaryFront, p.northRing)),
+    ...[-8, -5.8].map((z) => window(`window-sanctuary-west-${z < -7 ? "north" : "south"}`, "boundary-west-spine.sanctuary", z, 4, p.westRoom, p.westRing)),
+    ...[-8, -5.8].map((z) => window(`window-sanctuary-east-${z < -7 ? "north" : "south"}`, "boundary-east-spine.sanctuary", z, 4, p.eastRing, p.eastRoom)),
+  ];
+};
 
 /**
  * 벽 실체에서 비울 문 void. 길이 방향은 유효 폭+양쪽 틀, 수직은 문턱

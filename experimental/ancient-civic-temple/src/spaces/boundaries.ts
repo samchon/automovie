@@ -10,7 +10,8 @@ import { templeInteriorWallEnds, templeWallRect } from "./junctions";
 import { templeClerestoryVoidsOn, templeDoorVoidsOn } from "./openings";
 import { templeLevels as y } from "./storey";
 
-const roof = { kind: "roof" } as const;
+const roof = { kind: "roof", tier: "wing" } as const;
+const sanctuary = { kind: "roof", tier: "sanctuary" } as const;
 const wall = (space: string) => `surface.${space}.wall`;
 
 export const templeInteriorWalls = (): WallSpec[] => {
@@ -28,20 +29,22 @@ export const templeInteriorWalls = (): WallSpec[] => {
     {
       ...base, id: "wall.boundary-west-spine", axis: "z",
       plan: templeWallRect(p.westRoom, p.westRing, ends.spine.north, ends.spine.south),
-      voids: templeDoorVoidsOn("boundary-west-spine"),
+      voids: [...templeDoorVoidsOn("boundary-west-spine"), ...templeClerestoryVoidsOn("boundary-west-spine.sanctuary")],
       segments: [
-        { from: p.northInner, to: p.sanctuaryFront, low: wall("offering"), high: wall("sanctuary"), top: roof },
-        { from: p.sanctuaryFront, to: p.northRing, low: wall("offering"), high: "joint", top: roof },
+        { from: p.northInner, to: p.sanctuaryFront, low: wall("offering"), high: wall("sanctuary"), top: sanctuary,
+          lowSplit: { tier: "wing", above: "surface.facade-west.sanctuary-flank" } },
+        { from: p.sanctuaryFront, to: p.northRing, low: wall("offering"), high: "joint", top: sanctuary,
+          lowSplit: { tier: "wing", above: "surface.facade-west.sanctuary-flank" } },
         { from: p.northRing, to: p.southInner, low: wall("offering"), high: wall("colonnade"), top: roof },
       ],
     },
     {
       ...base, id: "wall.boundary-east-spine", axis: "z",
       plan: templeWallRect(p.eastRing, p.eastRoom, ends.spine.north, ends.spine.south),
-      voids: templeDoorVoidsOn("boundary-east-spine"),
+      voids: [...templeDoorVoidsOn("boundary-east-spine"), ...templeClerestoryVoidsOn("boundary-east-spine.sanctuary")],
       segments: [
-        { from: p.northInner, to: p.sanctuaryFront, low: wall("sanctuary"), high: wall("service-yard"), top: roof },
-        { from: p.sanctuaryFront, to: p.northRing, low: "joint", high: wall("service-yard"), top: roof },
+        { from: p.northInner, to: p.sanctuaryFront, low: wall("sanctuary"), high: wall("service-yard"), top: sanctuary },
+        { from: p.sanctuaryFront, to: p.northRing, low: "joint", high: wall("service-yard"), top: sanctuary },
         { from: p.northRing, to: p.yardFront, low: wall("colonnade"), high: wall("service-yard"), top: roof },
         { from: p.yardFront, to: p.storageBack, low: wall("colonnade"), high: "joint", top: roof },
         { from: p.storageBack, to: p.storageFront, low: wall("colonnade"), high: wall("storage"), top: roof },
@@ -60,7 +63,8 @@ export const templeInteriorWalls = (): WallSpec[] => {
       ],
       segments: [{
         from: ends.sanctuarySouth.west, to: ends.sanctuarySouth.east,
-        low: wall("sanctuary"), high: wall("colonnade"), top: roof,
+        low: wall("sanctuary"), high: wall("colonnade"), top: sanctuary,
+        highSplit: { tier: "wing", above: "surface.colonnade.sanctuary-gable" },
       }],
     },
     cross("boundary-yard-storage", p.yardFront, p.storageBack, "service-yard", "storage"),
