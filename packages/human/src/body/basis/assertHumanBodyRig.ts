@@ -3,6 +3,7 @@ import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
 import { humanBodyShoulderOrientationDistance } from "./humanBodyShoulderOrientationDistance";
+import { humanBodyShoulderReaches } from "./humanBodyShoulderReaches";
 
 const AXES = ["abduction", "twist"] as const;
 
@@ -16,7 +17,9 @@ const AXES = ["abduction", "twist"] as const;
  * axes their generic constraint leaves mobile, and hold finite ranges that
  * contain zero and the measured rest angle. An upper arm additionally needs
  * an explicit thorax TT coordinate contract whose neutral elevation and
- * plane match the source landmarks; its old generic axes must be held. The
+ * plane match the source landmarks, and a joint-sinus envelope of at least
+ * three increasing canonical planes whose maxima are positive and in range
+ * and whose region holds that rest; its old generic axes must be held. The
  * swing cone, when declared for another joint, admits each pure-plane extreme.
  * A corrective's joint driver names a mobile generic axis or a TT shoulder
  * elevation/axial axis with a ramp inside its reach. A coupling names declared
@@ -30,7 +33,7 @@ const AXES = ["abduction", "twist"] as const;
  * refused, because it would skin to nothing.
  *
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-joints Refuses a rig whose joints, pivots, signs or ranges could not be evaluated as declared.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-joints Checks the tree, measured upper-arm TT neutrals, held obsolete axes, coupling elevation source and in-range curves, and four-influence unit-sum skin.
+ * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-joints Checks the tree, measured upper-arm TT neutrals and joint-sinus envelopes, held obsolete axes, coupling elevation source and in-range curves, and four-influence unit-sum skin.
  */
 export function assertHumanBodyRig(basis: IAutoMovieHumanBodyBasis): void {
   const landmarks = new Set(basis.landmarks.ids);
@@ -206,6 +209,29 @@ export function assertHumanBodyRig(basis: IAutoMovieHumanBodyBasis): void {
           "Body thorax-tt shoulders need a measured A-pose, held Euler axes, total elevation [0, <=180] and a valid axial range: " +
             joint.bone,
         );
+      // The joint sinus: one maximum per plane, so at least three knots
+      // around the hanging arm, planes on one canonical period, maxima
+      // positive (every plane admits the hanging arm) and inside the total
+      // elevation range, with the measured rest inside the region.
+      const knots = shoulder.range.envelope;
+      if (
+        knots.length < 3 ||
+        knots.some(
+          ([plane, limit], k) =>
+            !Number.isFinite(plane) ||
+            !Number.isFinite(limit) ||
+            plane < -180 ||
+            plane >= 180 ||
+            (k > 0 && plane <= knots[k - 1][0]) ||
+            limit <= 0 ||
+            limit > shoulder.range.elevation.max,
+        ) ||
+        !humanBodyShoulderReaches(shoulder, shoulder.neutral)
+      )
+        throw new Error(
+          "Body thorax-tt shoulders need a joint-sinus envelope of three or more increasing canonical planes with positive in-range maxima that admits the rest: " +
+            joint.bone,
+        );
     }
     declared.add(joint.bone);
   }
@@ -238,15 +264,9 @@ export function assertHumanBodyRig(basis: IAutoMovieHumanBodyBasis): void {
             : { bone: input.shoulder, ...shoulder.neutral };
         if (
           shoulder === undefined ||
-          !Number.isFinite(goal.plane) ||
           goal.plane < -180 ||
           goal.plane >= 180 ||
-          !Number.isFinite(goal.elevation) ||
-          goal.elevation < shoulder.range.elevation.min ||
-          goal.elevation > shoulder.range.elevation.max ||
-          !Number.isFinite(goal.axialRotation) ||
-          goal.axialRotation < shoulder.range.axialRotation.min ||
-          goal.axialRotation > shoulder.range.axialRotation.max ||
+          !humanBodyShoulderReaches(shoulder, goal) ||
           !Number.isFinite(input.innerDegrees) ||
           !Number.isFinite(input.outerDegrees) ||
           input.innerDegrees < 0 ||

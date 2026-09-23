@@ -17,6 +17,7 @@ import type { IAutoMovieHumanBodyBuild } from "../structures/IAutoMovieHumanBody
 import { assertHumanBodyBasis } from "./assertHumanBodyBasis";
 import { evaluateHumanBodyShape } from "./evaluateHumanBodyShape";
 import { humanBodyBasisWeights } from "./humanBodyBasisWeights";
+import { humanBodyShoulderReaches } from "./humanBodyShoulderReaches";
 import { resolveHumanBodyShoulders } from "./resolveHumanBodyShoulders";
 import { resolveHumanBodySkeleton } from "./resolveHumanBodySkeleton";
 import { skinHumanBodySurface } from "./skinHumanBodySurface";
@@ -33,8 +34,9 @@ import { skinHumanBodySurface } from "./skinHumanBodySurface";
  * The document's non-humeral clinical angles gain the declared couplings
  * (`resolveHumanBodyCouplings`, called inside `humanBodyBasisWeights` so the
  * corrective ramps read the same coupled angles) and are validated by the
- * engine. The separately authored TT humerothoracic goals are range checked
- * against the basis and resolved from the thorax after the engine's forward
+ * engine. The separately authored TT humerothoracic goals are checked
+ * against the basis's clinical reach (`humanBodyShoulderReaches`: the plane's
+ * joint-sinus maximum and the axial range) and resolved from the thorax after the engine's forward
  * kinematics and the girdle's movement, then dual
  * quaternion skinning (`skinHumanBodySurface`), then common normals and material
  * regions. The couplings are added before validation so a girdle angle the
@@ -82,10 +84,7 @@ export function createHumanBodyBasisBuilder(
       )?.shoulder;
       if (
         contract === undefined ||
-        shoulder.elevation < contract.range.elevation.min ||
-        shoulder.elevation > contract.range.elevation.max ||
-        shoulder.axialRotation < contract.range.axialRotation.min ||
-        shoulder.axialRotation > contract.range.axialRotation.max
+        !humanBodyShoulderReaches(contract, shoulder)
       )
         throw new Error(
           "Body shoulder goal exceeds its thorax-tt clinical range: " +

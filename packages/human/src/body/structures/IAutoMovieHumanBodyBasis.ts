@@ -230,10 +230,22 @@ export interface IAutoMovieHumanBodyBasis {
         elevation: number;
         axialRotation: number;
       };
-      /** Total humerothoracic elevation and axial rotation in degrees. */
+      /**
+       * Total humerothoracic elevation and axial rotation in degrees, and the
+       * plane-dependent reach (`humanBodyShoulderReaches`).
+       */
       range: {
         elevation: { min: number; max: number };
         axialRotation: { min: number; max: number };
+        /**
+         * The humeral joint sinus as `[plane, maximum total elevation]` knots:
+         * at least three, planes strictly increasing inside [-180, 180),
+         * maxima in (0, `elevation.max`], linear between neighbours and
+         * periodic across the -180/180 seam. A goal is admitted when its
+         * elevation is at most the envelope at its plane; the overhead pole
+         * is admitted when any knot reaches 180.
+         */
+        envelope: [number, number][];
       };
     };
   }[];
