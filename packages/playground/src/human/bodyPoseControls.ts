@@ -26,6 +26,10 @@ const AXES = ["flexion", "abduction", "twist"] as const;
  * the total the builder validates. The slider keeps the document's angle and
  * its range, and a total past the range is refused by the build as the
  * status line reports, never clamped here.
+ * `pose` paints the current rows, while `currentPose` reads the latest draft
+ * when an event fires. The editor may still be building the previous edit;
+ * composing against the render snapshot would discard that pending axis or
+ * another bone's edit.
  *
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Binds each joint's clinical flexion, abduction and twist to bounded inputs that state the rest angle and refuse nothing the range admits.
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Reads ranges and rest angles from the admitted basis, writes only moved joints into the document's sparse pose and prints each coupled addition beside its axis.
@@ -36,6 +40,8 @@ export const renderBodyPoseControls = (props: {
   basis: IAutoMovieHumanBodyBasis;
   bone: AutoMovieHumanoidBone;
   pose: readonly IAutoMovieJointPose[];
+  /** Read the latest draft at event time, including edits still building. */
+  currentPose?: () => readonly IAutoMovieJointPose[];
   /** The package's coupled additions for this draft; absent when the caller evaluated none. */
   coupled?: readonly {
     coupling: string;
@@ -51,7 +57,9 @@ export const renderBodyPoseControls = (props: {
   if (joint === undefined) return;
   const current = props.pose.find((one) => one.bone === props.bone);
   const write = (axis: (typeof AXES)[number], value: number | null): void => {
-    const rest = props.pose.filter((one) => one.bone !== props.bone);
+    const pose = props.currentPose?.() ?? props.pose;
+    const current = pose.find((one) => one.bone === props.bone);
+    const rest = pose.filter((one) => one.bone !== props.bone);
     const next: IAutoMovieJointPose = {
       bone: props.bone,
       flexion: current?.flexion ?? null,

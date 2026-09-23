@@ -21,9 +21,9 @@ const CONVERGENCE = 1e-5;
  *
  * The term table `HUMAN_BODY_SIMPLE_SHAPE` gives every channel its weight as
  * a sum of gains times products of curves over the parameters and the two
- * derived ones (Deurenberg's body fat from the mass and stature, and that
- * fat less the sex's essential fat); a row naming a channel the basis lacks
- * is skipped, so an older revision without the individuality channels still
+ * derived ones (Deurenberg's age-specific body fat from mass and stature, and
+ * that fat less the sex's essential fat); a row naming a channel the basis
+ * lacks is skipped, so an older revision without the individuality channels still
  * expands its macros, and the sum of a channel's rows is saturated once at
  * the channel's envelope, never row by row, because the projection reads an
  * identity back as the first row's inverse of the weight less the other rows,
@@ -34,8 +34,8 @@ const CONVERGENCE = 1e-5;
  * between the samples; then, in rounds until no weight moves, because a
  * girth and the mass change each other, each tape measurement given for its
  * channel's rule and the weight channel for the mass the skin volume
- * encloses at the fat fraction's density over the head-and-neck share. A value
- * outside what the samples reach is refused with the reach, never clamped;
+ * encloses at the fat fraction's density over the age-dependent head-and-neck
+ * share. A value outside what the samples reach is refused with the reach, never clamped;
  * a basis without the solved channels, or a measurement its surface cannot
  * answer, is refused before geometry is kept.
  *
@@ -133,7 +133,8 @@ export function expandHumanBodySimpleShape(
     solve(
       direction.mass(basis, parameters),
       simple.massKilograms,
-      (trial) => measure.mass(measure.volume(basis, trial), density),
+      (trial) =>
+        measure.mass(measure.volume(basis, trial), density, simple.ageYears),
       "mass",
     );
     const moved = Math.max(

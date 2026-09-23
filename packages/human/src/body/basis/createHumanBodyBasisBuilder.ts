@@ -10,12 +10,14 @@ import typia from "typia";
 
 import { humanFaceBasisRegion } from "../../face/basis/humanFaceBasisRegion";
 import { portraitNormals } from "../../face/mesh/portraitNormals";
+import { admitHumanBodyBasisDocument } from "../document/admitHumanBodyBasisDocument";
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanBodyBasisDocument } from "../structures/IAutoMovieHumanBodyBasisDocument";
 import type { IAutoMovieHumanBodyBuild } from "../structures/IAutoMovieHumanBodyBuild";
 import { assertHumanBodyBasis } from "./assertHumanBodyBasis";
 import { evaluateHumanBodyShape } from "./evaluateHumanBodyShape";
 import { humanBodyBasisWeights } from "./humanBodyBasisWeights";
+import { resolveHumanBodyShoulders } from "./resolveHumanBodyShoulders";
 import { resolveHumanBodySkeleton } from "./resolveHumanBodySkeleton";
 import { skinHumanBodySurface } from "./skinHumanBodySurface";
 
@@ -26,13 +28,14 @@ import { skinHumanBodySurface } from "./skinHumanBodySurface";
  * the resident model through the static exporter. Offline modelling tools
  * supply the licensed geometry; none run here and no photograph is needed for
  * replay. The order per document is fixed and is what the specification
- * states: identity, channels, correctives (`evaluateHumanBodyShape`), then
- * landmarks to a rest skeleton (`resolveHumanBodySkeleton`), then the pose,
- * which is the document's clinical angles with the basis's declared
- * couplings added (`resolveHumanBodyCouplings`, called inside
- * `humanBodyBasisWeights` so the corrective ramps read the same coupled
- * angles), validated against each joint's clinical range and resolved by the
- * engine's forward kinematics with the basis's measured signs, then dual
+ * states: channels, correctives (`evaluateHumanBodyShape`), then
+ * landmarks to a rest skeleton (`resolveHumanBodySkeleton`), then the pose.
+ * The document's non-humeral clinical angles gain the declared couplings
+ * (`resolveHumanBodyCouplings`, called inside `humanBodyBasisWeights` so the
+ * corrective ramps read the same coupled angles) and are validated by the
+ * engine. The separately authored TT humerothoracic goals are range checked
+ * against the basis and resolved from the thorax after the engine's forward
+ * kinematics and the girdle's movement, then dual
  * quaternion skinning (`skinHumanBodySurface`), then common normals and material
  * regions. The couplings are added before validation so a girdle angle the
  * document wrote plus the rhythm an elevated arm adds is refused past the
@@ -47,9 +50,9 @@ import { skinHumanBodySurface } from "./skinHumanBodySurface";
  * Skinning does not establish collision-free or physiological movement.
  *
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-connected-basis Evaluates named shape edits on one reusable body prior without source images, refusing a document that names another basis revision.
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-joints Bends joints by clinical angles, the basis's declared couplings added, checked against their ranges and skins the surface with rigid bone transforms.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-basis Runs the identity, channel, corrective, landmark, skeleton, pose and skin order once per document over an admitted basis.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-joints Validates the sparse clinical pose after the couplings are added, resolves it through the engine with the basis's sign frames and recomputes normals after skinning.
+ * @evidence requirements/actors/body-authoring/contract.md#actor-body-joints Bends non-humeral joints by clinical angles and each humerus by its total thorax-relative TT goal, range checks both and skins the resulting transforms.
+ * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-basis Runs the named channel, corrective, landmark, skeleton, pose and skin order once per document over an admitted basis.
+ * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-joints Validates the coupled sparse pose, resolves TT shoulder goals after the girdle and recomputes normals after skinning.
  * @evidenceExclude requirements/actors/body-authoring/README.md#body-requirements This domain index also covers the editing screen, export and census review; the builder owns evaluation, not the complete authoring workflow.
  * @evidenceExclude specifications/asset-and-representation/body-authoring/README.md#body-specifications This index joins evaluation, measurement, document and later editor boundaries; the builder does not own the browser adapter or the review process.
  * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-editor This renderer-independent evaluator exposes no DOM, camera or file picker; the playground body page binds those to it.
@@ -64,8 +67,7 @@ export function createHumanBodyBasisBuilder(
   );
   assertHumanBodyBasis(basis);
   return (inputDocument) => {
-    const document =
-      typia.assertEquals<IAutoMovieHumanBodyBasisDocument>(inputDocument);
+    const document = admitHumanBodyBasisDocument(inputDocument);
     if (
       document.basis !== basis.id ||
       [document.id, document.name].some((id) => id.trim() === "")
@@ -74,7 +76,23 @@ export function createHumanBodyBasisBuilder(
         "Body edits need nonempty identities and the exact compiled basis revision.",
       );
     const state = humanBodyBasisWeights(basis, document);
-    const shaped = evaluateHumanBodyShape(basis, state, document.identity);
+    for (const shoulder of document.shoulders ?? []) {
+      const contract = basis.joints.find(
+        (joint) => joint.bone === shoulder.bone,
+      )?.shoulder;
+      if (
+        contract === undefined ||
+        shoulder.elevation < contract.range.elevation.min ||
+        shoulder.elevation > contract.range.elevation.max ||
+        shoulder.axialRotation < contract.range.axialRotation.min ||
+        shoulder.axialRotation > contract.range.axialRotation.max
+      )
+        throw new Error(
+          "Body shoulder goal exceeds its thorax-tt clinical range: " +
+            shoulder.bone,
+        );
+    }
+    const shaped = evaluateHumanBodyShape(basis, state);
     const { skeleton, rest, frames } = resolveHumanBodySkeleton(
       basis,
       shaped.landmarks,
@@ -97,7 +115,13 @@ export function createHumanBodyBasisBuilder(
         posed: { position: IAutoMovieVector3; rotation: IAutoMovieQuaternion };
       }
     >();
-    for (const resolved of resolvePose(pose, skeleton, undefined, frames))
+    const resolvedBones = resolveHumanBodyShoulders(
+      basis,
+      document.shoulders ?? [],
+      rest,
+      resolvePose(pose, skeleton, undefined, frames),
+    );
+    for (const resolved of resolvedBones)
       transforms.set(resolved.bone, {
         rest: rest.get(resolved.bone)!,
         posed: {

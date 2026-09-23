@@ -5,6 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
+import type { IAutoMovieHumanBodyShoulderPose } from "../structures/IAutoMovieHumanBodyShoulderPose";
 
 /**
  * Add the basis's declared couplings to a document's clinical pose.
@@ -17,13 +18,11 @@ import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBody
  * addition is written back to it: the returned joints are fresh entries, the
  * document's joints copied and the coupled entries added or replaced.
  *
- * Per coupling, in basis order: the source's elevation is the engine's
- * `swingConeAngle` of its clinical flexion and abduction, an absent entry or
- * a null axis standing for the rest angle, so it is the humerothoracic
- * elevation the literature's rhythm is tabulated against and the same
- * measure the engine's cone check reads; the empty document has each joint
- * at its rest elevation (the A-pose arm at about 42 degrees), and a hanging
- * or adducted arm sits below it. The curve then gives zero at and below its
+ * Per coupling, in basis order: an upper-arm source reads the document's TT
+ * total humerothoracic elevation, or its measured A-pose elevation when
+ * omitted. Other sources retain the engine's `swingConeAngle` of clinical
+ * flexion and abduction, with absent or null axes at rest. The curve gives
+ * zero at and below its
  * first knot, which admission places at or above the source's rest
  * elevation so the rest, the hanging arm and every pose below the rest add
  * nothing, the linear interpolation between the two knots that bracket the
@@ -45,11 +44,12 @@ import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBody
  * before, with the coupled angle in the diagnostic.
  *
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-joints Applies the basis's declared joint couplings so an elevated arm moves its girdle with it, adding to the document's clinical angles without storing the addition in the document.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-joints Evaluates each coupling's elevation measure through the swing cone of the clinical angles and its piecewise-linear curve, adding the ordinate to the output axis before the pose is validated.
+ * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-joints Reads the TT total elevation on upper-arm sources and the swing cone on other sources, applies the declared curve to the girdle axis and validates the resulting sum.
  */
 export function resolveHumanBodyCouplings(
   basis: Pick<IAutoMovieHumanBodyBasis, "joints" | "couplings">,
   pose: readonly IAutoMovieJointPose[],
+  shoulders: readonly IAutoMovieHumanBodyShoulderPose[] = [],
 ): {
   /** The document's joints with every nonzero coupled ordinate added; the document's own entries when nothing is coupled. */
   joints: IAutoMovieJointPose[];
@@ -72,10 +72,17 @@ export function resolveHumanBodyCouplings(
   for (const coupling of basis.couplings ?? []) {
     const rest = neutral.get(coupling.source.bone)!;
     const source = pose.find((joint) => joint.bone === coupling.source.bone);
-    const elevation = swingConeAngle(
-      source?.flexion ?? rest.flexion,
-      source?.abduction ?? rest.abduction,
-    );
+    const shoulder = basis.joints.find(
+      (joint) => joint.bone === coupling.source.bone,
+    )?.shoulder;
+    const elevation =
+      shoulder === undefined
+        ? swingConeAngle(
+            source?.flexion ?? rest.flexion,
+            source?.abduction ?? rest.abduction,
+          )
+        : (shoulders.find((one) => one.bone === coupling.source.bone)
+            ?.elevation ?? shoulder.neutral.elevation);
     const degrees = evaluateCurve(coupling.curve, elevation);
     if (degrees === 0) continue;
     const { bone, axis } = coupling.output;

@@ -13,11 +13,11 @@ import { measureHumanBodySection } from "./measureHumanBodySection";
  *
  * The shape is evaluated through the same `humanBodyBasisWeights` and
  * `evaluateHumanBodyShape` the builder uses, without a pose, so the value is
- * the value the built body has at rest. A `height` reads from the surface's
- * lowest point to the mean of its clip ring; a `distance` is the straight
+ * the value the built body has at rest. A `height` reads from the lowest
+ * surface point to the highest clip-ring mean across surfaces; a `distance` is the straight
  * landmark-to-landmark length; a `girth` or `breadth` walks the rule's
- * stations, cuts the surface at each and keeps the largest or smallest
- * closed section as the rule picks, a girth read as a tape reads it (the
+ * stations, cuts every surface at each and selects the closed loop nearest
+ * the station seed before keeping the largest or smallest value, a girth read as a tape reads it (the
  * section's convex hull perimeter, `measureHumanBodySection`). A landmark
  * the basis lacks, or a station set on which no closed loop exists, answers
  * null. This is the instrument the channel measurement report and the simple
@@ -34,16 +34,19 @@ export function evaluateHumanBodyMeasurement(
   const shaped = evaluateHumanBodyShape(
     basis,
     humanBodyBasisWeights(basis, { shape }),
-    undefined,
   );
   if (rule.kind === "height") {
-    const positions = shaped.surfaces[0];
-    const ring = humanBodyClipRing(basis.surfaces[0]);
     let lowest = Infinity;
-    for (let v = 1; v < positions.length; v += 3)
-      lowest = Math.min(lowest, positions[v]);
-    const top =
-      ring.reduce((sum, v) => sum + positions[v * 3 + 1], 0) / ring.length;
+    let top = -Infinity;
+    shaped.surfaces.forEach((positions, index) => {
+      const ring = humanBodyClipRing(basis.surfaces[index], positions);
+      for (let v = 1; v < positions.length; v += 3)
+        lowest = Math.min(lowest, positions[v]);
+      top = Math.max(
+        top,
+        ring.reduce((sum, v) => sum + positions[v * 3 + 1], 0) / ring.length,
+      );
+    });
     return top - lowest;
   }
   const from = shaped.landmarks[rule.from];
@@ -63,13 +66,22 @@ export function evaluateHumanBodyMeasurement(
         ? 0
         : (step * (rule.range[1] - rule.range[0])) / (rule.steps - 1));
     const point = Vector3.add(from, Vector3.scale(axis, fraction));
-    const section = measureHumanBodySection(
-      shaped.surfaces[0],
-      basis.surfaces[0].indices,
-      { point, normal },
-      point,
-    );
-    if (section === null) continue;
+    const section = shaped.surfaces
+      .map((positions, index) =>
+        measureHumanBodySection(
+          positions,
+          basis.surfaces[index].indices,
+          { point, normal },
+          point,
+        ),
+      )
+      .filter((value) => value !== null)
+      .sort(
+        (a, b) =>
+          Vector3.length(Vector3.subtract(a.centroid, point)) -
+          Vector3.length(Vector3.subtract(b.centroid, point)),
+      )[0];
+    if (section === undefined) continue;
     const value = rule.kind === "breadth" ? section.breadth : section.girth;
     if (
       chosen === null ||

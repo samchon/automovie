@@ -13,16 +13,16 @@ type Term = IAutoMovieHumanBodySimpleShapeTable["terms"][number];
  * young 25, old 90), the sarcopenia figure of three to five percent of muscle
  * per decade after thirty, Gonzalez's gluteal ptosis rising with age and
  * weight change, the redistribution of fat from the limbs to the trunk with
- * age, the WHO android/gynoid split by sex, Deurenberg's body fat estimate
- * from BMI, age and sex, and the body fat bands below which the rectus,
- * deltoid and scapular relief show (ACE essential fat by sex, visible-abs
+ * age, the WHO android/gynoid split by sex, Deurenberg's age-specific body
+ * fat estimates from BMI, age and sex, and the body fat bands below which
+ * the rectus, deltoid and scapular relief show (ACE essential fat by sex, visible-abs
  * bands). Stature, mass and the tape measurements are not rows: they are
  * solved by measurement against the basis, with the head allowance, the mass
  * model and the channel each measurement is solved on given here. The body
  * mass index the fat rows read is mass over stature squared.
  *
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-simple-shape Holds the relations a simple parameter expands through, as data a user can read and audit.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-simple-shape Fixes the parameter envelope, the age nodes, the mass model and the term table the expansion evaluates.
+ * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-simple-shape Fixes the parameter envelope, age nodes, age-specific fat and head mass models, and the term table the expansion evaluates.
  */
 export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
   /** Inclusive envelope of each simple parameter; outside it the expansion refuses. */
@@ -64,25 +64,56 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
   /**
    * Body mass from the skin volume: density from the body fat fraction by
    * Siri's equation `fat = 4.95 / density - 4.50`, and the head and neck
-   * segment, which lies above the ring, as 8.1% of body mass (Dempster's
-   * segment table as given by Winter).
+   * segment, which lies above the ring. Jensen's 1989 polynomial regression
+   * (12 boys ages 4–20, 89 annual observations) supplies its child share;
+   * Dempster's adult table as given by Winter supplies 8.1% for adults. The
+   * Jensen curve (R² 0.76, regression error 0.0094 fraction) gives 8.1158%
+   * at 15, almost the adult value. The small 15–16 interpolation joins
+   * distinct study populations for a continuous
+   * editor response; it is an authored bridge, not a measured growth curve.
+   * The boy-only pediatric data also approximate girls here. Segment
+   * boundaries may not coincide exactly with this basis's clip ring.
+   * Source: https://doi.org/10.1016/0021-9290(89)90004-3, Table 1.
    */
   mass: {
     siri: { numerator: 4.95, offset: 4.5 },
-    headAndNeckFraction: 0.081,
+    headAndNeck: {
+      pediatric: {
+        intercept: 0.27881,
+        ageYearsCoefficient: -0.021152,
+        ageYearsSquaredCoefficient: 0.00053168,
+      },
+      adultFraction: 0.081,
+      transitionAgeYears: [15, 16],
+    },
     /** The fat fraction the density model is trusted over. */
     fatFraction: [0.05, 0.5],
   },
   /**
-   * Deurenberg 1991: `fat% = 1.20 BMI + 0.23 age - 10.8 sex01 - 5.4` with
-   * sex01 one for men; and the essential fat each sex carries (ACE), which
-   * the definition gates subtract so one band serves both sexes.
+   * Deurenberg, Weststrate and Seidell 1991, with sex01 one for men: children
+   * through 15 use `1.51 BMI - 0.70 age - 3.6 sex01 + 1.4`; ages 16 and above
+   * use `1.20 BMI + 0.23 age - 10.8 sex01 - 5.4`. Between 15 and 16, blend
+   * both equations' predictions at the requested age to avoid a jump. That
+   * blend is an authored continuity rule, not a third fitted equation. The
+   * child fit has R² 0.38 and SEE 4.4 percentage points (adult: R² 0.79,
+   * SEE 4.1); neither predicts an individual's measured composition. The
+   * sex-specific essential fat (ACE) is subtracted for the definition gates.
+   * Source: https://doi.org/10.1079/BJN19910073.
    */
   fat: {
-    bodyMassIndex: 1.2,
-    ageYears: 0.23,
-    male: -10.8,
-    intercept: -5.4,
+    pediatric: {
+      bodyMassIndex: 1.51,
+      ageYears: -0.7,
+      male: -3.6,
+      intercept: 1.4,
+    },
+    adult: {
+      bodyMassIndex: 1.2,
+      ageYears: 0.23,
+      male: -10.8,
+      intercept: -5.4,
+    },
+    transitionAgeYears: [15, 16],
     essentialBySex: [
       [-1, 13],
       [1, 5],

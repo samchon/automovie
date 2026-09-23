@@ -1,5 +1,6 @@
 import { validateMeshTopology } from "@automovie/engine";
 
+import { humanBodyCappedSurface } from "../simple/humanBodyCappedSurface";
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
 import { assertHumanBodyRig } from "./assertHumanBodyRig";
 import { assertSparseRows } from "./assertSparseRows";
@@ -13,7 +14,9 @@ import { assertSparseRows } from "./assertSparseRows";
  * surface half mirrors the face basis admission (identities, envelopes,
  * correctives, topology, sparse rows, region partitions); the rig half is
  * `assertHumanBodyRig`. A valid basis may still self-intersect; this is not
- * collision detection or anatomical acceptance of the supplied prior.
+ * collision detection or anatomical acceptance of the supplied prior. Each
+ * independently capped surface must bound one measurable solid; two surfaces
+ * may have overlapping bounds, but their capped interiors must not overlap.
  *
  * The endpoint population is the union of channel sides and corrective
  * targets. Every declared endpoint must move at least one resident vertex or
@@ -102,7 +105,15 @@ export function assertHumanBodyBasis(basis: IAutoMovieHumanBodyBasis): void {
         corrective.inputs.map((input) =>
           "bone" in input
             ? input.bone + "." + input.axis + "/" + input.side
-            : input.channel + "/" + input.side,
+            : "shoulder" in input
+              ? input.shoulder +
+                "/orientation/" +
+                input.orientation.plane +
+                "/" +
+                input.orientation.elevation +
+                "/" +
+                input.orientation.axialRotation
+              : input.channel + "/" + input.side,
         ),
       ).size !== corrective.inputs.length
     )
@@ -110,7 +121,7 @@ export function assertHumanBodyBasis(basis: IAutoMovieHumanBodyBasis): void {
         "A body corrective needs distinct drivers, a gain in (0,1] and a named endpoint.",
       );
     for (const input of corrective.inputs) {
-      if ("bone" in input) continue; // joint drivers are admitted with the rig
+      if (!("channel" in input)) continue; // joint and shoulder drivers are admitted with the rig
       const channel = channels.get(input.channel);
       if (channel === undefined || channel[input.side] === null)
         throw new Error(
@@ -144,6 +155,7 @@ export function assertHumanBodyBasis(basis: IAutoMovieHumanBodyBasis): void {
   }
   const resident = new Set<string>();
   const materials = new Set(basis.materials.map((material) => material.id));
+  const solids: ReturnType<typeof humanBodyCappedSurface>[] = [];
   if (basis.surfaces.length === 0)
     throw new Error("A body basis needs resident surfaces.");
   for (const surface of basis.surfaces) {
@@ -178,6 +190,9 @@ export function assertHumanBodyBasis(basis: IAutoMovieHumanBodyBasis): void {
         "Body basis connectivity must be a valid oriented surface: " +
           surface.id,
       );
+    const solid = humanBodyCappedSurface(surface.positions, surface.indices);
+    solid.assertValid();
+    solids.push(solid);
     for (const [name, rows] of Object.entries(surface.targets)) {
       if (!endpoints.has(name))
         throw new Error(
@@ -210,6 +225,15 @@ export function assertHumanBodyBasis(basis: IAutoMovieHumanBodyBasis): void {
     if (triangles.size !== 0)
       throw new Error("Body regions cannot omit resident triangles.");
   }
+  for (let first = 0; first < solids.length; first++)
+    for (let second = first + 1; second < solids.length; second++)
+      if (solids[first].overlaps(solids[second]))
+        throw new Error(
+          "Body basis capped surface interiors must not overlap: " +
+            basis.surfaces[first].id +
+            ", " +
+            basis.surfaces[second].id,
+        );
   const landmarks = basis.landmarks.ids.length;
   for (const [name, rows] of Object.entries(basis.landmarks.targets)) {
     if (!endpoints.has(name))

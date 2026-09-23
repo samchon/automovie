@@ -11,12 +11,12 @@ import { throwsError } from "../internal/predicates";
  * Body documents load and save through one admission with one envelope.
  *
  * Scenarios:
- * 1. A full document (shape, identity, pose, materials) round-trips through
+ * 1. A full document (named shape, pose, materials) round-trips through
  *    serialize and parse unchanged, and omitted optional fields stay omitted.
- * 2. Nonfinite weights, identity rows, pose angles and material scalars refuse
+ * 2. Nonfinite weights, pose angles and material scalars refuse
  *    on both paths; the finite neighbour of each passes.
- * 3. Blank identities, an unknown field and a bone posed twice refuse; JSON
- *    that is not a document refuses.
+ * 3. Blank identifiers, legacy vertex rows, an unknown field and a bone posed
+ *    twice refuse; JSON that is not a document refuses.
  * 4. Text over the 16,777,216 code-unit envelope refuses to parse, and a
  *    document that would serialize past it refuses to save.
  */
@@ -26,7 +26,6 @@ export const test_human_body_basis_document = (): void => {
     name: "Subject",
     basis: "mpfb-connected-body/test",
     shape: { width: 0.25, tall: 1 },
-    identity: { box: [4, 0, 0.01, 0] },
     pose: [{ bone: "spine", flexion: 12.5, abduction: null, twist: -3 }],
     materials: { skin: { color: { r: 0.5, g: 0.4, b: 0.3 }, roughness: 0.6 } },
   };
@@ -54,14 +53,20 @@ export const test_human_body_basis_document = (): void => {
     ],
     ["finite weight", { ...minimal, shape: { width: 5 } }, false],
     [
-      "nonfinite identity row",
-      { ...minimal, identity: { box: [0, Number.NaN, 0, 0] } },
+      "legacy identity row",
+      {
+        ...minimal,
+        identity: { box: [0, 1, 0, 0] },
+      } as unknown as IAutoMovieHumanBodyBasisDocument,
       true,
     ],
     [
-      "finite identity row",
-      { ...minimal, identity: { box: [0, 1, 0, 0] } },
-      false,
+      "alternate vertex row",
+      {
+        ...minimal,
+        vertexOffsets: { box: [0, 1, 0, 0] },
+      } as unknown as IAutoMovieHumanBodyBasisDocument,
+      true,
     ],
     [
       "nonfinite pose angle",
