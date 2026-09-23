@@ -5,8 +5,7 @@
  * 깊이를 잰다. 면이 맞닿는 접촉(깊이 ≤ tolerance)은 겹침이 아니다.
  * 결과는 측정값이며 시각 판정이나 문서 통과를 뜻하지 않는다.
  */
-import { planeHeight, type HeightPlane, type PlanPoint, type RoofPatch } from "../geometry/planar-domain";
-import { rectanglePolygon } from "../geometry/planar-domain";
+import { planeHeight, rectanglePolygon, type HeightPlane, type PlanPoint, type RoofPatch } from "../geometry/planar-domain";
 import { copingCells, plinthCells, type WallTrimInput } from "../geometry/wall-trim";
 import { wallColumns, type WallSpec } from "../geometry/wall-solids";
 import type { FloorInput } from "../geometry/floor-input";
