@@ -45,7 +45,8 @@ const mask = (set: (x: number, y: number) => boolean): IFaceLikenessMask => {
  * Brow fibre colour and its pigment fit.
  * Scenarios:
  * 1. A brow whose outline is one fifth fibre reads the fibre colour, the
- *    darkest tenth of its pixels; a bare brow reads the skin.
+ *    darkest tenth of its pixels, and its tone, the median of the whole
+ *    outline, reads the skin; a bare brow reads the skin.
  * 2. Hair over a third of the outline is left out and the brow still reads;
  *    hair over more than half and an outline with no pixel give no sample;
  *    a mask of another frame refuses.
@@ -64,6 +65,11 @@ export const test_subject_face_likeness_brow = (): void => {
       faceLikenessBrowColour(image, points, "right")!.lab,
       faceLikenessSrgbToLab(...FIBRE),
     ),
+  );
+  const tone = faceLikenessBrowColour(image, points, "right", undefined, 1)!;
+  TestValidator.predicate(
+    "tone is the median",
+    labClose(tone.lab, faceLikenessSrgbToLab(...SKIN)) && tone.pixels > 700,
   );
   TestValidator.predicate(
     "bare",

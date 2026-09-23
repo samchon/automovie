@@ -295,18 +295,23 @@ export const FACE_LIKENESS_BROW_OUTLINES = {
 } as const;
 
 /**
- * Brow fibres of one side: the median CIELAB of the darkest tenth (by L*) of
- * the pixels inside the brow outline, hair excluded. A brow is fibres over
- * skin, so its most covered pixels are its darkest for any fibre darker than
- * the skin beneath, and a pale brow reads close to the skin it barely
- * covers, which is what the eye sees too. Null when hair (a fringe) covers
- * more than half of the outline or nothing remains.
+ * Brow of one side: the median CIELAB of the darkest `share` (by L*) of the
+ * pixels inside the brow outline, hair excluded. With the default tenth it
+ * reads a photograph's fibres: a brow is fibres over skin, so its most
+ * covered pixels are its darkest for any fibre darker than the skin beneath,
+ * and a pale brow reads close to the skin it barely covers. A render is not
+ * read that way, because its sharp card texels shade down to near black
+ * where a photograph blurs fibre into skin; with `share` 1 the median of the
+ * whole outline is the brow's tone as seen, comparable across the two. Null
+ * when hair (a fringe) covers more than half of the outline or nothing
+ * remains.
  */
 export function faceLikenessBrowColour(
   image: IFaceLikenessImage,
   points: readonly FaceLikenessPoint[],
   side: "left" | "right",
   hair?: IFaceLikenessMask,
+  share = 0.1,
 ): IFaceLikenessColour | null {
   if (
     hair !== undefined &&
@@ -344,7 +349,7 @@ export function faceLikenessBrowColour(
     }
   if (labs.length === 0 || labs.length < inside / 2) return null;
   labs.sort((a, b) => a[0] - b[0]);
-  const darkest = labs.slice(0, Math.max(1, Math.floor(labs.length / 10)));
+  const darkest = labs.slice(0, Math.max(1, Math.floor(labs.length * share)));
   return {
     lab: [0, 1, 2].map(
       (c) => faceLikenessMedian(darkest.map((lab) => lab[c]!))!,

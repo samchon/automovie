@@ -112,9 +112,12 @@ export interface IFaceLikenessComparison {
     irisLeft: IFaceLikenessColourPair;
     scleraRight: IFaceLikenessColourPair;
     scleraLeft: IFaceLikenessColourPair;
-    /** The darkest tenth of each brow outline, hair excluded. */
+    /** The darkest tenth of each brow outline, hair excluded: the fibres. */
     browRight: IFaceLikenessColourPair;
     browLeft: IFaceLikenessColourPair;
+    /** The median of each brow outline, hair excluded: the tone as seen. */
+    browToneRight: IFaceLikenessColourPair;
+    browToneLeft: IFaceLikenessColourPair;
     /**
      * Cheek over sclera luminance (CIE Y) within one image: exposure and a
      * grey illuminant cancel, so the two sides compare skin albedo.
@@ -205,6 +208,20 @@ export function compareFaceLikeness(props: {
     browLeft: pair(
       faceLikenessBrowColour(reference.image, fixed, "left", reference.hair),
       faceLikenessBrowColour(portrait.image, moving, "left", portrait.hair),
+    ),
+    browToneRight: pair(
+      faceLikenessBrowColour(
+        reference.image,
+        fixed,
+        "right",
+        reference.hair,
+        1,
+      ),
+      faceLikenessBrowColour(portrait.image, moving, "right", portrait.hair, 1),
+    ),
+    browToneLeft: pair(
+      faceLikenessBrowColour(reference.image, fixed, "left", reference.hair, 1),
+      faceLikenessBrowColour(portrait.image, moving, "left", portrait.hair, 1),
     ),
     hair: pair(
       faceLikenessHairColour(
@@ -352,8 +369,11 @@ export function summarizeFaceLikeness(
     irisDeltaE76: (row) =>
       mean([row.colour.irisRight.deltaE76, row.colour.irisLeft.deltaE76]),
     hairDeltaE76: (row) => row.colour.hair.deltaE76,
-    browDeltaE76: (row) =>
-      mean([row.colour.browRight.deltaE76, row.colour.browLeft.deltaE76]),
+    browToneDeltaE76: (row) =>
+      mean([
+        row.colour.browToneRight.deltaE76,
+        row.colour.browToneLeft.deltaE76,
+      ]),
     irisMinusSkinLightnessError: (row) =>
       difference(row.colour.irisMinusSkinLightness),
     hairMinusSkinLightnessError: (row) =>
