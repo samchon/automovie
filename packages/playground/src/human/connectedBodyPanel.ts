@@ -11,7 +11,6 @@ import {
   type IAutoMovieHumanBodyBasis,
   type IAutoMovieHumanBodyBasisDocument,
   type IAutoMovieHumanBodyChannelScale,
-  type IAutoMovieHumanBodyShoulderPose,
   type IAutoMovieHumanBodySimpleShape,
   createHumanFaceEditor,
   measureHumanBodyBasisChannels,
@@ -19,12 +18,10 @@ import {
   resolveHumanBodyCouplings,
   serializeHumanBodyBasisDocument,
 } from "@automovie/human";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieJointPose,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
 import { renderBodyPoseControls } from "./bodyPoseControls";
+import { type BodyPosePreset, renderBodyPosePresets } from "./bodyPosePresets";
 import { renderBodyShoulderControls } from "./bodyShoulderControls";
 import { renderBodySimpleControls } from "./bodySimpleControls";
 import { createBodyIntentGate } from "./createBodyIntentGate";
@@ -64,11 +61,7 @@ export function mountConnectedBodyPanel<
       name: string;
       shape: Record<string, number> | (() => Promise<Record<string, number>>);
     }[];
-    poses: {
-      name: string;
-      pose?: IAutoMovieJointPose[];
-      shoulders?: IAutoMovieHumanBodyShoulderPose[];
-    }[];
+    poses: BodyPosePreset[];
     viewport: (canvas: HTMLCanvasElement) => {
       build: (
         document: IAutoMovieHumanBodyBasisDocument,
@@ -84,6 +77,12 @@ export function mountConnectedBodyPanel<
       cameraView: (degrees: number) => void;
       setClay: (enabled: boolean) => void;
       setShadows: (enabled: boolean) => void;
+      /** Solve the arms-down preset on a document's body, off the page. */
+      armsDown?: (
+        document: IAutoMovieHumanBodyBasisDocument,
+      ) => Promise<
+        Pick<IAutoMovieHumanBodyBasisDocument, "pose" | "shoulders">
+      >;
     };
     /** Seat the companion face on the published body, or hide it. */
     seat: (model: Model | null) => void;
@@ -381,17 +380,18 @@ export function mountConnectedBodyPanel<
     };
     element("shape-presets").append(button);
   }
-  for (const preset of props.poses) {
-    const button = dom.createElement("button");
-    button.textContent = preset.name;
-    button.onclick = () =>
-      change({
-        ...structuredClone(draft),
-        pose: structuredClone(preset.pose ?? []),
-        shoulders: structuredClone(preset.shoulders ?? []),
-      });
-    element("pose-presets").append(button);
-  }
+  renderBodyPosePresets({
+    dom,
+    container: element("pose-presets"),
+    presets: props.poses,
+    current: () => draft,
+    armsDown: viewport.armsDown,
+    reserve: withdraw,
+    isCurrent: intents.isCurrent,
+    apply: (document, ticket) => void change(document, ticket),
+    refuse,
+    busy: (text) => status(text, "building"),
+  });
   element("document-apply").onclick = () => {
     const ticket = withdraw();
     void applyText(element<HTMLTextAreaElement>("document-json").value, ticket);

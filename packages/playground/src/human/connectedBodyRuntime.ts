@@ -11,6 +11,7 @@ import {
   exportHumanBody,
   parseHumanBodyBasisDocument,
   segmentHumanBodyModel,
+  solveHumanBodyArmsDown,
 } from "@automovie/human";
 
 import { packConnectedBodyModel } from "./connectedBodyGeometry";
@@ -36,6 +37,14 @@ export function createConnectedBodyRuntime(basis: IAutoMovieHumanBodyBasis) {
     // Canonical parsing is required even when the text matches the cache: a
     // caller cannot bypass document admission by reusing a previous string.
     const document = parseHumanBodyBasisDocument(request.document);
+    if (request.operation === "armsDown") {
+      const solved = solveHumanBodyArmsDown(basis, evaluate, document);
+      return {
+        operation: "armsDown",
+        pose: solved.pose ?? [],
+        shoulders: solved.shoulders ?? [],
+      };
+    }
     const built =
       last?.document === request.document ? last.built : evaluate(document);
     last = { document: request.document, built };

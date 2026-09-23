@@ -64,8 +64,6 @@ import { skinHumanBodySurface } from "./skinHumanBodySurface";
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-joints Validates the coupled sparse pose, resolves TT shoulder goals after the girdle and recomputes normals after skinning.
  * @evidenceExclude requirements/actors/body-authoring/README.md#body-requirements This domain index also covers the editing screen, export and census review; the builder owns evaluation, not the complete authoring workflow.
  * @evidenceExclude specifications/asset-and-representation/body-authoring/README.md#body-specifications This index joins evaluation, measurement, document and later editor boundaries; the builder does not own the browser adapter or the review process.
- * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-editor This renderer-independent evaluator exposes no DOM, camera or file picker; the playground body page binds those to it.
- * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view The builder has no inputs, presets or display state; it evaluates the document the editor commits.
  * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor The builder owns no transaction history or worker; the face editor's state owner and the playground worker do.
  */
 export function createHumanBodyBasisBuilder(

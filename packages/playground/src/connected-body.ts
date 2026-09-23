@@ -249,14 +249,8 @@ async function main(): Promise<void> {
             shoulder("rightUpperArm", 0, 90),
           ],
         },
-        {
-          name: "Arms down",
-          pose: [joint("leftLowerArm", 0), joint("rightLowerArm", 0)],
-          shoulders: [
-            shoulder("leftUpperArm", 0, 0),
-            shoulder("rightUpperArm", 0, 0),
-          ],
-        },
+        // solved on the current body: each arm hangs as low as its skin lets it
+        { name: "Arms down", solve: "armsDown" },
         {
           name: "Elbows 90",
           pose: [joint("leftLowerArm", 90), joint("rightLowerArm", 90)],
