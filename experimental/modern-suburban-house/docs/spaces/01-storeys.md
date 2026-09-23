@@ -2,15 +2,15 @@
 
 ## 두 storey와 완성 바닥 {#storey-datums}
 <!--
-@evidence principles/core/common.md#scope-preservation 두 storey 소속과 층간 구멍·최상부 천장까지 수직 기준을 잇는다.
-@evidence principles/core/common.md#substantive-completion Y = 0 m·3.06 m 완성 바닥과 2.75 m·5.66 m 천장을 결정한다.
-@evidence principles/core/common.md#declared-basis Y-up 원점에서 순높이를 산출하며 구조 안전 결과와 구별한다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 설정의 높이 범위를 두 완성면과 0.31 m 층간 예약으로 구체화한다.
-@evidence principles/design/spaces.md#space-topology 차고·포치는 ground-storey에 두고 지붕 속 세 번째 층을 금한다.
-@evidence principles/design/spaces.md#space-boundary-authority storeys.ts가 높이를 제공하고 구멍 평면은 계단 owner에서 받는다.
-@evidence principles/design/spaces.md#space-verification-address 모든 방 소속과 도착 높이·대응 구멍을 0.001 m로 대조한다.
+@evidence principles/core/common.md#scope-preservation 두 storey의 완성 바닥·천장, 모든 실의 storey 직접 참조, 공유 층판과 아래층 천장의 같은 계단 구멍, 최상부 천장과 지붕 대조로의 인계를 맡는다.
+@evidence principles/core/common.md#substantive-completion ground-storey Y = 0 m, upper-storey Y = 3.06 m, 완성 천장 Y = 2.75 m·5.66 m와 그 사이 0.31 m 예약을 정한다.
+@evidence principles/core/common.md#declared-basis 순높이 2.75 m·2.60 m는 main-mass 높이 범위 안의 선택이고 0.31 m는 세부 적층이나 구조 안전을 검증한 값이 아닌 예약이라고 밝힌다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 설정의 층별 순높이 범위를 두 datum과 층간 0.31 m로 고정하고 차고·포치를 ground-storey 부속으로, 지붕 속을 층이 아닌 공간으로 정한다.
+@evidence principles/design/spaces.md#space-topology 본채에는 두 storey만 두고 차고·포치는 ground-storey 부속이며 지붕 속 공간을 세 번째 층으로 쓰지 않고 각 실은 건물의 자식이 아니라 storey를 직접 참조한다.
+@evidence principles/design/spaces.md#space-boundary-authority datum은 src/spaces/storeys.ts가 한 번 소유하고 계단 구멍 평면은 stair-floor-opening, 층간 점유는 08, 최상부 천장은 09가 소비한다.
+@evidence principles/design/spaces.md#space-verification-address 모든 공간의 storey 참조, 두 완성면 높이, 천장/층판의 대응 구멍, 계단 상부 도착 높이를 0.001 m로 대조하고 구멍 아래 머리 공간 2.00 m를 단면에서 본다.
 @evidence settings/00-production.md#coordinate-units 전면 중앙 바닥 원점과 +Y를 두 storey 완성 높이의 공통 기준으로 쓴다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work 좌표 원점과 본채 순높이 범위를 검사해 층판 예약과 계단 높이를 동시에 배정할 수 있어 부모 수정은 없었다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work coordinate-units의 원점·+Y와 main-mass의 1층 2.65–2.80 m·2층 2.50–2.65 m 순높이를 대조했고 2.75 m·2.60 m와 0.31 m 층간이 두 범위 안에 들어 부모 수정이 없었다.
 @evidence obligations/design/spaces.md#space-reference-topology `ground-storey` Y = 0 m와 `upper-storey` Y = 3.06 m 두 storey만 두고 각 실의 공간 레코드가 storey를 직접 참조하게 한다.
 @evidence obligations/design/spaces.md#space-envelope-interface 두 층의 완성 천장 Y = 2.75 m와 5.66 m, 사이 0.31 m 예약을 외피 층판과 실내 순높이가 함께 소비하게 한다.
 -->
@@ -27,15 +27,15 @@
 
 ## 포치와 차고의 지면 연결 {#ground-threshold-datums}
 <!--
-@evidence principles/core/common.md#scope-preservation 포치 세 단과 차고에서 머드룸으로 오르는 한 단을 구별한다.
-@evidence principles/core/common.md#substantive-completion 포치 접근 Y = -0.45 m와 차고 Y = -0.15 m를 별도로 정한다.
-@evidence principles/core/common.md#declared-basis 포치 높이는 참조 픽셀 역산이 아닌 진입 단면의 저작 선택이다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 외부 진입 요구를 세 챌판과 차고 쪽 평탄 대기로 나눈다.
-@evidence principles/design/spaces.md#space-topology 차고/머드룸의 평면 연결이 동일 높이의 통로는 아님을 명시한다.
-@evidence principles/design/spaces.md#space-boundary-authority storeys.ts의 datum을 포치·차고 및 바닥 바탕 owner가 소비한다.
-@evidence principles/design/spaces.md#space-verification-address 정면 진입과 머드룸 문턱 단면·양방향 시야를 지정한다.
+@evidence principles/core/common.md#scope-preservation 포치 바닥과 앞 보행길, 세 챌판·디딤·평탄 대기, 차고 바닥과 천장, 머드룸 문 앞의 한 단과 차고 쪽 대기를 맡는다.
+@evidence principles/core/common.md#substantive-completion 포치 Y = 0 m, 앞 보행길 Y = -0.45 m와 0.15 m 세 단·0.30 m 디딤, 포치 유효 깊이 1.80 m, 차고 바닥 Y = -0.15 m·천장 Y = 2.55 m를 정한다.
+@evidence principles/core/common.md#declared-basis 포치 높이와 단 수는 참조 픽셀을 역산하지 않은 진입 단면의 저작 선택이고 보도·접근길과의 접촉은 대지 입력 뒤로 미룬다고 밝힌다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 포치 설정의 높은 바닥과 실제 단을 0.45 m 세 단으로 정하고 차고를 머드룸보다 한 단 낮은 바닥으로 둔다.
+@evidence principles/design/spaces.md#space-topology 차고와 머드룸의 평면 연결을 같은 높이의 통로로 기록하지 않고 차고 쪽 평탄 대기와 높이 0.15 m의 한 단을 거치는 연결로 정한다.
+@evidence principles/design/spaces.md#space-boundary-authority 높이의 canonical 값은 storeys.ts가 제공하고 포치는 porch.ts, 차고는 garage.ts가 소비하며 차고 천장 폐합은 09, 바닥 바탕은 10이 받는다.
+@evidence principles/design/spaces.md#space-verification-address 정면 진입 단면, 차고/머드룸 문턱 단면과 양방향 진입 시야를 두고 문짝 작동과 바구니 운반이 단 가장자리에서 부딪히는지를 미결로 남긴다.
 @evidence settings/10-house.md#porch-entry 주변보다 높은 포치를 실제 세 단과 평탄 대기로 이어 현관에 접근시킨다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work 설정의 포치 높이 범위와 머드룸 바구니 경로를 대조해 서로 다른 단차를 둘 수 있었으며 부모의 연결 조건은 유지된다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work porch-entry의 0.35–0.55 m 상승·유효 깊이 1.6–2.0 m와 laundry-mudroom의 "차고에서 집으로 들어오는 경로"를 대조했고 0.45 m 세 단과 한 단 머드룸 문턱이 범위 안에서 성립해 부모 수정이 없었다.
 -->
 
 포치 바닥은 현관의 1층 완성 바닥과 같은 Y = 0 m다. 포치 앞 보행길은 Y = -0.45 m로 예약하고 높이 0.15 m의 세 단을 통해 올라온다. 각 디딤의 수평 깊이는 0.30 m로 택하며 세 단 앞뒤에 평탄한 대기면을 둔다. 포치의 유효 깊이는 전면 벽에서 바깥 방향으로 1.80 m다. 보도·접근길과 계단의 접촉은 이후 대지 입력과 함께 검토하며 경사나 단수를 참조 픽셀에서 역산하지 않는다.

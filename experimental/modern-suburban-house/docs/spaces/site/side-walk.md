@@ -36,9 +36,8 @@
 @evidence principles/design/spaces.md#space-boundary-authority 문짝과 기둥은 src/spaces/site/fence.ts 하나가 소유하고 보행면 owner는 문짝을 중복 생성하지 않는다.
 @evidence principles/design/spaces.md#space-verification-address 닫힌 문의 걸쇠 조작과 90° 열린 문 통과를 구별하고 두 구역 각각의 기본 시점과 꺾임의 가려진 코너를 검사한다.
 @evidence settings/10-house.md#site-identity 우측 목재 울타리에 관리 통행용 문을 둔다.
-@evidence settings/10-house.md#openings 외부 정원문을 기준 상태에서 닫고 관찰 조작으로 열어 통과하게 한다.
 @evidence obligations/design/spaces.md#space-access-circulation 관리길의 표현된 출입구인 gate에 양쪽 대기와 회전 반경을 배정하고 문으로만 앞뒤 구역을 나누게 한다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work site-identity의 우측 목재 울타리와 openings의 "외부 현관·정원문·차고문은 닫되"를 관리문에 적용했고 1.05 m 문과 두 대기로 성립해 부모 수정이 없었다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work site-identity의 "우측의 목재 울타리와 관목"을 관리길에 대조했고 그 울타리에 1.05 m 관리문과 두 대기를 두는 결정은 설정이 정하지 않은 공간 선택이라 부모 수정 없이 성립했다. 문의 기본 닫힘은 이 H2 자신의 선택이다.
 -->
 
 위 [보행면](#side-walk-plan)에서 gate 앞을 `side-front-access`, 뒤를 `side-rear-access`의 두 외부 구역으로 택하고 둘 다 house-site/ground-storey에 속한다. 양쪽은 같은 연속 포장 owner를 공유하고 각각 threshold·코너·중심 네 방향과 가려지는 꺾임의 추가 질문을 가진다. 문 때문에 갈라진 구역의 질문을 한 개 대표 view로 줄이지 않는다.

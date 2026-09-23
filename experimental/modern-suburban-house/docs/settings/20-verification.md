@@ -348,25 +348,25 @@ settings 전체 관찰 의무의 원문은 ../contracts/observation-denominator.
 
 ## 뷰어 실행 인계 {#viewer-handoff}
 <!--
-@evidence principles/core/common.md#scope-preservation 뷰어 구현 뒤 실행 명령·디렉터리·포트·경로를 보고하는 책임과 조정자의 서버 기동을 함께 맡는다.
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 시작 명령·실행 디렉터리·포트·경로를 모두 인계 대상으로 넣어 페이지 파일만 주고 실행 정보를 빠뜨리지 않는다.
-@evidence principles/core/common.md#substantive-completion 미구현 시 과거 주소를 쓰지 않고 저작 turn에서 서버를 유지하지 않는 규칙을 정해 인계 상태를 명료하게 한다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 서버 기동과 유지는 조정자에게 맡겨 구현 완료 뒤 누가 실행할지의 운영 결정을 마쳤다.
-@evidence principles/core/common.md#declared-basis 서버 기동을 조정자가 맡는 것은 사용자 지시이고 실제 3D 요구는 renderer-boundary에서 이어받는다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 저작 turn에서 서버를 띄우지 않는 경계가 사용자 지시로 쓰여 도구의 임의 제한으로 설명되지 않는다.
-@evidence principles/core/settings.md#fact-status 새 viewer가 없으면 시작 경로는 미확정이며 이전 viewer의 주소를 현재 사용 가능한 사실로 보고하지 않는다.
-@evidenceReview principles/core/settings.md#fact-status #93a284a 미구현 상태에서는 이전 명령·주소를 새 경로로 보고하지 않게 하여 존재 여부와 실행 결과를 구별한다.
-@evidence principles/core/settings.md#source-support 실행 정보는 구현된 현재 viewer의 명령에서 나와야 하며 다른 세션의 경로를 확인된 자료로 재사용하지 않는다.
-@evidenceReview principles/core/settings.md#source-support #430bca9 아직 없는 뷰어의 시작 명령이나 포트를 기억에서 가져와 사실로 제시할 수 없다고 본문이 제한한다.
-@evidence principles/core/settings.md#capability-boundary 저작자는 실행 정보를 전달하되 서버를 띄워 유지하는 역할을 갖지 않으며 이 분업이 3D 요구를 낮추지도 않는다.
-@evidenceReview principles/core/settings.md#capability-boundary #83a6f2c 저작자는 구현과 인계만 맡고 서버 생존을 관리하지 않으므로 이번 실행 권한을 넘지 않는다.
-@evidence principles/core/settings.md#constraint-sufficiency 시작 명령과 cwd·port·URL 경로 네 정보가 갖춰져야 조정자가 현재 소스의 viewer를 열 수 있다.
-@evidenceReview principles/core/settings.md#constraint-sufficiency #20cf612 실행 인계가 실제 3D와 현재 소스 연결을 약화하지 않는다고 명시해 다른 정적 데모 주소를 대신 제공하지 못한다.
-@evidence principles/core/settings.md#observable-identity 인계된 화면은 renderer-boundary의 실제 3D 집이어야 하며 동작하던 옛 viewer를 새 외관의 관찰 대상으로 바꾸어 쓰지 않는다.
-@evidenceReview principles/core/settings.md#observable-identity #4ccb62e viewer는 renderer-boundary의 실제 집을 보여야 하므로 서버를 넘겼다는 사실만으로 빈 canvas를 완성 화면으로 인정하지 않는다.
+@evidence principles/core/common.md#scope-preservation 뷰어 구현 뒤 보고할 실행 명령·디렉터리·포트·경로, `--port`와 기본 4173, lint와 분리된 실행기, 저작자의 짧은 기동 확인과 조정자의 상시 기동을 함께 맡는다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 시작 명령·실행 디렉터리·포트·경로와 함께 포트 인자와 기본값, 실행기 분리, 누가 언제 서버를 띄우는지를 모두 이 H2에 두어 뷰어 인계에 필요한 운영 조건이 다른 문서에 흩어지지 않는다.
+@evidence principles/core/common.md#substantive-completion 포트는 `--port` 인자와 기본 4173, 실행은 evidence lint와 분리한 `tsx`, 저작자는 HTTP 200·콘솔 오류 없음 확인 뒤 종료, 상시 기동은 조정자로 정해 인계 상태를 확정한다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 기본 포트 4173과 인자 이름, 실행기, 확인 기준(HTTP 200·콘솔 오류 없음), 확인 뒤 종료와 조정자의 상시 기동이 모두 정해져 source 단계가 운영 방식을 새로 결정할 필요가 없다.
+@evidence principles/core/common.md#declared-basis 4173·`--port`·`tsx` 분리·짧은 기동 확인은 조정자의 g4 인계 지시, 상시 기동의 분업은 사용자 지시, 실제 3D 요구는 renderer-boundary에서 이어받는다고 나눈다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 포트·실행기·짧은 확인은 조정자 인계, 서버 유지 분업은 사용자 지시, 3D 조건은 renderer-boundary로 본문이 출처를 나누어 적어 도구 제약을 권위로 오인하지 않는다.
+@evidence principles/core/settings.md#fact-status 4173과 `--port`는 조정자가 배정한 운영 사실이고 새 viewer가 없는 동안 시작 경로는 미확정이며 이전 viewer의 주소를 현재 사실로 보고하지 않는다.
+@evidenceReview principles/core/settings.md#fact-status #93a284a 배정된 포트는 지시로 확정된 값이고 실제 시작 명령과 경로는 미구현 상태에서 미확정으로 남겨 존재 여부와 실행 결과를 구별한다.
+@evidence principles/core/settings.md#source-support 포트와 실행기의 근거는 조정자 인계 지시이고 보고할 실행 정보는 구현된 현재 viewer의 명령에서 나와야 하며 다른 세션의 경로를 재사용하지 않는다.
+@evidenceReview principles/core/settings.md#source-support #430bca9 포트 4173과 tsx 분리는 인계 지시에서, 시작 명령은 현재 구현에서 나와야 한다고 본문이 나누어 기억한 옛 주소를 사실로 제시하지 못하게 한다.
+@evidence principles/core/settings.md#capability-boundary 저작자는 구현 turn에서 서버를 잠깐 띄워 확인하고 종료할 수 있으나 상시 유지는 조정자 몫이며 이 분업이 3D 요구를 낮추지 않는다.
+@evidenceReview principles/core/settings.md#capability-boundary #83a6f2c 저작자의 서버 권한이 확인용 기동과 종료로 한정되고 상시 기동은 조정자에게 있어 downstream 저작자가 서버를 살려 두어도 되는지 추측할 필요가 없다.
+@evidence principles/core/settings.md#constraint-sufficiency 시작 명령·cwd·포트·URL 경로 네 정보, 인자가 없을 때의 4173, 확인 기준 두 가지가 갖춰져야 조정자가 현재 소스의 viewer를 열 수 있다.
+@evidenceReview principles/core/settings.md#constraint-sufficiency #20cf612 포트 인자가 빠졌을 때의 값과 기동 확인의 합격 기준까지 정해 두어 실행 인계를 받은 조정자가 추측할 조건이 남지 않고 정적 데모 주소로 대신할 수도 없다.
+@evidence principles/core/settings.md#observable-identity 인계된 화면은 renderer-boundary의 실제 3D 집이어야 하며 HTTP 200만으로 빈 canvas나 옛 viewer를 새 외관의 관찰 대상으로 인정하지 않는다.
+@evidenceReview principles/core/settings.md#observable-identity #4ccb62e 기동 확인은 HTTP 200과 콘솔 오류 없음까지이고 보이는 집의 정체성은 renderer-boundary의 실제 3D로 남아 응답 코드만으로 빈 canvas를 완성 화면으로 인정하지 않는다.
 -->
 
-사용자 지시에 따라 뷰어를 구현했으면 시작 명령, 실행 디렉터리, 포트, 열어야 할 경로를 보고한다. 서버 기동과 유지는 조정자가 맡으며 저작 turn에서 서버를 띄우거나 살려 두지 않는다. 이 인계는 renderer-boundary가 요구하는 실제 3D 결과와 현재 소스 연결을 약화하지 않는다. viewer 미구현 상태에서는 이전 뷰어의 명령이나 주소를 새 실행 경로로 보고하지 않는다.
+사용자와 조정자의 지시에 따라 뷰어를 구현했으면 시작 명령, 실행 디렉터리, 포트, 열어야 할 경로를 보고한다. 뷰어 서버는 `--port` 인자로 포트를 받고 인자가 없으면 조정자가 배정한 4173을 쓴다. 실행 스크립트는 조정자 지시대로 `tsx`로 돌려 evidence 그래프 lint와 분리한다. lint가 실패한 동안에도 서버 기동이 막히지 않게 하기 위한 분리이며 lint를 건너뛰는 검증 경로가 아니다. 저작자는 구현 turn에서 서버를 잠깐 띄워 HTTP 200과 브라우저 콘솔 오류 없음을 확인한 뒤 종료한다. 상시 기동과 유지는 조정자가 맡는다. 이 인계는 renderer-boundary가 요구하는 실제 3D 결과와 현재 소스 연결을 약화하지 않으며, HTTP 200은 화면의 합격이 아니다. viewer 미구현 상태에서는 이전 뷰어의 명령이나 주소를 새 실행 경로로 보고하지 않는다.
 
 ## 완료와 기록 {#completion-boundary}
 <!--

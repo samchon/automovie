@@ -2,19 +2,19 @@
 
 ## 거친 개구부와 충전 부재의 경계 {#external-opening-interface}
 <!--
-@evidence principles/core/common.md#scope-preservation 실제 void와 frame·sash·유리·문턱의 공간 인계를 함께 정한다.
-@evidence principles/core/common.md#substantive-completion trim 0.10 m와 창틀 0.04 m 후퇴·0.14 m 깊이를 예약한다.
-@evidence principles/core/common.md#declared-basis O1은 방 연결과 R1 지붕을 소비하며 API 적용 한계는 소스 읽기다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 검은 창틀의 정체성을 외벽 두께 안 충전 위치와 작동 종류로 구체화한다.
-@evidence principles/design/spaces.md#space-topology 각 입면 void를 방 내부 reveal까지 관통시키고 문 유리를 별도 벽 구멍으로 세지 않는다.
-@evidence principles/design/spaces.md#space-boundary-authority front-door는 현관 결정을 받고 나머지 창 좌표는 입면 owner에서만 정한다.
-@evidence principles/design/spaces.md#space-verification-address 실내외 단면·닫힌 충전·열린 문 점유로 거친 폭과 순폭을 구분한다.
+@evidence principles/core/common.md#scope-preservation 외벽 거친 개구부의 좌표 형식과 소유, 벽 절단 인계, trim·창틀 깊이·창대 돌출 예약, 방별 창 작동 종류와 기준 상태, 관찰을 맡는다.
+@evidence principles/core/common.md#substantive-completion trim 0.10 m, 창틀 바깥 면 0.04 m 후퇴와 깊이 0.14 m, 창대·손잡이 안쪽 돌출 0.06 m 이내를 예약하고 방별 창 작동 종류를 정한다.
+@evidence principles/core/common.md#declared-basis 방 연결은 05, 높이는 roof-profile-datums에서 받고 builtBoundaryWallCut·extrudeAutoMovieRegion 적용 조건은 공개 API를 읽고 정한 인계이며 실제 절단 결과가 아니라고 밝힌다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation openings 설정의 두께 있는 frame·sash·유리를 외벽 두께 안의 충전 위치와 상하 미닫이·고정·상부 경첩 작동 종류로 정한다.
+@evidence principles/design/spaces.md#space-topology 각 입면 void가 방 안쪽 reveal까지 관통하고 문짝 상부 유리를 별도 외벽 구멍으로 세지 않으며 기준 상태에서 외부 문과 모든 창을 닫는다.
+@evidence principles/design/spaces.md#space-boundary-authority 개구부 좌표는 네 입면 owner, front-door만 entry owner가 소유하고 방은 같은 id의 reveal만 맡으며 openings.ts는 입면 geometry를 가져가지 않는다.
+@evidence principles/design/spaces.md#space-verification-address 방 안쪽 reveal에서 외벽 void를 지나는 단면, 닫힌 충전의 정면/측면, 문 열림과 대기로 거친 폭과 순폭을 구별하게 한다.
 @evidence settings/10-house.md#openings 사각 구멍으로 창호를 대신하지 않도록 벽·틀·유리·살대의 깊이와 충전을 분리한다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work 입면과 방이 같은 창을 가져야 한다는 조건 및 문 상태를 검토했고 실제 void와 충전 예약으로 실현 가능해 부모 변경은 없다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work openings의 "창을 배정한 방과 그 창을 품은 외벽이 같아야 한다"와 "유리는 구멍도 불투명 검은 판도 아니며"를 공통 예약에 대조했고 외벽 두께 안의 충전으로 둘 다 성립해 부모 수정이 없었다.
 @evidence obligations/design/spaces.md#space-envelope-interface 입면 owner가 거친 개구부 좌표를, 방 owner가 같은 id의 안쪽 reveal을 소유하게 하고 창틀을 날씨 면에서 0.04 m 물린 깊이 0.14 m 안에 두어 안팎이 같은 void를 쓰게 한다.
 -->
 
-이번 배치 O1은 [C4 방 연결](05-route-network.md#room-route-network)과 [R1 지붕](roof/00-junctions.md#roof-profile-datums)을 소비한다. 각 입면의 개구부 H2는 실제 외벽에 만들 거친 직사각 개구부의 세계 좌표 입력이다. X 또는 Z 구간이 수평 폭이고 Y 구간이 바닥 기준이 아닌 세계 높이다. 벽 두께 방향은 [본채/차고 외곽](00-building.md#main-building-extent)의 안쪽 면부터 바깥 면까지 관통한다. 여기서 예정한 id·위치·개수는 compiled 산출물이 아니다.
+외부 개구부는 [방 연결](05-route-network.md#room-route-network)과 [지붕 높이](roof/00-junctions.md#roof-profile-datums)를 소비한다. 각 입면의 개구부 H2는 실제 외벽에 만들 거친 직사각 개구부의 세계 좌표 입력이다. X 또는 Z 구간이 수평 폭이고 Y 구간이 바닥 기준이 아닌 세계 높이다. 벽 두께 방향은 [본채/차고 외곽](00-building.md#main-building-extent)의 안쪽 면부터 바깥 면까지 관통한다. 여기서 예정한 id·위치·개수는 compiled 산출물이 아니다.
 
 전면·후면·왼쪽·오른쪽의 개구부 좌표는 각각 [전면](envelope/front.md#front-openings), [후면](envelope/rear.md#rear-openings), [왼쪽](envelope/left.md#left-openings), [오른쪽](envelope/right.md#right-openings) 입면 owner가 소유한다. 기존 front-door만 [현관](rooms/entry.md#entry-plan)의 결정을 그대로 받는다. 방 owner는 같은 id와 void를 소비하고 안쪽 마감/reveal을 맡으며 창을 독립 좌표로 복제하지 않는다. 입면은 한 묶음창의 수직 분할 수를 선언하고 frame/sash/mullion은 유효 폭과 분할 수에서 반복 산출한다. 문짝 속 상부 유리는 그 문짝의 충전 부재이며 별도의 외벽 구멍으로 세지 않는다.
 

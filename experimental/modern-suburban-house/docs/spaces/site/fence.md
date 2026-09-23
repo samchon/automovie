@@ -28,7 +28,7 @@
 
 위 꺾임은 공유 끝점 하나로 접합하며 겹친 모서리 기둥을 두지 않는다. 양 끝은 각각 본채 왼쪽 벽과 차고 오른쪽 앞 모서리에 닿는다. 기존 건물 외피가 정원 쪽 나머지 경계를 이으므로 앞마당 전체를 횡단하는 울타리를 덧붙이지 않는다. 현관·차도에서 정원으로 가는 외부 경로는 기존 관리문이며, 왼쪽 앞 구간 뒤로 사람이 지나갈 숨은 틈을 남기지 않는다. 패널 밑의 시공 간격은 통행 개구부로 세지 않는다.
 
-완결 울타리의 양면·끝·모서리·문·기둥 owner는 `src/spaces/site/fence.ts`, 담당은 `/root`다. 같은 선의 패널·반복 판재·마감은 후속 단계에서도 이 완결 면 책임을 유지한다. 이 문서는 source 예약이며 실제 길이·부재 수·닫힌 경계·필지 포함을 측정한 결과가 아니다. 전체 평면과 양쪽 벽 접점, 모든 꺾임의 안팎 시야를 [전체 관찰](../04-observations.md#spatial-observation-derivation)에 추가하고 실제 폐합은 unverified로 둔다.
+완결 울타리의 양면·끝·모서리·문·기둥 owner는 `src/spaces/site/fence.ts`, 담당은 이 production의 단일 저작자다. 같은 선의 패널·반복 판재·마감은 후속 단계에서도 이 완결 면 책임을 유지한다. 이 문서는 source 예약이며 실제 길이·부재 수·닫힌 경계·필지 포함을 측정한 결과가 아니다. 전체 평면과 양쪽 벽 접점, 모든 꺾임의 안팎 시야를 [전체 관찰](../04-observations.md#spatial-observation-derivation)에 추가하고 실제 폐합은 unverified로 둔다.
 
 ## 오른쪽 앞 면의 관리문 접속 {#fence-gate-junction}
 <!--
@@ -40,7 +40,7 @@
 @evidence principles/design/spaces.md#space-boundary-authority 끝기둥/기초 중심을 벽 위에 놓지 않고 외벽을 두 번째 기둥으로 두껍게 하지 않으며 창과 굴뚝을 지지체로 쓰지 않는다.
 @evidence principles/design/spaces.md#space-verification-address 닫힌 문에서 패널/문짝 경계의 연속과 열린 문의 앞뒤 통행·대기·회전을 별도로 검사한다.
 @evidence settings/10-house.md#site-identity 우측 목재 울타리가 관리문까지 실제로 닫히게 한다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work site-identity의 목재 울타리와 openings의 닫힌 정원문 기준을 대조했고 문기둥과 잔여 패널로 성립해 부모 수정이 없었다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work site-identity의 "우측의 목재 울타리"를 관리문 개구부에 대조했고 문기둥과 두 잔여 패널로 울타리를 문까지 닫을 수 있어 부모 수정이 없었다.
 -->
 
 위 [오른쪽 앞 구간](#fence-enclosure-plan)에서 [side-yard-gate](side-walk.md#side-gate-interface)의 개구부 X 구간을 그대로 비운다. 문 평면·회전 방향·문짝 위아래·손잡이 반경·앞뒤 대기·최종 순폭은 그 owner의 값이며 여기서 재정의하지 않는다. 패널을 연속 생성한 뒤 문짝만 앞에 붙이는 방식은 이 개구부를 만들지 못한다.

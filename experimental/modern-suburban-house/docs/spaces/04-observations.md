@@ -4,7 +4,7 @@
 <!--
 @evidence principles/core/common.md#scope-preservation 외부 setting·노출 입면과 모서리·지붕과 하부·개구부, 방마다 threshold·네 안쪽 모서리·중심 네 방향, 비직사각의 추가 질문, 01–05 추가 질문과 07·08·09·10·방별 사용·대지·울타리의 추가 단면을 한 파생 규칙에 모은다.
 @evidence principles/core/common.md#substantive-completion 고정 view 수를 선언하지 않고 실제 공간·boundary·opening·roof 레코드를 만든 뒤 같은 산출물에서 질문과 자기 공간 내부 pose를 파생한다는 규칙을 정한다.
-@evidence principles/core/common.md#declared-basis 분모는 compiled-denominator 계약, 뷰어 조건은 renderer-boundary·execution-boundary·frame-condition, 포트 4173과 `--port`는 조정자 지정 인계값이라고 근거를 나눈다.
+@evidence principles/core/common.md#declared-basis 분모는 compiled-denominator 계약, pose의 눈높이·시야각·near는 frame-condition에서 받고 뷰어의 렌더링·실행·포트 조건은 settings가 소유해 이 H2가 정하지 않는다고 근거를 나눈다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation settings의 관찰 배분을 이 집의 계단 높이별 경계, 층간 바닥 가장자리, 천장/지붕 여유, 벽 상단 접촉, 지상층 바탕, 방별 사용 상태, 대지·울타리 접합의 구체 관찰 목록으로 만든다.
 @evidence principles/design/spaces.md#space-topology 모든 방이 storey·실제 경계·출입 개구부·복도 또는 계단 경로를 갖고 현관에서 목적지와 돌아오는 길을 모두 검사하도록 한다.
 @evidence principles/design/spaces.md#space-boundary-authority 각 추가 관찰은 링크한 owner H2의 경계를 그대로 소비하고 설계의 owner 표를 실제 boundary/surface census로 대신하지 않는다.
@@ -12,17 +12,16 @@
 @evidence contracts/observation-denominator.md#compiled-denominator 외부와 방별 고정 질문을 실제 공간 산출물에서 파생하고 비직사각의 가려진 부분에 질문을 더하며 01–05 질문을 분모에 추가해 대표 view로 줄이지 않는다.
 @evidence settings/20-verification.md#observation-allocation spaces가 storey·방·노출 경계·지붕·개구부의 정체성과 연결을 만들고 matching source가 그 산출물에서 질문·pose를 파생한다는 배분을 공간 쪽에서 실현한다.
 @evidence settings/20-verification.md#data-authority 선언된 room binding만으로 지지나 통행을 합격 처리하지 않고 수·id·위치를 같은 산출물에서 읽도록 요구한다.
-@evidence settings/20-verification.md#renderer-boundary 관찰 뷰어가 원근 카메라·조명·그림자·깊이를 쓰는 실제 3D 경로를 따르도록 인계 조건으로 둔다.
-@evidence settings/20-verification.md#frame-condition 관찰 뷰어의 실내외 pose가 비교 프레임 조건을 따르도록 인계한다.
-@evidence settings/20-verification.md#viewer-handoff 포트 4173과 `--port`를 향후 구현이 받을 조건으로만 적고 실행 명령이 준비됐다고 보고하지 않는다.
+@evidence settings/20-verification.md#frame-condition 방마다 파생하는 threshold·모서리·중심 pose의 카메라 조건을 프레임 조건에서 받고 경계 때문에 시점을 안쪽으로 옮긴 근거를 pose와 함께 기록하게 한다.
 @evidence settings/00-production.md#accessibility 필수 공간 구조 설명 문서로서 방·경계별 관찰 질문을 글로 남기고 뷰어의 관찰 선택이 소비할 자기 공간 내부 pose의 파생 조건을 정한다.
 @evidence settings/00-production.md#use-profile 모든 경로 검사에서 사람·바구니 크기를 줄여 통과를 얻지 않는다.
 @evidence obligations/design/spaces.md#space-review-set 평면·단면·입면·지붕 합류와 방별 내부 시점, 계단·문턱·포장·울타리 접합 단면을 compiled topology에서 파생하는 유한 관찰 집합으로 선택한다.
+@evidenceExclude settings/20-verification.md#viewer-handoff spaces 47개 문서 어디에도 뷰어의 시작 명령·실행 디렉터리·포트·경로를 정하거나 소비하는 공간 결정이 없다. 이 H2가 넘기는 것은 관찰 질문과 자기 공간 내부 pose의 파생 규칙이며 포트와 기동 조건은 settings의 viewer-handoff가 소유한다.
 @evidenceExclude settings/20-verification.md#validation-boundary spaces 47개 문서 어디에도 lint나 검증 명령을 입력으로 쓰는 공간 결정이 없다. 이 H2의 unverified 표기는 data-authority의 계측 부재 규칙을 따르며 npm run lint 실행은 저작 turn의 검증 절차이지 경계·경로·관찰의 입력이 아니다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work observation-allocation의 공간-소스 배분, data-authority의 산출물 판독, frame-condition의 초기 pose 조건을 공간 관찰 파생에 적용했고 settings가 관찰 수를 상수로 정하지 않아 파생 규칙과 충돌하지 않아 부모 수정이 없었다.
 -->
 
-[전체 관찰 분모](../contracts/observation-denominator.md#compiled-denominator)를 이 spaces draft에 그대로 적용한다. 현재의 외곽·층 예약으로 고정 view 수를 선언하지 않는다. 실제 공간·boundary·opening·roof 레코드를 만든 뒤 동일 산출물에서 외부 setting, 모든 노출 입면과 만나는 모서리, 지붕과 하부, 모든 개구부·출입구의 질문을 파생한다. 방마다 threshold 하나, 안쪽 모서리 네 곳, 중심의 네 방향을 자기 공간 내부 pose로 생성하고 비직사각형의 가려진 부분은 질문을 더한다. 01–05의 참조 질문은 이 분모에 추가한다.
+[전체 관찰 분모](../contracts/observation-denominator.md#compiled-denominator)를 이 spaces 층에 그대로 적용한다. 현재의 외곽·층 예약으로 고정 view 수를 선언하지 않는다. 실제 공간·boundary·opening·roof 레코드를 만든 뒤 동일 산출물에서 외부 setting, 모든 노출 입면과 만나는 모서리, 지붕과 하부, 모든 개구부·출입구의 질문을 파생한다. 방마다 threshold 하나, 안쪽 모서리 네 곳, 중심의 네 방향을 자기 공간 내부 pose로 생성하고 비직사각형의 가려진 부분은 질문을 더한다. 01–05의 참조 질문은 이 분모에 추가한다.
 
 수치 검사는 두 storey 평면, 계단·머드룸 문턱·포치 단면, 네 방향 입면과 지붕 합류 경계를 사용한다. 모든 방은 storey, 실제 경계, 출입 개구부, 복도 또는 계단 경로를 가지며 현관에서 목적지와 돌아오는 길을 모두 검사한다. use-profile의 사람·바구니 크기를 줄여 통과를 얻지 않는다. 문·가구·기기 점유가 들어간 뒤의 순폭은 최종 산출물에서 다시 읽어야 한다. 실제 topology와 경로 검사는 현재 unverified다.
 
@@ -60,7 +59,7 @@
 
 [울타리 폐합](site/fence.md#fence-enclosure-plan)은 전체 선과 건물 외피를 함께 보는 평면, 모든 긴 면/꺾임의 안팎 시야, [관리문 양옆 잔여 패널과 벽 접점](site/fence.md#fence-gate-junction), [지표 높이와 기초 점유](site/fence.md#fence-ground-profile)의 단면을 추가한다. 문이 실제 void에 있는지, 짧은 패널을 빠뜨리거나 끝기둥을 벽/포장 안에 넣지 않았는지, 가지/관목이 접합 결함을 가리는지 확인한다. 문을 닫은 경계와 연 뒤의 양방향 관리길 통행을 구별한다. 울타리의 눈에 보이는 모든 면은 실제 산출물에서 포함하고 한 정면 view로 대신하지 않는다.
 
-관찰 뷰어는 [렌더 경계](../settings/20-verification.md#renderer-boundary), [CJS 실행 경계](../settings/20-verification.md#execution-boundary), [프레임 조건](../settings/20-verification.md#frame-condition)을 따른다. 이번 조정자 지정 인계값은 포트 4173과 `--port` 인자다. 이는 향후 구현이 받을 조건이고 실행 명령이 준비됐다는 보고가 아니다. 실제 공간 소스·뷰어·GPU RENDERER·프레임은 미구현/unverified다.
+각 관찰 pose의 눈높이·시야각·near 같은 카메라 조건은 [프레임 조건](../settings/20-verification.md#frame-condition)을 소비하고, 경계 때문에 시점을 자기 공간 안쪽으로 옮겼다면 그 근거를 pose와 함께 기록한다. 이 H2가 인계하는 것은 질문과 자기 공간 내부 pose의 파생 규칙이다. 그 관찰을 보여 줄 뷰어의 렌더링·실행·포트 조건은 settings의 표현과 검증 조건이 소유하므로 이 공간 문서에서 정하지 않는다. 실제 공간 소스·뷰어·GPU RENDERER·프레임은 미구현/unverified다.
 
 ## 다섯 참조에 더하는 공간 비교 {#reference-spatial-comparisons}
 <!--
@@ -98,29 +97,27 @@
 
 이 배정은 [전체 표면 소유](03-surface-owners.md#exterior-surface-handoff)와 방별 owner를 그대로 소비한다. maps가 맡는 필지·외부 보도/도로·지표·식재 입력은 [map 인계](site/00-access.md#map-handoff-inputs)가 미완료로 노출하며 spaces의 포장 치수로 대체하지 않는다. 지표를 받은 뒤 결정할 [건물 지지 하단](10-ground-floor.md#ground-support-handoff)과 [포장/문기둥 접지](site/01-paving-support.md#paving-contact-handoff)도 함께 남는다. 부재 원형·마감·반복·조명은 [제작 배분](../settings/00-production.md#build-allocation)의 해당 branch가 실현할 일이다. 공간 설계 문서를 읽은 결과를 그 부재나 빛의 관찰 결과로 옮기지 않는다.
 
-현재 다섯 비교 모두 실제 프레임·RENDERER·compiled topology/surface census가 없어 unverified이며 관찰자 목록도 미수령이다. spaces 초안의 문서 검토와 실제 1단계 폐쇄를 구별한다. 모든 공간의 실제 storey 귀속·문/계단/복도를 통한 도달과 소유된 표면 산출물 없이 [1단계 완료](../settings/20-verification.md#lifecycle-boundary)를 선언하지 않는다. 공간 그래프를 바꾸어야만 해소되는 참조 충돌이 관찰되면 [지배 목표](../settings/00-production.md#governing-aim)에 따라 조정자에게 올린다.
+현재 다섯 비교 모두 실제 프레임·RENDERER·compiled topology/surface census가 없어 unverified이며 관찰자 목록도 미수령이다. spaces 문서 검토와 실제 1단계 폐쇄를 구별한다. 모든 공간의 실제 storey 귀속·문/계단/복도를 통한 도달과 소유된 표면 산출물 없이 [1단계 완료](../settings/20-verification.md#lifecycle-boundary)를 선언하지 않는다. 공간 그래프를 바꾸어야만 해소되는 참조 충돌이 관찰되면 [지배 목표](../settings/00-production.md#governing-aim)에 따라 조정자에게 올린다.
 
 ## 공간 산출물에서 실제 렌더로 넘기는 경계 {#engine-render-handoff}
 <!--
-@evidence principles/core/common.md#scope-preservation lowerBuiltEnvironment의 한계, 비직사각 공간 표현, buildScene·mountViewer·buildSpaceObject의 역할, 조명·그림자 요구, census와 stations helper의 null 처리, 계단 connector 검증 한계를 맡는다.
-@evidence principles/core/common.md#substantive-completion 논리 room·boundary·opening 선언만으로는 메쉬가 생기지 않으므로 같은 저작 입력에서 만든 실제 models/elements를 lowerBuiltEnvironment로 전달하고 비직사각 공간은 볼록 cell 합집합 또는 닫힌 shell로 표현하는 인계를 정한다.
-@evidence principles/core/common.md#declared-basis 각 동작은 설치된 공개 엔진과 viewer의 API 소스 조사에서 읽은 것이며 환경 입력·서버 응답·렌더 연결은 없었다고 구분한다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 서버 측 CJS에서 공개 엔진 API로 현재 source를 해석하라는 설정을 어떤 공개 함수가 무엇을 하지 않는지까지 이 집의 공간 산출물에 맞춘 인계로 만든다.
+@evidence principles/core/common.md#scope-preservation model을 가진 element만 내리는 lowerBuiltEnvironment 경계에서 공간 면의 element 인계, 비직사각 공간 표현, standable surface와 보이는 바닥의 구별, 관찰 helper의 null 처리, 계단 connector 검증 한계를 맡는다.
+@evidence principles/core/common.md#substantive-completion 논리 room·boundary·opening 선언만으로는 보이는 벽·바닥·창호가 생기지 않으므로 03의 같은 source owner가 같은 저작 입력에서 model을 가진 element로 면을 만들고 비직사각 공간은 볼록 cell 합집합 또는 닫힌 shell로 표현한다는 인계를 정한다.
+@evidence principles/core/common.md#declared-basis lowerBuiltEnvironment와 두 helper, landing 검증의 동작은 설치된 공개 엔진 소스를 읽은 조건이며 환경 입력·호출·렌더 결과는 없다고 구분한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 실제 3D 렌더 요구를 공간 쪽에서 받아 공간 면은 surface owner별 model element로, 걷는 면은 검사용 standable surface로 나누는 인계를 정해 공간 선언만으로 보이는 집이 생긴 것처럼 읽히지 않게 한다.
 @evidence principles/design/spaces.md#space-topology 계단의 세 stop과 landing의 실제 참 포함을 connector id 유효성과 구별하고 L형 계단실·복도의 안쪽 꺾임 관찰을 같은 compiled 경계에서 추가한다.
-@evidence principles/design/spaces.md#space-boundary-authority 브라우저에 별도 집 좌표를 하드코딩하지 않고 방의 전체 bbox를 방 부피로 바꾸지 않는다.
+@evidence principles/design/spaces.md#space-boundary-authority 보이는 바닥은 08·10과 방·포장 owner의 element가 소유하고 standable surface가 그 면을 대신하지 않으며 방의 전체 bbox를 방 부피로 바꾸지 않는다.
 @evidence principles/design/spaces.md#space-verification-address null이나 같은 장소로 모인 시점을 성공한 관찰로 세지 않고 각 pose의 자기 공간 내부 위치를 확인하도록 한다.
-@evidence settings/20-verification.md#execution-boundary CJS 서버가 공개 엔진 API로 현재 source를 해석해 브라우저에 전달하는 구조를 따르고 별도 집을 생성하지 않는다.
-@evidence settings/20-verification.md#implementation-boundary 설치된 공개 엔진·viewer API의 동작만으로 경로를 정하고 저장소 패키지 변경을 경로에 넣지 않는다.
-@evidence settings/20-verification.md#renderer-boundary WebGLRenderer·원근 카메라·조명을 쓰는 경로를 요구하고 standable surface 검사 바닥을 보이는 층판이나 대지로 간주하지 않는다.
-@evidence settings/20-verification.md#lighting-state 그림자를 만드는 조명과 shadow map, 물체의 cast/receive 참여를 실행 경로의 필요 조건으로 둔다.
+@evidence settings/20-verification.md#renderer-boundary 재질·깊이를 가진 실제 3D 렌더에는 model element만 나타나므로 standable surface 검사 바닥을 보이는 층판이나 대지로 세지 않고 바닥·대지 owner의 부재를 생략하지 못하게 한다.
 @evidence settings/20-verification.md#data-authority helper 결과의 개수·좌표를 미리 선언하지 않고 실제 호출·전수 관찰을 unverified로 둔다.
-@evidenceExclude settings/20-verification.md#submission-boundary spaces H2 가운데 커밋·푸시 절차를 입력으로 쓰는 공간 결정은 없다. 이 H2의 렌더 인계도 source 파일과 실행 경로를 다루며 Git 제출은 저작 turn의 작업 절차다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work execution-boundary의 CJS 서버 구조와 renderer-boundary의 실제 3D 요구를 설치 API의 한계에 대조했고 공개 함수로 경로를 구성할 수 있어 부모 수정이 없었다.
+@evidenceExclude settings/20-verification.md#submission-boundary spaces H2 가운데 커밋·푸시 절차를 입력으로 쓰는 공간 결정은 없다. 이 H2의 렌더 인계도 공간 면의 element 표현을 다루며 Git 제출은 저작 turn의 작업 절차다.
+@evidenceExclude settings/20-verification.md#execution-boundary spaces 47개 문서는 CommonJS 엔진 경계·서버 구조·실행기를 정하거나 소비하는 공간 결정을 두지 않는다. 이 H2는 공간 면이 model element로 넘어가는 조건만 기록하고 서버와 모듈 방식은 settings와 source 단계가 소유한다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work renderer-boundary의 실제 3D 요구와 surface-allocation의 파일별 면 소유를 공개 엔진의 element 경계에 대조했고 공간 면을 같은 owner의 element로 넘길 수 있어 부모 수정이 없었다.
 -->
 
-설치된 공개 엔진의 `lowerBuiltEnvironment`는 환경을 검증하고 실제 model을 가진 element를 세계 변환의 set으로 내리며 원래 built environment도 보존한다. 논리적인 room·boundary·opening 선언만으로 벽·바닥·창호 메쉬를 생성하지 않는다. 후속 CJS 서버는 같은 저작 입력에서 만든 실제 models/elements와 논리 topology를 이 경로로 전달하고, 브라우저에 별도 집 좌표를 하드코딩하지 않는다. 비직사각 공간은 `IAutoMovieBuiltSpace`의 볼록 cell 합집합 또는 닫힌 shell 중 한 표현을 사용하며 그 전체 bbox를 방의 부피로 바꾸지 않는다. 현재는 API 소스 조사이며 환경 입력·서버 응답·렌더 연결은 없다.
+설치된 공개 엔진의 `lowerBuiltEnvironment`는 환경을 검증하고 실제 model을 가진 element만 세계 변환의 set으로 내리며 원래 built environment도 보존한다. 논리적인 room·boundary·opening 선언만으로는 보이는 벽·바닥·창호가 생기지 않는다. 따라서 이 공간 문서들이 정한 각 완결 면은 [표면 소유](03-surface-owners.md#exterior-surface-handoff)의 같은 source owner가 같은 저작 입력에서 model을 가진 element로 만들어야 하며 별도 좌표로 복제한 집을 두지 않는다. 비직사각 공간은 `IAutoMovieBuiltSpace`의 볼록 cell 합집합 또는 닫힌 shell 중 한 표현을 사용하며 그 전체 bbox를 방의 부피로 바꾸지 않는다. 현재는 공개 엔진 소스를 읽은 조건이며 환경 입력·호출·렌더 결과는 없다.
 
-`@automovie/viewer`의 `buildScene`은 실제 모델 노드와 원근 카메라·조명을 구성하고 `mountViewer`는 WebGLRenderer를 생성한다. 반면 `buildSpaceObject`의 standable surface는 기본 beauty에서 색과 깊이를 쓰지 않는 검사용 바닥이다. 그 선언만으로 보이는 층판이나 대지가 생겼다고 판단하지 않는다. 실제 바닥/지붕/벽 메쉬·재료와 그림자를 만드는 조명, shadow map 및 물체의 cast/receive 참여를 모두 소비하는 실행 경로가 필요하다. CJS 서버 쪽 엔진 해석, 클라이언트 의존성 연결, 실제 GPU 및 RENDERER는 아직 unverified이며 함수의 존재를 뷰어 준비로 보고하지 않는다.
+공간의 standable surface는 이동과 관찰 검사를 위한 바닥 선언이며 [실제 3D 렌더](../settings/20-verification.md#renderer-boundary)에서 보이는 층판이나 대지가 아니다. 보이는 바닥은 [지상층 바탕](10-ground-floor.md#main-ground-floor-base), [층간 바닥](08-floor-assembly.md#interstorey-floor-boundary), 각 방과 포장 owner의 element가 만든다. standable surface가 있다는 이유로 그 면들의 부재를 생략하지 않는다. 카메라·조명·그림자·재질을 포함한 뷰어의 렌더 조건은 settings가 소유하며 이 공간 문서에서 정하지 않는다.
 
 `builtEnvironmentBuildingCensus`와 `builtSpaceObservationStations`를 사용하더라도 [전체 분모](#spatial-observation-derivation)를 줄이지 않는다. 후자는 공간 부피에서 중심 네 방향·bbox 코너에서 안으로 옮긴 네 시점·각 boundary opening의 threshold를 파생하고, 내부 pose를 찾지 못하면 null을 반환할 수 있다. null이나 같은 장소로 모인 시점을 성공한 관찰로 세지 않는다. 이 집의 L형 계단실·복도 등에서 빠진 실제 안쪽 꺾임은 같은 compiled 경계로부터 추가하고 각 pose의 자기 공간 내부 위치를 확인해야 한다. helper 결과의 개수·좌표를 이번 문서에서 미리 선언하거나 기본 네 코너가 모든 오목 코너를 답했다고 주장하지 않는다. 실제 호출·전수 관찰·다섯 참조 대조는 unverified다.
 

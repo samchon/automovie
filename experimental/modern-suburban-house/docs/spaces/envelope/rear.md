@@ -97,9 +97,8 @@
 @evidence principles/design/spaces.md#space-verification-address 양방향 통행, 문짝/식탁 충돌, 프라이버시·채광, 03의 프레임을 반증 관찰로 둔다.
 @evidence settings/10-house.md#common-room 식탁을 후면 정원 출입 가까이 두는 관계에서 식탁·의자가 안쪽 대기를 막지 않게 한다.
 @evidence settings/10-house.md#site-identity 공용부에서 닿는 작은 포장 테라스로 나가는 문과 바깥 대기를 정한다.
-@evidence settings/00-production.md#use-profile 문 유효폭 0.80 m 이상 목표를 넘는 0.95 m 주 문과 바구니 사용체가 물러설 1.80 m 대기를 둔다.
 @evidence obligations/design/spaces.md#space-access-circulation 공용부와 정원 사이의 표현된 출입구에 안팎 대기와 주 문 유효폭을 배정해 문과 동선 그래프가 일치하게 한다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work common-room의 정원 출입 가까운 식탁, site-identity의 테라스, use-profile의 0.80 m 문 목표를 대조했고 문 두 장과 1.80 m 대기로 모두 성립해 부모 수정이 없었다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work common-room의 "식탁은 후면 정원 출입 가까이"와 site-identity의 "공용부에서 닿는 작은 포장 테라스"를 후벽 개구부에 대조했고 안쪽 대기를 식탁에서 떼고 바깥 대기를 테라스에 포함해 둘 다 성립해 부모 수정이 없었다.
 -->
 
 `garden-door`는 [후벽](#rear-openings)의 X = [-1.20, 1.20], Y = [0, 2.25] m 개구부로 ground-storey의 [kitchen-dining-family](../rooms/common.md#common-room-plan)와 외부 대기를 잇는다. [공통 인계](../06-openings.md#external-opening-interface)를 소비하며 바깥쪽 -Z 방향으로 열리는 유리 경첩 문 두 장이다. +X 쪽이 일상 진입의 주 문이고 경첩은 양 끝 문설주, 손잡이는 중앙 만남에 둔다. 주 문만 90° 열었을 때 유효 폭 목표는 0.95 m다. 문 한 장의 실제 회전 반경은 문틀을 제외한 문짝 치수에서 산출한다.
