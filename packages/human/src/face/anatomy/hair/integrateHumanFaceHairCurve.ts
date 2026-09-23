@@ -37,6 +37,11 @@ const requireDirection = humanFaceHairFrame.direction;
  * step. The root fan is a separate boundary transition; this free-path
  * argument does not prove root-fan or hair-to-hair nonintersection.
  *
+ * A step the contact blocks entirely is retried once across the blocking
+ * feature's outward side, which is the hair sliding along a wall the field
+ * points into, and taken only when it advances the way the hair is combed; a
+ * crevice narrower than the hair's own clearance still refuses.
+ *
  * Contact projects outside, then step bisection limits chord length. The last
  * chord is truncated by its remaining metric length. Blocked directions,
  * unrepresentable steps, short emergence and exhausted iteration budgets refuse
@@ -123,23 +128,61 @@ export function integrateHumanFaceHairCurve(props: {
           Vector3.scale(normal, Vector3.dot(direction, normal)),
         ),
       );
-    let q = contact(Vector3.add(p, Vector3.scale(direction, h)));
-    let distance = Vector3.length(Vector3.subtract(q, p));
-    if (distance > h + epsilon) {
-      let low = 0,
-        high = h;
-      q = p;
-      for (let bisect = 0; bisect < 48; bisect++) {
-        const middle = (low + high) / 2;
-        const trial = contact(Vector3.add(p, Vector3.scale(direction, middle)));
-        if (Vector3.length(Vector3.subtract(trial, p)) > h) high = middle;
-        else {
-          low = middle;
-          q = trial;
-        }
+    // A hair cannot turn faster than the tightest curl a head grows. The
+    // eight-class curl survey puts the tightest curve diameter below 1.2 cm
+    // (Loussouarn et al. 2007, recorded in the project's hair research note),
+    // so a step of h turns at most h / 6 mm. A field that asks for more is
+    // asking for a kink, which has no ribbon frame and no follicle.
+    if (points.length > 1) {
+      const before = requireDirection(
+        Vector3.subtract(points[points.length - 1], points[points.length - 2]),
+      );
+      const turn = Math.acos(
+        Math.max(-1, Math.min(1, Vector3.dot(before, direction))),
+      );
+      const limit = h / 0.006;
+      if (turn > limit) {
+        const across = Vector3.subtract(
+          direction,
+          Vector3.scale(before, Vector3.dot(direction, before)),
+        );
+        direction =
+          Vector3.length(across) > 0
+            ? Vector3.add(
+                Vector3.scale(before, Math.cos(limit)),
+                Vector3.scale(requireDirection(across), Math.sin(limit)),
+              )
+            : before;
       }
-      distance = Vector3.length(Vector3.subtract(q, p));
     }
+    // One step along a direction: the contact's own projection of a full
+    // step, bisected back when that projection lands farther than the step,
+    // which is the chord bound the clearance argument rests on.
+    const advance = (
+      along: IAutoMovieVector3,
+    ): { point: IAutoMovieVector3; distance: number } => {
+      let point = contact(Vector3.add(p, Vector3.scale(along, h)));
+      let distance = Vector3.length(Vector3.subtract(point, p));
+      if (distance > h + epsilon) {
+        let low = 0,
+          high = h;
+        point = p;
+        for (let bisect = 0; bisect < 48; bisect++) {
+          const middle = (low + high) / 2;
+          const trial = contact(Vector3.add(p, Vector3.scale(along, middle)));
+          if (Vector3.length(Vector3.subtract(trial, p)) > h) high = middle;
+          else {
+            low = middle;
+            point = trial;
+          }
+        }
+        distance = Vector3.length(Vector3.subtract(point, p));
+      }
+      return { point, distance };
+    };
+    const taken = advance(direction);
+    let q = taken.point;
+    const distance = taken.distance;
     if (!(distance > epsilon) || !Number.isFinite(distance))
       throw new Error("Contact blocks a representable numerical hair step.");
     if (distance >= length - cumulative - epsilon) {
