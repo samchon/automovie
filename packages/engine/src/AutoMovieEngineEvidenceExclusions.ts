@@ -9,6 +9,11 @@
  * Positive implementation citations remain on the actual public exports.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Generic playback consumes the model already evaluated by the human authoring builder; it does not own reusable facial identity and expression documents.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-basis Engine mesh validation checks the evaluated result; facial basis admission, ordered endpoint evaluation and pre-seam normals belong to the human builder.
+ * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-articulation Generic playback consumes the posed model; the facial joints, their landmarks and attachment weights belong to the human authoring builder.
+ * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-contact Generic playback consumes the resolved model; lip closure coupling, tongue passage and dental contact belong to the human authoring builder.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-articulation Engine quaternion and rigid-fit primitives serve the human package; the rest layer, landmark articulation and attachment posing order are its responsibility.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-contact The engine's signed sheet query is the primitive; aperture landmarks, closure scaling, passage refusal and floor resolution are the human package's order.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-parametric-hair Generic signed mesh queries provide a geometric primitive; scalp sampling, numerical styling documents, curve integration and strip assembly are human authoring responsibilities.
  * An exclusion neither implements a feature nor approves a rendered asset.
  * Add a boundary at its semantic owner and retain native graph validation.
  *

@@ -97,11 +97,8 @@ export async function decodeConnectedAssetText(
  * decoder. The package builder owns schema, connectivity and endpoint
  * admission. No source URL from a face document is fetched here.
  *
- * The payload type is the caller's, because the editor selects more than one
- * such asset: the immutable basis and the grooms seated on it arrive the same
- * way and differ only in what admits them afterwards. Nothing here inspects the
- * decoded value, so naming a type is a claim the caller makes and its own
- * admission has to keep.
+ * The payload type is the caller's. Nothing here inspects the decoded value,
+ * so naming a type is a claim the caller's downstream admission must keep.
  *
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Loads the application's selected reusable basis independently of any portrait or compact edit document.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-basis Delivers the explicitly selected immutable geometry payload to the numerical basis admission boundary.

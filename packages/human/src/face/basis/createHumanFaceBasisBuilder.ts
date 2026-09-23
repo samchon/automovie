@@ -1,12 +1,23 @@
 import { validateModel } from "@automovie/engine";
+import { createMeshWeldPartitionMatcher } from "@automovie/engine/math/createMeshWeldPartitionMatcher";
 import type { IAutoMovieModel } from "@automovie/interface";
 import typia from "typia";
 
+import { createHumanFaceHairBuilder } from "../anatomy/hair/createHumanFaceHairBuilder";
+import { createPortraitColourField } from "../anatomy/skin/createPortraitColourField";
 import { portraitNormals } from "../mesh/portraitNormals";
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceBasisDocument } from "../structures/IAutoMovieHumanFaceBasisDocument";
+import type { IAutoMovieHumanFaceContactSummary } from "../structures/IAutoMovieHumanFaceContactSummary";
 import { assertHumanFaceBasis } from "./assertHumanFaceBasis";
-import { humanFaceBasisRegion } from "./humanFaceBasisRegion";
+import { createHumanFaceBasisRegion } from "./createHumanFaceBasisRegion";
+import { evaluateHumanFacePassage } from "./evaluateHumanFacePassage";
+import { evaluateHumanFaceRest } from "./evaluateHumanFaceRest";
+import { humanFaceBasisWeights } from "./humanFaceBasisWeights";
+import { measureHumanFaceAperture } from "./measureHumanFaceAperture";
+import { poseHumanFaceSurface } from "./poseHumanFaceSurface";
+import { resolveHumanFaceArticulation } from "./resolveHumanFaceArticulation";
+import { resolveHumanFaceContact } from "./resolveHumanFaceContact";
 
 /**
  * Compile a caller-owned connected facial prior into a deterministic builder.
@@ -14,34 +25,79 @@ import { humanFaceBasisRegion } from "./humanFaceBasisRegion";
  * resident model through exportHumanFace. Offline modelling tools supply the
  * licensed geometry; none run here and no source photo is needed for replay.
  *
- * For each vertex p, evaluation is identity, then p + sum(abs(weight) *
- * endpointDelta), then each basis corrective's endpoint at its own activation,
- * then each document corrective's rows at its activation. Signed shape
- * controls select distinct authored endpoints. All surfaces use the same
- * channel order; normals are reconstructed before UV/material seams.
+ * The order per document is fixed and is what the specification states:
+ * channel weights and corrective activations (`humanFaceBasisWeights`), then
+ * the rest layer of every surface and landmark (`evaluateHumanFaceRest`:
+ * `p + sum(|weight| * endpoint) + sum(activation * corrective)`, the closure
+ * channel of a contact basis excepted), then the articulation read off the
+ * shaped landmarks (`resolveHumanFaceArticulation`), then on a contact basis
+ * the apertures of the posed vertex pairs (`measureHumanFaceAperture`) and
+ * the closure rows added to the rest layer scaled by weight and aperture
+ * ratio, then each attached surface posed through its sparse weights
+ * (`poseHumanFaceSurface`), then the tongue's passage judged
+ * (`evaluateHumanFacePassage`) and soft tissue held outside the dental
+ * colliders (`resolveHumanFaceContact`), then common normals and region
+ * separation. Shape is identity, a joint's centre is identity, and the
+ * expression rows of an articulated basis are rest-space residuals over the
+ * joint motion, so a mandibular arch stays a rigid body on the arc at every
+ * fraction of opening and the lips, lining and tongue bound to it take the
+ * same transform before their own tissue rows are added. A basis without
+ * articulation evaluates the same rest layer and poses nothing, which is the
+ * purely linear prior; a basis without contact stops after posing.
  *
- * Correctives are what a purely linear prior cannot express: two endpoints that
- * move the same tissue sum to a face neither of them describes. The activation
- * is a product of the clamped driving sides, so it is absent unless the whole
- * combination is, which is what separates a corrective from another control.
- * A new model owns its arrays and materials; neither basis nor edits mutate.
- * The existing model and Float32 exporter admission remain authoritative.
- * Linear endpoints do not establish collision-free or physiological movement.
+ * Pigmentation is sampled on immutable neutral source coordinates, then
+ * gathered with the same region correspondence. It changes no position or
+ * normal and follows both shape and articulated expression. Fields contain no
+ * image data. A new model owns its arrays and materials; neither basis nor
+ * edits mutate. Model structure and materials are admitted on the prepared
+ * neutral. Repeated edits retain that structure and check their welded vertex
+ * partition; a changed partition takes the full model gate again. Finite
+ * normal construction and channel/material domains remain per-edit checks.
+ * Export still admits Float32. The contact stage establishes only the floor
+ * rule it states and the passage it refuses; the crossing census still
+ * measures the rest. An `observe` callback receives each successful build's
+ * contact summary, or null on a basis without contact, so a runtime can
+ * report it without evaluating twice.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Evaluates named shape and expression edits on one reusable connected prior without source images.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-basis Admits sparse correspondence once, applies deterministic endpoint selection and reconstructs common normals before region separation.
+ * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Same edits yield the same model; shape and expression are read from the same base under one evaluation order.
+ * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-basis Evaluates rest, articulation and contact in the specified order and gates on the neutral once.
+ * @evidence requirements/actors/facial-authoring/contract.md#actor-face-articulation Applies one mandibular and two ocular transforms through shared attachments before any local expression is read.
+ * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-articulation Evaluates rest layer, shaped landmarks, joint resolution, attached posing and normals in that order.
+ * @evidence requirements/actors/facial-authoring/contract.md#actor-face-contact Scales lip closure to the aperture it closes and judges tongue passage and tissue contact on the same articulated state.
+ * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-contact Runs aperture measurement, scaled closure, posing, passage and floor resolution in the specified order.
  */
 export function createHumanFaceBasisBuilder(
   input: IAutoMovieHumanFaceBasis,
+  options?: {
+    observe?: (contact: IAutoMovieHumanFaceContactSummary | null) => void;
+  },
 ): (document: IAutoMovieHumanFaceBasisDocument) => IAutoMovieModel {
   const basis = structuredClone(
     typia.assertEquals<IAutoMovieHumanFaceBasis>(input),
   );
   assertHumanFaceBasis(basis);
-  const channels = new Map(
-    basis.channels.map((channel) => [channel.id, channel]),
+  const buildHair = createHumanFaceHairBuilder(basis);
+  const surfaces = basis.surfaces.map((surface) => ({
+    surface,
+    regions: surface.regions.map((region) => ({
+      region,
+      evaluate: createHumanFaceBasisRegion(region),
+    })),
+  }));
+  const closure = new Set(
+    basis.contact === undefined ? [] : [basis.contact.closure.channel],
   );
-  return (inputDocument) => {
+  const shapeChannels = new Set(
+    basis.channels
+      .filter((channel) => channel.kind === "shape")
+      .map((channel) => channel.id),
+  );
+  let partitions:
+    | ReturnType<typeof createMeshWeldPartitionMatcher>[]
+    | undefined;
+  const build = (
+    inputDocument: IAutoMovieHumanFaceBasisDocument,
+  ): IAutoMovieModel => {
     const document =
       typia.assertEquals<IAutoMovieHumanFaceBasisDocument>(inputDocument);
     if (
@@ -51,116 +107,11 @@ export function createHumanFaceBasisBuilder(
       throw new Error(
         "Facial edits need nonempty identities and the exact compiled basis revision.",
       );
-    const weights = new Map<string, number>();
-    for (const kind of ["shape", "expression"] as const)
-      for (const [name, weight] of Object.entries(document[kind])) {
-        const channel = channels.get(name);
-        if (
-          channel === undefined ||
-          channel.kind !== kind ||
-          !Number.isFinite(weight) ||
-          weight < channel.minimum ||
-          weight > channel.maximum
-        )
-          throw new Error(
-            "Unsupported or out-of-domain facial control: " + kind + "." + name,
-          );
-        weights.set(name, weight);
-      }
-    // A per-vertex field names surfaces and vertices of this basis. A row
-    // that names neither is a document written against something else, and
-    // silently skipping it would build a face that is not the one asked for.
-    const admitRows = (
-      what: string,
-      fields: Record<string, number[]>,
-    ): void => {
-      for (const [id, rows] of Object.entries(fields)) {
-        const surface = basis.surfaces.find((one) => one.id === id);
-        const vertices =
-          surface === undefined ? 0 : surface.positions.length / 3;
-        if (
-          surface === undefined ||
-          rows.length % 4 !== 0 ||
-          rows.some((value) => !Number.isFinite(value))
-        )
-          throw new Error(
-            what +
-              " needs finite [vertex, dx, dy, dz] rows on a surface this basis declares: " +
-              id,
-          );
-        let previous = -1;
-        for (let i = 0; i < rows.length; i += 4) {
-          const vertex = rows[i];
-          if (
-            !Number.isInteger(vertex) ||
-            vertex <= previous ||
-            vertex >= vertices
-          )
-            throw new Error(
-              what +
-                " rows are strictly increasing vertices of " +
-                id +
-                ", within its " +
-                vertices +
-                " vertices.",
-            );
-          previous = vertex;
-        }
-      }
-    };
-    admitRows("Per-vertex identity", document.identity ?? {});
-    // A document corrective is this face's own answer to a combination, on
-    // top of the basis's. It is admitted like a basis corrective, against the
-    // channels it drives and the names already taken, and its rows like the
-    // identity's, because it is the same kind of field with a different owner.
-    const taken = new Set([
-      ...basis.channels.map((one) => one.id),
-      ...(basis.correctives ?? []).map((one) => one.id),
-    ]);
-    for (const corrective of document.correctives ?? []) {
-      if (
-        taken.has(corrective.id) ||
-        corrective.id.trim() === "" ||
-        corrective.inputs.length === 0 ||
-        !Number.isFinite(corrective.weight) ||
-        corrective.weight <= 0 ||
-        corrective.weight > 1 ||
-        new Set(
-          corrective.inputs.map((input) => input.channel + "/" + input.side),
-        ).size !== corrective.inputs.length
-      )
-        throw new Error(
-          "A document corrective needs an unclaimed identity, distinct drivers and a gain in (0,1]: " +
-            corrective.id,
-        );
-      taken.add(corrective.id);
-      for (const input of corrective.inputs) {
-        const channel = channels.get(input.channel);
-        const peak = input.peak ?? 1;
-        if (
-          channel === undefined ||
-          (input.side === "negative" ? channel.negative : channel.positive) ===
-            null ||
-          (input.peak !== undefined &&
-            (!Number.isFinite(input.peak) ||
-              input.peak <= 0 ||
-              input.peak > 1)) ||
-          (input.between !== undefined &&
-            (!input.between.every(Number.isFinite) ||
-              input.between[0] < 0 ||
-              input.between[0] >= peak ||
-              input.between[1] < peak ||
-              input.between[1] > 1))
-        )
-          throw new Error(
-            "A document corrective drives off a side no channel carries, peaks outside (0,1], or spans outside 0 <= below < peak <= above <= 1: " +
-              input.channel +
-              "." +
-              input.side,
-          );
-      }
-      admitRows("Document corrective " + corrective.id, corrective.targets);
-    }
+    const surfaceIds = new Set(basis.surfaces.map((surface) => surface.id));
+    for (const id of Object.keys(document.skin ?? {}))
+      if (!surfaceIds.has(id))
+        throw new Error("Pigmentation needs a resident basis surface: " + id);
+    const state = humanFaceBasisWeights(basis, document);
     const materials = structuredClone(basis.materials);
     const materialMap = new Map(
       materials.map((material) => [material.id, material]),
@@ -189,97 +140,128 @@ export function createHumanFaceBasisBuilder(
       if (override.roughness !== undefined)
         material.roughness = override.roughness;
     }
-    // Correctives are evaluated once, from the channel weights, and then
-    // applied like any other endpoint. The activation is a product of the
-    // clamped driving sides times the authored gain, capped at one: present
-    // only when every driver is present, a quarter when two drivers are at
-    // half. That is MetaHuman's `PSDNetImpl`, which computes
-    // `min(1, weight * product of clamped inputs)` over a buffer it clamps to
-    // [0,1] first, and the form matters more than the source: a sum here would
-    // fire a corrective on one driver alone, which is the pose it was authored
-    // to leave untouched. An input with a peak under one is an in-between: its
-    // factor is a tent over the driver, one at the peak and zero at either end
-    // of its span, which is the whole envelope unless the input names one.
-    const activationOf = (corrective: {
-      inputs: {
-        channel: string;
-        side: "positive" | "negative";
-        peak?: number;
-        between?: [number, number];
-      }[];
-      weight: number;
-    }): number =>
-      Math.min(
-        1,
-        corrective.inputs.reduce((total, input) => {
-          const weight = weights.get(input.channel) ?? 0;
-          const driver = input.side === "negative" ? -weight : weight;
-          const peak = input.peak ?? 1;
-          const [below, above] = input.between ?? [0, 1];
-          const factor =
-            driver <= peak
-              ? (driver - below) / (peak - below)
-              : above > peak
-                ? (above - driver) / (above - peak)
-                : 1;
-          return total * Math.min(1, Math.max(0, factor));
-        }, corrective.weight),
+    const rest = evaluateHumanFaceRest(basis, state, closure);
+    const motions =
+      basis.articulation === undefined
+        ? undefined
+        : resolveHumanFaceArticulation(
+            basis.articulation,
+            state.weights,
+            rest.landmarks,
+          ).motions;
+    let summary: IAutoMovieHumanFaceContactSummary | null = null;
+    let shaped: ReturnType<typeof evaluateHumanFaceRest> | undefined;
+    let frame: ReturnType<typeof measureHumanFaceAperture> | undefined;
+    const contact = basis.contact;
+    if (contact !== undefined) {
+      shaped = evaluateHumanFaceRest(basis, {
+        weights: new Map(
+          [...state.weights].filter(([id]) => shapeChannels.has(id)),
+        ),
+        activations: state.activations.filter((one) => one.shapeOnly),
+      });
+      const referenced = evaluateHumanFaceRest(
+        basis,
+        humanFaceBasisWeights(basis, {
+          shape: document.shape,
+          expression: { [contact.closure.reference]: 1 },
+        }),
       );
-    const applied = (basis.correctives ?? []).map((corrective) => ({
-      target: corrective.target,
-      activation: activationOf(corrective),
-    }));
-    // This face's own correctives fire by the same rule and land after the
-    // basis's, so they are the residual on top of the shared answer.
-    const own = (document.correctives ?? []).map((corrective) => ({
-      targets: corrective.targets,
-      activation: activationOf(corrective),
-    }));
-    const parts = basis.surfaces.flatMap((surface) => {
-      const positions = surface.positions.slice();
-      const accumulate = (name: string, gain: number): void => {
-        const rows = surface.targets[name];
-        if (rows === undefined) return;
-        for (let i = 0; i < rows.length; i += 4)
-          for (let axis = 0; axis < 3; axis++)
-            positions[rows[i] * 3 + axis] += gain * rows[i + axis + 1];
+      frame = measureHumanFaceAperture(
+        basis,
+        contact,
+        shaped,
+        referenced,
+        rest,
+        motions!,
+      );
+      const weight = state.weights.get(contact.closure.channel) ?? 0;
+      const gain = weight * frame.closureRatio;
+      const endpoint = basis.channels.find(
+        (channel) => channel.id === contact.closure.channel,
+      )!.positive;
+      if (gain !== 0)
+        basis.surfaces.forEach((surface, index) => {
+          const rows = surface.targets[endpoint];
+          if (rows === undefined) return;
+          const positions = rest.surfaces[index];
+          for (let i = 0; i < rows.length; i += 4)
+            for (let axis = 0; axis < 3; axis++)
+              positions[rows[i] * 3 + axis] += gain * rows[i + axis + 1];
+        });
+    }
+    const posed = new Map<string, number[]>();
+    basis.surfaces.forEach((surface, index) => {
+      posed.set(
+        surface.id,
+        motions !== undefined && (surface.attachments?.length ?? 0) > 0
+          ? poseHumanFaceSurface(
+              rest.surfaces[index],
+              surface.attachments!,
+              motions,
+            )
+          : rest.surfaces[index],
+      );
+    });
+    if (contact !== undefined) {
+      // The lips are read again after closure: passage and the summary judge
+      // the seam the render shows, not the aperture the closure was scaled to.
+      const lips = posed.get(contact.lips.surface)!;
+      const seam = [0, 1, 2].reduce(
+        (total, axis) =>
+          total +
+          (lips[3 * contact.lips.upper + axis] -
+            lips[3 * contact.lips.lower + axis]) *
+            [frame!.up.x, frame!.up.y, frame!.up.z][axis],
+        0,
+      );
+      frame = { ...frame!, lips: { ...frame!.lips, gap: seam } };
+      const passage = evaluateHumanFacePassage(
+        contact,
+        posed.get(contact.passage.surface)!,
+        frame,
+      );
+      const resolved = resolveHumanFaceContact(
+        basis,
+        contact,
+        posed,
+        new Map(
+          basis.surfaces.map((surface, index) => [
+            surface.id,
+            shaped!.surfaces[index],
+          ]),
+        ),
+      );
+      summary = {
+        interlabialMetres: frame!.lips.gap,
+        interincisalMetres: frame!.incisors.gap,
+        closureRatio: frame!.closureRatio,
+        passage,
+        resolved,
       };
-      // Identity first, because identity is what the neutral is. The channels
-      // then move this face from its own neutral rather than from the shared
-      // one; applying the delta afterwards would make a wider jaw open
-      // differently from a narrow one for no authored reason.
-      const identity = document.identity?.[surface.id];
-      if (identity !== undefined)
-        for (let i = 0; i < identity.length; i += 4)
-          for (let axis = 0; axis < 3; axis++)
-            positions[identity[i] * 3 + axis] += identity[i + axis + 1];
-      for (const channel of basis.channels) {
-        const weight = weights.get(channel.id) ?? 0;
-        if (weight === 0) continue;
-        accumulate(
-          weight < 0 ? channel.negative! : channel.positive,
-          Math.abs(weight),
-        );
+    }
+    const evaluated = new Map<string, readonly number[]>();
+    const parts = surfaces.flatMap(({ surface, regions }) => {
+      const fields = Object.hasOwn(document.skin ?? {}, surface.id)
+        ? document.skin![surface.id]
+        : undefined;
+      let colors: number[] | undefined;
+      if (fields !== undefined) {
+        const sample = createPortraitColourField(fields);
+        colors = [];
+        for (let vertex = 0; vertex < surface.positions.length; vertex += 3)
+          colors.push(...sample(surface.positions.slice(vertex, vertex + 3)));
       }
-      for (const corrective of applied)
-        if (corrective.activation > 0)
-          accumulate(corrective.target, corrective.activation);
-      for (const corrective of own) {
-        const rows = corrective.targets[surface.id];
-        if (corrective.activation <= 0 || rows === undefined) continue;
-        for (let i = 0; i < rows.length; i += 4)
-          for (let axis = 0; axis < 3; axis++)
-            positions[rows[i] * 3 + axis] +=
-              corrective.activation * rows[i + axis + 1];
-      }
+      const positions = posed.get(surface.id)!;
       const normals = portraitNormals(positions, surface.indices);
-      return surface.regions.map((region) => ({
+      evaluated.set(surface.id, positions);
+      return regions.map(({ region, evaluate }) => ({
         id: region.id,
         name: region.id,
         material: region.material,
         geometry: {
           type: "mesh" as const,
-          mesh: humanFaceBasisRegion(positions, normals, region),
+          mesh: evaluate(positions, normals, colors),
         },
         attachedBone: null,
         transform: null,
@@ -295,12 +277,58 @@ export function createHumanFaceBasisBuilder(
       body: null,
       asset: null,
     };
-    const validation = validateModel({ model });
-    if (!validation.success)
-      throw new Error(
-        "The evaluated facial basis is not a valid resident model: " +
-          JSON.stringify(validation),
-      );
+    // Fixed indices, UVs, references and resident finishes were admitted on the
+    // neutral. Only deformation can change welded incidence; reuse the verdict
+    // exactly while its equivalence classes stay fixed. Never assume an endpoint
+    // cannot merge or split vertices merely because its scalar is in range.
+    if (
+      partitions === undefined ||
+      parts.some(
+        (part, index) => !partitions![index](part.geometry.mesh.positions),
+      )
+    ) {
+      const validation = validateModel({ model });
+      if (!validation.success)
+        throw new Error(
+          "The evaluated facial basis is not a valid resident model: " +
+            JSON.stringify(validation),
+        );
+      if (partitions === undefined)
+        partitions = parts.map((part) =>
+          createMeshWeldPartitionMatcher(part.geometry.mesh.positions),
+        );
+    }
+    if (document.hair !== undefined && document.hair !== null) {
+      const hair = buildHair(document.hair, evaluated);
+      if (
+        hair.parts.some((part) =>
+          model.parts.some((resident) => resident.id === part.id),
+        ) ||
+        hair.materials.some((material) =>
+          model.materials.some((resident) => resident.id === material.id),
+        )
+      )
+        throw new Error(
+          "Numerical hair identities collide with resident face geometry or finishes.",
+        );
+      model.parts.push(...hair.parts);
+      model.materials.push(...hair.materials);
+      const validation = validateModel({ model });
+      if (!validation.success)
+        throw new Error(
+          "The numerical hairstyle did not form a valid resident model: " +
+            JSON.stringify(validation),
+        );
+    }
+    options?.observe?.(summary);
     return model;
   };
+  build({
+    id: basis.id,
+    name: basis.id,
+    basis: basis.id,
+    shape: {},
+    expression: {},
+  });
+  return build;
 }

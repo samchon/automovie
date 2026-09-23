@@ -1,0 +1,152 @@
+{
+  "sourceCommit": "a424b5153eec9154f3dfa5ee7f214e5817918d54",
+  "modelSha256": "67fef851c2e74ecad590dccf1b336afbb6bf0ae7cf981e5efeaf2160f178e745",
+  "modelBytes": 53305389,
+  "vertices": 17821,
+  "identityCoefficients": 253,
+  "expressionCoefficients": 383,
+  "jointNames": [
+    "neck",
+    "head",
+    "left_eye",
+    "right_eye"
+  ],
+  "poseCorrectivesNonzero": 0,
+  "scope": "Zero identity, zero joint rotations/translation; individual expression coefficients only. Distances in source coordinate units, not an anatomical or collision acceptance.",
+  "groups": [
+    {
+      "name": "upper_teeth_and_gums",
+      "vertices": 1440,
+      "maximum": {
+        "expression": "left_eye_region_000",
+        "value": -1,
+        "properRigidRmsSourceUnits": 1.5763507821070616e-17
+      },
+      "topTen": [
+        {
+          "expression": "left_eye_region_000",
+          "value": -1,
+          "properRigidRmsSourceUnits": 1.5763507821070616e-17
+        },
+        {
+          "expression": "left_eye_region_000",
+          "value": -0.5,
+          "properRigidRmsSourceUnits": 1.5763507821070616e-17
+        },
+        {
+          "expression": "left_eye_region_000",
+          "value": 0.5,
+          "properRigidRmsSourceUnits": 1.5763507821070616e-17
+        },
+        {
+          "expression": "left_eye_region_000",
+          "value": 1,
+          "properRigidRmsSourceUnits": 1.5763507821070616e-17
+        },
+        {
+          "expression": "left_eye_region_001",
+          "value": -1,
+          "properRigidRmsSourceUnits": 1.5763507821070616e-17
+        },
+        {
+          "expression": "left_eye_region_001",
+          "value": -0.5,
+          "properRigidRmsSourceUnits": 1.5763507821070616e-17
+        },
+        {
+          "expression": "left_eye_region_001",
+          "value": 0.5,
+          "properRigidRmsSourceUnits": 1.5763507821070616e-17
+        },
+        {
+          "expression": "left_eye_region_001",
+          "value": 1,
+          "properRigidRmsSourceUnits": 1.5763507821070616e-17
+        },
+        {
+          "expression": "left_eye_region_002",
+          "value": -1,
+          "properRigidRmsSourceUnits": 1.5763507821070616e-17
+        },
+        {
+          "expression": "left_eye_region_002",
+          "value": -0.5,
+          "properRigidRmsSourceUnits": 1.5763507821070616e-17
+        }
+      ]
+    },
+    {
+      "name": "lower_teeth_and_gums",
+      "vertices": 1440,
+      "maximum": {
+        "expression": "lower_face_region_001",
+        "value": -1,
+        "properRigidRmsSourceUnits": 0.00011397858832435184
+      },
+      "topTen": [
+        {
+          "expression": "lower_face_region_001",
+          "value": -1,
+          "properRigidRmsSourceUnits": 0.00011397858832435184
+        },
+        {
+          "expression": "lower_face_region_000",
+          "value": -1,
+          "properRigidRmsSourceUnits": 7.399938292601153e-05
+        },
+        {
+          "expression": "lower_face_region_003",
+          "value": -1,
+          "properRigidRmsSourceUnits": 6.304104421933777e-05
+        },
+        {
+          "expression": "lower_face_region_001",
+          "value": 1,
+          "properRigidRmsSourceUnits": 6.0447374996916026e-05
+        },
+        {
+          "expression": "lower_face_region_001",
+          "value": -0.5,
+          "properRigidRmsSourceUnits": 4.712459539625994e-05
+        },
+        {
+          "expression": "lower_face_region_000",
+          "value": 1,
+          "properRigidRmsSourceUnits": 4.682946359404672e-05
+        },
+        {
+          "expression": "lower_face_region_003",
+          "value": 1,
+          "properRigidRmsSourceUnits": 4.225331164735429e-05
+        },
+        {
+          "expression": "lower_face_region_001",
+          "value": 0.5,
+          "properRigidRmsSourceUnits": 3.240297450154203e-05
+        },
+        {
+          "expression": "lower_face_region_000",
+          "value": -0.5,
+          "properRigidRmsSourceUnits": 3.1733198904530564e-05
+        },
+        {
+          "expression": "lower_face_region_002",
+          "value": -1,
+          "properRigidRmsSourceUnits": 3.0159789425695817e-05
+        }
+      ]
+    }
+  ],
+  "templateBounds": [
+    [
+      -0.12777356803417206,
+      0.06556179374456406,
+      -0.09221039712429047
+    ],
+    [
+      0.127635657787323,
+      0.40711015462875366,
+      0.14650166034698486
+    ]
+  ]
+}

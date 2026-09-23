@@ -9,6 +9,10 @@
  * Positive implementation citations remain on the actual public exports.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-connected-basis The viewer displays evaluated geometry and does not interpret reusable facial bases or compact editing documents.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-basis GPU display consumes completed mesh parts; sparse endpoint evaluation and normals before material separation happen in the human builder.
+ * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-articulation The viewer displays posed geometry and does not evaluate facial joints, landmarks or attachment weights.
+ * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-contact The viewer displays the resolved face; it does not judge lip, tooth or tongue contact.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-articulation GPU display consumes completed mesh parts; landmark articulation and attachment posing happen before it.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-contact The viewer renders posed buffers; aperture measurement and contact resolution precede it in the human builder.
  * An exclusion neither implements a feature nor approves a rendered asset.
  * Add a boundary at its semantic owner and retain native graph validation.
  *
@@ -44,6 +48,7 @@
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/README.md#face-specifications The general viewer displays compiled scene state; it does not own the complete face construction, application and review boundary.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document The general viewer displays compiled scene state; it does not own human-face version admission and photo-independent basis interpretation.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components The general viewer displays compiled scene state; it does not own cranial, cervical, ocular, nasal, oral and auricular surface assembly.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-parametric-hair GPU display consumes completed hair strips and materials; it does not sample scalp roots or integrate numerical styling fields.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-skin-condition This GPU lifecycle consumes constructed meshes and owns neither anatomical field synthesis nor portrait-local conforming subdivision.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-skin-colour The GPU lifecycle displays supplied vertex colours; it does not define pigment envelopes or pair facial component assemblies.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls The general viewer displays compiled scene state; it does not own ordered face defaults, trait offsets, array replacement and asymmetric detail.

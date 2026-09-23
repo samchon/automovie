@@ -10,12 +10,16 @@ import type { IAutoMovieModelCrossing } from "@automovie/engine";
 import {
   type IAutoMovieHumanFaceBasis,
   type IAutoMovieHumanFaceBasisDocument,
-  type IAutoMovieHumanFaceEndpointScale,
+  type IAutoMovieHumanFaceContactSummary,
+  type IAutoMovieHumanFaceControlMap,
   createHumanFaceEditor,
-  measureHumanFaceBasisChannels,
   parseHumanFaceBasisDocument,
   serializeHumanFaceBasisDocument,
+  type summarizeHumanFaceArticulation,
 } from "@automovie/human";
+
+import { mountConnectedFaceAppearance } from "./connectedAppearance";
+import { mountConnectedFaceControls } from "./connectedControls";
 
 /**
  * Mount editable endpoint controls around an injected numerical viewport.
@@ -29,8 +33,9 @@ import {
  */
 export function mountConnectedFacePanel<
   Model extends {
-    glb: Uint8Array<ArrayBuffer>;
     parts: number;
+    articulation?: ReturnType<typeof summarizeHumanFaceArticulation>;
+    contact?: IAutoMovieHumanFaceContactSummary | null;
     crossings?: IAutoMovieModelCrossing[] | null;
   },
 >(
@@ -39,6 +44,7 @@ export function mountConnectedFacePanel<
     /** Admitted basis; the panel reads its channels and measures their scale. */
     basis: IAutoMovieHumanFaceBasis;
     initial: IAutoMovieHumanFaceBasisDocument;
+    controlMap?: IAutoMovieHumanFaceControlMap;
     /** Application-owned studies; never embedded in the numerical package. */
     studies?: readonly IAutoMovieHumanFaceBasisDocument[];
     presets: { name: string; expression: Record<string, number> }[];
@@ -48,6 +54,9 @@ export function mountConnectedFacePanel<
         measure?: boolean,
       ) => Promise<Model>;
       cancel: () => void;
+      export: (
+        document: IAutoMovieHumanFaceBasisDocument,
+      ) => Promise<Uint8Array<ArrayBuffer>>;
       publish: (model: Model) => void;
       dispose: (model: Model) => void;
       fitView: () => void;
@@ -59,31 +68,14 @@ export function mountConnectedFacePanel<
   },
 ) {
   const dom = app.ownerDocument;
-  // A basis weight is dimensionless, so the envelope alone gives an author a
-  // range without a unit. The package measures what one unit of each endpoint
-  // moves; the panel only formats it. Millimetres because the whole head spans
-  // a few hundred and the smallest authored endpoints move tens of micrometres.
-  const scales = new Map(
-    measureHumanFaceBasisChannels(props.basis).map((scale) => [
-      scale.id,
-      scale,
-    ]),
-  );
-  const millimetres = (metres: number): string => (metres * 1000).toFixed(2);
-  const describe = (
-    sign: string,
-    scale: IAutoMovieHumanFaceEndpointScale,
-  ): string =>
-    `${sign}1 moves ${millimetres(scale.displacement)} mm rms, ` +
-    `${millimetres(scale.peak)} mm peak on ${scale.vertices} vertices`;
   app.innerHTML = `
 <style>
 *{box-sizing:border-box}body{margin:0;background:#161c23;color:#e4eaf0;font:13px/1.5 system-ui}main{display:grid;grid-template-columns:minmax(300px,1fr) 410px;height:100vh}section{position:relative;min-width:0}canvas{width:100%;height:100%;display:block}aside{overflow:auto;padding:20px;background:#10161d}h1{font-size:20px;margin:0}h2{font-size:14px;margin:20px 0 8px}p,small{color:#a9b7c8}button,input,select,textarea{font:inherit;color:inherit;background:#202b37;border:1px solid #405063;border-radius:4px}button{padding:5px 8px;cursor:pointer}button:disabled{opacity:.4}a{color:#a7d1f0}.toolbar{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}.views{position:absolute;top:10px;left:10px;right:10px}fieldset{border:0;padding:0;margin:0}.row{margin:12px 0}.row label{display:block}.row div{display:flex;gap:10px}.row small{display:block;font-size:11px}.row input[type=range]{flex:1;min-width:0}.row input[type=number]{width:85px;padding:3px}textarea{width:100%;height:230px;font:11px monospace;padding:8px}select{width:100%;padding:6px}#face-status{white-space:pre-wrap;background:#1c2834;padding:10px;border-radius:5px;margin:12px 0}#face-status[data-state=error]{background:#422127;color:#ffd2d2}@media(max-width:780px){main{grid-template-columns:1fr;height:auto}section{height:60vh}}
 </style>
 <main><section><canvas id="face-canvas"></canvas><div class="toolbar views"><button data-view="0">Front</button><button data-view="45">Left ¾</button><button data-view="-45">Right ¾</button><button data-view="90">Left</button><button data-view="-90">Right</button><button data-view="180">Back</button><button id="fit-view">Fit</button><label><input id="clay" type="checkbox"> Clay</label><label><input id="shadows" type="checkbox" checked> Shadows</label></div></section>
-<aside><h1>Connected face editor</h1><p>Shape and expression on one shared surface</p><a href="face.html">Open procedural face editor</a><div id="face-status" role="status">Loading the numerical basis…</div>
+<aside><h1>Face editor</h1><p>Numerical shape, expression, skin and hair</p><div id="face-status" role="status">Loading the numerical basis…</div>
 <fieldset id="editing" disabled><div class="toolbar"><button id="face-undo">Undo</button><button id="face-redo">Redo</button><button id="face-reset">Reset</button></div><div class="toolbar"><button id="face-save">Save document</button><button id="face-load">Load document</button><button id="face-glb">Export GLB</button><button id="face-contacts">Check contacts</button><input id="face-file" type="file" accept=".json,application/json" hidden></div>
-<h2>Expression presets</h2><div id="presets" class="toolbar"></div><h2>Controls</h2><select id="control-kind" aria-label="Control group"><option value="shape">Face shape</option><option value="expression">Expression</option></select><p>0 is the source neutral. Weights interpolate authored endpoints; they are not physical measurements. Each control states how far one unit of its endpoints moves the surface.</p><div id="basis-controls"></div><details><summary>Complete document and appearance</summary><textarea id="document-json" aria-label="Complete document"></textarea><button id="document-apply">Apply document</button></details></fieldset></aside></main>`;
+<h2>Expression presets</h2><div id="presets" class="toolbar"></div><h2>Controls</h2><select id="control-kind" aria-label="Control group"><option value="shape">Face shape</option><option value="expression">Expression</option></select><p id="control-help">0 is the source neutral. Weights interpolate authored endpoints; they are not physical measurements. Each control states how far one unit of its endpoints moves the surface.</p><div id="basis-controls"></div><details><summary>Complete document and appearance</summary><textarea id="document-json" aria-label="Complete document"></textarea><button id="document-apply">Apply document</button></details></fieldset></aside></main>`;
   const element = <T extends HTMLElement>(id: string): T =>
     app.querySelector<T>("#" + id)!;
   const viewport = props.viewport(element<HTMLCanvasElement>("face-canvas"));
@@ -101,26 +93,63 @@ export function mountConnectedFacePanel<
   const withdraw = (): number => {
     editor?.cancel();
     viewport.cancel();
+    if (editor !== undefined) {
+      draft = editor.snapshot().document;
+      // Rebuild simple projections too: their captured pending group values
+      // must lose authority along with the cancelled numerical draft.
+      controls.refresh();
+      appearance.refresh();
+    }
     return ++revision;
   };
   const refuse = (error: unknown): void => {
     withdraw();
-    if (editor !== undefined) draft = editor.snapshot().document;
     status(error instanceof Error ? error.message : String(error), "error");
   };
   const refresh = (): void => {
     const state = editor!.snapshot();
     draft = state.document;
+    // The joint line reads what the builder posed: opening in degrees, the
+    // mandible's translation against its sagittal budget, each gaze angle.
+    const joints = state.model.articulation;
+    const articulated =
+      joints === undefined || joints === null
+        ? ""
+        : `
+Jaw ${joints.jaw.degrees.toFixed(1)}° open, ${(joints.jaw.translationMetres * 1000).toFixed(1)} of ${(joints.jaw.budgetMetres * 1000).toFixed(1)} mm condylar travel · ` +
+          joints.eyes
+            .map((eye) => `${eye.id} ${eye.degrees.toFixed(1)}°`)
+            .join(", ");
+    // The contact line reads what the contact stage measured and did: both
+    // apertures, the closure ratio, the tongue's passage and every push.
+    const contact = state.model.contact;
+    const contacted =
+      contact === undefined || contact === null
+        ? ""
+        : `
+Lips ${(contact.interlabialMetres * 1000).toFixed(1)} mm, incisors ${(contact.interincisalMetres * 1000).toFixed(1)} mm apart · closure ×${contact.closureRatio.toFixed(2)}` +
+          (contact.passage === null
+            ? ""
+            : ` · tongue ${(contact.passage.protrudingMetres * 1000).toFixed(1)} mm out, ${(contact.passage.thicknessMetres * 1000).toFixed(1)} mm thick`) +
+          contact.resolved
+            .filter((entry) => entry.vertices > 0)
+            .map(
+              (entry) =>
+                ` · ${entry.surface}: ${entry.vertices} vertices held out of the teeth (${(entry.maxDepthMetres * 1000).toFixed(2)} mm)`,
+            )
+            .join("");
     status(
       state.error ??
-        `${state.document.name}\n${state.model.parts} material regions · committed numerical state`,
+        `${state.document.name}
+${state.model.parts} material regions · committed numerical state${articulated}${contacted}`,
       state.status,
     );
     element<HTMLButtonElement>("face-undo").disabled = !state.canUndo;
     element<HTMLButtonElement>("face-redo").disabled = !state.canRedo;
     element<HTMLTextAreaElement>("document-json").value =
       serializeHumanFaceBasisDocument(state.document);
-    renderControls();
+    controls.refresh();
+    appearance.refresh();
   };
   const change = async (
     next: IAutoMovieHumanFaceBasisDocument,
@@ -140,68 +169,19 @@ export function mountConnectedFacePanel<
       refuse(error);
     }
   };
-  const renderControls = (): void => {
-    const kind = element<HTMLSelectElement>("control-kind").value;
-    // Search only changes which controls are shown. It never rewrites weights
-    // or drops an edited region from the complete saved document.
-    const query = element<HTMLInputElement>("control-search")
-      .value.toLowerCase()
-      .replace(/\s/g, "");
-    const container = element("basis-controls");
-    container.replaceChildren();
-    for (const channel of props.basis.channels.filter(
-      (channel) =>
-        channel.kind === kind && channel.id.toLowerCase().includes(query),
-    )) {
-      const row = dom.createElement("div"),
-        label = dom.createElement("label"),
-        entry = dom.createElement("div");
-      row.className = "row";
-      label.textContent = channel.id.replace(/([a-z])([A-Z])/g, "$1 $2");
-      const slider = dom.createElement("input"),
-        number = dom.createElement("input");
-      slider.type = "range";
-      number.type = "number";
-      slider.min = String(channel.minimum);
-      number.min = slider.min;
-      slider.max = String(channel.maximum);
-      number.max = slider.max;
-      slider.step = "0.01";
-      number.step = "any";
-      slider.value = String(
-        editor!.snapshot().document[channel.kind][channel.id] ?? 0,
-      );
-      number.value = slider.value;
-      number.id = "control-" + channel.id;
-      slider.id = number.id + "-slider";
-      label.htmlFor = number.id;
-      slider.setAttribute("aria-label", label.textContent + " slider");
-      const editValue = async (value: string): Promise<void> => {
-        if (value.trim() === "") {
-          refuse("A numeric value is required.");
-          return;
-        }
-        const next = structuredClone(draft);
-        next[channel.kind][channel.id] = Number(value);
-        await change(next);
-      };
-      slider.oninput = () => {
-        number.value = slider.value;
-      };
-      slider.onchange = () => editValue(slider.value);
-      number.onchange = () => editValue(number.value);
-      entry.append(slider, number);
-      const scale = scales.get(channel.id)!,
-        note = dom.createElement("small");
-      note.id = "scale-" + channel.id;
-      note.textContent = [
-        describe("+", scale.positive),
-        ...(scale.negative === null ? [] : [describe("-", scale.negative)]),
-      ].join(" · ");
-      row.append(label, entry, note);
-      container.append(row);
-    }
-  };
+  const controls = mountConnectedFaceControls(app, {
+    basis: props.basis,
+    map: props.controlMap,
+    document: () => draft,
+    change,
+    refuse,
+  });
+  const appearance = mountConnectedFaceAppearance(app, {
+    basis: props.basis,
+    document: () => draft,
+    change,
+    refuse,
+  });
   for (const button of app.querySelectorAll<HTMLButtonElement>("[data-view]"))
     button.onclick = () => viewport.cameraView(Number(button.dataset.view));
   element("fit-view").onclick = viewport.fitView;
@@ -209,15 +189,6 @@ export function mountConnectedFacePanel<
     viewport.setClay(element<HTMLInputElement>("clay").checked);
   element<HTMLInputElement>("shadows").onchange = () =>
     viewport.setShadows(element<HTMLInputElement>("shadows").checked);
-  element<HTMLSelectElement>("control-kind").onchange = renderControls;
-  const search = dom.createElement("input");
-  search.id = "control-search";
-  search.type = "search";
-  search.placeholder = "Find a control: nose, lip, cheek, ear…";
-  search.setAttribute("aria-label", "Find a facial control");
-  search.style.width = "100%";
-  search.oninput = renderControls;
-  element("basis-controls").before(search);
   // Selecting a study is an ordinary validated transaction, so failed builds
   // retain the previous face and successful selection participates in history.
   const studies = dom.createElement("select");
@@ -269,17 +240,24 @@ export function mountConnectedFacePanel<
       "application/json",
     );
   };
-  element("face-glb").onclick = () => {
+  element("face-glb").onclick = async () => {
     const state = editor!.snapshot();
-    props.download(
-      state.document.id + ".glb",
-      state.model.glb,
-      "model/gltf-binary",
-    );
+    const ticket = revision;
+    const button = element<HTMLButtonElement>("face-glb");
+    button.disabled = true;
+    try {
+      const bytes = await viewport.export(state.document);
+      props.download(state.document.id + ".glb", bytes, "model/gltf-binary");
+    } catch (error) {
+      if (ticket === revision)
+        status(error instanceof Error ? error.message : String(error), "error");
+    } finally {
+      button.disabled = false;
+    }
   };
   // Crossing surfaces are read against the source neutral, not against zero.
-  // This asset rests with its shells inside each other on purpose, so the
-  // absolute count is meaningless and the change from rest is the finding.
+  // These counts include internal tissues. Differences from the source neutral
+  // measure triangle incidence, not penetration depth or anatomical validity.
   // The reading costs seconds, so it runs on request instead of on every edit.
   let rest: IAutoMovieModelCrossing[] | undefined;
   const label = (crossing: IAutoMovieModelCrossing): string =>
@@ -290,7 +268,7 @@ export function mountConnectedFacePanel<
   ): string => {
     const was = new Map(before.map((entry) => [label(entry), entry]));
     const fresh = after.filter((entry) => !was.has(label(entry)));
-    const deeper = after.filter((entry) => {
+    const increased = after.filter((entry) => {
       const earlier = was.get(label(entry));
       return (
         earlier !== undefined &&
@@ -300,15 +278,17 @@ export function mountConnectedFacePanel<
     });
     const line = (entry: IAutoMovieModelCrossing): string =>
       `${label(entry)} ${entry.triangles}/${entry.otherTriangles}`;
-    if (fresh.length === 0 && deeper.length === 0)
-      return `No surface crosses that the source neutral did not already cross. The neutral itself crosses on ${before.length} pairs by construction.`;
+    const reference = `Source neutral: ${before.length} intersecting pairs. Counts do not measure penetration depth or anatomical validity.`;
+    if (fresh.length === 0 && increased.length === 0)
+      return `No new intersecting pairs or increased triangle counts relative to the source neutral. ${reference}`;
     return [
       fresh.length === 0
         ? null
-        : `New since rest: ${fresh.map(line).join(", ")}`,
-      deeper.length === 0
+        : `New intersecting pairs: ${fresh.map(line).join(", ")}`,
+      increased.length === 0
         ? null
-        : `Deeper than rest: ${deeper.map(line).join(", ")}`,
+        : `Increased triangle counts: ${increased.map(line).join(", ")}`,
+      reference,
     ]
       .filter((part) => part !== null)
       .join("\n");
@@ -321,6 +301,7 @@ export function mountConnectedFacePanel<
         const neutral = await viewport.build(props.initial, true);
         const reading = neutral.crossings;
         viewport.dispose(neutral);
+        if (ticket !== revision) return;
         if (reading === null || reading === undefined) {
           status("This build does not supply a crossing reading.", "error");
           return;

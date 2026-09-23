@@ -1,7 +1,19 @@
-import { mergeAutoMovieMeshes, readAutoMovieImageFacts, tessellate, validateMeshTopology, validateModel } from "@automovie/engine";
+import {
+  mergeAutoMovieMeshes,
+  readAutoMovieImageFacts,
+  tessellate,
+  validateMeshTopology,
+  validateModel,
+} from "@automovie/engine";
 import type { IAutoMovieModel } from "@automovie/interface";
 import { Document } from "@gltf-transform/core";
-import { KHRMaterialsClearcoat, KHRMaterialsIOR, KHRMaterialsTransmission, KHRMaterialsVolume } from "@gltf-transform/extensions";
+import {
+  KHRMaterialsClearcoat,
+  KHRMaterialsIOR,
+  KHRMaterialsTransmission,
+  KHRMaterialsVolume,
+} from "@gltf-transform/extensions";
+
 import { placePortraitMesh } from "../mesh/placePortraitMesh";
 import { portraitMeshBuffers } from "../mesh/portraitMeshBuffers";
 
@@ -238,24 +250,15 @@ export function portraitDocument(model: IAutoMovieModel): Document {
           .setArray(new Float32Array(mesh.colors))
           .setBuffer(buffer),
       );
-    if (mesh.uvs !== null) {
-      const uvs = new Float32Array(mesh.uvs);
-      if (
-        uvs.length !== (packed.positions.length / 3) * 2 ||
-        !uvs.every(Number.isFinite)
-      )
-        throw new Error(
-          "Portrait UV0 must remain complete and finite at Float32 precision.",
-        );
+    if (packed.uvs !== null)
       primitive.setAttribute(
         "TEXCOORD_0",
         document
           .createAccessor()
           .setType("VEC2")
-          .setArray(uvs)
+          .setArray(packed.uvs)
           .setBuffer(buffer),
       );
-    }
     scene.addChild(
       document
         .createNode(finish.id)

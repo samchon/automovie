@@ -9,6 +9,10 @@
  * Positive implementation citations remain on the actual public exports.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Production schemas carry evaluated meshes; the reusable facial basis and compact control document are human-authoring inputs, not production AST types.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-basis The pure production AST does not validate or evaluate sparse facial endpoints; the human builder supplies its resulting model.
+ * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-articulation Production schemas carry evaluated meshes; facial joints, landmarks and attachment weights are human authoring data.
+ * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-contact Portable structures carry no oral contact rule; the human basis declares apertures, closure and colliders.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-articulation The pure production AST does not evaluate facial articulation or sparse attachments; the human package owns that order.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-contact The interface package declares models and meshes, not the contact evaluation order the human builder runs.
  * An exclusion neither implements a feature nor approves a rendered asset.
  * Add a boundary at its semantic owner and retain native graph validation.
  *
@@ -44,6 +48,7 @@
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/README.md#face-specifications Portable production schemas represent already-generated meshes and rig facts; they do not define the complete face construction, application and review boundary.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document Portable production schemas represent already-generated meshes and rig facts; they do not define human-face version admission and photo-independent basis interpretation.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Portable production schemas represent already-generated meshes and rig facts; they do not define cranial, cervical, ocular, nasal, oral and auricular surface assembly.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-parametric-hair Production mesh types carry the generated strips; numerical scalp domains, styling fields and their document admission belong to the separate human authoring schema.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-skin-condition Pure production types do not construct facial attachment fields or perform portrait-local curved subdivision; those operations produce their resident mesh inputs.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-skin-colour Production schemas carry generic vertex colours but not the separate anatomical pigmentation document or paired reference-skin assembly.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Portable production schemas represent already-generated meshes and rig facts; they do not define ordered face defaults, trait offsets, array replacement and asymmetric detail.
