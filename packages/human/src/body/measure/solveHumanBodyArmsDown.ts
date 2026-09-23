@@ -26,8 +26,8 @@ const SIDES = ["left", "right"] as const;
  * and its total elevation is bisected between 0 (hanging straight down) and
  * the measured A-pose rest elevation to one degree: the lowest elevation at
  * which no segment of that arm's chain (the upper arm and everything below
- * it) crosses a segment outside the chain more than it does with the arm at
- * the rest elevation. Contact the body already has with the arm raised to
+ * it) crosses a segment outside the chain, or itself, more than it does with
+ * the arm at the rest elevation. Contact the body already has with the arm raised to
  * its rest is the body's, not the preset's, and is not charged to it. Both
  * arms are solved together, one build per step, each keeping its own
  * bracket, so an asymmetric body gets asymmetric arms.
@@ -107,11 +107,16 @@ export function solveHumanBodyArmsDown(
     }));
     return chains.map((chain) => {
       const found = new Map<string, number>();
-      for (const own of parts.filter((part) => chain.has(part.bone)))
+      for (const own of parts.filter((part) => chain.has(part.bone))) {
+        // the chain's own segment folding through itself (the armpit skin
+        // the upper arm carries) is contact too
+        const folded = measureAutoMovieMeshCrossings(own.mesh, own.mesh).length;
+        if (folded > 0) found.set(`${own.id}|${own.id}`, folded);
         for (const other of parts.filter((part) => !chain.has(part.bone))) {
           const crossed = crossings(own.mesh, other.mesh);
           if (crossed > 0) found.set(`${own.id}|${other.id}`, crossed);
         }
+      }
       return found;
     });
   };
