@@ -16,16 +16,16 @@
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation 삼각 박공과 원주→보→roof 받침에 더해 후퇴벽 위 뒤끝과 반환벽 파라펫의 만남을 포함해 포치가 장식 삼각형으로 떠 있지 않다.
-@evidenceReview principles/core/common.md#substantive-completion 지지 4.00m와 반환벽 안쪽 면 폭, 후퇴벽 북면부터 앞 돌출까지의 영역이 있어 포치 roof를 다시 고르지 않고 만들 수 있다.
-@evidenceReview principles/core/common.md#declared-basis 용마루 약 4.67m와 코핑 4.85m의 차이가 산술 비교로만 적혀 있고 실측 높이라는 주장이 없다.
-@evidenceReview principles/design/spaces.md#space-topology 옆 처마 없이 반환벽 파라펫이 옆을 닫고 앞 처마만 외곽 밖으로 나가 새 동을 붙이지 않는다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority 삼각 막음과 후퇴벽 벽체는 남측 입면, 포치는 상면·트림 결속면·외부 하부만 맡아 같은 벽을 두 번 만들지 않는다.
-@evidenceReview principles/design/spaces.md#space-verification-address 후퇴벽 위 뒤끝과 반환벽 만남을 관찰에 넣어 보와 roof 사이 받침 공백이나 옆 틈을 찾도록 했다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation 포치 정체성에 4.00m 지지와 파라펫 사이 폭, 후퇴벽 위 뒤끝이라는 단면 결정을 더했다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work 포치를 파라펫 사이에 물리는 공간 결정으로 코핑 아래 박공을 얻어 부모를 더 고치지 않았다.
-@evidenceReview settings/20-envelope.md#entrance-porch 원주 위 보가 포치 하부에 닿고 박공이 두 파라펫 사이에 놓여 부모의 정면 포치 읽힘과 맞는다.
-@evidenceReview settings/20-envelope.md#roof-form 포치 박공이 22도이고 코핑 4.85m 아래에 물려 부모가 적은 파라펫 사이의 작은 박공이 된다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 삼각 박공과 원주→보→roof 받침에 더해 후퇴벽 위 뒤끝과 반환벽 파라펫의 만남을 포함해 포치가 장식 삼각형으로 떠 있지 않다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 지지 4.00m와 반환벽 안쪽 면 폭, 후퇴벽 북면부터 앞 돌출까지의 영역이 있어 포치 roof를 다시 고르지 않고 만들 수 있다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 용마루 약 4.67m와 코핑 4.85m의 차이가 산술 비교로만 적혀 있고 실측 높이라는 주장이 없다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 옆 처마 없이 반환벽 파라펫이 옆을 닫고 앞 처마만 외곽 밖으로 나가 새 동을 붙이지 않는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 삼각 막음과 후퇴벽 벽체는 남측 입면, 포치는 상면·트림 결속면·외부 하부만 맡아 같은 벽을 두 번 만들지 않는다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 후퇴벽 위 뒤끝과 반환벽 만남을 관찰에 넣어 보와 roof 사이 받침 공백이나 옆 틈을 찾도록 했다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 포치 정체성에 4.00m 지지와 파라펫 사이 폭, 후퇴벽 위 뒤끝이라는 단면 결정을 더했다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 포치를 파라펫 사이에 물리는 공간 결정으로 코핑 아래 박공을 얻어 부모를 더 고치지 않았다.
+@evidenceReview settings/20-envelope.md#entrance-porch #a164498 원주 위 보가 포치 하부에 닿고 박공이 두 파라펫 사이에 놓여 부모의 정면 포치 읽힘과 맞는다.
+@evidenceReview settings/20-envelope.md#roof-form #7269ea1 포치 박공이 22도이고 코핑 4.85m 아래에 물려 부모가 적은 파라펫 사이의 작은 박공이 된다.
 -->
 
 [현관](../rooms/entrance.md#entrance-volume) 양옆 반환벽의 안쪽 면 west-porch-inner/east-porch-inner를 지지선으로 한다. 두 반환벽은 [남측 파라펫](../facades/south.md#south-envelope)과 같은 코핑 높이로 올라 포치의 옆을 닫으므로 포치 지붕은 두 면 사이에 물리고 옆 처마가 없다. 지지선 위치의 상면은 Y=4.00m이며 경사·법선 두께와 하부면 유도는 [공통 지붕 입력](assembly.md#roof-junctions)의 박공 값을 쓴다. 용마루는 X=0을 따라 정면을 향하고 그 상면은 입력 산술상 약 4.67m로 코핑보다 낮다. 작은 삼각 박공이 넓은 회벽 파라펫 사이 중앙에 놓인다.

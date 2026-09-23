@@ -16,16 +16,16 @@
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation 업무방 전 길이와 마당 서비스 문, 낮아지는 북쪽 벽, 남동 모서리 칸까지 한 동측 외피로 다룬다.
-@evidenceReview principles/core/common.md#substantive-completion 처마 벽·낮은 벽·코핑 모서리 칸의 세 상단과 서비스 문턱 슬래브 부피를 비우는 규칙이 있어 문만 그린 막힘을 피한다.
-@evidenceReview principles/core/common.md#declared-basis 남측 코핑·북측 마당 벽·동측 박공 하부와 openings의 void를 소비해 높이와 문 크기를 중복 결정하지 않는다.
-@evidenceReview principles/design/spaces.md#space-topology 방마다 바깥 문을 더하지 않고 마당 문만 외부로 열어 우측 직접 출입 관계를 지킨다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority 방 안쪽 표면과 외부 지면은 각각 room/maps에 남고 모서리 칸의 코핑은 동측 입면에 남아 범위가 분명하다.
-@evidenceReview principles/design/spaces.md#space-verification-address 문 안/밖과 처마 벽→낮은 벽, 남동 모서리의 파라펫 만남을 함께 보아 부유한 서비스 문과 모서리 틈을 찾는다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation 외부 반입 요구를 북쪽 마당의 실제 외벽 문턱과 업무 날개 끝, 남동 모서리 칸에 결속했다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work 깊은 문설주와 외부 반입을 마당 외벽에 배정할 수 있어 업무방의 새 외부 문이 필요하지 않았다.
-@evidenceReview settings/30-interiors.md#service-yard 업무 roof를 마당 위에 연장하지 않는 문장이 서비스 마당의 열린 하늘을 지킨다.
-@evidenceReview settings/20-envelope.md#openings 깊은 문설주·인방·목재 문짝이 동일 void를 소비하도록 해 외벽 구멍만 남기지 않는다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 업무방 전 길이와 마당 서비스 문, 낮아지는 북쪽 벽, 남동 모서리 칸까지 한 동측 외피로 다룬다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 처마 벽·낮은 벽·코핑 모서리 칸의 세 상단과 서비스 문턱 슬래브 부피를 비우는 규칙이 있어 문만 그린 막힘을 피한다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 남측 코핑·북측 마당 벽·동측 박공 하부와 openings의 void를 소비해 높이와 문 크기를 중복 결정하지 않는다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 방마다 바깥 문을 더하지 않고 마당 문만 외부로 열어 우측 직접 출입 관계를 지킨다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 방 안쪽 표면과 외부 지면은 각각 room/maps에 남고 모서리 칸의 코핑은 동측 입면에 남아 범위가 분명하다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 문 안/밖과 처마 벽→낮은 벽, 남동 모서리의 파라펫 만남을 함께 보아 부유한 서비스 문과 모서리 틈을 찾는다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 외부 반입 요구를 북쪽 마당의 실제 외벽 문턱과 업무 날개 끝, 남동 모서리 칸에 결속했다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 깊은 문설주와 외부 반입을 마당 외벽에 배정할 수 있어 업무방의 새 외부 문이 필요하지 않았다.
+@evidenceReview settings/30-interiors.md#service-yard #bc0ce16 업무 roof를 마당 위에 연장하지 않는 문장이 서비스 마당의 열린 하늘을 지킨다.
+@evidenceReview settings/20-envelope.md#openings #4053d90 깊은 문설주·인방·목재 문짝이 동일 void를 소비하도록 해 외벽 구멍만 남기지 않는다.
 -->
 
 [기준선](../building.md#plan-datums)의 east-inner~east-outer가 동측 외벽이다. 남쪽부터 관리실·기록실·보관실, 북쪽은 서비스 마당의 바깥면이다. 업무방 구간의 벽은 [동측 박공](../roofs/east.md#east-roof)의 동측 처마를 받는 벽이고 상단은 그 하부까지 닫는다. 남측 파라펫과 맞대는 남동 모서리 칸(south-inner~south-outer)은 [남측](south.md#south-envelope)의 코핑 높이로 올라 파라펫을 끝맺는다. 낮은 마당 벽은 [북측](north.md#north-envelope)의 높이를 소비한다. 외부 서비스 문의 실제 void는 [문 owner](../openings.md#doors)에서 받고 방마다 바깥 출입문을 추가하지 않는다.

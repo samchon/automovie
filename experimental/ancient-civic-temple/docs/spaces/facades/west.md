@@ -16,16 +16,16 @@
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation 창이 없는 면도 두 끝과 파라펫 뒤, 제실 서측벽 외면 관찰을 남겨 서측 전체를 생략할 수 없다.
-@evidenceReview principles/core/common.md#substantive-completion 무창 파라펫 전 길이와 코핑 4.85m, 안쪽 세 띠, 대각 끝 접합과 지면 접촉을 정해 서벽 실체의 경계를 닫는다.
-@evidenceReview principles/core/common.md#declared-basis 코핑과 기단은 남측 입면, 접합과 띠 분할은 junctions에서 받아 서측이 별도 높이를 고르지 않는다.
-@evidenceReview principles/design/spaces.md#space-topology 안쪽은 봉헌실 하나이고 파라펫 뒤에도 공간이 없으며 기존 주랑 문으로만 접근한다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority 제실 서측벽의 지붕 위 외면을 서측 입면에 배정해 날개 지붕 위로 드러난 면의 소유 공백을 메웠다.
-@evidenceReview principles/design/spaces.md#space-verification-address 파라펫 뒤 지붕 만남과 코핑 높이를 외부에서 읽고 무창 방의 밝기는 실제 렌더 질문으로 남긴다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation 회벽 요구에 창 없는 파라펫 범위와 대각 끝 접합을 추가했다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work 연속 회벽·봉헌실 직접 문·파라펫이 양립해 상위 요구를 바꾸지 않았고 무창 주광은 미검증으로 남겼다.
-@evidenceReview settings/20-envelope.md#walls 회벽·기단을 전 길이의 닫힌 실체에 결속하며 임의 패치로 대신하지 않는다.
-@evidenceReview settings/20-envelope.md#roof-form 서측 파라펫이 외쪽 지붕 높은 끝보다 높아 부모가 적은 서측 코핑 뒤 기와면의 관계를 만든다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 창이 없는 면도 두 끝과 파라펫 뒤, 제실 서측벽 외면 관찰을 남겨 서측 전체를 생략할 수 없다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 무창 파라펫 전 길이와 코핑 4.85m, 안쪽 세 띠, 대각 끝 접합과 지면 접촉을 정해 서벽 실체의 경계를 닫는다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 코핑과 기단은 남측 입면, 접합과 띠 분할은 junctions에서 받아 서측이 별도 높이를 고르지 않는다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 안쪽은 봉헌실 하나이고 파라펫 뒤에도 공간이 없으며 기존 주랑 문으로만 접근한다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 제실 서측벽의 지붕 위 외면을 서측 입면에 배정해 날개 지붕 위로 드러난 면의 소유 공백을 메웠다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 파라펫 뒤 지붕 만남과 코핑 높이를 외부에서 읽고 무창 방의 밝기는 실제 렌더 질문으로 남긴다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 회벽 요구에 창 없는 파라펫 범위와 대각 끝 접합을 추가했다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 연속 회벽·봉헌실 직접 문·파라펫이 양립해 상위 요구를 바꾸지 않았고 무창 주광은 미검증으로 남겼다.
+@evidenceReview settings/20-envelope.md#walls #35026c5 회벽·기단을 전 길이의 닫힌 실체에 결속하며 임의 패치로 대신하지 않는다.
+@evidenceReview settings/20-envelope.md#roof-form #7269ea1 서측 파라펫이 외쪽 지붕 높은 끝보다 높아 부모가 적은 서측 코핑 뒤 기와면의 관계를 만든다.
 -->
 
 [기준선](../building.md#plan-datums)의 west-outer~west-inner, north-outer~south-outer가 서측 외벽이다. 안쪽은 긴 봉헌실 하나이며 이 면에 추가 출입구·창을 만들지 않는다. 외벽은 [경사지붕 설정](../../settings/20-envelope.md#roof-form)의 외곽 파라펫이며 코핑 상단과 기단 높이는 [남측](south.md#south-envelope)의 소유를 소비한다. 안쪽으로 기우는 [서측 외쪽 지붕](../roofs/west.md#west-roof)의 높은 끝은 이 파라펫의 안쪽 면에서 끝나고 바깥 처마가 없다.

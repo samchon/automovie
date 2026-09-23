@@ -50,16 +50,16 @@
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation 파라펫 뒤 외쪽 끝과 제실 측벽, 후퇴벽 북면, 떠 있는 처마 아래까지 표에 올려 보이는 정면 박공만 닫는 누락을 막는다.
-@evidenceReview principles/core/common.md#substantive-completion 파라펫 연장·경사 하부 상단·roof-only 끝면·떠 있는 처마를 행별로 구별해 source가 접점마다 닫는 방식을 새로 고르지 않는다.
-@evidenceReview principles/core/common.md#declared-basis 코핑 4.85m는 남측 입면, 지붕 높이는 합성 roof에서 오고 이 H2는 벽의 범위와 면 소유만 적는다.
-@evidenceReview principles/design/spaces.md#space-topology 주랑 위 날개 높이 차이는 roof 끝면으로만 닫고 파라펫·제실 벽·후퇴벽 같은 기존 경계만 올려 새 벽이나 옥상 통로가 없다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority 벽 면을 지붕 선으로 세 띠로 나눠 실내 마감은 방, 지붕 위 외면은 입면에 돌리고 가려진 접면을 노출 마감으로 세지 않는다.
-@evidenceReview principles/design/spaces.md#space-verification-address 파라펫 만남과 제실 처마 아래를 단면 관찰에 넣어 조감에서 가린 누광과 벽 돌출을 반증할 수 있다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation 파라펫·박공 요구에 접점별 벽 연장과 띠 분할, roof-only 폐쇄를 구별한 결정을 추가했다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work 수리된 부모 범위 안에서 기존 경계 연장만으로 모든 끝이 닫혀 새 방·평천장·그래프 변경이 필요하지 않았다.
-@evidenceReview settings/20-envelope.md#roof-form 서측·남측·북측 봉헌실 구간 파라펫이 외쪽 지붕 끝 위로 솟고 박공 아래 벽이 경사 하부까지 닫혀 부모의 파라펫·박공 표현을 따른다.
-@evidenceReview settings/20-envelope.md#ceilings 낮은 천장 위 빈틈에 내부용 마감/문/관찰 방을 새로 만들지 않아 노출 하부와 비거주 틈을 구별한다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 파라펫 뒤 외쪽 끝과 제실 측벽, 후퇴벽 북면, 떠 있는 처마 아래까지 표에 올려 보이는 정면 박공만 닫는 누락을 막는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 파라펫 연장·경사 하부 상단·roof-only 끝면·떠 있는 처마를 행별로 구별해 source가 접점마다 닫는 방식을 새로 고르지 않는다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 코핑 4.85m는 남측 입면, 지붕 높이는 합성 roof에서 오고 이 H2는 벽의 범위와 면 소유만 적는다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 주랑 위 날개 높이 차이는 roof 끝면으로만 닫고 파라펫·제실 벽·후퇴벽 같은 기존 경계만 올려 새 벽이나 옥상 통로가 없다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 벽 면을 지붕 선으로 세 띠로 나눠 실내 마감은 방, 지붕 위 외면은 입면에 돌리고 가려진 접면을 노출 마감으로 세지 않는다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 파라펫 만남과 제실 처마 아래를 단면 관찰에 넣어 조감에서 가린 누광과 벽 돌출을 반증할 수 있다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 파라펫·박공 요구에 접점별 벽 연장과 띠 분할, roof-only 폐쇄를 구별한 결정을 추가했다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 수리된 부모 범위 안에서 기존 경계 연장만으로 모든 끝이 닫혀 새 방·평천장·그래프 변경이 필요하지 않았다.
+@evidenceReview settings/20-envelope.md#roof-form #7269ea1 서측·남측·북측 봉헌실 구간 파라펫이 외쪽 지붕 끝 위로 솟고 박공 아래 벽이 경사 하부까지 닫혀 부모의 파라펫·박공 표현을 따른다.
+@evidenceReview settings/20-envelope.md#ceilings #c397437 낮은 천장 위 빈틈에 내부용 마감/문/관찰 방을 새로 만들지 않아 노출 하부와 비거주 틈을 구별한다.
 -->
 
 [지붕 합성](roofs/assembly.md#roof-junctions)의 상면·평행 하부면과 [코핑 높이](facades/south.md#south-envelope)를 소비한다. 지붕 밑 벽의 상단은 벽 두께 안 각 위치의 실제 지붕 하부까지 닫고, 외쪽 지붕의 높은 끝이 닿는 외곽 벽은 지붕 위로 코핑까지 솟는 파라펫이다. 지붕에 닿는 벽 면은 지붕 하부 아래의 실내/주랑 마감, 지붕 두께 안의 가려진 접면, 지붕 상면 위의 외면으로 나뉜다. 처마 기준 높이에서 수평으로 자르거나 그 높이를 경사지붕 위로 돌출시키지 않으며 주랑의 열린 cell 사이에 새로운 바닥부터의 막음벽을 만들지 않는다.

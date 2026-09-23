@@ -18,18 +18,18 @@
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation 양 날개 파라펫과 반환부, 후퇴벽, 삼각 막음, 지붕 위 파라펫 뒷면이 모두 남측에 들어가 정면 판 하나만 만든 누락을 막는다.
-@evidenceReview principles/core/common.md#substantive-completion 코핑 4.85m와 삼각 막음 3.50m, 기단 0.65m가 함께 있어 후퇴부까지 외피의 상하 경계가 정해진다.
-@evidenceReview principles/core/common.md#declared-basis 코핑 범위는 roof-form, 후퇴벽 상단은 포치 하부, 접합은 junctions에서 받아 별도 지붕 높이를 발명하지 않는다.
-@evidenceReview principles/design/spaces.md#space-topology 반환부와 후퇴벽이 양 날개 파라펫과 이어져 바깥 입면과 안쪽 현관·주랑이 같은 경계이고 파라펫 뒤 통로가 없다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority 원주 prototype과 포치 roof를 중복 생성하지 않고 파라펫 뒷면·코핑만 입면에 더했다.
-@evidenceReview principles/design/spaces.md#space-verification-address 파라펫 뒤 지붕 만남과 반환부 단면도 관찰해 정면 실루엣만 맞는 틈을 찾는다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation 포치 정체성에 파라펫 사이 후퇴부와 코핑 높이, 지면을 따른 기단 한계를 더했다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work 회벽/기단·포치 부재·코핑 범위를 후퇴 파라펫 외피에 배정할 수 있어 이 입면으로 부모를 고칠 필요가 없었다.
-@evidenceReview settings/20-envelope.md#walls 회벽과 밝은 기단이 파라펫과 중앙 반환부에서도 같은 외피 범위로 이어진다.
-@evidenceReview settings/20-envelope.md#entrance-porch 문 구멍만으로 완료하지 않고 파라펫 사이 원주·보·삼각 막음을 실제 부재와 벽으로 요구한다.
-@evidenceReview settings/20-envelope.md#material-language 코핑과 기단을 포함한 완결 면을 정하고 재료 수치는 materials로 보낸다.
-@evidenceReview settings/20-envelope.md#roof-form 정면이 코핑 파라펫으로 올라 뒤의 외쪽 지붕과 동측 박공 끝을 가려 부모의 파라펫 정면을 이룬다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 양 날개 파라펫과 반환부, 후퇴벽, 삼각 막음, 지붕 위 파라펫 뒷면이 모두 남측에 들어가 정면 판 하나만 만든 누락을 막는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 코핑 4.85m와 삼각 막음 3.50m, 기단 0.65m가 함께 있어 후퇴부까지 외피의 상하 경계가 정해진다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 코핑 범위는 roof-form, 후퇴벽 상단은 포치 하부, 접합은 junctions에서 받아 별도 지붕 높이를 발명하지 않는다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 반환부와 후퇴벽이 양 날개 파라펫과 이어져 바깥 입면과 안쪽 현관·주랑이 같은 경계이고 파라펫 뒤 통로가 없다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 원주 prototype과 포치 roof를 중복 생성하지 않고 파라펫 뒷면·코핑만 입면에 더했다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 파라펫 뒤 지붕 만남과 반환부 단면도 관찰해 정면 실루엣만 맞는 틈을 찾는다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 포치 정체성에 파라펫 사이 후퇴부와 코핑 높이, 지면을 따른 기단 한계를 더했다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 회벽/기단·포치 부재·코핑 범위를 후퇴 파라펫 외피에 배정할 수 있어 이 입면으로 부모를 고칠 필요가 없었다.
+@evidenceReview settings/20-envelope.md#walls #35026c5 회벽과 밝은 기단이 파라펫과 중앙 반환부에서도 같은 외피 범위로 이어진다.
+@evidenceReview settings/20-envelope.md#entrance-porch #a164498 문 구멍만으로 완료하지 않고 파라펫 사이 원주·보·삼각 막음을 실제 부재와 벽으로 요구한다.
+@evidenceReview settings/20-envelope.md#material-language #25e6ffa 코핑과 기단을 포함한 완결 면을 정하고 재료 수치는 materials로 보낸다.
+@evidenceReview settings/20-envelope.md#roof-form #7269ea1 정면이 코핑 파라펫으로 올라 뒤의 외쪽 지붕과 동측 박공 끝을 가려 부모의 파라펫 정면을 이룬다.
 -->
 
 [건물 외곽](../building.md#footprint)의 남쪽 면을 한 완결 시각 표면으로 소유한다. 외벽은 west-outer~west-porch-outer 및 east-porch-outer~east-outer 구간에서 south-inner~south-outer 두께를 갖고 중앙은 현관 후퇴부와 반환벽이다. 반환벽과 후퇴벽의 바깥면까지 남측 입면에 포함하며 실제 문 void는 [개구부](../openings.md#doors)가 소유한다. 내측 면은 봉헌실·주랑·관리실·현관의 해당 owner가 각각 소비한다.

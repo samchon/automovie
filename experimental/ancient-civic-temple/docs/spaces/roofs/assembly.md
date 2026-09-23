@@ -16,16 +16,16 @@
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation 날개 상면만이 아니라 네 모서리 골, 높은 조각의 끝면, 떠 있는 제실·포치 처마와 파라펫 앞에서 멈추는 끝까지 이 접합의 범위로 적혀 있다.
-@evidenceReview principles/core/common.md#substantive-completion 지지 높이 네 값과 두 경사, 날개 단위 최대 높이·동고 순서가 적혀 있어 합성 방식을 새로 고르지 않고 source가 같은 지붕을 낼 수 있다.
-@evidenceReview principles/core/common.md#declared-basis 서측 외쪽 끝 약 4.56m와 제실 용마루 약 7.37m가 삼각함수 산술로 표시되고 compiled 결과가 아니라는 구분이 남아 있다.
-@evidenceReview principles/design/spaces.md#space-topology 날개끼리만 최대 높이로 합성하고 제실·포치는 별도 단위로 떠 있게 해, 높은 처마 아래 봉헌실·북쪽 주랑 지붕이 지워지는 공백을 규칙에서 막았다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority 높이 차이 끝면은 높은 조각의 owner에, 잘린 조각은 원래 owner에 남아 assembly가 새 완결 표면 소유자가 되지 않는다.
-@evidenceReview principles/design/spaces.md#space-verification-address 골 단면과 제실 처마 아래, 파라펫 뒤 만남을 관찰 대상으로 적어 위에서만 보면 숨는 틈도 검사 목록에 들어간다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation 설정이 준 범위를 세 합성 단위와 단위별 지지 높이, 떠 있는 처마라는 공간 결정으로 좁혔다.
-@evidenceReview upstream/design/spaces.md#settings-and-map-revision-from-space-work 렌더 대조와 서측 날개 단면 산술이라는 두 공간 시험을 적고 roof-form의 네 범위를 부모에서 고친 뒤 이 접합이 그 값을 소비한다고 밝혀 지역 치수로 부모를 우회하지 않았다.
-@evidenceReview settings/20-envelope.md#roof-form 외쪽 12도는 수리된 10~16도, 제실 약 7.37m는 6.8~7.8m, 코핑 4.85m는 4.5~5.2m 안에 있어 부모 범위와 맞물린다.
-@evidenceReview settings/20-envelope.md#ceilings 주랑·제실의 노출 하부와 네 업무방 널판 위 은폐 하부를 다른 표면으로 나눠 천장 방식의 부모 구분을 지킨다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 날개 상면만이 아니라 네 모서리 골, 높은 조각의 끝면, 떠 있는 제실·포치 처마와 파라펫 앞에서 멈추는 끝까지 이 접합의 범위로 적혀 있다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 지지 높이 네 값과 두 경사, 날개 단위 최대 높이·동고 순서가 적혀 있어 합성 방식을 새로 고르지 않고 source가 같은 지붕을 낼 수 있다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 서측 외쪽 끝 약 4.56m와 제실 용마루 약 7.37m가 삼각함수 산술로 표시되고 compiled 결과가 아니라는 구분이 남아 있다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 날개끼리만 최대 높이로 합성하고 제실·포치는 별도 단위로 떠 있게 해, 높은 처마 아래 봉헌실·북쪽 주랑 지붕이 지워지는 공백을 규칙에서 막았다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 높이 차이 끝면은 높은 조각의 owner에, 잘린 조각은 원래 owner에 남아 assembly가 새 완결 표면 소유자가 되지 않는다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 골 단면과 제실 처마 아래, 파라펫 뒤 만남을 관찰 대상으로 적어 위에서만 보면 숨는 틈도 검사 목록에 들어간다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정이 준 범위를 세 합성 단위와 단위별 지지 높이, 떠 있는 처마라는 공간 결정으로 좁혔다.
+@evidenceReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 렌더 대조와 서측 날개 단면 산술이라는 두 공간 시험을 적고 roof-form의 네 범위를 부모에서 고친 뒤 이 접합이 그 값을 소비한다고 밝혀 지역 치수로 부모를 우회하지 않았다.
+@evidenceReview settings/20-envelope.md#roof-form #7269ea1 외쪽 12도는 수리된 10~16도, 제실 약 7.37m는 6.8~7.8m, 코핑 4.85m는 4.5~5.2m 안에 있어 부모 범위와 맞물린다.
+@evidenceReview settings/20-envelope.md#ceilings #c397437 주랑·제실의 노출 하부와 네 업무방 널판 위 은폐 하부를 다른 표면으로 나눠 천장 방식의 부모 구분을 지킨다.
 -->
 
 [경사지붕 설정](../../settings/20-envelope.md#roof-form)을 소비한다. 지붕은 세 합성 단위로 나뉜다. 날개 단위는 [서측 외쪽 지붕](west.md#west-roof), [북쪽](colonnade.md#north-canopy)·[남쪽](colonnade.md#south-canopy) 주랑 외쪽 지붕, [동측 박공](east.md#east-roof)이며 중정을 둘러싸는 하나의 기와 지붕이다. [제실 박공](sanctuary.md#sanctuary-roof)과 [포치 박공](porch.md#porch-roof)은 각각 별도 단위다. 각 지붕의 높이는 owner가 정한 지지선 위치의 상면 높이에서 유도한다. 중정 쪽 주랑 처마 지지선(west-court·east-court·court-back·court-front)의 상면은 Y=3.20m, 동측 박공의 동측 외벽 중심 지지선은 3.55m, 제실 박공 지지선은 5.05m, 포치 박공 지지선은 4.00m다. 이 값은 지붕 상면의 기준이고 보나 벽의 실제 받침 높이가 아니다.

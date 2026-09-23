@@ -91,15 +91,15 @@ storey ID `temple-ground`의 부모는 `temple`이다. [건물 연결](building.
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation 파라펫과 낮은 마당 벽, 현관 반환부까지 같은 하단 규칙에 포함해 일부 외벽의 부유를 면제하지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion 하단 유도식과 maps 이전의 잠정 입력이 함께 정해져 지면이 없어도 벽 실체를 만들 입력이 비지 않는다.
-@evidenceReview principles/core/common.md#declared-basis 잠정 입력은 이미 판정된 정문 도로 접점이며 대지 후보·Y=0이 아니라고 구별하고, 실제 하단은 maps 뒤 바뀔 수 있다고 적었다.
-@evidenceReview principles/design/spaces.md#space-topology 아래 벽 연장은 기존 평면 안이며 방 cell·support·층의 확장으로 해석되지 않는다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority 지면은 maps, 실체는 입면, 계산과 잠정 입력은 storey로 나뉘고 문턱 예약은 기존 바닥에서 받는다.
-@evidenceReview principles/design/spaces.md#space-verification-address 묻힌 석단과 문 위 벽 띠도 실패 항목이고 잠정 하단의 접촉은 unverified라 단순한 벽 최저점 검사만으로 완료할 수 없다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation 부모의 접지 요구에 변화하는 외부 지면을 소비할 공통 하단 유도식과 최소 매입 깊이의 잠정값을 더했다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work 미정 지면을 maps 입력과 판정된 접점의 잠정값으로 다뤄 임의 지형이나 지지력 주장을 부모에 추가하지 않았다.
-@evidenceReview settings/40-environment.md#site 외벽 접촉선 전체의 지면을 읽고 정문 접점보다 높게 벽을 끝내지 않아 긴 벽의 부유를 통과시키지 않는다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 파라펫과 낮은 마당 벽, 현관 반환부까지 같은 하단 규칙에 포함해 일부 외벽의 부유를 면제하지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 하단 유도식과 maps 이전의 잠정 입력이 함께 정해져 지면이 없어도 벽 실체를 만들 입력이 비지 않는다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 잠정 입력은 이미 판정된 정문 도로 접점이며 대지 후보·Y=0이 아니라고 구별하고, 실제 하단은 maps 뒤 바뀔 수 있다고 적었다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 아래 벽 연장은 기존 평면 안이며 방 cell·support·층의 확장으로 해석되지 않는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 지면은 maps, 실체는 입면, 계산과 잠정 입력은 storey로 나뉘고 문턱 예약은 기존 바닥에서 받는다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 묻힌 석단과 문 위 벽 띠도 실패 항목이고 잠정 하단의 접촉은 unverified라 단순한 벽 최저점 검사만으로 완료할 수 없다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 접지 요구에 변화하는 외부 지면을 소비할 공통 하단 유도식과 최소 매입 깊이의 잠정값을 더했다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 미정 지면을 maps 입력과 판정된 접점의 잠정값으로 다뤄 임의 지형이나 지지력 주장을 부모에 추가하지 않았다.
+@evidenceReview settings/40-environment.md#site #f317e20 외벽 접촉선 전체의 지면을 읽고 정문 접점보다 높게 벽을 끝내지 않아 긴 벽의 부유를 통과시키지 않는다.
 -->
 
 [환경의 접지 요구](../settings/40-environment.md#site)를 소비한다. 외부 지면의 높이장은 후속 maps가 소유하며 이 층에서 새 경사나 지형을 만들지 않는다. 실제 외벽 바깥 접촉선을 따라 읽은 지면의 최저 높이와, 외벽에 닿는 바닥·석단의 최저 완성면 중 낮은 값에서 [일반 바닥 두께](#ground-storey)를 뺀 높이를 공통 외벽 하단으로 선택한다. 이 매입 여유는 렌더에서 노출 틈을 남기지 않을 형상 입력이며 지반 지지력·기초 구조계산이나 고대 시공 치수의 주장으로 쓰지 않는다.

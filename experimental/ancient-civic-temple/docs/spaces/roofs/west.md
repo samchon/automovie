@@ -16,16 +16,16 @@
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation 봉헌실과 서쪽 주랑을 한 경사로 덮으면서 두 모서리 골과 제실 서측의 끝, 세 파라펫 앞 끝을 관찰 대상까지 남겼다.
-@evidenceReview principles/core/common.md#substantive-completion 지지선 높이와 12도, 봉헌실 전 길이와 west-room~west-court+돌출 영역이 적혀 있어 서측 지붕을 다시 고르지 않고 만들 수 있다.
-@evidenceReview principles/core/common.md#declared-basis 경사와 합성은 assembly, 코핑 4.85m는 남측 입면, 천장 방식은 ceilings가 원천으로 적혀 있어 이 파일이 새 높이 규칙을 만들지 않는다.
-@evidenceReview principles/design/spaces.md#space-topology 제실 몸체를 후보에서 비워 서측 지붕이 제실 서쪽 끝을 덮지 않고, 중정 쪽은 0.35m 처마만 넘는다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority 지붕 외면·봉헌실 널판·주랑 하부·파라펫 뒷면이 서로 다른 소유로 나뉘어 한 면을 두 owner가 저작하지 않는다.
-@evidenceReview principles/design/spaces.md#space-verification-address 골과 파라펫 앞 끝, 제실 서측벽 아래 틈을 명시해 한쪽 조감만으로 누광을 통과시키지 않는다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation 낮은 날개 요구를 외쪽 경사와 제실 제외 후보라는 공간 결정으로 좁혔다.
-@evidenceReview upstream/design/spaces.md#settings-and-map-revision-from-space-work 서측 단면에서 18도 외쪽 끝이 코핑을 넘는 시험을 적고 부모 경사 범위를 고친 뒤 12도를 소비해 지역 수치로 부모를 넘지 않았다.
-@evidenceReview settings/20-envelope.md#roof-form 코핑 뒤에서 중정 쪽으로 기우는 외쪽 기와면이 부모의 서측 날개 표현과 같다.
-@evidenceReview settings/20-envelope.md#ceilings 봉헌실은 낮은 널판, 서쪽 주랑은 노출 하부를 보도록 같은 지붕 아래 두 천장 방식을 분리했다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 봉헌실과 서쪽 주랑을 한 경사로 덮으면서 두 모서리 골과 제실 서측의 끝, 세 파라펫 앞 끝을 관찰 대상까지 남겼다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 지지선 높이와 12도, 봉헌실 전 길이와 west-room~west-court+돌출 영역이 적혀 있어 서측 지붕을 다시 고르지 않고 만들 수 있다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 경사와 합성은 assembly, 코핑 4.85m는 남측 입면, 천장 방식은 ceilings가 원천으로 적혀 있어 이 파일이 새 높이 규칙을 만들지 않는다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 제실 몸체를 후보에서 비워 서측 지붕이 제실 서쪽 끝을 덮지 않고, 중정 쪽은 0.35m 처마만 넘는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 지붕 외면·봉헌실 널판·주랑 하부·파라펫 뒷면이 서로 다른 소유로 나뉘어 한 면을 두 owner가 저작하지 않는다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 골과 파라펫 앞 끝, 제실 서측벽 아래 틈을 명시해 한쪽 조감만으로 누광을 통과시키지 않는다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 낮은 날개 요구를 외쪽 경사와 제실 제외 후보라는 공간 결정으로 좁혔다.
+@evidenceReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 서측 단면에서 18도 외쪽 끝이 코핑을 넘는 시험을 적고 부모 경사 범위를 고친 뒤 12도를 소비해 지역 수치로 부모를 넘지 않았다.
+@evidenceReview settings/20-envelope.md#roof-form #7269ea1 코핑 뒤에서 중정 쪽으로 기우는 외쪽 기와면이 부모의 서측 날개 표현과 같다.
+@evidenceReview settings/20-envelope.md#ceilings #c397437 봉헌실은 낮은 널판, 서쪽 주랑은 노출 하부를 보도록 같은 지붕 아래 두 천장 방식을 분리했다.
 -->
 
 지지선은 [중정 서쪽 기준선](../building.md#plan-datums) west-court이며 그 위치의 상면이 [공통 지지 높이](assembly.md#roof-junctions)의 주랑 처마 값이다. 상면은 서쪽으로 12도 올라가는 한 평면인 외쪽 지붕이며 중정 쪽으로 기울어 주랑 처마에서 빗물을 떨어뜨린다. 봉헌실과 서쪽 주랑을 함께 덮되 중앙 중정으로 지붕 면을 연장하지 않는다. 돌출 처마의 좁은 영역만 중정 경계를 넘어간다.

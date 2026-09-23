@@ -16,16 +16,16 @@
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation 봉헌실 뒤 파라펫과 제실 박공, 마당 낮은 벽 및 상부 창을 후면에서 빠뜨리지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion 코핑 4.85m 파라펫, 제실 박공 하부까지의 벽, Y=2.55m 마당 벽을 구별해 일직선 후면의 세 높이를 정했다.
-@evidenceReview principles/core/common.md#declared-basis 코핑은 남측 입면, 박공 벽 상단은 제실 roof 하부를 소비해 교차부에 임의 수평 상단이 생기지 않는다.
-@evidenceReview principles/design/spaces.md#space-topology 상부 창 외에 후문을 추가하지 않고 마당 위는 열린 영역, 파라펫 뒤는 봉헌실 지붕으로 남는다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority 외측 벽·코핑·파라펫 뒷면은 north가 만들고 실내/마당 안쪽 표면과 창 void는 원래 owner에 남는다.
-@evidenceReview principles/design/spaces.md#space-verification-address 북서/북동 모서리와 파라펫 뒤, 높은 창 양면을 보므로 뒤쪽을 보이지 않는 면으로 면제하지 않는다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation 부모의 세 공간 차이를 같은 후면에서 파라펫·박공·낮은 석재 벽으로 구체화했다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work 일직선 외곽 안의 세 높이로 공간 조건이 양립하여 후면 증축이나 숨은 문이 필요하지 않았다.
-@evidenceReview settings/30-interiors.md#service-yard 마당 후면은 제실·파라펫 높이를 복사하지 않는 낮은 석재 면으로 정해져 있다.
-@evidenceReview settings/20-envelope.md#roof-form 봉헌실 위 파라펫과 그보다 높은 제실 박공이 부모의 후면 실루엣 관계를 따른다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 봉헌실 뒤 파라펫과 제실 박공, 마당 낮은 벽 및 상부 창을 후면에서 빠뜨리지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 코핑 4.85m 파라펫, 제실 박공 하부까지의 벽, Y=2.55m 마당 벽을 구별해 일직선 후면의 세 높이를 정했다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 코핑은 남측 입면, 박공 벽 상단은 제실 roof 하부를 소비해 교차부에 임의 수평 상단이 생기지 않는다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 상부 창 외에 후문을 추가하지 않고 마당 위는 열린 영역, 파라펫 뒤는 봉헌실 지붕으로 남는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 외측 벽·코핑·파라펫 뒷면은 north가 만들고 실내/마당 안쪽 표면과 창 void는 원래 owner에 남는다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 북서/북동 모서리와 파라펫 뒤, 높은 창 양면을 보므로 뒤쪽을 보이지 않는 면으로 면제하지 않는다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 세 공간 차이를 같은 후면에서 파라펫·박공·낮은 석재 벽으로 구체화했다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 일직선 외곽 안의 세 높이로 공간 조건이 양립하여 후면 증축이나 숨은 문이 필요하지 않았다.
+@evidenceReview settings/30-interiors.md#service-yard #bc0ce16 마당 후면은 제실·파라펫 높이를 복사하지 않는 낮은 석재 면으로 정해져 있다.
+@evidenceReview settings/20-envelope.md#roof-form #7269ea1 봉헌실 위 파라펫과 그보다 높은 제실 박공이 부모의 후면 실루엣 관계를 따른다.
 -->
 
 [기준선](../building.md#plan-datums)의 north-outer~north-inner를 따라 서측 봉헌실, 중앙 제실, 우측 서비스 마당의 후면을 잇는다. 외곽은 일직선이며 봉헌실 구간의 파라펫, 제실 위의 가장 높은 박공, 마당의 낮은 벽이 높이를 구별한다. 봉헌실 구간(west-outer~west-room)은 [남측](south.md#south-envelope)과 같은 코핑 높이의 파라펫이고 [서측 외쪽 지붕](../roofs/west.md#west-roof)의 북쪽 끝이 그 안쪽 면에서 끝난다. 제실 구간(west-room~east-room)은 [제실 지붕](../roofs/sanctuary.md#sanctuary-roof)의 실제 하부면까지 닫는 박공 끝벽이다. 서비스 마당 벽 상단은 Y=2.55m다.

@@ -15,15 +15,15 @@
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation 두 경사면과 떠 있는 네 처마, 높은 창 위 두께를 한 roof에 남겨 제실 지붕 일부가 날개 합성에 흡수되지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion 5.05m 지지와 X=0 용마루, 네 끝 참조면이 있어 후면 박공을 다시 고르지 않고 재현할 수 있다.
-@evidenceReview principles/core/common.md#declared-basis 약 7.37m와 약 4.85m가 22도 산술이며 기와/목재가 완성됐다는 주장이 없다.
-@evidenceReview principles/design/spaces.md#space-topology 서·남 처마가 봉헌실과 북쪽 주랑 지붕 위에 떠 있다고 명시해 높은 처마가 아래 지붕을 지우거나 벽을 옮기지 않는다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority 날개 지붕 위로 드러난 측벽 외면을 입면에, 박공 벽면을 입면/주랑에 두어 roof 상면 소유와 벽면 소유가 섞이지 않는다.
-@evidenceReview principles/design/spaces.md#space-verification-address 떠 있는 처마 아래 틈과 창 위 두께를 관찰에 넣어 외관 실루엣만의 검사가 아니다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation 가장 높은 후면 roof라는 설정에 5.05m 지지와 날개 위 처마라는 공간 결정을 더했다.
-@evidenceReview upstream/design/spaces.md#settings-and-map-revision-from-space-work 코핑 위로 제실을 드러내는 단면에서 6.2m 상한 초과를 확인하고 부모 범위를 6.8~7.8m로 고친 뒤 약 7.37m를 소비했다.
-@evidenceReview settings/20-envelope.md#roof-form 용마루 약 7.37m가 수리된 6.8~7.8m 안이며 코핑보다 높이 솟는 부모 실루엣과 맞는다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 두 경사면과 떠 있는 네 처마, 높은 창 위 두께를 한 roof에 남겨 제실 지붕 일부가 날개 합성에 흡수되지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 5.05m 지지와 X=0 용마루, 네 끝 참조면이 있어 후면 박공을 다시 고르지 않고 재현할 수 있다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 약 7.37m와 약 4.85m가 22도 산술이며 기와/목재가 완성됐다는 주장이 없다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 서·남 처마가 봉헌실과 북쪽 주랑 지붕 위에 떠 있다고 명시해 높은 처마가 아래 지붕을 지우거나 벽을 옮기지 않는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 날개 지붕 위로 드러난 측벽 외면을 입면에, 박공 벽면을 입면/주랑에 두어 roof 상면 소유와 벽면 소유가 섞이지 않는다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 떠 있는 처마 아래 틈과 창 위 두께를 관찰에 넣어 외관 실루엣만의 검사가 아니다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 가장 높은 후면 roof라는 설정에 5.05m 지지와 날개 위 처마라는 공간 결정을 더했다.
+@evidenceReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 코핑 위로 제실을 드러내는 단면에서 6.2m 상한 초과를 확인하고 부모 범위를 6.8~7.8m로 고친 뒤 약 7.37m를 소비했다.
+@evidenceReview settings/20-envelope.md#roof-form #7269ea1 용마루 약 7.37m가 수리된 6.8~7.8m 안이며 코핑보다 높이 솟는 부모 실루엣과 맞는다.
 -->
 
 [제실 공간](../rooms/sanctuary.md#sanctuary-volume) 위의 박공 지지선은 X=±5.75m다. 지지선 위치의 상면은 [공통 지지 높이](assembly.md#roof-junctions)의 제실 값 5.05m이고 용마루는 X=0의 Z 방향 직선이며 박공은 북·남을 향한다. 이 매스의 계산 용마루는 약 7.37m, 서·동 처마 끝 상면은 약 4.85m로 [설정 허용 높이](../../settings/20-envelope.md#roof-form) 안이며 외곽 파라펫 코핑보다 높은 가장 높은 매스로 읽힌다.

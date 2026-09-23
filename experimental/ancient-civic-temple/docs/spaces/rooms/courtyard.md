@@ -17,17 +17,17 @@
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation 열린 하늘과 낮은 바닥, 원형 수반을 함께 두고 처마 지지 높이의 상한이 하늘을 닫는 지붕으로 바뀌지 않아 추가 나무·가림막·수조도 들어올 자리가 없다.
-@evidenceReview principles/core/common.md#substantive-completion 상한 3.20m의 역할과 수반 외경·테두리·수위·물줄기의 상대 높이가 적혀 열린 중정도 유한한 공간으로 주소화된다.
-@evidenceReview principles/core/common.md#declared-basis 상한은 assembly의 주랑 처마 지지 높이, 중심은 경계 중점에서 오고 수반 수치는 후속 model/system 입력으로 한정된다.
-@evidenceReview principles/design/spaces.md#space-topology 네 변이 같은 주랑에 열린 채 남고 3.20m 상한이 물리 천장·새 층·닫힌 벽을 만들지 않는다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority 논리 bounds를 clipping에 쓰지 않고 중정 쪽 처마 slab과 상한의 겹침도 실제 roof에서 따로 읽게 해 수반 prototype을 이 파일이 가져가지 않는다.
-@evidenceReview principles/design/spaces.md#space-verification-address 남쪽 한 단 threshold와 수반 둘레 보행 여백을 관찰 대상으로 두고 원 밖 물판·높은 잔형을 수반 owner의 실패로 구분했다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation 낮은 분수 정체성을 중정 산술 중심과 테두리 대비 물높이라는 공간 결정에 묶었다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work 수반과 단일 물줄기는 새 수조실 없이 들어가고 상한을 처마 높이로 옮겨도 부모의 열린 하늘을 유지해 settings를 고칠 이유가 없었다.
-@evidenceReview settings/30-interiors.md#fountain 외경 2.0m·테두리 0.52m 수반이 경계 중점에 고정돼 다른 물체에 맞춰 옮겨지지 않는다.
-@evidenceReview settings/30-interiors.md#services 물면·물줄기 높이를 후속 소비 입력으로만 적어 수리시설이 작동한다는 결과로 읽히지 않는다.
-@evidenceReview settings/20-envelope.md#stone-floors Y=-0.12m 바닥과 주랑 사이 연속 석재 턱을 실제 단면으로 남겨 한 평면 포장으로 줄이지 않는다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 열린 하늘과 낮은 바닥, 원형 수반을 함께 두고 처마 지지 높이의 상한이 하늘을 닫는 지붕으로 바뀌지 않아 추가 나무·가림막·수조도 들어올 자리가 없다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 상한 3.20m의 역할과 수반 외경·테두리·수위·물줄기의 상대 높이가 적혀 열린 중정도 유한한 공간으로 주소화된다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 상한은 assembly의 주랑 처마 지지 높이, 중심은 경계 중점에서 오고 수반 수치는 후속 model/system 입력으로 한정된다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 네 변이 같은 주랑에 열린 채 남고 3.20m 상한이 물리 천장·새 층·닫힌 벽을 만들지 않는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 논리 bounds를 clipping에 쓰지 않고 중정 쪽 처마 slab과 상한의 겹침도 실제 roof에서 따로 읽게 해 수반 prototype을 이 파일이 가져가지 않는다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 남쪽 한 단 threshold와 수반 둘레 보행 여백을 관찰 대상으로 두고 원 밖 물판·높은 잔형을 수반 owner의 실패로 구분했다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 낮은 분수 정체성을 중정 산술 중심과 테두리 대비 물높이라는 공간 결정에 묶었다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 수반과 단일 물줄기는 새 수조실 없이 들어가고 상한을 처마 높이로 옮겨도 부모의 열린 하늘을 유지해 settings를 고칠 이유가 없었다.
+@evidenceReview settings/30-interiors.md#fountain #0bf9fe2 외경 2.0m·테두리 0.52m 수반이 경계 중점에 고정돼 다른 물체에 맞춰 옮겨지지 않는다.
+@evidenceReview settings/30-interiors.md#services #731a6e0 물면·물줄기 높이를 후속 소비 입력으로만 적어 수리시설이 작동한다는 결과로 읽히지 않는다.
+@evidenceReview settings/20-envelope.md#stone-floors #784828d Y=-0.12m 바닥과 주랑 사이 연속 석재 턱을 실제 단면으로 남겨 한 평면 포장으로 줄이지 않는다.
 -->
 
 공간 ID `courtyard`는 [기준선](../building.md#plan-datums)의 west-court~east-court, court-back~court-front 안에 있다. 완성면은 [층 높이](../storey.md#ground-storey)를 따르고 하늘은 열려 있다. 북·남·동·서 모두 같은 주랑에 접하며 새 문이나 닫힌 벽을 그 사이에 넣지 않는다. 주 출입 threshold는 남쪽 축의 한 단 내려가는 접점이다. 다른 가장자리의 연속 석재 턱도 실제 단면으로 남긴다.

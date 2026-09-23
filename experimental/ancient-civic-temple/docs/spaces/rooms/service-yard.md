@@ -16,16 +16,16 @@
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation 서쪽 주랑 문, 동쪽 외부 문, 2.55m 낮은 벽과 열린 하늘을 한 마당에 두어 운반물 자리까지 빠진 요소가 없다.
-@evidenceReview principles/core/common.md#substantive-completion 두 문턱의 소유, Y=0 바닥, 3.20m 논리 상한이 적혀 있어 마당 공기 영역을 다른 값으로 다시 정하지 않고 주소화할 수 있다.
-@evidenceReview principles/core/common.md#declared-basis 상한은 주랑 처마 지지 높이에서 받지만 실제 빈 공간과 외부 지면은 확인 전이라는 구분이 본문에 남아 있다.
-@evidenceReview principles/design/spaces.md#space-topology 주랑 접면 north-ring~yard-front 안에 문을 두고 제실 쪽 서벽에는 문이 없어 제실이 서비스 통로가 되지 않는다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority 안쪽 둘레 면·포장·벽 윗면은 마당, 바깥은 북·동 입면이며 3.20m 상한은 지붕이나 support를 만들지 않는다.
-@evidenceReview principles/design/spaces.md#space-verification-address 두 threshold와 외부→주랑 경로가 네 모서리·네 방위와 함께 적혀 마당 중앙 한 장으로 단절을 숨길 수 없다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation 서비스 마당 용도를 직접 문 접면, 북동 물품 자리, 같은 높이의 두 문턱으로 구체화했다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work 두 출입과 0.02m 문턱 한계가 제실 관통 없이 성립하고 상한 변경도 부모 조건과 무관해 그래프나 운반 조건을 고치지 않았다.
-@evidenceReview settings/30-interiors.md#service-yard 항아리·바구니를 북동 모서리로 보내 두 문 사이 반입 통로가 비어 있다.
-@evidenceReview settings/10-building.md#ground-access Y=0 바닥과 0.02m 이하 문턱이 함께 적혀 외부 문이 층 바닥과 끊긴 채 떠 있지 않다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 서쪽 주랑 문, 동쪽 외부 문, 2.55m 낮은 벽과 열린 하늘을 한 마당에 두어 운반물 자리까지 빠진 요소가 없다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 두 문턱의 소유, Y=0 바닥, 3.20m 논리 상한이 적혀 있어 마당 공기 영역을 다른 값으로 다시 정하지 않고 주소화할 수 있다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 상한은 주랑 처마 지지 높이에서 받지만 실제 빈 공간과 외부 지면은 확인 전이라는 구분이 본문에 남아 있다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 주랑 접면 north-ring~yard-front 안에 문을 두고 제실 쪽 서벽에는 문이 없어 제실이 서비스 통로가 되지 않는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 안쪽 둘레 면·포장·벽 윗면은 마당, 바깥은 북·동 입면이며 3.20m 상한은 지붕이나 support를 만들지 않는다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 두 threshold와 외부→주랑 경로가 네 모서리·네 방위와 함께 적혀 마당 중앙 한 장으로 단절을 숨길 수 없다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 서비스 마당 용도를 직접 문 접면, 북동 물품 자리, 같은 높이의 두 문턱으로 구체화했다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 두 출입과 0.02m 문턱 한계가 제실 관통 없이 성립하고 상한 변경도 부모 조건과 무관해 그래프나 운반 조건을 고치지 않았다.
+@evidenceReview settings/30-interiors.md#service-yard #bc0ce16 항아리·바구니를 북동 모서리로 보내 두 문 사이 반입 통로가 비어 있다.
+@evidenceReview settings/10-building.md#ground-access #be07d7d Y=0 바닥과 0.02m 이하 문턱이 함께 적혀 외부 문이 층 바닥과 끊긴 채 떠 있지 않다.
 -->
 
 공간 ID `service-yard`의 본체는 [기준선](../building.md#plan-datums) east-room~east-inner, north-inner~yard-front다. 서쪽은 제실과 북쪽 주랑, 남쪽은 보관실, 북·동쪽은 낮은 외벽이다. 주랑과 만나는 서쪽 경계 구간은 north-ring~yard-front이며 그 안에 직접 문을 놓는다. 이 접면 밖 제실 쪽에 문을 내어 제실을 서비스 통로로 쓰지 않는다.

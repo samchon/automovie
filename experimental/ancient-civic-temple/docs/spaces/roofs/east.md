@@ -16,16 +16,16 @@
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation 동측 외벽 처마와 마당 쪽 북끝, 두 골까지 남기면서 마당 위로는 북쪽 돌출만 허용해 열린 하늘을 잃지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion 두 지지 높이와 22도, 영역의 네 끝선이 모두 기준선으로 적혀 있어 업무 날개 지붕을 다시 정하지 않고 만들 수 있다.
-@evidenceReview principles/core/common.md#declared-basis 용마루 약 X=7.28m·4.73m와 동측 외벽 안쪽 하부 약 3.48m가 산술 표시이며 널판 3.20m 위 여유의 근거로만 쓰인다.
-@evidenceReview principles/design/spaces.md#space-topology 북쪽 끝이 yard-front에서 0.35m만 돌출하고 마당 본체를 덮지 않아 서비스 마당이 지붕 아래 방이 되지 않는다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority 업무방 천장과 주랑 하부는 방 소유로 두고 동측 지붕은 외면과 외부 하부만 가져 이중 저작이 없다.
-@evidenceReview principles/design/spaces.md#space-verification-address 남측 파라펫 뒤 끝과 마당에서 본 북끝을 함께 적어 정면 조감으로 가린 틈을 검사에서 빼지 않는다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation 업무 날개 요구를 북단 공유벽·남단 파라펫·동측 3.55m 지지라는 끝과 높이 결정으로 좁혔다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work 동측 지지 3.55m가 수리된 처마 범위 안이고 널판 위 여유를 남겨 settings를 더 고칠 필요가 없었다.
-@evidenceReview settings/30-interiors.md#service-yard 마당 위로는 북쪽 끝 돌출만 있어 부모가 요구한 열린 서비스 마당이 유지된다.
-@evidenceReview settings/20-envelope.md#roof-form 업무 날개가 가운데 용마루 박공이고 동측에만 처마가 있어 부모가 적은 이미지 01의 동측 박공과 맞는다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 동측 외벽 처마와 마당 쪽 북끝, 두 골까지 남기면서 마당 위로는 북쪽 돌출만 허용해 열린 하늘을 잃지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 두 지지 높이와 22도, 영역의 네 끝선이 모두 기준선으로 적혀 있어 업무 날개 지붕을 다시 정하지 않고 만들 수 있다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 용마루 약 X=7.28m·4.73m와 동측 외벽 안쪽 하부 약 3.48m가 산술 표시이며 널판 3.20m 위 여유의 근거로만 쓰인다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 북쪽 끝이 yard-front에서 0.35m만 돌출하고 마당 본체를 덮지 않아 서비스 마당이 지붕 아래 방이 되지 않는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 업무방 천장과 주랑 하부는 방 소유로 두고 동측 지붕은 외면과 외부 하부만 가져 이중 저작이 없다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 남측 파라펫 뒤 끝과 마당에서 본 북끝을 함께 적어 정면 조감으로 가린 틈을 검사에서 빼지 않는다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 업무 날개 요구를 북단 공유벽·남단 파라펫·동측 3.55m 지지라는 끝과 높이 결정으로 좁혔다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 동측 지지 3.55m가 수리된 처마 범위 안이고 널판 위 여유를 남겨 settings를 더 고칠 필요가 없었다.
+@evidenceReview settings/30-interiors.md#service-yard #bc0ce16 마당 위로는 북쪽 끝 돌출만 있어 부모가 요구한 열린 서비스 마당이 유지된다.
+@evidenceReview settings/20-envelope.md#roof-form #7269ea1 업무 날개가 가운데 용마루 박공이고 동측에만 처마가 있어 부모가 적은 이미지 01의 동측 박공과 맞는다.
 -->
 
 박공의 지지선은 [중정 동쪽 기준선](../building.md#plan-datums) east-court와 동측 외벽 중심 X=10.2m다. east-court 위치의 상면은 [공통 지지 높이](assembly.md#roof-junctions)의 주랑 처마 값이고 동측 외벽 중심은 3.55m다. 두 면은 같은 22도이므로 용마루는 중점보다 동쪽인 약 X=7.28m에서 Z 방향으로 이어지고 그 상면은 입력 산술상 약 4.73m다. 동측 외벽 안쪽 면의 하부는 약 3.48m로 [업무방 널판 천장](../storey.md#ground-storey) 위 구조 예약보다 높다. 이 수치는 실측이 아니다.

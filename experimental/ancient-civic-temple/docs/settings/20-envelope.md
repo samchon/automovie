@@ -40,14 +40,14 @@
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation 날개 외쪽 경사와 동측 박공뿐 아니라 파라펫 윗단의 석재 코핑, 포치 박공과 처마 아래 보·서까래 끝까지 지붕 쪽 가시 요소로 남겼다.
-@evidenceReview principles/core/common.md#substantive-completion 코핑 4.5~5.2m와 외쪽 10~16도를 함께 정해 두어 서측 날개를 가운데 용마루로 되돌리거나 코핑 없는 벽 끝으로 처리하는 하위 설계를 여기서 거부할 수 있다.
-@evidenceReview principles/core/common.md#declared-basis 서측 외쪽 경사와 동측 용마루는 이미지 01의 관찰로, 처마 지지·코핑·용마루 수치는 저작자 허용값으로 나뉘어 적혀 있다.
-@evidenceReview principles/core/settings.md#fact-status 제실 용마루 6.8~7.8m와 외쪽 10~16도는 서측 날개 깊이와 코핑 높이를 맞춘 허용 범위로 서술되며, 사진의 지붕을 측량했다는 문장이 없다.
-@evidenceReview principles/core/settings.md#source-support 이미지 01의 서측 코핑과 그 안쪽 기와면을 지목했고 경사 10~16도는 형태 판단에서 고른 범위라고 밝혀 자료가 주지 않은 치수를 끌어오지 않았다.
-@evidenceReview principles/core/settings.md#capability-boundary 파라펫을 벽체 연장으로 한정하고 굴뚝·난간을 막아, 지붕 범위를 늘려 중정을 덮거나 옥상 통로를 만드는 확장을 허용하지 않는다.
-@evidenceReview principles/core/settings.md#constraint-sufficiency 외쪽 날개와 동측 박공이 역할별로 갈려 있어 모든 날개에 같은 박공을 씌운 실루엣도 이 기준으로 불합격시킬 수 있다.
-@evidenceReview principles/core/settings.md#observable-identity 높은 코핑 뒤 안쪽 기와면과 그 위의 가장 높은 제실 박공을 요구해 같은 높이의 상자 지붕이나 바깥 처마만 드러나는 날개 박공을 배제한다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 날개 외쪽 경사와 동측 박공뿐 아니라 파라펫 윗단의 석재 코핑, 포치 박공과 처마 아래 보·서까래 끝까지 지붕 쪽 가시 요소로 남겼다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 코핑 4.5~5.2m와 외쪽 10~16도를 함께 정해 두어 서측 날개를 가운데 용마루로 되돌리거나 코핑 없는 벽 끝으로 처리하는 하위 설계를 여기서 거부할 수 있다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 서측 외쪽 경사와 동측 용마루는 이미지 01의 관찰로, 처마 지지·코핑·용마루 수치는 저작자 허용값으로 나뉘어 적혀 있다.
+@evidenceReview principles/core/settings.md#fact-status #93a284a 제실 용마루 6.8~7.8m와 외쪽 10~16도는 서측 날개 깊이와 코핑 높이를 맞춘 허용 범위로 서술되며, 사진의 지붕을 측량했다는 문장이 없다.
+@evidenceReview principles/core/settings.md#source-support #430bca9 이미지 01의 서측 코핑과 그 안쪽 기와면을 지목했고 경사 10~16도는 형태 판단에서 고른 범위라고 밝혀 자료가 주지 않은 치수를 끌어오지 않았다.
+@evidenceReview principles/core/settings.md#capability-boundary #83a6f2c 파라펫을 벽체 연장으로 한정하고 굴뚝·난간을 막아, 지붕 범위를 늘려 중정을 덮거나 옥상 통로를 만드는 확장을 허용하지 않는다.
+@evidenceReview principles/core/settings.md#constraint-sufficiency #20cf612 외쪽 날개와 동측 박공이 역할별로 갈려 있어 모든 날개에 같은 박공을 씌운 실루엣도 이 기준으로 불합격시킬 수 있다.
+@evidenceReview principles/core/settings.md#observable-identity #4ccb62e 높은 코핑 뒤 안쪽 기와면과 그 위의 가장 높은 제실 박공을 요구해 같은 높이의 상자 지붕이나 바깥 처마만 드러나는 날개 박공을 배제한다.
 -->
 
 근거는 이미지 01·03·04다. 흙빛 붉은 곡면 기와 지붕은 중정 쪽으로 기울어 주랑 처마에서 빗물을 모으는 안쪽 경사가 기본이다. 이미지 01처럼 서측 날개와 남·북 주랑은 외곽 쪽이 높은 외쪽 지붕이며 그 높은 끝은 정면·서측과 후면 봉헌실 구간의 외곽 파라펫 뒤에 숨는다. 파라펫은 회벽 위에 석재 코핑을 얹은 수평 윗단으로 읽힌다. 동측 업무 날개는 이미지 01의 가운데 용마루 박공이고, 후면 제실의 박공은 코핑보다 높이 솟아 건물에서 가장 높은 매스로 읽힌다. 정면 포치의 작은 박공은 두 파라펫 사이에 물린다. 중앙 중정은 완전히 열려 있으며 그 둘레의 지붕은 주랑을 비로부터 가린다.
