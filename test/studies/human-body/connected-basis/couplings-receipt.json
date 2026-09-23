@@ -1,0 +1,97 @@
+{
+  "basis": "mpfb-connected-body-2026-09-21-envelopes-raw+sym+digits+rhythm",
+  "supersedes": "mpfb-connected-body-2026-09-21-envelopes-raw+sym+digits",
+  "method": "each upper arm's clinical elevation (the swing cone of its flexion and abduction from the anatomical zero) drives its girdle bone: elevation (abduction) to 11 degrees and retraction (negative flexion) to 16 degrees at 180, both capped by the girdle's pinned range, from a zero knot at the A-pose rest elevation (Ludewig 2009; Inman 1944)",
+  "couplings": [
+    {
+      "id": "leftScapulohumeralElevation",
+      "source": {
+        "bone": "leftUpperArm",
+        "measure": "elevation"
+      },
+      "output": {
+        "bone": "leftShoulder",
+        "axis": "abduction"
+      },
+      "curve": [
+        [
+          41.75240307188713,
+          0
+        ],
+        [
+          180,
+          11
+        ]
+      ]
+    },
+    {
+      "id": "leftScapulohumeralRetraction",
+      "source": {
+        "bone": "leftUpperArm",
+        "measure": "elevation"
+      },
+      "output": {
+        "bone": "leftShoulder",
+        "axis": "flexion"
+      },
+      "curve": [
+        [
+          41.75240307188713,
+          0
+        ],
+        [
+          180,
+          -15
+        ]
+      ]
+    },
+    {
+      "id": "rightScapulohumeralElevation",
+      "source": {
+        "bone": "rightUpperArm",
+        "measure": "elevation"
+      },
+      "output": {
+        "bone": "rightShoulder",
+        "axis": "abduction"
+      },
+      "curve": [
+        [
+          41.75240307188713,
+          0
+        ],
+        [
+          180,
+          11
+        ]
+      ]
+    },
+    {
+      "id": "rightScapulohumeralRetraction",
+      "source": {
+        "bone": "rightUpperArm",
+        "measure": "elevation"
+      },
+      "output": {
+        "bone": "rightShoulder",
+        "axis": "flexion"
+      },
+      "curve": [
+        [
+          41.75240307188713,
+          0
+        ],
+        [
+          180,
+          -15
+        ]
+      ]
+    }
+  ],
+  "verification": {
+    "leftUpperArm.abduction@180": {
+      "glenohumeralCentreLiftMillimetres": 28.4
+    }
+  },
+  "uncompressedSha256": "95c8348d6d773e1ea06bc34044145e2c22c81f926dda8d0713f21973dec5da7b"
+}

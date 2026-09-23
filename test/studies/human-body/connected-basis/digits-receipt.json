@@ -1,0 +1,272 @@
+{
+  "basis": "mpfb-connected-body-2026-09-21-envelopes-raw+sym+digits",
+  "supersedes": "mpfb-connected-body-2026-09-21-envelopes-raw+sym",
+  "method": {
+    "length": "Buchholz, Armstrong & Goldstein 1992 link lengths as fractions of hand length: the target proximal phalanx of digits 2-5 is the measured middle phalanx times the digit's proximal over middle ratio; the metacarpophalangeal landmark moves proximally along the wrist-to-joint direction by target minus measured, and skin within 15 mm of the finger axis between the new joint and the web hands its hand weight to the proximal phalanx over a 22 mm linear band centred on the new joint",
+    "depth": "a hinge's centre of rotation is the centre of its articular head, on the shaft axis of the bone: the metacarpophalangeal and proximal interphalangeal landmarks of digits 2-5 and the metatarsophalangeal landmark of the toes move along the flexion normal (read from the public builder at ten degrees of flexion) to the midpoint of the skin thickness measured in a 8 mm slab through the joint in the flexion plane; the thumb is excluded because its metacarpophalangeal section runs through the thenar mass"
+  },
+  "lengths": [
+    {
+      "side": "l",
+      "digit": 2,
+      "name": "Index",
+      "proximalBefore": 25.8,
+      "middle": 23.1,
+      "ratio": 1.546099290780142,
+      "proximalAfter": 35.7,
+      "shiftMillimetres": 9.9,
+      "reweightedVertices": 250
+    },
+    {
+      "side": "l",
+      "digit": 3,
+      "name": "Middle",
+      "proximalBefore": 33.8,
+      "middle": 27.6,
+      "ratio": 1.5668789808917196,
+      "proximalAfter": 43.2,
+      "shiftMillimetres": 9.4,
+      "reweightedVertices": 140
+    },
+    {
+      "side": "l",
+      "digit": 4,
+      "name": "Ring",
+      "proximalBefore": 29.7,
+      "middle": 24.8,
+      "ratio": 1.525974025974026,
+      "proximalAfter": 37.8,
+      "shiftMillimetres": 8.1,
+      "reweightedVertices": 141
+    },
+    {
+      "side": "l",
+      "digit": 5,
+      "name": "Little",
+      "proximalBefore": 21.3,
+      "middle": 15.6,
+      "ratio": 1.8,
+      "proximalAfter": 28.1,
+      "shiftMillimetres": 6.8,
+      "reweightedVertices": 268
+    },
+    {
+      "side": "r",
+      "digit": 2,
+      "name": "Index",
+      "proximalBefore": 25.8,
+      "middle": 23.1,
+      "ratio": 1.546099290780142,
+      "proximalAfter": 35.7,
+      "shiftMillimetres": 9.9,
+      "reweightedVertices": 250
+    },
+    {
+      "side": "r",
+      "digit": 3,
+      "name": "Middle",
+      "proximalBefore": 33.8,
+      "middle": 27.6,
+      "ratio": 1.5668789808917196,
+      "proximalAfter": 43.2,
+      "shiftMillimetres": 9.4,
+      "reweightedVertices": 140
+    },
+    {
+      "side": "r",
+      "digit": 4,
+      "name": "Ring",
+      "proximalBefore": 29.7,
+      "middle": 24.8,
+      "ratio": 1.525974025974026,
+      "proximalAfter": 37.8,
+      "shiftMillimetres": 8.1,
+      "reweightedVertices": 141
+    },
+    {
+      "side": "r",
+      "digit": 5,
+      "name": "Little",
+      "proximalBefore": 21.3,
+      "middle": 15.6,
+      "ratio": 1.8,
+      "proximalAfter": 28.1,
+      "shiftMillimetres": 6.8,
+      "reweightedVertices": 268
+    }
+  ],
+  "depths": [
+    {
+      "bone": "leftIndexProximal",
+      "landmark": "joint-l-finger-2-1",
+      "thicknessMillimetres": 24.4,
+      "fractionFromFarSideBefore": 0.25,
+      "fractionAfter": 0.5,
+      "shiftMillimetres": 6.1,
+      "sectionVertices": 26
+    },
+    {
+      "bone": "leftIndexIntermediate",
+      "landmark": "joint-l-finger-2-2",
+      "thicknessMillimetres": 21.4,
+      "fractionFromFarSideBefore": 0.21,
+      "fractionAfter": 0.5,
+      "shiftMillimetres": 6.3,
+      "sectionVertices": 110
+    },
+    {
+      "bone": "leftMiddleProximal",
+      "landmark": "joint-l-finger-3-1",
+      "thicknessMillimetres": 28.8,
+      "fractionFromFarSideBefore": 0.19,
+      "fractionAfter": 0.5,
+      "shiftMillimetres": 8.9,
+      "sectionVertices": 22
+    },
+    {
+      "bone": "leftMiddleIntermediate",
+      "landmark": "joint-l-finger-3-2",
+      "thicknessMillimetres": 20.1,
+      "fractionFromFarSideBefore": 0.23,
+      "fractionAfter": 0.5,
+      "shiftMillimetres": 5.4,
+      "sectionVertices": 90
+    },
+    {
+      "bone": "leftRingProximal",
+      "landmark": "joint-l-finger-4-1",
+      "thicknessMillimetres": 26.6,
+      "fractionFromFarSideBefore": 0.17,
+      "fractionAfter": 0.5,
+      "shiftMillimetres": 8.7,
+      "sectionVertices": 26
+    },
+    {
+      "bone": "leftRingIntermediate",
+      "landmark": "joint-l-finger-4-2",
+      "thicknessMillimetres": 19.3,
+      "fractionFromFarSideBefore": 0.23,
+      "fractionAfter": 0.5,
+      "shiftMillimetres": 5.3,
+      "sectionVertices": 120
+    },
+    {
+      "bone": "leftLittleProximal",
+      "landmark": "joint-l-finger-5-1",
+      "thicknessMillimetres": 23.1,
+      "fractionFromFarSideBefore": 0.25,
+      "fractionAfter": 0.5,
+      "shiftMillimetres": 5.9,
+      "sectionVertices": 40
+    },
+    {
+      "bone": "leftLittleIntermediate",
+      "landmark": "joint-l-finger-5-2",
+      "thicknessMillimetres": 17,
+      "fractionFromFarSideBefore": 0.31,
+      "fractionAfter": 0.5,
+      "shiftMillimetres": 3.2,
+      "sectionVertices": 201
+    },
+    {
+      "bone": "leftToes",
+      "landmark": "joint-l-foot-1",
+      "thicknessMillimetres": 31.9,
+      "fractionFromFarSideBefore": 0.23,
+      "fractionAfter": 0.5,
+      "shiftMillimetres": 8.7,
+      "sectionVertices": 18
+    },
+    {
+      "bone": "rightIndexProximal",
+      "landmark": "joint-r-finger-2-1",
+      "thicknessMillimetres": 24.4,
+      "fractionFromFarSideBefore": 0.25,
+      "fractionAfter": 0.5,
+      "shiftMillimetres": 6.1,
+      "sectionVertices": 26
+    },
+    {
+      "bone": "rightIndexIntermediate",
+      "landmark": "joint-r-finger-2-2",
+      "thicknessMillimetres": 21.4,
+      "fractionFromFarSideBefore": 0.21,
+      "fractionAfter": 0.5,
+      "shiftMillimetres": 6.3,
+      "sectionVertices": 110
+    },
+    {
+      "bone": "rightMiddleProximal",
+      "landmark": "joint-r-finger-3-1",
+      "thicknessMillimetres": 28.8,
+      "fractionFromFarSideBefore": 0.19,
+      "fractionAfter": 0.5,
+      "shiftMillimetres": 8.9,
+      "sectionVertices": 22
+    },
+    {
+      "bone": "rightMiddleIntermediate",
+      "landmark": "joint-r-finger-3-2",
+      "thicknessMillimetres": 20.1,
+      "fractionFromFarSideBefore": 0.23,
+      "fractionAfter": 0.5,
+      "shiftMillimetres": 5.4,
+      "sectionVertices": 90
+    },
+    {
+      "bone": "rightRingProximal",
+      "landmark": "joint-r-finger-4-1",
+      "thicknessMillimetres": 26.6,
+      "fractionFromFarSideBefore": 0.17,
+      "fractionAfter": 0.5,
+      "shiftMillimetres": 8.7,
+      "sectionVertices": 26
+    },
+    {
+      "bone": "rightRingIntermediate",
+      "landmark": "joint-r-finger-4-2",
+      "thicknessMillimetres": 19.3,
+      "fractionFromFarSideBefore": 0.23,
+      "fractionAfter": 0.5,
+      "shiftMillimetres": 5.3,
+      "sectionVertices": 120
+    },
+    {
+      "bone": "rightLittleProximal",
+      "landmark": "joint-r-finger-5-1",
+      "thicknessMillimetres": 23.1,
+      "fractionFromFarSideBefore": 0.25,
+      "fractionAfter": 0.5,
+      "shiftMillimetres": 5.9,
+      "sectionVertices": 40
+    },
+    {
+      "bone": "rightLittleIntermediate",
+      "landmark": "joint-r-finger-5-2",
+      "thicknessMillimetres": 17,
+      "fractionFromFarSideBefore": 0.31,
+      "fractionAfter": 0.5,
+      "shiftMillimetres": 3.2,
+      "sectionVertices": 201
+    },
+    {
+      "bone": "rightToes",
+      "landmark": "joint-r-foot-1",
+      "thicknessMillimetres": 31.9,
+      "fractionFromFarSideBefore": 0.23,
+      "fractionAfter": 0.5,
+      "shiftMillimetres": 8.7,
+      "sectionVertices": 18
+    }
+  ],
+  "verification": {
+    "rest": "clean",
+    "mcp45": "leftHandxleftIndexProximal:3/4",
+    "mcp90": "leftHandxleftIndexProximal:23/25 leftIndexProximalxleftMiddleProximal:4/5",
+    "fistIndex": "leftHandxleftIndexProximal:23/25 leftIndexProximalxleftMiddleProximal:4/5",
+    "fistAll": "leftHandxleftIndexProximal:23/27 leftHandxleftRingProximal:2/1 leftHandxleftLittleProximal:14/24 leftIndexProximalxleftMiddleProximal:3/2 leftMiddleProximalxleftMiddleIntermediate:12/18 leftRingProximalxleftRingIntermediate:12/12 leftLittleProximalxleftLittleIntermediate:27/32",
+    "toes70": "leftFootxleftToes:10/14",
+    "toesMinus45": "clean"
+  },
+  "uncompressedSha256": "23a8f037569fe2a87f35fd1964cf820d984df33298a955708c3cf77a43370324"
+}
