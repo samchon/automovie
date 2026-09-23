@@ -3,27 +3,27 @@
 ## 밝은 석재 패널 {#limestone-panels}
 
 <!--
-@evidence principles/core/common.md#scope-preservation 네 입면의 stone panel population·wall body·corner prism·창 아래 drip·지붕 가장자리 stone 부재를 모두 이 마감에 두고 대지 포장·실내 타일은 배정 밖이라고 적어, 외벽의 밝은 불투명 면에 무소유 부분이 남지 않는다.
+@evidence principles/core/common.md#scope-preservation 네 입면의 stone panel population·wall body·corner stone·창 아래 drip·지붕 가장자리 stone 부재를 모두 이 마감에 두고 대지 포장·실내 타일은 배정 밖이라고 적어, 외벽의 밝은 불투명 면에 무소유 부분이 남지 않는다.
 @evidence principles/core/common.md#substantive-completion #c9c3b5·roughness .82, limestone-grain 512²·0.64m 반복, 평균 .98·범위 .94..1.00, 입자 2..8mm와 구름무늬 40..100mm, member 계수 .98..1.02를 정해 구현이 석재 외관을 고르지 않는다.
 @evidence principles/core/common.md#declared-basis 밝은 무채색 외벽은 production-visual-grammar와 envelope-and-privacy에서, 0.016m 패널과 wall body는 입면 owner의 기존 geometry에서 받고 색·grain 수치는 이 층의 저작 선택이라고 구분한다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 부모는 "밝은 석재 계열 불투명 면"까지만 말한다. 이 H2는 honed 석재의 무광 응답, 0.64m 반복의 입자 규모, member 변화 폭과 실제 패널 간격을 texture로 덮지 않는 규칙을 더한다.
 @evidence principles/design/materials.md#material-construction-appearance 기존 패널·wall body를 물리 부재로 두고 grain은 선형 명도 변화로만, 빛과 그림자는 geometry와 조명으로만 만든다고 나눠 날카로운 점·가짜 균열로 구조를 흉내 내지 않는다.
-@evidence principles/design/materials.md#material-binding-interface 입면 local 수평 U/수직 V를 쓰고 corner는 두 실제 면의 투영이 만나는 모서리로 두며, 패널 간격과 opening recess를 texture로 덮지 않는 호환 조건을 둔다.
+@evidence principles/design/materials.md#material-binding-interface 입면 local 수평 U/수직 V를 쓰고 corner는 두 실제 면의 투영이 만나는 모서리로 두며, 패널 간격과 개구부 recess를 texture로 덮지 않는 호환 조건을 둔다.
 @evidence principles/design/materials.md#material-verification-address ref01의 패널성·저광택, 모서리와 1층/2층 이음, front와 right의 동일 재료 읽힘은 reference-material-samples에서, 근접 입자와 원거리 평균색은 scale-and-junction-samples에서 반증한다.
 @evidenceExclude upstream/design/materials.md#parent-revision-from-material-work 네 입면의 stone panel 분할과 0.004m 간격, wall body 두께, corner miter prism, 창 아래 drip, roof-slab 가장자리와 시각 문법의 외벽 색을 대조했다. 패널이 이미 실제 이음을 가져 재료가 형상이나 부모 소유를 바꿀 필요가 없었다.
 @evidence settings/001-production.md#production-visual-grammar 밝은 무채색 외벽과 흰 면을 칠로 데우지 않는 규칙을 #c9c3b5 무광 석재와 ±2% member 변화로 구체화한다.
 @evidence settings/003-spatial-basis.md#envelope-and-privacy 밝은 석재 계열 불투명 면이라는 외피 공통 재료 언어를 네 입면의 불투명 부재 마감으로 받는다.
-@evidence spaces/003-surface-ownership.md#front-face 전면 -Z 외벽에서 계단실·작업실 유리와 현관문 밖에 남는 panel과 코어 불투명 벽을 전면 owner가 이 석재로 배정한다.
+@evidence spaces/003-surface-ownership.md#front-face 전면 -Z 외벽에서 현관문·계단실·작업실·상층 침실 유리의 cut 밖에 남는 닫힌 벽·panel과 -X 코어 불투명 벽을 전면 owner가 이 석재로 배정한다.
 @evidence spaces/003-surface-ownership.md#rear-face 후면 +Z 외벽에서 공용부·주침실 유리 밖 panel과 욕실 창을 둘러싼 닫힌 벽을 후면 owner가 이 석재로 배정한다.
 @evidence spaces/003-surface-ownership.md#left-face +X 좌측의 불투명 return과 세 창 사이 panel을 좌측 owner가 같은 석재로 받아 옆면이 다른 재료로 읽히지 않게 한다.
-@evidence spaces/003-surface-ownership.md#right-face -X 서비스 코어의 큰 불투명 벽과 panel joint를 우측 owner가 같은 석재로 받아 ref01의 밝은 코어 벽 읽힘을 맡는다.
+@evidence spaces/003-surface-ownership.md#right-face -X 서비스 코어의 큰 불투명 벽체와 벽 이음을 우측 owner가 같은 석재로 받아 ref01의 밝은 코어 벽 읽힘을 맡는다.
 @evidence spaces/003-surface-ownership.md#envelope-corners 대각 분할된 corner prism의 두 삼각형이 각자 입면 좌표로 같은 석재를 받아 모서리를 이음 없는 한 장의 돌로 위장하지 않는다.
 @evidence spaces/003-surface-ownership.md#roof-face roof owner가 소유한 지붕 가장자리의 stone 부재를 외피와 같은 석재로 받아 입면 위 끝단의 재료가 끊기지 않게 한다.
 -->
 
-마감 `limestone-honed`는 외피의 밝은 무광 석재다. 기존 0.016m 패널 및 배후 wall body의 geometry는 유지한다. 입면별 `*-stone-panels`와 해당 wall body·corner stone, 창 아래 `*-drip` 석재, 지붕 가장자리의 stone 부재는 각 외피 owner가 배정한다. 대지 포장·실내 타일에는 배정하지 않는다. [바인딩](001-binding-and-scale.md#surface-bindings)의 입면 local 수평 U/수직 V를 사용한다.
+마감 `limestone-honed`는 외피의 밝은 무광 석재다. 기존 0.016m 패널 및 배후 wall body의 geometry는 유지한다. 입면별 `*-stone-panels`와 해당 wall body·corner stone, 창 아래 `*-drip` 석재, 지붕 가장자리의 stone 부재는 각 외피 owner가 배정한다. 대지 포장·실내 타일에는 배정하지 않는다. [metric 좌표](001-binding-and-scale.md#metric-texture-coordinates)의 면 접선축 중 입면 local 수평을 U, 수직을 V로 쓴다.
 
-색 #c9c3b5, roughness=.82다. `limestone-grain`은 512², 0.64×0.64m 반복이다. 기준색에 곱할 선형 무채색 texture 평균 .98, 범위 .94..1.00로 만들며 2..8mm 입자와 40..100mm 완만한 구름무늬를 혼합한다. 날카로운 검은 점·벽돌줄·가짜 균열은 없다. 별도 member의 기준색 변화는 각 RGB 채널에 같은 sRGB 계수 .98..1.02만 허용한다. 빛과 그림자는 geometry와 조명이 만든다.
+밝은 무채색 외벽과 흰 벽을 칠로 데우지 않는 규칙은 [시각 문법](../settings/001-production.md#production-visual-grammar), 밝은 석재 계열 불투명 면은 [외피와 개구부](../settings/003-spatial-basis.md#envelope-and-privacy)에서 받는다. 아래 색·roughness·grain 수치는 이 층의 저작 선택이다. 색 #c9c3b5, roughness=.82다. `limestone-grain`은 512², 0.64×0.64m 반복이다. 기준색에 곱할 선형 무채색 texture 평균 .98, 범위 .94..1.00로 만들며 2..8mm 입자와 40..100mm 완만한 구름무늬를 혼합한다. 날카로운 검은 점·벽돌줄·가짜 균열은 없다. 별도 member의 기준색 변화는 각 RGB 채널에 같은 sRGB 계수 .98..1.02만 허용한다. 빛과 그림자는 geometry와 조명이 만든다.
 
 실제 패널 간격과 개구부 recess를 texture로 덮지 않는다. front/rear corner는 각 실제 면의 투영이 만나는 모서리이고 이음 없는 거대한 한 장의 돌로 위장하지 않는다. [외관과 접합 검사](007-observation.md#reference-material-samples)에서 ref01의 밝은 패널성·낮은 광택, 모서리와 1층/2층 이음, front와 right의 동일 재료 읽힘을 확인한다. 근접 입자와 원거리 평균색은 [거리 검사](007-observation.md#scale-and-junction-samples)로 따로 본다.
 
