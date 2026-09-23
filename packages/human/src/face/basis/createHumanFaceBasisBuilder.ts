@@ -3,6 +3,7 @@ import { createMeshWeldPartitionMatcher } from "@automovie/engine/math/createMes
 import type { IAutoMovieModel } from "@automovie/interface";
 import typia from "typia";
 
+import { createHumanFaceIrisPigment } from "../anatomy/eye/createHumanFaceIrisPigment";
 import { createHumanFaceHairBuilder } from "../anatomy/hair/createHumanFaceHairBuilder";
 import { createHumanFaceScalpTint } from "../anatomy/hair/createHumanFaceScalpTint";
 import { createPortraitColourField } from "../anatomy/skin/createPortraitColourField";
@@ -50,7 +51,10 @@ import { resolveHumanFaceContact } from "./resolveHumanFaceContact";
  * gathered with the same region correspondence; the scalp under a hair
  * document's populations is tinted toward the hair colour by
  * `createHumanFaceScalpTint`, as a further gain on it. It changes no position or
- * normal and follows both shape and articulated expression. Fields contain no
+ * normal and follows both shape and articulated expression. A document's iris
+ * pigments repaint only the anatomical iris disc of the eye texture
+ * (`createHumanFaceIrisPigment`) after the material overrides, so an override
+ * of the eye's colour still multiplies the repainted texture. Fields contain no
  * image data. A new model owns its arrays and materials; neither basis nor
  * edits mutate. Model structure and materials are admitted on the prepared
  * neutral. Repeated edits retain that structure and check their welded vertex
@@ -81,6 +85,7 @@ export function createHumanFaceBasisBuilder(
   assertHumanFaceBasis(basis);
   const buildHair = createHumanFaceHairBuilder(basis);
   const scalpTint = createHumanFaceScalpTint(basis);
+  const irisPigment = createHumanFaceIrisPigment(basis);
   const surfaces = basis.surfaces.map((surface) => ({
     surface,
     regions: surface.regions.map((region) => ({
@@ -144,6 +149,7 @@ export function createHumanFaceBasisBuilder(
       if (override.roughness !== undefined)
         material.roughness = override.roughness;
     }
+    irisPigment(document.iris, materials);
     const rest = evaluateHumanFaceRest(basis, state, closure);
     const motions =
       basis.articulation === undefined

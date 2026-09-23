@@ -1,5 +1,6 @@
 import type { IPortraitColourField } from "../anatomy/skin/structures/IPortraitColourField";
 import type { IAutoMovieHumanFaceHair } from "./IAutoMovieHumanFaceHair";
+import type { IAutoMovieHumanFaceIris } from "./IAutoMovieHumanFaceIris";
 
 /**
  * Compact edits against a separately supplied immutable facial basis.
@@ -43,6 +44,13 @@ export interface IAutoMovieHumanFaceBasisDocument {
    * across its material regions with their common vertex correspondence.
    */
   skin?: Record<string, IPortraitColourField[]> | null;
+
+  /**
+   * Optional iris pigmentation of each articulated eye, painted by one shared
+   * rule into the basis eye texture's anatomical iris disc. Omission and null
+   * keep the basis texture byte for byte.
+   */
+  iris?: IAutoMovieHumanFaceIris | null;
 
   /** Optional linear RGB and roughness, each in [0,1], by existing material ID. */
   materials?: Record<
