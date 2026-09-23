@@ -17,7 +17,7 @@ export const templeLevels = {
 } as const;
 
 /**
- * maps 산출물에서 읽은 외벽 접촉선의 최저 높이를 받는다.
+ * 대지 지면(docs/spaces/site.md#site-grade)에서 읽은 외벽 접촉선의 최저 높이를 받는다.
  * docs/spaces/storey.md#wall-ground-contact의 식을 구현한다.
  * 외부 지면은 여기서 발명하지 않으며 비유한 값은 거부한다.
  * 인접 최저 완성면도 호출자가 실제 바닥/석단에서 유도해 전달한다.
@@ -34,10 +34,3 @@ export const templeWallBottom = (
   return Math.min(outsideContactMinimum, adjacentFloorMinimum) -
     templeLevels.slabThickness;
 };
-
-/**
- * docs/spaces/storey.md#wall-ground-contact의 maps 이전 잠정 외부 접촉 최저값.
- * 판정된 건물 측 최저 외부 접점(정문 도로)이며 대지 후보나 Y=0 일괄값이 아니다.
- * maps가 더 낮은 접촉을 공급하면 호출자가 그 값으로 대체한다.
- */
-export const templeProvisionalExteriorContact = (): number => templeLevels.publicRoad;

@@ -2,20 +2,22 @@
  * docs/spaces/circulation.md의 공용·서비스 순환을 공개 connector로 낸다.
  * 서로 다른 두 공간을 잇는 실제 문 통과와 중정 남쪽 한 단만 connector가
  * 되고, 주랑 고리는 한 volume 안의 경로라 자기 자신으로의 connector를 만들지
- * 않는다. 외부 공간이 없는 정문 석단과 외부 서비스 문은 maps가 site를
- * 공급할 때까지 connector로 만들지 않으며 그 구간은 unverified로 남는다.
+ * 않는다. 외부 쪽 공간은 docs/spaces/site.md#site-connections의 `temple-site`이며
+ * 외부 서비스 문 통과와 정문 두 단 계단이 대지와 건물을 잇는 유일한 connector다.
  */
 import type { IAutoMovieBuiltConnector, IAutoMovieBuiltSpace, IAutoMovieVector3 } from "@automovie/interface";
 import { edgeInside, planeHeight, type RoofPatch } from "../geometry/planar-domain";
 import { templePlan as p } from "./building";
 import { templeDoorPassages } from "./openings";
+import { templeEntranceSteps } from "./rooms/entrance";
+import { templeSiteIds } from "./site/assembly";
 import { templeLevels as y } from "./storey";
 
-/** 문 양쪽 벽면에서 0.3m 안쪽 두 점을 잇는 통과 connector와 중정 단 connector. */
+/** 문 양쪽 벽면에서 0.3m 안쪽 두 점을 잇는 통과 connector와 중정 단·정문 계단 connector. */
 export const templeConnectors = (
   spaces: readonly IAutoMovieBuiltSpace[], roof: readonly RoofPatch[],
 ): IAutoMovieBuiltConnector[] => [
-  ...templeDoorPassages.filter((door) => door.adjacent !== "exterior").map((door) => {
+  ...templeDoorPassages.map((door) => {
     const [a, b] = [door.wallLow - 0.3, door.wallHigh + 0.3].map((offset): IAutoMovieVector3 =>
       door.axis === "x" ? { x: door.center, y: y.floor, z: offset } : { x: offset, y: y.floor, z: door.center });
     const roomFirst = spaceContains(spaces, door.room, a!);
@@ -23,13 +25,42 @@ export const templeConnectors = (
       throw new Error(`temple/circulation: ${door.id}의 양쪽 어느 점도 ${door.room} 안에 있지 않습니다.`);
     }
     return {
-      id: `connector.${door.id}`, kind: "passage" as const, from: door.room, to: door.adjacent,
+      id: `connector.${door.id}`, kind: "passage" as const, from: door.room,
+      to: door.adjacent === "exterior" ? templeSiteIds.space : door.adjacent,
       bidirectional: true, route: roomFirst ? [a!, b!] : [b!, a!],
       width: door.width, clearHeight: door.height, elements: [],
     };
   }),
   courtyardStep(roof),
+  entranceStair(spaces, roof),
 ];
+
+/**
+ * 대지 발치 앞 한 디딤 거리에서 상부참까지 두 단을 오르는 정문 계단.
+ * 유효 높이는 경로 위 포치 지붕 하부에서 읽고 지붕 밖 구간은 하늘로 열린다.
+ */
+const entranceStair = (
+  spaces: readonly IAutoMovieBuiltSpace[], roof: readonly RoofPatch[],
+): IAutoMovieBuiltConnector => {
+  const s = templeEntranceSteps;
+  const route = [
+    { x: 0, y: y.publicRoad, z: p.southOuter + s.tread },
+    { x: 0, y: y.floor, z: p.southOuter - s.tread },
+  ];
+  if (!spaceContains(spaces, templeSiteIds.space, route[0]!) || !spaceContains(spaces, "entrance", route[1]!)) {
+    throw new Error("temple/circulation: 정문 계단의 두 끝이 대지와 현관 안에 있지 않습니다.");
+  }
+  const clear = route.flatMap((point) => roof
+    .filter((patch) => patch.tier === "porch" && patch.polygon.every((q, i) =>
+      planeHeight(edgeInside(q, patch.polygon[(i + 1) % patch.polygon.length]!), point) >= 0))
+    .map((patch) => planeHeight(patch.height, point) - patch.thickness - point.y));
+  if (clear.length === 0) throw new Error("temple/circulation: 정문 계단 위 포치 지붕 하부를 찾지 못했습니다.");
+  return {
+    id: "connector.site-entrance-stair", kind: "stair", from: templeSiteIds.space, to: "entrance",
+    bidirectional: true, width: s.width, clearHeight: Math.min(...clear), elements: [], route,
+    steps: { count: Math.round((y.floor - y.publicRoad) / s.rise), rise: s.rise, run: s.tread },
+  };
+};
 
 /**
  * 남쪽 축의 한 단 내려가는 중정 접점(폭 1.8m 디딤 구간).

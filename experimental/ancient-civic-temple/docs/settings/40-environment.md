@@ -34,23 +34,23 @@
 @evidence principles/core/common.md#declared-basis 이미지 01의 낮은 기와 건물군을 시각 근거로 삼고 외피만 납품하는 범위는 저작자 결정이다.
 @evidence principles/core/settings.md#fact-status 이웃 건물군은 가상 배경이며 이미지 수평선의 물은 반드시 존재하는 지형으로 채택하지 않는다.
 @evidence principles/core/settings.md#source-support 외관 reference에서 낮은 회벽·기와의 관계를 취하고 특정 고대 도시 배치를 복원했다고 하지 않는다.
-@evidence principles/core/settings.md#capability-boundary maps는 가리지 않는 위치·크기를 정할 수 있으나 이웃 실내나 사진 billboard를 추가할 수 없다.
+@evidence principles/core/settings.md#capability-boundary spaces의 배치 구역과 instances의 배치는 가리지 않는 위치·크기를 정할 수 있으나 이웃 실내나 사진 billboard를 추가할 수 없다.
 @evidence principles/core/settings.md#constraint-sufficiency 먼 언덕은 distant-terrain으로 분리하고 이웃의 높이를 신전과 비교해 배경의 위계를 제한한다.
 @evidence principles/core/settings.md#observable-identity 좁은 길 건너 회벽과 낮은 기와지붕들이 주인공 포치·박공을 드러내는 배경을 이룬다.
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 주변 외피와 실내 제외를 함께 명시해 배경 건물에 숨은 이동 경로를 요구하지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 신전보다 낮거나 비슷한 높이와 비가림 조건을 줘 배경의 시각 위계를 결정했다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 01의 낮은 기와 건물군을 받고 외피만 납품하는 범위는 저작자 결정으로 분리한다.
-@evidenceReview principles/core/settings.md#fact-status #93a284a 이미지 수평선의 물을 필수 지형으로 채택하지 않았다고 밝혀 모든 배경 요소를 실재 사실로 합치지 않는다.
-@evidenceReview principles/core/settings.md#source-support #430bca9 회벽·기와의 관계는 01에서 찾을 수 있으나 특정 도시 배치를 복원했다는 외부 주장은 없다.
-@evidenceReview principles/core/settings.md#capability-boundary #83a6f2c maps의 위치·크기 선택은 허용하되 이웃 실내·사진 billboard를 만드는 권한은 주지 않는다.
-@evidenceReview principles/core/settings.md#constraint-sufficiency #20cf612 박공·포치·외곽을 가리지 않아야 하므로 높이만 낮다는 이유로 전경을 막는 이웃도 거부할 수 있다.
-@evidenceReview principles/core/settings.md#observable-identity #4ccb62e 좁은 길 건너 낮은 회벽과 기와가 주인공 건물 뒤에 놓여 거대한 도시 스카이라인으로 바뀌지 않는다.
+@evidenceReview principles/core/common.md#scope-preservation 길 건너 외피만 포함하고 이웃 실내·숨은 경로·필수 수면을 제외해 배경 건물에 이동 경로를 요구하지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion 신전보다 낮거나 비슷한 높이와 박공·포치·외곽 비가림 조건이 배경의 시각 위계를 정한다.
+@evidenceReview principles/core/common.md#declared-basis 01의 낮은 기와 건물군은 참고이고 외피만 납품하는 범위와 구역·배치의 분담은 저작자 결정으로 분리돼 있다.
+@evidenceReview principles/core/settings.md#fact-status 수평선의 물을 필수 지형으로 채택하지 않았다고 밝혀 모든 배경 요소를 실재 사실로 합치지 않는다.
+@evidenceReview principles/core/settings.md#source-support 회벽·기와의 관계는 01에서 찾을 수 있으나 특정 도시 배치를 복원했다는 외부 주장은 없다.
+@evidenceReview principles/core/settings.md#capability-boundary spaces 구역과 instances 배치에 위치·크기 선택을 주되 이웃 실내와 사진 billboard를 만드는 권한은 주지 않는다.
+@evidenceReview principles/core/settings.md#constraint-sufficiency 박공·포치·외곽을 가리지 않아야 하므로 높이만 낮다는 이유로 전경을 막는 배치도 거부할 수 있다.
+@evidenceReview principles/core/settings.md#observable-identity 좁은 길 건너 낮은 회벽과 기와가 주인공 건물 뒤에 놓여 거대한 도시 스카이라인으로 바뀌지 않는다.
 -->
 
-이미지 01의 낮은 기와지붕 건물군을 바탕으로 주인공 신전보다 낮거나 비슷한 회벽 건물 몇 동이 좁은 길 건너에 놓인다. 저작자 결정: 이웃은 외피만 납품하며 실내·숨은 이동 경로는 범위 밖이다. 배경은 신전의 박공과 포치·외곽을 가리지 않는 위치와 크기로 maps가 정한다. 먼 언덕은 [먼 지형](#distant-terrain)이 소유하고 이미지의 수평선 물은 필수 지형으로 채택하지 않는다. 사진 배경이나 billboard는 사용하지 않는다.
+이미지 01의 낮은 기와지붕 건물군을 바탕으로 주인공 신전보다 낮거나 비슷한 회벽 건물 몇 동이 좁은 길 건너에 놓인다. 저작자 결정: 이웃은 외피만 납품하며 실내·숨은 이동 경로는 범위 밖이다. 배치 구역은 spaces의 대지 owner가, 구역 안 개체의 위치와 크기는 신전의 박공과 포치·외곽을 가리지 않도록 instances가 정한다. 먼 언덕은 [먼 지형](#distant-terrain)이 소유하고 이미지의 수평선 물은 필수 지형으로 채택하지 않는다. 사진 배경이나 billboard는 사용하지 않는다.
 
 ## 식생 {#vegetation}
 
@@ -114,20 +114,20 @@
 @evidence principles/core/common.md#declared-basis 이미지 01의 언덕 윤곽을 따르고 거리 범위와 배경 전용 사용은 저작자 선택이다.
 @evidence principles/core/settings.md#fact-status 이 능선은 가상 배경의 허용 거리이며 사진 속 실제 지형 위치의 복원이 아니다.
 @evidence principles/core/settings.md#source-support 외관 reference의 낮은 윤곽만 채택하고 지리적 지명·고도 실측을 주장하지 않는다.
-@evidence principles/core/settings.md#capability-boundary maps가 높이·윤곽을 정하되 평면 사진을 붙이거나 산·절벽을 주인공으로 만들 수 없다.
+@evidence principles/core/settings.md#capability-boundary spaces의 대지 owner가 높이·윤곽을 정하되 평면 사진을 붙이거나 산·절벽을 주인공으로 만들 수 없다.
 @evidence principles/core/settings.md#constraint-sufficiency 25m 국소 대지와 구분하고 신전-하늘 분리를 돕는 범위로 지형 역할을 제한한다.
 @evidence principles/core/settings.md#observable-identity 낮고 완만한 입체 능선이 지붕 뒤 수평선을 이루며 신전의 실루엣을 압도하지 않는다.
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 능선 배경의 범위와 보행·시설·식생 개체 제외를 함께 정해 국소 대지가 무한히 확장되지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 40~100m의 낮고 완만한 입체 능선으로 배경의 거리·형태·역할을 결정했다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 01의 언덕 윤곽을 참고하되 거리와 배경 전용 사용은 저작자 선택으로 분리했다.
-@evidenceReview principles/core/settings.md#fact-status #93a284a 허용 거리 범위일 뿐 사진 속 지형의 실제 위치나 지명을 복원한 결과가 아니다.
-@evidenceReview principles/core/settings.md#source-support #430bca9 외관 이미지의 낮은 윤곽이 형태 근거이고 지리 고도나 측량 출처를 꾸미지 않는다.
-@evidenceReview principles/core/settings.md#capability-boundary #83a6f2c 배경 전용이어도 평면 사진은 금지돼 먼 거리라는 이유로 billboard 우회를 허용하지 않는다.
-@evidenceReview principles/core/settings.md#constraint-sufficiency #20cf612 국소 25m 밖이라는 경계와 신전-하늘 분리 역할을 같이 정해 중간 구역을 새 보행 납품으로 오인하지 않는다.
-@evidenceReview principles/core/settings.md#observable-identity #4ccb62e 완만한 낮은 능선이어야 하므로 절벽이나 큰 산이 신전보다 주인공처럼 보이는 구성을 거부한다.
+@evidenceReview principles/core/common.md#scope-preservation 능선 배경의 범위와 보행·시설·식생 개체 제외를 함께 정해 국소 대지가 무한히 확장되지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion 40~100m의 낮고 완만한 입체 능선으로 배경의 거리·형태·역할을 정했다.
+@evidenceReview principles/core/common.md#declared-basis 01의 언덕 윤곽을 참고하되 거리와 배경 전용 사용, 높이·윤곽을 spaces 대지 owner가 정하는 분담은 저작 선택으로 분리했다.
+@evidenceReview principles/core/settings.md#fact-status 허용 거리 범위일 뿐 사진 속 지형의 실제 위치나 지명을 복원한 결과가 아니다.
+@evidenceReview principles/core/settings.md#source-support 외관 이미지의 낮은 윤곽이 형태 근거이고 지리 고도나 측량 출처를 꾸미지 않는다.
+@evidenceReview principles/core/settings.md#capability-boundary 대지 owner가 높이·윤곽을 정해도 평면 사진은 금지돼 먼 거리라는 이유로 billboard 우회를 허용하지 않는다.
+@evidenceReview principles/core/settings.md#constraint-sufficiency 국소 25m 밖이라는 경계와 신전-하늘 분리 역할을 같이 정해 중간 구역을 새 보행 납품으로 오인하지 않는다.
+@evidenceReview principles/core/settings.md#observable-identity 완만한 낮은 능선이어야 하므로 절벽이나 큰 산이 신전보다 주인공처럼 보이는 구성을 거부한다.
 -->
 
-이미지 01의 낮은 언덕 윤곽을 근거로 한다. 저작자 결정: 인접 대지 25m 범위 밖의 배경은 건물에서 40~100m 떨어진 낮고 완만한 입체 능선으로 한정한다. 국소 대지의 도로와 달리 보행·시설·식생 개체를 추가 납품하는 영역이 아니다. 배경 전용이라는 이유로 평면 사진을 붙이지 않으며 높이·윤곽은 maps에서 신전과 하늘의 분리를 돕도록 결정한다. 산이나 절벽이 신전보다 주인공처럼 보이지 않게 한다.
+이미지 01의 낮은 언덕 윤곽을 근거로 한다. 저작자 결정: 인접 대지 25m 범위 밖의 배경은 건물에서 40~100m 떨어진 낮고 완만한 입체 능선으로 한정한다. 국소 대지의 도로와 달리 보행·시설·식생 개체를 추가 납품하는 영역이 아니다. 배경 전용이라는 이유로 평면 사진을 붙이지 않으며 높이·윤곽은 spaces의 대지 owner가 신전과 하늘의 분리를 돕도록 결정한다. 산이나 절벽이 신전보다 주인공처럼 보이지 않게 한다.

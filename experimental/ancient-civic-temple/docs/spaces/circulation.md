@@ -47,7 +47,7 @@
 <!--
 @evidence principles/core/common.md#scope-preservation 외부 서비스 문부터 마당·주랑·보관실까지 반입 전 구간을 포함하며 제실이나 기록실 통과를 요구하지 않는다.
 @evidence principles/core/common.md#substantive-completion contact-temple-service에서 door-service-exterior·door-yard·door-storage를 거치는 도착 순서와 높이 조건을 확정한다.
-@evidence principles/core/common.md#declared-basis 사용 포락과 서비스 높이는 설정/층의 기존 입력이며 외부 지면은 maps가 소비할 미구현 조건이다.
+@evidence principles/core/common.md#declared-basis 사용 포락과 서비스 높이는 설정/층의 기존 입력이고 외부 쪽 지면과 connector는 대지 owner에서 받는다.
 @evidence principles/design/spaces.md#space-topology 마당과 보관실의 공유 벽을 뚫지 않고 북동 주랑의 짧은 구간으로 연결해 별도 루프를 만들지 않는다.
 @evidence principles/design/spaces.md#space-boundary-authority 접점·문 위치·바닥은 각각 building/openings/storey에서 받고 이 단위는 반입 순서와 회전을 맡는다.
 @evidence principles/design/spaces.md#space-verification-address 좁은 마당 문 앞·북동 모서리 회전과 양방향 threshold의 실제 장애물 거리를 반증 항목으로 지정한다.
@@ -58,18 +58,18 @@
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 제실이나 기록실을 통과하지 않는 반입 순서가 적혀 있어 서비스 기능이 공용 방을 잠식하지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 외부 문·마당 문·보관실 문이 차례로 명명돼 반입 경로의 시작과 도착을 잇는다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 외부 지면은 maps의 미구현 조건으로 남고 건물 내 높이는 층에서 받는다.
-@evidenceReview principles/design/spaces.md#space-topology #3f8d925 북동 주랑의 짧은 구간을 공유하므로 마당-보관실 사이에 새 문이나 루프가 필요하지 않다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 문 위치를 다시 적지 않고 openings를 소비하며 이 H2는 반입 순서와 회전을 결정한다.
-@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 좁은 마당 문 앞과 북동 회전점이 지정돼 직선 통과만으로 반입을 판정할 수 없다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 마당의 두 출입 약속에 보관실까지 명명된 문 순서를 더한 것이 이 단위의 추가 결정이다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 작은 봉헌물의 운반 조건과 서비스 단차 한계를 그대로 적용했고 제실 관통으로 회피하지 않았다.
-@evidenceReview settings/10-building.md#ground-access #be07d7d 전 구간 같은 층 높이라는 조건은 정문 도로 높이를 서비스 입구에 복사하는 해석을 거부한다.
-@evidenceReview settings/30-interiors.md#service-yard #bc0ce16 외부 반입→주랑→보관실의 순서가 마당을 단순 장식 공간으로 만들지 않는다.
+@evidenceReview principles/core/common.md#scope-preservation 대지 서비스 문 앞 포장에서 보관실 중앙까지 반입 순서가 이어지고 제실·기록실을 거치지 않아 서비스 기능이 공용 방을 잠식하지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion contact-temple-service, door-service-exterior, door-yard, door-storage가 차례로 명명돼 반입 경로의 시작과 도착이 정해진다.
+@evidenceReview principles/core/common.md#declared-basis 외부 쪽 Y=0 지면과 서비스 문 connector는 site 링크, 운반 포락은 설정, 건물 안 높이는 층에서 받는다고 구분했다.
+@evidenceReview principles/design/spaces.md#space-topology 북동 주랑의 짧은 구간을 공유하므로 마당-보관실 사이에 새 문이나 두 번째 순환 복도가 필요하지 않다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority 문 위치를 다시 적지 않고 openings를 소비하며 이 H2는 반입 순서와 회전 검사만 결정한다.
+@evidenceReview principles/design/spaces.md#space-verification-address 좁은 마당 문 앞과 북동 모서리 회전점이 지정돼 직선 통과만으로 반입 경로를 통과시킬 수 없다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation 마당의 두 출입 약속에 보관실까지 명명된 문 순서를 더한 것이 이 단위의 추가 결정이다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work 작은 봉헌물의 운반 포락과 서비스 단차 한계를 그대로 적용해도 같은 높이 경로가 성립해 사용 범위를 고칠 필요가 없었다.
+@evidenceReview settings/10-building.md#ground-access 외부 connector부터 보관실까지 같은 층 높이로 이어져 정문 도로 높이를 서비스 입구에 복사하는 해석을 거부한다.
+@evidenceReview settings/30-interiors.md#service-yard 외부 반입→마당→주랑→보관실의 순서가 마당을 실제 반입 공간으로 쓰게 한다.
 -->
 
-서비스 시작은 [건물 접점](building.md#approach-contacts) `contact-temple-service`다. `door-service-exterior`→[서비스 마당](rooms/service-yard.md#yard-volume)→`door-yard`→북동 주랑→`door-storage`→보관실 중앙 순서로 작은 봉헌물을 옮긴다. 외부 접점부터 전 구간이 같은 층 바닥 높이이며 제실이나 기록실을 통과하지 않는다. 이 경로는 기존 주랑의 짧은 구간을 공유하고 별도 순환 복도를 만들지 않는다.
+서비스 시작은 대지 동측 골목의 서비스 문 앞 포장에서 받는 [건물 접점](building.md#approach-contacts) `contact-temple-service`다. `door-service-exterior`→[서비스 마당](rooms/service-yard.md#yard-volume)→`door-yard`→북동 주랑→`door-storage`→보관실 중앙 순서로 작은 봉헌물을 옮긴다. 외부 접점부터 전 구간이 같은 층 바닥 높이이며 제실이나 기록실을 통과하지 않는다. 이 경로는 기존 주랑의 짧은 구간을 공유하고 별도 순환 복도를 만들지 않는다.
 
-운반 포락은 회전 시에도 벽·기둥·열린 문짝을 통과할 수 없다. 특히 좁은 마당 문 앞과 북동 모서리에서 회전을 검사한다. 외부 지면은 maps가 이 접점 높이를 소비해야 하며 정문 도로의 낮은 높이를 서비스 문에도 복사하지 않는다. 양방향 threshold와 바닥 종단면, 가장 가까운 장애물까지의 compiled 거리로 반증한다. 소스 없는 지금은 모든 물리 통과 결과를 unverified로 남긴다.
+운반 포락은 회전 시에도 벽·기둥·열린 문짝을 통과할 수 없다. 특히 좁은 마당 문 앞과 북동 모서리에서 회전을 검사한다. 외부 쪽은 [대지와 건물의 연결](site.md#site-connections)의 서비스 문 connector가 Y=0 지면에서 받으며 정문 도로의 낮은 높이를 서비스 문에도 복사하지 않는다. 양방향 threshold와 바닥 종단면, 가장 가까운 장애물까지의 compiled 거리로 반증한다. 문짝과 운반 포락의 실제 통과는 아직 측정하지 않았으므로 unverified다.

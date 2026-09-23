@@ -3,7 +3,8 @@
  * built environment에서 유도한다. 공간마다 engine station(중심 네 방위,
  * 네 안쪽 모서리, 개구부 threshold)을 받고 눈높이를 실제 support 위 1.6m로
  * 다시 세운다. 주랑은 여섯 평면 영역 각각의 중심 네 방위를 더한다. 외부는
- * setting, census의 노출 입면·모서리, 네 방향 지붕, 처마 하부, 외부 개구부다.
+ * setting, census의 노출 입면·모서리, 네 방향 지붕, 처마 하부, 외부 개구부이고
+ * 대지는 조감·두 접근·골목 경사·먼 능선 시점을 더한다.
  * 반환 불가/충돌 station은 지우지 않고 pose=null과 이유로 남긴다.
  * 이 목록은 관찰 위치이며 시각 판정 결과가 아니다.
  */
@@ -14,7 +15,7 @@ import { templeColonnadeRegions } from "./rooms/colonnade";
 
 export interface TempleObservation {
   id: string;
-  group: "exterior" | "space";
+  group: "exterior" | "space" | "site";
   space: string | null;
   role: string;
   label: string;
@@ -27,7 +28,7 @@ export interface TempleObservation {
 export const templeSpaceNames: Record<string, string> = {
   entrance: "현관", courtyard: "중정", colonnade: "주랑", sanctuary: "제실",
   offering: "봉헌실", administration: "관리실", records: "기록실", storage: "보관실",
-  "service-yard": "서비스 마당",
+  "service-yard": "서비스 마당", "temple-site": "대지",
 };
 
 const eye = 1.6;
@@ -75,7 +76,7 @@ export const templeObservations = (environment: IAutoMovieBuiltEnvironment): Tem
       });
     }
   }
-  result.push(...exteriorObservations(environment));
+  result.push(...exteriorObservations(environment), ...siteObservations(environment));
   return result;
 };
 
@@ -151,6 +152,29 @@ const exteriorObservations = (environment: IAutoMovieBuiltEnvironment): TempleOb
   return out;
 };
 
+/**
+ * docs/spaces/site.md의 대지 관찰. 조감은 구획·경계석 고리·배치 구역을, 두 접근은
+ * 경계석 끊김과 접점 높이를, 서측 골목은 지면 경사를, 정면 거리 시점은 먼 능선이
+ * 신전 뒤에 낮게 놓이는지를 본다. 눈높이는 대지 support 위 1.6m다.
+ */
+const siteObservations = (environment: IAutoMovieBuiltEnvironment): TempleObservation[] => {
+  const standing = (x: number, z: number): IAutoMovieVector3 => {
+    const floor = supportHeight(environment, "temple-site", { x, y: 0, z });
+    if (floor === null) throw new Error(`temple/observations: 대지 관찰 위치 (${x}, ${z})에 support가 없습니다.`);
+    return { x, y: floor + eye, z };
+  };
+  const entries: [string, string, IAutoMovieVector3, IAutoMovieVector3][] = [
+    ["site.aerial", "대지 · 구획 조감", { x: 0, y: 62, z: 16 }, { x: 0, y: 0, z: 1 }],
+    ["site.approach-entry", "대지 · 정문 진입 포장과 경계석 끊김", standing(4.5, 17.5), { x: 0, y: 0, z: 11.5 }],
+    ["site.approach-service", "대지 · 동측 골목에서 서비스 문", standing(13.3, 0.5), { x: 10.5, y: 1.0, z: -6.4 }],
+    ["site.lane-west", "대지 · 서측 골목 경사", standing(-13.3, 12.5), { x: -12.5, y: 0.6, z: -12 }],
+    ["site.ridge-front", "대지 · 정면 거리 서쪽에서 먼 능선", standing(-26, 18), { x: -4, y: 4, z: -80 }],
+  ];
+  return entries.map(([id, label, position, target]) => ({
+    id, group: "site", space: "temple-site", role: id.split(".")[1]!, label, position, target, note: null,
+  }));
+};
+
 /** 면 법선을 공간 밖을 향하게 맞춘다. 0.5m 앞 점이 그 공간 안이면 뒤집는다. */
 const outwardNormal = (
   environment: IAutoMovieBuiltEnvironment, space: string, at: IAutoMovieVector3, normal: IAutoMovieVector3,
@@ -174,7 +198,10 @@ const supportHeight = (
       return (a.z > at.z) !== (b.z > at.z) && at.x < (b.x - a.x) * (at.z - a.z) / (b.z - a.z) + a.x ? !odd : odd;
     }, false);
     if (!inside(surface.polygon) || (surface.holes ?? []).some(inside)) return [];
-    return surface.height?.kind === "constant" ? [surface.height.value] : [];
+    const rule = surface.height;
+    if (rule?.kind === "constant") return [rule.value];
+    if (rule?.kind === "plane") return [rule.originHeight + rule.slopeX * at.x + rule.slopeZ * at.z];
+    return [];
   });
   return heights.length === 0 ? null : Math.max(...heights);
 };

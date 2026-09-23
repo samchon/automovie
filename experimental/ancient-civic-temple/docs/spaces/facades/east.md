@@ -7,7 +7,7 @@
 @evidence principles/core/common.md#substantive-completion 업무방 구간은 동측 박공 하부까지, 마당 구간은 낮은 벽, 남동 모서리 칸은 코핑 4.85m로 상단 소유를 구별하고 서비스 문턱 슬래브가 들어갈 벽 부피를 비운다.
 @evidence principles/core/common.md#declared-basis east 기준선, 남측 코핑·북측 마당 벽 높이, 동측 박공 하부를 소비하고 문 void는 기존 문 owner에서 받는다.
 @evidence principles/design/spaces.md#space-topology 서비스 외부 문만 열고 업무방마다 바깥 문을 추가하지 않으며 마당의 하늘과 보관실 끝벽을 구별한다.
-@evidence principles/design/spaces.md#space-boundary-authority 동측 벽 실체/외피와 남동 모서리 코핑은 east, 방 내면은 각 방, 외부 지면은 maps로 남겨 Y=0 지면을 임의 복제하지 않는다.
+@evidence principles/design/spaces.md#space-boundary-authority 동측 벽 실체/외피와 남동 모서리 코핑은 east, 방 내면은 각 방, 외부 지면과 서비스 문 앞 포장은 대지로 남겨 Y=0 지면을 임의 복제하지 않는다.
 @evidence principles/design/spaces.md#space-verification-address 입면 두 끝과 남동 모서리 칸, 서비스 문 양면, 처마 벽→낮은 벽의 높이 변화 단면으로 부유한 문과 없는 방을 암시하는 폐쇄를 찾는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 서비스 마당 외부 출입을 업무 날개 북쪽의 높이 변화와 실제 외벽 문턱 접점, 남측 파라펫과의 모서리 칸에 배정한다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work service-yard의 외부 반입과 openings의 깊은 문설주/인방을 동측 외벽에 대조했다. 업무방에 추가 문을 만들지 않고도 마당으로 접근하므로 고정 방 그래프를 고치지 않았다.
@@ -20,7 +20,7 @@
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 처마 벽·낮은 벽·코핑 모서리 칸의 세 상단과 서비스 문턱 슬래브 부피를 비우는 규칙이 있어 문만 그린 막힘을 피한다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 남측 코핑·북측 마당 벽·동측 박공 하부와 openings의 void를 소비해 높이와 문 크기를 중복 결정하지 않는다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 방마다 바깥 문을 더하지 않고 마당 문만 외부로 열어 우측 직접 출입 관계를 지킨다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 방 안쪽 표면과 외부 지면은 각각 room/maps에 남고 모서리 칸의 코핑은 동측 입면에 남아 범위가 분명하다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority 방 안쪽 표면은 각 room, 벽 바깥의 지면과 서비스 문 앞 포장은 site에 남고 모서리 칸의 코핑만 동측 입면이 가져 한 면을 두 owner가 만들지 않는다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 문 안/밖과 처마 벽→낮은 벽, 남동 모서리의 파라펫 만남을 함께 보아 부유한 서비스 문과 모서리 틈을 찾는다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 외부 반입 요구를 북쪽 마당의 실제 외벽 문턱과 업무 날개 끝, 남동 모서리 칸에 결속했다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 깊은 문설주와 외부 반입을 마당 외벽에 배정할 수 있어 업무방의 새 외부 문이 필요하지 않았다.

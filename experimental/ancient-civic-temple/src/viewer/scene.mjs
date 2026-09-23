@@ -86,10 +86,14 @@ export function uploadSupports(payload) {
     for (const hole of support.holes) shape.holes.push(new THREE.Path(hole.map((p) => new THREE.Vector2(p.x, -p.z))));
     const geometry = new THREE.ShapeGeometry(shape);
     geometry.rotateX(-Math.PI / 2);
+    const position = geometry.getAttribute("position");
+    for (let i = 0; i < position.count; ++i) {
+      const { origin, slopeX, slopeZ } = support.plane;
+      position.setY(i, origin + slopeX * position.getX(i) + slopeZ * position.getZ(i) + 0.01);
+    }
     const mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
       color: 0x2f8f5b, transparent: true, opacity: 0.35, depthWrite: false, side: THREE.DoubleSide,
     }));
-    mesh.position.y = support.height + 0.01;
     mesh.name = support.id;
     group.add(mesh);
   }

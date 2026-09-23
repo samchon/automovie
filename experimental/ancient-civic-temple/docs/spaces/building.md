@@ -134,30 +134,30 @@ building ID는 `temple`이다. source 소유는 `src/spaces/building.ts`이며 b
 <!--
 @evidence principles/core/common.md#scope-preservation 정문 계단 발치와 서비스 문턱을 별도 접점으로 두어 서로 다른 외부 높이의 접근을 모두 남긴다.
 @evidence principles/core/common.md#substantive-completion contact-temple-public과 contact-temple-service의 연결 공간·참조 경계·진입 방향·폭 소유를 표에서 확정한다.
-@evidence principles/core/common.md#declared-basis 위치는 기준선, 높이는 층, 유효 폭은 계단/문 owner에서 소비하며 maps의 대지 노드는 미정이라고 구분한다.
-@evidence principles/design/spaces.md#space-topology exterior에서 entrance 또는 service-yard로 들어오는 두 접면을 기존 공간에 연결하고 새 방이나 외부 노드로 승격하지 않는다.
-@evidence principles/design/spaces.md#space-boundary-authority building은 접점 관계만 내보내고 문·바닥 mesh와 외부 지면은 각각 기존 공간 및 maps 소유에 남긴다.
+@evidence principles/core/common.md#declared-basis 위치는 기준선, 높이는 층, 유효 폭은 계단/문 owner에서 소비하고 외부 지면과 connector는 대지 owner에서 받는다고 구분한다.
+@evidence principles/design/spaces.md#space-topology 대지 temple-site에서 entrance 또는 service-yard로 들어오는 두 접면을 기존 공간에 연결하고 새 방이나 외부 노드로 승격하지 않는다.
+@evidence principles/design/spaces.md#space-boundary-authority building은 접점 관계만 내보내고 문·바닥 mesh와 외부 지면은 각각 기존 공간 및 대지 소유에 남긴다.
 @evidence principles/design/spaces.md#space-verification-address 접면 일치·문턱 단차와 경계석·배수 홈·문짝의 침범을 왕복 운반 포락으로 확인하도록 한다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 설정의 도로/서비스 접근을 서로 다른 안정 ID와 건물 외곽 접면으로 구체화한다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work 10-building의 정문 국소 석단과 서비스 무단차 조건, 40-environment의 외부 길 연속성을 대조했다. 두 접점으로 양립하며 미정인 대지 경로를 임의 부모 값으로 메우지 않았다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work 10-building의 정문 국소 석단과 서비스 무단차 조건, 40-environment의 외부 길 연속성을 대조했다. 두 접점으로 양립하고 대지 connector가 두 접점을 그대로 받아 부모 조건을 고치지 않았다.
 @evidence settings/10-building.md#ground-access 정문 계단 하단 높이를 서비스 문턱에 복사하지 않고 서비스 진입은 마당과 이어지는 높이로 소비한다.
-@evidence settings/40-environment.md#site 도로와 외부 서비스 길이 실제 건물 접면에 이어져야 한다는 요구를 maps가 받을 두 인터페이스로 제공한다.
+@evidence settings/40-environment.md#site 도로와 외부 서비스 길이 실제 건물 접면에 이어져야 한다는 요구를 대지 connector가 받는 두 인터페이스로 제공한다.
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 정문 발치와 서비스 문턱을 별도 행으로 남겨 낮은 도로가 두 진입에 잘못 복제되지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 두 contact의 연결·범위·진입 방향이 표에 있어 외부 소비자가 건물 접면을 선택할 수 있다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 위치/높이/폭은 기존 owner에서 가져오고 아직 없는 maps 노드를 사실처럼 쓰지 않는다.
-@evidenceReview principles/design/spaces.md#space-topology #3f8d925 contact를 새 방이나 대지 접근 노드로 승격하지 않는 문장이 위계 중복을 막는다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 building은 접면 관계만 내보내므로 계단이나 문 mesh의 두 번째 생성자가 아니다.
-@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 경계석·배수 홈·문짝까지 왕복 포락에 대조하도록 해 접점 좌표만 맞는 막힘도 실패가 된다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 일반 접근 요구를 public/service 안정 ID와 서로 다른 진입 면으로 나눴다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 정문 석단과 서비스 무단차는 두 접점에서 양립한다. 미정 maps 종단면을 추정해 부모가 충분하다고 단정하지 않았다.
-@evidenceReview settings/10-building.md#ground-access #be07d7d 서비스 행이 층 owner의 서비스 외부 높이를 소비하여 정문 계단 높이와 구별된다.
-@evidenceReview settings/40-environment.md#site #f317e20 외부 길이 건물 접면에서 실제로 이어져야 하며 world→site 완료는 아직 주장하지 않는다.
+@evidenceReview principles/core/common.md#scope-preservation 정문 발치(-0.24)와 서비스 문턱(Y=0)이 표의 별도 행이라 한 접점을 빼거나 두 진입을 같은 높이로 합치는 축소가 남지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion 두 contact의 연결 공간·위치·유효 범위·진입 방향이 표 네 열에 채워져 대지 connector가 받을 접면을 새로 고르지 않는다.
+@evidenceReview principles/core/common.md#declared-basis 마지막 문단이 외부 지면·길·경계석을 대지 owner로 돌리고 위치·높이·폭은 기준선·층·계단/문 링크에서 받아 이 H2가 새로 정한 값이 없다.
+@evidenceReview principles/design/spaces.md#space-topology contact가 새 방·추가 출입문·대지 쪽 공간이 아니라는 문장과 temple-site의 두 connector가 받는다는 문장이 함께 있어 외부와 건물의 연결이 하나로 읽힌다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority building.ts는 관계만 내보내고 바닥·문 mesh는 기존 공간, 지면은 대지가 만든다고 적어 한 표면을 두 곳이 만들지 않는다.
+@evidenceReview principles/design/spaces.md#space-verification-address 경계석·배수 홈·식생·문짝이 유효 접면을 막는지 실제 통행 포락으로 보라는 문장이 좌표만 맞고 경로가 막힌 경우를 실패로 만든다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation 설정의 도로/서비스 접근을 public/service 두 안정 ID와 서로 다른 진입 방향·높이로 나눈 것이 이 단위가 더한 결정이다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work 정문 석단과 서비스 무단차가 두 접점에서 양립하고 대지 쪽 connector도 그 높이를 그대로 받아 부모에서 고칠 결함이 드러나지 않았다.
+@evidenceReview settings/10-building.md#ground-access 서비스 행이 층 owner의 서비스 외부 높이를 소비해 정문 계단 하단 높이와 구별되고 서비스 문턱에 단이 생기지 않는다.
+@evidenceReview settings/40-environment.md#site 설정의 외부 길 연속 요구가 대지 connector 두 개로 건물 접면까지 이어지며 실제 왕복 통과는 unverified로 남는다.
 -->
 
-건물 `temple`은 외부 보행을 아래 두 접점에서 받아 기존 지상층 공간으로 잇는다. 이 ID는 건물 측 바닥·출입 경계의 식별자이며 새 방, 추가 출입문 또는 maps의 대지 접근 노드가 아니다. 좌표는 [기준선](#plan-datums), 바닥 높이는 [층](storey.md#ground-storey), 폭은 실제 계단과 문을 소유하는 설계에서 가져온다. `src/spaces/building.ts`는 이 관계를 내보내고 바닥이나 문 mesh를 복제하지 않는다.
+건물 `temple`은 외부 보행을 아래 두 접점에서 받아 기존 지상층 공간으로 잇는다. 이 ID는 건물 측 바닥·출입 경계의 식별자이며 새 방, 추가 출입문 또는 대지 쪽 공간이 아니다. 좌표는 [기준선](#plan-datums), 바닥 높이는 [층](storey.md#ground-storey), 폭은 실제 계단과 문을 소유하는 설계에서 가져온다. `src/spaces/building.ts`는 이 관계를 내보내고 바닥이나 문 mesh를 복제하지 않는다.
 
 | 접점 ID | 건물 측 연결과 위치 | 접면의 유효 범위 | 외부에서 들어오는 방향 |
 | --- | --- | --- | --- |
@@ -166,4 +166,4 @@ building ID는 `temple`이다. source 소유는 `src/spaces/building.ts`이며 b
 
 정문 접점의 높이는 계단의 하단 발치를 받는 외부 바닥 높이다. 이 높이를 상부참에 복사해 계단을 없애거나, 서비스 문 앞에도 복사해 의도하지 않은 단차를 만들지 않는다. 접면의 평면 일치는 [기준선 허용 오차](#plan-datums)로, 서비스 문턱은 [마당의 단차 한계](rooms/service-yard.md#yard-volume)로 비교한다. 문은 양방향 통과를 검사하며 위 방향은 진입 순서를 표시한다. 경계석·배수 홈·식생·문짝이 유효 접면을 막는지도 실제 통행 포락으로 확인한다.
 
-외부 지면·길·대지 경계 및 world→site의 명명된 접근 노드는 후속 maps가 소유한다. maps는 이 두 건물 접점을 소비해 정문 도로와 서비스 접근의 서로 다른 높이를 잇는 지면을 결정해야 한다. 현재는 maps가 활성화되지 않았고 채택한 대지 경계·외부 노드·종단면도 없다. 따라서 이 접점 설계만으로 world→site→building 접근이나 대지 배치를 완료했다고 하지 않는다. [통행](circulation.md)의 경로 시작은 이 건물 측 접점이고, 외부 구간을 포함한 왕복·접지 검사는 [관찰](observations.md#geometry-observations)에 미완료로 남긴다.
+외부 지면·길·경계석과 대지 범위는 [대지](site.md#site-extent)가 소유한다. [지면의 높이](site.md#site-grade)가 정문 도로 Y=-0.24m와 서비스 외부 Y=0을 잇고, [대지와 건물의 연결](site.md#site-connections)의 두 connector가 이 두 접점을 `temple-site`에서 받는다. maps 분기는 열리지 않으므로 world→site의 별도 접근 노드는 두지 않고 대지 범위의 정면 거리와 골목이 외부 보행의 끝이다. [통행](circulation.md)의 경로 시작은 이 건물 측 접점이며 대지 쪽을 포함한 왕복·접지 검사는 [관찰](observations.md#geometry-observations)이 맡는다. 문짝·기둥이 들어온 뒤의 실제 왕복 통과는 아직 확인하지 않았으므로 unverified다.

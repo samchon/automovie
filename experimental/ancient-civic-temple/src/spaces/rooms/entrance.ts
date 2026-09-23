@@ -29,10 +29,19 @@ export const templeEntranceFloors = () => {
   ];
 };
 
-/** 실제 단높이와 양측 기둥 받침, 후퇴벽 안 문턱을 함께 반환한다. */
-export const templeEntranceFloor = () => roomFloorInput(
-  "entrance", templeEntranceFloors(), templeDoorPassages, y.slabThickness, y.floor,
-);
+/**
+ * 실제 단높이와 양측 기둥 받침, 후퇴벽 안 문턱을 함께 반환한다.
+ * south-outer에서 대지 지면에 닿는 구획은 공통 외벽 하단까지 구조체를 내린다.
+ */
+export const templeEntranceFloor = (exteriorBottom: number | null) => {
+  const input = roomFloorInput("entrance", templeEntranceFloors(), templeDoorPassages, y.slabThickness, y.floor);
+  if (exteriorBottom === null) return input;
+  return {
+    ...input,
+    slabs: input.slabs.map((slab) => slab.south === p.southOuter
+      ? { ...slab, bottom: Math.min(slab.bottom, exteriorBottom) } : slab),
+  };
+};
 
 export const templeEntrance = (roof: readonly RoofPatch[]): IAutoMovieBuiltSpace => ({
   id: "entrance", kind: "entrance", parent: y.storey, fidelity: "exact",

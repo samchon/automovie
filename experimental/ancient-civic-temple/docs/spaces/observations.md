@@ -21,21 +21,21 @@
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 내부 개구부와 census가 비운 지붕·처마 하부를 보충하고 주랑 영역·마당 두 threshold·네 골도 남겨 대표 외관으로 분모를 줄이지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 같은 generation의 geometry에서 pose를 유도하고 census 공백의 보충·내부성·장비 포락·실패 보존을 다루는 실행 가능한 관찰 설계다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb API 기본 높이, 두께 없는 sweep 상자, 경계 face 없는 지붕을 census가 세지 않는 한계를 명시해 반환 수치를 실체 검증으로 확대하지 않는다.
-@evidenceReview principles/design/spaces.md#space-topology #3f8d925 주랑 구멍과 계산 접면, 현관 몸체, 열린 마당 cap을 구별하여 방 밖 또는 가짜 모서리 관찰을 거부한다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 viewer와 계측은 같은 ID/binding을 쓰고 입력 수량이나 별도 화면 좌표를 compiled 결과로 복사하지 않는다.
-@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 네 골 전 길이와 떠 있는 제실 처마 아래, 파라펫 띠를 반증 위치로 두어 대표 한 점이 지붕 틈을 숨기지 못한다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 일반 관찰 조건에 이 신전의 현관 두 단·중정 네 골·떠 있는 제실 처마·고리 영역을 묻는 지역 질문을 더했다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 반환 pose가 다른 높이를 주어도 부모 1.6m 조건을 낮추지 않고 원 질문과 보조 pose를 함께 남긴다.
-@evidenceReview settings/00-delivery.md#review-condition #6daf6ae 실제 바닥 위 눈높이와 렌즈 포락을 별도로 대조하고 충돌한 원 질문을 지우지 않는다.
-@evidenceReview settings/00-delivery.md#governing-aim #df3c7b2 건물/방 정체성의 reference 질문이 topology 전집합 위에 추가돼 좋은 대표 시점만으로 종료할 수 없다.
-@evidenceReview settings/50-production.md#references #eb34a79 절개를 검사로 한정하고 다섯 reference를 기존 필수 관찰의 대체로 쓰지 않는다.
-@evidenceReview settings/50-production.md#measurement-truth #c6e89a8 census가 지붕을 세지 않은 공백을 보충하되 수량·거리·binding은 산출물, 자기 자신으로 읽힘은 프레임으로 나누고 실행 없는 결과를 unverified로 남긴다.
-@evidenceReview settings/50-production.md#acceptance #2c49b7f 원 질문 미해결과 절개만의 전달은 완료로 선언하지 않는다고 끝 조건을 유지한다.
-@evidenceReview obligations/design/spaces.md#space-review-set #86bcab4 plan·단면·입면·내부 관찰과 왕복 포락, 지붕 골·파라펫 단면을 각 경계/접합에 배정해 유한하지만 누락 없는 검토를 요구한다.
-@evidenceReview contracts/obligations-spaces.md#compiled-observations #09b52ea 외부 전 노출 면과 공간 내부 threshold/모서리/네 방위를 보존하며 오목한 주랑의 여섯 영역과 census 밖 지붕 관찰도 분모에 넣었다.
+@evidenceReview principles/core/common.md#scope-preservation 내부 개구부와 census가 비운 지붕·처마 하부를 보충하고 주랑 영역·마당 두 threshold·네 골에 대지 site 묶음까지 더해 대표 외관으로 분모를 줄이지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion 같은 generation의 environment에서 공간 station과 외부·대지 pose를 유도하고 내부성·눈높이·충돌·실패 보존 규칙을 정해 실행 가능한 관찰 설계다.
+@evidenceReview principles/core/common.md#declared-basis API 기본 높이, 두께 없는 sweep 상자, census가 지붕을 세지 않는 한계를 명시해 반환 수치를 실체 검증으로 확대하지 않는다.
+@evidenceReview principles/design/spaces.md#space-topology 주랑 구멍과 계산 접면, 현관 몸체, 열린 마당 cap, 대지 cell을 구별하고 대지 눈높이를 대지 support에서 재 방 밖 관찰이 방 안 관찰로 세어지지 않는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority viewer와 계측이 같은 environment ID/binding을 쓰고 입력 수량이나 별도 화면 좌표를 compiled 결과로 복사하지 않는다.
+@evidenceReview principles/design/spaces.md#space-verification-address 네 골 전 길이, 떠 있는 제실 처마 아래, 파라펫 띠, 현관 석단 앞과 경사 외벽의 접지가 반증 위치로 있어 대표 한 점이 틈을 숨기지 못한다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation 일반 관찰 조건에 현관 두 단·중정 네 골·떠 있는 제실 처마·고리 영역과 대지 두 접근을 묻는 지역 질문을 더했다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work 반환 pose가 다른 높이를 주어도 부모 1.6m 조건을 낮추지 않고 원 질문과 보조 pose를 함께 남겨 부모 수정이 필요하지 않았다.
+@evidenceReview settings/00-delivery.md#review-condition 실제 바닥과 대지 support 위 눈높이와 렌즈 포락을 별도로 대조하고 충돌한 원 질문을 지우지 않는다.
+@evidenceReview settings/00-delivery.md#governing-aim 건물/방 정체성의 reference 질문이 topology 전집합 위에 추가돼 좋은 대표 시점 하나로 끝낼 수 없다.
+@evidenceReview settings/50-production.md#references 절개를 검사로 한정하고 다섯 reference를 기존 필수 관찰의 대체로 쓰지 않는다.
+@evidenceReview settings/50-production.md#measurement-truth census 공백을 보충하되 수량·거리·binding은 산출물, 자기 자신으로 읽힘은 프레임으로 나누고 측정하지 않은 통과·접지를 unverified로 남긴다.
+@evidenceReview settings/50-production.md#acceptance 원 질문이 남은 상태나 절개만의 전달을 완료로 선언하지 않는다는 끝 조건을 유지한다.
+@evidenceReview obligations/design/spaces.md#space-review-set plan·단면·입면·내부와 대지 관찰, 왕복 포락, 지붕 골·파라펫 단면을 각 경계/접합에 배정해 유한하지만 누락 없는 검토를 요구한다.
+@evidenceReview contracts/obligations-spaces.md#compiled-observations 외부 전 노출 면과 대지를 포함한 각 공간의 threshold/모서리/네 방위를 보존하고 오목한 주랑 여섯 영역과 census 밖 지붕 관찰을 분모에 넣었다.
 -->
 
 [관찰 계약](../contracts/obligations-spaces.md#compiled-observations)과 [검토 프레임](../settings/00-delivery.md#review-condition)을 그대로 소비한다. 입력은 한 generation의 실제 built environment와 lowering 산출물이며 viewer와 계측이 같은 값을 쓴다. `builtEnvironmentBuildingCensus`의 외피·지붕·처마 하부·모서리·외부 출입 population을 소비하되 내부 개구부는 별도 actual boundary/opening 전집합에서 더한다. 이 census는 host face를 가진 단일 공간 경계만 입면으로 세며 지붕은 경계 face가 아니어서 지붕·처마 하부 population이 비므로, 네 방향 지붕 조감과 네 입면의 처마 하부 관찰을 source owner가 별도로 더한다.
@@ -52,7 +52,7 @@
 
 [문턱 바닥](storey.md#threshold-support)은 같은 opening ID의 host 깊이 전체를 포함한 종단면과 폭 방향 양끝에서 본다. 양쪽 바닥·문턱의 실제 mesh, support patch와 높이, 귀속 공간의 volume 및 connector를 대조해 빈 틈·중복 바닥·허공의 지지 선언을 구분한다. 외부 서비스 문도 마당의 문턱 끝과 외부 지면이 만나는 부분을 포함한다. 단순한 점 하나의 containment나 끝점 도달로 전체 발 디딤과 운반 포락의 연속성을 대신하지 않는다.
 
-외부 setting 하나, 모든 노출 입면·입면 사이 모서리·노출 지붕·하부·개구부에 안정된 compiled ID를 부여한다. 단층 평면은 Y=1.2m 절단, 지붕 접합과 실내 높이는 문/용마루를 지나는 실제 종횡 단면으로 본다. 각 면의 법선·경계에서 관찰 pose를 유도하고 수동 대표 시점이 전집합을 덮었다고 가정하지 않는다. 카메라 위치·target·렌즈·현재 generation과 렌더 모드를 함께 보여 준다. source owner는 `src/spaces/observations.ts`이며 건물 geometry를 다시 만들지 않는다.
+외부 setting 하나, 모든 노출 입면·입면 사이 모서리·노출 지붕·하부·개구부에 안정된 compiled ID를 부여한다. 단층 평면은 Y=1.2m 절단, 지붕 접합과 실내 높이는 문/용마루를 지나는 실제 종횡 단면으로 본다. 각 면의 법선·경계에서 관찰 pose를 유도하고 수동 대표 시점이 전집합을 덮었다고 가정하지 않는다. 대지 `temple-site`는 공간 station 외에 [대지](site.md)의 각 H2가 요구한 구획 조감·정문 진입·동측 골목의 서비스 문·서측 골목 경사·먼 능선 시점을 `site` 묶음으로 더하고 눈높이는 대지 support 위 1.6m다. 카메라 위치·target·렌즈·현재 generation과 렌더 모드를 함께 보여 준다. source owner는 `src/spaces/observations.ts`이며 건물 geometry를 다시 만들지 않는다.
 
 [벽 접합](junctions.md#wall-junctions)의 실제 L/T 접면과 [박공과 파라펫 폐쇄](junctions.md#gable-closures)의 경계 목록을 소비해 각 접합 단면·양면 관찰을 더한다. 물리벽끼리 맞닿는 내부 면과 외부에 노출된 면을 구별해 내부 접면을 마감 누락으로 세지 않는다. 파라펫과 지붕의 만남은 전 구간에서 지붕 끝이 코핑 아래로 드러나거나 파라펫 뒤에 틈이 남는지 본다. 마당-보관실의 높은 끝벽과 주랑 위의 열린 지붕 접합을 서로 다른 경계로 관찰한다. 수평 도면만으로 지붕 위에 돌출한 벽 상단을 통과시키지 않는다.
 
@@ -60,11 +60,11 @@
 
 [지붕 합성](roofs/assembly.md#roof-junctions)의 중정 네 안쪽 모서리 골은 골선 전 길이의 양쪽 단면에서 두 지붕 상면이 같은 선에서 만나고 하부도 닫히는지 본다. 날개 안의 높이 차이 끝면은 높은 조각의 하부와 낮은 조각의 상면 사이가 막혔는지, [제실 처마](roofs/sanctuary.md#sanctuary-roof)는 아래 봉헌실·북쪽 주랑 지붕을 지우지 않고 떠 있는지와 그 사이가 제실 벽 외면으로 닫혀 실내로 새지 않는지를 확인한다. 한 대표 점 위에 지붕이 있다는 사실만으로 구간 전체를 통과시키지 않는다. 높은 처마 아래의 구멍이나 마당 전체를 덮어 메운 곳은 모두 실패다. 전체 면 관계를 측정할 수 없으면 해당 질문은 unverified로 남긴다.
 
-[건물 접점](building.md#approach-contacts)의 두 ID마다 외부 지면부터 첫 내부 바닥까지의 종단면과 유효 폭을 본다. 정문은 계단 하단 발치→디딤 면→상부참, 서비스 문은 외부 지면→벽체 안 문턱→마당을 연속해서 읽고 왕복 포락을 확인한다. maps가 생기면 실제 대지 접근 노드에서 이 접점들까지의 외부 경로도 이어 읽는다. 현재 대지 경계와 노드, 두 외부 높이를 잇는 지면은 미정이므로 그 구간을 검토 목록에서 빼거나 건물 안 도달성으로 대체하지 않고 unverified로 남긴다.
+[건물 접점](building.md#approach-contacts)의 두 ID마다 외부 지면부터 첫 내부 바닥까지의 종단면과 유효 폭을 본다. 정문은 계단 하단 발치→디딤 면→상부참, 서비스 문은 외부 지면→벽체 안 문턱→마당을 연속해서 읽고 왕복 포락을 확인한다. 대지 쪽은 [대지와 건물의 연결](site.md#site-connections)의 두 connector와 정면 거리·동측 골목 support에서 이어 읽는다. connector가 있다는 사실만으로 왕복 통과를 완료하지 않고 문짝·기둥이 들어온 뒤의 포락 검사까지 unverified로 남긴다.
 
 [현관 단면](rooms/entrance.md#entrance-volume)은 중앙축과 계단 양끝, 기둥 받침을 지나는 평행 단면을 함께 읽는다. 실제 두 챌면의 수·위치·높이, 둘째 디딤과 참의 동고 접합, 각 수평 면의 support와 `entrance` cell 아래 경계를 대조한다. 논리 공간이 석단 안으로 내려가거나 경사 support가 디딤을 덮는지, 기둥이 서로 다른 높이의 단에 걸치는지도 확인한다. 관찰 눈높이는 공간 bounds의 최저점이 아니라 해당 위치의 실제 완성면에서 잰다. 계단 실체와 접지 결과는 source 단면과 GPU 관찰로 확인한다.
 
-[외벽 하단](storey.md#wall-ground-contact)은 실제 외부 지면의 최저 접촉 높이와 인접 완성 바닥, 벽 하단·슬래브 아랫면을 같은 단면에서 읽는다. 네 입면·모서리·현관 후퇴부·서비스 문턱의 지면 접합을 모두 포함하며 지면 위 그림자만으로 접촉했다고 세지 않는다. 문 아래 벽 띠 검사는 실제 보행 완성면 위의 통과 영역을 대상으로 하고, 문턱 아래의 벽 지지 부분과 구별한다. maps의 지면이 없는 동안 벽 하단은 층 소유의 잠정 접촉 입력으로 만들어지며 접촉·매입 결과를 계산으로 대신하거나 검사에서 빼지 않고 unverified로 남긴다.
+[외벽 하단](storey.md#wall-ground-contact)은 실제 외부 지면의 최저 접촉 높이와 인접 완성 바닥, 벽 하단·슬래브 아랫면을 같은 단면에서 읽는다. 네 입면·모서리·현관 후퇴부·서비스 문턱의 지면 접합을 모두 포함하며 지면 위 그림자만으로 접촉했다고 세지 않는다. 문 아래 벽 띠 검사는 실제 보행 완성면 위의 통과 영역을 대상으로 하고, 문턱 아래의 벽 지지 부분과 구별한다. 벽 하단은 [대지 지면](site.md#site-grade)의 최저 접촉에서 유도되지만 그 계산으로 접촉·매입 결과를 대신하거나 검사에서 빼지 않고, 현관 석단 앞 구조체와 동·서 외벽의 경사 접촉도 같은 단면에 포함한다.
 
 입력 수량을 compiled 수량으로 복사하지 않는다. compiled 관찰 목록과 census 수는 viewer payload가 같은 generation의 environment에서 매번 유도하며, 도달성·모든 물리 접합·시각 판정은 그 목록이 생긴 것만으로 완료되지 않는다. 다섯 reference의 외관·절개 검사·분수 중정·제실·기록/서비스 비교를 별도로 더하고 절개를 전달 프레임으로 세지 않는다.
 

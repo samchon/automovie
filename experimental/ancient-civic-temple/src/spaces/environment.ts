@@ -2,16 +2,16 @@
  * docs/spaces/building.md#containment의 건물 조립을 공개 built environment로
  * 낸다. 한 층의 아홉 공간 cell, 입면·내부벽·지붕·바닥·낮은 천장의 실체
  * model, host face를 가진 경계, profile을 가진 문/채광구, 서로 다른 공간을
- * 잇는 connector, 보행 support를 같은 입력에서 조립한다. 외부 지면은 maps의
- * 소유라 여기서 만들지 않고 외벽 하단 계산에 필요한 최저 접촉만 입력으로
- * 받는다. 문짝·기둥·수반 등 독립 부재는 models 소유로 아직 포함하지 않는다.
+ * 잇는 connector, 보행 support를 같은 입력에서 조립한다. 대지는 별도 소유
+ * 단위 temple-site(docs/spaces/site.md)이고 외벽 하단은 그 지면의 최저 접촉을
+ * 읽는다. 문짝·기둥·수반 등 독립 부재는 models 소유로 아직 포함하지 않는다.
  */
 import { validateBuiltEnvironment } from "@automovie/engine";
 import type {
   IAutoMovieBoundaryFace, IAutoMovieBuiltBoundary,
   IAutoMovieBuiltElement, IAutoMovieBuiltEnvironment, IAutoMovieBuiltOpening, IAutoMovieModel,
 } from "@automovie/interface";
-import { createTempleFloors } from "../floors";
+import { createTempleFloors, templeFloorInputs } from "../floors";
 import { identityTransform, surfaceModel } from "../geometry/model-parts";
 import {
   edgeInside, planeHeight, rectanglePolygon, type PlanPoint,
@@ -36,18 +36,16 @@ import { templeOffering, templeOfferingCeiling, templeOfferingPlan } from "./roo
 import { templeRecords, templeRecordsCeiling, templeRecordsPlan } from "./rooms/records";
 import { templeSanctuary, templeSanctuaryPlan } from "./rooms/sanctuary";
 import { templeServiceYard } from "./rooms/service-yard";
+import { createTempleSite } from "./site/assembly";
+import { templeSiteContactMinimum } from "./site/extent";
 import { templeStorage, templeStorageCeiling, templeStoragePlan } from "./rooms/storage";
 import { templeLevels as y, templeWallBottom } from "./storey";
 
-export interface TempleEnvironmentInput {
-  /** 외벽 바깥 접촉선을 따라 읽은 지면의 최저 높이(m). maps가 공급한다. */
-  exteriorContactMinimum: number;
-}
-
-export const createTempleEnvironment = (input: TempleEnvironmentInput) => {
+export const createTempleEnvironment = () => {
   const roof = templeRoofEnvelope();
-  const floors = createTempleFloors();
-  const bottom = templeWallBottom(input.exteriorContactMinimum, exteriorFloorMinimum(floors.inputs));
+  const site = createTempleSite();
+  const bottom = templeWallBottom(templeSiteContactMinimum(), exteriorFloorMinimum(templeFloorInputs(null)));
+  const floors = createTempleFloors(bottom);
   const walls: WallSpec[] = [
     ...templeNorthWalls(bottom), ...templeWestWalls(bottom), ...templeEastWalls(bottom),
     ...templeSouthWalls(bottom), ...templeInteriorWalls(),
@@ -83,11 +81,11 @@ export const createTempleEnvironment = (input: TempleEnvironmentInput) => {
       parent: "temple.root", transform: identityTransform(), model: m.id, space: y.storey,
     })),
   ];
-  const spaces = templeSpaceHierarchy([
+  const spaces = [...templeSpaceHierarchy([
     templeEntrance(roof), templeCourtyard(), templeColonnade(roof),
     templeSanctuary(roof), templeOffering(), templeAdministration(),
     templeRecords(), templeStorage(), templeServiceYard(),
-  ]);
+  ]), site.space];
   const wall = (id: string) => walls.find((w) => w.id === id)!;
   const face = (w: WallSpec, from: number, to: number): IAutoMovieBoundaryFace => {
     const perpendicular = w.plan.map((q) => w.axis === "x" ? q.z : q.x);
@@ -144,15 +142,17 @@ export const createTempleEnvironment = (input: TempleEnvironmentInput) => {
   const connectors = templeConnectors(spaces, roof);
   const environment: IAutoMovieBuiltEnvironment = {
     version: 1, id: "temple", units: "meter",
-    buildings: [{ id: y.building, element: "temple.root", space: y.building }],
-    models, modelReferences: [], elements, spaces, boundaries, openings, connectors,
-    surfaces: floors.supports, walkable: floors.supports.map((s) => s.surface.id),
+    buildings: [{ id: y.building, element: "temple.root", space: y.building }, site.unit],
+    models: [...models, ...site.models], modelReferences: [], elements: [...elements, ...site.elements],
+    spaces, boundaries, openings, connectors,
+    surfaces: [...floors.supports, ...site.supports],
+    walkable: [...floors.supports.map((s) => s.surface.id), ...site.walkable],
   };
   const validation = validateBuiltEnvironment({ environment });
   if (!validation.success) {
     throw new Error(`temple/environment: ${validation.violations.map((v) => `${v.path}: ${v.expected}`).join("\n")}`);
   }
-  return { environment, walls, roof, wallBottom: bottom, floors };
+  return { environment, walls, roof, wallBottom: bottom, floors, site };
 };
 
 /** 차집합으로 새로 만든 지붕 면의 owner는 surface 이름의 roof owner다. */
@@ -163,7 +163,7 @@ const ownerOf = (surface: string): string => {
 };
 
 /** 외벽·현관 벽에 실제로 맞닿는 바닥 구획의 최저 완성면. */
-const exteriorFloorMinimum = (inputs: ReturnType<typeof createTempleFloors>["inputs"]): number => {
+const exteriorFloorMinimum = (inputs: ReturnType<typeof templeFloorInputs>): number => {
   const hosts = [
     ...templeNorthWalls(0), ...templeWestWalls(0), ...templeEastWalls(0), ...templeSouthWalls(0),
   ].map((w) => w.plan);

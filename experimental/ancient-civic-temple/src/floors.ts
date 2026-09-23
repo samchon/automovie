@@ -24,16 +24,23 @@ import { templeServiceYardFloor } from "./spaces/rooms/service-yard";
 import { templeStorageFloor } from "./spaces/rooms/storage";
 
 /**
+ * 방별 바닥 소유 입력. exteriorBottom은 docs/spaces/storey.md#wall-ground-contact의
+ * 공통 하단이며, 대지 지면에 닿는 현관 석단 앞 구조체가 그 높이까지 내려간다.
+ * null이면 일반 두께만 쓴다(공통 하단을 유도하기 위한 완성면 읽기 전용).
+ */
+export const templeFloorInputs = (exteriorBottom: number | null) => [
+  templeEntranceFloor(exteriorBottom), templeCourtyardFloor(), templeColonnadeFloor(),
+  templeSanctuaryFloor(), templeOfferingFloor(), templeAdministrationFloor(),
+  templeRecordsFloor(), templeStorageFloor(), templeServiceYardFloor(),
+];
+
+/**
  * 호출 시마다 현재 소유 입력을 평가한다. 캐시/전역 mutable mesh는 없다.
  * 바닥 slab는 문틀 밑을 포함하지만 support는 유효 통과 영역만 포함한다.
  * mesh query 결과는 실제 호출 때 생성되며 함수 저작 자체는 검증 결과가 아니다.
  */
-export const createTempleFloors = () => {
-  const inputs = [
-    templeEntranceFloor(), templeCourtyardFloor(), templeColonnadeFloor(),
-    templeSanctuaryFloor(), templeOfferingFloor(), templeAdministrationFloor(),
-    templeRecordsFloor(), templeStorageFloor(), templeServiceYardFloor(),
-  ];
+export const createTempleFloors = (exteriorBottom: number | null = null) => {
+  const inputs = templeFloorInputs(exteriorBottom);
   const faces = floorBoundaryFaces(inputs).map((face) => ({
     ...face,
     surface: templeCourtyardOwnsCurb(face) ? "surface.courtyard.floor" : face.surface,
