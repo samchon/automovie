@@ -1,6 +1,7 @@
 export * from "./AutoMovieHumanBodySimpleParameter";
 export * from "./IAutoMovieHumanBodyBasis";
 export * from "./IAutoMovieHumanBodyBasisDocument";
+export * from "./IAutoMovieHumanBodyShoulderPose";
 export * from "./IAutoMovieHumanBodyBuild";
 export * from "./IAutoMovieHumanBodyChannelScale";
 export * from "./IAutoMovieHumanBodyMeasurement";

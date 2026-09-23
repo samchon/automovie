@@ -2,6 +2,8 @@ import type { IAutoMovieJointPose } from "@automovie/interface";
 
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanBodyBasisDocument } from "../structures/IAutoMovieHumanBodyBasisDocument";
+import type { IAutoMovieHumanBodyShoulderPose } from "../structures/IAutoMovieHumanBodyShoulderPose";
+import { humanBodyShoulderOrientationDistance } from "./humanBodyShoulderOrientationDistance";
 import { resolveHumanBodyCouplings } from "./resolveHumanBodyCouplings";
 
 /**
@@ -27,14 +29,19 @@ import { resolveHumanBodyCouplings } from "./resolveHumanBodyCouplings";
  * read from the coupled clinical pose, an absent or `null` angle standing
  * for the rest, so a girdle corrective fires on the elevation a coupling
  * added exactly as on one the document wrote; the pose itself is validated
- * later by the builder, so this reads angles without judging them.
+ * later by the builder, so this reads angles without judging them. Upper-arm
+ * drivers read TT total elevation or axial rotation from the separate
+ * shoulder goal and its measured A-pose rest. Old fixed-axis upper-arm
+ * drivers cannot pass basis admission.
  *
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-connected-basis Refuses unsupported channels and out-of-envelope weights instead of clamping them.
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-basis Computes the `|weight| x endpoint` selection and the product corrective activation the evaluation order applies.
  */
 export function humanBodyBasisWeights(
   basis: IAutoMovieHumanBodyBasis,
-  document: Pick<IAutoMovieHumanBodyBasisDocument, "shape" | "pose">,
+  document: Pick<IAutoMovieHumanBodyBasisDocument, "shape" | "pose"> & {
+    shoulders?: IAutoMovieHumanBodyShoulderPose[];
+  },
 ): {
   weights: Map<string, number>;
   activations: { target: string; activation: number }[];
@@ -60,17 +67,62 @@ export function humanBodyBasisWeights(
   const neutral = new Map(
     basis.joints.map((joint) => [joint.bone, joint.neutral]),
   );
-  const pose = resolveHumanBodyCouplings(basis, document.pose ?? []).joints;
+  const pose = resolveHumanBodyCouplings(
+    basis,
+    document.pose ?? [],
+    document.shoulders ?? [],
+  ).joints;
   const angles = new Map(pose.map((joint) => [joint.bone, joint]));
+  const shoulderAngles = new Map(
+    (document.shoulders ?? []).map((shoulder) => [shoulder.bone, shoulder]),
+  );
+  const shoulderNeutral = new Map(
+    basis.joints
+      .filter((joint) => joint.shoulder !== undefined)
+      .map((joint) => [joint.bone, joint.shoulder!.neutral]),
+  );
   const activations = (basis.correctives ?? []).map((corrective) => ({
     target: corrective.target,
     activation: Math.min(
       1,
       corrective.inputs.reduce((total, input) => {
+        if ("shoulder" in input) {
+          const rest = shoulderNeutral.get(input.shoulder)!;
+          const posed = shoulderAngles.get(input.shoulder) ?? {
+            bone: input.shoulder,
+            ...rest,
+          };
+          const distance = humanBodyShoulderOrientationDistance(posed, {
+            bone: input.shoulder,
+            ...input.orientation,
+          });
+          return (
+            total *
+            Math.min(
+              1,
+              Math.max(
+                0,
+                (input.outerDegrees - distance) /
+                  (input.outerDegrees - input.innerDegrees),
+              ),
+            )
+          );
+        }
         const sign = input.side === "negative" ? -1 : 1;
         if ("bone" in input) {
-          const angle = angles.get(input.bone)?.[input.axis] ?? null;
-          const rest = neutral.get(input.bone)?.[input.axis] ?? 0;
+          const shoulderAxis = input.axis === "elevation";
+          const angle = shoulderAxis
+            ? (shoulderAngles.get(
+                input.bone as "leftUpperArm" | "rightUpperArm",
+              )?.elevation ?? null)
+            : (angles.get(input.bone)?.[
+                input.axis as "flexion" | "abduction" | "twist"
+              ] ?? null);
+          const rest = shoulderAxis
+            ? (shoulderNeutral.get(input.bone)?.elevation ?? 0)
+            : (neutral.get(input.bone)?.[
+                input.axis as "flexion" | "abduction" | "twist"
+              ] ?? 0);
           const travel = sign * ((angle ?? rest) - rest);
           return (
             total *
