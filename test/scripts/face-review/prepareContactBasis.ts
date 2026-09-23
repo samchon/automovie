@@ -257,6 +257,13 @@ export function sealCrownRings(
     sealedRings.push(loop.length);
     sealedComponents.add(component);
   }
+  // A component without any boundary is closed as it stands and counts as
+  // sealed, so a globe closed by the source joins the crown-only query.
+  const bounded = new Set<number>();
+  for (const vertex of outgoing.keys()) bounded.add(find(vertex));
+  for (const triangle of triangles)
+    if (!bounded.has(find(triangle[0])))
+      sealedComponents.add(find(triangle[0]));
   const sealedTriangles: number[] = [];
   triangles.forEach((triangle, at) => {
     if (sealedComponents.has(find(triangle[0])))
