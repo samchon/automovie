@@ -1,5 +1,5 @@
 {
-  "basis": "mpfb-connected-body-2026-09-23-sym+digits+rhythm+envelope+correctives-r3",
+  "basis": "mpfb-connected-body-2026-09-23-sym+digits+rhythm+envelope+correctives-r4",
   "restPairs": [],
   "sets": {
     "channels": {
@@ -12,125 +12,11 @@
     },
     "joints": {
       "states": 294,
-      "clean": 292,
-      "withFindings": 2,
+      "clean": 294,
+      "withFindings": 0,
       "refused": [],
-      "pairsByFrequency": [
-        {
-          "pair": "upperChest x rightShoulder",
-          "states": 1
-        },
-        {
-          "pair": "upperChest x rightUpperArm",
-          "states": 1
-        },
-        {
-          "pair": "neck x rightUpperArm",
-          "states": 1
-        },
-        {
-          "pair": "rightShoulder x rightUpperArm",
-          "states": 1
-        },
-        {
-          "pair": "upperChest x leftShoulder",
-          "states": 1
-        },
-        {
-          "pair": "upperChest x leftUpperArm",
-          "states": 1
-        },
-        {
-          "pair": "neck x leftUpperArm",
-          "states": 1
-        },
-        {
-          "pair": "leftShoulder x leftUpperArm",
-          "states": 1
-        }
-      ],
-      "findings": [
-        {
-          "name": "rightUpperArm.flexion@180",
-          "document": {
-            "pose": [
-              {
-                "bone": "rightUpperArm",
-                "flexion": 180,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "upperChest",
-              "other": "rightShoulder",
-              "triangles": 1,
-              "otherTriangles": 2
-            },
-            {
-              "part": "upperChest",
-              "other": "rightUpperArm",
-              "triangles": 22,
-              "otherTriangles": 49
-            },
-            {
-              "part": "neck",
-              "other": "rightUpperArm",
-              "triangles": 86,
-              "otherTriangles": 80
-            },
-            {
-              "part": "rightShoulder",
-              "other": "rightUpperArm",
-              "triangles": 60,
-              "otherTriangles": 69
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "leftUpperArm.flexion@180",
-          "document": {
-            "pose": [
-              {
-                "bone": "leftUpperArm",
-                "flexion": 180,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "upperChest",
-              "other": "leftShoulder",
-              "triangles": 3,
-              "otherTriangles": 3
-            },
-            {
-              "part": "upperChest",
-              "other": "leftUpperArm",
-              "triangles": 14,
-              "otherTriangles": 29
-            },
-            {
-              "part": "neck",
-              "other": "leftUpperArm",
-              "triangles": 86,
-              "otherTriangles": 104
-            },
-            {
-              "part": "leftShoulder",
-              "other": "leftUpperArm",
-              "triangles": 30,
-              "otherTriangles": 41
-            }
-          ],
-          "grown": []
-        }
-      ]
+      "pairsByFrequency": [],
+      "findings": []
     },
     "combos": {
       "states": 158,
@@ -156,27 +42,19 @@
       ],
       "pairsByFrequency": [
         {
-          "pair": "rightShoulder x rightUpperArm",
-          "states": 3
-        },
-        {
           "pair": "upperChest x neck",
+          "states": 4
+        },
+        {
+          "pair": "neck x leftShoulder",
           "states": 3
-        },
-        {
-          "pair": "upperChest x leftShoulder",
-          "states": 2
-        },
-        {
-          "pair": "upperChest x leftUpperArm",
-          "states": 2
-        },
-        {
-          "pair": "neck x leftUpperArm",
-          "states": 2
         },
         {
           "pair": "leftShoulder x leftUpperArm",
+          "states": 2
+        },
+        {
+          "pair": "upperChest x leftShoulder",
           "states": 2
         },
         {
@@ -184,15 +62,27 @@
           "states": 2
         },
         {
-          "pair": "neck x rightShoulder",
+          "pair": "upperChest x rightUpperArm",
           "states": 2
         },
         {
-          "pair": "upperChest x rightUpperArm",
+          "pair": "rightShoulder x rightUpperArm",
+          "states": 2
+        },
+        {
+          "pair": "upperChest x leftUpperArm",
+          "states": 1
+        },
+        {
+          "pair": "neck x leftUpperArm",
           "states": 1
         },
         {
           "pair": "neck x rightUpperArm",
+          "states": 1
+        },
+        {
+          "pair": "neck x head",
           "states": 1
         },
         {
@@ -202,11 +92,11 @@
       ],
       "findings": [
         {
-          "name": "rightUpperArm.flexion@180+rightUpperArm.abduction@0",
+          "name": "leftUpperArm.flexion@180+leftUpperArm.abduction@0",
           "document": {
             "pose": [
               {
-                "bone": "rightUpperArm",
+                "bone": "leftUpperArm",
                 "flexion": 180,
                 "abduction": 0,
                 "twist": null
@@ -215,8 +105,14 @@
           },
           "fresh": [
             {
-              "part": "rightShoulder",
-              "other": "rightUpperArm",
+              "part": "neck",
+              "other": "leftShoulder",
+              "triangles": 3,
+              "otherTriangles": 1
+            },
+            {
+              "part": "leftShoulder",
+              "other": "leftUpperArm",
               "triangles": 3,
               "otherTriangles": 3
             }
@@ -245,8 +141,8 @@
             {
               "part": "upperChest",
               "other": "neck",
-              "triangles": 16,
-              "otherTriangles": 8
+              "triangles": 8,
+              "otherTriangles": 7
             },
             {
               "part": "upperChest",
@@ -257,20 +153,26 @@
             {
               "part": "upperChest",
               "other": "leftUpperArm",
-              "triangles": 51,
-              "otherTriangles": 53
+              "triangles": 40,
+              "otherTriangles": 25
+            },
+            {
+              "part": "neck",
+              "other": "leftShoulder",
+              "triangles": 9,
+              "otherTriangles": 7
             },
             {
               "part": "neck",
               "other": "leftUpperArm",
-              "triangles": 62,
-              "otherTriangles": 69
+              "triangles": 5,
+              "otherTriangles": 7
             },
             {
               "part": "leftShoulder",
               "other": "leftUpperArm",
-              "triangles": 134,
-              "otherTriangles": 101
+              "triangles": 88,
+              "otherTriangles": 40
             }
           ],
           "grown": []
@@ -296,27 +198,21 @@
           "fresh": [
             {
               "part": "upperChest",
-              "other": "leftShoulder",
-              "triangles": 1,
-              "otherTriangles": 4
+              "other": "neck",
+              "triangles": 2,
+              "otherTriangles": 6
             },
             {
               "part": "upperChest",
-              "other": "leftUpperArm",
-              "triangles": 1,
+              "other": "leftShoulder",
+              "triangles": 2,
               "otherTriangles": 1
             },
             {
               "part": "neck",
-              "other": "leftUpperArm",
-              "triangles": 8,
-              "otherTriangles": 4
-            },
-            {
-              "part": "leftShoulder",
-              "other": "leftUpperArm",
-              "triangles": 1,
-              "otherTriangles": 1
+              "other": "leftShoulder",
+              "triangles": 7,
+              "otherTriangles": 6
             }
           ],
           "grown": []
@@ -343,38 +239,32 @@
             {
               "part": "upperChest",
               "other": "neck",
-              "triangles": 7,
-              "otherTriangles": 8
+              "triangles": 8,
+              "otherTriangles": 6
             },
             {
               "part": "upperChest",
               "other": "rightShoulder",
-              "triangles": 32,
-              "otherTriangles": 34
+              "triangles": 37,
+              "otherTriangles": 55
             },
             {
               "part": "upperChest",
               "other": "rightUpperArm",
-              "triangles": 58,
-              "otherTriangles": 43
-            },
-            {
-              "part": "neck",
-              "other": "rightShoulder",
-              "triangles": 3,
-              "otherTriangles": 3
+              "triangles": 53,
+              "otherTriangles": 40
             },
             {
               "part": "neck",
               "other": "rightUpperArm",
-              "triangles": 59,
-              "otherTriangles": 57
+              "triangles": 4,
+              "otherTriangles": 2
             },
             {
               "part": "rightShoulder",
               "other": "rightUpperArm",
-              "triangles": 127,
-              "otherTriangles": 116
+              "triangles": 101,
+              "otherTriangles": 76
             }
           ],
           "grown": []
@@ -401,20 +291,26 @@
             {
               "part": "upperChest",
               "other": "neck",
-              "triangles": 7,
-              "otherTriangles": 10
+              "triangles": 3,
+              "otherTriangles": 4
             },
             {
               "part": "upperChest",
               "other": "rightShoulder",
-              "triangles": 9,
-              "otherTriangles": 7
+              "triangles": 5,
+              "otherTriangles": 6
+            },
+            {
+              "part": "upperChest",
+              "other": "rightUpperArm",
+              "triangles": 4,
+              "otherTriangles": 17
             },
             {
               "part": "neck",
-              "other": "rightShoulder",
-              "triangles": 12,
-              "otherTriangles": 10
+              "other": "head",
+              "triangles": 5,
+              "otherTriangles": 2
             },
             {
               "part": "neck",
@@ -425,8 +321,8 @@
             {
               "part": "rightShoulder",
               "other": "rightUpperArm",
-              "triangles": 5,
-              "otherTriangles": 7
+              "triangles": 2,
+              "otherTriangles": 1
             }
           ],
           "grown": []
@@ -435,86 +331,50 @@
     },
     "shapes": {
       "states": 1596,
-      "clean": 1512,
-      "withFindings": 84,
+      "clean": 1580,
+      "withFindings": 16,
       "refused": [],
       "pairsByFrequency": [
         {
-          "pair": "hips x leftUpperLeg",
-          "states": 54
-        },
-        {
-          "pair": "hips x rightUpperLeg",
-          "states": 54
-        },
-        {
           "pair": "upperChest x rightUpperArm",
-          "states": 16
+          "states": 6
         },
         {
           "pair": "upperChest x leftUpperArm",
-          "states": 7
+          "states": 4
         },
         {
-          "pair": "leftUpperArm x leftLowerArm",
+          "pair": "hips x leftUpperLeg",
           "states": 3
         },
         {
-          "pair": "rightLowerArm x rightHand",
-          "states": 2
-        },
-        {
           "pair": "leftUpperLeg x leftLowerLeg",
-          "states": 2
+          "states": 1
         },
         {
-          "pair": "rightShoulder x rightUpperArm",
-          "states": 2
+          "pair": "rightLowerArm x rightHand",
+          "states": 1
+        },
+        {
+          "pair": "leftUpperArm x leftLowerArm",
+          "states": 1
         },
         {
           "pair": "upperChest x leftShoulder",
-          "states": 2
-        },
-        {
-          "pair": "neck x leftUpperArm",
-          "states": 2
-        },
-        {
-          "pair": "leftShoulder x leftUpperArm",
-          "states": 2
-        },
-        {
-          "pair": "leftHand x leftIndexProximal",
-          "states": 1
-        },
-        {
-          "pair": "hips x spine",
-          "states": 1
-        },
-        {
-          "pair": "neck x rightShoulder",
-          "states": 1
-        },
-        {
-          "pair": "neck x rightUpperArm",
-          "states": 1
-        },
-        {
-          "pair": "leftUpperLeg x rightUpperLeg",
           "states": 1
         }
       ],
       "findings": [
         {
-          "name": "heavy:leftLowerArm.flexion@145",
+          "name": "heavy:leftLowerLeg.flexion@140",
           "document": {
             "shape": {
               "macroWeight": 1
             },
             "pose": [
               {
-                "bone": "leftLowerArm",
-                "flexion": 145,
+                "bone": "leftLowerLeg",
+                "flexion": 140,
                 "abduction": null,
                 "twist": null
               }
@@ -522,69 +382,19 @@
           },
           "fresh": [
             {
-              "part": "leftUpperArm",
-              "other": "leftLowerArm",
-              "triangles": 3,
-              "otherTriangles": 3
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "heavy:leftIndexProximal.flexion@90",
-          "document": {
-            "shape": {
-              "macroWeight": 1
-            },
-            "pose": [
-              {
-                "bone": "leftIndexProximal",
-                "flexion": 90,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "leftHand",
-              "other": "leftIndexProximal",
-              "triangles": 2,
+              "part": "leftUpperLeg",
+              "other": "leftLowerLeg",
+              "triangles": 1,
               "otherTriangles": 2
             }
           ],
           "grown": []
         },
         {
-          "name": "thin:rightHand.flexion@80",
+          "name": "heavy:leftUpperArm.flexion@123.49038496704102",
           "document": {
             "shape": {
-              "macroWeight": -1
-            },
-            "pose": [
-              {
-                "bone": "rightHand",
-                "flexion": 80,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "rightLowerArm",
-              "other": "rightHand",
-              "triangles": 5,
-              "otherTriangles": 6
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "measureUnderbustCirc@2:leftUpperArm.flexion@123.49038496704102",
-          "document": {
-            "shape": {
-              "measureUnderbustCirc": 2
+              "macroWeight": 1
             },
             "pose": [
               {
@@ -599,7 +409,7 @@
             {
               "part": "upperChest",
               "other": "leftUpperArm",
-              "triangles": 4,
+              "triangles": 1,
               "otherTriangles": 2
             }
           ],
@@ -631,56 +441,6 @@
           "grown": []
         },
         {
-          "name": "measureUpperarmCirc@2:rightUpperArm.flexion@123.49038496704102",
-          "document": {
-            "shape": {
-              "measureUpperarmCirc": 2
-            },
-            "pose": [
-              {
-                "bone": "rightUpperArm",
-                "flexion": 123.49038496704102,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "upperChest",
-              "other": "rightUpperArm",
-              "triangles": 4,
-              "otherTriangles": 1
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "measureCalfCirc@2:leftLowerLeg.flexion@140",
-          "document": {
-            "shape": {
-              "measureCalfCirc": 2
-            },
-            "pose": [
-              {
-                "bone": "leftLowerLeg",
-                "flexion": 140,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "leftUpperLeg",
-              "other": "leftLowerLeg",
-              "triangles": 2,
-              "otherTriangles": 1
-            }
-          ],
-          "grown": []
-        },
-        {
           "name": "macroWeight@-2.5:rightHand.flexion@80",
           "document": {
             "shape": {
@@ -699,39 +459,8 @@
             {
               "part": "rightLowerArm",
               "other": "rightHand",
-              "triangles": 6,
-              "otherTriangles": 7
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "macroWeight@5.5:leftUpperArm.abduction@-5",
-          "document": {
-            "shape": {
-              "macroWeight": 5.5
-            },
-            "pose": [
-              {
-                "bone": "leftUpperArm",
-                "flexion": null,
-                "abduction": -5,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "hips",
-              "other": "leftUpperLeg",
               "triangles": 3,
-              "otherTriangles": 3
-            },
-            {
-              "part": "hips",
-              "other": "rightUpperLeg",
-              "triangles": 20,
-              "otherTriangles": 8
+              "otherTriangles": 6
             }
           ],
           "grown": []
@@ -754,195 +483,9 @@
           "fresh": [
             {
               "part": "hips",
-              "other": "spine",
-              "triangles": 2,
-              "otherTriangles": 1
-            },
-            {
-              "part": "hips",
               "other": "leftUpperLeg",
-              "triangles": 2,
-              "otherTriangles": 5
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "macroWeight@5.5:leftRingDistal.flexion@80",
-          "document": {
-            "shape": {
-              "macroWeight": 5.5
-            },
-            "pose": [
-              {
-                "bone": "leftRingDistal",
-                "flexion": 80,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "hips",
-              "other": "leftUpperLeg",
-              "triangles": 17,
-              "otherTriangles": 12
-            },
-            {
-              "part": "hips",
-              "other": "rightUpperLeg",
-              "triangles": 6,
-              "otherTriangles": 8
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "macroWeight@5.5:rightUpperArm.flexion@123.49038496704102",
-          "document": {
-            "shape": {
-              "macroWeight": 5.5
-            },
-            "pose": [
-              {
-                "bone": "rightUpperArm",
-                "flexion": 123.49038496704102,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "hips",
-              "other": "leftUpperLeg",
-              "triangles": 17,
-              "otherTriangles": 12
-            },
-            {
-              "part": "hips",
-              "other": "rightUpperLeg",
-              "triangles": 6,
-              "otherTriangles": 8
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "macroWeight@5.5:rightRingIntermediate.flexion@100",
-          "document": {
-            "shape": {
-              "macroWeight": 5.5
-            },
-            "pose": [
-              {
-                "bone": "rightRingIntermediate",
-                "flexion": 100,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "hips",
-              "other": "leftUpperLeg",
-              "triangles": 17,
-              "otherTriangles": 12
-            },
-            {
-              "part": "hips",
-              "other": "rightUpperLeg",
-              "triangles": 6,
-              "otherTriangles": 8
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "macroWeight@5.5:leftLittleProximal.flexion@90",
-          "document": {
-            "shape": {
-              "macroWeight": 5.5
-            },
-            "pose": [
-              {
-                "bone": "leftLittleProximal",
-                "flexion": 90,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "hips",
-              "other": "leftUpperLeg",
-              "triangles": 17,
-              "otherTriangles": 12
-            },
-            {
-              "part": "hips",
-              "other": "rightUpperLeg",
-              "triangles": 6,
-              "otherTriangles": 8
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "macroWeight@5.5:rightUpperLeg.flexion@62.5",
-          "document": {
-            "shape": {
-              "macroWeight": 5.5
-            },
-            "pose": [
-              {
-                "bone": "rightUpperLeg",
-                "flexion": 62.5,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "hips",
-              "other": "rightUpperLeg",
-              "triangles": 24,
-              "otherTriangles": 31
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "macroWeight@5.5:rightToes.flexion@70",
-          "document": {
-            "shape": {
-              "macroWeight": 5.5
-            },
-            "pose": [
-              {
-                "bone": "rightToes",
-                "flexion": 70,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "hips",
-              "other": "leftUpperLeg",
-              "triangles": 17,
-              "otherTriangles": 12
-            },
-            {
-              "part": "hips",
-              "other": "rightUpperLeg",
-              "triangles": 6,
-              "otherTriangles": 8
+              "triangles": 5,
+              "otherTriangles": 3
             }
           ],
           "grown": []
@@ -964,158 +507,10 @@
           },
           "fresh": [
             {
-              "part": "hips",
-              "other": "leftUpperLeg",
-              "triangles": 17,
-              "otherTriangles": 12
-            },
-            {
-              "part": "hips",
-              "other": "rightUpperLeg",
-              "triangles": 6,
-              "otherTriangles": 8
-            },
-            {
               "part": "leftUpperArm",
               "other": "leftLowerArm",
-              "triangles": 9,
-              "otherTriangles": 8
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "macroWeight@5.5:leftThumbProximal.flexion@60",
-          "document": {
-            "shape": {
-              "macroWeight": 5.5
-            },
-            "pose": [
-              {
-                "bone": "leftThumbProximal",
-                "flexion": 60,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "hips",
-              "other": "leftUpperLeg",
-              "triangles": 17,
-              "otherTriangles": 12
-            },
-            {
-              "part": "hips",
-              "other": "rightUpperLeg",
-              "triangles": 6,
-              "otherTriangles": 8
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "macroWeight@5.5:rightUpperArm.twist@90",
-          "document": {
-            "shape": {
-              "macroWeight": 5.5
-            },
-            "pose": [
-              {
-                "bone": "rightUpperArm",
-                "flexion": null,
-                "abduction": null,
-                "twist": 90
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "hips",
-              "other": "leftUpperLeg",
-              "triangles": 17,
-              "otherTriangles": 12
-            },
-            {
-              "part": "hips",
-              "other": "rightUpperLeg",
-              "triangles": 6,
-              "otherTriangles": 8
-            },
-            {
-              "part": "upperChest",
-              "other": "rightUpperArm",
-              "triangles": 19,
-              "otherTriangles": 16
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "macroWeight@5.5:leftLowerLeg.flexion@140",
-          "document": {
-            "shape": {
-              "macroWeight": 5.5
-            },
-            "pose": [
-              {
-                "bone": "leftLowerLeg",
-                "flexion": 140,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "hips",
-              "other": "leftUpperLeg",
-              "triangles": 20,
-              "otherTriangles": 10
-            },
-            {
-              "part": "hips",
-              "other": "rightUpperLeg",
-              "triangles": 31,
-              "otherTriangles": 21
-            },
-            {
-              "part": "leftUpperLeg",
-              "other": "leftLowerLeg",
-              "triangles": 4,
-              "otherTriangles": 3
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "macroWeight@5.5:leftMiddleDistal.flexion@80",
-          "document": {
-            "shape": {
-              "macroWeight": 5.5
-            },
-            "pose": [
-              {
-                "bone": "leftMiddleDistal",
-                "flexion": 80,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "hips",
-              "other": "leftUpperLeg",
-              "triangles": 17,
-              "otherTriangles": 12
-            },
-            {
-              "part": "hips",
-              "other": "rightUpperLeg",
-              "triangles": 6,
-              "otherTriangles": 8
+              "triangles": 2,
+              "otherTriangles": 2
             }
           ],
           "grown": []
@@ -1139,225 +534,8 @@
             {
               "part": "hips",
               "other": "leftUpperLeg",
-              "triangles": 17,
-              "otherTriangles": 12
-            },
-            {
-              "part": "hips",
-              "other": "rightUpperLeg",
-              "triangles": 6,
-              "otherTriangles": 8
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "macroWeight@5.5:rightLittleIntermediate.flexion@100",
-          "document": {
-            "shape": {
-              "macroWeight": 5.5
-            },
-            "pose": [
-              {
-                "bone": "rightLittleIntermediate",
-                "flexion": 100,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "hips",
-              "other": "leftUpperLeg",
-              "triangles": 17,
-              "otherTriangles": 12
-            },
-            {
-              "part": "hips",
-              "other": "rightUpperLeg",
-              "triangles": 6,
-              "otherTriangles": 8
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "macroWeight@5.5:leftIndexProximal.flexion@90",
-          "document": {
-            "shape": {
-              "macroWeight": 5.5
-            },
-            "pose": [
-              {
-                "bone": "leftIndexProximal",
-                "flexion": 90,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "hips",
-              "other": "leftUpperLeg",
-              "triangles": 23,
-              "otherTriangles": 11
-            },
-            {
-              "part": "hips",
-              "other": "rightUpperLeg",
-              "triangles": 6,
-              "otherTriangles": 6
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "macroWeight@5.5:rightLittleDistal.flexion@80",
-          "document": {
-            "shape": {
-              "macroWeight": 5.5
-            },
-            "pose": [
-              {
-                "bone": "rightLittleDistal",
-                "flexion": 80,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "hips",
-              "other": "leftUpperLeg",
-              "triangles": 17,
-              "otherTriangles": 12
-            },
-            {
-              "part": "hips",
-              "other": "rightUpperLeg",
-              "triangles": 6,
-              "otherTriangles": 8
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "macroWeight@5.5:leftUpperArm.flexion@123.49038496704102",
-          "document": {
-            "shape": {
-              "macroWeight": 5.5
-            },
-            "pose": [
-              {
-                "bone": "leftUpperArm",
-                "flexion": 123.49038496704102,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "hips",
-              "other": "leftUpperLeg",
-              "triangles": 17,
-              "otherTriangles": 12
-            },
-            {
-              "part": "hips",
-              "other": "rightUpperLeg",
-              "triangles": 6,
-              "otherTriangles": 8
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "macroWeight@5.5:rightHand.flexion@80",
-          "document": {
-            "shape": {
-              "macroWeight": 5.5
-            },
-            "pose": [
-              {
-                "bone": "rightHand",
-                "flexion": 80,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "hips",
-              "other": "leftUpperLeg",
-              "triangles": 17,
-              "otherTriangles": 12
-            },
-            {
-              "part": "hips",
-              "other": "rightUpperLeg",
-              "triangles": 6,
-              "otherTriangles": 8
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "child:rightUpperArm.flexion@147.68997734375",
-          "document": {
-            "shape": {
-              "macroAge": -1
-            },
-            "pose": [
-              {
-                "bone": "rightUpperArm",
-                "flexion": 147.68997734375,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "upperChest",
-              "other": "rightUpperArm",
-              "triangles": 8,
-              "otherTriangles": 7
-            },
-            {
-              "part": "rightShoulder",
-              "other": "rightUpperArm",
               "triangles": 1,
-              "otherTriangles": 3
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "child:leftLowerArm.flexion@109.95685312500001",
-          "document": {
-            "shape": {
-              "macroAge": -1
-            },
-            "pose": [
-              {
-                "bone": "leftLowerArm",
-                "flexion": 109.95685312500001,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "leftUpperArm",
-              "other": "leftLowerArm",
-              "triangles": 1,
-              "otherTriangles": 3
+              "otherTriangles": 1
             }
           ],
           "grown": []
@@ -1381,33 +559,8 @@
             {
               "part": "upperChest",
               "other": "rightUpperArm",
-              "triangles": 2,
-              "otherTriangles": 5
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "heavy:rightUpperArm.flexion@137.60681385345458",
-          "document": {
-            "shape": {
-              "macroWeight": 1
-            },
-            "pose": [
-              {
-                "bone": "rightUpperArm",
-                "flexion": 137.60681385345458,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "upperChest",
-              "other": "rightUpperArm",
-              "triangles": 2,
-              "otherTriangles": 3
+              "triangles": 1,
+              "otherTriangles": 1
             }
           ],
           "grown": []
@@ -1432,32 +585,7 @@
               "part": "upperChest",
               "other": "rightUpperArm",
               "triangles": 2,
-              "otherTriangles": 3
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "thin:rightUpperArm.flexion@137.60681385345458",
-          "document": {
-            "shape": {
-              "macroWeight": -1
-            },
-            "pose": [
-              {
-                "bone": "rightUpperArm",
-                "flexion": 137.60681385345458,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "upperChest",
-              "other": "rightUpperArm",
-              "triangles": 4,
-              "otherTriangles": 8
+              "otherTriangles": 4
             }
           ],
           "grown": []
@@ -1481,8 +609,8 @@
             {
               "part": "upperChest",
               "other": "rightUpperArm",
-              "triangles": 4,
-              "otherTriangles": 36
+              "triangles": 3,
+              "otherTriangles": 33
             }
           ],
           "grown": []
@@ -1507,87 +635,7 @@
               "part": "upperChest",
               "other": "leftUpperArm",
               "triangles": 6,
-              "otherTriangles": 19
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "measureShoulderDist@-2:rightUpperArm.flexion@147.68997734375",
-          "document": {
-            "shape": {
-              "measureShoulderDist": -2
-            },
-            "pose": [
-              {
-                "bone": "rightUpperArm",
-                "flexion": 147.68997734375,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "upperChest",
-              "other": "rightUpperArm",
-              "triangles": 2,
-              "otherTriangles": 15
-            },
-            {
-              "part": "neck",
-              "other": "rightShoulder",
-              "triangles": 7,
-              "otherTriangles": 6
-            },
-            {
-              "part": "neck",
-              "other": "rightUpperArm",
-              "triangles": 6,
-              "otherTriangles": 1
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "measureShoulderDist@-2:leftUpperArm.flexion@147.68997734375",
-          "document": {
-            "shape": {
-              "measureShoulderDist": -2
-            },
-            "pose": [
-              {
-                "bone": "leftUpperArm",
-                "flexion": 147.68997734375,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "upperChest",
-              "other": "leftShoulder",
-              "triangles": 2,
-              "otherTriangles": 2
-            },
-            {
-              "part": "upperChest",
-              "other": "leftUpperArm",
-              "triangles": 12,
-              "otherTriangles": 19
-            },
-            {
-              "part": "neck",
-              "other": "leftUpperArm",
-              "triangles": 1,
-              "otherTriangles": 1
-            },
-            {
-              "part": "leftShoulder",
-              "other": "leftUpperArm",
-              "triangles": 1,
-              "otherTriangles": 1
+              "otherTriangles": 10
             }
           ],
           "grown": []
@@ -1610,202 +658,15 @@
           "fresh": [
             {
               "part": "upperChest",
-              "other": "leftUpperArm",
-              "triangles": 6,
-              "otherTriangles": 8
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "measureBustCirc@1.25:rightUpperArm.flexion@147.68997734375",
-          "document": {
-            "shape": {
-              "measureBustCirc": 1.25
-            },
-            "pose": [
-              {
-                "bone": "rightUpperArm",
-                "flexion": 147.68997734375,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "upperChest",
-              "other": "rightUpperArm",
-              "triangles": 4,
-              "otherTriangles": 18
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "measureBustCirc@1.25:rightUpperArm.flexion@137.60681385345458",
-          "document": {
-            "shape": {
-              "measureBustCirc": 1.25
-            },
-            "pose": [
-              {
-                "bone": "rightUpperArm",
-                "flexion": 137.60681385345458,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "upperChest",
-              "other": "rightUpperArm",
+              "other": "leftShoulder",
               "triangles": 3,
-              "otherTriangles": 29
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "measureUpperarmCirc@2:leftUpperArm.flexion@147.68997734375",
-          "document": {
-            "shape": {
-              "measureUpperarmCirc": 2
-            },
-            "pose": [
-              {
-                "bone": "leftUpperArm",
-                "flexion": 147.68997734375,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "upperChest",
-              "other": "leftUpperArm",
-              "triangles": 2,
               "otherTriangles": 5
             },
             {
-              "part": "neck",
+              "part": "upperChest",
               "other": "leftUpperArm",
-              "triangles": 55,
-              "otherTriangles": 25
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "macroWeight@-2.5:rightUpperArm.flexion@147.68997734375",
-          "document": {
-            "shape": {
-              "macroWeight": -2.5
-            },
-            "pose": [
-              {
-                "bone": "rightUpperArm",
-                "flexion": 147.68997734375,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "upperChest",
-              "other": "rightUpperArm",
-              "triangles": 4,
-              "otherTriangles": 4
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "macroWeight@-2.5:rightUpperArm.flexion@137.60681385345458",
-          "document": {
-            "shape": {
-              "macroWeight": -2.5
-            },
-            "pose": [
-              {
-                "bone": "rightUpperArm",
-                "flexion": 137.60681385345458,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "upperChest",
-              "other": "rightUpperArm",
-              "triangles": 3,
-              "otherTriangles": 2
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "macroWeight@5.5:leftUpperArm.abduction@-10",
-          "document": {
-            "shape": {
-              "macroWeight": 5.5
-            },
-            "pose": [
-              {
-                "bone": "leftUpperArm",
-                "flexion": null,
-                "abduction": -10,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "hips",
-              "other": "leftUpperLeg",
-              "triangles": 3,
-              "otherTriangles": 3
-            },
-            {
-              "part": "hips",
-              "other": "rightUpperLeg",
-              "triangles": 20,
-              "otherTriangles": 8
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "macroWeight@5.5:leftToes.flexion@70",
-          "document": {
-            "shape": {
-              "macroWeight": 5.5
-            },
-            "pose": [
-              {
-                "bone": "leftToes",
-                "flexion": 70,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "hips",
-              "other": "leftUpperLeg",
-              "triangles": 17,
-              "otherTriangles": 12
-            },
-            {
-              "part": "hips",
-              "other": "rightUpperLeg",
               "triangles": 6,
-              "otherTriangles": 8
+              "otherTriangles": 6
             }
           ],
           "grown": []
@@ -1827,28 +688,10 @@
           },
           "fresh": [
             {
-              "part": "hips",
-              "other": "leftUpperLeg",
-              "triangles": 17,
-              "otherTriangles": 12
-            },
-            {
-              "part": "hips",
-              "other": "rightUpperLeg",
-              "triangles": 6,
-              "otherTriangles": 8
-            },
-            {
               "part": "upperChest",
               "other": "rightUpperArm",
-              "triangles": 12,
-              "otherTriangles": 18
-            },
-            {
-              "part": "rightShoulder",
-              "other": "rightUpperArm",
-              "triangles": 3,
-              "otherTriangles": 2
+              "triangles": 7,
+              "otherTriangles": 42
             }
           ],
           "grown": []
@@ -1870,345 +713,10 @@
           },
           "fresh": [
             {
-              "part": "hips",
-              "other": "leftUpperLeg",
-              "triangles": 17,
-              "otherTriangles": 12
-            },
-            {
-              "part": "hips",
-              "other": "rightUpperLeg",
-              "triangles": 6,
-              "otherTriangles": 8
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "macroWeight@5.5:leftUpperArm.twist@90",
-          "document": {
-            "shape": {
-              "macroWeight": 5.5
-            },
-            "pose": [
-              {
-                "bone": "leftUpperArm",
-                "flexion": null,
-                "abduction": null,
-                "twist": 90
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "hips",
-              "other": "leftUpperLeg",
-              "triangles": 17,
-              "otherTriangles": 12
-            },
-            {
-              "part": "hips",
-              "other": "rightUpperLeg",
-              "triangles": 6,
-              "otherTriangles": 8
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "macroWeight@5.5:rightUpperArm.abduction@-5",
-          "document": {
-            "shape": {
-              "macroWeight": 5.5
-            },
-            "pose": [
-              {
-                "bone": "rightUpperArm",
-                "flexion": null,
-                "abduction": -5,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "hips",
-              "other": "leftUpperLeg",
-              "triangles": 4,
-              "otherTriangles": 3
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "macroWeight@5.5:rightUpperLeg.flexion@95.703125",
-          "document": {
-            "shape": {
-              "macroWeight": 5.5
-            },
-            "pose": [
-              {
-                "bone": "rightUpperLeg",
-                "flexion": 95.703125,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "hips",
-              "other": "rightUpperLeg",
-              "triangles": 11,
-              "otherTriangles": 13
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "macroWeight@5.5:rightIndexDistal.flexion@80",
-          "document": {
-            "shape": {
-              "macroWeight": 5.5
-            },
-            "pose": [
-              {
-                "bone": "rightIndexDistal",
-                "flexion": 80,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "hips",
-              "other": "leftUpperLeg",
-              "triangles": 17,
-              "otherTriangles": 12
-            },
-            {
-              "part": "hips",
-              "other": "rightUpperLeg",
-              "triangles": 6,
-              "otherTriangles": 8
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "macroWeight@5.5:leftLowerArm.flexion@109.95685312500001",
-          "document": {
-            "shape": {
-              "macroWeight": 5.5
-            },
-            "pose": [
-              {
-                "bone": "leftLowerArm",
-                "flexion": 109.95685312500001,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "hips",
-              "other": "leftUpperLeg",
-              "triangles": 20,
-              "otherTriangles": 15
-            },
-            {
-              "part": "hips",
-              "other": "rightUpperLeg",
-              "triangles": 6,
-              "otherTriangles": 4
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "macroWeight@5.5:leftMiddleIntermediate.flexion@100",
-          "document": {
-            "shape": {
-              "macroWeight": 5.5
-            },
-            "pose": [
-              {
-                "bone": "leftMiddleIntermediate",
-                "flexion": 100,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "hips",
-              "other": "leftUpperLeg",
-              "triangles": 17,
-              "otherTriangles": 12
-            },
-            {
-              "part": "hips",
-              "other": "rightUpperLeg",
-              "triangles": 6,
-              "otherTriangles": 8
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "macroWeight@5.5:rightLittleProximal.flexion@45",
-          "document": {
-            "shape": {
-              "macroWeight": 5.5
-            },
-            "pose": [
-              {
-                "bone": "rightLittleProximal",
-                "flexion": 45,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "hips",
-              "other": "leftUpperLeg",
-              "triangles": 12,
+              "part": "upperChest",
+              "other": "rightUpperArm",
+              "triangles": 1,
               "otherTriangles": 5
-            },
-            {
-              "part": "hips",
-              "other": "rightUpperLeg",
-              "triangles": 20,
-              "otherTriangles": 16
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "macroWeight@5.5:leftLowerLeg.flexion@106.09375",
-          "document": {
-            "shape": {
-              "macroWeight": 5.5
-            },
-            "pose": [
-              {
-                "bone": "leftLowerLeg",
-                "flexion": 106.09375,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "hips",
-              "other": "leftUpperLeg",
-              "triangles": 22,
-              "otherTriangles": 13
-            },
-            {
-              "part": "hips",
-              "other": "rightUpperLeg",
-              "triangles": 35,
-              "otherTriangles": 24
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "macroWeight@5.5:leftLittleDistal.flexion@80",
-          "document": {
-            "shape": {
-              "macroWeight": 5.5
-            },
-            "pose": [
-              {
-                "bone": "leftLittleDistal",
-                "flexion": 80,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "hips",
-              "other": "leftUpperLeg",
-              "triangles": 17,
-              "otherTriangles": 12
-            },
-            {
-              "part": "hips",
-              "other": "rightUpperLeg",
-              "triangles": 6,
-              "otherTriangles": 8
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "macroWeight@5.5:rightThumbProximal.flexion@60",
-          "document": {
-            "shape": {
-              "macroWeight": 5.5
-            },
-            "pose": [
-              {
-                "bone": "rightThumbProximal",
-                "flexion": 60,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "hips",
-              "other": "leftUpperLeg",
-              "triangles": 17,
-              "otherTriangles": 12
-            },
-            {
-              "part": "hips",
-              "other": "rightUpperLeg",
-              "triangles": 6,
-              "otherTriangles": 8
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "macroWeight@5.5:leftHand.flexion@80",
-          "document": {
-            "shape": {
-              "macroWeight": 5.5
-            },
-            "pose": [
-              {
-                "bone": "leftHand",
-                "flexion": 80,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "hips",
-              "other": "leftUpperLeg",
-              "triangles": 17,
-              "otherTriangles": 12
-            },
-            {
-              "part": "hips",
-              "other": "rightUpperLeg",
-              "triangles": 6,
-              "otherTriangles": 8
             }
           ],
           "grown": []
@@ -2232,144 +740,20 @@
             {
               "part": "hips",
               "other": "leftUpperLeg",
-              "triangles": 4,
-              "otherTriangles": 4
-            },
-            {
-              "part": "hips",
-              "other": "rightUpperLeg",
-              "triangles": 13,
-              "otherTriangles": 9
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "macroWeight@5.5:leftUpperArm.flexion@147.68997734375",
-          "document": {
-            "shape": {
-              "macroWeight": 5.5
-            },
-            "pose": [
-              {
-                "bone": "leftUpperArm",
-                "flexion": 147.68997734375,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "hips",
-              "other": "leftUpperLeg",
-              "triangles": 17,
-              "otherTriangles": 12
-            },
-            {
-              "part": "hips",
-              "other": "rightUpperLeg",
-              "triangles": 6,
-              "otherTriangles": 8
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "macroWeight@5.5:leftHand.abduction@-45",
-          "document": {
-            "shape": {
-              "macroWeight": 5.5
-            },
-            "pose": [
-              {
-                "bone": "leftHand",
-                "flexion": null,
-                "abduction": -45,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "hips",
-              "other": "leftUpperLeg",
-              "triangles": 17,
-              "otherTriangles": 12
-            },
-            {
-              "part": "hips",
-              "other": "rightUpperLeg",
-              "triangles": 6,
-              "otherTriangles": 8
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "macroWeight@5.5:rightIndexProximal.flexion@45",
-          "document": {
-            "shape": {
-              "macroWeight": 5.5
-            },
-            "pose": [
-              {
-                "bone": "rightIndexProximal",
-                "flexion": 45,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "hips",
-              "other": "leftUpperLeg",
-              "triangles": 12,
+              "triangles": 7,
               "otherTriangles": 5
-            },
-            {
-              "part": "hips",
-              "other": "rightUpperLeg",
-              "triangles": 20,
-              "otherTriangles": 16
             }
           ],
           "grown": []
         },
         {
-          "name": "heavy:rightUpperArm.flexion@131.55691575927736",
+          "name": "heavy:leftUpperArm.flexion@131.55691575927736",
           "document": {
             "shape": {
               "macroWeight": 1
             },
             "pose": [
               {
-                "bone": "rightUpperArm",
-                "flexion": 131.55691575927736,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "upperChest",
-              "other": "rightUpperArm",
-              "triangles": 1,
-              "otherTriangles": 3
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "measureUnderbustCirc@2:leftUpperArm.flexion@131.55691575927736",
-          "document": {
-            "shape": {
-              "measureUnderbustCirc": 2
-            },
-            "pose": [
-              {
                 "bone": "leftUpperArm",
                 "flexion": 131.55691575927736,
                 "abduction": null,
@@ -2381,628 +765,8 @@
             {
               "part": "upperChest",
               "other": "leftUpperArm",
-              "triangles": 7,
-              "otherTriangles": 15
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "measureShoulderDist@-2:leftUpperArm.flexion@131.55691575927736",
-          "document": {
-            "shape": {
-              "measureShoulderDist": -2
-            },
-            "pose": [
-              {
-                "bone": "leftUpperArm",
-                "flexion": 131.55691575927736,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "upperChest",
-              "other": "leftShoulder",
-              "triangles": 3,
-              "otherTriangles": 3
-            },
-            {
-              "part": "upperChest",
-              "other": "leftUpperArm",
-              "triangles": 9,
-              "otherTriangles": 7
-            },
-            {
-              "part": "leftShoulder",
-              "other": "leftUpperArm",
-              "triangles": 3,
-              "otherTriangles": 1
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "macroWeight@5.5:leftUpperLeg.flexion@62.5",
-          "document": {
-            "shape": {
-              "macroWeight": 5.5
-            },
-            "pose": [
-              {
-                "bone": "leftUpperLeg",
-                "flexion": 62.5,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "hips",
-              "other": "leftUpperLeg",
-              "triangles": 23,
-              "otherTriangles": 11
-            },
-            {
-              "part": "hips",
-              "other": "rightUpperLeg",
-              "triangles": 4,
-              "otherTriangles": 9
-            },
-            {
-              "part": "leftUpperLeg",
-              "other": "rightUpperLeg",
               "triangles": 1,
               "otherTriangles": 1
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "macroWeight@5.5:leftIndexDistal.flexion@80",
-          "document": {
-            "shape": {
-              "macroWeight": 5.5
-            },
-            "pose": [
-              {
-                "bone": "leftIndexDistal",
-                "flexion": 80,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "hips",
-              "other": "leftUpperLeg",
-              "triangles": 17,
-              "otherTriangles": 12
-            },
-            {
-              "part": "hips",
-              "other": "rightUpperLeg",
-              "triangles": 6,
-              "otherTriangles": 8
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "macroWeight@5.5:rightUpperArm.flexion@131.55691575927736",
-          "document": {
-            "shape": {
-              "macroWeight": 5.5
-            },
-            "pose": [
-              {
-                "bone": "rightUpperArm",
-                "flexion": 131.55691575927736,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "hips",
-              "other": "leftUpperLeg",
-              "triangles": 17,
-              "otherTriangles": 12
-            },
-            {
-              "part": "hips",
-              "other": "rightUpperLeg",
-              "triangles": 6,
-              "otherTriangles": 8
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "macroWeight@5.5:rightHand.abduction@-45",
-          "document": {
-            "shape": {
-              "macroWeight": 5.5
-            },
-            "pose": [
-              {
-                "bone": "rightHand",
-                "flexion": null,
-                "abduction": -45,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "hips",
-              "other": "leftUpperLeg",
-              "triangles": 17,
-              "otherTriangles": 12
-            },
-            {
-              "part": "hips",
-              "other": "rightUpperLeg",
-              "triangles": 6,
-              "otherTriangles": 8
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "macroWeight@5.5:leftLittleProximal.flexion@45",
-          "document": {
-            "shape": {
-              "macroWeight": 5.5
-            },
-            "pose": [
-              {
-                "bone": "leftLittleProximal",
-                "flexion": 45,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "hips",
-              "other": "leftUpperLeg",
-              "triangles": 22,
-              "otherTriangles": 13
-            },
-            {
-              "part": "hips",
-              "other": "rightUpperLeg",
-              "triangles": 6,
-              "otherTriangles": 5
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "macroWeight@5.5:rightUpperArm.abduction@-10",
-          "document": {
-            "shape": {
-              "macroWeight": 5.5
-            },
-            "pose": [
-              {
-                "bone": "rightUpperArm",
-                "flexion": null,
-                "abduction": -10,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "hips",
-              "other": "leftUpperLeg",
-              "triangles": 4,
-              "otherTriangles": 3
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "macroWeight@5.5:rightUpperLeg.flexion@80.74951171875",
-          "document": {
-            "shape": {
-              "macroWeight": 5.5
-            },
-            "pose": [
-              {
-                "bone": "rightUpperLeg",
-                "flexion": 80.74951171875,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "hips",
-              "other": "rightUpperLeg",
-              "triangles": 15,
-              "otherTriangles": 14
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "macroWeight@5.5:rightRingDistal.flexion@80",
-          "document": {
-            "shape": {
-              "macroWeight": 5.5
-            },
-            "pose": [
-              {
-                "bone": "rightRingDistal",
-                "flexion": 80,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "hips",
-              "other": "leftUpperLeg",
-              "triangles": 17,
-              "otherTriangles": 12
-            },
-            {
-              "part": "hips",
-              "other": "rightUpperLeg",
-              "triangles": 6,
-              "otherTriangles": 8
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "macroWeight@5.5:leftLowerArm.flexion@94.6254763671875",
-          "document": {
-            "shape": {
-              "macroWeight": 5.5
-            },
-            "pose": [
-              {
-                "bone": "leftLowerArm",
-                "flexion": 94.6254763671875,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "hips",
-              "other": "leftUpperLeg",
-              "triangles": 21,
-              "otherTriangles": 14
-            },
-            {
-              "part": "hips",
-              "other": "rightUpperLeg",
-              "triangles": 6,
-              "otherTriangles": 4
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "macroWeight@5.5:leftLittleIntermediate.flexion@100",
-          "document": {
-            "shape": {
-              "macroWeight": 5.5
-            },
-            "pose": [
-              {
-                "bone": "leftLittleIntermediate",
-                "flexion": 100,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "hips",
-              "other": "leftUpperLeg",
-              "triangles": 17,
-              "otherTriangles": 12
-            },
-            {
-              "part": "hips",
-              "other": "rightUpperLeg",
-              "triangles": 6,
-              "otherTriangles": 8
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "macroWeight@5.5:rightLittleProximal.flexion@90",
-          "document": {
-            "shape": {
-              "macroWeight": 5.5
-            },
-            "pose": [
-              {
-                "bone": "rightLittleProximal",
-                "flexion": 90,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "hips",
-              "other": "leftUpperLeg",
-              "triangles": 12,
-              "otherTriangles": 5
-            },
-            {
-              "part": "hips",
-              "other": "rightUpperLeg",
-              "triangles": 20,
-              "otherTriangles": 16
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "macroWeight@5.5:leftLowerLeg.flexion@93.37890625",
-          "document": {
-            "shape": {
-              "macroWeight": 5.5
-            },
-            "pose": [
-              {
-                "bone": "leftLowerLeg",
-                "flexion": 93.37890625,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "hips",
-              "other": "leftUpperLeg",
-              "triangles": 24,
-              "otherTriangles": 15
-            },
-            {
-              "part": "hips",
-              "other": "rightUpperLeg",
-              "triangles": 31,
-              "otherTriangles": 24
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "macroWeight@5.5:rightLowerArm.flexion@145",
-          "document": {
-            "shape": {
-              "macroWeight": 5.5
-            },
-            "pose": [
-              {
-                "bone": "rightLowerArm",
-                "flexion": 145,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "hips",
-              "other": "leftUpperLeg",
-              "triangles": 17,
-              "otherTriangles": 12
-            },
-            {
-              "part": "hips",
-              "other": "rightUpperLeg",
-              "triangles": 6,
-              "otherTriangles": 8
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "macroWeight@5.5:rightMiddleIntermediate.flexion@100",
-          "document": {
-            "shape": {
-              "macroWeight": 5.5
-            },
-            "pose": [
-              {
-                "bone": "rightMiddleIntermediate",
-                "flexion": 100,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "hips",
-              "other": "leftUpperLeg",
-              "triangles": 17,
-              "otherTriangles": 12
-            },
-            {
-              "part": "hips",
-              "other": "rightUpperLeg",
-              "triangles": 6,
-              "otherTriangles": 8
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "macroWeight@5.5:leftIndexProximal.flexion@45",
-          "document": {
-            "shape": {
-              "macroWeight": 5.5
-            },
-            "pose": [
-              {
-                "bone": "leftIndexProximal",
-                "flexion": 45,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "hips",
-              "other": "leftUpperLeg",
-              "triangles": 21,
-              "otherTriangles": 13
-            },
-            {
-              "part": "hips",
-              "other": "rightUpperLeg",
-              "triangles": 6,
-              "otherTriangles": 5
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "macroWeight@5.5:rightMiddleDistal.flexion@80",
-          "document": {
-            "shape": {
-              "macroWeight": 5.5
-            },
-            "pose": [
-              {
-                "bone": "rightMiddleDistal",
-                "flexion": 80,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "hips",
-              "other": "leftUpperLeg",
-              "triangles": 17,
-              "otherTriangles": 12
-            },
-            {
-              "part": "hips",
-              "other": "rightUpperLeg",
-              "triangles": 6,
-              "otherTriangles": 8
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "macroWeight@5.5:leftUpperArm.flexion@131.55691575927736",
-          "document": {
-            "shape": {
-              "macroWeight": 5.5
-            },
-            "pose": [
-              {
-                "bone": "leftUpperArm",
-                "flexion": 131.55691575927736,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "hips",
-              "other": "leftUpperLeg",
-              "triangles": 17,
-              "otherTriangles": 12
-            },
-            {
-              "part": "hips",
-              "other": "rightUpperLeg",
-              "triangles": 6,
-              "otherTriangles": 8
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "macroWeight@5.5:leftRingIntermediate.flexion@100",
-          "document": {
-            "shape": {
-              "macroWeight": 5.5
-            },
-            "pose": [
-              {
-                "bone": "leftRingIntermediate",
-                "flexion": 100,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "hips",
-              "other": "leftUpperLeg",
-              "triangles": 17,
-              "otherTriangles": 12
-            },
-            {
-              "part": "hips",
-              "other": "rightUpperLeg",
-              "triangles": 6,
-              "otherTriangles": 8
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "macroWeight@5.5:rightIndexProximal.flexion@90",
-          "document": {
-            "shape": {
-              "macroWeight": 5.5
-            },
-            "pose": [
-              {
-                "bone": "rightIndexProximal",
-                "flexion": 90,
-                "abduction": null,
-                "twist": null
-              }
-            ]
-          },
-          "fresh": [
-            {
-              "part": "hips",
-              "other": "leftUpperLeg",
-              "triangles": 12,
-              "otherTriangles": 5
-            },
-            {
-              "part": "hips",
-              "other": "rightUpperLeg",
-              "triangles": 20,
-              "otherTriangles": 16
             }
           ],
           "grown": []
