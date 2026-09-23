@@ -16,10 +16,9 @@ import { nclose } from "../internal/predicates";
  *    negative weight selects the authored negative endpoint.
  * 2. The corrective fires as the product of its drivers: absent on one driver,
  *    a quarter at two halves, full at two ones.
- * 3. A channel that carries landmark rows moves the joint with the skin, and
- *    identity moves the skin but not the landmarks, before the channels.
+ * 3. A named channel carrying landmark rows moves the joint with the skin.
  * 4. Unsupported controls, out-of-envelope weights, a foreign basis revision
- *    and identity on an unknown surface refuse.
+ *    and a legacy vertex row refuse.
  * 5. Inputs, results and the compiled basis own their data independently and
  *    the same document builds the same body twice.
  */
@@ -83,16 +82,6 @@ export const test_human_body_basis_evaluation = (): void => {
     "skin follows the same channel",
     nclose(at(raised.model, 4, 1), 2.5),
   );
-  const identified = build({
-    ...document,
-    identity: { box: [4, 0, 0.25, 0] },
-    shape: { tall: 1 },
-  });
-  TestValidator.predicate(
-    "identity adds before channels and leaves landmarks alone",
-    nclose(at(identified.model, 4, 1), 2.75) &&
-      nclose(identified.landmarks["joint-spine-2"].y, 2.5),
-  );
   const refusals: [string, IAutoMovieHumanBodyBasisDocument][] = [
     ["unsupported control", { ...document, shape: { ghost: 0.1 } }],
     ["over envelope", { ...document, shape: { width: 1.5 } }],
@@ -100,12 +89,11 @@ export const test_human_body_basis_evaluation = (): void => {
     ["foreign basis", { ...document, basis: "other/1" }],
     ["blank name", { ...document, name: " " }],
     [
-      "identity on unknown surface",
-      { ...document, identity: { ghost: [0, 1, 0, 0] } },
-    ],
-    [
-      "identity row beyond vertices",
-      { ...document, identity: { box: [8, 1, 0, 0] } },
+      "legacy identity row",
+      {
+        ...document,
+        identity: { box: [4, 0, 0.25, 0] },
+      } as unknown as IAutoMovieHumanBodyBasisDocument,
     ],
   ];
   for (const [title, bad] of refusals) {

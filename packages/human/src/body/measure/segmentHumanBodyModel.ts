@@ -4,7 +4,7 @@ import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBody
 import type { IAutoMovieHumanBodyBuild } from "../structures/IAutoMovieHumanBodyBuild";
 
 /**
- * Split a built body into one mesh part per dominant bone, so the model
+ * Split every built surface region into mesh parts per dominant bone, so the model
  * crossing instrument can name which two segments of one connected skin
  * cross: upper arm against chest, thigh against thigh, forearm against
  * upper arm.
@@ -21,7 +21,10 @@ import type { IAutoMovieHumanBodyBuild } from "../structures/IAutoMovieHumanBody
  * a UV seam duplicates a vertex; the walk here follows the same order to
  * know each output's source, and `sources` maps every part vertex back to
  * the basis vertex it came from. The split keeps the built normals and
- * material, so the parts remain a valid resident model.
+ * material, so the parts remain a valid resident model. A basis with one
+ * region keeps bare bone names; with several regions the stable part name
+ * includes surface and region identity. `sources` uses global source vertex
+ * ordinals, concatenating surfaces in basis order.
  *
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-joints Names the two skin segments of one connected body that a posed joint drives into each other, which the census and the editor's contact check report.
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-joints Partitions the built surface by dominant skin weight in joint order, preserving the region splitter's vertex order and the built normals.
@@ -30,67 +33,97 @@ export function segmentHumanBodyModel(
   basis: IAutoMovieHumanBodyBasis,
   built: IAutoMovieHumanBodyBuild,
 ): { model: IAutoMovieModel; sources: Map<string, number[]> } {
-  const surface = basis.surfaces[0];
-  const geometry = built.model.parts[0].geometry;
-  if (geometry.type !== "mesh")
-    throw new Error("A built body part must be a resident mesh.");
-  const mesh = geometry.mesh;
-  const region = surface.regions[0];
-  const outputs = new Map<string, number>();
-  const order: number[] = [];
-  region.indices.forEach((source, corner) => {
-    const uv = region.uvs?.slice(corner * 2, corner * 2 + 2);
-    const key = `${source}/${uv?.join(",") ?? ""}`;
-    if (!outputs.has(key)) {
-      outputs.set(key, order.length);
-      order.push(source);
-    }
-  });
-  if (order.length * 3 !== mesh.positions.length)
-    throw new Error(
-      "The segment partition does not match the built vertex population.",
-    );
-  const dominant = order.map((source) => {
-    let best = 0;
-    for (let k = 1; k < 4; k++)
+  const regionCount = basis.surfaces.reduce(
+    (count, surface) => count + surface.regions.length,
+    0,
+  );
+  if (built.model.parts.length !== regionCount)
+    throw new Error("The segment partition needs every built surface region.");
+  const jointOrder = new Map(basis.joints.map((joint, i) => [joint.bone, i]));
+  const entries: {
+    bone: number;
+    region: number;
+    part: IAutoMovieModel["parts"][number];
+    sources: number[];
+  }[] = [];
+  let regionIndex = 0;
+  let sourceOffset = 0;
+  for (const surface of basis.surfaces) {
+    for (const region of surface.regions) {
+      const builtPart = built.model.parts[regionIndex];
+      const geometry = builtPart.geometry;
+      if (geometry.type !== "mesh")
+        throw new Error("A built body part must be a resident mesh.");
+      const mesh = geometry.mesh;
+      const outputs = new Map<string, number>();
+      const order: number[] = [];
+      region.indices.forEach((source, corner) => {
+        const uv = region.uvs?.slice(corner * 2, corner * 2 + 2);
+        const key = `${source}/${uv?.join(",") ?? ""}`;
+        if (!outputs.has(key)) {
+          outputs.set(key, order.length);
+          order.push(source);
+        }
+      });
       if (
-        surface.skin.weights[source * 4 + k] >
-        surface.skin.weights[source * 4 + best]
+        order.length * 3 !== mesh.positions.length ||
+        mesh.indices?.length !== region.indices.length
       )
-        best = k;
-    return surface.skin.boneIndices[source * 4 + best];
-  });
-  const indices = mesh.indices!;
-  const buckets = new Map<number, number[]>();
-  for (let t = 0; t < indices.length; t += 3) {
-    const bones = [indices[t], indices[t + 1], indices[t + 2]].map(
-      (v) => dominant[v],
-    );
-    const owner =
-      bones[1] === bones[2] && bones[0] !== bones[1] ? bones[1] : bones[0];
-    const list = buckets.get(owner);
-    if (list === undefined)
-      buckets.set(owner, [indices[t], indices[t + 1], indices[t + 2]]);
-    else list.push(indices[t], indices[t + 1], indices[t + 2]);
+        throw new Error(
+          "The segment partition does not match the built vertex population.",
+        );
+      const dominant = order.map((source) => {
+        let best = 0;
+        for (let k = 1; k < 4; k++)
+          if (
+            surface.skin.weights[source * 4 + k] >
+            surface.skin.weights[source * 4 + best]
+          )
+            best = k;
+        return surface.skin.boneIndices[source * 4 + best];
+      });
+      const indices = mesh.indices!;
+      const buckets = new Map<number, number[]>();
+      for (let t = 0; t < indices.length; t += 3) {
+        const bones = [indices[t], indices[t + 1], indices[t + 2]].map(
+          (v) => dominant[v],
+        );
+        const owner =
+          bones[1] === bones[2] && bones[0] !== bones[1] ? bones[1] : bones[0];
+        const list = buckets.get(owner);
+        if (list === undefined)
+          buckets.set(owner, [indices[t], indices[t + 1], indices[t + 2]]);
+        else list.push(indices[t], indices[t + 1], indices[t + 2]);
+      }
+      for (const [owner, tris] of buckets) {
+        const bone = surface.skin.joints[owner];
+        const part = submesh(mesh, tris);
+        const id =
+          regionCount === 1 ? bone : `${bone}/${surface.id}/${region.id}`;
+        entries.push({
+          bone: jointOrder.get(bone)!,
+          region: regionIndex,
+          part: {
+            id,
+            name: id,
+            material: builtPart.material,
+            geometry: { type: "mesh", mesh: part.mesh },
+            attachedBone: null,
+            transform: null,
+          },
+          sources: part.outputs.map((output) => sourceOffset + order[output]),
+        });
+      }
+      regionIndex++;
+    }
+    sourceOffset += surface.positions.length / 3;
   }
   const sources = new Map<string, number[]>();
-  const parts = [...buckets.entries()]
-    .sort((a, b) => a[0] - b[0])
-    .map(([bone, tris]) => {
-      const part = submesh(mesh, tris);
-      sources.set(
-        surface.skin.joints[bone],
-        part.outputs.map((output) => order[output]),
-      );
-      return {
-        id: surface.skin.joints[bone],
-        name: surface.skin.joints[bone],
-        material: built.model.parts[0].material,
-        geometry: { type: "mesh" as const, mesh: part.mesh },
-        attachedBone: null,
-        transform: null,
-      };
-    });
+  entries.sort((a, b) => a.bone - b.bone || a.region - b.region);
+  const parts = entries.map((entry) => {
+    sources.set(entry.part.id, entry.sources);
+    return entry.part;
+  });
   return { model: { ...built.model, parts }, sources };
 }
 

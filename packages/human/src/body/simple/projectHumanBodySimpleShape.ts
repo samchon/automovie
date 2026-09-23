@@ -13,7 +13,8 @@ const MASS_ITERATIONS = 4;
  *
  * Stature and the tape measurements are measured on the shaped body; mass is
  * the skin volume at the density of the fat the body's own sex, age and
- * mass imply, iterated to its fixed point; sex, age and muscle read their
+ * mass imply, over the age-dependent head-and-neck share and iterated to its
+ * fixed point; sex, age and muscle read their
  * identity channel through the inverse of that channel's first term row,
  * after the other rows on the channel (the age loss on the muscle) are
  * removed with the parameters read so far. An identity channel the basis
@@ -52,6 +53,7 @@ export function projectHumanBodySimpleShape(
   let massKilograms = measure.mass(
     volume,
     math.density(table.mass.fatFraction[0] * 100),
+    ageYears,
   );
   for (let step = 0; step < MASS_ITERATIONS; step++)
     massKilograms = measure.mass(
@@ -62,6 +64,7 @@ export function projectHumanBodySimpleShape(
           massKilograms / (statureMetres * statureMetres),
         ).percent,
       ),
+      ageYears,
     );
   // the muscle channel carries rows that are not the muscle itself
   const muscleRow = firstRow(table.identity.muscle);

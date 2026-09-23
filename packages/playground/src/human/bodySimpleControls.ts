@@ -97,8 +97,11 @@ const FIELDS: {
  * before changing one. Projection and expansion are the package's measured
  * inversions and take seconds, so both are asked of a worker (`expand`,
  * `project`); a projection that lands after a newer one, or after the user
- * typed, is dropped, and one that fails is reported; likewise an expansion
- * that lands after a newer Apply, or after the body was edited, is dropped.
+ * typed, is dropped, and one that fails is reported. The panel reserves a
+ * body intent before an expansion begins. A later edit of any body field,
+ * including pose with unchanged shape, retires that expansion's success or
+ * failure. Projection observes the same intent generation so stale readings
+ * cannot rewrite inputs or status while a later edit builds.
  * Applying expands the values over the current shape, which keeps every
  * detailed edit the simple tier does not name and changes only what the
  * edited values drive; a tape measurement is solved only when the user
@@ -127,7 +130,12 @@ export const renderBodySimpleControls = (props: {
   ) => Promise<IAutoMovieHumanBodySimpleShape>;
   /** The current detailed shape the expansion applies over. */
   current: () => Record<string, number>;
-  onApply: (shape: Record<string, number>) => void;
+  /** Reserve the panel's intent generation synchronously at Apply click. */
+  reserveIntent: () => number;
+  /** Read or check the panel generation when asynchronous work settles. */
+  currentIntent: () => number;
+  isCurrentIntent: (ticket: number) => boolean;
+  onApply: (shape: Record<string, number>, ticket: number) => void;
   onRefuse: (error: unknown) => void;
   onBusy: (text: string) => void;
 }): { refresh: (shape: Record<string, number>) => Promise<void> } => {
@@ -197,20 +205,18 @@ export const renderBodySimpleControls = (props: {
   const apply = dom.createElement("button");
   apply.id = "simple-apply";
   apply.textContent = "Apply simple body";
-  // an expansion is solved over the shape the body had when Apply was
-  // pressed; a newer Apply, or an edit of the body while it solved, wins, so
-  // a late expansion never overwrites what the user did after pressing
-  let applying = 0;
+  // The panel's ticket spans all body actions, including pose and history;
+  // shape equality alone cannot identify a newer edit of another field.
   apply.onclick = async () => {
-    const ticket = ++applying;
+    const ticket = props.reserveIntent();
     const over = props.current();
     props.onBusy("Solving the simple body against the basis…");
     try {
       const shape = await props.expand(read(), over);
-      if (ticket === applying && sameShape(props.current(), over))
-        props.onApply(shape);
+      if (props.isCurrentIntent(ticket) && sameShape(props.current(), over))
+        props.onApply(shape, ticket);
     } catch (error) {
-      if (ticket === applying && sameShape(props.current(), over))
+      if (props.isCurrentIntent(ticket) && sameShape(props.current(), over))
         props.onRefuse(error);
     }
   };
@@ -221,15 +227,17 @@ export const renderBodySimpleControls = (props: {
   return {
     refresh: async (shape) => {
       const ticket = ++generation;
+      const intent = props.currentIntent();
       let projected: IAutoMovieHumanBodySimpleShape;
       try {
         projected = await props.project(shape);
       } catch (error) {
         // a projection that fails is reported, never left as blank inputs
-        if (ticket === generation) props.onRefuse(error);
+        if (ticket === generation && props.isCurrentIntent(intent))
+          props.onRefuse(error);
         return;
       }
-      if (ticket !== generation) return;
+      if (ticket !== generation || !props.isCurrentIntent(intent)) return;
       edited.clear();
       exact = projected;
       for (const field of FIELDS) {

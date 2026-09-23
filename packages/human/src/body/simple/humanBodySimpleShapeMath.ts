@@ -5,14 +5,15 @@ import type { IAutoMovieHumanBodySimpleShape } from "../structures/IAutoMovieHum
 /**
  * The arithmetic the simple tier's expansion and projection share: the
  * piecewise-linear curves of the table, their inverses, the derived fat
- * parameters, and the term rows evaluated on a parameter record.
+ * parameters, the child/adult head mass share, and the term rows evaluated on
+ * a parameter record.
  *
  * Kept apart from the two public functions so that each of them reads as
  * the sequence the specification states and so a curve or a fat estimate
  * has one implementation to test.
  *
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-simple-shape Evaluates the relations a simple parameter expands through, the same way forward and back.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-simple-shape Realizes the flat-ended piecewise-linear curve, Deurenberg's estimate and the product-of-curves rows the specification fixes.
+ * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-simple-shape Realizes the flat-ended curve, age-specific fat and head mass rules, and product-of-curves rows the specification fixes.
  */
 export const humanBodySimpleShapeMath = {
   /** A piecewise-linear curve through ascending points, flat outside them. */
@@ -53,23 +54,49 @@ export const humanBodySimpleShapeMath = {
     return found ?? points[points.length - 1][0];
   },
 
-  /** Deurenberg's body fat percent and, less the sex's essential fat, the excess the definition gates read. */
+  /** Deurenberg's age-specific body fat estimate and the excess the definition gates read. */
   fat(
     simple: Pick<IAutoMovieHumanBodySimpleShape, "sex" | "ageYears">,
     bodyMassIndex: number,
   ): { percent: number; excess: number } {
     const table = HUMAN_BODY_SIMPLE_SHAPE.fat;
+    const estimate = (model: typeof table.pediatric): number =>
+      model.bodyMassIndex * bodyMassIndex +
+      model.ageYears * simple.ageYears +
+      (model.male * (simple.sex + 1)) / 2 +
+      model.intercept;
+    const [childEnd, adultStart] = table.transitionAgeYears;
     const percent =
-      table.bodyMassIndex * bodyMassIndex +
-      table.ageYears * simple.ageYears +
-      (table.male * (simple.sex + 1)) / 2 +
-      table.intercept;
+      simple.ageYears <= childEnd
+        ? estimate(table.pediatric)
+        : simple.ageYears >= adultStart
+          ? estimate(table.adult)
+          : estimate(table.pediatric) +
+            ((simple.ageYears - childEnd) / (adultStart - childEnd)) *
+              (estimate(table.adult) - estimate(table.pediatric));
     return {
       percent,
       excess:
         percent -
         humanBodySimpleShapeMath.curve(table.essentialBySex, simple.sex),
     };
+  },
+
+  /** Fraction of total mass above the body clip ring, with a stated study-domain bridge. */
+  headAndNeckFraction(ageYears: number): number {
+    const table = HUMAN_BODY_SIMPLE_SHAPE.mass.headAndNeck;
+    const pediatric = (age: number): number =>
+      table.pediatric.intercept +
+      table.pediatric.ageYearsCoefficient * age +
+      table.pediatric.ageYearsSquaredCoefficient * age * age;
+    const [childEnd, adultStart] = table.transitionAgeYears;
+    if (ageYears <= childEnd) return pediatric(ageYears);
+    if (ageYears >= adultStart) return table.adultFraction;
+    return (
+      pediatric(childEnd) +
+      ((ageYears - childEnd) / (adultStart - childEnd)) *
+        (table.adultFraction - pediatric(childEnd))
+    );
   },
 
   /** The parameter record the term curves are read over. */

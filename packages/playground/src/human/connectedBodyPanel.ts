@@ -11,6 +11,7 @@ import {
   type IAutoMovieHumanBodyBasis,
   type IAutoMovieHumanBodyBasisDocument,
   type IAutoMovieHumanBodyChannelScale,
+  type IAutoMovieHumanBodyShoulderPose,
   type IAutoMovieHumanBodySimpleShape,
   createHumanFaceEditor,
   measureHumanBodyBasisChannels,
@@ -24,7 +25,9 @@ import type {
 } from "@automovie/interface";
 
 import { renderBodyPoseControls } from "./bodyPoseControls";
+import { renderBodyShoulderControls } from "./bodyShoulderControls";
 import { renderBodySimpleControls } from "./bodySimpleControls";
+import { createBodyIntentGate } from "./createBodyIntentGate";
 
 /**
  * Mount the body's shape, measurement and pose controls around an injected
@@ -36,20 +39,17 @@ import { renderBodySimpleControls } from "./bodySimpleControls";
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Binds scalar controls to numerical edits, states each control's envelope and measured effect, and keeps camera, clay and the companion face outside replay data.
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Shares the face's transactional history and cancels stale file reads and builds by generation.
  * @evidenceExclude requirements/actors/body-authoring/README.md#body-requirements The panel is the editing screen alone; extraction, the package evaluator and the census review are other owners of this domain index.
- * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-connected-basis The panel evaluates no basis endpoint, corrective or identity row; the package builder in the worker does.
+ * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-connected-basis The panel evaluates no basis endpoint or corrective row; the package builder in the worker does.
  * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-joints The panel articulates no joint and applies no skin weight; it binds inputs to the document the builder evaluates.
  * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-document The panel serializes and parses through the package's document functions and owns no admission rule.
- * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-export The panel downloads the bytes the worker exported; the package exporter owns the format.
  * @evidenceExclude specifications/asset-and-representation/body-authoring/README.md#body-specifications The panel owns the editing screen boundary only.
  * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-basis The panel performs no basis evaluation.
  * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-joints The panel performs no skinning or pose resolution.
  * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-measurements The panel formats the measurements the package computed.
  * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-document The panel calls the package's parse and serialize functions.
- * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-export The panel calls no glTF writer.
  */
 export function mountConnectedBodyPanel<
   Model extends {
-    glb: Uint8Array<ArrayBuffer>;
     parts: number;
     crossings?: IAutoMovieModelCrossing[] | null;
     extras?: Record<string, unknown>;
@@ -64,7 +64,11 @@ export function mountConnectedBodyPanel<
       name: string;
       shape: Record<string, number> | (() => Promise<Record<string, number>>);
     }[];
-    poses: { name: string; pose: IAutoMovieJointPose[] }[];
+    poses: {
+      name: string;
+      pose?: IAutoMovieJointPose[];
+      shoulders?: IAutoMovieHumanBodyShoulderPose[];
+    }[];
     viewport: (canvas: HTMLCanvasElement) => {
       build: (
         document: IAutoMovieHumanBodyBasisDocument,
@@ -73,6 +77,9 @@ export function mountConnectedBodyPanel<
       cancel: () => void;
       publish: (model: Model) => void;
       dispose: (model: Model) => void;
+      export: (
+        document: IAutoMovieHumanBodyBasisDocument,
+      ) => Promise<Uint8Array<ArrayBuffer>>;
       fitView: () => void;
       cameraView: (degrees: number) => void;
       setClay: (enabled: boolean) => void;
@@ -135,7 +142,7 @@ export function mountConnectedBodyPanel<
       >
     | undefined;
   let draft = structuredClone(props.initial);
-  let revision = 0;
+  const intents = createBodyIntentGate();
   let bone: AutoMovieHumanoidBone = "leftUpperArm";
   const status = (text: string, state: string): void => {
     element("body-status").textContent = text;
@@ -144,7 +151,7 @@ export function mountConnectedBodyPanel<
   const withdraw = (): number => {
     editor?.cancel();
     viewport.cancel();
-    return ++revision;
+    return intents.reserve();
   };
   const refuse = (error: unknown): void => {
     withdraw();
@@ -160,7 +167,7 @@ export function mountConnectedBodyPanel<
     draft = state.document;
     status(
       state.error ??
-        `${state.document.name}\n${state.model.parts} material regions · ${state.document.pose?.length ?? 0} posed joints · committed numerical state`,
+        `${state.document.name}\n${state.model.parts} material regions · ${(state.document.pose?.length ?? 0) + (state.document.shoulders?.length ?? 0)} posed joints · committed numerical state`,
       state.status,
     );
     element<HTMLButtonElement>("body-undo").disabled = !state.canUndo;
@@ -172,20 +179,25 @@ export function mountConnectedBodyPanel<
   };
   const change = async (
     next: IAutoMovieHumanBodyBasisDocument,
+    ticket: number = withdraw(),
   ): Promise<void> => {
-    const ticket = ++revision;
+    if (!intents.isCurrent(ticket)) return;
     draft = structuredClone(next);
     status("Building the latest body…", "building");
     const success = await editor!.edit(next);
-    if (ticket !== revision) return;
+    if (!intents.isCurrent(ticket)) return;
     if (success) show(editor!.snapshot().model);
     refresh();
   };
-  const applyText = async (text: string): Promise<void> => {
+  const applyText = async (
+    text: string,
+    ticket = withdraw(),
+  ): Promise<void> => {
     try {
-      await change(parseHumanBodyBasisDocument(text));
+      if (intents.isCurrent(ticket))
+        await change(parseHumanBodyBasisDocument(text), ticket);
     } catch (error) {
-      refuse(error);
+      if (intents.isCurrent(ticket)) refuse(error);
     }
   };
   const renderControls = (): void => {
@@ -205,7 +217,10 @@ export function mountConnectedBodyPanel<
           option.value = joint.bone;
           option.textContent =
             joint.bone +
-            (draft.pose?.some((one) => one.bone === joint.bone) ? " ●" : "");
+            (draft.pose?.some((one) => one.bone === joint.bone) ||
+            draft.shoulders?.some((one) => one.bone === joint.bone)
+              ? " ●"
+              : "");
           picker.append(option);
         }
       picker.value = bone;
@@ -219,14 +234,37 @@ export function mountConnectedBodyPanel<
       };
       const rows = dom.createElement("div");
       container.append(picker, rows);
+      if (bone === "leftUpperArm" || bone === "rightUpperArm") {
+        const joint = props.basis.joints.find((one) => one.bone === bone)!;
+        if (joint.shoulder === undefined)
+          throw new Error(
+            "An upper arm needs thorax-relative shoulder coordinates.",
+          );
+        renderBodyShoulderControls({
+          dom,
+          container: rows,
+          bone,
+          shoulder: joint.shoulder,
+          shoulders: draft.shoulders ?? [],
+          currentShoulders: () => draft.shoulders ?? [],
+          onChange: (shoulders) => {
+            void change({ ...structuredClone(draft), shoulders });
+          },
+        });
+        return;
+      }
       renderBodyPoseControls({
         dom,
         container: rows,
         basis: props.basis,
         bone,
         pose: draft.pose ?? [],
-        coupled: resolveHumanBodyCouplings(props.basis, draft.pose ?? [])
-          .contributions,
+        currentPose: () => draft.pose ?? [],
+        coupled: resolveHumanBodyCouplings(
+          props.basis,
+          draft.pose ?? [],
+          draft.shoulders ?? [],
+        ).contributions,
         onChange: (pose) => {
           void change({ ...structuredClone(draft), pose });
         },
@@ -305,7 +343,7 @@ export function mountConnectedBodyPanel<
       const ticket = withdraw();
       status("Restoring the selected body…", "building");
       const success = await editor![action]();
-      if (ticket !== revision) return;
+      if (!intents.isCurrent(ticket)) return;
       if (success) show(editor!.snapshot().model);
       refresh();
     };
@@ -315,7 +353,11 @@ export function mountConnectedBodyPanel<
     expand: props.simple.expand,
     project: props.simple.project,
     current: () => draft.shape,
-    onApply: (shape) => void change({ ...structuredClone(draft), shape }),
+    reserveIntent: withdraw,
+    currentIntent: intents.currentTicket,
+    isCurrentIntent: intents.isCurrent,
+    onApply: (shape, ticket) =>
+      void change({ ...structuredClone(draft), shape }, ticket),
     onRefuse: refuse,
     onBusy: (text) => status(text, "building"),
   });
@@ -323,6 +365,7 @@ export function mountConnectedBodyPanel<
     const button = dom.createElement("button");
     button.textContent = preset.name;
     button.onclick = async () => {
+      const ticket = withdraw();
       try {
         if (typeof preset.shape === "function")
           status("Solving the " + preset.name + " preset…", "building");
@@ -330,9 +373,10 @@ export function mountConnectedBodyPanel<
           typeof preset.shape === "function"
             ? await preset.shape()
             : preset.shape;
-        void change({ ...structuredClone(draft), shape: { ...shape } });
+        if (!intents.isCurrent(ticket)) return;
+        void change({ ...structuredClone(draft), shape: { ...shape } }, ticket);
       } catch (error) {
-        refuse(error);
+        if (intents.isCurrent(ticket)) refuse(error);
       }
     };
     element("shape-presets").append(button);
@@ -341,11 +385,17 @@ export function mountConnectedBodyPanel<
     const button = dom.createElement("button");
     button.textContent = preset.name;
     button.onclick = () =>
-      change({ ...structuredClone(draft), pose: structuredClone(preset.pose) });
+      change({
+        ...structuredClone(draft),
+        pose: structuredClone(preset.pose ?? []),
+        shoulders: structuredClone(preset.shoulders ?? []),
+      });
     element("pose-presets").append(button);
   }
-  element("document-apply").onclick = () =>
-    applyText(element<HTMLTextAreaElement>("document-json").value);
+  element("document-apply").onclick = () => {
+    const ticket = withdraw();
+    void applyText(element<HTMLTextAreaElement>("document-json").value, ticket);
+  };
   element("body-save").onclick = () => {
     const document = editor!.snapshot().document;
     props.download(
@@ -354,13 +404,16 @@ export function mountConnectedBodyPanel<
       "application/json",
     );
   };
-  element("body-glb").onclick = () => {
+  element("body-glb").onclick = async () => {
     const state = editor!.snapshot();
-    props.download(
-      state.document.id + ".glb",
-      state.model.glb,
-      "model/gltf-binary",
-    );
+    const ticket = intents.currentTicket();
+    try {
+      const bytes = await viewport.export(state.document);
+      if (intents.isCurrent(ticket) && editor!.snapshot().model === state.model)
+        props.download(state.document.id + ".glb", bytes, "model/gltf-binary");
+    } catch (error) {
+      if (intents.isCurrent(ticket)) refuse(error);
+    }
   };
   // The body's rest crosses nothing by construction (the shipped census says
   // so), so the reading is absolute: any pair is a finding.
@@ -373,7 +426,7 @@ export function mountConnectedBodyPanel<
       const posed = await viewport.build(editor!.snapshot().document, true);
       const reading = posed.crossings;
       viewport.dispose(posed);
-      if (ticket !== revision) return;
+      if (!intents.isCurrent(ticket)) return;
       status(
         reading === null || reading === undefined
           ? "This build does not supply a crossing reading."
@@ -383,7 +436,7 @@ export function mountConnectedBodyPanel<
         reading === null || reading === undefined ? "error" : "ready",
       );
     } catch (error) {
-      if (ticket === revision) refuse(error);
+      if (intents.isCurrent(ticket)) refuse(error);
     }
   };
   element("body-load").onclick = () =>
@@ -396,17 +449,17 @@ export function mountConnectedBodyPanel<
     const ticket = withdraw();
     try {
       const text = await file.text();
-      if (ticket !== revision) return;
-      await applyText(text);
+      if (!intents.isCurrent(ticket)) return;
+      await applyText(text, ticket);
     } catch (error) {
-      if (ticket === revision) refuse(error);
+      if (intents.isCurrent(ticket)) refuse(error);
     }
   };
   const ready = (async (): Promise<void> => {
-    const ticket = ++revision;
+    const ticket = intents.reserve();
     try {
       const model = await viewport.build(props.initial);
-      if (ticket !== revision) {
+      if (!intents.isCurrent(ticket)) {
         viewport.dispose(model);
         return;
       }
@@ -420,7 +473,7 @@ export function mountConnectedBodyPanel<
       element<HTMLFieldSetElement>("editing").disabled = false;
       refresh();
     } catch (error) {
-      if (ticket === revision) refuse(error);
+      if (intents.isCurrent(ticket)) refuse(error);
     }
   })();
   return {

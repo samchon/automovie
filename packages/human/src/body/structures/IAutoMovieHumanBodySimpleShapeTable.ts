@@ -2,7 +2,8 @@ import type { AutoMovieHumanBodySimpleParameter } from "./AutoMovieHumanBodySimp
 
 /**
  * The shape of the simple-tier expansion table: the envelope, the stature
- * and mass models, the body fat estimate and the term rows, all numbers.
+ * and mass models, the age-specific body fat estimates and the term rows,
+ * all numbers.
  *
  * A term row scales the product of piecewise-linear curves, one per simple
  * or derived parameter, into one channel; rows for the same channel add. A
@@ -12,7 +13,7 @@ import type { AutoMovieHumanBodySimpleParameter } from "./AutoMovieHumanBodySimp
  * a row, never as code.
  *
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-simple-shape Types the relations a user can read to see what each simple parameter drives.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-simple-shape Declares the table form the expansion evaluates: envelope, head allowance, mass model, fat estimate and product-of-curves rows.
+ * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-simple-shape Declares the table form the expansion evaluates: envelope, head allowance, age-dependent head share, pediatric and adult fat estimates and product-of-curves rows.
  * @author Samchon
  */
 export interface IAutoMovieHumanBodySimpleShapeTable {
@@ -67,19 +68,40 @@ export interface IAutoMovieHumanBodySimpleShapeTable {
   /** The head's height above the basis's clip ring, metres. */
   stature: { headAboveRingMetres: number };
 
-  /** Siri's density model, the head-and-neck mass fraction and the fat fraction the model is trusted over. */
+  /** Siri's density model, age-dependent head-and-neck share and the trusted fat band. */
   mass: {
     siri: { numerator: number; offset: number };
-    headAndNeckFraction: number;
+    headAndNeck: {
+      /** Jensen's male 4–20-year regression, used only through age 15 here. */
+      pediatric: {
+        intercept: number;
+        ageYearsCoefficient: number;
+        ageYearsSquaredCoefficient: number;
+      };
+      /** Dempster/Winter adult approximation. */
+      adultFraction: number;
+      /** Authored interpolation interval between the two study domains. */
+      transitionAgeYears: [number, number];
+    };
     fatFraction: [number, number];
   };
 
-  /** Deurenberg's body fat estimate and the essential fat by sex the definition gates subtract. */
+  /** Deurenberg's two body-fat regressions and the essential fat the definition gates subtract. */
   fat: {
-    bodyMassIndex: number;
-    ageYears: number;
-    male: number;
-    intercept: number;
+    pediatric: {
+      bodyMassIndex: number;
+      ageYears: number;
+      male: number;
+      intercept: number;
+    };
+    adult: {
+      bodyMassIndex: number;
+      ageYears: number;
+      male: number;
+      intercept: number;
+    };
+    /** Authored interpolation interval; the study reports separate age domains. */
+    transitionAgeYears: [number, number];
     essentialBySex: [number, number][];
   };
 

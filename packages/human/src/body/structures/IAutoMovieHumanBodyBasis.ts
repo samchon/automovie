@@ -10,9 +10,11 @@ import type {
  *
  * The caller supplies licensed geometry; this package supplies no person's
  * mesh. Coordinates and sparse differences use metres in a right-handed Y-up,
- * Z-forward frame shared with the face basis: the ring of vertices at
- * Y = -0.145 m is the same set of points in both, which is what lets a
- * separate combination stage join them by position instead of by a transform.
+ * Z-forward frame shared with the face basis. In the shipped body, the
+ * nonplanar collar boundary has 120 vertices with Y between -0.0902116299 m
+ * and -0.0807635784 m. These are the face collar's same source vertices in
+ * the common frame, so a separate combination stage can join the two by
+ * position instead of by a transform.
  * The ground therefore sits well below the origin; a consumer that wants the
  * feet at zero translates the whole model by the neutral's lowest Y.
  *
@@ -20,8 +22,9 @@ import type {
  * 145 degree elbow walked as a linear endpoint leaves the forearm centimetres
  * off the arc, so joints, their landmarks and the skin weights are part of
  * this contract from the first revision rather than a later layer. Evaluation
- * is identity, then channels, then correctives, then landmarks, then the rest
- * skeleton, then the pose with the declared couplings added, then skinning
+ * is channels, then correctives, then landmarks, then the rest skeleton, then
+ * the pose with the declared couplings added and shoulder goals resolved,
+ * then skinning
  * (`createHumanBodyBasisBuilder`).
  *
  * Every endpoint name (`channels[].positive`, `negative`, `correctives[].target`)
@@ -38,10 +41,10 @@ import type {
  * other owners (clothing to a production's own assets, hair to the face's
  * groom, ethnicity to the face track that declined it too).
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-connected-basis Carries the neutral, identity-ready surfaces, signed channels with explicit mirrors, correctives, landmarks and weights one document replays without Blender.
+ * @evidence requirements/actors/body-authoring/contract.md#actor-body-connected-basis Carries shared face/body collar vertices, neutral surfaces, signed named channels with explicit mirrors, correctives, landmarks and weights one document replays without Blender.
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-joints Puts the joints, their landmark-defined pivots and their clinical limits inside the basis contract instead of a later layer.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-basis Fixes the shared frame, the sparse row format, the channel envelope and the product activation this type is evaluated under.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-joints Declares each joint by landmark ids, flexion reference, measured clinical signs and range, and each surface's four-influence skin.
+ * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-basis Fixes the shared face/body collar frame, the sparse row format, the channel envelope and the product activation this type is evaluated under.
+ * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-joints Declares landmark-defined joints, generic signs and ranges for non-humeral bones, measured TT coordinates for upper arms and each surface's four-influence skin.
  * @author Samchon
  */
 export interface IAutoMovieHumanBodyBasis {
@@ -53,7 +56,7 @@ export interface IAutoMovieHumanBodyBasis {
     /** Trait name unique within this basis, e.g. `torsoScaleVert` or `upperarmFatLeft`. */
     id: string;
 
-    /** Body channels are identity edits; a pose is not a channel. */
+    /** Named body shape edit; a pose is not a channel. */
     kind: "shape";
 
     /** Source region or `macro`, for grouping in an editor; not evaluated. */
@@ -104,7 +107,7 @@ export interface IAutoMovieHumanBodyBasis {
     /** Name unique within this basis, distinct from every channel id. */
     id: string;
 
-    /** Driving sides; a channel driver or a joint-angle ramp, all multiplied. */
+    /** Driving sides or shoulder pose kernels, all multiplied. */
     inputs: (
       | {
           channel: string;
@@ -116,13 +119,27 @@ export interface IAutoMovieHumanBodyBasis {
         }
       | {
           bone: AutoMovieHumanoidBone;
-          axis: "flexion" | "abduction" | "twist";
+          axis: "flexion" | "abduction" | "twist" | "elevation";
           /** Positive counts clinical degrees above the rest angle, negative below it. */
           side: "positive" | "negative";
           /** Degrees from rest at which the ramp leaves zero. */
           onset: number;
           /** Degrees from rest at which the ramp reaches one; above `onset` and within the range. */
           full: number;
+        }
+      | {
+          /** Humerus whose whole physical orientation gates the corrective. */
+          shoulder: "leftUpperArm" | "rightUpperArm";
+          /** TT coordinates of the kernel's central humerothoracic pose. */
+          orientation: {
+            plane: number;
+            elevation: number;
+            axialRotation: number;
+          };
+          /** Angular distance at or within which the kernel reaches one. */
+          innerDegrees: number;
+          /** Angular distance at or beyond which the kernel is zero. */
+          outerDegrees: number;
         }
     )[];
 
@@ -164,15 +181,16 @@ export interface IAutoMovieHumanBodyBasis {
     tail: string;
 
     /**
-     * The direction a positive flexion swings the bone toward, in the basis
-     * frame of the neutral. The bone frame is Y along head to tail, X equal to
-     * `Y x F` and Z equal to `X x Y`, which is the engine's default clinical
-     * basis (flexion about X, abduction about Z, twist about Y).
+     * The reference direction for the bone frame's X axis, in the basis frame
+     * of the neutral. The frame is Y along head to tail, X equal to `Y x F`
+     * and Z equal to `X x Y`. Non-humeral joints use this frame for the
+     * engine's flexion/abduction/twist axes; the upper arms use it only for
+     * skin binding, while their clinical goal uses `shoulder` below.
      */
     reference: [number, number, number];
 
     /**
-     * Clinical sign of each axis under that frame, measured at extraction:
+     * Clinical sign of each non-humeral axis under that frame, measured at extraction:
      * flexion is +1 by construction; abduction is the sign that carries the
      * bone away from the midline (or toward the thumb at the wrist); twist is
      * the sign of external rotation. Null marks an axis the constraint holds
@@ -185,13 +203,10 @@ export interface IAutoMovieHumanBodyBasis {
     };
 
     /**
-     * Clinical angle of the rest direction on each axis, in degrees, measured
-     * at extraction against the joint's anatomical zero (hanging limbs, a
-     * straight elbow, an upright trunk). The source stands in an A-pose with
-     * the arms 42 degrees out and the elbows bent 43 degrees, so a document's
-     * "abduction 180" is read from the anatomical position and the rig turns
-     * by `clinical - neutral`; without this offset a clinical range would
-     * mean a different arc on every rest pose. An immobile axis rests at 0.
+     * Clinical rest angle of each non-humeral axis in degrees, measured from
+     * its anatomical zero. The upper arms hold these generic axes at zero;
+     * their separate `shoulder.neutral` records the A-pose direction and
+     * axial zero in the thorax's anatomical frame.
      */
     neutral: {
       flexion: number;
@@ -199,19 +214,39 @@ export interface IAutoMovieHumanBodyBasis {
       twist: number;
     };
 
-    /** Range of motion in clinical degrees, or null for the root. */
+    /** Generic clinical range, or null for the root; all upper-arm generic axes are held. */
     constraint: IAutoMovieJointConstraint | null;
+
+    /**
+     * Humerothoracic authoring coordinates for an upper arm. Only the two
+     * upper arms carry this field. Their generic Euler axes are held at zero;
+     * the shoulder goal is resolved from the thorax after girdle coupling.
+     */
+    shoulder?: {
+      coordinates: "thorax-tt";
+      /** Anatomical A-pose direction and axial zero in thorax coordinates. */
+      neutral: {
+        plane: number;
+        elevation: number;
+        axialRotation: number;
+      };
+      /** Total humerothoracic elevation and axial rotation in degrees. */
+      range: {
+        elevation: { min: number; max: number };
+        axialRotation: { min: number; max: number };
+      };
+    };
   }[];
 
   /**
    * Declared joint couplings: one joint's motion adding a bounded angle to
    * another joint's clinical axis, applied by the builder to the document's
    * pose before that pose is validated and resolved
-   * (`resolveHumanBodyCouplings`). The shoulder is why they exist. The upper
-   * arm's flexion and abduction ranges are the shoulder complex's (180
-   * degrees), but a document angle turns one bone, the humerus, so an arm
-   * overhead left the girdle where the rest put it and the humerus turning
-   * 180 degrees against it. The intended data is the scapulohumeral rhythm:
+   * (`resolveHumanBodyCouplings`). The upper arm supplies a total
+   * humerothoracic TT elevation, while its parent girdle can also move. The
+   * builder solves the humeral child after the girdle moves so the coupled
+   * contribution does not add to the authored total. The intended data is
+   * the scapulohumeral rhythm:
    * Inman, Saunders and Abbott 1944 (J Bone Joint Surg 26:1) measured
    * glenohumeral to scapulothoracic motion at about 2:1 past 30 degrees of
    * elevation, and Ludewig et al. 2009 (J Bone Joint Surg Am 91:378) put the
@@ -225,13 +260,11 @@ export interface IAutoMovieHumanBodyBasis {
    * requirement rather than a hidden corrective: its input, output, bounded
    * function and range are data of the basis, the builder applies it in a
    * stated order, the editor shows the addition beside the joint row, and the
-   * document never stores it. `source.measure` is `elevation`, the engine's
-   * `swingConeAngle` of the source joint's clinical flexion and abduction (an
-   * absent or null document angle stands for the rest angle): the
-   * humerothoracic elevation from the hanging arm that the literature
-   * tabulates and that the engine's cone check reads, so the rest pose itself
-   * has an elevation (the A-pose arm about 42 degrees) and a hanging or
-   * adducted arm lies below it. The curve is piecewise linear over
+   * document never stores it. For a TT shoulder source, `source.measure` is
+   * the document's total `shoulders[].elevation`, or the measured A-pose
+   * elevation when omitted. For a non-humeral source it retains the engine's
+   * `swingConeAngle` of the clinical flexion and abduction. The curve is
+   * piecewise linear over
    * `[elevation, degrees]` knots: zero at and below the first knot, linear
    * between knots, the last ordinate held past the last knot; a shipped
    * shoulder curve therefore starts at the rest elevation, approximating
@@ -259,7 +292,7 @@ export interface IAutoMovieHumanBodyBasis {
     source: {
       bone: AutoMovieHumanoidBone;
 
-      /** Swing cone of the clinical flexion and abduction, in degrees from the anatomical zero. */
+      /** TT total elevation on an upper arm, otherwise the clinical flexion/abduction swing cone. */
       measure: "elevation";
     };
 
