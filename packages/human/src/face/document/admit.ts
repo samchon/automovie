@@ -30,6 +30,8 @@ export function admit(input: unknown): IAutoMovieHumanFaceBasisDocument {
   for (const material of Object.values(document.materials ?? {})) {
     values.push(...Object.values(material.color ?? {}));
     if (material.roughness !== undefined) values.push(material.roughness);
+    values.push(...(material.pigment ?? []));
+    if (material.density !== undefined) values.push(material.density);
   }
   if (
     !values.every(Number.isFinite) ||

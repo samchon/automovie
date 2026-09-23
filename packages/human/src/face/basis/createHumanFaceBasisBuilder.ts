@@ -13,6 +13,7 @@ import type { IAutoMovieHumanFaceBasisDocument } from "../structures/IAutoMovieH
 import type { IAutoMovieHumanFaceContactSummary } from "../structures/IAutoMovieHumanFaceContactSummary";
 import { assertHumanFaceBasis } from "./assertHumanFaceBasis";
 import { createHumanFaceBasisRegion } from "./createHumanFaceBasisRegion";
+import { createHumanFaceFibrePigment } from "./createHumanFaceFibrePigment";
 import { evaluateHumanFacePassage } from "./evaluateHumanFacePassage";
 import { evaluateHumanFaceRest } from "./evaluateHumanFaceRest";
 import { humanFaceBasisWeights } from "./humanFaceBasisWeights";
@@ -86,6 +87,7 @@ export function createHumanFaceBasisBuilder(
   const buildHair = createHumanFaceHairBuilder(basis);
   const scalpTint = createHumanFaceScalpTint(basis);
   const irisPigment = createHumanFaceIrisPigment(basis);
+  const fibrePigment = createHumanFaceFibrePigment();
   const surfaces = basis.surfaces.map((surface) => ({
     surface,
     regions: surface.regions.map((region) => ({
@@ -149,6 +151,7 @@ export function createHumanFaceBasisBuilder(
       if (override.roughness !== undefined)
         material.roughness = override.roughness;
     }
+    fibrePigment(document.materials, materials);
     irisPigment(document.iris, materials);
     const rest = evaluateHumanFaceRest(basis, state, closure);
     const motions =

@@ -52,9 +52,21 @@ export interface IAutoMovieHumanFaceBasisDocument {
    */
   iris?: IAutoMovieHumanFaceIris | null;
 
-  /** Optional linear RGB and roughness, each in [0,1], by existing material ID. */
+  /**
+   * Optional overrides by existing material ID: linear RGB `color` and
+   * `roughness`, each in [0,1]. A material whose base-colour texture carries
+   * fibre coverage in its alpha (a brow or lash card cut by a mask or
+   * blended) also takes `pigment`, the fibres' linear RGB albedo in [0,1],
+   * and `density`, a factor on that coverage in [0,4]; both are painted into
+   * the texture by the shared fibre rule.
+   */
   materials?: Record<
     string,
-    { color?: { r: number; g: number; b: number }; roughness?: number }
+    {
+      color?: { r: number; g: number; b: number };
+      roughness?: number;
+      pigment?: [number, number, number];
+      density?: number;
+    }
   >;
 }

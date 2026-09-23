@@ -215,6 +215,17 @@ Base-colour와 normal PNG data URI는 자산 내부의 이미지로 포함하고
 
 결과는 새 PNG로 모델의 재질이 소유하며 기저와 입력 문서를 바꾸지 않는다. 재질 색 override는 다시 칠한 텍스처에 곱해진다. 기하, 법선, 다른 재질은 바뀌지 않는다. 관절 안구가 없는 기저와 칠할 수 있는 안구가 없는 눈에 대한 색소 요청은 거부한다. 색소는 렌더러 조명 아래의 저작된 광학 근사이며 사진에서 복원한 반사율이나 홍채 무늬의 신원 표지가 아니다.
 
+### 연결 털 카드의 색소와 밀도 {#face-spec-connected-fibre}
+
+<!-- @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components 눈썹과 속눈썹 털의 색과 밀도를 형태와 독립된 부품 값으로 저작하게 한다. -->
+<!-- @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis 눈썹과 속눈썹 차이를 공통 기저 텍스처 위의 수치 재질 값으로 표현하고 개인 이미지를 저장하지 않는다. -->
+
+연결 기저는 눈썹과 속눈썹을 카드로 그린다. 카드의 기본색 텍스처는 알파에 털의 덮임률을, RGB에 원천 자산의 한 가지 털 색을 담고, 재질의 알파 모드는 mask나 blend다. 편집 문서의 재질 override는 그런 재질에 선택적으로 털의 선형 RGB 반사율 `pigment`(각 성분 [0,1])와 덮임률 배율 `density`([0,4])를 담는다.
+
+`pigment`가 있으면 덮인 텍셀(알파 > 0)마다 그 텍셀의 선형 휘도를 덮인 텍셀 전체의 덮임률 가중 평균 휘도로 나눈 비를 구하고, 새 색을 `pigment × 비`로 하되 1을 넘지 않게 한다. 이 비가 텍스처 자신의 털 사이, 뿌리와 끝 사이 변화다. 재질의 기본색 계수는 흰색이 되어 색소가 다시 곱해지지 않는다. `density`가 있으면 텍셀마다 알파에 배율을 곱하고 255를 넘지 않게 한다. 1보다 작은 배율은 재질의 컷오프 아래로 털을 성기게 하고, 큰 배율은 채운다. 계산은 선형 RGB에서 하고 sRGB 8비트로 부호화한다. 덮이지 않은 텍셀과 다른 재질은 바뀌지 않는다.
+
+결과는 새 PNG로 모델의 재질이 소유하며 기저와 입력 문서를 바꾸지 않는다. 생략은 재질을 바이트 그대로 둔다. 범위 밖 값과, 내장 PNG 텍스처나 덮임 알파 모드가 없는 재질에 대한 요청은 거부한다. 색소는 렌더러 조명 아래의 저작된 광학 값이며 사진에서 복원한 반사율이 아니다.
+
 ### 관절형 평가 {#face-spec-articulation}
 
 <!-- @evidence requirements/actors/facial-authoring/contract.md#actor-face-articulation 관절 landmark, 부착 가중치, 하악·안구 강체 운동과 평가 순서를 정한다. -->
