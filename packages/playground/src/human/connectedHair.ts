@@ -292,7 +292,6 @@ export function mountConnectedFaceHair(
         },
         lengthAxes: [0.05, 0.05, 0.05, 0.05, 0.05, 0.05],
         lengthVariation: 0.1,
-        width: 0.002,
         samplingStep: 0.001,
         clearance: 0.0005,
         flow: [0, -1, -0.2],

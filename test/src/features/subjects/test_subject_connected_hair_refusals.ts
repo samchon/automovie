@@ -17,8 +17,8 @@ export const test_subject_connected_hair_refusals = async (): Promise<void> => {
     for (const [id, value] of [
       ["hair-mean-length", ""],
       ["hair-mean-length", "0"],
-      ["hair-width", ""],
-      ["hair-width", "-1"],
+      ["hair-clearance", ""],
+      ["hair-clearance", "-1"],
       ["hair-curl-mode", "unsupported"],
       ["hair-layer-domain", "missing"],
     ]) {
@@ -29,7 +29,7 @@ export const test_subject_connected_hair_refusals = async (): Promise<void> => {
         before,
       );
     }
-    const stale = f.element<HTMLInputElement>("hair-width");
+    const stale = f.element<HTMLInputElement>("hair-clearance");
     stale.value = "2";
     await f.click("hair-remove");
     const empty = structuredClone(f.panel.snapshot()!.document);

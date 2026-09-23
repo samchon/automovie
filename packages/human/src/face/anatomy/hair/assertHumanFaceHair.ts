@@ -51,8 +51,6 @@ export function assertHumanFaceHair(input: IAutoMovieHumanFaceHair): void {
       ) ||
       !layer.lengthAxes.every(positive) ||
       !bounded(layer.lengthVariation, 0, 1) ||
-      !positive(layer.width) ||
-      layer.width > 0.04 ||
       !positive(layer.samplingStep) ||
       layer.samplingStep > 0.005 ||
       !nonnegative(layer.clearance) ||
@@ -61,17 +59,19 @@ export function assertHumanFaceHair(input: IAutoMovieHumanFaceHair): void {
       !positive(layer.lift.reach)
     )
       throw new Error(
-        "Hair roots, lengths, widths and flow need finite admitted numerical fields.",
+        "Hair roots, lengths, steps and flow need finite admitted numerical fields.",
       );
     if (
       layer.guides !== undefined &&
       (!positive(layer.guides.fraction) ||
         layer.guides.fraction > 1 ||
         !Number.isInteger(layer.guides.neighbours) ||
-        !bounded(layer.guides.neighbours, 1, 8))
+        !bounded(layer.guides.neighbours, 1, 8) ||
+        (layer.guides.clump !== undefined &&
+          !bounded(layer.guides.clump, 0, 1)))
     )
       throw new Error(
-        "Hair guides need a fraction in (0,1] and one to eight neighbours.",
+        "Hair guides need a fraction in (0,1], one to eight neighbours and a clump in [0,1].",
       );
     const part = layer.part;
     if (part !== undefined) {
@@ -109,7 +109,8 @@ export function assertHumanFaceHair(input: IAutoMovieHumanFaceHair): void {
       !bounded(layer.finish.fibres, 1, 32) ||
       !bounded(layer.finish.coverage, 0.1, 1) ||
       !bounded(layer.finish.normal, 0, 1) ||
-      !bounded(layer.finish.shade, 0, 1)
+      !bounded(layer.finish.shade, 0, 1) ||
+      (layer.finish.grey !== undefined && !bounded(layer.finish.grey, 0, 1))
     )
       throw new Error(
         "Hair curl, taper and fibre appearance need resolved finite parameters.",

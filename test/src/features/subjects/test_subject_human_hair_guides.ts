@@ -18,8 +18,10 @@ import { nclose, throwsError } from "../internal/predicates";
  * 2. A strand beside a part takes only the guides on its own side.
  * 3. A strand farther than twice the guide spacing follows its single
  *    nearest guide; one guide alone carries every strand.
- * 4. Admission refuses a zero or excessive fraction and a neighbour count
- *    outside one to eight; a strand needs at least one guide and a guide a
+ * 4. Clumping gathers a strand onto its nearest guide by the clump amount at
+ *    the tip and leaves the root, half clump going halfway.
+ * 5. Admission refuses a zero or excessive fraction, a neighbour count
+ *    outside one to eight and a clump outside [0,1]; a strand needs at least one guide and a guide a
  *    positive length.
  */
 export const test_subject_human_hair_guides = (): void => {
@@ -126,7 +128,50 @@ export const test_subject_human_hair_guides = (): void => {
       1e-9,
     ),
   );
+  // Full clump gathers a midway strand onto its nearest guide at the tip and
+  // leaves the root where it was; half clump goes halfway.
+  const leaningPair = [straight(-0.01, 0), straight(0.01, 1)];
+  const nearRight = {
+    ...mid,
+    root: Vector3.create(0.004, 1, 0),
+    reference: Vector3.create(0.004, 1, 0),
+  };
+  const [loose] = interpolateHumanFaceHairStrands({
+    layer,
+    origin,
+    guides: leaningPair,
+    strands: [nearRight],
+  });
+  const [gathered] = interpolateHumanFaceHairStrands({
+    layer: { ...layer, guides: { fraction: 0.5, neighbours: 2, clump: 1 } },
+    origin,
+    guides: leaningPair,
+    strands: [nearRight],
+  });
+  const [halfway] = interpolateHumanFaceHairStrands({
+    layer: { ...layer, guides: { fraction: 0.5, neighbours: 2, clump: 0.5 } },
+    origin,
+    guides: leaningPair,
+    strands: [nearRight],
+  });
+  const guideTip = leaningPair[1].points[5];
+  const last = (points: { x: number; y: number; z: number }[]) =>
+    points[points.length - 1];
+  TestValidator.predicate(
+    "full clump reaches the nearest guide's tip and keeps the root",
+    nclose(last(gathered.points).x, guideTip.x) &&
+      nclose(last(gathered.points).y, guideTip.y) &&
+      nclose(last(gathered.points).z, guideTip.z) &&
+      nclose(gathered.points[0].x, 0.004),
+  );
+  TestValidator.predicate(
+    "half clump goes halfway at the tip",
+    nclose(last(halfway.points).z, (last(loose.points).z + guideTip.z) / 2) &&
+      !nclose(gathered.length, loose.length),
+  );
   for (const guides of [
+    { fraction: 0.5, neighbours: 2, clump: -0.1 },
+    { fraction: 0.5, neighbours: 2, clump: 1.1 },
     { fraction: 0, neighbours: 2 },
     { fraction: 1.5, neighbours: 2 },
     { fraction: 0.5, neighbours: 0 },
@@ -137,7 +182,7 @@ export const test_subject_human_hair_guides = (): void => {
       "guide admission refuses " + JSON.stringify(guides),
       throwsError(
         () => assertHumanFaceHair({ layers: [{ ...layer, guides }] }),
-        "fraction in (0,1] and one to eight neighbours",
+        "fraction in (0,1], one to eight neighbours and a clump in [0,1]",
       ),
     );
   TestValidator.predicate(

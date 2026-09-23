@@ -35,17 +35,14 @@ export function connectedHairFields(layer: Layer): Field[] {
     "count",
     "seed",
     "lengthVariation",
-    "width",
     "samplingStep",
     "clearance",
   ] as const) {
-    const metric =
-      key === "width" || key === "samplingStep" || key === "clearance";
+    const metric = key === "samplingStep" || key === "clearance";
     const labels = {
       count: "Strip count",
       seed: "Distribution seed",
       lengthVariation: "Length variation",
-      width: "Strip width",
       samplingStep: "Sampling step",
       clearance: "Surface clearance",
     };
@@ -158,6 +155,16 @@ export function connectedHairFields(layer: Layer): Field[] {
         x.finish[key] = value;
       },
     );
+  // Greying is optional in the document and zero means the same as absent, so
+  // the control is always here and an untouched layer keeps its own absence.
+  add(
+    "finish-grey",
+    "Unpigmented fibre proportion",
+    (x) => x.finish.grey ?? 0,
+    (x, value) => {
+      x.finish.grey = value;
+    },
+  );
   if (layer.guides !== undefined) {
     add(
       "guides-fraction",
@@ -173,6 +180,14 @@ export function connectedHairFields(layer: Layer): Field[] {
       (x) => x.guides!.neighbours,
       (x, value) => {
         x.guides!.neighbours = value;
+      },
+    );
+    add(
+      "guides-clump",
+      "Clump toward guides",
+      (x) => x.guides!.clump ?? 0,
+      (x, value) => {
+        x.guides!.clump = value;
       },
     );
   }
