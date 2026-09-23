@@ -369,6 +369,9 @@ importers:
       automovie:
         specifier: workspace:^
         version: link:../../packages/cli
+      three:
+        specifier: ^0.186.0
+        version: 0.186.0
     devDependencies:
       '@automovie/evidence':
         specifier: workspace:^
@@ -382,6 +385,12 @@ importers:
       '@types/node':
         specifier: ^22.19.17
         version: 22.19.20
+      '@types/three':
+        specifier: ^0.186.0
+        version: 0.186.0
+      tsx:
+        specifier: ^4.23.15
+        version: 4.23.15
       ttsc:
         specifier: ^0.29.0
         version: 0.29.0

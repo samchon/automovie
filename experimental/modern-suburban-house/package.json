@@ -11,7 +11,8 @@
   "compilerOptions": {
     "target": "esnext",
     "lib": [
-      "ESNext"
+      "ESNext",
+      "DOM"
     ],
     "module": "esnext",
     "moduleResolution": "bundler",
@@ -33,7 +34,9 @@
         "transform": "@ttsc/lint",
         "configFile": "lint.config.ts"
       }
-    ]
+    ],
+    "allowJs": true,
+    "checkJs": true
   },
   "include": [
     "lint.config.ts",
@@ -41,7 +44,8 @@
   ],
   "scripts": {
     "lint": "ttsc --cache-dir node_modules/.cache/ttsc --noEmit -p package.json",
-    "format": "ttsc format --cache-dir node_modules/.cache/ttsc -p package.json"
+    "format": "ttsc format --cache-dir node_modules/.cache/ttsc -p package.json",
+    "viewer": "tsx src/viewer/server.cts"
   },
   "dependencies": {
     "@automovie/archetypes": "workspace:^",
@@ -51,7 +55,8 @@
     "@automovie/ingest": "workspace:^",
     "@automovie/interface": "workspace:^",
     "@automovie/production": "workspace:^",
-    "@automovie/render": "workspace:^"
+    "@automovie/render": "workspace:^",
+    "three": "^0.186.0"
   },
   "devDependencies": {
     "@automovie/evidence": "workspace:^",
@@ -59,6 +64,8 @@
     "@ttsc/lint": "^0.29.0",
     "@types/node": "^22.19.17",
     "ttsc": "^0.29.0",
-    "typescript": "^7.0.2"
+    "typescript": "^7.0.2",
+    "@types/three": "^0.186.0",
+    "tsx": "^4.23.15"
   }
 }
