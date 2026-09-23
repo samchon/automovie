@@ -17,8 +17,18 @@ const AXES = ["flexion", "abduction", "twist"] as const;
  * joints the author moved. An axis the constraint holds is shown disabled at
  * zero so the reader sees the joint's freedom rather than guessing it.
  *
+ * A basis's declared couplings add to a joint the author did not move (an
+ * elevated arm lifting its girdle), and the requirement that no hidden
+ * corrective changes a pose means that addition is printed rather than
+ * folded into the slider: `coupled` is the package's own evaluation of the
+ * draft (`resolveHumanBodyCouplings(basis, pose).contributions`), so each
+ * driven axis states the degrees it gains, the coupling that adds them and
+ * the total the builder validates. The slider keeps the document's angle and
+ * its range, and a total past the range is refused by the build as the
+ * status line reports, never clamped here.
+ *
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Binds each joint's clinical flexion, abduction and twist to bounded inputs that state the rest angle and refuse nothing the range admits.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Reads ranges and rest angles from the admitted basis and writes only moved joints into the document's sparse pose.
+ * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Reads ranges and rest angles from the admitted basis, writes only moved joints into the document's sparse pose and prints each coupled addition beside its axis.
  */
 export const renderBodyPoseControls = (props: {
   dom: Document;
@@ -26,6 +36,13 @@ export const renderBodyPoseControls = (props: {
   basis: IAutoMovieHumanBodyBasis;
   bone: AutoMovieHumanoidBone;
   pose: readonly IAutoMovieJointPose[];
+  /** The package's coupled additions for this draft; absent when the caller evaluated none. */
+  coupled?: readonly {
+    coupling: string;
+    bone: AutoMovieHumanoidBone;
+    axis: "flexion" | "abduction" | "twist";
+    degrees: number;
+  }[];
   onChange: (pose: IAutoMovieJointPose[]) => void;
 }): void => {
   const { dom, container, basis } = props;
@@ -110,6 +127,18 @@ export const renderBodyPoseControls = (props: {
     rest.textContent = "Rest";
     rest.onclick = () => write(axis, null);
     entry.append(slider, number, rest);
+    const addition = (props.coupled ?? []).find(
+      (one) => one.bone === props.bone && one.axis === axis,
+    );
+    if (addition !== undefined) {
+      const coupled = dom.createElement("output");
+      coupled.id = number.id + "-coupled";
+      coupled.setAttribute("for", number.id);
+      coupled.textContent =
+        `coupled ${addition.degrees < 0 ? "" : "+"}${addition.degrees.toFixed(1)}° by ${addition.coupling}` +
+        `, total ${(value + addition.degrees).toFixed(1)}°`;
+      entry.append(coupled);
+    }
     row.append(label, entry, note);
     container.append(row);
   }

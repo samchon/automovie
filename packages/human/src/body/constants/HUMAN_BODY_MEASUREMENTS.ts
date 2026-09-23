@@ -11,9 +11,9 @@ import type { IAutoMovieHumanBodyMeasurement } from "../structures/IAutoMovieHum
  * lumbar and mid-chest landmarks, the hip the largest girth over the
  * buttocks. Limb girths cut perpendicular to the segment between two joints
  * and take the maximum of a muscle belly or the minimum of a joint. The bands
- * were placed by measuring the neutral basis (`test/scripts/body-review`),
- * not by reading the source's own rulers, which are code the repository does
- * not transplant.
+ * were placed by measuring the neutral basis while the body study was
+ * extracted, not by reading the source's own rulers, which are code the
+ * repository does not transplant.
  *
  * Distances are straight landmark-to-landmark lengths; `napeToWaist` and
  * `waistToHip` are stated on the spine cubes rather than on the section
