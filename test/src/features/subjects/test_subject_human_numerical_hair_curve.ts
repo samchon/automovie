@@ -12,8 +12,12 @@ import { nclose, throwsError, vclose } from "../internal/predicates";
  * Scenarios:
  * 1. A lock normal to a unit cube stays straight, rooted and exactly 50 mm long;
  *    averaged mesh rows reproduce its centreline and UV v measures that length.
- * 2. Short emergence and a singular length chart refuse instead of shortening.
- * 3. Empty curves remain empty; antiparallel transport and subnormal width refuse.
+ * 2. A field asking for a tighter turn than the tightest natural curl is held
+ *    to it, and short emergence and a singular length chart refuse instead of
+ *    shortening.
+ * 3. Empty curves remain empty; antiparallel transport, a subnormal width, a
+ *    station left on the surface with no room for its ribbon and a missing
+ *    per-curve width refuse.
  */
 export const test_subject_human_numerical_hair_curve = (): void => {
   const layer = createNumericalHairFixture().layers[0];
@@ -52,7 +56,10 @@ export const test_subject_human_numerical_hair_curve = (): void => {
       1e-12,
     ),
   );
-  const mesh = buildHumanFaceHairMesh([curve], layer);
+  const mesh = buildHumanFaceHairMesh([curve], layer, {
+    widths: [0.002],
+    query: props.query,
+  });
   TestValidator.equals(
     "single fan then paired rows",
     mesh.positions.length / 3,
@@ -76,6 +83,37 @@ export const test_subject_human_numerical_hair_curve = (): void => {
       nclose(mesh.uvs![(2 * at - 1) * 2 + 1], (center.x - 1) / 0.05, 1e-12),
     );
   }
+  // A field asking for a tighter turn than the tightest curl a head grows is
+  // held to it: the eight-class survey puts that curve diameter below 1.2 cm,
+  // so one step turns at most h / 6 mm.
+  const tight = integrateHumanFaceHairCurve({
+    ...props,
+    layer: {
+      ...layer,
+      lengthAxes: [0.08, 0.08, 0.08, 0.08, 0.08, 0.08],
+      curl: {
+        mode: "helix",
+        angle: 1.5,
+        wavelength: 8 * layer.samplingStep,
+        reach: 0.001,
+      },
+    },
+  });
+  TestValidator.predicate(
+    "no hair turns tighter than the tightest natural curl",
+    tight.points.slice(2).every((point, at) => {
+      const before = Vector3.normalize(
+        Vector3.subtract(tight.points[at + 1], tight.points[at]),
+      );
+      const after = Vector3.normalize(
+        Vector3.subtract(point, tight.points[at + 1]),
+      );
+      return (
+        Math.acos(Math.max(-1, Math.min(1, Vector3.dot(before, after)))) <=
+        layer.samplingStep / 0.006 + 1e-9
+      );
+    }),
+  );
   TestValidator.predicate(
     "short emergence refuses",
     throwsError(() =>
@@ -96,7 +134,8 @@ export const test_subject_human_numerical_hair_curve = (): void => {
   );
   TestValidator.equals(
     "empty mesh",
-    buildHumanFaceHairMesh([], layer).positions,
+    buildHumanFaceHairMesh([], layer, { widths: [], query: props.query })
+      .positions,
     [],
   );
   TestValidator.predicate(
@@ -115,13 +154,38 @@ export const test_subject_human_numerical_hair_curve = (): void => {
           },
         ],
         layer,
+        { widths: [0.002], query: props.query },
       ),
     ),
   );
   TestValidator.predicate(
     "unrepresentable ribbon width refuses",
     throwsError(() =>
-      buildHumanFaceHairMesh([curve], { ...layer, width: Number.MIN_VALUE }),
+      buildHumanFaceHairMesh([curve], layer, {
+        widths: [Number.MIN_VALUE],
+        query: props.query,
+      }),
+    ),
+  );
+  TestValidator.predicate(
+    "a station with no room for its ribbon refuses",
+    throwsError(
+      () =>
+        buildHumanFaceHairMesh(
+          [{ ...curve, points: [props.root, Vector3.create(1, 0.6, 0.5)] }],
+          layer,
+          { widths: [0.002], query: props.query },
+        ),
+      "too close to the surface",
+    ),
+  );
+  TestValidator.predicate(
+    "a ribbon without its own width refuses",
+    throwsError(() =>
+      buildHumanFaceHairMesh([curve], layer, {
+        widths: [],
+        query: props.query,
+      }),
     ),
   );
 };

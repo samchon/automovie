@@ -1,5 +1,8 @@
-import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieMesh } from "@automovie/interface";
+import {
+  Vector3,
+  type createAutoMovieSignedMeshQuery,
+} from "@automovie/engine";
+import type { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
 
 import { portraitNormals } from "../../mesh/portraitNormals";
 import type { IAutoMovieHumanFaceHair } from "../../structures/IAutoMovieHumanFaceHair";
@@ -25,20 +28,90 @@ const { perpendicular, direction: requireDirection } = humanFaceHairFrame;
  * accumulated floating-point drift from the transverse frame before normalizing.
  * Generated triangles must remain finite and nondegenerate. This does not
  * establish root-fan clearance, self-intersection freedom or hair-to-hair contact.
+ *
+ * Each curve carries its own width, the scalp its root stands for
+ * (`humanFaceHairDensity`), and the fibre path it was integrated on keeps only
+ * the fibre's clearance, so this owner is where the ribbon's own corners are
+ * kept out of the skin. A corner no farther from its station than the station's
+ * own free distance less the requested clearance cannot reach the surface,
+ * since the nearest surface point is that far away; such a half width is taken
+ * without a query. A wider one is measured, and where it would enter, the half
+ * width is solved back by a safeguarded Newton step on the corner's own signed
+ * distance, falling back on that provable bound. The bound is positive for
+ * every station the integrator or the contact placed, which stand at least
+ * half a sampling step beyond the requested clearance; a station that does not
+ * refuses rather than meshing a pinched or inside-out ribbon.
+ * Both sides take the tighter of the two half widths, so a ribbon stays
+ * centred on the fibre it stands for instead of sliding off it. A ribbon
+ * therefore narrows where the scalp is close and opens to its full covering
+ * width as it leaves, instead of the whole path being lifted by half a ribbon.
+ * Nothing here keeps two ribbons apart from each other.
  * Positions are already metres; no portrait millimetre conversion applies.
  * Neither input curves nor layer fields mutate; the mesh owns all its buffers.
  *
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Materializes numerical locks without storing personal mesh data.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-parametric-hair Renders the same integrated stations used for metric evaluation.
+ * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-parametric-hair Renders the same integrated stations used for metric evaluation and keeps each ribbon's own corners outside the skin.
  */
 export function buildHumanFaceHairMesh(
   curves: ReturnType<typeof integrateHumanFaceHairCurve>[],
-  layer: Pick<IAutoMovieHumanFaceHair.Layer, "width" | "taper">,
+  layer: Pick<IAutoMovieHumanFaceHair.Layer, "taper" | "clearance">,
+  props: {
+    widths: readonly number[];
+    query: ReturnType<typeof createAutoMovieSignedMeshQuery>;
+  },
 ): IAutoMovieMesh {
+  if (props.widths.length !== curves.length)
+    throw new Error("Every numerical hair curve needs its own ribbon width.");
   const positions: number[] = [],
     indices: number[] = [],
     uvs: number[] = [];
-  for (const curve of curves) {
+  const outward = (
+    point: IAutoMovieVector3,
+    hit: ReturnType<typeof props.query>,
+  ): IAutoMovieVector3 =>
+    hit.distance === 0
+      ? Vector3.create(hit.normal[0], hit.normal[1], hit.normal[2])
+      : requireDirection(
+          Vector3.scale(
+            Vector3.subtract(
+              point,
+              Vector3.create(hit.point[0], hit.point[1], hit.point[2]),
+            ),
+            hit.signedDistance < 0 ? -1 : 1,
+          ),
+        );
+  const fit = (
+    station: IAutoMovieVector3,
+    across: IAutoMovieVector3,
+    radius: number,
+    free: number,
+  ): number => {
+    const bound = free - layer.clearance;
+    if (radius <= bound) return radius;
+    if (!(bound > 0))
+      throw new Error(
+        "A numerical hair station stands too close to the surface for its own ribbon.",
+      );
+    let fitted = radius;
+    for (let attempt = 0; attempt < 8; attempt++) {
+      const corner = Vector3.add(station, Vector3.scale(across, fitted));
+      const hit = props.query([corner.x, corner.y, corner.z]);
+      if (hit.signedDistance >= layer.clearance) return fitted;
+      const step =
+        fitted -
+        (layer.clearance - hit.signedDistance) /
+          Math.abs(Vector3.dot(across, outward(corner, hit)));
+      fitted =
+        Number.isFinite(step) && step > bound && step < fitted
+          ? step
+          : (bound + fitted) / 2;
+    }
+    return bound;
+  };
+  curves.forEach((curve, ordinal) => {
+    const width = props.widths[ordinal];
+    if (!Number.isFinite(width) || width <= 0)
+      throw new Error("A numerical hair ribbon needs a positive width.");
     const offset = positions.length / 3;
     const points = curve.points;
     const tangents = points.map((_, at) =>
@@ -89,14 +162,24 @@ export function buildHumanFaceHairMesh(
       );
       const t = distances[at] / total;
       const radius =
-        (layer.width / 2) *
+        (width / 2) *
         (1 -
           ((1 - layer.taper.tipWidth) * Math.max(0, t - layer.taper.start)) /
             (1 - layer.taper.start));
+      const free = props.query([
+        points[at].x,
+        points[at].y,
+        points[at].z,
+      ]).signedDistance;
+      const fitted = Math.min(
+        ...[-1, 1].map((side) =>
+          fit(points[at], Vector3.scale(frame, side), radius, free),
+        ),
+      );
       for (const side of [-1, 1]) {
         const point = Vector3.add(
           points[at],
-          Vector3.scale(frame, side * radius),
+          Vector3.scale(frame, side * fitted),
         );
         positions.push(point.x, point.y, point.z);
         uvs.push((side + 1) / 2, t);
@@ -105,7 +188,7 @@ export function buildHumanFaceHairMesh(
       if (at === 1) indices.push(offset, row, row + 1);
       else indices.push(row - 2, row, row - 1, row - 1, row, row + 1);
     }
-  }
+  });
   const point = (id: number) =>
     Vector3.create(
       positions[3 * id],

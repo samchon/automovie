@@ -13,7 +13,9 @@ import { nclose } from "../internal/predicates";
  * The scalp under hair takes the hair's colour by a shared rule.
  * Scenarios:
  * 1. With the hairline at the equator's far side every domain vertex of the
- *    analytic ball is fully covered and multiplied toward the hair colour;
+ *    analytic ball is fully covered and multiplied toward the hair colour,
+ *    which for a greying layer is the mixture its unpigmented fibres make and
+ *    for an ungreyed one is the pigment itself;
  *    the bottom vertex outside the domain keeps its skin.
  * 2. A front hairline just past the equator covers the front vertex half,
  *    by the smooth ramp across the 20 mm transition zone; one short of the
@@ -28,7 +30,12 @@ export const test_subject_human_scalp_tint = (): void => {
   const { basis, document } = numericalHairBasisFixture();
   const tint = createHumanFaceScalpTint(basis);
   const skin = basis.materials[0].baseColor;
-  const hair = document.hair!.layers[0].finish.color;
+  // What stands over the scalp is the mixture, so a greying layer lifts its
+  // pigment toward white by its own unpigmented proportion.
+  const finish = document.hair!.layers[0].finish;
+  const hair = finish.color.map(
+    (value) => value + (1 - value) * (finish.grey ?? 0),
+  );
   const full = [skin.r, skin.g, skin.b].map((value, at) =>
     Math.min(1, hair[at] / value),
   );
@@ -40,8 +47,22 @@ export const test_subject_human_scalp_tint = (): void => {
       vertex(index).every((value, at) => nclose(value, full[at])),
     ) && vertex(3).every((value) => value === 1),
   );
+  const ungreyed = structuredClone(document.hair!);
+  delete ungreyed.layers[0].finish.grey;
+  const pigmented = tint(ungreyed, basis.materials).get("head")!;
+  TestValidator.predicate(
+    "without greying the scalp takes the pigment itself",
+    [0, 1, 2].every((at) =>
+      nclose(
+        pigmented[at],
+        Math.min(1, finish.color[at] / [skin.r, skin.g, skin.b][at]),
+      ),
+    ) && pigmented[0] < full[0],
+  );
   const front = structuredClone(document.hair!);
-  front.layers[0].hairline.front = Math.PI / 2 + 0.1;
+  // The fixture's crown vertex stands 100 mm from the chart origin, so half of
+  // the 10 mm transition zone is 0.05 radians of slack at that distance.
+  front.layers[0].hairline.front = Math.PI / 2 + 0.05;
   const half = tint(front, basis.materials).get("head")!;
   const expected = 0.5 * 0.5 * (3 - 2 * 0.5);
   TestValidator.predicate(

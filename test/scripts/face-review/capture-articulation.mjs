@@ -7,7 +7,8 @@
  * The page is `web/articulation-viewer.html` over file://; Chromium is launched
  * with the real `chromium` channel so ANGLE reaches the device, and the
  * `RENDERER` string is logged and written into `captures.json` so a software
- * fallback cannot pass for a GPU frame. Views are front, left and right three
+ * fallback cannot pass for a GPU frame. A JSON file in the input directory
+ * that is not a model (an exporter's own record) is skipped. Views are front, left and right three
  * quarters, both profiles, back and a frontal clay; `mouth` is a close view
  * of the oral region and `eyes` of the orbits. The screenshot is the canvas
  * element after `gl.finish()`.
@@ -46,6 +47,9 @@ console.log("RENDERER:", renderer);
 const captures = [];
 for (const file of fs.readdirSync(input).filter((name) => name.endsWith(".json") && name !== "census.json").sort()) {
   const model = JSON.parse(fs.readFileSync(path.join(input, file), "utf8"));
+  // The exporters write their own records beside the models; a file without
+  // parts and materials is one of those, not something to render.
+  if (!Array.isArray(model.parts) || !Array.isArray(model.materials)) continue;
   for (const view of views) {
     const options = VIEWS[view];
     if (options === undefined) throw new Error("Unknown view: " + view);

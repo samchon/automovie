@@ -177,7 +177,6 @@
             0.12
           ],
           "lengthVariation": 0.08,
-          "width": 0.004,
           "samplingStep": 0.003,
           "clearance": 0.0005,
           "flow": [
@@ -201,15 +200,16 @@
           },
           "finish": {
             "color": [
-              0.76,
-              0.68,
-              0.56
+              0.52,
+              0.36,
+              0.12
             ],
             "roughness": 0.73,
             "fibres": 24,
             "coverage": 0.95,
             "normal": 0.2,
-            "shade": 1
+            "shade": 1,
+            "grey": 0.5
           },
           "part": {
             "normal": [
@@ -238,6 +238,10 @@
                 0.07
               ]
             }
+          },
+          "guides": {
+            "fraction": 0.125,
+            "neighbours": 4
           }
         }
       ]
@@ -425,7 +429,6 @@
             0.085
           ],
           "lengthVariation": 0.08,
-          "width": 0.004,
           "samplingStep": 0.003,
           "clearance": 0.0005,
           "flow": [
@@ -486,6 +489,10 @@
                 0.07
               ]
             }
+          },
+          "guides": {
+            "fraction": 0.125,
+            "neighbours": 4
           }
         },
         {
@@ -509,7 +516,6 @@
             0.065
           ],
           "lengthVariation": 0.08,
-          "width": 0.002,
           "samplingStep": 0.003,
           "clearance": 0.0005,
           "flow": [
@@ -554,6 +560,10 @@
               0.03,
               0.035
             ]
+          },
+          "guides": {
+            "fraction": 0.125,
+            "neighbours": 4
           }
         }
       ]
@@ -736,7 +746,6 @@
             0.4
           ],
           "lengthVariation": 0.08,
-          "width": 0.004,
           "samplingStep": 0.003,
           "clearance": 0.0005,
           "flow": [
@@ -797,6 +806,10 @@
                 0.07
               ]
             }
+          },
+          "guides": {
+            "fraction": 0.125,
+            "neighbours": 4
           }
         }
       ]
@@ -981,7 +994,6 @@
             0.03
           ],
           "lengthVariation": 0.08,
-          "width": 0.004,
           "samplingStep": 0.002,
           "clearance": 0.0005,
           "flow": [
@@ -1014,6 +1026,10 @@
             "coverage": 0.95,
             "normal": 0.2,
             "shade": 1
+          },
+          "guides": {
+            "fraction": 0.125,
+            "neighbours": 4
           }
         }
       ]
@@ -1199,7 +1215,6 @@
             0.4
           ],
           "lengthVariation": 0.08,
-          "width": 0.004,
           "samplingStep": 0.0023333333333333335,
           "clearance": 0.0005,
           "flow": [
@@ -1260,6 +1275,10 @@
                 0.07
               ]
             }
+          },
+          "guides": {
+            "fraction": 0.125,
+            "neighbours": 4
           }
         }
       ]
@@ -1445,7 +1464,6 @@
             0.045
           ],
           "lengthVariation": 0.08,
-          "width": 0.004,
           "samplingStep": 0.003,
           "clearance": 0.0005,
           "flow": [
@@ -1506,6 +1524,10 @@
                 0.07
               ]
             }
+          },
+          "guides": {
+            "fraction": 0.125,
+            "neighbours": 4
           }
         }
       ]
@@ -1692,7 +1714,6 @@
             0.04
           ],
           "lengthVariation": 0.08,
-          "width": 0.004,
           "samplingStep": 0.003,
           "clearance": 0.0005,
           "flow": [
@@ -1753,6 +1774,10 @@
                 0.07
               ]
             }
+          },
+          "guides": {
+            "fraction": 0.125,
+            "neighbours": 4
           }
         }
       ]
@@ -1935,7 +1960,6 @@
             0.35
           ],
           "lengthVariation": 0.08,
-          "width": 0.004,
           "samplingStep": 0.003,
           "clearance": 0.0005,
           "flow": [
@@ -1957,6 +1981,34 @@
             "tipWidth": 0.2,
             "start": 0.6
           },
+          "part": {
+            "normal": [
+              1,
+              0,
+              0
+            ],
+            "offset": 0,
+            "transitionWidth": 0.004,
+            "bias": [
+              0,
+              0,
+              -0.3
+            ],
+            "strength": 4,
+            "reach": 0.035,
+            "region": {
+              "center": [
+                0,
+                0.1,
+                0.08
+              ],
+              "spread": [
+                0.25,
+                0.25,
+                0.07
+              ]
+            }
+          },
           "finish": {
             "color": [
               0.06,
@@ -1968,6 +2020,10 @@
             "coverage": 0.95,
             "normal": 0.2,
             "shade": 1
+          },
+          "guides": {
+            "fraction": 0.125,
+            "neighbours": 4
           }
         }
       ]
@@ -2149,7 +2205,6 @@
             0.1
           ],
           "lengthVariation": 0.08,
-          "width": 0.004,
           "samplingStep": 0.003,
           "clearance": 0.0005,
           "flow": [
@@ -2182,6 +2237,10 @@
             "coverage": 0.95,
             "normal": 0.2,
             "shade": 1
+          },
+          "guides": {
+            "fraction": 0.125,
+            "neighbours": 4
           }
         },
         {
@@ -2205,7 +2264,6 @@
             0.055
           ],
           "lengthVariation": 0.08,
-          "width": 0.002,
           "samplingStep": 0.003,
           "clearance": 0.0005,
           "flow": [
@@ -2250,6 +2308,10 @@
               0.03,
               0.035
             ]
+          },
+          "guides": {
+            "fraction": 0.125,
+            "neighbours": 4
           }
         }
       ]
@@ -2435,7 +2497,6 @@
             0.105
           ],
           "lengthVariation": 0.08,
-          "width": 0.004,
           "samplingStep": 0.003,
           "clearance": 0.0005,
           "flow": [
@@ -2496,6 +2557,10 @@
                 0.07
               ]
             }
+          },
+          "guides": {
+            "fraction": 0.125,
+            "neighbours": 4
           }
         }
       ]
@@ -2680,7 +2745,6 @@
             0.18
           ],
           "lengthVariation": 0.08,
-          "width": 0.004,
           "samplingStep": 0.003,
           "clearance": 0.0005,
           "flow": [
@@ -2704,15 +2768,16 @@
           },
           "finish": {
             "color": [
-              0.45,
-              0.32,
-              0.22
+              0.3125,
+              0.15,
+              0.025
             ],
             "roughness": 0.73,
             "fibres": 24,
             "coverage": 0.95,
             "normal": 0.2,
-            "shade": 1
+            "shade": 1,
+            "grey": 0.2
           },
           "part": {
             "normal": [
@@ -2741,6 +2806,10 @@
                 0.07
               ]
             }
+          },
+          "guides": {
+            "fraction": 0.125,
+            "neighbours": 4
           }
         }
       ]
@@ -2919,7 +2988,6 @@
             0.11
           ],
           "lengthVariation": 0.08,
-          "width": 0.004,
           "samplingStep": 0.003,
           "clearance": 0.0005,
           "flow": [
@@ -2943,15 +3011,20 @@
           },
           "finish": {
             "color": [
-              0.5,
-              0.5,
-              0.5
+              0.0909,
+              0.0909,
+              0.0909
             ],
             "roughness": 0.73,
             "fibres": 24,
             "coverage": 0.95,
             "normal": 0.2,
-            "shade": 1
+            "shade": 1,
+            "grey": 0.45
+          },
+          "guides": {
+            "fraction": 0.125,
+            "neighbours": 4
           }
         }
       ]
@@ -3137,7 +3210,6 @@
             0.18
           ],
           "lengthVariation": 0.08,
-          "width": 0.004,
           "samplingStep": 0.003,
           "clearance": 0.0005,
           "flow": [
@@ -3161,15 +3233,20 @@
           },
           "finish": {
             "color": [
-              0.52,
-              0.5,
-              0.48
+              0.1273,
+              0.0909,
+              0.0545
             ],
             "roughness": 0.94,
             "fibres": 24,
             "coverage": 0.95,
             "normal": 0.2,
-            "shade": 1
+            "shade": 1,
+            "grey": 0.45
+          },
+          "guides": {
+            "fraction": 0.125,
+            "neighbours": 4
           }
         },
         {
@@ -3193,7 +3270,6 @@
             0.07
           ],
           "lengthVariation": 0.08,
-          "width": 0.002,
           "samplingStep": 0.003,
           "clearance": 0.0005,
           "flow": [
@@ -3217,15 +3293,16 @@
           },
           "finish": {
             "color": [
-              0.52,
-              0.5,
-              0.48
+              0.1273,
+              0.0909,
+              0.0545
             ],
             "roughness": 0.94,
             "fibres": 24,
             "coverage": 0.95,
             "normal": 0.2,
-            "shade": 1
+            "shade": 1,
+            "grey": 0.45
           },
           "rootRegion": {
             "center": [
@@ -3238,6 +3315,10 @@
               0.03,
               0.035
             ]
+          },
+          "guides": {
+            "fraction": 0.125,
+            "neighbours": 4
           }
         }
       ]
@@ -3419,7 +3500,6 @@
             0.1
           ],
           "lengthVariation": 0.08,
-          "width": 0.004,
           "samplingStep": 0.003,
           "clearance": 0.0005,
           "flow": [
@@ -3480,6 +3560,10 @@
                 0.07
               ]
             }
+          },
+          "guides": {
+            "fraction": 0.125,
+            "neighbours": 4
           }
         },
         {
@@ -3503,7 +3587,6 @@
             0.085
           ],
           "lengthVariation": 0.08,
-          "width": 0.002,
           "samplingStep": 0.003,
           "clearance": 0.0005,
           "flow": [
@@ -3548,6 +3631,10 @@
               0.03,
               0.035
             ]
+          },
+          "guides": {
+            "fraction": 0.125,
+            "neighbours": 4
           }
         }
       ]
@@ -3735,7 +3822,6 @@
             0.135
           ],
           "lengthVariation": 0.08,
-          "width": 0.004,
           "samplingStep": 0.003,
           "clearance": 0.0005,
           "flow": [
@@ -3796,6 +3882,10 @@
                 0.07
               ]
             }
+          },
+          "guides": {
+            "fraction": 0.125,
+            "neighbours": 4
           }
         },
         {
@@ -3819,7 +3909,6 @@
             0.085
           ],
           "lengthVariation": 0.08,
-          "width": 0.002,
           "samplingStep": 0.003,
           "clearance": 0.0005,
           "flow": [
@@ -3864,6 +3953,10 @@
               0.03,
               0.035
             ]
+          },
+          "guides": {
+            "fraction": 0.125,
+            "neighbours": 4
           }
         }
       ]
@@ -4050,7 +4143,6 @@
             0.085
           ],
           "lengthVariation": 0.08,
-          "width": 0.004,
           "samplingStep": 0.003,
           "clearance": 0.0005,
           "flow": [
@@ -4111,6 +4203,10 @@
                 0.07
               ]
             }
+          },
+          "guides": {
+            "fraction": 0.125,
+            "neighbours": 4
           }
         }
       ]
@@ -4292,7 +4388,6 @@
             0.055
           ],
           "lengthVariation": 0.08,
-          "width": 0.004,
           "samplingStep": 0.003,
           "clearance": 0.0005,
           "flow": [
@@ -4353,6 +4448,10 @@
                 0.07
               ]
             }
+          },
+          "guides": {
+            "fraction": 0.125,
+            "neighbours": 4
           }
         },
         {
@@ -4376,7 +4475,6 @@
             0.07
           ],
           "lengthVariation": 0.08,
-          "width": 0.002,
           "samplingStep": 0.003,
           "clearance": 0.0005,
           "flow": [
@@ -4421,6 +4519,10 @@
               0.03,
               0.035
             ]
+          },
+          "guides": {
+            "fraction": 0.125,
+            "neighbours": 4
           }
         }
       ]
@@ -4586,7 +4688,6 @@
             0.055
           ],
           "lengthVariation": 0.08,
-          "width": 0.004,
           "samplingStep": 0.003,
           "clearance": 0.0005,
           "flow": [
@@ -4647,6 +4748,10 @@
                 0.07
               ]
             }
+          },
+          "guides": {
+            "fraction": 0.125,
+            "neighbours": 4
           }
         }
       ]

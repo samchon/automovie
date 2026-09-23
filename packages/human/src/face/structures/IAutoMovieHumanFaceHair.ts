@@ -27,6 +27,12 @@ export namespace IAutoMovieHumanFaceHair {
    * Every length includes its root-to-strip transition. Sampling step is a
    * numerical accuracy setting, distinct from painted fibres and lock count.
    *
+   * A ribbon has no authored width. It stands for the whole neighbourhood of
+   * one root, so its width is the side of the scalp that root is responsible
+   * for, which the population measures from its own local density. Thinner
+   * hair is a smaller `count` or a lower `finish.coverage`, never a narrower
+   * ribbon, and the `clearance` below is the fibre path's, not the ribbon's.
+   *
    * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Expresses each scalp population through shared generation rules and scalar edits.
    * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-parametric-hair Names the reference domain, reproducible population and independent length, flow, curl and finish fields.
    * @author Samchon
@@ -70,11 +76,11 @@ export namespace IAutoMovieHumanFaceHair {
      * contact as guides; every other root is a strand interpolated from its
      * `neighbours` (integral in [1,8]) nearest guides on the same side of the
      * part, weighted by scalp distance against the guides' own mean spacing.
-     * Absent, every root is a guide, which is the flat population.
+     * Optional `clump` in [0,1] gathers strands toward their nearest guide,
+     * nothing at the root and that fraction of the way at the tip. Absent,
+     * every root is a guide, which is the flat population.
      */
-    guides?: { fraction: number; neighbours: number };
-    /** Maximum ribbon width in metres, positive and at most 0.04. */
-    width: number;
+    guides?: { fraction: number; neighbours: number; clump?: number };
     /** Positive maximum integration step in metres, at most 0.005. */
     samplingStep: number;
     /** Nonnegative requested free-strip clearance from the skin, in metres. */
@@ -121,6 +127,17 @@ export namespace IAutoMovieHumanFaceHair {
      * Linear RGB/roughness in [0,1] and procedural fibre appearance. Painted
      * fibres are integral in [1,32], coverage in [0.1,1], normal/shade in [0,1].
      * This generates shared-formula pixels and stores no personal bitmap.
+     *
+     * `color` is the pigmented fibre's own colour. Greying is a follicle's own
+     * switch, so a greying head is an admixture of white and pigmented fibres
+     * rather than one faded colour: `grey` is the proportion of the painted
+     * fibres left unpigmented, in [0,1], and each painted fibre takes one side
+     * of that switch by its own deterministic coordinate. Absent or zero
+     * paints every fibre pigmented, which is the population before this field
+     * existed. Greying runs temples first, then frontal, vertex and parietal,
+     * with the occipital region last, so a head that is grey only at the
+     * temples is a layer of its own with its own `rootRegion` and proportion,
+     * not a field invented here.
      */
     finish: {
       color: [number, number, number];
@@ -129,6 +146,7 @@ export namespace IAutoMovieHumanFaceHair {
       coverage: number;
       normal: number;
       shade: number;
+      grey?: number;
     };
   }
 
