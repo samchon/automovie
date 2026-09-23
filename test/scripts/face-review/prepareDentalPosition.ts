@@ -8,8 +8,8 @@ import {
 import { faceIncisalEdges } from "./faceIncisalEdges";
 
 /**
- * Place a contact basis's dentition at the population's resting incisal
- * display, as a new basis revision.
+ * Place a contact basis's maxillary dentition at the population's resting
+ * incisal display, as a new basis revision.
  *
  * `prepare-dental-basis.ts` calls this with the published basis. The display
  * of the maxillary central incisor below the upper lip at rest is a measured
@@ -19,13 +19,21 @@ import { faceIncisalEdges } from "./faceIncisalEdges";
  * seam although its upper lip length (subnasale to stomion, 20.5 mm) is
  * ordinary and its incisors meet within the cephalometric norms (overbite
  * 1.67 mm, overjet 0.97 mm), so the dentition's height, not the lip or the
- * bite, was misplaced, and no smile could show the upper teeth. The whole
- * dentition surface (both arches, so the bite is kept) and the tongue that
- * rests within it are translated vertically by one rigid shift that brings
- * the display to the requested value. Endpoint rows are displacements and
- * stay valid; the contact pairs, colliders, attachments and budgets keep
- * their vertex identities, and the real builder must admit the neutral and
- * every document before the revision is returned.
+ * bite, was misplaced, and no smile could show the upper teeth.
+ *
+ * Only the maxillary arch moves: the dentition vertices not bound to the
+ * mandible (`jaw` attachment weight one), which ride the skull. The
+ * mandibular arch and the tongue ride the mandible and stay seated on the
+ * floor of the mouth, whose lining the source's lower gum clears by less
+ * than two millimetres; lowering them as well put the gum through that
+ * lining at rest. Lowering the upper arch alone deepens the bite by the same
+ * amount, so the rigid vertical shift is the smaller of the one that brings
+ * the display to `displayMetres` and the one that brings the overbite to
+ * `maxOverbiteMetres`, and the receipt names which bound held. Endpoint
+ * rows are displacements and stay valid; the contact pairs, colliders,
+ * attachments and budgets keep their vertex identities, and the real builder
+ * must admit the neutral and every document before the revision is
+ * returned.
  *
  * The incisal edges are `faceIncisalEdges`'s. Display is the upper lip
  * seam's height minus the upper edge's; overbite and overjet are the
@@ -38,6 +46,7 @@ export function prepareDentalPosition(input: {
   documents: IAutoMovieHumanFaceBasisDocument[];
   controls: IAutoMovieHumanFaceControlMap;
   displayMetres: number;
+  maxOverbiteMetres: number;
   revision: string;
 }): {
   basis: IAutoMovieHumanFaceBasis;
@@ -47,28 +56,49 @@ export function prepareDentalPosition(input: {
     source: string;
     revision: string;
     shiftMetres: number;
+    bound: "display" | "overbite";
     before: IDentalMeasure;
     after: IDentalMeasure;
-    moved: string[];
+    movedVertices: number;
   };
 } {
-  const { basis, documents, controls, displayMetres, revision } =
-    structuredClone(input);
+  const {
+    basis,
+    documents,
+    controls,
+    displayMetres,
+    maxOverbiteMetres,
+    revision,
+  } = structuredClone(input);
   const contact = basis.contact;
   if (contact === undefined)
     throw new Error("Dental placement needs a contact basis.");
   if (revision.trim() === "" || revision === basis.id)
     throw new Error("Dental placement needs a distinct revision.");
-  if (!Number.isFinite(displayMetres))
-    throw new Error("The resting incisal display must be finite.");
+  if (!Number.isFinite(displayMetres) || !Number.isFinite(maxOverbiteMetres))
+    throw new Error("The resting display and overbite limit must be finite.");
   const before = measureDental(basis);
-  const shift = -(displayMetres - before.displayMetres);
-  const moved = [contact.incisors.surface, contact.passage.surface];
-  for (const id of moved) {
-    const surface = basis.surfaces.find((one) => one.id === id)!;
-    for (let i = 1; i < surface.positions.length; i += 3)
-      surface.positions[i] += shift;
-  }
+  const teeth = basis.surfaces.find(
+    (one) => one.id === contact.incisors.surface,
+  )!;
+  const rows =
+    teeth.attachments?.find((one) => one.owner === "jaw")?.rows ?? [];
+  const mandibular = new Set<number>();
+  for (let i = 0; i < rows.length; i += 2)
+    if (rows[i + 1] === 1) mandibular.add(rows[i]!);
+  if (mandibular.has(before.upperEdge) || !mandibular.has(before.lowerEdge))
+    throw new Error(
+      "The upper incisors must ride the skull and the lower ones the mandible.",
+    );
+  const byDisplay = displayMetres - before.displayMetres;
+  const byOverbite = maxOverbiteMetres - before.overbiteMetres;
+  const shift = -Math.min(byDisplay, byOverbite);
+  let movedVertices = 0;
+  for (let vertex = 0; vertex < teeth.positions.length / 3; ++vertex)
+    if (!mandibular.has(vertex)) {
+      teeth.positions[3 * vertex + 1] += shift;
+      ++movedVertices;
+    }
   const source = basis.id;
   basis.id = revision;
   const build = createHumanFaceBasisBuilder(basis);
@@ -89,9 +119,10 @@ export function prepareDentalPosition(input: {
       source,
       revision,
       shiftMetres: shift,
+      bound: byDisplay <= byOverbite ? "display" : "overbite",
       before,
       after: measureDental(basis),
-      moved,
+      movedVertices,
     },
   };
 }

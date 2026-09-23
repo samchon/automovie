@@ -5,19 +5,25 @@ import { humanFaceContactFixture } from "../internal/humanFaceContactFixture";
 import { nclose, throwsError } from "../internal/predicates";
 
 /**
- * The dentition is placed at a requested resting incisal display.
+ * The maxillary dentition is placed at a requested resting incisal display,
+ * limited by a maximum overbite.
  * Scenarios:
- * 1. On the analytic contact basis, asking for 0.01 more display than the
- *    fixture has shifts the teeth and the tongue down by exactly 0.01 and
- *    nothing else: the lips and the globe keep their positions, overbite and
- *    overjet are unchanged because both arches move together, the receipt
- *    reports the before and after display, and the documents and control
- *    map name the new revision while the inputs stay untouched.
- * 2. The edges are read from the crowns, not the contact pair: naming the
+ * 1. On the analytic contact basis, asking for 0.01 more display with no
+ *    binding overbite limit shifts the upper crown (vertices 0 to 5, not
+ *    bound to the jaw) down by exactly 0.01 and nothing else: the lower
+ *    crown, the tongue, the lips and the globe keep their positions, the
+ *    overbite deepens by 0.01 and the overjet is unchanged, the receipt names
+ *    the display as the bound, and the documents and control map name the
+ *    new revision while the inputs stay untouched.
+ * 2. An overbite limit 0.004 beyond the current overbite stops the shift at
+ *    0.004 and names the overbite as the bound.
+ * 3. The edges are read from the crowns, not the contact pair: naming the
  *    upper crown's side vertex as the pair still measures from its tip.
- * 3. A basis without contact, a blank or the same revision, a non-finite
- *    display, a document or a control map naming another basis, and an
- *    incisal pair on one crown refuse.
+ * 4. A basis without contact, a blank or the same revision, a non-finite
+ *    display or overbite limit, an upper edge bound to the jaw, a lower edge
+ *    not bound to it (a dentition without jaw attachment), a document
+ *    or a control map naming another basis, and an incisal pair on one
+ *    crown refuse.
  */
 export const test_subject_dental_position_preparation = (): void => {
   const { basis, document } = humanFaceContactFixture();
@@ -33,9 +39,12 @@ export const test_subject_dental_position_preparation = (): void => {
     documents: [document],
     controls,
     displayMetres: display + 0.01,
+    maxOverbiteMetres: 1,
     revision: "analytic-contact/2",
   });
   TestValidator.predicate("shift", nclose(prepared.receipt.shiftMetres, -0.01));
+  TestValidator.equals("display bound", prepared.receipt.bound, "display");
+  TestValidator.equals("moved vertices", prepared.receipt.movedVertices, 6);
   const moved = (id: string) => {
     const before = basis.surfaces.find((one) => one.id === id)!.positions;
     const after = prepared.basis.surfaces.find(
@@ -44,14 +53,19 @@ export const test_subject_dental_position_preparation = (): void => {
     return after.map((value, k) => value - before[k]!);
   };
   TestValidator.predicate(
-    "teeth and tongue move down together",
-    ["teeth", "tongue"].every((id) =>
-      moved(id).every((d, k) => nclose(d, k % 3 === 1 ? -0.01 : 0, 1e-12)),
+    "upper crown moves down",
+    moved("teeth").every((d, k) =>
+      nclose(d, k < 18 && k % 3 === 1 ? -0.01 : 0, 1e-12),
     ),
   );
   TestValidator.predicate(
-    "lips and globe stay",
-    ["mouth", "globe"].every((id) => moved(id).every((d) => d === 0)),
+    "lower crown, tongue, lips and globe stay",
+    ["tongue", "mouth", "globe"].every((id) =>
+      moved(id).every((d) => d === 0),
+    ) &&
+      moved("teeth")
+        .slice(18)
+        .every((d) => d === 0),
   );
   TestValidator.predicate(
     "display reaches the request",
@@ -59,10 +73,10 @@ export const test_subject_dental_position_preparation = (): void => {
       nclose(prepared.receipt.before.displayMetres, display, 1e-12),
   );
   TestValidator.predicate(
-    "occlusion kept",
+    "overbite deepens, overjet kept",
     nclose(
       prepared.receipt.after.overbiteMetres,
-      prepared.receipt.before.overbiteMetres,
+      prepared.receipt.before.overbiteMetres + 0.01,
       1e-12,
     ) &&
       nclose(
@@ -82,11 +96,21 @@ export const test_subject_dental_position_preparation = (): void => {
     prepared.controls.basis,
     "analytic-contact/2",
   );
-  TestValidator.equals("moved surfaces", prepared.receipt.moved, [
-    "teeth",
-    "tongue",
-  ]);
   TestValidator.equals("input untouched", JSON.stringify(basis), snapshot);
+
+  const limited = prepareDentalPosition({
+    basis,
+    documents: [document],
+    controls,
+    displayMetres: display + 0.01,
+    maxOverbiteMetres: prepared.receipt.before.overbiteMetres + 0.004,
+    revision: "analytic-contact/3",
+  });
+  TestValidator.predicate(
+    "overbite limit",
+    nclose(limited.receipt.shiftMetres, -0.004, 1e-12) &&
+      limited.receipt.bound === "overbite",
+  );
 
   const side = structuredClone(basis);
   side.contact!.incisors.upper = 0;
@@ -95,7 +119,8 @@ export const test_subject_dental_position_preparation = (): void => {
     documents: [{ ...document, basis: side.id }],
     controls,
     displayMetres: display,
-    revision: "analytic-contact/3",
+    maxOverbiteMetres: 1,
+    revision: "analytic-contact/4",
   });
   TestValidator.equals(
     "edges from crowns",
@@ -109,6 +134,7 @@ export const test_subject_dental_position_preparation = (): void => {
     documents: [document],
     controls,
     displayMetres: display,
+    maxOverbiteMetres: 1,
     revision: "r2",
   };
   TestValidator.predicate(
@@ -136,6 +162,40 @@ export const test_subject_dental_position_preparation = (): void => {
       "distinct revision",
     ),
   );
+  TestValidator.predicate(
+    "non-finite display",
+    throwsError(
+      () => prepareDentalPosition({ ...base, displayMetres: NaN }),
+      "finite",
+    ),
+  );
+  TestValidator.predicate(
+    "non-finite overbite limit",
+    throwsError(
+      () => prepareDentalPosition({ ...base, maxOverbiteMetres: Infinity }),
+      "finite",
+    ),
+  );
+  const skullless = structuredClone(basis);
+  skullless.surfaces
+    .find((one) => one.id === "teeth")!
+    .attachments![0]!.rows.push(3, 1);
+  TestValidator.predicate(
+    "upper edge on the jaw",
+    throwsError(
+      () => prepareDentalPosition({ ...base, basis: skullless }),
+      "ride the skull",
+    ),
+  );
+  const jawless = structuredClone(basis);
+  delete jawless.surfaces.find((one) => one.id === "teeth")!.attachments;
+  TestValidator.predicate(
+    "lower edge off the jaw",
+    throwsError(
+      () => prepareDentalPosition({ ...base, basis: jawless }),
+      "ride the skull",
+    ),
+  );
   const oneCrown = structuredClone(basis);
   oneCrown.contact!.incisors.lower = 0;
   TestValidator.predicate(
@@ -143,13 +203,6 @@ export const test_subject_dental_position_preparation = (): void => {
     throwsError(
       () => prepareDentalPosition({ ...base, basis: oneCrown }),
       "separate crowns",
-    ),
-  );
-  TestValidator.predicate(
-    "non-finite display",
-    throwsError(
-      () => prepareDentalPosition({ ...base, displayMetres: NaN }),
-      "finite",
     ),
   );
   TestValidator.predicate(
