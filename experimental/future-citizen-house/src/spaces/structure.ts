@@ -31,8 +31,8 @@ import { stair } from "../house/circulation/stair";
  * @evidenceReview spaces/002-spatial-graph.md#powder-utility #212302a powder-utility는 -X 전면 cell과 현관 문을 갖고 급배수 가구가 common 쪽으로 위생실 경계를 넓히지 않는다.
  * @evidence spaces/002-spatial-graph.md#storage-1f storage-1f는 powder 뒤 z=-2.06..-0.32 cell이며 공용부에만 문이 있다. 현관과 powder의 인접 벽은 닫는다.
  * @evidenceReview spaces/002-spatial-graph.md#storage-1f #2360e96 1층 수납은 common 문으로만 접근하고 powder·entry 면을 닫아 별도의 숨은 연결이 생기지 않는다.
- * @evidence spaces/002-spatial-graph.md#door-interface clear 폭 밖에0.06 jamb·head를 만들고 두께0.045 leaf와 손잡이를 실제 element로 연결한다. native revolute/prismatic state가 open을 적용하며 passage는 leaf가 없다.
- * @evidenceReview spaces/002-spatial-graph.md#door-interface #0b0ffd8 clear opening 밖 jamb·head와 두께 있는 leaf를 조립하고 열린 leaf도 장애물로 남겨 사각 구멍만 제공하지 않는다.
+ * @evidence spaces/002-spatial-graph.md#door-interface clear 폭 밖에0.06 jamb·head를 만들고 두께0.045 leaf와 손잡이를 실제 element로 연결한다. clear width와 host wall 두께의 0.016 문턱판을 floor datum 아래에 채운다. native revolute/prismatic state가 open을 적용하며 passage는 leaf가 없다.
+ * @evidenceReview spaces/002-spatial-graph.md#door-interface #f75b937 doorway가 jamb·head 옆에 폭 p.width, 높이 finishDepth, 깊이 f.depth의 threshold를 f.floor-finishDepth/2에 두는 것을 코드로 읽었다. compiled scene에 문턱판 11개(현관문·entry-common 개구·pocket 문 포함)가 추가되었고 상면이 각각 0과 3.20, 폭이 jamb 안쪽 면 사이와 같았으며 다른 요소의 bounds는 바뀌지 않았다. 두께 있는 leaf와 열린 leaf의 장애물 처리는 그대로이고 문턱 상면은 통행 원통의 바닥 높이를 넘지 않는다.
  * @evidence spaces/002-spatial-graph.md#front-entry portals의 x=2.22,폭1.05,높이2.30을 전면 owner가 소비한다. site landing과 entry 양쪽 endpoint가 있는 passage route이고 문짝은 현관 안쪽으로 열린다.
  * @evidenceReview spaces/002-spatial-graph.md#front-entry #903a5ea front-entry의 x=2.22 문과 외부 landing이 만나 계단 유리 frame과 겹치지 않는 전면 진입이 된다.
  * @evidence spaces/002-spatial-graph.md#entry-flex z=-1.10의 폭1.20 pocket opening을 wall-entry-flex에서 절삭한다. open travel은 실제 local axis를 world -Z로 해석해 앞쪽 벽 pocket에 leaf를 넣는다.

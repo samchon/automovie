@@ -4,6 +4,7 @@
 import { buildAutoMovieWall, type IAutoMovieWallOpening } from "@automovie/engine";
 import { Assembly, rectangle, v, yaw } from "./assembly";
 import { datum, portals, roomById, type Portal, type Wall } from "./plan";
+import { finishDepth } from "./storeys/floors";
 export type Frame = { id: string; along: "x" | "z"; normal: 1 | -1; plane: number; a: number; b: number; floor: number; top: number; depth: number; spaces: string[] };
 export const rotation = (f: Frame) => yaw(f.along === "x" ? (f.normal === 1 ? 0 : Math.PI) : f.normal * Math.PI / 2);
 export const uSign = (f: Frame) => f.along === "x" ? f.normal : -f.normal;
@@ -35,6 +36,9 @@ export const doorCuts = (f: Frame) => portals.filter((p) => p.wall === f.id).map
 export function doorway(a: Assembly, f: Frame, p: Portal): void {
   const jambs = [-1, 1].map((side) => bar(a, f, p.id + "-jamb-" + side, p.to, "oak", p.center + side * (p.width / 2 + 0.03), f.floor + p.height / 2, 0.06, p.height, f.depth));
   jambs.push(bar(a, f, p.id + "-head", p.to, "oak", p.center, f.floor + p.height + 0.03, p.width + 0.12, 0.06, f.depth));
+  // Floor finish stops at each room cell, so the host wall's depth under the
+  // clear opening gets a threshold flush with the finished floor.
+  jambs.push(bar(a, f, p.id + "-threshold", p.to, "oak", p.center, f.floor - finishDepth / 2, p.width, finishDepth, f.depth));
   const target = roomById(p.to);
   const midpoint = target.cells[0];
   const worldSide = Math.sign((f.along === "x" ? (midpoint[2] + midpoint[3]) / 2 : (midpoint[0] + midpoint[1]) / 2) - f.plane);

@@ -301,8 +301,8 @@ room id는 storage-1f, parent는 [ground-storey](#ground-level)다. clear cell�
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 일반 문 canon을 채택하되 0.06m frame과 0.045m leaf는 저작값으로 구분한다.
 @evidence principles/core/common.md#scope-preservation 문짝·틀·손잡이와 열린 leaf의 장애물 점유를 남겨 연결을 사각 구멍 하나로 축소하지 않는다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 문 개폐 결정에 머물며 유리·침대만 허용된 운영자 UI에 문 제어를 추가하지 않는다.
-@evidence principles/core/common.md#substantive-completion clear opening에서 structural cut을 확장하는 방향, host 두께의 소비, hinged·pocket·leafless의 차이를 정했다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 hinged·pocket·leafless마다 이동과 검사 상태가 정해져 구현자가 개폐 방식을 다시 선택하지 않는다.
+@evidence principles/core/common.md#substantive-completion clear opening에서 structural cut을 확장하는 방향, host 두께의 소비, clear opening 아래 host 두께를 채우는 0.016m 문턱판, hinged·pocket·leafless의 차이를 정했다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 hinged·pocket·leafless마다 이동과 검사 상태가 정해져 구현자가 개폐 방식을 다시 선택하지 않는다. 문턱판의 폭(jamb 안쪽 면 사이), 깊이(host wall 두께), 두께 0.016m와 상면 높이(floor datum)도 본문에 있어 문 아래 바닥 마감의 끊김을 구현자가 새로 메우지 않는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 일반 문 canon에 frame과 leaf의 실제 점유 및 방 안쪽으로90° 여는 검사용 상태를 더한다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 일반 문 선택에 jamb 확장과 90° 검사 상태를 더해 실행 가능한 접합을 정한다.
 @evidence principles/design/spaces.md#space-topology 문 상태는 연결의 통행 가능성을 바꾸므로 닫힌 문을 관통한 route와 열린 통행을 구별한다.
@@ -324,7 +324,7 @@ room id는 storage-1f, parent는 [ground-storey](#ground-level)다. clear cell�
 @evidenceReview settings/004-observation.md#operator-access #a2cf7d9 열린 문은 저작자의 통행 검사 상태로 사용하고 사용자의 유리·침대 선택에 문 제어를 임의로 더하지 않는다. closed/open 상태와 source를 검사마다 기록하는 결정이 허용 UI 조작과 저작 검사 입력을 구분하므로, 이 관계는 viewer 구현을 다른 설계 H2가 대신했다는 주장이 아니다.
 -->
 
-[일반 문의 채택](../settings/002-household.md#inherited-defaults)을 공간 개폐로 구체화한다. 방문과 현관문의 clear opening 바깥에는 면 폭0.06m의 jamb·head를 두고 leaf 두께는0.045m다. frame 깊이는 host wall 전체 두께를 소비한다. 문짝을 두께 없는 구멍으로 대신하지 않는다. clear width/height는 각 opening H2가 소유하고 structural cut은 양 jamb와 head만큼 확장한다.
+[일반 문의 채택](../settings/002-household.md#inherited-defaults)을 공간 개폐로 구체화한다. 방문과 현관문의 clear opening 바깥에는 면 폭0.06m의 jamb·head를 두고 leaf 두께는0.045m다. frame 깊이는 host wall 전체 두께를 소비한다. 문짝을 두께 없는 구멍으로 대신하지 않는다. clear width/height는 각 opening H2가 소유하고 structural cut은 양 jamb와 head만큼 확장한다. 층의 16mm 바닥 마감은 방 cell 안에만 있으므로, clear opening 아래 host wall 두께 구간은 양 jamb 사이 clear width 전체에 두께 0.016m의 문턱판을 두어 상면을 floor datum(0 또는 3.20)에 맞춘다. 문턱판이 없으면 문마다 구조 상면이 16mm 낮은 홈으로 드러나 양쪽 바닥 마감이 그 홈에서 끊긴다(2026-09-24 materials r5 준비 중 compiled scene 대조). 현관문의 문턱판은 외부 landing과 entry 바닥 사이 전면 외벽 두께를 채우고, leaf 없는 entry-common 개구도 같은 문턱판을 가진다.
 
 hinged door는 해당 방 안쪽으로90° 열린 상태에서 통행을 검사한다. 현관문은 entry 안쪽, 방문은 복도 반대쪽 방 안쪽이며 개별 문 owner가 named room을 정한다. 작업실의 pocket door는 clear opening만큼 옆으로 미끄러져 벽 pocket에 들어간다. entry-common은 leaf 없는 개구다. 문짝과 hinge·handle은 같은 opening에서 파생하며 open-state leaf도 장애물에서 제외하지 않는다.
 
