@@ -22,7 +22,13 @@
     <option value="none">없음</option>
     <option value="roof-off">지붕·천장 숨김(절개 조감 검사)</option>
     <option value="plan-cut">평면 절단 Y=1.2m</option>
+    <option value="cut-x">연직 단면 X=값</option>
+    <option value="cut-z">연직 단면 Z=값</option>
   </select></label>
+  <label>단면 위치(m) <input id="section-offset" type="number" step="0.05" value="0" disabled></label>
+  <label class="check"><input id="section-flip" type="checkbox" disabled> 반대쪽 남김</label>
+  <label class="check"><input id="section-ortho" type="checkbox" disabled> 정사영</label>
+  <label>정사영 반높이(m) <input id="section-span" type="number" step="0.5" min="0.5" value="4" disabled></label>
   <label class="check"><input id="owners" type="checkbox" disabled> 표면 소유 색</label>
   <label class="check"><input id="supports" type="checkbox" disabled> 보행 support</label>
   <button id="reset" type="button">시점 초기화</button>
@@ -36,6 +42,7 @@
     <pre id="details"></pre>
     <h2>조작</h2>
     <p>드래그: 회전 · 오른쪽 드래그: 이동 · 휠: 확대. 키보드: 방향키 회전, Shift+방향키 이동, +/− 확대, R 초기화.</p>
+    <p>연직 단면(검사 모드): 절개에서 X 또는 Z 단면을 고르고 위치(m)를 넣습니다. 서버가 현재 source의 벽·지붕·코핑·기단·바닥 실체를 그 평면으로 잘라 정확한 조각(벽 적갈, 지붕 청회, 코핑·기단 황, 바닥 녹)과 대지 지면선(초록)을 그립니다. 정사영을 켜면 평면에 수직으로 보고, 0.5m 격자(빨간 선은 Y=0)로 높이를 읽습니다. 조각 사이 빈칸은 틈, 포개짐은 겹침입니다. 주소 예: <code>?inspect=1&amp;section=cut-x&amp;offset=0&amp;ortho=1&amp;span=2</code></p>
     <p>관찰 위치는 현재 source의 공간·개구부·입면에서 유도합니다. 카메라가 방 안에 있다는 사실은 보행 도달의 증거가 아닙니다. 라벨·support·표면 소유 색·절개는 검사 모드에서만 켭니다.</p>
     <h2>현재 한계</h2>
     <ul id="notices"></ul>
