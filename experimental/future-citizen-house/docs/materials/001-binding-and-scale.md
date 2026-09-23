@@ -13,7 +13,7 @@
 @evidenceExclude upstream/design/materials.md#parent-revision-from-material-work README의 전달 한계, surface-decomposition의 입면·방·층·site owner, delivery-fidelity의 blocking pass 경계, build-or-adopt의 사진·외부 renderer 비채택을 대조했다. 채널 제한과 fallback 금지는 이 층 안의 선택이며 부모의 소유나 표현 수준을 고쳐야 할 결함은 드러나지 않았다.
 @evidence settings/001-production.md#delivery-fidelity 실물 사진의 미세 질감이 아닌 blocking pass라는 경계를 scalar 응답과 색상 texture만 쓰는 채널 선택으로 옮기고, 재료 이름이나 색 패치로 빠진 부재를 대신하지 않는다.
 @evidence settings/001-production.md#build-or-adopt production 내부 WebGL 도구와 공개 engine API라는 채택 범위 안에서 새 shader·channel·후처리 서비스 없이 기존 uploader가 받는 값만 설계한다.
-@evidence settings/001-production.md#runtime-and-restart 단계는 독립 판정으로만 전진한다는 권한을 "설계 PASS 전에는 이 경로나 source를 구현하지 않는다"는 이 층의 구현 시점으로 적용한다.
+@evidence settings/001-production.md#runtime-and-restart 단계는 독립 판정으로만 전진한다는 권한을 "materials가 review에 들어간 뒤 materialSources에서 구현한다"는 이 층의 구현 시점으로 적용한다.
 @evidence settings/003-spatial-basis.md#surface-decomposition 입면·방·층 owner가 자기 완결 표면의 형상과 마감 배정을 함께 유지한다는 전제를 재료 층의 적용 범위로 삼는다.
 @evidence spaces/003-surface-ownership.md#whole-surface-owners 다섯 외피 면의 단독 owner가 return·개구·틀·마감을 모두 소유한다는 결정을 받아 재료가 외피를 사후 칠하기 owner로 나누지 않는다.
 @evidenceExclude settings/001-production.md#roles-and-accessibility 저작자·관찰자·리뷰어의 분담과 한국어 문서·안정 id 요구를 재료 29 H2 전체와 대조했다. 어떤 재료 결정도 계측이나 판정 역할을 바꾸거나 입력으로 읽지 않으며, 한국어 서술과 안정 finish id의 일관성은 재료 공통 account의 production-language가 답한다.
@@ -27,13 +27,13 @@
 @evidenceExclude spaces/002-spatial-graph.md#upper-partition 상층 일곱 방이 한 복도에서 직접 닿는 분할과 L자 seam에 벽을 두지 않는 원칙을 검토했다. 재료는 개별 방·벽 H2의 면에 결합하며 분할 원칙이나 seam 무벽 규칙을 입력으로 읽지 않는다.
 -->
 
-이 초안은 v-076 뒤 사용자가 요청한 재료 질감·반사를 소유한다. [표면 소유](../spaces/003-surface-ownership.md#whole-surface-owners)의 입면·방·층 owner가 자기 완결 표면의 형상과 마감 배정을 함께 유지한다. materials는 재사용 가능한 재료 응답과 좌표 조건을 제공한다. 새 창호 단면, 차양, 가구 외형, 식재 이동은 만들지 않는다. 검증 대상은 같은 집의 실제 표면이며 별도 예쁜 샘플이 집을 대신하지 않는다.
+이 설계는 v-076 뒤 사용자가 요청한 재료 질감·반사를 소유한다. [표면 소유](../spaces/003-surface-ownership.md#whole-surface-owners)의 입면·방·층 owner가 자기 완결 표면의 형상과 마감 배정을 함께 유지한다. materials는 재사용 가능한 재료 응답과 좌표 조건을 제공한다. 새 창호 단면, 차양, 가구 외형, 식재 이동은 만들지 않는다. 검증 대상은 같은 집의 실제 표면이며 별도 예쁜 샘플이 집을 대신하지 않는다.
 
 [현재 전달 한계](../../README.md#현재-재료-전달-범위)와 `src/house/assembly.ts`, `src/viewer/payload.ts`, `src/viewer/scene.mjs`를 전제로 한다. native baseColorTexture의 primary UV와 scalar roughness·metallic·transmission·ior·thickness·clearcoat·emissive만 사용한다. normalTexture, metallicRoughnessTexture, occlusionTexture, emissiveTexture, displacement, 후처리 재질 치환은 이번 설계에 없다. 색상 입자로 섬유 요철의 실제 그림자나 석재 돌출을 만들었다고 하지 않는다. 거울은 환경 반사의 근사이며 방 내부의 정확한 거울상은 unverified다.
 
 이하 색은 sRGB `#RRGGBB`, 길이는 m, roughness와 metallic은 무차원 렌더 값이다. 별도 명시가 없으면 metallic=0, opacity=1, alphaMode=opaque, doubleSided=false, transmission=0, emissive=null, thickness=0, clearcoat=0, ior=1.5다. 렌더 thickness=0은 물체의 두께가 없다는 뜻이 아니다. 부재 두께는 spaces의 기존 geometry, 표면 도장·베니어의 명목 두께는 각 마감 H2가 소유한다. 값은 저작 선택이며 레퍼런스 픽셀에서 잰 값이나 실물 인증값이 아니다.
 
-미지정 재료 이름을 plaster로 대신하는 현재 fallback은 새 바인딩 경로에서 허용하지 않는다. owner·표면·재료·좌표가 해결되지 않으면 그 주소로 실패한다. [전달 검사](007-observation.md#binding-census)는 native 재료, texture 자원, 현재 모델과 uploader가 같은 값을 소비하는지 검사한다. 설계 PASS 전에는 이 경로나 source를 구현하지 않는다.
+미지정 재료 이름을 plaster로 대신하는 현재 fallback은 새 바인딩 경로에서 허용하지 않는다. owner·표면·재료·좌표가 해결되지 않으면 그 주소로 실패한다. [전달 검사](007-observation.md#binding-census)는 native 재료, texture 자원, 현재 모델과 uploader가 같은 값을 소비하는지 검사한다. 이 경로와 source는 materials가 review에 들어간 뒤 materialSources에서 구현한다.
 
 ## 표면 배정 인터페이스 {#surface-bindings}
 
@@ -59,7 +59,7 @@
 
 구현 시 [src/house/assembly.ts](../../src/house/assembly.ts)가 `import type { IAutoMovieInstancePrototypeDesign, IAutoMovieExplicitInstanceTransform } from "@automovie/interface"`로 입력 타입을 소비한다. 완결 표면 owner가 지정한 마감·scale·결·위상에 대응하는 모델을 먼저 `environment.models`에 등록한 뒤, population 작성 경계가 `IAutoMovieInstancePrototypeDesign[]`를 `set.prototypes`에 넣는다. [IAutoMovieExplicitInstanceTransform](../../../../packages/interface/src/production/IAutoMovieExplicitInstanceTransform.ts)의 기존 id·translation(m)·rotation(quaternion)·scale과 선택적 palette를 유지하고 `prototype`에는 선택한 variant의 id를 넣어 `set.layout = { kind: "explicit", transforms }`로 전달한다. 기존 `Assembly.repeat`의 반환은 `void`이며 작성 결과는 `environment.populations`다. variant ID 중복·빈 ID·`default` 충돌·미등록 modelRecipe는 이 작성 경계에서 set/member 주소가 있는 `Error`로 거부하고 다른 모델로 대체하지 않는다.
 
-실제 소비자는 [src/viewer/payload.ts](../../src/viewer/payload.ts)의 기존 `@automovie/engine` root import다. `lowerBuiltEnvironment(environment)` 뒤 `materializeCompiledInstanceSet({ instanceSet: design, world: { routes: [] } })`가 `IAutoMovieCompiledInstanceSet`을 반환하고, `instanceSlot(compiled, index)`가 선택된 `prototype`, `modelRecipe`, `node`, position·rotation·scale3·palette를 가진 `IAutoMovieInstanceSlot`을 반환한다. 근거는 [compiler](../../../../packages/engine/src/populationRuntime/materializeCompiledInstanceSet.ts)와 [slot reader](../../../../packages/engine/src/populationRuntime/instanceSlot.ts)다. 없는 explicit prototype은 native `Error`(`Instance set "<id>" slot <n> references missing prototype "<prototype>".`), 범위 밖 slot은 `RangeError`다. 이 예외를 잡아 기본 모델이나 빈 population으로 바꾸지 않는다. 이 문단은 PASS 후 연결할 경로이며 이번 draft에서 import나 호출을 추가한 것은 아니다.
+실제 소비자는 [src/viewer/payload.ts](../../src/viewer/payload.ts)의 기존 `@automovie/engine` root import다. `lowerBuiltEnvironment(environment)` 뒤 `materializeCompiledInstanceSet({ instanceSet: design, world: { routes: [] } })`가 `IAutoMovieCompiledInstanceSet`을 반환하고, `instanceSlot(compiled, index)`가 선택된 `prototype`, `modelRecipe`, `node`, position·rotation·scale3·palette를 가진 `IAutoMovieInstanceSlot`을 반환한다. 근거는 [compiler](../../../../packages/engine/src/populationRuntime/materializeCompiledInstanceSet.ts)와 [slot reader](../../../../packages/engine/src/populationRuntime/instanceSlot.ts)다. 없는 explicit prototype은 native `Error`(`Instance set "<id>" slot <n> references missing prototype "<prototype>".`), 범위 밖 slot은 `RangeError`다. 이 예외를 잡아 기본 모델이나 빈 population으로 바꾸지 않는다. 이 문단은 materialSources에서 연결할 경로이며 현재 source에는 이 import와 호출이 없다.
 
 palette는 engine에서 절대 sRGB 색으로 쓰인다. 반복 표면 owner는 새 마감 기준색과 해당 H2가 허용한 판별 변화를 explicit palette로 전달한다. viewer의 기존 선형색 보정식을 바꿔 이중 tint를 감추지 않는다. 나머지 population의 palette는 그대로 둔다. 새 material source는 문서 파일마다 하나의 공개 owner로 대응하며, 각 입면·방·층에서 직접 소비한다. `buildHouse()`와 library export, viewer가 같은 native 재료/모델을 받아야 한다.
 

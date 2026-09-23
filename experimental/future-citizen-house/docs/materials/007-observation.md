@@ -3,7 +3,7 @@
 ## 바인딩 전수 검사 {#binding-census}
 
 <!--
-@evidence principles/core/common.md#scope-preservation 모든 역할의 owner·element 또는 set/member·part/면·material·texture·tile·UV 근거를 열거하고 적용 없는 역할도 0으로 남겨, 재료 배정의 누락·중복·미지원 channel이 보고 없이 사라질 수 없게 한다.
+@evidence principles/core/common.md#scope-preservation 모든 역할의 owner·element 또는 set/member·part/면·material·texture·tile·UV 근거를 열거하고 junction 16면·slab 면 분할·층간 띠 면과 이름 있는 retained 역할을 면·역할별로 남겨, 재료 배정의 누락·중복·미지원 channel이 보고 없이 사라질 수 없게 한다.
 @evidence principles/core/common.md#substantive-completion 검사 입력(현재 state의 buildHouse 반환과 공개 lowering·instanceSlot), 열거 항목, 실패 조건, 기존과 비교할 주소·ID·count·transform·bounds, sourceBasis에 새 문서와 source를 포함할 조건까지 정해 검사자가 census 형식을 고르지 않는다.
 @evidence principles/core/common.md#declared-basis 비교할 house·storey·room·connector·opening 주소는 citizen-house-space와 stage-one-verification, 입력 경로는 공개 engine API에서 받고 census 항목과 실패 분류는 이 층의 선택이다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 부모의 전수 검증은 층 귀속·도달·분할을 묻는다. 이 H2는 재료 교체 뒤 같은 산출물에서 역할별 마감 배정과 모델 variant 증가를 설명하는 재료 전용 census를 더한다.
@@ -15,16 +15,16 @@
 @evidence spaces/002-spatial-graph.md#stage-one-verification 층 귀속·도달·완결 분할·유리와 실내 일치 질문이 재료 variant 교체 뒤에도 같은 컴파일 산출물에서 답하는지를 census 비교 대상으로 둔다.
 -->
 
-검사 입력은 현재 상태의 `buildHouse()` 반환과 공개 lowering/instanceSlot이 만든 실제 모델·부재·material·UV다. [바인딩 인터페이스](001-binding-and-scale.md#surface-bindings)의 역할별로 source owner, element 또는 set/member, part/면, material ID, texture ID, physical tile, UV 근거를 열거한다. 적용 없는 역할도 0을 남기고, missing/중복 role·지원하지 않는 channel·잘못된 색 공간은 실패로 보고한다. 미정 배정을 plaster나 retained로 대신하지 않는다.
+검사 입력은 현재 상태의 `buildHouse()` 반환과 공개 lowering/instanceSlot이 만든 실제 모델·부재·material·UV다. [바인딩 인터페이스](001-binding-and-scale.md#surface-bindings)의 역할별로 source owner, element 또는 set/member, part/면, material ID, texture ID, physical tile, UV 근거를 열거한다. 면 단위로 나뉜 부재는 면별로 적는다: junction solid 12개의 노출면 16개와 각 면이 향한 공간·마감, 숨은 면 수, upper slab 네 piece의 계단 구멍 쪽 절단면과 나머지 면, 층간 띠를 받는 panel·wall body 외향 면. retained 역할도 [보존 H2](006-wet-and-joinery.md#retained-surfaces)가 이름으로 든 역할별로 적고 catch-all 한 줄로 묶지 않는다. 적용 없는 역할도 0을 남기고, missing/중복 role·지원하지 않는 channel·잘못된 색 공간은 실패로 보고한다. 미정 배정을 plaster나 retained로 대신하지 않는다.
 
 기존과 비교할 것은 room/storey/connector/opening 주소, 모든 실제 member ID·count·transform·world bounds·소유 관계다. 새 model variant 수는 원래 prototype/finish/scale로 설명되어야 한다. topology·캐노피 audit 오류와 유효하지 않은 texture binding을 숨기지 않는다. `sourceBasis`는 구현 단계에서 docs/materials와 새 material source도 현재 입력으로 포함해야 하며 구 버전 payload를 새 문서의 검증으로 인용하지 않는다.
 
-물리 층은 부재 소유 문서/geometry와 명목 표면층 선택을 구분하고 optical 값은 native material에서 읽는다. 이번 draft에는 source가 없어 결과는 unverified다. 구현 뒤에도 텍스트 census는 시각 합격이 아니며 아래 실제 프레임과 함께 읽는다.
+물리 층은 부재 소유 문서/geometry와 명목 표면층 선택을 구분하고 optical 값은 native material에서 읽는다. 재료 source가 아직 없어 결과는 unverified다. 구현 뒤에도 텍스트 census는 시각 합격이 아니며 아래 실제 프레임과 함께 읽는다.
 
 ## 크기와 접합 표본 {#scale-and-junction-samples}
 
 <!--
-@evidence principles/core/common.md#scope-preservation 모든 새 texture family의 최소·최대 면과 UV 방향, 1m·3m·12m 거리와 정면·30° 사선, 필수 접합 목록과 native validateTextureScale 호출을 한 표본 집합에 두고, 좁은 방에서 불가능한 거리도 이유와 함께 남긴다.
+@evidence principles/core/common.md#scope-preservation 모든 새 texture family의 최소·최대 면과 UV 방향, 1m·3m·12m 거리와 정면·30° 사선, 네 입면 층간 띠 끝·slab 외곽·junction 면·계단 구멍 절단면을 포함한 필수 접합 목록과 native validateTextureScale 호출을 한 표본 집합에 두고, 좁은 방에서 불가능한 거리도 이유와 함께 남긴다.
 @evidence principles/core/common.md#substantive-completion 중성 배경 #808080, hemisphere 1·directional 2와 45° 위치, exposure 1·1600×1000·DPR1·FOV50, 1m 기준 막대, validateTextureScale의 입력·반환·경고 조건, MaterialTextureScaleAudit schema와 build·payload의 호출 경로까지 정해 검사자가 조건을 고르지 않는다.
 @evidence principles/core/common.md#declared-basis raster·FOV는 review-apparatus, 검증 명령은 verification-boundary, 함수 계약은 engine과 interface 원본에서 받고 중성 조명값과 표본 선택 규칙은 이 층의 선택이다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 관찰 장치는 방과 외관의 원근 프레임만 정한다. 이 H2는 texture 반복·접합·scale을 격리해 반증하는 중성 장면과 native span 검사의 production wrapper를 더한다.
@@ -41,7 +41,7 @@
 
 중성 검사에는 sRGB #808080 배경, D65에 가까운 흰 hemisphere intensity=1, 흰 directional intensity=2를 local 표면 법선에서 45° 위치에 둔다. tone mapping은 기존 viewer와 같고 exposure=1, 1600×1000/DPR1, 동일 camera FOV50으로 고정한다. 1m의 단색 기준 막대를 검사 모드에만 두고 texture 주기와 함께 촬영한다. production beauty의 기존 illumination/PMREM은 바꾸지 않는다. 광도 단위와 이 장면은 실측 조명 인증이 아니다.
 
-필수 접합은 front/right 모서리, front/rear floor-band 위아래와 opening 끝, door leaf/jamb/head, 첫 계단/꺾임참/마지막 단, oak/tile 문턱, worktop/edge/sink, sofa의 평면/곡면 seam, 각 texture의 두 반복 주기 경계다. 각 접합의 부재 ID와 표면 정상 방향을 기록한다. grain 늘어남, 뒤집힌 face, 이중 tint, 눈에 띄는 타일 경계, moiré와 가짜 geometry 읽힘이 실패다.
+필수 접합은 front/right 모서리, 네 입면 floor-band의 위아래와 frame 바깥선의 띠 끝, 같은 평면을 이루던 slab 외곽의 제거, 공용부 전면벽 두 junction 도장 면과 욕실 동측 tile 벽 junction 면, 계단 구멍 slab 절단면과 ceiling의 이음, door leaf/jamb/head, 첫 계단/꺾임참/마지막 단, oak/tile 문턱, worktop/edge/sink, sofa의 평면/곡면 seam, 각 texture의 두 반복 주기 경계다. 각 접합의 부재 ID와 표면 정상 방향을 기록한다. grain 늘어남, 뒤집힌 face, 이중 tint, 눈에 띄는 타일 경계, moiré와 가짜 geometry 읽힘이 실패다.
 
 native 함수는 `import { validateTextureScale } from "@automovie/engine"`으로 사용한다. [구현 모듈](../../../../packages/engine/src/validation/validateTextureScale.ts)은 [validation index](../../../../packages/engine/src/validation/index.ts)와 [engine root index](../../../../packages/engine/src/index.ts)에서 공개된다. `@automovie/engine/validation`이나 저장소 내부 파일을 import하는 계약이 아니다. 입력은 `{ models: readonly IAutoMovieModel[] }`, 반환은 `IAutoMovieValidation`이며 두 타입 모두 `@automovie/interface`의 root export다. 입력에는 `buildHouse()`가 만든 현재 `environment.models`를 원래 순서대로 준다. texture를 받는 variant에는 이미 실제 scale을 반영한 primary UV가 있어야 한다. 이 함수는 모델이나 UV를 수정하지 않고 placement/part transform·tessellation·이미지 파일을 읽거나 수행하지 않는다.
 
@@ -49,7 +49,7 @@ native 함수는 `import { validateTextureScale } from "@automovie/engine"`으�
 
 함수는 mesh의 유한하고 양수인 U/V span을 측정한다. structured texture binding의 `coordinateSource: "normalized"`가 span > 1 + 1e-9이면 `kind: "type"`, severity error를 반환한다. `surface-metres`에서는 유한한 0 아닌 transform scale을 가진 축의 tile=1/abs(scale)이 span×(1+1e-9)보다 크면 `kind: "range"`, severity warning이다. 해당 축의 sampler가 clamp이면 이 tile 경고는 내지 않는다. primitive, UV 부재·비유한/퇴화 span, material 부재/미해결, string binding, 생략된 coordinateSource, `source-uv`는 이 측정으로 검증되지 않는다. surface-metres 축에 scale이 없거나 0/비유한이어도 검사하지 않으므로 별도 binding 검사의 오류를 성공으로 바꾸지 않는다. 이 native 오류·경고의 severity와 원문은 보존하고 warning만 있다는 이유로 실패나 시각 합격을 만들지 않는다.
 
-PASS 후 구현할 production 호출 owner는 `src/materials/observation.ts`의 `auditMaterialTextureScale`이며, 위 engine 함수와 interface 타입을 package root에서 import한다. 입력은 `{ models: readonly IAutoMovieModel[] }`이고 반환 형식은 아래 `MaterialTextureScaleAudit`다. 이 wrapper는 동일 models를 native 함수에 한 번 전달하고 결과를 그대로 `validation`에 담는다. native가 반환하지 않는 검사 범위만 별도로 집계하며 측정값을 대체하지 않는다.
+materialSources에서 구현할 production 호출 owner는 `src/materials/observation.ts`의 `auditMaterialTextureScale`이며, 위 engine 함수와 interface 타입을 package root에서 import한다. 입력은 `{ models: readonly IAutoMovieModel[] }`이고 반환 형식은 아래 `MaterialTextureScaleAudit`다. 이 wrapper는 동일 models를 native 함수에 한 번 전달하고 결과를 그대로 `validation`에 담는다. native가 반환하지 않는 검사 범위만 별도로 집계하며 측정값을 대체하지 않는다.
 
 ```typescript
 type MaterialTextureScaleAudit = {
@@ -72,7 +72,7 @@ type MaterialTextureScaleAudit = {
 
 axes는 입력 model/part 순서, schema에 적은 slot 순서, u/v 순서로 모든 존재하는 texture binding을 열거한다. null/undefined slot은 binding 수에서 빼되, texture가 없는 part는 `partsWithoutTexture`에 센다. material이 null/미해결이면 해당 part도 그 수에 포함하고 material 문제는 [바인딩 검사](#binding-census)에 남긴다. `checked`는 위 native 비교가 실행 가능한 축, `clamped`는 surface-metres에서 유효한 scale과 span이 있지만 clamp로 tile 비교를 생략한 축, 나머지는 `unverified`다. reason은 `normalized-span`, `surface-metres-tile`, `clamp-fit`, `primitive`, `missing-uv`, `invalid-or-degenerate-uv`, `string-binding`, `missing-coordinate-source`, `source-uv`, `invalid-or-missing-scale` 중 실제 첫 조건 하나다. 미검사 사유의 우선순위는 geometry → UV → binding 형식 → coordinateSource → scale → clamp다. 조건별 수는 axes에서 집계하고 checkable 수는 `checked` 수다. 입력 model/part가 0이거나 checkable 수가 0인 결과를 전체 검사 통과로 읽지 않는다. clamped 면의 fit과 무texture 면은 각각 접합/광택 관찰 대상에 남는다.
 
-[src/house/build.ts](../../src/house/build.ts)는 모든 표면 owner의 모델 생성과 기존 house/canopy audit 뒤 이 wrapper를 호출한다. 반환 environment의 모델 배열과 검사 입력은 같아야 한다. 기존 canopy report 인자는 유지하고 세 번째 선택적 `materialReport: (audit: MaterialTextureScaleAudit) => void` callback으로 이 결과를 전달하도록 구현한다. callback 유무와 관계없이 검사는 실행하며, callback에 원본 결과를 전달한 뒤 native success=false이면 모든 violation의 path/expected를 message에 담은 `Error`를 던지고 원본 audit를 cause에 보존한다. 예기치 않은 API 예외도 성공으로 치환하지 않는다. [src/viewer/payload.ts](../../src/viewer/payload.ts)는 wrapper를 별도로 재실행하지 않고 같은 build 호출의 callback 결과를 `materialTextureScaleAudit` 필드로 전달한다. 따라서 library의 `citizenHouseSpaceSource`도 같은 검사를 실행한다. 이 schema·callback·파일은 이번 draft에서 구현되었다는 주장이 아니다.
+[src/house/build.ts](../../src/house/build.ts)는 모든 표면 owner의 모델 생성과 기존 house/canopy audit 뒤 이 wrapper를 호출한다. 반환 environment의 모델 배열과 검사 입력은 같아야 한다. 기존 canopy report 인자는 유지하고 세 번째 선택적 `materialReport: (audit: MaterialTextureScaleAudit) => void` callback으로 이 결과를 전달하도록 구현한다. callback 유무와 관계없이 검사는 실행하며, callback에 원본 결과를 전달한 뒤 native success=false이면 모든 violation의 path/expected를 message에 담은 `Error`를 던지고 원본 audit를 cause에 보존한다. 예기치 않은 API 예외도 성공으로 치환하지 않는다. [src/viewer/payload.ts](../../src/viewer/payload.ts)는 wrapper를 별도로 재실행하지 않고 같은 build 호출의 callback 결과를 `materialTextureScaleAudit` 필드로 전달한다. 따라서 library의 `citizenHouseSpaceSource`도 같은 검사를 실행한다. 이 schema·callback·파일은 아직 source에 없다.
 
 원본 unit mesh와 실제 scale의 차이는 별도 world-space U/V 길이 대조로 확인한다. native span 검사는 실제 길이의 등거리성·UV seam·곡면 pole·재료 시각 합격을 인증하지 않으며 그 결과는 위 거리/접합 표본과 함께 읽는다. README의 `npm run lint`는 canonical source/evidence 검사이며 이 정적 명령이 geometry 측정까지 실행했다고 주장하지 않는다. 별도 대체 CLI나 우회 설정을 만들지 않고 실제 producer의 해당 측정을 실행·읽지 못하면 unverified로 보고한다.
 

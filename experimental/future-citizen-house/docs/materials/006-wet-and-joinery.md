@@ -3,17 +3,17 @@
 ## 바닥과 벽 타일 {#wet-tile}
 
 <!--
-@evidence principles/core/common.md#scope-preservation powder-utility·upper-bathroom·upper-service의 floor-boards와 powder·욕실의 tile lining을 이 마감에 두고 세면기 bowl의 tile색은 도기로 넘겨 습식 면의 배정이 섞이지 않는다.
+@evidence principles/core/common.md#scope-preservation powder-utility·upper-bathroom·upper-service의 floor-boards, powder·욕실의 tile lining, 욕실 동측 tile 벽 안의 junction -X면 하나를 이 마감에 두고 세면기 bowl의 tile색은 도기로 넘겨 습식 면의 배정이 섞이지 않는다.
 @evidence principles/core/common.md#substantive-completion #6f746f·roughness .65, tile-grain 512²·.45m, 2..6mm 입자와 평균 .98·범위 .95..1.00, 바닥 X/Z·벽 수평/수직 좌표를 정해 구현이 습식 마감을 고르지 않는다.
 @evidence principles/core/common.md#declared-basis 세 방의 .45m pitch 판과 잘린 타일, lining은 층·방 owner의 기존 geometry에서 받고, 색·입자는 이 층의 선택이며 방수층·배수 경사·마찰 성능은 인증 범위 밖이라고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 부모는 세 방이 위생·설비 공간이라는 사실과 타일 판 분할만 준다. 이 H2는 도기·금속·목재와 구분되는 짙은 무광 타일 응답과 새 줄눈망 없이 실제 틈만 쓰는 규칙을 결정한다.
 @evidence principles/design/materials.md#material-construction-appearance 기존 tile 판 두께와 틈은 geometry 그대로 두고 입자는 명도 texture로만 쓰며 벽돌 무늬나 줄눈 texture로 구조를 흉내 내지 않는다.
 @evidence principles/design/materials.md#material-binding-interface 바닥 X/Z, 벽 수평/수직의 metric UV로 결합하고 세면기 bowl처럼 같은 색 이름의 다른 역할에는 결합하지 않는다.
-@evidence principles/design/materials.md#material-verification-address 습식 방 표본에서 도기·금속·목재와의 구분, 문턱의 oak/tile 경계, 물체 아래 남은 바닥 면을 반증한다.
+@evidence principles/design/materials.md#material-verification-address 습식 방 표본에서 도기·금속·목재와의 구분, 문턱의 oak/tile 경계, 물체 아래 남은 바닥 면, 욕실 동측 tile 벽이 junction 면에서 도장 띠로 끊기지 않는지를 반증한다.
 @evidenceExclude upstream/design/materials.md#parent-revision-from-material-work powder-utility·upper-bathroom·upper-service의 clear cell과 .45m tile pitch, powder·욕실 lining과 두 문턱의 위치를 대조했다. 습식 면과 목재 면의 경계가 실제 문과 벽에 있어 부모 수리가 필요 없었다.
 @evidence settings/001-production.md#governing-aim 세척 공간이 실제 문 너머의 습식 마감으로 식별되도록 oak 방과 다른 타일 응답을 준다.
 @evidence spaces/002-spatial-graph.md#powder-utility 1층 powder의 tile 바닥판과 tile lining 네 면이 이 마감을 받는다.
-@evidence spaces/002-spatial-graph.md#upper-bathroom 상층 욕실의 tile 바닥판과 tile lining이 이 마감을 받는다.
+@evidence spaces/002-spatial-graph.md#upper-bathroom 상층 욕실의 tile 바닥판과 tile lining, 동측 벽의 junction 면 하나가 이 마감을 받아 욕실 벽이 한 마감으로 이어진다.
 @evidence spaces/002-spatial-graph.md#upper-service 설비·세탁실의 tile 바닥판이 이 마감을 받고 lining은 plaster로 남는다.
 @evidence spaces/002-spatial-graph.md#entry-powder 현관 oak 바닥과 powder tile 바닥이 z=-3.20 문턱에서 만나는 경계를 이 마감이 가진다.
 @evidence spaces/002-spatial-graph.md#wall-entry-powder 현관·powder 공유 벽에서 powder 쪽 면은 tile, 현관 쪽 면은 plaster로 양면 마감이 다르다.
@@ -21,11 +21,12 @@
 @evidence spaces/002-spatial-graph.md#wall-corridor-bathroom 복도·욕실 공유 벽에서 욕실 쪽 면은 tile, 복도 쪽 면은 plaster이고 z=1.86 문 cut이 두 면을 함께 관통한다.
 @evidence spaces/002-spatial-graph.md#wall-storage-bath 상층 수납·욕실 닫힌 경계에서 욕실 쪽 면은 tile, 수납 쪽 면은 plaster다.
 @evidence spaces/002-spatial-graph.md#wall-bath-primary 욕실·주침실 측면 경계에서 욕실 쪽 면은 tile, 주침실 쪽 면은 plaster다.
+@evidence spaces/002-spatial-graph.md#wall-junctions 욕실·주침실·복도 벽 끝이 만나는 junction solid의 -X면이 욕실 tile 벽 안에 드러나므로 이 마감이 그 한 면을 받는다.
 -->
 
-`wet-tile`은 powder-utility, upper-bathroom, upper-service의 floor-boards와 tile lining이다. floor owner의 .45m pitch, 잘린 타일, 실제 틈과 room lining을 유지한다. 색 #6f746f, roughness=.65, `tile-grain` 512²·.45×.45m, 2..6mm 입자의 선형 평균 .98·범위 .95..1.00이다. 기존 tile 판의 두께는 geometry 값 그대로이고 새 줄눈망이나 벽돌 무늬는 그리지 않는다.
+`wet-tile`은 powder-utility, upper-bathroom, upper-service의 floor-boards와 tile lining, 그리고 upper-bathroom 동측 tile 벽 안 x=-3.02..-2.84, z=2.40..2.58에 드러나는 층 owner junction의 -X면이다. 이 junction 면은 복도·주침실 벽 끝 사이에서 욕실 lining과 같은 면에 놓이므로 tile 벽을 도장 띠로 끊지 않도록 [실내 도장](005-soft-finishes.md#plaster-paint)의 junction 규칙에 따라 이 마감이 받는다. floor owner의 .45m pitch, 잘린 타일, 실제 틈과 room lining을 유지한다. 색 #6f746f, roughness=.65, `tile-grain` 512²·.45×.45m, 2..6mm 입자의 선형 평균 .98·범위 .95..1.00이다. 기존 tile 판의 두께는 geometry 값 그대로이고 새 줄눈망이나 벽돌 무늬는 그리지 않는다.
 
-바닥 X/Z, 벽 수평/수직의 metric UV를 사용한다. 세면기 bowl의 기존 tile색에는 이 마감을 쓰지 않는다. [습식 방 검사](007-observation.md#reference-material-samples)에서 도기·금속·목재와 구분하고 문턱의 oak/tile 경계 및 물체 아래 남은 바닥 면을 확인한다. 방수층·배수 경사·마찰 성능은 이 재료 설정의 인증 범위 밖이다.
+바닥 X/Z, 벽 수평/수직의 metric UV를 사용한다. 세면기 bowl의 기존 tile색에는 이 마감을 쓰지 않는다. [습식 방 검사](007-observation.md#reference-material-samples)에서 도기·금속·목재와 구분하고 문턱의 oak/tile 경계 및 물체 아래 남은 바닥 면을 확인한다. 욕실 중심에서 +X를 보는 관찰과 동측 벽 모서리 관찰은 junction 면이 좌우 tile lining과 한 마감으로 이어지는지를 반증한다. 방수층·배수 경사·마찰 성능은 이 재료 설정의 인증 범위 밖이다.
 
 ## 조리대 석재 {#worktop-stone}
 
@@ -110,7 +111,7 @@ green sofa/plant leaf, plaster wall/ceiling에 확장하지 않는다. 판 두�
 ## 나머지 표면의 보존 {#retained-surfaces}
 
 <!--
-@evidence principles/core/common.md#scope-preservation 식재·토양·대지 포장, 기기 화면·hob·keyboard, 작은 소품과 glow를 retained/<현재 material id>로 명시해 새 마감이 지정되지 않은 모든 기존 역할에도 owner와 배정이 남게 한다.
+@evidence principles/core/common.md#scope-preservation 식재·토양·대지 포장, 기기 화면·hob·keyboard, 작은 소품과 glow에 더해 felt 바구니·linen 더미·샤워 유리·세탁기·steel 설비장·stool 좌판처럼 새 마감이 없는 역할을 이름으로 retained/<현재 material id>에 두어 catch-all 없이 모든 기존 역할에 owner와 배정이 남게 한다.
 @evidence principles/core/common.md#substantive-completion 보존 대상과 금지되는 자동 배정(oak 줄기→가구 결, green 소파→cabinet paint, 가전 white→도기)을 이름으로 정해 구현이 이름 추측으로 나머지 면을 칠하지 않는다.
 @evidence principles/core/common.md#declared-basis 식재 수와 배치는 v-076의 roof-face 조경 결정, 대지 부재는 site-access, 기기·소품은 방 owner의 현재 값에서 받고 보존 결정은 이 층의 선택이다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 부모는 식재·대지·기기를 형상으로만 정한다. 이 H2는 재료 층 전체 교체에서 이들을 보존 역할로 명시하고 retained 역할에 모르는 이름을 몰아넣지 않는 규칙을 더한다.
@@ -124,6 +125,6 @@ green sofa/plant leaf, plaster wall/ceiling에 확장하지 않는다. 판 두�
 @evidence settings/001-production.md#delivery-fidelity 낮은 fidelity로 빠진 부재를 면제하지 않는다는 기준에 따라 대지·나무의 낮은 형상 밀도를 보존된 미완료 한계로 남긴다.
 -->
 
-v-076의 식재·토양·대지 포장 및 equipment screen/hob/keyboard, 작은 소품과 glow는 각 현재 owner의 geometry와 material 값을 유지한다. 나무4·관목48그룹·풀23그룹의 이동이나 추가는 없다. 식재의 oak 줄기에 furniture grain을, 소파의 green에 cabinet paint를, appliance white에 도기를 자동 배정하지 않는다. 신규 finish가 지정되지 않은 기존 역할은 `retained/<현재 material id>`로 명시하며 알 수 없는 이름을 이 역할에 몰아넣지 않는다.
+v-076의 식재·토양·대지 포장 및 equipment screen/hob/keyboard, 작은 소품과 glow는 각 현재 owner의 geometry와 material 값을 유지한다. 현재 source에서 새 마감이 없는 역할은 이름으로 남긴다: 1층 수납의 felt 바구니, 상층 수납의 linen 더미, 욕실 샤워의 고정 유리 screen, 세탁기의 white 몸체·metal drum·glass 창·metal controls, 설비실의 steel 설비장, island stool의 metal 좌판, island 싱크 개구를 나타내는 짙은 metal basin 판, desk 화면·stand와 keyboard, 공용부 display, hob과 oven, 충전기, 식물 화분과 줄기·잎, 캐노피 anchor·거름망과 우측 배수 점검 덮개, 대지 포장·curb·계단·집수 부재, 지붕 방수 최종 면(roof-weather)과 캐노피 pedestal, 1층 기초 plinth(ground-foundation), upper slab에서 계단 구멍을 향하지 않는 윗면·아랫면·외곽 면. 나무4·관목48그룹·풀23그룹의 이동이나 추가는 없다. 식재의 oak 줄기에 furniture grain을, 소파의 green에 cabinet paint를, appliance white에 도기를 자동 배정하지 않는다. 신규 finish가 지정되지 않은 기존 역할은 `retained/<현재 material id>`로 명시하며 알 수 없는 이름을 이 역할에 몰아넣지 않는다.
 
 검증은 [완전 바인딩 census](007-observation.md#binding-census)의 보존 목록 및 [reference 전경 검사](007-observation.md#reference-material-samples)다. source 값을 복사한 표를 새 소유자로 만들지 않고 기존 material 및 owner 주소를 출력에서 추적한다. 대지·나무의 낮은 형상 밀도, 기기 화면의 단색, 조명 기구의 단순함은 보존된 한계이며 이번 재료 PASS만으로 전체 제작 완료를 주장하지 않는다.

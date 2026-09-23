@@ -58,8 +58,8 @@ texture는 선형 무채색 평균 .96, 범위 .86..1.00, 1.5..4mm 간격의 물
 ## 가구 목재 {#furniture-wood}
 
 <!--
-@evidence principles/core/common.md#scope-preservation 식탁·coffee table·desk의 top과 다리, 침대 base/head, 의자 목재부, sofa plinth, walnut 소품을 이 마감에 두고 식재 줄기·흙·잎은 제외해 가구 목재와 조경의 배정이 섞이지 않는다.
-@evidence principles/core/common.md#substantive-completion oak-furniture #aa8760·.48과 walnut-furniture #73583f·.52, 기준색 변화 .98..1.02, top·headboard·다리·좌판의 V 축과 동률 규칙을 정해 구현이 가구 목재를 고르지 않는다.
+@evidence principles/core/common.md#scope-preservation 식탁·coffee table·desk의 top과 다리, 침대 base/head, 식탁 의자의 목재 seat·back, sofa plinth를 이 마감에 두고 식재 줄기·흙·잎과 element가 없는 palette의 walnut은 제외해 실제 가구 목재만 배정한다.
+@evidence principles/core/common.md#substantive-completion oak-furniture #aa8760·.48과 기준색 변화 .98..1.02, top·headboard·다리·좌판의 V 축과 동률 규칙을 정해 구현이 가구 목재를 고르지 않는다.
 @evidence principles/core/common.md#declared-basis 가구 목록은 ground/upper program과 각 방 owner의 형상에서 받고, 바닥·문과 다른 색·광택과 결 축은 이 층의 선택이다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 부모는 가구가 있다는 사실과 배치만 정한다. 이 H2는 바닥·문과 구분되는 가구 목재 응답과 부재별 결 축을 결정한다.
 @evidence principles/design/materials.md#material-construction-appearance 판류는 .6mm 베니어, rod·다리는 통목처럼 읽히는 마감의 근사로 나누고 숨은 내부 구조를 성능 주장으로 남기지 않는다.
@@ -77,7 +77,7 @@ texture는 선형 무채색 평균 .96, 범위 .86..1.00, 1.5..4mm 간격의 물
 
 `oak-furniture`는 common dining/coffee/desk의 top·다리, 침대 base/head, 의자 목재부, sofa plinth의 실제 면에 배정한다. 방 owner가 가구별 전체 형상을 유지한다. 판류는 .6mm 베니어, rod/다리는 통목처럼 읽히는 마감의 근사이고 숨은 내부 구조는 미정 성능 주장으로 남기지 않는다. 색 #aa8760, roughness=.48, oak-grain을 쓰며 기준색 변화는 .98..1.02다.
 
-table top의 V는 local+X, headboard V는 local+Y, 다리는 길이 축이다. 좌판/등받이는 각 넓은 면의 긴 축을 사용하고 동률이면 local+X다. 소품의 `walnut`은 `walnut-furniture` 색 #73583f·roughness=.52로 동일한 grain 규칙을 쓰는 어두운 목재 마감이다. 식재 줄기·흙·녹색 잎에는 목재 마감을 확장하지 않는다. [ref03·04 가구 검사](007-observation.md#reference-material-samples)에서 조리대와 식탁, 가구 목재와 floor의 결/광택 구분을 본다. 부품이 단순한 상자인 문제는 후속 형상 설계에 남긴다.
+table top의 V는 local+X, headboard V는 local+Y, 다리는 길이 축이다. 좌판/등받이는 각 넓은 면의 긴 축을 사용하고 동률이면 local+X다. assembly palette의 `walnut`은 어떤 element도 쓰지 않으므로 별도 목재 마감을 두지 않는다. 식재 줄기·흙·녹색 잎에는 목재 마감을 확장하지 않는다. [ref03·04 가구 검사](007-observation.md#reference-material-samples)에서 조리대와 식탁, 가구 목재와 floor의 결/광택 구분을 본다. 부품이 단순한 상자인 문제는 후속 형상 설계에 남긴다.
 
 ## 계단 목재 {#stair-wood}
 
