@@ -9,6 +9,7 @@ interface Hit {
   distance2: number;
   triangle: number;
   feature: "face" | "edge" | "vertex";
+  boundary: boolean;
 }
 
 interface Edge {
@@ -79,6 +80,20 @@ const unit = (vector: readonly number[]): number[] => {
  * without self-intersections and outward orientation, including cavity walls.
  * This function does not infer those properties or close an open boundary.
  * Reversing all faces reverses the sign. Changing positions requires recompiling.
+ *
+ * With `boundary: "open"` the surface may be an oriented sheet: an edge
+ * incident to one triangle is admitted and its pseudonormal is that face's
+ * normal, which is what the angle-weighted construction yields for a boundary
+ * feature. The sign of a sheet is only meaningful within its reach, the
+ * distance below which the nearest feature's orientation still tells the two
+ * sides apart; a point beyond a sheet's rim or farther than its local feature
+ * size reads an arbitrary side, and the caller states the reach that its
+ * geometry justifies. A result whose nearest feature is a rim edge or a
+ * vertex on the rim reports `boundary: true`, which is the query's own
+ * statement that the side it reports is not a side of the sheet's interior;
+ * a closed surface never reports it. Multiply incident or inconsistently
+ * wound edges still refuse in either mode. The default is the closed contract
+ * above.
  * Inputs and returned vectors never expose the compiled snapshot for mutation.
  * Coordinates use metres; near-boundary floating-point values are returned rather
  * than silently classified through a fixed spatial tolerance.
@@ -86,15 +101,17 @@ const unit = (vector: readonly number[]): number[] => {
  * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Supplies metric surface attachments from resident geometry without item-specific approximations.
  * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Preserves source geometry while checking the closed oriented topology required by signed feature distances.
  */
-export function createAutoMovieSignedMeshQuery(mesh: IAutoMovieMesh): (
-  point: readonly number[],
-) => {
+export function createAutoMovieSignedMeshQuery(
+  mesh: IAutoMovieMesh,
+  options?: { boundary?: "closed" | "open" },
+): (point: readonly number[]) => {
   point: number[];
   normal: number[];
   distance: number;
   signedDistance: number;
   triangle: number;
   feature: "face" | "edge" | "vertex";
+  boundary: boolean;
 } {
   const indices = triangleIndicesOf(mesh, "Signed mesh queries");
   if (indices.length === 0 || !mesh.positions.every(Number.isFinite))
@@ -192,13 +209,24 @@ export function createAutoMovieSignedMeshQuery(mesh: IAutoMovieMesh): (
       high: a.map((value, axis) => Math.max(value, b[axis], c[axis])),
     });
   }
+  const open = options?.boundary === "open";
   for (const edge of edges.values()) {
-    if (edge.count !== 2 || edge.balance !== 0)
+    if (
+      edge.count > 2 ||
+      (edge.count === 2 && edge.balance !== 0) ||
+      (edge.count === 1 && !open)
+    )
       throw new Error(
-        "Signed mesh queries require paired oppositely wound edges.",
+        open
+          ? "Signed sheet queries require singly or oppositely paired edges."
+          : "Signed mesh queries require paired oppositely wound edges.",
       );
     unit(edge.normal);
   }
+  const rim = new Set<number>();
+  for (const [key, edge] of edges.entries())
+    if (edge.count === 1)
+      for (const vertex of key.split(":")) rim.add(Number(vertex));
   for (const [vertex, link] of links.entries()) {
     if (link.size === 0) continue;
     const visited = new Set<number>(),
@@ -238,7 +266,7 @@ export function createAutoMovieSignedMeshQuery(mesh: IAutoMovieMesh): (
       if (best !== undefined && bound(node, point) > best.distance2) return;
       if ("triangles" in node) {
         for (const triangle of node.triangles) {
-          const hit = closest(point, triangle, vertexNormals);
+          const hit = closest(point, triangle, vertexNormals, rim);
           if (
             best === undefined ||
             hit.distance2 < best.distance2 ||
@@ -266,6 +294,7 @@ export function createAutoMovieSignedMeshQuery(mesh: IAutoMovieMesh): (
         Math.sign(dot(subtract(point, hit.point), hit.normal)) * distance,
       triangle: hit.triangle,
       feature: hit.feature,
+      boundary: hit.boundary,
     };
   };
 }
@@ -307,6 +336,7 @@ const closest = (
   point: readonly number[],
   triangle: Triangle,
   vertexNormals: number[][],
+  rim: ReadonlySet<number>,
 ): Hit => {
   const t = triangle,
     planeDistance = dot(subtract(point, t.a), t.normal);
@@ -325,6 +355,7 @@ const closest = (
       distance2: planeDistance ** 2,
       triangle: t.id,
       feature: "face",
+      boundary: false,
     };
   let best: Hit | undefined;
   for (const segment of t.segments) {
@@ -351,6 +382,8 @@ const closest = (
         normal:
           vertex === undefined ? segment.edge.normal : vertexNormals[vertex],
         feature: vertex === undefined ? "edge" : "vertex",
+        boundary:
+          vertex === undefined ? segment.edge.count === 1 : rim.has(vertex),
       };
     }
   }

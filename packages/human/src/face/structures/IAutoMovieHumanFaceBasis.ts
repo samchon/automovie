@@ -221,6 +221,63 @@ export interface IAutoMovieHumanFaceBasis {
     }[];
   };
 
+  /**
+   * The coupled oral contact the basis evaluates after articulation: lip
+   * closure scaled to the aperture it has to close, the tongue's passage
+   * through the incisors and lips, and soft tissue kept outside the rigid
+   * dental surfaces. Every quantity is measured on the evaluated document,
+   * never read from a per-person table, and an impossible combination is
+   * refused by name with the millimetres that decide it rather than clamped.
+   *
+   * `lips` and `incisors` name the vermilion seam and incisal edge midline
+   * vertex pairs, found once on the shared topology, whose posed separations
+   * along the basis frame's vertical (made perpendicular to the mandibular
+   * axis) are the interlabial and interincisal apertures. `closure` is the channel
+   * whose rows were decomposed as a delta at `reference` weight one (the
+   * ARKit sense of a lip closure over an open jaw): the builder applies them
+   * scaled by the ratio of the current aperture to the reference aperture,
+   * so weight one seals the lips at any opening and the seal never overshoots
+   * a half-open jaw. `passage` names the tongue surface and its protrusion
+   * channel: a tongue past the incisal plane must be thinner, over the slab
+   * about that plane, than both apertures, because a constant-volume muscular
+   * hydrostat cannot be pressed through closed teeth or sealed lips.
+   * `colliders` are rigid dental surfaces with `closure` triangles that seal
+   * each crown at its root ring and a `reachMetres` within which an open gum
+   * sheet's orientation still tells its sides apart. `soft` surfaces keep, at
+   * every vertex, the clearance they have in the shape-only rest state: a
+   * vertex pushed past that floor is moved back to it along the nearest
+   * feature, and a push beyond `budgetMetres` refuses the document. The
+   * arches themselves are rigid and no channel brings them closer than rest;
+   * occlusal overlap under laterotrusion is a crossing census fact, not a
+   * refusal here. Omission keeps the articulated basis without contact
+   * evaluation.
+   *
+   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-contact Declares the coupled lip, tooth and tongue evaluation whose refusals name the deficient channel and the measured millimetres.
+   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-contact Publishes the aperture landmarks, closure coupling, passage rule, colliders and tissue budgets the builder evaluates in order.
+   */
+  contact?: {
+    /** Vermilion seam midline vertices on one surface, upper then lower. */
+    lips: { surface: string; upper: number; lower: number };
+
+    /** Incisal edge midline vertices on one surface, upper then lower. */
+    incisors: { surface: string; upper: number; lower: number };
+
+    /** Aperture-coupled closure channel and the opening channel it was decomposed against. */
+    closure: { channel: string; reference: string };
+
+    /** Tongue surface, its protrusion channel and the slab half-width about the incisal plane, in metres. */
+    passage: { surface: string; channel: string; slabMetres: number };
+
+    /** Rigid dental colliders: closure triangles over resident vertices and the sheet reach in metres. */
+    colliders: { surface: string; closure: number[]; reachMetres: number }[];
+
+    /** Soft surfaces held outside the colliders, each with the metres it may be pushed before refusal. */
+    soft: { surface: string; budgetMetres: number }[];
+
+    /** Metres of new penetration tolerated before a push or refusal, absorbing row rounding. */
+    toleranceMetres: number;
+  };
+
   /** Connected skin and separately attached components, in the same head frame. */
   surfaces: {
     id: string;
