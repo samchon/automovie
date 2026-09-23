@@ -17,17 +17,17 @@
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation 중정 -0.12, 정문 도로 -0.24, 제단 석단을 모두 temple-ground 안의 국소 높이로 두어 별도 층이나 지하 공간이 생기지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion 완성면 Y값들, 구조체 0.18m, 널판 3.10m와 예약 0.10m·보 깊이 0.18m가 모두 수치로 있어 바닥·천장 단면을 그릴 입력이 비지 않는다.
-@evidenceReview principles/core/common.md#declared-basis Y=0은 설정 좌표, 단 허용은 ground-access에서 받았고 대지 높이 이행은 site-grade 링크로 넘기며 실제 단차 검사는 unverified라고 적었다.
-@evidenceReview principles/design/spaces.md#space-topology 낮은 천장 위 구조 틈에 문·바닥·사다리를 두지 않는다는 문장과 제실·주랑이 경사 하부를 따른다는 문장이 층 안의 장소 관계를 닫는다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority 이 파일은 층 귀속·기준 높이·구조 공유면만 소유하고 방 마감과 제단 석단, 대지 높이 이행을 각 owner에 남긴다.
-@evidenceReview principles/design/spaces.md#space-verification-address 종·횡단면과 문턱·중정 가장자리에서 주랑 바닥 단절이나 서비스 경로의 0.02m 초과 차이를 실패로 명시했다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation 단층·낮은 단 허용이라는 부모 조건이 공간별 완성면과 2.92m 보 아래 높이 예산으로 바뀌었다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work 정문 두 단·중정 한 단이 단높이 허용 안에 있고 낮은 널판과 노출 박공이 공존해 층 수나 접근 조건을 고칠 이유가 없었다.
-@evidenceReview settings/00-delivery.md#coordinates 주랑 완성 바닥 Y=0을 기준으로 방·중정·도로 높이를 같은 m 좌표로 적어 비교 기준이 하나다.
-@evidenceReview settings/10-building.md#ground-access 정문 도로 -0.24와 서비스 외부 0을 다른 값으로 두고 둘 사이 지면은 대지 owner가 잇게 해 석단 높이를 서비스 쪽에 복사하지 않는다.
-@evidenceReview settings/20-envelope.md#ceilings 네 방의 3.10m 널판과 제실·주랑의 노출 경사 하부가 구별돼 공간별 천장 정체성이 유지된다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 중정 -0.12, 정문 도로 -0.24, 제단 석단을 모두 temple-ground 안의 국소 높이로 두어 별도 층이나 지하 공간이 생기지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 완성면 Y값들, 구조체 0.18m, 널판 3.10m와 예약 0.10m·보 깊이 0.18m가 모두 수치로 있어 바닥·천장 단면을 그릴 입력이 비지 않는다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb Y=0은 설정 좌표, 단 허용은 ground-access에서 받았고 대지 높이 이행은 site-grade 링크로 넘기며 실제 단차 검사는 unverified라고 적었다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 낮은 천장 위 구조 틈에 문·바닥·사다리를 두지 않는다는 문장과 제실·주랑이 경사 하부를 따른다는 문장이 층 안의 장소 관계를 닫는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 이 파일은 층 귀속·기준 높이·구조 공유면만 소유하고 방 마감과 제단 석단, 대지 높이 이행을 각 owner에 남긴다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 종·횡단면과 문턱·중정 가장자리에서 주랑 바닥 단절이나 서비스 경로의 0.02m 초과 차이를 실패로 명시했다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 단층·낮은 단 허용이라는 부모 조건이 공간별 완성면과 2.92m 보 아래 높이 예산으로 바뀌었다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 정문 두 단·중정 한 단이 단높이 허용 안에 있고 낮은 널판과 노출 박공이 공존해 층 수나 접근 조건을 고칠 이유가 없었다.
+@evidenceReview settings/00-delivery.md#coordinates #4d2b0d4 주랑 완성 바닥 Y=0을 기준으로 방·중정·도로 높이를 같은 m 좌표로 적어 비교 기준이 하나다.
+@evidenceReview settings/10-building.md#ground-access #be07d7d 정문 도로 -0.24와 서비스 외부 0을 다른 값으로 두고 둘 사이 지면은 대지 owner가 잇게 해 석단 높이를 서비스 쪽에 복사하지 않는다.
+@evidenceReview settings/20-envelope.md#ceilings #c397437 네 방의 3.10m 널판과 제실·주랑의 노출 경사 하부가 구별돼 공간별 천장 정체성이 유지된다.
 -->
 
 storey ID `temple-ground`의 부모는 `temple`이다. [건물 연결](building.md#containment)의 모든 공간은 여기에 속한다. Y=0은 [설정 좌표](../settings/00-delivery.md#coordinates)의 주랑 완성 바닥이며 제실·봉헌실·관리실·기록실·보관실·서비스 마당도 같은 완성 바닥 높이다. 일반 바닥 구조체는 완성면에서 0.18m 아래까지 있고 방별 상면과 수직 단면은 각 방 표면 소유가 받는다. 이 파일은 층 귀속·기준 높이·구조체 공유면을 소유하며 방 바닥의 마감을 중복 저작하지 않는다.
@@ -91,15 +91,15 @@ storey ID `temple-ground`의 부모는 `temple`이다. [건물 연결](building.
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation 파라펫·낮은 마당 벽·현관 반환부와 석단 앞 구조체까지 같은 하단을 적용해 일부 외벽이나 받침 아래에 틈이 남는 면제를 두지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion 하단 식과 최저 접촉 -0.24m, 결과 -0.42m가 모두 적혀 벽 실체와 석단 구조체를 만들 입력이 비지 않는다.
-@evidenceReview principles/core/common.md#declared-basis -0.24m는 대지 owner가 내보내는 값이고 -0.42m는 입력 산술이라고 구별했으며 지지력이나 기초 치수를 주장하지 않는다.
-@evidenceReview principles/design/spaces.md#space-topology 지면 아래 벽 연장이 기존 평면 두께 안에 머물고 방 cells와 support를 아래로 늘리지 않는다는 문장이 층 수를 보존한다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority 지면은 대지, 벽 실체는 입면, 석단 형상은 현관이 소유하고 이 층은 하단 계산과 구조체 연장 규칙만 맡아 한 값을 두 곳이 정하지 않는다.
-@evidenceReview principles/design/spaces.md#space-verification-address 현관 석단 앞과 동·서 외벽 경사 접촉을 포함한 종단면에서 부유·체적 중첩·묻힌 석단·문 위 벽 띠가 각각 실패이며 판정은 unverified로 남았다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation 부모의 접지 요구에 대지 지면을 읽는 하단 유도와 받침 아래 0.06m 틈을 막는 구조체 연장을 더한 것이 이 단위의 결정이다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work 대지 지면이 정문·서비스 두 높이를 잇고 최저 접촉을 공급해 기단 접촉이 성립하므로 부모에 지형이나 구조 보증을 더할 결함이 없었다.
-@evidenceReview settings/40-environment.md#site 접촉선 전체의 최저값을 쓰므로 정면보다 높은 동·서 외벽 경사 구간에서도 벽이 지면 위에서 끝나지 않는다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 파라펫·낮은 마당 벽·현관 반환부와 석단 앞 구조체까지 같은 하단을 적용해 일부 외벽이나 받침 아래에 틈이 남는 면제를 두지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 하단 식과 최저 접촉 -0.24m, 결과 -0.42m가 모두 적혀 벽 실체와 석단 구조체를 만들 입력이 비지 않는다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb -0.24m는 대지 owner가 내보내는 값이고 -0.42m는 입력 산술이라고 구별했으며 지지력이나 기초 치수를 주장하지 않는다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 지면 아래 벽 연장이 기존 평면 두께 안에 머물고 방 cells와 support를 아래로 늘리지 않는다는 문장이 층 수를 보존한다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 지면은 대지, 벽 실체는 입면, 석단 형상은 현관이 소유하고 이 층은 하단 계산과 구조체 연장 규칙만 맡아 한 값을 두 곳이 정하지 않는다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 현관 석단 앞과 동·서 외벽 경사 접촉을 포함한 종단면에서 부유·체적 중첩·묻힌 석단·문 위 벽 띠가 각각 실패이며 판정은 unverified로 남았다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 접지 요구에 대지 지면을 읽는 하단 유도와 받침 아래 0.06m 틈을 막는 구조체 연장을 더한 것이 이 단위의 결정이다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 대지 지면이 정문·서비스 두 높이를 잇고 최저 접촉을 공급해 기단 접촉이 성립하므로 부모에 지형이나 구조 보증을 더할 결함이 없었다.
+@evidenceReview settings/40-environment.md#site #f317e20 접촉선 전체의 최저값을 쓰므로 정면보다 높은 동·서 외벽 경사 구간에서도 벽이 지면 위에서 끝나지 않는다.
 -->
 
 [환경의 접지 요구](../settings/40-environment.md#site)를 소비한다. 외부 지면의 높이는 [대지 지면](site.md#site-grade)이 소유하며 이 층에서 새 경사나 지형을 만들지 않는다. 실제 외벽 바깥 접촉선을 따라 읽은 지면의 최저 높이와, 외벽에 닿는 바닥·석단의 최저 완성면 중 낮은 값에서 [일반 바닥 두께](#ground-storey)를 뺀 높이를 공통 외벽 하단으로 선택한다. 이 매입 여유는 렌더에서 노출 틈을 남기지 않을 형상 입력이며 지반 지지력·기초 구조계산이나 고대 시공 치수의 주장으로 쓰지 않는다.

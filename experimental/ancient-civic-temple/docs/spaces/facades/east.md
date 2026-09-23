@@ -20,7 +20,7 @@
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 처마 벽·낮은 벽·코핑 모서리 칸의 세 상단과 서비스 문턱 슬래브 부피를 비우는 규칙이 있어 문만 그린 막힘을 피한다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 남측 코핑·북측 마당 벽·동측 박공 하부와 openings의 void를 소비해 높이와 문 크기를 중복 결정하지 않는다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 방마다 바깥 문을 더하지 않고 마당 문만 외부로 열어 우측 직접 출입 관계를 지킨다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority 방 안쪽 표면은 각 room, 벽 바깥의 지면과 서비스 문 앞 포장은 site에 남고 모서리 칸의 코핑만 동측 입면이 가져 한 면을 두 owner가 만들지 않는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 방 안쪽 표면은 각 room, 벽 바깥의 지면과 서비스 문 앞 포장은 site에 남고 모서리 칸의 코핑만 동측 입면이 가져 한 면을 두 owner가 만들지 않는다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 문 안/밖과 처마 벽→낮은 벽, 남동 모서리의 파라펫 만남을 함께 보아 부유한 서비스 문과 모서리 틈을 찾는다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 외부 반입 요구를 북쪽 마당의 실제 외벽 문턱과 업무 날개 끝, 남동 모서리 칸에 결속했다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 깊은 문설주와 외부 반입을 마당 외벽에 배정할 수 있어 업무방의 새 외부 문이 필요하지 않았다.

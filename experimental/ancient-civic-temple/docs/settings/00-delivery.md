@@ -264,15 +264,15 @@
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation 첫 행의 지면·경계석·먼 능선·배치 구역부터 UI까지 모든 보이는 범주가 한 분기에 배정돼 전달자만 있고 제작자가 없는 범주가 남지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion 모든 보이는 부재를 새 결정론적 geometry로 만들고 대지를 spaces의 대지 owner에 둔다는 결정이 적혀 외부 에셋 채택이나 대지 소유를 다음 층에 미루지 않는다.
-@evidenceReview principles/core/common.md#declared-basis 새 제작과 reference의 비교 전용 사용이 저작자 결정으로 표시돼 사진에서 추출한 자산이라는 오해가 없고, maps를 열지 않는 이유는 stage 사실로 따로 적혔다.
-@evidenceReview principles/core/settings.md#fact-status 표는 분기 배정이고 부모 review 뒤에만 연다는 조건과 함께 있어 현재 구현 완료의 목록으로 읽히지 않는다.
-@evidenceReview principles/core/settings.md#source-support 외부 에셋·생성 이미지·옛 source를 재사용하지 않아 출처나 라이선스를 꾸민 채택 항목이 없다.
-@evidenceReview principles/core/settings.md#capability-boundary 성능 절충은 관찰 거리 밖 미세 형상 수준의 제안까지이고 필수 부재 삭제로 계산비용을 낮출 권한은 없다.
-@evidenceReview principles/core/settings.md#constraint-sufficiency 반복 부재와 이웃·식생을 공유 prototype·대지 배치 구역·배치 규칙으로 처리하게 해 같은 부재의 수작업 복제가 유일한 해법이 되지 않는다.
-@evidenceReview principles/core/settings.md#observable-identity 기둥·문짝·기와·수반과 이웃 외피를 실제 입체 prototype으로 배정한 행이 viewer 평면 그림이 건물이나 배경 대신 완성되는 것을 막는다.
-@evidenceReview obligations/core/settings.md#subject-breakdown-production-scope spaces의 대지 owner부터 systems와 viewer까지 새 제작/소비 관계를 표로 추적했고 maps를 열지 않는 이유, 국소 setting 밖 도시 확장 금지, 외부 자산 배제가 본문에 있다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 첫 행의 지면·경계석·먼 능선·배치 구역부터 UI까지 모든 보이는 범주가 한 분기에 배정돼 전달자만 있고 제작자가 없는 범주가 남지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 모든 보이는 부재를 새 결정론적 geometry로 만들고 대지를 spaces의 대지 owner에 둔다는 결정이 적혀 외부 에셋 채택이나 대지 소유를 다음 층에 미루지 않는다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 새 제작과 reference의 비교 전용 사용이 저작자 결정으로 표시돼 사진에서 추출한 자산이라는 오해가 없고, maps를 열지 않는 이유는 stage 사실로 따로 적혔다.
+@evidenceReview principles/core/settings.md#fact-status #93a284a 표는 분기 배정이고 부모 review 뒤에만 연다는 조건과 함께 있어 현재 구현 완료의 목록으로 읽히지 않는다.
+@evidenceReview principles/core/settings.md#source-support #430bca9 외부 에셋·생성 이미지·옛 source를 재사용하지 않아 출처나 라이선스를 꾸민 채택 항목이 없다.
+@evidenceReview principles/core/settings.md#capability-boundary #83a6f2c 성능 절충은 관찰 거리 밖 미세 형상 수준의 제안까지이고 필수 부재 삭제로 계산비용을 낮출 권한은 없다.
+@evidenceReview principles/core/settings.md#constraint-sufficiency #20cf612 반복 부재와 이웃·식생을 공유 prototype·대지 배치 구역·배치 규칙으로 처리하게 해 같은 부재의 수작업 복제가 유일한 해법이 되지 않는다.
+@evidenceReview principles/core/settings.md#observable-identity #4ccb62e 기둥·문짝·기와·수반과 이웃 외피를 실제 입체 prototype으로 배정한 행이 viewer 평면 그림이 건물이나 배경 대신 완성되는 것을 막는다.
+@evidenceReview obligations/core/settings.md#subject-breakdown-production-scope #d8fa940 spaces의 대지 owner부터 systems와 viewer까지 새 제작/소비 관계를 표로 추적했고 maps를 열지 않는 이유, 국소 setting 밖 도시 확장 금지, 외부 자산 배제가 본문에 있다.
 -->
 
 저작자 결정: 모든 보이는 건물·부재·집기는 새로 만든 결정론적 geometry다. 참고 사진은 비교 자료로만 채택한다. 외부 에셋·생성 이미지·옛 production source를 재사용하지 않는다. 하나의 주거 블록 배경이나 전체 도시를 새 납품물로 확장하지 않는다.

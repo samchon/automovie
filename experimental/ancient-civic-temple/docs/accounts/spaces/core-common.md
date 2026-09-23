@@ -7,7 +7,7 @@
 -->
 
 <!--
-@evidenceReview obligations/core/common.md#purpose-fit 27파일을 기준/경계/동선/입면/방/roof/소유/관찰/대지의 서로 다른 결과에 대조했다. 기준선만으로는 접합이 닫히지 않고, 방 목록만으로는 관찰이 정해지지 않으며, site를 빼면 건물 접점과 외벽 하단이 허공을 가리킨다는 결손이 본문에 구체적으로 적혀 있다.
+@evidenceReview obligations/core/common.md#purpose-fit #7b32c66 27파일을 기준/경계/동선/입면/방/roof/소유/관찰/대지의 서로 다른 결과에 대조했다. 기준선만으로는 접합이 닫히지 않고, 방 목록만으로는 관찰이 정해지지 않으며, site를 빼면 건물 접점과 외벽 하단이 허공을 가리킨다는 결손이 본문에 구체적으로 적혀 있다.
 -->
 
 이 population은 한 단층 신전의 건물 내부와 외피를 함께 설계한다. [building](../../spaces/building.md)은 외곽·공유 기준선·부모 위계·외부 접점을, [storey](../../spaces/storey.md)는 높이·문턱 지지·외벽 하단을 소유한다. 둘 중 하나가 없으면 방의 평면만 맞아도 도로·문턱·지면을 같은 건물로 연결할 수 없다. [openings](../../spaces/openings.md)는 경계 identity와 실제 void/문/창 위치를, [junctions](../../spaces/junctions.md)는 벽 끝/박공의 폐쇄를 정한다. 후자는 개구부 표만으로는 막을 수 없는 모서리 중첩·roof 아래 누광을 다룬다. [circulation](../../spaces/circulation.md)은 공용/서비스의 서로 다른 시작과 주랑 경유 순서를 정한다.
@@ -25,7 +25,7 @@ roofs의 [assembly](../../spaces/roofs/assembly.md)는 높이·두께·돌출·�
 -->
 
 <!--
-@evidenceReview obligations/core/common.md#layer-boundary 방/입면/roof/대지의 수치는 공간 경계·지면·배치 구역에 쓰이며 물체 곡면·기와 반복·roughness·조명값·이웃 개체 배치를 결정한 단위는 없다. 대지를 maps가 아닌 spaces에 둔 이유와 viewer 전달의 한계가 본문에 구별돼 있다.
+@evidenceReview obligations/core/common.md#layer-boundary #5271f94 방/입면/roof/대지의 수치는 공간 경계·지면·배치 구역에 쓰이며 물체 곡면·기와 반복·roughness·조명값·이웃 개체 배치를 결정한 단위는 없다. 대지를 maps가 아닌 spaces에 둔 이유와 viewer 전달의 한계가 본문에 구별돼 있다.
 -->
 
 27개 파일은 spaces의 topology·외피·대지·치수·표면 배정·관찰 설계다. room 문서의 책상/제단/수반 언급은 방이 수용할 중심·접근·관계의 입력이며 prototype의 곡면·보 단면·기와 mesh를 만드는 설계가 아니다. roof 문서의 경사 매스와 닫힘은 건물 외피가 소유하고 기와/서까래 반복 상세는 후속 모델/반복 분기가 소비한다. 입면의 회벽·기단은 그 재료가 덮을 표면 경계이며 roughness·UV·색 수치는 materials가 소유한다.
@@ -39,7 +39,7 @@ building의 두 접점과 storey의 외벽 하단은 같은 spaces의 [대지](.
 -->
 
 <!--
-@evidenceReview obligations/core/common.md#production-language 작성·건조 보관·반입의 차이와 대지의 흙띠·경계석·배치 구역이 한국어 본문으로 설명되고 영어는 source/API 주소·좌표·식별자에 한정된다. 반공간과 지면 식도 단위와 부호가 설명돼 파일명 추측이 필요 없다.
+@evidenceReview obligations/core/common.md#production-language #3ef4142 작성·건조 보관·반입의 차이와 대지의 흙띠·경계석·배치 구역이 한국어 본문으로 설명되고 영어는 source/API 주소·좌표·식별자에 한정된다. 반공간과 지면 식도 단위와 부호가 설명돼 파일명 추측이 필요 없다.
 -->
 
 [언어 설정](../../settings/00-delivery.md#working-language)에 따라 설계의 결정·이유·관찰은 한국어 기술 서술이다. 관리실의 작성, 기록실의 건조 보관/열람, 보관실의 봉헌물 반입이 한국어로 구별되어 영어 파일명을 추측할 필요가 없다. west/east와 north/south 기준선은 building의 X/Z 표에, cell의 반공간은 colonnade의 부등식에 뜻이 있고 단위 m와 경사 도수는 생산 좌표 규약을 따른다. source 각도 변환과 API의 정확한 철자는 구현 시에도 유지한다.
@@ -53,7 +53,7 @@ viewer-path의 한국어 설명과 키보드 조작은 설계 요구이며 이�
 -->
 
 <!--
-@evidenceReview obligations/core/common.md#proportionate-development 현재 27파일/43 H2의 문자 분포를 같은 방식으로 다시 쟀다. 관찰·개구부·대지는 다수 접합/실패를 다뤄 길고, 짧아진 두 roof 문서도 지지선·끝선·하부 소유 결정을 유지한다. a4c1d468 대비 기존 26파일의 매스/동선 결정이 빠지지 않았고 증가분의 출처가 지붕 재설계·채광구·대지 이관으로 나뉘어 주석 증가를 생산량으로 세지 않는다.
+@evidenceReview obligations/core/common.md#proportionate-development #78feb28 현재 27파일/43 H2의 문자 분포를 같은 방식으로 다시 쟀다. 관찰·개구부·대지는 다수 접합/실패를 다뤄 길고, 짧아진 두 roof 문서도 지지선·끝선·하부 소유 결정을 유지한다. a4c1d468 대비 기존 26파일의 매스/동선 결정이 빠지지 않았고 증가분의 출처가 지붕 재설계·채광구·대지 이관으로 나뉘어 주석 증가를 생산량으로 세지 않는다.
 -->
 
 비교 기준은 21×20.5m 단층, 같은 층의 아홉 공간, 네 외측 입면, 하나의 주랑, 여섯 roof 문서가 다루는 외피와 그 둘레의 국소 대지다. 이 숫자는 authored 설계의 분포이며 compiled census가 아니다. 현재는 27파일/43 H2다. 아래 문자 수는 해당 Markdown에서 HTML 주석·제목 줄·공백 문자를 제거한 본문 길이다. 링크/표 표기 문자는 남겼으므로 독자용 어절 수나 geometry 양으로 읽지 않는다. evidence 문장이 길어져 생긴 분량은 이 비교에 포함하지 않았다.

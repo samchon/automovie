@@ -21,21 +21,21 @@
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation 내부 개구부와 census가 비운 지붕·처마 하부를 보충하고 주랑 영역·마당 두 threshold·네 골에 대지 site 묶음까지 더해 대표 외관으로 분모를 줄이지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion 같은 generation의 environment에서 공간 station과 외부·대지 pose를 유도하고 내부성·눈높이·충돌·실패 보존 규칙을 정해 실행 가능한 관찰 설계다.
-@evidenceReview principles/core/common.md#declared-basis API 기본 높이, 두께 없는 sweep 상자, census가 지붕을 세지 않는 한계를 명시해 반환 수치를 실체 검증으로 확대하지 않는다.
-@evidenceReview principles/design/spaces.md#space-topology 주랑 구멍과 계산 접면, 현관 몸체, 열린 마당 cap, 대지 cell을 구별하고 대지 눈높이를 대지 support에서 재 방 밖 관찰이 방 안 관찰로 세어지지 않는다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority viewer와 계측이 같은 environment ID/binding을 쓰고 입력 수량이나 별도 화면 좌표를 compiled 결과로 복사하지 않는다.
-@evidenceReview principles/design/spaces.md#space-verification-address 네 골 전 길이, 떠 있는 제실 처마 아래, 파라펫 띠, 현관 석단 앞과 경사 외벽의 접지가 반증 위치로 있어 대표 한 점이 틈을 숨기지 못한다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation 일반 관찰 조건에 현관 두 단·중정 네 골·떠 있는 제실 처마·고리 영역과 대지 두 접근을 묻는 지역 질문을 더했다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work 반환 pose가 다른 높이를 주어도 부모 1.6m 조건을 낮추지 않고 원 질문과 보조 pose를 함께 남겨 부모 수정이 필요하지 않았다.
-@evidenceReview settings/00-delivery.md#review-condition 실제 바닥과 대지 support 위 눈높이와 렌즈 포락을 별도로 대조하고 충돌한 원 질문을 지우지 않는다.
-@evidenceReview settings/00-delivery.md#governing-aim 건물/방 정체성의 reference 질문이 topology 전집합 위에 추가돼 좋은 대표 시점 하나로 끝낼 수 없다.
-@evidenceReview settings/50-production.md#references 절개를 검사로 한정하고 다섯 reference를 기존 필수 관찰의 대체로 쓰지 않는다.
-@evidenceReview settings/50-production.md#measurement-truth census 공백을 보충하되 수량·거리·binding은 산출물, 자기 자신으로 읽힘은 프레임으로 나누고 측정하지 않은 통과·접지를 unverified로 남긴다.
-@evidenceReview settings/50-production.md#acceptance 원 질문이 남은 상태나 절개만의 전달을 완료로 선언하지 않는다는 끝 조건을 유지한다.
-@evidenceReview obligations/design/spaces.md#space-review-set plan·단면·입면·내부와 대지 관찰, 왕복 포락, 지붕 골·파라펫 단면을 각 경계/접합에 배정해 유한하지만 누락 없는 검토를 요구한다.
-@evidenceReview contracts/obligations-spaces.md#compiled-observations 외부 전 노출 면과 대지를 포함한 각 공간의 threshold/모서리/네 방위를 보존하고 오목한 주랑 여섯 영역과 census 밖 지붕 관찰을 분모에 넣었다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 내부 개구부와 census가 비운 지붕·처마 하부를 보충하고 주랑 영역·마당 두 threshold·네 골에 대지 site 묶음까지 더해 대표 외관으로 분모를 줄이지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 같은 generation의 environment에서 공간 station과 외부·대지 pose를 유도하고 내부성·눈높이·충돌·실패 보존 규칙을 정해 실행 가능한 관찰 설계다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb API 기본 높이, 두께 없는 sweep 상자, census가 지붕을 세지 않는 한계를 명시해 반환 수치를 실체 검증으로 확대하지 않는다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 주랑 구멍과 계산 접면, 현관 몸체, 열린 마당 cap, 대지 cell을 구별하고 대지 눈높이를 대지 support에서 재 방 밖 관찰이 방 안 관찰로 세어지지 않는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 viewer와 계측이 같은 environment ID/binding을 쓰고 입력 수량이나 별도 화면 좌표를 compiled 결과로 복사하지 않는다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 네 골 전 길이, 떠 있는 제실 처마 아래, 파라펫 띠, 현관 석단 앞과 경사 외벽의 접지가 반증 위치로 있어 대표 한 점이 틈을 숨기지 못한다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 일반 관찰 조건에 현관 두 단·중정 네 골·떠 있는 제실 처마·고리 영역과 대지 두 접근을 묻는 지역 질문을 더했다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 반환 pose가 다른 높이를 주어도 부모 1.6m 조건을 낮추지 않고 원 질문과 보조 pose를 함께 남겨 부모 수정이 필요하지 않았다.
+@evidenceReview settings/00-delivery.md#review-condition #6daf6ae 실제 바닥과 대지 support 위 눈높이와 렌즈 포락을 별도로 대조하고 충돌한 원 질문을 지우지 않는다.
+@evidenceReview settings/00-delivery.md#governing-aim #df3c7b2 건물/방 정체성의 reference 질문이 topology 전집합 위에 추가돼 좋은 대표 시점 하나로 끝낼 수 없다.
+@evidenceReview settings/50-production.md#references #eb34a79 절개를 검사로 한정하고 다섯 reference를 기존 필수 관찰의 대체로 쓰지 않는다.
+@evidenceReview settings/50-production.md#measurement-truth #c6e89a8 census 공백을 보충하되 수량·거리·binding은 산출물, 자기 자신으로 읽힘은 프레임으로 나누고 측정하지 않은 통과·접지를 unverified로 남긴다.
+@evidenceReview settings/50-production.md#acceptance #2c49b7f 원 질문이 남은 상태나 절개만의 전달을 완료로 선언하지 않는다는 끝 조건을 유지한다.
+@evidenceReview obligations/design/spaces.md#space-review-set #86bcab4 plan·단면·입면·내부와 대지 관찰, 왕복 포락, 지붕 골·파라펫 단면을 각 경계/접합에 배정해 유한하지만 누락 없는 검토를 요구한다.
+@evidenceReview contracts/obligations-spaces.md#compiled-observations #09b52ea 외부 전 노출 면과 대지를 포함한 각 공간의 threshold/모서리/네 방위를 보존하고 오목한 주랑 여섯 영역과 census 밖 지붕 관찰을 분모에 넣었다.
 -->
 
 [관찰 계약](../contracts/obligations-spaces.md#compiled-observations)과 [검토 프레임](../settings/00-delivery.md#review-condition)을 그대로 소비한다. 입력은 한 generation의 실제 built environment와 lowering 산출물이며 viewer와 계측이 같은 값을 쓴다. `builtEnvironmentBuildingCensus`의 외피·지붕·처마 하부·모서리·외부 출입 population을 소비하되 내부 개구부는 별도 actual boundary/opening 전집합에서 더한다. 이 census는 host face를 가진 단일 공간 경계만 입면으로 세며 지붕은 경계 face가 아니어서 지붕·처마 하부 population이 비므로, 네 방향 지붕 조감과 네 입면의 처마 하부 관찰을 source owner가 별도로 더한다.

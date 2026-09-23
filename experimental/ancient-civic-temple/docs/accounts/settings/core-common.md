@@ -19,7 +19,7 @@
 -->
 
 <!--
-@evidenceReview obligations/core/common.md#layer-boundary settings 일곱 파일은 범위·정체성·권한을 소유하고 spaces의 좌표·지붕 단면·대지 구획은 이 account의 설정 비교 밖이다. build-scope의 대지 배정과 40-environment의 거리 범위는 spaces 대지 owner가 소비할 입력으로 읽히며, 물체 이름과 치수 범위가 실제 prototype/placement를 대신하지 않고 CJS 선택도 실행 성공으로 서술되지 않는다. 선행 wiki는 치수 canon의 소유가 아니다.
+@evidenceReview obligations/core/common.md#layer-boundary #5271f94 settings 일곱 파일은 범위·정체성·권한을 소유하고 spaces의 좌표·지붕 단면·대지 구획은 이 account의 설정 비교 밖이다. build-scope의 대지 배정과 40-environment의 거리 범위는 spaces 대지 owner가 소비할 입력으로 읽히며, 물체 이름과 치수 범위가 실제 prototype/placement를 대신하지 않고 CJS 선택도 실행 성공으로 서술되지 않는다. 선행 wiki는 치수 canon의 소유가 아니다.
 -->
 
 00-delivery의 build-scope는 후속 분기 배정이지 구현 수량표가 아니다. 10-building의 410~450㎡와 통과 폭은 설계 입력이며 방별 좌표나 벽 압출을 소유하지 않는다. 20-envelope의 처마 높이·경사 허용 범위는 실제 지붕 단면·배수·접합을 대신하지 않고, 색 관계는 materials의 수치 roughness나 texture scale을 정하지 않는다. 30-interiors는 물체의 방별 기능·접근·상태를, 35-objects는 그 물체가 무엇으로 읽혀야 하는지와 크기 범위를 정하며 실제 모델/반복 placement를 만들지 않는다. 40-environment의 거리·빛 방향은 spaces 대지 owner와 systems가 소비할 범위다. 50-production의 CJS producer와 GPU 요구는 실행 경계이며 코드나 성공 로그가 아니다. .wiki의 평면·지붕 후보는 설정 canon의 소유가 아니며 실제 spaces/source 구현도 이 settings 층의 비교 결과에 포함되지 않는다.
