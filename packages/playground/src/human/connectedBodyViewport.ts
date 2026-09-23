@@ -25,7 +25,10 @@ type Host = Pick<
   loadTexture: (asset: string) => Promise<THREE.Texture>;
 };
 
-/** Assemble the body renderer, resident worker and metre-scale display scene. */
+/** Assemble the body renderer, resident worker and metre-scale display scene.
+ * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Presents orbit, clay, shadow and companion face controls around the committed posed body.
+ * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Keeps camera and companion display state separate from numerical body documents.
+ */
 export function createConnectedBodyViewport(props: Host) {
   const { renderer, canvas } = props;
   renderer.setPixelRatio(Math.min(props.pixelRatio, 2));

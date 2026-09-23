@@ -19,7 +19,12 @@ import {
   createHumanResidentWorker,
 } from "./residentWorker";
 
-/** Keep one worker alive across edits and separate exported bytes from frames. */
+/** Keep one worker alive across edits and separate exported bytes from frames.
+ * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Withdraws stale edits and prepares only the latest numerical body for publication.
+ * @evidence requirements/actors/body-authoring/contract.md#actor-body-export Requests GLB independently for the committed body document.
+ * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Keeps the admitted worker resident while correlating preview and export transactions.
+ * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-export Leaves file encoding to the explicit worker export request.
+ */
 export function createConnectedBodyPreview(props: {
   worker: () => HumanResidentPort<ConnectedBodyRequest, ConnectedBodyResult>;
   renderer: ReturnType<typeof createConnectedBodyRenderer>;

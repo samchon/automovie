@@ -75,7 +75,10 @@ function releaseGroup(group: THREE.Group): void {
   for (const material of materials) material.dispose();
 }
 
-/** Own and publish the Three.js buffers used by one body editor viewport. */
+/** Own and publish the Three.js buffers used by one body editor viewport.
+ * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Displays the committed posed body and its material regions without changing its document.
+ * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Prepares resident geometry, reuses matching buffers and swaps visible frames only on publication.
+ */
 export function createConnectedBodyRenderer(props: {
   loadTexture: (asset: string) => Promise<THREE.Texture>;
   maxAnisotropy: number;

@@ -19,7 +19,12 @@ import type {
   ConnectedBodyResult,
 } from "./connectedBodyProtocol";
 
-/** Compile the basis once and evaluate all later body requests against it. */
+/** Compile the basis once and evaluate all later body requests against it.
+ * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Reuses one admitted body prior for preview edits and on-demand contact checks.
+ * @evidence requirements/actors/body-authoring/contract.md#actor-body-export Encodes the committed static body only when export is requested.
+ * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Keeps the body numerical builder resident across edit transactions.
+ * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-export Evaluates the requested document through the same builder before static GLB export.
+ */
 export function createConnectedBodyRuntime(basis: IAutoMovieHumanBodyBasis) {
   const evaluate = createHumanBodyBasisBuilder(basis);
   let last:

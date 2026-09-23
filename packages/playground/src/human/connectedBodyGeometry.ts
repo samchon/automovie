@@ -13,7 +13,10 @@ import type {
   ConnectedBodyPart,
 } from "./connectedBodyProtocol";
 
-/** Validate and pack the local meshes before ownership moves to the page. */
+/** Validate and pack the local meshes before ownership moves to the page.
+ * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Supplies the exact posed surface shown by the body editor.
+ * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Checks and packs Float32 resident meshes before display preparation.
+ */
 export function packConnectedBodyModel(
   model: IAutoMovieModel,
 ): ConnectedBodyModel {

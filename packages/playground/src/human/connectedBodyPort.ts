@@ -10,7 +10,10 @@ import type {
 } from "./connectedBodyProtocol";
 import type { HumanResidentPort } from "./residentWorker";
 
-/** Keep native event callbacks and termination inside the browser adapter. */
+/** Keep native event callbacks and termination inside the browser adapter.
+ * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Settles failed and unreadable body worker requests so the last valid edit remains visible.
+ * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Correlates browser worker replies and retires a silent or failed connection before recovery.
+ */
 export function createConnectedBodyPort(
   worker: Pick<
     Worker,
