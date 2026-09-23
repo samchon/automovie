@@ -81,6 +81,36 @@ export namespace IAutoMovieHumanFaceHair {
      * every root is a guide, which is the flat population.
      */
     guides?: { fraction: number; neighbours: number; clump?: number };
+    /**
+     * Optional shared gathering operation for a tied hairstyle. The tie is a
+     * ray from the growth domain's neutral origin, with polar angle from +Y
+     * and azimuth from +Z toward +X, both in radians. The builder attaches
+     * its hit barycentrically to the current scalp. `radius` in metres is the
+     * tie neighborhood; `strength` in (0,1] blends scalp-directed attraction
+     * with the ordinary comb field until a curve enters it. The remaining
+     * authored length then follows `tail.direction` in the head frame. No
+     * individual curve or tie vertex is stored. A gathered layer integrates
+     * all roots because whole-curve guide interpolation would mix the two
+     * stages at different arc fractions.
+     *
+     * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Keeps a tied style in reusable numerical controls without personal groom geometry.
+     * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-parametric-hair Carries the polar tie, approach, tail and optional cross-section inputs the shared generator evaluates.
+     */
+    gather?: {
+      anchor: { polar: number; azimuth: number };
+      radius: number;
+      strength: number;
+      tail: {
+        direction: [number, number, number];
+        /**
+         * Optional metre-space tail cross-section target and positive arc
+         * length over which it grows or contracts from the tie. The same
+         * smooth radial profile applies to every rooted lock; no person owns
+         * a strand offset or a hidden bundle mesh.
+         */
+        spread?: { radius: number; reach: number };
+      };
+    };
     /** Positive maximum integration step in metres, at most 0.005. */
     samplingStep: number;
     /** Nonnegative requested free-strip clearance from the skin, in metres. */

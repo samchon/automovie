@@ -73,6 +73,24 @@ export function assertHumanFaceHair(input: IAutoMovieHumanFaceHair): void {
       throw new Error(
         "Hair guides need a fraction in (0,1], one to eight neighbours and a clump in [0,1].",
       );
+    if (layer.gather !== undefined) {
+      const gather = layer.gather;
+      if (
+        !bounded(gather.anchor.polar, 0, Math.PI) ||
+        !bounded(gather.anchor.azimuth, -Math.PI, Math.PI) ||
+        !positive(gather.radius) ||
+        !positive(gather.strength) ||
+        gather.strength > 1 ||
+        !direction(gather.tail.direction) ||
+        (gather.tail.spread !== undefined &&
+          (!nonnegative(gather.tail.spread.radius) ||
+            !positive(gather.tail.spread.reach))) ||
+        (layer.guides !== undefined && layer.guides.fraction !== 1)
+      )
+        throw new Error(
+          "Gathered hair needs a scalp ray, positive tie radius and strength, a tail direction and fully integrated roots.",
+        );
+    }
     const part = layer.part;
     if (part !== undefined) {
       if (

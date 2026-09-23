@@ -36,12 +36,23 @@ export function portraitWebCapturePose(poses, id, hairMask) {
     !Number.isFinite(pose.yaw) ||
     !Number.isFinite(pose.pitch) ||
     Math.abs(pose.yaw) > 180 ||
-    Math.abs(pose.pitch) >= 90
+    Math.abs(pose.pitch) >= 90 ||
+    (pose.distance !== undefined &&
+      (!Number.isFinite(pose.distance) || pose.distance <= 0)) ||
+    (pose.target !== undefined &&
+      (pose.target.length !== 3 ||
+        pose.target.some((value) => !Number.isFinite(value))))
   )
     throw new Error(
-      "A matched face view needs a finite measured yaw and pitch.",
+      "A matched face view needs a finite measured camera pose and frame.",
     );
-  return { yaw: pose.yaw, pitch: pose.pitch, hairMask };
+  return {
+    yaw: pose.yaw,
+    pitch: pose.pitch,
+    hairMask,
+    ...(pose.distance === undefined ? {} : { distance: pose.distance }),
+    ...(pose.target === undefined ? {} : { target: [...pose.target] }),
+  };
 }
 
 /** Reset the subject frame before a close camera reads child world bounds. */

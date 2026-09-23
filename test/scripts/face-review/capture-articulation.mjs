@@ -10,7 +10,8 @@
  * fallback cannot pass for a GPU frame. `front-hair-mask` renders the exact
  * visible numerical-hair parts as white over black, preserving their fibre
  * alpha and the other parts' depth occlusion for photo-silhouette comparisons.
- * An optional pose file maps model IDs to estimated {yaw,pitch} angles;
+ * An optional pose file maps model IDs to estimated {yaw,pitch} angles and
+ * optional fixed camera distance/target for a whole-hair frame;
  * `reference-yaw` and `reference-yaw-hair-mask` use that same per-model camera.
  * This runner records an estimate, not recovered physical intrinsics.
  * A JSON file without model parts and materials is skipped. Views include front,

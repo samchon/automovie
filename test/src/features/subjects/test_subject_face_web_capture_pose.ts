@@ -27,6 +27,28 @@ export const test_subject_face_web_capture_pose = (): void => {
     yaw: -29.3,
     pitch: 4.1,
   });
+  const framed = {
+    face: {
+      yaw: -26,
+      pitch: 0,
+      distance: 1.55,
+      target: [0, -0.19, 0.06] as [number, number, number],
+    },
+  };
+  const options = portraitWebCapturePose(framed, "face", true);
+  TestValidator.equals("fixed full-hair framing", options, {
+    yaw: -26,
+    pitch: 0,
+    hairMask: true,
+    distance: 1.55,
+    target: [0, -0.19, 0.06],
+  });
+  options.target![1] = 0;
+  TestValidator.equals(
+    "frame stays caller-owned",
+    framed.face.target,
+    [0, -0.19, 0.06],
+  );
   for (const [yaw, pitch] of [
     [0, 0],
     [-180, 89.9],
@@ -46,7 +68,7 @@ export const test_subject_face_web_capture_pose = (): void => {
       "missing measured pose refuses",
       throwsError(
         () => portraitWebCapturePose(invalid, "face", false),
-        "finite measured yaw and pitch",
+        "finite measured camera pose and frame",
       ),
     );
   for (const [yaw, pitch] of [
@@ -63,7 +85,29 @@ export const test_subject_face_web_capture_pose = (): void => {
       "invalid camera refuses",
       throwsError(
         () => portraitWebCapturePose({ face: { yaw, pitch } }, "face", false),
-        "finite measured yaw and pitch",
+        "finite measured camera pose and frame",
+      ),
+    );
+  for (const extra of [
+    { distance: 0 },
+    { distance: -1 },
+    { distance: NaN },
+    { target: [0, 0] },
+    { target: [0, Infinity, 0] },
+  ])
+    TestValidator.predicate(
+      "invalid full-hair frame refuses",
+      throwsError(
+        () =>
+          portraitWebCapturePose(
+            { face: { yaw: 0, pitch: 0, ...extra } } as unknown as Record<
+              string,
+              { yaw: number; pitch: number }
+            >,
+            "face",
+            false,
+          ),
+        "finite measured camera pose and frame",
       ),
     );
 };

@@ -5,10 +5,24 @@ export declare function portraitWebHairMaskPixels(
   rgba: Uint8ClampedArray,
 ): Uint8ClampedArray;
 export declare function portraitWebCapturePose(
-  poses: Record<string, { yaw: number; pitch: number } | null> | null,
+  poses: Record<
+    string,
+    {
+      yaw: number;
+      pitch: number;
+      distance?: number;
+      target?: [number, number, number];
+    } | null
+  > | null,
   id: string,
   hairMask: boolean,
-): { yaw: number; pitch: number; hairMask: boolean };
+): {
+  yaw: number;
+  pitch: number;
+  hairMask: boolean;
+  distance?: number;
+  target?: number[];
+};
 export declare function resetPortraitWebSubject(subject: {
   matrixAutoUpdate: boolean;
   matrix: { identity(): unknown };

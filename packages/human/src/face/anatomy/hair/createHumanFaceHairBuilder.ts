@@ -8,6 +8,7 @@ import type { IAutoMovieHumanFaceBasis } from "../../structures/IAutoMovieHumanF
 import type { IAutoMovieHumanFaceHair } from "../../structures/IAutoMovieHumanFaceHair";
 import { assertHumanFaceHair } from "./assertHumanFaceHair";
 import { buildHumanFaceHairMesh } from "./buildHumanFaceHairMesh";
+import { createHumanFaceHairGatherField } from "./createHumanFaceHairGatherField";
 import { createHumanFaceHairRoots } from "./createHumanFaceHairRoots";
 import { createPortraitHairMaterial } from "./createPortraitHairMaterial";
 import { growHumanFaceHairStrand } from "./growHumanFaceHairStrand";
@@ -16,6 +17,7 @@ import { humanFaceHairDensity } from "./humanFaceHairDensity";
 import { humanFaceHairSequence } from "./humanFaceHairSequence";
 import { integrateHumanFaceHairCurve } from "./integrateHumanFaceHairCurve";
 import { interpolateHumanFaceHairStrands } from "./interpolateHumanFaceHairStrands";
+import { resolveHumanFaceHairGatherAnchor } from "./resolveHumanFaceHairGatherAnchor";
 
 /**
  * Compile shared growth correspondence, then generate numerical hair on a face.
@@ -169,6 +171,27 @@ export function createHumanFaceHairBuilder(input: IAutoMovieHumanFaceBasis) {
         });
         queries.set(layer.surface, query);
       }
+      const gatherAnchor =
+        layer.gather === undefined
+          ? undefined
+          : resolveHumanFaceHairGatherAnchor({
+              origin: domain.origin,
+              positions: source.surface.positions,
+              current,
+              indices: source.surface.indices,
+              triangles: domain.triangles,
+              polar: layer.gather.anchor.polar,
+              azimuth: layer.gather.anchor.azimuth,
+            });
+      const gatherDirection =
+        gatherAnchor === undefined
+          ? undefined
+          : createHumanFaceHairGatherField({
+              positions: current,
+              indices: source.surface.indices,
+              triangles: domain.triangles,
+              anchor: gatherAnchor,
+            });
       const guided = layer.guides;
       const isGuide = (sequence: number): boolean =>
         guided === undefined ||
@@ -212,6 +235,8 @@ export function createHumanFaceHairBuilder(input: IAutoMovieHumanFaceBasis) {
           normal,
           sequence: root.sequence,
           query,
+          gatherAnchor: gatherAnchor?.point,
+          gatherDirection,
         });
         stations += curve.points.length;
         if (stations > 1_000_000)
@@ -274,6 +299,8 @@ export function createHumanFaceHairBuilder(input: IAutoMovieHumanFaceBasis) {
               normal,
               sequence: root.sequence,
               query,
+              gatherAnchor: gatherAnchor?.point,
+              gatherDirection,
             }),
         });
         stations += grown.points.length - strand.points.length;
