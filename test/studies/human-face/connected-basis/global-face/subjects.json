@@ -2,7 +2,7 @@
   {
     "id": "alan-rickman-connected",
     "name": "alan-rickman (connected study)",
-    "basis": "mpfb-connected-head-2026-09-23-dental",
+    "basis": "mpfb-connected-head-2026-09-23-appearance",
     "shape": {
       "headWidth": -0.21632129539659278,
       "headHeight": 0.1367818148632647,
@@ -152,6 +152,13 @@
           "b": 0.17
         },
         "roughness": 0.57
+      },
+      "Human.eyebrow001": {
+        "pigment": [
+          0.22529,
+          0.12093,
+          0.08628
+        ]
       }
     },
     "hair": {
@@ -276,7 +283,7 @@
   {
     "id": "daniel-radcliffe-connected",
     "name": "daniel-radcliffe (connected study)",
-    "basis": "mpfb-connected-head-2026-09-23-dental",
+    "basis": "mpfb-connected-head-2026-09-23-appearance",
     "shape": {
       "headWidth": -0.14419439444168386,
       "headHeight": 0.08076531952354073,
@@ -430,6 +437,13 @@
           "b": 0.18
         },
         "roughness": 0.57
+      },
+      "Human.eyebrow001": {
+        "pigment": [
+          0.04798,
+          0.01727,
+          0.00848
+        ]
       }
     },
     "hair": {
@@ -624,7 +638,7 @@
   {
     "id": "emma-watson-connected",
     "name": "emma-watson (connected study)",
-    "basis": "mpfb-connected-head-2026-09-23-dental",
+    "basis": "mpfb-connected-head-2026-09-23-appearance",
     "shape": {
       "headWidth": 0.01719157504012354,
       "headHeight": 0.0035971738377070027,
@@ -773,6 +787,13 @@
           "b": 0.09
         },
         "roughness": 0.57
+      },
+      "Human.eyebrow001": {
+        "pigment": [
+          0.05015,
+          0.02224,
+          0.01067
+        ]
       }
     },
     "hair": {
@@ -896,7 +917,7 @@
   {
     "id": "generated-black-boy-01-connected",
     "name": "generated-black-boy-01 (connected study)",
-    "basis": "mpfb-connected-head-2026-09-23-dental",
+    "basis": "mpfb-connected-head-2026-09-23-appearance",
     "shape": {
       "headWidth": -0.14328040296794559,
       "headHeight": 0.1015997121074854,
@@ -1047,6 +1068,13 @@
           "b": 0.075
         },
         "roughness": 0.57
+      },
+      "Human.eyebrow001": {
+        "pigment": [
+          0.02171,
+          0.01351,
+          0.01092
+        ]
       }
     },
     "hair": {
@@ -1142,7 +1170,7 @@
   {
     "id": "generated-black-girl-01-connected",
     "name": "generated-black-girl-01 (connected study)",
-    "basis": "mpfb-connected-head-2026-09-23-dental",
+    "basis": "mpfb-connected-head-2026-09-23-appearance",
     "shape": {
       "headWidth": -0.30097483094693617,
       "headHeight": 0.15275383036912965,
@@ -1294,6 +1322,13 @@
           "b": 0.105
         },
         "roughness": 0.57
+      },
+      "Human.eyebrow001": {
+        "pigment": [
+          0.02596,
+          0.01252,
+          0.00978
+        ]
       }
     },
     "hair": {
@@ -1417,7 +1452,7 @@
   {
     "id": "generated-korean-boy-01-connected",
     "name": "generated-korean-boy-01 (connected study)",
-    "basis": "mpfb-connected-head-2026-09-23-dental",
+    "basis": "mpfb-connected-head-2026-09-23-appearance",
     "shape": {
       "headWidth": -0.2766879029455006,
       "headHeight": 0.08957223698417179,
@@ -1569,6 +1604,13 @@
           "b": 0.19
         },
         "roughness": 0.57
+      },
+      "Human.eyebrow001": {
+        "pigment": [
+          0.03281,
+          0.02012,
+          0.01591
+        ]
       }
     },
     "hair": {
@@ -1692,7 +1734,7 @@
   {
     "id": "generated-white-boy-01-connected",
     "name": "generated-white-boy-01 (connected study)",
-    "basis": "mpfb-connected-head-2026-09-23-dental",
+    "basis": "mpfb-connected-head-2026-09-23-appearance",
     "shape": {
       "headWidth": -0.10871872190194158,
       "headHeight": 0.1295620657450308,
@@ -1845,6 +1887,13 @@
           "b": 0.21
         },
         "roughness": 0.57
+      },
+      "Human.eyebrow001": {
+        "pigment": [
+          0.04106,
+          0.02222,
+          0.01661
+        ]
       }
     },
     "hair": {
@@ -1968,7 +2017,7 @@
   {
     "id": "generated-white-girl-01-connected",
     "name": "generated-white-girl-01 (connected study)",
-    "basis": "mpfb-connected-head-2026-09-23-dental",
+    "basis": "mpfb-connected-head-2026-09-23-appearance",
     "shape": {
       "headWidth": -0.032921385087665414,
       "headHeight": 0.02350585561485061,
@@ -2117,6 +2166,13 @@
           "b": 0.21
         },
         "roughness": 0.57
+      },
+      "Human.eyebrow001": {
+        "pigment": [
+          0.09296,
+          0.05365,
+          0.04246
+        ]
       }
     },
     "hair": {
@@ -2259,7 +2315,7 @@
   {
     "id": "kim-min-jung-connected",
     "name": "kim-min-jung (connected study)",
-    "basis": "mpfb-connected-head-2026-09-23-dental",
+    "basis": "mpfb-connected-head-2026-09-23-appearance",
     "shape": {
       "headWidth": -0.16994681164962133,
       "headHeight": 0.05454993462577807,
@@ -2407,6 +2463,13 @@
           "b": 0.21
         },
         "roughness": 0.57
+      },
+      "Human.eyebrow001": {
+        "pigment": [
+          0.01379,
+          0.01904,
+          0.02099
+        ]
       }
     },
     "hair": {
@@ -2573,7 +2636,7 @@
   {
     "id": "lee-tae-ri-connected",
     "name": "lee-tae-ri (connected study)",
-    "basis": "mpfb-connected-head-2026-09-23-dental",
+    "basis": "mpfb-connected-head-2026-09-23-appearance",
     "shape": {
       "headWidth": -0.1321221610190711,
       "headHeight": 0.1188071368156422,
@@ -2725,6 +2788,13 @@
           "b": 0.24
         },
         "roughness": 0.57
+      },
+      "Human.eyebrow001": {
+        "pigment": [
+          0.03585,
+          0.02128,
+          0.01858
+        ]
       }
     },
     "hair": {
@@ -2848,7 +2918,7 @@
   {
     "id": "maggie-smith-connected",
     "name": "maggie-smith (connected study)",
-    "basis": "mpfb-connected-head-2026-09-23-dental",
+    "basis": "mpfb-connected-head-2026-09-23-appearance",
     "shape": {
       "headWidth": -0.15998379022793405,
       "headHeight": 0.15132059397286912,
@@ -2999,6 +3069,13 @@
           "b": 0.19
         },
         "roughness": 0.57
+      },
+      "Human.eyebrow001": {
+        "pigment": [
+          0.4727,
+          0.26332,
+          0.17881
+        ]
       }
     },
     "hair": {
@@ -3123,7 +3200,7 @@
   {
     "id": "michael-gambon-connected",
     "name": "michael-gambon (connected study)",
-    "basis": "mpfb-connected-head-2026-09-23-dental",
+    "basis": "mpfb-connected-head-2026-09-23-appearance",
     "shape": {
       "headWidth": -0.09607843620429035,
       "headHeight": -0.023221640542795283,
@@ -3268,6 +3345,13 @@
           "b": 0.2
         },
         "roughness": 0.57
+      },
+      "Human.eyebrow001": {
+        "pigment": [
+          0.06078,
+          0.0436,
+          0.03567
+        ]
       }
     },
     "hair": {
@@ -3364,7 +3448,7 @@
   {
     "id": "miriam-margolyes-connected",
     "name": "miriam-margolyes (connected study)",
-    "basis": "mpfb-connected-head-2026-09-23-dental",
+    "basis": "mpfb-connected-head-2026-09-23-appearance",
     "shape": {
       "headWidth": 0.10955686052421654,
       "headHeight": -0.1354776231017277,
@@ -3516,6 +3600,13 @@
           "b": 0.2
         },
         "roughness": 0.57
+      },
+      "Human.eyebrow001": {
+        "pigment": [
+          0.2277,
+          0.11409,
+          0.09865
+        ]
       }
     },
     "hair": {
@@ -3684,7 +3775,7 @@
   {
     "id": "oh-seung-yoon-connected",
     "name": "oh-seung-yoon (connected study)",
-    "basis": "mpfb-connected-head-2026-09-23-dental",
+    "basis": "mpfb-connected-head-2026-09-23-appearance",
     "shape": {
       "headWidth": -0.14621778961613513,
       "headHeight": 0.045378305918042504,
@@ -4026,7 +4117,7 @@
   {
     "id": "park-eun-bin-connected",
     "name": "park-eun-bin (connected study)",
-    "basis": "mpfb-connected-head-2026-09-23-dental",
+    "basis": "mpfb-connected-head-2026-09-23-appearance",
     "shape": {
       "headWidth": -0.1642515472027471,
       "headHeight": 0.12540294461983814,
@@ -4180,6 +4271,13 @@
           "b": 0.25
         },
         "roughness": 0.57
+      },
+      "Human.eyebrow001": {
+        "pigment": [
+          0.1046,
+          0.05008,
+          0.04545
+        ]
       }
     },
     "hair": {
@@ -4374,7 +4472,7 @@
   {
     "id": "rupert-grint-connected",
     "name": "rupert-grint (connected study)",
-    "basis": "mpfb-connected-head-2026-09-23-dental",
+    "basis": "mpfb-connected-head-2026-09-23-appearance",
     "shape": {
       "headWidth": -0.04806101701215676,
       "headHeight": 0.05477567938155129,
@@ -4527,6 +4625,13 @@
           "b": 0.2
         },
         "roughness": 0.57
+      },
+      "Human.eyebrow001": {
+        "pigment": [
+          0.22232,
+          0.1099,
+          0.05806
+        ]
       }
     },
     "hair": {
@@ -4650,7 +4755,7 @@
   {
     "id": "yoo-seung-ho-connected",
     "name": "yoo-seung-ho (connected study)",
-    "basis": "mpfb-connected-head-2026-09-23-dental",
+    "basis": "mpfb-connected-head-2026-09-23-appearance",
     "shape": {
       "headWidth": -0.04682910582488017,
       "headHeight": 0.023046590402676176,
@@ -4798,6 +4903,13 @@
           "b": 0.18
         },
         "roughness": 0.57
+      },
+      "Human.eyebrow001": {
+        "pigment": [
+          0.01838,
+          0.0148,
+          0.01526
+        ]
       }
     },
     "hair": {
@@ -4992,7 +5104,7 @@
   {
     "id": "kdy1-connected",
     "name": "kdy1 (connected study)",
-    "basis": "mpfb-connected-head-2026-09-23-dental",
+    "basis": "mpfb-connected-head-2026-09-23-appearance",
     "shape": {
       "headWidth": -0.1663319127017783,
       "headHeight": 0.05669548953187567,

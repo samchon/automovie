@@ -1,0 +1,6174 @@
+{
+  "basis": "mpfb-connected-head-2026-09-23-dental",
+  "sourceReceiptSha256": "93bcd7ebefed7a147542f38eef5f6d905d4319f376a5ba4073c867e7ea919b84",
+  "exportViewsSha256": "746b29459d271733572d1e16705219e4ebff3835ccaf5f2ef8523ef8bd6fdef1",
+  "instrument": {
+    "faceLandmarkerSha256": "64184e229b263107bc2b804c6625db1341ff2bb731874b0bcc2fe6544e0bc9ff",
+    "hairSegmenterSha256": "2628cf3ce5f695f604cbea2841e00befcaa3624bf80caf3664bef2656d59bf84",
+    "mediapipeVersion": "0.10.35",
+    "renderer": "ANGLE (AMD, AMD Radeon 780M Graphics (0x000015BF) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "portraitPoseFileSha256": "238e65b3d1156d9cb2f3e2d11efdf358af18976d7f9a03febf03f52bd151af5a",
+    "framePoseFileSha256": "0bce2c5325320b32297238cd0c199c548d54a64b999c78ac96ac383ff4f6ba1b"
+  },
+  "summary": {
+    "landmarkRmsInterocular": {
+      "median": 0.03451296720241714,
+      "count": 17
+    },
+    "detectorPoseDifferenceDegrees": {
+      "median": 5.571171117281277,
+      "count": 17
+    },
+    "hairIouHead": {
+      "median": 0.5538392887790479,
+      "count": 17
+    },
+    "hairIouCovered": {
+      "median": 0.5501548310775547,
+      "count": 17
+    },
+    "uncoveredReferenceHairShare": {
+      "median": 0,
+      "count": 17
+    },
+    "eyeApertureAbsoluteError": {
+      "median": 0.027995823870894387,
+      "count": 17
+    },
+    "eyeApertureSignedError": {
+      "median": 0.016896576106657485,
+      "count": 17
+    },
+    "mouthCornerLiftSignedError": {
+      "median": -0.018294321778681885,
+      "count": 17
+    },
+    "upperIncisorExposureSignedError": {
+      "median": -0.09000000000000005,
+      "count": 2
+    },
+    "lowerIncisorExposureSignedError": {
+      "median": 0.02800000000000001,
+      "count": 2
+    },
+    "incisalGapSignedError": {
+      "median": null,
+      "count": 0
+    },
+    "cheekDeltaE76": {
+      "median": 17.88688980236035,
+      "count": 17
+    },
+    "irisDeltaE76": {
+      "median": 11.524996683750844,
+      "count": 17
+    },
+    "hairDeltaE76": {
+      "median": 12.673180564282873,
+      "count": 17
+    },
+    "browToneDeltaE76": {
+      "median": 38.644406292650764,
+      "count": 15
+    },
+    "irisMinusSkinLightnessError": {
+      "median": 2.6623653577961477,
+      "count": 17
+    },
+    "hairMinusSkinLightnessError": {
+      "median": 0.16996116694708974,
+      "count": 17
+    },
+    "skinOverScleraLuminanceError": {
+      "median": 1.0177123039892269,
+      "count": 17
+    }
+  },
+  "identification": {
+    "rows": [
+      {
+        "subject": "alan-rickman",
+        "rank": 1,
+        "own": 0.030554160347469994,
+        "nearestOther": 0.08834508390059967
+      },
+      {
+        "subject": "daniel-radcliffe",
+        "rank": 2,
+        "own": 0.03798494139690283,
+        "nearestOther": 0.03475259685977117
+      },
+      {
+        "subject": "emma-watson",
+        "rank": 2,
+        "own": 0.06870903894805412,
+        "nearestOther": 0.06824683890743712
+      },
+      {
+        "subject": "generated-black-boy-01",
+        "rank": 1,
+        "own": 0.04306146258366284,
+        "nearestOther": 0.04496332586282948
+      },
+      {
+        "subject": "generated-black-girl-01",
+        "rank": 3,
+        "own": 0.05175191125338936,
+        "nearestOther": 0.047345642668396894
+      },
+      {
+        "subject": "generated-korean-boy-01",
+        "rank": 1,
+        "own": 0.03399350059938997,
+        "nearestOther": 0.03963934250997118
+      },
+      {
+        "subject": "generated-white-boy-01",
+        "rank": 1,
+        "own": 0.033527623884365136,
+        "nearestOther": 0.04589568316159552
+      },
+      {
+        "subject": "generated-white-girl-01",
+        "rank": 1,
+        "own": 0.04750081450972514,
+        "nearestOther": 0.08785919408641932
+      },
+      {
+        "subject": "kim-min-jung",
+        "rank": 1,
+        "own": 0.03397263497461691,
+        "nearestOther": 0.046695318561438284
+      },
+      {
+        "subject": "lee-tae-ri",
+        "rank": 1,
+        "own": 0.02895986456302581,
+        "nearestOther": 0.0343719827041773
+      },
+      {
+        "subject": "maggie-smith",
+        "rank": 1,
+        "own": 0.06235878904035457,
+        "nearestOther": 0.0696996175975965
+      },
+      {
+        "subject": "michael-gambon",
+        "rank": 10,
+        "own": 0.08609330984458345,
+        "nearestOther": 0.03835914444045585
+      },
+      {
+        "subject": "miriam-margolyes",
+        "rank": 1,
+        "own": 0.10440620755945478,
+        "nearestOther": 0.11614973422265626
+      },
+      {
+        "subject": "oh-seung-yoon",
+        "rank": 1,
+        "own": 0.032869443781475424,
+        "nearestOther": 0.0517859651563921
+      },
+      {
+        "subject": "park-eun-bin",
+        "rank": 1,
+        "own": 0.03451296720241714,
+        "nearestOther": 0.0425248468746314
+      },
+      {
+        "subject": "rupert-grint",
+        "rank": 1,
+        "own": 0.024660760444143212,
+        "nearestOther": 0.05394674298831162
+      },
+      {
+        "subject": "yoo-seung-ho",
+        "rank": 1,
+        "own": 0.029238425505620842,
+        "nearestOther": 0.06409651017855178
+      }
+    ],
+    "identified": 13,
+    "ownMedian": 0.03451296720241714,
+    "otherMedian": 0.09227468478661408,
+    "photoMedian": 0.08810106836174919
+  },
+  "subjects": [
+    {
+      "subject": "alan-rickman",
+      "sha256": {
+        "reference": "6f96dff142f3200a9823391b6301ec2cd32526dec0153d3455c036a1a1ebfa5c",
+        "model": "5783aa78f7cd3fbffd1303782286bdab6bf3de5ef5d056325047b484f4302076",
+        "portrait": "dabf4edd64989ce63fbb22dfceb00572fa9df33a552b2aa6f3aac6a79751981a",
+        "portraitHair": "aa4e8ad3d5316ac7ff8102a85006d41f11ebf8cfc290954a0f68e9a6153ad140",
+        "frame": "d85c7bf6a57c33302d3ba5f83e6c90ac0132cf9031e356e336217db5eb985c60",
+        "frameHair": "40222c23de9dc5b5813da1bbdafe52f3a4176f20fffad56792f1913afcf20dff"
+      },
+      "camera": {
+        "portrait": {
+          "yaw": -29.320593729090003,
+          "pitch": 0,
+          "distance": 2,
+          "fov": 8.839399962660497,
+          "target": [
+            0,
+            0,
+            0.06
+          ]
+        },
+        "frame": {
+          "yaw": -29.320593729090003,
+          "pitch": 0,
+          "distance": 2.133321558664841,
+          "fov": 8.839399962660497,
+          "target": [
+            0.011352416040582323,
+            0.033764364543030174,
+            0.06637604520517962
+          ]
+        }
+      },
+      "status": "measured",
+      "landmarkRmsInterocular": 0.030554160347469994,
+      "landmarkMedianInterocular": 0.0247853915084962,
+      "detectorPoseDifferenceDegrees": 8.828817906765432,
+      "eyeAperture": {
+        "right": {
+          "reference": 0.26172096229695146,
+          "render": 0.3220475928151923
+        },
+        "left": {
+          "reference": 0.2685887127741461,
+          "render": 0.42093976531855365
+        }
+      },
+      "mouthCornerLift": {
+        "reference": 0.11833551571169137,
+        "render": 0.11182926228538626
+      },
+      "teeth": {
+        "upperExposure": {
+          "reference": 0.052000000000000025,
+          "render": 0
+        },
+        "lowerExposure": {
+          "reference": 0,
+          "render": 0.01200000000000001
+        },
+        "gap": {
+          "reference": null,
+          "render": null
+        }
+      },
+      "blendshapes": {
+        "eyeBlinkLeft": {
+          "reference": 0.20477916300296783,
+          "render": 0.06191729009151459
+        },
+        "eyeBlinkRight": {
+          "reference": 0.17373500764369965,
+          "render": 0.06751109659671783
+        },
+        "eyeSquintLeft": {
+          "reference": 0.7472935318946838,
+          "render": 0.6287033557891846
+        },
+        "eyeSquintRight": {
+          "reference": 0.43488243222236633,
+          "render": 0.45692384243011475
+        },
+        "cheekSquintLeft": {
+          "reference": 0.0000019340629933140008,
+          "render": 1.427513751650622e-7
+        },
+        "cheekSquintRight": {
+          "reference": 4.963449669048714e-7,
+          "render": 1.2255858905518835e-7
+        },
+        "mouthSmileLeft": {
+          "reference": 0.5874454975128174,
+          "render": 0.4686429798603058
+        },
+        "mouthSmileRight": {
+          "reference": 0.7535752058029175,
+          "render": 0.7364509105682373
+        },
+        "jawOpen": {
+          "reference": 0.12898968160152435,
+          "render": 0.04756985604763031
+        },
+        "browInnerUp": {
+          "reference": 0.008271763101220131,
+          "render": 0.003637273795902729
+        },
+        "browDownLeft": {
+          "reference": 0.31436195969581604,
+          "render": 0.1085786446928978
+        },
+        "browDownRight": {
+          "reference": 0.2593829333782196,
+          "render": 0.15222853422164917
+        }
+      },
+      "hair": {
+        "head": {
+          "intersection": 124231,
+          "union": 235772,
+          "reference": 155928,
+          "render": 204075,
+          "iou": 0.5269115925555198
+        },
+        "covered": {
+          "intersection": 124231,
+          "union": 238180,
+          "reference": 155928,
+          "render": 206483,
+          "iou": 0.5215845159123352
+        },
+        "uncoveredReferenceShare": 0
+      },
+      "colour": {
+        "cheekRight": {
+          "reference": {
+            "lab": [
+              71.15151063707674,
+              30.841983016273026,
+              15.73193622587512
+            ],
+            "pixels": 6694
+          },
+          "render": {
+            "lab": [
+              53.416141723913356,
+              16.038095528731144,
+              21.774598382954768
+            ],
+            "pixels": 3845
+          },
+          "deltaE76": 23.87911558610167
+        },
+        "cheekLeft": {
+          "reference": {
+            "lab": [
+              65.22669480216328,
+              26.895790450628898,
+              15.553795906725032
+            ],
+            "pixels": 6697
+          },
+          "render": {
+            "lab": [
+              44.74895102831206,
+              12.938004803070516,
+              14.278206635234625
+            ],
+            "pixels": 3836
+          },
+          "deltaE76": 24.81501356518329
+        },
+        "irisRight": {
+          "reference": {
+            "lab": [
+              46.99448117047348,
+              16.152244169394955,
+              2.018262607579274
+            ],
+            "pixels": 474
+          },
+          "render": {
+            "lab": [
+              23.991941931117182,
+              2.1735343292437204,
+              1.0546986916741108
+            ],
+            "pixels": 409
+          },
+          "deltaE76": 26.93417152379671
+        },
+        "irisLeft": {
+          "reference": {
+            "lab": [
+              53.36576169109711,
+              16.085527526703142,
+              3.5207420818668456
+            ],
+            "pixels": 362
+          },
+          "render": {
+            "lab": [
+              29.396764893156018,
+              5.272974663131313,
+              4.8857248663337955
+            ],
+            "pixels": 367
+          },
+          "deltaE76": 26.330349122811437
+        },
+        "scleraRight": {
+          "reference": {
+            "lab": [
+              65.19424530012472,
+              18.849015471460618,
+              3.128400091136263
+            ],
+            "pixels": 399
+          },
+          "render": {
+            "lab": [
+              28.087773434920493,
+              6.062483769616891,
+              7.187016107045041
+            ],
+            "pixels": 340
+          },
+          "deltaE76": 39.45704007157707
+        },
+        "scleraLeft": {
+          "reference": {
+            "lab": [
+              41.1893438815939,
+              24.89186512955868,
+              11.20643183833585
+            ],
+            "pixels": 228
+          },
+          "render": {
+            "lab": [
+              37.89186668657972,
+              8.148867736164425,
+              10.151707136570332
+            ],
+            "pixels": 209
+          },
+          "deltaE76": 17.097185784899214
+        },
+        "browRight": {
+          "reference": {
+            "lab": [
+              58.892716945761265,
+              20.23564875223849,
+              9.794391955768766
+            ],
+            "pixels": 343
+          },
+          "render": {
+            "lab": [
+              0,
+              0,
+              0
+            ],
+            "pixels": 211
+          },
+          "deltaE76": 63.03779583282362
+        },
+        "browLeft": {
+          "reference": {
+            "lab": [
+              37.13757428383768,
+              25.829255861694183,
+              15.078846848591832
+            ],
+            "pixels": 129
+          },
+          "render": {
+            "lab": [
+              0,
+              0,
+              0
+            ],
+            "pixels": 93
+          },
+          "deltaE76": 47.683555911233306
+        },
+        "browToneRight": {
+          "reference": {
+            "lab": [
+              72.39693514460876,
+              18.53461949790208,
+              10.67655576833042
+            ],
+            "pixels": 3431
+          },
+          "render": {
+            "lab": [
+              20.9267119237523,
+              7.429240034367964,
+              8.908298330096063
+            ],
+            "pixels": 2112
+          },
+          "deltaE76": 52.68434364971958
+        },
+        "browToneLeft": {
+          "reference": {
+            "lab": [
+              49.86021311398653,
+              21.917879619905904,
+              14.36064267663696
+            ],
+            "pixels": 1290
+          },
+          "render": {
+            "lab": [
+              4.065966610311719,
+              0.6620597229651387,
+              1.1817879452813429e-7
+            ],
+            "pixels": 930
+          },
+          "deltaE76": 52.48953178513137
+        },
+        "hair": {
+          "reference": {
+            "lab": [
+              61.50038768849571,
+              12.541882969987428,
+              14.705721629758028
+            ],
+            "pixels": 155928
+          },
+          "render": {
+            "lab": [
+              14.498815163061114,
+              1.171417536192293,
+              2.9742588918211355
+            ],
+            "pixels": 121202
+          },
+          "deltaE76": 49.760049457535914
+        },
+        "irisMinusSkinLightness": {
+          "reference": -18.00898128883472,
+          "render": -22.388192963976103
+        },
+        "hairMinusSkinLightness": {
+          "reference": -6.688715031124303,
+          "render": -34.58373121305159
+        },
+        "skinOverScleraLuminance": {
+          "reference": 1.8013738675580886,
+          "render": 2.344639496737159
+        }
+      }
+    },
+    {
+      "subject": "daniel-radcliffe",
+      "sha256": {
+        "reference": "07fefaaaa62b12cd47ea9b16da23ef7045c1784f6cde2e963118d86b7de0d48f",
+        "model": "6d9a9887074205e76b83126551ab11b6b6ae8d131af9df891efdf58ba1dd61d9",
+        "portrait": "811292cd0145857b5e49c97498d72e0dbfa1583b2711d80f666f681ffe14d2a1",
+        "portraitHair": "15613997b847ce140bb305b52c7e4cd52d4dfbcf61223679f4d4203555ca4fc9",
+        "frame": "9942d9aafdfc8b7e7a1cf249f87fa3a582640e1e1fccfcc2573498507f701a65",
+        "frameHair": "aceefcd64ae04c98d7741f5c9e70bfd9166bfa18689037255599276f8109582f"
+      },
+      "camera": {
+        "portrait": {
+          "yaw": 2.1189111533750644,
+          "pitch": 0,
+          "distance": 2,
+          "fov": 8.839399962660497,
+          "target": [
+            0,
+            0,
+            0.06
+          ]
+        },
+        "frame": {
+          "yaw": 2.1189111533750644,
+          "pitch": 0,
+          "distance": 2.139651146660598,
+          "fov": 8.839399962660497,
+          "target": [
+            -0.000961105142346875,
+            0.03744393047534779,
+            0.06003555978027002
+          ]
+        }
+      },
+      "status": "measured",
+      "landmarkRmsInterocular": 0.03798494139690283,
+      "landmarkMedianInterocular": 0.025975468120014777,
+      "detectorPoseDifferenceDegrees": 0.8334281292224025,
+      "eyeAperture": {
+        "right": {
+          "reference": 0.2931024107185737,
+          "render": 0.3005378279806545
+        },
+        "left": {
+          "reference": 0.278106989304692,
+          "render": 0.2873728781970082
+        }
+      },
+      "mouthCornerLift": {
+        "reference": 0.1174544310269546,
+        "render": 0.09248973829917462
+      },
+      "teeth": {
+        "upperExposure": {
+          "reference": 0.11200000000000007,
+          "render": null
+        },
+        "lowerExposure": {
+          "reference": 0.05600000000000005,
+          "render": null
+        },
+        "gap": {
+          "reference": 0.026000000000000016,
+          "render": null
+        }
+      },
+      "blendshapes": {
+        "eyeBlinkLeft": {
+          "reference": 0.19025734066963196,
+          "render": 0.12553119659423828
+        },
+        "eyeBlinkRight": {
+          "reference": 0.14597326517105103,
+          "render": 0.11927711963653564
+        },
+        "eyeSquintLeft": {
+          "reference": 0.5992045402526855,
+          "render": 0.6363566517829895
+        },
+        "eyeSquintRight": {
+          "reference": 0.5108458995819092,
+          "render": 0.5719296932220459
+        },
+        "cheekSquintLeft": {
+          "reference": 0.000002984713091791491,
+          "render": 0.0000010301856718797353
+        },
+        "cheekSquintRight": {
+          "reference": 0.0000010012929578806506,
+          "render": 2.361348663271201e-7
+        },
+        "mouthSmileLeft": {
+          "reference": 0.906334400177002,
+          "render": 0.9074329137802124
+        },
+        "mouthSmileRight": {
+          "reference": 0.9083825945854187,
+          "render": 0.9232025742530823
+        },
+        "jawOpen": {
+          "reference": 0.027162738144397736,
+          "render": 0.002467123791575432
+        },
+        "browInnerUp": {
+          "reference": 0.029909957200288773,
+          "render": 0.008413306437432766
+        },
+        "browDownLeft": {
+          "reference": 0.06638374924659729,
+          "render": 0.13610132038593292
+        },
+        "browDownRight": {
+          "reference": 0.04411223158240318,
+          "render": 0.09614609181880951
+        }
+      },
+      "hair": {
+        "head": {
+          "intersection": 192226,
+          "union": 382233,
+          "reference": 321528,
+          "render": 252931,
+          "iou": 0.5029026797790876
+        },
+        "covered": {
+          "intersection": 192226,
+          "union": 382233,
+          "reference": 321528,
+          "render": 252931,
+          "iou": 0.5029026797790876
+        },
+        "uncoveredReferenceShare": 0
+      },
+      "colour": {
+        "cheekRight": {
+          "reference": {
+            "lab": [
+              79.73418742121463,
+              8.190247459878952,
+              12.17469732628782
+            ],
+            "pixels": 10839
+          },
+          "render": {
+            "lab": [
+              63.13029065570426,
+              12.938780591039922,
+              18.47202591202106
+            ],
+            "pixels": 5185
+          },
+          "deltaE76": 18.38190147982934
+        },
+        "cheekLeft": {
+          "reference": {
+            "lab": [
+              81.4878042837756,
+              9.207356348739316,
+              12.01442578165761
+            ],
+            "pixels": 10847
+          },
+          "render": {
+            "lab": [
+              56.29673974046236,
+              11.333543158969894,
+              13.932932575502033
+            ],
+            "pixels": 5186
+          },
+          "deltaE76": 25.35332466355053
+        },
+        "irisRight": {
+          "reference": {
+            "lab": [
+              53.77405989715725,
+              -2.2508322843027564,
+              -1.4490858723379296
+            ],
+            "pixels": 926
+          },
+          "render": {
+            "lab": [
+              30.595314389262448,
+              1.9503769830358508,
+              3.2671383160416347
+            ],
+            "pixels": 398
+          },
+          "deltaE76": 24.023887554323544
+        },
+        "irisLeft": {
+          "reference": {
+            "lab": [
+              53.65603039225762,
+              -1.7303866568071091,
+              -2.028164002385846
+            ],
+            "pixels": 848
+          },
+          "render": {
+            "lab": [
+              29.515749234500525,
+              1.8311816979872941,
+              2.5798407633567333
+            ],
+            "pixels": 381
+          },
+          "deltaE76": 24.832874409591444
+        },
+        "scleraRight": {
+          "reference": {
+            "lab": [
+              75.00637974030352,
+              4.337406140146105,
+              7.427495081529378
+            ],
+            "pixels": 687
+          },
+          "render": {
+            "lab": [
+              33.86912823698159,
+              2.557453834924381,
+              3.492227788927871
+            ],
+            "pixels": 306
+          },
+          "deltaE76": 41.363365676896336
+        },
+        "scleraLeft": {
+          "reference": {
+            "lab": [
+              79.2999528549282,
+              4.582972163743287,
+              7.268630124895936
+            ],
+            "pixels": 612
+          },
+          "render": {
+            "lab": [
+              24.660141144262315,
+              1.2543429018265078,
+              1.2809725186988141
+            ],
+            "pixels": 296
+          },
+          "deltaE76": 55.06760245506752
+        },
+        "browRight": {
+          "reference": {
+            "lab": [
+              16.195724015267174,
+              8.522375018959972,
+              9.740929727879733
+            ],
+            "pixels": 379
+          },
+          "render": {
+            "lab": [
+              0,
+              0,
+              0
+            ],
+            "pixels": 164
+          },
+          "deltaE76": 20.73205403007589
+        },
+        "browLeft": {
+          "reference": {
+            "lab": [
+              25.13196615908202,
+              10.977337371954027,
+              16.79245704679775
+            ],
+            "pixels": 355
+          },
+          "render": {
+            "lab": [
+              0,
+              0,
+              0
+            ],
+            "pixels": 164
+          },
+          "deltaE76": 32.157491700496315
+        },
+        "browToneRight": {
+          "reference": {
+            "lab": [
+              36.0738772043975,
+              7.980935017995461,
+              12.649343315608853
+            ],
+            "pixels": 3793
+          },
+          "render": {
+            "lab": [
+              1.8001890482146976,
+              0.7973490452683751,
+              0.747015774016152
+            ],
+            "pixels": 1643
+          },
+          "deltaE76": 36.985875792823705
+        },
+        "browToneLeft": {
+          "reference": {
+            "lab": [
+              48.57069618283025,
+              8.300082840399124,
+              15.177657379594255
+            ],
+            "pixels": 3554
+          },
+          "render": {
+            "lab": [
+              1.635682756175088,
+              0.400557955120881,
+              0.09213990053528742
+            ],
+            "pixels": 1640
+          },
+          "deltaE76": 49.92865726598728
+        },
+        "hair": {
+          "reference": {
+            "lab": [
+              14.854959930909956,
+              3.7970577523659124,
+              4.8832814960040825
+            ],
+            "pixels": 321528
+          },
+          "render": {
+            "lab": [
+              1.7033585147356725,
+              0.1641257700237403,
+              0.09213999507832193
+            ],
+            "pixels": 122760
+          },
+          "deltaE76": 14.460907699039339
+        },
+        "irisMinusSkinLightness": {
+          "reference": -26.895950707787676,
+          "render": -29.65798338620182
+        },
+        "hairMinusSkinLightness": {
+          "reference": -65.75603592158515,
+          "render": -58.01015668334763
+        },
+        "skinOverScleraLuminance": {
+          "reference": 1.11554427715444,
+          "render": 4.67997109264792
+        }
+      }
+    },
+    {
+      "subject": "emma-watson",
+      "sha256": {
+        "reference": "64f7bb7d4f390a9246a4b9ffa9b6aa88c7f9f04a96fc484d25eddb3ccc4eab87",
+        "model": "94bd46bfda8261c548ef39ef15a5cb4e79d94b93838671390757e1bc00573d18",
+        "portrait": "ed6b1b7f864137055aade2f0829a0013bbcbcd81e7a527b70ac594fd48e74cca",
+        "portraitHair": "39e14fd5ba5927cee94719e0e14adceaf47a665e801b40f3e34665aab802aaad",
+        "frame": "dcba744972c686a3cf5be7b864a48a3df1abbd2394f148aff86a6a1d29c5d830",
+        "frameHair": "b82179dadd819382a0f3a00f37bc5437f75419116605885b49e7da59872036df"
+      },
+      "camera": {
+        "portrait": {
+          "yaw": 16.01787892858011,
+          "pitch": 0,
+          "distance": 2,
+          "fov": 8.839399962660497,
+          "target": [
+            0,
+            0,
+            0.06
+          ]
+        },
+        "frame": {
+          "yaw": 16.01787892858011,
+          "pitch": 0,
+          "distance": 3.292108654793878,
+          "fov": 8.839399962660497,
+          "target": [
+            -0.014593167072697566,
+            -0.005377148639507029,
+            0.06418945192670276
+          ]
+        }
+      },
+      "status": "measured",
+      "landmarkRmsInterocular": 0.06870903894805412,
+      "landmarkMedianInterocular": 0.04813874197094907,
+      "detectorPoseDifferenceDegrees": 12.586508428981961,
+      "eyeAperture": {
+        "right": {
+          "reference": 0.3295453542103357,
+          "render": 0.2977969955277079
+        },
+        "left": {
+          "reference": 0.28772654633299144,
+          "render": 0.21013575519726427
+        }
+      },
+      "mouthCornerLift": {
+        "reference": 0.0899256951233281,
+        "render": 0.03267662325629905
+      },
+      "teeth": {
+        "upperExposure": {
+          "reference": null,
+          "render": null
+        },
+        "lowerExposure": {
+          "reference": null,
+          "render": null
+        },
+        "gap": {
+          "reference": null,
+          "render": null
+        }
+      },
+      "blendshapes": {
+        "eyeBlinkLeft": {
+          "reference": 0.17594459652900696,
+          "render": 0.25798967480659485
+        },
+        "eyeBlinkRight": {
+          "reference": 0.08445797860622406,
+          "render": 0.09951384365558624
+        },
+        "eyeSquintLeft": {
+          "reference": 0.6322603225708008,
+          "render": 0.5887243747711182
+        },
+        "eyeSquintRight": {
+          "reference": 0.5573223829269409,
+          "render": 0.4788582921028137
+        },
+        "cheekSquintLeft": {
+          "reference": 3.5819397226077854e-7,
+          "render": 5.854868732058094e-7
+        },
+        "cheekSquintRight": {
+          "reference": 7.439624027938407e-7,
+          "render": 0.0000016527500292795594
+        },
+        "mouthSmileLeft": {
+          "reference": 0.4606437683105469,
+          "render": 0.14166106283664703
+        },
+        "mouthSmileRight": {
+          "reference": 0.17277808487415314,
+          "render": 0.03416929021477699
+        },
+        "jawOpen": {
+          "reference": 0.001592267188243568,
+          "render": 0.00013790253433398902
+        },
+        "browInnerUp": {
+          "reference": 0.00010445908264955506,
+          "render": 0.0005752712022513151
+        },
+        "browDownLeft": {
+          "reference": 0.21398520469665527,
+          "render": 0.10559385269880295
+        },
+        "browDownRight": {
+          "reference": 0.18885968625545502,
+          "render": 0.05908286198973656
+        }
+      },
+      "hair": {
+        "head": {
+          "intersection": 117723,
+          "union": 557633,
+          "reference": 323977,
+          "render": 351379,
+          "iou": 0.2111119679072078
+        },
+        "covered": {
+          "intersection": 132352,
+          "union": 1050427,
+          "reference": 436291,
+          "render": 746488,
+          "iou": 0.12599828450715755
+        },
+        "uncoveredReferenceShare": 0
+      },
+      "colour": {
+        "cheekRight": {
+          "reference": {
+            "lab": [
+              68.20679138714954,
+              15.07510703973841,
+              15.935097467038982
+            ],
+            "pixels": 8141
+          },
+          "render": {
+            "lab": [
+              78.15930490812283,
+              5.665759864219632,
+              10.873650729320183
+            ],
+            "pixels": 5388
+          },
+          "deltaE76": 14.601595211940504
+        },
+        "cheekLeft": {
+          "reference": {
+            "lab": [
+              75.8440316090356,
+              15.48778067677803,
+              15.729412522960807
+            ],
+            "pixels": 8235
+          },
+          "render": {
+            "lab": [
+              59.46298799440012,
+              4.710107317519641,
+              3.100106723109719
+            ],
+            "pixels": 2706
+          },
+          "deltaE76": 23.323726073027224
+        },
+        "irisRight": {
+          "reference": {
+            "lab": [
+              20.897380051280926,
+              10.608206521494163,
+              17.15943714305413
+            ],
+            "pixels": 681
+          },
+          "render": {
+            "lab": [
+              16.812036871949662,
+              7.998241759616311,
+              11.821669462369686
+            ],
+            "pixels": 346
+          },
+          "deltaE76": 7.210666319010469
+        },
+        "irisLeft": {
+          "reference": {
+            "lab": [
+              25.324962576755112,
+              11.067611540318767,
+              15.669607373686773
+            ],
+            "pixels": 653
+          },
+          "render": {
+            "lab": [
+              3.620038678262029,
+              1.365593433975354,
+              1.8088086981955493
+            ],
+            "pixels": 274
+          },
+          "deltaE76": 27.520076611406644
+        },
+        "scleraRight": {
+          "reference": {
+            "lab": [
+              47.12083391338163,
+              6.974524265741938,
+              1.9610569594843863
+            ],
+            "pixels": 611
+          },
+          "render": {
+            "lab": [
+              18.104422205276776,
+              2.883518244666372,
+              5.306724687892123
+            ],
+            "pixels": 271
+          },
+          "deltaE76": 29.4937615645687
+        },
+        "scleraLeft": {
+          "reference": {
+            "lab": [
+              60.812692640236115,
+              5.545672130152731,
+              1.6842317448318767
+            ],
+            "pixels": 544
+          },
+          "render": {
+            "lab": [
+              14.301467485870209,
+              1.7288261264517824,
+              1.398077233709083
+            ],
+            "pixels": 277
+          },
+          "deltaE76": 46.66845040474693
+        },
+        "browRight": {
+          "reference": {
+            "lab": [
+              8.466791007662145,
+              8.68654048961584,
+              9.908617594971636
+            ],
+            "pixels": 227
+          },
+          "render": {
+            "lab": [
+              0,
+              0,
+              0
+            ],
+            "pixels": 131
+          },
+          "deltaE76": 15.662797907415694
+        },
+        "browLeft": {
+          "reference": {
+            "lab": [
+              18.164634890699407,
+              12.387429249819073,
+              16.060049318289504
+            ],
+            "pixels": 304
+          },
+          "render": {
+            "lab": [
+              0,
+              0,
+              0
+            ],
+            "pixels": 148
+          },
+          "deltaE76": 27.22733090549969
+        },
+        "browToneRight": {
+          "reference": {
+            "lab": [
+              18.509957265078512,
+              9.858348189504929,
+              14.040364477672874
+            ],
+            "pixels": 2271
+          },
+          "render": {
+            "lab": [
+              1.8001890482146976,
+              0.7845073716616358,
+              0.7470157267446376
+            ],
+            "pixels": 1317
+          },
+          "deltaE76": 23.200518573141345
+        },
+        "browToneLeft": {
+          "reference": {
+            "lab": [
+              38.32680928653748,
+              11.56531013389775,
+              14.032758117820565
+            ],
+            "pixels": 3048
+          },
+          "render": {
+            "lab": [
+              5.463640953277563,
+              1.811301294396897,
+              1.1510941300424764
+            ],
+            "pixels": 1486
+          },
+          "deltaE76": 36.62056510262038
+        },
+        "hair": {
+          "reference": {
+            "lab": [
+              9.296989383789008,
+              5.837605287429298,
+              8.923618038463509
+            ],
+            "pixels": 323977
+          },
+          "render": {
+            "lab": [
+              3.715120999774477,
+              1.2890330292935626,
+              1.7868919545865947
+            ],
+            "pixels": 227488
+          },
+          "deltaE76": 10.138028577599894
+        },
+        "irisMinusSkinLightness": {
+          "reference": -48.91424018407454,
+          "render": -58.59510867615563
+        },
+        "hairMinusSkinLightness": {
+          "reference": -62.728422114303555,
+          "render": -65.09602545148701
+        },
+        "skinOverScleraLuminance": {
+          "reference": 1.9913556990093786,
+          "render": 18.26720224579722
+        }
+      }
+    },
+    {
+      "subject": "generated-black-boy-01",
+      "sha256": {
+        "reference": "ca4a2f3a214df183e9fde84f5f5f001d3fe5f2a20b179afb67ecba4b4359c13e",
+        "model": "4e51b2591116a615e9fb2d682a2b5333008bc49c7298e710a2945a3c4cf18ca6",
+        "portrait": "9ba9ce528fa4b4e0b8e0cdcfc3e48763fe95041100d91c4fae90b2a3025c4144",
+        "portraitHair": "eae1100bbf40add577c9030bdfc26f5aacb2794e3711583e97e02b71e6bf1df1",
+        "frame": "2ecb4720cf7e5f369afbf97ee3a27c3df656e37cd0b9ca5b6f60fb3536a0493c",
+        "frameHair": "76d25808805ccf4e6539954e29ce89be1b8b6d70cca27445f32539e359902e99"
+      },
+      "camera": {
+        "portrait": {
+          "yaw": -0.42953229316028485,
+          "pitch": 0,
+          "distance": 2,
+          "fov": 8.839399962660497,
+          "target": [
+            0,
+            0,
+            0.06
+          ]
+        },
+        "frame": {
+          "yaw": -0.42953229316028485,
+          "pitch": 0,
+          "distance": 2.0666817105638104,
+          "fov": 8.839399962660497,
+          "target": [
+            -0.003910575300956439,
+            0.03237668461049305,
+            0.05997068283459914
+          ]
+        }
+      },
+      "status": "measured",
+      "landmarkRmsInterocular": 0.04306146258366284,
+      "landmarkMedianInterocular": 0.028071588702182057,
+      "detectorPoseDifferenceDegrees": 5.916503862212133,
+      "eyeAperture": {
+        "right": {
+          "reference": 0.2553906222164966,
+          "render": 0.30452077909313363
+        },
+        "left": {
+          "reference": 0.26215187075486523,
+          "render": 0.3083887056385664
+        }
+      },
+      "mouthCornerLift": {
+        "reference": 0.10981821134270196,
+        "render": 0.11308789780653798
+      },
+      "teeth": {
+        "upperExposure": {
+          "reference": 0.12800000000000009,
+          "render": 0
+        },
+        "lowerExposure": {
+          "reference": 0.028000000000000025,
+          "render": 0.07200000000000004
+        },
+        "gap": {
+          "reference": 0.014000000000000012,
+          "render": null
+        }
+      },
+      "blendshapes": {
+        "eyeBlinkLeft": {
+          "reference": 0.26905980706214905,
+          "render": 0.08422086387872696
+        },
+        "eyeBlinkRight": {
+          "reference": 0.2616940438747406,
+          "render": 0.07897371798753738
+        },
+        "eyeSquintLeft": {
+          "reference": 0.3602128326892853,
+          "render": 0.4356210231781006
+        },
+        "eyeSquintRight": {
+          "reference": 0.3434833586215973,
+          "render": 0.36980947852134705
+        },
+        "cheekSquintLeft": {
+          "reference": 0.0000017963593563763425,
+          "render": 0.0000015767315062475973
+        },
+        "cheekSquintRight": {
+          "reference": 5.251895913715998e-7,
+          "render": 1.463561574155392e-7
+        },
+        "mouthSmileLeft": {
+          "reference": 0.8593213558197021,
+          "render": 0.7750436663627625
+        },
+        "mouthSmileRight": {
+          "reference": 0.9044908881187439,
+          "render": 0.8173654079437256
+        },
+        "jawOpen": {
+          "reference": 0.025465311482548714,
+          "render": 0.003647106233984232
+        },
+        "browInnerUp": {
+          "reference": 0.08077682554721832,
+          "render": 0.42318233847618103
+        },
+        "browDownLeft": {
+          "reference": 0.037114858627319336,
+          "render": 0.007240402512252331
+        },
+        "browDownRight": {
+          "reference": 0.04983839392662048,
+          "render": 0.005480796564370394
+        }
+      },
+      "hair": {
+        "head": {
+          "intersection": 105771,
+          "union": 160948,
+          "reference": 120649,
+          "render": 146070,
+          "iou": 0.6571749881949449
+        },
+        "covered": {
+          "intersection": 105771,
+          "union": 160948,
+          "reference": 120649,
+          "render": 146070,
+          "iou": 0.6571749881949449
+        },
+        "uncoveredReferenceShare": 0
+      },
+      "colour": {
+        "cheekRight": {
+          "reference": {
+            "lab": [
+              42.348171292474916,
+              20.917787149192733,
+              21.86596469040991
+            ],
+            "pixels": 10511
+          },
+          "render": {
+            "lab": [
+              36.13972631012075,
+              20.298088363776195,
+              22.939998982630627
+            ],
+            "pixels": 5934
+          },
+          "deltaE76": 6.331063523961152
+        },
+        "cheekLeft": {
+          "reference": {
+            "lab": [
+              45.17172296254981,
+              21.27289369292268,
+              21.489924372349044
+            ],
+            "pixels": 10523
+          },
+          "render": {
+            "lab": [
+              30.44588530787709,
+              16.561993117922363,
+              16.891909654566582
+            ],
+            "pixels": 5930
+          },
+          "deltaE76": 16.130239248202713
+        },
+        "irisRight": {
+          "reference": {
+            "lab": [
+              5.692016101309182,
+              2.0753255195575875,
+              0.0921400187140764
+            ],
+            "pixels": 706
+          },
+          "render": {
+            "lab": [
+              2.8352514067631684,
+              0.3839488847361544,
+              0.11132518310543738
+            ],
+            "pixels": 478
+          },
+          "deltaE76": 3.3199740226931262
+        },
+        "irisLeft": {
+          "reference": {
+            "lab": [
+              5.153290105852342,
+              1.7010000768636624,
+              0.2398390013991447
+            ],
+            "pixels": 737
+          },
+          "render": {
+            "lab": [
+              2.6669349162502805,
+              0.2781100109774254,
+              0.09214004234983086
+            ],
+            "pixels": 495
+          },
+          "deltaE76": 2.8685176051338948
+        },
+        "scleraRight": {
+          "reference": {
+            "lab": [
+              31.53046169950843,
+              2.9780684666743937,
+              0.2567150248083072
+            ],
+            "pixels": 609
+          },
+          "render": {
+            "lab": [
+              30.278666872449648,
+              1.0460099076680385,
+              0.9615972644572368
+            ],
+            "pixels": 437
+          },
+          "deltaE76": 2.4076335967612117
+        },
+        "scleraLeft": {
+          "reference": {
+            "lab": [
+              35.91873232270656,
+              3.8191496108024303,
+              1.9762102331044362
+            ],
+            "pixels": 631
+          },
+          "render": {
+            "lab": [
+              24.58327454497219,
+              1.100382828445462,
+              1.1899581678686266
+            ],
+            "pixels": 467
+          },
+          "deltaE76": 11.683427928383598
+        },
+        "browRight": {
+          "reference": {
+            "lab": [
+              12.405953184401177,
+              6.101074574872883,
+              4.608608806874792
+            ],
+            "pixels": 333
+          },
+          "render": {
+            "lab": [
+              0,
+              0,
+              0
+            ],
+            "pixels": 170
+          },
+          "deltaE76": 14.572922168066292
+        },
+        "browLeft": {
+          "reference": {
+            "lab": [
+              13.395123432328312,
+              7.104709711486273,
+              6.349317462587067
+            ],
+            "pixels": 316
+          },
+          "render": {
+            "lab": [
+              0,
+              0,
+              0
+            ],
+            "pixels": 166
+          },
+          "deltaE76": 16.438371698331665
+        },
+        "browToneRight": {
+          "reference": {
+            "lab": [
+              20.61255794474504,
+              7.457912672513111,
+              7.63135613419583
+            ],
+            "pixels": 3332
+          },
+          "render": {
+            "lab": [
+              0.5868706386084064,
+              0.5147005072757421,
+              0.3784560300604589
+            ],
+            "pixels": 1700
+          },
+          "deltaE76": 22.401805890937204
+        },
+        "browToneLeft": {
+          "reference": {
+            "lab": [
+              24.024547430618924,
+              8.955999159859672,
+              9.726927194438606
+            ],
+            "pixels": 3169
+          },
+          "render": {
+            "lab": [
+              0.27417482748313304,
+              0.13905541911449215,
+              0.09213990053528742
+            ],
+            "pixels": 1661
+          },
+          "deltaE76": 27.104387503022632
+        },
+        "hair": {
+          "reference": {
+            "lab": [
+              5.297271786189558,
+              0.8011150829902169,
+              -0.28631603498215363
+            ],
+            "pixels": 120649
+          },
+          "render": {
+            "lab": [
+              0.2939633936778705,
+              0,
+              0
+            ],
+            "pixels": 81585
+          },
+          "deltaE76": 5.075121389549241
+        },
+        "irisMinusSkinLightness": {
+          "reference": -38.3372940239316,
+          "render": -30.541712647492197
+        },
+        "hairMinusSkinLightness": {
+          "reference": -38.46267534132281,
+          "render": -32.99884241532105
+        },
+        "skinOverScleraLuminance": {
+          "reference": 1.7358684004371627,
+          "render": 1.4620156102473092
+        }
+      }
+    },
+    {
+      "subject": "generated-black-girl-01",
+      "sha256": {
+        "reference": "fe80a9623d1f6760110722508b4a37b2c127e79ba3a2b056ee9ac789b7c7242a",
+        "model": "7e8bf346ae812753adb3e8b70c70ed2c1de1b06617ca73c53ed4762c3041a3d7",
+        "portrait": "369749e4258e30b5072334e59d746ddcda731acdae7e708b2235d88f331b6416",
+        "portraitHair": "917b6e909f266580457de83d65038d47c5dfb6c955f0e2bb7f78f2be15fe26ae",
+        "frame": "6ef0352d0fadc3f8a408e20a8fbd365ccbdf3611bd669b9272849c8199f658eb",
+        "frameHair": "0be4f751afccf4db3d27a07e9c9d17643d546c6315a76d320fef2a14b72fef3a"
+      },
+      "camera": {
+        "portrait": {
+          "yaw": -1.9069571734758128,
+          "pitch": 0,
+          "distance": 2,
+          "fov": 8.839399962660497,
+          "target": [
+            0,
+            0,
+            0.06
+          ]
+        },
+        "frame": {
+          "yaw": -1.9069571734758128,
+          "pitch": 0,
+          "distance": 2.4777143795922956,
+          "fov": 8.839399962660497,
+          "target": [
+            0.0025149011181770137,
+            0.04073764940579566,
+            0.060083733573136754
+          ]
+        }
+      },
+      "status": "measured",
+      "landmarkRmsInterocular": 0.05175191125338936,
+      "landmarkMedianInterocular": 0.03191205105968121,
+      "detectorPoseDifferenceDegrees": 4.566668450714409,
+      "eyeAperture": {
+        "right": {
+          "reference": 0.28701593617601573,
+          "render": 0.29458681807186954
+        },
+        "left": {
+          "reference": 0.2886493895276588,
+          "render": 0.3117540346304285
+        }
+      },
+      "mouthCornerLift": {
+        "reference": 0.15404577267059677,
+        "render": 0.0989706296525185
+      },
+      "teeth": {
+        "upperExposure": {
+          "reference": 0.11400000000000007,
+          "render": null
+        },
+        "lowerExposure": {
+          "reference": 0,
+          "render": null
+        },
+        "gap": {
+          "reference": null,
+          "render": null
+        }
+      },
+      "blendshapes": {
+        "eyeBlinkLeft": {
+          "reference": 0.16548451781272888,
+          "render": 0.06731796264648438
+        },
+        "eyeBlinkRight": {
+          "reference": 0.21747921407222748,
+          "render": 0.11754003167152405
+        },
+        "eyeSquintLeft": {
+          "reference": 0.45293208956718445,
+          "render": 0.41268086433410645
+        },
+        "eyeSquintRight": {
+          "reference": 0.36307060718536377,
+          "render": 0.40043312311172485
+        },
+        "cheekSquintLeft": {
+          "reference": 0.000005724310540244915,
+          "render": 6.594209480681457e-7
+        },
+        "cheekSquintRight": {
+          "reference": 0.0000016747503650549334,
+          "render": 8.598502176937473e-8
+        },
+        "mouthSmileLeft": {
+          "reference": 0.9613222479820251,
+          "render": 0.6989661455154419
+        },
+        "mouthSmileRight": {
+          "reference": 0.9629068374633789,
+          "render": 0.7241716384887695
+        },
+        "jawOpen": {
+          "reference": 0.029614442959427834,
+          "render": 0.0006510709063149989
+        },
+        "browInnerUp": {
+          "reference": 0.16477589309215546,
+          "render": 0.10025734454393387
+        },
+        "browDownLeft": {
+          "reference": 0.0047425455413758755,
+          "render": 0.01961662620306015
+        },
+        "browDownRight": {
+          "reference": 0.006347917951643467,
+          "render": 0.01460196916013956
+        }
+      },
+      "hair": {
+        "head": {
+          "intersection": 274164,
+          "union": 420589,
+          "reference": 346584,
+          "render": 348169,
+          "iou": 0.6518572763434136
+        },
+        "covered": {
+          "intersection": 277418,
+          "union": 545325,
+          "reference": 349900,
+          "render": 472843,
+          "iou": 0.508720487782515
+        },
+        "uncoveredReferenceShare": 0
+      },
+      "colour": {
+        "cheekRight": {
+          "reference": {
+            "lab": [
+              58.99017498779908,
+              22.15564146795662,
+              29.39528301967095
+            ],
+            "pixels": 6983
+          },
+          "render": {
+            "lab": [
+              30.628914599540828,
+              21.56374484864987,
+              21.813118584375946
+            ],
+            "pixels": 4165
+          },
+          "deltaE76": 29.36325339505801
+        },
+        "cheekLeft": {
+          "reference": {
+            "lab": [
+              57.22634471728382,
+              22.085021871549067,
+              28.58673013549007
+            ],
+            "pixels": 6974
+          },
+          "render": {
+            "lab": [
+              27.11012960612669,
+              17.675575436471387,
+              16.346659160052866
+            ],
+            "pixels": 5593
+          },
+          "deltaE76": 32.80623367546249
+        },
+        "irisRight": {
+          "reference": {
+            "lab": [
+              10.696557789289454,
+              2.9714242331340817,
+              3.352268469953257
+            ],
+            "pixels": 542
+          },
+          "render": {
+            "lab": [
+              2.780554031846396,
+              0.41339915601247557,
+              0.18427999015663277
+            ],
+            "pixels": 388
+          },
+          "deltaE76": 8.901840191284032
+        },
+        "irisLeft": {
+          "reference": {
+            "lab": [
+              12.686767714282741,
+              3.905976366281677,
+              4.272704775719288
+            ],
+            "pixels": 563
+          },
+          "render": {
+            "lab": [
+              3.2576247326778827,
+              0.5559155340555608,
+              1.1817879452813429e-7
+            ],
+            "pixels": 440
+          },
+          "deltaE76": 10.880608900136606
+        },
+        "scleraRight": {
+          "reference": {
+            "lab": [
+              44.01231154266301,
+              2.985923471648444,
+              3.90620143127689
+            ],
+            "pixels": 395
+          },
+          "render": {
+            "lab": [
+              7.426553028839443,
+              0.7420705580189757,
+              0.6548759680239047
+            ],
+            "pixels": 415
+          },
+          "deltaE76": 36.79842006388065
+        },
+        "scleraLeft": {
+          "reference": {
+            "lab": [
+              42.9426128178233,
+              4.278438769024229,
+              5.382122271680761
+            ],
+            "pixels": 423
+          },
+          "render": {
+            "lab": [
+              23.12978172260152,
+              0.9903630196187035,
+              0.7800119792563676
+            ],
+            "pixels": 426
+          },
+          "deltaE76": 20.604347533597235
+        },
+        "browRight": {
+          "reference": {
+            "lab": [
+              23.1993432444416,
+              10.111085661387174,
+              11.67182881136998
+            ],
+            "pixels": 232
+          },
+          "render": {
+            "lab": [
+              0,
+              0,
+              0
+            ],
+            "pixels": 116
+          },
+          "deltaE76": 27.86889247938019
+        },
+        "browLeft": {
+          "reference": {
+            "lab": [
+              20.71663734635856,
+              7.501728908642896,
+              8.2084936332952
+            ],
+            "pixels": 233
+          },
+          "render": {
+            "lab": [
+              0,
+              0,
+              0
+            ],
+            "pixels": 164
+          },
+          "deltaE76": 23.512430059165613
+        },
+        "browToneRight": {
+          "reference": {
+            "lab": [
+              36.32755953260123,
+              11.703523146273625,
+              15.95815350239176
+            ],
+            "pixels": 2325
+          },
+          "render": {
+            "lab": [
+              1.8584985980515825,
+              0.9069543703747324,
+              0.9312955750867213
+            ],
+            "pixels": 1161
+          },
+          "deltaE76": 39.12145853888658
+        },
+        "browToneLeft": {
+          "reference": {
+            "lab": [
+              34.97011944245426,
+              10.654776496555844,
+              13.806500446681724
+            ],
+            "pixels": 2338
+          },
+          "render": {
+            "lab": [
+              0.9391435821231582,
+              0.2615025360064027,
+              4.7271520031699765e-8
+            ],
+            "pixels": 1648
+          },
+          "deltaE76": 38.16735404641495
+        },
+        "hair": {
+          "reference": {
+            "lab": [
+              6.8688687719031485,
+              0.38785741149646724,
+              0.9649323219767414
+            ],
+            "pixels": 346584
+          },
+          "render": {
+            "lab": [
+              0.2939633936778705,
+              0,
+              4.7271520031699765e-8
+            ],
+            "pixels": 238506
+          },
+          "deltaE76": 6.6566439291159485
+        },
+        "irisMinusSkinLightness": {
+          "reference": -46.416597100755354,
+          "render": -25.850432720571618
+        },
+        "hairMinusSkinLightness": {
+          "reference": -51.2393910806383,
+          "render": -28.57555870915589
+        },
+        "skinOverScleraLuminance": {
+          "reference": 1.9343834080559075,
+          "render": 2.9520957120451343
+        }
+      }
+    },
+    {
+      "subject": "generated-korean-boy-01",
+      "sha256": {
+        "reference": "81cfa3b9d3d7c28b8f4758db11a0546e05852a47fb1c46b84eb1cab28f701331",
+        "model": "8425069af67fcc33d1224f3502e3e431cc21d39a737d07fac9a1c849b49d0877",
+        "portrait": "ac8bba7f95551299a2f8de4cc1359f48c3ee8eb7e992e94876423ff7a51b01d1",
+        "portraitHair": "84b3e2520b44e19e0e012ee0f343a87e2c118ad790f6cc097d237ef2ec2de00b",
+        "frame": "f810d93bc283ffb16b84c88fba4ccfd26d3a4b289c75736c763446bdc20dcb82",
+        "frameHair": "432d80f192aaf5a87209d8d7f6c2071927c824af0e554f9d2caf70a92e42520c"
+      },
+      "camera": {
+        "portrait": {
+          "yaw": 0.2330747089932503,
+          "pitch": 0,
+          "distance": 2,
+          "fov": 8.839399962660497,
+          "target": [
+            0,
+            0,
+            0.06
+          ]
+        },
+        "frame": {
+          "yaw": 0.2330747089932503,
+          "pitch": 0,
+          "distance": 2.240063960210104,
+          "fov": 8.839399962660497,
+          "target": [
+            -0.004959535649479319,
+            0.04774510933923238,
+            0.060020175110876935
+          ]
+        }
+      },
+      "status": "measured",
+      "landmarkRmsInterocular": 0.03399350059938997,
+      "landmarkMedianInterocular": 0.019750306179845082,
+      "detectorPoseDifferenceDegrees": 5.06224918109803,
+      "eyeAperture": {
+        "right": {
+          "reference": 0.2777963482793953,
+          "render": 0.29285949299881464
+        },
+        "left": {
+          "reference": 0.2895393150147848,
+          "render": 0.31413195175563907
+        }
+      },
+      "mouthCornerLift": {
+        "reference": 0.10867217961570025,
+        "render": 0.0970281210606794
+      },
+      "teeth": {
+        "upperExposure": {
+          "reference": 0.11200000000000007,
+          "render": null
+        },
+        "lowerExposure": {
+          "reference": 0,
+          "render": null
+        },
+        "gap": {
+          "reference": null,
+          "render": null
+        }
+      },
+      "blendshapes": {
+        "eyeBlinkLeft": {
+          "reference": 0.17983770370483398,
+          "render": 0.07817869633436203
+        },
+        "eyeBlinkRight": {
+          "reference": 0.20576316118240356,
+          "render": 0.12152502685785294
+        },
+        "eyeSquintLeft": {
+          "reference": 0.5446511507034302,
+          "render": 0.6151714324951172
+        },
+        "eyeSquintRight": {
+          "reference": 0.44846683740615845,
+          "render": 0.5301998853683472
+        },
+        "cheekSquintLeft": {
+          "reference": 0.0000018397532812741701,
+          "render": 6.197618631631485e-7
+        },
+        "cheekSquintRight": {
+          "reference": 4.5626083533534256e-7,
+          "render": 9.326307548462864e-8
+        },
+        "mouthSmileLeft": {
+          "reference": 0.8089110255241394,
+          "render": 0.7365416288375854
+        },
+        "mouthSmileRight": {
+          "reference": 0.8185296058654785,
+          "render": 0.7963108420372009
+        },
+        "jawOpen": {
+          "reference": 0.0540669709444046,
+          "render": 0.007664365693926811
+        },
+        "browInnerUp": {
+          "reference": 0.10593288391828537,
+          "render": 0.08849933743476868
+        },
+        "browDownLeft": {
+          "reference": 0.020223883911967278,
+          "render": 0.03029307723045349
+        },
+        "browDownRight": {
+          "reference": 0.02527189999818802,
+          "render": 0.03284532204270363
+        }
+      },
+      "hair": {
+        "head": {
+          "intersection": 91638,
+          "union": 170729,
+          "reference": 162020,
+          "render": 100347,
+          "iou": 0.5367453683908416
+        },
+        "covered": {
+          "intersection": 91638,
+          "union": 170729,
+          "reference": 162020,
+          "render": 100347,
+          "iou": 0.5367453683908416
+        },
+        "uncoveredReferenceShare": 0
+      },
+      "colour": {
+        "cheekRight": {
+          "reference": {
+            "lab": [
+              80.02516680775315,
+              8.729871957186997,
+              14.403354121244272
+            ],
+            "pixels": 8264
+          },
+          "render": {
+            "lab": [
+              58.78636493873459,
+              14.921353579962604,
+              23.05582104862981
+            ],
+            "pixels": 5109
+          },
+          "deltaE76": 23.75471181568185
+        },
+        "cheekLeft": {
+          "reference": {
+            "lab": [
+              68.74666171312371,
+              12.527101738525781,
+              20.398530574263198
+            ],
+            "pixels": 8259
+          },
+          "render": {
+            "lab": [
+              50.548503733780436,
+              12.444723960655962,
+              15.991301447437916
+            ],
+            "pixels": 5104
+          },
+          "deltaE76": 18.72440676004875
+        },
+        "irisRight": {
+          "reference": {
+            "lab": [
+              15.790273651687267,
+              4.828590522755041,
+              4.403821044042277
+            ],
+            "pixels": 592
+          },
+          "render": {
+            "lab": [
+              5.364336859063354,
+              2.1578646645922794,
+              1.3116838693836312
+            ],
+            "pixels": 420
+          },
+          "deltaE76": 11.197957265508482
+        },
+        "irisLeft": {
+          "reference": {
+            "lab": [
+              16.449552883787195,
+              4.440497179955525,
+              4.638572707297178
+            ],
+            "pixels": 616
+          },
+          "render": {
+            "lab": [
+              6.20337492285017,
+              2.502510534111671,
+              1.423409421141311
+            ],
+            "pixels": 452
+          },
+          "deltaE76": 10.912251371889548
+        },
+        "scleraRight": {
+          "reference": {
+            "lab": [
+              38.18705945827963,
+              6.798477879146447,
+              6.596185195958215
+            ],
+            "pixels": 443
+          },
+          "render": {
+            "lab": [
+              28.39485038779955,
+              2.6716531132049557,
+              3.422431300385531
+            ],
+            "pixels": 318
+          },
+          "deltaE76": 11.090119698111609
+        },
+        "scleraLeft": {
+          "reference": {
+            "lab": [
+              28.082954583499195,
+              5.565568558769884,
+              5.771887063183145
+            ],
+            "pixels": 473
+          },
+          "render": {
+            "lab": [
+              29.177719202677885,
+              1.2830518178994221,
+              1.120772243406698
+            ],
+            "pixels": 339
+          },
+          "deltaE76": 6.416488780788549
+        },
+        "browRight": {
+          "reference": {
+            "lab": [
+              22.083076464952256,
+              4.605524319358678,
+              5.34771015165566
+            ],
+            "pixels": 291
+          },
+          "render": {
+            "lab": [
+              0,
+              0,
+              0
+            ],
+            "pixels": 173
+          },
+          "deltaE76": 23.18342348056588
+        },
+        "browLeft": {
+          "reference": {
+            "lab": [
+              17.47879017607419,
+              2.9432404848410973,
+              3.669557642879573
+            ],
+            "pixels": 281
+          },
+          "render": {
+            "lab": [
+              0,
+              0,
+              0
+            ],
+            "pixels": 172
+          },
+          "deltaE76": 18.100729926311015
+        },
+        "browToneRight": {
+          "reference": {
+            "lab": [
+              51.15443050532486,
+              7.139666320186283,
+              9.170768143912095
+            ],
+            "pixels": 2916
+          },
+          "render": {
+            "lab": [
+              0.9193550159284207,
+              0.5230049538340192,
+              0.47059597786726637
+            ],
+            "pixels": 1738
+          },
+          "deltaE76": 51.41046598486692
+        },
+        "browToneLeft": {
+          "reference": {
+            "lab": [
+              29.695064397223554,
+              6.7776208730607745,
+              10.634595940342539
+            ],
+            "pixels": 2819
+          },
+          "render": {
+            "lab": [
+              0.6066592048031474,
+              0.2615024178276165,
+              0.0921399478068019
+            ],
+            "pixels": 1724
+          },
+          "deltaE76": 31.618641569738784
+        },
+        "hair": {
+          "reference": {
+            "lab": [
+              16.159611528336185,
+              1.3401942472720667,
+              2.7158941307951268
+            ],
+            "pixels": 162020
+          },
+          "render": {
+            "lab": [
+              3.991907301145858,
+              0,
+              4.7271520031699765e-8
+            ],
+            "pixels": 62782
+          },
+          "deltaE76": 12.538948418975375
+        },
+        "irisMinusSkinLightness": {
+          "reference": -58.266000992701194,
+          "render": -48.883578445300756
+        },
+        "hairMinusSkinLightness": {
+          "reference": -58.22630273210224,
+          "render": -50.67552703511166
+        },
+        "skinOverScleraLuminance": {
+          "reference": 6.224854412648795,
+          "render": 3.928464742613802
+        }
+      }
+    },
+    {
+      "subject": "generated-white-boy-01",
+      "sha256": {
+        "reference": "b6f4b18d0de389e4fa74255576aa30efca080d77d858231120bc3314d85df12c",
+        "model": "d229d6f9b2e9be02a983ef131a3ae6f1f31c76a3661971d3a8c215d09788c162",
+        "portrait": "6f0b2bcc2decd037061879ff2af9ae9f8a8cdb2d1f236b346aaa46424c241e57",
+        "portraitHair": "083514cd3d53dd20c2a58e67d466c3c3ea76c26d75f5a56d353399a254612eb2",
+        "frame": "08c569259b87b2642fbf8271296edd9670dd3627377da6a631b53423f9bbeaae",
+        "frameHair": "44194f29ef50e2da0e35ca48a8dc4de988b8cf3d938e8a044bbb310cd57cdb47"
+      },
+      "camera": {
+        "portrait": {
+          "yaw": 2.140916891458146,
+          "pitch": 0,
+          "distance": 2,
+          "fov": 8.839399962660497,
+          "target": [
+            0,
+            0,
+            0.06
+          ]
+        },
+        "frame": {
+          "yaw": 2.140916891458146,
+          "pitch": 0,
+          "distance": 2.0961275172168934,
+          "fov": 8.839399962660497,
+          "target": [
+            -0.003471000914409359,
+            0.03173005123803323,
+            0.060129757985362506
+          ]
+        }
+      },
+      "status": "measured",
+      "landmarkRmsInterocular": 0.033527623884365136,
+      "landmarkMedianInterocular": 0.020562504272166084,
+      "detectorPoseDifferenceDegrees": 5.571171117281277,
+      "eyeAperture": {
+        "right": {
+          "reference": 0.23501539107972402,
+          "render": 0.25654228860139183
+        },
+        "left": {
+          "reference": 0.23680200676189989,
+          "render": 0.26977441793195
+        }
+      },
+      "mouthCornerLift": {
+        "reference": 0.10970328323900716,
+        "render": 0.0963179731253693
+      },
+      "teeth": {
+        "upperExposure": {
+          "reference": 0.12400000000000008,
+          "render": null
+        },
+        "lowerExposure": {
+          "reference": 0,
+          "render": null
+        },
+        "gap": {
+          "reference": null,
+          "render": null
+        }
+      },
+      "blendshapes": {
+        "eyeBlinkLeft": {
+          "reference": 0.24293142557144165,
+          "render": 0.14879226684570312
+        },
+        "eyeBlinkRight": {
+          "reference": 0.2651544511318207,
+          "render": 0.207349956035614
+        },
+        "eyeSquintLeft": {
+          "reference": 0.593541145324707,
+          "render": 0.6397157907485962
+        },
+        "eyeSquintRight": {
+          "reference": 0.4984494745731354,
+          "render": 0.5201003551483154
+        },
+        "cheekSquintLeft": {
+          "reference": 0.000002776779183477629,
+          "render": 7.428039339174575e-7
+        },
+        "cheekSquintRight": {
+          "reference": 0.0000013363451216719113,
+          "render": 1.2425017814621242e-7
+        },
+        "mouthSmileLeft": {
+          "reference": 0.8837753534317017,
+          "render": 0.848814845085144
+        },
+        "mouthSmileRight": {
+          "reference": 0.875537633895874,
+          "render": 0.8648877143859863
+        },
+        "jawOpen": {
+          "reference": 0.08412535488605499,
+          "render": 0.0015111732063814998
+        },
+        "browInnerUp": {
+          "reference": 0.005479622166603804,
+          "render": 0.05098981037735939
+        },
+        "browDownLeft": {
+          "reference": 0.24055258929729462,
+          "render": 0.05890640243887901
+        },
+        "browDownRight": {
+          "reference": 0.19458669424057007,
+          "render": 0.07912088185548782
+        }
+      },
+      "hair": {
+        "head": {
+          "intersection": 121384,
+          "union": 202960,
+          "reference": 190446,
+          "render": 133898,
+          "iou": 0.5980685849428459
+        },
+        "covered": {
+          "intersection": 121384,
+          "union": 202960,
+          "reference": 190446,
+          "render": 133898,
+          "iou": 0.5980685849428459
+        },
+        "uncoveredReferenceShare": 0
+      },
+      "colour": {
+        "cheekRight": {
+          "reference": {
+            "lab": [
+              76.07678839555855,
+              16.434857503761833,
+              18.99203074703477
+            ],
+            "pixels": 10941
+          },
+          "render": {
+            "lab": [
+              66.29522378113676,
+              12.048332244083914,
+              18.615617551775788
+            ],
+            "pixels": 5649
+          },
+          "deltaE76": 10.72670951659763
+        },
+        "cheekLeft": {
+          "reference": {
+            "lab": [
+              63.71207220147488,
+              19.664968310013688,
+              20.948329424558597
+            ],
+            "pixels": 10943
+          },
+          "render": {
+            "lab": [
+              59.18786936867896,
+              10.75425059895746,
+              13.044134741094737
+            ],
+            "pixels": 5647
+          },
+          "deltaE76": 12.74149108199304
+        },
+        "irisRight": {
+          "reference": {
+            "lab": [
+              23.79359269044248,
+              6.122615867843004,
+              9.670205454630048
+            ],
+            "pixels": 652
+          },
+          "render": {
+            "lab": [
+              9.605836375244008,
+              2.740793836677892,
+              3.558571980177108
+            ],
+            "pixels": 360
+          },
+          "deltaE76": 15.813956280323453
+        },
+        "irisLeft": {
+          "reference": {
+            "lab": [
+              22.052731215072917,
+              5.858557687119431,
+              9.090555338364103
+            ],
+            "pixels": 683
+          },
+          "render": {
+            "lab": [
+              10.978971769829649,
+              3.085803337907589,
+              4.097903601014502
+            ],
+            "pixels": 388
+          },
+          "deltaE76": 12.459650328265544
+        },
+        "scleraRight": {
+          "reference": {
+            "lab": [
+              39.510114777418494,
+              10.04920938985715,
+              9.387356204168762
+            ],
+            "pixels": 518
+          },
+          "render": {
+            "lab": [
+              28.81424357350081,
+              1.9010640218608266,
+              1.4015065240813862
+            ],
+            "pixels": 271
+          },
+          "deltaE76": 15.638661351335259
+        },
+        "scleraLeft": {
+          "reference": {
+            "lab": [
+              32.360480525263526,
+              8.377549390890193,
+              7.2810548715291805
+            ],
+            "pixels": 537
+          },
+          "render": {
+            "lab": [
+              19.384385085210774,
+              1.237240401149281,
+              1.5661814817527624
+            ],
+            "pixels": 318
+          },
+          "deltaE76": 15.875227343238501
+        },
+        "browRight": {
+          "reference": {
+            "lab": [
+              20.990861212064168,
+              10.445247223901681,
+              10.043856854685433
+            ],
+            "pixels": 348
+          },
+          "render": {
+            "lab": [
+              0,
+              0,
+              0
+            ],
+            "pixels": 175
+          },
+          "deltaE76": 25.5068325064085
+        },
+        "browLeft": {
+          "reference": {
+            "lab": [
+              13.279714993642582,
+              6.791882994408138,
+              7.267663565699473
+            ],
+            "pixels": 348
+          },
+          "render": {
+            "lab": [
+              0,
+              0,
+              0
+            ],
+            "pixels": 183
+          },
+          "deltaE76": 16.592149909710365
+        },
+        "browToneRight": {
+          "reference": {
+            "lab": [
+              36.04151521238076,
+              11.142539072384576,
+              12.525364776015014
+            ],
+            "pixels": 3484
+          },
+          "render": {
+            "lab": [
+              0.8808340322862769,
+              0.5230048356552053,
+              0.47059602513878085
+            ],
+            "pixels": 1753
+          },
+          "deltaE76": 38.65702339925333
+        },
+        "browToneLeft": {
+          "reference": {
+            "lab": [
+              23.873228924300463,
+              9.11100749091849,
+              10.361288646839723
+            ],
+            "pixels": 3484
+          },
+          "render": {
+            "lab": [
+              0.6649687546400287,
+              0.2615025360064027,
+              0.09213999507832193
+            ],
+            "pixels": 1836
+          },
+          "deltaE76": 26.877360214158557
+        },
+        "hair": {
+          "reference": {
+            "lab": [
+              23.435760793815582,
+              5.651431846718707,
+              9.883959308186652
+            ],
+            "pixels": 190446
+          },
+          "render": {
+            "lab": [
+              4.218655354604216,
+              0.7707127951163545,
+              0.9504737729701618
+            ],
+            "pixels": 69974
+          },
+          "deltaE76": 21.746855490630445
+        },
+        "irisMinusSkinLightness": {
+          "reference": -46.971268345759015,
+          "render": -52.44914250237103
+        },
+        "hairMinusSkinLightness": {
+          "reference": -46.45866950470113,
+          "render": -58.52289122030364
+        },
+        "skinOverScleraLuminance": {
+          "reference": 4.5238389513589,
+          "render": 7.571832219964937
+        }
+      }
+    },
+    {
+      "subject": "generated-white-girl-01",
+      "sha256": {
+        "reference": "58cae33a788066f88a6b5f1a26894569802a22cbf2aff9d2f511c787543ee316",
+        "model": "511691377194240d85e608551b453a92b6fd9490a288273745a3f6d1f17b9bbd",
+        "portrait": "49a3787b5aa00fd0c303f0c01819d1ead03d0fd84e939fa1497eda42380cbd76",
+        "portraitHair": "20530714edac25e63cbe79dad27598cea5b56c4fe0513787baed9bf16b0512fc",
+        "frame": "de8ba8d0b86870d4d44f6d58baeb77448e67e879a8027801f653b3af9554cfa0",
+        "frameHair": "654f571b14040eae1f155e61b8b2a30370b7ae10604a89e02177eb81842d66bf"
+      },
+      "camera": {
+        "portrait": {
+          "yaw": -25.101406741914726,
+          "pitch": 0,
+          "distance": 2,
+          "fov": 8.839399962660497,
+          "target": [
+            0,
+            0,
+            0.06
+          ]
+        },
+        "frame": {
+          "yaw": -25.101406741914726,
+          "pitch": 0,
+          "distance": 3.0050931243338677,
+          "fov": 8.839399962660497,
+          "target": [
+            0.003445256287183872,
+            -0.020826966007757672,
+            0.061613979126249094
+          ]
+        }
+      },
+      "status": "measured",
+      "landmarkRmsInterocular": 0.04750081450972514,
+      "landmarkMedianInterocular": 0.03405125162779508,
+      "detectorPoseDifferenceDegrees": 9.894126538034508,
+      "eyeAperture": {
+        "right": {
+          "reference": 0.32304569396095534,
+          "render": 0.32119699682621844
+        },
+        "left": {
+          "reference": 0.3896548689038701,
+          "render": 0.4073991685141775
+        }
+      },
+      "mouthCornerLift": {
+        "reference": 0.1235388975474096,
+        "render": 0.07963777854186416
+      },
+      "teeth": {
+        "upperExposure": {
+          "reference": 0.1380000000000001,
+          "render": null
+        },
+        "lowerExposure": {
+          "reference": 0,
+          "render": null
+        },
+        "gap": {
+          "reference": null,
+          "render": null
+        }
+      },
+      "blendshapes": {
+        "eyeBlinkLeft": {
+          "reference": 0.08889482170343399,
+          "render": 0.046112556010484695
+        },
+        "eyeBlinkRight": {
+          "reference": 0.09497232735157013,
+          "render": 0.02458769828081131
+        },
+        "eyeSquintLeft": {
+          "reference": 0.5127245187759399,
+          "render": 0.48261019587516785
+        },
+        "eyeSquintRight": {
+          "reference": 0.2281903624534607,
+          "render": 0.13840828835964203
+        },
+        "cheekSquintLeft": {
+          "reference": 0.0000014391999911822495,
+          "render": 3.3019628631336673e-7
+        },
+        "cheekSquintRight": {
+          "reference": 8.669427984386857e-7,
+          "render": 3.8901060150919875e-8
+        },
+        "mouthSmileLeft": {
+          "reference": 0.8607341051101685,
+          "render": 0.5315083861351013
+        },
+        "mouthSmileRight": {
+          "reference": 0.9000647068023682,
+          "render": 0.7870967388153076
+        },
+        "jawOpen": {
+          "reference": 0.005844671279191971,
+          "render": 0.0003889845102094114
+        },
+        "browInnerUp": {
+          "reference": 0.01781066134572029,
+          "render": 0.05566908419132233
+        },
+        "browDownLeft": {
+          "reference": 0.0151827372610569,
+          "render": 0.0165721345692873
+        },
+        "browDownRight": {
+          "reference": 0.03544805571436882,
+          "render": 0.03733803331851959
+        }
+      },
+      "hair": {
+        "head": {
+          "intersection": 102323,
+          "union": 146596,
+          "reference": 140278,
+          "render": 108641,
+          "iou": 0.697993123959726
+        },
+        "covered": {
+          "intersection": 127002,
+          "union": 193367,
+          "reference": 164957,
+          "render": 155412,
+          "iou": 0.6567925240604653
+        },
+        "uncoveredReferenceShare": 0
+      },
+      "colour": {
+        "cheekRight": {
+          "reference": {
+            "lab": [
+              69.77649802568874,
+              15.513365828837223,
+              14.44951800636498
+            ],
+            "pixels": 3776
+          },
+          "render": {
+            "lab": [
+              59.4769540198274,
+              12.77629868766178,
+              17.15813314721664
+            ],
+            "pixels": 4684
+          },
+          "deltaE76": 10.995851001410818
+        },
+        "cheekLeft": {
+          "reference": {
+            "lab": [
+              72.04791783592849,
+              13.989574569237606,
+              12.52305374354956
+            ],
+            "pixels": 3771
+          },
+          "render": {
+            "lab": [
+              50.17000672221292,
+              9.841650852701667,
+              9.538894788957952
+            ],
+            "pixels": 4687
+          },
+          "deltaE76": 22.466719175796673
+        },
+        "irisRight": {
+          "reference": {
+            "lab": [
+              24.171895076200556,
+              1.4747706813485195,
+              4.560148728223684
+            ],
+            "pixels": 399
+          },
+          "render": {
+            "lab": [
+              10.57167968906528,
+              2.035067022899989,
+              3.6554537942982024
+            ],
+            "pixels": 496
+          },
+          "deltaE76": 13.641783735651929
+        },
+        "irisLeft": {
+          "reference": {
+            "lab": [
+              21.777222801556228,
+              3.5774261716300106,
+              5.877637434104571
+            ],
+            "pixels": 340
+          },
+          "render": {
+            "lab": [
+              12.791098985534997,
+              2.009303058713968,
+              3.5743838348009427
+            ],
+            "pixels": 449
+          },
+          "deltaE76": 9.40820963184976
+        },
+        "scleraRight": {
+          "reference": {
+            "lab": [
+              74.65933663724559,
+              3.0563607791285614,
+              -1.7105545788154597
+            ],
+            "pixels": 352
+          },
+          "render": {
+            "lab": [
+              37.71428936181737,
+              1.1025757221985732,
+              0.4224655994373383
+            ],
+            "pixels": 434
+          },
+          "deltaE76": 37.05811070890073
+        },
+        "scleraLeft": {
+          "reference": {
+            "lab": [
+              59.28275221377651,
+              4.1294543021453,
+              -1.6742258531923015
+            ],
+            "pixels": 314
+          },
+          "render": {
+            "lab": [
+              37.92327344137255,
+              1.6392612152807684,
+              0
+            ],
+            "pixels": 349
+          },
+          "deltaE76": 21.56922407612617
+        },
+        "browRight": {
+          "reference": {
+            "lab": [
+              27.724802660966628,
+              10.726915650332097,
+              10.08221232133437
+            ],
+            "pixels": 188
+          },
+          "render": {
+            "lab": [
+              0,
+              0,
+              0
+            ],
+            "pixels": 223
+          },
+          "deltaE76": 31.390801315852844
+        },
+        "browLeft": {
+          "reference": {
+            "lab": [
+              28.37376676348692,
+              7.423942208749451,
+              5.252897099409315
+            ],
+            "pixels": 89
+          },
+          "render": {
+            "lab": [
+              0,
+              0,
+              0
+            ],
+            "pixels": 112
+          },
+          "deltaE76": 29.79561186155756
+        },
+        "browToneRight": {
+          "reference": {
+            "lab": [
+              42.669820427499054,
+              11.79079573718983,
+              10.544017939395678
+            ],
+            "pixels": 1887
+          },
+          "render": {
+            "lab": [
+              7.351835188593398,
+              2.4793233061675273,
+              2.6332177210577177
+            ],
+            "pixels": 2231
+          },
+          "deltaE76": 37.37170534326339
+        },
+        "browToneLeft": {
+          "reference": {
+            "lab": [
+              41.20052996092584,
+              8.876371762815499,
+              7.334481131979342
+            ],
+            "pixels": 891
+          },
+          "render": {
+            "lab": [
+              2.2912853020914135,
+              0.5230044811188328,
+              2.3635758905626858e-7
+            ],
+            "pixels": 1126
+          },
+          "deltaE76": 40.466068191414344
+        },
+        "hair": {
+          "reference": {
+            "lab": [
+              12.124429464398425,
+              4.220478938370132,
+              5.4984535645034915
+            ],
+            "pixels": 140278
+          },
+          "render": {
+            "lab": [
+              1.2331069758010287,
+              0.38394894382555445,
+              0.2764197016058567
+            ],
+            "pixels": 134574
+          },
+          "deltaE76": 12.673180564282873
+        },
+        "irisMinusSkinLightness": {
+          "reference": -47.93764899193023,
+          "render": -43.14209103372002
+        },
+        "hairMinusSkinLightness": {
+          "reference": -58.787778466410195,
+          "render": -53.59037339521913
+        },
+        "skinOverScleraLuminance": {
+          "reference": 1.1493774649878548,
+          "render": 2.278925954376471
+        }
+      }
+    },
+    {
+      "subject": "kim-min-jung",
+      "sha256": {
+        "reference": "a2dfa2081c49b8055e5da5d871883bbb0eeb890f34719c8ab6801f564c9799a5",
+        "model": "e4a53dad400f08ebb70f134b863a43ee82922eebcb01ff99c0c2e3734c9971f5",
+        "portrait": "6f9f86f2d5b224b9b1fb6247098cd0895498fe1b0553da20b6104b087693edec",
+        "portraitHair": "58d896fb660b204d1d2e121f2a2a86d7e69fbcd9e09cf73dad4f3c5cfbf247d4",
+        "frame": "23593bdae0c5006edbd7fbb92fb6d998965c241a0ba527331a0ba822cb0d65d9",
+        "frameHair": "ffb0ea53a8d40a2ae62c82e17ecbadf2854505ff062508f10e5fec7d8e35aa7c"
+      },
+      "camera": {
+        "portrait": {
+          "yaw": 8.880347910920838,
+          "pitch": 0,
+          "distance": 2,
+          "fov": 8.839399962660497,
+          "target": [
+            0,
+            0,
+            0.06
+          ]
+        },
+        "frame": {
+          "yaw": 8.880347910920838,
+          "pitch": 0,
+          "distance": 2.1538544853771695,
+          "fov": 8.839399962660497,
+          "target": [
+            -0.004379092014424222,
+            0.026640126644668978,
+            0.06068420875860498
+          ]
+        }
+      },
+      "status": "measured",
+      "landmarkRmsInterocular": 0.03397263497461691,
+      "landmarkMedianInterocular": 0.02368330874379316,
+      "detectorPoseDifferenceDegrees": 3.7938210009408313,
+      "eyeAperture": {
+        "right": {
+          "reference": 0.3599773867524471,
+          "render": 0.3393388613626728
+        },
+        "left": {
+          "reference": 0.3271212044067878,
+          "render": 0.3060870993094834
+        }
+      },
+      "mouthCornerLift": {
+        "reference": 0.06706141116472514,
+        "render": 0.04876708938604325
+      },
+      "teeth": {
+        "upperExposure": {
+          "reference": null,
+          "render": null
+        },
+        "lowerExposure": {
+          "reference": null,
+          "render": null
+        },
+        "gap": {
+          "reference": null,
+          "render": null
+        }
+      },
+      "blendshapes": {
+        "eyeBlinkLeft": {
+          "reference": 0.12986059486865997,
+          "render": 0.10590588301420212
+        },
+        "eyeBlinkRight": {
+          "reference": 0.04134892299771309,
+          "render": 0.03765346109867096
+        },
+        "eyeSquintLeft": {
+          "reference": 0.3871394395828247,
+          "render": 0.4916762709617615
+        },
+        "eyeSquintRight": {
+          "reference": 0.34867075085639954,
+          "render": 0.41566774249076843
+        },
+        "cheekSquintLeft": {
+          "reference": 3.5999190117763646e-7,
+          "render": 3.013799982909404e-7
+        },
+        "cheekSquintRight": {
+          "reference": 1.4426517225274438e-7,
+          "render": 4.630566934338276e-7
+        },
+        "mouthSmileLeft": {
+          "reference": 0.5084468722343445,
+          "render": 0.5404846668243408
+        },
+        "mouthSmileRight": {
+          "reference": 0.4062194526195526,
+          "render": 0.4911118745803833
+        },
+        "jawOpen": {
+          "reference": 0.0007225506124086678,
+          "render": 0.0002874739293474704
+        },
+        "browInnerUp": {
+          "reference": 0.32445433735847473,
+          "render": 0.037129245698451996
+        },
+        "browDownLeft": {
+          "reference": 0.003618219867348671,
+          "render": 0.047470659017562866
+        },
+        "browDownRight": {
+          "reference": 0.005480427760630846,
+          "render": 0.03509420529007912
+        }
+      },
+      "hair": {
+        "head": {
+          "intersection": 23941,
+          "union": 39680,
+          "reference": 38752,
+          "render": 24869,
+          "iou": 0.6033518145161291
+        },
+        "covered": {
+          "intersection": 23941,
+          "union": 39680,
+          "reference": 38752,
+          "render": 24869,
+          "iou": 0.6033518145161291
+        },
+        "uncoveredReferenceShare": 0
+      },
+      "colour": {
+        "cheekRight": {
+          "reference": {
+            "lab": [
+              43.65610348048643,
+              9.939984842658456,
+              24.005552800781885
+            ],
+            "pixels": 1510
+          },
+          "render": {
+            "lab": [
+              63.02688519298161,
+              12.376188193723603,
+              16.79630532311034
+            ],
+            "pixels": 5182
+          },
+          "deltaE76": 20.811908132489734
+        },
+        "cheekLeft": {
+          "reference": {
+            "lab": [
+              36.64956393212194,
+              8.969771555164138,
+              25.064279151216496
+            ],
+            "pixels": 1514
+          },
+          "render": {
+            "lab": [
+              56.08255805473475,
+              11.092629668673137,
+              12.012113800778202
+            ],
+            "pixels": 5176
+          },
+          "deltaE76": 23.505463353756227
+        },
+        "irisRight": {
+          "reference": {
+            "lab": [
+              3.5912980349262185,
+              -0.46963529807682314,
+              1.9844200508376098
+            ],
+            "pixels": 139
+          },
+          "render": {
+            "lab": [
+              5.539242703572203,
+              0.3305723766308874,
+              5.2119195625977e-7
+            ],
+            "pixels": 452
+          },
+          "deltaE76": 2.893569011516143
+        },
+        "irisLeft": {
+          "reference": {
+            "lab": [
+              3.2705043138417516,
+              -1.6887884456009554,
+              1.7080004910463076
+            ],
+            "pixels": 141
+          },
+          "render": {
+            "lab": [
+              4.533300192419407,
+              0.17492085374701954,
+              -0.09213982962801015
+            ],
+            "pixels": 452
+          },
+          "deltaE76": 2.882459185755501
+        },
+        "scleraRight": {
+          "reference": {
+            "lab": [
+              18.316881352144556,
+              1.5277080686021405,
+              9.619134344503799
+            ],
+            "pixels": 107
+          },
+          "render": {
+            "lab": [
+              34.15154760096565,
+              2.6139402109499055,
+              3.093279790321163
+            ],
+            "pixels": 341
+          },
+          "deltaE76": 17.161099415275512
+        },
+        "scleraLeft": {
+          "reference": {
+            "lab": [
+              15.509521474373713,
+              0.0958970259808678,
+              5.822968488019653
+            ],
+            "pixels": 117
+          },
+          "render": {
+            "lab": [
+              23.46872996608251,
+              1.198100633207043,
+              1.6894587471577487
+            ],
+            "pixels": 366
+          },
+          "deltaE76": 9.036025419622947
+        },
+        "browRight": {
+          "reference": {
+            "lab": [
+              5.31279201573156,
+              -2.1520594148254912,
+              2.619389991612675
+            ],
+            "pixels": 35
+          },
+          "render": {
+            "lab": [
+              0,
+              0,
+              0
+            ],
+            "pixels": 149
+          },
+          "deltaE76": 6.302247428935228
+        },
+        "browLeft": {
+          "reference": {
+            "lab": [
+              3.742342282171416,
+              -1.1281053488716997,
+              3.1899788041683195
+            ],
+            "pixels": 40
+          },
+          "render": {
+            "lab": [
+              0,
+              0,
+              0
+            ],
+            "pixels": 191
+          },
+          "deltaE76": 5.045167212900286
+        },
+        "browToneRight": {
+          "reference": {
+            "lab": [
+              13.816500872677043,
+              0.9329721803756075,
+              8.549074389806698
+            ],
+            "pixels": 351
+          },
+          "render": {
+            "lab": [
+              1.8001890482146976,
+              0.8638069404978549,
+              0.7470158685591866
+            ],
+            "pixels": 1493
+          },
+          "deltaE76": 14.327199686683084
+        },
+        "browToneLeft": {
+          "reference": {
+            "lab": [
+              10.505415942979095,
+              -1.424986779246948,
+              8.75685041841549
+            ],
+            "pixels": 401
+          },
+          "render": {
+            "lab": [
+              2.271496735896676,
+              0.5230049538340192,
+              0.0921399478068019
+            ],
+            "pixels": 1911
+          },
+          "deltaE76": 12.110710335912936
+        },
+        "hair": {
+          "reference": {
+            "lab": [
+              3.4042318935688094,
+              -1.8637353019203133,
+              1.085825125075296
+            ],
+            "pixels": 38752
+          },
+          "render": {
+            "lab": [
+              2.7417482748313162,
+              0,
+              0
+            ],
+            "pixels": 87763
+          },
+          "deltaE76": 2.2564153037427106
+        },
+        "irisMinusSkinLightness": {
+          "reference": -36.7219325319202,
+          "render": -54.51845017586237
+        },
+        "hairMinusSkinLightness": {
+          "reference": -36.74860181273537,
+          "render": -56.81297334902686
+        },
+        "skinOverScleraLuminance": {
+          "reference": 4.965976385013879,
+          "render": 4.793535658715227
+        }
+      }
+    },
+    {
+      "subject": "lee-tae-ri",
+      "sha256": {
+        "reference": "a833496a8302bcb15ff9f8b1d44a86c33492a8ac69ea9a12c6f1f26d468b9e1e",
+        "model": "d9666d1a59ade76f016c3ba5cb894d235033d72b16ceebcce3e2a6e3ba69d9d3",
+        "portrait": "9b327c5f4fb556e95043ea1d431769d917e367e84d1c20a8a3efce1279fbbb52",
+        "portraitHair": "f69ec29b03ab93645f1270e11c384422bc3c912c3e3525567d1feeaf2845181d",
+        "frame": "b8136fe8a2300db2944043c25beef20d339856820d2dfeb9ce4301f6762359b7",
+        "frameHair": "c30d573b070d82603fd690fba6cb99774ee49f04f84cb98b0b6501a145312430"
+      },
+      "camera": {
+        "portrait": {
+          "yaw": -3.2603986551596575,
+          "pitch": 0,
+          "distance": 2,
+          "fov": 8.839399962660497,
+          "target": [
+            0,
+            0,
+            0.06
+          ]
+        },
+        "frame": {
+          "yaw": -3.2603986551596575,
+          "pitch": 0,
+          "distance": 2.312406740675369,
+          "fov": 8.839399962660497,
+          "target": [
+            0.0006678764890484947,
+            0.048515829717749995,
+            0.06003804638096308
+          ]
+        }
+      },
+      "status": "measured",
+      "landmarkRmsInterocular": 0.02895986456302581,
+      "landmarkMedianInterocular": 0.01759152852817609,
+      "detectorPoseDifferenceDegrees": 4.224375520787566,
+      "eyeAperture": {
+        "right": {
+          "reference": 0.34087920606999655,
+          "render": 0.354740026154876
+        },
+        "left": {
+          "reference": 0.33150860526153714,
+          "render": 0.3514409373899727
+        }
+      },
+      "mouthCornerLift": {
+        "reference": 0.07530565892578295,
+        "render": 0.08005870445599762
+      },
+      "teeth": {
+        "upperExposure": {
+          "reference": null,
+          "render": null
+        },
+        "lowerExposure": {
+          "reference": null,
+          "render": null
+        },
+        "gap": {
+          "reference": null,
+          "render": null
+        }
+      },
+      "blendshapes": {
+        "eyeBlinkLeft": {
+          "reference": 0.093021921813488,
+          "render": 0.0675726979970932
+        },
+        "eyeBlinkRight": {
+          "reference": 0.0498075932264328,
+          "render": 0.05868695303797722
+        },
+        "eyeSquintLeft": {
+          "reference": 0.503930926322937,
+          "render": 0.4934825003147125
+        },
+        "eyeSquintRight": {
+          "reference": 0.28161874413490295,
+          "render": 0.3458460569381714
+        },
+        "cheekSquintLeft": {
+          "reference": 4.025052930956008e-7,
+          "render": 3.806055985933199e-7
+        },
+        "cheekSquintRight": {
+          "reference": 2.0447349413643678e-7,
+          "render": 1.448433550876871e-7
+        },
+        "mouthSmileLeft": {
+          "reference": 0.7389466762542725,
+          "render": 0.7918187379837036
+        },
+        "mouthSmileRight": {
+          "reference": 0.6639789938926697,
+          "render": 0.7092559337615967
+        },
+        "jawOpen": {
+          "reference": 0.0007526037516072392,
+          "render": 0.0005902317934669554
+        },
+        "browInnerUp": {
+          "reference": 0.13766077160835266,
+          "render": 0.006659685634076595
+        },
+        "browDownLeft": {
+          "reference": 0.07256602495908737,
+          "render": 0.22103236615657806
+        },
+        "browDownRight": {
+          "reference": 0.04635176807641983,
+          "render": 0.19778025150299072
+        }
+      },
+      "hair": {
+        "head": {
+          "intersection": 15812,
+          "union": 28741,
+          "reference": 22288,
+          "render": 22265,
+          "iou": 0.5501548310775547
+        },
+        "covered": {
+          "intersection": 15812,
+          "union": 28741,
+          "reference": 22288,
+          "render": 22265,
+          "iou": 0.5501548310775547
+        },
+        "uncoveredReferenceShare": 0
+      },
+      "colour": {
+        "cheekRight": {
+          "reference": {
+            "lab": [
+              77.17693124656,
+              12.302131338349675,
+              12.137139108892114
+            ],
+            "pixels": 1035
+          },
+          "render": {
+            "lab": [
+              64.40693975774671,
+              11.348262646906694,
+              15.339251272446642
+            ],
+            "pixels": 5399
+          },
+          "deltaE76": 13.199851151163141
+        },
+        "cheekLeft": {
+          "reference": {
+            "lab": [
+              73.27375744933124,
+              12.769579454022296,
+              9.819868037936864
+            ],
+            "pixels": 1035
+          },
+          "render": {
+            "lab": [
+              59.05203346469929,
+              10.17828584915953,
+              10.97224869199942
+            ],
+            "pixels": 5392
+          },
+          "deltaE76": 14.501731510875382
+        },
+        "irisRight": {
+          "reference": {
+            "lab": [
+              15.776300085303223,
+              6.4677859011844845,
+              4.963370041161971
+            ],
+            "pixels": 90
+          },
+          "render": {
+            "lab": [
+              3.49057305696045,
+              0.7576329066452808,
+              0.7454852338155071
+            ],
+            "pixels": 548
+          },
+          "deltaE76": 14.189273698256768
+        },
+        "irisLeft": {
+          "reference": {
+            "lab": [
+              13.528239588345922,
+              5.29827695881159,
+              3.33820264990298
+            ],
+            "pixels": 84
+          },
+          "render": {
+            "lab": [
+              5.979464572860756,
+              2.4002485437171277,
+              1.158790366051926
+            ],
+            "pixels": 530
+          },
+          "deltaE76": 8.374509587558478
+        },
+        "scleraRight": {
+          "reference": {
+            "lab": [
+              51.46710124844002,
+              9.689751180061767,
+              2.9563216255652836
+            ],
+            "pixels": 75
+          },
+          "render": {
+            "lab": [
+              10.594749826833763,
+              2.6984509420698366,
+              2.637718475776976
+            ],
+            "pixels": 408
+          },
+          "deltaE76": 41.467202675320166
+        },
+        "scleraLeft": {
+          "reference": {
+            "lab": [
+              46.69545038178404,
+              9.221134657270813,
+              2.535443018661754
+            ],
+            "pixels": 71
+          },
+          "render": {
+            "lab": [
+              35.873446707933226,
+              1.5212060365479285,
+              1.0988859311166443
+            ],
+            "pixels": 379
+          },
+          "deltaE76": 13.359205086637603
+        },
+        "browRight": {
+          "reference": {
+            "lab": [
+              20.471837217501708,
+              7.7580798353069085,
+              4.488964106729809
+            ],
+            "pixels": 29
+          },
+          "render": {
+            "lab": [
+              0,
+              0,
+              0
+            ],
+            "pixels": 117
+          },
+          "deltaE76": 22.34803616746653
+        },
+        "browLeft": {
+          "reference": {
+            "lab": [
+              17.46458125604787,
+              4.77244749450395,
+              3.0312517992590937
+            ],
+            "pixels": 19
+          },
+          "render": {
+            "lab": [
+              0,
+              0,
+              0
+            ],
+            "pixels": 182
+          },
+          "deltaE76": 18.356915345651274
+        },
+        "browToneRight": {
+          "reference": {
+            "lab": [
+              38.60532965485676,
+              9.51148288153672,
+              5.755387879512764
+            ],
+            "pixels": 297
+          },
+          "render": {
+            "lab": [
+              0.997453131960043,
+              0.5230049538340192,
+              0.5627359256740627
+            ],
+            "pixels": 1171
+          },
+          "deltaE76": 39.014212107025166
+        },
+        "browToneLeft": {
+          "reference": {
+            "lab": [
+              29.095665464762938,
+              6.41392530150492,
+              3.146441232509245
+            ],
+            "pixels": 196
+          },
+          "render": {
+            "lab": [
+              0.33248437732001435,
+              0.2615024178276165,
+              0.09213990053528742
+            ],
+            "pixels": 1821
+          },
+          "deltaE76": 29.571974067267277
+        },
+        "hair": {
+          "reference": {
+            "lab": [
+              14.03180195255116,
+              1.2067101425004,
+              0.0000020078919971133757
+            ],
+            "pixels": 22288
+          },
+          "render": {
+            "lab": [
+              0.7059053827756294,
+              0,
+              0
+            ],
+            "pixels": 126702
+          },
+          "deltaE76": 13.380421097871793
+        },
+        "irisMinusSkinLightness": {
+          "reference": -60.57307451112105,
+          "render": -56.9944677963124
+        },
+        "hairMinusSkinLightness": {
+          "reference": -61.19354239539446,
+          "render": -61.02358122844737
+        },
+        "skinOverScleraLuminance": {
+          "reference": 2.7540914698547865,
+          "render": 7.776181189400977
+        }
+      }
+    },
+    {
+      "subject": "maggie-smith",
+      "sha256": {
+        "reference": "e07e4c4d67083255248c126bc765a159192420007da7e5582e23ef65348760d8",
+        "model": "e0b3b48c8085a32eb5f8189ac55b28191992bf85ca598f445afebd63ff3de09f",
+        "portrait": "fc451b5f8f2ff39cc4fff0888d5fc14d72c9302c8cd226e628db40a2e2163086",
+        "portraitHair": "41157626947a5cd6894e216ccbb3ef4c654740b9633c5c7d1b2b97b6dded9a28",
+        "frame": "cb09aef3ceb8e70c58cff4f139153128e1bbd891185a57452edb5407b4521218",
+        "frameHair": "7c9fd3a95cd892f578caaece3e822fc75c36303bf47ec15abe2acb793b56c3d8"
+      },
+      "camera": {
+        "portrait": {
+          "yaw": 14.72702604823357,
+          "pitch": 0,
+          "distance": 2,
+          "fov": 8.839399962660497,
+          "target": [
+            0,
+            0,
+            0.06
+          ]
+        },
+        "frame": {
+          "yaw": 14.72702604823357,
+          "pitch": 0,
+          "distance": 2.2436210715464413,
+          "fov": 8.839399962660497,
+          "target": [
+            -0.009088949534003228,
+            0.03952201625598992,
+            0.062389024105749126
+          ]
+        }
+      },
+      "status": "measured",
+      "landmarkRmsInterocular": 0.06235878904035457,
+      "landmarkMedianInterocular": 0.042653134943066204,
+      "detectorPoseDifferenceDegrees": 3.999172708993151,
+      "eyeAperture": {
+        "right": {
+          "reference": 0.2848184050615003,
+          "render": 0.3112893213271258
+        },
+        "left": {
+          "reference": 0.2754733452775276,
+          "render": 0.23506955078199507
+        }
+      },
+      "mouthCornerLift": {
+        "reference": 0.07259564208152165,
+        "render": 0.08756422987705088
+      },
+      "teeth": {
+        "upperExposure": {
+          "reference": 0.06800000000000005,
+          "render": null
+        },
+        "lowerExposure": {
+          "reference": 0,
+          "render": null
+        },
+        "gap": {
+          "reference": null,
+          "render": null
+        }
+      },
+      "blendshapes": {
+        "eyeBlinkLeft": {
+          "reference": 0.2982650697231293,
+          "render": 0.25685739517211914
+        },
+        "eyeBlinkRight": {
+          "reference": 0.17872761189937592,
+          "render": 0.13594400882720947
+        },
+        "eyeSquintLeft": {
+          "reference": 0.2925807237625122,
+          "render": 0.5428494811058044
+        },
+        "eyeSquintRight": {
+          "reference": 0.32889971137046814,
+          "render": 0.4715025722980499
+        },
+        "cheekSquintLeft": {
+          "reference": 0.000002565792556197266,
+          "render": 6.749762633262435e-7
+        },
+        "cheekSquintRight": {
+          "reference": 0.0000014090729791860213,
+          "render": 4.308727739044116e-7
+        },
+        "mouthSmileLeft": {
+          "reference": 0.8224161267280579,
+          "render": 0.8597785830497742
+        },
+        "mouthSmileRight": {
+          "reference": 0.7980136871337891,
+          "render": 0.7500203847885132
+        },
+        "jawOpen": {
+          "reference": 0.03489392250776291,
+          "render": 0.0018370052566751838
+        },
+        "browInnerUp": {
+          "reference": 0.02897486463189125,
+          "render": 0.01228988729417324
+        },
+        "browDownLeft": {
+          "reference": 0.06467082351446152,
+          "render": 0.06722442060709
+        },
+        "browDownRight": {
+          "reference": 0.05124790966510773,
+          "render": 0.07379025965929031
+        }
+      },
+      "hair": {
+        "head": {
+          "intersection": 6516,
+          "union": 14345,
+          "reference": 7948,
+          "render": 12913,
+          "iou": 0.4542349250609969
+        },
+        "covered": {
+          "intersection": 6516,
+          "union": 14659,
+          "reference": 7948,
+          "render": 13227,
+          "iou": 0.44450508220206014
+        },
+        "uncoveredReferenceShare": 0
+      },
+      "colour": {
+        "cheekRight": {
+          "reference": {
+            "lab": [
+              64.6665181781273,
+              22.65190599349132,
+              26.284102716380133
+            ],
+            "pixels": 383
+          },
+          "render": {
+            "lab": [
+              56.907020507629525,
+              15.984780398897392,
+              19.407323641752217
+            ],
+            "pixels": 4800
+          },
+          "deltaE76": 12.326818658266628
+        },
+        "cheekLeft": {
+          "reference": {
+            "lab": [
+              72.35218680202321,
+              24.395491763869515,
+              28.565495207440716
+            ],
+            "pixels": 383
+          },
+          "render": {
+            "lab": [
+              47.900893480296226,
+              13.569604366807598,
+              13.159511653244094
+            ],
+            "pixels": 4887
+          },
+          "deltaE76": 30.86113919334754
+        },
+        "irisRight": {
+          "reference": {
+            "lab": [
+              27.012123949368437,
+              8.898657975414032,
+              2.33028658739034
+            ],
+            "pixels": 27
+          },
+          "render": {
+            "lab": [
+              4.951057181305778,
+              2.908607096527946,
+              0
+            ],
+            "pixels": 333
+          },
+          "deltaE76": 22.97828566399012
+        },
+        "irisLeft": {
+          "reference": {
+            "lab": [
+              18.37841321604023,
+              17.385277686603835,
+              6.024267524729182
+            ],
+            "pixels": 27
+          },
+          "render": {
+            "lab": [
+              7.055992252803112,
+              5.956482930849688,
+              0.06844129546438316
+            ],
+            "pixels": 311
+          },
+          "deltaE76": 17.154778696069016
+        },
+        "scleraRight": {
+          "reference": {
+            "lab": [
+              62.43829892243994,
+              16.27210461298212,
+              19.636651172183427
+            ],
+            "pixels": 17
+          },
+          "render": {
+            "lab": [
+              33.61713887639709,
+              0.923562790776114,
+              -0.19417611081110342
+            ],
+            "pixels": 218
+          },
+          "deltaE76": 38.20338614829298
+        },
+        "scleraLeft": {
+          "reference": {
+            "lab": [
+              37.496815963209464,
+              26.433552783326917,
+              26.237787408496025
+            ],
+            "pixels": 22
+          },
+          "render": {
+            "lab": [
+              12.997097268928764,
+              1.7450904866899222,
+              1.2141155873426068
+            ],
+            "pixels": 284
+          },
+          "deltaE76": 42.84787670450125
+        },
+        "browRight": {
+          "reference": {
+            "lab": [
+              66.72525646728718,
+              19.83041667833274,
+              26.92738918537545
+            ],
+            "pixels": 11
+          },
+          "render": {
+            "lab": [
+              0,
+              0,
+              0
+            ],
+            "pixels": 133
+          },
+          "deltaE76": 74.63638231186063
+        },
+        "browLeft": {
+          "reference": {
+            "lab": [
+              63.2409630947584,
+              25.215636085793804,
+              32.64721490971147
+            ],
+            "pixels": 13
+          },
+          "render": {
+            "lab": [
+              0,
+              0,
+              0
+            ],
+            "pixels": 222
+          },
+          "deltaE76": 75.50555183378683
+        },
+        "browToneRight": {
+          "reference": {
+            "lab": [
+              73.90980844101625,
+              17.651867407482285,
+              25.000784402965937
+            ],
+            "pixels": 112
+          },
+          "render": {
+            "lab": [
+              0.5868706386084064,
+              0.2615025360064027,
+              0.1842798956136038
+            ],
+            "pixels": 1335
+          },
+          "deltaE76": 79.33811753692088
+        },
+        "browToneLeft": {
+          "reference": {
+            "lab": [
+              76.68944705883571,
+              17.532747670522486,
+              26.739008436376
+            ],
+            "pixels": 137
+          },
+          "render": {
+            "lab": [
+              1.7418794983778163,
+              0.7845068989464354,
+              0.47059602513878085
+            ],
+            "pixels": 2225
+          },
+          "deltaE76": 81.16446847468987
+        },
+        "hair": {
+          "reference": {
+            "lab": [
+              29.571778293942756,
+              9.57523310603442,
+              13.554112214124059
+            ],
+            "pixels": 7948
+          },
+          "render": {
+            "lab": [
+              13.485461855882503,
+              2.446255133439129,
+              4.947656430387514
+            ],
+            "pixels": 181140
+          },
+          "deltaE76": 19.587316933070966
+        },
+        "irisMinusSkinLightness": {
+          "reference": -45.81408390737093,
+          "render": -46.40043227690843
+        },
+        "hairMinusSkinLightness": {
+          "reference": -38.9375741961325,
+          "render": -38.918495138080374
+        },
+        "skinOverScleraLuminance": {
+          "reference": 2.1024375799838566,
+          "render": 5.270236032404652
+        }
+      }
+    },
+    {
+      "subject": "michael-gambon",
+      "sha256": {
+        "reference": "e8b37987276f848e75bf1c4367287a16a3e169612354eea993fef8031c9b68ac",
+        "model": "8b100d6b830f3e45204a86ff941abfd2189ab25625ff2c589d8b9133bfcf9bf6",
+        "portrait": "ee3c853baba27396e9bdcd16af99bba88b1dbc18d9be3c76aee5eb6d9371099e",
+        "portraitHair": "2e981a9894a834d2814ac176b29c381fc70bab26924bef260c6f391271744283",
+        "frame": "ebd8bcd2bde871c7e49eba54ef383db52790dd447f30c4d4c47b86b485fb0db5",
+        "frameHair": "f99640b31c805fec5fdf5a250704cb9b1e90f08c4016e36428932cfe43ab5d41"
+      },
+      "camera": {
+        "portrait": {
+          "yaw": -8.531988648572142,
+          "pitch": 0,
+          "distance": 2,
+          "fov": 8.839399962660497,
+          "target": [
+            0,
+            0,
+            0.06
+          ]
+        },
+        "frame": {
+          "yaw": -8.531988648572142,
+          "pitch": 0,
+          "distance": 2.0500272541981315,
+          "fov": 8.839399962660497,
+          "target": [
+            -0.0037175652507244234,
+            0.021171095060148824,
+            0.059442284071299485
+          ]
+        }
+      },
+      "status": "measured",
+      "landmarkRmsInterocular": 0.08609330984458345,
+      "landmarkMedianInterocular": 0.0540978910470037,
+      "detectorPoseDifferenceDegrees": 20.55846610864123,
+      "eyeAperture": {
+        "right": {
+          "reference": 0.21169780382578912,
+          "render": 0.2696823716710708
+        },
+        "left": {
+          "reference": 0.2562666282532084,
+          "render": 0.29131847235347147
+        }
+      },
+      "mouthCornerLift": {
+        "reference": -0.03247464725508079,
+        "render": 0.010630043134017228
+      },
+      "teeth": {
+        "upperExposure": {
+          "reference": null,
+          "render": null
+        },
+        "lowerExposure": {
+          "reference": null,
+          "render": null
+        },
+        "gap": {
+          "reference": null,
+          "render": null
+        }
+      },
+      "blendshapes": {
+        "eyeBlinkLeft": {
+          "reference": 0.26106083393096924,
+          "render": 0.16378386318683624
+        },
+        "eyeBlinkRight": {
+          "reference": 0.234964519739151,
+          "render": 0.18235477805137634
+        },
+        "eyeSquintLeft": {
+          "reference": 0.34397417306900024,
+          "render": 0.5299420952796936
+        },
+        "eyeSquintRight": {
+          "reference": 0.48053956031799316,
+          "render": 0.400826632976532
+        },
+        "cheekSquintLeft": {
+          "reference": 2.686318225642026e-7,
+          "render": 3.852680379168305e-7
+        },
+        "cheekSquintRight": {
+          "reference": 2.5194529484906525e-7,
+          "render": 2.1483722889570345e-7
+        },
+        "mouthSmileLeft": {
+          "reference": 0.0827542170882225,
+          "render": 0.009019909426569939
+        },
+        "mouthSmileRight": {
+          "reference": 0.09163792431354523,
+          "render": 0.008354688063263893
+        },
+        "jawOpen": {
+          "reference": 0.008452106267213821,
+          "render": 0.003727119415998459
+        },
+        "browInnerUp": {
+          "reference": 0.6710716485977173,
+          "render": 0.10468252003192902
+        },
+        "browDownLeft": {
+          "reference": 0.0001671223872108385,
+          "render": 0.0203885305672884
+        },
+        "browDownRight": {
+          "reference": 0.000778074492700398,
+          "render": 0.06724726408720016
+        }
+      },
+      "hair": {
+        "head": {
+          "intersection": 29417,
+          "union": 111825,
+          "reference": 100877,
+          "render": 40365,
+          "iou": 0.26306282137268056
+        },
+        "covered": {
+          "intersection": 29417,
+          "union": 111842,
+          "reference": 100894,
+          "render": 40365,
+          "iou": 0.2630228357861984
+        },
+        "uncoveredReferenceShare": 0
+      },
+      "colour": {
+        "cheekRight": {
+          "reference": {
+            "lab": [
+              44.81927843914029,
+              -0.00000873840144688387,
+              0.000003495360578753548
+            ],
+            "pixels": 3175
+          },
+          "render": {
+            "lab": [
+              61.003133968087866,
+              9.230540858394976,
+              14.805810759704595
+            ],
+            "pixels": 5751
+          },
+          "deltaE76": 23.797734228066073
+        },
+        "cheekLeft": {
+          "reference": {
+            "lab": [
+              56.70341318020135,
+              -0.000010445892040245042,
+              0.000004178356816098017
+            ],
+            "pixels": 1028
+          },
+          "render": {
+            "lab": [
+              56.06572979128492,
+              7.914242731373755,
+              10.227860478333861
+            ],
+            "pixels": 5757
+          },
+          "deltaE76": 12.948014826657475
+        },
+        "irisRight": {
+          "reference": {
+            "lab": [
+              19.86553471004992,
+              -0.000005153093729504121,
+              0.0000020612374918016485
+            ],
+            "pixels": 159
+          },
+          "render": {
+            "lab": [
+              8.193526149538362,
+              2.03605047645606,
+              1.679685310080656
+            ],
+            "pixels": 388
+          },
+          "deltaE76": 11.966730638721707
+        },
+        "irisLeft": {
+          "reference": {
+            "lab": [
+              8.75701165021567,
+              -0.000003557041661217397,
+              0.0000014228166644869589
+            ],
+            "pixels": 168
+          },
+          "render": {
+            "lab": [
+              6.79169786587453,
+              2.0046202263103856,
+              1.6100275710883376
+            ],
+            "pixels": 376
+          },
+          "deltaE76": 3.2362260399762692
+        },
+        "scleraRight": {
+          "reference": {
+            "lab": [
+              34.87815385901502,
+              -0.000007310079097599953,
+              0.000002924031639039981
+            ],
+            "pixels": 161
+          },
+          "render": {
+            "lab": [
+              30.23102821838632,
+              3.240966695555278,
+              5.306724687892123
+            ],
+            "pixels": 341
+          },
+          "deltaE76": 7.762794928633435
+        },
+        "scleraLeft": {
+          "reference": {
+            "lab": [
+              17.062019965794192,
+              -0.000004750289911426009,
+              0.0000019001159645704035
+            ],
+            "pixels": 143
+          },
+          "render": {
+            "lab": [
+              24.039980902281386,
+              1.2264331651943432,
+              1.9107809681874115
+            ],
+            "pixels": 276
+          },
+          "deltaE76": 7.338062785140133
+        },
+        "browRight": {
+          "reference": null,
+          "render": {
+            "lab": [
+              0,
+              0,
+              0
+            ],
+            "pixels": 215
+          },
+          "deltaE76": null
+        },
+        "browLeft": {
+          "reference": {
+            "lab": [
+              18.002904128035965,
+              -0.000004885474413907076,
+              0.0000019541897655628304
+            ],
+            "pixels": 83
+          },
+          "render": {
+            "lab": [
+              0,
+              0,
+              0
+            ],
+            "pixels": 177
+          },
+          "deltaE76": 18.002904128036732
+        },
+        "browToneRight": {
+          "reference": null,
+          "render": {
+            "lab": [
+              0.6649687546400287,
+              0.5230049538340192,
+              0.3784560773319845
+            ],
+            "pixels": 2153
+          },
+          "deltaE76": null
+        },
+        "browToneLeft": {
+          "reference": {
+            "lab": [
+              30.15951150447402,
+              -0.000006632113275228946,
+              0.0000026528453100915783
+            ],
+            "pixels": 837
+          },
+          "render": {
+            "lab": [
+              0.39079392715689565,
+              0.2615024178276165,
+              0.0921399478068019
+            ],
+            "pixels": 1779
+          },
+          "deltaE76": 29.77000877498012
+        },
+        "hair": {
+          "reference": {
+            "lab": [
+              39.48966218110062,
+              -0.000007972652066312591,
+              0.0000031890608265250364
+            ],
+            "pixels": 100877
+          },
+          "render": {
+            "lab": [
+              17.50402014504408,
+              0.36776947266470295,
+              9.454303451228441e-8
+            ],
+            "pixels": 72501
+          },
+          "deltaE76": 21.988717925038504
+        },
+        "irisMinusSkinLightness": {
+          "reference": -36.45007262953803,
+          "render": -51.041819871979946
+        },
+        "hairMinusSkinLightness": {
+          "reference": -11.271683628570202,
+          "render": -41.030411734642314
+        },
+        "skinOverScleraLuminance": {
+          "reference": 4.024905080236866,
+          "render": 5.159007857883461
+        }
+      }
+    },
+    {
+      "subject": "miriam-margolyes",
+      "sha256": {
+        "reference": "7101f8b6fb4745ac3786df89bc6e08fd98cbc3709f2cfdae7af651392ddfa69e",
+        "model": "cfc4b0097f1300906f267891cc01791aa4568175d39d920733ff4c6b30a90feb",
+        "portrait": "0f474c2e439e1f161d290f997d93014a5a118a967fd8fd158c1ff7c56fbde4c4",
+        "portraitHair": "0349b52d9242b27d55a0f5613bcf5cd2699c804655e6c8a5ad6106c8cc076030",
+        "frame": "eec4829d2a7a86ddca93e8898aa5f99d51afe5d91e0a3afdac3ec745fe732070",
+        "frameHair": "afe77c693e078150cb207876dde9c1a02fea6d7f1a910b0f7ac64ae425b7ceaf"
+      },
+      "camera": {
+        "portrait": {
+          "yaw": -15.19330487660811,
+          "pitch": 0,
+          "distance": 2,
+          "fov": 8.839399962660497,
+          "target": [
+            0,
+            0,
+            0.06
+          ]
+        },
+        "frame": {
+          "yaw": -15.19330487660811,
+          "pitch": 0,
+          "distance": 3.0260909648491614,
+          "fov": 8.839399962660497,
+          "target": [
+            0.0272807828161787,
+            0.05612804492130015,
+            0.06740860162369565
+          ]
+        }
+      },
+      "status": "measured",
+      "landmarkRmsInterocular": 0.10440620755945478,
+      "landmarkMedianInterocular": 0.07797468068238958,
+      "detectorPoseDifferenceDegrees": 16.120339235776967,
+      "eyeAperture": {
+        "right": {
+          "reference": 0.16337135997055532,
+          "render": 0.21410355956063692
+        },
+        "left": {
+          "reference": 0.10167675934602405,
+          "render": 0.2068126975110375
+        }
+      },
+      "mouthCornerLift": {
+        "reference": 0.17254302690340306,
+        "render": 0.13950958569569286
+      },
+      "teeth": {
+        "upperExposure": {
+          "reference": 0.04400000000000004,
+          "render": null
+        },
+        "lowerExposure": {
+          "reference": 0.04200000000000004,
+          "render": null
+        },
+        "gap": {
+          "reference": 0.16800000000000012,
+          "render": null
+        }
+      },
+      "blendshapes": {
+        "eyeBlinkLeft": {
+          "reference": 0.45281726121902466,
+          "render": 0.14000943303108215
+        },
+        "eyeBlinkRight": {
+          "reference": 0.30706486105918884,
+          "render": 0.18415968120098114
+        },
+        "eyeSquintLeft": {
+          "reference": 0.8137085437774658,
+          "render": 0.698045015335083
+        },
+        "eyeSquintRight": {
+          "reference": 0.6259549260139465,
+          "render": 0.11793898791074753
+        },
+        "cheekSquintLeft": {
+          "reference": 9.200015824717411e-7,
+          "render": 1.5369327854841686e-7
+        },
+        "cheekSquintRight": {
+          "reference": 0.0000017875070170703111,
+          "render": 1.1684620915275445e-7
+        },
+        "mouthSmileLeft": {
+          "reference": 0.9234935641288757,
+          "render": 0.8588593006134033
+        },
+        "mouthSmileRight": {
+          "reference": 0.9082189798355103,
+          "render": 0.8749265670776367
+        },
+        "jawOpen": {
+          "reference": 0.15119564533233643,
+          "render": 0.11645819991827011
+        },
+        "browInnerUp": {
+          "reference": 0.0001791372342268005,
+          "render": 0.0008004427654668689
+        },
+        "browDownLeft": {
+          "reference": 0.4865388870239258,
+          "render": 0.04545757547020912
+        },
+        "browDownRight": {
+          "reference": 0.5095672607421875,
+          "render": 0.2846962511539459
+        }
+      },
+      "hair": {
+        "head": {
+          "intersection": 651719,
+          "union": 1292403,
+          "reference": 1083586,
+          "render": 860536,
+          "iou": 0.5042691791956534
+        },
+        "covered": {
+          "intersection": 651719,
+          "union": 1292564,
+          "reference": 1083586,
+          "render": 860697,
+          "iou": 0.5042063681179423
+        },
+        "uncoveredReferenceShare": 0
+      },
+      "colour": {
+        "cheekRight": {
+          "reference": {
+            "lab": [
+              42.000228468296804,
+              22.999368978973923,
+              12.984557013457444
+            ],
+            "pixels": 18875
+          },
+          "render": {
+            "lab": [
+              57.601628656289066,
+              22.867252413535542,
+              19.715105915167097
+            ],
+            "pixels": 6043
+          },
+          "deltaE76": 16.99180482265063
+        },
+        "cheekLeft": {
+          "reference": {
+            "lab": [
+              49.82157098242584,
+              23.31809128815976,
+              13.673421142198839
+            ],
+            "pixels": 18873
+          },
+          "render": {
+            "lab": [
+              49.29761373789769,
+              20.76382746730987,
+              14.649443746170853
+            ],
+            "pixels": 6043
+          },
+          "deltaE76": 2.784136308455554
+        },
+        "irisRight": {
+          "reference": {
+            "lab": [
+              15.33234373348455,
+              7.896296378516466,
+              3.193619244862961
+            ],
+            "pixels": 723
+          },
+          "render": {
+            "lab": [
+              27.221639320822142,
+              14.006080908388258,
+              7.166431361664671
+            ],
+            "pixels": 195
+          },
+          "deltaE76": 13.94518026702962
+        },
+        "irisLeft": {
+          "reference": {
+            "lab": [
+              19.392811833189278,
+              14.404552760594575,
+              4.350626729037932
+            ],
+            "pixels": 259
+          },
+          "render": {
+            "lab": [
+              27.9056899049081,
+              15.47897727524969,
+              7.571167811740603
+            ],
+            "pixels": 142
+          },
+          "deltaE76": 9.164898579199814
+        },
+        "scleraRight": {
+          "reference": {
+            "lab": [
+              23.979901522968834,
+              12.004371956657906,
+              4.459682886386318
+            ],
+            "pixels": 664
+          },
+          "render": {
+            "lab": [
+              26.16325213059195,
+              15.960301434761737,
+              8.97584704108384
+            ],
+            "pixels": 339
+          },
+          "deltaE76": 6.388437726370499
+        },
+        "scleraLeft": {
+          "reference": {
+            "lab": [
+              25.254214948907062,
+              14.97168633205008,
+              5.365166026904955
+            ],
+            "pixels": 302
+          },
+          "render": {
+            "lab": [
+              28.74444952127339,
+              15.88890656217011,
+              8.618708643081119
+            ],
+            "pixels": 226
+          },
+          "deltaE76": 4.85886508106132
+        },
+        "browRight": {
+          "reference": {
+            "lab": [
+              28.750850095506056,
+              14.701828312596282,
+              7.777791941731516
+            ],
+            "pixels": 506
+          },
+          "render": null,
+          "deltaE76": null
+        },
+        "browLeft": {
+          "reference": null,
+          "render": null,
+          "deltaE76": null
+        },
+        "browToneRight": {
+          "reference": {
+            "lab": [
+              51.77525210881562,
+              15.768986036648226,
+              13.38883572813695
+            ],
+            "pixels": 5064
+          },
+          "render": null,
+          "deltaE76": null
+        },
+        "browToneLeft": {
+          "reference": null,
+          "render": null,
+          "deltaE76": null
+        },
+        "hair": {
+          "reference": {
+            "lab": [
+              80.95109073441915,
+              4.387190711122091,
+              5.5991629035093915
+            ],
+            "pixels": 1083586
+          },
+          "render": {
+            "lab": [
+              18.32029945067675,
+              0.6454515980107434,
+              0.4492809971057721
+            ],
+            "pixels": 264454
+          },
+          "deltaE76": 62.95345830109886
+        },
+        "irisMinusSkinLightness": {
+          "reference": -28.548321942024405,
+          "render": -25.885956584228257
+        },
+        "hairMinusSkinLightness": {
+          "reference": 35.040191009057835,
+          "render": -35.12932174641663
+        },
+        "skinOverScleraLuminance": {
+          "reference": 3.541407881697319,
+          "render": 4.082487244466292
+        }
+      }
+    },
+    {
+      "subject": "oh-seung-yoon",
+      "sha256": {
+        "reference": "d93c3883b75951d92268144227bbf75f4cf1b6242393b6530c264eb73168cbde",
+        "model": "c9c700e53830d7a94ca96a1952df16ef53d75bf1c998c52d4878d57a3528137e",
+        "portrait": "89c7170885d46e5cced44367f45194bc20d7b2cf79de8fe27110e8fe9d310438",
+        "portraitHair": "acbf24e4b3a833cf0481e0746394f6184e512fd5874a2a4e769180349f8af4b3",
+        "frame": "b632aeb3a16178fb190abe499dc73ad863e5024d981eb54ce16c465ff3a9fb66",
+        "frameHair": "af251e74dd729616d74b1bed5a25b9c4291d25977d69f1540d342114b91da3b0"
+      },
+      "camera": {
+        "portrait": {
+          "yaw": 10.709745079566327,
+          "pitch": 0,
+          "distance": 2,
+          "fov": 8.839399962660497,
+          "target": [
+            0,
+            0,
+            0.06
+          ]
+        },
+        "frame": {
+          "yaw": 10.709745079566327,
+          "pitch": 0,
+          "distance": 2.510275176553845,
+          "fov": 8.839399962660497,
+          "target": [
+            -0.002779444479829041,
+            0.03866601572035601,
+            0.06052567111869021
+          ]
+        }
+      },
+      "status": "measured",
+      "landmarkRmsInterocular": 0.032869443781475424,
+      "landmarkMedianInterocular": 0.025478625232925982,
+      "detectorPoseDifferenceDegrees": 13.159501640052666,
+      "eyeAperture": {
+        "right": {
+          "reference": 0.3649828151379504,
+          "render": 0.32691287017869747
+        },
+        "left": {
+          "reference": 0.3422006099354947,
+          "render": 0.27891860948634695
+        }
+      },
+      "mouthCornerLift": {
+        "reference": 0.16935015072517504,
+        "render": 0.09896703747730343
+      },
+      "teeth": {
+        "upperExposure": {
+          "reference": 0.05000000000000004,
+          "render": null
+        },
+        "lowerExposure": {
+          "reference": 0.02400000000000002,
+          "render": null
+        },
+        "gap": {
+          "reference": 0.026000000000000002,
+          "render": null
+        }
+      },
+      "blendshapes": {
+        "eyeBlinkLeft": {
+          "reference": 0.09174134582281113,
+          "render": 0.12934748828411102
+        },
+        "eyeBlinkRight": {
+          "reference": 0.0665779709815979,
+          "render": 0.07773368060588837
+        },
+        "eyeSquintLeft": {
+          "reference": 0.5536896586418152,
+          "render": 0.5631569027900696
+        },
+        "eyeSquintRight": {
+          "reference": 0.3831952214241028,
+          "render": 0.43964123725891113
+        },
+        "cheekSquintLeft": {
+          "reference": 0.0000011868688716276665,
+          "render": 3.3820916200966167e-7
+        },
+        "cheekSquintRight": {
+          "reference": 1.684745001284682e-7,
+          "render": 2.6082742010657967e-7
+        },
+        "mouthSmileLeft": {
+          "reference": 0.766764223575592,
+          "render": 0.6281697750091553
+        },
+        "mouthSmileRight": {
+          "reference": 0.7757390141487122,
+          "render": 0.58454430103302
+        },
+        "jawOpen": {
+          "reference": 0.02607976645231247,
+          "render": 0.000923660583794117
+        },
+        "browInnerUp": {
+          "reference": 0.14641037583351135,
+          "render": 0.005036847200244665
+        },
+        "browDownLeft": {
+          "reference": 0.06223683059215546,
+          "render": 0.06503234058618546
+        },
+        "browDownRight": {
+          "reference": 0.036450810730457306,
+          "render": 0.0896526351571083
+        }
+      },
+      "hair": {
+        "head": {
+          "intersection": 8898,
+          "union": 13552,
+          "reference": 12046,
+          "render": 10404,
+          "iou": 0.656582054309327
+        },
+        "covered": {
+          "intersection": 8898,
+          "union": 13552,
+          "reference": 12046,
+          "render": 10404,
+          "iou": 0.656582054309327
+        },
+        "uncoveredReferenceShare": 0
+      },
+      "colour": {
+        "cheekRight": {
+          "reference": {
+            "lab": [
+              59.825291965099,
+              15.714512167179423,
+              23.849556237904515
+            ],
+            "pixels": 442
+          },
+          "render": {
+            "lab": [
+              56.61534703062249,
+              15.837881251851481,
+              22.483185318105402
+            ],
+            "pixels": 6187
+          },
+          "deltaE76": 3.490835989257717
+        },
+        "cheekLeft": {
+          "reference": {
+            "lab": [
+              73.43730898798361,
+              16.24269381705046,
+              25.019206710284447
+            ],
+            "pixels": 456
+          },
+          "render": {
+            "lab": [
+              47.22180496012781,
+              13.18222299503219,
+              15.82333407761004
+            ],
+            "pixels": 6228
+          },
+          "deltaE76": 27.94965485588899
+        },
+        "irisRight": {
+          "reference": {
+            "lab": [
+              2.3594587311432065,
+              1.0643234082954243,
+              2.038457215357145
+            ],
+            "pixels": 34
+          },
+          "render": {
+            "lab": [
+              3.921456988897571,
+              0.5130632833243443,
+              0.6970941548740228
+            ],
+            "pixels": 405
+          },
+          "deltaE76": 2.1314270202471044
+        },
+        "irisLeft": {
+          "reference": {
+            "lab": [
+              2.3324475005118614,
+              0.8118285347287202,
+              1.9745236701897928
+            ],
+            "pixels": 35
+          },
+          "render": {
+            "lab": [
+              3.3041965144390026,
+              0.3373884163904578,
+              0.18428017924270734
+            ],
+            "pixels": 418
+          },
+          "deltaE76": 2.091497389153427
+        },
+        "scleraRight": {
+          "reference": {
+            "lab": [
+              25.88007501502021,
+              1.648290534549776,
+              5.580217423984918
+            ],
+            "pixels": 24
+          },
+          "render": {
+            "lab": [
+              35.607015610350324,
+              3.171207232497392,
+              6.782848180021955
+            ],
+            "pixels": 330
+          },
+          "deltaE76": 9.918617310358073
+        },
+        "scleraLeft": {
+          "reference": {
+            "lab": [
+              25.729572664850647,
+              5.097570953035049,
+              7.270527582329317
+            ],
+            "pixels": 26
+          },
+          "render": {
+            "lab": [
+              17.88220599161861,
+              1.4777037045150265,
+              1.8688186316102362
+            ],
+            "pixels": 344
+          },
+          "deltaE76": 10.191322887110358
+        },
+        "browRight": {
+          "reference": null,
+          "render": {
+            "lab": [
+              0,
+              0,
+              0
+            ],
+            "pixels": 139
+          },
+          "deltaE76": null
+        },
+        "browLeft": {
+          "reference": null,
+          "render": {
+            "lab": [
+              0,
+              0,
+              0
+            ],
+            "pixels": 116
+          },
+          "deltaE76": null
+        },
+        "browToneRight": {
+          "reference": null,
+          "render": {
+            "lab": [
+              0.9391435821231582,
+              0.5063959425386788,
+              0.47059597786726637
+            ],
+            "pixels": 1394
+          },
+          "deltaE76": null
+        },
+        "browToneLeft": {
+          "reference": null,
+          "render": {
+            "lab": [
+              1.4104512698051366,
+              0.27811024733501166,
+              0.09213999507832193
+            ],
+            "pixels": 1161
+          },
+          "deltaE76": null
+        },
+        "hair": {
+          "reference": {
+            "lab": [
+              0.5670820724136689,
+              -5.908939726406714e-7,
+              0.04779020024673897
+            ],
+            "pixels": 12046
+          },
+          "render": {
+            "lab": [
+              1.1362764423220035,
+              0,
+              0
+            ],
+            "pixels": 150570
+          },
+          "deltaE76": 0.5711971060635012
+        },
+        "irisMinusSkinLightness": {
+          "reference": -64.28534736071376,
+          "render": -48.30574924370686
+        },
+        "hairMinusSkinLightness": {
+          "reference": -66.06421840412763,
+          "render": -50.78229955305315
+        },
+        "skinOverScleraLuminance": {
+          "reference": 7.722440493640663,
+          "render": 4.0116368687125545
+        }
+      }
+    },
+    {
+      "subject": "park-eun-bin",
+      "sha256": {
+        "reference": "a9797e47d076de402e10e0b48b3ab9a665b9dd79f3f3dcf8753cafeb63ec02ff",
+        "model": "e7bc13d843c970feb7ac2574a721af40309f4cc1db33301f0daabded23b8148a",
+        "portrait": "9a460fd4d707c339de1d8c7fa1ef483c6089152028a04faddf220907b2c6406c",
+        "portraitHair": "9ec8dde41c5045f04ef05ad66d1676368c9618dd9dcaf89636800a4fa122ec53",
+        "frame": "c40fd4b6f609bab6ff7c26ecada3086667cb86e0a691bd0c1b9f0747def1af96",
+        "frameHair": "b6731c8d354eb7ede1e074c40afe0ab8b14393f6edd8059a564fe736d778477e"
+      },
+      "camera": {
+        "portrait": {
+          "yaw": -0.9778079599552003,
+          "pitch": 0,
+          "distance": 2,
+          "fov": 8.839399962660497,
+          "target": [
+            0,
+            0,
+            0.06
+          ]
+        },
+        "frame": {
+          "yaw": -0.9778079599552003,
+          "pitch": 0,
+          "distance": 2.180319060182334,
+          "fov": 8.839399962660497,
+          "target": [
+            0.0005713746134436144,
+            0.026003315747029812,
+            0.06000975200783793
+          ]
+        }
+      },
+      "status": "measured",
+      "landmarkRmsInterocular": 0.03451296720241714,
+      "landmarkMedianInterocular": 0.01953643660912298,
+      "detectorPoseDifferenceDegrees": 1.523803544744674,
+      "eyeAperture": {
+        "right": {
+          "reference": 0.33052673314073755,
+          "render": 0.35247204973682905
+        },
+        "left": {
+          "reference": 0.3407374699138895,
+          "render": 0.38938512551452786
+        }
+      },
+      "mouthCornerLift": {
+        "reference": 0.09543546194067914,
+        "render": 0.0757678730510371
+      },
+      "teeth": {
+        "upperExposure": {
+          "reference": null,
+          "render": null
+        },
+        "lowerExposure": {
+          "reference": null,
+          "render": null
+        },
+        "gap": {
+          "reference": null,
+          "render": null
+        }
+      },
+      "blendshapes": {
+        "eyeBlinkLeft": {
+          "reference": 0.08349015563726425,
+          "render": 0.0219478327780962
+        },
+        "eyeBlinkRight": {
+          "reference": 0.09293033182621002,
+          "render": 0.033024318516254425
+        },
+        "eyeSquintLeft": {
+          "reference": 0.5679638981819153,
+          "render": 0.42710527777671814
+        },
+        "eyeSquintRight": {
+          "reference": 0.42959174513816833,
+          "render": 0.38161501288414
+        },
+        "cheekSquintLeft": {
+          "reference": 1.5813846232504147e-7,
+          "render": 1.2001409288586729e-7
+        },
+        "cheekSquintRight": {
+          "reference": 2.048791145625728e-7,
+          "render": 1.8086485908952454e-7
+        },
+        "mouthSmileLeft": {
+          "reference": 0.31575271487236023,
+          "render": 0.2446550875902176
+        },
+        "mouthSmileRight": {
+          "reference": 0.37930580973625183,
+          "render": 0.3584788143634796
+        },
+        "jawOpen": {
+          "reference": 0.0029410223942250013,
+          "render": 0.0014526996528729796
+        },
+        "browInnerUp": {
+          "reference": 0.0459955558180809,
+          "render": 0.008344162255525589
+        },
+        "browDownLeft": {
+          "reference": 0.07329215854406357,
+          "render": 0.06234026327729225
+        },
+        "browDownRight": {
+          "reference": 0.12161832302808762,
+          "render": 0.08783362805843353
+        }
+      },
+      "hair": {
+        "head": {
+          "intersection": 32270,
+          "union": 58266,
+          "reference": 46237,
+          "render": 44299,
+          "iou": 0.5538392887790479
+        },
+        "covered": {
+          "intersection": 32270,
+          "union": 58266,
+          "reference": 46237,
+          "render": 44299,
+          "iou": 0.5538392887790479
+        },
+        "uncoveredReferenceShare": 0
+      },
+      "colour": {
+        "cheekRight": {
+          "reference": {
+            "lab": [
+              85.5717991233555,
+              6.997580707998163,
+              6.743706864801902
+            ],
+            "pixels": 2221
+          },
+          "render": {
+            "lab": [
+              67.44970245731442,
+              10.589724171555016,
+              16.7104235225531
+            ],
+            "pixels": 5546
+          },
+          "deltaE76": 20.991648891214023
+        },
+        "cheekLeft": {
+          "reference": {
+            "lab": [
+              73.89171770358196,
+              10.70347197753929,
+              9.808298696700946
+            ],
+            "pixels": 2224
+          },
+          "render": {
+            "lab": [
+              61.64867353725518,
+              9.632028245890156,
+              12.11613128943998
+            ],
+            "pixels": 5543
+          },
+          "deltaE76": 12.504647672158823
+        },
+        "irisRight": {
+          "reference": {
+            "lab": [
+              15.290534480912472,
+              8.976191453730006,
+              1.9099890080172988
+            ],
+            "pixels": 214
+          },
+          "render": {
+            "lab": [
+              5.4757444741613295,
+              3.597081493376016,
+              1.324032101572853
+            ],
+            "pixels": 504
+          },
+          "deltaE76": 11.20750964034435
+        },
+        "irisLeft": {
+          "reference": {
+            "lab": [
+              14.423007608640264,
+              9.826236278686444,
+              1.1245761607263565
+            ],
+            "pixels": 220
+          },
+          "render": {
+            "lab": [
+              6.600004463582101,
+              4.42594745519987,
+              1.3457773093110859
+            ],
+            "pixels": 538
+          },
+          "deltaE76": 9.508492390111018
+        },
+        "scleraRight": {
+          "reference": {
+            "lab": [
+              53.61458512406984,
+              8.890800935819371,
+              -0.6138066027611799
+            ],
+            "pixels": 140
+          },
+          "render": {
+            "lab": [
+              33.53725277436644,
+              2.2954330970865744,
+              2.0570199891212946
+            ],
+            "pixels": 419
+          },
+          "deltaE76": 21.30097335551932
+        },
+        "scleraLeft": {
+          "reference": {
+            "lab": [
+              40.495902001877454,
+              8.953931183293296,
+              -1.9522452348748276
+            ],
+            "pixels": 146
+          },
+          "render": {
+            "lab": [
+              36.162587805028224,
+              1.506331519960491,
+              0.1842798010705693
+            ],
+            "pixels": 452
+          },
+          "deltaE76": 8.877448501856346
+        },
+        "browRight": {
+          "reference": {
+            "lab": [
+              42.04745049050654,
+              9.702417519119821,
+              3.6820829907121433
+            ],
+            "pixels": 39
+          },
+          "render": {
+            "lab": [
+              0,
+              0,
+              0
+            ],
+            "pixels": 175
+          },
+          "deltaE76": 43.30915300046185
+        },
+        "browLeft": {
+          "reference": {
+            "lab": [
+              23.36638465583592,
+              11.97696262248421,
+              2.9734343476554512
+            ],
+            "pixels": 72
+          },
+          "render": {
+            "lab": [
+              0,
+              0,
+              0
+            ],
+            "pixels": 126
+          },
+          "deltaE76": 26.42492908911366
+        },
+        "browToneRight": {
+          "reference": {
+            "lab": [
+              65.29417068202015,
+              9.50390649402416,
+              5.254589553421152
+            ],
+            "pixels": 397
+          },
+          "render": {
+            "lab": [
+              1.31014894308532,
+              0.6454515980107434,
+              0.5627359256740627
+            ],
+            "pixels": 1753
+          },
+          "deltaE76": 64.76450224851105
+        },
+        "browToneLeft": {
+          "reference": {
+            "lab": [
+              39.21192262609755,
+              11.565002548510394,
+              5.390739357264507
+            ],
+            "pixels": 726
+          },
+          "render": {
+            "lab": [
+              1.1456426510457067,
+              0.2615024178276165,
+              4.7271520031699765e-8
+            ],
+            "pixels": 1268
+          },
+          "deltaE76": 40.0733185130915
+        },
+        "hair": {
+          "reference": {
+            "lab": [
+              8.90507749547022,
+              2.1836312152365975,
+              -0.9379337415328037
+            ],
+            "pixels": 46237
+          },
+          "render": {
+            "lab": [
+              1.3708741374156581,
+              0,
+              4.2544365252972227e-7
+            ],
+            "pixels": 112277
+          },
+          "deltaE76": 7.900138354880761
+        },
+        "irisMinusSkinLightness": {
+          "reference": -64.87498736869236,
+          "render": -58.51131352841309
+        },
+        "hairMinusSkinLightness": {
+          "reference": -70.8266809179985,
+          "render": -63.17831385986915
+        },
+        "skinOverScleraLuminance": {
+          "reference": 3.4994878158285876,
+          "render": 3.974776108929699
+        }
+      }
+    },
+    {
+      "subject": "rupert-grint",
+      "sha256": {
+        "reference": "ef48f1a310bc63f2f19fb04d2407692b07386be85995f7c2fdf3582dbc29ffbe",
+        "model": "ea76f7d5506901b88c9f31cce81efd250f4f9634c5636da6750480305f4fe6f6",
+        "portrait": "6c9b76863fe7590aa687bbf52aeacde22bd2665ca370090f35d29da47428feb9",
+        "portraitHair": "6fcf372b1f1fcf7eb2acdf85b13400c43e79b17413b50002c24e3a4108efcb3e",
+        "frame": "06054c1cf307336e1a4e1ac1dcdd8a7f9d46ba6cdd1afec4c65fce41f6fc7f51",
+        "frameHair": "4de52407663f05fb48434671b53df27ef9fa4759f9db0f169bd4dacc56a11680"
+      },
+      "camera": {
+        "portrait": {
+          "yaw": -12.084516096207489,
+          "pitch": 0,
+          "distance": 2,
+          "fov": 8.839399962660497,
+          "target": [
+            0,
+            0,
+            0.06
+          ]
+        },
+        "frame": {
+          "yaw": -12.084516096207489,
+          "pitch": 0,
+          "distance": 1.9811590878077665,
+          "fov": 8.839399962660497,
+          "target": [
+            0.017611577694363834,
+            0.03326478917884507,
+            0.06377061721396028
+          ]
+        }
+      },
+      "status": "measured",
+      "landmarkRmsInterocular": 0.024660760444143212,
+      "landmarkMedianInterocular": 0.017153030900008037,
+      "detectorPoseDifferenceDegrees": 5.522273812726924,
+      "eyeAperture": {
+        "right": {
+          "reference": 0.3078198434819918,
+          "render": 0.31278043976602643
+        },
+        "left": {
+          "reference": 0.32640153311678183,
+          "render": 0.3418527575332239
+        }
+      },
+      "mouthCornerLift": {
+        "reference": 0.09861130416671296,
+        "render": 0.095919083096884
+      },
+      "teeth": {
+        "upperExposure": {
+          "reference": null,
+          "render": null
+        },
+        "lowerExposure": {
+          "reference": null,
+          "render": null
+        },
+        "gap": {
+          "reference": null,
+          "render": null
+        }
+      },
+      "blendshapes": {
+        "eyeBlinkLeft": {
+          "reference": 0.11838329583406448,
+          "render": 0.08871433883905411
+        },
+        "eyeBlinkRight": {
+          "reference": 0.10274002701044083,
+          "render": 0.07277806103229523
+        },
+        "eyeSquintLeft": {
+          "reference": 0.5035355687141418,
+          "render": 0.5533440113067627
+        },
+        "eyeSquintRight": {
+          "reference": 0.3610464930534363,
+          "render": 0.3477279841899872
+        },
+        "cheekSquintLeft": {
+          "reference": 3.4684856586864043e-7,
+          "render": 1.443785748733717e-7
+        },
+        "cheekSquintRight": {
+          "reference": 1.7603234425678238e-7,
+          "render": 3.785877211726074e-8
+        },
+        "mouthSmileLeft": {
+          "reference": 0.5771653652191162,
+          "render": 0.6273665428161621
+        },
+        "mouthSmileRight": {
+          "reference": 0.6172704100608826,
+          "render": 0.6669545769691467
+        },
+        "jawOpen": {
+          "reference": 0.0017419426003471017,
+          "render": 0.0009465953335165977
+        },
+        "browInnerUp": {
+          "reference": 0.26407691836357117,
+          "render": 0.03284072130918503
+        },
+        "browDownLeft": {
+          "reference": 0.03431868925690651,
+          "render": 0.044699594378471375
+        },
+        "browDownRight": {
+          "reference": 0.024530792608857155,
+          "render": 0.04638566076755524
+        }
+      },
+      "hair": {
+        "head": {
+          "intersection": 142518,
+          "union": 248975,
+          "reference": 197697,
+          "render": 193796,
+          "iou": 0.5724189175620042
+        },
+        "covered": {
+          "intersection": 142518,
+          "union": 248975,
+          "reference": 197697,
+          "render": 193796,
+          "iou": 0.5724189175620042
+        },
+        "uncoveredReferenceShare": 0
+      },
+      "colour": {
+        "cheekRight": {
+          "reference": {
+            "lab": [
+              76.57544909934244,
+              13.438525936304458,
+              7.960699803344862
+            ],
+            "pixels": 10221
+          },
+          "render": {
+            "lab": [
+              62.44355524240254,
+              13.9862524557543,
+              21.142680171900352
+            ],
+            "pixels": 5510
+          },
+          "deltaE76": 19.333262393111685
+        },
+        "cheekLeft": {
+          "reference": {
+            "lab": [
+              70.9193702441972,
+              12.16216186759228,
+              9.150795633839959
+            ],
+            "pixels": 10221
+          },
+          "render": {
+            "lab": [
+              55.72938595912156,
+              12.165265173970429,
+              15.440070152721841
+            ],
+            "pixels": 5469
+          },
+          "deltaE76": 16.440517211609013
+        },
+        "irisRight": {
+          "reference": {
+            "lab": [
+              45.00714783705331,
+              -2.8165562553387478,
+              2.098643684624757
+            ],
+            "pixels": 938
+          },
+          "render": {
+            "lab": [
+              22.275090974187258,
+              -0.19950205349322792,
+              5.858536458349384
+            ],
+            "pixels": 513
+          },
+          "deltaE76": 23.189052925505163
+        },
+        "irisLeft": {
+          "reference": {
+            "lab": [
+              44.66684347835655,
+              -3.1517660707509054,
+              1.8762910144996647
+            ],
+            "pixels": 887
+          },
+          "render": {
+            "lab": [
+              24.79161113213028,
+              -0.5564292159777745,
+              6.386213667711232
+            ],
+            "pixels": 464
+          },
+          "deltaE76": 20.545073291282595
+        },
+        "scleraRight": {
+          "reference": {
+            "lab": [
+              66.5481459455768,
+              12.660607669516821,
+              3.385602854805847
+            ],
+            "pixels": 761
+          },
+          "render": {
+            "lab": [
+              36.00746085796406,
+              0.786502580689713,
+              6.556803863865934
+            ],
+            "pixels": 443
+          },
+          "deltaE76": 32.92087989591264
+        },
+        "scleraLeft": {
+          "reference": {
+            "lab": [
+              64.1255440458718,
+              12.742099364540294,
+              0.5166593438527989
+            ],
+            "pixels": 704
+          },
+          "render": {
+            "lab": [
+              36.210395449364526,
+              0.6205044894595502,
+              1.7450791774728884
+            ],
+            "pixels": 348
+          },
+          "deltaE76": 30.45812861566346
+        },
+        "browRight": {
+          "reference": {
+            "lab": [
+              50.98834904914686,
+              11.888122537079104,
+              14.146830810507605
+            ],
+            "pixels": 377
+          },
+          "render": {
+            "lab": [
+              0,
+              0,
+              0
+            ],
+            "pixels": 216
+          },
+          "deltaE76": 54.23349535292162
+        },
+        "browLeft": {
+          "reference": {
+            "lab": [
+              39.30622727598092,
+              9.403341331422816,
+              15.81388140277642
+            ],
+            "pixels": 275
+          },
+          "render": {
+            "lab": [
+              0,
+              0,
+              0
+            ],
+            "pixels": 150
+          },
+          "deltaE76": 43.39909187860258
+        },
+        "browToneRight": {
+          "reference": {
+            "lab": [
+              68.81144711973741,
+              9.776833608401592,
+              15.228516887668576
+            ],
+            "pixels": 3771
+          },
+          "render": {
+            "lab": [
+              3.5517921225134543,
+              1.4071516269663076,
+              1.2378579086670811
+            ],
+            "pixels": 2160
+          },
+          "deltaE76": 67.26524128770947
+        },
+        "browToneLeft": {
+          "reference": {
+            "lab": [
+              61.51370736159596,
+              9.777061353868522,
+              18.86367125845212
+            ],
+            "pixels": 2751
+          },
+          "render": {
+            "lab": [
+              2.3298062857335573,
+              0.4153857062687283,
+              9.454303451228441e-8
+            ],
+            "pixels": 1509
+          },
+          "deltaE76": 62.8188921206704
+        },
+        "hair": {
+          "reference": {
+            "lab": [
+              17.925643117396277,
+              9.405170387145667,
+              17.52618350319785
+            ],
+            "pixels": 197697
+          },
+          "render": {
+            "lab": [
+              2.585241019015939,
+              1.6934261657658016,
+              1.5371091878766285
+            ],
+            "pixels": 106600
+          },
+          "deltaE76": 23.46165878485241
+        },
+        "irisMinusSkinLightness": {
+          "reference": -28.910414014064884,
+          "render": -35.55311954760328
+        },
+        "hairMinusSkinLightness": {
+          "reference": -55.82176655437354,
+          "render": -56.50122958174611
+        },
+        "skinOverScleraLuminance": {
+          "reference": 1.343395226380983,
+          "render": 2.991910877947639
+        }
+      }
+    },
+    {
+      "subject": "yoo-seung-ho",
+      "sha256": {
+        "reference": "546557eca12ac82a3f52dfd19f2b25ae867bbeb7c4e449bb6c517816785df56f",
+        "model": "83a9af4c4f357fbba107a798d91e985027ab27c5b2a142ab037c257ec7ea94ad",
+        "portrait": "27d6712b796c1813fc9e42c6f92ac6dbc277e5f6a67cb9c492155765548b07f4",
+        "portraitHair": "6193ed56fbe8e468a303cf70b3f1132f6704b58f8df78d5fbfaf1aab3304e923",
+        "frame": "f6dbd1015881a70c1afd3d7e7d9f03a4784a02190750bed145a3fe55f0682835",
+        "frameHair": "74b2376c75eaa113559ef606d800aefd0eb21b6bdaff513363cd11f89b6261fe"
+      },
+      "camera": {
+        "portrait": {
+          "yaw": -4.7629957118664,
+          "pitch": 0,
+          "distance": 2,
+          "fov": 8.839399962660497,
+          "target": [
+            0,
+            0,
+            0.06
+          ]
+        },
+        "frame": {
+          "yaw": -4.7629957118664,
+          "pitch": 0,
+          "distance": 2.2748980104129757,
+          "fov": 8.839399962660497,
+          "target": [
+            -0.00014296177891910352,
+            0.03919945377197806,
+            0.059988088141431625
+          ]
+        }
+      },
+      "status": "measured",
+      "landmarkRmsInterocular": 0.029238425505620842,
+      "landmarkMedianInterocular": 0.01831532985899241,
+      "detectorPoseDifferenceDegrees": 5.820651188745081,
+      "eyeAperture": {
+        "right": {
+          "reference": 0.2579626610178234,
+          "render": 0.2916250637561129
+        },
+        "left": {
+          "reference": 0.28407809601367917,
+          "render": 0.3064073410171784
+        }
+      },
+      "mouthCornerLift": {
+        "reference": 0.08117474781751698,
+        "render": 0.03604775098601879
+      },
+      "teeth": {
+        "upperExposure": {
+          "reference": 0.05600000000000003,
+          "render": null
+        },
+        "lowerExposure": {
+          "reference": 0,
+          "render": null
+        },
+        "gap": {
+          "reference": null,
+          "render": null
+        }
+      },
+      "blendshapes": {
+        "eyeBlinkLeft": {
+          "reference": 0.19383105635643005,
+          "render": 0.07621556520462036
+        },
+        "eyeBlinkRight": {
+          "reference": 0.15696442127227783,
+          "render": 0.06825593113899231
+        },
+        "eyeSquintLeft": {
+          "reference": 0.49090075492858887,
+          "render": 0.5907160043716431
+        },
+        "eyeSquintRight": {
+          "reference": 0.5542932748794556,
+          "render": 0.4080510437488556
+        },
+        "cheekSquintLeft": {
+          "reference": 5.592464162873512e-7,
+          "render": 3.072852052810049e-7
+        },
+        "cheekSquintRight": {
+          "reference": 3.0392746452889696e-7,
+          "render": 1.474830639836e-7
+        },
+        "mouthSmileLeft": {
+          "reference": 0.40938234329223633,
+          "render": 0.045863404870033264
+        },
+        "mouthSmileRight": {
+          "reference": 0.2929401993751526,
+          "render": 0.0376342236995697
+        },
+        "jawOpen": {
+          "reference": 0.03713234141469002,
+          "render": 0.00213581882417202
+        },
+        "browInnerUp": {
+          "reference": 0.043536510318517685,
+          "render": 0.00204807729460299
+        },
+        "browDownLeft": {
+          "reference": 0.02420131303369999,
+          "render": 0.28777584433555603
+        },
+        "browDownRight": {
+          "reference": 0.014901450835168362,
+          "render": 0.19758331775665283
+        }
+      },
+      "hair": {
+        "head": {
+          "intersection": 13844,
+          "union": 23000,
+          "reference": 21015,
+          "render": 15829,
+          "iou": 0.6019130434782609
+        },
+        "covered": {
+          "intersection": 13844,
+          "union": 23000,
+          "reference": 21015,
+          "render": 15829,
+          "iou": 0.6019130434782609
+        },
+        "uncoveredReferenceShare": 0
+      },
+      "colour": {
+        "cheekRight": {
+          "reference": {
+            "lab": [
+              71.17763797546971,
+              18.80945340008272,
+              16.319091811771436
+            ],
+            "pixels": 820
+          },
+          "render": {
+            "lab": [
+              57.41511194953213,
+              15.561154547993395,
+              21.58554813783402
+            ],
+            "pixels": 5727
+          },
+          "deltaE76": 15.089537112894435
+        },
+        "cheekLeft": {
+          "reference": {
+            "lab": [
+              59.38437182796923,
+              16.860007285479206,
+              15.395369839012352
+            ],
+            "pixels": 823
+          },
+          "render": {
+            "lab": [
+              49.15425399545332,
+              13.04947409949725,
+              14.776628584801866
+            ],
+            "pixels": 5731
+          },
+          "deltaE76": 10.934272484637097
+        },
+        "irisRight": {
+          "reference": {
+            "lab": [
+              17.418894063426684,
+              12.06714493725089,
+              -3.0577100503538124
+            ],
+            "pixels": 49
+          },
+          "render": {
+            "lab": [
+              8.285650874468697,
+              4.733016071257409,
+              0.921961289872858
+            ],
+            "pixels": 435
+          },
+          "deltaE76": 12.371069531284181
+        },
+        "irisLeft": {
+          "reference": {
+            "lab": [
+              15.60375793164793,
+              10.374034062927251,
+              -2.019891120171513
+            ],
+            "pixels": 55
+          },
+          "render": {
+            "lab": [
+              6.661376652947936,
+              4.2990338328957876,
+              0
+            ],
+            "pixels": 433
+          },
+          "deltaE76": 10.997807548137683
+        },
+        "scleraRight": {
+          "reference": {
+            "lab": [
+              46.14887466061535,
+              12.034268910100662,
+              3.006835530449481
+            ],
+            "pixels": 40
+          },
+          "render": {
+            "lab": [
+              34.16477275652645,
+              2.285047802909723,
+              1.2072886435928187
+            ],
+            "pixels": 349
+          },
+          "deltaE76": 15.553275527761988
+        },
+        "scleraLeft": {
+          "reference": {
+            "lab": [
+              40.53020108688936,
+              11.917289544084609,
+              1.372668706547986
+            ],
+            "pixels": 43
+          },
+          "render": {
+            "lab": [
+              27.215384848785696,
+              1.1657597779168096,
+              0.6246734858522535
+            ],
+            "pixels": 328
+          },
+          "deltaE76": 17.130067735343165
+        },
+        "browRight": {
+          "reference": null,
+          "render": {
+            "lab": [
+              0,
+              0,
+              0
+            ],
+            "pixels": 180
+          },
+          "deltaE76": null
+        },
+        "browLeft": {
+          "reference": {
+            "lab": [
+              13.287358773188148,
+              3.8169060607375904,
+              -0.2968243450970076
+            ],
+            "pixels": 22
+          },
+          "render": {
+            "lab": [
+              0,
+              0,
+              0
+            ],
+            "pixels": 137
+          },
+          "deltaE76": 13.827898601586492
+        },
+        "browToneRight": {
+          "reference": null,
+          "render": {
+            "lab": [
+              2.0743638756978307,
+              0.9069542521959462,
+              0.7877371440566383
+            ],
+            "pixels": 1802
+          },
+          "deltaE76": null
+        },
+        "browToneLeft": {
+          "reference": {
+            "lab": [
+              20.040770061278316,
+              5.350661758481951,
+              1.86845051087835
+            ],
+            "pixels": 227
+          },
+          "render": {
+            "lab": [
+              1.6450489648987912,
+              0.40055760058449463,
+              9.454303451228441e-8
+            ],
+            "pixels": 1373
+          },
+          "deltaE76": 19.141504454669178
+        },
+        "hair": {
+          "reference": {
+            "lab": [
+              11.436208264835628,
+              2.6254768736245215,
+              0.02172769583115297
+            ],
+            "pixels": 21015
+          },
+          "render": {
+            "lab": [
+              1.3906627036103956,
+              0,
+              2.836290979857381e-7
+            ],
+            "pixels": 107085
+          },
+          "deltaE76": 10.382995064865925
+        },
+        "irisMinusSkinLightness": {
+          "reference": -48.769678904182165,
+          "render": -45.811169208784406
+        },
+        "hairMinusSkinLightness": {
+          "reference": -53.84479663688384,
+          "render": -51.89402026888233
+        },
+        "skinOverScleraLuminance": {
+          "reference": 2.5700094101606745,
+          "render": 3.2676676718199777
+        }
+      }
+    },
+    {
+      "subject": "kdy1",
+      "status": "reference-unavailable"
+    }
+  ]
+}
