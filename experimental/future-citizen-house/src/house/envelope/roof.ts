@@ -4,7 +4,7 @@
 import { Quaternion } from "@automovie/engine";
 import type { IAutoMovieModelPart } from "@automovie/interface";
 import { Assembly, rectangle, v } from "../assembly";
-import { datum } from "../plan";
+import { datum, exteriorWallZone } from "../plan";
 import { fitCellTexture } from "../canopy-finish";
 import { circle, heightRegion, putMesh, tubeMesh, type Height, type Point } from "../metric-solid";
 export const canopy = { minX: -5.8, maxX: 5.8, minZ: -6.7, maxZ: 6.3, girders: [-5.4, 0, 5.4], supports: [-4.8, 0, 4.8], nx: Math.ceil(11.6 / 1.2), nz: Math.ceil(13 / 1.9) };
@@ -20,6 +20,9 @@ export function roof(a: Assembly): void {
   const solid: Solid = (id, plan, low, high, material = "canopy-metal", holes = [], blind) => putMesh(a, id, "house", material, heightRegion(plan, low, high, holes, blind), "roof-member");
   const flat: Flat = (id, x0, x1, z0, z1, y0, y1) => solid(id, rectangle(x0, x1, z0, z1), () => y0, () => y1);
   const slab = a.box("roof-slab", "house", "stone", 0, 6.254, 0, 11, 0.292, 12);
+  // The roof owns everything above the 6.10m butt joint. Over the exterior
+  // walls no ceiling finish sits under the slab, so a bearing ring closes it.
+  for (const [id, r] of exteriorWallZone()) a.box("roof-bearing-" + id, "house", "stone", (r[0] + r[1]) / 2, datum.ceilings[1] + 0.004, (r[2] + r[3]) / 2, r[1] - r[0], 0.008, r[3] - r[2]);
   const weather = solid("roof-weather", rectangle(-5.5, 5.5, -6, 6), () => datum.roof, x => R(x), "stone");
   for (const side of [-1, 1]) {
     const z = side * 6;

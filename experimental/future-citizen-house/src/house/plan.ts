@@ -20,6 +20,11 @@ export const rooms: readonly Room[] = [
   { id: "upper-service", level: 1, cells: [[-5.26, -1.42, -5.76, -1.98], [-5.26, -3.02, -1.98, -0.32]], finish: "plaster" },
 ];
 export const stairHole: Rect = [-1.24, 1.58, -5.64, -1.8];
+/** The four exterior wall strips between the outline and the inner clear face;
+ * the long front/rear strips carry the corner squares. */
+export const exteriorWallZone = (): [string, Rect][] => [
+  ["front", [datum.minX, datum.maxX, datum.minZ, -datum.innerZ]], ["rear", [datum.minX, datum.maxX, datum.innerZ, datum.maxZ]],
+  ["left", [datum.innerX, datum.maxX, -datum.innerZ, datum.innerZ]], ["right", [datum.minX, -datum.innerX, -datum.innerZ, datum.innerZ]]];
 export type Wall = { id: string; axis: "x" | "z"; plane: number; a: number; b: number; level: 0 | 1; adjacent: string[] };
 export type Portal = { id: string; wall: string; from: string; to: string; center: number; width: number; height: number; pocket?: boolean; passage?: boolean };
 export const portals: readonly Portal[] = [
