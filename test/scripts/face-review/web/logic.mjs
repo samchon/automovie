@@ -230,3 +230,17 @@ export function portraitWebReferenceFrame(profile) {
     ],
   };
 }
+
+/**
+ * Alpha test of an exported material, following the product viewer's
+ * `buildMaterial`: `mask` cuts at the material's own `alphaCutoff` (0.5
+ * when absent), `blend` and `opaque` do not cut. A record exported before
+ * alpha fields were carried (no `alphaMode` key at all) keeps the historical
+ * 0.45 so an old census renders as it did.
+ */
+export function portraitWebAlphaTest(material) {
+  if (!Object.hasOwn(material, "alphaMode")) return 0.45;
+  const mode =
+    material.alphaMode ?? ((material.opacity ?? 1) < 1 ? "blend" : "opaque");
+  return mode === "mask" ? (material.alphaCutoff ?? 0.5) : 0;
+}

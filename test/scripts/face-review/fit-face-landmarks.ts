@@ -28,7 +28,8 @@
  *   them.
  *
  * The face oval, a silhouette the anchors follow only approximately, counts
- * half. Landmarks are read from a hair-free build (hair does not move a face
+ * half, and a shape channel seen almost only through it is held as tightly
+ * as a symmetry-breaking one (`heldBySilhouette`). Landmarks are read from a hair-free build (hair does not move a face
  * landmark and costs most of the build); each step is then admitted by the
  * builder, halved toward the previous weights when refused, and the final
  * document is admitted with its hair, halved toward the original the same
@@ -219,6 +220,38 @@ const shapeMovesFor = (list: IAnchors) => {
   }));
 };
 
+/**
+ * A channel seen almost only through the face oval, a silhouette that slides
+ * over the surface as the head or the view changes, has no interior evidence
+ * of its own (the detector has no ear or neck landmark), so a residual of
+ * the contour must not bend it freely: when more than 80% of its landmark
+ * displacement energy falls on oval landmarks its prior is five times
+ * narrower, like a symmetry-breaking channel's.
+ */
+const silhouetteOnly = (
+  displacement: readonly (readonly [number, number, number])[],
+): boolean => {
+  let oval = 0;
+  let all = 0;
+  displacement.forEach((d, k) => {
+    const energy = d[0] ** 2 + d[1] ** 2 + d[2] ** 2;
+    all += energy;
+    if (OVAL.has(k)) oval += energy;
+  });
+  return all > 0 && oval / all > 0.8;
+};
+const heldBySilhouette = (
+  moves: ReturnType<typeof shapeMovesFor>,
+): ReturnType<typeof shapeMovesFor> =>
+  moves.map((move) => ({
+    ...move,
+    positivePrior:
+      move.positivePrior * (silhouetteOnly(move.positive) ? 25 : 1),
+    negativePrior:
+      move.negativePrior *
+      (move.negative !== null && silhouetteOnly(move.negative) ? 25 : 1),
+  }));
+
 /** Landmark points of a document's hair-free build, or null when refused. */
 const landmarksAt = (
   list: IAnchors,
@@ -256,8 +289,12 @@ const blend = (
       .filter(([, value]) => value !== 0),
   );
 
+// FIT_SUBJECTS (comma-separated ids) limits the run, so disjoint subsets can
+// run as parallel processes; every other document is written unchanged.
+const only = process.env.FIT_SUBJECTS?.split(",") ?? null;
 for (const document of documents) {
   const subject = document.id.replace(/-connected$/u, "");
+  if (only !== null && !only.includes(subject)) continue;
   const photo = photos.get(`photo:${subject}`);
   const pose = poses[subject];
   const view_ = anchors.views[subject];
@@ -267,7 +304,15 @@ for (const document of documents) {
   }
   const original = structuredClone(document);
   const list = view_.anchors;
-  const shapeMoves = shapeMovesFor(list);
+  const shapeMoves = heldBySilhouette(shapeMovesFor(list));
+  console.log(
+    subject,
+    "silhouette-only channels",
+    shapeMoves
+      .filter((move) => move.positivePrior >= 25 || move.negativePrior >= 25)
+      .map((move) => move.channel.id)
+      .join(","),
+  );
   const landmarks = (candidate: IAutoMovieHumanFaceBasisDocument) =>
     landmarksAt(list, candidate);
   const target = photo.face.landmarks

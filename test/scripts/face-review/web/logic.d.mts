@@ -63,3 +63,8 @@ export declare function portraitWebReferenceFrame(profile: {
   };
   reference: { crop: { x: number; y: number; size: number } };
 }): { target: number[]; position: number[]; span: number; matrix: number[] };
+export declare function portraitWebAlphaTest(material: {
+  alphaMode?: "opaque" | "mask" | "blend" | null;
+  alphaCutoff?: number | null;
+  opacity?: number | null;
+}): number;
