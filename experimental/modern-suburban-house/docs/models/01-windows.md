@@ -142,7 +142,8 @@ motion 인터페이스는 각 `lower-sash`의 국소 +Y 평행 이동 하나이�
 @evidence principles/design/models.md#reviewable-structure 입면 정면과 측면 단면에서 trim 폭과 창대 돌출을 반증한다.
 @evidence principles/design/models.md#model-observable-style-basis 레퍼런스 01의 흰 창 둘레 돌출과 04·05의 실내 창대를 채택한다. trim이 실제 돌출과 음영으로 접합을 설명한다는 visual-grammar를 0.02 m 돌출로 구체화한다.
 @evidence principles/design/models.md#model-scale-layer-completion trim과 창대 층을 창 원형에 포함시켜 층 누락을 막는다.
-@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 06의 두 예약과 visual-grammar를 그대로 소비했고 부모 수정이 필요하지 않았다.
+@evidence upstream/design/models.md#settings-and-space-revision-from-model-work spaces/03-surface-owners.md#exterior-surface-handoff가 바깥 trim을 입면 owner에 남겨 이 창대·문선 원형과 같은 닫힌 면의 owner가 겹쳤다. 그 부모 H2를 벽 몸체·void·절단면은 spaces, 닫힌 외부 trim·창대는 models로 고쳤다. spaces/06-openings.md#external-opening-interface의 0.10 m 폭·0.06 m 돌출 예약과 settings/20-verification.md#visual-grammar는 유지했다.
+@evidence spaces/03-surface-owners.md#exterior-surface-handoff 입면의 벽 절단면은 spaces에 남기고 창 둘레 닫힌 trim과 창대를 이 원형이 한 번 만든다.
 -->
 
 레퍼런스 01의 흰 창 둘레 돌출과 04·05의 실내 창대를 채택한다. 창대가 실내 마감보다 실제로 0.06 m 나오는지를 단면 산술로 확인한다.
@@ -160,7 +161,8 @@ motion 인터페이스는 각 `lower-sash`의 국소 +Y 평행 이동 하나이�
 @evidence principles/design/models.md#reviewable-structure materials 바인딩 뷰에서 부재 경계와 id 경계가 일치하는지로 반증한다.
 @evidence principles/design/models.md#model-observable-style-basis 레퍼런스 01·05의 검은 창호와 흰 안팎 문선을 서로 다른 면으로 채택한다. charcoal 계열 색은 materials에 남기고 모델은 표면 경계만 정한다.
 @evidence principles/design/models.md#model-scale-layer-completion 표면 인터페이스를 모든 창 부재에 정해 빈 표면이 없게 한다.
-@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work settings openings와 00의 이름 규칙을 그대로 소비했고 부모 수정이 없었다.
+@evidence upstream/design/models.md#settings-and-space-revision-from-model-work spaces/03-surface-owners.md#exterior-surface-handoff가 입면 owner와 이 원형에 바깥 trim을 중복 배정해 부모 H2에서 닫힌 trim·창틀·유리의 owner를 models로 바로잡았다. settings/10-house.md#openings와 models/00의 id 이름 규칙은 유지했다.
+@evidence spaces/03-surface-owners.md#exterior-surface-handoff 입면 owner의 벽 몸체·void·절단면과 모델 원형의 닫힌 창틀·문선·유리 면을 분리한다.
 -->
 
 레퍼런스 01·05의 검은 창호와 흰 안팎 문선을 서로 다른 면으로 채택한다. 유리 반사 색은 여기서 정하지 않는다.

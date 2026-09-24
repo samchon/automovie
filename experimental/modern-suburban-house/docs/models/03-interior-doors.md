@@ -14,10 +14,14 @@
 @evidence spaces/00-building.md#attached-garage-extent 차고 공유 벽 X = [5.50, 5.75] m를 laundry-garage-door 문설주 깊이 0.25 m로 소비한다.
 @evidence settings/10-house.md#openings 흰 실내 문선과 패널문을 casing 0.07 m와 오목 패널 두 개로 소비한다.
 @evidence contracts/reservation-fit.md#reservation-fit 거친 폭에서 문설주 2×0.03 m와 문짝 0.04 m를 빼 11개 문의 순폭이 각 목표와 같음을 산술로 보인다.
-@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work room owner들의 개구부와 목표를 그대로 소비했고 세탁실 벽 두께는 00-building 차고 외곽으로 확정해 부모 수정이 없었다.
+@evidence upstream/design/models.md#settings-and-space-revision-from-model-work spaces/07-boundary-assembly.md#interior-boundary-junctions는 실내 문틀·문짝을 05의 방 owner가 생성한다고 적어 이 원형과 소유가 겹쳤다. 그 부모 H2를 벽 절단·바닥 전환은 spaces, 닫힌 문설주·문선·문짝·철물은 models/03으로 고쳤다. spaces/03-surface-owners.md#interior-surface-handoff의 방 면 owner도 reveal·마감 접면만 검사하고 모델 문짝·창호 메시를 만들지 않도록 명확히 고쳤다. 방별 개구부 좌표와 순폭 목표는 유지했다.
+@evidence spaces/03-surface-owners.md#interior-surface-handoff 방 owner의 reveal·마감 접면과 이 원형의 닫힌 문틀·문짝을 같은 void에 맞추고 같은 면을 복제하지 않는다.
 @evidence spaces/07-boundary-assembly.md#interior-boundary-ownership 방 사이 벽을 한 벽체로 두는 결정을 문설주 한 부재가 그 벽 두께 전체를 덮는 근거로 소비한다.
+@evidence spaces/07-boundary-assembly.md#interior-boundary-junctions 방 owner의 벽 절단과 바닥 전환을 입력으로 받고 닫힌 문설주·문선·문짝·경첩·손잡이만 모델 원형으로 생산한다.
 @evidence settings/10-house.md#upper-hall 레퍼런스 05의 흰 문선과 문짝을 상층 복도 문 다섯 개의 casing 0.07 m와 오목 패널 문짝으로 소비한다.
 -->
+
+이 원형은 [실내 벽 접합](../spaces/07-boundary-assembly.md#interior-boundary-junctions)의 방 owner가 만든 벽 절단·reveal과 바닥 전환을 입력으로 받는다. 닫힌 문설주·문선·문짝·경첩·손잡이는 `src/models/interior-door.ts`만 만들며 두 방의 spaces source는 복제하지 않는다.
 
 실내 문 11개는 한 원형을 공유하고 [공통 국소 좌표](00-model-frame.md#model-local-frame)를 쓰며 원점 면은 문짝이 열리는 쪽 벽면이다. 모든 거친 개구부 높이는 2.20 m이고 폭은 0.95–1.05 m이며, 각 room owner가 정한 유효 폭 목표는 모두 거친 폭보다 0.10 m 작다. 이 공통 차이를 모델 결정의 근거로 삼아 좌우 문설주의 개구부 쪽 면 폭을 0.03 m, 문짝 두께를 0.04 m로 택한다. 90° 열림에서 순폭은 거친 폭 - 2 × 0.03 - 0.04로 정확히 각 목표와 같다. 문짝 폭은 거친 폭 - 0.06 m, 문짝 높이는 거친 높이 - 0.03 m 머리 문설주 - 0.01 m 바닥 틈으로 2.16 m다. 문설주 깊이는 개구부를 소유한 벽의 두께다. 실내 칸막이의 문설주 깊이는 room owner가 제공하는 벽 두께 0.15 m이고, [세탁실–차고 문](../spaces/rooms/laundry.md#laundry-plan)만 [차고 공유 벽](../spaces/00-building.md#attached-garage-extent)의 두께 0.25 m를 쓴다. 각 문 world transform은 owner의 개구부 좌표에서 계산한다.
 

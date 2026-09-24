@@ -69,7 +69,7 @@
 @evidence principles/design/materials.md#material-construction-appearance 참나무색 마루는 구성을 '폭 0.13 m 판의 오일 마감 원목 마루'로, 외관의 #B08050·roughness 0.50·metallic 0.0을 기준값으로 두고 아래 표면 결속 계획의 결·광학 응답으로 최상층 마감을 표현한다고 적는다.
 @evidence principles/design/materials.md#material-binding-interface 참나무색 마루의 결합 vocabulary는 `src/spaces/rooms/entry.ts`·`living.ts`·`common.ts`·`service.ts`·`pantry.ts` owner의 보이는 바닥 마감이며 방향과 단면/양면은 00 면 결합 규칙을 따른다.
 @evidence principles/design/materials.md#material-verification-address 참나무색 마루의 반증 견본은 '04와 03의 비교 view에서 마루가 꿀빛으로 읽히고 파우더룸·세탁실 문턱에서 끊기는지'이고 00 재료 리뷰 견본의 중성 조명 판이 #B08050 값을 대조한다.
-@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work 참나무색 마루는 settings/10-house.md#entry, spaces/07-boundary-assembly.md#interior-boundary-junctions를 적힌 그대로 소비했고 수정할 부모 결함을 찾지 않았다.
+@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work 참나무색 마루는 settings/10-house.md#entry와 이번 실내 문 소유 수리 뒤의 spaces/07-boundary-assembly.md#interior-boundary-junctions가 정한 바닥 전환만 소비한다. 문틀·문짝 owner 정정은 모델 분기의 수리이며 마루 재료가 부모에 요구한 수정은 없다.
 @evidence contracts/texture-readability.md#material-texture-readability 1층 마루는 판 폭 0.13 m와 길이 방향의 결정론적 오크 결·판 이음을 색/거칠기 맵에 함께 둔다. 세계 X를 U, Z를 V로 하고 (0,0) 원점에서 방 사이 위상을 이어 가며 욕실·세탁실·문턱에서 끊는다.
 @evidence settings/10-house.md#entry 참나무색 마루가 '실내 현관'(settings/10-house.md#entry)를 링크로 소비해 #B08050 값과 결합 면의 근거로 삼았다.
 @evidence spaces/07-boundary-assembly.md#interior-boundary-junctions 참나무색 마루가 '모서리와 문턱에서 끊기지 않는 경계'(spaces/07-boundary-assembly.md#interior-boundary-junctions)를 링크로 소비해 #B08050 값과 결합 면의 근거로 삼았다.
@@ -181,7 +181,7 @@
 @evidence spaces/rooms/tub-bath.md#tub-fixture-use tub-fixture-use가 공간 입력 밖으로 둔 타일/카펫 경계의 재료 구현을 욕실 바닥 타일 #D8D4CC가 tub-bath owner 바닥에서 받고 카펫은 문턱에서 끝난다.
 -->
 
-[밝은 타일 바닥](../settings/10-house.md#powder)과 욕실의 방수 바닥이다. 구성은 유약 자기질 타일 0.30 m 모듈이며 줄눈은 geometry가 오목하게 만든 면에 [타일 줄눈](#tile-grout)을 결합한다. 외관은 유약면을 근사하는 `#D8D4CC`(선형 0.687, 0.658, 0.604), roughness 0.40, metallic 0.0, transmission 0.0이다. 벽 타일보다 어두워 바닥과 벽의 경계가 읽힌다. 결합 면은 powder·shower-bath·tub-bath owner의 보이는 바닥 마감이다. source owner는 `src/materials/interior/tile.ts`이고, 리뷰는 욕실 threshold view에서 바닥·벽 타일이 구별되는지를 관찰한다.
+[밝은 타일 바닥](../settings/10-house.md#powder)과 욕실의 방수 바닥이다. 구성은 유약 자기질 타일 0.30 m 모듈이며, [타일 줄눈](#tile-grout)은 같은 바닥 면의 UV에 0.005 m 폭 마스크와 음영용 normal 응답으로 결합한다. 별도 오목 geometry와 별도 `grout` face id는 요구하지 않는다. 외관은 유약면을 근사하는 `#D8D4CC`(선형 0.687, 0.658, 0.604), roughness 0.40, metallic 0.0, transmission 0.0이다. 벽 타일보다 어두워 바닥과 벽의 경계가 읽힌다. 결합 면은 powder·shower-bath·tub-bath owner의 보이는 바닥 마감이다. source owner는 `src/materials/interior/tile.ts`이고, 리뷰는 욕실 threshold view에서 바닥·벽 타일이 구별되는지를 관찰한다.
 
 표면 결속 계획: 욕실 바닥 타일은 0.30 × 0.30 m 판과 줄눈의 반복 결을 쓴다. 세계 X/Z를 U/V로 욕실별 안쪽 모서리를 원점으로 놓고 배수·벽·문턱에서 절단한다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
 
@@ -201,26 +201,26 @@
 @evidence spaces/rooms/shower-bath.md#shower-fixture-use shower-fixture-use가 유지하라는 도기/타일 읽힘을 욕실 벽 타일 #EEEDEA(roughness 0.30)와 흰 에나멜(roughness 0.25)의 광택 차로 받는다.
 -->
 
-[흰 타일](../settings/10-house.md#shower-bathroom)과 주방의 [타일 backsplash](../settings/10-house.md#kitchen-equipment)다. 구성은 유약 도기 벽 타일이며 모듈과 줄눈은 geometry가 만든다. 외관은 `#EEEDEA`(선형 0.855, 0.847, 0.823), roughness 0.30, metallic 0.0, transmission 0.0이다. 결합 면은 샤워부스 안 벽, 욕조 주위 벽, 주방 하부장과 상부장 사이 벽 구역이며, 그 구역의 경계는 host owner의 기구·수납 끝선을 따른다. source owner는 `src/materials/interior/tile.ts`이고, 리뷰는 05와 03 view에서 흰 타일이 벽 도장과 광택 차이로 구별되는지를 관찰한다.
+[흰 타일](../settings/10-house.md#shower-bathroom)과 주방의 [타일 backsplash](../settings/10-house.md#kitchen-equipment)다. 구성은 유약 도기 벽 타일이며 0.30 × 0.10 m 모듈과 [줄눈](#tile-grout)은 벽 면의 UV 텍스처 응답에서 만든다. 별도 타일·줄눈 geometry를 만들지 않는다. 외관은 `#EEEDEA`(선형 0.855, 0.847, 0.823), roughness 0.30, metallic 0.0, transmission 0.0이다. 결합 면은 샤워부스 안 벽, 욕조 주위 벽, 주방 하부장과 상부장 사이 벽 구역이며, 그 구역의 경계는 host owner의 기구·수납 끝선을 따른다. source owner는 `src/materials/interior/tile.ts`이고, 리뷰는 05와 03 view에서 흰 타일이 벽 도장과 광택 차이로 구별되는지를 관찰한다.
 
 표면 결속 계획: 욕실 벽 타일은 0.30 m 가로 × 0.10 m 세로의 엇갈린 줄과 약한 유약 거칠기를 쓴다. 벽 왼쪽 아래에서 U 수평·V 높이로 놓고 코너·문·니치·설비에서 절단한다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
 
 ## 타일 줄눈 {#tile-grout}
 <!--
 @evidence principles/core/common.md#declared-basis 타일 줄눈의 #A9A39A·roughness 0.90은 settings/20-verification.md#visual-grammar의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
-@evidence principles/core/common.md#scope-preservation 타일 줄눈은 두 타일 재료를 받는 방 owner 면 안에서 타일 geometry가 만든 오목한 줄눈 면에 마감만 결합하고 그 면의 geometry·경계와 개수는 host owner에 남긴다.
+@evidence principles/core/common.md#scope-preservation 타일 줄눈은 두 타일 재료를 받는 기존 방 owner 면의 UV 안에서 회색 0.005 m 선과 normal 음영을 만들고 별도 geometry·face id를 요구하지 않는다.
 @evidence principles/core/common.md#substantive-completion 타일 줄눈은 #A9A39A(선형 0.397, 0.366, 0.323), roughness 0.90, metallic 0.0, transmission 0.0, 결합 면, source owner `src/materials/interior/tile.ts`, 리뷰 관찰을 모두 적었다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 settings/20-verification.md#visual-grammar는 색·재료를 말로만 정했고 타일 줄눈은 #A9A39A 값과 roughness 0.90, 결합 면 결합을 더한다.
 @evidence principles/design/materials.md#material-construction-appearance 타일 줄눈은 구성을 '시멘트 줄눈'로, 외관의 #A9A39A·roughness 0.90·metallic 0.0을 기준값으로 두고 아래 표면 결속 계획의 결·광학 응답으로 최상층 마감을 표현한다고 적는다.
-@evidence principles/design/materials.md#material-binding-interface 타일 줄눈의 결합 vocabulary는 두 타일 재료를 받는 방 owner 면 안에서 타일 geometry가 만든 오목한 줄눈 면이며 방향과 단면/양면은 00 면 결합 규칙을 따른다.
-@evidence principles/design/materials.md#material-verification-address 타일 줄눈의 반증 견본은 '근접 view에서 줄눈 격자가 모듈과 일치하고 색 패치가 아닌 음영으로 읽히는지'이고 00 재료 리뷰 견본의 중성 조명 판이 #A9A39A 값을 대조한다.
+@evidence principles/design/materials.md#material-binding-interface 타일 줄눈은 bath-floor-tile과 bath-wall-tile이 이미 결합한 면의 UV 마스크를 공유하며 독립 `grout` geometry id 없이 두 재료 함수의 부분 응답으로 적용한다.
+@evidence principles/design/materials.md#material-verification-address 근접 view에서 0.005 m 줄눈 마스크가 각 타일 모듈과 일치하고 normal 응답이 면 밖으로 실루엣을 만들지 않는지, 리뷰 거리에서 선이 살아 있는지 검사한다.
 @evidenceExclude upstream/design/materials.md#parent-revision-from-material-work 타일 줄눈은 settings/20-verification.md#visual-grammar를 적힌 그대로 소비했고 수정할 부모 결함을 찾지 않았다.
-@evidence contracts/texture-readability.md#material-texture-readability `grout`은 타일 사이 0.005 m 폭의 오목한 회색 미세결만 받는다. 타일과 같은 U/V 원점·회전을 공유하고 타일 상면에는 번지지 않으며 가장자리 절단에서 끝난다.
+@evidence contracts/texture-readability.md#material-texture-readability 0.005 m 회색 줄눈은 바닥 0.30×0.30 m, 벽 0.30×0.10 m 모듈의 UV 마스크에서 만든다. 같은 원점·회전을 공유하고 타일 중앙에는 번지지 않으며 면 경계에서 절단한다.
 -->
 
-두 타일 재료의 줄눈 면이다. 구성은 시멘트 줄눈이다. 외관은 `#A9A39A`(선형 0.397, 0.366, 0.323), roughness 0.90, metallic 0.0, transmission 0.0이다. 결합 면은 타일 geometry의 오목한 줄눈 면뿐이며 타일 윗면에 선을 칠하지 않는다. source owner는 `src/materials/interior/tile.ts`이고, 리뷰는 근접 view에서 줄눈 격자가 모듈과 일치하고 색 패치가 아닌 음영으로 읽히는지를 관찰한다.
+이 H2는 두 타일 재료에 공통인 시멘트 줄눈의 텍스처 응답을 소유한다. 외관은 `#A9A39A`(선형 0.397, 0.366, 0.323), roughness 0.90, metallic 0.0, transmission 0.0이다. 독립 줄눈 geometry와 `grout` face id는 없다. bath-floor-tile과 bath-wall-tile이 이미 결합한 방 owner 면의 UV 안에서 타일 중앙과 줄눈 마스크를 구분하며, normal 응답은 빛의 기울기만 바꾸고 표면 실루엣·깊이를 바꾸지 않는다. source owner는 `src/materials/interior/tile.ts`이고, 리뷰는 근접 view에서 모듈과 0.005 m 선이 맞고 리뷰 거리에서도 색과 법선 음영으로 줄눈이 읽히는지를 관찰한다.
 
-표면 결속 계획: `grout`은 타일 사이 0.005 m 폭의 오목한 회색 미세결만 받는다. 타일과 같은 U/V 원점·회전을 공유하고 타일 상면에는 번지지 않으며 가장자리 절단에서 끝난다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
+표면 결속 계획: 음수 좌표에도 일관되도록 `modE(x,m)=x−m floor(x/m)`로 둔다. 바닥 UV에서 `dU=min(modE(U,0.30),0.30−modE(U,0.30))`, `dV=min(modE(V,0.30),0.30−modE(V,0.30))` m로 정해 `dU<0.0025` 또는 `dV<0.0025`이면 경계 양쪽을 합친 폭 0.005 m 줄눈이다. 벽은 `r=floor(V/0.10)`, `U′=U+0.15×modE(r,2)`로 줄을 0.15 m씩 엇갈리게 하고 같은 `dU` 식의 U에 U′를, `dV` 식의 모듈 0.30에 0.10을 대입한다. 줄눈 중심 normal은 타일 면보다 뒤로 눌린 듯한 0.002 m 높이차를 경계 양쪽 0.0025 m에서 선형 기울기로만 표현한다. 실제 메시를 변위시키지 않는다. 두 타일 면의 원점·축과 경계 절단은 각각 #bath-floor-tile·#bath-wall-tile이 정한 그대로 쓴다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
 
 ## 세탁실 밝은 회색 바닥 {#laundry-floor}
 <!--

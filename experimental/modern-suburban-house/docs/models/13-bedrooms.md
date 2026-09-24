@@ -167,7 +167,7 @@
 @evidence principles/design/models.md#model-observable-style-basis 곧은 봉과 서로 분리된 얇은 두 드레이프를 두어 여덟 창에서 라벨 없이 커튼으로 읽히게 하고 직물 결·투과는 materials에 남긴다.
 @evidence principles/design/models.md#model-scale-layer-completion 여덟 창의 W·head·floor 입력, 0.103 m 앞돌출, 세 표면 id, 고정 개방 상태와 두 방향 리뷰를 함께 정한다.
 @evidence upstream/design/models.md#settings-and-space-revision-from-model-work 주침실 예약의 좌우·상하 부족은 이전에 primary-furniture-use에서 고쳤고, 나머지 여섯 창의 커튼 전제에 대응하는 띠가 없어 이번에 spaces/06-openings.md#selected-window-curtain-strips를 추가했다.
-@evidence settings/10-house.md#primary-bedroom 주침실을 자녀 침실과 구별하는 얇은 커튼을 후면·왼쪽 두 창에 제공한다.
+@evidence settings/10-house.md#primary-bedroom 주침실의 얇은 커튼 요구를 후면·왼쪽 두 창에 적용한다. 다른 여섯 창에 같은 원형을 반복하는 근거는 settings의 구별 문장이 아니라 spaces/06-openings.md#selected-window-curtain-strips의 별도 점유 띠다.
 @evidence spaces/envelope/rear.md#primary-rear-window X = [-3.85, -1.45] m의 후면 개구부를 W = 2.40 m 커튼 원형의 첫 배치로 받는다.
 @evidence spaces/envelope/left.md#primary-left-window Z = [-8.90, -7.30] m의 측면 개구부를 W = 1.60 m 같은 원형의 둘째 배치로 받는다.
 @evidence spaces/rooms/primary.md#primary-furniture-use 두 창 커튼의 host 유도 폭 W + 0.20 m·상하 범위와 방 안쪽 돌출 0.12 m를 `rod`·`bracket`·`curtain`의 전체 점유 상한으로 받는다.
@@ -175,7 +175,7 @@
 @evidence obligations/design/models.md#representation-ceiling 얇은 드레이프의 큰 접힘만 원형 형상으로 두고 실밥·봉제·천의 동역학은 이 정적 모델이 주장하지 않는다.
 -->
 
-레퍼런스 05의 주침실 창에 걸린 얇은 회색 커튼과 03·04의 공용실 창 드레이프를 채택한다. 작은 침실 두 창도 같은 사용 원형으로 마무리한다. 접힌 주름 수는 사진 복제가 아니라 한 패널 폭의 식으로 정한다.
+레퍼런스 05의 주침실 창에 걸린 얇은 회색 커튼을 채택한다. 레퍼런스 03·04의 공용실 창에는 드레이프가 없으나, reviewed spaces의 거실·가족실·두 작은 침실 커튼 전제를 실현하기 위해 여섯 창에도 같은 얇은 원형을 단다. 이는 레퍼런스의 맨 창과 달라지는 시각 선택이며 사진에 없는 커튼을 사진 근거로 주장하지 않는다. 접힌 주름 수는 사진 복제가 아니라 한 패널 폭의 식으로 정한다.
 
 후면의 [주침실 창](../spaces/envelope/rear.md#primary-rear-window)은 폭 W = 2.40 m, 왼쪽의 [주침실 창](../spaces/envelope/left.md#primary-left-window)은 W = 1.60 m다. 다른 여섯 창은 [공통 커튼 점유](../spaces/06-openings.md#selected-window-curtain-strips) 순서대로 W = 2.80·1.20·2.00·1.70·2.10·2.10 m다. 창 높이 H는 각 host 개구부 머리와 창대에서 계산하고 창 하단의 세계 높이는 host가 준 값만 소비한다. 원형의 국소 원점은 개구부 안쪽 왼쪽 아래이며 U는 창 너비, V는 위쪽, +N은 방 안쪽이다. 전·후·좌·우 입면 배치는 축 회전만 다르고 치수식은 같다. 봉 중심은 V=H+0.10 m(개구부 위 0.10 m)에 놓고 U=[-0.10,W+0.10] m까지 뻗는다. 드레이프는 해당 층 완성 바닥 위 0.10 m에서 봉 중심까지 이어지고 윗단 0.025 m를 봉 주위에 감싼다. 주침실과 작은 침실의 창대에서는 국소 V=-0.75 m, 거실 전면 창은 V=-0.60 m, 거실 측면·가족실 두 창은 V=-0.65 m가 아랫단이다. 두 패널을 창 양끝에 각 0.18 m 폭으로 모은 고정 개방 상태다. 봉 반지름 0.0125 m와 천 두께 0.006 m를 더한 최고점은 개구부 위 0.1185 m로, 두 부모의 위쪽 0.12 m 띠 안에 0.0015 m 남는다. 윗단이 봉을 감싸므로 공중 틈은 없다.
 

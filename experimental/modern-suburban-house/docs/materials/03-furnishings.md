@@ -66,7 +66,7 @@
 @evidence principles/design/materials.md#material-construction-appearance 검은 유리 조작부는 구성을 '검은 유리 세라믹 판'로, 외관의 #1F1F20·roughness 0.08·metallic 0.0을 기준값으로 두고 아래 표면 결속 계획의 결·광학 응답으로 최상층 마감을 표현한다고 적는다.
 @evidence principles/design/materials.md#material-binding-interface 검은 유리 조작부의 결합 vocabulary는 `cooktop`·`burner`·`control-panel`·`appliance-glass`이며 방향과 단면/양면은 00 면 결합 규칙을 따른다.
 @evidence principles/design/materials.md#material-verification-address 검은 유리 조작부의 반증 견본은 '근접 거리 견본에서 조작부가 스테인리스와 광택으로 구별되는지'이고 00 재료 리뷰 견본의 중성 조명 판이 #1F1F20 값을 대조한다.
-@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work 검은 유리 조작부는 models/12-service-rooms.md#laundry-machine를 적힌 그대로 소비했고 수정할 부모 결함을 찾지 않았다.
+@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work 검은 유리 조작부는 이번 모델 수리 뒤의 models/12-service-rooms.md#laundry-machine 표면을 소비한다. 드럼·문 구멍 치수 보완은 모델 분기의 수리이며 이 재료 H2가 부모에 요구한 수정은 없다.
 @evidence contracts/texture-readability.md#material-texture-readability `glass`는 의도적으로 매끈하며 roughness 0.08의 좁은 반사와 실제 프레임의 광원·주변 사물 반사로 유리로 읽힌다. 패널 파티션 밖에 맵을 번지게 하지 않고 단색 검은 직사각형이면 실패다.
 -->
 

@@ -55,7 +55,7 @@
 @evidenceExclude spaces/02-stair.md#stair-clearance 「난간과 통행의 순폭 예약」는 "경로의 1.15 m 폭 안에서 양쪽 손잡이·난간의 수평 점유를 각각 0.075 m 이내로 예약한다."를 정한다. 광원 H2는 방 외곽과 천장 datum만 소비하므로 이 H2의 값을 읽지 않는다.
 @evidenceExclude spaces/02-stair.md#stair-connector-handoff 「하나의 연결에 속하는 두 flight와 중간참」는 "단일 꺾임계단을 실현한 계단 공간과 단별 치수는 유지한다."를 정한다. 광원 H2는 방 외곽과 천장 datum만 소비하므로 이 H2의 값을 읽지 않는다.
 @evidenceExclude spaces/02-stair.md#stair-floor-opening 「계단 구멍과 전면 창의 경계」는 "위 경로와 하부 대기 면적에 한정하여, 층판 구멍은 X = [-1.80, -0.65]·Z = [-4.56, -0.25]의 세로 부분과 X = [-0.65, 1.87]·Z = [-4.56, -3.41]의 가로 부분을 합친 L형이다."를 정한다. 광원 H2는 방 외곽과 천장 datum만 소비하므로 이 H2의 값을 읽지 않는다.
-@evidenceExclude spaces/03-surface-owners.md#exterior-surface-handoff 「입면·지붕·층의 소유」는 "표면 분해 인계에 따라 완결 표면 계약을 첫 소스 저작 전에 적용한다."를 정한다. 광원 H2는 방 외곽과 천장 datum만 소비하므로 이 H2의 값을 읽지 않는다.
+@evidenceExclude spaces/03-surface-owners.md#exterior-surface-handoff 「입면·지붕·층의 소유」는 벽 몸체·void·절단면을 spaces에, 닫힌 바깥 trim·창틀·문틀·문짝·유리를 models에 배분한다. 광원 소유와 강도는 이 외피 부재 배분을 입력으로 읽지 않으며 조명 기구의 형상 인계는 models/17-light-fixtures.md가 따로 받는다.
 @evidenceExclude spaces/03-surface-owners.md#interior-surface-handoff 「방 내부의 완결 면 소유」는 "표면 분해 인계가 요구한 각 방 내부의 완결 면에 대해, 아래 owner는 각 방의 모든 안쪽 벽·천장·바닥 마감 구역과 개구부 둘레를 한 저작자가 통합할 책임을 가진다."를 정한다. 광원 H2는 방 외곽과 천장 datum만 소비하므로 이 H2의 값을 읽지 않는다.
 @evidenceExclude spaces/04-observations.md#engine-render-handoff 「공간 산출물에서 실제 렌더로 넘기는 경계」는 "설치된 공개 엔진의 lowerBuiltEnvironment는 환경을 검증하고 실제 model을 가진 element만 세계 변환의 set으로 내리며 원래 built environment도 보존한다."를 정한다. 광원 H2는 방 외곽과 천장 datum만 소비하므로 이 H2의 값을 읽지 않는다.
 @evidenceExclude spaces/04-observations.md#reference-spatial-comparisons 「다섯 참조에 더하는 공간 비교」는 "레퍼런스 권위를 현재 공간 owner에 연결한다."를 정한다. 광원 H2는 방 외곽과 천장 datum만 소비하므로 이 H2의 값을 읽지 않는다.

@@ -94,8 +94,49 @@ function historyChanges(ref) {
   return { ref: report.ref, checkedH2: report.h2, changedSinceRows: changes.length, changes };
 }
 
+/** Compare current H2 prose and evidence rows with the committed tree. A count
+ * identifies review work; it does not decide whether a carried row is true. */
+function workingChanges() {
+  const directories = ["models", "spaces", "materials", "systems", "accounts/models", "accounts/materials"].map((name) => path.join(production, "docs", name));
+  const files = directories.flatMap(markdownFiles);
+  const changes = [];
+  const changedTargets = new Set();
+  const current = [];
+  for (const file of files) {
+    const relative = path.relative(production, file).replace(/\\/g, "/");
+    const previous = sections(git("show", `HEAD:${base}/${relative}`));
+    for (const [anchor, section] of sections(fs.readFileSync(file, "utf8"))) {
+      const id = `${relative}#${anchor}`;
+      const old = previous.get(anchor);
+      const oldRows = old ? rows(old) : [];
+      const newRows = rows(section);
+      const bodyChanged = !old || body(old) !== body(section);
+      const rowsChanged = !old || oldRows.join("\n") !== newRows.join("\n");
+      const carriedRows = old ? newRows.filter((row) => oldRows.includes(row)) : [];
+      if (bodyChanged || rowsChanged) changes.push({ id, bodyChanged, rowsChanged, oldRows: oldRows.length, newRows: newRows.length, carriedRows: carriedRows.length });
+      if (bodyChanged) changedTargets.add(id);
+      current.push({ id, file, section });
+    }
+  }
+  const dependent = [];
+  for (const { id, file, section } of current) {
+    const targets = new Set();
+    for (const line of rows(section)) {
+      const match = /^@evidence(?:Exclude|Review|ExcludeReview)?\s+((?:models|spaces|materials|systems)\/[^#\s]+#[^\s]+)/.exec(line);
+      if (match) targets.add(`docs/${match[1]}`);
+    }
+    for (const [, relative, anchor] of section.matchAll(/\]\(([^)#]+)#([^)]+)\)/g)) {
+      const target = path.resolve(path.dirname(file), relative);
+      if (target.startsWith(path.join(production, "docs") + path.sep)) targets.add(`${path.relative(production, target).replace(/\\/g, "/")}#${anchor}`);
+    }
+    const changedParents = [...targets].filter((target) => changedTargets.has(target));
+    if (changedParents.length && !changedTargets.has(id)) dependent.push({ id, changedParents });
+  }
+  return { files: files.length, changedH2: changes.length, changedBodies: changedTargets.size, changedH2Rows: changes, dependentH2: dependent.length, dependent };
+}
+
 /** @type {{ korean: string[], english: string[] }} */
-const lexicon = JSON.parse(fs.readFileSync(path.join(__dirname, "model-handoff-lexicon.json"), "utf8"));
+const lexicon = require("./model-handoff-lexicon.cjs");
 const expressions = [
   ...lexicon.korean.map((term) => new RegExp(term, "i")),
   // ASCII-only boundaries deliberately match `cabinet과` / `shade를` but not
@@ -132,10 +173,27 @@ function handoffs() {
     }
   }
   const account = fs.readFileSync(path.join(production, "docs/accounts/models/surface-ownership.md"), "utf8");
-  const table = account.split("| 부모·형제 H2 | 넘긴 요소군 | 모델 설계 owner |")[1]?.split("어휘 적중 중 모델 원형 인계가 아닌 것은")[0];
+  const table = account.split("| 부모·형제 H2 | 넘긴 요소군 또는 비인계 응답 | 설계 owner |")[1]?.split("어휘 적중 중 모델 원형 인계가 아닌 것은")[0];
   if (!table) throw new Error("Missing reverse handoff table");
   const rows = table.split("\n").filter((line) => line.startsWith("| [") && line.split("|").length === 5);
-  const ownerless = rows.filter((line) => !/\]\(\.\.\/\.\.\/models\/[^)]+\)/.test(line.split("|")[3])).map((line) => line.split("|")[1].trim());
+  const ownerless = [];
+  const invalidParentLinks = [];
+  const invalidOwnerLinks = [];
+  const accountPath = path.join(production, "docs/accounts/models/surface-ownership.md");
+  for (const line of rows) {
+    const [parent, element, owner] = line.split("|").slice(1, 4).map((cell) => cell.trim());
+    const parentLinks = [...parent.matchAll(/\]\((\.\.\/\.\.\/(?:settings|spaces|systems|materials)\/[^#)]+)#([^)]+)\)/g)];
+    const links = [...owner.matchAll(/\]\((\.\.\/\.\.\/(?:models|materials)\/[^#)]+)#([^)]+)\)/g)];
+    if (!parent || !element || parentLinks.length === 0 || links.length === 0) ownerless.push({ parent, element });
+    for (const [, relative, anchor] of parentLinks) {
+      const file = path.resolve(path.dirname(accountPath), relative);
+      if (!fs.existsSync(file) || !sections(fs.readFileSync(file, "utf8")).has(anchor)) invalidParentLinks.push({ parent, element, target: `${relative}#${anchor}` });
+    }
+    for (const [, relative, anchor] of links) {
+      const file = path.resolve(path.dirname(accountPath), relative);
+      if (!fs.existsSync(file) || !sections(fs.readFileSync(file, "utf8")).has(anchor)) invalidOwnerLinks.push({ parent, element, target: `${relative}#${anchor}` });
+    }
+  }
   const cited = new Set();
   for (const file of [...markdownFiles(path.join(production, "docs/models")), ...markdownFiles(path.join(production, "docs/accounts/models"))]) {
     const source = fs.readFileSync(file, "utf8");
@@ -147,7 +205,7 @@ function handoffs() {
       cited.add(`docs/${match[1]}#${match[2]}`);
   }
   const uncited = candidates.map((candidate) => candidate.id).filter((id) => !cited.has(id));
-  return { files: files.length, vocabulary: expressions.length, candidateH2: candidates.length, citedCandidateH2: candidates.length - uncited.length, uncitedCandidateH2: uncited, accountRows: rows.length, ownerlessRows: ownerless.length, ownerless, candidates };
+  return { files: files.length, vocabulary: expressions.length, candidateH2: candidates.length, citedCandidateH2: candidates.length - uncited.length, uncitedCandidateH2: uncited, accountRows: rows.length, ownerlessRows: ownerless.length, ownerless, invalidParentLinks, invalidOwnerLinks, candidates };
 }
 
 function accounts() {
@@ -174,7 +232,8 @@ function assertionRows() {
 const command = process.argv[2];
 if (command === "history") console.log(JSON.stringify(history(process.argv[3] ?? "HEAD"), null, 2));
 else if (command === "history-changes") console.log(JSON.stringify(historyChanges(process.argv[3] ?? "HEAD"), null, 2));
+else if (command === "working-changes") console.log(JSON.stringify(workingChanges(), null, 2));
 else if (command === "handoffs") console.log(JSON.stringify(handoffs(), null, 2));
 else if (command === "accounts") console.log(JSON.stringify(accounts(), null, 2));
 else if (command === "assertion-rows") console.log(JSON.stringify(assertionRows(), null, 2));
-else { console.error("usage: node src/measurements/model-contract-audit.cjs history [ref] | history-changes [ref] | handoffs | accounts | assertion-rows"); process.exitCode = 2; }
+else { console.error("usage: node src/measurements/model-contract-audit.cjs history [ref] | history-changes [ref] | working-changes | handoffs | accounts | assertion-rows"); process.exitCode = 2; }

@@ -137,7 +137,7 @@
 ## 공용부에서 정원으로 나가는 문 {#garden-door}
 <!--
 @evidence principles/core/common.md#scope-preservation 공용부의 정원 출입문 두 장, 안쪽/바깥 대기, 문턱, 식탁·테라스와의 관계, 표면 owner 구분을 맡는다.
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 본문이 garden-door 두 문짝, 안쪽/바깥 대기, 0.02 m 이내 문턱, 식탁·테라스 관계, terrace.ts와 rear owner의 표면 구분을 모두 적어 정원 출입 범위에 owner 없는 항목이 없음을 확인했다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 본문이 garden-door 두 문짝의 설계 예약, 안쪽/바깥 대기, 0.02 m 이내 문턱, 식탁·테라스 관계와 terrace.ts 바닥·rear.ts 벽/문턱·models/02 문짝/문틀의 표면 구분을 모두 적어 정원 출입 범위에 owner 없는 항목이 없음을 확인했다.
 @evidence principles/core/common.md#substantive-completion 후벽의 X = [-1.20, 1.20], Y = [0, 2.25] m 개구부에 바깥 -Z로 열리는 유리 경첩 문 두 장, 주 문만 90° 열었을 때의 유효 폭 목표 0.95 m, 깊이 1.80 m의 바깥 대기를 정한다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 garden-door의 X = [-1.20, 1.20], Y = [0, 2.25] m 개구부, -Z로 여는 유리 경첩 문 두 장, 주 문 90° 유효 폭 0.95 m, 1.80 m 바깥 대기를 대조해 출입 결정이 다음 단계 발명 없이 완결됨을 확인했다.
 @evidence principles/core/common.md#declared-basis 문짝 회전 반경은 문틀을 뺀 문짝 치수에서 산출하고 바깥 대기 깊이는 문을 당겨 열고 물러서는 저작 선택이라고 밝힌다.
@@ -146,8 +146,8 @@
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정 common-room의 '식탁은 후면 정원 출입 가까이'가 주지 않는 garden-door의 +X 주 문, 양 끝 경첩, 중앙 손잡이, 안쪽·바깥 대기 좌표를 본문이 더함을 대조해 부모에 없는 출입 결정임을 확인했다.
 @evidence principles/design/spaces.md#space-topology garden-door가 kitchen-dining-family와 ground-storey 외부 대기를 잇고 테라스가 그 대기를 포함한다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 garden-door가 ground-storey kitchen-dining-family와 외부 대기를 잇고 garden-terrace-plan이 그 대기를 포함한다는 본문 관계를 terrace 쪽 진술과 대조해 안팎 연결 그래프가 일치함을 확인했다.
-@evidence principles/design/spaces.md#space-boundary-authority 바깥 대기 바닥은 terrace owner, 문과 후벽은 rear owner로 나누고 문턱은 양쪽 바닥 위 0.02 m 이내로 둔다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 garden-door 바깥 대기 바닥은 src/spaces/site/terrace.ts, 문·후벽은 rear owner라는 본문 구분을 garden-terrace-plan의 '그 벽 안쪽까지 테라스를 겹치지 않는다'와 대조해 이중 owner가 없음을 확인했다.
+@evidence principles/design/spaces.md#space-boundary-authority 바깥 대기 바닥은 terrace owner, 후벽·문 void·문턱판은 rear owner, 닫힌 정원문 문틀·두 문짝·철물은 models/02로 나누고 문턱은 양쪽 바닥 위 0.02 m 이내로 둔다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 garden-door 바깥 대기 바닥은 src/spaces/site/terrace.ts, 후벽·void·문턱판은 rear owner, 닫힌 문틀·두 문짝·철물은 models/02라는 본문 구분을 03-surface-owners와 garden-terrace-plan의 벽 비관통 조건에 대조해 같은 문짝에 이중 owner가 없음을 확인했다.
 @evidence principles/design/spaces.md#space-verification-address 양방향 통행, 문짝/식탁 충돌, 프라이버시·채광, 03의 프레임을 반증 관찰로 둔다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 본문 끝의 양방향 통행·문짝/식탁 충돌·프라이버시·채광·03의 프레임 unverified 목록이 garden-door 대기와 유효 폭 주장을 반증할 관찰을 지정하는지 대조해 성립함을 확인했다.
 @evidence settings/10-house.md#common-room 식탁을 후면 정원 출입 가까이 두는 관계에서 식탁·의자가 안쪽 대기를 막지 않게 한다.
@@ -164,4 +164,4 @@
 
 안쪽 대기 X = [-1.50, 1.50], Z = [-10.45, -9.25], 바깥 대기 X = [-1.50, 1.50], Z = [-12.50, -10.70] m는 모두 Y = 0 m의 평탄 바닥으로 예약한다. 바깥 대기는 ground-storey 외부 구역이며 깊이 1.80 m를 택해 문을 당겨 열고 물러서는 공간을 남긴다. 문턱은 양쪽 바닥 위 0.02 m 이내이며 바닥 사이 빈틈을 남기지 않는다.
 
-식탁·의자는 안쪽 대기를 막지 않고, 바깥 대기는 열린 두 문짝과 정원에서 돌아오는 중심 경로를 함께 수용해야 한다. [테라스](../site/terrace.md#garden-terrace-plan)는 이 대기를 포함하고 중앙 경로와 외부 단을 정원 쪽으로 연결한다. 바깥 대기 바닥은 완결 테라스 owner인 `src/spaces/site/terrace.ts`, 문과 후벽은 rear owner다. 실제 지표와의 접속은 maps 입력이 없어 미완료다. 실제 양방향 통행·문짝/식탁 충돌·프라이버시·채광·03의 프레임은 unverified다.
+식탁·의자는 안쪽 대기를 막지 않고, 바깥 대기는 열린 두 문짝과 정원에서 돌아오는 중심 경로를 함께 수용해야 한다. [테라스](../site/terrace.md#garden-terrace-plan)는 이 대기를 포함하고 중앙 경로와 외부 단을 정원 쪽으로 연결한다. 바깥 대기 바닥은 완결 테라스 owner인 `src/spaces/site/terrace.ts`, 후벽·문 void·문턱판은 `src/spaces/envelope/rear.ts`, 닫힌 정원문 문틀·두 문짝·철물은 [모델 원형](../../models/02-exterior-doors.md#garden-door-pair)이 맡는다. 이 H2의 문짝 수·방향·회전 예약은 모델의 입력이며 rear source가 그 문짝 메시를 중복 생성하지 않는다. 실제 지표와의 접속은 maps 입력이 없어 미완료다. 실제 양방향 통행·문짝/식탁 충돌·프라이버시·채광·03의 프레임은 unverified다.

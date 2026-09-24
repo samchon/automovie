@@ -2,10 +2,10 @@
 
 ## 개구부와 가구 원형의 전수 예약 대조 {#model-reservation-fit}
 <!--
-@evidence contracts/reservation-fit.md#reservation-fit 모델 문서 16개 파일의 H2 96개를 순서대로 한 번씩 대조한다. 아래 표의 계산은 문서 설계 수치만 재계산한 결과이며 source 메시와 후속 instances 배치 충돌은 확인했다고 주장하지 않는다.
+@evidence contracts/reservation-fit.md#reservation-fit 모델 문서 16개 파일의 H2 97개를 순서대로 한 번씩 대조한다. 아래 표의 계산은 문서 설계 수치만 재계산한 결과이며 source 메시와 후속 instances 배치 충돌은 확인했다고 주장하지 않는다.
 -->
 
-[원문 계약](../../contracts/reservation-fit.md#reservation-fit)에 따라 모델 H2 96개를 빠짐없이 아래에 열거한다. 계산의 등호와 부등호는 링크된 H2의 본문 수치 및 그 H2가 인용한 예약으로 재현할 수 있다. `규칙`·`면 계약`·`표현 범위`·`검증 절차` H2는 새 점유를 만들지 않으므로 같은 원형의 부피를 다시 세지 않았다. `unverified`는 source 또는 instances가 아직 없어 실제 메시 충돌을 잴 수 없는 항목이다.
+[원문 계약](../../contracts/reservation-fit.md#reservation-fit)에 따라 모델 H2 97개를 빠짐없이 아래에 열거한다. 계산의 등호와 부등호는 링크된 H2의 본문 수치 및 그 H2가 인용한 예약으로 재현할 수 있다. `규칙`·`면 계약`·`표현 범위`·`검증 절차` H2는 새 점유를 만들지 않으므로 같은 원형의 부피를 다시 세지 않았다. `unverified`는 source 또는 instances가 아직 없어 실제 메시 충돌을 잴 수 없는 항목이다.
 
 | 모델 H2 | 예약 산술 또는 새 점유가 없는 이유 |
 |---|---|
@@ -91,6 +91,7 @@
 | [terrace-table](../../models/15-outdoor.md#terrace-table) | 상판 폭 6×0.125+5×0.01 = 0.80 m; 긴변 좌석 구간 [-0.65,-0.05]·[0.05,0.65], 다리 X 구간 [-0.70,-0.65]·[0.65,0.70]이라 무릎 폭과 내부 겹침 0. 상면 0.74 m. |
 | [terrace-chair](../../models/15-outdoor.md#terrace-chair) | 좌판 깊이 4×0.13+3×0.01 = 0.55 m; 꺼낸 뒤끝 0.40+0.30+0.55 = 1.25 ≤ 1.35 m. |
 | [lap-siding-board](../../models/15-outdoor.md#lap-siding-board) | 판 높이 0.18−겹침 0.03 = 노출 0.15 m; 길이 L은 입면과 개구부 절단에서 받는다. |
+| [exterior-corner-trim](../../models/15-outdoor.md#exterior-corner-trim) | 외벽 두 날씨 면의 교선에서 각 날개 폭 0.075 m·바깥 돌출/두께 0.022 m; 시작·끝 높이는 노출 외벽과 처마/박공 경계에서 받는다. 실제 모서리별 충돌은 modelSources·instances 뒤 검사. |
 | [asphalt-shingle-strip](../../models/15-outdoor.md#asphalt-shingle-strip) | 줄 길이 3×0.330+2×0.005 = 1.00 m; 높이 0.30−겹침 0.16 = 노출 0.14 m. 골짜기 양쪽 절단 물림 0.05 m씩으로 중앙 노출 금속 폭 0.10 m, 금속 각 면 폭 0.10 m 중 바깥 0.05 m씩은 지붕널 아래다. 굴뚝 금속은 지붕 위 0.12 m·벽돌 위 0.08 m로 공유 접면에 닿는다. |
 | [eave-gutter-downspout](../../models/15-outdoor.md#eave-gutter-downspout) | 홈통 단면 0.12×0.08 m; 선홈통 0.08×0.06 m·벽 이격 0.02; 길이는 처마·지표 입력에서 계산, 실제 충돌은 unverified. |
 | [site-tree-prototypes](../../models/16-planting.md#site-tree-prototypes) | 성목 H 8.00·R 3.00 m, 뒤 나무 H 6.00·R 2.00; 배치 충돌은 instances 개설 후 검사. |

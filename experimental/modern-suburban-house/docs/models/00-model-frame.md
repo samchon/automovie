@@ -46,13 +46,9 @@
 @evidenceExclude spaces/01-storeys.md#storey-datums 이 상위 H2는 두 storey의 완성 바닥 높이를 정하며 모델 원형은 국소 원점에서 만들어지고 층 높이 배치는 instances가 한다.
 @evidenceExclude spaces/02-stair.md#stair-connector-handoff 이 상위 H2는 계단 connector 등록을 정하며 모델 난간살은 connector를 만들거나 바꾸지 않는다.
 @evidenceExclude spaces/02-stair.md#stair-reservation 이 상위 H2는 계단 경로와 단 치수를 정하며 모델 난간살 값은 stair-boundary-heights와 stair-clearance에서 받는다.
-@evidenceExclude spaces/03-surface-owners.md#exterior-surface-handoff 이전 부모 문장은 외부 trim까지 입면 owner에 주어 모델 충전 부재와 겹쳤다. 수정된 부모는 벽 몸체·void·reveal을 spaces, 별도 닫힌 창틀·문틀·trim·문짝을 models에 주고 이 국소 좌표 H2는 그 부재 면 자체를 만들지 않는다.
-@evidenceExclude spaces/03-surface-owners.md#interior-surface-handoff 이 상위 H2는 방 내부 완결 면의 소유를 정하며 모델은 부재 자체의 면만 소유한다.
 @evidenceExclude spaces/04-observations.md#engine-render-handoff 이 상위 H2는 공간 산출물의 렌더 인계를 정하며 모델 부재 값을 주지 않는다.
 @evidenceExclude spaces/04-observations.md#reference-spatial-comparisons 이 상위 H2는 참조 대비 공간 비교를 정하며 모델 리뷰 뷰는 frame-condition에서 받는다.
 @evidenceExclude spaces/05-route-network.md#room-route-network 이 상위 H2는 방 사이 동선을 정하며 모델은 문 값을 각 room plan H2에서 받는다.
-@evidenceExclude spaces/07-boundary-assembly.md#exterior-boundary-junctions 이 상위 H2는 외벽 모서리와 지붕 단차 몸체를 정하며 모델은 벽 몸체를 만들지 않는다.
-@evidenceExclude spaces/07-boundary-assembly.md#interior-boundary-junctions 이 상위 H2는 모서리와 문턱에서 이어지는 경계를 정하며 모델 실내 문은 문턱을 두지 않고 벽 접합을 만들지 않는다.
 @evidenceExclude spaces/08-floor-assembly.md#interstorey-edge-junctions 이 상위 H2는 층간 가장자리 접합을 정하며 모델은 층판을 만들지 않는다.
 @evidenceExclude spaces/08-floor-assembly.md#interstorey-floor-boundary 이 상위 H2는 층간 구조와 두 층 마감을 정하며 모델은 층판을 만들지 않는다.
 @evidenceExclude spaces/09-ceiling-assembly.md#ceiling-roof-clearance 이 상위 H2는 천장과 지붕 접합 여유를 정하며 모델은 천장·지붕을 만들지 않는다.
