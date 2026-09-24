@@ -4,7 +4,7 @@
  *
  *   ttsx -P tsconfig.scripts.json --no-plugins scripts/face-review/derive-face-documents.ts identity \
  *     STUDY FACTS DETECTIONS POSES ANCHORS OUTPUT [EXPRESSION_STUDY]
- *   ttsx ... derive-face-documents.ts calibrate CALIBRATION_DETECTIONS NEUTRAL_VIEW_DETECTIONS OUTPUT.json
+ *   ttsx ... derive-face-documents.ts calibrate CALIBRATION_DETECTIONS DETECTIONS OUTPUT.json
  *   ttsx ... derive-face-documents.ts expression STUDY CALIBRATION.json REST_DETECTIONS DETECTIONS OUTPUT
  *
  * A document is a face described, not a face sculpted: every value it gets
@@ -27,9 +27,9 @@
  *
  * `calibrate` turns the product-editor renders of the reference head, one per
  * expression channel and weight (ids `cal:cal-<channel>-<percent>` and
- * `cal:cal-rest`), into the shared increment curves, and the reference head's
- * renders under the population's cameras into the per-channel noise band
- * (`transferFaceExpression`).
+ * `cal:cal-rest`), into the shared increment curves, and decides from the
+ * photographs' scores which units the curves can carry
+ * (`faceExpressionObservable`).
  *
  * `expression` sets each document's expression from its photograph's scores
  * and the scores its own identity reads at rest (REST_DETECTIONS, ids
@@ -51,6 +51,7 @@ import {
 import { solveFaceAnthropometry } from "./faceAnthropometrySolve";
 import {
   type IFaceExpressionCalibration,
+  faceExpressionObservable,
   transferFaceExpression,
 } from "./faceExpressionTransfer";
 import {
@@ -277,11 +278,9 @@ if (command === "identity") {
   });
   write(output, study!, derived, report);
 } else if (command === "calibrate") {
-  const [calibrationFile, neutralFile, output] = args;
+  const [calibrationFile, photoFile, output] = args;
   if (output === undefined)
-    throw new Error(
-      "calibrate CALIBRATION_DETECTIONS NEUTRAL_VIEW_DETECTIONS OUTPUT.json",
-    );
+    throw new Error("calibrate CALIBRATION_DETECTIONS DETECTIONS OUTPUT.json");
   const renders = detections(calibrationFile!);
   const rest = renders.get("cal:cal-rest")?.face;
   if (!rest) throw new Error("The calibration needs its rest render.");
@@ -304,22 +303,18 @@ if (command === "identity") {
       ],
     };
   }
-  const views = [...detections(neutralFile!).values()].flatMap((one) =>
-    one.face ? [one.face.blendshapes] : [],
+  const photographs = [...detections(photoFile!).entries()].flatMap(
+    ([id, one]) =>
+      id.startsWith("photo:") && one.face ? [one.face.blendshapes] : [],
   );
-  const noise: Record<string, number> = {};
-  for (const channel of Object.keys(calibration)) {
-    const values = views.map((one) => one[channel] ?? 0);
-    const mean = values.reduce((a, b) => a + b, 0) / values.length;
-    noise[channel] =
-      2 *
-      Math.sqrt(
-        values.reduce((a, b) => a + (b - mean) ** 2, 0) / (values.length - 1),
-      );
-  }
+  const observable = faceExpressionObservable(calibration, photographs);
   fs.writeFileSync(
     output,
-    JSON.stringify({ views: views.length, calibration, noise }, null, 2) + "\n",
+    JSON.stringify(
+      { photographs: photographs.length, calibration, observable },
+      null,
+      2,
+    ) + "\n",
   );
 } else if (command === "expression") {
   const [study, calibrationFile, restFile, detectionFile, output] = args;
@@ -330,9 +325,9 @@ if (command === "identity") {
   const documents = json<IAutoMovieHumanFaceBasisDocument[]>(
     path.join(study!, "subjects.json"),
   );
-  const { calibration, noise } = json<{
+  const { calibration, observable } = json<{
     calibration: Record<string, IFaceExpressionCalibration>;
-    noise: Record<string, number>;
+    observable: string[];
   }>(calibrationFile!);
   const rest = detections(restFile!);
   const photos = detections(detectionFile!);
@@ -347,7 +342,7 @@ if (command === "identity") {
     }
     const rows = transferFaceExpression({
       calibration,
-      noise,
+      observable,
       photo: photo.blendshapes,
       rest: own.blendshapes,
     });

@@ -14,12 +14,17 @@
  * whose brows sit low reads as a lowered brow before any expression), and the
  * weight is that increment read back through the monotone curve.
  *
- * A channel is transferred only when its full-weight increment exceeds
- * `noise`, the spread of its score across the reference head's views
- * (twice the standard deviation of the score over the population's cameras,
- * the 95% band of a reading that only the view changed). Below that the
- * detector cannot tell the channel from the camera and the weight stays
- * zero: a unit the instrument does not see is not guessed. An increment
+ * A channel is transferred only when it is `observable`
+ * (`faceExpressionObservable`): its full-weight increment on the reference
+ * head must be at least the spread the same detector reports for that unit
+ * across the population's photographs (twice their standard deviation, the
+ * 95% band). The detector's scale differs between a render and a
+ * photograph, and a channel whose whole range is narrower than the variation
+ * real faces show cannot receive a photograph's reading: every face would
+ * saturate it, which is no measurement. Such a unit stays zero; a unit the
+ * instrument cannot carry across is not guessed. Left and right units are
+ * judged as one pair on their mean span and spread, so the identity's
+ * expression is never lateralised by the test itself. An increment
  * beyond the curve's end is held at weight one and reported, and a negative
  * increment (the photograph reads less of a unit than the identity at rest)
  * is weight zero, because the channels are one-sided.
@@ -42,7 +47,7 @@ export interface IFaceExpressionTransferRow {
 
 export function transferFaceExpression(props: {
   calibration: Readonly<Record<string, IFaceExpressionCalibration>>;
-  noise: Readonly<Record<string, number>>;
+  observable: readonly string[];
   photo: Readonly<Record<string, number>>;
   rest: Readonly<Record<string, number>>;
 }): IFaceExpressionTransferRow[] {
@@ -68,7 +73,7 @@ export function transferFaceExpression(props: {
     const rest = props.rest[channel];
     if (score === undefined || rest === undefined)
       return { channel, weight: 0, status: "absent" as const };
-    if (!(span > (props.noise[channel] ?? 0)))
+    if (!props.observable.includes(channel))
       return { channel, weight: 0, status: "unobservable" as const };
     const asked = score - rest;
     if (asked <= 0)
@@ -85,5 +90,50 @@ export function transferFaceExpression(props: {
         };
     }
     return { channel, weight: 1, status: "held" as const };
+  });
+}
+
+/**
+ * The channels whose calibrated span reaches the spread of the photographs'
+ * scores (see `transferFaceExpression`); a `...Left`/`...Right` pair is
+ * judged on its mean span and mean spread and passes or fails together.
+ */
+export function faceExpressionObservable(
+  calibration: Readonly<Record<string, IFaceExpressionCalibration>>,
+  photographs: readonly Readonly<Record<string, number>>[],
+): string[] {
+  if (photographs.length < 2)
+    throw new Error("The photograph spread needs at least two photographs.");
+  const span = (channel: string): number => {
+    const scores = calibration[channel]!.scores.filter(
+      (s): s is number => s !== null,
+    );
+    return Math.max(0, ...scores.map((s) => s - scores[0]!));
+  };
+  const spread = (channel: string): number => {
+    const values = photographs.map((one) => one[channel] ?? 0);
+    const mean = values.reduce((a, b) => a + b, 0) / values.length;
+    return (
+      2 *
+      Math.sqrt(
+        values.reduce((a, b) => a + (b - mean) ** 2, 0) / (values.length - 1),
+      )
+    );
+  };
+  const partner = (channel: string): string | null => {
+    const other = channel.endsWith("Left")
+      ? channel.replace(/Left$/u, "Right")
+      : channel.endsWith("Right")
+        ? channel.replace(/Right$/u, "Left")
+        : null;
+    return other !== null && other in calibration ? other : null;
+  };
+  return Object.keys(calibration).filter((channel) => {
+    const pair = [channel, partner(channel)].filter(
+      (one): one is string => one !== null,
+    );
+    const mean = (f: (one: string) => number) =>
+      pair.reduce((sum, one) => sum + f(one), 0) / pair.length;
+    return mean(span) >= mean(spread) && mean(span) > 0;
   });
 }

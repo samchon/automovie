@@ -1,6 +1,9 @@
 import { TestValidator } from "@nestia/e2e";
 
-import { transferFaceExpression } from "../../../scripts/face-review/faceExpressionTransfer";
+import {
+  faceExpressionObservable,
+  transferFaceExpression,
+} from "../../../scripts/face-review/faceExpressionTransfer";
 import { nclose, throwsError } from "../internal/predicates";
 
 /**
@@ -10,10 +13,13 @@ import { nclose, throwsError } from "../internal/predicates";
  *    increment of 0.2, read back through the curve between its samples.
  * 2. A score under the rest reading is weight zero; one past the curve's
  *    end is held at one.
- * 3. A channel whose full increment is inside its noise band is not
- *    transferred; a channel the photograph lacks is absent.
+ * 3. A channel not observable is not transferred; a channel the photograph
+ *    lacks is absent.
  * 4. A dip in the curve is flattened by the running maximum.
- * 5. A calibration without its rest score refuses.
+ * 5. Observability: a unit whose span reaches its photographs' 2-sigma
+ *    spread passes, a unit narrower than it fails, and a left/right pair
+ *    passes or fails together on its mean; fewer than two photographs and a
+ *    calibration without its rest score refuse.
  */
 export const test_subject_face_expression_transfer = (): void => {
   const calibration = {
@@ -22,13 +28,12 @@ export const test_subject_face_expression_transfer = (): void => {
     dip: { weights: [0, 0.5, 0.75, 1], scores: [0, 0.4, 0.3, 0.6] },
     gone: { weights: [0, 1], scores: [0, 0.5] },
   };
-  const noise = { smile: 0.05, weak: 0.05, dip: 0.01, gone: 0.01 };
+  const observable = ["smile", "dip", "gone"];
   const rows = (photo: Record<string, number>, rest: Record<string, number>) =>
     Object.fromEntries(
-      transferFaceExpression({ calibration, noise, photo, rest }).map((one) => [
-        one.channel,
-        one,
-      ]),
+      transferFaceExpression({ calibration, observable, photo, rest }).map(
+        (one) => [one.channel, one],
+      ),
     );
   const read = rows(
     { smile: 0.3, weak: 0.5, dip: 0.5 },
@@ -53,17 +58,40 @@ export const test_subject_face_expression_transfer = (): void => {
       low.dip!.weight === 1 &&
       low.dip!.status === "held",
   );
+
+  // Photographs: wide reads 0 and 0.2 (2-sigma spread 0.283), narrow reads
+  // 0 and 0.1 (0.141); the pair's left spans 0.3 and right 0.1 against
+  // spreads of 0.141 each, so its mean span 0.2 passes both sides.
+  const curves = {
+    wide: { weights: [0, 1], scores: [0, 0.2] },
+    narrow: { weights: [0, 1], scores: [0, 0.2] },
+    pairLeft: { weights: [0, 1], scores: [0, 0.3] },
+    pairRight: { weights: [0, 1], scores: [0, 0.1] },
+  };
+  const photographs = [
+    { wide: 0, narrow: 0, pairLeft: 0, pairRight: 0 },
+    { wide: 0.2, narrow: 0.1, pairLeft: 0.1, pairRight: 0.1 },
+  ];
+  TestValidator.equals(
+    "observable",
+    faceExpressionObservable(curves, photographs),
+    ["narrow", "pairLeft", "pairRight"],
+  );
   TestValidator.predicate(
-    "rest required",
+    "refusals",
     throwsError(
-      () =>
-        transferFaceExpression({
-          calibration: { x: { weights: [0.5, 1], scores: [0, 1] } },
-          noise: {},
-          photo: {},
-          rest: {},
-        }),
-      "rest score",
-    ),
+      () => faceExpressionObservable(curves, photographs.slice(0, 1)),
+      "two photographs",
+    ) &&
+      throwsError(
+        () =>
+          transferFaceExpression({
+            calibration: { x: { weights: [0.5, 1], scores: [0, 1] } },
+            observable: ["x"],
+            photo: {},
+            rest: {},
+          }),
+        "rest score",
+      ),
   );
 };
