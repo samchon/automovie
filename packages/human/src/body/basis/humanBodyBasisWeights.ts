@@ -36,8 +36,11 @@ import { resolveHumanBodyCouplings } from "./resolveHumanBodyCouplings";
  * its clamped fall-off from its centre, divided by the sum of its family's
  * kernels where that sum exceeds one: a family is the kernels of one humerus
  * whose correctives' other inputs are identical, so the kernels solved at a
- * lattice of poses interpolate between their corrections (pose space
- * deformation, Lewis et al. 2000) instead of stacking them.
+ * lattice of poses interpolate between their corrections instead of
+ * stacking them, as pose space deformation interpolates the corrections
+ * solved at example poses (Lewis et al. 2000); here the interpolation is the
+ * normalized overlap of the kernels rather than a solve for radial-basis
+ * weights.
  *
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-connected-basis Refuses unsupported channels and out-of-envelope weights instead of clamping them.
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-basis Computes the `|weight| x endpoint` selection and the product corrective activation the evaluation order applies.
