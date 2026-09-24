@@ -78,7 +78,7 @@
 
 서랍장은 [주침실 예약](../spaces/rooms/primary.md#primary-furniture-use)의 X = [-5.50, -5.00], Z = [-6.50, -5.10], 상면 0.80 m를 외곽으로 받아 길이 1.40 m, 깊이 0.50 m, 높이 0.80 m다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르며 +Z는 서랍 정면(yaw π/2에서 world +X)이다.
 
-부품은 몸통, 다리 넷(0.08 m), 서랍 여섯(2열 × 3단)이다. 각 서랍은 피벗 `drawer-<열>-<단>`으로 +Z로 최대 0.40 m 미끄러져 [서랍 작동 예약 X = [-5.00, -4.60]](../spaces/rooms/primary.md#primary-furniture-use)과 같고, 손잡이는 서랍 윗 모서리 홈이라 돌출이 없다. 재질 경계는 `carcass`, `drawer-front`, `handle`, `leg`다. 서랍 레일·서랍 내부 칸막이는 표현하지 않는다. 소스 owner는 `src/models/furnishings/bedrooms.ts`다. 관찰은 서랍 0.40 m 인출 평면이 작업 범위 X = [-4.60, -4.00]로 넘어가지 않는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
+부품은 몸통, 다리 넷(0.08 m), 서랍 여섯(2열 × 3단)이다. 각 서랍은 피벗 `drawer-<열>-<단>`으로 +Z로 최대 0.40 m 미끄러져 [서랍 작동 예약 X = [-5.00, -4.60]](../spaces/rooms/primary.md#primary-furniture-use)과 같고, 손잡이는 각 서랍 윗변 아래 0.035 m, 서랍 가로 중앙에 폭 0.12 m·높이 0.025 m·깊이 0.012 m로 파는 홈이라 돌출이 없다. 재질 경계는 `carcass`, `drawer-front`, `handle`, `leg`다. 서랍 레일·서랍 내부 칸막이는 표현하지 않는다. 소스 owner는 `src/models/furnishings/bedrooms.ts`다. 관찰은 서랍 0.40 m 인출 평면이 작업 범위 X = [-4.60, -4.00]로 넘어가지 않는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
 
 ## 작은 책상 {#child-desk}
 <!--
@@ -130,28 +130,30 @@
 ## 미닫이 옷장 {#sliding-closet}
 <!--
 @evidence principles/core/common.md#scope-preservation 둘째·셋째 침실 옷장 두 예약을 한 원형으로 받고 문·봉·선반·옷까지 맡는다.
-@evidence principles/core/common.md#substantive-completion 폭 1.50 m, 깊이 0.60 m, 높이 2.20 m, 문 폭 0.76 m·두께 0.02 m, 봉 뒤에서 0.28 m·높이 1.65 m, 윗선반 1.85 m를 확정한다.
+@evidence principles/core/common.md#substantive-completion 폭 1.50 m·깊이 0.60 m·높이 2.20 m, 두 문 0.76×2.16×0.02 m, 뒤/앞 레일 깊이 [0.50,0.52]/[0.55,0.57] m, 봉 깊이 0.28 m·높이 1.65 m, 윗선반 1.85 m와 옷 18벌의 두께·길이 식을 정한다.
 @evidence principles/core/common.md#declared-basis 외곽과 -X 면 미닫이 문은 두 방 예약에서, 문·봉·선반 치수는 이 H2의 저작 값으로 적힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 방 예약은 옷장 외곽과 문 면만 주고 이 H2는 앞뒤 두 레일 미닫이 문, 봉, 윗선반, 걸린 옷 덩어리를 더한다.
-@evidence principles/design/models.md#representation-contract 몸통·두 문·봉·윗선반·옷 계층과 `carcass`·`leaf`·`handle`·`rail`·`rod`·`shelf`·`clothes` 경계를 둔다. 보이지 않는 한계는 본문의 "미닫이 롤러·레일 단면·옷걸이 개별 형상은 표현하지 않는다."로 밝힌다.
-@evidence principles/design/models.md#spatial-convention +Z를 문 면으로 두고 문이 로컬 X 방향으로 최대 0.72 m 미끄러지며 몸체 깊이 안에서만 움직인다고 정한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 방 예약은 옷장 외곽과 문 면만 주고 이 H2는 두 레일·미닫이 문, 봉·윗선반과 식으로 치수를 고정한 옷 18벌을 더한다.
+@evidence principles/design/models.md#representation-contract 몸통·두 문·봉·윗선반·옷 계층과 `carcass`·`leaf`·`handle`·`rail`·`rod`·`shelf`·`clothes` 경계를 둔다. 미닫이 롤러·옷걸이 개별 형상·옷 주름은 표현하지 않는다.
+@evidence principles/design/models.md#spatial-convention 몸통 뒤 모서리 중앙을 원점, +Z를 문 면으로 두고 뒤/앞 문 깊이를 각각 [0.50,0.52]/[0.55,0.57] m에 고정한다. 두 문은 국소 X 방향으로 최대 0.72 m 움직이고 기준 상태는 둘 다 닫힘이다.
 @evidence principles/design/models.md#reviewable-structure 문이 열린 상태에서도 몸체 앞면 밖으로 나오지 않는지를 관절 영역 관찰로 둔다.
 @evidence principles/design/models.md#model-observable-style-basis 미닫이 옷장을 앞뒤 두 레일, 0.76 m 두 문, 2.20 m 높이라는 관찰 가능한 구성으로 정한다.
-@evidence principles/design/models.md#model-scale-layer-completion 외곽 치수, 다섯 부품 층, 두 문 피벗, 일곱 재질 경계, 열린 문 관찰이 함께 적혀 있고 관찰은 unverified다.
+@evidence principles/design/models.md#model-scale-layer-completion 외곽·문·레일·봉·선반과 옷 18벌의 식, 두 문 피벗의 닫힘 기준 상태, 일곱 재질 경계와 열린 문 관찰을 적었으며 실제 원형 source와 프레임은 unverified다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 둘째·셋째 침실 옷장 예약의 좌표와 1.50 × 0.60 × 2.20 m, -X 문 면을 적힌 그대로 소비했고 부모 수정이 없었다.
 @evidence settings/10-house.md#bedroom-two 옷 수납 요구를 X = [-2.55, -1.95] 미닫이 옷장으로 받는다.
 @evidence settings/10-house.md#bedroom-three 옷 수납 요구를 X = [4.90, 5.50] 미닫이 옷장으로 받아 첫 자녀 방 좌표를 복사하지 않는다.
 @evidence settings/10-house.md#storage 침실 옷장에 문짝·옷걸이 봉·윗선반과 깊이 0.60 m 내부를 둬 빈 문짝으로 대신하지 않는다.
 @evidence spaces/rooms/bedroom-two.md#bedroom-two-furniture-use 둘째 침실 옷장 예약 X = [-2.55, -1.95], Z = [-2.95, -1.45]를 폭 1.50 m 원형으로 소비한다.
 @evidence spaces/rooms/bedroom-three.md#bedroom-three-furniture-use 셋째 침실 옷장 예약 X = [4.90, 5.50], Z = [-2.80, -1.30]을 같은 원형으로 소비한다.
-@evidence obligations/design/models.md#articulation-ownership 문 피벗을 `door-front`, `door-back`으로 이름 붙이고 로컬 X 최대 0.72 m 미끄럼을 움직임 인터페이스로 정한다.
+@evidence obligations/design/models.md#articulation-ownership 앞 왼쪽 문 `door-front`는 +X, 뒤 오른쪽 문 `door-back`은 -X로 각각 0–0.72 m 미끄러지고 기준 상태는 둘 다 닫힘이라고 정한다.
 -->
 
 레퍼런스 02의 작은 침실 수납과 05의 열린 옷장을 채택한다. 문짝 두께와 옷 개수는 사진에서 재지 않고 예약과 이 H2의 수치로 정한다.
 
 옷장은 [둘째 침실](../spaces/rooms/bedroom-two.md#bedroom-two-furniture-use) X = [-2.55, -1.95], Z = [-2.95, -1.45]와 [셋째 침실](../spaces/rooms/bedroom-three.md#bedroom-three-furniture-use) X = [4.90, 5.50], Z = [-2.80, -1.30]에 쓰는 한 원형이다. 두 예약 모두 폭 1.50 m, 깊이 0.60 m, 높이 2.20 m이고 -X 면에 미닫이 문을 둔다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르며 +Z는 문 면이다.
 
-부품은 몸통, 앞뒤 두 레일 위의 미닫이 문 둘(각 폭 0.76 m, 두께 0.02 m), 옷걸이 봉(뒤에서 0.28 m, 높이 1.65 m), 윗선반(1.85 m), 걸린 옷 덩어리다. 문 피벗 `door-front`, `door-back`은 로컬 X 방향으로 최대 0.72 m 미끄러지며 몸체 깊이 안에서만 움직인다. 재질 경계는 `carcass`, `leaf`, `handle`, `rail`, `rod`, `shelf`, `clothes`다. 미닫이 롤러·레일 단면·옷걸이 개별 형상은 표현하지 않는다. 소스 owner는 `src/models/furnishings/bedrooms.ts`다. 관찰은 문이 열린 상태에서도 몸체 앞면 밖으로 나오지 않는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
+몸통은 로컬 X=[-0.75,0.75], Z=[0,0.60], Y=[0,2.20] m다. 앞 왼쪽 문 `door-front`의 닫힌 X=[-0.75,0.01], 깊이 Z=[0.55,0.57] m이고 뒤 오른쪽 문 `door-back`의 닫힌 X=[-0.01,0.75], Z=[0.50,0.52] m다. 각 문은 폭 0.76 m·높이 2.16 m·두께 0.02 m이며 Y=[0.01,2.17] m다. 두 문의 닫힌 겹침은 0.02 m이고 기준 상태는 둘 다 닫힘이다. 앞 문은 +X, 뒤 문은 -X로 각각 0–0.72 m만 움직여 바깥 가로·깊이 범위를 넘지 않는다. 두 깊이마다 폭 0.02 m의 직사각 레일을 바닥 Y=[0,0.01] m와 상부 Y=[2.17,2.20] m에 두고 길이는 몸통 폭 1.50 m다. 몸통 속 옷걸이 봉은 뒤에서 Z=0.28 m, Y=1.65 m에 둔 지름 0.03 m 원통이고, 윗선반은 상면 1.85 m·두께 0.025 m·깊이 0.45 m다. 문짝의 손잡이는 만남선에서 각 바깥쪽으로 0.06 m, 바닥 위 1.05 m 중심의 폭 0.10 m·높이 0.025 m·깊이 0.008 m 오목 홈이라 외곽을 늘리지 않는다.
+
+걸린 옷은 18벌이다. 순번 i=0…17에 두께 `0.035+0.005×(i mod 3)` m, 앞뒤 폭 0.38 m, 어깨 아래 길이 `0.85+0.05×(i mod 3)` m를 준다. 여섯 주기 두께 합은 `6×(0.035+0.040+0.045)=0.720` m이므로 봉 중앙에서 X=[-0.36,0.36] m에 순서대로 걸고 양끝 0.39 m씩 비운다. 각 옷의 깊이 중심은 봉 Z=0.28 m로 Z=[0.09,0.47] m여서 뒤 문 안쪽 Z=0.50 m보다 0.03 m 앞에서 멈춘다. 어깨는 봉 아래 0.05 m인 Y=1.60 m, 가장 긴 옷의 아랫끝은 Y=0.65 m다. 옷은 어깨가 둥근 닫힌 얇은 부피이고 옷걸이·소매·주름은 표현하지 않는다. 재질 경계는 `carcass`, `leaf`, `handle`, `rail`, `rod`, `shelf`, `clothes`다. 소스 owner는 `src/models/furnishings/bedrooms.ts`다. 관찰은 닫힘·각 문 최대 열림에서 문과 옷이 몸통 밖으로 나오지 않는지다. 실제 source·프레임은 unverified다.
 
 ## 주침실 두 창의 얇은 커튼 {#primary-window-curtains}
 <!--
@@ -174,7 +176,7 @@
 
 레퍼런스 05의 주침실 창에 걸린 얇은 회색 커튼을 채택한다. 접힌 주름 수는 사진 복제가 아니라 두 창폭의 규칙으로 정한다.
 
-후면의 [주침실 창](../spaces/envelope/rear.md#primary-rear-window)은 폭 W = 2.40 m, 왼쪽의 [주침실 창](../spaces/envelope/left.md#primary-left-window)은 W = 1.60 m이며 두 개구부 모두 Y = [3.91, 5.31] m다. 같은 원형을 두 창의 안쪽 면에 각각 배치한다. 원형의 국소 원점은 개구부 안쪽 왼쪽 아래이며 U는 창 너비, V는 위쪽, +N은 방 안쪽이다. 후면과 왼쪽 배치는 축 회전만 다르고 치수식은 같다. 봉 중심은 개구부 아래 변 기준 국소 Y = 1.52 m(개구부 위 0.12 m)에 놓고 양끝으로 0.10 m씩 뻗는다. 드레이프는 국소 Y = -0.75 m(상층 완성 바닥 위 0.10 m)부터 봉 중심 Y = 1.52 m까지 이어지며 윗단 0.025 m를 봉 주위에 감싼다. 두 패널을 창 양끝에 각 0.18 m 폭으로 모은 고정 개방 상태다. 윗단과 봉은 같은 높이에서 닿으므로 0.0175 m 공중 틈이 없다.
+후면의 [주침실 창](../spaces/envelope/rear.md#primary-rear-window)은 폭 W = 2.40 m, 왼쪽의 [주침실 창](../spaces/envelope/left.md#primary-left-window)은 W = 1.60 m이며 두 개구부 모두 Y = [3.91, 5.31] m다. 같은 원형을 두 창의 안쪽 면에 각각 배치한다. 원형의 국소 원점은 개구부 안쪽 왼쪽 아래이며 U는 창 너비, V는 위쪽, +N은 방 안쪽이다. 후면과 왼쪽 배치는 축 회전만 다르고 치수식은 같다. 봉 중심은 개구부 아래 변 기준 국소 Y = 1.50 m(개구부 위 0.10 m)에 놓고 양끝으로 0.10 m씩 뻗는다. 드레이프는 국소 Y = -0.75 m(상층 완성 바닥 위 0.10 m)부터 봉 중심 Y = 1.50 m까지 이어지며 윗단 0.025 m를 봉 주위에 감싼다. 두 패널을 창 양끝에 각 0.18 m 폭으로 모은 고정 개방 상태다. 봉 반지름 0.0125 m와 천 윗단 접힘을 합친 최고점은 개구부 위 0.1125 m로, 부모의 위쪽 0.12 m 띠 안에 0.0075 m 남는다. 윗단이 봉을 감싸므로 공중 틈은 없다.
 
 부품은 지름 0.025 m 봉, 양끝 받침 둘, 양쪽 얇은 천 패널이다. 봉 중심은 안쪽 벽면에서 +N 0.06 m, 천의 중간 면은 각 패널의 가로 좌표 u ∈ [0, 0.18] m에 대해 `N(u) = 0.08 + 0.02 sin(6πu / 0.18)` m로 세 접힘을 만들고 두께 0.006 m를 그 양쪽에 둔다. 앞면 최대 N = 0.103 m다. 받침은 +N 0–0.08 m에 머무르므로 봉·받침·천의 앞면을 포함한 최대 돌출 0.103 m는 [주침실 사용 예약](../spaces/rooms/primary.md#primary-furniture-use)의 0.12 m 이내다. 표면 id는 `rod`, `bracket`, `curtain`이며 천 두 패널은 같은 재료 파티션을 공유한다. 얇은 천의 직조 결·투과는 materials가 결속하고, 실밥·봉제선·천의 동역학은 표현하지 않는다. 소스 owner는 `src/models/furnishings/bedrooms.ts`다. [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 정면에서 두 끝 0.18 m 모임이 창 대부분을 열어 두는지, 측면에서 최대 돌출 0.12 m와 창대·손잡이 간섭이 없는지 본다. 실제 부재·점유·GPU 프레임은 unverified다.
 

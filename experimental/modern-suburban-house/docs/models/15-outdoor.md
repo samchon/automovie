@@ -29,15 +29,15 @@
 
 ## 테라스 의자 {#terrace-chair}
 <!--
-@evidence principles/core/common.md#scope-preservation 네 번 쓰는 한 의자 원형의 외곽 0.50 × 0.55 m·좌면 0.45 m·등받이 0.85 m, 좌판·다리 넷·등받이 널 셋, 표면 id `seat`·`leg`·`back`, 소스 owner를 맡고 위치는 instances가 도출하도록 남긴다.
-@evidence principles/core/common.md#substantive-completion 좌판 Y = [0.42, 0.45]를 로컬 Z를 따라 널 넷으로, 등받이 널을 Y = [0.55, 0.85]에서 뒤로 8° 기울게 정한다. 좌판 널 네 장 × 0.13 m와 틈 세 곳 × 0.01 m가 0.55 m를 채우고, 등받이 널 셋은 각 높이 0.08 m·두께 0.02 m이며 다리 단면은 0.035 m 각재라고 본문에 적는다.
+@evidence principles/core/common.md#scope-preservation 네 번 쓰는 한 의자 원형의 외곽 0.50 × 0.55 m·좌면 0.45 m·등받이 0.85 m, 좌판·다리 넷·등받이 기둥 둘과 널 셋, 표면 id `seat`·`leg`·`back`, 소스 owner를 맡고 위치는 instances가 도출하도록 남긴다.
+@evidence principles/core/common.md#substantive-completion 좌판 Y=[0.42,0.45] m의 널 넷, 다리 0.035 m 각재, 등받이 기둥 둘과 높이 0.08 m·두께 0.02 m 널 셋을 정한다. 기울기 축은 국소 X 평행선 Y=0.45·Z=0.09 m이고 지지선 Z(Y)=0.09−(Y−0.45)tan 8°라 상단이 외곽 깊이 안에 남는다.
 @evidence principles/core/common.md#declared-basis 꺼낸 의자의 뒤쪽 끝을 식탁 반폭 0.40 m, 꺼냄 0.30 m, 의자 깊이 0.55 m의 합 1.25 m로 산출해 예약 반폭 1.35 m와 대조한다. 좌면 0.45 m는 식탁과 0.29 m 차, 폭 0.50 m는 중심 간격 0.70 m에서 틈 0.20 m라는 근거를 본문에 둔다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 테라스 공간 예약에 팔걸이 없는 의자 외곽, 등받이 8° 기울기, 뒤 다리 뒤쪽 변을 뒤쪽 모서리 선으로 둔 국소 좌표를 더하고 꺼내기를 관절이 아닌 배치 변화로 정한다.
-@evidence principles/design/models.md#representation-contract 좌판·다리 넷·등받이 널 셋의 무관절 형상과 표면 `seat`·`leg`·`back`, 외곽 0.50 × 0.55 × 0.85 m를 정한다. 관찰은 모두 unverified로 두었지만 재료 결·시공 내구성은 이 형상이 지지하지 않는다고 본문에 적는다. 보이지 않는 한계는 본문의 "널 고정 나사·등받이 곡률·다리 발 캡은 표현하지 않는다. 목재의 결·야외 내구성은 이 모델 형상에서 검증하지 않는다."로 밝힌다.
-@evidence principles/design/models.md#spatial-convention 가구 국소 좌표를 따르되 뒤쪽 모서리 선을 뒤 다리의 뒤쪽 변, +Z를 식탁을 향한 정면으로 둔다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 테라스 공간 예약에 팔걸이 없는 의자 외곽, 축 위치가 정해진 등받이 8° 기울기, 뒤 다리 뒤쪽 변을 로컬 Z=0으로 둔 좌표를 더하고 꺼내기를 관절이 아닌 배치 변화로 정한다.
+@evidence principles/design/models.md#representation-contract 좌판·다리 넷·등받이 지지 기둥 둘과 널 셋의 무관절 형상과 표면 `seat`·`leg`·`back`, 외곽 0.50 × 0.55 × 0.85 m를 정한다. 재료 결·시공 내구성은 이 형상이 지지하지 않고 널 고정 나사·등받이 곡률·다리 발 캡은 표현하지 않는다.
+@evidence principles/design/models.md#spatial-convention 뒤 다리의 뒤쪽 변을 로컬 Z=0, +Z를 식탁을 향한 정면으로 두고 뒤 다리 중심 Z=0.0175 m, 등받이 기울기 축 Y=0.45·Z=0.09 m를 적는다.
 @evidence principles/design/models.md#reviewable-structure 측면에서 좌면 높이와 등받이 기울기가 보이는지, 네 의자를 꺼낸 평면이 예약 안에 드는지를 반증 관찰로 두고 표면 분할은 `seat`·`leg`·`back`이다.
 @evidence principles/design/models.md#model-observable-style-basis 양식 라벨 없이 팔걸이 없음, 널 넷의 좌판, 8° 기운 등받이 널 셋이라는 관찰 가능한 구성으로 의자를 정한다.
-@evidence principles/design/models.md#model-scale-layer-completion 외곽·좌면·등받이 높이, 세 부품군, 널·다리 단면, 표면 id, 무관절, 기준 척도와 측면·평면 관찰을 정한다.
+@evidence principles/design/models.md#model-scale-layer-completion 외곽·좌면·등받이 높이, 널·다리·등받이 기둥 단면, 기울기 축과 깊이 점유, 세 표면 id, 무관절과 측면·평면 관찰을 정한다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work spaces/site/terrace.md#garden-terrace-plan의 2.70 m 가구 사용 구역과 식탁 반폭 0.40 m를 적힌 그대로 소비했고 꺼낸 끝 1.25 m가 그 안에 들어 부모 수정이 없었다.
 @evidence settings/10-house.md#site-identity 후면 정원 포장 테라스에 두라는 의자를 팔걸이 없는 0.50 × 0.55 m 의자 원형으로 만든다. 본문은 공간 예약과 사용 가정을 직접 소비한다.
 @evidence spaces/site/terrace.md#garden-terrace-plan 이 spaces H2가 가구 owner에 넘긴 "꺼낸 상태까지 예약 안" 조건을 식탁 가장자리에서 0.30 m 꺼낸 뒤쪽 끝 1.25 m가 반폭 1.35 m 안에 든다는 산술로 받는다.
@@ -48,7 +48,7 @@
 
 테라스 의자는 [테라스 공간 예약](../spaces/site/terrace.md#garden-terrace-plan)과 네 사람의 [사용 가정](../settings/00-production.md#use-profile)을 소비하는 한 원형이며 반복 수와 위치는 후속 instances가 식탁 반폭 0.40 m와 이 의자 깊이에서 도출한다. 외곽은 폭 0.50 m, 깊이 0.55 m, 좌면 0.45 m, 등받이 0.85 m이며 팔걸이는 없다. 좌면 0.45 m는 상판 0.74 m와 0.29 m 차의 식사 자세를 [식탁 의자](10-kitchen-dining.md#dining-chair)와 같게 두려는 선택이고, 폭 0.50 m는 긴 변 좌석 중심 간격 0.70 m에서 두 의자 사이 0.20 m를 남기며, 깊이 0.55 m는 꺼낸 상태의 끝 1.25 m가 예약 반폭 1.35 m 안에 들도록 택했다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르며 뒤쪽 모서리 선은 뒤 다리의 뒤쪽 변, +Z는 식탁을 향한 정면이다. 식탁 가장자리에서 0.30 m 꺼낸 상태의 뒤쪽 끝은 식탁 중심에서 0.40 + 0.30 + 0.55 = 1.25 m로 예약 반폭 1.35 m 안에 든다.
 
-부품은 좌판, 다리 넷, 등받이 널 셋이다. 좌판은 Y = [0.42, 0.45]이고 깊이 0.55 m를 로컬 Z 방향 널 네 장(각 0.13 m)과 틈 세 개(각 0.01 m)로 정확히 채운다. 다리는 0.035 × 0.035 m 각재이며 중심을 좌판 각 가장자리에서 0.04 m 안쪽에 둔다. 등받이 널 셋은 각각 높이 0.08 m, 두께 0.02 m이며 하단 Y = 0.55, 0.66, 0.77 m에 두고 뒤 다리 윗부분을 회전축으로 뒤로 8° 기울여 최상단이 0.85 m다. 표면 id는 `seat`, `leg`, `back`이다. 관절은 없고 꺼내기는 배치 변화다. 널 고정 나사·등받이 곡률·다리 발 캡은 표현하지 않는다. 목재의 결·야외 내구성은 이 모델 형상에서 검증하지 않는다. 소스 owner는 `src/models/furnishings/outdoor.ts`다. 관찰은 [기준 척도](00-model-frame.md#model-reference-scale)와 함께 측면에서 좌면과 등받이 기울기가 보이는지, 네 의자를 꺼낸 평면이 예약 안에 드는지다. 모든 관찰은 unverified다.
+부품은 좌판, 다리 넷, 등받이 지지 기둥 둘, 등받이 널 셋이다. 좌판은 Y=[0.42,0.45] m이고 깊이 Z=[0,0.55] m를 널 네 장(각 0.13 m)과 틈 세 개(각 0.01 m)로 채운다. 다리는 0.035×0.035 m 각재이며 좌우 중심 X=±0.21 m, 뒤 다리 중심 Z=0.0175 m, 앞 다리 중심 Z=0.51 m다. 뒤 다리의 뒤쪽 면 Z=0이 국소 원점 선이고 다리는 좌판 아래 Y=[0,0.45] m를 지지한다. 등받이 기둥 둘도 0.035 m 각재이며 좌판 안의 Y=0.42 m에서 시작해 Y=0.85 m까지 이어진다. 기울기의 국소 X 평행 기준축은 Y=0.45·Z=0.09 m이고, 기둥의 깊이 중심은 `Z(Y)=0.09−(Y−0.45)tan(8°)`다. 널 셋은 그 기둥을 가로로 잇는 폭 0.42 m·높이 0.08 m·두께 0.02 m의 판으로 Y=[0.55,0.63], [0.66,0.74], [0.77,0.85] m에 놓이며 각 높이의 깊이 중심은 같은 식을 따른다. 맨 위 중심 Z≈0.0338 m이고 기둥 반두께 0.0175 m를 빼도 0.0163 m > 0이므로 등받이가 외곽 뒤 Z=0을 넘지 않는다. 모든 기둥·널 면은 `back`, 다리는 `leg`, 좌판은 `seat`다. 관절은 없고 8°는 고정 형상이다. 널 고정 나사·등받이 곡률·다리 발 캡은 표현하지 않는다. 목재의 결·야외 내구성은 이 모델 형상에서 검증하지 않는다. 소스 owner는 `src/models/furnishings/outdoor.ts`다. 관찰은 측면에서 좌면·기울기·뒤 경계, 꺼낸 평면에서 네 의자의 예약 적합이다. 실제 source·프레임은 unverified다.
 
 ## lap siding 판 단면 {#lap-siding-board}
 <!--

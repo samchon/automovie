@@ -97,7 +97,7 @@
 
 레인지는 [예약](../spaces/rooms/common.md#common-kitchen-wall-reservation)의 X = [-5.50, -4.85], Z = [-9.50, -8.70], Y = [0, 0.91]을 외곽으로 받아 폭 0.80 m, 깊이 0.65 m, 높이 0.91 m다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르며 +Z가 오븐 전면이다. 뒤쪽 조작 패널은 두지 않는다. 0.91 m 높이 상한 위로 솟는 패널은 예약을 벗어나기 때문이며, 조작 손잡이는 전면 상단 띠에 둔다.
 
-부품은 몸통, 조리 상판, 네 화구 링, 전면 조작 띠, 오븐 문, 오븐 손잡이다. 조리 상판은 Y = [0.88, 0.91]이고 화구 링 넷은 지름 0.20 m, 두께 0.01 m의 얇은 링으로 Y = [0.90, 0.91] m에 매립해 상면 0.91 m를 넘지 않는다. 오븐 문은 Y = [0.10, 0.62]의 0.52 m 높이이며 아래 모서리의 수평 경첩 피벗 `oven-door`로 +Z 쪽으로 최대 90° 내려 연다. 이때 문 높이 0.52 m와 손잡이 0.03 m의 합 0.55 m가 [오븐 작동 예약 X = [-4.85, -4.30]](../spaces/rooms/common.md#common-kitchen-wall-reservation)과 같다. 조작 띠는 Y = [0.66, 0.86]에 둔다.
+부품은 몸통, 조리 상판, 네 화구 링, 전면 조작 띠, 오븐 문, 오븐 손잡이다. 조리 상판은 Y = [0.88, 0.91]이고 화구 링 넷은 지름 0.20 m, 두께 0.01 m의 얇은 링으로 Y = [0.90, 0.91] m에 매립해 상면 0.91 m를 넘지 않는다. 로컬 폭 X=[-0.40,0.40] m, 깊이 Z=[0,0.65] m에서 링 중심은 X=±0.20 m와 Z=0.19·0.46 m의 직교 조합 네 점으로 정해, 링 가장자리가 좌우 0.10 m·앞뒤 0.09 m 이상 안쪽에 남는다. 오븐 문은 Y = [0.10, 0.62]의 0.52 m 높이이며 아래 모서리의 수평 경첩 피벗 `oven-door`로 +Z 쪽으로 최대 90° 내려 연다. 이때 문 높이 0.52 m와 손잡이 0.03 m의 합 0.55 m가 [오븐 작동 예약 X = [-4.85, -4.30]](../spaces/rooms/common.md#common-kitchen-wall-reservation)과 같다. 조작 띠는 Y = [0.66, 0.86]에 둔다.
 
 오븐 문 중앙에는 폭 0.48 m·높이 0.24 m의 검은 내열 유리 `appliance-glass`를 앞면과 같은 깊이에 끼우고 문 테두리 금속 `leaf`를 사방 0.06 m 이상 남긴다. 유리는 불투명 검은 반사판이며 오븐 내부 투과를 주장하지 않는다. 재질 경계는 `appliance-body`, `cooktop`, `burner`, `control-panel`, `leaf`, `appliance-glass`, `handle`, `appliance-interior`다. 불꽃·열·유리 투과·조작 손잡이 개별 형상은 표현하지 않는다. 소스 owner는 `src/models/furnishings/kitchen-dining.ts`다. 관찰은 측면에서 상판이 옆 하부장과 같은 0.91 m 선에 있는지, 문을 90° 연 평면에서 손잡이 끝이 X = -4.30 m에 멈추는지, 위에서 네 화구가 읽히는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
 
@@ -120,7 +120,7 @@
 
 전자레인지는 [예약](../spaces/rooms/common.md#common-kitchen-wall-reservation)의 X = [-5.50, -5.10], Z = [-9.50, -8.70], Y = [1.45, 1.85]를 외곽으로 받아 폭 0.80 m, 깊이 0.40 m, 높이 0.40 m다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르되 벽걸이 원형이므로 원점을 뒤쪽 모서리 선의 하단 중심에 두고 걸림 높이 1.45 m에 놓는다. 아래 면은 레인지 위의 후드 역할을 겸하는 평면으로 두고 별도 후드 원형을 만들지 않는다.
 
-부품은 몸통, 문, 조작 판 셋이다. 문은 전면의 왼쪽 0.58 m, 조작 판은 오른쪽 0.22 m를 차지하며 둘 다 몸통 앞면과 같은 면에 있어 돌출이 없다. 방 문서가 전자레인지 문의 작동 예약을 두지 않으므로 문은 강체이고 관절을 노출하지 않는다. 재질 경계는 `appliance-body`, `leaf`, `appliance-glass`, `control-panel`다.
+부품은 몸통, 문, 조작 판 셋이다. 문은 전면의 왼쪽 0.58 m, 조작 판은 오른쪽 0.22 m를 차지하며 둘 다 몸통 앞면과 같은 면에 있어 돌출이 없다. 문의 `appliance-glass` 창은 가로 0.40 m·높이 0.22 m이며 문 가로 중심·세로 중심에 놓아 좌우 0.09 m, 상하 0.09 m의 `leaf` 테두리를 남긴다. 방 문서가 전자레인지 문의 작동 예약을 두지 않으므로 문은 강체이고 관절을 노출하지 않는다. 재질 경계는 `appliance-body`, `leaf`, `appliance-glass`, `control-panel`다.
 
 회전 접시·내부 조명·문 창의 투과는 표현하지 않는다. 소스 owner는 `src/models/furnishings/kitchen-dining.ts`다. 관찰은 정면에서 전자레인지(Z = [-9.50, -8.70])와 왼쪽 상부장(Z = [-8.70, -7.40])이 같은 높이 1.45–1.85 m에서 Z = -8.70 m 경계로만 만나 겹치지 않는지, 측면에서 레인지 조리면 위 0.54 m의 빈 공간이 남는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
 
@@ -225,7 +225,7 @@
 @evidence principles/core/common.md#declared-basis 좌면 0.45 m는 식탁 0.75 m보다 0.30 m 낮은 식사 자세를, 폭 0.45 m는 좌석 사용 폭 0.65 m 안의 밀어 넣기를 위한 이 층의 결정이며 여섯 좌석은 식사 구역 예약에서 받는다고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 여섯 좌석 예약에 뒤 다리가 등받이 기둥으로 이어지는 구성, 5° 등받이, 팔걸이 없음, 등받이가 식탁 위로 0.10 m 솟는 관계를 더한다.
 @evidence principles/design/models.md#representation-contract 좌면·네 다리·등받이 기둥 둘·등받이 살대와 띠 계층과 `seat`·`leg`·`back` 경계를 두고 관절 없이 꺼내 앉기를 배치 변화로 둔다. 보이지 않는 한계는 본문의 "좌판 곡면·다리 이음·등받이 곡률은 표현하지 않는다."로 밝힌다.
-@evidence principles/design/models.md#spatial-convention 뒤쪽 모서리 선을 뒤 다리의 뒤쪽 변, +Z를 식탁 쪽 정면으로 두고 점유를 폭 0.45 m·깊이 0.50 m·등받이 상단 0.85 m로 적는다.
+@evidence principles/design/models.md#spatial-convention 뒤쪽 모서리 선을 의자 점유 외곽의 뒤쪽 변, +Z를 식탁 쪽 정면으로 두고 점유를 폭 0.45 m·깊이 0.50 m·등받이 상단 0.85 m로 적는다.
 @evidence principles/design/models.md#reviewable-structure 측면의 좌면 0.45 m·등받이 0.85 m와 기울기, 밀어 넣은 평면에서 의자 폭이 식탁 다리 사이에 드는지, 여섯 의자가 같은 원형의 반복으로 읽히는지를 리뷰 대상으로 둔다.
 @evidence principles/design/models.md#model-observable-style-basis 팔걸이 없는 좌판, 뒤 다리 위 기둥과 네 개의 세로 살대가 놓인 등받이, 5° 뒤 기울기를 레퍼런스 03의 관찰 가능한 형상으로 정한다.
 @evidence principles/design/models.md#model-scale-layer-completion 좌면 0.45 m와 식탁 0.75 m의 0.30 m 차, 0.38 m 안쪽 폭에 네 살대와 다섯 간격을 채우는 식, 5° 뒤 기울기 축, 세 재질 경계를 본문 치수로 대조한다. 실제 부재 메시와 UV는 source 전까지 unverified다.

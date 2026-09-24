@@ -75,12 +75,12 @@
 
 ## 실내 문의 표현 한계 {#interior-door-fidelity}
 <!--
-@evidence principles/core/common.md#scope-preservation 실내 문의 경첩 knuckle 두 개만 만들고 걸쇠·잠금·닫힘 장치와 실내 문턱을 만들지 않는 범위를 이 H2가 맡는다.
+@evidence principles/core/common.md#scope-preservation 실내 문 부재 H2가 정한 경첩 knuckle 셋만 만들고 걸쇠·잠금·닫힘 장치와 실내 문턱을 만들지 않는 범위를 이 H2가 맡는다.
 @evidence principles/core/common.md#substantive-completion 차고 쪽 0.15 m 단차를 문턱이 아니라 세탁실 owner의 바닥 datum으로 해결한다고 적는다.
 @evidence principles/core/common.md#declared-basis 상한은 00-model-frame.md#model-representation-ceiling, 단차는 spaces/rooms/laundry.md#laundry-plan에서 받는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 공통 상한을 실내 문의 기구 생략 목록으로 바꾼다.
 @evidence principles/design/models.md#representation-contract 실내 문 proxy가 지지하지 않는 관찰을 정한다.
-@evidence principles/design/models.md#spatial-convention knuckle 두 개의 위치는 interior-door-hinges의 hinge-pivot을 따르고 새 좌표를 정하지 않는다.
+@evidence principles/design/models.md#spatial-convention knuckle 셋의 높이는 interior-door-members의 문짝 하단 위 0.20·1.05·1.90 m를 따르고 새 좌표를 정하지 않는다.
 @evidence principles/design/models.md#reviewable-structure threshold 관찰에서 문턱 유무와 경첩 표현을 반증한다.
 @evidence principles/design/models.md#model-observable-style-basis 기구 생략이라는 관찰 가능한 한계를 적는다.
 @evidence principles/design/models.md#model-scale-layer-completion 실내 문의 걸쇠·잠금·닫힘 장치와 문턱을 만들지 않는 층으로 명시한다.
@@ -90,4 +90,4 @@
 
 레퍼런스 05의 문짝 패널과 손잡이까지만 형상 목표로 채택한다. 문 속 심재·힌지 나사·도어클로저는 보이는 기능을 늘리지 않아 제외한다.
 
-[표현 상한](00-model-frame.md#model-representation-ceiling) 안에서 경첩은 눈에 보이는 두 개의 원통 knuckle로만 만들고 걸쇠·잠금·문 닫힘 장치는 만들지 않는다. 문턱은 실내 문에 두지 않으며 차고 쪽 0.15 m 단차는 [세탁실 owner](../spaces/rooms/laundry.md#laundry-plan)가 받은 문턱 datum으로 바닥이 해결한다. 검사 주소는 [모델 리뷰 뷰 목록](00-model-frame.md#model-review-set)과 각 방 threshold 관찰이며 실제 렌더는 unverified다.
+[표현 상한](00-model-frame.md#model-representation-ceiling) 안에서 경첩은 [공유 실내 문 부재](#interior-door-members)가 정한 세 개의 원통 knuckle로만 만들고 걸쇠·잠금·문 닫힘 장치는 만들지 않는다. 문턱은 실내 문에 두지 않으며 차고 쪽 0.15 m 단차는 [세탁실 owner](../spaces/rooms/laundry.md#laundry-plan)가 받은 문턱 datum으로 바닥이 해결한다. 검사 주소는 [모델 리뷰 뷰 목록](00-model-frame.md#model-review-set)과 각 방 threshold 관찰이며 실제 렌더는 unverified다.

@@ -28,7 +28,7 @@
 
 변기는 [파우더룸](../settings/10-house.md#powder), [샤워 욕실](../settings/10-house.md#shower-bathroom), [욕조 욕실](../settings/10-house.md#tub-bathroom) 설정이 요구하는 변기를 세 방에 쓰는 한 원형이다. [파우더룸 예약](../spaces/rooms/powder.md#powder-fixture-use) X = [4.75, 5.50], Z = [-1.65, -0.95]와 [욕조 욕실 예약](../spaces/rooms/tub-bath.md#tub-fixture-use) X = [4.75, 5.50], Z = [-6.65, -5.95]는 전면 -X, 깊이 0.75 m, 폭 0.70 m다. [샤워 욕실 예약](../spaces/rooms/shower-bath.md#shower-fixture-use) X = [2.32, 2.97], Z = [-8.80, -8.05]는 전면 +Z, 깊이 0.75 m, 폭 0.65 m다. 세 곳 모두 좌면 0.43 m·최대 높이 0.82 m다. 그러므로 외곽은 깊이 0.75 m, 높이 0.82 m, 폭은 가장 좁은 0.65 m 안의 0.50 m로 정한다. 폭 0.50 m는 물탱크 폭이며 세 예약 모두에 양옆 0.075 m 이상의 여유를 남기려는 이 층의 결정이다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르며 +Z가 앉는 정면이며 공통 좌표 규칙은 [모델 국소 좌표](00-model-frame.md#model-local-frame)를 따른다.
 
-부품은 물탱크, 탱크 뚜껑, 받침, 변기 몸통, 시트, 시트 덮개, 세척 레버다. 물탱크는 폭 0.50 m, 깊이 0.20 m, Y = [0.40, 0.78]이고 뚜껑이 0.78–0.82 m를 차지한다. 몸통은 벽에서 0.28–0.75 m까지 이어지는 12각 타원 단면이다. 바닥 접지 발은 폭 0.24 m·깊이 0.35 m·높이 0.20 m이고, 도기 몸통은 그 위에서 폭 0.38 m로 넓어져 Y = 0.40 m에 이른다. 그릇 상단은 폭 0.38 m·깊이 0.45 m, 안쪽 빈 공간은 폭 0.27 m·깊이 0.31 m·깊이 0.15 m인 12각 타원 컷이며 밑은 닫힌다. 두께 0.03 m 좌대 링의 상면은 0.43 m, 닫힌 덮개는 그 위 두께 0.025 m다. 좌대와 덮개 경첩은 뒤쪽 끝에 있다. 시트 덮개는 뒤쪽 가로 경첩 피벗 `seat-lid`를 갖지만 방 문서가 여닫는 사용을 예약하지 않으므로 기준 상태는 닫힘이고 이 인터페이스만 남긴다. 표면 id는 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)에 따라 `ceramic`, `toilet-seat`, `lid`, `handle`이다.
+부품은 물탱크, 탱크 뚜껑, 받침, 변기 몸통, 시트, 시트 덮개, 세척 레버다. 물탱크는 폭 0.50 m, 깊이 0.20 m, Y = [0.40, 0.78]이고 탱크 뚜껑은 Y = [0.78, 0.82] m를 차지하며 `ceramic`이다. `lid`는 좌면 위에서 움직이는 시트 덮개만 가리킨다. 몸통은 벽에서 0.28–0.75 m까지 이어지는 12각 타원 단면이다. 바닥 접지 발은 폭 0.24 m·깊이 0.35 m·높이 0.20 m이고, 도기 몸통은 그 위에서 폭 0.38 m로 넓어져 Y = 0.40 m에 이른다. 그릇 상단은 폭 0.38 m·깊이 0.45 m, 안쪽 빈 공간은 폭 0.27 m·깊이 0.31 m·깊이 0.15 m인 12각 타원 컷이며 밑은 닫힌다. 두께 0.03 m 좌대 링의 상면은 0.43 m, 닫힌 덮개는 그 위 두께 0.025 m다. 좌대와 덮개 경첩은 뒤쪽 끝에 있다. 시트 덮개는 뒤쪽 가로 경첩 피벗 `seat-lid`를 갖지만 방 문서가 여닫는 사용을 예약하지 않으므로 기준 상태는 닫힘이고 이 인터페이스만 남긴다. 표면 id는 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)에 따라 `ceramic`, `toilet-seat`, `lid`, `handle`이다.
 
 국소 원점은 물탱크 뒤쪽 바닥 중앙이고 +Z는 앉는 방향이다. 탱크는 Z = [0, 0.20] m, 도기 발은 Z = [0.28, 0.63] m, 그릇은 Z = [0.28, 0.73] m, 앞끝 0.75 m까지는 0.02 m 도기 테가 차지한다. 좌대 링과 덮개는 각각 가로 0.38 m·앞뒤 0.45 m로 그릇 위에 놓고, 덮개의 뒤쪽 피벗은 Z = 0.28 m다. 물탱크 뚜껑은 0.50 × 0.20 × 0.04 m, 세척 레버는 탱크 앞면 왼쪽 X = -0.18 m·Y = 0.68 m에 중심을 둔 0.08 × 0.015 × 0.015 m 막대로 앞끝 Z = 0.215 m다.
 
@@ -143,14 +143,14 @@
 ## 욕조 겸 샤워 {#bathtub}
 <!--
 @evidence principles/core/common.md#scope-preservation 욕조 욕실 예약 안의 욕조 겸 샤워 하나를 외피 상자·앞치마 판·가장자리 테·욕조 속·수전·샤워 기둥·헤드로 맡고 물과 배수는 제외한다.
-@evidence principles/core/common.md#substantive-completion 폭 0.80 m, 길이 1.80 m, 높이 0.55 m, 가장자리 테 폭 0.06 m, 바닥 위 0.15 m까지 파인 욕조 속, 테 위 0.15 m 수전, 바닥 위 1.90 m까지 오르는 샤워 기둥을 정한다.
+@evidence principles/core/common.md#substantive-completion 외곽 1.80×0.80×0.55 m, 테 0.06 m, 바닥 두께 0.15 m, 내부 모서리 반지름 0.08 m, 앞치마 두께 0.03 m와 수전·기둥·헤드 지름·길이·높이를 본문 값으로 정한다.
 @evidence principles/core/common.md#declared-basis 외곽 치수를 방 문서 예약 X = [4.70, 5.50]·Z = [-8.70, -6.90]·가장자리 0.55 m에서 읽고, 수전이 로컬 -X 끝인 근거를 yaw -π/2 변환과 world -Z 뒤쪽 끝으로 댄다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 방 예약 상자 위에 앞치마 면 +Z, 배치 yaw -π/2, 둥근 모서리 욕조 속이라는 모델 결정을 더한다.
-@evidence principles/design/models.md#representation-contract 부품 일곱과 테 안쪽의 둥근 모서리 욕조 속이라는 음의 공간, 표면 id `ceramic`, `faucet`을 정하고 물과 배수는 표현하지 않는다.
+@evidence principles/design/models.md#representation-contract 외피·앞치마·테·둥근 모서리의 속 공간·수전·기둥·헤드 일곱 부품 층과 표면 id `ceramic`, `faucet`을 정하고 물과 배수는 표현하지 않는다.
 @evidence principles/design/models.md#spatial-convention 배치 yaw -π/2에서 로컬 +Z가 world -X, 로컬 +X가 world +Z이므로 수전이 있는 뒤쪽 끝(world -Z)이 로컬 -X 끝이라고 적는다.
 @evidence principles/design/models.md#reviewable-structure 측면에서 가장자리 0.55 m가, 정면에서 수전이 뒤쪽 끝에 있는지가 욕조를 반증할 관찰이다.
 @evidence principles/design/models.md#model-observable-style-basis 라벨 없이 앞치마 판, 폭 0.06 m 테, 둥근 모서리 욕조 속이라는 실루엣 결정만 두고 마감은 표면 id `ceramic`으로 남긴다.
-@evidence principles/design/models.md#model-scale-layer-completion 길이 1.80 m와 가장자리 0.55 m, 일곱 부품 계층, 물·배수 비표현, unverified 관찰 두 가지가 함께 욕조 블로킹을 결정한다.
+@evidence principles/design/models.md#model-scale-layer-completion 외피·앞치마·테·속 공간의 벽 두께와 모서리 반지름, 수전·기둥·헤드의 단면·위치, 물·배수 비표현과 unverified 관찰 두 가지를 적어 원형의 저작 치수를 닫는다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 욕조 욕실 예약 X = [4.70, 5.50]·Z = [-8.70, -6.90]·가장자리 0.55 m를 외곽으로 그대로 받았고 이 H2가 방 문서 값을 바꿀 필요가 없어 부모 수정이 없었다.
 @evidence spaces/rooms/tub-bath.md#tub-fixture-use 욕조 욕실 예약 X = [4.70, 5.50], Z = [-8.70, -6.90], 상층 바닥 위 가장자리 0.55 m를 폭 0.80 m·길이 1.80 m·높이 0.55 m 외곽으로 소비한다.
 @evidence settings/10-house.md#tub-bathroom 욕조 욕실 설정의 욕조 겸 샤워와 욕조 가장자리·샤워 수전을 폭 0.06 m 테, 뒤쪽 끝 수전, 바닥 위 1.90 m까지 오르는 샤워 기둥과 헤드로 제공한다.
@@ -160,14 +160,16 @@
 
 욕조는 [욕조 욕실 예약](../spaces/rooms/tub-bath.md#tub-fixture-use)의 X = [4.70, 5.50], Z = [-8.70, -6.90], 상층 바닥 위 가장자리 0.55 m를 외곽으로 받아 폭 0.80 m, 길이 1.80 m, 높이 0.55 m다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르며 +Z는 앞치마 면이다. 배치 yaw는 -π/2이고 이때 로컬 +Z는 world -X, 로컬 +X는 world +Z이므로 수전이 있는 뒤쪽 끝(world -Z)은 로컬 -X 끝이다.
 
-부품은 외피 상자, 앞치마 판, 가장자리 테, 욕조 속, 수전, 샤워 기둥, 헤드다. 가장자리 테는 폭 0.06 m, 욕조 속은 테 안쪽에서 바닥 위 0.15 m까지 파인 둥근 모서리 공간이다. 수전은 뒤쪽 끝 벽면 가운데 테 위 0.15 m, 샤워 기둥과 헤드는 같은 끝에서 바닥 위 1.90 m까지 오른다. 표면 id는 `ceramic`, `faucet`이다. 물과 배수는 표현하지 않는다.
+부품 층은 외피, 앞치마, 가장자리 테, 욕조 속 빈 공간, 수전, 샤워 기둥, 헤드 일곱이다. 국소 X는 긴 방향 [-0.90,0.90] m, Z는 뒤에서 앞까지 [0,0.80] m, Y는 바닥에서 테 위 0.55 m다. 안쪽 구멍은 X=[-0.84,0.84], Z=[0.06,0.74] m이고 바닥은 Y=0.15 m에서 닫혀 바닥 두께가 0.15 m 남는다. 안쪽 평면 네 모서리는 반지름 0.08 m의 사분원을 각 여덟 동일 각도 구간으로 표본화하며 끝 접선은 직선 구간에 잇는다. 테의 수평 띠 폭은 사방 0.06 m, 두께는 Y=[0.52,0.55] m의 0.03 m다. 앞치마는 외피 앞 Z=[0.77,0.80] m를 차지하는 두께 0.03 m의 닫힌 판이고 나머지 외피와 한 경계에서 닿는다. 뒤·양옆·앞의 물받이 벽은 안쪽 구멍과 바깥 외곽 사이의 실체로 남으며, 테와 욕조 속의 윗면·옆면·바닥과 앞치마의 모든 노출 면은 `ceramic`이다.
+
+수전은 뒤쪽 끝 로컬 X=-0.87 m, 가로 중앙 Z=0.40 m, 테 위 0.15 m인 Y=0.70 m에 지름 0.08 m·두께 0.02 m의 원판을 중심으로 둔다. 지름 0.025 m 토출관은 원판에서 욕조 안쪽 +X로 0.12 m 뻗어 끝 X=-0.75 m에 닿는다. 같은 X=-0.87 m에서 지름 0.025 m 샤워 기둥이 Y=0.70–1.875 m로 오르고, 끝에서 +X로 0.18 m 뻗는 같은 지름의 팔이 지름 0.14 m·두께 0.025 m 헤드를 받친다. 헤드의 위끝은 Y=1.90 m, 아래면은 1.875 m다. 원판·관·기둥·팔·헤드의 닫힌 모든 면은 `faucet`이다. 원형은 물·배수·급수관 내부를 만들지 않는다.
 
 소스 owner는 `src/models/furnishings/bathrooms.ts`다. 관찰은 측면에서 가장자리 0.55 m, 정면에서 수전이 뒤쪽 끝에 있는지다. 모든 관찰은 unverified다.
 
 ## 욕조 커튼 레일과 커튼 {#tub-curtain-rail}
 <!--
 @evidence principles/core/common.md#scope-preservation 욕조 위 커튼 레일, 앞쪽 매달림 봉, 커튼 판과 `curtain-open` 매개변수를 맡고 천장 높이는 방 owner에서 받는다고 경계를 둔다.
-@evidence principles/core/common.md#substantive-completion 레일 지름 0.025 m·길이 1.80 m·높이 2.05 m, 매달림 봉 지름 0.02 m, 레일 아래 0.03 m부터 바닥 위 0.60 m까지 내려오는 두께 0.01 m 커튼 판을 정한다.
+@evidence principles/core/common.md#substantive-completion 레일 지름 0.025 m·길이 1.80 m·높이 2.05 m, 매달림 봉 지름 0.02 m, 레일 중심 2.05 m를 감싼 윗단부터 바닥 위 0.60 m까지 내려오는 두께 0.01 m 커튼 판을 정한다.
 @evidence principles/core/common.md#declared-basis 레일은 욕조 전면에서 물 쪽 0.04 m의 부모 예약 안에 있고 길이 1.80 m는 욕조 길이와 같아 출처가 추적된다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 방 문서의 레일 위치와 높이 위에 앞쪽 매달림 봉 지지, 네 번 꺾인 판 주름, `curtain-open` 범위 1.80–0.25 m라는 모델 결정을 더한다.
 @evidence principles/design/models.md#representation-contract 레일·매달림 봉·커튼 판의 부품과 표면 id `rail`, `rod`, `curtain`을 정하고 걷은 상태의 주름을 네 번 꺾인 판으로 제한한다.
@@ -186,7 +188,7 @@
 
 커튼 레일은 [방 문서](../spaces/rooms/tub-bath.md#tub-fixture-use)가 예약한 욕조 앞면에서 물 쪽으로 0.04 m 들어간 선을 따라 욕조 길이 1.80 m 전체에 놓인다. [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)의 예외로 선형 부재이므로 원점을 뒤쪽 벽에 닿는 레일 끝의 높이 2.05 m 점에 두고 +Z를 레일 방향으로 둔다. 배치 yaw는 욕조의 긴 축과 맞추되 world 좌표는 방 owner에게서 계산한다. 레일은 지름 0.025 m, 길이 1.80 m이며 앞쪽 끝은 천장까지 내려오는 지름 0.02 m 매달림 봉으로 받친다. 천장 높이는 방 owner에서 받는다.
 
-커튼은 레일 아래 0.03 m부터 바닥 위 0.60 m까지 내려오는 두께 0.01 m의 판이고 매개변수 `curtain-open`이 펼친 길이를 1.80 m에서 0.25 m까지 바꾼다. 걷은 상태에서는 뒤쪽 끝 0.25 m 안에 모이며 이때 주름을 네 번 꺾인 판으로 표현한다. 레일의 모든 면은 `rail`, 천장에 닿는 받침봉은 `rod`, 커튼의 양면과 절단 끝은 `curtain`이다. 걷은 네 접힘의 욕조 전면 법선 변위는 각 절점에서 0, +0.015, 0, -0.015, 0 m이고 천 두께 0.01 m를 더해도 중심선에서 ±0.02 m여서 부모의 폭 0.10 m 띠 안에 머문다. 레일·봉의 UV는 길이 U·둘레 V, 커튼은 긴 방향 U·높이 V를 미터로 둔다. 소스 owner는 `src/models/furnishings/bathrooms.ts`다. 관찰은 펼친 상태와 걷은 상태의 사선 투시에서 커튼이 욕조 사용 범위로 늘어지지 않는지다. 모든 관찰은 unverified다.
+커튼은 레일 중심 2.05 m를 감싼 윗단부터 바닥 위 0.60 m까지 내려오는 두께 0.01 m의 판이고 매개변수 `curtain-open`이 펼친 길이를 1.80 m에서 0.25 m까지 바꾼다. 걷은 상태에서는 뒤쪽 끝 0.25 m 안에 모이며 이때 주름을 네 번 꺾인 판으로 표현한다. 레일의 모든 면은 `rail`, 천장에 닿는 받침봉은 `rod`, 커튼의 양면과 절단 끝은 `curtain`이다. 걷은 네 접힘의 욕조 전면 법선 변위는 각 절점에서 0, +0.015, 0, -0.015, 0 m이고 천 두께 0.01 m를 더해도 중심선에서 ±0.02 m여서 부모의 폭 0.10 m 띠 안에 머문다. 레일·봉의 UV는 길이 U·둘레 V, 커튼은 긴 방향 U·높이 V를 미터로 둔다. 소스 owner는 `src/models/furnishings/bathrooms.ts`다. 관찰은 펼친 상태와 걷은 상태의 사선 투시에서 커튼이 욕조 사용 범위로 늘어지지 않는지다. 모든 관찰은 unverified다.
 
 ## 두 욕실의 얇은 바닥 매트 {#bath-floor-mats}
 <!--
@@ -205,7 +207,7 @@
 @evidence obligations/design/models.md#addressable-model-decisions 욕실 매트를 도기·유리와 다른 H2에 둬 얇은 덮개가 기구로 계산되지 않게 한다.
 -->
 
-레퍼런스 02·05의 욕실 매트를 채택한다. [샤워 욕실 대기](../spaces/rooms/shower-bath.md#shower-fixture-use)의 0.90 × 0.60 m 바닥에는 0.65 × 0.45 m 매트 하나를 중심에 놓아 양쪽 0.125 m·앞뒤 0.075 m를 남긴다. [욕조 앞 사용](../spaces/rooms/tub-bath.md#tub-fixture-use)의 1.05 × 1.55 m 바닥에는 0.80 × 0.45 m 매트 하나를 욕조 긴 면에 평행하게 놓아 폭 방향 양끝 0.125 m를 남긴다. 둘 다 두께 0.008 m이고 둘레 0.04 m 띠 `border`와 안쪽 `field`가 상·하·절단면을 서로 겹치지 않게 덮는다. 접지 바닥 중심이 원점, 긴 방향 국소 X·짧은 방향 Z이며 UV는 국소 X/Z 미터다. 물의 흡수·미끄럼 저항·실제 바닥 배수는 주장하지 않는다. source owner는 `src/models/furnishings/bathrooms.ts`; 실제 기구 충돌·GPU 읽힘은 unverified다.
+레퍼런스 02·05의 욕실 매트를 채택한다. [샤워 욕실 대기](../spaces/rooms/shower-bath.md#shower-fixture-use)의 0.90 × 0.60 m 바닥에는 0.65 × 0.45 m 매트 하나를 중심에 놓아 양쪽 0.125 m·앞뒤 0.075 m를 남긴다. [욕조 앞 사용](../spaces/rooms/tub-bath.md#tub-fixture-use)의 1.05 × 1.55 m 바닥에는 0.80 × 0.45 m 매트 하나를 욕조 긴 면인 사용 영역의 1.55 m 방향에 매트 긴변 0.80 m를 평행하게 놓아 양끝 (1.55−0.80)/2 = 0.375 m를, 1.05 m 방향에는 짧은 변 0.45 m를 놓아 양쪽 (1.05−0.45)/2 = 0.30 m를 남긴다. 둘 다 두께 0.008 m이고 둘레 0.04 m 띠 `border`와 안쪽 `field`가 상·하·절단면을 서로 겹치지 않게 덮는다. 접지 바닥 중심이 원점, 긴 방향 국소 X·짧은 방향 Z이며 UV는 국소 X/Z 미터다. 물의 흡수·미끄럼 저항·실제 바닥 배수는 주장하지 않는다. source owner는 `src/models/furnishings/bathrooms.ts`; 실제 기구 충돌·GPU 읽힘은 unverified다.
 
 ## 샤워 벽감 안의 용기 {#shower-niche-bottles}
 <!--
