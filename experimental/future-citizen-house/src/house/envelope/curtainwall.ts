@@ -3,6 +3,7 @@
  * returns, the interfloor spandrel cassette and the fixed lower louvres.
  * n grows outward from the cut plane C; s is a member's own section axis. */
 import { Assembly, rectangle } from "../assembly";
+import { entryApproach } from "../plan";
 import { bar, position, type Frame } from "../walls";
 import { heightRegion, putMesh } from "../metric-solid";
 import type { Glazing } from "./facade";
@@ -78,7 +79,9 @@ export function curtainwall(a: Assembly, f: Frame, w: Glazing): string | null {
  * outside; verticals own the full cut height, horizontals end between them. */
 function reveal(a: Assembly, f: Frame, w: Glazing): void {
   const u0 = w.a - 0.04, u1 = w.b + 0.04, y0 = w.sill - 0.04, y1 = w.head + 0.04;
-  for (const [side, t, n0, n1] of [["in", 0.004, -0.120, -0.070], ["out", 0.006, 0.070, 0.120]] as const) {
+  // A storey-owned window (the stair void) has no room lining: stop at the bare wall face.
+  const inner = w.room.endsWith("-storey") ? -0.114 : -0.120;
+  for (const [side, t, n0, n1] of [["in", 0.004, inner, -0.070], ["out", 0.006, 0.070, 0.120]] as const) {
     block(a, f, w.id + "-reveal-" + side + "-a", w.room, "metal", u0, u0 + t, y0, y1, n0, n1);
     block(a, f, w.id + "-reveal-" + side + "-b", w.room, "metal", u1 - t, u1, y0, y1, n0, n1);
     block(a, f, w.id + "-reveal-" + side + "-head", w.room, "metal", u0 + t, u1 - t, y1 - t, y1, n0, n1);
@@ -130,7 +133,10 @@ export function louvre(a: Assembly, f: Frame, w: Glazing): void {
   const S = w.sill, F = Math.min(w.head, S + 1.25), L = F - S - 0.08;
   const k = Math.ceil(L / 0.08 - 1e-9), p = L / k, H = (j: number) => S + 0.04 + (j + 0.5) * p;
   const centres = centresOf(w), id = w.id + "-louvre";
+  // A bay whose blades would drip onto the front entry approach gets no louvre.
+  const bays = centres.slice(0, -1).map((m, i) => f.id !== "front-face" || centres[i + 1] - 0.012 <= entryApproach[0] || m + 0.012 >= entryApproach[1]);
   for (const [i, m] of centres.entries()) {
+    if (!bays[i - 1] && !bays[i]) continue;
     block(a, f, id + "-support-" + i, "house", "metal", m - 0.009, m + 0.009, S + 0.02, F - 0.02, 0.190, 0.215);
     for (const [name, y] of [["low", S + 0.04 + p - 0.017], ["high", S + 0.04 + (k - 1) * p - 0.017]] as const) {
       block(a, f, id + "-arm-" + i + "-" + name, "house", "metal", m - 0.009, m + 0.009, y - 0.009, y + 0.009, 0.070, 0.190);
@@ -141,6 +147,7 @@ export function louvre(a: Assembly, f: Frame, w: Glazing): void {
   const n = (x: number, z: number) => ((f.along === "x" ? z : x) - f.plane) * f.normal;
   const lo = f.plane + 0.215 * f.normal, hi = f.plane + 0.285 * f.normal;
   for (let i = 0; i < centres.length - 1; i++) {
+    if (!bays[i]) continue;
     const u0 = centres[i] + 0.012, u1 = centres[i + 1] - 0.012;
     const plan = f.along === "x" ? rectangle(u0, u1, Math.min(lo, hi), Math.max(lo, hi)) : rectangle(Math.min(lo, hi), Math.max(lo, hi), u0, u1);
     for (let j = 0; j < k; j++) {

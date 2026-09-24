@@ -20,6 +20,8 @@ export const rooms: readonly Room[] = [
   { id: "upper-service", level: 1, cells: [[-5.26, -1.42, -5.76, -1.98], [-5.26, -3.02, -1.98, -0.32]], finish: "plaster" },
 ];
 export const stairHole: Rect = [-1.24, 1.58, -5.64, -1.8];
+/** The front entry approach band (spaces/001#site-access): x=1.30..2.90. */
+export const entryApproach: [number, number] = [1.30, 2.90];
 /** The four exterior wall strips between the outline and the inner clear face;
  * the long front/rear strips carry the corner squares. */
 export const exteriorWallZone = (): [string, Rect][] => [

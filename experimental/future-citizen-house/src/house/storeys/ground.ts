@@ -1,10 +1,13 @@
 /** Ground storey owns its structure, finished floor and first-storey ceiling. */
 import type { Assembly } from "../assembly";
 import { exteriorWallZone, portals, type Rect } from "../plan";
+/** Grade is y=-0.45 (spaces/001#site-access); the foundation is buried 0.15m
+ * below it so the plinth face -0.45..0 meets the ground on the outline. */
+const foundationBottom = -0.60;
 import { ceiling, finishDepth, floorFinish, horizontal, slabTop, subtract } from "./floors";
 import { partitions } from "./partitions";
 export function ground(a: Assembly): void {
-  horizontal(a, "ground-foundation", "ground-storey", -0.3, slabTop(0), "stone", false);
+  horizontal(a, "ground-foundation", "ground-storey", foundationBottom, slabTop(0), "stone", false);
   // The floor finish exists only in room cells. Under the exterior walls the
   // foundation is built up to the ground floor, except where a door threshold
   // already fills the wall depth.

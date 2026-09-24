@@ -71,7 +71,7 @@
 @evidenceReview contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements #d31488d 외부 세 단차는 한 현관으로만 이어지고 내부 꺾임계단을 대체하지 않는다. 임시 장비·cart의 예약면을 별동·브리지나 두 번째 주택 출입 동선으로 만들지 않았다.
 -->
 
-[작은 앞마당의 납품 범위](../settings/001-production.md#delivery-scope)를 site id citizen-site로 배정하며 본채 house를 포함한다. [좌표 관례](../settings/003-spatial-basis.md#coordinate-datum)를 따른다. broad world·주변 건물·공공 교통망은 만들지 않는다. x=-7.80..7.80, z=-8.50..8.50m의 15.60×17.00m 경계를 이번 저작 치수로 채택한다. 지면 기준 y=-0.45m이며 본채의 위치·외곽과 층 datum은 [매스와 층](002-spatial-graph.md#mass-and-storeys)을 소비한다. 이 치수는 측량값이나 기존 산출물 유지 판정이 아니다.
+[작은 앞마당의 납품 범위](../settings/001-production.md#delivery-scope)를 site id citizen-site로 배정하며 본채 house를 포함한다. [좌표 관례](../settings/003-spatial-basis.md#coordinate-datum)를 따른다. broad world·주변 건물·공공 교통망은 만들지 않는다. x=-7.80..7.80, z=-8.50..8.50m의 15.60×17.00m 경계를 이번 저작 치수로 채택한다. 지면 기준 y=-0.45m이며 본채의 위치·외곽과 층 datum은 [매스와 층](002-spatial-graph.md#mass-and-storeys)을 소비한다. 대지 지면은 본채 외곽 밖에서 끝나 [1층 owner](002-spatial-graph.md#ground-level)의 plinth 외면에 y=-0.45로 맞닿고 본채 아래로 이어지지 않는다. 지면 위 부재(현관 tread·landing, 후면 포장)는 지면에서 자기 상면까지 채워 떠 있지 않다. 이 치수는 측량값이나 기존 산출물 유지 판정이 아니다.
 
 전면 보도는 z=-8.50..-7.70m이고, 현관 접근은 x=1.30..2.90m의 폭으로 z=-7.70에서 [출입문](002-spatial-graph.md#front-entry)까지 이어진다. z=-7.44..-7.12의 첫 tread 상단은 y=-0.30, z=-7.12..-6.80의 둘째는 y=-0.15, z=-6.80..-6.00의 문 앞 landing은 y=0이다. 각 rise 0.15m의 세 단계가 지면과 현관을 잇는다. 마지막 landing은 문 구멍을 통해 현관 바닥에 닿고 식재를 놓지 않는다. 이 도착 경로는 [접근성 납품의 구분](../settings/004-observation.md#accessibility-products)에 따라 실물 무장애 인증이나 경사로의 대체물이 아니다.
 

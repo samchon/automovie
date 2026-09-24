@@ -59,7 +59,7 @@
 @evidenceReview contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements #d31488d 1층의 모든 room을 ground-storey에 배정하고 상층 연결을 single-stair에 남긴다. 층 귀속이 없는 방이나 별도 계단으로 향하는 구조를 1층의 다른 표현으로 허용하지 않는다.
 -->
 
-storey id ground-storey는 house의 자식이며 [매스와 층 datum](#mass-and-storeys)의 1층 바닥·천장을 사용한다. [1층 분할](#ground-partition)의 다섯 방이 이 층에 속하고 [단일 계단](#single-stair)이 2층에 연결한다. slab의 실내 노출 바닥·천장과 구조 partition은 층 owner가 전부 소유한다. 방 owner는 같은 수평 마감을 덧씌우지 않는다. [전수 검증](#stage-one-verification)에서 room parent와 cell의 층 밖 돌출, 벽 실체, slab 충돌을 검사한다.
+storey id ground-storey는 house의 자식이며 [매스와 층 datum](#mass-and-storeys)의 1층 바닥·천장을 사용한다. [1층 분할](#ground-partition)의 다섯 방이 이 층에 속하고 [단일 계단](#single-stair)이 2층에 연결한다. slab의 실내 노출 바닥·천장과 구조 partition은 층 owner가 전부 소유한다. 방 owner는 같은 수평 마감을 덧씌우지 않는다. 층 owner의 기초는 본채 외곽 x=-5.50..5.50, z=-6.00..6.00 전체를 y=-0.60부터 1층 구조 상면 -0.016까지 채우고, 외벽 두께 구간에서는 -0.016..0의 bearing ring이 입면 아래 끝까지 잇는다. [대지 지면](001-citizen-house.md#site-access) y=-0.45 위로 드러나는 -0.45..0의 외곽 면이 plinth이며 그 면도 층 owner가 입면과 같은 외곽 평면에서 소유한다. 기초가 지면보다 0.15m 깊게 묻혀 본채가 지면에 닿는다. 이전에는 기초가 -0.30에서 끝나 지면과 0.15m 틈이 둘레 전체에 열려 있었다(2026-09-24 외피 설계 판정 F2). [전수 검증](#stage-one-verification)에서 room parent와 cell의 층 밖 돌출, 벽 실체, slab 충돌을 검사한다.
 
 ## 2층 {#upper-level}
 

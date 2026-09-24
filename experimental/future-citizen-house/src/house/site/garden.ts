@@ -15,12 +15,14 @@ import { extrudeAutoMovieRegion, transformAutoMovieMesh, Quaternion } from "@aut
 import { Assembly, rectangle, v, yaw } from "../assembly";
 import { circle, heightRegion, putMesh } from "../metric-solid";
 import { subtract } from "../storeys/floors";
-import type { Rect } from "../plan";
+import { datum, entryApproach, type Rect } from "../plan";
 export function garden(a: Assembly): void {
   const r = "citizen-site";
   const cuts: Rect[] = [[-6.10, -5.55, -0.30, 0.30], [-7.8, -5.8, -7.3, 7.3], [5.8, 7.8, -7.3, 7.3], [-4.3, -2.8, -8.5, -6.3], [-7.8, 7.8, -8.5, -7.7]];
   let ground: Rect[] = [[-7.8, 7.8, -8.5, 8.5]];
   for (const cut of cuts) ground = ground.flatMap(piece => subtract(piece, cut));
+  // Grade stops at the house outline and meets the plinth; it never runs under the house.
+  ground = ground.flatMap(piece => subtract(piece, [datum.minX, datum.maxX, datum.minZ, datum.maxZ]));
   for (const [i, p] of ground.entries()) a.box("site-ground-" + i, r, "soil", (p[0] + p[1]) / 2, -0.58, (p[2] + p[3]) / 2, p[1] - p[0], 0.26, p[3] - p[2]);
   // Flush access bands are cut around the catch pit, never painted over it.
   for (const side of [-1, 1]) {
@@ -31,9 +33,11 @@ export function garden(a: Assembly): void {
   catchPit(a);
   for (const [i, p] of subtract([-7.8, 7.8, -8.5, -7.7], cuts[3]).entries()) a.box("site-sidewalk-" + i, r, "stone", (p[0] + p[1]) / 2, -0.5, -8.1, p[1] - p[0], 0.10, 0.8);
   a.box("site-curb", r, "stone", 0, -0.49, -8.49, 15.6, 0.12, 0.1);
-  for (let i = 0; i < 2; i++) a.box("approach-tread-" + i, r, "stone", 2.1, -0.45 + (i + 1) * 0.15 - 0.075, -7.28 + i * 0.32, 1.6, 0.15, 0.32);
-  a.box("approach-landing", r, "stone", 2.1, -0.15, -6.4, 1.6, 0.3, 0.8);
-  a.box("rear-paving", r, "stone", 0, -0.12, 6.65, 11.6, 0.16, 1.3);
+  // Every piece above grade is solid down to the grade at y=-0.45.
+  const [ax0, ax1] = entryApproach, ax = (ax0 + ax1) / 2, aw = ax1 - ax0;
+  for (let i = 0; i < 2; i++) { const top = -0.45 + (i + 1) * 0.15; a.box("approach-tread-" + i, r, "stone", ax, (top - 0.45) / 2, -7.28 + i * 0.32, aw, top + 0.45, 0.32); }
+  a.box("approach-landing", r, "stone", ax, -0.225, -6.4, aw, 0.45, 0.8);
+  a.box("rear-paving", r, "stone", 0, -0.245, 6.65, 11.6, 0.41, 1.3);
   a.environment.surfaces.push({ space: r, surface: { id: "site-walk", kind: "floor", polygon: [v(-7.8, 0, -8.5), v(7.8, 0, -8.5), v(7.8, 0, 8.5), v(-7.8, 0, 8.5)], height: { kind: "constant", value: -0.45 } } });
   a.environment.surfaces.push({ space: r, surface: { id: "entry-approach-landing", kind: "floor", polygon: [v(1.3, 0, -6.8), v(2.9, 0, -6.8), v(2.9, 0, -6), v(1.3, 0, -6)], height: { kind: "constant", value: 0 } } });
   for (let side = -1; side <= 1; side += 2) for (let i = 0; i < 24; i++) {

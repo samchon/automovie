@@ -33,7 +33,8 @@ export function facade(a: Assembly, f: Frame, windows: Glazing[], extraCuts: Ret
 }
 function glazing(a: Assembly, f: Frame, w: Glazing): void {
   const first = curtainwall(a, f, w);
-  bar(a, f, w.id + "-drip", w.room, "stone", (w.a + w.b) / 2, w.sill - 0.055, w.b - w.a + 0.12, 0.03, 0.28, 0.025 * f.normal);
+  // The drip runs n=-0.110..0.165: its inner end stays 0.004 inside the wall body.
+  bar(a, f, w.id + "-drip", w.room, "stone", (w.a + w.b) / 2, w.sill - 0.055, w.b - w.a + 0.12, 0.03, 0.275, 0.0275 * f.normal);
   const centres = centresOf(w);
   for (let i = 0; i < centres.length - 1; i++) {
     const left = centres[i] + 0.02, right = centres[i + 1] - 0.02;
