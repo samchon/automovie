@@ -53,7 +53,7 @@ viewer-path의 한국어 설명과 키보드 조작은 설계 요구이며 이�
 -->
 
 <!--
-@evidenceReview obligations/core/common.md#proportionate-development #78feb28 현재 27파일·45 H2의 생성 표 아홉 행에서 후퇴벽 주소와 보조 관찰을 더한 openings·observations의 분량까지 self-check 출력으로 다시 대조했다. v-077의 26파일·37 H2와 줄어든 두 지붕·불변 여섯 파일·새 site 비교는 본문에 남고 변하는 현행 분량은 표에서 읽는다.
+@evidenceReview obligations/core/common.md#proportionate-development #78feb28 본문의 27파일·45 H2와 아홉 표 행은 `npm run self-check -- --sync-accounts --handoffs` 출력과 일치해 불일치 0이다. 마지막 수정이 반영된 openings 6945자·observations 10165자도 그 출력에서 재생성했으며 v-077의 26파일·37 H2 비교는 별도 문단에 남는다.
 -->
 
 비교 기준은 21×20.5m 단층, 같은 층의 아홉 공간, 네 외측 입면, 하나의 주랑, 여섯 roof 문서가 다루는 외피와 그 둘레의 국소 대지다. 이 숫자는 authored 설계의 분포이며 compiled census가 아니다. 현재는 27파일/45 H2다. 아래 문자 수는 해당 Markdown에서 HTML 주석·제목 줄·공백 문자를 제거한 본문의 유니코드 코드 포인트 수이며 `npm run self-check`가 같은 방식으로 파일마다 출력한다. 링크/표 표기 문자는 남겼으므로 독자용 어절 수나 geometry 양으로 읽지 않는다. evidence 문장이 길어져 생긴 분량은 이 비교에 포함하지 않았다.
@@ -61,13 +61,13 @@ viewer-path의 한국어 설명과 키보드 조작은 설계 요구이며 이�
 | 역할 | 파일/H2 | 파일별 본문 문자 수 |
 | --- | --- | --- |
 | building·storey | 2/7 | 3578·3143 |
-| openings·junctions·circulation | 3/8 | 6564·4705·1869 |
+| openings·junctions·circulation | 3/8 | 6945·4705·1869 |
 | 남·북·서·동 입면 | 4/4 | 1326·887·824·820 |
 | 현관·중정·주랑 | 3/3 | 1744·978·1693 |
 | 제실·봉헌실 | 2/2 | 733·646 |
 | 관리실·기록실·보관실·마당 | 4/4 | 624·580·577·960 |
 | assembly·sanctuary·west·east·porch·colonnade roof | 6/7 | 2194·944·909·936·650·1488 |
-| ownership·observations | 2/4 | 3860·8378 |
+| ownership·observations | 2/4 | 3860·10165 |
 | site | 1/6 | 5518 |
 
 주랑과 현관이 다른 방보다 긴 이유는 각각 구멍 있는 합집합과 구간별 계단 바닥을 따로 결정하기 때문이다. 가장 짧은 porch roof도 두 지지선·앞끝 돌출·후퇴벽 위 뒤끝·삼각 막음의 소유·하부 관찰을 갖는다. site는 범위·지면 식·구획표·connector·배치 구역·능선을 여섯 H2로 나눠 결정하므로 건물 한 문서보다 길다. 반대로 observations는 topology 전집합, 반환 pose의 한계, 실제 문턱/접합/지면, 전송 경계를 모두 책임져 단일 대표 view 설명으로 줄일 수 없다. 동일한 골격의 일반 방보다 이 인터페이스들에 상세가 집중된 것은 납품 효과에 맞는다.

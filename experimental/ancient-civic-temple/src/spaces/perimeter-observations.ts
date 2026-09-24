@@ -90,7 +90,7 @@ const fitDistance = (width: number): number => (width / 0.78) / 2 / (Math.tan(25
  * @evidence spaces/observations.md#geometry-observations 실제 census의 노출 입면과 opening profile에서 외부 시점을 유도한다.
  * @evidence principles/core/source-units.md#source-scope-preservation 현재 boundary와 opening을 읽고 외부 시점만 만들며 입면이나 창을 다시 저작하지 않는다.
  * @evidence principles/core/source-units.md#source-substantive-completion setting, 입면, 네 모서리·지붕·처마 하부, 외부 개구부를 안정 ID의 관찰 목록으로 반환한다.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work observations.md#geometry-observations의 census 외부 관찰을 그대로 옮겼고 이 함수를 분리하면서 추가 부모 결정을 요구하지 않았다.
+ * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work observations.md#geometry-observations에서 후퇴벽 낮은 네 면의 기본 pose가 벽 반대편을 향하는 결함을 먼저 고치고, 안타 끝·포치 박공 양면의 새 입면 관찰을 정한 뒤 그 규칙을 구현한다.
  */
 export const exteriorObservations = (environment: IAutoMovieBuiltEnvironment): TempleObservation[] => {
   const census = builtEnvironmentBuildingCensus(environment)[0];
@@ -111,6 +111,11 @@ export const exteriorObservations = (environment: IAutoMovieBuiltEnvironment): T
     const returnOuterUpper = face.boundary.startsWith("boundary-entrance-return-") && face.boundary.endsWith(".outer-upper");
     const entryEndUpper = /^boundary-entry\.(west|east)-end\.upper$/.test(face.boundary);
     const entrySideUpper = /^boundary-entry\.(west|east)-side\.upper$/.test(face.boundary);
+    const entryEndLower = /^boundary-entry\.(west|east)-end$/.test(face.boundary);
+    const entrySideLower = /^boundary-entry\.(west|east)-side$/.test(face.boundary);
+    const streetEnd = /^boundary-entrance-return-(west|east)\.street-end$/.test(face.boundary);
+    const pedimentFront = face.boundary === "boundary-porch-pediment.front";
+    const pedimentBack = face.boundary === "boundary-porch-pediment.back";
     const returnSide = face.boundary.includes("west") ? -1 : 1;
     out.push({
       id: `exterior.facade.${face.boundary}`, group: "exterior", space: null, role: "facade",
@@ -123,6 +128,16 @@ export const exteriorObservations = (environment: IAutoMovieBuiltEnvironment): T
         x: face.centroid.x, y: 5.7, z: p.entranceBack - 4,
       } : entrySideUpper ? {
         x: returnSide * 5.0, y: 5.8, z: p.entranceBack - 2,
+      } : entryEndLower ? {
+        x: face.centroid.x, y: 1.6, z: (p.courtBack + p.courtFront) / 2,
+      } : entrySideLower ? {
+        x: returnSide * 4.2, y: 1.4, z: (p.entranceBack + p.entranceFront) / 2,
+      } : streetEnd ? {
+        x: face.centroid.x, y: 2.6, z: p.southOuter + 4,
+      } : pedimentFront ? {
+        x: 0, y: 4.8, z: p.southOuter + 4,
+      } : pedimentBack ? {
+        x: 0, y: 3.3, z: p.southInner - 0.35,
       } : {
         x: face.centroid.x + outward.x * distance, y: elevated ? face.centroid.y + 0.8 : eye + 0.6,
         z: face.centroid.z + outward.z * distance,

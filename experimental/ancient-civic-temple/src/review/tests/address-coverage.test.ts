@@ -1,6 +1,36 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { pointInOutline, rayTriangle } from "../address-coverage";
+import type { IAutoMovieBuiltEnvironment } from "@automovie/interface";
+import { identityTransform, surfaceModel } from "../../geometry/model-parts";
+import { rectanglePolygon } from "../../geometry/planar-domain";
+import { levelCell } from "../../geometry/spatial-cells";
+import { wallFaces, type WallSpec } from "../../geometry/wall-solids";
+import { addressCoverageCensus, pointInOutline, rayTriangle } from "../address-coverage";
+import { exposedAddressExceptionFor, exposedAddressExceptions } from "../address-exceptions";
+import { ownFacadeFailures, type OwnFacadeRow } from "../own-facade-view";
+
+const wall: WallSpec = {
+  id: "wall.fixture", owner: "fixture", axis: "x", bottom: 0,
+  plan: rectanglePolygon({ west: 0, east: 1, north: 0, south: 0.2 }),
+  segments: [{ from: 0, to: 1, low: "surface.inner", high: "surface.outer",
+    top: { kind: "flat", height: 1, surface: "surface.top" } }],
+  voids: [],
+};
+const fixture = (addressed: boolean): IAutoMovieBuiltEnvironment => {
+  const model = surfaceModel("model.wall.fixture", "fixture", wallFaces(wall, []));
+  return {
+    models: [model], elements: [{ id: "element.wall.fixture", model: model.id,
+      transform: identityTransform(), parent: null, space: "site" }],
+    spaces: [{ id: "temple-site", kind: "site", parent: null, fidelity: "exact",
+      cells: [levelCell("site", { west: -1, east: 2, north: -1, south: 2 }, -1, 2)] }],
+    boundaries: addressed ? [{ id: "address", kind: "exterior-wall", spaces: ["temple-site"],
+      elements: ["element.wall.fixture"], face: { origin: { x: 0.5, y: 0, z: 0.1 },
+        rotation: { x: 0, y: 0, z: 0, w: 1 }, thickness: 0.2,
+        outline: [{ x: -0.5, y: 0 }, { x: 0.5, y: 0 }, { x: 0.5, y: 1 }, { x: -0.5, y: 1 }] } }] : [],
+  } as unknown as IAutoMovieBuiltEnvironment;
+};
+const solids = [{ group: wall.id, polygon: wall.plan,
+  bottom: { x: 0, z: 0, constant: 0 }, top: { x: 0, z: 0, constant: 1 } }];
 
 void test("address polygon includes convex interior and excludes exterior", () => {
   const square = [{ x: 0, y: 0 }, { x: 2, y: 0 }, { x: 2, y: 2 }, { x: 0, y: 2 }];
@@ -23,4 +53,38 @@ void test("ray reaches a two-sided emitted face, and an open edge has no hit", (
   assert.equal(rayTriangle({ x: 0.25, y: 0.25, z: -1 }, { x: 0, y: 0, z: 1 }, triangle), 1);
   assert.equal(rayTriangle({ x: 0.8, y: 0.8, z: 1 }, { x: 0, y: 0, z: -1 }, triangle), null);
   assert.equal(rayTriangle({ x: 0.25, y: 0.25, z: 1 }, { x: 1, y: 0, z: 0 }, triangle), null);
+});
+
+void test("emitted exposed wall loses its address when the boundary is removed", () => {
+  const addressed = addressCoverageCensus(fixture(true), [wall], solids);
+  const removed = addressCoverageCensus(fixture(false), [wall], solids);
+  assert.ok(addressed.emitted > 0);
+  assert.ok(addressed.covered > 0);
+  assert.ok(removed.covered < addressed.covered);
+  assert.ok(removed.unexpected > addressed.unexpected);
+});
+
+void test("junction exceptions are restricted to their named wall, face, interval and height", () => {
+  assert.equal(exposedAddressExceptions.length, 17);
+  for (const entry of exposedAddressExceptions) {
+    const middle = (entry.from + entry.to) / 2;
+    const sample = { x: entry.axis === "x" ? middle : 0, y: Math.max(4, entry.minY ?? 0),
+      z: entry.axis === "z" ? middle : 0 };
+    assert.ok(exposedAddressExceptionFor(entry.wall, entry.face, sample));
+    assert.equal(exposedAddressExceptionFor(`${entry.wall}.absent`, entry.face, sample), undefined);
+    const outside = { ...sample, [entry.axis]: entry.to + 0.02 };
+    assert.equal(exposedAddressExceptionFor(entry.wall, entry.face, outside), undefined);
+    if (entry.minY !== undefined) {
+      assert.equal(exposedAddressExceptionFor(entry.wall, entry.face, { ...sample, y: entry.minY - 0.01 }), undefined);
+    }
+  }
+});
+
+void test("a camera with no visible own side fails even when the opposite side is visible", () => {
+  const row: OwnFacadeRow = { id: "fixture", sides: [
+    { sign: 1, cameraSide: true, sampled: 10, visible: 0, ratio: 0 },
+    { sign: -1, cameraSide: false, sampled: 10, visible: 10, ratio: 1 },
+  ] };
+  assert.deepEqual(ownFacadeFailures([row]), ["fixture"]);
+  assert.deepEqual(ownFacadeFailures([{ ...row, sides: [{ ...row.sides[0]!, visible: 5, ratio: 0.5 }] }]), []);
 });

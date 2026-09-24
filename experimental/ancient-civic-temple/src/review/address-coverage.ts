@@ -1,12 +1,14 @@
 /** Samples emitted wall triangles from the geometry side, including faces without any boundary address. */
-import { Quaternion, tessellateToMesh } from "@automovie/engine";
+import { builtSpaceContainsPoint, Quaternion, tessellateToMesh } from "@automovie/engine";
 import type { IAutoMovieBuiltEnvironment, IAutoMovieVector3 } from "@automovie/interface";
 import type { WallSpec } from "../geometry/wall-solids";
+import { exposedAddressExceptionFor, exposedAddressExceptions, type AddressException } from "./address-exceptions";
+import { solidsContaining, type ScanSolid } from "./envelope-overlaps";
 
 type Point = IAutoMovieVector3;
 export interface Triangle { a: Point; b: Point; c: Point; element: string; part: string; minY: number; maxY: number; minX: number; maxX: number; minZ: number; maxZ: number }
-export interface AddressCoverageRow { wall: string; face: number; emitted: number; covered: number; uncovered: number; skyOpen: number; surfaces: string[] }
-export interface AddressCoverage { step: number; emitted: number; covered: number; uncovered: number; skyOpen: number; rows: AddressCoverageRow[] }
+export interface AddressCoverageRow { wall: string; face: number; emitted: number; covered: number; uncovered: number; skyOpen: number; exposed: number; excepted: number; unexpected: number; surfaces: string[] }
+export interface AddressCoverage { step: number; emitted: number; covered: number; uncovered: number; skyOpen: number; exposed: number; excepted: number; unexpected: number; rows: AddressCoverageRow[]; exceptions: Array<AddressException & { samples: number }> }
 
 export const rayTriangle = (o: Point, d: Point, { a, b, c }: Pick<Triangle, "a" | "b" | "c">): number | null => {
   const e1 = { x: b.x - a.x, y: b.y - a.y, z: b.z - a.z };
@@ -62,7 +64,7 @@ export const emittedTriangles = (environment: IAutoMovieBuiltEnvironment): Trian
 };
 
 /** Every emitted wall plan edge is sampled, even if the authored boundary collection omits it. */
-export const addressCoverageCensus = (environment: IAutoMovieBuiltEnvironment, walls: readonly WallSpec[], step = 0.1): AddressCoverage => {
+export const addressCoverageCensus = (environment: IAutoMovieBuiltEnvironment, walls: readonly WallSpec[], solids: readonly ScanSolid[], step = 0.1): AddressCoverage => {
   if (!(step > 0 && step <= 0.1)) throw new Error("address coverage: step must be in (0, 0.1] m");
   const tris = emittedTriangles(environment);
   const bucketSize = 0.5;
@@ -80,7 +82,9 @@ export const addressCoverageCensus = (environment: IAutoMovieBuiltEnvironment, w
   const skyBlocked = (point: Point): boolean => (buckets.get(`${Math.floor(point.x / bucketSize)},${Math.floor(point.z / bucketSize)}`) ?? [])
     .some((triangle) => triangle.maxY >= point.y && rayTriangle(point, { x: 0, y: 1, z: 0 }, triangle) !== null);
   const rows: AddressCoverageRow[] = [];
-  let emitted = 0, covered = 0, skyOpen = 0;
+  const exceptionCounts = new Map<AddressException, number>(exposedAddressExceptions.map((entry) => [entry, 0]));
+  let emitted = 0, covered = 0, skyOpen = 0, exposed = 0, excepted = 0, unexpected = 0;
+  const locatedSpaces = environment.spaces.filter((space) => space.cells.length > 0);
   for (const wall of walls) {
     const element = `element.${wall.id}`;
     const own = byElement.get(element) ?? [];
@@ -102,7 +106,7 @@ export const addressCoverageCensus = (environment: IAutoMovieBuiltEnvironment, w
       const midpoint = { x: (a.x + b.x) / 2, z: (a.z + b.z) / 2 };
       if ((midpoint.x - cx) * normal.x + (midpoint.z - cz) * normal.z < 0) normal = { x: -normal.x, z: -normal.z };
       const candidates = own.filter((t) => Math.abs(((t.a.x + t.b.x + t.c.x) / 3 - a.x) * normal.x + ((t.a.z + t.b.z + t.c.z) / 3 - a.z) * normal.z) < 0.02);
-      let faceEmitted = 0, faceCovered = 0, faceSky = 0;
+      let faceEmitted = 0, faceCovered = 0, faceSky = 0, faceExposed = 0, faceExcepted = 0, faceUnexpected = 0;
       const surfaces = new Set<string>();
       for (let distance = step / 2; distance < length; distance += step) {
         for (let height = Math.ceil(minY / step) * step + step / 2; height < maxY; height += step) {
@@ -121,12 +125,28 @@ export const addressCoverageCensus = (environment: IAutoMovieBuiltEnvironment, w
           });
           if (addressed) { covered++; faceCovered++; continue; }
           surfaces.add(emittedPart.part);
-          if (!skyBlocked({ x: point.x + normal.x * 0.1, y: point.y, z: point.z + normal.z * 0.1 })) { skyOpen++; faceSky++; }
+          const front = { x: point.x + normal.x * 0.02, y: point.y, z: point.z + normal.z * 0.02 };
+          const far = { x: point.x + normal.x * 0.05, y: point.y, z: point.z + normal.z * 0.05 };
+          const sky = !skyBlocked({ x: point.x + normal.x * 0.1, y: point.y, z: point.z + normal.z * 0.1 });
+          if (sky) { skyOpen++; faceSky++; }
+          if (solidsContaining(solids, front).length > 0) continue;
+          const spaces = locatedSpaces.filter((space) => builtSpaceContainsPoint(space, far));
+          if (!spaces.some((space) => space.id === "temple-site") && !(spaces.length === 0 && sky)) continue;
+          exposed++; faceExposed++;
+          const exception = exposedAddressExceptionFor(wall.id, faceIndex, point);
+          if (exception !== undefined) {
+            excepted++; faceExcepted++;
+            exceptionCounts.set(exception, exceptionCounts.get(exception)! + 1);
+          } else {
+            unexpected++; faceUnexpected++;
+          }
         }
       }
       rows.push({ wall: wall.id, face: faceIndex, emitted: faceEmitted, covered: faceCovered,
-        uncovered: faceEmitted - faceCovered, skyOpen: faceSky, surfaces: [...surfaces].sort((a, b) => a.localeCompare(b)) });
+        uncovered: faceEmitted - faceCovered, skyOpen: faceSky, exposed: faceExposed, excepted: faceExcepted,
+        unexpected: faceUnexpected, surfaces: [...surfaces].sort((a, b) => a.localeCompare(b)) });
     }
   }
-  return { step, emitted, covered, uncovered: emitted - covered, skyOpen, rows };
+  return { step, emitted, covered, uncovered: emitted - covered, skyOpen, exposed, excepted, unexpected, rows,
+    exceptions: exposedAddressExceptions.map((entry) => ({ ...entry, samples: exceptionCounts.get(entry)! })) };
 };

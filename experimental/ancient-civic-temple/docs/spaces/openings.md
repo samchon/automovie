@@ -16,16 +16,16 @@
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 spine·가로벽의 문 양면과 지붕 띠, 후퇴벽 중앙과 두 끝 칸의 주랑 쪽 면·옆면, 반환벽의 경사 상부·바깥 자유 끝에 경계 주소를 둔다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 boundary ID와 local XY void 외에 여섯 일정 높이 절단, 후퇴벽 두 끝 칸의 북면과 옆면, 두 반환벽의 경사 교차·바깥·자유 끝 구간을 정해 source의 인접 관계 재선택을 막는다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 여섯 수평 절단은 이웃 지붕 상면·마당 상한 3.20m, 반환벽은 주랑 12° 상면과 포치 지붕 하부의 교차를 따른다. 후퇴벽 끝 칸의 3.614~4.690m 하늘 노출도 기록한다.
-@evidenceReview principles/design/spaces.md#space-topology #3f8d925 반환벽은 교차점~남측 내벽까지 두 공간, 남측 내벽~외벽은 현관 한 공간이다. 후퇴벽 끝 칸 북면·옆면은 주랑 한 공간이므로 주소를 더해도 방·직접 문·주랑 루프 수는 바뀌지 않는다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 여섯 일정 높이 host, 후퇴벽 끝 칸의 북면·옆면, 반환벽의 경사·자유 끝은 기존 벽 host의 주소만 나눈다. 반환벽 실체와 파라펫 양면은 남측 입면 owner에 남는다.
-@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 반환벽의 상부 노출과 포치 안쪽 자유 끝, 후퇴벽 두 끝 칸의 노출 북면·옆면을 각 입면 주소에서 검사한다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 깊은 문과 실제 구멍은 boundary profile·절단 프리즘으로, 후퇴벽 끝 칸의 노출과 반환벽의 0.159m 띠·9.65~10.25m 자유 끝은 별도 host 주소로 구체화한다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 후퇴벽 끝 칸과 반환벽의 높은 띠·자유 끝에 같은 물리 host의 주소만 더하고 현관/주랑의 중앙 문, 박공·reveal·순환은 그대로다.
-@evidenceReview settings/20-envelope.md#openings #4053d90 같은 host/profile을 양면 절단과 깊은 reveal에 쓰며, 후퇴벽 끝 칸·반환벽의 노출 주소는 문·창 수를 늘리지 않는다. 제실 채광창은 낮은 방의 문턱이 아니다.
-@evidenceReview obligations/design/spaces.md#space-envelope-interface #4b397de 여섯 수평 상부, 후퇴벽 끝 칸의 북면·옆면, 반환벽 경사 상부·자유 끝은 기존 물리 host의 주소이며 별도 벽 실체를 만들지 않는다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 문 양면과 지붕 띠, 후퇴벽 중앙·양끝, 반환벽 상부·자유 끝, 거리 쪽 안타 끝면 둘과 포치 박공 양면을 기존 host에 빠짐없이 주소화한다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 여섯 높이 절단, 후퇴벽 북면과 옆면의 서로 다른 지붕 최고점, 반환벽 경사 교차·자유 끝, 안타·박공의 host ID와 공간 결속을 본문이 정한다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 이웃 지붕 상면·마당 상한 3.20m와 반환벽의 12° 상면을 절단 근거로 쓴다. 후퇴벽 북면 노출은 3.614m부터, 옆면 노출은 최고점 3.678m부터다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 반환벽의 두 공간/한 공간 구간과 후퇴벽 끝 칸의 주랑 한 공간 구간을 구별한다. 안타·박공 외부 주소는 방·직접 문·순환 루프를 추가하지 않는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 후퇴벽·반환벽·안타·박공의 새 경계는 기존 물리벽에 붙는다. 박공·반환벽의 실체와 완결 표면은 남측 입면 owner가 계속 소유한다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 지붕 위 반환벽·후퇴벽 끝 칸과 포치 자유 끝·거리 쪽 안타·박공 양면을 각자 다른 노출면 주소와 관찰 질문으로 남긴다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 문은 절단 profile, 반환벽의 0.159m 띠는 경사 분할 host, 후퇴벽 양끝·안타·박공 양면은 한 공간 경계로 구체화한다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 노출면 주소와 북면·옆면 절단 높이만 바로잡았다. 중앙 문 연결, 박공의 물리 막음, reveal 형상과 한 주랑 루프는 상위 결정을 유지한다.
+@evidenceReview settings/20-envelope.md#openings #4053d90 노출면 경계를 보탰어도 문·창 수와 같은 host/profile의 양면 절단은 유지한다. 제실 채광창을 낮은 방의 문턱으로 세지 않는다.
+@evidenceReview obligations/design/spaces.md#space-envelope-interface #4b397de 여섯 상부 host·반환벽·후퇴벽 북면/옆면·안타·박공 경계는 기존 물리벽의 주소이고 두 번째 벽 실체가 아니다.
 -->
 
 [공유 기준선](building.md#plan-datums)이 두께와 접면을 정하고 이 파일은 각 물리 경계의 ID·인접 관계·void를 소유한다. 외벽 실체는 해당 입면 source가 만들고 내부벽 실체는 `src/spaces/boundaries.ts`가 만든다. 방 파일은 그 벽의 자기 쪽 표면을 참조할 뿐 두 번째 벽을 생성하지 않는다. 같은 벽에 뚫린 문·창은 이 경계의 절단 결과를 내·외부에서 함께 쓴다. 문짝이나 틀을 붙였다고 void가 생겼다고 세지 않는다.
@@ -36,7 +36,9 @@
 
 일정 높이에서 나누는 여섯 host는 제실의 세 벽, 주랑/마당 동측 spine, 현관 후퇴벽, 마당/보관실 북쪽 끝벽이다. `boundary-sanctuary-south`는 북쪽 주랑 외쪽 지붕 상면(north-ring에서 약 3.65m) 아래의 제실/주랑 경계이고 그 위는 `boundary-sanctuary-south.upper`다. `boundary-west-spine.sanctuary`는 서측 외쪽 지붕 상면(west-room에서 약 3.71m) 아래의 봉헌실/제실 경계이고 위는 `boundary-west-spine.sanctuary-upper`다. `boundary-east-spine.sanctuary`는 마당 논리 상한 3.20m 아래의 제실/마당 경계이고 위는 `boundary-east-spine.sanctuary-upper`다. `boundary-east-spine.yard`는 같은 3.20m 아래의 주랑/마당 경계이고 그 위는 `boundary-east-spine.yard-upper`다. `boundary-entry`는 후퇴벽의 주랑 쪽 외쪽 지붕 상면 아래의 현관/주랑 경계이고 위는 `boundary-entry.upper`다. `boundary-yard-storage`는 3.20m 아래의 마당/보관실 경계이고 위는 `boundary-yard-storage.upper`다.
 
-두 반환벽 각각은 현관 앞벽 Z=8.35m부터 남측 외벽 Z=10.25m까지다. 후퇴벽 가까이에서는 포치 공간 상한 약 3.838m가 남쪽 주랑 지붕 상면보다 높다. Z≈8.395m의 주랑 지붕 상면 약 3.688m와의 차는 약 0.150m이며 1cm 탐침에서 최대 약 0.159m의 주랑 쪽 노출 띠가 생긴다. `boundary-entrance-return-{west|east}`는 Z=8.35m부터 주랑 지붕 상면이 포치 공간 상한에 닿는 교차점(약 Z=9.1m)까지 남쪽 주랑 지붕의 12° 상면 선 아래의 현관/주랑 경계다. 같은 물리 host의 선 위는 `boundary-entrance-return-{west|east}.upper`로 현관 쪽 외부 향이다. 교차점부터 남측 외벽 안쪽 Z=9.65m까지 아래는 `boundary-entrance-return-{west|east}.outer`로 두 공간에, 포치 쪽 공간 상한 위는 `.outer-upper`로 주랑 쪽 외부 향에 결속한다. Z=9.65~10.25m의 자유 끝은 주랑 부피가 닿지 않아 `boundary-entrance-return-{west|east}.front`로 각각 현관 한 공간에 결속하며 열린 포치 쪽에서 관찰한다. 후퇴벽 북면의 X=-1.65~1.65m 중앙은 현관/주랑의 `boundary-entry`, 지붕 위는 현관 한 공간의 `boundary-entry.upper`다. 양끝 X=-1.95~-1.65m와 +1.65~+1.95m는 남면만 반환벽에 닿는다. 북면과 X=±1.95m의 옆면은 주랑에 열리고 지붕 위 약 3.614~4.690m가 하늘에 노출되므로 각 끝의 `boundary-entry.{west|east}-end`와 `.upper`, 옆면 `boundary-entry.{west|east}-side`와 `.upper`에 주랑 한 공간으로 결속한다. 같은 물리 후퇴벽 host의 정면·옆면만 주소를 나누며 별도 벽을 만들지 않는다. 교차점은 고정 숫자가 아니라 실제 포치 지붕 하부와 주랑 지붕 상면의 교점에서 유도한다. 반환벽 상단 4.690m까지의 파라펫은 포치 지붕 상면 약 4.04m 위에서도 양쪽이 하늘에 노출된다. 이 벽의 실체와 파라펫 양면은 남측 입면 owner를 유지하고, 각 위쪽 boundary와 양면 입면 관찰은 [관찰 소유](observations.md#geometry-observations)가 맡는다.
+두 반환벽 각각은 현관 앞벽 Z=8.35m부터 남측 외벽 Z=10.25m까지다. 후퇴벽 가까이에서는 포치 공간 상한 약 3.838m가 남쪽 주랑 지붕 상면보다 높다. Z≈8.395m의 주랑 지붕 상면 약 3.688m와의 차는 약 0.150m이며 1cm 탐침에서 최대 약 0.159m의 주랑 쪽 노출 띠가 생긴다. `boundary-entrance-return-{west|east}`는 Z=8.35m부터 주랑 지붕 상면이 포치 공간 상한에 닿는 교차점(약 Z=9.1m)까지 남쪽 주랑 지붕의 12° 상면 선 아래의 현관/주랑 경계다. 같은 물리 host의 선 위는 `boundary-entrance-return-{west|east}.upper`로 현관 쪽 외부 향이다. 교차점부터 남측 외벽 안쪽 Z=9.65m까지 아래는 `boundary-entrance-return-{west|east}.outer`로 두 공간에, 포치 쪽 공간 상한 위는 `.outer-upper`로 주랑 쪽 외부 향에 결속한다. Z=9.65~10.25m의 자유 끝은 주랑 부피가 닿지 않아 `boundary-entrance-return-{west|east}.front`로 각각 현관 한 공간에 결속하며 열린 포치 쪽에서 관찰한다. 후퇴벽 북면의 X=-1.65~1.65m 중앙은 현관/주랑의 `boundary-entry`, 지붕 위는 현관 한 공간의 `boundary-entry.upper`다. 양끝 X=-1.95~-1.65m와 +1.65~+1.95m는 남면만 반환벽에 닿는다. 북면과 X=±1.95m의 옆면은 주랑에 열리고 북면은 지붕 위 약 3.614~4.690m, 옆면은 지붕 최고점 위 약 3.678~4.690m가 하늘에 노출되므로 각 끝의 `boundary-entry.{west|east}-end`와 `.upper`, 옆면 `boundary-entry.{west|east}-side`와 `.upper`에 주랑 한 공간으로 결속한다. 같은 물리 후퇴벽 host의 정면·옆면만 주소를 나누며 별도 벽을 만들지 않는다. 교차점은 고정 숫자가 아니라 실제 포치 지붕 하부와 주랑 지붕 상면의 교점에서 유도한다. 반환벽 상단 4.690m까지의 파라펫은 포치 지붕 상면 약 4.04m 위에서도 양쪽이 하늘에 노출된다. 이 벽의 실체와 파라펫 양면은 남측 입면 owner를 유지하고, 각 위쪽 boundary와 양면 입면 관찰은 [관찰 소유](observations.md#geometry-observations)가 맡는다.
+
+후퇴벽의 양 끝 옆면은 Z=8.05~8.35m를 따라 주랑 지붕 상면이 약 3.614~3.678m로 올라간다. 따라서 북면에 쓴 3.614m를 옆면에 복제하지 않고 그 면을 따라 가장 높은 3.678m에서 `boundary-entry.{west|east}-side`와 `.upper`를 나눈다. 반환벽 두 개의 거리 쪽 끝면(Z=10.25m, X=±1.65~±1.95m)은 `boundary-entrance-return-{west|east}.street-end`로, 포치 박공 막음의 앞면(Z=10.25m)과 뒷면(Z=10.05m)은 `boundary-porch-pediment.{front|back}`으로 각각 한 공간 입면 주소를 둔다. 이 네 주소는 남측 입면이 이미 소유한 물리벽의 노출 면에 붙고 안타·박공을 두 번째 벽으로 만들지 않는다.
 
 나뉜 경계는 같은 물리 벽의 주소이며 벽 실체와 완결 표면의 소유는 바뀌지 않는다. 위쪽 경계는 공간이 하나이므로 외부 입면·외부 개구부와 같은 방식으로 관찰되고, 그 경계의 개구부는 아래쪽 방의 threshold를 만들지 않는다.
 

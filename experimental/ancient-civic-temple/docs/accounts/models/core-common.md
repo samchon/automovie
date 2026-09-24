@@ -46,11 +46,11 @@ settings의 [작업 언어](../../settings/00-delivery.md#working-language)에 �
 | entablature.md | 5 | 3654 |
 | openings.md | 4 | 3016 |
 | wares.md | 6 | 2436 |
-| landscape.md | 4 | 2889 |
+| landscape.md | 4 | 3286 |
 | scale.md | 3 | 1764 |
 | columns.md | 2 | 1732 |
 | cladding.md | 2 | 1657 |
-| 합계 | 36 | 22613 |
+| 합계 | 36 | 23010 |
 
 재생성 전 원본은 작업 트리에 없지만 Git `111dba96^:experimental/ancient-civic-temple/docs/models/temple-fit-out.md`에 남아 있다. 현재 계정의 `modelDocumentBodyLength`와 같은 방식으로 해당 blob의 HTML 주석·공백을 빼고 제목을 포함해 다시 세면 한 파일·17 H2·14,799자다. 그 H2 목록에는 `Column prototype`, `Door prototype`, `Roof tile prototype`이 각각 한 번씩 있어 당시 기둥·문짝·기와를 한 절로 묶은 기록도 확인된다. 현재 판은 문틀·양개·외개·창틀, 주랑·포치 원주, 평기와·용마루를 따로 두어 서로 다른 소비자와 변경 경로를 가진 결정이 각자 주소를 가진다.
 

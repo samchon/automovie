@@ -169,6 +169,7 @@ export const createTempleEnvironment = () => {
   const southUpper = roofTopAlong(along(p.westRing, p.eastRing, p.northRing + 1e-3, "x"));
   const eastUpper = templeRoofRules.courtEave;
   const entryUpper = roofTopAlong(along(p.westPorchOuter, p.eastPorchOuter, p.entranceBack - 1e-3, "x"));
+  const entrySideUpper = roofTopAlong(along(p.entranceBack, p.entranceFront, p.westPorchOuter - 1e-3, "z"));
   const entryWall = wall("wall.facade-south.entry-back");
   const entryOutline = wallHostOutline(entryWall, roof, p.westPorchOuter, p.eastPorchOuter, p.entranceBack);
   const entryBottom = Math.min(...entryOutline.map((point) => point.y));
@@ -187,10 +188,37 @@ export const createTempleEnvironment = () => {
       face: {
         origin: { x: west ? (p.westPorchOuter + p.westPorchInner) / 2 : (p.eastPorchOuter + p.eastPorchInner) / 2, y: 0, z: 0 },
         rotation: { x: 0, y: west ? -Math.SQRT1_2 : Math.SQRT1_2, z: 0, w: Math.SQRT1_2 },
-        outline: clipOutlineAtHeight(outline, entryUpper, keep),
+        outline: clipOutlineAtHeight(outline, entrySideUpper, keep),
         thickness: p.eastPorchOuter - p.eastPorchInner,
       },
     };
+  };
+  const returnStreetEnd = (side: "west" | "east"): IAutoMovieBuiltBoundary => {
+    const west = side === "west";
+    const wallId = `wall.facade-south.return-${side}`;
+    const segment = wallHostOutline(wall(wallId), roof, p.southInner, p.southOuter,
+      west ? p.westPorch : p.eastPorch);
+    const bottom = Math.min(...segment.map((point) => point.y));
+    const top = Math.max(...segment.map((point) => point.y));
+    const x0 = west ? p.westPorchOuter : p.eastPorchInner;
+    const x1 = west ? p.westPorchInner : p.eastPorchOuter;
+    return {
+      id: `boundary-entrance-return-${side}.street-end`, kind: "exterior-wall",
+      spaces: ["entrance"], elements: [`element.${wallId}`],
+      face: {
+        origin: { x: 0, y: 0, z: (p.entranceFront + p.southOuter) / 2 },
+        rotation: { x: 0, y: 0, z: 0, w: 1 },
+        outline: [{ x: x0, y: bottom }, { x: x1, y: bottom },
+          { x: x1, y: top }, { x: x0, y: top }],
+        thickness: p.southOuter - p.entranceFront,
+      },
+    };
+  };
+  const pedimentFront = face(wall("wall.facade-south.pediment"), p.westPorchInner, p.eastPorchInner);
+  const pedimentBack: IAutoMovieBoundaryFace = {
+    ...pedimentFront,
+    rotation: { x: 0, y: 1, z: 0, w: 0 },
+    outline: pedimentFront.outline.map((point) => ({ x: -point.x, y: point.y })),
   };
   // At the two return walls the south canopy rises along Z. Its local roof top is lower
   // than the adjacent porch volume near entrance-front, even though its maximum is higher.
@@ -242,6 +270,11 @@ export const createTempleEnvironment = () => {
     entrySide("west", "below"), entrySide("west", "above"),
     entrySide("east", "below"), entrySide("east", "above"),
     ...returnBoundaries,
+    returnStreetEnd("west"), returnStreetEnd("east"),
+    { id: "boundary-porch-pediment.front", kind: "exterior-wall", spaces: ["entrance"],
+      elements: ["element.wall.facade-south.pediment"], face: pedimentFront },
+    { id: "boundary-porch-pediment.back", kind: "exterior-wall", spaces: ["entrance"],
+      elements: ["element.wall.facade-south.pediment"], face: pedimentBack },
     boundary("boundary-west-spine.sanctuary", ["offering", "sanctuary"], "wall.boundary-west-spine", [p.northInner, p.sanctuaryFront], { height: westUpper, keep: "below" }),
     boundary("boundary-west-spine.sanctuary-upper", ["sanctuary"], "wall.boundary-west-spine", [p.northInner, p.sanctuaryFront], { height: westUpper, keep: "above" }),
     boundary("boundary-west-spine.colonnade", ["offering", "colonnade"], "wall.boundary-west-spine", [p.northRing, p.southInner]),

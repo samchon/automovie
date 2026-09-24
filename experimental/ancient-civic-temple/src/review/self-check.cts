@@ -21,9 +21,9 @@ import { spaceAccountMismatches, spaceAccountRows, spaceDocumentBodyLength } fro
 import { replaceMeasuredTable } from "./account-sync";
 import { modelHandoffRows } from "./model-handoff-audit";
 import { addressCoverageCensus } from "./address-coverage";
+import { ownFacadeFailures } from "./own-facade-view";
 import { createTempleEnvironment } from "../spaces/environment";
-import { templeObservations } from "../spaces/observations";
-import { ownReturnFacadeViews } from "./own-facade-view";
+import { envelopeSolids } from "./envelope-overlaps";
 
 const { values } = parseArgs({ options: { grid: { type: "string", default: "0.01" }, retired: { type: "string", default: "" }, "sync-accounts": { type: "boolean", default: false }, handoffs: { type: "boolean", default: false } } });
 const grid = Number(values.grid);
@@ -45,6 +45,11 @@ for (const o of overlaps.pairs) {
 console.log(`observations: ${review.observations.count} (${review.observations.withoutPose} without pose); poses inside a solid: ${review.observations.buried.length}`);
 for (const line of review.observations.buried) console.log(`  ${line}`);
 console.log(`emitted wall address census: ${review.addressCoverage.emitted} samples at ${review.addressCoverage.step} m; ${review.addressCoverage.covered} addressed; ${review.addressCoverage.uncovered} unaddressed; ${review.addressCoverage.skyOpen} unaddressed sky-open`);
+console.log(`exposed wall address census: ${review.addressCoverage.exposed} exposed without facade address; ${review.addressCoverage.excepted} named junction exceptions; ${review.addressCoverage.unexpected} unexpected`);
+console.log(`named exception observations missing: ${review.missingExceptionObservations.length}${review.missingExceptionObservations.length === 0 ? "" : ` (${review.missingExceptionObservations.join(", ")})`}`);
+console.log(`named exception intervals sampled: ${review.addressCoverage.exceptions.filter((entry) => entry.samples > 0).length}/${review.addressCoverage.exceptions.length}`);
+for (const entry of review.addressCoverage.exceptions) console.log(`  exception ${entry.wall}#${entry.face} ${entry.axis} ${entry.from}..${entry.to}${entry.minY === undefined ? "" : ` above ${entry.minY}`}: ${entry.samples}; ${entry.observation}`);
+for (const row of review.addressCoverage.rows.filter((item) => item.unexpected > 0)) console.log(`  unexpected ${row.wall}#${row.face}: ${row.unexpected}`);
 for (const row of review.addressCoverage.rows.filter((item) => item.wall === "wall.facade-south.entry-back")) {
   console.log(`  ${row.wall} face ${row.face}: emitted ${row.emitted}, addressed ${row.covered}, unaddressed ${row.uncovered}, sky-open ${row.skyOpen}; surfaces ${row.surfaces.join(",")}`);
 }
@@ -54,14 +59,22 @@ const omittedEndAddresses = {
   ...addressControl.environment,
   boundaries: addressControl.environment.boundaries.filter((boundary) => !/^boundary-entry\.(west|east)-(end|side)/.test(boundary.id)),
 };
-const controlCoverage = addressCoverageCensus(omittedEndAddresses, addressControl.walls);
+const controlSolids = envelopeSolids({ walls: addressControl.walls, roof: addressControl.roof,
+  trim: addressControl.trim, floors: addressControl.floors.inputs });
+const controlCoverage = addressCoverageCensus(omittedEndAddresses, addressControl.walls, controlSolids);
+const omittedSouthAddress = { ...addressControl.environment,
+  boundaries: addressControl.environment.boundaries.filter((boundary) => boundary.id !== "boundary-south.colonnade-west") };
+const southControl = addressCoverageCensus(omittedSouthAddress, addressControl.walls, controlSolids);
 const targetSky = review.addressCoverage.rows.filter((row) => row.wall === "wall.facade-south.entry-back").reduce((sum, row) => sum + row.skyOpen, 0);
 const controlSky = controlCoverage.rows.filter((row) => row.wall === "wall.facade-south.entry-back").reduce((sum, row) => sum + row.skyOpen, 0);
-const addressControlFailed = targetSky !== 0 || controlSky <= targetSky;
-console.log(`entry-back geometry-side address: ${targetSky} unaddressed sky-open; omitted-end positive control ${controlSky}; ${addressControlFailed ? "FAIL" : "PASS"}`);
-const ownViews = ownReturnFacadeViews(addressControl.environment, templeObservations(addressControl.environment));
-console.log(`return-wall own facade views: ${ownViews.length} stations`);
-for (const row of ownViews) console.log(`  ${row.id}: ${row.visible}/${row.sampled} (${(row.ratio * 100).toFixed(1)}%)`);
+const addressControlFailed = targetSky !== 0 || controlSky <= targetSky ||
+  controlCoverage.unexpected <= review.addressCoverage.unexpected ||
+  southControl.unexpected <= review.addressCoverage.unexpected;
+console.log(`whole-envelope address gate: baseline unexpected ${review.addressCoverage.unexpected}; omitted-end control ${controlCoverage.unexpected} (sky ${controlSky}); omitted-south control ${southControl.unexpected}; ${addressControlFailed ? "FAIL" : "PASS"}`);
+console.log(`one-space own facade views: ${review.ownFacades.length} stations; ${ownFacadeFailures(review.ownFacades).length} below 50%`);
+for (const row of review.ownFacades) {
+  console.log(`  ${row.id}: ${row.sides.map((side) => `${side.cameraSide ? "camera" : "far"} ${side.visible}/${side.sampled} (${(side.ratio * 100).toFixed(1)}%)`).join("; ")}`);
+}
 console.log(`boundary upper census: ${review.boundaryUpper.length} boundaries; ${review.boundaryUpper.filter((row) => row.tested > 0).length} two-space hosts tested; ${review.boundaryUpper.reduce((sum, row) => sum + row.sampled, 0)} sampled / ${review.boundaryUpper.reduce((sum, row) => sum + row.tested, 0)} adjacent-volume stations; ${review.boundaryUpper.filter((row) => row.exposed > 0).length} unsplit upper bands`);
 for (const row of review.boundaryUpper) console.log(`  ${row.id}: ${row.sampled} sampled, ${row.tested} adjacent-volume stations, ${row.exposed} exposed, max band ${f3(row.maxBand)} m${row.maxAt === null ? "" : ` at u=${f3(row.maxAt.u)}, host=${f3(row.maxAt.hostTop)}, sides=${f3(row.maxAt.firstCap)}/${f3(row.maxAt.secondCap)}`}`);
 console.log(`opening frustum census: ${review.openingFrustum.length} compiled openings; ${review.openingFrustum.filter((row) => row.roomCenterVisible).length} room-facing centers visible; ${review.openingFrustum.filter((row) => row.completeProfileFramed).length} full profiles framed`);
