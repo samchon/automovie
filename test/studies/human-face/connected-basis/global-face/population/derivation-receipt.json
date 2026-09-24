@@ -1,0 +1,6279 @@
+{
+ "basis": "mpfb-connected-head-2026-09-24-brow-binding",
+ "recorded": "2026-09-24T07:18:39.595Z",
+ "method": [
+  "derive-face-documents.ts identity: population controls from subject-facts.json (facePopulationControls), fourteen frontal anthropometric indices solved one control each (faceAnthropometry, faceAnthropometrySolve) under each subject's portrait lens, on landmark-anchors-lens.json",
+  "derive-face-documents.ts expression: detector scores over the identity's own rest reading through expression-calibration.json (faceExpressionTransfer)",
+  "derive-face-documents.ts identity again with that expression, then once more with each index's target corrected by what the product render of the previous documents showed through the same detector"
+ ],
+ "identity": {
+  "alan-rickman": {
+   "population": {
+    "shape": {
+     "globalAgeStructure": 0.6153846153846154,
+     "globalSexualDimorphism": 1,
+     "europeanAncestry": 1
+    },
+    "ageHeld": false
+   },
+   "anthropometry": {
+    "faceHeight": {
+     "photograph": 1.0047910744091548,
+     "correction": 0.0131534109422774,
+     "model": 1.0179461656215891,
+     "control": 0.5568107842972823,
+     "held": false
+    },
+    "intercanthal": {
+     "photograph": 0.2483210780784153,
+     "correction": 0.020968959641776752,
+     "model": 0.2692900384930268,
+     "control": 0.5027266643089207,
+     "held": false
+    },
+    "fissureLength": {
+     "photograph": 0.180577083644638,
+     "correction": -0.002642303339031704,
+     "model": 0.1779347802511704,
+     "control": -0.43122353000289937,
+     "held": false
+    },
+    "fissureHeight": {
+     "photograph": 0.2583304289021224,
+     "correction": -0.025104440936392636,
+     "model": 0.23322623859078342,
+     "control": -0.040913604869528525,
+     "held": false
+    },
+    "noseWidth": {
+     "photograph": 0.3073436556490603,
+     "correction": 0.004980334414208032,
+     "model": 0.3123239904828988,
+     "control": 0.48841643084247516,
+     "held": false
+    },
+    "noseHeight": {
+     "photograph": 0.39420271569639315,
+     "correction": -0.003163397966944259,
+     "model": 0.39103867353847155,
+     "control": -0.6116266128322766,
+     "held": false
+    },
+    "mouthWidth": {
+     "photograph": 0.41913426967403944,
+     "correction": 0.04226904043290641,
+     "model": 0.46140368671754695,
+     "control": 0.1694359669058465,
+     "held": false
+    },
+    "upperVermilion": {
+     "photograph": 0.18455421994879226,
+     "correction": 0.004779989659024514,
+     "model": 0.17818908222584914,
+     "control": 1,
+     "held": true
+    },
+    "lowerVermilion": {
+     "photograph": 0.2700620530788889,
+     "correction": -0.004789839273749319,
+     "model": 0.265271982430577,
+     "control": 0.7442664902922774,
+     "held": false
+    },
+    "upperLip": {
+     "photograph": 0.32752238270314166,
+     "correction": -0.01932891128546299,
+     "model": 0.3081926360648916,
+     "control": 0.621166692970464,
+     "held": false
+    },
+    "lowerFaceWidth": {
+     "photograph": 0.7093998404596965,
+     "correction": -0.0006919097045192668,
+     "model": 0.7129752163580062,
+     "control": -1,
+     "held": true
+    },
+    "chinWidth": {
+     "photograph": 0.3468246601639784,
+     "correction": -0.007885993828827653,
+     "model": 0.339092176235427,
+     "control": 0.009106820472126293,
+     "held": false
+    },
+    "chinHeight": {
+     "photograph": 0.29473257960566984,
+     "correction": 0.005578650295848031,
+     "model": 0.30104429964207846,
+     "control": -1,
+     "held": true
+    },
+    "browHeight": {
+     "photograph": 0.7886000849026903,
+     "correction": -0.01637519275935373,
+     "model": 0.8014803668641922,
+     "control": -1,
+     "held": true
+    }
+   },
+   "iterations": 12
+  },
+  "daniel-radcliffe": {
+   "population": {
+    "shape": {
+     "globalAgeStructure": -1,
+     "globalSexualDimorphism": 1,
+     "europeanAncestry": 1
+    },
+    "ageHeld": false
+   },
+   "anthropometry": {
+    "faceHeight": {
+     "photograph": 0.8404675266189338,
+     "correction": -0.018504847766839583,
+     "model": 0.8219626788401461,
+     "control": 0.3992129174155449,
+     "held": false
+    },
+    "intercanthal": {
+     "photograph": 0.23028023382845017,
+     "correction": 0.0009345005975070764,
+     "model": 0.2312147346134424,
+     "control": 0.10709382206743581,
+     "held": false
+    },
+    "fissureLength": {
+     "photograph": 0.19824532265619532,
+     "correction": 0.016640958684185025,
+     "model": 0.2148862812446718,
+     "control": 0.32999385864746594,
+     "held": false
+    },
+    "fissureHeight": {
+     "photograph": 0.2694440041417273,
+     "correction": -0.028375157154889308,
+     "model": 0.24106884708249507,
+     "control": 0.10334294296148679,
+     "held": false
+    },
+    "noseWidth": {
+     "photograph": 0.3176720238953821,
+     "correction": 0.0020712508507340077,
+     "model": 0.3197432767842397,
+     "control": 0.03340679793043041,
+     "held": false
+    },
+    "noseHeight": {
+     "photograph": 0.43270410504704787,
+     "correction": 0.011612808136679309,
+     "model": 0.44431691308232224,
+     "control": 0.6027555578341938,
+     "held": false
+    },
+    "mouthWidth": {
+     "photograph": 0.47942754389387204,
+     "correction": -0.0026412898039049892,
+     "model": 0.4767862540872786,
+     "control": 0.474501999135801,
+     "held": false
+    },
+    "upperVermilion": {
+     "photograph": 0.13784681014996128,
+     "correction": 0.021720060562766222,
+     "model": 0.15659159088639113,
+     "control": 1,
+     "held": true
+    },
+    "lowerVermilion": {
+     "photograph": 0.2006194135708669,
+     "correction": 0.012216355347023755,
+     "model": 0.1770502774867158,
+     "control": 1,
+     "held": true
+    },
+    "upperLip": {
+     "photograph": 0.2745970103042221,
+     "correction": -0.007184257714999975,
+     "model": 0.26741278324528395,
+     "control": 0.2610212989086589,
+     "held": false
+    },
+    "lowerFaceWidth": {
+     "photograph": 0.7064928146494589,
+     "correction": 0,
+     "model": null,
+     "control": 0,
+     "held": false
+    },
+    "chinWidth": {
+     "photograph": 0.3314434804866375,
+     "correction": -0.012451808619871163,
+     "model": 0.3189916718426025,
+     "control": -0.9822312076326988,
+     "held": false
+    },
+    "chinHeight": {
+     "photograph": 0.29707888906188534,
+     "correction": -0.012851295144216568,
+     "model": 0.3043868473910309,
+     "control": -1,
+     "held": true
+    },
+    "browHeight": {
+     "photograph": 0.6739860159190958,
+     "correction": -0.09954861672747006,
+     "model": 0.5744373994543968,
+     "control": -0.4626363968811352,
+     "held": false
+    }
+   },
+   "iterations": 7
+  },
+  "emma-watson": {
+   "population": {
+    "shape": {
+     "globalAgeStructure": -0.08333333333333326,
+     "globalSexualDimorphism": -1,
+     "europeanAncestry": 1
+    },
+    "ageHeld": false
+   },
+   "anthropometry": {
+    "faceHeight": {
+     "photograph": 0.7765728023992988,
+     "correction": -0.016084777097342684,
+     "model": 0.760488025022076,
+     "control": -0.5921319135934625,
+     "held": false
+    },
+    "intercanthal": {
+     "photograph": 0.23524649084126623,
+     "correction": -0.016694351838377586,
+     "model": 0.21855213896604347,
+     "control": 0.240227692734796,
+     "held": false
+    },
+    "fissureLength": {
+     "photograph": 0.20200089668577845,
+     "correction": 0.01977098567009969,
+     "model": 0.2217718823847329,
+     "control": 0.4597397312988632,
+     "held": false
+    },
+    "fissureHeight": {
+     "photograph": 0.28722425279836883,
+     "correction": -0.05618443213794461,
+     "model": 0.2310398205680845,
+     "control": 0.7832689364561398,
+     "held": false
+    },
+    "noseWidth": {
+     "photograph": 0.2842228018855811,
+     "correction": -0.01104511047435558,
+     "model": 0.27317769143882004,
+     "control": -0.46368704198004257,
+     "held": false
+    },
+    "noseHeight": {
+     "photograph": 0.4529059315169277,
+     "correction": 0.04412977797441131,
+     "model": 0.4935454430645666,
+     "control": 1,
+     "held": true
+    },
+    "mouthWidth": {
+     "photograph": 0.3777722069955678,
+     "correction": -0.023642649654730896,
+     "model": 0.35412955717786504,
+     "control": -0.7470495449585617,
+     "held": false
+    },
+    "upperVermilion": {
+     "photograph": 0.10971702910118786,
+     "correction": -0.01428575729102359,
+     "model": 0.09682960315908137,
+     "control": -1,
+     "held": true
+    },
+    "lowerVermilion": {
+     "photograph": 0.20651379678037685,
+     "correction": -0.000024221781200872705,
+     "model": 0.20648957486790465,
+     "control": 0.4802326611582665,
+     "held": false
+    },
+    "upperLip": {
+     "photograph": 0.3101572126172943,
+     "correction": -0.030469482318774888,
+     "model": 0.2796882568430376,
+     "control": -0.4843966325895141,
+     "held": false
+    },
+    "lowerFaceWidth": {
+     "photograph": 0.6607130308578036,
+     "correction": 0,
+     "model": null,
+     "control": 0,
+     "held": false
+    },
+    "chinWidth": {
+     "photograph": 0.30917027780077366,
+     "correction": -0.01736499988113427,
+     "model": 0.3187750572047807,
+     "control": -1,
+     "held": true
+    },
+    "chinHeight": {
+     "photograph": 0.27694803561364706,
+     "correction": -0.008296989268527566,
+     "model": 0.26865103830155324,
+     "control": -0.558019867961548,
+     "held": false
+    },
+    "browHeight": {
+     "photograph": 0.5027664817328696,
+     "correction": -0.15670174280856297,
+     "model": 0.3794479699531184,
+     "control": -1,
+     "held": true
+    }
+   },
+   "iterations": 11
+  },
+  "generated-black-boy-01": {
+   "population": {
+    "shape": {
+     "globalAgeStructure": -0.8333333333333333,
+     "globalSexualDimorphism": 1,
+     "africanAncestry": 1
+    },
+    "ageHeld": false
+   },
+   "anthropometry": {
+    "faceHeight": {
+     "photograph": 0.8937650299840109,
+     "correction": -0.013246907298164023,
+     "model": 0.8805181226316102,
+     "control": 0.6948129994405987,
+     "held": false
+    },
+    "intercanthal": {
+     "photograph": 0.2616551198486066,
+     "correction": 0.010111048210826812,
+     "model": 0.271766168000765,
+     "control": 0.7449343806428707,
+     "held": false
+    },
+    "fissureLength": {
+     "photograph": 0.2091546064973437,
+     "correction": 0.0058865107158208585,
+     "model": 0.21504111719063718,
+     "control": 0.21351027358512825,
+     "held": false
+    },
+    "fissureHeight": {
+     "photograph": 0.25643228582395106,
+     "correction": 0.006834867233007497,
+     "model": 0.26326715308885873,
+     "control": 0.5383172540383251,
+     "held": false
+    },
+    "noseWidth": {
+     "photograph": 0.3719742286128989,
+     "correction": 0.015459916649022576,
+     "model": 0.3874341453211727,
+     "control": 0.6881468419846313,
+     "held": false
+    },
+    "noseHeight": {
+     "photograph": 0.3945755762721483,
+     "correction": -0.018006091653518908,
+     "model": 0.37656948467004087,
+     "control": -0.7438006275594904,
+     "held": false
+    },
+    "mouthWidth": {
+     "photograph": 0.5104699469810574,
+     "correction": -0.0010892921656726617,
+     "model": 0.5093806549560412,
+     "control": 0.5153036071061267,
+     "held": false
+    },
+    "upperVermilion": {
+     "photograph": 0.18800449502269317,
+     "correction": 0.04453103182954182,
+     "model": 0.1955504691720035,
+     "control": 1,
+     "held": true
+    },
+    "lowerVermilion": {
+     "photograph": 0.2614344430179731,
+     "correction": 0.03491168776039413,
+     "model": 0.2282953935958467,
+     "control": 1,
+     "held": true
+    },
+    "upperLip": {
+     "photograph": 0.3496559272529734,
+     "correction": 0.012408733327421761,
+     "model": 0.3620646761934076,
+     "control": 0.31584195388361697,
+     "held": false
+    },
+    "lowerFaceWidth": {
+     "photograph": 0.6632227860624601,
+     "correction": -0.04523811248591014,
+     "model": 0.6806610688791976,
+     "control": -1,
+     "held": true
+    },
+    "chinWidth": {
+     "photograph": 0.331310599286525,
+     "correction": -0.0380099523796355,
+     "model": 0.32876941720099906,
+     "control": -1,
+     "held": true
+    },
+    "chinHeight": {
+     "photograph": 0.24441705871817723,
+     "correction": -0.01693588340284008,
+     "model": 0.2656392236779016,
+     "control": -1,
+     "held": true
+    },
+    "browHeight": {
+     "photograph": 0.756775650970193,
+     "correction": -0.07079110893699747,
+     "model": 0.6859845419886442,
+     "control": -0.502814169308553,
+     "held": false
+    }
+   },
+   "iterations": 10
+  },
+  "generated-black-girl-01": {
+   "population": {
+    "shape": {
+     "globalAgeStructure": -0.8333333333333333,
+     "globalSexualDimorphism": -1,
+     "africanAncestry": 1
+    },
+    "ageHeld": false
+   },
+   "anthropometry": {
+    "faceHeight": {
+     "photograph": 0.8792343176649821,
+     "correction": 0.10030861880766861,
+     "model": 0.9790427203840847,
+     "control": 1,
+     "held": true
+    },
+    "intercanthal": {
+     "photograph": 0.2642326385274067,
+     "correction": 0.008062935583372344,
+     "model": 0.27229557254275655,
+     "control": 0.3663098334337344,
+     "held": false
+    },
+    "fissureLength": {
+     "photograph": 0.20568457722938693,
+     "correction": 0.0059120782899712565,
+     "model": 0.21159679726746658,
+     "control": -0.33692033739723054,
+     "held": false
+    },
+    "fissureHeight": {
+     "photograph": 0.2843151237987648,
+     "correction": 0.0043919683345594596,
+     "model": 0.28882169535840163,
+     "control": 0.44158288179249017,
+     "held": false
+    },
+    "noseWidth": {
+     "photograph": 0.3533278093769253,
+     "correction": 0.019487316072071326,
+     "model": 0.37281511840404774,
+     "control": 0.0017491373192664722,
+     "held": false
+    },
+    "noseHeight": {
+     "photograph": 0.4288554714486591,
+     "correction": -0.036336510992805104,
+     "model": 0.3925188138748936,
+     "control": -0.2431505596929464,
+     "held": false
+    },
+    "mouthWidth": {
+     "photograph": 0.5246816315522936,
+     "correction": 0.011863360444161142,
+     "model": 0.536544472319287,
+     "control": 0.710459223424207,
+     "held": false
+    },
+    "upperVermilion": {
+     "photograph": 0.16608511960590092,
+     "correction": 0.05460837856501856,
+     "model": 0.22071251568196795,
+     "control": 0.7834318678904612,
+     "held": false
+    },
+    "lowerVermilion": {
+     "photograph": 0.23311380059070622,
+     "correction": 0.05893445989238527,
+     "model": 0.2436682368933304,
+     "control": 1,
+     "held": true
+    },
+    "upperLip": {
+     "photograph": 0.311647438034676,
+     "correction": -0.016248381199314987,
+     "model": 0.29546129314111363,
+     "control": 0.7645992389945369,
+     "held": false
+    },
+    "lowerFaceWidth": {
+     "photograph": 0.6506112260384692,
+     "correction": 0.02790802639187684,
+     "model": 0.6937963409706717,
+     "control": -1,
+     "held": true
+    },
+    "chinWidth": {
+     "photograph": 0.29948905387334923,
+     "correction": 0.01721242436210152,
+     "model": 0.3266250848068947,
+     "control": -1,
+     "held": true
+    },
+    "chinHeight": {
+     "photograph": 0.254038522761712,
+     "correction": 0.009382159421259917,
+     "model": 0.29445658253662527,
+     "control": -1,
+     "held": true
+    },
+    "browHeight": {
+     "photograph": 0.866085061281498,
+     "correction": -0.05550802860401094,
+     "model": 0.8103873255055856,
+     "control": -0.24907028902187073,
+     "held": false
+    }
+   },
+   "iterations": 8
+  },
+  "generated-korean-boy-01": {
+   "population": {
+    "shape": {
+     "globalAgeStructure": -0.8333333333333333,
+     "globalSexualDimorphism": 1,
+     "asianAncestry": 1
+    },
+    "ageHeld": false
+   },
+   "anthropometry": {
+    "faceHeight": {
+     "photograph": 0.8493767259244376,
+     "correction": -0.016275884631584803,
+     "model": 0.8331008410065173,
+     "control": 0.24968262446599798,
+     "held": false
+    },
+    "intercanthal": {
+     "photograph": 0.25506453965195164,
+     "correction": 0.014418921370906945,
+     "model": 0.2694834609293251,
+     "control": 0.24522999705896698,
+     "held": false
+    },
+    "fissureLength": {
+     "photograph": 0.1856954302836554,
+     "correction": 0.002030062704335145,
+     "model": 0.18772549339324995,
+     "control": -0.10814816609961735,
+     "held": false
+    },
+    "fissureHeight": {
+     "photograph": 0.28083203898564907,
+     "correction": 0.018877470003149432,
+     "model": 0.29970950881634884,
+     "control": 0.21441610878771786,
+     "held": false
+    },
+    "noseWidth": {
+     "photograph": 0.30691565920661557,
+     "correction": 0.01081788627621677,
+     "model": 0.3177335635444307,
+     "control": 0.30868303658797225,
+     "held": false
+    },
+    "noseHeight": {
+     "photograph": 0.4327448088463974,
+     "correction": 0.0013235249263132132,
+     "model": 0.4340683381489947,
+     "control": 0.4263903992713797,
+     "held": false
+    },
+    "mouthWidth": {
+     "photograph": 0.4372207086241422,
+     "correction": -0.00024262558014526148,
+     "model": 0.43697808221615203,
+     "control": -0.171388454498246,
+     "held": false
+    },
+    "upperVermilion": {
+     "photograph": 0.14724899012755177,
+     "correction": 0.018829445872759976,
+     "model": 0.1660784353951372,
+     "control": -0.751536195817749,
+     "held": false
+    },
+    "lowerVermilion": {
+     "photograph": 0.214252782910118,
+     "correction": -0.019515178426110835,
+     "model": 0.1947376033962478,
+     "control": 0.4336178575100188,
+     "held": false
+    },
+    "upperLip": {
+     "photograph": 0.312687754860119,
+     "correction": 0.0392570081465109,
+     "model": 0.3520204584685828,
+     "control": -0.001662711807518008,
+     "held": false
+    },
+    "lowerFaceWidth": {
+     "photograph": 0.6506022497763178,
+     "correction": -0.05220249899468732,
+     "model": 0.6343888650723633,
+     "control": -1,
+     "held": true
+    },
+    "chinWidth": {
+     "photograph": 0.3032109043311349,
+     "correction": -0.03558031960999186,
+     "model": 0.27677140977347775,
+     "control": -1,
+     "held": true
+    },
+    "chinHeight": {
+     "photograph": 0.2795938001816395,
+     "correction": -0.015381792698223984,
+     "model": 0.26456836425079977,
+     "control": -1,
+     "held": true
+    },
+    "browHeight": {
+     "photograph": 0.8338841384948593,
+     "correction": 0.005713314742708309,
+     "model": 0.8395974483778236,
+     "control": 0.3155558747216011,
+     "held": false
+    }
+   },
+   "iterations": 11
+  },
+  "generated-white-boy-01": {
+   "population": {
+    "shape": {
+     "globalAgeStructure": -0.8333333333333333,
+     "globalSexualDimorphism": 1,
+     "europeanAncestry": 1
+    },
+    "ageHeld": false
+   },
+   "anthropometry": {
+    "faceHeight": {
+     "photograph": 0.881896013899436,
+     "correction": -0.009999366367718365,
+     "model": 0.8718966475292956,
+     "control": 0.5570614251903322,
+     "held": false
+    },
+    "intercanthal": {
+     "photograph": 0.25685672224593187,
+     "correction": 0.018682554005357066,
+     "model": 0.27553927624773294,
+     "control": 0.6935641138233226,
+     "held": false
+    },
+    "fissureLength": {
+     "photograph": 0.20018289501768394,
+     "correction": 0.012974443365823596,
+     "model": 0.2131573383831831,
+     "control": 0.18729643998702178,
+     "held": false
+    },
+    "fissureHeight": {
+     "photograph": 0.22753426784046224,
+     "correction": -0.009281457573598162,
+     "model": 0.21825281025313573,
+     "control": 0.7299544571247178,
+     "held": false
+    },
+    "noseWidth": {
+     "photograph": 0.3359572772421681,
+     "correction": 0.004771959752720434,
+     "model": 0.3407292369958384,
+     "control": 0.4272966533197883,
+     "held": false
+    },
+    "noseHeight": {
+     "photograph": 0.4113260982220659,
+     "correction": 0.0001175768189090598,
+     "model": 0.41144367503605467,
+     "control": 0.06477575499649803,
+     "held": false
+    },
+    "mouthWidth": {
+     "photograph": 0.4944932232997179,
+     "correction": 0.004710608462117349,
+     "model": 0.4992038317614138,
+     "control": 0.731661979337653,
+     "held": false
+    },
+    "upperVermilion": {
+     "photograph": 0.1451486493538467,
+     "correction": 0.015053288619066352,
+     "model": 0.16020193818364423,
+     "control": 0.8026876131936671,
+     "held": false
+    },
+    "lowerVermilion": {
+     "photograph": 0.21181325004141846,
+     "correction": 0.00879795675506198,
+     "model": 0.19602885728615763,
+     "control": 1,
+     "held": true
+    },
+    "upperLip": {
+     "photograph": 0.3177161620102974,
+     "correction": 0.007353128319452229,
+     "model": 0.3250692919011379,
+     "control": 0.0585788205928113,
+     "held": false
+    },
+    "lowerFaceWidth": {
+     "photograph": 0.671151576211854,
+     "correction": 0,
+     "model": null,
+     "control": 0,
+     "held": false
+    },
+    "chinWidth": {
+     "photograph": 0.3300369128685358,
+     "correction": -0.028777842559713163,
+     "model": 0.320371027600559,
+     "control": -1,
+     "held": true
+    },
+    "chinHeight": {
+     "photograph": 0.2828756064031548,
+     "correction": -0.011627896202804744,
+     "model": 0.2849985484249087,
+     "control": -1,
+     "held": true
+    },
+    "browHeight": {
+     "photograph": 0.689420792804864,
+     "correction": -0.11828161885690269,
+     "model": 0.5711391739571431,
+     "control": -0.8678862532092302,
+     "held": false
+    }
+   },
+   "iterations": 8
+  },
+  "generated-white-girl-01": {
+   "population": {
+    "shape": {
+     "globalAgeStructure": -0.9166666666666667,
+     "globalSexualDimorphism": -1,
+     "europeanAncestry": 1
+    },
+    "ageHeld": false
+   },
+   "anthropometry": {
+    "faceHeight": {
+     "photograph": 0.8599948223792073,
+     "correction": -0.034760374963741625,
+     "model": 0.8252350485082963,
+     "control": -0.01890234764139668,
+     "held": false
+    },
+    "intercanthal": {
+     "photograph": 0.23366066704667782,
+     "correction": -0.0024437709925791973,
+     "model": 0.2312170658369865,
+     "control": 0.07689219160131867,
+     "held": false
+    },
+    "fissureLength": {
+     "photograph": 0.20579785289130242,
+     "correction": 0.0012317930877296657,
+     "model": 0.2070298743605181,
+     "control": -0.0784897308916552,
+     "held": false
+    },
+    "fissureHeight": {
+     "photograph": 0.3423785856405671,
+     "correction": -0.0023866258543270846,
+     "model": 0.3399916335069384,
+     "control": 0.9647219971142424,
+     "held": false
+    },
+    "noseWidth": {
+     "photograph": 0.3036215494600107,
+     "correction": -0.005040365809681091,
+     "model": 0.29858642103897265,
+     "control": 0.0037619134977740637,
+     "held": false
+    },
+    "noseHeight": {
+     "photograph": 0.43940487637102155,
+     "correction": 0.026915143488817517,
+     "model": 0.4663199149343504,
+     "control": 0.6559058300077288,
+     "held": false
+    },
+    "mouthWidth": {
+     "photograph": 0.4350560766049448,
+     "correction": 0.014162944302599734,
+     "model": 0.4492187061601938,
+     "control": 0.28372264025011235,
+     "held": false
+    },
+    "upperVermilion": {
+     "photograph": 0.1635266173291611,
+     "correction": 0.008643532196124987,
+     "model": 0.17217165621590064,
+     "control": 0.31086723996011084,
+     "held": false
+    },
+    "lowerVermilion": {
+     "photograph": 0.2456540743927494,
+     "correction": -0.029164498781086234,
+     "model": 0.1907277475196319,
+     "control": 1,
+     "held": true
+    },
+    "upperLip": {
+     "photograph": 0.3180640695910924,
+     "correction": 0.01573736732249642,
+     "model": 0.3339728566986363,
+     "control": -0.3647262204374354,
+     "held": false
+    },
+    "lowerFaceWidth": {
+     "photograph": 0.6366006927942851,
+     "correction": 0.007289479592109682,
+     "model": 0.6712604176790493,
+     "control": -1,
+     "held": true
+    },
+    "chinWidth": {
+     "photograph": 0.2908772983494997,
+     "correction": -0.014807658687959746,
+     "model": 0.2760694059911011,
+     "control": -0.9806106050509064,
+     "held": false
+    },
+    "chinHeight": {
+     "photograph": 0.2580179325160801,
+     "correction": -0.021537785160227474,
+     "model": 0.25162230915770817,
+     "control": -1,
+     "held": true
+    },
+    "browHeight": {
+     "photograph": 0.7206394423110509,
+     "correction": -0.1317264861188756,
+     "model": 0.5889129929414239,
+     "control": -0.5798118942108256,
+     "held": false
+    }
+   },
+   "iterations": 10
+  },
+  "kim-min-jung": {
+   "population": {
+    "shape": {
+     "globalAgeStructure": 0.01538461538461533,
+     "globalSexualDimorphism": -1,
+     "asianAncestry": 1
+    },
+    "ageHeld": false
+   },
+   "anthropometry": {
+    "faceHeight": {
+     "photograph": 0.825747302356333,
+     "correction": -0.044988319086340045,
+     "model": 0.7807589825526755,
+     "control": -0.06275390600499958,
+     "held": false
+    },
+    "intercanthal": {
+     "photograph": 0.24434164052339324,
+     "correction": -0.014941758636007108,
+     "model": 0.22939987882293647,
+     "control": -0.09365941273701224,
+     "held": false
+    },
+    "fissureLength": {
+     "photograph": 0.1916381437166698,
+     "correction": 0.007893274696766983,
+     "model": 0.19953141745523445,
+     "control": 0.2189345504820898,
+     "held": false
+    },
+    "fissureHeight": {
+     "photograph": 0.33842741686600714,
+     "correction": 0.03338578375638224,
+     "model": 0.37181319178560746,
+     "control": 0.47429200082693834,
+     "held": false
+    },
+    "noseWidth": {
+     "photograph": 0.2903378077531581,
+     "correction": -0.008254604797198806,
+     "model": 0.28208317550752665,
+     "control": -0.06565497562929283,
+     "held": false
+    },
+    "noseHeight": {
+     "photograph": 0.44445367398740965,
+     "correction": 0.025414544332525046,
+     "model": 0.4698681085258993,
+     "control": 0.32139006734428865,
+     "held": false
+    },
+    "mouthWidth": {
+     "photograph": 0.3828596083911175,
+     "correction": -0.02719278621761978,
+     "model": 0.355666869037062,
+     "control": -0.7117696155291701,
+     "held": false
+    },
+    "upperVermilion": {
+     "photograph": 0.14842203358931128,
+     "correction": -0.0029785793765245983,
+     "model": 0.1776392466049773,
+     "control": -1,
+     "held": true
+    },
+    "lowerVermilion": {
+     "photograph": 0.2386346200046762,
+     "correction": 0.0012235491684401967,
+     "model": 0.23985817622650252,
+     "control": 0.3941369556284324,
+     "held": false
+    },
+    "upperLip": {
+     "photograph": 0.28177309063592676,
+     "correction": 0.0020409995224007216,
+     "model": 0.2839344890008803,
+     "control": 0.2060970882832501,
+     "held": false
+    },
+    "lowerFaceWidth": {
+     "photograph": 0.6890242208597448,
+     "correction": 0,
+     "model": null,
+     "control": 0,
+     "held": false
+    },
+    "chinWidth": {
+     "photograph": 0.31481433335349257,
+     "correction": -0.047752127529517185,
+     "model": 0.26706218306863944,
+     "control": -0.7330766573295937,
+     "held": false
+    },
+    "chinHeight": {
+     "photograph": 0.28836483828192283,
+     "correction": -0.018279482022440674,
+     "model": 0.27034419409120514,
+     "control": -1,
+     "held": true
+    },
+    "browHeight": {
+     "photograph": 0.7668720552411312,
+     "correction": -0.05675654167835653,
+     "model": 0.710115515198153,
+     "control": 0.356867513705952,
+     "held": false
+    }
+   },
+   "iterations": 11
+  },
+  "lee-tae-ri": {
+   "population": {
+    "shape": {
+     "globalAgeStructure": 0.09230769230769242,
+     "globalSexualDimorphism": -1,
+     "asianAncestry": 1
+    },
+    "ageHeld": false
+   },
+   "anthropometry": {
+    "faceHeight": {
+     "photograph": 0.780266638088543,
+     "correction": -0.020954800772909454,
+     "model": 0.7593051704368644,
+     "control": -0.8028118218783407,
+     "held": false
+    },
+    "intercanthal": {
+     "photograph": 0.24643735158422125,
+     "correction": 0.01230178120900216,
+     "model": 0.2587390721013257,
+     "control": 0.053274095227565786,
+     "held": false
+    },
+    "fissureLength": {
+     "photograph": 0.18449555516891217,
+     "correction": -0.002036436915907075,
+     "model": 0.1824593185561145,
+     "control": -0.2729947791982138,
+     "held": false
+    },
+    "fissureHeight": {
+     "photograph": 0.3333990384179361,
+     "correction": 0.06097513777130603,
+     "model": 0.39437344907616917,
+     "control": 0.5439564236777649,
+     "held": false
+    },
+    "noseWidth": {
+     "photograph": 0.2862974914369467,
+     "correction": -0.008169437481301334,
+     "model": 0.2781302070231792,
+     "control": -0.21860802142975563,
+     "held": false
+    },
+    "noseHeight": {
+     "photograph": 0.42788132580145327,
+     "correction": -0.004835245671684474,
+     "model": 0.4271260779240423,
+     "control": 0.786006524155337,
+     "held": false
+    },
+    "mouthWidth": {
+     "photograph": 0.41026345280735427,
+     "correction": -0.021677869924968507,
+     "model": 0.38859127714025227,
+     "control": -0.675526265310105,
+     "held": false
+    },
+    "upperVermilion": {
+     "photograph": 0.11896150028280493,
+     "correction": 0.004215347033510966,
+     "model": 0.11943998761501926,
+     "control": -1,
+     "held": true
+    },
+    "lowerVermilion": {
+     "photograph": 0.16638310188657196,
+     "correction": -0.010268874490687863,
+     "model": 0.15567794117639325,
+     "control": -0.024233832874069938,
+     "held": false
+    },
+    "upperLip": {
+     "photograph": 0.2948060133914806,
+     "correction": 0.015042100497647148,
+     "model": 0.3144657083448406,
+     "control": -1,
+     "held": false
+    },
+    "lowerFaceWidth": {
+     "photograph": 0.6784784162705223,
+     "correction": -0.01984483045578178,
+     "model": 0.6586282326536824,
+     "control": 0.06359554028980656,
+     "held": false
+    },
+    "chinWidth": {
+     "photograph": 0.30267982700171875,
+     "correction": -0.03655992381226186,
+     "model": 0.26612282823171485,
+     "control": -0.8020046789335913,
+     "held": false
+    },
+    "chinHeight": {
+     "photograph": 0.31597057266871587,
+     "correction": 0.0026262853060650126,
+     "model": 0.3130530760138996,
+     "control": 0.3237310316976239,
+     "held": false
+    },
+    "browHeight": {
+     "photograph": 0.671448835728147,
+     "correction": -0.04283315318989822,
+     "model": 0.5842746822841716,
+     "control": 1,
+     "held": true
+    }
+   },
+   "iterations": 12
+  },
+  "maggie-smith": {
+   "population": {
+    "shape": {
+     "globalAgeStructure": 0.8461538461538463,
+     "globalSexualDimorphism": -1,
+     "europeanAncestry": 1
+    },
+    "ageHeld": false
+   },
+   "anthropometry": {
+    "faceHeight": {
+     "photograph": 0.8671764548046001,
+     "correction": -0.016982901536751416,
+     "model": 0.8501935534760786,
+     "control": 0.04567296652441186,
+     "held": false
+    },
+    "intercanthal": {
+     "photograph": 0.25118176133516734,
+     "correction": -0.005119399526549218,
+     "model": 0.24606236184449745,
+     "control": 0.30354049794958743,
+     "held": false
+    },
+    "fissureLength": {
+     "photograph": 0.18814833736443512,
+     "correction": 0.007934844020792059,
+     "model": 0.1960831814207019,
+     "control": -0.2911974610524348,
+     "held": false
+    },
+    "fissureHeight": {
+     "photograph": 0.27501506866349085,
+     "correction": -0.016597970039561538,
+     "model": 0.2584170977675256,
+     "control": 0.5628450271003178,
+     "held": false
+    },
+    "noseWidth": {
+     "photograph": 0.32271354472872554,
+     "correction": 0.005420396498774072,
+     "model": 0.3281339412527287,
+     "control": 0.589426867514779,
+     "held": false
+    },
+    "noseHeight": {
+     "photograph": 0.38781355922479116,
+     "correction": 0.008508944085348635,
+     "model": 0.3963225031677931,
+     "control": -0.5344339588316168,
+     "held": false
+    },
+    "mouthWidth": {
+     "photograph": 0.4420261503816414,
+     "correction": -0.008588691380944258,
+     "model": 0.4334374590989271,
+     "control": 0.39902341395180996,
+     "held": false
+    },
+    "upperVermilion": {
+     "photograph": 0.17871870966266865,
+     "correction": 0.031063330503167147,
+     "model": 0.1809914353944512,
+     "control": 1,
+     "held": true
+    },
+    "lowerVermilion": {
+     "photograph": 0.23785234715349798,
+     "correction": 0.005048666596567469,
+     "model": 0.21103944587291634,
+     "control": 1,
+     "held": true
+    },
+    "upperLip": {
+     "photograph": 0.3238459087808578,
+     "correction": 0.02766993899708592,
+     "model": 0.35151584583834394,
+     "control": 0.22481409724328502,
+     "held": false
+    },
+    "lowerFaceWidth": {
+     "photograph": 0.6940317407799728,
+     "correction": 0,
+     "model": null,
+     "control": 0,
+     "held": false
+    },
+    "chinWidth": {
+     "photograph": 0.332191120190773,
+     "correction": -0.021212882099067076,
+     "model": 0.3212166738465331,
+     "control": -1,
+     "held": true
+    },
+    "chinHeight": {
+     "photograph": 0.292691808396199,
+     "correction": -0.025517318160544422,
+     "model": 0.2838852006222081,
+     "control": -1,
+     "held": true
+    },
+    "browHeight": {
+     "photograph": 0.81113773893627,
+     "correction": -0.012980025394248473,
+     "model": 0.7981577152051044,
+     "control": -0.44294846549965494,
+     "held": false
+    }
+   },
+   "iterations": 8
+  },
+  "michael-gambon": {
+   "population": {
+    "shape": {
+     "globalAgeStructure": 0.7230769230769232,
+     "globalSexualDimorphism": 1,
+     "europeanAncestry": 1
+    },
+    "ageHeld": false
+   },
+   "anthropometry": {
+    "faceHeight": {
+     "photograph": 0.8630570318984155,
+     "correction": -0.009614869377167157,
+     "model": 0.8534421592617805,
+     "control": 0.212611492928661,
+     "held": false
+    },
+    "intercanthal": {
+     "photograph": 0.28025476398214005,
+     "correction": 0.03115248069303156,
+     "model": 0.3114072442894225,
+     "control": 0.5771691230589986,
+     "held": false
+    },
+    "fissureLength": {
+     "photograph": 0.17992068283487472,
+     "correction": -0.011884637515353763,
+     "model": 0.16803604562893837,
+     "control": -0.9770378643027066,
+     "held": false
+    },
+    "fissureHeight": {
+     "photograph": 0.2283457419302488,
+     "correction": 0.015884794336115143,
+     "model": 0.24423052139630583,
+     "control": 0.2627445045329446,
+     "held": false
+    },
+    "noseWidth": {
+     "photograph": 0.31236754408216616,
+     "correction": 0.018193851606766398,
+     "model": 0.3225156977014618,
+     "control": 1,
+     "held": true
+    },
+    "noseHeight": {
+     "photograph": 0.3991361248684818,
+     "correction": -0.0167611583072223,
+     "model": 0.38299716489695596,
+     "control": -1,
+     "held": true
+    },
+    "mouthWidth": {
+     "photograph": 0.4035603609567983,
+     "correction": 0.028918386437148724,
+     "model": 0.4324787474709807,
+     "control": -0.21107352228817217,
+     "held": false
+    },
+    "upperVermilion": {
+     "photograph": 0.1600021043096693,
+     "correction": 0.013543804392473241,
+     "model": 0.16224153815812745,
+     "control": 1,
+     "held": true
+    },
+    "lowerVermilion": {
+     "photograph": 0.22733456388561438,
+     "correction": 0.007519432549308591,
+     "model": 0.2071970422071348,
+     "control": 1,
+     "held": true
+    },
+    "upperLip": {
+     "photograph": 0.33418603284526605,
+     "correction": -0.005651386234268918,
+     "model": 0.3496165706860541,
+     "control": 1,
+     "held": true
+    },
+    "lowerFaceWidth": {
+     "photograph": 0.7387864659364722,
+     "correction": 0.005940214508718955,
+     "model": 0.74472666904597,
+     "control": 0.29911128861352887,
+     "held": false
+    },
+    "chinWidth": {
+     "photograph": 0.36323570001697864,
+     "correction": 0.004998362905073883,
+     "model": 0.3682340621503279,
+     "control": 0.11274127747998829,
+     "held": false
+    },
+    "chinHeight": {
+     "photograph": 0.2937632636056336,
+     "correction": 0.002528143270275507,
+     "model": 0.2962920631882729,
+     "control": -0.9559875784952268,
+     "held": false
+    },
+    "browHeight": {
+     "photograph": 0.9391786015624913,
+     "correction": -0.015880341983408708,
+     "model": 0.9232983869766648,
+     "control": -0.6317206204209183,
+     "held": false
+    }
+   },
+   "iterations": 10
+  },
+  "miriam-margolyes": {
+   "population": {
+    "shape": {
+     "globalAgeStructure": 0.7076923076923078,
+     "globalSexualDimorphism": -1,
+     "europeanAncestry": 1
+    },
+    "ageHeld": false
+   },
+   "anthropometry": {
+    "faceHeight": {
+     "photograph": 0.8154909743997827,
+     "correction": -0.027445346080111288,
+     "model": 0.7879796742102745,
+     "control": -0.5393618409484229,
+     "held": false
+    },
+    "intercanthal": {
+     "photograph": 0.23255295317424426,
+     "correction": -0.02447161446323598,
+     "model": 0.20827578512042347,
+     "control": -1,
+     "held": true
+    },
+    "fissureLength": {
+     "photograph": 0.1872887432569427,
+     "correction": -0.013591452022585826,
+     "model": 0.17530554609983331,
+     "control": -1,
+     "held": true
+    },
+    "fissureHeight": {
+     "photograph": 0.11303047908743563,
+     "correction": -0.22166096008355327,
+     "model": 0.0584777817655175,
+     "control": 1,
+     "held": false
+    },
+    "noseWidth": {
+     "photograph": 0.31384564244423546,
+     "correction": -0.03068712159032544,
+     "model": 0.2831573357653236,
+     "control": -0.531275369563523,
+     "held": false
+    },
+    "noseHeight": {
+     "photograph": 0.3690138407225724,
+     "correction": -0.02306746136354515,
+     "model": 0.34735430940396855,
+     "control": -0.903615964486623,
+     "held": false
+    },
+    "mouthWidth": {
+     "photograph": 0.4418301762139598,
+     "correction": -0.013057435135937712,
+     "model": 0.42881142065968214,
+     "control": 0.04054086025401776,
+     "held": false
+    },
+    "upperVermilion": {
+     "photograph": 0.21138596473356222,
+     "correction": 0.02739717274000822,
+     "model": 0.18369213599397483,
+     "control": 1,
+     "held": true
+    },
+    "lowerVermilion": {
+     "photograph": 0.28899794055940525,
+     "correction": 0.020426877248023556,
+     "model": 0.2788968006295603,
+     "control": 1,
+     "held": true
+    },
+    "upperLip": {
+     "photograph": 0.3765845266970606,
+     "correction": 0.02859392593411214,
+     "model": 0.419759168306264,
+     "control": -0.33347932047431783,
+     "held": false
+    },
+    "lowerFaceWidth": {
+     "photograph": 0.7338185752683688,
+     "correction": 0.005734711128322578,
+     "model": 0.7396066540566407,
+     "control": -0.2167164145011128,
+     "held": false
+    },
+    "chinWidth": {
+     "photograph": 0.36556574181688006,
+     "correction": 0.008170851195533402,
+     "model": 0.37379179774970833,
+     "control": -0.08989587820149408,
+     "held": false
+    },
+    "chinHeight": {
+     "photograph": 0.2367884551654408,
+     "correction": -0.014140590707107437,
+     "model": 0.22691855876465758,
+     "control": -1,
+     "held": true
+    },
+    "browHeight": {
+     "photograph": 0.5877172162492376,
+     "correction": -0.012790010608114799,
+     "model": 0.6959306196285959,
+     "control": -1,
+     "held": true
+    }
+   },
+   "iterations": 12
+  },
+  "oh-seung-yoon": {
+   "population": {
+    "shape": {
+     "globalAgeStructure": -0.75,
+     "globalSexualDimorphism": 1,
+     "asianAncestry": 1
+    },
+    "ageHeld": false
+   },
+   "anthropometry": {
+    "faceHeight": {
+     "photograph": 0.8236515422424165,
+     "correction": -0.011973636054417591,
+     "model": 0.811680818215105,
+     "control": -0.18060328222200348,
+     "held": false
+    },
+    "intercanthal": {
+     "photograph": 0.29909279662503196,
+     "correction": 0.021198322045659135,
+     "model": 0.31242664847676477,
+     "control": 1,
+     "held": true
+    },
+    "fissureLength": {
+     "photograph": 0.18651573864220553,
+     "correction": 0.0022514641448153905,
+     "model": 0.1887673042226366,
+     "control": 0.12390927166702805,
+     "held": false
+    },
+    "fissureHeight": {
+     "photograph": 0.33701944907002207,
+     "correction": 0.023830689971067964,
+     "model": 0.3609171422947249,
+     "control": 0.4377086536076858,
+     "held": false
+    },
+    "noseWidth": {
+     "photograph": 0.3352010986258075,
+     "correction": 0.04332376489873213,
+     "model": 0.3411685726413735,
+     "control": 1,
+     "held": true
+    },
+    "noseHeight": {
+     "photograph": 0.4502799244884651,
+     "correction": 0.01267066272584283,
+     "model": 0.463099788037442,
+     "control": 0.8842929192954364,
+     "held": false
+    },
+    "mouthWidth": {
+     "photograph": 0.4320101292667092,
+     "correction": 0.010700514475274203,
+     "model": 0.44271050435217235,
+     "control": 0.1042989947327694,
+     "held": false
+    },
+    "upperVermilion": {
+     "photograph": 0.1608650232419241,
+     "correction": 0.013319525917068892,
+     "model": 0.17418362080417915,
+     "control": -0.2555419287285759,
+     "held": false
+    },
+    "lowerVermilion": {
+     "photograph": 0.26788158499533926,
+     "correction": 0.0010378124842403413,
+     "model": 0.23388436387840078,
+     "control": 1,
+     "held": true
+    },
+    "upperLip": {
+     "photograph": 0.341297792778484,
+     "correction": 0.0444485622713946,
+     "model": 0.42202544634673506,
+     "control": -1,
+     "held": true
+    },
+    "lowerFaceWidth": {
+     "photograph": 0.6743238502658988,
+     "correction": 0,
+     "model": null,
+     "control": 0,
+     "held": false
+    },
+    "chinWidth": {
+     "photograph": 0.32418294596064573,
+     "correction": -0.01957184510539156,
+     "model": 0.3046128900524156,
+     "control": -0.4155216989645456,
+     "held": false
+    },
+    "chinHeight": {
+     "photograph": 0.22159634361319694,
+     "correction": -0.03868617228452731,
+     "model": 0.18274842697776877,
+     "control": -0.45066841867177154,
+     "held": false
+    },
+    "browHeight": {
+     "photograph": 0.6786899780012849,
+     "correction": -0.09176655760814911,
+     "model": 0.5873494064387393,
+     "control": -0.004579078321923211,
+     "held": false
+    }
+   },
+   "iterations": 8
+  },
+  "park-eun-bin": {
+   "population": {
+    "shape": {
+     "globalAgeStructure": -0.41666666666666674,
+     "globalSexualDimorphism": -1,
+     "asianAncestry": 1
+    },
+    "ageHeld": false
+   },
+   "anthropometry": {
+    "faceHeight": {
+     "photograph": 0.8114523448398945,
+     "correction": -0.044291210907304035,
+     "model": 0.7671611324644024,
+     "control": -0.19936056584555018,
+     "held": false
+    },
+    "intercanthal": {
+     "photograph": 0.24605686655304093,
+     "correction": -0.017018499549409816,
+     "model": 0.2290383641035863,
+     "control": -0.35183054164040983,
+     "held": false
+    },
+    "fissureLength": {
+     "photograph": 0.19028284516160918,
+     "correction": 0.006347655918717554,
+     "model": 0.196630561098816,
+     "control": -0.20117363663360352,
+     "held": false
+    },
+    "fissureHeight": {
+     "photograph": 0.33173436857086797,
+     "correction": -0.0071676951422968704,
+     "model": 0.3245665753354104,
+     "control": 0.3498471680862139,
+     "held": false
+    },
+    "noseWidth": {
+     "photograph": 0.29771225549977215,
+     "correction": 0.008898338032998665,
+     "model": 0.3066105945903802,
+     "control": 0.425073186659625,
+     "held": false
+    },
+    "noseHeight": {
+     "photograph": 0.4550170815237297,
+     "correction": 0.015414302082966846,
+     "model": 0.46871930623335767,
+     "control": 1,
+     "held": true
+    },
+    "mouthWidth": {
+     "photograph": 0.3789954336175752,
+     "correction": -0.03279686044778651,
+     "model": 0.34619857414650396,
+     "control": -0.8098116902398699,
+     "held": false
+    },
+    "upperVermilion": {
+     "photograph": 0.11475640137110893,
+     "correction": 0.019357702755663786,
+     "model": 0.17697881568423288,
+     "control": -1,
+     "held": true
+    },
+    "lowerVermilion": {
+     "photograph": 0.1717183644655467,
+     "correction": -0.047601688444335016,
+     "model": 0.12531208474007546,
+     "control": -1,
+     "held": true
+    },
+    "upperLip": {
+     "photograph": 0.33264454666634496,
+     "correction": 0.018686183137748225,
+     "model": 0.3515608367601118,
+     "control": -0.726936940501673,
+     "held": false
+    },
+    "lowerFaceWidth": {
+     "photograph": 0.6748250789702954,
+     "correction": -0.04811906540980837,
+     "model": 0.6352043216823977,
+     "control": -1,
+     "held": true
+    },
+    "chinWidth": {
+     "photograph": 0.3040189512031085,
+     "correction": -0.04423511051893014,
+     "model": 0.2597838441159535,
+     "control": -0.9244677215258579,
+     "held": false
+    },
+    "chinHeight": {
+     "photograph": 0.28349486043534616,
+     "correction": 0.004567395161588439,
+     "model": 0.2879533349263499,
+     "control": -0.3085440412183036,
+     "held": false
+    },
+    "browHeight": {
+     "photograph": 0.6681339672920962,
+     "correction": -0.07534840580848556,
+     "model": 0.5927853620785786,
+     "control": 0.27506367614210137,
+     "held": false
+    }
+   },
+   "iterations": 8
+  },
+  "rupert-grint": {
+   "population": {
+    "shape": {
+     "globalAgeStructure": -0.9166666666666667,
+     "globalSexualDimorphism": 1,
+     "europeanAncestry": 1
+    },
+    "ageHeld": false
+   },
+   "anthropometry": {
+    "faceHeight": {
+     "photograph": 0.8179431786296261,
+     "correction": -0.029956732180441592,
+     "model": 0.787985724376736,
+     "control": -0.41851043866327536,
+     "held": false
+    },
+    "intercanthal": {
+     "photograph": 0.23758290422331876,
+     "correction": 0.000038108098295325243,
+     "model": 0.2376203984996871,
+     "control": 0.06649616385141922,
+     "held": false
+    },
+    "fissureLength": {
+     "photograph": 0.19930453839254184,
+     "correction": 0.0005779337251128336,
+     "model": 0.1998827851009097,
+     "control": -0.029710169748401075,
+     "held": false
+    },
+    "fissureHeight": {
+     "photograph": 0.3074333038657196,
+     "correction": 0.0339907226399675,
+     "model": 0.34142345855076367,
+     "control": 0.1282508662473296,
+     "held": false
+    },
+    "noseWidth": {
+     "photograph": 0.29918793218884165,
+     "correction": 0.003847569069475698,
+     "model": 0.3030355215369073,
+     "control": 0.3035860550769907,
+     "held": false
+    },
+    "noseHeight": {
+     "photograph": 0.4534248188674899,
+     "correction": 0.014988253960287579,
+     "model": 0.46757812881221805,
+     "control": 1,
+     "held": true
+    },
+    "mouthWidth": {
+     "photograph": 0.40405077679667323,
+     "correction": -0.00874743562310526,
+     "model": 0.39530336068030864,
+     "control": -0.11022241445045587,
+     "held": false
+    },
+    "upperVermilion": {
+     "photograph": 0.08078142691623615,
+     "correction": 0.0021221187927251,
+     "model": 0.08397054501638485,
+     "control": -1,
+     "held": true
+    },
+    "lowerVermilion": {
+     "photograph": 0.14921658427935036,
+     "correction": 0.008338775346096894,
+     "model": 0.15755555618861458,
+     "control": 0.18166392865280284,
+     "held": false
+    },
+    "upperLip": {
+     "photograph": 0.29796741705886703,
+     "correction": -0.013405857683563283,
+     "model": 0.2846174872764533,
+     "control": -0.4635557461494496,
+     "held": false
+    },
+    "lowerFaceWidth": {
+     "photograph": 0.6873164245622664,
+     "correction": -0.02277853837597399,
+     "model": 0.6645378917929848,
+     "control": -0.7278474345323352,
+     "held": false
+    },
+    "chinWidth": {
+     "photograph": 0.3173797238413165,
+     "correction": -0.020114357959480467,
+     "model": 0.2972654217840371,
+     "control": -0.9374705263273256,
+     "held": false
+    },
+    "chinHeight": {
+     "photograph": 0.3100029931184936,
+     "correction": -0.008118548240913626,
+     "model": 0.30184548741270756,
+     "control": -0.07271200967149766,
+     "held": false
+    },
+    "browHeight": {
+     "photograph": 0.6790740700508648,
+     "correction": -0.07563244953372705,
+     "model": 0.6034400102293219,
+     "control": -0.06264561366101387,
+     "held": false
+    }
+   },
+   "iterations": 6
+  },
+  "yoo-seung-ho": {
+   "population": {
+    "shape": {
+     "globalAgeStructure": -0.25,
+     "globalSexualDimorphism": 1,
+     "asianAncestry": 1
+    },
+    "ageHeld": false
+   },
+   "anthropometry": {
+    "faceHeight": {
+     "photograph": 0.8176871956229618,
+     "correction": -0.01226329524683445,
+     "model": 0.8054272105861053,
+     "control": -0.066984242163369,
+     "held": false
+    },
+    "intercanthal": {
+     "photograph": 0.25515460719174865,
+     "correction": -0.005981651519783415,
+     "model": 0.24917234159224552,
+     "control": 0.060663447196402764,
+     "held": false
+    },
+    "fissureLength": {
+     "photograph": 0.18555595059828228,
+     "correction": 0.012465653714137936,
+     "model": 0.1980219289738026,
+     "control": 0.5201624337274646,
+     "held": false
+    },
+    "fissureHeight": {
+     "photograph": 0.25808310307531707,
+     "correction": 0.013885567305270297,
+     "model": 0.271983322510973,
+     "control": 0.0723536737303222,
+     "held": false
+    },
+    "noseWidth": {
+     "photograph": 0.2949481822020832,
+     "correction": -0.0016493682165521495,
+     "model": 0.2932968278400913,
+     "control": 0.1456812412775008,
+     "held": false
+    },
+    "noseHeight": {
+     "photograph": 0.4124666603206467,
+     "correction": 0.001406772133617784,
+     "model": 0.41387124299652234,
+     "control": -0.14143774250677676,
+     "held": false
+    },
+    "mouthWidth": {
+     "photograph": 0.3753608144177106,
+     "correction": 0.005953366607918231,
+     "model": 0.3813084733168645,
+     "control": -0.3081886101644168,
+     "held": false
+    },
+    "upperVermilion": {
+     "photograph": 0.18341019461369196,
+     "correction": 0.00540284700977936,
+     "model": 0.1889105700471657,
+     "control": -1,
+     "held": true
+    },
+    "lowerVermilion": {
+     "photograph": 0.28086336507100446,
+     "correction": -0.015400903006769495,
+     "model": 0.25756701752240047,
+     "control": 1,
+     "held": true
+    },
+    "upperLip": {
+     "photograph": 0.3355325887540401,
+     "correction": 0.0334461895912358,
+     "model": 0.36884224628343143,
+     "control": 0.47233330573054855,
+     "held": false
+    },
+    "lowerFaceWidth": {
+     "photograph": 0.6672690026272254,
+     "correction": -0.07247063016525424,
+     "model": 0.6422553441013249,
+     "control": -1,
+     "held": true
+    },
+    "chinWidth": {
+     "photograph": 0.32731184120130347,
+     "correction": -0.031442849597873135,
+     "model": 0.29586409269108227,
+     "control": -0.7730676815149233,
+     "held": false
+    },
+    "chinHeight": {
+     "photograph": 0.26146591177784145,
+     "correction": -0.017489547520679605,
+     "model": 0.2480013334315861,
+     "control": -1,
+     "held": true
+    },
+    "browHeight": {
+     "photograph": 0.7053821490058071,
+     "correction": -0.06571576282300906,
+     "model": 0.6396443822711122,
+     "control": -0.2905259631810136,
+     "held": false
+    }
+   },
+   "iterations": 7
+  },
+  "kdy1": {
+   "population": {
+    "shape": {
+     "asianAncestry": 1
+    },
+    "ageHeld": false
+   },
+   "anthropometry": "photograph, camera or anchors missing"
+  }
+ },
+ "expression": {
+  "alan-rickman": [
+   {
+    "channel": "browDownLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "browDownRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "browInnerUp",
+    "weight": 0.013507724784062222,
+    "status": "transferred"
+   },
+   {
+    "channel": "browOuterUpLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "browOuterUpRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "cheekPuff",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "cheekSquintLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "cheekSquintRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeBlinkLeft",
+    "weight": 0.285945278547328,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeBlinkRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeLookDownLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookDownRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookInLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookInRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookOutLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookOutRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookUpLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookUpRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeSquintLeft",
+    "weight": 1,
+    "status": "held"
+   },
+   {
+    "channel": "eyeSquintRight",
+    "weight": 0.13755718900483263,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeWideLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeWideRight",
+    "weight": 0.0745750065987426,
+    "status": "transferred"
+   },
+   {
+    "channel": "jawForward",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "jawLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "jawOpen",
+    "weight": 0.17767422402374938,
+    "status": "transferred"
+   },
+   {
+    "channel": "jawRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthClose",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthDimpleLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthDimpleRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthFrownLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthFrownRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthFunnel",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthLowerDownLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthLowerDownRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthPressLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthPressRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthPucker",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthRight",
+    "weight": 0.24422367404981507,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthRollLower",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthRollUpper",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthShrugLower",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthShrugUpper",
+    "weight": 0.03260236555934816,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthSmileLeft",
+    "weight": 0.7039226168577644,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthSmileRight",
+    "weight": 0.7373916566721844,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthStretchLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthStretchRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthUpperUpLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthUpperUpRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "noseSneerLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "noseSneerRight",
+    "weight": 0,
+    "status": "unobservable"
+   }
+  ],
+  "daniel-radcliffe": [
+   {
+    "channel": "browDownLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "browDownRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "browInnerUp",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "browOuterUpLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "browOuterUpRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "cheekPuff",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "cheekSquintLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "cheekSquintRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeBlinkLeft",
+    "weight": 0.2847552065562692,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeBlinkRight",
+    "weight": 0.12087150813083089,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeLookDownLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookDownRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookInLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookInRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookOutLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookOutRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookUpLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookUpRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeSquintLeft",
+    "weight": 1,
+    "status": "held"
+   },
+   {
+    "channel": "eyeSquintRight",
+    "weight": 0.5892567275741287,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeWideLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeWideRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "jawForward",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "jawLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "jawOpen",
+    "weight": 0.036929920997898734,
+    "status": "transferred"
+   },
+   {
+    "channel": "jawRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthClose",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthDimpleLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthDimpleRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthFrownLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthFrownRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthFunnel",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthLeft",
+    "weight": 0.042248026088655334,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthLowerDownLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthLowerDownRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthPressLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthPressRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthPucker",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthRight",
+    "weight": 0.0011560698828014903,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthRollLower",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthRollUpper",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthShrugLower",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthShrugUpper",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthSmileLeft",
+    "weight": 1,
+    "status": "held"
+   },
+   {
+    "channel": "mouthSmileRight",
+    "weight": 1,
+    "status": "held"
+   },
+   {
+    "channel": "mouthStretchLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthStretchRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthUpperUpLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthUpperUpRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "noseSneerLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "noseSneerRight",
+    "weight": 0,
+    "status": "unobservable"
+   }
+  ],
+  "emma-watson": [
+   {
+    "channel": "browDownLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "browDownRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "browInnerUp",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "browOuterUpLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "browOuterUpRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "cheekPuff",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "cheekSquintLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "cheekSquintRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeBlinkLeft",
+    "weight": 0.2727790360877692,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeBlinkRight",
+    "weight": 0.051563205847805396,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeLookDownLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookDownRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookInLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookInRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookOutLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookOutRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookUpLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookUpRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeSquintLeft",
+    "weight": 1,
+    "status": "held"
+   },
+   {
+    "channel": "eyeSquintRight",
+    "weight": 1,
+    "status": "held"
+   },
+   {
+    "channel": "eyeWideLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeWideRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "jawForward",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "jawLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "jawOpen",
+    "weight": 0.0018305186647351072,
+    "status": "transferred"
+   },
+   {
+    "channel": "jawRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthClose",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthDimpleLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthDimpleRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthFrownLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthFrownRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthFunnel",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthLowerDownLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthLowerDownRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthPressLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthPressRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthPucker",
+    "weight": 0.030265780018394504,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthRight",
+    "weight": 0.004097810565675815,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthRollLower",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthRollUpper",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthShrugLower",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthShrugUpper",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthSmileLeft",
+    "weight": 0.5873368342316556,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthSmileRight",
+    "weight": 0.31590887005187906,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthStretchLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthStretchRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthUpperUpLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthUpperUpRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "noseSneerLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "noseSneerRight",
+    "weight": 0,
+    "status": "unobservable"
+   }
+  ],
+  "generated-black-boy-01": [
+   {
+    "channel": "browDownLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "browDownRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "browInnerUp",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "browOuterUpLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "browOuterUpRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "cheekPuff",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "cheekSquintLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "cheekSquintRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeBlinkLeft",
+    "weight": 0.39589388468171116,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeBlinkRight",
+    "weight": 0.46559230090315074,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeLookDownLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookDownRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookInLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookInRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookOutLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookOutRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookUpLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookUpRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeSquintLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeSquintRight",
+    "weight": 0.3672241894267465,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeWideLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeWideRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "jawForward",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "jawLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "jawOpen",
+    "weight": 0.0244329991727885,
+    "status": "transferred"
+   },
+   {
+    "channel": "jawRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthClose",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthDimpleLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthDimpleRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthFrownLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthFrownRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthFunnel",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthLowerDownLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthLowerDownRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthPressLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthPressRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthPucker",
+    "weight": 0.2097188787262354,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthRight",
+    "weight": 0.06667956957093152,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthRollLower",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthRollUpper",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthShrugLower",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthShrugUpper",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthSmileLeft",
+    "weight": 1,
+    "status": "held"
+   },
+   {
+    "channel": "mouthSmileRight",
+    "weight": 1,
+    "status": "held"
+   },
+   {
+    "channel": "mouthStretchLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthStretchRight",
+    "weight": 0.6196314340081635,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthUpperUpLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthUpperUpRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "noseSneerLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "noseSneerRight",
+    "weight": 0,
+    "status": "unobservable"
+   }
+  ],
+  "generated-black-girl-01": [
+   {
+    "channel": "browDownLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "browDownRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "browInnerUp",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "browOuterUpLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "browOuterUpRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "cheekPuff",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "cheekSquintLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "cheekSquintRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeBlinkLeft",
+    "weight": 0.2897597732872559,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeBlinkRight",
+    "weight": 0.26899556448175393,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeLookDownLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookDownRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookInLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookInRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookOutLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookOutRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookUpLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookUpRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeSquintLeft",
+    "weight": 0.702601760110513,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeSquintRight",
+    "weight": 0.6348227325722189,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeWideLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeWideRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "jawForward",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "jawLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "jawOpen",
+    "weight": 0.04171083012307026,
+    "status": "transferred"
+   },
+   {
+    "channel": "jawRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthClose",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthDimpleLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthDimpleRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthFrownLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthFrownRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthFunnel",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthLeft",
+    "weight": 0.11782005709906511,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthLowerDownLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthLowerDownRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthPressLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthPressRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthPucker",
+    "weight": 0.049902583819578794,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthRollLower",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthRollUpper",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthShrugLower",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthShrugUpper",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthSmileLeft",
+    "weight": 1,
+    "status": "held"
+   },
+   {
+    "channel": "mouthSmileRight",
+    "weight": 1,
+    "status": "held"
+   },
+   {
+    "channel": "mouthStretchLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthStretchRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthUpperUpLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthUpperUpRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "noseSneerLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "noseSneerRight",
+    "weight": 0,
+    "status": "unobservable"
+   }
+  ],
+  "generated-korean-boy-01": [
+   {
+    "channel": "browDownLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "browDownRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "browInnerUp",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "browOuterUpLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "browOuterUpRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "cheekPuff",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "cheekSquintLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "cheekSquintRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeBlinkLeft",
+    "weight": 0.29482320991149275,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeBlinkRight",
+    "weight": 0.30600711839248196,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeLookDownLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookDownRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookInLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookInRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookOutLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookOutRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookUpLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookUpRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeSquintLeft",
+    "weight": 0.05587093114175293,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeSquintRight",
+    "weight": 0.04180155021902781,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeWideLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeWideRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "jawForward",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "jawLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "jawOpen",
+    "weight": 0.0746455538023153,
+    "status": "transferred"
+   },
+   {
+    "channel": "jawRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthClose",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthDimpleLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthDimpleRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthFrownLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthFrownRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthFunnel",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthLowerDownLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthLowerDownRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthPressLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthPressRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthPucker",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthRight",
+    "weight": 0.02866031499077873,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthRollLower",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthRollUpper",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthShrugLower",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthShrugUpper",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthSmileLeft",
+    "weight": 1,
+    "status": "held"
+   },
+   {
+    "channel": "mouthSmileRight",
+    "weight": 0.8776473963872646,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthStretchLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthStretchRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthUpperUpLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthUpperUpRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "noseSneerLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "noseSneerRight",
+    "weight": 0,
+    "status": "unobservable"
+   }
+  ],
+  "generated-white-boy-01": [
+   {
+    "channel": "browDownLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "browDownRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "browInnerUp",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "browOuterUpLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "browOuterUpRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "cheekPuff",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "cheekSquintLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "cheekSquintRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeBlinkLeft",
+    "weight": 0.35995303417692825,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeBlinkRight",
+    "weight": 0.43136533225015417,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeLookDownLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookDownRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookInLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookInRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookOutLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookOutRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookUpLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookUpRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeSquintLeft",
+    "weight": 0.7905212476338346,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeSquintRight",
+    "weight": 0.8780392945891118,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeWideLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeWideRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "jawForward",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "jawLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "jawOpen",
+    "weight": 0.11603135379296457,
+    "status": "transferred"
+   },
+   {
+    "channel": "jawRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthClose",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthDimpleLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthDimpleRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthFrownLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthFrownRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthFunnel",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthLowerDownLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthLowerDownRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthPressLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthPressRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthPucker",
+    "weight": 0.003052519671977794,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthRight",
+    "weight": 0.027471514805716368,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthRollLower",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthRollUpper",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthShrugLower",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthShrugUpper",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthSmileLeft",
+    "weight": 1,
+    "status": "held"
+   },
+   {
+    "channel": "mouthSmileRight",
+    "weight": 1,
+    "status": "held"
+   },
+   {
+    "channel": "mouthStretchLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthStretchRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthUpperUpLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthUpperUpRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "noseSneerLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "noseSneerRight",
+    "weight": 0,
+    "status": "unobservable"
+   }
+  ],
+  "generated-white-girl-01": [
+   {
+    "channel": "browDownLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "browDownRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "browInnerUp",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "browOuterUpLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "browOuterUpRight",
+    "weight": 0.22301386551203498,
+    "status": "transferred"
+   },
+   {
+    "channel": "cheekPuff",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "cheekSquintLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "cheekSquintRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeBlinkLeft",
+    "weight": 0.2533557008585636,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeBlinkRight",
+    "weight": 0.16945052832736143,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeLookDownLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookDownRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookInLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookInRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookOutLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookOutRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookUpLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookUpRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeSquintLeft",
+    "weight": 1,
+    "status": "held"
+   },
+   {
+    "channel": "eyeSquintRight",
+    "weight": 0.45473635040173366,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeWideLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeWideRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "jawForward",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "jawLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "jawOpen",
+    "weight": 0.008069722147512743,
+    "status": "transferred"
+   },
+   {
+    "channel": "jawRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthClose",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthDimpleLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthDimpleRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthFrownLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthFrownRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthFunnel",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthLeft",
+    "weight": 0.18678682935112553,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthLowerDownLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthLowerDownRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthPressLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthPressRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthPucker",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthRollLower",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthRollUpper",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthShrugLower",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthShrugUpper",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthSmileLeft",
+    "weight": 1,
+    "status": "held"
+   },
+   {
+    "channel": "mouthSmileRight",
+    "weight": 0.8497011827144786,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthStretchLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthStretchRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthUpperUpLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthUpperUpRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "noseSneerLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "noseSneerRight",
+    "weight": 0,
+    "status": "unobservable"
+   }
+  ],
+  "kim-min-jung": [
+   {
+    "channel": "browDownLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "browDownRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "browInnerUp",
+    "weight": 0.8294642397440487,
+    "status": "transferred"
+   },
+   {
+    "channel": "browOuterUpLeft",
+    "weight": 0.33449592173225706,
+    "status": "transferred"
+   },
+   {
+    "channel": "browOuterUpRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "cheekPuff",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "cheekSquintLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "cheekSquintRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeBlinkLeft",
+    "weight": 0.2620843114218744,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeBlinkRight",
+    "weight": 0.0003163823527037291,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeLookDownLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookDownRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookInLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookInRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookOutLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookOutRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookUpLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookUpRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeSquintLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeSquintRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeWideLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeWideRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "jawForward",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "jawLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "jawOpen",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "jawRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthClose",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthDimpleLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthDimpleRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthFrownLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthFrownRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthFunnel",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthLeft",
+    "weight": 0.09346825795427675,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthLowerDownLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthLowerDownRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthPressLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthPressRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthPucker",
+    "weight": 0.18389989673458232,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthRight",
+    "weight": 0.13835755635039926,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthRollLower",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthRollUpper",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthShrugLower",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthShrugUpper",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthSmileLeft",
+    "weight": 0.6402804258269492,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthSmileRight",
+    "weight": 0.46007337006409293,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthStretchLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthStretchRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthUpperUpLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthUpperUpRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "noseSneerLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "noseSneerRight",
+    "weight": 0,
+    "status": "unobservable"
+   }
+  ],
+  "lee-tae-ri": [
+   {
+    "channel": "browDownLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "browDownRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "browInnerUp",
+    "weight": 0.23558281021925487,
+    "status": "transferred"
+   },
+   {
+    "channel": "browOuterUpLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "browOuterUpRight",
+    "weight": 0.020130799440857352,
+    "status": "transferred"
+   },
+   {
+    "channel": "cheekPuff",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "cheekSquintLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "cheekSquintRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeBlinkLeft",
+    "weight": 0.028498758117582203,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeBlinkRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeLookDownLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookDownRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookInLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookInRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookOutLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookOutRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookUpLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookUpRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeSquintLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeSquintRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeWideLeft",
+    "weight": 0.060924673770768,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeWideRight",
+    "weight": 0.16614413888414595,
+    "status": "transferred"
+   },
+   {
+    "channel": "jawForward",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "jawLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "jawOpen",
+    "weight": 0.0002875620469952003,
+    "status": "transferred"
+   },
+   {
+    "channel": "jawRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthClose",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthDimpleLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthDimpleRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthFrownLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthFrownRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthFunnel",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthLeft",
+    "weight": 0.16663632501081543,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthLowerDownLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthLowerDownRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthPressLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthPressRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthPucker",
+    "weight": 0.03533578835673988,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthRight",
+    "weight": 0.02806793521866772,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthRollLower",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthRollUpper",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthShrugLower",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthShrugUpper",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthSmileLeft",
+    "weight": 0.8216576959648754,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthSmileRight",
+    "weight": 0.5778212665279363,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthStretchLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthStretchRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthUpperUpLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthUpperUpRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "noseSneerLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "noseSneerRight",
+    "weight": 0,
+    "status": "unobservable"
+   }
+  ],
+  "maggie-smith": [
+   {
+    "channel": "browDownLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "browDownRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "browInnerUp",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "browOuterUpLeft",
+    "weight": 0.1890138012326219,
+    "status": "transferred"
+   },
+   {
+    "channel": "browOuterUpRight",
+    "weight": 0.10095612653191033,
+    "status": "transferred"
+   },
+   {
+    "channel": "cheekPuff",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "cheekSquintLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "cheekSquintRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeBlinkLeft",
+    "weight": 0.3499129834328881,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeBlinkRight",
+    "weight": 0.16821017411772843,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeLookDownLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookDownRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookInLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookInRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookOutLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookOutRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookUpLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookUpRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeSquintLeft",
+    "weight": 0.37710622316477027,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeSquintRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeWideLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeWideRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "jawForward",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "jawLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "jawOpen",
+    "weight": 0.04874428710381642,
+    "status": "transferred"
+   },
+   {
+    "channel": "jawRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthClose",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthDimpleLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthDimpleRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthFrownLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthFrownRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthFunnel",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthLowerDownLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthLowerDownRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthPressLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthPressRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthPucker",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthRight",
+    "weight": 0.008237676912371148,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthRollLower",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthRollUpper",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthShrugLower",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthShrugUpper",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthSmileLeft",
+    "weight": 0.39398473007665225,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthSmileRight",
+    "weight": 0.31120443840598866,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthStretchLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthStretchRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthUpperUpLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthUpperUpRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "noseSneerLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "noseSneerRight",
+    "weight": 0,
+    "status": "unobservable"
+   }
+  ],
+  "michael-gambon": [
+   {
+    "channel": "browDownLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "browDownRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "browInnerUp",
+    "weight": 1,
+    "status": "held"
+   },
+   {
+    "channel": "browOuterUpLeft",
+    "weight": 0.7949616565476516,
+    "status": "transferred"
+   },
+   {
+    "channel": "browOuterUpRight",
+    "weight": 0.5875636060289191,
+    "status": "transferred"
+   },
+   {
+    "channel": "cheekPuff",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "cheekSquintLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "cheekSquintRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeBlinkLeft",
+    "weight": 0.27002732844998306,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeBlinkRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeLookDownLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookDownRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookInLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookInRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookOutLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookOutRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookUpLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookUpRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeSquintLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeSquintRight",
+    "weight": 0.657013428934498,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeWideLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeWideRight",
+    "weight": 0.07205826610924003,
+    "status": "transferred"
+   },
+   {
+    "channel": "jawForward",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "jawLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "jawOpen",
+    "weight": 0.009744811954717042,
+    "status": "transferred"
+   },
+   {
+    "channel": "jawRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthClose",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthDimpleLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthDimpleRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthFrownLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthFrownRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthFunnel",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthLowerDownLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthLowerDownRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthPressLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthPressRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthPucker",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthRight",
+    "weight": 0.2631152899770428,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthRollLower",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthRollUpper",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthShrugLower",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthShrugUpper",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthSmileLeft",
+    "weight": 0.2940715055878538,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthSmileRight",
+    "weight": 0.26973678325127476,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthStretchLeft",
+    "weight": 0.5231054581536932,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthStretchRight",
+    "weight": 0.161564841594957,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthUpperUpLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthUpperUpRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "noseSneerLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "noseSneerRight",
+    "weight": 0,
+    "status": "unobservable"
+   }
+  ],
+  "miriam-margolyes": [
+   {
+    "channel": "browDownLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "browDownRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "browInnerUp",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "browOuterUpLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "browOuterUpRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "cheekPuff",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "cheekSquintLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "cheekSquintRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeBlinkLeft",
+    "weight": 0.47235739288283785,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeBlinkRight",
+    "weight": 0.33924206295477227,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeLookDownLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookDownRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookInLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookInRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookOutLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookOutRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookUpLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookUpRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeSquintLeft",
+    "weight": 1,
+    "status": "held"
+   },
+   {
+    "channel": "eyeSquintRight",
+    "weight": 1,
+    "status": "held"
+   },
+   {
+    "channel": "eyeWideLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeWideRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "jawForward",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "jawLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "jawOpen",
+    "weight": 0.20981181242137373,
+    "status": "transferred"
+   },
+   {
+    "channel": "jawRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthClose",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthDimpleLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthDimpleRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthFrownLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthFrownRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthFunnel",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthLowerDownLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthLowerDownRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthPressLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthPressRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthPucker",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthRight",
+    "weight": 0.06872993259528039,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthRollLower",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthRollUpper",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthShrugLower",
+    "weight": 0.00009031945315286964,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthShrugUpper",
+    "weight": 0.012185603174050808,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthSmileLeft",
+    "weight": 0.6014362792395734,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthSmileRight",
+    "weight": 0.41712476644836605,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthStretchLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthStretchRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthUpperUpLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthUpperUpRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "noseSneerLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "noseSneerRight",
+    "weight": 0,
+    "status": "unobservable"
+   }
+  ],
+  "oh-seung-yoon": [
+   {
+    "channel": "browDownLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "browDownRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "browInnerUp",
+    "weight": 0.04479579559712081,
+    "status": "transferred"
+   },
+   {
+    "channel": "browOuterUpLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "browOuterUpRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "cheekPuff",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "cheekSquintLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "cheekSquintRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeBlinkLeft",
+    "weight": 0.11586696795512338,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeBlinkRight",
+    "weight": 0.0007786361974633114,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeLookDownLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookDownRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookInLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookInRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookOutLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookOutRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookUpLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookUpRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeSquintLeft",
+    "weight": 0.4580229185252427,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeSquintRight",
+    "weight": 0.4683188355879179,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeWideLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeWideRight",
+    "weight": 0.08156408725543111,
+    "status": "transferred"
+   },
+   {
+    "channel": "jawForward",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "jawLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "jawOpen",
+    "weight": 0.03553377352892974,
+    "status": "transferred"
+   },
+   {
+    "channel": "jawRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthClose",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthDimpleLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthDimpleRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthFrownLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthFrownRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthFunnel",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthLowerDownLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthLowerDownRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthPressLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthPressRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthPucker",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthRight",
+    "weight": 0.05423167196233453,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthRollLower",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthRollUpper",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthShrugLower",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthShrugUpper",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthSmileLeft",
+    "weight": 1,
+    "status": "held"
+   },
+   {
+    "channel": "mouthSmileRight",
+    "weight": 0.7987637218678545,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthStretchLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthStretchRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthUpperUpLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthUpperUpRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "noseSneerLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "noseSneerRight",
+    "weight": 0,
+    "status": "unobservable"
+   }
+  ],
+  "park-eun-bin": [
+   {
+    "channel": "browDownLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "browDownRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "browInnerUp",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "browOuterUpLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "browOuterUpRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "cheekPuff",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "cheekSquintLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "cheekSquintRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeBlinkLeft",
+    "weight": 0.15050007657056128,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeBlinkRight",
+    "weight": 0.07391885594169398,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeLookDownLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookDownRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookInLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookInRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookOutLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookOutRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookUpLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookUpRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeSquintLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeSquintRight",
+    "weight": 0.28787118271549506,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeWideLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeWideRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "jawForward",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "jawLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "jawOpen",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "jawRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthClose",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthDimpleLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthDimpleRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthFrownLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthFrownRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthFunnel",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthLowerDownLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthLowerDownRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthPressLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthPressRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthPucker",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthRight",
+    "weight": 0.028977351208791607,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthRollLower",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthRollUpper",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthShrugLower",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthShrugUpper",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthSmileLeft",
+    "weight": 0.475909109543759,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthSmileRight",
+    "weight": 0.44450667288717566,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthStretchLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthStretchRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthUpperUpLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthUpperUpRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "noseSneerLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "noseSneerRight",
+    "weight": 0,
+    "status": "unobservable"
+   }
+  ],
+  "rupert-grint": [
+   {
+    "channel": "browDownLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "browDownRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "browInnerUp",
+    "weight": 0.4766092674913457,
+    "status": "transferred"
+   },
+   {
+    "channel": "browOuterUpLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "browOuterUpRight",
+    "weight": 0.04055231713489052,
+    "status": "transferred"
+   },
+   {
+    "channel": "cheekPuff",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "cheekSquintLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "cheekSquintRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeBlinkLeft",
+    "weight": 0.09854004431419668,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeBlinkRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeLookDownLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookDownRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookInLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookInRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookOutLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookOutRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookUpLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookUpRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeSquintLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeSquintRight",
+    "weight": 0.3216567983329592,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeWideLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeWideRight",
+    "weight": 0.05415387981235506,
+    "status": "transferred"
+   },
+   {
+    "channel": "jawForward",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "jawLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "jawOpen",
+    "weight": 0.0005439491098660896,
+    "status": "transferred"
+   },
+   {
+    "channel": "jawRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthClose",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthDimpleLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthDimpleRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthFrownLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthFrownRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthFunnel",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthLowerDownLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthLowerDownRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthPressLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthPressRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthPucker",
+    "weight": 0.0017714632132959614,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthRight",
+    "weight": 0.018604765990332436,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthRollLower",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthRollUpper",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthShrugLower",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthShrugUpper",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthSmileLeft",
+    "weight": 0.6009264055429254,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthSmileRight",
+    "weight": 0.5074571433247368,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthStretchLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthStretchRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthUpperUpLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthUpperUpRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "noseSneerLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "noseSneerRight",
+    "weight": 0,
+    "status": "unobservable"
+   }
+  ],
+  "yoo-seung-ho": [
+   {
+    "channel": "browDownLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "browDownRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "browInnerUp",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "browOuterUpLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "browOuterUpRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "cheekPuff",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "cheekSquintLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "cheekSquintRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeBlinkLeft",
+    "weight": 0.3134222907800784,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeBlinkRight",
+    "weight": 0.1911360036705247,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeLookDownLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookDownRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookInLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookInRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookOutLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookOutRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookUpLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeLookUpRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "eyeSquintLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeSquintRight",
+    "weight": 0.09119396622021808,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeWideLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "eyeWideRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "jawForward",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "jawLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "jawOpen",
+    "weight": 0.049400758740990175,
+    "status": "transferred"
+   },
+   {
+    "channel": "jawRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthClose",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthDimpleLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthDimpleRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthFrownLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthFrownRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthFunnel",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthLeft",
+    "weight": 0.3633650721001851,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthLowerDownLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthLowerDownRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthPressLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthPressRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthPucker",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthRight",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthRollLower",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthRollUpper",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthShrugLower",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthShrugUpper",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthSmileLeft",
+    "weight": 0.55059187002712,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthSmileRight",
+    "weight": 0.38939411299017745,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthStretchLeft",
+    "weight": 0,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthStretchRight",
+    "weight": 0.03419111261894643,
+    "status": "transferred"
+   },
+   {
+    "channel": "mouthUpperUpLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "mouthUpperUpRight",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "noseSneerLeft",
+    "weight": 0,
+    "status": "unobservable"
+   },
+   {
+    "channel": "noseSneerRight",
+    "weight": 0,
+    "status": "unobservable"
+   }
+  ],
+  "kdy1": "photograph or rest render missing"
+ }
+}
