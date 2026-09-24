@@ -3,7 +3,7 @@
 ## 침실을 통과하지 않는 샤워실 {#shower-bath-plan}
 <!--
 @evidence principles/core/common.md#scope-preservation shower-bathroom의 경계와 네 공유 벽, 복도 쪽 단일 문, 기구 사용 예약의 소비, 카펫 끝과 창 없음을 맡는다.
-@evidence principles/core/common.md#substantive-completion 마감 안쪽 X = [0.90, 3.07], Z = [-8.80, -6.06] m, hall-shower-door X = [1.05, 2.05] m와 유효 폭 0.90 m를 정한다.
+@evidence principles/core/common.md#substantive-completion 마감 안쪽 X = [0.90, 3.07], Z = [-8.80, -6.06] m, hall-shower-door X = [1.05, 2.05] m와 유효 폭 목표 0.90 m를 정한다.
 @evidence principles/core/common.md#declared-basis 예약 순내부 2.17 × 2.74 m가 설비 사용에 충분하다는 검증은 아직 없다고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation "상층 복도에서 직접 들어가는 첫 욕실"을 -X 문설주 경첩·실내 -Z 열림의 문과 네 내부 경계 실로 만든다.
 @evidence principles/design/spaces.md#space-topology 앞쪽 복도, 왼쪽 주침실, 오른쪽 욕조 욕실, 뒤쪽 옷방과 공유 벽으로 인접하고 주침실에 출입문을 추가하지 않는다.

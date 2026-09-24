@@ -75,8 +75,8 @@
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 설정의 계단 유효폭 목표에 기둥·손잡이 끝·접합판이 넘으면 안 되는 예약선과 넘었을 때 그 부재를 고치는 규칙을 더한다.
 @evidence principles/design/spaces.md#space-topology 하부 대기는 현관, 상부 대기는 복도의 바닥이고 위 flight 아래 닫힌 외투장은 현관 수납에만 속하며 관통 통로가 아니다.
 @evidence principles/design/spaces.md#space-boundary-authority 경로 폭은 stair-reservation, 두 대기는 entry-plan·upper-hall-plan, 외투장은 entry-coat-storage에서 받는다.
-@evidence principles/design/spaces.md#space-verification-address 단별 단면과 90° 회전 경로, 참 양쪽 시야에 0.60 × 0.45 × 1.90 m 사람과 0.75 m 바구니를 줄이지 않고 적용하고 각 디딤의 2.00 m 머리 공간을 실제 천장·층판·보·난간과 본다.
-@evidence settings/00-production.md#use-profile 0.95 m 계단 목표와 2.00 m 머리 공간을 사람·바구니를 줄이지 않고 검사한다.
+@evidence principles/design/spaces.md#space-verification-address 단별 단면과 90° 회전 경로, 참 양쪽 시야에 0.60 × 0.45 × 1.90 m 사람과 0.75 m 바구니를 줄이지 않고 적용하고 각 디딤의 목표 머리 공간 2.00 m를 실제 천장·층판·보·난간과 본다.
+@evidence settings/00-production.md#use-profile 0.95 m 계단 목표와 2.00 m 머리 공간 목표를 사람·바구니를 줄이지 않고 검사한다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work 0.60 × 0.45 × 1.90 m 사람과 0.75 m 바구니를 기존 L형 경로에 적용할 점유 예약이 가능해 프로필 변경은 없었다.
 -->
 

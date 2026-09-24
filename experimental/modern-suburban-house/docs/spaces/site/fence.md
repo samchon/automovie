@@ -54,7 +54,7 @@
 ## 지표를 받는 높이와 점유 {#fence-ground-profile}
 <!--
 @evidence principles/core/common.md#scope-preservation 패널 상단과 아래끝의 높이 규칙, 문 앞뒤 접촉, 일반 기둥·패널·기초의 평면 점유, 식재와의 관계를 맡는다.
-@evidence principles/core/common.md#substantive-completion 패널 상단을 관리문 문짝 상단과 같은 world 높이로, 아래끝을 g + 0.05 m로, 일반 기둥 0.12 m 정방형·패널 중심선 양쪽 0.05 m·기초 0.24 m 정방형으로 정한다.
+@evidence principles/core/common.md#substantive-completion 패널 상단을 관리문 문짝 상단과 같은 world 높이로, 아래끝을 g + 0.05 m로 두고 일반 기둥은 0.12 m 정방형, 패널·연결 부재의 두께 점유는 중심선 양쪽 각각 0.05 m 안으로, 받침/기초의 최대 평면 점유는 0.24 m 정방형으로 예약한다.
 @evidence principles/core/common.md#declared-basis g는 maps의 실제 지표 높이로 아직 없으며 일정 높이로 꾸며 넣지 않는다고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 목재 울타리를 지표를 따라가는 아래끝과 관리길 제외 여유를 침범하지 않는 기초 점유로 만든다.
 @evidence principles/design/spaces.md#space-topology 문 앞뒤의 보행면과 문기둥 접촉을 관리길 상면 S와 맞추고 일반 기초는 포장에 침투하지 않는다.

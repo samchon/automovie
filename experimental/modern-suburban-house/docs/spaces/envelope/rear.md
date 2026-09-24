@@ -89,7 +89,7 @@
 ## 공용부에서 정원으로 나가는 문 {#garden-door}
 <!--
 @evidence principles/core/common.md#scope-preservation 공용부의 정원 출입문 두 장, 안쪽/바깥 대기, 문턱, 식탁·테라스와의 관계, 표면 owner 구분을 맡는다.
-@evidence principles/core/common.md#substantive-completion 후벽의 X = [-1.20, 1.20], Y = [0, 2.25] m 개구부에 바깥 -Z로 열리는 유리 경첩 문 두 장, 주 문 유효 폭 0.95 m, 깊이 1.80 m의 바깥 대기를 정한다.
+@evidence principles/core/common.md#substantive-completion 후벽의 X = [-1.20, 1.20], Y = [0, 2.25] m 개구부에 바깥 -Z로 열리는 유리 경첩 문 두 장, 주 문만 90° 열었을 때의 유효 폭 목표 0.95 m, 깊이 1.80 m의 바깥 대기를 정한다.
 @evidence principles/core/common.md#declared-basis 문짝 회전 반경은 문틀을 뺀 문짝 치수에서 산출하고 바깥 대기 깊이는 문을 당겨 열고 물러서는 저작 선택이라고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 후면 정원 출입의 설정을 +X 주 문, 양 끝 경첩, 중앙 손잡이, 안쪽 X = [-1.50, 1.50], Z = [-10.45, -9.25]·바깥 Z = [-12.50, -10.70] m 대기로 만든다.
 @evidence principles/design/spaces.md#space-topology garden-door가 kitchen-dining-family와 ground-storey 외부 대기를 잇고 테라스가 그 대기를 포함한다.

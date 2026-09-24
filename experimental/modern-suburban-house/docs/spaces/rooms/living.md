@@ -17,7 +17,7 @@
 
 `entry-living-door`는 X = [-1.95, -1.80]의 현관/거실 공유 벽에 거친 개구부 Z = [-1.35, -0.35], Y = [0, 2.20] m를 만든다. 문틀 뒤 유효 폭 목표는 0.90 m다. -Z 문설주를 경첩으로 삼아 거실 쪽 -X 방향으로 열고, X = [-2.85, -1.95]·Z = [-1.40, -0.35]의 문 앞 바닥에는 가구를 놓지 않는다. 앞쪽 현관에서 보이는 열린 문이 직접 접속을 답한다.
 
-후면 공용부로 통하는 벽 없는 연결은 [공용부 owner](common.md#common-room-plan)가 소유한다. 벽난로의 왼쪽 외벽 접면과 공간 예약은 [굴뚝 owner](../envelope/left.md#chimney-roof-interface)를 소비한다. 창은 [living-front-window](../envelope/front.md#living-front-window)와 [living-left-window](../envelope/left.md#living-left-window)의 동일 void를 소비하며 방 안쪽에서 별도 창 좌표를 만들지 않는다. 벽난로와 창호의 실제 부재는 미완료다. `src/spaces/rooms/living.ts`가 방의 완결 내부를 소유한다. 거실 문과 창이 같은 방 경계를 품는지, 소파/벽난로가 앞뒤 통행을 막는지, 현관에서 거실을 볼 수 있는지가 관찰 질문이다. 실제 순폭·가구 간섭·창/굴뚝 binding·프레임은 unverified다.
+후면 공용부로 통하는 상인방 아래의 문짝 없는 개구부는 [공용부 owner](common.md#common-room-plan)가 소유한다. 벽난로의 왼쪽 외벽 접면과 공간 예약은 [굴뚝 owner](../envelope/left.md#chimney-roof-interface)를 소비한다. 창은 [living-front-window](../envelope/front.md#living-front-window)와 [living-left-window](../envelope/left.md#living-left-window)의 동일 void를 소비하며 방 안쪽에서 별도 창 좌표를 만들지 않는다. 벽난로와 창호의 실제 부재는 미완료다. `src/spaces/rooms/living.ts`가 방의 완결 내부를 소유한다. 거실 문과 창이 같은 방 경계를 품는지, 소파/벽난로가 앞뒤 통행을 막는지, 현관에서 거실을 볼 수 있는지가 관찰 질문이다. 실제 순폭·가구 간섭·창/굴뚝 binding·프레임은 unverified다.
 
 ## 벽난로를 향한 좌석과 독서 가구 {#living-furniture-use}
 <!--
@@ -60,7 +60,7 @@
 @evidence settings/00-production.md#use-profile 0.90 m 통로 목표를 X = [-4.90, -4.00] 주 통행 띠의 설계 입력 조건으로 적용하고 문 없는 경계에서는 하나의 점유체가 모서리를 도는 경로로 검사한다.
 @evidence settings/10-house.md#living 좌석이 문 접근을 막지 않도록 소파 착석 영역을 통과 경로로 세지 않는다.
 @evidence obligations/design/spaces.md#space-access-circulation 현관↔공용부의 연결을 거실 안의 구체 통행 띠로 배정하고 의자 사용·책장 횡단 중에도 그 띠를 유지한다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work use-profile의 0.90 m 통로와 living의 좌석-접근 조건을 벽난로·테이블 사이에 적용했고 X = [-4.90, -4.00] 띠가 성립해 부모 수정이 없었다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work use-profile의 0.90 m 통로 목표와 living의 좌석-접근 조건을 벽난로·테이블 사이에 적용했고 X = [-4.90, -4.00] 띠가 성립해 부모 수정이 없었다.
 -->
 
 같은 living-room 내부에서 [현관 쪽 문](#living-plan)과 [공용부 쪽 개구부](common.md#common-room-plan)를 잇는다. 주 통행 띠는 X = [-4.90, -4.00], Z는 방 뒤쪽 안쪽 면부터 -1.45 m까지다. 벽난로 앞면과 테이블 사이에 두고, [좌석이 문·계단 접근을 가로막지 않는다는 거실 조건](../../settings/10-house.md#living)에 따라 소파 착석 영역을 통과 경로로 세지 않는다. 거실 출입문을 90° 연 상태에서 문짝의 전면 쪽 바닥을 따라 왼쪽으로 먼저 들어온 뒤, 테이블 앞쪽의 Z = [-1.45, -0.45] m 바닥에서 주 통행 띠로 꺾는다. 앞쪽 바닥은 문 안쪽 대기와 연속된 같은 room 표면이며 별도 복도가 아니다. 문 회전 중에는 기다리고, 열린 문짝의 두께/손잡이와 전면 창대·커튼 사이 실제 통과 폭을 함께 검사한다.

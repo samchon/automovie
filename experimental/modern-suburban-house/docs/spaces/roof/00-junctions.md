@@ -13,7 +13,7 @@
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work main-mass의 "오른쪽 박공은 별도 독립 동이나 세 번째 층이 아니다"와 openings의 "계단/복도용의 더 작은 창"을 박공 폭에 대조했고 X = [-5.75, -1.80] m 박공이 계단 창을 비켜 둘 다 성립해 부모 수정이 없었다.
 -->
 
-[본채와 차고 외곽](../00-building.md#main-building-extent), [두 층 천장](../01-storeys.md#storey-datums)을 유지하며 [설정의 지붕군](../../settings/10-house.md#main-mass)을 배치한다. 본채 주 지붕과 오른쪽 낮은 지붕의 용마루는 X 방향이고, 왼쪽 전면 박공의 용마루는 Z 방향이다. 오른쪽 지붕은 본채 안에서 낮아지는 부분이며 독립 동·추가 층·바닥 돌출을 만들지 않는다. 차고는 자신의 단층 외곽 위에 더 낮은 X 방향 박공 지붕을 갖는다.
+[본채](../00-building.md#main-building-extent)와 [차고](../00-building.md#attached-garage-extent) 외곽, [두 층 천장](../01-storeys.md#storey-datums)을 유지하며 [설정의 지붕군](../../settings/10-house.md#main-mass)을 배치한다. 본채 주 지붕과 오른쪽 낮은 지붕의 용마루는 X 방향이고, 왼쪽 전면 박공의 용마루는 Z 방향이다. 오른쪽 지붕은 본채 안에서 낮아지는 부분이며 독립 동·추가 층·바닥 돌출을 만들지 않는다. 차고는 자신의 단층 외곽 위에 더 낮은 X 방향 박공 지붕을 갖는다.
 
 주 지붕과 오른쪽 지붕을 가르는 평면은 X = 1.60 m다. 두 지붕의 공통 용마루 평면 Z는 본채 전후 외벽의 중간에서 산출한다. 주 지붕은 본채 왼쪽부터 이 분할면까지, 낮은 지붕은 분할면부터 본채 오른쪽까지 담당한다. 전면 박공의 벽 기준 양 끝은 X = [-5.75, -1.80] m, 전면 벽은 본채의 Z = 0 m다. 중심은 양 끝의 평균이다. 이 폭은 전면 거실/왼쪽 자녀실 위를 덮고 그 오른쪽 [계단/복도용의 더 작은 창](../../settings/10-house.md#openings)인 [작은 계단 창](../02-stair.md#stair-floor-opening)을 별도 정면 구간에 두기 위한 선택이다.
 

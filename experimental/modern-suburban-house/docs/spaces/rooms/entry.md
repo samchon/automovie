@@ -12,7 +12,7 @@
 @evidence settings/10-house.md#entry 거실은 자기 출입구로 직접 연결하고 계단 첫 단을 같은 현관에 노출해 현관에서 거실·계단·서비스로 가는 길이 다른 방을 통과하지 않게 한다.
 @evidence settings/00-production.md#coverage-map 설계 branch가 정할 결정으로 남겨진 문 여닫힘 위치를 +X 문설주 경첩과 실내 -Z 열림으로 정한다.
 @evidence obligations/design/spaces.md#space-access-circulation 표현된 주 출입구 front-door에 유효 폭 0.90 m 이상을 남기는 문틀과 열린 상태에서도 계단 대기까지 비운 바닥을 배정하고 거실 출입구·계단 첫 단·서비스 접근을 현관에 직접 연결한다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work entry의 직접 분배·파우더룸 비통로 조건과 stair의 중앙 단일 계단, use-profile의 문 0.80 m 목표를 L형 평면에 적용했고 0.90 m 문과 두 직접 연결이 성립해 부모 수정이 없었다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work entry의 직접 분배·파우더룸 비통로 조건과 stair의 중앙 단일 계단, use-profile의 문 0.80 m 목표를 L형 평면에 적용했고 유효 폭 0.90 m 이상의 문과 두 직접 연결이 성립해 부모 수정이 없었다.
 -->
 
 `front-entry`는 ground-storey의 실내 분배 공간이다. [본채 안쪽 한계](../00-building.md#main-building-extent)와 [층 기준](../01-storeys.md#storey-datums)을 소비한다. 마감 안쪽 평면 꼭짓점은 (X, Z) m로 (-1.80, -0.25), (2.02, -0.25), (2.02, -3.41), (-0.50, -3.41), (-0.50, -1.45), (-1.80, -1.45)다. 마지막 점에서 첫 점으로 닫는다. 계단의 아래 구간과 오른쪽 보호벽을 방 바닥에서 제외한 L형이며, [단일 계단](../02-stair.md#stair-reservation)의 하부 대기 X = [-1.80, -0.65]·Z = [-1.45, -0.25]가 이 방에 포함된다.

@@ -3,7 +3,7 @@
 ## 복도 끝에서 직접 들어가는 욕실 {#tub-bath-plan}
 <!--
 @evidence principles/core/common.md#scope-preservation tub-bathroom의 경계와 인접, 왼쪽 벽의 단일 문, 세 기구와 높은 흐린 창의 소비, 욕조까지의 경로 질문을 맡는다.
-@evidence principles/core/common.md#substantive-completion 마감 안쪽 X = [3.22, 5.50], Z = [-8.80, -4.71] m, hall-tub-door Z = [-5.86, -4.86] m와 유효 폭 0.90 m를 정한다.
+@evidence principles/core/common.md#substantive-completion 마감 안쪽 X = [3.22, 5.50], Z = [-8.80, -4.71] m, hall-tub-door Z = [-5.86, -4.86] m와 유효 폭 목표 0.90 m를 정한다.
 @evidence principles/core/common.md#declared-basis 뒤쪽으로 긴 순내부 2.28 × 4.09 m와 기구 예약을 욕조 겸 샤워·변기·세면장 배치 근거로 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation "상층 복도에 자기 문을 가진 두 번째 욕실"을 +Z 문설주 경첩·방 안 +X 열림의 문과 샤워 욕실과 벽을 사이에 둔 독립 실로 만든다.
 @evidence principles/design/spaces.md#space-topology 왼쪽 벽의 앞 부분은 복도, 뒤 부분은 샤워 욕실에 닿고 샤워 욕실·침실 쪽에는 통과문이 없다.

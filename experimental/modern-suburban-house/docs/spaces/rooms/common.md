@@ -95,7 +95,7 @@
 ## 오른쪽 가족실의 좌석과 창 접근 {#common-family-reservation}
 <!--
 @evidence principles/core/common.md#scope-preservation 가족실 소파와 낮은 테이블, 두 창의 하부 접근, 측면 통로, 후속 소품의 책임을 맡는다.
-@evidence principles/core/common.md#substantive-completion 소파 X = [3.25, 5.35] m·Z = -7.15 m부터 앞쪽 안쪽 면·높이 0.90 m, 테이블 X = [3.40, 4.50], Z = [-8.35, -7.80] m·높이 0.42 m를 정한다.
+@evidence principles/core/common.md#substantive-completion 소파 최대 점유 X = [3.25, 5.35] m·Z = -7.15 m부터 앞쪽 안쪽 면·높이 0.90 m, 테이블 X = [3.40, 4.50], Z = [-8.35, -7.80] m·높이 0.42 m를 정한다.
 @evidence principles/core/common.md#declared-basis 소파 뒤쪽 면은 기존 팬트리와의 닫힌 경계, 통로 목표는 0.90 m, 창대 돌출은 06에서 받는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 가족실의 소파와 낮은 테이블을 -Z 정원/창 쪽을 향하게 두고 테이블 오른쪽으로 창에 돌아갈 공간을 남기는 배치를 더한다.
 @evidence principles/design/spaces.md#space-topology 가족실을 공용부의 오른쪽 기능 구역으로 두고 별도 벽/문/방 id를 만들지 않는다.
@@ -123,7 +123,7 @@
 @evidence settings/00-production.md#use-profile 바구니 포함 사용 점유체의 양방향 이동과 0.90 m 이상 통로 목표를 주 경로에 적용한다.
 @evidence settings/10-house.md#common-room service-common-opening에서 들어와 garden-door 안쪽 대기로 가는 오른쪽·뒤쪽 두 띠를 두어 주방 작업대나 식탁 사이만이 유일한 통로가 되지 않게 한다.
 @evidence obligations/design/spaces.md#space-access-circulation service-common-opening에서 garden-door 안쪽 대기와 가족실 좌석으로 가는 두 띠를 손잡이·사용 점유로 줄이지 않고 living-common-opening에서 기기를 닫은 기준 상태의 작업면 사이로 후면 띠에 합류하는 주방 경로를 배정한다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work common-room의 유일 통로 금지와 use-profile의 바구니 폭을 두 진입 경로에 적용했고 가구 예약을 돌아가는 띠가 성립해 부모 수정이 없었다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work common-room의 유일 통로 금지와 use-profile의 바구니 포함 사용 점유체를 주 경로에 적용했고 가구 예약을 돌아가는 띠가 성립해 부모 수정이 없었다.
 -->
 
 같은 kitchen-dining-family 내부의 경로이며 벽/문/새 복도를 추가하지 않는다. [service-common-opening](#common-room-plan)에서 정원으로 가는 주 경로의 오른쪽 띠는 X = 2.10 m부터 그 개구부의 오른쪽 끝까지, Z = -9.25 m부터 공용부 앞쪽 안쪽 면까지다. 뒤쪽 띠는 X = -1.50 m부터 같은 개구부 오른쪽 끝까지, Z는 공용부 후벽 안쪽 면부터 -9.25 m까지다. 두 띠가 꺾여 [garden-door 안쪽 대기](../envelope/rear.md#garden-door)에 닿는다. 대기를 이 경로 위에 별도 바닥으로 겹치지 않는다. 오른쪽 띠에서 가족실 좌석으로 분기한다. 창·문·가구의 손잡이나 사용 점유로 이 띠를 줄이지 않는다.

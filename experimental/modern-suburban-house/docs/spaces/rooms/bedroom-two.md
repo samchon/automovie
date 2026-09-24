@@ -3,7 +3,7 @@
 ## 올리브 침실의 자기 경계 {#bedroom-two-plan}
 <!--
 @evidence principles/core/common.md#scope-preservation bedroom-two의 경계, 복도 쪽 자기 문, 전면 창 소비, 굴뚝 쪽 창 배제, 가구 사용 배정과 source owner를 맡는다.
-@evidence principles/core/common.md#substantive-completion 마감 안쪽 X = [-5.50, -1.95], Z = [-4.56, -0.25] m, hall-bedroom-two-door X = [-3.10, -2.10] m와 유효 폭 0.90 m를 정한다.
+@evidence principles/core/common.md#substantive-completion 마감 안쪽 X = [-5.50, -1.95], Z = [-4.56, -0.25] m, hall-bedroom-two-door X = [-3.10, -2.10] m와 유효 폭 목표 0.90 m를 정한다.
 @evidence principles/core/common.md#declared-basis 순내부 3.55 × 4.31 m를 한 자녀의 침대·책상·옷장과 별도 보행길을 넣기 위한 선택으로 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation "복도에서 직접 들어가며 자기 외벽 창"을 +X 문설주 경첩·방 안 +Z 열림의 문과 전면 창 소비로 만든다.
 @evidence principles/design/spaces.md#space-topology 앞·왼쪽 외벽, 오른쪽 계단실, 뒤쪽 복도/주침실과 인접하고 다른 침실이나 욕실을 지나지 않고 들어온다.

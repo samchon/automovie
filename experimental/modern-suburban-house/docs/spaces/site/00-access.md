@@ -15,7 +15,7 @@
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work site-identity의 앞 보도·차도·보행길, build-allocation의 maps 소유, coordinate-units의 +Z 전면을 대조했고 maps는 disabled라 map 부모가 없으며 설정만으로 포장 끝을 정할 수 있어 부모 수정이 없었다.
 -->
 
-`house-site`는 [본채와 차고](../00-building.md#main-building-extent), 포치와 아래의 외부 접근 구역을 포함할 site다. 건물에 딸린 보행길·차도·테라스는 [ground-storey](../01-storeys.md#storey-datums)의 외부 구역으로도 바인딩한다. 실내 방이나 별도 층을 추가하지 않는다. 좌표는 [공통 기준](../../settings/00-production.md#coordinate-units)을 사용한다. `src/spaces/site.ts`는 이 containment와 접속의 조립 owner이며 포장·지형을 직접 중복 생성하지 않는다.
+`house-site`는 [본채](../00-building.md#main-building-extent)와 [차고](../00-building.md#attached-garage-extent), 포치와 아래의 외부 접근 구역을 포함할 site다. 건물에 딸린 보행길·차도·테라스는 [ground-storey](../01-storeys.md#storey-datums)의 외부 구역으로도 바인딩한다. 실내 방이나 별도 층을 추가하지 않는다. 좌표는 [공통 기준](../../settings/00-production.md#coordinate-units)을 사용한다. `src/spaces/site.ts`는 이 containment와 접속의 조립 owner이며 포장·지형을 직접 중복 생성하지 않는다.
 
 이 문서는 [대지와 식재](../../settings/10-house.md#site-identity)의 앞 보도에 차고 진입 차도와 현관 보행길이 닿을 전면 포장의 바깥 끝을 Z = 6.50 m에 둔다. 이 선은 spaces가 요구하는 포장 끝이며 필지 경계나 공공 보도 선의 선언이 아니다. 같은 선 위 [현관 보행길](front-walk.md#front-walk-plan)의 끝과 [차고 차도](driveway.md#driveway-plan)의 끝은 모두 기존 [앞 보행길 datum](../01-storeys.md#ground-threshold-datums)에 닿는다. maps는 실제 필지 경계와 보도·연석·도로, 하나의 이름 있는 `house-site-access` node를 소유하고 이 두 접속 단면을 그 node의 보행/차도 포트로 받아야 한다. 별개의 두 외부 네트워크를 발명하지 않는다.
 
@@ -64,7 +64,7 @@ maps에 넘기는 포장 접속은 기존 전면 두 포트 외에 측면 관리
 | 받을 입력 | 소비하는 spaces 값과 접속 조건 |
 | --- | --- |
 | 세계 좌표와 site 배치 | [공통 좌표](../../settings/00-production.md#coordinate-units)와 원점·축·단위·높이 datum이 일치하는 변환을 받는다. 이 집은 그 공통 좌표에 직접 저작하므로 site 변환은 항등으로 요구한다. 렌더 카메라 이동은 site 변환을 바꾸지 않는다. |
-| 닫힌 필지 경계 | [본채/차고](../00-building.md#main-building-extent), 포치·굴뚝·처마의 실제 외곽과 네 포장 owner의 윤곽 및 식재 제외 여유, [울타리 전체 선과 최대 점유](fence.md#fence-ground-profile)를 모두 수용해야 한다. 지붕 투영선과 지면을 점유하는 기초선은 구별한다. 경계가 예약을 자르면 원래 maps 또는 spaces owner에서 고치며 잘린 면을 숨기지 않는다. |
+| 닫힌 필지 경계 | [본채](../00-building.md#main-building-extent)/[차고](../00-building.md#attached-garage-extent), 포치·굴뚝·처마의 실제 외곽과 네 포장 owner의 윤곽 및 식재 제외 여유, [울타리 전체 선과 최대 점유](fence.md#fence-ground-profile)를 모두 수용해야 한다. 지붕 투영선과 지면을 점유하는 기초선은 구별한다. 경계가 예약을 자르면 원래 maps 또는 spaces owner에서 고치며 잘린 면을 숨기지 않는다. |
 | 하나의 외부 접근 node와 두 포트 | 위 [전면 포장 끝](#site-access-interface)의 front-walk/driveway 전체 끝선을 받는다. 폭은 각 포장 owner의 X 구간, 높이는 그 끝선의 상면, 접속 방향은 +Z다. 중심점 하나가 같다는 이유로 연결을 인정하지 않는다. 외부 보도는 두 끝선 전체와 턱 없이 만나고 차도 포트가 가로지르는 보행 구간도 연속되어야 한다. |
 | 낮은 보행면의 지표 접합 | [현관 보행길](front-walk.md#front-walk-plan), [차도](driveway.md#driveway-plan), [측면 관리길](side-walk.md#side-walk-plan)의 노출 가장자리별 높이식을 소비한다. 가로 연결로는 횡방향 보간까지 포함한다. [아래 대기](terrace.md#garden-lower-landing-plan)의 양옆은 그 상면에서 지표와 이어지고 뒤끝은 이미 관리길이 받으므로 두 번째 지형 면을 넣지 않는다. |
 | 높은 테라스와 건물의 접지 | [테라스와 세 단](terrace.md#garden-steps-plan)은 상하 높이 차를 유지한다. 지표를 테라스 상면까지 끌어올려 챌판이나 옆면을 지우지 않는다. 테라스·기초·굴뚝의 수직 옆면에 닿는 지표 접촉선을 받아 후속 지지/마감 부재가 닫는다. 해당 부재가 없는 현재 상태에서는 접지 완료를 주장하지 않는다. |

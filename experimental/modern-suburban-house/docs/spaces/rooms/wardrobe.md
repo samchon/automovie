@@ -3,7 +3,7 @@
 ## 사람이 들어가는 옷 수납실 {#primary-wardrobe-plan}
 <!--
 @evidence principles/core/common.md#scope-preservation primary-wardrobe의 경계, 주침실 쪽 단일 문, 후면 수납 예약, 돌아설 공간과 전체 방 관찰 부담을 맡는다.
-@evidence principles/core/common.md#substantive-completion 마감 안쪽 X = [0.90, 5.50], Z = [-10.45, -8.95] m, 문 개구부 Z = [-10.20, -9.20] m와 유효 폭 0.90 m, 수납 X = [2.10, 5.50], Z = [-10.45, -9.90] m를 정한다.
+@evidence principles/core/common.md#substantive-completion 마감 안쪽 X = [0.90, 5.50], Z = [-10.45, -8.95] m, 문 개구부 Z = [-10.20, -9.20] m와 유효 폭 목표 0.90 m, 수납 X = [2.10, 5.50], Z = [-10.45, -9.90] m를 정한다.
 @evidence principles/core/common.md#declared-basis 옷걸이 앞 깊이 0.95 m는 입력 산술이며 실제 옷·손잡이·문틀 뒤 순폭은 다시 읽는다고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation "사람이 들어가는 수납실을 공간으로 저작하면 다른 방과 같은 전체 관찰을 부담"을 upper-storey 소속의 독립 공간과 자기 문으로 확정한다.
 @evidence principles/design/spaces.md#space-topology 옷방은 주침실에서만 들어가고 욕실 쪽에는 문이 없으며 같은 문으로 되돌아온다.

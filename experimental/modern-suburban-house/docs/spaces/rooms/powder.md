@@ -3,7 +3,7 @@
 ## 단일 출입과 기구 예약 {#powder-plan}
 <!--
 @evidence principles/core/common.md#scope-preservation powder-room의 경계, 단일 실문, 변기·세면대 예약, 노출 입면 구분과 비통과 조건을 맡는다.
-@evidence principles/core/common.md#substantive-completion 마감 안쪽 X = [3.22, 5.50], Z = [-1.90, -0.25] m, 문 개구부 Z = [-1.65, -0.70] m와 유효 폭 0.85 m, 변기 X = [4.75, 5.50]·Z = [-1.65, -0.95], 세면대 X = [3.65, 4.25]·Z = [-0.70, -0.25] m를 정한다.
+@evidence principles/core/common.md#substantive-completion 마감 안쪽 X = [3.22, 5.50], Z = [-1.90, -0.25] m, 문 개구부 Z = [-1.65, -0.70] m와 유효 폭 목표 0.85 m, 변기 X = [4.75, 5.50]·Z = [-1.65, -0.95], 세면대 X = [3.65, 4.25]·Z = [-0.70, -0.25] m를 정한다.
 @evidence principles/core/common.md#declared-basis 기구 박스는 최종 제품 치수가 아닌 사용 공간을 먼저 남기는 상한이라고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 서비스 통로에서 직접 들어가는 작은 화장실을 -Z 문설주 경첩·실내 +X 열림과 변기/세면대의 벽 배치로 만든다.
 @evidence principles/design/spaces.md#space-topology 파우더룸은 서비스 띠 앞쪽의 독립실이고 차고나 다른 실로 이어지는 문이 없다.

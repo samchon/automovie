@@ -71,7 +71,7 @@
 <!--
 @evidence principles/core/common.md#scope-preservation 굴뚝 몸통·덮개, 거실 쪽 벽난로 앞면 예약, 주 지붕 notch와 후레싱 접면, 불이 꺼진 정적 상태를 함께 맡는다.
 @evidence principles/core/common.md#substantive-completion 몸통 평면 X = [-6.30, -5.50], Z = [-2.75, -1.65] m, Y = -0.45 m부터 8.90 m, 덮개 Y = [8.90, 9.10] m와 0.10 m 내밈, 실내 앞면 X = [-5.50, -4.95], Z = [-3.00, -1.40], Y = [0, 1.40] m를 정한다.
-@evidence principles/core/common.md#declared-basis 굴뚝 위치는 거실 설정의 왼쪽 외벽 벽난로, 지붕 높이는 Mfront 아래면에서 읽고 높이 선택이 연소 규정·구조 안전 주장이 아님을 밝힌다.
+@evidence principles/core/common.md#declared-basis 굴뚝 위치는 거실 설정의 왼쪽 외벽 벽난로, 몸통 주위의 지붕 높이는 Mfront에서 읽고 높이 선택이 연소 규정·구조 안전 주장이 아님을 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation "벽난로는 왼쪽 외벽의 굴뚝과 단면상 이어지는 위치"를 하나의 chimney 접면을 공유하는 몸통과 실내 앞면의 좌표, 지붕 경계 notch로 만든다.
 @evidence principles/design/spaces.md#space-topology 몸통은 외부, 앞면은 living-room 안에 있고 외벽을 사이에 둔 하나의 접면을 공유하며 주 지붕 왼쪽 경계에 닿는다.
 @evidence principles/design/spaces.md#space-boundary-authority 실내 완결 면은 living owner, 외부와 구조 기준은 이 왼쪽 입면 owner로 나누고 지붕 윤곽은 main-front-roof에서 소비한다.

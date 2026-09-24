@@ -112,10 +112,10 @@
 @evidence settings/20-verification.md#data-authority helper 결과의 개수·좌표를 미리 선언하지 않고 실제 호출·전수 관찰을 unverified로 둔다.
 @evidenceExclude settings/20-verification.md#submission-boundary spaces H2 가운데 커밋·푸시 절차를 입력으로 쓰는 공간 결정은 없다. 이 H2의 렌더 인계도 공간 면의 element 표현을 다루며 Git 제출은 저작 turn의 작업 절차다.
 @evidenceExclude settings/20-verification.md#execution-boundary spaces 47개 문서는 CommonJS 엔진 경계·서버 구조·실행기를 정하거나 소비하는 공간 결정을 두지 않는다. 이 H2가 기록하는 공개 엔진 동작은 공간 면·standable surface·관찰 helper·landing의 인계 조건이며 서버 구조나 모듈 방식을 정하지 않는다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work renderer-boundary의 실제 3D 요구를 공개 엔진의 element 경계에 대조했고 각 완결 면을 exterior-surface-handoff의 같은 source owner가 model을 가진 element로 만들면 되어 부모 수정이 없었다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work renderer-boundary의 실제 3D 요구를 공개 엔진의 element 경계에 대조했고 각 완결 면을 exterior-surface-handoff와 interior-surface-handoff가 배정한 같은 source owner가 model을 가진 element로 만들면 되어 부모 수정이 없었다.
 -->
 
-설치된 공개 엔진의 `lowerBuiltEnvironment`는 환경을 검증하고 실제 model을 가진 element만 세계 변환의 set으로 내리며 원래 built environment도 보존한다. 논리적인 room·boundary·opening 선언만으로는 보이는 벽·바닥·창호가 생기지 않는다. 따라서 이 공간 문서들이 정한 각 완결 면은 [표면 소유](03-surface-owners.md#exterior-surface-handoff)의 같은 source owner가 같은 저작 입력에서 model을 가진 element로 만들어야 하며 별도 좌표로 복제한 집을 두지 않는다. 비직사각 공간은 `IAutoMovieBuiltSpace`의 볼록 cell 합집합 또는 닫힌 shell 중 한 표현을 사용하며 그 전체 bbox를 방의 부피로 바꾸지 않는다. 현재는 공개 엔진 소스를 읽은 조건이며 환경 입력·호출·렌더 결과는 없다.
+설치된 공개 엔진의 `lowerBuiltEnvironment`는 환경을 검증하고 실제 model을 가진 element만 세계 변환의 set으로 내리며 원래 built environment도 보존한다. 논리적인 room·boundary·opening 선언만으로는 보이는 벽·바닥·창호가 생기지 않는다. 따라서 이 공간 문서들이 정한 각 완결 면은 [입면·지붕·층 표면](03-surface-owners.md#exterior-surface-handoff)과 [방 내부 면](03-surface-owners.md#interior-surface-handoff) 배정의 같은 source owner가 같은 저작 입력에서 model을 가진 element로 만들어야 하며 별도 좌표로 복제한 집을 두지 않는다. 비직사각 공간은 `IAutoMovieBuiltSpace`의 볼록 cell 합집합 또는 닫힌 shell 중 한 표현을 사용하며 그 전체 bbox를 방의 부피로 바꾸지 않는다. 현재는 공개 엔진 소스를 읽은 조건이며 환경 입력·호출·렌더 결과는 없다.
 
 공간의 standable surface는 이동과 관찰 검사를 위한 바닥 선언이며 [실제 3D 렌더](../settings/20-verification.md#renderer-boundary)에서 보이는 층판이나 대지가 아니다. 보이는 바닥은 [지상층 바탕](10-ground-floor.md#main-ground-floor-base), [층간 바닥](08-floor-assembly.md#interstorey-floor-boundary), 각 방과 포장 owner의 element가 만든다. standable surface가 있다는 이유로 그 면들의 부재를 생략하지 않는다. 카메라·조명·그림자·재질을 포함한 뷰어의 렌더 조건은 settings가 소유하며 이 공간 문서에서 정하지 않는다.
 

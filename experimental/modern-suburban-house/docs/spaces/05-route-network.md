@@ -15,7 +15,7 @@
 @evidence obligations/design/spaces.md#space-access-circulation 현관에서 각 목적지까지 갔다 돌아오는 경로와 팬트리/파우더룸/침실 비통과, 창·벽만 공유하는 인접성을 통행 edge에서 제외하는 규칙을 배정한다.
 -->
 
-아래 이름은 이 spaces 문서가 소스로 넘길 식별자다. 컴파일된 id·개수·binding으로 보고하지 않는다. 본채와 차고는 [외곽](00-building.md#main-building-extent), 두 층은 [storey](01-storeys.md#storey-datums), 유일한 층간 연결은 [main-stair](02-stair.md#stair-reservation)가 소유한다. 방의 마감 안쪽 경계·입구·예약 사용 공간은 각각 링크한 owner가 결정한다. 표는 그 값을 복사하지 않고 연결 순서를 인계한다.
+아래 이름은 이 spaces 문서가 소스로 넘길 식별자다. 컴파일된 id·개수·binding으로 보고하지 않는다. 본채와 차고는 [본채 외곽](00-building.md#main-building-extent)과 [차고 외곽](00-building.md#attached-garage-extent), 두 층은 [storey](01-storeys.md#storey-datums), 유일한 층간 연결은 [main-stair](02-stair.md#stair-reservation)가 소유한다. 방의 마감 안쪽 경계·입구·예약 사용 공간은 각각 링크한 owner가 결정한다. 표는 그 값을 복사하지 않고 연결 순서를 인계한다.
 
 | 출발 | 설계 경계/개구부 owner | 도착 및 storey |
 | --- | --- | --- |

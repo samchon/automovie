@@ -53,7 +53,7 @@
 @evidence settings/00-production.md#use-profile 사람의 폭·깊이·바구니 폭을 선반에 맞춰 축소하지 않고 문턱 뒤 연속 통로를 0.90 m 목표로 검사한다.
 @evidence settings/10-house.md#pantry 문을 연 상태에서도 선반 모서리와 물건이 사용 띠를 좁히지 않게 한다.
 @evidence obligations/design/spaces.md#space-access-circulation 서비스 통로에서 팬트리 선반까지의 문 조작·진입·회전·귀환 과제에 사용 띠와 회전 구역을 배정한다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work use-profile의 0.75 m 바구니·0.90 m 통로와 pantry의 선반 유효폭 조건을 열린 문 상태에 적용했고 뒤 선반 깊이를 문 돌출 상한까지 고려해 정해 성립해 부모 수정이 없었다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work use-profile의 0.75 m 바구니·0.90 m 통로 목표와 pantry의 선반 유효폭 조건을 열린 문 상태에 적용했고 뒤 선반 깊이를 문 돌출 상한까지 고려해 정해 성립해 부모 수정이 없었다.
 -->
 
 위 [실문](#pantry-plan)을 90° 열고 pantry 안에서 수납을 사용하는 상태를 예약한다. 열린 문짝과 손잡이의 -Z 방향 점유는 +Z 문설주 평면에서 0.08 m 이내여야 한다. 문틀을 포함한 문턱 유효폭은 기존 실문 목표를 유지한다. 이 돌출량은 저작한 상한이며 실제 손잡이 제품이나 계측값이 아니다. 뒤 선반의 깊이를 정할 때 이 상한까지 뺀 통로를 고려했고, 실제 부재가 예약을 넘으면 사람을 줄이지 않고 문/선반 owner에서 해결한다.

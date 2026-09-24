@@ -8,7 +8,7 @@
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 설정의 층별 순높이 범위를 두 datum과 층간 0.31 m로 고정하고 차고·포치를 ground-storey 부속으로, 지붕 속을 층이 아닌 공간으로 정한다.
 @evidence principles/design/spaces.md#space-topology 본채에는 두 storey만 두고 차고·포치는 ground-storey 부속이며 지붕 속 공간을 세 번째 층으로 쓰지 않고 각 실은 건물 전체의 자식이어도 storey 소속을 생략하지 않고 해당 storey를 직접 참조한다.
 @evidence principles/design/spaces.md#space-boundary-authority datum은 src/spaces/storeys.ts가 한 번 소유하고 계단 구멍 평면은 stair-floor-opening에서 받으며 이 높이 예약 안의 층간 점유는 interstorey-floor-boundary가 정하고 upper-storey 천장 datum은 upper-ceiling-closure가 소비한다.
-@evidence principles/design/spaces.md#space-verification-address 모든 공간의 storey 참조, 두 완성면 높이, 천장/층판의 대응 구멍, 계단 상부 도착 높이를 0.001 m로 대조하고 구멍 아래 머리 공간 2.00 m를 단면에서 본다.
+@evidence principles/design/spaces.md#space-verification-address 모든 공간의 storey 참조, 두 완성면 높이, 천장/층판의 대응 구멍, 계단 상부 도착 높이를 0.001 m로 대조하고 구멍 아래 머리 공간 목표 2.00 m를 단면에서 본다.
 @evidence settings/00-production.md#coordinate-units 전면 중앙 바닥 원점과 +Y를 두 storey 완성 높이의 공통 기준으로 쓴다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work coordinate-units의 원점·+Y와 main-mass의 1층 2.65–2.80 m·2층 2.50–2.65 m 순높이를 대조했고 순높이 2.75 m·2.60 m가 두 범위 안에 들어 부모 수정이 없었다.
 @evidence obligations/design/spaces.md#space-reference-topology `ground-storey` Y = 0 m와 `upper-storey` Y = 3.06 m 두 storey만 두고 각 실의 공간 레코드가 storey를 직접 참조하게 한다.

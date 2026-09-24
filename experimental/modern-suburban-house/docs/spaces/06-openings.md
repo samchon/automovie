@@ -14,7 +14,7 @@
 @evidence obligations/design/spaces.md#space-envelope-interface 입면 owner가 거친 개구부 좌표를, 방 owner가 같은 id의 안쪽 reveal을 소유하게 하고 창틀을 날씨 면에서 0.04 m 물린 깊이 0.14 m 안에 두어 안팎이 같은 void를 쓰게 한다.
 -->
 
-외부 개구부는 [방 연결](05-route-network.md#room-route-network)과 [지붕 높이](roof/00-junctions.md#roof-profile-datums)를 소비한다. 각 입면의 개구부 H2는 실제 외벽에 만들 거친 직사각 개구부의 세계 좌표 입력이다. X 또는 Z 구간이 수평 폭이고 Y 구간이 바닥 기준이 아닌 세계 높이다. 벽 두께 방향은 [본채/차고 외곽](00-building.md#main-building-extent)의 안쪽 면부터 바깥 면까지 관통한다. 여기서 예정한 id·위치·개수는 compiled 산출물이 아니다.
+외부 개구부는 [방 연결](05-route-network.md#room-route-network)과 [지붕 높이](roof/00-junctions.md#roof-profile-datums)를 소비한다. 각 입면의 개구부 H2는 실제 외벽에 만들 거친 직사각 개구부의 세계 좌표 입력이다. X 또는 Z 구간이 수평 폭이고 Y 구간이 바닥 기준이 아닌 세계 높이다. 벽 두께 방향은 [본채](00-building.md#main-building-extent)/[차고](00-building.md#attached-garage-extent) 외곽의 안쪽 면부터 바깥 면까지 관통한다. 여기서 예정한 id·위치·개수는 compiled 산출물이 아니다.
 
 전면·후면·왼쪽·오른쪽의 개구부 좌표는 각각 [전면](envelope/front.md#front-openings), [후면](envelope/rear.md#rear-openings), [왼쪽](envelope/left.md#left-openings), [오른쪽](envelope/right.md#right-openings) 입면 owner가 소유한다. 기존 front-door만 [현관](rooms/entry.md#entry-plan)의 결정을 그대로 받는다. 방 owner는 같은 id와 void를 소비하고 안쪽 마감/reveal을 맡으며 창을 독립 좌표로 복제하지 않는다. 입면은 한 묶음창의 수직 분할 수를 선언하고 frame/sash/mullion은 유효 폭과 분할 수에서 반복 산출한다. 문짝 속 상부 유리는 그 문짝의 충전 부재이며 별도의 외벽 구멍으로 세지 않는다.
 

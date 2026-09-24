@@ -2,7 +2,7 @@
 
 ## 독립 공간 결정의 주소 {#spatial-addressability}
 <!--
-@evidence obligations/design/spaces.md#addressable-spatial-decisions 외부 창은 창마다 H2를 가지고, 계단은 예약·connector·구멍·순폭·높이별 경계를, 서비스 통로를 뺀 열네 방은 plan과 사용/경로를, 대지는 포장면마다 H2를 나눈다. 따로 바뀔 수 있는 문 개구부는 그 방의 plan H2가 소유하고 05의 연결 표가 id로 인용하며, 필지·지표·외부 도로는 숨긴 것이 아니라 maps 입력으로 명시했다.
+@evidence obligations/design/spaces.md#addressable-spatial-decisions 외부 창은 창마다 H2를 가지고, 계단은 예약·connector·구멍·순폭·높이별 경계를, 서비스 통로를 뺀 열네 방은 plan과 사용/경로를, 대지는 포장면마다 H2를 나눈다. 따로 바뀔 수 있는 실내 문과 현관문 개구부는 그 방의 plan H2가, 정원문·차고 전면문은 입면 H2가, 관리문은 관리길 H2가 소유하고 05의 연결 표가 id로 인용하며, 필지·지표·외부 도로는 숨긴 것이 아니라 maps 입력으로 명시했다.
 -->
 
 모든 공간 결정이 따로 인용될 수 있는지를 파일군별로 대조했다. 이 account는 H2 경계의 배분만 답한다.
@@ -10,7 +10,7 @@
 - 외부 개구부: 입면마다 폐합 H2와 배치 H2를 두고 창과 문마다 별도 H2를 둔다. 예를 들어 [계단 창](../../spaces/envelope/front.md#stair-front-window)은 거실 창이나 침실 창과 따로 바뀔 수 있다.
 - 계단: [공간 예약](../../spaces/02-stair.md#stair-reservation), [connector](../../spaces/02-stair.md#stair-connector-handoff), [층판 구멍](../../spaces/02-stair.md#stair-floor-opening), [순폭](../../spaces/02-stair.md#stair-clearance), [높이별 경계](../../spaces/02-stair.md#stair-boundary-heights)가 각각 H2다.
 - 방: [서비스 통로](../../spaces/rooms/service.md#service-access-plan)를 뺀 열네 방은 경계와 입구를 정하는 plan H2와 가구·기구 사용 또는 경로 H2를 따로 가지고, 서비스 통로는 경계·입구와 통행을 H2 하나에서 정한다. [공용부](../../spaces/rooms/common.md#common-room-plan)는 주방 벽·섬·식탁·가족실·동선을 다섯 H2로 더 나눈다.
-- 실내 문: 문 개구부는 그 방의 입구이므로 방의 plan H2가 좌표·경첩·열림을 소유한다. [연결 표](../../spaces/05-route-network.md#room-route-network)는 그 값을 복사하지 않고 id와 링크로 인용한다.
+- 실내 문: 문 개구부는 그 방의 입구이므로 방의 plan H2가 좌표·경첩·열림을 소유한다. 외부 문 가운데 현관문은 [현관 plan](../../spaces/rooms/entry.md#entry-plan)이 소유하지만 [정원문](../../spaces/envelope/rear.md#garden-door)·[차고 전면문](../../spaces/envelope/front.md#garage-front-opening)은 입면 H2가, [관리문](../../spaces/site/side-walk.md#side-gate-interface)은 관리길 H2가 소유한다. [연결 표](../../spaces/05-route-network.md#room-route-network)는 그 값을 복사하지 않고 id와 링크로 인용한다.
 - 공유 경계: 벽·층판·천장·지상층·지붕 교차는 07–10과 roof/00의 H2가 소유하고 방이나 입면은 링크로 소비한다.
 - 대지: 보행길·차도·관리길·테라스·울타리가 파일을 따로 가지며 테라스와 울타리는 다시 세 H2로 나뉜다.
 
@@ -24,7 +24,7 @@
 @evidence obligations/design/spaces.md#space-review-set 04가 compiled topology에서 외부·방별 질문을 파생하고 방과 대지 H2 54개가 각자 자기 확인 항목을 더해 unverified로 남기며, 문 조작·열린 기기와 서랍의 사용 상태·포장과 단의 단면이 그 추가 질문에 들어가고 다섯 참조 비교가 그 위에 더해진다. 관찰 수는 상수로 선언하지 않는다.
 -->
 
-기준과 topology: 모든 공간은 [공통 좌표](../../settings/00-production.md#coordinate-units) 위의 `house-site` 안에 있다. [본채와 차고 외곽](../../spaces/00-building.md#main-building-extent), [두 storey](../../spaces/01-storeys.md#storey-datums), 각 방의 plan H2, 외부 구역을 이름으로 둔다. [연결 표](../../spaces/05-route-network.md#room-route-network)는 외부 포장부터 상층 옷방까지 출발, 경계/개구부 owner, 도착과 storey를 잇는다. 방 plan H2도 자기 storey와 인접 방을 적으므로 표와 방 파일을 서로 대조할 수 있다.
+기준과 topology: 모든 공간은 [공통 좌표](../../settings/00-production.md#coordinate-units) 위의 `house-site` 안에 있다. [본채](../../spaces/00-building.md#main-building-extent)와 [차고](../../spaces/00-building.md#attached-garage-extent) 외곽, [두 storey](../../spaces/01-storeys.md#storey-datums), 각 방의 plan H2, 외부 구역을 이름으로 둔다. [연결 표](../../spaces/05-route-network.md#room-route-network)는 외부 포장부터 상층 옷방까지 출발, 경계/개구부 owner, 도착과 storey를 잇는다. 방 plan H2도 자기 storey와 인접 방을 적으므로 표와 방 파일을 서로 대조할 수 있다.
 
 외피와 실내: 전면, 후면, 왼쪽, 오른쪽의 창·문 H2는 각각 방 하나에 바인딩되고, [계단 창](../../spaces/envelope/front.md#stair-front-window)만 방이 아닌 main-stair의 층간 공간에 바인딩된다. [개구부 인계](../../spaces/06-openings.md#external-opening-interface)는 입면이 void 좌표를, 방이 reveal을 소유하도록 나눈다. 외벽 두께와 안쪽 한계는 [외곽](../../spaces/00-building.md#main-building-extent), 층 높이는 [storey](../../spaces/01-storeys.md#storey-datums), 모서리 몸체는 [외벽 접합](../../spaces/07-boundary-assembly.md#exterior-boundary-junctions)이 한 번 정한다. 차고 공유 벽 뒤의 서비스실처럼 창이 없는 구간도 [오른쪽 개구부](../../spaces/envelope/right.md#right-openings)가 명시한다.
 

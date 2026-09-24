@@ -3,7 +3,7 @@
 ## 서비스 통로와 차고 사이 {#laundry-plan}
 <!--
 @evidence principles/core/common.md#scope-preservation laundry-mudroom의 경계, 마주 보는 두 실문, 차고 쪽 한 단, 양쪽 대기, 작업/횡단 구분과 바닥 인계를 맡는다.
-@evidence principles/core/common.md#substantive-completion 마감 안쪽 X = [3.22, 5.50], Z = [-4.55, -2.05] m, 두 문 개구부 Z = [-4.40, -3.35] m와 유효 폭 0.95 m, 차고 하부 대기 X = [5.75, 6.80]·머드룸 상부 대기 X = [4.45, 5.50]을 정한다.
+@evidence principles/core/common.md#substantive-completion 마감 안쪽 X = [3.22, 5.50], Z = [-4.55, -2.05] m, 두 문 개구부 Z = [-4.40, -3.35] m와 유효 폭 목표 0.95 m, 차고 하부 대기 X = [5.75, 6.80]·머드룸 상부 대기 X = [4.45, 5.50]을 정한다.
 @evidence principles/core/common.md#declared-basis 차고 쪽 0.15 m 단차는 ground-threshold-datums, 높은 문턱의 지지는 ground-threshold-junctions에서 받는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation "우측 띠와 차고 사이의 완충실"을 서쪽 칸막이와 동쪽 공유 벽의 두 문이 마주 보고 -Z 문설주에서 머드룸 안으로 열리는 배치로 만든다.
 @evidence principles/design/spaces.md#space-topology 서비스 접근과 차고를 잇는 두 실문을 같은 connector로 합치지 않고 이 방을 차고에 가는 유일한 내부 경로로 둔다.
@@ -18,7 +18,7 @@
 
 `service-laundry-door`와 `laundry-garage-door`는 각각 서쪽 칸막이와 동쪽 공유 벽에서 거친 개구부 Z = [-4.40, -3.35], Y = [0, 2.20] m를 소유한다. 두 문 모두 최종 유효 폭 0.95 m를 목표로 하고 -Z 문설주에서 머드룸 안으로 열린다. 개구부가 마주 보며 열린 문짝은 뒤쪽 가장자리로 향한다. 두 문을 같은 connector로 합치지 않는다. 차고 쪽 0.15 m 단차는 [기존 문턱 datum](../01-storeys.md#ground-threshold-datums)을 받는다.
 
-기기·상판/상부장과 벤치/걸이는 [세탁 작업 예약](#laundry-equipment-use)을 소비한다. 앞쪽 작업과 뒤쪽 두 실문 사이의 [횡단 경로](#laundry-through-route)를 구별하며 기기를 열어 놓았다는 이유로 [차고 내부 관찰도 거치는](../../settings/10-house.md#garage) 집과 차고 사이의 유일한 내부 경로가 끊기지 않게 한다.
+기기·접는 상판·상부 수납과 벤치/걸이는 [세탁 작업 예약](#laundry-equipment-use)을 소비한다. 앞쪽 작업과 뒤쪽 두 실문 사이의 [횡단 경로](#laundry-through-route)를 구별하며 기기를 열어 놓았다는 이유로 [차고 내부 관찰도 거치는](../../settings/10-house.md#garage) 집과 차고 사이의 유일한 내부 경로가 끊기지 않게 한다.
 
 차고 쪽 하부 대기 X = [5.75, 6.80]·Z = [-4.43, -3.38]와 머드룸 상부 대기 X = [4.45, 5.50]·Z = [-4.43, -3.38] m를 예약한다. 문틀과 90° 열린 문짝이 이 영역을 깎는 양도 실제 순폭에 포함한다. `src/spaces/rooms/laundry.ts`와 공유 벽 owner가 같은 두 opening id를 소비한다. 문턱 단면·양방향 바구니 이동·세탁 작업과 횡단의 간섭은 unverified다.
 
