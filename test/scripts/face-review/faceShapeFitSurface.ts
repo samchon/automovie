@@ -106,7 +106,13 @@ export function raycastFaceShapeFitSurface(
  * is anchored at the surface vertex nearest the ray line among those no
  * deeper along the ray than the occluder's hit plus `tolerance`, the skin
  * rim that bounds what the camera sees. A ray that meets nothing, or an
- * occluded one with no vertex in front of the occluder, gives null.
+ * occluded one with no vertex in front of the occluder, gives null. Only the
+ * vertices of `indices` are candidates, so a caller casting onto part of the
+ * surface stays on that part. With `nearest`, a ray that meets neither the
+ * part nor an occluder takes the part's vertex nearest its line: a landmark
+ * the caller knows lies on that part, hidden behind another part of the same
+ * surface (the lower lip's inner edge behind the upper lip with the lips
+ * closed), is held on its own part's edge.
  */
 export function anchorFaceShapeFitRay(props: {
   positions: readonly number[];
@@ -117,6 +123,7 @@ export function anchorFaceShapeFitRay(props: {
   }[];
   ray: { origin: readonly number[]; direction: readonly number[] };
   tolerance: number;
+  nearest?: boolean;
 }): IFaceShapeFitAnchor | null {
   const hit = raycastFaceShapeFitSurface(
     props.positions,
@@ -141,10 +148,10 @@ export function anchorFaceShapeFitRay(props: {
     hit.distance * length <= occluded * length + props.tolerance
   )
     return { vertices: hit.vertices, weights: hit.weights };
-  if (occluded === Infinity) return null;
+  if (occluded === Infinity && props.nearest !== true) return null;
   let best = -1;
   let nearest = Infinity;
-  for (let vertex = 0; vertex < props.positions.length / 3; ++vertex) {
+  for (const vertex of new Set(props.indices)) {
     const offset = [0, 1, 2].map(
       (k) => props.positions[3 * vertex + k]! - o[k]!,
     );

@@ -29,6 +29,10 @@ import { nclose, throwsError } from "../internal/predicates";
  *    behind a globe lifted to z = 0.5 and a ray that meets nothing give
  *    null.
  * 4. A model without a region part and an unknown surface refuse.
+ * 5. Cast onto part of the skin, its first triangle (0, 1, 2) alone, a ray
+ *    through (0.2, 0.9) over the other triangle meets neither the part nor
+ *    an occluder and gives null, unless `nearest` holds it on the part's
+ *    vertex nearest its line, (1, 1), and never on vertex 3 outside it.
  */
 export const test_subject_face_shape_fit_surface = (): void => {
   const { basis, document } = humanFaceBasisFixture();
@@ -156,6 +160,19 @@ export const test_subject_face_shape_fit_surface = (): void => {
     [1, 1, 1],
   );
   TestValidator.equals("nothing", anchor(down(3, 3)), null);
+  const part = (nearest?: boolean) =>
+    anchorFaceShapeFitRay({
+      positions: skin,
+      indices: [0, 1, 2],
+      occluders: [],
+      ray: down(0.2, 0.9),
+      tolerance: 0.001,
+      nearest,
+    });
+  TestValidator.predicate(
+    "part",
+    part() === null && part(true)?.vertices.join() === "2,2,2",
+  );
 
   const model = build({ ...document, shape: {}, expression: {} });
   TestValidator.predicate(

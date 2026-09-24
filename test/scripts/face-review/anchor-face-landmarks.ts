@@ -23,7 +23,12 @@
  * are coverage and do not hide) as occluders, so a lid-margin or inner-lip
  * landmark whose ray slips past the visible edge is held on the skin rim
  * instead of the socket or the pharynx behind it (`anchorFaceShapeFitRay`,
- * tolerance 1 mm). The
+ * tolerance 1 mm). The inner lip contours are each cast onto their own lip
+ * (the lower lip being the vertices the mandible carries), because with the
+ * lips closed both contours project onto the one seam and a lower inner
+ * landmark would otherwise ride the upper lip; the midline pair, stomion
+ * superius (13) and inferius (14), is the basis's own vermilion seam vertex
+ * pair (`contact.lips`). The
  * ten iris landmarks lie on the globe, which moves with gaze, and are not
  * anchored. The output records the basis id, the detector and every
  * render's hash and camera. An anchor is shared data of the basis and a
@@ -70,6 +75,48 @@ const model = createHumanFaceBasisBuilder(basis)({
 });
 const surface = basis.surfaces.find((one) => one.id === "Human")!;
 const positions = faceShapeFitSurfacePositions(basis, model, "Human");
+// With the lips closed the two inner lip contours project onto one line and
+// every ray there reaches the upper lip first, so a lower inner landmark
+// would ride the upper lip. Each inner contour is cast onto its own lip: the
+// lower lip is what the mandible carries, the vertices a full opening moves
+// at least half as far as the lower vermilion seam vertex.
+const opened = faceShapeFitSurfacePositions(
+  basis,
+  createHumanFaceBasisBuilder(basis)({
+    id: "opened",
+    name: "opened",
+    basis: basis.id,
+    shape: {},
+    expression: { [basis.articulation!.jaw.opening.channel]: 1 },
+  }),
+  "Human",
+);
+const travel = (vertex: number) =>
+  Math.hypot(
+    ...[0, 1, 2].map(
+      (k) => opened[3 * vertex + k]! - positions[3 * vertex + k]!,
+    ),
+  );
+const lowerSeam = travel(basis.contact!.lips.lower);
+const carried = (vertex: number) => travel(vertex) >= lowerSeam / 2;
+const lipTriangles = (lower: boolean) => {
+  const out: number[] = [];
+  for (let t = 0; t < surface.indices.length; t += 3) {
+    const tri = surface.indices.slice(t, t + 3);
+    if (tri.every((vertex) => carried(vertex) === lower)) out.push(...tri);
+  }
+  return out;
+};
+const INNER_LIP = {
+  upper: new Set([191, 80, 81, 82, 13, 312, 311, 310, 415]),
+  lower: new Set([95, 88, 178, 87, 14, 317, 402, 318, 324]),
+};
+const STOMION: Record<number, number> = {
+  13: basis.contact!.lips.upper,
+  14: basis.contact!.lips.lower,
+};
+const upperLip = lipTriangles(false);
+const lowerLip = lipTriangles(true);
 const occluders = basis.surfaces
   .filter(
     (one) =>
@@ -97,12 +144,28 @@ for (const capture of readFaceLikenessJson<IFaceLikenessCaptures>(captureFile!)
   const anchors = detection.face.landmarks
     .slice(0, 468)
     .map((pixel, landmark) => {
+      // Stomion superius and inferius are the basis's own vermilion seam
+      // vertices; a ray at a closed seam cannot tell which lip it is on.
+      const seam = STOMION[landmark];
+      if (seam !== undefined)
+        return {
+          landmark,
+          anchor: {
+            vertices: [seam, seam, seam] as [number, number, number],
+            weights: [1, 0, 0] as [number, number, number],
+          },
+        };
       const anchor = anchorFaceShapeFitRay({
         positions,
-        indices: surface.indices,
+        indices: INNER_LIP.upper.has(landmark)
+          ? upperLip
+          : INNER_LIP.lower.has(landmark)
+            ? lowerLip
+            : surface.indices,
         occluders,
         ray: faceShapeFitRay(view, pixel),
         tolerance: 0.001,
+        nearest: INNER_LIP.upper.has(landmark) || INNER_LIP.lower.has(landmark),
       });
       return { landmark, anchor };
     });

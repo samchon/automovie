@@ -13,7 +13,8 @@
  * photograph, or a named expression unit the detector reads, each carried
  * into the one control that means it by a rule shared by every subject.
  *
- * `identity` writes shape only. The population controls come from the facts
+ * `identity` writes shape, and of expression only the controls an index
+ * reads as a state of the face (`lipParting`). The population controls come from the facts
  * (`facePopulationControls`); every other shape channel starts at zero; the
  * anthropometric controls (`FACE_ANTHROPOMETRY_INDICES`) are then solved one
  * per index so the model under the photograph's camera has the photograph's
@@ -23,7 +24,8 @@
  * vertices on top of one real build at the starting controls (with the
  * expression of EXPRESSION_STUDY, if given, so a smile is not read as mouth
  * shape). Expression, gaze and everything else keep the study's values when
- * EXPRESSION_STUDY is given and are empty otherwise; hair, iris and material
+ * EXPRESSION_STUDY is given and are empty otherwise, except an expression
+ * index's own control; hair, iris and material
  * values are the study's.
  *
  * The anchors stand in for the detector on the model, and they are not it:
@@ -251,7 +253,9 @@ if (command === "identity") {
       return name === null ? 0 : Math.abs(weight) * endpoint(name)[n]![axis]!;
     };
     const initial = FACE_ANTHROPOMETRY_INDICES.map(
-      (one) => start.shape[one.channels[0]!] ?? 0,
+      (one) =>
+        (one.expression ? start.expression : start.shape)[one.channels[0]!] ??
+        0,
     );
     const evaluate = (values: readonly number[]) => {
       const points: ([number, number] | undefined)[] = [];
@@ -311,9 +315,13 @@ if (command === "identity") {
       evaluate,
     });
     const shape = { ...start.shape };
+    const posed = { ...start.expression };
     FACE_ANTHROPOMETRY_INDICES.forEach((one, k) => {
+      const value = Number(solution.values[k]!.toFixed(5));
       for (const channel of one.channels)
-        shape[channel] = Number(solution.values[k]!.toFixed(5));
+        if (!one.expression) shape[channel] = value;
+        else if (value !== 0) posed[channel] = value;
+        else delete posed[channel];
     });
     report[subject] = {
       population,
@@ -331,7 +339,7 @@ if (command === "identity") {
       ),
       iterations: solution.iterations,
     };
-    return { ...start, shape };
+    return { ...start, shape, expression: posed };
   });
   write(output, study!, derived, report);
 } else if (command === "calibration-study") {
