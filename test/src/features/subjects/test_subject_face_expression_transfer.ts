@@ -4,6 +4,7 @@ import {
   faceExpressionCalibrationDocuments,
   faceExpressionObservable,
   faceExpressionPartner,
+  faceExpressionRestNoise,
   transferFaceExpression,
 } from "../../../scripts/face-review/faceExpressionTransfer";
 import { nclose, throwsError } from "../internal/predicates";
@@ -17,7 +18,9 @@ import { nclose, throwsError } from "../internal/predicates";
  *    end is held at one.
  * 3. A channel not observable is not transferred; a channel the photograph
  *    lacks is absent.
- * 4. A dip in the curve is flattened by the running maximum.
+ * 4. A dip in the curve is flattened by the running maximum; an increment
+ *    under twice the deviation of the population's rest readings of the
+ *    unit (a unit read once has none) is indistinct and transfers nothing.
  * 5. Observability: a unit whose span reaches its photographs' 2-sigma
  *    spread passes, a unit narrower than it fails, and a left/right pair
  *    passes or fails together on its mean; fewer than two photographs and a
@@ -59,6 +62,30 @@ export const test_subject_face_expression_transfer = (): void => {
   TestValidator.predicate(
     "running maximum",
     nclose(read.dip!.weight, 0.875, 1e-9),
+  );
+  // Rest readings 0.1, 0.2 and 0.3 deviate by 0.1 (sample), so an increment
+  // under 0.2 is indistinct and one over it transfers.
+  const noise = faceExpressionRestNoise([
+    { smile: 0.1, lone: 0.4 },
+    { smile: 0.2 },
+    { smile: 0.3 },
+  ]);
+  const gated = (photo: number) =>
+    transferFaceExpression({
+      calibration,
+      observable,
+      photo: { smile: photo },
+      rest: { smile: 0.1 },
+      noise,
+    }).find((one) => one.channel === "smile")!;
+  TestValidator.predicate(
+    "within the identity's reading spread",
+    nclose(noise.smile!, 0.1, 1e-12) &&
+      noise.lone === 0 &&
+      gated(0.25).status === "indistinct" &&
+      gated(0.25).weight === 0 &&
+      gated(0.35).status === "transferred" &&
+      gated(0.35).weight > 0,
   );
   const low = rows({ smile: 0.05, dip: 0.9 }, { smile: 0.1, dip: 0 });
   TestValidator.predicate(

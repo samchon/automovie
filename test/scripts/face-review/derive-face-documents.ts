@@ -64,6 +64,7 @@ import { gunzipSync } from "node:zlib";
 
 import {
   FACE_ANTHROPOMETRY_INDICES,
+  faceAnthropometryWeights,
   measureFaceAnthropometry,
 } from "./faceAnthropometry";
 import { solveFaceAnthropometry } from "./faceAnthropometrySolve";
@@ -71,6 +72,7 @@ import {
   type IFaceExpressionCalibration,
   faceExpressionCalibrationDocuments,
   faceExpressionObservable,
+  faceExpressionRestNoise,
   transferFaceExpression,
 } from "./faceExpressionTransfer";
 import {
@@ -252,11 +254,13 @@ if (command === "identity") {
       const name = weight > 0 ? one.positive : one.negative;
       return name === null ? 0 : Math.abs(weight) * endpoint(name)[n]![axis]!;
     };
-    const initial = FACE_ANTHROPOMETRY_INDICES.map(
-      (one) =>
-        (one.expression ? start.expression : start.shape)[one.channels[0]!] ??
-        0,
-    );
+    const initial = FACE_ANTHROPOMETRY_INDICES.map((one) => {
+      const own = one.expression ? start.expression : start.shape;
+      return (
+        (own[one.channels[0]!] ?? 0) -
+        (one.negative === undefined ? 0 : (own[one.negative[0]!] ?? 0))
+      );
+    });
     const evaluate = (values: readonly number[]) => {
       const points: ([number, number] | undefined)[] = [];
       list.forEach((one, n) => {
@@ -266,21 +270,14 @@ if (command === "identity") {
             FACE_ANTHROPOMETRY_INDICES.reduce(
               (sum, index, k) =>
                 sum +
-                index.channels.reduce(
-                  (inner, channel, c) =>
-                    inner +
-                    contribution(
-                      channel,
-                      values[k]! * (index.gains?.[c] ?? 1),
-                      n,
-                      axis,
-                    ) -
-                    contribution(
-                      channel,
-                      initial[k]! * (index.gains?.[c] ?? 1),
-                      n,
-                      axis,
-                    ),
+                faceAnthropometryWeights(index, values[k]!).reduce(
+                  (inner, [channel, weight]) =>
+                    inner + contribution(channel, weight, n, axis),
+                  0,
+                ) -
+                faceAnthropometryWeights(index, initial[k]!).reduce(
+                  (inner, [channel, weight]) =>
+                    inner + contribution(channel, weight, n, axis),
                   0,
                 ),
               0,
@@ -318,7 +315,10 @@ if (command === "identity") {
       controls: FACE_ANTHROPOMETRY_INDICES.map((one, k) => ({
         id: one.id,
         start: initial[k]!,
-        lower: channels.get(one.channels[0]!)!.minimum,
+        lower:
+          one.negative === undefined
+            ? channels.get(one.channels[0]!)!.minimum
+            : -channels.get(one.negative[0]!)!.maximum,
         upper: channels.get(one.channels[0]!)!.maximum,
       })),
       // Without an expression study the documents are the identity at rest,
@@ -334,14 +334,15 @@ if (command === "identity") {
     const shape = { ...start.shape };
     const posed = { ...start.expression };
     FACE_ANTHROPOMETRY_INDICES.forEach((one, k) => {
-      one.channels.forEach((channel, c) => {
-        const value = Number(
-          (solution.values[k]! * (one.gains?.[c] ?? 1)).toFixed(5),
-        );
+      for (const [channel, weight] of faceAnthropometryWeights(
+        one,
+        solution.values[k]!,
+      )) {
+        const value = Number(weight.toFixed(5));
         if (!one.expression) shape[channel] = value;
         else if (value !== 0) posed[channel] = value;
         else delete posed[channel];
-      });
+      }
     });
     report[subject] = {
       population,
@@ -451,6 +452,11 @@ if (command === "identity") {
   }>(calibrationFile!);
   const rest = detections(restFile!);
   const photos = detections(detectionFile!);
+  const noise = faceExpressionRestNoise(
+    [...rest.entries()].flatMap(([id, one]) =>
+      id.startsWith("rest:") && one.face ? [one.face.blendshapes] : [],
+    ),
+  );
   const report: Record<string, unknown> = {};
   const derived = documents.map((document) => {
     const subject = subjectOf(document);
@@ -465,6 +471,7 @@ if (command === "identity") {
       observable,
       photo: photo.blendshapes,
       rest: own.blendshapes,
+      noise,
     });
     report[subject] = rows;
     return {

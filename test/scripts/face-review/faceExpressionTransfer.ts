@@ -34,8 +34,44 @@
  * increment (the photograph reads less of a unit than the identity at rest)
  * is weight zero, because the channels are one-sided.
  *
+ * An increment is evidence of expression only beyond what identity alone
+ * moves the reading. The rest renders of the population's documents read
+ * each unit with a spread across identities (`noise`, their standard
+ * deviation); the photograph's reading of its own face differs from its
+ * model's rest reading by an identity mismatch of that order, so an
+ * increment under twice that deviation (the 95% band) is indistinct from it
+ * and transfers nothing. Without that bound the calibration's flat low end
+ * turned detector noise into weight: a mouth shift read at 0.002 over rest,
+ * a third of the rest readings' deviation, became 0.14 of the channel.
+ *
  * Pure: reads caller-owned values and returns new ones.
  */
+
+/**
+ * Each unit's reading deviation across a population's rest renders (the
+ * sample standard deviation), for `transferFaceExpression`'s `noise`.
+ */
+export function faceExpressionRestNoise(
+  rests: readonly Readonly<Record<string, number>>[],
+): Record<string, number> {
+  const units = new Set(rests.flatMap((one) => Object.keys(one)));
+  return Object.fromEntries(
+    [...units].map((unit) => {
+      const values = rests.flatMap((one) =>
+        one[unit] === undefined ? [] : [one[unit]!],
+      );
+      if (values.length < 2) return [unit, 0];
+      const mean = values.reduce((sum, v) => sum + v, 0) / values.length;
+      return [
+        unit,
+        Math.sqrt(
+          values.reduce((sum, v) => sum + (v - mean) ** 2, 0) /
+            (values.length - 1),
+        ),
+      ];
+    }),
+  );
+}
 
 /** One channel's calibration: its own score at increasing weights. */
 export interface IFaceExpressionCalibration {
@@ -47,7 +83,7 @@ export interface IFaceExpressionCalibration {
 export interface IFaceExpressionTransferRow {
   channel: string;
   weight: number;
-  status: "transferred" | "held" | "unobservable" | "absent";
+  status: "transferred" | "held" | "unobservable" | "absent" | "indistinct";
 }
 
 export function transferFaceExpression(props: {
@@ -55,6 +91,8 @@ export function transferFaceExpression(props: {
   observable: readonly string[];
   photo: Readonly<Record<string, number>>;
   rest: Readonly<Record<string, number>>;
+  /** Each unit's rest-reading deviation across the population's renders. */
+  noise?: Readonly<Record<string, number>>;
 }): IFaceExpressionTransferRow[] {
   return Object.entries(props.calibration).map(([channel, curve]) => {
     const points = curve.weights
@@ -83,6 +121,8 @@ export function transferFaceExpression(props: {
     const asked = score - rest;
     if (asked <= 0)
       return { channel, weight: 0, status: "transferred" as const };
+    if (asked < 2 * (props.noise?.[channel] ?? 0))
+      return { channel, weight: 0, status: "indistinct" as const };
     if (asked >= span) return { channel, weight: 1, status: "held" as const };
     for (let k = 1; k < increments.length; ++k) {
       const [w1, d1] = increments[k]!;

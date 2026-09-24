@@ -47,6 +47,13 @@
  * photographs' smiles; the corners' own landmarks read only the corners. It
  * supersedes the detector's smile transfer, and the measurement's corner
  * lift is then a derivation input rather than an independent check.
+ * The mouth's sideways shift is read the same way, `mouthShift`: the mouth
+ * centre across from the nasion-subnasale line, which the mouth does not
+ * move, over mouth width, signed and paired with `mouthLeft` for one sign
+ * and `mouthRight` for the other (`negative`). The detector's scores for
+ * those units sit near its noise on every photograph (0.001 to 0.014) where
+ * their calibration is flattest, and their transfer made a skewed mouth of
+ * a symmetric smile.
  *
  * The pairing is anatomical and was checked on the basis: at full weight
  * every paired control moves its own index by 13 to 45 percent and each other
@@ -78,6 +85,34 @@ export interface IFaceAnthropometryIndex {
    * face, not its form, so the control is written as expression.
    */
   expression?: true;
+  /**
+   * Channels a negative control writes, at its magnitude: a signed index
+   * whose two directions are two units (the mouth moved to either side).
+   * `channels` then take the positive values only.
+   */
+  negative?: readonly string[];
+}
+
+/**
+ * Each channel's weight under one index's control value: `channels` scaled
+ * by their gains for a positive value, `negative` at its magnitude for a
+ * negative one, every other channel of the index at zero.
+ */
+export function faceAnthropometryWeights(
+  index: IFaceAnthropometryIndex,
+  value: number,
+): [string, number][] {
+  const positive = index.channels.map((channel, c): [string, number] => [
+    channel,
+    index.negative !== undefined && value < 0
+      ? 0
+      : value * (index.gains?.[c] ?? 1),
+  ]);
+  const negative = (index.negative ?? []).map((channel): [string, number] => [
+    channel,
+    value < 0 ? -value : 0,
+  ]);
+  return [...positive, ...negative];
 }
 
 /** Midline landmarks whose principal axis defines the face's vertical. */
@@ -172,6 +207,14 @@ export const FACE_ANTHROPOMETRY_INDICES: readonly IFaceAnthropometryIndex[] = [
     expression: true,
   },
   {
+    id: "mouthShift",
+    definition:
+      "mouth centre (midpoint of 61 and 291) across from the n-sn line (168, 2) at its height over mouth width, signed",
+    channels: ["mouthLeft"],
+    negative: ["mouthRight"],
+    expression: true,
+  },
+  {
     id: "lowerFaceWidth",
     definition:
       "face contour width at the gonial level (136, 365) over face width",
@@ -241,6 +284,15 @@ export function measureFaceAnthropometry(
       return u && l && r && q && mw !== null && mw > 0
         ? ((u[1] + l[1]) / 2 - (r[1] + q[1]) / 2) / mw
         : null;
+    })(),
+    mouthShift: ((): number | null => {
+      const [r, q, n, sn] = [61, 291, 168, 2].map(at);
+      if (!r || !q || !n || !sn || mw === null || !(mw > 0) || n[1] === sn[1])
+        return null;
+      const cx = (r[0] + q[0]) / 2;
+      const cy = (r[1] + q[1]) / 2;
+      const line = n[0] + ((sn[0] - n[0]) * (cy - n[1])) / (sn[1] - n[1]);
+      return (cx - line) / mw;
     })(),
     lowerFaceWidth: ratio(W(136, 365), fw),
     chinWidth: ratio(W(176, 400), fw),

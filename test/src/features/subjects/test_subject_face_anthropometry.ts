@@ -5,6 +5,7 @@ import {
   FACE_ANTHROPOMETRY_LIP_DEPRESSOR_GAIN,
   type FaceAnthropometryPoint,
   faceAnthropometryFrame,
+  faceAnthropometryWeights,
   measureFaceAnthropometry,
 } from "../../../scripts/face-review/faceAnthropometry";
 import { nclose, throwsError } from "../internal/predicates";
@@ -47,15 +48,21 @@ const face = (): FaceAnthropometryPoint[] => {
  * 1. On a synthetic face every index is its defining ratio (the lip heights
  *    to each lip's own inner edge, and the gap between them), every index
  *    names at least one channel, and only the lip gap's and the corner
- *    lift's are expression (the synthetic corners sit level with the lip
- *    centre, a lift of zero); gains, where given, align with the channels,
+ *    lift's and the mouth shift's are expression (the synthetic corners sit
+ *    level with the lip centre and about the midline, a lift and a shift of
+ *    zero); gains, where given, align with the channels,
  *    and the lip depressor's is the posed-smile ratio 3.28 / 4.76 scaled by
  *    the source units' 4.9 / 4.0 mm.
  * 2. The indices are invariant to rotating, scaling and moving the image:
  *    the face frame turns the midline vertical with the chin below the
  *    brow, even for an image turned upside down, so a raised corner reads a
  *    positive lift either way.
- * 3. A missing landmark leaves only the indices that read it null; fewer
+ * 3. A mouth moved 5 to the image's right over a 50 wide mouth shifts by
+ *    0.1, also in the image turned upside down, and a n-sn line without
+ *    height gives no shift; a signed index writes its magnitude to
+ *    `mouthLeft` or `mouthRight` by its sign, and an unsigned one scales its
+ *    channels by their gains.
+ * 4. A missing landmark leaves only the indices that read it null; fewer
  *    than two midline landmarks refuse.
  */
 export const test_subject_face_anthropometry = (): void => {
@@ -74,6 +81,7 @@ export const test_subject_face_anthropometry = (): void => {
     upperLip: 15 / 60,
     lipParting: 2 / 50,
     cornerLift: 0,
+    mouthShift: 0,
     lowerFaceWidth: 90 / 120,
     chinWidth: 40 / 120,
     chinHeight: 34 / 100,
@@ -89,7 +97,7 @@ export const test_subject_face_anthropometry = (): void => {
           one.channels.length > 0 &&
           one.id in m &&
           (one.expression === true) ===
-            (one.id === "lipParting" || one.id === "cornerLift") &&
+            ["lipParting", "cornerLift", "mouthShift"].includes(one.id) &&
           (one.gains === undefined || one.gains.length === one.channels.length),
       ) &&
       nclose(FACE_ANTHROPOMETRY_LIP_DEPRESSOR_GAIN, 0.8441, 1e-4),
@@ -126,6 +134,50 @@ export const test_subject_face_anthropometry = (): void => {
       nclose(measureFaceAnthropometry(flipped).cornerLift!, 4 / 50, 1e-9) &&
       faceAnthropometryFrame(flipped)[152]![1] >
         faceAnthropometryFrame(flipped)[168]![1],
+  );
+  const shifted = [...points];
+  shifted[61] = [-20, 56];
+  shifted[291] = [30, 56];
+  const turned = shifted.map((p) =>
+    p === undefined ? undefined : ([-p[0], -p[1]] as const),
+  );
+  const level = [...points];
+  level[2] = [0, 0];
+  TestValidator.predicate(
+    "signed mouth shift",
+    nclose(measureFaceAnthropometry(shifted).mouthShift!, 5 / 50, 1e-9) &&
+      nclose(measureFaceAnthropometry(turned).mouthShift!, 5 / 50, 1e-9) &&
+      measureFaceAnthropometry(level).mouthShift === null,
+  );
+  const shift = FACE_ANTHROPOMETRY_INDICES.find(
+    (one) => one.id === "mouthShift",
+  )!;
+  const parting = FACE_ANTHROPOMETRY_INDICES.find(
+    (one) => one.id === "lipParting",
+  )!;
+  TestValidator.equals(
+    "signed weights",
+    [
+      faceAnthropometryWeights(shift, 0.3),
+      faceAnthropometryWeights(shift, -0.2),
+      faceAnthropometryWeights(parting, 0.5).map(([, w]) => w),
+    ],
+    [
+      [
+        ["mouthLeft", 0.3],
+        ["mouthRight", 0],
+      ],
+      [
+        ["mouthLeft", 0],
+        ["mouthRight", 0.2],
+      ],
+      [
+        0.5,
+        0.5,
+        0.5 * FACE_ANTHROPOMETRY_LIP_DEPRESSOR_GAIN,
+        0.5 * FACE_ANTHROPOMETRY_LIP_DEPRESSOR_GAIN,
+      ],
+    ],
   );
   const missing = [...points];
   missing[129] = undefined;
