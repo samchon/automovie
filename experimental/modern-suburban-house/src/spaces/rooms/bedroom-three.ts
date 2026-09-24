@@ -5,11 +5,12 @@
  * Finished inner outline (X, Z): (-0.50, -0.25), (5.50, -0.25), (5.50, -4.56),
  * (3.22, -4.56), (3.22, -2.51), (1.72, -2.51), (1.72, -3.26), (-0.50, -3.26).
  * 07 assigns this owner the door run of its partition to the arrival,
- * X = [3.07, 3.22], Z = [-4.56, -3.41], carrying `hall-bedroom-three-door`
+ * X = [3.07, 3.22], Z = [-4.71, -3.41] (the T corner Z = [-4.71, -4.56] with
+ * the tub-bath run is this owner's junction), carrying `hall-bedroom-three-door`
  * Z = [-4.46, -3.51], Y = [3.06, 5.26] m.
  */
 import { PALETTE } from "../palette";
-import { type IRoomBuild, type IRoomSpace, door, partition, roomFloor } from "./shared";
+import { type IRoomBuild, type IRoomSpace, door, partition, doorFloor, roomCeiling, roomFloor } from "./shared";
 
 const BEDROOM_THREE: IRoomSpace = {
   id: "bedroom-three",
@@ -33,13 +34,15 @@ export const buildBedroomThree = (): IRoomBuild => ({
   space: BEDROOM_THREE,
   parts: [
     roomFloor(BEDROOM_THREE),
+    roomCeiling(BEDROOM_THREE),
+    doorFloor(BEDROOM_THREE, "hall-bedroom-three-door", [3.145, 3.22], [-4.46, -3.51]),
     partition({
       id: "bedroom-three-arrival-partition",
       owner: BEDROOM_THREE.owner,
       storey: "upper-storey",
       axis: "z",
       across: [3.07, 3.22],
-      along: [-4.56, -3.41],
+      along: [-4.71, -3.41],
       holes: [door("hall-bedroom-three-door", "upper-storey", -4.46, -3.51)],
     }),
   ],

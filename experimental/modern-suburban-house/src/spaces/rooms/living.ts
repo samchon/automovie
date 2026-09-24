@@ -10,7 +10,7 @@
  * Output: the room record, its wood floor finish and its two partition runs.
  */
 import { PALETTE } from "../palette";
-import { type IRoomBuild, type IRoomSpace, box, door, partition, roomFloor } from "./shared";
+import { type IRoomBuild, type IRoomSpace, box, door, partition, doorFloor, roomCeiling, roomFloor } from "./shared";
 
 const LIVING: IRoomSpace = {
   id: "living-room",
@@ -25,6 +25,9 @@ export const buildLiving = (): IRoomBuild => ({
   space: LIVING,
   parts: [
     roomFloor(LIVING),
+    roomCeiling(LIVING),
+    doorFloor(LIVING, "entry-living-door", [-1.95, -1.875], [-1.35, -0.35]),
+    doorFloor(LIVING, "living-common-opening", [-5.0, -2.15], [-6.125, -6.05]),
     partition({
       id: "living-entry-partition",
       owner: LIVING.owner,

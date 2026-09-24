@@ -5,10 +5,12 @@
  * Finished inner X = [0.90, 5.50], Z = [-10.45, -8.95] m. 07 assigns this owner
  * its partitions to the primary bedroom (X = [0.75, 0.90], carrying
  * `primary-wardrobe-door` Z = [-10.20, -9.20], Y = [3.06, 5.26] m) and to the
- * two bathrooms (Z = [-8.95, -8.80]).
+ * two bathrooms (Z = [-8.95, -8.80], X = [0.90, 3.07] and [3.22, 5.50]; the
+ * corners X = [0.75, 0.90] and [3.07, 3.22] belong to the shower-bath and
+ * tub-bath owners under 07 interior-boundary-junctions).
  */
 import { PALETTE } from "../palette";
-import { type IRoomBuild, type IRoomSpace, box, door, partition, roomFloor } from "./shared";
+import { type IRoomBuild, type IRoomSpace, box, door, partition, doorFloor, roomCeiling, roomFloor } from "./shared";
 
 const WARDROBE: IRoomSpace = {
   id: "primary-wardrobe",
@@ -23,15 +25,18 @@ export const buildWardrobe = (): IRoomBuild => ({
   space: WARDROBE,
   parts: [
     roomFloor(WARDROBE),
+    roomCeiling(WARDROBE),
+    doorFloor(WARDROBE, "primary-wardrobe-door", [0.825, 0.9], [-10.2, -9.2]),
     partition({
       id: "wardrobe-primary-partition",
       owner: WARDROBE.owner,
       storey: "upper-storey",
       axis: "z",
       across: [0.75, 0.9],
-      along: [-10.45, -8.8],
+      along: [-10.45, -8.95],
       holes: [door("primary-wardrobe-door", "upper-storey", -10.2, -9.2)],
     }),
-    partition({ id: "wardrobe-bath-partition", owner: WARDROBE.owner, storey: "upper-storey", axis: "x", across: [-8.95, -8.8], along: [0.9, 5.5] }),
+    partition({ id: "wardrobe-bath-partition", owner: WARDROBE.owner, storey: "upper-storey", axis: "x", across: [-8.95, -8.8], along: [0.9, 3.07] }),
+    partition({ id: "wardrobe-tub-partition", owner: WARDROBE.owner, storey: "upper-storey", axis: "x", across: [-8.95, -8.8], along: [3.22, 5.5] }),
   ],
 });

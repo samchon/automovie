@@ -12,7 +12,7 @@
  * `family-right-window` [-9.95, -8.25] × [0.75, 2.30],
  * `tub-right-window` [-8.40, -7.50] × [4.56, 5.31].
  *
- * The step wall reserves X = [1.45, 1.60] from the low roof's weather surface up
+ * The step wall reserves X = [1.45, 1.60] from the low roof's underside up
  * to the main roof underside; inside the front and rear wall thickness the
  * front/rear owners already close it (07), so it spans Z = [-10.45, -0.25] and
  * the two eave runs outside those walls.
@@ -31,11 +31,11 @@ const B = EXTERIOR_WALL_BOTTOM;
 const ACROSS = [MAIN.inner.x[1], MAIN.outer.x[1]] as const;
 const under = (z: number): number => rightRoof(z) - ROOF_THICKNESS;
 
-/** A step-wall run over [z0, z1]: low-roof weather surface up to the main underside. */
+/** A step-wall run over [z0, z1]: low-roof underside up to the main underside. */
 const stepRun = (z0: number, z1: number): IWallPoint[] => {
   const zs = z0 < MAIN_RIDGE_Z && MAIN_RIDGE_Z < z1 ? [z0, MAIN_RIDGE_Z, z1] : [z0, z1];
   return [
-    ...zs.map((z) => ({ u: z, y: rightRoof(z) })),
+    ...zs.map((z) => ({ u: z, y: rightRoof(z) - ROOF_THICKNESS })),
     ...[...zs].reverse().map((z) => ({ u: z, y: mainRoof(z) - ROOF_THICKNESS })),
   ];
 };

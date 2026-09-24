@@ -7,7 +7,7 @@
  * Z = [-5.75, -4.80], Y = [0, 2.20] m. Shelves are later models.
  */
 import { PALETTE } from "../palette";
-import { type IRoomBuild, type IRoomSpace, box, door, partition, roomFloor } from "./shared";
+import { type IRoomBuild, type IRoomSpace, box, door, partition, doorFloor, roomCeiling, roomFloor } from "./shared";
 
 const PANTRY: IRoomSpace = {
   id: "pantry",
@@ -22,6 +22,8 @@ export const buildPantry = (): IRoomBuild => ({
   space: PANTRY,
   parts: [
     roomFloor(PANTRY),
+    roomCeiling(PANTRY),
+    doorFloor(PANTRY, "service-pantry-door", [3.145, 3.22], [-5.75, -4.8]),
     partition({
       id: "pantry-service-partition",
       owner: PANTRY.owner,

@@ -6,14 +6,18 @@
  * Heights follow the layer splits: a ground-storey finish fills the top
  * 0.025 m above the support base (`10-ground-floor.md`), an upper-storey finish
  * the top 0.025 m of the interstorey reservation (`08-floor-assembly.md`).
- * A partition stands on the structure top under the finishes and reaches its
- * storey's finished ceiling, so no finish slab and wall share a face.
+ * A ceiling finish fills the 0.015 m above the finished ceiling (08 for the
+ * ground storey, `09-ceiling-assembly.md#upper-ceiling-closure` for the
+ * upper). A partition runs from its storey's finished floor to its finished
+ * ceiling (`07-boundary-assembly.md#interior-boundary-ownership`); under a
+ * door void each room's floor finish reaches the partition mid-plane
+ * (`#interior-boundary-junctions`) through `doorFloor`.
  *
  * Consumers: the fifteen `rooms/*.ts` owners. This helper owns no surface.
  */
 import { PALETTE } from "../palette";
 import { type IHousePart, type IPlanPoint, type IWallHole, part, slab, straightWall } from "../solids";
-import { GROUND_LAYERS, INTERSTOREY_FLOOR_FINISH, type StoreyId, ceilingOf, floorOf } from "../storeys";
+import { CEILING_FINISH, GROUND_LAYERS, INTERSTOREY_FLOOR_FINISH, type StoreyId, ceilingOf, floorOf } from "../storeys";
 
 /** One interior space as its plan owner declares it. */
 export interface IRoomSpace {
@@ -26,7 +30,16 @@ export interface IRoomSpace {
   outline: readonly IPlanPoint[];
   /** Base colour of the floor finish (visual-grammar use split). */
   floor: number;
+  /**
+   * Finished floor and ceiling heights when they differ from the storey's
+   * datums (the garage, 01 ground-threshold-datums); absent for every room
+   * that stands on its storey's finished floor.
+   */
+  levels?: readonly [number, number];
 }
+
+/** Finished floor and ceiling heights of a room. */
+export const roomLevels = (room: IRoomSpace): readonly [number, number] => room.levels ?? [floorOf(room.storey), ceilingOf(room.storey)];
 
 /** What one room owner emits: its space record and the solids it owns. */
 export interface IRoomBuild {
@@ -36,18 +49,37 @@ export interface IRoomBuild {
   parts: IHousePart[];
 }
 
+/** Depth of the floor finish bundle below a storey's finished floor. */
+const finishDepth = (storey: StoreyId): number => (storey === "ground-storey" ? GROUND_LAYERS.finish : INTERSTOREY_FLOOR_FINISH);
+
 /** Floor finish of one room: its outline over the top finish layer. */
 export const roomFloor = (room: IRoomSpace): IHousePart => {
   const top = floorOf(room.storey);
-  const depth = room.storey === "ground-storey" ? GROUND_LAYERS.finish : INTERSTOREY_FLOOR_FINISH;
-  return part(`${room.id}-floor`, room.owner, "floor", room.floor, slab({ outline: room.outline, bottom: top - depth, top }));
+  return part(`${room.id}-floor`, room.owner, "floor", room.floor, slab({ outline: room.outline, bottom: top - finishDepth(room.storey), top }));
 };
 
-/** Height range of a full-height partition on a storey. */
-export const partitionSpan = (storey: StoreyId): readonly [number, number] => [
-  floorOf(storey) - (storey === "ground-storey" ? GROUND_LAYERS.finish : INTERSTOREY_FLOOR_FINISH),
-  ceilingOf(storey),
-];
+/**
+ * The room's share of the floor finish under one interior door void: the
+ * rectangle from the room's partition face to the partition mid-plane across
+ * the door width, in the room's finish layer.
+ */
+export const doorFloor = (room: IRoomSpace, doorId: string, x: readonly [number, number], z: readonly [number, number]): IHousePart => {
+  const top = floorOf(room.storey);
+  return part(`${room.id}-${doorId}-floor`, room.owner, "floor", room.floor, slab({ outline: box(x, z), bottom: top - finishDepth(room.storey), top }));
+};
+
+/**
+ * Visible ceiling finish of one room: its outline over the 0.015 m above its
+ * storey's finished ceiling, under the interstorey structure (ground) or the
+ * upper ceiling base (upper).
+ */
+export const roomCeiling = (room: IRoomSpace): IHousePart => {
+  const [, bottom] = roomLevels(room);
+  return part(`${room.id}-ceiling`, room.owner, "ceiling", PALETTE.ceiling, slab({ outline: room.outline, bottom, top: bottom + CEILING_FINISH }));
+};
+
+/** Height range of a full-height partition on a storey: finished floor to finished ceiling. */
+export const partitionSpan = (storey: StoreyId): readonly [number, number] => [floorOf(storey), ceilingOf(storey)];
 
 /**
  * A straight 0.15 m interior partition with its door voids.

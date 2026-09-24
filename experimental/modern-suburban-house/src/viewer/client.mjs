@@ -24,7 +24,9 @@
  *
  * Page query: `subject=calibration` asks the server for the calibration shape
  * instead of the house; `eye=x,y,z` and `at=x,y,z` (meters) replace the
- * starting camera for an inspection view, and `R` returns to that view.
+ * starting camera for an inspection view, and `R` returns to that view;
+ * `cut=y` (meters) clips everything above world height y, a horizontal
+ * section for reading plans and interiors from above.
  */
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
@@ -166,6 +168,10 @@ const show = (payload) => {
   renderer.setPixelRatio(pixelRatio);
   renderer.setSize(width, height);
   const scene = buildScene(payload);
+  const cut = Number(query.get("cut") ?? "NaN");
+  renderer.clippingPlanes = Number.isFinite(cut)
+    ? [new THREE.Plane(new THREE.Vector3(0, -1, 0), cut)]
+    : [];
   const start = {
     ...payload.camera,
     position: queryPoint("eye") ?? payload.camera.position,

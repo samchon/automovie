@@ -45,10 +45,18 @@ export const GROUND_LAYERS = {
 /**
  * Interstorey floor finish (08 interstorey-floor-boundary), metres: the top
  * layer of the reservation between the ground ceiling and the upper floor,
- * owned by each upper room. The structure fills the rest down to the ground
- * ceiling, the 0.015 m ceiling finish zone included.
+ * owned by each upper room. The 0.270 m structure fills the band between it
+ * and the 0.015 m ground ceiling finish owned by each ground room.
  */
 export const INTERSTOREY_FLOOR_FINISH = 0.025;
+
+/**
+ * Visible ceiling finish above a finished ceiling, metres: the ground ceiling
+ * finish under the interstorey structure (08 interstorey-floor-boundary) and
+ * the upper ceiling finish under the upper ceiling base (09
+ * upper-ceiling-closure). Each room owner emits its own.
+ */
+export const CEILING_FINISH = 0.015;
 
 /** Finish plus support reservation above a finished ceiling (09 upper- and garage-ceiling-closure), metres. */
 export const CEILING_RESERVATION = 0.18;

@@ -11,7 +11,7 @@
  * Output: the room record, its wood floor finish and the front partition.
  */
 import { PALETTE } from "../palette";
-import { type IRoomBuild, type IRoomSpace, box, door, partition, roomFloor } from "./shared";
+import { type IRoomBuild, type IRoomSpace, box, door, partition, doorFloor, roomCeiling, roomFloor } from "./shared";
 
 const COMMON: IRoomSpace = {
   id: "kitchen-dining-family",
@@ -26,6 +26,9 @@ export const buildCommon = (): IRoomBuild => ({
   space: COMMON,
   parts: [
     roomFloor(COMMON),
+    roomCeiling(COMMON),
+    doorFloor(COMMON, "living-common-opening", [-5.0, -2.15], [-6.2, -6.125]),
+    doorFloor(COMMON, "service-common-opening", [-1.35, 3.07], [-6.2, -6.125]),
     partition({
       id: "common-front-partition",
       owner: COMMON.owner,

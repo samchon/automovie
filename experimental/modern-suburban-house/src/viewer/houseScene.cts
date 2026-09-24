@@ -2,9 +2,12 @@
  * House scene for the live viewer: the spaces producer turned into the
  * transient wire payload.
  *
- * Responsibility: call `buildHouse()` (the single spaces producer) on every
- * request and copy each part's engine mesh into an `IViewerSceneItem`, so the
- * viewer shows exactly what the source owners emit. The camera follows
+ * Responsibility: on every request build the house, turn it into its
+ * built-environment record (`buildHouseEnvironment`) and draw what
+ * `lowerBuiltEnvironment` stages from that record: each set piece's model mesh
+ * at its world transform, with the emitting part's role, owner and base colour.
+ * The viewer therefore shows exactly the handoff the spaces source gives the
+ * renderer (`04-observations.md#engine-render-handoff`). The camera follows
  * settings `frame-condition` for the default exterior view: slightly right of
  * the front, eye height 1.6 m, vertical FOV 45°, raster 1536 × 1024 at pixel
  * ratio 1, at a distance that keeps the house, porch, driveway and site paving
@@ -16,8 +19,9 @@
  * maps input that is not authored (maps disabled); this plane is viewer
  * context so shadows and contact read, and it is not a spaces or maps result.
  */
-import { tessellateToMesh, transformAutoMovieMesh } from "@automovie/engine";
+import { lowerBuiltEnvironment, tessellateToMesh, transformAutoMovieMesh } from "@automovie/engine";
 
+import { buildHouseEnvironment } from "../spaces/environment";
 import { buildHouse } from "../spaces/house";
 import type { IViewerScene, IViewerSceneItem } from "./scenePayload";
 
@@ -43,8 +47,18 @@ const referenceGround = (): IViewerSceneItem => {
 /** Build the house scene for one request. */
 export function buildHouseScene(sourceDigest: string): IViewerScene {
   const items: IViewerSceneItem[] = [referenceGround()];
-  for (const part of buildHouse().parts) {
-    if (part.mesh.normals === null || part.mesh.indices === null)
+  const house = buildHouse();
+  const environment = buildHouseEnvironment(house);
+  const lowered = lowerBuiltEnvironment(environment);
+  const parts = new Map(house.parts.map((p) => [p.id, p]));
+  const models = new Map((lowered.models ?? []).map((m) => [m.id, m]));
+  for (const piece of lowered.set ?? []) {
+    const part = parts.get(piece.model);
+    const geometry = models.get(piece.model)?.parts[0]?.geometry;
+    if (part === undefined || geometry === undefined || geometry.type !== "mesh")
+      throw new Error(`set piece ${piece.node} has no emitted part or mesh model`);
+    const mesh = transformAutoMovieMesh(geometry.mesh, { translation: piece.position, rotation: piece.rotation });
+    if (mesh.normals === null || mesh.indices === null)
       throw new Error(`house part ${part.id} (${part.owner}) lacks normals or indices`);
     items.push({
       id: part.id,
@@ -52,9 +66,9 @@ export function buildHouseScene(sourceDigest: string): IViewerScene {
       owner: part.owner,
       color: part.color,
       position: [0, 0, 0],
-      positions: part.mesh.positions,
-      normals: part.mesh.normals,
-      indices: part.mesh.indices,
+      positions: mesh.positions,
+      normals: mesh.normals,
+      indices: mesh.indices,
       castShadow: true,
       receiveShadow: true,
     });

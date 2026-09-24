@@ -7,19 +7,31 @@
  * Z = [-4.56, -3.41] at Y = 1.36; the upper flight (10 risers, 9 treads) climbs
  * +X over Z = [-4.56, -3.41] from X = -0.65 and arrives at X = 1.87 on the upper
  * floor. Tread positions are derived from count, direction and start, never
- * copied by hand. The space under both flights is closed down to the floor
- * (stair-boundary-heights), so each tread is a solid block from the floor base.
+ * copied by hand. The non-walkable space under the flights is closed inside the
+ * stair plan, so each tread is a solid block from the floor base, except where
+ * the upper flight passes over the entry coat closet body X = [1.10, 1.75]
+ * (`docs/spaces/rooms/entry.md#entry-coat-storage`): there the treads keep
+ * their structural underside at the closet top Y = 2.15 and leave the closet
+ * volume hollow. The closet's own walls belong to `rooms/entry.ts`.
  *
  * Boundaries owned here (stair-floor-opening, stair-boundary-heights):
  * - the left partition X = [-1.95, -1.80] beside the flights on the ground
  *   storey and beside the opening on the upper storey;
- * - the back partition Z = [-4.71, -4.56] from the ground floor to the upper
- *   floor, and the under-stair closure X = [1.87, 2.02] at the arrival end;
- * - the upper bedroom-side partitions X = [-0.65, -0.50] and Z = [-3.41, -3.26];
- * - the upper-hall edge guard, top 1.05 m above the upper floor, and the lower
- *   flight's open-side handrail 0.90 m above the nosing line.
- * Balusters and their count are later model work; rails and end posts are
- * emitted here as the blocking of those guards.
+ * - the back partition Z = [-4.71, -4.56] from the ground floor up to the
+ *   interstorey structure, which closes it on to the upper floor;
+ * - the under-stair closure X = [1.87, 2.02] at the arrival end, below the
+ *   interstorey structure, cut only by `entry-coat-opening`
+ *   Z = [-4.51, -3.56], Y = [0, 2.15];
+ * - the upper bedroom-side partitions X = [-0.65, -0.50] and Z = [-3.41, -3.26].
+ *
+ * Guards (stair-clearance, stair-boundary-heights): every post and handrail
+ * sits inside the 0.075 m occupancy reservation on its side of the 1.15 m path
+ * and uses that width as its section. The lower flight's open side toward the
+ * entry and the upper flight's front side carry a handrail whose top is 0.90 m
+ * above the nosing line, meeting at 0.90 m above the landing at their corner
+ * post; the upper-hall edge guard over the back band has its top 1.05 m above
+ * the upper floor. The +X arrival stays open. Balusters, their count and the
+ * bottom member are later model work and are not emitted.
  */
 import { PALETTE } from "./palette";
 import { type IHousePart, bar, block, part, straightWall } from "./solids";
@@ -30,6 +42,14 @@ const RISE = STOREYS.upperFloor / 18;
 const RUN = 0.28;
 const BASE = STOREYS.groundFloor - GROUND_LAYERS.finish;
 const UPPER_BASE = STOREYS.upperFloor - INTERSTOREY_FLOOR_FINISH;
+/** Handrail/guard occupancy reservation on each side of the path (stair-clearance). */
+const RESERVE = 0.075;
+/** Sloped handrail top above the nosing line and above the landing. */
+const HANDRAIL = 0.9;
+/** Upper-hall fall-edge guard top above the upper floor. */
+const HALL_GUARD = 1.05;
+/** Coat closet body plan and top (entry-coat-storage). */
+const COAT = { x: [1.1, 1.75], top: 2.15 } as const;
 
 /** Emit the stair treads, landing, closed sides and guards. */
 export const buildStair = (): IHousePart[] => {
@@ -42,9 +62,12 @@ export const buildStair = (): IHousePart[] => {
   // The eighth riser reaches the landing at 8 risers = 1.36 m.
   parts.push(part("stair-landing", OWNER, "stair", PALETTE.stairWood, block([-1.8, BASE, -4.56], [-0.65, RISE * 8, -3.41])));
   // Upper flight: tread j (1..9) sits at 8 + j risers, stepping +X from X = -0.65.
+  // A tread over the coat closet body keeps its underside at the closet top.
   for (let j = 1; j <= 9; ++j) {
     const start = -0.65 + RUN * (j - 1);
-    parts.push(part(`stair-upper-tread-${j}`, OWNER, "stair", PALETTE.stairWood, block([start, BASE, -4.56], [start + RUN, RISE * (8 + j), -3.41])));
+    const overCloset = start + RUN > COAT.x[0] && start < COAT.x[1];
+    const underside = overCloset ? COAT.top : BASE;
+    parts.push(part(`stair-upper-tread-${j}`, OWNER, "stair", PALETTE.stairWood, block([start, underside, -4.56], [start + RUN, RISE * (8 + j), -3.41])));
   }
   const wall = (id: string, axis: "x" | "z", across: readonly [number, number], along: readonly [number, number], bottom: number, top: number): IHousePart =>
     part(id, OWNER, "partition", PALETTE.interiorWall, straightWall({ axis, across, along, bottom, top }));
@@ -52,26 +75,43 @@ export const buildStair = (): IHousePart[] => {
     wall("stair-left-ground", "z", [-1.95, -1.8], [-4.56, -1.45], BASE, STOREYS.groundCeiling),
     wall("stair-left-upper", "z", [-1.95, -1.8], [-4.56, -0.25], UPPER_BASE, STOREYS.upperCeiling),
     wall("stair-back-ground", "x", [-4.71, -4.56], [-1.95, 1.87], BASE, STOREYS.groundCeiling),
-    wall("stair-arrival-closure", "z", [1.87, 2.02], [-4.71, -3.41], BASE, STOREYS.groundCeiling),
+    part(
+      "stair-arrival-closure",
+      OWNER,
+      "partition",
+      PALETTE.interiorWall,
+      straightWall({
+        axis: "z",
+        across: [1.87, 2.02],
+        along: [-4.71, -3.41],
+        bottom: BASE,
+        top: STOREYS.groundCeiling,
+        holes: [{ id: "entry-coat-opening", from: -4.51, to: -3.56, bottom: STOREYS.groundFloor, top: COAT.top }],
+      }),
+    ),
     wall("stair-bedroom-side-upper", "z", [-0.65, -0.5], [-3.41, -0.25], UPPER_BASE, STOREYS.upperCeiling),
     wall("stair-bedroom-front-upper", "x", [-3.41, -3.26], [-0.5, 1.72], UPPER_BASE, STOREYS.upperCeiling),
   );
-  // Upper hall edge guard along Z = [-4.71, -4.56]: end posts, top and bottom rails.
-  const guardTop = STOREYS.upperFloor + 1.05;
+  // Upper-hall fall edge over the back band Z = [-4.71, -4.56]: two end posts and the top rail.
+  const guardTop = STOREYS.upperFloor + HALL_GUARD;
   const z = -4.635;
   parts.push(
-    part("stair-guard-post-east", OWNER, "guard", PALETTE.railing, block([1.81, STOREYS.upperFloor, z - 0.03], [1.87, guardTop, z + 0.03])),
-    part("stair-guard-top-rail", OWNER, "guard", PALETTE.stairWood, bar({ x: -1.8, y: guardTop - 0.03, z }, { x: 1.87, y: guardTop - 0.03, z }, 0.06)),
-    part("stair-guard-bottom-rail", OWNER, "guard", PALETTE.railing, bar({ x: -1.8, y: STOREYS.upperFloor + 0.1, z }, { x: 1.87, y: STOREYS.upperFloor + 0.1, z }, 0.04)),
+    part("stair-guard-post-west", OWNER, "guard", PALETTE.railing, block([-1.8, STOREYS.upperFloor, z - RESERVE / 2], [-1.8 + RESERVE, guardTop, z + RESERVE / 2])),
+    part("stair-guard-post-east", OWNER, "guard", PALETTE.railing, block([1.87 - RESERVE, STOREYS.upperFloor, z - RESERVE / 2], [1.87, guardTop, z + RESERVE / 2])),
+    part("stair-guard-top-rail", OWNER, "guard", PALETTE.stairWood, bar({ x: -1.8, y: guardTop - RESERVE / 2, z }, { x: 1.87, y: guardTop - RESERVE / 2, z }, RESERVE)),
   );
-  // Lower flight open side toward the entry: handrail 0.90 m above the nosing line, two end posts.
-  const x = -0.575;
-  const firstNosing = { z: -1.45, y: RISE };
-  const landingEdge = { z: -3.41, y: RISE * 8 };
+  // Sloped handrails inside the 0.075 m reservation: the lower flight's open
+  // side X = [-0.725, -0.65] and the upper flight's front side Z = [-3.485, -3.41].
+  // Both reach 0.90 m above the landing at the corner (-0.65, -3.41).
+  const x = -0.65 - RESERVE / 2;
+  const zFront = -3.41 - RESERVE / 2;
+  const railTop = (nosing: number): number => nosing + HANDRAIL - RESERVE / 2;
+  const landingTop = RISE * 8;
   parts.push(
-    part("stair-handrail-lower", OWNER, "guard", PALETTE.stairWood, bar({ x, y: firstNosing.y + 0.9, z: firstNosing.z }, { x, y: landingEdge.y + 0.9, z: landingEdge.z }, 0.06)),
-    part("stair-post-lower-start", OWNER, "guard", PALETTE.railing, block([x - 0.04, BASE, firstNosing.z - 0.04], [x + 0.04, firstNosing.y + 0.9, firstNosing.z + 0.04])),
-    part("stair-post-lower-end", OWNER, "guard", PALETTE.railing, block([x - 0.04, BASE, landingEdge.z - 0.04], [x + 0.04, landingEdge.y + 0.9, landingEdge.z + 0.04])),
+    part("stair-handrail-lower", OWNER, "guard", PALETTE.stairWood, bar({ x, y: railTop(RISE), z: -1.45 }, { x, y: railTop(landingTop), z: -3.41 }, RESERVE)),
+    part("stair-handrail-upper", OWNER, "guard", PALETTE.stairWood, bar({ x: -0.65, y: railTop(landingTop), z: zFront }, { x: 1.87, y: railTop(STOREYS.upperFloor), z: zFront }, RESERVE)),
+    part("stair-post-lower-start", OWNER, "guard", PALETTE.railing, block([-0.65 - RESERVE, RISE, -1.45 - RESERVE], [-0.65, RISE + HANDRAIL, -1.45])),
+    part("stair-post-landing-corner", OWNER, "guard", PALETTE.railing, block([-0.65 - RESERVE, landingTop, -3.41 - RESERVE], [-0.65, landingTop + HANDRAIL, -3.41])),
   );
   return parts;
 };
