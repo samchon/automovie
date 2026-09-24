@@ -185,7 +185,7 @@
 @evidence principles/core/common.md#declared-basis 상판 외곽과 높이 0.75 m는 식사 구역 예약에서, 부품 배치 기준은 후면 공용부 설정의 여섯 좌석에서 받고, 사람 폭 X = [-0.30, 0.30]·[0.70, 1.30]과 모서리 다리 X의 대조를 산술로 보인다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 예약 상판 외곽에 네 모서리 다리·에이프런 구성과 좌석별 사람 폭을 비켜 가는 다리 위치 산술을 더한다.
 @evidence principles/design/models.md#representation-contract 상판·에이프런 넷·다리 넷 계층과 `top`·`apron`·`leg` 경계를 두고 관절이 없다고 적으며 좌석별 무릎 공간을 비워 둔다. 보이지 않는 한계는 본문의 "나뭇결 방향·상판 가장자리 모따기·이음 철물은 표현하지 않는다."로 밝힌다.
-@evidence principles/design/models.md#spatial-convention 가구 국소 좌표의 예외로 원점을 바닥 평면 중심, +X를 긴 방향으로 둔다고 밝히고 모서리 다리를 X = [-0.35, -0.30]·[1.30, 1.35], Z = [-8.40, -8.35]·[-7.55, -7.50] 값으로 적는다.
+@evidence principles/design/models.md#spatial-convention 가구 국소 좌표의 예외로 원점을 바닥 평면 중심, +X를 긴 방향으로 둔다고 밝히고 모서리 다리의 로컬 X = [-0.85, -0.80]·[0.80, 0.85], Z = [-0.45, -0.40]·[0.40, 0.45] m를 본문에 적는다.
 @evidence principles/design/models.md#reviewable-structure 정면·측면 정사영에서 다리가 네 모서리에만 있고 좌석별 무릎 공간이 열려 있는지, 상판 0.75 m와 의자 좌면의 차 0.30 m가 읽히는지를 리뷰 대상으로 둔다.
 @evidence principles/design/models.md#model-observable-style-basis 스타일 라벨 없이 네 모서리 각재 다리, 0.02 m 들인 0.08 m 에이프런, 0.035 m 상판이라는 관찰 가능한 구성을 정한다.
 @evidence principles/design/models.md#model-scale-layer-completion 0.75 m 스케일과 의자 좌면 비교, 세 부품군, 관절 없음, 세 재질 경계, 무릎 공간 산술과 두 관찰이 함께 있어 식탁 표현에 빠진 층이 없다.
@@ -196,17 +196,17 @@
 
 식탁은 [식사 구역 예약](../spaces/rooms/common.md#common-dining-reservation)의 상판 X = [-0.35, 1.35], Z = [-8.40, -7.50], 높이 0.75 m를 외곽으로 받아 길이 1.70 m, 폭 0.90 m다. [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)의 예외로 네 면을 모두 쓰므로 로컬 원점을 바닥 평면 중심에 두고 +X를 긴 방향으로 둔다. [가족과 손님이 함께 앉는 여섯 좌석](../settings/10-house.md#common-room)의 무릎 공간을 지키는 것이 부품 배치의 기준이다.
 
-부품은 상판, 에이프런 네 개, 다리 네 개다. 상판은 Y = [0.715, 0.75]의 0.035 m 두께다. 다리는 0.05 × 0.05 m 각재로 상판 네 모서리와 면이 맞게 세운다. 로컬 좌표에서 상판은 X = [-0.85, 0.85], Z = [-0.45, 0.45]이고, 긴 변 좌석 중심 로컬 X = -0.50, 0.50 m(world X = 0, 1.00 m) 양옆 0.30 m의 사람 폭은 X = [-0.80, -0.20]과 [0.20, 0.80]이므로 모서리 다리 X = [-0.85, -0.80]과 [0.80, 0.85]에 닿기만 하고 겹치지 않는다. 끝 좌석의 사람 폭 로컬 Z = [-0.30, 0.30]도 다리 Z = [-0.45, -0.40]과 [0.40, 0.45] 사이에 든다. 에이프런은 상판 아래 0.08 m 높이, 상판 가장자리에서 0.02 m 들어가며 무릎 아래 여유 0.635 m를 남긴다.
+부품은 상판, 에이프런 네 개, 다리 네 개다. 상판은 Y = [0.715, 0.75]의 0.035 m 두께다. 다리는 0.05 × 0.05 m 각재로 상판 네 모서리와 면이 맞게 세운다. 로컬 좌표에서 상판은 X = [-0.85, 0.85], Z = [-0.45, 0.45]이고, 긴 변 좌석 중심 로컬 X = -0.50, 0.50 m 양옆 0.30 m의 사람 폭은 X = [-0.80, -0.20]과 [0.20, 0.80]이므로 모서리 다리 X = [-0.85, -0.80]과 [0.80, 0.85]에 닿기만 하고 겹치지 않는다. 끝 좌석의 사람 폭 로컬 Z = [-0.30, 0.30]도 다리 Z = [-0.45, -0.40]과 [0.40, 0.45] 사이에 든다. 에이프런은 상판 아래 0.08 m 높이, 상판 가장자리에서 0.02 m 들어가며 무릎 아래 여유 0.635 m를 남긴다.
 
 재질 경계는 `top`, `apron`, `leg`다. 관절은 없다. 나뭇결 방향·상판 가장자리 모따기·이음 철물은 표현하지 않는다. 소스 owner는 `src/models/furnishings/kitchen-dining.ts`다. 관찰은 정면·측면 정사영에서 다리가 네 모서리에만 있고 좌석별 무릎 공간이 열려 있는지, 상판 높이 0.75 m와 의자 좌면의 차가 0.30 m로 읽히는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
 
 ## 식탁 의자 {#dining-chair}
 <!--
 @evidence principles/core/common.md#scope-preservation 여섯 좌석에 반복되는 의자 원형의 외곽, 좌면·다리·등받이 계층, 재질 경계, 관찰을 이 H2가 정하고 두 반복 규칙에 따른 배치는 instances에 넘긴다.
-@evidence principles/core/common.md#substantive-completion 0.45 × 0.50 m 외곽과 등받이 상단 0.85 m, 좌면 Y = [0.42, 0.45], 0.035 m 다리, 등받이 판 Y = [0.62, 0.85]·두께 0.02 m·뒤로 5° 기울기를 확정한다.
+@evidence principles/core/common.md#substantive-completion 0.45 × 0.50 m 외곽과 등받이 상단 0.85 m, 좌면 Y = [0.42, 0.45], 0.035 m 다리, 등받이 살대와 띠 Y = [0.62, 0.85]·두께 0.02 m·뒤로 5° 기울기를 확정한다.
 @evidence principles/core/common.md#declared-basis 좌면 0.45 m는 식탁 0.75 m보다 0.30 m 낮은 식사 자세를, 폭 0.45 m는 좌석 사용 폭 0.65 m 안의 밀어 넣기를 위한 이 층의 결정이며 여섯 좌석은 식사 구역 예약에서 받는다고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 여섯 좌석 예약에 뒤 다리가 등받이 기둥으로 이어지는 구성, 5° 등받이, 팔걸이 없음, 등받이가 식탁 위로 0.10 m 솟는 관계를 더한다.
-@evidence principles/design/models.md#representation-contract 좌면·네 다리·등받이 기둥 둘·등받이 판 계층과 `seat`·`leg`·`back` 경계를 두고 관절 없이 꺼내 앉기를 배치 변화로 둔다. 보이지 않는 한계는 본문의 "좌판 곡면·다리 이음·등받이 곡률은 표현하지 않는다."로 밝힌다.
+@evidence principles/design/models.md#representation-contract 좌면·네 다리·등받이 기둥 둘·등받이 살대와 띠 계층과 `seat`·`leg`·`back` 경계를 두고 관절 없이 꺼내 앉기를 배치 변화로 둔다. 보이지 않는 한계는 본문의 "좌판 곡면·다리 이음·등받이 곡률은 표현하지 않는다."로 밝힌다.
 @evidence principles/design/models.md#spatial-convention 뒤쪽 모서리 선을 뒤 다리의 뒤쪽 변, +Z를 식탁 쪽 정면으로 두고 점유를 폭 0.45 m·깊이 0.50 m·등받이 상단 0.85 m로 적는다.
 @evidence principles/design/models.md#reviewable-structure 측면의 좌면 0.45 m·등받이 0.85 m와 기울기, 밀어 넣은 평면에서 의자 폭이 식탁 다리 사이에 드는지, 여섯 의자가 같은 원형의 반복으로 읽히는지를 리뷰 대상으로 둔다.
 @evidence principles/design/models.md#model-observable-style-basis 스타일 라벨 없이 팔걸이 없는 판 등받이, 뒤 다리가 그대로 올라간 기둥, 5° 기울기라는 관찰 가능한 구성을 정한다.
@@ -219,6 +219,6 @@
 
 식탁 의자는 [여섯 좌석](../spaces/rooms/common.md#common-dining-reservation)에 여섯 번 쓰는 한 원형이며 두 반복 규칙에 따른 배치는 instances가 소유한다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르며 뒤쪽 모서리 선은 뒤 다리의 뒤쪽 변, +Z는 식탁 쪽 정면이다. 외곽은 폭 0.45 m, 깊이 0.50 m, 등받이 상단 0.85 m다. 좌면 높이 0.45 m는 식탁 0.75 m보다 0.30 m 낮은 식사 자세를 위한 이 층의 결정이고, 폭 0.45 m는 좌석 사용 폭 0.65 m 안에서 식탁 다리 사이로 밀어 넣을 수 있도록 택했다.
 
-부품은 좌면, 네 다리, 등받이 기둥 둘, 등받이 판이다. 좌면은 Y = [0.42, 0.45]의 두께 0.03 m 판, 다리는 0.035 m 각재이며 뒤 다리가 그대로 올라가 등받이 기둥이 된다. 등받이 판은 Y = [0.62, 0.85], 두께 0.02 m이고 뒤로 5° 기운다. 팔걸이는 없다. 등받이 상단 0.85 m가 식탁 상판 위로 0.10 m 솟으므로 밀어 넣은 상태에서도 등받이가 식탁 가장자리 밖에 남는다. 관절은 없고 꺼내 앉기는 배치 변화다.
+레퍼런스 03의 세로 살대 의자를 채택한다. 부품은 좌면, 네 다리와 이어지는 뒤 기둥 둘, 위·아래 가로 띠 둘, 세로 살대 넷이다. 좌면은 Y = [0.42, 0.45]의 두께 0.03 m 판, 다리와 뒤 기둥은 0.035 m 각재다. 뒤 기둥 안쪽 순폭은 0.45 − 2 × 0.035 = 0.38 m이고, 그 안에 폭 0.035 m 살대 넷과 0.048 m 간격 다섯을 두어 4 × 0.035 + 5 × 0.048 = 0.38 m를 채운다. 아래 띠는 Y = [0.59, 0.62], 위 띠는 Y = [0.82, 0.85], 살대는 Y = [0.62, 0.82] m이며 모두 두께 0.02 m다. 기울기 5°의 축은 좌면 뒤 기둥의 Y = 0.42 m 선이고 뒤쪽으로 기운 상단 이동은 (0.85 − 0.42)tan5° = 0.0376 m다. 뒤 기둥을 외곽 뒤끝에서 0.05 m 안쪽에 두어 이동해도 0.0124 m 여유가 남는다. 팔걸이는 없다. 등받이 상단 0.85 m가 식탁 상판 위로 0.10 m 솟으므로 밀어 넣은 상태에서도 등받이가 식탁 가장자리 밖에 남는다. 관절은 없고 꺼내 앉기는 배치 변화다.
 
 재질 경계는 `seat`, `leg`, `back`이다. 좌판 곡면·다리 이음·등받이 곡률은 표현하지 않는다. 소스 owner는 `src/models/furnishings/kitchen-dining.ts`다. 관찰은 측면에서 좌면 0.45 m·등받이 0.85 m와 기울기가 보이는지, 밀어 넣은 평면에서 의자 폭이 두 식탁 다리의 안쪽 간격 1.60 m 안에 드는지, 여섯 의자가 같은 원형의 반복으로 읽히는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.

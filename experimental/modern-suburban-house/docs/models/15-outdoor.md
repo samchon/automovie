@@ -6,7 +6,7 @@
 @evidence principles/core/common.md#substantive-completion 상판 Y = [0.71, 0.74], 폭 0.125 m 널 여섯 장과 0.01 m 틈, 0.05 m 각재 다리를 모서리에서 0.05 m 안쪽에 세우는 값을 수치로 정한다. 널 여섯 장과 틈 다섯의 합은 0.80 m로 상판 폭과 같다.
 @evidence principles/core/common.md#declared-basis 길이 1.40 m·폭 0.80 m·상면 0.74 m를 "이 층의 결정"으로 밝히고, 그 근거로 긴 변마다 두 좌석을 두는 성인 둘·자녀 둘의 네 좌석과 꺼낸 의자를 예약 반폭 1.35 m 안에 담는 조건을 댄다. 다리와 좌석 폭의 0.05 m 겹침은 다리가 무릎 앞이 아니라 옆에 놓인다는 이유로 허용한다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 테라스 공간 예약의 크기 안에 부모에 없는 널 상판 분할, 다리 X = ±[0.60, 0.65] 위치, 좌석 중심 로컬 X = ±0.35 m를 더한다. 가구 국소 좌표의 예외로 원점을 바닥 평면 중심에 두는 결정도 더한다.
-@evidence principles/design/models.md#representation-contract 결과 형상을 널 상판과 0.05 m 각재 다리 넷, 안정 표면 `top`·`leg`, 관절 없음, 점유 외곽 1.40 × 0.80 × 0.74 m로 정한다. 대리 형상이 지지하는 관찰은 상면 0.74 m와 널 틈의 읽힘으로 이름 붙였지만 지지하지 못하는 관찰은 따로 적지 않았다. 보이지 않는 한계는 본문의 "나뭇결·널 고정 나사·다리 발 캡은 표현하지 않는다."로 밝힌다.
+@evidence principles/design/models.md#representation-contract 결과 형상을 널 상판과 0.05 m 각재 다리 넷, 안정 표면 `top`·`leg`, 관절 없음, 점유 외곽 1.40 × 0.80 × 0.74 m로 정한다. 대리 형상이 지지하는 관찰은 상면 0.74 m와 널 틈의 읽힘으로 한정하고 재료 결·시공 내구성은 이 형상이 지지하지 않는다고 본문에 적는다. 보이지 않는 한계는 본문의 "널 고정 나사·다리 발 캡은 표현하지 않는다. 나뭇결은 materials가 맡는다."로 밝힌다.
 @evidence principles/design/models.md#spatial-convention 원점을 바닥 평면 중심, +X를 긴 방향, Y = 0을 테라스 상면 datum에 두는 가구 국소 좌표의 예외를 밝히고, 예외의 이유를 네 좌석이 두 긴 변에서 쓰는 사용으로 댄다.
 @evidence principles/design/models.md#reviewable-structure 모델 리뷰 뷰의 정면과 측면에서 상면 0.74 m와 널 틈이 읽히는지를 반증 관찰로 두고 표면 분할은 `top`·`leg`, 관절 영역은 없다고 적는다.
 @evidence principles/design/models.md#model-observable-style-basis 양식 라벨 없이 0.01 m 틈을 둔 널 여섯 장 상판과 모서리 안쪽 0.05 m 각재 다리라는 관찰 가능한 구성만 정하고 재질·색·조명은 적지 않는다.
@@ -23,15 +23,15 @@
 
 부품은 널판 상판과 다리 넷이다. 상판은 Y = [0.71, 0.74]이며 로컬 X를 따라 0.01 m 틈을 둔 폭 0.125 m 널 여섯 장으로 나누어 6 × 0.125 + 5 × 0.01 = 0.80 m가 상판 폭과 같다. 다리는 0.05 m 각재로 모서리에서 0.05 m 안쪽에 세운다. 긴 변 좌석 중심은 로컬 X = ±0.35 m이고 사람 폭 0.60 m 기준으로 [-0.65, -0.05]와 [0.05, 0.65]가 되어 다리 X = ±[0.60, 0.65]와 0.05 m만 겹친다. 이 겹침은 다리가 상판 가장자리 0.05 m 안쪽에 있어 무릎 앞이 아니라 옆에 놓이므로 허용한다. 표면 id는 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)에 따라 `top`, `leg`다. 관절은 없다.
 
-나뭇결·널 고정 나사·다리 발 캡은 표현하지 않는다. 소스 owner는 `src/models/furnishings/outdoor.ts`다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 정면과 측면에서 상면 0.74 m와 널 틈이 읽히는지다. 모든 관찰은 unverified다.
+널 고정 나사·다리 발 캡은 표현하지 않는다. 나뭇결은 materials가 맡는다. 소스 owner는 `src/models/furnishings/outdoor.ts`다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 정면과 측면에서 상면 0.74 m와 널 틈이 읽히는지다. 모든 관찰은 unverified다.
 
 ## 테라스 의자 {#terrace-chair}
 <!--
 @evidence principles/core/common.md#scope-preservation 네 번 쓰는 한 의자 원형의 외곽 0.50 × 0.55 m·좌면 0.45 m·등받이 0.85 m, 좌판·다리 넷·등받이 널 셋, 표면 id `seat`·`leg`·`back`, 소스 owner를 맡고 위치는 instances가 도출하도록 남긴다.
-@evidence principles/core/common.md#substantive-completion 좌판 Y = [0.42, 0.45]를 로컬 Z를 따라 널 넷으로, 등받이 널을 Y = [0.55, 0.85]에서 뒤로 8° 기울게 정한다. 좌판 널·등받이 널의 폭과 틈, 다리 단면 치수는 본문에 적혀 있지 않다.
+@evidence principles/core/common.md#substantive-completion 좌판 Y = [0.42, 0.45]를 로컬 Z를 따라 널 넷으로, 등받이 널을 Y = [0.55, 0.85]에서 뒤로 8° 기울게 정한다. 좌판 널 네 장 × 0.13 m와 틈 세 곳 × 0.01 m가 0.55 m를 채우고, 등받이 널 셋은 각 높이 0.08 m·두께 0.02 m이며 다리 단면은 0.035 m 각재라고 본문에 적는다.
 @evidence principles/core/common.md#declared-basis 꺼낸 의자의 뒤쪽 끝을 식탁 반폭 0.40 m, 꺼냄 0.30 m, 의자 깊이 0.55 m의 합 1.25 m로 산출해 예약 반폭 1.35 m와 대조한다. 좌면 0.45 m는 식탁과 0.29 m 차, 폭 0.50 m는 중심 간격 0.70 m에서 틈 0.20 m라는 근거를 본문에 둔다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 테라스 공간 예약에 팔걸이 없는 의자 외곽, 등받이 8° 기울기, 뒤 다리 뒤쪽 변을 뒤쪽 모서리 선으로 둔 국소 좌표를 더하고 꺼내기를 관절이 아닌 배치 변화로 정한다.
-@evidence principles/design/models.md#representation-contract 좌판·다리 넷·등받이 널 셋의 무관절 형상과 표면 `seat`·`leg`·`back`, 외곽 0.50 × 0.55 × 0.85 m를 정한다. 관찰은 모두 unverified로 두었지만 대리 형상이 지지하지 못하는 관찰은 따로 이름 붙이지 않았다. 보이지 않는 한계는 본문의 "널 고정 나사·등받이 곡률·다리 발 캡은 표현하지 않는다."로 밝힌다.
+@evidence principles/design/models.md#representation-contract 좌판·다리 넷·등받이 널 셋의 무관절 형상과 표면 `seat`·`leg`·`back`, 외곽 0.50 × 0.55 × 0.85 m를 정한다. 관찰은 모두 unverified로 두었지만 재료 결·시공 내구성은 이 형상이 지지하지 않는다고 본문에 적는다. 보이지 않는 한계는 본문의 "널 고정 나사·등받이 곡률·다리 발 캡은 표현하지 않는다. 목재의 결·야외 내구성은 이 모델 형상에서 검증하지 않는다."로 밝힌다.
 @evidence principles/design/models.md#spatial-convention 가구 국소 좌표를 따르되 뒤쪽 모서리 선을 뒤 다리의 뒤쪽 변, +Z를 식탁을 향한 정면으로 둔다.
 @evidence principles/design/models.md#reviewable-structure 측면에서 좌면 높이와 등받이 기울기가 보이는지, 네 의자를 꺼낸 평면이 예약 안에 드는지를 반증 관찰로 두고 표면 분할은 `seat`·`leg`·`back`이다.
 @evidence principles/design/models.md#model-observable-style-basis 양식 라벨 없이 팔걸이 없음, 널 넷의 좌판, 8° 기운 등받이 널 셋이라는 관찰 가능한 구성으로 의자를 정한다.
@@ -44,7 +44,7 @@
 
 테라스 의자는 [테라스 공간 예약](../spaces/site/terrace.md#garden-terrace-plan)과 네 사람의 [사용 가정](../settings/00-production.md#use-profile)을 소비하는 한 원형이며 반복 수와 위치는 후속 instances가 식탁 반폭 0.40 m와 이 의자 깊이에서 도출한다. 외곽은 폭 0.50 m, 깊이 0.55 m, 좌면 0.45 m, 등받이 0.85 m이며 팔걸이는 없다. 좌면 0.45 m는 상판 0.74 m와 0.29 m 차의 식사 자세를 [식탁 의자](10-kitchen-dining.md#dining-chair)와 같게 두려는 선택이고, 폭 0.50 m는 긴 변 좌석 중심 간격 0.70 m에서 두 의자 사이 0.20 m를 남기며, 깊이 0.55 m는 꺼낸 상태의 끝 1.25 m가 예약 반폭 1.35 m 안에 들도록 택했다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르며 뒤쪽 모서리 선은 뒤 다리의 뒤쪽 변, +Z는 식탁을 향한 정면이다. 식탁 가장자리에서 0.30 m 꺼낸 상태의 뒤쪽 끝은 식탁 중심에서 0.40 + 0.30 + 0.55 = 1.25 m로 예약 반폭 1.35 m 안에 든다.
 
-부품은 좌판, 다리 넷, 등받이 널 셋이다. 좌판은 Y = [0.42, 0.45]이고 깊이 0.55 m를 로컬 Z 방향 널 네 장(각 0.13 m)과 틈 세 개(각 0.01 m)로 정확히 채운다. 다리는 0.035 × 0.035 m 각재이며 중심을 좌판 각 가장자리에서 0.04 m 안쪽에 둔다. 등받이 널 셋은 각각 높이 0.08 m, 두께 0.02 m이며 하단 Y = 0.55, 0.66, 0.77 m에 두고 뒤 다리 윗부분을 회전축으로 뒤로 8° 기울여 최상단이 0.85 m다. 표면 id는 `seat`, `leg`, `back`이다. 관절은 없고 꺼내기는 배치 변화다. 널 고정 나사·등받이 곡률·다리 발 캡은 표현하지 않는다. 소스 owner는 `src/models/furnishings/outdoor.ts`다. 관찰은 [기준 척도](00-model-frame.md#model-reference-scale)와 함께 측면에서 좌면과 등받이 기울기가 보이는지, 네 의자를 꺼낸 평면이 예약 안에 드는지다. 모든 관찰은 unverified다.
+부품은 좌판, 다리 넷, 등받이 널 셋이다. 좌판은 Y = [0.42, 0.45]이고 깊이 0.55 m를 로컬 Z 방향 널 네 장(각 0.13 m)과 틈 세 개(각 0.01 m)로 정확히 채운다. 다리는 0.035 × 0.035 m 각재이며 중심을 좌판 각 가장자리에서 0.04 m 안쪽에 둔다. 등받이 널 셋은 각각 높이 0.08 m, 두께 0.02 m이며 하단 Y = 0.55, 0.66, 0.77 m에 두고 뒤 다리 윗부분을 회전축으로 뒤로 8° 기울여 최상단이 0.85 m다. 표면 id는 `seat`, `leg`, `back`이다. 관절은 없고 꺼내기는 배치 변화다. 널 고정 나사·등받이 곡률·다리 발 캡은 표현하지 않는다. 목재의 결·야외 내구성은 이 모델 형상에서 검증하지 않는다. 소스 owner는 `src/models/furnishings/outdoor.ts`다. 관찰은 [기준 척도](00-model-frame.md#model-reference-scale)와 함께 측면에서 좌면과 등받이 기울기가 보이는지, 네 의자를 꺼낸 평면이 예약 안에 드는지다. 모든 관찰은 unverified다.
 
 ## lap siding 판 단면 {#lap-siding-board}
 <!--
@@ -98,3 +98,22 @@
 처마와 가장자리에서는 두 변형과 한 연산을 둔다. `starter` 변형은 홈이 없는 같은 단면의 줄이며 [지붕 면 분할](../spaces/roof/00-junctions.md#roof-mass-allocation)의 처마선에 아래 끝을 맞춰 course 0 아래에 한 겹 깐다. 박공 끝, 골짜기, 단차, 굴뚝 주변에서는 줄을 [지붕 공유 가장자리](../spaces/roof/00-junctions.md#roof-shared-edges) 선을 지나는, 지붕 면에 수직한 평면으로 자르고 잘린 면은 `shingle-cut` 표면으로 닫는다. 골짜기에서는 양쪽 면의 course를 같은 골짜기 선에서 자르며 flashing은 그 owner에 남긴다. 용마루에서는 마지막 course를 용마루 선에서 자르고 `ridge-cap` 변형으로 덮는다. `ridge-cap`은 폭 0.330 m, 길이 0.30 m의 탭 한 장을 용마루 선에서 두 지붕 경사 각도로 좌우 대칭으로 꺾은 판이다. 용마루 방향 노출은 0.14 m이고 두께는 0.006 m로 균일하다.
 
 표면 id는 `shingle-face`, `shingle-butt`(아래 끝 두께 면), `shingle-back`, `shingle-cut`이며 어두운 색은 [shingle 재료](../materials/01-exterior.md#roof-shingle)가 바인딩한다. 모든 변형은 피벗이 없는 강체다. 못·접착 띠·입자 질감·방수와 풍하중 성능은 표현하지 않는다. 소스 owner는 `src/models/exterior/shingle.ts`다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 측면 직교 단면에서 쐐기와 0.16 m 겹침, 0.004 m 단차가 보이는지, 정면에서 세 탭과 홈의 반 탭 어긋남이 규칙적인 결로 읽히는지, 용마루 캡이 두 경사에 좌우 대칭으로 앉는지다. 모든 관찰은 unverified다.
+
+## 노출 처마의 홈통과 선홈통 {#eave-gutter-downspout}
+<!--
+@evidence principles/core/common.md#scope-preservation 노출 수평 처마의 홈통과 각 연속 배수 구간 끝의 선홈통 부재를 맡고 지붕판·용마루·외벽 면을 복제하지 않는다.
+@evidence principles/core/common.md#substantive-completion 홈통 폭 0.12 m·깊이 0.08 m·금속 두께 0.003 m, 선홈통 단면 0.08 × 0.06 m·두께 0.003 m, 끝 선택 규칙과 surface id를 정한다.
+@evidence principles/core/common.md#declared-basis spaces/roof/main-front.md#main-front-roof가 처마·홈통 후속 부재에 넘긴 공유 경계를 실제 입력으로 받는다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 지붕 owner의 노출 처마 선을 실제 물받이 U단면과 아래로 내려가는 관으로 바꾸되 우수 성능은 주장하지 않는다.
+@evidence principles/design/models.md#representation-contract 열린 위쪽 U단면과 닫힌 관의 모든 면을 `gutter`·`downspout`으로 나누고 개별 나사·내부 배수는 표현하지 않는다.
+@evidence principles/design/models.md#spatial-convention 국소 원점은 roof source가 준 처마 선 시작점, U는 선의 접선 길이, V는 단면 둘레이며 world 끝 좌표를 복제하지 않는다.
+@evidence principles/design/models.md#reviewable-structure 01 외관과 노출 처마 단면에서 물받이가 지붕 가장자리에 붙고 선홈통이 창·문을 가리지 않는지 검사한다.
+@evidence principles/design/models.md#model-observable-style-basis 얇은 금속 물받이와 수직 관의 실제 돌출·그림자로 01 외관의 처마 끝을 읽게 하고 색은 materials에 넘긴다.
+@evidence principles/design/models.md#model-scale-layer-completion 단면·두께·끝 선택·원점·UV·면 id·접합 한계를 적고 실제 배수 성능은 unverified다.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 공유 처마 선과 노출 외벽을 그대로 소비하고 지붕·개구부 위치를 바꾸지 않는다.
+@evidence spaces/roof/main-front.md#main-front-roof 처마 끝·홈통 후속 부재가 소비하는 공유 경계를 끊기지 않는 입력 선으로 받는다.
+@evidence settings/20-verification.md#visual-grammar 레퍼런스 01의 외피 모서리와 돌출 부재를 실제 두께가 있는 홈통으로 채운다.
+@evidence obligations/design/models.md#addressable-model-decisions 외장 지붕널과 홈통을 다른 H2에 두어 표면과 반복 규칙이 뒤섞이지 않게 한다.
+-->
+
+레퍼런스 01의 가로 처마 끝 물받이와 수직 선홈통을 채택한다. 각 [노출 처마 경계](../spaces/roof/main-front.md#main-front-roof)는 roof owner가 내는 선분 열을 입력으로 받고, 지붕 판·fascia를 복제하지 않는다. 홈통은 위가 열린 폭 0.12 m·깊이 0.08 m의 U단면, 금속 두께 0.003 m로 처마 물끊기 끝에서 바깥으로 0.03 m, 아래로 0.025 m 물려 건다. 외면과 속면·양 끝 절단면 전체가 `gutter`다. 각 연결된 처마 구간의 바깥에서 보아 오른쪽 끝에 선홈통을 두되, 그 수직 투영 띠가 개구부 trim에서 0.15 m 안이면 왼쪽 끝을 택한다. 양 끝 모두 막히면 원형을 억지로 관통시키지 않고 roof/입면 owner에 stop으로 돌린다. 선홈통은 닫힌 0.08 × 0.06 m 직사각 관, 벽 두께 0.003 m, 외벽 날씨 면에서 0.02 m 떨어져 처마 밑에서 지면 위 0.10 m까지 이어진다. 노출관과 두 끝면은 `downspout`이다. 경로 길이는 입력 처마 끝과 입면 지표에서 계산하며 별도 world 좌표를 적지 않는다. UV는 처마·관의 길이를 U, 단면 둘레를 V로 하는 미터 좌표이고 모서리 엘보·관 끝에서 이음을 끊는다. 엘보는 반지름 0.10 m 90°의 네 분절 관이며 같은 `downspout` 표면이다. 실제 배수·우수관 연결·하중은 이 원형이 증명하지 않는다. source owner는 `src/models/exterior/drainage.ts`; 실제 접합과 GPU 프레임은 unverified다.

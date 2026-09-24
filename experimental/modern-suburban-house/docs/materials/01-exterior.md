@@ -93,7 +93,7 @@
 @evidence settings/20-verification.md#visual-grammar charcoal 창틀과 굴뚝 cap이 '공통 재료와 외피 인상'(settings/20-verification.md#visual-grammar)를 링크로 소비해 #2E3033 값과 결합 면의 근거로 삼았다.
 -->
 
-[창틀의 짙은 charcoal](../settings/20-verification.md#visual-grammar)이다. 구성은 분체 도장 알루미늄이므로 [관례](00-material-frame.md#material-response-conventions)대로 도막을 metallic 0.0으로 표현한다. 외관은 `#2E3033`(선형 0.027, 0.030, 0.033), roughness 0.40, transmission 0.0이다. 결합 면은 [창의 표면 파티션](../models/01-windows.md#window-surface-partitions)의 `frame`·`sash`·`mullion`·`muntin`, [현관문](../models/02-exterior-doors.md#front-entry-door)의 `muntin`, [정원 쪽 유리문](../models/02-exterior-doors.md#garden-door-pair)의 `leaf-exterior`·`leaf-interior`·`leaf-edge`·`sash`, 굴뚝 cap이다. source owner는 `src/materials/exterior/frames.ts`이고, 리뷰는 흰 trim 안에서 창틀이 검은 구멍이 아니라 두께 있는 틀로 읽히는지를 관찰한다.
+[창틀의 짙은 charcoal](../settings/20-verification.md#visual-grammar)이다. 구성은 분체 도장 알루미늄이므로 [관례](00-material-frame.md#material-response-conventions)대로 도막을 metallic 0.0으로 표현한다. 외관은 `#2E3033`(선형 0.027, 0.030, 0.033), roughness 0.40, transmission 0.0이다. 결합 면은 [창의 표면 파티션](../models/01-windows.md#window-surface-partitions)의 `frame`·`sash`·`mullion`·`muntin`, [현관문](../models/02-exterior-doors.md#front-entry-door)의 `muntin`, [정원 쪽 유리문](../models/02-exterior-doors.md#garden-door-pair)의 `leaf-exterior`·`leaf-interior`·`leaf-edge`·`sash`, [처마 홈통](../models/15-outdoor.md#eave-gutter-downspout)의 `gutter`·`downspout`, 굴뚝 cap이다. source owner는 `src/materials/exterior/frames.ts`이고, 리뷰는 흰 trim 안에서 창틀이 검은 구멍이 아니라 두께 있는 틀로 읽히는지를 관찰한다.
 
 표면 결속 계획: `frame`·`sash`·`mullion`·`muntin`과 굴뚝 cap의 도장 금속 미세결은 각 부재 길이를 U로 한 0.05 m 모듈이다. 국소 부재 끝을 원점으로 하고 맞댐마다 결 방향을 새로 잡으며 모서리 하이라이트를 유지한다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
 

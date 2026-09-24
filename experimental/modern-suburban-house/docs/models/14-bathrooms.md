@@ -154,20 +154,57 @@
 <!--
 @evidence principles/core/common.md#scope-preservation 욕조 위 커튼 레일, 앞쪽 매달림 봉, 커튼 판과 `curtain-open` 매개변수를 맡고 천장 높이는 방 owner에서 받는다고 경계를 둔다.
 @evidence principles/core/common.md#substantive-completion 레일 지름 0.025 m·길이 1.80 m·높이 2.05 m, 매달림 봉 지름 0.02 m, 레일 아래 0.03 m부터 바닥 위 0.60 m까지 내려오는 두께 0.01 m 커튼 판을 정한다.
-@evidence principles/core/common.md#declared-basis 레일 위치 world X = 4.62 m와 Z 길이 [-8.70, -6.90]은 방 문서 값이고 레일 길이 1.80 m가 그 Z 길이와 같아 출처가 추적된다.
+@evidence principles/core/common.md#declared-basis 레일은 욕조 전면에서 물 쪽 0.04 m의 부모 예약 안에 있고 길이 1.80 m는 욕조 길이와 같아 출처가 추적된다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 방 문서의 레일 위치와 높이 위에 앞쪽 매달림 봉 지지, 네 번 꺾인 판 주름, `curtain-open` 범위 1.80–0.25 m라는 모델 결정을 더한다.
 @evidence principles/design/models.md#representation-contract 레일·매달림 봉·커튼 판의 부품과 표면 id `rail`, `curtain`을 정하고 걷은 상태의 주름을 네 번 꺾인 판으로 제한한다.
 @evidence principles/design/models.md#spatial-convention 선형 부재 예외로 원점을 뒤쪽 벽에 닿는 레일 끝의 높이 2.05 m 점에 두고 +Z를 레일 방향, yaw 0으로 로컬 +Z = world +Z라고 적는다.
 @evidence principles/design/models.md#reviewable-structure 펼친 상태와 걷은 상태의 사선 투시에서 커튼이 욕조 사용 범위로 늘어지지 않는지가 반증 관찰이다.
 @evidence principles/design/models.md#model-observable-style-basis 라벨 없이 지름 0.025 m 원형 레일과 꺾인 판 주름이라는 추상화 수준만 정한다.
 @evidence principles/design/models.md#model-scale-layer-completion 레일 길이 1.80 m와 높이 2.05 m, 천장까지 내려오는 매달림 봉, `curtain-open` 인터페이스, 두 상태 관찰이 함께 커튼 블로킹을 결정한다.
-@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 방 문서의 world X = 4.62 m, Z = [-8.70, -6.90], 상층 바닥 위 2.05 m와 천장 높이를 적힌 그대로 소비했고 부모에 고칠 결함이 없었다.
-@evidence spaces/rooms/tub-bath.md#tub-fixture-use 욕조 욕실 사용 예약의 레일 위치 world X = 4.62 m와 높이 2.05 m, 욕조 Z 길이 [-8.70, -6.90]을 레일 원점과 길이 1.80 m로 소비한다.
+@evidence upstream/design/models.md#settings-and-space-revision-from-model-work 기존 레일이 욕조 전면보다 건조한 통로 쪽 0.08 m에 있어 커튼이 물을 욕조 밖으로 흘릴 수 있고 원형 점유 띠도 없었다. spaces/rooms/tub-bath.md#tub-fixture-use를 욕조 안쪽 0.04 m와 폭 0.10 m 띠로 정정하고 이 H2는 그 띠를 소비한다.
+@evidence spaces/rooms/tub-bath.md#tub-fixture-use 욕조 욕실 사용 예약의 물 쪽 0.04 m 레일·폭 0.10 m 띠·높이 2.05 m와 욕조 길이 1.80 m를 레일 원점과 점유 범위로 소비한다.
 @evidence settings/10-house.md#tub-bathroom 욕조 욕실 설정이 기능 표지로 든 curtain rail/커튼을 지름 0.025 m 레일과 `curtain-open`으로 펼침 길이가 바뀌는 커튼 판으로 제공한다.
 @evidence obligations/design/models.md#articulation-ownership 매개변수 `curtain-open`이 커튼의 펼친 길이를 1.80 m에서 0.25 m까지 바꾸는 motion 인터페이스이고 걷은 상태에서는 뒤쪽 끝 0.25 m 안에 모인다.
-@evidence obligations/design/models.md#model-representation-completion 이 파일의 마지막 H2로서 커튼 레일의 레일·매달림 봉·커튼 층, 기준 치수 1.80 m·2.05 m, `curtain-open` 인터페이스, 표면 `rail`·`curtain`, unverified 관찰 owner를 적지만 모집단 전체의 구조·의미 완결 판정은 이 본문에 없다.
+@evidence obligations/design/models.md#model-representation-completion 이 파일의 마지막 H2로서 커튼 레일의 레일·매달림 봉·커튼 층, 기준 치수 1.80 m·2.05 m, `curtain-open` 인터페이스, 표면 `rail`·`rod`·`curtain`, unverified 관찰 owner를 적지만 모집단 전체의 구조·의미 완결 판정은 이 본문에 없다.
 -->
 
-커튼 레일은 [방 문서](../spaces/rooms/tub-bath.md#tub-fixture-use)가 예약한 욕조 앞면에서 방 쪽으로 0.08 m 떨어진 선을 따라 욕조 길이 1.80 m 전체에 놓인다. [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)의 예외로 선형 부재이므로 원점을 뒤쪽 벽에 닿는 레일 끝의 높이 2.05 m 점에 두고 +Z를 레일 방향으로 둔다. 배치 yaw는 욕조의 긴 축과 맞추되 world 좌표는 방 owner에게서 계산한다. 레일은 지름 0.025 m, 길이 1.80 m이며 앞쪽 끝은 천장까지 내려오는 지름 0.02 m 매달림 봉으로 받친다. 천장 높이는 방 owner에서 받는다.
+커튼 레일은 [방 문서](../spaces/rooms/tub-bath.md#tub-fixture-use)가 예약한 욕조 앞면에서 물 쪽으로 0.04 m 들어간 선을 따라 욕조 길이 1.80 m 전체에 놓인다. [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)의 예외로 선형 부재이므로 원점을 뒤쪽 벽에 닿는 레일 끝의 높이 2.05 m 점에 두고 +Z를 레일 방향으로 둔다. 배치 yaw는 욕조의 긴 축과 맞추되 world 좌표는 방 owner에게서 계산한다. 레일은 지름 0.025 m, 길이 1.80 m이며 앞쪽 끝은 천장까지 내려오는 지름 0.02 m 매달림 봉으로 받친다. 천장 높이는 방 owner에서 받는다.
 
-커튼은 레일 아래 0.03 m부터 바닥 위 0.60 m까지 내려오는 두께 0.01 m의 판이고 매개변수 `curtain-open`이 펼친 길이를 1.80 m에서 0.25 m까지 바꾼다. 걷은 상태에서는 뒤쪽 끝 0.25 m 안에 모이며 이때 주름을 네 번 꺾인 판으로 표현한다. 표면 id는 `rail`, `curtain`이다. 소스 owner는 `src/models/furnishings/bathrooms.ts`다. 관찰은 펼친 상태와 걷은 상태의 사선 투시에서 커튼이 욕조 사용 범위로 늘어지지 않는지다. 모든 관찰은 unverified다.
+커튼은 레일 아래 0.03 m부터 바닥 위 0.60 m까지 내려오는 두께 0.01 m의 판이고 매개변수 `curtain-open`이 펼친 길이를 1.80 m에서 0.25 m까지 바꾼다. 걷은 상태에서는 뒤쪽 끝 0.25 m 안에 모이며 이때 주름을 네 번 꺾인 판으로 표현한다. 레일의 모든 면은 `rail`, 천장에 닿는 받침봉은 `rod`, 커튼의 양면과 절단 끝은 `curtain`이다. 걷은 네 접힘의 욕조 전면 법선 변위는 각 절점에서 0, +0.015, 0, -0.015, 0 m이고 천 두께 0.01 m를 더해도 중심선에서 ±0.02 m여서 부모의 폭 0.10 m 띠 안에 머문다. 레일·봉의 UV는 길이 U·둘레 V, 커튼은 긴 방향 U·높이 V를 미터로 둔다. 소스 owner는 `src/models/furnishings/bathrooms.ts`다. 관찰은 펼친 상태와 걷은 상태의 사선 투시에서 커튼이 욕조 사용 범위로 늘어지지 않는지다. 모든 관찰은 unverified다.
+
+## 두 욕실의 얇은 바닥 매트 {#bath-floor-mats}
+<!--
+@evidence principles/core/common.md#scope-preservation 샤워 욕실과 욕조 욕실의 이미 예약된 기구 앞 사용 바닥에 깔리는 두 매트 원형을 맡고 바닥 슬래브·타일 면을 복제하지 않는다.
+@evidence principles/core/common.md#substantive-completion 샤워 매트 0.65 × 0.45 × 0.008 m, 욕조 매트 0.80 × 0.45 × 0.008 m와 사용 영역의 좌우 여유를 산술로 정한다.
+@evidence principles/core/common.md#declared-basis spaces/rooms/shower-bath.md#shower-fixture-use와 spaces/rooms/tub-bath.md#tub-fixture-use의 서 있는 구간을 host 예약으로 받는다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 기구 사용 바닥에 얇은 직물 덮개를 추가하되 통행·문 회전과 바닥 owner를 바꾸지 않는다.
+@evidence principles/design/models.md#representation-contract 0.04 m 안쪽 테 `border`와 몸판 `field`의 모든 면을 나누고 젖은 상태·섬유 털은 표현하지 않는다.
+@evidence principles/design/models.md#spatial-convention 원점은 host 사용 바닥 중심, 긴 방향을 기구 전면에 평행한 국소 X, 두께는 Y = [0, 0.008] m다.
+@evidence principles/design/models.md#reviewable-structure 각 사용 영역 안의 매트 외곽과 문 회전·발 디딤을 위에서 검사한다.
+@evidence principles/design/models.md#model-observable-style-basis 타일 위 작은 직물 면과 좁은 테가 레퍼런스 05 욕실을 빈 타일 바닥과 구별한다.
+@evidence principles/design/models.md#model-scale-layer-completion 두 매개변수 외곽·두께·면·UV·원점과 02·05 검사 주소를 모두 정한다.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 이미 지정한 기구 앞 사용 바닥에 0.008 m 얇은 덮개가 포함돼 부모 경계 변경은 없다.
+@evidence spaces/rooms/shower-bath.md#shower-fixture-use 샤워부스 앞 대기 폭 0.90 m·깊이 0.60 m에 작은 매트를 맞춘다.
+@evidence spaces/rooms/tub-bath.md#tub-fixture-use 욕조 긴 면 앞 사용 폭 1.05 m·길이 1.55 m에 작은 매트를 맞춘다.
+@evidence obligations/design/models.md#addressable-model-decisions 욕실 매트를 도기·유리와 다른 H2에 둬 얇은 덮개가 기구로 계산되지 않게 한다.
+-->
+
+레퍼런스 02·05의 욕실 매트를 채택한다. [샤워 욕실 대기](../spaces/rooms/shower-bath.md#shower-fixture-use)의 0.90 × 0.60 m 바닥에는 0.65 × 0.45 m 매트 하나를 중심에 놓아 양쪽 0.125 m·앞뒤 0.075 m를 남긴다. [욕조 앞 사용](../spaces/rooms/tub-bath.md#tub-fixture-use)의 1.05 × 1.55 m 바닥에는 0.80 × 0.45 m 매트 하나를 욕조 긴 면에 평행하게 놓아 폭 방향 양끝 0.125 m를 남긴다. 둘 다 두께 0.008 m이고 둘레 0.04 m 띠 `border`와 안쪽 `field`가 상·하·절단면을 서로 겹치지 않게 덮는다. 접지 바닥 중심이 원점, 긴 방향 국소 X·짧은 방향 Z이며 UV는 국소 X/Z 미터다. 물의 흡수·미끄럼 저항·실제 바닥 배수는 주장하지 않는다. source owner는 `src/models/furnishings/bathrooms.ts`; 실제 기구 충돌·GPU 읽힘은 unverified다.
+
+## 샤워 벽감 안의 용기 {#shower-niche-bottles}
+<!--
+@evidence principles/core/common.md#scope-preservation 왼쪽 샤워벽의 좁은 벽감에 놓는 병 세 개만 원형으로 맡고 벽감의 빈 부피·타일 면은 spaces가 소유한다.
+@evidence principles/core/common.md#substantive-completion 지름 0.06·0.07·0.055 m, 높이 0.18·0.20·0.14 m 세 병과 0.025 m 사이 간격을 수치로 정한다.
+@evidence principles/core/common.md#declared-basis 레퍼런스 05의 벽감 병과 spaces/rooms/shower-bath.md#shower-fixture-use에 정정한 0.40 m 벽감 폭·0.08 m 깊이를 받는다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 비어 있는 벽감에 세 높이의 용기와 펌프를 더하되 벽 면을 소품으로 채운 듯 가장하지 않는다.
+@evidence principles/design/models.md#representation-contract 병 몸통 `container`, 뚜껑·펌프 `lid`의 닫힌 면을 나누고 라벨·내용물은 표현하지 않는다.
+@evidence principles/design/models.md#spatial-convention 원점은 벽감 선반 중앙, +Y 위·+Z는 샤워 사용자 쪽이며 위치는 host 벽감에서 instances가 계산한다.
+@evidence principles/design/models.md#reviewable-structure 세 병이 벽감 바깥 0.90 m 방 안쪽 면을 넘지 않는지 단면에서 검사한다.
+@evidence principles/design/models.md#model-observable-style-basis 크기가 다른 세 수납 병으로 05의 실제 사용하는 욕실 느낌을 내되 색·글자는 materials에 남긴다.
+@evidence principles/design/models.md#model-scale-layer-completion 세 지름·높이·간격·표면 id·UV·host 점유를 결정하고 실제 벽감 geometry는 unverified다.
+@evidence upstream/design/models.md#settings-and-space-revision-from-model-work 샤워 욕실 벽감의 host 좌표와 닫힌 후면 두께가 없어 spaces/rooms/shower-bath.md#shower-fixture-use에 벽감 예약을 추가했다. spaceSources의 실제 벽감 절개는 아직 unverified다.
+@evidence spaces/rooms/shower-bath.md#shower-fixture-use 샤워 왼쪽 칸막이 벽감 0.40 × 0.40 × 0.08 m에 세 병을 담는다.
+@evidence obligations/design/models.md#addressable-model-decisions 벽감의 벽 면과 내부 병 면을 다른 분기 owner로 구별한다.
+-->
+
+레퍼런스 05의 샤워 벽감 안 병 세 개를 채택한다. [샤워 욕실 벽감 예약](../spaces/rooms/shower-bath.md#shower-fixture-use)의 가로 0.40 m, 높이 0.40 m, 깊이 0.08 m 안에서 병 지름은 순서대로 0.06·0.07·0.055 m, 높이는 0.18·0.20·0.14 m다. 인접 간격은 0.025 m이므로 가로 합은 0.06 + 0.07 + 0.055 + 2 × 0.025 = 0.235 m이고 양끝 0.0825 m를 남긴다. 병은 12각 닫힌 원통, 윗 펌프는 지름 0.025 m·높이 0.035 m이고 전체 높이 값 안에 포함한다. 몸통 `container`, 뚜껑·펌프 `lid`는 모든 면을 덮고 원통 둘레 U·높이 V를 미터로 준다. 벽감 선반 가운데가 원점이고 실제 벽 절개는 spaces owner의 미완료다. 병의 앞면이 벽 안쪽 면을 넘으면 실패이며 실제 source·GPU 프레임은 unverified다. source owner는 `src/models/furnishings/bathrooms.ts`다.

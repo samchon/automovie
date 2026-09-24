@@ -34,7 +34,7 @@
 
 ## 팬트리 L형 선반 {#pantry-shelves}
 
-[팬트리 예약](../spaces/rooms/pantry.md#pantry-storage-use)의 `pantry-back-shelf`와 `pantry-right-shelf`는 한 [L형 선반](../models/12-service-rooms.md#pantry-l-shelf)의 두 띠이므로 구성원은 하나(`pantry-l-shelf`)이고 yaw 0으로 두 예약의 합집합 경계 상자 중심에 선다. 이 구성원은 두 예약 id를 모두 채우는 것으로 [구성원 규칙](00-placement-frame.md#reservation-derived-membership)의 예외다. 몸체는 두 띠 밖, 특히 `pantry-turning`에 걸치지 않아야 한다. [식품 용기](../models/12-service-rooms.md#pantry-containers)는 선반 원형 안에 속하는지 models가 답하기 전까지 여기서 배치하지 않는다.
+[팬트리 예약](../spaces/rooms/pantry.md#pantry-storage-use)의 `pantry-back-shelf`와 `pantry-right-shelf`는 한 [L형 선반](../models/12-service-rooms.md#pantry-l-shelf)의 두 띠이므로 구성원은 하나(`pantry-l-shelf`)이고 yaw 0으로 두 예약의 합집합 경계 상자 중심에 선다. 이 구성원은 두 예약 id를 모두 채우는 것으로 [구성원 규칙](00-placement-frame.md#reservation-derived-membership)의 예외다. 몸체는 두 띠 밖, 특히 `pantry-turning`에 걸치지 않아야 한다. [식품 용기](../models/12-service-rooms.md#pantry-containers)는 이 선반에 놓이는 별도 구성원이다. 다섯 선반 각각 뒤쪽 띠 길이 2.28 m 안에는 폭 0.12 m 병 다섯과 폭 0.18 m 상자 여섯을 왼쪽에서 병 다섯→상자 여섯 순서로, 사이 0.02 m 간격으로 놓는다. 가로 합 5 × 0.12 + 6 × 0.18 + 10 × 0.02 = 1.88 m이므로 양끝 0.20 m씩 남는다. 오른쪽 띠는 코너 0.30 m를 비운 잔여 길이 1.05 m에 폭 0.30 m 바구니 셋을 0.03 m 간격으로 놓아 3 × 0.30 + 2 × 0.03 = 0.96 m, 양끝 0.045 m를 남긴다. 따라서 다섯 층 × (5 + 6 + 3) = 70개의 용기 구성원이 생긴다. 각 원점 Y는 해당 선반 상면, 뒤판·앞끝은 방 owner의 선반 끝에서 0.02 m 이상 안쪽이다. 용기 count와 배치만 이 instances H2가 결정하며 부피·면 id는 models가 결정한다.
 
 ## 차고 선반과 작업대 {#garage-storage}
 

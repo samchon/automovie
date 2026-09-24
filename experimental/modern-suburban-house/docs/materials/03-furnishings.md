@@ -276,20 +276,87 @@
 
 표면 결속 계획: 꺼진 화구의 내화재에는 0.10 m 반복의 약한 그을음·거친 표면 결을 쓴다. 화구 안쪽 왼쪽 아래에서 U 수평·V 높이를 두고 벽돌 입구·선반 경계에서 끊으며 불빛을 그려 넣지 않는다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
 
-## 나머지 소품 파티션 {#minor-prop-partitions}
+## 식재의 수피와 잎 {#planting-bark-foliage}
 <!--
-@evidence principles/core/common.md#declared-basis 소품 파티션이 새 색을 만들지 않고 기존 H2 값을 재사용한다는 결정을 palette 억제 근거와 함께 적는다.
-@evidence principles/core/common.md#scope-preservation 램프·옷장·외투 걸이·식품 용기·공구판 등 models 12·13 파티션의 결합만 정하고 원형 형상은 models에 남긴다.
-@evidence principles/core/common.md#substantive-completion `lamp-base`부터 `prop`까지 소품 파티션마다 받을 기존 재료를 적었다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation models 00의 파티션 이름 규칙은 id만 정했고 이 H2는 그 id별 재료 배정을 더한다.
-@evidence principles/design/materials.md#material-construction-appearance 소품의 구성은 각 원형 모델에 두고 외관은 재사용하는 H2(흰 에나멜, 가구 목재, 검은 도장 금속 등)의 상수를 받는다.
-@evidence principles/design/materials.md#material-binding-interface `case`·`door-front`·`rod`·`hook`·`jar-body`·`bin` 등 models id를 결합 vocabulary로 쓴다.
-@evidence principles/design/materials.md#material-verification-address 면 결합 규칙의 재료 없는 파티션 0 검사가 이 배정의 누락을 반증한다.
-@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work models 12-service-rooms와 13-bedrooms의 파티션 id를 적힌 그대로 소비했고 부모 결함은 없었다.
-@evidence contracts/texture-readability.md#material-texture-readability 소품 `ceramic`·`metal`·`wood`·`fabric` 파티션은 새 범용 무늬를 발명하지 않고 각 표면이 선택한 도기·금속·목재·직물의 위 모듈과 국소 축을 그대로 재사용한다. 다른 파티션의 결이 넘어오면 실패다.
-@evidence obligations/design/materials.md#material-surface-assignment 소품 파티션을 기존 재료 값에 배정해 재료 없는 파티션이 남지 않게 했다.
+@evidence principles/core/common.md#declared-basis 레퍼런스 01의 실제 수관과 settings/10-house.md#site-identity의 성목·관목을 근거로 수피와 잎의 색·거칠기·결을 택한다.
+@evidence principles/core/common.md#scope-preservation models/16-planting.md#site-tree-prototypes와 #site-shrub-prototype의 `bark`·`foliage`, 18·19의 작은 식물 `stem`·`foliage`에 마감만 결합한다.
+@evidence principles/core/common.md#substantive-completion 수피 #675746·roughness 0.92, 잎 #617343·roughness 0.88, 국소 UV·반복 척도·source owner·관찰을 결정한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 16의 식재 부피에 수피와 잎의 서로 다른 반사와 실제 m당 반복 결을 더하되 가지·잎 군집 수는 바꾸지 않는다.
+@evidence principles/design/materials.md#material-construction-appearance 수피의 세로 갈라짐과 잎 군집의 명암 점을 각각 0.08 m·0.025 m 모듈로 계획하며 광학 응답과 구조를 분리한다.
+@evidence principles/design/materials.md#material-binding-interface `bark`·`stem`은 수피, `foliage`는 잎으로 결합하고 각 클러스터 끝에서 UV 이음을 끊는다.
+@evidence principles/design/materials.md#material-verification-address 01 대지 view와 02 조감의 나무 실루엣에서 잎이 단색 블록으로 뭉개지면 실패다.
+@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work settings의 식재 크기와 models의 면 id를 소비하며 공간 그래프·식재 원형을 수정하지 않는다.
+@evidence contracts/texture-readability.md#material-texture-readability 수피는 가지 길이 U·둘레 V에 0.08 m, 잎은 클러스터 외곽 접평면에 0.025 m 반복을 쓰고 원형별 국소 원점에서 시작한다.
+@evidence obligations/design/materials.md#material-surface-assignment 새 식재 면 세 id를 재료에 결속한다.
 -->
 
-위 H2가 받지 않는 소품 파티션의 결합이다. [협탁과 등](../models/13-bedrooms.md#nightstand-lamp)의 `lamp-base`는 [흰 에나멜](#white-enamel), `lamp-shade`는 [얇은 커튼](#towel-curtain-textile) 값이다. [옷장](../models/13-bedrooms.md#sliding-closet)과 [옷방](../models/13-bedrooms.md#wardrobe-hanging)의 `case`·`door`·`door-front`·`door-back`·`side-panel`·`shelf`는 [흰 실내 trim](02-interior-shell.md#interior-trim-white), `rod`는 [스테인리스](#stainless-steel), `clothes`는 [회베이지 천갈이](#grey-beige-upholstery)·[청회색](#blue-grey-bedding)·[올리브](#olive-bedding)를 벌마다 순환한다. [외투 걸이](../models/12-service-rooms.md#mudroom-coat-hooks)의 `rail`은 가구 목재, `hook`은 검은 도장 금속, `coat`는 청회색이다. [식품 용기](../models/12-service-rooms.md#pantry-containers)의 `jar-body`는 [투명 유리](01-exterior.md#glass-clear), `jar-lid`·`box`·`basket`은 가구 목재, [차고 선반](../models/12-service-rooms.md#garage-shelving)의 `bin`과 [공구판](../models/12-service-rooms.md#garage-tool-board)의 `board`·`tool-grip`, 작업대 `handle`, `shoe`·`shoe-box`, 책상 `prop`은 [검은 도장 금속](02-interior-shell.md#black-coated-metal)이다. 이 소품들은 새 색을 만들지 않고 기존 H2 값을 재사용해 palette를 늘리지 않는다. source owner는 `src/materials/bindings.ts`이고, 리뷰는 [면 결합 규칙](00-material-frame.md#material-binding-rule)의 재료 없는 파티션 0 검사로 누락을 찾는다.
+[식재 원형](../models/16-planting.md#site-tree-prototypes)의 `bark`와 실내 소형 식물의 `stem`에는 `#675746`(roughness 0.92, metallic 0, transmission 0)을, 야외·실내 `foliage`에는 `#617343`(roughness 0.88, metallic 0, transmission 0)을 쓴다. 수피의 어두운 세로 균열과 밝은 측면을 0.08 m, 잎 군집의 밝고 어두운 미세 점을 0.025 m 물리 모듈로 결정론적으로 만든다. 가지 길이 U·둘레 V, 잎 클러스터의 국소 접평면 U/V를 미터로 읽고 가지 접합·개별 클러스터에서 이음을 끊는다. source owner는 `src/materials/exterior/planting.ts`이며 실제 맵·GPU 읽힘은 unverified다.
 
-표면 결속 계획: 소품 `ceramic`·`metal`·`wood`·`fabric` 파티션은 새 범용 무늬를 발명하지 않고 각 표면이 선택한 도기·금속·목재·직물의 위 모듈과 국소 축을 그대로 재사용한다. 다른 파티션의 결이 넘어오면 실패다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
+## 등기구의 확산면 {#light-fixture-surfaces}
+<!--
+@evidence principles/core/common.md#declared-basis systems/02-interior-fixtures.md#interior-fixture-layout과 models/17-light-fixtures.md#flush-ceiling-fixture가 넘긴 등기구의 보이는 몸체와 확산면을 받는다.
+@evidence principles/core/common.md#scope-preservation 등기구의 확산면·유리·갓 마감만 결정하고 광원 광도·색온도·배치는 systems와 instances에 남긴다.
+@evidence principles/core/common.md#substantive-completion 확산면 #F4F1E9·roughness 0.36·transmission 0.35와 포치 유리 transmission 0.78, 재료 id·UV·검사 주소를 정한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 17의 `fixture-diffuser`·`fixture-glass`에 실제 투과 응답을 주고 `fixture-housing`·`fixture-canopy`·`fixture-stem`은 기존 도장 금속을 재사용한다.
+@evidence principles/design/materials.md#material-construction-appearance 폴리카보네이트 확산판과 포치 투명 유리의 광학값을 구별하며 이미지에 빛무리를 그리지 않는다.
+@evidence principles/design/materials.md#material-binding-interface `fixture-diffuser`·`fixture-glass`를 각각 확산판·유리에 결속하고 갓·기구 외장은 별도 기존 재료를 받는다.
+@evidence principles/design/materials.md#material-verification-address 03 매단 등과 01 포치 등에서 기구 경계와 조명이 별개로 보이는지 확인한다.
+@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work 기구 크기·배치·광도 결정을 수정하지 않고 17의 id만 마감한다.
+@evidence contracts/texture-readability.md#material-texture-readability 매끈한 확산판은 무문양이고 부재 경계의 실제 반사·투과로 읽힌다. 평면 U/V는 부재 국소 미터 좌표다.
+@evidence obligations/design/materials.md#material-surface-assignment 확산판과 등 유리 두 id를 명시적으로 결합한다.
+-->
+
+[등기구 원형](../models/17-light-fixtures.md#flush-ceiling-fixture)의 `fixture-diffuser`는 폴리카보네이트 `#F4F1E9`(roughness 0.36, metallic 0, transmission 0.35), [포치 벽등](../models/17-light-fixtures.md#porch-wall-sconce)의 `fixture-glass`는 같은 색의 유리(roughness 0.06, metallic 0, transmission 0.78, ior 1.50)다. 두 면은 무문양이지만 실제 반사와 투과, 두께 있는 몸체와 떨어진 경계로 구별한다. 빛의 세기·색온도·그림자는 [systems](../systems/00-lighting-frame.md#lighting-allocation)의 소유다. `fixture-housing`·`fixture-canopy`·`fixture-stem`은 [검은 도장 금속](02-interior-shell.md#black-coated-metal), `fixture-shade`는 [얇은 커튼](#towel-curtain-textile)의 밝은 직물 값을 받는다. source owner는 `src/materials/furnishings/fixtures.ts`이며 실제 GPU 프레임은 unverified다.
+
+## 음식과 액자 인쇄면 {#food-art-finishes}
+<!--
+@evidence principles/core/common.md#declared-basis 레퍼런스 03의 과일 그릇과 02–05의 벽 액자에 근거해 음식과 인쇄면을 별도 마감한다.
+@evidence principles/core/common.md#scope-preservation 18의 과일 표면과 19의 액자 인쇄면만 맡고 그릇·액자 테·가구 형상은 원형에 남긴다.
+@evidence principles/core/common.md#substantive-completion 과일 다섯의 순서별 색 세 가지와 인쇄면의 결정론적 띠 규칙·물리 모듈·source owner를 정한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation `fruit`·`art-print`의 안정 id에 읽히는 색 분할과 인쇄 결을 더하되 수·위치·이미지 픽셀 치수를 바꾸지 않는다.
+@evidence principles/design/materials.md#material-construction-appearance 과일은 광택 적은 껍질, 액자는 종이 인쇄로 두어 같은 단색 도장으로 보이지 않게 한다.
+@evidence principles/design/materials.md#material-binding-interface `fruit`는 순번에 따른 세 값, `art-print`는 국소 인쇄면 U/V로 결속한다.
+@evidence principles/design/materials.md#material-verification-address 03 식탁 과일과 04·05 액자가 빈 상판·흰 벽과 구별되지 않으면 실패다.
+@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work 소품 수와 벽·상판 경계는 models·spaces가 정한 그대로 받는다.
+@evidence contracts/texture-readability.md#material-texture-readability 과일 표피 색반점 0.008 m, 액자 인쇄 획 0.05 m는 원형 UV의 미터 척도이며 개별 과일·인쇄면 테에서 잘린다.
+@evidence obligations/design/materials.md#material-surface-assignment `fruit`·`art-print`의 두 표면 id를 재료에 결속한다.
+-->
+
+[과일 다섯](../models/18-house-props.md#kitchen-food-utensils)의 `fruit`는 순번 i = 0…4에서 i mod 3 = 0이면 올리브 `#859344`, 1이면 황금색 `#C9A449`, 2이면 붉은색 `#9C5549`다(roughness 0.62, metallic 0, transmission 0). 각 과일 표피 반점은 0.008 m 반복이다. [액자](../models/19-room-accents.md#wall-art-indoor-plant)의 `art-print`는 종이 `#ECE8DF`(roughness 0.90, metallic 0)에 0.05 m 물리 간격으로 얇은 청회·올리브 붓 획을 국소 UV와 정수 seed 1952에서 생성한다. 구체적인 획 방정식·소스 배열은 materialSources의 결정론적 함수가 맡으며 지금의 인쇄 이미지는 unverified다. `art-frame`은 [짙은 책장 목재](#dark-bookcase-wood)를 받는다. source owner는 `src/materials/furnishings/accents.ts`다.
+
+## 나머지 소품 파티션 {#minor-prop-partitions}
+<!--
+@evidence principles/core/common.md#declared-basis 원형마다 표면 id를 확인해 기존 H2 재료를 다시 쓰되 다른 역할의 면을 같은 이름으로 숨기지 않는다.
+@evidence principles/core/common.md#scope-preservation 05·12·13·18·19의 수납·소품과 17의 기구 외장에 남은 면의 계획 결속을 맡고 실제 source 결속은 후속 materialSources에 남긴다.
+@evidence principles/core/common.md#substantive-completion 아래 표의 원형·id·재료 H2 매핑을 적고 현재 생성 맵과 GPU 결과를 unverified로 둔다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation models 00의 역할 id를 실제 재료 H2 주소로 바꾸어 `prop` 같은 무명 대체를 쓰지 않는다.
+@evidence principles/design/materials.md#material-construction-appearance 각 면은 링크된 목재·금속·직물·유리의 광학 응답을 그대로 받아 역할별 색·결이 구별된다.
+@evidence principles/design/materials.md#material-binding-interface 아래 표에 적힌 정확한 모델 id만 결속하며 관절 이름이나 배치 id는 재료 id로 쓰지 않는다.
+@evidence principles/design/materials.md#material-verification-address 실제 source 뒤 표면 id 미결속 0 검사를 요구하고 현재는 unverified라고 남긴다.
+@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work 원형의 면 이름을 확인해 재료 문서만 정정했고 공간·원형 치수는 여기서 바꾸지 않는다.
+@evidence contracts/texture-readability.md#material-texture-readability 재사용 면은 링크한 원 재료 H2의 물리 척도·국소 축·부재별 끊김을 그대로 따른다.
+@evidence obligations/design/materials.md#material-surface-assignment 표의 id마다 한 재료 H2를 지정하되 source 구현 뒤 실제 결속을 다시 검사한다.
+-->
+
+| 원형 | 결합 surface id | 재료 H2 |
+|---|---|---|
+| [외투장과 린넨장](../models/05-closet-fittings.md#closet-fitting-surfaces), [미닫이 옷장](../models/13-bedrooms.md#sliding-closet), [옷방](../models/13-bedrooms.md#wardrobe-hanging) | `carcass`·`leaf`·`leaf-panel`·`shelf` | [흰 실내 trim](02-interior-shell.md#interior-trim-white) |
+| 같은 수납 | `rail`·`rod` | [스테인리스](#stainless-steel) |
+| 같은 수납 | `handle` | [검은 도장 금속](02-interior-shell.md#black-coated-metal) |
+| [옷장](../models/13-bedrooms.md#wardrobe-hanging)·[머드룸 외투 걸이](../models/12-service-rooms.md#mudroom-coat-hooks) | `clothes` | 순번별 [회베이지](#grey-beige-upholstery)·[청회색](#blue-grey-bedding)·[올리브](#olive-bedding) 직물 |
+| [팬트리 용기](../models/12-service-rooms.md#pantry-containers) | `container` / `lid`·`basket` | [투명 유리](01-exterior.md#glass-clear) / [가구 목재](#furniture-wood) |
+| [머드룸 걸이](../models/12-service-rooms.md#mudroom-coat-hooks) | `rail` / `hook` | [가구 목재](#furniture-wood) / [검은 도장 금속](02-interior-shell.md#black-coated-metal) |
+| [차고 선반·공구판](../models/12-service-rooms.md#garage-shelving) | `bin`·`tool-grip` / `board` / `tool-steel` | [검은 도장 금속](02-interior-shell.md#black-coated-metal) / [가구 목재](#furniture-wood) / [스테인리스](#stainless-steel) |
+| [작은 책상 소품](../models/13-bedrooms.md#child-desk) | `book` / `container` / `pencil` | [침구색 순환](#olive-bedding) / [흰 에나멜](#white-enamel) / [가구 목재](#furniture-wood) |
+| [옷방 선반 바구니](../models/13-bedrooms.md#wardrobe-shelves) | `basket` | [가구 목재](#furniture-wood) |
+| [욕실 매트](../models/14-bathrooms.md#bath-floor-mats) | `field`·`border` | [절제된 러그](#muted-rug) |
+| [샤워 벽감 병](../models/14-bathrooms.md#shower-niche-bottles) | `container` / `lid` | [흰 에나멜](#white-enamel) / [검은 도장 금속](02-interior-shell.md#black-coated-metal) |
+| [협탁등](../models/13-bedrooms.md#nightstand-lamp) | `lamp-base` / `lamp-shade` | [흰 에나멜](#white-enamel) / [얇은 커튼 직물](#towel-curtain-textile) |
+| [포치 발판·화분](../models/18-house-props.md#porch-mat-planter) | `field`·`border` / `container` / `stem`·`foliage` | [절제된 러그](#muted-rug) / [흰 도기](#white-enamel) / [식재](#planting-bark-foliage) |
+| [주방 소품](../models/18-house-props.md#kitchen-food-utensils) | `cutting-board` / `utensil` / `container` / `bowl` / `fruit` | [가구 목재](#furniture-wood) / [스테인리스](#stainless-steel) / [투명 유리](01-exterior.md#glass-clear) / [흰 도기](#white-enamel) / [과일](#food-art-finishes) |
+| [린넨 수건](../models/18-house-props.md#linen-folded-towels)·[소파 직물](../models/19-room-accents.md#sofa-throws) | `folded`·`pillow` | [수건 직물](#towel-curtain-textile)·[회베이지](#grey-beige-upholstery) — 인스턴스별 구별 |
+| [거실 탁자 소품](../models/19-room-accents.md#living-tabletop-props) | `book`·`tray` / `container` / `stem`·`foliage` | [직물 색 순환](#olive-bedding)·[가구 목재](#furniture-wood) / [흰 도기](#white-enamel) / [식재](#planting-bark-foliage) |
+| [벽 액자·실내 식물](../models/19-room-accents.md#wall-art-indoor-plant) | `art-frame` / `art-print` / `container` / `stem`·`foliage` | [짙은 목재](#dark-bookcase-wood) / [인쇄면](#food-art-finishes) / [흰 도기](#white-enamel) / [식재](#planting-bark-foliage) |
+| [등기구](../models/17-light-fixtures.md#flush-ceiling-fixture) | `fixture-housing`·`fixture-canopy`·`fixture-stem` / `fixture-shade` / `fixture-diffuser`·`fixture-glass` | [검은 도장 금속](02-interior-shell.md#black-coated-metal) / [밝은 직물](#towel-curtain-textile) / [등기구 확산면](#light-fixture-surfaces) |
+
+이 표는 설계 결속이다. 실제 `src/materials` 바인딩과 GPU 표면 읽힘은 unverified다. 각 면의 UV 축·원점·반복 길이·경계 절단은 링크된 재료 H2를 따르며, 원형 안의 관절 이름·배치 id는 결속 표에 넣지 않는다. source owner는 `src/materials/bindings.ts`다.

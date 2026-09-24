@@ -32,8 +32,8 @@
 <!--
 @evidence principles/core/common.md#scope-preservation 세면장·변기·욕조의 몸체와 사용, 왼쪽 주 경로, 수건걸이, 거울, 수전과 커튼 레일, 창 조작과 폐기한 수건 예약을 맡는다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 본문이 세 기구 표의 몸체·사용, 왼쪽 주 경로, 수건걸이 Z = [-6.85, -6.10], 거울, 뒤쪽 끝 수전, 커튼 레일, 높은 창 조작, 폐기한 Z = [-5.85, -5.00] 예약을 모두 서술해 빈 owner가 없음을 확인했다.
-@evidence principles/core/common.md#substantive-completion 세 기구 표와 주 경로 X = [3.32, 4.22], Z = [-8.70, -5.00] m, 수건걸이 Z = [-6.85, -6.10] m, 커튼 레일 X = 4.62 m·높이 2.05 m를 정한다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 세 기구 표의 몸체·앞 사용 좌표, 주 경로 X = [3.32, 4.22]·Z = [-8.70, -5.00], 수건걸이 높이 1.10–1.50 m, 레일 X = 4.62 m·2.05 m, 커튼 0.25 m 모음이 있어 배치가 수치로 확정됨을 확인했다.
+@evidence principles/core/common.md#substantive-completion 세 기구 표와 주 경로 X = [3.32, 4.22], Z = [-8.70, -5.00] m, 수건걸이 Z = [-6.85, -6.10] m, 커튼 레일 X = 4.74 m·높이 2.05 m를 정한다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 세 기구 표의 몸체·앞 사용 좌표, 주 경로 X = [3.32, 4.22]·Z = [-8.70, -5.00], 수건걸이 높이 1.10–1.50 m, 레일 X = 4.74 m·2.05 m, 커튼 0.25 m 모음이 있어 배치가 수치로 확정됨을 확인했다.
 @evidence principles/core/common.md#declared-basis 종전 수건 예약 Z = [-5.85, -5.00] m는 실문 개구부 안이라 지지 벽이 없어 폐기했다는 근거를 남긴다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 종전 수건 예약 Z = [-5.85, -5.00]가 hall-tub-door 개구부 Z = [-5.86, -4.86] 안이라 지지 벽이 없어 폐기했다는 근거를 개구부 좌표와 대조해 변경 이유가 추적됨을 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation "출입과 욕조 접근은 변기나 세면장을 넘어가지 않고"를 오른쪽 기구 열과 왼쪽 통행 띠의 분리로 만든다.
@@ -44,8 +44,8 @@
 @evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 수건걸이를 interior-boundary-junctions의 실제 벽 인계로 받아 닫힌 구간 Z = [-6.85, -6.10]에 두고, 벽 X = 3.22에서 0.08 m 돌출이 주 경로 시작 X = 3.32 앞에서 끝남을 대조했다.
 @evidence principles/design/spaces.md#space-verification-address 기구 위에 올라서야 가능한 창 조작을 합격으로 처리하지 않고 커튼을 펴거나 걷은 프라이버시와 두 방향 진입을 검사한다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 기구 위에 올라서야 되는 높은 흐린 창 조작을 불합격으로 두고, 커튼을 펴거나 걷은 프라이버시와 두 방향 진입, 02 욕조 욕실 시야를 spatial-observation-derivation에 넘겼음을 확인했다.
-@evidence settings/10-house.md#tub-bathroom 욕조 가장자리 높이 0.55 m, 뒤쪽 끝의 욕조 수전/샤워기, X = 4.62 m의 커튼 레일과 뒤쪽 끝에 모으는 커튼, 세면장 위 거울, 문 뒤 닫힌 구간의 수건걸이를 공간 예약으로 둔다.
-@evidenceReview settings/10-house.md#tub-bathroom #71a5a4f 설정의 욕조 가장자리·샤워 수전·curtain rail/커튼·거울·수건을 가장자리 0.55 m, 뒤쪽 끝 수전/샤워기, X = 4.62 m 레일과 뒤쪽 0.25 m 커튼 모음, 세면장 Z 폭 거울, 수건걸이 예약에 대조했다.
+@evidence settings/10-house.md#tub-bathroom 욕조 가장자리 높이 0.55 m, 뒤쪽 끝의 욕조 수전/샤워기, X = 4.74 m의 커튼 레일과 뒤쪽 끝에 모으는 커튼, 세면장 위 거울, 문 뒤 닫힌 구간의 수건걸이를 공간 예약으로 둔다.
+@evidenceReview settings/10-house.md#tub-bathroom #71a5a4f 설정의 욕조 가장자리·샤워 수전·curtain rail/커튼·거울·수건을 가장자리 0.55 m, 뒤쪽 끝 수전/샤워기, X = 4.74 m 레일과 뒤쪽 0.25 m 커튼 모음, 세면장 Z 폭 거울, 수건걸이 예약에 대조했다.
 @evidence settings/00-production.md#use-profile 실제 문/기구/수전/커튼·창·수건을 소비한 평면과 단면에서 같은 사용체로 경로를 검사한다.
 @evidenceReview settings/00-production.md#use-profile #6ef5afe 주 경로 X = [3.32, 4.22] 폭이 use-profile 연속 통로 0.90 m와 같고, 실제 문/기구/수전/커튼·창·수건을 소비한 평면·단면에서 같은 사용체로 재검한다는 본문을 대조했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work tub-bathroom의 기구 목록·비넘김 경로와 use-profile을 오른쪽 기구 열과 왼쪽 주 경로 X = [3.32, 4.22] m에 적용했고 수건걸이를 문 뒤 닫힌 구간 Z = [-6.85, -6.10] m로 옮겨 이 H2 안에서 해결해 부모 수정이 없었다.
@@ -62,6 +62,6 @@
 
 주 경로는 X = [3.32, 4.22], Z = [-8.70, -5.00] m의 왼쪽 띠다. 실문을 90° 연 뒤 세면장/변기 앞 작업과 구별된 이 띠로 욕조에 접근한다. 문 회전 중에는 먼저 기다린 뒤 통과한다. 욕조 앞 사용은 경로의 끝 목적지이고 기구를 넘어가거나 다른 방을 통해 돌아오지 않는다. 수건걸이는 왼쪽 벽의 문 뒤 닫힌 구간 Z = [-6.85, -6.10] m, 높이 1.10–1.50 m에 둔다. 걸린 수건·받침까지 벽 안쪽 면에서 최대 0.08 m 돌출 안에 담아 왼쪽 통행 띠와 분리한다. 종전 Z = [-5.85, -5.00] m 예약은 실문 개구부 안에 있어 지지 벽이 없으므로 폐기했다. [실제 벽/개구부 인계](../07-boundary-assembly.md#interior-boundary-junctions)를 소비하며, 원래 문설주·문틀/열린 문짝과의 분리 및 전신 통행은 부재 이후 다시 읽는다. 수건을 꺼내는 동안의 점유는 통과 상태와 구별한다.
 
-세면장 위 거울은 같은 오른쪽 벽의 세면장 Z 폭, 높이 1.10–1.90 m에서 돌출 0.04 m 이내다. 욕조 수전/샤워기는 뒤쪽 끝에, 커튼 레일은 X = 4.62 m에서 욕조의 Z 길이를 따라 높이 2.05 m에 두고, 열린 커튼은 뒤쪽 끝 0.25 m 안에 모은다. [높은 흐린 창](../envelope/right.md#tub-right-window)의 실제 열림과 손잡이 접근, 커튼을 펴거나 걷었을 때의 프라이버시를 함께 검사하며 기구 위에 올라서야 가능한 창 조작을 합격으로 처리하지 않는다.
+세면장 위 거울은 같은 오른쪽 벽의 세면장 Z 폭, 높이 1.10–1.90 m에서 돌출 0.04 m 이내다. 욕조 수전/샤워기는 뒤쪽 끝에, 커튼 레일은 욕조 전면 X = 4.70 m보다 물 쪽으로 0.04 m 들어간 X = 4.74 m에서 욕조의 Z 길이를 따라 높이 2.05 m에 둔다. 레일·받침봉·커튼이 차지하는 띠는 X = [4.70, 4.80] m, Z = [-8.70, -6.90] m, 높이는 바닥 위 0.60 m부터 천장 접점까지이고 열린 커튼은 뒤쪽 끝 0.25 m 안에 모은다. 이 띠는 긴 통행 경로의 오른쪽 끝 X = 4.22 m보다 0.48 m 떨어지며 욕조 앞면 바깥으로 커튼이 나오지 않는다. [높은 흐린 창](../envelope/right.md#tub-right-window)의 실제 열림과 손잡이 접근, 커튼을 펴거나 걷었을 때의 프라이버시를 함께 검사하며 기구 위에 올라서야 가능한 창 조작을 합격으로 처리하지 않는다.
 
 [사용체](../../settings/00-production.md#use-profile), 실제 문/기구/수전/커튼·창·수건을 소비한 평면과 단면, 두 방향 진입과 각 기능, 02의 욕조 욕실과 방 전체 시야를 [관찰 owner](../04-observations.md#spatial-observation-derivation)가 검사한다. 도기·유리·타일/카펫 경계의 원형·재료 구현과 물/급배수 성능은 이 공간 입력의 결과가 아니다. 실제 순폭·충돌·창 조작·프레임은 unverified다.

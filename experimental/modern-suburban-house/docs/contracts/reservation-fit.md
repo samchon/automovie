@@ -1,5 +1,5 @@
 <!--
-@evidence discovery/design/models.md#work-specific-model-requirements 개구부 충전 부재 27개 원형과 계단·수납·가구 모델이 spaces의 거친 개구부·순폭 목표·돌출 한도·간격 상한·상한 박스를 받는다는 점을 공용 spatial-convention·reference-scale과 대조했다. 공용 계약은 척도 유도만 요구하고 부재 점유가 upstream 예약을 지키는 산술을 요구하지 않아, use-profile의 치수 충돌 규칙과 06의 순폭 산출 요구를 이 계약의 독립 의무로 채택했다. 현재 실현은 models/00-model-frame.md#model-local-frame·#model-reference-scale이며 house-model-reservation-fit claim이 models 전체에 연결된다. 실제 source 점유와 렌더 계측은 unverified다.
+@evidence discovery/design/models.md#work-specific-model-requirements 개구부 충전 30개 가운데 문 없는 개구부 둘을 제외한 28개 충전, 계단·수납·가구·수목·등기구·벽난로·생활 소품 모델이 spaces의 거친 개구부·순폭 목표·돌출 한도·간격 상한·상한 박스 또는 이미 예약한 host 표면을 받는다는 점을 공용 spatial-convention·reference-scale과 대조했다. 공용 계약은 척도 유도만 요구하고 부재 점유가 upstream 예약을 지키는 산술을 요구하지 않아, use-profile의 치수 충돌 규칙과 06의 순폭 산출 요구를 이 계약의 독립 의무로 채택했다. 현재 실현은 models/00-model-frame.md#model-local-frame·#model-reference-scale이며 house-model-reservation-fit claim이 models 전체에 연결된다. 실제 source 점유와 렌더 계측은 unverified다.
 -->
 
 # 예약을 채우는 모델의 맞춤

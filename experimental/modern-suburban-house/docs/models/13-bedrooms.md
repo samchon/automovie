@@ -94,7 +94,7 @@
 
 책상은 길이 L을 받는 한 원형이며 깊이 0.60 m, 상면 0.75 m다. [둘째 침실](../spaces/rooms/bedroom-two.md#bedroom-two-furniture-use) X = [-5.50, -4.90], Z = [-1.60, -0.40]은 L = 1.20 m, [셋째 침실](../spaces/rooms/bedroom-three.md#bedroom-three-furniture-use) X = [1.40, 2.55], Z = [-0.85, -0.25]는 L = 1.15 m다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르며 +Z는 앉는 쪽이다.
 
-부품은 상판(0.03 m), 다리 넷(0.04 m 각), 상판 아래 앞으로 열리지 않는 얕은 칸막이 선반 하나(0.10 m 높이)다. 책상 소품은 램프 대신 책 세 권 묶음과 연필꽂이 원통 하나로 상판 뒤쪽 0.25 m 안에 둔다. 재질 경계는 `top`, `leg`, `shelf`, `prop`이다. 관절은 없다. 책 표지·연필 개별 형상·상판 모따기는 표현하지 않는다. 소스 owner는 `src/models/furnishings/bedrooms.ts`다. 관찰은 측면에서 상판 아래 무릎 공간 0.62 m가 비어 있는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
+부품은 상판(0.03 m), 다리 넷(0.04 m 각), 상판 아래 앞으로 열리지 않는 얕은 칸막이 선반 하나(0.10 m 높이)다. 책상 소품은 램프 대신 0.20 × 0.14 × 0.025 m 책 세 권을 쌓아 높이 0.075 m로, 지름 0.065 m·높이 0.10 m 원통 연필꽂이 하나와 지름 0.006 m·높이 0.18 m 연필 넷을 상판 뒤쪽 0.25 m 안에 둔다. 책은 `book`, 컵은 `container`, 연필은 `pencil`이고 책상 구조는 `top`, `leg`, `shelf`다. 각 닫힌 면에는 이 여섯 id 중 하나를 붙이고 상판·책은 국소 가로 U·세로 V, 원통은 둘레 U·높이 V 미터 UV를 둔다. 관절은 없다. 책 표지·연필 개별 형상·상판 모따기는 표현하지 않는다. 소스 owner는 `src/models/furnishings/bedrooms.ts`다. 관찰은 측면에서 상판 아래 무릎 공간 0.62 m가 비어 있는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
 
 ## 책상 의자 {#desk-chair}
 <!--
@@ -144,19 +144,19 @@
 ## 주침실 두 창의 얇은 커튼 {#primary-window-curtains}
 <!--
 @evidence principles/core/common.md#scope-preservation 주침실 후면 2.40 m와 왼쪽 1.60 m 두 창에 같은 커튼 원형을 각각 결속하고 다른 방의 창이나 방 벽 마감을 소유하지 않는다.
-@evidence principles/core/common.md#substantive-completion 창 폭 W와 높이 1.40 m, 상층 바닥 위 0.10–2.34 m 드레이프, 벽에서 0.12 m 이내 돌출, 양쪽 0.18 m 모임 폭, 봉·받침·커튼 표면 경계를 정한다.
+@evidence principles/core/common.md#substantive-completion 창 폭 W와 높이 1.40 m, 상층 바닥 위 0.10–2.37 m 드레이프, 벽에서 0.12 m 이내 돌출, 양쪽 0.18 m 모임 폭, 봉·받침·커튼 표면 경계를 정한다.
 @evidence principles/core/common.md#declared-basis 두 W와 개구부 Y = [3.91, 5.31] m는 rear/left 입면에서, 방 안쪽 돌출 0.12 m는 primary-furniture-use에서 받고 봉·드레이프 여유는 이 원형의 저작 선택이다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 공간은 두 창과 커튼의 돌출 상한만 예약했고 이 H2는 개방 상태의 두 끝 모임, 실루엣·부품·표면 분할을 더한다.
-@evidence principles/design/models.md#representation-contract 봉·받침·양쪽 얇은 천 패널의 부품과 `rod`·`bracket`·`curtain` 표면을 구분하고 고정 개방 상태와 주름 세부 비표현을 밝힌다.
+@evidence principles/design/models.md#representation-contract 봉·받침·양쪽 얇은 천 패널의 부품과 `rod`·`bracket`·`curtain` 표면을 구분하고 고정 개방 상태와 세 굵은 접힘만 표현을 밝힌다.
 @evidence principles/design/models.md#spatial-convention 창의 안쪽 왼쪽 아래를 국소 원점, 개구부 너비를 U, 높이를 V, 방 안쪽을 +N으로 두고 두 입면의 축 회전만 배치에서 바꾼다.
 @evidence principles/design/models.md#reviewable-structure 정면에서 두 끝 0.18 m 모임이 창 대부분을 열어 두는지, 측면에서 최대 돌출 0.12 m를 지키는지를 반증 견본으로 둔다.
 @evidence principles/design/models.md#model-observable-style-basis 곧은 봉과 서로 분리된 얇은 두 드레이프를 두어 라벨 없이 주침실 창 커튼으로 읽히게 하고 직물 결·투과는 materials에 남긴다.
 @evidence principles/design/models.md#model-scale-layer-completion 2.40/1.60 m 두 외곽, 0.12 m 돌출, 세 표면 id, 고정 개방 상태와 두 방향 리뷰를 함께 정한다.
-@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 주침실 두 창의 개구부와 방 안쪽 0.12 m 예약을 그대로 소비하며 커튼을 더해도 방·창 위치나 부모 사용 여유를 수정하지 않는다.
+@evidence upstream/design/models.md#settings-and-space-revision-from-model-work 주침실의 0.12 m 돌출 한도만으로는 봉의 좌우·상하 점유를 예약할 수 없어 spaces/rooms/primary.md#primary-furniture-use에 개구부 유도 폭 W + 0.20 m·높이 범위와 깊이 0.12 m의 커튼 띠를 추가했다.
 @evidence settings/10-house.md#primary-bedroom 주침실을 자녀 침실과 구별하는 얇은 커튼을 후면·왼쪽 두 창에 제공한다.
 @evidence spaces/envelope/rear.md#primary-rear-window X = [-3.85, -1.45] m의 후면 개구부를 W = 2.40 m 커튼 원형의 첫 배치로 받는다.
 @evidence spaces/envelope/left.md#primary-left-window Z = [-8.90, -7.30] m의 측면 개구부를 W = 1.60 m 같은 원형의 둘째 배치로 받는다.
-@evidence spaces/rooms/primary.md#primary-furniture-use 두 창 커튼의 방 안쪽 돌출 0.12 m 제한을 `rod`·`bracket`·`curtain`의 전체 점유 상한으로 받는다.
+@evidence spaces/rooms/primary.md#primary-furniture-use 두 창 커튼의 host 유도 폭 W + 0.20 m·상하 범위와 방 안쪽 돌출 0.12 m를 `rod`·`bracket`·`curtain`의 전체 점유 상한으로 받는다.
 @evidence obligations/design/models.md#representation-ceiling 얇은 드레이프의 큰 접힘만 원형 형상으로 두고 실밥·봉제·천의 동역학은 이 정적 모델이 주장하지 않는다.
 -->
 
@@ -202,4 +202,4 @@
 @evidence obligations/design/models.md#model-representation-completion 이 파일 마지막 H2로서 네 단 높이·상자 한계·네 재질 경계·관절 없음을 적고 정면 관찰이 unverified임을 밝혀 이 H2의 표현 완결 몫을 기록한다.
 -->
 
-선반 구간은 [옷방 예약](../spaces/rooms/wardrobe.md#wardrobe-storage-use)의 X = [4.40, 5.50], Z = [-10.45, -9.90]을 받아 길이 1.10 m, 깊이 0.55 m다. 네 선반 상면은 바닥 위 0.20 m부터 0.45 m 간격인 0.20, 0.65, 1.10, 1.55 m이고 두께 0.03 m다. 각 선반마다 접은 옷 두 더미와 신발 상자 하나를 좌우로 둔다. 더미는 각각 0.28 × 0.32 × 0.12 m, 상자는 0.30 × 0.35 × 0.20 m이며 0.02 m 간격 두 개를 포함한 가로 합은 0.90 m라 선반 길이 1.10 m 안에 양끝 0.10 m씩 남는다. 네 선반에 더미 8개와 상자 4개가 생기고 각 높이는 다음 선반과의 0.45 m 간격보다 작다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따른다. 재질 경계는 `shelf`, `carcass`, `folded`, `shoe-box`이고 관절은 없다. 접은 옷의 층·신발 형상·선반 브래킷은 표현하지 않는다. 소스 owner는 `src/models/furnishings/bedrooms.ts`다. 관찰은 정면에서 네 단이 읽히는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
+선반 구간은 [옷방 예약](../spaces/rooms/wardrobe.md#wardrobe-storage-use)의 X = [4.40, 5.50], Z = [-10.45, -9.90]을 받아 길이 1.10 m, 깊이 0.55 m다. 네 선반 상면은 바닥 위 0.20 m부터 0.45 m 간격인 0.20, 0.65, 1.10, 1.55 m이고 두께 0.03 m다. 각 선반마다 접은 옷 두 더미와 오른쪽 용기 하나를 좌우로 둔다. 아래 세 선반의 용기는 신발 상자, 맨 위 선반의 용기는 레퍼런스 05의 바구니로 채택한다. 더미는 각각 0.28 × 0.32 × 0.12 m, 상자와 바구니는 모두 0.30 × 0.35 × 0.20 m이며 바구니는 벽 두께 0.015 m의 열린 상자와 양옆 지름 0.025 m 둥근 손잡이 두 개로 만든다. 바구니 입구는 위로 열리고, 0.02 m 간격 두 개를 포함한 가로 합은 0.90 m라 선반 길이 1.10 m 안에 양끝 0.10 m씩 남는다. 네 선반에 더미 8개와 상자 3개·바구니 1개가 생기고 각 높이는 다음 선반과의 0.45 m 간격보다 작다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따른다. 재질 경계는 `shelf`, `carcass`, `folded`, `shoe-box`, `basket`이고 관절은 없다. 접은 옷의 층·신발 형상·선반 브래킷은 표현하지 않는다. 소스 owner는 `src/models/furnishings/bedrooms.ts`다. 관찰은 정면에서 네 단이 읽히는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
