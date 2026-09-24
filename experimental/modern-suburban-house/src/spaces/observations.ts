@@ -24,7 +24,7 @@
  * `failures` with its cause and never counted.
  */
 import { builtEnvironmentBuildingCensus, builtSpaceContainsPoint, builtSpaceObservationStations } from "@automovie/engine";
-import type { IAutoMovieBuiltEnvironment, IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieBuiltEnvironment, IAutoMovieBuiltSpace, IAutoMovieVector3 } from "@automovie/interface";
 
 import { openingAxis } from "./environment";
 import type { IHouse } from "./house";
@@ -74,6 +74,65 @@ const HALF_PERSON = 0.3;
 const SAME_PLACE = 0.05;
 
 const distance = (a: IAutoMovieVector3, b: IAutoMovieVector3): number => Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
+
+/** Bounds of one axis-aligned cell in the current compiled space record. */
+const cellRange = (cell: IAutoMovieBuiltSpace["cells"][number], axis: "x" | "y" | "z"): readonly [number, number] => {
+  const positive = cell.planes.find((plane) => plane.normal[axis] === 1);
+  const negative = cell.planes.find((plane) => plane.normal[axis] === -1);
+  if (positive === undefined || negative === undefined)
+    throw new Error(`observation cell ${cell.id} has no ${axis} bounds`);
+  return [-negative.offset, positive.offset];
+};
+
+/** Find an inside pose for a bounding-box corner absent from a concave space. */
+const insetCorner = (
+  space: IAutoMovieBuiltSpace,
+  stationId: string,
+  floor: number | undefined,
+  centers: readonly IHouseObservation[],
+  stairRoute: readonly IAutoMovieVector3[],
+): IObservationPose | null => {
+  const sign = /corner-x-(plus|minus)-z-(plus|minus)/.exec(stationId);
+  if (sign === null || space.cells.length === 0) return null;
+  const cells = space.cells.map((cell) => ({
+    x: cellRange(cell, "x"),
+    y: cellRange(cell, "y"),
+    z: cellRange(cell, "z"),
+  }));
+  const xs = cells.flatMap((cell) => cell.x);
+  const zs = cells.flatMap((cell) => cell.z);
+  const wanted = {
+    x: sign[1] === "plus" ? Math.max(...xs) : Math.min(...xs),
+    z: sign[2] === "plus" ? Math.max(...zs) : Math.min(...zs),
+  };
+  const clampInside = (value: number, range: readonly [number, number]): number => {
+    const inset = Math.min(HALF_PERSON, (range[1] - range[0]) / 3);
+    return Math.max(range[0] + inset, Math.min(value, range[1] - inset));
+  };
+  const cellCandidates = cells.flatMap((cell) => {
+    const y = floor === undefined ? cell.y[0] + EYE : floor + EYE;
+    if (y > cell.y[1] - 0.01) return [];
+    const position = { x: clampInside(wanted.x, cell.x), y, z: clampInside(wanted.z, cell.z) };
+    if (!builtSpaceContainsPoint(space, position)) return [];
+    return [position];
+  });
+  // A stair's upper void is inside its semantic volume but has no standing
+  // surface. Its actual connector route supplies the camera's foot position.
+  const routeCandidates = stairRoute
+    .map((foot) => ({ x: foot.x, y: foot.y + EYE, z: foot.z }))
+    .filter((position) => builtSpaceContainsPoint(space, position));
+  const candidates = space.kind === "stair" && routeCandidates.length > 0 ? routeCandidates : cellCandidates;
+  candidates.sort((a, b) =>
+    Math.hypot(a.x - wanted.x, a.z - wanted.z) - Math.hypot(b.x - wanted.x, b.z - wanted.z) || a.y - b.y,
+  );
+  const position = candidates[0];
+  if (position === undefined) return null;
+  const center = centers
+    .filter((observation) => observation.space === space.id && observation.role === "center" && observation.pose !== null)
+    .map((observation) => observation.pose!.position)
+    .sort((a, b) => distance(a, position) - distance(b, position))[0];
+  return { position, target: center === undefined ? { x: (Math.min(...xs) + Math.max(...xs)) / 2, y: position.y, z: (Math.min(...zs) + Math.max(...zs)) / 2 } : { x: center.x, y: position.y, z: center.z } };
+};
 
 /** Reflex (interior 270°) corners of a counter-clockwise or clockwise rectilinear outline. */
 const reflexCorners = (outline: readonly IPlanPoint[]): { at: IPlanPoint; toPrev: IPlanPoint; toNext: IPlanPoint }[] => {
@@ -136,6 +195,11 @@ export const deriveHouseObservations = (environment: IAutoMovieBuiltEnvironment,
     if (!["room", "stair", "storage", "exterior"].includes(space.kind)) continue;
     for (const station of builtSpaceObservationStations(environment, space.id)) {
       const floor = floorOf.get(space.id);
+      if (station.role === "corner" && station.pose === null) {
+        const stairRoute = environment.connectors.find((connector) => connector.landings?.some((landing) => landing.space === space.id))?.route ?? [];
+        accept({ id: `${space.id}/${station.id}`, role: "corner", space: space.id, subject: station.opening, pose: insetCorner(space, station.id, floor, observations, stairRoute) });
+        continue;
+      }
       if (station.role === "threshold" && station.pose === null && station.opening !== null && floor !== undefined) {
         accept({ id: `${space.id}/threshold-${station.opening}`, role: "threshold", space: space.id, subject: station.opening, pose: threshold(space.id, station.opening, () => floor) });
         continue;
