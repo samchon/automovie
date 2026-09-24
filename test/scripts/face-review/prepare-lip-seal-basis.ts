@@ -4,13 +4,17 @@
  *
  *   ttsx -P tsconfig.scripts.json --no-plugins scripts/face-review/prepare-lip-seal-basis.ts STUDY REVISION OUTPUT
  *
- * The unit is the smile pair and the depressor the source's own
- * `mouthLowerDown` pair; the seam is the contact's vermilion seam vertices.
- * For scale, a posed smile moves the lips apart rather than together: the
- * upper lip's lower edge rises 4.76 +- 2.69 mm and the lower lip's upper
- * edge falls 3.28 +- 2.02 mm (Banditsaowapak and Cheng 2025), so a sealed
- * closed-lip smile unit is the least a smile can do to the seam, not a fit
- * to it.
+ * The units are the closed-lip ARKit units whose source endpoints carry the
+ * lower lip through the upper one: the smile and press pairs, the pucker,
+ * the lower lip roll and the mouth's sideways moves; the depressor is the
+ * source's own `mouthLowerDown` pair, each side to its side and both to a
+ * midline unit. `mouthShrugLower` also crosses but would need 1.20 of the
+ * depressor, outside its envelope: the chin raiser lifts the lower lip into
+ * the upper one, which then rises with it, and that is not a seal, so it is
+ * left as the source authored it. `mouthFunnel` parts the lips and is not a
+ * closed-lip unit. For scale, a posed smile moves the lips apart rather than
+ * together (Banditsaowapak and Cheng 2025), so a sealed closed-lip unit is
+ * the least it can do to the seam, not a fit to it.
  */
 import type {
   IAutoMovieHumanFaceBasis,
@@ -51,8 +55,18 @@ const prepared = prepareLipSealBasis({
   documents: subjects.json as IAutoMovieHumanFaceBasisDocument[],
   controls: controls.json as IAutoMovieHumanFaceControlMap,
   revision,
-  unit: "mouthSmile",
-  depressor: "mouthLowerDown",
+  units: [
+    ...["mouthSmile", "mouthPress"].map((unit) => ({
+      channels: [`${unit}Left`, `${unit}Right`],
+      depressors: ["mouthLowerDownLeft", "mouthLowerDownRight"],
+    })),
+    ...["mouthPucker", "mouthRollLower", "mouthLeft", "mouthRight"].map(
+      (unit) => ({
+        channels: [unit],
+        depressors: ["mouthLowerDownLeft", "mouthLowerDownRight"],
+      }),
+    ),
+  ],
   lips: (basis.json as IAutoMovieHumanFaceBasis).contact!.lips,
 });
 fs.mkdirSync(output, { recursive: true });

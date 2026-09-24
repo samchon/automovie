@@ -20,7 +20,8 @@ const expression = (id: string) => ({
  * Lips: vertex 0 the upper seam at y 0.001, vertex 1 the lower seam at
  * y -0.001, and a third vertex closing one triangle. Each side's smile lifts
  * the upper seam 1.5 mm and the lower 3 mm; each side's lower-lip depressor
- * drops the lower seam 2 mm.
+ * drops the lower seam 2 mm; a midline press lifts the upper seam 1 mm
+ * and the lower 3 mm.
  */
 const head = (): IAutoMovieHumanFaceBasis => ({
   id: "analytic-lips/1",
@@ -29,6 +30,7 @@ const head = (): IAutoMovieHumanFaceBasis => ({
     expression("smileRight"),
     expression("downLeft"),
     expression("downRight"),
+    expression("press"),
   ],
   surfaces: [
     {
@@ -40,6 +42,7 @@ const head = (): IAutoMovieHumanFaceBasis => ({
         smileRight: [0, 0, 0.0015, 0, 1, 0, 0.003, 0],
         downLeft: [1, 0, -0.002, 0],
         downRight: [1, 0, -0.002, 0],
+        press: [0, 0, 0.001, 0, 1, 0, 0.003, 0],
       },
       regions: [
         { id: "lips/skin", material: "skin", indices: [0, 1, 2], uvs: null },
@@ -56,9 +59,11 @@ const head = (): IAutoMovieHumanFaceBasis => ({
  *    of each side's depressor to that side's smile gives the lower seam back
  *    3 mm, so the bilateral smile keeps the rest aperture, and the depressor
  *    and the neutral are untouched.
- * 2. A depressor too weak to seal inside its envelope, a depressor that does
- *    not move the seam, a missing channel, a missing lip surface and a
- *    repeated revision refuse.
+ * 2. The midline press takes both depressors at 0.5 each, which gives the
+ *    lower seam its 2 mm back.
+ * 3. A depressor too weak to seal inside its envelope, a depressor that does
+ *    not move the seam, a unit pairing two channels with one depressor, a
+ *    missing channel, a missing lip surface and a repeated revision refuse.
  */
 export const test_subject_lip_seal_basis_preparation = (): void => {
   const basis = head();
@@ -69,19 +74,27 @@ export const test_subject_lip_seal_basis_preparation = (): void => {
     ],
     controls: { basis: basis.id, groups: [] },
     revision: "analytic-lips/2",
-    unit: "smile",
-    depressor: "down",
+    units: [
+      {
+        channels: ["smileLeft", "smileRight"],
+        depressors: ["downLeft", "downRight"],
+      },
+      { channels: ["press"], depressors: ["downLeft", "downRight"] },
+    ],
     lips: { surface: "lips", upper: 0, lower: 1 },
   };
   const prepared = prepareLipSealBasis(base);
   const { receipt } = prepared;
   const smile = prepared.basis.surfaces[0]!.targets.smileLeft!;
+  const [smileRow, pressRow] = receipt.units;
   TestValidator.predicate(
     "sealed",
-    nclose(receipt.factor, 0.75, 1e-9) &&
-      nclose(receipt.apertureMetres.rest, 0.002, 1e-12) &&
-      nclose(receipt.apertureMetres.before, -0.001, 1e-12) &&
-      nclose(receipt.apertureMetres.after, 0.002, 1e-9) &&
+    nclose(smileRow!.factor, 0.75, 1e-9) &&
+      nclose(receipt.restApertureMetres, 0.002, 1e-12) &&
+      nclose(smileRow!.apertureMetres.before, -0.001, 1e-12) &&
+      nclose(smileRow!.apertureMetres.after, 0.002, 1e-9) &&
+      nclose(pressRow!.factor, 0.5, 1e-9) &&
+      nclose(pressRow!.apertureMetres.after, 0.002, 1e-9) &&
       smile.length === 8 &&
       nclose(smile[6]!, 0.0015, 1e-9) &&
       prepared.basis.surfaces[0]!.targets.downLeft!.join() ===
@@ -107,8 +120,25 @@ export const test_subject_lip_seal_basis_preparation = (): void => {
         "does not move the seam",
       ) &&
       throwsError(
-        () => prepareLipSealBasis({ ...base, depressor: "absent" }),
-        "no expression channel absentLeft",
+        () =>
+          prepareLipSealBasis({
+            ...base,
+            units: [{ channels: ["smileLeft"], depressors: ["absent"] }],
+          }),
+        "no expression channel absent",
+      ) &&
+      throwsError(
+        () =>
+          prepareLipSealBasis({
+            ...base,
+            units: [
+              {
+                channels: ["smileLeft", "smileRight"],
+                depressors: ["downLeft"],
+              },
+            ],
+          }),
+        "one to one",
       ) &&
       throwsError(
         () =>
