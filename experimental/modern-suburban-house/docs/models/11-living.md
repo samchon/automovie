@@ -110,7 +110,7 @@
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 예약은 외곽만 주고 이 H2는 몸판과 둘레 0.04 m 띠의 면 분할, 띠의 높이를 올리지 않는 규칙, 가구 다리 겹침을 허용하되 덮개가 가구를 들어 올리지 않는 규칙을 더한다.
 @evidence principles/design/models.md#representation-contract 몸판 하나와 같은 두께의 가장자리 띠 하나로 부품을 두고 재질 경계 `field`·`border`를 고정하며 무늬·털 높이·술 장식은 표현하지 않는다고 명시한다.
 @evidence principles/design/models.md#spatial-convention 로컬 원점을 바닥 평면 중심에, +X를 L 방향에, 밑면을 Y = 0에 두며 러그는 L이 world Z, 매트는 L이 world X다.
-@evidence principles/design/models.md#reviewable-structure 측면에서 두께가 T를 넘지 않아 문턱처럼 읽히지 않는지, 위에서 두 외곽이 예약과 같은지, 바닥면과 z-fighting 없이 구분되는지를 고정 뷰로 확인한다.
+@evidence principles/design/models.md#reviewable-structure 측면에서 두께가 T를 넘지 않아 문턱처럼 읽히지 않는지, 위에서 여섯 배치의 외곽이 각 예약과 같은지, 바닥면과 z-fighting 없이 구분되는지를 고정 뷰로 확인한다.
 @evidence principles/design/models.md#model-observable-style-basis 러그와 매트 표지에서 이 H2가 기하로 정하는 것은 T = 0.008/0.006 m의 얇은 두께와 `field`·`border` 두 면 분할뿐이고 무늬·털 높이·술 장식은 표현하지 않는다고 밝힌다.
 @evidence principles/design/models.md#model-scale-layer-completion 여섯 배치의 T 0.008 m·0.006 m, 몸판과 같은 두께의 띠 한 층, 가구 다리 겹침 규칙, 세 관찰을 함께 적어 밟는 덮개의 블로킹 표현이 결정된다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 거실 러그 예약 X = [-4.00, -2.00]·Z = [-3.90, -1.55]와 현관 매트 예약 X = [0.45, 1.35]·Z = [-1.95, -1.30]을 적힌 그대로 L·W로 썼고 부모 수정이 필요하지 않았다.
@@ -126,7 +126,7 @@
 
 부품은 몸판 하나와 가장자리 띠 하나다. 가장자리 띠는 몸판 둘레 0.04 m 폭의 같은 두께 영역으로 면만 나누고 높이를 올리지 않는다. 재질 경계는 `field`, `border`다. 무늬·털 높이·술 장식은 표현하지 않는다. 덮개 위에 가구가 놓이며 가구 다리와 겹치는 것은 허용하고 덮개가 가구를 들어 올리지 않는다.
 
-소스 owner는 `src/models/furnishings/living.ts`다. 관찰은 측면에서 두께가 T를 넘지 않아 문턱처럼 읽히지 않는지, 위에서 두 외곽이 예약과 같은지, 바닥면과 z-fighting 없이 구분되는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
+소스 owner는 `src/models/furnishings/living.ts`다. 관찰은 측면에서 두께가 T를 넘지 않아 문턱처럼 읽히지 않는지, 위에서 여섯 배치의 외곽이 각 예약과 같은지, 바닥면과 z-fighting 없이 구분되는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
 
 ## 벽난로의 검은 화구와 목재 선반 {#fireplace-insert-mantel}
 <!--

@@ -137,7 +137,7 @@
 @evidence principles/design/models.md#spatial-convention 몸통 뒤 모서리 중앙을 원점, +Z를 문 면으로 두고 뒤/앞 문 깊이를 각각 [0.50,0.52]/[0.55,0.57] m에 고정한다. 두 문은 국소 X 방향으로 최대 0.72 m 움직이고 기준 상태는 둘 다 닫힘이다.
 @evidence principles/design/models.md#reviewable-structure 문이 열린 상태에서도 몸체 앞면 밖으로 나오지 않는지를 관절 영역 관찰로 둔다.
 @evidence principles/design/models.md#model-observable-style-basis 미닫이 옷장을 앞뒤 두 레일, 0.76 m 두 문, 2.20 m 높이라는 관찰 가능한 구성으로 정한다.
-@evidence principles/design/models.md#model-scale-layer-completion 외곽·문·레일·봉·선반과 옷 18벌의 식, 두 문 피벗의 닫힘 기준 상태, 일곱 재질 경계와 열린 문 관찰을 적었으며 실제 원형 source와 프레임은 unverified다.
+@evidence principles/design/models.md#model-scale-layer-completion 외곽·문·레일·봉·선반과 옷 18벌의 식, 두 문의 국소 X 평행 이동과 닫힘 기준 상태, 일곱 재질 경계와 열린 문 관찰을 적었으며 실제 원형 source와 프레임은 unverified다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 둘째·셋째 침실 옷장 예약의 좌표와 1.50 × 0.60 × 2.20 m, -X 문 면을 적힌 그대로 소비했고 부모 수정이 없었다.
 @evidence settings/10-house.md#bedroom-two 옷 수납 요구를 X = [-2.55, -1.95] 미닫이 옷장으로 받는다.
 @evidence settings/10-house.md#bedroom-three 옷 수납 요구를 X = [4.90, 5.50] 미닫이 옷장으로 받아 첫 자녀 방 좌표를 복사하지 않는다.
@@ -149,7 +149,7 @@
 
 레퍼런스 02의 작은 침실 수납과 05의 열린 옷장을 채택한다. 문짝 두께와 옷 개수는 사진에서 재지 않고 예약과 이 H2의 수치로 정한다.
 
-옷장은 [둘째 침실](../spaces/rooms/bedroom-two.md#bedroom-two-furniture-use) X = [-2.55, -1.95], Z = [-2.95, -1.45]와 [셋째 침실](../spaces/rooms/bedroom-three.md#bedroom-three-furniture-use) X = [4.90, 5.50], Z = [-2.80, -1.30]에 쓰는 한 원형이다. 두 예약 모두 폭 1.50 m, 깊이 0.60 m, 높이 2.20 m이고 -X 면에 미닫이 문을 둔다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르며 +Z는 문 면이다.
+옷장은 [둘째 침실](../spaces/rooms/bedroom-two.md#bedroom-two-furniture-use) X = [-2.55, -1.95], Z = [-2.95, -1.45]와 [셋째 침실](../spaces/rooms/bedroom-three.md#bedroom-three-furniture-use) X = [4.90, 5.50], Z = [-2.80, -1.30]에 쓰는 한 원형이다. 두 예약 모두 폭 1.50 m, 깊이 0.60 m, 높이 2.20 m이고 -X 면에 미닫이 문을 둔다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르되 원점은 몸통 뒤면 바닥 중앙이고 +Z는 문 면이다.
 
 몸통은 로컬 X=[-0.75,0.75], Z=[0,0.60], Y=[0,2.20] m다. 앞 왼쪽 문 `door-front`의 닫힌 X=[-0.75,0.01], 깊이 Z=[0.55,0.57] m이고 뒤 오른쪽 문 `door-back`의 닫힌 X=[-0.01,0.75], Z=[0.50,0.52] m다. 각 문은 폭 0.76 m·높이 2.16 m·두께 0.02 m이며 Y=[0.01,2.17] m다. 두 문의 닫힌 겹침은 0.02 m이고 기준 상태는 둘 다 닫힘이다. 앞 문은 +X, 뒤 문은 -X로 각각 0–0.72 m만 움직여 바깥 가로·깊이 범위를 넘지 않는다. 두 깊이마다 폭 0.02 m의 직사각 레일을 바닥 Y=[0,0.01] m와 상부 Y=[2.17,2.20] m에 두고 길이는 몸통 폭 1.50 m다. 몸통 속 옷걸이 봉은 뒤에서 Z=0.28 m, Y=1.65 m에 둔 지름 0.03 m 원통이고, 윗선반은 상면 1.85 m·두께 0.025 m·깊이 0.45 m다. 문짝의 손잡이는 만남선에서 각 바깥쪽으로 0.06 m, 바닥 위 1.05 m 중심의 폭 0.10 m·높이 0.025 m·깊이 0.008 m 오목 홈이라 외곽을 늘리지 않는다.
 
