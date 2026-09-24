@@ -18,6 +18,8 @@
 @evidence obligations/design/models.md#model-review-set 00의 정면·측면·45° 고정 뷰에서 판 두께와 확산면을 본다.
 -->
 
+레퍼런스 01·03·04·05는 포치 벽등·주방 매단 등·실내 천장등의 종류와 상대적 위치를 채택한다. 광도와 색온도는 systems에 남긴다. 이 채택은 아래 원형의 시각적 읽힘만 정하며 외곽·동선의 owner를 바꾸지 않는다.
+
 천장면에 붙는 평판 기구는 [실내 조명 할당](../systems/02-interior-fixtures.md#interior-ground-ceiling)이 넘긴 몸체 원형이다. 반복 수와 위치는 후속 배치가 맡고 빛의 색·강도는 systems가 맡는다. 일반 방은 지름 D = 0.24 m, 차고는 D = 0.40 m다. 국소 원점은 천장 접촉면 중앙이고 기구 전체는 그 면 아래 0.05 m 안에 든다. 천장 접합판은 지름 0.70D·두께 0.008 m, 외장 16각 링은 외경 D·내경 D − 0.04 m·두께 0.035 m, 확산판은 내경에 맞는 16각 원판·두께 0.012 m다. 확산판 아래면은 천장 아래 0.05 m이며 링 아래면과 같은 높이다. 각 닫힌 부품의 모든 면에 외장은 `fixture-housing`, 확산판은 `fixture-diffuser`를 부여한다. 위·아래 면 UV는 국소 X·Z, 세로 면은 둘레 거리 U·높이 V를 미터로 둔다. 광원은 기구 중심 안쪽에 systems가 배치하며 전선과 광학 복사는 이 메시의 주장이 아니다. 소스 owner는 `src/models/lighting-fixtures.ts`다. [고정 뷰](00-model-frame.md#model-review-set)의 측면과 실내 관찰에서 판이 천장과 만나는지 확인한다. 실제 렌더는 unverified다.
 
 ## 섬과 식탁의 매단 등 {#pendant-fixtures}
@@ -60,6 +62,8 @@
 @evidence obligations/design/models.md#model-review-set 00의 정면·측면·45°와 거울 위 방 뷰에서 대조한다.
 -->
 
+레퍼런스 01·03·04·05는 포치 벽등·주방 매단 등·실내 천장등의 종류와 상대적 위치를 채택한다. 광도와 색온도는 systems에 남긴다. 이 채택은 아래 원형의 시각적 읽힘만 정하며 외곽·동선의 owner를 바꾸지 않는다.
+
 세 위생실은 같은 벽등 원형을 거울 위에 쓴다. 원점은 벽 접점 중앙, +Z는 방 안쪽이다. 뒤 받침판은 폭 0.36 m·높이 0.06 m·두께 0.015 m, 양끝 받침은 폭 0.025 m·높이 0.06 m·앞 돌출 0.08 m, 확산봉은 양끝 받침 사이 길이 0.31 m·지름 0.045 m다. 전체 벽 돌출은 0.08 m로 [실내 기구의 0.10 m 상한](../systems/02-interior-fixtures.md#interior-baths) 안이다. 금속 판과 받침 모든 면은 `fixture-housing`, 확산봉 모든 면은 `fixture-diffuser`다. 길이 U·둘레 V를 미터로 제공한다. 빛의 세기와 색은 systems, 위치는 instances가 정한다. 소스 owner는 `src/models/lighting-fixtures.ts`; 거울 간섭과 실제 프레임은 unverified다.
 
 ## 포치 문 옆의 벽등 {#porch-wall-sconce}
@@ -78,5 +82,7 @@
 @evidence obligations/design/models.md#addressable-model-decisions 포치 등은 세면등과 다른 갓 형상·유리 표면을 이 H2에서 정한다.
 @evidence obligations/design/models.md#model-review-set 00의 정면·측면·45°와 현관문 옆 포치 뷰를 사용한다.
 -->
+
+레퍼런스 01·03·04·05는 포치 벽등·주방 매단 등·실내 천장등의 종류와 상대적 위치를 채택한다. 광도와 색온도는 systems에 남긴다. 이 채택은 아래 원형의 시각적 읽힘만 정하며 외곽·동선의 owner를 바꾸지 않는다.
 
 [포치 설정](../settings/10-house.md#porch-entry)의 문 옆 벽등은 낮에 광원이 꺼져도 기구 형상이 남는다. 국소 원점은 외벽 접점 중앙, +Z는 포치 쪽이다. 벽판은 폭 0.10 m·높이 0.18 m·두께 0.015 m, 앞쪽 목은 지름 0.025 m·길이 0.015 m, 8각 갓은 위 지름 0.10 m·아래 지름 0.14 m·높이 0.20 m다. 갓의 가장 앞점은 벽에서 0.10 m다. 벽판 모든 면은 `fixture-housing`, 목은 `fixture-stem`, 갓은 `fixture-glass`이고 면 UV는 X·Y 또는 둘레 U·높이 V를 미터로 둔다. 문은 실내로 열려 기구와 겹치지 않는다. 광원 기준 상태와 위치는 systems·instances가 맡는다. 소스 owner는 `src/models/lighting-fixtures.ts`; 실제 포치 캡처는 unverified다.

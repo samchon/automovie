@@ -19,6 +19,8 @@
 @evidence obligations/design/models.md#model-review-set 모델 리뷰 뷰 링크의 정면과 측면을 이 식탁의 고정 관찰로 지정해 상면 0.74 m와 널 틈을 개정 사이에 같은 뷰로 비교하게 한다.
 -->
 
+레퍼런스 01·02는 외피의 반복 결 및 테라스의 작은 가족용 가구 규모를 채택한다. 판의 단면과 반복 노출은 본문에서 정한다. 이 채택은 아래 원형의 시각적 읽힘만 정하며 외곽·동선의 owner를 바꾸지 않는다.
+
 테라스 식탁은 [테라스 공간 예약](../spaces/site/terrace.md#garden-terrace-plan)의 2.70 × 2.70 m 사용 구역에 놓는 원형이다. 예약 중심 배치와 yaw는 후속 instances가 정한다. 길이 1.40 m(로컬 X), 폭 0.80 m(로컬 Z), 상면 0.74 m는 성인 둘·자녀 둘의 네 좌석을 긴 변마다 둘씩 두고, 꺼낸 의자까지 예약 반폭 1.35 m 안에 담기 위한 이 층의 결정이다. [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)의 예외로 네 좌석이 두 긴 변에서 쓰므로 원점을 바닥 평면 중심에 두고 +X를 긴 방향으로 두며 Y = 0이 테라스 상면 datum에 놓인다. 척도 대조는 [기준 척도](00-model-frame.md#model-reference-scale)를 따른다.
 
 부품은 널판 상판과 다리 넷이다. 상판은 Y = [0.71, 0.74]이며 로컬 X를 따라 0.01 m 틈을 둔 폭 0.125 m 널 여섯 장으로 나누어 6 × 0.125 + 5 × 0.01 = 0.80 m가 상판 폭과 같다. 다리는 0.05 m 각재로 모서리에서 0.05 m 안쪽에 세운다. 긴 변 좌석 중심은 로컬 X = ±0.35 m이고 사람 폭 0.60 m 기준으로 [-0.65, -0.05]와 [0.05, 0.65]가 되어 다리 X = ±[0.60, 0.65]와 0.05 m만 겹친다. 이 겹침은 다리가 상판 가장자리 0.05 m 안쪽에 있어 무릎 앞이 아니라 옆에 놓이므로 허용한다. 표면 id는 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)에 따라 `top`, `leg`다. 관절은 없다.
@@ -42,6 +44,8 @@
 @evidence obligations/design/models.md#reference-scale 의자 깊이 0.55 m를 식탁 반폭 0.40 m·꺼냄 0.30 m와 더해 예약 반폭 1.35 m에 대조하는 외곽 확인 규칙을 둔다. 공통 척도 기준 자체는 이 H2가 지명하지 않는다.
 -->
 
+레퍼런스 01·02는 외피의 반복 결 및 테라스의 작은 가족용 가구 규모를 채택한다. 판의 단면과 반복 노출은 본문에서 정한다. 이 채택은 아래 원형의 시각적 읽힘만 정하며 외곽·동선의 owner를 바꾸지 않는다.
+
 테라스 의자는 [테라스 공간 예약](../spaces/site/terrace.md#garden-terrace-plan)과 네 사람의 [사용 가정](../settings/00-production.md#use-profile)을 소비하는 한 원형이며 반복 수와 위치는 후속 instances가 식탁 반폭 0.40 m와 이 의자 깊이에서 도출한다. 외곽은 폭 0.50 m, 깊이 0.55 m, 좌면 0.45 m, 등받이 0.85 m이며 팔걸이는 없다. 좌면 0.45 m는 상판 0.74 m와 0.29 m 차의 식사 자세를 [식탁 의자](10-kitchen-dining.md#dining-chair)와 같게 두려는 선택이고, 폭 0.50 m는 긴 변 좌석 중심 간격 0.70 m에서 두 의자 사이 0.20 m를 남기며, 깊이 0.55 m는 꺼낸 상태의 끝 1.25 m가 예약 반폭 1.35 m 안에 들도록 택했다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르며 뒤쪽 모서리 선은 뒤 다리의 뒤쪽 변, +Z는 식탁을 향한 정면이다. 식탁 가장자리에서 0.30 m 꺼낸 상태의 뒤쪽 끝은 식탁 중심에서 0.40 + 0.30 + 0.55 = 1.25 m로 예약 반폭 1.35 m 안에 든다.
 
 부품은 좌판, 다리 넷, 등받이 널 셋이다. 좌판은 Y = [0.42, 0.45]이고 깊이 0.55 m를 로컬 Z 방향 널 네 장(각 0.13 m)과 틈 세 개(각 0.01 m)로 정확히 채운다. 다리는 0.035 × 0.035 m 각재이며 중심을 좌판 각 가장자리에서 0.04 m 안쪽에 둔다. 등받이 널 셋은 각각 높이 0.08 m, 두께 0.02 m이며 하단 Y = 0.55, 0.66, 0.77 m에 두고 뒤 다리 윗부분을 회전축으로 뒤로 8° 기울여 최상단이 0.85 m다. 표면 id는 `seat`, `leg`, `back`이다. 관절은 없고 꺼내기는 배치 변화다. 널 고정 나사·등받이 곡률·다리 발 캡은 표현하지 않는다. 목재의 결·야외 내구성은 이 모델 형상에서 검증하지 않는다. 소스 owner는 `src/models/furnishings/outdoor.ts`다. 관찰은 [기준 척도](00-model-frame.md#model-reference-scale)와 함께 측면에서 좌면과 등받이 기울기가 보이는지, 네 의자를 꺼낸 평면이 예약 안에 드는지다. 모든 관찰은 unverified다.
@@ -62,6 +66,8 @@
 @evidence obligations/design/models.md#representation-ceiling 실제 lap siding 제품의 노출·두께와 일치한다는 추론은 외부 출처 확인 전까지 끌어낼 수 없다고 밝히고, 모든 관찰을 unverified로 둔다.
 @evidence obligations/design/models.md#model-representation-completion 판 단면·노출은 이 H2, 길이 매개변수의 실제 값·절단은 instances, 끝마감 몰딩은 트림 owner로 계정하고 제품 대조를 선언된 한계로 남긴다. 구조적 유효성과 의미적 완결을 따로 판정하지는 않는다.
 -->
+
+레퍼런스 01·02는 외피의 반복 결 및 테라스의 작은 가족용 가구 규모를 채택한다. 판의 단면과 반복 노출은 본문에서 정한다. 이 채택은 아래 원형의 시각적 읽힘만 정하며 외곽·동선의 owner를 바꾸지 않는다.
 
 [재료 읽힘 설정](../settings/20-verification.md#visual-grammar)의 일관된 수평 course를 위해 판 한 장의 단면과 노출 0.15 m를 이 원형에서 정한다. [siding course 반복 법칙](../instances/03-exterior-repetition.md#siding-course-law)은 이 원형을 소비하여 시작 datum·절단·구성원 수를 정한다. 이 원형은 길이 L을 매개변수로 받는 쐐기 단면 판이며 L은 instances가 벽 구간과 개구부 절단에서 정한다. 로컬 원점은 판 아래 가장자리의 길이 중심이며 뒷면(외벽 바탕 면) 위에 있고, +X가 판 길이 방향, +Y가 위, +Z가 날씨 면 바깥 법선이다.
 
@@ -88,6 +94,8 @@
 @evidence obligations/design/models.md#representation-ceiling 이 원형은 중첩 결의 기하만 보이며 방수·접착·입자 질감·풍하중 성능을 주장하지 않는다는 한계를 둔다.
 @evidence obligations/design/models.md#articulation-ownership 줄·starter·ridge-cap 모두 피벗 없는 강체이며 motion이 바꿀 인터페이스가 없다고 밝힌다.
 -->
+
+레퍼런스 01·02는 외피의 반복 결 및 테라스의 작은 가족용 가구 규모를 채택한다. 판의 단면과 반복 노출은 본문에서 정한다. 이 채택은 아래 원형의 시각적 읽힘만 정하며 외곽·동선의 owner를 바꾸지 않는다.
 
 이 원형은 [재료 읽힘 설정](../settings/20-verification.md#visual-grammar)의 작은 중첩 결을 위해 course 노출 0.14 m, 탭 폭과 한 장의 두께를 정한다. [shingle course 반복 법칙](../instances/03-exterior-repetition.md#shingle-course-law)은 이 원형을 소비하여 처마에서 용마루로 쌓는 순서, 홀수 course의 반 탭 어긋남과 구성원 id를 정한다. 이 원형은 [재료 읽힘 설정](../settings/20-verification.md#visual-grammar)의 "지붕은 작고 규칙적인 어두운 asphalt shingle의 중첩 결로 읽힌다"를 3-tab 줄 하나로 표현한다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)의 예외로 원점을 줄 아래 끝(butt)의 길이 중심 밑면에 두고, +X는 줄 길이 방향, +Z는 지붕 면 바깥 법선, +Y는 경사 위쪽(용마루 방향)이다. 지붕 면에 놓는 회전과 위치는 instances가 [지붕 날씨 면 함수](../spaces/roof/00-junctions.md#roof-profile-datums)에서 계산한다.
 

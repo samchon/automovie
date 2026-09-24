@@ -56,6 +56,8 @@
 
 [03–05의 흰 실내 문선 및 패널문](../settings/10-house.md#openings)과 계단의 [흰 챌판과 기둥](../settings/10-house.md#stair)이다. 구성은 반광 도장한 목재·MDF 부재이며 패널 분절은 모델 geometry가 만든다. 외관은 도막을 근사하는 `#F4F2EC`(선형 0.905, 0.888, 0.839), roughness 0.35, metallic 0.0, transmission 0.0이다. 결합 면은 [실내 문의 표면 파티션](../models/03-interior-doors.md#interior-door-surfaces)의 `leaf`·`leaf-panel`·`jamb-a`·`jamb-b`·`jamb-core`·`casing-a`·`casing-b`, 현관문 `casing`, 걸레받이, 창 안쪽 `interior-sill`([창의 표면 파티션](../models/01-windows.md#window-surface-partitions)), 계단 챌판과 난간 기둥, [외투장](../models/05-closet-fittings.md#coat-closet-doors)·[린넨장](../models/05-closet-fittings.md#linen-closet-fittings) 문짝과 선반, 외투장 [봉과 선반](../models/05-closet-fittings.md#coat-closet-rod-shelf)의 `shelf`다. source owner는 `src/materials/interior/trim.ts`이고, 리뷰는 05의 복도 view에서 흰 문짝과 문선이 벽과 분리되고 반광 하이라이트가 벽보다 좁은지를 관찰한다.
 
+창의 안쪽 `interior-sill`, 외투장·린넨장과 미닫이 옷장의 흰 몸통 `carcass`도 이 반광 도장을 받는다. 검은 레일·봉·손잡이에는 결합하지 않는다.
+
 표면 결속 계획: 실내 문선·걸레받이·패널 문짝의 도장 솔결은 부재 길이 U의 0.10 m 모듈이다. 각 파티션의 시작 모서리를 원점으로 하고 패널 오목부·문짝 가장자리에서 결 방향과 이음을 새로 잡는다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
 
 ## 참나무색 마루 {#oak-floor}
@@ -135,6 +137,8 @@
 -->
 
 [검은 수직 철제 난간살](../settings/10-house.md#stair)과 [검은 금속 손잡이](../settings/10-house.md#shower-bathroom), 현관의 [어두운 손잡이](../settings/10-house.md#porch-entry)다. 구성은 분체 도장 강재다. 외관은 도막을 근사하므로 [거칠기·금속성 관례](00-material-frame.md#material-response-conventions)에 따라 metallic 0.0이며 `#1F1F20`(선형 0.014, 0.014, 0.014), roughness 0.40, transmission 0.0이다. 결합 면은 [난간살](../models/04-stair-members.md#stair-balusters)의 `baluster`와 [아래 부재](../models/04-stair-members.md#stair-bottom-member)의 `bottom-rail`, 실내 문의 `handle`·`hinge`, 현관문 `handle`, 샤워부스 손잡이, 수건걸이·욕조 커튼 레일, [주침실 두 창 커튼](../models/13-bedrooms.md#primary-window-curtains)의 `rod`·`bracket`, [벽 거울](../models/14-bathrooms.md#wall-mirror)의 `mirror-frame`이다. source owner는 `src/materials/interior/metal.ts`이고, 리뷰는 흰 벽 앞에서 난간살 하나하나와 창 앞의 가는 커튼 봉이 분리되어 보이는지를 관찰한다.
+
+머드룸 `hook`, 문과 수납의 검은 `handle`·`hinge`·`rail`, 수건걸이의 `bracket`, 거울의 `mirror-frame`, 등기구의 `fixture-housing`·`fixture-canopy`·`fixture-stem`도 이 금속 도막을 받는다. 각 부품 길이 U·둘레 V의 미터 UV를 부품 끝에서 끊는다.
 
 표면 결속 계획: 난간살·손잡이·등기구 검은 도장 금속은 0.05 m 모듈의 미세 분체결을 부재 국소 길이 U로 투영한다. 각 파티션 시작점에서 위상을 잡고 접합에서 끊어 광택이 검은 단색판으로 뭉개지지 않게 한다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
 

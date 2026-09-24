@@ -19,6 +19,8 @@
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 02의 두 H2와 settings stair를 적힌 그대로 소비했고 부모 수정이 없었다.
 -->
 
+레퍼런스 04·05는 목재 손잡이 아래의 가는 검은 수직 난간살 인상을 채택한다. 반복 수와 낙하 경계 치수는 계단 owner의 실측 예약에서 정한다. 이 채택은 아래 원형의 시각적 읽힘만 정하며 외곽·동선의 owner를 바꾸지 않는다.
+
 [계단 경계 높이 owner](../spaces/02-stair.md#stair-boundary-heights)가 모델에 남긴 것은 기둥·손잡이 사이를 채우는 검은 수직 철제 난간살의 부재와 반복이다. 기둥과 손잡이는 spaces source가 [양쪽 0.075 m 예약](../spaces/02-stair.md#stair-clearance) 안에 이미 만들므로 이 모델은 다시 만들지 않는다. 난간살은 [단일 꺾임계단 설정](../settings/10-house.md#stair)의 가는 철제 수직살을 위해 한 변 0.02 m의 정사각 단면으로 택하며, 0.075 m 예약의 가운데 선에 두어 통행 쪽 점유가 예약선을 넘지 않는다. 한 구간의 유효 길이 L(양 끝 기둥 안쪽 사이)에서 난간살 개수는 n = ceil((L - 0.10) / 0.12)로 산출하고 간격은 (L - 0.02n) / (n + 1)로 같게 나눠 owner의 빈 간격 0.10 m 이하를 지킨다.
 
 국소 원점은 난간살 아래 끝 중심, 국소 +Y는 world +Y이며 모든 난간살은 rigid이고 관절 인터페이스가 없다. 위 끝은 손잡이 아래면까지, 아래 끝은 [아래 부재](#stair-bottom-member)의 윗면까지다. 소스 owner는 `src/models/stair-baluster.ts`이며 검사 주소는 02가 적은 현관에서 보이는 아래 flight, 중간참 두 방향, 상부 도착과 복도 가장자리다.
@@ -38,6 +40,8 @@
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 02를 적힌 그대로 소비했고 부모 수정이 없었다.
 -->
 
+레퍼런스 04·05는 목재 손잡이 아래의 가는 검은 수직 난간살 인상을 채택한다. 반복 수와 낙하 경계 치수는 계단 owner의 실측 예약에서 정한다. 이 채택은 아래 원형의 시각적 읽힘만 정하며 외곽·동선의 owner를 바꾸지 않는다.
+
 경사진 flight와 중간참에서는 별도 아래 가로대를 두지 않고 난간살을 각 디딤과 참 위에 직접 세운다. 경사 가로대는 디딤 뒤쪽에서 챌판 높이만큼 삼각형 틈을 만들어 [owner의 아래 빈 높이 0.10 m 이하](../spaces/02-stair.md#stair-boundary-heights)를 어길 수 있기 때문이다. 상층 복도의 평탄한 추락 경계에서는 upper-storey 바닥 위 0.05 m에 아랫면을 둔 높이 0.04 m, 폭 0.04 m의 검은 `bottom-rail`을 두고 그 위에 난간살을 세운다. 소스 owner는 `src/models/stair-baluster.ts`이며 디딤별 측면 단면과 복도 가장자리 단면으로 검사한다.
 
 ## 난간 부재의 표면 파티션 {#stair-member-surfaces}
@@ -53,6 +57,8 @@
 @evidence principles/design/models.md#model-scale-layer-completion baluster와 bottom-rail 두 표면 인터페이스를 정하고 기둥·손잡이 표면은 spaces에 남긴다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work settings stair를 그대로 소비했고 부모 수정이 없었다.
 -->
+
+레퍼런스 04·05는 목재 손잡이 아래의 가는 검은 수직 난간살 인상을 채택한다. 반복 수와 낙하 경계 치수는 계단 owner의 실측 예약에서 정한다. 이 채택은 아래 원형의 시각적 읽힘만 정하며 외곽·동선의 owner를 바꾸지 않는다.
 
 [이름 규칙](00-model-frame.md#model-surface-partition-naming)에 따라 표면 id는 `baluster`와 `bottom-rail`이다. 둘 다 [단일 꺾임계단 설정](../settings/10-house.md#stair)의 검은 철제 부재로 면마다 평면 법선을 쓰고, [검은 도장 금속의 분체결](../materials/02-interior-shell.md#black-coated-metal)이 붙도록 각 직선 부재의 한쪽 끝 모서리를 원점으로 길이 U·둘레 전개 V를 미터 단위로 둔다. 기둥과 손잡이의 표면은 spaces source가 소유한다. 소스 owner는 `src/models/stair-baluster.ts`다.
 
@@ -70,5 +76,7 @@
 @evidence obligations/design/models.md#representation-ceiling 난간 부재의 보호 성능·법규 비증명을 적는다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work settings fidelity와 02-stair의 법규 비주장을 난간 부재 생략과 대조했고 부모 수정이 필요하지 않았다.
 -->
+
+레퍼런스 04·05는 목재 손잡이 아래의 가는 검은 수직 난간살 인상을 채택한다. 반복 수와 낙하 경계 치수는 계단 owner의 실측 예약에서 정한다. 이 채택은 아래 원형의 시각적 읽힘만 정하며 외곽·동선의 owner를 바꾸지 않는다.
 
 [표현 상한](00-model-frame.md#model-representation-ceiling) 안에서 용접부·고정 볼트·받침판은 만들지 않는다. 난간살 반복이 보호 성능이나 법규 적합을 증명하지 않는다. 검사 주소는 [모델 리뷰 뷰 목록](00-model-frame.md#model-review-set)이며 실제 렌더는 unverified다.

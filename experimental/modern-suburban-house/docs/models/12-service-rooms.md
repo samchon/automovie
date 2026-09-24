@@ -19,6 +19,8 @@
 @evidence obligations/design/models.md#articulation-ownership 원형 문의 경첩 피벗 `door`를 +Z 쪽 최대 90° 열림의 motion 인터페이스로 이름 붙이고 몸통·조작 띠에는 관절을 두지 않는다.
 -->
 
+레퍼런스 02는 서비스 띠의 세탁·머드룸·팬트리·차고 수납 관계를 채택한다. 작은 설비의 치수는 본문에서 결정한다. 이 채택은 아래 원형의 시각적 읽힘만 정하며 외곽·동선의 owner를 바꾸지 않는다.
+
 세탁기와 건조기는 조작 판 표시만 다른 한 원형의 두 변형이다. [세탁 작업 예약](../spaces/rooms/laundry.md#laundry-equipment-use)의 세탁기 X = [4.75, 5.50], Z = [-3.35, -2.70]과 건조기 X = [4.75, 5.50], Z = [-2.70, -2.05]가 모두 깊이 0.75 m, 폭 0.65 m, Y = [0, 0.88]이므로 외곽을 그 값으로 둔다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르며 +Z가 문 전면이며 배치에서 world -X를 향한다.
 
 부품은 몸통, 원형 문, 문 손잡이, 조작 띠다. 몸통 깊이는 0.72 m이고 문과 손잡이가 0.03 m를 더한다. 원형 문은 지름 0.45 m, 중심 높이 0.42 m이며 한쪽 세로 접선의 경첩 피벗 `door`로 +Z 쪽으로 최대 90° 연다. 90° 열림의 돌출 0.45 m와 손잡이 0.03 m의 합 0.48 m가 [문 작동 예약 X = [4.25, 4.75]](../spaces/rooms/laundry.md#laundry-equipment-use)의 0.50 m 안에 든다. 조작 띠는 Y = [0.76, 0.86]의 전면 띠다. 재질 경계는 `appliance-body`, `leaf`, `door-ring`, `glass`, `handle`, `control-panel`, `appliance-interior`, `drum`이다. 원형 문의 불투명 외측 판은 `leaf`, 지름 0.45 m 둘레 폭 0.025 m의 금속 고리는 `door-ring`, 안쪽 지름 0.39 m의 유리 뒤 0.06 m에는 움직이지 않는 얕은 원통 `drum`을 둔다. 드럼 회전·세제함·배관은 표현하지 않는다.
@@ -41,6 +43,8 @@
 @evidence spaces/rooms/laundry.md#laundry-equipment-use 예약 X = [4.75, 5.50], Z = [-3.35, -2.05], Y = [0.88, 0.94]를 외곽으로 받고 지지 부재가 기기 문을 가리지 않는다는 조건을 벽 받침목 지지로 지킨다.
 -->
 
+레퍼런스 02는 서비스 띠의 세탁·머드룸·팬트리·차고 수납 관계를 채택한다. 작은 설비의 치수는 본문에서 결정한다. 이 채택은 아래 원형의 시각적 읽힘만 정하며 외곽·동선의 owner를 바꾸지 않는다.
+
 접는 상판은 [예약](../spaces/rooms/laundry.md#laundry-equipment-use)의 X = [4.75, 5.50], Z = [-3.35, -2.05], Y = [0.88, 0.94]를 외곽으로 받아 길이 1.30 m, 깊이 0.75 m, 두께 0.06 m다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르되 원점을 뒤쪽 모서리 선의 하단 중심 Y = 0.88 m에 두고, +Z는 yaw -π/2에서 world -X다. 상판은 뒤쪽 벽의 받침목과 두 기기 윗면에 얹히며 기기 문 앞에 다리나 옆판을 세우지 않아 [지지 부재가 기기 문을 가리지 않는다는 조건](../spaces/rooms/laundry.md#laundry-equipment-use)을 지킨다.
 
 부품은 상판과 받침목 둘이다. 받침목은 상판 아래 벽면을 따라 높이 0.04 m, 깊이 0.03 m로 두되 예약 Y 범위 안에 들도록 상판 두께에 파묻은 홈으로 처리한다. 재질 경계는 `top`, `cleat`이고 관절은 없다. 상판 가장자리 몰딩과 받침목 고정 철물은 표현하지 않는다. 소스 owner는 `src/models/furnishings/service-rooms.ts`다. 관찰은 측면에서 상판 상면 0.94 m와 기기 상면 0.88 m 사이 틈이 없는지, 정면에서 문 앞 지지 부재가 없는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
@@ -60,6 +64,8 @@
 @evidence settings/10-house.md#laundry-mudroom 설정의 상부장/선반 요구를 1.30 m 길이 두 문 벽걸이 수납으로 만든다.
 @evidence spaces/rooms/laundry.md#laundry-equipment-use 예약 X = [5.20, 5.50], Z = [-3.35, -2.05], Y = [1.50, 2.30]을 외곽 1.30 × 0.30 × 0.80 m로 받는다.
 -->
+
+레퍼런스 02는 서비스 띠의 세탁·머드룸·팬트리·차고 수납 관계를 채택한다. 작은 설비의 치수는 본문에서 결정한다. 이 채택은 아래 원형의 시각적 읽힘만 정하며 외곽·동선의 owner를 바꾸지 않는다.
 
 상부 수납은 [예약](../spaces/rooms/laundry.md#laundry-equipment-use)의 X = [5.20, 5.50], Z = [-3.35, -2.05], Y = [1.50, 2.30]을 외곽으로 받아 길이 1.30 m, 깊이 0.30 m, 높이 0.80 m다. [주방 상부장](10-kitchen-dining.md#kitchen-wall-cabinet)과 같은 몸통·전면 판 구성을 쓰되 깊이와 높이가 달라 별도 원형으로 둔다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르되 벽걸이 원형이므로 원점을 뒤쪽 모서리 선의 하단 중심 1.50 m에 둔다.
 
@@ -82,6 +88,8 @@
 @evidence obligations/design/models.md#reference-scale 예약에서 받은 좌면 0.45 m를 벤치 높이 0.45 m와 좌판 Y = [0.42, 0.45]로 그대로 쓰고 측면 관찰에서 이 좌면 높이가 읽히는지를 확인하게 한다.
 -->
 
+레퍼런스 02는 서비스 띠의 세탁·머드룸·팬트리·차고 수납 관계를 채택한다. 작은 설비의 치수는 본문에서 결정한다. 이 채택은 아래 원형의 시각적 읽힘만 정하며 외곽·동선의 owner를 바꾸지 않는다.
+
 신발 벤치는 [예약](../spaces/rooms/laundry.md#laundry-equipment-use)의 X = [3.22, 3.62], Z = [-2.85, -2.05], 좌면 0.45 m를 외곽으로 받아 길이 0.80 m, 깊이 0.40 m, 높이 0.45 m다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르며 +Z가 앉는 정면이며 배치에서 world +X를 향한다.
 
 부품은 좌판, 옆판 둘, 신발 선반 하나다. 좌판은 Y = [0.42, 0.45], 옆판 두께 0.03 m, 신발 선반 상면은 0.10 m다. 신발 두 켤레를 선반 위의 낮은 상자 둘(0.28 × 0.10 × 0.10 m)로 둔다. 재질 경계는 `seat`, `carcass`, `shelf`, `shoe`이고 관절은 없다. 신발 끈·밑창 형상과 좌판 모서리 모따기는 표현하지 않는다. 소스 owner는 `src/models/furnishings/service-rooms.ts`다. 관찰은 측면에서 좌면 0.45 m와 신발 선반이 읽히는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
@@ -101,6 +109,8 @@
 @evidence settings/10-house.md#laundry-mudroom 설정의 외투 걸이 요구를 걸이 넷과 걸린 외투 둘로 만든다.
 @evidence spaces/rooms/laundry.md#laundry-equipment-use 예약 X = [3.22, 3.62], Z = [-2.85, -2.05], Y = [1.10, 1.85] 안에 걸이와 걸린 외투의 최대 돌출을 함께 담는다.
 -->
+
+레퍼런스 02는 서비스 띠의 세탁·머드룸·팬트리·차고 수납 관계를 채택한다. 작은 설비의 치수는 본문에서 결정한다. 이 채택은 아래 원형의 시각적 읽힘만 정하며 외곽·동선의 owner를 바꾸지 않는다.
 
 외투 걸이는 [예약](../spaces/rooms/laundry.md#laundry-equipment-use)의 X = [3.22, 3.62], Z = [-2.85, -2.05], Y = [1.10, 1.85] 안에 걸이와 걸린 외투의 최대 돌출을 함께 담는다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르되 벽걸이 원형이므로 원점을 벽면의 걸이판 하단 중심에 둔다. 걸이판은 길이 0.80 m, 높이 0.10 m, 두께 0.02 m이며 하단이 1.65 m에 오고, 걸이 넷은 판 중심에서 -0.25·-0.08·+0.08·+0.25 m, 돌출 0.08 m다.
 
@@ -122,6 +132,8 @@
 @evidence spaces/rooms/pantry.md#pantry-plan 뒤쪽 띠 X = [3.22, 5.50], Z = [-6.05, -5.80]과 오른쪽 띠 X = [5.20, 5.50], Z = [-6.05, -4.70]의 합집합을 선반 외곽으로 쓴다.
 @evidence spaces/rooms/pantry.md#pantry-storage-use 방 문서의 0.20 m부터 0.40 m 간격 선반 상면을 0.20, 0.60, 1.00, 1.40, 1.80 m 다섯 단으로 그대로 받는다.
 -->
+
+레퍼런스 02는 서비스 띠의 세탁·머드룸·팬트리·차고 수납 관계를 채택한다. 작은 설비의 치수는 본문에서 결정한다. 이 채택은 아래 원형의 시각적 읽힘만 정하며 외곽·동선의 owner를 바꾸지 않는다.
 
 팬트리 선반은 [선반 평면](../spaces/rooms/pantry.md#pantry-plan)의 뒤쪽 띠 X = [3.22, 5.50], Z = [-6.05, -5.80](깊이 0.25 m)과 오른쪽 띠 X = [5.20, 5.50], Z = [-6.05, -4.70](깊이 0.30 m)의 합집합을 한 L형 판으로 만든다. [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)의 예외로 두 벽에 걸친 L형 한 곳뿐인 원형이므로 원점을 두 벽이 만나는 뒤쪽 오른쪽 모서리의 바닥점에 두고 로컬 축을 world 축과 같게 둔다.
 
@@ -145,6 +157,8 @@
 @evidence spaces/rooms/pantry.md#pantry-storage-use 뒤 선반 0.20 m·오른쪽 0.25 m 깊이와 선반 위 0.30 m 이내 높이 안에 세 변형 치수를 고른다.
 -->
 
+레퍼런스 02는 서비스 띠의 세탁·머드룸·팬트리·차고 수납 관계를 채택한다. 작은 설비의 치수는 본문에서 결정한다. 이 채택은 아래 원형의 시각적 읽힘만 정하며 외곽·동선의 owner를 바꾸지 않는다.
+
 식품은 밀폐 용기, 작은 식료품 상자, 낮은 바구니의 세 변형을 가진 한 소품 원형이다. [방 문서](../spaces/rooms/pantry.md#pantry-storage-use)가 뒤 선반 물건 깊이 0.20 m, 오른쪽 0.25 m, 높이 선반 위 0.30 m 이내, 선반 끝에서 0.02 m 물림을 정하므로 변형 치수를 밀폐 용기 0.12 × 0.12 × 0.20 m, 상자 0.18 × 0.18 × 0.25 m, 바구니 0.30 × 0.20 × 0.15 m로 택한다. [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)의 예외로 선반 위 소품이므로 원점을 밑면 중심에 둔다.
 
 밀폐 용기는 몸통과 뚜껑, 상자는 한 상자, 바구니는 테두리가 있는 열린 상자다. 재질 경계는 `container`, `lid`, `basket`이고 관절은 없다. 라벨·내용물·투명 용기의 투과는 표현하지 않는다. 소스 owner는 `src/models/furnishings/service-rooms.ts`이며 개수와 배치는 instances가 소유한다. 관찰은 선반 위 용기가 선반 끝을 넘지 않는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
@@ -164,6 +178,8 @@
 @evidence settings/10-house.md#garage 설정이 빈 차고에도 요구한 선반 수납을 후벽 1.70 m 다섯 단 금속 선반으로 만든다.
 @evidence spaces/rooms/garage-interior.md#garage-storage-use 후벽 수납 예약 X = [7.15, 8.85], Z = [-6.45, -5.85]와 바닥 위 2.05 m를 선반 외곽으로 받는다.
 -->
+
+레퍼런스 02는 서비스 띠의 세탁·머드룸·팬트리·차고 수납 관계를 채택한다. 작은 설비의 치수는 본문에서 결정한다. 이 채택은 아래 원형의 시각적 읽힘만 정하며 외곽·동선의 owner를 바꾸지 않는다.
 
 차고 선반은 [후벽 수납 예약](../spaces/rooms/garage-interior.md#garage-storage-use)의 X = [7.15, 8.85], Z = [-6.45, -5.85], 차고 바닥 위 2.05 m를 외곽으로 받아 길이 1.70 m, 깊이 0.60 m, 높이 2.05 m다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르며 원점은 차고 바닥 Y = -0.15 m에 놓이고 +Z는 선반 앞이다.
 
@@ -186,6 +202,8 @@
 @evidence obligations/design/models.md#articulation-ownership 두 서랍을 피벗 `drawer-left`·`drawer-right`로 이름 붙여 +Z 최대 0.45 m 인출의 motion 인터페이스로 둔다.
 -->
 
+레퍼런스 02는 서비스 띠의 세탁·머드룸·팬트리·차고 수납 관계를 채택한다. 작은 설비의 치수는 본문에서 결정한다. 이 채택은 아래 원형의 시각적 읽힘만 정하며 외곽·동선의 owner를 바꾸지 않는다.
+
 작업대는 [예약](../spaces/rooms/garage-interior.md#garage-storage-use)의 X = [9.00, 10.20], Z = [-6.45, -5.85], 상면 차고 바닥 위 0.90 m를 외곽으로 받아 길이 1.20 m, 깊이 0.60 m, 높이 0.90 m다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르며 +Z가 작업 정면이다.
 
 부품은 상판(두께 0.04 m), 다리 넷, 서랍 둘이다. 서랍은 상판 아래 폭 0.55 m, 높이 0.12 m이고 각각 피벗 `drawer-left`, `drawer-right`로 +Z로 최대 0.45 m 미끄러져 [서랍 작동 예약 Z = [-5.85, -5.40]](../spaces/rooms/garage-interior.md#garage-storage-use)과 같다. 손잡이는 서랍 전면에 깊이 0.015 m로 판 오목 홈이라 전면에서 돌출하지 않고, 연 상태의 최전방은 인출량 0.45 m와 같다. 다리는 0.05 m 각재로 네 모서리에서 0.06 m 안쪽에 세운다. 재질 경계는 `top`, `leg`, `drawer-front`, `handle`이다. 서랍 레일·바이스·상판 흠집은 표현하지 않는다. 소스 owner는 `src/models/furnishings/service-rooms.ts`다. 관찰은 서랍 0.45 m 인출 평면에서 작업 사용 범위와 겹치지 않는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
@@ -207,6 +225,8 @@
 @evidence obligations/design/models.md#representation-ceiling 공구 개별 형상을 두께 0.02–0.04 m 판 실루엣 수준으로 제한해 리뷰어가 공구의 실제 형상 세부를 이 모델에서 읽어내지 않게 한다.
 @evidence obligations/design/models.md#model-representation-completion 파일의 열 원형이 모두 `src/models/furnishings/service-rooms.ts`를 소스 owner로, 모델 리뷰 뷰를 관찰 owner로 두지만 모든 관찰이 unverified라 구조 유효성과 의미 완결 판정은 아직 없다.
 -->
+
+레퍼런스 02는 서비스 띠의 세탁·머드룸·팬트리·차고 수납 관계를 채택한다. 작은 설비의 치수는 본문에서 결정한다. 이 채택은 아래 원형의 시각적 읽힘만 정하며 외곽·동선의 owner를 바꾸지 않는다.
 
 공구판은 [예약](../spaces/rooms/garage-interior.md#garage-storage-use)의 X = [9.00, 10.20], Z = [-6.45, -6.30], world Y = [0.95, 1.95]를 외곽으로 받아 길이 1.20 m, 높이 1.00 m, 전체 깊이 0.15 m다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르되 벽걸이 원형이므로 원점을 벽면의 판 하단 중심에 둔다. 타공판은 두께 0.02 m이며 걸린 공구는 망치·렌치·톱 세 실루엣과 작은 통 둘이다. 원점은 판 하단 가운데, +X는 오른쪽, +Y는 위, +Z는 방 쪽이다. 망치 외곽 0.12 × 0.36 × 0.035 m의 중심은 (-0.35, 0.57), 렌치 0.06 × 0.30 × 0.025 m의 중심은 (-0.05, 0.60), 톱 0.32 × 0.16 × 0.030 m의 중심은 (0.30, 0.58)이다. 작은 통 둘은 각각 0.16 × 0.12 × 0.10 m이며 중심 X = -0.24, 0.24 m, 하단 Y = 0.12 m다. 모든 공구와 통의 앞끝은 판 앞 0.13 m 이내다.
 

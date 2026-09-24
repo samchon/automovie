@@ -58,6 +58,8 @@
 
 [작고 규칙적인 어두운 asphalt shingle](../settings/20-verification.md#visual-grammar)이다. 구성은 광물 입자를 입힌 asphalt shingle이며 중첩 결은 지붕 경사면 owner와 instance의 shingle 줄 geometry가 만든다. 외관은 입자 표면을 평균한 `#3A3C3E`(선형 0.042, 0.045, 0.048), roughness 0.90, metallic 0.0, transmission 0.0이다. 결합 면은 여덟 지붕 경사면 owner와 포치 지붕의 상면이며 처마 하부·fascia는 [흰 trim](#trim-white)이 받는다. source owner는 `src/materials/exterior/shingle.ts`이고, 리뷰는 높은 roof view에서 경사면마다 같은 색이고 골짜기에서 재료가 끊기지 않는지를 관찰한다.
 
+shingle 원형의 `shingle-face`·`shingle-butt`·`shingle-back`·`shingle-cut` 네 면은 같은 지붕널 재료를 받되 UV 이음은 탭 절단과 줄 끝에서 끊는다.
+
 표면 결속 계획: `shingle-face`의 광물 입자 거칠기와 미세 색 차를 결정론적 맵으로 만든다. 각 지붕 면의 처마를 V 원점, 처마 평행선을 U로 놓고 탭 폭 0.330 m·course 노출 0.14 m에 맞춘다. 골짜기·용마루·굴뚝 절단에서 pattern은 실제 잘린 부재와 함께 끝난다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
 
 ## 붉은갈색 벽돌 {#brick-red-brown}

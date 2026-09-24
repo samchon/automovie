@@ -18,6 +18,8 @@
 @evidence obligations/design/models.md#model-review-set 00의 정면·측면·45°와 레퍼런스 01 외관 포치 뷰에서 대조한다.
 -->
 
+레퍼런스 01·03·02는 포치 발판·화분, 조리 소품과 식탁 과일, 수납 속 접힌 직물을 채택한다. 개수와 치수는 본문에서 정한다. 이 채택은 아래 원형의 시각적 읽힘만 정하며 외곽·동선의 owner를 바꾸지 않는다.
+
 [현관 포치 설정](../settings/10-house.md#porch-entry)은 발판과 작은 화분을 요구한다. 실내 현관 매트와 별개로 문 바깥에 놓는 발판은 길이 0.60 m·폭 0.40 m·두께 0.008 m다. 바닥 중심을 원점으로 하고 둘레 0.025 m는 `border`, 안쪽은 `field`로 모든 상·하·옆면을 덮는다. 화분은 바닥 중심 원점, 아래 지름 0.20 m·입술 지름 0.28 m·용기 높이 0.28 m의 12각 테이퍼 몸과 높이 0.025 m 입술 테다. 안쪽에는 지름 0.025 m·길이 0.19 m의 줄기 다섯과, 각 줄기 끝의 지름 0.12 m·높이 0.25 m 닫힌 잎 군집 다섯을 72°씩 벌려 전체 높이 0.72 m 이내로 둔다. 용기·줄기·잎 군집의 모든 면은 각각 `container`, `stem`, `foliage`이고 몸통 둘레 U·높이 V를 미터로 제공한다. 흙·개별 잎·꽃잎은 표현하지 않는다. 위치와 회전은 [포치 진입 폭](../spaces/porch.md#porch-platform-access)을 읽는 instances가 정하고 계단·문짝을 침범하면 실패다. 소스 owner는 `src/models/furnishings/props.ts`; 실제 GPU 프레임은 unverified다.
 
 ## 주방과 식탁의 식료품·조리도구 {#kitchen-food-utensils}
@@ -59,5 +61,7 @@
 @evidence obligations/design/models.md#addressable-model-decisions 수건 원형을 05의 선반 부재와 별개 H2로 두어 재료·개수를 따로 추적한다.
 @evidence obligations/design/models.md#model-review-set 00의 정면·측면·45°와 상층 복도 threshold 뷰에서 검사한다.
 -->
+
+레퍼런스 01·03·02는 포치 발판·화분, 조리 소품과 식탁 과일, 수납 속 접힌 직물을 채택한다. 개수와 치수는 본문에서 정한다. 이 채택은 아래 원형의 시각적 읽힘만 정하며 외곽·동선의 owner를 바꾸지 않는다.
 
 [수납 설정](../settings/10-house.md#storage)의 접힌 수건은 [린넨장 다섯 선반](05-closet-fittings.md#linen-closet-fittings) 위의 후속 소품이다. 한 장의 외곽은 가로 0.28 m·깊이 0.32 m·높이 0.06 m다. 한 더미는 두 장을 쌓아 높이 0.12 m이며 각 선반에는 더미 세 개를 좌우 0.02 m 간격으로 놓는다. 가로 합 3 × 0.28 + 2 × 0.02 = 0.88 m로 선반 길이 1.00 m에 양끝 0.06 m씩 남는다. 뒤면에서 0.05 m 띄워 깊이 0.32 m를 차지하므로 0.55 m 선반 앞쪽에 0.18 m가 남고 문 트랙으로 돌출하지 않는다. 다섯 선반 × 세 더미 × 두 장 = 30장이다. 수건의 모든 면은 `folded`이고 가로 U·깊이 V를 미터로 둔다. 접힌 모서리는 반지름 0.008 m로 둥글리되 별도의 봉제선·섬유 메시를 만들지 않는다. 위치는 선반 원형의 상면과 문 열린 상태를 읽는 instances가 계산한다. 소스 owner는 `src/models/furnishings/props.ts`; 실제 수납 프레임은 unverified다.

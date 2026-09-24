@@ -53,6 +53,8 @@
 
 [스테인리스 냉장고·레인지·전자레인지](../settings/10-house.md#kitchen-equipment)와 식기세척기, 수전이다. 구성은 도장하지 않은 헤어라인 스테인리스 강판과 주물 수전이다. 외관은 `#C0C2C4`(선형 0.527, 0.539, 0.552), roughness 0.30, metallic 1.0, transmission 0.0이며 헤어라인 방향성은 판의 길이 방향 거칠기 맵으로 표현한다. 결합 면은 [양문 냉장고](../models/10-kitchen-dining.md#kitchen-refrigerator)의 `leaf`·`drawer-front`·`appliance-body`·`handle`, [레인지](../models/10-kitchen-dining.md#kitchen-range)의 `leaf`·`appliance-body`·`handle`, [전자레인지](../models/10-kitchen-dining.md#kitchen-microwave)의 `appliance-body`, [식기세척기](../models/10-kitchen-dining.md#kitchen-dishwasher)의 `leaf`·`appliance-body`, 싱크 섬의 `basin`·`faucet`, 세면장·욕조·샤워부스의 `faucet`, [차고 금속 선반](../models/12-service-rooms.md#garage-shelving)의 `post`·`shelf`, [공구판](../models/12-service-rooms.md#garage-tool-board)의 `tool-steel`, [세탁기 원형](../models/12-service-rooms.md#laundry-machine)의 `door-ring`·`drum`이다. 가전 안쪽 `appliance-interior`는 [흰 에나멜](#white-enamel)을 받는다. source owner는 `src/materials/furnishings/appliances.ts`이고, 리뷰는 중성 조명 판과 03 view에서 가전이 흰 벽보다 어둡지만 검은 판이 아닌 금속 반사로 읽히는지를 관찰한다.
 
+욕실·수납의 금속 `rail`·`rod`와 주방 `utensil`의 금속부도 이 재료를 받는다. 각 막대의 길이 U·둘레 V를 미터로 투영하고 부품 끝에서 끊는다.
+
 표면 결속 계획: 가전·수전의 노출 스테인리스에는 0.02 m 반복의 방향성 헤어라인 거칠기 맵을 쓴다. 판의 길이 U를 연마 방향으로, 판 시작 모서리를 원점으로 하고 문·손잡이 파티션 경계에서 방향을 새로 잡는다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
 
 ## 검은 유리 조작부 {#black-glass-panel}
@@ -88,6 +90,8 @@
 
 변기·세면기·욕조와 [앞문식 세탁기·건조기](../settings/10-house.md#laundry-mudroom)의 흰 몸체다. 구성은 유약 도기와 법랑 강판이며 두 구성을 한 외관으로 묶는다. 외관은 `#F5F5F2`(선형 0.913, 0.913, 0.888), roughness 0.25, metallic 0.0, transmission 0.0이다. 결합 면은 [공용 변기](../models/14-bathrooms.md#shared-toilet)의 `ceramic`·`toilet-seat`·`lid`, 세면장과 [욕조 겸 샤워](../models/14-bathrooms.md#bathtub)의 `ceramic`, [샤워부스](../models/14-bathrooms.md#sliding-shower-booth)의 `shower-tray`, 세탁기·건조기의 `appliance-body`·`leaf`, 가전의 `appliance-interior`다. 세탁기 `door-ring`은 [스테인리스](#stainless-steel), `glass`는 [투명 유리](01-exterior.md#glass-clear), `drum`은 스테인리스를 받는다. source owner는 `src/materials/furnishings/fixtures.ts`이고, 리뷰는 05 욕실 view에서 도기가 벽 타일보다 좁은 하이라이트로 구별되는지를 관찰한다.
 
+샤워 세면대의 세 `accessory`, 도기 화분과 병의 `container`, 과일 `bowl`, 협탁등의 `lamp-base`에도 같은 흰 법랑 값을 배정한다. 용기 둘레 U·높이 V의 미터 UV를 각각의 열린 입술에서 끊는다.
+
 표면 결속 계획: 흰 도기·에나멜은 의도적으로 매끈한 유약 면이다. roughness 0.25의 넓은 하이라이트와 실제 곡면 법선·그림자로 부피를 읽히게 하며 금속·벽 타일 파티션과의 접합에서 끝난다. 실제 GPU 근접·리뷰 거리 판정은 아직 없으므로 unverified다.
 
 ## 꿀빛 가구 목재 {#furniture-wood}
@@ -107,6 +111,8 @@
 
 [낮은 목재 테이블](../settings/10-house.md#living), [목재 침대](../settings/10-house.md#primary-bedroom), 식탁·의자·책상, 팬트리 선반이다. 구성은 오일 마감 참나무 집성재다. 외관은 `#A87A4E`(선형 0.392, 0.195, 0.076), roughness 0.50, metallic 0.0, transmission 0.0이며 오크 결 맵을 부재 길이에 결속하고 모서리 음영으로 목재 덩어리의 두께도 읽힌다. [참나무색 마루](02-interior-shell.md#oak-floor)보다 약간 어두워 다리가 바닥에 묻히지 않도록 정했다. 결합 면은 [여섯 좌석 식탁](../models/10-kitchen-dining.md#dining-table)의 `top`·`apron`·`leg`, [식탁 의자](../models/10-kitchen-dining.md#dining-chair)·[섬 스툴](../models/10-kitchen-dining.md#kitchen-island-stool)·[책상 의자](../models/13-bedrooms.md#desk-chair)의 `seat`·`leg`·`back`·`footrest`, [낮은 목재 테이블](../models/11-living.md#low-table)과 [작은 책상](../models/13-bedrooms.md#child-desk)의 `top`·`leg`·`shelf`, [머리판 있는 침대](../models/13-bedrooms.md#headboard-bed)의 `headboard`·`bed-frame`, [협탁](../models/13-bedrooms.md#nightstand-lamp)·[낮은 서랍장](../models/13-bedrooms.md#low-dresser)의 `carcass`·`drawer-front`·`leg`, 소파·[안락의자](../models/11-living.md#reading-armchair)의 `leg`, [팬트리 L형 선반](../models/12-service-rooms.md#pantry-l-shelf)과 [머드룸 신발 벤치](../models/12-service-rooms.md#mudroom-bench)의 `seat`·`carcass`·`shelf`, 팬트리 선반의 `shelf`·`cleat`, [공구 작업대](../models/12-service-rooms.md#garage-workbench)의 `top`·`leg`·`drawer-front`, [테라스 식탁](../models/15-outdoor.md#terrace-table)·[테라스 의자](../models/15-outdoor.md#terrace-chair)다. source owner는 `src/materials/furnishings/wood.ts`이고, 리뷰는 03과 05 view에서 가구와 마루가 같은 계열이되 구별되는지를 관찰한다.
 
+탁자·벤치의 `base`·`plinth`, 공구판의 `board`·`tool-grip`, 거실 `tray`, 주방 `cutting-board`, 벽난로 `mantel`, 선반 `basket`, 책상 `pencil`의 목재 부피도 이 재료를 받는다. 부재마다 길이 U·폭 V를 새로 시작한다.
+
 표면 결속 계획: 식탁·침대·의자·선반 목재의 오크 결은 판 길이 U와 폭 0.15 m 모듈을 쓴다. 각 모델 부재 시작 모서리를 원점으로 하고 다리·상판·서랍 전면의 접합에서 결 방향을 새로 잡는다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
 
 ## 짙은 책장 목재 {#dark-bookcase-wood}
@@ -125,6 +131,8 @@
 
 [거실의 짙은 책장](../settings/10-house.md#living)이다. 구성은 어두운 착색 호두나무 판재다. 외관은 `#4A3A2E`(선형 0.068, 0.042, 0.027), roughness 0.55, metallic 0.0, transmission 0.0이다. 결합 면은 [짙은 책장과 책](../models/11-living.md#dark-bookcase)의 `carcass`·`plinth`·`shelf`이다. `book`은 이 H2가 아니라 [회베이지 천갈이](#grey-beige-upholstery)와 [올리브](#olive-bedding)·[청회색](#blue-grey-bedding) 직물 값을 책마다 순환해 받는다. source owner는 `src/materials/furnishings/wood.ts`이고, 리뷰는 04 view에서 책장이 흰 벽 앞 짙은 덩어리로 읽히되 선반 그림자와 책 색 변화가 보이는지를 관찰한다.
 
+벽 액자의 `art-frame`은 책장과 같은 짙은 목재를 사용하며 인쇄면 `art-print`는 별도 재료를 받는다.
+
 표면 결속 계획: 짙은 책장 목재는 판 길이 U의 0.15 m 어두운 오크 결 맵을 쓴다. 각 선반·측판의 안쪽 시작 모서리를 원점으로 하고 판 끝에서 끊어 뒤판과 선반이 한 검은 면으로 합쳐지지 않게 한다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
 
 ## 회베이지 천갈이 {#grey-beige-upholstery}
@@ -142,6 +150,8 @@
 -->
 
 [회색/미색 패브릭 소파](../settings/10-house.md#living)와 안락의자다. 구성은 폼 위 직조 폴리 직물이다. 외관은 `#B7AFA3`(선형 0.474, 0.429, 0.366), roughness 0.92, metallic 0.0, transmission 0.0이며 직조 결은 0.01 m 색·법선 맵으로 표현한다. 결합 면은 [패브릭 소파](../models/11-living.md#fabric-sofa)와 [독서 안락의자](../models/11-living.md#reading-armchair)의 `base`·`seat-cushion`·`back`·`arm`이다. source owner는 `src/materials/furnishings/textiles.ts`이고, 리뷰는 04와 03 view에서 소파가 벽보다 어둡고 광택 없이 읽히는지를 관찰한다.
+
+거실 소파의 보조 `pillow`와 세 방 옷장 `clothes`의 회베이지 변형도 이 직물 값을 받는다. 다른 색 옷은 인스턴스별 올리브·청회색 직물로 분기한다.
 
 표면 결속 계획: 소파·안락의자의 직조 천은 0.01 m 날실/씨실 반복의 색·법선 결이다. 쿠션 파티션의 국소 가로 U·세로 V와 봉제선 원점을 쓰고 쿠션 이음에서 잘라 부피를 보존한다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
 
@@ -180,6 +190,8 @@
 
 [올리브색 침구의 작은 침실](../settings/10-house.md#bedroom-two)의 식별색이다. 구성은 면 직물 이불이다. 외관은 `#6B7040`(선형 0.147, 0.162, 0.051), roughness 0.92, metallic 0.0, transmission 0.0이다. 결합 면은 bedroom-two에 놓인 [머리판 있는 침대](../models/13-bedrooms.md#headboard-bed) instance의 `bedding`이며 같은 원형의 방별 변형은 instances가 선언한다. source owner는 `src/materials/furnishings/textiles.ts`이고, 리뷰는 기준 상태 판과 bedroom-two 전체 view에서 이불이 올리브로 식별되는지를 관찰한다.
 
+책장의 `book` 표지 및 옷방 `clothes`의 올리브 변형에도 이 색 직물 결을 재사용한다. 침구 `bedding`과는 서로 다른 부품 경계에서 끊는다.
+
 표면 결속 계획: 침실 둘의 올리브 침구 직조 결은 0.01 m 모듈이다. 이불 장변 U·단변 V를 발치에서 시작하고 접힘과 베개 경계에서 끊어 주침실 회베이지와 구별한다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
 
 ## 청회색 침구 {#blue-grey-bedding}
@@ -197,6 +209,8 @@
 -->
 
 [청회색 침구의 작은 침실](../settings/10-house.md#bedroom-three)의 식별색이다. 구성은 면 직물 이불이다. 외관은 `#6E7F8C`(선형 0.156, 0.212, 0.262), roughness 0.92, metallic 0.0, transmission 0.0이며 올리브와 명도가 비슷하되 색상이 반대편이어서 두 방이 침구로 구별된다. 결합 면은 bedroom-three에 놓인 머리판 있는 침대 instance의 `bedding`이다. source owner는 `src/materials/furnishings/textiles.ts`이고, 리뷰는 두 작은 침실 view를 나란히 놓아 따뜻한 실내등 아래에서도 침구색이 구별되는지를 관찰한다.
+
+책장의 `book` 표지 및 옷방 `clothes`의 청회색 변형에도 이 색 직물 결을 재사용한다. 침구 `bedding`과는 서로 다른 부품 경계에서 끊는다.
 
 표면 결속 계획: 침실 셋의 청회색 침구 직조 결은 0.01 m 모듈이다. 이불 장변 U·단변 V를 발치에서 시작하고 접힘과 베개 경계에서 끊어 다른 두 침구와 구별한다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
 
@@ -235,6 +249,8 @@
 -->
 
 [수건](../settings/10-house.md#shower-bathroom)·[접힌 린넨](../settings/10-house.md#storage)과 [주침실의 얇은 커튼](../models/13-bedrooms.md#primary-window-curtains), 욕조 샤워 커튼이다. 구성은 파일 면 직물(수건)과 얇은 폴리 직물(커튼)이다. 수건 외관은 `#EAE6DC`(선형 0.823, 0.791, 0.716), roughness 0.95, metallic 0.0, transmission 0.0이다. 커튼 외관은 `#EDE9E0`(선형 0.847, 0.815, 0.745), roughness 0.90, metallic 0.0, transmission 0.30이며 양면이어서 창빛이 비친다. 두 값은 교체 경로가 달라 source에서 두 재료 객체로 둔다. 결합 면은 [수건걸이와 수건](../models/14-bathrooms.md#towel-bar)의 `towel`, [욕조 커튼](../models/14-bathrooms.md#tub-curtain-rail)의 `curtain`, 주침실 두 창 원형의 `curtain`, 린넨장·[옷방 선반](../models/13-bedrooms.md#wardrobe-shelves)의 `folded`다. 커튼 원형의 `rod`·`bracket`은 [검은 도장 금속](02-interior-shell.md#black-coated-metal)을 받는다. source owner는 `src/materials/furnishings/textiles.ts`이고, 리뷰는 욕조와 주침실 창 커튼이 빛을 통과시키면서 창 유리·수건·흰 타일과 구별되는지를 관찰한다.
+
+협탁등의 `lamp-shade`와 매단 등의 `fixture-shade`는 밝은 직물 외관을 받되 구조 부재는 별도 금속 표면으로 남긴다.
 
 표면 결속 계획: 수건은 0.01 m 파일 결, 얇은 커튼은 0.02 m 투과 직조 결을 각 파티션에 따로 쓴다. 세로 매달림을 V, 폭을 U로 두고 각각 아래 왼쪽을 원점으로 하며 봉제 끝·창틀 경계에서 끊는다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
 
@@ -360,3 +376,5 @@
 | [등기구](../models/17-light-fixtures.md#flush-ceiling-fixture) | `fixture-housing`·`fixture-canopy`·`fixture-stem` / `fixture-shade` / `fixture-diffuser`·`fixture-glass` | [검은 도장 금속](02-interior-shell.md#black-coated-metal) / [밝은 직물](#towel-curtain-textile) / [등기구 확산면](#light-fixture-surfaces) |
 
 이 표는 설계 결속이다. 실제 `src/materials` 바인딩과 GPU 표면 읽힘은 unverified다. 각 면의 UV 축·원점·반복 길이·경계 절단은 링크된 재료 H2를 따르며, 원형 안의 관절 이름·배치 id는 결속 표에 넣지 않는다. source owner는 `src/materials/bindings.ts`다.
+
+머드룸의 `shoe`는 [검은 도장 금속](02-interior-shell.md#black-coated-metal)의 어두운 무광 값, 옷방의 `shoe-box`는 [가구 목재](#furniture-wood)의 따뜻한 갈색 값을 부피의 모든 면에 받는다.

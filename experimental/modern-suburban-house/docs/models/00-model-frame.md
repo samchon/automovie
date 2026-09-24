@@ -100,6 +100,8 @@
 @evidenceExclude spaces/site/terrace.md#garden-steps-plan 이 상위 H2는 테라스와 아래 대기를 잇는 외부 단을 정하며 모델은 외부 단과 그 난간을 만들지 않는다.
 -->
 
+레퍼런스 01–05는 치수 도면으로 사용하지 않는다. 이 H2의 기술 규칙은 설정과 공간 예약에서 정하며 사진 비례를 근거로 삼지 않는다. 이 판단은 사진으로 척도를 역산하지 않는다는 경계이며 외곽·동선의 owner를 바꾸지 않는다.
+
 모든 개구부 충전 모델은 [제작 좌표](../settings/00-production.md#coordinate-units)의 오른손 Y-up, 길이 m, 각도 rad를 그대로 쓴다. 한 모델은 spaces가 좌표를 소유한 거친 개구부 하나를 채우며, 국소 원점은 그 개구부 아래 변의 가로 중앙에 두고 벽 두께 방향으로는 개구부를 소유한 벽의 한쪽 면 위에 둔다. 외벽의 창과 외부 문은 날씨 면, 내부 문은 문짝이 열리는 쪽 벽면을 원점 면으로 삼는다. 국소 +Y는 world +Y, 국소 +Z는 원점 면의 바깥 법선, 국소 +X는 +Z 쪽에서 보아 오른쪽이다. world 배치 회전은 벽 방향에 따라 Y축 0, π, ±π/2 중 하나이며 개구부를 소유한 spaces H2의 void 좌표에서 계산하고 모델 파일에 world 좌표를 복제하지 않는다.
 
 모델 외곽의 폭과 높이는 거친 개구부의 폭과 높이에서만 산출하고, 칸 수·경첩 쪽·열림 방향도 개구부 owner가 선언한 값을 받는다. 모델이 정하는 것은 부재 폭·깊이·두께의 배분뿐이다. 소스 owner는 `src/models/frame.ts`이며 검사 주소는 [전체 관찰](../spaces/04-observations.md#spatial-observation-derivation)의 각 개구부 정면과 벽 단면이다.
@@ -117,6 +119,8 @@
 @evidence principles/design/models.md#model-scale-layer-completion 척도는 m, 층은 바닥 접지 면, 인터페이스는 뒤 모서리 원점으로 정해 가구 원형 배치에 빠진 척도나 층이 없다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work coordinate-units와 reservation-fit 계약을 적힌 그대로 소비했고 가구 원점 규칙을 정하는 데 settings나 spaces의 결함을 찾지 못했다.
 -->
+
+레퍼런스 01–05는 치수 도면으로 사용하지 않는다. 이 H2의 기술 규칙은 설정과 공간 예약에서 정하며 사진 비례를 근거로 삼지 않는다. 이 판단은 사진으로 척도를 역산하지 않는다는 경계이며 외곽·동선의 owner를 바꾸지 않는다.
 
 개구부를 채우지 않는 가구·설비·수납 원형은 [제작 좌표](../settings/00-production.md#coordinate-units)의 단위와 축을 쓰고 국소 원점을 바닥에 닿는 뒤쪽 모서리 선의 가로 중앙에 둔다. 국소 +Z는 사용자가 서서 쓰는 앞쪽, 국소 +Y는 world +Y, 국소 +X는 앞에서 보아 오른쪽이다. 뒤쪽 모서리 선은 벽에 붙는 원형이면 벽 마감 면에, 섬·식탁처럼 벽에서 떨어진 원형이면 사용 방향 반대쪽 외곽에 둔다. 외곽 치수는 [예약 맞춤 계약](../contracts/reservation-fit.md#reservation-fit)에 따라 room owner의 상한 박스와 사용 공간 예약에서 받고, world 배치 회전은 Y축 회전 하나로 instances가 room owner의 좌표에서 계산한다. 소스 owner는 `src/models/frame.ts`이며 각 가구 H2가 이 규칙을 링크로 소비한다.
 
@@ -136,6 +140,8 @@
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work use-profile의 점유체 치수와 0.80 m 목표를 적힌 그대로 소비했고 모델 척도를 정하는 데 부모 수정이 필요한 모순이 없었다.
 -->
 
+레퍼런스 01–05는 치수 도면으로 사용하지 않는다. 이 H2의 기술 규칙은 설정과 공간 예약에서 정하며 사진 비례를 근거로 삼지 않는다. 이 판단은 사진으로 척도를 역산하지 않는다는 경계이며 외곽·동선의 owner를 바꾸지 않는다.
+
 공통 척도 기준은 [사용과 통행 가정](../settings/00-production.md#use-profile)의 사람 점유체 폭 0.60 m, 깊이 0.45 m, 높이 1.90 m와 문 유효폭 0.80 m 이상이다. 모든 문 모델은 90° 열림에서 문설주 면 사이의 순폭을 산출해 그 개구부 owner가 정한 유효 폭 목표와 대조하고, 모든 창 모델은 부재를 뺀 유리 폭을 산출해 부재가 유리를 가리지 않는지 대조한다. 독립적으로 만든 모델 사이의 척도 어긋남은 같은 뷰에 사람 점유체를 세워 문 높이 2.20 m와 창대 높이를 비교해 드러낸다. 소스 owner는 `src/models/frame.ts`이며 순폭과 유리 폭 산출은 모델 생성 시 수치로 보고한다.
 
 ## 표현 상한과 보이는 한계 {#model-representation-ceiling}
@@ -153,6 +159,8 @@
 @evidence settings/20-verification.md#fidelity 창호·문짝이 캡처에서 읽혀야 하고 blocking 통과로 낮추지 않는다는 요구를 두께 있는 별도 부재 목록으로 소비한다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work fidelity를 적힌 그대로 소비했고 표현 상한과 settings 사이에 수정할 모순이 없었다.
 -->
+
+레퍼런스 01–05는 치수 도면으로 사용하지 않는다. 이 H2의 기술 규칙은 설정과 공간 예약에서 정하며 사진 비례를 근거로 삼지 않는다. 이 판단은 사진으로 척도를 역산하지 않는다는 경계이며 외곽·동선의 owner를 바꾸지 않는다.
 
 [표현 수준](../settings/20-verification.md#fidelity)은 창호와 문짝이 실제 캡처에서 읽혀야 하며 단순 blocking이나 topology 통과로 낮추지 않는다고 정한다. 따라서 창틀·sash·살대·유리·문짝·문설주·손잡이·경첩은 각각 두께 있는 별도 부재로 만들고 사각 구멍이나 평면 한 장으로 대신하지 않는다. 전후면 외부 문턱은 spaces가 이미 지은 부재이므로 모델이 복제하지 않는다. 웨더스트립, 잠금 기구 내부, 스프링, 나사, 유리 이중층의 공기층은 만들지 않는다. 검사자는 이 모델에서 단열·방수·기밀·개폐 하중·구조 안전·법규 적합을 추론하지 않는다. 소스 owner는 `src/models/frame.ts`이며 각 모델 H2가 이 상한 안에서 자기 한계를 적는다.
 
@@ -173,6 +181,8 @@
 @evidence obligations/core/common.md#production-language id는 영어 kebab-case, 역할 설명과 본문은 한국어로 두고 id마다 괄호 안 한국어 역할을 붙여 독자가 용어를 추측하지 않게 한다.
 -->
 
+레퍼런스 01–05는 치수 도면으로 사용하지 않는다. 이 H2의 기술 규칙은 설정과 공간 예약에서 정하며 사진 비례를 근거로 삼지 않는다. 이 판단은 사진으로 척도를 역산하지 않는다는 경계이며 외곽·동선의 owner를 바꾸지 않는다.
+
 [표면 분해 인계](../settings/20-verification.md#surface-allocation)에 따라 모델은 materials가 바인딩할 안정 표면 id만 제공하고 색·광학값·텍스처 scale은 정하지 않는다. id는 부재 역할을 나타내는 kebab-case 이름이며 한 모델 안에서 유일하고, 같은 역할은 모든 모델에서 같은 id를 쓴다. 개구부 부재의 공통 id는 `frame`(창틀), `sash`(움직이거나 고정된 유리 틀), `mullion`(칸 사이 세로 부재), `muntin`(유리 칸 살대), `glass`(투명 유리), `appliance-glass`(불투명 조작부·오븐 문 유리), `obscured-glass`(흐린 유리), `exterior-trim`(외부 trim), `interior-sill`(안쪽 창대), `leaf`(실내 문짝 또는 기기 문짝 몸), `leaf-exterior`(외부 문짝 날씨 면), `leaf-interior`(외부 문짝 실내 면), `leaf-panel`(문짝 오목 패널·판재), `leaf-edge`(외부 문짝 두께 면), `panel-edge`(차고문 분절 사이와 절단 끝), `gate-batten`(대문 가로 띠장), `gutter`(처마 물받이), `downspout`(선홈통), `jamb`(문설주), `jamb-a`(A방 쪽 문설주 바깥 면), `jamb-b`(B방 쪽 문설주 바깥 면), `jamb-core`(개구부 안쪽 챌면), `casing`(실내 문선), `casing-a`(A방 문선), `casing-b`(B방 문선), `handle`(손잡이), `hinge`(경첩), `rail`(트랙·레일), `baluster`(난간살), `bottom-rail`(난간 아래 부재), `rod`(옷걸이 봉), `shelf`(선반판)이다. 가구·설비의 공통 id는 몸통 계열 `carcass`(수납 몸통), `plinth`(걸레받이 받침), `drawer-front`(서랍 전면), `countertop`(작업 상판), `top`(가구 윗판), `cleat`(선반 받침목), `leg`(다리), `post`(세움대), `apron`(상판 아래 띠), `base`(바닥 받침), `board`(벽 부착판), `hook`(걸이), 좌석 계열 `seat`(가구 좌판), `toilet-seat`(변기 좌대), `seat-cushion`(좌석 쿠션), `back`(등받이), `arm`(팔걸이), `footrest`(발받침), 설비 계열 `appliance-body`(가전 외장), `appliance-interior`(가전 내부), `control-panel`(조작부), `cooktop`(조리면), `burner`(화구), `basin`(세면볼·싱크볼), `ceramic`(위생도기 몸), `faucet`(수전), `lid`(뚜껑), `shower-tray`(샤워 바닥판), `mirror`(거울면), 침구 계열 `bed-frame`(침대 틀), `headboard`(머리판), `mattress`(매트리스), `bedding`(이불), `pillow`(베개), 직물·소품 계열 `towel`(수건), `curtain`(커튼), `clothes`(걸린 옷), `folded`(접힌 직물), `field`(깔개 안쪽 면), `border`(깔개 테두리), `book`(책), `pencil`(연필), `container`(식품 용기), `basket`(바구니), `bin`(수납함), `shoe`(신발), `shoe-box`(신발 상자), `lamp-base`(등 받침), `lamp-shade`(등 갓), `tool-steel`(공구 금속부), `tool-grip`(공구 손잡이), `door-ring`(세탁기 문 금속 고리), `drum`(세탁기 문 뒤 정지 원통), `mirror-frame`(거울 테두리), 외장 반복 계열 `siding-face`(siding 노출면), `siding-butt`(siding 아래 끝면), `siding-back`(siding 뒷면), `siding-top`(siding 위 끝면), `siding-cut`(siding 양 끝 절단면), 지붕 반복 계열 `shingle-face`(shingle 노출면), `shingle-butt`(shingle 아래 끝면), `shingle-back`(shingle 뒷면), `shingle-cut`(shingle 절단면), 부속 계열 `bracket`(받침 철물), `accessory`(부착 소품), 식재 계열 `bark`(줄기·가지), `foliage`(잎 군집), `stem`(실내 식물 줄기), 조명 계열 `fixture-housing`(기구 외장), `fixture-diffuser`(확산면), `fixture-canopy`(천장 접합판), `fixture-stem`(기구 목·줄), `fixture-shade`(갓 외면), `fixture-glass`(포치 등 유리), 생활 소품 계열 `cutting-board`(도마), `utensil`(조리도구), `bowl`(그릇), `fruit`(과일), `tray`(쟁반), `art-frame`(액자 테와 뒤판), `art-print`(인쇄 면), 벽난로 계열 `firebox`(화구 속), `firebox-trim`(화구 전면 테), `mantel`(목재 선반)이다. 한 id는 한 역할만 가지며 같은 역할에 새 id를 만들지 않는다. 안팎 면이 다른 마감을 받아야 하는 부재는 `-exterior`와 `-interior` 접미사로 나눈다. 부품의 앞·뒤·옆·위·아래·절단 끝을 포함한 모든 삼각형 면에는 정확히 하나의 표면 id를 붙인다. 회전 피벗·슬라이드 노드 이름은 표면 id가 아니다. 외부 문턱판은 spaces/10-ground-floor.md#ground-threshold-junctions의 공간 부재이고 모델은 같은 면을 만들지 않는다. 소스 owner는 `src/models/frame.ts`이며 materials 결합은 실제로 각 H2가 내는 id와 대조해야 하며 현재 source 결속은 unverified다.
 
 ## 원형 계열별 표현 완결 보고 {#model-representation-completion}
@@ -192,6 +202,8 @@
 @evidence obligations/core/common.md#proportionate-development 계열마다 구조·의미 판정을 같은 형식으로 보고하게 해 한 계열이 산술 없이 압축되거나 source 없이 부풀려진 것을 드러낸다.
 -->
 
+레퍼런스 01–05는 치수 도면으로 사용하지 않는다. 이 H2의 기술 규칙은 설정과 공간 예약에서 정하며 사진 비례를 근거로 삼지 않는다. 이 판단은 사진으로 척도를 역산하지 않는다는 경계이며 외곽·동선의 owner를 바꾸지 않는다.
+
 모델 모집단의 완결은 원형 계열마다 두 판정을 따로 보고한다. 구조 판정은 `src/models`가 만든 메시가 닫힌 부피·바깥 법선·유한 좌표·선언한 표면 id와 관절 노드를 모두 갖는지이고, 의미 판정은 [예약 맞춤 계약](../contracts/reservation-fit.md#reservation-fit)의 산술, 선언한 표현 한계, [모델 리뷰 뷰 목록](#model-review-set)의 캡처가 모두 답해졌는지다. 한 판정은 다른 판정을 함의하지 않는다. 계열은 창([01](01-windows.md)), 외부 문과 대문([02](02-exterior-doors.md)), 실내 문([03](03-interior-doors.md)), 난간 부재([04](04-stair-members.md)), 수납 부재([05](05-closet-fittings.md)), 가구·설비([10](10-kitchen-dining.md)–[15](15-outdoor.md)), 식재([16](16-planting.md)), 조명기구([17](17-light-fixtures.md)), 생활 소품([18](18-house-props.md)–[19](19-room-accents.md))이다. 현재 모든 계열은 설계 문서만 있고 source가 없으므로 구조 판정은 unverified이며, 의미 판정은 각 H2의 산술이 문서에 적힌 수준까지만 성립한다. 보고 경로는 모델 source 단계의 구조 검사 출력과, 예약 맞춤 account가 계열·원형·예약 owner·산술 결과·캡처 주소를 한 줄씩 나열하는 표다. 소스 owner는 `src/models/frame.ts`다.
 
 ## 모델 리뷰 뷰 목록 {#model-review-set}
@@ -210,5 +222,7 @@
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work frame-condition과 use-profile을 적힌 그대로 소비했고 리뷰 목록을 정하는 데 부모 수정이 필요하지 않았다.
 @evidence spaces/04-observations.md#spatial-observation-derivation 모델 리뷰와 별개로 실제 집 안 배치 검사는 전체 관찰이 맡는다는 경계를 소비한다.
 -->
+
+레퍼런스 01–05는 치수 도면으로 사용하지 않는다. 이 H2의 기술 규칙은 설정과 공간 예약에서 정하며 사진 비례를 근거로 삼지 않는다. 이 판단은 사진으로 척도를 역산하지 않는다는 경계이며 외곽·동선의 owner를 바꾸지 않는다.
 
 모델 리뷰는 [리뷰 프레임 조건](../settings/20-verification.md#frame-condition)의 canvas 1536×1024, device pixel ratio 1, 중성 배경을 쓴다. 각 모델마다 정면 직교, 측면 직교 단면, 45° 사선 투시(수직 FOV 45°, 눈높이 1.6 m), 관절이 있으면 기준 상태와 최대 열림 상태의 같은 사선 투시를 찍는다. 척도 대조로 같은 뷰에 [사람 점유체](../settings/00-production.md#use-profile)를 세운다. 이 뷰는 샷 구도와 무관하게 모델 개정 사이의 회귀를 비교하는 고정 목록이며 실제 집 안 배치 검사는 [전체 관찰](../spaces/04-observations.md#spatial-observation-derivation)이 맡는다. 소스 owner는 `src/models/frame.ts`이고 실제 캡처는 unverified다.
