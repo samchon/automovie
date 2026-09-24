@@ -12,7 +12,7 @@
 @evidence principles/design/materials.md#material-verification-address 벽·천장 연결과 개구부 반환면을 방 내부 전체 표본에서, junction 16면의 마감과 이음을 그 면을 담는 방 관찰(공용부 전면벽 두 면, upper-bathroom/corner-1이 샤워 고정 유리 너머로 담는 욕실 동측 tile 벽 1면)에서, 계단 구멍의 slab 절단면·stair-lining·가장자리 junction의 연속과 전면 strip·외벽 실내 띠를 계단 표본에서, 면별 배정을 census에서 반증한다.
 @evidence upstream/design/materials.md#parent-revision-from-material-work slab 절단면을 계단 구멍 둘레의 실제 면에 결합하며 compiled scene을 재자, 측벽이 z=-5.64에서 끝나 upper-service·child-bedroom-1이 0.126m 틈으로 계단 void에 열려 있고 계단 쪽 마감과 가장자리 junction이 3.20에서 시작해 slab 상면 3.184 위에 16mm slot이 남아 있었다. 도장으로 틈을 메울 수 없으므로 부모 spaces/002#stair-enclosure에 측벽 범위, 구멍 수직 면의 slab 상면 연속, 전면 strip 윗면과 외벽 실내 면의 owner를 적고 층·계단 source를 고쳤다(2164056c). surface-decomposition의 소유 전달과 wall-junctions의 junction 규칙은 충분했다.
 @evidence settings/001-production.md#production-visual-grammar 흰 벽을 황색으로 칠해 조명을 대신하지 않고 낮은 채도의 석고로 둔다는 규칙을 #e5e0d6 무광 도장으로 옮긴다.
-@evidence settings/003-spatial-basis.md#surface-decomposition 주체 생성 owner가 양면 binding을 갖고 상대 owner가 자기 면의 요구를 넘긴다는 규칙에 따라 층 owner의 junction 면이 향한 방의 벽 마감을 받는다.
+@evidence settings/003-spatial-basis.md#surface-decomposition 층 owner가 junction 양면의 안정 주소를 제공하고 상대 방 owner가 면 요구를 넘기며 materials가 향한 방에 맞는 벽 finish 결합을 결정한다.
 @evidence spaces/002-spatial-graph.md#ground-level 1층 천장 최종 면과 1층 owner의 내벽 body·pocket skin, 현관·공용부를 향한 junction 면 3개가 이 도장을 받는다.
 @evidence spaces/002-spatial-graph.md#upper-level 2층 천장과 2층 owner의 내벽 body, 욕실 쪽 1면을 뺀 junction 노출면 12개가 이 도장을 받는다.
 @evidence spaces/002-spatial-graph.md#entry 현관의 전면 외벽 내측과 공유 벽 내측 lining이 plaster 도장이다.

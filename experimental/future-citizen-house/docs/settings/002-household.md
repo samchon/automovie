@@ -36,17 +36,17 @@
 @evidence principles/core/settings.md#capability-boundary 이 H2는 1층의 생활 물품과 기능을 배정하며 새 변형 능력은 정의하지 않는다. 작업실의 허용된 상태 변화는 flex-states가 소유한다.
 @evidence principles/core/settings.md#constraint-sufficiency living·dining·kitchen은 칸막이 없는 한 공간이고 작업실 상태를 바꾸어도 그 프로그램을 다른 방에 넘기지 않는다.
 @evidence principles/core/settings.md#observable-identity 신발 수납과 벤치, 책상과 선반, 소파·식탁 여섯 자리·island·sink·냉장고가 서로 다른 1층 생활 기능을 식별한다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 현관의 직접 연결과 후면 공용부는 고정 프로그램에서 오고 신발장·충전 niche·식탁 등의 선택은 그 생활을 위한 저작 내용이다. 물품을 나열했다고 실재 제품 사양에서 배치가 도출된 것은 아니다.
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 현관, 작업실, 거실·식당·주방, powder와 수납 각각에 기능을 남긴다. 후면 common room만 완성한 뒤 1층 전체 인테리어가 채워졌다고 할 수 없는 범위다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 소파와 media wall, 여섯 자리 식탁, island·sink·pantry가 서로 다른 생활 용도를 결정한다. 가변 가구 상태는 flex-states로 연결되어 이 층 프로그램이 상태 설계의 두 번째 owner가 되지 않는다.
-@evidenceReview principles/core/settings.md#fact-status #93a284a 열거된 물품은 의도한 프로그램이다. 현재 geometry나 통행 검사의 합격을 본문이 주장하지 않으므로 채택과 실현의 상태를 혼동하지 않는다.
-@evidenceReview principles/core/settings.md#source-support #430bca9 생활 기능의 구체화에 특정 제조사 치수나 인체 성능값은 사용되지 않았다. 이 목록은 브리프 해석의 범위에서 사용 가능하며 제품 인증 근거로는 사용할 수 없다.
-@evidenceReview principles/core/settings.md#capability-boundary #83a6f2c 이 H2는 방에 들어갈 기능과 물품을 배정하고 작업실의 두 상태는 링크한 owner에 맡긴다. 조절식 desk라는 물품명만으로 새로운 자동 변형 동작을 허용하지 않는다.
-@evidenceReview principles/core/settings.md#constraint-sufficiency #20cf612 living·dining·kitchen은 칸막이 없는 하나의 공용 공간으로 정해져 있다. 가구를 배치하기 편하다는 이유로 셋을 단절된 방으로 나누는 선택은 이 조건을 위반한다.
-@evidenceReview principles/core/settings.md#observable-identity #4ccb62e 벤치·신발장, 책상·선반, 소파·여섯 자리 식탁·island·sink가 각 기능의 관찰 단서다. 현재 acknowledgement는 본문에 없는 별도 수전 결정을 이 목록에서 입증했다고 하지 않는다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 현관의 직접 연결과 후면 공용부는 고정 프로그램에서 오고 신발장·평벽 부착 우편·충전 선반·식탁 등의 선택은 그 생활을 위한 저작 내용이다. 선반은 기존 source의 평벽 부착 상태를 따른다. 물품 목록에서 실재 제품 사양이나 가구 배치가 도출된 것은 아니다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 현관의 신발장·벤치·평벽 충전 선반, 작업실, 연속 공용부, powder와 storage 기능을 각각 남긴다. 후면 common room만 채운 결과나 현관 선반을 생략한 결과는 이 1층 프로그램을 다루지 못한다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 현관 선반은 우편·충전 기능을 평벽 부착 물체로, 소파·식탁·island는 생활 기능으로 결정한다. flex의 두 정지 상태는 별도 H2가 소유하며 이 목록만으로 물체 형상이나 배치가 완성됐다고 하지 않는다.
+@evidenceReview principles/core/settings.md#fact-status #93a284a `entry-charging-shelf`는 현재 source의 평벽 부착 임시 메시이고 최종 model prototype과 instance 배치는 미완료다. 다른 열거 물품도 채택한 생활 기능이며 현재 geometry나 통행 검사 합격을 이 목록이 보증하지 않는다.
+@evidenceReview principles/core/settings.md#source-support #430bca9 평벽 부착 선반은 현재 entry.ts의 실현 방식, 1층 생활 기능은 브리프 해석에서 온다. 특정 제조사 치수나 인체 성능을 인용하지 않았으므로 제품 인증이나 충전 설비 성능의 근거로 쓰지 않는다.
+@evidenceReview principles/core/settings.md#capability-boundary #83a6f2c 이 H2는 현관 선반을 포함한 기능과 물품을 정하고 작업실의 두 상태는 flex-states에 둔다. 충전 선반이나 조절식 desk라는 이름으로 새 자동 동작·성능을 허용하지 않는다.
+@evidenceReview principles/core/settings.md#constraint-sufficiency #20cf612 현관 선반을 위한 건축 niche를 요구하지 않으므로 기존 평벽·직결 동선을 유지할 수 있다. living·dining·kitchen은 한 연속 공간이고 가구 편의 때문에 세 방으로 나눌 수 없다.
+@evidenceReview principles/core/settings.md#observable-identity #4ccb62e 벤치·신발장·평벽 우편·충전 선반은 도착 구역, 책상·선반은 작업실, 소파·여섯 자리 식탁·island·sink는 연속 공용부를 읽는 단서다. 기능 목록만으로 별도 기구 형상이나 물 사용 성능을 입증하지 않는다.
 -->
 
-중앙 전면 현관은 외부 entry door, 신발 수납, 벤치, 우편·충전 niche를 가진다. 현관에서 바로 연결되는 전면 flex workroom은 조절식 desk, chair, wall shelving, 접이식 work surface, translucent privacy screen, hidden storage를 가진다. 가변 가구의 두 정지 상태는 [작업실 상태](#flex-states)가 소유한다. 현관 중앙의 단일 꺾임계단은 upper landing으로 이어진다.
+중앙 전면 현관은 외부 entry door, 신발 수납, 벤치, 건축 구멍 없는 평벽 부착 우편·충전 선반을 가진다. 기존 `entry-charging-shelf`는 이 물체의 임시 메시이며 선반 형상은 models, 충전기와 선반의 방별 배치는 instances가 맡는다. 현관에서 바로 연결되는 전면 flex workroom은 조절식 desk, chair, wall shelving, 접이식 work surface, translucent privacy screen, hidden storage를 가진다. 가변 가구의 두 정지 상태는 [작업실 상태](#flex-states)가 소유한다. 현관 중앙의 단일 꺾임계단은 upper landing으로 이어진다.
 
 후면의 하나로 이어진 common room은 거실·식당·주방이 칸막이 없이 연속된다. 거실에는 sofa, low table, media/storage wall, reading light가 있고, 식당에는 table과 여섯 자리, 주방에는 island, sink, induction cooktop, refrigerator, tall pantry, recycling/utility cabinet이 있다. 우측 불투명 service core에는 powder/utility room과 1층 storage를 둔다. powder/utility에는 세면대·변기·청소 수납을 두고 세탁기는 상층 설비실에 둔다. 이 목록은 방의 생활 기능을 정하며 물체의 형상과 배치 소유권은 [표면 분해](003-spatial-basis.md#surface-decomposition)에 따른다.
 

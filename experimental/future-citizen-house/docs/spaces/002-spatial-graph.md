@@ -35,7 +35,7 @@
 
 <!--
 @evidence settings/003-spatial-basis.md#surface-decomposition 1층 구조와 연속 바닥·천장을 층 owner 하나에 배정하고 개별 room이 그 최종 수평 면을 다시 만들지 못하게 한다. 이 책임은 실제 모듈 존재나 surface 검증 완료를 뜻하지 않는다.
-@evidenceReview settings/003-spatial-basis.md#surface-decomposition #dcff2dc 개정된 표에서 ground-storey의 연속 바닥·천장과 room의 내측 벽 finish, material 응답과 finish id 배정의 구분을 읽었다. 이 1층 H2는 층의 수평 면과 구조 partition을 맡으며 물체 prototype·배치를 소유하지 않는다.
+@evidenceReview settings/003-spatial-basis.md#surface-decomposition #fc2e198 1층 owner는 연속 바닥·천장 노출 면 주소와 구조 partition을, room owner는 내측 벽면 주소를 맡는다. materials가 finish 결합을 결정하고 현행 material 문자열은 임시 값이다. 방 물체 퇴역은 후속 part/emitter 대응표를 요구하므로 이 H2가 배치·발광을 소유하지 않는다.
 -->
 
 <!--
@@ -65,7 +65,7 @@ storey id ground-storey는 house의 자식이며 [매스와 층 datum](#mass-and
 
 <!--
 @evidence settings/003-spatial-basis.md#surface-decomposition 상층 slab·계단 구멍 및 연속 수평 마감은 upper owner가 맡고 room은 내측 벽만 맡는 배정을 소비한다. 물체 fit-out은 models와 instances로 분리하고 roof의 실외 하부와 상층 실내 ceiling을 섞지 않는다.
-@evidenceReview settings/003-spatial-basis.md#surface-decomposition #dcff2dc 개정된 표에서 upper-storey가 연속 수평 마감과 구조 partition, 계단 바닥 개구를 맡는 것을 읽었다. material 응답은 별도이고 room에는 내측 벽 finish만 남으며 가구 prototype·배치는 models·instances에 남는다.
+@evidenceReview settings/003-spatial-basis.md#surface-decomposition #fc2e198 upper-storey는 연속 수평 노출 면과 구조 partition, 계단 바닥 개구의 주소를 제공한다. materials가 finish 결합을 결정하고 현재 문자열은 임시 값이다. room은 내측 벽면, models·instances는 아직 이관 전인 가구를 맡고 퇴역 때 part별 대응을 요구한다.
 -->
 
 <!--
@@ -104,7 +104,7 @@ storey id upper-storey는 house의 자식이며 [매스와 층 datum](#mass-and-
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work 고정 1층 그래프와 ground-program의 위생·수납 사용을 다섯 room과 연결 opening의 본문에 대조했다. 필요한 room을 하나의 storey에 담고 현관 직결 작업실 및 후면 공용부를 유지할 수 있어 부모의 생활 범위를 수정하지 않았다.
 @evidence contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements 현관에서 단일 계단·후면 공용부·전면 작업실로 이어지는 핵심 연결을 지키고 room gap에 분기 corridor를 발명하지 않는다. 실제 문·벽 검증은 별도로 열려 있다.
 @evidence settings/003-spatial-basis.md#ground-graph 현관 직결 작업실과 공용부, 한 계단을 그대로 배치하고 우측 core의 목적지 접근을 명시한다. source에서 링크 순서를 바꾸어 필요한 방을 통과실로 만들 수 없다.
-@evidence settings/002-household.md#ground-program 다섯 room에 현관·작업·공용 생활·위생·수납의 공간 자리를 배정하고 각 가구와 설비는 해당 room의 후속 실현이 소비하게 한다. 방 목록을 줄여 프로그램을 생략하지 않는다.
+@evidence settings/002-household.md#ground-program 다섯 room에 현관·작업·공용 생활·위생·수납의 공간 자리를 배정한다. 현관 우편·충전 선반은 건축 구멍 없는 평벽 부착 물체이므로 공간 owner가 niche를 절삭하지 않는다. 방 목록을 줄여 프로그램을 생략하지 않는다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 현관 직결의 작업실·공용부·계단은 ground-graph를 소비하고 1층의 생활 기능은 ground-program에서 받는다. 각 room의 cell과 datum의 벽 두께를 참조해 이 분할의 연결 결정과 다른 단위의 수치 근거를 구별한다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 현관·작업실·공용부·powder·수납을 모두 실제 room owner에 연결하고 요구된 현관의 직접 진입 관계를 유지한다. cell 사이의 빈 띠를 무소유 복도로 쓰거나 수납을 다른 방에 묻어 목록에서 지우는 분할을 허용하지 않는다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 작업실과 powder는 현관에서, 수납은 공용부에서 직접 들어가도록 행선지를 확정했다. 구현자는 위생 공간을 거쳐 수납에 가는지와 같은 1층의 생활 연결을 다시 선택할 필요가 없다.
@@ -115,7 +115,7 @@ storey id upper-storey는 house의 자식이며 [매스와 층 datum](#mass-and-
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 고정 1층 그래프와 위생·수납 프로그램을 현재 다섯 room 및 연결 opening의 본문에 대조했다. 현관 직결 작업실과 후면 공용부를 유지한 채 core의 목적지를 배정할 수 있어 부모의 생활 범위나 연결 요구를 바꿀 모순은 드러나지 않았다.
 @evidenceReview contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements #d31488d 현관에서 전면 작업실·후면 공용부와 단일 계단으로 바로 이어지는 중심 관계를 보존한다. shared gap을 추가 복도로 해석해 요구된 직접 연결을 우회하는 설계는 이 분할과 맞지 않으며 실제 문·벽 검사는 별도로 남아 있다.
 @evidenceReview settings/003-spatial-basis.md#ground-graph #38b01ba 현관에 작업실·공용부·계단을 직접 연결하고 우측 core의 powder와 수납에 각각 목적지 출입을 배정한다. 부모가 요구한 통행을 방 이름의 순서나 임의 경유실로 대신하지 않는다.
-@evidenceReview settings/002-household.md#ground-program #6dc5422 개정된 프로그램에서 powder의 세면대·변기·청소 수납은 기능 목록이며 물체 형상·배치 owner와 다름을 읽었다. 현관·작업실·공용부·powder·수납을 ground-storey의 실제 room으로 나누고 물체 구현을 위해 방 자체를 빼지 않는다.
+@evidenceReview settings/002-household.md#ground-program #c5026c0 평벽 부착 현관 선반과 powder의 세면대·변기·청소 수납은 기능 목록이며 건축 niche나 이 H2의 물체 형상·배치 결정이 아니다. 현관·작업실·공용부·powder·수납 다섯 room을 유지한다.
 -->
 
 [1층](#ground-level) 내부는 [현관](#entry), [작업실](#flex-workroom), [공용부](#common-room), [powder](#powder-utility), [수납](#storage-1f)의 다섯 room으로 분할한다. 각 room의 clear cell이 자기 경계를 소유한다. cell 사이 gap은 [벽 두께](#mass-and-storeys)를 가진 shared wall 하나이며 이름 없는 corridor로 쓰지 않는다.
@@ -125,32 +125,32 @@ storey id upper-storey는 house의 자식이며 [매스와 층 datum](#mass-and-
 ## 현관 {#entry}
 
 <!--
-@evidence settings/002-household.md#ground-program 도착·신발 수납·잠시 앉는 기능을 현관 안의 공간 조건으로 받아 계단과 직결 목적지를 함께 배정한다. 가구가 놓일 때 동측 보행대를 없애는 실현은 이 프로그램 관계를 충족하지 못한다.
-@evidenceReview settings/002-household.md#ground-program #6dc5422 개정된 프로그램에서도 신발 수납과 벤치는 현관 기능이고 powder 기구는 우측 core 기능임을 확인했다. 현관 cell에는 계단과 직접 연결을 남기며 이 H2가 물체 배치를 승인하지 않는다.
+@evidence settings/002-household.md#ground-program 도착·신발 수납·잠시 앉는 기능과 평벽 부착 우편·충전 선반을 현관 공간 조건으로 받는다. 선반을 위한 벽 절삭은 없다. 가구가 놓일 때 동측 보행대를 없애는 실현은 이 프로그램 관계를 충족하지 못한다.
+@evidenceReview settings/002-household.md#ground-program #c5026c0 신발 수납·벤치·우편·충전 선반은 현관 기능이며 선반은 건축 niche가 아닌 평벽 부착 물체다. 현관 cell의 계단과 직접 연결을 남기되 이 H2가 선반 형상이나 배치를 승인하지 않는다.
 -->
 
 <!--
 @evidence principles/core/common.md#declared-basis ground-storey와 ground-program을 상속하고 현관의 clear cell 및 계단 동측 보행대를 여기서 정했다. 층 높이와 연결문의 유효 치수는 각 owner를 따른다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb ground-storey의 높이와 ground-program의 도착 기능을 받아 현관의 x/z cell과 계단 동측 보행대를 결정한다. 출입문의 치수와 host는 개별 opening owner가 정하므로 현관 범위를 근거 없이 문 크기에서 역산하지 않는다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb ground-storey의 높이와 ground-program의 도착·평벽 선반 기능을 받아 현관 clear cell과 계단 동측 보행대를 결정한다. 선반을 위한 새 벽 절삭은 없고 출입문의 치수·host는 별도 opening owner가 정한다.
 @evidence principles/core/common.md#scope-preservation 전면 도착, 작업실·powder·공용부·계단의 다섯 방향 관계를 현관 안에 수용한다. 계단을 둔 뒤 남는 통행을 이름 없는 외부 gap으로 밀어내지 않는다.
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 전면에서 도착한 뒤 작업실·powder·공용부·계단에 닿는 관계를 현관 cell 안에 남긴다. 계단을 배치한 뒤 통행만 방 밖의 이름 없는 틈으로 보내는 방식으로 현관의 분배 역할을 생략하지 않는다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 현관 cell은 전면 도착과 작업실·powder·공용부·계단의 직접 연결, 선반을 둔 평벽과 계단 동측 보행대를 함께 수용한다. 선반 자리 때문에 새 통로나 건축 niche를 만들지 않는다.
 @evidence principles/core/common.md#substantive-completion entry의 parent, 수평 clear 범위, 직접 연결과 계단 옆 보행대가 결정돼 있다. 현관이 문 이름만 있고 실제 차지할 공간이 없는 상태를 해소한 설계다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 entry의 parent와 clear cell, 계단 옆 보행대, 직접 연결할 네 opening이 지정되어 있다. 현관이라는 문 이름만 남긴 상태와 달리 계단 및 방 출입이 함께 놓일 실내 영역을 source가 읽을 수 있다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 entry의 parent와 clear cell, 보행대, 네 직접 연결 opening을 지정했다. 우편·충전은 벽을 파지 않는 물체 기능이라 room 경계에 또 하나의 cut을 발명하지 않고 실제 형상·배치는 후속 owner가 정한다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 부모의 도착·생활 분배 역할에 현관 cell과 동측 보행대를 추가해 계단과 직결 room들이 공유할 물리적 위치를 결정했다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 도착·수납·잠시 앉는 기능과 생활 구역으로의 연결에 현관의 수평 경계 및 계단 동측 보행대를 더했다. 이 부가 결정은 가구 프로그램의 설명을 넘어 계단과 목적지 출입이 공유할 공간을 정한다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 도착·수납·앉기·평벽 충전 선반 기능에 현관의 수평 경계와 계단 동측 보행대를 더했다. 프로그램 이름만 반복한 것이 아니라 계단과 네 문이 공유하는 실내 영역을 정했다.
 @evidence principles/design/spaces.md#space-topology entry는 ground-storey 안에 있고 외부 문에서 들어와 named opening들 및 single-stair로 연결된다. 이 방 자체를 또 다른 corridor와 중복 정의하지 않는다.
-@evidenceReview principles/design/spaces.md#space-topology #3f8d925 entry는 ground-storey 안에 있으며 front-entry로 외부와, 세 내부 portal로 작업실·공용부·powder와 연결된다. 같은 방 안에서 단일 계단에 닿으며 현관을 별도 분기 corridor로 다시 정의하지 않는다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 entry는 ground-storey 안에서 전면 문·세 내부 portal·단일 계단에 직접 닿는다. 선반은 같은 방의 평벽 물체이므로 새 연결·분기 corridor·벽 구멍을 요구하지 않는다.
 @evidence principles/design/spaces.md#space-boundary-authority 현관의 x/z clear cell은 entry가 소유하고 y는 층에 둔다. 연결의 host·cut·clear 치수는 front-entry와 세 내부 portal을 소비하므로 방이 문 위치의 두 번째 owner가 되지 않는다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 entry는 수평 clear cell을 소유하고 y 범위는 ground-storey를 따른다. front-entry·entry-flex·entry-common·entry-powder의 host와 opening 치수는 각각의 주소로 넘겨 방 배치가 문 위치의 두 번째 원본이 되지 않게 한다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 entry는 x/z clear cell을 소유하고 y는 ground-storey를 따른다. 네 문의 host·cut·clear 치수는 개별 opening owner에 남긴다. 선반 물체의 형상·배치를 방 경계의 두 번째 원본으로 쓰지 않는다.
 @evidence principles/design/spaces.md#space-verification-address containment와 실제 외주 wall, 각 threshold 및 방 안 관찰을 전수 검증에 연결한다. 계단을 놓고 보행대가 사라지는 경우를 room label의 존재로 통과시키지 않는다.
-@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 cell 포함과 실물 외주 경계, 직접 연결 threshold 및 방 안 관찰을 전수 검증에 연결한다. 계단이나 가구가 동측 보행대를 지워도 entry label만 남아 있으면 된다는 통과 조건이 아니다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 cell 포함·실물 외주·네 threshold와 방 안 관찰에서 동측 보행대를 묻는다. 선반이 평벽에 있어도 보행 폭을 없애면 label만으로 통과할 수 없으며 통행 검사의 현재 성공은 이 H2에서 주장하지 않는다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work 현관의 신발장·벤치 및 공용부·작업실 직결 프로그램을 계단과 동측 보행대가 있는 cell에 대조했다. 대지에서 한 문으로 들어오는 설정을 유지할 수 있어 새 홀이나 부모 그래프 수정을 요구하지 않았다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 신발 수납·벤치가 있는 도착 기능과 작업실·공용부의 직접 연결을 계단 및 동측 보행대를 둔 현관 cell에 대조했다. 한 전면 문에서 이 역할을 분배하는 설계를 만들 수 있어 추가 홀이나 부모 그래프의 변경을 요구할 이유는 현재 드러나지 않았다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 신발 수납·벤치·평벽 충전 선반을 전면 문, 계단, 동측 보행대, 작업실·공용부 직결 관계에 대조했다. 선반 때문에 새 건축 niche나 추가 홀을 만들 필요가 없으므로 부모 그래프를 수정할 이유는 드러나지 않았다.
 @evidence contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements 현관을 단일 계단·후면 공용부·전면 작업실의 공통 직접 접속 공간으로 배정하고 ground-storey에 귀속시킨다. 새 방이나 분기 복도로 연결을 우회하지 않는다.
-@evidenceReview contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements #d31488d 현관을 ground-storey에 귀속시키고 전면 작업실·후면 공용부·단일 계단이 공유하는 직접 접속 공간으로 둔다. 다른 방이나 새 corridor를 경유해 이 연결을 충족한 것으로 바꾸지 않는다.
+@evidenceReview contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements #d31488d 현관은 1층의 전면 작업실·후면 공용부·단일 계단에 직접 닿는다. 평벽 선반은 이 연결의 내부 물체이고 다른 방이나 새 corridor를 경유하는 그래프 변경을 정당화하지 않는다.
 -->
 
-room id는 entry, parent는 [ground-storey](#ground-level)다. clear cell의 x=-2.84..2.84, z=-5.76..-0.32m를 이 방이 소유하고 y 범위는 층 owner를 따른다. 현관은 전면 출입구, 작업실, powder, 후면 공용부와 단일 계단을 직접 잇는다. 계단 동측의 x=1.58..2.84 보행대를 방 안에 남긴다. [생활 프로그램](../settings/002-household.md#ground-program)을 소비한다.
+room id는 entry, parent는 [ground-storey](#ground-level)다. clear cell의 x=-2.84..2.84, z=-5.76..-0.32m를 이 방이 소유하고 y 범위는 층 owner를 따른다. 현관은 전면 출입구, 작업실, powder, 후면 공용부와 단일 계단을 직접 잇는다. 계단 동측의 x=1.58..2.84 보행대를 방 안에 남긴다. [생활 프로그램](../settings/002-household.md#ground-program)의 우편·충전 선반은 평벽 부착 물체이며 이 방의 벽에는 그 선반을 위한 건축 구멍이나 niche lining이 없다.
 
 직접 연결은 [front-entry](#front-entry), [entry-flex](#entry-flex), [entry-common](#entry-common), [entry-powder](#entry-powder)가 소유한다. 방 외주에서만 shared wall을 도출하고 내부 seam이나 문 구멍을 막지 않는다. 이 clear cell의 containment·인접 실물 경계·threshold와 방 안 관찰을 [전수 검증](#stage-one-verification)에서 대조한다.
 
@@ -163,7 +163,7 @@ room id는 entry, parent는 [ground-storey](#ground-level)다. clear cell의 x=-
 
 <!--
 @evidence settings/002-household.md#ground-program 책상과 수납 및 추가 손님 기능을 전면의 현관 직결 작업실에 배정한다. 식당이나 상층 침실로 작업 기능을 옮겨 요구 room을 없애지 않는다.
-@evidenceReview settings/002-household.md#ground-program #6dc5422 개정된 프로그램에서도 현관 직결 전면 room의 책상·수납 작업 기능을 읽었다. powder의 새 기구 목록은 작업실의 배치 소유권을 바꾸지 않으며 이 H2는 독립 작업실 cell을 유지한다.
+@evidenceReview settings/002-household.md#ground-program #c5026c0 현관 선반은 평벽 부착 물체이고 전면 작업실의 책상·수납 기능은 독립 room을 요구한다. 이 H2는 작업실 cell을 유지하고 그 물체들의 형상·배치 결정을 가져오지 않는다.
 -->
 
 <!--
@@ -197,7 +197,7 @@ room id는 flex-workroom, parent는 [ground-storey](#ground-level)다. clear cel
 
 <!--
 @evidence settings/002-household.md#ground-program 소파 생활·여섯 자리 식사·섬 주방을 벽 없이 이어지는 후면 한 room이 수용하게 한다. 수납 접근과 주방까지의 길을 식탁 점유 안에만 두지 않는다.
-@evidenceReview settings/002-household.md#ground-program #6dc5422 개정된 프로그램의 후면 소파·여섯 자리 식사·섬 주방과 우측 powder 기구 목록을 구분해 읽었다. 이 H2는 후면을 한 연속 room으로 유지하고 그 물체들의 실제 transform은 instances에 남긴다.
+@evidenceReview settings/002-household.md#ground-program #c5026c0 후면 소파·여섯 자리 식사·섬 주방과 우측 powder 기구는 다른 room의 프로그램이다. 현관 선반을 위해 새 건축 구멍을 만들지 않고 후면은 한 연속 room으로 둔다. 물체 transform은 instances 대상이다.
 -->
 
 <!--
@@ -229,12 +229,12 @@ room id는 common-room, parent는 [ground-storey](#ground-level)다. clear cell�
 
 <!--
 @evidence settings/003-spatial-basis.md#surface-decomposition powder 방 owner의 내측 벽면과 독립 core cell을 연결한다. 세면대·변기·청소 수납의 prototype과 배치는 각각 models·instances가 맡으며 세탁 기능은 상층 설비실에 남는다.
-@evidenceReview settings/003-spatial-basis.md#surface-decomposition #dcff2dc 개정된 powder 행은 방의 내측 벽면만 배정하고 물체의 형상·배치를 models·instances, 재료 응답을 materials로 분리한다. 이 cell은 세면대·변기·청소 수납을 수용하되 그 part/face나 transform을 공간 소유로 가져오지 않는다.
+@evidenceReview settings/003-spatial-basis.md#surface-decomposition #fc2e198 powder 방은 내측 벽면의 안정 주소만 제공한다. 세면대·변기·청소 수납의 형상·배치는 models·instances, finish 결합은 materials가 맡는다. 현재 방 source의 기구 메시와 material 문자열은 이관 전 임시 값이며 element별 후속 part 대응 없이는 지울 수 없다.
 -->
 
 <!--
 @evidence settings/002-household.md#ground-program 1층 powder/utility room을 현관 직결 core room으로 배정한다. 상층 세탁 프로그램을 여기에도 넣는 별도 기능 확장은 하지 않는다.
-@evidenceReview settings/002-household.md#ground-program #6dc5422 개정된 프로그램은 powder에 세면대·변기·청소 수납을 두고 세탁기는 상층 설비실에 둔다. 이 H2는 그 기구를 수용할 현관 직결 core cell을 정할 뿐 형상이나 배치를 방 owner로 가져오지 않는다.
+@evidenceReview settings/002-household.md#ground-program #c5026c0 powder의 세면대·변기·청소 수납과 상층 설비실의 세탁기를 다른 목적지로 읽었다. 현관 선반은 powder의 niche가 아니다. 이 H2는 현관 직결 core cell을 정하고 기구 형상·배치를 소유하지 않는다.
 -->
 
 <!--
@@ -266,7 +266,7 @@ room id는 powder-utility, parent는 [ground-storey](#ground-level)다. clear ce
 
 <!--
 @evidence settings/002-household.md#ground-program 공용 생활에 필요한 수납을 공용부에서 직접 들어가는 1층 core 목적지로 둔다. 위생 공간을 통과해야만 수납에 닿는 관계로 바꾸지 않는다.
-@evidenceReview settings/002-household.md#ground-program #6dc5422 개정된 프로그램에서 powder의 청소 수납과 별도 1층 storage를 구분해 읽었다. 이 H2는 별도 storage를 공용부에서 직접 들어가는 목적지로 유지하고 cabinet 형상은 models에 남긴다.
+@evidenceReview settings/002-household.md#ground-program #c5026c0 powder의 청소 수납과 별도 1층 storage를 구분한다. 현관 우편·충전 선반도 별도 평벽 부착 물체다. 이 H2는 storage를 공용부 직결 목적지로 유지하고 cabinet 형상은 models에 남긴다.
 -->
 
 <!--

@@ -2,8 +2,8 @@ import type { IAutoMovieLibrarySourceOwner } from "@automovie/interface";
 import { buildHouse } from "../house/build";
 /** Deterministic library registration. The surface owners consume shared metric
  * plan inputs; preview and delivery invoke this same CJS producer.
- * @evidence spaces/001-citizen-house.md 집·대지·관찰 입력을 하나의 library 환경으로 등록한다. 실제 조립은 buildHouse이고 topology, surface owner, 방 fit-out이 모두 그 호출에 들어간다.
- * @evidenceReview spaces/001-citizen-house.md #cfe07e3 citizenHouseSpaceSource가 buildHouse 하나로 topology·storey·envelope·garden·rooms를 조립하고 그 environment를 반환하는 것을 읽었다. 001의 집·대지·관찰 세 H2가 요구하는 산출물이 이 한 호출에서 나온다.
+ * @evidence spaces/001-citizen-house.md 집·대지·관찰 입력을 하나의 library 환경으로 등록한다. 현재 buildHouse 호출에는 topology·건축 표면과 방 source의 임시 fit-out 메시가 함께 들어가지만, 물체의 영구 소유권은 이 spaceSource에 있지 않다.
+ * @evidenceReview spaces/001-citizen-house.md #cfe07e3 현재 citizenHouseSpaceSource는 buildHouse의 topology·storey·envelope·garden·rooms 결과를 등록한다. 방 fit-out은 settings/003#surface-decomposition의 이관 중 소비 경로이므로 이 등록 사실을 spaceSources의 물체 형상·배치 소유 승인으로 읽지 않는다.
  * @evidence spaces/001-citizen-house.md#citizen-house-space house를 citizen-site 아래 두 storey의 부모로 만들고 독립된 매스나 추가 계단을 생성하지 않는다. 각 완결 표면의 파일을 buildHouse가 호출한다.
  * @evidenceReview spaces/001-citizen-house.md#citizen-house-space #e3da773 compiled environment에서 citizen-site 아래 house, 그 아래 ground-storey·upper-storey와 각 room이 있고 building unit citizen-house의 element가 house-root인 것을 읽었다. 별동이나 추가 계단 connector는 없다.
  * @evidence spaces/001-citizen-house.md#site-access buildHouse의 garden 호출이 외곽 밖에서 끝나는 지면·보도·두 디딤판·y=0 landing과 조경 전체를 만들고, 지면 위 부재는 지면에서 시작하며 지면 높이의 포장은 집수 공간 바닥판 하면인 흙 바닥 -0.852까지 채운다. site-access가 소비하는 roof-face의 정비 재배치에 따라 tree-0..3과 hedge의 기존 side/i ID를 후면에 보존하고 front-grass-3..7을 cassette 예약면 밖으로 옮긴다. 같은 호출의 canopy audit가 식물 bounds와 예약대의 겹침을 검사한다.

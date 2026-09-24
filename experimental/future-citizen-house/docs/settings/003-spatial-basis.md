@@ -137,26 +137,26 @@
 @evidence principles/core/common.md#declared-basis 완결 시각 표면 하나를 한 저작자가 소유하라는 사용자 지시를 채택한다.
 @evidence principles/core/common.md#scope-preservation 네 전체 입면·지붕·층·계단·개별 방·대지를 독립 완결 표면으로 보존해 같은 면을 나눠 칠하지 않는다.
 @evidence principles/core/common.md#substantive-completion 이 H2가 구체 표면별 저작자와 source 모듈 배정을 소유하고 기존 한 source 파일의 이름만 바꾸는 완료를 거부한다.
-@evidence principles/core/settings.md#fact-status 이 배정은 기존 방 source의 임시 물체 메시와 최종 models·instances·systems owner를 구분하며 새 경계의 독립 승인은 아직 없다.
+@evidence principles/core/settings.md#fact-status 이 배정은 기존 방 source의 임시 물체·발광 메시와 건축·방 source의 임시 material 문자열을 최종 models·instances·systems·materials owner와 구분하며 새 경계의 독립 승인은 아직 없다.
 @evidence principles/core/settings.md#source-support 표면별 소유는 사용자 저작 절차이며 자동으로 geometry 품질을 보장한다는 외부 성능 주장으로 쓰지 않는다.
 @evidence principles/core/settings.md#capability-boundary 표면 owner의 편집 권한은 제작 책임이며 건물 부재의 동작 능력이 아니다. 배정된 저작자는 유리·가구의 상태 제약을 해당 설정에서 받아야 한다.
 @evidence principles/core/settings.md#constraint-sufficiency 문자열 그룹만 선언한 채 분해 완료라고 하지 않고 실제 모듈 구현과 독립 판정을 요구한다.
 @evidence principles/core/settings.md#observable-identity 표면의 단독 저작자 배정은 작업 책임이고 새로운 입면이나 방의 감각 정체가 아니다. 네 입면·방의 실제 형태는 링크한 공간 설계와 이 파일의 외피 owner가 정한다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 완결된 시각 표면을 한 저작자에게 맡기는 기준은 사용자 지시로 밝히고, main author와 구현 source 배정은 현재 제작의 선택으로 제시한다. 방과 입면의 경계는 링크한 1단계 그래프를 소비하므로 파일 배정표가 별도의 평면 결정 권한을 갖지 않는다.
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 전면의 계단 유리와 작업실 유리를 다른 저작자에게 잘라 맡기지 않으며, 두 child room과 각 core room도 각각의 완결 실내로 남긴다. 연속 바닥·천장, 계단, roof/canopy와 대지까지 배정되어 방 내부만 나누고 외부나 수평 마감을 무소유로 남기는 축소가 없다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 입면·층·방의 완결 건축 면과 물체 prototype·방별 instance·조명 과정·재료 결합을 구분하고, 기존 방 source의 중복 메시를 퇴역시킬 책임과 시점을 정했다. 현재 임시 소비를 최종 소유권으로 승인하지 않는다.
-@evidenceReview principles/core/settings.md#fact-status #93a284a 기존 방 source가 물체 메시를 실제로 생성하는 현재 상태와 models·instances 이관 뒤의 목표 상태를 구별한다. 새 소유권 경계와 이관의 독립 판정은 아직 이루어지지 않았으므로 source 경로가 표에 있다는 이유로 검증 완료를 주장하지 않는다.
-@evidenceReview principles/core/settings.md#source-support #430bca9 단독 표면 소유는 이 제작에 채택한 저작 절차이며 외부 시험이나 성능 자료에서 얻은 품질 보증으로 제시되지 않는다. 배정 뒤에도 실제 구현과 독립 판정을 요구하므로 분해 방식 자체가 geometry의 정확성을 입증한다는 근거 없는 효과 주장을 하지 않는다.
-@evidenceReview principles/core/settings.md#capability-boundary #83a6f2c 여기서 정하는 것은 누가 어느 표면을 생성하고 수정하는지에 관한 제작 책임이다. 이 권한은 유리의 tint나 가변 가구의 상태를 새로 허용하지 않으며, 입면과 room 담당자가 소비할 프라이버시·작업실 상태의 기존 설정을 대체하지 않는다.
-@evidenceReview principles/core/settings.md#constraint-sufficiency #20cf612 room의 내측 벽 마감과 storey의 연속 바닥·천장을 구분하고, 물체의 형상·배치·재료를 다른 owner에 둔다. 공유 문짝의 양면 binding과 seam 변경의 재검증, 임시 방 물체 메시의 원자적 퇴역까지 지정해 같은 노출 면을 중복 생성할 경계를 비워 두지 않았다.
-@evidenceReview principles/core/settings.md#observable-identity #4ccb62e 표의 main author와 source 경로는 집의 감각적 정체를 새로 정의하는 값이 아니다. 전면 화면 기준 좌우를 기존 canon대로 유지하면서 실제 방·입면 형태는 공간 그래프와 외피 owner를 소비하게 하므로, 모듈 이름을 지정했다는 이유로 같은 집으로 보인다는 판정을 대신하지 않는다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 단독 시각 표면 owner는 사용자 직접 지시다. 분기별 물체 형상·배치·발광·마감 결합은 design-branches.md의 소유 표와 v-097 F1 상류 수리 지시에 근거한다. 이관 전 임시 메시의 퇴역은 현재 source를 확인한 저작 결정이며 경계 좌표는 1단계 그래프에서 소비한다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 네 입면, 각 room의 내측 벽면, 연속 바닥·천장, 계단, roof/canopy와 대지를 각각 배정한다. 물체 형상·배치·발광·마감 결합은 별도 분기에 남겨 방 owner를 완결 인테리어 전체의 생성자로 과장하지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 건축 면과 물체 prototype·instance·조명 과정·재료 결합을 구분한다. 현재 방 source의 임시 물체·발광 element에 대해 후속 owner와 단일 커밋 퇴역 조건을 정하고 대체 없는 삭제를 허용하지 않는다.
+@evidenceReview principles/core/settings.md#fact-status #93a284a 건축 표면 source와 평벽 부착 entry-charging-shelf 메시가 현재 구현이고 물체 소유권·재료 결합 이관은 미완료다. 건축 niche 절삭·lining은 존재하지 않으며 현재 material 문자열을 후속 materialSources의 승인된 finish 결합으로 읽지 않는다.
+@evidenceReview principles/core/settings.md#source-support #430bca9 단독 시각 표면 owner는 사용자 제작 절차, 분기별 소유는 design-branches.md 계약, 임시 메시의 실재 여부는 현재 source에서 얻는다. 배정 자체가 geometry 품질이나 조명 성능의 자동 보증은 아니며 후속 독립 판정을 요구한다.
+@evidenceReview principles/core/settings.md#capability-boundary #83a6f2c 이 H2는 건축 면·물체 주소·배치·발광·마감 결합의 저작 책임만 배정한다. 유리 tint와 작업실 상태는 기존 설정에서 받아 instances가 가변 물체 배치를 결정한다. 소유자 이름만으로 새 동작 능력을 허용하지 않는다.
+@evidenceReview principles/core/settings.md#constraint-sufficiency #20cf612 room 내측 벽면과 storey의 연속 바닥·천장, 물체 형상·배치·발광·마감 결합을 각각 배정한다. 공유 문짝 양면 주소와 seam 재검증, 임시 물체·발광 메시의 전수 대조 및 단일 커밋 퇴역을 정한다. 실제 이관 검사는 아직 미실행이다.
+@evidenceReview principles/core/settings.md#observable-identity #4ccb62e main author와 source 경로는 책임 주소이며 감각적 형태가 아니다. 방·입면의 실제 읽힘은 공간 그래프·외피 설계와 후속 GPU 관찰에서 검증한다. 이 배정만으로 레퍼런스와 같은 집이라는 시각 판정을 대체하지 않는다.
 -->
 
-**권한: 사용자 직접 지시.** 완결된 시각 표면은 한 명의 저작자에게 귀속한다. 아래 배정이 네 전체 입면, roof/canopy, 두 층, 단일 계단, 개별 room, site의 단독 owner와 구현 모듈 배정을 소유한다. 이전 source의 한 파일과 문자열 그룹을 그대로 유지한 채 분해가 끝났다고 주장하지 않는다. 이 H2의 물체 소유권과 이관 수정은 독립 재판정 전이다.
+**권한: 사용자 직접 지시와 분기 계약.** 완결된 시각 표면의 단독 저작은 사용자 지시다. 물체 형상·표면 주소를 models, 배치를 instances, 발광 과정을 systems, finish 결합을 materials에 나누는 근거는 [분기 소유 표](../../.agents/skills/source-authoring/design-branches.md)와 v-097 F1 상류 수리 지시다. 아래 배정은 네 전체 입면, roof/canopy, 두 층, 단일 계단, 개별 room, site의 단독 건축 owner와 구현 모듈을 정한다. 현행 source 보존은 GPU 관찰 경로를 유지하기 위한 임시 결정이다. 이관 수정은 독립 재판정 전이다.
 
-**상태: 기존 건축 표면 source는 구현됐고 물체 소유권 이관은 미완료다.** [1단계 그래프](../spaces/002-spatial-graph.md)를 소비한다. 현재 저작자는 main author 한 명이고 독립 reviewer는 쓰기 권한이 없다. 향후 fan-out을 하더라도 아래 완결 표면 하나는 한 명에게 통째로 배정하며 다른 작성자가 그 표면의 부재나 마감을 덧칠하지 않는다. 파일명이나 임시 메시 존재를 이관 완료로 세지 않는다.
+**상태: 기존 건축 표면 source와 평벽 부착 현관 선반 source는 구현됐고 물체 소유권·재료 결합 이관은 미완료다.** [1단계 그래프](../spaces/002-spatial-graph.md)를 소비한다. 현관의 우편·충전 기능은 벽을 파지 않은 선반으로 실현하며 건축 niche 구멍이나 lining은 없다. 현재 건축·방 source에 직접 적힌 material 문자열은 materialSources의 승인된 finish 결합이 아닌 임시 값이다. 현재 저작자는 main author 한 명이고 독립 reviewer는 쓰기 권한이 없다. 향후 fan-out을 하더라도 완결 건축 표면 하나는 한 명에게 통째로 배정한다. 파일명이나 임시 메시 존재를 이관 완료로 세지 않는다.
 
-입면은 전면·후면·좌측·우측을 각각 하나의 전체로 소유한다. 좌측·우측 이름은 reference의 전면 관찰 화면 기준이며 좌측은 +X, 우측 서비스 코어는 -X다. front stair/flex처럼 같은 입면을 분할하지 않는다. 방은 각 방의 바닥·천장을 제외한 내측 벽 finish만 room owner가 맡고, 두 child room이나 세 core room을 한 표면 owner 이름으로 합치지 않는다. 벽에 고정된 niche의 건축적 구멍과 lining은 방 owner가 맡지만 그 안의 선반·기기는 물체다. 벤치·선반·책상·의자·침대·수납장·주방 및 위생 기구·실내 화분과 식물·소품·등기구의 재사용 가능한 형상과 노출 part/face 주소는 models가 맡는다. 그 prototype의 방별 membership·transform·반복과 가변 상태별 물체 배치는 instances가 맡고, 광원의 발광·조도·상태 과정은 systems가 맡는다. materials는 재사용 가능한 재료 응답과 part/face 결합 규칙을 맡고 각 표면의 생성 owner가 그 면의 finish id를 지정한다. 내부 구조 벽의 몸체와 내벽 접합부는 topology 입력을 소비하는 층 owner가 만들고 외벽 몸체와 외부 모서리는 해당 입면 owner가 만들며, 입면의 외측/room의 내측 finish는 서로 다른 실제 면이다. 연속 바닥과 실내 천장의 최종 노출 면은 해당 storey owner가 geometry와 finish id 지정을 함께 소유한다. room owner는 그 면을 생성하거나 마감하지 않는다. roof owner의 하부는 실외 처마 부분만 노출되며 실내 천장의 최종 노출 면은 upper owner다. 구조 slab의 몸체 하부는 실내 ceiling finish 뒤의 숨은 구조면이며 시각 마감으로 중복 생성하지 않는다. 동일한 면을 두 번 생성하지 않는다.
+입면은 전면·후면·좌측·우측을 각각 하나의 전체로 소유한다. 좌측·우측은 전면 관찰 화면 기준이며 좌측은 +X, 우측 서비스 코어는 -X다. front stair/flex처럼 같은 입면을 분할하지 않는다. 각 방의 바닥·천장을 제외한 내측 벽의 최종 노출 면은 room owner가 만들고 두 child room이나 세 core room을 하나로 합치지 않는다. 현관 충전 선반은 건축 구멍 없는 벽걸이 물체다. 벤치·선반·책상·의자·침대·수납장·주방 및 위생 기구·실내 화분과 식물·소품·등기구의 재사용 가능한 형상과 안정된 노출 part/face 주소는 models가 맡는다. prototype의 방별 membership·transform·반복과 가변 상태별 물체 배치는 instances가, 광원의 발광·조도·상태 과정은 systems가 맡는다. 건축 면과 물체 면의 안정 주소는 각각 spaces와 models가 노출하고, finish 결합과 재료 응답은 materials가 그 주소에 대해 결정한다. 면 생성 owner는 결정된 finish id를 운반하되 결합을 다시 고르지 않는다. 내부 구조 벽 몸체와 접합부는 topology 입력을 소비하는 층 owner가, 외벽 몸체와 외부 모서리는 해당 입면 owner가 만든다. 입면 외측/room 내측은 서로 다른 실제 면이다. 연속 바닥과 실내 천장의 최종 노출 면 geometry는 해당 storey owner가 소유하고 materials의 finish 결합을 운반한다. room owner는 그 면을 생성하거나 결합을 결정하지 않는다. roof owner의 하부는 실외 처마 부분만 노출되며 실내 천장의 최종 노출 면은 upper owner다. 구조 slab의 몸체 하부는 실내 ceiling finish 뒤의 숨은 구조면이며 시각 마감으로 중복 생성하지 않는다. 동일한 면을 두 번 생성하지 않는다.
 
 | 완결 표면 | 단독 저작자 | 구현 source 배정 | 포함 범위 |
 | --- | --- | --- | --- |
@@ -168,7 +168,7 @@
 | 1층 구조와 연속 바닥/천장 | main author | src/house/storeys/ground.ts | datum·벽체 몸체·공유 opening void·floor/ceiling 경계 |
 | 2층 구조와 연속 바닥/천장 | main author | src/house/storeys/upper.ts | slab과 계단 구멍·벽체 몸체·opening void·층선 |
 | 한 개의 꺾임계단 | main author | src/house/circulation/stair.ts | 두 flight·참·tread·riser·stringer·guard·handrail·slab-hole 입력 |
-| 현관 | main author | src/house/rooms/entry.ts | 내측 벽면·충전 niche의 건축 구멍과 lining·문 내측 |
+| 현관 | main author | src/house/rooms/entry.ts | 내측 벽면·문 내측; 충전 선반은 건축 niche가 아닌 별도 물체 |
 | 가변 작업실 | main author | src/house/rooms/flex.ts | 내측 벽면·미닫이문 내측 |
 | 연속 공용부 | main author | src/house/rooms/common.ts | 하나의 living/dining/kitchen 방 경계와 내측 벽면 |
 | 1층 powder/utility | main author | src/house/rooms/powder.ts | 방 내측 벽면 |
@@ -182,12 +182,12 @@
 | 상층 설비 | main author | src/house/rooms/service-upper.ts | 점검 영역의 건축적 경계와 내측 벽면 |
 | 대지·조경 전체 | main author | src/house/site/garden.ts | 지면·보도·현관 외부 계단·식재·접지 |
 
-공유 portal owner는 문 구멍의 위치·clear 치수·host wall·from/to 공간·상태를 한 번만 선언한다. 입면과 방이 같은 문짝 geometry를 각각 복제하지 않는다. 주체 생성 owner가 양면 material binding을 소유하고 상대 owner는 자기 면의 요구를 입력으로 넘긴다. seam 변경은 이웃 표면의 재검증을 일으키며 소유권을 분할하지 않는다.
+공유 portal owner는 문 구멍의 위치·clear 치수·host wall·from/to 공간·상태를 한 번만 선언한다. 입면과 방이 같은 문짝 geometry를 각각 복제하지 않는다. 주체 생성 owner는 문짝 양면의 안정 주소와 seam을 소유하고 materials가 그 주소에 대한 양면 finish 결합을 결정한다. 상대 owner는 자기 면의 요구를 입력으로 넘긴다. seam 변경은 이웃 표면의 재검증을 일으키며 소유권을 분할하지 않는다.
 
-**이관 중 상태와 퇴역 책임.** 현재 `src/house/rooms/*.ts`가 `src/house/rooms/interior.ts`의 `cabinet()`·`bed()`·책상·의자·위생 기구·소품·`lights()`를 호출하여 메시를 생성하는 것은 이전 구현의 임시 소비 경로다. 현재 viewer와 컴파일된 관찰 집합을 유지하기 위해 `instanceSources`가 독립 판정으로 `review`에 이를 때까지 그 메시를 남기되 이 경로에 새 물체 형상이나 part 주소를 저작하지 않는다. main author가 `modelSources`에서 prototype과 표면 주소를, `systemSources`에서 조명 과정을, `instanceSources`에서 방별 배치와 반복을 구현·판정받는다. `instanceSources: review` 직후 main author가 원자적으로 방 source의 물체 호출 및 `interior.ts`의 중복 생성 함수를 제거하고 조립 경로를 새 source 소비자로 교체한다. 교체 전후 같은 방에 두 메시가 동시에 나타나지 않도록 컴파일된 topology를 대조한다. `spaceSources`는 소유 방향상 `src/models`나 `src/instances`를 import하거나 물체 prototype을 생성하지 않는다. 이관 전 방 source의 물체 메시와 마감 문자열은 승인된 영구 소유권이 아니며, 현재 시각·재료 판정은 그 한계 아래 `unverified`다.
+**이관 중 상태와 퇴역 책임.** 현재 `src/house/rooms/*.ts`가 `src/house/rooms/interior.ts`의 물체 함수와 `lights()`를 호출해 메시를 만드는 것은 이전 구현의 임시 소비 경로다. 현재 관찰 집합을 유지하기 위해 `instanceSources`와 `systemSources`가 모두 독립 판정으로 `review`에 이를 때까지 그 메시를 남기고 이 경로에 새 물체 형상이나 part 주소를 저작하지 않는다. main author가 `modelSources`에서 prototype과 표면 주소, `instanceSources`에서 방별 배치와 반복, `systemSources`에서 발광 과정과 element를 구현·판정받는다. 두 후속 source가 review에 도달한 직후 main author는 **단일 커밋의 한 트리**에서 방 source의 물체·발광 호출과 `interior.ts`의 중복 함수를 제거하고 중립 조립 경로로 교체한다. 퇴역 전 기존 물체·발광 element ID마다 후속 instance ID와 model part/face 또는 system element ID를 대응표의 한 행으로 연결한다. 하나의 후속 part/emitter 주소를 두 퇴역 element의 대체라고 중복 계상하지 않으며 의도적 제거는 원래 ID와 이유를 명시한다. 컴파일된 topology와 관찰 집합에서 누락 0·중복 0을 확인한다. 현재 viewer는 emissive element마다 SpotLight를 만들므로 systemSources 대체 없이 조명 함수를 퇴역시키지 않는다. `spaceSources`는 `src/models`나 `src/instances`를 직접 또는 간접 import하거나 물체 prototype을 생성하지 않는다. 현재 방 source의 물체 메시와 마감 문자열은 승인된 영구 소유권이 아니며 현재 시각·재료 판정은 `unverified`다.
 
 **조립과 관찰 도구의 책임.**
 
-`src/spaces/citizen-house.ts`는 위 입력을 조합해 하나의 IAutoMovieBuiltEnvironment를 반환하는 작은 등록 owner로 바꾼다. graph, room bounds, portal, stair, 각 완결 표면은 별도의 cohesive module로 구현한다. 공통 primitive helper는 단위 geometry 생성만 맡고 방 배치나 입면을 결정하지 않는다. source당 500 physical line 경계를 유지하며 줄 압축으로 피하지 않는다.
+현재 `src/spaces/citizen-house.ts`는 `buildHouse()`의 임시 fit-out까지 받은 environment를 library에 등록한다. 이관 뒤 중립 조립 경계의 이름은 `src/house/build.ts`이며 `buildHouse()`가 spaces·models·materials·instances·systems의 독립 source를 소비해 단일 environment를 만든다. `src/spaces/citizen-house.ts`는 spaces 분기의 건축 산출물만 제공하도록 분리하고 다른 분기의 source를 직접 또는 간접 import하지 않는다. 최종 library 등록과 viewer는 중립 `buildHouse()` 결과를 사용한다. graph, room bounds, portal, stair, 각 완결 건축 표면은 별도 module로 구현한다. 공통 primitive helper는 단위 geometry 생성만 맡고 방 배치나 입면을 결정하지 않는다.
 
 viewer의 server·메시 upload·조명·camera controls·검사 overlay·관찰집합 derivation은 각각 도구 책임으로 분리한다. 뷰어가 source의 새 geometry나 room bounds를 발명하지 않는다. 관찰집합은 성공적으로 컴파일한 현재 topology에서 생성하며 독립 observer는 그 분모를 축소할 수 없다. 이 도구 배정은 특정 view를 미리 성공 처리하거나 누락된 opening을 감추는 수단이 아니다.

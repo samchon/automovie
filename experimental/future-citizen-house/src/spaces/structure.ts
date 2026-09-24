@@ -5,9 +5,9 @@ import { upper } from "../house/storeys/upper";
 import { stair } from "../house/circulation/stair";
 /** Realize the clear cells, shared boundaries, floors and one stair together.
  * @evidence spaces/002-spatial-graph.md 이 함수는 topology·두 storey·단일 stair를 조립하여 002의 매스, 방 경계, 문과 계단을 실물과 native graph로 함께 반환한다.
- * @evidenceReview spaces/002-spatial-graph.md #9b0f8f0 structure()가 topology·ground·upper·stair를 한 번씩 호출해 매스 datum, 두 층의 방·벽·junction·문턱, 기초와 slab, 단일 꺾임계단을 만드는 것을 읽었고 topology의 house-body·ground-cell 하단도 기초 바닥 y=-0.60과 같다. 002의 H2가 요구하는 방 경계·문·계단이 이 조립 안에 있다.
+ * @evidenceReview spaces/002-spatial-graph.md #e2c31eb structure()는 topology·ground·upper·stair를 한 번씩 호출해 매스 datum, 방·벽·문턱, 기초·slab·단일 계단을 만든다. 변경된 현관 H2의 우편·충전 선반은 건축 구멍이 없는 임시 물체이며 이 조립 함수는 그 형상이나 배치를 만들지 않는다.
  * @evidence principles/core/source-units.md#source-scope-preservation plan의 clear cell과 datum으로만 shared wall을 도출하고 002가 금지한 별도 복도·계단·보이드를 추가하지 않는다. 바닥·천장·partition은 각 층의 파일이 소유한다.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 바닥·분할·계단과 내부 가구까지만 이 조립이 맡고 외부 커튼월 표면은 envelope owner에 남긴다.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 structure()는 topology·ground·upper·stair만 호출해 clear cell, 공유 벽, 두 층의 바닥·천장과 단일 계단을 조립한다. 외피와 방의 임시 fit-out은 별도 호출 경로에 있으며 이 함수가 물체 형상이나 배치를 소유하지 않는다.
  * @evidence principles/core/source-units.md#source-substantive-completion topology는 실제 convex cells, partitions는 공개 wall kernel로 절삭한 solid와 opening operation, stair는 18개 tread 및 참을 만든다. 위임 대상은 모두 현재 호출되는 구체 함수이며 빈 source wrapper가 아니다.
  * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f rooms·walls·stair가 실제 geometry와 connector를 반환하므로 설계 배열을 복사한 메타데이터만으로 소스 실현을 주장하지 않는다.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work 002의 3.20m 층차, clear cell, 0.18m shared wall과 단일 꺾임계단을 그대로 구현했다. connector.steps.run이 참을 포함한 전체 route 길이를 검사하므로 그 선택 필드는 생략하고 명목 going은 실제 tread geometry에서 읽게 했다. 설계 route나 치수를 바꾸어 engine metric에 맞추지 않았다.
@@ -23,7 +23,7 @@ import { stair } from "../house/circulation/stair";
  * @evidence spaces/002-spatial-graph.md#ground-partition 다섯 room의 clear cell에서 마주보는 face segment를 찾아 공유 벽을 생성한다. 현관–작업실·powder·공용부와 공용부–수납 연결은 해당 portals에만 존재한다.
  * @evidenceReview spaces/002-spatial-graph.md#ground-partition #5445973 1층 방의 대향 clear face에서 shared wall을 산출하여 수납·위생실 사이 잔여 틈을 임의의 복도로 만들지 않는다.
  * @evidence spaces/002-spatial-graph.md#entry entry는 x=-2.84..2.84,z=-5.76..-0.32 cell이며 계단 동측 보행대와 네 직접 출입 관계를 가진다. 별도 현관 corridor를 생성하지 않는다.
- * @evidenceReview spaces/002-spatial-graph.md#entry #bf2f088 현관 room 안에서 계단 동측 보행 띠와 세 목적지 개구가 연결되어 계단만 있고 통행 공간이 없는 구성이 아니다.
+ * @evidenceReview spaces/002-spatial-graph.md#entry #796fef7 현관 room의 계단 동측 보행 띠와 세 목적지 개구는 topology·stair 조립에 남는다. 평벽 부착 충전 선반은 room source의 임시 물체 메시이며 structure()는 이를 위해 벽을 절삭하거나 niche lining을 만들지 않는다.
  * @evidence spaces/002-spatial-graph.md#flex-workroom flex-workroom은 x=3.02..5.26의 하층 전면 cell이고 entry-flex로만 진입한다. 실제 pocket leaf는 -Z로 이동한다.
  * @evidenceReview spaces/002-spatial-graph.md#flex-workroom #4b08fbc flex는 전면 동측의 2.24m 폭 cell과 entry 출입으로 생성되며 common 쪽 폐쇄 벽을 지름길로 사용하지 않는다.
  * @evidence spaces/002-spatial-graph.md#common-room common-room은 z=-0.14..5.76의 연속 cell 하나다. 거실·식당·주방 사이에 partition이나 추가 문을 만들지 않는다.

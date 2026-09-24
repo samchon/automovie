@@ -23,8 +23,10 @@ export function lining(a: Assembly, roomId: string): void {
     cutWall(a, g, clipped, r.finish, roomId + "-lining-" + f.id + "-" + index, side * (f.depth / 2 - 0.003), 0.006, false);
   }
 }
-/** A metric furniture assembly. Its caller owns placement and the whole room;
- * child solids are in a rigid local frame, so rotated furniture keeps its joints. */
+/** Legacy room-source furniture assembly retained for the current viewer until
+ * reviewed model, instance and system sources replace every element together.
+ * This caller supplies the current transform; it owns neither the eventual
+ * prototype nor the room. Child solids share a rigid local frame. */
 export class Item {
   constructor(readonly a: Assembly, readonly id: string, readonly room: string, x: number, y: number, z: number, angle = 0) {
     a.environment.elements.push({ id, kind: "fit-out", space: room, parent: "house-root", model: null, transform: { translation: v(x, y, z), rotation: yaw(angle), scale: v(1, 1, 1) } });

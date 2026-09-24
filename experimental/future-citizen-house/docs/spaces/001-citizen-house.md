@@ -28,7 +28,7 @@
 @evidenceReview contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements #d31488d 집 수준에서는 한 본채 아래 두 층을 두고 그 사이 통행을 single-stair로 한정하며 중정·브리지·추가 계단과 복층 거실을 배제한다. 세부 room 연결과 curtainwall 대응은 링크된 설계와 미지급 컴파일 검사에 남겨 이 조립 문장만으로 고정 그래프의 실현을 승인하지 않는다.
 @evidenceReview settings/001-production.md#delivery-scope #e314261 재사용할 집의 공간 범위를 citizen-site, house, 두 storey와 그 안의 방으로 배정한다. 별동이나 추가 체적을 만드는 납품으로 확장하지 않으며 외피와 실내를 같은 본채의 구성으로 유지한다.
 @evidenceReview settings/001-production.md#governing-aim #e9869fc 1층과 2층 partition 및 단일 계단을 집 조립의 직접 입력으로 삼아 현관 이후의 생활 동선을 보존한다. 외관을 꾸미기 위해 추가 계단이나 분리된 체적을 허용하는 조립이라면 이 지배 목적을 소비한 현재 관계가 성립하지 않는다.
-@evidenceReview settings/003-spatial-basis.md#surface-decomposition #dcff2dc 개정된 표면 분해에서 입면·층·방의 건축 면, 실내 식물을 포함한 물체 prototype·instance, finish 역할의 분리와 임시 방 source 퇴역을 읽었다. 이 집 H2는 건축 표면의 조립만 연결하고 물체 형상이나 배치 owner를 만들지 않는다.
+@evidenceReview settings/003-spatial-basis.md#surface-decomposition #fc2e198 입면·층·방의 건축 면 주소와 물체 prototype·instance·조명 과정·finish 결합의 다른 owner를 읽었다. 현행 메시 교체는 각 기존 element를 후속 part/emitter에 대응시키는 조건 뒤에만 일어나며 이 집 H2는 건축 공간 관계만 연결한다.
 @evidenceExcludeReview settings/001-production.md#module-boundary #6450145 세 spaces 파일의 포함 계층, clear 경계, opening·계단·입면 및 관찰 도출을 모두 대조했으며 어느 결정도 CJS나 ESM을 공간 입력으로 삼지 않는다. stage-one-verification이 컴파일 뒤의 검사를 요구하는 사실도 모듈 로더의 선택은 아니므로, 이 foundation target의 직접 소비는 공간 population 밖의 실행 source와 viewer에 남는다.
 @evidenceExcludeReview settings/001-production.md#settings-coverage-map #b9b42d6 설정 소유 지도가 방·문·외피를 spaces에, 물체 형상을 models에, 배치를 instances에 배정한 개정 문장을 확인했다. spaces population은 납품 범위·좌표·층 그래프·외피의 실제 H2를 소비하고 물체 배치 결정을 가져오지 않으므로 이 지도 자체를 공간 사실로 중복 인용하지 않는다.
 -->
