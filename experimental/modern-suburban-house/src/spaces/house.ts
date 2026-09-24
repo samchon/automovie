@@ -47,6 +47,7 @@ import { buildUpperHall } from "./rooms/upper-hall";
 import { buildWardrobe } from "./rooms/wardrobe";
 import { buildSite } from "./site";
 import type { IRoomSpace, IStorageSpace } from "./rooms/shared";
+import type { IExteriorZone } from "./site/zone";
 import type { IHousePart } from "./solids";
 import { buildStair } from "./stair";
 
@@ -58,6 +59,8 @@ export interface IHouse {
   spaces: IRoomSpace[];
   /** Storage volumes with the room that owns each, in fixed owner order. */
   storages: { room: IRoomSpace; storage: IStorageSpace }[];
+  /** Exterior zones of the porch and site, in fixed owner order. */
+  zones: IExteriorZone[];
 }
 
 /** Build the whole house; throws on a duplicate part or space id. */
@@ -79,6 +82,8 @@ export const buildHouse = (): IHouse => {
     buildShowerBath(),
     buildTubBath(),
   ];
+  const porch = buildPorch();
+  const site = buildSite();
   const parts = [
     ...buildGroundFloor(),
     ...buildInterstorey(),
@@ -100,8 +105,8 @@ export const buildHouse = (): IHouse => {
     ...buildGarageBackRoof(),
     ...rooms.flatMap((room) => room.parts),
     ...buildStair(),
-    ...buildPorch(),
-    ...buildSite(),
+    ...porch.parts,
+    ...site.parts,
   ];
   const seen = new Set<string>();
   for (const p of parts) {
@@ -119,5 +124,10 @@ export const buildHouse = (): IHouse => {
     if (spaceIds.has(s.storage.id)) throw new Error(`duplicate space id "${s.storage.id}" from ${s.room.owner}`);
     spaceIds.add(s.storage.id);
   }
-  return { parts, spaces, storages };
+  const zones = [...porch.zones, ...site.zones];
+  for (const z of zones) {
+    if (spaceIds.has(z.id)) throw new Error(`duplicate space id "${z.id}" from ${z.owner}`);
+    spaceIds.add(z.id);
+  }
+  return { parts, spaces, storages, zones };
 };

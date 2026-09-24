@@ -18,13 +18,14 @@
 import { PALETTE } from "./palette";
 import { type IHousePart, block, part, rect, slopedSlab } from "./solids";
 import { STOREYS } from "./storeys";
+import type { IExteriorZone, ISiteBuild } from "./site/zone";
 
 const OWNER = "porch.ts";
 const PLATFORM_BOTTOM = STOREYS.frontWalk - 0.12;
 const porchRoof = (z: number): number => 3.5 - z / 4;
 
 /** Emit the porch platform, steps, columns, beam, packer and roof. */
-export const buildPorch = (): IHousePart[] => {
+export const buildPorch = (): ISiteBuild => {
   const parts: IHousePart[] = [
     part("porch-platform", OWNER, "porch", PALETTE.porchFloor, block([-5.75, PLATFORM_BOTTOM, 0], [2.2, STOREYS.porchFloor, 2.2])),
   ];
@@ -48,5 +49,13 @@ export const buildPorch = (): IHousePart[] => {
     part("porch-beam-packer", OWNER, "porch", PALETTE.trim, slopedSlab({ plan: rect([-5.75, 2.2], [1.85, 2.1]), top: (_x, z) => porchRoof(z) - 0.22, floor: 2.7 })),
     part("porch-roof", OWNER, "roof", PALETTE.roof, slopedSlab({ plan: rect([-6.1, 2.55], [0, 2.35]), top: (_x, z) => porchRoof(z), thickness: 0.22 })),
   );
-  return parts;
+  // The front-porch zone is the platform the entry door opens on (porch-platform-access).
+  const zone: IExteriorZone = {
+    id: "front-porch",
+    owner: OWNER,
+    outline: rect([-5.75, 2.2], [0, 2.2]),
+    anchor: { x: 0.9, y: STOREYS.porchFloor, z: 1.1 },
+    rampTo: null,
+  };
+  return { zones: [zone], parts };
 };

@@ -14,6 +14,7 @@
 import { PALETTE } from "../palette";
 import { type IHousePart, part, rect, slab } from "../solids";
 import { STOREYS } from "../storeys";
+import type { IExteriorZone, ISiteBuild } from "./zone";
 import { DRIVEWAY, driveTop } from "./driveway";
 import { WALK_DEPTH, blendedRun } from "./paving";
 
@@ -23,10 +24,17 @@ const OWNER = "site/front-walk.ts";
 const FRONT_WALK = { x: [0.15, 1.65] as const, z: [2.8, 6.5] as const };
 
 /** Emit the walk and its sloped cross connector. */
-export const buildFrontWalk = (): IHousePart[] => {
+export const buildFrontWalk = (): ISiteBuild => {
   const walkY = STOREYS.frontWalk;
   const [left, right] = [FRONT_WALK.x[1], DRIVEWAY.x[0]];
-  return [
+  const zone: IExteriorZone = {
+    id: "front-walk",
+    owner: OWNER,
+    outline: rect(FRONT_WALK.x, FRONT_WALK.z),
+    anchor: { x: (FRONT_WALK.x[0] + FRONT_WALK.x[1]) / 2, y: walkY, z: FRONT_WALK.z[0] },
+    rampTo: null,
+  };
+  const parts: IHousePart[] = [
     part("front-walk", OWNER, "paving", PALETTE.paving, slab({ outline: rect(FRONT_WALK.x, FRONT_WALK.z), bottom: walkY - WALK_DEPTH, top: walkY })),
     ...blendedRun({
       id: "front-walk-connector",
@@ -41,4 +49,5 @@ export const buildFrontWalk = (): IHousePart[] => {
       depth: WALK_DEPTH,
     }),
   ];
+  return { zones: [zone], parts };
 };

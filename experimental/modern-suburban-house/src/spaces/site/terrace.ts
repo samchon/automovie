@@ -12,8 +12,9 @@
  * waiting base −0.45 − 0.12 m (01-paving-support raised-platform-support).
  */
 import { PALETTE } from "../palette";
-import { type IHousePart, block, part } from "../solids";
+import { type IHousePart, block, part, rect } from "../solids";
 import { STOREYS } from "../storeys";
+import type { IExteriorZone, ISiteBuild } from "./zone";
 import { WALK_DEPTH } from "./paving";
 
 const OWNER = "site/terrace.ts";
@@ -26,12 +27,22 @@ const EDGE = -14.4;
 export const LOWER_LANDING = { x: [-0.75, 0.75] as const, z: [EDGE - 0.6 - 1.2, EDGE - 0.6] as const, top: LOW };
 
 /** Emit the terrace, steps and lower landing. */
-export const buildTerrace = (): IHousePart[] => {
+export const buildTerrace = (): ISiteBuild => {
   const parts: IHousePart[] = [part("garden-terrace", OWNER, "paving", PALETTE.paving, block([-1.8, BOTTOM, EDGE], [4.5, TOP, -10.7]))];
   for (let k = 1; k <= 2; ++k) {
     const edge = EDGE - 0.3 * (k - 1);
     parts.push(part(`garden-step-${k}`, OWNER, "paving", PALETTE.paving, block([-0.75, BOTTOM, edge - 0.3], [0.75, TOP - 0.15 * k, edge])));
   }
   parts.push(part("garden-lower-landing", OWNER, "paving", PALETTE.paving, block([LOWER_LANDING.x[0], BOTTOM, LOWER_LANDING.z[0]], [LOWER_LANDING.x[1], LOW, LOWER_LANDING.z[1]])));
-  return parts;
+  const zones: IExteriorZone[] = [
+    { id: "garden-terrace", owner: OWNER, outline: rect([-1.8, 4.5], [EDGE, -10.7]), anchor: { x: 0, y: TOP, z: -12 }, rampTo: null },
+    {
+      id: "garden-lower-landing",
+      owner: OWNER,
+      outline: rect(LOWER_LANDING.x, LOWER_LANDING.z),
+      anchor: { x: 0, y: LOW, z: (LOWER_LANDING.z[0] + LOWER_LANDING.z[1]) / 2 },
+      rampTo: null,
+    },
+  ];
+  return { zones, parts };
 };

@@ -10,9 +10,10 @@
  * No vehicle is authored.
  */
 import { PALETTE } from "../palette";
-import { type IHousePart, part, rect, slopedSlab } from "../solids";
+import { part, rect, slopedSlab } from "../solids";
 import { STOREYS } from "../storeys";
 import { DRIVE_DEPTH } from "./paving";
+import type { ISiteBuild } from "./zone";
 
 /** Driveway extent, metres. */
 export const DRIVEWAY = { x: [5.9, 11.3] as const, z: [-0.3, 6.5] as const };
@@ -24,6 +25,17 @@ export const driveTop = (z: number): number => {
 };
 
 /** Emit the driveway slab. */
-export const buildDriveway = (): IHousePart[] => [
+export const buildDriveway = (): ISiteBuild => ({
+  zones: [
+    {
+      id: "driveway",
+      owner: "site/driveway.ts",
+      outline: rect(DRIVEWAY.x, DRIVEWAY.z),
+      anchor: { x: (DRIVEWAY.x[0] + DRIVEWAY.x[1]) / 2, y: driveTop(DRIVEWAY.z[0]), z: DRIVEWAY.z[0] },
+      rampTo: { x: (DRIVEWAY.x[0] + DRIVEWAY.x[1]) / 2, y: driveTop(DRIVEWAY.z[1]), z: DRIVEWAY.z[1] },
+    },
+  ],
+  parts: [
   part("driveway", "site/driveway.ts", "paving", PALETTE.concrete, slopedSlab({ plan: rect(DRIVEWAY.x, DRIVEWAY.z), top: (_x, z) => driveTop(z), thickness: DRIVE_DEPTH })),
-];
+],
+});

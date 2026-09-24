@@ -40,6 +40,9 @@ import type {
 import { GARAGE, MAIN } from "./building";
 import { type IHouse, buildHouse } from "./house";
 import { roomLevels } from "./rooms/shared";
+import { checkRouteNetwork } from "./routes";
+import { driveTop } from "./site/driveway";
+import { ZONE_HEAD_CLEARANCE } from "./site/zone";
 import type { IHousePart, IPlanPoint, IWallFace, IWallPoint } from "./solids";
 import { CEILING_RESERVATION, GROUND_LAYERS, STOREYS } from "./storeys";
 
@@ -316,6 +319,36 @@ const length = (route: readonly IAutoMovieVector3[], upTo: number): number => {
   return sum;
 };
 
+/**
+ * The doorless exterior links of the route network (05): the porch's three
+ * risers, the front walk's cross connector, the garden steps, and the side
+ * path from the driveway past the side gate to the lower landing. Each route
+ * runs on the paving centre line its owner builds; the side gate passage names
+ * the gate leaf as its element (the gate is opened for the route check).
+ */
+const exteriorConnectors = (house: IHouse): IAutoMovieBuiltConnector[] => {
+  const ids = (owner: string, prefix: string): string[] => house.parts.filter((p) => p.owner === owner && p.id.startsWith(prefix)).map((p) => p.id);
+  const passage = (id: string, from: string, to: string, route: IAutoMovieVector3[], elements: string[], kind: "passage" | "stair" = "passage"): IAutoMovieBuiltConnector => ({
+    id,
+    kind,
+    from,
+    to,
+    bidirectional: true,
+    route,
+    width: kind === "stair" ? 1.5 : 1.2,
+    clearHeight: ZONE_HEAD_CLEARANCE,
+    elements,
+  });
+  return [
+    passage("porch-steps", "front-walk", "front-porch", [{ x: 0.9, y: -0.45, z: 3.2 }, { x: 0.9, y: -0.45, z: 2.8 }, { x: 0.9, y: 0, z: 2.2 }, { x: 0.9, y: 0, z: 1.6 }], ids("porch.ts", "porch-step-"), "stair"),
+    passage("front-walk-connector", "driveway", "front-walk", [{ x: 6.5, y: driveTop(4.85), z: 4.85 }, { x: 1.65, y: -0.45, z: 4.85 }, { x: 1.2, y: -0.45, z: 4.85 }], ids("site/front-walk.ts", "front-walk-connector")),
+    passage("garden-steps", "garden-terrace", "garden-lower-landing", [{ x: 0, y: 0, z: -13.9 }, { x: 0, y: 0, z: -14.4 }, { x: 0, y: -0.45, z: -15 }, { x: 0, y: -0.45, z: -15.6 }], ids("site/terrace.ts", "garden-step-"), "stair"),
+    passage("side-front-path", "driveway", "side-front-access", [{ x: 10.8, y: driveTop(5.7), z: 5.7 }, { x: 12.9, y: -0.45, z: 5.7 }, { x: 12.9, y: -0.45, z: 0.55 }], ids("site/side-walk.ts", "side-walk")),
+    passage("side-yard-gate-passage", "side-front-access", "side-rear-access", [{ x: 12.9, y: -0.45, z: 0.55 }, { x: 12.9, y: -0.45, z: -0.3 }, { x: 12.9, y: -0.45, z: -2.35 }], ["side-yard-gate-leaf"]),
+    passage("side-rear-path", "side-rear-access", "garden-lower-landing", [{ x: 12.9, y: -0.45, z: -2.35 }, { x: 12.9, y: -0.45, z: -16.8 }, { x: 0, y: -0.45, z: -16.8 }, { x: 0, y: -0.45, z: -15.6 }], ids("site/side-walk.ts", "side-walk")),
+  ];
+};
+
 /** Build the house's built-environment record; throws on invalid topology. */
 export const buildHouseEnvironment = (house: IHouse = buildHouse()): IAutoMovieBuiltEnvironment => {
   const site = boundsOf(house.parts);
@@ -366,6 +399,26 @@ export const buildHouseEnvironment = (house: IHouse = buildHouse()): IAutoMovieB
   for (const { room, storage } of house.storages)
     spaces.push({ id: storage.id, kind: "storage", parent: room.storey, cells: [cell(`${storage.id}/0`, storage)] });
   const surfaces: IAutoMovieBuiltSurface[] = [];
+  for (const zone of house.zones) {
+    const ys = zone.rampTo === null ? [zone.anchor.y] : [zone.anchor.y, zone.rampTo.y];
+    const y: [number, number] = [Math.min(...ys), Math.max(...ys) + ZONE_HEAD_CLEARANCE];
+    spaces.push({
+      id: zone.id,
+      kind: "exterior",
+      parent: "house-site",
+      cells: rectangles(zone.owner, zone.outline).map((r, i) => cell(`${zone.id}/${i}`, { x: r.x, y, z: r.z })),
+    });
+    surfaces.push({
+      space: zone.id,
+      surface: {
+        id: `${zone.id}-ground-surface`,
+        kind: zone.rampTo === null ? "platform" : "ramp",
+        polygon: zone.outline.map((q) => ({ x: q.x, y: 0, z: q.z })),
+        anchor: zone.anchor,
+        rampTo: zone.rampTo,
+      },
+    });
+  }
   for (const room of house.spaces) {
     const [floor, ceiling] = roomLevels(room);
     spaces.push({
@@ -391,7 +444,7 @@ export const buildHouseEnvironment = (house: IHouse = buildHouse()): IAutoMovieB
   ];
   const boundaries: IAutoMovieBuiltBoundary[] = [];
   const openings: IAutoMovieBuiltOpening[] = [];
-  const inner = spaces.filter((s) => s.kind === "room" || s.kind === "stair" || s.kind === "storage");
+  const inner = spaces.filter((s) => s.kind === "room" || s.kind === "stair" || s.kind === "storage" || s.kind === "exterior");
   for (const p of house.parts) {
     const face = p.wall;
     if (face === undefined) continue;
@@ -458,7 +511,7 @@ export const buildHouseEnvironment = (house: IHouse = buildHouse()): IAutoMovieB
     spaces,
     boundaries,
     openings,
-    connectors: [stair],
+    connectors: [stair, ...exteriorConnectors(house)],
     surfaces,
     walkable: surfaces.map((s) => s.surface.id),
   };
@@ -470,5 +523,6 @@ export const buildHouseEnvironment = (house: IHouse = buildHouse()): IAutoMovieB
         .map((v) => `  ${v.path}: expected ${v.expected}`)
         .join("\n")}`,
     );
+  checkRouteNetwork(environment);
   return environment;
 };

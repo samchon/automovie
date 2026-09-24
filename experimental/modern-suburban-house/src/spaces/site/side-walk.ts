@@ -12,11 +12,13 @@
  * landing's left edge to the path. S is the lower landing height, −0.45 m. The
  * three bands form one surface; each area is emitted once. Base 0.12 m.
  */
+import { GARAGE } from "../building";
 import { PALETTE } from "../palette";
 import { type IHousePart, part, rect, slab } from "../solids";
 import { DRIVEWAY, driveTop } from "./driveway";
 import { WALK_DEPTH, blendedRun } from "./paving";
 import { LOWER_LANDING } from "./terrace";
+import type { IExteriorZone, ISiteBuild } from "./zone";
 
 const OWNER = "site/side-walk.ts";
 
@@ -29,12 +31,23 @@ export const SIDE_WALK = {
 };
 
 /** Emit the three bands of the side path. */
-export const buildSideWalk = (): IHousePart[] => {
+export const buildSideWalk = (): ISiteBuild => {
   const s = SIDE_WALK.top;
   const [left, right] = [DRIVEWAY.x[1], SIDE_WALK.x[0]];
   const flat = (id: string, x: readonly [number, number], z: readonly [number, number]): IHousePart =>
     part(id, OWNER, "paving", PALETTE.paving, slab({ outline: rect(x, z), bottom: s - WALK_DEPTH, top: s }));
-  return [
+  // The two gate waiting zones (side-gate-interface): +Z 0.10-1.60 m and -Z 1.30-2.80 m from the
+  // gate plane, the garage front outer face, over the full path width.
+  const gate = GARAGE.outer.z[1];
+  const zone = (id: string, z: readonly [number, number]): IExteriorZone => ({
+    id,
+    owner: OWNER,
+    outline: rect(SIDE_WALK.x, z),
+    anchor: { x: (SIDE_WALK.x[0] + SIDE_WALK.x[1]) / 2, y: s, z: (z[0] + z[1]) / 2 },
+    rampTo: null,
+  });
+  const zones = [zone("side-front-access", [gate + 0.1, gate + 1.6]), zone("side-rear-access", [gate - 2.8, gate - 1.3])];
+  const parts: IHousePart[] = [
     flat("side-walk-long", SIDE_WALK.x, [SIDE_WALK.backBand[0], SIDE_WALK.frontBand[1]]),
     flat("side-walk-back", [LOWER_LANDING.x[0], SIDE_WALK.x[0]], SIDE_WALK.backBand),
     ...blendedRun({
@@ -50,4 +63,5 @@ export const buildSideWalk = (): IHousePart[] => {
       depth: WALK_DEPTH,
     }),
   ];
+  return { zones, parts };
 };
