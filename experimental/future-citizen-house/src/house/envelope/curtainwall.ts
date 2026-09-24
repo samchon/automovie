@@ -63,10 +63,12 @@ export function curtainwall(a: Assembly, f: Frame, w: Glazing): string | null {
     horizontal(a, f, w.id + "-sill-" + i, w.room, centres[i], centres[i + 1], w.sill - 0.02);
     seat(a, f, w.id + "-bay-" + i, w.room, left, right, w.sill, w.head);
     // Glass runs 6mm into each seat; optical bands still meet at the split.
+    // A lower band that reaches the head leaves no clear band: the one frosted
+    // pane then carries both 6mm seat extensions.
     const split = w.privacy === "lower" ? Math.min(w.head, w.sill + 1.25) : w.head;
-    const bands = w.privacy === "lower"
+    const bands = w.privacy === "lower" && split < w.head - 1e-9
       ? [[w.sill - 0.006, split, "frosted"], [split, w.head + 0.006, "glass"]] as const
-      : [[w.sill - 0.006, w.head + 0.006, w.privacy === "all" ? "frosted" : "glass"]] as const;
+      : [[w.sill - 0.006, w.head + 0.006, w.privacy ? "frosted" : "glass"]] as const;
     for (const [n, band] of bands.entries()) {
       if (band[1] <= band[0] + 0.006) continue;
       const id = block(a, f, w.id + "-pane-" + i + "-" + n, w.room, band[2], left - 0.006, right + 0.006, band[0], band[1], -0.009, 0.009);
