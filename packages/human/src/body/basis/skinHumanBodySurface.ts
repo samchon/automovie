@@ -58,6 +58,16 @@ import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBody
  * surface so a seam between differently weighted vertices cannot show a
  * lighting discontinuity the geometry does not have.
  *
+ * A joint that spreads its twist (`distributeTwist`) is a rig's twist joint
+ * made continuous: its rotation relative to its parent is split into a swing
+ * and a twist about its rest axis, from its head to its one child's head,
+ * and each vertex it moves takes the swing whole and the twist in proportion
+ * to where it lies along that axis (none at the head, all of it at the
+ * child's head, held at the ends), on the twist's shortest arc. An upper arm
+ * turned about its own axis then shears its skin from the shoulder to the
+ * elbow instead of wrenching the armpit round at the joint. A unit-weight
+ * vertex of such a bone is rigid in the swing only.
+ *
  * Every bone the skin names must have a rest and a posed transform; the basis
  * admission guarantees the skin only names declared joints and the pose
  * resolver visits every declared joint, so a missing entry here is a
@@ -74,7 +84,7 @@ export function skinHumanBodySurface(
   /** Every bone parent before child, as the basis declares its joints. */
   joints: readonly Pick<
     IAutoMovieHumanBodyBasis["joints"][number],
-    "bone" | "parent"
+    "bone" | "parent" | "distributeTwist"
   >[],
   transforms: Map<
     AutoMovieHumanoidBone,
@@ -120,6 +130,84 @@ export function skinHumanBodySurface(
       throw new Error("Body skin names a joint without transforms: " + bone);
     return found;
   });
+  // A bone that spreads its twist: its rotation relative to its parent,
+  // split into a swing and a twist about its rest axis (head to its one
+  // child's head), each vertex taking the twist in proportion to where it
+  // lies along that axis.
+  const spread = skin.joints.map((bone) => {
+    const joint = joints.find((one) => one.bone === bone);
+    if (joint?.distributeTwist !== true) return null;
+    const child = joints.find((one) => one.parent === bone)!;
+    const own = transforms.get(bone)!;
+    const head = own.rest.position;
+    const along = Vector3.subtract(
+      transforms.get(child.bone)!.rest.position,
+      head,
+    );
+    const length = Vector3.length(along);
+    const axis = Vector3.scale(along, 1 / length);
+    const delta = (b: AutoMovieHumanoidBone): IAutoMovieQuaternion => {
+      const t = transforms.get(b)!;
+      return Quaternion.multiply(
+        t.posed.rotation,
+        Quaternion.inverse(t.rest.rotation),
+      );
+    };
+    const parentDelta =
+      joint.parent === null ? Quaternion.identity() : delta(joint.parent);
+    const local = Quaternion.multiply(
+      Quaternion.inverse(parentDelta),
+      delta(bone),
+    );
+    const projected = local.x * axis.x + local.y * axis.y + local.z * axis.z;
+    const twistSize = Math.hypot(local.w, projected);
+    const twist =
+      twistSize < 1e-12
+        ? Quaternion.identity()
+        : {
+            x: (projected * axis.x) / twistSize,
+            y: (projected * axis.y) / twistSize,
+            z: (projected * axis.z) / twistSize,
+            w: local.w / twistSize,
+          };
+    return {
+      head,
+      posedHead: own.posed.position,
+      axis,
+      length,
+      base: Quaternion.multiply(
+        parentDelta,
+        Quaternion.multiply(local, Quaternion.inverse(twist)),
+      ),
+      twist,
+      reference: aligned.get(bone)!.real,
+    };
+  });
+  /** The dual quaternion a spread bone gives the vertex at `p`. */
+  const spreadAt = (
+    one: NonNullable<(typeof spread)[number]>,
+    p: IAutoMovieVector3,
+  ): { real: IAutoMovieQuaternion; dual: IAutoMovieQuaternion } => {
+    const fraction = Math.min(
+      1,
+      Math.max(
+        0,
+        Vector3.dot(Vector3.subtract(p, one.head), one.axis) / one.length,
+      ),
+    );
+    const real = Quaternion.multiply(one.base, power(one.twist, fraction));
+    const translation = Vector3.subtract(
+      one.posedHead,
+      Quaternion.rotateVector(real, one.head),
+    );
+    const dual = scale(
+      Quaternion.multiply({ ...translation, w: 0 }, real),
+      0.5,
+    );
+    // the same hemisphere as the bone's own, which its parent chose
+    const sign = dot(one.reference, real) < 0 ? -1 : 1;
+    return { real: scale(real, sign), dual: scale(dual, sign) };
+  };
   const output = new Array<number>(positions.length);
   for (let v = 0; v < positions.length / 3; v++) {
     const real = { x: 0, y: 0, z: 0, w: 0 };
@@ -127,7 +215,19 @@ export function skinHumanBodySurface(
     for (let k = 0; k < 4; k++) {
       const weight = skin.weights[v * 4 + k];
       if (weight === 0) continue;
-      const bone = bones[skin.boneIndices[v * 4 + k]];
+      const index = skin.boneIndices[v * 4 + k];
+      const spreading = spread[index];
+      const bone =
+        spreading === null
+          ? bones[index]
+          : spreadAt(
+              spreading,
+              Vector3.create(
+                positions[v * 3],
+                positions[v * 3 + 1],
+                positions[v * 3 + 2],
+              ),
+            );
       accumulate(real, bone.real, weight);
       accumulate(dual, bone.dual, weight);
     }
@@ -154,6 +254,16 @@ export function skinHumanBodySurface(
   }
   return output;
 }
+
+/** A unit quaternion raised to `t` along its shortest arc. */
+const power = (q: IAutoMovieQuaternion, t: number): IAutoMovieQuaternion => {
+  const sign = q.w < 0 ? -1 : 1;
+  const angle = Math.acos(Math.min(1, sign * q.w));
+  const sine = Math.sin(angle);
+  if (sine < 1e-12) return { x: 0, y: 0, z: 0, w: 1 };
+  const k = (sign * Math.sin(t * angle)) / sine;
+  return { x: q.x * k, y: q.y * k, z: q.z * k, w: Math.cos(t * angle) };
+};
 
 const dot = (a: IAutoMovieQuaternion, b: IAutoMovieQuaternion): number =>
   a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;

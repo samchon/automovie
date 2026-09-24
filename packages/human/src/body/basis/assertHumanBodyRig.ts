@@ -78,6 +78,17 @@ export function assertHumanBodyRig(basis: IAutoMovieHumanBodyBasis): void {
       throw new Error(
         "Body joint ends must be distinct resident landmarks: " + joint.bone,
       );
+    // a spread twist runs from the bone's head to its one child's head
+    if (
+      joint.distributeTwist !== undefined &&
+      (typeof joint.distributeTwist !== "boolean" ||
+        (joint.distributeTwist &&
+          basis.joints.filter((one) => one.parent === joint.bone).length !== 1))
+    )
+      throw new Error(
+        "Body joint spreads its twist only as a boolean on a bone with one child joint: " +
+          joint.bone,
+      );
     const axis = [tail[0] - head[0], tail[1] - head[1], tail[2] - head[2]];
     const length = Math.hypot(...axis);
     const reference = joint.reference;

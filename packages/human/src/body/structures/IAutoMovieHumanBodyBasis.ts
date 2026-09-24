@@ -218,6 +218,16 @@ export interface IAutoMovieHumanBodyBasis {
     constraint: IAutoMovieJointConstraint | null;
 
     /**
+     * Spread this bone's axial twist along its skin, as a rig's twist joints
+     * do. The bone's rotation relative to its parent is split into a swing
+     * and a twist about its rest axis (its head to its one child joint's
+     * head); a vertex it moves takes the swing whole and the twist in
+     * proportion to where it lies along that axis, none at the head and all
+     * of it at the child's head. Absent, the bone carries its skin rigidly.
+     */
+    distributeTwist?: boolean;
+
+    /**
      * Humerothoracic authoring coordinates for an upper arm. Only the two
      * upper arms carry this field. Their generic Euler axes are held at zero;
      * the shoulder goal is resolved from the thorax after girdle coupling.
