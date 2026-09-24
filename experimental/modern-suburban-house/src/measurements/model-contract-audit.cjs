@@ -139,8 +139,31 @@ function handoffs() {
   return { files: files.length, vocabulary: expressions.length, candidateH2: candidates.length, accountRows: rows.length, ownerlessRows: ownerless.length, ownerless, candidates };
 }
 
+function accounts() {
+  const modelFiles = markdownFiles(path.join(production, "docs/models"));
+  const all = new Set(modelFiles.flatMap((file) => [...sections(fs.readFileSync(file, "utf8")).keys()].map((anchor) => `docs/models/${path.basename(file)}#${anchor}`)));
+  const results = ["reservation-fit.md", "surface-ownership.md"].map((name) => {
+    const file = path.join(production, "docs/accounts/models", name);
+    const ids = [...fs.readFileSync(file, "utf8").matchAll(/^\| \[[^\]]+\]\(\.\.\/\.\.\/models\/([^#)]+)#([^)]+)\) \|/gm)].map((match) => `docs/models/${match[1]}#${match[2]}`);
+    const seen = new Set(ids);
+    return { name, rows: ids.length, distinct: seen.size, missing: [...all].filter((id) => !seen.has(id)), extra: [...seen].filter((id) => !all.has(id)) };
+  });
+  return { modelFiles: modelFiles.length, h2: all.size, accounts: results };
+}
+
+function assertionRows() {
+  const files = [...markdownFiles(path.join(production, "docs/models")), ...markdownFiles(path.join(production, "docs/accounts/models"))];
+  const rows = files.flatMap((file) => fs.readFileSync(file, "utf8").split(/\r?\n/).flatMap((line, index) =>
+    /^@evidence(?:Review|Exclude|ExcludeReview)? .*(?:전부|0건|일치|대조했다)/.test(line)
+      ? [{ file: path.relative(production, file).replace(/\\/g, "/"), line: index + 1, text: line }]
+      : []));
+  return { files: files.length, rowCount: rows.length, rows };
+}
+
 const command = process.argv[2];
 if (command === "history") console.log(JSON.stringify(history(process.argv[3] ?? "HEAD"), null, 2));
 else if (command === "history-changes") console.log(JSON.stringify(historyChanges(process.argv[3] ?? "HEAD"), null, 2));
 else if (command === "handoffs") console.log(JSON.stringify(handoffs(), null, 2));
-else { console.error("usage: node src/measurements/model-contract-audit.cjs history [ref] | history-changes [ref] | handoffs"); process.exitCode = 2; }
+else if (command === "accounts") console.log(JSON.stringify(accounts(), null, 2));
+else if (command === "assertion-rows") console.log(JSON.stringify(assertionRows(), null, 2));
+else { console.error("usage: node src/measurements/model-contract-audit.cjs history [ref] | history-changes [ref] | handoffs | accounts | assertion-rows"); process.exitCode = 2; }

@@ -46,7 +46,7 @@
 @evidenceExclude spaces/01-storeys.md#storey-datums 이 상위 H2는 두 storey의 완성 바닥 높이를 정하며 모델 원형은 국소 원점에서 만들어지고 층 높이 배치는 instances가 한다.
 @evidenceExclude spaces/02-stair.md#stair-connector-handoff 이 상위 H2는 계단 connector 등록을 정하며 모델 난간살은 connector를 만들거나 바꾸지 않는다.
 @evidenceExclude spaces/02-stair.md#stair-reservation 이 상위 H2는 계단 경로와 단 치수를 정하며 모델 난간살 값은 stair-boundary-heights와 stair-clearance에서 받는다.
-@evidenceExclude spaces/03-surface-owners.md#exterior-surface-handoff 이 상위 H2는 입면·지붕·층 표면의 소유를 정하며 모델은 부재 자체의 면만 소유하고 그 표면을 받지 않는다.
+@evidenceExclude spaces/03-surface-owners.md#exterior-surface-handoff 이전 부모 문장은 외부 trim까지 입면 owner에 주어 모델 충전 부재와 겹쳤다. 수정된 부모는 벽 몸체·void·reveal을 spaces, 별도 닫힌 창틀·문틀·trim·문짝을 models에 주고 이 국소 좌표 H2는 그 부재 면 자체를 만들지 않는다.
 @evidenceExclude spaces/03-surface-owners.md#interior-surface-handoff 이 상위 H2는 방 내부 완결 면의 소유를 정하며 모델은 부재 자체의 면만 소유한다.
 @evidenceExclude spaces/04-observations.md#engine-render-handoff 이 상위 H2는 공간 산출물의 렌더 인계를 정하며 모델 부재 값을 주지 않는다.
 @evidenceExclude spaces/04-observations.md#reference-spatial-comparisons 이 상위 H2는 참조 대비 공간 비교를 정하며 모델 리뷰 뷰는 frame-condition에서 받는다.
