@@ -88,7 +88,7 @@
 | [tub-curtain-rail](../../models/14-bathrooms.md#tub-curtain-rail) | 레일 길이 1.80 m = 욕조 길이; 걷힘 0.25 m, 법선 ±0.02 ⊂ 예약 폭 0.10 m. |
 | [bath-floor-mats](../../models/14-bathrooms.md#bath-floor-mats) | 샤워 매트 0.65×0.45 ⊂ 0.90×0.60 m; 욕조 매트 0.80×0.45 ⊂ 1.05×1.55 m. |
 | [shower-niche-bottles](../../models/14-bathrooms.md#shower-niche-bottles) | 벽감 0.40 m 길이에 세 병 0.06+0.07+0.055+2×0.025 = 0.235 m; 양끝 여유 0.0825 m, 깊이 0.08 m. |
-| [terrace-table](../../models/15-outdoor.md#terrace-table) | 상판 폭 6×0.125+5×0.01 = 0.80 m; 긴변 좌석 중심 ±0.35 m, 상면 0.74. |
+| [terrace-table](../../models/15-outdoor.md#terrace-table) | 상판 폭 6×0.125+5×0.01 = 0.80 m; 긴변 좌석 구간 [-0.65,-0.05]·[0.05,0.65], 다리 X 구간 [-0.70,-0.65]·[0.65,0.70]이라 무릎 폭과 내부 겹침 0. 상면 0.74 m. |
 | [terrace-chair](../../models/15-outdoor.md#terrace-chair) | 좌판 깊이 4×0.13+3×0.01 = 0.55 m; 꺼낸 뒤끝 0.40+0.30+0.55 = 1.25 ≤ 1.35 m. |
 | [lap-siding-board](../../models/15-outdoor.md#lap-siding-board) | 판 높이 0.18−겹침 0.03 = 노출 0.15 m; 길이 L은 입면과 개구부 절단에서 받는다. |
 | [asphalt-shingle-strip](../../models/15-outdoor.md#asphalt-shingle-strip) | 줄 길이 3×0.330+2×0.005 = 1.00 m; 높이 0.30−겹침 0.16 = 노출 0.14 m. |

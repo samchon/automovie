@@ -3,9 +3,9 @@
 ## 테라스 식탁 {#terrace-table}
 <!--
 @evidence principles/core/common.md#scope-preservation 식탁 한 원형의 외곽 1.40 × 0.80 m·상면 0.74 m, 널 상판과 다리 넷, 표면 id `top`·`leg`, 무관절, 소스 owner `src/models/furnishings/outdoor.ts`, 정면·측면 관찰을 맡고 놓는 위치와 yaw는 후속 instances에 남긴다.
-@evidence principles/core/common.md#substantive-completion 상판 Y = [0.71, 0.74], 폭 0.125 m 널 여섯 장과 0.01 m 틈, 0.05 m 각재 다리를 모서리에서 0.05 m 안쪽에 세우는 값을 수치로 정한다. 널 여섯 장과 틈 다섯의 합은 0.80 m로 상판 폭과 같다.
+@evidence principles/core/common.md#substantive-completion 상판 Y = [0.71, 0.74], 폭 0.125 m 널 여섯 장과 0.01 m 틈, 0.05 m 각재 다리 중심 X = ±0.675 m·Z = ±0.375 m를 수치로 정한다. 널 여섯 장과 틈 다섯의 합은 0.80 m로 상판 폭과 같다.
 @evidence principles/core/common.md#declared-basis 길이 1.40 m·폭 0.80 m·상면 0.74 m를 "이 층의 결정"으로 밝히고, 그 근거로 긴 변마다 두 좌석을 두는 성인 둘·자녀 둘의 네 좌석과 꺼낸 의자를 예약 반폭 1.35 m 안에 담는 조건을 댄다. 다리와 좌석 폭의 0.05 m 겹침은 다리가 무릎 앞이 아니라 옆에 놓인다는 이유로 허용한다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 테라스 공간 예약의 크기 안에 부모에 없는 널 상판 분할, 다리 X = ±[0.60, 0.65] 위치, 좌석 중심 로컬 X = ±0.35 m를 더한다. 가구 국소 좌표의 예외로 원점을 바닥 평면 중심에 두는 결정도 더한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 테라스 공간 예약의 크기 안에 부모에 없는 널 상판 분할, 다리 X 구간 [-0.70, -0.65]·[0.65, 0.70], 좌석 중심 로컬 X = ±0.35 m를 더한다. 가구 국소 좌표의 예외로 원점을 바닥 평면 중심에 두는 결정도 더한다.
 @evidence principles/design/models.md#representation-contract 결과 형상을 널 상판과 0.05 m 각재 다리 넷, 안정 표면 `top`·`leg`, 관절 없음, 점유 외곽 1.40 × 0.80 × 0.74 m로 정한다. 대리 형상이 지지하는 관찰은 상면 0.74 m와 널 틈의 읽힘으로 한정하고 재료 결·시공 내구성은 이 형상이 지지하지 않는다고 본문에 적는다. 보이지 않는 한계는 본문의 "널 고정 나사·다리 발 캡은 표현하지 않는다. 나뭇결은 materials가 맡는다."로 밝힌다.
 @evidence principles/design/models.md#spatial-convention 원점을 바닥 평면 중심, +X를 긴 방향, Y = 0을 테라스 상면 datum에 두는 가구 국소 좌표의 예외를 밝히고, 예외의 이유를 네 좌석이 두 긴 변에서 쓰는 사용으로 댄다.
 @evidence principles/design/models.md#reviewable-structure 모델 리뷰 뷰의 정면과 측면에서 상면 0.74 m와 널 틈이 읽히는지를 반증 관찰로 두고 표면 분할은 `top`·`leg`, 관절 영역은 없다고 적는다.
