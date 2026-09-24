@@ -46,7 +46,7 @@ import { buildTubBath } from "./rooms/tub-bath";
 import { buildUpperHall } from "./rooms/upper-hall";
 import { buildWardrobe } from "./rooms/wardrobe";
 import { buildSite } from "./site";
-import type { IRoomSpace } from "./rooms/shared";
+import type { IRoomSpace, IStorageSpace } from "./rooms/shared";
 import type { IHousePart } from "./solids";
 import { buildStair } from "./stair";
 
@@ -56,6 +56,8 @@ export interface IHouse {
   parts: IHousePart[];
   /** The fifteen room space records, in fixed owner order. */
   spaces: IRoomSpace[];
+  /** Storage volumes with the room that owns each, in fixed owner order. */
+  storages: { room: IRoomSpace; storage: IStorageSpace }[];
 }
 
 /** Build the whole house; throws on a duplicate part or space id. */
@@ -112,5 +114,10 @@ export const buildHouse = (): IHouse => {
     if (spaceIds.has(s.id)) throw new Error(`duplicate space id "${s.id}" from ${s.owner}`);
     spaceIds.add(s.id);
   }
-  return { parts, spaces };
+  const storages = rooms.flatMap((room) => (room.storages ?? []).map((storage) => ({ room: room.space, storage })));
+  for (const s of storages) {
+    if (spaceIds.has(s.storage.id)) throw new Error(`duplicate space id "${s.storage.id}" from ${s.room.owner}`);
+    spaceIds.add(s.storage.id);
+  }
+  return { parts, spaces, storages };
 };

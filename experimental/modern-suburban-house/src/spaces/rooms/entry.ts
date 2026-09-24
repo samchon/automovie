@@ -46,6 +46,9 @@ const BASE = STOREYS.groundFloor - GROUND_LAYERS.finish;
 /** Emit the entry floor and ceiling finishes, its share under entry-living-door and the coat closet walls. */
 export const buildEntry = (): IRoomBuild => ({
   space: ENTRY,
+  // The coat closet interior: body X = [1.10, 1.75] plus the open reveal to the
+  // closure's inner face X = 1.87, under the stair structure at Y = 2.15.
+  storages: [{ id: "entry-coat-storage", x: [1.1, 1.87], y: [STOREYS.groundFloor, COAT_TOP], z: [-4.56, -3.51] }],
   parts: [
     roomFloor(ENTRY),
     roomCeiling(ENTRY),

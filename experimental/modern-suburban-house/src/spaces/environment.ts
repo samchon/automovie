@@ -23,11 +23,13 @@
  * space, a room outline that is not rectilinear, and any violation reported by
  * `validateBuiltEnvironment` throw with the owner and path.
  */
-import { srgbHexToLinearColor, validateBuiltEnvironment } from "@automovie/engine";
+import { builtSpaceContainsPoint, srgbHexToLinearColor, validateBuiltEnvironment } from "@automovie/engine";
 import type {
+  IAutoMovieBuiltBoundary,
   IAutoMovieBuiltConnector,
   IAutoMovieBuiltElement,
   IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltOpening,
   IAutoMovieBuiltSpace,
   IAutoMovieBuiltSurface,
   IAutoMovieConvexSpaceCell,
@@ -38,7 +40,7 @@ import type {
 import { GARAGE, MAIN } from "./building";
 import { type IHouse, buildHouse } from "./house";
 import { roomLevels } from "./rooms/shared";
-import type { IHousePart, IPlanPoint } from "./solids";
+import type { IHousePart, IPlanPoint, IWallFace, IWallPoint } from "./solids";
 import { CEILING_RESERVATION, GROUND_LAYERS, STOREYS } from "./storeys";
 
 /** Axis-aligned box, world metres. */
@@ -168,6 +170,130 @@ const boundsOf = (parts: readonly IHousePart[]): IBox => {
   return { x: [lo[0]!, hi[0]!], y: [lo[1]!, hi[1]!], z: [lo[2]!, hi[2]!] };
 };
 
+/** Quarter turn about world Y taking a face's local +X to world +Z (walls along Z). */
+const TO_Z_AXIS = { x: 0, y: -Math.SQRT1_2, z: 0, w: Math.SQRT1_2 };
+
+/** Kind of a void from its id: every void id names what it is. */
+const openingKind = (owner: string, id: string): "door" | "window" | "opening" => {
+  if (id.endsWith("-window")) return "window";
+  if (id.endsWith("-door")) return "door";
+  if (id.endsWith("-opening")) return "opening";
+  throw new Error(`${owner}: void "${id}" names no door, window or opening`);
+};
+
+/** World point at (u, y) of a face, pushed `offset` along the face normal. */
+const facePoint = (face: IWallFace, u: number, y: number, offset: number): IAutoMovieVector3 => {
+  const center = (face.across[0] + face.across[1]) / 2 + offset;
+  return face.axis === "x" ? { x: u, y, z: center } : { x: center, y, z: u };
+};
+
+/**
+ * The logical spaces on the two sides of a wall face at (u, y): the room or
+ * stair space containing a point 0.05 m beyond each face, or the site when a
+ * side lies in no room or stair.
+ */
+const sidesAt = (inner: readonly IAutoMovieBuiltSpace[], face: IWallFace, u: number, y: number): readonly [string, string] => {
+  const half = (face.across[1] - face.across[0]) / 2 + 0.05;
+  const at = (offset: number): string => inner.find((s) => builtSpaceContainsPoint(s, facePoint(face, u, y, offset)))?.id ?? "house-site";
+  return [at(-half), at(half)];
+};
+
+/** Even-odd test of a face point against the face outline. */
+const insideOutline = (outline: readonly IWallPoint[], u: number, y: number): boolean => {
+  let inside = false;
+  for (let i = 0, j = outline.length - 1; i < outline.length; j = i++) {
+    const a = outline[i]!;
+    const b = outline[j]!;
+    if (a.y > y !== b.y > y && u < ((b.u - a.u) * (y - a.y)) / (b.y - a.y) + a.u) inside = !inside;
+  }
+  return inside;
+};
+
+/** Clip a face outline to a (u, y) rectangle, one rectangle side at a time. */
+const clipOutline = (outline: readonly IWallPoint[], u: readonly [number, number], y: readonly [number, number]): IWallPoint[] => {
+  const sides: ((p: IWallPoint) => number)[] = [(p) => p.u - u[0], (p) => u[1] - p.u, (p) => p.y - y[0], (p) => y[1] - p.y];
+  let poly: IWallPoint[] = [...outline];
+  for (const d of sides) {
+    const next: IWallPoint[] = [];
+    for (let i = 0; i < poly.length; ++i) {
+      const a = poly[i]!;
+      const b = poly[(i + 1) % poly.length]!;
+      const da = d(a);
+      const db = d(b);
+      if (da >= 0) next.push(a);
+      if (da >= 0 !== db >= 0) {
+        const s = da / (da - db);
+        next.push({ u: a.u + s * (b.u - a.u), y: a.y + s * (b.y - a.y) });
+      }
+    }
+    poly = next.filter((q, i, all) => {
+      const prev = all[(i + all.length - 1) % all.length]!;
+      return Math.abs(q.u - prev.u) > 1e-9 || Math.abs(q.y - prev.y) > 1e-9;
+    });
+  }
+  return poly;
+};
+
+/** One boundary segment of a wall: a rectangle of its face between one pair of spaces. */
+interface ISegment {
+  u: [number, number];
+  y: [number, number];
+  sides: readonly [string, string];
+}
+
+/**
+ * Cut a wall face into the rectangles that separate one pair of spaces. The
+ * grid breaks at every room or stair cell edge along the wall axis and in
+ * height, and at every void edge; a cell whose two sides are the same space,
+ * or whose centre lies outside the wall outline, bounds nothing and is
+ * dropped. Equal-pair cells merge along the wall, then equal runs merge upward.
+ */
+const segmentsOf = (inner: readonly IAutoMovieBuiltSpace[], face: IWallFace): ISegment[] => {
+  const axis = face.axis;
+  const us = new Set<number>(face.outline.map((q) => q.u));
+  const ys = new Set<number>(face.outline.map((q) => q.y));
+  for (const s of inner)
+    for (const c of s.cells)
+      for (const plane of c.planes) {
+        const n = plane.normal;
+        if (Math.abs(n[axis]) === 1) us.add(plane.offset * n[axis]);
+        if (Math.abs(n.y) === 1) ys.add(plane.offset * n.y);
+      }
+  for (const h of face.holes) {
+    us.add(h.from).add(h.to);
+    ys.add(h.bottom).add(h.top);
+  }
+  const uMin = Math.min(...face.outline.map((q) => q.u));
+  const uMax = Math.max(...face.outline.map((q) => q.u));
+  const yMin = Math.min(...face.outline.map((q) => q.y));
+  const yMax = Math.max(...face.outline.map((q) => q.y));
+  const uCuts = [...us].filter((v) => v >= uMin && v <= uMax).sort((a, b) => a - b);
+  const yCuts = [...ys].filter((v) => v >= yMin && v <= yMax).sort((a, b) => a - b);
+  const merged: ISegment[] = [];
+  for (let j = 0; j + 1 < yCuts.length; ++j) {
+    const row: ISegment[] = [];
+    for (let i = 0; i + 1 < uCuts.length; ++i) {
+      const u: [number, number] = [uCuts[i]!, uCuts[i + 1]!];
+      const y: [number, number] = [yCuts[j]!, yCuts[j + 1]!];
+      if (u[1] - u[0] < 1e-6 || y[1] - y[0] < 1e-6) continue;
+      const cu = (u[0] + u[1]) / 2;
+      const cy = (y[0] + y[1]) / 2;
+      if (!insideOutline(face.outline, cu, cy)) continue;
+      const sides = sidesAt(inner, face, cu, cy);
+      if (sides[0] === sides[1]) continue;
+      const last = row[row.length - 1];
+      if (last !== undefined && last.u[1] === u[0] && last.sides[0] === sides[0] && last.sides[1] === sides[1]) last.u[1] = u[1];
+      else row.push({ u, y, sides });
+    }
+    for (const seg of row) {
+      const below = merged.find((m) => m.y[1] === seg.y[0] && m.u[0] === seg.u[0] && m.u[1] === seg.u[1] && m.sides[0] === seg.sides[0] && m.sides[1] === seg.sides[1]);
+      if (below !== undefined) below.y[1] = seg.y[1];
+      else merged.push(seg);
+    }
+  }
+  return merged;
+};
+
 /** Route of the one stair connector (02 stair-reservation, stair-connector-handoff). */
 const STAIR_ROUTE: readonly IAutoMovieVector3[] = [
   { x: -1.225, y: STOREYS.groundFloor, z: -0.85 },
@@ -228,10 +354,17 @@ export const buildHouseEnvironment = (house: IHouse = buildHouse()): IAutoMovieB
       parent: "ground-storey",
       cells: [
         cell("main-stair/lower-flight", { x: [-1.8, -0.65], y: [STOREYS.groundFloor, STOREYS.upperCeiling], z: [-4.56, -1.45] }),
-        cell("main-stair/upper-flight", { x: [-0.65, 1.87], y: [STOREYS.groundFloor, STOREYS.upperCeiling], z: [-4.56, -3.41] }),
+        // Under treads 7-9 the entry coat closet (entry-coat-storage) takes the volume up to its top.
+        cell("main-stair/upper-flight", { x: [-0.65, 1.03], y: [STOREYS.groundFloor, STOREYS.upperCeiling], z: [-4.56, -3.41] }),
+        cell("main-stair/upper-flight-over-closet", { x: [1.03, 1.87], y: [2.15, STOREYS.upperCeiling], z: [-4.56, -3.41] }),
+        // The floor opening runs on to the front wall (02 stair-floor-opening): above the
+        // entry ceiling the void X = [-1.80, -0.65], Z = [-1.45, -0.25] is stair space too.
+        cell("main-stair/front-void", { x: [-1.8, -0.65], y: [STOREYS.groundCeiling, STOREYS.upperCeiling], z: [-1.45, -0.25] }),
       ],
     },
   ];
+  for (const { room, storage } of house.storages)
+    spaces.push({ id: storage.id, kind: "storage", parent: room.storey, cells: [cell(`${storage.id}/0`, storage)] });
   const surfaces: IAutoMovieBuiltSurface[] = [];
   for (const room of house.spaces) {
     const [floor, ceiling] = roomLevels(room);
@@ -256,6 +389,52 @@ export const buildHouseEnvironment = (house: IHouse = buildHouse()): IAutoMovieB
     { id: "house-root", kind: "building", parent: null, model: null, space: "house", transform: IDENTITY },
     ...house.parts.map((p) => ({ id: p.id, kind: p.role, parent: "house-root", model: p.id, space: spaceOfPart(house, p), transform: IDENTITY })),
   ];
+  const boundaries: IAutoMovieBuiltBoundary[] = [];
+  const openings: IAutoMovieBuiltOpening[] = [];
+  const inner = spaces.filter((s) => s.kind === "room" || s.kind === "stair" || s.kind === "storage");
+  for (const p of house.parts) {
+    const face = p.wall;
+    if (face === undefined) continue;
+    const center = (face.across[0] + face.across[1]) / 2;
+    const segments = segmentsOf(inner, face);
+    const idOf = (k: number): string => `${p.id}/${segments[k]!.sides.join("|")}/${k}`;
+    segments.forEach((seg, k) => {
+      boundaries.push({
+        id: idOf(k),
+        kind: p.role,
+        spaces: [...seg.sides],
+        elements: [p.id],
+        face: {
+          origin: face.axis === "x" ? { x: 0, y: 0, z: center } : { x: center, y: 0, z: 0 },
+          rotation: face.axis === "x" ? { x: 0, y: 0, z: 0, w: 1 } : TO_Z_AXIS,
+          outline: clipOutline(face.outline, seg.u, seg.y).map((q) => ({ x: q.u, y: q.y })),
+          thickness: face.across[1] - face.across[0],
+        },
+      });
+    });
+    for (const hole of face.holes) {
+      // The opening is the passage part of the void: its overlap with the boundary
+      // segment holding the void centre. A void part below both finished floors is
+      // threshold and base zone, not passage between the two spaces.
+      const cu = (hole.from + hole.to) / 2;
+      const cy = (hole.bottom + hole.top) / 2;
+      const k = segments.findIndex((s) => s.u[0] <= cu && cu <= s.u[1] && s.y[0] <= cy && cy <= s.y[1]);
+      if (k < 0) throw new Error(`${p.owner}: void "${hole.id}" in "${p.id}" lies in no boundary between two spaces`);
+      const seg = segments[k]!;
+      const u0 = Math.max(hole.from, seg.u[0]);
+      const u1 = Math.min(hole.to, seg.u[1]);
+      const y0 = Math.max(hole.bottom, seg.y[0]);
+      const y1 = Math.min(hole.top, seg.y[1]);
+      if (u1 - u0 < 0.3 || y1 - y0 < 0.3) throw new Error(`${p.owner}: void "${hole.id}" leaves only [${u0}, ${u1}] × [${y0}, ${y1}] between ${seg.sides.join(" and ")}`);
+      openings.push({
+        id: hole.id,
+        kind: openingKind(p.owner, hole.id),
+        boundary: idOf(k),
+        fill: null,
+        profile: { outline: [{ x: u0, y: y0 }, { x: u1, y: y0 }, { x: u1, y: y1 }, { x: u0, y: y1 }] },
+      });
+    }
+  }
   const stair: IAutoMovieBuiltConnector = {
     id: "main-stair-connection",
     kind: "stair",
@@ -277,8 +456,8 @@ export const buildHouseEnvironment = (house: IHouse = buildHouse()): IAutoMovieB
     modelReferences: [],
     elements,
     spaces,
-    boundaries: [],
-    openings: [],
+    boundaries,
+    openings,
     connectors: [stair],
     surfaces,
     walkable: surfaces.map((s) => s.surface.id),

@@ -41,6 +41,7 @@ export const buildUpperHall = (): IRoomBuild => {
   const [, top] = partitionSpan(storey);
   return {
     space: UPPER_HALL,
+    storages: [{ id: "upper-linen-storage", x: [1.87, 3.07], y: [STOREYS.upperFloor, STOREYS.upperFloor + LINEN_HEIGHT], z: [-3.26, -2.66] }],
     parts: [
       roomFloor(UPPER_HALL),
       roomCeiling(UPPER_HALL),

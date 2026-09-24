@@ -63,6 +63,26 @@ export interface IHousePart {
   color: number;
   /** World-space triangles with normals and indices. */
   mesh: IAutoMovieMesh;
+  /** The wall face this part realizes, when it is a wall or partition panel. */
+  wall?: IWallFace;
+}
+
+/**
+ * The face of one wall panel before its voids are cut: the boundary record a
+ * built environment hosts openings on. `outline` is the panel outline in the
+ * panel's (u, y); `holes` are its voids, each a door, window or open passage.
+ */
+export interface IWallFace {
+  axis: "x" | "z";
+  across: readonly [number, number];
+  outline: readonly IWallPoint[];
+  holes: readonly IWallHole[];
+}
+
+/** A wall panel's mesh together with the face it was cut from. */
+export interface IWallSolid {
+  mesh: IAutoMovieMesh;
+  face: IWallFace;
 }
 
 /** A point of a plan polygon in world X/Z metres. */
@@ -116,7 +136,7 @@ export const wallPanel = (props: {
   across: readonly [number, number];
   outline: readonly IWallPoint[];
   holes?: readonly IWallHole[];
-}): IAutoMovieMesh => {
+}): IWallSolid => {
   const depth = props.across[1] - props.across[0];
   const center = (props.across[0] + props.across[1]) / 2;
   const outer = props.outline.map((p) => ({ x: p.u, y: p.y }));
@@ -127,10 +147,11 @@ export const wallPanel = (props: {
     { x: h.from, y: h.top },
   ]);
   const local = extrudeAutoMovieRegion({ outer, holes, depth });
+  const face: IWallFace = { axis: props.axis, across: props.across, outline: props.outline, holes: props.holes ?? [] };
   // Along X the region already lies in world X/Y; only its depth moves to Z.
-  if (props.axis === "x") return transformAutoMovieMesh(local, { translation: { x: 0, y: 0, z: center } });
+  if (props.axis === "x") return { mesh: transformAutoMovieMesh(local, { translation: { x: 0, y: 0, z: center } }), face };
   // Along Z: local X turns into world +Z and the depth axis into world -X.
-  return transformAutoMovieMesh(local, { rotation: TO_Z_AXIS, translation: { x: center, y: 0, z: 0 } });
+  return { mesh: transformAutoMovieMesh(local, { rotation: TO_Z_AXIS, translation: { x: center, y: 0, z: 0 } }), face };
 };
 
 /**
@@ -148,7 +169,7 @@ export const straightWall = (props: {
   bottom: number;
   top: number;
   holes?: readonly IWallHole[];
-}): IAutoMovieMesh => {
+}): IWallSolid => {
   const eps = 1e-9;
   const holes = props.holes ?? [];
   for (const h of holes)
@@ -159,12 +180,27 @@ export const straightWall = (props: {
   for (const n of notches)
     outline.push({ u: n.from, y: props.bottom }, { u: n.from, y: n.top }, { u: n.to, y: n.top }, { u: n.to, y: props.bottom });
   outline.push({ u: props.along[1], y: props.bottom }, { u: props.along[1], y: props.top }, { u: props.along[0], y: props.top });
-  return wallPanel({
+  const solid = wallPanel({
     axis: props.axis,
     across: props.across,
     outline,
     holes: holes.filter((h) => h.bottom > props.bottom + eps),
   });
+  // The face is the full rectangle with every void, notches included.
+  return {
+    mesh: solid.mesh,
+    face: {
+      axis: props.axis,
+      across: props.across,
+      outline: [
+        { u: props.along[0], y: props.bottom },
+        { u: props.along[1], y: props.bottom },
+        { u: props.along[1], y: props.top },
+        { u: props.along[0], y: props.top },
+      ],
+      holes,
+    },
+  };
 };
 
 /** A horizontal slab: a plan polygon with optional plan holes between two heights. */
@@ -276,10 +312,5 @@ export const bar = (from: IAutoMovieVector3, to: IAutoMovieVector3, size: number
 };
 
 /** Build one part record. */
-export const part = (id: string, owner: string, role: HousePartRole, color: number, mesh: IAutoMovieMesh): IHousePart => ({
-  id,
-  owner,
-  role,
-  color,
-  mesh,
-});
+export const part = (id: string, owner: string, role: HousePartRole, color: number, solid: IAutoMovieMesh | IWallSolid): IHousePart =>
+  "face" in solid ? { id, owner, role, color, mesh: solid.mesh, wall: solid.face } : { id, owner, role, color, mesh: solid };

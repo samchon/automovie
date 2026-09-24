@@ -41,12 +41,26 @@ export interface IRoomSpace {
 /** Finished floor and ceiling heights of a room. */
 export const roomLevels = (room: IRoomSpace): readonly [number, number] => room.levels ?? [floorOf(room.storey), ceilingOf(room.storey)];
 
+/**
+ * A closed storage volume a room owns and uses through a real opening (coat
+ * closet, linen closet): a logical space of its own, never a route node.
+ */
+export interface IStorageSpace {
+  id: string;
+  /** World box of the usable interior, metres. */
+  x: readonly [number, number];
+  y: readonly [number, number];
+  z: readonly [number, number];
+}
+
 /** What one room owner emits: its space record and the solids it owns. */
 export interface IRoomBuild {
   /** The room's space record, consumed by the route table and observations. */
   space: IRoomSpace;
   /** Floor finish, partitions and other solids this room owns. */
   parts: IHousePart[];
+  /** Storage volumes this room owns, if any. */
+  storages?: IStorageSpace[];
 }
 
 /** Depth of the floor finish bundle below a storey's finished floor. */
