@@ -19,7 +19,7 @@
 @evidence spaces/003-surface-ownership.md#right-common-glazing 공용부 측면창의 투명 pane이 후면과 같은 상태 쌍을 받아 두 면의 유리가 다르게 읽히지 않는다.
 -->
 
-현재 `*-pane-*` 중 glass 면은 기존 curtainwall owner가 유지한다. geometry의 0.018m 두께, ior=1.5, roughness=.09, metallic=0, opacity=1, alphaMode=opaque, clearcoat=0을 보존한다. day는 #d2e2dc·transmission=.94, private/night는 #526c64·transmission=.38이다. 이 숫자는 전기변색 유리의 광학 실측값이 아니라 현재 보이는 상태의 근사다. 새 상태나 프라이버시 보증을 추가하지 않는다.
+현재 `*-pane-*` 중 glass 면은 기존 curtainwall owner가 유지한다. [창호 인터페이스](../spaces/003-surface-ownership.md#glazing-interface) 단면의 0.018m 유리 두께, ior=1.5, roughness=.09, metallic=0, opacity=1, alphaMode=opaque, clearcoat=0을 보존한다. day는 #d2e2dc·transmission=.94, private/night는 #526c64·transmission=.38이다. 상태의 의미는 [프라이버시 상태](../settings/003-spatial-basis.md#privacy-states)를 따른다. 그 canon이 낮 상태에서 작업실·침실 하부 시선대 위에 두는 '더 밝은 tint 유리'는 이 낮 투명 유리이며, 공용부 유리와 같은 값으로 하부 frosted보다 밝게 보인다. 이 숫자는 전기변색 유리의 광학 실측값이 아니라 현재 보이는 상태의 근사다. 새 상태나 프라이버시 보증을 추가하지 않는다.
 
 texture는 없다. 유리의 반사는 동일한 기존 sky/PMREM과 주변 재료가 결정하며 가짜 하늘 사진·정면 glare 판을 붙이지 않는다. 앞뒤 면과 실내 가구의 보임, 낮과 사적 상태의 차이는 [상태 검사](007-observation.md#material-state-samples)와 ref01·03·05에서 관찰한다. 새 석재·목재 때문에 반사 대비가 바뀌는 것은 이번 재료 회귀 검사에 포함한다. 실제 가시광 투과율·열 성능·시선 차단 성능은 unverified다.
 
@@ -33,19 +33,19 @@ texture는 없다. 유리의 반사는 동일한 기존 sky/PMREM과 주변 재�
 @evidence principles/design/materials.md#material-construction-appearance 유리 두께 형상은 유지하고 거친 투과는 렌더 근사일 뿐 시선 차단 성능이 아니라고 나눠, 반투명 외관을 프라이버시 보증으로 읽지 않게 한다.
 @evidence principles/design/materials.md#material-binding-interface 투명/반투명 경계의 높이·개수와 각 면은 spaces owner가 소유하고 재료는 texture 좌표 없이 그 면에만 결합한다는 호환 조건을 둔다.
 @evidence principles/design/materials.md#material-verification-address 같은 opening의 상하 band를 material-state-samples에서 함께 보고, 세라믹처럼 완전히 불투명하거나 낮·밤 상태에서 열린 문과 혼동되면 실패로 둔다.
-@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work privacy-states의 하부 시선대와 욕실 고정층, 각 privacy opening의 sill+1.25m 경계와 욕실 창 전체 frosted를 대조했다. 부모가 위치와 상태를 정했고 재료는 응답만 더했다.
+@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work privacy-states의 하부 시선대와 욕실 고정층, glazing-interface의 하부 띠 상단 F=min(head, S+1.25)와 욕실 창 전체 frosted를 대조했다. 부모가 위치와 상태를 정했고 재료는 응답만 더했다.
 @evidence settings/003-spatial-basis.md#privacy-states 작업실·침실 하부 시선대와 욕실 전체의 고정 반투명 층을 이 응답으로 받는다.
 @evidence spaces/003-surface-ownership.md#rear-bath-glazing 후면 욕실 창 전체가 모든 상태에서 이 frosted 응답을 유지한다.
 @evidence spaces/003-surface-ownership.md#right-bath-glazing 욕실 측면창 전체가 같은 frosted 응답을 받아 두 욕실 창의 프라이버시 읽힘이 같다.
 @evidence spaces/003-surface-ownership.md#front-flex-glazing 작업실 전면창의 sill부터 1.25m 하부 band가 frosted를 받고 위쪽은 투명 유리로 남는다.
 @evidence spaces/003-surface-ownership.md#front-bedroom-glazing 상층 침실 전면창에서 하층 작업실 jamb 분할선으로 나뉜 bay마다 sill부터 1.25m band가 frosted를 받는다.
 @evidence spaces/003-surface-ownership.md#rear-bedroom-glazing 주침실 후면창의 bay마다 하부 band가 frosted를 받는다.
-@evidence spaces/003-surface-ownership.md#left-flex-glazing 작업실 측면창의 하부 band가 frosted를 받아 reference04 측면 하부의 반투명 유리가 된다.
+@evidence spaces/003-surface-ownership.md#left-flex-glazing 작업실 측면창의 하부 band가 frosted를 받는다.
 @evidence spaces/003-surface-ownership.md#left-bedroom-glazing 작은 침실 1 측면창의 하부 band가 frosted를 받는다.
 @evidence spaces/003-surface-ownership.md#left-child-two-glazing 높은 sill 3.90에서 시작하는 작은 침실 2 창의 하부 1.25m가 frosted, 나머지 위쪽이 투명으로 나뉜다.
 -->
 
-lower privacy band 및 욕실의 frosted 면은 `facade.ts`가 생성한 그대로다. 작업실·침실 창의 하부 band는 bay마다 sill부터 min(head, sill+1.25)까지, 곧 현재 창에서 sill부터 1.25m이고 그 위는 투명 유리다. 후면·측면 욕실 창은 전체가 frosted다. 색 #b7ccc0, roughness=.70, transmission=.28, geometry/renderer thickness=.018m, ior=1.5를 보존하고 나머지는 [전달 기본값](001-binding-and-scale.md#material-delivery)을 따른다. texture 없이 거친 투과의 근사로 쓴다. 창문 위에 입자 이미지를 붙여 시선 차단을 흉내 내지 않는다.
+[프라이버시 상태](../settings/003-spatial-basis.md#privacy-states)의 하부 시선대와 욕실 고정 반투명 층, 곧 lower privacy band 및 욕실의 frosted 면은 `facade.ts`가 생성한 그대로다. 작업실·침실 창의 하부 band는 [창호 인터페이스](../spaces/003-surface-ownership.md#glazing-interface)의 F=min(head, S+1.25)대로 bay마다 sill부터 min(head, sill+1.25)까지, 곧 현재 창에서 sill부터 1.25m이고 그 위는 투명 유리다. 후면·측면 욕실 창은 전체가 frosted다. 색 #b7ccc0, roughness=.70, transmission=.28, geometry/renderer thickness=.018m, ior=1.5를 보존하고 나머지는 [전달 기본값](001-binding-and-scale.md#material-delivery)을 따른다. texture 없이 거친 투과의 근사로 쓴다. 창문 위에 입자 이미지를 붙여 시선 차단을 흉내 내지 않는다.
 
 투명/반투명 경계의 높이와 개수, curtainwall의 각 실제 면은 spaces owner가 소유한다. [상태 검사](007-observation.md#material-state-samples)는 동일 opening에서 상하 band를 함께 관찰하고 ref04·05의 사생활 제어를 질문으로 유지한다. 반투명 유리가 세라믹처럼 완전히 불투명하거나 낮/밤 상태에서 열린 문과 혼동되면 실패다. 프라이버시 강화와 외부 차양의 새 설계는 이 보존 결정에서 승인된 것이 아니다.
 
@@ -59,12 +59,12 @@ lower privacy band 및 욕실의 frosted 면은 `facade.ts`가 생성한 그대�
 @evidence principles/design/materials.md#material-construction-appearance 셀·투명 여백의 치수는 roof-face geometry와 texture 반복, 반사와 alpha는 렌더 근사로 나누고 발전·각도별 투과·배수 능력을 주장하지 않는다.
 @evidence principles/design/materials.md#material-binding-interface 기존 미터 UV와 cell mask를 그대로 소비하고 새 재료 좌표나 finish를 PV·canopy 면에 겹쳐 쓰지 않는다는 호환 조건을 둔다.
 @evidence principles/design/materials.md#material-verification-address 외관·top·soffit의 셀 간격·frame·rail 리듬을 reference-material-samples의 지붕 회귀 표본에서 대조한다.
-@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work roof-face의 cassette·rail·girder·배수 부재와 셀 치수, envelope-interface의 module 등분, operative-subjects의 PV 비발전 경계를 대조했다. 보존에 필요한 값이 모두 부모에 있어 수리가 필요 없었다.
+@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work roof-face의 cassette·rail·girder·배수 부재, roof owner의 canopy-finish.ts 셀 치수, envelope-interface의 module 등분, operative-subjects의 PV 비발전 경계를 대조했다. 보존에 필요한 값이 모두 부모에 있어 수리가 필요 없었다.
 @evidence spaces/003-surface-ownership.md#roof-face v-076이 닫은 캐노피 부재·배수·셀 간격을 재료 변경의 보존 경계로 받는다.
 @evidence spaces/002-spatial-graph.md#envelope-interface PV module의 최대 1.20×1.90m 등분과 0.04m gap을 보존할 반복으로 받아 새 texture 반복으로 대체하지 않는다.
 @evidence settings/002-household.md#operative-subjects 태양광 모듈을 발전 주체가 아닌 보이는 부재로 두는 경계를 셀 표현이 발전 성능을 뜻하지 않는다는 한계로 옮긴다.
 -->
 
-v-076이 닫은 `roof.ts`의 cassette70·girder3·rail44·post9, 거터·overflow·outlet과 `canopy-finish.ts`의 PV cell baseColor/alpha texture·미터 UV binding·cell mask, [Assembly.material](../../src/house/assembly.ts)이 정하는 PV·canopy-metal 응답을 그대로 소비한다. 거터의 steel 거름망은 [보존 역할](006-wet-and-joinery.md#retained-surfaces)이 이름으로 받는다. PV의 현재 색 #b9cedb, roughness=.19, thickness=.012, clearcoat=.25 및 canopy-metal #626e70·metallic=.65·roughness=.36을 바꾸지 않는다. 태양광 셀·투명 여백의 수치와 반복은 [roof-face](../spaces/003-surface-ownership.md#roof-face)의 owner에 남긴다.
+v-076이 닫은 `roof.ts`의 cassette70·girder3·rail44·post9와 endplate·support base/cap/flashing, 거터·overflow·outlet, 지붕 fascia·drip, `right.ts`의 canopy-metal 배수관·collar·clip·inspection body와 `canopy-finish.ts`의 PV cell baseColor/alpha texture·미터 UV binding·cell mask, [Assembly.material](../../src/house/assembly.ts)이 정하는 PV·canopy-metal 응답을 그대로 소비한다. 거터의 steel 거름망, cassette 체결 bolt·head, support anchor는 [보존 역할](006-wet-and-joinery.md#retained-surfaces)이 이름으로 받는다. PV의 현재 색 #b9cedb, roughness=.19, thickness=.012, clearcoat=.25 및 canopy-metal #626e70·metallic=.65·roughness=.36을 바꾸지 않는다. 태양광 셀·투명 여백의 수치와 반복은 [roof-face](../spaces/003-surface-ownership.md#roof-face)의 owner에 남긴다.
 
 기존 하늘 반사와 alpha shadow 근사는 유지한다. 재료 작업이 canopy의 검은 연속판 증상을 재발시키면 새 주변 재료/전달의 회귀 결함이다. [지붕 회귀](007-observation.md#reference-material-samples)에서 외관·top·soffit의 셀 간격·프레임·rail 리듬을 대조한다. 실제 셀 발전 성능·각도별 투과율·구조와 배수 능력은 이 보존 판정의 범위가 아니다.
