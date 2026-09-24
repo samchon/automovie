@@ -24,16 +24,23 @@ import { CEILING_FINISH, GROUND_LAYERS, INTERSTOREY_FLOOR_FINISH, type StoreyId,
  * fixture body, a storage body, the floor a person uses in front of them, a
  * clear route, or the sweep of a door, drawer or appliance door. The zone is
  * a spaces decision later instances and observations consume; the object in it
- * is not authored here.
+ * is not authored here. A `covering` (a rug or mat a few millimetres thick) is
+ * walked on, so a route may cross it.
  */
 export interface IRoomReservation {
   /** Stable id, unique within the house. */
   id: string;
-  kind: "furniture" | "fixture" | "storage" | "use" | "route" | "swing";
+  kind: "furniture" | "fixture" | "storage" | "covering" | "use" | "route" | "swing";
   x: readonly [number, number];
   z: readonly [number, number];
   /** World height range of a body or a wall-hung item; absent for a floor area kept clear. */
   y?: readonly [number, number];
+  /**
+   * The space the zone lies in when it is not the owning room: a zone this
+   * room's design decides beside its own door, on the neighbour's floor
+   * (laundry's garage-side waiting, the coat closet's front use).
+   */
+  space?: string;
 }
 
 /** One interior space as its plan owner declares it. */
@@ -72,22 +79,27 @@ const inOutline = (outline: readonly IPlanPoint[], x: number, z: number): boolea
 };
 
 /**
- * Refuse a room whose reservations leave its outline, or whose clear route
- * crosses a furniture, fixture or storage body. Door and appliance sweeps may
- * cross routes: operating a door and walking through are separate states (05).
+ * Refuse any reservation that leaves the space it lies in (its `space`, else
+ * its owning room), and any clear route that crosses a furniture, fixture or
+ * storage body lying in the same space, whichever room owns either. Door and
+ * appliance sweeps and coverings may cross routes: operating a door and walking
+ * through are separate states (05), and a rug is walked on.
  */
-export const checkReservations = (room: IRoomSpace): void => {
-  const zones = room.reservations ?? [];
-  for (const r of zones) {
+export const checkReservations = (rooms: readonly IRoomSpace[]): void => {
+  const outline = new Map(rooms.map((r) => [r.id, r.outline]));
+  const placed = rooms.flatMap((room) => (room.reservations ?? []).map((r) => ({ room, r, space: r.space ?? room.id })));
+  for (const { room, r, space } of placed) {
     if (!(r.x[0] < r.x[1] && r.z[0] < r.z[1])) throw new Error(`${room.owner}: reservation "${r.id}" has an empty plan`);
+    const shape = outline.get(space);
+    if (shape === undefined) throw new Error(`${room.owner}: reservation "${r.id}" lies in unknown space "${space}"`);
     const samples = [r.x[0], (r.x[0] + r.x[1]) / 2, r.x[1]].flatMap((x) => [r.z[0], (r.z[0] + r.z[1]) / 2, r.z[1]].map((z) => [x, z] as const));
-    if (samples.some(([x, z]) => !inOutline(room.outline, x, z))) throw new Error(`${room.owner}: reservation "${r.id}" leaves room "${room.id}"`);
+    if (samples.some(([x, z]) => !inOutline(shape, x, z))) throw new Error(`${room.owner}: reservation "${r.id}" leaves space "${space}"`);
   }
-  const bodies = zones.filter((r) => r.kind === "furniture" || r.kind === "fixture" || r.kind === "storage");
-  for (const route of zones.filter((r) => r.kind === "route"))
-    for (const b of bodies)
-      if (route.x[0] < b.x[1] - 1e-9 && b.x[0] < route.x[1] - 1e-9 && route.z[0] < b.z[1] - 1e-9 && b.z[0] < route.z[1] - 1e-9)
-        throw new Error(`${room.owner}: route "${route.id}" crosses "${b.id}"`);
+  const bodies = placed.filter((p) => p.r.kind === "furniture" || p.r.kind === "fixture" || p.r.kind === "storage");
+  for (const route of placed.filter((p) => p.r.kind === "route"))
+    for (const body of bodies)
+      if (route.space === body.space && route.r.x[0] < body.r.x[1] - 1e-9 && body.r.x[0] < route.r.x[1] - 1e-9 && route.r.z[0] < body.r.z[1] - 1e-9 && body.r.z[0] < route.r.z[1] - 1e-9)
+        throw new Error(`${route.room.owner}: route "${route.r.id}" crosses "${body.r.id}" (${body.room.owner})`);
 };
 
 /** Finished floor and ceiling heights of a room. */

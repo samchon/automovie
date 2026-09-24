@@ -39,6 +39,8 @@ const LAUNDRY: IRoomSpace = {
     { id: "laundry-shoe-use", kind: "use", x: [3.62, 4.25], z: [-2.85, -2.05] },
     // laundry-plan upper (mudroom) waiting zone and laundry-through-route.
     { id: "laundry-upper-waiting", kind: "use", x: [4.45, 5.5], z: [-4.43, -3.38] },
+    // laundry-plan decides the garage-side lower waiting too; it lies on the garage floor.
+    { id: "laundry-garage-lower-waiting", kind: "use", space: "garage", x: [5.75, 6.8], z: [-4.43, -3.38] },
     { id: "laundry-through-route", kind: "route", x: [3.22, 5.5], z: [-4.32, -3.42] },
   ],
 };

@@ -41,7 +41,9 @@ const ENTRY: IRoomSpace = {
     // entry-plan: the stair's lower waiting area kept on this room's floor.
     { id: "entry-stair-waiting", kind: "use", x: [-1.8, -0.65], z: [-1.45, -0.25] },
     // entry-use-routes: the shallow mat behind the opened front door.
-    { id: "entry-mat", kind: "furniture", x: [0.45, 1.35], z: [-1.95, -1.3], y: [0, 0.006] },
+    // entry-coat-storage decides the closet's front use, facing -X on the service band floor.
+    { id: "entry-coat-front-use", kind: "use", space: "service-access", x: [2.1, 2.7], z: [-4.4, -3.65] },
+    { id: "entry-mat", kind: "covering", x: [0.45, 1.35], z: [-1.95, -1.3], y: [0, 0.006] },
     // entry-coat-storage's body Z = [-4.56, -3.51] and its front use
     // X = [2.10, 2.70] lie outside this outline (the body is `storages`).
   ],

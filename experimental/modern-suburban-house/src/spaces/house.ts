@@ -114,7 +114,7 @@ export const buildHouse = (): IHouse => {
     seen.add(p.id);
   }
   const spaces = rooms.map((room) => room.space);
-  for (const s of spaces) checkReservations(s);
+  checkReservations(spaces);
   const spaceIds = new Set<string>();
   for (const s of spaces) {
     if (spaceIds.has(s.id)) throw new Error(`duplicate space id "${s.id}" from ${s.owner}`);

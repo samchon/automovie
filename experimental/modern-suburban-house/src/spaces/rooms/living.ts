@@ -26,13 +26,16 @@ const LIVING: IRoomSpace = {
     { id: "living-table", kind: "furniture", x: [-3.95, -3.45], z: [-3.3, -2.0], y: [0, 0.42] },
     { id: "living-reading-chair", kind: "furniture", x: [-3.9, -3.05], z: [-5.65, -4.8], y: [0, 0.9] },
     { id: "living-bookcase", kind: "storage", x: [-2.3, -1.95], z: [-5.9, -4.9], y: [0, 1.9] },
-    { id: "living-rug", kind: "furniture", x: [-4.0, -2.0], z: [-3.9, -1.55], y: [0, 0.008] },
+    { id: "living-rug", kind: "covering", x: [-4.0, -2.0], z: [-3.9, -1.55], y: [0, 0.008] },
     { id: "living-sofa-use", kind: "use", x: [-3.45, -2.9], z: [-3.6, -1.8] },
     { id: "living-chair-use", kind: "use", x: [-3.9, -3.05], z: [-4.8, -4.2] },
     { id: "living-bookcase-use", kind: "use", x: [-2.9, -2.3], z: [-5.8, -5.0] },
     // living-through-route. The front floor's X runs from the main band's
     // left edge to the door-front zone, the two plans the text joins.
     { id: "living-main-route", kind: "route", x: [-4.9, -4.0], z: [-6.05, -1.45] },
+    // living-through-route: the bookcase is reached across the floor behind the sofa,
+    // Z = [-4.65, -3.75], from the main band (X = -4.00) to the bookcase use zone (X = -2.30).
+    { id: "living-bookcase-cross-route", kind: "route", x: [-4.0, -2.3], z: [-4.65, -3.75] },
     { id: "living-front-route", kind: "route", x: [-4.9, -2.85], z: [-1.45, -0.45] },
   ],
 };
