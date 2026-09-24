@@ -3,7 +3,7 @@
  * recorded facts and photograph by shared rules, from the test CWD:
  *
  *   ttsx -P tsconfig.scripts.json --no-plugins scripts/face-review/derive-face-documents.ts identity \
- *     STUDY FACTS DETECTIONS POSES ANCHORS OUTPUT [EXPRESSION_STUDY]
+ *     STUDY FACTS DETECTIONS POSES ANCHORS OUTPUT [EXPRESSION_STUDY [PREVIOUS_STUDY RENDER_DETECTIONS]]
  *   ttsx ... derive-face-documents.ts calibrate CALIBRATION_DETECTIONS DETECTIONS OUTPUT.json
  *   ttsx ... derive-face-documents.ts expression STUDY CALIBRATION.json REST_DETECTIONS DETECTIONS OUTPUT
  *
@@ -24,6 +24,16 @@
  * shape). Expression, gaze and everything else keep the study's values when
  * EXPRESSION_STUDY is given and are empty otherwise; hair, iris and material
  * values are the study's.
+ *
+ * The anchors stand in for the detector on the model, and they are not it:
+ * a contour landmark the detector puts on the render's visible silhouette
+ * slides over the surface as the face widens, where an anchor stays on its
+ * vertex. PREVIOUS_STUDY (an earlier `identity` output) and RENDER_DETECTIONS
+ * (the detector on its product renders, ids `portrait:<subject>__reference-yaw`)
+ * close that loop: each index's target is the photograph's value plus what
+ * the anchored model said minus what the render showed for the previous
+ * documents, so the render, read by the photograph's own instrument, is what
+ * the proportions are matched on.
  *
  * `calibrate` turns the product-editor renders of the reference head, one per
  * expression channel and weight (ids `cal:cal-<channel>-<percent>` and
@@ -116,11 +126,28 @@ if (command === "identity") {
     anchorFile,
     output,
     expressionStudy,
+    previousStudy,
+    renderDetectionFile,
   ] = args;
   if (output === undefined)
     throw new Error(
-      "identity STUDY FACTS DETECTIONS POSES ANCHORS OUTPUT [EXPRESSION_STUDY]",
+      "identity STUDY FACTS DETECTIONS POSES ANCHORS OUTPUT [EXPRESSION_STUDY [PREVIOUS_STUDY RENDER_DETECTIONS]]",
     );
+  // The render-side correction: what the anchored model said minus what the
+  // detector reads on the product render of the same documents.
+  const previous =
+    previousStudy === undefined
+      ? undefined
+      : json<
+          Record<
+            string,
+            { anthropometry: Record<string, { model: number | null }> | string }
+          >
+        >(path.join(previousStudy, "derivation.json"));
+  const renders =
+    renderDetectionFile === undefined
+      ? undefined
+      : detections(renderDetectionFile);
   const basis = json<IAutoMovieHumanFaceBasis>(
     path.join(study!, "basis.json.gz"),
   );
@@ -243,7 +270,29 @@ if (command === "identity") {
       const measured = measureFaceAnthropometry(points);
       return ids.map((id) => measured[id]!);
     };
-    const target = measureFaceAnthropometry(photo.landmarks.slice(0, 468));
+    const photographed = measureFaceAnthropometry(
+      photo.landmarks.slice(0, 468),
+    );
+    const before = previous?.[subject]?.anthropometry;
+    const render = renders?.get(`portrait:${subject}__reference-yaw`)?.face;
+    const rendered =
+      render === undefined || render === null
+        ? undefined
+        : measureFaceAnthropometry(render.landmarks.slice(0, 468));
+    const correction = Object.fromEntries(
+      ids.map((id) => {
+        const model =
+          typeof before === "object" ? (before[id]?.model ?? null) : null;
+        const seen = rendered?.[id] ?? null;
+        return [id, model === null || seen === null ? 0 : model - seen];
+      }),
+    );
+    const target = Object.fromEntries(
+      ids.map((id) => [
+        id,
+        photographed[id] === null ? null : photographed[id]! + correction[id]!,
+      ]),
+    );
     const solution = solveFaceAnthropometry({
       controls: FACE_ANTHROPOMETRY_INDICES.map((one, k) => ({
         id: one.id,
@@ -265,7 +314,8 @@ if (command === "identity") {
         ids.map((id, k) => [
           id,
           {
-            photograph: target[id],
+            photograph: photographed[id],
+            correction: correction[id],
             model: solution.achieved[k],
             control: solution.values[k],
             held: solution.held.includes(k),

@@ -1,0 +1,180 @@
+/**
+ * Midsagittal soft-tissue landmarks of a built face surface, by the classical
+ * definitions (Farkas, Anthropometry of the Head and Face, 1994).
+ *
+ * The surface is cut by the plane x = 0 (`faceMidsagittalSection`) and read
+ * as the front-most point at every height (`faceMidsagittalProfile`, a
+ * `step` in metres), which is the profile a lateral photograph shows. On it:
+ *
+ * - pronasale (prn): the most anterior point of the nose, the profile's
+ *   front-most point inside `nose` (a height band);
+ * - subnasale (sn): where the columella merges with the upper lip. Below the
+ *   nasal tip the profile runs back along the columella (more depth lost than
+ *   height) and then down the lip (less); sn is the first point below the
+ *   columella where the profile turns from the one to the other, its slope
+ *   passing back through 45 degrees;
+ * - stomion (sto): the midpoint of the vermilion seam, given by the caller
+ *   (the basis's lip contact pair), because the closed lips meet there;
+ * - menton (me): the lowest point of the chin, where its outline turns under
+ *   toward the neck. Going down from the lower lip's front-most point the
+ *   profile falls back into the labiomental fold (more depth lost than
+ *   height), runs down the chin's front (less) and turns under at the chin's
+ *   lower edge (more again). From where that second steep run opens, the
+ *   chin's underside is followed back (at most `chinDepth`) to the point
+ *   where it runs level, its height changing by less than `level` of its
+ *   depth: the chin's lowest point.
+ *
+ * Heights are along y (the face frame's vertical) in metres. Pure.
+ */
+
+/** One point of the x = 0 section: [y, z] in metres. */
+export type FaceMidsagittalPoint = [number, number];
+
+/** The segments of the x = 0 plane's section of a triangle surface. */
+export function faceMidsagittalSection(
+  positions: readonly number[],
+  indices: readonly number[],
+): [FaceMidsagittalPoint, FaceMidsagittalPoint][] {
+  const segments: [FaceMidsagittalPoint, FaceMidsagittalPoint][] = [];
+  for (let t = 0; t < indices.length; t += 3) {
+    const points: FaceMidsagittalPoint[] = [];
+    for (let e = 0; e < 3; ++e) {
+      const a = indices[t + e]!;
+      const b = indices[t + ((e + 1) % 3)]!;
+      const xa = positions[3 * a]!;
+      const xb = positions[3 * b]!;
+      if (xa < 0 === xb < 0 || xa === xb) continue;
+      const s = xa / (xa - xb);
+      points.push([
+        positions[3 * a + 1]! +
+          s * (positions[3 * b + 1]! - positions[3 * a + 1]!),
+        positions[3 * a + 2]! +
+          s * (positions[3 * b + 2]! - positions[3 * a + 2]!),
+      ]);
+    }
+    if (points.length === 2) segments.push([points[0]!, points[1]!]);
+  }
+  return segments;
+}
+
+/** Front-most z at each height from `top` down to `bottom`, every `step`. */
+export function faceMidsagittalProfile(
+  segments: readonly [FaceMidsagittalPoint, FaceMidsagittalPoint][],
+  top: number,
+  bottom: number,
+  step: number,
+): FaceMidsagittalPoint[] {
+  const out: FaceMidsagittalPoint[] = [];
+  for (let k = 0; top - k * step >= bottom; ++k) {
+    const y = top - k * step;
+    let front: number | null = null;
+    for (const [[y0, z0], [y1, z1]] of segments) {
+      if ((y0 - y) * (y1 - y) > 0 || y0 === y1) continue;
+      const z = z0 + ((y - y0) / (y1 - y0)) * (z1 - z0);
+      if (front === null || z > front) front = z;
+    }
+    if (front !== null) out.push([y, front]);
+  }
+  return out;
+}
+
+/** The four landmarks and the heights between them, metres. */
+export function faceMidsagittalLandmarks(props: {
+  positions: readonly number[];
+  indices: readonly number[];
+  stomion: number;
+  nose: readonly [number, number];
+  chinDepth: number;
+  level: number;
+  step: number;
+}): {
+  pronasale: FaceMidsagittalPoint;
+  subnasale: FaceMidsagittalPoint;
+  menton: FaceMidsagittalPoint;
+  upperLipHeight: number;
+  lowerFaceHeight: number;
+} {
+  const segments = faceMidsagittalSection(props.positions, props.indices);
+  if (segments.length === 0)
+    throw new Error("The surface does not cross the midsagittal plane.");
+  const ys = segments.flatMap(([a, b]) => [a[0], b[0]]);
+  const profile = faceMidsagittalProfile(
+    segments,
+    Math.max(...ys),
+    Math.min(...ys),
+    props.step,
+  );
+  const nose = profile.filter(
+    ([y]) => y <= props.nose[1] && y >= props.nose[0],
+  );
+  if (nose.length === 0) throw new Error("No profile lies in the nose band.");
+  const pronasale = nose.reduce((a, b) => (b[1] > a[1] ? b : a));
+  const below = profile.filter(([y]) => y < pronasale[0] && y > props.stomion);
+  let subnasale: FaceMidsagittalPoint | null = null;
+  let columella = false;
+  for (let k = 1; k < below.length; ++k) {
+    const dy = below[k - 1]![0] - below[k]![0];
+    const dz = below[k - 1]![1] - below[k]![1];
+    // On the columella more depth is lost than height; leaving it, less.
+    if (dz > dy) columella = true;
+    else if (columella) {
+      subnasale = below[k - 1]!;
+      break;
+    }
+  }
+  if (subnasale === null)
+    throw new Error("The profile never turns from the columella to the lip.");
+  const chin = profile.filter(([y]) => y < props.stomion);
+  if (chin.length === 0) throw new Error("No profile lies below the lips.");
+  // From the lower lip's front-most point down the chin, the chin's lower
+  // edge is where the profile starts losing more depth than height.
+  const lip = chin.reduce((a, b) => (b[1] > a[1] ? b : a));
+  const underLip = chin.filter(([y]) => y <= lip[0]);
+  // Below the lip's front the profile falls back into the labiomental fold
+  // (steep), runs down the chin's front (shallow), and turns under at the
+  // chin's lower edge (steep again): menton opens that second steep run.
+  let menton: FaceMidsagittalPoint | null = null;
+  // 0: the lower lip's own front, 1: the fold, 2: the chin's front.
+  let phase = 0;
+  for (let k = 1; k < underLip.length; ++k) {
+    const dy = underLip[k - 1]![0] - underLip[k]![0];
+    const dz = underLip[k - 1]![1] - underLip[k]![1];
+    const steep = dz > dy;
+    if (phase === 0 && steep) phase = 1;
+    else if (phase === 1 && !steep) phase = 2;
+    else if (phase === 2 && steep) {
+      menton = underLip[k - 1]!;
+      break;
+    }
+  }
+  if (menton === null)
+    throw new Error("The profile never turns under the chin.");
+  // Follow the chin's underside back from that turn until the outline runs
+  // level: its lowest point, where the tangent is horizontal (the outline's
+  // height changes by less than `level` of its depth).
+  const underside = (z: number): number | null => {
+    let low: number | null = null;
+    for (const [[y0, z0], [y1, z1]] of segments) {
+      if ((z0 - z) * (z1 - z) > 0 || z0 === z1) continue;
+      const y = y0 + ((z - z0) / (z1 - z0)) * (y1 - y0);
+      if (y <= menton![0] && (low === null || y < low)) low = y;
+    }
+    return low;
+  };
+  for (let z = menton[1]; z > menton[1] - props.chinDepth; z -= props.step) {
+    const here = underside(z);
+    const next = underside(z - props.step);
+    if (here === null || next === null) break;
+    if (Math.abs(here - next) < props.level * props.step) {
+      menton = [here, z];
+      break;
+    }
+  }
+  return {
+    pronasale,
+    subnasale,
+    menton,
+    upperLipHeight: subnasale[0] - props.stomion,
+    lowerFaceHeight: subnasale[0] - menton[0],
+  };
+}
