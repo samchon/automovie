@@ -4,6 +4,7 @@
  *
  *   ttsx -P tsconfig.scripts.json --no-plugins scripts/face-review/derive-face-documents.ts identity \
  *     STUDY FACTS DETECTIONS POSES ANCHORS OUTPUT [EXPRESSION_STUDY [PREVIOUS_STUDY RENDER_DETECTIONS]]
+ *   ttsx ... derive-face-documents.ts calibration-study STUDY POSE.json OUTPUT
  *   ttsx ... derive-face-documents.ts calibrate CALIBRATION_DETECTIONS DETECTIONS OUTPUT.json
  *   ttsx ... derive-face-documents.ts expression STUDY CALIBRATION.json REST_DETECTIONS DETECTIONS OUTPUT
  *
@@ -35,6 +36,11 @@
  * documents, so the render, read by the photograph's own instrument, is what
  * the proportions are matched on.
  *
+ * `calibration-study` writes the reference head's calibration documents
+ * (`faceExpressionCalibrationDocuments`) beside STUDY's basis, with a pose
+ * file placing every one at POSE.json's camera, for
+ * `capture-editor-views.mjs`.
+ *
  * `calibrate` turns the product-editor renders of the reference head, one per
  * expression channel and weight (ids `cal:cal-<channel>-<percent>` and
  * `cal:cal-rest`), into the shared increment curves, and decides from the
@@ -61,6 +67,7 @@ import {
 import { solveFaceAnthropometry } from "./faceAnthropometrySolve";
 import {
   type IFaceExpressionCalibration,
+  faceExpressionCalibrationDocuments,
   faceExpressionObservable,
   transferFaceExpression,
 } from "./faceExpressionTransfer";
@@ -327,6 +334,38 @@ if (command === "identity") {
     return { ...start, shape };
   });
   write(output, study!, derived, report);
+} else if (command === "calibration-study") {
+  const [study, poseFile, output] = args;
+  if (output === undefined)
+    throw new Error("calibration-study STUDY POSE.json OUTPUT");
+  const basis = json<IAutoMovieHumanFaceBasis>(
+    path.join(study!, "basis.json.gz"),
+  );
+  const documents = faceExpressionCalibrationDocuments({
+    basis: basis.id,
+    channels: basis.channels
+      .filter((channel) => channel.kind === "expression")
+      .map((channel) => channel.id),
+    weights: [0.25, 0.5, 0.75, 1],
+  });
+  const pose = json<unknown>(poseFile!);
+  fs.mkdirSync(output, { recursive: true });
+  fs.copyFileSync(
+    path.join(study!, "basis.json.gz"),
+    path.join(output, "basis.json.gz"),
+  );
+  fs.writeFileSync(
+    path.join(output, "subjects.json"),
+    JSON.stringify(documents, null, 2) + "\n",
+  );
+  fs.writeFileSync(
+    path.join(output, "poses.json"),
+    JSON.stringify(
+      Object.fromEntries(documents.map((one) => [one.name, pose])),
+      null,
+      2,
+    ) + "\n",
+  );
 } else if (command === "calibrate") {
   const [calibrationFile, photoFile, output] = args;
   if (output === undefined)
@@ -340,6 +379,9 @@ if (command === "identity") {
     const match = /^cal:cal-(.+)-100$/u.exec(id);
     if (match === null) continue;
     const channel = match[1]!;
+    // A channel the detector has no unit for (the tongue) has nothing to
+    // read, so it has no curve.
+    if (rest.blendshapes[channel] === undefined) continue;
     calibration[channel] = {
       weights: [0, ...WEIGHTS],
       scores: [
@@ -408,4 +450,6 @@ if (command === "identity") {
   });
   write(output, study!, derived, report);
 } else
-  throw new Error("derive-face-documents.ts identity | calibrate | expression");
+  throw new Error(
+    "derive-face-documents.ts identity | calibration-study | calibrate | expression",
+  );

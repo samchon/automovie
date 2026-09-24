@@ -1,6 +1,7 @@
 import { TestValidator } from "@nestia/e2e";
 
 import {
+  faceExpressionCalibrationDocuments,
   faceExpressionObservable,
   transferFaceExpression,
 } from "../../../scripts/face-review/faceExpressionTransfer";
@@ -20,6 +21,10 @@ import { nclose, throwsError } from "../internal/predicates";
  *    spread passes, a unit narrower than it fails, and a left/right pair
  *    passes or fails together on its mean; fewer than two photographs and a
  *    calibration without its rest score refuse.
+ * 6. Calibration documents: the rest document, then per channel and weight
+ *    one document setting the channel and its left/right partner together;
+ *    an unpaired channel, and a side whose partner the basis lacks, alone;
+ *    a weight outside (0, 1] refuses.
  */
 export const test_subject_face_expression_transfer = (): void => {
   const calibration = {
@@ -92,6 +97,39 @@ export const test_subject_face_expression_transfer = (): void => {
             rest: {},
           }),
         "rest score",
+      ),
+  );
+  const documents = faceExpressionCalibrationDocuments({
+    basis: "b",
+    channels: ["smileLeft", "smileRight", "jaw", "lidLeft"],
+    weights: [0.5, 1],
+  });
+  TestValidator.equals(
+    "calibration documents",
+    documents.map((one) => [one.id, one.expression]),
+    [
+      ["cal-rest-connected", {}],
+      ["cal-smileLeft-050-connected", { smileLeft: 0.5, smileRight: 0.5 }],
+      ["cal-smileLeft-100-connected", { smileLeft: 1, smileRight: 1 }],
+      ["cal-smileRight-050-connected", { smileRight: 0.5, smileLeft: 0.5 }],
+      ["cal-smileRight-100-connected", { smileRight: 1, smileLeft: 1 }],
+      ["cal-jaw-050-connected", { jaw: 0.5 }],
+      ["cal-jaw-100-connected", { jaw: 1 }],
+      ["cal-lidLeft-050-connected", { lidLeft: 0.5 }],
+      ["cal-lidLeft-100-connected", { lidLeft: 1 }],
+    ],
+  );
+  TestValidator.predicate(
+    "calibration weight",
+    documents.every((one) => one.basis === "b") &&
+      throwsError(
+        () =>
+          faceExpressionCalibrationDocuments({
+            basis: "b",
+            channels: ["jaw"],
+            weights: [0],
+          }),
+        "(0, 1]",
       ),
   );
 };

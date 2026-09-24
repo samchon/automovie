@@ -8,7 +8,11 @@
  * score of one. So each channel is calibrated once on the reference head,
  * `derive-face-documents.ts` rendering it through the product editor at
  * weights 0, 1/4, 1/2, 3/4 and 1 under a frontal camera and reading its own
- * score, and that increment curve is shared by every subject. A subject's
+ * score, and that increment curve is shared by every subject. A left/right
+ * pair is rendered together (`faceExpressionCalibrationDocuments`), each side
+ * reading its own score: the detector reads one side of a face against the
+ * other, so a side acting alone reads weaker than the same side acting with
+ * its partner, which is how a face moves and how the photographs show it. A subject's
  * photograph asks for the increment its score shows over the score the
  * subject's own identity reads at rest (the identity is solved first; a head
  * whose brows sit low reads as a lowered brow before any expression), and the
@@ -136,4 +140,56 @@ export function faceExpressionObservable(
       pair.reduce((sum, one) => sum + f(one), 0) / pair.length;
     return mean(span) >= mean(spread) && mean(span) > 0;
   });
+}
+
+/**
+ * The calibration documents of the reference head: `cal-rest` with no
+ * expression, and for every expression channel one document per weight,
+ * `cal-<channel>-<percent>`, setting the channel and, when it is one side of
+ * a `...Left`/`...Right` pair the basis has, its partner at the same weight
+ * (see `transferFaceExpression`).
+ */
+export function faceExpressionCalibrationDocuments(props: {
+  basis: string;
+  channels: readonly string[];
+  weights: readonly number[];
+}): {
+  id: string;
+  name: string;
+  basis: string;
+  shape: Record<string, number>;
+  expression: Record<string, number>;
+}[] {
+  const document = (name: string, expression: Record<string, number>) => ({
+    id: `${name}-connected`,
+    name,
+    basis: props.basis,
+    shape: {},
+    expression,
+  });
+  const partner = (channel: string): string | null => {
+    const other = channel.endsWith("Left")
+      ? channel.replace(/Left$/u, "Right")
+      : channel.endsWith("Right")
+        ? channel.replace(/Right$/u, "Left")
+        : null;
+    return other !== null && props.channels.includes(other) ? other : null;
+  };
+  return [
+    document("cal-rest", {}),
+    ...props.channels.flatMap((channel) =>
+      props.weights.map((weight) => {
+        if (!(weight > 0 && weight <= 1))
+          throw new Error("A calibration weight lies in (0, 1].");
+        const other = partner(channel);
+        return document(
+          `cal-${channel}-${String(Math.round(weight * 100)).padStart(3, "0")}`,
+          {
+            [channel]: weight,
+            ...(other === null ? {} : { [other]: weight }),
+          },
+        );
+      }),
+    ),
+  ];
 }
