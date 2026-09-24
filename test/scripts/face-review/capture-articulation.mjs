@@ -37,6 +37,7 @@ const VIEWS = {
   front: { yaw: 0, pitch: 0 },
   "front-hair-mask": { yaw: 0, pitch: 0, hairMask: true },
   "left-quarter": { yaw: 45, pitch: 0 },
+  "front-high": { yaw: 0, pitch: 20 },
   "right-quarter": { yaw: -45, pitch: 0 },
   left: { yaw: 90, pitch: 0 },
   right: { yaw: -90, pitch: 0 },

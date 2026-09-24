@@ -10,15 +10,16 @@
  * `subject-receipt.json`. The order of a run is fixed:
  *
  * 1. `export-subject-views.ts` exports the published documents, and
- *    `capture-articulation.mjs` captures `front` and `left-quarter`.
+ *    `capture-articulation.mjs` captures `front`, `left-quarter` and
+ *    `front-high` (the camera 20 degrees above).
  * 2. `manifest` lists each photograph `REFS/<subject>.*` (id
  *    `photo:<subject>`) and every non-mask render PNG of each capture
  *    directory (id `LABEL:<file stem>`) for `detect-face-likeness.py`. The
  *    labels are `calibration` for the step 1 capture and `portrait` and
  *    `frame` for the captures of steps 3 and 4, which share file names. A photograph that is absent or whose SHA-256
  *    differs from the receipt is left out and reported as missing.
- * 3. `yaw` writes a pose file of detector-calibrated yaws
- *    (`faceLikenessPlan.ts`) at the default portrait distance, or at an
+ * 3. `yaw` writes a pose file of detector-calibrated yaws and, where the
+ *    `front-high` render was detected, pitches (`faceLikenessPlan.ts`) at the default portrait distance, or at an
  *    optional longer distance whose narrower field keeps the same framing
  *    (a portrait lens rather than the review's close view); the capture
  *    of `reference-yaw` and `reference-yaw-hair-mask` with it is the
@@ -52,7 +53,10 @@ import {
   faceLikenessHeadRegion,
   faceLikenessMaskBounds,
 } from "./faceLikenessMasks";
-import { planFaceLikenessYaws } from "./faceLikenessPlan";
+import {
+  planFaceLikenessPitches,
+  planFaceLikenessYaws,
+} from "./faceLikenessPlan";
 
 const RECEIPT =
   "studies/human-face/connected-basis/global-face/subject-receipt.json";
@@ -133,12 +137,22 @@ if (command === "manifest") {
       quarter: transform(`calibration:${subject}__left-quarter`),
     })),
   );
+  const pitches = new Map(
+    planFaceLikenessPitches(
+      subjects.map(({ subject }) => ({
+        subject,
+        photo: transform(`photo:${subject}`),
+        front: transform(`calibration:${subject}__front`),
+        high: transform(`calibration:${subject}__front-high`),
+      })),
+    ).map((row) => [row.subject, row.pitch]),
+  );
   const poses: Record<string, unknown> = {};
   for (const row of plan.rows)
     if (row.yaw !== null)
       poses[row.subject] = {
         yaw: row.yaw,
-        pitch: 0,
+        pitch: pitches.get(row.subject) ?? 0,
         distance,
         target: PORTRAIT_TARGET,
         ...(distance === PORTRAIT_DISTANCE ? {} : { fov }),
