@@ -2,6 +2,25 @@
 
 ## 주랑 목재 보 {#colonnade-beam}
 
+<!--
+@evidence principles/core/common.md#scope-preservation 주랑 네 변의 목재 상부 보를 단면·두 길이 변형·윗면 높이·노출면과 접촉면까지 정한다.
+@evidence principles/core/common.md#substantive-completion 폭 0.26·깊이 0.28m 단면, 남·북 약 7.69m와 동·서 약 7.94m 길이의 산술, 윗면 약 2.904m가 있어 source가 보를 다시 설계하지 않는다.
+@evidence principles/core/common.md#declared-basis 폭은 ring-volume의 0.35m 기둥 예산, 길이는 building 기준선의 중정 경계와 기둥 축, 높이는 roofs/assembly 주랑 처마 값에서 온다고 밝힌다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 주랑 목재 상부라는 설정을 기둥 축 사이 길이 가족·두 보가 맞대는 모서리 규칙이라는 모델 결정으로 바꾼다.
+@evidence principles/design/models.md#representation-contract timber part 하나에 기둥 위·서까래 받침·맞댐 끝면의 가려진 접촉면과 중정·주랑 쪽 노출 네 면을 구별한다.
+@evidence principles/design/models.md#spatial-convention 원점을 보 아랫면의 길이 중심에 두고 길이 로컬 X, 폭 Z, 깊이 +Y로 정한다.
+@evidence principles/design/models.md#reviewable-structure 2.0m 표본의 정면·측면과 건물 안의 기둥 위 공백·주두보다 넓은 보·모서리 겹침을 반증 관찰로 둔다.
+@evidence principles/design/models.md#model-observable-style-basis 이미지 03·05의 원주 위 수평 목재를 곧은 각재로 받고 조각·몰딩은 주장하지 않는다.
+@evidence principles/design/models.md#model-scale-layer-completion 기둥 주두·서까래·지붕 하부와 높이 산술로 이어진 길이 가족이라 축척·계층·접촉 층이 함께 닫힌다.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work ring-volume의 기둥 예산, plan-datums의 중정 경계, roofs/assembly의 주랑 처마 3.20m를 보 단면과 윗면 높이에 대조했고 서까래 깊이 0.12m를 빼도 기둥이 서서 부모를 고치지 않았다.
+@evidence settings/20-envelope.md#colonnade 원주 위 어두운 목재 상부라는 정체성을 곧은 목재 보 prototype으로 받는다.
+@evidence spaces/rooms/colonnade.md#ring-volume 0.35m 기둥 예산 안의 보 폭 0.26m와 네 변 배치를 소비한다.
+@evidence spaces/building.md#plan-datums 중정 경계에서 0.175m 안쪽 기둥 축 사이 거리를 두 길이 변형의 산술 입력으로 쓴다.
+@evidence spaces/roofs/assembly.md#roof-junctions 합성 날개 지붕의 중정 쪽 하부 높이를 보 윗면 약 2.904m의 산술 입력으로 쓴다.
+@evidence settings/50-production.md#references 이미지 03·05의 원주 위를 잇는 굵은 목재를 보의 형태 근거로 쓴다.
+@evidenceExclude spaces/junctions.md#wall-junctions 벽 끝 맞닿음 규칙은 벽 실체끼리의 폐쇄를 정하며 두 보가 모서리에서 맞대는 방식은 이 H2의 끝면 규칙이 따로 정하므로 소비하지 않는다.
+-->
+
 [연속 주랑](../settings/20-envelope.md#colonnade)의 어두운 목재 상부 보이며 이미지 03·05에서 원주 위를 수평으로 잇는 굵은 목재가 근거다. 기둥 사이를 한 번에 건너는 곧은 각재로 조각·몰딩은 주장하지 않는다. 단면은 폭 0.26m·깊이 0.28m 직사각형이며 폭은 [주랑 공간](../spaces/rooms/colonnade.md#ring-volume)의 0.35m 기둥 예산 안이다.
 
 로컬 원점은 보 아랫면의 길이 방향 중심이고 길이는 로컬 X, 폭은 Z, 깊이는 +Y다. 이 모델은 길이 매개변수를 가진 한 가족이며 source는 판정된 기준선에서 두 길이 변형을 만든다. 남·북 보는 중정 경계에서 0.175m 안쪽의 두 모서리 기둥 축 사이에 기둥 주두 판 반폭을 더한 길이(입력 산술상 약 7.69m)이고, 동·서 보는 남·북 보의 옆면 사이를 잇는 길이(약 7.94m)다. 보 윗면 높이는 합성 날개 지붕의 중정 쪽 하부에서 서까래 깊이 0.12m를 뺀 값(약 2.904m)이고 아랫면은 [주랑 원주](columns.md#colonnade-column) 주두 판 윗면과 맞닿는다. 점유 상자는 길이×0.28×0.26m이며 평평한 면 법선을 쓴다.
@@ -11,6 +30,26 @@ part와 표면은 `timber` 하나다. 아랫면 중 기둥 위 구간과 윗면 
 검토 판에서는 짧은 길이 표본(2.0m)을 정면·측면으로 보고, 건물 안 관찰에서는 기둥 주두 위에 보가 얹혀 지붕이 기둥에서 떠 보이지 않는지를 본다. 기둥 위 공백, 주두보다 넓게 튀어나온 보, 두 보가 모서리에서 겹쳐 뚫린 형상은 실패다.
 
 ## 서까래 {#rafter}
+
+<!--
+@evidence principles/core/common.md#scope-preservation 주랑 외쪽 지붕·동측 박공·제실의 서까래를 한 가족으로 묶어 단면, 경사 유도, 처마 쪽 연직 절단, 뒷벽 끝 접촉, 만들지 않는 숨은 서까래까지 정한다.
+@evidence principles/core/common.md#substantive-completion 폭 0.08·깊이 0.12m 단면과 경사를 해당 지붕 조각에서 유도하는 규칙, 뒷벽 목록이 있어 source가 변형을 새로 고르지 않는다.
+@evidence principles/core/common.md#declared-basis 주랑 12°는 west·east·north-canopy·south-canopy 지붕에서, 동측 19°는 roofs/assembly의 판정된 동측 박공에서, 제실 22°는 제실 지붕에서 온다고 밝힌다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 천장과 지붕 하부의 노출 서까래라는 설정을 경사 매개변수 가족·plumb cut·벽 접촉 끝이라는 모델 결정으로 바꾼다.
+@evidence principles/design/models.md#representation-contract timber part 하나에 지붕 slab 아랫면과 보 윗면의 가려진 접촉면을 두고 널판 천장 위 숨은 서까래는 만들지 않는 경계를 정한다.
+@evidence principles/design/models.md#spatial-convention 원점을 처마 쪽 아래 모서리 선의 중심, +Z를 경사 오르는 방향, +Y를 서까래 윗면 법선으로 둔다.
+@evidence principles/design/models.md#reviewable-structure 1.0m 표본의 연직 끝면과 건물 안 처마 아래 서까래 끝 간격을 보고 slab만 보이는 주랑 천장·뜬 끝·벽을 뚫는 뒷끝을 실패로 둔다.
+@evidence principles/design/models.md#model-observable-style-basis 이미지 03의 주랑 처마 아래 각재 끝과 이미지 04의 제실 서까래를 근거로 하되 서까래 장식이나 결은 주장하지 않는다.
+@evidence principles/design/models.md#model-scale-layer-completion 경사·수평 길이 매개변수와 배치 간격 제안 0.50m, 골 쪽 단축 규칙의 소유를 함께 정해 반복 prototype 층이 완결된다.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 네 외쪽 지붕의 12°와 판정된 동측 박공 19°를 서까래 경사에 대조했고 서까래 뒷끝이 닿을 spine·제실 남벽·후퇴벽·남측 파라펫이 모두 판정된 지붕 범위 안에 있어 부모를 고치지 않았다. 동측 19° 수정은 용마루 기와 H2가 보고한다.
+@evidence settings/20-envelope.md#ceilings 주랑과 제실의 노출 목재 서까래라는 천장 설정을 서까래 가족으로 받는다.
+@evidence spaces/roofs/assembly.md#roof-junctions 판정된 지붕의 동측 박공 19°와 골선을 서까래 변형의 경사와 단축 기준으로 쓴다.
+@evidence spaces/roofs/west.md#west-roof 서측 외쪽 지붕 12°와 서측 spine 뒷벽을 서쪽 주랑 서까래의 경사와 끝으로 쓴다.
+@evidence spaces/roofs/east.md#east-roof 동측 박공 19°와 동측 spine을 동쪽 주랑 서까래 변형의 경사와 뒷벽으로 쓴다.
+@evidence spaces/roofs/colonnade.md#north-canopy 북쪽 외쪽 지붕 12°와 제실 남벽을 북쪽 주랑 서까래의 경사와 뒷벽으로 쓴다.
+@evidence spaces/roofs/colonnade.md#south-canopy 남쪽 외쪽 지붕 12°와 후퇴벽·남측 파라펫을 남쪽 주랑 서까래의 경사와 뒷벽으로 쓴다.
+@evidence settings/50-production.md#references 이미지 03의 처마 아래 서까래 끝과 이미지 04의 제실 지붕 아래 서까래를 근거로 쓴다.
+-->
 
 [천장과 지붕 하부](../settings/20-envelope.md#ceilings)의 반복 서까래 끝이다. 이미지 03의 주랑 처마 아래로 규칙적으로 드러나는 각재 끝과 이미지 04의 제실 지붕 아래 서까래가 근거다. 단면은 폭 0.08m·깊이 0.12m이며 지붕 slab 아랫면 바로 밑에서 경사를 따라 놓인다.
 
@@ -22,6 +61,25 @@ part와 표면은 `timber` 하나다. 윗면은 지붕 slab 아랫면에, 중간
 
 ## 포치 보와 박공 트림 {#porch-entablature}
 
+<!--
+@evidence principles/core/common.md#scope-preservation 포치의 석재 보, 수평 코니스, 두 경사 트림을 치수·위치·접촉까지 정하고 기둥→보→삼각 막음→지붕 끝선의 연속 관계를 보인다.
+@evidence principles/core/common.md#substantive-completion 보 3.30×0.30×0.30m와 아랫면 3.20m, 코니스·경사 트림의 높이·돌출, 22° 경사와 용마루 X=0 만남이 있어 source가 박공 트림을 새로 고르지 않는다.
+@evidence principles/core/common.md#declared-basis 길이는 두 반환벽 안쪽 면, 앞면 선은 south-outer, 경사는 roofs/porch 22°, 삼각 막음은 facades/south, 기둥 위치는 entrance-volume에서 온다고 밝힌다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 정면 포치 설정을 보·코니스·경사 트림의 세 part와 막음 앞면에 붙는 트림이라는 모델 결정으로 바꾼다.
+@evidence principles/design/models.md#representation-contract beam·cornice·raking-trim part와 보 윗면의 막음 받침 접촉면, 두 끝면과 반환벽 안쪽 면의 맞닿음을 정한다.
+@evidence principles/design/models.md#spatial-convention 원점을 보 아랫면의 앞 모서리 중심에 두고 south-outer 안쪽 0.30m 범위와 점유 상자 3.30×약 1.60×0.38m를 적는다.
+@evidence principles/design/models.md#reviewable-structure 정면·측면의 보·코니스·트림 분리와 용마루 만남, 건물 정면의 기둥→보→박공 연속과 트림 위치를 반증 관찰로 둔다.
+@evidence principles/design/models.md#model-observable-style-basis 이미지 01의 두 원주 위 석재 보와 박공 돌 테두리를 근거로 하고 판 하나로 된 박공을 실패로 둔다.
+@evidence principles/design/models.md#model-scale-layer-completion 기둥 3.20m·보·막음·포치 지붕 끝선이 한 연쇄로 이어져 접촉 층과 축척이 함께 닫힌다.
+@evidence upstream/design/models.md#settings-and-space-revision-from-model-work 기둥 중심이 Z=9.68일 때 보와 삼각 막음이 정면 가까이에서 기둥 위에 함께 얹힐 수 없었다. 이 보의 받침 조건이 드러낸 결함이라 spaces/rooms/entrance.md#entrance-volume을 먼저 고쳐 기둥 중심을 Z=10.00, 기단 앞면을 south-outer에 두었다(4db31acf).
+@evidence settings/20-envelope.md#entrance-porch 두 기둥 위 작은 박공의 정면 포치를 보·코니스·경사 트림으로 받는다.
+@evidence spaces/rooms/entrance.md#entrance-volume 수리된 기둥 중심 Z=10.00과 기단 앞면 south-outer를 보가 얹힐 받침 위치로 소비한다.
+@evidence spaces/facades/south.md#south-envelope 보 위에 놓이는 삼각 막음의 위치를 트림이 따라 붙는 앞면으로 소비한다.
+@evidence spaces/roofs/porch.md#porch-roof 포치 지붕 22° 경사와 용마루 X=0을 경사 트림의 기울기와 만남점으로 쓴다.
+@evidence spaces/building.md#plan-datums 두 반환벽 안쪽 면과 south-outer를 보 길이 3.30m와 앞면 범위로 쓴다.
+@evidence settings/50-production.md#references 이미지 01의 기둥 위 두꺼운 석재 보와 박공을 두르는 돌 테두리를 근거로 쓴다.
+-->
+
 [정면 포치](../settings/20-envelope.md#entrance-porch)의 수평 보와 작은 삼각 박공의 가장자리 트림이다. 이미지 01에서 두 원주 위에 얹힌 두꺼운 석재 보와 박공을 두르는 돌 테두리가 근거다. 기둥이 보를, 보가 [삼각 막음](../spaces/facades/south.md#south-envelope)을, 막음 위의 [포치 지붕](../spaces/roofs/porch.md#porch-roof)이 트림 선을 따라 끝나는 연속 관계를 보여 준다.
 
 로컬 원점은 보 아랫면의 앞 모서리(정면 쪽) 중심이다. 보는 길이 3.30m(두 반환벽 안쪽 면 사이), 앞뒤 폭 0.30m, 높이 0.30m 석재 각재로 south-outer에서 안쪽 0.30m 범위에 놓이며 아랫면 Y=3.20m가 두 [포치 원주](columns.md#porch-column)의 주두 판에 얹힌다. 수평 코니스는 보 앞 윗모서리를 따라 높이 0.10m·앞 돌출 0.08m의 띠다. 경사 트림은 삼각 막음 앞면 위 두 경사 가장자리를 따라 높이 0.12m·앞 돌출 0.08m의 띠 두 개이며 포치 지붕의 22° 경사와 용마루 X=0에서 만난다. 점유 상자는 3.30×약 1.60×0.38m다.
@@ -32,6 +90,26 @@ part와 표면은 `beam`, `cornice`, `raking-trim`이다. 보 윗면은 삼각 �
 
 ## 제실 트러스 {#sanctuary-truss}
 
+<!--
+@evidence principles/core/common.md#scope-preservation 제실의 가운데 기둥 목조 트러스를 평보·경사재·가운데 기둥·버팀재 네 부재와 높이·접촉·창과의 여유까지 정한다.
+@evidence principles/core/common.md#substantive-completion 평보 11.20m·0.22×0.28m·아랫면 4.86m, 경사재·가운데 기둥·버팀재 단면, 점유 상자 11.20×약 2.62×0.22m가 있어 source가 트러스를 다시 고르지 않는다.
+@evidence principles/core/common.md#declared-basis 길이는 제실 서·동 벽 안쪽 면, 높이는 roofs/sanctuary의 지지 5.35m와 측벽 안쪽 하부 약 5.22m, 창 여유는 openings.md#clerestories의 창틀 윗끝 약 4.46m에서 온다고 밝힌다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 높은 목재 박공 천장이라는 설정을 네 부재 트러스와 평보가 창 위 약 0.40m에 걸리는 모델 결정으로 바꾼다.
+@evidence principles/design/models.md#representation-contract tie-beam·principal·king-post·strut part와 평보 끝면의 벽 접촉, 경사재 윗면의 slab 접촉을 정하고 트러스 사이 서까래는 서까래 가족에 맡긴다.
+@evidence principles/design/models.md#spatial-convention 원점을 평보 아랫면 중심에 두고 폭 로컬 X, 두께 Z로 정한다.
+@evidence principles/design/models.md#reviewable-structure 정면 삼각 윤곽과 네 부재 분리, 제실 중심·threshold 시점에서 평보가 창과 문 위에 걸리는지와 경사재가 지붕 하부에 닿는지를 본다.
+@evidence principles/design/models.md#model-observable-style-basis 이미지 04의 굵은 평보와 경사 부재를 가운데 기둥 트러스로 받고 벽을 뚫는 평보·판 천장을 실패로 둔다.
+@evidence principles/design/models.md#model-scale-layer-completion 지붕 하부·창 높이·벽 간격과 산술로 이어진 치수와 배치 소유 경계가 있어 제실 천장 층이 완결된다.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work roofs/sanctuary의 지지 5.35m와 용마루 아래 하부 약 7.48m, 측벽 창 윗끝 4.46m를 트러스 높이에 대조했고 평보가 창 위와 지붕 하부 아래 사이에 들어 부모를 고치지 않았다. 지지 높이 수정은 spaces 쪽 코핑 충돌에서 왔고 트러스는 그 결과에 다시 앉혔다.
+@evidence settings/30-interiors.md#sanctuary 제실의 높은 목재 박공 천장을 트러스가 드러나는 천장으로 받는다.
+@evidence settings/20-envelope.md#ceilings 노출 목재 박공 보라는 천장 설정을 평보와 경사재로 받는다.
+@evidence spaces/roofs/sanctuary.md#sanctuary-roof 지지 5.35m와 22° 박공의 하부를 평보 높이와 경사재 윗면의 기준으로 쓴다.
+@evidence spaces/rooms/sanctuary.md#sanctuary-volume 제실 서·동 벽 안쪽 면 사이 11.20m를 평보 길이로 쓴다.
+@evidence spaces/openings.md#clerestories 측벽 창틀 윗끝 약 4.46m를 평보 아랫면 4.86m와의 여유 기준으로 쓴다.
+@evidence spaces/observations.md#geometry-observations 제실 중심→북·남과 threshold 관찰 station을 평보와 창·문의 관계를 볼 건물 시점으로 쓴다.
+@evidence settings/50-production.md#references 이미지 04의 벽 사이 굵은 평보와 경사 부재를 근거로 쓴다.
+-->
+
 [제실](../settings/30-interiors.md#sanctuary)의 높은 목재 박공 천장과 서까래, [천장 설정](../settings/20-envelope.md#ceilings)의 노출 목재 박공 보가 근거이며 이미지 04에서 벽 사이를 가로지르는 굵은 평보와 경사 부재가 보인다. 형식은 가운데 기둥이 있는 단순한 목조 트러스다.
 
 로컬 원점은 평보 아랫면의 중심이고 폭 방향은 로컬 X, 두께는 Z다. 평보는 길이 11.20m(제실 서·동 벽 안쪽 면 사이), 단면 0.22×0.28m이며 아랫면 Y=4.86m, 윗면 5.14m로 [제실 지붕](../spaces/roofs/sanctuary.md#sanctuary-roof)(지지 5.35m)의 측벽 안쪽 면 위치 하부(약 5.22m)보다 낮게 벽에 걸린다. 두 경사재는 단면 0.18×0.20m로 평보 양끝에서 지붕 하부를 따라 용마루 아래(하부 약 7.48m)까지 오르고, 가운데 기둥(0.18×0.18m)은 평보 윗면에서 용마루 아래까지, 두 버팀재(0.14×0.14m)는 가운데 기둥 아래쪽에서 경사재 가운데로 뻗는다. 점유 상자는 11.20×약 2.62×0.22m다. 측벽 채광구(창틀 윗끝 약 4.46m)는 평보 아래 약 0.40m에 남는다.
@@ -41,6 +119,29 @@ part와 표면은 `tie-beam`, `principal`, `king-post`, `strut`이다. 평보의
 검토 판에서 정면으로 삼각 윤곽과 부재 네 종의 분리를, 건물 관찰에서 제실 중심→북·남과 threshold 시점에서 평보가 창과 문 위에 걸리는지, 경사재가 지붕 하부와 떨어지지 않는지를 본다. 벽을 뚫는 평보, 지붕 위로 솟는 경사재, 부재 없이 평평한 판 천장은 실패다.
 
 ## 업무방·봉헌실 천장 보 {#ceiling-joist}
+
+<!--
+@evidence principles/core/common.md#scope-preservation 봉헌실과 동측 세 방의 낮은 목재 천장 보를 단면·길이·높이와 배치 소유 경계까지 정한다.
+@evidence principles/core/common.md#substantive-completion 폭 0.12·깊이 0.18m, 길이 4.00m, 윗면 3.10m·아랫면 2.92m가 있어 source가 천장 보를 다시 고르지 않는다.
+@evidence principles/core/common.md#declared-basis 깊이 0.18m와 보 아래 2.92m는 storey.md#ground-storey의 예산, 길이는 기준선 west/east-inner~room, 문 head 2.36m는 openings.md#doors에서 온다고 밝힌다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 업무방·봉헌실의 낮은 목재 천장이라는 설정을 네 방 공통 4.00m 보와 널판 접촉이라는 모델 결정으로 바꾼다.
+@evidence principles/design/models.md#representation-contract timber part 하나에 윗면·두 끝면의 가려진 접촉면과 평평한 면 법선을 정한다.
+@evidence principles/design/models.md#spatial-convention 원점을 보 아랫면의 길이 중심에 두고 점유 상자 4.00×0.18×0.12m를 적는다.
+@evidence principles/design/models.md#reviewable-structure 1.0m 표본과 각 방 중심·모서리 시점에서 보가 널판 아래 규칙적으로 드러나는지, 2.92m 아래로 처지지 않는지를 본다.
+@evidence principles/design/models.md#model-observable-style-basis 이미지 05의 널판 천장 아래 어두운 각재를 근거로 하고 장식 보나 결은 주장하지 않는다.
+@evidence principles/design/models.md#model-scale-layer-completion 층 예산·방 순치수·문 head와 이어진 높이와 0.60m 간격 제안의 소유 경계가 있어 낮은 천장 층이 완결된다.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work storey의 보 깊이 예산 0.18m와 보 아래 2.92m, 네 방 짧은 변 4.00m, 문 head 2.36m를 보에 대조했고 모두 예산 안이라 부모를 고치지 않았다.
+@evidence settings/20-envelope.md#ceilings 업무방과 봉헌실의 낮은 목재 보 천장을 천장 보 prototype으로 받는다.
+@evidence spaces/storey.md#ground-storey 보 깊이 예산 0.18m와 보 아래 유효 높이 2.92m를 보 단면과 높이로 소비한다.
+@evidence spaces/building.md#plan-datums west/east-inner~west/east-room 사이 4.00m를 보 길이로 쓴다.
+@evidence spaces/openings.md#doors 문 head(2.36m 이하)를 보 아랫면이 남겨야 할 높이 기준으로 쓴다.
+@evidence spaces/rooms/offering.md#offering-volume 봉헌실의 낮은 널판 천장 아래를 보가 놓일 방으로 소비한다.
+@evidence spaces/rooms/administration.md#office-volume 관리실 널판 천장 아래를 보가 놓일 방으로 소비한다.
+@evidence spaces/rooms/records.md#records-volume 기록실 널판 천장 아래를 보가 놓일 방으로 소비한다.
+@evidence spaces/rooms/storage.md#storage-volume 보관실 널판 천장 아래를 보가 놓일 방으로 소비한다.
+@evidence spaces/observations.md#geometry-observations 각 방 중심→네 방위와 모서리 station을 보의 규칙적 노출을 볼 건물 시점으로 쓴다.
+@evidence settings/50-production.md#references 이미지 05의 널판 천장 아래 어두운 각재를 근거로 쓴다.
+-->
 
 [천장과 지붕 하부](../settings/20-envelope.md#ceilings)의 업무방과 봉헌실 낮은 목재 보다. 이미지 05에서 널판 천장 아래를 가로지르는 어두운 각재가 근거다. 판정된 [층](../spaces/storey.md#ground-storey)의 보 깊이 예산 0.18m와 보 아래 유효 높이 2.92m를 그대로 쓴다.
 

@@ -46,7 +46,7 @@ export const productionEvidence = {
   settings: settingsStage,
   spaces: spacesStage,
   spaceSources: "evidence",
-  models: "draft",
+  models: "evidence",
   claims: [
     createAutoMovieProductionObligationClaim({
       name: "temple-space-obligations",
