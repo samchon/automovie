@@ -74,8 +74,8 @@
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정 entry의 '외투 수납은 닫힌 문 안'에 대해 위 flight 아래 X = [1.10, 1.75]의 깊이 0.65 m 몸통과 X = 2.02 m 면의 겹쳐 미는 두 장이라는 위치·문 방식 결정이 더해짐을 대조했다.
 @evidence principles/design/spaces.md#space-topology 장은 현관에서 서비스 접근을 따라 닿고 서비스 통로 쪽 X = 2.02 m 면에 문을 두며 관통 바닥이나 뒤쪽 문이 없는 수납이다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 외투장이 현관에서 이어진 서비스 접근을 따라 닿고 X = [1.75, 2.02] reveal과 X = 2.02 m 면의 문으로만 열리며 관통 바닥·뒤쪽 문이 없는 막힌 수납이라는 연결 관계를 확인했다.
-@evidence principles/design/spaces.md#space-boundary-authority 계단 아래면의 권위는 계단 owner에 두고 디딤 높이와 구조 아래면이 장 상단보다 높은지는 부재 단면으로 확인하며 장의 벽·걸이·문짝을 포함한 source 책임은 src/spaces/rooms/entry.ts에 둔다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 계단 아래면은 계단 owner 권위로 두고 디딤 높이·구조 아래면이 장 상단 2.15 m보다 높은지를 부재 단면으로 미루며 장의 벽·걸이·문짝만 entry.ts에 배정해 소유를 가름을 확인했다.
+@evidence principles/design/spaces.md#space-boundary-authority 계단 아래면은 계단 owner, 외투장 벽·개구부는 src/spaces/rooms/entry.ts, 미닫이 문짝·봉·선반은 models/05-closet-fittings.md에 배정한다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 entry.ts의 실제 부재가 외투장 벽 두 개와 바닥·천장뿐이고 문짝·봉·선반이 없음을 대조했다. 계단 아래면의 구조 높이는 여전히 unverified다.
 @evidence principles/design/spaces.md#space-verification-address 실제 옷 깊이, 두 문 겹침, 계단 아래 단면, 옷을 꺼내고 현관으로 돌아오는 경로를 반증 관찰로 둔다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 실제 옷 깊이, 두 문 겹침, 계단 아래 단면, 옷을 꺼내고 현관으로 돌아오는 경로를 외투장 예약의 반증 관찰로 열거하고 수납·계단 간섭을 unverified로 둔 것을 확인했다.
 @evidence settings/10-house.md#storage 현관 외투장을 쓰는 공간에서 직접 닿고 숨은 통로가 되지 않는 수납으로 만든다.
@@ -92,4 +92,4 @@
 
 봉은 몸통 뒤쪽 X 끝에서 +X로 0.325 m, 바닥 위 1.65 m에 두고 Z 방향으로 건다. 위 선반 상면은 2.00 m이며 옷/옷걸이를 포함한 점유는 기존 몸통 안에 둔다. 문/손잡이의 통로 쪽 최대 돌출은 X = 2.07 m까지다. 앞쪽 사용 예약은 X = [2.10, 2.70], Z = [-4.40, -3.65] m에서 -X를 향하며 몸 깊이는 X·폭은 Z에 적용한다. 장에서 옷을 꺼낼 때는 [서비스 띠](service.md#service-access-plan)의 일부를 쓰므로 다른 사람과 교대로 통과한다. 사용자가 물러난 뒤에는 닫힌/열린 미닫이 하드웨어와 맞은편 문선 뒤에도 [주 통로의 순폭 목표](../../settings/00-production.md#use-profile)가 남아야 한다. 실제 옷 깊이·두 문 겹침·계단 아래 단면·옷을 꺼내고 현관으로 돌아오는 경로는 unverified다.
 
-해당 위치의 계단 디딤 높이와 구조 아래면이 장 상단보다 높은지는 부재 단면으로 확인한다. 디딤 위치만으로 장이 들어간다고 확정하지 않는다. 장의 벽·걸이·문짝을 포함한 source 책임은 `src/spaces/rooms/entry.ts`, 계단 아래면의 권위는 계단 owner다. 현재 수납과 계단 구조 간섭 및 문 앞 사용 공간은 unverified다.
+해당 위치의 계단 디딤 높이와 구조 아래면이 장 상단보다 높은지는 부재 단면으로 확인한다. 디딤 위치만으로 장이 들어간다고 확정하지 않는다. 장의 벽과 개구부 경계의 source 책임은 `src/spaces/rooms/entry.ts`, 문짝·봉·선반 원형은 [수납 부재](../../models/05-closet-fittings.md#coat-closet-doors), 계단 아래면의 권위는 계단 owner다. 현재 수납과 계단 구조 간섭 및 문 앞 사용 공간은 unverified다.

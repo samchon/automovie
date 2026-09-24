@@ -1,6 +1,6 @@
 /**
  * `garden-fence` and `side-yard-gate`: the wooden fence around the garden and
- * its closed gate.
+ * the opening and posts for its gate. The leaf belongs to the model prototype.
  *
  * Design owners: `docs/spaces/site/fence.md` and
  * `site/side-walk.md#side-gate-interface`. Centre lines: front plane F is the
@@ -12,7 +12,7 @@
  * interval X = [12.30, 13.50]. Posts are 0.12 m square, gate posts stand
  * outside the interval, end posts stand just outside the building faces;
  * panels occupy 0.05 m each side of the centre line. The panel top equals the
- * gate leaf top, S + 1.70 m; the closed gate leaf spans S + 0.05 to S + 1.70.
+ * reserved gate leaf top, S + 1.70 m; the model owns the closed leaf.
  *
  * Provisional: the panel bottom is g + 0.05 m on the maps ground g, which does
  * not exist yet (maps disabled). This owner uses the side path top S = −0.45 m
@@ -34,7 +34,7 @@ const BOTTOM = S + 0.05;
 const POST = 0.06;
 const HALF = 0.05;
 
-/** Emit the fence runs, posts and the closed gate leaf. */
+/** Emit the fence runs and gate posts while leaving the model leaf opening clear. */
 export const buildFence = (): IHousePart[] => {
   const post = (id: string, x: number, z: number): IHousePart =>
     part(id, OWNER, "fence", PALETTE.fenceWood, block([x - POST, S, z - POST], [x + POST, TOP, z + POST]));
@@ -55,7 +55,6 @@ export const buildFence = (): IHousePart[] => {
     post("fence-post-right-front", R, F),
     runX("fence-right-front-outer", gate1 + 2 * POST, R - POST, F),
     part("gate-post-east", OWNER, "fence", PALETTE.fenceWood, block([gate1, S, F - POST], [gate1 + 2 * POST, TOP, F + POST])),
-    part("side-yard-gate-leaf", OWNER, "fence", PALETTE.fenceWood, block([gate0, BOTTOM, F - 0.025], [gate1, TOP, F + 0.025])),
     part("gate-post-west", OWNER, "fence", PALETTE.fenceWood, block([gate0 - 2 * POST, S, F - POST], [gate0, TOP, F + POST])),
     runX("fence-right-front-inner", 11.7 + 2 * POST, gate0 - 2 * POST, F),
     part("fence-end-post-right", OWNER, "fence", PALETTE.fenceWood, block([11.7, S, F - POST], [11.7 + 2 * POST, TOP, F + POST])),

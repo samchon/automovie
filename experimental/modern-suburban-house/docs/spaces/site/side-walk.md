@@ -48,12 +48,12 @@
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 site-identity의 우측 목재 울타리에 없는 +X 경첩·정원 쪽 -Z 열림, 상부 헤더 없는 개구부, `side-front-access`/`side-rear-access` 분할을 본문이 더하는지 대조해 부모 반복이 아님을 확인했다.
 @evidence principles/design/spaces.md#space-topology gate가 같은 연속 포장 위의 두 외부 구역을 나누고 둘 다 house-site/ground-storey에 속한다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 gate가 같은 연속 포장 owner 위의 `side-front-access`와 `side-rear-access`를 나누고 둘 다 house-site/ground-storey에 속한다는 본문을 대조해 문 양쪽 구역의 포함·인접 관계를 확인했다.
-@evidence principles/design/spaces.md#space-boundary-authority 문짝과 기둥은 src/spaces/site/fence.ts 하나가 소유하고 보행면 owner는 문짝을 중복 생성하지 않는다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 문짝·기둥을 `src/spaces/site/fence.ts` 하나에 두고 보행면 owner가 문짝을 중복 생성하지 않으며 울타리 선을 fence.md 두 H2에 넘기는 본문을 대조해 gate 요소가 한 번만 저작됨을 확인했다.
+@evidence principles/design/spaces.md#space-boundary-authority 문기둥과 빈 개구부는 src/spaces/site/fence.ts, 움직이는 문짝과 철물은 models/02-exterior-doors.md#side-yard-gate에 배정한다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 fence.ts가 문기둥과 빈 개구부만 만들고 대문 원형이 후속 문짝·철물을 만들도록 본문과 source를 대조했다. 보행면 owner는 이 면들을 생성하지 않는다.
 @evidence principles/design/spaces.md#space-verification-address 닫힌 문의 걸쇠 조작과 90° 열린 문 통과를 구별하고 두 구역 각각의 기본 시점과 꺾임의 가려진 코너를 검사한다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 닫힌 문 걸쇠 조작과 90° 열린 문 통과를 구별하고 두 구역에 threshold·코너·중심 네 방향과 가려진 꺾임 질문을 두는 본문을 대조해 대표 view 하나로 줄이지 않는 반증 주소를 확인했다.
 @evidence settings/10-house.md#site-identity 우측 목재 울타리에 관리 통행용 문을 둔다.
-@evidenceReview settings/10-house.md#site-identity #452f15e site-identity의 우측 목재 울타리를 fence.ts가 소유할 목재 문짝/기둥과 1.05 m 관리문 개구부에 대조해 울타리에 관리 통행용 문이 배정됨을 확인했다.
+@evidenceReview settings/10-house.md#site-identity #452f15e 우측 목재 울타리의 기둥·1.05 m 관리문 개구부는 fence.ts, 그 사이를 닫는 목재 문짝은 models 대문 원형으로 나눈 것을 대조했다. 실제 문짝 source와 조작은 unverified다.
 @evidence obligations/design/spaces.md#space-access-circulation 관리길의 표현된 출입구인 gate에 양쪽 대기와 회전 반경을 배정하고 문으로만 앞뒤 구역을 나누게 한다.
 @evidenceReview obligations/design/spaces.md#space-access-circulation #76c5e04 gate에 앞 +Z 0.10–1.60 m·뒤 -Z 1.30–2.80 m 대기와 1.20 m 회전 반경이 배정되고 주변 울타리가 문기둥까지 닫혀 문으로만 앞뒤를 나누는지 검사한다는 본문을 대조해 출입 배정을 확인했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work site-identity의 "우측의 목재 울타리와 관목"을 관리길에 대조했고 그 울타리에 통과 폭 목표 1.05 m의 관리문과 두 대기를 두는 결정은 설정이 정하지 않은 공간 선택이라 부모 수정 없이 성립했다. 문의 기본 닫힘은 이 H2 자신의 선택이다.
@@ -66,4 +66,4 @@
 
 앞쪽 대기는 문 평면에서 +Z로 0.10–1.60 m, 뒤쪽 대기는 -Z로 1.30–2.80 m이며 두 곳 모두 세로 길 폭 전체를 쓴다. 두 대기는 새 판이 아니라 같은 보행면의 사용 구역이다. 닫힌 문에서 걸쇠를 조작하는 순간과 90° 열린 문을 통과하는 순간을 구별하고, 돌아올 때는 문짝이 회전할 동안 뒤쪽 대기로 물러난다. 기본 상태는 닫힘이며 동선 검사에서는 실제 문을 열어 양방향으로 통과한다. 차량 진입이나 무장애 인증을 뜻하지 않는다.
 
-완결 목재 울타리와 문짝/기둥의 예정 owner는 `src/spaces/site/fence.ts` 하나다. 그 owner가 이 개구부/대기를 소비하며 보행면 owner는 문짝을 중복 생성하지 않는다. [울타리 전체 선](fence.md#fence-enclosure-plan)은 건물과 관리길의 외곽에서 도출하고 [잔여 패널/문기둥](fence.md#fence-gate-junction)이 이 문까지 닫는다. 실제 지표 접촉과 채택될 maps 경계는 아직 미완료다. 주변 울타리가 실제 문기둥까지 닫히고 이 문으로만 앞뒤 구역을 나누는지도 함께 검사해야 하므로, 현재 gate만으로 정원 경계가 완성됐다고 주장하지 않는다. 실제 문 조작·발/손 점유·전체 울타리 접합·01의 목재 경계와 두 구역의 관찰은 unverified다.
+완결 목재 울타리와 문기둥·빈 개구부의 owner는 `src/spaces/site/fence.ts`이고 문짝·경첩·손잡이의 원형 owner는 [옆마당 대문](../../models/02-exterior-doors.md#side-yard-gate)이다. `fence.ts`와 보행면 owner는 문짝을 생성하지 않는다. [울타리 전체 선](fence.md#fence-enclosure-plan)은 건물과 관리길의 외곽에서 도출하고 [잔여 패널/문기둥](fence.md#fence-gate-junction)이 이 문까지 닫는다. 실제 지표 접촉과 채택될 maps 경계는 아직 미완료다. 주변 울타리가 실제 문기둥까지 닫히고 이 문으로만 앞뒤 구역을 나누는지도 함께 검사해야 하므로, 현재 gate만으로 정원 경계가 완성됐다고 주장하지 않는다. 실제 문 조작·발/손 점유·전체 울타리 접합·01의 목재 경계와 두 구역의 관찰은 unverified다.

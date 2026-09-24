@@ -3,7 +3,7 @@
 ## 패브릭 소파 {#fabric-sofa}
 <!--
 @evidence principles/core/common.md#scope-preservation 거실 소파 예약과 가족실 소파 예약 두 곳을 한 원형으로 받아 외곽 2.10 × 0.95 × 0.90 m, 부품, 재질 경계, 관찰, 소스 owner `src/models/furnishings/living.ts`를 모두 이 H2 안에서 정한다.
-@evidence principles/core/common.md#substantive-completion 받침 Y = [0.08, 0.30], 팔걸이 폭 0.15 m·높이 0.62 m, 등받이 깊이 0.20 m·상단 0.90 m, 쿠션 세 칸 0.60 m·깊이 0.75 m·상면 0.43 m, 쿠션 사이 틈 0.005 m까지 수치로 확정해 구현자가 단면을 새로 정할 일이 없다.
+@evidence principles/core/common.md#substantive-completion 받침 Y = [0.08, 0.30], 팔걸이 폭 0.15 m·높이 0.62 m, 등받이 깊이 0.20 m·상단 0.90 m, 쿠션 세 칸 0.596 m·깊이 0.75 m·상면 0.43 m, 쿠션 사이 틈 0.006 m까지 수치로 확정해 구현자가 단면을 새로 정할 일이 없다.
 @evidence principles/core/common.md#declared-basis 외곽은 두 예약의 같은 길이·깊이·높이에서, 좌면 0.43 m는 거실 표에서 상속하며, 가족실 좌면도 0.43 m로 둔 것은 두 외곽이 같고 거실 설정의 회색/미색 패브릭 소파 정체성을 공유한다는 근거를 밝힌 이 층의 결정이라고 적는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 예약은 외곽과 거실 좌면 0.43 m만 주는데 이 H2는 팔걸이·등받이·세 쿠션의 분할과 0.43/0.62/0.90 m 세 단, 그리고 부모가 정하지 않은 가족실 좌면 높이 결정을 더한다.
 @evidence principles/design/models.md#representation-contract 받침·좌석 쿠션 셋·등받이·팔걸이 둘과 네 모서리 0.08 m 다리로 부품을 나누고 재질 경계 `leg`·`base`·`seat-cushion`·`back`·`arm`을 고정하며 쿠션 눌림·주름·솔기는 표현하지 않는다는 한계를 명시한다.
@@ -23,7 +23,7 @@
 
 패브릭 소파는 [거실 소파 예약](../spaces/rooms/living.md#living-furniture-use)의 X = -2.90 m부터 방 오른쪽 안쪽 면 -1.95 m까지, Z = [-3.75, -1.65], 높이 0.90 m와 [가족실 소파 예약](../spaces/rooms/common.md#common-family-reservation)의 X = [3.25, 5.35], Z = -7.15 m부터 공용부 앞쪽 안쪽 면 -6.20 m까지, 높이 0.90 m에 함께 쓰는 한 원형이다. 두 예약이 모두 길이 2.10 m, 깊이 0.95 m, 높이 0.90 m이므로 외곽을 그대로 그 값으로 둔다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르며 +Z가 앉은 사람이 보는 정면이며 거실에서는 world -X, 가족실에서는 world -Z를 향한다.
 
-부품은 받침, 좌석 쿠션 셋, 등받이, 팔걸이 둘이다. 받침은 Y = [0.08, 0.30]이고 네 모서리의 0.08 m 짧은 다리 위에 놓인다. 팔걸이는 각 폭 0.15 m, 높이 0.62 m로 전체 깊이를 차지한다. 등받이는 두 팔걸이 사이 뒤쪽 깊이 0.20 m, 상단 0.90 m다. 좌석 쿠션은 팔걸이 사이 1.80 m를 세 칸 0.60 m로 나누고 깊이 0.75 m, 상면 0.43 m로 두어 [거실 표의 좌면 0.43 m](../spaces/rooms/living.md#living-furniture-use)와 같다. 가족실 예약과 [공용부 설정](../settings/10-house.md#common-room)은 좌면 높이를 정하지 않으므로 가족실 배치도 같은 0.43 m를 쓰는 것이 이 층의 결정이며, 근거는 두 예약의 외곽이 같고 [거실 설정](../settings/10-house.md#living)의 회색/미색 패브릭 소파 정체성을 한 원형으로 공유하는 것이다. 쿠션 사이 0.005 m 틈으로 세 칸이 읽히게 한다.
+부품은 받침, 좌석 쿠션 셋, 등받이, 팔걸이 둘이다. 받침은 Y = [0.08, 0.30]이고 네 모서리의 0.08 m 짧은 다리 위에 놓인다. 팔걸이는 각 폭 0.15 m, 높이 0.62 m로 전체 깊이를 차지한다. 등받이는 두 팔걸이 사이 뒤쪽 깊이 0.20 m, 상단 0.90 m다. 좌석 쿠션은 팔걸이 사이 1.80 m를 세 칸 0.596 m와 두 틈 0.006 m(3 × 0.596 + 2 × 0.006 = 1.800 m)로 나누고 깊이 0.75 m, 상면 0.43 m로 두어 [거실 표의 좌면 0.43 m](../spaces/rooms/living.md#living-furniture-use)와 같다. 가족실 예약과 [공용부 설정](../settings/10-house.md#common-room)은 좌면 높이를 정하지 않으므로 가족실 배치도 같은 0.43 m를 쓰는 것이 이 층의 결정이며, 근거는 두 예약의 외곽이 같고 [거실 설정](../settings/10-house.md#living)의 회색/미색 패브릭 소파 정체성을 한 원형으로 공유하는 것이다. 쿠션 사이 0.006 m 틈으로 세 칸이 읽히게 한다.
 
 재질 경계는 `leg`, `base`, `seat-cushion`, `back`, `arm`이며 패브릭 색은 materials가 두 배치별로 정할 수 있다. 관절은 없고 쿠션 눌림·주름·솔기는 표현하지 않는다. 소스 owner는 `src/models/furnishings/living.ts`다. 관찰은 측면 정사영에서 좌면 0.43 m·팔걸이 0.62 m·등받이 0.90 m의 세 단이 보이는지, 위에서 세 쿠션과 두 팔걸이가 구분되는지, 두 배치에서 외곽이 예약과 같은지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
 
@@ -92,7 +92,7 @@
 
 [거실 설정](../settings/10-house.md#living)의 짙은 책장은 [거실 예약](../spaces/rooms/living.md#living-furniture-use)의 X = -2.30 m부터 방 오른쪽 안쪽 면 -1.95 m까지, Z = [-5.90, -4.90], 높이 1.90 m를 외곽으로 받아 폭 1.00 m, 깊이 0.35 m, 높이 1.90 m다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르며 +Z가 책을 꺼내는 면이며 배치에서 world -X를 향한다. 문 없는 열린 선반이다.
 
-부품은 옆판 둘, 뒤판, 윗판, 걸레받이, 선반 다섯이다. 옆판·윗판 두께는 0.02 m, 뒤판 0.01 m, 걸레받이 높이 0.08 m다. 다섯 선반 상면은 [방 문서의 산출 규칙](../spaces/rooms/living.md#living-furniture-use)대로 0.20 m부터 0.35 m 간격인 0.20, 0.55, 0.90, 1.25, 1.60 m이고 두께 0.02 m를 상면 아래로 둔다. 책은 선반마다 두께 0.02–0.04 m, 높이 0.20–0.28 m, 깊이 0.20 m의 얇은 상자 묶음으로 두며 고정 시드로 두께와 높이를 산출하고 각 칸 폭의 70–85 %를 채운다. 책은 몸체 깊이 안에 있어 전면 밖으로 나오지 않는다.
+부품은 옆판 둘, 뒤판, 윗판, 걸레받이, 선반 다섯이다. 옆판·윗판 두께는 0.02 m, 뒤판 0.01 m, 걸레받이 높이 0.08 m다. 다섯 선반 상면은 [방 문서의 산출 규칙](../spaces/rooms/living.md#living-furniture-use)대로 0.20 m부터 0.35 m 간격인 0.20, 0.55, 0.90, 1.25, 1.60 m이고 두께 0.02 m를 상면 아래로 둔다. 책은 선반마다 25권이며, 인덱스 s = 0…4(아래부터), i = 0…24(왼쪽부터), 정수 시드 1952를 쓴다. 책 i의 두께는 `0.025 + 0.001 × ((1952 + 17s + 7i) mod 11)` m, 높이는 `0.20 + 0.01 × ((1952 + 13s + 5i) mod 9)` m, 깊이는 0.20 m다. 다섯 단의 두께 합은 차례로 0.749, 0.745, 0.752, 0.748, 0.755 m로 선반 안쪽 폭 0.96 m의 77.6–78.6 %다. 각 묶음은 선반 왼쪽 안쪽에서 0.02 m 띄워 순서대로 쌓는다. 책은 몸체 깊이 안에 있어 전면 밖으로 나오지 않는다.
 
 재질 경계는 `carcass`, `plinth`, `shelf`, `book`이다. 관절은 없고 책은 책장에 고정된 자식 부품이다. 책등 글자·개별 표지는 표현하지 않는다. 소스 owner는 `src/models/furnishings/living.ts`다. 관찰은 정면에서 다섯 선반 간격과 책 묶음이 읽히는지, 측면에서 책 앞면이 0.35 m 안에 드는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
 
@@ -120,3 +120,25 @@
 부품은 몸판 하나와 가장자리 띠 하나다. 가장자리 띠는 몸판 둘레 0.04 m 폭의 같은 두께 영역으로 면만 나누고 높이를 올리지 않는다. 재질 경계는 `field`, `border`다. 무늬·털 높이·술 장식은 표현하지 않는다. 덮개 위에 가구가 놓이며 가구 다리와 겹치는 것은 허용하고 덮개가 가구를 들어 올리지 않는다.
 
 소스 owner는 `src/models/furnishings/living.ts`다. 관찰은 측면에서 두께가 T를 넘지 않아 문턱처럼 읽히지 않는지, 위에서 두 외곽이 예약과 같은지, 바닥면과 z-fighting 없이 구분되는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
+
+## 벽난로의 검은 화구와 목재 선반 {#fireplace-insert-mantel}
+<!--
+@evidence principles/core/common.md#scope-preservation spaces가 만든 벽돌 앞면과 굴뚝을 복제하지 않고 그 앞면의 실제 빈 화구 속과 상부 목재 선반만 맡는다.
+@evidence principles/core/common.md#substantive-completion 화구 폭 1.04 m·높이 0.64 m·깊이 0.55 m, 검은 안쪽 판 두께 0.025 m, 선반 1.60 × 0.55 × 0.10 m를 정한다.
+@evidence principles/core/common.md#declared-basis settings/10-house.md#living의 검은 화구·벽돌 본체·목재 선반 구분과 spaces/envelope/left.md#chimney-roof-interface의 실내 앞면 예약에서 치수를 받는다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 빈 벽돌 상자 대신 실제 화구 void 안의 검은 다섯 면과 바로 위 선반을 별도 원형으로 결정한다.
+@evidence principles/design/models.md#representation-contract 화구의 뒤·좌우·위·아래 다섯 닫힌 금속판은 `firebox`, 전면 얇은 테는 `firebox-trim`, 목재 선반의 모든 면은 `mantel`로 덮는다. 불꽃과 실제 연도는 만들지 않는다.
+@evidence principles/design/models.md#spatial-convention 원점은 화구 아래 가운데의 벽돌 앞면, 국소 +Z는 거실 쪽, +X는 화구 가로, +Y는 위다. 배치는 굴뚝 면에서 산출한다.
+@evidence principles/design/models.md#reviewable-structure 정면에서 검은 빈 중심·벽돌 테·목재 상단의 세 겹, 측면에서 깊이와 선반의 경계, 45°에서 꺼진 화구를 검토한다.
+@evidence principles/design/models.md#model-observable-style-basis 04의 낮은 벽돌 벽난로는 검은 내부와 목재 선반의 별도 부피가 있을 때 읽히며 색·결은 materials에 남긴다.
+@evidence principles/design/models.md#model-scale-layer-completion 화구·선반의 외곽, 판 두께, 접합 범위, 세 면 id, 미터 UV와 국소 프레임을 확정한다.
+@evidence upstream/design/models.md#settings-and-space-revision-from-model-work 벽돌 상자 앞면에 비어 있어야 할 화구를 확인해 spaces/envelope/left.md와 src/spaces/envelope/left.ts를 네 닫힌 벽돌 부재로 수정했다. 목재 선반의 Y = [1.30, 1.40] m를 별도 소유로 남긴다.
+@evidence settings/10-house.md#living 거실의 검은 화구·벽돌 본체·목재 선반을 세 표면으로 구분한다.
+@evidence spaces/envelope/left.md#chimney-roof-interface 거실 쪽 예약의 화구 빈 구간과 선반 높이를 그대로 채운다.
+@evidence obligations/design/models.md#addressable-model-decisions 벽돌 몸통과 다른 검은 화구·목재 선반의 원형을 독립 H2에서 정한다.
+@evidence obligations/design/models.md#model-review-set 00의 정면·측면·45°와 거실의 레퍼런스 04 뷰를 검사한다.
+-->
+
+[거실 조건](../settings/10-house.md#living)은 검은 화구·벽돌 본체·목재 선반을 구별한다. 벽돌 앞면과 굴뚝은 [왼쪽 입면 owner](../spaces/envelope/left.md#chimney-roof-interface)가 지었고, 화구 자리만 빈다. 이 원형의 국소 원점은 화구 아래 가운데의 벽돌 앞면이고 +Z는 거실 쪽, +X는 화구 가로, +Y는 위다. 화구 void는 폭 1.04 m, 높이 0.64 m, 바닥 위 0.23–0.87 m, 깊이 0.55 m다. 뒤·좌우·위·아래에 각각 두께 0.025 m의 닫힌 검은 금속 판을 놓되 판의 외곽은 void를 넘지 않는다. 전면 테는 폭 0.025 m, 두께 0.015 m이며 벽돌 앞면 안으로 물려 거실 쪽으로 돌출하지 않는다. 내부에서 벽돌과 화구가 함께 보이게 하는 것이 목적이고 불꽃·연도·연소는 구현하지 않는다.
+
+목재 선반은 벽돌 앞면 전체 폭 1.60 m, 깊이 0.55 m, 높이 0.10 m다. 바닥 위 Y = [1.30, 1.40] m를 채워 그 아래 벽돌 상단과 한 경계에서 만난다. 상면·아래면·네 옆면 모두 `mantel`, 금속 내부 판 모든 면은 `firebox`, 전면 테 모든 면은 `firebox-trim`이다. 목재 결을 위한 UV는 가로를 U·깊이를 V로, 검은 판은 각 판 국소 가로·세로를 미터로 투영한다. 위치와 크기는 [실내 앞면 예약](../spaces/envelope/left.md#chimney-roof-interface) 안이며 벽난로 앞 0.90 m 통로까지 늘어나지 않는다. 소스 owner는 `src/models/furnishings/living.ts`; [모델 고정 뷰](00-model-frame.md#model-review-set)와 레퍼런스 04의 거실 정면에서 검은 중심·벽돌·목재 세 재료를 대조한다. 실제 source와 렌더는 unverified다.

@@ -62,7 +62,7 @@
 @evidence principles/core/common.md#substantive-completion 높이 0.80 m, 돌출 0.04 m, 테두리 폭 0.02 m·깊이 0.04 m, 테두리 안쪽 면에서 0.03 m 뒤의 깊이 0.01 m 거울 판을 정한다.
 @evidence principles/core/common.md#declared-basis W = 0.60 m와 0.85 m는 두 방 거울 예약의 가로 폭이고 높이 0.80 m는 두 예약의 1.10–1.90 m 범위와 같아 수치의 출처가 본문 링크에서 추적된다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 방 문서의 거울 예약 상자(두께 0.04 m, 높이 1.10–1.90 m) 위에 테두리와 뒤로 물러난 거울 판의 두 부품 구성, 하단 중심 원점이라는 모델 결정을 더한다.
-@evidence principles/design/models.md#representation-contract 테두리와 거울 판 두 부품, 표면 id `frame`, `mirror`를 두고 이 원형은 평면만 주며 반사를 주장하지 않는다고 적는다. 보이지 않는 한계는 본문의 "거울 뒤 고정 철물과 모서리 모따기는 표현하지 않는다."로 밝힌다.
+@evidence principles/design/models.md#representation-contract 테두리와 거울 판 두 부품, 표면 id `mirror-frame`, `mirror`를 두고 이 원형은 평면만 주며 반사를 주장하지 않는다고 적는다. 보이지 않는 한계는 본문의 "거울 뒤 고정 철물과 모서리 모따기는 표현하지 않는다."로 밝힌다.
 @evidence principles/design/models.md#spatial-convention 벽걸이 원형이므로 원점을 벽면 위 거울 하단의 가로 중심 1.10 m에 두는 가구 국소 좌표의 예외를 밝힌다.
 @evidence principles/design/models.md#reviewable-structure 측면에서 돌출이 0.04 m를 넘지 않는지, 정면에서 하단이 세면장 상면 위 0.25 m에 있는지가 거울을 반증할 관찰이다.
 @evidence principles/design/models.md#model-observable-style-basis 스타일 라벨 없이 폭 0.02 m 얇은 테두리와 0.03 m 들어간 판이라는 구성만 정하고 반사 외관은 materials와 렌더에 둔다.
@@ -78,7 +78,7 @@
 
 거울은 폭 W를 받는 한 원형이며 높이 0.80 m, 돌출 0.04 m다. [파우더룸 거울](../spaces/rooms/powder.md#powder-fixture-use) X = [3.65, 4.25], Z = [-0.29, -0.25], 높이 1.10–1.90 m는 W = 0.60 m이고, [욕조 욕실 거울](../spaces/rooms/tub-bath.md#tub-fixture-use) X = [5.46, 5.50], Z = [-5.75, -4.90], 상층 바닥 위 1.10–1.90 m는 W = 0.85 m이며, [샤워 욕실 거울](../spaces/rooms/shower-bath.md#shower-fixture-use) X = [3.03, 3.07], Z = [-6.80, -6.10], 상층 바닥 위 1.10–1.90 m는 세면장 폭과 같은 W = 0.70 m다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르되 벽걸이 원형이므로 원점을 벽면 위 거울 하단의 가로 중심 1.10 m에 둔다.
 
-부품은 테두리(폭 0.02 m, 깊이 0.04 m)와 거울 판(깊이 0.01 m, 테두리 안쪽 면에서 0.03 m 뒤)이다. 표면 id는 `frame`, `mirror`다. 실제 반사는 materials와 렌더 소유이며 이 원형은 평면만 준다. 거울 뒤 고정 철물과 모서리 모따기는 표현하지 않는다. 소스 owner는 `src/models/furnishings/bathrooms.ts`다. 관찰은 측면에서 돌출이 0.04 m를 넘지 않는지, 정면에서 하단이 세면장 상면 위 0.25 m에 있는지다. 모든 관찰은 unverified다.
+부품은 테두리(폭 0.02 m, 깊이 0.04 m)와 거울 판(깊이 0.01 m, 테두리 안쪽 면에서 0.03 m 뒤)이다. 표면 id는 `mirror-frame`, `mirror`다. 실제 반사는 materials와 렌더 소유이며 이 원형은 평면만 준다. 거울 뒤 고정 철물과 모서리 모따기는 표현하지 않는다. 소스 owner는 `src/models/furnishings/bathrooms.ts`다. 관찰은 측면에서 돌출이 0.04 m를 넘지 않는지, 정면에서 하단이 세면장 상면 위 0.25 m에 있는지다. 모든 관찰은 unverified다.
 
 ## 수건걸이와 수건 {#towel-bar}
 <!--
@@ -107,7 +107,7 @@
 ## 미닫이 유리 샤워부스 {#sliding-shower-booth}
 <!--
 @evidence principles/core/common.md#scope-preservation 샤워 욕실 예약의 폭 1.25 m·깊이 1.10 m·높이 2.10 m 부스에서 방 벽이 이루는 두 면을 빼고 앞면과 오른쪽 면만 만들며 물·김 서림·실링은 제외한다.
-@evidence principles/core/common.md#substantive-completion 오른쪽 고정 유리 두께 0.008 m, 앞면 유리 셋 각 폭 0.43 m와 0.01 m 겹침, 앞면 안쪽 0.09 m에 드는 깊이 0.03 m 트랙 셋, 수전 1.00 m·헤드 1.95 m를 정한다.
+@evidence principles/core/common.md#substantive-completion 오른쪽 고정 유리 두께 0.008 m, 앞면 유리 셋 각 폭 0.43 m와 0.02 m 겹침, 앞면 안쪽 0.09 m에 드는 깊이 0.03 m 트랙 셋, 수전 1.00 m·헤드 1.95 m를 정한다.
 @evidence principles/core/common.md#declared-basis 왼쪽 통과 폭 0.80 m가 1.25 m에서 포갠 묶음 0.43 m와 벽 쪽 프로파일 0.02 m를 뺀 산술이며 방 문서의 0.80 m 이상 요구와 맞춘 값이라고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 방 문서의 부스 외곽과 0.80 m 이상 통과 폭 요구 위에 세 장 미닫이 유리·세 트랙·오른쪽 끝 포개짐이라는 모델 구성을 더한다.
 @evidence principles/design/models.md#representation-contract 바닥판·오른쪽 고정 유리·위아래 트랙 레일·미닫이 유리 셋·손잡이·수전과 헤드의 부품과 표면 id `shower-tray`, `glass`, `rail`, `handle`, `faucet`을 정하고 나머지 두 면은 방 벽에 맡긴다.
@@ -124,7 +124,7 @@
 
 샤워부스는 [샤워 욕실 예약](../spaces/rooms/shower-bath.md#shower-fixture-use)의 X = [0.90, 2.15], Z = [-8.80, -7.70], 상층 바닥 위 2.10 m를 외곽으로 받아 폭 1.25 m, 깊이 1.10 m, 높이 2.10 m다. 방 왼쪽 벽과 뒤쪽 벽이 두 면을 이루므로 원형은 앞면과 오른쪽 면만 만든다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르며 yaw 0이므로 로컬 +Z는 world +Z, 로컬 +X는 world +X다.
 
-부품은 바닥판, 오른쪽 고정 유리, 위아래 세 트랙 레일, 미닫이 유리 셋, 손잡이, 샤워 수전과 헤드다. 바닥판은 상면 0.02 m 이내다. 오른쪽 고정 유리는 두께 0.008 m, 전체 깊이, 높이 2.10 m다. 앞면 세 유리는 각 폭 0.43 m이며 닫힘에서 0.01 m씩 겹쳐 1.25 m를 채운다. 세 패널은 피벗 `panel-1`, `panel-2`, `panel-3`로 로컬 +X를 따라 미끄러져 오른쪽 끝에 한 장 폭으로 포개지고, 포갠 묶음 0.43 m와 벽 쪽 프로파일 0.02 m를 빼면 왼쪽 통과 폭이 [방 문서의 0.80 m 이상](../spaces/rooms/shower-bath.md#shower-fixture-use)과 같은 0.80 m가 된다. 트랙 셋은 각 깊이 0.03 m로 앞면 안쪽 0.09 m에 들어 부스 외곽을 넘지 않는다. 손잡이는 가장 왼쪽 패널의 세로 막대다. 수전은 뒤쪽 벽 가운데 1.00 m, 헤드는 1.95 m에 둔다.
+부품은 바닥판, 오른쪽 고정 유리, 위아래 세 트랙 레일, 미닫이 유리 셋, 손잡이, 샤워 수전과 헤드다. 바닥판은 두께 0.018 m이고 상면은 완성 바닥 위 0.018 m다. 둘레 0.010 m 가장자리를 남기고 내부는 배수구 방향으로 0.004 m 내려가는 평면 네 장으로 나눈다. 오른쪽 고정 유리는 두께 0.008 m, 전체 깊이, 높이 2.10 m다. 앞면 세 유리는 각 폭 0.43 m이며 닫힘에서 0.02 m씩 겹쳐 3 × 0.43 - 2 × 0.02 = 1.25 m를 채운다. 세 패널은 피벗 `panel-1`, `panel-2`, `panel-3`로 로컬 +X를 따라 미끄러져 오른쪽 끝에 한 장 폭으로 포개지고, 포갠 묶음 0.43 m와 벽 쪽 프로파일 0.02 m를 빼면 왼쪽 통과 폭이 [방 문서의 0.80 m 이상](../spaces/rooms/shower-bath.md#shower-fixture-use)과 같은 0.80 m가 된다. 트랙 셋은 각 깊이 0.03 m로 앞면 안쪽 0.09 m에 들어 부스 외곽을 넘지 않는다. 손잡이는 가장 왼쪽 패널의 세로 막대다. 수전은 뒤쪽 벽 가운데 1.00 m, 헤드는 1.95 m에 둔다.
 
 표면 id는 `shower-tray`, `glass`, `rail`, `handle`, `faucet`이며 손잡이의 검은 마감은 materials가 바인딩한다. 물·김 서림·실링은 표현하지 않는다. 소스 owner는 `src/models/furnishings/bathrooms.ts`다. 관찰은 닫힘과 최대 열림의 사선 투시에서 패널이 외곽 안에서만 움직이는지, 열린 평면에서 왼쪽 통과 폭 0.80 m가 남는지다. 모든 관찰은 unverified다.
 
@@ -168,6 +168,6 @@
 @evidence obligations/design/models.md#model-representation-completion 이 파일의 마지막 H2로서 커튼 레일의 레일·매달림 봉·커튼 층, 기준 치수 1.80 m·2.05 m, `curtain-open` 인터페이스, 표면 `rail`·`curtain`, unverified 관찰 owner를 적지만 모집단 전체의 구조·의미 완결 판정은 이 본문에 없다.
 -->
 
-커튼 레일은 [방 문서](../spaces/rooms/tub-bath.md#tub-fixture-use)대로 world X = 4.62 m에서 욕조의 Z 길이 [-8.70, -6.90]을 따라 상층 바닥 위 2.05 m에 놓인다. [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)의 예외로 선형 부재이므로 원점을 뒤쪽 벽에 닿는 레일 끝의 높이 2.05 m 점에 두고 +Z를 레일 방향으로 둔다. yaw 0이므로 로컬 +Z는 world +Z다. 레일은 지름 0.025 m, 길이 1.80 m이며 앞쪽 끝은 천장까지 내려오는 지름 0.02 m 매달림 봉으로 받친다. 천장 높이는 방 owner에서 받는다.
+커튼 레일은 [방 문서](../spaces/rooms/tub-bath.md#tub-fixture-use)가 예약한 욕조 앞면에서 방 쪽으로 0.08 m 떨어진 선을 따라 욕조 길이 1.80 m 전체에 놓인다. [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)의 예외로 선형 부재이므로 원점을 뒤쪽 벽에 닿는 레일 끝의 높이 2.05 m 점에 두고 +Z를 레일 방향으로 둔다. 배치 yaw는 욕조의 긴 축과 맞추되 world 좌표는 방 owner에게서 계산한다. 레일은 지름 0.025 m, 길이 1.80 m이며 앞쪽 끝은 천장까지 내려오는 지름 0.02 m 매달림 봉으로 받친다. 천장 높이는 방 owner에서 받는다.
 
 커튼은 레일 아래 0.03 m부터 바닥 위 0.60 m까지 내려오는 두께 0.01 m의 판이고 매개변수 `curtain-open`이 펼친 길이를 1.80 m에서 0.25 m까지 바꾼다. 걷은 상태에서는 뒤쪽 끝 0.25 m 안에 모이며 이때 주름을 네 번 꺾인 판으로 표현한다. 표면 id는 `rail`, `curtain`이다. 소스 owner는 `src/models/furnishings/bathrooms.ts`다. 관찰은 펼친 상태와 걷은 상태의 사선 투시에서 커튼이 욕조 사용 범위로 늘어지지 않는지다. 모든 관찰은 unverified다.

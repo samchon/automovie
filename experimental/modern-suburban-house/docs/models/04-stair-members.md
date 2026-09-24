@@ -42,10 +42,10 @@
 
 ## 난간 부재의 표면 파티션 {#stair-member-surfaces}
 <!--
-@evidence principles/core/common.md#scope-preservation 난간 부재의 표면 id baluster·bottom-rail과 평면 법선·UV 없음을 이 H2가 맡는다.
+@evidence principles/core/common.md#scope-preservation 난간 부재의 표면 id baluster·bottom-rail, 평면 법선과 길이 방향 미터 UV를 이 H2가 맡는다.
 @evidence principles/core/common.md#substantive-completion 기둥·손잡이 표면은 spaces source가 소유한다고 적어 중복을 막는다.
 @evidence principles/core/common.md#declared-basis id 규칙은 00-model-frame.md#model-surface-partition-naming, 색 조건은 settings/10-house.md#stair에서 받는다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 철제 단색을 UV 없는 표면이라는 모델 결정으로 바꾼다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 설정의 검은 철제 부재를 분체결이 따라갈 길이 방향 UV와 두 표면 id로 구체화한다.
 @evidence principles/design/models.md#representation-contract 난간 부재의 안정 표면을 정한다.
 @evidence principles/design/models.md#spatial-convention baluster·bottom-rail 표면은 stair-balusters의 난간살 아래 끝 원점을 따르고 새 좌표를 정하지 않는다.
 @evidence principles/design/models.md#reviewable-structure 바인딩 뷰에서 기둥과 난간살 경계로 반증한다.
@@ -54,7 +54,7 @@
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work settings stair를 그대로 소비했고 부모 수정이 없었다.
 -->
 
-[이름 규칙](00-model-frame.md#model-surface-partition-naming)에 따라 표면 id는 `baluster`와 `bottom-rail`이다. 둘 다 [단일 꺾임계단 설정](../settings/10-house.md#stair)의 검은 철제 단색이므로 면마다 평면 법선을 쓰고 UV는 두지 않는다. 기둥과 손잡이의 표면은 spaces source가 소유한다. 소스 owner는 `src/models/stair-baluster.ts`다.
+[이름 규칙](00-model-frame.md#model-surface-partition-naming)에 따라 표면 id는 `baluster`와 `bottom-rail`이다. 둘 다 [단일 꺾임계단 설정](../settings/10-house.md#stair)의 검은 철제 부재로 면마다 평면 법선을 쓰고, [검은 도장 금속의 분체결](../materials/02-interior-shell.md#black-coated-metal)이 붙도록 각 직선 부재의 한쪽 끝 모서리를 원점으로 길이 U·둘레 전개 V를 미터 단위로 둔다. 기둥과 손잡이의 표면은 spaces source가 소유한다. 소스 owner는 `src/models/stair-baluster.ts`다.
 
 ## 난간 부재의 표현 한계 {#stair-member-fidelity}
 <!--

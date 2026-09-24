@@ -15,7 +15,7 @@
 @evidence spaces/06-openings.md#external-opening-interface 개구부 좌표를 네 입면 owner가 소유한다는 인계를 받아 모델이 world 좌표를 복제하지 않고 외곽을 거친 개구부에서만 산출한다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work coordinate-units의 오른손 Y-up·m·rad와 06의 개구부 좌표 owner·0.04/0.14 m 예약을 적힌 그대로 소비했고 원점 면과 회전을 정하는 데 부모와 모순되거나 빠진 값이 없었다.
 @evidence obligations/core/common.md#layer-boundary 모델은 부재 배분만 정하고 개구부 좌표·칸 수·경첩 쪽은 spaces, 색·광학값은 materials, world 배치는 instances가 정한다고 이 H2가 층 경계를 적는다.
-@evidence settings/00-production.md#build-allocation '실제 부재·가구·수목 원형은 models'라는 배분을 개구부 충전 모델과 가구 원형의 범위로 소비한다.
+@evidence settings/00-production.md#build-allocation '실제 부재·가구·수목 원형은 models'라는 배분을 개구부 충전·가구·수목·조명기구·생활 소품의 원형 범위로 소비한다. 소스가 없는 계열의 실제 표면은 unverified다.
 @evidence spaces/envelope/left.md#left-openings 왼쪽 벽의 개구부 좌표 owner를 창 원점 면(날씨 면) 배치의 입력으로 소비한다.
 @evidence spaces/envelope/rear.md#rear-openings 본채 후벽 Z = [-10.70, -10.45] m를 후면 창·정원문의 원점 면 위치로 소비한다.
 @evidence spaces/envelope/right.md#right-openings 오른쪽 벽의 개구부 좌표 owner를 창 원점 면 배치의 입력으로 소비한다.
@@ -28,7 +28,7 @@
 @evidenceExclude settings/00-production.md#working-language 이 상위 H2는 작업 언어를 정하며 모델 문서는 그 언어로 쓰였을 뿐 부재 결정에 값을 받지 않는다.
 @evidenceExclude settings/10-house.md#house-scale 이 상위 H2는 집 전체 규모를 정하며 모델은 그 규모를 좌표로 확정한 spaces 개구부 H2에서 치수를 받는다.
 @evidenceExclude settings/10-house.md#main-mass 이 상위 H2는 본채 매스와 지붕 형태를 정하며 모델은 지붕·벽 몸체를 만들지 않는다.
-@evidenceExclude settings/10-house.md#porch-entry 이 상위 H2는 포치와 외부 진입을 정하며 포치·기둥은 spaces porch owner가 만들고 현관문 값은 entry·front H2에서 받는다.
+@evidence settings/10-house.md#porch-entry 포치 구조와 기둥은 spaces가 소유하고 현관문은 02 원형이 맡는다. 발판과 화분은 별도 생활 소품 원형으로 분리해 포치 계단·문짝과 겹치지 않게 한다.
 @evidenceExclude settings/10-house.md#service-band 이 상위 H2는 우측 서비스 동선을 정하며 모델은 그 안의 문 값을 각 room plan H2에서 받는다.
 @evidenceExclude settings/20-verification.md#completion-boundary 이 상위 H2는 완료와 기록 조건을 정하는 절차이며 모델 부재의 형상·관절·표면을 정하지 않는다.
 @evidenceExclude settings/20-verification.md#data-authority 이 상위 H2는 측정과 프레임의 책임을 정하는 절차이며 모델 부재의 형상·관절·표면을 정하지 않는다.
@@ -60,14 +60,12 @@
 @evidenceExclude spaces/09-ceiling-assembly.md#upper-ceiling-closure 이 상위 H2는 상층과 계단실 천장을 정하며 모델은 천장을 만들지 않는다.
 @evidenceExclude spaces/10-ground-floor.md#garage-ground-floor-base 이 상위 H2는 차고 바닥 바탕을 정하며 모델은 바닥을 만들지 않는다.
 @evidenceExclude spaces/10-ground-floor.md#ground-support-handoff 이 상위 H2는 바닥 아래 지지와 지표 인계를 정하며 모델 부재와 관계가 없다.
-@evidenceExclude spaces/10-ground-floor.md#ground-threshold-junctions 이 상위 H2는 외벽 두께 안 출입 경계의 바닥 접합을 정하며 모델 문턱 높이는 garden-door H2의 0.02 m에서 받는다.
+@evidence spaces/10-ground-floor.md#ground-threshold-junctions 전면·후면 문턱판은 spaces가 단 한 번 만들고 상면 +0.02 m를 이 모델의 문짝 하단 기준으로 받아 문턱 위 0.01 m 틈을 둔다.
 @evidenceExclude spaces/10-ground-floor.md#main-ground-floor-base 이 상위 H2는 본채 바닥 바탕을 정하며 모델은 바닥을 만들지 않는다.
 @evidenceExclude spaces/envelope/front.md#front-roof-closures 이 상위 H2는 전면 박공 삼각 벽 폐합을 정하며 모델은 벽을 만들지 않는다.
-@evidenceExclude spaces/envelope/left.md#chimney-roof-interface 이 상위 H2는 굴뚝 몸체를 정하며 모델 H2 어디도 굴뚝을 만들지 않는다.
 @evidenceExclude spaces/envelope/left.md#left-roof-closure 이 상위 H2는 왼쪽 삼각 벽 폐합을 정하며 모델은 벽을 만들지 않는다.
 @evidenceExclude spaces/envelope/rear.md#rear-roof-closures 이 상위 H2는 후면 처마 아래 외벽 폐합을 정하며 모델은 벽을 만들지 않는다.
 @evidenceExclude spaces/envelope/right.md#right-roof-closures 이 상위 H2는 오른쪽 단차 외벽 폐합을 정하며 모델은 벽을 만들지 않는다.
-@evidenceExclude spaces/porch.md#porch-platform-access 이 상위 H2는 포치 바닥과 챌판을 정하며 모델은 포치를 만들지 않는다.
 @evidenceExclude spaces/porch.md#porch-roof-columns 이 상위 H2는 포치 기둥과 지붕을 정하며 모델 H2 어디도 기둥·포치 지붕을 만들지 않는다.
 @evidenceExclude spaces/roof/00-junctions.md#roof-wall-head-junctions 이 상위 H2는 본채와 차고 외벽이 자기 지붕 아래에서 닫히는 벽 상단을 정하며 모델은 외벽 몸체와 그 상단을 만들지 않는다.
 @evidenceExclude spaces/roof/front-gable-left.md#front-gable-left-roof 이 상위 H2는 roof.front-gable.left 면의 날씨 면·아래면·외곽 두께를 src/spaces/roof/front-gable-left.ts에 배정하며 모델은 그 지붕판을 만들지 않는다.
@@ -157,11 +155,11 @@
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work fidelity를 적힌 그대로 소비했고 표현 상한과 settings 사이에 수정할 모순이 없었다.
 -->
 
-[표현 수준](../settings/20-verification.md#fidelity)은 창호와 문짝이 실제 캡처에서 읽혀야 하며 단순 blocking이나 topology 통과로 낮추지 않는다고 정한다. 따라서 창틀·sash·살대·유리·문짝·문설주·손잡이·경첩·문턱은 각각 두께 있는 별도 부재로 만들고 사각 구멍이나 평면 한 장으로 대신하지 않는다. 반면 웨더스트립, 잠금 기구 내부, 스프링, 나사, 유리 이중층의 공기층은 만들지 않는다. 검사자는 이 모델에서 단열·방수·기밀·개폐 하중·구조 안전·법규 적합을 추론하지 않는다. 소스 owner는 `src/models/frame.ts`이며 각 모델 H2가 이 상한 안에서 자기 한계를 적는다.
+[표현 수준](../settings/20-verification.md#fidelity)은 창호와 문짝이 실제 캡처에서 읽혀야 하며 단순 blocking이나 topology 통과로 낮추지 않는다고 정한다. 따라서 창틀·sash·살대·유리·문짝·문설주·손잡이·경첩은 각각 두께 있는 별도 부재로 만들고 사각 구멍이나 평면 한 장으로 대신하지 않는다. 전후면 외부 문턱은 spaces가 이미 지은 부재이므로 모델이 복제하지 않는다. 웨더스트립, 잠금 기구 내부, 스프링, 나사, 유리 이중층의 공기층은 만들지 않는다. 검사자는 이 모델에서 단열·방수·기밀·개폐 하중·구조 안전·법규 적합을 추론하지 않는다. 소스 owner는 `src/models/frame.ts`이며 각 모델 H2가 이 상한 안에서 자기 한계를 적는다.
 
 ## 표면 파티션 이름 규칙 {#model-surface-partition-naming}
 <!--
-@evidence principles/core/common.md#scope-preservation 개구부 부재 20개 id와 가구·설비 id를 역할별로 한 목록에 두고 '한 id는 한 역할'과 -exterior/-interior 접미사 규칙을 이 H2가 맡는다.
+@evidence principles/core/common.md#scope-preservation 개구부와 가구·설비·외장 반복 부재의 역할별 id를 역할별로 한 목록에 두고 '한 id는 한 역할'과 -exterior/-interior 접미사 규칙을 이 H2가 맡는다.
 @evidence principles/core/common.md#substantive-completion frame·sash·glass·leaf·jamb부터 siding-face·siding-butt·siding-back까지 각 id의 역할을 괄호로 적어 materials가 바인딩할 이름을 새로 만들 필요가 없다.
 @evidence principles/core/common.md#declared-basis 모델이 표면 id만 제공하고 색·광학값·텍스처 scale을 정하지 않는 분담을 settings/20-verification.md#surface-allocation에서 받는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation surface-allocation의 'models는 경계를 받아 두께 있는 부재를' 인계를 kebab-case 역할 id 목록과 안팎 접미사 규칙으로 바꾼다.
@@ -176,7 +174,7 @@
 @evidence obligations/core/common.md#production-language id는 영어 kebab-case, 역할 설명과 본문은 한국어로 두고 id마다 괄호 안 한국어 역할을 붙여 독자가 용어를 추측하지 않게 한다.
 -->
 
-[표면 분해 인계](../settings/20-verification.md#surface-allocation)에 따라 모델은 materials가 바인딩할 안정 표면 id만 제공하고 색·광학값·텍스처 scale은 정하지 않는다. id는 부재 역할을 나타내는 kebab-case 이름이며 한 모델 안에서 유일하고, 같은 역할은 모든 모델에서 같은 id를 쓴다. 개구부 부재의 공통 id는 `frame`(창틀), `sash`(움직이거나 고정된 유리 틀), `mullion`(칸 사이 세로 부재), `muntin`(유리 칸 살대), `glass`(투명 유리), `obscured-glass`(흐린 유리), `exterior-trim`(외부 trim), `interior-sill`(안쪽 창대), `leaf`(문짝 몸), `leaf-panel`(문짝 오목 패널·판재), `jamb`(문설주), `casing`(실내 문선), `threshold`(문턱), `handle`(손잡이), `hinge`(경첩), `rail`(트랙·레일), `baluster`(난간살), `bottom-rail`(난간 아래 부재), `rod`(옷걸이 봉), `shelf`(선반판)이다. 가구·설비의 공통 id는 몸통 계열 `carcass`(수납 몸통), `plinth`(걸레받이 받침), `drawer-front`(서랍 전면), `countertop`(작업 상판), `top`(가구 윗판), `cleat`(선반 받침목), `leg`(다리), `post`(세움대), `apron`(상판 아래 띠), `base`(바닥 받침), `board`(벽 부착판), `hook`(걸이), 좌석 계열 `seat`(좌판), `seat-cushion`(좌석 쿠션), `back`(등받이), `arm`(팔걸이), `footrest`(발받침), 설비 계열 `appliance-body`(가전 외장), `appliance-interior`(가전 내부), `control-panel`(조작부), `cooktop`(조리면), `burner`(화구), `basin`(세면볼·싱크볼), `ceramic`(위생도기 몸), `faucet`(수전), `lid`(뚜껑), `shower-tray`(샤워 바닥판), `mirror`(거울면), 침구 계열 `bed-frame`(침대 틀), `headboard`(머리판), `mattress`(매트리스), `bedding`(이불), `pillow`(베개), 직물·소품 계열 `towel`(수건), `curtain`(커튼), `clothes`(걸린 옷), `folded`(접힌 직물), `field`(깔개 안쪽 면), `border`(깔개 테두리), `book`(책), `container`(식품 용기), `basket`(바구니), `bin`(수납함), `shoe`(신발), `shoe-box`(신발 상자), `lamp-base`(등 받침), `lamp-shade`(등 갓), `tool-steel`(공구 금속부), `tool-grip`(공구 손잡이), 외장 반복 계열 `siding-face`(siding 노출면), `siding-butt`(siding 아래 끝면), `siding-back`(siding 뒷면), 지붕 반복 계열 `shingle-face`(shingle 노출면), `shingle-butt`(shingle 아래 끝면), `shingle-back`(shingle 뒷면), `shingle-cut`(shingle 절단면), 부속 계열 `bracket`(받침 철물), `accessory`(부착 소품)이다. 한 id는 한 역할만 가지며 같은 역할에 새 id를 만들지 않는다. 안팎 면이 다른 마감을 받아야 하는 부재는 `-exterior`와 `-interior` 접미사로 나눈다. 소스 owner는 `src/models/frame.ts`이며 materials 문서가 이 id 목록을 소비한다.
+[표면 분해 인계](../settings/20-verification.md#surface-allocation)에 따라 모델은 materials가 바인딩할 안정 표면 id만 제공하고 색·광학값·텍스처 scale은 정하지 않는다. id는 부재 역할을 나타내는 kebab-case 이름이며 한 모델 안에서 유일하고, 같은 역할은 모든 모델에서 같은 id를 쓴다. 개구부 부재의 공통 id는 `frame`(창틀), `sash`(움직이거나 고정된 유리 틀), `mullion`(칸 사이 세로 부재), `muntin`(유리 칸 살대), `glass`(투명 유리), `obscured-glass`(흐린 유리), `exterior-trim`(외부 trim), `interior-sill`(안쪽 창대), `leaf`(문짝 몸), `leaf-panel`(문짝 오목 패널·판재), `leaf-edge`(외부 문짝 두께 면), `panel-edge`(차고문 분절 사이와 절단 끝), `jamb`(문설주), `jamb-a`(A방 쪽 문설주 바깥 면), `jamb-b`(B방 쪽 문설주 바깥 면), `jamb-core`(개구부 안쪽 챌면), `casing`(실내 문선), `casing-a`(A방 문선), `casing-b`(B방 문선), `handle`(손잡이), `hinge`(경첩), `rail`(트랙·레일), `baluster`(난간살), `bottom-rail`(난간 아래 부재), `rod`(옷걸이 봉), `shelf`(선반판)이다. 가구·설비의 공통 id는 몸통 계열 `carcass`(수납 몸통), `plinth`(걸레받이 받침), `drawer-front`(서랍 전면), `countertop`(작업 상판), `top`(가구 윗판), `cleat`(선반 받침목), `leg`(다리), `post`(세움대), `apron`(상판 아래 띠), `base`(바닥 받침), `board`(벽 부착판), `hook`(걸이), 좌석 계열 `seat`(좌판), `seat-cushion`(좌석 쿠션), `back`(등받이), `arm`(팔걸이), `footrest`(발받침), 설비 계열 `appliance-body`(가전 외장), `appliance-interior`(가전 내부), `control-panel`(조작부), `cooktop`(조리면), `burner`(화구), `basin`(세면볼·싱크볼), `ceramic`(위생도기 몸), `faucet`(수전), `lid`(뚜껑), `shower-tray`(샤워 바닥판), `mirror`(거울면), 침구 계열 `bed-frame`(침대 틀), `headboard`(머리판), `mattress`(매트리스), `bedding`(이불), `pillow`(베개), 직물·소품 계열 `towel`(수건), `curtain`(커튼), `clothes`(걸린 옷), `folded`(접힌 직물), `field`(깔개 안쪽 면), `border`(깔개 테두리), `book`(책), `container`(식품 용기), `basket`(바구니), `bin`(수납함), `shoe`(신발), `shoe-box`(신발 상자), `lamp-base`(등 받침), `lamp-shade`(등 갓), `tool-steel`(공구 금속부), `tool-grip`(공구 손잡이), `door-ring`(세탁기 문 금속 고리), `drum`(세탁기 문 뒤 정지 원통), `mirror-frame`(거울 테두리), 외장 반복 계열 `siding-face`(siding 노출면), `siding-butt`(siding 아래 끝면), `siding-back`(siding 뒷면), `siding-top`(siding 위 끝면), `siding-cut`(siding 양 끝 절단면), 지붕 반복 계열 `shingle-face`(shingle 노출면), `shingle-butt`(shingle 아래 끝면), `shingle-back`(shingle 뒷면), `shingle-cut`(shingle 절단면), 부속 계열 `bracket`(받침 철물), `accessory`(부착 소품), 식재 계열 `bark`(줄기·가지), `foliage`(잎 군집), `stem`(실내 식물 줄기), 조명 계열 `fixture-housing`(기구 외장), `fixture-diffuser`(확산면), `fixture-canopy`(천장 접합판), `fixture-stem`(기구 목·줄), `fixture-shade`(갓 외면), `fixture-glass`(포치 등 유리), 생활 소품 계열 `cutting-board`(도마), `utensil`(조리도구), `bowl`(그릇), `fruit`(과일), `tray`(쟁반), `art-frame`(액자 테와 뒤판), `art-print`(인쇄 면), 벽난로 계열 `firebox`(화구 속), `firebox-trim`(화구 전면 테), `mantel`(목재 선반)이다. 한 id는 한 역할만 가지며 같은 역할에 새 id를 만들지 않는다. 안팎 면이 다른 마감을 받아야 하는 부재는 `-exterior`와 `-interior` 접미사로 나눈다. 부품의 앞·뒤·옆·위·아래·절단 끝을 포함한 모든 삼각형 면에는 정확히 하나의 표면 id를 붙인다. 회전 피벗·슬라이드 노드 이름은 표면 id가 아니다. 외부 문턱판은 spaces/10-ground-floor.md#ground-threshold-junctions의 공간 부재이고 모델은 같은 면을 만들지 않는다. 소스 owner는 `src/models/frame.ts`이며 materials 결합은 실제로 각 H2가 내는 id와 대조해야 하며 현재 source 결속은 unverified다.
 
 ## 원형 계열별 표현 완결 보고 {#model-representation-completion}
 <!--
@@ -195,7 +193,7 @@
 @evidence obligations/core/common.md#proportionate-development 계열마다 구조·의미 판정을 같은 형식으로 보고하게 해 한 계열이 산술 없이 압축되거나 source 없이 부풀려진 것을 드러낸다.
 -->
 
-모델 모집단의 완결은 원형 계열마다 두 판정을 따로 보고한다. 구조 판정은 `src/models`가 만든 메시가 닫힌 부피·바깥 법선·유한 좌표·선언한 표면 id와 관절 노드를 모두 갖는지이고, 의미 판정은 [예약 맞춤 계약](../contracts/reservation-fit.md#reservation-fit)의 산술, 선언한 표현 한계, [모델 리뷰 뷰 목록](#model-review-set)의 캡처가 모두 답해졌는지다. 한 판정은 다른 판정을 함의하지 않는다. 계열은 창([01](01-windows.md)), 외부 문과 대문([02](02-exterior-doors.md)), 실내 문([03](03-interior-doors.md)), 난간 부재([04](04-stair-members.md)), 수납 부재([05](05-closet-fittings.md)), 가구·설비([10](10-kitchen-dining.md) 이후 파일)다. 현재 모든 계열은 설계 문서만 있고 source가 없으므로 구조 판정은 unverified이며, 의미 판정은 각 H2의 산술이 문서에 적힌 수준까지만 성립한다. 보고 경로는 모델 source 단계의 구조 검사 출력과, 예약 맞춤 account가 계열·원형·예약 owner·산술 결과·캡처 주소를 한 줄씩 나열하는 표다. 소스 owner는 `src/models/frame.ts`다.
+모델 모집단의 완결은 원형 계열마다 두 판정을 따로 보고한다. 구조 판정은 `src/models`가 만든 메시가 닫힌 부피·바깥 법선·유한 좌표·선언한 표면 id와 관절 노드를 모두 갖는지이고, 의미 판정은 [예약 맞춤 계약](../contracts/reservation-fit.md#reservation-fit)의 산술, 선언한 표현 한계, [모델 리뷰 뷰 목록](#model-review-set)의 캡처가 모두 답해졌는지다. 한 판정은 다른 판정을 함의하지 않는다. 계열은 창([01](01-windows.md)), 외부 문과 대문([02](02-exterior-doors.md)), 실내 문([03](03-interior-doors.md)), 난간 부재([04](04-stair-members.md)), 수납 부재([05](05-closet-fittings.md)), 가구·설비([10](10-kitchen-dining.md)–[15](15-outdoor.md)), 식재([16](16-planting.md)), 조명기구([17](17-light-fixtures.md)), 생활 소품([18](18-house-props.md)–[19](19-room-accents.md))이다. 현재 모든 계열은 설계 문서만 있고 source가 없으므로 구조 판정은 unverified이며, 의미 판정은 각 H2의 산술이 문서에 적힌 수준까지만 성립한다. 보고 경로는 모델 source 단계의 구조 검사 출력과, 예약 맞춤 account가 계열·원형·예약 owner·산술 결과·캡처 주소를 한 줄씩 나열하는 표다. 소스 owner는 `src/models/frame.ts`다.
 
 ## 모델 리뷰 뷰 목록 {#model-review-set}
 <!--

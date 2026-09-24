@@ -67,7 +67,7 @@
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 00의 이름 규칙과 방 owner의 양쪽 마감 배정을 실내 문 -a/-b 분리에 그대로 소비했고 부모 수정이 없었다.
 -->
 
-안정 표면 id는 [이름 규칙](00-model-frame.md#model-surface-partition-naming)의 `jamb`, `casing`, `leaf`, `leaf-panel`, `handle`, `hinge`다. 문설주와 casing은 양쪽 방의 마감이 다를 수 있어 `-a`/`-b`로 벽면별로 나누고 leaf는 한 면으로 둔다. 소스 owner는 `src/models/interior-door.ts`다.
+안정 표면 id는 [이름 규칙](00-model-frame.md#model-surface-partition-naming)의 `jamb`, `casing`, `leaf`, `leaf-panel`, `handle`, `hinge`에서 파생한다. 문이 열리는 쪽 방을 A, 반대쪽을 B로 두고 양쪽 벽면에 각각 닿는 문설주 바깥 면은 `jamb-a`·`jamb-b`, 그 사이 개구부 안쪽 두 옆과 머리 챌면은 `jamb-core`다. A·B 쪽 별도 문선의 앞뒤·절단 끝 전체는 각각 `casing-a`·`casing-b`다. 문짝의 두 넓은 면과 위아래·양옆 두께 면은 모두 `leaf`, 오목 패널의 바닥과 네 챌면은 `leaf-panel`, 철물은 `handle`·`hinge`다. 한 완결 면에 id 둘을 겹치지 않는다. 문짝과 문선의 UV는 각 판 왼쪽 아래를 원점으로 국소 X 폭·Y 높이를 미터 단위로, 절단 끝은 길이 방향 U·두께 V로 새로 투영한다. 소스 owner는 `src/models/interior-door.ts`다.
 
 ## 실내 문의 표현 한계 {#interior-door-fidelity}
 <!--

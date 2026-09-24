@@ -13,8 +13,10 @@
  *
  * Chimney: body Y = [-0.45, 8.90] m, cap Y = [8.90, 9.10] m projecting 0.10 m
  * on every side, and the living-room fireplace front X = [-5.50, -4.95],
- * Z = [-3.00, -1.40], Y = [0, 1.40] m. The fire is out; flue and combustion are
- * not modelled.
+ * Z = [-3.00, -1.40], Y = [0, 1.40] m. Brick surrounds a real firebox void
+ * Z = [-2.72, -1.68], Y = [0.23, 0.87] m; models supplies the black liner and
+ * the wood mantel at Y = [1.30, 1.40] m. The fire is out; flue and combustion
+ * are not modelled.
  */
 import { EXTERIOR_WALL_BOTTOM, MAIN } from "../building";
 import { PALETTE } from "../palette";
@@ -61,6 +63,9 @@ export const buildLeft = (): IHousePart[] => {
     part("left-wall-back", OWNER, "wall", PALETTE.siding, backPanel),
     part("chimney-body", OWNER, "chimney", PALETTE.brick, block([CHIMNEY_PLAN.x[0], -0.45, chimneyBack], [CHIMNEY_PLAN.x[1], 8.9, chimneyFront])),
     part("chimney-cap", OWNER, "chimney", PALETTE.railing, block([CHIMNEY_PLAN.x[0] - 0.1, 8.9, chimneyBack - 0.1], [CHIMNEY_PLAN.x[1] + 0.1, 9.1, chimneyFront + 0.1])),
-    part("fireplace-front", OWNER, "chimney", PALETTE.brick, block([-5.5, 0, -3.0], [-4.95, 1.4, -1.4])),
+    part("fireplace-hearth", OWNER, "chimney", PALETTE.brick, block([-5.5, 0, -3.0], [-4.95, 0.23, -1.4])),
+    part("fireplace-left", OWNER, "chimney", PALETTE.brick, block([-5.5, 0.23, -3.0], [-4.95, 1.3, -2.72])),
+    part("fireplace-right", OWNER, "chimney", PALETTE.brick, block([-5.5, 0.23, -1.68], [-4.95, 1.3, -1.4])),
+    part("fireplace-head", OWNER, "chimney", PALETTE.brick, block([-5.5, 0.87, -2.72], [-4.95, 1.3, -1.68])),
   ];
 };

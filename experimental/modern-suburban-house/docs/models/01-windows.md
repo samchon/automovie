@@ -23,7 +23,7 @@
 @evidence principles/core/common.md#substantive-completion 칸 폭 = (거친 폭 - 2×0.06 - (칸 수-1)×0.08)/칸 수와 0.30 m 미만 실패 조건, 계단 창 유리 폭 0.56 m 산출을 적는다.
 @evidence principles/core/common.md#declared-basis 부재 폭 근거를 settings/20-verification.md#visual-grammar의 charcoal 창틀과 #frame-condition의 외부 기본 view, 계단 창 폭 0.78 m에서 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation settings openings의 '두께 있는 frame·sash·유리·살대'를 네 부재 폭과 유리 두께 0.006 m라는 모델 결정으로 바꾼다.
-@evidence principles/design/models.md#representation-contract 부재 폭·깊이와 유리를 닫힌 얇은 상자(양면 바깥 법선, UV 없음)로 정해 부재 연결과 법선을 명시한다.
+@evidence principles/design/models.md#representation-contract 부재 폭·깊이와 유리를 닫힌 얇은 상자(양면 바깥 법선)로 정하고, 금속 프레임은 부재 길이를 U로 한 미터 UV를 낸다.
 @evidence principles/design/models.md#spatial-convention 부재 폭을 정면 입면 방향, 깊이를 국소 Z로 적어 방향 관례를 분명히 한다.
 @evidence principles/design/models.md#reviewable-structure 정면 직교 뷰에서 부재 폭을 재고 칸 폭 0.30 m 미만을 실패로 본다.
 @evidence principles/design/models.md#model-observable-style-basis charcoal 창틀이 흰 trim 안에서 선으로 읽혀야 한다는 visual-grammar 요구를 0.06/0.05 m 폭으로 구체화한다.
@@ -33,7 +33,7 @@
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work visual-grammar·frame-condition과 입면 owner의 칸 수를 그대로 소비했고 부재 폭이 부모 값과 충돌하지 않았다.
 -->
 
-spaces와 settings가 부재 폭을 정하지 않았으므로 frame 둘레 입면 폭 0.06 m, sash 둘레 0.05 m, 칸 사이 mullion 0.08 m, 살대 0.025 m를 모델 결정으로 택한다. 근거는 [공통 재료와 외피 인상](../settings/20-verification.md#visual-grammar)의 짙은 charcoal 창틀이 흰 trim 안쪽에서 선으로 읽혀야 하고 [리뷰 프레임 조건](../settings/20-verification.md#frame-condition)의 외부 기본 view에서도 frame과 sash가 구별돼야 한다는 점, 그리고 가장 작은 [계단 창](../spaces/envelope/front.md#stair-front-window) 폭 0.78 m에서도 유리 폭이 0.56 m 남는다는 산출이다. 칸 폭은 (거친 폭 - 2 × 0.06 - (칸 수 - 1) × 0.08) / 칸 수이고 이 값이 0.30 m 미만이면 실패로 보고한다. 깊이는 frame 0.14 m 전부, sash 0.05 m, 유리는 두께 0.006 m 판 하나다. 유리는 앞뒤 면이 각각 바깥 법선을 갖는 닫힌 얇은 상자로 만들어 실내외 양쪽 view에서 같은 판이 보이게 하고 UV는 두지 않는다. 창틀·sash·살대는 면마다 평면 법선을 쓰며 [공통 재료와 외피 인상](../settings/20-verification.md#visual-grammar)의 charcoal 단색이 결 방향을 요구하지 않으므로 UV를 두지 않는다. 소스 owner는 `src/models/windows.ts`이며 정면 직교 뷰에서 부재 폭을 잰다.
+spaces와 settings가 부재 폭을 정하지 않았으므로 frame 둘레 입면 폭 0.06 m, sash 둘레 0.05 m, 칸 사이 mullion 0.08 m, 살대 0.025 m를 모델 결정으로 택한다. 근거는 [공통 재료와 외피 인상](../settings/20-verification.md#visual-grammar)의 짙은 charcoal 창틀이 흰 trim 안쪽에서 선으로 읽혀야 하고 [리뷰 프레임 조건](../settings/20-verification.md#frame-condition)의 외부 기본 view에서도 frame과 sash가 구별돼야 한다는 점, 그리고 가장 작은 [계단 창](../spaces/envelope/front.md#stair-front-window) 폭 0.78 m에서도 유리 폭이 0.56 m 남는다는 산출이다. 칸 폭은 (거친 폭 - 2 × 0.06 - (칸 수 - 1) × 0.08) / 칸 수이고 이 값이 0.30 m 미만이면 실패로 보고한다. 깊이는 frame 0.14 m 전부, sash 0.05 m, 유리는 두께 0.006 m 판 하나다. 유리는 앞뒤 면이 각각 바깥 법선을 갖는 닫힌 얇은 상자로 만들어 실내외 양쪽 view에서 같은 판이 보이게 한다. 창틀·sash·살대는 면마다 평면 법선을 쓰고, [charcoal 미세결](../materials/01-exterior.md#window-frame-charcoal)이 붙을 수 있도록 각 직선 부재의 시작 모서리를 원점으로 길이 U·부재 폭 V를 미터 단위로 기록하며 맞댐에서 끊는다. 유리 앞뒤 면에는 창 유리판의 왼쪽 아래를 원점으로 가로 U·세로 V를 미터 단위로 기록한다. 소스 owner는 `src/models/windows.ts`이며 정면 직교 뷰에서 부재 폭을 잰다.
 
 ## 살대 격자 {#window-muntin-grid}
 <!--
@@ -122,18 +122,18 @@ motion 인터페이스는 각 `lower-sash`의 국소 +Y 평행 이동 하나이�
 ## 창대와 외부 trim {#window-sill-trim}
 <!--
 @evidence principles/core/common.md#scope-preservation 외부 trim과 안쪽 창대의 폭·돌출·두께와 frame 형제 노드 배치를 이 H2가 맡는다.
-@evidence principles/core/common.md#substantive-completion trim을 0.10 m 폭·0.02 m 돌출로, 창대를 0.06 m 돌출·0.03 m 두께로 수치화한다.
+@evidence principles/core/common.md#substantive-completion trim을 0.10 m 폭·0.02 m 돌출로, 창대를 frame 안쪽 면에서 0.13 m 돌출·0.03 m 두께로 수치화한다.
 @evidence principles/core/common.md#declared-basis 0.10 m·0.06 m 한도는 spaces/06-openings.md#external-opening-interface, 돌출 근거는 settings/20-verification.md#visual-grammar에서 받는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 06의 trim 0.10 m 이내·돌출 0.06 m 이내 예약을 실제 부재 치수로 바꾼다.
 @evidence principles/design/models.md#representation-contract exterior-trim과 interior-sill을 frame의 형제 노드로 두는 계층을 정한다.
-@evidence principles/design/models.md#spatial-convention trim은 날씨 면 기준, 창대는 frame 안쪽 면 기준으로 돌출 방향을 적는다.
+@evidence principles/design/models.md#spatial-convention trim은 날씨 면 기준, 창대는 frame 안쪽 면과 실내 마감 면 두 기준에서 돌출을 산출한다.
 @evidence principles/design/models.md#reviewable-structure 입면 정면과 측면 단면에서 trim 폭과 창대 돌출을 반증한다.
 @evidence principles/design/models.md#model-observable-style-basis trim이 실제 돌출과 음영으로 접합을 설명한다는 visual-grammar를 0.02 m 돌출로 구체화한다.
 @evidence principles/design/models.md#model-scale-layer-completion trim과 창대 층을 창 원형에 포함시켜 층 누락을 막는다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 06의 두 예약과 visual-grammar를 그대로 소비했고 부모 수정이 필요하지 않았다.
 -->
 
-외부 trim은 [06의 예약](../spaces/06-openings.md#external-opening-interface)대로 거친 개구부의 좌우·위·아래에 0.10 m 폭으로 두고, [공통 재료와 외피 인상](../settings/20-verification.md#visual-grammar)의 trim이 실제 돌출과 음영으로 접합을 설명한다는 조건을 위해 날씨 면에서 0.02 m 돌출시킨다. 안쪽 창대는 frame 안쪽 면에서 방 쪽으로 0.06 m 돌출하는 두께 0.03 m 판이며 06의 0.06 m 한도를 그대로 쓴다. `exterior-trim`과 `interior-sill`은 `frame`의 형제 노드다. 소스 owner는 `src/models/windows.ts`이며 입면 정면과 측면 단면으로 검사한다.
+외부 trim은 [06의 예약](../spaces/06-openings.md#external-opening-interface)대로 거친 개구부의 좌우·위·아래에 0.10 m 폭으로 두고, [공통 재료와 외피 인상](../settings/20-verification.md#visual-grammar)의 trim이 실제 돌출과 음영으로 접합을 설명한다는 조건을 위해 날씨 면에서 0.02 m 돌출시킨다. 안쪽 창대는 frame 안쪽 면 -0.18 m에서 실내 마감 면 -0.25 m를 지나 방 쪽 끝 -0.31 m까지 0.13 m 돌출하는 두께 0.03 m 판이며 실내 마감 면 기준으로 0.06 m만 돌출해 06의 한도를 지킨다. `exterior-trim`과 `interior-sill`은 `frame`의 형제 노드다. 소스 owner는 `src/models/windows.ts`이며 입면 정면과 측면 단면으로 검사한다.
 
 ## 창의 표면 파티션 {#window-surface-partitions}
 <!--

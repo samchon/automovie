@@ -20,7 +20,7 @@
 
 [주방 설비 설정](../settings/10-house.md#kitchen-equipment)의 L형 하부 수납을 길이 L을 매개변수로 받는 한 원형으로 만든다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르며 +Z는 사용자가 서는 작업면이다. 깊이 0.65 m와 상판 상면 0.91 m는 [공용부 벽 주방 예약](../spaces/rooms/common.md#common-kitchen-wall-reservation)의 뒤쪽 띠 Z = [-10.45, -9.80]과 왼쪽 띠 X = [-5.50, -4.85]의 폭, 그리고 두 띠의 Y = [0, 0.91]에서 그대로 받는다. 길이는 뒤쪽 띠 3.35 m, 왼쪽 뒤 조각 0.30 m, 왼쪽 앞 조각 1.30 m의 세 값이며, 교차 코너는 뒤쪽 띠 하나가 소유하고 왼쪽 뒤 조각은 그 코너 앞에서 시작하므로 코너 몸체를 복제하지 않는다.
 
-부품은 걸레받이, 몸통, 문과 서랍 전면, 손잡이, 상판이다. 걸레받이는 높이 0.10 m이고 전면에서 0.07 m 들어간다. 몸통은 Y = [0.10, 0.88], 깊이 0.60 m이며 전면 판 두께 0.02 m를 더한 앞면이 Z = 0.62 m에 온다. 손잡이는 전면에서 0.02 m 돌출한 가로 막대로 앞 끝이 Z = 0.64 m에 머물고, 상판은 Y = [0.88, 0.91], 깊이 0.65 m로 예약 외곽과 정확히 만나 [외곽 안에 손잡이·전면 돌출을 포함하라는 조건](../spaces/rooms/common.md#common-kitchen-wall-reservation)을 지킨다. 전면은 상판 아래 높이 0.15 m의 서랍 띠와 그 아래 문 칸으로 나누고, 길이 방향은 0.60 m 안팎의 균등 칸으로 산출한다. 서랍·문·손잡이가 리뷰 거리에서 구별되어야 한다는 [주방 설비 설정](../settings/10-house.md#kitchen-equipment)이 이 분할과 돌출 손잡이의 근거이며 칸 폭은 이 층의 결정이다. 타일 backsplash는 벽 마감이므로 이 원형에 포함하지 않는다.
+부품은 걸레받이, 몸통, 문과 서랍 전면, 손잡이, 상판이다. 걸레받이는 높이 0.10 m이고 전면에서 0.07 m 들어간다. 몸통은 Y = [0.10, 0.88], 깊이 0.60 m이며 전면 판 두께 0.02 m를 더한 앞면이 Z = 0.62 m에 온다. 손잡이는 전면에서 0.02 m 돌출한 가로 막대로 앞 끝이 Z = 0.64 m에 머물고, 상판은 Y = [0.88, 0.91], 깊이 0.65 m로 예약 외곽과 정확히 만나 [외곽 안에 손잡이·전면 돌출을 포함하라는 조건](../spaces/rooms/common.md#common-kitchen-wall-reservation)을 지킨다. 전면은 상판 아래 높이 0.15 m의 서랍 띠와 그 아래 문 칸으로 나누고, 길이 방향 칸 수는 round(L / 0.60 m)로 고정한다. 따라서 3.35 m 뒤쪽 띠는 6칸(각 0.558333… m), 1.30 m 왼쪽 앞 조각은 2칸(각 0.65 m), 0.30 m 코너 앞 조각은 1칸이다. 각 칸에는 윗서랍 하나와 아래 문 하나를 두고 손잡이는 각 전면 가로 중심에 놓는다. 서랍·문·손잡이가 리뷰 거리에서 구별되어야 한다는 [주방 설비 설정](../settings/10-house.md#kitchen-equipment)이 이 분할과 돌출 손잡이의 근거이며 칸 폭은 이 층의 결정이다. 타일 backsplash는 벽 마감이므로 이 원형에 포함하지 않는다.
 
 재질 경계는 `plinth`, `carcass`, `leaf`, `drawer-front`, `handle`, `countertop`으로 고정하고 색·광학은 materials가 정한다. 문과 서랍은 경첩/레일이 없는 강체이며, 설정과 방 문서가 하부장 문의 작동 예약을 두지 않으므로 이 원형은 관절을 노출하지 않는다. 싱크·레인지 절개는 이 띠에 없고 레인지는 별도 원형이 왼쪽 띠의 빈 구간을 채운다. 블로킹 한계는 경첩·서랍 레일·수전 배관·걸레받이 발 조절을 표현하지 않는 것이다.
 
@@ -67,7 +67,7 @@
 
 냉장고는 [예약](../spaces/rooms/common.md#common-kitchen-wall-reservation)의 X = [-5.50, -4.70], Z = [-7.40, -6.45], Y = [0, 1.85]를 그대로 외곽으로 받는다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르며 +Z가 전면이며 배치에서 world +X를 향한다. 로컬 외곽은 폭 0.95 m, 깊이 0.80 m, 높이 1.85 m다. 깊이 0.80 m는 몸통 0.72 m, 문 두께 0.05 m, 손잡이 0.03 m의 합이며 이 분할은 이 층의 결정이다.
 
-부품 계층은 몸통 아래에 위 두 문, 아래 서랍 하나, 세 손잡이다. 아래 서랍 전면은 Y = [0.05, 0.75], 위 두 문은 Y = [0.77, 1.85]이고 두 문은 중앙 0.005 m 틈을 두고 각 폭 0.47 m다. 각 문은 바깥 세로 모서리의 경첩 피벗을 가지며, 90° 열림에서 문 폭 0.47 m와 손잡이 0.03 m를 더한 0.50 m가 [냉장고 작동 예약 X = [-4.70, -4.15]의 0.55 m](../spaces/rooms/common.md#common-kitchen-wall-reservation) 안에 든다. 서랍은 +Z로 최대 0.55 m 미끄러진다. 피벗 이름 `door-left`, `door-right`, `drawer`가 motion이 바꿀 수 있는 안정 인터페이스이고 손잡이는 각 부품에 고정된 강체다.
+부품 계층은 몸통 아래에 위 두 문, 아래 서랍 하나, 세 손잡이다. 아래 서랍 전면은 Y = [0.05, 0.75], 위 두 문은 Y = [0.77, 1.85]이고 두 문은 중앙 0.005 m 틈과 양쪽 몸통 사이 각각 0.0025 m 틈을 두고 각 폭 0.47 m다. 2 × 0.47 + 0.005 + 2 × 0.0025 = 0.95 m로 외곽을 채운다. 각 문은 바깥 세로 모서리의 경첩 피벗을 가지며, 90° 열림에서 문 폭 0.47 m와 손잡이 0.03 m를 더한 0.50 m가 [냉장고 작동 예약 X = [-4.70, -4.15]의 0.55 m](../spaces/rooms/common.md#common-kitchen-wall-reservation) 안에 든다. 서랍은 +Z로 최대 0.55 m 미끄러진다. 피벗 이름 `door-left`, `door-right`, `drawer`가 motion이 바꿀 수 있는 안정 인터페이스이고 손잡이는 각 부품에 고정된 강체다.
 
 재질 경계는 `appliance-body`, `leaf`, `drawer-front`, `handle`, 그리고 열린 상태에서만 보이는 `appliance-interior`다. 내부 선반·조명·가스켓은 표현하지 않고 `appliance-interior`는 빈 상자 하나다. 소스 owner는 `src/models/furnishings/kitchen-dining.ts`다. 관찰은 닫힌 상태의 측면에서 손잡이 끝이 0.80 m 안에 드는지, 두 문 90° 열림과 서랍 0.55 m 인출의 평면에서 앞 끝이 X = -4.15 m를 넘지 않는지, 옆 하부장보다 0.15 m 튀어나온 몸체가 통로 쪽에서 보이는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
 
@@ -141,7 +141,7 @@
 @evidence principles/core/common.md#substantive-completion 0.60 × 0.60 × 0.88 m 외곽, 문 Y = [0.10, 0.70]의 0.60 m, 조작 띠 Y = [0.70, 0.88], 문 윗면과 같은 면의 홈 손잡이를 확정한다.
 @evidence principles/core/common.md#declared-basis Z = [-8.05, -7.45]와 깊이 0.60 m는 섬 식기세척기 예약에서, 높이 0.88 m는 섬 상판 아래 면에서 받고 조작 띠는 문 높이를 예약 폭에 맞추려는 이 층의 결정이라고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 예약이 준 칸 위에 아래 모서리 수평 경첩 문, 문 높이 0.60 m를 작동 예약 0.60 m에 맞춘 조작 띠, 돌출 없는 홈 손잡이를 더한다.
-@evidence principles/design/models.md#representation-contract 몸통·문·조작 띠·손잡이 계층과 `body`·`leaf`·`control-panel`·`handle`·`appliance-interior` 경계를 두고 선반·분사 팔·배수를 표현하지 않는다.
+@evidence principles/design/models.md#representation-contract 몸통·문·조작 띠·손잡이 계층과 `appliance-body`·`leaf`·`control-panel`·`handle`·`appliance-interior` 경계를 두고 선반·분사 팔·배수를 표현하지 않는다.
 @evidence principles/design/models.md#spatial-convention +Z 문 전면이 배치에서 world -X를 향하고 `door` 피벗을 아래 모서리 수평축에 두어 +Z 쪽으로 최대 90° 연다고 적는다.
 @evidence principles/design/models.md#reviewable-structure 닫힌 문이 섬 작업면과 같은 면인지, 90° 연 평면에서 문 끝이 X = -4.25 m에 멈추고 오븐 작동 구간과 Z가 겹치지 않는지를 리뷰 대상으로 둔다.
 @evidence principles/design/models.md#model-observable-style-basis 스타일 라벨 없이 작업면과 같은 면에 놓인 문, 돌출 없는 홈 손잡이, 상단 고정 조작 띠라는 관찰 가능한 전면 결정을 적는다.
@@ -155,7 +155,7 @@
 
 부품은 몸통, 문, 조작 띠, 손잡이다. 문은 Y = [0.10, 0.70]의 0.60 m 높이이고 아래 모서리의 수평 경첩 피벗 `door`로 +Z 쪽으로 최대 90° 내려 연다. 90° 열림에서 문 높이 0.60 m가 [식기세척기 작동 예약 X = [-4.25, -3.65]](../spaces/rooms/common.md#common-island-reservation)의 0.60 m와 같으므로 손잡이는 문 윗면과 같은 면의 홈으로 두어 돌출이 없다. 조작 띠는 Y = [0.70, 0.88]의 고정 띠이며 문 높이를 예약 폭에 맞추기 위한 이 층의 결정이다.
 
-재질 경계는 `body`, `leaf`, `control-panel`, `handle`, `appliance-interior`다. 선반·분사 팔·배수는 표현하지 않는다. 소스 owner는 `src/models/furnishings/kitchen-dining.ts`다. 관찰은 닫힌 문이 섬 작업면과 같은 면에 있는지, 90° 연 평면에서 문 끝이 X = -4.25 m에 멈추고 오븐 작동 구간과 Z가 겹치지 않는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
+재질 경계는 `appliance-body`, `leaf`, `control-panel`, `handle`, `appliance-interior`다. 선반·분사 팔·배수는 표현하지 않는다. 소스 owner는 `src/models/furnishings/kitchen-dining.ts`다. 관찰은 닫힌 문이 섬 작업면과 같은 면에 있는지, 90° 연 평면에서 문 끝이 X = -4.25 m에 멈추고 오븐 작동 구간과 Z가 겹치지 않는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
 
 ## 섬 스툴 {#kitchen-island-stool}
 <!--

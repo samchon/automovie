@@ -6,11 +6,11 @@
 @evidence principles/core/common.md#substantive-completion 몸통 깊이 0.72 m, 문 지름 0.45 m·중심 높이 0.42 m, 조작 띠 Y = [0.76, 0.86]을 수치로 정해 구현자가 기기 치수를 새로 고를 일이 없다.
 @evidence principles/core/common.md#declared-basis 외곽 깊이 0.75 m·폭 0.65 m·높이 0.88 m는 세탁 작업 예약의 두 기기 범위에서 읽은 값이고 문 90° 돌출 0.48 m는 0.45 m와 0.03 m의 산술이라고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 공간 예약이 준 기기 외곽 위에 원형 문 경첩 피벗 `door`, 몸통 0.72 m와 문·손잡이 0.03 m의 깊이 분할, 조작 띠 표시로만 다른 두 변형이라는 모델 결정을 더한다.
-@evidence principles/design/models.md#representation-contract 부품을 몸통·원형 문·문 손잡이·조작 띠로, 표면 owner를 `appliance-body`, `frame`, `glass`, `handle`, `control-panel`, `appliance-interior`로 정하고 드럼 회전·세제함·배관은 이 proxy가 표현하지 않는 것으로 둔다.
+@evidence principles/design/models.md#representation-contract 부품을 몸통·원형 문·문 손잡이·조작 띠로, 표면 owner를 `appliance-body`, `door-ring`, `glass`, `handle`, `control-panel`, `appliance-interior`, `drum`로 정하고 드럼 회전·세제함·배관은 이 proxy가 표현하지 않는 것으로 둔다.
 @evidence principles/design/models.md#spatial-convention 가구 국소 좌표를 따르며 +Z가 문 전면이고 배치에서 world -X를 향하며, 원형 문 피벗은 한쪽 세로 접선에 두고 +Z 쪽으로 최대 90° 연다.
 @evidence principles/design/models.md#reviewable-structure 정면에서 같은 몸통과 다른 조작 띠 표시로 두 기기가 갈리는지, 문 90° 평면에서 손잡이 끝이 X = 4.25 m에 닿지 않는지를 모델 리뷰 뷰의 고정 뷰로 찍는다.
 @evidence principles/design/models.md#model-observable-style-basis 이 H2는 제조사나 양식 라벨을 두지 않고 드럼 세탁기라는 구분을 전면 원형 문 0.45 m와 전면 조작 띠라는 관찰 가능한 실루엣 결정으로만 적으며 재질 외관은 재질 경계 이름까지만 넘긴다.
-@evidence principles/design/models.md#model-scale-layer-completion 예약 외곽 0.75 × 0.65 × 0.88 m, 네 부품 위계, `door` 피벗, 여섯 재질 경계, 표현 제외 목록과 두 관찰이 함께 있어 기기 모델이 결정되며 관찰은 모두 unverified로 남는다.
+@evidence principles/design/models.md#model-scale-layer-completion 예약 외곽 0.75 × 0.65 × 0.88 m, 네 부품 위계, `door` 피벗, 여덟 재질 경계, 표현 제외 목록과 두 관찰이 함께 있어 기기 모델이 결정되며 관찰은 모두 unverified로 남는다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 세탁 작업 예약의 세탁기·건조기 X·Z 범위와 문 작동 예약 X = [4.25, 4.75]를 적힌 그대로 소비했고 90° 돌출 0.48 m가 0.50 m 안에 들어 부모를 고칠 결함이 없었다.
 @evidence settings/10-house.md#laundry-mudroom 설정의 나란한 앞문식 세탁기·건조기와 읽혀야 하는 원형 도어·조작부를 원형 문 0.45 m와 조작 띠 Y = [0.76, 0.86]을 가진 한 원형의 두 변형으로 만든다.
 @evidence spaces/rooms/laundry.md#laundry-equipment-use 세탁기 Z = [-3.35, -2.70]·건조기 Z = [-2.70, -2.05]와 X = [4.75, 5.50], Y = [0, 0.88]을 외곽으로 받고 문 작동 예약 X = [4.25, 4.75] 0.50 m 안에 돌출 0.48 m를 맞춘다.
@@ -21,7 +21,7 @@
 
 세탁기와 건조기는 조작 판 표시만 다른 한 원형의 두 변형이다. [세탁 작업 예약](../spaces/rooms/laundry.md#laundry-equipment-use)의 세탁기 X = [4.75, 5.50], Z = [-3.35, -2.70]과 건조기 X = [4.75, 5.50], Z = [-2.70, -2.05]가 모두 깊이 0.75 m, 폭 0.65 m, Y = [0, 0.88]이므로 외곽을 그 값으로 둔다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르며 +Z가 문 전면이며 배치에서 world -X를 향한다.
 
-부품은 몸통, 원형 문, 문 손잡이, 조작 띠다. 몸통 깊이는 0.72 m이고 문과 손잡이가 0.03 m를 더한다. 원형 문은 지름 0.45 m, 중심 높이 0.42 m이며 한쪽 세로 접선의 경첩 피벗 `door`로 +Z 쪽으로 최대 90° 연다. 90° 열림의 돌출 0.45 m와 손잡이 0.03 m의 합 0.48 m가 [문 작동 예약 X = [4.25, 4.75]](../spaces/rooms/laundry.md#laundry-equipment-use)의 0.50 m 안에 든다. 조작 띠는 Y = [0.76, 0.86]의 전면 띠다. 재질 경계는 `appliance-body`, `frame`, `glass`, `handle`, `control-panel`, `appliance-interior`이다. 드럼 회전·세제함·배관은 표현하지 않는다.
+부품은 몸통, 원형 문, 문 손잡이, 조작 띠다. 몸통 깊이는 0.72 m이고 문과 손잡이가 0.03 m를 더한다. 원형 문은 지름 0.45 m, 중심 높이 0.42 m이며 한쪽 세로 접선의 경첩 피벗 `door`로 +Z 쪽으로 최대 90° 연다. 90° 열림의 돌출 0.45 m와 손잡이 0.03 m의 합 0.48 m가 [문 작동 예약 X = [4.25, 4.75]](../spaces/rooms/laundry.md#laundry-equipment-use)의 0.50 m 안에 든다. 조작 띠는 Y = [0.76, 0.86]의 전면 띠다. 재질 경계는 `appliance-body`, `leaf`, `door-ring`, `glass`, `handle`, `control-panel`, `appliance-interior`, `drum`이다. 원형 문의 불투명 외측 판은 `leaf`, 지름 0.45 m 둘레 폭 0.025 m의 금속 고리는 `door-ring`, 안쪽 지름 0.39 m의 유리 뒤 0.06 m에는 움직이지 않는 얕은 원통 `drum`을 둔다. 드럼 회전·세제함·배관은 표현하지 않는다.
 
 소스 owner는 `src/models/furnishings/service-rooms.ts`다. 관찰은 정면에서 두 기기가 같은 몸통과 다른 조작 띠 표시로 구분되는지, 문 90° 평면에서 손잡이 끝이 X = 4.25 m에 닿지 않는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
 
@@ -89,11 +89,11 @@
 ## 벤치 위 외투 걸이 {#mudroom-coat-hooks}
 <!--
 @evidence principles/core/common.md#scope-preservation 벤치 위 걸이판·걸이 넷과 걸린 외투 둘만 맡고 천 주름·소매는 표현하지 않는다고 범위를 닫는다.
-@evidence principles/core/common.md#substantive-completion 걸이판 0.80 × 0.10 × 0.02 m, 하단 1.65 m, 걸이 넷 0.20 m 간격·돌출 0.08 m, 외투 폭 0.45 m·깊이 0.25 m를 정한다.
+@evidence principles/core/common.md#substantive-completion 걸이판 0.80 × 0.10 × 0.02 m, 하단 1.65 m, 걸이 넷 중심 -0.25·-0.08·+0.08·+0.25 m·돌출 0.08 m, 외투 폭 0.30 m·깊이 0.25 m를 정한다.
 @evidence principles/core/common.md#declared-basis 외곽 Y = [1.10, 1.85]와 X·Z 범위는 예약에서 받았고 외투가 걸이 아래 1.10 m 높이까지 내려온다는 값은 그 범위 하단에 맞춘 것이다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 예약 범위 안에 걸이판 하단 1.65 m, 걸이 간격 0.20 m, 외투를 둥근 모서리 판 덩어리로 매단다는 모델 결정을 더한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 예약 범위 안에 걸이판 하단 1.65 m, 걸이 중심 -0.25·-0.08·+0.08·+0.25 m, 외투를 둥근 모서리 판 덩어리로 매단다는 모델 결정을 더한다.
 @evidence principles/design/models.md#representation-contract 부품을 걸이판·걸이 넷·외투 둘로, 재질 경계를 `rail`·`hook`·`clothes`로 두고 천 주름·소매는 표현하지 않는다고 밝힌다.
-@evidence principles/design/models.md#spatial-convention 벽걸이 원형이므로 원점을 벽면의 걸이판 하단 중심에 두고 외투까지 포함한 돌출이 0.40 m 깊이 안에 든다.
+@evidence principles/design/models.md#spatial-convention 벽걸이 원형이므로 원점을 벽면의 걸이판 하단 중심에 두고 두 외투의 가로 점유는 각각 [-0.40, -0.10]·[0.10, 0.40] m로 0.80 m 예약 안에서 0.20 m 떨어지고, 외투까지 포함한 돌출은 0.40 m 깊이 안에 든다.
 @evidence principles/design/models.md#reviewable-structure 측면에서 외투 하단이 벤치 좌면 위 0.65 m에 멈추는지를 모델 리뷰 뷰로 반증한다.
 @evidence principles/design/models.md#model-observable-style-basis 양식 라벨 없이 둥근 모서리 판 덩어리 외투와 0.08 m 돌출 걸이라는 추상화 수준을 관찰 가능한 결정으로 적는다.
 @evidence principles/design/models.md#model-scale-layer-completion 걸이판 하단 1.65 m와 외투 하단 1.10 m의 높이 층, 세 재질 경계, 관절 없음, 표현 제외와 측면 관찰로 원형이 결정된다.
@@ -102,9 +102,9 @@
 @evidence spaces/rooms/laundry.md#laundry-equipment-use 예약 X = [3.22, 3.62], Z = [-2.85, -2.05], Y = [1.10, 1.85] 안에 걸이와 걸린 외투의 최대 돌출을 함께 담는다.
 -->
 
-외투 걸이는 [예약](../spaces/rooms/laundry.md#laundry-equipment-use)의 X = [3.22, 3.62], Z = [-2.85, -2.05], Y = [1.10, 1.85] 안에 걸이와 걸린 외투의 최대 돌출을 함께 담는다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르되 벽걸이 원형이므로 원점을 벽면의 걸이판 하단 중심에 둔다. 걸이판은 길이 0.80 m, 높이 0.10 m, 두께 0.02 m이며 하단이 1.65 m에 오고, 걸이 넷은 0.20 m 간격, 돌출 0.08 m다.
+외투 걸이는 [예약](../spaces/rooms/laundry.md#laundry-equipment-use)의 X = [3.22, 3.62], Z = [-2.85, -2.05], Y = [1.10, 1.85] 안에 걸이와 걸린 외투의 최대 돌출을 함께 담는다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르되 벽걸이 원형이므로 원점을 벽면의 걸이판 하단 중심에 둔다. 걸이판은 길이 0.80 m, 높이 0.10 m, 두께 0.02 m이며 하단이 1.65 m에 오고, 걸이 넷은 판 중심에서 -0.25·-0.08·+0.08·+0.25 m, 돌출 0.08 m다.
 
-걸린 외투 둘은 걸이 두 개에 매단 둥근 모서리 판 덩어리로 두며 폭 0.45 m, 깊이 0.25 m, 걸이 아래 1.10 m 높이까지 내려온다. 외투까지 포함한 돌출이 0.40 m 깊이 안에 든다. 재질 경계는 `rail`, `hook`, `clothes`이고 관절은 없다. 천 주름·소매는 표현하지 않는다. 소스 owner는 `src/models/furnishings/service-rooms.ts`다. 관찰은 측면에서 외투 하단이 벤치 좌면 위 0.65 m에 멈추는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
+걸린 외투 둘은 양끝 걸이(-0.25·+0.25 m)에 매단 둥근 모서리 판 덩어리로 두며 폭 0.30 m, 깊이 0.25 m, 걸이 아래 1.10 m 높이까지 내려온다. 두 외투의 가로 점유는 각각 [-0.40, -0.10]·[0.10, 0.40] m로 0.80 m 예약 안에서 0.20 m 떨어지고, 외투까지 포함한 돌출은 0.40 m 깊이 안에 든다. 재질 경계는 `rail`, `hook`, `clothes`이고 관절은 없다. 천 주름·소매는 표현하지 않는다. 소스 owner는 `src/models/furnishings/service-rooms.ts`다. 관찰은 측면에서 외투 하단이 벤치 좌면 위 0.65 m에 멈추는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
 
 ## 팬트리 L형 선반 {#pantry-l-shelf}
 <!--
@@ -180,7 +180,7 @@
 @evidence principles/design/models.md#reviewable-structure 서랍 0.45 m 인출 평면에서 작업 사용 범위와 겹치지 않는지를 모델 리뷰 뷰로 찍는다.
 @evidence principles/design/models.md#model-observable-style-basis 양식 라벨 없이 다리 넷 위 0.04 m 상판과 상판 아래 서랍 둘이라는 관찰 가능한 구성만 정한다.
 @evidence principles/design/models.md#model-scale-layer-completion 예약 외곽, 세 부품 종류, 네 재질 경계, 두 서랍 피벗과 인출 관찰로 작업대가 결정된다.
-@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 차고 작업대 예약과 서랍 작동 예약 Z = [-5.85, -5.40]을 그대로 소비했고 인출 0.45 m가 같아 고칠 부모 결함이 없었다.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 차고 작업대 예약과 서랍 작동 예약을 그대로 소비했다. 손잡이를 오목 홈으로 정해 인출 0.45 m 이외의 돌출이 없어 부모 결함이 없다.
 @evidence settings/10-house.md#garage 설정이 빈 차고에 요구한 공구 수납을 서랍 둘 달린 1.20 m 작업대로 만든다.
 @evidence spaces/rooms/garage-interior.md#garage-storage-use 예약 X = [9.00, 10.20], Z = [-6.45, -5.85], 상면 0.90 m를 외곽으로, 서랍 작동 예약 Z = [-5.85, -5.40]을 인출 한계로 받는다.
 @evidence obligations/design/models.md#articulation-ownership 두 서랍을 피벗 `drawer-left`·`drawer-right`로 이름 붙여 +Z 최대 0.45 m 인출의 motion 인터페이스로 둔다.
@@ -188,7 +188,7 @@
 
 작업대는 [예약](../spaces/rooms/garage-interior.md#garage-storage-use)의 X = [9.00, 10.20], Z = [-6.45, -5.85], 상면 차고 바닥 위 0.90 m를 외곽으로 받아 길이 1.20 m, 깊이 0.60 m, 높이 0.90 m다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르며 +Z가 작업 정면이다.
 
-부품은 상판(두께 0.04 m), 다리 넷, 서랍 둘이다. 서랍은 상판 아래 폭 0.55 m, 높이 0.12 m이고 각각 피벗 `drawer-left`, `drawer-right`로 +Z로 최대 0.45 m 미끄러져 [서랍 작동 예약 Z = [-5.85, -5.40]](../spaces/rooms/garage-interior.md#garage-storage-use)과 같다. 재질 경계는 `top`, `leg`, `drawer-front`, `handle`이다. 서랍 레일·바이스·상판 흠집은 표현하지 않는다. 소스 owner는 `src/models/furnishings/service-rooms.ts`다. 관찰은 서랍 0.45 m 인출 평면에서 작업 사용 범위와 겹치지 않는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
+부품은 상판(두께 0.04 m), 다리 넷, 서랍 둘이다. 서랍은 상판 아래 폭 0.55 m, 높이 0.12 m이고 각각 피벗 `drawer-left`, `drawer-right`로 +Z로 최대 0.45 m 미끄러져 [서랍 작동 예약 Z = [-5.85, -5.40]](../spaces/rooms/garage-interior.md#garage-storage-use)과 같다. 손잡이는 서랍 전면에 깊이 0.015 m로 판 오목 홈이라 전면에서 돌출하지 않고, 연 상태의 최전방은 인출량 0.45 m와 같다. 다리는 0.05 m 각재로 네 모서리에서 0.06 m 안쪽에 세운다. 재질 경계는 `top`, `leg`, `drawer-front`, `handle`이다. 서랍 레일·바이스·상판 흠집은 표현하지 않는다. 소스 owner는 `src/models/furnishings/service-rooms.ts`다. 관찰은 서랍 0.45 m 인출 평면에서 작업 사용 범위와 겹치지 않는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
 
 ## 작업대 위 공구판 {#garage-tool-board}
 <!--
@@ -196,11 +196,11 @@
 @evidence principles/core/common.md#substantive-completion 판 1.20 × 1.00 m, 타공판 두께 0.02 m, 전체 깊이 0.15 m, 공구 돌출 0.13 m 이내를 정한다.
 @evidence principles/core/common.md#declared-basis 외곽은 예약 X = [9.00, 10.20], Z = [-6.45, -6.30], world Y = [0.95, 1.95]에서 받았고 공구 셋과 통 둘의 구성은 저작 선택이다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 예약 공구판 범위에 타공판 두께와 걸린 공구 세 실루엣·통 둘이라는 모델 결정을 더한다.
-@evidence principles/design/models.md#representation-contract 부품을 타공판·공구 셋·통 둘로, 재질 경계를 `board`·`tool-steel`·`tool-grip`으로 두고 공구 형상을 두께 0.02–0.04 m 판 실루엣으로 제한한다.
+@evidence principles/design/models.md#representation-contract 부품을 타공판·공구 셋·통 둘로, 재질 경계를 `board`·`tool-steel`·`tool-grip`·`bin`으로 두고 각 공구·통의 외곽을 본문에서 수치로 제한한다.
 @evidence principles/design/models.md#spatial-convention 벽걸이 원형이므로 원점을 벽면의 판 하단 중심에 두고 모든 공구가 판 앞 0.13 m 안에 든다.
 @evidence principles/design/models.md#reviewable-structure 측면에서 공구 돌출이 0.15 m 안인지, 정면에서 세 공구 실루엣이 구분되는지를 반증 관찰로 둔다.
 @evidence principles/design/models.md#model-observable-style-basis 공구를 망치·렌치·톱의 판 실루엣 수준으로 추상화한다는 관찰 가능한 결정을 두고 공구의 금속·손잡이 외관은 재질 경계로 넘긴다.
-@evidence principles/design/models.md#model-scale-layer-completion 예약 외곽, 0.15 m 깊이 층, 세 재질 경계, 관절 없음, 실루엣 수준 한계와 두 관찰로 공구판이 결정된다.
+@evidence principles/design/models.md#model-scale-layer-completion 예약 외곽, 0.15 m 깊이 층, 네 재질 경계, 공구 셋·통 둘의 외곽과 위치, 관절 없음과 두 관찰로 공구판이 결정된다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 차고 공구판 예약 X·Z 범위와 world Y = [0.95, 1.95]를 그대로 소비했고 고칠 부모 결함이 없었다.
 @evidence settings/10-house.md#garage 설정이 빈 차고에 요구한 공구 수납을 걸린 공구 세 실루엣과 통 둘의 타공판으로 만든다.
 @evidence spaces/rooms/garage-interior.md#garage-storage-use 예약 X = [9.00, 10.20], Z = [-6.45, -6.30], world Y = [0.95, 1.95]를 공구판 외곽 1.20 × 1.00 × 0.15 m로 받는다.
@@ -208,6 +208,6 @@
 @evidence obligations/design/models.md#model-representation-completion 파일의 열 원형이 모두 `src/models/furnishings/service-rooms.ts`를 소스 owner로, 모델 리뷰 뷰를 관찰 owner로 두지만 모든 관찰이 unverified라 구조 유효성과 의미 완결 판정은 아직 없다.
 -->
 
-공구판은 [예약](../spaces/rooms/garage-interior.md#garage-storage-use)의 X = [9.00, 10.20], Z = [-6.45, -6.30], world Y = [0.95, 1.95]를 외곽으로 받아 길이 1.20 m, 높이 1.00 m, 전체 깊이 0.15 m다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르되 벽걸이 원형이므로 원점을 벽면의 판 하단 중심에 둔다. 타공판은 두께 0.02 m이며 걸린 공구는 망치·렌치·톱 세 실루엣과 작은 통 둘로 두고 모두 판 앞 0.13 m 안에 든다.
+공구판은 [예약](../spaces/rooms/garage-interior.md#garage-storage-use)의 X = [9.00, 10.20], Z = [-6.45, -6.30], world Y = [0.95, 1.95]를 외곽으로 받아 길이 1.20 m, 높이 1.00 m, 전체 깊이 0.15 m다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르되 벽걸이 원형이므로 원점을 벽면의 판 하단 중심에 둔다. 타공판은 두께 0.02 m이며 걸린 공구는 망치·렌치·톱 세 실루엣과 작은 통 둘이다. 원점은 판 하단 가운데, +X는 오른쪽, +Y는 위, +Z는 방 쪽이다. 망치 외곽 0.12 × 0.36 × 0.035 m의 중심은 (-0.35, 0.57), 렌치 0.06 × 0.30 × 0.025 m의 중심은 (-0.05, 0.60), 톱 0.32 × 0.16 × 0.030 m의 중심은 (0.30, 0.58)이다. 작은 통 둘은 각각 0.16 × 0.12 × 0.10 m이며 중심 X = -0.24, 0.24 m, 하단 Y = 0.12 m다. 모든 공구와 통의 앞끝은 판 앞 0.13 m 이내다.
 
-재질 경계는 `board`, `tool-steel`, `tool-grip`이고 관절은 없다. 공구 개별 형상은 두께 0.02–0.04 m의 판 실루엣 수준이다. 소스 owner는 `src/models/furnishings/service-rooms.ts`다. 관찰은 측면에서 공구 돌출이 0.15 m 안인지, 정면에서 세 공구 실루엣이 구분되는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
+재질 경계는 `board`, `tool-steel`, `tool-grip`, `bin`이고 관절은 없다. 망치 머리 0.12 × 0.035 m와 손잡이 0.025 × 0.32 m, 렌치 양끝 턱 폭 0.06 m와 몸통 폭 0.025 m, 톱의 0.32 × 0.12 m 날과 0.08 × 0.10 m 손잡이를 각각 앞의 외곽 안에 둔다. 소스 owner는 `src/models/furnishings/service-rooms.ts`다. 관찰은 측면에서 공구 돌출이 0.15 m 안인지, 정면에서 세 공구 실루엣이 구분되는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.

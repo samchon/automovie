@@ -211,8 +211,8 @@ const length = (route: readonly IAutoMovieVector3[], upTo: number): number => {
  * The doorless exterior links of the route network (05): the porch's three
  * risers, the front walk's cross connector, the garden steps, and the side
  * path from the driveway past the side gate to the lower landing. Each route
- * runs on the paving centre line its owner builds; the side gate passage names
- * the gate leaf as its element (the gate is opened for the route check).
+ * runs on the paving centre line its owner builds; the side gate passage binds
+ * the two space-owned gate posts. The later model leaf is tested separately.
  */
 const exteriorConnectors = (house: IHouse): IAutoMovieBuiltConnector[] => {
   const ids = (owner: string, prefix: string): string[] => house.parts.filter((p) => p.owner === owner && p.id.startsWith(prefix)).map((p) => p.id);
@@ -232,7 +232,7 @@ const exteriorConnectors = (house: IHouse): IAutoMovieBuiltConnector[] => {
     passage("front-walk-connector", "driveway", "front-walk", [{ x: 6.5, y: driveTop(4.85), z: 4.85 }, { x: 1.65, y: -0.45, z: 4.85 }, { x: 1.2, y: -0.45, z: 4.85 }], ids("site/front-walk.ts", "front-walk-connector")),
     passage("garden-steps", "garden-terrace", "garden-lower-landing", [{ x: 0, y: 0, z: -13.9 }, { x: 0, y: 0, z: -14.4 }, { x: 0, y: -0.45, z: -15 }, { x: 0, y: -0.45, z: -15.6 }], ids("site/terrace.ts", "garden-step-"), "stair"),
     passage("side-front-path", "driveway", "side-front-access", [{ x: 10.8, y: driveTop(5.7), z: 5.7 }, { x: 12.9, y: -0.45, z: 5.7 }, { x: 12.9, y: -0.45, z: 0.55 }], ids("site/side-walk.ts", "side-walk")),
-    passage("side-yard-gate-passage", "side-front-access", "side-rear-access", [{ x: 12.9, y: -0.45, z: 0.55 }, { x: 12.9, y: -0.45, z: -0.3 }, { x: 12.9, y: -0.45, z: -2.35 }], ["side-yard-gate-leaf"], "passage", 1.05),
+    passage("side-yard-gate-passage", "side-front-access", "side-rear-access", [{ x: 12.9, y: -0.45, z: 0.55 }, { x: 12.9, y: -0.45, z: -0.3 }, { x: 12.9, y: -0.45, z: -2.35 }], ids("site/fence.ts", "gate-post-"), "passage", 1.05),
     passage("side-rear-path", "side-rear-access", "garden-lower-landing", [{ x: 12.9, y: -0.45, z: -2.35 }, { x: 12.9, y: -0.45, z: -16.8 }, { x: 0, y: -0.45, z: -16.8 }, { x: 0, y: -0.45, z: -15.6 }], ids("site/side-walk.ts", "side-walk")),
   ];
 };
