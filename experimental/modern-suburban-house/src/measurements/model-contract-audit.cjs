@@ -136,7 +136,18 @@ function handoffs() {
   if (!table) throw new Error("Missing reverse handoff table");
   const rows = table.split("\n").filter((line) => line.startsWith("| [") && line.split("|").length === 5);
   const ownerless = rows.filter((line) => !/\]\(\.\.\/\.\.\/models\/[^)]+\)/.test(line.split("|")[3])).map((line) => line.split("|")[1].trim());
-  return { files: files.length, vocabulary: expressions.length, candidateH2: candidates.length, accountRows: rows.length, ownerlessRows: ownerless.length, ownerless, candidates };
+  const cited = new Set();
+  for (const file of [...markdownFiles(path.join(production, "docs/models")), ...markdownFiles(path.join(production, "docs/accounts/models"))]) {
+    const source = fs.readFileSync(file, "utf8");
+    for (const match of source.matchAll(/\]\(([^)#]+)#([^)]*)\)/g)) {
+      const target = path.resolve(path.dirname(file), match[1]);
+      if (target.startsWith(path.join(production, "docs") + path.sep)) cited.add(`${path.relative(production, target).replace(/\\/g, "/")}#${match[2]}`);
+    }
+    for (const match of source.matchAll(/^@evidence(?:Exclude|Review|ExcludeReview)?\s+((?:settings|spaces|systems|materials)\/[^#\s]+)#([^\s]+)/gm))
+      cited.add(`docs/${match[1]}#${match[2]}`);
+  }
+  const uncited = candidates.map((candidate) => candidate.id).filter((id) => !cited.has(id));
+  return { files: files.length, vocabulary: expressions.length, candidateH2: candidates.length, citedCandidateH2: candidates.length - uncited.length, uncitedCandidateH2: uncited, accountRows: rows.length, ownerlessRows: ownerless.length, ownerless, candidates };
 }
 
 function accounts() {
