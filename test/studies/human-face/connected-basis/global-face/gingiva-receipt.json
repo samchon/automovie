@@ -1,0 +1,70 @@
+{
+  "source": "mpfb-connected-head-2026-09-25-vermilion",
+  "revision": "mpfb-connected-head-2026-09-25-gingiva",
+  "shiftMetres": 0.00146609375,
+  "normShiftMetres": 0.002843333333333333,
+  "bound": "ring",
+  "movedVertices": 976,
+  "anterior": [
+    {
+      "centre": 0.003907118212535149,
+      "normMetres": 0.00935,
+      "beforeMetres": 0.0063,
+      "afterMetres": 0.00775
+    },
+    {
+      "centre": -0.003907118212535149,
+      "normMetres": 0.00935,
+      "beforeMetres": 0.0063,
+      "afterMetres": 0.00775
+    },
+    {
+      "centre": -0.010803788989072754,
+      "normMetres": 0.00775,
+      "beforeMetres": 0.00555,
+      "afterMetres": 0.007
+    },
+    {
+      "centre": 0.01080379392656069,
+      "normMetres": 0.00775,
+      "beforeMetres": 0.00555,
+      "afterMetres": 0.007
+    },
+    {
+      "centre": 0.016194914068494524,
+      "normMetres": 0.00868,
+      "beforeMetres": 0.0054,
+      "afterMetres": 0.006900000000000001
+    },
+    {
+      "centre": -0.016194914068494524,
+      "normMetres": 0.00868,
+      "beforeMetres": 0.0054,
+      "afterMetres": 0.006900000000000001
+    }
+  ],
+  "recorded": "2026-09-24T21:40:48.157Z",
+  "citations": {
+    "norms": "Melo M, Ata-Ali F, Huertas J, Cobo T, Shibli JA, Galindo-Moreno P, Ata-Ali J, et al. Revisiting the maxillary teeth in 384 subjects reveals a deviation from the classical aesthetic dimensions. Sci Rep 2019;9:730, doi:10.1038/s41598-018-36770-w: clinical crown height from the gingival zenith to the incisal margin, central 9.35, lateral 7.75, canine 8.68 mm (Tables 2, abstract)."
+  },
+  "inputs": {
+    "basis": {
+      "sha256": "a047912410ddc31f4d8d4cae1618986bd183f8c333c6bc2a4a7ba6e0a5bf83c8",
+      "bytes": 26346911
+    },
+    "subjects": {
+      "sha256": "0e87195db1e4fe111afbe4211e2145cb413a81c542bf607ac805211ca0b7c806",
+      "bytes": 78734
+    },
+    "controls": {
+      "sha256": "ad6318a80f5f5b894bd181c64ca5372cc9afea41ee71967d9160dee4edc9cf04",
+      "bytes": 7448
+    }
+  },
+  "outputs": {
+    "basis": {
+      "sha256": "bce652ee06d2eabf097cbf2fdbb9cba6cc910275d0766cd6c7eb4677cf5a5fe2",
+      "bytes": 26346891
+    }
+  }
+}
