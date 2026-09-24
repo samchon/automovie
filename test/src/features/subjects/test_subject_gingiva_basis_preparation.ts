@@ -75,8 +75,8 @@ const dentition = (offset: number) => {
  *    most two of the raster's pixels, and the crowns then show nearly their
  *    whole 0.1.
  * 5. The documents and controls name the new revision; a basis without
- *    contact, a repeated revision and a dentition without six maxillary
- *    crowns refuse.
+ *    contact, a repeated revision, a dentition without six maxillary crowns
+ *    and one whose gum hides them from the front refuse.
  */
 export const test_subject_gingiva_basis_preparation = (): void => {
   const { basis, document } = humanFaceContactFixture();
@@ -172,12 +172,18 @@ export const test_subject_gingiva_basis_preparation = (): void => {
   lone.contact!.colliders![0]!.closure.splice(
     humanFaceContactFixture().basis.contact!.colliders![0]!.closure.length,
   );
+  // The gum slab lowered below the incisal edges hides every crown.
+  const hidden = structuredClone(basis);
+  const slab = hidden.surfaces.find((one) => one.id === "teeth")!;
+  for (const vertex of [added.gum, added.gum + 1])
+    slab.positions[3 * vertex + 1] = -0.05;
   const refuse = (change: object, message: string) =>
     throwsError(() => prepareGingivaBasis({ ...base, ...change }), message);
   TestValidator.predicate(
     "refusals",
     refuse({ basis: bare }, "contact basis") &&
       refuse({ revision: basis.id }, "distinct revision") &&
-      refuse({ basis: lone }, "anterior crowns"),
+      refuse({ basis: lone }, "anterior crowns") &&
+      refuse({ basis: hidden }, "fewer than six"),
   );
 };
