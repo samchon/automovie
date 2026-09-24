@@ -9,7 +9,7 @@
 @evidence principles/design/models.md#representation-contract 받침·좌석 쿠션 셋·등받이·팔걸이 둘과 네 모서리 0.08 m 다리로 부품을 나누고 재질 경계 `leg`·`base`·`seat-cushion`·`back`·`arm`을 고정하며 쿠션 눌림·주름·솔기는 표현하지 않는다는 한계를 명시한다.
 @evidence principles/design/models.md#spatial-convention 가구 국소 좌표를 따라 +Z를 앉은 사람이 보는 정면으로 두고 거실 배치는 world -X, 가족실 배치는 world -Z를 향하며 외곽은 길이 2.10 m·깊이 0.95 m·높이 0.90 m다.
 @evidence principles/design/models.md#reviewable-structure 측면 정사영의 좌면 0.43 m·팔걸이 0.62 m·등받이 0.90 m 세 단, 위에서 본 세 쿠션과 두 팔걸이의 구분, 두 배치 외곽과 예약의 일치를 모델 리뷰 뷰의 고정 뷰로 반증하게 하고 관절이 없다고 밝힌다.
-@evidence principles/design/models.md#model-observable-style-basis 거실 설정의 '회색/미색 패브릭 소파' 표지를 0.005 m 틈으로 읽히는 세 쿠션, 전체 깊이를 차지하는 팔걸이, 뒤쪽 등받이라는 구성으로 옮기고 패브릭 색은 materials가 두 배치별로 정하도록 남긴다.
+@evidence principles/design/models.md#model-observable-style-basis 거실 설정의 '회색/미색 패브릭 소파' 표지를 0.006 m 틈 두 곳으로 읽히는 세 쿠션, 전체 깊이를 차지하는 팔걸이, 뒤쪽 등받이라는 구성으로 옮기고 패브릭 색은 materials가 두 배치별로 정하도록 남긴다.
 @evidence principles/design/models.md#model-scale-layer-completion 좌면 0.43 m 기준, 다리·받침·쿠션·등받이·팔걸이의 높이 층, 다섯 재질 경계, 표현하지 않는 눌림·주름·솔기, 세 가지 관찰이 함께 적혀 거실·가족실 두 배치의 블로킹 표현이 결정된다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 거실 소파 예약 X = -2.90 m~-1.95 m·Z = [-3.75, -1.65]·높이 0.90 m·좌면 0.43 m와 가족실 소파 예약 X = [3.25, 5.35]·Z = -7.15 m~-6.20 m·높이 0.90 m를 적힌 그대로 외곽으로 썼고, 가족실 좌면 미정은 이 층이 0.43 m로 채울 결정으로 다뤄 부모 수정이 필요하지 않았다.
 @evidence settings/10-house.md#living 거실 설정의 회색/미색 패브릭 소파 정체성을 근거로 거실·가족실 두 배치가 한 원형을 공유하게 하고, 패브릭 색은 materials의 배치별 결정으로 넘긴다.

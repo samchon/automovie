@@ -3,7 +3,7 @@
 ## 목재 현관문 {#front-entry-door}
 <!--
 @evidence principles/core/common.md#scope-preservation front-door의 문짝 0.94×2.14 m, 문설주 0.03 m, 상부 유리 3열×2행, 경첩과 손잡이를 이 H2가 맡고 문턱판은 spaces에 남긴다.
-@evidence principles/core/common.md#substantive-completion 90° 순폭 1.00-0.06-0.04=0.90 m, 유리 구간 1.30~2.04 m, stile/rail 0.12 m, 살대 0.03 m, 회전 반경 0.94 m를 산출해 적는다.
+@evidence principles/core/common.md#substantive-completion 90° 순폭 1.00−0.06−0.04=0.90 m, 유리 구간 1.30–2.05 m, stile/rail 0.12 m, 살대 0.03 m, 회전 반경 0.94 m를 산출해 적는다.
 @evidence principles/core/common.md#declared-basis 개구부·경첩·열림은 spaces/rooms/entry.md#entry-plan, 유리 분할은 spaces/envelope/front.md#front-entry-filling, 유리 하단 근거는 settings/20-verification.md#frame-condition의 눈높이 1.6 m에서 받는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation entry의 '유효 폭 0.90 m 이상 문틀'을 문설주 0.03 m와 문짝 0.04 m의 산술로, front-entry-filling의 3열×2행을 유리 구간 수치로 바꾼다.
 @evidence principles/design/models.md#representation-contract door→jamb·exterior-trim·casing·hinge-pivot→leaf·muntin·glass·handle 계층을 정하며 문턱판은 만들지 않는다.
@@ -13,10 +13,10 @@
 @evidence principles/design/models.md#model-scale-layer-completion 순폭 척도와 유리·목재 층, 경첩 인터페이스를 함께 정한다.
 @evidence obligations/design/models.md#articulation-ownership 현관문 hinge-pivot의 0~π/2 rad 회전을 motion 인터페이스로, 기준 상태를 닫힘 0으로 정한다.
 @evidence spaces/rooms/entry.md#entry-plan X = [0.40, 1.40], Y = [0, 2.20] m 개구부와 +X 경첩·실내 -Z 열림·0.90 m 목표를 문짝 치수와 관절로 소비한다.
-@evidence spaces/envelope/front.md#front-entry-filling 상부 유리 세 열·두 행과 경첩 반대편 검은 손잡이를 유리 구간 1.30~2.04 m와 -X 손잡이로 소비한다.
+@evidence spaces/envelope/front.md#front-entry-filling 상부 유리 세 열·두 행과 경첩 반대편 검은 손잡이를 유리 구간 1.30–2.05 m와 -X 손잡이로 소비한다.
 @evidence settings/20-verification.md#frame-condition 눈높이 1.6 m가 유리 구간 안에 들도록 유리 하단 1.30 m의 근거로 소비한다.
 @evidence contracts/reservation-fit.md#reservation-fit 거친 폭 1.00 m에서 0.06·0.04 m를 뺀 순폭 0.90 m로 entry owner 목표를 산술로 지킨다.
-@evidence upstream/design/models.md#settings-and-space-revision-from-model-work ground-threshold-junctions의 이미 지은 +0.02 m 문턱을 기준으로 문짝 하단을 +0.03 m에 올리고, 이 H2의 중복 threshold를 제거했다. entry-plan의 순폭 목표는 유지한다.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work ground-threshold-junctions가 이미 front.ts의 +0.02 m 문턱 상면과 단일 owner를 정했고 entry-plan은 순폭 0.90 m를 정했다. 접촉·회전·척도·닫힘 상태를 검토해 부모에 부족한 값이 없었으며 중복 문턱 선언은 모델 H2에서만 제거하고 문짝 하단을 +0.03 m로 올렸다. 부모 파일은 이 수리에서 수정하지 않았다.
 @evidence spaces/00-building.md#main-building-extent 본채 전면 벽의 0.25 m 외벽 예약을 현관문 문설주 깊이로 소비한다.
 -->
 
@@ -60,7 +60,7 @@
 @evidence obligations/design/models.md#articulation-ownership 두 경첩 축 각각의 0~π/2 rad 회전을 motion 인터페이스로, 기준 상태를 둘 다 닫힘으로 정한다.
 @evidence spaces/envelope/rear.md#garden-door X = [-1.20, 1.20] m 개구부, 바깥 -Z 열림, 0.95 m 목표, 1.80 m 바깥 대기를 문짝 1.17 m와 순폭 1.13 m로 소비한다.
 @evidence contracts/reservation-fit.md#reservation-fit 순폭 1.13 m와 회전 반경 1.17 m를 owner 목표 0.95 m와 대기 깊이 1.80 m에 대조한다.
-@evidence upstream/design/models.md#settings-and-space-revision-from-model-work ground-threshold-junctions의 후면 owner가 이미 지은 +0.02 m 문턱을 확인하고 모델의 중복 문턱 선언을 제거했으며 문짝 하단을 +0.03 m로 정했다.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work ground-threshold-junctions는 rear.ts의 +0.02 m 문턱 상면과 단일 owner를 이미 정했고 garden-door는 바깥 대기 1.80 m와 순폭 목표 0.95 m를 정했다. 접촉·회전·척도·닫힘 상태를 검토한 뒤 모델의 중복 문턱만 제거해 문짝 아래를 +0.03 m로 정했으며 부모 파일은 고치지 않았다.
 -->
 
 레퍼런스 03의 식당 뒤 두 유리문을 채택한다. 문을 열어 뒤뜰로 나가는 순폭은 사진 비례가 아니라 예약으로 정한다.
@@ -81,7 +81,8 @@
 @evidence obligations/design/models.md#articulation-ownership 대문 경첩 축의 0~π/2 rad 회전을 motion 인터페이스로, 기준 상태를 닫힘으로 정한다.
 @evidence spaces/site/side-walk.md#side-gate-interface 1.20 m 보행면 폭, +X 경첩, -Z 열림, 1.05 m 목표, 회전 반경 1.20 m를 문짝 1.18 m와 순폭 1.11 m로 소비한다.
 @evidence contracts/reservation-fit.md#reservation-fit 순폭 1.11 m와 +X 점유 0.05 m를 owner 목표 1.05 m와 한도 0.10 m에 대조한다.
-@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work side-gate-interface를 적힌 그대로 소비했고 수정할 부모 결함이 없었다.
+@evidence upstream/design/models.md#settings-and-space-revision-from-model-work side-gate-interface는 원래 fence.ts가 문짝까지 소유한다고 적어 모델 원형과 중복됐다. 부모 side-walk H2의 owner를 문기둥·빈 개구부와 후속 모델 문짝으로 나누어 고친 뒤 이 H2의 경첩·손잡이·닫힘 상태를 정했다.
+@evidence spaces/site/fence.md#fence-enclosure-plan 울타리 전체 선의 원래 문짝 owner도 fence.ts로 되어 있어 모델 원형과 중복됐다. 부모 fence H2를 문 개구부·기둥만 spaces가 소유하도록 고치고 움직이는 문짝·철물을 모델로 넘겼다.
 -->
 
 레퍼런스 01 오른쪽의 높은 목재 울타리 문법을 대문에도 적용한다. 사진에 보이지 않는 대문 경첩·빗장은 부모 동선에 맞춰 결정한다.

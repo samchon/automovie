@@ -91,7 +91,6 @@
 @evidenceExclude spaces/site/01-paving-support.md#paving-depth-reservation 이 상위 H2는 현관 보행길·측면 관리길·정원 아래 대기의 포장 두께와 바탕을 정하며 대문 문짝 하단은 side-gate-interface의 S 위 0.05 m에서 받는다.
 @evidenceExclude spaces/site/01-paving-support.md#raised-platform-support 이 상위 H2는 포치와 정원 테라스의 높은 평탄면과 닫힌 단면을 정하며 모델은 포치·테라스 몸체를 만들지 않는다.
 @evidenceExclude spaces/site/driveway.md#driveway-plan 이 상위 H2는 차고 문턱까지 오르는 콘크리트 차도를 정하며 차고문 문짝 값은 front.md#garage-front-opening에서 받는다.
-@evidenceExclude spaces/site/fence.md#fence-enclosure-plan 이 상위 H2는 관리문과 이어지는 오른쪽 목재 울타리 선을 정하며 모델 00–05는 울타리 패널을 만들지 않는다.
 @evidenceExclude spaces/site/fence.md#fence-gate-junction 이 상위 H2는 울타리에서 대문 개구부 X 구간을 비우고 문 값을 side-gate-interface에 맡기며 모델 대문은 그 owner 값만 받는다.
 @evidenceExclude spaces/site/fence.md#fence-ground-profile 이 상위 H2는 울타리 패널 상단을 대문 문짝 상단과 같은 높이로, 아래끝을 지표 g + 0.05 m로 예약하며 대문 문짝 높이는 side-gate-interface의 S 위 0.05–1.70 m에서 받는다.
 @evidenceExclude spaces/site/front-walk.md#front-walk-plan 이 상위 H2는 포치 첫 챌판 앞에서 전면 포장 끝까지의 현관 보행길을 정하며 모델은 보행면을 만들지 않는다.

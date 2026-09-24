@@ -94,7 +94,7 @@
 @evidence principles/core/common.md#substantive-completion 봉 지름 0.02 m, 봉 앞면 벽에서 0.05 m·수건 앞면 0.08 m, 예약 상단 0.03 m 아래, 두께 0.03 m 수건 판 둘이 봉 폭의 90 %를 덮고 예약 하단까지 내려온다고 정한다.
 @evidence principles/core/common.md#declared-basis W·H 세 쌍(0.50/0.30 m, 0.25/0.40 m, 0.75/0.40 m)은 방 예약의 폭과 높이 범위에서 왔고 걸린 수건까지 돌출 0.08 m 안에 담는다는 한계를 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 세 방의 수건 예약 상자에 벽 받침 둘·가로 봉·앞뒤 두 판으로 접은 수건이라는 부품 결정을 더한다.
-@evidence principles/design/models.md#representation-contract 벽 받침 둘, 가로 봉, 걸린 수건의 부품과 표면 id `rod`, `towel`을 두고 주름은 이 프록시가 주장하지 않는다.
+@evidence principles/design/models.md#representation-contract 벽 받침 둘, 가로 봉, 걸린 수건의 부품과 표면 id `bracket`, `rod`, `towel`을 두고 주름은 이 프록시가 주장하지 않는다.
 @evidence principles/design/models.md#spatial-convention 벽걸이 원형이므로 원점을 벽면 위 예약 하단의 가로 중심에 두고 봉 앞면은 벽에서 0.05 m, 수건 앞면은 0.08 m, 예약 상단 0.03 m 아래에 둔다.
 @evidence principles/design/models.md#reviewable-structure 측면에서 수건 앞면이 벽에서 0.08 m 안인지가 수건걸이를 반증할 관찰이다.
 @evidence principles/design/models.md#model-observable-style-basis 라벨 없이 지름 0.02 m 봉과 반으로 접은 두께 0.03 m 두 판이라는 단순한 실루엣과 추상화 수준만 정한다.
@@ -117,7 +117,7 @@
 ## 미닫이 유리 샤워부스 {#sliding-shower-booth}
 <!--
 @evidence principles/core/common.md#scope-preservation 샤워 욕실 예약의 폭 1.25 m·깊이 1.10 m·높이 2.10 m 부스에서 방 벽이 이루는 두 면을 빼고 앞면과 오른쪽 면만 만들며 물·김 서림·실링은 제외한다.
-@evidence principles/core/common.md#substantive-completion 오른쪽 고정 유리 두께 0.008 m, 앞면 유리 셋 각 폭 0.43 m와 0.02 m 겹침, 앞면 안쪽 0.09 m에 드는 깊이 0.03 m 트랙 셋, 수전 1.00 m·헤드 1.95 m를 정한다.
+@evidence principles/core/common.md#substantive-completion 오른쪽 고정 유리 두께 0.008 m, 앞면 유리 셋 각 폭 0.43 m와 0.02 m 겹침, 앞면 안쪽 0.09 m에 드는 깊이 0.03 m 트랙 셋, 상층 바닥 위 수전 1.05 m·헤드 2.05 m를 정한다.
 @evidence principles/core/common.md#declared-basis 왼쪽 통과 폭 0.80 m가 1.25 m에서 포갠 묶음 0.43 m와 벽 쪽 프로파일 0.02 m를 뺀 산술이며 방 문서의 0.80 m 이상 요구와 맞춘 값이라고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 방 문서의 부스 외곽과 0.80 m 이상 통과 폭 요구 위에 세 장 미닫이 유리·세 트랙·오른쪽 끝 포개짐이라는 모델 구성을 더한다.
 @evidence principles/design/models.md#representation-contract 바닥판·오른쪽 고정 유리·위아래 트랙 레일·미닫이 유리 셋·손잡이·수전과 헤드의 부품과 표면 id `shower-tray`, `glass`, `rail`, `handle`, `faucet`을 정하고 나머지 두 면은 방 벽에 맡긴다.
@@ -170,7 +170,7 @@
 @evidence principles/core/common.md#substantive-completion 레일 지름 0.025 m·길이 1.80 m·높이 2.05 m, 매달림 봉 지름 0.02 m, 레일 아래 0.03 m부터 바닥 위 0.60 m까지 내려오는 두께 0.01 m 커튼 판을 정한다.
 @evidence principles/core/common.md#declared-basis 레일은 욕조 전면에서 물 쪽 0.04 m의 부모 예약 안에 있고 길이 1.80 m는 욕조 길이와 같아 출처가 추적된다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 방 문서의 레일 위치와 높이 위에 앞쪽 매달림 봉 지지, 네 번 꺾인 판 주름, `curtain-open` 범위 1.80–0.25 m라는 모델 결정을 더한다.
-@evidence principles/design/models.md#representation-contract 레일·매달림 봉·커튼 판의 부품과 표면 id `rail`, `curtain`을 정하고 걷은 상태의 주름을 네 번 꺾인 판으로 제한한다.
+@evidence principles/design/models.md#representation-contract 레일·매달림 봉·커튼 판의 부품과 표면 id `rail`, `rod`, `curtain`을 정하고 걷은 상태의 주름을 네 번 꺾인 판으로 제한한다.
 @evidence principles/design/models.md#spatial-convention 선형 부재 예외로 원점을 뒤쪽 벽에 닿는 레일 끝의 높이 2.05 m 점에 두고 +Z를 레일 방향, yaw 0으로 로컬 +Z = world +Z라고 적는다.
 @evidence principles/design/models.md#reviewable-structure 펼친 상태와 걷은 상태의 사선 투시에서 커튼이 욕조 사용 범위로 늘어지지 않는지가 반증 관찰이다.
 @evidence principles/design/models.md#model-observable-style-basis 라벨 없이 지름 0.025 m 원형 레일과 꺾인 판 주름이라는 추상화 수준만 정한다.

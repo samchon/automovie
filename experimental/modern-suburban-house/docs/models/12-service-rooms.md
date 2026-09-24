@@ -6,7 +6,7 @@
 @evidence principles/core/common.md#substantive-completion 몸통 깊이 0.72 m, 문 지름 0.45 m·중심 높이 0.42 m, 조작 띠 Y = [0.76, 0.86]을 수치로 정해 구현자가 기기 치수를 새로 고를 일이 없다.
 @evidence principles/core/common.md#declared-basis 외곽 깊이 0.75 m·폭 0.65 m·높이 0.88 m는 세탁 작업 예약의 두 기기 범위에서 읽은 값이고 문 90° 돌출 0.48 m는 0.45 m와 0.03 m의 산술이라고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 공간 예약이 준 기기 외곽 위에 원형 문 경첩 피벗 `door`, 몸통 0.72 m와 문·손잡이 0.03 m의 깊이 분할, 조작 띠 표시로만 다른 두 변형이라는 모델 결정을 더한다.
-@evidence principles/design/models.md#representation-contract 부품을 몸통·원형 문·문 손잡이·조작 띠로, 표면 owner를 `appliance-body`, `door-ring`, `glass`, `handle`, `control-panel`, `appliance-interior`, `drum`로 정하고 드럼 회전·세제함·배관은 이 proxy가 표현하지 않는 것으로 둔다.
+@evidence principles/design/models.md#representation-contract 부품을 몸통·원형 문·문 손잡이·조작 띠로, 표면 owner를 `appliance-body`, `leaf`, `door-ring`, `glass`, `handle`, `control-panel`, `appliance-interior`, `drum`로 정하고 드럼 회전·세제함·배관은 이 proxy가 표현하지 않는 것으로 둔다.
 @evidence principles/design/models.md#spatial-convention 가구 국소 좌표를 따르며 +Z가 문 전면이고 배치에서 world -X를 향하며, 원형 문 피벗은 한쪽 세로 접선에 두고 +Z 쪽으로 최대 90° 연다.
 @evidence principles/design/models.md#reviewable-structure 정면에서 같은 몸통과 다른 조작 띠 표시로 두 기기가 갈리는지, 문 90° 평면에서 손잡이 끝이 X = 4.25 m에 닿지 않는지를 모델 리뷰 뷰의 고정 뷰로 찍는다.
 @evidence principles/design/models.md#model-observable-style-basis 이 H2는 제조사나 양식 라벨을 두지 않고 드럼 세탁기라는 구분을 전면 원형 문 0.45 m와 전면 조작 띠라는 관찰 가능한 실루엣 결정으로만 적으며 재질 외관은 재질 경계 이름까지만 넘긴다.

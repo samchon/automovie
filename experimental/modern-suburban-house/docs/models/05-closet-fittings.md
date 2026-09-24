@@ -3,7 +3,7 @@
 ## 계단 아래 외투장의 미닫이 문짝 {#coat-closet-doors}
 <!--
 @evidence principles/core/common.md#scope-preservation 외투장 미닫이 문짝 두 장의 폭 0.50 m, 높이 2.11 m, 두께 0.03 m, 트랙 위치와 손잡이 홈을 이 H2가 맡는다.
-@evidence principles/core/common.md#substantive-completion 앞 트랙 X = [1.98, 2.01], 뒤 트랙 [1.94, 1.97]로 경계 [1.87, 2.02] 안에 두고 최대 돌출 2.01 m가 한도 2.07 m 안이라고 산출한다.
+@evidence principles/core/common.md#substantive-completion 개구부 뒤 경계에서 통로 쪽으로 잰 국소 d ∈ [0,0.15] m 안에 뒤 트랙 d=[0.07,0.10], 앞 트랙 d=[0.11,0.14] m를 두고, 오목 손잡이를 포함한 최대 깊이 0.14 m가 통로 쪽 한도 d=0.20 m 안이라고 산출한다.
 @evidence principles/core/common.md#declared-basis 개구부와 돌출 한도는 spaces/rooms/entry.md#entry-coat-storage에서 받는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation entry-coat-storage의 '겹쳐 미는 두 장'을 문짝 치수와 트랙 좌표로 바꾼다.
 @evidence principles/design/models.md#representation-contract 두 문짝과 트랙, 오목 패널 계층을 정한다.
@@ -12,9 +12,9 @@
 @evidence principles/design/models.md#model-observable-style-basis 실내 문과 같은 오목 패널 두 개로 흰 패널문 문법을 잇는다.
 @evidence principles/design/models.md#model-scale-layer-completion 미닫이 인터페이스와 트랙 층을 정한다.
 @evidence obligations/design/models.md#articulation-ownership 각 문짝의 국소 Z 평행 이동 0~0.45 m를 motion 인터페이스로, 기준 상태를 닫힘으로 정한다.
-@evidence spaces/rooms/entry.md#entry-coat-storage Z = [-4.51, -3.56] m 개구부와 X = 2.07 m 돌출 한도를 문짝 0.50 m와 최대 돌출 2.01 m로 소비한다.
-@evidence contracts/reservation-fit.md#reservation-fit 두 트랙이 0.15 m 경계 안이고 손잡이 돌출이 2.07 m 한도 안임을 산술로 보인다.
-@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work entry-coat-storage를 적힌 그대로 소비했고 부모 수정이 없었다.
+@evidence spaces/rooms/entry.md#entry-coat-storage 개구부 폭 0.95 m와 통로 쪽 돌출 한도를 문짝 0.50 m 둘·겹침 0.05 m 및 국소 깊이 최대 0.14 m로 소비한다.
+@evidence contracts/reservation-fit.md#reservation-fit 두 트랙의 국소 깊이 끝 0.14 m가 0.15 m 경계 안이고 오목 손잡이의 최대 깊이도 0.20 m 한도 안임을 산술로 보인다.
+@evidence upstream/design/models.md#settings-and-space-revision-from-model-work entry-coat-storage는 원래 문짝·봉까지 entry.ts가 소유한다고 적었으나 실제 source에는 벽과 개구부만 있었다. 부모 H2를 벽·개구부는 spaces, 문짝·봉·선반은 models로 고친 뒤 문짝 원형을 정했다.
 -->
 
 레퍼런스 04의 계단 옆 흰 수납문을 채택한다. 미닫이 겹침과 트랙 깊이는 현관 예약에서 정하고 사진 속 여닫이 각도를 강요하지 않는다.
@@ -34,7 +34,7 @@
 @evidence principles/design/models.md#model-scale-layer-completion 몸통 국소 깊이 0.65 m 안의 부재 층을 정한다.
 @evidence spaces/rooms/entry.md#entry-coat-storage 봉 위치와 선반 상면 2.00 m, 몸통 깊이 0.65 m를 소비한다.
 @evidence contracts/reservation-fit.md#reservation-fit 봉과 선반이 몸통 국소 깊이 [0, 0.65] m 안에 있음을 적는다.
-@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work entry와 02를 적힌 그대로 소비했고 부모 수정이 없었다.
+@evidence upstream/design/models.md#settings-and-space-revision-from-model-work entry-coat-storage의 원래 source 책임은 봉까지 entry.ts에 두어 이 원형과 중복됐다. 부모 H2를 벽·개구부만 spaces, 봉·선반은 models로 고쳤고 계단 구조 높이의 unverified 상태는 유지했다.
 -->
 
 레퍼런스 02의 현관 가까운 외투 수납을 봉과 윗선반으로 채택한다. 레퍼런스 04에는 내부가 보이지 않으므로 봉 높이는 예약으로 정한다.
@@ -73,7 +73,7 @@
 @evidence principles/design/models.md#reviewable-structure 바인딩 뷰에서 반증한다.
 @evidence principles/design/models.md#model-observable-style-basis 색은 materials에 둔다.
 @evidence principles/design/models.md#model-scale-layer-completion 외투장·린넨장 문짝과 봉·선반의 표면 인터페이스를 정한다.
-@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 00의 이름 규칙과 entry·upper-hall의 장 내부 벽 소유를 수납 부재 id에 그대로 소비했고 부모 수정이 없었다.
+@evidence upstream/design/models.md#settings-and-space-revision-from-model-work entry-coat-storage가 원래 문짝·봉을 spaces source에 맡긴 중복 소유를 부모에서 고쳐 수납 부재의 `leaf`·`rod`·`shelf` 면을 models 한 owner가 내도록 했다. upper-linen-storage의 선반 예약과 00의 id 규칙은 수정 없이 충분했다.
 -->
 
 레퍼런스 04·05의 흰 수납문 전면과 내부 봉·선반을 서로 다른 표면으로 채택한다. spaces에는 개구부만 남긴다.
@@ -87,7 +87,7 @@
 @evidence principles/core/common.md#declared-basis 롤러·브래킷·나사 생략과 내용물 제외의 상한은 00-model-frame.md#model-representation-ceiling에서 받는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 공통 상한을 수납 부재 생략 목록으로 바꾼다.
 @evidence principles/design/models.md#representation-contract 미닫이 문짝 이동이 롤러 마찰이나 하중을 증명하지 않는다는 proxy 한계를 정한다.
-@evidence principles/design/models.md#spatial-convention 트랙 X = [1.94, 2.01] m와 선반 높이는 앞 H2에 두고 이 한계 H2는 좌표를 정하지 않는다.
+@evidence principles/design/models.md#spatial-convention 앞 H2가 트랙을 개구부 뒤 경계 기준 국소 깊이 d=[0.07,0.14] m에 두고 선반 높이를 정한다. 이 표현 한계 H2는 새 좌표를 정하지 않는다.
 @evidence principles/design/models.md#reviewable-structure 모델 리뷰 뷰의 장 단면에서 옷·수건이 이 원형에 포함되면 반증된다.
 @evidence principles/design/models.md#model-observable-style-basis 롤러와 브래킷이 보이지 않는다는 관찰 가능한 수납 한계를 적는다.
 @evidence principles/design/models.md#model-scale-layer-completion 미닫이 롤러·선반 브래킷·나사와 옷·수건·용기를 만들지 않는 층으로 명시한다.

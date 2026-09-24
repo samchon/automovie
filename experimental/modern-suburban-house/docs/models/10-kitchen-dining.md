@@ -107,7 +107,7 @@
 @evidence principles/core/common.md#substantive-completion 0.80 × 0.40 × 0.40 m 외곽, 전면 왼쪽 0.58 m 문·오른쪽 0.22 m 조작 판, 몸통 앞면과 같은 면의 돌출 없는 배치를 확정한다.
 @evidence principles/core/common.md#declared-basis 외곽은 예약 X = [-5.50, -5.10]·Z = [-9.50, -8.70]·Y = [1.45, 1.85]에서 받고, 문을 강체로 둔 근거는 방 문서에 전자레인지 문의 작동 예약이 없다는 점이라고 적는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 예약 외곽에 문/조작 판 0.58/0.22 m 전면 분할과 아래 면의 후드 겸용 결정을 더한다.
-@evidence principles/design/models.md#representation-contract 몸통·문·조작 판 세 부품과 `appliance-body`·`leaf`·`glass`·`control-panel` 경계를 두고 문을 관절을 노출하지 않는 강체로 선언한다. 보이지 않는 한계는 본문의 "회전 접시·내부 조명·문 창의 투과는 표현하지 않는다."로 밝힌다.
+@evidence principles/design/models.md#representation-contract 몸통·문·조작 판 세 부품과 `appliance-body`·`leaf`·`appliance-glass`·`control-panel` 경계를 두고 문을 관절을 노출하지 않는 강체로 선언한다. 보이지 않는 한계는 본문의 "회전 접시·내부 조명·문 창의 투과는 표현하지 않는다."로 밝힌다.
 @evidence principles/design/models.md#spatial-convention 벽걸이 원형이라 원점을 뒤쪽 모서리 선의 하단 중심에 두고 걸림 높이 1.45 m에 놓는 예외를 밝히며, 문·조작 판이 몸통 앞면과 같은 면이라 돌출이 없다고 적는다.
 @evidence principles/design/models.md#reviewable-structure 측면에서 레인지 조리면 위 0.54 m의 빈 공간이 남는지와 정면에서 옆 상부장과의 예약 비겹침을 리뷰 대상으로 두고, 네 재질 경계를 표면 분할로 드러낸다.
 @evidence principles/design/models.md#model-observable-style-basis 스타일 라벨 없이 돌출 없는 평면 전면과 후드를 겸하는 평평한 아래 면이라는 관찰 가능한 결정을 적는다.
@@ -227,7 +227,7 @@
 @evidence principles/design/models.md#representation-contract 좌면·네 다리·등받이 기둥 둘·등받이 살대와 띠 계층과 `seat`·`leg`·`back` 경계를 두고 관절 없이 꺼내 앉기를 배치 변화로 둔다. 보이지 않는 한계는 본문의 "좌판 곡면·다리 이음·등받이 곡률은 표현하지 않는다."로 밝힌다.
 @evidence principles/design/models.md#spatial-convention 뒤쪽 모서리 선을 뒤 다리의 뒤쪽 변, +Z를 식탁 쪽 정면으로 두고 점유를 폭 0.45 m·깊이 0.50 m·등받이 상단 0.85 m로 적는다.
 @evidence principles/design/models.md#reviewable-structure 측면의 좌면 0.45 m·등받이 0.85 m와 기울기, 밀어 넣은 평면에서 의자 폭이 식탁 다리 사이에 드는지, 여섯 의자가 같은 원형의 반복으로 읽히는지를 리뷰 대상으로 둔다.
-@evidence principles/design/models.md#model-observable-style-basis 스타일 라벨 없이 팔걸이 없는 판 등받이, 뒤 다리가 그대로 올라간 기둥, 5° 기울기라는 관찰 가능한 구성을 정한다.
+@evidence principles/design/models.md#model-observable-style-basis 팔걸이 없는 좌판, 뒤 다리 위 기둥과 네 개의 세로 살대가 놓인 등받이, 5° 뒤 기울기를 레퍼런스 03의 관찰 가능한 형상으로 정한다.
 @evidence principles/design/models.md#model-scale-layer-completion 좌면 0.45 m와 식탁 0.75 m의 0.30 m 차, 0.38 m 안쪽 폭에 네 살대와 다섯 간격을 채우는 식, 5° 뒤 기울기 축, 세 재질 경계를 본문 치수로 대조한다. 실제 부재 메시와 UV는 source 전까지 unverified다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 식사 구역 예약의 여섯 좌석과 식탁 상판 높이 0.75 m를 그대로 소비했고 폭 0.45 m가 좌석 사용 폭 0.65 m 안에 들어 부모 수정이 없었다.
 @evidence spaces/rooms/common.md#common-dining-reservation 여섯 좌석 예약에 한 원형을 여섯 번 쓰게 하고, 밀어 넣은 상태에서도 등받이 상단 0.85 m가 식탁 상판 위로 0.10 m 솟아 식탁 가장자리 밖에 남게 한다.

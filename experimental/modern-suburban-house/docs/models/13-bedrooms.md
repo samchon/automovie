@@ -86,7 +86,7 @@
 @evidence principles/core/common.md#substantive-completion 깊이 0.60 m, 상면 0.75 m, 상판 0.03 m, 다리 0.04 m 각, 선반 0.10 m 높이, 소품을 상판 뒤쪽 0.25 m 안에 두는 값을 확정한다.
 @evidence principles/core/common.md#declared-basis L 1.20/1.15 m는 방 예약에서 받고 램프 대신 책 세 권 묶음과 연필꽂이를 둔다는 소품 선택은 이 H2의 저작 결정으로 적힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 방 예약은 책상 외곽만 주고 이 H2는 앞으로 열리지 않는 얕은 칸막이 선반과 무릎 공간 0.62 m를 더한다.
-@evidence principles/design/models.md#representation-contract 상판·다리 넷·칸막이 선반·소품 계층과 `top`·`leg`·`shelf`·`prop` 경계를 두고 관절이 없다고 적는다. 보이지 않는 한계는 본문의 "책 표지·연필 개별 형상·상판 모따기는 표현하지 않는다."로 밝힌다.
+@evidence principles/design/models.md#representation-contract 상판·다리 넷·칸막이 선반·소품 계층과 `top`·`leg`·`shelf`·`book`·`container`·`pencil` 경계를 두고 관절이 없다고 적는다. 보이지 않는 한계는 본문의 "책 표지·연필 개별 형상·상판 모따기는 표현하지 않는다."로 밝힌다.
 @evidence principles/design/models.md#spatial-convention 가구 국소 좌표에서 +Z를 앉는 쪽으로 두고 소품을 상판 뒤쪽 0.25 m 안에 배치한다.
 @evidence principles/design/models.md#reviewable-structure 측면에서 상판 아래 무릎 공간 0.62 m가 비어 있는지를 음의 공간 관찰로 지정한다.
 @evidence principles/design/models.md#model-observable-style-basis 작은 책상을 0.03 m 얇은 상판, 0.04 m 각 다리, 0.10 m 얕은 선반이라는 비례로 정하고 램프를 두지 않는다.
@@ -181,13 +181,13 @@
 ## 옷방 옷걸이 구간 {#wardrobe-hanging}
 <!--
 @evidence principles/core/common.md#scope-preservation 옷방 예약의 옷걸이 구간을 봉·상단 선반·몸통·옷까지 한 모델로 맡는다.
-@evidence principles/core/common.md#substantive-completion 길이 2.15 m, 깊이 0.55 m, 봉 후면에서 0.28 m·높이 1.65 m, 상단 선반 2.05 m, 옷 판 두께 0.03–0.06 m·폭 0.50 m를 확정한다.
+@evidence principles/core/common.md#substantive-completion 길이 2.15 m, 깊이 0.55 m, 봉 후면에서 0.28 m·높이 1.65 m, 상단 선반 2.05 m, 옷 36벌 두께 0.035–0.045 m·폭 0.50 m를 고정식으로 확정한다.
 @evidence principles/core/common.md#declared-basis 외곽과 높이 2.05 m는 옷방 예약에서 받고 옷 판 치수와 고정 시드 배열은 이 H2의 저작 선택으로 적힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 옷방 예약은 외곽과 높이만 주고 이 H2는 봉 위치, 상단 선반, 고정 시드 옷 판 묶음을 더한다.
 @evidence principles/design/models.md#representation-contract 봉·상단 선반·몸통·옷 계층과 `rod`·`shelf`·`carcass`·`clothes` 경계를 두고 관절이 없다고 적는다. 보이지 않는 한계는 본문의 "옷걸이 개별 형상·소매·옷 주름은 표현하지 않는다."로 밝힌다.
 @evidence principles/design/models.md#spatial-convention 옷 판을 뒤벽과 0.55 m 앞면 사이에 머물게 해 점유 범위를 Z = [-10.45, -9.90] 안으로 한정한다.
 @evidence principles/design/models.md#reviewable-structure 위에서 옷 앞 끝이 Z = -9.90 m를 넘지 않는지를 검토 실루엣으로 둔다.
-@evidence principles/design/models.md#model-observable-style-basis 걸린 옷을 두께 0.03–0.06 m, 폭 0.50 m 판 묶음이라는 추상화 결정으로 정한다.
+@evidence principles/design/models.md#model-observable-style-basis 걸린 옷을 순번별 두께 0.035–0.045 m, 폭 0.50 m인 36개 판 묶음이라는 추상화로 정한다.
 @evidence principles/design/models.md#model-scale-layer-completion 외곽 치수, 네 부품 층, 네 재질 경계, 관절 없음, 옷 앞 끝 관찰이 함께 적혀 있고 관찰은 unverified다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 옷방 예약 X = [2.10, 4.25], Z = [-10.45, -9.90], 높이 2.05 m를 적힌 그대로 소비했고 부모 수정이 없었다.
 @evidence settings/10-house.md#primary-bedroom 주침실의 별도 옷 수납 요구 중 옷걸이 구간을 길이 2.15 m 봉과 선반으로 받는다.
