@@ -26,7 +26,9 @@
  * instead of the house; `eye=x,y,z` and `at=x,y,z` (meters) replace the
  * starting camera for an inspection view, and `R` returns to that view;
  * `cut=y` (meters) clips everything above world height y, a horizontal
- * section for reading plans and interiors from above.
+ * section for reading plans and interiors from above; `observe=<id>` starts
+ * at a derived observation pose with the settings interior frame (vertical
+ * FOV 60°, near 0.05 m).
  */
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
@@ -172,11 +174,15 @@ const show = (payload) => {
   renderer.clippingPlanes = Number.isFinite(cut)
     ? [new THREE.Plane(new THREE.Vector3(0, -1, 0), cut)]
     : [];
-  const start = {
-    ...payload.camera,
-    position: queryPoint("eye") ?? payload.camera.position,
-    target: queryPoint("at") ?? payload.camera.target,
-  };
+  const observed = (payload.observations ?? []).find((o) => o.id === query.get("observe"));
+  const start =
+    observed === undefined
+      ? {
+          ...payload.camera,
+          position: queryPoint("eye") ?? payload.camera.position,
+          target: queryPoint("at") ?? payload.camera.target,
+        }
+      : { ...payload.camera, position: observed.position, target: observed.target, fovDeg: 60, near: 0.05 };
   const camera = new THREE.PerspectiveCamera(
     start.fovDeg,
     width / height,

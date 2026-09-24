@@ -349,6 +349,70 @@ const exteriorConnectors = (house: IHouse): IAutoMovieBuiltConnector[] => {
   ];
 };
 
+/**
+ * World centre and face normal of one opening's void, and the reach from the
+ * wall's mid-plane to 0.05 m beyond either face: the one place route checks and
+ * observations read which outside zone an envelope opening opens on to.
+ * Throws when the opening, its host face or its void is missing.
+ */
+export const openingAxis = (environment: IAutoMovieBuiltEnvironment, openingId: string): { centre: IAutoMovieVector3; normal: IAutoMovieVector3; reach: number } => {
+  const opening = environment.openings.find((o) => o.id === openingId);
+  const face = opening === undefined ? undefined : environment.boundaries.find((b) => b.id === opening.boundary)?.face;
+  if (opening === undefined || face === undefined || opening.profile === undefined) throw new Error(`opening "${openingId}" has no host face or void`);
+  const n = opening.profile.outline.length;
+  const cx = opening.profile.outline.reduce((s, q) => s + q.x, 0) / n;
+  const cy = opening.profile.outline.reduce((s, q) => s + q.y, 0) / n;
+  const r = face.rotation;
+  const rotate = (v: IAutoMovieVector3): IAutoMovieVector3 => {
+    const t = { x: 2 * (r.y * v.z - r.z * v.y), y: 2 * (r.z * v.x - r.x * v.z), z: 2 * (r.x * v.y - r.y * v.x) };
+    return { x: v.x + r.w * t.x + (r.y * t.z - r.z * t.y), y: v.y + r.w * t.y + (r.z * t.x - r.x * t.z), z: v.z + r.w * t.z + (r.x * t.y - r.y * t.x) };
+  };
+  const local = rotate({ x: cx, y: cy, z: 0 });
+  return {
+    centre: { x: face.origin.x + local.x, y: face.origin.y + local.y, z: face.origin.z + local.z },
+    normal: rotate({ x: 0, y: 0, z: 1 }),
+    reach: face.thickness / 2 + 0.05,
+  };
+};
+
+/**
+ * Refuse a connector whose route does not start in its `from` space and end in
+ * its `to` space, or whose landing point, read at `at` along the 3D route,
+ * lies outside the landing space: the public validation checks landing ids and
+ * ranges but not that the point stands on the landing (04 engine-render-handoff).
+ */
+export const checkConnectors = (environment: IAutoMovieBuiltEnvironment): void => {
+  const spaces = new Map(environment.spaces.map((s) => [s.id, s]));
+  const inside = (id: string, p: IAutoMovieVector3): boolean => {
+    const s = spaces.get(id);
+    return s !== undefined && builtSpaceContainsPoint(s, p);
+  };
+  const failures: string[] = [];
+  for (const c of environment.connectors) {
+    const route = c.route;
+    if (!inside(c.from, route[0]!)) failures.push(`${c.id}: route starts outside "${c.from}"`);
+    if (!inside(c.to, route[route.length - 1]!)) failures.push(`${c.id}: route ends outside "${c.to}"`);
+    const total = length(route, route.length - 1);
+    for (const landing of c.landings ?? []) {
+      let rest = landing.at * total;
+      let point = route[route.length - 1]!;
+      for (let i = 1; i < route.length; ++i) {
+        const a = route[i - 1]!;
+        const b = route[i]!;
+        const step = Math.hypot(b.x - a.x, b.y - a.y, b.z - a.z);
+        if (rest <= step) {
+          const f = step === 0 ? 0 : rest / step;
+          point = { x: a.x + (b.x - a.x) * f, y: a.y + (b.y - a.y) * f, z: a.z + (b.z - a.z) * f };
+          break;
+        }
+        rest -= step;
+      }
+      if (!inside(landing.space, point)) failures.push(`${c.id}: landing at ${landing.at.toFixed(3)} (${point.x.toFixed(3)}, ${point.y.toFixed(3)}, ${point.z.toFixed(3)}) is outside "${landing.space}"`);
+    }
+  }
+  if (failures.length > 0) throw new Error(`connectors fail:\n  ${failures.join("\n  ")}`);
+};
+
 /** Build the house's built-environment record; throws on invalid topology. */
 export const buildHouseEnvironment = (house: IHouse = buildHouse()): IAutoMovieBuiltEnvironment => {
   const site = boundsOf(house.parts);
@@ -445,7 +509,10 @@ export const buildHouseEnvironment = (house: IHouse = buildHouse()): IAutoMovieB
   ];
   const boundaries: IAutoMovieBuiltBoundary[] = [];
   const openings: IAutoMovieBuiltOpening[] = [];
-  const inner = spaces.filter((s) => s.kind === "room" || s.kind === "stair" || s.kind === "storage" || s.kind === "exterior");
+  // Boundaries separate the building's own spaces. Outside a wall, porch, walk,
+  // driveway and terrace zones are all the exterior: such a wall segment encloses
+  // its one inside space, which is how the engine reads an envelope face.
+  const inner = spaces.filter((s) => s.kind === "room" || s.kind === "stair" || s.kind === "storage");
   for (const p of house.parts) {
     const face = p.wall;
     if (face === undefined) continue;
@@ -456,7 +523,7 @@ export const buildHouseEnvironment = (house: IHouse = buildHouse()): IAutoMovieB
       boundaries.push({
         id: idOf(k),
         kind: p.role,
-        spaces: [...seg.sides],
+        spaces: seg.sides.filter((s) => s !== "house-site"),
         elements: [p.id],
         face: {
           origin: face.axis === "x" ? { x: 0, y: 0, z: center } : { x: center, y: 0, z: 0 },
@@ -524,6 +591,7 @@ export const buildHouseEnvironment = (house: IHouse = buildHouse()): IAutoMovieB
         .map((v) => `  ${v.path}: expected ${v.expected}`)
         .join("\n")}`,
     );
+  checkConnectors(environment);
   checkRouteNetwork(environment);
   return environment;
 };

@@ -23,6 +23,7 @@ import { lowerBuiltEnvironment, tessellateToMesh, transformAutoMovieMesh } from 
 
 import { buildHouseEnvironment } from "../spaces/environment";
 import { buildHouse } from "../spaces/house";
+import { deriveHouseObservations } from "../spaces/observations";
 import type { IViewerScene, IViewerSceneItem } from "./scenePayload";
 
 /** Neutral reference ground, viewer-owned. */
@@ -90,5 +91,10 @@ export function buildHouseScene(sourceDigest: string): IViewerScene {
       shadowHalfExtent: 24,
     },
     items,
+    observations: deriveHouseObservations(environment, house).observations.flatMap((o) =>
+      o.pose === null
+        ? []
+        : [{ id: o.id, position: [o.pose.position.x, o.pose.position.y, o.pose.position.z], target: [o.pose.target.x, o.pose.target.y, o.pose.target.z] }],
+    ),
   };
 }

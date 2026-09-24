@@ -23,6 +23,8 @@
 import { builtSpaceContainsPoint } from "@automovie/engine";
 import type { IAutoMovieBuiltEnvironment } from "@automovie/interface";
 
+import { openingAxis } from "./environment";
+
 /** One route edge: two spaces and the passage that joins them. */
 export interface IRouteEdge {
   from: string;
@@ -101,8 +103,23 @@ export const checkRouteNetwork = (environment: IAutoMovieBuiltEnvironment): void
       used.add(id);
       const opening = environment.openings.find((o) => o.id === id);
       const host = opening === undefined ? undefined : boundaries.get(opening.boundary);
+      const outside = [e.from, e.to].find((s) => spaces.get(s)?.kind === "exterior");
       if (opening === undefined || host === undefined) failures.push(`${label}: opening "${id}" is missing`);
-      else if (!same(host.spaces, [e.from, e.to])) failures.push(`${label}: opening "${id}" joins ${host.spaces.join(" and ")}`);
+      else if (outside === undefined) {
+        if (!same(host.spaces, [e.from, e.to])) failures.push(`${label}: opening "${id}" joins ${host.spaces.join(" and ")}`);
+      } else {
+        // An envelope opening: its boundary encloses the inside space alone, and the
+        // point 0.05 m beyond the wall at the void centre stands in the outside zone.
+        const inside = outside === e.from ? e.to : e.from;
+        const zone = spaces.get(outside)!;
+        if (!same(host.spaces, [inside])) failures.push(`${label}: envelope opening "${id}" encloses ${host.spaces.join(" and ")}, not ${inside}`);
+        else {
+          const { centre, normal, reach } = openingAxis(environment, id);
+          const beyond = (s: number) => ({ x: centre.x + normal.x * reach * s, y: centre.y + normal.y * reach * s, z: centre.z + normal.z * reach * s });
+          if (!builtSpaceContainsPoint(zone, beyond(1)) && !builtSpaceContainsPoint(zone, beyond(-1)))
+            failures.push(`${label}: envelope opening "${id}" does not open on to "${outside}"`);
+        }
+      }
     } else if (e.via.kind === "connector") {
       const id = e.via.id;
       const c = environment.connectors.find((k) => k.id === id);

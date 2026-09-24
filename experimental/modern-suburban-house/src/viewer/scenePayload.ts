@@ -122,4 +122,9 @@ export interface IViewerScene {
 
   /** Placed meshes. */
   items: IViewerSceneItem[];
+  /**
+   * Self-space observation poses derived by `src/spaces/observations.ts`, for
+   * the `observe=<id>` inspection query; absent for the calibration scene.
+   */
+  observations?: { id: string; position: [number, number, number]; target: [number, number, number] }[];
 }
