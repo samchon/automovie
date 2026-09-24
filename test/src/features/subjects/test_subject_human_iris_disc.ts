@@ -57,8 +57,10 @@ const globe = (axis: Point, bulge: number, maxDegrees = 180): Point[] => {
  * follow the shared rule.
  * Scenarios:
  * 1. A globe whose cornea points along +Z has axis +Z, centre and radius of
- *    the 12 mm sphere, reference +Y, limbus asin(11.71/24.2) and pupil
- *    asin(3.5/24.2); a cornea pointing straight up (+Y) takes the +X
+ *    the 12 mm sphere, reference +Y, limbus asin(11.71/24) and pupil
+ *    asin(3.5/24), the population's absolute sizes on it, and the painted
+ *    half-angle asin(11.71/24.2); a globe scaled to 4.8 mm holds its limbus
+ *    at a right angle; a cornea pointing straight up (+Y) takes the +X
  *    reference instead.
  * 2. Fewer than eight vertices, coplanar vertices, a sphere without cornea
  *    and a cornea with no sclera behind it refuse.
@@ -80,11 +82,27 @@ export const test_subject_human_iris_disc = (): void => {
     vclose(disc.centre, [0.03, 0.03, 0.1], 1e-6),
   );
   TestValidator.predicate("radius", nclose(disc.radius, 0.012, 1e-6));
+  TestValidator.predicate("limbus", nclose(disc.limbus, Math.asin(11.71 / 24)));
+  TestValidator.predicate("pupil", nclose(disc.pupil, Math.asin(3.5 / 24)));
   TestValidator.predicate(
-    "limbus",
-    nclose(disc.limbus, Math.asin(11.71 / 24.2)),
+    "painted",
+    nclose(disc.painted, Math.asin(11.71 / 24.2)),
   );
-  TestValidator.predicate("pupil", nclose(disc.pupil, Math.asin(3.5 / 24.2)));
+  const small = locateHumanFaceIrisDisc(
+    globe([0, 0, 1], 0.0008).map(
+      (point) =>
+        point.map((value, k) => {
+          const centre = [0.03, 0.03, 0.1][k]!;
+          return centre + (value - centre) * 0.4;
+        }) as Point,
+    ),
+  );
+  TestValidator.predicate(
+    "a globe smaller than the iris holds a right angle",
+    nclose(small.limbus, Math.PI / 2) &&
+      nclose(small.pupil, Math.asin(3.5 / 9.6), 1e-4) &&
+      nclose(small.painted, disc.painted),
+  );
   const upward = locateHumanFaceIrisDisc(globe([0, 1, 0], 0.0008));
   TestValidator.predicate(
     "vertical axis takes +X",

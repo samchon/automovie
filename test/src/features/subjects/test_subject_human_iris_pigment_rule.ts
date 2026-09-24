@@ -24,9 +24,10 @@ const srgb = (value: number): number =>
  *    18 degrees out is exactly the pigment, and texels beyond the limbus
  *    (40 degrees) and between the eyes stay the texture's white; the left
  *    and right eyes take their own pigments.
- * 2. With variation, the limbal ring (27 degrees, normalized radius above
- *    0.87) is band 0, which is the base, while stroma texels span colours
- *    between base and base plus variation.
+ * 2. With variation, the limbal ring (texels whose centres lie at normalized
+ *    radius above 0.87 inside the limbus, asin(11.71/24) on the 12 mm globe)
+ *    is band 0, which is the base, while stroma texels span colours between
+ *    base and base plus variation.
  * 3. Omission and null leave the materials untouched; repeating a pigment
  *    reuses the identical texture string; the basis texture never changes.
  * 4. A lid bound by half weight and an untextured region placed before the
@@ -87,10 +88,25 @@ export const test_subject_human_iris_pigment_rule = (): void => {
     const y = Math.floor((0.5 + r * Math.sin(phi)) * 256);
     return [...bands.rgba.subarray(4 * (y * 256 + x), 4 * (y * 256 + x) + 3)];
   };
-  TestValidator.equals(
+  // Texels whose centres lie in the limbal ring of the 12 mm globe: normalized
+  // radius above 0.87 and inside the limbus less its blended edge.
+  const limbus = (Math.asin(11.71 / 24) * 180) / Math.PI;
+  const pupilAngle = (Math.asin(3.5 / 24) * 180) / Math.PI;
+  const ring: number[][] = [];
+  for (let y = 100; y < 156; ++y)
+    for (let x = 36; x < 92; ++x) {
+      const degrees =
+        (Math.hypot((x + 0.5) / 256 - 0.25, (y + 0.5) / 256 - 0.5) / 0.2) * 180;
+      const rho = (degrees - pupilAngle) / (limbus - pupilAngle);
+      if (rho > 0.88 && degrees < limbus - 0.4)
+        ring.push([
+          ...bands.rgba.subarray(4 * (y * 256 + x), 4 * (y * 256 + x) + 3),
+        ]);
+    }
+  TestValidator.predicate(
     "limbal ring is the base",
-    at(27, 0),
-    varied.base.map(srgb),
+    ring.length > 0 &&
+      ring.every((rgb) => rgb.join() === varied.base.map(srgb).join()),
   );
   const low = varied.base.map(srgb);
   const high = varied.base.map((value, c) => srgb(value + varied.variation[c]));

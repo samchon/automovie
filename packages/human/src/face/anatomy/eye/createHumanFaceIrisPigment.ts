@@ -30,6 +30,13 @@ import type { IHumanFaceIrisTexels } from "./structures/IHumanFaceIrisTexels";
  * replaced by a new PNG; the last result is cached by its pigments, so replay
  * of the same document reuses the same bytes.
  *
+ * The disc is the population's absolute iris on the globe
+ * (`locateHumanFaceIrisDisc`); where the texture's own painted iris, drawn in
+ * proportion to an oversized globe, reaches beyond it, the rest of that
+ * painted iris is covered with the mean sclera colour of the ring just
+ * outside it, blended across the painted edge, so no second, darker ring
+ * shows around the anatomical iris.
+ *
  * The rule changes no geometry and no other material. Omission or null leaves
  * the materials untouched, byte for byte. It refuses a pigment outside the
  * unit range (through `createPortraitIrisMaterials`), a basis without
@@ -77,13 +84,24 @@ export function createHumanFaceIrisPigment(
       const textures = new Map<string, string>();
       for (const [material, texture] of prepared) {
         const rgba = texture.rgba.slice();
-        for (const { eye, disc, texels } of texture.eyes)
+        for (const { eye, disc, texels, sclera } of texture.eyes)
           texels.index.forEach((index, at) => {
-            const original = [0, 1, 2].map((c) =>
+            const theta = texels.theta[at];
+            const painted = [0, 1, 2].map((c) =>
               toLinear(texture.rgba[4 * index + c]),
             );
+            // Under an anatomical disc smaller than the texture's painted
+            // iris, the rest of that iris becomes sclera, blended into the
+            // painting across its edge.
+            const cover =
+              disc.painted > disc.limbus
+                ? clamp01((disc.painted + EDGE - theta) / (2 * EDGE))
+                : 0;
+            const original = painted.map(
+              (value, c) => value + (sclera[c] - value) * cover,
+            );
             const colour = humanFaceIrisTexelColour({
-              theta: texels.theta[at],
+              theta,
               phi: texels.phi[at],
               limbus: disc.limbus,
               pupil: disc.pupil,
@@ -171,16 +189,33 @@ function prepare(globes: readonly IGlobe[]): Map<string, IPreparedTexture> {
       texture = { ...decodePortraitPng(globe.texture), eyes: [] };
       byMaterial.set(globe.material, texture);
     }
+    const disc = globe.disc;
+    const reach = Math.max(disc.limbus, disc.painted);
+    const texels = rasterizeHumanFaceIrisTexels({
+      width: texture.width,
+      height: texture.height,
+      triangles: globe.triangles,
+      disc,
+      margin: reach - disc.limbus + EDGE + SCLERA_BAND,
+    });
+    // The sclera just outside the painted iris, averaged in linear colour.
+    const sum = [0, 0, 0];
+    let count = 0;
+    texels.index.forEach((index, at) => {
+      if (texels.theta[at] <= disc.painted + EDGE) return;
+      for (let c = 0; c < 3; ++c)
+        sum[c] += toLinear(texture!.rgba[4 * index + c]);
+      ++count;
+    });
     texture.eyes.push({
       eye: globe.eye,
-      disc: globe.disc,
-      texels: rasterizeHumanFaceIrisTexels({
-        width: texture.width,
-        height: texture.height,
-        triangles: globe.triangles,
-        disc: globe.disc,
-        margin: EDGE,
-      }),
+      disc,
+      texels,
+      sclera: (count === 0 ? [1, 1, 1] : sum.map((value) => value / count)) as [
+        number,
+        number,
+        number,
+      ],
     });
   }
   return byMaterial;
@@ -204,6 +239,9 @@ interface IGlobe {
  */
 const EDGE = (0.3 * Math.PI) / 180;
 
+/** Width of the sclera ring averaged outside the painted iris, radians. */
+const SCLERA_BAND = (2 * Math.PI) / 180;
+
 /** A decoded eye texture and the iris texels of each eye painted on it. */
 interface IPreparedTexture {
   width: number;
@@ -213,6 +251,8 @@ interface IPreparedTexture {
     eye: string;
     disc: IHumanFaceIrisDisc;
     texels: IHumanFaceIrisTexels;
+    /** Mean linear sclera colour just outside the painted iris. */
+    sclera: [number, number, number];
   }[];
 }
 

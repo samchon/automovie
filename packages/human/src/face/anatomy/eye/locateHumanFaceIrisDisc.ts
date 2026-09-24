@@ -19,15 +19,20 @@ import type { IHumanFaceIrisDisc } from "./structures/IHumanFaceIrisDisc";
  * 2. fit the sphere again to the vertices more than 45 degrees from that
  *    axis, which are sclera by any anatomical proportion, and recompute the
  *    axis from the protrusion above this unbiased sphere.
- * 3. Take the limbal and pupillary half-angles from population anatomy as
- *    ratios to the globe: the horizontal visible iris diameter 11.71 mm
- *    (Rüfer, Schröder & Erb, Cornea 2005, 390 subjects) and the transverse
- *    globe diameter 24.2 mm (Bekerman, Gottlieb & Vaiman, J Ophthalmol
- *    2014, 250 subjects) give asin(11.71 / 24.2) = 28.9 degrees. The pupil
- *    is 3.5 mm, within the 2.8 to 3.7 mm the Stanley and Davies formula in
- *    Watson and Yellott (J Vis 2012) gives a young adult under a wide field
- *    of 10 to 100 cd/m2, an ordinary indoor portrait. Ratios keep the disc
- *    anatomical whatever the asset's absolute globe size.
+ * 3. Take the limbal and pupillary half-angles from population anatomy in
+ *    absolute size on the fitted sphere: the horizontal visible iris
+ *    diameter 11.71 mm (Rüfer, Schröder & Erb, Cornea 2005, 390 subjects),
+ *    asin(11.71 mm / 2r), and a 3.5 mm pupil, within the 2.8 to 3.7 mm the
+ *    Stanley and Davies formula in Watson and Yellott (J Vis 2012) gives a
+ *    young adult under a wide field of 10 to 100 cd/m2, an ordinary indoor
+ *    portrait. The visible iris is an absolute length of the face, one of
+ *    its least variable: an asset globe larger than an eye (the source's
+ *    fits 27.5 mm against the 24.2 mm transverse diameter of Bekerman,
+ *    Gottlieb & Vaiman, J Ophthalmol 2014, 250 subjects) would otherwise
+ *    carry its excess into the iris, 13.3 mm, and the eye reads as all iris.
+ *    The asset's own painting follows its globe instead, so `painted` is the
+ *    population ratio, asin(11.71 / 24.2) = 28.9 degrees: where the texture
+ *    the rule paints over has its iris end.
  *
  * The reference direction for azimuth is world +Y projected into the plane
  * normal to the axis (world +X when the axis is vertical), so fibre patterns
@@ -76,10 +81,13 @@ export function locateHumanFaceIrisDisc(
     axis,
     reference,
     limbus: Math.asin(
-      HUMAN_FACE_LIMBAL_DIAMETER_MM / HUMAN_FACE_GLOBE_DIAMETER_MM,
+      Math.min(1, HUMAN_FACE_LIMBAL_DIAMETER_MM / 1000 / (2 * sphere.radius)),
     ),
     pupil: Math.asin(
-      HUMAN_FACE_PUPIL_DIAMETER_MM / HUMAN_FACE_GLOBE_DIAMETER_MM,
+      Math.min(1, HUMAN_FACE_PUPIL_DIAMETER_MM / 1000 / (2 * sphere.radius)),
+    ),
+    painted: Math.asin(
+      HUMAN_FACE_LIMBAL_DIAMETER_MM / HUMAN_FACE_GLOBE_DIAMETER_MM,
     ),
   };
 }
