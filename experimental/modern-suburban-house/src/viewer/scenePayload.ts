@@ -6,7 +6,8 @@
  * stored; settings `execution-boundary` forbids a JSON state file, so this
  * value lives only inside one HTTP response.
  *
- * Producers: `calibration.cts` (`buildCalibrationScene`). Consumers: the
+ * Producers: `calibration.cts` (`buildCalibrationScene`) and `houseScene.cts`
+ * (`buildHouseScene`, from the spaces producer). Consumers: the
  * browser client through JSDoc type imports only, so no runtime code crosses
  * into the browser from this module.
  *
@@ -16,16 +17,21 @@
  * management.
  */
 
-/** Which subject a scene draws. Only calibration exists before house source. */
-export type ViewerSceneSubject = "calibration";
+import type { HousePartRole } from "../spaces/solids";
+
+/** Which subject a scene draws: the calibration shape or the house. */
+export type ViewerSceneSubject = "calibration" | "house";
 
 /** One triangle mesh placed in world space by translation only. */
 export interface IViewerSceneItem {
   /** Stable id used in inspection output and capture records. */
   id: string;
 
-  /** What the item is for in the calibration reading. */
-  role: "ground" | "axis" | "tick" | "reference";
+  /** What the item is: a calibration role or a spaces part role. */
+  role: "ground" | "axis" | "tick" | "reference" | HousePartRole;
+
+  /** Source owner under `src/spaces`, when the item is a house part. */
+  owner?: string;
 
   /** Base color as an sRGB hex integer, for example 0xd94a3a. */
   color: number;
@@ -86,6 +92,12 @@ export interface IViewerSceneLighting {
 
   /** Fixed tone-mapping exposure; settings `lighting-state` forbids per-view brightness. */
   exposure: number;
+
+  /** Half extent of the key light shadow box around its target, meters; 8 when absent. */
+  shadowHalfExtent?: number;
+
+  /** World point the key light aims at; the origin when absent. */
+  keyTarget?: [number, number, number];
 }
 
 /** Complete payload of `GET /scene`. */

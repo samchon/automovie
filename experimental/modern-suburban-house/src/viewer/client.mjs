@@ -21,6 +21,10 @@
  * Operator keys (settings `operator-access`): drag to orbit, right-drag or
  * arrow keys to pan, wheel to zoom, `R` returns to the default view, `I`
  * toggles the inspection panel. Labels stay hidden until `I` is pressed.
+ *
+ * Page query: `subject=calibration` asks the server for the calibration shape
+ * instead of the house; `eye=x,y,z` and `at=x,y,z` (meters) replace the
+ * starting camera for an inspection view, and `R` returns to that view.
  */
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
@@ -32,6 +36,21 @@ const canvas = document.getElementById("viewport");
 const panel = document.getElementById("inspection");
 if (!(canvas instanceof HTMLCanvasElement) || panel === null)
   throw new Error("viewer page lacks #viewport canvas or #inspection panel");
+
+const query = new URLSearchParams(window.location.search);
+
+/**
+ * Read an `x,y,z` query value, or null when absent or malformed.
+ *
+ * @param {string} name
+ * @returns {[number, number, number] | null}
+ */
+const queryPoint = (name) => {
+  const values = (query.get(name) ?? "").split(",").map(Number);
+  return values.length === 3 && values.every(Number.isFinite)
+    ? /** @type {[number, number, number]} */ (values)
+    : null;
+};
 
 /** State a capture script reads; written only by this module. */
 const state = {
@@ -113,18 +132,25 @@ const buildScene = (payload) => {
     ),
   );
   const key = new THREE.DirectionalLight(0xffffff, light.keyIntensity);
-  key.position.set(...light.keyFrom).normalize().multiplyScalar(20);
+  key.position.set(...light.keyFrom).normalize().multiplyScalar(2 * (light.shadowHalfExtent ?? 8) + 4);
+  if (light.keyTarget) {
+    key.target.position.set(...light.keyTarget);
+    key.position.add(key.target.position);
+  }
   key.castShadow = true;
-  key.shadow.mapSize.set(2048, 2048);
-  key.shadow.camera.left = -8;
-  key.shadow.camera.right = 8;
-  key.shadow.camera.top = 8;
-  key.shadow.camera.bottom = -8;
+  // The shadow box must cover the subject: the calibration shape or the whole house and site.
+  const reach = light.shadowHalfExtent ?? 8;
+  key.shadow.mapSize.set(4096, 4096);
+  key.shadow.camera.left = -reach;
+  key.shadow.camera.right = reach;
+  key.shadow.camera.top = reach;
+  key.shadow.camera.bottom = -reach;
   key.shadow.camera.near = 0.5;
-  key.shadow.camera.far = 60;
+  key.shadow.camera.far = 4 * reach + 40;
   key.shadow.bias = -0.0005;
   key.shadow.normalBias = 0.02;
   scene.add(key);
+  scene.add(key.target);
   for (const item of payload.items) scene.add(buildMesh(item));
   renderer.toneMappingExposure = light.exposure;
   return scene;
@@ -140,7 +166,11 @@ const show = (payload) => {
   renderer.setPixelRatio(pixelRatio);
   renderer.setSize(width, height);
   const scene = buildScene(payload);
-  const start = payload.camera;
+  const start = {
+    ...payload.camera,
+    position: queryPoint("eye") ?? payload.camera.position,
+    target: queryPoint("at") ?? payload.camera.target,
+  };
   const camera = new THREE.PerspectiveCamera(
     start.fovDeg,
     width / height,
@@ -196,7 +226,11 @@ const fail = (error) => {
 
 /** Fetch the current scene; a non-200 answer carries its reason. */
 const load = async () => {
-  const response = await fetch("/scene", { cache: "no-store" });
+  const subject = query.get("subject");
+  const response = await fetch(
+    subject === null ? "/scene" : `/scene?subject=${encodeURIComponent(subject)}`,
+    { cache: "no-store" },
+  );
   const body = await response.json();
   if (!response.ok)
     throw new Error(`${response.status}: ${String(body.error ?? "unknown")}`);

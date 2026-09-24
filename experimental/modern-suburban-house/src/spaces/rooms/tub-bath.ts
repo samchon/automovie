@@ -1,0 +1,36 @@
+/**
+ * `tub-bathroom`: the second upper bathroom at the end of the hall.
+ *
+ * Design owner: `docs/spaces/rooms/tub-bath.md#tub-bath-plan`. Finished inner
+ * X = [3.22, 5.50], Z = [-8.80, -4.71] m. 07 assigns this owner its partitions
+ * to the hall and shower bathroom (X = [3.07, 3.22], carrying `hall-tub-door`
+ * Z = [-5.86, -4.86], Y = [3.06, 5.26] m) and to bedroom-three
+ * (Z = [-4.71, -4.56]); that run starts at X = 3.07 so it closes the corner the
+ * bedroom-three door run meets. Fixtures are later models.
+ */
+import { PALETTE } from "../palette";
+import type { IHousePart } from "../solids";
+import { type IRoomSpace, box, door, partition, roomFloor } from "./shared";
+
+export const TUB_BATH: IRoomSpace = {
+  id: "tub-bathroom",
+  owner: "rooms/tub-bath.ts",
+  storey: "upper-storey",
+  outline: box([3.22, 5.5], [-8.8, -4.71]),
+  floor: PALETTE.tile,
+};
+
+/** Emit the tub bathroom floor and its two partitions. */
+export const buildTubBath = (): IHousePart[] => [
+  roomFloor(TUB_BATH),
+  partition({
+    id: "tub-hall-partition",
+    owner: TUB_BATH.owner,
+    storey: "upper-storey",
+    axis: "z",
+    across: [3.07, 3.22],
+    along: [-8.8, -4.71],
+    holes: [door("hall-tub-door", "upper-storey", -5.86, -4.86)],
+  }),
+  partition({ id: "tub-bedroom-three-partition", owner: TUB_BATH.owner, storey: "upper-storey", axis: "x", across: [-4.71, -4.56], along: [3.07, 5.5] }),
+];

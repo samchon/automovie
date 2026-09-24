@@ -17,7 +17,8 @@
  * - `/vendor/three.module.js`, `/vendor/three.core.js` and
  *   `/vendor/OrbitControls.js` serve the installed three.js build;
  * - `/src/viewer/<name>.mjs` serves browser modules from this directory;
- * - `/scene` builds the current scene on every request.
+ * - `/scene` builds the current house scene on every request;
+ *   `/scene?subject=calibration` builds the calibration shape instead.
  *
  * Staleness: the server digests the production source (`src`, `docs`,
  * `public`, `lint.config.ts`, `package.json`) at start. If a later `/scene`
@@ -36,6 +37,7 @@ import { dirname, join, relative, resolve } from "node:path";
 import { parseArgs } from "node:util";
 
 import { buildCalibrationScene } from "./calibration.cjs";
+import { buildHouseScene } from "./houseScene.cjs";
 
 /** Production root: this file lives at `src/viewer/server.cts`. */
 const ROOT = resolve(__dirname, "..", "..");
@@ -104,7 +106,8 @@ const handle = (
   response: ServerResponse,
   startDigest: string,
 ): void => {
-  const path = new URL(request.url ?? "/", "http://localhost").pathname;
+  const url = new URL(request.url ?? "/", "http://localhost");
+  const path = url.pathname;
   if (request.method !== "GET")
     return send(response, 405, "text/plain; charset=utf-8", "GET only");
   const fixed = STATIC_FILES[path === "/index.html" ? "/" : path];
@@ -135,7 +138,7 @@ const handle = (
       response,
       200,
       "application/json; charset=utf-8",
-      JSON.stringify(buildCalibrationScene(current)),
+      JSON.stringify(url.searchParams.get("subject") === "calibration" ? buildCalibrationScene(current) : buildHouseScene(current)),
     );
   }
   if (path === "/favicon.ico") return send(response, 204, "text/plain", "");
