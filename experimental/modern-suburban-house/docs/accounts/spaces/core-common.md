@@ -3,7 +3,9 @@
 ## 파일 역할과 층 경계 {#population-roles}
 <!--
 @evidence obligations/core/common.md#purpose-fit 00·01은 방·입면·지붕이 참조하는 외곽과 storey 좌표, 02는 두 층 사이의 유일한 연결, 05는 현관에서 모든 방으로 가는 경계 순서, 03은 소스 저작 전 완결 면의 파일 배정, 04는 관찰 질문 파생과 렌더 인계, 06–10과 roof/00은 두 owner 사이의 공유 경계, site/00·01은 house-site 접속과 포장 바탕 규칙을 한 번만 정하고, 입면·지붕 경사면·포치·방과 다섯 대지 파일은 완결 면이나 방 하나를 맡는다. 이 가운데 한 파일을 지우면 그 면이나 방의 경계·개구부·사용 예약이 다른 파일의 산문 속으로 들어가거나 사라진다.
+@evidenceReview obligations/core/common.md#purpose-fit #7b32c66 purpose-fit의 ‘역할이 사라지면 무엇이 미정이 되는가’를 둘째 문단의 공통 기준 파일 배분, 나머지 서른다섯 중 서른세 파일의 면·방 단위와 site/00·01의 규칙 역할, ‘파일 하나를 지우면 … 사라진다’에 대조했다.
 @evidence obligations/core/common.md#layer-boundary 가구·기구·선반의 표는 점유 상한 예약이고 원형·다리·손잡이 형상은 models, 세 스툴·여섯 의자의 배치는 instances, 재료와 광학값은 materials, 방별 광원은 systems가 소비하며, 필지·외부 보도·지표·식재는 maps 인계의 입력으로만 적는다. 04의 engine-render-handoff는 공간 면의 model element 인계 조건, 비직사각 공간의 볼록 cell 합집합 또는 닫힌 shell, standable surface와 landing 검증의 한계, 관찰 helper의 null 처리라는 공간 결정만 남기고 뷰어 포트 4173·`--port`·실행기·카메라·조명·그림자는 settings의 viewer-handoff·renderer-boundary·lighting-state가 소유한다.
+@evidenceReview obligations/core/common.md#layer-boundary #5271f94 layer-boundary의 두 번째 전문 계열 질문을 넷째 문단의 가구 표=점유 상한, 형상은 models·세 스툴과 여섯 의자는 instances·광원은 systems 배분과 포트 4173·`--port`·조명의 settings 소유에 대조했다.
 -->
 
 비교 모집단은 `docs/spaces` 아래 47개 파일 전체다. 이 account는 파일 사이의 역할 배분과 층 경계만 답하며 각 H2의 원칙 답변을 대신하지 않는다.
@@ -17,6 +19,7 @@
 ## 작업 언어의 일관성 {#population-language}
 <!--
 @evidence obligations/core/common.md#production-language 47개 파일은 settings의 한국어 작업 언어로 설명·결정·검사 문장을 쓰고, 코드와 대조할 공간 id(`front-entry` 등)·`src/spaces/...` 경로·`lowerBuiltEnvironment` 같은 API 이름·`D(Z)` 같은 좌표식은 번역하지 않는다. threshold·reveal·trim·sash·flight·connector·bbox·pose·census는 원어 그대로 반복해 쓰며 47개 파일 전체를 `\p{Script=Han}`으로 검사해 한자가 없음을 확인했다.
+@evidenceReview obligations/core/common.md#production-language #3ef4142 본문의 한국어 서술과 `front-entry`·`src/spaces/rooms/entry.ts`·`lowerBuiltEnvironment`·`D(Z)` 원형 유지, threshold/문턱 병용 설명을 용어 일관성 요구에 대조하고 47개 파일의 `\p{Script=Han}` 부재를 다시 검사했다.
 -->
 
 [작업 언어](../../settings/00-production.md#working-language)에 따라 설명·결정·검사 문장은 한국어로 쓴다. 원형을 유지하는 것은 공간 id(`front-entry`, `kitchen-dining-family`, `garage-front-door` 등), 소스 경로(`src/spaces/rooms/entry.ts` 등), 공개 API 이름(`lowerBuiltEnvironment`, `builtSpaceObservationStations` 등)과 좌표식(`D(Z)`, `q = h11 - h10 - h01 + h00`)이다. 이들은 코드와 같은 문자열로 대조해야 하므로 번역하지 않는다.
@@ -28,6 +31,7 @@
 ## 선언 규모에 맞춘 분량 배분 {#population-proportion}
 <!--
 @evidence obligations/core/common.md#proportionate-development 주석·제목·공백을 뺀 본문은 공통 11파일 28 H2 / 50169자, 입면 4 / 24 / 13940, 지붕 9 / 12 / 8406, 포치 1 / 2 / 1691, 방 15 / 38 / 35479, 대지 7 / 16 / 18545, 합계 47 / 120 / 128230자다. 재생성 전 spaces는 house.md 1파일 7 H2 2938자였다. 계단(5 H2 / 5582자)과 공용부(6 / 6013)가 서비스 통로(1 / 993)와 옷방(2 / 1275)보다 깊고, 지붕 경사면은 roof/00(4525자)의 교차 계산을 소비해 각 436–536자에 머문다.
+@evidenceReview obligations/core/common.md#proportionate-development #78feb28 표의 공통 11/28/50169·방 15/38/35479 등 묶음별 수치를 주석·제목·공백을 빼고 다시 세어 같음을 확인하고, 계단 5582자·공용부 6013자 대 서비스 통로 993자와 house.md 2938자 비교를 대조했다.
 -->
 
 측정은 `docs/spaces`의 각 파일에서 HTML 주석, 제목 줄, 공백을 뺀 본문 문자를 세었다. 수치는 저작량이 어디에 있는지를 보여 줄 뿐 완성의 판정이 아니다.

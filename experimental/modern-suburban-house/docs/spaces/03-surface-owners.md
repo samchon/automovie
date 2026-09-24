@@ -3,15 +3,25 @@
 ## 입면·지붕·층의 소유 {#exterior-surface-handoff}
 <!--
 @evidence principles/core/common.md#scope-preservation 네 입면, 공유 벽, 지붕 경사면, 포치, 본채/차고 바닥·층간·천장 바탕, 계단, 포장과 울타리의 완결 면을 source 파일에 배정하고 계산 파일의 역할을 구분한다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 표가 네 입면·공유 벽체·여덟 지붕 경사면·포치·1층/층간/차고 바탕·계단·네 포장·울타리를 모두 파일에 배정하고, 뒤 문단이 building·junctions·openings·boundaries·site를 계산 역할로 구분해 빠진 면이 없음을 확인했다.
 @evidence principles/core/common.md#substantive-completion 완결 면 또는 공유 경계마다 한 source 파일을 표로 정하고 building·roof/junctions·openings·boundaries·site 파일은 계산과 조립만 하게 한다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 표가 ‘완결 면 또는 공유 경계’마다 `src/spaces/...` 파일 하나를 적고 `building.ts`는 외곽·공유 좌표 조립, `roof/junctions.ts`는 교차 경계 산출로 한정해 source가 면 소유를 새로 정할 필요가 없음을 확인했다.
 @evidence principles/core/common.md#declared-basis 배정 근거는 whole-surface-owner 계약이고 source 파일이 아직 없어 파일 배정 의도이며 surface census 완료가 아니라고 밝힌다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 첫 문단이 표면 분해 인계와 완결 표면 계약 링크를 근거로 들고 ‘source 파일이 아직 없어 파일 배정 의도’이며 surface id·면 개수 census 완료가 아니라고 밝혀 표의 지위가 추적됨을 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 설정의 사전 분해 요구를 입면별·지붕 경사면별·포장별 파일로 나누고 종전의 포장 전체 한 파일 예약을 소스 저작 전에 보행면·차도·테라스로 쪼갠다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 surface-allocation이 owner·파일 경계 선언만 요구한 데 비해 이 H2는 지붕 경사면별 파일과, ‘종전의 포장 전체 한 파일 예약’을 보행면·차도·테라스 파일로 나눈 결정을 소스 저작 전에 더함을 대조했다.
 @evidence principles/design/spaces.md#space-topology 포치 아래 대기와 정원문 바깥 대기를 각 연속 포장 owner에 통째로 속하게 하고 관리길의 앞뒤 두 구역도 같은 면 owner를 유지한다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 front-walk 행의 ‘포치 아래 대기를 포함’, terrace 행의 정원문 바깥 대기 포함, site.ts 문단의 관리길 앞뒤 두 구역 단일 owner를 대조해 대기 구역의 포함 관계가 포장 면 하나에 묶임을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 모서리·단차 몸체는 07, 벽 상단은 roof/00, 층간 가장자리는 08, 지상 지지는 10이 배정해도 이 표의 면 소유는 바뀌지 않는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 모서리·단차 몸체는 07, 벽 상단 접촉은 roof/00, 층간 가장자리는 08, 지지 하단은 10 링크로 받으면서 ‘위 표의 입면·지붕·방 표면 소유를 바꾸지 않는다’를 둬 같은 면이 두 번 소유되지 않음을 확인했다.
 @evidence principles/design/spaces.md#space-verification-address 표의 행 수를 면 개수로 쓰지 않고 source 이후 실제 surface id·면 닫힘·누락/중복 census를 요구한다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 첫 문단의 실제 surface id·면 개수·누락/중복 census 요구, ‘실제 면 닫힘/census는 unverified’, ‘이 표를 전체 대지 표면 census 완료로 읽지 않는다’를 대조해 source 이후 census가 반증 주소임을 확인했다.
 @evidence settings/20-verification.md#surface-allocation 외피·층·지붕과 접합을 실제 source 파일 경계로 나누어 첫 저작에 넘긴다.
+@evidenceReview settings/20-verification.md#surface-allocation #aae54d5 surface-allocation의 외부 입면·층 바닥·천장·계단 구멍과 접합 owner 선언을 입면 네 행, floors/ground·upper, 차고 천장, stair 행과 07·08·10 접합 문단에 대조해 첫 저작 전 파일 경계가 정해졌음을 확인했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work surface-allocation의 "여러 소유자의 독립 기준을 허용하지 않는다"를 계산 파일과 면 owner의 분리에 대조했고 공유 계산이 면을 소유하지 않아 부모 수정이 없었다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 surface-allocation의 동일 면 복제·독립 기준 금지를 ‘공유 계산은 경사면을 소유하는 두 번째 geometry가 아니다’와 `boundaries.ts`의 계산 한정에 대조해 settings 문장을 고치지 않고 배정이 성립함을 확인했다.
 @evidence contracts/surface-ownership.md#whole-surface-owner 입면·지붕 경사면·포치·층 바탕·계단·포장·울타리의 각 완결 면을 소스 저작 전에 한 source 파일에 통째로 배정하고 building·junctions·openings·site 계산 파일이 표면을 소유하지 않게 한다.
+@evidenceReview contracts/surface-ownership.md#whole-surface-owner #0e24f29 계약의 한 표면 한 owner와 접합 경계 배정을 표의 파일별 행, ‘부재·반복·마감을 따로 넘기지 않는다’, `openings.ts`는 창/문 geometry의 별도 소유자가 아니라는 문단에 대조해 성립함을 확인했다.
 -->
 
 [표면 분해 인계](../settings/20-verification.md#surface-allocation)에 따라 [완결 표면 계약](../contracts/surface-ownership.md#whole-surface-owner)을 첫 소스 저작 전에 적용한다. 아래 표는 작성할 소스 파일의 책임을 예약한다. 담당 저작자는 모두 이 production의 단일 저작자다. 다른 저작자에게 위임하려면 완결 면 하나를 통째로 넘기며 같은 면의 부재·반복·마감을 따로 넘기지 않는다. 현재는 source 파일이 아직 없어 파일 배정 의도이며, 실제 surface id·면 개수·누락/중복 census를 완료한 선언이 아니다.
@@ -62,15 +72,25 @@
 ## 방 내부의 완결 면 소유 {#interior-surface-handoff}
 <!--
 @evidence principles/core/common.md#scope-preservation 실내 공간 책임마다 안쪽 벽·천장·바닥·개구부 둘레를 방 파일에 배정하고 옷방·린넨장·외투장의 분류를 맡는다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 표가 현관부터 욕조 욕실까지 방마다 `src/spaces/rooms/` 파일을 두고 첫 문단이 안쪽 벽·천장·바닥 마감 구역과 개구부 둘레를 그 owner에 묶으며, 마지막 문단이 옷방·린넨장·외투장을 분류함을 확인했다.
 @evidence principles/core/common.md#substantive-completion 방마다 src/spaces/rooms 아래 한 파일을 완결 내부 owner로 정하고 사람이 들어가는 옷방은 자기 파일로 분리한다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 방마다 `src/spaces/rooms/<방>.ts` 하나를 완결 내부 owner로 정하고 주침실에서 들어가는 옷방을 `wardrobe.ts`로 분리해 source가 방 파일 경계를 다시 나눌 결정을 남기지 않음을 확인했다.
 @evidence principles/core/common.md#declared-basis 방별 경계·문·창·storey binding은 동선 인계의 방 owner와 대조하고 표의 source 파일이 아직 없어 실제 census는 unverified라고 밝힌다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 마지막 문단이 방별 경계·문·창·storey binding의 근거를 동선 인계 링크로, 옷방 분류 근거를 수납 링크로 대고 ‘표의 소스 파일은 아직 없고 실제 census는 unverified’라고 밝힘을 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation storage 설정의 "사람이 들어가는 수납실을 공간으로 저작하면 다른 방과 같은 전체 관찰을 부담한다"를 옷방은 방, 린넨장·외투장은 소비 방의 접면이라는 분류로 적용한다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 storage 설정은 사람이 들어가는 수납실의 관찰 부담만 정했는데, 이 H2는 옷방을 자기 파일의 방으로, 린넨장은 upper-hall, 외투장은 entry의 접면으로 분류하는 결정을 더함을 대조했다.
 @evidence principles/design/spaces.md#space-topology 린넨장은 upper-hall, 외투장은 entry의 접면으로 두고 수납 이름으로 방의 질문을 없애지 않는다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 ‘상층 복도와 린넨 수납 접면’·‘실내 현관과 외투 수납 접면’ 행과 ‘이 분류로 실제 방의 질문을 줄이지 않는다’를 대조해 얕은 수납의 포함 관계가 소비 방 안에 명시됨을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 구조 벽과 층판은 외곽/공유 기준을 소비하고 문·창 void는 경계 owner, 문짝·창호와 reveal의 일치는 면 owner로 넘겨 방이 별도 좌표를 발명하지 않는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 첫 문단의 ‘구조 벽과 층판은 외곽/공유 기준을 소비’, 실제 void는 경계 owner, 문짝·창호와 reveal 일치는 면 owner라는 분담을 대조해 방 파일이 별도 좌표나 void를 다시 정하지 않음을 확인했다.
 @evidence principles/design/spaces.md#space-verification-address 방별 경계·문·창·storey binding을 05와 대조하고 표의 행 수를 방의 면 개수로 쓰지 않게 한다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 ‘방의 면 개수를 표의 행 수로 대체하지 않는다’와 방별 binding을 05의 방 owner와 대조하라는 문장이 동선 표 교차 대조와 source 이후 census를 이 배정의 반증 검사로 지목함을 확인했다.
 @evidence settings/10-house.md#storage 사람이 들어가는 옷방은 자기 파일·전체 관찰을 가지며 얕은 장은 소비 방에 속한다.
+@evidenceReview settings/10-house.md#storage #cc3fdd3 storage의 ‘사람이 들어가는 수납실은 다른 방과 같은 전체 관찰’을 옷방의 자기 파일·전체 관찰 추가에, ‘붙박이장이라는 이름으로 질문을 없애지 않는다’를 린넨장·외투장 접면 분류에 대조했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work storage의 사람이 들어가는 수납실 조건과 surface-allocation의 "각 방 내부의 완결 면" 배정을 대조했고 옷방·린넨장·외투장을 구별해 성립해 부모 수정이 없었다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 storage의 사람이 들어가는 수납실 조건과 surface-allocation의 방 내부 완결 면 배정을 옷방·린넨장·외투장 세 분류에 대조해 settings 문장을 고치지 않고 방 파일 배정이 닫힘을 확인했다.
 @evidence contracts/surface-ownership.md#whole-surface-owner 각 방의 안쪽 벽·천장·바닥·reveal을 그 방의 한 room 파일에 배정하고 사람이 들어가는 옷방은 자기 파일로, 린넨장·외투장은 소비하는 방의 접면으로 구분한다.
+@evidenceReview contracts/surface-ownership.md#whole-surface-owner #0e24f29 계약의 방별 소유자·파일 선언과 한 표면 비분할을 ‘모든 안쪽 벽·천장·바닥 마감 구역과 개구부 둘레를 한 저작자가 통합’과 방별 room 파일 표에 대조하고 옷방의 별도 파일도 확인했다.
 -->
 
 [표면 분해 인계](../settings/20-verification.md#surface-allocation)가 요구한 각 방 내부의 완결 면에 대해, 아래 owner는 각 방의 모든 안쪽 벽·천장·바닥 마감 구역과 개구부 둘레를 한 저작자가 통합할 책임을 가진다. 구조 벽과 층판은 외곽/공유 기준을 소비하며 외피와 별도 방 좌표를 발명하지 않는다. 문·창의 실제 void는 경계 owner, 문짝·창호 부재와 reveal의 일치 책임은 그 면 owner에게 전달된다. 모든 담당은 같은 단일 저작자다.

@@ -3,14 +3,23 @@
 ## 한 층간 구조와 서로 다른 두 층의 마감 {#interstorey-floor-boundary}
 <!--
 @evidence principles/core/common.md#scope-preservation upper.ts가 한 번 만드는 층간 구조, ground.ts와의 분리, 방별 마감 소유, 두 마감 예약, 같은 L형 구멍, 1층·차고·포치로의 비연장을 맡는다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 upper.ts 단일 구조 바탕, ground.ts의 별도 1층 바탕, 방별 마감 소유, 0.015·0.025 m 예약, 세 층위의 같은 L형 구멍, 차고·포치·테라스 비연장 문단을 대조해 층간 범위에 빈 owner가 없음을 확인했다.
 @evidence principles/core/common.md#substantive-completion 층간 0.31 m 안에 아래 천장 마감 0.015 m, 위 바닥 마감 묶음 0.025 m, 구조 0.270 m를 배정한다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 아래 천장 마감 0.015 m, 위 바닥 마감 묶음 0.025 m, 구조 0.270 m의 합이 01-storeys의 층간 0.31 m 예약과 같고 두 마감의 들어가는 방향이 datum 기준으로 정해짐을 대조해 적층 배분이 완결됨을 확인했다.
 @evidence principles/core/common.md#declared-basis 구조 0.270 m는 층간 높이에서 두 마감 예약을 뺀 값이고 부재 규격·경간·하중·내화·차음을 계산한 결과가 아니라고 밝힌다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 0.270 m를 기존 층간 높이에서 두 마감 예약을 뺀 값으로 적고 부재 규격·경간·하중·내화·차음 계산이 아닌 공간 점유 저작 선택이라 밝힌 문장을 대조해 구조 예약의 근거 종류가 분명함을 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 층간 통행 구멍 요구를 전면 안쪽 외곽에 닿아 닫힌 hole이 아닌 하나의 패인 outer ring으로 만들어 접촉하는 outer/hole ring 거부를 피한다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 settings stair의 통행 개구부 요구에 L형 빈 영역이 전면 안쪽 외곽에 닿아 하나의 패인 outer ring으로 구성된다는 결정이 더해졌고, 그 근거가 두 region API의 접촉 ring 거부임을 대조해 확인했다.
 @evidence principles/design/spaces.md#space-topology 위아래 방 분할이 달라도 층간 구조는 하나이고 L형 구멍은 이 층간 바닥에만 두며 1층 바닥과 최상부 천장에 복제하지 않는다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 방 분할이 달라도 upper.ts 구조 하나로 두고 L형 구멍을 위 바닥·공통 구조·아래 천장에만 전달하며 현관 하부 대기 바닥과 계단실 위 2층 천장을 유지한 문장을 대조해 층 관계가 복원됨을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority upper.ts가 공통 구조, 각 방이 자기 층 마감을 소유하고 욕실 타일·복도 카펫 두께 차이로 실문에 새 단을 만들지 않는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 upper.ts가 공통 구조를, ground-storey 천장은 그 아래 경계를 소비하고 방별 마감은 03-surface-owners에 남기며 욕실 타일·복도 카펫을 같은 datum 묶음에 맞춘 문장을 대조해 층간 값의 이중 저작이 없음을 확인했다.
 @evidence principles/design/spaces.md#space-verification-address 두 층 평면을 같은 좌표로 겹친 결과, 층간 전체 단면, 방 분할이 어긋나는 구간의 상하 마감/몸체 census를 기존 허용 오차로 보게 한다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 두 층 평면 중첩, 층간 전체 단면, 방 분할이 어긋나는 구간의 상하 마감/몸체 census에 00-building 허용 오차를 적용하고 배정표·높이 산술을 측정으로 세지 않는 문단을 대조해 반증 주소를 확인했다.
 @evidence settings/10-house.md#stair 두 층 마감과 공통 구조에 같은 통행 구멍을 전달해 계단 경로를 보존한다.
+@evidenceReview settings/10-house.md#stair #170ce55 settings stair의 2층 구조 바닥·아래층 천장 통행 개구부 요구를 02-stair의 L형 구멍 하나를 위층 마감·공통 구조·아래 천장 마감에 같은 경계로 전달한다는 문장에 대조해 성립함을 확인했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work stair의 "실제 통행 개구부"와 "복층 보이드는 없다"를 층간 구조에 대조했고 L형 구멍 하나만 비우면 되어 부모 수정이 없었다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 stair의 통행 개구부와 복층 보이드 금지를 층판에서 L형 구멍 하나만 비우고 계단실 위 2층 천장을 유지하는 배정에 대조해 부모 수정 없이 성립함을 확인했다.
 -->
 
 [두 storey의 완성면](01-storeys.md#storey-datums) 사이에 있는 층간 바닥은 upper-storey 바닥의 한 구조다. `src/spaces/floors/upper.ts`가 이 공통 구조 바탕을 한 번 생성하고 ground-storey의 천장이 같은 구조의 아래 경계를 소비한다. `src/spaces/floors/ground.ts`는 본채 1층 바닥 바탕을 소유하며 층간 바닥의 두 번째 몸체나 별도 1층 천장판을 생성하지 않는다. 위층의 방 분할과 아래층의 방 분할이 다르다는 이유로 방마다 독립 구조 상자를 포개지 않는다. 이 배정은 [완결 시각 면의 방별 소유](03-surface-owners.md#interior-surface-handoff)를 바꾸지 않는다.
@@ -28,14 +37,23 @@ upper-storey의 실문 아래는 [문턱 중앙면의 마감 인계](07-boundary
 ## 외벽과 계단 가장자리에서 닫히는 층간 단면 {#interstorey-edge-junctions}
 <!--
 @evidence principles/core/common.md#scope-preservation 층간 구조의 외벽 둘레, 실내 칸막이 상하 접촉, 계단 뒤 분리벽과 층판의 겹침, 계단 구멍 수직 단면 마감, 마지막 챌판과 도착 바닥, 기존 차고 구조 owner를 유지하는 차고 쪽 공유 벽 접점을 맡는다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 외벽 둘레, 칸막이 상하 접촉, 계단 뒤 분리벽 겹침, 구멍 수직 단면 마감, 마지막 챌판·복도 도착, 차고 쪽 공유 벽 문단을 대조해 층간 가장자리마다 owner가 있음을 확인했다.
 @evidence principles/core/common.md#substantive-completion 계단 구멍 단면 마감을 최대 0.015 m 두께로 층판 쪽에 들여 원래 통행 구멍의 완성 경계를 좁히지 않게 한다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 계단실 연속 마감을 최대 0.015 m 층판 쪽으로 들이고 구조 바탕이 그만큼 물러나 02-stair 통행 구멍의 완성 경계를 좁히지 않는다는 문장을 대조해 다음 층이 구멍 단면 두께를 정할 일이 없음을 확인했다.
 @evidence principles/core/common.md#declared-basis 외벽 안쪽 면은 00, 칸막이 높이 역할은 07, 계단 경계 높이는 stair-boundary-heights에서 받는다고 밝힌다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 외벽 안쪽 면을 00-building#main-building-extent, 칸막이 높이 역할을 07#interior-boundary-ownership, 분리벽·보호 벽 높이를 02-stair#stair-boundary-heights 링크로 받는지 대조해 가장자리 진술의 근거를 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 표면 분해 조건을 계단실 연속 수직 마감은 stair, 구조 가장자리는 upper, 도착 바닥은 upper-hall로 나누는 소유로 세분한다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 surface-allocation의 계단 구멍·접합 owner 선언을 구멍 단면은 stair.ts 연속 마감·upper.ts 구조 가장자리, 도착 끝은 upper-hall 바닥·stair 챌판으로 나눈 결정이 부모에 없음을 확인했다.
 @evidence principles/design/spaces.md#space-topology 층판을 외장 바깥까지 내밀어 띠를 노출하지 않고 마지막 챌판을 복도 도착 바닥 끝에 접하게 하며 보호 벽/난간을 열린 도착 끝까지 늘리지 않는다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 층판 가장자리를 사이딩·벽돌 사이로 내밀지 않고 마지막 챌판을 upper-hall 도착 바닥 끝에 접하며 보호 벽/난간을 열린 도착 끝까지 늘리지 않는 문장을 대조해 도착과 외피 관계가 메쉬 없이 읽힘을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 계단 뒤 분리벽과 층간 바탕이 겹치는 구역은 upper 층판 owner가 한 번 생성하고 그 벽 몸체에서 뺀다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 02-stair#stair-boundary-heights의 뒤쪽 분리벽이 층간 바탕과 겹치는 몸체를 upper 층판 owner가 한 번 만들고 벽 몸체에서 빼되 높이 역할과 난간은 유지하는 문장을 대조해 이중 저작이 없음을 확인했다.
 @evidence principles/design/spaces.md#space-verification-address 외벽 둘레, 공유 벽 접점, 칸막이 상하, 구멍 꺾임·전면 끝·상부 도착 단면과 계단/복도 양방향 시야에서 노출된 층판 띠·막힌 도착·마감 후 머리 공간을 읽게 한다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 외벽-층간 전체 둘레, 공유 벽 접점, 칸막이 상하, 구멍 꺾임·전면 끝·상부 도착 단면과 계단/복도 양방향 시야를 04-observations에 더하는 문단을 대조해 층판 띠·막힌 도착 주장이 반증 가능함을 확인했다.
 @evidence settings/20-verification.md#surface-allocation 층판과 계단 구멍의 몸체·수직 마감·도착 바닥을 각각 기존 소유에 잇는다.
+@evidenceReview settings/20-verification.md#surface-allocation #aae54d5 surface-allocation의 층판·계단 구멍 owner 요구를 외벽 두께 구역의 입면/공유 벽 owner 유지, 구멍 단면의 stair.ts 단일 마감, 방 마감 owner의 테두리 덧씌움 금지에 대조해 표면 분해가 이어짐을 확인했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work surface-allocation의 "각 층 바닥·천장·계단 구멍과 접합의 owner"를 층간 가장자리에 대조했고 구조·수직 마감·도착 바닥을 기존 owner로 나눌 수 있어 부모 수정이 없었다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 surface-allocation의 층 바닥·천장·계단 구멍·접합 owner 요구를 외벽 둘레·분리벽 겹침·구멍 단면·도착 끝 네 가장자리에 대조해 기존 owner 분할로 부모 수정 없이 성립함을 확인했다.
 -->
 
 [층간 구조](#interstorey-floor-boundary)는 본채 내부에서 [외벽의 동일 안쪽 면](00-building.md#main-building-extent)에 닿는다. 외벽의 두께 구역은 기존 입면/공유 벽 owner가 유지하고, 층판 가장자리를 외장 바깥까지 연장해 사이딩이나 벽돌 사이에 띠를 노출시키지 않는다. 두 층 사이 높이 구간의 외벽도 연속해서 닫는다. 내부 바닥과 천장을 붙였다는 이유로 외벽 그 구간을 비우거나, 반대로 외벽 몸체를 방 안으로 늘려 실내 순폭을 줄이지 않는다. 후속 받침·장선 끝 등 실제 구조 접합은 같은 벽 예약 안에서 기존 벽 owner와 층간 구조 owner가 한 접촉 경계를 공유해야 하며 겹친 고형체를 지지 증거로 쓰지 않는다.

@@ -3,6 +3,7 @@
 ## 독립 공간 결정의 주소 {#spatial-addressability}
 <!--
 @evidence obligations/design/spaces.md#addressable-spatial-decisions 외부 창은 창마다 H2를 가지고, 계단은 예약·connector·구멍·순폭·높이별 경계를, 서비스 통로를 뺀 열네 방은 plan과 사용/경로를, 대지는 포장면마다 H2를 나눈다. 따로 바뀔 수 있는 실내 문과 현관문 개구부는 그 방의 plan H2가, 정원문·차고 전면문은 입면 H2가, 관리문은 관리길 H2가 소유하고 05의 연결 표가 id로 인용하며, 필지·지표·외부 도로는 숨긴 것이 아니라 maps 입력으로 명시했다.
+@evidenceReview obligations/design/spaces.md#addressable-spatial-decisions #9c97153 본문 목록의 창마다 H2, 계단 다섯 H2, 서비스 통로를 뺀 열네 방의 plan·사용/경로 분리, 현관문은 entry plan·정원문과 차고 전면문은 입면·관리문은 관리길 H2 소유를 단독 owner 요구에 대조했다.
 -->
 
 모든 공간 결정이 따로 인용될 수 있는지를 파일군별로 대조했다. 이 account는 H2 경계의 배분만 답한다.
@@ -19,9 +20,13 @@
 ## 기준·외피·동선·검사의 모집단 폐합 {#spatial-population-closure}
 <!--
 @evidence obligations/design/spaces.md#space-reference-topology 공통 좌표 위의 house-site, 본채와 차고 외곽, 두 storey, 방과 외부 구역을 이름으로 두고 05의 표가 모든 공간을 출발-경계-도착과 storey로 잇는다. 각 방 plan H2가 storey와 인접 방을 적어 표와 방 파일을 교차 대조할 수 있다.
+@evidenceReview obligations/design/spaces.md#space-reference-topology #5053f99 공통 좌표 위 `house-site`, 본채·차고 외곽, 두 storey, 방 plan H2, 외부 구역의 이름과 외부 포장부터 상층 옷방까지 출발·경계·도착·storey를 잇는 연결 표를 명명된 좌표·전이 그래프 요구에 대조했다.
 @evidence obligations/design/spaces.md#space-envelope-interface 계단 창을 뺀 외부 창·문 H2는 각각 방 하나에, 계단 창은 main-stair의 층간 공간에 바인딩되고 06이 입면 void와 방 reveal의 소유를 나누며, 외벽 두께·안쪽 한계는 00, 층 높이는 01, 모서리 몸체는 외벽 접합이 한 번 정한다. 차고 공유 벽 뒤의 서비스실처럼 창이 없는 구간도 오른쪽 개구부 H2가 명시한다.
+@evidenceReview obligations/design/spaces.md#space-envelope-interface #4b397de 창·문 H2의 방 하나 바인딩과 계단 창의 main-stair 바인딩, 06의 void/reveal 분담, 외벽 두께는 00·층 높이는 01·모서리 몸체는 07 단독 소유, 서비스실 구간의 오른쪽 개구부 명시를 외부·내부 정합 요구에 대조했다.
 @evidence obligations/design/spaces.md#space-access-circulation 현관·정원문·차고문·관리문의 외부 출입과 방 사이의 모든 실내 문·문 없는 열린 접속이 05의 표에 있고, 주침실을 뺀 열네 방이 사용 조건의 사람·바구니 점유체를 소비하며 머드룸 횡단과 팬트리 사용 통로처럼 기기나 문을 연 작업 상태를 통과 상태와 따로 검사한다.
+@evidenceReview obligations/design/spaces.md#space-access-circulation #76c5e04 현관문·정원문·차고문·관리문 네 외부 출입구와 실내 문·열린 접속의 연결 표 수록, 주침실을 뺀 열네 방의 사람·바구니 점유체 소비, 머드룸 횡단·팬트리 사용 통로의 작업 상태 분리 검사를 대조했다.
 @evidence obligations/design/spaces.md#space-review-set 04가 compiled topology에서 외부·방별 질문을 파생하고 방과 대지 H2 54개가 각자 자기 확인 항목을 더해 unverified로 남기며, 문 조작·열린 기기와 서랍의 사용 상태·포장과 단의 단면이 그 추가 질문에 들어가고 다섯 참조 비교가 그 위에 더해진다. 관찰 수는 상수로 선언하지 않는다.
+@evidenceReview obligations/design/spaces.md#space-review-set #86bcab4 관찰 파생의 compiled topology 질문, 방 38·대지 16의 H2 54개가 더하는 자기 확인 항목, 문 조작·열린 기기와 서랍·포장과 단 단면, 다섯 참조 가산과 관찰 수 비상수를 유한 관찰 선택 요구에 대조했다.
 -->
 
 기준과 topology: 모든 공간은 [공통 좌표](../../settings/00-production.md#coordinate-units) 위의 `house-site` 안에 있다. [본채](../../spaces/00-building.md#main-building-extent)와 [차고](../../spaces/00-building.md#attached-garage-extent) 외곽, [두 storey](../../spaces/01-storeys.md#storey-datums), 각 방의 plan H2, 외부 구역을 이름으로 둔다. [연결 표](../../spaces/05-route-network.md#room-route-network)는 외부 포장부터 상층 옷방까지 출발, 경계/개구부 owner, 도착과 storey를 잇는다. 방 plan H2도 자기 storey와 인접 방을 적으므로 표와 방 파일을 서로 대조할 수 있다.

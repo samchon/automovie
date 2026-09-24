@@ -1,5 +1,6 @@
 <!--
 @evidence discovery/design/designs.md#work-specific-design-requirements 외피·반복 모듈·마감이 같은 완결 면을 다른 기준으로 다시 소유하는 실패를 막기 위해 이 계약의 사전 분해 시한을 유지한다. spaces/03-surface-owners.md의 exterior-surface-handoff와 interior-surface-handoff가 입면·지붕·층·방의 한 저작자와 파일 책임을 배정하고 house-space-surface-ownership claim이 spaces에 적용된다. 아직 소스 파일과 surface census가 없어 예약을 실제 배정 완료로 읽지 않는다.
+@evidenceReview discovery/design/designs.md#work-specific-design-requirements #1c8460c 계약의 ‘부재·반복 모듈·마감은 여러 branch가 관여해도 동일한 저작자 책임’과 외피 단계 이후 분해 금지를 branch 간 공유 조건 요구에 대조하고, lint.config.ts의 house-space-surface-ownership이 이 문서를 spaces에 거는 것을 확인했다.
 @evidence discovery/core/common.md#shared-local-boundary 일반적인 경계 소유만으로는 입면·방·층의 완결 시각 표면을 1단계 폐쇄 전에 파일과 저작자에 배정하는 시한을 보장하지 못한다. 이 주택에서는 외피를 저작한 뒤 분해하는 실패를 막는 whole-surface-owner를 유지한다.
 @evidenceReview discovery/core/common.md#shared-local-boundary #ae499c0 공유 경계 소유와 달리 완결 시각 면을 1단계 전에 저작자·파일에 배정해야 하는 시한이 독립적으로 남는다. 사후 분해 금지는 이 집의 이전 거대 소스 실패에 직접 대응한다.
 @evidence discovery/core/common.md#canonical-realization settings/20-verification.md#surface-allocation은 실제 표면 목록을 spaces의 첫 인계에 두고 부재·모듈·마감이 그 소유를 이어받도록 정한다. house-surface-ownership claim은 이 계약을 settings H2 모집단에 연결하고 실제 표면 배정 완료라는 주장은 아직 하지 않는다.

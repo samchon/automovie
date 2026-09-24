@@ -3,15 +3,25 @@
 ## 차고 문턱으로 오르는 차도 {#driveway-plan}
 <!--
 @evidence principles/core/common.md#scope-preservation 차고 앞 차도의 경계, 경사 상면식, 문턱과의 비중복, 식재 제외 여유, 차량 배제, owner와 관찰을 맡는다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 본문이 뒤·앞·좌·우 경계, D(Z) 경사식, 외벽 두께 안 문턱 비중복, 양옆 0.20 m 식재 제외, 차량 배제, `src/spaces/site/driveway.ts` owner와 관찰 단면을 모두 두는지 대조해 누락이 없음을 확인했다.
 @evidence principles/core/common.md#substantive-completion X 범위를 차고 거친 문 개구부 양쪽에 0.20 m씩 더해 정하고 `D(Z) = (1 - u) × 차고 바닥 Y + u × 앞 보행길 Y`로 상면을 정한다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 거친 문 개구부 양쪽 0.20 m 확장의 X 범위와 `u`, `D(Z) = (1 - u) × 차고 바닥 Y + u × 앞 보행길 Y` 식을 대조해 차도 평면과 상면 높이가 다음 층의 추가 결정 없이 정해짐을 확인했다.
 @evidence principles/core/common.md#declared-basis 두 끝 높이는 ground-threshold-datums의 차고 바닥과 앞 보행길, 끝선은 garage-front-opening과 site-access-interface에서 받는다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb D(Z) 두 끝을 ground-threshold-datums의 차고 완성 바닥·보행길 높이에서, 뒤·앞 끝선을 garage-front-opening 바깥 벽면과 site-access-interface에서 받는 본문 링크를 대조해 근거를 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation "차고 진입 콘크리트 차도"를 측방 경사 없는 선형 보간면과 양옆 연결로 접속으로 만든다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 site-identity의 '차고 진입 콘크리트 차도' 한 구절에 없는 측방 경사 없는 선형 보간면, 좌우 연결로 개방, 거친 문 폭과 순폭 구별을 본문이 더하는지 대조해 부모 반복이 아님을 확인했다.
 @evidence principles/design/spaces.md#space-topology driveway가 뒤쪽 차고문 바깥 벽면, 앞쪽 포장 끝, 왼쪽 현관 연결로, 오른쪽 관리길 연결로에 열리고 그 밖의 가장자리는 지표와 만난다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 driveway가 garage-front-door 바깥 벽면·전면 포장 끝·현관 가로 연결로·관리길 앞 연결로에 열리고 두 연결로 밖 가장자리는 지표와 만나며 별도 도로가 없다는 본문을 대조해 접속 그래프를 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 외벽 두께 안의 문턱 바닥은 차고 바닥 owner가 연장하고 차도는 그 선에서 끝나 바닥이 겹치지 않는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 외벽 두께 안 문턱 바닥을 차고 바닥 owner가 바깥 벽면까지 연장하고 driveway가 그 선에서 끝난다는 본문을 대조해 문턱 바닥과 차도 상면이 한 번씩만 저작됨을 확인했다.
 @evidence principles/design/spaces.md#space-verification-address 차고 문턱, 양옆 문설주, 연결로 접점과 바깥 포트의 종횡 단면으로 경사/폭/연결 높이를 반증한다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 차고 문턱·양옆 문설주·연결로 접점·바깥 포트의 종횡 단면을 전체 관찰에 넣고 경사/폭/연결 높이와 열린 문 기구 간섭을 unverified로 둔 본문을 대조해 D(Z) 주장의 반증 지점을 확인했다.
 @evidence settings/10-house.md#garage 차도를 차고와 함께 완성하되 자동차·주차 표시·가짜 실루엣을 넣지 않는다.
+@evidenceReview settings/10-house.md#garage #f6816c7 garage의 차도 완성 요구와 자동차 금지를 본문의 driveway 상면·가장자리 owner, 문 닫힌 기준 상태, 머드룸 관찰, '차량·주차 표시·가짜 실루엣을 넣지 않는다'에 대조해 조건이 지켜짐을 확인했다.
 @evidence settings/10-house.md#site-identity 차고 진입 콘크리트 차도를 앞 보도 쪽 끝까지 잇는다.
+@evidenceReview settings/10-house.md#site-identity #452f15e site-identity의 차고 진입 콘크리트 차도를 뒤쪽 garage-front-door 바깥 벽면에서 앞쪽 전면 포장 끝까지 이어지는 driveway 범위에 대조해 차도가 앞 보도 쪽 끝선까지 닿음을 확인했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work garage의 차도·차량 금지와 site-identity의 콘크리트 차도를 두 datum 사이 경사에 적용했고 측량/주행성 주장 없이 성립해 부모 수정이 없었다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 garage 차량 금지·site-identity 콘크리트 차도를 D(Z) 경사와 '지리적 측량·배수 성능·차량 주행성 검증값이 아니다'라는 본문에 대조해 기존 두 바닥 사이 연결로 성립하고 부모 수정이 없음을 확인했다.
 -->
 
 `driveway`는 [대지와 식재](../../settings/10-house.md#site-identity)의 차고 진입 콘크리트 차도이며 house-site/ground-storey의 외부 포장 구역이다. 뒤쪽은 [garage-front-door](../envelope/front.md#garage-front-opening)의 바깥 벽면, 앞쪽은 [전면 포장 끝](00-access.md#site-access-interface), 왼쪽은 [현관 가로 연결로](front-walk.md#front-walk-plan), 오른쪽은 [측면 관리길의 앞 연결로](side-walk.md#side-walk-plan)에 열린다. X 범위는 차고의 거친 문 개구부 양쪽에 각각 0.20 m를 더해 정한다. 문과 다른 중심을 따로 저작하지 않는다. 두 연결로 밖의 우측/좌측 가장자리는 지표와 만나는 경계이며 별도 도로로 연결하지 않는다.

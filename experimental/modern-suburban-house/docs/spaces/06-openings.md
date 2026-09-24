@@ -3,15 +3,25 @@
 ## 거친 개구부와 충전 부재의 경계 {#external-opening-interface}
 <!--
 @evidence principles/core/common.md#scope-preservation 외벽 거친 개구부의 좌표 형식과 소유, 벽 절단 인계, trim·창틀 깊이·창대 돌출 예약, 방별 창 작동 종류와 기준 상태, 관찰을 맡는다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 세계 좌표 형식, 네 입면 좌표 owner, 벽 절단 조건, 0.10·0.04·0.14·0.06 m 예약, 방별 창 종류와 닫힌 기준 상태, 04-observations 검사 주소 문단을 대조해 외부 개구부 범위에 빈 owner가 없음을 확인했다.
 @evidence principles/core/common.md#substantive-completion 외부 trim을 거친 개구부 둘레 0.10 m 이내로, 창틀 바깥 면을 날씨 면에서 0.04 m 물린 깊이 0.14 m 안에, 창대·손잡이 안쪽 돌출을 0.06 m 이내로 예약하고 방·창 종류별 작동 방식을 정한다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 trim 0.10 m, 날씨 면에서 0.04 m 물린 0.14 m 창틀 깊이, 0.06 m 안쪽 돌출, 상하 미닫이·고정·상부 경첩 배정을 대조해 다음 층이 창 깊이나 작동 종류를 새로 정할 필요가 없음을 확인했다.
 @evidence principles/core/common.md#declared-basis 방 연결은 05, 지붕 높이는 roof-profile-datums, 벽 두께 방향은 본채/차고 외곽에서 받고 builtBoundaryWallCut·extrudeAutoMovieRegion 적용 조건은 공개 API를 읽고 정한 인계이며 실제 절단 결과가 아니라고 밝힌다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 05 방 연결·roof-profile-datums·00-building 외곽 인용과, builtBoundaryWallCut의 bounding 직사각 반환과 local Z 절반 압출이 공개 API 판독에 따른 unverified 인계라는 문장을 대조해 근거 추적을 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation openings 설정의 두께 있는 frame·sash·유리를 외벽 두께 안의 충전 위치와 상하 미닫이·고정·상부 경첩 작동 종류로 정한다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 settings openings의 두께 있는 frame·sash·유리 요구에 본문이 날씨 면에서 0.04 m 물린 0.14 m 깊이의 충전 위치와 방별 상하 미닫이·고정·상부 경첩 종류를 더했음을 대조해 부모에 없던 결정을 확인했다.
 @evidence principles/design/spaces.md#space-topology 각 입면 void가 방 안쪽 reveal까지 관통하고 문짝 상부 유리를 별도 외벽 구멍으로 세지 않으며 기준 상태에서 외부 문과 모든 창을 닫는다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 입면 void가 외곽 안쪽 면까지 관통하고 문짝 상부 유리를 그 문짝의 충전으로 세며 외부 문과 모든 창이 기준 상태에서 닫힌다는 문장을 대조해 안팎 관계와 개구부 개수가 메쉬 없이 복원됨을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 개구부 좌표는 네 입면 owner, front-door만 entry owner가 소유하고 방은 같은 id의 reveal만 맡으며 openings.ts는 입면 geometry를 가져가지 않는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 전면·후면·왼쪽·오른쪽 입면 H2와 rooms/entry의 front-door만 좌표를 갖고 방은 같은 id의 reveal, openings.ts는 공통 예약만 맡는지 대조해 창 좌표가 두 곳에서 저작되지 않음을 확인했다.
 @evidence principles/design/spaces.md#space-verification-address 방 안쪽 reveal에서 외벽 void를 지나는 단면, 닫힌 충전의 정면/측면, 문 열림과 대기로 거친 폭과 순폭을 구별하게 한다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 안쪽 reveal에서 같은 외벽 void를 지나는 단면, 닫힌 충전 정면/측면, 문 열림과 대기, 거친 폭에서 프레임·문짝·손잡이 점유를 뺀 순폭 판정을 대조해 창·문 주장마다 반증 관찰이 지정됨을 확인했다.
 @evidence settings/10-house.md#openings 사각 구멍으로 창호를 대신하지 않도록 벽·틀·유리·살대의 깊이와 충전을 분리한다.
+@evidenceReview settings/10-house.md#openings #5663f6c settings openings의 두께 있는 frame·sash·유리·살대 요구를 0.14 m 창틀 깊이, 유효 폭과 분할 수에서의 frame/sash/mullion 반복, 유리를 검은 판으로 대신하지 않는 문장에 대조해 사각 구멍 대체가 없음을 확인했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work openings의 "창을 배정한 방과 그 창을 품은 외벽이 같아야 한다"와 "유리는 구멍도 불투명 검은 판도 아니며"를 공통 예약에 대조했고 외벽 두께 안의 충전으로 둘 다 성립해 부모 수정이 없었다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 openings의 방-외벽 일치와 유리 요구를 네 입면 owner 좌표를 방이 같은 id로 소비하는 규칙과 0.14 m 깊이 충전 예약에 대조해 부모 수정 없이 둘 다 성립함을 확인했다.
 @evidence obligations/design/spaces.md#space-envelope-interface 입면 owner가 거친 개구부 좌표를, 방 owner가 같은 id의 안쪽 reveal을 소유하게 하고 창틀을 날씨 면에서 0.04 m 물린 깊이 0.14 m 안에 두어 안팎이 같은 void를 쓰게 한다.
+@evidenceReview obligations/design/spaces.md#space-envelope-interface #4b397de 각 입면 H2의 세계 좌표 void가 본채/차고 외곽 안쪽 면부터 바깥 면까지 관통하고 방 owner가 같은 id의 reveal만 소비하는지 대조해 실내외가 한 개구부를 다르게 기술할 여지가 없음을 확인했다.
 -->
 
 외부 개구부는 [방 연결](05-route-network.md#room-route-network)과 [지붕 높이](roof/00-junctions.md#roof-profile-datums)를 소비한다. 각 입면의 개구부 H2는 실제 외벽에 만들 거친 직사각 개구부의 세계 좌표 입력이다. X 또는 Z 구간이 수평 폭이고 Y 구간이 바닥 기준이 아닌 세계 높이다. 벽 두께 방향은 [본채](00-building.md#main-building-extent)/[차고](00-building.md#attached-garage-extent) 외곽의 안쪽 면부터 바깥 면까지 관통한다. 여기서 예정한 id·위치·개수는 compiled 산출물이 아니다.

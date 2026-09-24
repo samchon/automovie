@@ -44,7 +44,7 @@ export const productionEvidence = {
 
 productionEvidence.kind = "library";
 productionEvidence.settings = "review";
-productionEvidence.spaces = "evidence";
+productionEvidence.spaces = "review";
 productionEvidence.claims = [
   createAutoMovieProductionObligationClaim({
     name: "house-observation-denominator",

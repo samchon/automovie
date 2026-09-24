@@ -3,22 +3,39 @@
 ## 공간 산출물에서 파생할 검사 {#spatial-observation-derivation}
 <!--
 @evidence principles/core/common.md#scope-preservation 외부 setting·노출 입면과 모서리·지붕과 하부·개구부, 방마다 threshold·네 안쪽 모서리·중심 네 방향, 비직사각의 추가 질문, 01–05 추가 질문과 07·08·09·10·방별 사용·대지·울타리의 추가 단면을 한 파생 규칙에 모은다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 첫 문단의 외부 setting·노출 입면과 모서리·지붕 하부·개구부와 방별 threshold·네 안쪽 모서리·중심 네 방향, 이후 07–10·방 사용·대지·울타리 문단의 추가 단면이 각각 owner 링크를 가져 빠진 관찰이 없음을 확인했다.
 @evidence principles/core/common.md#substantive-completion 고정 view 수를 선언하지 않고 실제 공간·boundary·opening·roof 레코드를 만든 뒤 같은 산출물에서 질문과 자기 공간 내부 pose를 파생한다는 규칙을 정한다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 ‘현재의 외곽·층 예약으로 고정 view 수를 선언하지 않는다’와 레코드를 만든 뒤 같은 산출물에서 질문·pose를 파생한다는 순서가 정해져, source가 관찰 대상을 새로 고를 결정이 남지 않음을 확인했다.
 @evidence principles/core/common.md#declared-basis 분모는 compiled-denominator 계약, pose의 눈높이·시야각·near는 frame-condition에서 받고 뷰어의 렌더링·실행·포트 조건은 settings가 소유해 이 H2가 정하지 않는다고 근거를 나눈다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 분모는 전체 관찰 분모 링크, 계측 부재의 unverified는 측정과 프레임의 책임 링크, pose의 눈높이·시야각·near는 마지막 문단의 프레임 조건 링크로 거슬러 올라가 근거 없는 진술이 없음을 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation settings의 관찰 배분을 이 집의 계단 높이별 경계, 층간 바닥 가장자리, 천장/지붕 여유, 벽 상단 접촉, 지상층 바탕, 방별 사용 상태, 대지·울타리 접합의 구체 관찰 목록으로 만든다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모 observation-allocation에 없는 아래 flight 열린 난간·상층 침실 닫힌 벽·복도 추락 가장자리 대조, 수건걸이의 문 구멍 간섭, 문 아래 바닥 구멍 같은 이 집 고유 검사를 이 H2가 더함을 확인했다.
 @evidence principles/design/spaces.md#space-topology 모든 방이 storey·실제 경계·출입 개구부·복도 또는 계단 경로를 갖고 현관에서 목적지와 돌아오는 길을 모두 검사하도록 한다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 둘째 문단의 ‘모든 방은 storey, 실제 경계, 출입 개구부, 복도 또는 계단 경로를 가지며’와 현관 왕복 검사를 포함·연결·접근 관계 요구와 대조해 관찰이 장소 그래프를 따라 파생됨을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 07·08·09·10·방·대지 owner H2를 링크해 그 경계에서 추가 관찰을 파생하고 구조 바탕과 시각 면의 소유를 구별하며 설계의 owner 표를 실제 boundary/surface census로 대신하지 않는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 07 공유 경계·08 층간 바닥·09 천장·10 지상층 바탕·방·대지 문단이 각 owner H2를 링크해 추가 관찰만 파생하고, ‘owner 표를 실제 boundary/surface census로 대신하지 않는다’를 둠을 확인했다.
 @evidence principles/design/spaces.md#space-verification-address 두 storey 평면, 계단·머드룸 문턱·포치 단면, 네 방향 입면과 지붕 합류 경계를 수치 검사로 두고 사람·바구니를 줄여 통과를 얻지 않는다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 둘째 문단의 두 storey 평면·계단/머드룸 문턱/포치 단면·네 방향 입면과 지붕 합류 경계, 그리고 owner 문단마다 ‘찾는다’로 적은 결함 목록이 이 H2 주장을 떨어뜨릴 관찰 주소임을 확인했다.
 @evidence contracts/observation-denominator.md#compiled-denominator 외부와 방별 고정 질문을 실제 공간 산출물에서 파생하고 비직사각의 가려진 부분에 질문을 더하며 01–05 질문을 분모에 추가해 대표 view로 줄이지 않는다.
+@evidenceReview contracts/observation-denominator.md#compiled-denominator #b98432e 계약의 외부 setting·노출 입면·모서리·지붕과 하부·개구부/출입구와 방별 threshold·네 안쪽 모서리·중심 네 방위를 첫 문단 목록과 항목별로 대조하고 비직사각 추가와 01–05 가산도 같은 문단에 있음을 확인했다.
 @evidence settings/20-verification.md#observation-allocation spaces가 storey·방·노출 경계·지붕·개구부의 정체성과 연결을 만들고 matching source가 그 산출물에서 질문·pose를 파생한다는 배분을 공간 쪽에서 실현한다.
+@evidenceReview settings/20-verification.md#observation-allocation #3cb63b1 배분의 ‘spaces가 정체성과 연결을, source가 컴파일 산출물에서 질문·pose를 파생’을 첫 문단의 레코드 생성 뒤 동일 산출물 파생 순서와 대조하고 관찰 수를 상수로 두지 않음도 확인했다.
 @evidence settings/20-verification.md#data-authority 선언된 room binding만으로 지지나 통행을 합격 처리하지 않고 고정 view 수를 미리 선언하지 않으며 문·가구·기기 점유 뒤의 순폭을 최종 산출물에서 다시 읽게 한다.
+@evidenceReview settings/20-verification.md#data-authority #5645d45 넷째 문단의 ‘선언된 room binding만으로 지지나 통행을 합격 처리하지 않는다’와 둘째 문단의 점유 뒤 순폭 재판독·경로 검사 unverified를 data-authority의 산출물 판독·계측 부재 규칙과 대조했다.
 @evidence settings/20-verification.md#frame-condition 방마다 파생하는 threshold·모서리·중심 pose의 카메라 조건을 프레임 조건에서 받고 경계 때문에 시점을 안쪽으로 옮긴 근거를 pose와 함께 기록하게 한다.
+@evidenceReview settings/20-verification.md#frame-condition #779c269 마지막 문단이 눈높이·시야각·near를 프레임 조건에서 소비하고 시점을 안쪽으로 옮긴 근거를 pose와 함께 기록하게 해, frame-condition의 1.6 m·60°·near 0.05 m 초기 선택을 다시 정하지 않음을 확인했다.
 @evidence settings/00-production.md#accessibility 방·경계·대지별 관찰 질문과 자기 공간 내부 pose의 파생 규칙을 글로 남기고 뷰어의 렌더링·실행·포트 조건은 이 공간 문서에서 정하지 않는다.
+@evidenceReview settings/00-production.md#accessibility #891d1b6 accessibility의 ‘공간 구조 설명 문서는 필수’와 source/viewer의 관찰 선택 구현을, 방·경계·대지별 질문을 한국어 문장으로 적고 뷰어의 렌더링·실행·포트 조건을 정하지 않는 마지막 문단과 대조했다.
 @evidence settings/00-production.md#use-profile 현관에서 목적지까지 왕복하는 경로 검사에서 use-profile의 사람·바구니 크기를 줄여 통과를 얻지 않고 문·가구·기기 점유 뒤 순폭을 최종 산출물에서 다시 읽는다.
+@evidenceReview settings/00-production.md#use-profile #6ef5afe use-profile의 사람 점유체·바구니 폭 0.75 m 비축소와 가구 문·서랍·세탁기 작동 범위 추가 검사를, 둘째 문단의 현관 왕복 검사와 세탁·팬트리 문단의 열린 기기 작업 상태 구별에 대조했다.
 @evidence obligations/design/spaces.md#space-review-set 평면·단면·입면·지붕 합류와 방별 내부 시점, 계단·문턱·포장·울타리 접합 단면을 compiled topology에서 파생하는 유한 관찰 집합으로 선택한다.
+@evidenceReview obligations/design/spaces.md#space-review-set #86bcab4 두 storey 평면, 계단·문턱·포치·포장·울타리 단면, 네 방향 입면, 자기 실 내부 시점이 모두 compiled topology에서 파생되는 관찰로 정해져 review-set의 평면·단면·입면·투시 네 종류를 덮음을 확인했다.
 @evidenceExclude settings/20-verification.md#viewer-handoff spaces 47개 문서 어디에도 뷰어의 시작 명령·실행 디렉터리·포트·경로를 정하거나 소비하는 공간 결정이 없다. 이 H2가 넘기는 것은 관찰 질문과 자기 공간 내부 pose의 파생 규칙이며 포트와 기동 조건은 settings의 viewer-handoff가 소유한다.
+@evidenceExcludeReview settings/20-verification.md#viewer-handoff #7601a9c viewer-handoff의 시작 명령·실행 디렉터리·포트 4173·`--port`·tsx 실행기를 이 H2 본문과 대조해, 마지막 문단이 뷰어의 실행·포트 조건을 settings에 남길 뿐 어떤 값도 쓰지 않음을 확인했다.
 @evidenceExclude settings/20-verification.md#validation-boundary spaces 47개 문서 어디에도 lint나 검증 명령을 입력으로 쓰는 공간 결정이 없다. 이 H2의 unverified 표기는 data-authority의 계측 부재 규칙을 따르며 npm run lint 실행은 저작 turn의 검증 절차이지 경계·경로·관찰의 입력이 아니다.
+@evidenceExcludeReview settings/20-verification.md#validation-boundary #a610afe validation-boundary의 npm run lint·대체 명령 금지·종료 코드 보고를 이 H2와 대조해, 본문의 unverified 표기가 data-authority 링크에서 오고 검증 명령을 관찰 파생의 입력으로 쓰지 않음을 확인했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work observation-allocation의 공간-소스 배분, data-authority의 산출물 판독, frame-condition의 초기 pose 조건을 공간 관찰 파생에 적용했고 settings가 관찰 수를 상수로 정하지 않아 파생 규칙과 충돌하지 않아 부모 수정이 없었다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 관찰 배분의 ‘관찰 수를 상수로 정하지 않는다’, data-authority의 산출물 판독, frame-condition의 초기 pose를 이 H2의 파생 규칙에 적용해 settings를 고치지 않고 방별 질문과 pose 기록이 성립함을 확인했다.
 -->
 
 [관찰 배분](../settings/20-verification.md#observation-allocation)을 받아 [전체 관찰 분모](../contracts/observation-denominator.md#compiled-denominator)를 이 spaces 층에 그대로 적용한다. 현재의 외곽·층 예약으로 고정 view 수를 선언하지 않는다. 실제 공간·boundary·opening·roof 레코드를 만든 뒤 동일 산출물에서 외부 setting, 모든 노출 입면과 만나는 모서리, 지붕과 하부, 모든 개구부·출입구의 질문을 파생한다. 방마다 threshold 하나, 안쪽 모서리 네 곳, 중심의 네 방향을 자기 공간 내부 pose로 생성하고 비직사각형의 가려진 부분은 질문을 더한다. 01–05의 참조 질문은 이 분모에 추가한다.
@@ -64,25 +81,45 @@
 ## 다섯 참조에 더하는 공간 비교 {#reference-spatial-comparisons}
 <!--
 @evidence principles/core/common.md#scope-preservation 다섯 참조 각각의 공간 배정과 반증 비교, maps 입력과 지지 하단의 미완료, branch 몫, 1단계 완료 비선언, 그래프 충돌의 조정자 상향을 맡는다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 표의 01–05 다섯 행이 공간 배정과 반증 비교를 각각 갖고, 뒤 두 문단이 map 인계·건물 지지 하단·포장 접지 미완료, branch 몫, 1단계 완료 비선언, 조정자 상향을 맡아 빠진 참조 몫이 없음을 확인했다.
 @evidence principles/core/common.md#substantive-completion 01은 온전한 외피의 전면과 두 앞 모서리, 02는 검사 모드의 두 storey 절개, 03은 kitchen-dining-family 내부, 04는 현관 분배 바닥 내부, 05는 상부 도착과 복도에서 파생한다는 배정 표를 정한다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 표가 01 전면과 두 앞 모서리, 02 검사 모드 두 storey 절개, 03 kitchen-dining-family 내부, 04 현관 분배 바닥 내부, 05 상부 도착과 복도로 시점 공간을 정해 source가 참조별 위치를 새로 고를 필요가 없음을 확인했다.
 @evidence principles/core/common.md#declared-basis 참조의 권위는 reference-authority, 프레임은 frame-condition에서 받고 이 배정이 설계 문서 사이의 인계라고 밝힌다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 첫 문단이 레퍼런스 권위와 프레임 조건을 링크하고 ‘현재는 설계 문서 사이의 인계’라고 밝히며, 표의 각 배정 칸이 00·01·02·05·07·envelope·rooms·site owner 링크로 근거를 가리킴을 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 다섯 입력 이미지를 이 집의 외곽·지붕군·포치·방·계단·복도 owner와 각 참조에서 반증할 비교 항목으로 연결한다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 reference-authority가 다섯 이미지의 순서와 역할만 정한 데 비해 이 H2는 01에 외곽·지붕군·포치·굴뚝, 04에 현관·거실·아래 flight, 05에 상부 도착·린넨장을 묶고 반증 비교 열을 더함을 대조했다.
 @evidence principles/design/spaces.md#space-topology 각 참조의 시점을 해당 공간 내부에서 파생하고 참조의 카메라를 흉내 내려고 방 밖으로 물러나거나 벽을 지우지 않는다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 ‘자기 공간 포함을 확인’과 ‘방 밖으로 물러나거나 벽을 지우지 않는다’, 03 행의 계단 뒤 분리벽 유지와 04 행의 투명 벽 보충 금지를 대조해 참조 시점이 방 포함 관계 안에 묶임을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 실제 카메라 위치·방향·관찰 id는 같은 revision의 compiled 경계와 frame-condition에서 정하고 이 배정은 exterior-surface-handoff의 표면 소유와 방별 owner를 그대로 소비하며 maps 입력을 spaces의 포장 치수로 대체하지 않는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 ‘전체 표면 소유와 방별 owner를 그대로 소비’와 map 인계를 ‘spaces의 포장 치수로 대체하지 않는다’는 문단을 대조해 이 H2가 표면·필지 값을 다시 정하지 않고 owner 링크로만 소비함을 확인했다.
 @evidence principles/design/spaces.md#space-verification-address 끊긴 방, 문 뒤의 막힌 벽, 두 번째 층간 연결, 추가 보이드, 머드룸을 거치지 않는 차고 연결, 가려진 계단 출발을 반증 비교로 둔다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 02 행의 끊긴 방·문 뒤 막힌 벽·두 번째 층간 연결·추가 보이드·머드룸 우회 차고 연결과 04 행의 가려진 계단 출발이 각 배정을 떨어뜨릴 관찰로 반증 열에 적혀 있음을 확인했다.
 @evidence settings/20-verification.md#reference-authority 01–05를 외관·절개 조감·후면 공용부·현관/거실/계단·상층 사적 구역 순서로 배정하고 02의 차량을 채우지 않는다.
+@evidenceReview settings/20-verification.md#reference-authority #bb93e67 reference-authority의 01 외관·02 절개 조감·03 후면 공용부·04 현관·거실·계단·05 상층 사적 구역 순서를 표의 참조 열과 대조하고 02 행이 참조의 차량을 채우지 않음을 확인했다.
 @evidence settings/20-verification.md#frame-condition 실제 카메라 위치·방향을 frame-condition과 compiled 경계에서 정하고 02의 평면·절개를 검사 모드에서만 보아 절개에서 잘 보이는 배치가 온전한 외피의 내부 관찰을 지불하지 않게 한다.
+@evidenceReview settings/20-verification.md#frame-condition #779c269 frame-condition의 ‘02는 절개 검사로만 비교’를 02 행의 ‘검사 모드에서만 본다’·‘온전한 외피의 내부 관찰을 지불하지 않는다’와 대조하고 카메라 위치·방향을 프레임 조건과 compiled 경계에 맡김을 확인했다.
 @evidence settings/20-verification.md#lifecycle-boundary 모든 공간의 storey 귀속·도달과 소유된 표면 산출물 없이 1단계 완료를 선언하지 않는다.
+@evidenceReview settings/20-verification.md#lifecycle-boundary #fb801c4 lifecycle-boundary의 1단계 폐쇄 조건인 모든 공간의 storey 소속과 문·계단·복도 도달을, 마지막 문단의 ‘소유된 표면 산출물 없이 1단계 완료를 선언하지 않는다’와 대조했다.
 @evidence settings/20-verification.md#completion-boundary 관찰자 목록을 미수령으로 기록하고 다섯 비교를 unverified로 둔다.
+@evidenceReview settings/20-verification.md#completion-boundary #f549ddc completion-boundary의 관찰자 목록 미수령 기록 규칙을 마지막 문단의 ‘다섯 비교 모두 … unverified이며 관찰자 목록도 미수령’과 대조해 spaces 문서 검토를 1단계 폐쇄와 구별함을 확인했다.
 @evidence settings/20-verification.md#role-boundary 공간 그래프를 바꾸어야만 해소되는 참조 충돌의 결정을 조정자에게 올린다.
+@evidenceReview settings/20-verification.md#role-boundary #5d14dd0 role-boundary의 ‘그래프 변경이 필요한 충돌 결정은 조정자’를, 공간 그래프를 바꾸어야만 풀리는 참조 충돌을 조정자에게 올린다는 마지막 문장과 대조해 배정 표가 그 결정을 하지 않음을 확인했다.
 @evidence settings/20-verification.md#fidelity 공간 설계 문서를 읽은 결과를 부재나 빛의 관찰 결과로 옮기지 않아 topology 검토만으로 시각 요구를 낮추지 않는다.
+@evidenceReview settings/20-verification.md#fidelity #079fa0b fidelity의 ‘topology PASS만으로 요구를 낮추지 않는다’를 ‘공간 설계 문서를 읽은 결과를 그 부재나 빛의 관찰 결과로 옮기지 않는다’와 01 행의 지표·식재 부재 시 남는 질문에 대조했다.
 @evidence settings/00-production.md#governing-aim 고정 공간 그래프를 먼저 보존하고 그래프 변경이 필요한 참조 세부는 임의 선택하지 않는다.
+@evidenceReview settings/00-production.md#governing-aim #b17eff5 governing-aim의 고정 공간 그래프 우선과 그래프 변경 세부의 조정자 판단을, 03 행이 계단 뒤 분리벽을 사진처럼 보이게 제거하지 않는다는 비교와 마지막 문단의 지배 목표 링크에 대조했다.
 @evidence settings/00-production.md#operator-access 02의 평면과 절개를 검사 모드에서만 보게 한다.
+@evidenceReview settings/00-production.md#operator-access #bebfca7 operator-access의 절개는 검사 모드에만 속하고 외피가 온전한 상태로 먼저 본다는 조건을 02 행의 ‘평면과 절개를 검사 모드에서만 본다’와 01 행의 ‘온전한 외피’ 배정에 대조했다.
 @evidence settings/00-production.md#build-allocation 부재 원형·마감·반복·조명을 해당 branch가 실현할 일로 남긴다.
+@evidenceReview settings/00-production.md#build-allocation #b85e84f build-allocation의 models·materials·instances·systems 소유를 ‘부재 원형·마감·반복·조명은 제작 배분의 해당 branch가 실현할 일’과 대조해 이 배정 표가 그 몫을 공간 결정으로 가져오지 않음을 확인했다.
 @evidence contracts/observation-denominator.md#dual-completion 집의 GPU 프레임·RENDERER·compiled topology가 없고 관찰자 목록도 미수령이라 다섯 비교를 완료로 바꾸지 않는다.
+@evidenceReview contracts/observation-denominator.md#dual-completion #fde3ae6 계약의 두 목록 동시 해소와 독립 시각 판정을 마지막 문단의 GPU 프레임·RENDERER·compiled topology/surface census 부재, 관찰자 목록 미수령, 다섯 비교 unverified와 대조해 완료로 바꾸지 않음을 확인했다.
 @evidence obligations/design/spaces.md#space-review-set 다섯 참조의 공간 비교를 산출물 전체 관찰에 더하는 추가 관찰로 선택한다.
+@evidenceReview obligations/design/spaces.md#space-review-set #86bcab4 첫 문단의 ‘산출물 전체 관찰에 추가할 질문이며 대표 view로 그 분모를 대체하지 않는다’와 표의 반증 비교 열을 대조해 다섯 비교가 유한 관찰 집합에 더해지는 관찰로 선택됨을 확인했다.
 @evidenceExclude settings/00-production.md#working-language 이 H2의 참조 배정·반증 비교·1단계 완료 경계는 작업 언어에 근거하거나 그것을 바꾸지 않는다. 한국어 서술과 원형 id·경로 표기는 이 배정의 입력이 아니다.
+@evidenceExcludeReview settings/00-production.md#working-language #aa7e8c7 working-language의 한국어 기본과 API·경로 원형 보존을 이 H2와 대조해 표의 참조 배정·반증 비교·1단계 완료 경계가 언어 선택에 기대거나 그것을 바꾸는 결정이 없음을 확인했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work reference-authority의 다섯 입력 순서·차량 종속·한 집 canon 통일과 governing-aim의 그래프 우선을 공간 배정에 적용했고 그래프 변경이 필요한 참조 충돌은 발견되지 않아 부모 수정이 없었다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 reference-authority의 다섯 입력 순서·02 차량의 garage 종속·한 집 canon과 governing-aim의 그래프 우선을 표에 적용해, 계단 뒤 분리벽 등 현 경계로 다섯 비교가 서서 부모 수정이 필요 없음을 확인했다.
 -->
 
 [레퍼런스 권위](../settings/20-verification.md#reference-authority)를 현재 공간 owner에 연결한다. 아래 비교는 [산출물 전체 관찰](#spatial-observation-derivation)에 추가할 질문이며 대표 view로 그 분모를 대체하지 않는다. 현재는 설계 문서 사이의 인계다. 실제 카메라 위치·방향·관찰 id는 같은 revision의 compiled 경계와 [프레임 조건](../settings/20-verification.md#frame-condition)에서 정하고 자기 공간 포함을 확인해야 한다. 참조의 카메라를 흉내 내려고 방 밖으로 물러나거나 벽을 지우지 않는다.
@@ -102,17 +139,29 @@
 ## 공간 산출물에서 실제 렌더로 넘기는 경계 {#engine-render-handoff}
 <!--
 @evidence principles/core/common.md#scope-preservation model을 가진 element만 내리는 lowerBuiltEnvironment 경계에서 공간 면의 element 인계, 비직사각 공간 표현, standable surface와 보이는 바닥의 구별, 관찰 helper의 null 처리, 계단 connector 검증 한계를 맡는다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 네 문단이 lowerBuiltEnvironment의 model element 인계, 볼록 cell 합집합/닫힌 shell, standable surface와 보이는 바닥, 두 helper의 null, 계단 connector·landing 검증 한계를 하나씩 맡아 인계 몫에 빈 곳이 없음을 확인했다.
 @evidence principles/core/common.md#substantive-completion 논리 room·boundary·opening 선언만으로는 보이는 벽·바닥·창호가 생기지 않으므로 03의 같은 source owner가 같은 저작 입력에서 model을 가진 element로 면을 만들고 비직사각 공간은 볼록 cell 합집합 또는 닫힌 shell로 표현한다는 인계를 정한다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 첫 문단이 ‘논리적인 room·boundary·opening 선언만으로는 보이는 벽·바닥·창호가 생기지 않는다’에서 03 배정의 같은 source owner가 model element를 만든다는 결정까지 이어 표현 방식이 남지 않음을 확인했다.
 @evidence principles/core/common.md#declared-basis lowerBuiltEnvironment와 두 helper, landing 검증의 동작은 설치된 공개 엔진 소스를 읽은 조건이며 환경 입력·호출·렌더 결과는 없다고 구분한다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 첫 문단의 ‘공개 엔진 소스를 읽은 조건이며 환경 입력·호출·렌더 결과는 없다’가 lowerBuiltEnvironment·두 helper·landing 검증 서술의 근거를 밝히고 실제 호출은 unverified로 둠을 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 실제 3D 렌더 요구를 공간 쪽에서 받아 공간 면은 surface owner별 model element로, 걷는 면은 검사용 standable surface로 나누는 인계를 정해 공간 선언만으로 보이는 집이 생긴 것처럼 읽히지 않게 한다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 renderer-boundary가 실제 3D viewer만 요구한 데 비해 이 H2는 공간 면을 surface owner별 model element로, 걷는 면을 검사용 standable surface로 나누는 공간 쪽 결정을 더함을 대조했다.
 @evidence principles/design/spaces.md#space-topology 계단의 세 stop과 landing의 실제 참 포함을 connector id 유효성과 구별하고 L형 계단실·복도의 안쪽 꺾임 관찰을 같은 compiled 경계에서 추가한다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 마지막 문단의 단일 connector 세 stop·참 route 위치와 실제 참 면 대조, ‘유효 id만으로 통과시키지 않는다’, 셋째 문단의 L형 계단실·복도 안쪽 꺾임 추가를 포함·연결 관계 요구와 대조했다.
 @evidence principles/design/spaces.md#space-boundary-authority 보이는 바닥은 08·10과 방·포장 owner의 element가 만들고 standable surface가 그 면을 대신하지 않으며 비직사각 공간의 전체 bbox를 방 부피로 바꾸지 않는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 둘째 문단이 보이는 바닥을 지상층 바탕·층간 바닥·방과 포장 owner element에 맡기고 standable surface로 그 부재를 생략하지 않으며, 첫 문단이 전체 bbox를 방 부피로 쓰지 않음을 단일 owner 요구에 대조했다.
 @evidence principles/design/spaces.md#space-verification-address null이나 같은 장소로 모인 시점을 성공한 관찰로 세지 않고 각 pose의 자기 공간 내부 위치를 확인하도록 한다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 셋째 문단의 ‘null이나 같은 장소로 모인 시점을 성공한 관찰로 세지 않는다’, pose별 자기 공간 내부 확인, 기본 네 코너가 오목 코너를 답했다고 주장하지 않는 문장을 반증 주소로 대조했다.
 @evidence settings/20-verification.md#renderer-boundary lowerBuiltEnvironment가 model을 가진 element만 내리므로 standable surface 검사 바닥을 실제 3D 렌더의 보이는 층판이나 대지로 세지 않고 08·10·방·포장 owner의 바닥 부재를 생략하지 못하게 한다.
+@evidenceReview settings/20-verification.md#renderer-boundary #f696ea6 renderer-boundary의 원근·WebGL 깊이·재질 실제 3D 경로를 둘째 문단의 ‘실제 3D 렌더에서 보이는 층판이나 대지가 아니다’와 대조해 08·10·방·포장 바닥 부재가 생략되지 않음을 확인했다.
 @evidence settings/20-verification.md#data-authority helper 결과의 개수·좌표를 미리 선언하지 않고 실제 호출·전수 관찰을 unverified로 둔다.
+@evidenceReview settings/20-verification.md#data-authority #5645d45 data-authority의 수·위치를 컴파일 산출물에서 읽는 규칙을, helper 결과의 개수·좌표를 미리 선언하지 않는 셋째 문단과 실제 호출·전수 관찰·다섯 참조 대조의 unverified 표기에 대조했다.
 @evidenceExclude settings/20-verification.md#submission-boundary spaces H2 가운데 커밋·푸시 절차를 입력으로 쓰는 공간 결정은 없다. 이 H2의 렌더 인계도 공간 면의 element 표현을 다루며 Git 제출은 저작 turn의 작업 절차다.
+@evidenceExcludeReview settings/20-verification.md#submission-boundary #647adf0 submission-boundary의 git add·commit·push 순서와 금지 조작을 이 H2와 대조해 model element·standable surface·helper·landing 인계 어디에도 Git 제출을 입력으로 쓰는 공간 결정이 없음을 확인했다.
 @evidenceExclude settings/20-verification.md#execution-boundary spaces 47개 문서는 CommonJS 엔진 경계·서버 구조·실행기를 정하거나 소비하는 공간 결정을 두지 않는다. 이 H2가 기록하는 공개 엔진 동작은 공간 면·standable surface·관찰 helper·landing의 인계 조건이며 서버 구조나 모듈 방식을 정하지 않는다.
+@evidenceExcludeReview settings/20-verification.md#execution-boundary #3a96d35 execution-boundary의 CommonJS 유지·서버 측 CJS 해석·JSON 상태 파일 금지를 이 H2의 공개 엔진 동작 서술과 대조해 모듈 방식이나 서버 구조를 정하는 문장이 없음을 확인했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work renderer-boundary의 실제 3D 요구를 공개 엔진의 element 경계에 대조했고 각 완결 면을 exterior-surface-handoff와 interior-surface-handoff가 배정한 같은 source owner가 model을 가진 element로 만들면 되어 부모 수정이 없었다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 renderer-boundary의 실제 3D 요구를 lowerBuiltEnvironment의 model element 경계에 대조해, 03 두 배정의 같은 source owner가 면을 만들면 충족되어 settings 수정 없이 인계가 성립함을 확인했다.
 -->
 
 설치된 공개 엔진의 `lowerBuiltEnvironment`는 환경을 검증하고 실제 model을 가진 element만 세계 변환의 set으로 내리며 원래 built environment도 보존한다. 논리적인 room·boundary·opening 선언만으로는 보이는 벽·바닥·창호가 생기지 않는다. 따라서 이 공간 문서들이 정한 각 완결 면은 [입면·지붕·층 표면](03-surface-owners.md#exterior-surface-handoff)과 [방 내부 면](03-surface-owners.md#interior-surface-handoff) 배정의 같은 source owner가 같은 저작 입력에서 model을 가진 element로 만들어야 하며 별도 좌표로 복제한 집을 두지 않는다. 비직사각 공간은 `IAutoMovieBuiltSpace`의 볼록 cell 합집합 또는 닫힌 shell 중 한 표현을 사용하며 그 전체 bbox를 방의 부피로 바꾸지 않는다. 현재는 공개 엔진 소스를 읽은 조건이며 환경 입력·호출·렌더 결과는 없다.
