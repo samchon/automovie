@@ -3,7 +3,7 @@
 ## 주방 하부장 띠 {#kitchen-base-run}
 <!--
 @evidence principles/core/common.md#scope-preservation 이 H2가 L형 하부장 띠의 세 길이 3.35·0.30·1.30 m, 걸레받이·몸통·전면·손잡이·상판 부품, 재질 경계 여섯, 블로킹 한계와 관찰을 한곳에서 정하고 타일 backsplash는 벽 마감으로 이 원형 밖에 둔다.
-@evidence principles/core/common.md#substantive-completion 깊이 0.65 m, 상판 상면 0.91 m, 몸통 Y = [0.10, 0.88]·깊이 0.60 m, 손잡이 앞 끝 Z = 0.64 m, 상판 아래 0.15 m 서랍 띠와 0.60 m 안팎 균등 칸까지 수치로 확정해 구현자가 새로 정할 치수를 남기지 않는다.
+@evidence principles/core/common.md#substantive-completion 깊이 0.65 m, 상판 상면 0.91 m, 몸통 Y = [0.10, 0.88]·깊이 0.60 m, 손잡이 앞 끝 Z = 0.64 m, 상판 아래 0.15 m 서랍 띠와 round(L/0.60 m) 칸 수를 정한다. 각 손잡이의 세부 단면은 공통 가구 부재 규칙을 따른다.
 @evidence principles/core/common.md#declared-basis 깊이 0.65 m와 상판 0.91 m는 공용부 벽 주방 예약에서 그대로 받은 값이고, 서랍 띠·돌출 손잡이는 주방 설비 설정의 구별 요구가 근거이며, 칸 폭은 이 층의 결정이라고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 예약이 준 L형 두 띠 외곽 위에 교차 코너를 뒤쪽 띠 하나가 소유하는 세 조각 분할, 전면에서 0.07 m 들어간 걸레받이, 서랍 띠와 문 칸의 전면 분할이라는 구성 결정을 더한다.
 @evidence principles/design/models.md#representation-contract 걸레받이·몸통·문과 서랍 전면·손잡이·상판의 부품과 `plinth`·`carcass`·`leaf`·`drawer-front`·`handle`·`countertop` 재질 경계를 고정하고, 경첩·서랍 레일·수전 배관·걸레받이 발 조절을 표현하지 않는 블로킹 한계를 적는다.
@@ -228,7 +228,7 @@
 @evidence principles/design/models.md#spatial-convention 뒤쪽 모서리 선을 뒤 다리의 뒤쪽 변, +Z를 식탁 쪽 정면으로 두고 점유를 폭 0.45 m·깊이 0.50 m·등받이 상단 0.85 m로 적는다.
 @evidence principles/design/models.md#reviewable-structure 측면의 좌면 0.45 m·등받이 0.85 m와 기울기, 밀어 넣은 평면에서 의자 폭이 식탁 다리 사이에 드는지, 여섯 의자가 같은 원형의 반복으로 읽히는지를 리뷰 대상으로 둔다.
 @evidence principles/design/models.md#model-observable-style-basis 스타일 라벨 없이 팔걸이 없는 판 등받이, 뒤 다리가 그대로 올라간 기둥, 5° 기울기라는 관찰 가능한 구성을 정한다.
-@evidence principles/design/models.md#model-scale-layer-completion 좌면 0.45 m와 식탁 0.75 m의 0.30 m 차, 네 부품 종류, 관절 없음, 세 재질 경계, 세 관찰이 함께 정해져 의자 표현에 구현자가 채울 빈 층이 없다.
+@evidence principles/design/models.md#model-scale-layer-completion 좌면 0.45 m와 식탁 0.75 m의 0.30 m 차, 0.38 m 안쪽 폭에 네 살대와 다섯 간격을 채우는 식, 5° 뒤 기울기 축, 세 재질 경계를 본문 치수로 대조한다. 실제 부재 메시와 UV는 source 전까지 unverified다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 식사 구역 예약의 여섯 좌석과 식탁 상판 높이 0.75 m를 그대로 소비했고 폭 0.45 m가 좌석 사용 폭 0.65 m 안에 들어 부모 수정이 없었다.
 @evidence spaces/rooms/common.md#common-dining-reservation 여섯 좌석 예약에 한 원형을 여섯 번 쓰게 하고, 밀어 넣은 상태에서도 등받이 상단 0.85 m가 식탁 상판 위로 0.10 m 솟아 식탁 가장자리 밖에 남게 한다.
 @evidence obligations/design/models.md#reference-scale 좌면 0.45 m를 식탁 상판 0.75 m보다 0.30 m 낮게, 등받이 상단 0.85 m를 상판 위 0.10 m로 정해 식탁 높이를 기준으로 의자 치수를 이끌고 측면 관찰로 검사하는 규칙을 보인다.

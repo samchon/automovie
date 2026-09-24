@@ -8,7 +8,10 @@
  * (X = [0.75, 0.90]). Fixtures are later models.
  */
 import { PALETTE } from "../palette";
+import { part } from "../solids";
+import { STOREYS } from "../storeys";
 import { type IRoomBuild, type IRoomSpace, box, door, partition, doorFloor, roomCeiling, roomFloor } from "./shared";
+import { blindRecessWall } from "./recess";
 
 const SHOWER_BATH: IRoomSpace = {
   id: "shower-bathroom",
@@ -51,6 +54,13 @@ export const buildShowerBath = (): IRoomBuild => ({
       along: [0.9, 3.22],
       holes: [door("hall-shower-door", "upper-storey", 1.05, 2.05)],
     }),
-    partition({ id: "shower-primary-partition", owner: SHOWER_BATH.owner, storey: "upper-storey", axis: "z", across: [0.75, 0.9], along: [-8.95, -6.06] }),
+    part("shower-primary-partition", SHOWER_BATH.owner, "partition", PALETTE.interiorWall, blindRecessWall({
+      wallX: [0.75, 0.9],
+      wallY: [STOREYS.upperFloor, STOREYS.upperCeiling],
+      wallZ: [-8.95, -6.06],
+      openingY: [STOREYS.upperFloor + 1.10, STOREYS.upperFloor + 1.50],
+      openingZ: [-8.55, -8.15],
+      depth: 0.08,
+    })),
   ],
 });
