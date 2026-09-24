@@ -125,6 +125,26 @@ export const test_subject_face_hair_length = (): void => {
       slack: 0.001,
     }).data.reduce((sum, one) => sum + one, 0);
   TestValidator.predicate("visible", count(0.01) > 0 && count(-0.01) === 0);
+  const below = (rows?: number) =>
+    faceHairVisibleMask({
+      view,
+      skin: square(-0.15, 0.15, 0),
+      hair: [
+        {
+          positions: [0, -0.5, 0.01, 0.05, -0.5, 0.01, 0.05, -0.4, 0.01],
+          indices: [0, 1, 2],
+        },
+      ],
+      slack: 0.001,
+      rows,
+    });
+  TestValidator.predicate(
+    "below the frame",
+    below().height === 100 &&
+      below().data.every((one) => one === 0) &&
+      below(300).height === 300 &&
+      below(300).data.some((one) => one !== 0),
+  );
   const norms = {
     male: { acromion: { subjects: 3, mean: 80 } },
     female: { acromion: { subjects: 1, mean: 70 } },
