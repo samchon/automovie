@@ -6,7 +6,7 @@
  * source basis·Git revision·격자 입력을 함께 돌려준다. 값은 기하 사실이며 판정이 아니다.
  */
 import { roofStepClosures } from "../geometry/roof-solids";
-import { createTempleScene } from "../instances/temple";
+import { createTempleEnvironment } from "../spaces/environment";
 import { templeObservations } from "../spaces/observations";
 import { envelopeSolids, lastScan, scanOverlaps, solidsContaining, type OverlapPair } from "./envelope-overlaps";
 import { templeTopologyLedger, type LedgerRow } from "./mesh-ledger";
@@ -28,7 +28,7 @@ export const createReviewPayload = (grid: number): ReviewPayload => {
   if (!(grid > 0)) throw new Error("격자 간격은 양의 m 값이어야 합니다.");
   const basis = sourceBasis();
   const revision = sourceRevision();
-  const built = createTempleScene();
+  const built = createTempleEnvironment();
   const solids = envelopeSolids({ walls: built.walls, roof: built.roof, trim: built.trim, floors: built.floors.inputs });
   const tolerance = 1e-3;
   const started = Date.now();
