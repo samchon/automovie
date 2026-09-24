@@ -17,6 +17,13 @@ const yardTop = {
   kind: "flat", height: templeYardWallTop, surface: "surface.service-yard.wall-top", coping: templeWallTrim.copingThickness,
 } as const;
 
+/**
+ * @evidence spaces/facades/east.md 동측 외벽 WallSpec을 마당 낮은 벽, 처마 벽, 남동 모서리 칸 구간으로 낸다.
+ * @evidence spaces/facades/east.md#east-envelope 마당 구간 2.55m 벽과 외부 서비스 문 void, 보관실 북쪽 공유 벽부터 남쪽의 동측 처마 하부까지 닫는 벽, 코핑 높이로 오르는 남동 모서리 칸을 구현한다.
+ * @evidence principles/core/source-units.md#source-scope-preservation 벽 높이는 북측 마당 벽 값과 남측 코핑 값, 지붕 하부를 받고 새 높이를 정하지 않는다.
+ * @evidence principles/core/source-units.md#source-substantive-completion 평면·구간·상단 정책·void·띠 분할을 채운 WallSpec을 돌려주며 하단은 호출자가 넘긴 공통 외벽 하단이다.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work facades/east.md의 세 구간과 서비스 문 위치를 그대로 구현했고 외피 겹침 0, 벽 model 닫힘으로 부모 결함이 없었다.
+ */
 export const templeEastWalls = (bottom: number): WallSpec[] => [{
   id: "wall.facade-east", owner: "facade-east", axis: "z", bottom,
   plan: templeOuterWallPlans().east,

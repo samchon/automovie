@@ -7,6 +7,14 @@
 import type { IAutoMovieBuiltSpace } from "@automovie/interface";
 import { templeLevels } from "./storey";
 
+/**
+ * @evidence spaces/building.md 외곽·기준선의 X/Z 좌표를 m 단위 단일 값 객체로 두어 방·벽·지붕·관찰이 같은 치수 원본을 소비한다.
+ * @evidence spaces/building.md#plan-datums 표의 west/east-outer ±10.5부터 south-outer 10.25까지 모든 기준선을 같은 이름과 값으로 옮긴다.
+ * @evidence spaces/building.md#footprint 21×20.5m 외곽을 outer 네 값으로 정하고 내부 치수는 inner·room·ring·court 기준선의 차로만 나온다.
+ * @evidence principles/core/source-units.md#source-scope-preservation 기준선 값만 가지며 표면·부재·공간을 만들지 않고 설계에 없는 기준선을 더하지 않는다.
+ * @evidence principles/core/source-units.md#source-substantive-completion as const 값 객체로 모든 소비자가 같은 숫자를 컴파일 시점에 받으며 허용 오차 0.001m도 함께 둔다.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work building.md의 기준선 표와 21×20.5m 외곽을 그대로 옮겼고 실제 벽·지붕·충돌 스캔이 이 값으로 겹침 0을 냈다.
+ */
 export const templePlan = {
   westOuter: -10.5, eastOuter: 10.5,
   westInner: -9.9, eastInner: 9.9,
@@ -31,6 +39,11 @@ export const templePlan = {
  * docs/spaces/building.md#containment의 건물→한 층→아홉 공간을 조립한다.
  * caller가 만든 실제 cell 레코드를 유지하고 빠진/중복/외래 공간은 거부한다.
  * 반환값은 topology의 공간 population이며 물리 element나 접근 검증이 아니다.
+ * @evidence spaces/building.md 건물→지상층→아홉 공간의 공간 population을 조립한다.
+ * @evidence spaces/building.md#containment 아홉 공간 ID가 정확히 한 번씩, 지상층 부모로, cell 표현으로만 들어오게 하고 누락·중복·외래 공간은 거부한다.
+ * @evidence principles/core/source-units.md#source-scope-preservation caller가 만든 cell 레코드를 바꾸지 않고 building·storey 두 레코드만 앞에 더한다.
+ * @evidence principles/core/source-units.md#source-substantive-completion 검사를 통과한 공간 배열을 반환하며 층 귀속·shell 혼용·빈 cell·누락을 각각 공간 ID를 적은 오류로 던진다.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work building.md#containment의 건물 하나·층 하나·아홉 방 목록을 그대로 구현했고 부모의 공간 수나 층 구성을 바꿀 필요가 없었다.
  */
 export const templeSpaceHierarchy = (
   rooms: readonly IAutoMovieBuiltSpace[],

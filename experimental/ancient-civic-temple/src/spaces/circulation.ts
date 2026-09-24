@@ -13,7 +13,16 @@ import { templeEntranceSteps } from "./rooms/entrance";
 import { templeSiteIds } from "./site/assembly";
 import { templeLevels as y } from "./storey";
 
-/** 문 양쪽 벽면에서 0.3m 안쪽 두 점을 잇는 통과 connector와 중정 단·정문 계단 connector. */
+/**
+ * 문 양쪽 벽면에서 0.3m 안쪽 두 점을 잇는 통과 connector와 중정 단·정문 계단 connector.
+ * @evidence spaces/circulation.md 문 여덟의 통과 connector, 중정 남쪽 한 단, 정문 두 단 계단을 공개 connector로 낸다.
+ * @evidence spaces/circulation.md#public-route 정문 계단→현관→주랑→중정·제실·봉헌실·세 업무방 문을 잇고 주랑 고리 안의 이동은 한 volume이라 자기 connector를 만들지 않는다.
+ * @evidence spaces/circulation.md#service-route 외부 서비스 문(temple-site→service-yard)과 마당 문(service-yard→colonnade)을 문 connector로 이어 운반 경로의 두 문턱을 둔다.
+ * @evidence spaces/site.md#site-connections 외부 쪽 끝을 temple-site로 두어 정문 계단과 서비스 문만 대지와 건물을 잇게 한다.
+ * @evidence principles/core/source-units.md#source-scope-preservation 경로 폭·유효 높이는 문 표와 실제 지붕 하부에서 읽고 새 경로나 통과 규칙을 발명하지 않는다.
+ * @evidence principles/core/source-units.md#source-substantive-completion 각 connector의 두 끝점이 실제 공간 안에 있는지 검사하고 아니면 문 ID를 적은 오류로 멈추며, 계단은 단 수·챌면·디딤을 함께 낸다.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work circulation.md의 공용·서비스 경로와 site.md#site-connections의 두 접점을 적힌 그대로 구현했다. 끝점 검사와 지붕 하부 유효 높이가 모두 통과해 부모 경로를 고칠 결함이 없었다.
+ */
 export const templeConnectors = (
   spaces: readonly IAutoMovieBuiltSpace[], roof: readonly RoofPatch[],
 ): IAutoMovieBuiltConnector[] => [

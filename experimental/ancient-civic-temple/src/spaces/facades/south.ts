@@ -10,13 +10,32 @@ import { templePlan as p } from "../building";
 import { templeInteriorWallEnds, templeOuterWallPlans, templeWallRect, templeWallTrim } from "../junctions";
 import { templeDoorVoidsOn } from "../openings";
 
-/** 외곽 파라펫 코핑 상단(m). 서·북 입면이 같은 값을 소비한다. */
+/**
+ * 외곽 파라펫 코핑 상단(m). 서·북 입면이 같은 값을 소비한다.
+ * @evidence spaces/facades/south.md 외곽 파라펫 코핑 상단 4.85m를 단일 값으로 둔다.
+ * @evidence spaces/facades/south.md#south-envelope 서·북·동 입면과 반환벽이 소비하는 코핑 높이를 한 곳에서 정한다.
+ * @evidence principles/core/source-units.md#source-scope-preservation 코핑 높이만 가지며 코핑 두께·돌출은 junctions가 소유한다.
+ * @evidence principles/core/source-units.md#source-substantive-completion 숫자 상수로 네 입면의 파라펫과 wall-trim 코핑 칸이 같은 높이를 쓴다.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work facades/south.md의 4.85m를 그대로 옮겼고 세 지붕과 제실 처마가 코핑과 겹치지 않음을 겹침 스캔이 확인했다.
+ */
 export const templeParapetTop = 4.85;
 
-/** 외곽 바깥면 석재 기단 상단의 접지면 위 높이(m). 네 입면이 같은 값을 소비한다. */
+/**
+ * 외곽 바깥면 석재 기단 상단의 접지면 위 높이(m). 네 입면이 같은 값을 소비한다.
+ * @evidence spaces/facades/south.md 외곽 바깥면 석재 기단 상단의 지면 위 높이 0.65m를 둔다.
+ * @evidence principles/core/source-units.md#source-scope-preservation 기단 상단 높이만 가지며 돌출은 junctions가 소유한다.
+ * @evidence principles/core/source-units.md#source-substantive-completion 숫자 상수로 wall-trim 기단 칸이 지면 평면 위 같은 높이로 오른다.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work facades/south.md#south-envelope의 0.65m를 그대로 옮겼고 기단 model이 닫힌 실체로 결산된다.
+ */
 export const templePlinthRise = 0.65;
 
-/** 포치 삼각 막음의 아랫면(m): 기둥 위 수평 보가 받는 높이. */
+/**
+ * 포치 삼각 막음의 아랫면(m): 기둥 위 수평 보가 받는 높이.
+ * @evidence spaces/facades/south.md 포치 삼각 막음의 아랫면 3.5m를 둔다.
+ * @evidence principles/core/source-units.md#source-scope-preservation 삼각 막음 아랫면 높이만 가지며 막음 윗변은 포치 지붕 하부에서 온다.
+ * @evidence principles/core/source-units.md#source-substantive-completion 숫자 상수로 남측 입면의 pediment 벽 구간이 같은 높이에서 시작한다.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work facades/south.md#south-envelope의 3.5m를 그대로 옮겼고 pediment model이 닫힌 실체다.
+ */
 export const templePedimentBase = 3.5;
 
 const outer = "surface.facade-south.outer";
@@ -28,6 +47,12 @@ const coping = {
 } as const;
 const wing = { tier: "wing", above: back } as const;
 
+/**
+ * @evidence spaces/facades/south.md 정면 외벽 두 구간, 두 반환벽, 현관 후퇴벽, 포치 삼각 막음의 WallSpec을 낸다.
+ * @evidence principles/core/source-units.md#source-scope-preservation 코핑·기단·삼각 막음 높이는 위 상수, 후퇴벽 상단은 포치 지붕 하부, 끝선은 junctions를 받는다.
+ * @evidence principles/core/source-units.md#source-substantive-completion 정문 void, 파라펫 뒷면 띠 분할, 후퇴벽 양끝 코핑 칸을 모두 채운 WallSpec 배열을 돌려준다.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work facades/south.md#south-envelope의 파라펫·반환벽·후퇴벽·삼각 막음 구성을 그대로 구현했고 외피 겹침 0이다.
+ */
 export const templeSouthWalls = (bottom: number): WallSpec[] => {
   const plans = templeOuterWallPlans();
   const entry = templeInteriorWallEnds().entryBack;

@@ -45,6 +45,17 @@ import { templeSiteContactMinimum, templeSiteGradeBreaks, templeSiteGradePlane }
 import { templeStorage, templeStorageCeiling, templeStoragePlan } from "./rooms/storage";
 import { templeLevels as y, templeWallBottom } from "./storey";
 
+/**
+ * @evidence spaces/building.md 건물 하나·한 층·아홉 공간의 cell과 입면·내부벽·지붕·바닥·천장 model, host face 경계, profile 개구부, connector, 보행 support를 한 generation으로 조립해 공개 built environment로 돌려준다.
+ * @evidence spaces/building.md#approach-contacts 정문 계단과 외부 서비스 문의 두 connector가 temple-site에서 건물 접점으로 들어오도록 대지 unit·공간과 같은 environment에 싣는다.
+ * @evidence spaces/junctions.md#gable-closures 합성 지붕 조각을 culling하고 높이 차이 막음의 앞면과 주머니 쪽 뒷면을 더해 지붕 아래·위의 닫힘을 표면으로 낸다.
+ * @evidence principles/core/source-units.md#source-scope-preservation 공간·경계·개구부·지붕·대지를 각 owner 함수에서 받아 조립만 하며 방 치수나 지붕 높이를 여기서 새로 정하지 않고, 독립 부재(문짝·기둥·수반)는 넣지 않는다.
+ * @evidence principles/core/source-units.md#source-substantive-completion 반환값은 validateBuiltEnvironment를 통과한 실제 environment와 walls·roof·wallBottom·floors·site·trim이며 검증 실패는 경로와 기대값을 담은 오류로 던진다.
+ * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work 구현이 부모 두 곳을 먼저 고치게 했다: 채광구가 인접 지붕 위로 열리는데 경계가 방 사이로만 나뉘어 외부 창 주소가 없던 openings.md#boundary-ownership(위쪽 외부 향 경계 분할, c7af729c), 높이 차이 막음 뒷면이 없어 주랑에서 바깥이 비치던 roofs/assembly.md#roof-junctions(앞·뒷면 소유, 0cd21642).
+ * @evidence obligations/design/space-sources.md#space-source-invalid-topology 조립한 environment를 validateBuiltEnvironment로 검증해 실패하면 위반 경로와 기대를 모두 적은 오류로 멈추고 부분 결과를 돌려주지 않는다.
+ * @evidence obligations/design/space-sources.md#space-source-stable-identities 공간·경계·개구부·model·element ID를 설계 주소(boundary-*, window-*, model.wall.*, element.*)에서 만들고 시계·난수·파일 상태를 쓰지 않아 같은 입력은 같은 environment를 낸다.
+ * @evidence obligations/design/space-sources.md#space-source-design-ownership environment의 모든 공간·경계·개구부·지붕·대지 사실은 각자 한 spaces 설계 파일을 인용하는 owner export에서 오며, 막음 뒷면처럼 source가 먼저 드러낸 결정은 부모 H2를 고친 뒤에만 실었다.
+ */
 export const createTempleEnvironment = () => {
   const roof = templeRoofEnvelope();
   const site = createTempleSite();
