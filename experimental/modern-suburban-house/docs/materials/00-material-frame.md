@@ -10,10 +10,10 @@
 @evidence principles/design/materials.md#material-binding-interface 렌더러에 넘기는 base color가 선형값이라는 입력 규약을 정해 host owner와 source가 색 공간을 추측하지 않게 한다.
 @evidence principles/design/materials.md#material-verification-address hex→선형 재계산 일치와 중성 조명 판에서 siding·trim·천장 흰 계열의 구별을 반증 견본으로 둔다.
 @evidenceExclude upstream/design/materials.md#parent-revision-from-material-work settings 20-verification의 visual-grammar·reference-authority·lighting-state를 적힌 그대로 소비했고 수정할 부모 결함을 찾지 않았다.
-@evidence contracts/no-texture-bitmap.md#constant-response-no-bitmap 색은 비트맵이 아닌 hex 상수 하나와 그 선형값으로만 정한다고 규정한다.
+@evidence contracts/texture-readability.md#material-texture-readability 색 맵과 hex fallback을 같은 sRGB→선형 규칙으로 해석해 텍스처가 기준색의 색 공간을 바꾸지 않는다.
 @evidence obligations/core/common.md#production-language 이 파일과 재료 H2 46개는 한국어 본문으로 쓰였고 hex·선형 값 표기는 언어와 무관한 수치다.
 @evidence obligations/core/common.md#purpose-fit 재료 값이 사진 복제가 아니라 visual-grammar 색 관계를 실제 3D blocking pass에서 읽히게 하는 목적에 맞춰졌다고 밝힌다.
-@evidence obligations/design/materials.md#addressable-material-decisions 색 공간·비트맵·응답·결합·리뷰를 틀 H2 다섯 개로, 재료를 H2 41개로 나눠 각 결정을 따로 교체할 수 있게 했다.
+@evidence obligations/design/materials.md#addressable-material-decisions 색 공간·표면 결·응답·결합·리뷰를 틀 H2 다섯 개로, 재료를 H2 41개로 나눠 각 결정을 따로 교체할 수 있게 했다.
 @evidence settings/00-production.md#governing-aim 지배 목표가 요구한 재료의 읽힘을 이 색 공간 H2가 visual-grammar 색 관계를 hex·선형 상수로 고정하는 방식으로 받고, 41개 재료 H2가 같은 규약을 쓴다.
 @evidence settings/20-verification.md#lighting-state 색 공간과 선형 변환이 '빛과 기준 상태'(settings/20-verification.md#lighting-state)를 링크로 소비해 규칙 값과 결합 면의 근거로 삼았다.
 @evidence settings/20-verification.md#reference-authority 색 공간과 선형 변환이 '레퍼런스 권위'(settings/20-verification.md#reference-authority)를 링크로 소비해 규칙 값과 결합 면의 근거로 삼았다.
@@ -133,24 +133,24 @@
 @evidence settings/00-production.md#working-language 작업 언어가 한국어이므로 재료 문서 네 개와 materials account를 한국어 본문으로 쓰고 hex·선형값만 언어 중립 수치로 둔다.
 -->
 
-모든 재료의 기준색은 sRGB 8비트 hex로 저작하고, 렌더러에 넘기는 base color는 그 hex를 IEC 61966-2-1 sRGB 전달 함수로 선형화한 값이다. 변환식은 채널 값 c(0–1)가 0.04045 이하이면 c / 12.92, 그보다 크면 ((c + 0.055) / 1.055)^2.4이며 각 재료 H2는 hex와 소수점 셋째 자리까지의 선형 RGB를 함께 적는다. 두 값이 어긋나면 hex가 저작 결정이고 선형값은 파생값이므로 source는 hex에서 선형값을 다시 계산해 문서 값과 대조한다. 이 hex는 [레퍼런스 권위](../settings/20-verification.md#reference-authority)에 따라 원본 사진의 픽셀을 샘플링한 값이 아니라 [공통 재료와 외피 인상](../settings/20-verification.md#visual-grammar)의 색 관계(따뜻한 백색 siding, 짙은 charcoal, 흰 trim, 붉은갈색 벽돌, 꿀빛/중간갈색 목재, 회베이지 직물)를 이 branch가 수치로 정한 선택이다. 출력은 [고정 노출과 white balance](../settings/20-verification.md#lighting-state) 아래 sRGB로 표시하며 재료 값이 view별 노출 보정을 흡수하지 않는다. source owner는 `src/materials/frame.ts`이고, 리뷰는 각 재료의 hex→선형 재계산 일치와 중성 조명 견본 판에서 흰 계열(siding·trim·천장)이 서로 구별되는지를 관찰한다.
+모든 재료의 기준색은 sRGB 8비트 hex로 저작하고, 렌더러에 넘기는 base color는 그 hex를 IEC 61966-2-1 sRGB 전달 함수로 선형화한 값이다. 변환식은 채널 값 c(0–1)가 0.04045 이하이면 c / 12.92, 그보다 크면 ((c + 0.055) / 1.055)^2.4이며 각 재료 H2는 hex와 소수점 셋째 자리까지의 선형 RGB를 함께 적는다. 두 값이 어긋나면 hex가 저작 결정이고 선형값은 파생값이므로 source는 hex에서 선형값을 다시 계산해 문서 값과 대조한다. 생성한 색 텍스처 채널에도 같은 sRGB→선형 변환을 적용해 기준색 fallback과 색 공간이 달라지지 않게 한다. 이 hex는 [레퍼런스 권위](../settings/20-verification.md#reference-authority)에 따라 원본 사진의 픽셀을 샘플링한 값이 아니라 [공통 재료와 외피 인상](../settings/20-verification.md#visual-grammar)의 색 관계(따뜻한 백색 siding, 짙은 charcoal, 흰 trim, 붉은갈색 벽돌, 꿀빛/중간갈색 목재, 회베이지 직물)를 이 branch가 수치로 정한 선택이다. 출력은 [고정 노출과 white balance](../settings/20-verification.md#lighting-state) 아래 sRGB로 표시하며 재료 값이 view별 노출 보정을 흡수하지 않는다. source owner는 `src/materials/frame.ts`이고, 리뷰는 각 재료의 hex→선형 재계산 일치와 중성 조명 견본 판에서 흰 계열(siding·trim·천장)이 서로 구별되는지를 관찰한다.
 
-## 비트맵 없는 표면 응답 {#material-no-bitmap}
+## 표면 결·광학 응답과 텍스처 결속 {#material-texture-response}
 <!--
-@evidence principles/core/common.md#declared-basis 비트맵 금지의 근거를 조정자 지시로 밝히고 상수 네 값과 유리의 ior·두께만 허용한다고 적는다.
-@evidence principles/core/common.md#scope-preservation 반복 결의 형상은 models/instances에 남기고 재료는 상수 응답만 정하며 조명 발광은 systems로 돌린다.
-@evidence principles/core/common.md#substantive-completion 비트맵이 허용될 때의 m 단위 scale, 세계 좌표 UV, 판 길이 방향 U, 로드 실패 시 상수 fallback까지 적었다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation fidelity는 부재가 읽히기만 요구했고 이 H2는 결을 geometry와 상수 대비로 얻는다는 구체 경로를 더한다.
-@evidence principles/design/materials.md#material-construction-appearance course·줄눈·shingle·마루 판·타일 줄눈을 구성(geometry)으로, 색·광택을 외관 상수로 나누는 관계를 정한다.
-@evidence principles/design/materials.md#material-binding-interface 향후 비트맵의 UV 규약(벽 수평 U·수직 V, 바닥 X/Z)을 host 세계 좌표 기준으로 미리 정한다.
-@evidence principles/design/materials.md#material-verification-address 재료 객체의 map 슬롯이 비어 있는지와 결이 geometry로만 읽히는지를 검사 모드와 근접 view로 반증한다.
+@evidence principles/core/common.md#declared-basis 사용자가 같은 날 비트맵 보류를 철회한 지시를 근거로 삼고 매끈한 표면과 반복 결이 필요한 표면을 구별한다.
+@evidence principles/core/common.md#scope-preservation course·줄눈·판 두께는 models/instances에 남기고 색·거칠기·법선 결의 생성과 면 결속만 materials가 받으며 발광은 systems에 남긴다.
+@evidence principles/core/common.md#substantive-completion 미터 모듈·투영 축·원점·회전·이음·실패 fallback과 validateTextureScale의 실제 모집단을 정한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation fidelity의 부재 읽힘 위에 각 표면의 물리 scale을 가진 결정론적 텍스처와 매끈한 광학 예외를 더한다.
+@evidence principles/design/materials.md#material-construction-appearance course·줄눈·shingle 형상과 색·거칠기·법선 결, 유리의 투과를 서로 다른 책임으로 나눈다.
+@evidence principles/design/materials.md#material-binding-interface 표면 id와 UV의 미터 단위 축·원점·이음, host 경계 및 validateTextureScale 결속을 정한다.
+@evidence principles/design/materials.md#material-verification-address 1 m·2 m 근접과 리뷰 거리에서 실제 결·광학 응답·타일 모듈을 반증하고 빠진 map은 fallback으로만 기록한다.
 @evidenceExclude upstream/design/materials.md#parent-revision-from-material-work settings fidelity와 visual-grammar의 불규칙 색 패치 금지를 적힌 그대로 소비했고 부모 결함은 없었다.
-@evidence contracts/no-texture-bitmap.md#constant-response-no-bitmap 이 계약 규칙의 최초 authored owner로 비트맵 미저작, 상수 네 값, 형상이 맡는 결, 상수 fallback을 모두 적었다.
-@evidence obligations/core/common.md#proportionate-development 비트맵을 만들지 않고 상수 네 값과 geometry 결로 제한해 blocking pass 규모에 맞는 개발량을 정한다.
-@evidence settings/20-verification.md#fidelity 비트맵 없는 표면 응답이 '표현 수준'(settings/20-verification.md#fidelity)를 링크로 소비해 규칙 값과 결합 면의 근거로 삼았다.
+@evidence contracts/texture-readability.md#material-texture-readability 반복 표면의 실제 결·물리 scale·UV·이음과 매끈한 표면의 광학 응답, 실패 fallback을 이 H2가 공통으로 정한다.
+@evidence obligations/core/common.md#proportionate-development 물리 scale과 실제 읽힘이 필요한 표면만 결정론적 맵으로 만들고 매끈한 유리·거울은 광학 응답으로 처리한다.
+@evidence settings/20-verification.md#fidelity 표현 수준이 요구한 실제 마감 읽힘을 생성식·UV 결속·광학 응답으로 구현할 규칙을 정한다.
 -->
 
-조정자 지시에 따라 이 production은 텍스처 이미지(색·거칠기·법선·변위 맵)를 저작하지 않는다. 각 재료는 base color, roughness, metallic, transmission의 상수 네 값만으로 응답을 정하고, 유리만 ior와 두께를 더한다. 발광(emission)은 재료 값으로 쓰지 않으며 조명 기구의 빛은 systems가 소유한다. siding course·벽돌 줄눈·shingle 중첩·마루 판·타일 줄눈처럼 반복 결이 필요한 곳은 [표현 수준](../settings/20-verification.md#fidelity)이 요구하는 읽힘을 색 패치가 아닌 실제 geometry(모델/instance의 두께 있는 부재)와 재료 상수의 대비로 얻는다. 나중에 비트맵이 허용되면 적용 계약은 다음과 같다. 물리 scale 1 texel 단위는 m, UV는 host 면의 세계 좌표 투영(벽은 수평 U·수직 V, 바닥은 X/Z)이며 반복 방향은 siding/마루의 판 길이 방향을 U에 둔다. 비트맵이 없거나 로드에 실패하면 여기 적은 상수 응답이 그대로 fallback이다. source owner는 `src/materials/frame.ts`이며, 리뷰는 재료 객체에 map 슬롯이 비어 있고 결이 geometry로만 읽히는지를 검사 모드와 중성 조명 근접 view에서 관찰한다.
+사용자가 같은 날 비트맵 보류를 철회했으므로 [표현 수준](../settings/20-verification.md#fidelity)의 실제 재료 읽힘을 텍스처와 광학 응답까지 구현한다. siding course·벽돌 줄눈·shingle 겹침처럼 두께와 접합을 설명하는 부재는 models/instances가 만들고, 재료는 그 완결 표면에 결정론적 색·거칠기·법선 결을 결속한다. 유리·거울·유약은 무늬를 억지로 칠하지 않고 투과·반사·곡면 하이라이트로 읽힌다. 발광은 systems 조명에 남긴다. 제공 레퍼런스를 표면에 붙이지 않으며 맵 픽셀은 검토 가능한 TypeScript 생성식과 명명된 물리 파라미터에서 나온다. 각 H2는 결합 파티션, 반복 모듈의 미터 치수, U/V 축·원점·회전, 부재·코너·void에서의 이음, 기준색 fallback을 정한다. 세계 벽면은 벽 길이 U·높이 V, 바닥은 X/Z, 지붕은 처마 평행 U·경사 위쪽 V를 기본으로 하고 모델 부재는 선언된 국소 축을 쓴다. 실제 binding의 `coordinateSource`와 UV를 `validateTextureScale`에 넣어 검사하며 빈 모집단의 성공은 거부한다. 맵이 없거나 로드에 실패하면 각 H2의 기준색·roughness가 진단 fallback이지만 그것을 최종 시각 합격으로 세지 않는다. source owner는 `src/materials/frame.ts`이고 실제 맵·결속·GPU 판정은 아직 unverified다.
 
 ## 거칠기·금속성 관례 {#material-response-conventions}
 <!--
@@ -162,13 +162,13 @@
 @evidence principles/design/materials.md#material-binding-interface transmission은 투명 유리만 0보다 크다는 조건으로 host가 받을 응답 종류를 한정한다.
 @evidence principles/design/materials.md#material-verification-address 같은 조명의 견본 구 배열에서 대역 순서대로 하이라이트 폭이 좁아지는지를 반증 견본으로 둔다.
 @evidenceExclude upstream/design/materials.md#parent-revision-from-material-work lighting-state의 오후 key·하늘 fill·고정 노출을 적힌 그대로 소비했고 부모 결함은 없었다.
-@evidence contracts/no-texture-bitmap.md#constant-response-no-bitmap 거칠기와 금속성을 맵이 아닌 0–1 상수 대역으로만 정한다.
+@evidence contracts/texture-readability.md#material-texture-readability 거칠기 맵을 쓰더라도 이 H2의 재료별 0–1 대역과 광택 순서를 유지한다.
 @evidence obligations/design/materials.md#material-response roughness 네 대역과 metallic·transmission 규칙으로 모든 재료의 응답 범위를 정했다.
 @evidence settings/20-verification.md#lighting-state 거칠기·금속성 관례가 '빛과 기준 상태'(settings/20-verification.md#lighting-state)를 링크로 소비해 규칙 값과 결합 면의 근거로 삼았다.
 @evidence settings/20-verification.md#renderer-boundary 실제 3D viewer의 재질 입력으로 선형 base color·roughness·metallic·transmission 상수를 넘기고 발광은 재료에 두지 않아 조명 기구가 발광판으로 공간을 지우지 않게 한다.
 -->
 
-roughness는 0–1 상수로 다음 대역을 쓴다. 광택 유리·거울 0.02–0.05, 반광 도장·에나멜·도기 0.25–0.40, 무광 도장 벽·목재 오일 마감 0.45–0.65, 벽돌·콘크리트·shingle·직물 0.80–0.95. metallic은 도장하지 않은 노출 금속(스테인리스 가전, 수전, 거울 은막)만 1.0이고 도장된 금속 부재(창틀·차고문·검은 분체 도장 난간살과 손잡이)는 표면이 도막이므로 0.0으로 둔다. transmission은 투명 유리만 0보다 크다. 이 대역은 [빛과 기준 상태](../settings/20-verification.md#lighting-state)의 오후 key와 하늘 fill 아래에서 재료 사이의 광택 위계를 만들기 위한 저작 선택이며 측정한 BRDF가 아니다. 각 재료 H2의 값은 이 대역 안에 들어야 하고 벗어나면 그 H2가 이유를 적는다. source owner는 `src/materials/frame.ts`이며, 리뷰는 같은 조명의 견본 구 배열에서 대역 순서대로 하이라이트 폭이 좁아지는지를 관찰한다.
+기준 roughness는 0–1 값으로 다음 대역을 쓴다. 거칠기 맵의 국소 변조도 해당 재료의 대역을 벗어나거나 광택 순서를 뒤집지 않는다. 광택 유리·거울 0.02–0.05, 반광 도장·에나멜·도기 0.25–0.40, 무광 도장 벽·목재 오일 마감 0.45–0.65, 벽돌·콘크리트·shingle·직물 0.80–0.95. metallic은 도장하지 않은 노출 금속(스테인리스 가전, 수전, 거울 은막)만 1.0이고 도장된 금속 부재(창틀·차고문·검은 분체 도장 난간살과 손잡이)는 표면이 도막이므로 0.0으로 둔다. transmission은 투명 유리만 0보다 크다. 이 대역은 [빛과 기준 상태](../settings/20-verification.md#lighting-state)의 오후 key와 하늘 fill 아래에서 재료 사이의 광택 위계를 만들기 위한 저작 선택이며 측정한 BRDF가 아니다. 각 재료 H2의 값은 이 대역 안에 들어야 하고 벗어나면 그 H2가 이유를 적는다. source owner는 `src/materials/frame.ts`이며, 리뷰는 같은 조명의 견본 구 배열에서 대역 순서대로 하이라이트 폭이 좁아지는지를 관찰한다.
 
 ## 면 결합 규칙 {#material-binding-rule}
 <!--
@@ -180,7 +180,7 @@ roughness는 0–1 상수로 다음 대역을 쓴다. 광택 유리·거울 0.02
 @evidence principles/design/materials.md#material-binding-interface 바깥면 법선은 host owner가 정한 방향이고 재료는 그 surface vocabulary에 붙기만 한다고 정한다.
 @evidence principles/design/materials.md#material-verification-address 컴파일 산출물에서 재료 없는 면·두 재료를 받은 면의 수 0과 경계선 일치를 검사 모드 view로 반증한다.
 @evidenceExclude upstream/design/materials.md#parent-revision-from-material-work spaces 03의 exterior/interior surface handoff 표를 적힌 그대로 소비했고 부모 결함은 없었다.
-@evidence contracts/no-texture-bitmap.md#constant-response-no-bitmap 면 결합은 비트맵 좌표 없이 상수 재료 하나를 면 전체에 붙이는 방식이다.
+@evidence contracts/texture-readability.md#material-texture-readability texture 좌표와 재료가 같은 안정 part id에 결속되고 한 면의 끝에서 함께 끊긴다.
 @evidence obligations/core/common.md#layer-boundary 재료는 host 면의 경계·두께·개수를 바꾸지 않고 spaces/models의 면에만 결합한다.
 @evidence obligations/design/materials.md#material-surface-assignment 한 면 한 재료, 부재 경계와의 일치, 단면/양면 방향을 모든 결합의 공통 조건으로 정했다.
 @evidence spaces/03-surface-owners.md#exterior-surface-handoff 면 결합 규칙이 '입면·지붕·층의 소유'(spaces/03-surface-owners.md#exterior-surface-handoff)를 링크로 소비해 규칙 값과 결합 면의 근거로 삼았다.
@@ -189,7 +189,7 @@ roughness는 0–1 상수로 다음 대역을 쓴다. 광택 유리·거울 0.02
 @evidence settings/00-production.md#build-allocation 제작 배분이 표면 표현을 materials에 두었으므로 이 규칙은 표현만 결합하고 부재·원형은 models, 반복 개체는 instances에 남긴다.
 -->
 
-재료는 [완결 시각 표면의 소유 분해](../spaces/03-surface-owners.md#exterior-surface-handoff)와 [방 내부의 완결 면 소유](../spaces/03-surface-owners.md#interior-surface-handoff)가 정한 owner의 면에 결합하고, 면의 경계·두께·개수는 바꾸지 않는다. 한 면에는 정확히 한 재료가 붙고 두 재료가 만나는 선은 host owner가 이미 가진 부재 경계(trim 돌출, 문턱, 걸레받이, 기단 윗선)와 일치해야 한다. 같은 면을 삼각형 단위로 나눠 다른 재료를 칠하는 방식으로 경계를 새로 만들지 않는다. 바깥면 법선은 host owner가 정한 바깥 방향이며 재료는 단면(single-sided) 기본값을 쓰고 유리·얇은 커튼만 양면이다. source owner는 `src/materials/bindings.ts`이고, 리뷰는 컴파일된 산출물에서 재료 없는 면·두 재료를 받은 면의 수가 0인지와 경계선이 host 부재 끝선과 일치하는지를 검사 모드 view로 관찰한다.
+재료는 [완결 시각 표면의 소유 분해](../spaces/03-surface-owners.md#exterior-surface-handoff)와 [방 내부의 완결 면 소유](../spaces/03-surface-owners.md#interior-surface-handoff)가 정한 owner의 면에 결합하고, 면의 경계·두께·개수는 바꾸지 않는다. 한 면에는 정확히 한 재료가 붙고 두 재료가 만나는 선은 host owner가 이미 가진 부재 경계(trim 돌출, 문턱, 걸레받이, 기단 윗선)와 일치해야 한다. 같은 면을 삼각형 단위로 나눠 다른 재료를 칠하는 방식으로 경계를 새로 만들지 않는다. 맵 좌표도 같은 part id에 결속하고 U/V의 축·원점·회전·반복 모듈을 그 part에 기록하며 이음은 실제 host 부재 끝에서만 바뀐다. 바깥면 법선은 host owner가 정한 바깥 방향이며 재료는 단면(single-sided) 기본값을 쓰고 유리·얇은 커튼만 양면이다. source owner는 `src/materials/bindings.ts`이고, 리뷰는 컴파일된 산출물에서 재료 없는 면·두 재료를 받은 면의 수가 0인지와 경계선이 host 부재 끝선과 일치하는지를 검사 모드 view로 관찰한다.
 
 ## 재료 리뷰 견본 {#material-review-set}
 <!--
@@ -201,11 +201,11 @@ roughness는 0–1 상수로 다음 대역을 쓴다. 광택 유리·거울 0.02
 @evidence principles/design/materials.md#material-binding-interface 실제 host 위 거리 견본에서 재료 경계와 host 부재 끝선의 일치를 본다.
 @evidence principles/design/materials.md#material-verification-address 명도 순서(흰 trim > 천장 > 실내 벽 > siding)와 roughness 대역별 하이라이트 폭 순서를 한 화면에서 반증하는 판을 정한다.
 @evidenceExclude upstream/design/materials.md#parent-revision-from-material-work frame-condition과 lighting-state를 적힌 그대로 소비했고 부모 결함은 없었다.
-@evidence contracts/no-texture-bitmap.md#constant-response-no-bitmap 반복 결이 비트맵 없이 geometry로만 읽히는지를 거리 견본에서 관찰한다.
+@evidence contracts/texture-readability.md#material-texture-readability 근접·리뷰 거리 견본과 실제 host에서 텍스처 scale·이음·광학 읽힘을 반증한다.
 @evidence obligations/design/materials.md#material-review-set 중성 조명 판·기준 상태 판·거리 견본·상태 견본을 정해 타일링·경계·면 오류를 극적 shot 전에 반증한다.
 @evidence settings/20-verification.md#frame-condition 재료 리뷰 견본이 '리뷰 프레임 조건'(settings/20-verification.md#frame-condition)를 링크로 소비해 규칙 값과 결합 면의 근거로 삼았다.
 @evidence settings/20-verification.md#lighting-state 재료 리뷰 견본이 '빛과 기준 상태'(settings/20-verification.md#lighting-state)를 링크로 소비해 규칙 값과 결합 면의 근거로 삼았다.
 @evidence settings/20-verification.md#lifecycle-boundary 제작 순서의 '재료 읽힘과 정리' 단계를 이 견본 네 가지로 판정하고 앞 단계의 공간·부재 결과를 되돌리지 않는다.
 -->
 
-재료 판정은 극적 shot 전에 고정된 견본으로 한다. 첫째 견본은 중성 조명 판이다. [리뷰 프레임 조건](../settings/20-verification.md#frame-condition)의 1536×1024 canvas와 중성 배경 위에 모든 재료 H2를 0.5 m 구와 0.5 m 평판으로 한 줄씩 놓고, 색온도 6500 K 상당의 방향광 하나와 균일한 환경광 아래 고정 노출로 찍는다. 이 판은 hex 명도 순서(흰 trim > 천장 > 실내 벽 > siding, charcoal 창틀 < 차고문)와 roughness 대역별 하이라이트 폭 순서를 한 화면에서 반증한다. 둘째 견본은 기준 상태 판이다. 같은 배열을 [빛과 기준 상태](../settings/20-verification.md#lighting-state)의 오후 key·하늘 fill과 켜진 따뜻한 실내등 아래 다시 찍어 따뜻한 조명에서 흰 계열이 서로 합쳐지거나 올리브·청회색 침구가 구별을 잃는지 본다. 셋째는 실제 host 위 거리 견본이다. 외부는 01 기본 view(사람 눈높이 1.6 m, 약 20 m)와 벽 앞 2 m 근접 view, 실내는 각 방 threshold view(바닥 위 1.6 m, 수직 FOV 60°)와 가구 앞 1 m 근접 view에서 재료 경계가 host 부재 끝선과 맞는지, 재료 없는 면이나 두 재료를 받은 면이 있는지, 반복 결을 만드는 geometry가 비트맵 없이 읽히는지 관찰한다. 넷째는 상태 견본이다. 이 production의 재료에는 시간 변화나 젖음·마모 상태가 없으므로 기준 상태 하나만 검사하고, 문 열림 상태에서 문짝 모서리가 같은 재료를 유지하는지만 더 본다. source owner는 `src/materials/review.ts`이며 관찰 위치와 결과는 컴파일된 산출물과 현재 GPU 프레임에서 읽고, 판이 없거나 실패하면 해당 재료 판정은 unverified로 남긴다.
+재료 판정은 극적 shot 전에 고정된 견본으로 한다. 첫째 견본은 중성 조명 판이다. [리뷰 프레임 조건](../settings/20-verification.md#frame-condition)의 1536×1024 canvas와 중성 배경 위에 모든 재료 H2를 0.5 m 구와 0.5 m 평판으로 한 줄씩 놓고, 색온도 6500 K 상당의 방향광 하나와 균일한 환경광 아래 고정 노출로 찍는다. 이 판은 hex 명도 순서(흰 trim > 천장 > 실내 벽 > siding, charcoal 창틀 < 차고문)와 roughness 대역별 하이라이트 폭 순서를 한 화면에서 반증한다. 둘째 견본은 기준 상태 판이다. 같은 배열을 [빛과 기준 상태](../settings/20-verification.md#lighting-state)의 오후 key·하늘 fill과 켜진 따뜻한 실내등 아래 다시 찍어 따뜻한 조명에서 흰 계열이 서로 합쳐지거나 올리브·청회색 침구가 구별을 잃는지 본다. 셋째는 실제 host 위 거리 견본이다. 외부는 01 기본 view(사람 눈높이 1.6 m, 약 20 m)와 벽 앞 2 m 근접 view, 실내는 각 방 threshold view(바닥 위 1.6 m, 수직 FOV 60°)와 가구 앞 1 m 근접 view에서 재료 경계가 host 부재 끝선과 맞는지, 재료 없는 면이나 두 재료를 받은 면이 있는지, 실제 부재와 결속된 텍스처의 물리 scale·이음, 매끈한 표면의 광학 응답이 리뷰 거리에서 읽히는지 관찰한다. 넷째는 상태 견본이다. 이 production의 재료에는 시간 변화나 젖음·마모 상태가 없으므로 기준 상태 하나만 검사하고, 문 열림 상태에서 문짝 모서리가 같은 재료를 유지하는지만 더 본다. source owner는 `src/materials/review.ts`이며 관찰 위치와 결과는 컴파일된 산출물과 현재 GPU 프레임에서 읽고, 판이 없거나 실패하면 해당 재료 판정은 unverified로 남긴다.

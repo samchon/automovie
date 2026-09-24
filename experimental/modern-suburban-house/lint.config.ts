@@ -101,8 +101,8 @@ productionEvidence.claims = [
     populationScope: { mode: "complete-production" },
   }),
   createAutoMovieProductionPrincipleClaim({
-    name: "house-material-no-bitmap",
-    document: "contracts/no-texture-bitmap.md",
+    name: "house-material-texture-readability",
+    document: "contracts/texture-readability.md",
     files: ["materials/**/*.md"],
     layer: "materials",
     stage: productionEvidence.materials,
