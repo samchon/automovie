@@ -2,40 +2,40 @@
   {
     "id": "alan-rickman-connected",
     "name": "alan-rickman (connected study)",
-    "basis": "mpfb-connected-head-2026-09-24-lip-seal",
+    "basis": "mpfb-connected-head-2026-09-24-closed-lips",
     "shape": {
       "globalAgeStructure": 0.6153846153846154,
       "globalSexualDimorphism": 1,
       "europeanAncestry": 1,
-      "headHeight": 0.6677,
-      "leftEyeLateralPosition": 0.74015,
-      "rightEyeLateralPosition": 0.74015,
-      "leftEyeScale": -0.2787,
-      "rightEyeScale": -0.2787,
-      "leftEyeHeight": 0.04535,
-      "rightEyeHeight": 0.04535,
+      "headHeight": 0.72111,
+      "leftEyeLateralPosition": 0.77269,
+      "rightEyeLateralPosition": 0.77269,
+      "leftEyeScale": -0.2681,
+      "rightEyeScale": -0.2681,
+      "leftEyeHeight": -0.38807,
+      "rightEyeHeight": -0.38807,
       "noseWidth": 1,
-      "noseHeight": -0.52324,
-      "mouthWidth": 0.72228,
-      "upperLipHeight": 0.43234,
-      "lowerLipHeight": 0.54945,
+      "noseHeight": -0.46572,
+      "mouthWidth": 0.69958,
+      "upperLipHeight": 0.40241,
+      "lowerLipHeight": 0.45936,
       "mouthElevation": 1,
-      "cheekFullness": -1,
-      "chinWidth": -0.01936,
-      "chinHeight": -1,
+      "cheekFullness": 1,
+      "chinWidth": -0.01024,
+      "chinHeight": -0.98606,
       "browElevation": -1
     },
     "expression": {
-      "browInnerUp": 0.0153,
-      "eyeBlinkLeft": 0.2249,
-      "eyeLookDownLeft": 0.1273,
-      "eyeLookDownRight": 0.2263,
-      "eyeWideRight": 0.0317,
-      "jawOpen": 0.1704,
-      "mouthRight": 0.1271,
-      "mouthShrugUpper": 0.0308,
-      "mouthSmileLeft": 0.4692,
-      "mouthSmileRight": 0.4959
+      "browInnerUp": 0.014,
+      "eyeBlinkLeft": 0.2164,
+      "eyeLookDownLeft": 0.1239,
+      "eyeLookDownRight": 0.2405,
+      "eyeWideRight": 0.0399,
+      "jawOpen": 0.1659,
+      "mouthRight": 0.1583,
+      "mouthShrugUpper": 0.0227,
+      "mouthSmileLeft": 0.4702,
+      "mouthSmileRight": 0.4982
     },
     "materials": {
       "skin": {
@@ -108,16 +108,15 @@
           },
           "finish": {
             "color": [
-              0.52,
-              0.36,
-              0.12
+              0.75736,
+              0.63908,
+              0.38117
             ],
             "roughness": 0.73,
             "fibres": 24,
             "coverage": 0.95,
             "normal": 0.2,
-            "shade": 1,
-            "grey": 0.5
+            "shade": 1
           },
           "part": {
             "normal": [
@@ -184,38 +183,38 @@
   {
     "id": "daniel-radcliffe-connected",
     "name": "daniel-radcliffe (connected study)",
-    "basis": "mpfb-connected-head-2026-09-24-lip-seal",
+    "basis": "mpfb-connected-head-2026-09-24-closed-lips",
     "shape": {
       "globalAgeStructure": -1,
       "globalSexualDimorphism": 1,
       "europeanAncestry": 1,
-      "headHeight": 0.34086,
-      "leftEyeLateralPosition": 0.14659,
-      "rightEyeLateralPosition": 0.14659,
-      "leftEyeScale": 0.25715,
-      "rightEyeScale": 0.25715,
-      "leftEyeHeight": -0.79775,
-      "rightEyeHeight": -0.79775,
-      "noseWidth": 0.03157,
-      "noseHeight": 0.86254,
-      "mouthWidth": 0.73442,
-      "upperLipHeight": 0.49643,
-      "lowerLipHeight": 1,
-      "mouthElevation": 0.2873,
+      "headHeight": 0.25005,
+      "leftEyeLateralPosition": 0.16531,
+      "rightEyeLateralPosition": 0.16531,
+      "leftEyeScale": 0.2797,
+      "rightEyeScale": 0.2797,
+      "leftEyeHeight": -0.75041,
+      "rightEyeHeight": -0.75041,
+      "noseWidth": 0.12625,
+      "noseHeight": 1,
+      "mouthWidth": 0.76876,
+      "upperLipHeight": 0.54053,
+      "lowerLipHeight": 0.99663,
+      "mouthElevation": 0.11154,
       "cheekFullness": 0,
       "chinWidth": -1,
-      "chinHeight": -0.95779,
-      "browElevation": -0.25313
+      "chinHeight": -0.71844,
+      "browElevation": -0.21651
     },
     "expression": {
-      "eyeBlinkLeft": 0.2181,
-      "eyeBlinkRight": 0.1167,
-      "eyeLookInRight": 0.1051,
-      "eyeLookOutLeft": 0.2153,
-      "jawOpen": 0.0355,
-      "mouthRight": 0.0037,
-      "mouthSmileLeft": 0.842,
-      "mouthSmileRight": 0.7311
+      "eyeBlinkLeft": 0.1973,
+      "eyeBlinkRight": 0.11,
+      "eyeLookInRight": 0.0933,
+      "eyeLookOutLeft": 0.194,
+      "jawOpen": 0.0356,
+      "mouthRight": 0.0045,
+      "mouthSmileLeft": 0.833,
+      "mouthSmileRight": 0.7238
     },
     "materials": {
       "skin": {
@@ -288,9 +287,9 @@
           },
           "finish": {
             "color": [
-              0.028,
-              0.018,
-              0.011
+              0.05337,
+              0.02927,
+              0.02113
             ],
             "roughness": 0.73,
             "fibres": 24,
@@ -375,9 +374,9 @@
           },
           "finish": {
             "color": [
-              0.028,
-              0.018,
-              0.011
+              0.03732,
+              0.02047,
+              0.01478
             ],
             "roughness": 0.73,
             "fibres": 24,
@@ -434,39 +433,39 @@
   {
     "id": "emma-watson-connected",
     "name": "emma-watson (connected study)",
-    "basis": "mpfb-connected-head-2026-09-24-lip-seal",
+    "basis": "mpfb-connected-head-2026-09-24-closed-lips",
     "shape": {
       "globalAgeStructure": -0.08333333333333326,
       "globalSexualDimorphism": -1,
       "europeanAncestry": 1,
-      "headHeight": -0.41347,
-      "leftEyeLateralPosition": 0.35503,
-      "rightEyeLateralPosition": 0.35503,
-      "leftEyeScale": 0.10314,
-      "rightEyeScale": 0.10314,
-      "leftEyeHeight": 0.31592,
-      "rightEyeHeight": 0.31592,
-      "noseWidth": -0.1063,
+      "headHeight": -0.43826,
+      "leftEyeLateralPosition": 0.45571,
+      "rightEyeLateralPosition": 0.45571,
+      "leftEyeScale": 0.25674,
+      "rightEyeScale": 0.25674,
+      "leftEyeHeight": 0.26604,
+      "rightEyeHeight": 0.26604,
+      "noseWidth": -0.17749,
       "noseHeight": 1,
-      "mouthWidth": -0.41603,
+      "mouthWidth": -0.41875,
       "upperLipHeight": -1,
-      "lowerLipHeight": 0.20969,
-      "mouthElevation": -0.382,
+      "lowerLipHeight": 0.17485,
+      "mouthElevation": -0.38661,
       "cheekFullness": 0,
       "chinWidth": -1,
-      "chinHeight": -0.7654,
+      "chinHeight": -0.75374,
       "browElevation": -1
     },
     "expression": {
-      "eyeBlinkLeft": 0.1644,
-      "eyeBlinkRight": 0.0492,
-      "eyeLookInRight": 0.5691,
-      "eyeLookOutLeft": 0.5084,
+      "eyeBlinkLeft": 0.1274,
+      "eyeBlinkRight": 0.0297,
+      "eyeLookInRight": 0.5653,
+      "eyeLookOutLeft": 0.4997,
       "jawOpen": 0.0019,
-      "mouthPucker": 0.0378,
-      "mouthRight": 0.0025,
-      "mouthSmileLeft": 0.3933,
-      "mouthSmileRight": 0.1657
+      "mouthPucker": 0.0329,
+      "mouthRight": 0.003,
+      "mouthSmileLeft": 0.3943,
+      "mouthSmileRight": 0.1655
     },
     "materials": {
       "skin": {
@@ -539,9 +538,9 @@
           },
           "finish": {
             "color": [
-              0.095,
-              0.048,
-              0.019
+              0.06779,
+              0.04038,
+              0.01946
             ],
             "roughness": 0.73,
             "fibres": 24,
@@ -614,38 +613,38 @@
   {
     "id": "generated-black-boy-01-connected",
     "name": "generated-black-boy-01 (connected study)",
-    "basis": "mpfb-connected-head-2026-09-24-lip-seal",
+    "basis": "mpfb-connected-head-2026-09-24-closed-lips",
     "shape": {
       "globalAgeStructure": -0.8333333333333333,
       "globalSexualDimorphism": 1,
       "africanAncestry": 1,
-      "headHeight": 0.59469,
-      "leftEyeLateralPosition": 0.69117,
-      "rightEyeLateralPosition": 0.69117,
-      "leftEyeScale": 0.02225,
-      "rightEyeScale": 0.02225,
-      "leftEyeHeight": -0.00717,
-      "rightEyeHeight": -0.00717,
-      "noseWidth": 0.52451,
-      "noseHeight": -0.54955,
-      "mouthWidth": 0.89661,
-      "upperLipHeight": 1,
+      "headHeight": 0.61359,
+      "leftEyeLateralPosition": 0.74133,
+      "rightEyeLateralPosition": 0.74133,
+      "leftEyeScale": 0.08585,
+      "rightEyeScale": 0.08585,
+      "leftEyeHeight": -0.10563,
+      "rightEyeHeight": -0.10563,
+      "noseWidth": 0.61221,
+      "noseHeight": -0.52848,
+      "mouthWidth": 0.8322,
+      "upperLipHeight": 0.9583,
       "lowerLipHeight": 1,
-      "mouthElevation": 0.42338,
+      "mouthElevation": 0.54689,
       "cheekFullness": -1,
       "chinWidth": -1,
       "chinHeight": -1,
-      "browElevation": -0.29616
+      "browElevation": -0.31579
     },
     "expression": {
-      "eyeBlinkLeft": 0.3148,
-      "eyeBlinkRight": 0.2942,
-      "jawOpen": 0.0262,
-      "mouthPucker": 0.2257,
-      "mouthRight": 0.035,
-      "mouthSmileLeft": 0.7663,
-      "mouthSmileRight": 0.8152,
-      "mouthStretchRight": 0.459
+      "eyeBlinkLeft": 0.3157,
+      "eyeBlinkRight": 0.2947,
+      "jawOpen": 0.0261,
+      "mouthPucker": 0.215,
+      "mouthRight": 0.044,
+      "mouthSmileLeft": 0.7662,
+      "mouthSmileRight": 0.8156,
+      "mouthStretchRight": 0.4727
     },
     "materials": {
       "skin": {
@@ -718,9 +717,9 @@
           },
           "finish": {
             "color": [
-              0.009,
-              0.006,
-              0.005
+              0.01336,
+              0.01487,
+              0.01602
             ],
             "roughness": 0.94,
             "fibres": 24,
@@ -765,40 +764,40 @@
   {
     "id": "generated-black-girl-01-connected",
     "name": "generated-black-girl-01 (connected study)",
-    "basis": "mpfb-connected-head-2026-09-24-lip-seal",
+    "basis": "mpfb-connected-head-2026-09-24-closed-lips",
     "shape": {
       "globalAgeStructure": -0.8333333333333333,
       "globalSexualDimorphism": -1,
       "africanAncestry": 1,
-      "headHeight": 1,
-      "leftEyeLateralPosition": 0.55956,
-      "rightEyeLateralPosition": 0.55956,
-      "leftEyeScale": -0.52814,
-      "rightEyeScale": -0.52814,
-      "leftEyeHeight": -0.83679,
-      "rightEyeHeight": -0.83679,
-      "noseWidth": 0.07541,
-      "noseHeight": -0.0709,
-      "mouthWidth": 0.68452,
-      "upperLipHeight": 0.24493,
-      "lowerLipHeight": 1,
-      "mouthElevation": 0.79884,
+      "headHeight": 0.91252,
+      "leftEyeLateralPosition": 0.62377,
+      "rightEyeLateralPosition": 0.62377,
+      "leftEyeScale": -0.43757,
+      "rightEyeScale": -0.43757,
+      "leftEyeHeight": -0.71018,
+      "rightEyeHeight": -0.71018,
+      "noseWidth": 0.03223,
+      "noseHeight": 0.2683,
+      "mouthWidth": 0.6615,
+      "upperLipHeight": 0.0469,
+      "lowerLipHeight": 0.75116,
+      "mouthElevation": 0.43737,
       "cheekFullness": -1,
       "chinWidth": -1,
       "chinHeight": -1,
-      "browElevation": -0.07351
+      "browElevation": 0.01957
     },
     "expression": {
-      "eyeBlinkLeft": 0.2343,
-      "eyeBlinkRight": 0.1722,
-      "eyeLookInRight": 0.1959,
-      "eyeLookOutLeft": 0.1764,
+      "eyeBlinkLeft": 0.2347,
+      "eyeBlinkRight": 0.1716,
+      "eyeLookInRight": 0.1955,
+      "eyeLookOutLeft": 0.1747,
       "jawOpen": 0.0398,
-      "mouthLeft": 0.1221,
-      "mouthPucker": 0.0668,
-      "mouthRight": 0.008,
-      "mouthSmileLeft": 0.9574,
-      "mouthSmileRight": 0.9103
+      "mouthLeft": 0.1157,
+      "mouthPucker": 0.0647,
+      "mouthRight": 0.0188,
+      "mouthSmileLeft": 0.9466,
+      "mouthSmileRight": 0.8928
     },
     "materials": {
       "skin": {
@@ -871,9 +870,9 @@
           },
           "finish": {
             "color": [
-              0.012,
-              0.007,
-              0.005
+              0.00878,
+              0.00808,
+              0.00857
             ],
             "roughness": 0.94,
             "fibres": 24,
@@ -946,41 +945,41 @@
   {
     "id": "generated-korean-boy-01-connected",
     "name": "generated-korean-boy-01 (connected study)",
-    "basis": "mpfb-connected-head-2026-09-24-lip-seal",
+    "basis": "mpfb-connected-head-2026-09-24-closed-lips",
     "shape": {
       "globalAgeStructure": -0.8333333333333333,
       "globalSexualDimorphism": 1,
       "asianAncestry": 1,
-      "headHeight": 0.21876,
-      "leftEyeLateralPosition": 0.24945,
-      "rightEyeLateralPosition": 0.24945,
-      "leftEyeScale": -0.1607,
-      "rightEyeScale": -0.1607,
-      "leftEyeHeight": -0.05809,
-      "rightEyeHeight": -0.05809,
-      "noseWidth": 0.50634,
-      "noseHeight": 0.52031,
-      "mouthWidth": 0.35471,
-      "upperLipHeight": -0.73752,
-      "lowerLipHeight": 0.01683,
-      "mouthElevation": 0.23577,
+      "headHeight": 0.22235,
+      "leftEyeLateralPosition": 0.22012,
+      "rightEyeLateralPosition": 0.22012,
+      "leftEyeScale": -0.17349,
+      "rightEyeScale": -0.17349,
+      "leftEyeHeight": -0.10566,
+      "rightEyeHeight": -0.10566,
+      "noseWidth": 0.4845,
+      "noseHeight": 0.54342,
+      "mouthWidth": 0.34885,
+      "upperLipHeight": -0.78665,
+      "lowerLipHeight": -0.00178,
+      "mouthElevation": 0.23573,
       "cheekFullness": -1,
       "chinWidth": -1,
       "chinHeight": -1,
-      "browElevation": 0.46621
+      "browElevation": 0.52143
     },
     "expression": {
-      "eyeBlinkLeft": 0.2539,
-      "eyeBlinkRight": 0.2078,
-      "eyeLookDownLeft": 0.0202,
-      "eyeLookDownRight": 0.0252,
-      "eyeLookInRight": 0.1614,
-      "eyeLookOutLeft": 0.1728,
-      "jawOpen": 0.0709,
-      "mouthLeft": 0.0384,
-      "mouthRight": 0.0068,
-      "mouthSmileLeft": 0.6951,
-      "mouthSmileRight": 0.6368
+      "eyeBlinkLeft": 0.2537,
+      "eyeBlinkRight": 0.2068,
+      "eyeLookDownLeft": 0.0099,
+      "eyeLookDownRight": 0.0209,
+      "eyeLookInRight": 0.1837,
+      "eyeLookOutLeft": 0.19,
+      "jawOpen": 0.071,
+      "mouthLeft": 0.0201,
+      "mouthRight": 0.0144,
+      "mouthSmileLeft": 0.695,
+      "mouthSmileRight": 0.6376
     },
     "materials": {
       "skin": {
@@ -1053,9 +1052,9 @@
           },
           "finish": {
             "color": [
-              0.023,
-              0.018,
-              0.015
+              0.0516,
+              0.03822,
+              0.03146
             ],
             "roughness": 0.73,
             "fibres": 24,
@@ -1128,39 +1127,39 @@
   {
     "id": "generated-white-boy-01-connected",
     "name": "generated-white-boy-01 (connected study)",
-    "basis": "mpfb-connected-head-2026-09-24-lip-seal",
+    "basis": "mpfb-connected-head-2026-09-24-closed-lips",
     "shape": {
       "globalAgeStructure": -0.8333333333333333,
       "globalSexualDimorphism": 1,
       "europeanAncestry": 1,
-      "headHeight": 0.59051,
-      "leftEyeLateralPosition": 0.63724,
-      "rightEyeLateralPosition": 0.63724,
-      "leftEyeScale": 0.00997,
-      "rightEyeScale": 0.00997,
-      "leftEyeHeight": -0.52199,
-      "rightEyeHeight": -0.52199,
-      "noseWidth": 0.45803,
-      "noseHeight": 0.469,
+      "headHeight": 0.58432,
+      "leftEyeLateralPosition": 0.61372,
+      "rightEyeLateralPosition": 0.61372,
+      "leftEyeScale": -0.00489,
+      "rightEyeScale": -0.00489,
+      "leftEyeHeight": -0.33887,
+      "rightEyeHeight": -0.33887,
+      "noseWidth": 0.4398,
+      "noseHeight": 0.39156,
       "mouthWidth": 1,
-      "upperLipHeight": 0.28328,
-      "lowerLipHeight": 0.60927,
-      "mouthElevation": 0.07068,
+      "upperLipHeight": 0.29717,
+      "lowerLipHeight": 0.62508,
+      "mouthElevation": 0.10659,
       "cheekFullness": 0,
       "chinWidth": -1,
       "chinHeight": -1,
-      "browElevation": -0.7254
+      "browElevation": -0.72522
     },
     "expression": {
-      "eyeBlinkLeft": 0.2938,
-      "eyeBlinkRight": 0.2822,
-      "eyeLookInRight": 0.0522,
-      "eyeLookOutLeft": 0.143,
-      "jawOpen": 0.1108,
-      "mouthPucker": 0.0042,
-      "mouthRight": 0.0165,
-      "mouthSmileLeft": 0.8175,
-      "mouthSmileRight": 0.7191
+      "eyeBlinkLeft": 0.296,
+      "eyeBlinkRight": 0.286,
+      "eyeLookInRight": 0.064,
+      "eyeLookOutLeft": 0.1443,
+      "jawOpen": 0.1104,
+      "mouthPucker": 0.0044,
+      "mouthRight": 0.0219,
+      "mouthSmileLeft": 0.8241,
+      "mouthSmileRight": 0.7253
     },
     "materials": {
       "skin": {
@@ -1233,9 +1232,9 @@
           },
           "finish": {
             "color": [
-              0.075,
-              0.043,
-              0.024
+              0.14562,
+              0.103,
+              0.07114
             ],
             "roughness": 0.73,
             "fibres": 24,
@@ -1308,37 +1307,37 @@
   {
     "id": "generated-white-girl-01-connected",
     "name": "generated-white-girl-01 (connected study)",
-    "basis": "mpfb-connected-head-2026-09-24-lip-seal",
+    "basis": "mpfb-connected-head-2026-09-24-closed-lips",
     "shape": {
       "globalAgeStructure": -0.9166666666666667,
       "globalSexualDimorphism": -1,
       "europeanAncestry": 1,
-      "headHeight": 0.06262,
-      "leftEyeLateralPosition": 0.11728,
-      "rightEyeLateralPosition": 0.11728,
-      "leftEyeScale": -0.01732,
-      "rightEyeScale": -0.01732,
-      "leftEyeHeight": -0.6779,
-      "rightEyeHeight": -0.6779,
-      "noseWidth": 0.0702,
-      "noseHeight": 0.6131,
-      "mouthWidth": 0.70205,
-      "upperLipHeight": -0.14123,
-      "lowerLipHeight": 0.77535,
-      "mouthElevation": -0.18859,
+      "headHeight": 0.03606,
+      "leftEyeLateralPosition": 0.02616,
+      "rightEyeLateralPosition": 0.02616,
+      "leftEyeScale": -0.0835,
+      "rightEyeScale": -0.0835,
+      "leftEyeHeight": -0.73421,
+      "rightEyeHeight": -0.73421,
+      "noseWidth": 0.0095,
+      "noseHeight": 0.62873,
+      "mouthWidth": 0.66723,
+      "upperLipHeight": -0.19636,
+      "lowerLipHeight": 0.73974,
+      "mouthElevation": -0.16371,
       "cheekFullness": -1,
-      "chinWidth": -0.89222,
+      "chinWidth": -0.89286,
       "chinHeight": -1,
-      "browElevation": -0.46528
+      "browElevation": -0.4442
     },
     "expression": {
-      "browOuterUpRight": 0.2448,
-      "eyeBlinkLeft": 0.0737,
-      "eyeBlinkRight": 0.0925,
+      "browOuterUpRight": 0.2431,
+      "eyeBlinkLeft": 0.0833,
+      "eyeBlinkRight": 0.0961,
       "jawOpen": 0.0077,
-      "mouthLeft": 0.1831,
-      "mouthSmileLeft": 0.7056,
-      "mouthSmileRight": 0.5276
+      "mouthLeft": 0.1762,
+      "mouthSmileLeft": 0.7065,
+      "mouthSmileRight": 0.5356
     },
     "materials": {
       "skin": {
@@ -1439,9 +1438,9 @@
           },
           "finish": {
             "color": [
-              0.06,
-              0.032,
-              0.019
+              0.05606,
+              0.03636,
+              0.02611
             ],
             "roughness": 0.73,
             "fibres": 24,
@@ -1505,41 +1504,41 @@
   {
     "id": "kim-min-jung-connected",
     "name": "kim-min-jung (connected study)",
-    "basis": "mpfb-connected-head-2026-09-24-lip-seal",
+    "basis": "mpfb-connected-head-2026-09-24-closed-lips",
     "shape": {
       "globalAgeStructure": 0.01538461538461533,
       "globalSexualDimorphism": -1,
       "asianAncestry": 1,
-      "headHeight": -0.00096,
-      "leftEyeLateralPosition": 0.04386,
-      "rightEyeLateralPosition": 0.04386,
-      "leftEyeScale": 0.20631,
-      "rightEyeScale": 0.20631,
-      "leftEyeHeight": 0.25946,
-      "rightEyeHeight": 0.25946,
-      "noseWidth": 0.15987,
-      "noseHeight": 0.32592,
-      "mouthWidth": -0.18434,
+      "headHeight": -0.00034,
+      "leftEyeLateralPosition": 0.03125,
+      "rightEyeLateralPosition": 0.03125,
+      "leftEyeScale": 0.17389,
+      "rightEyeScale": 0.17389,
+      "leftEyeHeight": 0.25561,
+      "rightEyeHeight": 0.25561,
+      "noseWidth": 0.17526,
+      "noseHeight": 0.36481,
+      "mouthWidth": -0.19254,
       "upperLipHeight": -1,
-      "lowerLipHeight": 0.14353,
-      "mouthElevation": 0.16902,
+      "lowerLipHeight": -0.00662,
+      "mouthElevation": 0.18355,
       "cheekFullness": 0,
-      "chinWidth": -0.54473,
+      "chinWidth": -0.54481,
       "chinHeight": -1,
-      "browElevation": 0.28476
+      "browElevation": 0.34346
     },
     "expression": {
-      "browInnerUp": 0.8402,
-      "browOuterUpLeft": 0.3163,
-      "eyeBlinkLeft": 0.1485,
-      "eyeBlinkRight": 0.0098,
-      "eyeLookInRight": 0.3487,
-      "eyeLookOutLeft": 0.3172,
-      "mouthLeft": 0.0936,
-      "mouthPucker": 0.2712,
-      "mouthRight": 0.0721,
-      "mouthSmileLeft": 0.4329,
-      "mouthSmileRight": 0.3371
+      "browInnerUp": 0.8199,
+      "browOuterUpLeft": 0.3111,
+      "eyeBlinkLeft": 0.1466,
+      "eyeBlinkRight": 0.0097,
+      "eyeLookInRight": 0.335,
+      "eyeLookOutLeft": 0.3099,
+      "mouthLeft": 0.1061,
+      "mouthPucker": 0.2325,
+      "mouthRight": 0.0855,
+      "mouthSmileLeft": 0.4331,
+      "mouthSmileRight": 0.3376
     },
     "materials": {
       "skin": {
@@ -1612,9 +1611,9 @@
           },
           "finish": {
             "color": [
-              0.009,
-              0.006,
-              0.005
+              0.01944,
+              0.03732,
+              0.05414
             ],
             "roughness": 0.73,
             "fibres": 24,
@@ -1671,9 +1670,9 @@
           },
           "finish": {
             "color": [
-              0.009,
-              0.006,
-              0.005
+              0.0136,
+              0.0261,
+              0.03786
             ],
             "roughness": 0.73,
             "fibres": 24,
@@ -1730,42 +1729,41 @@
   {
     "id": "lee-tae-ri-connected",
     "name": "lee-tae-ri (connected study)",
-    "basis": "mpfb-connected-head-2026-09-24-lip-seal",
+    "basis": "mpfb-connected-head-2026-09-24-closed-lips",
     "shape": {
       "globalAgeStructure": 0.09230769230769242,
       "globalSexualDimorphism": -1,
       "asianAncestry": 1,
-      "headHeight": -0.90004,
-      "leftEyeLateralPosition": 0.04278,
-      "rightEyeLateralPosition": 0.04278,
-      "leftEyeScale": -0.28144,
-      "rightEyeScale": -0.28144,
-      "leftEyeHeight": 0.49929,
-      "rightEyeHeight": 0.49929,
-      "noseWidth": 0.11584,
-      "noseHeight": 0.95616,
-      "mouthWidth": -0.311,
+      "headHeight": -0.89454,
+      "leftEyeLateralPosition": 0.07252,
+      "rightEyeLateralPosition": 0.07252,
+      "leftEyeScale": -0.25645,
+      "rightEyeScale": -0.25645,
+      "leftEyeHeight": 0.63756,
+      "rightEyeHeight": 0.63756,
+      "noseWidth": 0.11548,
+      "noseHeight": 0.96615,
+      "mouthWidth": -0.28954,
       "upperLipHeight": -1,
-      "lowerLipHeight": -0.33357,
+      "lowerLipHeight": -0.3185,
       "mouthElevation": -1,
-      "cheekFullness": 0.03311,
-      "chinWidth": -0.81002,
-      "chinHeight": 0.40061,
+      "cheekFullness": 0.0106,
+      "chinWidth": -0.83202,
+      "chinHeight": 0.38589,
       "browElevation": 1
     },
     "expression": {
-      "browInnerUp": 0.2555,
-      "browOuterUpRight": 0.0283,
-      "eyeBlinkLeft": 0.0004,
-      "eyeLookOutLeft": 0.1024,
-      "eyeWideLeft": 0.0516,
-      "eyeWideRight": 0.0777,
+      "browInnerUp": 0.2585,
+      "eyeBlinkLeft": 0.0256,
+      "eyeLookOutLeft": 0.1071,
+      "eyeWideLeft": 0.0258,
+      "eyeWideRight": 0.0653,
       "jawOpen": 0.0002,
-      "mouthLeft": 0.0994,
-      "mouthPucker": 0.0426,
-      "mouthRight": 0.0185,
-      "mouthSmileLeft": 0.5047,
-      "mouthSmileRight": 0.4013
+      "mouthLeft": 0.1245,
+      "mouthPucker": 0.0378,
+      "mouthRight": 0.0219,
+      "mouthSmileLeft": 0.5036,
+      "mouthSmileRight": 0.4022
     },
     "materials": {
       "skin": {
@@ -1838,9 +1836,9 @@
           },
           "finish": {
             "color": [
-              0.012,
-              0.009,
-              0.008
+              0.04115,
+              0.03754,
+              0.03652
             ],
             "roughness": 0.73,
             "fibres": 24,
@@ -1913,38 +1911,38 @@
   {
     "id": "maggie-smith-connected",
     "name": "maggie-smith (connected study)",
-    "basis": "mpfb-connected-head-2026-09-24-lip-seal",
+    "basis": "mpfb-connected-head-2026-09-24-closed-lips",
     "shape": {
       "globalAgeStructure": 0.8461538461538463,
       "globalSexualDimorphism": -1,
       "europeanAncestry": 1,
-      "headHeight": 0.04616,
-      "leftEyeLateralPosition": 0.0837,
-      "rightEyeLateralPosition": 0.0837,
-      "leftEyeScale": -0.5007,
-      "rightEyeScale": -0.5007,
-      "leftEyeHeight": 0.38216,
-      "rightEyeHeight": 0.38216,
-      "noseWidth": 0.69144,
-      "noseHeight": -0.46532,
-      "mouthWidth": 0.46647,
+      "headHeight": 0.07999,
+      "leftEyeLateralPosition": 0.11873,
+      "rightEyeLateralPosition": 0.11873,
+      "leftEyeScale": -0.45676,
+      "rightEyeScale": -0.45676,
+      "leftEyeHeight": 0.2791,
+      "rightEyeHeight": 0.2791,
+      "noseWidth": 0.79729,
+      "noseHeight": -0.45041,
+      "mouthWidth": 0.47747,
       "upperLipHeight": 1,
       "lowerLipHeight": 1,
-      "mouthElevation": 0.27976,
+      "mouthElevation": 0.35716,
       "cheekFullness": 0,
       "chinWidth": -1,
       "chinHeight": -1,
-      "browElevation": -0.47858
+      "browElevation": -0.39765
     },
     "expression": {
-      "browOuterUpLeft": 0.1432,
-      "browOuterUpRight": 0.0974,
-      "eyeBlinkLeft": 0.2977,
-      "eyeBlinkRight": 0.1352,
-      "jawOpen": 0.0465,
-      "mouthRight": 0.0041,
-      "mouthSmileLeft": 0.307,
-      "mouthSmileRight": 0.2415
+      "browOuterUpLeft": 0.155,
+      "browOuterUpRight": 0.0375,
+      "eyeBlinkLeft": 0.2818,
+      "eyeBlinkRight": 0.127,
+      "jawOpen": 0.0466,
+      "mouthRight": 0.0055,
+      "mouthSmileLeft": 0.3044,
+      "mouthSmileRight": 0.257
     },
     "materials": {
       "skin": {
@@ -2017,16 +2015,15 @@
           },
           "finish": {
             "color": [
-              0.3125,
-              0.15,
-              0.025
+              0.18742,
+              0.12478,
+              0.0963
             ],
             "roughness": 0.73,
             "fibres": 24,
             "coverage": 0.95,
             "normal": 0.2,
-            "shade": 1,
-            "grey": 0.2
+            "shade": 1
           },
           "part": {
             "normal": [
@@ -2093,43 +2090,43 @@
   {
     "id": "michael-gambon-connected",
     "name": "michael-gambon (connected study)",
-    "basis": "mpfb-connected-head-2026-09-24-lip-seal",
+    "basis": "mpfb-connected-head-2026-09-24-closed-lips",
     "shape": {
       "globalAgeStructure": 0.7230769230769232,
       "globalSexualDimorphism": 1,
       "europeanAncestry": 1,
-      "headHeight": 0.05926,
-      "leftEyeLateralPosition": 0.594,
-      "rightEyeLateralPosition": 0.594,
-      "leftEyeScale": -0.86222,
-      "rightEyeScale": -0.86222,
-      "leftEyeHeight": -0.53209,
-      "rightEyeHeight": -0.53209,
+      "headHeight": 0.04917,
+      "leftEyeLateralPosition": 0.6178,
+      "rightEyeLateralPosition": 0.6178,
+      "leftEyeScale": -0.99408,
+      "rightEyeScale": -0.99408,
+      "leftEyeHeight": -0.02218,
+      "rightEyeHeight": -0.02218,
       "noseWidth": 1,
-      "noseHeight": -0.87338,
-      "mouthWidth": -0.05985,
-      "upperLipHeight": 1,
+      "noseHeight": -0.79348,
+      "mouthWidth": 0.00609,
+      "upperLipHeight": 0.98209,
       "lowerLipHeight": 1,
       "mouthElevation": 1,
-      "cheekFullness": 0.20273,
-      "chinWidth": 0.08105,
-      "chinHeight": -0.8564,
-      "browElevation": -0.37565
+      "cheekFullness": 0.25727,
+      "chinWidth": 0.06871,
+      "chinHeight": -0.73795,
+      "browElevation": -0.5234
     },
     "expression": {
       "browInnerUp": 1,
-      "browOuterUpLeft": 0.6419,
-      "browOuterUpRight": 0.3986,
-      "eyeBlinkLeft": 0.0977,
-      "eyeLookInRight": 0.5862,
-      "eyeLookOutLeft": 0.5051,
-      "eyeWideRight": 0.0348,
-      "jawOpen": 0.009,
-      "mouthRight": 0.1878,
-      "mouthSmileLeft": 0.1148,
+      "browOuterUpLeft": 0.8843,
+      "browOuterUpRight": 0.4398,
+      "eyeBlinkLeft": 0.1834,
+      "eyeLookInRight": 0.5828,
+      "eyeLookOutLeft": 0.5049,
+      "eyeWideRight": 0.0304,
+      "jawOpen": 0.0092,
+      "mouthRight": 0.2361,
+      "mouthSmileLeft": 0.1142,
       "mouthSmileRight": 0.0911,
-      "mouthStretchLeft": 0.4574,
-      "mouthStretchRight": 0.1312
+      "mouthStretchLeft": 0.4401,
+      "mouthStretchRight": 0.2082
     },
     "materials": {
       "skin": {
@@ -2202,16 +2199,15 @@
           },
           "finish": {
             "color": [
-              0.0909,
-              0.0909,
-              0.0909
+              0.65862,
+              0.47249,
+              0.38658
             ],
             "roughness": 0.73,
             "fibres": 24,
             "coverage": 0.95,
             "normal": 0.2,
-            "shade": 1,
-            "grey": 0.45
+            "shade": 1
           },
           "guides": {
             "fraction": 0.125,
@@ -2250,42 +2246,41 @@
   {
     "id": "miriam-margolyes-connected",
     "name": "miriam-margolyes (connected study)",
-    "basis": "mpfb-connected-head-2026-09-24-lip-seal",
+    "basis": "mpfb-connected-head-2026-09-24-closed-lips",
     "shape": {
       "globalAgeStructure": 0.7076923076923078,
       "globalSexualDimorphism": -1,
       "europeanAncestry": 1,
-      "headHeight": -0.21584,
-      "leftEyeLateralPosition": -0.8905,
-      "rightEyeLateralPosition": -0.8905,
-      "leftEyeScale": -0.28756,
-      "rightEyeScale": -0.28756,
+      "headHeight": -0.28889,
+      "leftEyeLateralPosition": -0.81915,
+      "rightEyeLateralPosition": -0.81915,
+      "leftEyeScale": -0.09328,
+      "rightEyeScale": -0.09328,
       "leftEyeHeight": -1,
       "rightEyeHeight": -1,
-      "noseWidth": 0.38522,
-      "noseHeight": 0.03408,
-      "mouthWidth": 0.17473,
+      "noseWidth": 0.12086,
+      "noseHeight": 0.20555,
+      "mouthWidth": 0.12219,
       "upperLipHeight": 1,
       "lowerLipHeight": 1,
-      "mouthElevation": -0.3307,
+      "mouthElevation": -0.30989,
       "cheekFullness": -1,
-      "chinWidth": -0.20688,
+      "chinWidth": -0.18518,
       "chinHeight": -1,
-      "browElevation": -1
+      "browElevation": -0.74059
     },
     "expression": {
-      "browOuterUpRight": 0.0024,
-      "eyeBlinkLeft": 0.406,
-      "eyeBlinkRight": 0.0064,
-      "eyeLookInRight": 0.4658,
-      "eyeLookOutLeft": 0.3277,
-      "jawOpen": 0.1593,
-      "mouthLeft": 0.0074,
-      "mouthRight": 0.0216,
-      "mouthShrugLower": 0.0005,
-      "mouthShrugUpper": 0.0187,
-      "mouthSmileLeft": 0.3303,
-      "mouthSmileRight": 0.1835
+      "eyeBlinkLeft": 0.4083,
+      "eyeBlinkRight": 0.0781,
+      "eyeLookInRight": 0.6033,
+      "eyeLookOutLeft": 0.3924,
+      "jawOpen": 0.121,
+      "mouthLeft": 0.009,
+      "mouthRight": 0.0157,
+      "mouthShrugLower": 0.0001,
+      "mouthShrugUpper": 0.0132,
+      "mouthSmileLeft": 0.2692,
+      "mouthSmileRight": 0.1287
     },
     "materials": {
       "skin": {
@@ -2358,16 +2353,15 @@
           },
           "finish": {
             "color": [
-              0.1273,
-              0.0909,
-              0.0545
+              1,
+              1,
+              1
             ],
             "roughness": 0.94,
             "fibres": 24,
             "coverage": 0.95,
             "normal": 0.2,
-            "shade": 1,
-            "grey": 0.45
+            "shade": 1
           },
           "guides": {
             "fraction": 0.125,
@@ -2418,16 +2412,15 @@
           },
           "finish": {
             "color": [
-              0.1273,
-              0.0909,
-              0.0545
+              1,
+              1,
+              1
             ],
             "roughness": 0.94,
             "fibres": 24,
             "coverage": 0.95,
             "normal": 0.2,
-            "shade": 1,
-            "grey": 0.45
+            "shade": 1
           },
           "rootRegion": {
             "center": [
@@ -2478,39 +2471,40 @@
   {
     "id": "oh-seung-yoon-connected",
     "name": "oh-seung-yoon (connected study)",
-    "basis": "mpfb-connected-head-2026-09-24-lip-seal",
+    "basis": "mpfb-connected-head-2026-09-24-closed-lips",
     "shape": {
       "globalAgeStructure": -0.75,
       "globalSexualDimorphism": 1,
       "asianAncestry": 1,
-      "headHeight": 0.00635,
+      "headHeight": 0.0413,
       "leftEyeLateralPosition": 1,
       "rightEyeLateralPosition": 1,
-      "leftEyeScale": 0.3,
-      "rightEyeScale": 0.3,
-      "leftEyeHeight": -0.37221,
-      "rightEyeHeight": -0.37221,
+      "leftEyeScale": 0.32833,
+      "rightEyeScale": 0.32833,
+      "leftEyeHeight": -0.39704,
+      "rightEyeHeight": -0.39704,
       "noseWidth": 1,
       "noseHeight": 1,
-      "mouthWidth": 0.56163,
-      "upperLipHeight": -0.96855,
+      "mouthWidth": 0.58313,
+      "upperLipHeight": -1,
       "lowerLipHeight": 1,
-      "mouthElevation": -0.43657,
+      "mouthElevation": -0.39006,
       "cheekFullness": 0,
-      "chinWidth": -0.33136,
-      "chinHeight": -0.78081,
-      "browElevation": -0.14335
+      "chinWidth": -0.34884,
+      "chinHeight": -0.83288,
+      "browElevation": -0.13675
     },
     "expression": {
-      "browInnerUp": 0.245,
-      "eyeBlinkLeft": 0.0772,
-      "eyeBlinkRight": 0.0377,
-      "eyeLookInRight": 0.705,
-      "eyeLookOutLeft": 0.6392,
+      "browInnerUp": 0.2403,
+      "eyeBlinkLeft": 0.071,
+      "eyeBlinkRight": 0.0232,
+      "eyeLookInRight": 0.694,
+      "eyeLookOutLeft": 0.6266,
+      "eyeWideRight": 0.02,
       "jawOpen": 0.0336,
-      "mouthRight": 0.0292,
-      "mouthSmileLeft": 0.6487,
-      "mouthSmileRight": 0.5837
+      "mouthRight": 0.0368,
+      "mouthSmileLeft": 0.6501,
+      "mouthSmileRight": 0.5855
     },
     "materials": {
       "skin": {
@@ -2576,9 +2570,9 @@
           },
           "finish": {
             "color": [
-              0.014,
-              0.01,
-              0.008
+              0.00139,
+              0.00147,
+              0.0016
             ],
             "roughness": 0.73,
             "fibres": 24,
@@ -2663,9 +2657,9 @@
           },
           "finish": {
             "color": [
-              0.014,
-              0.01,
-              0.008
+              0.00097,
+              0.00103,
+              0.00112
             ],
             "roughness": 0.73,
             "fibres": 24,
@@ -2722,37 +2716,37 @@
   {
     "id": "park-eun-bin-connected",
     "name": "park-eun-bin (connected study)",
-    "basis": "mpfb-connected-head-2026-09-24-lip-seal",
+    "basis": "mpfb-connected-head-2026-09-24-closed-lips",
     "shape": {
       "globalAgeStructure": -0.41666666666666674,
       "globalSexualDimorphism": -1,
       "asianAncestry": 1,
-      "headHeight": -0.44032,
-      "leftEyeLateralPosition": -0.4107,
-      "rightEyeLateralPosition": -0.4107,
-      "leftEyeScale": -0.24568,
-      "rightEyeScale": -0.24568,
-      "leftEyeHeight": -0.0032,
-      "rightEyeHeight": -0.0032,
-      "noseWidth": 0.51215,
+      "headHeight": -0.40138,
+      "leftEyeLateralPosition": -0.31869,
+      "rightEyeLateralPosition": -0.31869,
+      "leftEyeScale": -0.21614,
+      "rightEyeScale": -0.21614,
+      "leftEyeHeight": 0.07931,
+      "rightEyeHeight": 0.07931,
+      "noseWidth": 0.56789,
       "noseHeight": 1,
-      "mouthWidth": -0.6076,
+      "mouthWidth": -0.58325,
       "upperLipHeight": -1,
       "lowerLipHeight": -1,
-      "mouthElevation": -0.85806,
-      "cheekFullness": -0.92562,
-      "chinWidth": -0.84085,
-      "chinHeight": 0.09878,
-      "browElevation": 0.69816
+      "mouthElevation": -0.83632,
+      "cheekFullness": -0.96548,
+      "chinWidth": -0.86483,
+      "chinHeight": 0.10232,
+      "browElevation": 0.77317
     },
     "expression": {
-      "eyeBlinkLeft": 0.0311,
-      "eyeLookDownLeft": 0.0635,
-      "eyeLookDownRight": 0.0316,
-      "eyeLookInRight": 0.024,
-      "eyeWideRight": 0.0291,
-      "mouthRight": 0.0182,
-      "mouthSmileLeft": 0.3302,
+      "eyeBlinkLeft": 0.0361,
+      "eyeLookDownLeft": 0.0347,
+      "eyeLookDownRight": 0.0014,
+      "eyeLookInRight": 0.0131,
+      "eyeWideRight": 0.0189,
+      "mouthRight": 0.0209,
+      "mouthSmileLeft": 0.3303,
       "mouthSmileRight": 0.3248
     },
     "materials": {
@@ -2826,9 +2820,9 @@
           },
           "finish": {
             "color": [
-              0.019,
-              0.012,
-              0.008
+              0.02576,
+              0.01869,
+              0.01866
             ],
             "roughness": 0.73,
             "fibres": 24,
@@ -2913,9 +2907,9 @@
           },
           "finish": {
             "color": [
-              0.019,
-              0.012,
-              0.008
+              0.01801,
+              0.01307,
+              0.01305
             ],
             "roughness": 0.73,
             "fibres": 24,
@@ -2972,38 +2966,38 @@
   {
     "id": "rupert-grint-connected",
     "name": "rupert-grint (connected study)",
-    "basis": "mpfb-connected-head-2026-09-24-lip-seal",
+    "basis": "mpfb-connected-head-2026-09-24-closed-lips",
     "shape": {
       "globalAgeStructure": -0.9166666666666667,
       "globalSexualDimorphism": 1,
       "europeanAncestry": 1,
-      "headHeight": -0.36995,
-      "leftEyeLateralPosition": 0.10641,
-      "rightEyeLateralPosition": 0.10641,
-      "leftEyeScale": -0.10542,
-      "rightEyeScale": -0.10542,
-      "leftEyeHeight": -0.26411,
-      "rightEyeHeight": -0.26411,
-      "noseWidth": 0.51681,
+      "headHeight": -0.39105,
+      "leftEyeLateralPosition": 0.11518,
+      "rightEyeLateralPosition": 0.11518,
+      "leftEyeScale": -0.08008,
+      "rightEyeScale": -0.08008,
+      "leftEyeHeight": -0.39112,
+      "rightEyeHeight": -0.39112,
+      "noseWidth": 0.51908,
       "noseHeight": 1,
-      "mouthWidth": -0.0328,
+      "mouthWidth": -0.06833,
       "upperLipHeight": -1,
-      "lowerLipHeight": -0.28251,
-      "mouthElevation": -0.37551,
-      "cheekFullness": -0.77252,
-      "chinWidth": -0.95333,
-      "chinHeight": -0.18409,
-      "browElevation": -0.04655
+      "lowerLipHeight": -0.30206,
+      "mouthElevation": -0.38266,
+      "cheekFullness": -0.97407,
+      "chinWidth": -0.97232,
+      "chinHeight": -0.1699,
+      "browElevation": -0.00561
     },
     "expression": {
-      "browInnerUp": 0.6367,
-      "browOuterUpRight": 0.0194,
-      "eyeBlinkLeft": 0.0436,
-      "eyeWideRight": 0.014,
-      "mouthPucker": 0.0022,
-      "mouthRight": 0.0098,
-      "mouthSmileLeft": 0.4269,
-      "mouthSmileRight": 0.4003
+      "browInnerUp": 0.6221,
+      "browOuterUpRight": 0.025,
+      "eyeBlinkLeft": 0.0181,
+      "eyeWideRight": 0.0227,
+      "mouthPucker": 0.0021,
+      "mouthRight": 0.0122,
+      "mouthSmileLeft": 0.429,
+      "mouthSmileRight": 0.4008
     },
     "materials": {
       "skin": {
@@ -3076,9 +3070,9 @@
           },
           "finish": {
             "color": [
-              0.16,
-              0.06,
-              0.017
+              0.11859,
+              0.04214,
+              0.01083
             ],
             "roughness": 0.73,
             "fibres": 24,
@@ -3151,38 +3145,38 @@
   {
     "id": "yoo-seung-ho-connected",
     "name": "yoo-seung-ho (connected study)",
-    "basis": "mpfb-connected-head-2026-09-24-lip-seal",
+    "basis": "mpfb-connected-head-2026-09-24-closed-lips",
     "shape": {
       "globalAgeStructure": -0.25,
       "globalSexualDimorphism": 1,
       "asianAncestry": 1,
-      "headHeight": -0.09583,
-      "leftEyeLateralPosition": 0.09663,
-      "rightEyeLateralPosition": 0.09663,
-      "leftEyeScale": 0.56303,
-      "rightEyeScale": 0.56303,
-      "leftEyeHeight": -0.16347,
-      "rightEyeHeight": -0.16347,
-      "noseWidth": 0.30174,
-      "noseHeight": -0.13594,
-      "mouthWidth": -0.14844,
+      "headHeight": -0.09411,
+      "leftEyeLateralPosition": 0.07013,
+      "rightEyeLateralPosition": 0.07013,
+      "leftEyeScale": 0.53786,
+      "rightEyeScale": 0.53786,
+      "leftEyeHeight": -0.33143,
+      "rightEyeHeight": -0.33143,
+      "noseWidth": 0.34855,
+      "noseHeight": -0.1312,
+      "mouthWidth": -0.12859,
       "upperLipHeight": -1,
-      "lowerLipHeight": 0.86938,
-      "mouthElevation": 0.61046,
+      "lowerLipHeight": 0.81047,
+      "mouthElevation": 0.68687,
       "cheekFullness": -1,
-      "chinWidth": -0.74445,
+      "chinWidth": -0.7439,
       "chinHeight": -1,
-      "browElevation": -0.10263
+      "browElevation": -0.16195
     },
     "expression": {
-      "browInnerUp": 0.029,
-      "eyeBlinkLeft": 0.2734,
-      "eyeBlinkRight": 0.1488,
+      "browInnerUp": 0.0336,
+      "eyeBlinkLeft": 0.269,
+      "eyeBlinkRight": 0.1402,
       "jawOpen": 0.0441,
-      "mouthLeft": 0.3856,
-      "mouthSmileLeft": 0.3793,
-      "mouthSmileRight": 0.2784,
-      "mouthStretchRight": 0.1268
+      "mouthLeft": 0.4417,
+      "mouthSmileLeft": 0.3792,
+      "mouthSmileRight": 0.2782,
+      "mouthStretchRight": 0.1259
     },
     "materials": {
       "skin": {
@@ -3255,9 +3249,9 @@
           },
           "finish": {
             "color": [
-              0.025,
-              0.018,
-              0.013
+              0.03569,
+              0.03109,
+              0.03056
             ],
             "roughness": 0.73,
             "fibres": 24,
@@ -3342,9 +3336,9 @@
           },
           "finish": {
             "color": [
-              0.025,
-              0.018,
-              0.013
+              0.02496,
+              0.02174,
+              0.02137
             ],
             "roughness": 0.73,
             "fibres": 24,
@@ -3401,7 +3395,7 @@
   {
     "id": "kdy1-connected",
     "name": "kdy1 (connected study)",
-    "basis": "mpfb-connected-head-2026-09-24-lip-seal",
+    "basis": "mpfb-connected-head-2026-09-24-closed-lips",
     "shape": {
       "asianAncestry": 1
     },
