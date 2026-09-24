@@ -32,7 +32,12 @@ import { resolveHumanBodyCouplings } from "./resolveHumanBodyCouplings";
  * later by the builder, so this reads angles without judging them. Upper-arm
  * drivers read TT total elevation or axial rotation from the separate
  * shoulder goal and its measured A-pose rest. Old fixed-axis upper-arm
- * drivers cannot pass basis admission.
+ * drivers cannot pass basis admission. A TT orientation kernel contributes
+ * its clamped fall-off from its centre, divided by the sum of its family's
+ * kernels where that sum exceeds one: a family is the kernels of one humerus
+ * whose correctives' other inputs are identical, so the kernels solved at a
+ * lattice of poses interpolate between their corrections (pose space
+ * deformation, Lewis et al. 2000) instead of stacking them.
  *
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-connected-basis Refuses unsupported channels and out-of-envelope weights instead of clamping them.
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-basis Computes the `|weight| x endpoint` selection and the product corrective activation the evaluation order applies.
@@ -81,67 +86,108 @@ export function humanBodyBasisWeights(
       .filter((joint) => joint.shoulder !== undefined)
       .map((joint) => [joint.bone, joint.shoulder!.neutral]),
   );
-  const activations = (basis.correctives ?? []).map((corrective) => ({
-    target: corrective.target,
-    activation: Math.min(
+  /** One shoulder kernel's value: the clamped fall-off from its centre. */
+  const kernel = (
+    input: Extract<
+      NonNullable<
+        IAutoMovieHumanBodyBasis["correctives"]
+      >[number]["inputs"][number],
+      { shoulder: string }
+    >,
+  ): number => {
+    const rest = shoulderNeutral.get(input.shoulder)!;
+    const posed = shoulderAngles.get(input.shoulder) ?? {
+      bone: input.shoulder,
+      ...rest,
+    };
+    const distance = humanBodyShoulderOrientationDistance(posed, {
+      bone: input.shoulder,
+      ...input.orientation,
+    });
+    return Math.min(
       1,
-      corrective.inputs.reduce((total, input) => {
-        if ("shoulder" in input) {
-          const rest = shoulderNeutral.get(input.shoulder)!;
-          const posed = shoulderAngles.get(input.shoulder) ?? {
-            bone: input.shoulder,
-            ...rest,
-          };
-          const distance = humanBodyShoulderOrientationDistance(posed, {
-            bone: input.shoulder,
-            ...input.orientation,
-          });
-          return (
-            total *
-            Math.min(
-              1,
-              Math.max(
-                0,
-                (input.outerDegrees - distance) /
-                  (input.outerDegrees - input.innerDegrees),
-              ),
-            )
-          );
-        }
-        const sign = input.side === "negative" ? -1 : 1;
-        if ("bone" in input) {
-          const shoulderAxis = input.axis === "elevation";
-          const angle = shoulderAxis
-            ? (shoulderAngles.get(
-                input.bone as "leftUpperArm" | "rightUpperArm",
-              )?.elevation ?? null)
-            : (angles.get(input.bone)?.[
-                input.axis as "flexion" | "abduction" | "twist"
-              ] ?? null);
-          const rest = shoulderAxis
-            ? (shoulderNeutral.get(input.bone)?.elevation ?? 0)
-            : (neutral.get(input.bone)?.[
-                input.axis as "flexion" | "abduction" | "twist"
-              ] ?? 0);
-          const travel = sign * ((angle ?? rest) - rest);
-          return (
-            total *
-            Math.min(
-              1,
-              Math.max(0, (travel - input.onset) / (input.full - input.onset)),
-            )
-          );
-        }
-        const weight = weights.get(input.channel) ?? 0;
-        const onset = input.onset ?? 0;
+      Math.max(
+        0,
+        (input.outerDegrees - distance) /
+          (input.outerDegrees - input.innerDegrees),
+      ),
+    );
+  };
+  /** The product of one corrective's ramps other than its shoulder kernels. */
+  const ramps = (
+    corrective: NonNullable<IAutoMovieHumanBodyBasis["correctives"]>[number],
+  ): number =>
+    corrective.inputs.reduce((total, input) => {
+      if ("shoulder" in input) return total;
+      const sign = input.side === "negative" ? -1 : 1;
+      if ("bone" in input) {
+        const shoulderAxis = input.axis === "elevation";
+        const angle = shoulderAxis
+          ? (shoulderAngles.get(input.bone as "leftUpperArm" | "rightUpperArm")
+              ?.elevation ?? null)
+          : (angles.get(input.bone)?.[
+              input.axis as "flexion" | "abduction" | "twist"
+            ] ?? null);
+        const rest = shoulderAxis
+          ? (shoulderNeutral.get(input.bone)?.elevation ?? 0)
+          : (neutral.get(input.bone)?.[
+              input.axis as "flexion" | "abduction" | "twist"
+            ] ?? 0);
+        const travel = sign * ((angle ?? rest) - rest);
         return (
           total *
           Math.min(
             1,
-            Math.max(0, (sign * weight - onset) / ((input.full ?? 1) - onset)),
+            Math.max(0, (travel - input.onset) / (input.full - input.onset)),
           )
         );
-      }, corrective.weight),
+      }
+      const weight = weights.get(input.channel) ?? 0;
+      const onset = input.onset ?? 0;
+      return (
+        total *
+        Math.min(
+          1,
+          Math.max(0, (sign * weight - onset) / ((input.full ?? 1) - onset)),
+        )
+      );
+    }, corrective.weight);
+  // Shoulder kernels interpolate a pose space rather than add up in it: the
+  // kernels of one family (one humerus, and every other input of their
+  // corrective identical) are divided by their sum wherever it exceeds one,
+  // so no pose wears more than one whole correction of a family, and a
+  // kernel whose window reaches no other centre of its family is exactly
+  // its own correction at its centre.
+  const correctives = basis.correctives ?? [];
+  const families = correctives.map((corrective) =>
+    corrective.inputs.map((input, at) =>
+      "shoulder" in input
+        ? input.shoulder +
+          "|" +
+          JSON.stringify(corrective.inputs.filter((_, other) => other !== at))
+        : null,
+    ),
+  );
+  const values = correctives.map((corrective) =>
+    corrective.inputs.map((input) => ("shoulder" in input ? kernel(input) : 1)),
+  );
+  const sums = new Map<string, number>();
+  families.forEach((keys, c) =>
+    keys.forEach((key, at) => {
+      if (key !== null) sums.set(key, (sums.get(key) ?? 0) + values[c][at]);
+    }),
+  );
+  const activations = correctives.map((corrective, c) => ({
+    target: corrective.target,
+    activation: Math.min(
+      1,
+      families[c].reduce(
+        (total, key, at) =>
+          key === null
+            ? total
+            : total * (values[c][at] / Math.max(1, sums.get(key)!)),
+        ramps(corrective),
+      ),
     ),
   }));
   return { weights, activations, pose };
