@@ -20,8 +20,8 @@
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 외주 전체는 house에, 창이 면한 room/storey는 opening과 cell에 바인딩한다. 벽 절삭 중심 C와 외측 face O를 분리해 유리 색이나 양면 표시로 공간 포함을 대신하지 않는다. 이 경계 판단과 GPU의 현재 읽힘은 별도다.
 @evidence principles/design/spaces.md#space-boundary-authority 외곽·층선·두께는 mass datum 하나를 쓰며 입면이 room별 창폭을 따로 복제하지 않는다.
 @evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 C/O는 mass datum과 wall d에서 도출하고 opening의 접선·Y 범위는 개별 owner가 준다. 돌출 덮개 0.020m를 구조 wall 두께로 혼동하지 않는다. geometry 주소는 spaces, finish 결합은 materials이므로 viewer가 색으로 경계를 다시 소유하지 않는다.
-@evidence principles/design/spaces.md#space-verification-address normal·thickness·접합선·opening profile·층선 일치와 입면 아래 plinth 띠의 연속을 전체 공간 관찰에 연결하고 현재 형상은 unverified로 남긴다.
-@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 외향 법선은 실제 centroid의 O±0.001N과 dot(N,actual)>1-1e-7로, cut 이동은 opening profile·문짝 bounds·connector endpoint로 반증한다. -0.45..0 띠는 plinth·문턱판·지면 bounds를 본다. v-096 설계 PASS 이후에도 현재 재료 결합과 GPU 외관은 이 검사만으로 통과하지 않는다.
+@evidence principles/design/spaces.md#space-verification-address normal·thickness·접합선·opening profile·층선 일치와 입면 아래 plinth 띠의 연속을 전체 공간 관찰에 연결한다. 기존 건축 형상은 구현돼 이전 독립 판정의 관찰을 받았고 새 트리의 전체 GPU 외관은 unverified로 남긴다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 외향 법선은 실제 centroid의 O±0.001N과 dot(N,actual)>1-1e-7로, cut 이동은 opening profile·문짝 bounds·connector endpoint로 반증한다. -0.45..0 띠는 plinth·문턱판·지면 bounds를 본다. 건축 형상과 이전 v-096 설계 판정의 존재를 인정하되 이 주소 검사가 새 트리의 재료 결합과 GPU 외관을 통과시키지는 않는다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work 단일 본채와 완결 표면의 단독 소유를 다섯 외피면 및 층/방 접합에 대조했다. 부모의 표면을 더 쪼개거나 별도 체적을 허용할 필요가 없다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 단일 본채와 표면 owner 경계를 C/O 분리 및 모서리·floor band 접합에 대조했다. O를 외측 관찰면으로 도출해도 d·실내 clear face·부모 동선은 유지된다. v-096의 외피 설계 승인 범위에서 부모 체적 수정 사유는 없었고 후속 재료 결합은 이 제외에 포함되지 않는다.
 @evidence contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements 단일 직사각형 외피가 내부 방·층 경계를 소비하도록 하며 화면을 위해 고정 그래프를 바꾸지 않는다.
@@ -149,7 +149,7 @@
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work 불투명 코어와 후방 채광을 현재 room 배치에 대조해 설비를 다른 입면으로 옮기는 부모 수정이 필요하지 않다.
 @evidence contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements 위생·수납·설비는 우측 불투명 벽 안에 두고 필요한 후단 창도 내부 바닥선과 일치시킨다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb -X 서비스 면은 mass와 전면 좌표 관례에서, 관 상단 접합은 roof-face에서 받는다. 관 중심과 clip 높이는 이 면이 소유하는 배치로 구별된다.
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 불투명 코어와 후단 두 층 창을 유지한 채 관·clip·점검 덮개를 우측 전체 owner에 더했다. 배수관이 별도 소유자에게 떨어져 입면 마감의 일부가 무소유로 남지 않는다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 불투명 코어와 후단 두 층 창을 유지한 채 관·clip·점검 덮개 형상과 안정 면 주소를 우측 전체 owner에 더했다. 실제 finish 결합은 materials가 맡으며 배수관 형상이 다른 입면에 중복되지 않는다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 관의 내외경·상하단, 네 clip 높이와 점검 덮개 범위를 정했다. roof 단면에서 대지 집수구까지 연결할 위치를 source가 임의로 정할 필요가 없다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 opaque core에 후단 유리 span과 창을 피하는 중앙 배수선이라는 외주 배치를 더했다. 코어를 가린다는 말만 반복하지 않고 외부 부속의 점유를 결정한다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 관은 두 층의 불투명 벽 바깥에 있고 아래로 열린 끝은 대지 집수구 위에 놓인다. 서비스실 내부를 새로운 배수 통로나 출입 공간으로 만들지 않는다.
@@ -164,7 +164,7 @@
 큰 불투명 벽체는 위생·설비를 가리며 후면 두 층의 개구는 같은 z span에서 floor line에 맞춘다. [관찰](001-citizen-house.md#spatial-observation)은 side 전체, 벽 이음·각 opening·뒤 모서리와 실내 privacy를 묻는다.
 
 
-캐노피 r2의 [roof 배수 접합](#roof-face)을 y=6.10에서 받는다. 우측 전체 owner는 x=-5.68,z=0의 외경 0.11m·내경 0.10m 수직 배수관을 y=6.10..-0.30까지 만들며, roof owner와 이 단면에서 면을 맞대고 관을 이중으로 생성하지 않는다. clip 중심 높이는 5.80,4.00,2.20,0.40m이고 벽 x=-5.50에서 관의 벽쪽 면까지 연결한다. z=0은 두 층 모두 불투명 서비스 벽이다. 가장 가까운 우측 창 cut Z=3.56에 비해 관 외측 Z=0.055가 3.505m 앞에 있어 개구부를 가리지 않는다. 관의 지면 쪽 끝은 대지 집수구 위에서 아래로 열리며 y=0.10..0.30에 폭 0.08m의 탈착 점검 덮개를 둔다. 관·clip·점검 덮개의 형상과 마감은 우측 입면 owner 한 명이 소유한다. 실물 배수·수밀 작동은 unverified이며 이 부재는 아직 source에 없다.
+캐노피 r2의 [roof 배수 접합](#roof-face)을 y=6.10에서 받는다. 우측 전체 owner는 x=-5.68,z=0의 외경 0.11m·내경 0.10m 수직 배수관을 y=6.10..-0.30까지 만들며, roof owner와 이 단면에서 면을 맞대고 관을 이중으로 생성하지 않는다. clip 중심 높이는 5.80,4.00,2.20,0.40m이고 벽 x=-5.50에서 관의 벽쪽 면까지 연결한다. z=0은 두 층 모두 불투명 서비스 벽이다. 가장 가까운 우측 창 cut Z=3.56에 비해 관 외측 Z=0.055가 3.505m 앞에 있어 개구부를 가리지 않는다. 관의 지면 쪽 끝은 대지 집수구 위에서 아래로 열리며 y=0.10..0.30에 폭 0.08m의 탈착 점검 덮개를 둔다. 관·clip·점검 덮개의 형상과 안정 면 주소는 우측 입면 owner가 소유하고 finish 결합은 materials가 결정한다. 관·clip·덮개는 `src/house/envelope/right.ts`에 구현됐고 실물 배수·수밀 작동은 `unverified`다.
 
 ## 지붕과 캐노피 {#roof-face}
 

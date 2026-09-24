@@ -3,7 +3,7 @@
 ## 매스와 층 {#mass-and-storeys}
 
 <!--
-@evidence principles/core/common.md#declared-basis settings의 metre·Y-up·본채 규모를 따르고 벽 두께, 바닥·천장·지붕 높이는 이 설계의 입력이라고 구분했다. reference에서 치수를 역산했다거나 기존 source가 새 값을 구현했다고 말하지 않는다.
+@evidence principles/core/common.md#declared-basis settings의 metre·Y-up·본채 규모를 따르고 벽 두께, 바닥·천장·지붕 높이는 이 설계의 입력이라고 구분했다. reference에서 치수를 역산하지 않았으며 현재 source의 구현 이력과 치수의 저작 근거를 혼동하지 않는다.
 @evidence principles/core/common.md#scope-preservation 한 직사각형의 두 층이라는 규모를 유지하며 내부 높이와 구조대까지 배정했다. 약 250㎡라는 목표를 맞추기 위해 누락 공간을 숨기거나 gross와 유효 면적을 같은 값으로 취급하지 않는다.
 @evidence principles/core/common.md#substantive-completion 외측과 내측 범위, 두 finished floor, 두 ceiling, roof top과 내외벽 두께가 확정되어 room·portal·계단이 같은 datum을 소비할 수 있다. 구조 인증과 새 면적 계측은 이 설계값과 구분해 미검증으로 남긴다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation settings의 좌표 관례와 대략 규모에 층간 높이·구조대·실내 clear face를 더했다. 이를 통해 source가 벽 안팎과 상층 도착 높이를 처음 결정할 필요가 없어졌다.
@@ -13,7 +13,7 @@
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work settings/003의 좌표와 11×12m 두 층, settings/001의 약 250㎡ 목표를 실제 두 층 외곽 및 구조대로 대조했다. 목표가 정확한 net 면적을 명령하지 않으므로 264㎡ gross를 정직하게 구분하는 것으로 충분했고 settings나 map 경계를 바꿀 필요가 없었다.
 @evidence contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements 하나의 직사각형과 두 floor datum을 유지하고 별동·캔틸레버나 거실 보이드로 면적·높이를 맞추지 않는다. 정확한 새 유효 면적은 검증 결과로 남긴다.
 @evidence settings/003-spatial-basis.md#coordinate-datum 동일한 metre·Y-up 좌표에서 명시한 외곽과 두 층 높이를 저작하고 내부 clear face를 벽 두께에서 파생한다. 축 관례를 reference 화면의 좌우와 혼동하지 않는다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 좌표와 목표 규모는 settings의 기준을 따르고 외벽 0.24m·내벽 0.18m 및 층 높이는 저작 결정으로 밝힌다. 현재 source가 이 값을 구현하지 않았다는 상태도 명시하여 reference 측량값이나 완료된 산출물에서 얻은 사실로 바꾸지 않는다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb metre·Y-up과 규모는 settings에서, 외벽 0.24m·내벽 0.18m 및 층 높이는 이 H2의 저작값에서 받는다. 현재 source는 이 datum을 구현했고 이전 독립 판정의 컴파일·GPU 관찰 이력이 있으나 그 결과를 reference 픽셀 측량이나 새 트리의 전수 승인으로 바꾸지 않는다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 직사각형 본채의 두 층을 유지하면서 실내 높이와 층간 구조대까지 남긴다. 외곽 합계 264㎡를 목표 약 250㎡와 구분하므로 요구 공간을 삭제하거나 gross를 유효 면적처럼 읽어 규모를 맞췄다고 할 수 없다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 외곽에서 벽 두께를 뺀 clear face와 1층·2층 바닥, 각 천장 및 지붕 상단이 모두 지정되어 있다. 방과 계단·창호가 사용할 높이와 벽 안팎을 다음 구현자가 처음 선택해야 하는 상태가 아니다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 m·Y-up 관례와 약 11×12m 두 층이라는 요구에 중심 기준 외곽, 내측 경계, 0.30m 구조대와 실내 높이를 더했다. 목표 규모를 되풀이하는 데서 끝나지 않고 연결 부재가 공유할 단면 기준을 이 공간 단위가 정한다.
@@ -25,7 +25,7 @@
 @evidenceReview settings/003-spatial-basis.md#coordinate-datum #8a862c9 1층 y=0을 그대로 쓰고 같은 축에서 외곽과 내측 clear face 및 2층 y=3.20을 저작한다. 좌표 관례가 준 역할 안에서 정확한 공간 치수를 정하며, 제작 수치와 실제 건축물 측량을 혼동하지 않는다.
 -->
 
-**상태: review 선언을 유지한 제자리 재작성. 현재 수정안의 컴파일 결과와 독립 판정 전이다.** [좌표 기준](../settings/003-spatial-basis.md#coordinate-datum)을 따른다. 이 문서의 치수는 reference 픽셀의 역산값이 아닌 저작 결정이다. 고정 그래프의 노드와 연결 의미를 유지하면서 기존의 무소유 틈, 벽 관통, 계단 막힘을 제거하기 위한 입력이다. 현재 source는 이 값을 plan과 완결 표면 owner로 구현한다. 새 환경의 runtime 소비 결과와 GPU 관찰은 아직 미지급이다.
+**상태: review 선언을 유지한 상류 재판정 중이다.** [좌표 기준](../settings/003-spatial-basis.md#coordinate-datum)을 따른다. 이 문서의 치수는 reference 픽셀의 역산값이 아닌 저작 결정이다. 고정 그래프의 노드와 연결 의미를 유지하고, 현재 source는 이 값을 plan과 완결 표면 owner로 구현했다. 이전 독립 판정은 컴파일 결과와 GPU 화면을 관찰했으나 현재 수정 트리의 전체 관찰 분모와 production 완료는 `unverified`다.
 
 본채 외곽 x=-5.50..5.50, z=-6.00..6.00을 유지한다. 외벽 0.24m의 기준 내측은 x=-5.26..5.26, z=-5.76..5.76이다. 1층 바닥 y=0, 2층 바닥 y=3.20, 각 층 천장 y=2.90/6.10, 지붕 구조 상단 y=6.40으로 정한다. 내벽 두께는 0.18m다. 0.30m의 층간 구조대와 2.90m의 실내 높이는 계단과 창호 head가 함께 닿는 저작 입력이며 구조 안전 인증값이 아니다.
 
@@ -670,12 +670,12 @@ room id child-bedroom-1의 parent는 [upper-storey](#upper-level)다. clear plan
 ## 작은 침실 2 {#child-bedroom-2}
 
 <!--
-@evidence principles/core/common.md#declared-basis 두 번째 작은 침실은 x=0.30..5.26,z=-0.14..2.40에 채택했고12.60㎡는 구현 전 설계 계산값이다.
+@evidence principles/core/common.md#declared-basis 두 번째 작은 침실은 x=0.30..5.26,z=-0.14..2.40에 채택했고 12.60㎡는 source의 실제 유효 면적 계측과 구분한 설계 계산값이다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb child-two의 Z 범위는 앞 자녀실과 뒤 주침실 사이 partition에서 정한다.
 @evidence principles/core/common.md#scope-preservation 두 작은 침실을 하나로 합치지 않으며 이 방을 주침실로 가는 통과실로 쓰지 않는다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 작은 면적의 child-two도 별도 cell과 복도 직접 문을 가진 독립 수면실로 남긴다. 침대·수납 프로그램의 구현 여부는 이 공간 경계 승인에서 판단하지 않는다.
 @evidence principles/core/common.md#substantive-completion 직사각형 cell과 층 높이 소비, corridor-child-two 출입을 정해 동측 수면실의 경계를 확정한다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 child-two의 직사각형 clear cell·상층 귀속·corridor-child-two 문과 열림을 지정했다. single bed·옷장·desk 또는 shelf의 배치는 후속 owner의 검증 대상이다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 child-two의 직사각형 clear cell·상층 귀속을 지정하고 corridor-child-two opening을 직접 출입으로 소비한다. 문 열림은 그 opening H2가 정하며 single bed·옷장·desk 또는 shelf의 배치는 후속 owner의 검증 대상이다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 두 작은 bedroom 요구의 두 번째 항목에 동측 중간 구획과 독립 방문을 대응시킨다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 두 번째 자녀실 요구에 0.30..5.26의 동측 범위를 부여한다.
 @evidence principles/design/spaces.md#space-topology child-bedroom-2는 upper-storey 자식으로 복도에 직접 이어지고 양옆 침실과 통과 연결을 갖지 않는다.
@@ -704,7 +704,7 @@ room id child-bedroom-2의 parent는 [upper-storey](#upper-level)다. clear plan
 @evidence principles/core/common.md#scope-preservation 샤워·변기·세면과 수건 수납은 한 욕실 안에서 접근되며 침실 전용 통과 동선으로 축소하지 않는다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 욕실을 주침실 통과 경로가 아닌 복도 직결의 독립 cell로 남긴다. 프로그램의 shower/tub 가운데 현재 임시 room source는 샤워 트레이를 사용하며 욕조는 구현되지 않았다. 위생 기구의 최종 선택·형상·배치는 이 공간 H2의 승인이 아니다.
 @evidence principles/core/common.md#substantive-completion 길쭉한 코어 room의 경계·층 귀속·복도 문을 정해 위생 fixture의 실제 배치 영역을 제공한다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 욕실 clear cell의 경계·상층 귀속·corridor-bathroom 문과 방 안쪽 열림을 정했다. 위생 기구와 수건 수납의 실제 점유·문 간섭은 후속 배치 검사에 남긴다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 욕실 clear cell의 경계·상층 귀속을 정하고 corridor-bathroom opening을 복도 직접 출입으로 소비한다. 방 안쪽 열림은 해당 opening H2의 결정이며 위생 기구와 수건 수납의 점유·문 간섭은 후속 배치 검사에 남긴다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 상층 위생 프로그램을 후방 서측 코어 구획과 복도 직결 문으로 구체화한다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 욕실 목록에 후면 코어의 긴 cell과 높은 privacy opening을 더한다.
 @evidence principles/design/spaces.md#space-topology 욕실은 upper-storey 안의 room으로 corridor-bathroom을 통해 복도에서 직접 접근한다.
@@ -733,7 +733,7 @@ room id upper-bathroom의 parent는 [upper-storey](#upper-level)다. clear plan�
 @evidence principles/core/common.md#scope-preservation 수납을 욕실이나 설비실 안의 접근 불가능한 이름으로 합치지 않고 복도 직결 room으로 유지한다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 수납을 욕실 가구로 합치지 않아 요구된 직접 접근 room을 남긴다.
 @evidence principles/core/common.md#substantive-completion cell 네 경계와 upper-storey 귀속·corridor-storage 문을 정해 작은 공간도 독립 수정 주소를 가진다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 수납실의 네 clear 경계·상층 귀속·corridor-storage 문과 열린 leaf 상태를 지정했다. cabinet과 leaf 간섭은 후속 배치에서 반증한다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 수납실의 네 clear 경계·상층 귀속을 정하고 corridor-storage opening을 직접 출입으로 소비한다. 열린 leaf 상태는 opening H2가 정하며 cabinet과 leaf 간섭은 후속 배치에서 반증한다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 상층 storage 프로그램에 코어 중간의 짧은 구획과 독립 문이라는 배치를 추가한다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 수납 요구에 z=-0.14..1.10의 경계와 문 위치를 부여한다.
 @evidence principles/design/spaces.md#space-topology upper-storage는 욕실과 설비실 사이에 있으나 통행은 두 방이 아닌 upper-corridor에서 직접 받는다.
@@ -1565,7 +1565,7 @@ PV는 [캐노피 span](003-surface-ownership.md#roof-face)을 받아 x 방향 �
 
 <!--
 @evidence settings/001-production.md#build-or-adopt 새 production source와 공개 engine 경계를 거친 산출물에서 공간을 읽도록 정해 기각된 box나 reference 이미지를 새 geometry의 검증값으로 채택하지 않는다.
-@evidenceReview settings/001-production.md#build-or-adopt #fd22ac7 새 source의 실제 engine 소비를 검증 대상으로 삼아 기존 판정이나 문서만으로 제작 완료를 대신하지 않는다.
+@evidenceReview settings/001-production.md#build-or-adopt #1e4890b 건축 부재는 spaces/spaceSources, 물체 형상·배치·발광·마감은 각 후속 분기가 맡는 제작 배분을 읽었다. 이 검증표는 현재 건축 source의 실제 engine 소비와 후속 물체 이관을 별도로 물으며 기존 판정이나 문서만으로 전체 제작 완료를 선언하지 않는다.
 @evidence settings/001-production.md#verification-boundary canonical lint 뒤 실제 산출물·GPU 관찰을 요구하고 측정되지 않은 질문은 unverified로 남긴다. 다른 명령으로 성공 수치를 대체하지 않는다.
 @evidenceReview settings/001-production.md#verification-boundary #589d028 canonical lint와 engine 산출물에서 읽을 질문을 지정하고 frame으로 치수·도달을 대신 재지 않는다.
 @evidence settings/001-production.md#roles-and-accessibility 저작자는 수리하고 관찰자는 계측하며 독립 read-only reviewer가 현재 시각 판정을 내리는 역할을 구분한다. 작성자의 자체 검사로 그 판정을 대신하지 않는다.
