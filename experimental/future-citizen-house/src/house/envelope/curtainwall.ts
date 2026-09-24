@@ -31,8 +31,9 @@ const SECTION = [["body", 0.020, -0.070, -0.015], ["web", 0.010, -0.015, 0.015],
 function vertical(a: Assembly, f: Frame, id: string, space: string, m: number, y0: number, y1: number): void {
   for (const [part, s, n0, n1] of SECTION) block(a, f, id + "-" + part, space, "metal", m - s, m + s, y0, y1, n0, n1);
 }
-function horizontal(a: Assembly, f: Frame, id: string, space: string, u0: number, u1: number, c: number): void {
-  for (const [part, s, n0, n1] of SECTION) block(a, f, id + "-" + part, space, "metal", u0, u1, c - s, c + s, n0, n1);
+/** Each part butts the same part of the two vertical members at m0/m1. */
+function horizontal(a: Assembly, f: Frame, id: string, space: string, m0: number, m1: number, c: number): void {
+  for (const [part, s, n0, n1] of SECTION) block(a, f, id + "-" + part, space, "metal", m0 + s, m1 - s, c - s, c + s, n0, n1);
 }
 /** Glazing seat for one bay: gaskets on both glass faces in the 6mm seat,
  * verticals full glass height and horizontals between them, plus two setting
@@ -58,8 +59,8 @@ export function curtainwall(a: Assembly, f: Frame, w: Glazing): string | null {
   let first: string | null = null;
   for (let i = 0; i < centres.length - 1; i++) {
     const left = centres[i] + 0.02, right = centres[i + 1] - 0.02;
-    horizontal(a, f, w.id + "-head-" + i, w.room, left, right, w.head + 0.02);
-    horizontal(a, f, w.id + "-sill-" + i, w.room, left, right, w.sill - 0.02);
+    horizontal(a, f, w.id + "-head-" + i, w.room, centres[i], centres[i + 1], w.head + 0.02);
+    horizontal(a, f, w.id + "-sill-" + i, w.room, centres[i], centres[i + 1], w.sill - 0.02);
     seat(a, f, w.id + "-bay-" + i, w.room, left, right, w.sill, w.head);
     // Glass runs 6mm into each seat; optical bands still meet at the split.
     const split = w.privacy === "lower" ? Math.min(w.head, w.sill + 1.25) : w.head;

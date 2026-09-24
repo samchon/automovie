@@ -16,6 +16,7 @@ import { Assembly, rectangle, v, yaw } from "../assembly";
 import { circle, heightRegion, putMesh } from "../metric-solid";
 import { subtract } from "../storeys/floors";
 import { datum, entryApproach, type Rect } from "../plan";
+const soilBottom = -0.71;
 export function garden(a: Assembly): void {
   const r = "citizen-site";
   const cuts: Rect[] = [[-6.10, -5.55, -0.30, 0.30], [-7.8, -5.8, -7.3, 7.3], [5.8, 7.8, -7.3, 7.3], [-4.3, -2.8, -8.5, -6.3], [-7.8, 7.8, -8.5, -7.7]];
@@ -23,16 +24,16 @@ export function garden(a: Assembly): void {
   for (const cut of cuts) ground = ground.flatMap(piece => subtract(piece, cut));
   // Grade stops at the house outline and meets the plinth; it never runs under the house.
   ground = ground.flatMap(piece => subtract(piece, [datum.minX, datum.maxX, datum.minZ, datum.maxZ]));
-  for (const [i, p] of ground.entries()) a.box("site-ground-" + i, r, "soil", (p[0] + p[1]) / 2, -0.58, (p[2] + p[3]) / 2, p[1] - p[0], 0.26, p[3] - p[2]);
+  // Soil is y=-0.71..-0.45; every flush paving piece is filled down to the same bottom.
+  for (const [i, p] of ground.entries()) a.box("site-ground-" + i, r, "soil", (p[0] + p[1]) / 2, (soilBottom - 0.45) / 2, (p[2] + p[3]) / 2, p[1] - p[0], -0.45 - soilBottom, p[3] - p[2]);
   // Flush access bands are cut around the catch pit, never painted over it.
   for (const side of [-1, 1]) {
     const strips = subtract(side < 0 ? [-7.8, -5.8, -7.3, 7.3] : [5.8, 7.8, -7.3, 7.3], [-6.10, -5.55, -0.30, 0.30]);
-    for (const [i, s] of strips.entries()) putMesh(a, "service-band-" + side + "-" + i, r, "green", heightRegion(rectangle(...s), () => -0.46, () => -0.45));
+    for (const [i, s] of strips.entries()) putMesh(a, "service-band-" + side + "-" + i, r, "green", heightRegion(rectangle(...s), () => soilBottom, () => -0.45));
   }
-  a.box("cassette-staging-pad", r, "stone", -3.55, -0.46, -7.4, 1.5, 0.02, 2.2);
+  a.box("cassette-staging-pad", r, "stone", -3.55, (soilBottom - 0.45) / 2, -7.4, 1.5, -0.45 - soilBottom, 2.2);
   catchPit(a);
-  for (const [i, p] of subtract([-7.8, 7.8, -8.5, -7.7], cuts[3]).entries()) a.box("site-sidewalk-" + i, r, "stone", (p[0] + p[1]) / 2, -0.5, -8.1, p[1] - p[0], 0.10, 0.8);
-  a.box("site-curb", r, "stone", 0, -0.49, -8.45, 15.6, 0.12, 0.1);
+  for (const [i, p] of subtract([-7.8, 7.8, -8.5, -7.7], cuts[3]).entries()) a.box("site-sidewalk-" + i, r, "stone", (p[0] + p[1]) / 2, (soilBottom - 0.45) / 2, -8.1, p[1] - p[0], -0.45 - soilBottom, 0.8);
   // Every piece above grade is solid down to the grade at y=-0.45.
   const [ax0, ax1] = entryApproach, ax = (ax0 + ax1) / 2, aw = ax1 - ax0;
   for (let i = 0; i < 2; i++) { const top = -0.45 + (i + 1) * 0.15; a.box("approach-tread-" + i, r, "stone", ax, (top - 0.45) / 2, -7.28 + i * 0.32, aw, top + 0.45, 0.32); }

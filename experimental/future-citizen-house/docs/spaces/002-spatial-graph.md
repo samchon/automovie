@@ -39,8 +39,8 @@
 -->
 
 <!--
-@evidence principles/core/common.md#declared-basis 1층 높이는 mass-and-storeys, 방 구성은 ground-partition, 수평 마감의 단독 책임은 settings 표면 배정에서 받는다. 이 storey가 별도의 층고를 정하지 않는다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 높이는 mass-and-storeys, 하위 구획은 ground-partition, 층간 통행은 single-stair에서 받는다. 수평 면의 책임도 표면 분해 설정에 연결되어 이 storey가 별도 층고나 마감 소유권을 만들어 내지 않는다.
+@evidence principles/core/common.md#declared-basis 1층 높이는 mass-and-storeys, 방 구성은 ground-partition, 수평 마감의 단독 책임은 settings 표면 배정에서 받는다. 이 storey가 별도의 층고를 정하지 않으며, 기초 바닥 y=-0.60은 site-access의 지면 -0.45에서 0.15m를 묻는 이 H2의 저작값이고 기초 상단 -0.016은 층 바닥 마감 16mm에서 온다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 높이는 mass-and-storeys, 하위 구획은 ground-partition, 층간 통행은 single-stair에서 받는다. 수평 면의 책임도 표면 분해 설정에 연결되어 이 storey가 별도 층고나 마감 소유권을 만들어 내지 않는다. 이 H2가 새로 정하는 수치는 기초 깊이 하나이며, 본문이 그 0.15m 묻힘을 측량·구조 계산이 아닌 저작값으로 밝히고 지면 -0.45와 마감 16mm의 출처를 각 owner로 연결한다.
 @evidence principles/core/common.md#scope-preservation 1층의 다섯 방과 상층으로 가는 한 계단을 모두 포함하고, slab의 바닥·천장과 구조 partition, 지면 아래까지 묻힌 기초와 그 plinth 외면까지 같은 층 책임으로 둔다. 방마다 덧바른 중복 수평 마감을 허용하지 않는다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 현관·작업실·공용부·powder·수납을 같은 1층에 담고 상층으로 향하는 계단 연결을 유지한다. 실제 partition과 연속 바닥·천장에 더해 y=-0.60..-0.016 기초, 외벽 아래 bearing ring, 지면 -0.45 위 plinth 외면까지 층 owner에 두어 입면 아래 둘레를 무소유로 남기지 않는다.
 @evidence principles/core/common.md#substantive-completion ground-storey의 house 귀속, 하위 방 population, 상층 연결, floor/ceiling과 기초·plinth의 생성 책임과 범위가 정해져 있다. source에서 층과 방 사이 소유 계층이나 기초 깊이를 새로 정해야 하는 공백이 없다.
@@ -51,15 +51,15 @@
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 house의 자식인 ground-storey 안에 ground-partition의 방들이 있고 single-stair가 2층으로 이어진다. 실내 바닥·천장과 partition의 소속도 정해져 있어 논리 room과 이를 둘러쌀 층을 서로 다른 공간으로 오인하지 않는다.
 @evidence principles/design/spaces.md#space-boundary-authority 바닥·천장 수치는 datum의 단일 소유를 유지하고 방 cell은 해당 room에 남긴다. 층 owner의 수평 마감과 room owner의 벽 마감이 같은 시각 면을 동시에 소유하지 않는다.
 @evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 1층 높이는 datum을 참조하며 방의 cell은 각 room이 맡는다. storey는 연속 수평 면을 소유하고 방이 이를 다시 마감하지 못하므로 동일한 최종 면에 두 독립 작성 기준이 붙지 않는다.
-@evidence principles/design/spaces.md#space-verification-address 전수 검증에서 room parent와 cell의 층 밖 돌출, partition 실체, slab 충돌을 확인하게 해 논리적 층 이름만 맞는 실패를 놓치지 않는다.
-@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 room parent 누락이나 cell의 층 밖 돌출, 실물 벽의 부재와 slab 충돌을 전수 검증에서 묻는다. ground-storey id만 맞고 방이 그 밖에 떠 있는 산출물은 이 검증 내용을 통과할 수 없다.
+@evidence principles/design/spaces.md#space-verification-address 전수 검증에서 room parent와 cell의 층 밖 돌출, partition 실체, slab 충돌, 외곽 -0.45..0 띠의 기초·ring·문턱판 연속을 확인하게 해 논리적 층 이름만 맞는 실패를 놓치지 않는다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 room parent 누락이나 cell의 층 밖 돌출, 실물 벽의 부재와 slab 충돌을 전수 검증에서 묻는다. 본채가 지면에서 떠 있는 실패는 전수 검증의 외곽 접지 행이 네 외곽 평면의 -0.45..0 띠에서 기초·ring·문턱판이 끊기는 구간으로 반증한다. ground-storey id만 맞고 방이나 본채가 그 밖에 떠 있는 산출물은 이 검증 내용을 통과할 수 없다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work 1층 직접 연결 그래프와 표면 분해의 층별 바닥·천장 책임을 다섯 room의 parent 배정에 대조했다. 같은 datum을 공유하는 storey로 담을 수 있어 별도 중간층이나 부모 소유 규칙 변경이 필요하지 않았다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 1층의 직접 연결과 층이 바닥·천장을 맡는 표면 규칙을 방들의 parent 배정에 대조했다. 공통 datum을 쓰는 한 storey 안에 그 역할을 둘 수 있어 중간층을 추가하거나 부모의 표면 소유를 바꿀 필요는 드러나지 않았다.
 @evidence contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements 1층 room 전부가 ground-storey를 부모로 갖게 하고 상층 연결은 하나의 계단에 남긴다. 층 미귀속 방을 구조물 이름으로만 표현하는 구현은 이 배정에 실패한다.
 @evidenceReview contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements #d31488d 1층의 모든 room을 ground-storey에 배정하고 상층 연결을 single-stair에 남긴다. 층 귀속이 없는 방이나 별도 계단으로 향하는 구조를 1층의 다른 표현으로 허용하지 않는다.
 -->
 
-storey id ground-storey는 house의 자식이며 [매스와 층 datum](#mass-and-storeys)의 1층 바닥·천장을 사용한다. [1층 분할](#ground-partition)의 다섯 방이 이 층에 속하고 [단일 계단](#single-stair)이 2층에 연결한다. slab의 실내 노출 바닥·천장과 구조 partition은 층 owner가 전부 소유한다. 방 owner는 같은 수평 마감을 덧씌우지 않는다. 층 owner의 기초는 본채 외곽 x=-5.50..5.50, z=-6.00..6.00 전체를 y=-0.60부터 1층 구조 상면 -0.016까지 채우고, 외벽 두께 구간에서는 -0.016..0의 bearing ring이 입면 아래 끝까지 잇고, 현관 출입구 폭 x=1.695..2.745에서는 [현관문 문턱판](#door-interface)이 그 구간을 채운다. [대지 지면](001-citizen-house.md#site-access) y=-0.45 위로 드러나는 -0.45..0의 외곽 면이 plinth이며 그 면도 층 owner가 입면과 같은 외곽 평면에서 소유한다. 기초가 지면보다 0.15m 깊게 묻혀 본채가 지면에 닿는다. 이전에는 기초가 -0.30에서 끝나 지면과 0.15m 틈이 둘레 전체에 열려 있었다(2026-09-24 외피 설계 판정 F2). [전수 검증](#stage-one-verification)에서 room parent와 cell의 층 밖 돌출, 벽 실체, slab 충돌을 검사한다.
+storey id ground-storey는 house의 자식이며 [매스와 층 datum](#mass-and-storeys)의 1층 바닥·천장을 사용한다. [1층 분할](#ground-partition)의 다섯 방이 이 층에 속하고 [단일 계단](#single-stair)이 2층에 연결한다. slab의 실내 노출 바닥·천장과 구조 partition은 층 owner가 전부 소유한다. 방 owner는 같은 수평 마감을 덧씌우지 않는다. 층 owner의 기초는 본채 외곽 x=-5.50..5.50, z=-6.00..6.00 전체를 y=-0.60부터 1층 구조 상면 -0.016까지 채우고, 외벽 두께 구간에서는 -0.016..0의 bearing ring이 입면 아래 끝까지 잇고, [현관 출입구](#front-entry)의 clear width 아래에서는 문 개구를 절삭하는 전면 입면 owner의 [문턱판](#door-interface)이 그 구간을 채운다. [대지 지면](001-citizen-house.md#site-access) y=-0.45 위로 드러나는 -0.45..0의 외곽 면이 plinth이며, 그 문턱판 구간을 뺀 면은 층 owner가 입면과 같은 외곽 평면에서 소유한다. 기초가 지면보다 0.15m 깊게 묻혀 본채가 지면에 닿는다. 이 0.15m 묻힘은 이 층 owner의 저작값이며 측량·지반·구조 계산값이 아니고, 기초 상단 -0.016은 층 바닥 마감 16mm 아래의 구조 상면이다. 이전에는 기초가 -0.30에서 끝나 지면과 0.15m 틈이 둘레 전체에 열려 있었다(2026-09-24 외피 설계 판정 F2). [전수 검증](#stage-one-verification)에서 room parent와 cell의 층 밖 돌출, 벽 실체, slab 충돌과 외곽 접지를 검사한다.
 
 ## 2층 {#upper-level}
 
@@ -1453,17 +1453,17 @@ room id upper-service의 parent는 [upper-storey](#upper-level)다. clear plan�
 @evidence principles/core/common.md#substantive-completion 동서 측벽과 child1 연장부 전면의 폐쇄, 복도 도착의 개방 및 0.18m 후퇴 수리 이유에 더해 측벽의 전면 시작점, 구멍을 향한 마감면과 두 junction 면의 slab 상면 시작, 전면 strip 윗면과 외벽 실내 면의 노출 범위와 owner를 정했다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 벽을 hole 밖에 두고 child-one 앞면을 물리는 접합 조건 외에, 구멍 수직 면이 하층 천장 끝·slab 절단면·마감면으로 틈 없이 이어지도록 마감면 하단과 전면 끝, 가장자리 junction 두 면을 좌표로 지정했다. 남는 strip 윗면과 외벽 실내 면 두 띠도 x·y·z 범위와 층·전면 owner를 적어 구현자가 구멍 가장자리의 면을 새로 고르지 않는다. 그 면의 마감은 materials로 넘겨 이 단위가 재료를 결정하지 않는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 단일 계단의 상층 접속에 방 경계와 구멍 가장자리 사이 실제 벽 두께를 확보하는 결정을 더했다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 한 계단에 headroom을 막지 않는 주변 실체 배치를 추가한다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모 단일 계단은 계단 하나와 바닥 개구만 주고 주변 벽은 주지 않는다. 본문은 두 측벽을 마주보는 clear edge 평균에 두고, child-bedroom-1 연장부 전면을 z=-1.62로 물린 벽으로 닫으며, 측벽 몸체의 전면 시작 z=-5.76과 계단 쪽 마감의 y=3.184·z=-5.766 범위를 더해 부모 조건을 실제 경계 좌표로 전개했다.
 @evidence principles/design/spaces.md#space-topology 계단은 북측 복도로만 도착하고 설비실·작은 침실 쪽에는 닫힌 경계가 있어 그 방으로 새지 않는다.
-@evidenceReview principles/design/spaces.md#space-topology #3f8d925 북쪽 arrival은 corridor와 연결되며 동서 room은 계단과 분리된다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 본문은 복도에 닿는 북측 도착 구간만 열고 upper-service·child-bedroom-1 쪽 두 측벽과 child-bedroom-1 연장부 전면을 닫아, 계단에서 복도 외의 방으로 가는 경로를 두지 않는다. 측벽 몸체가 방 clear edge z=-5.76부터 이어져 이전 source의 0.126m 틈으로 두 방이 void에 열리던 경로도 설계에서 닫혔다.
 @evidence principles/design/spaces.md#space-boundary-authority 벽 위치는 hole과 room clear edge에서 도출하며 child1의 현재 cell이 후퇴 좌표를 소유한다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 계단 hole이 void 원본이고 enclosure는 그 밖의 room 경계만 소유한다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 본문은 측벽 위치를 hole과 마주보는 방 clear edge의 평균에서, 연장부 후퇴 값을 child-bedroom-1의 현재 cell에서 읽게 하고 벽을 slab 구멍 밖에 둔다. 남는 strip 윗면은 층 owner, 그 위 외벽 실내 면은 전면 입면 owner로 나눠 한 면에 두 작성 기준이 붙지 않는다.
 @evidence principles/design/spaces.md#space-verification-address 상층 plan·계단 section·실물 충돌에서 세 폐쇄 경계와 열린 도착 및 hole 침범을 함께 검사한다.
-@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 계단 머리 위 벽·slab 간섭을 실제 hole 범위에서 검사한다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 본문 둘째 단락이 전수 검증의 상층 plan·계단 section·실물 충돌에 세 폐쇄 경계와 열린 도착을 붙이고, 벽이 slab 구멍 밖이라는 조건은 같은 section에서 hole 침범으로 반증된다. 측벽의 z 시작과 마감면 하단 3.184, slab 절단면 2.908..3.184가 좌표로 적혀 있어 구멍 수직 면의 틈이나 16mm slot을 section에서 읽을 수 있다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work 단일 계단과 복도 직결 조건을 상층 room edge에 대조해 child1 연장부만 내벽 두께 뒤로 물렸다. 부모의 층간 그래프를 변경할 필요가 없다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 주변 cell 경계 조정으로 도착을 확보하여 부모 단일 계단 형식을 바꿀 필요가 없다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 부모 단일 계단과 복도 직결 조건을 본문 결정에 대조했다. child-bedroom-1 연장부를 0.18m 물리고 측벽을 clear edge 평균에 두는 것으로 도착이 확보되어 계단 형식·hole 범위·상층 그래프를 바꾸지 않는다. 측벽 전면 시작과 마감 하단의 수리도 이 H2 안에서 닫혀 부모 수정 사유가 없다.
 @evidence contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements 필수 계단 구멍의 통행을 보존하면서 다른 방을 거치지 않고 상층 일자 복도로 도착한다.
-@evidenceReview contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements #d31488d 단일 계단 구멍 옆을 감싸면서 상층 도착은 열어 둔다.
+@evidenceReview contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements #d31488d 필수 계단 구멍에 벽을 넣지 않아 통행과 headroom을 보존하고, 상층 도착은 복도에 닿는 북측 구간으로만 열려 다른 방을 거치지 않는다. upper-service·child-bedroom-1 쪽은 닫혀 계단이 방 통로가 되지 않는다.
 -->
 
 [계단 바닥 개구](#stair-opening)의 서측과 [upper-service](#upper-service)의 동측, 동측과 [child-bedroom-1](#child-bedroom-1)의 서측 사이에 각각 [내벽 두께](#mass-and-storeys)의 닫힌 측벽을 둔다. 위치는 서로 마주보는 clear edge의 평균이다. 복도에 닿는 북측 도착 구간은 열고, child-bedroom-1의 연장부에 닿는 북측 구간은 방 외주 앞에 두께를 확보한 벽으로 닫는다.
@@ -1607,6 +1607,7 @@ PV는 [캐노피 span](003-surface-ownership.md#roof-face)을 받아 x 방향 �
 | 현관에서 전 방 도달 | 실제 threshold를 지나지 않는 connector, 벽/가구 관통, 떠 있는 endpoint |
 | 단일 계단의 층간 도달 | 참 밖 route, stairwell을 막는 slab, 상부 도착과 복도 불연속 |
 | 완결 방 분할 | logical cell만 있고 실물 벽 없는 구획, 중첩/무소유 영역 |
+| 외곽 접지 | 네 외곽 평면의 y=-0.45..0 띠에서 기초·bearing ring·문턱판이 끊기는 구간, 외곽 안으로 들어온 대지 지면·보행면, 지면에서 떠 있는 외부 부재 |
 | 유리와 실내 일치 | room boundary와 bay/jamb 또는 floor/transom 불일치 |
 | 전체 관찰 분모 | setting, 노출 입면·모서리·지붕·하부·개구부·출입구와 모든 공간의 threshold·4 안쪽 모서리·중심 4방위, 두 L자 방의 추가 모서리 |
 | reference 추가 질문 | 다섯 장을 각각 현재 실물 3D 화면과 대조, 절개는 검사로 표시 |
