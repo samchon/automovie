@@ -7,58 +7,58 @@
       "globalAgeStructure": 0.6153846153846154,
       "globalSexualDimorphism": 1,
       "europeanAncestry": 1,
-      "headHeight": 0.72111,
-      "leftEyeLateralPosition": 0.77269,
-      "rightEyeLateralPosition": 0.77269,
-      "leftEyeScale": -0.2681,
-      "rightEyeScale": -0.2681,
-      "leftEyeHeight": -0.38807,
-      "rightEyeHeight": -0.38807,
+      "headHeight": 0.71844,
+      "leftEyeLateralPosition": 0.74602,
+      "rightEyeLateralPosition": 0.74602,
+      "leftEyeScale": -0.30886,
+      "rightEyeScale": -0.30886,
+      "leftEyeHeight": -0.5488,
+      "rightEyeHeight": -0.5488,
       "noseWidth": 1,
-      "noseHeight": -0.46572,
-      "mouthWidth": 0.69958,
-      "upperLipHeight": 0.40241,
-      "lowerLipHeight": 0.45936,
+      "noseHeight": -0.46655,
+      "mouthWidth": 0.65269,
+      "upperLipHeight": 0.36837,
+      "lowerLipHeight": 0.43122,
       "mouthElevation": 1,
       "cheekFullness": 1,
-      "chinWidth": -0.01024,
-      "chinHeight": -0.98606,
+      "chinWidth": -0.01396,
+      "chinHeight": -0.97808,
       "browElevation": -1
     },
     "expression": {
-      "browInnerUp": 0.014,
-      "eyeBlinkLeft": 0.2164,
+      "browInnerUp": 0.0152,
+      "eyeBlinkLeft": 0.1838,
       "eyeLookDownLeft": 0.1239,
-      "eyeLookDownRight": 0.2405,
-      "eyeWideRight": 0.0399,
-      "jawOpen": 0.1659,
-      "mouthRight": 0.1583,
-      "mouthShrugUpper": 0.0227,
-      "mouthSmileLeft": 0.4702,
-      "mouthSmileRight": 0.4982
+      "eyeLookDownRight": 0.2356,
+      "eyeWideRight": 0.0393,
+      "jawOpen": 0.168,
+      "mouthRight": 0.1592,
+      "mouthShrugUpper": 0.0295,
+      "mouthSmileLeft": 0.4714,
+      "mouthSmileRight": 0.5077
     },
     "materials": {
       "skin": {
         "color": {
-          "r": 0.5,
-          "g": 0.28,
-          "b": 0.2
+          "r": 0.4225,
+          "g": 0.234,
+          "b": 0.1798
         },
         "roughness": 0.76
       },
       "lips": {
         "color": {
-          "r": 0.42,
-          "g": 0.21,
-          "b": 0.17
+          "r": 0.3476,
+          "g": 0.1796,
+          "b": 0.1651
         },
         "roughness": 0.57
       },
       "Human.eyebrow001": {
         "pigment": [
-          0.22529,
-          0.12093,
-          0.08628
+          0.19037,
+          0.10106,
+          0.07757
         ]
       }
     },
@@ -108,9 +108,9 @@
           },
           "finish": {
             "color": [
-              0.75736,
-              0.63908,
-              0.38117
+              0.63997,
+              0.53409,
+              0.34268
             ],
             "roughness": 0.73,
             "fibres": 24,
@@ -156,26 +156,26 @@
     "iris": {
       "left": {
         "base": [
-          0.05343,
-          0.04077,
-          0.03578
+          0.04515,
+          0.03407,
+          0.03216
         ],
         "variation": [
-          0.30222,
-          0.23061,
-          0.20236
+          0.25537,
+          0.19272,
+          0.18192
         ]
       },
       "right": {
         "base": [
-          0.05343,
-          0.04077,
-          0.03578
+          0.04515,
+          0.03407,
+          0.03216
         ],
         "variation": [
-          0.30222,
-          0.23061,
-          0.20236
+          0.25537,
+          0.19272,
+          0.18192
         ]
       }
     }
@@ -188,56 +188,56 @@
       "globalAgeStructure": -1,
       "globalSexualDimorphism": 1,
       "europeanAncestry": 1,
-      "headHeight": 0.25005,
-      "leftEyeLateralPosition": 0.16531,
-      "rightEyeLateralPosition": 0.16531,
-      "leftEyeScale": 0.2797,
-      "rightEyeScale": 0.2797,
-      "leftEyeHeight": -0.75041,
-      "rightEyeHeight": -0.75041,
-      "noseWidth": 0.12625,
-      "noseHeight": 1,
-      "mouthWidth": 0.76876,
-      "upperLipHeight": 0.54053,
-      "lowerLipHeight": 0.99663,
-      "mouthElevation": 0.11154,
+      "headHeight": 0.34194,
+      "leftEyeLateralPosition": 0.19259,
+      "rightEyeLateralPosition": 0.19259,
+      "leftEyeScale": 0.20283,
+      "rightEyeScale": 0.20283,
+      "leftEyeHeight": -0.9697,
+      "rightEyeHeight": -0.9697,
+      "noseWidth": 0.10482,
+      "noseHeight": 0.87717,
+      "mouthWidth": 0.85501,
+      "upperLipHeight": 0.55962,
+      "lowerLipHeight": 1,
+      "mouthElevation": 0.27025,
       "cheekFullness": 0,
       "chinWidth": -1,
-      "chinHeight": -0.71844,
-      "browElevation": -0.21651
+      "chinHeight": -0.93982,
+      "browElevation": -0.2404
     },
     "expression": {
-      "eyeBlinkLeft": 0.1973,
-      "eyeBlinkRight": 0.11,
-      "eyeLookInRight": 0.0933,
-      "eyeLookOutLeft": 0.194,
+      "eyeBlinkLeft": 0.2169,
+      "eyeBlinkRight": 0.1133,
+      "eyeLookInRight": 0.0777,
+      "eyeLookOutLeft": 0.1892,
       "jawOpen": 0.0356,
-      "mouthRight": 0.0045,
-      "mouthSmileLeft": 0.833,
-      "mouthSmileRight": 0.7238
+      "mouthRight": 0.004,
+      "mouthSmileLeft": 0.8251,
+      "mouthSmileRight": 0.7073
     },
     "materials": {
       "skin": {
         "color": {
-          "r": 0.61,
-          "g": 0.37,
-          "b": 0.28
+          "r": 0.4225,
+          "g": 0.234,
+          "b": 0.1798
         },
         "roughness": 0.76
       },
       "lips": {
         "color": {
-          "r": 0.46,
-          "g": 0.2,
-          "b": 0.18
+          "r": 0.3212,
+          "g": 0.1332,
+          "b": 0.1028
         },
         "roughness": 0.57
       },
       "Human.eyebrow001": {
         "pigment": [
-          0.04798,
-          0.01727,
-          0.00848
+          0.03323,
+          0.01092,
+          0.00545
         ]
       }
     },
@@ -287,9 +287,9 @@
           },
           "finish": {
             "color": [
-              0.05337,
-              0.02927,
-              0.02113
+              0.03696,
+              0.01851,
+              0.01357
             ],
             "roughness": 0.73,
             "fibres": 24,
@@ -374,9 +374,9 @@
           },
           "finish": {
             "color": [
-              0.03732,
-              0.02047,
-              0.01478
+              0.02585,
+              0.01294,
+              0.00949
             ],
             "roughness": 0.73,
             "fibres": 24,
@@ -406,26 +406,26 @@
     "iris": {
       "left": {
         "base": [
-          0.04334,
-          0.04109,
-          0.0387
+          0.03002,
+          0.02599,
+          0.02485
         ],
         "variation": [
-          0.24515,
-          0.23244,
-          0.21891
+          0.1698,
+          0.147,
+          0.14057
         ]
       },
       "right": {
         "base": [
-          0.04334,
-          0.04109,
-          0.0387
+          0.03002,
+          0.02599,
+          0.02485
         ],
         "variation": [
-          0.24515,
-          0.23244,
-          0.21891
+          0.1698,
+          0.147,
+          0.14057
         ]
       }
     }
@@ -438,57 +438,57 @@
       "globalAgeStructure": -0.08333333333333326,
       "globalSexualDimorphism": -1,
       "europeanAncestry": 1,
-      "headHeight": -0.43826,
-      "leftEyeLateralPosition": 0.45571,
-      "rightEyeLateralPosition": 0.45571,
-      "leftEyeScale": 0.25674,
-      "rightEyeScale": 0.25674,
-      "leftEyeHeight": 0.26604,
-      "rightEyeHeight": 0.26604,
-      "noseWidth": -0.17749,
+      "headHeight": -0.42684,
+      "leftEyeLateralPosition": 0.12117,
+      "rightEyeLateralPosition": 0.12117,
+      "leftEyeScale": 0.02293,
+      "rightEyeScale": 0.02293,
+      "leftEyeHeight": 0.29949,
+      "rightEyeHeight": 0.29949,
+      "noseWidth": -0.47735,
       "noseHeight": 1,
-      "mouthWidth": -0.41875,
+      "mouthWidth": -0.50897,
       "upperLipHeight": -1,
-      "lowerLipHeight": 0.17485,
-      "mouthElevation": -0.38661,
+      "lowerLipHeight": 0.21333,
+      "mouthElevation": -0.38792,
       "cheekFullness": 0,
       "chinWidth": -1,
-      "chinHeight": -0.75374,
+      "chinHeight": -0.76426,
       "browElevation": -1
     },
     "expression": {
-      "eyeBlinkLeft": 0.1274,
-      "eyeBlinkRight": 0.0297,
-      "eyeLookInRight": 0.5653,
-      "eyeLookOutLeft": 0.4997,
+      "eyeBlinkLeft": 0.1972,
+      "eyeBlinkRight": 0.0514,
+      "eyeLookInRight": 0.5472,
+      "eyeLookOutLeft": 0.4727,
       "jawOpen": 0.0019,
-      "mouthPucker": 0.0329,
-      "mouthRight": 0.003,
-      "mouthSmileLeft": 0.3943,
-      "mouthSmileRight": 0.1655
+      "mouthPucker": 0.0358,
+      "mouthRight": 0.0029,
+      "mouthSmileLeft": 0.3899,
+      "mouthSmileRight": 0.1558
     },
     "materials": {
       "skin": {
         "color": {
-          "r": 0.9662499999999999,
-          "g": 0.72625,
-          "b": 0.6162500000000002
+          "r": 0.463,
+          "g": 0.2714,
+          "b": 0.2091
         },
         "roughness": 0.76
       },
       "lips": {
         "color": {
-          "r": 0.55,
-          "g": 0.065,
-          "b": 0.09
+          "r": 0.3352,
+          "g": 0.0302,
+          "b": 0.0304
         },
         "roughness": 0.57
       },
       "Human.eyebrow001": {
         "pigment": [
-          0.05015,
-          0.02224,
-          0.01067
+          0.02403,
+          0.00831,
+          0.00362
         ]
       }
     },
@@ -538,9 +538,9 @@
           },
           "finish": {
             "color": [
-              0.06779,
-              0.04038,
-              0.01946
+              0.03248,
+              0.01509,
+              0.0066
             ],
             "roughness": 0.73,
             "fibres": 24,
@@ -586,26 +586,26 @@
     "iris": {
       "left": {
         "base": [
-          0.02884,
-          0.01549,
-          0.00766
+          0.01382,
+          0.00579,
+          0.0026
         ],
         "variation": [
-          0.16311,
-          0.08764,
-          0.04332
+          0.07816,
+          0.03275,
+          0.0147
         ]
       },
       "right": {
         "base": [
-          0.02884,
-          0.01549,
-          0.00766
+          0.01382,
+          0.00579,
+          0.0026
         ],
         "variation": [
-          0.16311,
-          0.08764,
-          0.04332
+          0.07816,
+          0.03275,
+          0.0147
         ]
       }
     }
@@ -618,56 +618,56 @@
       "globalAgeStructure": -0.8333333333333333,
       "globalSexualDimorphism": 1,
       "africanAncestry": 1,
-      "headHeight": 0.61359,
-      "leftEyeLateralPosition": 0.74133,
-      "rightEyeLateralPosition": 0.74133,
-      "leftEyeScale": 0.08585,
-      "rightEyeScale": 0.08585,
-      "leftEyeHeight": -0.10563,
-      "rightEyeHeight": -0.10563,
-      "noseWidth": 0.61221,
-      "noseHeight": -0.52848,
-      "mouthWidth": 0.8322,
-      "upperLipHeight": 0.9583,
+      "headHeight": 0.67553,
+      "leftEyeLateralPosition": 0.74767,
+      "rightEyeLateralPosition": 0.74767,
+      "leftEyeScale": 0.07032,
+      "rightEyeScale": 0.07032,
+      "leftEyeHeight": -0.07291,
+      "rightEyeHeight": -0.07291,
+      "noseWidth": 0.7209,
+      "noseHeight": -0.6695,
+      "mouthWidth": 0.82959,
+      "upperLipHeight": 1,
       "lowerLipHeight": 1,
-      "mouthElevation": 0.54689,
+      "mouthElevation": 0.71455,
       "cheekFullness": -1,
       "chinWidth": -1,
       "chinHeight": -1,
-      "browElevation": -0.31579
+      "browElevation": -0.29564
     },
     "expression": {
-      "eyeBlinkLeft": 0.3157,
-      "eyeBlinkRight": 0.2947,
-      "jawOpen": 0.0261,
-      "mouthPucker": 0.215,
-      "mouthRight": 0.044,
-      "mouthSmileLeft": 0.7662,
-      "mouthSmileRight": 0.8156,
-      "mouthStretchRight": 0.4727
+      "eyeBlinkLeft": 0.3227,
+      "eyeBlinkRight": 0.2931,
+      "eyeLookDownRight": 0.0858,
+      "mouthPucker": 0.2416,
+      "mouthRight": 0.0451,
+      "mouthSmileLeft": 0.7442,
+      "mouthSmileRight": 0.7562,
+      "mouthStretchRight": 0.2704
     },
     "materials": {
       "skin": {
         "color": {
-          "r": 0.24,
-          "g": 0.105,
-          "b": 0.062
+          "r": 0.1497,
+          "g": 0.0801,
+          "b": 0.0553
         },
         "roughness": 0.76
       },
       "lips": {
         "color": {
-          "r": 0.25,
-          "g": 0.1,
-          "b": 0.075
+          "r": 0.134,
+          "g": 0.0727,
+          "b": 0.0702
         },
         "roughness": 0.57
       },
       "Human.eyebrow001": {
         "pigment": [
-          0.02171,
-          0.01351,
-          0.01092
+          0.01354,
+          0.01031,
+          0.00974
         ]
       }
     },
@@ -717,9 +717,9 @@
           },
           "finish": {
             "color": [
-              0.01336,
-              0.01487,
-              0.01602
+              0.00833,
+              0.01135,
+              0.01429
             ],
             "roughness": 0.94,
             "fibres": 24,
@@ -737,26 +737,26 @@
     "iris": {
       "left": {
         "base": [
-          0.00171,
-          0.00157,
-          0.00168
+          0.00107,
+          0.0012,
+          0.0015
         ],
         "variation": [
-          0.00966,
-          0.0089,
-          0.00952
+          0.00603,
+          0.00679,
+          0.00849
         ]
       },
       "right": {
         "base": [
-          0.00171,
-          0.00157,
-          0.00168
+          0.00107,
+          0.0012,
+          0.0015
         ],
         "variation": [
-          0.00966,
-          0.0089,
-          0.00952
+          0.00603,
+          0.00679,
+          0.00849
         ]
       }
     }
@@ -769,58 +769,58 @@
       "globalAgeStructure": -0.8333333333333333,
       "globalSexualDimorphism": -1,
       "africanAncestry": 1,
-      "headHeight": 0.91252,
-      "leftEyeLateralPosition": 0.62377,
-      "rightEyeLateralPosition": 0.62377,
-      "leftEyeScale": -0.43757,
-      "rightEyeScale": -0.43757,
-      "leftEyeHeight": -0.71018,
-      "rightEyeHeight": -0.71018,
-      "noseWidth": 0.03223,
-      "noseHeight": 0.2683,
-      "mouthWidth": 0.6615,
-      "upperLipHeight": 0.0469,
-      "lowerLipHeight": 0.75116,
-      "mouthElevation": 0.43737,
+      "headHeight": 0.85977,
+      "leftEyeLateralPosition": 0.51966,
+      "rightEyeLateralPosition": 0.51966,
+      "leftEyeScale": -0.54911,
+      "rightEyeScale": -0.54911,
+      "leftEyeHeight": -0.72999,
+      "rightEyeHeight": -0.72999,
+      "noseWidth": 0.02827,
+      "noseHeight": 0.30065,
+      "mouthWidth": 0.87751,
+      "upperLipHeight": 0.03153,
+      "lowerLipHeight": 0.69663,
+      "mouthElevation": 0.22685,
       "cheekFullness": -1,
       "chinWidth": -1,
       "chinHeight": -1,
-      "browElevation": 0.01957
+      "browElevation": -0.03504
     },
     "expression": {
-      "eyeBlinkLeft": 0.2347,
-      "eyeBlinkRight": 0.1716,
-      "eyeLookInRight": 0.1955,
-      "eyeLookOutLeft": 0.1747,
+      "eyeBlinkLeft": 0.2184,
+      "eyeBlinkRight": 0.1627,
+      "eyeLookInRight": 0.1132,
+      "eyeLookOutLeft": 0.1068,
       "jawOpen": 0.0398,
-      "mouthLeft": 0.1157,
-      "mouthPucker": 0.0647,
-      "mouthRight": 0.0188,
-      "mouthSmileLeft": 0.9466,
-      "mouthSmileRight": 0.8928
+      "mouthLeft": 0.1032,
+      "mouthPucker": 0.0235,
+      "mouthRight": 0.0391,
+      "mouthSmileLeft": 0.9002,
+      "mouthSmileRight": 0.826
     },
     "materials": {
       "skin": {
         "color": {
-          "r": 0.22,
-          "g": 0.087,
-          "b": 0.051
+          "r": 0.2178,
+          "g": 0.1153,
+          "b": 0.0695
         },
         "roughness": 0.76
       },
       "lips": {
         "color": {
-          "r": 0.3,
-          "g": 0.095,
-          "b": 0.105
+          "r": 0.1624,
+          "g": 0.0773,
+          "b": 0.0665
         },
         "roughness": 0.57
       },
       "Human.eyebrow001": {
         "pigment": [
-          0.02596,
-          0.01252,
-          0.00978
+          0.0257,
+          0.01659,
+          0.01333
         ]
       }
     },
@@ -870,9 +870,9 @@
           },
           "finish": {
             "color": [
-              0.00878,
-              0.00808,
-              0.00857
+              0.00869,
+              0.01071,
+              0.01168
             ],
             "roughness": 0.94,
             "fibres": 24,
@@ -918,26 +918,26 @@
     "iris": {
       "left": {
         "base": [
-          0.00218,
-          0.00144,
-          0.00137
+          0.00216,
+          0.00191,
+          0.00187
         ],
         "variation": [
-          0.01236,
-          0.00817,
-          0.00777
+          0.01223,
+          0.01082,
+          0.01059
         ]
       },
       "right": {
         "base": [
-          0.00218,
-          0.00144,
-          0.00137
+          0.00216,
+          0.00191,
+          0.00187
         ],
         "variation": [
-          0.01236,
-          0.00817,
-          0.00777
+          0.01223,
+          0.01082,
+          0.01059
         ]
       }
     }
@@ -950,59 +950,59 @@
       "globalAgeStructure": -0.8333333333333333,
       "globalSexualDimorphism": 1,
       "asianAncestry": 1,
-      "headHeight": 0.22235,
-      "leftEyeLateralPosition": 0.22012,
-      "rightEyeLateralPosition": 0.22012,
-      "leftEyeScale": -0.17349,
-      "rightEyeScale": -0.17349,
-      "leftEyeHeight": -0.10566,
-      "rightEyeHeight": -0.10566,
-      "noseWidth": 0.4845,
-      "noseHeight": 0.54342,
-      "mouthWidth": 0.34885,
-      "upperLipHeight": -0.78665,
-      "lowerLipHeight": -0.00178,
-      "mouthElevation": 0.23573,
+      "headHeight": 0.22885,
+      "leftEyeLateralPosition": 0.24319,
+      "rightEyeLateralPosition": 0.24319,
+      "leftEyeScale": -0.17104,
+      "rightEyeScale": -0.17104,
+      "leftEyeHeight": -0.53143,
+      "rightEyeHeight": -0.53143,
+      "noseWidth": 0.45391,
+      "noseHeight": 0.62735,
+      "mouthWidth": 0.24872,
+      "upperLipHeight": -0.84699,
+      "lowerLipHeight": -0.05125,
+      "mouthElevation": 0.17478,
       "cheekFullness": -1,
       "chinWidth": -1,
       "chinHeight": -1,
-      "browElevation": 0.52143
+      "browElevation": 0.71024
     },
     "expression": {
-      "eyeBlinkLeft": 0.2537,
-      "eyeBlinkRight": 0.2068,
-      "eyeLookDownLeft": 0.0099,
-      "eyeLookDownRight": 0.0209,
-      "eyeLookInRight": 0.1837,
-      "eyeLookOutLeft": 0.19,
-      "jawOpen": 0.071,
-      "mouthLeft": 0.0201,
-      "mouthRight": 0.0144,
-      "mouthSmileLeft": 0.695,
-      "mouthSmileRight": 0.6376
+      "eyeBlinkLeft": 0.2152,
+      "eyeBlinkRight": 0.1717,
+      "eyeLookDownLeft": 0.006,
+      "eyeLookDownRight": 0.0099,
+      "eyeLookInRight": 0.1247,
+      "eyeLookOutLeft": 0.1421,
+      "jawOpen": 0.0713,
+      "mouthLeft": 0.047,
+      "mouthRight": 0.003,
+      "mouthSmileLeft": 0.6954,
+      "mouthSmileRight": 0.6379
     },
     "materials": {
       "skin": {
         "color": {
-          "r": 0.56,
-          "g": 0.32,
-          "b": 0.22
+          "r": 0.4206,
+          "g": 0.2393,
+          "b": 0.1743
         },
         "roughness": 0.76
       },
       "lips": {
         "color": {
-          "r": 0.43,
-          "g": 0.2,
-          "b": 0.19
+          "r": 0.3213,
+          "g": 0.1057,
+          "b": 0.0899
         },
         "roughness": 0.57
       },
       "Human.eyebrow001": {
         "pigment": [
-          0.03281,
-          0.02012,
-          0.01591
+          0.02464,
+          0.01505,
+          0.0126
         ]
       }
     },
@@ -1052,9 +1052,9 @@
           },
           "finish": {
             "color": [
-              0.0516,
-              0.03822,
-              0.03146
+              0.03876,
+              0.02858,
+              0.02492
             ],
             "roughness": 0.73,
             "fibres": 24,
@@ -1100,26 +1100,26 @@
     "iris": {
       "left": {
         "base": [
-          0.00688,
-          0.00381,
-          0.00301
+          0.00517,
+          0.00285,
+          0.00239
         ],
         "variation": [
-          0.03894,
-          0.02157,
-          0.01703
+          0.02925,
+          0.01613,
+          0.0135
         ]
       },
       "right": {
         "base": [
-          0.00688,
-          0.00381,
-          0.00301
+          0.00517,
+          0.00285,
+          0.00239
         ],
         "variation": [
-          0.03894,
-          0.02157,
-          0.01703
+          0.02925,
+          0.01613,
+          0.0135
         ]
       }
     }
@@ -1132,57 +1132,56 @@
       "globalAgeStructure": -0.8333333333333333,
       "globalSexualDimorphism": 1,
       "europeanAncestry": 1,
-      "headHeight": 0.58432,
-      "leftEyeLateralPosition": 0.61372,
-      "rightEyeLateralPosition": 0.61372,
-      "leftEyeScale": -0.00489,
-      "rightEyeScale": -0.00489,
-      "leftEyeHeight": -0.33887,
-      "rightEyeHeight": -0.33887,
-      "noseWidth": 0.4398,
-      "noseHeight": 0.39156,
-      "mouthWidth": 1,
-      "upperLipHeight": 0.29717,
-      "lowerLipHeight": 0.62508,
-      "mouthElevation": 0.10659,
+      "headHeight": 0.02846,
+      "leftEyeLateralPosition": 0.61082,
+      "rightEyeLateralPosition": 0.61082,
+      "leftEyeScale": -0.05563,
+      "rightEyeScale": -0.05563,
+      "leftEyeHeight": -0.336,
+      "rightEyeHeight": -0.336,
+      "noseWidth": 0.3558,
+      "noseHeight": 1,
+      "mouthWidth": 0.88517,
+      "upperLipHeight": 0.52357,
+      "lowerLipHeight": 0.7772,
+      "mouthElevation": -0.58184,
       "cheekFullness": 0,
       "chinWidth": -1,
-      "chinHeight": -1,
-      "browElevation": -0.72522
+      "chinHeight": 0.03148,
+      "browElevation": -0.28816
     },
     "expression": {
-      "eyeBlinkLeft": 0.296,
-      "eyeBlinkRight": 0.286,
-      "eyeLookInRight": 0.064,
-      "eyeLookOutLeft": 0.1443,
-      "jawOpen": 0.1104,
+      "eyeBlinkLeft": 0.2811,
+      "eyeBlinkRight": 0.2564,
+      "eyeLookOutLeft": 0.0641,
+      "jawOpen": 0.1111,
       "mouthPucker": 0.0044,
-      "mouthRight": 0.0219,
-      "mouthSmileLeft": 0.8241,
-      "mouthSmileRight": 0.7253
+      "mouthRight": 0.0161,
+      "mouthSmileLeft": 0.8255,
+      "mouthSmileRight": 0.7287
     },
     "materials": {
       "skin": {
         "color": {
-          "r": 0.66,
-          "g": 0.405,
-          "b": 0.31
+          "r": 0.4225,
+          "g": 0.234,
+          "b": 0.1798
         },
         "roughness": 0.76
       },
       "lips": {
         "color": {
-          "r": 0.49,
-          "g": 0.23,
-          "b": 0.21
+          "r": 0.2791,
+          "g": 0.1028,
+          "b": 0.0953
         },
         "roughness": 0.57
       },
       "Human.eyebrow001": {
         "pigment": [
-          0.04106,
-          0.02222,
-          0.01661
+          0.02628,
+          0.01284,
+          0.00963
         ]
       }
     },
@@ -1232,9 +1231,9 @@
           },
           "finish": {
             "color": [
-              0.14562,
-              0.103,
-              0.07114
+              0.09322,
+              0.05951,
+              0.04126
             ],
             "roughness": 0.73,
             "fibres": 24,
@@ -1280,26 +1279,26 @@
     "iris": {
       "left": {
         "base": [
-          0.01534,
-          0.01064,
-          0.0076
+          0.00982,
+          0.00615,
+          0.00441
         ],
         "variation": [
-          0.08675,
-          0.0602,
-          0.04296
+          0.05553,
+          0.03478,
+          0.02492
         ]
       },
       "right": {
         "base": [
-          0.01534,
-          0.01064,
-          0.0076
+          0.00982,
+          0.00615,
+          0.00441
         ],
         "variation": [
-          0.08675,
-          0.0602,
-          0.04296
+          0.05553,
+          0.03478,
+          0.02492
         ]
       }
     }
@@ -1312,55 +1311,55 @@
       "globalAgeStructure": -0.9166666666666667,
       "globalSexualDimorphism": -1,
       "europeanAncestry": 1,
-      "headHeight": 0.03606,
-      "leftEyeLateralPosition": 0.02616,
-      "rightEyeLateralPosition": 0.02616,
-      "leftEyeScale": -0.0835,
-      "rightEyeScale": -0.0835,
-      "leftEyeHeight": -0.73421,
-      "rightEyeHeight": -0.73421,
-      "noseWidth": 0.0095,
-      "noseHeight": 0.62873,
-      "mouthWidth": 0.66723,
-      "upperLipHeight": -0.19636,
-      "lowerLipHeight": 0.73974,
-      "mouthElevation": -0.16371,
+      "headHeight": 0.07625,
+      "leftEyeLateralPosition": 0.13421,
+      "rightEyeLateralPosition": 0.13421,
+      "leftEyeScale": -0.09523,
+      "rightEyeScale": -0.09523,
+      "leftEyeHeight": -0.66576,
+      "rightEyeHeight": -0.66576,
+      "noseWidth": 0.05731,
+      "noseHeight": 0.6654,
+      "mouthWidth": 0.58775,
+      "upperLipHeight": -0.18187,
+      "lowerLipHeight": 0.70009,
+      "mouthElevation": -0.17486,
       "cheekFullness": -1,
-      "chinWidth": -0.89286,
+      "chinWidth": -0.86716,
       "chinHeight": -1,
-      "browElevation": -0.4442
+      "browElevation": -0.45813
     },
     "expression": {
-      "browOuterUpRight": 0.2431,
-      "eyeBlinkLeft": 0.0833,
-      "eyeBlinkRight": 0.0961,
+      "browOuterUpRight": 0.2512,
+      "eyeBlinkLeft": 0.0969,
+      "eyeBlinkRight": 0.1054,
       "jawOpen": 0.0077,
-      "mouthLeft": 0.1762,
-      "mouthSmileLeft": 0.7065,
-      "mouthSmileRight": 0.5356
+      "mouthLeft": 0.1554,
+      "mouthSmileLeft": 0.711,
+      "mouthSmileRight": 0.5544
     },
     "materials": {
       "skin": {
         "color": {
-          "r": 0.67,
-          "g": 0.425,
-          "b": 0.34
+          "r": 0.463,
+          "g": 0.2714,
+          "b": 0.2091
         },
         "roughness": 0.76
       },
       "lips": {
         "color": {
-          "r": 0.5,
-          "g": 0.19,
-          "b": 0.21
+          "r": 0.348,
+          "g": 0.1223,
+          "b": 0.1192
         },
         "roughness": 0.57
       },
       "Human.eyebrow001": {
         "pigment": [
-          0.09296,
-          0.05365,
-          0.04246
+          0.06424,
+          0.03426,
+          0.02611
         ]
       }
     },
@@ -1438,9 +1437,9 @@
           },
           "finish": {
             "color": [
-              0.05606,
-              0.03636,
-              0.02611
+              0.03874,
+              0.02322,
+              0.01606
             ],
             "roughness": 0.73,
             "fibres": 24,
@@ -1477,26 +1476,26 @@
     "iris": {
       "left": {
         "base": [
-          0.01357,
-          0.0112,
-          0.00864
+          0.00938,
+          0.00715,
+          0.00531
         ],
         "variation": [
-          0.07676,
-          0.06337,
-          0.04888
+          0.05305,
+          0.04047,
+          0.03006
         ]
       },
       "right": {
         "base": [
-          0.01357,
-          0.0112,
-          0.00864
+          0.00938,
+          0.00715,
+          0.00531
         ],
         "variation": [
-          0.07676,
-          0.06337,
-          0.04888
+          0.05305,
+          0.04047,
+          0.03006
         ]
       }
     }
@@ -1509,59 +1508,58 @@
       "globalAgeStructure": 0.01538461538461533,
       "globalSexualDimorphism": -1,
       "asianAncestry": 1,
-      "headHeight": -0.00034,
-      "leftEyeLateralPosition": 0.03125,
-      "rightEyeLateralPosition": 0.03125,
-      "leftEyeScale": 0.17389,
-      "rightEyeScale": 0.17389,
-      "leftEyeHeight": 0.25561,
-      "rightEyeHeight": 0.25561,
-      "noseWidth": 0.17526,
-      "noseHeight": 0.36481,
-      "mouthWidth": -0.19254,
+      "headHeight": 0.01139,
+      "leftEyeLateralPosition": 0.03281,
+      "rightEyeLateralPosition": 0.03281,
+      "leftEyeScale": 0.16783,
+      "rightEyeScale": 0.16783,
+      "leftEyeHeight": 0.21204,
+      "rightEyeHeight": 0.21204,
+      "noseWidth": 0.14829,
+      "noseHeight": 0.36428,
+      "mouthWidth": -0.23921,
       "upperLipHeight": -1,
-      "lowerLipHeight": -0.00662,
-      "mouthElevation": 0.18355,
+      "lowerLipHeight": 0.00843,
+      "mouthElevation": 0.20453,
       "cheekFullness": 0,
-      "chinWidth": -0.54481,
+      "chinWidth": -0.55231,
       "chinHeight": -1,
-      "browElevation": 0.34346
+      "browElevation": 0.39742
     },
     "expression": {
-      "browInnerUp": 0.8199,
-      "browOuterUpLeft": 0.3111,
-      "eyeBlinkLeft": 0.1466,
-      "eyeBlinkRight": 0.0097,
-      "eyeLookInRight": 0.335,
-      "eyeLookOutLeft": 0.3099,
-      "mouthLeft": 0.1061,
-      "mouthPucker": 0.2325,
-      "mouthRight": 0.0855,
-      "mouthSmileLeft": 0.4331,
+      "browInnerUp": 0.8371,
+      "browOuterUpLeft": 0.292,
+      "eyeBlinkLeft": 0.116,
+      "eyeLookInRight": 0.341,
+      "eyeLookOutLeft": 0.3067,
+      "mouthLeft": 0.1126,
+      "mouthPucker": 0.1797,
+      "mouthRight": 0.0849,
+      "mouthSmileLeft": 0.433,
       "mouthSmileRight": 0.3376
     },
     "materials": {
       "skin": {
         "color": {
-          "r": 0.56,
-          "g": 0.35,
-          "b": 0.28
+          "r": 0.4802,
+          "g": 0.295,
+          "b": 0.2237
         },
         "roughness": 0.76
       },
       "lips": {
         "color": {
-          "r": 0.43,
-          "g": 0.19,
-          "b": 0.21
+          "r": 0.2824,
+          "g": 0.0804,
+          "b": 0.0834
         },
         "roughness": 0.57
       },
       "Human.eyebrow001": {
         "pigment": [
-          0.01379,
-          0.01904,
-          0.02099
+          0.01183,
+          0.01605,
+          0.01677
         ]
       }
     },
@@ -1611,9 +1609,9 @@
           },
           "finish": {
             "color": [
-              0.01944,
-              0.03732,
-              0.05414
+              0.01667,
+              0.03146,
+              0.04325
             ],
             "roughness": 0.73,
             "fibres": 24,
@@ -1670,9 +1668,9 @@
           },
           "finish": {
             "color": [
-              0.0136,
-              0.0261,
-              0.03786
+              0.01166,
+              0.022,
+              0.03025
             ],
             "roughness": 0.73,
             "fibres": 24,
@@ -1702,26 +1700,26 @@
     "iris": {
       "left": {
         "base": [
-          0.00283,
-          0.00387,
-          0.00482
+          0.00242,
+          0.00326,
+          0.00385
         ],
         "variation": [
-          0.01599,
-          0.02188,
-          0.02727
+          0.01371,
+          0.01844,
+          0.02179
         ]
       },
       "right": {
         "base": [
-          0.00283,
-          0.00387,
-          0.00482
+          0.00242,
+          0.00326,
+          0.00385
         ],
         "variation": [
-          0.01599,
-          0.02188,
-          0.02727
+          0.01371,
+          0.01844,
+          0.02179
         ]
       }
     }
@@ -1734,59 +1732,59 @@
       "globalAgeStructure": 0.09230769230769242,
       "globalSexualDimorphism": -1,
       "asianAncestry": 1,
-      "headHeight": -0.89454,
-      "leftEyeLateralPosition": 0.07252,
-      "rightEyeLateralPosition": 0.07252,
-      "leftEyeScale": -0.25645,
-      "rightEyeScale": -0.25645,
-      "leftEyeHeight": 0.63756,
-      "rightEyeHeight": 0.63756,
-      "noseWidth": 0.11548,
-      "noseHeight": 0.96615,
-      "mouthWidth": -0.28954,
+      "headHeight": -0.05154,
+      "leftEyeLateralPosition": 0.08579,
+      "rightEyeLateralPosition": 0.08579,
+      "leftEyeScale": -0.35202,
+      "rightEyeScale": -0.35202,
+      "leftEyeHeight": 0.1693,
+      "rightEyeHeight": 0.1693,
+      "noseWidth": 0.0568,
+      "noseHeight": -0.10029,
+      "mouthWidth": -0.35447,
       "upperLipHeight": -1,
-      "lowerLipHeight": -0.3185,
-      "mouthElevation": -1,
-      "cheekFullness": 0.0106,
-      "chinWidth": -0.83202,
-      "chinHeight": 0.38589,
-      "browElevation": 1
+      "lowerLipHeight": -0.62821,
+      "mouthElevation": 0.44713,
+      "cheekFullness": 0.0442,
+      "chinWidth": -0.83909,
+      "chinHeight": -1,
+      "browElevation": 0.1121
     },
     "expression": {
-      "browInnerUp": 0.2585,
-      "eyeBlinkLeft": 0.0256,
-      "eyeLookOutLeft": 0.1071,
-      "eyeWideLeft": 0.0258,
-      "eyeWideRight": 0.0653,
-      "jawOpen": 0.0002,
-      "mouthLeft": 0.1245,
-      "mouthPucker": 0.0378,
-      "mouthRight": 0.0219,
-      "mouthSmileLeft": 0.5036,
-      "mouthSmileRight": 0.4022
+      "browInnerUp": 0.2605,
+      "browOuterUpRight": 0.0124,
+      "eyeBlinkLeft": 0.0138,
+      "eyeLookOutLeft": 0.0788,
+      "eyeWideLeft": 0.0308,
+      "eyeWideRight": 0.0683,
+      "jawOpen": 0.0006,
+      "mouthLeft": 0.1436,
+      "mouthRight": 0.0202,
+      "mouthSmileLeft": 0.5119,
+      "mouthSmileRight": 0.4087
     },
     "materials": {
       "skin": {
         "color": {
-          "r": 0.6,
-          "g": 0.39,
-          "b": 0.32
+          "r": 0.4802,
+          "g": 0.295,
+          "b": 0.2237
         },
         "roughness": 0.76
       },
       "lips": {
         "color": {
-          "r": 0.47,
-          "g": 0.23,
-          "b": 0.24
+          "r": 0.291,
+          "g": 0.0774,
+          "b": 0.0792
         },
         "roughness": 0.57
       },
       "Human.eyebrow001": {
         "pigment": [
-          0.03585,
-          0.02128,
-          0.01858
+          0.02869,
+          0.0161,
+          0.01299
         ]
       }
     },
@@ -1836,9 +1834,9 @@
           },
           "finish": {
             "color": [
-              0.04115,
-              0.03754,
-              0.03652
+              0.03293,
+              0.0284,
+              0.02553
             ],
             "roughness": 0.73,
             "fibres": 24,
@@ -1884,26 +1882,26 @@
     "iris": {
       "left": {
         "base": [
-          0.00675,
-          0.00382,
-          0.00318
+          0.0054,
+          0.00289,
+          0.00222
         ],
         "variation": [
-          0.03817,
-          0.02162,
-          0.01798
+          0.03055,
+          0.01636,
+          0.01257
         ]
       },
       "right": {
         "base": [
-          0.00675,
-          0.00382,
-          0.00318
+          0.0054,
+          0.00289,
+          0.00222
         ],
         "variation": [
-          0.03817,
-          0.02162,
-          0.01798
+          0.03055,
+          0.01636,
+          0.01257
         ]
       }
     }
@@ -1916,56 +1914,56 @@
       "globalAgeStructure": 0.8461538461538463,
       "globalSexualDimorphism": -1,
       "europeanAncestry": 1,
-      "headHeight": 0.07999,
-      "leftEyeLateralPosition": 0.11873,
-      "rightEyeLateralPosition": 0.11873,
-      "leftEyeScale": -0.45676,
-      "rightEyeScale": -0.45676,
-      "leftEyeHeight": 0.2791,
-      "rightEyeHeight": 0.2791,
-      "noseWidth": 0.79729,
-      "noseHeight": -0.45041,
-      "mouthWidth": 0.47747,
+      "headHeight": 0.11664,
+      "leftEyeLateralPosition": 0.21057,
+      "rightEyeLateralPosition": 0.21057,
+      "leftEyeScale": -0.41551,
+      "rightEyeScale": -0.41551,
+      "leftEyeHeight": 0.18821,
+      "rightEyeHeight": 0.18821,
+      "noseWidth": 0.9086,
+      "noseHeight": -0.47514,
+      "mouthWidth": 0.44962,
       "upperLipHeight": 1,
       "lowerLipHeight": 1,
-      "mouthElevation": 0.35716,
+      "mouthElevation": 0.3233,
       "cheekFullness": 0,
       "chinWidth": -1,
       "chinHeight": -1,
-      "browElevation": -0.39765
+      "browElevation": -0.50546
     },
     "expression": {
-      "browOuterUpLeft": 0.155,
-      "browOuterUpRight": 0.0375,
-      "eyeBlinkLeft": 0.2818,
-      "eyeBlinkRight": 0.127,
-      "jawOpen": 0.0466,
-      "mouthRight": 0.0055,
-      "mouthSmileLeft": 0.3044,
-      "mouthSmileRight": 0.257
+      "browOuterUpLeft": 0.1537,
+      "browOuterUpRight": 0.0985,
+      "eyeBlinkLeft": 0.2773,
+      "eyeBlinkRight": 0.119,
+      "jawOpen": 0.0468,
+      "mouthRight": 0.0053,
+      "mouthSmileLeft": 0.3154,
+      "mouthSmileRight": 0.2876
     },
     "materials": {
       "skin": {
         "color": {
-          "r": 0.53,
-          "g": 0.3,
-          "b": 0.23
+          "r": 0.463,
+          "g": 0.2714,
+          "b": 0.2091
         },
         "roughness": 0.76
       },
       "lips": {
         "color": {
-          "r": 0.4,
-          "g": 0.21,
-          "b": 0.19
+          "r": 0.4025,
+          "g": 0.1624,
+          "b": 0.1793
         },
         "roughness": 0.57
       },
       "Human.eyebrow001": {
         "pigment": [
-          0.4727,
-          0.26332,
-          0.17881
+          0.41294,
+          0.23822,
+          0.16256
         ]
       }
     },
@@ -2015,9 +2013,9 @@
           },
           "finish": {
             "color": [
-              0.18742,
-              0.12478,
-              0.0963
+              0.16373,
+              0.11289,
+              0.08755
             ],
             "roughness": 0.73,
             "fibres": 24,
@@ -2063,26 +2061,26 @@
     "iris": {
       "left": {
         "base": [
-          0.01369,
-          0.00746,
-          0.01016
+          0.01196,
+          0.00675,
+          0.00924
         ],
         "variation": [
-          0.07746,
-          0.04219,
-          0.05747
+          0.06767,
+          0.03817,
+          0.05225
         ]
       },
       "right": {
         "base": [
-          0.01369,
-          0.00746,
-          0.01016
+          0.01196,
+          0.00675,
+          0.00924
         ],
         "variation": [
-          0.07746,
-          0.04219,
-          0.05747
+          0.06767,
+          0.03817,
+          0.05225
         ]
       }
     }
@@ -2095,61 +2093,61 @@
       "globalAgeStructure": 0.7230769230769232,
       "globalSexualDimorphism": 1,
       "europeanAncestry": 1,
-      "headHeight": 0.04917,
-      "leftEyeLateralPosition": 0.6178,
-      "rightEyeLateralPosition": 0.6178,
-      "leftEyeScale": -0.99408,
-      "rightEyeScale": -0.99408,
-      "leftEyeHeight": -0.02218,
-      "rightEyeHeight": -0.02218,
+      "headHeight": 0.06095,
+      "leftEyeLateralPosition": 0.62892,
+      "rightEyeLateralPosition": 0.62892,
+      "leftEyeScale": -1,
+      "rightEyeScale": -1,
+      "leftEyeHeight": 0.15035,
+      "rightEyeHeight": 0.15035,
       "noseWidth": 1,
-      "noseHeight": -0.79348,
-      "mouthWidth": 0.00609,
-      "upperLipHeight": 0.98209,
+      "noseHeight": -0.7126,
+      "mouthWidth": 0.05471,
+      "upperLipHeight": 0.85942,
       "lowerLipHeight": 1,
       "mouthElevation": 1,
-      "cheekFullness": 0.25727,
-      "chinWidth": 0.06871,
-      "chinHeight": -0.73795,
-      "browElevation": -0.5234
+      "cheekFullness": 0.32698,
+      "chinWidth": 0.07062,
+      "chinHeight": -0.76121,
+      "browElevation": -0.42066
     },
     "expression": {
       "browInnerUp": 1,
-      "browOuterUpLeft": 0.8843,
-      "browOuterUpRight": 0.4398,
-      "eyeBlinkLeft": 0.1834,
-      "eyeLookInRight": 0.5828,
-      "eyeLookOutLeft": 0.5049,
-      "eyeWideRight": 0.0304,
-      "jawOpen": 0.0092,
-      "mouthRight": 0.2361,
-      "mouthSmileLeft": 0.1142,
-      "mouthSmileRight": 0.0911,
-      "mouthStretchLeft": 0.4401,
-      "mouthStretchRight": 0.2082
+      "browOuterUpLeft": 0.7484,
+      "browOuterUpRight": 0.363,
+      "eyeBlinkLeft": 0.2469,
+      "eyeLookInRight": 0.5832,
+      "eyeLookOutLeft": 0.5081,
+      "eyeWideRight": 0.0258,
+      "jawOpen": 0.0051,
+      "mouthRight": 0.2353,
+      "mouthSmileLeft": 0.1151,
+      "mouthSmileRight": 0.0894,
+      "mouthStretchLeft": 0.4985,
+      "mouthStretchRight": 0.2519
     },
     "materials": {
       "skin": {
         "color": {
-          "r": 0.46,
-          "g": 0.33,
-          "b": 0.27
+          "r": 0.4225,
+          "g": 0.234,
+          "b": 0.1798
         },
         "roughness": 0.76
       },
       "lips": {
         "color": {
-          "r": 0.38,
-          "g": 0.21,
-          "b": 0.2
+          "r": 0.2487,
+          "g": 0.1377,
+          "b": 0.1058
         },
         "roughness": 0.57
       },
       "Human.eyebrow001": {
         "pigment": [
-          0.06078,
-          0.0436,
-          0.03567
+          0.05582,
+          0.03092,
+          0.02376
         ]
       }
     },
@@ -2199,9 +2197,9 @@
           },
           "finish": {
             "color": [
-              0.65862,
-              0.47249,
-              0.38658
+              0.60493,
+              0.33504,
+              0.25743
             ],
             "roughness": 0.73,
             "fibres": 24,
@@ -2219,26 +2217,26 @@
     "iris": {
       "left": {
         "base": [
-          0.01162,
-          0.00834,
-          0.00682
+          0.01068,
+          0.00591,
+          0.00454
         ],
         "variation": [
-          0.06575,
-          0.04717,
-          0.03859
+          0.06039,
+          0.03345,
+          0.0257
         ]
       },
       "right": {
         "base": [
-          0.01162,
-          0.00834,
-          0.00682
+          0.01068,
+          0.00591,
+          0.00454
         ],
         "variation": [
-          0.06575,
-          0.04717,
-          0.03859
+          0.06039,
+          0.03345,
+          0.0257
         ]
       }
     }
@@ -2251,59 +2249,58 @@
       "globalAgeStructure": 0.7076923076923078,
       "globalSexualDimorphism": -1,
       "europeanAncestry": 1,
-      "headHeight": -0.28889,
-      "leftEyeLateralPosition": -0.81915,
-      "rightEyeLateralPosition": -0.81915,
-      "leftEyeScale": -0.09328,
-      "rightEyeScale": -0.09328,
+      "headHeight": -0.14661,
+      "leftEyeLateralPosition": -0.52664,
+      "rightEyeLateralPosition": -0.52664,
+      "leftEyeScale": -0.07065,
+      "rightEyeScale": -0.07065,
       "leftEyeHeight": -1,
       "rightEyeHeight": -1,
-      "noseWidth": 0.12086,
-      "noseHeight": 0.20555,
-      "mouthWidth": 0.12219,
+      "noseWidth": 0.50219,
+      "noseHeight": -0.01946,
+      "mouthWidth": 0.35442,
       "upperLipHeight": 1,
       "lowerLipHeight": 1,
-      "mouthElevation": -0.30989,
-      "cheekFullness": -1,
-      "chinWidth": -0.18518,
+      "mouthElevation": -0.33013,
+      "cheekFullness": 0.00004,
+      "chinWidth": 0.04357,
       "chinHeight": -1,
-      "browElevation": -0.74059
+      "browElevation": -0.95436
     },
     "expression": {
-      "eyeBlinkLeft": 0.4083,
-      "eyeBlinkRight": 0.0781,
-      "eyeLookInRight": 0.6033,
-      "eyeLookOutLeft": 0.3924,
-      "jawOpen": 0.121,
-      "mouthLeft": 0.009,
-      "mouthRight": 0.0157,
-      "mouthShrugLower": 0.0001,
-      "mouthShrugUpper": 0.0132,
-      "mouthSmileLeft": 0.2692,
-      "mouthSmileRight": 0.1287
+      "eyeBlinkLeft": 0.3683,
+      "eyeBlinkRight": 0.0101,
+      "eyeLookInRight": 0.6458,
+      "eyeLookOutLeft": 0.5343,
+      "jawOpen": 0.1767,
+      "mouthRight": 0.0542,
+      "mouthShrugLower": 0.0006,
+      "mouthShrugUpper": 0.0205,
+      "mouthSmileLeft": 0.3995,
+      "mouthSmileRight": 0.3254
     },
     "materials": {
       "skin": {
         "color": {
-          "r": 0.6487499999999999,
-          "g": 0.28750000000000003,
-          "b": 0.2375
+          "r": 0.463,
+          "g": 0.2714,
+          "b": 0.2091
         },
         "roughness": 0.76
       },
       "lips": {
         "color": {
-          "r": 0.44,
-          "g": 0.18,
-          "b": 0.2
+          "r": 0.3947,
+          "g": 0.1123,
+          "b": 0.1156
         },
         "roughness": 0.57
       },
       "Human.eyebrow001": {
         "pigment": [
-          0.2277,
-          0.11409,
-          0.09865
+          0.1625,
+          0.1077,
+          0.08686
         ]
       }
     },
@@ -2444,26 +2441,26 @@
     "iris": {
       "left": {
         "base": [
-          0.02502,
-          0.01276,
-          0.01266
+          0.01786,
+          0.01205,
+          0.01114
         ],
         "variation": [
-          0.14151,
-          0.07217,
-          0.07159
+          0.101,
+          0.06813,
+          0.06302
         ]
       },
       "right": {
         "base": [
-          0.02502,
-          0.01276,
-          0.01266
+          0.01786,
+          0.01205,
+          0.01114
         ],
         "variation": [
-          0.14151,
-          0.07217,
-          0.07159
+          0.101,
+          0.06813,
+          0.06302
         ]
       }
     }
@@ -2476,50 +2473,49 @@
       "globalAgeStructure": -0.75,
       "globalSexualDimorphism": 1,
       "asianAncestry": 1,
-      "headHeight": 0.0413,
+      "headHeight": 0.09407,
       "leftEyeLateralPosition": 1,
       "rightEyeLateralPosition": 1,
-      "leftEyeScale": 0.32833,
-      "rightEyeScale": 0.32833,
-      "leftEyeHeight": -0.39704,
-      "rightEyeHeight": -0.39704,
+      "leftEyeScale": 0.13269,
+      "rightEyeScale": 0.13269,
+      "leftEyeHeight": -0.42138,
+      "rightEyeHeight": -0.42138,
       "noseWidth": 1,
-      "noseHeight": 1,
-      "mouthWidth": 0.58313,
+      "noseHeight": 0.67565,
+      "mouthWidth": 0.42781,
       "upperLipHeight": -1,
       "lowerLipHeight": 1,
-      "mouthElevation": -0.39006,
+      "mouthElevation": -0.17217,
       "cheekFullness": 0,
-      "chinWidth": -0.34884,
-      "chinHeight": -0.83288,
-      "browElevation": -0.13675
+      "chinWidth": -0.32583,
+      "chinHeight": -1,
+      "browElevation": -0.26186
     },
     "expression": {
-      "browInnerUp": 0.2403,
-      "eyeBlinkLeft": 0.071,
-      "eyeBlinkRight": 0.0232,
-      "eyeLookInRight": 0.694,
-      "eyeLookOutLeft": 0.6266,
-      "eyeWideRight": 0.02,
-      "jawOpen": 0.0336,
-      "mouthRight": 0.0368,
-      "mouthSmileLeft": 0.6501,
-      "mouthSmileRight": 0.5855
+      "browInnerUp": 0.2091,
+      "eyeBlinkLeft": 0.0927,
+      "eyeBlinkRight": 0.0457,
+      "eyeLookInRight": 0.7003,
+      "eyeLookOutLeft": 0.6264,
+      "jawOpen": 0.0344,
+      "mouthRight": 0.0366,
+      "mouthSmileLeft": 0.6481,
+      "mouthSmileRight": 0.5839
     },
     "materials": {
       "skin": {
         "color": {
-          "r": 0.52,
-          "g": 0.29,
-          "b": 0.2
+          "r": 0.4206,
+          "g": 0.2393,
+          "b": 0.1743
         },
         "roughness": 0.76
       },
       "lips": {
         "color": {
-          "r": 0.43,
-          "g": 0.18,
-          "b": 0.16
+          "r": 0.331,
+          "g": 0.1149,
+          "b": 0.1205
         },
         "roughness": 0.57
       }
@@ -2570,9 +2566,9 @@
           },
           "finish": {
             "color": [
-              0.00139,
-              0.00147,
-              0.0016
+              0.00112,
+              0.00122,
+              0.00139
             ],
             "roughness": 0.73,
             "fibres": 24,
@@ -2657,9 +2653,9 @@
           },
           "finish": {
             "color": [
-              0.00097,
-              0.00103,
-              0.00112
+              0.00078,
+              0.00085,
+              0.00098
             ],
             "roughness": 0.73,
             "fibres": 24,
@@ -2689,26 +2685,26 @@
     "iris": {
       "left": {
         "base": [
-          0.00094,
-          0.00059,
-          0.00033
+          0.00076,
+          0.00049,
+          0.00029
         ],
         "variation": [
-          0.00532,
-          0.00334,
-          0.00186
+          0.0043,
+          0.00275,
+          0.00162
         ]
       },
       "right": {
         "base": [
-          0.00094,
-          0.00059,
-          0.00033
+          0.00076,
+          0.00049,
+          0.00029
         ],
         "variation": [
-          0.00532,
-          0.00334,
-          0.00186
+          0.0043,
+          0.00275,
+          0.00162
         ]
       }
     }
@@ -2721,56 +2717,55 @@
       "globalAgeStructure": -0.41666666666666674,
       "globalSexualDimorphism": -1,
       "asianAncestry": 1,
-      "headHeight": -0.40138,
-      "leftEyeLateralPosition": -0.31869,
-      "rightEyeLateralPosition": -0.31869,
-      "leftEyeScale": -0.21614,
-      "rightEyeScale": -0.21614,
-      "leftEyeHeight": 0.07931,
-      "rightEyeHeight": 0.07931,
-      "noseWidth": 0.56789,
+      "headHeight": -0.46511,
+      "leftEyeLateralPosition": -0.35839,
+      "rightEyeLateralPosition": -0.35839,
+      "leftEyeScale": -0.19273,
+      "rightEyeScale": -0.19273,
+      "leftEyeHeight": -0.05741,
+      "rightEyeHeight": -0.05741,
+      "noseWidth": 0.58451,
       "noseHeight": 1,
-      "mouthWidth": -0.58325,
+      "mouthWidth": -0.55511,
       "upperLipHeight": -1,
       "lowerLipHeight": -1,
-      "mouthElevation": -0.83632,
-      "cheekFullness": -0.96548,
-      "chinWidth": -0.86483,
-      "chinHeight": 0.10232,
-      "browElevation": 0.77317
+      "mouthElevation": -0.84183,
+      "cheekFullness": -0.93311,
+      "chinWidth": -0.80935,
+      "chinHeight": 0.0979,
+      "browElevation": 0.60596
     },
     "expression": {
-      "eyeBlinkLeft": 0.0361,
-      "eyeLookDownLeft": 0.0347,
-      "eyeLookDownRight": 0.0014,
-      "eyeLookInRight": 0.0131,
-      "eyeWideRight": 0.0189,
-      "mouthRight": 0.0209,
+      "eyeBlinkLeft": 0.0206,
+      "eyeLookDownLeft": 0.0177,
+      "eyeWideLeft": 0.0123,
+      "eyeWideRight": 0.0169,
+      "mouthRight": 0.0221,
       "mouthSmileLeft": 0.3303,
       "mouthSmileRight": 0.3248
     },
     "materials": {
       "skin": {
         "color": {
-          "r": 0.65,
-          "g": 0.42,
-          "b": 0.33
+          "r": 0.4802,
+          "g": 0.295,
+          "b": 0.2237
         },
         "roughness": 0.76
       },
       "lips": {
         "color": {
-          "r": 0.53,
-          "g": 0.19,
-          "b": 0.25
+          "r": 0.4062,
+          "g": 0.132,
+          "b": 0.1331
         },
         "roughness": 0.57
       },
       "Human.eyebrow001": {
         "pigment": [
-          0.1046,
-          0.05008,
-          0.04545
+          0.07728,
+          0.03517,
+          0.03081
         ]
       }
     },
@@ -2820,9 +2815,9 @@
           },
           "finish": {
             "color": [
-              0.02576,
-              0.01869,
-              0.01866
+              0.01903,
+              0.01313,
+              0.01265
             ],
             "roughness": 0.73,
             "fibres": 24,
@@ -2907,9 +2902,9 @@
           },
           "finish": {
             "color": [
-              0.01801,
-              0.01307,
-              0.01305
+              0.01331,
+              0.00918,
+              0.00885
             ],
             "roughness": 0.73,
             "fibres": 24,
@@ -2939,26 +2934,26 @@
     "iris": {
       "left": {
         "base": [
-          0.00801,
-          0.0032,
-          0.00326
+          0.00592,
+          0.00225,
+          0.00221
         ],
         "variation": [
-          0.04533,
-          0.01811,
-          0.01844
+          0.03349,
+          0.01272,
+          0.0125
         ]
       },
       "right": {
         "base": [
-          0.00801,
-          0.0032,
-          0.00326
+          0.00592,
+          0.00225,
+          0.00221
         ],
         "variation": [
-          0.04533,
-          0.01811,
-          0.01844
+          0.03349,
+          0.01272,
+          0.0125
         ]
       }
     }
@@ -2971,56 +2966,57 @@
       "globalAgeStructure": -0.9166666666666667,
       "globalSexualDimorphism": 1,
       "europeanAncestry": 1,
-      "headHeight": -0.39105,
-      "leftEyeLateralPosition": 0.11518,
-      "rightEyeLateralPosition": 0.11518,
-      "leftEyeScale": -0.08008,
-      "rightEyeScale": -0.08008,
-      "leftEyeHeight": -0.39112,
-      "rightEyeHeight": -0.39112,
-      "noseWidth": 0.51908,
+      "headHeight": -0.31893,
+      "leftEyeLateralPosition": 0.15574,
+      "rightEyeLateralPosition": 0.15574,
+      "leftEyeScale": -0.13317,
+      "rightEyeScale": -0.13317,
+      "leftEyeHeight": -0.20033,
+      "rightEyeHeight": -0.20033,
+      "noseWidth": 0.472,
       "noseHeight": 1,
-      "mouthWidth": -0.06833,
+      "mouthWidth": -0.09393,
       "upperLipHeight": -1,
-      "lowerLipHeight": -0.30206,
-      "mouthElevation": -0.38266,
-      "cheekFullness": -0.97407,
-      "chinWidth": -0.97232,
-      "chinHeight": -0.1699,
-      "browElevation": -0.00561
+      "lowerLipHeight": -0.44193,
+      "mouthElevation": -0.31931,
+      "cheekFullness": -0.86036,
+      "chinWidth": -0.94549,
+      "chinHeight": -0.2818,
+      "browElevation": -0.11333
     },
     "expression": {
-      "browInnerUp": 0.6221,
-      "browOuterUpRight": 0.025,
-      "eyeBlinkLeft": 0.0181,
-      "eyeWideRight": 0.0227,
-      "mouthPucker": 0.0021,
-      "mouthRight": 0.0122,
-      "mouthSmileLeft": 0.429,
-      "mouthSmileRight": 0.4008
+      "browInnerUp": 0.6372,
+      "eyeBlinkLeft": 0.101,
+      "eyeBlinkRight": 0.0032,
+      "jawOpen": 0.0008,
+      "mouthLeft": 0.0065,
+      "mouthPucker": 0.0019,
+      "mouthRight": 0.0111,
+      "mouthSmileLeft": 0.4237,
+      "mouthSmileRight": 0.399
     },
     "materials": {
       "skin": {
         "color": {
-          "r": 0.62,
-          "g": 0.36,
-          "b": 0.26
+          "r": 0.4225,
+          "g": 0.234,
+          "b": 0.1798
         },
         "roughness": 0.76
       },
       "lips": {
         "color": {
-          "r": 0.45,
-          "g": 0.21,
-          "b": 0.2
+          "r": 0.3125,
+          "g": 0.0736,
+          "b": 0.0777
         },
         "roughness": 0.57
       },
       "Human.eyebrow001": {
         "pigment": [
-          0.22232,
-          0.1099,
-          0.05806
+          0.1515,
+          0.07143,
+          0.04015
         ]
       }
     },
@@ -3070,9 +3066,9 @@
           },
           "finish": {
             "color": [
-              0.11859,
-              0.04214,
-              0.01083
+              0.08081,
+              0.02739,
+              0.00749
             ],
             "roughness": 0.73,
             "fibres": 24,
@@ -3118,26 +3114,26 @@
     "iris": {
       "left": {
         "base": [
-          0.03447,
-          0.03466,
-          0.02476
+          0.02349,
+          0.02253,
+          0.01712
         ],
         "variation": [
-          0.19499,
-          0.19607,
-          0.14005
+          0.13287,
+          0.12744,
+          0.09685
         ]
       },
       "right": {
         "base": [
-          0.03447,
-          0.03466,
-          0.02476
+          0.02349,
+          0.02253,
+          0.01712
         ],
         "variation": [
-          0.19499,
-          0.19607,
-          0.14005
+          0.13287,
+          0.12744,
+          0.09685
         ]
       }
     }
@@ -3150,56 +3146,57 @@
       "globalAgeStructure": -0.25,
       "globalSexualDimorphism": 1,
       "asianAncestry": 1,
-      "headHeight": -0.09411,
-      "leftEyeLateralPosition": 0.07013,
-      "rightEyeLateralPosition": 0.07013,
-      "leftEyeScale": 0.53786,
-      "rightEyeScale": 0.53786,
-      "leftEyeHeight": -0.33143,
-      "rightEyeHeight": -0.33143,
-      "noseWidth": 0.34855,
-      "noseHeight": -0.1312,
-      "mouthWidth": -0.12859,
+      "headHeight": -0.10534,
+      "leftEyeLateralPosition": 0.06309,
+      "rightEyeLateralPosition": 0.06309,
+      "leftEyeScale": 0.51678,
+      "rightEyeScale": 0.51678,
+      "leftEyeHeight": -0.54238,
+      "rightEyeHeight": -0.54238,
+      "noseWidth": 0.3228,
+      "noseHeight": -0.11657,
+      "mouthWidth": -0.09226,
       "upperLipHeight": -1,
-      "lowerLipHeight": 0.81047,
-      "mouthElevation": 0.68687,
+      "lowerLipHeight": 0.81963,
+      "mouthElevation": 0.6182,
       "cheekFullness": -1,
-      "chinWidth": -0.7439,
+      "chinWidth": -0.76357,
       "chinHeight": -1,
-      "browElevation": -0.16195
+      "browElevation": -0.07857
     },
     "expression": {
-      "browInnerUp": 0.0336,
-      "eyeBlinkLeft": 0.269,
-      "eyeBlinkRight": 0.1402,
-      "jawOpen": 0.0441,
-      "mouthLeft": 0.4417,
+      "browInnerUp": 0.0333,
+      "eyeBlinkLeft": 0.2645,
+      "eyeBlinkRight": 0.1093,
+      "eyeLookOutLeft": 0.0018,
+      "jawOpen": 0.0479,
+      "mouthLeft": 0.4393,
       "mouthSmileLeft": 0.3792,
-      "mouthSmileRight": 0.2782,
-      "mouthStretchRight": 0.1259
+      "mouthSmileRight": 0.278,
+      "mouthStretchRight": 0.1213
     },
     "materials": {
       "skin": {
         "color": {
-          "r": 0.51,
-          "g": 0.29,
-          "b": 0.21
+          "r": 0.4206,
+          "g": 0.2393,
+          "b": 0.1743
         },
         "roughness": 0.76
       },
       "lips": {
         "color": {
-          "r": 0.41,
-          "g": 0.17,
-          "b": 0.18
+          "r": 0.2399,
+          "g": 0.0862,
+          "b": 0.08
         },
         "roughness": 0.57
       },
       "Human.eyebrow001": {
         "pigment": [
-          0.01838,
-          0.0148,
-          0.01526
+          0.01516,
+          0.01221,
+          0.01266
         ]
       }
     },
@@ -3249,9 +3246,9 @@
           },
           "finish": {
             "color": [
-              0.03569,
-              0.03109,
-              0.03056
+              0.02943,
+              0.02566,
+              0.02537
             ],
             "roughness": 0.73,
             "fibres": 24,
@@ -3336,9 +3333,9 @@
           },
           "finish": {
             "color": [
-              0.02496,
-              0.02174,
-              0.02137
+              0.02058,
+              0.01794,
+              0.01774
             ],
             "roughness": 0.73,
             "fibres": 24,
@@ -3368,26 +3365,26 @@
     "iris": {
       "left": {
         "base": [
-          0.00916,
-          0.00458,
-          0.00647
+          0.00755,
+          0.00378,
+          0.00537
         ],
         "variation": [
-          0.05178,
-          0.02593,
-          0.0366
+          0.04271,
+          0.0214,
+          0.03037
         ]
       },
       "right": {
         "base": [
-          0.00916,
-          0.00458,
-          0.00647
+          0.00755,
+          0.00378,
+          0.00537
         ],
         "variation": [
-          0.05178,
-          0.02593,
-          0.0366
+          0.04271,
+          0.0214,
+          0.03037
         ]
       }
     }
@@ -3490,6 +3487,15 @@
           }
         }
       ]
+    },
+    "materials": {
+      "skin": {
+        "color": {
+          "r": 0.4504,
+          "g": 0.2673,
+          "b": 0.1991
+        }
+      }
     }
   }
 ]
