@@ -169,6 +169,8 @@ export function prepareLipSealBasis(input: {
       b = next;
       fb = aperture(apply(sealed, plan[u]!, b), full) - rest;
     }
+    // A unit already sealed settles at zero up to the secant's rounding.
+    if (b < 0 && b > -1e-6) b = 0;
     if (!(b >= 0 && b <= 1))
       throw new Error(
         `Sealing ${unit.channels.join("+")} needs ${b.toFixed(3)} of its depressor, outside its envelope.`,
