@@ -45,6 +45,7 @@ export const productionEvidence = {
   settings: "review",
   spaces: "review",
   spaceSources: "review",
+  models: "draft",
   materials: "evidence",
   claims: [
     ...createAutoMoviePopulationAccountClaims({
