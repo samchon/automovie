@@ -125,7 +125,7 @@
 @evidence principles/core/common.md#substantive-completion 검은 도장 금속은 #1F1F20(선형 0.014, 0.014, 0.014), roughness 0.40, metallic 0.0, transmission 0.0, 결합 면, source owner `src/materials/interior/metal.ts`, 리뷰 관찰을 모두 적었다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 settings/10-house.md#stair는 색·재료를 말로만 정했고 검은 도장 금속은 #1F1F20 값과 roughness 0.40, `baluster`·`bottom-rail`·`handle`·`hinge` 결합을 더한다.
 @evidence principles/design/materials.md#material-construction-appearance 검은 도장 금속은 구성을 '분체 도장 강재'로, 외관의 #1F1F20·roughness 0.40·metallic 0.0을 기준값으로 두고 아래 표면 결속 계획의 결·광학 응답으로 최상층 마감을 표현한다고 적는다.
-@evidence principles/design/materials.md#material-binding-interface 검은 도장 금속의 결합 vocabulary는 `baluster`·`bottom-rail`·`handle`·`hinge`이며 방향과 단면/양면은 00 면 결합 규칙을 따른다.
+@evidence principles/design/materials.md#material-binding-interface 검은 도장 금속의 결합 vocabulary는 난간의 `baluster`·`bottom-rail`, 문 `handle`·`hinge`, 주침실 커튼의 `rod`·`bracket`이며 부재별 방향과 단면/양면은 00 면 결합 규칙을 따른다.
 @evidence principles/design/materials.md#material-verification-address 검은 도장 금속의 반증 견본은 '흰 벽 앞에서 난간살 하나하나가 분리되어 보이는지'이고 00 재료 리뷰 견본의 중성 조명 판이 #1F1F20 값을 대조한다.
 @evidenceExclude upstream/design/materials.md#parent-revision-from-material-work 검은 도장 금속은 settings/10-house.md#stair, settings/10-house.md#shower-bathroom를 적힌 그대로 소비했고 수정할 부모 결함을 찾지 않았다.
 @evidence contracts/texture-readability.md#material-texture-readability 난간살·손잡이·등기구에 0.05 m 모듈의 미세 분체결을 부재 국소 길이 U로 투영한다. 각 파티션 시작점에서 위상을 잡고 접합에서 끊어 광택이 검은 단색판으로 뭉개지지 않게 한다.
@@ -134,7 +134,7 @@
 @evidence settings/10-house.md#stair 검은 도장 금속이 '단일 꺾임계단'(settings/10-house.md#stair)를 링크로 소비해 #1F1F20 값과 결합 면의 근거로 삼았다.
 -->
 
-[검은 수직 철제 난간살](../settings/10-house.md#stair)과 [검은 금속 손잡이](../settings/10-house.md#shower-bathroom), 현관의 [어두운 손잡이](../settings/10-house.md#porch-entry)다. 구성은 분체 도장 강재다. 외관은 도막을 근사하므로 [거칠기·금속성 관례](00-material-frame.md#material-response-conventions)에 따라 metallic 0.0이며 `#1F1F20`(선형 0.014, 0.014, 0.014), roughness 0.40, transmission 0.0이다. 결합 면은 [난간살](../models/04-stair-members.md#stair-balusters)의 `baluster`와 [아래 부재](../models/04-stair-members.md#stair-bottom-member)의 `bottom-rail`, 실내 문의 `handle`·`hinge`, 현관문 `handle`, 샤워부스 손잡이, 수건걸이·커튼 레일이다. source owner는 `src/materials/interior/metal.ts`이고, 리뷰는 흰 벽 앞에서 난간살 하나하나가 분리되어 보이는지를 관찰한다.
+[검은 수직 철제 난간살](../settings/10-house.md#stair)과 [검은 금속 손잡이](../settings/10-house.md#shower-bathroom), 현관의 [어두운 손잡이](../settings/10-house.md#porch-entry)다. 구성은 분체 도장 강재다. 외관은 도막을 근사하므로 [거칠기·금속성 관례](00-material-frame.md#material-response-conventions)에 따라 metallic 0.0이며 `#1F1F20`(선형 0.014, 0.014, 0.014), roughness 0.40, transmission 0.0이다. 결합 면은 [난간살](../models/04-stair-members.md#stair-balusters)의 `baluster`와 [아래 부재](../models/04-stair-members.md#stair-bottom-member)의 `bottom-rail`, 실내 문의 `handle`·`hinge`, 현관문 `handle`, 샤워부스 손잡이, 수건걸이·욕조 커튼 레일, [주침실 두 창 커튼](../models/13-bedrooms.md#primary-window-curtains)의 `rod`·`bracket`이다. source owner는 `src/materials/interior/metal.ts`이고, 리뷰는 흰 벽 앞에서 난간살 하나하나와 창 앞의 가는 커튼 봉이 분리되어 보이는지를 관찰한다.
 
 표면 결속 계획: 난간살·손잡이·등기구 검은 도장 금속은 0.05 m 모듈의 미세 분체결을 부재 국소 길이 U로 투영한다. 각 파티션 시작점에서 위상을 잡고 접합에서 끊어 광택이 검은 단색판으로 뭉개지지 않게 한다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
 
