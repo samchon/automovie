@@ -1,9 +1,13 @@
 import * as THREE from "three";
 
+import { createHairCardShadowMaterial } from "./hairCardShadow";
+
 /**
  * Prepare the decoded static face for the preview's shadowed lighting.
  * Transmissive optics pass light while opaque anatomy casts its silhouette;
- * both receive lighting. Groups and other non-mesh nodes remain untouched.
+ * both receive lighting. Hair cards (a `:hair-cards` finish) cast the partial
+ * shadow their fibres' own transmittance gives (`createHairCardShadowMaterial`)
+ * rather than an opaque one. Groups and other non-mesh nodes remain untouched.
  * Resident textures use the supplied device anisotropy limit, capped at 16.
  * Zero denotes an unsupported device and falls back to isotropic filtering.
  * This preview sampler policy does not change exported texture or model bytes.
@@ -37,6 +41,16 @@ export function prepareHumanPreview(
           true && (material as THREE.MeshPhysicalMaterial).transmission > 0,
     );
     mesh.receiveShadow = true;
+    const [only] = materials;
+    if (
+      materials.length === 1 &&
+      only!.name.endsWith(":hair-cards") &&
+      (only as THREE.MeshStandardMaterial).color !== undefined &&
+      mesh.customDepthMaterial === undefined
+    )
+      mesh.customDepthMaterial = createHairCardShadowMaterial(
+        (only as THREE.MeshStandardMaterial).color,
+      );
   });
   for (const texture of textures)
     if (texture.anisotropy !== anisotropy) {
@@ -59,6 +73,7 @@ export function disposeHumanPreview(group: THREE.Group): void {
     const mesh = object as THREE.Mesh;
     if (mesh.isMesh !== true) return;
     mesh.geometry.dispose();
+    mesh.customDepthMaterial?.dispose();
     for (const material of Array.isArray(mesh.material)
       ? mesh.material
       : [mesh.material]) {
