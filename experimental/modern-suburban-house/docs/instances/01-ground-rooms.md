@@ -14,7 +14,7 @@
 
 ## 가족실 소파와 낮은 탁자 {#family-seating}
 
-[가족실 예약](../spaces/rooms/common.md#common-family-reservation)의 `common-family-sofa`는 거실 소파와 같은 2.10 × 0.95 m 예약이므로 [패브릭 소파](../models/11-living.md#fabric-sofa)의 둘째 구성원으로 두고 yaw π로 앞 칸막이에 등을 댄다. models가 가족실 전용 소파를 따로 정하면 그 원형으로 바꾼다. `common-family-table`은 거실 탁자와 예약 치수가 다르므로 [낮은 목재 테이블](../models/11-living.md#low-table)이 두 구역에 맞는지 models가 답하기 전까지 binding을 미정으로 두고 yaw 0으로 놓는다.
+[가족실 예약](../spaces/rooms/common.md#common-family-reservation)의 `common-family-sofa`는 거실 소파와 같은 2.10 × 0.95 m 예약이므로 [패브릭 소파](../models/11-living.md#fabric-sofa)의 둘째 구성원으로 두고 yaw π로 앞 칸막이에 등을 댄다. models가 가족실 전용 소파를 따로 정하면 그 원형으로 바꾼다. `common-family-table`은 [낮은 목재 테이블](../models/11-living.md#low-table) 매개변수 원형의 가족실 크기 쌍 L = 1.10 m, W = 0.55 m 구성원으로 yaw 0에 놓는다.
 
 ## 거실 좌석·서가·러그 {#living-furniture}
 

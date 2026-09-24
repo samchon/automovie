@@ -29,6 +29,9 @@ const SHOWER_BATH: IRoomSpace = {
     { id: "shower-bathroom-vanity-use", kind: "use", x: [1.92, 2.52], z: [-6.8, -6.2] },
     // Front wall (Z = -6.06), projection at most 0.08, height 1.10-1.50.
     { id: "shower-bathroom-towel", kind: "fixture", x: [2.2, 2.45], z: [-6.14, -6.06], y: [4.16, 4.56] },
+    // shower-fixture-use: the mirror hangs on the vanity's own right wall (inner face X = 3.07)
+    // over the vanity width, 1.10-1.90 m above the upper floor, projecting at most 0.04 m.
+    { id: "shower-bathroom-mirror", kind: "fixture", x: [3.03, 3.07], z: [-6.8, -6.1], y: [4.16, 4.96] },
   ],
 };
 

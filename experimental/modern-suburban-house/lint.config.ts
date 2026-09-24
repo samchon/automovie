@@ -47,10 +47,10 @@ productionEvidence.kind = "library";
 productionEvidence.settings = "review";
 productionEvidence.spaces = "review";
 productionEvidence.spaceSources = "draft";
-productionEvidence.models = "draft";
-productionEvidence.materials = "draft";
+productionEvidence.models = "evidence";
+productionEvidence.materials = "evidence";
 productionEvidence.instances = "draft";
-productionEvidence.systems = "draft";
+productionEvidence.systems = "evidence";
 productionEvidence.claims = [
   createAutoMovieProductionObligationClaim({
     name: "house-observation-denominator",
