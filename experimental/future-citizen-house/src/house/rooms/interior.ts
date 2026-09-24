@@ -40,7 +40,8 @@ export class Item {
 }
 export function table(t: Item, width: number, depth: number, height = 0.74): void {
   t.box("top", "oak", 0, height - 0.022, 0, width, 0.044, depth);
-  for (const x of [-1, 1]) for (const z of [-1, 1]) t.box("leg-" + x + "-" + z, "oak", x * (width / 2 - 0.09), height / 2 - 0.04, z * (depth / 2 - 0.09), 0.045, height - 0.08, 0.045);
+  // Legs run from the floor to the underside of the 0.044m top they carry.
+  for (const x of [-1, 1]) for (const z of [-1, 1]) t.box("leg-" + x + "-" + z, "oak", x * (width / 2 - 0.09), (height - 0.044) / 2, z * (depth / 2 - 0.09), 0.045, height - 0.044, 0.045);
 }
 export function chair(t: Item, material = "green"): void {
   t.box("seat", material, 0, 0.45, 0, 0.46, 0.09, 0.46);
@@ -59,6 +60,8 @@ export function cabinet(t: Item, width: number, height: number, depth: number, o
 }
 export function bed(t: Item, width: number, blanket: string): void {
   t.box("base", "oak", 0, 0.18, 0, width + 0.08, 0.20, 2.12);
+  // The 0.08m clearance under the base stands on four legs at its corners.
+  for (const x of [-1, 1]) for (const z of [-1, 1]) t.box("leg-" + x + "-" + z, "oak", x * (width / 2 - 0.01), 0.04, z * 1.01, 0.045, 0.08, 0.045);
   t.box("mattress", "linen", 0, 0.37, 0, width, 0.22, 2.02);
   t.box("duvet", blanket, 0, 0.50, 0.28, width + 0.02, 0.08, 1.45);
   t.box("head", "oak", 0, 0.56, -1.08, width + 0.08, 0.90, 0.06);
@@ -77,8 +80,8 @@ export function lights(a: Assembly, room: string, points: readonly (readonly [nu
 export function desk(t: Item, width = 1.2): void {
   table(t, width, 0.6);
   t.box("screen", "metal", 0, 1.01, -0.13, 0.5, 0.3, 0.025);
-  t.box("screen-stand", "metal", 0, 0.82, -0.13, 0.04, 0.15, 0.04);
-  t.box("keyboard", "white", 0, 0.76, 0.13, 0.35, 0.015, 0.12);
+  t.box("screen-stand", "metal", 0, 0.815, -0.13, 0.04, 0.15, 0.04);
+  t.box("keyboard", "white", 0, 0.7475, 0.13, 0.35, 0.015, 0.12);
 }
 export function basin(t: Item, width = 0.65): void {
   cabinet(t, width, 0.8, 0.48);
