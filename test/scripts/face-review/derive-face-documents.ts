@@ -311,7 +311,14 @@ if (command === "identity") {
         lower: channels.get(one.channels[0]!)!.minimum,
         upper: channels.get(one.channels[0]!)!.maximum,
       })),
-      targets: ids.map((id) => target[id]!),
+      // Without an expression study the documents are the identity at rest,
+      // whose renders are the expression transfer's rest reading, so a state
+      // of the face is not solved there and stays at its start, zero.
+      targets: FACE_ANTHROPOMETRY_INDICES.map((one) =>
+        one.expression === true && expressionStudy === undefined
+          ? null
+          : target[one.id]!,
+      ),
       evaluate,
     });
     const shape = { ...start.shape };
