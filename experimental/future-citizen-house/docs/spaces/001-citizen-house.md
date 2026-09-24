@@ -53,7 +53,7 @@
 <!--
 @evidence principles/core/common.md#declared-basis 작은 대지와 전면 접근은 납품 범위에서 상속하고, 대지 폭·깊이·보도와 세 단차는 이 H2의 저작 입력으로 명시했다. 본채 높이와 위치는 mass-and-storeys를 소비하며 측량 사실을 주장하지 않는다.
 @evidence principles/core/common.md#scope-preservation 본채 앞마당과 보도부터 현관문까지의 도착을 포함한다. 식재가 접근을 덮지 못하게 하고 주변 교통망을 새 납품 대상으로 끌어오지 않는다.
-@evidence principles/core/common.md#substantive-completion 대지 외곽, 지면, 보도, 접근 폭, 두 tread와 landing의 위치·높이 및 문과의 접속을 결정했다. 단차를 그리는 source가 계단 개수나 마지막 도착 높이를 발명하지 않아도 된다.
+@evidence principles/core/common.md#substantive-completion 대지 외곽, 지면과 그 지면이 본채 plinth에 닿는 접합, 보도, 접근 폭, 두 tread와 landing의 위치·높이와 지면부터의 채움 및 문과의 접속을 결정했다. 단차를 그리는 source가 계단 개수나 마지막 도착 높이, 떠 있는 부재를 발명하지 않아도 된다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation settings의 작은 대지와 주택 진입을 실제 site 범위와 전면 보도·계단의 연속 경로로 해석했다. 부모의 좌표 관례에 대지 치수와 지면부터 문까지의 접속 결정을 더한다.
 @evidence principles/design/spaces.md#space-topology citizen-site 안에 house가 있으며 보도에서 전면 계단과 landing을 지나 front-entry로 연결된다. 남은 가장자리 식재는 이 도착 route를 점유하지 못한다.
 @evidence principles/design/spaces.md#space-boundary-authority site bounds와 각 tread는 여기서 소유하고 본채 및 현관문은 각각 mass-and-storeys와 front-entry를 참조한다. 문 위치를 조경 파일에 독립 복제하는 기준을 만들지 않는다.

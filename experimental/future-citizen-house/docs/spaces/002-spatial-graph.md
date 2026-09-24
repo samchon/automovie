@@ -41,10 +41,10 @@
 <!--
 @evidence principles/core/common.md#declared-basis 1층 높이는 mass-and-storeys, 방 구성은 ground-partition, 수평 마감의 단독 책임은 settings 표면 배정에서 받는다. 이 storey가 별도의 층고를 정하지 않는다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 높이는 mass-and-storeys, 하위 구획은 ground-partition, 층간 통행은 single-stair에서 받는다. 수평 면의 책임도 표면 분해 설정에 연결되어 이 storey가 별도 층고나 마감 소유권을 만들어 내지 않는다.
-@evidence principles/core/common.md#scope-preservation 1층의 다섯 방과 상층으로 가는 한 계단을 모두 포함하고, slab의 바닥·천장과 구조 partition까지 같은 층 책임으로 둔다. 방마다 덧바른 중복 수평 마감을 허용하지 않는다.
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 현관·작업실·공용부·powder·수납을 같은 1층에 담고 상층으로 향하는 계단 연결을 유지한다. 방 목록만 등록한 뒤 실제 partition이나 연속 바닥·천장을 무소유로 남기는 축소를 허용하지 않는다.
-@evidence principles/core/common.md#substantive-completion ground-storey의 house 귀속, 하위 방 population, 상층 연결 및 floor/ceiling의 생성 책임이 정해져 있다. source에서 층과 방 사이 소유 계층을 새로 만들어야 하는 공백이 없다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 ground-storey의 house 귀속과 하위 partition, 상층에 이르는 연결 및 수평 면 생성 책임이 명시되어 있다. source는 가구나 벽의 이름에서 1층의 부모와 자식을 추측해 조립할 필요가 없다.
+@evidence principles/core/common.md#scope-preservation 1층의 다섯 방과 상층으로 가는 한 계단을 모두 포함하고, slab의 바닥·천장과 구조 partition, 지면 아래까지 묻힌 기초와 그 plinth 외면까지 같은 층 책임으로 둔다. 방마다 덧바른 중복 수평 마감을 허용하지 않는다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 현관·작업실·공용부·powder·수납을 같은 1층에 담고 상층으로 향하는 계단 연결을 유지한다. 실제 partition과 연속 바닥·천장에 더해 y=-0.60..-0.016 기초, 외벽 아래 bearing ring, 지면 -0.45 위 plinth 외면까지 층 owner에 두어 입면 아래 둘레를 무소유로 남기지 않는다.
+@evidence principles/core/common.md#substantive-completion ground-storey의 house 귀속, 하위 방 population, 상층 연결, floor/ceiling과 기초·plinth의 생성 책임과 범위가 정해져 있다. source에서 층과 방 사이 소유 계층이나 기초 깊이를 새로 정해야 하는 공백이 없다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 ground-storey의 house 귀속과 하위 partition, 상층에 이르는 연결 및 수평 면 생성 책임이 명시되어 있다. 기초의 평면 범위(외곽 전체), 깊이(y=-0.60, 지면보다 0.15 아래), 상단(-0.016과 외벽 구간 ring 0)과 plinth 외면의 owner가 수치로 있어 source가 기초 깊이를 발명하지 않는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 datum과 1층 프로그램을 storey 하나의 자식 방·계단 관계 및 수평 표면 책임으로 모았다. 숫자 층고를 재포맷하는 대신 실현 주체의 포함 관계를 결정한다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 표면 분해의 층 책임을 ground-storey라는 실제 공간 주소에 붙이고 다섯 room과 single-stair를 그 층의 구조로 연결했다. 일반적인 1층 프로그램을 구현 가능한 storey의 포함 관계로 만드는 결정이 추가되어 있다.
 @evidence principles/design/spaces.md#space-topology house 아래 ground-storey가 있고 ground-partition의 다섯 room이 그 안에 있으며 upper-storey에는 single-stair로만 간다. 바닥과 방의 계층을 가구 mesh 이름에서 추정하지 않는다.
