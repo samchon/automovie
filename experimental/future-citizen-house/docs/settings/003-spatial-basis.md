@@ -9,23 +9,23 @@
 @evidence principles/core/settings.md#fact-status gross와 유효 면적을 혼용하지 않고 reference pixel이나 제작 치수를 실물 측량으로 읽지 않는다.
 @evidence principles/core/settings.md#source-support 축과 단위는 선언한 제작 관례이며 실제 건물 측량이나 법규·구조 인증의 외부 출처를 주장하지 않는다.
 @evidence principles/core/settings.md#capability-boundary 뷰어 조작 시간은 초를 사용하지만 건물 상태를 자동으로 진행하는 시간축은 납품하지 않는다.
-@evidence principles/core/settings.md#constraint-sufficiency 정확한 매스·층선·벽·방 경계는 링크한 설계 owner만 수정하며 source 실현은 아직 unverified다.
+@evidence principles/core/settings.md#constraint-sufficiency 정확한 매스·층선·벽·방 경계는 링크한 설계 owner만 수정한다. 건축 source는 구현됐고 이전 독립 판정의 계측·GPU 관찰 이력이 있으나 현재 수정 트리의 전체 관찰은 별도로 검증한다.
 @evidence principles/core/settings.md#observable-identity 세계의 앞·뒤·우측과 1층 기준 바닥이 고정돼 서로 다른 관찰자가 집을 반대로 재구성하지 않는다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb m·오른손 Y-up과 축 방향은 제작 관례이며 두 층과 목표 규모는 사용자 요구로 분리된다. 실제 건물이나 reference 픽셀에서 이 좌표를 측량했다고 주장하지 않는다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 공간과 시간의 공통 기준을 여기 두고 정확한 벽·방 경계는 공간 설계로 연결한다. 앞·뒤·좌우를 각각의 source가 따로 정할 수 있게 방치하지 않는다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 바닥 y=0, 전면 -Z, 후면 +Z, UI 초 단위와 납품 시간축 부재가 정해져 있다. 특히 전면 화면 오른쪽=-X를 밝혀 앞서 혼동했던 좌우를 downstream이 다시 발명할 필요가 없다.
-@evidenceReview principles/core/settings.md#fact-status #93a284a 목표 규모, 저작한 정확 치수와 실물 측량을 구별하고 새 source의 실현은 unverified로 남긴다. gross를 유효 면적이나 실제 측량값으로 바꾸는 지위 이동을 허용하지 않는다.
+@evidenceReview principles/core/settings.md#fact-status #93a284a 목표 규모와 저작 치수를 실물 측량과 구별한다. 건축 source와 이전 독립 판정의 관찰은 존재하지만 현재 수정 트리의 전체 관찰은 별도 검증 대상이다. gross를 유효 면적이나 실제 측량값으로 바꾸지 않는다.
 @evidenceReview principles/core/settings.md#source-support #430bca9 축과 단위는 선언한 관례이고 실제 건축물의 측량·법규·구조 자료에서 온 값이 아니다. reference를 비측량 자료로 유지하므로 이미지 비율을 수치 근거로 사용할 수 없다.
 @evidenceReview principles/core/settings.md#capability-boundary #83a6f2c UI 조작에는 초를 쓰지만 건물 상태는 시간에 따라 자동 진행하지 않는다. 시간 단위를 정했다는 이유로 timed motion이나 자동 낮밤 전환이 추가되는 것은 아니다.
 @evidenceReview principles/core/settings.md#constraint-sufficiency #20cf612 평면의 +X 우측과 전면 카메라의 -X 화면 우측을 다른 말로 구분한다. 코어와 입면 이름은 후자를 따르므로 어느 기준의 우측인지 추측해 배치할 여지가 없다.
 @evidenceReview principles/core/settings.md#observable-identity #4ccb62e 앞·뒤·기준 바닥과 화면 좌우의 관계가 고정되어 같은 집을 거울상으로 재구성할 위험을 줄인다. 현재 코어가 -X라는 명시는 좌표 관례가 실제 외피 landmark와 만나는 지점을 답한다.
 -->
 
-**상태: review 선언을 유지한 제자리 재작성, 이전 판정 무효.** 세계 단위는 m이며 오른손 Y-up 좌표다. +X는 평면 기준 우측, +Z는 후면, 전면은 -Z이며 1층 바닥은 y=0을 기준으로 한다. 정지 library이며 납품 시간축과 fps는 없다. 뷰어의 조작 시간은 초를 쓰되 건물의 상태를 자동 진행시키지 않는다. 약 11×12m 두 층과 약 250㎡라는 목표를 따른다. gross와 유효 면적을 혼용하지 않으며 reference pixel로 치수를 역산하지 않는다.
+**상태: review 선언을 유지한 상류 재판정 중이다.** 세계 단위는 m이며 오른손 Y-up 좌표다. +X는 평면 기준 우측, +Z는 후면, 전면은 -Z이며 1층 바닥은 y=0을 기준으로 한다. 정지 library이며 납품 시간축과 fps는 없다. 뷰어의 조작 시간은 초를 쓰되 건물의 상태를 자동 진행시키지 않는다. 약 11×12m 두 층과 약 250㎡라는 목표를 따른다. gross와 유효 면적을 혼용하지 않으며 reference pixel로 치수를 역산하지 않는다.
 
 전면 바깥(-Z)에서 +Z를 보는 +Y-up 카메라의 화면 오른쪽은 -X다. 평면 우측과 관찰자 화면 우측을 같은 말로 쓰지 않는다. 외피의 “우측 불투명 코어”와 입면 좌우 이름은 reference 전면 관찰 화면을 기준으로 하며, 따라서 코어는 -X 쪽이다.
 
-정확한 매스·층선·벽 두께·방 경계는 [공간 설계의 매스와 층](../spaces/002-spatial-graph.md#mass-and-storeys)이 소유한다. 각 수치는 제작 결정이며 실제 건축물의 측량이나 법규·구조 인증이 아니다. 기존 source가 새 치수를 실현하는지는 unverified다.
+정확한 매스·층선·벽 두께·방 경계는 [공간 설계의 매스와 층](../spaces/002-spatial-graph.md#mass-and-storeys)이 소유한다. 각 수치는 제작 결정이며 실제 건축물의 측량이나 법규·구조 인증이 아니다. 현재 건축 source가 이 치수를 구현했고 이전 독립 판정의 계측 이력이 있다. 이 문장은 수정 트리의 전체 치수·시각 검증을 대신하지 않는다.
 
 ## 1층 공간 그래프 {#ground-graph}
 

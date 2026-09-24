@@ -46,7 +46,7 @@
 @evidence settings/003-spatial-basis.md#coordinate-datum 본채와 같은 metre·Y-up 좌표에서 site bounds와 지면·tread 높이를 정하고 현관 floor datum을 소비한다. reference 픽셀을 측량 치수로 사용하지 않는다.
 @evidence settings/004-observation.md#accessibility-products 세 단차로 구성한 도착 경로를 실물 무장애 인증으로 보고하지 않는 공간 설계상의 경계를 소비한다. 키보드나 음성 제품의 구현 책임을 대지 geometry의 통과로 대신하지 않는다.
 @evidenceReview settings/001-production.md#delivery-scope #e314261 site의 15.60×17.00m 안에 집·앞마당과 임시 작업 예약면을 배정했다. 배수망은 집수구 접속 밖을 납품하지 않아 작은 대지라는 범위를 주변 기반시설로 확대하지 않는다.
-@evidenceReview settings/003-spatial-basis.md#coordinate-datum #8a862c9 같은 m·Y-up의 y=-0.45 지면에서 세 번 0.15m 올라 현관 y=0에 닿는다. 집수구도 이 지면 아래 깊이로 정의하여 관·보도에 다른 높이 기준을 만들지 않는다.
+@evidenceReview settings/003-spatial-basis.md#coordinate-datum #6cf0054 같은 m·Y-up의 y=-0.45 지면에서 세 번 0.15m 올라 현관 y=0에 닿는다. 집수구도 이 지면 아래 깊이로 정의하여 관·보도에 다른 높이 기준을 만들지 않는다. 현재 건축 source의 이전 계측 이력과 이 설계 좌표를 구분하고 전체 새 트리 판정은 별도로 둔다.
 @evidenceReview settings/004-observation.md#accessibility-products #2e72dbe 세 단차와 flush 격자를 정하면서도 무장애 인증·주행 하중을 미검증으로 명시했다. 물리적 도착을 그렸다는 사실로 viewer의 키보드 대안이나 비시각 동등성을 인증하지 않는다.
 -->
 
@@ -82,7 +82,7 @@
 
 [우측 입면 배수관](003-surface-ownership.md#right-face)의 열린 하단 아래에 x=-6.10..-5.55,z=-0.30..0.30, 상단 y=-0.45의 flush 집수 격자를 두고 그 아래 깊이 0.40m의 보이는 집수 공간을 garden owner가 만든다. 관 출구 y=-0.30과 격자 사이 낙차는 0.15m다. roof overflow의 x=-5.90,z=-0.10..0.10 수직 낙수 범위도 이 격자 안이다. 격자는 0.55×0.60m 전체를 위로 드는 탈착 면이고 위에 고정 화분·식재를 놓지 않는다. 지중 배출 연결점은 집수 공간의 -X 벽 하단 y=-0.80, 내경 0.10m로 명시하되 그 바깥 지중 우수망은 납품하지 않는다. 이 접속은 보이는 fixture와 점검 공간을 납품한다는 household 범위의 끝이며 유량·지반 침투·부지 밖 우수 처리의 실물 성능은 unverified다. 격자의 주행 하중 또한 인증하지 않는다.
 
-식재의 정비 재배치는 [roof-face의 조경 이동·보존 결정](003-surface-ownership.md#roof-face)을 소비한다. 그 결정이 나무·관목·낮은 풀의 원래 위치, 후면 목적지와 회전·반복식, 보존할 ID·형상·재료를 소유한다. garden owner는 이를 같은 대지 조립에서 실현하며 현관 경로나 집수구를 식물에 맞춰 옮기지 않는다. 이 H2를 실현하는 `citizenHouseSpaceSource`의 evidence 관계는 `buildHouse()`→`garden(a)`와 그 식물의 native bounds를 검사하는 `auditCanopy`까지 잇는다. 뒤로 옮긴 식재가 현재 여유를 만족하는지는 그 컴파일 결과와 기존 setting·외부 관찰로 확인하며, 조경의 최종 시각 완성이나 실제 장비 운용으로 확대 해석하지 않는다.
+식재의 정비 재배치는 [roof-face의 조경 이동·보존 결정](003-surface-ownership.md#roof-face)을 소비한다. 그 결정은 나무·관목·낮은 풀의 원래 위치, 후면 목적지와 회전·반복식, 이동 중 보존할 기존 ID·형상·임시 material 값을 정하는 공간 조건을 소유한다. 식물 면의 최종 finish 결합은 materials가 결정한다. garden owner는 이동 조건을 같은 대지 조립에서 실현하며 현관 경로나 집수구를 식물에 맞춰 옮기지 않는다. 이 H2를 실현하는 `citizenHouseSpaceSource`의 evidence 관계는 `buildHouse()`→`garden(a)`와 그 식물의 native bounds를 검사하는 `auditCanopy`까지 잇는다. 뒤로 옮긴 식재가 현재 여유를 만족하는지는 그 컴파일 결과와 기존 setting·외부 관찰로 확인하며, 조경의 최종 시각 완성이나 실제 장비 운용으로 확대 해석하지 않는다.
 
 ## 공간 관찰의 도출 {#spatial-observation}
 

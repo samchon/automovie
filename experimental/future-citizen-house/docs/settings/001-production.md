@@ -234,7 +234,7 @@
 ## 제작과 채택의 범위 {#build-or-adopt}
 
 <!--
-@evidence principles/core/common.md#declared-basis production-only source 저작과 coordinator 설치 권한은 사용자 지시이고 부재별 제작 배정은 저작 선택이다.
+@evidence principles/core/common.md#declared-basis production-only source 저작과 coordinator 설치 권한은 사용자 지시다. 건축·물체·배치·발광·finish의 분기 배분은 source-authoring/design-branches의 소유 표와 v-097 F1 상류 수리 지시를 따른다. 각 분기 안에서 직접 제작할 부재와 공개 API의 채택은 저작 선택이다.
 @evidence principles/core/common.md#scope-preservation 본채부터 가구·식재까지 직접 만들고 reference PNG를 geometry나 표면 자산으로 쓰지 않는다.
 @evidence principles/core/common.md#substantive-completion 건축 spaceSources, 물체 modelSources와 instanceSources, 발광 systemSources, 마감 materialSources, 중립 조립 경계와 공개 interface/engine·WebGL 도구의 분담을 정한다.
 @evidence principles/core/settings.md#fact-status 기존 box는 실패 구현으로 보존할 뿐 새 부재로 승인하지 않으며 설치된 API와 새 제작 대상을 구분한다.
@@ -242,7 +242,7 @@
 @evidence principles/core/settings.md#capability-boundary engine 검증과 renderer 채택은 제작 도구의 분담이지 주택의 생산세계 능력이 아니다. 재사용 API를 선택했다고 설정에 없는 발전·유량·거주자 행동을 납품하지 않는다.
 @evidence principles/core/settings.md#constraint-sufficiency 의존성 선언은 package.json에 한정하고 실제 설치를 조정자가 수행해야 소비 경로를 실행할 수 있다.
 @evidence principles/core/settings.md#observable-identity 직접 제작·공개 API 재사용·도구 채택의 분담은 asset의 출처 결정이며 감각 형태를 새로 정하지 않는다. 제작할 집은 003의 외피 관계와 002의 방별 생활 프로그램을 따른다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb production-only 저작은 사용자 권한이고 부재별 직접 제작과 공개 API 재사용은 구현 분담 선택으로 구분된다. 외부 자산을 임의 채택할 권한이 그 제한에서 생기지 않는다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb production-only 저작과 설치 담당은 사용자 지시, spaces·models·instances·systems·materials 사이 소유 배분은 분기 계약과 v-097 F1 수리 지시에서 받았다. 분기 안에서의 직접 제작과 공개 API 재사용만 저작 선택이며 외부 자산을 임의 채택할 권한은 없다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 본채와 창호부터 가구·식재까지 제작 대상으로 남기고 PNG는 관찰용으로만 쓴다. reference를 표면에 붙여 전체 interior의 실물 제작을 생략하는 경로가 없다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 건축 설계와 공간 source, 물체 형상·배치·발광·마감의 후속 source, 중립 조립 경계 및 공개 engine·WebGL 도구의 역할을 나눈다. 현재 방 source의 가구는 이관 전 임시 소비이며 spaceSources가 영구적으로 모든 실내 물체를 만든다는 결론은 본문에서 나오지 않는다.
 @evidenceReview principles/core/settings.md#fact-status #93a284a 이전 box는 실패 비교 기준이며 새 완성 부재로 승인되지 않는다. 건축 geometry와 WebGL viewer는 현재 구현됐으나 공개 API 재사용 선택만으로 후속 물체 이관이나 새 트리 GPU 합격을 주장하지 않는다.
@@ -252,7 +252,7 @@
 @evidenceReview principles/core/settings.md#observable-identity #4ccb62e 어떤 자산을 만들고 어디서 재사용하는지는 출처와 제작 방식의 결정이다. 이 결정을 집의 실루엣 설명으로 대신하지 않고 기존 외피·생활 프로그램의 모습을 실현하게 둔다.
 -->
 
-**권한: 사용자 지정 production-only 저작 범위, 아래 구현 분담은 제작 선택이다.** 본채·층·방·실물 벽과 문·계단·창호·PV·내장·가구·식재는 이 production의 결정론적 source로 새로 만든다. 다섯 reference PNG는 관찰 기준으로만 유지하고 geometry asset·texture·배경으로 채택하지 않는다. 이전 box 형상은 비교 가능한 실패 구현으로 보존하되 새 결과의 완성 부재로 승인하지 않는다.
+**권한: 사용자 지정 production-only 저작 범위와 [분기 소유 표](../../.agents/skills/source-authoring/design-branches.md), v-097 F1 상류 수리 지시.** 본채·층·방·실물 벽과 문·계단·창호·PV·내장·가구·식재는 이 production의 결정론적 source로 새로 만든다. 건축·물체·배치·발광·finish의 분기 배분은 아래 계약을 따르고, 각 분기 안에서의 제작 방식과 공개 API 재사용은 저작 선택이다. 다섯 reference PNG는 관찰 기준으로만 유지하고 geometry asset·texture·배경으로 채택하지 않는다. 이전 box 형상은 비교 가능한 실패 구현으로 보존하되 새 결과의 완성 부재로 승인하지 않는다.
 
 건축 공간과 완결 외피의 결정은 spaces가, 그 건축 형상의 구현은 spaceSources가 맡는다. 가구·설비·소품의 재사용 형상과 part/face 주소는 models/modelSources, 방별 배치·반복은 instances/instanceSources, 발광 과정은 systems/systemSources, 건축·물체 면의 finish 결합은 materials/materialSources가 맡는다. 이관 전 방 source의 물체 메시를 임시로 소비하는 동안에도 그 분기를 영구 소유자로 승인하지 않으며, 중립 `src/house/build.ts`의 `buildHouse()`가 최종 environment를 조립한다. 설치된 AutoMovie interface와 CommonJS engine의 공개 API를 재사용해 typed 결과를 검증·해석한다. 렌더 도구는 production 내부에서 작성하며 원근·material·light·shadow·depth를 제공하는 WebGL renderer를 의존성으로 채택한다. 외부 diffusion renderer나 photoreal 후처리 서비스, 외부 모델 다운로드는 채택하지 않는다. 의존성 선언은 package.json, 설치는 조정자 담당이다.
 

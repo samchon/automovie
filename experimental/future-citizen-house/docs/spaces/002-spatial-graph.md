@@ -12,7 +12,7 @@
 @evidence principles/design/spaces.md#space-verification-address gross, 구멍을 뺀 층 바닥, 내측 유효 면적을 구분해 새 산출물에서 읽도록 했다. room containment와 계단·창호 head의 datum 일치는 연결된 전수 검증으로 반증한다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work settings/003의 좌표와 11×12m 두 층, settings/001의 약 250㎡ 목표를 실제 두 층 외곽 및 구조대로 대조했다. 목표가 정확한 net 면적을 명령하지 않으므로 264㎡ gross를 정직하게 구분하는 것으로 충분했고 settings나 map 경계를 바꿀 필요가 없었다.
 @evidence contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements 하나의 직사각형과 두 floor datum을 유지하고 별동·캔틸레버나 거실 보이드로 면적·높이를 맞추지 않는다. 정확한 새 유효 면적은 검증 결과로 남긴다.
-@evidence settings/003-spatial-basis.md#coordinate-datum 동일한 metre·Y-up 좌표에서 명시한 외곽과 두 층 높이를 저작하고 내부 clear face를 벽 두께에서 파생한다. 축 관례를 reference 화면의 좌우와 혼동하지 않는다.
+@evidence settings/003-spatial-basis.md#coordinate-datum 동일한 metre·Y-up 좌표에서 명시한 외곽과 두 층 높이를 저작하고 내부 clear face를 벽 두께에서 파생한다. 축 관례를 reference 화면의 좌우와 혼동하지 않으며 현재 건축 source와 새 트리 전수 판정을 구분한다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb metre·Y-up과 규모는 settings에서, 외벽 0.24m·내벽 0.18m 및 층 높이는 이 H2의 저작값에서 받는다. 현재 source는 이 datum을 구현했고 이전 독립 판정의 컴파일·GPU 관찰 이력이 있으나 그 결과를 reference 픽셀 측량이나 새 트리의 전수 승인으로 바꾸지 않는다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 직사각형 본채의 두 층을 유지하면서 실내 높이와 층간 구조대까지 남긴다. 외곽 합계 264㎡를 목표 약 250㎡와 구분하므로 요구 공간을 삭제하거나 gross를 유효 면적처럼 읽어 규모를 맞췄다고 할 수 없다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 외곽에서 벽 두께를 뺀 clear face와 1층·2층 바닥, 각 천장 및 지붕 상단이 모두 지정되어 있다. 방과 계단·창호가 사용할 높이와 벽 안팎을 다음 구현자가 처음 선택해야 하는 상태가 아니다.
@@ -22,7 +22,7 @@
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 외곽 합계, 층간 구멍을 뺀 바닥, 내측 유효 면적을 새 산출물에서 구분하도록 해 서로 다른 면적을 같은 값으로 보고하는 반례를 드러낸다. 공유 datum의 containment·slab·창호 대응은 전수 검증의 질문과 함께 읽히며 실제 결과는 아직 unverified다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 좌표 기준의 11×12m 두 층과 약 250㎡ 목표를 외곽·구조대에 대조했으며 부모는 정확한 net 250㎡를 요구하지 않는다. 264㎡ gross와 미측정 유효 면적을 분리하면 이 단계에서 부모 규모를 고치거나 별도 map 경계를 요구할 모순은 없다.
 @evidenceReview contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements #d31488d 고정된 한 직사각형의 외곽 안에 두 floor datum을 두며 면적을 채우기 위한 별동이나 높이를 늘리는 별도 보이드를 설계하지 않는다. 방 연결과 실제 유효 면적까지 이미 통과했다는 주장은 이 매스 결정에 포함하지 않는다.
-@evidenceReview settings/003-spatial-basis.md#coordinate-datum #8a862c9 1층 y=0을 그대로 쓰고 같은 축에서 외곽과 내측 clear face 및 2층 y=3.20을 저작한다. 좌표 관례가 준 역할 안에서 정확한 공간 치수를 정하며, 제작 수치와 실제 건축물 측량을 혼동하지 않는다.
+@evidenceReview settings/003-spatial-basis.md#coordinate-datum #6cf0054 1층 y=0을 그대로 쓰고 같은 축에서 외곽과 내측 clear face 및 2층 y=3.20을 저작한다. 좌표 관례가 준 역할 안에서 정확한 공간 치수를 정하며, 구현된 건축 source의 이전 계측 이력과 제작 수치의 근거·현재 트리의 전체 판정을 혼동하지 않는다.
 -->
 
 **상태: review 선언을 유지한 상류 재판정 중이다.** [좌표 기준](../settings/003-spatial-basis.md#coordinate-datum)을 따른다. 이 문서의 치수는 reference 픽셀의 역산값이 아닌 저작 결정이다. 고정 그래프의 노드와 연결 의미를 유지하고, 현재 source는 이 값을 plan과 완결 표면 owner로 구현했다. 이전 독립 판정은 컴파일 결과와 GPU 화면을 관찰했으나 현재 수정 트리의 전체 관찰 분모와 production 완료는 `unverified`다.
@@ -197,7 +197,7 @@ room id는 flex-workroom, parent는 [ground-storey](#ground-level)다. clear cel
 
 <!--
 @evidence settings/002-household.md#ground-program 소파 생활·여섯 자리 식사·섬 주방을 벽 없이 이어지는 후면 한 room이 수용하게 한다. 수납 접근과 주방까지의 길을 식탁 점유 안에만 두지 않는다.
-@evidenceReview settings/002-household.md#ground-program #c5026c0 후면 소파·여섯 자리 식사·섬 주방과 우측 powder 기구는 다른 room의 프로그램이다. 현관 선반을 위해 새 건축 구멍을 만들지 않고 후면은 한 연속 room으로 둔다. 물체 transform은 instances 대상이다.
+@evidenceReview settings/002-household.md#ground-program #c5026c0 소파 생활·여섯 자리 식사·섬 주방은 이 후면 공용부가 수용할 프로그램이고, 우측 powder 기구는 별도 위생실의 프로그램이다. 현관 선반을 위해 새 건축 구멍을 만들지 않고 후면은 한 연속 room으로 둔다. 물체 형상과 방별 배치는 models·instances 대상이다.
 -->
 
 <!--
@@ -252,8 +252,8 @@ room id는 common-room, parent는 [ground-storey](#ground-level)다. clear cell�
 @evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 powder의 수평 cell은 이 방이 정하고 수직 범위는 ground-level, 현관과의 opening은 entry-powder에서 받는다. 설비 배치가 독자적으로 문을 옮기거나 같은 core에 다른 방 깊이를 중복 저작할 수 없다.
 @evidence principles/design/spaces.md#space-verification-address room의 층 귀속·실제 외주·threshold와 위생 설비 주변 접근이 전수 검증의 관찰 대상이다. 불투명 외벽 뒤에 room 이름만 두고 벽이나 접근이 없는 실패를 허용하지 않는다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 층 귀속·실제 외주·진입 threshold와 방 안 관찰을 전수 검증에 연결하고 fixture 주변 접근을 방의 요구로 남겼다. 불투명 core 뒤의 논리 cell만 존재하고 실물 구획이나 접근이 빠진 결과는 이 질문들에서 실패한다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work ground-program의 powder/utility room·우측 core와 surface-decomposition의 powder fixture 배정을 현관 직결 cell에 대조했다. 세탁은 upper-program의 설비실에 남겨 부모 프로그램을 중복 배정하지 않았고 새 상위 기능 수정은 필요하지 않았다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 ground-program의 powder/utility와 우측 core, surface-decomposition의 powder fixture를 현관 직결 cell에 대조했다. 이 위생 목적지에 상층의 세탁 역할을 중복 추가할 필요가 없으므로 부모의 생활 기능을 다시 배분해야 할 모순은 확인되지 않았다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work ground-program의 powder/utility room·우측 core와 surface-decomposition의 방 내측 벽 소유를 현관 직결 cell에 대조했다. 위생 기구 형상·배치는 models·instances로 넘기고 세탁은 upper-program의 설비실에 남겨 부모 프로그램을 중복 배정하지 않았다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 ground-program의 powder/utility와 우측 core를 현관 직결 cell에 대조했다. 개정된 surface-decomposition에서 이 방은 내측 벽만 소유하고 위생 기구 형상·배치는 models·instances가 맡는다. 상층 세탁 역할을 이 cell에 중복 추가할 필요가 없으므로 부모의 생활 기능을 다시 배분해야 할 모순은 확인되지 않았다.
 @evidence contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements 1층 위생 공간을 우측 불투명 코어와 ground-storey 안에 두고 실제 문으로 현관에 연결한다. core를 별동으로 빼거나 다른 방을 통과해야 하는 단절 목적지로 만들지 않는다.
 @evidenceReview contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements #d31488d 1층 위생 room을 우측 불투명 core와 ground-storey 안에 두고 실제 현관 문 연결을 요구한다. core를 별동으로 빼거나 다른 방을 거쳐야 닿는 목적지로 만들어 고정된 본채 관계를 바꾸지 않는다.
 -->
@@ -501,7 +501,7 @@ jamb·head·문짝을 제외한 유효 치수가 이 값이다. structural cut�
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 계단 상승의 연속 원통 검증은 unverified로 남겨 정적 graph 도달과 혼동하지 않는다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work 두 층 datum과 단일 계단 조건을18 riser·두 flight의 도착에 대조했다. 별도 계단이나 거실 보이드를 요구하는 계획 모순은 없으나 실제 clearance는 아직 검증하지 않았다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 두 flight와 landing이 전면 범위에 들어가므로 부모가 금지한 추가 계단이나 복층 보이드는 필요하지 않다.
-@evidence contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements 두 층을 잇는 하나의 꺾임계단을 중앙 현관에 두고 실물 참과 난간을 후속 구현 범위로 남긴다.
+@evidence contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements 두 층을 잇는 하나의 꺾임계단을 중앙 현관에 두며 참과 난간은 현재 stair source가 구현한다. 통행 성능은 별도 검증 질문으로 남긴다.
 @evidenceReview contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements #d31488d 9+9 riser의 단일 꺾임계단으로 두 층을 연결하며 두 번째 계단을 만들지 않는다.
 @evidence settings/003-spatial-basis.md#ground-graph 현관 중앙에서 상층으로 올라가는 단일 계단을 두 flight와 한 참에 배정하고 별도의 층간 연결을 추가하지 않는다.
 @evidenceReview settings/003-spatial-basis.md#ground-graph #38b01ba 현관 중앙 단일 계단이라는 ground-graph를 보행 띠가 남는 두 flight로 실현한다.
@@ -513,7 +513,7 @@ entry 안에 두 flight와 하나의 중간 참으로 구성된 단일 계단을
 
 [필수 바닥 개구](#stair-opening)가 upper slab과 상부 도착의 관계를 소유한다.
 
-guard와 handrail은 실제 tread pitch와 참을 따른다. 계단 전체를 막는 불투명 판은 사용하지 않는다. 상부 opening edge의 유리 guard는 독립된 복층 보이드를 뜻하지 않으므로 선택 가능하다. 재료·프레임 형상은 계단의 완결 owner가 후속 외피/fit-out 단계에서 구현한다. headroom, return clearance, 난간의 실제 geometry는 새 산출물에서 검증 전이며 unverified다.
+guard와 handrail은 실제 tread pitch와 참을 따른다. 계단 전체를 막는 불투명 판은 사용하지 않는다. 상부 opening edge의 유리 guard는 독립된 복층 보이드를 뜻하지 않으므로 선택 가능하다. 계단 owner가 프레임 형상과 안정 면 주소를 소유하며 현재 `src/house/circulation/stair.ts`에 참·난간·handrail이 구현돼 있다. 그 면의 finish 결합은 materials가 결정하고 현재 source의 material 문자열은 이관 전 임시 값이다. headroom, return clearance와 실제 통행 성능은 새 산출물의 별도 측정이 없어 unverified다.
 
 ## 계단의 필수 바닥 개구 {#stair-opening}
 
@@ -1557,7 +1557,7 @@ child-bedroom-1의 짧은 연장부 전면은 계단 opening 북측에서 내벽
 
 각 room의 clear 외주와 [층 datum](#mass-and-storeys)을 [외피 boundary](003-surface-ownership.md#whole-surface-owners)가 소비한다. [창호 인터페이스](003-surface-ownership.md#glazing-interface)가 반복 bay를 결정하고 각 opening H2가 host·span·sill·head를 소유한다. 외피를 더 크게 보이게 하려고 방 경계를 옮기거나 floor line을 지우지 않는다.
 
-PV는 [캐노피 span](003-surface-ownership.md#roof-face)을 받아 x 방향 최대1.20m, z 방향 최대1.90m의 module로 등분한다. 각 방향 count는 ceil(span/maximum)이며 인접 cassette의 외측 frame 사이 투영 gap은 0.04m다. 따라서 cassette 외측 치수는 pitch-0.04이고 frame을 제외한 PV 판의 실제 치수는 이 값에서 roof-face가 소유한 안착 단면을 적용해 도출한다. panel을 pitch-0.04로 직접 만드는 별도 규칙을 두지 않는다. 공간 결정은 roof owner의 반복 점유 범위이며 실제 PV 부재·재료는 같은 완결 owner가 작성한다.
+PV는 [캐노피 span](003-surface-ownership.md#roof-face)을 받아 x 방향 최대1.20m, z 방향 최대1.90m의 module로 등분한다. 각 방향 count는 ceil(span/maximum)이며 인접 cassette의 외측 frame 사이 투영 gap은 0.04m다. 따라서 cassette 외측 치수는 pitch-0.04이고 frame을 제외한 PV 판의 실제 치수는 이 값에서 roof-face가 소유한 안착 단면을 적용해 도출한다. panel을 pitch-0.04로 직접 만드는 별도 규칙을 두지 않는다. 공간 결정과 PV 부재 형상·안정 면 주소는 roof owner가 소유하고 그 면의 finish 결합은 materials가 결정한다. 현재 roof source의 직접 material 문자열과 PV 셀 표현은 이관 전 임시 소비다.
 
 [대지 접근](001-citizen-house.md#site-access)의 마지막 landing이 [현관문](#front-entry)의 sill에 닿는다. [전수 검증](#stage-one-verification)은 이 외부/내부 접합과 모든 bay/방·층 경계를 함께 검사한다.
 
@@ -1565,7 +1565,7 @@ PV는 [캐노피 span](003-surface-ownership.md#roof-face)을 받아 x 방향 �
 
 <!--
 @evidence settings/001-production.md#build-or-adopt 새 production source와 공개 engine 경계를 거친 산출물에서 공간을 읽도록 정해 기각된 box나 reference 이미지를 새 geometry의 검증값으로 채택하지 않는다.
-@evidenceReview settings/001-production.md#build-or-adopt #1e4890b 건축 부재는 spaces/spaceSources, 물체 형상·배치·발광·마감은 각 후속 분기가 맡는 제작 배분을 읽었다. 이 검증표는 현재 건축 source의 실제 engine 소비와 후속 물체 이관을 별도로 물으며 기존 판정이나 문서만으로 전체 제작 완료를 선언하지 않는다.
+@evidenceReview settings/001-production.md#build-or-adopt #e6ac669 건축 부재는 spaces/spaceSources, 물체 형상·배치·발광·마감은 분기 계약과 사용자 지시가 정한 각 후속 분기가 맡는 제작 배분을 읽었다. 이 검증표는 건축 source의 층·방·연결과 관찰 분모를 묻는다. 물체 이관의 전수 대조는 settings/003#surface-decomposition이 별도로 요구하며 이 표의 검증 완료를 뜻하지 않는다.
 @evidence settings/001-production.md#verification-boundary canonical lint 뒤 실제 산출물·GPU 관찰을 요구하고 측정되지 않은 질문은 unverified로 남긴다. 다른 명령으로 성공 수치를 대체하지 않는다.
 @evidenceReview settings/001-production.md#verification-boundary #589d028 canonical lint와 engine 산출물에서 읽을 질문을 지정하고 frame으로 치수·도달을 대신 재지 않는다.
 @evidence settings/001-production.md#roles-and-accessibility 저작자는 수리하고 관찰자는 계측하며 독립 read-only reviewer가 현재 시각 판정을 내리는 역할을 구분한다. 작성자의 자체 검사로 그 판정을 대신하지 않는다.
@@ -1577,8 +1577,8 @@ PV는 [캐노피 span](003-surface-ownership.md#roof-face)을 받아 x 방향 �
 -->
 
 <!--
-@evidence principles/core/common.md#declared-basis 고정 그래프와 전체 관찰 분모가 검증 질문의 근거이며 표는 미지급 질문임을 명시한다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 검증 표는 아직 미지불 질문임을 밝혀 설계 입력을 관찰 결과로 서술하지 않는다.
+@evidence principles/core/common.md#declared-basis 고정 그래프와 전체 관찰 분모가 검증 질문의 근거이며 표는 현재 트리의 검증 결과가 아닌 검사 계획임을 명시한다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 검증 표를 현재 트리의 검사 계획으로 표시하고 이전 독립 판정의 관찰 이력과 아직 지급하지 않은 질문을 구분한다. 설계 입력 자체를 관찰 결과로 서술하지 않는다.
 @evidence principles/core/common.md#scope-preservation 모든 room·외부 노출면·개구 및 다섯 reference를 남기고 어려운 L자 관찰이나 실물 부재 검사를 줄이지 않는다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 공간·외피·reference 검사를 포함하되 실물 건축 성능 인증으로 확대하지 않는다.
 @evidence principles/core/common.md#substantive-completion 층 귀속·도달·계단·분할·bay·전체 관찰에 각각 반례와 필요한 산출물을 배정해 무엇을 검증할지 결정했다.
@@ -1591,7 +1591,7 @@ PV는 [캐노피 span](003-surface-ownership.md#roof-face)을 받아 x 방향 �
 @evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 검사 표는 치수를 소유하지 않고 room·opening·floor 원본을 대조한다.
 @evidence principles/design/spaces.md#space-verification-address 각 검증 항목에 실패 형태를 짝지어 논리 graph의 연결만으로 실물 벽·가구 관통을 승인하지 못하게 한다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 모든 room 내부 질문과 L형 추가 코너를 명시하여 유효하지 않은 시점도 검사 분모에 남긴다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work 전체 관찰과 시각 판정 조건을 미지급 질문에 대조했다. 현재 측정 부재는 unverified로 남기며 부모의 종료 분모를 줄이는 수정 근거로 사용하지 않는다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work 전체 관찰과 시각 판정 조건을 검사 계획에 대조했다. 이전 독립 판정의 부분 관찰을 인정하면서 현재 트리에서 측정되지 않은 질문은 unverified로 남기고 부모의 종료 분모를 줄이지 않는다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 부모가 이미 구조와 시각의 독립 판정을 요구하여 이 질문 표를 쓰는 데 settings 변경이 필요하지 않았다.
 @evidence contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements 모든 방의 층 귀속·실제 문과 단일 계단 도달 및 curtainwall 대응을 새 산출물과 GPU 관찰의 열린 검사로 남긴다.
 @evidenceReview contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements #d31488d 모든 공간과 노출 외피 질문에 다섯 reference를 추가하여 대표 view로 완료 분모를 줄이지 않는다.
@@ -1599,7 +1599,7 @@ PV는 [캐노피 span](003-surface-ownership.md#roof-face)을 받아 x 방향 �
 @evidenceReview settings/001-production.md#delivery-review-condition #c796e5c 실물 3D와 다섯 reference를 독립 reviewer가 대조해야 재검토가 끝나도록 한다.
 -->
 
-[새 제작과 공개 engine 채택](../settings/001-production.md#build-or-adopt)에 따라 새 source를 구현하여 [정해진 검증 실행 경계](../settings/001-production.md#verification-boundary)의 canonical lint와 engine 소비 경계를 지난 뒤 다음을 산출물에서 읽는다. 이 표는 결과 기록이 아니라 아직 지급되지 않은 질문이다.
+[새 제작과 공개 engine 채택](../settings/001-production.md#build-or-adopt)에 따라 건축 source를 구현했다. [정해진 검증 실행 경계](../settings/001-production.md#verification-boundary)의 canonical lint와 engine 소비 경계를 거쳐 다음을 현재 산출물에서 읽는다. 이 표는 이전 독립 판정의 부분 관찰을 대신하는 완료 기록이 아니라 현재 트리에 적용할 검사 계획이다.
 
 | 질문 | 반례와 필요한 산출물 |
 | --- | --- |
@@ -1612,4 +1612,4 @@ PV는 [캐노피 span](003-surface-ownership.md#roof-face)을 받아 x 방향 �
 | 전체 관찰 분모 | setting, 노출 입면·모서리·지붕·하부·개구부·출입구와 모든 공간의 threshold·4 안쪽 모서리·중심 4방위, 두 L자 방의 추가 모서리 |
 | reference 추가 질문 | 다섯 장을 각각 현재 실물 3D 화면과 대조, 절개는 검사로 표시 |
 
-현재 위 항목 모두 새 산출물에 대해 unverified다. 조정자의 정정에 따라 stage는 review로 유지하며 열린 evidence·구현·시각 검사를 정해진 경로로 다시 닫는다. 이 수정안의 재검토는 [역할 분담](../settings/001-production.md#roles-and-accessibility)과 [단계 유지 권한](../settings/001-production.md#runtime-and-restart)에 따라 독립 read-only reviewer의 현재 시각 판정 전까지 완료되지 않는다. [프로그램 경계](../settings/002-household.md#program-boundary)가 구분한 실물 사용성·구조·에너지·대피 인증을 이 공간 검사로 대신하지 않는다.
+위 표는 현재 산출물의 검사 계획이며 완료 계정이 아니다. 기존 독립 판정이 건축 source와 GPU 화면의 일부 질문을 관찰했지만, 이 수정 트리에서 표의 각 질문을 실제로 지급한 범위와 전체 production 완료는 unverified다. 조정자의 정정에 따라 stage는 review로 유지하며 열린 evidence·구현·시각 검사를 정해진 경로로 다시 닫는다. 이 수정안의 재검토는 [역할 분담](../settings/001-production.md#roles-and-accessibility)과 [단계 유지 권한](../settings/001-production.md#runtime-and-restart)에 따라 독립 read-only reviewer의 현재 시각 판정 전까지 완료되지 않는다. [프로그램 경계](../settings/002-household.md#program-boundary)가 구분한 실물 사용성·구조·에너지·대피 인증을 이 공간 검사로 대신하지 않는다.

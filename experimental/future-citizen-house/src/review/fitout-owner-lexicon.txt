@@ -4,3 +4,4 @@
 (?i)(?P<light>등기구|펜던트|벽등|매입등|스탠드|조명|발광|(?-u:\b)pendant(?-u:\b)|(?-u:\b)sconce(?-u:\b)|(?-u:\b)recessed(?-u:\b)|(?-u:\b)stand(?-u:\b)|(?-u:\b)light(?-u:\b)|(?-u:\b)luminaire(?-u:\b)|(?-u:\b)lamp(?-u:\b)|(?-u:\b)emissive(?-u:\b)|(?-u:\b)glow(?-u:\b))
 (?i)(?P<privacy>충전|커튼|블라인드|셰이드|차양|루버|(?-u:\b)charging(?-u:\b)|(?-u:\b)charger(?-u:\b)|(?-u:\b)niche(?-u:\b)|(?-u:\b)curtain(?-u:\b)|(?-u:\b)blind(?-u:\b)|(?-u:\b)shade(?-u:\b)|(?-u:\b)roller(?-u:\b)|(?-u:\b)louvre(?-u:\b)|(?-u:\b)louver(?-u:\b)|(?-u:\b)electrochromic(?-u:\b))
 (?i)(?P<ownership>실내|인테리어|형상|반복|결정|제작|배정|실현|조립|소유|배치|생성|구현|담당|맡)
+(?i)(?P<finish>재료|마감|(?-u:\b)finish(?-u:\b)|(?-u:\b)material(?-u:\b))
