@@ -44,6 +44,8 @@ const sectionOrtho = required("#section-ortho", HTMLInputElement);
 const sectionSpan = required("#section-span", HTMLInputElement);
 const reset = required("#reset", HTMLButtonElement);
 const details = required("#details", HTMLElement);
+const reviewLoad = required("#review-load", HTMLButtonElement);
+const reviewOutput = required("#review", HTMLElement);
 const notices = required("#notices", HTMLElement);
 const spaceList = required("#space-list", HTMLElement);
 const labels = required("#labels", HTMLElement);
@@ -205,9 +207,30 @@ async function load() {
   applyInspection();
   const requested = params.get("station");
   if (requested === null || !selectStation(requested)) selectStation("exterior.setting");
+  // ?camera=x,y,z&target=x,y,z: 기록된 임의 시점을 재현한다(관찰 목록 밖의 결산 결함 위치 확인용).
+  const camera3 = parseVector(params.get("camera"));
+  const target3 = parseVector(params.get("target"));
+  if (camera3 !== null && target3 !== null) {
+    camera.position.set(...camera3);
+    controls.target.set(...target3);
+    camera.lookAt(controls.target);
+    controls.update();
+    describe();
+  }
   handle.stations = body.payload.observations.map((o) => o.id);
   handle.error = null;
   handle.ready = true;
+}
+
+/**
+ * "x,y,z" 문자열을 세 유한수로 읽는다. 형식이 다르면 null.
+ * @param {string | null} text
+ * @returns {[number, number, number] | null}
+ */
+function parseVector(text) {
+  if (text === null) return null;
+  const values = text.split(",").map(Number);
+  return values.length === 3 && values.every(Number.isFinite) ? /** @type {[number, number, number]} */ (values) : null;
 }
 
 /** @param {Payload} payload */
@@ -416,6 +439,33 @@ for (const input of [inspection, section, owners, supportsToggle, sectionOffset,
   input.addEventListener("change", applyInspection);
 }
 reset.addEventListener("click", () => selectStation(station?.id ?? "exterior.setting"));
+reviewLoad.addEventListener("click", () => {
+  loadReview().catch((error) => { reviewOutput.textContent = `결산 실패: ${error instanceof Error ? error.message : String(error)}`; });
+});
+
+/** 자가검사와 같은 producer의 /review 결과를 텍스트로 보인다(색만으로 표시하지 않는다). */
+async function loadReview() {
+  reviewLoad.disabled = true;
+  reviewOutput.textContent = "현재 source를 재는 중입니다.";
+  try {
+    const response = await fetch("/review?grid=0.01", { cache: "no-store" });
+    if (!response.ok) throw new Error(await response.text());
+    /** @type {import("../review/review-payload.js").ReviewPayload} */
+    const review = await response.json();
+    const revision = review.revision === null ? "unverified" : `${review.revision.commit.slice(0, 8)}${review.revision.dirty ? " (dirty)" : ""}`;
+    const lines = [
+      `source ${review.basis} · revision ${revision}`,
+      `겹침 스캔: ${review.overlaps.solids} 실체, ${review.overlaps.grid} m 격자, ${review.overlaps.samples} 표본 → 겹친 쌍 ${review.overlaps.pairs.length}`,
+      `관찰 ${review.observations.count}(pose 없음 ${review.observations.withoutPose}), 실체 안 pose ${review.observations.buried.length}`,
+      `topology 결산 ${review.ledger.length}행, 계약 위반 ${review.ledger.filter((row) => row.findings.length > 0).length}행`,
+      ...review.ledger.map(({ account: a, contract, findings }) =>
+        `${findings.length > 0 ? "위반" : "충족"} ${a.id} [${contract}] 삼각형 ${a.triangles}, 틈 ${a.openEdges}, 비다양체 ${a.nonManifoldEdges}/${a.resolvedNonManifold}, 감김 ${a.windingErrors}, 성분 ${a.components}, 체적 ${a.volume.toFixed(3)}${findings.length > 0 ? ` — ${findings.join("; ")}` : ""}`),
+    ];
+    reviewOutput.textContent = lines.join("\n");
+  } finally {
+    reviewLoad.disabled = false;
+  }
+}
 controls.addEventListener("change", describe);
 canvas.addEventListener("keydown", (event) => {
   const offset = camera.position.clone().sub(controls.target);

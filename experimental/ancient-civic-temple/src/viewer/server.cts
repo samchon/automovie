@@ -2,33 +2,17 @@
  * 신전 뷰어의 CJS 서버. `/scene` 요청마다 production src 모듈 캐시를 비우고
  * 현재 source로 payload를 다시 만든다. 실패하면 500과 오류문을 돌려주며
  * 이전 성공 결과를 보여 주지 않는다. `/section?axis=x|z&offset=m`은 같은 방식으로
- * 현재 source의 정확한 연직 단면 조각을 돌려준다. 브라우저는 engine을 import하지 않는다.
+ * 현재 source의 정확한 연직 단면 조각을, `/review?grid=m`은 자가검사(npm run self-check)와 같은
+ * producer의 겹침 스캔·관찰 pose·topology 결산을 돌려준다. 브라우저는 engine을 import하지 않는다.
  * 실행: production 루트에서 `npm run viewer -- --port <포트>` (기본 4175).
  */
-import { createHash } from "node:crypto";
-import { readFile, readdir } from "node:fs/promises";
+import { readFile } from "node:fs/promises";
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import { dirname, resolve, sep } from "node:path";
 import { parseArgs } from "node:util";
 
 const productionRoot = resolve(__dirname, "../..");
 const sourceRoot = resolve(productionRoot, "src") + sep;
-
-/** 저작 입력 bytes의 해시. 관찰 기록의 source revision 식별자다. */
-const sourceBasis = async (): Promise<string> => {
-  const hash = createHash("sha256");
-  const visit = async (relative: string): Promise<void> => {
-    const entries = await readdir(resolve(productionRoot, relative), { withFileTypes: true });
-    for (const item of entries.sort((a, b) => a.name.localeCompare(b.name))) {
-      const child = `${relative}/${item.name}`;
-      if (item.isDirectory()) await visit(child);
-      else if (item.isFile()) hash.update(child).update(await readFile(resolve(productionRoot, child)));
-    }
-  };
-  for (const directory of ["src", "public", "docs/spaces", "docs/settings"]) await visit(directory);
-  for (const file of ["package.json", "lint.config.ts"]) hash.update(file).update(await readFile(resolve(productionRoot, file)));
-  return hash.digest("hex").slice(0, 16);
-};
 
 /** 서버 자신을 제외한 src 모듈 캐시를 비워 다음 require가 현재 source를 읽게 한다. */
 const clearSource = (): void => {
@@ -37,11 +21,21 @@ const clearSource = (): void => {
   }
 };
 
-/** 현재 source로 payload를 다시 만든다. */
-const freshPayload = (): unknown => {
+/** 현재 source로 payload와 그 source basis(자가검사와 같은 값)를 다시 만든다. */
+const freshPayload = (): { basis: string; payload: unknown } => {
   clearSource();
+  const basis = (require("../review/source-basis") as typeof import("../review/source-basis")).sourceBasis();
   const loaded = require("./payload") as typeof import("./payload");
-  return loaded.createViewerPayload();
+  return { basis, payload: loaded.createViewerPayload() };
+};
+
+/** 현재 source로 자가검사와 같은 측정 결과를 만든다. */
+const freshReview = (grid: string | null): unknown => {
+  const value = grid === null ? 0.01 : Number(grid);
+  if (!(value > 0)) throw new Error("grid는 양의 m 값이어야 합니다.");
+  clearSource();
+  const loaded = require("../review/review-payload") as typeof import("../review/review-payload");
+  return loaded.createReviewPayload(value);
 };
 
 /** 현재 source로 연직 단면(X 또는 Z 평면)의 정확한 조각과 지면선을 만든다. */
@@ -86,12 +80,20 @@ const main = async (): Promise<void> => {
       }
       return;
     }
+    if (path === "/review") {
+      try {
+        const review = freshReview(url.searchParams.get("grid"));
+        response.writeHead(200, { "Content-Type": "application/json; charset=utf-8" }).end(JSON.stringify(review));
+      } catch (error) {
+        response.writeHead(500, { "Content-Type": "text/plain; charset=utf-8" })
+          .end(error instanceof Error ? error.stack ?? error.message : String(error));
+      }
+      return;
+    }
     if (path === "/scene") {
       try {
-        const basis = await sourceBasis();
-        const payload = freshPayload();
         response.writeHead(200, { "Content-Type": "application/json; charset=utf-8" })
-          .end(JSON.stringify({ basis, payload }));
+          .end(JSON.stringify(freshPayload()));
       } catch (error) {
         response.writeHead(500, { "Content-Type": "text/plain; charset=utf-8" })
           .end(error instanceof Error ? error.stack ?? error.message : String(error));
