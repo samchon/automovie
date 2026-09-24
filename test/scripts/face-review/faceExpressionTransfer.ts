@@ -8,11 +8,12 @@
  * score of one. So each channel is calibrated once on the reference head,
  * `derive-face-documents.ts` rendering it through the product editor at
  * weights 0, 1/4, 1/2, 3/4 and 1 under a frontal camera and reading its own
- * score, and that increment curve is shared by every subject. A left/right
- * pair is rendered together (`faceExpressionCalibrationDocuments`), each side
- * reading its own score: the detector reads one side of a face against the
- * other, so a side acting alone reads weaker than the same side acting with
- * its partner, which is how a face moves and how the photographs show it. A subject's
+ * score, and that increment curve is shared by every subject. A unit with a
+ * partner on the other side is rendered with it (`faceExpressionPartner`,
+ * `faceExpressionCalibrationDocuments`), each reading its own score: the
+ * detector reads one side of a face against the other, so a side acting
+ * alone reads weaker than the same side acting with its partner, which is
+ * how a face moves and how the photographs show it. A subject's
  * photograph asks for the increment its score shows over the score the
  * subject's own identity reads at rest (the identity is solved first; a head
  * whose brows sit low reads as a lowered brow before any expression), and the
@@ -26,7 +27,7 @@
  * photograph, and a channel whose whole range is narrower than the variation
  * real faces show cannot receive a photograph's reading: every face would
  * saturate it, which is no measurement. Such a unit stays zero; a unit the
- * instrument cannot carry across is not guessed. Left and right units are
+ * instrument cannot carry across is not guessed. A unit and its partner are
  * judged as one pair on their mean span and spread, so the identity's
  * expression is never lateralised by the test itself. An increment
  * beyond the curve's end is held at weight one and reported, and a negative
@@ -99,8 +100,9 @@ export function transferFaceExpression(props: {
 
 /**
  * The channels whose calibrated span reaches the spread of the photographs'
- * scores (see `transferFaceExpression`); a `...Left`/`...Right` pair is
- * judged on its mean span and mean spread and passes or fails together.
+ * scores (see `transferFaceExpression`); a channel and its partner
+ * (`faceExpressionPartner`) are judged on their mean span and mean spread
+ * and pass or fail together.
  */
 export function faceExpressionObservable(
   calibration: Readonly<Record<string, IFaceExpressionCalibration>>,
@@ -124,16 +126,9 @@ export function faceExpressionObservable(
       )
     );
   };
-  const partner = (channel: string): string | null => {
-    const other = channel.endsWith("Left")
-      ? channel.replace(/Left$/u, "Right")
-      : channel.endsWith("Right")
-        ? channel.replace(/Right$/u, "Left")
-        : null;
-    return other !== null && other in calibration ? other : null;
-  };
-  return Object.keys(calibration).filter((channel) => {
-    const pair = [channel, partner(channel)].filter(
+  const channels = Object.keys(calibration);
+  return channels.filter((channel) => {
+    const pair = [channel, faceExpressionPartner(channel, channels)].filter(
       (one): one is string => one !== null,
     );
     const mean = (f: (one: string) => number) =>
@@ -145,9 +140,9 @@ export function faceExpressionObservable(
 /**
  * The calibration documents of the reference head: `cal-rest` with no
  * expression, and for every expression channel one document per weight,
- * `cal-<channel>-<percent>`, setting the channel and, when it is one side of
- * a `...Left`/`...Right` pair the basis has, its partner at the same weight
- * (see `transferFaceExpression`).
+ * `cal-<channel>-<percent>`, setting the channel and, when it has one
+ * (`faceExpressionPartner`), its partner at the same weight (see
+ * `transferFaceExpression`).
  */
 export function faceExpressionCalibrationDocuments(props: {
   basis: string;
@@ -167,21 +162,13 @@ export function faceExpressionCalibrationDocuments(props: {
     shape: {},
     expression,
   });
-  const partner = (channel: string): string | null => {
-    const other = channel.endsWith("Left")
-      ? channel.replace(/Left$/u, "Right")
-      : channel.endsWith("Right")
-        ? channel.replace(/Right$/u, "Left")
-        : null;
-    return other !== null && props.channels.includes(other) ? other : null;
-  };
   return [
     document("cal-rest", {}),
     ...props.channels.flatMap((channel) =>
       props.weights.map((weight) => {
         if (!(weight > 0 && weight <= 1))
           throw new Error("A calibration weight lies in (0, 1].");
-        const other = partner(channel);
+        const other = faceExpressionPartner(channel, props.channels);
         return document(
           `cal-${channel}-${String(Math.round(weight * 100)).padStart(3, "0")}`,
           {
@@ -192,4 +179,28 @@ export function faceExpressionCalibrationDocuments(props: {
       }),
     ),
   ];
+}
+
+/**
+ * The unit a face moves together with `channel` on the other side, among
+ * `channels`, by the ARKit face-unit names the basis uses: the same muscle
+ * on the other side (`mouthSmileLeft` with `mouthSmileRight`), and for the
+ * eyes the conjugate gaze, since both eyes turn one way (`eyeLookInLeft` with
+ * `eyeLookOutRight`; up and down pair by side). `mouthLeft`, `mouthRight`,
+ * `jawLeft` and `jawRight` name directions of one midline part, not sides,
+ * so they have none, nor does a unit whose partner the basis lacks.
+ */
+export function faceExpressionPartner(
+  channel: string,
+  channels: readonly string[],
+): string | null {
+  const match = /^(.+?)(Left|Right)$/u.exec(channel);
+  if (match === null || match[1] === "mouth" || match[1] === "jaw") return null;
+  const side = match[2] === "Left" ? "Right" : "Left";
+  const gaze = /^eyeLook(In|Out)$/u.exec(match[1]!);
+  const other =
+    gaze === null
+      ? `${match[1]}${side}`
+      : `eyeLook${gaze[1] === "In" ? "Out" : "In"}${side}`;
+  return channels.includes(other) ? other : null;
 }

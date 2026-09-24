@@ -3,6 +3,7 @@ import { TestValidator } from "@nestia/e2e";
 import {
   faceExpressionCalibrationDocuments,
   faceExpressionObservable,
+  faceExpressionPartner,
   transferFaceExpression,
 } from "../../../scripts/face-review/faceExpressionTransfer";
 import { nclose, throwsError } from "../internal/predicates";
@@ -25,6 +26,9 @@ import { nclose, throwsError } from "../internal/predicates";
  *    one document setting the channel and its left/right partner together;
  *    an unpaired channel, and a side whose partner the basis lacks, alone;
  *    a weight outside (0, 1] refuses.
+ * 7. Partners: the same unit on the other side, the conjugate gaze for the
+ *    eyes' in and out (up and down by side), none for the directional mouth
+ *    and jaw units or a partner the channels lack.
  */
 export const test_subject_face_expression_transfer = (): void => {
   const calibration = {
@@ -117,6 +121,36 @@ export const test_subject_face_expression_transfer = (): void => {
       ["cal-jaw-100-connected", { jaw: 1 }],
       ["cal-lidLeft-050-connected", { lidLeft: 0.5 }],
       ["cal-lidLeft-100-connected", { lidLeft: 1 }],
+    ],
+  );
+  const units = [
+    "mouthSmileLeft",
+    "mouthSmileRight",
+    "eyeLookInLeft",
+    "eyeLookOutRight",
+    "eyeLookUpLeft",
+    "eyeLookUpRight",
+    "mouthLeft",
+    "mouthRight",
+    "jawLeft",
+    "jawRight",
+    "browDownLeft",
+  ];
+  TestValidator.equals(
+    "partners",
+    units.map((one) => faceExpressionPartner(one, units)),
+    [
+      "mouthSmileRight",
+      "mouthSmileLeft",
+      "eyeLookOutRight",
+      "eyeLookInLeft",
+      "eyeLookUpRight",
+      "eyeLookUpLeft",
+      null,
+      null,
+      null,
+      null,
+      null,
     ],
   );
   TestValidator.predicate(
