@@ -10,10 +10,10 @@
 <!--
 @evidence principles/core/common.md#declared-basis 본채와 표면 분해 선언을 받아 외피를 네 입면과 지붕으로 나누고 datum에서 두께와 층선을 받는다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 외피의 소유 배정은 settings의 surface-decomposition, 두께와 층선은 mass-and-storeys로 거슬러 올라간다. 추가된 관찰면 O는 별도 외곽 치수가 아니라 C와 d에서 O=C+(d/2)N으로 도출되고, 좌표 허용오차와 법선 검사는 이 단위의 저작 선택으로 명시되어 있다. 중심면을 옮긴 수치를 측량 근거로 주장하는 문장은 없다.
-@evidence principles/core/common.md#scope-preservation 외벽·개구·틀·shade·return을 각 완결 표면의 범위에 남기고 실내 floor/ceiling 책임도 연결한다.
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 다섯 외피 owner의 포함 범위에 개구·틀·shade·return·마감이 남아 있고, 내부 구조 wall과 floor/ceiling은 층, 외벽 내측 마감은 방으로 연결되어 있다. 가장 빠지기 쉬운 외부 모서리와 층간 band도 각각 envelope-corners와 같은 입면의 책임으로 지정되어 있어 개구부 H2를 새 작성자로 오인해 접합면을 누락할 여지가 없다.
-@evidence principles/core/common.md#substantive-completion 입면·층·방의 접합 책임과 외부 boundary의 enclosing house를 지정하여 외피에 이중 소유나 무소유 면을 남기지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 소유자 이름만 열거하지 않고 전체 외부 face의 enclosing space를 house로 결정하며, opening의 room/storey 대응과 실내 최종 면의 중복 금지를 별도로 정했다. 관찰 경계 보정에서도 O만 바꾸고 cut·문 힌지·lining·connector는 C를 소비하도록 결정했으므로 구현자가 경계 보정을 실제 창과 문의 이동으로 해석할 필요가 없다. 이 공간 인터페이스의 완결성을 새 geometry의 실행 성공과 구분한다.
+@evidence principles/core/common.md#scope-preservation 외벽·개구·틀·shade·return을 각 완결 표면의 범위에 남기고, 입면 아래 plinth와 위의 지붕 구조, 계단 void 앞 외벽 실내 면의 owner까지 정해 실내 floor/ceiling 책임과 연결한다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 다섯 외피 owner의 포함 범위에 개구·틀·shade·return·마감이 남아 있고, 내부 구조 wall과 floor/ceiling은 층, 외벽 내측 마감은 방으로 연결되어 있다. 외부 모서리와 층간 band는 envelope-corners와 같은 입면에, 입면 아래 지면 -0.45..0의 외곽 면은 1층 owner의 plinth에, upper ceiling 위는 roof owner에, 방이 없는 계단 void 앞 외벽 실내 면은 전면 입면 owner에 배정되어 입면 위아래와 void 쪽 접합면을 누락할 여지가 없다.
+@evidence principles/core/common.md#substantive-completion 입면·층·방의 접합 책임, 입면 아래 plinth와 지면의 접합, 외부 boundary의 enclosing house를 지정하여 외피에 이중 소유나 무소유 면을 남기지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 소유자 이름만 열거하지 않고 전체 외부 face의 enclosing space를 house로 결정하며, opening의 room/storey 대응과 실내 최종 면의 중복 금지를 별도로 정했다. 입면 범위 밖의 아래 외곽 면은 지면 y=-0.45에 닿는 1층 owner의 plinth로, 위는 roof owner의 구조로 닫아 지면과의 틈이나 무소유 면을 남기지 않는다. 관찰 경계 보정에서도 O만 바꾸고 cut·문 힌지·lining·connector는 C를 소비하도록 결정했으므로 구현자가 경계 보정을 실제 창과 문의 이동으로 해석할 필요가 없다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 단독 표면 소유를 실제 외피의 다섯 face와 내외 마감 및 corner 접합의 공간 관계로 전개한다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 표면 분해 선언은 작성자·파일과 최종 면을 배정하고 mass-and-storeys는 외곽 datum을 준다. 이 자식은 그 배정에 없던 전체 face의 house 귀속, 개구별 room 대조, C와 O를 구분한 관찰 경계를 결정한다. 작성자 표를 옮겨 적는 데 그치지 않고 외부 경계가 어떤 공간을 둘러싸는지와 절삭 위치를 보존하는 방법을 추가했다.
 @evidence principles/design/spaces.md#space-topology 외부 전체 face는 house를 둘러싸고 개별 room/storey의 창 대응은 opening과 cell 위치에서 판정한다.
@@ -264,11 +264,11 @@ roof owner는 거터 상부를 덮는 우측 끝 cassette를 먼저 분리한다
 
 <!--
 @evidence principles/core/common.md#declared-basis 외부 고정창의0.04m frame face·0.14m 깊이와 최대1.25m bay는 실물 점유를 정하는 저작값으로 구분한다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 0.04m 면 폭·0.14m 깊이·1.25m 최대 bay는 이 단위의 저작 입력이고 각 창의 span·sill·head는 opening owner에서 받는다. 루버의 F·k·p·H(j)는 그 sill과 기존 반투명 띠에서 도출되며 reference04는 부재 형식만 뒷받침한다. 21.801°를 사진에서 측정한 각도나 시험 성능으로 쓰지 않아 형식 근거와 선택 치수의 출처가 섞이지 않는다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 0.04m 면 폭·0.14m 깊이·1.25m 최대 bay는 이 단위의 저작 입력이고 각 창의 span·sill·head는 opening owner에서 받는다. 루버의 F·k·p·H(j)는 그 sill과 기존 반투명 띠에서 도출한 저작 선택이며, 본문은 다섯 레퍼런스의 창에 외부 루버가 없고 reference04의 가로 슬랫이 식재대 너머의 정원 펜스라고 밝혀 형식 근거를 레퍼런스에 두지 않는다. 21.801°는 atan(0.40)이며 사진에서 잰 각도나 시험 성능이 아니다.
 @evidence principles/core/common.md#scope-preservation 유리·jamb·head·sill·mullion·reveal과 하부 고정 루버를 별도 점유로 남기고 기존 roller가 움직일 공간을 보존한다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 pane·frame·reveal뿐 아니라 setting block, gasket 모서리, spandrel의 slot·clip·seal, 루버의 끝판·arm·체결·인출 공간까지 이 창호 인터페이스에 포함한다. 고정 루버를 더해도 기존 roller와 욕실의 반투명 층을 지우지 않으며 전체 입면 owner와 실내 lining owner의 경계를 유지한다. 차양의 지지나 교체 공간을 이름뿐인 후속 과제로 빼지 않았다.
-@evidence principles/core/common.md#substantive-completion effective span과 panel clear, frame 확장 cut, 반복 분할에 더해 루버의 경사·브래킷·체결·배수·인출 여유를 같은 창호 단면에서 정했다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 단면 표는 web과 유리 사이 0.004m 여유를 setting block의 지지와 함께 정하고, band는 기존 drip의 3.25..3.28을 빼도록 결정한다. 루버도 날개 경사, 두 종류 공구 축, 긴 고정 몸체를 먼저 뽑는 교체 순서를 제공한다. 따라서 구현자가 빈 접합·배수·해체 순서를 다시 설계할 필요는 없으며, 해당 수치의 실제 충돌 및 시각 확인은 미구현 결과로 별도 남아 있다.
+@evidence principles/core/common.md#substantive-completion effective span과 panel clear, frame 확장 cut, 반복 분할에 더해 루버의 경사·브래킷·체결·배수·인출 여유와 현관 접근 구역 위 bay의 제외를 같은 창호 단면에서 정했다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 단면 표는 web과 유리 사이 0.004m 여유를 setting block의 지지와 함께 정하고, band는 drip의 3.25..3.28을 빼며 drip 안쪽 끝을 몸체 안 n=-0.110에 둔다. 루버는 날개 경사, 두 종류 공구 축, 긴 고정 몸체를 먼저 뽑는 교체 순서를 주고, 낙수가 현관 접근 구역 x=1.30..2.90과 겹치는 bay를 빼는 규칙과 그 bay의 사생활 대안을 정한다. 따라서 구현자가 빈 접합·배수·해체 순서를 다시 설계할 필요가 없고, 실제 충돌은 source의 compiled bounds에서 따로 읽는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation curtainwall 요구를 실제 frame 점유와 room/floor 우선 분할을 갖는 반복 공간 규칙으로 구체화한다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 privacy-states는 고정 차양과 가변 roller의 역할을 정하지만 날개 단면이나 지지는 주지 않고, opening owner는 유효 span만 정한다. 이 단위는 우선 경계 사이 ceil 반복, 유리 안착·return의 끝, 고정 루버와 roller 사이 간격을 추가해 그 부모 입력을 조립 가능한 공간 점유로 만든다. 부모의 낮·사적·야간 목록을 늘여 쓰는 것으로 끝나지 않는다.
 @evidence principles/design/spaces.md#space-topology 창의 cut은 host 두께를 관통하지만 고정 유리로 채워지며 방 사이 경계를 가로지르는 panel을 허용하지 않는다.

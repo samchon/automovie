@@ -15,8 +15,8 @@ import { stair } from "../house/circulation/stair";
  * @evidenceReview obligations/design/space-sources.md#space-source-design-ownership #c0afa1f 구조 조립은 designPlan의 방·층·개구 주소를 받아 사용하며 검증 편의를 위한 독립 공간 그래프를 만들지 않는다.
  * @evidence spaces/002-spatial-graph.md#mass-and-storeys 11×12 외곽, 외벽0.24, 내벽0.18, floor0/3.20, ceiling2.90/6.10을 plan에서 공유한다. gross와 clear cell 면적은 구분하며 audit가 각 방 cell 면적을 산출한다.
  * @evidenceReview spaces/002-spatial-graph.md#mass-and-storeys #53ac292 11×12m 외곽과 3.20m 상층 datum을 하나의 house에 조립하여 면적 목표를 별동이나 추가 층으로 보충하지 않는다.
- * @evidence spaces/002-spatial-graph.md#ground-level ground는 기초·마감 바닥·천장·partition을 생성한다. 다섯 하층 room의 parent가 ground-storey인지 audit에서 확인한다.
- * @evidenceReview spaces/002-spatial-graph.md#ground-level #16fe591 ground-level이 1층 room들의 부모이고 y=0 바닥이 외부 landing 및 첫 계단 단과 같은 높이를 소비한다.
+ * @evidence spaces/002-spatial-graph.md#ground-level ground는 y=-0.60..-0.016의 기초와 외벽 아래 bearing ring, 마감 바닥·천장·partition을 생성한다. 기초가 지면 -0.45보다 깊어 plinth 외면이 지면에 닿고, 다섯 하층 room의 parent는 ground-storey다.
+ * @evidenceReview spaces/002-spatial-graph.md#ground-level #f2612d1 ground.ts가 foundationBottom=-0.60부터 slabTop(0)까지 외곽 전체 기초를 만들고 exteriorWallZone마다 -0.016..0 ring을 두는 것을 읽었다. compiled scene에서 ground-foundation-0이 x=-5.50..5.50, y=-0.60..-0.016, z=-6.00..6.00이고, 이전에 요소가 0개이던 외곽 아래 x=-5.49..5.49, y=-0.44..-0.31 구간을 그 기초가 채운다. 대지 지면은 외곽 밖에서 끝나 plinth에 닿는다. y=0 바닥이 외부 landing 및 첫 계단 단과 같은 높이라는 기존 관계는 그대로다.
  * @evidence spaces/002-spatial-graph.md#upper-level upper는 계단 hole을 제외한 slab과 방별 연속 바닥을 생성한다. 일곱 상층 room이 upper-storey에 속하고 그 cell 꼭짓점은 부모 포함 판정을 받는다.
  * @evidenceReview spaces/002-spatial-graph.md#upper-level #f24bb63 upper-level의 y=3.20 바닥과 y=6.10 천장이 침실·욕실·복도에 공통으로 적용된다.
  * @evidence spaces/002-spatial-graph.md#ground-partition 다섯 room의 clear cell에서 마주보는 face segment를 찾아 공유 벽을 생성한다. 현관–작업실·powder·공용부와 공용부–수납 연결은 해당 portals에만 존재한다.
