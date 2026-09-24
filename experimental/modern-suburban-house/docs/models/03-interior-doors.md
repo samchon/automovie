@@ -49,7 +49,7 @@
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work room owner들의 경첩·열림을 적힌 그대로 소비했고 수정할 부모 결함이 없었다.
 -->
 
-레퍼런스 04·05는 흰 패널문과 둥근 검은 손잡이의 실내 인상을 채택한다. 문 높이와 회전 범위는 각 개구부 예약에서 정한다. 이 채택은 아래 원형의 시각적 읽힘만 정하며 외곽·동선의 owner를 바꾸지 않는다.
+레퍼런스 05의 열린 방문은 여닫이 부재로 채택한다. 어느 각도에서 멈췄는지는 사진에서 측정하지 않고 방별 회전 예약을 따른다.
 
 `hinge-pivot`은 경첩 쪽 문설주 안쪽 모서리와 열림 쪽 벽면이 만나는 수직선이며 motion이 쓸 수 있는 유일한 인터페이스는 이 축의 회전이다. 범위는 0부터 π/2 rad까지이고 [settings 개구부](../settings/10-house.md#openings)가 문을 기준 상태에서 통행이 읽히게 연다고 정하므로 기준 상태는 π/2 rad 열림이다. 경첩 쪽과 열림 방향은 각 room owner를 그대로 받는다. [entry-living-door](../spaces/rooms/living.md#living-plan)는 -Z 문설주에서 거실 쪽 -X, [service-powder-door](../spaces/rooms/powder.md#powder-plan)는 -Z 문설주에서 +X, [service-laundry-door와 laundry-garage-door](../spaces/rooms/laundry.md#laundry-plan)는 둘 다 -Z 문설주에서 머드룸 안쪽, [service-pantry-door](../spaces/rooms/pantry.md#pantry-plan)는 +Z 문설주에서 +X, [hall-bedroom-two-door](../spaces/rooms/bedroom-two.md#bedroom-two-plan)는 +X 문설주에서 +Z, [hall-bedroom-three-door](../spaces/rooms/bedroom-three.md#bedroom-three-plan)는 -Z 문설주에서 +X, [hall-primary-door](../spaces/rooms/primary.md#primary-plan)와 [hall-shower-door](../spaces/rooms/shower-bath.md#shower-bath-plan)는 -X 문설주에서 -Z, [hall-tub-door](../spaces/rooms/tub-bath.md#tub-bath-plan)는 +Z 문설주에서 +X, [primary-wardrobe-door](../spaces/rooms/wardrobe.md#primary-wardrobe-plan)는 -Z 문설주에서 -X로 연다.
 
@@ -69,7 +69,7 @@
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 00의 이름 규칙과 방 owner의 양쪽 마감 배정을 실내 문 -a/-b 분리에 그대로 소비했고 부모 수정이 없었다.
 -->
 
-레퍼런스 04·05는 흰 패널문과 둥근 검은 손잡이의 실내 인상을 채택한다. 문 높이와 회전 범위는 각 개구부 예약에서 정한다. 이 채택은 아래 원형의 시각적 읽힘만 정하며 외곽·동선의 owner를 바꾸지 않는다.
+레퍼런스 04·05의 흰 문짝, 챌면, 검은 손잡이가 따로 읽히므로 그 면들을 분리한다. 나무결 사진을 표면으로 붙이지 않는다.
 
 안정 표면 id는 [이름 규칙](00-model-frame.md#model-surface-partition-naming)의 `jamb`, `casing`, `leaf`, `leaf-panel`, `handle`, `hinge`에서 파생한다. 문이 열리는 쪽 방을 A, 반대쪽을 B로 두고 양쪽 벽면에 각각 닿는 문설주 바깥 면은 `jamb-a`·`jamb-b`, 그 사이 개구부 안쪽 두 옆과 머리 챌면은 `jamb-core`다. A·B 쪽 별도 문선의 앞뒤·절단 끝 전체는 각각 `casing-a`·`casing-b`다. 문짝의 두 넓은 면과 위아래·양옆 두께 면은 모두 `leaf`, 오목 패널의 바닥과 네 챌면은 `leaf-panel`, 철물은 `handle`·`hinge`다. 한 완결 면에 id 둘을 겹치지 않는다. 문짝과 문선의 UV는 각 판 왼쪽 아래를 원점으로 국소 X 폭·Y 높이를 미터 단위로, 절단 끝은 길이 방향 U·두께 V로 새로 투영한다. 소스 owner는 `src/models/interior-door.ts`다.
 
@@ -88,6 +88,6 @@
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work laundry의 문턱 datum을 그대로 소비했고 부모 수정이 없었다.
 -->
 
-레퍼런스 04·05는 흰 패널문과 둥근 검은 손잡이의 실내 인상을 채택한다. 문 높이와 회전 범위는 각 개구부 예약에서 정한다. 이 채택은 아래 원형의 시각적 읽힘만 정하며 외곽·동선의 owner를 바꾸지 않는다.
+레퍼런스 05의 문짝 패널과 손잡이까지만 형상 목표로 채택한다. 문 속 심재·힌지 나사·도어클로저는 보이는 기능을 늘리지 않아 제외한다.
 
 [표현 상한](00-model-frame.md#model-representation-ceiling) 안에서 경첩은 눈에 보이는 두 개의 원통 knuckle로만 만들고 걸쇠·잠금·문 닫힘 장치는 만들지 않는다. 문턱은 실내 문에 두지 않으며 차고 쪽 0.15 m 단차는 [세탁실 owner](../spaces/rooms/laundry.md#laundry-plan)가 받은 문턱 datum으로 바닥이 해결한다. 검사 주소는 [모델 리뷰 뷰 목록](00-model-frame.md#model-review-set)과 각 방 threshold 관찰이며 실제 렌더는 unverified다.

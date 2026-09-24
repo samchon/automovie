@@ -24,7 +24,7 @@
 @evidence obligations/design/models.md#articulation-ownership 시트 덮개의 뒤쪽 가로 경첩 피벗 `seat-lid`만 motion 인터페이스로 남기고, 방 문서가 여닫는 사용을 예약하지 않으므로 기준 상태를 닫힘으로 둔다.
 -->
 
-레퍼런스 05·02는 상층 욕실의 도기·유리·수건 구성을 채택한다. 배관 성능을 사진에서 추론하지 않고 형상은 본문 치수로 정한다. 이 채택은 아래 원형의 시각적 읽힘만 정하며 외곽·동선의 owner를 바꾸지 않는다.
+레퍼런스 02의 상층 욕실 위생도기와 05의 샤워 욕실 가장자리를 변기 계열로 채택한다. 배관 위치는 사진에서 추론하지 않는다.
 
 변기는 [파우더룸](../settings/10-house.md#powder), [샤워 욕실](../settings/10-house.md#shower-bathroom), [욕조 욕실](../settings/10-house.md#tub-bathroom) 설정이 요구하는 변기를 세 방에 쓰는 한 원형이다. [파우더룸 예약](../spaces/rooms/powder.md#powder-fixture-use) X = [4.75, 5.50], Z = [-1.65, -0.95]와 [욕조 욕실 예약](../spaces/rooms/tub-bath.md#tub-fixture-use) X = [4.75, 5.50], Z = [-6.65, -5.95]는 전면 -X, 깊이 0.75 m, 폭 0.70 m다. [샤워 욕실 예약](../spaces/rooms/shower-bath.md#shower-fixture-use) X = [2.32, 2.97], Z = [-8.80, -8.05]는 전면 +Z, 깊이 0.75 m, 폭 0.65 m다. 세 곳 모두 좌면 0.43 m·최대 높이 0.82 m다. 그러므로 외곽은 깊이 0.75 m, 높이 0.82 m, 폭은 가장 좁은 0.65 m 안의 0.50 m로 정한다. 폭 0.50 m는 물탱크 폭이며 세 예약 모두에 양옆 0.075 m 이상의 여유를 남기려는 이 층의 결정이다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르며 +Z가 앉는 정면이며 공통 좌표 규칙은 [모델 국소 좌표](00-model-frame.md#model-local-frame)를 따른다.
 
@@ -54,7 +54,7 @@
 @evidence settings/10-house.md#tub-bathroom 욕조 욕실 설정의 세면대를 W = 0.85 m, D = 0.55 m 매개변수로 제공하되 설정이 말한 회갈색은 이 H2가 정하지 않고 표면 id `carcass`, `leaf`로만 남긴다.
 -->
 
-레퍼런스 05·02는 상층 욕실의 도기·유리·수건 구성을 채택한다. 배관 성능을 사진에서 추론하지 않고 형상은 본문 치수로 정한다. 이 채택은 아래 원형의 시각적 읽힘만 정하며 외곽·동선의 owner를 바꾸지 않는다.
+레퍼런스 02의 욕실 세면장과 05의 샤워 욕실 문 너머 세면 구역을 채택한다. 방마다 다른 폭은 예약에서 받는다.
 
 세면장은 폭 W와 깊이 D를 받는 한 원형이며 상면은 세 곳 모두 0.85 m다. [파우더룸](../spaces/rooms/powder.md#powder-fixture-use) X = [3.65, 4.25], Z = [-0.70, -0.25]는 W = 0.60 m, D = 0.45 m, 전면 -Z다. [샤워 욕실](../spaces/rooms/shower-bath.md#shower-fixture-use) X = [2.52, 3.07], Z = [-6.80, -6.10]은 W = 0.70 m, D = 0.55 m이고, [욕조 욕실](../spaces/rooms/tub-bath.md#tub-fixture-use) X = [4.95, 5.50], Z = [-5.75, -4.90]은 W = 0.85 m, D = 0.55 m이며 둘 다 전면 -X다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르며 +Z가 사용자가 서는 정면이다.
 
@@ -82,7 +82,7 @@
 @evidence settings/10-house.md#shower-bathroom 샤워 욕실 설정의 거울을 세면장 폭과 같은 W = 0.70 m 벽 거울 배치로 제공한다.
 -->
 
-레퍼런스 05·02는 상층 욕실의 도기·유리·수건 구성을 채택한다. 배관 성능을 사진에서 추론하지 않고 형상은 본문 치수로 정한다. 이 채택은 아래 원형의 시각적 읽힘만 정하며 외곽·동선의 owner를 바꾸지 않는다.
+레퍼런스 02의 욕실 거울은 세면장 위 직사각으로 채택한다. 반사 속 장면을 거울 텍스처로 붙이지 않는다.
 
 거울은 폭 W를 받는 한 원형이며 높이 0.80 m, 돌출 0.04 m다. [파우더룸 거울](../spaces/rooms/powder.md#powder-fixture-use) X = [3.65, 4.25], Z = [-0.29, -0.25], 높이 1.10–1.90 m는 W = 0.60 m이고, [욕조 욕실 거울](../spaces/rooms/tub-bath.md#tub-fixture-use) X = [5.46, 5.50], Z = [-5.75, -4.90], 상층 바닥 위 1.10–1.90 m는 W = 0.85 m이며, [샤워 욕실 거울](../spaces/rooms/shower-bath.md#shower-fixture-use) X = [3.03, 3.07], Z = [-6.80, -6.10], 상층 바닥 위 1.10–1.90 m는 세면장 폭과 같은 W = 0.70 m다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르되 벽걸이 원형이므로 원점을 벽면 위 거울 하단의 가로 중심 1.10 m에 둔다.
 
@@ -108,7 +108,7 @@
 @evidence settings/10-house.md#tub-bathroom 욕조 욕실 설정이 기능 표지로 든 수건을 W = 0.75 m 봉에 걸린 앞뒤 두 판으로 제공한다.
 -->
 
-레퍼런스 05·02는 상층 욕실의 도기·유리·수건 구성을 채택한다. 배관 성능을 사진에서 추론하지 않고 형상은 본문 치수로 정한다. 이 채택은 아래 원형의 시각적 읽힘만 정하며 외곽·동선의 owner를 바꾸지 않는다.
+레퍼런스 02·05의 욕실 직물 소품을 수건걸이에 걸린 수건으로 채택한다. 주름과 문양은 원형 형상에서 제외한다.
 
 수건걸이는 폭 W와 높이 H를 받는 한 원형이며 걸린 수건까지 돌출 0.08 m 안에 담는다. [파우더룸](../spaces/rooms/powder.md#powder-fixture-use) X = [4.40, 4.90], 높이 1.20–1.50 m는 W = 0.50 m, H = 0.30 m이고, [샤워 욕실](../spaces/rooms/shower-bath.md#shower-fixture-use) X = [2.20, 2.45], 상층 바닥 위 1.10–1.50 m는 W = 0.25 m, H = 0.40 m이며, [욕조 욕실](../spaces/rooms/tub-bath.md#tub-fixture-use) Z = [-6.85, -6.10], 상층 바닥 위 1.10–1.50 m는 W = 0.75 m, H = 0.40 m다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르되 벽걸이 원형이므로 원점을 벽면 위 예약 하단의 가로 중심에 둔다.
 
@@ -132,7 +132,7 @@
 @evidence obligations/design/models.md#articulation-ownership 앞면 세 유리의 피벗 `panel-1`, `panel-2`, `panel-3`가 로컬 +X로 미끄러져 오른쪽 끝에 한 장 폭으로 포개지는 motion 인터페이스이고, 오른쪽 유리는 고정 유리로 둔다.
 -->
 
-레퍼런스 05·02는 상층 욕실의 도기·유리·수건 구성을 채택한다. 배관 성능을 사진에서 추론하지 않고 형상은 본문 치수로 정한다. 이 채택은 아래 원형의 시각적 읽힘만 정하며 외곽·동선의 owner를 바꾸지 않는다.
+레퍼런스 02의 상층 유리 샤워부스를 채택한다. 레퍼런스 05는 내부를 부분만 보여 주므로 문 패널 수의 근거로 쓰지 않는다.
 
 샤워부스는 [샤워 욕실 예약](../spaces/rooms/shower-bath.md#shower-fixture-use)의 X = [0.90, 2.15], Z = [-8.80, -7.70], 상층 바닥 위 2.10 m를 외곽으로 받아 폭 1.25 m, 깊이 1.10 m, 높이 2.10 m다. 방 왼쪽 벽과 뒤쪽 벽이 두 면을 이루므로 원형은 앞면과 오른쪽 면만 만든다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르며 yaw 0이므로 로컬 +Z는 world +Z, 로컬 +X는 world +X다.
 
@@ -156,7 +156,7 @@
 @evidence settings/10-house.md#tub-bathroom 욕조 욕실 설정의 욕조 겸 샤워와 욕조 가장자리·샤워 수전을 폭 0.06 m 테, 뒤쪽 끝 수전, 바닥 위 1.90 m까지 오르는 샤워 기둥과 헤드로 제공한다.
 -->
 
-레퍼런스 05·02는 상층 욕실의 도기·유리·수건 구성을 채택한다. 배관 성능을 사진에서 추론하지 않고 형상은 본문 치수로 정한다. 이 채택은 아래 원형의 시각적 읽힘만 정하며 외곽·동선의 owner를 바꾸지 않는다.
+레퍼런스 02의 별도 욕조 욕실 안 흰 욕조를 채택한다. 물과 배수 작동은 사진의 밝은 표면에서 추론하지 않는다.
 
 욕조는 [욕조 욕실 예약](../spaces/rooms/tub-bath.md#tub-fixture-use)의 X = [4.70, 5.50], Z = [-8.70, -6.90], 상층 바닥 위 가장자리 0.55 m를 외곽으로 받아 폭 0.80 m, 길이 1.80 m, 높이 0.55 m다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르며 +Z는 앞치마 면이다. 배치 yaw는 -π/2이고 이때 로컬 +Z는 world -X, 로컬 +X는 world +Z이므로 수전이 있는 뒤쪽 끝(world -Z)은 로컬 -X 끝이다.
 
@@ -182,7 +182,7 @@
 @evidence obligations/design/models.md#model-representation-completion 욕조 커튼의 레일·매달림 봉·커튼 층, 기준 치수 1.80 m·2.05 m, `curtain-open` 인터페이스, 표면 `rail`·`rod`·`curtain`, unverified 관찰 owner를 적는다. 뒤따르는 욕실 매트와 벽감 병도 이 파일의 별도 원형으로 계정에 포함한다.
 -->
 
-레퍼런스 05·02는 상층 욕실의 도기·유리·수건 구성을 채택한다. 배관 성능을 사진에서 추론하지 않고 형상은 본문 치수로 정한다. 이 채택은 아래 원형의 시각적 읽힘만 정하며 외곽·동선의 owner를 바꾸지 않는다.
+레퍼런스 02의 욕조 옆 가림막을 커튼·레일로 채택한다. 실제 펼침과 걷힘은 방의 사용 예약에 맞는 관절 범위로 정한다.
 
 커튼 레일은 [방 문서](../spaces/rooms/tub-bath.md#tub-fixture-use)가 예약한 욕조 앞면에서 물 쪽으로 0.04 m 들어간 선을 따라 욕조 길이 1.80 m 전체에 놓인다. [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)의 예외로 선형 부재이므로 원점을 뒤쪽 벽에 닿는 레일 끝의 높이 2.05 m 점에 두고 +Z를 레일 방향으로 둔다. 배치 yaw는 욕조의 긴 축과 맞추되 world 좌표는 방 owner에게서 계산한다. 레일은 지름 0.025 m, 길이 1.80 m이며 앞쪽 끝은 천장까지 내려오는 지름 0.02 m 매달림 봉으로 받친다. 천장 높이는 방 owner에서 받는다.
 

@@ -23,7 +23,7 @@
 @evidence obligations/design/models.md#reference-scale 매트리스 상면 H를 주침실 0.60 m, 작은 침실 0.55 m로 방 예약에서 받아 매트리스 Y = [0.30, H − 0.03]과 덮개 0.03 m가 그 높이에 맞도록 부품 치수를 유도한다.
 -->
 
-레퍼런스 05·02는 상층 복도에서 보이는 침실·옷방의 생활 규모를 채택한다. 침대와 수납의 외곽은 각 방 예약을 받는다. 이 채택은 아래 원형의 시각적 읽힘만 정하며 외곽·동선의 owner를 바꾸지 않는다.
+레퍼런스 05의 주침실 침대와 02의 작은 침실 두 침대를 같은 머리판 계열로 채택한다. 세 크기는 각 방 예약에서 받는다.
 
 침대는 폭 W, 길이 L, 매트리스 상면 H, 머리판 상단 B를 받는 한 원형이다. [주침실 예약](../spaces/rooms/primary.md#primary-furniture-use) X = [-1.50, 0.65], Z = [-8.65, -7.05]는 L = 2.15 m, W = 1.60 m, H = 0.60 m, B = 1.00 m이고 머리가 +X다. [둘째 침실](../spaces/rooms/bedroom-two.md#bedroom-two-furniture-use) X = [-5.25, -4.10], Z = [-4.50, -2.35]와 [셋째 침실](../spaces/rooms/bedroom-three.md#bedroom-three-furniture-use) X = [-0.25, 0.90], Z = [-3.10, -0.95]는 L = 2.15 m, W = 1.15 m, H = 0.55 m, B = 0.95 m이고 머리가 -Z다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르며 +Z가 발끝 방향이며 높이는 상층 완성 바닥 기준이다.
 
@@ -51,7 +51,7 @@
 @evidence spaces/rooms/bedroom-three.md#bedroom-three-furniture-use 셋째 침실 협탁 예약 X = [1.05, 1.50], Z = [-3.10, -2.65]를 S 0.45 m, U 1.05 m로 소비한다.
 -->
 
-레퍼런스 05·02는 상층 복도에서 보이는 침실·옷방의 생활 규모를 채택한다. 침대와 수납의 외곽은 각 방 예약을 받는다. 이 채택은 아래 원형의 시각적 읽힘만 정하며 외곽·동선의 owner를 바꾸지 않는다.
+레퍼런스 02의 침대 옆 협탁과 작은 조명을 채택한다. 레퍼런스 05에서 보이지 않는 램프 갓 치수는 예약 높이로 정한다.
 
 협탁은 정사각 폭 S, 상면 T, 등 상단 U를 받는 한 원형이다. [주침실의 두 협탁](../spaces/rooms/primary.md#primary-furniture-use) X = [0.15, 0.65], Z = [-9.15, -8.65]와 Z = [-7.05, -6.55]는 S = 0.50 m, T = 0.55 m, U = 1.10 m다. [둘째 침실](../spaces/rooms/bedroom-two.md#bedroom-two-furniture-use) X = [-3.95, -3.50], Z = [-4.50, -4.05]와 [셋째 침실](../spaces/rooms/bedroom-three.md#bedroom-three-furniture-use) X = [1.05, 1.50], Z = [-3.10, -2.65]는 S = 0.45 m, T = 0.50 m, U = 1.05 m다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르며 +Z가 서랍 정면이다.
 
@@ -74,7 +74,7 @@
 @evidence obligations/design/models.md#articulation-ownership 여섯 서랍 피벗을 `drawer-<열>-<단>`으로 이름 붙이고 +Z 최대 0.40 m 미끄럼을 이 모델의 움직임 인터페이스로 정한다.
 -->
 
-레퍼런스 05·02는 상층 복도에서 보이는 침실·옷방의 생활 규모를 채택한다. 침대와 수납의 외곽은 각 방 예약을 받는다. 이 채택은 아래 원형의 시각적 읽힘만 정하며 외곽·동선의 owner를 바꾸지 않는다.
+레퍼런스 05 주침실 문 너머의 어두운 서랍장 실루엣을 채택한다. 여섯 서랍 분할은 사진에서 세지 않고 수납 기능으로 정한다.
 
 서랍장은 [주침실 예약](../spaces/rooms/primary.md#primary-furniture-use)의 X = [-5.50, -5.00], Z = [-6.50, -5.10], 상면 0.80 m를 외곽으로 받아 길이 1.40 m, 깊이 0.50 m, 높이 0.80 m다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르며 +Z는 서랍 정면(yaw π/2에서 world +X)이다.
 
@@ -98,7 +98,7 @@
 @evidence spaces/rooms/bedroom-three.md#bedroom-three-furniture-use 셋째 침실 책상 예약 X = [1.40, 2.55], Z = [-0.85, -0.25]를 L = 1.15 m로 소비한다.
 -->
 
-레퍼런스 05·02는 상층 복도에서 보이는 침실·옷방의 생활 규모를 채택한다. 침대와 수납의 외곽은 각 방 예약을 받는다. 이 채택은 아래 원형의 시각적 읽힘만 정하며 외곽·동선의 owner를 바꾸지 않는다.
+레퍼런스 02의 작은 침실에서는 책상 소품이 보이지 않으므로 책·연필 개수를 사진 근거로 주장하지 않는다. 방 예약과 설정의 공부 자리를 원형으로 만든다.
 
 책상은 길이 L을 받는 한 원형이며 깊이 0.60 m, 상면 0.75 m다. [둘째 침실](../spaces/rooms/bedroom-two.md#bedroom-two-furniture-use) X = [-5.50, -4.90], Z = [-1.60, -0.40]은 L = 1.20 m, [셋째 침실](../spaces/rooms/bedroom-three.md#bedroom-three-furniture-use) X = [1.40, 2.55], Z = [-0.85, -0.25]는 L = 1.15 m다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르며 +Z는 앉는 쪽이다.
 
@@ -114,18 +114,18 @@
 @evidence principles/design/models.md#spatial-convention 의자 사용 예약 0.75 × 0.75 m 안에 폭 0.45 m·깊이 0.48 m 몸체를 두는 치수 관계를 정한다.
 @evidence principles/design/models.md#reviewable-structure 밀어 넣은 상태에서 의자가 책상 다리 사이에 드는지를 검토 관찰로 둔다.
 @evidence principles/design/models.md#model-observable-style-basis 책상 의자를 식탁 의자보다 낮은 등받이 0.82 m와 좁은 폭 0.45 m라는 비례 차이로 구분한다.
-@evidence principles/design/models.md#model-scale-layer-completion 네 치수, 세 부품 층, 세 재질 경계, 관절 없음, 밀어 넣기 관찰이 함께 적혀 있고 관찰은 unverified다.
+@evidence principles/design/models.md#model-scale-layer-completion 외곽과 좌면·등받이 치수, 좌판 두께·다리 단면과 위치·등판 치수, 세 재질 경계, 관절 없음, 밀어 넣기 관찰이 함께 적혀 있고 관찰은 unverified다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 둘째 침실 의자 사용 예약 0.75 × 0.75 m를 적힌 그대로 소비했고 몸체 예약 부재를 부모 결함으로 고치지 않고 이 층이 치수를 택했다.
 @evidence settings/10-house.md#bedroom-two 책상과 의자 요구 중 의자를 좌면 0.45 m 책상 의자로 받는다.
 @evidence settings/10-house.md#bedroom-three 책상/의자 요구의 의자를 같은 원형으로 두 침실에 쓴다고 적는다.
 @evidence spaces/rooms/bedroom-two.md#bedroom-two-furniture-use 둘째 침실 의자 사용 예약 0.75 × 0.75 m 안에서 쓰는 의자로 소비한다.
 -->
 
-레퍼런스 05·02는 상층 복도에서 보이는 침실·옷방의 생활 규모를 채택한다. 침대와 수납의 외곽은 각 방 예약을 받는다. 이 채택은 아래 원형의 시각적 읽힘만 정하며 외곽·동선의 owner를 바꾸지 않는다.
+레퍼런스 02·05에는 책상 의자의 형태가 보이지 않으므로 그 사진에서 등받이 모양을 채택하지 않는다. 두 방의 책상과 사용 예약에 맞는 단순한 등판 의자를 이 H2에서 결정한다.
 
 책상 의자는 두 침실의 [의자 사용 예약](../spaces/rooms/bedroom-two.md#bedroom-two-furniture-use) 0.75 × 0.75 m 안에서 쓰는 한 원형이다. 몸체 예약이 없으므로 폭 0.45 m, 깊이 0.48 m, 좌면 0.45 m, 등받이 0.82 m를 이 층이 택하며, 근거는 책상 상면 0.75 m와 0.30 m 차이의 앉은 자세와 사용 영역 안에서 밀고 당기는 여유다. [식탁 의자](10-kitchen-dining.md#dining-chair)와 같은 좌면·다리·등받이 구성을 쓰되 등받이가 낮고 폭이 좁아 별도 원형이다.
 
-재질 경계는 `seat`, `leg`, `back`이고 관절은 없다. 좌판 곡면·다리 이음·바퀴는 표현하지 않는다. 소스 owner는 `src/models/furnishings/bedrooms.ts`다. 관찰은 밀어 넣은 상태에서 의자가 책상 다리 사이에 드는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
+좌판은 폭 0.45 m·깊이 0.48 m·두께 0.03 m로 상면 0.45 m다. 다리 네 개는 0.035 m 각재, 좌판 모서리에서 X·Z 각각 0.04 m 안쪽에 중심을 둔다. 등받이는 뒤쪽 두 다리에서 이어지는 같은 단면의 기둥 두 개와 폭 0.35 m·높이 0.18 m·두께 0.025 m 판 하나이며 판 하단은 0.62 m, 상단은 0.80 m, 기둥 상단은 0.82 m다. 등판은 앞뒤로 기울이지 않고 좌판 뒤 가장자리에서 0.04 m 앞에 두므로 의자 깊이 0.48 m 안에 든다. 재질 경계는 `seat`, `leg`, `back`이고 관절은 없다. 좌판 곡면·다리 이음·바퀴는 표현하지 않는다. 소스 owner는 `src/models/furnishings/bedrooms.ts`다. 관찰은 밀어 넣은 상태에서 의자가 책상 다리 사이에 드는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
 
 ## 미닫이 옷장 {#sliding-closet}
 <!--
@@ -147,7 +147,7 @@
 @evidence obligations/design/models.md#articulation-ownership 문 피벗을 `door-front`, `door-back`으로 이름 붙이고 로컬 X 최대 0.72 m 미끄럼을 움직임 인터페이스로 정한다.
 -->
 
-레퍼런스 05·02는 상층 복도에서 보이는 침실·옷방의 생활 규모를 채택한다. 침대와 수납의 외곽은 각 방 예약을 받는다. 이 채택은 아래 원형의 시각적 읽힘만 정하며 외곽·동선의 owner를 바꾸지 않는다.
+레퍼런스 02의 작은 침실 수납과 05의 열린 옷장을 채택한다. 문짝 두께와 옷 개수는 사진에서 재지 않고 예약과 이 H2의 수치로 정한다.
 
 옷장은 [둘째 침실](../spaces/rooms/bedroom-two.md#bedroom-two-furniture-use) X = [-2.55, -1.95], Z = [-2.95, -1.45]와 [셋째 침실](../spaces/rooms/bedroom-three.md#bedroom-three-furniture-use) X = [4.90, 5.50], Z = [-2.80, -1.30]에 쓰는 한 원형이다. 두 예약 모두 폭 1.50 m, 깊이 0.60 m, 높이 2.20 m이고 -X 면에 미닫이 문을 둔다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르며 +Z는 문 면이다.
 
@@ -172,7 +172,7 @@
 @evidence obligations/design/models.md#representation-ceiling 얇은 드레이프의 큰 접힘만 원형 형상으로 두고 실밥·봉제·천의 동역학은 이 정적 모델이 주장하지 않는다.
 -->
 
-레퍼런스 05·02는 상층 복도에서 보이는 침실·옷방의 생활 규모를 채택한다. 침대와 수납의 외곽은 각 방 예약을 받는다. 이 채택은 아래 원형의 시각적 읽힘만 정하며 외곽·동선의 owner를 바꾸지 않는다.
+레퍼런스 05의 주침실 창에 걸린 얇은 회색 커튼을 채택한다. 접힌 주름 수는 사진 복제가 아니라 두 창폭의 규칙으로 정한다.
 
 후면의 [주침실 창](../spaces/envelope/rear.md#primary-rear-window)은 폭 W = 2.40 m, 왼쪽의 [주침실 창](../spaces/envelope/left.md#primary-left-window)은 W = 1.60 m이며 두 개구부 모두 Y = [3.91, 5.31] m다. 같은 원형을 두 창의 안쪽 면에 각각 배치한다. 원형의 국소 원점은 개구부 안쪽 왼쪽 아래이며 U는 창 너비, V는 위쪽, +N은 방 안쪽이다. 후면과 왼쪽 배치는 축 회전만 다르고 치수식은 같다. 봉 중심은 개구부 아래 변 기준 국소 Y = 1.52 m(개구부 위 0.12 m)에 놓고 양끝으로 0.10 m씩 뻗는다. 드레이프는 국소 Y = -0.75 m(상층 완성 바닥 위 0.10 m)부터 봉 중심 Y = 1.52 m까지 이어지며 윗단 0.025 m를 봉 주위에 감싼다. 두 패널을 창 양끝에 각 0.18 m 폭으로 모은 고정 개방 상태다. 윗단과 봉은 같은 높이에서 닿으므로 0.0175 m 공중 틈이 없다.
 
@@ -196,26 +196,26 @@
 @evidence obligations/design/models.md#representation-ceiling 옷을 고정 시드 판 묶음 대리 형상으로 두고 이 대리가 받치는 관찰을 위에서 옷 앞 끝이 Z = -9.90 m를 넘지 않는지로 한정한다.
 -->
 
-레퍼런스 05·02는 상층 복도에서 보이는 침실·옷방의 생활 규모를 채택한다. 침대와 수납의 외곽은 각 방 예약을 받는다. 이 채택은 아래 원형의 시각적 읽힘만 정하며 외곽·동선의 owner를 바꾸지 않는다.
+레퍼런스 05 복도 옆 열린 옷장의 걸린 옷을 채택한다. 36벌의 두께와 길이 순서는 사진의 옷을 세지 않고 결정 규칙으로 만든다.
 
 옷걸이 구간은 [옷방 예약](../spaces/rooms/wardrobe.md#wardrobe-storage-use)의 X = [2.10, 4.25], Z = [-10.45, -9.90], 높이 상층 바닥 위 2.05 m를 외곽으로 받아 길이 2.15 m, 깊이 0.55 m다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따른다. 봉은 후면에서 0.28 m, 높이 1.65 m이고 상단 선반은 상면 2.05 m, 깊이 0.55 m다. 옷은 36벌의 얇은 부피다. 순번 i = 0…35에 대해 두께 `0.035 + 0.005 × (i mod 3)` m, 앞뒤 폭 0.50 m, 걸린 길이 `0.85 + 0.10 × (i mod 3)` m로 고정한다. 두께 합은 1.44 m이며 길이 2.15 m 봉 중앙에 좌우 0.355 m씩 여유를 두고 순서대로 건다. 어깨는 봉 아래 0.05 m, 옷 아랫끝은 바닥 위 최소 0.55 m이며 뒤벽과 0.55 m 앞면 사이에 머문다. 재질 경계는 `rod`, `shelf`, `carcass`, `clothes`이고 관절은 없다. 옷걸이 개별 형상·소매·옷 주름은 표현하지 않는다. 소스 owner는 `src/models/furnishings/bedrooms.ts`다. 관찰은 위에서 옷 앞 끝이 Z = -9.90 m를 넘지 않는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
 
 ## 옷방 선반 구간 {#wardrobe-shelves}
 <!--
 @evidence principles/core/common.md#scope-preservation 옷방 예약의 선반 구간을 네 선반과 접은 옷·신발 상자까지 맡는다.
-@evidence principles/core/common.md#substantive-completion 길이 1.10 m, 깊이 0.55 m, 선반 상면 0.20·0.65·1.10·1.55 m, 두께 0.03 m, 상자 0.30 × 0.35 × 0.20 m 이하를 확정한다.
+@evidence principles/core/common.md#substantive-completion 길이 1.10 m, 깊이 0.55 m, 선반 상면 0.20·0.65·1.10·1.55 m, 두께 0.03 m, 상자·바구니 각각 0.30 × 0.35 × 0.20 m를 확정한다.
 @evidence principles/core/common.md#declared-basis 외곽은 옷방 예약에서 받고 0.20 m 시작과 0.45 m 간격의 네 단은 이 H2의 저작 값으로 적힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 옷방 예약은 선반 구간 외곽만 주고 이 H2는 네 단 높이와 접은 옷·신발 상자 대리를 더한다.
-@evidence principles/design/models.md#representation-contract 선반·몸통·접은 옷·신발 상자 계층과 `shelf`·`carcass`·`folded`·`shoe-box` 경계를 두고 관절이 없다고 적는다. 보이지 않는 한계는 본문의 "접은 옷의 층·신발 형상·선반 브래킷은 표현하지 않는다."로 밝힌다.
+@evidence principles/design/models.md#representation-contract 선반·몸통·접은 옷·신발 상자·바구니 계층과 `shelf`·`carcass`·`folded`·`shoe-box`·`basket` 경계를 두고 관절이 없다고 적는다. 보이지 않는 한계는 본문의 "접은 옷의 층·신발 형상·선반 브래킷은 표현하지 않는다."로 밝힌다.
 @evidence principles/design/models.md#spatial-convention 선반 높이를 바닥 위 0.20 m부터 0.45 m 간격으로 정하고 가구 국소 좌표를 따른다.
 @evidence principles/design/models.md#reviewable-structure 정면에서 네 단이 읽히는지를 검토 실루엣으로 둔다.
-@evidence principles/design/models.md#model-observable-style-basis 개방 선반을 0.03 m 얇은 네 단과 0.30 × 0.35 × 0.20 m 이하 상자 더미라는 구성으로 정한다.
-@evidence principles/design/models.md#model-scale-layer-completion 외곽 치수, 네 단 높이, 네 재질 경계, 관절 없음, 정면 관찰이 함께 적혀 있고 관찰은 unverified다.
+@evidence principles/design/models.md#model-observable-style-basis 개방 선반을 0.03 m 얇은 네 단, 0.30 × 0.35 × 0.20 m의 상자 세 개와 바구니 하나, 접은 옷 여덟 더미로 정한다.
+@evidence principles/design/models.md#model-scale-layer-completion 외곽 치수, 네 단 높이, 다섯 재질 경계, 관절 없음, 정면 관찰이 함께 적혀 있고 관찰은 unverified다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 옷방 예약 X = [4.40, 5.50], Z = [-10.45, -9.90]을 적힌 그대로 소비했고 부모 수정이 없었다.
 @evidence settings/10-house.md#storage 선반과 접은 옷·신발 상자를 둔 0.55 m 깊이 선반 구간으로 수납의 선반 요구를 받는다.
 @evidence settings/10-house.md#primary-bedroom 주침실의 별도 옷 수납 요구 중 접은 옷 선반 몫을 네 단 선반 구간으로 받는다.
 @evidence spaces/rooms/wardrobe.md#wardrobe-storage-use 옷방 예약 X = [4.40, 5.50], Z = [-10.45, -9.90]을 길이 1.10 m·깊이 0.55 m 외곽으로 소비한다.
-@evidence obligations/design/models.md#model-representation-completion 이 파일 마지막 H2로서 네 단 높이·상자 한계·네 재질 경계·관절 없음을 적고 정면 관찰이 unverified임을 밝혀 이 H2의 표현 완결 몫을 기록한다.
+@evidence obligations/design/models.md#model-representation-completion 이 파일 마지막 H2로서 네 단 높이·상자와 바구니 치수·다섯 재질 경계·관절 없음을 적고 정면 관찰이 unverified임을 밝혀 이 H2의 표현 완결 몫을 기록한다.
 -->
 
 선반 구간은 [옷방 예약](../spaces/rooms/wardrobe.md#wardrobe-storage-use)의 X = [4.40, 5.50], Z = [-10.45, -9.90]을 받아 길이 1.10 m, 깊이 0.55 m다. 네 선반 상면은 바닥 위 0.20 m부터 0.45 m 간격인 0.20, 0.65, 1.10, 1.55 m이고 두께 0.03 m다. 각 선반마다 접은 옷 두 더미와 오른쪽 용기 하나를 좌우로 둔다. 아래 세 선반의 용기는 신발 상자, 맨 위 선반의 용기는 레퍼런스 05의 바구니로 채택한다. 더미는 각각 0.28 × 0.32 × 0.12 m, 상자와 바구니는 모두 0.30 × 0.35 × 0.20 m이며 바구니는 벽 두께 0.015 m의 열린 상자와 양옆 지름 0.025 m 둥근 손잡이 두 개로 만든다. 바구니 입구는 위로 열리고, 0.02 m 간격 두 개를 포함한 가로 합은 0.90 m라 선반 길이 1.10 m 안에 양끝 0.10 m씩 남는다. 네 선반에 더미 8개와 상자 3개·바구니 1개가 생기고 각 높이는 다음 선반과의 0.45 m 간격보다 작다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따른다. 재질 경계는 `shelf`, `carcass`, `folded`, `shoe-box`, `basket`이고 관절은 없다. 접은 옷의 층·신발 형상·선반 브래킷은 표현하지 않는다. 소스 owner는 `src/models/furnishings/bedrooms.ts`다. 관찰은 정면에서 네 단이 읽히는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
