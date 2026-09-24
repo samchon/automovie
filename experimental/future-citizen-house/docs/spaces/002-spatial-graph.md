@@ -701,8 +701,8 @@ room id child-bedroom-2의 parent는 [upper-storey](#upper-level)다. clear plan
 <!--
 @evidence principles/core/common.md#declared-basis upper-program의 욕실을 서측 코어 x=-5.26..-3.02,z=1.28..5.76에 배정한 저작 설계다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb bath cell은 후면 코어 구획이며 프라이버시는 settings의 고정 반투명을 따른다.
-@evidence principles/core/common.md#scope-preservation 욕조·샤워·변기·세면과 수건 수납은 한 욕실 안에서 접근되며 침실 전용 통과 동선으로 축소하지 않는다.
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 샤워·욕조·변기·세면대를 방 안에 남기고 주침실을 욕실 통로로 쓰지 않는다.
+@evidence principles/core/common.md#scope-preservation 샤워·변기·세면과 수건 수납은 한 욕실 안에서 접근되며 침실 전용 통과 동선으로 축소하지 않는다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 상층 프로그램의 shower/tub 가운데 샤워를 택해 샤워·변기·세면대·수건 수납을 모두 방 안에 남기고 주침실을 욕실 통로로 쓰지 않는다. 본문이 욕조를 약속하지 않으므로 source의 샤워 트레이 하나와 어긋나지 않는다.
 @evidence principles/core/common.md#substantive-completion 길쭉한 코어 room의 경계·층 귀속·복도 문을 정해 위생 fixture의 실제 배치 영역을 제공한다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 위생 가구와 수건 수납 및 열린 방문의 관계까지 배정한다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 상층 위생 프로그램을 후방 서측 코어 구획과 복도 직결 문으로 구체화한다.
@@ -721,7 +721,7 @@ room id child-bedroom-2의 parent는 [upper-storey](#upper-level)다. clear plan
 @evidenceReview settings/002-household.md#upper-program #e0bbac7 vanity·toilet·shower/tub·towel storage를 상층 욕실 안에 수용한다.
 -->
 
-room id upper-bathroom의 parent는 [upper-storey](#upper-level)다. clear plan은 x=-5.26..-3.02, z=1.28..5.76m인 한 직사각형이며 y 범위는 층 owner가 소유한다. 서측 불투명 코어의 욕실이다. 욕조·샤워·변기·세면대와 수건 수납은 이 방 안에서 접근되며 침실을 통해 들어가지 않는다. [상층 생활 프로그램](../settings/002-household.md#upper-program)을 소비한다.
+room id upper-bathroom의 parent는 [upper-storey](#upper-level)다. clear plan은 x=-5.26..-3.02, z=1.28..5.76m인 한 직사각형이며 y 범위는 층 owner가 소유한다. 서측 불투명 코어의 욕실이다. 샤워(상층 프로그램의 shower/tub 가운데 샤워)·변기·세면대와 수건 수납은 이 방 안에서 접근되며 침실을 통해 들어가지 않는다. 욕조는 두지 않는다(2026-09-24 materials 전수 검사에서 source와 대조해 고침). [상층 생활 프로그램](../settings/002-household.md#upper-program)을 소비한다.
 
 직접 출입은 [corridor-bathroom](#corridor-bathroom)의 실제 opening과 route를 사용한다. cell 외주와 [계단 개구](#stair-opening)를 구분하여 무소유 바닥이나 방 밖 통로를 만들지 않는다. [전수 검증](#stage-one-verification)에서 cell·문·가구 통행과 방 내부 관찰을 검사한다.
 

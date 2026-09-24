@@ -58,7 +58,7 @@ import { stair } from "../house/circulation/stair";
  * @evidence spaces/002-spatial-graph.md#child-bedroom-2 x=0.30..5.26,z=-0.14..2.40의 작은 침실을 상층에 둔다. 앞뒤 침실과 닫힌 벽을 공유하며 corridor-child-two만 통행한다.
  * @evidenceReview spaces/002-spatial-graph.md#child-bedroom-2 #b3ea2be child-two를 동측 중간 cell로 만들고 전용 corridor 문을 두어 다른 침실을 통과해야 들어가는 방이 되지 않는다.
  * @evidence spaces/002-spatial-graph.md#upper-bathroom x=-5.26..-3.02,z=1.28..5.76의 코어 cell을 만들고 z=1.86 방문으로 복도에 직접 잇는다.
- * @evidenceReview spaces/002-spatial-graph.md#upper-bathroom #561b29b upper-bathroom의 서측 후면 cell 안에 위생 가구를 조립하고 문은 corridor에 직접 연결한다.
+ * @evidenceReview spaces/002-spatial-graph.md#upper-bathroom #d34d64f upper-bathroom의 서측 후면 cell 안에 샤워 트레이·세면대·변기·수건 수납을 조립하고 욕조는 만들지 않아 본문의 샤워 선택과 맞으며, 문은 corridor에 직접 연결한다.
  * @evidence spaces/002-spatial-graph.md#upper-storage x=-5.26..-3.02,z=-0.14..1.10의 cell에 복도 직결 문을 둔다. 욕실·설비 경계는 닫힌 wall이다.
  * @evidenceReview spaces/002-spatial-graph.md#upper-storage #53a7cce upper-storage는 z=-0.14..1.10의 독립 cell이고 corridor 문이 있어 욕실 벽장으로 대체되지 않는다.
  * @evidence spaces/002-spatial-graph.md#upper-service 전면 넓은 cell과 -X측 연장 cell을 같은 설비실로 묶는다. 복도 전면의 닫힌 벽과 z=-0.95 출입 벽을 구분하여 이름 없는 통로를 만들지 않는다.
