@@ -5,6 +5,7 @@ import {
   FACE_LIKENESS_IRIS_BASE_SHARE,
   FACE_LIKENESS_IRIS_MEAN_BAND,
   faceLikenessLabToLinear,
+  faceLikenessReflectance,
   fitFaceLikenessIrisPigment,
 } from "../../../scripts/face-review/faceLikenessIrisFit";
 import { nclose } from "../internal/predicates";
@@ -31,6 +32,9 @@ const linearToLab = (rgb: readonly number[]): [number, number, number] => {
  * 3. An iris brighter than the skin is scaled down so base plus variation
  *    peaks at exactly 1, and the row says so.
  * 4. A missing iris or cheek sample gives no pigment; a black cheek refuses.
+ * 5. A greyscale photograph (a cheek without chroma) gives a neutral albedo,
+ *    the luminance ratio times the skin's luminance in every channel, where a
+ *    colour photograph keeps the per-channel ratio and so the skin's hue.
  */
 export const test_subject_face_likeness_iris_fit = (): void => {
   const close = (a: readonly number[], b: readonly number[], eps = 1e-4) =>
@@ -112,4 +116,22 @@ export const test_subject_face_likeness_iris_fit = (): void => {
     refused = true;
   }
   TestValidator.predicate("black cheek refuses", refused);
+  const tone = [0.4, 0.25, 0.2] as const;
+  const Y = (rgb: readonly number[]) =>
+    0.2126 * rgb[0]! + 0.7152 * rgb[1]! + 0.0722 * rgb[2]!;
+  const grey = faceLikenessReflectance({
+    sample: linearToLab([0.05, 0.05, 0.05]),
+    cheek: linearToLab([0.5, 0.5, 0.5]),
+    skin: tone,
+  });
+  const coloured = faceLikenessReflectance({
+    sample: linearToLab([0.05, 0.05, 0.05]),
+    cheek: linearToLab([0.5, 0.3, 0.25]),
+    skin: tone,
+  });
+  TestValidator.predicate(
+    "greyscale photograph",
+    close(grey, [0.1 * Y(tone), 0.1 * Y(tone), 0.1 * Y(tone)]) &&
+      close(coloured, [0.1 * 0.4, (0.05 / 0.3) * 0.25, 0.2 * 0.2]),
+  );
 };

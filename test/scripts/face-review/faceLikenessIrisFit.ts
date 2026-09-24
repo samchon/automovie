@@ -64,13 +64,11 @@ export function fitFaceLikenessIrisPigment(props: {
   skin: readonly [number, number, number];
 }): { pigment: IPortraitIrisPigment; mean: number[]; scaled: boolean } | null {
   if (props.iris === null || props.cheek === null) return null;
-  const iris = faceLikenessLabToLinear(props.iris);
-  const cheek = faceLikenessLabToLinear(props.cheek);
-  if (cheek.some((value) => !(value > 0)))
-    throw new Error("A cheek sample needs positive linear colour.");
-  let mean = [0, 1, 2].map(
-    (c) => (Math.max(0, iris[c]!) / cheek[c]!) * props.skin[c]!,
-  );
+  let mean: number[] = faceLikenessReflectance({
+    sample: props.iris,
+    cheek: props.cheek,
+    skin: props.skin,
+  });
   const top =
     Math.max(...mean) *
     (FACE_LIKENESS_IRIS_BASE_SHARE +
@@ -88,4 +86,37 @@ export function fitFaceLikenessIrisPigment(props: {
     mean,
     scaled,
   };
+}
+
+/**
+ * A photographed surface's linear albedo by the reflectance-ratio rule: the
+ * per-channel ratio of its linear colour to the cheek's, times the skin
+ * albedo. A photograph without chroma (a greyscale print: its cheek's CIELAB
+ * chroma under `achromatic`, 2 units, below a just-noticeable colour
+ * difference, where a colour photograph's skin reads 18 to 21, Lu et al.
+ * 2026) holds no colour to divide: its channels are the same luminance, so
+ * the per-channel ratio would hand the skin's hue to the sample. There the
+ * ratio is of luminance (CIE Y) and the albedo neutral, that ratio times the
+ * skin's luminance in every channel. Pure.
+ */
+export function faceLikenessReflectance(props: {
+  sample: readonly [number, number, number];
+  cheek: readonly [number, number, number];
+  skin: readonly [number, number, number];
+  achromatic?: number;
+}): [number, number, number] {
+  const sample = faceLikenessLabToLinear(props.sample);
+  const cheek = faceLikenessLabToLinear(props.cheek);
+  if (cheek.some((value) => !(value > 0)))
+    throw new Error("A cheek sample needs positive linear colour.");
+  const chroma = Math.hypot(props.cheek[1], props.cheek[2]);
+  if (chroma < (props.achromatic ?? 2)) {
+    const Y = (rgb: readonly number[]) =>
+      0.2126 * rgb[0]! + 0.7152 * rgb[1]! + 0.0722 * rgb[2]!;
+    const value = (Math.max(0, Y(sample)) / Y(cheek)) * Y(props.skin);
+    return [value, value, value];
+  }
+  return [0, 1, 2].map(
+    (c) => (Math.max(0, sample[c]!) / cheek[c]!) * props.skin[c]!,
+  ) as [number, number, number];
 }

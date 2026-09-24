@@ -15,10 +15,11 @@
  *
  * Limits: the darkest tenth still mixes skin into a sparse brow, which reads
  * the brow paler, as the eye does; the brow ridge's shade darkens it a
- * little; a greyscale photograph yields a grey brow. Pure: returns new
+ * little; a greyscale photograph yields a neutral brow
+ * (`faceLikenessReflectance`). Pure: returns new
  * values.
  */
-import { faceLikenessLabToLinear } from "./faceLikenessIrisFit";
+import { faceLikenessReflectance } from "./faceLikenessIrisFit";
 
 /** One subject's fitted brow pigment, or null without both samples. */
 export function fitFaceLikenessBrowPigment(props: {
@@ -27,13 +28,11 @@ export function fitFaceLikenessBrowPigment(props: {
   skin: readonly [number, number, number];
 }): { pigment: [number, number, number]; clamped: boolean } | null {
   if (props.brow === null || props.cheek === null) return null;
-  const brow = faceLikenessLabToLinear(props.brow);
-  const cheek = faceLikenessLabToLinear(props.cheek);
-  if (cheek.some((value) => !(value > 0)))
-    throw new Error("A cheek sample needs positive linear colour.");
-  const raw = [0, 1, 2].map(
-    (c) => (Math.max(0, brow[c]!) / cheek[c]!) * props.skin[c]!,
-  );
+  const raw = faceLikenessReflectance({
+    sample: props.brow,
+    cheek: props.cheek,
+    skin: props.skin,
+  });
   return {
     pigment: raw.map((value) => Math.min(1, value)) as [number, number, number],
     clamped: raw.some((value) => value > 1),

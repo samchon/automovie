@@ -1,6 +1,6 @@
 import { createPortraitHairTexture, decodePortraitPng } from "@automovie/human";
 
-import { faceLikenessLabToLinear } from "./faceLikenessIrisFit";
+import { faceLikenessReflectance } from "./faceLikenessIrisFit";
 
 /**
  * Hair finish colour of a published document from its photograph, by the
@@ -22,7 +22,8 @@ import { faceLikenessLabToLinear } from "./faceLikenessIrisFit";
  * row says so; a photograph without both samples gives no colour.
  *
  * Limits: the median mixes the hair's shaded underside with its highlights as
- * the photograph shows them, and a greyscale photograph yields grey hair.
+ * the photograph shows them, and a greyscale photograph yields neutral hair
+ * of its luminance ratio (`faceLikenessReflectance`).
  * Pure: returns new values.
  */
 export function fitFaceLikenessHairColour(props: {
@@ -34,14 +35,11 @@ export function fitFaceLikenessHairColour(props: {
   if (props.hair === null || props.cheek === null) return null;
   if (!(props.meanShade > 0 && props.meanShade <= 1))
     throw new Error("A fibre texture's mean shade lies in (0, 1].");
-  const hair = faceLikenessLabToLinear(props.hair);
-  const cheek = faceLikenessLabToLinear(props.cheek);
-  if (cheek.some((value) => !(value > 0)))
-    throw new Error("A cheek sample needs positive linear colour.");
-  const raw = [0, 1, 2].map(
-    (c) =>
-      ((Math.max(0, hair[c]!) / cheek[c]!) * props.skin[c]!) / props.meanShade,
-  );
+  const raw = faceLikenessReflectance({
+    sample: props.hair,
+    cheek: props.cheek,
+    skin: props.skin,
+  }).map((value) => value / props.meanShade);
   return {
     color: raw.map((value) => Math.min(1, value)) as [number, number, number],
     clamped: raw.some((value) => value > 1),
