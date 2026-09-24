@@ -5,8 +5,8 @@
  * 얇은 상자(1mm), 수치 한계 근처(4µm·20µm 떨어진 평면), culling 없이 이은 경우(비다양체),
  * 결정성. 열린 경계와 구멍은 이 연산의 입력이 아니다(닫힌 볼록 조각의 면을 받는다).
  * production의 수직 면은 모두 prism 옆면 순서 [a아래, a위, b위, b아래]로 들어온다(prismFaces,
- * splitVerticalFace). 다른 순서(아랫변부터 도는 사각형)로 들어온 면의 남은 조각은 감김이
- * 뒤집힌다: 이 결함은 todo 시험으로 남긴다.
+ * splitVerticalFace). 다른 순서(아랫변부터 도는 사각형)로 들어온 면의 남은 조각도 원래
+ * 법선을 유지하는지 일반 순서 시험 두 개가 본다.
  */
 import assert from "node:assert/strict";
 import test from "node:test";
@@ -65,13 +65,11 @@ void test("near tolerance: planes 4 µm apart share a 10 µm offset bucket and a
   assertClosed(apart, 1 + 0.99998, 2);
 });
 
-const heldFix = "face-culling의 toCorners가 prism 순서를 가정해 아랫변부터 도는 면의 남은 조각을 뒤집는다(체적 3.667≠3). production 입력은 모두 prism 순서라 영향 없음. src/geometry는 판정 대기 층이라 수리를 판정 뒤로 미룬다.";
-
-void test("general corner order, different heights: remnant keeps the original winding", { todo: heldFix }, () => {
+void test("general corner order, different heights: remnant keeps the original winding", () => {
   assertClosed(accountFaces("step-general", cullCoincidentVerticalFaces([...bottomFirstBox(0, 1, 1), ...bottomFirstBox(1, 2, 2)])), 3);
 });
 
-void test("general corner order, offset boxes: remnant keeps the original winding", { todo: heldFix }, () => {
+void test("general corner order, offset boxes: remnant keeps the original winding", () => {
   assertClosed(accountFaces("offset-general", cullCoincidentVerticalFaces([...bottomFirstBox(0, 1, 1, 0, 1), ...bottomFirstBox(1, 2, 1, 0.5, 1.5)])), 2);
 });
 

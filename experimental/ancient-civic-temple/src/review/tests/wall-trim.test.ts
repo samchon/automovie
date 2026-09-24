@@ -58,7 +58,15 @@ void test("parapet segment continuing into a taller segment of the same wall: co
   assertClosed(accountFaces("stop", copingFaces(input([spec]))), 2.06 * 0.42 * 0.16);
 });
 
-const lipTodo = "별도 벽으로 이어지는 더 높은 벽 앞에서 코핑 측면 돌출 칸(0.06×0.06m)이 끝을 넘어 그 벽 면에 붙는다. 머리말의 \"더 높은 벽으로 이어지는 끝은 돌출하지 않고\"와 다르다. production에서 코핑 없는 이웃 기둥 옆의 측면 돌출 칸은 6칸이다: 현관 반환벽 끝의 entry-back·pediment 옆 4칸(더 높은 벽), 남동 모서리 칸 북쪽 facade-east 처마 벽 옆 2칸(지붕 아래의 낮은 벽). 시각 판독과 수리는 판정 뒤로 미룬다.";
+/**
+ * 더 높은 별도 벽 앞에서 끝나는 파라펫(합성 fixture)은 아직 측면 돌출 칸이 끝을 넘어 그 벽 면에 붙는다.
+ * production에는 이 경우가 없다. 코핑 없는 이웃 옆에 남는 측면 돌출 칸 6칸은 모두 정상 lip이며,
+ * 2026-09-24 뷰어의 정확한 연직 단면(현재 source)으로 세 곳을 판독했다.
+ * - Z=10.28, 현관 반환벽 앞 자유단: 반환벽 코핑의 앞 끝 lip이 포치 지붕 위 약 0.7m에 있고 삼각 막음 윗변(3.5~4.47m)에 닿지 않는다.
+ * - Z=8.38: 반환벽 코핑의 양쪽 lip이 함께 남으며 그 X에서 entry-back 벽은 약 3.8~4.0m로 코핑보다 낮아 더 높은 벽이 아니다.
+ * - X=9.87, 남동 모서리: 남측 파라펫의 안쪽 lip이 동측 벽 안쪽 면에서 끝나고 옆의 facade-east 처마 벽은 코핑보다 낮다.
+ */
+const lipTodo = "더 높은 별도 벽 앞에서 끝나는 파라펫의 측면 돌출 칸(0.06×0.06m)이 끝을 넘어 그 벽 면에 붙는다. 머리말의 \"더 높은 벽으로 이어지는 끝은 돌출하지 않고\"와 다르다. production에는 이 배치가 없고 production의 측면 돌출 6칸은 정상 lip이다(위 단면 판독).";
 
 void test("parapet ending against a separate taller wall: side lips do not wrap past the end", { todo: lipTodo }, () => {
   const low = parapet({ plan: rectanglePolygon({ west: -2, east: 0, north: 1.7, south: 2 }), segments: [{ from: -2, to: 0, low: "i", high: "outer",

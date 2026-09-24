@@ -15,8 +15,6 @@ interface Vertical {
   face: WallFace;
   nx: number; nz: number; offset: number;
   strip: Strip;
-  /** 원래 꼭짓점 순서가 s 증가 방향인지. */
-  forward: boolean;
 }
 
 const tolerance = 1e-6;
@@ -80,7 +78,6 @@ const asVertical = (face: WallFace): Vertical | null => {
       low: line(Math.min(...left), Math.min(...right)),
       high: line(Math.max(...left), Math.max(...right)),
     },
-    forward: values[0]! <= values[c.length - 1]! + tolerance && values[0]! < s0 + tolerance,
   };
 };
 
@@ -128,21 +125,26 @@ const subtract = (strip: Strip, covers: readonly Strip[]): Strip[] => {
   return pieces;
 };
 
-/** 원래 면과 같은 감김 순서의 꼭짓점. 한쪽 높이가 같으면 삼각형으로 줄인다. */
+/**
+ * 원래 면과 같은 법선의 꼭짓점. 한쪽 높이가 같으면 삼각형으로 줄인다.
+ * 원래 꼭짓점이 어느 변부터 돌았든 asVertical과 같은 식으로 법선을 다시 구해
+ * 원래 법선 (nx, nz)와 반대면 순서를 뒤집는다.
+ */
 const toCorners = (v: Vertical, piece: Strip): IAutoMovieVector3[] | null => {
   const point = (s: number, height: number): IAutoMovieVector3 => ({
     x: v.offset * v.nx - v.nz * s, y: height, z: v.offset * v.nz + v.nx * s,
   });
-  const [p, q] = v.forward ? [piece.s0, piece.s1] : [piece.s1, piece.s0];
   const raw = [
-    point(p, y(piece.low, p)), point(p, y(piece.high, p)),
-    point(q, y(piece.high, q)), point(q, y(piece.low, q)),
+    point(piece.s0, y(piece.low, piece.s0)), point(piece.s0, y(piece.high, piece.s0)),
+    point(piece.s1, y(piece.high, piece.s1)), point(piece.s1, y(piece.low, piece.s1)),
   ];
   const corners = raw.filter((c, i) => {
     const next = raw[(i + 1) % raw.length]!;
     return Math.hypot(c.x - next.x, c.y - next.y, c.z - next.z) > tolerance;
   });
-  return corners.length >= 3 ? corners : null;
+  if (corners.length < 3) return null;
+  const n = cross(sub(corners[1]!, corners[0]!), sub(corners[corners.length - 1]!, corners[0]!));
+  return n.x * v.nx + n.z * v.nz < 0 ? corners.reverse() : corners;
 };
 
 const sub = (a: IAutoMovieVector3, b: IAutoMovieVector3): IAutoMovieVector3 => ({ x: a.x - b.x, y: a.y - b.y, z: a.z - b.z });
