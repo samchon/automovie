@@ -44,7 +44,7 @@
 ## 린넨장의 미닫이 문짝과 선반 {#linen-closet-fittings}
 <!--
 @evidence principles/core/common.md#scope-preservation 린넨장 미닫이 문짝 0.525 m 두 장과 선반 다섯 개를 이 H2가 맡는다.
-@evidence principles/core/common.md#substantive-completion 선반 상면 0.25·0.63·1.01·1.39·1.77 m, 깊이 0.55 m, 두께 0.02 m를 산출한다.
+@evidence principles/core/common.md#substantive-completion 선반 상면 0.25·0.63·1.01·1.39·1.77 m, 깊이 0.55 m·두께 0.02 m와 문짝 높이 2.16 m, 두 트랙 깊이 [0.07,0.10]/[0.11,0.14] m, 각 문 이동 0–0.475 m·닫힌 기준 상태를 확정한다.
 @evidence principles/core/common.md#declared-basis 개구부·선반 규칙은 spaces/rooms/upper-hall.md#upper-linen-storage에서 받는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation upper-linen-storage의 '0.25 m부터 0.38 m 간격'을 다섯 상면 값으로 바꾼다.
 @evidence principles/design/models.md#representation-contract 문짝·트랙·선반 계층을 정한다.

@@ -170,7 +170,7 @@
 ## 표면 파티션 이름 규칙 {#model-surface-partition-naming}
 <!--
 @evidence principles/core/common.md#scope-preservation 개구부와 가구·설비·외장 반복 부재의 역할별 id를 역할별로 한 목록에 두고 '한 id는 한 역할'과 -exterior/-interior 접미사 규칙을 이 H2가 맡는다.
-@evidence principles/core/common.md#substantive-completion frame·sash·glass·leaf·jamb부터 siding-face·siding-butt·siding-back까지 각 id의 역할을 괄호로 적어 materials가 바인딩할 이름을 새로 만들 필요가 없다.
+@evidence principles/core/common.md#substantive-completion frame·sash·glass·leaf·jamb부터 siding-face·siding-cut·shingle-face·roof-flashing·fixture-glass·firebox-trim까지 각 id의 역할을 괄호로 적고, 닫힌 부재의 절단 끝을 포함한 모든 삼각형에 하나의 id를 주며 관절 이름은 면 id에서 뺀다.
 @evidence principles/core/common.md#declared-basis 모델이 표면 id만 제공하고 색·광학값·텍스처 scale을 정하지 않는 분담을 settings/20-verification.md#surface-allocation에서 받는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation surface-allocation의 'models는 경계를 받아 두께 있는 부재를' 인계를 kebab-case 역할 id 목록과 안팎 접미사 규칙으로 바꾼다.
 @evidence principles/design/models.md#representation-contract 인접 면이 다른 응답을 받을 때 -exterior/-interior로 별도 안정 표면을 준다는 규칙과 공통 id 목록을 정한다.
@@ -190,7 +190,7 @@
 
 ## 원형 계열별 표현 완결 보고 {#model-representation-completion}
 <!--
-@evidence principles/core/common.md#scope-preservation 창·외부 문·실내 문·난간·수납·가구 여섯 계열 모두에 구조 판정과 의미 판정을 따로 보고하는 경로를 정한다.
+@evidence principles/core/common.md#scope-preservation 창·외부 문·실내 문·난간·수납·가구/설비·식재·조명기구·생활 소품 아홉 계열에 구조 판정과 의미 판정을 따로 보고하는 경로를 정한다.
 @evidence principles/core/common.md#substantive-completion 구조 판정을 닫힌 부피·바깥 법선·유한 좌표·id와 관절 노드로, 의미 판정을 예약 산술·표현 한계·리뷰 캡처로 정하고 source가 없어 구조 판정이 현재 unverified라고 적는다.
 @evidence principles/core/common.md#declared-basis 의미 판정 기준을 contracts/reservation-fit.md#reservation-fit과 이 파일의 model-review-set에서 받는다고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 공용 완결 의무를 이 주택의 여섯 원형 계열과 account 표의 한 줄 형식(계열·원형·예약 owner·산술·캡처 주소)으로 바꾼다.

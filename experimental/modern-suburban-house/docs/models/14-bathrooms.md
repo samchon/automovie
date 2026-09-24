@@ -3,10 +3,10 @@
 ## 공용 변기 {#shared-toilet}
 <!--
 @evidence principles/core/common.md#scope-preservation 이 H2는 파우더룸·샤워 욕실·욕조 욕실 세 예약에 함께 쓰는 변기 원형 하나의 외곽 깊이 0.75 m·높이 0.82 m·폭 0.50 m와 부품 일곱을 맡고, 도기 두께·배수 트랩·급수관은 표현하지 않는다고 범위를 닫는다.
-@evidence principles/core/common.md#substantive-completion 물탱크 폭 0.50 m·깊이 0.20 m·Y = [0.40, 0.78], 뚜껑 0.78–0.82 m, 몸통 폭 0.38 m와 좌면 링 상면 0.43 m를 수치로 정해 구현자가 변기 치수를 새로 고를 일이 없다.
+@evidence principles/core/common.md#substantive-completion 물탱크 폭 0.50 m·깊이 0.20 m·Y=[0.40,0.78], 탱크 뚜껑 [0.78,0.82], 몸통 폭 0.38 m, 12각 타원 컷 내부 폭 0.27×깊이 0.31×높이 0.15 m, 좌면 링 상면 0.43 m를 정한다.
 @evidence principles/core/common.md#declared-basis 폭 0.50 m는 가장 좁은 샤워 욕실 예약 폭 0.65 m 안에서 세 예약 모두에 양옆 0.075 m 이상 여유를 남기려는 이 층의 결정이고, 깊이 0.75 m·높이 0.82 m는 세 예약의 깊이와 최대 높이에서 가져왔다고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 세 방 문서가 준 예약 상자(깊이 0.75 m, 폭 0.70 m 또는 0.65 m, 좌면 0.43 m) 위에 물탱크·몸통·시트 덮개로 나눈 부품 구성과 `seat-lid` 피벗이라는 모델 결정을 더한다.
-@evidence principles/design/models.md#representation-contract 물탱크·탱크 뚜껑·받침·변기 몸통·시트·시트 덮개·세척 레버의 부품과 둥근 끝 상자 몸통을 정하고 표면 id `ceramic`, `toilet-seat`, `lid`, `handle`을 두며, 도기 두께·트랩·급수관은 이 프록시가 주장하지 않는다.
+@evidence principles/design/models.md#representation-contract 물탱크·탱크 뚜껑·받침·변기 몸통·시트·시트 덮개·세척 레버와 12각 타원 컷 몸통을 정하고 표면 id `ceramic`, `toilet-seat`, `lid`, `handle`을 두며, 트랩·급수관은 이 프록시가 주장하지 않는다.
 @evidence principles/design/models.md#spatial-convention 로컬 좌표는 가구 국소 좌표를 따라 +Z가 앉는 정면이고, 몸통은 벽에서 0.75 m까지 이어지며 `seat-lid` 피벗은 시트 덮개의 뒤쪽 가로 경첩에 둔다.
 @evidence principles/design/models.md#reviewable-structure 모델 리뷰 뷰의 측면에서 좌면 0.43 m와 뚜껑 0.82 m가 보이는지, 세 배치의 평면에서 앞 끝이 각 사용 예약 경계에 멈추는지가 이 변기를 반증할 관찰이다.
 @evidence principles/design/models.md#model-observable-style-basis 스타일 라벨을 두지 않고 폭 0.50 m 물탱크 위의 뚜껑과 폭 0.38 m 둥근 끝 몸통이라는 실루엣·비례만 정하며, 재질 선택 없이 표면 id `ceramic`만 남긴다.
@@ -193,7 +193,7 @@
 ## 두 욕실의 얇은 바닥 매트 {#bath-floor-mats}
 <!--
 @evidence principles/core/common.md#scope-preservation 샤워 욕실과 욕조 욕실의 이미 예약된 기구 앞 사용 바닥에 깔리는 두 매트 원형을 맡고 바닥 슬래브·타일 면을 복제하지 않는다.
-@evidence principles/core/common.md#substantive-completion 샤워 매트 0.65 × 0.45 × 0.008 m, 욕조 매트 0.80 × 0.45 × 0.008 m와 사용 영역의 좌우 여유를 산술로 정한다.
+@evidence principles/core/common.md#substantive-completion 샤워 매트 0.65 × 0.45 × 0.008 m의 여유 0.125/0.075 m와 욕조 매트 0.80 × 0.45 × 0.008 m를 1.55 m 긴 면에 평행하게 둔 여유 0.375/0.30 m를 산술로 정한다.
 @evidence principles/core/common.md#declared-basis spaces/rooms/shower-bath.md#shower-fixture-use와 spaces/rooms/tub-bath.md#tub-fixture-use의 서 있는 구간을 host 예약으로 받는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 기구 사용 바닥에 얇은 직물 덮개를 추가하되 통행·문 회전과 바닥 owner를 바꾸지 않는다.
 @evidence principles/design/models.md#representation-contract 0.04 m 안쪽 테 `border`와 몸판 `field`의 모든 면을 나누고 젖은 상태·섬유 털은 표현하지 않는다.

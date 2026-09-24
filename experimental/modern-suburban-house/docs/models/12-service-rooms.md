@@ -52,7 +52,7 @@
 ## 세탁실 상부 수납 {#laundry-upper-storage}
 <!--
 @evidence principles/core/common.md#scope-preservation 세탁실 벽걸이 상부 수납 한 원형을 맡고 주방 상부장과 같은 구성이라도 깊이·높이가 달라 별도 원형으로 둔다고 경계를 긋는다.
-@evidence principles/core/common.md#substantive-completion 길이 1.30 m, 깊이 0.30 m, 높이 0.80 m와 몸통 깊이 0.28 m·전면 판 0.02 m, 하단 홈 손잡이를 정한다.
+@evidence principles/core/common.md#substantive-completion 길이 1.30 m, 깊이 0.30 m, 높이 0.80 m와 몸통 깊이 0.28 m·전면 판 0.02 m, 문짝마다 폭 0.12×높이 0.025×깊이 0.012 m의 돌출 없는 하단 홈을 정한다.
 @evidence principles/core/common.md#declared-basis 외곽은 예약 X = [5.20, 5.50], Y = [1.50, 2.30]에서 받았고 하단 1.50 m가 상판 위 0.56 m 작업 높이를 남긴다는 것은 1.50 − 0.94의 산술이다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 예약의 상부 수납 범위에 몸통과 두 문 전면 판 분할, 하단 홈 손잡이, 강체 문이라는 모델 결정을 더한다.
 @evidence principles/design/models.md#representation-contract 부품을 몸통과 두 문 전면 판으로, 재질 경계를 `carcass`·`leaf`로 정하고 문을 강체로 둔다. 보이지 않는 한계는 본문의 "경첩·내부 선반·세제 용기는 표현하지 않는다."로 밝힌다.
@@ -188,7 +188,7 @@
 ## 차고 공구 작업대 {#garage-workbench}
 <!--
 @evidence principles/core/common.md#scope-preservation 차고 공구 작업대의 상판·다리·서랍 둘만 맡고 위 공구판은 다음 H2에 둔다.
-@evidence principles/core/common.md#substantive-completion 상판 두께 0.04 m, 다리 넷, 서랍 폭 0.55 m·높이 0.12 m와 최대 인출 0.45 m를 정한다.
+@evidence principles/core/common.md#substantive-completion 상판 두께 0.04 m, 다리 넷, 서랍 폭 0.55 m·높이 0.12 m, 최대 인출 0.45 m와 전면에 파는 폭 0.12×높이 0.025×깊이 0.015 m 홈 손잡이의 돌출 0을 정한다.
 @evidence principles/core/common.md#declared-basis 외곽 1.20 × 0.60 × 0.90 m는 예약 X = [9.00, 10.20], Z = [-6.45, -5.85], 상면 0.90 m에서, 인출 0.45 m는 서랍 작동 예약 Z = [-5.85, -5.40]에서 받았다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 예약 작업대 범위에 상판·다리·서랍 분할과 두 서랍 피벗이라는 모델 결정을 더한다.
 @evidence principles/design/models.md#representation-contract 부품을 상판·다리 넷·서랍 둘로, 재질 경계를 `top`·`leg`·`drawer-front`·`handle`로 정한다. 보이지 않는 한계는 본문의 "서랍 레일·바이스·상판 흠집은 표현하지 않는다."로 밝힌다.
@@ -211,7 +211,7 @@
 ## 작업대 위 공구판 {#garage-tool-board}
 <!--
 @evidence principles/core/common.md#scope-preservation 작업대 위 타공판과 망치·렌치·톱 세 실루엣, 작은 통 둘만 맡는다.
-@evidence principles/core/common.md#substantive-completion 판 1.20 × 1.00 m, 타공판 두께 0.02 m, 전체 깊이 0.15 m, 공구 돌출 0.13 m 이내를 정한다.
+@evidence principles/core/common.md#substantive-completion 판 1.20 × 1.00 m, 타공판 두께 0.02 m, 전체 깊이 0.15 m, 공구 돌출 0.13 m 이내와 톱날 X=[0,0.24]·손잡이 X=[0.24,0.32] m의 한 0.32 m 외곽을 정한다.
 @evidence principles/core/common.md#declared-basis 외곽은 예약 X = [9.00, 10.20], Z = [-6.45, -6.30], world Y = [0.95, 1.95]에서 받았고 공구 셋과 통 둘의 구성은 저작 선택이다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 예약 공구판 범위에 타공판 두께와 걸린 공구 세 실루엣·통 둘이라는 모델 결정을 더한다.
 @evidence principles/design/models.md#representation-contract 부품을 타공판·공구 셋·통 둘로, 재질 경계를 `board`·`tool-steel`·`tool-grip`·`bin`으로 두고 각 공구·통의 외곽을 본문에서 수치로 제한한다.

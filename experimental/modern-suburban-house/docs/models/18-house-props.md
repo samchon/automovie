@@ -3,7 +3,7 @@
 ## 포치의 발판과 작은 화분 {#porch-mat-planter}
 <!--
 @evidence principles/core/common.md#scope-preservation 현관문 바깥의 발판과 독립 화분 한 원형씩 맡고 포치 바닥·문짝·기둥을 만들지 않는다.
-@evidence principles/core/common.md#substantive-completion 발판 0.60 × 0.40 × 0.008 m와 지름 0.28 m 화분·전체 높이 0.72 m를 부품별로 정한다.
+@evidence principles/core/common.md#substantive-completion 발판 0.60 × 0.40 × 0.008 m, 지름 0.28 m 화분과 길이 0.19 m 줄기 다섯·높이 0.25 m 잎 군집 다섯을 정하고 최고점 약 0.7103 m가 전체 0.72 m 안임을 산출한다.
 @evidence principles/core/common.md#declared-basis settings/10-house.md#porch-entry의 발판·작은 화분과 spaces/porch.md#porch-platform-access의 진입 폭 밖 조건을 직접 소비한다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 레퍼런스 01의 진입 작은 소품을 낮은 발판과 둥근 화분으로 채택하며 포치 계단과 문 자체의 소유는 유지한다.
 @evidence principles/design/models.md#representation-contract 발판 `field`·`border`, 화분 `container`·`foliage`·`stem`의 닫힌 부품을 낸다. 실제 흙·개별 꽃잎은 표현하지 않는다.
@@ -25,7 +25,7 @@
 ## 주방과 식탁의 식료품·조리도구 {#kitchen-food-utensils}
 <!--
 @evidence principles/core/common.md#scope-preservation 작업면 위의 소량 식료품과 조리도구, 식탁 과일 그릇의 원형을 맡고 캐비닛·싱크·가전 원형은 10에 남긴다.
-@evidence principles/core/common.md#substantive-completion 도마·도구통·다섯 도구·밀폐 용기·과일 그릇·과일 다섯의 부피와 수를 정한다.
+@evidence principles/core/common.md#substantive-completion 도마·도구통·다섯 도구·밀폐 용기·과일 그릇과 과일 다섯의 부피를 정하고, 과일 넷은 반지름 0.08 m 원 위·다섯째는 중앙에 둬 중심 간격 0.08 m가 최대 반지름 합 0.0775 m보다 크다고 산출한다.
 @evidence principles/core/common.md#declared-basis settings/10-house.md#kitchen-equipment의 작업면을 가리지 않는 식료품 일부·조리도구와 레퍼런스 03의 식탁 그릇을 근거로 택한다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 실제 조리대는 비워 쓸 수 있도록 0.35 m 도마와 작은 도구통만 두고 식탁 중심에는 낮은 과일 그릇 하나를 둔다.
 @evidence principles/design/models.md#representation-contract 닫힌 도마·도구통·막대 도구·그릇·과일 부피의 모든 면을 `cutting-board`·`container`·`utensil`·`bowl`·`fruit`로 나눈다.
