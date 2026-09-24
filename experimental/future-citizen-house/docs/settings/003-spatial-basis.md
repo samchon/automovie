@@ -137,26 +137,26 @@
 @evidence principles/core/common.md#declared-basis 완결 시각 표면 하나를 한 저작자가 소유하라는 사용자 지시를 채택한다.
 @evidence principles/core/common.md#scope-preservation 네 전체 입면·지붕·층·계단·개별 방·대지를 독립 완결 표면으로 보존해 같은 면을 나눠 칠하지 않는다.
 @evidence principles/core/common.md#substantive-completion 이 H2가 구체 표면별 저작자와 source 모듈 배정을 소유하고 기존 한 source 파일의 이름만 바꾸는 완료를 거부한다.
-@evidence principles/core/settings.md#fact-status 현재 배정은 재검토 대상이며 실제 파일·geometry 구현이나 독립 승인이 끝났다는 사실이 아니다.
+@evidence principles/core/settings.md#fact-status 이 배정은 기존 방 source의 임시 물체 메시와 최종 models·instances·systems owner를 구분하며 새 경계의 독립 승인은 아직 없다.
 @evidence principles/core/settings.md#source-support 표면별 소유는 사용자 저작 절차이며 자동으로 geometry 품질을 보장한다는 외부 성능 주장으로 쓰지 않는다.
 @evidence principles/core/settings.md#capability-boundary 표면 owner의 편집 권한은 제작 책임이며 건물 부재의 동작 능력이 아니다. 배정된 저작자는 유리·가구의 상태 제약을 해당 설정에서 받아야 한다.
 @evidence principles/core/settings.md#constraint-sufficiency 문자열 그룹만 선언한 채 분해 완료라고 하지 않고 실제 모듈 구현과 독립 판정을 요구한다.
 @evidence principles/core/settings.md#observable-identity 표면의 단독 저작자 배정은 작업 책임이고 새로운 입면이나 방의 감각 정체가 아니다. 네 입면·방의 실제 형태는 링크한 공간 설계와 이 파일의 외피 owner가 정한다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 완결된 시각 표면을 한 저작자에게 맡기는 기준은 사용자 지시로 밝히고, main author와 구현 source 배정은 현재 제작의 선택으로 제시한다. 방과 입면의 경계는 링크한 1단계 그래프를 소비하므로 파일 배정표가 별도의 평면 결정 권한을 갖지 않는다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 전면의 계단 유리와 작업실 유리를 다른 저작자에게 잘라 맡기지 않으며, 두 child room과 각 core room도 각각의 완결 실내로 남긴다. 연속 바닥·천장, 계단, roof/canopy와 대지까지 배정되어 방 내부만 나누고 외부나 수평 마감을 무소유로 남기는 축소가 없다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 표는 완결 표면마다 담당자·구현 파일·포함 범위를 정하고, 이어지는 본문은 작은 등록 owner와 primitive helper의 역할을 제한한다. 다음 저작자가 표면을 어떤 파일에 배정할지 다시 발명할 필요는 없으며, 파일명만 바꾸거나 빈 파일을 만드는 행위를 구현 완료로 인정하지 않는다.
-@evidenceReview principles/core/settings.md#fact-status #93a284a 배정표는 구현 전인 1단계 초안이고 재검토가 열려 있다고 명시한다. 현재 저작자가 한 명이라는 작업 사실과 앞으로 사용할 source 경로를 구별하므로 표에 경로가 있다는 이유로 해당 모듈이나 표면 검증이 이미 존재한다고 읽을 수 없다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 입면·층·방의 완결 건축 면과 물체 prototype·방별 instance·조명 과정·재료 결합을 구분하고, 기존 방 source의 중복 메시를 퇴역시킬 책임과 시점을 정했다. 현재 임시 소비를 최종 소유권으로 승인하지 않는다.
+@evidenceReview principles/core/settings.md#fact-status #93a284a 기존 방 source가 물체 메시를 실제로 생성하는 현재 상태와 models·instances 이관 뒤의 목표 상태를 구별한다. 새 소유권 경계와 이관의 독립 판정은 아직 이루어지지 않았으므로 source 경로가 표에 있다는 이유로 검증 완료를 주장하지 않는다.
 @evidenceReview principles/core/settings.md#source-support #430bca9 단독 표면 소유는 이 제작에 채택한 저작 절차이며 외부 시험이나 성능 자료에서 얻은 품질 보증으로 제시되지 않는다. 배정 뒤에도 실제 구현과 독립 판정을 요구하므로 분해 방식 자체가 geometry의 정확성을 입증한다는 근거 없는 효과 주장을 하지 않는다.
 @evidenceReview principles/core/settings.md#capability-boundary #83a6f2c 여기서 정하는 것은 누가 어느 표면을 생성하고 수정하는지에 관한 제작 책임이다. 이 권한은 유리의 tint나 가변 가구의 상태를 새로 허용하지 않으며, 입면과 room 담당자가 소비할 프라이버시·작업실 상태의 기존 설정을 대체하지 않는다.
-@evidenceReview principles/core/settings.md#constraint-sufficiency #20cf612 room의 내측 벽 마감과 storey의 연속 바닥·실내 천장을 구분하고, 외벽 몸체는 입면에 두어 같은 노출 면을 중복 생성하지 못하게 한다. 공유 문짝은 한 생성 주체가 양면 binding을 맡고 이웃은 자기 면의 요구를 전달하며, seam 변경은 이웃 표면의 재검증을 일으키므로 경계 작업의 책임도 비어 있지 않다.
+@evidenceReview principles/core/settings.md#constraint-sufficiency #20cf612 room의 내측 벽 마감과 storey의 연속 바닥·천장을 구분하고, 물체의 형상·배치·재료를 다른 owner에 둔다. 공유 문짝의 양면 binding과 seam 변경의 재검증, 임시 방 물체 메시의 원자적 퇴역까지 지정해 같은 노출 면을 중복 생성할 경계를 비워 두지 않았다.
 @evidenceReview principles/core/settings.md#observable-identity #4ccb62e 표의 main author와 source 경로는 집의 감각적 정체를 새로 정의하는 값이 아니다. 전면 화면 기준 좌우를 기존 canon대로 유지하면서 실제 방·입면 형태는 공간 그래프와 외피 owner를 소비하게 하므로, 모듈 이름을 지정했다는 이유로 같은 집으로 보인다는 판정을 대신하지 않는다.
 -->
 
-**권한: 사용자 직접 지시.** 완결된 시각 표면은 한 명의 저작자에게 귀속한다. 아래 배정이 네 전체 입면, roof/canopy, 두 층, 단일 계단, 개별 room, site의 단독 owner와 구현 모듈 배정을 소유한다. 이전 source의 한 파일과 문자열 그룹을 그대로 유지한 채 분해가 끝났다고 주장하지 않는다. 실제 구현과 독립 판정 전인 현재 배정의 재검토는 열려 있다.
+**권한: 사용자 직접 지시.** 완결된 시각 표면은 한 명의 저작자에게 귀속한다. 아래 배정이 네 전체 입면, roof/canopy, 두 층, 단일 계단, 개별 room, site의 단독 owner와 구현 모듈 배정을 소유한다. 이전 source의 한 파일과 문자열 그룹을 그대로 유지한 채 분해가 끝났다고 주장하지 않는다. 이 H2의 물체 소유권과 이관 수정은 독립 재판정 전이다.
 
-**상태: 1단계 분해 초안. 구현 전이며 표면 검증을 뜻하지 않는다.** [1단계 그래프](../spaces/002-spatial-graph.md)를 소비한다. 현재 저작자는 main author 한 명이고 독립 reviewer는 쓰기 권한이 없다. 향후 fan-out을 하더라도 아래 완결 표면 하나는 한 명에게 통째로 배정하며 다른 작성자가 그 표면의 부재나 마감을 덧칠하지 않는다. 파일명은 구현 시 사용할 배정이며 빈 source 파일을 만들었다고 완료로 세지 않는다.
+**상태: 기존 건축 표면 source는 구현됐고 물체 소유권 이관은 미완료다.** [1단계 그래프](../spaces/002-spatial-graph.md)를 소비한다. 현재 저작자는 main author 한 명이고 독립 reviewer는 쓰기 권한이 없다. 향후 fan-out을 하더라도 아래 완결 표면 하나는 한 명에게 통째로 배정하며 다른 작성자가 그 표면의 부재나 마감을 덧칠하지 않는다. 파일명이나 임시 메시 존재를 이관 완료로 세지 않는다.
 
-입면은 전면·후면·좌측·우측을 각각 하나의 전체로 소유한다. 좌측·우측 이름은 reference의 전면 관찰 화면 기준이며 좌측은 +X, 우측 서비스 코어는 -X다. front stair/flex처럼 같은 입면을 분할하지 않는다. 방은 각 방의 바닥·천장을 제외한 내측 벽 finish·fixture·가구·소품을 하나의 room owner가 맡고, 두 child room이나 세 core room을 한 표면 owner 이름으로 합치지 않는다. 내부 구조 벽의 몸체와 내벽 접합부는 topology 입력을 소비하는 층 owner가 만들고 외벽 몸체와 외부 모서리는 해당 입면 owner가 만들며, 입면의 외측/room의 내측 finish는 서로 다른 실제 면이다. 연속 바닥과 실내 천장의 최종 노출 면은 해당 storey owner가 geometry와 material을 모두 소유한다. room owner는 그 면을 생성하거나 마감하지 않는다. roof owner의 하부는 실외 처마 부분만 노출되며 실내 천장의 최종 노출 면은 upper owner다. 구조 slab의 몸체 하부는 실내 ceiling finish 뒤의 숨은 구조면이며 시각 마감으로 중복 생성하지 않는다. 동일한 면을 두 번 생성하지 않는다.
+입면은 전면·후면·좌측·우측을 각각 하나의 전체로 소유한다. 좌측·우측 이름은 reference의 전면 관찰 화면 기준이며 좌측은 +X, 우측 서비스 코어는 -X다. front stair/flex처럼 같은 입면을 분할하지 않는다. 방은 각 방의 바닥·천장을 제외한 내측 벽 finish만 room owner가 맡고, 두 child room이나 세 core room을 한 표면 owner 이름으로 합치지 않는다. 벽에 고정된 niche의 건축적 구멍과 lining은 방 owner가 맡지만 그 안의 선반·기기는 물체다. 벤치·선반·책상·의자·침대·수납장·주방 및 위생 기구·실내 화분과 식물·소품·등기구의 재사용 가능한 형상과 노출 part/face 주소는 models가 맡는다. 그 prototype의 방별 membership·transform·반복과 가변 상태별 물체 배치는 instances가 맡고, 광원의 발광·조도·상태 과정은 systems가 맡는다. materials는 재사용 가능한 재료 응답과 part/face 결합 규칙을 맡고 각 표면의 생성 owner가 그 면의 finish id를 지정한다. 내부 구조 벽의 몸체와 내벽 접합부는 topology 입력을 소비하는 층 owner가 만들고 외벽 몸체와 외부 모서리는 해당 입면 owner가 만들며, 입면의 외측/room의 내측 finish는 서로 다른 실제 면이다. 연속 바닥과 실내 천장의 최종 노출 면은 해당 storey owner가 geometry와 finish id 지정을 함께 소유한다. room owner는 그 면을 생성하거나 마감하지 않는다. roof owner의 하부는 실외 처마 부분만 노출되며 실내 천장의 최종 노출 면은 upper owner다. 구조 slab의 몸체 하부는 실내 ceiling finish 뒤의 숨은 구조면이며 시각 마감으로 중복 생성하지 않는다. 동일한 면을 두 번 생성하지 않는다.
 
 | 완결 표면 | 단독 저작자 | 구현 source 배정 | 포함 범위 |
 | --- | --- | --- | --- |
@@ -168,21 +168,23 @@
 | 1층 구조와 연속 바닥/천장 | main author | src/house/storeys/ground.ts | datum·벽체 몸체·공유 opening void·floor/ceiling 경계 |
 | 2층 구조와 연속 바닥/천장 | main author | src/house/storeys/upper.ts | slab과 계단 구멍·벽체 몸체·opening void·층선 |
 | 한 개의 꺾임계단 | main author | src/house/circulation/stair.ts | 두 flight·참·tread·riser·stringer·guard·handrail·slab-hole 입력 |
-| 현관 | main author | src/house/rooms/entry.ts | 내측 벽면·벤치·신발장·충전 niche·문 내측 |
-| 가변 작업실 | main author | src/house/rooms/flex.ts | 내측 벽면·책상/의자·책장·가변 가구·미닫이문 내측 |
-| 연속 공용부 | main author | src/house/rooms/common.ts | 하나의 living/dining/kitchen 완결 실내 |
-| 1층 powder/utility | main author | src/house/rooms/powder.ts | 세면대·변기·청소 수납·방 내측 벽면 |
-| 1층 수납 | main author | src/house/rooms/storage-ground.ts | cabinet·선반·방 내측 벽면 |
-| 주침실 | main author | src/house/rooms/primary.ts | 침대·협탁·옷장·책상·방 내측 벽면 |
-| 작은 침실 1 | main author | src/house/rooms/child-one.ts | L자 방 전체 내측 벽면과 한 세트의 가구 |
-| 작은 침실 2 | main author | src/house/rooms/child-two.ts | 방 전체 내측 벽면과 한 세트의 가구 |
-| 상층 복도 | main author | src/house/rooms/corridor.ts | 일자 통로의 내측 벽면·방문 내측 경계·조명 |
-| 상층 욕실 | main author | src/house/rooms/bathroom.ts | vanity·toilet·욕조/샤워·수납·내측 벽면 |
-| 상층 수납 | main author | src/house/rooms/storage-upper.ts | linen cabinet·내측 벽면 |
-| 상층 설비 | main author | src/house/rooms/service-upper.ts | 점검 영역·설비 수납·내측 벽면 |
+| 현관 | main author | src/house/rooms/entry.ts | 내측 벽면·충전 niche의 건축 구멍과 lining·문 내측 |
+| 가변 작업실 | main author | src/house/rooms/flex.ts | 내측 벽면·미닫이문 내측 |
+| 연속 공용부 | main author | src/house/rooms/common.ts | 하나의 living/dining/kitchen 방 경계와 내측 벽면 |
+| 1층 powder/utility | main author | src/house/rooms/powder.ts | 방 내측 벽면 |
+| 1층 수납 | main author | src/house/rooms/storage-ground.ts | 방 내측 벽면 |
+| 주침실 | main author | src/house/rooms/primary.ts | 방 내측 벽면 |
+| 작은 침실 1 | main author | src/house/rooms/child-one.ts | L자 방 전체 내측 벽면 |
+| 작은 침실 2 | main author | src/house/rooms/child-two.ts | 방 전체 내측 벽면 |
+| 상층 복도 | main author | src/house/rooms/corridor.ts | 일자 통로의 내측 벽면·방문 내측 경계 |
+| 상층 욕실 | main author | src/house/rooms/bathroom.ts | 방 내측 벽면 |
+| 상층 수납 | main author | src/house/rooms/storage-upper.ts | 방 내측 벽면 |
+| 상층 설비 | main author | src/house/rooms/service-upper.ts | 점검 영역의 건축적 경계와 내측 벽면 |
 | 대지·조경 전체 | main author | src/house/site/garden.ts | 지면·보도·현관 외부 계단·식재·접지 |
 
 공유 portal owner는 문 구멍의 위치·clear 치수·host wall·from/to 공간·상태를 한 번만 선언한다. 입면과 방이 같은 문짝 geometry를 각각 복제하지 않는다. 주체 생성 owner가 양면 material binding을 소유하고 상대 owner는 자기 면의 요구를 입력으로 넘긴다. seam 변경은 이웃 표면의 재검증을 일으키며 소유권을 분할하지 않는다.
+
+**이관 중 상태와 퇴역 책임.** 현재 `src/house/rooms/*.ts`가 `src/house/rooms/interior.ts`의 `cabinet()`·`bed()`·책상·의자·위생 기구·소품·`lights()`를 호출하여 메시를 생성하는 것은 이전 구현의 임시 소비 경로다. 현재 viewer와 컴파일된 관찰 집합을 유지하기 위해 `instanceSources`가 독립 판정으로 `review`에 이를 때까지 그 메시를 남기되 이 경로에 새 물체 형상이나 part 주소를 저작하지 않는다. main author가 `modelSources`에서 prototype과 표면 주소를, `systemSources`에서 조명 과정을, `instanceSources`에서 방별 배치와 반복을 구현·판정받는다. `instanceSources: review` 직후 main author가 원자적으로 방 source의 물체 호출 및 `interior.ts`의 중복 생성 함수를 제거하고 조립 경로를 새 source 소비자로 교체한다. 교체 전후 같은 방에 두 메시가 동시에 나타나지 않도록 컴파일된 topology를 대조한다. `spaceSources`는 소유 방향상 `src/models`나 `src/instances`를 import하거나 물체 prototype을 생성하지 않는다. 이관 전 방 source의 물체 메시와 마감 문자열은 승인된 영구 소유권이 아니며, 현재 시각·재료 판정은 그 한계 아래 `unverified`다.
 
 **조립과 관찰 도구의 책임.**
 

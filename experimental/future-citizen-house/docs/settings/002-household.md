@@ -48,7 +48,7 @@
 
 중앙 전면 현관은 외부 entry door, 신발 수납, 벤치, 우편·충전 niche를 가진다. 현관에서 바로 연결되는 전면 flex workroom은 조절식 desk, chair, wall shelving, 접이식 work surface, translucent privacy screen, hidden storage를 가진다. 가변 가구의 두 정지 상태는 [작업실 상태](#flex-states)가 소유한다. 현관 중앙의 단일 꺾임계단은 upper landing으로 이어진다.
 
-후면의 하나로 이어진 common room은 거실·식당·주방이 칸막이 없이 연속된다. 거실에는 sofa, low table, media/storage wall, reading light가 있고, 식당에는 table과 여섯 자리, 주방에는 island, sink, induction cooktop, refrigerator, tall pantry, recycling/utility cabinet이 있다. 우측 불투명 service core에는 powder/utility room과 1층 storage를 둔다.
+후면의 하나로 이어진 common room은 거실·식당·주방이 칸막이 없이 연속된다. 거실에는 sofa, low table, media/storage wall, reading light가 있고, 식당에는 table과 여섯 자리, 주방에는 island, sink, induction cooktop, refrigerator, tall pantry, recycling/utility cabinet이 있다. 우측 불투명 service core에는 powder/utility room과 1층 storage를 둔다. powder/utility에는 세면대·변기·청소 수납을 두고 세탁기는 상층 설비실에 둔다. 이 목록은 방의 생활 기능을 정하며 물체의 형상과 배치 소유권은 [표면 분해](003-spatial-basis.md#surface-decomposition)에 따른다.
 
 ## 가변 작업실의 정지 상태 {#flex-states}
 

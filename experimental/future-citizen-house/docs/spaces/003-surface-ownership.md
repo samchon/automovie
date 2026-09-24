@@ -27,7 +27,7 @@
 @evidence contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements 단일 직사각형 외피가 내부 방·층 경계를 소비하도록 하며 화면을 위해 고정 그래프를 바꾸지 않는다.
 @evidenceReview contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements #d31488d 하나의 house 외주를 ground floor부터 upper ceiling까지 닫고 창의 방·층 대응을 기존 cell에서 받는다. 관찰면 보정이 room이나 connector를 움직이지 않으며 층간 덮개도 body volume 확장이 아니라고 제한하므로 외관을 맞추려고 고정 그래프에 새 공간을 끼워 넣는 변경은 허용되지 않는다. 이 관계는 외피의 그래프 보존 결정이며 실물 통행이나 성능 인증은 아니다.
 @evidence settings/003-spatial-basis.md#surface-decomposition 각 입면이 구조 return·창호·shade·마감을 함께 맡고 층·방과의 최종 면 중복을 금지하는 소유 배정을 소비한다.
-@evidenceReview settings/003-spatial-basis.md#surface-decomposition #0076c6d 부모가 배정한 전체 front/rear/left/right/roof를 개구부 H2 때문에 다시 쪼개지 않으며 각 입면이 창호와 마감까지 소유한다. floor/ceiling의 최종 면은 층, 외벽의 실내 finish는 방으로 한정하여 room이 유리나 수평 마감을 복제하는 충돌을 막는다. 소유권 연결은 유지하면서 이 자식이 따로 작성자·파일 배정표를 대체하지 않는다.
+@evidenceReview settings/003-spatial-basis.md#surface-decomposition #dcff2dc 개정된 표에서도 front/rear/left/right/roof는 전체 입면으로 남고 floor/ceiling은 층, 외벽 실내 finish는 방에 남으며 재료 응답과 finish id 배정은 구분된다. 물체는 models·instances로 이관됐으므로 이 외피 H2가 창호나 수평 마감의 분할을 다시 정하지 않는다.
 -->
 
 [house](001-citizen-house.md#citizen-house-space)의 외피는 [전면](#front-face), [후면](#rear-face), [좌측](#left-face), [우측](#right-face), [지붕](#roof-face)의 다섯 완결 표면이다. 각 면은 하나의 owner가 모든 구조 return·개구·틀·shade·마감을 소유한다. 작성자와 source 파일은 [분해 선언](../settings/003-spatial-basis.md#surface-decomposition)을 따른다. 개구부 H2는 같은 입면 내부의 주소이며 작성자를 분할하지 않는다.

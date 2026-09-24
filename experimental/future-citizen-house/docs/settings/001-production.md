@@ -229,7 +229,7 @@
 
 가족·두 층의 생활 프로그램·작동 주체·가상 통행 검사 조건·상속 기본값은 002-household의 해당 H2가 소유한다. 좌표·고정 1층/2층 그래프·외피와 프라이버시·완결 표면 소유 규칙은 003-spatial-basis의 해당 H2가 명시 canon이다. 재현할 프레임·카메라·GPU 기록, 운영자의 조작 범위, 접근성 납품 분류는 004-observation의 해당 H2에 있다.
 
-정확한 방 치수·문 위치·계단 구조·입면 모듈·가구 배치는 spaces 설계가 이 canon을 소비해 결정한다. 그 설계 역할을 설정의 미정 사실로 넘기지 않는다. 실제 geometry와 3D viewer의 구현·GPU 결과·독립 판정은 아직 unverified인 검증 결과이며 임의로 선택할 canon 값이 아니다. 새 결과를 주장하려면 현재 source를 canonical lint와 실제 viewer에서 검증해야 한다. film·시간축·인물 asset·실물 인증은 납품 범위 밖이며, 정확한 거주자 직업 등 결과에 무관한 사항만 002-household의 상속 경계 아래 남긴다.
+정확한 방 치수·문 위치·계단 구조·입면 모듈은 spaces 설계가, 재사용 가능한 가구·설비·소품 형상과 part/face 주소는 models 설계가, 그 방별 배치·반복은 instances 설계가 이 canon을 소비해 결정한다. 광원의 과정은 systems, 표면 응답과 결합은 materials가 결정한다. 그 설계 역할을 설정의 미정 사실로 넘기지 않는다. 기존 방 source가 물체를 직접 생성하는 동안의 임시 소비와 퇴역 조건은 [표면 분해](003-spatial-basis.md#surface-decomposition)가 명시하며, 이를 최종 소유권으로 승인하지 않는다. 실제 geometry와 3D viewer의 구현·GPU 결과·독립 판정은 아직 unverified인 검증 결과이며 임의로 선택할 canon 값이 아니다. 새 결과를 주장하려면 현재 source를 canonical lint와 실제 viewer에서 검증해야 한다. film·시간축·인물 asset·실물 인증은 납품 범위 밖이며, 정확한 거주자 직업 등 결과에 무관한 사항만 002-household의 상속 경계 아래 남긴다.
 
 ## 제작과 채택의 범위 {#build-or-adopt}
 

@@ -66,12 +66,12 @@
 <!--
 @evidence principles/core/common.md#scope-preservation 창호 jamb/mullion/head/sill·shade-box·금속 hem, 문 hardware, 실내 계단 난간, 가구의 metal 다리·손잡이, 샤워 screen rail, 등기구 metal trim·pendant cord를 이 마감에 두고 drip 석재·canopy-metal·PV frame·화면·hob·기기 외장은 제외해 metal 이름 부재의 배정이 겹치지 않는다.
 @evidence principles/core/common.md#substantive-completion #293332·roughness .38·metallic 0, 명목 0.08mm 도막, texture 없음과 bare metal의 .65를 쓰지 않는 이유까지 정해 구현이 금속 응답을 고를 일이 없다.
-@evidence principles/core/common.md#declared-basis 차콜 frame은 시각 문법, 창호·문·계단 부재는 glazing-interface·door-interface·single-stair의 기존 부재, 가구 다리·손잡이·샤워 rail·등기구 trim·cord는 각 방 owner의 기존 부재에서 받고, 도장 위 반사라는 해석과 수치는 이 층의 선택이다.
+@evidence principles/core/common.md#declared-basis 차콜 frame은 시각 문법, 창호·문·계단 부재는 glazing-interface·door-interface·single-stair, 가구 다리·손잡이·샤워 rail·등기구 trim·cord의 목표 형상은 models에서 받는다. 현재 방 source의 해당 메시를 임시 관찰 대상으로만 읽고 도장 반사 수치는 이 층에서 정한다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 부모는 어두운 금속 frame과 부재 위치만 정한다. 이 H2는 그것이 도장된 비금속 반사 응답이라는 결정과 새 bevel 없이 기존 모서리·면 방향이 광택 폭을 만든다는 규칙을 더한다.
 @evidence principles/design/materials.md#material-construction-appearance 금속 기재 위 명목 0.08mm 도막을 구조 사실로, metallic=0·roughness .38을 그 도막의 렌더 응답으로 두어 도장 frame을 bare metal처럼 보이게 하지 않는다.
 @evidence principles/design/materials.md#material-binding-interface 창호 owner, doorway를 만드는 층 owner(현관문은 전면 owner), 방·계단 owner가 각자 부재를 유지한 채 역할 주소로만 결합하고, texture가 없어 좌표 요구가 없으며 canopy·PV frame에는 결합하지 않는다는 호환 경계를 둔다.
 @evidence principles/design/materials.md#material-verification-address 프레임이 검은 구멍이 아니라 기존 깊이로 빛을 받는 부재로 읽히는지를 외관·공용부·상층 reference 표본에서 반증하고, 얕은 frame 깊이의 한계는 창호 단계로 남긴다.
-@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work glazing-interface의 0.04m 면 폭·0.14m 깊이 부재와 roller box·hem, door-interface의 handle과 leaf의 native 회전(별도 hinge element는 없다), single-stair의 baluster·handrail 위치, 방 owner의 가구 다리·손잡이·샤워 rail·등기구 trim을 대조했다. 결합할 부재 주소가 모두 있어 부모 수리가 필요 없었다.
+@evidence upstream/design/materials.md#parent-revision-from-material-work glazing-interface와 door-interface 및 single-stair의 금속 부재는 기존 주소를 대조했다. 반면 가구 다리·손잡이·샤워 rail·등기구 trim의 방 source 주소는 임시 소비로 판명돼 settings/003#surface-decomposition의 물체 owner와 퇴역 규칙을 수리했다. 최종 결합 주소는 models의 part/face 검토가 필요하다.
 @evidence settings/001-production.md#production-visual-grammar 차콜 frame이라는 재료 관계를 도장 금속의 짙은 색과 중간 광택으로 옮긴다.
 @evidence spaces/003-surface-ownership.md#glazing-interface jamb·mullion·head·sill과 shade-box·hem의 기존 부재를 각 입면 owner가 이 도장 금속으로 배정한다.
 @evidence spaces/002-spatial-graph.md#door-interface doorway가 문짝에 붙이는 handle hardware를 doorway를 만드는 층 owner(현관문은 전면 owner)가 이 도장 금속으로 받는다.
@@ -88,13 +88,13 @@
 @evidence principles/core/common.md#scope-preservation 수전·싱크 판·가전 손잡이·hob ring·계단 steel stringer·flush·shower 부속을 steel-satin으로, 욕실과 powder의 거울 역할을 mirror-proxy로 나누고 싱크 위 metal basin 판·캐노피 support anchor·cassette 체결 bolt·head·거름망·점검 덮개·steel 설비장 몸체·site 부재는 보존 역할로 넘겨 노출 금속면에 owner가 둘인 면이 없다.
 @evidence principles/core/common.md#substantive-completion steel-satin #b4bcb8·metallic .85·roughness .24와 mirror-proxy #d6ddda·metallic 1·roughness .06을 정해 두 반사 응답을 구현이 고르지 않는다.
 @evidence principles/core/common.md#declared-basis 부재는 방·계단 owner의 기존 box·rod·타원체 형상에서 받고, 금속 응답과 환경맵 거울 근사는 이 층의 선택이며 합금·부식·위생 성능은 이 값이 표현하지 않는다고 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 프로그램은 sink·induction cooktop이 있다는 사실만 주고 거울은 방 owner의 세면대 형상에서 온다. 이 H2는 노출 금속과 거울을 서로 다른 두 응답으로 나누고 현재 환경 반사의 한계를 결정한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 프로그램은 sink·induction cooktop을 주고 거울의 최종 형상 주소는 models에서 받는다. 이 H2는 노출 금속과 거울을 서로 다른 응답으로 나누고 현재 환경 반사의 한계를 정한다.
 @evidence principles/design/materials.md#material-construction-appearance 기존 형상·양각·곡률을 유지한 채 금속성은 metallic·roughness 근사로만 표현하고, 방 안 물체의 정확한 거울상은 지원하지 않는다고 구분해 다른 화면이나 사진으로 가리지 않는다.
 @evidence principles/design/materials.md#material-binding-interface texture가 없어 좌표 요구가 없고 수전·싱크·stringer·mirror라는 역할 주소로만 결합하며 site 부재로 확장하지 않는 경계를 둔다.
 @evidence principles/design/materials.md#material-verification-address 싱크·수전·손잡이와 거울을 공용부·욕실 표본에서 각각 주소로 열고, 부재가 비금속 회색 플라스틱처럼 읽히면 이 H2의 실패로 둔다.
-@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work common-room 주방의 island sink·tap·hob·oven handle, powder와 욕실의 basin tap·spout·거울·shower 부속, single-stair의 steel stringer를 대조했다. 모두 이미 분리된 element라 부모 형상이나 소유를 고칠 결함이 없었다.
+@evidence upstream/design/materials.md#parent-revision-from-material-work single-stair의 steel stringer는 건축 부재 주소가 있으나 주방·위생 기구의 sink·tap·hob·handle·거울·shower 부속은 기존 방 source의 임시 element다. settings/003#surface-decomposition에서 물체 형상 owner를 models로 고쳤고 최종 부재 주소는 models 재판정 뒤 결합한다.
 @evidence settings/002-household.md#ground-program 주방의 sink와 induction cooktop이 식별되도록 수전·싱크·hob ring에 노출 금속 응답을 준다.
-@evidence spaces/002-spatial-graph.md#common-room 연속 공용부 주방의 싱크·수도꼭지·가전 손잡이·hob ring을 공용부 owner가 이 금속으로 배정한다.
+@evidence spaces/002-spatial-graph.md#common-room 연속 공용부 주방이라는 목적지에 놓이는 싱크·수도꼭지·가전 손잡이·hob ring의 model 부재에 이 금속 응답을 배정한다.
 @evidence spaces/002-spatial-graph.md#powder-utility powder 세면대의 tap·spout은 steel-satin, 그 위 거울은 mirror-proxy로 나눈다.
 @evidence spaces/002-spatial-graph.md#upper-bathroom 욕실 vanity 수전·거울과 shower riser·head·drain을 같은 두 역할로 받는다.
 @evidence spaces/002-spatial-graph.md#single-stair 두 flight의 steel stringer를 노출 금속으로 두어 도장 난간과 반사가 구분되게 한다.

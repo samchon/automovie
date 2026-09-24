@@ -76,23 +76,23 @@ upper slab는 네 box piece를 면 단위 material part로 나눈다. 계단 구
 <!--
 @evidence principles/core/common.md#scope-preservation 소파 cushion·arm·back·pillow, 의자 seat·back, 현관 bench cushion, 침대 mattress·duvet·pillow, rug의 실제 면을 네 직물 색으로 모두 받고 toilet seat의 linen색은 직물에서 빼 가구·침구 직물의 배정을 끝낸다.
 @evidence principles/core/common.md#substantive-completion 네 직물의 색·roughness, woven-grain 256²·.064m와 1.5..2mm 격자, box 면별 UV, ellipsoid의 ring·열 누적 길이 UV와 seam 복제 규칙까지 정해 구현이 직물 좌표를 발명하지 않는다.
-@evidence principles/core/common.md#declared-basis 소파·침대·의자는 생활 프로그램과 flex-states에서, rug와 각 부재의 형상은 방 owner에서 받고 색·조직·곡면 좌표 규칙은 이 층의 선택이며 pole의 등거리성은 unverified로 둔다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모는 소파·침대·의자·현관 bench·guest bed가 있다는 사실과 방 owner의 형상, 현재 source의 색 역할을 준다. 이 H2는 직물 조직의 규모, 네 직물의 색 값·roughness, 곡면 pillow의 tessellation 기반 좌표를 결정한다.
+@evidence principles/core/common.md#declared-basis 소파·침대·의자는 생활 프로그램과 flex-states, rug와 각 부재의 최종 형상은 models에서 받는다. 현재 방 source의 형상은 임시 관찰 입력이고 색·조직·곡면 좌표 규칙은 이 층의 선택이며 pole의 등거리성은 unverified다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 프로그램은 소파·침대·의자·현관 bench·guest bed의 존재를, models는 최종 형상 주소를 준다. 현재 방 source의 색 역할은 이관 전 입력이며 이 H2는 직물 조직 규모, 네 직물의 색·roughness와 곡면 pillow 좌표를 정한다.
 @evidence principles/design/materials.md#material-construction-appearance 명목 표면 직물 .001m는 외곽 안에 포함하고 충전재 덩어리·곡면은 geometry로 두며, 실의 단면·주름·미세 그림자는 현재 renderer와 형상 범위 밖이라고 나눈다.
 @evidence principles/design/materials.md#material-binding-interface box top X/Z·전면 X/Y·옆면 Z/Y, ellipsoid는 뒤쪽 -Z seam과 아래 pole부터 누적한 edge 길이로 U/V를 두고 면 위치·법선은 바꾸지 않는다.
 @evidence principles/design/materials.md#material-verification-address ref03 소파·rug, ref02 침구, ref04 의자를 reference·방 표본에서, woven-grain을 scale-and-junction의 거리 표본에서 비교하고 pole과 뒤쪽 seam을 scale 표본에 따로 넣어 moiré나 몰림을 반증한다.
-@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work common-room owner의 소파·rug, 세 침실과 guest bed의 침구, 작업실·침실 의자의 형상과 ground/upper program의 sofa·bed·chair, flex-states를 대조했다. 곡면 pillow도 원래 sphere tessellation의 ring과 열을 가져 부모 수리 없이 좌표를 정할 수 있었다.
-@evidence settings/002-household.md#ground-program 거실 sofa의 직물을 textile-linen·textile-green으로 받아 공용부의 앉는 자리를 읽히게 한다. rug는 이 프로그램이 아니라 공용부 owner의 형상에서 온다.
+@evidence upstream/design/materials.md#parent-revision-from-material-work 기존 방 source의 소파·rug·침구·의자와 프로그램·flex 상태를 대조해 곡면 pillow의 임시 tessellation 입력을 확인했다. 그러나 방 source의 물체 소유권은 부모 settings/003에서 models·instances로 수리했고, 최종 의자·침대·소파 part 주소 및 UV는 models 재판정 뒤 갱신한다.
+@evidence settings/002-household.md#ground-program 거실 sofa의 직물을 textile-linen·textile-green으로 받아 공용부의 앉는 자리를 읽히게 한다. rug의 형상은 최종 models owner가 맡는다.
 @evidence settings/002-household.md#upper-program 세 침실의 mattress·duvet·pillow를 네 직물 색으로 받아 수면실로 읽히게 한다.
 @evidence settings/002-household.md#flex-states 손님 수면 상태에서 바닥과 평행하게 내려오는 guest bed의 mattress·duvet·pillow에도 침대 직물의 색·조직 규칙이 그대로 적용된다.
-@evidence spaces/002-spatial-graph.md#common-room 공용부 소파 cushion·arm·back·pillow와 rug를 공용부 owner가 직물로 배정한다.
+@evidence spaces/002-spatial-graph.md#common-room 공용부가 소파와 rug를 수용한다는 방 목적을 받고 직물 결합은 최종 model part/face에 배정한다.
 @evidence spaces/002-spatial-graph.md#primary-bedroom 주침실 침대의 mattress·duvet·pillow와 의자 seat·back이 직물을 받는다.
 @evidence spaces/002-spatial-graph.md#child-bedroom-1 작은 침실 1의 green duvet·mattress·pillow와 의자 seat·back이 직물을 받는다.
 @evidence spaces/002-spatial-graph.md#child-bedroom-2 작은 침실 2의 blue duvet·mattress·pillow와 의자 seat·back이 직물을 받는다.
 @evidence spaces/002-spatial-graph.md#entry 현관 bench cushion이 본문이 정한 textile-green을 받아 소파 가운데 pillow·의자와 같은 녹색 직물로 읽힌다.
 -->
 
-소파 cushion·arm·back·pillow, 의자 seat·back, 현관 bench cushion, bed mattress/duvet/pillow, rug의 실제 면은 각 방 owner가 `textile-linen`, `textile-green`, `textile-blue`, `textile-white`로 배정한다. 색은 차례로 #c8c3b6, #6b735c, #657682, #e1dfd5이며 roughness는 .92, .94, .94, .92다. 배정은 현재 source의 색 역할을 잇는다. 소파 cushion·arm·back·양쪽 pillow, rug, 침대 mattress, 주침실 duvet는 textile-linen이다. 소파 가운데 pillow, 현관 bench cushion, 작업실·주침실·두 작은 침실 의자의 seat·back, 작은 침실 1과 guest bed의 duvet는 textile-green이다. 작은 침실 2 duvet는 textile-blue, 침대 pillow는 textile-white다. 기존 충전재 덩어리·곡면은 유지하며 명목 표면 직물 .001m는 외곽 안에 포함한다. toilet seat의 linen색은 직물 대상이 아니다.
+소파 cushion·arm·back·pillow, 의자 seat·back, 현관 bench cushion, bed mattress/duvet/pillow, rug의 실제 면은 최종 model part/face 주소에서 `textile-linen`, `textile-green`, `textile-blue`, `textile-white`로 배정한다. 색은 차례로 #c8c3b6, #6b735c, #657682, #e1dfd5이며 roughness는 .92, .94, .94, .92다. 배정은 현재 source의 색 역할을 임시 관찰 입력으로 삼지만 그 element 이름을 최종 주소로 승인하지 않는다. 소파 cushion·arm·back·양쪽 pillow, rug, 침대 mattress, 주침실 duvet는 textile-linen이다. 소파 가운데 pillow, 현관 bench cushion, 작업실·주침실·두 작은 침실 의자의 seat·back, 작은 침실 1과 guest bed의 duvet는 textile-green이다. 작은 침실 2 duvet는 textile-blue, 침대 pillow는 textile-white다. 명목 표면 직물 .001m는 외곽 안에 포함한다. toilet seat의 linen색은 직물 대상이 아니다.
 
 `woven-grain`은 256²·.064×.064m, 1.5..2mm 격자 조직, 선형 평균 .96·범위 .89..1.00이다. box의 top은 X/Z, 전면은 X/Y, 옆면은 Z/Y의 metric UV다. ellipsoid pillow는 원래 sphere tessellation의 위도 ring과 경도 열을 유지한다. scale 뒤 각 위도 ring의 뒤쪽 local -Z seam부터 둘레의 실제 mesh edge 길이를 누적한 값을 U로, 각 경도 열의 아래쪽 pole부터 누적한 edge 길이를 V로 둔다. 같은 점이 만나는 seam의 UV 속성만 복제하고 면 위치·법선은 바꾸지 않는다.
 

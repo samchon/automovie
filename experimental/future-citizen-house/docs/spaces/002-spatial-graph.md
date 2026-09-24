@@ -35,7 +35,7 @@
 
 <!--
 @evidence settings/003-spatial-basis.md#surface-decomposition 1층 구조와 연속 바닥·천장을 층 owner 하나에 배정하고 개별 room이 그 최종 수평 면을 다시 만들지 못하게 한다. 이 책임은 실제 모듈 존재나 surface 검증 완료를 뜻하지 않는다.
-@evidenceReview settings/003-spatial-basis.md#surface-decomposition #0076c6d 1층의 노출 바닥·천장과 구조 partition을 ground-storey의 책임으로 두고 room이 같은 수평 마감을 덧씌우지 못하게 한다. 이는 설정의 층별 단독 소유를 소비한 배정이며 실제 파일이나 마감면이 구현됐다는 판정은 아니다.
+@evidenceReview settings/003-spatial-basis.md#surface-decomposition #dcff2dc 개정된 표에서 ground-storey의 연속 바닥·천장과 room의 내측 벽 finish, material 응답과 finish id 배정의 구분을 읽었다. 이 1층 H2는 층의 수평 면과 구조 partition을 맡으며 물체 prototype·배치를 소유하지 않는다.
 -->
 
 <!--
@@ -64,8 +64,8 @@ storey id ground-storey는 house의 자식이며 [매스와 층 datum](#mass-and
 ## 2층 {#upper-level}
 
 <!--
-@evidence settings/003-spatial-basis.md#surface-decomposition 상층 slab·계단 구멍 및 연속 수평 마감은 upper owner가 맡고 room은 내측 벽과 fit-out만 맡는 배정을 소비한다. roof의 실외 하부와 상층 실내 ceiling을 섞지 않는다.
-@evidenceReview settings/003-spatial-basis.md#surface-decomposition #0076c6d upper-storey가 연속 수평 마감과 구조 partition을 맡고 계단의 바닥 개구를 그 층에 통합한다. 실내 ceiling을 room이나 roof의 외부 하부 마감으로 중복 생성하는 대신 설정의 upper owner 책임을 유지한다.
+@evidence settings/003-spatial-basis.md#surface-decomposition 상층 slab·계단 구멍 및 연속 수평 마감은 upper owner가 맡고 room은 내측 벽만 맡는 배정을 소비한다. 물체 fit-out은 models와 instances로 분리하고 roof의 실외 하부와 상층 실내 ceiling을 섞지 않는다.
+@evidenceReview settings/003-spatial-basis.md#surface-decomposition #dcff2dc 개정된 표에서 upper-storey가 연속 수평 마감과 구조 partition, 계단 바닥 개구를 맡는 것을 읽었다. material 응답은 별도이고 room에는 내측 벽 finish만 남으며 가구 prototype·배치는 models·instances에 남는다.
 -->
 
 <!--
@@ -115,7 +115,7 @@ storey id upper-storey는 house의 자식이며 [매스와 층 datum](#mass-and-
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 고정 1층 그래프와 위생·수납 프로그램을 현재 다섯 room 및 연결 opening의 본문에 대조했다. 현관 직결 작업실과 후면 공용부를 유지한 채 core의 목적지를 배정할 수 있어 부모의 생활 범위나 연결 요구를 바꿀 모순은 드러나지 않았다.
 @evidenceReview contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements #d31488d 현관에서 전면 작업실·후면 공용부와 단일 계단으로 바로 이어지는 중심 관계를 보존한다. shared gap을 추가 복도로 해석해 요구된 직접 연결을 우회하는 설계는 이 분할과 맞지 않으며 실제 문·벽 검사는 별도로 남아 있다.
 @evidenceReview settings/003-spatial-basis.md#ground-graph #38b01ba 현관에 작업실·공용부·계단을 직접 연결하고 우측 core의 powder와 수납에 각각 목적지 출입을 배정한다. 부모가 요구한 통행을 방 이름의 순서나 임의 경유실로 대신하지 않는다.
-@evidenceReview settings/002-household.md#ground-program #bf91ce4 현관·전면 작업·연속된 공용 생활과 위생·수납을 ground-storey의 실제 room 목록으로 나눈다. 가구와 설비는 이 방들 안에서 후속 실현되어야 하므로 공간 분할을 간단히 만들기 위해 프로그램에 해당하는 room을 빼지 않는다.
+@evidenceReview settings/002-household.md#ground-program #6dc5422 개정된 프로그램에서 powder의 세면대·변기·청소 수납은 기능 목록이며 물체 형상·배치 owner와 다름을 읽었다. 현관·작업실·공용부·powder·수납을 ground-storey의 실제 room으로 나누고 물체 구현을 위해 방 자체를 빼지 않는다.
 -->
 
 [1층](#ground-level) 내부는 [현관](#entry), [작업실](#flex-workroom), [공용부](#common-room), [powder](#powder-utility), [수납](#storage-1f)의 다섯 room으로 분할한다. 각 room의 clear cell이 자기 경계를 소유한다. cell 사이 gap은 [벽 두께](#mass-and-storeys)를 가진 shared wall 하나이며 이름 없는 corridor로 쓰지 않는다.
@@ -126,7 +126,7 @@ storey id upper-storey는 house의 자식이며 [매스와 층 datum](#mass-and-
 
 <!--
 @evidence settings/002-household.md#ground-program 도착·신발 수납·잠시 앉는 기능을 현관 안의 공간 조건으로 받아 계단과 직결 목적지를 함께 배정한다. 가구가 놓일 때 동측 보행대를 없애는 실현은 이 프로그램 관계를 충족하지 못한다.
-@evidenceReview settings/002-household.md#ground-program #bf91ce4 신발 수납과 벤치 등이 쓰일 현관을 계단 및 직접 연결 목적지와 함께 같은 cell에 배정한다. 해당 물품의 실제 배치를 승인한 것은 아니며 fit-out이 계단 동측 보행대를 없애면 이 현관 프로그램의 공간 조건을 잃는다.
+@evidenceReview settings/002-household.md#ground-program #6dc5422 개정된 프로그램에서도 신발 수납과 벤치는 현관 기능이고 powder 기구는 우측 core 기능임을 확인했다. 현관 cell에는 계단과 직접 연결을 남기며 이 H2가 물체 배치를 승인하지 않는다.
 -->
 
 <!--
@@ -163,7 +163,7 @@ room id는 entry, parent는 [ground-storey](#ground-level)다. clear cell의 x=-
 
 <!--
 @evidence settings/002-household.md#ground-program 책상과 수납 및 추가 손님 기능을 전면의 현관 직결 작업실에 배정한다. 식당이나 상층 침실로 작업 기능을 옮겨 요구 room을 없애지 않는다.
-@evidenceReview settings/002-household.md#ground-program #bf91ce4 현관에서 바로 들어가는 전면 room에 책상·수납의 작업 기능을 배정하고 ground-program이 연결한 가변 가구의 상태도 유지한다. 작업 기능을 식당이나 상층 침실로 보내 독립 작업실을 생략하는 실현과 구별된다.
+@evidenceReview settings/002-household.md#ground-program #6dc5422 개정된 프로그램에서도 현관 직결 전면 room의 책상·수납 작업 기능을 읽었다. powder의 새 기구 목록은 작업실의 배치 소유권을 바꾸지 않으며 이 H2는 독립 작업실 cell을 유지한다.
 -->
 
 <!--
@@ -197,7 +197,7 @@ room id는 flex-workroom, parent는 [ground-storey](#ground-level)다. clear cel
 
 <!--
 @evidence settings/002-household.md#ground-program 소파 생활·여섯 자리 식사·섬 주방을 벽 없이 이어지는 후면 한 room이 수용하게 한다. 수납 접근과 주방까지의 길을 식탁 점유 안에만 두지 않는다.
-@evidenceReview settings/002-household.md#ground-program #bf91ce4 소파 생활·여섯 자리 식사·섬 주방을 후면의 한 연속 room에 배정하고 수납 및 주방 접근을 남긴다. 식탁의 점유를 통과해야만 이동할 수 있는 배치는 이 생활 프로그램을 수용한 공간으로 볼 수 없다.
+@evidenceReview settings/002-household.md#ground-program #6dc5422 개정된 프로그램의 후면 소파·여섯 자리 식사·섬 주방과 우측 powder 기구 목록을 구분해 읽었다. 이 H2는 후면을 한 연속 room으로 유지하고 그 물체들의 실제 transform은 instances에 남긴다.
 -->
 
 <!--
@@ -228,18 +228,18 @@ room id는 common-room, parent는 [ground-storey](#ground-level)다. clear cell�
 ## 1층 powder {#powder-utility}
 
 <!--
-@evidence settings/003-spatial-basis.md#surface-decomposition powder의 세면대·변기·청소 수납과 문 안쪽 벽면을 방 owner가 맡는 배정을 이 독립 코어 cell에 연결한다. 지워진 세탁 기능은 상층 설비실에 남는다.
-@evidenceReview settings/003-spatial-basis.md#surface-decomposition #0076c6d 표면 배정의 powder 행이 정한 세면대·변기·청소 수납과 방 내측 벽면을 독립 core cell이 수용하게 한다. 이 fixture 목록을 ground-program의 별도 미기재 항목으로 돌리지 않고 실제 배정 owner와 연결한다.
+@evidence settings/003-spatial-basis.md#surface-decomposition powder 방 owner의 내측 벽면과 독립 core cell을 연결한다. 세면대·변기·청소 수납의 prototype과 배치는 각각 models·instances가 맡으며 세탁 기능은 상층 설비실에 남는다.
+@evidenceReview settings/003-spatial-basis.md#surface-decomposition #dcff2dc 개정된 powder 행은 방의 내측 벽면만 배정하고 물체의 형상·배치를 models·instances, 재료 응답을 materials로 분리한다. 이 cell은 세면대·변기·청소 수납을 수용하되 그 part/face나 transform을 공간 소유로 가져오지 않는다.
 -->
 
 <!--
 @evidence settings/002-household.md#ground-program 1층 powder/utility room을 현관 직결 core room으로 배정한다. 상층 세탁 프로그램을 여기에도 넣는 별도 기능 확장은 하지 않는다.
-@evidenceReview settings/002-household.md#ground-program #bf91ce4 우측 service core에 둔 powder/utility room을 현관에서 직접 들어가는 1층 목적지로 구체화한다. ground-program의 room 존재를 소비하는 관계이며 상층 세탁 기능까지 같은 방에 추가했다고 읽지 않는다.
+@evidenceReview settings/002-household.md#ground-program #6dc5422 개정된 프로그램은 powder에 세면대·변기·청소 수납을 두고 세탁기는 상층 설비실에 둔다. 이 H2는 그 기구를 수용할 현관 직결 core cell을 정할 뿐 형상이나 배치를 방 owner로 가져오지 않는다.
 -->
 
 <!--
-@evidence principles/core/common.md#declared-basis ground-program의 powder room과 surface-decomposition의 세면·변기·청소 수납을 전면 화면 우측의 cell에 담았다. 상층 설비실의 세탁기를 여기로 옮기는 새로운 프로그램은 만들지 않는다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb powder room의 존재는 ground-program, 구체 fixture 배정은 surface-decomposition에서 받으며 전면 화면 우측 cell은 이 공간 설계가 정한다. 위생·청소 물품의 근거와 room의 위치 선택을 한 부모가 모두 이미 정한 것으로 섞지 않는다.
+@evidence principles/core/common.md#declared-basis ground-program의 powder room과 세면·변기·청소 수납 기능을 전면 화면 우측의 cell에 담았다. 표면 분해는 이 방의 내측 벽 finish만 배정하며 상층 설비실의 세탁기를 여기로 옮기지 않는다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb powder room과 세면·변기·청소 수납 기능은 ground-program에서 받고, 전면 화면 우측 cell은 이 공간 설계가 정한다. 개정된 surface-decomposition에서는 방 벽 finish만 받아 물체의 형상·배치 소유권을 혼동하지 않는다.
 @evidence principles/core/common.md#scope-preservation powder를 현관 직결의 독립 위생 공간으로 두고 세면·변기·청소 수납 접근을 남긴다. 다른 방으로 가는 통과실로 사용해 프라이버시나 필수 목적지의 접근을 없애지 않는다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 세면·변기·청소 수납에 접근할 독립 위생 공간과 현관 직결을 남긴다. 다른 방의 통과실로 사용하거나 core의 불투명 외벽 뒤에 공간 없이 이름만 두는 방식으로 powder의 목적을 축소하지 않는다.
 @evidence principles/core/common.md#substantive-completion powder-utility의 parent와 x/z cell, 직접 진입문과 목적지가 결정됐다. 후속 설비 배치가 이 core의 외곽을 먼저 발명해야 하는 상태가 아니다.
@@ -266,7 +266,7 @@ room id는 powder-utility, parent는 [ground-storey](#ground-level)다. clear ce
 
 <!--
 @evidence settings/002-household.md#ground-program 공용 생활에 필요한 수납을 공용부에서 직접 들어가는 1층 core 목적지로 둔다. 위생 공간을 통과해야만 수납에 닿는 관계로 바꾸지 않는다.
-@evidenceReview settings/002-household.md#ground-program #bf91ce4 1층 storage를 공용부에서 직접 들어갈 수 있는 core의 목적지로 배정한다. 위생 공간을 지나야만 수납에 닿도록 하지 않아 부모가 남긴 수납 기능을 독립적으로 사용할 공간 관계를 제공한다.
+@evidenceReview settings/002-household.md#ground-program #6dc5422 개정된 프로그램에서 powder의 청소 수납과 별도 1층 storage를 구분해 읽었다. 이 H2는 별도 storage를 공용부에서 직접 들어가는 목적지로 유지하고 cabinet 형상은 models에 남긴다.
 -->
 
 <!--
