@@ -19,9 +19,9 @@
  * - the drop (`faceHairDropIndex`, chin to lowest hair over inter-ocular)
  *   with a common factor on each layer's hanging lengths, left, right, nape
  *   and back;
- * - the fringe (`faceHairFringeCoverage`, the share of the forehead between
- *   the eye corners and above the upper lids that hair covers) with a
- *   factor on each layer's front length.
+ * - the fringe (`faceHairFringeCoverage`, the share of the forehead and
+ *   eyes between the eye corners and above the lower lids that hair covers)
+ *   with a factor on each layer's front length.
  *
  * The crown's length lies over the scalp and keeps its authored value. Each
  * factor is solved by a secant iteration from 1 inside [0.2, 3], the index
@@ -102,8 +102,8 @@ const anchors = readFaceLikenessJson<{
 }>(anchorFile!).views;
 const build = createHumanFaceBasisBuilder(basis);
 const BROWS = [105, 334];
-/** Landmarks the indices read: forehead top, eye corners, upper lids, chin. */
-const LANDMARKS = [10, 33, 263, 159, 386, 152];
+/** Landmarks the indices read: forehead top, eye corners, lower lids, chin. */
+const LANDMARKS = [10, 33, 263, 145, 374, 152];
 /**
  * The two controls: which `lengthAxes` ([+X, -X, +Y, -Y, +Z, -Z]: left,
  * right, crown, nape, front, back) each factor scales, and the index
@@ -183,7 +183,7 @@ const derived = documents.map((original) => {
         mask,
         top: at(10),
         eyes: [at(33), at(263)],
-        lids: [at(159), at(386)],
+        lids: [at(145), at(374)],
       }),
     };
   };

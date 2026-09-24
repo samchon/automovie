@@ -92,10 +92,12 @@ export function faceHairLowestRow(mask: IFaceHairMask): number | null {
 }
 
 /**
- * The share of the forehead the hair covers: the rectangle from the top of
- * the forehead (landmark 10) down to the higher upper lid (159, 386) and
- * between the lateral eye corners (33, 263), the region a fringe falls
- * over, or null when it has no pixel.
+ * The share of the forehead and eyes the hair covers: the rectangle from the
+ * top of the forehead (landmark 10) down to the higher lower lid (145, 374)
+ * and between the lateral eye corners (33, 263), the region a fringe falls
+ * over, or null when it has no pixel. It reaches through the palpebral
+ * fissures, so a fringe hanging over the eyes still lengthens it rather than
+ * saturating at the upper lids.
  */
 export function faceHairFringeCoverage(props: {
   mask: IFaceHairMask;
