@@ -9,7 +9,7 @@
 @evidence principles/design/models.md#representation-contract rigid 난간살 원형과 위아래 끝의 접속을 정한다.
 @evidence principles/design/models.md#spatial-convention 원점을 난간살 아래 끝 중심으로 적는다.
 @evidence principles/design/models.md#reviewable-structure 02가 적은 flight·중간참·상부 도착 view에서 간격을 반증한다.
-@evidence principles/design/models.md#model-observable-style-basis 검은 철제 수직살을 0.02 m 정사각 단면으로 구체화한다.
+@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 03·04의 계단에서 일정 간격으로 이어지는 검은 난간살을 채택한다. 검은 철제 수직살을 0.02 m 정사각 단면으로 구체화한다.
 @evidence principles/design/models.md#model-scale-layer-completion 예약 폭 안의 점유 척도를 정한다.
 @evidence spaces/02-stair.md#stair-boundary-heights 난간살 빈 간격 0.10 m 이하를 개수·간격 공식으로 소비한다.
 @evidence spaces/02-stair.md#stair-clearance 양쪽 0.075 m 점유 예약 가운데 선에 0.02 m 난간살을 둔다.
@@ -34,7 +34,7 @@
 @evidence principles/design/models.md#representation-contract bottom-rail과 난간살의 연결을 정한다.
 @evidence principles/design/models.md#spatial-convention bottom-rail 높이를 upper-storey 바닥 기준으로 적는다.
 @evidence principles/design/models.md#reviewable-structure 디딤별 측면 단면과 복도 가장자리 단면에서 빈 높이를 반증한다.
-@evidence principles/design/models.md#model-observable-style-basis 검은 철제 아래 부재를 정한다.
+@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 04의 계단 아래 흰 띠와 검은 난간살 접합을 채택한다. 검은 철제 아래 부재를 정한다.
 @evidence principles/design/models.md#model-scale-layer-completion 아래 부재 층의 유무를 구간별로 정한다.
 @evidence spaces/02-stair.md#stair-boundary-heights 아래 빈 높이 0.10 m 이하를 디딤 직접 고정과 bottom-rail 0.05 m로 소비한다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 02를 적힌 그대로 소비했고 부모 수정이 없었다.
@@ -53,7 +53,7 @@
 @evidence principles/design/models.md#representation-contract 난간 부재의 안정 표면을 정한다.
 @evidence principles/design/models.md#spatial-convention baluster·bottom-rail 표면은 stair-balusters의 난간살 아래 끝 원점을 따르고 새 좌표를 정하지 않는다.
 @evidence principles/design/models.md#reviewable-structure 바인딩 뷰에서 기둥과 난간살 경계로 반증한다.
-@evidence principles/design/models.md#model-observable-style-basis 검은 철제 색은 materials에 둔다.
+@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 03·04의 검은 난간살과 흰 계단 바탕이 구분되므로 난간 부재 면만 models로 넘긴다. 검은 철제 색은 materials에 둔다.
 @evidence principles/design/models.md#model-scale-layer-completion baluster와 bottom-rail 두 표면 인터페이스를 정하고 기둥·손잡이 표면은 spaces에 남긴다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work settings stair를 그대로 소비했고 부모 수정이 없었다.
 -->
@@ -71,7 +71,7 @@
 @evidence principles/design/models.md#representation-contract 난간살 반복이 보호 성능·법규 적합을 증명하지 않는다는 proxy 한계를 정한다.
 @evidence principles/design/models.md#spatial-convention 난간살 0.02 m 단면과 bottom-rail 0.05 m 높이는 앞 H2에 두고 이 한계 H2는 좌표를 정하지 않는다.
 @evidence principles/design/models.md#reviewable-structure 모델 리뷰 뷰의 측면 단면에서 난간살 끝의 받침판이 생기면 반증된다.
-@evidence principles/design/models.md#model-observable-style-basis 용접부·볼트가 보이지 않는다는 관찰 가능한 난간 한계를 적는다.
+@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 04에서 읽히는 살대와 아래 띠는 채택하지만 나사·고정구는 사진에서도 보이지 않아 표현 범위에서 제외한다. 용접부·볼트가 보이지 않는다는 관찰 가능한 난간 한계를 적는다.
 @evidence principles/design/models.md#model-scale-layer-completion 난간 부재의 용접부·볼트·받침판을 만들지 않는 층으로 명시한다.
 @evidence obligations/design/models.md#representation-ceiling 난간 부재의 보호 성능·법규 비증명을 적는다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work settings fidelity와 02-stair의 법규 비주장을 난간 부재 생략과 대조했고 부모 수정이 필요하지 않았다.

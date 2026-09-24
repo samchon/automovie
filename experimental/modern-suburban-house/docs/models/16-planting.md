@@ -9,7 +9,7 @@
 @evidence principles/design/models.md#representation-contract 줄기와 여섯 굵은 가지는 유한 두께의 닫힌 다면체, 수관은 서로 다른 크기의 둥근 군집 부피로 만들며 표면 `bark`·`foliage`를 낸다. 잎 한 장과 실제 생장은 표현하지 않는다.
 @evidence principles/design/models.md#spatial-convention 국소 원점은 줄기 접지 중심, +Y는 위, +X·+Z는 수관의 두 수평축이다. world 배치는 instances가 maps 기준점에서 계산한다.
 @evidence principles/design/models.md#reviewable-structure 정면·측면·45° 뷰에서 두 크기의 외곽, 비직육면체 수관, 가지와 수관 사이 빈틈, 접지 그림자를 확인한다. 실제 렌더는 unverified다.
-@evidence principles/design/models.md#model-observable-style-basis 수관 군집의 높이·수평 분포를 수치로 정해 성목과 뒤뜰 나무를 서로 다른 실루엣으로 읽히게 한다. 색과 투과는 materials가 정한다.
+@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 01의 전면 큰 나무와 02의 뒤뜰 나무를 두 높이 변형으로 채택한다. 수관 군집의 높이·수평 분포를 수치로 정해 성목과 뒤뜰 나무를 서로 다른 실루엣으로 읽히게 한다. 색과 투과는 materials가 정한다.
 @evidence principles/design/models.md#model-scale-layer-completion H·반지름·줄기 테이퍼·가지와 군집 개수·점유 외곽·표면 id·국소 원점·검사 뷰를 모두 정하고 배치 좌표만 후속 층에 남긴다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work site-identity의 나무 역할과 비블록 식재 요구를 원형의 두 크기로 소비하며 settings나 spaces의 위치를 수정하지 않는다.
 @evidence settings/00-production.md#build-allocation 식재 크기·형상은 models, 개체 수와 배치는 instances라는 제작 배분을 따른다.
@@ -35,7 +35,7 @@
 @evidence principles/design/models.md#representation-contract 여덟 닫힌 테이퍼 가지와 아홉 닫힌 타원체 군집의 부피 및 `bark`·`foliage` 표면을 만든다. 개별 잎과 뿌리는 표현하지 않는다.
 @evidence principles/design/models.md#spatial-convention 원점은 관목 접지 중앙, +Y는 위, +X·+Z는 수평축이며 yaw와 위치는 배치에서 결정한다.
 @evidence principles/design/models.md#reviewable-structure 측면에서 보행면 침범 여부, 정면에서 울타리 밑 관목의 높이와 그림자, 45°에서 군집 부피를 확인한다.
-@evidence principles/design/models.md#model-observable-style-basis 높이 0.80 m와 밑동의 짧은 여덟 가지가 나무 원형과 다른 식재 역할을 드러내고 색은 materials가 정한다.
+@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 01의 현관·차고 기초부 낮은 관목을 채택한다. 높이 0.80 m와 밑동의 짧은 여덟 가지가 나무 원형과 다른 식재 역할을 드러내고 색은 materials가 정한다.
 @evidence principles/design/models.md#model-scale-layer-completion 높이·폭·가지와 군집 위치 규칙·면 id·UV·원점·관찰 뷰를 정하며 실제 배치 수는 남긴다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work site-identity와 울타리 개구부를 그대로 소비하며 식재 원형 때문에 보행로나 울타리 공간을 바꾸지 않는다.
 @evidence settings/00-production.md#build-allocation 관목 원형은 models, 개체 반복은 instances로 나눈다.

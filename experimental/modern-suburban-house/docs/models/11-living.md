@@ -38,7 +38,7 @@
 @evidence principles/design/models.md#representation-contract 상판 하나와 다리 넷의 부품 구성, 재질 경계 `top`·`leg`, 관절 없음, 에이프런·하부 선반이 없어 상판 아래가 비어 있는 음공간을 정한다. 보이지 않는 한계는 본문의 "나뭇결·모서리 모따기·다리 이음은 표현하지 않는다."로 밝힌다.
 @evidence principles/design/models.md#spatial-convention 로컬 원점을 바닥 평면 중심에, +X를 긴 방향에 두며 거실 배치는 긴 방향이 world Z, 가족실 배치는 world X이고 두 곳 모두 상면이 0.42 m다.
 @evidence principles/design/models.md#reviewable-structure 두 매개변수 쌍의 외곽이 각 예약과 같은지, 측면에서 상면 0.42 m가 소파 좌면 0.43 m와 거의 같은 높이로 읽히는지를 모델 리뷰 뷰의 고정 뷰로 확인하게 한다.
-@evidence principles/design/models.md#model-observable-style-basis '낮은 목재 테이블' 표지를 0.04 m 얇은 상판과 0.05 m 각재 다리, 에이프런·하부 선반 없는 구성으로 옮기며 목재의 외관은 이 H2가 정하지 않고 `top`·`leg` 경계만 넘긴다.
+@evidence principles/design/models.md#model-observable-style-basis 거실과 가족실에 0.04 m 상판·0.05 m 각재 다리의 낮은 목재 테이블을 같은 원형으로 둔다. 레퍼런스 02의 TV 콘솔은 가족실 두 창의 채광·접근을 가리므로 채택하지 않는다고 본문에 근거를 적고, 목재 외관은 `top`·`leg` 경계만 materials에 넘긴다.
 @evidence principles/design/models.md#model-scale-layer-completion 상면 0.42 m를 소파 좌면 0.43 m와 비교하는 높이 관계, 상판·다리 두 층, 두 재질 경계, 두 관찰이 적혀 있어 매개변수 한 쌍마다 블로킹 표현이 결정된다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 거실 테이블 예약 X = [-3.95, -3.45]·Z = [-3.30, -2.00]과 가족실 테이블 예약 X = [3.40, 4.50]·Z = [-8.35, -7.80], 두 곳의 상면 0.42 m를 적힌 그대로 L·W와 높이로 썼고 부모 값에 고칠 결함이 없었다.
 @evidence settings/10-house.md#living 제목의 '낮은 목재 테이블'은 거실 설정 정체성 항목을 그대로 원형 이름으로 삼은 것이고, 거실 배치 L = 1.30 m·W = 0.50 m로 소파 앞에 둔다.
@@ -62,7 +62,7 @@
 @evidence principles/design/models.md#representation-contract 다리 넷·받침·좌석 쿠션 하나·등받이·팔걸이 둘로 부품을 나누고 재질 경계 `leg`·`base`·`seat-cushion`·`back`·`arm`을 두며 관절이 없다고 정한다. 보이지 않는 한계는 본문의 "쿠션 눌림·솔기·패브릭 주름은 표현하지 않는다."로 밝힌다.
 @evidence principles/design/models.md#spatial-convention 가구 국소 좌표를 따라 +Z를 정면으로 두고 배치에서 world +Z를 향하며 외곽은 폭 0.85 m·깊이 0.85 m·높이 0.90 m다.
 @evidence principles/design/models.md#reviewable-structure 측면에서 좌면·팔걸이·등받이 높이가 소파와 같은 계열로 보이는지, 위에서 0.85 m 정사각 외곽이 의자 발 사용 범위 Z = [-4.80, -4.20]로 넘어가지 않는지를 고정 뷰로 확인한다.
-@evidence principles/design/models.md#model-observable-style-basis '독서 안락의자' 표지를 좌석 폭 0.61 m의 한 사람 좌석과 소파와 같은 계열의 단면이라는 관찰 가능한 결정으로 옮기며 재질과 색은 정하지 않는다.
+@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 04 벽난로 앞 안락의자를 채택한다. '독서 안락의자' 표지를 좌석 폭 0.61 m의 한 사람 좌석과 소파와 같은 계열의 단면이라는 관찰 가능한 결정으로 옮기며 재질과 색은 정하지 않는다.
 @evidence principles/design/models.md#model-scale-layer-completion 좌면 0.43 m·팔걸이 0.60 m·등받이 0.90 m의 높이 층을 소파와 같은 단면 규칙에 묶고 다섯 재질 경계와 두 관찰을 함께 적어 예약 안의 표현이 결정된다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 거실 예약 X = [-3.90, -3.05]·Z = [-5.65, -4.80]·높이 0.90 m와 의자 발 사용 범위 Z = [-4.80, -4.20]을 적힌 그대로 외곽과 관찰 한계로 썼고 부모 수정이 필요하지 않았다.
 @evidence settings/10-house.md#living 거실 설정 정체성의 '작은 안락의자'를 0.85 m 정사각 외곽의 한 사람 좌석으로 구체화한다.

@@ -36,7 +36,7 @@
 @evidence principles/design/models.md#representation-contract 상판과 받침목 두 부품, 재질 경계 `top`·`cleat`, 관절 없음, 기기 문 앞에 다리나 옆판이 없다는 열린 경계를 정한다. 보이지 않는 한계는 본문의 "상판 가장자리 몰딩과 받침목 고정 철물은 표현하지 않는다."로 밝힌다.
 @evidence principles/design/models.md#spatial-convention 원점을 뒤쪽 모서리 선의 하단 중심 Y = 0.88 m에 두고 +Z가 yaw -π/2에서 world -X가 된다고 가구 국소 좌표에서 달라지는 점을 밝힌다.
 @evidence principles/design/models.md#reviewable-structure 측면에서 상판 상면 0.94 m와 기기 상면 0.88 m 사이 틈이 없는지, 정면에서 문 앞 지지 부재가 없는지를 반증 관찰로 둔다.
-@evidence principles/design/models.md#model-observable-style-basis 양식 라벨 없이 기기 위를 덮는 0.06 m 한 판과 다리·옆판을 세우지 않는 구성이라는 관찰 가능한 결정만 두고 마감은 `top`·`cleat` 경계로 넘긴다.
+@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 02의 세탁기 위 작업 상판을 채택한다. 양식 라벨 없이 기기 위를 덮는 0.06 m 한 판과 다리·옆판을 세우지 않는 구성이라는 관찰 가능한 결정만 두고 마감은 `top`·`cleat` 경계로 넘긴다.
 @evidence principles/design/models.md#model-scale-layer-completion 예약에서 받은 세 축 범위, 두 부품, 두 재질 경계, 관절 없음과 두 관찰로 상판 모델이 결정되며 이 H2는 proxy가 지지하지 않는 관찰을 따로 열거하지 않는다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 세탁 작업 예약의 상판 범위 Y = [0.88, 0.94]와 지지 부재가 기기 문을 가리지 않는다는 조건을 그대로 소비했고 부모 값에서 고칠 결함을 찾지 않았다.
 @evidence settings/10-house.md#laundry-mudroom 설정이 요구한 접는 상판을 두 기기 위 1.30 m 한 판으로 만들고 기기 문 앞에 다리를 두지 않는다.
@@ -80,7 +80,7 @@
 @evidence principles/design/models.md#representation-contract 부품을 좌판·옆판 둘·신발 선반과 신발 상자 둘로, 재질 경계를 `seat`·`carcass`·`shelf`·`shoe`로 정하고 관절은 두지 않는다. 보이지 않는 한계는 본문의 "신발 끈·밑창 형상과 좌판 모서리 모따기는 표현하지 않는다."로 밝힌다.
 @evidence principles/design/models.md#spatial-convention 가구 국소 좌표를 따르며 +Z가 앉는 정면이고 배치에서 world +X를 향한다.
 @evidence principles/design/models.md#reviewable-structure 측면에서 좌면 0.45 m와 신발 선반이 읽히는지를 모델 리뷰 뷰의 고정 뷰로 찍는다.
-@evidence principles/design/models.md#model-observable-style-basis 양식 라벨 없이 옆판 둘이 받치는 좌판과 아래 낮은 신발 선반이라는 관찰 가능한 구성만 정한다.
+@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 02의 차고와 공용부 사이 머드룸 앉는 자리를 채택한다. 양식 라벨 없이 옆판 둘이 받치는 좌판과 아래 낮은 신발 선반이라는 관찰 가능한 구성만 정한다.
 @evidence principles/design/models.md#model-scale-layer-completion 좌면 0.45 m 기준 높이, 네 부품 종류, 네 재질 경계, 관절 없음과 측면 관찰로 벤치가 결정된다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 세탁 작업 예약의 벤치 범위와 좌면 0.45 m를 그대로 소비했고 고칠 부모 결함이 없었다.
 @evidence settings/10-house.md#laundry-mudroom 설정이 요구한 신발 벤치를 좌면 0.45 m와 신발 선반 0.10 m의 벤치로 만든다.
@@ -103,7 +103,7 @@
 @evidence principles/design/models.md#representation-contract 부품을 걸이판·걸이 넷·외투 둘로, 재질 경계를 `rail`·`hook`·`clothes`로 두고 천 주름·소매는 표현하지 않는다고 밝힌다.
 @evidence principles/design/models.md#spatial-convention 벽걸이 원형이므로 원점을 벽면의 걸이판 하단 중심에 두고 두 외투의 가로 점유는 각각 [-0.40, -0.10]·[0.10, 0.40] m로 0.80 m 예약 안에서 0.20 m 떨어지고, 외투까지 포함한 돌출은 0.40 m 깊이 안에 든다.
 @evidence principles/design/models.md#reviewable-structure 측면에서 외투 하단이 벤치 좌면 위 0.65 m에 멈추는지를 모델 리뷰 뷰로 반증한다.
-@evidence principles/design/models.md#model-observable-style-basis 양식 라벨 없이 둥근 모서리 판 덩어리 외투와 0.08 m 돌출 걸이라는 추상화 수준을 관찰 가능한 결정으로 적는다.
+@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 02에는 머드룸 외투의 개별 형상이 선명하지 않다. 양식 라벨 없이 둥근 모서리 판 덩어리 외투와 0.08 m 돌출 걸이라는 추상화 수준을 관찰 가능한 결정으로 적는다.
 @evidence principles/design/models.md#model-scale-layer-completion 걸이판 하단 1.65 m와 외투 하단 1.10 m의 높이 층, 세 재질 경계, 관절 없음, 표현 제외와 측면 관찰로 원형이 결정된다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 세탁 작업 예약의 외투 걸이 범위 X = [3.22, 3.62], Z = [-2.85, -2.05], Y = [1.10, 1.85]를 그대로 소비했고 고칠 부모 결함이 없었다.
 @evidence settings/10-house.md#laundry-mudroom 설정의 외투 걸이 요구를 걸이 넷과 걸린 외투 둘로 만든다.
@@ -125,7 +125,7 @@
 @evidence principles/design/models.md#representation-contract 두 띠의 합집합을 한 L형 판으로 만들고 부품을 선반 판 다섯과 받침 띠로, 재질 경계를 `shelf`·`cleat`로 둔다. 보이지 않는 한계는 본문의 "선반 브래킷 개별 형상·나사·앞 모서리 몰딩은 표현하지 않는다."로 밝힌다.
 @evidence principles/design/models.md#spatial-convention 원점을 두 벽이 만나는 뒤쪽 오른쪽 모서리의 바닥점에 두고 로컬 축을 world 축과 같게 둔다는 가구 국소 좌표의 예외를 밝힌다.
 @evidence principles/design/models.md#reviewable-structure 위에서 L형 코너가 한 번만 채워졌는지, 정면에서 다섯 단 간격이 읽히는지를 반증 관찰로 둔다.
-@evidence principles/design/models.md#model-observable-style-basis 양식 라벨 없이 코너 기둥 없는 한 판 L형과 0.40 m 간격 다섯 단이라는 관찰 가능한 구성을 적는다.
+@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 02의 주방 옆 작고 닫힌 팬트리 위치를 채택한다. 양식 라벨 없이 코너 기둥 없는 한 판 L형과 0.40 m 간격 다섯 단이라는 관찰 가능한 구성을 적는다.
 @evidence principles/design/models.md#model-scale-layer-completion 두 띠 범위, 다섯 단 높이, 두 재질 경계, 관절 없음, 두 관찰로 선반이 결정되며 proxy가 지지하지 않는 관찰은 따로 열거하지 않는다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 선반 평면의 두 띠 범위와 방 문서의 다섯 단 높이를 그대로 소비했고 고칠 부모 결함이 없었다.
 @evidence settings/10-house.md#pantry 설정의 선반을 둔 별도 식품 수납실을 뒤쪽·오른쪽 벽의 L형 다섯 단 선반으로 만든다.
@@ -150,7 +150,7 @@
 @evidence principles/design/models.md#representation-contract 밀폐 용기는 몸통과 뚜껑, 상자는 한 상자, 바구니는 테두리 있는 열린 상자로 두고 재질 경계를 `container`·`lid`·`basket`으로 정한다. 보이지 않는 한계는 본문의 "라벨·내용물·투명 용기의 투과는 표현하지 않는다."로 밝힌다.
 @evidence principles/design/models.md#spatial-convention 선반 위 소품이므로 원점을 밑면 중심에 둔다고 가구 국소 좌표의 예외를 밝힌다.
 @evidence principles/design/models.md#reviewable-structure 선반 위 용기가 선반 끝을 넘지 않는지를 모델 리뷰 뷰의 고정 뷰로 반증한다.
-@evidence principles/design/models.md#model-observable-style-basis 상표나 식품 종류 라벨 없이 뚜껑 있는 용기·닫힌 상자·테두리 있는 열린 바구니라는 세 실루엣 구분만 둔다.
+@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 02의 팬트리는 속 물건이 보이지 않는다. 상표나 식품 종류 라벨 없이 뚜껑 있는 용기·닫힌 상자·테두리 있는 열린 바구니라는 세 실루엣 구분만 둔다.
 @evidence principles/design/models.md#model-scale-layer-completion 세 변형 치수, 세 재질 경계, 관절 없음, instances로 넘긴 개수·배치와 한 관찰로 소품 원형이 결정된다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 팬트리 점유의 물건 깊이·높이·0.02 m 물림 한계를 그대로 소비했고 고칠 부모 결함이 없었다.
 @evidence settings/10-house.md#pantry 설정의 식품 보관 용기·상자를 밀폐 용기·상자·바구니 세 변형의 소품 원형으로 만든다.
@@ -172,7 +172,7 @@
 @evidence principles/design/models.md#representation-contract 부품을 네 모서리 기둥·선반 판 다섯·수납 상자 넷으로, 재질 경계를 `post`·`shelf`·`bin`으로 정하고 관절은 두지 않는다. 보이지 않는 한계는 본문의 "기둥 타공 구멍·볼트·상자 뚜껑 손잡이는 표현하지 않는다."로 밝힌다.
 @evidence principles/design/models.md#spatial-convention 원점을 차고 바닥 Y = -0.15 m에 두고 +Z가 선반 앞이며 상자는 몸체 깊이 0.60 m 안에 담긴다.
 @evidence principles/design/models.md#reviewable-structure 측면에서 상자가 0.60 m 깊이 안에 드는지를 모델 리뷰 뷰로 반증한다.
-@evidence principles/design/models.md#model-observable-style-basis 금속 선반이라는 이름을 0.04 m 각 기둥 넷과 얇은 선반 판이라는 관찰 가능한 형상으로 적고 금속 외관은 `post`·`shelf` 경계로 넘긴다.
+@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 02의 차고 벽면 수납을 채택하고 영상의 두 자동차는 사용자 지시에 따라 거부한다. 금속 선반이라는 이름을 0.04 m 각 기둥 넷과 얇은 선반 판이라는 관찰 가능한 형상으로 적고 금속 외관은 `post`·`shelf` 경계로 넘긴다.
 @evidence principles/design/models.md#model-scale-layer-completion 차고 바닥 Y = -0.15 m 기준, 다섯 단 높이, 세 재질 경계, 관절 없음과 측면 관찰로 선반이 결정된다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 차고 후벽 수납 예약의 X·Z 범위와 바닥 위 2.05 m를 그대로 소비했고 고칠 부모 결함이 없었다.
 @evidence settings/10-house.md#garage 설정이 빈 차고에도 요구한 선반 수납을 후벽 1.70 m 다섯 단 금속 선반으로 만든다.

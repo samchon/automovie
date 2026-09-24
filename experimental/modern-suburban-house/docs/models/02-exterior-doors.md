@@ -9,7 +9,7 @@
 @evidence principles/design/models.md#representation-contract door→jamb·exterior-trim·casing·hinge-pivot→leaf·muntin·glass·handle 계층을 정하며 문턱판은 만들지 않는다.
 @evidence principles/design/models.md#spatial-convention 원점 면을 전면 벽 날씨 면으로, 경첩을 +X 문설주, 열림을 실내 -Z로 적는다.
 @evidence principles/design/models.md#reviewable-structure 포치 정면과 현관 threshold view에서 순폭과 유리 구간을 반증한다.
-@evidence principles/design/models.md#model-observable-style-basis 목재 문짝이 유리 액자가 아닌 목재 틀로 읽히도록 stile/rail 0.12 m를 정한다.
+@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 01·04의 목재 현관문, 위쪽 세 유리칸, 아래쪽 판을 채택한다. 목재 문짝이 유리 액자가 아닌 목재 틀로 읽히도록 stile/rail 0.12 m를 정한다.
 @evidence principles/design/models.md#model-scale-layer-completion 순폭 척도와 유리·목재 층, 경첩 인터페이스를 함께 정한다.
 @evidence obligations/design/models.md#articulation-ownership 현관문 hinge-pivot의 0~π/2 rad 회전을 motion 인터페이스로, 기준 상태를 닫힘 0으로 정한다.
 @evidence spaces/rooms/entry.md#entry-plan X = [0.40, 1.40], Y = [0, 2.20] m 개구부와 +X 경첩·실내 -Z 열림·0.90 m 목표를 문짝 치수와 관절로 소비한다.
@@ -55,7 +55,7 @@
 @evidence principles/design/models.md#representation-contract 두 hinge-pivot 아래 leaf·glass·handle 계층을 정하고 문턱판은 source에서 중복 생성하지 않는다.
 @evidence principles/design/models.md#spatial-convention 원점 면을 후벽 바깥 날씨 면으로, 경첩을 양 끝 문설주로 적는다.
 @evidence principles/design/models.md#reviewable-structure 공용부 안쪽과 테라스 쪽 view에서 순폭과 회전 반경을 반증한다.
-@evidence principles/design/models.md#model-observable-style-basis stile/rail 0.10 m 외에는 유리로 두어 유리문으로 읽히게 한다.
+@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 03의 식당 뒤 두 유리문을 채택한다. stile/rail 0.10 m 외에는 유리로 두어 유리문으로 읽히게 한다.
 @evidence principles/design/models.md#model-scale-layer-completion 두 문짝 관절과 spaces 문턱 +0.02 m 위 0.01 m 바닥 틈을 정한다.
 @evidence obligations/design/models.md#articulation-ownership 두 경첩 축 각각의 0~π/2 rad 회전을 motion 인터페이스로, 기준 상태를 둘 다 닫힘으로 정한다.
 @evidence spaces/envelope/rear.md#garden-door X = [-1.20, 1.20] m 개구부, 바깥 -Z 열림, 0.95 m 목표, 1.80 m 바깥 대기를 문짝 1.17 m와 순폭 1.13 m로 소비한다.
@@ -98,7 +98,7 @@
 @evidence principles/design/models.md#representation-contract 포치와 현관에서 다른 마감을 받는 문짝 면을 별도 표면으로 둔다.
 @evidence principles/design/models.md#spatial-convention UV 축을 문짝 국소 X·Y로 적는다.
 @evidence principles/design/models.md#reviewable-structure materials 바인딩 뷰에서 안팎 문짝 면 경계로 반증한다.
-@evidence principles/design/models.md#model-observable-style-basis 결 방향과 색은 materials에 두고 모델은 면 경계와 UV만 정한다.
+@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 01의 목재 현관문·검은 차고문·흰 문선은 서로 다른 재료로 읽힌다. 결 방향과 색은 materials에 두고 모델은 면 경계와 UV만 정한다.
 @evidence principles/design/models.md#model-scale-layer-completion 외부 문 모두에 표면 인터페이스를 정한다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work surface-allocation을 그대로 소비했고 부모 수정이 없었다.
 -->
@@ -116,7 +116,7 @@
 @evidence principles/design/models.md#representation-contract 외부 문 proxy가 지지하지 않는 관찰을 정한다.
 @evidence principles/design/models.md#spatial-convention 현관문·정원문·차고문·대문의 좌표는 각 문 H2에 두고 이 한계 H2는 새 좌표를 정하지 않는다.
 @evidence principles/design/models.md#reviewable-structure 모델 리뷰 뷰에서 문짝·문설주가 평면 대체인지 반증한다.
-@evidence principles/design/models.md#model-observable-style-basis 스타일이 아니라 기구 생략이라는 관찰 가능한 한계를 적는다.
+@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 01의 현관문과 차고문은 완성된 문짝으로 읽히게 채택한다. 스타일이 아니라 기구 생략이라는 관찰 가능한 한계를 적는다.
 @evidence principles/design/models.md#model-scale-layer-completion 차고문 스프링·모터·케이블과 대문 걸쇠 내부를 만들지 않는 층으로 명시한다.
 @evidence obligations/design/models.md#representation-ceiling 외부 문 계열의 기구 생략과 차고문 간섭 비증명을 적는다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work settings fidelity의 창호·문짝 읽힘 요구를 외부 문 기구 생략과 대조했고 부모 수정이 필요하지 않았다.

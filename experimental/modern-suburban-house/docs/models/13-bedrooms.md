@@ -40,7 +40,7 @@
 @evidence principles/design/models.md#representation-contract 몸통, 강체 서랍 전면, 등 받침·기둥·원뿔대 갓 계층과 `carcass`·`drawer-front`·`lamp-base`·`lamp-shade` 경계를 두고 빛 방출은 lighting 소유로 넘긴다. 보이지 않는 한계는 본문의 "등 전선·스위치·갓의 반투명은 표현하지 않는다."로 밝힌다.
 @evidence principles/design/models.md#spatial-convention 가구 국소 좌표에서 +Z를 서랍 정면으로 두고 갓 상단이 U 높이에 오게 한다.
 @evidence principles/design/models.md#reviewable-structure 측면에서 T와 U 높이, 위에서 갓이 S 안에 드는지를 검토 실루엣으로 둔다.
-@evidence principles/design/models.md#model-observable-style-basis 협탁과 등을 사각 몸통, 서랍 전면 하나, 지름 0.25 m 원뿔대 갓이라는 형태 결정으로 한정하고 조명 성능은 주장하지 않는다.
+@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 02의 침대 옆 협탁과 작은 조명을 채택한다. 협탁과 등을 사각 몸통, 서랍 전면 하나, 지름 0.25 m 원뿔대 갓이라는 형태 결정으로 한정하고 조명 성능은 주장하지 않는다.
 @evidence principles/design/models.md#model-scale-layer-completion S 0.50/0.45 m, T 0.55/0.50 m, U 1.10/1.05 m, 다섯 부품, 네 재질 경계, 강체 서랍, unverified 관찰이 함께 적혀 있다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 주침실 두 협탁과 두 작은 침실 협탁의 좌표·S·T·U를 적힌 그대로 소비했고 서랍 작동 예약이 없다는 부모 결정도 바꾸지 않았다.
 @evidence settings/10-house.md#primary-bedroom 양옆 협탁과 조명 요구를 Z = [-9.15, -8.65]와 Z = [-7.05, -6.55] 두 협탁과 U 1.10 m 등으로 받는다.
@@ -136,7 +136,7 @@
 @evidence principles/design/models.md#representation-contract 몸통·두 문·봉·윗선반·옷 계층과 `carcass`·`leaf`·`handle`·`rail`·`rod`·`shelf`·`clothes` 경계를 둔다. 미닫이 롤러·옷걸이 개별 형상·옷 주름은 표현하지 않는다.
 @evidence principles/design/models.md#spatial-convention 몸통 뒤 모서리 중앙을 원점, +Z를 문 면으로 두고 뒤/앞 문 깊이를 각각 [0.50,0.52]/[0.55,0.57] m에 고정한다. 두 문은 국소 X 방향으로 최대 0.72 m 움직이고 기준 상태는 둘 다 닫힘이다.
 @evidence principles/design/models.md#reviewable-structure 문이 열린 상태에서도 몸체 앞면 밖으로 나오지 않는지를 관절 영역 관찰로 둔다.
-@evidence principles/design/models.md#model-observable-style-basis 미닫이 옷장을 앞뒤 두 레일, 0.76 m 두 문, 2.20 m 높이라는 관찰 가능한 구성으로 정한다.
+@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 02의 작은 침실 수납과 05의 열린 옷장을 채택한다. 미닫이 옷장을 앞뒤 두 레일, 0.76 m 두 문, 2.20 m 높이라는 관찰 가능한 구성으로 정한다.
 @evidence principles/design/models.md#model-scale-layer-completion 외곽·문·레일·봉·선반과 옷 18벌의 식, 두 문의 국소 X 평행 이동과 닫힘 기준 상태, 일곱 재질 경계와 열린 문 관찰을 적었으며 실제 원형 source와 프레임은 unverified다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 둘째·셋째 침실 옷장 예약의 좌표와 1.50 × 0.60 × 2.20 m, -X 문 면을 적힌 그대로 소비했고 부모 수정이 없었다.
 @evidence settings/10-house.md#bedroom-two 옷 수납 요구를 X = [-2.55, -1.95] 미닫이 옷장으로 받는다.
@@ -190,7 +190,7 @@
 @evidence principles/design/models.md#representation-contract 봉·상단 선반·몸통·옷 계층과 `rod`·`shelf`·`carcass`·`clothes` 경계를 두고 관절이 없다고 적는다. 보이지 않는 한계는 본문의 "옷걸이 개별 형상·소매·옷 주름은 표현하지 않는다."로 밝힌다.
 @evidence principles/design/models.md#spatial-convention 옷 판을 뒤벽과 0.55 m 앞면 사이에 머물게 해 점유 범위를 Z = [-10.45, -9.90] 안으로 한정한다.
 @evidence principles/design/models.md#reviewable-structure 위에서 옷 앞 끝이 Z = -9.90 m를 넘지 않는지를 검토 실루엣으로 둔다.
-@evidence principles/design/models.md#model-observable-style-basis 걸린 옷을 순번별 두께 0.035–0.045 m, 폭 0.50 m인 36개 판 묶음이라는 추상화로 정한다.
+@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 05 복도 옆 열린 옷장의 걸린 옷을 채택한다. 걸린 옷을 순번별 두께 0.035–0.045 m, 폭 0.50 m인 36개 판 묶음이라는 추상화로 정한다.
 @evidence principles/design/models.md#model-scale-layer-completion 외곽 치수, 네 부품 층, 네 재질 경계, 관절 없음, 옷 앞 끝 관찰이 함께 적혀 있고 관찰은 unverified다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 옷방 예약 X = [2.10, 4.25], Z = [-10.45, -9.90], 높이 2.05 m를 적힌 그대로 소비했고 부모 수정이 없었다.
 @evidence settings/10-house.md#primary-bedroom 주침실의 별도 옷 수납 요구 중 옷걸이 구간을 길이 2.15 m 봉과 선반으로 받는다.

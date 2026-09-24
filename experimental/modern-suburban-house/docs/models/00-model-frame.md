@@ -113,7 +113,7 @@
 @evidence principles/design/models.md#representation-contract 가구 원형의 점유 범위가 room owner의 상한 박스와 사용 공간 예약에서 온다고 정해 각 가구 H2의 외곽 산출 기준을 준다.
 @evidence principles/design/models.md#spatial-convention 가구 원형의 원점·+Y·+Z·+X와 world 배치가 Y축 회전 하나라는 관례를 적는다.
 @evidence principles/design/models.md#reviewable-structure 뒤 모서리가 벽 마감 면에 닿는지와 +Z가 사용 공간을 향하는지가 room 관찰에서 반증 가능한 배치 경계다.
-@evidence principles/design/models.md#model-observable-style-basis 스타일 라벨 없이 벽에 붙는 면과 사용 방향이라는 관찰 가능한 배치 결정만 정하고 재료·조명을 주장하지 않는다.
+@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 01–05는 치수 도면으로 사용하지 않는다. 스타일 라벨 없이 벽에 붙는 면과 사용 방향이라는 관찰 가능한 배치 결정만 정하고 재료·조명을 주장하지 않는다.
 @evidence principles/design/models.md#model-scale-layer-completion 척도는 m, 층은 바닥 접지 면, 인터페이스는 뒤 모서리 원점으로 정해 가구 원형 배치에 빠진 척도나 층이 없다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work coordinate-units와 reservation-fit 계약을 적힌 그대로 소비했고 가구 원점 규칙을 정하는 데 settings나 spaces의 결함을 찾지 못했다.
 -->
@@ -135,7 +135,7 @@
 @evidence principles/design/models.md#representation-contract 모든 모델이 소비자에게 보고할 점유 수치(순폭·유리 폭)를 정해 점유 범위를 비교 가능하게 한다.
 @evidence principles/design/models.md#spatial-convention 치수를 primitive 기본값이 아니라 점유체와 개구부 owner 목표에서 유도한다는 척도 기준을 명시한다.
 @evidence principles/design/models.md#reviewable-structure 점유체를 같은 뷰에 세운 척도 비교를 관찰로 정해 독립 모델 사이의 척도 어긋남이 드러나게 한다.
-@evidence principles/design/models.md#model-observable-style-basis 스타일 라벨 없이 사람 점유체라는 관찰 가능한 척도 비교만 정한다.
+@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 01–05는 치수 도면으로 사용하지 않는다. 스타일 라벨 없이 사람 점유체라는 관찰 가능한 척도 비교만 정한다.
 @evidence principles/design/models.md#model-scale-layer-completion 공통 척도 기준과 문·창 대조 산술을 정해 척도 관계가 빠진 모델이 통과하지 못하게 한다.
 @evidence obligations/design/models.md#reference-scale 공유 척도 기준을 use-profile 점유체로 지명하고 다른 모델의 외곽을 순폭·유리 폭 산출로 확인하는 규칙을 정한다.
 @evidence settings/00-production.md#use-profile 점유체 0.60×0.45×1.90 m와 문 유효폭 0.80 m를 모든 모델의 공통 척도 기준과 순폭 대조로 소비한다.
@@ -217,7 +217,7 @@
 @evidence principles/design/models.md#representation-contract 리뷰 뷰가 확인할 점유 범위와 관절 상태를 정해 proxy가 지지하는 관찰을 한정한다.
 @evidence principles/design/models.md#spatial-convention 사선 투시의 FOV 45°와 눈높이 1.6 m를 도·m 단위로 적는다.
 @evidence principles/design/models.md#reviewable-structure 실루엣은 정면 직교, 부재 깊이는 측면 단면, 관절은 기준·최대 열림 투시로 드러내는 뷰를 정한다.
-@evidence principles/design/models.md#model-observable-style-basis 중성 배경으로 샷 조명·구도를 배제하고 모델 구성만 비교한다.
+@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 01–05는 치수 도면으로 사용하지 않는다. 중성 배경으로 샷 조명·구도를 배제하고 모델 구성만 비교한다.
 @evidence principles/design/models.md#model-scale-layer-completion 척도 대조용 점유체를 모든 뷰에 포함시켜 척도가 빠진 리뷰를 허용하지 않는다.
 @evidence obligations/design/models.md#model-review-set 모델 개정 사이 회귀를 비교하는 유한한 중성 뷰·배경·척도 대조 목록을 정한다.
 @evidence settings/20-verification.md#frame-condition canvas 1536×1024·DPR 1·중성 배경·FOV 45°·눈높이 1.6 m를 모델 리뷰 뷰 조건으로 소비한다.

@@ -9,7 +9,7 @@
 @evidence principles/design/models.md#representation-contract 두 문짝과 트랙, 오목 패널 계층을 정한다.
 @evidence principles/design/models.md#spatial-convention 문짝 이동 축을 국소 Z로 적는다.
 @evidence principles/design/models.md#reviewable-structure 서비스 통로 쪽 정면과 계단 아래 단면에서 반증한다.
-@evidence principles/design/models.md#model-observable-style-basis 실내 문과 같은 오목 패널 두 개로 흰 패널문 문법을 잇는다.
+@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 04의 계단 옆 흰 수납문을 채택한다. 실내 문과 같은 오목 패널 두 개로 흰 패널문 문법을 잇는다.
 @evidence principles/design/models.md#model-scale-layer-completion 미닫이 인터페이스와 트랙 층을 정한다.
 @evidence obligations/design/models.md#articulation-ownership 각 문짝의 국소 Z 평행 이동 0~0.45 m를 motion 인터페이스로, 기준 상태를 닫힘으로 정한다.
 @evidence spaces/rooms/entry.md#entry-coat-storage 개구부 폭 0.95 m와 통로 쪽 돌출 한도를 문짝 0.50 m 둘·겹침 0.05 m 및 국소 깊이 최대 0.14 m로 소비한다.

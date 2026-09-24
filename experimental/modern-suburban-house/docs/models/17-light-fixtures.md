@@ -9,7 +9,7 @@
 @evidence principles/design/models.md#representation-contract 닫힌 16각 외장 링·안쪽 확산판·천장 접합판을 만들고 `fixture-housing`·`fixture-diffuser`로 모든 면을 덮는다. 빛과 전선 내부는 만들지 않는다.
 @evidence principles/design/models.md#spatial-convention 국소 원점은 천장 접촉면의 중앙, +Y는 위, +Z는 방 정면이다. 기구는 아래로만 돌출하며 world 배치는 instances가 정한다.
 @evidence principles/design/models.md#reviewable-structure 천장 단면에서 돌출 0.05 m와 헤드룸, 실내·차고 정면에서 보통/대형 변형을 비교한다. 실제 프레임은 unverified다.
-@evidence principles/design/models.md#model-observable-style-basis 얇은 외장 링과 별도 확산판이 어두운 천장 구멍 대신 실제 기구로 읽히는 형상 근거다. 광학은 materials와 systems가 정한다.
+@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 04 현관과 05 상층 복도의 얕은 천장등을 채택한다. 얇은 외장 링과 별도 확산판이 어두운 천장 구멍 대신 실제 기구로 읽히는 형상 근거다. 광학은 materials와 systems가 정한다.
 @evidence principles/design/models.md#model-scale-layer-completion 두 지름, 두께, 16각 세그먼트, 모든 면 id와 미터 UV, 원점, 단면 검사를 확정한다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 천장면과 조명 할당을 그대로 소비하며 기구 두께 때문에 천장이나 방 경계를 수정하지 않는다.
 @evidence settings/10-house.md#common-room 공용부와 각 방의 천장 조명 몸체를 구멍이 아닌 실제 부재로 제공한다.
@@ -52,7 +52,7 @@
 @evidence principles/design/models.md#representation-contract 닫힌 벽판과 앞쪽 확산봉을 만들고 금속·확산면을 별도 id로 분리하며 광원 자체는 만들지 않는다.
 @evidence principles/design/models.md#spatial-convention 원점은 거울 위 벽 접점 중앙, +Z는 방 안쪽, +Y는 위이고 길이는 +X다.
 @evidence principles/design/models.md#reviewable-structure 방 안쪽 측면에서 0.08 m 돌출과 거울 비접촉, 정면에서 거울 중앙 정렬을 대조한다.
-@evidence principles/design/models.md#model-observable-style-basis 얇은 가로 봉과 양끝 작은 금속 받침의 부피가 거울 위 조명으로 읽히게 한다.
+@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 02·05의 욕실 거울 위 밝은 띠를 세면 벽등으로 채택한다. 얇은 가로 봉과 양끝 작은 금속 받침의 부피가 거울 위 조명으로 읽히게 한다.
 @evidence principles/design/models.md#model-scale-layer-completion 폭·높이·돌출·부품 분할·id·UV·원점·검사 뷰를 정한다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 거울 띠와 0.10 m 이내 돌출을 소비하고 위생실 벽·거울 위치를 바꾸지 않는다.
 @evidence settings/10-house.md#powder 파우더룸 거울 위 조명 몸체를 제공한다.

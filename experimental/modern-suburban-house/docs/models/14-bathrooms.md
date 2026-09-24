@@ -71,7 +71,7 @@
 @evidence principles/design/models.md#representation-contract 테두리와 거울 판 두 부품, 표면 id `mirror-frame`, `mirror`를 두고 이 원형은 평면만 주며 반사를 주장하지 않는다고 적는다. 보이지 않는 한계는 본문의 "거울 뒤 고정 철물과 모서리 모따기는 표현하지 않는다."로 밝힌다.
 @evidence principles/design/models.md#spatial-convention 벽걸이 원형이므로 원점을 벽면 위 거울 하단의 가로 중심 1.10 m에 두는 가구 국소 좌표의 예외를 밝힌다.
 @evidence principles/design/models.md#reviewable-structure 측면에서 돌출이 0.04 m를 넘지 않는지, 정면에서 하단이 세면장 상면 위 0.25 m에 있는지가 거울을 반증할 관찰이다.
-@evidence principles/design/models.md#model-observable-style-basis 스타일 라벨 없이 폭 0.02 m 얇은 테두리와 0.03 m 들어간 판이라는 구성만 정하고 반사 외관은 materials와 렌더에 둔다.
+@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 02의 욕실 거울은 세면장 위 직사각으로 채택한다. 스타일 라벨 없이 폭 0.02 m 얇은 테두리와 0.03 m 들어간 판이라는 구성만 정하고 반사 외관은 materials와 렌더에 둔다.
 @evidence principles/design/models.md#model-scale-layer-completion 돌출 0.04 m·높이 0.80 m 규모, 테두리·판 두 부품 계층, 반사 비표현 한계, unverified 관찰 두 가지가 함께 거울 블로킹을 결정한다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 파우더룸 거울 X = [3.65, 4.25]·Z = [-0.29, -0.25]와 욕조 욕실 거울 X = [5.46, 5.50]·Z = [-5.75, -4.90]의 1.10–1.90 m 범위를 적힌 그대로 받았고 돌출 0.04 m가 두 예약 두께와 같아 부모 수정이 없었다.
 @evidence spaces/rooms/powder.md#powder-fixture-use 파우더룸 거울 예약 X = [3.65, 4.25], Z = [-0.29, -0.25], 높이 1.10–1.90 m를 W = 0.60 m 거울로 소비한다.
@@ -149,7 +149,7 @@
 @evidence principles/design/models.md#representation-contract 외피·앞치마·테·둥근 모서리의 속 공간·수전·기둥·헤드 일곱 부품 층과 표면 id `ceramic`, `faucet`을 정하고 물과 배수는 표현하지 않는다.
 @evidence principles/design/models.md#spatial-convention 배치 yaw -π/2에서 로컬 +Z가 world -X, 로컬 +X가 world +Z이므로 수전이 있는 뒤쪽 끝(world -Z)이 로컬 -X 끝이라고 적는다.
 @evidence principles/design/models.md#reviewable-structure 측면에서 가장자리 0.55 m가, 정면에서 수전이 뒤쪽 끝에 있는지가 욕조를 반증할 관찰이다.
-@evidence principles/design/models.md#model-observable-style-basis 라벨 없이 앞치마 판, 폭 0.06 m 테, 둥근 모서리 욕조 속이라는 실루엣 결정만 두고 마감은 표면 id `ceramic`으로 남긴다.
+@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 02의 별도 욕조 욕실 안 흰 욕조를 채택한다. 라벨 없이 앞치마 판, 폭 0.06 m 테, 둥근 모서리 욕조 속이라는 실루엣 결정만 두고 마감은 표면 id `ceramic`으로 남긴다.
 @evidence principles/design/models.md#model-scale-layer-completion 외피·앞치마·테·속 공간의 벽 두께와 모서리 반지름, 수전·기둥·헤드의 단면·위치, 물·배수 비표현과 unverified 관찰 두 가지를 적어 원형의 저작 치수를 닫는다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 욕조 욕실 예약 X = [4.70, 5.50]·Z = [-8.70, -6.90]·가장자리 0.55 m를 외곽으로 그대로 받았고 이 H2가 방 문서 값을 바꿀 필요가 없어 부모 수정이 없었다.
 @evidence spaces/rooms/tub-bath.md#tub-fixture-use 욕조 욕실 예약 X = [4.70, 5.50], Z = [-8.70, -6.90], 상층 바닥 위 가장자리 0.55 m를 폭 0.80 m·길이 1.80 m·높이 0.55 m 외곽으로 소비한다.

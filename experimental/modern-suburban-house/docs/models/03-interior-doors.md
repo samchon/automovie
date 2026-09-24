@@ -9,7 +9,7 @@
 @evidence principles/design/models.md#representation-contract door→jamb·casing·hinge-pivot→leaf·handle 계층을 정한다.
 @evidence principles/design/models.md#spatial-convention 원점 면을 열림 쪽 벽면으로 두어 열림이 항상 국소 +Z라고 적는다.
 @evidence principles/design/models.md#reviewable-structure 문설주 면 단면에서 순폭을 재어 반증한다.
-@evidence principles/design/models.md#model-observable-style-basis 흰 패널문을 오목 패널 두 개와 casing 0.07 m로 구체화한다.
+@evidence principles/design/models.md#model-observable-style-basis 실내 문 11개는 한 원형을 공유하고 [공통 국소 좌표](00-model-frame.md#model-local-frame)를 쓰며 원점 면은 문짝이 열리는 쪽 벽면이다. 흰 패널문을 오목 패널 두 개와 casing 0.07 m로 구체화한다.
 @evidence principles/design/models.md#model-scale-layer-completion 문설주 깊이 층과 순폭 척도를 정한다.
 @evidence spaces/00-building.md#attached-garage-extent 차고 공유 벽 X = [5.50, 5.75] m를 laundry-garage-door 문설주 깊이 0.25 m로 소비한다.
 @evidence settings/10-house.md#openings 흰 실내 문선과 패널문을 casing 0.07 m와 오목 패널 두 개로 소비한다.
@@ -32,7 +32,7 @@
 @evidence principles/design/models.md#representation-contract 경첩 쪽을 국소 -X 또는 +X로 두는 거울 변형 두 가지로 계층을 한정한다.
 @evidence principles/design/models.md#spatial-convention 열림 방향을 항상 국소 +Z로 적는다.
 @evidence principles/design/models.md#reviewable-structure 각 방 threshold view에서 열린 문짝이 문 앞 비움 구역을 침범하는지 반증한다.
-@evidence principles/design/models.md#model-observable-style-basis 스타일 라벨 없이 경첩 배치라는 관찰 가능한 결정만 정한다.
+@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 05의 열린 방문은 여닫이 부재로 채택한다. 스타일 라벨 없이 경첩 배치라는 관찰 가능한 결정만 정한다.
 @evidence principles/design/models.md#model-scale-layer-completion 관절 인터페이스와 기준 상태를 모든 실내 문에 정한다.
 @evidence obligations/design/models.md#articulation-ownership 실내 문 hinge-pivot의 0~π/2 rad 회전을 유일한 motion 인터페이스로, 기준 상태를 π/2 열림으로 정한다.
 @evidence settings/10-house.md#openings 실내 문을 기준 상태에서 통행이 읽히게 연다는 조건을 π/2 rad 기준 상태로 소비한다.
@@ -64,7 +64,7 @@
 @evidence principles/design/models.md#representation-contract 실내 문의 안정 표면 소유를 정한다.
 @evidence principles/design/models.md#spatial-convention jamb-a/-b와 casing-a/-b는 interior-door-members의 부재 노드에 붙고 새 좌표를 정하지 않는다.
 @evidence principles/design/models.md#reviewable-structure materials 바인딩 뷰에서 양쪽 casing 경계로 반증한다.
-@evidence principles/design/models.md#model-observable-style-basis 흰 문선 색은 materials에 두고 경계만 정한다.
+@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 04·05의 흰 문짝, 챌면, 검은 손잡이가 따로 읽히므로 그 면들을 분리한다. 흰 문선 색은 materials에 두고 경계만 정한다.
 @evidence principles/design/models.md#model-scale-layer-completion 표면 인터페이스를 모든 실내 문 부재에 정한다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 00의 이름 규칙과 방 owner의 양쪽 마감 배정을 실내 문 -a/-b 분리에 그대로 소비했고 부모 수정이 없었다.
 -->

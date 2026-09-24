@@ -53,7 +53,7 @@
 @evidence principles/design/models.md#representation-contract 모서리가 약간 둥근 닫힌 직물 부피 30개를 `folded` 한 id로 덮고 실밥·개별 섬유는 표현하지 않는다.
 @evidence principles/design/models.md#spatial-convention 각 더미 원점은 선반 상면의 뒤쪽 가운데, +Y 위, +Z는 문 쪽이다. 선반 상면을 배치가 제공한다.
 @evidence principles/design/models.md#reviewable-structure 문을 연 정면에서 다섯 층의 수건이 보이는지, 측면에서 문 트랙과 옷감이 겹치지 않는지 확인한다.
-@evidence principles/design/models.md#model-observable-style-basis 흰 수건의 반복 더미가 식품 용기 팬트리와 다른 수납 역할을 드러내고 실제 직조 결은 materials가 맡는다.
+@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 05의 욕실·복도 수납에서 보이는 접힌 직물을 린넨장 수건 더미로 채택한다. 흰 수건의 반복 더미가 식품 용기 팬트리와 다른 수납 역할을 드러내고 실제 직조 결은 materials가 맡는다.
 @evidence principles/design/models.md#model-scale-layer-completion 개수·치수·배치 산식·표면 id·UV·국소 프레임과 검사 주소가 정해졌다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 상층 린넨장 선반의 0.55 m 깊이와 다섯 상면을 그대로 소비해 부모를 수정하지 않는다.
 @evidence settings/10-house.md#storage 계단참 가까운 린넨장의 접힌 수건을 원형으로 제공한다.

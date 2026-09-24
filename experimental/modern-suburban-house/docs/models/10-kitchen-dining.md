@@ -9,7 +9,7 @@
 @evidence principles/design/models.md#representation-contract 걸레받이·몸통·문과 서랍 전면·손잡이·상판의 부품과 `plinth`·`carcass`·`leaf`·`drawer-front`·`handle`·`countertop` 재질 경계를 고정하고, 경첩·서랍 레일·수전 배관·걸레받이 발 조절을 표현하지 않는 블로킹 한계를 적는다.
 @evidence principles/design/models.md#spatial-convention 가구 국소 좌표를 따르며 +Z를 사용자가 서는 작업면으로 두고, 몸통 앞면 Z = 0.62 m·손잡이 앞 끝 Z = 0.64 m·상판 Y = [0.88, 0.91]로 점유를 예약 깊이 0.65 m 안에 둔다.
 @evidence principles/design/models.md#reviewable-structure 측면 정사영의 상판 0.91 m·걸레받이 홈·상판 앞 돌출 0.03 m와 평면의 세 조각 합집합·한 번만 채운 코너를 리뷰가 드러낼 실루엣과 분할로 지정하고, 문과 서랍은 관절을 노출하지 않는다고 밝힌다.
-@evidence principles/design/models.md#model-observable-style-basis 스타일 라벨 없이 상판 아래 0.15 m 서랍 띠와 그 아래 문 칸, 전면에서 0.02 m 돌출한 가로 막대 손잡이라는 관찰 가능한 구성 결정을 리뷰 거리 구별 요구에 묶는다.
+@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 03의 회갈색 하부장 띠와 밝은 상판을 채택한다. 스타일 라벨 없이 상판 아래 0.15 m 서랍 띠와 그 아래 문 칸, 전면에서 0.02 m 돌출한 가로 막대 손잡이라는 관찰 가능한 구성 결정을 리뷰 거리 구별 요구에 묶는다.
 @evidence principles/design/models.md#model-scale-layer-completion 예약에서 받은 0.65·0.91 m 스케일, 다섯 부품, 관절 없는 강체 문·서랍, 여섯 재질 경계, 블로킹 한계, 측면·평면 관찰이 함께 적혀 하부장 띠 표현에 빠진 층이 없다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 공용부 벽 주방 예약의 뒤쪽 띠 Z = [-10.45, -9.80]·왼쪽 띠 X = [-5.50, -4.85]·Y = [0, 0.91]과 주방 설비 설정의 서랍·문·손잡이 구별 요구를 적힌 그대로 소비했고, 세 조각이 두 띠를 틈 없이 채워 부모 수정이 필요 없었다.
 @evidence settings/10-house.md#kitchen-equipment 주방 설비 설정의 L형 하부 수납을 길이 L 매개 원형으로 만들고, 서랍·문·손잡이가 리뷰 거리에서 구별되어야 한다는 요구를 0.15 m 서랍 띠 분할과 0.02 m 돌출 손잡이로 소비한다.
@@ -37,7 +37,7 @@
 @evidence principles/design/models.md#representation-contract 몸통·문 전면·손잡이 계층과 `carcass`·`leaf`·`handle` 경계를 두고 아래에서 보이는 밑면을 `carcass`에 귀속시키며 문을 관절 없는 강체로 선언한다. 보이지 않는 한계는 본문의 "경첩·내부 선반·문 사이 틈 그림자는 표현하지 않는다."로 밝힌다.
 @evidence principles/design/models.md#spatial-convention 벽걸이 원형이라 원점을 뒤쪽 모서리 선의 하단 중심에 두는 예외를 밝히고 걸림 높이 1.45 m에 놓아 점유를 Y = [1.45, 2.35], 깊이 0.35 m로 한정한다.
 @evidence principles/design/models.md#reviewable-structure 정면 정사영의 하단 1.45 m·상단 2.35 m, 하부장 상판과의 0.54 m 간격, 뒤쪽 상부장이 주방 창 오른쪽 끝에서 멈추는 윤곽을 리뷰 대상으로 정한다.
-@evidence principles/design/models.md#model-observable-style-basis 스타일 라벨 대신 하단 모서리의 0.02 m 돌출 세로 막대 손잡이와 왼쪽 두 문·뒤쪽 한 문의 전면 분할을 관찰 가능한 결정으로 적는다.
+@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 03의 창 양옆 상부장을 채택한다. 스타일 라벨 대신 하단 모서리의 0.02 m 돌출 세로 막대 손잡이와 왼쪽 두 문·뒤쪽 한 문의 전면 분할을 관찰 가능한 결정으로 적는다.
 @evidence principles/design/models.md#model-scale-layer-completion 1.45 m 걸림 스케일, 세 부품, 강체 문, 밑면을 포함한 세 재질 경계, 정면 관찰 두 개가 함께 정해져 상부장 표현을 구현할 층이 갖춰진다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 공용부 벽 주방 예약의 왼쪽 상부장 X = [-5.50, -5.15]·뒤쪽 상부장 Z = [-10.45, -10.10]·Y = [1.45, 2.35]를 그대로 소비했고 길이 1.30·0.85 m로 냉장고·전자레인지 예약을 피해 부모 수정이 없었다.
 @evidence settings/10-house.md#kitchen-equipment 상하부장 손잡이가 리뷰 거리에서 구별되어야 한다는 주방 설비 설정을 상부장 하단 모서리의 세로 막대 손잡이 0.02 m 돌출로 소비한다.
@@ -61,7 +61,7 @@
 @evidence principles/design/models.md#representation-contract 몸통 아래 두 문·서랍·세 손잡이 계층과 `appliance-body`·`leaf`·`drawer-front`·`handle`·열린 상태 전용 `appliance-interior`를 정하고 내부를 빈 상자 하나의 proxy로 둔다.
 @evidence principles/design/models.md#spatial-convention 로컬 +Z 전면이 배치에서 world +X를 향하고 외곽이 0.95 × 0.80 × 1.85 m이며, 문 피벗은 각 문의 바깥 세로 모서리, 서랍은 +Z 이동이라고 위치를 적는다.
 @evidence principles/design/models.md#reviewable-structure 닫힌 측면의 손잡이 끝 0.80 m, 두 문 90° 열림·서랍 0.55 m 인출 평면의 X = -4.15 m 한계, 옆 하부장보다 0.15 m 튀어나온 몸체를 리뷰가 드러낼 윤곽과 작동 영역으로 지정한다.
-@evidence principles/design/models.md#model-observable-style-basis 스타일 라벨 없이 위 양문·아래 서랍의 전면 분할, 0.005 m 중앙 틈, 하부장보다 0.15 m 나온 몸체라는 관찰 가능한 형태 결정을 적는다.
+@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 03 왼쪽의 스테인리스 양문 냉장고를 채택한다. 스타일 라벨 없이 위 양문·아래 서랍의 전면 분할, 0.005 m 중앙 틈, 하부장보다 0.15 m 나온 몸체라는 관찰 가능한 형태 결정을 적는다.
 @evidence principles/design/models.md#model-scale-layer-completion 예약 스케일, 몸통-문-서랍-손잡이 계층, `door-left`·`door-right`·`drawer` 인터페이스, 다섯 재질 경계, 내부 proxy 한계, 세 관찰이 함께 있어 구현자가 채울 빈 층이 없다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 공용부 벽 주방 예약의 냉장고 외곽 X = [-5.50, -4.70]·Z = [-7.40, -6.45]·Y = [0, 1.85]와 작동 예약 X = [-4.70, -4.15]를 그대로 소비했고 90° 열림 0.50 m가 0.55 m 안에 들어 부모 수정이 없었다.
 @evidence spaces/rooms/common.md#common-kitchen-wall-reservation 냉장고 외곽을 예약 X = [-5.50, -4.70]·Z = [-7.40, -6.45]·Y = [0, 1.85]에서 그대로 받고, 문 90° 열림 0.50 m와 서랍 0.55 m 인출을 작동 예약 X = [-4.70, -4.15]의 0.55 m 안에 맞춘다.
@@ -110,7 +110,7 @@
 @evidence principles/design/models.md#representation-contract 몸통·문·조작 판 세 부품과 `appliance-body`·`leaf`·`appliance-glass`·`control-panel` 경계를 두고 문을 관절을 노출하지 않는 강체로 선언한다. 보이지 않는 한계는 본문의 "회전 접시·내부 조명·문 창의 투과는 표현하지 않는다."로 밝힌다.
 @evidence principles/design/models.md#spatial-convention 벽걸이 원형이라 원점을 뒤쪽 모서리 선의 하단 중심에 두고 걸림 높이 1.45 m에 놓는 예외를 밝히며, 문·조작 판이 몸통 앞면과 같은 면이라 돌출이 없다고 적는다.
 @evidence principles/design/models.md#reviewable-structure 측면에서 레인지 조리면 위 0.54 m의 빈 공간이 남는지와 정면에서 옆 상부장과의 예약 비겹침을 리뷰 대상으로 두고, 네 재질 경계를 표면 분할로 드러낸다.
-@evidence principles/design/models.md#model-observable-style-basis 스타일 라벨 없이 돌출 없는 평면 전면과 후드를 겸하는 평평한 아래 면이라는 관찰 가능한 결정을 적는다.
+@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 03에서 레인지 위 상부장 아래의 전자레인지를 채택한다. 스타일 라벨 없이 돌출 없는 평면 전면과 후드를 겸하는 평평한 아래 면이라는 관찰 가능한 결정을 적는다.
 @evidence principles/design/models.md#model-scale-layer-completion 1.45 m 걸림 스케일, 세 부품, 강체 문, 네 재질 경계, 두 관찰이 함께 정해져 전자레인지 블로킹을 구현할 층이 갖춰진다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 공용부 벽 주방 예약의 전자레인지 외곽 X = [-5.50, -5.10]·Z = [-9.50, -8.70]·Y = [1.45, 1.85]를 그대로 소비했고 작동 예약이 없다는 부모 결정을 강체 문으로 받아 부모 수정이 없었다.
 @evidence spaces/rooms/common.md#common-kitchen-wall-reservation 전자레인지 외곽 X = [-5.50, -5.10]·Z = [-9.50, -8.70]·Y = [1.45, 1.85]를 예약에서 받고, 방 문서가 문 작동 예약을 두지 않으므로 문을 강체로 둔다.
@@ -133,7 +133,7 @@
 @evidence principles/design/models.md#representation-contract 걸레받이 0.10 m·몸통·상판·싱크 볼·수전 부품과 재질 경계 목록을 두고 싱크 볼을 0.20 m 깊이의 열린 상자, 식기세척기 칸을 빈 칸으로 적으며 섬 끝 기둥·벽이 없다고 밝힌다. 보이지 않는 한계는 본문의 "싱크 배수구·수전 손잡이 개별 형상·상판 가장자리 몰딩은 표현하지 않는다."로 밝힌다.
 @evidence principles/design/models.md#spatial-convention 뒤쪽 모서리 선을 좌석면 외곽, +Z를 작업면으로 두고 yaw -π/2에서 로컬 +Z가 world -X, 로컬 +X가 world +Z라고 명시하며 부품 위치를 뒤쪽 끝과 작업면에서 잰 거리로 준다.
 @evidence principles/design/models.md#reviewable-structure 좌석면 쪽 측면의 전 길이 0.30 m 무릎 공간, 위에서 본 싱크 절개와 식기세척기 칸의 0.05 m 간격, 수전 끝 1.26 m 한계를 리뷰 대상으로 둔다.
-@evidence principles/design/models.md#model-observable-style-basis 스타일 라벨 없이 끝 기둥·벽 없는 한 판 상판, 좌석면 쪽 0.30 m 무릎 공간, 작업면 쪽으로 꺾인 수전 토출구라는 관찰 가능한 형태를 정한다.
+@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 03의 밝은 상판, 섬 싱크, 손님 쪽 무릎 공간을 채택한다. 스타일 라벨 없이 끝 기둥·벽 없는 한 판 상판, 좌석면 쪽 0.30 m 무릎 공간, 작업면 쪽으로 꺾인 수전 토출구라는 관찰 가능한 형태를 정한다.
 @evidence principles/design/models.md#model-scale-layer-completion 예약 스케일, 방향 규약, 부품, 식기세척기 원형과의 칸 인터페이스, 재질 경계, 세 관찰이 함께 정해져 섬 표현을 구현할 층이 갖춰진다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 섬 예약의 X = [-3.65, -2.60]·Z = [-8.70, -6.45]·Y = [0, 0.91], 0.30 m 무릎 공간, 싱크 예약 X = [-3.55, -3.05]·Z = [-8.60, -8.10]을 그대로 소비했고 절개가 싱크 예약과 같아 부모 수정이 없었다.
 @evidence spaces/rooms/common.md#common-island-reservation 섬 외곽과 좌석면 0.30 m 무릎 공간, 싱크 예약 X = [-3.55, -3.05]·Z = [-8.60, -8.10]을 받아 싱크 절개를 0.50 × 0.50 m로 맞추고 수전 끝을 상한 1.31 m 아래 1.26 m에 둔다.
@@ -156,7 +156,7 @@
 @evidence principles/design/models.md#representation-contract 몸통·문·조작 띠·손잡이 계층과 `appliance-body`·`leaf`·`control-panel`·`handle`·`appliance-interior` 경계를 두고 선반·분사 팔·배수를 표현하지 않는다.
 @evidence principles/design/models.md#spatial-convention +Z 문 전면이 배치에서 world -X를 향하고 `door` 피벗을 아래 모서리 수평축에 두어 +Z 쪽으로 최대 90° 연다고 적는다.
 @evidence principles/design/models.md#reviewable-structure 닫힌 문이 섬 작업면과 같은 면인지, 90° 연 평면에서 문 끝이 X = -4.25 m에 멈추고 오븐 작동 구간과 Z가 겹치지 않는지를 리뷰 대상으로 둔다.
-@evidence principles/design/models.md#model-observable-style-basis 스타일 라벨 없이 작업면과 같은 면에 놓인 문, 돌출 없는 홈 손잡이, 상단 고정 조작 띠라는 관찰 가능한 전면 결정을 적는다.
+@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 03에서는 식기세척기 문짝이 선명히 분리되지 않는다. 스타일 라벨 없이 작업면과 같은 면에 놓인 문, 돌출 없는 홈 손잡이, 상단 고정 조작 띠라는 관찰 가능한 전면 결정을 적는다.
 @evidence principles/design/models.md#model-scale-layer-completion 섬 상판이 정한 0.88 m 스케일, 네 부품, `door` 인터페이스, 다섯 재질 경계, 내부 표현 한계, 두 관찰이 함께 있어 빠진 층이 없다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 섬 식기세척기 예약의 Z = [-8.05, -7.45]·몸체 깊이 0.60 m와 작동 예약 X = [-4.25, -3.65]를 그대로 소비했고 문 높이 0.60 m가 그 폭과 같아 부모 수정이 없었다.
 @evidence spaces/rooms/common.md#common-island-reservation 섬 식기세척기 예약 Z = [-8.05, -7.45]·몸체 깊이 0.60 m를 외곽으로 받고 90° 열림의 문 0.60 m를 작동 예약 X = [-4.25, -3.65]의 0.60 m에 맞춘다.
@@ -180,7 +180,7 @@
 @evidence principles/design/models.md#representation-contract 좌면·네 다리·발걸이 링 계층과 `seat`·`leg`·`footrest` 경계를 두고 관절 없이 앉기·밀어 넣기를 배치 변화로만 표현한다. 보이지 않는 한계는 본문의 "좌면 곡면·용접 이음·바닥 보호 캡은 표현하지 않는다."로 밝힌다.
 @evidence principles/design/models.md#spatial-convention 뒤쪽 모서리 선을 다리 벌림의 뒤쪽 변, +Z를 앉은 사람이 보는 섬 쪽(yaw -π/2에서 world -X)으로 두고 점유를 0.44 × 0.44 m 벌림과 0.64 m 높이로 적는다.
 @evidence principles/design/models.md#reviewable-structure 측면에서 좌면 0.64 m가 섬 상판 0.91 m보다 0.27 m 낮은지, 위에서 세 스툴 사이 틈이 보여 하나의 긴 벤치로 읽히지 않는지를 리뷰 대상으로 둔다.
-@evidence principles/design/models.md#model-observable-style-basis 스타일 라벨 없이 등받이 없는 사각 좌면, 약간 벌어진 0.03 m 다리, 0.25 m 사각 발걸이를 관찰 가능한 형태로 정하고 등받이 제외를 식당 쪽 시야 확보로 설명한다.
+@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 03의 섬 뒤 독립된 높은 스툴 세 개를 채택한다. 스타일 라벨 없이 등받이 없는 사각 좌면, 약간 벌어진 0.03 m 다리, 0.25 m 사각 발걸이를 관찰 가능한 형태로 정하고 등받이 제외를 식당 쪽 시야 확보로 설명한다.
 @evidence principles/design/models.md#model-scale-layer-completion 좌면 0.64 m와 섬 0.91 m의 비교 스케일, 세 부품, 관절 없음, 세 재질 경계, 두 관찰이 함께 정해져 스툴 표현을 완결한다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 섬 예약의 세 좌석과 좌면 0.64 m, 0.30 m 무릎 공간을 그대로 소비했고 0.40 m 좌면과 0.44 m 벌림이 좌석 사용 폭 0.65 m 안에 들어 부모 수정이 없었다.
 @evidence spaces/rooms/common.md#common-island-reservation 섬 앞 세 좌석과 방 문서의 좌면 0.64 m를 받아 한 원형을 세 번 쓰게 하고, 등받이 없는 스툴을 좌석면 0.30 m 무릎 공간 아래로 반쯤 밀어 넣는다.
