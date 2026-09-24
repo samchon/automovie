@@ -227,4 +227,3 @@
 [우측 목재 울타리](../settings/10-house.md#site-identity)다. 구성은 착색한 방부 목재 판이다. 외관은 `#8C6A48`(선형 0.262, 0.144, 0.065), roughness 0.75, metallic 0.0, transmission 0.0이다. 결합 면은 [울타리 전체와 측면 문·기둥](../spaces/site/fence.md#fence-enclosure-plan)의 모든 노출 면과 [옆마당 목재 대문](../models/02-exterior-doors.md#side-yard-gate)의 `leaf-panel`이다. source owner는 `src/materials/exterior/fence.ts`이고, 리뷰는 01 외관에서 울타리가 현관문보다 회색빛이 도는 중간갈색으로 읽히는지를 관찰한다.
 
 표면 결속 계획: 울타리 보드의 세로 목리는 보드 폭 0.14 m, 세로 반복 0.80 m를 따른다. 각 보드의 바닥 안쪽 모서리를 원점으로 U 폭·V 높이로 투영하고 보드 사이와 문짝 경첩선에서 끊는다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
-

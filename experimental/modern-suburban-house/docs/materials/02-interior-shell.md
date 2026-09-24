@@ -254,4 +254,3 @@
 [차고의 콘크리트 바닥과 내부](../settings/10-house.md#garage)다. 구성은 흙손 마감 콘크리트 슬래브다. 외관은 `#9C9890`(선형 0.332, 0.314, 0.279), roughness 0.85, metallic 0.0, transmission 0.0이다. 차고 내부 벽은 도장 석고보드이므로 [실내 벽 도장](#interior-wall-paint)을 받고 회색 변형을 따로 두지 않는다. 결합 면은 [garage-interior](../spaces/rooms/garage-interior.md#garage-interior-plan) owner의 노출 콘크리트 상면이다. source owner는 `src/materials/interior/floors.ts`이고, 리뷰는 차고 코너 view에서 바닥이 포장 콘크리트보다 어둡고 거칠게 읽히는지를 관찰한다.
 
 표면 결속 계획: 빈 차고 바닥은 0.50 m 콘크리트 잔골재·완만한 얼룩 모듈을 쓴다. 세계 X/Z를 U/V로 차고 앞 왼쪽 모서리를 원점으로 하고 차고문 레일·머드룸 문턱·포장 경계에서 자른다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
-

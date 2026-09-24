@@ -130,4 +130,3 @@ export const segmentsOf = (inner: readonly IAutoMovieBuiltSpace[], face: IWallFa
   }
   return merged;
 };
-
