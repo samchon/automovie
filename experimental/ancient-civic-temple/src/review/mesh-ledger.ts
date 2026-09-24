@@ -114,30 +114,48 @@ export const templeCompositeSolids: ReadonlyArray<{ id: string; models: readonly
  */
 export interface NamedSheet { id: string; corners: readonly IAutoMovieVector3[] }
 
-const onSheet = (sheets: readonly NamedSheet[], points: ReadonlyArray<readonly [number, number, number]>): boolean => sheets.some((sheet) => {
-  const c = sheet.corners;
-  const u = [c[1]!.x - c[0]!.x, c[1]!.y - c[0]!.y, c[1]!.z - c[0]!.z];
-  const w = [c[2]!.x - c[0]!.x, c[2]!.y - c[0]!.y, c[2]!.z - c[0]!.z];
-  const n = [u[1]! * w[2]! - u[2]! * w[1]!, u[2]! * w[0]! - u[0]! * w[2]!, u[0]! * w[1]! - u[1]! * w[0]!];
-  const length = Math.hypot(n[0]!, n[1]!, n[2]!);
-  const lo = [Math.min(...c.map((q) => q.x)), Math.min(...c.map((q) => q.y)), Math.min(...c.map((q) => q.z))];
-  const hi = [Math.max(...c.map((q) => q.x)), Math.max(...c.map((q) => q.y)), Math.max(...c.map((q) => q.z))];
-  return points.every((p) => Math.abs(((p[0] - c[0]!.x) * n[0]! + (p[1] - c[0]!.y) * n[1]! + (p[2] - c[0]!.z) * n[2]!) / length) < 1e-6
-    && p.every((v, k) => v >= lo[k]! - 1e-6 && v <= hi[k]! + 1e-6));
-});
+const onSheet = (sheets: readonly NamedSheet[], points: ReadonlyArray<readonly [number, number, number]>): boolean => sheets.some((sheet) =>
+  points.every((point) => sheet.corners.some((corner) =>
+    Math.hypot(point[0] - corner.x, point[1] - corner.y, point[2] - corner.z) < 1e-6)));
 
-/** mesh에서 명명된 판 위의 삼각형을 뺀 사본. */
-const withoutSheets = (mesh: IAutoMovieMesh, sheets: readonly NamedSheet[]): { mesh: IAutoMovieMesh; removed: number } => {
+/** 선택된 삼각형이 실제로 참조하는 꼭짓점과 모든 정적 속성만 남긴 계측용 mesh. */
+const selectTriangles = (mesh: IAutoMovieMesh, triangles: readonly number[]): IAutoMovieMesh | null => {
+  if (triangles.length === 0) return null;
+  if (mesh.skin !== null) throw new Error("명명된 막음 판 결산은 rigid mesh만 받습니다.");
+  const oldToNew = new Map<number, number>();
+  const positions: number[] = [];
+  const normals: number[] | null = mesh.normals === null ? null : [];
+  const uvs: number[] | null = mesh.uvs === null ? null : [];
+  const colors: number[] | undefined = mesh.colors === undefined ? undefined : [];
+  const indices = triangles.map((old) => {
+    let next = oldToNew.get(old);
+    if (next === undefined) {
+      next = oldToNew.size;
+      oldToNew.set(old, next);
+      positions.push(...mesh.positions.slice(old * 3, old * 3 + 3));
+      if (normals !== null) normals.push(...mesh.normals!.slice(old * 3, old * 3 + 3));
+      if (uvs !== null) uvs.push(...mesh.uvs!.slice(old * 2, old * 2 + 2));
+      if (colors !== undefined) colors.push(...mesh.colors!.slice(old * 3, old * 3 + 3));
+    }
+    return next;
+  });
+  return { positions, normals, uvs, ...(colors === undefined ? {} : { colors }), indices, skin: null };
+};
+
+/** 실제 mesh의 삼각형을 명명된 양면 판과 나머지로 나눠 각각의 속성·범위를 결산한다. */
+export const partitionNamedSheetTriangles = (
+  mesh: IAutoMovieMesh, sheets: readonly NamedSheet[],
+): { body: IAutoMovieMesh | null; sheet: IAutoMovieMesh | null; removed: number } => {
   const p = mesh.positions;
   const indices = mesh.indices ?? Array.from({ length: p.length / 3 }, (_, i) => i);
   const kept: number[] = [];
-  let removed = 0;
+  const removed: number[] = [];
   for (let t = 0; t + 2 < indices.length; t += 3) {
     const tri = [0, 1, 2].map((k) => [p[indices[t + k]! * 3]!, p[indices[t + k]! * 3 + 1]!, p[indices[t + k]! * 3 + 2]!] as const);
-    if (onSheet(sheets, tri)) ++removed;
-    else kept.push(indices[t]!, indices[t + 1]!, indices[t + 2]!);
+    const target = onSheet(sheets, tri) ? removed : kept;
+    target.push(indices[t]!, indices[t + 1]!, indices[t + 2]!);
   }
-  return { mesh: { ...mesh, indices: kept }, removed };
+  return { body: selectTriangles(mesh, kept), sheet: selectTriangles(mesh, removed), removed: removed.length / 3 };
 };
 
 export interface LedgerRow {
@@ -165,17 +183,22 @@ export const templeTopologyLedger = (environment: IAutoMovieBuiltEnvironment, sh
       if (model === undefined) throw new Error(`${composite.id}: model ${id}가 없습니다.`);
       return model;
     });
-    const stripped = models.flatMap(partMeshes).map((mesh) => withoutSheets(mesh, sheets));
-    const account = accountMeshes(composite.id, stripped.map((s) => s.mesh));
+    const stripped = models.flatMap(partMeshes).map((mesh) => partitionNamedSheetTriangles(mesh, sheets));
+    const account = accountMeshes(composite.id, stripped.flatMap((s) => s.body === null ? [] : [s.body]));
     const removed = stripped.reduce((sum, s) => sum + s.removed, 0);
     rows.push({ account, contract: "closed", findings: closureFindings(account, true) });
     if (sheets.length > 0) {
       const expected = sheets.reduce((sum, sheet) => sum + 2 * (sheet.corners.length - 2), 0);
       const faces = removed;
+      const sheetMeshes = stripped.flatMap((s) => s.sheet === null ? [] : [s.sheet]);
+      if (sheetMeshes.length === 0) throw new Error(`${composite.id}: 명명된 막음 판 삼각형이 없습니다.`);
+      const sheetAccount = accountMeshes(`${composite.id}.named-sheets`, sheetMeshes);
       rows.push({
-        account: { ...account, id: `${composite.id}.named-sheets`, triangles: removed },
+        account: sheetAccount,
         contract: "open-surface",
-        findings: faces === expected ? [] : [`명명된 막음 판 ${sheets.length}장의 앞·뒷면 삼각형 ${expected} 중 ${faces}`],
+        findings: [...closureFindings(sheetAccount, false).filter((finding) =>
+          finding.startsWith("퇴화") || finding.startsWith("비유한")),
+        ...(faces === expected ? [] : [`명명된 막음 판 ${sheets.length}장의 앞·뒷면 삼각형 ${expected} 중 ${faces}`])],
       });
     }
   }

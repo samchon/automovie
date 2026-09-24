@@ -6,7 +6,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { buildAutoMoviePolyhedron } from "@automovie/engine";
-import { accountMeshes, closureFindings } from "../mesh-ledger";
+import { accountMeshes, closureFindings, partitionNamedSheetTriangles } from "../mesh-ledger";
 import { accountFaces, assertClosed, boxFaces, near, v } from "./fixtures";
 
 const unit = { west: 0, east: 1, bottom: 0, top: 1, north: 0, south: 1 };
@@ -69,6 +69,29 @@ void test("single-sheet closure on a solid edge: non-manifold and open (the roof
   assert.ok(account.resolvedNonManifold >= 1);
   assert.ok(account.openEdges >= 2);
   assert.ok(account.defectSamples.length > 0);
+});
+
+void test("named-sheet ledger measures only emitted sheet triangles, not a coplanar neighbour", () => {
+  const corners = [v(0, 0, 0), v(2, 0, 0), v(0, 2, 0)];
+  const neighbour = [v(0.25, 0.25, 0), v(0.5, 0.25, 0), v(0.25, 0.5, 0)];
+  const mesh = buildAutoMoviePolyhedron([corners, neighbour]);
+  mesh.colors = Array.from({ length: mesh.positions.length }, (_, i) => i % 3 === 0 ? 0.5 : 1);
+  const original = JSON.stringify(mesh);
+  const split = partitionNamedSheetTriangles(mesh, [{ id: "fin", corners }]);
+  assert.equal(split.removed, 1);
+  assert.ok(split.sheet !== null && split.body !== null);
+  assert.deepEqual([split.sheet!.positions.length, split.body!.positions.length], [9, 9]);
+  assert.deepEqual(split.sheet!.colors, [0.5, 1, 1, 0.5, 1, 1, 0.5, 1, 1]);
+  assert.deepEqual(accountMeshes("sheet", [split.sheet!]).bounds, { min: [0, 0, 0], max: [2, 2, 0] });
+  assert.deepEqual(accountMeshes("body", [split.body!]).bounds, { min: [0.25, 0.25, 0], max: [0.5, 0.5, 0] });
+  assert.equal(partitionNamedSheetTriangles(mesh, []).sheet, null);
+  assert.equal(partitionNamedSheetTriangles({ ...mesh, indices: null }, [{ id: "fin", corners }]).removed, 1);
+  const withinTolerance = { ...mesh, positions: [...mesh.positions] };
+  withinTolerance.positions[0] += 0.5e-6;
+  assert.equal(partitionNamedSheetTriangles(withinTolerance, [{ id: "fin", corners }]).removed, 1);
+  withinTolerance.positions[0] += 2e-6;
+  assert.equal(partitionNamedSheetTriangles(withinTolerance, [{ id: "fin", corners }]).removed, 0);
+  assert.equal(JSON.stringify(mesh), original);
 });
 
 void test("determinism and input preservation", () => {
