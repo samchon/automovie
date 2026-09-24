@@ -139,7 +139,7 @@ part와 표면은 `wall`, `rim`, `floor`다. 속은 위로 열린 빈 공간이�
 @evidence principles/design/models.md#spatial-convention 말린 두루마리의 원점을 원통 축 중심, 축을 로컬 X로 둔다.
 @evidence principles/design/models.md#reviewable-structure 끝면의 말림 심과 끈이 돌·나무 막대와 구별되는지 보고 막힌 끝면·글자 있는 장을 실패로 둔다.
 @evidence principles/design/models.md#model-observable-style-basis 이미지 02·05의 칸 안 원통 묶음과 책상 위 펼친 장을 근거로 한다.
-@evidence principles/design/models.md#model-scale-layer-completion 세 변형이 칸 선반 칸(약 0.40×0.28m)과 책상 상판에 맞고 수량 소유가 정해져 기록물 층이 완결된다.
+@evidence principles/design/models.md#model-scale-layer-completion 세 변형이 칸 선반 칸(약 0.40×0.30m)과 책상 상판에 맞고 수량 소유가 정해져 기록물 층이 완결된다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work scrolls 구성과 records의 칸 선반 보관, civic-identity의 가짜 비문 금지를 세 변형에 대조했고 칸에 들어가 부모를 고치지 않았다.
 @evidence settings/35-objects.md#scrolls 말린 기록물을 세 변형의 두루마리로 받는다.
 @evidence settings/30-interiors.md#records 기록실 칸 선반의 마른 두루마리를 이 prototype으로 받는다.

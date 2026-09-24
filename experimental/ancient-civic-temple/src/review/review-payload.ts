@@ -9,7 +9,9 @@ import { roofStepClosures } from "../geometry/roof-solids";
 import { createTempleEnvironment } from "../spaces/environment";
 import { templeObservations } from "../spaces/observations";
 import { envelopeSolids, lastScan, scanOverlaps, solidsContaining, type OverlapPair } from "./envelope-overlaps";
+import { boundaryUpperCensus, type BoundaryUpperRow } from "./boundary-upper";
 import { templeTopologyLedger, type LedgerRow } from "./mesh-ledger";
+import { openingFrustumCensus, type OpeningFrustumRow } from "./opening-frustum";
 import { sourceBasis, sourceRevision, type SourceRevision } from "./source-basis";
 
 export interface ReviewPayload {
@@ -17,6 +19,8 @@ export interface ReviewPayload {
   revision: SourceRevision | null;
   overlaps: { grid: number; tolerance: number; solids: number; samples: number; milliseconds: number; pairs: OverlapPair[] };
   observations: { count: number; withoutPose: number; buried: string[] };
+  boundaryUpper: BoundaryUpperRow[];
+  openingFrustum: OpeningFrustumRow[];
   ledger: LedgerRow[];
   /** 방출된 완결 표면 ID를 owner별로 모은 목록(표면 소유 역검사). */
   surfaces: Array<{ owner: string; ids: string[] }>;
@@ -35,6 +39,8 @@ export const createReviewPayload = (grid: number): ReviewPayload => {
   const pairs = scanOverlaps(solids, grid, tolerance);
   const overlaps = { grid, tolerance, solids: solids.length, samples: lastScan.samples, milliseconds: Date.now() - started, pairs };
   const list = templeObservations(built.environment);
+  const boundaryUpper = boundaryUpperCensus(built.environment, built.roof);
+  const openingFrustum = openingFrustumCensus(built.environment, list);
   const buried = list.flatMap((o) => o.position === null ? [] : solidsContaining(solids, o.position).map((group) => `${o.id} in ${group}`));
   const ledger = templeTopologyLedger(built.environment, roofStepClosures(built.roof.filter((r) => r.tier === "wing")).map((face, i) => ({ id: `step-closure.${i}`, corners: face.corners })));
   const owners = new Map<string, Set<string>>();
@@ -48,8 +54,9 @@ export const createReviewPayload = (grid: number): ReviewPayload => {
     .map(([owner, ids]) => ({ owner, ids: [...ids].sort((a, b) => a.localeCompare(b)) }));
   return {
     basis, revision, overlaps,
-    observations: { count: list.length, withoutPose: list.filter((o) => o.position === null).length, buried },
+    observations: { count: list.length, withoutPose: list.filter((o) => o.position === null).length, buried }, boundaryUpper, openingFrustum,
     ledger, surfaces,
-    failures: pairs.length + buried.length + ledger.filter((row) => row.findings.length > 0).length,
+    failures: pairs.length + buried.length + ledger.filter((row) => row.findings.length > 0).length +
+      boundaryUpper.filter((row) => row.exposed > 0).length + openingFrustum.filter((row) => !row.roomCenterVisible || !row.completeProfileFramed).length,
   };
 };

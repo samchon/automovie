@@ -67,7 +67,7 @@ part와 표면은 `timber` 하나다. 윗면은 지붕 slab 아랫면에, 중간
 @evidence principles/core/common.md#declared-basis 길이는 두 반환벽 안쪽 면, 앞면 선은 south-outer, 경사는 roofs/porch 22°, 삼각 막음은 facades/south, 기둥 위치는 entrance-volume에서 온다고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 정면 포치 설정을 보·코니스·경사 트림의 세 part와 막음 앞면에 붙는 트림이라는 모델 결정으로 바꾼다.
 @evidence principles/design/models.md#representation-contract beam·cornice·raking-trim part와 보 윗면의 막음 받침 접촉면, 두 끝면과 반환벽 안쪽 면의 맞닿음을 정한다.
-@evidence principles/design/models.md#spatial-convention 원점을 보 아랫면의 앞 모서리 중심에 두고 south-outer 안쪽 0.30m 범위와 점유 상자 3.30×약 1.60×0.38m를 적는다.
+@evidence principles/design/models.md#spatial-convention 원점을 보 아랫면의 앞 모서리 중심에 두고 south-outer 안쪽 0.30m 범위와 보 아랫면 3.20m~박공 트림 꼭대기 약 4.473m에서 유도한 점유 상자 3.30×약 1.27×0.38m를 적는다.
 @evidence principles/design/models.md#reviewable-structure 정면·측면의 보·코니스·트림 분리와 용마루 만남, 건물 정면의 기둥→보→박공 연속과 트림 위치를 반증 관찰로 둔다.
 @evidence principles/design/models.md#model-observable-style-basis 이미지 01의 두 원주 위 석재 보와 박공 돌 테두리를 근거로 하고 판 하나로 된 박공을 실패로 둔다.
 @evidence principles/design/models.md#model-scale-layer-completion 기둥 3.20m·보·막음·포치 지붕 끝선이 한 연쇄로 이어져 접촉 층과 축척이 함께 닫힌다.
@@ -82,7 +82,7 @@ part와 표면은 `timber` 하나다. 윗면은 지붕 slab 아랫면에, 중간
 
 [정면 포치](../settings/20-envelope.md#entrance-porch)의 수평 보와 작은 삼각 박공의 가장자리 트림이다. 이미지 01에서 두 원주 위에 얹힌 두꺼운 석재 보와 박공을 두르는 돌 테두리가 근거다. 기둥이 보를, 보가 [삼각 막음](../spaces/facades/south.md#south-envelope)을, 막음 위의 [포치 지붕](../spaces/roofs/porch.md#porch-roof)이 트림 선을 따라 끝나는 연속 관계를 보여 준다.
 
-로컬 원점은 보 아랫면의 앞 모서리(정면 쪽) 중심이다. 보는 길이 3.30m(두 반환벽 안쪽 면 사이), 앞뒤 폭 0.30m, 높이 0.30m 석재 각재로 south-outer에서 안쪽 0.30m 범위에 놓이며 아랫면 Y=3.20m가 두 [포치 원주](columns.md#porch-column)의 주두 판에 얹힌다. 수평 코니스는 보 앞 윗모서리를 따라 높이 0.10m·앞 돌출 0.08m의 띠다. 경사 트림은 삼각 막음 앞면 위 두 경사 가장자리를 따라 높이 0.12m·앞 돌출 0.08m의 띠 두 개이며 포치 지붕의 22° 경사와 용마루 X=0에서 만난다. 점유 상자는 3.30×약 1.60×0.38m다.
+로컬 원점은 보 아랫면의 앞 모서리(정면 쪽) 중심이다. 보는 길이 3.30m(두 반환벽 안쪽 면 사이), 앞뒤 폭 0.30m, 높이 0.30m 석재 각재로 south-outer에서 안쪽 0.30m 범위에 놓이며 아랫면 Y=3.20m가 두 [포치 원주](columns.md#porch-column)의 주두 판에 얹힌다. 수평 코니스는 보 앞 윗모서리를 따라 높이 0.10m·앞 돌출 0.08m의 띠다. 경사 트림은 삼각 막음 앞면 위 두 경사 가장자리를 따라 높이 0.12m·앞 돌출 0.08m의 띠 두 개이며 포치 지붕의 22° 경사와 용마루 X=0에서 만난다. 점유 높이는 보 아랫면 3.20m부터 트림 꼭대기 약 4.473m까지여서 상자는 3.30×약 1.27×0.38m다.
 
 part와 표면은 `beam`, `cornice`, `raking-trim`이다. 보 윗면은 삼각 막음 아랫면을 받는 가려진 접촉면이고 보의 두 끝면은 반환벽 안쪽 면과 맞닿는다. 이 모델은 한 번 배치된다.
 

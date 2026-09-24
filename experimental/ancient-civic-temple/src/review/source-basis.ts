@@ -2,8 +2,8 @@
  * 관찰·측정 기록이 함께 적는 source 식별자(`.agents/skills/source-authoring/compilation.md`).
  * basis는 저작 입력 bytes(src, public, docs/spaces, docs/settings, package.json, lint.config.ts)의
  * sha256 앞 16자로, 뷰어 화면과 자가검사가 같은 값을 보인다. revision은 production 경로의
- * Git HEAD와 작업 트리 변경 여부다. 커밋되지 않은 변경이 있으면 dirty이며 그 결과는
- * HEAD의 결과가 아니다.
+ * Git에서 이 production 경로를 마지막으로 바꾼 커밋과 작업 트리 변경 여부다.
+ * 커밋되지 않은 변경이 있으면 dirty이며 그 결과는 기록된 커밋의 결과가 아니다.
  */
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
@@ -36,7 +36,7 @@ export interface SourceRevision {
 export const sourceRevision = (): SourceRevision | null => {
   try {
     const git = (...args: string[]) => execFileSync("git", args, { cwd: productionRoot, encoding: "utf8" }).trim();
-    return { commit: git("rev-parse", "HEAD"), dirty: git("status", "--porcelain", "--", ".").length > 0 };
+    return { commit: git("log", "-1", "--format=%H", "--", "."), dirty: git("status", "--porcelain", "--", ".").length > 0 };
   } catch {
     return null;
   }

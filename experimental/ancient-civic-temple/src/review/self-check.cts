@@ -15,6 +15,7 @@ import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import { parseArgs } from "node:util";
 import { createReviewPayload } from "./review-payload";
+import { spaceAccountMismatches, spaceAccountRows, spaceDocumentBodyLength } from "./space-account";
 
 const { values } = parseArgs({ options: { grid: { type: "string", default: "0.01" }, retired: { type: "string", default: "" } } });
 const grid = Number(values.grid);
@@ -35,6 +36,10 @@ for (const o of overlaps.pairs) {
 }
 console.log(`observations: ${review.observations.count} (${review.observations.withoutPose} without pose); poses inside a solid: ${review.observations.buried.length}`);
 for (const line of review.observations.buried) console.log(`  ${line}`);
+console.log(`boundary upper census: ${review.boundaryUpper.length} boundaries; ${review.boundaryUpper.filter((row) => row.tested > 0).length} two-space hosts tested; ${review.boundaryUpper.filter((row) => row.exposed > 0).length} unsplit upper bands`);
+for (const row of review.boundaryUpper) console.log(`  ${row.id}: ${row.tested} stations, ${row.exposed} exposed, max band ${f3(row.maxBand)} m${row.maxAt === null ? "" : ` at u=${f3(row.maxAt.u)}, host=${f3(row.maxAt.hostTop)}, sides=${f3(row.maxAt.firstCap)}/${f3(row.maxAt.secondCap)}`}`);
+console.log(`opening frustum census: ${review.openingFrustum.length} compiled openings; ${review.openingFrustum.filter((row) => row.roomCenterVisible).length} room-facing centers visible; ${review.openingFrustum.filter((row) => row.completeProfileFramed).length} full profiles framed`);
+for (const row of review.openingFrustum) console.log(`  ${row.id} (${row.kind}): room ${row.roomCenterVisible ? "center visible" : "center MISSED"}, corners ${row.roomCornersVisible}/4, exterior ${row.exteriorCornersVisible ?? "n/a"}/4, arrival ${row.arrivalCenterVisible ?? "n/a"}; eye ${f3(row.roomPosition.x)},${f3(row.roomPosition.y)},${f3(row.roomPosition.z)} target ${f3(row.roomTarget.x)},${f3(row.roomTarget.y)},${f3(row.roomTarget.z)}`);
 
 console.log("topology ledger (engine inspect/validate + T-junction resolution; open = open edges after resolution):");
 console.log("  model | contract | parts | verts/welded | tris | degenerate | non-finite | raw open | non-manifold | winding | T-verts | open | components | volume m³ | normals/uvs parts | bounds");
@@ -53,19 +58,27 @@ const walk = (dir: string): string[] => readdirSync(dir).flatMap((name) => {
   const path = join(dir, name);
   return statSync(path).isDirectory() ? walk(path) : name.endsWith(".md") ? [path] : [];
 });
-const bodyLength = (text: string): number => [...text
-  .replace(/<!--[\s\S]*?-->/g, "")
-  .split("\n").filter((line) => !line.startsWith("#")).join("")
-  .replace(/\s/g, "")].length;
 const spaces = walk(join(docs, "spaces")).sort((a, b) => a.localeCompare(b));
 let headings = 0;
+const measures: Array<{ path: string; body: number; headings: number }> = [];
 console.log("docs/spaces body characters:");
 for (const file of spaces) {
   const text = readFileSync(file, "utf8");
-  headings += (text.match(/^## /gm) ?? []).length;
-  console.log(`  ${relative(join(docs, "spaces"), file).split("\\").join("/")}: ${bodyLength(text)}`);
+  const path = relative(join(docs, "spaces"), file).split("\\").join("/");
+  const count = (text.match(/^## /gm) ?? []).length;
+  const body = spaceDocumentBodyLength(text);
+  headings += count;
+  measures.push({ path, body, headings: count });
+  console.log(`  ${path}: ${body}`);
 }
 console.log(`docs/spaces population: ${spaces.length} files, ${headings} H2`);
+const accountRows = spaceAccountRows(measures);
+const account = readFileSync(join(docs, "accounts", "spaces", "core-common.md"), "utf8");
+const accountMismatches = spaceAccountMismatches(account, accountRows);
+console.log("generated docs/accounts/spaces/core-common.md#proportion rows:");
+for (const row of accountRows) console.log(row);
+console.log(`spaces account table mismatches: ${accountMismatches.length}`);
+for (const row of accountMismatches) console.log(`  stale: ${row}`);
 
 const retired = values.retired.split(",").map((value) => value.trim()).filter((value) => value.length > 0);
 if (retired.length > 0) {
@@ -79,5 +92,5 @@ if (retired.length > 0) {
     console.log(`  ${value}: ${hits.length}${hits.length > 0 ? ` — ${hits.join(", ")}` : ""}`);
   }
 }
-console.log(`self-check failures: ${review.failures}`);
-process.exitCode = review.failures > 0 ? 1 : 0;
+console.log(`self-check failures: ${review.failures + accountMismatches.length}`);
+process.exitCode = review.failures + accountMismatches.length > 0 ? 1 : 0;

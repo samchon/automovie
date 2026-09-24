@@ -230,7 +230,7 @@ part와 표면은 `seat`, `leg`, `stretcher`다. 좌판 아래는 비어 있다.
 
 <!--
 @evidence principles/core/common.md#scope-preservation 기록실의 두루마리 칸 선반을 4×5 격자·판 두께·칸 치수·뒤판 없음까지 정한다.
-@evidence principles/core/common.md#substantive-completion 1.80×0.40×1.70m, 측판 0.04m·칸막이 0.03m, 칸 약 0.40×0.28m가 있어 source가 격자를 다시 고르지 않는다.
+@evidence principles/core/common.md#substantive-completion 1.80×0.40×1.70m, 측판 0.04m·칸막이 0.03m, 가로 (1.80−2×0.04−3×0.03)/4≈0.40m·세로 (1.70−2×0.04−4×0.03)/5=0.30m의 칸이 있어 source가 격자를 다시 고르지 않는다.
 @evidence principles/core/common.md#declared-basis 작은 칸 여러 단은 35-objects#shelves, 방 역할은 30-interiors#records, 두루마리가 눕혀진 칸은 이미지 02·05에서 온다고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 선반 설정을 봉헌실 진열대와 구별되는 스무 칸 격자라는 모델 결정으로 바꾼다.
 @evidence principles/design/models.md#representation-contract frame·divider part와 스무 칸의 빈 공간, 판 윗면의 두루마리 면을 정한다.
@@ -247,7 +247,7 @@ part와 표면은 `seat`, `leg`, `stretcher`다. 좌판 아래는 비어 있다.
 
 [기록실](../settings/30-interiors.md#records)의 두루마리 칸 선반이다. [선반](../settings/35-objects.md#shelves)의 작은 칸 여러 단과 이미지 02·05의 두루마리가 눕혀진 칸이 근거다.
 
-로컬 원점은 바닥면의 뒷변 중심, 앞은 +Z다. 폭 1.80m·깊이 0.40m·높이 1.70m이며 측판·위판·아래판 두께 0.04m, 칸막이와 선반 판 두께 0.03m로 가로 4칸·세로 5단의 칸을 만든다. 칸 하나는 약 0.40m 폭·0.28m 높이이고 앞뒤로 열려 있으며 뒤판은 없다. 점유 상자는 1.80×1.70×0.40m다.
+로컬 원점은 바닥면의 뒷변 중심, 앞은 +Z다. 폭 1.80m·깊이 0.40m·높이 1.70m이며 측판·위판·아래판 두께 0.04m, 칸막이와 선반 판 두께 0.03m로 가로 4칸·세로 5단의 칸을 만든다. 칸 하나는 (1.80−2×0.04−3×0.03)/4≈0.40m 폭·(1.70−2×0.04−4×0.03)/5=0.30m 높이이고 앞뒤로 열려 있으며 뒤판은 없다. 점유 상자는 1.80×1.70×0.40m다.
 
 part와 표면은 `frame`, `divider`다. 스무 칸의 빈 공간과 선반 판 윗면에 [두루마리](wares.md#scroll)가 놓인다. 칸별 수량은 instances가 정한다.
 

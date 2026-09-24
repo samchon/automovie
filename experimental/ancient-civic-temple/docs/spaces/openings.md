@@ -6,7 +6,7 @@
 @evidence principles/core/common.md#scope-preservation spine·가로 벽·현관 후퇴부의 인접 관계와 같은 구멍을 보는 벽 양면, 지붕 선으로 나뉘는 벽 면의 띠를 하나의 경계 절단에 연결한다.
 @evidence principles/core/common.md#substantive-completion 안정 boundary ID, host face와 local XY opening profile, 볼록 기둥 프리즘 분해와 개구부 구간의 문턱 아래·인방 위 실체, 맞닿은 면의 제거 규칙을 결정한다.
 @evidence principles/core/common.md#declared-basis 공유 기준선과 공개 polyhedron/검증 API의 표현 범위를 근거로 하고 extrude 경로를 폐기한 이유를 모서리 맞댐과 경사 상단으로 밝힌다.
-@evidence principles/design/spaces.md#space-topology 서·동 spine에서 인접 공간이 바뀌는 구간과 제실 세 벽에서 옆 부피가 끝나는 높이를 구별하고 닫힌 벽에 semantic 문만 생기는 것을 금지한다.
+@evidence principles/design/spaces.md#space-topology 서·동 spine에서 인접 공간이 바뀌는 구간과 여섯 host에서 옆 부피가 끝나는 높이를 구별하고 닫힌 벽에 semantic 문만 생기는 것을 금지한다.
 @evidence principles/design/spaces.md#space-boundary-authority 외벽은 입면, 내부벽은 boundaries, 방은 자기 쪽 표면만 소비하며 void와 문틀은 같은 host/profile을 쓴다.
 @evidence principles/design/spaces.md#space-verification-address 경계 양면과 void 관통 단면, 기둥 사이 reveal과 지붕 선의 띠를 짝으로 읽어 한쪽 벽 잔존과 잘못된 공간 연결을 찾는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 실제 개구부 요구에 경계 ID·절단 윤곽·물리 실체 생성 방식과 owner를 배정해 문짝 부착만의 가짜 구멍을 차단한다.
@@ -16,23 +16,23 @@
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 spine·가로 벽·현관 후퇴부의 인접 관계, 문 양면, 지붕 선의 벽 띠에 더해 옆 부피가 끝나는 높이 위의 제실 세 벽 면까지 경계 주소를 가져, 지붕 위로 드러난 창 벽이 방 사이 경계에 묻혀 외부 관찰에서 빠지지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 boundary ID·local XY profile·기둥 분해·맞닿은 면 제거에 더해 나누는 높이의 규칙(지붕 있는 방은 벽 면을 따른 그 방 쪽 지붕 상면의 최고점, 마당은 논리 상한)과 세 쌍의 아래/위 ID가 적혀 source가 분할 위치를 새로 고르지 않는다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 spine·가로 벽·현관 후퇴부의 인접 관계, 문 양면, 지붕 선의 벽 띠에 더해 옆 부피가 끝나는 높이 위의 여섯 벽 면까지 경계 주소를 가져, 노출된 높은 벽이 방 사이 경계에 묻혀 외부 관찰에서 빠지지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 boundary ID·local XY profile·기둥 분해·맞닿은 면 제거에 더해 나누는 높이의 규칙(지붕 있는 방은 벽 면을 따른 그 방 쪽 지붕 상면의 최고점, 마당은 논리 상한)과 여섯 쌍의 아래/위 ID가 적혀 source가 분할 위치를 새로 고르지 않는다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 나누는 높이를 옆 지붕 상면과 마당 논리 상한에서 유도한다고 밝혀 약 3.65·3.71·3.20m를 각 지붕·마당 owner에 잇고, 일정 단면 압출을 폐기한 근거와 공개 polyhedron의 볼록 면 조건도 함께 적혀 있다.
-@evidenceReview principles/design/spaces.md#space-topology #3f8d925 봉헌실/제실, 제실/주랑, 제실/마당 경계를 옆 부피가 끝나는 높이 아래로 한정하고 그 위를 제실 하나만 가진 외부 향 경계로 두어, 지붕 위 창이 아래 방과의 연결로 읽히지 않는다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 봉헌실/제실, 제실/주랑, 제실/마당에 더해 주랑/마당, 현관/주랑, 마당/보관실의 아래 경계를 낮은 쪽 종료 높이까지 두고 위를 높은 공간 하나만 가진 외부 향 경계로 두어 출입 연결을 바꾸지 않는다.
 @evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 나뉜 두 경계가 같은 물리 벽의 주소이고 벽 실체와 완결 표면 소유는 입면·boundaries·방에 그대로 남는다고 적어 분할이 두 번째 벽이나 새 표면 owner를 만들지 않는다.
-@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 위쪽 경계는 외부 입면·개구부처럼 관찰되고 그 개구부가 아래 방의 threshold를 만들지 않는다고 정해, 방 안에서 보이지 않는 창을 threshold로 통과시키는 경우가 관찰 질문에서 드러난다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 위쪽 경계는 외부 입면·개구부처럼 관찰되고 그 개구부가 아래 방의 threshold를 만들지 않는다고 정한다. 창 판독에는 창 ID를 향한 제실 안의 별도 pose를 요구한다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모 개구부 약속에 안정 ID·실제 절단 윤곽·기둥 프리즘 생성 방식과 owner, 옆 부피가 끝나는 높이에서 host를 나누는 주소 규칙을 더했다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 창 벽 위쪽을 외부 향 경계로 나눠도 고정 그래프의 방과 연결은 그대로이고 압출 경로의 한계는 기둥 프리즘으로 넘어, 부모 박공·깊은 문 요구를 고칠 결함이 드러나지 않았다.
 @evidenceReview settings/20-envelope.md#openings #4053d90 문짝을 붙인 사실을 void 생성으로 세지 않고 개구부 구간 기둥을 문턱 아래·인방 위로만 남겨 실제 관통을 만들며, 위쪽 경계 분할로 제실 창의 연결·충돌 질문이 외부 쪽에서 묻힌다.
-@evidenceReview obligations/design/spaces.md#space-envelope-interface #4b397de 같은 host/profile이 외벽·내벽 양면과 기둥 void를 지배하고, 제실 세 벽은 옆 지붕 위에서 외부와 제실이 맞서는 면으로 주소가 나뉘어 안팎이 서로 다른 건물을 말하지 않는다.
+@evidenceReview obligations/design/spaces.md#space-envelope-interface #4b397de 같은 host/profile이 외벽·내벽 양면과 기둥 void를 지배하고, 여섯 host의 노출 상부는 외부와 높은 쪽 공간이 맞서는 면으로 주소가 나뉘어 안팎이 서로 다른 건물을 말하지 않는다.
 -->
 
 [공유 기준선](building.md#plan-datums)이 두께와 접면을 정하고 이 파일은 각 물리 경계의 ID·인접 관계·void를 소유한다. 외벽 실체는 해당 입면 source가 만들고 내부벽 실체는 `src/spaces/boundaries.ts`가 만든다. 방 파일은 그 벽의 자기 쪽 표면을 참조할 뿐 두 번째 벽을 생성하지 않는다. 같은 벽에 뚫린 문·창은 이 경계의 절단 결과를 내·외부에서 함께 쓴다. 문짝이나 틀을 붙였다고 void가 생겼다고 세지 않는다.
 
 `boundary-sanctuary-south`는 sanctuary-front~north-ring, `boundary-west-spine`은 west-room~west-ring, `boundary-east-spine`은 east-ring~east-room이다. 서측 spine은 북쪽에서 봉헌실/제실, 남쪽에서 봉헌실/주랑을 가르므로 인접 공간이 바뀌는 지점에서 topology 구간을 나누되 물리 접합은 끊지 않는다. 동측 spine도 제실/마당, 주랑/마당, 주랑/세 업무방으로 인접성을 구별한다. 오른쪽의 세 가로 벽은 yard-front~storage-back, storage-front~records-back, records-front~office-back이다. 정문 후퇴벽은 entrance-back~entrance-front이고 반환벽은 [현관](rooms/entrance.md#entrance-volume)의 양옆 경계다.
 
-경계 host의 한쪽 공간 부피는 벽 위쪽까지 이어지는데 다른 쪽 공간의 부피가 그보다 낮게 끝나고 그 위의 면이 외부로 드러나면, host를 다른 쪽 부피가 끝나는 높이에서 나눈다. 아래는 두 공간의 경계이고 위는 높은 쪽 공간 하나만 가진 외부 향 경계다. 끝나는 높이는 지붕 있는 방이면 벽 면을 따라 그 방 쪽 지붕 상면이 가장 높은 곳, 지붕 없는 마당이면 [마당의 논리 상한](rooms/service-yard.md#yard-volume)이다. 벽 두께 안에 물린 지붕 slab 구간은 아래 경계에 든다. 이 신전에서 해당하는 host는 제실의 세 벽뿐이다. `boundary-sanctuary-south`는 북쪽 주랑 외쪽 지붕 상면(north-ring에서 약 3.65m) 아래의 제실/주랑 경계이고 그 위는 `boundary-sanctuary-south.upper`다. `boundary-west-spine.sanctuary`는 서측 외쪽 지붕 상면(west-room에서 약 3.71m) 아래의 봉헌실/제실 경계이고 위는 `boundary-west-spine.sanctuary-upper`다. `boundary-east-spine.sanctuary`는 마당 논리 상한 3.20m 아래의 제실/마당 경계이고 위는 `boundary-east-spine.sanctuary-upper`다. 나뉜 두 경계는 같은 물리 벽의 주소이며 벽 실체와 완결 표면의 소유는 바뀌지 않는다. 위쪽 경계는 공간이 하나이므로 외부 입면·외부 개구부와 같은 방식으로 관찰되고, 그 경계의 개구부는 아래쪽 방의 threshold를 만들지 않는다.
+경계 host의 한쪽 공간 부피가 다른 쪽의 지붕 상면 또는 열린 마당의 논리 상한 위로 계속되고 그 띠가 외부로 드러나면, host를 낮은 쪽의 종료 높이에서 나눈다. 아래는 두 공간의 경계이고 위는 높은 쪽 공간 하나만 가진 외부 향 경계다. 끝나는 높이는 지붕 있는 방이면 벽 면을 따라 그 방 쪽 지붕 상면이 가장 높은 곳, 지붕 없는 마당이면 [마당의 논리 상한](rooms/service-yard.md#yard-volume)이다. 벽 두께 안에 물린 지붕 slab 구간은 아래 경계에 든다. 실제 모든 boundary의 host 상단과 양쪽 공간 상한을 대조하며, 서로 만나는 두 지붕만 높이가 바뀌고 한 공간 부피가 상대 지붕 상면 위로 이어지지 않는 반환벽은 이 분할에 들지 않는다. 해당 host는 제실의 세 벽, 주랑/마당 동측 spine, 현관 후퇴벽, 마당/보관실 북쪽 끝벽의 여섯이다. `boundary-sanctuary-south`는 북쪽 주랑 외쪽 지붕 상면(north-ring에서 약 3.65m) 아래의 제실/주랑 경계이고 그 위는 `boundary-sanctuary-south.upper`다. `boundary-west-spine.sanctuary`는 서측 외쪽 지붕 상면(west-room에서 약 3.71m) 아래의 봉헌실/제실 경계이고 위는 `boundary-west-spine.sanctuary-upper`다. `boundary-east-spine.sanctuary`는 마당 논리 상한 3.20m 아래의 제실/마당 경계이고 위는 `boundary-east-spine.sanctuary-upper`다. `boundary-east-spine.yard`는 같은 3.20m 아래의 주랑/마당 경계이고 그 위는 `boundary-east-spine.yard-upper`다. `boundary-entry`는 후퇴벽의 주랑 쪽 외쪽 지붕 상면 아래의 현관/주랑 경계이고 위는 `boundary-entry.upper`다. `boundary-yard-storage`는 3.20m 아래의 마당/보관실 경계이고 위는 `boundary-yard-storage.upper`다. 나뉜 경계는 같은 물리 벽의 주소이며 벽 실체와 완결 표면의 소유는 바뀌지 않는다. 위쪽 경계는 공간이 하나이므로 외부 입면·외부 개구부와 같은 방식으로 관찰되고, 그 경계의 개구부는 아래쪽 방의 threshold를 만들지 않는다.
 
 오른쪽 가로 경계의 안정 ID는 북쪽부터 `boundary-yard-storage`, `boundary-storage-records`, `boundary-records-office`다. 이들의 끝과 spine·외벽·현관의 맞닿음은 [벽 접합](junctions.md#wall-junctions)이 정한다. 외곽 모서리의 두 벽을 겹친 상자로 만들지 않으며 후퇴벽·반환벽은 남측 입면의 물리 소유다. 마당과 보관실 사이의 높은 지붕 끝은 [박공 폐쇄](junctions.md#gable-closures)를 소비한다.
 
@@ -108,10 +108,10 @@
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 박공 창 윗모서리 약 5.06m 대 X=±1.26m 박공 하부 약 6.97m, 측벽 창 틀 윗끝 약 4.46m 대 spine 두께 안 제실 지붕 하부 약 5.10~5.22m, 틀 아래끝 약 3.94m 대 서측 지붕 약 3.71m·마당 상한 3.20m가 설계 산술로 적히고 계측 결과라고 주장하지 않는다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 남측 박공 창과 측벽 창이 제실 하나만 가진 위쪽 경계에 속해 바깥이 외부이고, 봉헌실·주랑·마당 안의 위치를 창의 관찰로 세지 않아 새 방 사이 연결이 생기지 않는다.
 @evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 창의 Z·X 위치는 이 owner, 관통 범위는 기준선, 위 한계는 제실 지붕, 아래 한계는 서측 외쪽 지붕·북쪽 주랑 지붕·마당 owner에서 받고 결속 경계는 경계 소유 H2의 ID를 쓴다.
-@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 창마다 벽에 수직인 연직 단면과 지붕 위·마당 위 외부 관찰, 제실 안 threshold를 판정 위치로 두어 지붕에 묻히거나 주랑 지붕에 가린 창이 드러나고 방 쪽 위치는 창 관찰로 세지 않는다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 창마다 벽에 수직인 연직 단면과 지붕 위·마당 위 외부 관찰을 두며, 제실 안에서는 창 ID에 결속되어 자기 창을 향하는 별도 opening-facing pose로 본다. 도착 방향을 향하는 engine threshold는 창 판독으로 세지 않는다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 작은 상부 채광구라는 설정에 박공·측벽 위치, 날개 지붕과 마당 위 높이, 외부 향 경계 결속을 더했다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 올린 제실 지지에서도 측벽 창이 봉헌실 지붕 위·제실 지붕 아래에 놓여 창 삭제나 부모 지붕 높이 변경이 요구되지 않았다.
-@evidenceReview settings/30-interiors.md#sanctuary #f53612f 북·남 박공과 두 측벽 상부의 작은 창 여덟이 노출 박공 제실에 높은 채광을 주고, 제실 안 threshold가 그 창을 보는 방 쪽 관찰이다.
+@evidenceReview settings/30-interiors.md#sanctuary #f53612f 북·남 박공과 두 측벽 상부의 작은 창 여덟이 노출 박공 제실에 높은 채광을 주고, 창마다 별도 opening-facing pose가 자기 창을 바라보는 방 쪽 관찰이다.
 @evidenceReview settings/20-envelope.md#openings #4053d90 유효 0.4m와 각 가장자리 0.06m 석재 틀을 구별하고 유리 없이 박공 벽과 spine 두께를 관통하는 reveal을 남겨 깊은 석재 틀과 유리 배제를 지킨다.
 -->
 

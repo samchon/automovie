@@ -51,7 +51,7 @@
 
 <!--
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 표가 외쪽 지붕 끝 파라펫, 제실·동측·포치 박공, 제실 처마 아래, 동측 박공 남쪽 끝의 코핑, 제실 서쪽 처마의 파라펫 통과, 날개 안 높이 차이를 모두 폐쇄 owner에 배정한다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 제실 남벽·서측 spine 행이 지붕 상면 아래·위의 경계 ID를 적고, 용마루 약 4.53m·기와 약 4.63m 대 코핑 아랫면 4.69m, 처마 하부 약 4.95m 대 코핑 윗면 4.85m가 접점마다 수치로 정해진다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 제실 남벽·서측 spine과 마당/보관실 끝벽 행이 낮은 쪽 상한 아래/위 경계 ID를 적고, 용마루 약 4.53m·기와 약 4.63m 대 코핑 아랫면 4.69m, 처마 하부 약 4.95m 대 코핑 윗면 4.85m가 접점마다 수치로 정해진다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 높이는 합성 roof와 남측 입면에서 소비하고 표는 벽 연장·표면 귀속·여유와 경계 주소만 적어 지붕 높이를 이 H2가 새로 정하지 않는다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 제실 처마와 파라펫 사이 틈을 외부로 두고 날개 지붕 위로 솟은 제실 벽을 외부 향 위쪽 경계로 주소화해 새 벽이나 옥상 공간, 아래 방과의 연결을 만들지 않는다.
 @evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 용마루 덮개 줄이 코핑 돌출 끝에서 멈춘다는 규칙만 표에 두고 덮개 배치는 models/instances에, 나뉜 경계 ID는 경계 소유 H2에 남겨 표면·경계 소유를 가져가지 않는다.
@@ -72,7 +72,7 @@
 | 서측 외쪽 지붕의 제실 쪽 끝 | 서측 spine의 제실 구간이 제실 지붕 하부까지 솟아 닫음. 지붕 상면 아래는 boundary-west-spine.sanctuary, 위는 외부 향 boundary-west-spine.sanctuary-upper. 봉헌실 쪽 면은 지붕 아래 봉헌실, 지붕 위로 드러난 제실 서측벽 외면은 서측 입면 소유 |
 | 제실 북·남 박공 | 북측 외벽과 제실 남벽(boundary-sanctuary-south.upper)의 연장. 북쪽 바깥은 북측 입면, 남쪽은 주랑, 제실 쪽은 제실 소유 |
 | 제실 처마 아래 | 서·남 처마는 봉헌실·북쪽 주랑 지붕 위에, 동쪽 처마는 마당 위에 떠 있음. 처마와 아래 지붕 사이는 외부이며 제실 측벽·남벽의 외면이 실내를 닫음 |
-| 동측 박공 북쪽, 마당과 맞닿는 구간 | boundary-yard-storage를 동측 박공 하부까지 연장. 마당 쪽은 service-yard, 보관실 천장 아래쪽은 storage 소유 |
+| 동측 박공 북쪽, 마당과 맞닿는 구간 | 물리벽은 동측 박공 하부까지 연장한다. 3.20m 아래 `boundary-yard-storage`는 마당/보관실 사이이고 그 위 `boundary-yard-storage.upper`는 보관실 하나의 외부 향 면이다. 완결 물리벽과 지붕 끝 막음 소유는 그대로다 |
 | 동측 박공 남쪽 끝과 남동 모서리 | 남측 파라펫이 박공보다 높아 닫음. 19도 박공의 용마루 상면은 약 4.53m, 기와 약 0.10m를 더해 약 4.63m로 코핑 아랫면 4.69m보다 낮아 코핑 안쪽 돌출(south-inner에서 0.06m) 아래로 들어간다. 용마루 덮개 줄은 그 돌출 끝에서 멈춘다. 동측 외벽의 남동 모서리 칸은 코핑 높이로 올라 파라펫과 동측 처마 벽을 이음. 바깥은 남측·동측 입면 소유 |
 | 제실 서쪽 처마와 봉헌실 구간 북측 파라펫 | 제실 서쪽 처마(west-room에서 0.35m)가 north-outer 너머까지 봉헌실 구간 파라펫과 그 코핑 위를 지난다. 처마 하부 약 4.95m가 코핑 윗면 4.85m보다 약 0.10m 높아 닿지 않고, 파라펫과 코핑은 처마 아래에서도 끊기지 않는다. 그 틈은 외부이며 봉헌실 쪽은 파라펫, 제실 쪽은 서측 spine이 닫음 |
 | 포치 박공 | 앞: 기둥 위 보가 받는 삼각 막음(남측 입면 소유), 옆: 두 반환벽 파라펫, 뒤: 현관 후퇴벽이 포치 하부까지 올라 받치고 닫음. 후퇴벽 북면 중 남쪽 외쪽 지붕 위로 드러난 부분은 남측 입면 소유 |

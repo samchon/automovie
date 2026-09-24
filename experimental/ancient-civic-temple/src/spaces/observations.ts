@@ -11,8 +11,9 @@
  * 반환 불가/충돌 station과 이전 결속의 무효 창 threshold는 지우지 않고 pose=null과 이유로 남긴다.
  * 이 목록은 관찰 위치이며 시각 판정 결과가 아니다.
  */
-import { builtEnvironmentBuildingCensus, builtSpaceObservationStations } from "@automovie/engine";
+import { builtSpaceObservationStations } from "@automovie/engine";
 import type { IAutoMovieBuiltEnvironment, IAutoMovieVector3 } from "@automovie/interface";
+import { exteriorObservations, openingFacingObservations } from "./perimeter-observations";
 import { roofStepClosures } from "../geometry/roof-solids";
 import { templePlan as p } from "./building";
 import { templeDoorPassages } from "./openings";
@@ -187,7 +188,9 @@ export const templeObservations = (environment: IAutoMovieBuiltEnvironment): Tem
         id: `${space.id}.${station.id}`, group: "space", space: space.id, role: station.role, label,
         position: raised,
         target: { ...station.pose.target, y: station.role === "corner" ? station.pose.target.y + lift : raised.y },
-        note: floor === null ? "support 없음: engine 높이 유지(눈높이 unverified)"
+        note: station.role === "threshold" && station.opening?.startsWith("window-")
+          ? "엔진 threshold는 실내 도착 방향을 향해 창 판독에 쓰지 않음; 같은 ID의 opening-facing 관찰을 사용"
+          : floor === null ? "support 없음: engine 높이 유지(눈높이 unverified)"
           : Math.abs(lift) > 1e-6 ? `engine y=${station.pose.position.y.toFixed(3)} → 바닥+1.6m` : null,
       });
     }
@@ -218,7 +221,7 @@ export const templeObservations = (environment: IAutoMovieBuiltEnvironment): Tem
     }
   }
   result.push(...colonnadeCornerObservations(), ...junctionObservations(), ...sectionObservations(), ...referenceObservations());
-  result.push(...exteriorObservations(environment), ...siteObservations(environment));
+  result.push(...exteriorObservations(environment), ...openingFacingObservations(environment), ...siteObservations(environment));
   return result;
 };
 
@@ -382,87 +385,6 @@ const referenceObservations = (): TempleObservation[] => {
   ];
 };
 
-/** 1600×1000, 수직 50° 프레임에서 폭 width가 약 78%를 채우는 거리(m). */
-const fitDistance = (width: number): number => (width / 0.78) / 2 / (Math.tan(25 * Math.PI / 180) * 1.6);
-
-const exteriorObservations = (environment: IAutoMovieBuiltEnvironment): TempleObservation[] => {
-  const census = builtEnvironmentBuildingCensus(environment)[0];
-  const center = { x: 0, y: 2.2, z: 0 };
-  const out: TempleObservation[] = [{
-    id: "exterior.setting", group: "exterior", space: null, role: "setting", label: "외부 setting · 정면 좌측 조감",
-    position: { x: -8, y: 15, z: 27 }, target: { x: 0, y: 1.2, z: 0.5 }, note: null,
-  }];
-  for (const face of census?.facades ?? []) {
-    const width = Math.max(...face.vertices.map((v) => Math.hypot(v.x - face.centroid.x, v.z - face.centroid.z))) * 2;
-    const outward = outwardNormal(environment, face.space, face.centroid, face.normal);
-    // 지붕·마당 위로 올라간 외부 향 경계(제실 세 벽의 위쪽)는 같은 맞춤 거리에서 면보다 높게 본다.
-    const elevated = face.centroid.y > templeRoofRules.courtEave;
-    const distance = Math.max(4, fitDistance(Math.max(width, 3)));
-    out.push({
-      id: `exterior.facade.${face.boundary}`, group: "exterior", space: null, role: "facade",
-      label: `입면 · ${face.boundary}`,
-      position: {
-        x: face.centroid.x + outward.x * distance, y: elevated ? face.centroid.y + 0.8 : eye + 0.6,
-        z: face.centroid.z + outward.z * distance,
-      },
-      target: { ...face.centroid, y: Math.max(1.2, face.centroid.y) }, note: null,
-    });
-  }
-  for (const [id, x, z, text] of [
-    ["northwest", p.westOuter, p.northOuter, "북서"], ["northeast", p.eastOuter, p.northOuter, "북동"],
-    ["southwest", p.westOuter, p.southOuter, "남서"], ["southeast", p.eastOuter, p.southOuter, "남동"],
-  ] as const) {
-    const d = Math.hypot(x, z);
-    out.push({
-      id: `exterior.corner.${id}`, group: "exterior", space: null, role: "corner", label: `외부 모서리 · ${text}`,
-      position: { x: x + x / d * 15, y: 3, z: z + z / d * 15 }, target: { x, y: 2, z }, note: null,
-    });
-  }
-  for (const [id, x, z, text] of [
-    ["north", 0, -1, "북"], ["east", 1, 0, "동"], ["south", 0, 1, "남"], ["west", -1, 0, "서"],
-  ] as const) {
-    out.push({
-      id: `exterior.roof.${id}`, group: "exterior", space: null, role: "roof", label: `지붕 · ${text}쪽 조감`,
-      position: { x: x * 24, y: 17, z: z * 24 }, target: center, note: null,
-    });
-    const edge = id === "north" ? p.northOuter : id === "south" ? p.southOuter : id === "east" ? p.eastOuter : p.westOuter;
-    const along = Math.abs(x) > 0 ? { x: edge + x * 3.2, z: 0 } : { x: 0, z: edge + z * 3.2 };
-    out.push({
-      id: `exterior.underside.${id}`, group: "exterior", space: null, role: "underside", label: `처마 하부 · ${text}`,
-      position: { x: along.x + (Math.abs(x) > 0 ? 0 : -6), y: eye, z: along.z + (Math.abs(z) > 0 ? 0 : 6) },
-      target: { x: Math.abs(x) > 0 ? edge : 2, y: 3.3, z: Math.abs(z) > 0 ? edge : -2 }, note: null,
-    });
-  }
-  for (const opening of environment.openings) {
-    const boundary = environment.boundaries.find((b) => b.id === opening.boundary);
-    const face = boundary?.face;
-    if (boundary === undefined || face === undefined || boundary.spaces.length !== 1) continue;
-    const xs = opening.profile?.outline.map((q) => q.x) ?? [0];
-    const ys = opening.profile?.outline.map((q) => q.y) ?? [0];
-    const u = (Math.min(...xs) + Math.max(...xs)) / 2;
-    const v = (Math.min(...ys) + Math.max(...ys)) / 2;
-    const alongZ = Math.abs(face.rotation.y) > 1e-6;
-    const mouth = alongZ ? { x: face.origin.x, y: v, z: u } : { x: u, y: v, z: face.origin.z };
-    const outward = outwardNormal(environment, boundary.spaces[0]!, mouth, alongZ ? { x: 1, y: 0, z: 0 } : { x: 0, y: 0, z: 1 });
-    out.push({
-      id: `exterior.opening.${opening.id}`, group: "exterior", space: null, role: "opening", label: `외부 개구부 · ${opening.id}`,
-      // 지붕·마당 위의 높은 창은 창 바깥 가까이, 창보다 조금 높은 곳에서 본다.
-      position: v > templeRoofRules.courtEave
-        ? { x: mouth.x + outward.x * 2.5, y: v + 0.6, z: mouth.z + outward.z * 2.5 }
-        : { x: mouth.x + outward.x * 7, y: Math.max(eye, v - 0.8), z: mouth.z + outward.z * 7 },
-      target: mouth, note: null,
-    });
-  }
-  const entry = environment.openings.find((o) => o.id === "door-entry");
-  if (entry !== undefined) {
-    out.push({
-      id: "exterior.opening.door-entry", group: "exterior", space: null, role: "opening", label: "외부 개구부 · door-entry(정문 축)",
-      position: { x: 0, y: eye, z: p.southOuter + 7 }, target: { x: 0, y: 1.4, z: p.entranceBack }, note: null,
-    });
-  }
-  return out;
-};
-
 /**
  * docs/spaces/site.md의 대지 관찰. 조감은 구획·경계석 고리·배치 구역을, 두 접근은
  * 경계석 끊김과 접점 높이를, 서측 골목은 지면 경사를, 정면 거리 시점은 먼 능선이
@@ -484,18 +406,6 @@ const siteObservations = (environment: IAutoMovieBuiltEnvironment): TempleObserv
   return entries.map(([id, label, position, target]) => ({
     id, group: "site", space: "temple-site", role: id.split(".")[1]!, label, position, target, note: null,
   }));
-};
-
-/** 면 법선을 공간 밖을 향하게 맞춘다. 0.5m 앞 점이 그 공간 안이면 뒤집는다. */
-const outwardNormal = (
-  environment: IAutoMovieBuiltEnvironment, space: string, at: IAutoMovieVector3, normal: IAutoMovieVector3,
-): IAutoMovieVector3 => {
-  const probe = { x: at.x + normal.x * 0.5, y: 1.2, z: at.z + normal.z * 0.5 };
-  const inside = environment.spaces.find((s) => s.id === space)?.cells.some((cell) =>
-    cell.planes.every((plane) => plane.normal.x * probe.x + plane.normal.y * probe.y + plane.normal.z * probe.z <= plane.offset)) ?? false;
-  const length = Math.hypot(normal.x, normal.z) || 1;
-  const sign = inside ? -1 : 1;
-  return { x: sign * normal.x / length, y: 0, z: sign * normal.z / length };
 };
 
 /** 그 공간의 수평 support 중 점을 포함하는 가장 높은 면의 높이. */

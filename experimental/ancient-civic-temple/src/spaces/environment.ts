@@ -151,7 +151,7 @@ export const createTempleEnvironment = () => {
     spaces: spaceIds, elements: [`element.${wallId}`], face: face(wall(wallId), host[0], host[1], band),
   });
   // docs/spaces/openings.md#boundary-ownership: 다른 쪽 부피가 끝나고 그 위가 외부로 드러나는
-  // 제실 세 벽은 그 높이에서 두 경계로 나눈다. 지붕 있는 방은 벽 면을 따라 가장 높은 그 방 쪽
+  // 여섯 노출 상부 host는 그 높이에서 두 경계로 나눈다. 지붕 있는 방은 벽 면을 따라 가장 높은 그 방 쪽
   // 날개 지붕 상면, 지붕 없는 마당은 논리 상한(주랑 처마 높이)이다.
   const roofTopAlong = (points: readonly PlanPoint[]): number => Math.max(...points.map((point) => {
     const heights = roof.filter((patch) => patch.tier === "wing" && patch.polygon.every((q, i) =>
@@ -167,6 +167,7 @@ export const createTempleEnvironment = () => {
   const westUpper = roofTopAlong(along(p.northInner, p.sanctuaryFront, p.westRoom - 1e-3, "z"));
   const southUpper = roofTopAlong(along(p.westRing, p.eastRing, p.northRing + 1e-3, "x"));
   const eastUpper = templeRoofRules.courtEave;
+  const entryUpper = roofTopAlong(along(p.westPorchOuter, p.eastPorchOuter, p.entranceBack - 1e-3, "x"));
   const boundaries: IAutoMovieBuiltBoundary[] = [
     boundary("boundary-north.offering", ["offering"], "wall.facade-north", [p.westOuter, p.westRoom]),
     boundary("boundary-north.sanctuary", ["sanctuary"], "wall.facade-north", [p.westRing, p.eastRing]),
@@ -180,7 +181,8 @@ export const createTempleEnvironment = () => {
     boundary("boundary-south.colonnade-west", ["colonnade"], "wall.facade-south.west", [p.westRing, p.westPorchOuter]),
     boundary("boundary-south.colonnade-east", ["colonnade"], "wall.facade-south.east", [p.eastPorchOuter, p.eastRing]),
     boundary("boundary-south.administration", ["administration"], "wall.facade-south.east", [p.eastRoom, p.eastOuter]),
-    boundary("boundary-entry", ["entrance", "colonnade"], "wall.facade-south.entry-back", [p.westPorchOuter, p.eastPorchOuter]),
+    boundary("boundary-entry", ["entrance", "colonnade"], "wall.facade-south.entry-back", [p.westPorchOuter, p.eastPorchOuter], { height: entryUpper, keep: "below" }),
+    boundary("boundary-entry.upper", ["entrance"], "wall.facade-south.entry-back", [p.westPorchOuter, p.eastPorchOuter], { height: entryUpper, keep: "above" }),
     boundary("boundary-entrance-return-west", ["entrance", "colonnade"], "wall.facade-south.return-west", [p.entranceFront, p.southOuter]),
     boundary("boundary-entrance-return-east", ["entrance", "colonnade"], "wall.facade-south.return-east", [p.entranceFront, p.southOuter]),
     boundary("boundary-west-spine.sanctuary", ["offering", "sanctuary"], "wall.boundary-west-spine", [p.northInner, p.sanctuaryFront], { height: westUpper, keep: "below" }),
@@ -188,13 +190,15 @@ export const createTempleEnvironment = () => {
     boundary("boundary-west-spine.colonnade", ["offering", "colonnade"], "wall.boundary-west-spine", [p.northRing, p.southInner]),
     boundary("boundary-east-spine.sanctuary", ["sanctuary", "service-yard"], "wall.boundary-east-spine", [p.northInner, p.sanctuaryFront], { height: eastUpper, keep: "below" }),
     boundary("boundary-east-spine.sanctuary-upper", ["sanctuary"], "wall.boundary-east-spine", [p.northInner, p.sanctuaryFront], { height: eastUpper, keep: "above" }),
-    boundary("boundary-east-spine.yard", ["colonnade", "service-yard"], "wall.boundary-east-spine", [p.northRing, p.yardFront]),
+    boundary("boundary-east-spine.yard", ["colonnade", "service-yard"], "wall.boundary-east-spine", [p.northRing, p.yardFront], { height: eastUpper, keep: "below" }),
+    boundary("boundary-east-spine.yard-upper", ["colonnade"], "wall.boundary-east-spine", [p.northRing, p.yardFront], { height: eastUpper, keep: "above" }),
     boundary("boundary-east-spine.storage", ["colonnade", "storage"], "wall.boundary-east-spine", [p.storageBack, p.storageFront]),
     boundary("boundary-east-spine.records", ["colonnade", "records"], "wall.boundary-east-spine", [p.recordsBack, p.recordsFront]),
     boundary("boundary-east-spine.administration", ["colonnade", "administration"], "wall.boundary-east-spine", [p.officeBack, p.southInner]),
     boundary("boundary-sanctuary-south", ["sanctuary", "colonnade"], "wall.boundary-sanctuary-south", [p.westRing, p.eastRing], { height: southUpper, keep: "below" }),
     boundary("boundary-sanctuary-south.upper", ["sanctuary"], "wall.boundary-sanctuary-south", [p.westRing, p.eastRing], { height: southUpper, keep: "above" }),
-    boundary("boundary-yard-storage", ["service-yard", "storage"], "wall.boundary-yard-storage", [p.eastRoom, p.eastInner]),
+    boundary("boundary-yard-storage", ["service-yard", "storage"], "wall.boundary-yard-storage", [p.eastRoom, p.eastInner], { height: eastUpper, keep: "below" }),
+    boundary("boundary-yard-storage.upper", ["storage"], "wall.boundary-yard-storage", [p.eastRoom, p.eastInner], { height: eastUpper, keep: "above" }),
     boundary("boundary-storage-records", ["storage", "records"], "wall.boundary-storage-records", [p.eastRoom, p.eastInner]),
     boundary("boundary-records-office", ["records", "administration"], "wall.boundary-records-office", [p.eastRoom, p.eastInner]),
   ];
