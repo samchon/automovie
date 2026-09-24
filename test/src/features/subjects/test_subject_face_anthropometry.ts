@@ -45,9 +45,13 @@ const face = (): FaceAnthropometryPoint[] => {
  * Scenarios:
  * 1. On a synthetic face every index is its defining ratio (the lip heights
  *    to each lip's own inner edge, and the gap between them), every index
- *    names at least one channel, and only the lip gap's are expression.
+ *    names at least one channel, and only the lip gap's and the corner
+ *    lift's are expression (the synthetic corners sit level with the lip
+ *    centre, a lift of zero).
  * 2. The indices are invariant to rotating, scaling and moving the image:
- *    the face frame turns the midline vertical.
+ *    the face frame turns the midline vertical with the chin below the
+ *    brow, even for an image turned upside down, so a raised corner reads a
+ *    positive lift either way.
  * 3. A missing landmark leaves only the indices that read it null; fewer
  *    than two midline landmarks refuse.
  */
@@ -66,6 +70,7 @@ export const test_subject_face_anthropometry = (): void => {
     lowerVermilion: 9 / 50,
     upperLip: 15 / 60,
     lipParting: 2 / 50,
+    cornerLift: 0,
     lowerFaceWidth: 90 / 120,
     chinWidth: 40 / 120,
     chinHeight: 34 / 100,
@@ -80,7 +85,8 @@ export const test_subject_face_anthropometry = (): void => {
         (one) =>
           one.channels.length > 0 &&
           one.id in m &&
-          (one.expression === true) === (one.id === "lipParting"),
+          (one.expression === true) ===
+            (one.id === "lipParting" || one.id === "cornerLift"),
       ),
   );
   const angle = 0.3;
@@ -100,7 +106,21 @@ export const test_subject_face_anthropometry = (): void => {
   const frame = faceAnthropometryFrame(moved);
   TestValidator.predicate(
     "midline vertical",
-    nclose(frame[168]![0], frame[152]![0], 1e-9),
+    nclose(frame[168]![0], frame[152]![0], 1e-9) &&
+      frame[152]![1] > frame[168]![1],
+  );
+  const smiling = [...points];
+  smiling[61] = [-25, 52];
+  smiling[291] = [25, 52];
+  const flipped = smiling.map((p) =>
+    p === undefined ? undefined : ([-p[0], -p[1]] as const),
+  );
+  TestValidator.predicate(
+    "signed lift",
+    nclose(measureFaceAnthropometry(smiling).cornerLift!, 4 / 50, 1e-9) &&
+      nclose(measureFaceAnthropometry(flipped).cornerLift!, 4 / 50, 1e-9) &&
+      faceAnthropometryFrame(flipped)[152]![1] >
+        faceAnthropometryFrame(flipped)[168]![1],
   );
   const missing = [...points];
   missing[129] = undefined;
