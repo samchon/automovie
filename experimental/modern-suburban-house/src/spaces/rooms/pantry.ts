@@ -17,8 +17,11 @@ const PANTRY: IRoomSpace = {
   floor: PALETTE.woodFloor,
   reservations: [
     // pantry-plan L-shelf: back band 0.25 m deep from Z = -6.05, right band 0.30 m deep from X = 5.50.
-    { id: "pantry-back-shelf", kind: "storage", x: [3.22, 5.5], z: [-6.05, -5.8] },
-    { id: "pantry-right-shelf", kind: "storage", x: [5.2, 5.5], z: [-6.05, -4.7] },
+    // pantry-storage-use: one L-shaped shelf; the right band starts at the back band's front
+    // so the corner is owned once. Five tops from 0.20 m at 0.40 m (top 1.80) plus the
+    // 0.30 m item limit give the body height 2.10 m.
+    { id: "pantry-back-shelf", kind: "storage", x: [3.22, 5.5], z: [-6.05, -5.8], y: [0, 2.1] },
+    { id: "pantry-right-shelf", kind: "storage", x: [5.2, 5.5], z: [-5.8, -4.7], y: [0, 2.1] },
     // pantry-use-route: entrance X = 3.22 to the right shelf front, back shelf front to the
     // door/handle limit 0.08 m behind the +Z jamb plane Z = -4.80.
     { id: "pantry-use-route", kind: "route", x: [3.22, 5.2], z: [-5.8, -4.88] },

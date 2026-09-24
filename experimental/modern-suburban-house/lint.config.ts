@@ -4,6 +4,7 @@ import {
   createAutoMovieEvidenceConfig,
   createBlankAutoMovieProductionEvidence,
   createAutoMovieProductionObligationClaim,
+  createAutoMovieProductionPrincipleClaim,
   evidence,
 } from "@automovie/evidence";
 import type { ITtscLintConfig } from "@ttsc/lint";
@@ -46,6 +47,10 @@ productionEvidence.kind = "library";
 productionEvidence.settings = "review";
 productionEvidence.spaces = "review";
 productionEvidence.spaceSources = "draft";
+productionEvidence.models = "draft";
+productionEvidence.materials = "draft";
+productionEvidence.instances = "draft";
+productionEvidence.systems = "draft";
 productionEvidence.claims = [
   createAutoMovieProductionObligationClaim({
     name: "house-observation-denominator",
@@ -77,6 +82,55 @@ productionEvidence.claims = [
     account: "accounts/spaces/surface-ownership.md",
     layer: "spaces",
     stage: productionEvidence.spaces,
+    populationScope: { mode: "complete-production" },
+  }),
+  createAutoMovieProductionObligationClaim({
+    name: "house-model-reservation-fit",
+    document: "contracts/reservation-fit.md",
+    account: "accounts/models/reservation-fit.md",
+    layer: "models",
+    stage: productionEvidence.models,
+    populationScope: { mode: "complete-production" },
+  }),
+  createAutoMovieProductionObligationClaim({
+    name: "house-model-surface-ownership",
+    document: "contracts/surface-ownership.md",
+    account: "accounts/models/surface-ownership.md",
+    layer: "models",
+    stage: productionEvidence.models,
+    populationScope: { mode: "complete-production" },
+  }),
+  createAutoMovieProductionPrincipleClaim({
+    name: "house-material-no-bitmap",
+    document: "contracts/no-texture-bitmap.md",
+    files: ["materials/**/*.md"],
+    layer: "materials",
+    stage: productionEvidence.materials,
+    populationScope: { mode: "complete-production" },
+    symbol: "h2",
+  }),
+  createAutoMovieProductionObligationClaim({
+    name: "house-material-surface-ownership",
+    document: "contracts/surface-ownership.md",
+    account: "accounts/materials/surface-ownership.md",
+    layer: "materials",
+    stage: productionEvidence.materials,
+    populationScope: { mode: "complete-production" },
+  }),
+  createAutoMovieProductionObligationClaim({
+    name: "house-instance-reservation-fill",
+    document: "contracts/reservation-fill.md",
+    account: "accounts/instances/reservation-fill.md",
+    layer: "instances",
+    stage: productionEvidence.instances,
+    populationScope: { mode: "complete-production" },
+  }),
+  createAutoMovieProductionObligationClaim({
+    name: "house-instance-surface-ownership",
+    document: "contracts/surface-ownership.md",
+    account: "accounts/instances/surface-ownership.md",
+    layer: "instances",
+    stage: productionEvidence.instances,
     populationScope: { mode: "complete-production" },
   }),
 ];
