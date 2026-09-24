@@ -1,7 +1,9 @@
 import { TestValidator } from "@nestia/e2e";
 
 import {
+  FACE_HAIR_OVAL,
   faceHairDropIndex,
+  faceHairFaceCoverage,
   faceHairFringeCoverage,
   faceHairHeadMask,
   faceHairLowestRow,
@@ -144,6 +146,51 @@ export const test_subject_face_hair_length = (): void => {
       below().data.every((one) => one === 0) &&
       below(300).height === 300 &&
       below(300).data.some((one) => one !== 0),
+  );
+  // A 10 x 10 face: the square contour spans it, the brows sit at row 4, so
+  // rows 4 to 9 (60 pixels) are the face below them; hair fills column 0.
+  const face = new Uint8Array(100);
+  for (let y = 0; y < 10; ++y) face[10 * y] = 1;
+  const outline: [number, number][] = [
+    [0, 0],
+    [10, 0],
+    [10, 10],
+    [0, 10],
+  ];
+  TestValidator.predicate(
+    "face cover",
+    nclose(
+      faceHairFaceCoverage({
+        mask: { width: 10, height: 10, data: face },
+        contour: outline,
+        brows: [
+          [2, 3],
+          [8, 4],
+        ],
+      })!,
+      6 / 60,
+      1e-12,
+    ) &&
+      faceHairFaceCoverage({
+        mask: { width: 10, height: 10, data: face },
+        contour: outline,
+        brows: [
+          [2, 10],
+          [8, 10],
+        ],
+      }) === null &&
+      throwsError(() =>
+        faceHairFaceCoverage({
+          mask: { width: 10, height: 10, data: face },
+          contour: outline.slice(0, 2),
+          brows: [
+            [2, 3],
+            [8, 4],
+          ],
+        }),
+      ) &&
+      FACE_HAIR_OVAL.length === 36 &&
+      new Set(FACE_HAIR_OVAL).size === 36,
   );
   const norms = {
     male: { acromion: { subjects: 3, mean: 80 } },

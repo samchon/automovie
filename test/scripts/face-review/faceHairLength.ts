@@ -157,3 +157,62 @@ export function faceHairShoulderDrop(
     1000
   );
 }
+
+/**
+ * The face oval's landmarks, in order around it (MediaPipe's
+ * `FACEMESH_FACE_OVAL`), for `faceHairFaceCoverage`.
+ */
+export const FACE_HAIR_OVAL = [
+  10, 338, 297, 332, 284, 251, 389, 356, 454, 323, 361, 288, 397, 365, 379, 378,
+  400, 377, 152, 148, 176, 149, 150, 136, 172, 58, 132, 93, 234, 127, 162, 21,
+  54, 103, 67, 109,
+] as const;
+
+/**
+ * The share of the face the hair covers: the polygon of `contour` (the face
+ * oval's points, in order) below the lower of the two brows, the part of the
+ * face a fringe index leaves out and hair falling in front of the cheeks
+ * enters, or null when it has no pixel.
+ */
+export function faceHairFaceCoverage(props: {
+  mask: IFaceHairMask;
+  contour: readonly (readonly [number, number])[];
+  brows: readonly [readonly [number, number], readonly [number, number]];
+}): number | null {
+  const { mask, contour } = props;
+  if (contour.length < 3)
+    throw new Error("A face contour needs at least three points.");
+  const top = Math.max(props.brows[0][1], props.brows[1][1]);
+  const y0 = Math.max(0, Math.ceil(top));
+  const y1 = Math.min(
+    mask.height,
+    Math.ceil(Math.max(...contour.map((point) => point[1]))),
+  );
+  const x0 = Math.max(0, Math.floor(Math.min(...contour.map((p) => p[0]))));
+  const x1 = Math.min(
+    mask.width,
+    Math.ceil(Math.max(...contour.map((point) => point[0]))),
+  );
+  let covered = 0;
+  let total = 0;
+  for (let y = y0; y < y1; ++y) {
+    const py = y + 0.5;
+    for (let x = x0; x < x1; ++x) {
+      const px = x + 0.5;
+      let inside = false;
+      for (let i = 0, j = contour.length - 1; i < contour.length; j = i++) {
+        const [xi, yi] = contour[i]!;
+        const [xj, yj] = contour[j]!;
+        if (
+          yi > py !== yj > py &&
+          px < ((xj - xi) * (py - yi)) / (yj - yi) + xi
+        )
+          inside = !inside;
+      }
+      if (!inside) continue;
+      ++total;
+      if (mask.data[y * mask.width + x] !== 0) ++covered;
+    }
+  }
+  return total === 0 ? null : covered / total;
+}

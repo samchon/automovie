@@ -1,7 +1,7 @@
 /**
- * Set each published document's hair lengths from its photograph: how far
- * the hair falls and how much of the forehead it covers. Run from the test
- * package:
+ * Set each published document's hair shape from its photograph: how much of
+ * the face the hair leaves open, how far it falls and how much of the
+ * forehead it covers. Run from the test package:
  *
  *   ttsx -P tsconfig.scripts.json --no-plugins scripts/face-review/fit-face-hair-shape.ts STUDY DETECTIONS_DIR POSES ANCHORS FACTS SHOULDERS OUTPUT
  *
@@ -10,12 +10,20 @@
  * `photo:<subject>`, with their hair masks); POSES and ANCHORS are the
  * published portrait cameras and landmark anchors; FACTS the recorded subject
  * facts and SHOULDERS `population/shoulder-drop-norms.json`
- * (`derive-shoulder-drop-norms.py`). Two indices are read on
+ * (`derive-shoulder-drop-norms.py`). Three indices are read on
  * the photograph from its head hair (`faceHairHeadMask`, components reaching
  * above the brows, so a collar or a beard does not count) and on the
  * document's built model under the same camera from the hair the camera
  * sees (`observeFaceHairModel`), each paired with one control:
  *
+ * - the face cover (`faceHairFaceCoverage`, the share of the face oval below
+ *   the brows that hair covers, over the oval's landmarks the model anchors)
+ *   with a factor on each parted layer's comb reach, the distance along a
+ *   lock over which it keeps the direction it is combed in before its flow
+ *   takes it: combed hair lies on the scalp and holds its direction, which a
+ *   free fibre keeps only over its elastogravity length (Goldstein, Warren
+ *   and Ball, Phys. Rev. Lett. 108, 078101, 2012), so a longer reach carries
+ *   front locks aside and back before they fall, and the face opens;
  * - the drop (`faceHairDropIndex`, chin to lowest hair over inter-ocular)
  *   with a common factor on each layer's hanging lengths, left, right, nape
  *   and back;
@@ -24,9 +32,10 @@
  *   with a factor on each layer's front length.
  *
  * The crown's length lies over the scalp and keeps its authored value. Each
- * factor is solved by a secant iteration from 1 inside [0.2, 3], the index
- * being monotone in length but not linear (the hair drapes and curls), drop
- * first. An index the photograph cannot give keeps its lengths: hair cut by
+ * factor is solved by a secant iteration from 1 inside its range ([0.2, 8]
+ * for the reach, [0.2, 3] for the lengths), the index being monotone in it
+ * but not linear (the hair drapes and curls), in that order: where the front
+ * locks fall decides which hair is lowest. An index the photograph cannot give keeps its lengths: hair cut by
  * the frame, hair falling further below the chin than the shoulders sit
  * (ANSUR II: the acromion 79.1 mm below menton in men, 71.3 mm in women, in
  * the model's own inter-ocular units), where it lies on shoulders a head
@@ -47,8 +56,10 @@ import path from "node:path";
 import { gunzipSync } from "node:zlib";
 
 import {
+  FACE_HAIR_OVAL,
   type IFaceHairShoulderNorms,
   faceHairDropIndex,
+  faceHairFaceCoverage,
   faceHairFringeCoverage,
   faceHairHeadMask,
   faceHairLowestRow,
@@ -101,36 +112,69 @@ const anchors = readFaceLikenessJson<{
   >;
 }>(anchorFile!).views;
 const build = createHumanFaceBasisBuilder(basis);
-const BROWS = [105, 334];
-/** Landmarks the indices read: forehead top, eye corners, lower lids, chin. */
-const LANDMARKS = [10, 33, 263, 145, 374, 152];
+const BROWS = [105, 334] as const;
 /**
- * The two controls: which `lengthAxes` ([+X, -X, +Y, -Y, +Z, -Z]: left,
- * right, crown, nape, front, back) each factor scales, and the index
+ * Landmarks the indices read: forehead top, eye corners, lower lids, chin,
+ * brows. The face oval's are read where the model anchors them.
+ */
+const LANDMARKS = [10, 33, 263, 145, 374, 152, ...BROWS];
+type Layer = NonNullable<
+  IAutoMovieHumanFaceBasisDocument["hair"]
+>["layers"][number];
+const lengths =
+  (axes: ReadonlySet<number>) =>
+  (layer: Layer, factor: number): Layer => ({
+    ...layer,
+    lengthAxes: layer.lengthAxes.map((value, axis) =>
+      axes.has(axis) ? Number((value * factor).toFixed(4)) : value,
+    ) as Layer["lengthAxes"],
+  });
+/**
+ * The three controls, in the order they are fitted: what each factor scales
+ * (`lengthAxes` are [+X, -X, +Y, -Y, +Z, -Z]: left, right, crown, nape,
+ * front, back), its range, whether the index grows with it, and the index
  * residual within which the photograph is met.
  */
 const CONTROLS = {
-  drop: { axes: new Set([0, 1, 3, 5]), reached: 0.1 },
-  fringe: { axes: new Set([4]), reached: 0.05 },
+  cover: {
+    apply: (layer: Layer, factor: number): Layer =>
+      layer.part === undefined
+        ? layer
+        : {
+            ...layer,
+            part: {
+              ...layer.part,
+              reach: Number((layer.part.reach * factor).toFixed(5)),
+            },
+          },
+    range: [0.2, 8],
+    grows: false,
+    reached: 0.05,
+  },
+  drop: {
+    apply: lengths(new Set([0, 1, 3, 5])),
+    range: [0.2, 3],
+    grows: true,
+    reached: 0.1,
+  },
+  fringe: {
+    apply: lengths(new Set([4])),
+    range: [0.2, 3],
+    grows: true,
+    reached: 0.05,
+  },
 } as const;
-const LOWER = 0.2;
-const UPPER = 3;
 const record: Record<string, Record<string, unknown>> = {};
 
 const scaled = (
   document: IAutoMovieHumanFaceBasisDocument,
-  axes: ReadonlySet<number>,
+  apply: (layer: Layer, factor: number) => Layer,
   factor: number,
 ): IAutoMovieHumanFaceBasisDocument => ({
   ...document,
   hair: {
     ...document.hair!,
-    layers: document.hair!.layers.map((layer) => ({
-      ...layer,
-      lengthAxes: layer.lengthAxes.map((value, axis) =>
-        axes.has(axis) ? Number((value * factor).toFixed(4)) : value,
-      ) as typeof layer.lengthAxes,
-    })),
+    layers: document.hair!.layers.map((layer) => apply(layer, factor)),
   },
 });
 
@@ -139,12 +183,11 @@ const derived = documents.map((original) => {
   const photo = photos.get(`photo:${subject}`);
   const pose = poses[subject];
   const view = anchors[subject];
-  const anchored = Object.fromEntries(
-    LANDMARKS.map((k) => [
-      k,
-      view?.anchors.find((one) => one.landmark === k)?.anchor ?? null,
-    ]),
-  );
+  const anchorOf = (k: number) =>
+    view?.anchors.find((one) => one.landmark === k)?.anchor ?? null;
+  const anchored = Object.fromEntries(LANDMARKS.map((k) => [k, anchorOf(k)]));
+  // The face oval where the model anchors it, read alike on both images.
+  const contour = FACE_HAIR_OVAL.filter((k) => anchorOf(k) !== null);
   if (
     original.hair === undefined ||
     original.hair === null ||
@@ -185,6 +228,14 @@ const derived = documents.map((original) => {
         eyes: [at(33), at(263)],
         lids: [at(145), at(374)],
       }),
+      cover:
+        contour.length < 3
+          ? null
+          : faceHairFaceCoverage({
+              mask,
+              contour: contour.map(at),
+              brows: [at(BROWS[0]), at(BROWS[1])],
+            }),
     };
   };
   const target = indices(head, (k) => points[k]!, true);
@@ -194,7 +245,10 @@ const derived = documents.map((original) => {
       build,
       document,
       view: camera,
-      anchors: anchored as Record<number, IFaceShapeFitAnchor>,
+      anchors: {
+        ...(anchored as Record<number, IFaceShapeFitAnchor>),
+        ...Object.fromEntries(contour.map((k) => [k, anchorOf(k)!])),
+      },
       span: [33, 263],
     });
     const at = (k: number) => seen.landmarks[k]!;
@@ -207,7 +261,7 @@ const derived = documents.map((original) => {
   };
   record[subject] = {};
   let document = original;
-  for (const name of ["drop", "fringe"] as const) {
+  for (const name of ["cover", "drop", "fringe"] as const) {
     const control = CONTROLS[name];
     const goal = target[name];
     const start = observe(document);
@@ -233,11 +287,23 @@ const derived = documents.map((original) => {
       };
       continue;
     }
+    if (
+      name === "cover" &&
+      document.hair!.layers.every((layer) => layer.part === undefined)
+    ) {
+      record[subject]![name] = {
+        photograph: goal,
+        before: start[name],
+        result: "unchanged: no layer is parted",
+      };
+      continue;
+    }
     const value = (factor: number) =>
-      observe(scaled(document, control.axes, factor))[name]!;
+      observe(scaled(document, control.apply, factor))[name]!;
     let a = 1;
     let fa = start[name]! - goal;
-    let b = fa > 0 ? 0.8 : 1.25;
+    // The first step moves the index toward the photograph.
+    let b = fa > 0 === control.grows ? 0.8 : 1.25;
     let fb = value(b) - goal;
     for (
       let k = 0;
@@ -245,8 +311,8 @@ const derived = documents.map((original) => {
       ++k
     ) {
       const next = Math.min(
-        UPPER,
-        Math.max(LOWER, b - (fb * (b - a)) / (fb - fa)),
+        control.range[1],
+        Math.max(control.range[0], b - (fb * (b - a)) / (fb - fa)),
       );
       if (next === b) break;
       [a, fa] = [b, fb];
@@ -275,7 +341,7 @@ const derived = documents.map((original) => {
       continue;
     }
     record[subject]![name] = row;
-    document = scaled(document, control.axes, factor);
+    document = scaled(document, control.apply, factor);
     console.log(
       subject,
       name,
