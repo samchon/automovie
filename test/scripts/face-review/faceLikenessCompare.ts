@@ -26,6 +26,7 @@ import {
   faceLikenessCheekColour,
   faceLikenessHairColour,
   faceLikenessIrisColour,
+  faceLikenessLipColour,
   faceLikenessScleraColour,
 } from "./faceLikenessColour";
 import {
@@ -127,6 +128,9 @@ export interface IFaceLikenessComparison {
       render: number | null;
     };
     hair: IFaceLikenessColourPair;
+    /** The median of each lip's vermilion. */
+    lipUpper: IFaceLikenessColourPair;
+    lipLower: IFaceLikenessColourPair;
     irisMinusSkinLightness: { reference: number | null; render: number | null };
     hairMinusSkinLightness: { reference: number | null; render: number | null };
   };
@@ -234,6 +238,14 @@ export function compareFaceLikeness(props: {
         portrait.hair,
         region(moving, portrait.image),
       ),
+    ),
+    lipUpper: pair(
+      faceLikenessLipColour(reference.image, fixed, "upper"),
+      faceLikenessLipColour(portrait.image, moving, "upper"),
+    ),
+    lipLower: pair(
+      faceLikenessLipColour(reference.image, fixed, "lower"),
+      faceLikenessLipColour(portrait.image, moving, "lower"),
     ),
   };
   const skin = (side: "reference" | "render") =>

@@ -102,6 +102,8 @@ export function faceLikenessSampleColour(
   )
     throw new Error("The exclusion mask must share the image frame.");
   const channels: [number[], number[], number[]] = [[], [], []];
+  // Pixels repeat their colours, and the conversion is the costly part.
+  const known = new Map<number, [number, number, number]>();
   const x0 = Math.max(0, Math.floor(bounds.x0));
   const y0 = Math.max(0, Math.floor(bounds.y0));
   const x1 = Math.min(image.width, Math.ceil(bounds.x1));
@@ -111,11 +113,19 @@ export function faceLikenessSampleColour(
       const index = y * image.width + x;
       if (exclude?.data[index]) continue;
       if (!inside(x + 0.5, y + 0.5)) continue;
-      const lab = faceLikenessSrgbToLab(
-        image.rgb[3 * index]!,
-        image.rgb[3 * index + 1]!,
-        image.rgb[3 * index + 2]!,
-      );
+      const key =
+        (image.rgb[3 * index]! << 16) |
+        (image.rgb[3 * index + 1]! << 8) |
+        image.rgb[3 * index + 2]!;
+      let lab = known.get(key);
+      if (lab === undefined) {
+        lab = faceLikenessSrgbToLab(
+          image.rgb[3 * index]!,
+          image.rgb[3 * index + 1]!,
+          image.rgb[3 * index + 2]!,
+        ) as [number, number, number];
+        known.set(key, lab);
+      }
       for (let c = 0; c < 3; ++c) channels[c]!.push(lab[c]!);
     }
   if (channels[0].length === 0) return null;
@@ -356,4 +366,72 @@ export function faceLikenessBrowColour(
     ) as [number, number, number],
     pixels: darkest.length,
   };
+}
+
+/**
+ * Vermilion of each lip on the 468-point mesh: the outer lip contour from
+ * one commissure to the other, then the inner contour back, so the polygon
+ * is the red lip between the skin and the lip seam.
+ */
+export const FACE_LIKENESS_VERMILION = {
+  upper: [
+    61, 185, 40, 39, 37, 0, 267, 269, 270, 409, 291, 308, 415, 310, 311, 312,
+    13, 82, 81, 80, 191, 78,
+  ],
+  lower: [
+    61, 146, 91, 181, 84, 17, 314, 405, 321, 375, 291, 308, 324, 318, 402, 317,
+    14, 87, 178, 88, 95, 78,
+  ],
+} as const;
+
+/**
+ * Vermilion of one lip: the median CIELAB of the pixels inside its outline
+ * (`FACE_LIKENESS_VERMILION`). Null when the outline encloses no pixel.
+ */
+export function faceLikenessLipColour(
+  image: IFaceLikenessImage,
+  points: readonly FaceLikenessPoint[],
+  lip: "upper" | "lower",
+): IFaceLikenessColour | null {
+  const outline = FACE_LIKENESS_VERMILION[lip].map((index) => points[index]!);
+  const ys = outline.map(([, y]) => y);
+  // Even-odd spans per pixel row, the same rule as
+  // `faceLikenessInsidePolygon`, found once per row rather than per pixel.
+  const spans = new Map<number, number[]>();
+  const y0 = Math.max(0, Math.floor(Math.min(...ys)));
+  const y1 = Math.min(image.height, Math.ceil(Math.max(...ys)));
+  for (let row = y0; row < y1; ++row) {
+    const y = row + 0.5;
+    const crossings: number[] = [];
+    for (let i = 0, j = outline.length - 1; i < outline.length; j = i++) {
+      const [xi, yi] = outline[i]!;
+      const [xj, yj] = outline[j]!;
+      if (yi > y !== yj > y)
+        crossings.push(((xj - xi) * (y - yi)) / (yj - yi) + xi);
+    }
+    spans.set(
+      row,
+      crossings.sort((a, b) => a - b),
+    );
+  }
+  const xs = outline.map(([x]) => x);
+  return faceLikenessSampleColour(
+    image,
+    (x, y) => {
+      const crossings = spans.get(Math.floor(y));
+      if (crossings === undefined) return false;
+      let inside = false;
+      for (const at of crossings) {
+        if (at > x) break;
+        inside = !inside;
+      }
+      return inside;
+    },
+    {
+      x0: Math.min(...xs),
+      y0,
+      x1: Math.max(...xs),
+      y1,
+    },
+  );
 }
