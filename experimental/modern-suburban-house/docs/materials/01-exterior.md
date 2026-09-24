@@ -52,13 +52,13 @@
 @evidence principles/design/materials.md#material-binding-interface 어두운 asphalt shingle의 결합 vocabulary는 spaces 03 표의 여덟 지붕 경사면 owner(`src/spaces/roof/*.ts`)와 `src/spaces/porch.ts` 포치 지붕의 상면이며 방향과 단면/양면은 00 면 결합 규칙을 따른다.
 @evidence principles/design/materials.md#material-verification-address 어두운 asphalt shingle의 반증 견본은 '높은 roof view에서 경사면마다 같은 색이고 골짜기에서 재료가 끊기지 않는지'이고 00 재료 리뷰 견본의 중성 조명 판이 #3A3C3E 값을 대조한다.
 @evidenceExclude upstream/design/materials.md#parent-revision-from-material-work 어두운 asphalt shingle은 settings/20-verification.md#visual-grammar를 적힌 그대로 소비했고 수정할 부모 결함을 찾지 않았다.
-@evidence contracts/texture-readability.md#material-texture-readability `shingle-face`의 광물 입자 거칠기와 미세 색 차를 결정론적 맵으로 만든다. 각 지붕 면의 처마를 V 원점, 처마 평행선을 U로 놓고 탭 폭 0.333 m·course 노출 0.14 m에 맞춘다. 골짜기·용마루·굴뚝 절단에서 pattern은 실제 잘린 부재와 함께 끝난다.
+@evidence contracts/texture-readability.md#material-texture-readability `shingle-face`의 광물 입자 거칠기와 미세 색 차를 결정론적 맵으로 만든다. 각 지붕 면의 처마를 V 원점, 처마 평행선을 U로 놓고 탭 폭 0.330 m·course 노출 0.14 m에 맞춘다. 골짜기·용마루·굴뚝 절단에서 pattern은 실제 잘린 부재와 함께 끝난다.
 @evidence settings/20-verification.md#visual-grammar 어두운 asphalt shingle이 '공통 재료와 외피 인상'(settings/20-verification.md#visual-grammar)를 링크로 소비해 #3A3C3E 값과 결합 면의 근거로 삼았다.
 -->
 
 [작고 규칙적인 어두운 asphalt shingle](../settings/20-verification.md#visual-grammar)이다. 구성은 광물 입자를 입힌 asphalt shingle이며 중첩 결은 지붕 경사면 owner와 instance의 shingle 줄 geometry가 만든다. 외관은 입자 표면을 평균한 `#3A3C3E`(선형 0.042, 0.045, 0.048), roughness 0.90, metallic 0.0, transmission 0.0이다. 결합 면은 여덟 지붕 경사면 owner와 포치 지붕의 상면이며 처마 하부·fascia는 [흰 trim](#trim-white)이 받는다. source owner는 `src/materials/exterior/shingle.ts`이고, 리뷰는 높은 roof view에서 경사면마다 같은 색이고 골짜기에서 재료가 끊기지 않는지를 관찰한다.
 
-표면 결속 계획: `shingle-face`의 광물 입자 거칠기와 미세 색 차를 결정론적 맵으로 만든다. 각 지붕 면의 처마를 V 원점, 처마 평행선을 U로 놓고 탭 폭 0.333 m·course 노출 0.14 m에 맞춘다. 골짜기·용마루·굴뚝 절단에서 pattern은 실제 잘린 부재와 함께 끝난다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
+표면 결속 계획: `shingle-face`의 광물 입자 거칠기와 미세 색 차를 결정론적 맵으로 만든다. 각 지붕 면의 처마를 V 원점, 처마 평행선을 U로 놓고 탭 폭 0.330 m·course 노출 0.14 m에 맞춘다. 골짜기·용마루·굴뚝 절단에서 pattern은 실제 잘린 부재와 함께 끝난다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
 
 ## 붉은갈색 벽돌 {#brick-red-brown}
 <!--
@@ -93,7 +93,7 @@
 @evidence settings/20-verification.md#visual-grammar charcoal 창틀과 굴뚝 cap이 '공통 재료와 외피 인상'(settings/20-verification.md#visual-grammar)를 링크로 소비해 #2E3033 값과 결합 면의 근거로 삼았다.
 -->
 
-[창틀의 짙은 charcoal](../settings/20-verification.md#visual-grammar)이다. 구성은 분체 도장 알루미늄이므로 [관례](00-material-frame.md#material-response-conventions)대로 도막을 metallic 0.0으로 표현한다. 외관은 `#2E3033`(선형 0.027, 0.030, 0.033), roughness 0.40, transmission 0.0이다. 결합 면은 [창의 표면 파티션](../models/01-windows.md#window-surface-partitions)의 `frame`·`sash`·`mullion`·`muntin`, [현관문](../models/02-exterior-doors.md#front-entry-door)의 `muntin`, [정원 쪽 유리문](../models/02-exterior-doors.md#garden-door-pair)의 문짝 둘레 `leaf`, 굴뚝 cap이다. source owner는 `src/materials/exterior/frames.ts`이고, 리뷰는 흰 trim 안에서 창틀이 검은 구멍이 아니라 두께 있는 틀로 읽히는지를 관찰한다.
+[창틀의 짙은 charcoal](../settings/20-verification.md#visual-grammar)이다. 구성은 분체 도장 알루미늄이므로 [관례](00-material-frame.md#material-response-conventions)대로 도막을 metallic 0.0으로 표현한다. 외관은 `#2E3033`(선형 0.027, 0.030, 0.033), roughness 0.40, transmission 0.0이다. 결합 면은 [창의 표면 파티션](../models/01-windows.md#window-surface-partitions)의 `frame`·`sash`·`mullion`·`muntin`, [현관문](../models/02-exterior-doors.md#front-entry-door)의 `muntin`, [정원 쪽 유리문](../models/02-exterior-doors.md#garden-door-pair)의 `leaf-exterior`·`leaf-interior`·`leaf-edge`·`sash`, 굴뚝 cap이다. source owner는 `src/materials/exterior/frames.ts`이고, 리뷰는 흰 trim 안에서 창틀이 검은 구멍이 아니라 두께 있는 틀로 읽히는지를 관찰한다.
 
 표면 결속 계획: `frame`·`sash`·`mullion`·`muntin`과 굴뚝 cap의 도장 금속 미세결은 각 부재 길이를 U로 한 0.05 m 모듈이다. 국소 부재 끝을 원점으로 하고 맞댐마다 결 방향을 새로 잡으며 모서리 하이라이트를 유지한다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
 
@@ -112,7 +112,7 @@
 @evidence settings/10-house.md#openings 투명 창유리가 '개구부의 읽힘'(settings/10-house.md#openings)를 링크로 소비해 #E8EEF0 값과 결합 면의 근거로 삼았다.
 -->
 
-[유리는 구멍도 불투명 검은 판도 아니다](../settings/10-house.md#openings). 구성은 두께 0.006 m 판유리 한 장으로 근사하며 복층 공기층은 표현하지 않는다. 외관은 `#E8EEF0`(선형 0.807, 0.855, 0.871), roughness 0.03, metallic 0.0, transmission 0.92, ior 1.50, 두께 0.006 m이며 양면이다. 결합 면은 창 모델의 `glass`, [현관문](../models/02-exterior-doors.md#front-entry-door)·[차고문](../models/02-exterior-doors.md#garage-sectional-door)·[정원 쪽 유리문](../models/02-exterior-doors.md#garden-door-pair)의 `glass`, [샤워부스](../models/14-bathrooms.md#sliding-shower-booth)의 `glass`·`glass`, 세탁기 `glass`다. source owner는 `src/materials/exterior/glass.ts`이고, 리뷰는 켜진 실내등 아래 외관에서 창 안쪽이 비치고 하늘 반사가 함께 읽히는지를 관찰한다.
+[유리는 구멍도 불투명 검은 판도 아니다](../settings/10-house.md#openings). 구성은 두께 0.006 m 판유리 한 장으로 근사하며 복층 공기층은 표현하지 않는다. 외관은 `#E8EEF0`(선형 0.807, 0.855, 0.871), roughness 0.03, metallic 0.0, transmission 0.92, ior 1.50, 두께 0.006 m이며 양면이다. 결합 면은 창 모델의 `glass`, [현관문](../models/02-exterior-doors.md#front-entry-door)·[차고문](../models/02-exterior-doors.md#garage-sectional-door)·[정원 쪽 유리문](../models/02-exterior-doors.md#garden-door-pair)의 `glass`, [샤워부스](../models/14-bathrooms.md#sliding-shower-booth)의 `glass`, 세탁기 원형의 `glass`다. source owner는 `src/materials/exterior/glass.ts`이고, 리뷰는 켜진 실내등 아래 외관에서 창 안쪽이 비치고 하늘 반사가 함께 읽히는지를 관찰한다.
 
 표면 결속 계획: `glass`는 의도적으로 매끈한 무문양 표면이다. 색 맵 대신 transmission 0.92·ior 1.50·roughness 0.03과 실제 장면 반사·투과로 읽히게 하고, 창틀 안의 각 유리판 경계에서 결속을 끝낸다. 빛을 받는 프레임에서 불투명 단색판이면 실패다. 실제 GPU 근접·리뷰 거리 판정은 아직 없으므로 unverified다.
 
@@ -162,13 +162,13 @@
 @evidence principles/design/materials.md#material-binding-interface charcoal 차고문 패널의 결합 vocabulary는 `leaf-panel`이며 방향과 단면/양면은 00 면 결합 규칙을 따른다.
 @evidence principles/design/materials.md#material-verification-address charcoal 차고문 패널의 반증 견본은 '01 외관에서 패널 분절 그림자와 상부 유리가 읽히는지'이고 00 재료 리뷰 견본의 중성 조명 판이 #34373A 값을 대조한다.
 @evidenceExclude upstream/design/materials.md#parent-revision-from-material-work charcoal 차고문 패널은 settings/10-house.md#garage, models/02-exterior-doors.md#garage-sectional-door를 적힌 그대로 소비했고 수정할 부모 결함을 찾지 않았다.
-@evidence contracts/texture-readability.md#material-texture-readability 분절 차고문 `leaf-panel`의 도장 강판 미세결은 패널마다 U 수평·V 수직의 0.25 m 모듈이다. 각 패널 왼쪽 아래에서 시작해 분절 홈에서 이음을 끊고 상부 유리에는 칠하지 않는다.
+@evidence contracts/texture-readability.md#material-texture-readability 분절 차고문 `leaf-exterior`·`leaf-interior`·`leaf-panel`·`panel-edge`의 도장 강판 미세결은 패널마다 U 수평·V 수직의 0.25 m 모듈이다. 각 패널 왼쪽 아래에서 시작해 분절 홈에서 이음을 끊고 상부 유리에는 칠하지 않는다.
 @evidence settings/10-house.md#garage charcoal 차고문 패널이 '빈 2대 차고'(settings/10-house.md#garage)를 링크로 소비해 #34373A 값과 결합 면의 근거로 삼았다.
 -->
 
-[두 대용 폭의 어두운 분절 패널문](../settings/10-house.md#garage)이다. 구성은 도장 강판 분절 패널이므로 metallic 0.0이다. 외관은 `#34373A`(선형 0.034, 0.038, 0.042), roughness 0.45, transmission 0.0이며 창틀보다 한 단계 밝게 해 넓은 면이 검은 판으로 뭉개지지 않게 한다. 결합 면은 [분절 차고문](../models/02-exterior-doors.md#garage-sectional-door)의 `leaf-panel`와 `leaf-panel`·`panel-edge` 양면이며 `rail`은 [스테인리스](03-furnishings.md#stainless-steel)다. source owner는 `src/materials/exterior/doors.ts`이고, 리뷰는 01 외관에서 패널 분절 그림자와 상부 유리가 읽히는지를 관찰한다.
+[두 대용 폭의 어두운 분절 패널문](../settings/10-house.md#garage)이다. 구성은 도장 강판 분절 패널이므로 metallic 0.0이다. 외관은 `#34373A`(선형 0.034, 0.038, 0.042), roughness 0.45, transmission 0.0이며 창틀보다 한 단계 밝게 해 넓은 면이 검은 판으로 뭉개지지 않게 한다. 결합 면은 [분절 차고문](../models/02-exterior-doors.md#garage-sectional-door)의 `leaf-exterior`·`leaf-interior`·`leaf-panel`·`panel-edge` 전체이며 `rail`은 [스테인리스](03-furnishings.md#stainless-steel)다. source owner는 `src/materials/exterior/doors.ts`이고, 리뷰는 01 외관에서 패널 분절 그림자와 상부 유리가 읽히는지를 관찰한다.
 
-표면 결속 계획: 분절 차고문 `leaf-panel`의 도장 강판 미세결은 패널마다 U 수평·V 수직의 0.25 m 모듈이다. 각 패널 왼쪽 아래에서 시작해 분절 홈에서 이음을 끊고 상부 유리에는 칠하지 않는다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
+표면 결속 계획: 분절 차고문 `leaf-exterior`·`leaf-interior`·`leaf-panel`·`panel-edge`의 도장 강판 미세결은 패널마다 U 수평·V 수직의 0.25 m 모듈이다. 각 패널 왼쪽 아래에서 시작해 분절 홈에서 이음을 끊고 상부 유리에는 칠하지 않는다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
 
 ## 포치 바닥 {#porch-floor}
 <!--
@@ -224,6 +224,6 @@
 @evidence spaces/site/fence.md#fence-enclosure-plan 중간갈색 울타리 목재가 '건물 두 끝에 닿는 울타리 선'(spaces/site/fence.md#fence-enclosure-plan)를 링크로 소비해 #8C6A48 값과 결합 면의 근거로 삼았다.
 -->
 
-[우측 목재 울타리](../settings/10-house.md#site-identity)다. 구성은 착색한 방부 목재 판이다. 외관은 `#8C6A48`(선형 0.262, 0.144, 0.065), roughness 0.75, metallic 0.0, transmission 0.0이다. 결합 면은 [울타리 전체와 측면 문·기둥](../spaces/site/fence.md#fence-enclosure-plan)의 모든 노출 면과 [옆마당 목재 대문](../models/02-exterior-doors.md#side-yard-gate)의 `leaf-panel`이다. source owner는 `src/materials/exterior/fence.ts`이고, 리뷰는 01 외관에서 울타리가 현관문보다 회색빛이 도는 중간갈색으로 읽히는지를 관찰한다.
+[우측 목재 울타리](../settings/10-house.md#site-identity)다. 구성은 착색한 방부 목재 판이다. 외관은 `#8C6A48`(선형 0.262, 0.144, 0.065), roughness 0.75, metallic 0.0, transmission 0.0이다. 결합 면은 [울타리 전체와 측면 문·기둥](../spaces/site/fence.md#fence-enclosure-plan)의 모든 노출 면과 [옆마당 목재 대문](../models/02-exterior-doors.md#side-yard-gate)의 `leaf-panel`·`gate-batten`이다. source owner는 `src/materials/exterior/fence.ts`이고, 리뷰는 01 외관에서 울타리가 현관문보다 회색빛이 도는 중간갈색으로 읽히는지를 관찰한다.
 
 표면 결속 계획: 울타리 보드의 세로 목리는 보드 폭 0.14 m, 세로 반복 0.80 m를 따른다. 각 보드의 바닥 안쪽 모서리를 원점으로 U 폭·V 높이로 투영하고 보드 사이와 문짝 경첩선에서 끊는다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.

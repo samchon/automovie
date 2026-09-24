@@ -17,25 +17,25 @@
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work entry-coat-storage를 적힌 그대로 소비했고 부모 수정이 없었다.
 -->
 
-[현관 외투장 owner](../spaces/rooms/entry.md#entry-coat-storage)는 X = 2.02 m 면에 겹쳐 미는 두 장의 수납문을 둔다. `entry-coat-opening` Z = [-4.51, -3.56], Y = [0, 2.15] m를 채우는 두 문짝은 폭 0.50 m(0.95 m의 절반 + 겹침 0.05 m의 절반), 높이 2.11 m(머리 트랙 0.03 m와 바닥 틈 0.01 m 제외), 두께 0.03 m로 택하고 경계 X = [1.87, 2.02] 안의 앞 트랙 X = [1.98, 2.01]과 뒤 트랙 X = [1.94, 1.97]에 둔다. 두께 0.03 m와 겹침 0.05 m는 두 트랙이 0.15 m 경계 안에 들어가고 닫힌 상태에서 두 문짝 사이 틈이 정면에서 보이지 않게 하려는 모델 결정이다. 앞 문짝 손잡이는 문짝 면에서 0.02 m 오목하게 파서 owner의 통로 쪽 최대 돌출 X = 2.07 m 안인 X = 2.01 m에 머문다. motion 인터페이스는 각 문짝의 국소 Z 평행 이동이며 범위는 0부터 문짝 폭 - 0.05 m까지이고 기준 상태는 둘 다 닫힘이다. 흰 패널문 문법을 위해 [실내 문](03-interior-doors.md#interior-door-members)과 같은 오목 패널 두 개를 둔다. 소스 owner는 `src/models/closet.ts`이며 서비스 통로 쪽 정면과 계단 아래 단면으로 검사한다.
+[현관 외투장 owner](../spaces/rooms/entry.md#entry-coat-storage)는 X = 2.02 m 면에 겹쳐 미는 두 장의 수납문을 둔다. `entry-coat-opening` Z = [-4.51, -3.56], Y = [0, 2.15] m를 채우는 두 문짝은 폭 0.50 m(0.95 m의 절반 + 겹침 0.05 m의 절반), 높이 2.11 m(머리 트랙 0.03 m와 바닥 틈 0.01 m 제외), 두께 0.03 m로 택하고 뒤쪽 경계에서 통로 쪽으로 재는 국소 깊이 d ∈ [0, 0.15] m 안에 앞 트랙 d = [0.11, 0.14] m, 뒤 트랙 d = [0.07, 0.10] m를 둔다. 두께 0.03 m와 겹침 0.05 m는 두 트랙이 0.15 m 경계 안에 들어가고 닫힌 상태에서 두 문짝 사이 틈이 정면에서 보이지 않게 하려는 모델 결정이다. 앞 문짝 손잡이는 문짝 면에서 0.02 m 오목하게 파서 owner의 통로 쪽 돌출 한도 d = 0.20 m 안인 d = 0.14 m에 머문다. motion 인터페이스는 각 문짝의 국소 Z 평행 이동이며 범위는 0부터 문짝 폭 - 0.05 m까지이고 기준 상태는 둘 다 닫힘이다. 흰 패널문 문법을 위해 [실내 문](03-interior-doors.md#interior-door-members)과 같은 오목 패널 두 개를 둔다. 소스 owner는 `src/models/closet.ts`이며 서비스 통로 쪽 정면과 계단 아래 단면으로 검사한다.
 
 ## 외투장의 봉과 선반 {#coat-closet-rod-shelf}
 <!--
-@evidence principles/core/common.md#scope-preservation 외투장 봉 X = 1.425 m·Y = 1.65 m와 위 선반 상면 2.00 m·깊이 0.65 m를 이 H2가 맡는다.
+@evidence principles/core/common.md#scope-preservation 외투장 뒤쪽 면에서 0.325 m·바닥 위 1.65 m 봉과 위 선반 상면 2.00 m·깊이 0.65 m를 이 H2가 맡는다.
 @evidence principles/core/common.md#substantive-completion 봉 지름 0.03 m, 선반 두께 0.02 m, 계단 구조 아래면과 겹치면 잘라낸다고 적는다.
 @evidence principles/core/common.md#declared-basis 봉·선반 위치는 spaces/rooms/entry.md#entry-coat-storage, 구조 두께 조건은 spaces/02-stair.md#stair-boundary-heights에서 받는다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation owner의 '몸통 뒤 X 끝에서 0.325 m, 1.65 m'를 world X = 1.425 m 봉으로 바꾼다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation owner의 뒤쪽 면 기준 봉 위치와 바닥 기준 높이를 국소 깊이 0.325 m·높이 1.65 m로 바꾼다.
 @evidence principles/design/models.md#representation-contract rod와 shelf 부재를 정한다.
 @evidence principles/design/models.md#spatial-convention 봉을 Z 방향으로 건다고 적는다.
 @evidence principles/design/models.md#reviewable-structure 계단 아래 단면에서 선반과 구조 아래면 관계를 반증한다.
 @evidence principles/design/models.md#model-observable-style-basis 스타일 라벨 없이 수납 부재 위치만 정한다.
-@evidence principles/design/models.md#model-scale-layer-completion 몸통 X = [1.10, 1.75] 척도 안의 부재 층을 정한다.
+@evidence principles/design/models.md#model-scale-layer-completion 몸통 국소 깊이 0.65 m 안의 부재 층을 정한다.
 @evidence spaces/rooms/entry.md#entry-coat-storage 봉 위치와 선반 상면 2.00 m, 몸통 깊이 0.65 m를 소비한다.
-@evidence contracts/reservation-fit.md#reservation-fit 봉과 선반이 몸통 X = [1.10, 1.75] m 안에 있음을 적는다.
+@evidence contracts/reservation-fit.md#reservation-fit 봉과 선반이 몸통 국소 깊이 [0, 0.65] m 안에 있음을 적는다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work entry와 02를 적힌 그대로 소비했고 부모 수정이 없었다.
 -->
 
-봉은 owner가 정한 몸통 뒤 X 끝 1.10 m에서 +X로 0.325 m인 X = 1.425 m, 바닥 위 1.65 m 위치에 Z 방향으로 걸고 지름 0.03 m 원통으로 택한다. 위 선반은 상면 2.00 m, 두께 0.02 m, 깊이는 문 트랙이 몸통 밖 경계에 있으므로 몸통 X = [1.10, 1.75] 전체인 0.65 m로 두며 계단 구조 아래면과 겹치면 그 아래면에서 잘라 [구조 두께를 0으로 보지 않는](../spaces/02-stair.md#stair-boundary-heights) 조건을 지킨다. 표면 id는 `rod`, `shelf`다. 소스 owner는 `src/models/closet.ts`다.
+봉은 owner가 정한 몸통 뒤쪽 면에서 통로 쪽으로 0.325 m, 바닥 위 1.65 m 위치에 장의 길이 방향으로 걸고 지름 0.03 m 원통으로 택한다. 위 선반은 상면 2.00 m, 두께 0.02 m, 깊이는 문 트랙이 몸통 밖 경계에 있으므로 몸통 국소 깊이 d = [0, 0.65] m 전체로 두며 계단 구조 아래면과 겹치면 그 아래면에서 잘라 [구조 두께를 0으로 보지 않는](../spaces/02-stair.md#stair-boundary-heights) 조건을 지킨다. 표면 id는 `rod`, `shelf`다. 소스 owner는 `src/models/closet.ts`다.
 
 ## 린넨장의 미닫이 문짝과 선반 {#linen-closet-fittings}
 <!--
@@ -44,17 +44,17 @@
 @evidence principles/core/common.md#declared-basis 개구부·선반 규칙은 spaces/rooms/upper-hall.md#upper-linen-storage에서 받는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation upper-linen-storage의 '0.25 m부터 0.38 m 간격'을 다섯 상면 값으로 바꾼다.
 @evidence principles/design/models.md#representation-contract 문짝·트랙·선반 계층을 정한다.
-@evidence principles/design/models.md#spatial-convention 선반 깊이를 뒤쪽 안쪽 면 Z = -2.66 m 기준으로 적는다.
+@evidence principles/design/models.md#spatial-convention 선반 깊이를 뒤쪽 안쪽 면의 국소 깊이 0 기준으로 적는다.
 @evidence principles/design/models.md#reviewable-structure 복도 도착면 view와 장 단면에서 반증한다.
 @evidence principles/design/models.md#model-observable-style-basis 스타일 라벨 없이 수납 부재만 정한다.
 @evidence principles/design/models.md#model-scale-layer-completion 미닫이 인터페이스와 선반 층을 정한다.
 @evidence obligations/design/models.md#articulation-ownership 린넨장 문짝의 국소 Z 평행 이동을 외투장과 같은 형식의 motion 인터페이스로 정한다.
 @evidence spaces/rooms/upper-hall.md#upper-linen-storage upper-linen-opening X = [1.97, 2.97] m와 다섯 선반 규칙을 문짝 0.525 m와 선반 상면 값으로 소비한다.
-@evidence contracts/reservation-fit.md#reservation-fit 선반 깊이 0.55 m가 문 레일과 분리되고 문짝이 경계 Z = [-3.41, -3.26] m 안에 있음을 적는다.
+@evidence contracts/reservation-fit.md#reservation-fit 선반 깊이 0.55 m 뒤에 0.05 m 여유가 있고 문 트랙은 별도의 국소 깊이 [0, 0.15] m 경계 안에 있음을 적는다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work upper-hall을 적힌 그대로 소비했고 부모 수정이 없었다.
 -->
 
-[린넨장 owner](../spaces/rooms/upper-hall.md#upper-linen-storage)의 `upper-linen-opening` X = [1.97, 2.97], 높이 2.20 m를 두 미닫이 문짝이 채운다. 문짝 폭은 0.525 m(1.00 m의 절반 + 겹침 0.05 m의 절반), 두께 0.03 m이며 트랙은 경계 Z = [-3.41, -3.26] 안에 앞뒤로 둔다. 다섯 선반은 상면이 상층 바닥 위 0.25 m부터 0.38 m 간격으로 0.25, 0.63, 1.01, 1.39, 1.77 m이고, 뒤쪽 안쪽 면 Z = -2.66 m에서 앞으로 0.55 m 깊이, 두께 0.02 m로 둔다. motion 인터페이스와 기준 상태는 [외투장 문짝](#coat-closet-doors)과 같다. 소스 owner는 `src/models/closet.ts`이며 복도 도착면 view와 장 단면으로 검사한다.
+[린넨장 owner](../spaces/rooms/upper-hall.md#upper-linen-storage)의 `upper-linen-opening`의 거친 폭 1.00 m와 높이 2.20 m를 두 미닫이 문짝이 채운다. 문짝 폭은 0.525 m(1.00 m의 절반 + 겹침 0.05 m의 절반), 두께 0.03 m, 높이 2.16 m(머리 트랙 0.03 m와 바닥 틈 0.01 m 제외)이며 트랙은 장 안쪽 면에서 복도 쪽 국소 깊이 d = [0, 0.15] m 안의 뒤 d = [0.07, 0.10] m와 앞 d = [0.11, 0.14] m에 둔다. 문짝 아래는 완성 바닥 위 0.01 m이고 위는 2.17 m다. 다섯 선반은 상면이 상층 바닥 위 0.25 m부터 0.38 m 간격으로 0.25, 0.63, 1.01, 1.39, 1.77 m이고, 뒤쪽 안쪽 면을 국소 깊이 0으로 두고 문 쪽으로 0.55 m 깊이, 두께 0.02 m로 둔다. 두 문짝의 국소 가로 평행 이동은 각 0–0.475 m(폭 0.525 m에서 겹침 0.05 m를 뺌)이고 기준 상태는 둘 다 닫힘이다. 선반 앞면과 문 경계 안쪽 면 사이에는 0.05 m 간격이 있으며 문짝은 그보다 복도 쪽의 0.15 m 경계 안에서만 움직인다. 표면 id는 선반 `shelf`, 문 앞뒤와 두께 면 `leaf`, 오목 패널 `leaf-panel`, 트랙 `rail`, 파인 손잡이 `handle`이다. 소스 owner는 `src/models/closet.ts`이며 복도 도착면 view와 장 단면으로 검사한다.
 
 ## 수납 부재의 표면 파티션 {#closet-fitting-surfaces}
 <!--

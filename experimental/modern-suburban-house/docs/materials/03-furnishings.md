@@ -60,15 +60,15 @@
 @evidence principles/core/common.md#declared-basis 검은 유리 조작부의 #1F1F20·roughness 0.08은 settings/20-verification.md#visual-grammar의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
 @evidence principles/core/common.md#scope-preservation 검은 유리 조작부는 models/12-service-rooms.md#laundry-machine의 면에 마감만 결합하고 그 면의 geometry·경계는 host owner에 남긴다.
 @evidence principles/core/common.md#substantive-completion 검은 유리 조작부는 #1F1F20(선형 0.014, 0.014, 0.014), roughness 0.08, metallic 0.0, transmission 0.0, 결합 면, source owner `src/materials/furnishings/appliances.ts`, 리뷰 관찰을 모두 적었다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 settings/20-verification.md#visual-grammar는 색·재료를 말로만 정했고 검은 유리 조작부는 #1F1F20 값과 roughness 0.08, `cooktop`·`burner`·`control-panel`·`glass` 결합을 더한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 settings/20-verification.md#visual-grammar는 색·재료를 말로만 정했고 검은 유리 조작부는 #1F1F20 값과 roughness 0.08, `cooktop`·`burner`·`control-panel`·`appliance-glass` 결합을 더한다.
 @evidence principles/design/materials.md#material-construction-appearance 검은 유리 조작부는 구성을 '검은 유리 세라믹 판'로, 외관의 #1F1F20·roughness 0.08·metallic 0.0을 기준값으로 두고 아래 표면 결속 계획의 결·광학 응답으로 최상층 마감을 표현한다고 적는다.
-@evidence principles/design/materials.md#material-binding-interface 검은 유리 조작부의 결합 vocabulary는 `cooktop`·`burner`·`control-panel`·`glass`이며 방향과 단면/양면은 00 면 결합 규칙을 따른다.
+@evidence principles/design/materials.md#material-binding-interface 검은 유리 조작부의 결합 vocabulary는 `cooktop`·`burner`·`control-panel`·`appliance-glass`이며 방향과 단면/양면은 00 면 결합 규칙을 따른다.
 @evidence principles/design/materials.md#material-verification-address 검은 유리 조작부의 반증 견본은 '근접 거리 견본에서 조작부가 스테인리스와 광택으로 구별되는지'이고 00 재료 리뷰 견본의 중성 조명 판이 #1F1F20 값을 대조한다.
 @evidenceExclude upstream/design/materials.md#parent-revision-from-material-work 검은 유리 조작부는 models/12-service-rooms.md#laundry-machine를 적힌 그대로 소비했고 수정할 부모 결함을 찾지 않았다.
 @evidence contracts/texture-readability.md#material-texture-readability `glass`는 의도적으로 매끈하며 roughness 0.08의 좁은 반사와 실제 프레임의 광원·주변 사물 반사로 유리로 읽힌다. 패널 파티션 밖에 맵을 번지게 하지 않고 단색 검은 직사각형이면 실패다.
 -->
 
-오븐 창·쿡탑·조작부다. 구성은 검은 유리 세라믹 판이다. 외관은 `#1F1F20`(선형 0.014, 0.014, 0.014), roughness 0.08, metallic 0.0, transmission 0.0이며 판 뒤 내부는 보이지 않는 불투명 반사면으로 근사한다. 결합 면은 레인지의 `cooktop`·`burner`·`control-panel`, 전자레인지의 `glass`·`control-panel`, 식기세척기의 `control-panel`, [드럼 세탁기와 건조기](../models/12-service-rooms.md#laundry-machine)의 `control-panel`다. source owner는 `src/materials/furnishings/appliances.ts`이고, 리뷰는 근접 거리 견본에서 조작부가 스테인리스와 광택으로 구별되는지를 관찰한다.
+오븐 창·쿡탑·조작부다. 구성은 검은 유리 세라믹 판이다. 외관은 `#1F1F20`(선형 0.014, 0.014, 0.014), roughness 0.08, metallic 0.0, transmission 0.0이며 판 뒤 내부는 보이지 않는 불투명 반사면으로 근사한다. 결합 면은 레인지의 `cooktop`·`burner`·`control-panel`·`appliance-glass`, 전자레인지의 `appliance-glass`·`control-panel`, 식기세척기의 `control-panel`, [드럼 세탁기와 건조기](../models/12-service-rooms.md#laundry-machine)의 `control-panel`다. source owner는 `src/materials/furnishings/appliances.ts`이고, 리뷰는 근접 거리 견본에서 조작부가 스테인리스와 광택으로 구별되는지를 관찰한다.
 
 표면 결속 계획: 검은 조작부 `glass`는 의도적으로 매끈하며 roughness 0.08의 좁은 반사와 실제 프레임의 광원·주변 사물 반사로 유리로 읽힌다. 패널 파티션 밖에 맵을 번지게 하지 않고 단색 검은 직사각형이면 실패다. 실제 GPU 근접·리뷰 거리 판정은 아직 없으므로 unverified다.
 
@@ -77,16 +77,16 @@
 @evidence principles/core/common.md#declared-basis 흰 에나멜과 도기의 #F5F5F2·roughness 0.25은 settings/10-house.md#laundry-mudroom의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
 @evidence principles/core/common.md#scope-preservation 흰 에나멜과 도기는 models/14-bathrooms.md#shared-toilet, models/14-bathrooms.md#bathtub, models/14-bathrooms.md#sliding-shower-booth의 면에 마감만 결합하고 그 면의 geometry·경계는 host owner에 남긴다.
 @evidence principles/core/common.md#substantive-completion 흰 에나멜과 도기는 #F5F5F2(선형 0.913, 0.913, 0.888), roughness 0.25, metallic 0.0, transmission 0.0, 결합 면, source owner `src/materials/furnishings/fixtures.ts`, 리뷰 관찰을 모두 적었다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 settings/10-house.md#laundry-mudroom는 색·재료를 말로만 정했고 흰 에나멜과 도기는 #F5F5F2 값과 roughness 0.25, `ceramic`·`seat`·`lid` 결합을 더한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 settings/10-house.md#laundry-mudroom는 색·재료를 말로만 정했고 흰 에나멜과 도기는 #F5F5F2 값과 roughness 0.25, `ceramic`·`toilet-seat`·`lid` 결합을 더한다.
 @evidence principles/design/materials.md#material-construction-appearance 흰 에나멜과 도기는 구성을 '유약 도기와 법랑 강판'로, 외관의 #F5F5F2·roughness 0.25·metallic 0.0을 기준값으로 두고 아래 표면 결속 계획의 결·광학 응답으로 최상층 마감을 표현한다고 적는다.
-@evidence principles/design/materials.md#material-binding-interface 흰 에나멜과 도기의 결합 vocabulary는 `ceramic`·`seat`·`lid`이며 방향과 단면/양면은 00 면 결합 규칙을 따른다.
+@evidence principles/design/materials.md#material-binding-interface 흰 에나멜과 도기의 결합 vocabulary는 `ceramic`·`toilet-seat`·`lid`이며 방향과 단면/양면은 00 면 결합 규칙을 따른다.
 @evidence principles/design/materials.md#material-verification-address 흰 에나멜과 도기의 반증 견본은 '05 욕실 view에서 도기가 벽 타일보다 좁은 하이라이트로 구별되는지'이고 00 재료 리뷰 견본의 중성 조명 판이 #F5F5F2 값을 대조한다.
 @evidenceExclude upstream/design/materials.md#parent-revision-from-material-work 흰 에나멜과 도기는 settings/10-house.md#laundry-mudroom, models/14-bathrooms.md#shared-toilet를 적힌 그대로 소비했고 수정할 부모 결함을 찾지 않았다.
 @evidence contracts/texture-readability.md#material-texture-readability 흰 도기·에나멜은 의도적으로 매끈한 유약 면이다. roughness 0.25의 넓은 하이라이트와 실제 곡면 법선·그림자로 부피를 읽히게 하며 금속·벽 타일 파티션과의 접합에서 끝난다.
 @evidence settings/10-house.md#laundry-mudroom 흰 에나멜과 도기가 '세탁 겸 머드룸'(settings/10-house.md#laundry-mudroom)를 링크로 소비해 #F5F5F2 값과 결합 면의 근거로 삼았다.
 -->
 
-변기·세면기·욕조와 [앞문식 세탁기·건조기](../settings/10-house.md#laundry-mudroom)의 흰 몸체다. 구성은 유약 도기와 법랑 강판이며 두 구성을 한 외관으로 묶는다. 외관은 `#F5F5F2`(선형 0.913, 0.913, 0.888), roughness 0.25, metallic 0.0, transmission 0.0이다. 결합 면은 [공용 변기](../models/14-bathrooms.md#shared-toilet)의 `ceramic`·`seat`·`lid`, 세면장과 [욕조 겸 샤워](../models/14-bathrooms.md#bathtub)의 `ceramic`·`apron`, [샤워부스](../models/14-bathrooms.md#sliding-shower-booth)의 `shower-tray`, 세탁기·건조기의 `appliance-body`·`leaf`, 가전의 `appliance-interior`다. 세탁기 `door-ring`은 [스테인리스](#stainless-steel), `glass`는 [투명 유리](01-exterior.md#glass-clear), `drum`은 스테인리스를 받는다. source owner는 `src/materials/furnishings/fixtures.ts`이고, 리뷰는 05 욕실 view에서 도기가 벽 타일보다 좁은 하이라이트로 구별되는지를 관찰한다.
+변기·세면기·욕조와 [앞문식 세탁기·건조기](../settings/10-house.md#laundry-mudroom)의 흰 몸체다. 구성은 유약 도기와 법랑 강판이며 두 구성을 한 외관으로 묶는다. 외관은 `#F5F5F2`(선형 0.913, 0.913, 0.888), roughness 0.25, metallic 0.0, transmission 0.0이다. 결합 면은 [공용 변기](../models/14-bathrooms.md#shared-toilet)의 `ceramic`·`toilet-seat`·`lid`, 세면장과 [욕조 겸 샤워](../models/14-bathrooms.md#bathtub)의 `ceramic`, [샤워부스](../models/14-bathrooms.md#sliding-shower-booth)의 `shower-tray`, 세탁기·건조기의 `appliance-body`·`leaf`, 가전의 `appliance-interior`다. 세탁기 `door-ring`은 [스테인리스](#stainless-steel), `glass`는 [투명 유리](01-exterior.md#glass-clear), `drum`은 스테인리스를 받는다. source owner는 `src/materials/furnishings/fixtures.ts`이고, 리뷰는 05 욕실 view에서 도기가 벽 타일보다 좁은 하이라이트로 구별되는지를 관찰한다.
 
 표면 결속 계획: 흰 도기·에나멜은 의도적으로 매끈한 유약 면이다. roughness 0.25의 넓은 하이라이트와 실제 곡면 법선·그림자로 부피를 읽히게 하며 금속·벽 타일 파티션과의 접합에서 끝난다. 실제 GPU 근접·리뷰 거리 판정은 아직 없으므로 unverified다.
 
@@ -114,16 +114,16 @@
 @evidence principles/core/common.md#declared-basis 짙은 책장 목재의 #4A3A2E·roughness 0.55은 settings/10-house.md#living의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
 @evidence principles/core/common.md#scope-preservation 짙은 책장 목재는 models/11-living.md#dark-bookcase의 면에 마감만 결합하고 그 면의 geometry·경계는 host owner에 남긴다.
 @evidence principles/core/common.md#substantive-completion 짙은 책장 목재는 #4A3A2E(선형 0.068, 0.042, 0.027), roughness 0.55, metallic 0.0, transmission 0.0, 결합 면, source owner `src/materials/furnishings/wood.ts`, 리뷰 관찰을 모두 적었다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 settings/10-house.md#living는 색·재료를 말로만 정했고 짙은 책장 목재는 #4A3A2E 값과 roughness 0.55, `carcass`·`shelf`·`carcass`·`book` 결합을 더한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 settings/10-house.md#living는 색·재료를 말로만 정했고 짙은 책장 목재는 #4A3A2E 값과 roughness 0.55, `carcass`·`plinth`·`shelf`·`book` 결합을 더한다.
 @evidence principles/design/materials.md#material-construction-appearance 짙은 책장 목재는 구성을 '어두운 착색 호두나무 판재'로, 외관의 #4A3A2E·roughness 0.55·metallic 0.0을 기준값으로 두고 아래 표면 결속 계획의 결·광학 응답으로 최상층 마감을 표현한다고 적는다.
-@evidence principles/design/materials.md#material-binding-interface 짙은 책장 목재의 결합 vocabulary는 `carcass`·`shelf`·`carcass`·`book`이며 방향과 단면/양면은 00 면 결합 규칙을 따른다.
+@evidence principles/design/materials.md#material-binding-interface 짙은 책장 목재의 결합 vocabulary는 `carcass`·`plinth`·`shelf`·`book`이며 방향과 단면/양면은 00 면 결합 규칙을 따른다.
 @evidence principles/design/materials.md#material-verification-address 짙은 책장 목재의 반증 견본은 '04 view에서 책장이 흰 벽 앞 짙은 덩어리로 읽히되 선반 그림자와 책 색 변화가 보이는지'이고 00 재료 리뷰 견본의 중성 조명 판이 #4A3A2E 값을 대조한다.
 @evidenceExclude upstream/design/materials.md#parent-revision-from-material-work 짙은 책장 목재는 settings/10-house.md#living, models/11-living.md#dark-bookcase를 적힌 그대로 소비했고 수정할 부모 결함을 찾지 않았다.
 @evidence contracts/texture-readability.md#material-texture-readability 짙은 책장 목재는 판 길이 U의 0.15 m 어두운 오크 결 맵을 쓴다. 각 선반·측판의 안쪽 시작 모서리를 원점으로 하고 판 끝에서 끊어 뒤판과 선반이 한 검은 면으로 합쳐지지 않게 한다.
 @evidence settings/10-house.md#living 짙은 책장 목재가 '전면 거실'(settings/10-house.md#living)를 링크로 소비해 #4A3A2E 값과 결합 면의 근거로 삼았다.
 -->
 
-[거실의 짙은 책장](../settings/10-house.md#living)이다. 구성은 어두운 착색 호두나무 판재다. 외관은 `#4A3A2E`(선형 0.068, 0.042, 0.027), roughness 0.55, metallic 0.0, transmission 0.0이다. 결합 면은 [짙은 책장과 책](../models/11-living.md#dark-bookcase)의 `carcass`·`shelf`·`carcass`이다. `book`은 이 H2가 아니라 [회베이지 천갈이](#grey-beige-upholstery)와 [올리브](#olive-bedding)·[청회색](#blue-grey-bedding) 직물 값을 책마다 순환해 받는다. source owner는 `src/materials/furnishings/wood.ts`이고, 리뷰는 04 view에서 책장이 흰 벽 앞 짙은 덩어리로 읽히되 선반 그림자와 책 색 변화가 보이는지를 관찰한다.
+[거실의 짙은 책장](../settings/10-house.md#living)이다. 구성은 어두운 착색 호두나무 판재다. 외관은 `#4A3A2E`(선형 0.068, 0.042, 0.027), roughness 0.55, metallic 0.0, transmission 0.0이다. 결합 면은 [짙은 책장과 책](../models/11-living.md#dark-bookcase)의 `carcass`·`plinth`·`shelf`이다. `book`은 이 H2가 아니라 [회베이지 천갈이](#grey-beige-upholstery)와 [올리브](#olive-bedding)·[청회색](#blue-grey-bedding) 직물 값을 책마다 순환해 받는다. source owner는 `src/materials/furnishings/wood.ts`이고, 리뷰는 04 view에서 책장이 흰 벽 앞 짙은 덩어리로 읽히되 선반 그림자와 책 색 변화가 보이는지를 관찰한다.
 
 표면 결속 계획: 짙은 책장 목재는 판 길이 U의 0.15 m 어두운 오크 결 맵을 쓴다. 각 선반·측판의 안쪽 시작 모서리를 원점으로 하고 판 끝에서 끊어 뒤판과 선반이 한 검은 면으로 합쳐지지 않게 한다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
 
@@ -272,7 +272,7 @@
 @evidence spaces/rooms/living.md#living-furniture-use living-furniture-use가 후속 저작으로 둔 벽난로 화구 재료를 #1F1F20, roughness 0.90으로 living owner의 화구 안쪽 면에 결합한다.
 -->
 
-[벽난로의 검은 화구](../settings/10-house.md#living)다. 구성은 그을린 내화 벽돌이며 줄눈은 표현하지 않는다. 외관은 `#1F1F20`(선형 0.014, 0.014, 0.014), roughness 0.90, metallic 0.0, transmission 0.0이고 불은 꺼진 정적 상태라 발광이 없다. 결합 면은 [방 내부 배정](../spaces/03-surface-owners.md#interior-surface-handoff)에서 `src/spaces/rooms/living.ts`가 소유하는 벽난로 안쪽 접면 중 화구 안쪽 면이며, 그 면의 개별 surface id는 source 단계에서 living owner가 부여한다. 본체는 [붉은갈색 벽돌](01-exterior.md#brick-red-brown)이다. source owner는 `src/materials/furnishings/fixtures.ts`이고, 리뷰는 04 view에서 화구가 벽돌 본체와 목재 선반 사이에서 구별되는지를 관찰한다.
+[벽난로의 검은 화구](../settings/10-house.md#living)다. 구성은 그을린 내화 벽돌이며 줄눈은 표현하지 않는다. 외관은 `#1F1F20`(선형 0.014, 0.014, 0.014), roughness 0.90, metallic 0.0, transmission 0.0이고 불은 꺼진 정적 상태라 발광이 없다. 결합 면은 [화구 원형](../models/11-living.md#fireplace-insert-mantel)의 `firebox`·`firebox-trim`이다. 벽돌 본체와 화구 뒤·옆 개구부는 [벽난로 공간 owner](../spaces/envelope/left.md#chimney-roof-interface)가 소유하고 [붉은갈색 벽돌](01-exterior.md#brick-red-brown)을 받는다. 목재 `mantel`은 [꿀빛 가구 목재](#furniture-wood)를 받는다. source owner는 `src/materials/furnishings/fixtures.ts`이고, 리뷰는 04 view에서 화구가 벽돌 본체와 목재 선반 사이에서 구별되는지를 관찰한다.
 
 표면 결속 계획: 꺼진 화구의 내화재에는 0.10 m 반복의 약한 그을음·거친 표면 결을 쓴다. 화구 안쪽 왼쪽 아래에서 U 수평·V 높이를 두고 벽돌 입구·선반 경계에서 끊으며 불빛을 그려 넣지 않는다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
 

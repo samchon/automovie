@@ -6,7 +6,7 @@
 @evidence principles/core/common.md#substantive-completion 물탱크 폭 0.50 m·깊이 0.20 m·Y = [0.40, 0.78], 뚜껑 0.78–0.82 m, 몸통 폭 0.38 m와 좌면 링 상면 0.43 m를 수치로 정해 구현자가 변기 치수를 새로 고를 일이 없다.
 @evidence principles/core/common.md#declared-basis 폭 0.50 m는 가장 좁은 샤워 욕실 예약 폭 0.65 m 안에서 세 예약 모두에 양옆 0.075 m 이상 여유를 남기려는 이 층의 결정이고, 깊이 0.75 m·높이 0.82 m는 세 예약의 깊이와 최대 높이에서 가져왔다고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 세 방 문서가 준 예약 상자(깊이 0.75 m, 폭 0.70 m 또는 0.65 m, 좌면 0.43 m) 위에 물탱크·몸통·시트 덮개로 나눈 부품 구성과 `seat-lid` 피벗이라는 모델 결정을 더한다.
-@evidence principles/design/models.md#representation-contract 물탱크·탱크 뚜껑·받침·변기 몸통·시트·시트 덮개·세척 레버의 부품과 둥근 끝 상자 몸통을 정하고 표면 id `ceramic`, `seat`, `lid`, `handle`을 두며, 도기 두께·트랩·급수관은 이 프록시가 주장하지 않는다.
+@evidence principles/design/models.md#representation-contract 물탱크·탱크 뚜껑·받침·변기 몸통·시트·시트 덮개·세척 레버의 부품과 둥근 끝 상자 몸통을 정하고 표면 id `ceramic`, `toilet-seat`, `lid`, `handle`을 두며, 도기 두께·트랩·급수관은 이 프록시가 주장하지 않는다.
 @evidence principles/design/models.md#spatial-convention 로컬 좌표는 가구 국소 좌표를 따라 +Z가 앉는 정면이고, 몸통은 벽에서 0.75 m까지 이어지며 `seat-lid` 피벗은 시트 덮개의 뒤쪽 가로 경첩에 둔다.
 @evidence principles/design/models.md#reviewable-structure 모델 리뷰 뷰의 측면에서 좌면 0.43 m와 뚜껑 0.82 m가 보이는지, 세 배치의 평면에서 앞 끝이 각 사용 예약 경계에 멈추는지가 이 변기를 반증할 관찰이다.
 @evidence principles/design/models.md#model-observable-style-basis 스타일 라벨을 두지 않고 폭 0.50 m 물탱크 위의 뚜껑과 폭 0.38 m 둥근 끝 몸통이라는 실루엣·비례만 정하며, 재질 선택 없이 표면 id `ceramic`만 남긴다.
@@ -26,7 +26,7 @@
 
 변기는 [파우더룸](../settings/10-house.md#powder), [샤워 욕실](../settings/10-house.md#shower-bathroom), [욕조 욕실](../settings/10-house.md#tub-bathroom) 설정이 요구하는 변기를 세 방에 쓰는 한 원형이다. [파우더룸 예약](../spaces/rooms/powder.md#powder-fixture-use) X = [4.75, 5.50], Z = [-1.65, -0.95]와 [욕조 욕실 예약](../spaces/rooms/tub-bath.md#tub-fixture-use) X = [4.75, 5.50], Z = [-6.65, -5.95]는 전면 -X, 깊이 0.75 m, 폭 0.70 m다. [샤워 욕실 예약](../spaces/rooms/shower-bath.md#shower-fixture-use) X = [2.32, 2.97], Z = [-8.80, -8.05]는 전면 +Z, 깊이 0.75 m, 폭 0.65 m다. 세 곳 모두 좌면 0.43 m·최대 높이 0.82 m다. 그러므로 외곽은 깊이 0.75 m, 높이 0.82 m, 폭은 가장 좁은 0.65 m 안의 0.50 m로 정한다. 폭 0.50 m는 물탱크 폭이며 세 예약 모두에 양옆 0.075 m 이상의 여유를 남기려는 이 층의 결정이다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르며 +Z가 앉는 정면이며 공통 좌표 규칙은 [모델 국소 좌표](00-model-frame.md#model-local-frame)를 따른다.
 
-부품은 물탱크, 탱크 뚜껑, 받침, 변기 몸통, 시트, 시트 덮개, 세척 레버다. 물탱크는 폭 0.50 m, 깊이 0.20 m, Y = [0.40, 0.78]이고 뚜껑이 0.78–0.82 m를 차지한다. 몸통은 폭 0.38 m, 벽에서 0.75 m까지 이어지는 둥근 끝 상자이며 좌면 링의 상면이 0.43 m다. 시트 덮개는 뒤쪽 가로 경첩 피벗 `seat-lid`를 갖지만 방 문서가 여닫는 사용을 예약하지 않으므로 기준 상태는 닫힘이고 이 인터페이스만 남긴다. 표면 id는 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)에 따라 `ceramic`, `seat`, `lid`, `handle`이다.
+부품은 물탱크, 탱크 뚜껑, 받침, 변기 몸통, 시트, 시트 덮개, 세척 레버다. 물탱크는 폭 0.50 m, 깊이 0.20 m, Y = [0.40, 0.78]이고 뚜껑이 0.78–0.82 m를 차지한다. 몸통은 벽에서 0.28–0.75 m까지 이어지는 12각 타원 단면이다. 바닥 접지 발은 폭 0.24 m·깊이 0.35 m·높이 0.20 m이고, 도기 몸통은 그 위에서 폭 0.38 m로 넓어져 Y = 0.40 m에 이른다. 그릇 상단은 폭 0.38 m·깊이 0.45 m, 안쪽 빈 공간은 폭 0.27 m·깊이 0.31 m·깊이 0.15 m인 12각 타원 컷이며 밑은 닫힌다. 두께 0.03 m 좌대 링의 상면은 0.43 m, 닫힌 덮개는 그 위 두께 0.025 m다. 좌대와 덮개 경첩은 뒤쪽 끝에 있다. 시트 덮개는 뒤쪽 가로 경첩 피벗 `seat-lid`를 갖지만 방 문서가 여닫는 사용을 예약하지 않으므로 기준 상태는 닫힘이고 이 인터페이스만 남긴다. 표면 id는 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)에 따라 `ceramic`, `toilet-seat`, `lid`, `handle`이다.
 
 도기 두께·배수 트랩·급수관은 표현하지 않는다. 소스 owner는 `src/models/furnishings/bathrooms.ts`다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 측면에서 좌면 0.43 m와 뚜껑 0.82 m가 보이는지, 세 배치의 평면에서 앞 끝이 각 사용 예약의 경계에 멈추는지다. 모든 관찰은 unverified다.
 

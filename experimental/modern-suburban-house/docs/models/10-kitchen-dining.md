@@ -91,7 +91,7 @@
 
 부품은 몸통, 조리 상판, 네 화구 링, 전면 조작 띠, 오븐 문, 오븐 손잡이다. 조리 상판은 Y = [0.88, 0.91]이고 화구 링 넷은 지름 0.20 m, 높이 0.01 m 이내의 얇은 원판으로 상판 위에 올린다. 오븐 문은 Y = [0.10, 0.62]의 0.52 m 높이이며 아래 모서리의 수평 경첩 피벗 `oven-door`로 +Z 쪽으로 최대 90° 내려 연다. 이때 문 높이 0.52 m와 손잡이 0.03 m의 합 0.55 m가 [오븐 작동 예약 X = [-4.85, -4.30]](../spaces/rooms/common.md#common-kitchen-wall-reservation)과 같다. 조작 띠는 Y = [0.66, 0.86]에 둔다.
 
-재질 경계는 `appliance-body`, `cooktop`, `burner`, `control-panel`, `leaf`, `handle`, `appliance-interior`다. 불꽃·열·유리 투과·조작 손잡이 개별 형상은 표현하지 않는다. 소스 owner는 `src/models/furnishings/kitchen-dining.ts`다. 관찰은 측면에서 상판이 옆 하부장과 같은 0.91 m 선에 있는지, 문을 90° 연 평면에서 손잡이 끝이 X = -4.30 m에 멈추는지, 위에서 네 화구가 읽히는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
+오븐 문 중앙에는 폭 0.48 m·높이 0.24 m의 검은 내열 유리 `appliance-glass`를 앞면과 같은 깊이에 끼우고 문 테두리 금속 `leaf`를 사방 0.06 m 이상 남긴다. 유리는 불투명 검은 반사판이며 오븐 내부 투과를 주장하지 않는다. 재질 경계는 `appliance-body`, `cooktop`, `burner`, `control-panel`, `leaf`, `appliance-glass`, `handle`, `appliance-interior`다. 불꽃·열·유리 투과·조작 손잡이 개별 형상은 표현하지 않는다. 소스 owner는 `src/models/furnishings/kitchen-dining.ts`다. 관찰은 측면에서 상판이 옆 하부장과 같은 0.91 m 선에 있는지, 문을 90° 연 평면에서 손잡이 끝이 X = -4.30 m에 멈추는지, 위에서 네 화구가 읽히는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
 
 ## 레인지 위 전자레인지 {#kitchen-microwave}
 <!--
@@ -110,7 +110,7 @@
 
 전자레인지는 [예약](../spaces/rooms/common.md#common-kitchen-wall-reservation)의 X = [-5.50, -5.10], Z = [-9.50, -8.70], Y = [1.45, 1.85]를 외곽으로 받아 폭 0.80 m, 깊이 0.40 m, 높이 0.40 m다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르되 벽걸이 원형이므로 원점을 뒤쪽 모서리 선의 하단 중심에 두고 걸림 높이 1.45 m에 놓는다. 아래 면은 레인지 위의 후드 역할을 겸하는 평면으로 두고 별도 후드 원형을 만들지 않는다.
 
-부품은 몸통, 문, 조작 판 셋이다. 문은 전면의 왼쪽 0.58 m, 조작 판은 오른쪽 0.22 m를 차지하며 둘 다 몸통 앞면과 같은 면에 있어 돌출이 없다. 방 문서가 전자레인지 문의 작동 예약을 두지 않으므로 문은 강체이고 관절을 노출하지 않는다. 재질 경계는 `appliance-body`, `leaf`, `glass`, `control-panel`다.
+부품은 몸통, 문, 조작 판 셋이다. 문은 전면의 왼쪽 0.58 m, 조작 판은 오른쪽 0.22 m를 차지하며 둘 다 몸통 앞면과 같은 면에 있어 돌출이 없다. 방 문서가 전자레인지 문의 작동 예약을 두지 않으므로 문은 강체이고 관절을 노출하지 않는다. 재질 경계는 `appliance-body`, `leaf`, `appliance-glass`, `control-panel`다.
 
 회전 접시·내부 조명·문 창의 투과는 표현하지 않는다. 소스 owner는 `src/models/furnishings/kitchen-dining.ts`다. 관찰은 정면에서 전자레인지(Z = [-9.50, -8.70])와 왼쪽 상부장(Z = [-8.70, -7.40])이 같은 높이 1.45–1.85 m에서 Z = -8.70 m 경계로만 만나 겹치지 않는지, 측면에서 레인지 조리면 위 0.54 m의 빈 공간이 남는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
 
