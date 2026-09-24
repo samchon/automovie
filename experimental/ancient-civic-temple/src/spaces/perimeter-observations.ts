@@ -108,11 +108,21 @@ export const exteriorObservations = (environment: IAutoMovieBuiltEnvironment): T
     // The free front ends of the two porch returns face the open porch. Their opposite
     // sides meet the south-wing wall, so an outward offset would bury the camera there.
     const porchFront = face.boundary.startsWith("boundary-entrance-return-") && face.boundary.endsWith(".front");
+    const returnOuterUpper = face.boundary.startsWith("boundary-entrance-return-") && face.boundary.endsWith(".outer-upper");
+    const entryEndUpper = /^boundary-entry\.(west|east)-end\.upper$/.test(face.boundary);
+    const entrySideUpper = /^boundary-entry\.(west|east)-side\.upper$/.test(face.boundary);
+    const returnSide = face.boundary.includes("west") ? -1 : 1;
     out.push({
       id: `exterior.facade.${face.boundary}`, group: "exterior", space: null, role: "facade",
       label: `입면 · ${face.boundary}`,
       position: porchFront ? {
         x: (p.westPorchInner + p.eastPorchInner) / 2, y: 3.0, z: p.southOuter + 4,
+      } : returnOuterUpper ? {
+        x: returnSide * 5.0, y: 6.0, z: face.centroid.z,
+      } : entryEndUpper ? {
+        x: face.centroid.x, y: 5.7, z: p.entranceBack - 4,
+      } : entrySideUpper ? {
+        x: returnSide * 5.0, y: 5.8, z: p.entranceBack - 2,
       } : {
         x: face.centroid.x + outward.x * distance, y: elevated ? face.centroid.y + 0.8 : eye + 0.6,
         z: face.centroid.z + outward.z * distance,

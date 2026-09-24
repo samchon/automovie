@@ -169,6 +169,29 @@ export const createTempleEnvironment = () => {
   const southUpper = roofTopAlong(along(p.westRing, p.eastRing, p.northRing + 1e-3, "x"));
   const eastUpper = templeRoofRules.courtEave;
   const entryUpper = roofTopAlong(along(p.westPorchOuter, p.eastPorchOuter, p.entranceBack - 1e-3, "x"));
+  const entryWall = wall("wall.facade-south.entry-back");
+  const entryOutline = wallHostOutline(entryWall, roof, p.westPorchOuter, p.eastPorchOuter, p.entranceBack);
+  const entryBottom = Math.min(...entryOutline.map((point) => point.y));
+  const entryTop = Math.max(...entryOutline.map((point) => point.y));
+  const entrySide = (side: "west" | "east", keep: "below" | "above"): IAutoMovieBuiltBoundary => {
+    const west = side === "west";
+    const u0 = west ? p.entranceBack : -p.entranceFront;
+    const u1 = west ? p.entranceFront : -p.entranceBack;
+    const outline = [
+      { x: u0, y: entryBottom }, { x: u1, y: entryBottom },
+      { x: u1, y: entryTop }, { x: u0, y: entryTop },
+    ];
+    return {
+      id: `boundary-entry.${side}-side${keep === "above" ? ".upper" : ""}`,
+      kind: "exterior-wall", spaces: ["colonnade"], elements: ["element.wall.facade-south.entry-back"],
+      face: {
+        origin: { x: west ? (p.westPorchOuter + p.westPorchInner) / 2 : (p.eastPorchOuter + p.eastPorchInner) / 2, y: 0, z: 0 },
+        rotation: { x: 0, y: west ? -Math.SQRT1_2 : Math.SQRT1_2, z: 0, w: Math.SQRT1_2 },
+        outline: clipOutlineAtHeight(outline, entryUpper, keep),
+        thickness: p.eastPorchOuter - p.eastPorchInner,
+      },
+    };
+  };
   // At the two return walls the south canopy rises along Z. Its local roof top is lower
   // than the adjacent porch volume near entrance-front, even though its maximum is higher.
   const returnProbe = { x: p.eastPorchInner - 0.08, z: p.entranceFront + 0.05 };
@@ -212,6 +235,12 @@ export const createTempleEnvironment = () => {
     boundary("boundary-south.administration", ["administration"], "wall.facade-south.east", [p.eastRoom, p.eastOuter]),
     boundary("boundary-entry", ["entrance", "colonnade"], "wall.facade-south.entry-back", [p.westPorchInner, p.eastPorchInner], { height: entryUpper, keep: "below" }),
     boundary("boundary-entry.upper", ["entrance"], "wall.facade-south.entry-back", [p.westPorchInner, p.eastPorchInner], { height: entryUpper, keep: "above" }),
+    boundary("boundary-entry.west-end", ["colonnade"], "wall.facade-south.entry-back", [p.westPorchOuter, p.westPorchInner], { height: entryUpper, keep: "below" }),
+    boundary("boundary-entry.west-end.upper", ["colonnade"], "wall.facade-south.entry-back", [p.westPorchOuter, p.westPorchInner], { height: entryUpper, keep: "above" }),
+    boundary("boundary-entry.east-end", ["colonnade"], "wall.facade-south.entry-back", [p.eastPorchInner, p.eastPorchOuter], { height: entryUpper, keep: "below" }),
+    boundary("boundary-entry.east-end.upper", ["colonnade"], "wall.facade-south.entry-back", [p.eastPorchInner, p.eastPorchOuter], { height: entryUpper, keep: "above" }),
+    entrySide("west", "below"), entrySide("west", "above"),
+    entrySide("east", "below"), entrySide("east", "above"),
     ...returnBoundaries,
     boundary("boundary-west-spine.sanctuary", ["offering", "sanctuary"], "wall.boundary-west-spine", [p.northInner, p.sanctuaryFront], { height: westUpper, keep: "below" }),
     boundary("boundary-west-spine.sanctuary-upper", ["sanctuary"], "wall.boundary-west-spine", [p.northInner, p.sanctuaryFront], { height: westUpper, keep: "above" }),

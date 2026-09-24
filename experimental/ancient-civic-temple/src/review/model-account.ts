@@ -8,6 +8,15 @@ export interface ModelDocumentMeasure {
   headings: number;
 }
 
+export interface ModelSectionMeasure { path: string; title: string; body: number }
+
+/** The same comment/whitespace measure, partitioned at every H2 for prose rank checks. */
+export const modelSectionMeasures = (documents: readonly { path: string; source: string }[]): ModelSectionMeasure[] =>
+  documents.flatMap(({ path, source }) => source.replace(/\r\n/g, "\n").split(/^## /m).slice(1).map((section) => {
+    const title = section.split("\n", 1)[0]!.replace(/ \{#[^}]+\}$/, "");
+    return { path, title, body: modelDocumentBodyLength(`## ${section}`) };
+  })).sort((a, b) => b.body - a.body || a.path.localeCompare(b.path) || a.title.localeCompare(b.title));
+
 export const modelDocumentBodyLength = (source: string): number => [...source
   .replace(/<!--[\s\S]*?-->/g, "")
   .replace(/\s/g, "")].length;

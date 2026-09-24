@@ -1,10 +1,16 @@
 /** 모델 분량 계측과 계정 표가 동일한 전집합을 쓰는지 검사한다. */
 import assert from "node:assert/strict";
 import test from "node:test";
-import { modelAccountMismatches, modelAccountRows, modelDocumentBodyLength } from "../model-account";
+import { modelAccountMismatches, modelAccountRows, modelDocumentBodyLength, modelSectionMeasures } from "../model-account";
 
 void test("model measure excludes comments and whitespace while retaining headings", () => {
   assert.equal(modelDocumentBodyLength("# 제목\n<!-- 제외 -->\n## 단위\n가 나 · 2\n"), 11);
+});
+
+void test("H2 rank measure excludes evidence comments and keeps each section distinct", () => {
+  const rows = modelSectionMeasures([{ path: "one.md", source: "# file\n## 짧은 {#short}\na\n<!-- 매우 긴 증거 문장 -->\n## 긴 {#long}\na b c d e f g h i j\n" }]);
+  assert.deepEqual(rows.map(({ title }) => title), ["긴", "짧은"]);
+  assert.ok(rows[0]!.body > rows[1]!.body);
 });
 
 void test("model account includes each source file once and detects stale or extra rows", () => {
