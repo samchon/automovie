@@ -1,0 +1,5 @@
+(?i)(?P<furniture>가구|물체|fit-out|furniture|furnish|cabinet|책상|desk|의자|chair|침대|bed|식탁|table|소파|sofa|벤치|bench|선반|shelf|장롱|wardrobe|murphy|스툴|stool)
+(?i)(?P<fixture>기구|fixture|가전|샤워|shower|욕조|tub|세면대|basin|변기|toilet|수건|towel|세탁|laundry|washer|싱크|sink|레인지|range|cooktop|hob|oven|후드|hood|냉장고|fridge|refrigerator|appliance|수전|faucet)
+(?i)(?P<prop>소품|그릇|dish|bowl|쟁반|tray|책|book|액자|picture|frame|화분|plant|pot|러그|rug|쿠션|cushion|pillow|매트|mat)
+(?i)(?P<light>등기구|펜던트|pendant|벽등|sconce|매입등|recessed|스탠드|stand|조명|light|luminaire|lamp|emissive|glow)
+(?i)(?P<charging>충전|charging|charger|niche)
