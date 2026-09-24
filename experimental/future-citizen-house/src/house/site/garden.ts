@@ -16,7 +16,8 @@ import { Assembly, rectangle, v, yaw } from "../assembly";
 import { circle, heightRegion, putMesh } from "../metric-solid";
 import { subtract } from "../storeys/floors";
 import { datum, entryApproach, type Rect } from "../plan";
-const soilBottom = -0.71;
+/** Soil bottom is the catch-pit floor plate underside (grade -0.45, pit 0.40, plate 0.002). */
+const soilBottom = -0.852;
 export function garden(a: Assembly): void {
   const r = "citizen-site";
   const cuts: Rect[] = [[-6.10, -5.55, -0.30, 0.30], [-7.8, -5.8, -7.3, 7.3], [5.8, 7.8, -7.3, 7.3], [-4.3, -2.8, -8.5, -6.3], [-7.8, 7.8, -8.5, -7.7]];
@@ -24,7 +25,7 @@ export function garden(a: Assembly): void {
   for (const cut of cuts) ground = ground.flatMap(piece => subtract(piece, cut));
   // Grade stops at the house outline and meets the plinth; it never runs under the house.
   ground = ground.flatMap(piece => subtract(piece, [datum.minX, datum.maxX, datum.minZ, datum.maxZ]));
-  // Soil is y=-0.71..-0.45; every flush paving piece is filled down to the same bottom.
+  // Every flush paving piece is filled down to the same soil bottom.
   for (const [i, p] of ground.entries()) a.box("site-ground-" + i, r, "soil", (p[0] + p[1]) / 2, (soilBottom - 0.45) / 2, (p[2] + p[3]) / 2, p[1] - p[0], -0.45 - soilBottom, p[3] - p[2]);
   // Flush access bands are cut around the catch pit, never painted over it.
   for (const side of [-1, 1]) {
