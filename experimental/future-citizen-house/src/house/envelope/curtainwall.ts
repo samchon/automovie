@@ -96,7 +96,7 @@ export function spandrel(a: Assembly, f: Frame, windows: Glazing[]): void {
   for (const lower of windows.filter((w) => w.head === 2.8)) for (const upper of windows.filter((w) => w.sill === 3.32)) {
     const b0 = Math.max(lower.a, upper.a) - 0.04, b1 = Math.min(lower.b, upper.b) + 0.04;
     if (b1 <= b0) continue;
-    const splits = edgesOf(upper).slice(1, -1).filter((u) => u > b0 + 0.08 && u < b1 - 0.08);
+    const splits = edgesOf(upper).slice(1, -1).filter((u) => u >= b0 + 0.08 - 1e-9 && u <= b1 - 0.08 + 1e-9);
     const lines = [b0, ...splits, b1];
     const id = f.id + "-spandrel-" + upper.id;
     for (const [j, line] of lines.entries()) {
@@ -119,7 +119,7 @@ export function spandrel(a: Assembly, f: Frame, windows: Glazing[]): void {
         block(a, f, pid + "-slot-" + k + "-outer", "house", "cassette", q - 0.005, q + 0.005, 2.844, 2.846, 0.137, 0.138);
         const cw = Math.min(0.05, (p1 - p0) / 6);
         block(a, f, pid + "-clip-" + k, "house", "metal", q - cw / 2, q + cw / 2, 3.05, 3.07, 0.120, 0.138);
-        a.rod(pid + "-anchor-" + k, "house", "steel", at(f, q, 3.06, 0.110), at(f, q, 3.06, 0.138), 0.003);
+        a.rod(pid + "-anchor-" + k, "house", "steel", at(f, q, 3.06, 0.100), at(f, q, 3.06, 0.138), 0.003);
       }
       block(a, f, pid + "-seal-top", "house", "seal", p0, p1, 3.246, 3.25, 0.120, 0.140);
       block(a, f, pid + "-seal-bottom", "house", "seal", p0, p1, 2.84, 2.844, 0.120, 0.122);
@@ -128,10 +128,14 @@ export function spandrel(a: Assembly, f: Frame, windows: Glazing[]): void {
 }
 /** Fixed 40% louvres in front of a lower privacy band: one support per
  * member centre, blades between end plates, two arms per support. */
+/** The louvred openings of the design table; the rear bedroom window is left
+ * out because the relocated rear tree crowns stand in its blade and pull-out space. */
+const LOUVRED = new Set(["front-flex-glazing", "front-bedroom-glazing", "left-flex-glazing", "left-bedroom-glazing", "left-child-two-glazing"]);
 export function louvre(a: Assembly, f: Frame, w: Glazing): void {
-  if (w.privacy !== "lower") return;
+  if (!LOUVRED.has(w.id)) return;
   const S = w.sill, F = Math.min(w.head, S + 1.25), L = F - S - 0.08;
   const k = Math.ceil(L / 0.08 - 1e-9), p = L / k, H = (j: number) => S + 0.04 + (j + 0.5) * p;
+  if (!(L > 0) || p - 0.034 < 0.040 || p - 0.038 < 0.036) throw new Error(w.id + ": louvre input needs a design review (L=" + L + ", p=" + p + ")");
   const centres = centresOf(w), id = w.id + "-louvre";
   // A bay whose blades would drip onto the front entry approach gets no louvre.
   const bays = centres.slice(0, -1).map((m, i) => f.id !== "front-face" || centres[i + 1] - 0.012 <= entryApproach[0] || m + 0.012 >= entryApproach[1]);
@@ -155,7 +159,7 @@ export function louvre(a: Assembly, f: Frame, w: Glazing): void {
       putMesh(a, id + "-blade-" + i + "-" + j, "house", "metal", heightRegion(plan, (x, z) => top(x, z) - 0.006, top), "louvre-blade");
       for (const [end, e0, e1, head] of [["a", centres[i] + 0.009, centres[i] + 0.012, 1], ["b", centres[i + 1] - 0.012, centres[i + 1] - 0.009, -1]] as const) {
         block(a, f, id + "-endplate-" + i + "-" + j + "-" + end, "house", "metal", e0, e1, H(j) - 0.036, H(j) + 0.002, 0.190, 0.285);
-        // M4 fastener: head on the bay side, body through plate and tube wall.
+        // M4 fastener: head on the bay side, body through the plate 0.008 into the solid support.
         const face = head === 1 ? e1 : e0, y = H(j) - 0.017;
         a.rod(id + "-fastener-head-" + i + "-" + j + "-" + end, "house", "steel", at(f, face, y, 0.202), at(f, face + 0.003 * head, y, 0.202), 0.0035);
         a.rod(id + "-fastener-body-" + i + "-" + j + "-" + end, "house", "steel", at(f, face - 0.011 * head, y, 0.202), at(f, face, y, 0.202), 0.002);

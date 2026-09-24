@@ -32,13 +32,15 @@ export function garden(a: Assembly): void {
   a.box("cassette-staging-pad", r, "stone", -3.55, -0.46, -7.4, 1.5, 0.02, 2.2);
   catchPit(a);
   for (const [i, p] of subtract([-7.8, 7.8, -8.5, -7.7], cuts[3]).entries()) a.box("site-sidewalk-" + i, r, "stone", (p[0] + p[1]) / 2, -0.5, -8.1, p[1] - p[0], 0.10, 0.8);
-  a.box("site-curb", r, "stone", 0, -0.49, -8.49, 15.6, 0.12, 0.1);
+  a.box("site-curb", r, "stone", 0, -0.49, -8.45, 15.6, 0.12, 0.1);
   // Every piece above grade is solid down to the grade at y=-0.45.
   const [ax0, ax1] = entryApproach, ax = (ax0 + ax1) / 2, aw = ax1 - ax0;
   for (let i = 0; i < 2; i++) { const top = -0.45 + (i + 1) * 0.15; a.box("approach-tread-" + i, r, "stone", ax, (top - 0.45) / 2, -7.28 + i * 0.32, aw, top + 0.45, 0.32); }
   a.box("approach-landing", r, "stone", ax, -0.225, -6.4, aw, 0.45, 0.8);
   a.box("rear-paving", r, "stone", 0, -0.245, 6.65, 11.6, 0.41, 1.3);
-  a.environment.surfaces.push({ space: r, surface: { id: "site-walk", kind: "floor", polygon: [v(-7.8, 0, -8.5), v(7.8, 0, -8.5), v(7.8, 0, 8.5), v(-7.8, 0, 8.5)], height: { kind: "constant", value: -0.45 } } });
+  // The walkable ground is the site minus the house outline, as four strips.
+  for (const [id, x0, x1, z0, z1] of [["front", -7.8, 7.8, -8.5, datum.minZ], ["rear", -7.8, 7.8, datum.maxZ, 8.5], ["left", datum.maxX, 7.8, datum.minZ, datum.maxZ], ["right", -7.8, datum.minX, datum.minZ, datum.maxZ]] as const)
+    a.environment.surfaces.push({ space: r, surface: { id: "site-walk-" + id, kind: "floor", polygon: [v(x0, 0, z0), v(x1, 0, z0), v(x1, 0, z1), v(x0, 0, z1)], height: { kind: "constant", value: -0.45 } } });
   a.environment.surfaces.push({ space: r, surface: { id: "entry-approach-landing", kind: "floor", polygon: [v(1.3, 0, -6.8), v(2.9, 0, -6.8), v(2.9, 0, -6), v(1.3, 0, -6)], height: { kind: "constant", value: 0 } } });
   for (let side = -1; side <= 1; side += 2) for (let i = 0; i < 24; i++) {
     const n = (side < 0 ? 0 : 24) + i;

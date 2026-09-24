@@ -34,7 +34,9 @@ export function facade(a: Assembly, f: Frame, windows: Glazing[], extraCuts: Ret
 function glazing(a: Assembly, f: Frame, w: Glazing): void {
   const first = curtainwall(a, f, w);
   // The drip runs n=-0.110..0.165: its inner end stays 0.004 inside the wall body.
-  bar(a, f, w.id + "-drip", w.room, "stone", (w.a + w.b) / 2, w.sill - 0.055, w.b - w.a + 0.12, 0.03, 0.275, 0.0275 * f.normal);
+  // ... and it stops at the inner wall body ends, never entering a corner prism.
+  const d0 = Math.max(w.a - 0.06, f.a), d1 = Math.min(w.b + 0.06, f.b);
+  bar(a, f, w.id + "-drip", w.room, "stone", (d0 + d1) / 2, w.sill - 0.055, d1 - d0, 0.03, 0.275, 0.0275 * f.normal);
   const centres = centresOf(w);
   for (let i = 0; i < centres.length - 1; i++) {
     const left = centres[i] + 0.02, right = centres[i + 1] - 0.02;

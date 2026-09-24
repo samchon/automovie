@@ -3,7 +3,9 @@ import { Item, lining, basin, toilet, cabinet, lights } from "./interior";
 export function bathroom(a: Assembly): void {
   const r = "upper-bathroom"; lining(a, r);
   basin(new Item(a, "bath-vanity", r, -4.99, 3.2, 2.16, Math.PI / 2), 1.0);
-  toilet(new Item(a, "bath-toilet", r, -4.95, 3.2, 3.45, Math.PI / 2));
+  // The cistern backs onto the lining face x=-5.26 and stays clear of the
+  // right-face window cut (z>=3.56).
+  toilet(new Item(a, "bath-toilet", r, -4.935, 3.2, 3.33, Math.PI / 2));
   const shower = new Item(a, "bath-shower", r, -4.14, 3.2, 4.94);
   shower.box("tray", "white", 0, 0.035, 0, 2.05, 0.07, 1.45);
   shower.box("drain", "steel", 0, 0.072, 0, 0.12, 0.004, 0.12);

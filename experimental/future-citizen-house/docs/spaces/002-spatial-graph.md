@@ -59,7 +59,7 @@
 @evidenceReview contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements #d31488d 1층의 모든 room을 ground-storey에 배정하고 상층 연결을 single-stair에 남긴다. 층 귀속이 없는 방이나 별도 계단으로 향하는 구조를 1층의 다른 표현으로 허용하지 않는다.
 -->
 
-storey id ground-storey는 house의 자식이며 [매스와 층 datum](#mass-and-storeys)의 1층 바닥·천장을 사용한다. [1층 분할](#ground-partition)의 다섯 방이 이 층에 속하고 [단일 계단](#single-stair)이 2층에 연결한다. slab의 실내 노출 바닥·천장과 구조 partition은 층 owner가 전부 소유한다. 방 owner는 같은 수평 마감을 덧씌우지 않는다. 층 owner의 기초는 본채 외곽 x=-5.50..5.50, z=-6.00..6.00 전체를 y=-0.60부터 1층 구조 상면 -0.016까지 채우고, 외벽 두께 구간에서는 -0.016..0의 bearing ring이 입면 아래 끝까지 잇는다. [대지 지면](001-citizen-house.md#site-access) y=-0.45 위로 드러나는 -0.45..0의 외곽 면이 plinth이며 그 면도 층 owner가 입면과 같은 외곽 평면에서 소유한다. 기초가 지면보다 0.15m 깊게 묻혀 본채가 지면에 닿는다. 이전에는 기초가 -0.30에서 끝나 지면과 0.15m 틈이 둘레 전체에 열려 있었다(2026-09-24 외피 설계 판정 F2). [전수 검증](#stage-one-verification)에서 room parent와 cell의 층 밖 돌출, 벽 실체, slab 충돌을 검사한다.
+storey id ground-storey는 house의 자식이며 [매스와 층 datum](#mass-and-storeys)의 1층 바닥·천장을 사용한다. [1층 분할](#ground-partition)의 다섯 방이 이 층에 속하고 [단일 계단](#single-stair)이 2층에 연결한다. slab의 실내 노출 바닥·천장과 구조 partition은 층 owner가 전부 소유한다. 방 owner는 같은 수평 마감을 덧씌우지 않는다. 층 owner의 기초는 본채 외곽 x=-5.50..5.50, z=-6.00..6.00 전체를 y=-0.60부터 1층 구조 상면 -0.016까지 채우고, 외벽 두께 구간에서는 -0.016..0의 bearing ring이 입면 아래 끝까지 잇고, 현관 출입구 폭 x=1.695..2.745에서는 [현관문 문턱판](#door-interface)이 그 구간을 채운다. [대지 지면](001-citizen-house.md#site-access) y=-0.45 위로 드러나는 -0.45..0의 외곽 면이 plinth이며 그 면도 층 owner가 입면과 같은 외곽 평면에서 소유한다. 기초가 지면보다 0.15m 깊게 묻혀 본채가 지면에 닿는다. 이전에는 기초가 -0.30에서 끝나 지면과 0.15m 틈이 둘레 전체에 열려 있었다(2026-09-24 외피 설계 판정 F2). [전수 검증](#stage-one-verification)에서 room parent와 cell의 층 밖 돌출, 벽 실체, slab 충돌을 검사한다.
 
 ## 2층 {#upper-level}
 
@@ -1449,8 +1449,8 @@ room id upper-service의 parent는 [upper-storey](#upper-level)다. clear plan�
 @evidence principles/core/common.md#declared-basis 계단 hole과 상층 두 room의 clear edge, 층의 16mm 바닥 마감 두께와 전면 외벽 body 실내 면을 입력으로 닫힌 측벽, 계단 쪽 마감면의 범위, 열린 복도 도착을 구분한다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 측벽 위치는 서측 upper-service·동측 child-bedroom-1 cell과 stair-hole 외곽의 clear edge 평균에서, 측벽의 전면 시작은 방 clear edge z=-5.76에서, 계단 쪽 마감의 하단 3.184와 전면 끝 z=-5.766은 층 마감 16mm와 외벽 body 실내 면에서 온다고 본문이 밝힌다. 0.126m 틈과 16mm slot은 이전 source의 관찰로, 판정 번호와 날짜를 붙여 저작 결정과 구분했다.
 @evidence principles/core/common.md#scope-preservation 계단 통과 구멍과 독립 침실·설비실을 모두 남기고 slab hole 안에 벽을 밀어 넣어 headroom을 줄이지 않는다.
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 계단 enclosure를 거실 보이드나 두 번째 계단 경계로 늘리지 않는다.
-@evidence principles/core/common.md#substantive-completion 동서 측벽과 child1 연장부 전면의 폐쇄, 복도 도착의 개방 및0.18m 후퇴 수리 이유에 더해 측벽의 전면 시작점, 구멍을 향한 마감면과 두 junction 면의 slab 상면 시작, 전면 strip 윗면과 외벽 실내 면의 노출 범위와 owner를 정했다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 hole·upper-service·child-bedroom-1·복도 도착을 모두 남기고, 측벽 몸체를 z=-5.76부터, 계단 쪽 마감을 z=-5.766·y=3.184까지 이어 두 방이 void로 열리지 않게 하며 벽은 hole 밖에 둔다.
+@evidence principles/core/common.md#substantive-completion 동서 측벽과 child1 연장부 전면의 폐쇄, 복도 도착의 개방 및 0.18m 후퇴 수리 이유에 더해 측벽의 전면 시작점, 구멍을 향한 마감면과 두 junction 면의 slab 상면 시작, 전면 strip 윗면과 외벽 실내 면의 노출 범위와 owner를 정했다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 벽을 hole 밖에 두고 child-one 앞면을 물리는 접합 조건 외에, 구멍 수직 면이 하층 천장 끝·slab 절단면·마감면으로 틈 없이 이어지도록 마감면 하단과 전면 끝, 가장자리 junction 두 면을 좌표로 지정했다. 남는 strip 윗면과 외벽 실내 면 두 띠도 x·y·z 범위와 층·전면 owner를 적어 구현자가 구멍 가장자리의 면을 새로 고르지 않는다. 그 면의 마감은 materials로 넘겨 이 단위가 재료를 결정하지 않는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 단일 계단의 상층 접속에 방 경계와 구멍 가장자리 사이 실제 벽 두께를 확보하는 결정을 더했다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 한 계단에 headroom을 막지 않는 주변 실체 배치를 추가한다.
