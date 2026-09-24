@@ -158,7 +158,7 @@
 ## 주침실 두 창의 얇은 커튼 {#primary-window-curtains}
 <!--
 @evidence principles/core/common.md#scope-preservation 주침실 후면 2.40 m와 왼쪽 1.60 m 두 창에 같은 커튼 원형을 각각 결속하고 다른 방의 창이나 방 벽 마감을 소유하지 않는다.
-@evidence principles/core/common.md#substantive-completion 창 폭 W와 높이 1.40 m, 상층 바닥 위 0.10–2.37 m 드레이프, 벽에서 0.12 m 이내 돌출, 양쪽 0.18 m 모임 폭, 봉·받침·커튼 표면 경계를 정한다.
+@evidence principles/core/common.md#substantive-completion 창 폭 W와 높이 1.40 m, 상층 바닥 위 0.10–2.35 m 드레이프, 벽에서 0.12 m 이내 돌출, 양쪽 0.18 m 모임 폭, 봉·받침·커튼 표면 경계를 정한다.
 @evidence principles/core/common.md#declared-basis 두 W와 개구부 Y = [3.91, 5.31] m는 rear/left 입면에서, 방 안쪽 돌출 0.12 m는 primary-furniture-use에서 받고 봉·드레이프 여유는 이 원형의 저작 선택이다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 공간은 두 창과 커튼의 돌출 상한만 예약했고 이 H2는 개방 상태의 두 끝 모임, 실루엣·부품·표면 분할을 더한다.
 @evidence principles/design/models.md#representation-contract 봉·받침·양쪽 얇은 천 패널의 부품과 `rod`·`bracket`·`curtain` 표면을 구분하고 고정 개방 상태와 세 굵은 접힘만 표현을 밝힌다.

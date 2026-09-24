@@ -58,7 +58,7 @@
 | [low-table](../../models/11-living.md#low-table) | 거실 1.30×0.50 m, 가족실 1.10×0.55 m; 상면 둘 다 0.42 m. |
 | [reading-armchair](../../models/11-living.md#reading-armchair) | 0.85×0.85×0.90 m 외곽; 팔걸이 빼고 좌석 0.85−2×0.12 = 0.61 m. |
 | [dark-bookcase](../../models/11-living.md#dark-bookcase) | 폭 1.00−2×0.02 = 0.96 m; 책 묶음 0.745–0.755 m로 내부의 77.6–78.6%. |
-| [floor-covering](../../models/11-living.md#floor-covering) | 거실 2.35×2.00×0.008 m, 현관 0.90×0.65×0.006; 침대 변형은 bed L/W+0.30 m. |
+| [floor-covering](../../models/11-living.md#floor-covering) | 거실 2.35×2.00×0.008 m, 가족실 1.70×1.55×0.008 m(X=[3.00,4.55], Z=[-8.55,-6.85], 오른쪽 통로 5.50−4.55=0.95 m), 현관 0.90×0.65×0.006; 침대 변형은 bed L/W+0.30 m. |
 | [fireplace-insert-mantel](../../models/11-living.md#fireplace-insert-mantel) | 화구 void 1.04×0.64×0.55 m에 0.025 m 판; 선반 1.60×0.55×0.10 m가 벽돌 상단 Y 1.30에 닿는다. |
 | [laundry-machine](../../models/12-service-rooms.md#laundry-machine) | 깊이 0.72+문·손잡이 0.03 = 0.75 m; 회전 돌출 0.45+0.03 = 0.48 ≤ 0.50 m. |
 | [laundry-folding-top](../../models/12-service-rooms.md#laundry-folding-top) | 상판 위 0.94−기기 위 0.88 = 두께 0.06 m; 앞 다리·옆판 0. |
@@ -76,7 +76,7 @@
 | [child-desk](../../models/13-bedrooms.md#child-desk) | L 1.20 또는 1.15, 깊이 0.60·상면 0.75 m; 소품 최고 0.18 m가 뒤쪽 0.25 m 안. |
 | [desk-chair](../../models/13-bedrooms.md#desk-chair) | 0.45×0.48×0.82 m 원형은 0.75×0.75 m 사용 예약보다 각 방향 작다. |
 | [sliding-closet](../../models/13-bedrooms.md#sliding-closet) | 1.50×0.60×2.20 m; 문 2×0.76−0.02 = 1.50 m, 양 문 이동 0.72 m는 몸통 안. |
-| [primary-window-curtains](../../models/13-bedrooms.md#primary-window-curtains) | W 2.40/1.60 m에 봉 W+0.20, 모인 두 폭 2×0.18; 돌출 0.08+0.02+0.003 = 0.103 ≤ 0.12 m. |
+| [primary-window-curtains](../../models/13-bedrooms.md#primary-window-curtains) | W 2.40/1.60 m에 봉 W+0.20, 모인 두 폭 2×0.18; 돌출 0.08+0.02+0.003 = 0.103 ≤ 0.12 m; 봉·천 최고점은 개구부 위 0.1125 ≤ 띠 상한 0.12 m. |
 | [wardrobe-hanging](../../models/13-bedrooms.md#wardrobe-hanging) | 36벌 두께 합 1.44 m ≤ 봉 2.15 m; 좌우 남음 (2.15−1.44)/2 = 0.355 m. |
 | [wardrobe-shelves](../../models/13-bedrooms.md#wardrobe-shelves) | 두 더미+용기+간격 2×0.28+0.30+2×0.02 = 0.90 ≤ 1.10 m, 양끝 0.10 m. |
 | [shared-toilet](../../models/14-bathrooms.md#shared-toilet) | 폭 0.50 ≤ 최소 예약 0.65 m, 양옆 0.075 m; 좌면 0.43·최고 0.82 m. |

@@ -91,7 +91,7 @@
 | [terrace-table](../../models/15-outdoor.md#terrace-table) | `src/models/furnishings/outdoor.ts` | `top`·`leg` |
 | [terrace-chair](../../models/15-outdoor.md#terrace-chair) | `src/models/furnishings/outdoor.ts` | `seat`·`leg`·`back` |
 | [lap-siding-board](../../models/15-outdoor.md#lap-siding-board) | `src/models/exterior/siding.ts` | `siding-face`·`siding-butt`·`siding-back`·`siding-top`·`siding-cut` |
-| [asphalt-shingle-strip](../../models/15-outdoor.md#asphalt-shingle-strip) | `src/models/exterior/shingle.ts` | `shingle-face`·`shingle-butt`·`shingle-back`·`shingle-cut` |
+| [asphalt-shingle-strip](../../models/15-outdoor.md#asphalt-shingle-strip) | `src/models/exterior/shingle.ts` | `shingle-face`·`shingle-butt`·`shingle-back`·`shingle-cut`·`roof-flashing` |
 | [eave-gutter-downspout](../../models/15-outdoor.md#eave-gutter-downspout) | `src/models/exterior/drainage.ts` | `gutter`·`downspout` |
 | [site-tree-prototypes](../../models/16-planting.md#site-tree-prototypes) | `src/models/planting.ts` | `bark`·`foliage` |
 | [site-shrub-prototype](../../models/16-planting.md#site-shrub-prototype) | `src/models/planting.ts` | `bark`·`foliage` |
@@ -113,7 +113,7 @@
 | [siding-warm-white](../../materials/01-exterior.md#siding-warm-white) | `siding-face`·`siding-butt`·`siding-back`·`siding-top`·`siding-cut` |
 | [roof-shingle](../../materials/01-exterior.md#roof-shingle) | `shingle-face`·`shingle-butt`·`shingle-back`·`shingle-cut` |
 | [trim-white](../../materials/01-exterior.md#trim-white) | `exterior-trim`·`jamb` |
-| [window-frame-charcoal](../../materials/01-exterior.md#window-frame-charcoal) | `frame`·`sash`·`mullion`·`muntin`·`gutter`·`downspout` |
+| [window-frame-charcoal](../../materials/01-exterior.md#window-frame-charcoal) | `frame`·`sash`·`mullion`·`muntin`·`gutter`·`downspout`·`roof-flashing` |
 | [glass-clear](../../materials/01-exterior.md#glass-clear) | `glass` |
 | [glass-obscure](../../materials/01-exterior.md#glass-obscure) | `obscured-glass` |
 | [front-door-wood](../../materials/01-exterior.md#front-door-wood) | `leaf-exterior`·`leaf-interior`·`leaf-edge`·`leaf-panel` |
