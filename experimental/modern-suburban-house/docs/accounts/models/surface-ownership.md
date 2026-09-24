@@ -2,7 +2,7 @@
 
 ## 모델 H2 전수 표면 소유와 재료 인터페이스 {#model-surface-ownership}
 <!--
-@evidence contracts/surface-ownership.md#whole-surface-owner 모델 H2 96개를 아래 계정에 한 번씩 적고 부재별 surface id와 source owner를 대조한다. 이는 설계 인터페이스 계정이며 아직 없는 modelSources 메시의 실제 face binding은 unverified다.
+@evidence contracts/surface-ownership.md#whole-surface-owner 모델 H2 96개를 아래 계정에 한 번씩 적고 부재별 surface id와 source owner를 대조한다. 부모·형제의 원형 인계를 마지막 대응표에서 설계 owner와 잇고 원형을 넘기지 않는 어휘 적중은 별도로 제외한다. 이는 설계 인터페이스 계정이며 아직 없는 modelSources 메시의 실제 face binding은 unverified다.
 -->
 
 [원문 계약](../../contracts/surface-ownership.md#whole-surface-owner)의 완결 표면은 한 source만 만든다. 아래 행에서 `—`는 규칙·표현 한계·검증 절차여서 별도 부피를 만들지 않음을 뜻한다. 같은 원형의 구조·관절·표면 설명 H2에 id가 반복되어도 메시를 복제한다는 뜻이 아니다. 모든 닫힌 부재의 앞·뒤·위·아래·절단·오목한 챌면은 [모델 표면 규칙](../../models/00-model-frame.md#model-surface-partition-naming)에 따라 정확히 한 id를 받는다. 관절 이름과 배치 id는 face id가 아니다.
@@ -171,3 +171,10 @@ spaces의 전후면 문턱 상면 +0.02 m는 `src/spaces/envelope/front.ts`·`re
 | [광원 소유](../../systems/00-lighting-frame.md#lighting-authority), [공용부 등](../../systems/02-interior-fixtures.md#interior-common-pendants) | 기구 몸체·갓; 광원 레코드는 systems | [펜던트](../../models/17-light-fixtures.md#pendant-fixtures) |
 | [1층 등](../../systems/02-interior-fixtures.md#interior-ground-ceiling), [상층 등](../../systems/02-interior-fixtures.md#interior-bedrooms), [차고 등](../../systems/02-interior-fixtures.md#interior-garage) | 천장등·협탁등 몸체 | [천장등](../../models/17-light-fixtures.md#flush-ceiling-fixture), [협탁등](../../models/13-bedrooms.md#nightstand-lamp) |
 | [욕실 등](../../systems/02-interior-fixtures.md#interior-baths), [포치 벽등](../../systems/03-exterior-fixtures.md#exterior-porch-sconce) | 세면등·포치 벽등 몸체 | [세면등](../../models/17-light-fixtures.md#vanity-wall-fixture), [포치 등](../../models/17-light-fixtures.md#porch-wall-sconce) |
+| [차고 앞 개구부](../../spaces/envelope/front.md#garage-front-opening) | 네 패널·창·레일·가이드 | [차고문](../../models/02-exterior-doors.md#garage-sectional-door) |
+| [벽난로 굴뚝 접면](../../spaces/envelope/left.md#chimney-roof-interface) | 비운 화구 안쪽·목재 선반과 금속 후레싱; 벽돌은 spaces | [화구](../../models/11-living.md#fireplace-insert-mantel), [지붕 접합 금속](../../models/15-outdoor.md#asphalt-shingle-strip) |
+| [둘째 침실 가구](../../spaces/rooms/bedroom-two.md#bedroom-two-furniture-use) | 미닫이 옷장·옷·책상 소품 | [옷장](../../models/13-bedrooms.md#sliding-closet), [책상](../../models/13-bedrooms.md#child-desk) |
+| [현관 문 개구부](../../spaces/rooms/entry.md#entry-plan), [계단 앞창](../../spaces/02-stair.md#stair-floor-opening) | 현관문과 계단 고정창 | [현관문](../../models/02-exterior-doors.md#front-entry-door), [고정창](../../models/01-windows.md#fixed-window) |
+| [울타리 관리문](../../spaces/site/fence.md#fence-gate-junction), [지표 접점](../../spaces/site/fence.md#fence-ground-profile) | 대문 문짝·철물과 후속 식재 원형; 울타리 패널과 접지는 spaces | [대문](../../models/02-exterior-doors.md#side-yard-gate), [관목](../../models/16-planting.md#site-shrub-prototype) |
+
+어휘 적중 중 모델 원형 인계가 아닌 것은 다음과 같이 제외한다. [작업 언어](../../settings/00-production.md#working-language)와 [관찰 비교](../../spaces/04-observations.md#reference-spatial-comparisons)는 표현·검사 규칙이다. [재료 문법](../../settings/20-verification.md#visual-grammar)·[표면 분해](../../settings/20-verification.md#surface-allocation)·[텍스처 응답](../../materials/00-material-frame.md#material-texture-response)·[목재 손잡이 마감](../../materials/02-interior-shell.md#handrail-wood)은 모델 원형을 넘기는 문장이 아니라 면 경계와 마감의 책임을 정한다. materials/01–03의 어휘 적중 H2들도 모델 원형을 받는 소비자이며, 각 material H2의 owner와 face id는 이 계정 앞쪽 재료 대조표에 있다. [본채 외곽](../../spaces/00-building.md#main-building-extent), [차고 외곽](../../spaces/00-building.md#attached-garage-extent), [내부 벽 소유](../../spaces/07-boundary-assembly.md#interior-boundary-ownership), [천장 바탕](../../spaces/09-ceiling-assembly.md#upper-ceiling-closure), [지붕/벽 상단](../../spaces/roof/00-junctions.md#roof-wall-head-junctions)은 spaces의 부재·경계다. [차도](../../spaces/site/driveway.md#driveway-plan), [앞길](../../spaces/site/front-walk.md#front-walk-plan), [옆길](../../spaces/site/side-walk.md#side-walk-plan)은 maps/spaces 포장과 통행이며 모델 원형을 넘기지 않는다.

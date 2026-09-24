@@ -3,11 +3,11 @@
 ## 회갈색 패널 수납장 {#greige-cabinet}
 <!--
 @evidence principles/core/common.md#declared-basis 회갈색 패널 수납장의 #8A7F72·roughness 0.50은 settings/10-house.md#kitchen-equipment의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
-@evidence principles/core/common.md#scope-preservation 회갈색 패널 수납장은 models/10-kitchen-dining.md#kitchen-base-run, models/10-kitchen-dining.md#kitchen-island, models/10-kitchen-dining.md#kitchen-wall-cabinet의 면에 마감만 결합하고 그 면의 geometry·경계는 host owner에 남긴다.
+@evidence principles/core/common.md#scope-preservation 회갈색 패널 수납장은 models/10-kitchen-dining.md#kitchen-base-run, models/10-kitchen-dining.md#kitchen-island, models/10-kitchen-dining.md#kitchen-wall-cabinet와 욕실 세면장·세탁 상부장·접는 상판 받침의 면에 마감만 결합하고 그 면의 geometry·경계는 host owner에 남긴다.
 @evidence principles/core/common.md#substantive-completion 회갈색 패널 수납장은 #8A7F72(선형 0.254, 0.212, 0.168), roughness 0.50, metallic 0.0, transmission 0.0, 결합 면, source owner `src/materials/furnishings/cabinetry.ts`, 리뷰 관찰을 모두 적었다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 settings/10-house.md#kitchen-equipment는 색·재료를 말로만 정했고 회갈색 패널 수납장은 #8A7F72 값과 roughness 0.50, `plinth`·`carcass`·`leaf` 결합을 더한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 settings/10-house.md#kitchen-equipment는 색·재료를 말로만 정했고 회갈색 패널 수납장은 #8A7F72 값과 roughness 0.50, `plinth`·`carcass`·`leaf`·`drawer-front`·`cleat` 결합을 더한다.
 @evidence principles/design/materials.md#material-construction-appearance 회갈색 패널 수납장은 구성을 '두께 0.018 m MDF 패널 위 반무광 도장'로, 외관의 #8A7F72·roughness 0.50·metallic 0.0을 기준값으로 두고 아래 표면 결속 계획의 결·광학 응답으로 최상층 마감을 표현한다고 적는다.
-@evidence principles/design/materials.md#material-binding-interface 회갈색 패널 수납장의 결합 vocabulary는 `plinth`·`carcass`·`leaf`이며 방향과 단면/양면은 00 면 결합 규칙을 따른다.
+@evidence principles/design/materials.md#material-binding-interface 회갈색 패널 수납장의 결합 vocabulary는 `plinth`·`carcass`·`leaf`·`drawer-front`·`cleat`이며 방향과 단면/양면은 00 면 결합 규칙을 따른다.
 @evidence principles/design/materials.md#material-verification-address 회갈색 패널 수납장의 반증 견본은 '[재료 리뷰 견본](00-material-frame.md#material-review-set)의 거리 견본 중 03 공용부 view와 욕실…'이고 00 재료 리뷰 견본의 중성 조명 판이 #8A7F72 값을 대조한다.
 @evidenceExclude upstream/design/materials.md#parent-revision-from-material-work 회갈색 패널 수납장은 settings/10-house.md#kitchen-equipment, settings/10-house.md#tub-bathroom를 적힌 그대로 소비했고 수정할 부모 결함을 찾지 않았다.
 @evidence contracts/texture-readability.md#material-texture-readability 수납장 `leaf`·`carcass`의 반무광 도막 결은 0.10 m 모듈이다. 원형의 각 판 왼쪽 아래를 원점으로 U 폭·V 높이를 쓰고 서랍·문짝 경계에서 끊어 패널 간 그림자를 지우지 않는다.
@@ -15,7 +15,7 @@
 @evidence settings/10-house.md#tub-bathroom 회갈색 패널 수납장이 '욕조 욕실'(settings/10-house.md#tub-bathroom)를 링크로 소비해 #8A7F72 값과 결합 면의 근거로 삼았다.
 -->
 
-[주방의 회갈색 패널 수납장](../settings/10-house.md#kitchen-equipment)과 [욕실의 회갈색 세면장](../settings/10-house.md#tub-bathroom)이다. 구성은 두께 0.018 m MDF 패널 위 반무광 도장이다. 외관은 `#8A7F72`(선형 0.254, 0.212, 0.168), roughness 0.50, metallic 0.0, transmission 0.0이며 도막 한 층의 색과 광택만 근사하고 패널 분절과 문 틈은 모델 geometry가 만든다. 흰 벽 타일과 밝은 상판 사이에서 중간 명도의 띠로 읽히도록 정했다. 결합 면은 [주방 하부장 띠](../models/10-kitchen-dining.md#kitchen-base-run)와 [싱크 섬](../models/10-kitchen-dining.md#kitchen-island)의 `plinth`·`carcass`·`leaf`·`drawer-front`, [주방 상부장](../models/10-kitchen-dining.md#kitchen-wall-cabinet)의 `carcass`·`leaf`, [세면장](../models/14-bathrooms.md#vanity-basin)의 `plinth`·`carcass`·`leaf`, [세탁실 상부 수납](../models/12-service-rooms.md#laundry-upper-storage)의 `carcass`·`leaf`다. source owner는 `src/materials/furnishings/cabinetry.ts`이고, 리뷰는 [재료 리뷰 견본](00-material-frame.md#material-review-set)의 거리 견본 중 03 공용부 view와 욕실 threshold view에서 서랍·문 분절이 같은 재료의 그림자로 구별되는지를 관찰한다.
+[주방의 회갈색 패널 수납장](../settings/10-house.md#kitchen-equipment)과 [욕실의 회갈색 세면장](../settings/10-house.md#tub-bathroom)이다. 구성은 두께 0.018 m MDF 패널 위 반무광 도장이다. 외관은 `#8A7F72`(선형 0.254, 0.212, 0.168), roughness 0.50, metallic 0.0, transmission 0.0이며 도막 한 층의 색과 광택만 근사하고 패널 분절과 문 틈은 모델 geometry가 만든다. 흰 벽 타일과 밝은 상판 사이에서 중간 명도의 띠로 읽히도록 정했다. 결합 면은 [주방 하부장 띠](../models/10-kitchen-dining.md#kitchen-base-run)와 [싱크 섬](../models/10-kitchen-dining.md#kitchen-island)의 `plinth`·`carcass`·`leaf`·`drawer-front`, [주방 상부장](../models/10-kitchen-dining.md#kitchen-wall-cabinet)의 `carcass`·`leaf`, [세면장](../models/14-bathrooms.md#vanity-basin)의 `plinth`·`carcass`·`leaf`, [세탁실 상부 수납](../models/12-service-rooms.md#laundry-upper-storage)의 `carcass`·`leaf`, [세탁기 위 접는 상판](../models/12-service-rooms.md#laundry-folding-top)의 `cleat`다. source owner는 `src/materials/furnishings/cabinetry.ts`이고, 리뷰는 [재료 리뷰 견본](00-material-frame.md#material-review-set)의 거리 견본 중 03 공용부 view와 욕실 threshold view에서 서랍·문 분절이 같은 재료의 그림자로 구별되는지를 관찰한다.
 
 표면 결속 계획: 수납장 `leaf`·`carcass`의 반무광 도막 결은 0.10 m 모듈이다. 원형의 각 판 왼쪽 아래를 원점으로 U 폭·V 높이를 쓰고 서랍·문짝 경계에서 끊어 패널 간 그림자를 지우지 않는다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
 
@@ -40,18 +40,18 @@
 ## 스테인리스 가전과 수전 {#stainless-steel}
 <!--
 @evidence principles/core/common.md#declared-basis 스테인리스 가전과 수전의 #C0C2C4·roughness 0.30은 settings/10-house.md#kitchen-equipment의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
-@evidence principles/core/common.md#scope-preservation 스테인리스 가전과 수전은 models/10-kitchen-dining.md#kitchen-refrigerator, models/10-kitchen-dining.md#kitchen-range, models/10-kitchen-dining.md#kitchen-microwave의 면에 마감만 결합하고 그 면의 geometry·경계는 host owner에 남긴다.
+@evidence principles/core/common.md#scope-preservation 스테인리스 가전과 수전은 models/10-kitchen-dining.md#kitchen-refrigerator, models/10-kitchen-dining.md#kitchen-range, models/10-kitchen-dining.md#kitchen-microwave 및 본문에 링크한 식기세척기·변기 레버의 면에 마감만 결합하고 그 면의 geometry·경계는 host owner에 남긴다.
 @evidence principles/core/common.md#substantive-completion 스테인리스 가전과 수전은 #C0C2C4(선형 0.527, 0.539, 0.552), roughness 0.30, metallic 1.0, transmission 0.0, 결합 면, source owner `src/materials/furnishings/appliances.ts`, 리뷰 관찰을 모두 적었다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 settings/10-house.md#kitchen-equipment는 색·재료를 말로만 정했고 스테인리스 가전과 수전은 #C0C2C4 값과 roughness 0.30, `leaf`·`drawer-front`·`appliance-body` 결합을 더한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 settings/10-house.md#kitchen-equipment는 색·재료를 말로만 정했고 스테인리스 가전과 수전은 #C0C2C4 값과 roughness 0.30, `leaf`·`drawer-front`·`appliance-body`·`handle`·`faucet` 결합을 더한다.
 @evidence principles/design/materials.md#material-construction-appearance 스테인리스 가전과 수전은 구성을 '도장하지 않은 헤어라인 스테인리스 강판과 주물 수전'로, 외관의 #C0C2C4·roughness 0.30·metallic 1.0을 기준값으로 두고 아래 표면 결속 계획의 결·광학 응답으로 최상층 마감을 표현한다고 적는다.
-@evidence principles/design/materials.md#material-binding-interface 스테인리스 가전과 수전의 결합 vocabulary는 `leaf`·`drawer-front`·`appliance-body`이며 방향과 단면/양면은 00 면 결합 규칙을 따른다.
+@evidence principles/design/materials.md#material-binding-interface 스테인리스 가전과 수전의 결합 vocabulary는 `leaf`·`drawer-front`·`appliance-body`·`handle`·`faucet`이며 방향과 단면/양면은 00 면 결합 규칙을 따른다.
 @evidence principles/design/materials.md#material-verification-address 스테인리스 가전과 수전의 반증 견본은 '중성 조명 판과 03 view에서 가전이 흰 벽보다 어둡지만 검은 판이 아닌 금속 반사로 읽히는지'이고 00 재료 리뷰 견본의 중성 조명 판이 #C0C2C4 값을 대조한다.
 @evidenceExclude upstream/design/materials.md#parent-revision-from-material-work 스테인리스 가전과 수전은 settings/10-house.md#kitchen-equipment, models/10-kitchen-dining.md#kitchen-refrigerator를 적힌 그대로 소비했고 수정할 부모 결함을 찾지 않았다.
 @evidence contracts/texture-readability.md#material-texture-readability 가전·수전의 노출 스테인리스에는 0.02 m 반복의 방향성 헤어라인 거칠기 맵을 쓴다. 판의 길이 U를 연마 방향으로, 판 시작 모서리를 원점으로 하고 문·손잡이 파티션 경계에서 방향을 새로 잡는다.
 @evidence settings/10-house.md#kitchen-equipment 스테인리스 가전과 수전이 '주방 설비'(settings/10-house.md#kitchen-equipment)를 링크로 소비해 #C0C2C4 값과 결합 면의 근거로 삼았다.
 -->
 
-[스테인리스 냉장고·레인지·전자레인지](../settings/10-house.md#kitchen-equipment)와 식기세척기, 수전이다. 구성은 도장하지 않은 헤어라인 스테인리스 강판과 주물 수전이다. 외관은 `#C0C2C4`(선형 0.527, 0.539, 0.552), roughness 0.30, metallic 1.0, transmission 0.0이며 헤어라인 방향성은 판의 길이 방향 거칠기 맵으로 표현한다. 결합 면은 [양문 냉장고](../models/10-kitchen-dining.md#kitchen-refrigerator)의 `leaf`·`drawer-front`·`appliance-body`·`handle`, [레인지](../models/10-kitchen-dining.md#kitchen-range)의 `leaf`·`appliance-body`·`handle`, [전자레인지](../models/10-kitchen-dining.md#kitchen-microwave)의 `appliance-body`·`leaf`, [식기세척기](../models/10-kitchen-dining.md#kitchen-dishwasher)의 `leaf`·`appliance-body`, 싱크 섬의 `basin`·`faucet`, 세면장·욕조·샤워부스의 `faucet`, [차고 금속 선반](../models/12-service-rooms.md#garage-shelving)의 `post`·`shelf`, [공구판](../models/12-service-rooms.md#garage-tool-board)의 `tool-steel`, [세탁기 원형](../models/12-service-rooms.md#laundry-machine)의 `door-ring`·`drum`이다. 가전 안쪽 `appliance-interior`는 [흰 에나멜](#white-enamel)을 받는다. source owner는 `src/materials/furnishings/appliances.ts`이고, 리뷰는 중성 조명 판과 03 view에서 가전이 흰 벽보다 어둡지만 검은 판이 아닌 금속 반사로 읽히는지를 관찰한다.
+[스테인리스 냉장고·레인지·전자레인지](../settings/10-house.md#kitchen-equipment)와 식기세척기, 수전이다. 구성은 도장하지 않은 헤어라인 스테인리스 강판과 주물 수전이다. 외관은 `#C0C2C4`(선형 0.527, 0.539, 0.552), roughness 0.30, metallic 1.0, transmission 0.0이며 헤어라인 방향성은 판의 길이 방향 거칠기 맵으로 표현한다. 결합 면은 [양문 냉장고](../models/10-kitchen-dining.md#kitchen-refrigerator)의 `leaf`·`drawer-front`·`appliance-body`·`handle`, [레인지](../models/10-kitchen-dining.md#kitchen-range)의 `leaf`·`appliance-body`·`handle`, [전자레인지](../models/10-kitchen-dining.md#kitchen-microwave)의 `appliance-body`·`leaf`, [식기세척기](../models/10-kitchen-dining.md#kitchen-dishwasher)의 `leaf`·`appliance-body`·`handle`, [공용 변기](../models/14-bathrooms.md#shared-toilet)의 세척 레버 `handle`, 싱크 섬의 `basin`·`faucet`, 세면장·욕조·샤워부스의 `faucet`, [차고 금속 선반](../models/12-service-rooms.md#garage-shelving)의 `post`·`shelf`, [공구판](../models/12-service-rooms.md#garage-tool-board)의 `tool-steel`, [세탁기 원형](../models/12-service-rooms.md#laundry-machine)의 `door-ring`·`drum`이다. 가전 안쪽 `appliance-interior`는 [흰 에나멜](#white-enamel)을 받는다. source owner는 `src/materials/furnishings/appliances.ts`이고, 리뷰는 중성 조명 판과 03 view에서 가전이 흰 벽보다 어둡지만 검은 판이 아닌 금속 반사로 읽히는지를 관찰한다.
 
 욕실·수납의 금속 `rail`·`rod`와 주방 `utensil`의 금속부도 이 재료를 받는다. 각 막대의 길이 U·둘레 V를 미터로 투영하고 부품 끝에서 끊는다.
 
@@ -343,11 +343,11 @@
 ## 나머지 소품 파티션 {#minor-prop-partitions}
 <!--
 @evidence principles/core/common.md#declared-basis 원형마다 표면 id를 확인해 기존 H2 재료를 다시 쓰되 다른 역할의 면을 같은 이름으로 숨기지 않는다.
-@evidence principles/core/common.md#scope-preservation 05·12·13·18·19의 수납·소품과 17의 기구 외장에 남은 면의 계획 결속을 맡고 실제 source 결속은 후속 materialSources에 남긴다.
+@evidence principles/core/common.md#scope-preservation 05·12·13·18·19의 수납·소품과 17의 기구 외장에 남은 면의 계획 결속을 맡는다. 외투장 `rod`와 침실 미닫이 옷장 `rail`·`rod`·`clothes`·`handle`을 원형 링크로 분리하며 실제 source 결속은 후속 materialSources에 남긴다.
 @evidence principles/core/common.md#substantive-completion 아래 표의 원형·id·재료 H2 매핑을 적고 현재 생성 맵과 GPU 결과를 unverified로 둔다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation models 00의 역할 id를 실제 재료 H2 주소로 바꾸어 `prop` 같은 무명 대체를 쓰지 않는다.
 @evidence principles/design/materials.md#material-construction-appearance 각 면은 링크된 목재·금속·직물·유리의 광학 응답을 그대로 받아 역할별 색·결이 구별된다.
-@evidence principles/design/materials.md#material-binding-interface 아래 표에 적힌 정확한 모델 id만 결속하며 관절 이름이나 배치 id는 재료 id로 쓰지 않는다.
+@evidence principles/design/materials.md#material-binding-interface 외투장 봉과 침실 미닫이 옷장 행은 각각 원형 H2 링크와 선언된 `rod`·`rail`·`clothes`·`handle` 면 id를 짝지으며 관절 이름이나 배치 id는 재료 id로 쓰지 않는다.
 @evidence principles/design/materials.md#material-verification-address 실제 source 뒤 표면 id 미결속 0 검사를 요구하고 현재는 unverified라고 남긴다.
 @evidenceExclude upstream/design/materials.md#parent-revision-from-material-work 원형의 면 이름을 확인해 재료 문서만 정정했고 공간·원형 치수는 여기서 바꾸지 않는다.
 @evidence contracts/texture-readability.md#material-texture-readability 재사용 면은 링크한 원 재료 H2의 물리 척도·국소 축·부재별 끊김을 그대로 따른다.
@@ -356,10 +356,10 @@
 
 | 원형 | 결합 surface id | 재료 H2 |
 |---|---|---|
-| [외투장과 린넨장](../models/05-closet-fittings.md#closet-fitting-surfaces), [미닫이 옷장](../models/13-bedrooms.md#sliding-closet), [옷방](../models/13-bedrooms.md#wardrobe-hanging) | `carcass`·`leaf`·`leaf-panel`·`shelf` | [흰 실내 trim](02-interior-shell.md#interior-trim-white) |
-| 같은 수납 | `rail`·`rod` | [스테인리스](#stainless-steel) |
-| 같은 수납 | `handle` | [검은 도장 금속](02-interior-shell.md#black-coated-metal) |
-| [옷장](../models/13-bedrooms.md#wardrobe-hanging)·[머드룸 외투 걸이](../models/12-service-rooms.md#mudroom-coat-hooks) | `clothes` | 순번별 [회베이지](#grey-beige-upholstery)·[청회색](#blue-grey-bedding)·[올리브](#olive-bedding) 직물 |
+| [외투장과 린넨장](../models/05-closet-fittings.md#closet-fitting-surfaces), [미닫이 옷장](../models/13-bedrooms.md#sliding-closet), [옷방](../models/13-bedrooms.md#wardrobe-hanging) | 각 원형에 선언된 `carcass`·`leaf`·`leaf-panel`·`shelf` | [흰 실내 trim](02-interior-shell.md#interior-trim-white) |
+| [외투장 봉](../models/05-closet-fittings.md#coat-closet-rod-shelf), [린넨장](../models/05-closet-fittings.md#linen-closet-fittings), [미닫이 옷장](../models/13-bedrooms.md#sliding-closet), [옷방](../models/13-bedrooms.md#wardrobe-hanging) | 각 원형에 선언된 `rail`·`rod` | [스테인리스](#stainless-steel) |
+| [외투장 문](../models/05-closet-fittings.md#coat-closet-doors), [린넨장](../models/05-closet-fittings.md#linen-closet-fittings), [미닫이 옷장](../models/13-bedrooms.md#sliding-closet) | `handle` | [검은 도장 금속](02-interior-shell.md#black-coated-metal) |
+| [미닫이 옷장](../models/13-bedrooms.md#sliding-closet)·[옷방](../models/13-bedrooms.md#wardrobe-hanging)·[머드룸 외투 걸이](../models/12-service-rooms.md#mudroom-coat-hooks) | `clothes` | 순번별 [회베이지](#grey-beige-upholstery)·[청회색](#blue-grey-bedding)·[올리브](#olive-bedding) 직물 |
 | [팬트리 용기](../models/12-service-rooms.md#pantry-containers) | `container` / `lid`·`basket` | [투명 유리](01-exterior.md#glass-clear) / [가구 목재](#furniture-wood) |
 | [머드룸 걸이](../models/12-service-rooms.md#mudroom-coat-hooks) | `rail` / `hook` | [가구 목재](#furniture-wood) / [검은 도장 금속](02-interior-shell.md#black-coated-metal) |
 | [차고 선반·공구판](../models/12-service-rooms.md#garage-shelving) | `bin`·`tool-grip` / `board` / `tool-steel` | [검은 도장 금속](02-interior-shell.md#black-coated-metal) / [가구 목재](#furniture-wood) / [스테인리스](#stainless-steel) |

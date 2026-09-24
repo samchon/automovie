@@ -2,7 +2,7 @@
 
 ## 공용 변기 {#shared-toilet}
 <!--
-@evidence principles/core/common.md#scope-preservation 이 H2는 파우더룸·샤워 욕실·욕조 욕실 세 예약에 함께 쓰는 변기 원형 하나의 외곽 깊이 0.75 m·높이 0.82 m·폭 0.50 m와 부품 일곱을 맡고, 도기 두께·배수 트랩·급수관은 표현하지 않는다고 범위를 닫는다.
+@evidence principles/core/common.md#scope-preservation 이 H2는 파우더룸·샤워 욕실·욕조 욕실 세 예약에 함께 쓰는 변기 원형 하나의 외곽 깊이 0.75 m·높이 0.82 m·폭 0.50 m와 부품 일곱을 맡고, 앞끝의 0.02 m 테를 제외한 도기 쉘 두께·배수 트랩·급수관은 표현하지 않는다고 범위를 닫는다.
 @evidence principles/core/common.md#substantive-completion 물탱크 폭 0.50 m·깊이 0.20 m·Y=[0.40,0.78], 탱크 뚜껑 [0.78,0.82], 몸통 폭 0.38 m, 12각 타원 컷 내부 폭 0.27×깊이 0.31×높이 0.15 m, 좌면 링 상면 0.43 m를 정한다.
 @evidence principles/core/common.md#declared-basis 폭 0.50 m는 가장 좁은 샤워 욕실 예약 폭 0.65 m 안에서 세 예약 모두에 양옆 0.075 m 이상 여유를 남기려는 이 층의 결정이고, 깊이 0.75 m·높이 0.82 m는 세 예약의 깊이와 최대 높이에서 가져왔다고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 세 방 문서가 준 예약 상자(깊이 0.75 m, 폭 0.70 m 또는 0.65 m, 좌면 0.43 m) 위에 물탱크·몸통·시트 덮개로 나눈 부품 구성과 `seat-lid` 피벗이라는 모델 결정을 더한다.
@@ -10,7 +10,7 @@
 @evidence principles/design/models.md#spatial-convention 로컬 좌표는 가구 국소 좌표를 따라 +Z가 앉는 정면이고, 몸통은 벽에서 0.75 m까지 이어지며 `seat-lid` 피벗은 시트 덮개의 뒤쪽 가로 경첩에 둔다.
 @evidence principles/design/models.md#reviewable-structure 모델 리뷰 뷰의 측면에서 좌면 0.43 m와 뚜껑 0.82 m가 보이는지, 세 배치의 평면에서 앞 끝이 각 사용 예약 경계에 멈추는지가 이 변기를 반증할 관찰이다.
 @evidence principles/design/models.md#model-observable-style-basis 스타일 라벨을 두지 않고 폭 0.50 m 물탱크 위의 뚜껑과 폭 0.38 m 둥근 끝 몸통이라는 실루엣·비례만 정하며, 재질 선택 없이 표면 id `ceramic`만 남긴다.
-@evidence principles/design/models.md#model-scale-layer-completion 기준 치수 좌면 0.43 m, 일곱 부품 계층, 닫힘을 기준 상태로 둔 `seat-lid` 인터페이스, 표현하지 않는 도기 두께·배관, unverified 관찰 두 가지가 함께 적혀 변기 블로킹 표현을 결정한다.
+@evidence principles/design/models.md#model-scale-layer-completion 기준 치수 좌면 0.43 m, 일곱 부품 계층, 닫힘을 기준 상태로 둔 `seat-lid` 인터페이스, 앞끝 테 이외에는 표현하지 않는 도기 쉘 두께·배관, unverified 관찰 두 가지가 함께 적혀 변기 블로킹 표현을 결정한다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 파우더룸·샤워 욕실·욕조 욕실 사용 예약의 X·Z 범위와 좌면 0.43 m·최대 높이 0.82 m를 적힌 그대로 소비했고, 세 예약 모두 폭 0.50 m 원형을 여유 있게 담아 방 문서나 설정에 고칠 결함이 없었다.
 @evidence spaces/rooms/powder.md#powder-fixture-use 파우더룸 예약 X = [4.75, 5.50], Z = [-1.65, -0.95], 전면 -X, 깊이 0.75 m·폭 0.70 m를 원형의 외곽 깊이와 폭 상한으로 소비한다.
 @evidence spaces/rooms/shower-bath.md#shower-fixture-use 샤워 욕실 예약 X = [2.32, 2.97], Z = [-8.80, -8.05], 전면 +Z, 폭 0.65 m가 세 예약 중 가장 좁아 원형 폭 0.50 m를 정하는 상한으로 소비된다.
@@ -32,7 +32,7 @@
 
 국소 원점은 물탱크 뒤쪽 바닥 중앙이고 +Z는 앉는 방향이다. 탱크는 Z = [0, 0.20] m, 도기 발은 Z = [0.28, 0.63] m, 그릇은 Z = [0.28, 0.73] m, 앞끝 0.75 m까지는 0.02 m 도기 테가 차지한다. 좌대 링과 덮개는 각각 가로 0.38 m·앞뒤 0.45 m로 그릇 위에 놓고, 덮개의 뒤쪽 피벗은 Z = 0.28 m다. 물탱크 뚜껑은 0.50 × 0.20 × 0.04 m, 세척 레버는 탱크 앞면 왼쪽 X = -0.18 m·Y = 0.68 m에 중심을 둔 0.08 × 0.015 × 0.015 m 막대로 앞끝 Z = 0.215 m다.
 
-도기 두께·배수 트랩·급수관은 표현하지 않는다. 소스 owner는 `src/models/furnishings/bathrooms.ts`다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 측면에서 좌면 0.43 m와 뚜껑 0.82 m가 보이는지, 세 배치의 평면에서 앞 끝이 각 사용 예약의 경계에 멈추는지다. 모든 관찰은 unverified다.
+앞끝의 0.02 m 도기 테 이외에 도기 쉘 전체의 두께·배수 트랩·급수관은 표현하지 않는다. 소스 owner는 `src/models/furnishings/bathrooms.ts`다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 측면에서 좌면 0.43 m와 뚜껑 0.82 m가 보이는지, 세 배치의 평면에서 앞 끝이 각 사용 예약의 경계에 멈추는지다. 모든 관찰은 unverified다.
 
 ## 세면장 {#vanity-basin}
 <!--
