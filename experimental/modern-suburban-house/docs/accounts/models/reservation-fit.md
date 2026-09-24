@@ -98,7 +98,7 @@
 | [flush-ceiling-fixture](../../models/17-light-fixtures.md#flush-ceiling-fixture) | 일반 D 0.24·차고 D 0.40 m, 천장 아래 최대 0.05 m; 방별 수는 systems 입력. |
 | [pendant-fixtures](../../models/17-light-fixtures.md#pendant-fixtures) | 섬 갓 지름 0.28·내림 0.80 m, 식탁 갓 0.48·내림 1.20; 아래면은 상판 위 각각 1.04/0.80 m. |
 | [vanity-wall-fixture](../../models/17-light-fixtures.md#vanity-wall-fixture) | 벽 돌출 0.08 ≤ systems 상한 0.10 m, 확산봉 길이 0.31 = 0.36−2×0.025 m. |
-| [porch-wall-sconce](../../models/17-light-fixtures.md#porch-wall-sconce) | 앞 돌출 0.10 m, 갓 0.14 m·높이 0.20; 문은 실내로 열려 문 회전과 분리. |
+| [porch-wall-sconce](../../models/17-light-fixtures.md#porch-wall-sconce) | 앞 돌출 0.015+0.015+0.14=0.17 m, 갓 높이 0.20 m; 포치 유효 깊이 1.80 m에서 벽등 앞 잔여 1.63 m이고 문은 실내로 열려 회전과 분리. |
 | [porch-mat-planter](../../models/18-house-props.md#porch-mat-planter) | 발판 0.60×0.40×0.008 m, 화분 높이 ≤0.72 m; 포치 보행폭과 충돌은 instance 배치 뒤 검사. |
 | [kitchen-food-utensils](../../models/18-house-props.md#kitchen-food-utensils) | 도마 0.35×0.25 m, 도구 5개 높이 ≤0.38, 식탁 그릇 지름 0.28·과일 5개. |
 | [linen-folded-towels](../../models/18-house-props.md#linen-folded-towels) | 선반마다 3×0.28+2×0.02 = 0.88 ≤ 1.00 m; 앞 여유 0.55−0.05−0.32 = 0.18 m; 5×3×2 = 30장. |

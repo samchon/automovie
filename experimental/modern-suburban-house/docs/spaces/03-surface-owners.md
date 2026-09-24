@@ -6,25 +6,25 @@
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 표가 네 입면·공유 벽체·여덟 지붕 경사면·포치·1층/층간/차고 바탕·계단·네 포장·울타리를 모두 파일에 배정하고, 뒤 문단이 building·junctions·openings·boundaries·site를 계산 역할로 구분해 빠진 면이 없음을 확인했다.
 @evidence principles/core/common.md#substantive-completion 완결 면 또는 공유 경계마다 한 source 파일을 표로 정하고 building·roof/junctions·openings·boundaries·site 파일은 계산과 조립만 하게 한다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 표가 ‘완결 면 또는 공유 경계’마다 `src/spaces/...` 파일 하나를 적고 `building.ts`는 외곽·공유 좌표 조립, `roof/junctions.ts`는 교차 경계 산출로 한정해 source가 면 소유를 새로 정할 필요가 없음을 확인했다.
-@evidence principles/core/common.md#declared-basis 배정 근거는 whole-surface-owner 계약이고 source 파일이 아직 없어 파일 배정 의도이며 surface census 완료가 아니라고 밝힌다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 첫 문단이 표면 분해 인계와 완결 표면 계약 링크를 근거로 들고 ‘source 파일이 아직 없어 파일 배정 의도’이며 surface id·면 개수 census 완료가 아니라고 밝혀 표의 지위가 추적됨을 확인했다.
+@evidence principles/core/common.md#declared-basis 배정 근거는 whole-surface-owner 계약이고 spaces source의 건물 골격은 실재하지만 model 충전 부재는 후속 분기라 표가 그 두 시점의 owner 경계임을 밝힌다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 표면 분해 인계와 완결 표면 계약 링크, 현재 spaces source의 골격과 아직 없는 model 충전 부재라는 두 시점을 본문에서 다시 대조했다. 충전 부재 면 census 완료로 확대하지 않는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 설정의 사전 분해 요구를 입면별·지붕 경사면별·포장별 파일로 나누고 종전의 포장 전체 한 파일 예약을 소스 저작 전에 보행면·차도·테라스로 쪼갠다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 surface-allocation이 owner·파일 경계 선언만 요구한 데 비해 이 H2는 지붕 경사면별 파일과, ‘종전의 포장 전체 한 파일 예약’을 보행면·차도·테라스 파일로 나눈 결정을 소스 저작 전에 더함을 대조했다.
 @evidence principles/design/spaces.md#space-topology 포치 아래 대기와 정원문 바깥 대기를 각 연속 포장 owner에 통째로 속하게 하고 관리길의 앞뒤 두 구역도 같은 면 owner를 유지한다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 front-walk 행의 ‘포치 아래 대기를 포함’, terrace 행의 정원문 바깥 대기 포함, site.ts 문단의 관리길 앞뒤 두 구역 단일 owner를 대조해 대기 구역의 포함 관계가 포장 면 하나에 묶임을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 모서리·단차 몸체는 07, 벽 상단은 roof/00, 층간 가장자리는 08, 지상 지지는 10이 배정해도 이 표의 면 소유는 바뀌지 않는다.
 @evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 모서리·단차 몸체는 07, 벽 상단 접촉은 roof/00, 층간 가장자리는 08, 지지 하단은 10 링크로 받으면서 ‘위 표의 입면·지붕·방 표면 소유를 바꾸지 않는다’를 둬 같은 면이 두 번 소유되지 않음을 확인했다.
-@evidence principles/design/spaces.md#space-verification-address 표의 행 수를 면 개수로 쓰지 않고 source 이후 실제 surface id·면 닫힘·누락/중복 census를 요구한다.
-@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 첫 문단의 실제 surface id·면 개수·누락/중복 census 요구, ‘실제 면 닫힘/census는 unverified’, ‘이 표를 전체 대지 표면 census 완료로 읽지 않는다’를 대조해 source 이후 census가 반증 주소임을 확인했다.
+@evidence principles/design/spaces.md#space-verification-address 표의 행 수를 면 개수로 쓰지 않고 현재 spaces part 측정과 후속 model 충전 면 census를 단계별로 구분한다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 현재 spaces 골격의 part 측정과 후속 model 충전 면의 미구현을 본문에서 구분하며 표의 행 수를 전체 표면 수로 읽지 않는지 다시 확인했다.
 @evidence settings/20-verification.md#surface-allocation 외피·층·지붕과 접합을 실제 source 파일 경계로 나누어 첫 저작에 넘긴다.
 @evidenceReview settings/20-verification.md#surface-allocation #aae54d5 surface-allocation의 외부 입면·층 바닥·천장·계단 구멍과 접합 owner 선언을 입면 네 행, floors/ground·upper, 차고 천장, stair 행과 07·08·10 접합 문단에 대조해 첫 저작 전 파일 경계가 정해졌음을 확인했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work surface-allocation의 "여러 소유자의 독립 기준을 허용하지 않는다"를 계산 파일과 면 owner의 분리에 대조했고 공유 계산이 면을 소유하지 않아 부모 수정이 없었다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 surface-allocation의 동일 면 복제·독립 기준 금지를 ‘공유 계산은 경사면을 소유하는 두 번째 geometry가 아니다’와 `boundaries.ts`의 계산 한정에 대조해 settings 문장을 고치지 않고 배정이 성립함을 확인했다.
 @evidence contracts/surface-ownership.md#whole-surface-owner 입면·지붕 경사면·포치·층 바탕·계단·포장·울타리의 각 완결 면을 소스 저작 전에 한 source 파일에 통째로 배정하고 building·junctions·openings·site 계산 파일이 표면을 소유하지 않게 한다.
-@evidenceReview contracts/surface-ownership.md#whole-surface-owner #0e24f29 계약의 한 표면 한 owner와 접합 경계 배정을 표의 파일별 행, ‘부재·반복·마감을 따로 넘기지 않는다’, `openings.ts`는 창/문 geometry의 별도 소유자가 아니라는 문단에 대조해 성립함을 확인했다.
+@evidenceReview contracts/surface-ownership.md#whole-surface-owner #0e24f29 벽 void·reveal 면은 spaces, 독립 경계가 있는 창틀·문짝·외부 trim의 닫힌 부재 면은 models라는 서로 다른 표면 배정을 표와 개구부 인계 문단에 대조했다. 같은 물리 면의 복제는 허용하지 않는다.
 -->
 
-[표면 분해 인계](../settings/20-verification.md#surface-allocation)에 따라 [완결 표면 계약](../contracts/surface-ownership.md#whole-surface-owner)을 첫 소스 저작 전에 적용한다. 아래 표는 작성할 소스 파일의 책임을 예약한다. 담당 저작자는 모두 이 production의 단일 저작자다. 다른 저작자에게 위임하려면 완결 면 하나를 통째로 넘기며 같은 면의 부재·반복·마감을 따로 넘기지 않는다. 현재는 source 파일이 아직 없어 파일 배정 의도이며, 실제 surface id·면 개수·누락/중복 census를 완료한 선언이 아니다.
+[표면 분해 인계](../settings/20-verification.md#surface-allocation)에 따라 [완결 표면 계약](../contracts/surface-ownership.md#whole-surface-owner)을 source 저작에 적용한다. 아래 표는 spaces의 벽·지붕·바탕 파일 책임을 배정한다. 담당 저작자는 모두 이 production의 단일 저작자다. 완결 면 하나를 통째로 넘기며 같은 면의 부재·반복·마감을 따로 넘기지 않는다. spaces의 골격 source와 part 측정은 존재하지만 후속 model 충전 부재는 아직 source가 없으므로 이 표를 전체 surface id·면 개수·누락/중복 census의 완료 선언으로 읽지 않는다.
 
 | 완결 면 또는 공유 경계 | 소스 파일 owner | 책임과 접합 |
 | --- | --- | --- |
@@ -53,9 +53,9 @@
 | 차도에서 테라스 아래까지의 측면 관리 보행면 전체 | `src/spaces/site/side-walk.ts` | [세 띠의 연속 보행면](site/side-walk.md#side-walk-plan)과 경사 접속·gate 양쪽 대기를 통째로 소유한다. |
 | 목재 울타리 전체와 측면 문·기둥 | `src/spaces/site/fence.ts` | [건물 양끝에 닿는 전체 선](site/fence.md#fence-enclosure-plan)과 [문/잔여 패널](site/fence.md#fence-gate-junction), [지표 접촉](site/fence.md#fence-ground-profile)을 소유한다. gate의 void·회전·대기는 관리길 owner에서 소비한다. 실제 maps 포함·접합은 미완료다. |
 
-`src/spaces/building.ts`는 외곽·공유 좌표의 조립 owner이고 완결 입면의 개별 부재를 거대 배열로 직접 저작하지 않는다. 지붕 합류선은 `src/spaces/roof/junctions.ts`에서 [단일 높이/교차 경계](roof/00-junctions.md#roof-shared-edges)를 산출하고 각 경사면 owner가 소비한다. 지붕면별 문서는 같은 이름의 `docs/spaces/roof` 파일에 있다. 공유 계산은 경사면을 소유하는 두 번째 geometry가 아니다. 식과 윤곽의 설계 입력을 작성했지만 위 source 파일들은 아직 없고 실제 면 닫힘/census는 unverified다.
+`src/spaces/building.ts`는 외곽·공유 좌표의 조립 owner이고 완결 입면의 개별 부재를 거대 배열로 직접 저작하지 않는다. 지붕 합류선은 `src/spaces/roof/junctions.ts`에서 [단일 높이/교차 경계](roof/00-junctions.md#roof-shared-edges)를 산출하고 각 경사면 owner가 소비한다. 지붕면별 문서는 같은 이름의 `docs/spaces/roof` 파일에 있다. 공유 계산은 경사면을 소유하는 두 번째 geometry가 아니다. spaces 골격의 실제 측정은 source audit가 맡고, model 충전 뒤의 통합 surface census와 GPU 읽힘은 unverified다.
 
-`src/spaces/openings.ts`의 [공통 개구부 인계](06-openings.md#external-opening-interface)는 좌표 형식과 부재 예약을 공유할 예정이며 창/문 geometry의 별도 소유자가 아니다. 각 완결 입면 owner가 자기 void와 바깥 trim/충전 부재를 소유하고 방 안쪽 owner가 동일 void의 reveal/마감을 받는다. 문짝 유리·창 내부 분할까지 실제 관찰에서 숨기지 않는다.
+`src/spaces/openings.ts`의 [공통 개구부 인계](06-openings.md#external-opening-interface)는 좌표 형식과 부재 예약을 공유하는 계산 경계이며 창/문 geometry의 별도 소유자가 아니다. 각 입면 owner는 벽 몸체·자기 void·벽 절단면을 소유하고 방 안쪽 owner는 동일 void의 실내 reveal/마감을 맡는다. 별도 닫힌 부재인 바깥 trim·창틀·창대·문틀·문짝·유리는 [모델 충전 원형](../models/00-model-frame.md#model-representation-ceiling)이 소유하고 modelSources가 열린 뒤 생성한다. 같은 절단면을 trim으로 다시 덮거나 같은 trim을 입면과 model이 동시에 짓지 않는다. 문짝 유리·창 내부 분할까지 실제 관찰에서 숨기지 않는다.
 
 일반 실내 칸막이의 공통 몸체는 [공유 경계 배정](07-boundary-assembly.md#interior-boundary-ownership)의 단일 source owner가 생성하고 양쪽 room은 자기 완결 마감을 유지한다. `src/spaces/boundaries.ts`는 [교차부·개구부·문턱](07-boundary-assembly.md#interior-boundary-junctions)의 같은 경계를 전달하는 계산 책임만 가지며 별도 벽/마감을 만들지 않는다. 차고 공유 벽과 계단 구조의 기존 소유는 그대로다.
 

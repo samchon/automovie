@@ -65,7 +65,6 @@
 @evidenceExclude spaces/envelope/front.md#front-roof-closures 이 상위 H2는 전면 박공 삼각 벽 폐합을 정하며 모델은 벽을 만들지 않는다.
 @evidenceExclude spaces/envelope/left.md#left-roof-closure 이 상위 H2는 왼쪽 삼각 벽 폐합을 정하며 모델은 벽을 만들지 않는다.
 @evidenceExclude spaces/envelope/rear.md#rear-roof-closures 이 상위 H2는 후면 처마 아래 외벽 폐합을 정하며 모델은 벽을 만들지 않는다.
-@evidenceExclude spaces/envelope/right.md#right-roof-closures 이 상위 H2는 오른쪽 단차 외벽 폐합을 정하며 모델은 벽을 만들지 않는다.
 @evidenceExclude spaces/porch.md#porch-roof-columns 이 상위 H2는 포치 기둥과 지붕을 정하며 모델 H2 어디도 기둥·포치 지붕을 만들지 않는다.
 @evidenceExclude spaces/roof/00-junctions.md#roof-wall-head-junctions 이 상위 H2는 본채와 차고 외벽이 자기 지붕 아래에서 닫히는 벽 상단을 정하며 모델은 외벽 몸체와 그 상단을 만들지 않는다.
 @evidenceExclude spaces/roof/front-gable-left.md#front-gable-left-roof 이 상위 H2는 roof.front-gable.left 면의 날씨 면·아래면·외곽 두께를 src/spaces/roof/front-gable-left.ts에 배정하며 모델은 그 지붕판을 만들지 않는다.
@@ -149,7 +148,7 @@
 
 ## 표현 상한과 보이는 한계 {#model-representation-ceiling}
 <!--
-@evidence principles/core/common.md#scope-preservation 창틀·sash·살대·유리·문짝·문설주·손잡이·경첩·문턱을 두께 있는 별도 부재로 만드는 범위와 웨더스트립·잠금 내부·스프링·나사·이중 유리 공기층을 만들지 않는 범위를 함께 정한다.
+@evidence principles/core/common.md#scope-preservation 창틀·sash·살대·유리·문짝·문설주·손잡이·경첩을 두께 있는 별도 부재로 만드는 범위, spaces가 이미 지은 전후면 문턱은 복제하지 않는 경계, 웨더스트립·잠금 내부·스프링·나사·이중 유리 공기층은 만들지 않는 범위를 함께 정한다.
 @evidence principles/core/common.md#substantive-completion 사각 구멍이나 평면 한 장 대체를 금지하고 검사자가 추론하지 말아야 할 단열·방수·기밀·하중·구조·법규를 열거해 각 모델 H2가 한계를 새로 정할 필요가 없다.
 @evidence principles/core/common.md#declared-basis 상한을 settings/20-verification.md#fidelity의 '단순 blocking이나 topology 통과로 낮추지 않는다'에서 받는다고 링크로 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation fidelity의 '창호·문짝이 실제 캡처에서 읽혀야 한다'를 부재별 두께 있는 형상 목록과 만들지 않는 기구 목록이라는 모델 층 결정으로 바꾼다.

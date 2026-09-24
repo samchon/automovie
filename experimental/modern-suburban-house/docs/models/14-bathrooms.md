@@ -40,7 +40,7 @@
 @evidence principles/core/common.md#substantive-completion 공통 상면 0.85 m, 걸레받이 0.10 m, 상판 0.03 m, W − 0.20 m × D − 0.20 m 타원 절개 아래 0.15 m 깊이의 세면볼, 상판 위 0.20 m 수전을 정해 세 매개변수 쌍에서 형상이 결정된다.
 @evidence principles/core/common.md#declared-basis W·D 세 쌍(0.60/0.45 m, 0.70/0.55 m, 0.85/0.55 m)은 각 방 예약의 X·Z 범위에서 읽은 값이고, 소품을 상판 뒤쪽 0.12 m 띠에 두는 까닭을 세면볼 절개와 수전을 가리지 않기 위해서라고 적는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 세 방 예약의 평면 상자와 상면 높이 위에 걸레받이·수납 몸통·문 전면·상판·매립 세면볼·수전의 부품 분할과 샤워 욕실에서만 켜는 선택 소품이라는 모델 결정을 더한다.
-@evidence principles/design/models.md#representation-contract 부품 여섯과 선택 소품 셋, 세면볼을 열린 그릇으로 두는 음의 공간, 표면 id `plinth`, `carcass`, `leaf`, `countertop`, `ceramic`, `faucet`, `accessory`를 정하고 문은 홈 손잡이의 강체로 둔다.
+@evidence principles/design/models.md#representation-contract 부품 여섯과 선택 소품 셋, 세면볼을 열린 그릇으로 두는 음의 공간, 표면 id `plinth`, `carcass`, `leaf`, `handle`, `countertop`, `ceramic`, `faucet`, `accessory`를 정하고 문은 홈 손잡이의 강체로 둔다.
 @evidence principles/design/models.md#spatial-convention 가구 국소 좌표를 따라 +Z가 사용자가 서는 정면이고, 세면볼은 상판 중심, 수전은 볼 뒤쪽 가장자리, 소품은 상판 뒤쪽 0.12 m 띠라는 배치 오프셋을 준다.
 @evidence principles/design/models.md#reviewable-structure 샤워 욕실 배치에서 세 소품이 볼과 수전 뒤에 보이는지, 세 매개변수 쌍의 평면 외곽이 각 예약과 같은지, 측면에서 상면 0.85 m가 읽히는지가 반증 관찰이다.
 @evidence principles/design/models.md#model-observable-style-basis 라벨 대신 홈 손잡이 문 전면, 타원 절개 매립 볼, 두께 0.03 m 상판이라는 구성 결정을 두고 색·마감은 정하지 않은 채 표면 id로만 남긴다.
@@ -121,12 +121,12 @@
 @evidence principles/core/common.md#declared-basis 왼쪽 통과 폭 0.80 m가 1.25 m에서 포갠 묶음 0.43 m와 벽 쪽 프로파일 0.02 m를 뺀 산술이며 방 문서의 0.80 m 이상 요구와 맞춘 값이라고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 방 문서의 부스 외곽과 0.80 m 이상 통과 폭 요구 위에 세 장 미닫이 유리·세 트랙·오른쪽 끝 포개짐이라는 모델 구성을 더한다.
 @evidence principles/design/models.md#representation-contract 바닥판·오른쪽 고정 유리·위아래 트랙 레일·미닫이 유리 셋·손잡이·수전과 헤드의 부품과 표면 id `shower-tray`, `glass`, `rail`, `handle`, `faucet`을 정하고 나머지 두 면은 방 벽에 맡긴다.
-@evidence principles/design/models.md#spatial-convention 가구 국소 좌표를 yaw 0으로 두어 로컬 +X·+Z가 world +X·+Z이고, 세 패널 피벗은 로컬 +X를 따라 미끄러지며 트랙은 부스 외곽을 넘지 않는다.
+@evidence principles/design/models.md#spatial-convention 가구 국소 좌표를 yaw 0으로 두어 로컬 +X·+Z가 world +X·+Z이고, 뒤벽 수전은 부모 구간을 부스 왼쪽 경계에서 읽은 국소 X=[0.10,0.40] m의 중앙 0.25 m에 놓인다. 세 패널 피벗은 로컬 +X를 따라 미끄러지며 트랙은 부스 외곽을 넘지 않는다.
 @evidence principles/design/models.md#reviewable-structure 닫힘과 최대 열림의 사선 투시에서 패널이 외곽 안에서만 움직이는지와 열린 평면에서 왼쪽 통과 폭 0.80 m가 남는지가 반증 관찰이다.
 @evidence principles/design/models.md#model-observable-style-basis 라벨 대신 세 장이 겹치는 유리 앞면과 가장 왼쪽 패널의 세로 막대 손잡이라는 구성을 정하고 손잡이의 검은 마감은 materials 바인딩으로 넘긴다.
 @evidence principles/design/models.md#model-scale-layer-completion 외곽 1.25 × 1.10 × 2.10 m, 패널 폭 0.43 m, 세 피벗 인터페이스, 물·김 서림·실링 비표현, 닫힘·최대 열림 두 상태 관찰이 함께 부스 블로킹을 결정한다.
-@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 샤워 욕실 예약 X = [0.90, 2.15]·Z = [-8.80, -7.70]·2.10 m와 통과 폭 0.80 m 이상 요구를 그대로 소비했고 포갠 뒤 통과 폭 0.80 m로 요구가 충족되어 부모 수정이 없었다.
-@evidence spaces/rooms/shower-bath.md#shower-fixture-use 샤워 욕실 예약 X = [0.90, 2.15], Z = [-8.80, -7.70], 상층 바닥 위 2.10 m를 부스 외곽으로, 0.80 m 이상 통과 폭을 최대 열림의 목표로 소비한다.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 샤워 욕실의 부스 외곽·높이 2.10 m·통과 폭 0.80 m 이상과 뒤벽 수전 구간을 검토했다. 수전 구간을 부스 왼쪽 경계에서 국소 X=[0.10,0.40] m로 변환한 뒤 중심 0.25 m에 설치하고 최대 열림 통과 폭 0.80 m를 남겨 부모 수정이 없었다.
+@evidence spaces/rooms/shower-bath.md#shower-fixture-use 샤워 욕실 예약의 부스 폭 1.25 m·깊이 1.10 m·높이 2.10 m를 원형 외곽으로, 뒤벽 수전 구간을 부스 왼쪽 경계 기준 국소 X=[0.10,0.40] m로, 0.80 m 이상 통과 폭을 최대 열림의 목표로 소비한다.
 @evidence settings/10-house.md#shower-bathroom 샤워 욕실 설정의 유리 샤워부스와 유리문·검은 금속 손잡이를 미닫이 유리 셋과 세로 막대 손잡이로 표현하고 검은 마감은 materials가 바인딩한다고 넘긴다.
 @evidence obligations/design/models.md#representation-ceiling 이 부스는 물·김 서림·실링을 표현하지 않고 손잡이 마감도 materials에 넘기므로, 리뷰어는 유리 형상에서 물 표현이나 방수 실링을 읽어 내면 안 된다.
 @evidence obligations/design/models.md#articulation-ownership 앞면 세 유리의 피벗 `panel-1`, `panel-2`, `panel-3`가 로컬 +X로 미끄러져 오른쪽 끝에 한 장 폭으로 포개지는 motion 인터페이스이고, 오른쪽 유리는 고정 유리로 둔다.
@@ -136,7 +136,7 @@
 
 샤워부스는 [샤워 욕실 예약](../spaces/rooms/shower-bath.md#shower-fixture-use)의 X = [0.90, 2.15], Z = [-8.80, -7.70], 상층 바닥 위 2.10 m를 외곽으로 받아 폭 1.25 m, 깊이 1.10 m, 높이 2.10 m다. 방 왼쪽 벽과 뒤쪽 벽이 두 면을 이루므로 원형은 앞면과 오른쪽 면만 만든다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르며 yaw 0이므로 로컬 +Z는 world +Z, 로컬 +X는 world +X다.
 
-부품은 바닥판, 오른쪽 고정 유리, 위아래 세 트랙 레일, 미닫이 유리 셋, 손잡이, 샤워 수전과 헤드다. 바닥판은 두께 0.018 m이고 상면은 완성 바닥 위 0.018 m다. 둘레 0.010 m 가장자리를 남기고 내부는 배수구 방향으로 0.004 m 내려가는 평면 네 장으로 나눈다. 오른쪽 고정 유리는 두께 0.008 m, 전체 깊이, 높이 2.10 m다. 앞면 세 유리는 각 폭 0.43 m이며 닫힘에서 0.02 m씩 겹쳐 3 × 0.43 - 2 × 0.02 = 1.25 m를 채운다. 세 패널은 피벗 `panel-1`, `panel-2`, `panel-3`로 로컬 +X를 따라 미끄러져 오른쪽 끝에 한 장 폭으로 포개지고, 포갠 묶음 0.43 m와 벽 쪽 프로파일 0.02 m를 빼면 왼쪽 통과 폭이 [방 문서의 0.80 m 이상](../spaces/rooms/shower-bath.md#shower-fixture-use)과 같은 0.80 m가 된다. 트랙 셋은 각 깊이 0.03 m로 앞면 안쪽 0.09 m에 들어 부스 외곽을 넘지 않는다. 손잡이는 가장 왼쪽 패널의 세로 막대다. 수전은 뒤쪽 벽의 가로 중앙에서 상층 바닥 위 1.05 m, 헤드는 2.05 m에 두어 방 owner의 높이와 맞춘다. 세 트랙은 각각 깊이 0.03 m·높이 0.025 m의 닫힌 직사각 단면이며 전면 안쪽부터 순서대로 놓는다. 세 이동 유리의 두께는 0.008 m, 높이는 바닥판 상면 0.018 m와 아래·위 레일 각 0.025 m를 빼 2.032 m다. 손잡이는 가장 왼쪽 패널 자유단에서 0.04 m 안쪽, 부스 바닥 위 1.00 m 중심의 지름 0.018 m·길이 0.20 m 수직 봉이며 부스 안쪽으로 0.025 m만 돌출한다. 수전은 뒤벽 중앙의 지름 0.08 m·깊이 0.025 m 원판과 지름 0.025 m·길이 0.075 m 토출관, 헤드는 벽에서 0.175 m 뻗은 지름 0.025 m 관 끝의 지름 0.14 m·두께 0.025 m 원판이다. 벽에서 최대 돌출은 수전 0.10 m·헤드 0.20 m의 부모 예약을 넘지 않는다.
+부품은 바닥판, 오른쪽 고정 유리, 위아래 세 트랙 레일, 미닫이 유리 셋, 손잡이, 샤워 수전과 헤드다. 바닥판은 두께 0.018 m이고 상면은 완성 바닥 위 0.018 m다. 둘레 0.010 m 가장자리를 남기고 내부는 배수구 방향으로 0.004 m 내려가는 평면 네 장으로 나눈다. 오른쪽 고정 유리는 두께 0.008 m, 전체 깊이, 높이 2.10 m다. 앞면 세 유리는 각 폭 0.43 m이며 닫힘에서 0.02 m씩 겹쳐 3 × 0.43 - 2 × 0.02 = 1.25 m를 채운다. 세 패널은 피벗 `panel-1`, `panel-2`, `panel-3`로 로컬 +X를 따라 미끄러져 오른쪽 끝에 한 장 폭으로 포개지고, 포갠 묶음 0.43 m와 벽 쪽 프로파일 0.02 m를 빼면 왼쪽 통과 폭이 [방 문서의 0.80 m 이상](../spaces/rooms/shower-bath.md#shower-fixture-use)과 같은 0.80 m가 된다. 트랙 셋은 각 깊이 0.03 m로 앞면 안쪽 0.09 m에 들어 부스 외곽을 넘지 않는다. 손잡이는 가장 왼쪽 패널의 세로 막대다. 수전과 헤드는 [뒤쪽 벽의 수전 예약](../spaces/rooms/shower-bath.md#shower-fixture-use)을 부스 왼쪽 경계에서 국소 X=[0.10,0.40] m로 읽고 그 중앙 X=0.25 m에 둔다. 상층 바닥 위 높이는 각각 1.05·2.05 m다. 세 트랙은 각각 깊이 0.03 m·높이 0.025 m의 닫힌 직사각 단면이며 전면 안쪽부터 순서대로 놓는다. 세 이동 유리의 두께는 0.008 m, 높이는 바닥판 상면 0.018 m와 아래·위 레일 각 0.025 m를 빼 2.032 m다. 손잡이는 가장 왼쪽 패널 자유단에서 0.04 m 안쪽, 부스 바닥 위 1.00 m 중심의 지름 0.018 m·길이 0.20 m 수직 봉이며 부스 안쪽으로 0.025 m만 돌출한다. 수전은 뒤벽 설치 중심의 지름 0.08 m·깊이 0.025 m 원판과 지름 0.025 m·길이 0.075 m 토출관, 헤드는 벽에서 0.175 m 뻗은 지름 0.025 m 관 끝의 지름 0.14 m·두께 0.025 m 원판이다. 벽에서 최대 돌출은 수전 0.10 m·헤드 0.20 m의 부모 예약을 넘지 않는다.
 
 표면 id는 `shower-tray`, `glass`, `rail`, `handle`, `faucet`이며 손잡이의 검은 마감은 materials가 바인딩한다. 물·김 서림·실링은 표현하지 않는다. 소스 owner는 `src/models/furnishings/bathrooms.ts`다. 관찰은 닫힘과 최대 열림의 사선 투시에서 패널이 외곽 안에서만 움직이는지, 열린 평면에서 왼쪽 통과 폭 0.80 m가 남는지다. 모든 관찰은 unverified다.
 
@@ -162,7 +162,7 @@
 
 부품 층은 외피, 앞치마, 가장자리 테, 욕조 속 빈 공간, 수전, 샤워 기둥, 헤드 일곱이다. 국소 X는 긴 방향 [-0.90,0.90] m, Z는 뒤에서 앞까지 [0,0.80] m, Y는 바닥에서 테 위 0.55 m다. 안쪽 구멍은 X=[-0.84,0.84], Z=[0.06,0.74] m이고 바닥은 Y=0.15 m에서 닫혀 바닥 두께가 0.15 m 남는다. 안쪽 평면 네 모서리는 반지름 0.08 m의 사분원을 각 여덟 동일 각도 구간으로 표본화하며 끝 접선은 직선 구간에 잇는다. 테의 수평 띠 폭은 사방 0.06 m, 두께는 Y=[0.52,0.55] m의 0.03 m다. 앞치마는 외피 앞 Z=[0.77,0.80] m를 차지하는 두께 0.03 m의 닫힌 판이고 나머지 외피와 한 경계에서 닿는다. 뒤·양옆·앞의 물받이 벽은 안쪽 구멍과 바깥 외곽 사이의 실체로 남으며, 테와 욕조 속의 윗면·옆면·바닥과 앞치마의 모든 노출 면은 `ceramic`이다.
 
-수전은 뒤쪽 끝 로컬 X=-0.87 m, 가로 중앙 Z=0.40 m, 테 위 0.15 m인 Y=0.70 m에 지름 0.08 m·두께 0.02 m의 원판을 중심으로 둔다. 지름 0.025 m 토출관은 원판에서 욕조 안쪽 +X로 0.12 m 뻗어 끝 X=-0.75 m에 닿는다. 같은 X=-0.87 m에서 지름 0.025 m 샤워 기둥이 Y=0.70–1.875 m로 오르고, 끝에서 +X로 0.18 m 뻗는 같은 지름의 팔이 지름 0.14 m·두께 0.025 m 헤드를 받친다. 헤드의 위끝은 Y=1.90 m, 아래면은 1.875 m다. 원판·관·기둥·팔·헤드의 닫힌 모든 면은 `faucet`이다. 원형은 물·배수·급수관 내부를 만들지 않는다.
+수전은 뒤쪽 끝 로컬 X=-0.87 m, 가로 중앙 Z=0.40 m, 테 위 0.15 m인 Y=0.70 m에 지름 0.08 m·두께 0.02 m의 원판을 중심으로 둔다. 원판 중심과 같은 X·Z의 지름 0.025 m 세로 받침은 테 상면 Y=0.55 m에서 원판 아래면 Y=0.69 m까지 이어져 공중 틈 없이 받친다. 지름 0.025 m 토출관은 원판에서 욕조 안쪽 +X로 0.12 m 뻗어 끝 X=-0.75 m에 닿는다. 같은 X=-0.87 m에서 지름 0.025 m 샤워 기둥이 Y=0.70–1.875 m로 오르고, 끝에서 +X로 0.18 m 뻗는 같은 지름의 팔이 지름 0.14 m·두께 0.025 m 헤드를 받친다. 헤드의 위끝은 Y=1.90 m, 아래면은 1.875 m다. 받침·원판·관·기둥·팔·헤드의 닫힌 모든 면은 `faucet`이다. 원형은 물·배수·급수관 내부를 만들지 않는다.
 
 소스 owner는 `src/models/furnishings/bathrooms.ts`다. 관찰은 측면에서 가장자리 0.55 m, 정면에서 수전이 뒤쪽 끝에 있는지다. 모든 관찰은 unverified다.
 
@@ -217,10 +217,10 @@
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 비어 있는 벽감에 세 높이의 용기와 펌프를 더하되 벽 면을 소품으로 채운 듯 가장하지 않는다.
 @evidence principles/design/models.md#representation-contract 병 몸통 `container`, 뚜껑·펌프 `lid`의 닫힌 면을 나누고 라벨·내용물은 표현하지 않는다.
 @evidence principles/design/models.md#spatial-convention 원점은 벽감 선반 중앙, +Y 위·+Z는 샤워 사용자 쪽이며 위치는 host 벽감에서 instances가 계산한다.
-@evidence principles/design/models.md#reviewable-structure 세 병이 벽감 바깥 0.90 m 방 안쪽 면을 넘지 않는지 단면에서 검사한다.
+@evidence principles/design/models.md#reviewable-structure 세 병의 깊이 중심이 뒤판에서 0.04 m이고 최대 반지름 0.035 m라 벽감 깊이 0.08 m 양끝에 각각 0.005 m를 남기는지 단면에서 검사한다.
 @evidence principles/design/models.md#model-observable-style-basis 크기가 다른 세 수납 병으로 05의 실제 사용하는 욕실 느낌을 내되 색·글자는 materials에 남긴다.
-@evidence principles/design/models.md#model-scale-layer-completion 세 지름·높이·간격·표면 id·UV·host 점유를 결정하고 실제 벽감 geometry는 unverified다.
-@evidence upstream/design/models.md#settings-and-space-revision-from-model-work 샤워 욕실 벽감의 host 좌표와 닫힌 후면 두께가 없어 spaces/rooms/shower-bath.md#shower-fixture-use에 벽감 예약을 추가했다. spaceSources의 실제 벽감 절개는 아직 unverified다.
+@evidence principles/design/models.md#model-scale-layer-completion 세 지름·높이·간격·표면 id·UV·host 점유를 결정한다. spaces의 벽감 절개는 계측됐고, 병 원형의 실제 메시·GPU 읽힘은 unverified다.
+@evidence upstream/design/models.md#settings-and-space-revision-from-model-work 샤워 욕실 벽감의 host 좌표와 닫힌 후면 두께가 없어 spaces/rooms/shower-bath.md#shower-fixture-use에 벽감 예약을 추가했고, 뒤이어 spaceSources가 닫힌 벽감을 지어 part 부피와 열린·비다양체 모서리 0을 계측했다. 병 원형의 실제 메시·GPU 읽힘만 아직 unverified다.
 @evidence spaces/rooms/shower-bath.md#shower-fixture-use 샤워 왼쪽 칸막이 벽감 0.40 × 0.40 × 0.08 m에 세 병을 담는다.
 @evidence obligations/design/models.md#addressable-model-decisions 벽감의 벽 면과 내부 병 면을 다른 분기 owner로 구별한다.
 -->

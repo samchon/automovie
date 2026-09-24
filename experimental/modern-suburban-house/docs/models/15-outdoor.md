@@ -77,7 +77,7 @@
 
 ## asphalt shingle 줄 단면 {#asphalt-shingle-strip}
 <!--
-@evidence principles/core/common.md#scope-preservation 탭 폭·한 장 두께·0.14 m 노출과의 짝·처마/골짜기/용마루 절단과 골짜기·굴뚝 접합의 금속 flashing을 이 H2가 맡고, course 배치·순서·구성원 id는 instances에 남긴다.
+@evidence principles/core/common.md#scope-preservation 탭 폭·한 장 두께·0.14 m 노출과의 짝·처마/골짜기/용마루 절단과 골짜기·굴뚝·차고 지붕/본채 벽 접합의 금속 flashing을 이 H2가 맡고, course 배치·순서·구성원 id는 instances에 남긴다.
 @evidence principles/core/common.md#substantive-completion 줄 길이 1.00 m, 높이 0.30 m, 탭 셋 각 0.330 m, 홈 폭 0.005 m·깊이 0.14 m, 쐐기 두께 0.010→0.002 m, 겹침 0.16 m, 처마 시작 줄·절단면·용마루 캡과 골짜기·굴뚝 flashing 변형까지 수치로 정해 구현자가 단면을 새로 정하지 않는다.
 @evidence principles/core/common.md#declared-basis 줄 높이·탭 폭·두께는 settings와 spaces에 수치가 없어 이 branch의 결정이라고 밝히고, 근거를 "작고 규칙적인 어두운 asphalt shingle의 중첩 결"과 course 노출 0.14 m의 두 겹 덮임으로 적으며 실제 제품 치수 대조는 추론이라고 남긴다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 설정의 작은 중첩 결에 0.14 m 노출, 탭 폭 0.330 m(반 탭 0.165 m), 겹침 0.16 m, 한 course 선마다 약 0.004 m의 butt 단차라는 단면 결정을 더한다.
@@ -85,11 +85,12 @@
 @evidence principles/design/models.md#spatial-convention 원점을 줄 아래 끝(butt) 길이 중심의 밑면에, +X를 줄 길이 방향, +Z를 지붕 면 바깥 법선, +Y를 경사 위쪽(용마루 방향)으로 두는 국소 축을 가구 국소 좌표의 예외로 밝힌다.
 @evidence principles/design/models.md#reviewable-structure 측면 직교 단면의 쐐기와 0.16 m 겹침, 정면의 세 탭·홈과 반 탭 어긋남, 절단면 `shingle-cut`, 용마루 캡의 좌우 대칭을 리뷰에서 반증할 경계로 지목한다.
 @evidence principles/design/models.md#model-observable-style-basis "어두운 asphalt shingle"을 탭 셋의 3-tab 줄, 홈으로 드러나는 세로 결, butt 단차의 가로 결이라는 관찰 결정으로 바꾸고 색은 materials에 남긴다.
-@evidence principles/design/models.md#model-scale-layer-completion 0.14 m 노출과 0.30 m 줄 높이의 척도 관계, 줄·변형·절단의 세 층, shingle 표면 id 넷과 금속 `roof-flashing`, 비표현 한계, 두 관찰이 함께 표현을 정한다.
+@evidence principles/design/models.md#model-scale-layer-completion 0.14 m 노출과 0.30 m 줄 높이의 척도 관계, 줄·변형·절단의 세 층, shingle 표면 id 넷과 금속 `roof-flashing`, 벽 접합 0.15 m 높이, 비표현 한계와 관찰이 함께 표현을 정한다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 지붕 경사 8/12·9/12·7/12·5/12와 날씨 면 함수, 공유 가장자리와 면 분할을 소비하고 0.14 m 노출은 이 원형에서 정했으므로 부모 수정이 필요 없었다.
 @evidence settings/20-verification.md#visual-grammar "지붕은 작고 규칙적인 어두운 asphalt shingle의 중첩 결로 읽힌다"를 탭 폭 0.330 m의 3-tab 줄과 course마다의 butt 단차로 소비한다.
 @evidence spaces/roof/00-junctions.md#roof-profile-datums 날씨 면 함수와 경사 8/12·9/12·7/12·5/12를 줄이 놓일 바탕 평면과 용마루 캡의 좌우 각도로, 아래면 0.24 m 수직 예약을 쐐기 두께 0.010 m가 그 안에 드는 상한으로 소비한다.
 @evidence spaces/roof/00-junctions.md#roof-shared-edges 골짜기·단차·굴뚝 주변의 공유 가장자리 선을 줄 절단과 금속 flashing의 기준선으로 소비하며 flashing 원형을 이 H2가 소유한다.
+@evidence spaces/envelope/right.md#right-roof-closures 차고 지붕이 본채 공유 벽에 닿는 선과 벽 위 0.15 m flashing 예약을 받아 벽/지붕 접합 금속의 국소 절곡 높이로 쓴다.
 @evidence spaces/roof/00-junctions.md#roof-mass-allocation 각 지붕 면의 처마선을 starter 줄과 course 0 butt가 맞춰지는 선으로 소비한다.
 @evidence obligations/design/models.md#representation-ceiling 이 원형은 중첩 결의 기하만 보이며 방수·접착·입자 질감·풍하중 성능을 주장하지 않는다는 한계를 둔다.
 @evidence obligations/design/models.md#articulation-ownership 줄·starter·ridge-cap·roof-flashing 모두 피벗 없는 강체이며 motion이 바꿀 인터페이스가 없다고 밝힌다.
@@ -104,6 +105,8 @@
 단면은 밑면이 바탕 평면에 닿는 쐐기다. 두께는 아래 끝 0.010 m에서 위 끝 0.002 m로 줄어든다. 위 course의 밑면은 같은 바탕 평면에 놓이며 겹친 구간에서 아래 줄과 부피가 교차하는 것을 허용한다. 아래 줄의 두께는 위 course butt 위치(아래 끝에서 0.14 m)에서 0.010 − 0.008 × 0.14 / 0.30 ≈ 0.006 m이므로, course 선마다 약 0.004 m의 butt 단차가 보이는 가로 그림자 선을 만든다. 쐐기 최대 두께 0.010 m는 [지붕 아래면의 수직 예약 0.24 m](../spaces/roof/00-junctions.md#roof-profile-datums) 안에 든다. 날씨 면 함수와 줄 윗면의 높이 맞춤은 instances가 소유한다.
 
 처마와 가장자리에서는 두 변형과 한 연산을 둔다. `starter` 변형은 홈이 없는 같은 단면의 줄이며 [지붕 면 분할](../spaces/roof/00-junctions.md#roof-mass-allocation)의 처마선에 아래 끝을 맞춰 course 0 아래에 한 겹 깐다. 박공 끝, 골짜기, 단차, 굴뚝 주변에서는 줄을 [지붕 공유 가장자리](../spaces/roof/00-junctions.md#roof-shared-edges) 선을 지나는, 지붕 면에 수직한 평면으로 자르고 잘린 면은 `shingle-cut` 표면으로 닫는다. 골짜기에서는 양쪽 면의 course를 공유 골짜기 선에서 양쪽 0.05 m씩 물려 자른다. 그 아래에는 공유 선을 중심으로 양쪽 지붕 면에 각각 폭 0.10 m, 두께 0.003 m의 접힌 금속 `roof-flashing` 한 줄을 놓아 중앙의 총 0.10 m가 노출되고 바깥쪽 각각 0.05 m는 지붕널 아래에 숨는다. 이 줄의 양 끝은 골짜기 선분의 실제 끝에서 끊고, 선분을 따라 이어야 하면 0.04 m 겹친다. 굴뚝 네 접면에서는 공유 절단 윤곽을 따라 지붕 위 폭 0.12 m·굴뚝 위 높이 0.08 m·두께 0.003 m로 꺾은 금속 띠를 두고, 네 모서리는 0.04 m 겹침으로 연결한다. 굴뚝 띠는 지붕널 절단면 아래에 0.06 m 이상 물리고 벽돌 면에 닿으며 굴뚝이나 지붕 구조를 다시 만들지 않는다. 금속 두께 0.003 m가 지붕널과 관통하지 않도록, 지붕널의 금속 위 피복 구간에서는 그 밑면을 바탕 면 법선 방향으로 0.003 m 들어 올리고 금속 바깥 끝에서 0.02 m에 걸쳐 높이 0으로 선형 연결한다. 이 국소 높이 조정은 골짜기 양쪽 절단선과 굴뚝 윤곽을 바꾸지 않는다. 골짜기 선분·굴뚝 윤곽의 길이와 회전은 spaces의 공유 경계에서 instances가 도출한다. 용마루에서는 마지막 course를 용마루 선에서 자르고 `ridge-cap` 변형으로 덮는다. `ridge-cap`은 폭 0.330 m, 길이 0.30 m의 탭 한 장을 용마루 선에서 두 지붕 경사 각도로 좌우 대칭으로 꺾은 판이다. 용마루 방향 노출은 0.14 m이고 두께는 0.006 m로 균일하다.
+
+차고 지붕과 본채 공유 벽의 접촉선에는 [오른쪽 입면 예약](../spaces/envelope/right.md#right-roof-closures)의 벽 위 0.15 m를 소비하는 L형 금속 후레싱을 둔다. 원점은 공유 접촉선의 앞 끝, 국소 U는 선의 접선, V는 지붕 면에서 아래쪽, N은 벽에서 지붕 쪽이다. 벽 쪽 다리는 접촉선에서 높이 0.15 m, 지붕 쪽 다리는 지붕 면을 따라 폭 0.12 m이고 두께는 모두 0.003 m다. 지붕 쪽 다리의 바깥 0.06 m는 지붕널 아래에, 안쪽 0.06 m는 노출시키며, 금속 위 지붕널의 밑면은 기존 골짜기·굴뚝 규칙과 같이 법선으로 0.003 m 들어 올린 뒤 금속 바깥 끝에서 0.02 m에 걸쳐 원래 면으로 되돌린다. 절곡부는 두 다리와 같은 금속 한 장의 연속 면이며 벽 접촉선 길이와 회전은 spaces의 선에서 instances가 산출한다. 양 끝은 접촉선 끝에서 끊고 연결이 필요할 때만 길이 방향으로 0.04 m 겹친다. 벽 몸체와 지붕 구조는 복제하지 않으며 금속 앞·뒤·절단 끝의 모든 면은 기존 roof-flashing id를 쓴다. 실제 방수 성능은 주장하지 않는다.
 
 표면 id는 `shingle-face`, `shingle-butt`(아래 끝 두께 면), `shingle-back`, `shingle-cut`이고, 접힌 금속 띠의 앞·뒤·절단 끝은 모두 `roof-flashing`이며 지붕널 네 id의 어두운 결은 [shingle 재료](../materials/01-exterior.md#roof-shingle)가, 금속 `roof-flashing`은 [charcoal 금속](../materials/01-exterior.md#window-frame-charcoal)이 바인딩한다. 모든 변형은 피벗이 없는 강체다. 못·접착 띠·입자 질감·방수와 풍하중 성능은 표현하지 않는다. 소스 owner는 `src/models/exterior/shingle.ts`다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 측면 직교 단면에서 쐐기와 0.16 m 겹침, 0.004 m 단차가 보이는지, 정면에서 세 탭과 홈의 반 탭 어긋남이 규칙적인 결로 읽히는지, 용마루 캡이 두 경사에 좌우 대칭으로 앉는지다. 모든 관찰은 unverified다.
 

@@ -20,7 +20,7 @@
 
 레퍼런스 04 현관과 05 상층 복도의 얕은 천장등을 채택한다. 방별 광량은 기구 몸체가 아닌 systems가 결정한다.
 
-천장면에 붙는 평판 기구는 [실내 조명 할당](../systems/02-interior-fixtures.md#interior-ground-ceiling)이 넘긴 몸체 원형이다. 반복 수와 위치는 후속 배치가 맡고 빛의 색·강도는 systems가 맡는다. 일반 방은 지름 D = 0.24 m, 차고는 D = 0.40 m다. 국소 원점은 천장 접촉면 중앙이고 기구 전체는 그 면 아래 0.05 m 안에 든다. 천장 접합판은 지름 0.70D·두께 0.008 m, 외장 16각 링은 외경 D·내경 D − 0.04 m·두께 0.035 m, 확산판은 내경에 맞는 16각 원판·두께 0.012 m다. 확산판 아래면은 천장 아래 0.05 m이며 링 아래면과 같은 높이다. 각 닫힌 부품의 모든 면에 외장은 `fixture-housing`, 확산판은 `fixture-diffuser`를 부여한다. 위·아래 면 UV는 국소 X·Z, 세로 면은 둘레 거리 U·높이 V를 미터로 둔다. 광원은 기구 중심 안쪽에 systems가 배치하며 전선과 광학 복사는 이 메시의 주장이 아니다. 소스 owner는 `src/models/lighting-fixtures.ts`다. [고정 뷰](00-model-frame.md#model-review-set)의 측면과 실내 관찰에서 판이 천장과 만나는지 확인한다. 실제 렌더는 unverified다.
+천장면에 붙는 평판 기구는 [실내 조명 할당](../systems/02-interior-fixtures.md#interior-ground-ceiling)이 넘긴 몸체 원형이다. 반복 수와 위치는 후속 배치가 맡고 빛의 색·강도는 systems가 맡는다. 일반 방은 지름 D = 0.24 m, 차고는 D = 0.40 m다. 국소 원점은 천장 접촉면 중앙이고 +Y가 천장 위쪽이며 기구 전체는 Y = [-0.05, 0] m 안에 든다. 천장 접합판은 지름 0.70D·두께 0.008 m로 Y = [-0.008, 0] m에 두고, 외장 16각 링은 외경 D·내경 D − 0.04 m·높이 0.035 m로 Y = [-0.05, -0.015] m에 둔다. 링 윗면에는 외경 D·두께 0.005 m의 16각 연결판을 Y = [-0.020, -0.015] m에 놓고, 연결판과 접합판 사이에는 지름 0.70D의 16각 목을 Y = [-0.015, -0.008] m에 이어 모든 부재가 닿게 한다. 확산판은 내경에 맞는 16각 원판·두께 0.012 m이고 Y = [-0.05, -0.038] m라 링 아래면과 같은 높이다. 접합판·목·링의 닫힌 모든 면은 `fixture-housing`, 확산판은 `fixture-diffuser`를 부여한다. 위·아래 면 UV는 국소 X·Z, 세로 면은 둘레 거리 U·높이 V를 미터로 둔다. 광원은 기구 중심 안쪽에 systems가 배치하며 전선과 광학 복사는 이 메시의 주장이 아니다. 소스 owner는 `src/models/lighting-fixtures.ts`다. [고정 뷰](00-model-frame.md#model-review-set)의 측면과 실내 관찰에서 판이 천장과 만나는지 확인한다. 실제 렌더는 unverified다.
 
 ## 섬과 식탁의 매단 등 {#pendant-fixtures}
 <!--
@@ -69,12 +69,12 @@
 ## 포치 문 옆의 벽등 {#porch-wall-sconce}
 <!--
 @evidence principles/core/common.md#scope-preservation 포치 현관문 옆 벽등 몸체만 맡고 광원의 낮 기준 상태·위치는 systems와 instances에 남긴다.
-@evidence principles/core/common.md#substantive-completion 벽판 0.10 × 0.18 m, 등 외경 0.14 m, 돌출 0.10 m와 세 표면 id를 정한다.
+@evidence principles/core/common.md#substantive-completion 벽판 0.10 × 0.18 m, 갓 아래 외경 0.14 m와 앞 돌출 0.015 + 0.015 + 0.14 = 0.17 m, 세 표면 id를 정한다.
 @evidence principles/core/common.md#declared-basis settings/10-house.md#porch-entry와 systems/03-exterior-fixtures.md#exterior-porch-sconce의 문 옆 기구 인계를 받는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 포치 천장이나 차고에 등을 늘리지 않고 문 옆 한 기구의 세로 벽판·투명 갓을 정한다.
 @evidence principles/design/models.md#representation-contract 닫힌 벽판·짧은 목·갓을 별도 부피로 만들며 `fixture-housing`·`fixture-stem`·`fixture-glass`로 모든 면을 덮는다.
 @evidence principles/design/models.md#spatial-convention 원점은 외벽 접점 중앙, +Z는 포치 바깥, +Y는 위이고 문짝 열림은 벽 안쪽이다.
-@evidence principles/design/models.md#reviewable-structure 포치 정면과 측면에서 문틀 비접촉, 0.10 m 돌출, 꺼진 낮 상태의 기구 실루엣을 확인한다.
+@evidence principles/design/models.md#reviewable-structure 포치 정면과 측면에서 문틀 비접촉, 벽판·목·갓이 더해진 0.17 m 돌출, 꺼진 낮 상태의 기구 실루엣을 확인한다.
 @evidence principles/design/models.md#model-observable-style-basis 세로 금속판과 짧은 목에 매달린 8각 갓으로 레퍼런스 01의 작은 현관 벽등을 읽히게 한다.
 @evidence principles/design/models.md#model-scale-layer-completion 벽판·목·갓의 치수·id·UV·원점·검사 뷰를 정한다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 포치 유효 깊이와 현관문 거친 개구부를 소비하고 벽등을 위해 포치나 문을 수정하지 않는다.
@@ -85,4 +85,4 @@
 
 레퍼런스 01의 현관문 왼쪽 작은 검은 벽등을 채택한다. 갓 안의 빛과 해 질 녘 밝기는 systems가 정하고 기구 원형은 실제 두께와 돌출만 정한다.
 
-[포치 설정](../settings/10-house.md#porch-entry)의 문 옆 벽등은 낮에 광원이 꺼져도 기구 형상이 남는다. 국소 원점은 외벽 접점 중앙, +Z는 포치 쪽이다. 벽판은 폭 0.10 m·높이 0.18 m·두께 0.015 m, 앞쪽 목은 지름 0.025 m·길이 0.015 m, 8각 갓은 위 지름 0.10 m·아래 지름 0.14 m·높이 0.20 m다. 갓의 가장 앞점은 벽에서 0.10 m다. 벽판 모든 면은 `fixture-housing`, 목은 `fixture-stem`, 갓은 `fixture-glass`이고 면 UV는 X·Y 또는 둘레 U·높이 V를 미터로 둔다. 문은 실내로 열려 기구와 겹치지 않는다. 광원 기준 상태와 위치는 systems·instances가 맡는다. 소스 owner는 `src/models/lighting-fixtures.ts`; 실제 포치 캡처는 unverified다.
+[포치 설정](../settings/10-house.md#porch-entry)의 문 옆 벽등은 낮에 광원이 꺼져도 기구 형상이 남는다. 국소 원점은 외벽 접점 중앙, +Z는 포치 쪽이다. 벽판은 폭 0.10 m·높이 0.18 m·두께 0.015 m, 앞쪽 목은 지름 0.025 m·길이 0.015 m, 8각 갓은 위 지름 0.10 m·아래 지름 0.14 m·높이 0.20 m다. 갓의 뒤쪽 면은 벽에서 0.030 m(벽판 0.015 + 목 0.015)에 시작하며 갓의 앞뒤 깊이는 아래 지름과 같은 0.14 m라 가장 앞점은 0.030 + 0.14 = 0.17 m다. 벽판 모든 면은 `fixture-housing`, 목은 `fixture-stem`, 갓은 `fixture-glass`이고 면 UV는 X·Y 또는 둘레 U·높이 V를 미터로 둔다. 문은 실내로 열려 기구와 겹치지 않는다. 광원 기준 상태와 위치는 systems·instances가 맡는다. 소스 owner는 `src/models/lighting-fixtures.ts`; 실제 포치 캡처는 unverified다.

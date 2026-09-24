@@ -3,7 +3,7 @@
 ## 드럼 세탁기와 건조기 {#laundry-machine}
 <!--
 @evidence principles/core/common.md#scope-preservation 세탁기·건조기 한 원형의 두 변형만 맡아 몸통·원형 문·손잡이·조작 띠를 정하고 드럼 회전·세제함·배관은 표현하지 않는다고 범위를 닫는다.
-@evidence principles/core/common.md#substantive-completion 몸통 깊이 0.72 m, 문 지름 0.45 m·중심 높이 0.42 m, 조작 띠 Y = [0.76, 0.86]을 수치로 정해 구현자가 기기 치수를 새로 고를 일이 없다.
+@evidence principles/core/common.md#substantive-completion 몸통 깊이 0.72 m, 문 지름 0.45 m·중심 높이 0.42 m, 드럼 지름 0.36 m·깊이 0.06 m, 조작 띠 Y = [0.76, 0.86]과 왼쪽 경첩 축을 본문에서 확정한다.
 @evidence principles/core/common.md#declared-basis 외곽 깊이 0.75 m·폭 0.65 m·높이 0.88 m는 세탁 작업 예약의 두 기기 범위에서 읽은 값이고 문 90° 돌출 0.48 m는 0.45 m와 0.03 m의 산술이라고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 공간 예약이 준 기기 외곽 위에 원형 문 경첩 피벗 `door`, 몸통 0.72 m와 문·손잡이 0.03 m의 깊이 분할, 조작 띠 표시로만 다른 두 변형이라는 모델 결정을 더한다.
 @evidence principles/design/models.md#representation-contract 부품을 몸통·원형 문·문 손잡이·조작 띠로, 표면 owner를 `appliance-body`, `leaf`, `door-ring`, `glass`, `handle`, `control-panel`, `appliance-interior`, `drum`로 정하고 드럼 회전·세제함·배관은 이 proxy가 표현하지 않는 것으로 둔다.
@@ -23,7 +23,7 @@
 
 세탁기와 건조기는 조작 판 표시만 다른 한 원형의 두 변형이다. [세탁 작업 예약](../spaces/rooms/laundry.md#laundry-equipment-use)의 세탁기 X = [4.75, 5.50], Z = [-3.35, -2.70]과 건조기 X = [4.75, 5.50], Z = [-2.70, -2.05]가 모두 깊이 0.75 m, 폭 0.65 m, Y = [0, 0.88]이므로 외곽을 그 값으로 둔다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르며 +Z가 문 전면이며 배치에서 world -X를 향한다.
 
-부품은 몸통, 원형 문, 문 손잡이, 조작 띠다. 몸통 깊이는 0.72 m이고 닫힌 문의 판·고리·유리와 손잡이는 모두 그 전면에서 0.03 m 안에 들어가 외곽 깊이 0.75 m를 채운다. 문의 `leaf` 원판은 지름 0.45 m·두께 0.018 m, 전면의 `door-ring`은 외경 0.45 m·방사 폭 0.025 m·두께 0.004 m, 안쪽 `glass`는 지름 0.39 m·두께 0.004 m다. 고리 안경 0.40 m와 유리 바깥 사이의 방사 틈 0.005 m는 `leaf` 받침이 덮고, 손잡이는 문 전면에서 0.012 m 돌출하여 몸통 전면에서 최대 0.03 m다. 원형 문은 지름 0.45 m, 중심 높이 0.42 m이며 한쪽 세로 접선의 경첩 피벗 `door`로 +Z 쪽으로 최대 90° 연다. 90° 열림의 돌출 0.45 m와 손잡이 0.03 m의 합 0.48 m가 [문 작동 예약 X = [4.25, 4.75]](../spaces/rooms/laundry.md#laundry-equipment-use)의 0.50 m 안에 든다. 조작 띠는 Y = [0.76, 0.86]의 전면 띠다. 재질 경계는 `appliance-body`, `leaf`, `door-ring`, `glass`, `handle`, `control-panel`, `appliance-interior`, `drum`이다. 원형 문의 불투명 외측 판은 `leaf`, 지름 0.45 m 둘레 폭 0.025 m의 금속 고리는 `door-ring`, 안쪽 지름 0.39 m의 유리 뒤 0.06 m에는 움직이지 않는 얕은 원통 `drum`을 둔다. 드럼 회전·세제함·배관은 표현하지 않는다.
+부품은 몸통, 원형 문, 문 손잡이, 조작 띠다. 몸통 깊이는 0.72 m이고 닫힌 문의 판·고리·유리와 손잡이는 모두 그 전면에서 0.03 m 안에 들어가 외곽 깊이 0.75 m를 채운다. 문의 `leaf` 원판은 지름 0.45 m·두께 0.018 m, 전면의 `door-ring`은 외경 0.45 m·방사 폭 0.025 m·두께 0.004 m, 안쪽 `glass`는 지름 0.39 m·두께 0.004 m다. 고리 안경 0.40 m와 유리 바깥 사이의 방사 틈 0.005 m는 `leaf` 받침이 덮고, 손잡이는 문 전면에서 0.012 m 돌출하여 몸통 전면에서 최대 0.03 m다. 원형 문은 지름 0.45 m, 중심 높이 0.42 m이며 정면에서 왼쪽인 로컬 -X 접선의 수직 경첩 피벗 `door`로 +Z 쪽으로 최대 90° 연다. 90° 열림의 돌출 0.45 m와 손잡이 0.03 m의 합 0.48 m가 [문 작동 예약 X = [4.25, 4.75]](../spaces/rooms/laundry.md#laundry-equipment-use)의 0.50 m 안에 든다. 조작 띠는 Y = [0.76, 0.86]의 전면 띠다. 재질 경계는 `appliance-body`, `leaf`, `door-ring`, `glass`, `handle`, `control-panel`, `appliance-interior`, `drum`이다. 원형 문의 불투명 외측 판은 `leaf`, 지름 0.45 m 둘레 폭 0.025 m의 금속 고리는 `door-ring`, 유리 뒤 0.06 m에 고정한 드럼은 외경 0.36 m·깊이 0.06 m·벽 두께 0.006 m의 앞이 열린 16각 원통으로 두고 노출된 둘레·뒤판을 각각 `drum`과 `appliance-interior`로 덮는다. 드럼 회전·세제함·배관은 표현하지 않는다.
 
 소스 owner는 `src/models/furnishings/service-rooms.ts`다. 관찰은 정면에서 두 기기가 같은 몸통과 다른 조작 띠 표시로 구분되는지, 문 90° 평면에서 손잡이 끝이 X = 4.25 m에 닿지 않는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
 

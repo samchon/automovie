@@ -134,10 +134,10 @@
 
 ## 오른쪽 가족실의 좌석과 창 접근 {#common-family-reservation}
 <!--
-@evidence principles/core/common.md#scope-preservation 가족실 소파와 낮은 테이블, 두 창의 하부 접근, 측면 통로, 후속 소품의 책임을 맡는다.
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 소파 X = [3.25, 5.35]와 테이블 X = [3.40, 4.50] 예약, 두 창 하부·창대 접근, 테이블 오른쪽 측면 통로, 러그·조명·소품의 후속 저작 배정이 각각 적혀 누락이 없음을 확인했다.
-@evidence principles/core/common.md#substantive-completion 소파 최대 점유 X = [3.25, 5.35] m·Z = -7.15 m부터 앞쪽 안쪽 면·높이 0.90 m, 테이블 X = [3.40, 4.50], Z = [-8.35, -7.80] m·높이 0.42 m를 정한다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 소파 Z = -7.15 m부터 앞쪽 안쪽 면·높이 0.90 m, 테이블 Z = [-8.35, -7.80]·높이 0.42 m와 -Z 방향이 정해져 models가 가족실 배치를 새로 정할 필요가 없음을 확인했다.
+@evidence principles/core/common.md#scope-preservation 가족실 소파·낮은 테이블·러그, 두 창의 하부 접근, 측면 통로, 후속 조명과 소품의 책임을 맡는다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 소파 X = [3.25, 5.35], 테이블 X = [3.40, 4.50], 러그 X = [3.00, 4.55] 예약과 두 창 접근·측면 통로·후속 원형 배정이 본문에 각각 있는지 다시 대조했다.
+@evidence principles/core/common.md#substantive-completion 소파 최대 점유 X = [3.25, 5.35] m·Z = -7.15 m부터 앞쪽 안쪽 면·높이 0.90 m, 테이블 X = [3.40, 4.50], Z = [-8.35, -7.80] m·높이 0.42 m, 러그 X = [3.00, 4.55], Z = [-8.55, -6.85] m를 정한다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 소파·테이블·러그의 세 예약과 러그 오른쪽 5.50−4.55 = 0.95 m 잔여 폭을 본문 값으로 다시 대조했다. 모델은 러그의 크기와 두께만 이 범위에서 받는다.
 @evidence principles/core/common.md#declared-basis 소파 뒤쪽 면은 기존 팬트리와의 닫힌 경계, 통로 목표는 0.90 m, 창대 돌출은 06에서 받는다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 소파 뒤쪽 면을 plan H2의 팬트리 닫힌 경계, 0.90 m를 use-profile 연속 통로 목표, 창대/손잡이 돌출을 06-openings.md#external-opening-interface에서 받아 각 값의 근거를 가리킬 수 있음을 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 가족실의 소파와 낮은 테이블을 -Z 정원/창 쪽을 향하게 두고 테이블 오른쪽으로 창에 돌아갈 공간을 남기는 배치를 더한다.
@@ -154,7 +154,7 @@
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 설정 common-room 우측 가족실과 use-profile 0.90 m를 테이블 X = 4.50부터 방 안쪽 5.50까지의 창 쪽 통로와 커튼·소품 이후 폭 유지 조건에 적용해 부모 수정이 필요 없음을 확인했다.
 -->
 
-가족실은 같은 공용부의 오른쪽이며 [설정](../../settings/10-house.md#common-room)이 요구한 소파와 낮은 테이블을 둔다. 소파의 최대 점유는 X = [3.25, 5.35] m, Z는 -7.15 m에서 [공용부 앞쪽 안쪽 면](#common-room-plan)까지, 높이 0.90 m로 하고 -Z의 정원/창 쪽을 향한다. 뒤쪽 면은 기존 팬트리와의 닫힌 경계에 닿으며 방 앞쪽에 별도 벽을 세우지 않는다. 낮은 테이블은 X = [3.40, 4.50], Z = [-8.35, -7.80] m, 높이 0.42 m의 예약이다. 둘 사이 여유는 앉고 일어나는 자리이며 주 통과 경로를 그 사이에만 두지 않는다.
+가족실은 같은 공용부의 오른쪽이며 [설정](../../settings/10-house.md#common-room)이 요구한 소파와 낮은 테이블을 둔다. 소파의 최대 점유는 X = [3.25, 5.35] m, Z는 -7.15 m에서 [공용부 앞쪽 안쪽 면](#common-room-plan)까지, 높이 0.90 m로 하고 -Z의 정원/창 쪽을 향한다. 뒤쪽 면은 기존 팬트리와의 닫힌 경계에 닿으며 방 앞쪽에 별도 벽을 세우지 않는다. 낮은 테이블은 X = [3.40, 4.50], Z = [-8.35, -7.80] m, 높이 0.42 m의 예약이다. 러그의 공간 예약은 X = [3.00, 4.55], Z = [-8.55, -6.85] m다. 이는 테이블을 덮고 소파 앞끝 Z = -7.15 m보다 뒤로 0.30 m 들어가며, 오른쪽 실내 면 X = 5.50 m까지 0.95 m를 남긴다. 둘 사이 여유는 앉고 일어나는 자리이며 주 통과 경로를 그 사이에만 두지 않는다.
 
 [family-rear-window](../envelope/rear.md#family-rear-window)와 [family-right-window](../envelope/right.md#family-right-window)의 하부와 창대 접근을 높은 책장/스크린으로 막지 않는다. 소파 왼쪽은 중앙의 주 경로에서 접근하고 테이블의 오른쪽으로는 창 쪽으로 돌아갈 공간을 남긴다. [창대/손잡이 돌출](../06-openings.md#external-opening-interface)을 포함해 이 측면의 통로 폭을 읽고 커튼·걸레받이·소품 이후에도 [연속 통로 폭 목표](../../settings/00-production.md#use-profile)인 0.90 m를 유지한다. 별도 벽/문/방 id를 만들거나 소파를 식당 의자로 대신하지 않는다.
 
