@@ -163,7 +163,8 @@ export function faceLikenessCheekColour(
  * Iris of one refined-iris group: the annulus between 0.35 and 0.9 of the
  * rim radius (outside the pupil, inside the limbus), restricted to the lid
  * aperture of whichever eye contour contains the iris centre. Null when the
- * centre lies in neither aperture (a closed or undetected eye).
+ * centre lies in neither aperture (a closed or undetected eye); the colour is
+ * null when the lids hide more than half of the annulus.
  */
 export function faceLikenessIrisColour(
   image: IFaceLikenessImage,
@@ -173,6 +174,20 @@ export function faceLikenessIrisColour(
   const eye = locateEye(points, group);
   if (eye === null) return null;
   const { side, aperture, cx, cy, radius } = eye;
+  // An iris the lids hide more than they show is sampled as lid and lash:
+  // with less than half of its annulus inside the aperture there is no
+  // iris sample (open eyes show 0.53 to 0.89 of it in the population's
+  // photographs; a laughing squint 0.18).
+  let annulus = 0;
+  let seen = 0;
+  for (let y = Math.floor(cy - radius); y < Math.ceil(cy + radius); ++y)
+    for (let x = Math.floor(cx - radius); x < Math.ceil(cx + radius); ++x) {
+      const r = Math.hypot(x + 0.5 - cx, y + 0.5 - cy);
+      if (r < 0.35 * radius || r > 0.9 * radius) continue;
+      ++annulus;
+      if (faceLikenessInsidePolygon(aperture, x + 0.5, y + 0.5)) ++seen;
+    }
+  if (annulus === 0 || seen < annulus / 2) return { side, colour: null };
   return {
     side,
     colour: faceLikenessSampleColour(

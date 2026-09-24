@@ -36,7 +36,9 @@ const labClose = (
  *    iris colour inside their apertures and are assigned to the eye that
  *    contains them, and the hair sample reads only hair pixels.
  * 3. A cheek disc fully covered by excluded hair and an iris whose centre
- *    lies outside both apertures return missing observations.
+ *    lies outside both apertures return missing observations; an iris whose
+ *    rim is three times as wide, so that the lids cover most of its annulus,
+ *    keeps its side and gives no colour.
  * 4. Malformed pixels and frames that differ from the image refuse.
  * 5. The even-odd polygon test accepts an interior point and rejects an
  *    exterior one.
@@ -109,6 +111,21 @@ export const test_subject_face_likeness_colour = (): void => {
     "iris outside apertures",
     faceLikenessIrisColour(image, wandering, 0),
     null,
+  );
+  const centre = points[468]!;
+  const hidden = points.map(
+    (point, index): FaceLikenessPoint =>
+      index >= 469 && index <= 472
+        ? [
+            centre[0] + 3 * (point[0] - centre[0]),
+            centre[1] + 3 * (point[1] - centre[1]),
+          ]
+        : point,
+  );
+  const covered = faceLikenessIrisColour(image, hidden, 0)!;
+  TestValidator.predicate(
+    "iris under the lids",
+    covered.side === "right" && covered.colour === null,
   );
 
   TestValidator.predicate(

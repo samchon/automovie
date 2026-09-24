@@ -8,8 +8,10 @@
  * `subjects.json`. For every measured subject the photograph's median iris
  * (both eyes averaged in CIELAB) and cheek colours and the document's own
  * `materials.skin` albedo go through `fitFaceLikenessIrisPigment`, and the
- * same pigment, rounded to five decimals, is written to both eyes. A subject that was not measured, or
- * whose photograph lacks either sample, keeps its document unchanged. The
+ * same pigment, rounded to five decimals, is written to both eyes. A subject
+ * that was not measured keeps its document unchanged; one whose photograph
+ * shows no iris (the lids over more than half of both, or no cheek) loses
+ * its pigment and takes the basis's own eye. The
  * documents are rewritten in place unless OUTPUT is given; every other field
  * is preserved. The printed table is the fit's record.
  */
@@ -71,7 +73,12 @@ for (const row of receipt.subjects) {
     skin: [skin.r, skin.g, skin.b],
   });
   if (fit === null) {
-    console.log(row.subject, "unchanged", "photograph sample missing");
+    // No iris in the photograph (lids over more than half of it, or a
+    // missing cheek): nothing of this person's iris is known, so the
+    // document falls back to the basis's own eye rather than keep a pigment
+    // an earlier sample gave.
+    delete (document as { iris?: unknown }).iris;
+    console.log(row.subject, "basis iris", "photograph sample missing");
     continue;
   }
   // Five decimals of linear reflectance are far below one 8-bit sRGB step
