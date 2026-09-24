@@ -5,7 +5,7 @@
  * 한계: 외개 문짝 반대면의 세로 널 이음 홈(0.01×0.004m)은 이 표현에서 만들지 않는다.
  */
 import type { IAutoMovieMesh, IAutoMovieModel } from "@automovie/interface";
-import { box, frustum, merged, model, part, TriangleSink, vec } from "./mesh-kit";
+import { box, boxUnion, frustum, merged, model, part, TriangleSink, vec } from "./mesh-kit";
 
 /** 원환(고리 손잡이). 중심 (0,0,0), 고리 평면은 XY, 바깥 반지름 outer, 굵기 tube. */
 const ring = (outer: number, tube: number): IAutoMovieMesh => {
@@ -30,7 +30,7 @@ const ring = (outer: number, tube: number): IAutoMovieMesh => {
   return sink.mesh();
 };
 
-/** 원통을 X축 방향으로 눕힌 짧은 막대 대신 Y축 원통(경첩 핀). */
+/** Y축 원통(경첩 핀). */
 const pin = (x: number, y: number, z: number, radius: number, height: number): IAutoMovieMesh => {
   const mesh = frustum(radius, radius, y, y + height, 12);
   const positions = mesh.positions.map((value, i) => i % 3 === 0 ? value + x : i % 3 === 2 ? value + z : value);
@@ -46,25 +46,23 @@ const ringAt = (x: number, y: number, z: number, outer: number, tube: number): I
 /** 석재 문틀: 벽 두께 안감 세 조각과 양면 테. */
 export const doorFrameModel = (width: number, height: number, depth: number): IAutoMovieModel => {
   const w = width / 2, t = depth / 2, j = 0.06, s = 0.16, p = 0.03;
-  const lining = merged([
-    box(-w - j, -w, 0, height + j, -t, t), box(w, w + j, 0, height + j, -t, t), box(-w, w, height, height + j, -t, t),
+  const lining = boxUnion([[-w - j, -w, 0, height + j, -t, t], [w, w + j, 0, height + j, -t, t], [-w, w, height, height + j, -t, t]]);
+  const face = (z0: number, z1: number) => boxUnion([
+    [-w - j - s, -w - j, 0, height + j, z0, z1], [w + j, w + j + s, 0, height + j, z0, z1],
+    [-w - j - s, w + j + s, height + j, height + j + s, z0, z1],
   ]);
-  const face = (z0: number, z1: number) => [
-    box(-w - j - s, -w - j, 0, height + j, z0, z1), box(w + j, w + j + s, 0, height + j, z0, z1),
-    box(-w - j - s, w + j + s, height + j, height + j + s, z0, z1),
-  ];
   return model(`model.door-frame.${Math.round(width * 100)}x${Math.round(height * 100)}x${Math.round(depth * 100)}`, "door-frame", [
     part("surface.door-frame.lining", lining),
-    part("surface.door-frame.surround", merged([...face(t, t + p), ...face(-t - p, -t)])),
+    part("surface.door-frame.surround", merged([face(t, t + p), face(-t - p, -t)])),
   ]);
 };
 
 /** 양개 문짝 한 짝: 선대·가로대 테두리, 들어간 두 판, 양면 고리 손잡이, 핀 경첩 둘. */
 export const doubleLeafModel = (leafWidth: number, clearHeight: number): IAutoMovieModel => {
   const W = leafWidth, H = clearHeight, T = 0.05, y0 = 0.01;
-  const frame = merged([
-    box(0, 0.1, y0, H, -T, 0), box(W - 0.1, W, y0, H, -T, 0),
-    box(0.1, W - 0.1, H - 0.1, H, -T, 0), box(0.1, W - 0.1, 1.0, 1.1, -T, 0), box(0.1, W - 0.1, y0, y0 + 0.16, -T, 0),
+  const frame = boxUnion([
+    [0, 0.1, y0, H, -T, 0], [W - 0.1, W, y0, H, -T, 0],
+    [0.1, W - 0.1, H - 0.1, H, -T, 0], [0.1, W - 0.1, 1.0, 1.1, -T, 0], [0.1, W - 0.1, y0, y0 + 0.16, -T, 0],
   ]);
   const panel = merged([box(0.1, W - 0.1, y0 + 0.16, 1.0, -0.035, -0.015), box(0.1, W - 0.1, 1.1, H - 0.1, -0.035, -0.015)]);
   return model(`model.door-leaf-double.${Math.round(W * 100)}x${Math.round(H * 100)}`, "door-leaf-double", [
@@ -78,7 +76,7 @@ export const doubleLeafModel = (leafWidth: number, clearHeight: number): IAutoMo
   ]);
 };
 
-/** 외개 문짝: 판, 여는 쪽 면의 가로 띠 둘과 쇠 띠 경첩, 양면 고리. opening은 여는 쪽 면의 Z 부호. */
+/** 외개 문짝: 판, 여는 쪽 면(+Z)의 가로 띠 둘과 쇠 띠 경첩, 양면 고리. */
 export const singleLeafModel = (width: number, clearHeight: number): IAutoMovieModel => {
   const W = width, H = clearHeight, T = 0.05, y0 = 0.01;
   const battenAt = (y: number) => box(0.04, W - 0.04, y, y + 0.12, 0, 0.025);
@@ -94,13 +92,13 @@ export const singleLeafModel = (width: number, clearHeight: number): IAutoMovieM
 /** 채광구 석재 틀: 벽 두께 안감 넷과 외부 면(+Z)의 테. */
 export const windowFrameModel = (depth: number): IAutoMovieModel => {
   const w = 0.2, j = 0.06, t = depth / 2, s = 0.1, p = 0.03, h = 0.4;
-  const lining = merged([
-    box(-w - j, -w, 0, h + 2 * j, -t, t), box(w, w + j, 0, h + 2 * j, -t, t),
-    box(-w, w, 0, j, -t, t), box(-w, w, h + j, h + 2 * j, -t, t),
+  const lining = boxUnion([
+    [-w - j, -w, 0, h + 2 * j, -t, t], [w, w + j, 0, h + 2 * j, -t, t],
+    [-w, w, 0, j, -t, t], [-w, w, h + j, h + 2 * j, -t, t],
   ]);
-  const surround = merged([
-    box(-w - j - s, -w - j, -s, h + 2 * j + s, t, t + p), box(w + j, w + j + s, -s, h + 2 * j + s, t, t + p),
-    box(-w - j, w + j, -s, 0, t, t + p), box(-w - j, w + j, h + 2 * j, h + 2 * j + s, t, t + p),
+  const surround = boxUnion([
+    [-w - j - s, -w - j, -s, h + 2 * j + s, t, t + p], [w + j, w + j + s, -s, h + 2 * j + s, t, t + p],
+    [-w - j, w + j, -s, 0, t, t + p], [-w - j, w + j, h + 2 * j, h + 2 * j + s, t, t + p],
   ]);
   return model(`model.window-frame.${Math.round(depth * 100)}`, "window-frame", [
     part("surface.window-frame.lining", lining), part("surface.window-frame.surround", surround),

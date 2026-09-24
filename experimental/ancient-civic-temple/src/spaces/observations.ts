@@ -268,9 +268,9 @@ const referenceObservations = (): TempleObservation[] => {
     ref("01-exterior", "01 외관(정면 좌측 조감)", { x: -8, y: 15, z: 27 }, { x: 0, y: 1.2, z: 0.5 }),
     ref("02-section-axonometric", "02 절개 조감(지붕·천장 숨김)", { x: -17, y: 24, z: 24 }, { x: 0, y: 0, z: 0 },
       { section: "roof-off", offset: 0, ortho: false, span: 4, flip: false }),
-    ref("03-courtyard-fountain", "03 중정과 분수(남쪽 주랑에서 북쪽)", { x: -1.2, y: eye, z: 7.3 }, { x: 0, y: 1.2, z: -3.8 }),
+    ref("03-courtyard-fountain", "03 중정과 분수(남쪽 주랑 기둥 옆에서 북쪽)", { x: -0.35, y: 1.8, z: 7.8 }, { x: 0, y: 0.6, z: -1.0 }),
     ref("04-worship-hall", "04 제실(북쪽에서 제실 문 쪽)", { x: 0, y: eye, z: -9.2 }, { x: 0, y: 1.4, z: -2.0 }),
-    ref("05-records-service-wing", "05 업무 날개(동쪽 주랑에서 세 방 문)", { x: 3.9, y: eye, z: 7.4 }, { x: 5.6, y: 1.4, z: 1.5 }),
+    ref("05-records-service-wing", "05 업무 날개(동쪽 주랑 남쪽 끝에서 북쪽, 오른쪽 세 방 문)", { x: 4.3, y: eye, z: 8.6 }, { x: 5.2, y: 1.4, z: 1.0 }),
   ];
 };
 

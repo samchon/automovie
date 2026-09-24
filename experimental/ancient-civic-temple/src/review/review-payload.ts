@@ -5,6 +5,7 @@
  * 실체 안에 놓였는지, (3) 모든 model과 합성 실체의 topology 결산을 내고, 그 값을 얻은
  * source basis·Git revision·격자 입력을 함께 돌려준다. 값은 기하 사실이며 판정이 아니다.
  */
+import { roofStepClosures } from "../geometry/roof-solids";
 import { createTempleScene } from "../instances/temple";
 import { templeObservations } from "../spaces/observations";
 import { envelopeSolids, lastScan, scanOverlaps, solidsContaining, type OverlapPair } from "./envelope-overlaps";
@@ -35,7 +36,7 @@ export const createReviewPayload = (grid: number): ReviewPayload => {
   const overlaps = { grid, tolerance, solids: solids.length, samples: lastScan.samples, milliseconds: Date.now() - started, pairs };
   const list = templeObservations(built.environment);
   const buried = list.flatMap((o) => o.position === null ? [] : solidsContaining(solids, o.position).map((group) => `${o.id} in ${group}`));
-  const ledger = templeTopologyLedger(built.environment);
+  const ledger = templeTopologyLedger(built.environment, roofStepClosures(built.roof.filter((r) => r.tier === "wing")).map((face, i) => ({ id: `step-closure.${i}`, corners: face.corners })));
   const owners = new Map<string, Set<string>>();
   for (const model of built.environment.models) {
     for (const part of model.parts) {

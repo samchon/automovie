@@ -92,8 +92,8 @@ const main = async (): Promise<void> => {
     }
     if (path === "/scene") {
       try {
-        response.writeHead(200, { "Content-Type": "application/json; charset=utf-8" })
-          .end(JSON.stringify(freshPayload()));
+        const body = JSON.stringify(freshPayload());
+        response.writeHead(200, { "Content-Type": "application/json; charset=utf-8" }).end(body);
       } catch (error) {
         response.writeHead(500, { "Content-Type": "text/plain; charset=utf-8" })
           .end(error instanceof Error ? error.stack ?? error.message : String(error));

@@ -39,7 +39,8 @@ export const rafters = (runs: ReadonlyArray<[PlanPoint, PlanPoint]>, underside: 
 export const sanctuaryTruss = (z: number, halfSpan: number, underside: (x: number) => number): { tie: IAutoMovieMesh; principal: IAutoMovieMesh; king: IAutoMovieMesh; strut: IAutoMovieMesh } => {
   const tieBottom = 4.86, tieTop = 5.14, ridge = underside(0);
   const tie = box(-halfSpan, halfSpan, tieBottom, tieTop, z - 0.11, z + 0.11);
-  const principal = merged([-1, 1].map((sx) => memberBelow(vec(sx * halfSpan, underside(sx * halfSpan), z), vec(0, ridge, z), 0.18, 0.2)));
+  // 두 경사재는 용마루 축을 0.05m 넘겨 서로 파고들게 해 같은 변을 공유하지 않는다.
+  const principal = merged([-1, 1].map((sx) => memberBelow(vec(sx * halfSpan, underside(sx * halfSpan), z), vec(-sx * 0.05, ridge + (ridge - underside(halfSpan)) / halfSpan * 0.05, z), 0.18, 0.2)));
   const king = box(-0.09, 0.09, tieTop, ridge - 0.2, z - 0.09, z + 0.09);
   const strut = merged([-1, 1].map((sx) => {
     const x = sx * halfSpan / 2;
@@ -57,6 +58,7 @@ export const porchEntablature = (half: number, front: number, bottom: number, ap
   const beamTop = bottom + 0.3;
   const beam = box(-half, half, bottom, beamTop, front - 0.3, front);
   const cornice = box(-half, half, beamTop - 0.1, beamTop, front, front + 0.08);
-  const raking = merged([-1, 1].map((sx) => memberBelow(vec(sx * half, beamTop, front + 0.04), vec(0, apex, front + 0.04), 0.08, 0.12)));
+  const rise = (apex - beamTop) / half;
+  const raking = merged([-1, 1].map((sx) => memberBelow(vec(sx * half, beamTop, front + 0.04), vec(-sx * 0.05, apex - rise * 0.05, front + 0.04), 0.08, 0.12)));
   return { beam, cornice, raking };
 };

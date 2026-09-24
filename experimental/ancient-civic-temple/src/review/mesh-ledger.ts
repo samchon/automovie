@@ -11,7 +11,7 @@
  * 외관이나 설계 적합의 판정이 아니다.
  */
 import { inspectAutoMovieMeshTopology, mergeAutoMovieMeshes, tessellateToMesh, validateMeshTopology } from "@automovie/engine";
-import type { IAutoMovieBuiltEnvironment, IAutoMovieMesh, IAutoMovieModel } from "@automovie/interface";
+import type { IAutoMovieBuiltEnvironment, IAutoMovieMesh, IAutoMovieModel, IAutoMovieVector3 } from "@automovie/interface";
 
 export interface MeshAccount {
   id: string;
@@ -107,6 +107,39 @@ export const templeCompositeSolids: ReadonlyArray<{ id: string; models: readonly
   { id: "composite.wing-roofs", models: ["model.roof-west", "model.roof-east", "model.roof-colonnade"] },
 ];
 
+/**
+ * 명명된 접면: 날개 지붕의 높이 차이 막음(docs/spaces/junctions.md#gable-closures "날개 단위 안의
+ * 높이 차이")은 두께 없는 양면 판이다. 합성 실체 결산은 이 판의 삼각형을 빼고 닫힘을 재며,
+ * 판 자체는 따로 앞·뒷면 수로 보고한다.
+ */
+export interface NamedSheet { id: string; corners: readonly IAutoMovieVector3[] }
+
+const onSheet = (sheets: readonly NamedSheet[], points: ReadonlyArray<readonly [number, number, number]>): boolean => sheets.some((sheet) => {
+  const c = sheet.corners;
+  const u = [c[1]!.x - c[0]!.x, c[1]!.y - c[0]!.y, c[1]!.z - c[0]!.z];
+  const w = [c[2]!.x - c[0]!.x, c[2]!.y - c[0]!.y, c[2]!.z - c[0]!.z];
+  const n = [u[1]! * w[2]! - u[2]! * w[1]!, u[2]! * w[0]! - u[0]! * w[2]!, u[0]! * w[1]! - u[1]! * w[0]!];
+  const length = Math.hypot(n[0]!, n[1]!, n[2]!);
+  const lo = [Math.min(...c.map((q) => q.x)), Math.min(...c.map((q) => q.y)), Math.min(...c.map((q) => q.z))];
+  const hi = [Math.max(...c.map((q) => q.x)), Math.max(...c.map((q) => q.y)), Math.max(...c.map((q) => q.z))];
+  return points.every((p) => Math.abs(((p[0] - c[0]!.x) * n[0]! + (p[1] - c[0]!.y) * n[1]! + (p[2] - c[0]!.z) * n[2]!) / length) < 1e-6
+    && p.every((v, k) => v >= lo[k]! - 1e-6 && v <= hi[k]! + 1e-6));
+});
+
+/** mesh에서 명명된 판 위의 삼각형을 뺀 사본. */
+const withoutSheets = (mesh: IAutoMovieMesh, sheets: readonly NamedSheet[]): { mesh: IAutoMovieMesh; removed: number } => {
+  const p = mesh.positions;
+  const indices = mesh.indices ?? Array.from({ length: p.length / 3 }, (_, i) => i);
+  const kept: number[] = [];
+  let removed = 0;
+  for (let t = 0; t + 2 < indices.length; t += 3) {
+    const tri = [0, 1, 2].map((k) => [p[indices[t + k]! * 3]!, p[indices[t + k]! * 3 + 1]!, p[indices[t + k]! * 3 + 2]!] as const);
+    if (onSheet(sheets, tri)) ++removed;
+    else kept.push(indices[t]!, indices[t + 1]!, indices[t + 2]!);
+  }
+  return { mesh: { ...mesh, indices: kept }, removed };
+};
+
 export interface LedgerRow {
   account: MeshAccount;
   contract: "closed" | "open-surface" | "composite-member" | "solid-assembly";
@@ -114,7 +147,7 @@ export interface LedgerRow {
 }
 
 /** environment의 모든 model과 합성 실체를 계약과 함께 결산한다. */
-export const templeTopologyLedger = (environment: IAutoMovieBuiltEnvironment): LedgerRow[] => {
+export const templeTopologyLedger = (environment: IAutoMovieBuiltEnvironment, sheets: readonly NamedSheet[] = []): LedgerRow[] => {
   const members = new Set(templeCompositeSolids.flatMap((c) => c.models));
   const rows: LedgerRow[] = environment.models.map((model) => {
     const account = accountModel(model);
@@ -122,7 +155,7 @@ export const templeTopologyLedger = (environment: IAutoMovieBuiltEnvironment): L
     const findings = contract === "solid-assembly"
       ? [...account.degenerate > 0 ? [`퇴화 삼각형 ${account.degenerate}`] : [], ...account.nonFinite > 0 ? [`비유한 성분 ${account.nonFinite}`] : [],
         ...account.volume > 0 ? [] : [`부호 체적 ${account.volume}(뒤집힌 부재)`]]
-      : contract === "open-surface" ? [...account.degenerate > 0 ? [`퇴화 삼각형 ${account.degenerate}`] : [], ...account.nonFinite > 0 ? [`비유한 성분 ${account.nonFinite}`] : []]
+      : contract === "open-surface" || contract === "composite-member" ? [...account.degenerate > 0 ? [`퇴화 삼각형 ${account.degenerate}`] : [], ...account.nonFinite > 0 ? [`비유한 성분 ${account.nonFinite}`] : []]
       : closureFindings(account, contract === "closed");
     return { account, contract, findings };
   });
@@ -132,8 +165,19 @@ export const templeTopologyLedger = (environment: IAutoMovieBuiltEnvironment): L
       if (model === undefined) throw new Error(`${composite.id}: model ${id}가 없습니다.`);
       return model;
     });
-    const account = accountMeshes(composite.id, models.flatMap(partMeshes));
+    const stripped = models.flatMap(partMeshes).map((mesh) => withoutSheets(mesh, sheets));
+    const account = accountMeshes(composite.id, stripped.map((s) => s.mesh));
+    const removed = stripped.reduce((sum, s) => sum + s.removed, 0);
     rows.push({ account, contract: "closed", findings: closureFindings(account, true) });
+    if (sheets.length > 0) {
+      const expected = sheets.reduce((sum, sheet) => sum + 2 * (sheet.corners.length - 2), 0);
+      const faces = removed;
+      rows.push({
+        account: { ...account, id: `${composite.id}.named-sheets`, triangles: removed },
+        contract: "open-surface",
+        findings: faces === expected ? [] : [`명명된 막음 판 ${sheets.length}장의 앞·뒷면 삼각형 ${expected} 중 ${faces}`],
+      });
+    }
   }
   return rows;
 };

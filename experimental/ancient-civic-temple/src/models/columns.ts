@@ -4,7 +4,7 @@
  * 유도한다. part는 plinth·base·shaft·capital이며 재료는 materials가 결속한다.
  */
 import type { IAutoMovieModel } from "@automovie/interface";
-import { box, frustum, merged, model, part } from "./mesh-kit";
+import { box, frustum, merged, model, part, turned } from "./mesh-kit";
 
 interface ColumnProfile {
   plinth: number; plinthHeight: number;
@@ -30,8 +30,7 @@ const column = (id: string, name: string, height: number, c: ColumnProfile): IAu
     part(`surface.${name}.base`, frustum(c.baseRadius, c.baseRadius, h1, h2)),
     part(`surface.${name}.shaft`, frustum(c.shaftBottom, c.shaftTop, h2, h3)),
     part(`surface.${name}.capital`, merged([
-      frustum(c.neckRadius, c.neckRadius, h3, h4),
-      frustum(c.neckRadius, c.echinusTop, h4, h5),
+      turned([{ x: c.neckRadius, y: h3 }, { x: c.neckRadius, y: h4 }, { x: c.echinusTop, y: h5 }]),
       box(-abacus, abacus, h5, height, -abacus, abacus),
     ])),
   ]);

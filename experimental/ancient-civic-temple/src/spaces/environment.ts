@@ -8,6 +8,7 @@
  */
 import { validateBuiltEnvironment } from "@automovie/engine";
 import type {
+  IAutoMovieVector3,
   IAutoMovieBoundaryFace, IAutoMovieBuiltBoundary,
   IAutoMovieBuiltElement, IAutoMovieBuiltEnvironment, IAutoMovieBuiltOpening, IAutoMovieModel,
 } from "@automovie/interface";
@@ -63,8 +64,26 @@ export const createTempleEnvironment = () => {
   const roofFaces = roof.map((patch) => ({
     owner: patch.owner, faces: roofSlabFaces([patch], regions),
   }));
-  const roofVisible = cullCoincidentVerticalFaces([...roofFaces.flatMap((r) => r.faces), ...roofStepClosures(roof)]);
-  const roofOwner = new Map(roofFaces.flatMap((r) => r.faces.map((f) => [f, r.owner] as const)));
+  const closures = roofStepClosures(roof);
+  // 높이 차이 막음은 한 장의 면이라 뒷면이 가려지지 않는다. 높은 조각 아래 주머니 쪽(방이면 그 방의
+  // 천장, 아니면 처마 하부)을 향한 뒷면을 culling 뒤에 더해 실내에서 바깥이 비쳐 보이지 않게 한다.
+  const closureBacks = closures.map((face) => {
+    const [a, b, c] = face.corners as [IAutoMovieVector3, IAutoMovieVector3, IAutoMovieVector3];
+    const nx = (b.y - a.y) * (c.z - a.z) - (b.z - a.z) * (c.y - a.y);
+    const nz = (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
+    const length = Math.hypot(nx, nz) || 1;
+    const cx = face.corners.reduce((sum, q) => sum + q.x, 0) / face.corners.length;
+    const cz = face.corners.reduce((sum, q) => sum + q.z, 0) / face.corners.length;
+    const probe = { x: cx - nx / length * 0.05, z: cz - nz / length * 0.05 };
+    const owner = ownerOf(face.surface);
+    const region = regions.find((r) => r.polygon.every((q, i) => planeHeight(edgeInside(q, r.polygon[(i + 1) % r.polygon.length]!), probe) >= -1e-9));
+    return { owner, face: { surface: region === undefined ? `surface.${owner}.soffit` : region.surface(owner), corners: [...face.corners].reverse() } };
+  });
+  const roofVisible = [...cullCoincidentVerticalFaces([...roofFaces.flatMap((r) => r.faces), ...closures]), ...closureBacks.map((back) => back.face)];
+  const roofOwner = new Map([
+    ...roofFaces.flatMap((r) => r.faces.map((f) => [f, r.owner] as const)),
+    ...closureBacks.map((back) => [back.face, back.owner] as const),
+  ]);
   const trim: WallTrimInput = {
     walls, roof,
     profile: { ...templeWallTrim, plinthRise: templePlinthRise },
