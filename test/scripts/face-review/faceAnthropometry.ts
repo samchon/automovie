@@ -37,6 +37,15 @@
  * 9.8 mm, the posed-smile gap. The detector's own scores for these units
  * span less on the basis than the photographs spread
  * (`faceExpressionObservable`), so the lips' landmarks carry them instead.
+ * The smile is read the same way, `cornerLift`, the mouth corners' rise
+ * above the lip centre over mouth width, paired with the smile pair (the
+ * zygomaticus major, whose action is the corner's rise: 6.2 mm in a posed
+ * smile, Banditsaowapak and Cheng 2025). The detector's smile unit also
+ * reads the eye squint that accompanies a genuine smile, and a pair
+ * calibrated alone under-read the photographs' smiles; the corners' own
+ * landmarks read only the corners. It supersedes the detector's smile
+ * transfer, and the measurement's corner lift is then a derivation input
+ * rather than an independent check.
  *
  * The pairing is anatomical and was checked on the basis: at full weight
  * every paired control moves its own index by 13 to 45 percent and each other
@@ -123,6 +132,13 @@ export const FACE_ANTHROPOMETRY_INDICES: readonly IFaceAnthropometryIndex[] = [
     channels: ["mouthElevation"],
   },
   {
+    id: "cornerLift",
+    definition:
+      "lip centre (midpoint of 13 and 14) minus mouth corners (61, 291) height over mouth width, positive when the corners rise",
+    channels: ["mouthSmileLeft", "mouthSmileRight"],
+    expression: true,
+  },
+  {
     id: "lipParting",
     definition: "stoms-stomi height (13, 14) over mouth width",
     channels: [
@@ -198,6 +214,12 @@ export function measureFaceAnthropometry(
     lowerVermilion: ratio(H(14, 17), mw),
     upperLip: ratio(H(2, 13), H(2, 152)),
     lipParting: ratio(H(13, 14), mw),
+    cornerLift: ((): number | null => {
+      const [u, l, r, q] = [13, 14, 61, 291].map(at);
+      return u && l && r && q && mw !== null && mw > 0
+        ? ((u[1] + l[1]) / 2 - (r[1] + q[1]) / 2) / mw
+        : null;
+    })(),
     lowerFaceWidth: ratio(W(136, 365), fw),
     chinWidth: ratio(W(176, 400), fw),
     chinHeight: ratio(H(17, 152), fh),

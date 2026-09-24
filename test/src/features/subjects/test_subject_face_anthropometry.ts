@@ -45,7 +45,9 @@ const face = (): FaceAnthropometryPoint[] => {
  * Scenarios:
  * 1. On a synthetic face every index is its defining ratio (the lip heights
  *    to each lip's own inner edge, and the gap between them), every index
- *    names at least one channel, and only the lip gap's are expression.
+ *    names at least one channel, and only the lip gap's and the corner
+ *    lift's are expression (the synthetic corners sit level with the lip
+ *    centre, a lift of zero).
  * 2. The indices are invariant to rotating, scaling and moving the image:
  *    the face frame turns the midline vertical.
  * 3. A missing landmark leaves only the indices that read it null; fewer
@@ -66,6 +68,7 @@ export const test_subject_face_anthropometry = (): void => {
     lowerVermilion: 9 / 50,
     upperLip: 15 / 60,
     lipParting: 2 / 50,
+    cornerLift: 0,
     lowerFaceWidth: 90 / 120,
     chinWidth: 40 / 120,
     chinHeight: 34 / 100,
@@ -80,7 +83,8 @@ export const test_subject_face_anthropometry = (): void => {
         (one) =>
           one.channels.length > 0 &&
           one.id in m &&
-          (one.expression === true) === (one.id === "lipParting"),
+          (one.expression === true) ===
+            (one.id === "lipParting" || one.id === "cornerLift"),
       ),
   );
   const angle = 0.3;

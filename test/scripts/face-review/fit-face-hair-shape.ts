@@ -207,6 +207,16 @@ const derived = documents.map((original) => {
       };
       continue;
     }
+    // A document already within the tolerance keeps its lengths.
+    if (Math.abs(start[name]! - goal) <= control.reached) {
+      record[subject]![name] = {
+        photograph: goal,
+        before: start[name],
+        after: start[name],
+        factor: 1,
+      };
+      continue;
+    }
     const value = (factor: number) =>
       observe(scaled(document, control.axes, factor))[name]!;
     let a = 1;
