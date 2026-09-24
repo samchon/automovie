@@ -7,7 +7,8 @@
  * (3) 모든 model과 합성 실체의 topology 결산표와 닫힘 계약 위반(mesh-ledger)
  * (4) 방출된 완결 표면 ID의 owner별 목록
  * (5) docs/spaces 본문 분량(HTML 주석·제목 줄·공백을 뺀 유니코드 코드 포인트 수)
- * (6) `--retired=값,값` 으로 준 옛 수치가 docs에 남은 위치. 수치를 바꾼 뒤 그 값을
+ * (6) docs/models 본문 분량(HTML 주석·공백을 뺀 유니코드 코드 포인트 수)
+ * (7) `--retired=값,값` 으로 준 옛 수치가 docs에 남은 위치. 수치를 바꾼 뒤 그 값을
  *     소비하던 문장을 찾는 용도이며 host 본문이 그대로면 lint가 다시 보지 않는 결함을 잡는다.
  * 겹침, 실체 안 관찰, 결산 계약 위반이 하나라도 있으면 종료 코드 1이다.
  */
@@ -15,6 +16,7 @@ import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import { parseArgs } from "node:util";
 import { createReviewPayload } from "./review-payload";
+import { modelAccountMismatches, modelAccountRows, modelDocumentBodyLength } from "./model-account";
 import { spaceAccountMismatches, spaceAccountRows, spaceDocumentBodyLength } from "./space-account";
 
 const { values } = parseArgs({ options: { grid: { type: "string", default: "0.01" }, retired: { type: "string", default: "" } } });
@@ -80,6 +82,24 @@ for (const row of accountRows) console.log(row);
 console.log(`spaces account table mismatches: ${accountMismatches.length}`);
 for (const row of accountMismatches) console.log(`  stale: ${row}`);
 
+const models = walk(join(docs, "models")).sort((a, b) => a.localeCompare(b));
+const modelMeasures = models.map((file) => {
+  const source = readFileSync(file, "utf8");
+  return {
+    path: relative(join(docs, "models"), file).split("\\").join("/"),
+    body: modelDocumentBodyLength(source),
+    headings: (source.match(/^## /gm) ?? []).length,
+  };
+});
+const modelRows = modelAccountRows(modelMeasures);
+const modelAccount = readFileSync(join(docs, "accounts", "models", "core-common.md"), "utf8");
+const modelMismatches = modelAccountMismatches(modelAccount, modelRows);
+console.log(`docs/models population: ${models.length} files, ${modelMeasures.reduce((sum, row) => sum + row.headings, 0)} H2`);
+console.log("generated docs/accounts/models/core-common.md#proportion rows:");
+for (const row of modelRows) console.log(row);
+console.log(`models account table mismatches: ${modelMismatches.length}`);
+for (const row of modelMismatches) console.log(`  stale: ${row}`);
+
 const retired = values.retired.split(",").map((value) => value.trim()).filter((value) => value.length > 0);
 if (retired.length > 0) {
   const authored = ["spaces", "models", "accounts", "settings", "contracts"].flatMap((dir) => walk(join(docs, dir)));
@@ -92,5 +112,5 @@ if (retired.length > 0) {
     console.log(`  ${value}: ${hits.length}${hits.length > 0 ? ` — ${hits.join(", ")}` : ""}`);
   }
 }
-console.log(`self-check failures: ${review.failures + accountMismatches.length}`);
-process.exitCode = review.failures + accountMismatches.length > 0 ? 1 : 0;
+console.log(`self-check failures: ${review.failures + accountMismatches.length + modelMismatches.length}`);
+process.exitCode = review.failures + accountMismatches.length + modelMismatches.length > 0 ? 1 : 0;

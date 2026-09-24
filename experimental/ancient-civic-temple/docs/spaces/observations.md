@@ -24,17 +24,17 @@
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 주랑 안쪽·현관 몸체 모서리와 junction 묶음에 더해 문턱·박공 끝·채광구·높이 차이·처마·L/T 접합·외벽 하단·현관의 단면 묶음, 여섯 위쪽 경계의 입면과 창 ID를 향한 방 쪽 pose, 다섯 reference pose가 목록에 든다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 네 종횡 단면의 좌표·대상, 창 여덟과 문 여덟의 opening-facing pose, 위쪽 경계 관찰의 거리·높이, 무효 창 threshold와 대각 골 단면이 pose 없는 이유가 적혀 source가 목록을 새로 고르지 않는다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 엔진 threshold가 실내 도착을 향해 창은 뒤에 놓인다는 한계와 절두체 검산, 단면 payload에서 천장·경계석 제외, 대각 골을 X/Z 단면이 따라가지 못하는 이유를 명시해 계측·화면의 검증 범위를 구별한다.
-@evidenceReview principles/design/spaces.md#space-topology #3f8d925 주랑 구멍의 안쪽 모서리와 현관 몸체를 외측 모서리와 구별하고, 봉헌실·주랑 안에 생겼던 창 threshold를 무효로 남겨 방 안 위치가 지붕 위 외부 창의 관찰을 대신하지 않는다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 단면 조각·관찰 목록·스캔이 같은 generation의 environment 실체를 읽고 위쪽 경계와 창 ID는 경계 소유 H2의 것을 소비해 입력 수량이나 화면 좌표를 compiled 결과로 복사하지 않는다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 관찰 목록은 주랑의 오목한 안쪽 모서리와 현관 몸체의 모서리를 외곽 모서리와 따로 세며, 제실 채광창을 봉헌실·주랑의 문턱으로 넣지 않는다. 창 바깥은 지붕이나 마당 위 외부라는 장소 관계가 실내 station의 수를 줄이지 않는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 compiled environment의 경계와 opening ID를 관찰 원천으로 쓰고, 여섯 위쪽 경계의 공간 결속은 openings#boundary-ownership에서 가져온다. 단면·스캔·viewer 목록이 같은 generation의 실체를 읽어 이 H2가 물리 경계나 별도 화면 좌표를 다시 저작하지 않는다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 문턱·박공 끝·높이 차이·처마·L/T 접합·외벽 하단은 각자 단면 pose를 갖고, 창 여덟은 도착 threshold와 구별된 자기 ID의 방 쪽 시점·외부 시점·채광구 단면을 갖는다. 대각 골과 단면 payload 밖 천장·경계석은 unverified 범위를 밝힌다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 일반 관찰 조건에 이 신전의 주랑 안쪽 모서리·현관 몸체·골·떠 있는 처마·파라펫 만남, 제실 위쪽 경계와 네 종횡 단면을 묻는 지역 질문을 더했다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 반환 pose가 다른 높이를 주어도 부모 1.6m 조건을 낮추지 않고 원 질문과 보조 pose를 함께 남기며, 단면과 위쪽 경계 관찰도 부모 검토 조건 안에서 더해져 부모 수정이 필요하지 않았다.
-@evidenceReview settings/00-delivery.md#review-condition #6daf6ae 실제 바닥·대지 support 위 1.6m 눈높이와 주랑 모서리 pose를 쓰고, 지붕 위 면·창은 상하 기울기를 허용한 외부 관찰로 두며 충돌한 원 질문을 지우지 않는다.
-@evidenceReview settings/00-delivery.md#governing-aim #df3c7b2 다섯 reference 비교가 reference 묶음의 pose로 topology·접합·단면 전집합 위에 더해져 좋은 대표 시점 하나로 같은 건물 판정을 끝낼 수 없다.
-@evidenceReview settings/50-production.md#references #eb34a79 절개 조감을 포함한 다섯 reference pose를 비교 질문으로 두고 판정 전 unverified로 남기며 기존 필수 관찰을 줄이지 않는다.
-@evidenceReview settings/50-production.md#measurement-truth #c6e89a8 겹침과 실체 안 pose는 스캔 수치로, 자기 자신으로 읽힘은 프레임으로 나누고 대각 골 단면처럼 재는 수단이 없는 항목과 무효 threshold는 이유와 함께 unverified로 남긴다.
-@evidenceReview settings/50-production.md#acceptance #2c49b7f reference 비교와 단면 판독, 원 질문이 unverified로 남은 상태를 완료로 선언하지 않고 절개를 전달 프레임으로 세지 않는다.
-@evidenceReview obligations/design/spaces.md#space-review-set #86bcab4 Y=1.2m plan 절단, 네 종횡 단면, 문턱과 접합 단면, 입면·내부·대지·접합 관찰과 스캔을 각 경계와 접합에 배정해 유한하지만 누락 없는 검토 집합을 이룬다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 settings의 실내 네 방위와 외부 읽기 조건을 이 신전의 안쪽 주랑 모서리, 후퇴 현관, 네 지붕 골, 떠 있는 제실 처마, 여섯 상부 경계와 X=0·Z=-6.9·Z=3.7·X=7.36 단면으로 확장했다. 이들은 일반 프레임 조건만으로 고를 수 없는 지역 관찰이다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 카메라 충돌 시 원래 station을 미해결로 보존하고 support 위 1.6m의 보조 pose를 더하는 절차가 settings#review-condition을 유지한다. 제실 상부 창과 단면 질문도 필수 관찰에 추가되므로 부모의 관찰 분모나 눈높이를 낮추는 수정은 요구되지 않았다.
+@evidenceReview settings/00-delivery.md#review-condition #6daf6ae 방과 대지 station의 카메라는 해당 완성면 위 1.6m에 두고 충돌한 원 질문은 남긴 채 보조 pose를 만든다. 지붕·처마와 제실 높은 창의 외부 시점은 기울기를 기록하며, 창을 향한 제실 내부 pose도 별개 opening ID에 결속한다.
+@evidenceReview settings/00-delivery.md#governing-aim #df3c7b2 외관·절개 검사·분수 중정·제실·기록/서비스의 다섯 reference를 별도 묶음에 두면서 각 경계 단면과 방 station을 유지한다. 따라서 제실 사진 한 장의 유사성으로 현관·주랑·마당·업무실의 동일 건물 판독을 대신할 수 없다.
+@evidenceReview settings/50-production.md#references #eb34a79 reference 묶음은 01 외관, 02 절개 검사, 03 중정, 04 제실, 05 기록/서비스의 다섯 질문을 별도로 보존한다. 02는 전달 프레임이 아닌 검사 시점으로 열고 이 다섯은 compiled 경계·공간 질문을 제거하지 않는다.
+@evidenceReview settings/50-production.md#measurement-truth #c6e89a8 0.01m 외피 스캔은 양의 체적 겹침과 실체 안 pose만 수치로 답하고, 방 정체성과 창의 읽힘은 GPU 프레임이 답한다. X/Z 단면이 대각 골 전 길이를 따르지 못하는 부분과 단면 payload 밖 천장·경계석은 검증했다고 적지 않고 unverified로 남긴다.
+@evidenceReview settings/50-production.md#acceptance #2c49b7f 다섯 reference의 각 프레임 질문, 경계·단면의 미해결 질문과 원래 충돌 station을 모두 남겨 둔다. 절개 조감은 검사로만 쓰며 이 중 하나가 unverified이면 완료 판정에 필요한 양측 미완료 목록을 비웠다고 선언할 수 없다.
+@evidenceReview obligations/design/spaces.md#space-review-set #86bcab4 Y=1.2m 평면과 네 종횡 단면에 문턱·박공·높이 차이·외벽 하단·처마 돌출 단면을 더한다. 각 방의 threshold·모서리·방위와 노출 입면·상부 경계·대지·junction을 compiled ID로 받으므로 대표 프레임만으로 critical boundary를 덮었다고 하지 않는다.
 @evidenceReview contracts/obligations-spaces.md#compiled-observations #09b52ea 외부 노출 면에 여섯 위쪽 경계의 입면과 제실 창을 포함하고 각 공간의 threshold/모서리/네 방위, 16개 opening-facing, 주랑 추가 모서리 여섯, 다섯 reference 질문을 별도로 둔다.
 -->
 
