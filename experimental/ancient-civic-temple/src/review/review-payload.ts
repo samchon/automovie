@@ -5,7 +5,7 @@
  * 실체 안에 놓였는지, (3) 모든 model과 합성 실체의 topology 결산을 내고, 그 값을 얻은
  * source basis·Git revision·격자 입력을 함께 돌려준다. 값은 기하 사실이며 판정이 아니다.
  */
-import { createTempleEnvironment } from "../spaces/environment";
+import { createTempleScene } from "../instances/temple";
 import { templeObservations } from "../spaces/observations";
 import { envelopeSolids, lastScan, scanOverlaps, solidsContaining, type OverlapPair } from "./envelope-overlaps";
 import { templeTopologyLedger, type LedgerRow } from "./mesh-ledger";
@@ -27,7 +27,7 @@ export const createReviewPayload = (grid: number): ReviewPayload => {
   if (!(grid > 0)) throw new Error("격자 간격은 양의 m 값이어야 합니다.");
   const basis = sourceBasis();
   const revision = sourceRevision();
-  const built = createTempleEnvironment();
+  const built = createTempleScene();
   const solids = envelopeSolids({ walls: built.walls, roof: built.roof, trim: built.trim, floors: built.floors.inputs });
   const tolerance = 1e-3;
   const started = Date.now();

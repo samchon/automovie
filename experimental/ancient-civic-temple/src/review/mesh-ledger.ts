@@ -95,13 +95,21 @@ export const accountEnvironment = (environment: IAutoMovieBuiltEnvironment): Mes
  * 실체다. 닫힌 실체는 T 접합 해소 뒤 열린 모서리 0, 비다양체 0, 감김 오류 0, 양의 체적이다.
  */
 export const templeOpenSurfaceModels: ReadonlySet<string> = new Set(["model.site-ground", "model.site-distant"]);
+/**
+ * docs/models 부재 중 기와(둥근기와 껍질·평기와 판)는 slab 위에 얹힌 열린 껍질이고, 기둥·보·문틀·
+ * 문짝·창틀·서까래·트러스·천장 보·수반은 맞닿은 닫힌 부재의 모음(부울 합이 아닌 assembly)이다.
+ * assembly는 퇴화·비유한 0과 양의 체적(뒤집힌 부재 없음)만 계약으로 본다.
+ */
+export const templeContractOf = (id: string): LedgerRow["contract"] =>
+  templeOpenSurfaceModels.has(id) || id.startsWith("model.cladding-") ? "open-surface"
+    : /^model.(column|beam|porch-entablature|door|window|rafters|truss|joists|fountain)/.test(id) ? "solid-assembly" : "closed";
 export const templeCompositeSolids: ReadonlyArray<{ id: string; models: readonly string[] }> = [
   { id: "composite.wing-roofs", models: ["model.roof-west", "model.roof-east", "model.roof-colonnade"] },
 ];
 
 export interface LedgerRow {
   account: MeshAccount;
-  contract: "closed" | "open-surface" | "composite-member";
+  contract: "closed" | "open-surface" | "composite-member" | "solid-assembly";
   findings: string[];
 }
 
@@ -110,8 +118,13 @@ export const templeTopologyLedger = (environment: IAutoMovieBuiltEnvironment): L
   const members = new Set(templeCompositeSolids.flatMap((c) => c.models));
   const rows: LedgerRow[] = environment.models.map((model) => {
     const account = accountModel(model);
-    const contract = templeOpenSurfaceModels.has(model.id) ? "open-surface" : members.has(model.id) ? "composite-member" : "closed";
-    return { account, contract, findings: closureFindings(account, contract === "closed") };
+    const contract = members.has(model.id) ? "composite-member" : templeContractOf(model.id);
+    const findings = contract === "solid-assembly"
+      ? [...account.degenerate > 0 ? [`퇴화 삼각형 ${account.degenerate}`] : [], ...account.nonFinite > 0 ? [`비유한 성분 ${account.nonFinite}`] : [],
+        ...account.volume > 0 ? [] : [`부호 체적 ${account.volume}(뒤집힌 부재)`]]
+      : contract === "open-surface" ? [...account.degenerate > 0 ? [`퇴화 삼각형 ${account.degenerate}`] : [], ...account.nonFinite > 0 ? [`비유한 성분 ${account.nonFinite}`] : []]
+      : closureFindings(account, contract === "closed");
+    return { account, contract, findings };
   });
   for (const composite of templeCompositeSolids) {
     const models = composite.models.map((id) => {
