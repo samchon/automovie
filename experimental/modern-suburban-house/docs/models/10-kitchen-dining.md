@@ -83,11 +83,11 @@
 @evidence principles/core/common.md#substantive-completion 0.80 × 0.65 × 0.91 m 외곽, 조리 상판 Y = [0.88, 0.91], 화구 지름 0.20 m·높이 0.01 m 이내, 오븐 문 Y = [0.10, 0.62], 조작 띠 Y = [0.66, 0.86]을 확정한다.
 @evidence principles/core/common.md#declared-basis 외곽은 예약 X = [-5.50, -4.85]·Z = [-9.50, -8.70]·Y = [0, 0.91]에서 받고, 뒤쪽 패널 제외는 0.91 m 상한 위 패널이 예약을 벗어난다는 이유로, 오븐 문 높이는 0.52 + 0.03 = 0.55 m 산술로 정당화한다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 예약 외곽에 네 화구 링, 전면 상단 조작 띠, 아래 모서리 수평 경첩 오븐 문이라는 구성과 작동 인터페이스를 더한다.
-@evidence principles/design/models.md#representation-contract 몸통·조리 상판·네 화구 링·전면 조작 띠·오븐 문·오븐 손잡이 계층과 일곱 재질 경계를 정하고 불꽃·열·유리 투과·조작 손잡이 개별 형상을 표현하지 않는다고 밝힌다.
+@evidence principles/design/models.md#representation-contract 몸통·조리 상판·네 화구 링·전면 조작 띠·오븐 문·오븐 손잡이 계층과 여덟 재질 경계를 정하고 불꽃·열·유리 투과·조작 손잡이 개별 형상을 표현하지 않는다고 밝힌다.
 @evidence principles/design/models.md#spatial-convention 가구 국소 좌표의 +Z를 오븐 전면으로 두고 오븐 문 피벗을 아래 모서리 수평축에 두어 +Z 쪽으로 최대 90° 내려 연다고 위치를 적는다.
 @evidence principles/design/models.md#reviewable-structure 측면에서 상판이 옆 하부장과 같은 0.91 m 선인지, 문을 90° 연 평면에서 손잡이 끝이 X = -4.30 m에 멈추는지, 위에서 네 화구가 읽히는지를 리뷰 대상으로 지정한다.
 @evidence principles/design/models.md#model-observable-style-basis 스타일 라벨 없이 뒤쪽 패널 없는 평평한 조리 상판 위 지름 0.20 m 화구 링 넷과 전면 상단 조작 띠라는 관찰 가능한 형태를 정한다.
-@evidence principles/design/models.md#model-scale-layer-completion 예약 스케일, 여섯 부품, `oven-door` 인터페이스, 일곱 재질 경계, 불꽃·유리 투과 등 표현 한계, 세 관찰이 모두 정해져 레인지 표현에 빠진 층이 없다.
+@evidence principles/design/models.md#model-scale-layer-completion 예약 스케일, 여섯 부품, `oven-door` 인터페이스, 여덟 재질 경계, 불꽃·유리 투과 등 표현 한계, 세 관찰이 모두 정해져 레인지 표현에 빠진 층이 없다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 공용부 벽 주방 예약의 레인지 외곽 X = [-5.50, -4.85]·Z = [-9.50, -8.70]·Y = [0, 0.91]과 오븐 작동 예약 X = [-4.85, -4.30]을 그대로 소비했고 문 0.52 m + 손잡이 0.03 m가 0.55 m와 같아 부모 수정이 없었다.
 @evidence spaces/rooms/common.md#common-kitchen-wall-reservation 레인지 외곽을 예약에서 받아 0.91 m 상한 때문에 뒤쪽 패널을 두지 않고, 오븐 문 90° 열림의 0.55 m를 오븐 작동 예약 X = [-4.85, -4.30]에 맞춘다.
 @evidence obligations/design/models.md#articulation-ownership 아래 모서리 수평 경첩 피벗 `oven-door`를 +Z 쪽 최대 90°로 내려 여는 작동 인터페이스로 이름 붙이며, 이 H2가 이름 붙인 피벗은 이것 하나다.
@@ -198,7 +198,7 @@
 <!--
 @evidence principles/core/common.md#scope-preservation 여섯 좌석 식탁의 외곽, 상판·에이프런 넷·다리 넷, 좌석별 무릎 공간 산술, 재질 경계, 관찰을 이 H2가 모두 소유한다.
 @evidence principles/core/common.md#substantive-completion 1.70 × 0.90 m 상판 Y = [0.715, 0.75]·두께 0.035 m, 0.05 × 0.05 m 각재 다리, 에이프런 0.08 m 높이·0.02 m 들임, 무릎 아래 여유 0.635 m를 확정한다.
-@evidence principles/core/common.md#declared-basis 상판 외곽과 높이 0.75 m는 식사 구역 예약에서, 부품 배치 기준은 후면 공용부 설정의 여섯 좌석에서 받고, 사람 폭 X = [-0.30, 0.30]·[0.70, 1.30]과 모서리 다리 X의 대조를 산술로 보인다.
+@evidence principles/core/common.md#declared-basis 상판 외곽과 높이 0.75 m는 식사 구역 예약에서, 부품 배치 기준은 후면 공용부 설정의 여섯 좌석에서 받고, 로컬 사람 폭 X = [-0.80, -0.20]·[0.20, 0.80]과 모서리 다리 X의 대조를 산술로 보인다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 예약 상판 외곽에 네 모서리 다리·에이프런 구성과 좌석별 사람 폭을 비켜 가는 다리 위치 산술을 더한다.
 @evidence principles/design/models.md#representation-contract 상판·에이프런 넷·다리 넷 계층과 `top`·`apron`·`leg` 경계를 두고 관절이 없다고 적으며 좌석별 무릎 공간을 비워 둔다. 보이지 않는 한계는 본문의 "나뭇결 방향·상판 가장자리 모따기·이음 철물은 표현하지 않는다."로 밝힌다.
 @evidence principles/design/models.md#spatial-convention 가구 국소 좌표의 예외로 원점을 바닥 평면 중심, +X를 긴 방향으로 둔다고 밝히고 모서리 다리의 로컬 X = [-0.85, -0.80]·[0.80, 0.85], Z = [-0.45, -0.40]·[0.40, 0.45] m를 본문에 적는다.
@@ -207,7 +207,7 @@
 @evidence principles/design/models.md#model-scale-layer-completion 0.75 m 스케일과 의자 좌면 비교, 세 부품군, 관절 없음, 세 재질 경계, 무릎 공간 산술과 두 관찰이 함께 있어 식탁 표현에 빠진 층이 없다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 식사 구역 예약의 상판 X = [-0.35, 1.35]·Z = [-8.40, -7.50]·높이 0.75 m와 후면 공용부 설정의 여섯 좌석을 그대로 소비했고 다리가 좌석 사람 폭과 겹치지 않아 부모 수정이 없었다.
 @evidence settings/10-house.md#common-room 가족과 손님이 함께 앉는 여섯 좌석이라는 후면 공용부 설정을 좌석별 무릎 공간을 지키는 모서리 다리·에이프런 배치의 기준으로 소비한다.
-@evidence spaces/rooms/common.md#common-dining-reservation 식사 구역 예약의 상판 X = [-0.35, 1.35]·Z = [-8.40, -7.50]·높이 0.75 m를 1.70 × 0.90 m 상판 외곽으로 받고 끝 좌석 사람 폭 Z = [-8.25, -7.65]를 다리 사이에 둔다.
+@evidence spaces/rooms/common.md#common-dining-reservation 식사 구역 예약의 상판 X = [-0.35, 1.35]·Z = [-8.40, -7.50]·높이 0.75 m를 1.70 × 0.90 m 상판 외곽으로 받고 끝 좌석 사람 폭은 로컬 Z = [-0.30, 0.30]으로 다리 사이에 둔다.
 -->
 
 레퍼런스 03의 여섯 사람이 둘러앉는 목재 식탁을 채택한다. 장식 그릇은 식탁 구조가 아니라 소품 원형에서 맡는다.

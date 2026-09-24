@@ -80,7 +80,7 @@
 ## 짙은 책장과 책 {#dark-bookcase}
 <!--
 @evidence principles/core/common.md#scope-preservation 거실 책장 예약을 외곽으로 받아 몸체 판재, 선반 다섯, 책 묶음, 재질 경계, 관찰, 소스 owner를 이 H2에서 정한다.
-@evidence principles/core/common.md#substantive-completion 옆판·윗판 0.02 m, 뒤판 0.01 m, 걸레받이 0.08 m, 선반 상면 0.20·0.55·0.90·1.25·1.60 m, 책 두께 0.02–0.04 m·높이 0.20–0.28 m·깊이 0.20 m, 칸 폭 70–85 % 채움을 수치로 정한다.
+@evidence principles/core/common.md#substantive-completion 옆판·윗판 0.02 m, 뒤판 0.01 m, 걸레받이 0.08 m, 선반 상면 0.20·0.55·0.90·1.25·1.60 m, 책 두께 0.025–0.035 m·높이 0.20–0.28 m·깊이 0.20 m, 칸 폭 70–85 % 채움을 수치로 정한다.
 @evidence principles/core/common.md#declared-basis 외곽과 선반 산출 규칙(0.20 m부터 0.35 m 간격)은 방 문서에서 상속하고, 판 두께·책 치수 범위·고정 시드 산출은 부모 링크 없이 이 H2가 새로 정한 값으로 적는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 방 문서는 외곽과 선반 상면 산출 규칙을 주고 이 H2는 판재 구성, 선반 두께 0.02 m를 상면 아래로 두는 규칙, 고정 시드 책 묶음과 그 채움 비율을 더한다.
 @evidence principles/design/models.md#representation-contract 옆판 둘·뒤판·윗판·걸레받이·선반 다섯의 부품, 책장에 고정된 자식 부품인 책, 문 없는 열린 선반, 책이 몸체 깊이 안에 있어 전면 밖으로 나오지 않는다는 점유 경계를 정한다.
@@ -91,14 +91,14 @@
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 거실 예약 X = -2.30 m~-1.95 m·Z = [-5.90, -4.90]·높이 1.90 m와 선반 상면을 0.20 m부터 0.35 m 간격으로 두는 산출 규칙을 적힌 그대로 썼고 부모 수정이 필요하지 않았다.
 @evidence settings/10-house.md#living 거실 설정 정체성의 '짙은 책장'을 문 없는 열린 선반과 책 묶음의 원형으로 구체화하며 짙은 색 자체는 이 H2에서 정하지 않는다.
 @evidence spaces/rooms/living.md#living-furniture-use 거실 책장 예약 X = -2.30 m부터 방 오른쪽 안쪽 면 -1.95 m까지, Z = [-5.90, -4.90], 높이 1.90 m를 외곽으로, 방 문서의 산출 규칙을 선반 상면 0.20·0.55·0.90·1.25·1.60 m로 소비한다.
-@evidence obligations/design/models.md#representation-ceiling 책을 선반마다 두께 0.02–0.04 m·높이 0.20–0.28 m·깊이 0.20 m의 얇은 상자 묶음으로만 두고 책등 글자·개별 표지는 표현하지 않아, 선반 간격과 책 묶음의 읽힘까지만 주장하고 개별 책 식별은 주장하지 않는다.
+@evidence obligations/design/models.md#representation-ceiling 책을 선반마다 두께 0.025–0.035 m·높이 0.20–0.28 m·깊이 0.20 m의 얇은 상자 묶음으로만 두고 책등 글자·개별 표지는 표현하지 않아, 선반 간격과 책 묶음의 읽힘까지만 주장하고 개별 책 식별은 주장하지 않는다.
 -->
 
 레퍼런스 04의 벽난로 옆 어두운 책장과 책의 서로 다른 높이를 채택한다. 책등 글자는 만들지 않고 결정된 치수·순서로 채운다.
 
 [거실 설정](../settings/10-house.md#living)의 짙은 책장은 [거실 예약](../spaces/rooms/living.md#living-furniture-use)의 X = -2.30 m부터 방 오른쪽 안쪽 면 -1.95 m까지, Z = [-5.90, -4.90], 높이 1.90 m를 외곽으로 받아 폭 1.00 m, 깊이 0.35 m, 높이 1.90 m다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르며 +Z가 책을 꺼내는 면이며 배치에서 world -X를 향한다. 문 없는 열린 선반이다.
 
-부품은 옆판 둘, 뒤판, 윗판, 걸레받이, 선반 다섯이다. 옆판·윗판 두께는 0.02 m, 뒤판 0.01 m, 걸레받이 높이 0.08 m다. 다섯 선반 상면은 [방 문서의 산출 규칙](../spaces/rooms/living.md#living-furniture-use)대로 0.20 m부터 0.35 m 간격인 0.20, 0.55, 0.90, 1.25, 1.60 m이고 두께 0.02 m를 상면 아래로 둔다. 책은 선반마다 25권이며, 인덱스 s = 0…4(아래부터), i = 0…24(왼쪽부터), 정수 시드 1952를 쓴다. 책 i의 두께는 `0.025 + 0.001 × ((1952 + 17s + 7i) mod 11)` m, 높이는 `0.20 + 0.01 × ((1952 + 13s + 5i) mod 9)` m, 깊이는 0.20 m다. 다섯 단의 두께 합은 차례로 0.749, 0.745, 0.752, 0.748, 0.755 m로 선반 안쪽 폭 0.96 m의 77.6–78.6 %다. 각 묶음은 선반 왼쪽 안쪽에서 0.02 m 띄워 순서대로 쌓는다. 책은 몸체 깊이 안에 있어 전면 밖으로 나오지 않는다.
+부품은 옆판 둘, 뒤판, 윗판, 걸레받이, 선반 다섯이다. 옆판·윗판 두께는 0.02 m, 뒤판 0.01 m, 걸레받이 높이 0.08 m다. 다섯 선반 상면은 [방 문서의 산출 규칙](../spaces/rooms/living.md#living-furniture-use)대로 0.20 m부터 0.35 m 간격인 0.20, 0.55, 0.90, 1.25, 1.60 m이고 두께 0.02 m를 상면 아래로 둔다. 책은 선반마다 25권이며, 인덱스 s = 0…4(아래부터), i = 0…24(왼쪽부터), 정수 시드 1952를 쓴다. 책 i의 두께는 `0.025 + 0.001 × ((1952 + 17s + 7i) mod 11)` m, 높이는 `0.20 + 0.01 × ((1952 + 13s + 5i) mod 9)` m, 깊이는 0.20 m다. 이 식의 책 두께는 0.025–0.035 m, 높이는 0.20–0.28 m다. 다섯 단의 두께 합은 차례로 0.749, 0.745, 0.752, 0.748, 0.755 m로 선반 안쪽 폭 0.96 m의 77.6–78.6 %다. 각 묶음은 선반 왼쪽 안쪽에서 0.02 m 띄워 순서대로 쌓는다. 책은 몸체 깊이 안에 있어 전면 밖으로 나오지 않는다.
 
 재질 경계는 `carcass`, `plinth`, `shelf`, `book`이다. 관절은 없고 책은 책장에 고정된 자식 부품이다. 책등 글자·개별 표지는 표현하지 않는다. 소스 owner는 `src/models/furnishings/living.ts`다. 관찰은 정면에서 다섯 선반 간격과 책 묶음이 읽히는지, 측면에서 책 앞면이 0.35 m 안에 드는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
 

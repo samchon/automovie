@@ -106,7 +106,7 @@
 | [wall-art-indoor-plant](../../models/19-room-accents.md#wall-art-indoor-plant) | `src/models/furnishings/props.ts` | `art-frame`·`art-print`·`container`·`stem`·`foliage` |
 | [sofa-throws](../../models/19-room-accents.md#sofa-throws) | `src/models/furnishings/props.ts` | `pillow`·`folded` |
 
-다음 표는 위 96행에 등장한 **모든 face id**의 설계 결속 경로다. 하나의 id가 여러 재료 행에 있으면 모델 H2와 배치 변형을 함께 키로 사용한다(예: `leaf`의 실내 문/주방 가전, `glass`의 건물 창/세탁기 문). 그 선택을 버리고 id 문자열 하나로 재료를 고르면 오결속이다. 결합이 없는 id는 없도록 위 스크립트의 집합 대조로 확인했지만, 실제 메시의 id 누락·중복은 modelSources와 materialSources가 생기기 전에는 unverified다.
+다음 표는 위 96행에 등장한 **모든 face id**의 설계 결속 경로다. 하나의 id가 여러 재료 행에 있으면 모델 H2와 배치 변형을 함께 키로 사용한다(예: `leaf`의 실내 문/주방 가전, `glass`의 건물 창/세탁기 문). 그 선택을 버리고 id 문자열 하나로 재료를 고르면 오결속이다. 이 표는 id 문자열의 설계 경로만 열거한다. 세면장에는 없는 `leaf-panel` 대신 실제 `leaf`를 회갈색 수납장에 결속하고 전자레인지 `leaf`를 스테인리스에 결속하도록 재료 문서를 정정했다. (모델 H2, id) 쌍의 전수 결합과 실제 메시의 face binding은 아직 재생 가능한 생산자·modelSources·materialSources가 없어 unverified다. 존재하지 않는 스크립트의 결과를 이 계정의 근거로 삼지 않는다.
 
 | 재료 H2 | 해당 모델 face id |
 |---|---|
