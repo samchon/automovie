@@ -64,6 +64,7 @@ import { gunzipSync } from "node:zlib";
 
 import {
   FACE_ANTHROPOMETRY_INDICES,
+  FACE_ANTHROPOMETRY_UPPER_EDGE,
   faceAnthropometryWeights,
   measureFaceAnthropometry,
 } from "./faceAnthropometry";
@@ -75,6 +76,9 @@ import {
   faceExpressionRestNoise,
   transferFaceExpression,
 } from "./faceExpressionTransfer";
+import { faceIncisalEdges } from "./faceIncisalEdges";
+import { readFaceLikenessImage } from "./faceLikenessIo";
+import { measureFaceLikenessTeeth } from "./faceLikenessTeeth";
 import {
   type IFacePopulationFacts,
   facePopulationControls,
@@ -96,6 +100,7 @@ const json = <T>(file: string): T =>
   ) as T;
 interface IDetection {
   id: string;
+  rgb?: string;
   face: {
     landmarks: [number, number][];
     blendshapes: Record<string, number>;
@@ -187,6 +192,8 @@ if (command === "identity") {
     >;
   }>(anchorFile!);
   const human = basis.surfaces.find((one) => one.id === "Human")!;
+  const incisal = faceIncisalEdges(basis);
+  const dentition = basis.surfaces.find((one) => one.id === incisal.surface)!;
   const channels = new Map(basis.channels.map((one) => [one.id, one]));
   const build = createHumanFaceBasisBuilder(basis);
   const ids = FACE_ANTHROPOMETRY_INDICES.map((one) => one.id);
@@ -213,28 +220,59 @@ if (command === "identity") {
       return start;
     }
     const camera = faceShapeFitView(pose, 900, pose.fov);
-    const list = view.anchors.filter((one) => one.anchor !== null);
-    const built = faceShapeFitSurfacePositions(
-      basis,
-      build({ ...start, hair: undefined }),
-      "Human",
+    // The anchored landmarks on the skin, and the upper incisal edge on the
+    // dentition, each read on its own surface.
+    const list = [
+      ...view.anchors.flatMap((one) =>
+        one.anchor === null
+          ? []
+          : [{ landmark: one.landmark, anchor: one.anchor, surface: human }],
+      ),
+      {
+        landmark: FACE_ANTHROPOMETRY_UPPER_EDGE,
+        anchor: {
+          vertices: [incisal.upper, incisal.upper, incisal.upper] as [
+            number,
+            number,
+            number,
+          ],
+          weights: [1, 0, 0] as [number, number, number],
+        },
+        surface: dentition,
+      },
+    ];
+    const model = build({ ...start, hair: undefined });
+    const built = new Map(
+      [human, dentition].map((surface) => [
+        surface,
+        faceShapeFitSurfacePositions(basis, model, surface.id),
+      ]),
     );
-    const base = list.map((one) => faceShapeFitAnchorPoint(built, one.anchor!));
+    const base = list.map((one) =>
+      faceShapeFitAnchorPoint(built.get(one.surface)!, one.anchor),
+    );
     // Anchored displacement of one endpoint, cached.
     const cache = new Map<string, number[][]>();
     const endpoint = (name: string): number[][] => {
       if (!cache.has(name)) {
-        const flat = human.targets[name] ?? [];
-        const rows = new Map<number, number[]>();
-        for (let i = 0; i < flat.length; i += 4)
-          rows.set(flat[i]!, [flat[i + 1]!, flat[i + 2]!, flat[i + 3]!]);
+        const rows = new Map(
+          [human, dentition].map((surface) => {
+            const flat = surface.targets[name] ?? [];
+            const own = new Map<number, number[]>();
+            for (let i = 0; i < flat.length; i += 4)
+              own.set(flat[i]!, [flat[i + 1]!, flat[i + 2]!, flat[i + 3]!]);
+            return [surface, own] as const;
+          }),
+        );
         cache.set(
           name,
-          list.map(({ anchor }) =>
+          list.map(({ anchor, surface }) =>
             [0, 1, 2].map((axis) =>
-              anchor!.vertices.reduce(
+              anchor.vertices.reduce(
                 (sum, vertex, k) =>
-                  sum + anchor!.weights[k]! * (rows.get(vertex)?.[axis] ?? 0),
+                  sum +
+                  anchor.weights[k]! *
+                    (rows.get(surface)!.get(vertex)?.[axis] ?? 0),
                 0,
               ),
             ),
@@ -288,9 +326,20 @@ if (command === "identity") {
       const measured = measureFaceAnthropometry(points);
       return ids.map((id) => measured[id]!);
     };
-    const photographed = measureFaceAnthropometry(
-      photo.landmarks.slice(0, 468),
-    );
+    // The photograph's upper incisal edge where its mouth profile reads the
+    // edge itself, not a bound.
+    const rgb = photos.get(`photo:${subject}`)?.rgb;
+    const teeth =
+      rgb === undefined
+        ? null
+        : measureFaceLikenessTeeth(
+            readFaceLikenessImage(path.join(path.dirname(detectionFile!), rgb)),
+            photo.landmarks,
+          );
+    const photographed = measureFaceAnthropometry([
+      ...photo.landmarks.slice(0, 468),
+      teeth?.upper?.relation === "at" ? teeth.upper.point : undefined,
+    ]);
     const before = previous?.[subject]?.anthropometry;
     const render = renders?.get(`portrait:${subject}__reference-yaw`)?.face;
     const rendered =

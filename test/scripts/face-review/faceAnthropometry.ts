@@ -27,15 +27,23 @@
  * J Orthod 2026;56:34-44: subnasale to stomion superius), so parted lips do
  * not lend half their gap to either vermilion. The gap itself, `lipParting`,
  * is a state of the face rather than its form and is written as expression.
- * Over closed teeth two muscles part the lips, the upper lip raiser (levator
+ * Two muscles part the lips over the teeth, the upper lip raiser (levator
  * labii superioris, `mouthUpperUp`) and the lower lip depressor (depressor
  * labii inferioris, `mouthLowerDown`), and a posed smile moves both: the
  * upper lip's lower edge rises 4.76 mm and the lower lip's upper edge falls
  * 3.28 mm, from a 1.8 mm to a 10.5 mm gap (Banditsaowapak and Cheng, J Dent
- * Sci 2025;20:2219-2230). So the gap's control sets both pairs together, the
- * depressor in that ratio to the raiser
- * (`FACE_ANTHROPOMETRY_LIP_DEPRESSOR_GAIN`); at full weight the source's
- * pairs part the basis's seam from 0.9 to about 9.2 mm. The detector's own scores for these units
+ * Sci 2025;20:2219-2230). The gap alone cannot tell the two apart; the teeth
+ * can, since the upper incisors ride the skull. So `upperDisplay`, the upper
+ * incisal edge below stomion superius over mouth width, pairs with the
+ * raiser, and the gap with the depressor. The edge is a photograph's
+ * upper incisors read on the mouth's midline profile
+ * (`measureFaceLikenessTeeth`, where it reads the edge itself rather than a
+ * bound), passed as the landmark `FACE_ANTHROPOMETRY_UPPER_EDGE`, and on the
+ * model the crowns' own edge (`faceIncisalEdges`). A photograph that shows
+ * no upper edge leaves the raiser where the expression transfer put it: the
+ * source's smile already lifts the upper lip 3.2 mm with its seam, and a
+ * gap coupled to it in the posed ratio had lifted the lip about 8 mm, above
+ * the crowns, where photographs show teeth. The detector's own scores for these units
  * span less on the basis than the photographs spread
  * (`faceExpressionObservable`), so the lips' landmarks carry them instead.
  * The smile is read the same way, `cornerLift`, the mouth corners' rise
@@ -121,14 +129,11 @@ export const FACE_ANTHROPOMETRY_MIDLINE = [
 ] as const;
 
 /**
- * The lower lip depressor's share of the lip parting control: a posed smile
- * lowers the lower lip's upper edge 3.28 mm while the upper lip's lower edge
- * rises 4.76 mm (Banditsaowapak and Cheng 2025), a ratio of 0.689, and at
- * full weight the source's depressor lowers the seam 4.0 mm and its raiser
- * lifts it 4.9 mm, so the depressor takes 0.689 x 4.9 / 4.0 of the control.
+ * The landmark index a caller gives the upper incisal edge, past the
+ * detector's 468 mesh landmarks: on a photograph the edge its mouth profile
+ * reads, on the model the crowns' own edge.
  */
-export const FACE_ANTHROPOMETRY_LIP_DEPRESSOR_GAIN =
-  (3.28 / 4.76) * (4.9 / 4.0);
+export const FACE_ANTHROPOMETRY_UPPER_EDGE = 468;
 
 /** The indices, in solve order, with their paired controls. */
 export const FACE_ANTHROPOMETRY_INDICES: readonly IFaceAnthropometryIndex[] = [
@@ -192,18 +197,14 @@ export const FACE_ANTHROPOMETRY_INDICES: readonly IFaceAnthropometryIndex[] = [
   {
     id: "lipParting",
     definition: "stoms-stomi height (13, 14) over mouth width",
-    channels: [
-      "mouthUpperUpLeft",
-      "mouthUpperUpRight",
-      "mouthLowerDownLeft",
-      "mouthLowerDownRight",
-    ],
-    gains: [
-      1,
-      1,
-      FACE_ANTHROPOMETRY_LIP_DEPRESSOR_GAIN,
-      FACE_ANTHROPOMETRY_LIP_DEPRESSOR_GAIN,
-    ],
+    channels: ["mouthLowerDownLeft", "mouthLowerDownRight"],
+    expression: true,
+  },
+  {
+    id: "upperDisplay",
+    definition:
+      "upper incisal edge (FACE_ANTHROPOMETRY_UPPER_EDGE) below stomion superius (13) over mouth width, signed",
+    channels: ["mouthUpperUpLeft", "mouthUpperUpRight"],
     expression: true,
   },
   {
@@ -279,6 +280,12 @@ export function measureFaceAnthropometry(
     lowerVermilion: ratio(H(14, 17), mw),
     upperLip: ratio(H(2, 13), H(2, 152)),
     lipParting: ratio(H(13, 14), mw),
+    upperDisplay: ((): number | null => {
+      const [lip, edge] = [13, FACE_ANTHROPOMETRY_UPPER_EDGE].map(at);
+      return lip && edge && mw !== null && mw > 0
+        ? (edge[1] - lip[1]) / mw
+        : null;
+    })(),
     cornerLift: ((): number | null => {
       const [u, l, r, q] = [13, 14, 61, 291].map(at);
       return u && l && r && q && mw !== null && mw > 0

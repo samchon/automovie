@@ -2,7 +2,7 @@ import { TestValidator } from "@nestia/e2e";
 
 import {
   FACE_ANTHROPOMETRY_INDICES,
-  FACE_ANTHROPOMETRY_LIP_DEPRESSOR_GAIN,
+  FACE_ANTHROPOMETRY_UPPER_EDGE,
   type FaceAnthropometryPoint,
   faceAnthropometryFrame,
   faceAnthropometryWeights,
@@ -12,7 +12,7 @@ import { nclose, throwsError } from "../internal/predicates";
 
 /** A symmetric synthetic face with every landmark the indices read. */
 const face = (): FaceAnthropometryPoint[] => {
-  const p: FaceAnthropometryPoint[] = new Array(468).fill(undefined);
+  const p: FaceAnthropometryPoint[] = new Array(469).fill(undefined);
   const set = (k: number, x: number, y: number) => (p[k] = [x, y]);
   const pair = (r: number, l: number, x: number, y: number) => {
     set(r, -x, y);
@@ -27,6 +27,7 @@ const face = (): FaceAnthropometryPoint[] => {
   set(13, 0, 55);
   set(14, 0, 57);
   set(17, 0, 66);
+  set(FACE_ANTHROPOMETRY_UPPER_EDGE, 0, 60);
   set(152, 0, 100);
   set(199, 0, 90);
   pair(234, 454, 60, 20);
@@ -46,13 +47,12 @@ const face = (): FaceAnthropometryPoint[] => {
  * Frontal anthropometric indices.
  * Scenarios:
  * 1. On a synthetic face every index is its defining ratio (the lip heights
- *    to each lip's own inner edge, and the gap between them), every index
- *    names at least one channel, and only the lip gap's and the corner
+ *    to each lip's own inner edge, the gap between them, and the upper
+ *    incisal edge 5 below stomion superius), every index names at least one
+ *    channel, and only the lip gap's, the upper display's, the corner
  *    lift's and the mouth shift's are expression (the synthetic corners sit
  *    level with the lip centre and about the midline, a lift and a shift of
- *    zero); gains, where given, align with the channels,
- *    and the lip depressor's is the posed-smile ratio 3.28 / 4.76 scaled by
- *    the source units' 4.9 / 4.0 mm.
+ *    zero); gains, where given, align with the channels.
  * 2. The indices are invariant to rotating, scaling and moving the image:
  *    the face frame turns the midline vertical with the chin below the
  *    brow, even for an image turned upside down, so a raised corner reads a
@@ -60,8 +60,8 @@ const face = (): FaceAnthropometryPoint[] => {
  * 3. A mouth moved 5 to the image's right over a 50 wide mouth shifts by
  *    0.1, also in the image turned upside down, and a n-sn line without
  *    height gives no shift; a signed index writes its magnitude to
- *    `mouthLeft` or `mouthRight` by its sign, and an unsigned one scales its
- *    channels by their gains.
+ *    `mouthLeft` or `mouthRight` by its sign, and an unsigned one (the lip
+ *    gap's lower lip depressor pair) takes its value.
  * 4. A missing landmark leaves only the indices that read it null; fewer
  *    than two midline landmarks refuse.
  */
@@ -80,6 +80,7 @@ export const test_subject_face_anthropometry = (): void => {
     lowerVermilion: 9 / 50,
     upperLip: 15 / 60,
     lipParting: 2 / 50,
+    upperDisplay: 5 / 50,
     cornerLift: 0,
     mouthShift: 0,
     lowerFaceWidth: 90 / 120,
@@ -97,10 +98,11 @@ export const test_subject_face_anthropometry = (): void => {
           one.channels.length > 0 &&
           one.id in m &&
           (one.expression === true) ===
-            ["lipParting", "cornerLift", "mouthShift"].includes(one.id) &&
+            ["lipParting", "upperDisplay", "cornerLift", "mouthShift"].includes(
+              one.id,
+            ) &&
           (one.gains === undefined || one.gains.length === one.channels.length),
-      ) &&
-      nclose(FACE_ANTHROPOMETRY_LIP_DEPRESSOR_GAIN, 0.8441, 1e-4),
+      ),
   );
   const angle = 0.3;
   const moved = points.map((p) =>
@@ -160,7 +162,7 @@ export const test_subject_face_anthropometry = (): void => {
     [
       faceAnthropometryWeights(shift, 0.3),
       faceAnthropometryWeights(shift, -0.2),
-      faceAnthropometryWeights(parting, 0.5).map(([, w]) => w),
+      faceAnthropometryWeights(parting, 0.5),
     ],
     [
       [
@@ -172,10 +174,8 @@ export const test_subject_face_anthropometry = (): void => {
         ["mouthRight", 0.2],
       ],
       [
-        0.5,
-        0.5,
-        0.5 * FACE_ANTHROPOMETRY_LIP_DEPRESSOR_GAIN,
-        0.5 * FACE_ANTHROPOMETRY_LIP_DEPRESSOR_GAIN,
+        ["mouthLowerDownLeft", 0.5],
+        ["mouthLowerDownRight", 0.5],
       ],
     ],
   );
