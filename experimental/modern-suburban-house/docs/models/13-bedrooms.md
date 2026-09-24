@@ -155,30 +155,31 @@
 
 걸린 옷은 18벌이다. 순번 i=0…17에 두께 `0.035+0.005×(i mod 3)` m, 앞뒤 폭 0.38 m, 어깨 아래 길이 `0.85+0.05×(i mod 3)` m를 준다. 여섯 주기 두께 합은 `6×(0.035+0.040+0.045)=0.720` m이므로 봉 중앙에서 X=[-0.36,0.36] m에 순서대로 걸고 양끝 0.39 m씩 비운다. 각 옷의 깊이 중심은 봉 Z=0.28 m로 Z=[0.09,0.47] m여서 뒤 문 안쪽 Z=0.50 m보다 0.03 m 앞에서 멈춘다. 어깨는 봉 아래 0.05 m인 Y=1.60 m, 가장 긴 옷의 아랫끝은 Y=0.65 m다. 옷은 어깨가 둥근 닫힌 얇은 부피이고 옷걸이·소매·주름은 표현하지 않는다. 재질 경계는 `carcass`, `leaf`, `handle`, `rail`, `rod`, `shelf`, `clothes`다. 소스 owner는 `src/models/furnishings/bedrooms.ts`다. 관찰은 닫힘·각 문 최대 열림에서 문과 옷이 몸통 밖으로 나오지 않는지다. 실제 source·프레임은 unverified다.
 
-## 주침실 두 창의 얇은 커튼 {#primary-window-curtains}
+## 주침실에서 시작하는 여덟 창의 얇은 커튼 {#primary-window-curtains}
 <!--
-@evidence principles/core/common.md#scope-preservation 주침실 후면 2.40 m와 왼쪽 1.60 m 두 창에 같은 커튼 원형을 각각 결속하고 다른 방의 창이나 방 벽 마감을 소유하지 않는다.
-@evidence principles/core/common.md#substantive-completion 창 폭 W와 높이 1.40 m, 상층 바닥 위 0.10–2.35 m 드레이프, 벽에서 0.12 m 이내 돌출, 양쪽 0.18 m 모임 폭, 봉·받침·커튼 표면 경계를 정한다.
-@evidence principles/core/common.md#declared-basis 두 W와 개구부 Y = [3.91, 5.31] m는 rear/left 입면에서, 방 안쪽 돌출 0.12 m는 primary-furniture-use에서 받고 봉·드레이프 여유는 이 원형의 저작 선택이다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 공간은 두 창과 커튼의 돌출 상한만 예약했고 이 H2는 개방 상태의 두 끝 모임, 실루엣·부품·표면 분할을 더한다.
+@evidence principles/core/common.md#scope-preservation 주침실 두 창과 거실·가족실·작은 침실 여섯 창, 합계 여덟 창에 한 커튼 원형을 결속하고 벽·창틀·유리 면은 소유하지 않는다.
+@evidence principles/core/common.md#substantive-completion 창 폭 W·머리 높이·층 바닥을 인자로 받아 봉 중심을 창 머리 위 0.10 m, 드레이프 아랫단을 바닥 위 0.10 m, 앞돌출을 0.103 m 이내, 양끝 모임 폭을 각 0.18 m로 결정한다.
+@evidence principles/core/common.md#declared-basis 주침실 두 창은 primary-furniture-use, 다른 여섯 창은 selected-window-curtain-strips의 점유 띠와 각 입면 폭에서 받고 봉·천 형상은 이 한 원형에서 정한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 두 부모 예약이 각각 주침실 두 창과 다른 여섯 창의 점유만 주므로 이 H2가 여덟 창 공통의 개방 상태·접힘·부품·면 분할을 더한다.
 @evidence principles/design/models.md#representation-contract 봉·받침·양쪽 얇은 천 패널의 부품과 `rod`·`bracket`·`curtain` 표면을 구분하고 고정 개방 상태와 세 굵은 접힘만 표현을 밝힌다.
-@evidence principles/design/models.md#spatial-convention 창의 안쪽 왼쪽 아래를 국소 원점, 개구부 너비를 U, 높이를 V, 방 안쪽을 +N으로 두고 두 입면의 축 회전만 배치에서 바꾼다.
+@evidence principles/design/models.md#spatial-convention 창의 안쪽 왼쪽 아래를 국소 원점, 개구부 너비를 U, 높이를 V, 방 안쪽을 +N으로 두고 전·후·좌·우 입면 축 회전만 배치에서 바꾼다.
 @evidence principles/design/models.md#reviewable-structure 정면에서 두 끝 0.18 m 모임이 창 대부분을 열어 두는지, 측면에서 최대 돌출 0.12 m를 지키는지를 반증 견본으로 둔다.
-@evidence principles/design/models.md#model-observable-style-basis 곧은 봉과 서로 분리된 얇은 두 드레이프를 두어 라벨 없이 주침실 창 커튼으로 읽히게 하고 직물 결·투과는 materials에 남긴다.
-@evidence principles/design/models.md#model-scale-layer-completion 2.40/1.60 m 두 외곽, 0.12 m 돌출, 세 표면 id, 고정 개방 상태와 두 방향 리뷰를 함께 정한다.
-@evidence upstream/design/models.md#settings-and-space-revision-from-model-work 주침실의 0.12 m 돌출 한도만으로는 봉의 좌우·상하 점유를 예약할 수 없어 spaces/rooms/primary.md#primary-furniture-use에 개구부 유도 폭 W + 0.20 m·높이 범위와 깊이 0.12 m의 커튼 띠를 추가했다.
+@evidence principles/design/models.md#model-observable-style-basis 곧은 봉과 서로 분리된 얇은 두 드레이프를 두어 여덟 창에서 라벨 없이 커튼으로 읽히게 하고 직물 결·투과는 materials에 남긴다.
+@evidence principles/design/models.md#model-scale-layer-completion 여덟 창의 W·head·floor 입력, 0.103 m 앞돌출, 세 표면 id, 고정 개방 상태와 두 방향 리뷰를 함께 정한다.
+@evidence upstream/design/models.md#settings-and-space-revision-from-model-work 주침실 예약의 좌우·상하 부족은 이전에 primary-furniture-use에서 고쳤고, 나머지 여섯 창의 커튼 전제에 대응하는 띠가 없어 이번에 spaces/06-openings.md#selected-window-curtain-strips를 추가했다.
 @evidence settings/10-house.md#primary-bedroom 주침실을 자녀 침실과 구별하는 얇은 커튼을 후면·왼쪽 두 창에 제공한다.
 @evidence spaces/envelope/rear.md#primary-rear-window X = [-3.85, -1.45] m의 후면 개구부를 W = 2.40 m 커튼 원형의 첫 배치로 받는다.
 @evidence spaces/envelope/left.md#primary-left-window Z = [-8.90, -7.30] m의 측면 개구부를 W = 1.60 m 같은 원형의 둘째 배치로 받는다.
 @evidence spaces/rooms/primary.md#primary-furniture-use 두 창 커튼의 host 유도 폭 W + 0.20 m·상하 범위와 방 안쪽 돌출 0.12 m를 `rod`·`bracket`·`curtain`의 전체 점유 상한으로 받는다.
+@evidence spaces/06-openings.md#selected-window-curtain-strips 거실·가족실·작은 침실의 여섯 창마다 W+0.20 m·머리 위 0.12 m·완성 바닥 위 0.10 m·안쪽 0.12 m의 점유 띠를 받는다.
 @evidence obligations/design/models.md#representation-ceiling 얇은 드레이프의 큰 접힘만 원형 형상으로 두고 실밥·봉제·천의 동역학은 이 정적 모델이 주장하지 않는다.
 -->
 
-레퍼런스 05의 주침실 창에 걸린 얇은 회색 커튼을 채택한다. 접힌 주름 수는 사진 복제가 아니라 두 창폭의 규칙으로 정한다.
+레퍼런스 05의 주침실 창에 걸린 얇은 회색 커튼과 03·04의 공용실 창 드레이프를 채택한다. 작은 침실 두 창도 같은 사용 원형으로 마무리한다. 접힌 주름 수는 사진 복제가 아니라 한 패널 폭의 식으로 정한다.
 
-후면의 [주침실 창](../spaces/envelope/rear.md#primary-rear-window)은 폭 W = 2.40 m, 왼쪽의 [주침실 창](../spaces/envelope/left.md#primary-left-window)은 W = 1.60 m이며 두 개구부 모두 Y = [3.91, 5.31] m이고 높이는 1.40 m다. 같은 원형을 두 창의 안쪽 면에 각각 배치한다. 원형의 국소 원점은 개구부 안쪽 왼쪽 아래이며 U는 창 너비, V는 위쪽, +N은 방 안쪽이다. 후면과 왼쪽 배치는 축 회전만 다르고 치수식은 같다. 봉 중심은 개구부 아래 변 기준 국소 Y = 1.50 m(개구부 위 0.10 m)에 놓고 양끝으로 0.10 m씩 뻗는다. 드레이프는 국소 Y = -0.75 m(상층 완성 바닥 위 0.10 m)부터 봉 중심 Y = 1.50 m(상층 완성 바닥 위 2.35 m)까지 이어지며 윗단 0.025 m를 봉 주위에 감싼다. 두 패널을 창 양끝에 각 0.18 m 폭으로 모은 고정 개방 상태다. 봉 반지름 0.0125 m와 천 두께 0.006 m를 더한 최고점은 개구부 위 0.1185 m로, 부모의 위쪽 0.12 m 띠 안에 0.0015 m 남는다. 윗단이 봉을 감싸므로 공중 틈은 없다.
+후면의 [주침실 창](../spaces/envelope/rear.md#primary-rear-window)은 폭 W = 2.40 m, 왼쪽의 [주침실 창](../spaces/envelope/left.md#primary-left-window)은 W = 1.60 m다. 다른 여섯 창은 [공통 커튼 점유](../spaces/06-openings.md#selected-window-curtain-strips) 순서대로 W = 2.80·1.20·2.00·1.70·2.10·2.10 m다. 창 높이 H는 각 host 개구부 머리와 창대에서 계산하고 창 하단의 세계 높이는 host가 준 값만 소비한다. 원형의 국소 원점은 개구부 안쪽 왼쪽 아래이며 U는 창 너비, V는 위쪽, +N은 방 안쪽이다. 전·후·좌·우 입면 배치는 축 회전만 다르고 치수식은 같다. 봉 중심은 V=H+0.10 m(개구부 위 0.10 m)에 놓고 U=[-0.10,W+0.10] m까지 뻗는다. 드레이프는 해당 층 완성 바닥 위 0.10 m에서 봉 중심까지 이어지고 윗단 0.025 m를 봉 주위에 감싼다. 주침실과 작은 침실의 창대에서는 국소 V=-0.75 m, 거실 전면 창은 V=-0.60 m, 거실 측면·가족실 두 창은 V=-0.65 m가 아랫단이다. 두 패널을 창 양끝에 각 0.18 m 폭으로 모은 고정 개방 상태다. 봉 반지름 0.0125 m와 천 두께 0.006 m를 더한 최고점은 개구부 위 0.1185 m로, 두 부모의 위쪽 0.12 m 띠 안에 0.0015 m 남는다. 윗단이 봉을 감싸므로 공중 틈은 없다.
 
-부품은 지름 0.025 m 봉, 양끝 받침 둘, 양쪽 얇은 천 패널이다. 봉 중심은 안쪽 벽면에서 +N 0.06 m, 천의 중간 면은 각 패널의 가로 좌표 u ∈ [0, 0.18] m에 대해 `N(u) = 0.08 + 0.02 sin(6πu / 0.18)` m로 세 접힘을 만들고 두께 0.006 m를 그 양쪽에 둔다. 앞면 최대 N = 0.103 m다. 받침은 +N 0–0.08 m에 머무르므로 봉·받침·천의 앞면을 포함한 최대 돌출 0.103 m는 [주침실 사용 예약](../spaces/rooms/primary.md#primary-furniture-use)의 0.12 m 이내다. 표면 id는 `rod`, `bracket`, `curtain`이며 천 두 패널은 같은 재료 파티션을 공유한다. 얇은 천의 직조 결·투과는 materials가 결속하고, 실밥·봉제선·천의 동역학은 표현하지 않는다. 소스 owner는 `src/models/furnishings/bedrooms.ts`다. [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 정면에서 두 끝 0.18 m 모임이 창 대부분을 열어 두는지, 측면에서 최대 돌출 0.12 m와 창대·손잡이 간섭이 없는지 본다. 실제 부재·점유·GPU 프레임은 unverified다.
+부품은 지름 0.025 m 봉, 양끝 받침 둘, 양쪽 얇은 천 패널이다. 봉 중심은 안쪽 벽면에서 +N 0.06 m, 천의 중간 면은 각 패널의 가로 좌표 u ∈ [0, 0.18] m에 대해 `N(u) = 0.08 + 0.02 sin(6πu / 0.18)` m로 세 접힘을 만들고 두께 0.006 m를 그 양쪽에 둔다. 앞면 최대 N = 0.103 m다. 받침은 +N 0–0.08 m에 머무르므로 봉·받침·천의 앞면을 포함한 최대 돌출 0.103 m는 [주침실 사용 예약](../spaces/rooms/primary.md#primary-furniture-use)과 [여섯 창 예약](../spaces/06-openings.md#selected-window-curtain-strips)의 0.12 m 이내다. 표면 id는 `rod`, `bracket`, `curtain`이며 여덟 배치의 천 두 패널은 같은 재료 파티션을 공유한다. 얇은 천의 직조 결·투과는 materials가 결속하고, 실밥·봉제선·천의 동역학은 표현하지 않는다. 소스 owner는 `src/models/furnishings/bedrooms.ts`다. [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 정면에서 두 끝 0.18 m 모임이 창 대부분을 열어 두는지, 측면에서 최대 돌출 0.12 m와 창대·손잡이 간섭이 없는지 본다. 실제 부재·점유·GPU 프레임은 unverified다.
 
 ## 옷방 옷걸이 구간 {#wardrobe-hanging}
 <!--

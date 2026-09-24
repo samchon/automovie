@@ -50,6 +50,7 @@
 @evidenceExclude settings/20-verification.md#viewer-handoff 「뷰어 실행 인계」는 "사용자와 조정자의 지시에 따라 뷰어를 구현했으면 시작 명령, 실행 디렉터리, 포트, 열어야 할 경로를 보고한다."를 정한다. 조명 H2는 이 결정을 광원 위치·색·강도·상태의 입력으로 읽지 않는다.
 @evidenceExclude settings/20-verification.md#visual-grammar 「공통 재료와 외피 인상」는 "레퍼런스에서 채택한 palette는 따뜻한 백색 수평 lap siding, 창틀과 차고문의 짙은 charcoal, 흰 trim, 붉은갈색 벽돌 기단과 굴뚝, 꿀빛/중간갈색 목재, 회베이지 실내 직물이다."를 정한다. 조명 H2는 이 결정을 광원 위치·색·강도·상태의 입력으로 읽지 않는다.
 @evidenceExclude spaces/00-building.md#main-building-extent 「본채 외곽과 면적」는 "이 spaces의 외곽 선택은 규모와 좌표를 따른다."를 정한다. 광원 H2는 방 외곽과 천장 datum만 소비하므로 이 H2의 값을 읽지 않는다.
+@evidenceExclude spaces/06-openings.md#selected-window-curtain-strips 여섯 창의 정적 커튼 점유는 models와 instances가 소비한다. systems는 이 커튼의 형상·배치·작동을 쓰지 않으며 기존 방·창 id에 속한 광원만 소유한다.
 @evidenceExclude spaces/02-stair.md#stair-boundary-heights 「계단 곁 벽과 열린 보호 경계의 높이」는 "계단 구멍 둘레의 평면 띠는 모두 같은 높이의 벽을 뜻하지 않는다."를 정한다. 광원 H2는 방 외곽과 천장 datum만 소비하므로 이 H2의 값을 읽지 않는다.
 @evidenceExclude spaces/02-stair.md#stair-clearance 「난간과 통행의 순폭 예약」는 "경로의 1.15 m 폭 안에서 양쪽 손잡이·난간의 수평 점유를 각각 0.075 m 이내로 예약한다."를 정한다. 광원 H2는 방 외곽과 천장 datum만 소비하므로 이 H2의 값을 읽지 않는다.
 @evidenceExclude spaces/02-stair.md#stair-connector-handoff 「하나의 연결에 속하는 두 flight와 중간참」는 "단일 꺾임계단을 실현한 계단 공간과 단별 치수는 유지한다."를 정한다. 광원 H2는 방 외곽과 천장 datum만 소비하므로 이 H2의 값을 읽지 않는다.

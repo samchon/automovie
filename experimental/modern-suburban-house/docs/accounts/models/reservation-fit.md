@@ -76,7 +76,7 @@
 | [child-desk](../../models/13-bedrooms.md#child-desk) | L 1.20 또는 1.15, 깊이 0.60·상면 0.75 m; 소품 최고 0.18 m가 뒤쪽 0.25 m 안. |
 | [desk-chair](../../models/13-bedrooms.md#desk-chair) | 0.45×0.48×0.82 m 원형은 0.75×0.75 m 사용 예약보다 각 방향 작다. |
 | [sliding-closet](../../models/13-bedrooms.md#sliding-closet) | 1.50×0.60×2.20 m; 문 2×0.76−0.02 = 1.50 m, 양 문 이동 0.72 m는 몸통 안. |
-| [primary-window-curtains](../../models/13-bedrooms.md#primary-window-curtains) | W 2.40/1.60 m에 봉 W+0.20, 모인 두 폭 2×0.18; 돌출 0.08+0.02+0.003 = 0.103 ≤ 0.12 m; 봉·천 최고점은 개구부 위 0.1125 ≤ 띠 상한 0.12 m. |
+| [primary-window-curtains](../../models/13-bedrooms.md#primary-window-curtains) | 여덟 창 W=2.40/1.60/2.80/1.20/2.00/1.70/2.10/2.10 m에 봉 W+0.20, 모인 두 폭 2×0.18; 돌출 0.08+0.02+0.003 = 0.103 ≤ 0.12 m; 봉·천 최고점은 개구부 위 0.10+0.0125+0.006 = 0.1185 ≤ 두 예약의 상한 0.12 m. |
 | [wardrobe-hanging](../../models/13-bedrooms.md#wardrobe-hanging) | 36벌 두께 합 1.44 m ≤ 봉 2.15 m; 좌우 남음 (2.15−1.44)/2 = 0.355 m. |
 | [wardrobe-shelves](../../models/13-bedrooms.md#wardrobe-shelves) | 두 더미+용기+간격 2×0.28+0.30+2×0.02 = 0.90 ≤ 1.10 m, 양끝 0.10 m. |
 | [shared-toilet](../../models/14-bathrooms.md#shared-toilet) | 폭 0.50 ≤ 최소 예약 0.65 m, 양옆 0.075 m; 좌면 0.43·최고 0.82 m. |

@@ -235,20 +235,21 @@
 ## 흰 수건과 얇은 커튼 {#towel-curtain-textile}
 <!--
 @evidence principles/core/common.md#declared-basis 흰 수건과 얇은 커튼의 #EAE6DC·roughness 0.95은 settings/10-house.md#shower-bathroom의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
-@evidence principles/core/common.md#scope-preservation 흰 수건과 얇은 커튼은 models/14-bathrooms.md#towel-bar, models/14-bathrooms.md#tub-curtain-rail, models/13-bedrooms.md#primary-window-curtains와 wardrobe-shelves의 부재 면에 마감만 결합하고 geometry·경계는 모델 owner에 남긴다.
-@evidence principles/core/common.md#substantive-completion 수건 #EAE6DC(roughness 0.95)와 커튼 #EDE9E0(roughness 0.90, transmission 0.30, 양면), 욕조·주침실 창 커튼의 `curtain` 파티션 및 수건·접힌 린넨 결속, source owner `src/materials/furnishings/textiles.ts`와 관찰을 모두 적는다.
+@evidence principles/core/common.md#scope-preservation 흰 수건과 얇은 커튼은 towel-bar·tub-curtain-rail·여덟 창의 primary-window-curtains와 wardrobe-shelves의 부재 면에 마감만 결합하고 geometry·경계는 모델 owner에 남긴다.
+@evidence principles/core/common.md#substantive-completion 수건 #EAE6DC(roughness 0.95)와 커튼 #EDE9E0(roughness 0.90, transmission 0.30, 양면), 욕조·여덟 창 커튼의 `curtain` 파티션 및 수건·접힌 린넨 결속, source owner `src/materials/furnishings/textiles.ts`와 관찰을 모두 적는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 settings/10-house.md#shower-bathroom는 색·재료를 말로만 정했고 흰 수건과 얇은 커튼은 #EAE6DC 값과 roughness 0.95, `towel`·`curtain`·`folded` 결합을 더한다.
 @evidence principles/design/materials.md#material-construction-appearance 흰 수건과 얇은 커튼은 구성을 '파일 면 직물(수건)과 얇은 폴리 직물(커튼)'로, 외관의 #EAE6DC·roughness 0.95·metallic 0.0을 기준값으로 두고 아래 표면 결속 계획의 결·광학 응답으로 최상층 마감을 표현한다고 적는다.
-@evidence principles/design/materials.md#material-binding-interface 수건과 린넨의 `towel`·`folded`, 욕조와 주침실 창의 `curtain`을 분리 결속하며 얇은 커튼은 양면이다.
+@evidence principles/design/materials.md#material-binding-interface 수건과 린넨의 `towel`·`folded`, 욕조와 여덟 창의 `curtain`을 분리 결속하며 얇은 커튼은 양면이다.
 @evidence principles/design/materials.md#material-verification-address 흰 수건과 얇은 커튼의 반증 견본은 '욕조 커튼이 빛을 통과시키는지와 수건이 흰 타일과 구별되는지'이고 00 재료 리뷰 견본의 중성 조명 판이 #EAE6DC 값을 대조한다.
 @evidenceExclude upstream/design/materials.md#parent-revision-from-material-work 흰 수건과 얇은 커튼은 settings/10-house.md#shower-bathroom, settings/10-house.md#storage를 적힌 그대로 소비했고 수정할 부모 결함을 찾지 않았다.
 @evidence contracts/texture-readability.md#material-texture-readability 수건은 0.01 m 파일 결, 얇은 커튼은 0.02 m 투과 직조 결을 각 파티션에 따로 쓴다. 세로 매달림을 V, 폭을 U로 두고 각각 아래 왼쪽을 원점으로 하며 봉제 끝·창틀 경계에서 끊는다.
 @evidence settings/10-house.md#primary-bedroom 주침실의 얇은 두 창 커튼을 #EDE9E0과 양면 투과 직물로 받고 방 안쪽 0.12 m 예약을 마감이 늘리지 않는다.
+@evidence spaces/06-openings.md#selected-window-curtain-strips 거실·가족실·작은 침실 여섯 창의 커튼 띠를 같은 얇은 직물 결속에 추가하고 면 두께가 예약을 늘리지 않게 한다.
 @evidence settings/10-house.md#shower-bathroom 흰 수건과 얇은 커튼이 '샤워 욕실'(settings/10-house.md#shower-bathroom)를 링크로 소비해 #EAE6DC 값과 결합 면의 근거로 삼았다.
 @evidence settings/10-house.md#storage 흰 수건과 얇은 커튼이 '수납'(settings/10-house.md#storage)를 링크로 소비해 #EAE6DC 값과 결합 면의 근거로 삼았다.
 -->
 
-[수건](../settings/10-house.md#shower-bathroom)·[접힌 린넨](../settings/10-house.md#storage)과 [주침실의 얇은 커튼](../models/13-bedrooms.md#primary-window-curtains), 욕조 샤워 커튼이다. 구성은 파일 면 직물(수건)과 얇은 폴리 직물(커튼)이다. 수건 외관은 `#EAE6DC`(선형 0.823, 0.791, 0.716), roughness 0.95, metallic 0.0, transmission 0.0이다. 커튼 외관은 `#EDE9E0`(선형 0.847, 0.815, 0.745), roughness 0.90, metallic 0.0, transmission 0.30이며 양면이어서 창빛이 비친다. 두 값은 교체 경로가 달라 source에서 두 재료 객체로 둔다. 결합 면은 [수건걸이와 수건](../models/14-bathrooms.md#towel-bar)의 `towel`, [욕조 커튼](../models/14-bathrooms.md#tub-curtain-rail)의 `curtain`, 주침실 두 창 원형의 `curtain`, 린넨장·[옷방 선반](../models/13-bedrooms.md#wardrobe-shelves)의 `folded`다. 커튼 원형의 `rod`·`bracket`은 [검은 도장 금속](02-interior-shell.md#black-coated-metal)을 받는다. source owner는 `src/materials/furnishings/textiles.ts`이고, 리뷰는 욕조와 주침실 창 커튼이 빛을 통과시키면서 창 유리·수건·흰 타일과 구별되는지를 관찰한다.
+[수건](../settings/10-house.md#shower-bathroom)·[접힌 린넨](../settings/10-house.md#storage)과 [여덟 창의 얇은 커튼](../models/13-bedrooms.md#primary-window-curtains), 욕조 샤워 커튼이다. 구성은 파일 면 직물(수건)과 얇은 폴리 직물(커튼)이다. 수건 외관은 `#EAE6DC`(선형 0.823, 0.791, 0.716), roughness 0.95, metallic 0.0, transmission 0.0이다. 커튼 외관은 `#EDE9E0`(선형 0.847, 0.815, 0.745), roughness 0.90, metallic 0.0, transmission 0.30이며 양면이어서 창빛이 비친다. 두 값은 교체 경로가 달라 source에서 두 재료 객체로 둔다. 결합 면은 [수건걸이와 수건](../models/14-bathrooms.md#towel-bar)의 `towel`, [욕조 커튼](../models/14-bathrooms.md#tub-curtain-rail)의 `curtain`, 여덟 창 원형의 `curtain`, 린넨장·[옷방 선반](../models/13-bedrooms.md#wardrobe-shelves)의 `folded`다. 커튼 원형의 `rod`·`bracket`은 [검은 도장 금속](02-interior-shell.md#black-coated-metal)을 받는다. source owner는 `src/materials/furnishings/textiles.ts`이고, 리뷰는 욕조와 여덟 창 커튼이 빛을 통과시키면서 창 유리·수건·흰 타일과 구별되는지를 관찰한다.
 
 협탁등의 `lamp-shade`와 매단 등의 `fixture-shade`는 밝은 직물 외관을 받되 구조 부재는 별도 금속 표면으로 남긴다.
 
