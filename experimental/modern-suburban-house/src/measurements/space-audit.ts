@@ -8,6 +8,7 @@ import type { IAutoMovieMesh } from "@automovie/interface";
 import { buildHouseEnvironment } from "../spaces/environment";
 import { buildHouse } from "../spaces/house";
 import { deriveHouseObservations } from "../spaces/observations";
+import { verifyBoundarySegments } from "./boundary-audit";
 import { auditHouseRoofOverlaps } from "./roof-overlap";
 
 export interface IPartMeasure {
@@ -85,6 +86,7 @@ const measurePart = (part: ReturnType<typeof buildHouse>["parts"][number]): IPar
 
 /** Current whole-house census, with no acceptance verdict hidden in the data. */
 export const auditHouseGeometry = () => {
+  verifyBoundarySegments();
   const house = buildHouse();
   const environment = buildHouseEnvironment(house);
   const observations = deriveHouseObservations(environment, house);
