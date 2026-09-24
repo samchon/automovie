@@ -1,21 +1,3 @@
-alan-rickman skin 0.4225 0.234 0.1798 (77 subjects)
-daniel-radcliffe skin 0.4225 0.234 0.1798 (77 subjects)
-emma-watson skin 0.463 0.2714 0.2091 (274 subjects)
-generated-black-boy-01 skin 0.1497 0.0801 0.0553 (60 subjects)
-generated-black-girl-01 skin 0.2178 0.1153 0.0695 (85 subjects)
-generated-korean-boy-01 skin 0.4206 0.2393 0.1743 (243 subjects)
-generated-white-boy-01 skin 0.4225 0.234 0.1798 (77 subjects)
-generated-white-girl-01 skin 0.463 0.2714 0.2091 (274 subjects)
-kim-min-jung skin 0.4802 0.295 0.2237 (244 subjects)
-lee-tae-ri skin 0.4802 0.295 0.2237 (244 subjects)
-maggie-smith skin 0.463 0.2714 0.2091 (274 subjects)
-michael-gambon skin 0.4225 0.234 0.1798 (77 subjects)
-miriam-margolyes skin 0.463 0.2714 0.2091 (274 subjects)
-oh-seung-yoon skin 0.4206 0.2393 0.1743 (243 subjects)
-park-eun-bin skin 0.4802 0.295 0.2237 (244 subjects)
-rupert-grint skin 0.4225 0.234 0.1798 (77 subjects)
-yoo-seung-ho skin 0.4206 0.2393 0.1743 (243 subjects)
-kdy1 skin 0.4504 0.2673 0.1991 (488 subjects)
 alan-rickman pigment 0.1904 0.1011 0.0776 
 daniel-radcliffe pigment 0.0332 0.0109 0.0054 
 emma-watson pigment 0.0240 0.0083 0.0036 
@@ -27,7 +9,7 @@ generated-white-girl-01 pigment 0.0642 0.0343 0.0261
 kim-min-jung pigment 0.0118 0.0160 0.0168 
 lee-tae-ri pigment 0.0287 0.0161 0.0130 
 maggie-smith pigment 0.4129 0.2382 0.1626 
-michael-gambon pigment 0.0558 0.0309 0.0238 
+michael-gambon pigment 0.0357 0.0357 0.0357 
 miriam-margolyes pigment 0.1625 0.1077 0.0869 
 oh-seung-yoon unchanged photograph sample missing
 park-eun-bin pigment 0.0773 0.0352 0.0308 
@@ -45,7 +27,7 @@ generated-white-girl-01 mean 0.0347 0.0265 0.0197
 kim-min-jung mean 0.0090 0.0121 0.0143 
 lee-tae-ri mean 0.0200 0.0107 0.0082 
 maggie-smith mean 0.0443 0.0250 0.0342 
-michael-gambon mean 0.0395 0.0219 0.0168 
+michael-gambon mean 0.0253 0.0253 0.0253 
 miriam-margolyes mean 0.0661 0.0446 0.0413 
 oh-seung-yoon mean 0.0028 0.0018 0.0011 
 park-eun-bin mean 0.0219 0.0083 0.0082 
@@ -65,7 +47,7 @@ kim-min-jung color 0.0167 0.0315 0.0432
 kim-min-jung color 0.0117 0.0220 0.0302 
 lee-tae-ri color 0.0329 0.0284 0.0255 
 maggie-smith color 0.1637 0.1129 0.0876 
-michael-gambon color 0.6049 0.3350 0.2574 
+michael-gambon color 0.3868 0.3868 0.3868 
 miriam-margolyes color 1.0000 1.0000 1.0000 clamped
 miriam-margolyes color 1.0000 1.0000 1.0000 clamped
 oh-seung-yoon color 0.0011 0.0012 0.0014 
@@ -87,7 +69,7 @@ generated-white-girl-01 lips 0.348 0.1223 0.1192
 kim-min-jung lips 0.2824 0.0804 0.0834 
 lee-tae-ri lips 0.291 0.0774 0.0792 
 maggie-smith lips 0.4025 0.1624 0.1793 
-michael-gambon lips 0.2487 0.1377 0.1058 
+michael-gambon lips 0.159 0.159 0.159 
 miriam-margolyes lips 0.3947 0.1123 0.1156 
 oh-seung-yoon lips 0.331 0.1149 0.1205 
 park-eun-bin lips 0.4062 0.132 0.1331 

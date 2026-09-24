@@ -1,0 +1,243 @@
+{
+  "alan-rickman": {
+    "drop": {
+      "photograph": -0.5480213510045711,
+      "before": -0.5541423261078164,
+      "after": -0.5541423261078164,
+      "factor": 1
+    },
+    "fringe": {
+      "photograph": 0.005470412941677309,
+      "before": 0,
+      "after": 0,
+      "factor": 1
+    }
+  },
+  "daniel-radcliffe": {
+    "drop": {
+      "photograph": -0.9147283080686103,
+      "before": -0.1309685528968997,
+      "after": -0.9332365847096503,
+      "factor": 0.31054852793038507
+    },
+    "fringe": {
+      "photograph": 0.1379702901568791,
+      "before": 0.09699641047297297,
+      "after": 0.09699641047297297,
+      "factor": 1
+    }
+  },
+  "emma-watson": {
+    "drop": {
+      "photograph": 1.7159222986959282,
+      "shoulder": 0.8554438327098366,
+      "result": "unchanged: the photograph's hair falls onto the shoulders"
+    },
+    "fringe": {
+      "photograph": 0.0006932065755595167,
+      "before": 0.07547539149888143,
+      "after": 0.07547539149888143,
+      "factor": 0.8,
+      "result": "unchanged: the control does not reach the photograph"
+    }
+  },
+  "generated-black-boy-01": {
+    "drop": {
+      "photograph": -1.238792445028125,
+      "before": -0.8916738351040534,
+      "after": -1.1425411664154064,
+      "factor": 0.2
+    },
+    "fringe": {
+      "photograph": 0,
+      "before": 0,
+      "after": 0,
+      "factor": 1
+    }
+  },
+  "generated-black-girl-01": {
+    "drop": {
+      "photograph": 0.6086889698961726,
+      "before": 2.310718817563748,
+      "after": 1.2394562447603652,
+      "factor": 0.2,
+      "result": "unchanged: the control does not reach the photograph"
+    },
+    "fringe": {
+      "photograph": 0,
+      "before": 0.20064237679413832,
+      "after": 0.11821238582756198,
+      "factor": 0.2,
+      "result": "unchanged: the control does not reach the photograph"
+    }
+  },
+  "generated-korean-boy-01": {
+    "drop": {
+      "photograph": -1.0542050013717812,
+      "before": -0.6162223154031001,
+      "after": -1.1233921792617392,
+      "factor": 0.5069346077111578
+    },
+    "fringe": {
+      "photograph": 0.01618874773139746,
+      "before": 0,
+      "after": 0,
+      "factor": 1
+    }
+  },
+  "generated-white-boy-01": {
+    "drop": {
+      "photograph": -1.0828177767867688,
+      "before": -0.7011545630201595,
+      "after": -1.081178096811671,
+      "factor": 0.5418671908889122
+    },
+    "fringe": {
+      "photograph": 0.019494405061807957,
+      "before": 0,
+      "after": 0,
+      "factor": 1
+    }
+  },
+  "generated-white-girl-01": {
+    "drop": "unchanged: the photograph gives no index",
+    "fringe": {
+      "photograph": 0.00048241206030150754,
+      "before": 0,
+      "after": 0,
+      "factor": 1
+    }
+  },
+  "kim-min-jung": {
+    "drop": {
+      "photograph": -1.1450527383305231,
+      "before": -0.5816198111643038,
+      "after": -1.1292661607822652,
+      "factor": 0.2
+    },
+    "fringe": {
+      "photograph": 0.412,
+      "before": 0.12727438136826782,
+      "after": 0.4126637554585153,
+      "factor": 1.8320730237504428
+    }
+  },
+  "lee-tae-ri": {
+    "drop": {
+      "photograph": -0.15392699071356558,
+      "before": 0.41485371131325666,
+      "after": -0.16320994808324574,
+      "factor": 0.6101922618692829
+    },
+    "fringe": {
+      "photograph": 0.055387553716377526,
+      "before": 0.2723211286530064,
+      "after": 0.24517971111857575,
+      "factor": 0.2,
+      "result": "unchanged: the control does not reach the photograph"
+    }
+  },
+  "maggie-smith": {
+    "drop": {
+      "photograph": -0.2768889799459092,
+      "before": 0.971819219272354,
+      "after": -0.28032638687224937,
+      "factor": 0.344661140249821
+    },
+    "fringe": {
+      "photograph": 0,
+      "before": 0.001309935739001483,
+      "after": 0.001309935739001483,
+      "factor": 1
+    }
+  },
+  "michael-gambon": {
+    "drop": {
+      "photograph": 0.37802548527647095,
+      "before": -0.6604011658630757,
+      "after": 0.15513646350488397,
+      "factor": 3,
+      "result": "unchanged: the control does not reach the photograph"
+    },
+    "fringe": {
+      "photograph": 0.029180695847362513,
+      "before": 0,
+      "after": 0,
+      "factor": 1
+    }
+  },
+  "miriam-margolyes": {
+    "drop": {
+      "photograph": -0.34356422150600563,
+      "before": 0.4720688896226513,
+      "after": -0.35303116706023624,
+      "factor": 0.3379859721153553
+    },
+    "fringe": {
+      "photograph": 0.7502313284864508,
+      "before": 0.7619985085756897,
+      "after": 0.7619985085756897,
+      "factor": 1
+    }
+  },
+  "oh-seung-yoon": {
+    "drop": {
+      "photograph": -0.31897531933573625,
+      "before": 0.18716938278604928,
+      "after": -0.3219985620489574,
+      "factor": 0.5066912007367603
+    },
+    "fringe": {
+      "photograph": 0.70361328125,
+      "before": 0.6719252523012088,
+      "after": 0.6719252523012088,
+      "factor": 1
+    }
+  },
+  "park-eun-bin": {
+    "drop": {
+      "photograph": -0.7454073710260121,
+      "before": -0.25171939895436685,
+      "after": -0.7568024417344681,
+      "factor": 0.5150671277292902
+    },
+    "fringe": {
+      "photograph": 0.1396655701754386,
+      "before": 0.7343031300250552,
+      "after": 0.22190643581017913,
+      "factor": 0.2,
+      "result": "unchanged: the control does not reach the photograph"
+    }
+  },
+  "rupert-grint": {
+    "drop": {
+      "photograph": -0.9941115531819679,
+      "before": -0.20854213643026867,
+      "after": -0.96177264660985,
+      "factor": 0.2
+    },
+    "fringe": {
+      "photograph": 0,
+      "before": 0,
+      "after": 0,
+      "factor": 1
+    }
+  },
+  "yoo-seung-ho": {
+    "drop": {
+      "photograph": -0.897292897994859,
+      "before": -0.3965264201298487,
+      "after": -0.9899845866349971,
+      "factor": 0.46822499324243366
+    },
+    "fringe": {
+      "photograph": 0.47692307692307695,
+      "before": 0.33767529190870155,
+      "after": 0.4757085020242915,
+      "factor": 1.2932048430936496
+    }
+  },
+  "kdy1": {
+    "result": "unchanged: no hair, photograph, camera or anchors"
+  }
+}
