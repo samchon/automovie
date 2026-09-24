@@ -2,6 +2,7 @@ import { extrudeAutoMovieProfile } from "@automovie/engine";
 import { Assembly, v, rectangle } from "../assembly";
 import { bar, cutWall, localCut, localU, position, type Frame } from "../walls";
 import { subtract } from "../storeys/floors";
+import { centresOf, curtainwall, louvre, spandrel } from "./curtainwall";
 import type { Rect } from "../plan";
 export type Glazing = { id: string; room: string; a: number; b: number; sill: number; head: number; privacy?: "lower" | "all"; breaks?: number[] };
 /** Each facade calls this measured panel kernel with its complete elevation.
@@ -24,32 +25,19 @@ export function facade(a: Assembly, f: Frame, windows: Glazing[], extraCuts: Ret
   }
   a.repeat(f.id + "-stone-panels", "house", "stone", panels);
   for (const w of windows) glazing(a, f, w);
+  spandrel(a, f, windows);
+  // The wall is cut at its centre C, but the exterior boundary face stands on
+  // the outer plane O = C + (d/2)N so the native exposed normal points outward.
+  const boundary = a.environment.boundaries.find((b) => b.id === f.id)!;
+  if (boundary.face) boundary.face.origin = position(f, (f.a + f.b) / 2, (f.floor + f.top) / 2, f.depth / 2 * f.normal);
 }
 function glazing(a: Assembly, f: Frame, w: Glazing): void {
-  const segments = [w.a, ...(w.breaks ?? []), w.b];
-  const edges = [w.a];
-  for (let i = 0; i < segments.length - 1; i++) {
-    const count = Math.ceil((segments[i + 1] - segments[i]) / 1.25);
-    for (let j = 1; j <= count; j++) edges.push(segments[i] + (segments[i + 1] - segments[i]) * j / count);
-  }
-  for (const [i, u] of edges.entries()) bar(a, f, w.id + "-mullion-" + i, w.room, "metal", u + (i === 0 ? -0.02 : i === edges.length - 1 ? 0.02 : 0), (w.head + w.sill) / 2, 0.04, w.head - w.sill + 0.08, 0.14);
-  for (const [name, y] of [["head", w.head + 0.02], ["sill", w.sill - 0.02]] as const) bar(a, f, w.id + "-" + name, w.room, "metal", (w.a + w.b) / 2, y, w.b - w.a, 0.04, 0.14);
+  const first = curtainwall(a, f, w);
   bar(a, f, w.id + "-drip", w.room, "stone", (w.a + w.b) / 2, w.sill - 0.055, w.b - w.a + 0.12, 0.03, 0.28, 0.025 * f.normal);
-  let first: string | null = null;
-  for (let i = 0; i < edges.length - 1; i++) {
-    // Jambs stand outside the effective span; an internal mullion occupies
-    // 0.02m on either side of its centre. No unmodelled gasket leaves an air gap.
-    const left = edges[i] + (i === 0 ? 0 : 0.02), right = edges[i + 1] - (i === edges.length - 2 ? 0 : 0.02);
+  const centres = centresOf(w);
+  for (let i = 0; i < centres.length - 1; i++) {
+    const left = centres[i] + 0.02, right = centres[i + 1] - 0.02;
     const u = (left + right) / 2, width = right - left;
-    const split = w.privacy === "lower" ? Math.min(w.head, w.sill + 1.25) : w.head;
-    const bands = w.privacy === "lower" ? [[w.sill, split, "frosted"], [split, w.head, "glass"]] as const : [[w.sill, w.head, w.privacy === "all" ? "frosted" : "glass"]] as const;
-    for (const [n, band] of bands.entries()) {
-      // A short privacy window has no upper clear band. Adjacent material
-      // bands otherwise meet: changing optical response must not cut a slit.
-      if (band[1] <= band[0]) continue;
-      const id = bar(a, f, w.id + "-pane-" + i + "-" + n, w.room, band[2], u, (band[0] + band[1]) / 2, width, band[1] - band[0], 0.018);
-      first ??= id;
-    }
     const drop = w.privacy === "all" ? 0 : a.state.privacy === "day" ? 0.045 : a.state.privacy === "night" || w.privacy === "lower" ? 1 : 0.6;
     bar(a, f, w.id + "-shade-box-" + i, w.room, "metal", u, w.head - 0.025, width, 0.075, 0.08, 0.14 * f.normal);
     if (drop > 0) {
@@ -58,6 +46,7 @@ function glazing(a: Assembly, f: Frame, w: Glazing): void {
       bar(a, f, w.id + "-shade-hem-" + i, w.room, "metal", u, w.head - h, width, 0.015, 0.018, 0.14 * f.normal);
     }
   }
+  louvre(a, f, w);
   a.environment.openings.push({ id: w.id, kind: "window", boundary: f.id, fill: first, profile: { outline: rectangle(Math.min(localU(f, w.a), localU(f, w.b)), Math.max(localU(f, w.a), localU(f, w.b)), w.sill - (f.floor + f.top) / 2, w.head - (f.floor + f.top) / 2) } });
 }
 /** A diagonal closes the corner without two facade owners occupying the same solid. */
