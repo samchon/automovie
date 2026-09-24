@@ -96,14 +96,17 @@ export function fitFaceLikenessIrisPigment(props: {
  * difference, where a colour photograph's skin reads 18 to 21, Lu et al.
  * 2026) holds no colour to divide: its channels are the same luminance, so
  * the per-channel ratio would hand the skin's hue to the sample. There the
- * ratio is of luminance (CIE Y) and the albedo neutral, that ratio times the
- * skin's luminance in every channel. Pure.
+ * ratio is of luminance (CIE Y), times the skin's luminance, and the albedo
+ * takes that luminance with the chromaticity of `prior` when one is given (a
+ * surface whose colour the photograph cannot show but anatomy fixes, the
+ * lips), neutral otherwise. Pure.
  */
 export function faceLikenessReflectance(props: {
   sample: readonly [number, number, number];
   cheek: readonly [number, number, number];
   skin: readonly [number, number, number];
   achromatic?: number;
+  prior?: readonly [number, number, number];
 }): [number, number, number] {
   const sample = faceLikenessLabToLinear(props.sample);
   const cheek = faceLikenessLabToLinear(props.cheek);
@@ -114,7 +117,9 @@ export function faceLikenessReflectance(props: {
     const Y = (rgb: readonly number[]) =>
       0.2126 * rgb[0]! + 0.7152 * rgb[1]! + 0.0722 * rgb[2]!;
     const value = (Math.max(0, Y(sample)) / Y(cheek)) * Y(props.skin);
-    return [value, value, value];
+    const prior = props.prior;
+    if (prior === undefined || !(Y(prior) > 0)) return [value, value, value];
+    return prior.map((c) => (c * value) / Y(prior)) as [number, number, number];
   }
   return [0, 1, 2].map(
     (c) => (Math.max(0, sample[c]!) / cheek[c]!) * props.skin[c]!,

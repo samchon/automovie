@@ -11,11 +11,15 @@
  * in CIELAB, and the lip goes through the iris and brow fits' reflectance
  * ratio rule (`fitFaceLikenessBrowPigment`: lip over cheek in linear colour
  * times the document's own skin albedo), written, rounded to four decimals,
- * as `materials.lips.color`, keeping the rest of that override. Lipstick is
+ * as `materials.lips.color`, keeping the rest of that override. A greyscale
+ * photograph shows the lip's lightness but not its colour, which anatomy
+ * fixes: its lip takes the portrait lip material's chromaticity at the
+ * photographed lightness ratio. Lipstick is
  * the lip as photographed and is read as such. A subject without a detected
  * photograph or a sample keeps its document. The documents are rewritten in
  * place unless OUTPUT is given; the printed table is the fit's record.
  */
+import { createPortraitMaterials } from "@automovie/human";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -47,6 +51,9 @@ const documents = readFaceLikenessJson<
     >;
   }[]
 >(subjectsFile);
+const lip = createPortraitMaterials().find(
+  (one) => one.id === "lips",
+)!.baseColor;
 const mean = (
   samples: (IFaceLikenessColour | null)[],
 ): [number, number, number] | null => {
@@ -87,6 +94,7 @@ for (const document of documents) {
       faceLikenessCheekColour(image, points, "left", hair),
     ]),
     skin: [skin.r, skin.g, skin.b],
+    prior: [lip.r, lip.g, lip.b],
   });
   if (fit === null) {
     console.log(subject, "unchanged", "photograph sample missing");

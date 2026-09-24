@@ -34,7 +34,9 @@ const linearToLab = (rgb: readonly number[]): [number, number, number] => {
  * 4. A missing iris or cheek sample gives no pigment; a black cheek refuses.
  * 5. A greyscale photograph (a cheek without chroma) gives a neutral albedo,
  *    the luminance ratio times the skin's luminance in every channel, where a
- *    colour photograph keeps the per-channel ratio and so the skin's hue.
+ *    colour photograph keeps the per-channel ratio and so the skin's hue;
+ *    given a prior colour it takes that colour's chromaticity at the same
+ *    luminance, and a prior without luminance leaves it neutral.
  */
 export const test_subject_face_likeness_iris_fit = (): void => {
   const close = (a: readonly number[], b: readonly number[], eps = 1e-4) =>
@@ -133,5 +135,27 @@ export const test_subject_face_likeness_iris_fit = (): void => {
     "greyscale photograph",
     close(grey, [0.1 * Y(tone), 0.1 * Y(tone), 0.1 * Y(tone)]) &&
       close(coloured, [0.1 * 0.4, (0.05 / 0.3) * 0.25, 0.2 * 0.2]),
+  );
+  const lip: [number, number, number] = [0.4, 0.1, 0.1];
+  const tinted = faceLikenessReflectance({
+    sample: linearToLab([0.05, 0.05, 0.05]),
+    cheek: linearToLab([0.5, 0.5, 0.5]),
+    skin: tone,
+    prior: lip,
+  });
+  const dark = faceLikenessReflectance({
+    sample: linearToLab([0.05, 0.05, 0.05]),
+    cheek: linearToLab([0.5, 0.5, 0.5]),
+    skin: tone,
+    prior: [0, 0, 0],
+  });
+  TestValidator.predicate(
+    "greyscale photograph with a prior colour",
+    close(
+      tinted,
+      lip.map((c) => (c * 0.1 * Y(tone)) / Y(lip)) as [number, number, number],
+    ) &&
+      nclose(Y(tinted), 0.1 * Y(tone), 1e-9) &&
+      close(dark, grey),
   );
 };

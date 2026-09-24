@@ -26,12 +26,15 @@ export function fitFaceLikenessBrowPigment(props: {
   brow: readonly [number, number, number] | null;
   cheek: readonly [number, number, number] | null;
   skin: readonly [number, number, number];
+  /** The colour a greyscale photograph cannot show (`faceLikenessReflectance`). */
+  prior?: readonly [number, number, number];
 }): { pigment: [number, number, number]; clamped: boolean } | null {
   if (props.brow === null || props.cheek === null) return null;
   const raw = faceLikenessReflectance({
     sample: props.brow,
     cheek: props.cheek,
     skin: props.skin,
+    prior: props.prior,
   });
   return {
     pigment: raw.map((value) => Math.min(1, value)) as [number, number, number],
