@@ -251,15 +251,16 @@ export const slopedSlab = (props: {
   top: (x: number, z: number) => number;
   /** Constant vertical thickness under the top; ignored when `floor` is given. */
   thickness?: number;
-  /** A level underside instead, for wedges such as a beam packer. */
-  floor?: number;
+  /** An underside instead: a level (a beam packer) or a planar height function (a wall-head wedge). */
+  floor?: number | ((x: number, z: number) => number);
 }): IAutoMovieMesh => {
   if (props.plan.length < 3) throw new Error("sloped slab needs at least three plan corners");
   if (props.floor === undefined && !(props.thickness! > 0)) throw new Error("sloped slab needs a positive thickness or a floor");
   const up = props.plan.map((p) => ({ x: p.x, y: props.top(p.x, p.z), z: p.z }));
   const normal = cross(sub(up[1]!, up[0]!), sub(up[2]!, up[0]!));
   const top = normal.y > 0 ? up : [...up].reverse();
-  const bottom = top.map((p) => ({ x: p.x, y: props.floor ?? p.y - props.thickness!, z: p.z }));
+  const floor = props.floor;
+  const bottom = top.map((p) => ({ x: p.x, y: floor === undefined ? p.y - props.thickness! : typeof floor === "number" ? floor : floor(p.x, p.z), z: p.z }));
   const faces: IAutoMovieVector3[][] = [top, [...bottom].reverse()];
   const same = (a: IAutoMovieVector3, b: IAutoMovieVector3): boolean =>
     Math.abs(a.x - b.x) < 1e-9 && Math.abs(a.y - b.y) < 1e-9 && Math.abs(a.z - b.z) < 1e-9;

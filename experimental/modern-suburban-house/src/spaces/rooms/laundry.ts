@@ -20,6 +20,27 @@ const LAUNDRY: IRoomSpace = {
   storey: "ground-storey",
   outline: box([3.22, 5.5], [-4.55, -2.05]),
   floor: PALETTE.utility,
+  reservations: [
+    // laundry-equipment-use: machine band X = [4.75, 5.50], Z = [-3.35, -2.05]; two 0.65 x 0.75 x 0.88
+    // machines centred at Z = -3.025 (washer, rear) and -2.375 (dryer, front), fronts facing -X.
+    { id: "laundry-washer", kind: "fixture", x: [4.75, 5.5], z: [-3.35, -2.7], y: [0, 0.88] },
+    { id: "laundry-dryer", kind: "fixture", x: [4.75, 5.5], z: [-2.7, -2.05], y: [0, 0.88] },
+    // Folding top at 0.94 over the same band; its underside cannot go below the 0.88 machine limit.
+    { id: "laundry-folding-top", kind: "fixture", x: [4.75, 5.5], z: [-3.35, -2.05], y: [0.88, 0.94] },
+    { id: "laundry-upper-storage", kind: "storage", x: [5.2, 5.5], z: [-3.35, -2.05], y: [1.5, 2.3] },
+    // Round doors open at most 0.50 m -X from the front X = 4.75, within each machine's width.
+    { id: "laundry-washer-door", kind: "swing", x: [4.25, 4.75], z: [-3.35, -2.7] },
+    { id: "laundry-dryer-door", kind: "swing", x: [4.25, 4.75], z: [-2.7, -2.05] },
+    { id: "laundry-washer-work", kind: "use", x: [3.8, 4.25], z: [-3.35, -2.6] },
+    { id: "laundry-dryer-work", kind: "use", x: [3.8, 4.25], z: [-2.8, -2.05] },
+    // Shoe bench from the left inner face to X = 3.62, Z = -2.85 to the front inner face; hooks over it.
+    { id: "laundry-shoe-bench", kind: "furniture", x: [3.22, 3.62], z: [-2.85, -2.05], y: [0, 0.45] },
+    { id: "laundry-coat-hooks", kind: "storage", x: [3.22, 3.62], z: [-2.85, -2.05], y: [1.1, 1.85] },
+    { id: "laundry-shoe-use", kind: "use", x: [3.62, 4.25], z: [-2.85, -2.05] },
+    // laundry-plan upper (mudroom) waiting zone and laundry-through-route.
+    { id: "laundry-upper-waiting", kind: "use", x: [4.45, 5.5], z: [-4.43, -3.38] },
+    { id: "laundry-through-route", kind: "route", x: [3.22, 5.5], z: [-4.32, -3.42] },
+  ],
 };
 
 /** Emit the laundry finishes, its share under service-laundry-door, the garage threshold and its two partitions. */

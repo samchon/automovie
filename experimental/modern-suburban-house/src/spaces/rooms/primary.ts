@@ -24,6 +24,19 @@ const PRIMARY: IRoomSpace = {
     { x: -5.5, z: -10.45 },
   ],
   floor: PALETTE.carpet,
+  // primary.md#primary-furniture-use; heights are above the upper floor (+3.06).
+  reservations: [
+    { id: "primary-bedroom-bed", kind: "furniture", x: [-1.5, 0.65], z: [-8.65, -7.05], y: [3.06, 4.06] },
+    { id: "primary-bedroom-rear-nightstand", kind: "furniture", x: [0.15, 0.65], z: [-9.15, -8.65], y: [3.06, 4.16] },
+    { id: "primary-bedroom-front-nightstand", kind: "furniture", x: [0.15, 0.65], z: [-7.05, -6.55], y: [3.06, 4.16] },
+    // X from the left inner face (-5.50) to -5.00.
+    { id: "primary-bedroom-dresser", kind: "furniture", x: [-5.5, -5.0], z: [-6.5, -5.1], y: [3.06, 3.86] },
+    // Drawers pull +X at most 0.40 from the dresser front -5.00.
+    { id: "primary-bedroom-dresser-drawers", kind: "swing", x: [-5.0, -4.6], z: [-6.5, -5.1] },
+    { id: "primary-bedroom-dresser-use", kind: "use", x: [-4.6, -4.0], z: [-6.5, -5.1] },
+    { id: "primary-bedroom-wardrobe-door-swing", kind: "swing", x: [-0.25, 0.75], z: [-10.2, -9.2] },
+    { id: "primary-bedroom-wardrobe-door-wait", kind: "use", x: [-0.55, 0.75], z: [-10.2, -9.2] },
+  ],
 };
 
 /** Emit the primary bedroom floor and its three partition runs. */

@@ -15,6 +15,17 @@ const PANTRY: IRoomSpace = {
   storey: "ground-storey",
   outline: box([3.22, 5.5], [-6.05, -4.7]),
   floor: PALETTE.woodFloor,
+  reservations: [
+    // pantry-plan L-shelf: back band 0.25 m deep from Z = -6.05, right band 0.30 m deep from X = 5.50.
+    { id: "pantry-back-shelf", kind: "storage", x: [3.22, 5.5], z: [-6.05, -5.8] },
+    { id: "pantry-right-shelf", kind: "storage", x: [5.2, 5.5], z: [-6.05, -4.7] },
+    // pantry-use-route: entrance X = 3.22 to the right shelf front, back shelf front to the
+    // door/handle limit 0.08 m behind the +Z jamb plane Z = -4.80.
+    { id: "pantry-use-route", kind: "route", x: [3.22, 5.2], z: [-5.8, -4.88] },
+    // 0.90 m turning square centred 0.50 m -X of the right shelf front (X = 4.70) and on the
+    // use band's Z centre (-5.34).
+    { id: "pantry-turning", kind: "use", x: [4.25, 5.15], z: [-5.79, -4.89] },
+  ],
 };
 
 /** Emit the pantry floor and its partition to the service band. */

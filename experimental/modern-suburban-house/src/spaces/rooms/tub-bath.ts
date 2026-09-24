@@ -20,6 +20,20 @@ const TUB_BATH: IRoomSpace = {
   storey: "upper-storey",
   outline: box([3.22, 5.5], [-8.8, -4.71]),
   floor: PALETTE.tile,
+  // tub-bath.md#tub-fixture-use; right ends are the inner face X = 5.50, heights above the upper floor (+3.06).
+  reservations: [
+    { id: "tub-bathroom-vanity", kind: "fixture", x: [4.95, 5.5], z: [-5.75, -4.9], y: [3.06, 3.91] },
+    { id: "tub-bathroom-vanity-use", kind: "use", x: [4.3, 4.95], z: [-5.7, -4.95] },
+    { id: "tub-bathroom-toilet", kind: "fixture", x: [4.75, 5.5], z: [-6.65, -5.95], y: [3.06, 3.88] },
+    { id: "tub-bathroom-toilet-use", kind: "use", x: [4.25, 4.75], z: [-6.6, -6.0] },
+    { id: "tub-bathroom-tub", kind: "fixture", x: [4.7, 5.5], z: [-8.7, -6.9], y: [3.06, 3.61] },
+    { id: "tub-bathroom-tub-use", kind: "use", x: [3.65, 4.7], z: [-8.55, -7.0] },
+    { id: "tub-bathroom-main-route", kind: "route", x: [3.32, 4.22], z: [-8.7, -5.0] },
+    // Left wall (X = 3.22), projection at most 0.08, height 1.10-1.50.
+    { id: "tub-bathroom-towel", kind: "fixture", x: [3.22, 3.3], z: [-6.85, -6.1], y: [4.16, 4.56] },
+    // Right wall (X = 5.50) over the vanity's Z width, projection at most 0.04, height 1.10-1.90.
+    { id: "tub-bathroom-mirror", kind: "fixture", x: [5.46, 5.5], z: [-5.75, -4.9], y: [4.16, 4.96] },
+  ],
 };
 
 /** Emit the tub bathroom floor and its two partitions. */

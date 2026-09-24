@@ -18,6 +18,19 @@ const POWDER: IRoomSpace = {
   storey: "ground-storey",
   outline: box([3.22, 5.5], [-1.9, -0.25]),
   floor: PALETTE.tile,
+  reservations: [
+    // powder-plan fixture boxes; heights from powder-fixture-use (toilet max 0.82, basin top 0.85).
+    { id: "powder-toilet", kind: "fixture", x: [4.75, 5.5], z: [-1.65, -0.95], y: [0, 0.82] },
+    { id: "powder-basin", kind: "fixture", x: [3.65, 4.25], z: [-0.7, -0.25], y: [0, 0.85] },
+    // powder-fixture-use floors and the door waiting zone.
+    { id: "powder-toilet-use", kind: "use", x: [4.15, 4.75], z: [-1.6, -1.0] },
+    { id: "powder-basin-use", kind: "use", x: [3.65, 4.25], z: [-1.15, -0.7] },
+    { id: "powder-door-waiting", kind: "use", x: [4.25, 4.85], z: [-0.85, -0.4] },
+    // Front wall (inner face Z = -0.25) items: mirror over the basin X range, projection 0.04;
+    // towel X = [4.40, 4.90], projection 0.08.
+    { id: "powder-mirror", kind: "fixture", x: [3.65, 4.25], z: [-0.29, -0.25], y: [1.1, 1.9] },
+    { id: "powder-towel", kind: "fixture", x: [4.4, 4.9], z: [-0.33, -0.25], y: [1.2, 1.5] },
+  ],
 };
 
 /** Emit the powder room floor and its two partitions. */

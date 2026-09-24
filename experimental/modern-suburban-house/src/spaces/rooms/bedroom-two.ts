@@ -17,6 +17,17 @@ const BEDROOM_TWO: IRoomSpace = {
   storey: "upper-storey",
   outline: box([-5.5, -1.95], [-4.56, -0.25]),
   floor: PALETTE.carpet,
+  // bedroom-two.md#bedroom-two-furniture-use; heights above the upper floor (+3.06).
+  reservations: [
+    { id: "bedroom-two-bed", kind: "furniture", x: [-5.25, -4.1], z: [-4.5, -2.35], y: [3.06, 4.01] },
+    { id: "bedroom-two-nightstand", kind: "furniture", x: [-3.95, -3.5], z: [-4.5, -4.05], y: [3.06, 4.11] },
+    // X from the left inner face (-5.50) to -4.90.
+    { id: "bedroom-two-desk", kind: "furniture", x: [-5.5, -4.9], z: [-1.6, -0.4], y: [3.06, 3.81] },
+    // X from -2.55 to the right inner face (-1.95).
+    { id: "bedroom-two-closet", kind: "storage", x: [-2.55, -1.95], z: [-2.95, -1.45], y: [3.06, 5.26] },
+    { id: "bedroom-two-desk-chair-use", kind: "use", x: [-4.9, -4.15], z: [-1.45, -0.7] },
+    { id: "bedroom-two-closet-use", kind: "use", x: [-3.15, -2.55], z: [-2.95, -1.45] },
+  ],
 };
 
 /** Emit the bedroom floor and its partition to the hall. */

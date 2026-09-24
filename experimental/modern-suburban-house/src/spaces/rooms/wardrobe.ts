@@ -18,6 +18,17 @@ const WARDROBE: IRoomSpace = {
   storey: "upper-storey",
   outline: box([0.9, 5.5], [-10.45, -8.95]),
   floor: PALETTE.carpet,
+  // wardrobe.md#primary-wardrobe-plan and #wardrobe-storage-use; heights above the upper floor (+3.06).
+  reservations: [
+    // Hanging from the storage's left end (2.10) to 4.25; top shelf surface 2.05.
+    { id: "primary-wardrobe-hanging", kind: "storage", x: [2.1, 4.25], z: [-10.45, -9.9], y: [3.06, 5.11] },
+    // Shelves from 4.40 to the right end (5.50) of the 0.55-deep rear reservation.
+    { id: "primary-wardrobe-shelves", kind: "storage", x: [4.4, 5.5], z: [-10.45, -9.9] },
+    // Turning floor kept free of shelves inside the door, X = [0.90, 2.10], full room depth.
+    { id: "primary-wardrobe-turning", kind: "use", x: [0.9, 2.1], z: [-10.45, -8.95] },
+    // Front aisle: 0.95 m left in front of the storage face Z = -9.90.
+    { id: "primary-wardrobe-front-aisle", kind: "route", x: [2.1, 5.5], z: [-9.9, -8.95] },
+  ],
 };
 
 /** Emit the wardrobe floor and its two partitions. */

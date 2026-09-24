@@ -27,6 +27,19 @@ const BEDROOM_THREE: IRoomSpace = {
     { x: -0.5, z: -3.26 },
   ],
   floor: PALETTE.carpet,
+  // bedroom-three.md#bedroom-three-furniture-use; heights above the upper floor (+3.06).
+  reservations: [
+    { id: "bedroom-three-bed", kind: "furniture", x: [-0.25, 0.9], z: [-3.1, -0.95], y: [3.06, 4.01] },
+    { id: "bedroom-three-nightstand", kind: "furniture", x: [1.05, 1.5], z: [-3.1, -2.65], y: [3.06, 4.11] },
+    // Z from -0.85 to the front inner face (-0.25).
+    { id: "bedroom-three-desk", kind: "furniture", x: [1.4, 2.55], z: [-0.85, -0.25], y: [3.06, 3.81] },
+    // X from 4.90 to the right inner face (5.50).
+    { id: "bedroom-three-closet", kind: "storage", x: [4.9, 5.5], z: [-2.8, -1.3], y: [3.06, 5.26] },
+    { id: "bedroom-three-desk-chair-use", kind: "use", x: [1.5, 2.25], z: [-1.6, -0.85] },
+    { id: "bedroom-three-closet-use", kind: "use", x: [4.3, 4.9], z: [-2.8, -1.3] },
+    { id: "bedroom-three-entry-band", kind: "route", x: [3.3, 4.2], z: [-4.3, -1.6] },
+    { id: "bedroom-three-cross-band", kind: "route", x: [0.9, 4.2], z: [-2.5, -1.6] },
+  ],
 };
 
 /** Emit the bedroom floor and its door partition to the arrival. */

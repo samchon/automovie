@@ -24,7 +24,7 @@
 import { EXTERIOR_WALL_BOTTOM, GARAGE, MAIN } from "../building";
 import { PALETTE } from "../palette";
 import { GABLE, ROOF_THICKNESS, SPLIT_X, gFront, gable, mFront, rFront } from "../roof/junctions";
-import { type IHousePart, block, part, wallPanel } from "../solids";
+import { type IHousePart, block, part, wallPanel, slopedSlab } from "../solids";
 import { GROUND_LAYERS, STOREYS } from "../storeys";
 import { wallHead } from "./wall-head";
 
@@ -73,8 +73,19 @@ export const buildFront = (): IHousePart[] => {
     ],
     holes: [{ id: "garage-front-door", from: 6.1, to: 11.1, bottom: STOREYS.garageFloor - GROUND_LAYERS.garageBase, top: 2.15 }],
   });
+  // Over the gable ends the valley Z = -(9/8)·min(X - a, b - X) crosses the wall
+  // thickness: between it and the inner face the main front roof is the higher
+  // surface, so its underside, not the gable's, closes the wall there
+  // (roof-wall-head-junctions). Each end gets one wedge from the gable underside
+  // up to the main front underside; the wedge vanishes along the valley.
+  const slope = (gable(GABLE.center) - gable(GABLE.a)) / (GABLE.center - GABLE.a);
+  const reach = (mFront(INNER) - gable(GABLE.a)) / slope;
+  const valleyHead = (id: string, plan: { x: number; z: number }[]): IHousePart =>
+    part(id, OWNER, "wall", PALETTE.siding, slopedSlab({ plan, top: (_x, z) => mFront(z) - ROOF_THICKNESS, floor: (x) => gable(x) - ROOF_THICKNESS }));
   return [
     part("front-main-wall", OWNER, "wall", PALETTE.siding, main),
+    valleyHead("front-gable-left-valley-head", [{ x: GABLE.a, z: FRONT }, { x: GABLE.a, z: INNER }, { x: GABLE.a + reach, z: INNER }]),
+    valleyHead("front-gable-right-valley-head", [{ x: GABLE.b, z: FRONT }, { x: GABLE.b - reach, z: INNER }, { x: GABLE.b, z: INNER }]),
     wallHead({ id: "front-main-wall-head", owner: OWNER, x: [GABLE.b, SPLIT_X], z: [INNER, FRONT], roof: mFront, outerZ: FRONT }),
     wallHead({ id: "front-right-wall-head", owner: OWNER, x: [SPLIT_X, MAIN.outer.x[1]], z: [INNER, FRONT], roof: rFront, outerZ: FRONT }),
     part(

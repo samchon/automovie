@@ -46,7 +46,7 @@ import { buildTubBath } from "./rooms/tub-bath";
 import { buildUpperHall } from "./rooms/upper-hall";
 import { buildWardrobe } from "./rooms/wardrobe";
 import { buildSite } from "./site";
-import type { IRoomSpace, IStorageSpace } from "./rooms/shared";
+import { type IRoomSpace, type IStorageSpace, checkReservations } from "./rooms/shared";
 import type { IExteriorZone } from "./site/zone";
 import type { IHousePart } from "./solids";
 import { buildStair } from "./stair";
@@ -114,6 +114,7 @@ export const buildHouse = (): IHouse => {
     seen.add(p.id);
   }
   const spaces = rooms.map((room) => room.space);
+  for (const s of spaces) checkReservations(s);
   const spaceIds = new Set<string>();
   for (const s of spaces) {
     if (spaceIds.has(s.id)) throw new Error(`duplicate space id "${s.id}" from ${s.owner}`);

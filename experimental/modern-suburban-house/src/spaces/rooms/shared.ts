@@ -19,6 +19,23 @@ import { PALETTE } from "../palette";
 import { type IHousePart, type IPlanPoint, type IWallHole, part, slab, straightWall } from "../solids";
 import { CEILING_FINISH, GROUND_LAYERS, INTERSTOREY_FLOOR_FINISH, type StoreyId, ceilingOf, floorOf } from "../storeys";
 
+/**
+ * A plan zone a room reserves for one use, world metres: furniture or a
+ * fixture body, a storage body, the floor a person uses in front of them, a
+ * clear route, or the sweep of a door, drawer or appliance door. The zone is
+ * a spaces decision later instances and observations consume; the object in it
+ * is not authored here.
+ */
+export interface IRoomReservation {
+  /** Stable id, unique within the house. */
+  id: string;
+  kind: "furniture" | "fixture" | "storage" | "use" | "route" | "swing";
+  x: readonly [number, number];
+  z: readonly [number, number];
+  /** World height range of a body or a wall-hung item; absent for a floor area kept clear. */
+  y?: readonly [number, number];
+}
+
 /** One interior space as its plan owner declares it. */
 export interface IRoomSpace {
   /** Space id used by the route table (05) and the storey records (01). */
@@ -36,7 +53,42 @@ export interface IRoomSpace {
    * that stands on its storey's finished floor.
    */
   levels?: readonly [number, number];
+  /** The use zones the room design reserves, in the design order. */
+  reservations?: readonly IRoomReservation[];
 }
+
+/** Whether a plan point lies inside or on a rectilinear outline. */
+const inOutline = (outline: readonly IPlanPoint[], x: number, z: number): boolean => {
+  const eps = 1e-9;
+  let inside = false;
+  for (let i = 0, j = outline.length - 1; i < outline.length; j = i++) {
+    const a = outline[i]!;
+    const b = outline[j]!;
+    const onEdge = (a.x === b.x && Math.abs(x - a.x) < eps && z >= Math.min(a.z, b.z) - eps && z <= Math.max(a.z, b.z) + eps) || (a.z === b.z && Math.abs(z - a.z) < eps && x >= Math.min(a.x, b.x) - eps && x <= Math.max(a.x, b.x) + eps);
+    if (onEdge) return true;
+    if (a.z > z !== b.z > z && x < ((b.x - a.x) * (z - a.z)) / (b.z - a.z) + a.x) inside = !inside;
+  }
+  return inside;
+};
+
+/**
+ * Refuse a room whose reservations leave its outline, or whose clear route
+ * crosses a furniture, fixture or storage body. Door and appliance sweeps may
+ * cross routes: operating a door and walking through are separate states (05).
+ */
+export const checkReservations = (room: IRoomSpace): void => {
+  const zones = room.reservations ?? [];
+  for (const r of zones) {
+    if (!(r.x[0] < r.x[1] && r.z[0] < r.z[1])) throw new Error(`${room.owner}: reservation "${r.id}" has an empty plan`);
+    const samples = [r.x[0], (r.x[0] + r.x[1]) / 2, r.x[1]].flatMap((x) => [r.z[0], (r.z[0] + r.z[1]) / 2, r.z[1]].map((z) => [x, z] as const));
+    if (samples.some(([x, z]) => !inOutline(room.outline, x, z))) throw new Error(`${room.owner}: reservation "${r.id}" leaves room "${room.id}"`);
+  }
+  const bodies = zones.filter((r) => r.kind === "furniture" || r.kind === "fixture" || r.kind === "storage");
+  for (const route of zones.filter((r) => r.kind === "route"))
+    for (const b of bodies)
+      if (route.x[0] < b.x[1] - 1e-9 && b.x[0] < route.x[1] - 1e-9 && route.z[0] < b.z[1] - 1e-9 && b.z[0] < route.z[1] - 1e-9)
+        throw new Error(`${room.owner}: route "${route.id}" crosses "${b.id}"`);
+};
 
 /** Finished floor and ceiling heights of a room. */
 export const roomLevels = (room: IRoomSpace): readonly [number, number] => room.levels ?? [floorOf(room.storey), ceilingOf(room.storey)];
