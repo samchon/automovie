@@ -10,7 +10,7 @@
 @evidence principles/design/models.md#spatial-convention 가구 국소 좌표에서 +Z가 발끝, 높이는 상층 완성 바닥 기준이며 침구 덮개가 발끝과 양옆으로 0.02 m 내려와도 외곽 안에 머문다고 정한다.
 @evidence principles/design/models.md#reviewable-structure 측면에서 H와 B가 배치별 값과 같은지, 위에서 외곽이 세 예약과 같은지를 관찰 대상 실루엣으로 지정한다.
 @evidence principles/design/models.md#model-observable-style-basis 머리판 있는 침대라는 형식을 0.06 m 머리판, 네 모서리 다리 위 프레임, 발끝·양옆으로 0.02 m 내려오는 덮개라는 관찰 가능한 구성으로 풀고 침구색은 materials에 넘긴다.
-@evidence principles/design/models.md#model-scale-layer-completion 세 예약의 L·W·H·B, 다섯 부품 층, 다섯 재질 경계, 관절 없음, 측면·평면 관찰이 함께 적혀 있고 모든 관찰은 unverified라고 밝힌다.
+@evidence principles/design/models.md#model-scale-layer-completion 세 예약의 L·W·H·B, 머리판·프레임·매트리스·침구·베개의 국소 점유와 다리 단면·위치, 다섯 재질 경계, 관절 없음, 측면·평면 관찰을 정한다. 실제 메시와 프레임은 unverified다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 주침실·둘째·셋째 침실 예약의 외곽 좌표와 H 0.60/0.55 m·B 1.00/0.95 m를 적힌 그대로 소비했고 고칠 부모 결함이 없었다.
 @evidence settings/10-house.md#primary-bedroom 성인 둘의 침대 요구를 주침실 W = 1.60 m 폭과 베개 둘로 받는다.
 @evidence settings/10-house.md#bedroom-two 자녀 한 명 침대 요구를 W = 1.15 m, 베개 하나의 작은 침실 배치로 받는다.
@@ -27,7 +27,7 @@
 
 침대는 폭 W, 길이 L, 매트리스 상면 H, 머리판 상단 B를 받는 한 원형이다. [주침실 예약](../spaces/rooms/primary.md#primary-furniture-use) X = [-1.50, 0.65], Z = [-8.65, -7.05]는 L = 2.15 m, W = 1.60 m, H = 0.60 m, B = 1.00 m이고 머리가 +X다. [둘째 침실](../spaces/rooms/bedroom-two.md#bedroom-two-furniture-use) X = [-5.25, -4.10], Z = [-4.50, -2.35]와 [셋째 침실](../spaces/rooms/bedroom-three.md#bedroom-three-furniture-use) X = [-0.25, 0.90], Z = [-3.10, -0.95]는 L = 2.15 m, W = 1.15 m, H = 0.55 m, B = 0.95 m이고 머리가 -Z다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르며 +Z가 발끝 방향이며 높이는 상층 완성 바닥 기준이다.
 
-부품은 머리판, 프레임, 매트리스, 침구 덮개, 베개다. 머리판은 두께 0.06 m, 전체 폭 W다. 프레임은 Y = [0.10, 0.30]이고 네 모서리 다리는 단면 0.05 × 0.05 m·Y = [0, 0.10] m다. 각 다리의 바깥 두 면은 프레임의 대응하는 외곽 두 면과 일치하며 다리의 윗면은 프레임 밑면과 접한다. 다리의 모든 노출 면에는 `bed-frame`을 붙인다. 매트리스는 Y = [0.30, H − 0.03], 침구 덮개는 매트리스 위 0.03 m 두께로 발끝과 양옆으로 0.02 m 내려와 외곽 안에 머문다. 베개는 주침실 둘, 작은 침실 하나로 각 0.60 × 0.40 × 0.12 m이며 머리판 앞에 둔다. 재질 경계는 `headboard`, `bed-frame`, `mattress`, `bedding`, `pillow`이고 회베이지·올리브·청회색 침구는 materials가 배치별로 정한다. 관절은 없고 이불 주름은 표현하지 않는다.
+부품은 머리판, 프레임, 매트리스, 침구 덮개, 베개다. 국소 원점은 머리 쪽 뒤 모서리 중앙의 바닥점이고 X=[−W/2,W/2], Z=[0,L] m다. 머리판은 두께 0.06 m, 전체 폭 W이고 Z=[0,0.06], Y=[0,B] m다. 프레임은 X=[−W/2,W/2], Z=[0.06,L], Y=[0.10,0.30] m다. 네 모서리 다리는 단면 0.05 × 0.05 m·Y=[0,0.10] m이며 프레임의 X 양끝과 Z 양끝에서 바깥 두 면을 맞추고 윗면은 프레임 밑면에 접한다. 다리의 모든 노출 면에는 `bed-frame`을 붙인다. 매트리스는 X=[−W/2+0.02,W/2−0.02], Z=[0.06,L−0.02], Y=[0.30,H−0.03] m다. 침구 덮개는 매트리스 상면 위 0.03 m 두께이고 발끝·양옆에서 수직으로 0.02 m 내려오되 같은 X·Z 외곽 안에 머문다. 베개는 각 0.60 × 0.40 × 0.12 m이고 국소 Z 중심은 0.32 m다. 주침실 두 베개의 X 중심은 ±0.40 m, 작은 침실 하나는 X=0 m라 각 매트리스의 외곽 안에 든다. 재질 경계는 `headboard`, `bed-frame`, `mattress`, `bedding`, `pillow`이고 회베이지·올리브·청회색 침구는 materials가 배치별로 정한다. 관절은 없고 이불 주름은 표현하지 않는다.
 
 소스 owner는 `src/models/furnishings/bedrooms.ts`다. 관찰은 측면에서 H와 B가 배치별 값과 같은지, 위에서 외곽이 세 예약과 같은지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
 

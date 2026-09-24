@@ -61,9 +61,9 @@
 ## 외벽 두께 안에서 이어지는 네 출입 경계 {#ground-threshold-junctions}
 <!--
 @evidence principles/core/common.md#scope-preservation front-door·garden-door·garage-front-door·laundry-garage-door 네 개구부 아래 벽 두께를 지나는 바탕과 문턱의 완결 소유를 맡는다.
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 front-door·garden-door·garage-front-door·laundry-garage-door 네 표 행이 바탕의 끝 면과 문턱 완결 소유를 모두 채우고 벽 몸체 겹침 구역 배정 문단이 있음을 대조해 네 출입 경계에 빈 owner가 없음을 확인했다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 네 표 행의 바탕 끝 면과 문턱 단일 owner를 대조했다. front-door 행은 spaces의 문턱판과 models의 문설주·문선·문짝 충전을 분리하고, 벽 몸체 겹침 구역은 바닥 owner에 맡겨 네 출입 경계에 빈 owner가 없다.
 @evidence principles/core/common.md#substantive-completion 네 경계마다 바탕이 어느 벽 면까지 이어지고 문턱 상면·챌면을 누가 맡는지 표로 정하고 현관 문턱 돌출을 양쪽 완성 바닥 위 0.02 m 이내로 둔다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 표 네 행의 바탕 끝 면(전면·후벽·차고 전면 바깥 면, 공유 벽 차고 쪽 면)과 문턱 owner, front-door 상면 돌출 0.02 m 이내를 대조해 다음 층이 출입 단면을 정할 일이 없음을 확인했다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 표 네 행의 바탕 끝 면(전면·후벽·차고 전면 바깥 면, 공유 벽 차고 쪽 면)과 문턱 owner, front-door 상면 돌출 0.02 m 이내를 대조했다. 문턱 단면은 이 층에서 정하고 문설주·문짝 치수는 models가 정한다.
 @evidence principles/core/common.md#declared-basis 각 문의 거친 void 폭과 안팎 벽 면은 원래 문 owner에서 받고 front-door 아래는 현관·포치 두 완성 바닥의 datum을, laundry-garage-door 아래는 본채 완성 높이와 차고의 기존 낮은 datum을 유지한다고 밝힌다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 네 경계가 원래 문 owner의 거친 void 폭과 안팎 벽 면을 소비하고 front-door 행이 두 완성 바닥 datum을, laundry-garage-door 행이 차고의 기존 낮은 datum을 유지한다고 적은 것을 대조해 근거를 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 실제 문턱 요구에 벽 두께를 지나는 지지 바탕과 문설주 받침·문턱의 같은 단면 맞물림을 더하고 머드룸의 기존 한 단은 상면·챌면을 laundry owner 하나에 둔다.
@@ -84,7 +84,7 @@
 
 | 경계와 연결 | 바탕의 끝과 단면 | 문턱의 완결 소유 |
 | --- | --- | --- |
-| [front-door](rooms/entry.md#entry-plan): 현관 ↔ 포치 | 본채 ground 바탕이 전면 벽의 바깥 면까지 이어지고 [포치 바닥](porch.md#porch-platform-access)은 그 면에서 만난다. 두 완성 바닥의 datum을 유지한다. | `src/spaces/envelope/front.ts`가 벽 두께 안의 문턱/충전을 맡는다. 상면 돌출은 양쪽 완성 바닥 위 0.02 m 이내로 예약하고 실내 entry 마감과 바깥 porch 마감은 각 안팎 벽 면에서 만난다. |
+| [front-door](rooms/entry.md#entry-plan): 현관 ↔ 포치 | 본채 ground 바탕이 전면 벽의 바깥 면까지 이어지고 [포치 바닥](porch.md#porch-platform-access)은 그 면에서 만난다. 두 완성 바닥의 datum을 유지한다. | `src/spaces/envelope/front.ts`가 벽 두께 안의 문턱판만 만들고, 문설주·문선·문짝 충전은 [모델 원형](../models/02-exterior-doors.md#front-entry-door)에 넘긴다. 문턱 상면 돌출은 양쪽 완성 바닥 위 0.02 m 이내로 예약하고 실내 entry 마감과 바깥 porch 마감은 각 안팎 벽 면에서 만난다. |
 | [garden-door](envelope/rear.md#garden-door): 공용부 ↔ 테라스 | 본채 ground 바탕이 후벽 바깥 면까지 이어지고 [테라스](site/terrace.md#garden-terrace-plan)가 그 면에서 만난다. | `src/spaces/envelope/rear.ts`가 기존 문턱 돌출 한계를 소비한다. common 바닥은 안쪽 면까지, terrace 바닥은 바깥 면부터이며 같은 문턱판을 두 실에서 만들지 않는다. |
 | [garage-front-door](envelope/front.md#garage-front-opening): 차고 ↔ 차도 | 차고 바탕이 자기 전면 벽 바깥 면까지 이어지고 [차도](site/driveway.md#driveway-plan)가 같은 끝선 높이에서 만난다. | `src/spaces/rooms/garage-interior.ts`가 벽 두께 안까지 연속된 콘크리트 상면을 맡고 front owner의 닫힌 문 하부 밀폐재가 이 면에 닿는다. 바닥을 가로막는 별도 높은 문턱은 없다. |
 | [laundry-garage-door](rooms/laundry.md#laundry-plan): [머드룸 ↔ 차고](../settings/10-house.md#service-band) | 본채 ground 바탕이 공유 벽의 차고 쪽 면까지 높은 문턱을 받친다. 차고 바닥은 그 면에서 기존 낮은 datum으로 끝나므로 기존 한 단이 남는다. | `src/spaces/rooms/laundry.ts`가 문턱 상면과 차고 쪽에 노출된 챌면을 통째로 맡는다. 상면은 본채 완성 높이에 맞추고 차고 바닥은 그 챌면 아래끝에 닿는다. 새로운 디딤판이나 두 번째 단을 추가하지 않는다. |

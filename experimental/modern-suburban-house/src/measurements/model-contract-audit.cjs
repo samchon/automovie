@@ -131,7 +131,12 @@ function handoffs() {
       if (terms.length) candidates.push({ id: `${path.relative(production, file).replace(/\\/g, "/")}#${anchor}`, terms });
     }
   }
-  return { files: files.length, vocabulary: expressions.length, candidateH2: candidates.length, candidates };
+  const account = fs.readFileSync(path.join(production, "docs/accounts/models/surface-ownership.md"), "utf8");
+  const table = account.split("| 부모·형제 H2 | 넘긴 요소군 | 모델 설계 owner |")[1]?.split("어휘 적중 중 모델 원형 인계가 아닌 것은")[0];
+  if (!table) throw new Error("Missing reverse handoff table");
+  const rows = table.split("\n").filter((line) => line.startsWith("| [") && line.split("|").length === 5);
+  const ownerless = rows.filter((line) => !/\]\(\.\.\/\.\.\/models\/[^)]+\)/.test(line.split("|")[3])).map((line) => line.split("|")[1].trim());
+  return { files: files.length, vocabulary: expressions.length, candidateH2: candidates.length, accountRows: rows.length, ownerlessRows: ownerless.length, ownerless, candidates };
 }
 
 const command = process.argv[2];
