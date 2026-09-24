@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import type { IAutoMovieBuiltEnvironment } from "@automovie/interface";
 import { levelCell } from "../../geometry/spatial-cells";
-import { boundaryUpperCensus } from "../boundary-upper";
+import { boundaryUpperCensus, localUpperBand } from "../boundary-upper";
 
 const fixture = (low: number, high: number, split: boolean): IAutoMovieBuiltEnvironment => {
   const face = (bottom: number, top: number) => ({
@@ -23,17 +23,26 @@ const fixture = (low: number, high: number, split: boolean): IAutoMovieBuiltEnvi
 void test("unsplit exposed band is found across the full host and disappears after partition", () => {
   const unsplit = boundaryUpperCensus(fixture(2, 4, false), []);
   assert.equal(unsplit.length, 1);
-  assert.equal(unsplit[0]!.tested, 41);
-  assert.equal(unsplit[0]!.exposed, 41);
+  assert.equal(unsplit[0]!.sampled, 200);
+  assert.equal(unsplit[0]!.tested, 200);
+  assert.equal(unsplit[0]!.exposed, 200);
   assert.ok(Math.abs(unsplit[0]!.maxBand - 2) < 1e-9);
   const split = boundaryUpperCensus(fixture(2, 4, true), []);
   assert.equal(split.length, 2);
   assert.equal(split[0]!.exposed, 0);
+  assert.equal(split[1]!.sampled, 0);
   assert.equal(split[1]!.tested, 0);
 });
 
 void test("equal room caps do not create a false upper exterior band", () => {
   assert.equal(boundaryUpperCensus(fixture(3, 3, false), [])[0]!.exposed, 0);
   assert.equal(boundaryUpperCensus(fixture(2, 2.019, false), [])[0]!.exposed, 0);
-  assert.equal(boundaryUpperCensus(fixture(2, 2.021, false), [])[0]!.exposed, 41);
+  assert.equal(boundaryUpperCensus(fixture(2, 2.021, false), [])[0]!.exposed, 200);
+});
+
+void test("local roof trough remains visible even when another station reaches the taller roof", () => {
+  const porch = { physical: 3.838, volume: 3.838 };
+  assert.ok(Math.abs(localUpperBand(4.69, porch, { physical: 3.683, volume: 3.838 }) - 0.155) < 1e-9);
+  assert.equal(localUpperBand(4.69, porch, { physical: 3.9, volume: 3.838 }), 0);
+  assert.equal(localUpperBand(3.5, porch, { physical: 3.683, volume: 3.838 }), 0);
 });

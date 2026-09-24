@@ -35,7 +35,7 @@ settings의 [작업 언어](../../settings/00-delivery.md#working-language)에 �
 ## 규모와 전개 분량의 비교 {#proportion}
 
 <!--
-@evidence obligations/core/common.md#proportionate-development 아래 여덟 파일·36 H2의 생성 표와 H2별 분포를 build-scope의 prototype 목록에 대조했다. 원주·기와·분수·정문 문짝·제단·트러스에 많은 결정을 배정하고 스툴·작은 용기·풀에는 필요한 작은 형상 결정을 배정했다. 이전 판의 원본은 재생성 과정에서 제거돼 기존 계정의 17 H2·14,799자는 이번 트리에서 재계측할 수 없는 unverified 기준값으로만 남긴다.
+@evidence obligations/core/common.md#proportionate-development 아래 여덟 파일·36 H2의 생성 표와 H2별 분포를 build-scope의 prototype 목록에 대조했다. 원주·기와·양개 문짝·분수·이웃집·넓은 수관에는 많은 결정을, 스툴과 작은 용기에는 짧은 형상 결정을 배정했다. 재생성 전 기준은 Git `111dba96^:experimental/ancient-civic-temple/docs/models/temple-fit-out.md`의 실제 blob을 같은 계수식으로 다시 재어 17 H2·14,799자로 검증했다.
 -->
 
 현재 모델 population의 파일·H2·본문 분량은 아래 self-check 생성 표로 고정한다. 본문 문자는 HTML 주석과 공백을 빼고 제목은 포함한 유니코드 코드 포인트 수다. 표에 없는 파일, 중복 파일, 낡은 행은 self-check 실패로 처리한다.
@@ -46,12 +46,12 @@ settings의 [작업 언어](../../settings/00-delivery.md#working-language)에 �
 | entablature.md | 5 | 3654 |
 | openings.md | 4 | 3016 |
 | wares.md | 6 | 2436 |
-| landscape.md | 4 | 2118 |
+| landscape.md | 4 | 2851 |
 | scale.md | 3 | 1764 |
 | columns.md | 2 | 1732 |
 | cladding.md | 2 | 1657 |
-| 합계 | 36 | 21842 |
+| 합계 | 36 | 22575 |
 
-빈 scaffold에서 다시 만들기 전 판의 원본은 현재 트리에 없으므로 기존 계정에 적힌 파일 하나·17 H2·14,799자는 이 트리에서 재계측할 수 없어 unverified다. 당시 문짝·기둥·기와를 한 H2씩으로 묶었다는 기록 역시 같은 한계를 가진다. 현재 판은 문틀·양개·외개·창틀, 주랑·포치 원주, 평기와·용마루를 따로 두어 서로 다른 소비자와 변경 경로를 가진 결정이 각자 주소를 가진다.
+재생성 전 원본은 작업 트리에 없지만 Git `111dba96^:experimental/ancient-civic-temple/docs/models/temple-fit-out.md`에 남아 있다. 현재 계정의 `modelDocumentBodyLength`와 같은 방식으로 해당 blob의 HTML 주석·공백을 빼고 제목을 포함해 다시 세면 한 파일·17 H2·14,799자다. 그 H2 목록에는 `Column prototype`, `Door prototype`, `Roof tile prototype`이 각각 한 번씩 있어 당시 기둥·문짝·기와를 한 절로 묶은 기록도 확인된다. 현재 판은 문틀·양개·외개·창틀, 주랑·포치 원주, 평기와·용마루를 따로 두어 서로 다른 소비자와 변경 경로를 가진 결정이 각자 주소를 가진다.
 
-H2별로는 리뷰 거리에서 건물의 정체성을 크게 좌우하는 주랑 원주, 평기와, 분수, 양개 문짝, 공통 축척, 제단, 제실 트러스가 가장 길다. 스툴, 작은 탁상 용기, 벽 밑 풀, 얕은 그릇은 형상 결정이 적은 작은 부재라 가장 짧다. [build-scope](../../settings/00-delivery.md#build-scope)가 models에 배정한 기둥·문짝·문틀·기와·수반·제단·가구·용기·식생·이웃 외피 prototype은 모두 한 H2 이상을 가진다. 설계와 source 사이의 분량은 비교하지 않으며 모든 H2가 modelSources에서 실현되는지는 그 분기가 열린 뒤 따로 센다.
+H2별 분량 상위 일곱은 주랑 원주, 평기와, 양개 문짝, 분수, 공통 축척, 이웃 회벽집, 넓은 수관 나무다. 하위 넷은 스툴, 작은 탁상 용기, 얕은 봉헌 그릇, 운반 항아리다. 수목·이웃집의 위치와 잎 규칙을 확정하며 분량 순위도 옛 판에서 달라졌다. [build-scope](../../settings/00-delivery.md#build-scope)가 models에 배정한 기둥·문짝·문틀·기와·수반·제단·가구·용기·식생·이웃 외피 prototype은 모두 한 H2 이상을 가진다. 설계와 source 사이의 분량은 비교하지 않으며 모든 H2가 modelSources에서 실현되는지는 그 분기가 열린 뒤 따로 센다.

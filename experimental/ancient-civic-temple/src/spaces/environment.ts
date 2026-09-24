@@ -19,7 +19,7 @@ import {
 } from "../geometry/planar-domain";
 import { cullCoincidentVerticalFaces } from "../geometry/face-culling";
 import { roofSlabFaces, roofStepClosures, type UndersideRegion } from "../geometry/roof-solids";
-import { clipOutlineAtHeight, wallFaces, wallHostOutline, type WallSpec } from "../geometry/wall-solids";
+import { clipOutlineAtHeight, clipOutlineAtLine, wallFaces, wallHostOutline, type WallSpec } from "../geometry/wall-solids";
 import { copingFaces, plinthFaces, type WallTrimInput } from "../geometry/wall-trim";
 import { templeInteriorWalls } from "./boundaries";
 import { templeConnectors } from "./circulation";
@@ -130,7 +130,8 @@ export const createTempleEnvironment = () => {
     templeRecords(), templeStorage(), templeServiceYard(),
   ]), site.space];
   const wall = (id: string) => walls.find((w) => w.id === id)!;
-  const face = (w: WallSpec, from: number, to: number, band?: { height: number; keep: "below" | "above" }): IAutoMovieBoundaryFace => {
+  type Band = { height: number; keep: "below" | "above" } | { slope: number; constant: number; keep: "below" | "above" };
+  const face = (w: WallSpec, from: number, to: number, band?: Band): IAutoMovieBoundaryFace => {
     const perpendicular = w.plan.map((q) => w.axis === "x" ? q.z : q.x);
     const low = Math.min(...perpendicular);
     const high = Math.max(...perpendicular);
@@ -139,20 +140,20 @@ export const createTempleEnvironment = () => {
       origin: w.axis === "x" ? { x: 0, y: 0, z: mid } : { x: mid, y: 0, z: 0 },
       rotation: w.axis === "x" ? { x: 0, y: 0, z: 0, w: 1 } : { x: 0, y: -Math.SQRT1_2, z: 0, w: Math.SQRT1_2 },
       outline: band === undefined ? wallHostOutline(w, roof, from, to, mid)
-        : clipOutlineAtHeight(wallHostOutline(w, roof, from, to, mid), band.height, band.keep),
+        : "height" in band ? clipOutlineAtHeight(wallHostOutline(w, roof, from, to, mid), band.height, band.keep)
+          : clipOutlineAtLine(wallHostOutline(w, roof, from, to, mid), band.slope, band.constant, band.keep),
       thickness: high - low,
     };
   };
   const boundary = (
     id: string, spaceIds: string[], wallId: string, host: [number, number],
-    band?: { height: number; keep: "below" | "above" },
+    band?: Band,
   ): IAutoMovieBuiltBoundary => ({
     id, kind: wallId.startsWith("wall.boundary") ? "interior-wall" : "exterior-wall",
     spaces: spaceIds, elements: [`element.${wallId}`], face: face(wall(wallId), host[0], host[1], band),
   });
-  // docs/spaces/openings.md#boundary-ownership: 다른 쪽 부피가 끝나고 그 위가 외부로 드러나는
-  // 여섯 노출 상부 host는 그 높이에서 두 경계로 나눈다. 지붕 있는 방은 벽 면을 따라 가장 높은 그 방 쪽
-  // 날개 지붕 상면, 지붕 없는 마당은 논리 상한(주랑 처마 높이)이다.
+  // docs/spaces/openings.md#boundary-ownership: 여섯 일정 높이 host와 국소 경사로
+  // 노출되는 두 반환벽을 나눈다. 다른 지점의 최고 roof 높이로 국소 띠를 가리지 않는다.
   const roofTopAlong = (points: readonly PlanPoint[]): number => Math.max(...points.map((point) => {
     const heights = roof.filter((patch) => patch.tier === "wing" && patch.polygon.every((q, i) =>
       planeHeight(edgeInside(q, patch.polygon[(i + 1) % patch.polygon.length]!), point) >= -1e-9))
@@ -168,6 +169,34 @@ export const createTempleEnvironment = () => {
   const southUpper = roofTopAlong(along(p.westRing, p.eastRing, p.northRing + 1e-3, "x"));
   const eastUpper = templeRoofRules.courtEave;
   const entryUpper = roofTopAlong(along(p.westPorchOuter, p.eastPorchOuter, p.entranceBack - 1e-3, "x"));
+  // At the two return walls the south canopy rises along Z. Its local roof top is lower
+  // than the adjacent porch volume near entrance-front, even though its maximum is higher.
+  const returnProbe = { x: p.eastPorchInner - 0.08, z: p.entranceFront + 0.05 };
+  const porchAtReturn = roof.filter((patch) => patch.tier === "porch" && patch.polygon.every((q, i) =>
+    planeHeight(edgeInside(q, patch.polygon[(i + 1) % patch.polygon.length]!), returnProbe) >= -1e-9));
+  if (porchAtReturn.length !== 1) throw new Error("temple/environment: 반환벽 안쪽 포치 지붕을 유일하게 찾지 못했습니다.");
+  const entranceCapAtReturn = planeHeight(porchAtReturn[0]!.height, returnProbe) - porchAtReturn[0]!.thickness;
+  const returnSlope = Math.tan(templeRoofRules.leanSlope);
+  const returnConstant = templeRoofRules.courtEave - returnSlope * p.courtFront;
+  const returnCrossing = (entranceCapAtReturn - returnConstant) / returnSlope;
+  if (!(returnCrossing > p.entranceFront && returnCrossing < p.southInner)) {
+    throw new Error(`temple/environment: 반환벽 지붕 교차 ${returnCrossing}m가 현관 구간 밖입니다.`);
+  }
+  const returnBand = (keep: "below" | "above"): Band => ({ slope: returnSlope, constant: returnConstant, keep });
+  const returnBoundaries = ([
+    ["west", "wall.facade-south.return-west"], ["east", "wall.facade-south.return-east"],
+  ] as const).flatMap(([side, wallId]) => [
+    boundary(`boundary-entrance-return-${side}`, ["entrance", "colonnade"], wallId,
+      [p.entranceFront, returnCrossing], returnBand("below")),
+    boundary(`boundary-entrance-return-${side}.upper`, ["entrance"], wallId,
+      [p.entranceFront, returnCrossing], returnBand("above")),
+    boundary(`boundary-entrance-return-${side}.outer`, ["entrance", "colonnade"], wallId,
+      [returnCrossing, p.southInner], { height: entranceCapAtReturn, keep: "below" }),
+    boundary(`boundary-entrance-return-${side}.outer-upper`, ["colonnade"], wallId,
+      [returnCrossing, p.southInner], { height: entranceCapAtReturn, keep: "above" }),
+    boundary(`boundary-entrance-return-${side}.front`, ["entrance"], wallId,
+      [p.southInner, p.southOuter]),
+  ]);
   const boundaries: IAutoMovieBuiltBoundary[] = [
     boundary("boundary-north.offering", ["offering"], "wall.facade-north", [p.westOuter, p.westRoom]),
     boundary("boundary-north.sanctuary", ["sanctuary"], "wall.facade-north", [p.westRing, p.eastRing]),
@@ -181,10 +210,9 @@ export const createTempleEnvironment = () => {
     boundary("boundary-south.colonnade-west", ["colonnade"], "wall.facade-south.west", [p.westRing, p.westPorchOuter]),
     boundary("boundary-south.colonnade-east", ["colonnade"], "wall.facade-south.east", [p.eastPorchOuter, p.eastRing]),
     boundary("boundary-south.administration", ["administration"], "wall.facade-south.east", [p.eastRoom, p.eastOuter]),
-    boundary("boundary-entry", ["entrance", "colonnade"], "wall.facade-south.entry-back", [p.westPorchOuter, p.eastPorchOuter], { height: entryUpper, keep: "below" }),
-    boundary("boundary-entry.upper", ["entrance"], "wall.facade-south.entry-back", [p.westPorchOuter, p.eastPorchOuter], { height: entryUpper, keep: "above" }),
-    boundary("boundary-entrance-return-west", ["entrance", "colonnade"], "wall.facade-south.return-west", [p.entranceFront, p.southOuter]),
-    boundary("boundary-entrance-return-east", ["entrance", "colonnade"], "wall.facade-south.return-east", [p.entranceFront, p.southOuter]),
+    boundary("boundary-entry", ["entrance", "colonnade"], "wall.facade-south.entry-back", [p.westPorchInner, p.eastPorchInner], { height: entryUpper, keep: "below" }),
+    boundary("boundary-entry.upper", ["entrance"], "wall.facade-south.entry-back", [p.westPorchInner, p.eastPorchInner], { height: entryUpper, keep: "above" }),
+    ...returnBoundaries,
     boundary("boundary-west-spine.sanctuary", ["offering", "sanctuary"], "wall.boundary-west-spine", [p.northInner, p.sanctuaryFront], { height: westUpper, keep: "below" }),
     boundary("boundary-west-spine.sanctuary-upper", ["sanctuary"], "wall.boundary-west-spine", [p.northInner, p.sanctuaryFront], { height: westUpper, keep: "above" }),
     boundary("boundary-west-spine.colonnade", ["offering", "colonnade"], "wall.boundary-west-spine", [p.northRing, p.southInner]),

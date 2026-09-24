@@ -265,6 +265,37 @@ export const clipOutlineAtHeight = (
   return kept;
 };
 
+/** Split a wall host against a roof line y = slope × local x + constant. */
+export const clipOutlineAtLine = (
+  outline: ReadonlyArray<{ x: number; y: number }>, slope: number, constant: number,
+  keep: "below" | "above",
+): Array<{ x: number; y: number }> => {
+  if (outline.length < 3 || !Number.isFinite(slope) || !Number.isFinite(constant) ||
+    outline.some((q) => !Number.isFinite(q.x) || !Number.isFinite(q.y))) {
+    throw new Error("clipOutlineAtLine: 닫힌 유한 단일 윤곽과 유한한 절단선이 필요합니다.");
+  }
+  const signed = (q: { x: number; y: number }): number => q.y - slope * q.x - constant;
+  const inside = (q: { x: number; y: number }): boolean =>
+    keep === "below" ? signed(q) <= 1e-9 : signed(q) >= -1e-9;
+  const out: Array<{ x: number; y: number }> = [];
+  outline.forEach((a, i) => {
+    const b = outline[(i + 1) % outline.length]!;
+    if (inside(a)) out.push({ ...a });
+    if (inside(a) === inside(b)) return;
+    const da = signed(a);
+    const db = signed(b);
+    if (Math.abs(db - da) <= 1e-12) return;
+    const t = -da / (db - da);
+    out.push({ x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t });
+  });
+  const kept = out.filter((q, i) => {
+    const next = out[(i + 1) % out.length]!;
+    return Math.hypot(q.x - next.x, q.y - next.y) > 1e-9;
+  });
+  if (kept.length < 3) throw new Error(`clipOutlineAtLine: ${keep} 쪽 윤곽이 남지 않습니다.`);
+  return kept;
+};
+
 /**
  * 경계 face의 local XY 윤곽: 길이 [from,to], 하단에서 실제 상단까지.
  * 상단은 벽 중심선에서 각 기둥 꼭짓점의 길이 좌표로 표본한다.

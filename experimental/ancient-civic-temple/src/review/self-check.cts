@@ -12,14 +12,16 @@
  *     소비하던 문장을 찾는 용도이며 host 본문이 그대로면 lint가 다시 보지 않는 결함을 잡는다.
  * 겹침, 실체 안 관찰, 결산 계약 위반이 하나라도 있으면 종료 코드 1이다.
  */
-import { readdirSync, readFileSync, statSync } from "node:fs";
+import { readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { join, relative } from "node:path";
 import { parseArgs } from "node:util";
 import { createReviewPayload } from "./review-payload";
 import { modelAccountMismatches, modelAccountRows, modelDocumentBodyLength } from "./model-account";
 import { spaceAccountMismatches, spaceAccountRows, spaceDocumentBodyLength } from "./space-account";
+import { replaceMeasuredTable } from "./account-sync";
+import { modelHandoffRows } from "./model-handoff-audit";
 
-const { values } = parseArgs({ options: { grid: { type: "string", default: "0.01" }, retired: { type: "string", default: "" } } });
+const { values } = parseArgs({ options: { grid: { type: "string", default: "0.01" }, retired: { type: "string", default: "" }, "sync-accounts": { type: "boolean", default: false }, handoffs: { type: "boolean", default: false } } });
 const grid = Number(values.grid);
 if (!(grid > 0)) throw new Error("--grid는 양의 m 값이어야 합니다.");
 
@@ -27,7 +29,7 @@ const review = createReviewPayload(grid);
 const revision = review.revision === null ? "unverified (git을 읽지 못함)"
   : `${review.revision.commit}${review.revision.dirty ? " + 커밋되지 않은 변경(dirty)" : ""}`;
 console.log(`source basis ${review.basis} · revision ${revision}`);
-console.log(`invocation: npm run self-check -- --grid=${grid}${values.retired.length > 0 ? ` --retired=${values.retired}` : ""}`);
+console.log(`invocation: npm run self-check -- --grid=${grid}${values.retired.length > 0 ? ` --retired=${values.retired}` : ""}${values["sync-accounts"] ? " --sync-accounts" : ""}${values.handoffs ? " --handoffs" : ""}`);
 
 const f3 = (v: number) => v.toFixed(3);
 const { overlaps } = review;
@@ -38,8 +40,8 @@ for (const o of overlaps.pairs) {
 }
 console.log(`observations: ${review.observations.count} (${review.observations.withoutPose} without pose); poses inside a solid: ${review.observations.buried.length}`);
 for (const line of review.observations.buried) console.log(`  ${line}`);
-console.log(`boundary upper census: ${review.boundaryUpper.length} boundaries; ${review.boundaryUpper.filter((row) => row.tested > 0).length} two-space hosts tested; ${review.boundaryUpper.filter((row) => row.exposed > 0).length} unsplit upper bands`);
-for (const row of review.boundaryUpper) console.log(`  ${row.id}: ${row.tested} stations, ${row.exposed} exposed, max band ${f3(row.maxBand)} m${row.maxAt === null ? "" : ` at u=${f3(row.maxAt.u)}, host=${f3(row.maxAt.hostTop)}, sides=${f3(row.maxAt.firstCap)}/${f3(row.maxAt.secondCap)}`}`);
+console.log(`boundary upper census: ${review.boundaryUpper.length} boundaries; ${review.boundaryUpper.filter((row) => row.tested > 0).length} two-space hosts tested; ${review.boundaryUpper.reduce((sum, row) => sum + row.sampled, 0)} sampled / ${review.boundaryUpper.reduce((sum, row) => sum + row.tested, 0)} adjacent-volume stations; ${review.boundaryUpper.filter((row) => row.exposed > 0).length} unsplit upper bands`);
+for (const row of review.boundaryUpper) console.log(`  ${row.id}: ${row.sampled} sampled, ${row.tested} adjacent-volume stations, ${row.exposed} exposed, max band ${f3(row.maxBand)} m${row.maxAt === null ? "" : ` at u=${f3(row.maxAt.u)}, host=${f3(row.maxAt.hostTop)}, sides=${f3(row.maxAt.firstCap)}/${f3(row.maxAt.secondCap)}`}`);
 console.log(`opening frustum census: ${review.openingFrustum.length} compiled openings; ${review.openingFrustum.filter((row) => row.roomCenterVisible).length} room-facing centers visible; ${review.openingFrustum.filter((row) => row.completeProfileFramed).length} full profiles framed`);
 for (const row of review.openingFrustum) console.log(`  ${row.id} (${row.kind}): room ${row.roomCenterVisible ? "center visible" : "center MISSED"}, corners ${row.roomCornersVisible}/4, exterior ${row.exteriorCornersVisible ?? "n/a"}/4, arrival ${row.arrivalCenterVisible ?? "n/a"}; eye ${f3(row.roomPosition.x)},${f3(row.roomPosition.y)},${f3(row.roomPosition.z)} target ${f3(row.roomTarget.x)},${f3(row.roomTarget.y)},${f3(row.roomTarget.z)}`);
 
@@ -75,7 +77,11 @@ for (const file of spaces) {
 }
 console.log(`docs/spaces population: ${spaces.length} files, ${headings} H2`);
 const accountRows = spaceAccountRows(measures);
-const account = readFileSync(join(docs, "accounts", "spaces", "core-common.md"), "utf8");
+const spaceAccountPath = join(docs, "accounts", "spaces", "core-common.md");
+const rawSpaceAccount = readFileSync(spaceAccountPath, "utf8");
+const account = values["sync-accounts"]
+  ? replaceMeasuredTable(rawSpaceAccount, "| 역할 | 파일/H2 | 파일별 본문 문자 수 |", accountRows) : rawSpaceAccount;
+if (values["sync-accounts"] && account !== rawSpaceAccount) writeFileSync(spaceAccountPath, account, "utf8");
 const accountMismatches = spaceAccountMismatches(account, accountRows);
 console.log("generated docs/accounts/spaces/core-common.md#proportion rows:");
 for (const row of accountRows) console.log(row);
@@ -92,13 +98,33 @@ const modelMeasures = models.map((file) => {
   };
 });
 const modelRows = modelAccountRows(modelMeasures);
-const modelAccount = readFileSync(join(docs, "accounts", "models", "core-common.md"), "utf8");
+const modelAccountPath = join(docs, "accounts", "models", "core-common.md");
+const rawModelAccount = readFileSync(modelAccountPath, "utf8");
+const modelAccount = values["sync-accounts"]
+  ? replaceMeasuredTable(rawModelAccount, "| 모델 파일 | H2 | 주석·공백 제외 본문 문자 수 |", modelRows) : rawModelAccount;
+if (values["sync-accounts"] && modelAccount !== rawModelAccount) writeFileSync(modelAccountPath, modelAccount, "utf8");
 const modelMismatches = modelAccountMismatches(modelAccount, modelRows);
 console.log(`docs/models population: ${models.length} files, ${modelMeasures.reduce((sum, row) => sum + row.headings, 0)} H2`);
 console.log("generated docs/accounts/models/core-common.md#proportion rows:");
 for (const row of modelRows) console.log(row);
 console.log(`models account table mismatches: ${modelMismatches.length}`);
 for (const row of modelMismatches) console.log(`  stale: ${row}`);
+
+const vocabulary = readFileSync(join(__dirname, "model-handoff-vocabulary.txt"), "utf8")
+  .replace(/\r\n/g, "\n").split("\n").filter((term) => term.length > 0);
+const handoffs = modelHandoffRows(
+  [...walk(join(docs, "settings")), ...spaces].map((file) => ({
+    path: relative(docs, file).split("\\").join("/"), source: readFileSync(file, "utf8"),
+  })),
+  models.map((file) => ({ path: relative(join(docs, "models"), file).split("\\").join("/"), source: readFileSync(file, "utf8") })),
+  vocabulary,
+);
+const ownerless = handoffs.filter((row) => row.owners.length === 0);
+console.log(`model handoff reverse audit: ${vocabulary.length} vocabulary terms, ${handoffs.length} parent H2 rows, ${ownerless.length} ownerless`);
+if (values.handoffs) {
+  for (const row of handoffs) console.log(`  ${row.parent} | ${row.terms.join(", ")} | ${row.owners.join(", ") || "OWNERLESS"}`);
+}
+for (const row of ownerless) console.log(`  ownerless: ${row.parent}: ${row.terms.join(", ")}`);
 
 const retired = values.retired.split(",").map((value) => value.trim()).filter((value) => value.length > 0);
 if (retired.length > 0) {
@@ -112,5 +138,5 @@ if (retired.length > 0) {
     console.log(`  ${value}: ${hits.length}${hits.length > 0 ? ` — ${hits.join(", ")}` : ""}`);
   }
 }
-console.log(`self-check failures: ${review.failures + accountMismatches.length + modelMismatches.length}`);
-process.exitCode = review.failures + accountMismatches.length + modelMismatches.length > 0 ? 1 : 0;
+console.log(`self-check failures: ${review.failures + accountMismatches.length + modelMismatches.length + ownerless.length}`);
+process.exitCode = review.failures + accountMismatches.length + modelMismatches.length + ownerless.length > 0 ? 1 : 0;

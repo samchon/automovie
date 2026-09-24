@@ -49,7 +49,7 @@ export const openingFacingEye = (
  * @evidence spaces/observations.md#geometry-observations 16개 개구부마다 해당 profile을 향하는 방 안 pose를 별도 관찰로 만든다.
  * @evidence principles/core/source-units.md#source-scope-preservation 공간·경계·개구부에서 시점만 유도하고 벽·창·문 geometry는 추가하지 않는다.
  * @evidence principles/core/source-units.md#source-substantive-completion 모든 opening ID에 대해 공간 안 눈높이 pose와 실제 profile 중심 target을 반환하며 공간 밖이면 오류를 낸다.
- * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work 이전 제실 창 threshold가 실제 창을 등지는 결함을 openings.md#clerestories와 observations.md#geometry-observations에서 먼저 바로잡고 별도 방 쪽 관찰을 구현했다.
+ * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work openings.md#clerestories가 도착 threshold를 창 판독에서 제외하고 창 ID 방향 pose를 요구하며, observations.md#geometry-observations가 문·창 16개의 별도 방 쪽 관찰 규칙을 정한 뒤 이 함수를 구현했다.
  */
 export const openingFacingObservations = (environment: IAutoMovieBuiltEnvironment): TempleObservation[] => {
   return environment.openings.map((opening) => {
@@ -105,10 +105,15 @@ export const exteriorObservations = (environment: IAutoMovieBuiltEnvironment): T
     // 지붕·마당 위로 올라간 외부 향 경계는 같은 맞춤 거리에서 면보다 높게 본다.
     const elevated = face.centroid.y > templeRoofRules.courtEave;
     const distance = Math.max(4, fitDistance(Math.max(width, 3)));
+    // The free front ends of the two porch returns face the open porch. Their opposite
+    // sides meet the south-wing wall, so an outward offset would bury the camera there.
+    const porchFront = face.boundary.startsWith("boundary-entrance-return-") && face.boundary.endsWith(".front");
     out.push({
       id: `exterior.facade.${face.boundary}`, group: "exterior", space: null, role: "facade",
       label: `입면 · ${face.boundary}`,
-      position: {
+      position: porchFront ? {
+        x: (p.westPorchInner + p.eastPorchInner) / 2, y: 3.0, z: p.southOuter + 4,
+      } : {
         x: face.centroid.x + outward.x * distance, y: elevated ? face.centroid.y + 0.8 : eye + 0.6,
         z: face.centroid.z + outward.z * distance,
       },

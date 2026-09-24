@@ -5,6 +5,7 @@ import { edgeInside, planeHeight, type RoofPatch } from "../geometry/planar-doma
 
 export interface BoundaryUpperRow {
   id: string;
+  sampled: number;
   tested: number;
   exposed: number;
   maxBand: number;
@@ -43,11 +44,19 @@ const hostTopAt = (outline: readonly { x: number; y: number }[], u: number): num
   return hits.length === 0 ? null : Math.max(...hits);
 };
 
+/** Local band; a higher roof elsewhere on the same host cannot conceal this station. */
+export const localUpperBand = (
+  hostTop: number, first: { physical: number; volume: number }, second: { physical: number; volume: number },
+): number => {
+  const upperVolume = first.physical < second.physical ? second.volume : first.volume;
+  return Math.max(0, Math.min(hostTop, upperVolume) - Math.min(first.physical, second.physical));
+};
+
 /** A two-space boundary fails when its host rises above one side's cap into the other side's volume. */
 export const boundaryUpperCensus = (environment: IAutoMovieBuiltEnvironment, roof: readonly RoofPatch[]): BoundaryUpperRow[] =>
   environment.boundaries.map((boundary) => {
     const face = boundary.face;
-    if (face === undefined || boundary.spaces.length !== 2) return { id: boundary.id, tested: 0, exposed: 0, maxBand: 0, maxAt: null };
+    if (face === undefined || boundary.spaces.length !== 2) return { id: boundary.id, sampled: 0, tested: 0, exposed: 0, maxBand: 0, maxAt: null };
     const [first, second] = boundary.spaces.map((id) => environment.spaces.find((space) => space.id === id));
     if (first === undefined || second === undefined) throw new Error(`boundary ${boundary.id}: missing adjacent space`);
     const min = Math.min(...face.outline.map((point) => point.x));
@@ -57,8 +66,9 @@ export const boundaryUpperCensus = (environment: IAutoMovieBuiltEnvironment, roo
     let exposed = 0;
     let maxBand = 0;
     let maxAt: BoundaryUpperRow["maxAt"] = null;
-    for (let i = 0; i < 41; i++) {
-      const u = min + (max - min) * (i + 0.5) / 41;
+    const count = Math.max(41, Math.ceil((max - min) / 0.01));
+    for (let i = 0; i < count; i++) {
+      const u = min + (max - min) * (i + 0.5) / count;
       const top = hostTopAt(face.outline, u);
       if (top === null) continue;
       const along = Quaternion.rotateVector(face.rotation, { x: u, y: 0, z: 0 });
@@ -72,11 +82,8 @@ export const boundaryUpperCensus = (environment: IAutoMovieBuiltEnvironment, roo
       samples.push({ u, top, first: a, second: b });
     }
     if (samples.length === 0) throw new Error(`boundary ${boundary.id}: no adjacent-volume stations on two-space host`);
-    // The design partitions at the highest lower-side roof top along the whole host.
-    const lowerMax = Math.max(...samples.map(({ first, second }) => Math.min(first.physical, second.physical)));
     for (const { u, top, first, second } of samples) {
-      const upperVolume = first.physical < second.physical ? second.volume : first.volume;
-      const band = Math.min(top, upperVolume) - lowerMax;
+      const band = localUpperBand(top, first, second);
       if (band > 0.02) {
         exposed++;
         if (band > maxBand) {
@@ -85,5 +92,5 @@ export const boundaryUpperCensus = (environment: IAutoMovieBuiltEnvironment, roo
         }
       }
     }
-    return { id: boundary.id, tested: samples.length, exposed, maxBand, maxAt };
+    return { id: boundary.id, sampled: count, tested: samples.length, exposed, maxBand, maxAt };
   });

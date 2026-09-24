@@ -54,7 +54,7 @@
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 제실 남벽·서측 spine과 마당/보관실 끝벽 행이 낮은 쪽 상한 아래/위 경계 ID를 적고, 용마루 약 4.53m·기와 약 4.63m 대 코핑 아랫면 4.69m, 처마 하부 약 4.95m 대 코핑 윗면 4.85m가 접점마다 수치로 정해진다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 처마·용마루의 높이는 roofs/assembly의 합성 값을, 코핑 4.69m 아랫면과 4.85m 윗면은 남측 입면을 소비한다. 이 단위는 그 수치 사이에서 벽을 어느 roof 하부까지 올리고 어떤 면이 외부로 드러나는지를 정할 뿐 지붕 물매를 재선택하지 않는다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 제실 서쪽 처마와 봉헌실 코핑의 약 0.10m 간격은 외부이며, 제실 남·서쪽과 보관실 북쪽의 높은 벽은 아래 방/마당 경계 위에서 단일 실내/외부 경계로 이어진다. 날개 조각의 높이 차이는 지붕 끝면으로만 막아 주랑 cell을 새 벽이나 옥상 방으로 분할하지 않는다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 동측 박공 용마루 덮개가 남측 코핑 돌출 앞에서 끝나는 접점만 이 표가 정하고 기와 형상·반복 배치는 models/instances에 남긴다. 마당/보관실과 제실 상부 boundary ID는 openings의 경계 소유를 쓰며 파라펫 외면과 코핑 표면은 해당 입면에 남는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 본문 표는 동측 박공 용마루 덮개가 남측 코핑 돌출 앞에서 멈추는 접점과 기존 boundary ID를 지정한다. 벽 실체·지붕 실체·파라펫 외면·코핑 표면은 마지막 문단과 각 입면 owner가 나눠 가진다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 외피 0.01m 격자 스캔은 벽·지붕·코핑·바닥의 양의 체적 겹침을 수치로 거부한다. 제실 북·남, 동측 두 끝, 포치 앞뒤 단면과 마당에서 보는 보관실 북벽은 하부 틈·누광·잘못 닫힌 하늘을 section과 GPU 관찰에서 반증할 주소다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 settings는 파라펫 뒤 기와와 노출 박공을 약속하지만 벽 두께 속 roof 접면이나 동측 용마루와 남측 코핑의 맞춤은 정하지 않는다. 이 단위가 지붕 아래/안/위의 띠, 날개 끝면, 제실 처마 아래 0.10m 여유를 접점별로 결정한다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 동측 박공 기와가 남측 코핑 아래로 들어가고 제실 서쪽 처마 하부가 봉헌실 코핑 위에 남도록 접점을 수리했다. 두 관통 모두 부모가 허용한 경사·코핑·처마 범위 안에서 풀렸으며 고정 순환이나 settings의 지붕 약속을 바꿀 결함은 남지 않았다.
