@@ -130,3 +130,112 @@ export function planFaceLikenessPitches(
     };
   });
 }
+
+/** One subject's camera pose after one refinement step, or unchanged. */
+export interface IFaceLikenessPoseRefinement {
+  subject: string;
+  yaw: number;
+  pitch: number;
+  /** The residual read on the render at the previous pose, degrees. */
+  residual: { yaw: number; pitch: number } | null;
+  /** The residual lay beyond the calibrated angles and was not applied. */
+  held?: true;
+}
+
+/**
+ * Refine each subject's planned camera pose by the residual the detector
+ * reads between its photograph and the render taken at that pose.
+ *
+ * A calibrated estimate from the subject's frontal render is exact only when
+ * the detector reads the render and the photograph alike; a face whose own
+ * shape tilts the detector's reading leaves a residual the render at the
+ * planned pose shows. Reading the photograph against that render the way the
+ * plan read it against the frontal one (the rotation vector's y component
+ * for yaw and x for pitch), scaled by the same calibration renders' response
+ * to a known 45 degree yaw and 20 degree pitch, gives the correction, and the
+ * pose moves by it: one step of a fixed-point iteration whose fixed point is
+ * the camera under which the detector reads the render as it reads the
+ * photograph. A residual beyond the calibrated angles would extrapolate the
+ * detector's response, so that pose is held and the row says so. A subject
+ * whose quarter or raised calibration render was not
+ * detected takes the population median response, as the plan does; one whose
+ * photograph or render was not detected, or whose scale is unavailable, keeps
+ * its pose and reports no residual.
+ *
+ * Pure: reads caller-owned matrices and returns new rows.
+ */
+export function refineFaceLikenessPoses(
+  inputs: readonly {
+    subject: string;
+    pose: { yaw: number; pitch: number };
+    photo: number[][] | null;
+    render: number[][] | null;
+    front: number[][] | null;
+    quarter: number[][] | null;
+    high: number[][] | null;
+  }[],
+  known = { yaw: 45, pitch: 20 },
+): IFaceLikenessPoseRefinement[] {
+  // Degrees per radian of detector response, the subject's own or null.
+  const slope = (
+    front: number[][] | null,
+    calibration: number[][] | null,
+    axis: 0 | 1,
+    degrees: number,
+  ): number | null => {
+    if (front === null || calibration === null) return null;
+    const response = faceLikenessRotationVector(
+      faceLikenessRelativeRotation(calibration, front),
+    )[axis];
+    return Math.abs(response) < 1e-6 ? null : degrees / response;
+  };
+  const own = inputs.map((input) => ({
+    yaw: slope(input.front, input.quarter, 1, known.yaw),
+    pitch: slope(input.front, input.high, 0, known.pitch),
+  }));
+  const median = {
+    yaw: faceLikenessMedian(
+      own.flatMap((one) => (one.yaw === null ? [] : [one.yaw])),
+    ),
+    pitch: faceLikenessMedian(
+      own.flatMap((one) => (one.pitch === null ? [] : [one.pitch])),
+    ),
+  };
+  return inputs.map((input, k) => {
+    const yawSlope = own[k]!.yaw ?? median.yaw;
+    const pitchSlope = own[k]!.pitch ?? median.pitch;
+    if (
+      input.photo === null ||
+      input.render === null ||
+      yawSlope === null ||
+      pitchSlope === null
+    )
+      return {
+        subject: input.subject,
+        yaw: input.pose.yaw,
+        pitch: input.pose.pitch,
+        residual: null,
+      };
+    const residual = faceLikenessRotationVector(
+      faceLikenessRelativeRotation(input.photo, input.render),
+    );
+    const yaw = residual[1] * yawSlope;
+    const pitch = residual[0] * pitchSlope;
+    // The calibration renders span the known angles; a residual beyond them
+    // extrapolates the detector's response, so the pose stays and says so.
+    if (Math.abs(yaw) > known.yaw || Math.abs(pitch) > known.pitch)
+      return {
+        subject: input.subject,
+        yaw: input.pose.yaw,
+        pitch: input.pose.pitch,
+        residual: { yaw, pitch },
+        held: true,
+      };
+    return {
+      subject: input.subject,
+      yaw: input.pose.yaw + yaw,
+      pitch: input.pose.pitch + pitch,
+      residual: { yaw, pitch },
+    };
+  });
+}

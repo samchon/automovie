@@ -5,6 +5,7 @@
  *   ttsx -P tsconfig.scripts.json --no-plugins scripts/face-review/plan-face-likeness.ts manifest REFS OUT.json LABEL=RENDERS ...
  *   ttsx ... plan-face-likeness.ts yaw DETECTIONS OUT.json [DISTANCE]
  *   ttsx ... plan-face-likeness.ts frame DETECTIONS_DIR CAPTURES OUT.json
+ *   ttsx ... plan-face-likeness.ts refine CALIBRATION POSES RENDERS OUT.json
  *
  * The published subjects and their photograph hashes come from the tracked
  * `subject-receipt.json`. The order of a run is fixed:
@@ -28,6 +29,12 @@
  *    capture and writes a pose file whose distance and target hold the
  *    photograph's hair and head region (`faceLikenessFraming.ts`); the
  *    capture with it is the frame capture.
+ *
+ * `refine` moves each pose of POSES by the residual the detector reads
+ * between the photograph and the portrait render taken at it (RENDERS, ids
+ * `photo:<subject>` and `portrait:<subject>__reference-yaw`), scaled by the
+ * step 1 calibration renders in CALIBRATION (`refineFaceLikenessPoses`),
+ * keeping every other camera field; its `.plan.json` records the residuals.
  *
  * `measure-face-likeness.ts` then compares all of it. Every pose file keeps
  * the subjects without a plan out, so the capture page refuses them rather
@@ -56,6 +63,7 @@ import {
 import {
   planFaceLikenessPitches,
   planFaceLikenessYaws,
+  refineFaceLikenessPoses,
 } from "./faceLikenessPlan";
 
 const RECEIPT =
@@ -159,6 +167,44 @@ if (command === "manifest") {
       };
   write(output, poses);
   write(output.replace(/\.json$/, ".plan.json"), plan);
+} else if (command === "refine") {
+  const [calibrationFile, poseFile, renderFile, output] = args;
+  if (output === undefined)
+    throw new Error("refine CALIBRATION POSES RENDERS OUT.json");
+  const calibration = indexFaceLikenessDetections(
+    readFaceLikenessJson<IFaceLikenessDetections>(calibrationFile!),
+  );
+  const renders = indexFaceLikenessDetections(
+    readFaceLikenessJson<IFaceLikenessDetections>(renderFile!),
+  );
+  const poses = readFaceLikenessJson<
+    Record<string, { yaw: number; pitch: number }>
+  >(poseFile!);
+  const of = (
+    index: ReturnType<typeof indexFaceLikenessDetections>,
+    id: string,
+  ) => index.get(id)?.face?.transform ?? null;
+  const rows = refineFaceLikenessPoses(
+    Object.entries(poses).map(([subject, pose]) => ({
+      subject,
+      pose,
+      photo: of(renders, `photo:${subject}`),
+      render: of(renders, `portrait:${subject}__reference-yaw`),
+      front: of(calibration, `calibration:${subject}__front`),
+      quarter: of(calibration, `calibration:${subject}__left-quarter`),
+      high: of(calibration, `calibration:${subject}__front-high`),
+    })),
+  );
+  write(
+    output,
+    Object.fromEntries(
+      rows.map((row) => [
+        row.subject,
+        { ...poses[row.subject], yaw: row.yaw, pitch: row.pitch },
+      ]),
+    ),
+  );
+  write(output.replace(/\.json$/, ".plan.json"), rows);
 } else if (command === "frame") {
   const [directory, captures, output] = args;
   if (directory === undefined || captures === undefined || output === undefined)
@@ -202,4 +248,4 @@ if (command === "manifest") {
     });
   }
   write(output, poses);
-} else throw new Error("Command must be manifest, yaw or frame.");
+} else throw new Error("Command must be manifest, yaw, refine or frame.");
