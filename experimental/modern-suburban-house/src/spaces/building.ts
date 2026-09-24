@@ -22,8 +22,18 @@ export const MAIN = {
   partition: 0.15,
 } as const;
 
-/** Mid-plane of the front and rear walls, where the common ridges run (roof-mass-allocation). */
-export const MAIN_RIDGE_Z = (MAIN.outer.z[0] + MAIN.outer.z[1]) / 2;
+/**
+ * Attached garage outline (attached-garage-extent), world metres: the outer
+ * line includes the one shared wall X = [5.50, 5.75]; the other three walls
+ * reserve 0.25 m and leave the inner limit X = [5.75, 11.45],
+ * Z = [-6.45, -0.55] (5.70 m × 5.90 m).
+ */
+export const GARAGE = {
+  outer: { x: [5.5, 11.7] as const, z: [-6.7, -0.3] as const },
+  inner: { x: [5.75, 11.45] as const, z: [-6.45, -0.55] as const },
+  /** Exterior wall reservation of the three garage-only walls. */
+  wall: 0.25,
+} as const;
 
 /**
  * Provisional bottom of exterior wall faces: the front walk datum −0.45 m, the

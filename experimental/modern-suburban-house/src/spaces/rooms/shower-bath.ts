@@ -8,10 +8,9 @@
  * (X = [0.75, 0.90]). Fixtures are later models.
  */
 import { PALETTE } from "../palette";
-import type { IHousePart } from "../solids";
-import { type IRoomSpace, box, door, partition, roomFloor } from "./shared";
+import { type IRoomBuild, type IRoomSpace, box, door, partition, roomFloor } from "./shared";
 
-export const SHOWER_BATH: IRoomSpace = {
+const SHOWER_BATH: IRoomSpace = {
   id: "shower-bathroom",
   owner: "rooms/shower-bath.ts",
   storey: "upper-storey",
@@ -20,16 +19,19 @@ export const SHOWER_BATH: IRoomSpace = {
 };
 
 /** Emit the shower bathroom floor and its two partitions. */
-export const buildShowerBath = (): IHousePart[] => [
-  roomFloor(SHOWER_BATH),
-  partition({
-    id: "shower-hall-partition",
-    owner: SHOWER_BATH.owner,
-    storey: "upper-storey",
-    axis: "x",
-    across: [-6.06, -5.91],
-    along: [0.75, 3.07],
-    holes: [door("hall-shower-door", "upper-storey", 1.05, 2.05)],
-  }),
-  partition({ id: "shower-primary-partition", owner: SHOWER_BATH.owner, storey: "upper-storey", axis: "z", across: [0.75, 0.9], along: [-8.8, -6.06] }),
-];
+export const buildShowerBath = (): IRoomBuild => ({
+  space: SHOWER_BATH,
+  parts: [
+    roomFloor(SHOWER_BATH),
+    partition({
+      id: "shower-hall-partition",
+      owner: SHOWER_BATH.owner,
+      storey: "upper-storey",
+      axis: "x",
+      across: [-6.06, -5.91],
+      along: [0.75, 3.07],
+      holes: [door("hall-shower-door", "upper-storey", 1.05, 2.05)],
+    }),
+    partition({ id: "shower-primary-partition", owner: SHOWER_BATH.owner, storey: "upper-storey", axis: "z", across: [0.75, 0.9], along: [-8.8, -6.06] }),
+  ],
+});

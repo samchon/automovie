@@ -11,10 +11,9 @@
  * Output: the room record and its wood floor finish.
  */
 import { PALETTE } from "../palette";
-import type { IHousePart } from "../solids";
-import { type IRoomSpace, roomFloor } from "./shared";
+import { type IRoomBuild, type IRoomSpace, roomFloor } from "./shared";
 
-export const ENTRY: IRoomSpace = {
+const ENTRY: IRoomSpace = {
   id: "front-entry",
   owner: "rooms/entry.ts",
   storey: "ground-storey",
@@ -30,4 +29,4 @@ export const ENTRY: IRoomSpace = {
 };
 
 /** Emit the entry floor finish. */
-export const buildEntry = (): IHousePart[] => [roomFloor(ENTRY)];
+export const buildEntry = (): IRoomBuild => ({ space: ENTRY, parts: [roomFloor(ENTRY)] });

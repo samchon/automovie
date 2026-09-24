@@ -21,19 +21,9 @@
  * walls' inner faces, a gable under the garage roof, with the
  * `garage-right-window` void Z = [-5.85, -4.25], Y = [1.40, 2.20].
  */
-import { EXTERIOR_WALL_BOTTOM, MAIN, MAIN_RIDGE_Z } from "../building";
+import { EXTERIOR_WALL_BOTTOM, GARAGE, MAIN } from "../building";
 import { PALETTE } from "../palette";
-import {
-  BACK_EAVE_Z,
-  FRONT_EAVE_Z,
-  GARAGE_RIDGE_Z,
-  GARAGE_ROOF,
-  ROOF_THICKNESS,
-  SPLIT_X,
-  garageRoof,
-  mainRoof,
-  rightRoof,
-} from "../roof/junctions";
+import { BACK_EAVE_Z, FRONT_EAVE_Z, GARAGE_RIDGE_Z, MAIN_RIDGE_Z, ROOF_THICKNESS, SPLIT_X, garageRoof, mainRoof, rightRoof } from "../roof/junctions";
 import { type IHousePart, type IWallPoint, part, wallPanel } from "../solids";
 
 const OWNER = "envelope/right.ts";
@@ -53,8 +43,8 @@ const stepRun = (z0: number, z1: number): IWallPoint[] => {
 /** Emit the right elevation parts. */
 export const buildRight = (): IHousePart[] => {
   const back = MAIN.inner.z[0];
-  const garageBack = GARAGE_ROOF.backFace;
-  const garageFront = GARAGE_ROOF.frontFace;
+  const garageBack = GARAGE.outer.z[0];
+  const garageFront = GARAGE.outer.z[1];
   const backPanel = wallPanel({
     axis: "z",
     across: ACROSS,
@@ -85,7 +75,7 @@ export const buildRight = (): IHousePart[] => {
   const garageUnder = (z: number): number => garageRoof(z) - ROOF_THICKNESS;
   const garageWall = wallPanel({
     axis: "z",
-    across: [11.45, GARAGE_ROOF.eastFace],
+    across: [11.45, GARAGE.outer.x[1]],
     outline: [
       { u: -6.45, y: B },
       { u: -0.55, y: B },

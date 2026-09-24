@@ -9,10 +9,9 @@
  * Z = [-4.46, -3.51], Y = [3.06, 5.26] m.
  */
 import { PALETTE } from "../palette";
-import type { IHousePart } from "../solids";
-import { type IRoomSpace, door, partition, roomFloor } from "./shared";
+import { type IRoomBuild, type IRoomSpace, door, partition, roomFloor } from "./shared";
 
-export const BEDROOM_THREE: IRoomSpace = {
+const BEDROOM_THREE: IRoomSpace = {
   id: "bedroom-three",
   owner: "rooms/bedroom-three.ts",
   storey: "upper-storey",
@@ -30,15 +29,18 @@ export const BEDROOM_THREE: IRoomSpace = {
 };
 
 /** Emit the bedroom floor and its door partition to the arrival. */
-export const buildBedroomThree = (): IHousePart[] => [
-  roomFloor(BEDROOM_THREE),
-  partition({
-    id: "bedroom-three-arrival-partition",
-    owner: BEDROOM_THREE.owner,
-    storey: "upper-storey",
-    axis: "z",
-    across: [3.07, 3.22],
-    along: [-4.56, -3.41],
-    holes: [door("hall-bedroom-three-door", "upper-storey", -4.46, -3.51)],
-  }),
-];
+export const buildBedroomThree = (): IRoomBuild => ({
+  space: BEDROOM_THREE,
+  parts: [
+    roomFloor(BEDROOM_THREE),
+    partition({
+      id: "bedroom-three-arrival-partition",
+      owner: BEDROOM_THREE.owner,
+      storey: "upper-storey",
+      axis: "z",
+      across: [3.07, 3.22],
+      along: [-4.56, -3.41],
+      holes: [door("hall-bedroom-three-door", "upper-storey", -4.46, -3.51)],
+    }),
+  ],
+});

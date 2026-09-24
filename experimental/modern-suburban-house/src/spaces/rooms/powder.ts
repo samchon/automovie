@@ -8,10 +8,9 @@
  * Fixtures are models and are not emitted.
  */
 import { PALETTE } from "../palette";
-import type { IHousePart } from "../solids";
-import { type IRoomSpace, box, door, partition, roomFloor } from "./shared";
+import { type IRoomBuild, type IRoomSpace, box, door, partition, roomFloor } from "./shared";
 
-export const POWDER: IRoomSpace = {
+const POWDER: IRoomSpace = {
   id: "powder-room",
   owner: "rooms/powder.ts",
   storey: "ground-storey",
@@ -20,23 +19,26 @@ export const POWDER: IRoomSpace = {
 };
 
 /** Emit the powder room floor and its two partitions. */
-export const buildPowder = (): IHousePart[] => [
-  roomFloor(POWDER),
-  partition({
-    id: "powder-service-partition",
-    owner: POWDER.owner,
-    storey: "ground-storey",
-    axis: "z",
-    across: [3.07, 3.22],
-    along: [-2.05, -0.25],
-    holes: [door("service-powder-door", "ground-storey", -1.65, -0.7)],
-  }),
-  partition({
-    id: "powder-laundry-partition",
-    owner: POWDER.owner,
-    storey: "ground-storey",
-    axis: "x",
-    across: [-2.05, -1.9],
-    along: [3.22, 5.5],
-  }),
-];
+export const buildPowder = (): IRoomBuild => ({
+  space: POWDER,
+  parts: [
+    roomFloor(POWDER),
+    partition({
+      id: "powder-service-partition",
+      owner: POWDER.owner,
+      storey: "ground-storey",
+      axis: "z",
+      across: [3.07, 3.22],
+      along: [-2.05, -0.25],
+      holes: [door("service-powder-door", "ground-storey", -1.65, -0.7)],
+    }),
+    partition({
+      id: "powder-laundry-partition",
+      owner: POWDER.owner,
+      storey: "ground-storey",
+      axis: "x",
+      across: [-2.05, -1.9],
+      along: [3.22, 5.5],
+    }),
+  ],
+});

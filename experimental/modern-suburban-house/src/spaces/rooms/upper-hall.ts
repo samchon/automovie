@@ -10,10 +10,10 @@
  * one closed volume, and the sliding leaves are later models.
  */
 import { PALETTE } from "../palette";
-import { type IHousePart, block, part } from "../solids";
-import { type IRoomSpace, partitionSpan, roomFloor } from "./shared";
+import { block, part } from "../solids";
+import { type IRoomBuild, type IRoomSpace, partitionSpan, roomFloor } from "./shared";
 
-export const UPPER_HALL: IRoomSpace = {
+const UPPER_HALL: IRoomSpace = {
   id: "upper-hall",
   owner: "rooms/upper-hall.ts",
   storey: "upper-storey",
@@ -29,10 +29,13 @@ export const UPPER_HALL: IRoomSpace = {
 };
 
 /** Emit the hall floor and the closed linen volume. */
-export const buildUpperHall = (): IHousePart[] => {
+export const buildUpperHall = (): IRoomBuild => {
   const [bottom, top] = partitionSpan("upper-storey");
-  return [
-    roomFloor(UPPER_HALL),
-    part("upper-linen-storage", UPPER_HALL.owner, "partition", PALETTE.interiorWall, block([1.72, bottom, -3.41], [3.22, top, -2.51])),
-  ];
+  return {
+    space: UPPER_HALL,
+    parts: [
+      roomFloor(UPPER_HALL),
+      part("upper-linen-storage", UPPER_HALL.owner, "partition", PALETTE.interiorWall, block([1.72, bottom, -3.41], [3.22, top, -2.51])),
+    ],
+  };
 };

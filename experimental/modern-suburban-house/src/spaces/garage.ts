@@ -15,22 +15,19 @@
  *
  * The garage stays empty: no vehicle is authored.
  */
-import { EXTERIOR_WALL_BOTTOM, MAIN, MAIN_RIDGE_Z } from "./building";
+import { EXTERIOR_WALL_BOTTOM, GARAGE, MAIN } from "./building";
 import { PALETTE } from "./palette";
-import { GARAGE_ROOF, ROOF_THICKNESS, rightRoof } from "./roof/junctions";
+import { MAIN_RIDGE_Z, ROOF_THICKNESS, rightRoof } from "./roof/junctions";
 import { type IHousePart, part, rect, slab, wallPanel } from "./solids";
-import { LAYERS, STOREYS } from "./storeys";
+import { CEILING_RESERVATION, GROUND_LAYERS, STOREYS } from "./storeys";
 
 const OWNER = "garage.ts";
 
-/** Garage finished inner limits, metres. */
-export const GARAGE_INNER = { x: [5.75, 11.45] as const, z: [-6.45, -0.55] as const };
-
-/** Emit the shared wall, the floor base and the ceiling base. */
-export const buildGarage = (): IHousePart[] => {
+/** Emit the main/garage shared wall with the laundry-garage door void. */
+export const buildGarageSharedWall = (): IHousePart[] => {
   const under = (z: number): number => rightRoof(z) - ROOF_THICKNESS;
-  const back = GARAGE_ROOF.backFace;
-  const front = GARAGE_ROOF.frontFace;
+  const back = GARAGE.outer.z[0];
+  const front = GARAGE.outer.z[1];
   const shared = wallPanel({
     axis: "z",
     across: [MAIN.inner.x[1], MAIN.outer.x[1]],
@@ -43,10 +40,27 @@ export const buildGarage = (): IHousePart[] => {
     ],
     holes: [{ id: "laundry-garage-door", from: -4.4, to: -3.35, bottom: STOREYS.groundFloor, top: 2.2 }],
   });
-  const plan = rect(GARAGE_INNER.x, GARAGE_INNER.z);
-  return [
-    part("garage-shared-wall", OWNER, "wall", PALETTE.siding, shared),
-    part("garage-floor-base", OWNER, "floor", PALETTE.concrete, slab({ outline: plan, bottom: STOREYS.garageFloor - LAYERS.garageBase, top: STOREYS.garageFloor })),
-    part("garage-ceiling-base", OWNER, "ceiling", PALETTE.ceiling, slab({ outline: plan, bottom: STOREYS.garageCeiling, top: STOREYS.garageCeiling + LAYERS.ceilingReservation })),
-  ];
+  return [part("garage-shared-wall", OWNER, "wall", PALETTE.siding, shared)];
 };
+
+/** Emit the independent garage floor base under the garage finished floor. */
+export const buildGarageFloorBase = (): IHousePart[] => [
+  part(
+    "garage-floor-base",
+    OWNER,
+    "floor",
+    PALETTE.concrete,
+    slab({ outline: rect(GARAGE.inner.x, GARAGE.inner.z), bottom: STOREYS.garageFloor - GROUND_LAYERS.garageBase, top: STOREYS.garageFloor }),
+  ),
+];
+
+/** Emit the garage ceiling base above the garage finished ceiling. */
+export const buildGarageCeiling = (): IHousePart[] => [
+  part(
+    "garage-ceiling-base",
+    OWNER,
+    "ceiling",
+    PALETTE.ceiling,
+    slab({ outline: rect(GARAGE.inner.x, GARAGE.inner.z), bottom: STOREYS.garageCeiling, top: STOREYS.garageCeiling + CEILING_RESERVATION }),
+  ),
+];

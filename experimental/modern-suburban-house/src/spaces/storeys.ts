@@ -32,21 +32,26 @@ export const STOREYS = {
   frontWalk: -0.45,
 } as const;
 
-/** Vertical layer splits of the floor and ceiling assemblies, metres. */
-export const LAYERS = {
-  /** 10 main-ground-floor-base: finish bundle below the finished floor. */
-  groundFinish: 0.025,
-  /** 10 main-ground-floor-base: support base below the finish bundle. */
-  groundBase: 0.15,
-  /** 08 interstorey-floor-boundary: ceiling finish under the interstorey structure. */
-  interstoreyCeilingFinish: 0.015,
-  /** 08 interstorey-floor-boundary: floor finish bundle on top of the structure. */
-  interstoreyFloorFinish: 0.025,
-  /** 09 upper-ceiling-closure: finish plus support reservation above a finished ceiling. */
-  ceilingReservation: 0.18,
-  /** 10 garage-ground-floor-base: garage base below its finished floor. */
+/** Ground floor layers (10 main-ground-floor-base, garage-ground-floor-base), metres. */
+export const GROUND_LAYERS = {
+  /** Finish bundle below the main finished floor. */
+  finish: 0.025,
+  /** Support base below the main finish bundle. */
+  base: 0.15,
+  /** Garage base below the garage finished floor. */
   garageBase: 0.15,
 } as const;
+
+/**
+ * Interstorey floor finish (08 interstorey-floor-boundary), metres: the top
+ * layer of the reservation between the ground ceiling and the upper floor,
+ * owned by each upper room. The structure fills the rest down to the ground
+ * ceiling, the 0.015 m ceiling finish zone included.
+ */
+export const INTERSTOREY_FLOOR_FINISH = 0.025;
+
+/** Finish plus support reservation above a finished ceiling (09 upper- and garage-ceiling-closure), metres. */
+export const CEILING_RESERVATION = 0.18;
 
 /** The two storey ids spaces records must reference directly (01 storey-datums). */
 export type StoreyId = "ground-storey" | "upper-storey";

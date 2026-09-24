@@ -16,9 +16,9 @@
  * Z = [-3.00, -1.40], Y = [0, 1.40] m. The fire is out; flue and combustion are
  * not modelled.
  */
-import { EXTERIOR_WALL_BOTTOM, MAIN, MAIN_RIDGE_Z } from "../building";
+import { EXTERIOR_WALL_BOTTOM, MAIN } from "../building";
 import { PALETTE } from "../palette";
-import { CHIMNEY_PLAN, ROOF_THICKNESS, mainRoof } from "../roof/junctions";
+import { CHIMNEY_PLAN, MAIN_RIDGE_Z, ROOF_THICKNESS, mainRoof } from "../roof/junctions";
 import { type IHousePart, block, part, wallPanel } from "../solids";
 
 const OWNER = "envelope/left.ts";

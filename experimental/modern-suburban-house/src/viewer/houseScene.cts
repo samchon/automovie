@@ -43,7 +43,7 @@ const referenceGround = (): IViewerSceneItem => {
 /** Build the house scene for one request. */
 export function buildHouseScene(sourceDigest: string): IViewerScene {
   const items: IViewerSceneItem[] = [referenceGround()];
-  for (const part of buildHouse()) {
+  for (const part of buildHouse().parts) {
     if (part.mesh.normals === null || part.mesh.indices === null)
       throw new Error(`house part ${part.id} (${part.owner}) lacks normals or indices`);
     items.push({

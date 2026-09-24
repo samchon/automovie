@@ -13,7 +13,7 @@
  */
 import { PALETTE } from "../palette";
 import { type IHousePart, type IPlanPoint, type IWallHole, part, slab, straightWall } from "../solids";
-import { LAYERS, type StoreyId, ceilingOf, floorOf } from "../storeys";
+import { GROUND_LAYERS, INTERSTOREY_FLOOR_FINISH, type StoreyId, ceilingOf, floorOf } from "../storeys";
 
 /** One interior space as its plan owner declares it. */
 export interface IRoomSpace {
@@ -28,16 +28,24 @@ export interface IRoomSpace {
   floor: number;
 }
 
+/** What one room owner emits: its space record and the solids it owns. */
+export interface IRoomBuild {
+  /** The room's space record, consumed by the route table and observations. */
+  space: IRoomSpace;
+  /** Floor finish, partitions and other solids this room owns. */
+  parts: IHousePart[];
+}
+
 /** Floor finish of one room: its outline over the top finish layer. */
 export const roomFloor = (room: IRoomSpace): IHousePart => {
   const top = floorOf(room.storey);
-  const depth = room.storey === "ground-storey" ? LAYERS.groundFinish : LAYERS.interstoreyFloorFinish;
+  const depth = room.storey === "ground-storey" ? GROUND_LAYERS.finish : INTERSTOREY_FLOOR_FINISH;
   return part(`${room.id}-floor`, room.owner, "floor", room.floor, slab({ outline: room.outline, bottom: top - depth, top }));
 };
 
 /** Height range of a full-height partition on a storey. */
 export const partitionSpan = (storey: StoreyId): readonly [number, number] => [
-  floorOf(storey) - (storey === "ground-storey" ? LAYERS.groundFinish : LAYERS.interstoreyFloorFinish),
+  floorOf(storey) - (storey === "ground-storey" ? GROUND_LAYERS.finish : INTERSTOREY_FLOOR_FINISH),
   ceilingOf(storey),
 ];
 

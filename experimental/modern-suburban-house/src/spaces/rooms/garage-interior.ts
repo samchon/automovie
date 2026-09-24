@@ -11,10 +11,9 @@
  * record only in this blocking pass.
  */
 import { PALETTE } from "../palette";
-import type { IHousePart } from "../solids";
-import { type IRoomSpace, box } from "./shared";
+import { type IRoomBuild, type IRoomSpace, box } from "./shared";
 
-export const GARAGE_INTERIOR: IRoomSpace = {
+const GARAGE_INTERIOR: IRoomSpace = {
   id: "garage",
   owner: "rooms/garage-interior.ts",
   storey: "ground-storey",
@@ -23,4 +22,4 @@ export const GARAGE_INTERIOR: IRoomSpace = {
 };
 
 /** The garage interior emits no solid of its own in this pass. */
-export const buildGarageInterior = (): IHousePart[] => [];
+export const buildGarageInterior = (): IRoomBuild => ({ space: GARAGE_INTERIOR, parts: [] });

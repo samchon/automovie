@@ -10,10 +10,9 @@
  * so the concave remainder is split into four convex pieces that share the
  * valley corners of `GABLE_CORNERS` exactly.
  */
-import { MAIN_RIDGE_Z } from "../building";
 import { PALETTE } from "../palette";
 import { type IHousePart, part, slopedSlab } from "../solids";
-import { CHIMNEY_PLAN, FRONT_EAVE_Z, GABLE, GABLE_CORNERS, LEFT_EAVE_X, ROOF_THICKNESS, SPLIT_X, mFront } from "./junctions";
+import { CHIMNEY_PLAN, FRONT_EAVE_Z, GABLE, GABLE_CORNERS, LEFT_EAVE_X, MAIN_RIDGE_Z, ROOF_THICKNESS, SPLIT_X, mFront } from "./junctions";
 
 const OWNER = "roof/main-front.ts";
 

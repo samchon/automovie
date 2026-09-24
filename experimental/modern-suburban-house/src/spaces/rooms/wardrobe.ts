@@ -8,10 +8,9 @@
  * two bathrooms (Z = [-8.95, -8.80]).
  */
 import { PALETTE } from "../palette";
-import type { IHousePart } from "../solids";
-import { type IRoomSpace, box, door, partition, roomFloor } from "./shared";
+import { type IRoomBuild, type IRoomSpace, box, door, partition, roomFloor } from "./shared";
 
-export const WARDROBE: IRoomSpace = {
+const WARDROBE: IRoomSpace = {
   id: "primary-wardrobe",
   owner: "rooms/wardrobe.ts",
   storey: "upper-storey",
@@ -20,16 +19,19 @@ export const WARDROBE: IRoomSpace = {
 };
 
 /** Emit the wardrobe floor and its two partitions. */
-export const buildWardrobe = (): IHousePart[] => [
-  roomFloor(WARDROBE),
-  partition({
-    id: "wardrobe-primary-partition",
-    owner: WARDROBE.owner,
-    storey: "upper-storey",
-    axis: "z",
-    across: [0.75, 0.9],
-    along: [-10.45, -8.8],
-    holes: [door("primary-wardrobe-door", "upper-storey", -10.2, -9.2)],
-  }),
-  partition({ id: "wardrobe-bath-partition", owner: WARDROBE.owner, storey: "upper-storey", axis: "x", across: [-8.95, -8.8], along: [0.9, 5.5] }),
-];
+export const buildWardrobe = (): IRoomBuild => ({
+  space: WARDROBE,
+  parts: [
+    roomFloor(WARDROBE),
+    partition({
+      id: "wardrobe-primary-partition",
+      owner: WARDROBE.owner,
+      storey: "upper-storey",
+      axis: "z",
+      across: [0.75, 0.9],
+      along: [-10.45, -8.8],
+      holes: [door("primary-wardrobe-door", "upper-storey", -10.2, -9.2)],
+    }),
+    partition({ id: "wardrobe-bath-partition", owner: WARDROBE.owner, storey: "upper-storey", axis: "x", across: [-8.95, -8.8], along: [0.9, 5.5] }),
+  ],
+});

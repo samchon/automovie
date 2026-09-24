@@ -10,10 +10,9 @@
  * Output: the room record, its wood floor finish and its two partition runs.
  */
 import { PALETTE } from "../palette";
-import type { IHousePart } from "../solids";
-import { type IRoomSpace, box, door, partition, roomFloor } from "./shared";
+import { type IRoomBuild, type IRoomSpace, box, door, partition, roomFloor } from "./shared";
 
-export const LIVING: IRoomSpace = {
+const LIVING: IRoomSpace = {
   id: "living-room",
   owner: "rooms/living.ts",
   storey: "ground-storey",
@@ -22,23 +21,26 @@ export const LIVING: IRoomSpace = {
 };
 
 /** Emit the living floor and the partitions 07 gives this owner. */
-export const buildLiving = (): IHousePart[] => [
-  roomFloor(LIVING),
-  partition({
-    id: "living-entry-partition",
-    owner: LIVING.owner,
-    storey: "ground-storey",
-    axis: "z",
-    across: [-1.95, -1.8],
-    along: [-1.45, -0.25],
-    holes: [door("entry-living-door", "ground-storey", -1.35, -0.35)],
-  }),
-  partition({
-    id: "living-service-partition",
-    owner: LIVING.owner,
-    storey: "ground-storey",
-    axis: "z",
-    across: [-1.95, -1.8],
-    along: [-6.05, -4.71],
-  }),
-];
+export const buildLiving = (): IRoomBuild => ({
+  space: LIVING,
+  parts: [
+    roomFloor(LIVING),
+    partition({
+      id: "living-entry-partition",
+      owner: LIVING.owner,
+      storey: "ground-storey",
+      axis: "z",
+      across: [-1.95, -1.8],
+      along: [-1.45, -0.25],
+      holes: [door("entry-living-door", "ground-storey", -1.35, -0.35)],
+    }),
+    partition({
+      id: "living-service-partition",
+      owner: LIVING.owner,
+      storey: "ground-storey",
+      axis: "z",
+      across: [-1.95, -1.8],
+      along: [-6.05, -4.71],
+    }),
+  ],
+});

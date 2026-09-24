@@ -8,10 +8,9 @@
  * The `laundry-garage-door` void in the shared wall is cut by `garage.ts`.
  */
 import { PALETTE } from "../palette";
-import type { IHousePart } from "../solids";
-import { type IRoomSpace, box, door, partition, roomFloor } from "./shared";
+import { type IRoomBuild, type IRoomSpace, box, door, partition, roomFloor } from "./shared";
 
-export const LAUNDRY: IRoomSpace = {
+const LAUNDRY: IRoomSpace = {
   id: "laundry-mudroom",
   owner: "rooms/laundry.ts",
   storey: "ground-storey",
@@ -20,23 +19,26 @@ export const LAUNDRY: IRoomSpace = {
 };
 
 /** Emit the laundry floor and its two partitions. */
-export const buildLaundry = (): IHousePart[] => [
-  roomFloor(LAUNDRY),
-  partition({
-    id: "laundry-service-partition",
-    owner: LAUNDRY.owner,
-    storey: "ground-storey",
-    axis: "z",
-    across: [3.07, 3.22],
-    along: [-4.7, -2.05],
-    holes: [door("service-laundry-door", "ground-storey", -4.4, -3.35)],
-  }),
-  partition({
-    id: "laundry-pantry-partition",
-    owner: LAUNDRY.owner,
-    storey: "ground-storey",
-    axis: "x",
-    across: [-4.7, -4.55],
-    along: [3.22, 5.5],
-  }),
-];
+export const buildLaundry = (): IRoomBuild => ({
+  space: LAUNDRY,
+  parts: [
+    roomFloor(LAUNDRY),
+    partition({
+      id: "laundry-service-partition",
+      owner: LAUNDRY.owner,
+      storey: "ground-storey",
+      axis: "z",
+      across: [3.07, 3.22],
+      along: [-4.7, -2.05],
+      holes: [door("service-laundry-door", "ground-storey", -4.4, -3.35)],
+    }),
+    partition({
+      id: "laundry-pantry-partition",
+      owner: LAUNDRY.owner,
+      storey: "ground-storey",
+      axis: "x",
+      across: [-4.7, -4.55],
+      along: [3.22, 5.5],
+    }),
+  ],
+});

@@ -8,10 +8,9 @@
  * taken to X = -1.80 so it closes the corner against the stair's left wall.
  */
 import { PALETTE } from "../palette";
-import type { IHousePart } from "../solids";
-import { type IRoomSpace, box, door, partition, roomFloor } from "./shared";
+import { type IRoomBuild, type IRoomSpace, box, door, partition, roomFloor } from "./shared";
 
-export const BEDROOM_TWO: IRoomSpace = {
+const BEDROOM_TWO: IRoomSpace = {
   id: "bedroom-two",
   owner: "rooms/bedroom-two.ts",
   storey: "upper-storey",
@@ -20,15 +19,18 @@ export const BEDROOM_TWO: IRoomSpace = {
 };
 
 /** Emit the bedroom floor and its partition to the hall. */
-export const buildBedroomTwo = (): IHousePart[] => [
-  roomFloor(BEDROOM_TWO),
-  partition({
-    id: "bedroom-two-hall-partition",
-    owner: BEDROOM_TWO.owner,
-    storey: "upper-storey",
-    axis: "x",
-    across: [-4.71, -4.56],
-    along: [-3.35, -1.8],
-    holes: [door("hall-bedroom-two-door", "upper-storey", -3.1, -2.1)],
-  }),
-];
+export const buildBedroomTwo = (): IRoomBuild => ({
+  space: BEDROOM_TWO,
+  parts: [
+    roomFloor(BEDROOM_TWO),
+    partition({
+      id: "bedroom-two-hall-partition",
+      owner: BEDROOM_TWO.owner,
+      storey: "upper-storey",
+      axis: "x",
+      across: [-4.71, -4.56],
+      along: [-3.35, -1.8],
+      holes: [door("hall-bedroom-two-door", "upper-storey", -3.1, -2.1)],
+    }),
+  ],
+});

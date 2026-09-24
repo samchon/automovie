@@ -20,7 +20,7 @@ import { WALK_DEPTH, blendedRun } from "./paving";
 const OWNER = "site/front-walk.ts";
 
 /** Front walk extent, metres. */
-export const FRONT_WALK = { x: [0.15, 1.65] as const, z: [2.8, 6.5] as const };
+const FRONT_WALK = { x: [0.15, 1.65] as const, z: [2.8, 6.5] as const };
 
 /** Emit the walk and its sloped cross connector. */
 export const buildFrontWalk = (): IHousePart[] => {

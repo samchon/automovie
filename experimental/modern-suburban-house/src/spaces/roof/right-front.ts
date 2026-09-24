@@ -6,10 +6,9 @@
  * Rfront(Z) = 5.95 − (7/12) Z, underside 0.24 m lower (roof/00). No overhang is
  * added at the split plane; the step wall closes it (envelope/right).
  */
-import { MAIN_RIDGE_Z } from "../building";
 import { PALETTE } from "../palette";
 import { type IHousePart, part, rect, slopedSlab } from "../solids";
-import { FRONT_EAVE_Z, RIGHT_EAVE_X, ROOF_THICKNESS, SPLIT_X, rFront } from "./junctions";
+import { FRONT_EAVE_Z, MAIN_RIDGE_Z, RIGHT_EAVE_X, ROOF_THICKNESS, SPLIT_X, rFront } from "./junctions";
 
 /** Emit the right low roof front face. */
 export const buildRightFrontRoof = (): IHousePart[] => [

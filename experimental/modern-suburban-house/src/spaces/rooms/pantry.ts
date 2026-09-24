@@ -7,10 +7,9 @@
  * Z = [-5.75, -4.80], Y = [0, 2.20] m. Shelves are later models.
  */
 import { PALETTE } from "../palette";
-import type { IHousePart } from "../solids";
-import { type IRoomSpace, box, door, partition, roomFloor } from "./shared";
+import { type IRoomBuild, type IRoomSpace, box, door, partition, roomFloor } from "./shared";
 
-export const PANTRY: IRoomSpace = {
+const PANTRY: IRoomSpace = {
   id: "pantry",
   owner: "rooms/pantry.ts",
   storey: "ground-storey",
@@ -19,15 +18,18 @@ export const PANTRY: IRoomSpace = {
 };
 
 /** Emit the pantry floor and its partition to the service band. */
-export const buildPantry = (): IHousePart[] => [
-  roomFloor(PANTRY),
-  partition({
-    id: "pantry-service-partition",
-    owner: PANTRY.owner,
-    storey: "ground-storey",
-    axis: "z",
-    across: [3.07, 3.22],
-    along: [-6.05, -4.7],
-    holes: [door("service-pantry-door", "ground-storey", -5.75, -4.8)],
-  }),
-];
+export const buildPantry = (): IRoomBuild => ({
+  space: PANTRY,
+  parts: [
+    roomFloor(PANTRY),
+    partition({
+      id: "pantry-service-partition",
+      owner: PANTRY.owner,
+      storey: "ground-storey",
+      axis: "z",
+      across: [3.07, 3.22],
+      along: [-6.05, -4.7],
+      holes: [door("service-pantry-door", "ground-storey", -5.75, -4.8)],
+    }),
+  ],
+});

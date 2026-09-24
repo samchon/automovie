@@ -18,7 +18,7 @@
  * Consumers: the eight roof plane owners, the envelope owners for wall heads,
  * and ceilings. This module emits no surface.
  */
-import { MAIN, MAIN_RIDGE_Z } from "../building";
+import { GARAGE, MAIN } from "../building";
 
 /** Vertical underside reservation of every roof, metres (roof-profile-datums). */
 export const ROOF_THICKNESS = 0.24;
@@ -32,10 +32,11 @@ export const SPLIT_X = 1.6;
 /** Front gable wall ends a, b on the front wall Z = 0 (roof-mass-allocation). */
 export const GABLE = { a: -5.75, b: -1.8, center: (-5.75 + -1.8) / 2 } as const;
 
-/** Garage outline used by its roof, metres (00-building attached-garage-extent). */
-export const GARAGE_ROOF = { westFace: 5.75, eastFace: 11.7, frontFace: -0.3, backFace: -6.7 } as const;
-/** Garage ridge Z: mean of the garage front and back walls. */
-export const GARAGE_RIDGE_Z = (GARAGE_ROOF.frontFace + GARAGE_ROOF.backFace) / 2;
+/** Mid-plane of the main front and rear walls, where the main and right ridges run (roof-mass-allocation). */
+export const MAIN_RIDGE_Z = (MAIN.outer.z[0] + MAIN.outer.z[1]) / 2;
+
+/** Garage ridge Z: mean of the garage front and back walls (roof-mass-allocation). */
+export const GARAGE_RIDGE_Z = (GARAGE.outer.z[1] + GARAGE.outer.z[0]) / 2;
 
 /** Main roof front face. */
 export const mFront = (z: number): number => 6.3 - (8 / 12) * z;
@@ -69,7 +70,7 @@ export const LEFT_EAVE_X = MAIN.outer.x[0] - OVERHANG.main;
 export const RIGHT_EAVE_X = MAIN.outer.x[1] + OVERHANG.right;
 
 /** Valley Z at a gable X: where F(X) equals Mfront(Z). */
-export const valleyZ = (x: number): number => -(9 / 8) * Math.min(x - GABLE.a, GABLE.b - x);
+const valleyZ = (x: number): number => -(9 / 8) * Math.min(x - GABLE.a, GABLE.b - x);
 
 /**
  * Corners of the exposed front gable, shared by the gable planes and the main

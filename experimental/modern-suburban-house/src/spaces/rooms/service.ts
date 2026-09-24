@@ -9,10 +9,9 @@
  * common owners (07), so this owner emits only its floor finish.
  */
 import { PALETTE } from "../palette";
-import type { IHousePart } from "../solids";
-import { type IRoomSpace, roomFloor } from "./shared";
+import { type IRoomBuild, type IRoomSpace, roomFloor } from "./shared";
 
-export const SERVICE: IRoomSpace = {
+const SERVICE: IRoomSpace = {
   id: "service-access",
   owner: "rooms/service.ts",
   storey: "ground-storey",
@@ -28,4 +27,4 @@ export const SERVICE: IRoomSpace = {
 };
 
 /** Emit the service passage floor finish. */
-export const buildService = (): IHousePart[] => [roomFloor(SERVICE)];
+export const buildService = (): IRoomBuild => ({ space: SERVICE, parts: [roomFloor(SERVICE)] });

@@ -6,9 +6,10 @@
  * Gfront(Z) = 2.95 − (5/12)(Z + 0.30), underside 0.24 m lower; the west edge
  * meets the shared wall's outer face X = 5.75 with no overhang (roof/00).
  */
+import { GARAGE } from "../building";
 import { PALETTE } from "../palette";
 import { type IHousePart, part, rect, slopedSlab } from "../solids";
-import { GARAGE_RIDGE_Z, GARAGE_ROOF, OVERHANG, ROOF_THICKNESS, gFront } from "./junctions";
+import { GARAGE_RIDGE_Z, OVERHANG, ROOF_THICKNESS, gFront } from "./junctions";
 
 /** Emit the garage front face. */
 export const buildGarageFrontRoof = (): IHousePart[] => [
@@ -18,7 +19,7 @@ export const buildGarageFrontRoof = (): IHousePart[] => [
     "roof",
     PALETTE.roof,
     slopedSlab({
-      plan: rect([GARAGE_ROOF.westFace, GARAGE_ROOF.eastFace + OVERHANG.garage], [GARAGE_RIDGE_Z, GARAGE_ROOF.frontFace + OVERHANG.garage]),
+      plan: rect([GARAGE.inner.x[0], GARAGE.outer.x[1] + OVERHANG.garage], [GARAGE_RIDGE_Z, GARAGE.outer.z[1] + OVERHANG.garage]),
       top: (_x, z) => gFront(z),
       thickness: ROOF_THICKNESS,
     }),

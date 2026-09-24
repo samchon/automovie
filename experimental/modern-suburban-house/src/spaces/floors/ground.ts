@@ -12,12 +12,12 @@
 import { MAIN } from "../building";
 import { PALETTE } from "../palette";
 import { type IHousePart, part, rect, slab } from "../solids";
-import { LAYERS, STOREYS } from "../storeys";
+import { GROUND_LAYERS, STOREYS } from "../storeys";
 
 /** Emit the main ground support base. */
 export const buildGroundFloor = (): IHousePart[] => {
-  const top = STOREYS.groundFloor - LAYERS.groundFinish;
+  const top = STOREYS.groundFloor - GROUND_LAYERS.finish;
   return [
-    part("main-ground-floor-base", "floors/ground.ts", "floor", PALETTE.structure, slab({ outline: rect(MAIN.inner.x, MAIN.inner.z), bottom: top - LAYERS.groundBase, top })),
+    part("main-ground-floor-base", "floors/ground.ts", "floor", PALETTE.structure, slab({ outline: rect(MAIN.inner.x, MAIN.inner.z), bottom: top - GROUND_LAYERS.base, top })),
   ];
 };

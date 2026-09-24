@@ -16,12 +16,12 @@
 import { MAIN } from "../building";
 import { PALETTE } from "../palette";
 import { type IHousePart, part, rect, slab } from "../solids";
-import { LAYERS, STOREYS } from "../storeys";
+import { CEILING_RESERVATION, INTERSTOREY_FLOOR_FINISH, STOREYS } from "../storeys";
 
 const OWNER = "floors/upper.ts";
 
-/** Emit the interstorey structure (with the ground ceiling finish zone) and the upper ceiling base. */
-export const buildUpperFloor = (): IHousePart[] => {
+/** Emit the interstorey structure, the ground ceiling finish zone included, with the stair notch. */
+export const buildInterstorey = (): IHousePart[] => {
   const [x0, x1] = MAIN.inner.x;
   const [z0, z1] = MAIN.inner.z;
   const outline = [
@@ -36,8 +36,10 @@ export const buildUpperFloor = (): IHousePart[] => {
     { x: -1.8, z: z1 },
     { x: x0, z: z1 },
   ];
-  return [
-    part("interstorey-structure", OWNER, "floor", PALETTE.structure, slab({ outline, bottom: STOREYS.groundCeiling, top: STOREYS.upperFloor - LAYERS.interstoreyFloorFinish })),
-    part("upper-ceiling-base", OWNER, "ceiling", PALETTE.ceiling, slab({ outline: rect(MAIN.inner.x, MAIN.inner.z), bottom: STOREYS.upperCeiling, top: STOREYS.upperCeiling + LAYERS.ceilingReservation })),
-  ];
+  return [part("interstorey-structure", OWNER, "floor", PALETTE.structure, slab({ outline, bottom: STOREYS.groundCeiling, top: STOREYS.upperFloor - INTERSTOREY_FLOOR_FINISH }))];
 };
+
+/** Emit the upper ceiling base over the whole main inner plan, stair hall included. */
+export const buildUpperCeiling = (): IHousePart[] => [
+  part("upper-ceiling-base", OWNER, "ceiling", PALETTE.ceiling, slab({ outline: rect(MAIN.inner.x, MAIN.inner.z), bottom: STOREYS.upperCeiling, top: STOREYS.upperCeiling + CEILING_RESERVATION })),
+];

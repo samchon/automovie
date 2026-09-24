@@ -23,13 +23,13 @@
  */
 import { PALETTE } from "./palette";
 import { type IHousePart, bar, block, part, straightWall } from "./solids";
-import { LAYERS, STOREYS } from "./storeys";
+import { GROUND_LAYERS, INTERSTOREY_FLOOR_FINISH, STOREYS } from "./storeys";
 
 const OWNER = "stair.ts";
 const RISE = STOREYS.upperFloor / 18;
 const RUN = 0.28;
-const BASE = STOREYS.groundFloor - LAYERS.groundFinish;
-const UPPER_BASE = STOREYS.upperFloor - LAYERS.interstoreyFloorFinish;
+const BASE = STOREYS.groundFloor - GROUND_LAYERS.finish;
+const UPPER_BASE = STOREYS.upperFloor - INTERSTOREY_FLOOR_FINISH;
 
 /** Emit the stair treads, landing, closed sides and guards. */
 export const buildStair = (): IHousePart[] => {

@@ -9,10 +9,9 @@
  * bedroom-three door run meets. Fixtures are later models.
  */
 import { PALETTE } from "../palette";
-import type { IHousePart } from "../solids";
-import { type IRoomSpace, box, door, partition, roomFloor } from "./shared";
+import { type IRoomBuild, type IRoomSpace, box, door, partition, roomFloor } from "./shared";
 
-export const TUB_BATH: IRoomSpace = {
+const TUB_BATH: IRoomSpace = {
   id: "tub-bathroom",
   owner: "rooms/tub-bath.ts",
   storey: "upper-storey",
@@ -21,16 +20,19 @@ export const TUB_BATH: IRoomSpace = {
 };
 
 /** Emit the tub bathroom floor and its two partitions. */
-export const buildTubBath = (): IHousePart[] => [
-  roomFloor(TUB_BATH),
-  partition({
-    id: "tub-hall-partition",
-    owner: TUB_BATH.owner,
-    storey: "upper-storey",
-    axis: "z",
-    across: [3.07, 3.22],
-    along: [-8.8, -4.71],
-    holes: [door("hall-tub-door", "upper-storey", -5.86, -4.86)],
-  }),
-  partition({ id: "tub-bedroom-three-partition", owner: TUB_BATH.owner, storey: "upper-storey", axis: "x", across: [-4.71, -4.56], along: [3.07, 5.5] }),
-];
+export const buildTubBath = (): IRoomBuild => ({
+  space: TUB_BATH,
+  parts: [
+    roomFloor(TUB_BATH),
+    partition({
+      id: "tub-hall-partition",
+      owner: TUB_BATH.owner,
+      storey: "upper-storey",
+      axis: "z",
+      across: [3.07, 3.22],
+      along: [-8.8, -4.71],
+      holes: [door("hall-tub-door", "upper-storey", -5.86, -4.86)],
+    }),
+    partition({ id: "tub-bedroom-three-partition", owner: TUB_BATH.owner, storey: "upper-storey", axis: "x", across: [-4.71, -4.56], along: [3.07, 5.5] }),
+  ],
+});

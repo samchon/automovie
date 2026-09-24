@@ -15,12 +15,12 @@
  * are not emitted.
  */
 import { buildGroundFloor } from "./floors/ground";
-import { buildUpperFloor } from "./floors/upper";
+import { buildInterstorey, buildUpperCeiling } from "./floors/upper";
 import { buildFront } from "./envelope/front";
 import { buildLeft } from "./envelope/left";
 import { buildRear } from "./envelope/rear";
 import { buildRight } from "./envelope/right";
-import { buildGarage } from "./garage";
+import { buildGarageCeiling, buildGarageFloorBase, buildGarageSharedWall } from "./garage";
 import { buildPorch } from "./porch";
 import { buildFrontGableLeftRoof } from "./roof/front-gable-left";
 import { buildFrontGableRightRoof } from "./roof/front-gable-right";
@@ -46,15 +46,44 @@ import { buildTubBath } from "./rooms/tub-bath";
 import { buildUpperHall } from "./rooms/upper-hall";
 import { buildWardrobe } from "./rooms/wardrobe";
 import { buildSite } from "./site";
+import type { IRoomSpace } from "./rooms/shared";
 import type { IHousePart } from "./solids";
 import { buildStair } from "./stair";
 
-/** Build the whole house; throws on a duplicate part id. */
-export const buildHouse = (): IHousePart[] => {
+/** The house as the viewer, measurements and delivery consume it. */
+export interface IHouse {
+  /** Every emitted solid, in fixed owner order. */
+  parts: IHousePart[];
+  /** The fifteen room space records, in fixed owner order. */
+  spaces: IRoomSpace[];
+}
+
+/** Build the whole house; throws on a duplicate part or space id. */
+export const buildHouse = (): IHouse => {
+  const rooms = [
+    buildEntry(),
+    buildLiving(),
+    buildCommon(),
+    buildService(),
+    buildPowder(),
+    buildLaundry(),
+    buildPantry(),
+    buildGarageInterior(),
+    buildUpperHall(),
+    buildPrimary(),
+    buildWardrobe(),
+    buildBedroomTwo(),
+    buildBedroomThree(),
+    buildShowerBath(),
+    buildTubBath(),
+  ];
   const parts = [
     ...buildGroundFloor(),
-    ...buildUpperFloor(),
-    ...buildGarage(),
+    ...buildInterstorey(),
+    ...buildUpperCeiling(),
+    ...buildGarageSharedWall(),
+    ...buildGarageFloorBase(),
+    ...buildGarageCeiling(),
     ...buildFront(),
     ...buildRear(),
     ...buildLeft(),
@@ -67,21 +96,7 @@ export const buildHouse = (): IHousePart[] => {
     ...buildRightBackRoof(),
     ...buildGarageFrontRoof(),
     ...buildGarageBackRoof(),
-    ...buildEntry(),
-    ...buildLiving(),
-    ...buildCommon(),
-    ...buildService(),
-    ...buildPowder(),
-    ...buildLaundry(),
-    ...buildPantry(),
-    ...buildGarageInterior(),
-    ...buildUpperHall(),
-    ...buildPrimary(),
-    ...buildWardrobe(),
-    ...buildBedroomTwo(),
-    ...buildBedroomThree(),
-    ...buildShowerBath(),
-    ...buildTubBath(),
+    ...rooms.flatMap((room) => room.parts),
     ...buildStair(),
     ...buildPorch(),
     ...buildSite(),
@@ -91,5 +106,11 @@ export const buildHouse = (): IHousePart[] => {
     if (seen.has(p.id)) throw new Error(`duplicate house part id "${p.id}" from ${p.owner}`);
     seen.add(p.id);
   }
-  return parts;
+  const spaces = rooms.map((room) => room.space);
+  const spaceIds = new Set<string>();
+  for (const s of spaces) {
+    if (spaceIds.has(s.id)) throw new Error(`duplicate space id "${s.id}" from ${s.owner}`);
+    spaceIds.add(s.id);
+  }
+  return { parts, spaces };
 };

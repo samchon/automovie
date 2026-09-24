@@ -17,9 +17,9 @@
  * `garage-front-door` void X = [6.10, 11.10], Y = [-0.15, 2.15]; the closed
  * panel leaf and rails are later models, so the void is open here.
  */
-import { EXTERIOR_WALL_BOTTOM, MAIN } from "../building";
+import { EXTERIOR_WALL_BOTTOM, GARAGE, MAIN } from "../building";
 import { PALETTE } from "../palette";
-import { GABLE, GARAGE_ROOF, ROOF_THICKNESS, SPLIT_X, gFront, gable, mFront, rFront } from "../roof/junctions";
+import { GABLE, ROOF_THICKNESS, SPLIT_X, gFront, gable, mFront, rFront } from "../roof/junctions";
 import { type IHousePart, part, wallPanel } from "../solids";
 import { wallHead } from "./wall-head";
 
@@ -54,15 +54,15 @@ export const buildFront = (): IHousePart[] => {
       { id: "front-door", from: 0.4, to: 1.4, bottom: 0, top: 2.2 },
     ],
   });
-  const garageTop = gFront(GARAGE_ROOF.frontFace) - ROOF_THICKNESS;
+  const garageTop = gFront(GARAGE.outer.z[1]) - ROOF_THICKNESS;
   const garage = wallPanel({
     axis: "x",
-    across: [-0.55, GARAGE_ROOF.frontFace],
+    across: [-0.55, GARAGE.outer.z[1]],
     outline: [
-      { u: GARAGE_ROOF.westFace, y: B },
-      { u: GARAGE_ROOF.eastFace, y: B },
-      { u: GARAGE_ROOF.eastFace, y: garageTop },
-      { u: GARAGE_ROOF.westFace, y: garageTop },
+      { u: GARAGE.inner.x[0], y: B },
+      { u: GARAGE.outer.x[1], y: B },
+      { u: GARAGE.outer.x[1], y: garageTop },
+      { u: GARAGE.inner.x[0], y: garageTop },
     ],
     holes: [{ id: "garage-front-door", from: 6.1, to: 11.1, bottom: -0.15, top: 2.15 }],
   });
@@ -71,6 +71,6 @@ export const buildFront = (): IHousePart[] => {
     wallHead({ id: "front-main-wall-head", owner: OWNER, x: [GABLE.b, SPLIT_X], z: [INNER, FRONT], roof: mFront, outerZ: FRONT }),
     wallHead({ id: "front-right-wall-head", owner: OWNER, x: [SPLIT_X, MAIN.outer.x[1]], z: [INNER, FRONT], roof: rFront, outerZ: FRONT }),
     part("front-garage-wall", OWNER, "wall", PALETTE.siding, garage),
-    wallHead({ id: "front-garage-wall-head", owner: OWNER, x: [GARAGE_ROOF.westFace, GARAGE_ROOF.eastFace], z: [-0.55, GARAGE_ROOF.frontFace], roof: gFront, outerZ: GARAGE_ROOF.frontFace }),
+    wallHead({ id: "front-garage-wall-head", owner: OWNER, x: [GARAGE.inner.x[0], GARAGE.outer.x[1]], z: [-0.55, GARAGE.outer.z[1]], roof: gFront, outerZ: GARAGE.outer.z[1] }),
   ];
 };
