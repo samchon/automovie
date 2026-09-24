@@ -21,21 +21,21 @@
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 주랑의 중정 쪽 안쪽 모서리·현관 몸체 모서리와 junction 묶음, 단면 네 항목까지 목록에 넣어 이전에 빠졌던 접합·골·처마 질문이 분모에서 사라지지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 1.05m 떨어진 모서리 pose, junction pose 목록, pose 없는 단면 항목과 스캔의 격자·깊이 한계가 적혀 관찰 목록을 source가 그대로 만들 수 있다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 엔진 네 모서리가 외접 상자 근처라는 한계와 스캔 수치가 틈·단면 판독을 대신하지 않는다는 한계를 명시해 측정 범위를 넘겨 주장하지 않는다.
-@evidenceReview principles/design/spaces.md#space-topology #3f8d925 주랑 구멍의 안쪽 모서리와 현관 몸체를 외측 모서리와 구별해 세워, 오목한 합집합을 외접 상자 관찰로 대신하지 않는다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 viewer·계측·스캔이 같은 environment의 실체를 읽고 입력 수량이나 별도 화면 좌표를 compiled 결과로 복사하지 않는다.
-@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 제실 처마의 파라펫 통과와 동측 박공 남쪽 끝이 junction pose로, 실체 겹침이 스캔 쌍 수로 들어가 리뷰가 찾은 두 관통 부류를 다음부터 목록이 잡는다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 일반 관찰 조건에 이 신전의 주랑 안쪽 모서리·현관 몸체·골·떠 있는 처마·파라펫 만남을 묻는 지역 질문을 더했다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 반환 pose가 다른 높이를 주어도 부모 1.6m 조건을 낮추지 않고 원 질문과 보조 pose를 함께 남겨 부모 수정이 필요하지 않았다.
-@evidenceReview settings/00-delivery.md#review-condition #6daf6ae 실제 바닥과 대지 support 위 눈높이, 주랑 모서리 pose의 1.6m 눈높이를 쓰고 충돌한 원 질문을 지우지 않는다.
-@evidenceReview settings/00-delivery.md#governing-aim #df3c7b2 건물/방 정체성의 reference 질문이 topology·접합 전집합 위에 추가돼 좋은 대표 시점 하나로 끝낼 수 없다.
-@evidenceReview settings/50-production.md#references #eb34a79 절개를 검사로 한정하고 다섯 reference를 기존 필수 관찰의 대체로 쓰지 않는다.
-@evidenceReview settings/50-production.md#measurement-truth #c6e89a8 겹침은 스캔 수치로, 자기 자신으로 읽힘은 프레임으로 나누고 단면처럼 재는 수단이 없는 항목은 unverified로 남긴다.
-@evidenceReview settings/50-production.md#acceptance #2c49b7f 원 질문이나 단면 항목이 unverified로 남은 상태를 완료로 선언하지 않는다는 끝 조건을 유지한다.
-@evidenceReview obligations/design/spaces.md#space-review-set #86bcab4 plan·단면·입면·내부·대지·접합 관찰과 실체 겹침 스캔을 각 경계/접합에 배정해 유한하지만 누락 없는 검토를 요구한다.
-@evidenceReview contracts/obligations-spaces.md#compiled-observations #09b52ea 외부 전 노출 면과 각 공간의 threshold/모서리/네 방위에 주랑의 추가 내부 경계 모서리 여섯을 더해 계약의 오목 공간 조건을 채운다.
+@evidenceReview principles/core/common.md#scope-preservation 주랑 안쪽·현관 몸체 모서리와 junction 묶음에 더해 문턱·박공 끝·채광구·높이 차이·처마·L/T 접합·외벽 하단·현관의 단면 묶음, 제실 위쪽 경계의 입면·창, 다섯 reference pose가 목록에 들어 리뷰가 지적한 질문이 분모에서 빠지지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion 네 종횡 단면의 평면 좌표와 대상, 단면 묶음의 항목, 위쪽 경계 관찰의 거리·높이, 무효 창 threshold와 대각 골 단면이 pose 없는 이유가 적혀 source가 관찰 목록을 새로 고르지 않고 그대로 만든다.
+@evidenceReview principles/core/common.md#declared-basis 엔진 네 모서리의 한계, 단면은 뷰어가 현재 source 실체를 자른 조각이라는 근거, 대각 골을 X/Z 단면이 따라가지 못하는 이유, 스캔(기본 0.01m 격자) 수치가 틈·단면 판독을 대신하지 않는다는 한계가 적혀 있다.
+@evidenceReview principles/design/spaces.md#space-topology 주랑 구멍의 안쪽 모서리와 현관 몸체를 외측 모서리와 구별하고, 봉헌실·주랑 안에 생겼던 창 threshold를 무효로 남겨 방 안 위치가 지붕 위 외부 창의 관찰을 대신하지 않는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority 단면 조각·관찰 목록·스캔이 같은 generation의 environment 실체를 읽고 위쪽 경계와 창 ID는 경계 소유 H2의 것을 소비해 입력 수량이나 화면 좌표를 compiled 결과로 복사하지 않는다.
+@evidenceReview principles/design/spaces.md#space-verification-address 문턱·박공 끝·높이 차이 끝면·처마 돌출·L/T 접합·외벽 하단이 각자 연직 단면 pose를 갖고 대각 골만 이유와 함께 unverified로 남아, 단면에서 실패할 주장이 대표 조감만으로 통과하지 않는다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation 일반 관찰 조건에 이 신전의 주랑 안쪽 모서리·현관 몸체·골·떠 있는 처마·파라펫 만남, 제실 위쪽 경계와 네 종횡 단면을 묻는 지역 질문을 더했다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work 반환 pose가 다른 높이를 주어도 부모 1.6m 조건을 낮추지 않고 원 질문과 보조 pose를 함께 남기며, 단면과 위쪽 경계 관찰도 부모 검토 조건 안에서 더해져 부모 수정이 필요하지 않았다.
+@evidenceReview settings/00-delivery.md#review-condition 실제 바닥·대지 support 위 1.6m 눈높이와 주랑 모서리 pose를 쓰고, 지붕 위 면·창은 상하 기울기를 허용한 외부 관찰로 두며 충돌한 원 질문을 지우지 않는다.
+@evidenceReview settings/00-delivery.md#governing-aim 다섯 reference 비교가 reference 묶음의 pose로 topology·접합·단면 전집합 위에 더해져 좋은 대표 시점 하나로 같은 건물 판정을 끝낼 수 없다.
+@evidenceReview settings/50-production.md#references 절개 조감을 포함한 다섯 reference pose를 비교 질문으로 두고 판정 전 unverified로 남기며 기존 필수 관찰을 줄이지 않는다.
+@evidenceReview settings/50-production.md#measurement-truth 겹침과 실체 안 pose는 스캔 수치로, 자기 자신으로 읽힘은 프레임으로 나누고 대각 골 단면처럼 재는 수단이 없는 항목과 무효 threshold는 이유와 함께 unverified로 남긴다.
+@evidenceReview settings/50-production.md#acceptance reference 비교와 단면 판독, 원 질문이 unverified로 남은 상태를 완료로 선언하지 않고 절개를 전달 프레임으로 세지 않는다.
+@evidenceReview obligations/design/spaces.md#space-review-set Y=1.2m plan 절단, 네 종횡 단면, 문턱과 접합 단면, 입면·내부·대지·접합 관찰과 스캔을 각 경계와 접합에 배정해 유한하지만 누락 없는 검토 집합을 이룬다.
+@evidenceReview contracts/obligations-spaces.md#compiled-observations 외부 노출 면에 제실 위쪽 경계의 입면·창을 포함하고 각 공간의 threshold/모서리/네 방위, 주랑 추가 모서리 여섯, 다섯 reference 비교의 별도 질문을 두어 계약의 분모를 채운다.
 -->
 
 [관찰 계약](../contracts/obligations-spaces.md#compiled-observations)과 [검토 프레임](../settings/00-delivery.md#review-condition)을 그대로 소비한다. 입력은 한 generation의 실제 built environment와 lowering 산출물이며 viewer와 계측이 같은 값을 쓴다. `builtEnvironmentBuildingCensus`의 외피·지붕·처마 하부·모서리·외부 출입 population을 소비하되 내부 개구부는 별도 actual boundary/opening 전집합에서 더한다. 이 census는 host face를 가진 단일 공간 경계만 입면으로 세며 지붕은 경계 face가 아니어서 지붕·처마 하부 population이 비므로, 네 방향 지붕 조감과 네 입면의 처마 하부 관찰을 source owner가 별도로 더한다.
@@ -46,19 +46,19 @@
 
 [중정](rooms/courtyard.md#court-volume)과 [서비스 마당](rooms/service-yard.md#yard-volume)의 위쪽 cell 평면은 유한한 논리 범위이며 물리 천장이 아니다. 실제 공간 bounds와 서비스 마당의 두 문턱을 포함한 귀속을 확인하고, 하늘을 가리는 mesh나 그림자·support patch가 그 평면에서 생성되지 않았는지도 본다. 공간 안 시점에서도 논리 상한이 시선·조명·화면을 잘라 하늘이나 높은 지붕을 숨기지 않아야 한다. 처마 하부와 하늘의 노출 여부는 실제 roof/element에서 읽는다. 논리 bounds만으로 열린 하늘이나 유효 높이 검증을 완료하지 않는다.
 
-기본 threshold 위치는 개구부 중심에서 공간 기준점 쪽으로 이동해 내부 점을 찾는다. 구멍 있는 주랑에서는 같은 공간 내부라는 사실만으로 해당 문 바로 안쪽의 도착을 보여 준다고 할 수 없다. 실제 opening ID·boundary face와 관찰 위치의 관계를 읽어 문턱 쪽에 서는지 별도로 확인하고 필요한 보조 관찰을 추가한다. 반환 불가/null이나 충돌한 원 질문은 지우지 않고 unverified로 남겨 자기 공간 안 가장 가까운 유효 보조 위치와 함께 표시한다. 모든 공간의 개구부 양면도 누락하지 않는다.
+기본 threshold 위치는 개구부 중심에서 공간 기준점 쪽으로 이동해 내부 점을 찾는다. 구멍 있는 주랑에서는 같은 공간 내부라는 사실만으로 해당 문 바로 안쪽의 도착을 보여 준다고 할 수 없다. 실제 opening ID·boundary face와 관찰 위치의 관계를 읽어 문턱 쪽에 서는지 별도로 확인하고 필요한 보조 관찰을 추가한다. 반환 불가/null이나 충돌한 원 질문은 지우지 않고 unverified로 남겨 자기 공간 안 가장 가까운 유효 보조 위치와 함께 표시한다. 모든 공간의 개구부 양면도 누락하지 않는다. [개구부 소유](openings.md#boundary-ownership)가 나눈 제실 세 벽의 위쪽 경계는 공간이 하나라 census의 입면과 외부 개구부 전집합에 든다. 지붕·마당 위에 있는 이 면은 다른 입면과 같은 맞춤 거리에서 면 중심보다 0.8m 높게 보고, 제실 창 여덟은 모두 창 바깥 2.5m에서 창 중심보다 0.6m 높게 본다. 이전 결속이 봉헌실과 주랑 안에 만든 창 threshold 네 곳은 창을 보여 주지 않는 무효 위치였으므로 목록에서 지우지 않고 pose 없는 unverified 항목으로 남기며, 그 창들은 외부 개구부 관찰과 채광구 단면으로 읽는다.
 
 [개구부 소유](openings.md#boundary-ownership)의 같은 boundary/opening ID마다 선언한 profile과 실제 벽 void의 위치·범위·관통 깊이를 대조한다. 바닥까지 열린 문 아래에 벽 띠가 남는지, 높은 창 위 박공이 외접 직사각형으로 메워졌는지, reveal 뒤에 중복 벽이나 기둥 사이 내부 접면이 드러나는지를 문턱 종단면과 양면에서 확인한다. 닫힌 자세의 문짝 fitting과 열린 자세의 통과 영역도 같은 실제 element를 읽는다. `builtOpeningSweepEnvelope`는 두께 없는 panel 직사각형의 회전/이동을 감싸는 world 상자를 반환하므로 실제 문짝 두께·철물·손잡이의 swept 실체나 장애물 충돌 판정을 대신하지 않는다. 이 상자와 실제 mesh의 검토 범위를 구별하고, 전체 실체의 회전·통과를 재는 수단이 없거나 실행하지 않았다면 해당 질문은 unverified로 남긴다.
 
 [문턱 바닥](storey.md#threshold-support)은 같은 opening ID의 host 깊이 전체를 포함한 종단면과 폭 방향 양끝에서 본다. 양쪽 바닥·문턱의 실제 mesh, support patch와 높이, 귀속 공간의 volume 및 connector를 대조해 빈 틈·중복 바닥·허공의 지지 선언을 구분한다. 외부 서비스 문도 마당의 문턱 끝과 외부 지면이 만나는 부분을 포함한다. 단순한 점 하나의 containment나 끝점 도달로 전체 발 디딤과 운반 포락의 연속성을 대신하지 않는다.
 
-외부 setting 하나, 모든 노출 입면·입면 사이 모서리·노출 지붕·하부·개구부에 안정된 compiled ID를 부여한다. 단층 평면은 Y=1.2m 절단, 지붕 접합과 실내 높이는 문/용마루를 지나는 실제 종횡 단면으로 본다. 각 면의 법선·경계에서 관찰 pose를 유도하고 수동 대표 시점이 전집합을 덮었다고 가정하지 않는다. 대지 `temple-site`는 공간 station 외에 [대지](site.md)의 각 H2가 요구한 구획 조감·정문 진입·동측 골목의 서비스 문·서측 골목 경사·먼 능선 시점을 `site` 묶음으로 더하고 눈높이는 대지 support 위 1.6m다. 카메라 위치·target·렌즈·현재 generation과 렌더 모드를 함께 보여 준다. source owner는 `src/spaces/observations.ts`이며 건물 geometry를 다시 만들지 않는다.
+외부 setting 하나, 모든 노출 입면·입면 사이 모서리·노출 지붕·하부·개구부에 안정된 compiled ID를 부여한다. 단층 평면은 Y=1.2m 절단, 지붕 접합과 실내 높이는 문/용마루를 지나는 실제 종횡 단면으로 본다. 연직 단면은 뷰어의 단면 검사로 읽는다. 서버가 현재 source 실체를 X 또는 Z 평면으로 잘라 보낸 정확한 단면 조각을 정사영과 0.5m 격자로 보는 보기이며, source는 각 단면 질문을 `section` 묶음의 pose와 그 보기 설정으로 둔다. 종횡 단면은 X=0 종단면(정문·현관·중정·제실 문·제실 용마루·포치), Z=-6.9 제실 횡단면, Z=3.7 동측 날개 횡단면, X=7.36 동측 용마루 종단면이다. 각 면의 법선·경계에서 관찰 pose를 유도하고 수동 대표 시점이 전집합을 덮었다고 가정하지 않는다. 대지 `temple-site`는 공간 station 외에 [대지](site.md)의 각 H2가 요구한 구획 조감·정문 진입·동측 골목의 서비스 문·서측 골목 경사·먼 능선 시점을 `site` 묶음으로 더하고 눈높이는 대지 support 위 1.6m다. 카메라 위치·target·렌즈·현재 generation과 렌더 모드를 함께 보여 준다. source owner는 `src/spaces/observations.ts`이며 건물 geometry를 다시 만들지 않는다.
 
-[벽 접합](junctions.md#wall-junctions)의 실제 L/T 접면과 [박공과 파라펫 폐쇄](junctions.md#gable-closures)의 경계 목록을 소비해 각 접합 단면·양면 관찰을 더한다. source는 `junction` 묶음으로 네 지붕 골, 제실 서·동·남 처마 아래와 봉헌실 파라펫 위를 지나는 제실 서쪽 처마, 서·북·남 파라펫과 지붕의 만남, 동측 박공 남쪽 용마루와 남측 코핑, 외곽 네 모서리의 코핑·기단 만남을 pose로 둔다. 단면을 그리는 수단이 아직 없는 L/T 접합 단면·현관 단면·외벽 하단 단면·골 전 길이 단면은 pose 없는 unverified 항목으로 목록에 남긴다. 벽·지붕·코핑·기단·바닥 실체의 양의 체적 겹침은 판정 요청 전마다 `npm run self-check`의 외피 겹침 전수 스캔(0.05m 격자, 깊이 한계 0.001m)으로 재어 겹친 쌍의 수를 보고하며, 이 수치는 틈이나 단면의 시각 판독을 대신하지 않는다. 물리벽끼리 맞닿는 내부 면과 외부에 노출된 면을 구별해 내부 접면을 마감 누락으로 세지 않는다. 파라펫과 지붕의 만남은 전 구간에서 지붕 끝이 코핑 아래로 드러나거나 파라펫 뒤에 틈이 남는지 본다. 마당-보관실의 높은 끝벽과 주랑 위의 열린 지붕 접합을 서로 다른 경계로 관찰한다. 수평 도면만으로 지붕 위에 돌출한 벽 상단을 통과시키지 않는다.
+[벽 접합](junctions.md#wall-junctions)의 실제 L/T 접면과 [박공과 파라펫 폐쇄](junctions.md#gable-closures)의 경계 목록을 소비해 각 접합 단면·양면 관찰을 더한다. source는 `junction` 묶음으로 네 지붕 골, 제실 서·동·남 처마 아래와 봉헌실 파라펫 위를 지나는 제실 서쪽 처마, 서·북·남 파라펫과 지붕의 만남, 동측 박공 남쪽 용마루와 남측 코핑, 외곽 네 모서리의 코핑·기단 만남을 pose로 둔다. 연직 단면으로 읽는 접합은 `section` 묶음이 맡는다. 문 여덟의 문턱 종단면, 제실 북·남 박공과 동측 박공 두 끝·포치 앞뒤의 박공 끝 하부, 채광구 여덟, 날개 지붕의 높이 차이 끝면, 외곽 네 모서리의 L 접합, spine·제실 남벽·오른쪽 가로벽·현관 후퇴벽의 T 접합, 네 입면의 외벽 하단, 현관의 평행 단면 넷이다. 네 지붕 골은 평면에서 대각선이라 X/Z 연직 단면이 골선을 따라가지 못하므로 골 전 길이 단면만 pose 없이 그 이유를 적은 unverified 항목으로 남긴다. 벽·지붕·코핑·기단·바닥 실체의 양의 체적 겹침은 판정 요청 전마다 `npm run self-check`의 외피 겹침 전수 스캔(기본 0.01m 격자, 깊이 한계 0.001m)으로 재어 표본 수와 겹친 쌍의 수를 보고하며, 이 수치는 틈이나 단면의 시각 판독을 대신하지 않는다. 같은 검사는 관찰 pose 중 실체 안에 놓인 것도 세고 하나라도 있으면 실패다. 물리벽끼리 맞닿는 내부 면과 외부에 노출된 면을 구별해 내부 접면을 마감 누락으로 세지 않는다. 파라펫과 지붕의 만남은 전 구간에서 지붕 끝이 코핑 아래로 드러나거나 파라펫 뒤에 틈이 남는지 본다. 마당-보관실의 높은 끝벽과 주랑 위의 열린 지붕 접합을 서로 다른 경계로 관찰한다. 수평 도면만으로 지붕 위에 돌출한 벽 상단을 통과시키지 않는다.
 
-[지붕 돌출](roofs/assembly.md#roof-junctions)은 합성 뒤 실제로 노출된 끝선에서 해당 외벽 바깥면 또는 중정 경계까지의 수평 거리와 그 끝 높이를 읽는다. 벽 중심 지지선부터의 거리나 합성에서 제거된 후보 끝으로 처마 길이를 대신하지 않는다. 중정 네 면의 처마, 동측 외벽 처마, 동측 박공과 북쪽 외쪽 지붕의 마당 쪽 끝, 제실 네 끝, 포치 앞끝을 각각 포함하며 실제 roof/face ID와 참조면의 결속도 함께 읽는다.
+[지붕 돌출](roofs/assembly.md#roof-junctions)은 합성 뒤 실제로 노출된 끝선에서 해당 외벽 바깥면 또는 중정 경계까지의 수평 거리와 그 끝 높이를 읽는다. 벽 중심 지지선부터의 거리나 합성에서 제거된 후보 끝으로 처마 길이를 대신하지 않는다. 중정 네 면의 처마, 동측 외벽 처마, 동측 박공과 북쪽 외쪽 지붕의 마당 쪽 끝, 제실 네 끝, 포치 앞끝을 각각 포함하며 실제 roof/face ID와 참조면의 결속도 함께 읽는다. source는 이 열두 끝을 `section` 묶음의 처마 돌출 단면으로 두고 끝선과 참조면을 같은 단면에서 읽게 한다.
 
-[지붕 합성](roofs/assembly.md#roof-junctions)의 중정 네 안쪽 모서리 골은 골선 전 길이의 양쪽 단면에서 두 지붕 상면이 같은 선에서 만나고 하부도 닫히는지 본다. 날개 안의 높이 차이 끝면은 높은 조각의 하부와 낮은 조각의 상면 사이가 막혔는지, [제실 처마](roofs/sanctuary.md#sanctuary-roof)는 아래 봉헌실·북쪽 주랑 지붕을 지우지 않고 떠 있는지와 그 사이가 제실 벽 외면으로 닫혀 실내로 새지 않는지를 확인한다. 한 대표 점 위에 지붕이 있다는 사실만으로 구간 전체를 통과시키지 않는다. 높은 처마 아래의 구멍이나 마당 전체를 덮어 메운 곳은 모두 실패다. 전체 면 관계를 측정할 수 없으면 해당 질문은 unverified로 남긴다.
+[지붕 합성](roofs/assembly.md#roof-junctions)의 중정 네 안쪽 모서리 골은 골선 전 길이의 양쪽 단면에서 두 지붕 상면이 같은 선에서 만나고 하부도 닫히는지 본다. 날개 안의 높이 차이 끝면은 각 끝면을 지나는 연직 단면에서 높은 조각의 하부와 낮은 조각의 상면 사이가 막혔는지, [제실 처마](roofs/sanctuary.md#sanctuary-roof)는 아래 봉헌실·북쪽 주랑 지붕을 지우지 않고 떠 있는지와 그 사이가 제실 벽 외면으로 닫혀 실내로 새지 않는지를 확인한다. 한 대표 점 위에 지붕이 있다는 사실만으로 구간 전체를 통과시키지 않는다. 높은 처마 아래의 구멍이나 마당 전체를 덮어 메운 곳은 모두 실패다. 전체 면 관계를 측정할 수 없으면 해당 질문은 unverified로 남긴다.
 
 [건물 접점](building.md#approach-contacts)의 두 ID마다 외부 지면부터 첫 내부 바닥까지의 종단면과 유효 폭을 본다. 정문은 계단 하단 발치→디딤 면→상부참, 서비스 문은 외부 지면→벽체 안 문턱→마당을 연속해서 읽고 왕복 포락을 확인한다. 대지 쪽은 [대지와 건물의 연결](site.md#site-connections)의 두 connector와 정면 거리·동측 골목 support에서 이어 읽는다. connector가 있다는 사실만으로 왕복 통과를 완료하지 않고 문짝·기둥이 들어온 뒤의 포락 검사까지 unverified로 남긴다.
 
@@ -66,7 +66,7 @@
 
 [외벽 하단](storey.md#wall-ground-contact)은 실제 외부 지면의 최저 접촉 높이와 인접 완성 바닥, 벽 하단·슬래브 아랫면을 같은 단면에서 읽는다. 네 입면·모서리·현관 후퇴부·서비스 문턱의 지면 접합을 모두 포함하며 지면 위 그림자만으로 접촉했다고 세지 않는다. 문 아래 벽 띠 검사는 실제 보행 완성면 위의 통과 영역을 대상으로 하고, 문턱 아래의 벽 지지 부분과 구별한다. 벽 하단은 [대지 지면](site.md#site-grade)의 최저 접촉에서 유도되지만 그 계산으로 접촉·매입 결과를 대신하거나 검사에서 빼지 않고, 현관 석단 앞 구조체와 동·서 외벽의 경사 접촉도 같은 단면에 포함한다.
 
-입력 수량을 compiled 수량으로 복사하지 않는다. compiled 관찰 목록과 census 수는 viewer payload가 같은 generation의 environment에서 매번 유도하며, 도달성·모든 물리 접합·시각 판정은 그 목록이 생긴 것만으로 완료되지 않는다. 다섯 reference의 외관·절개 검사·분수 중정·제실·기록/서비스 비교를 별도로 더하고 절개를 전달 프레임으로 세지 않는다.
+입력 수량을 compiled 수량으로 복사하지 않는다. compiled 관찰 목록과 census 수는 viewer payload가 같은 generation의 environment에서 매번 유도하며, 도달성·모든 물리 접합·시각 판정은 그 목록이 생긴 것만으로 완료되지 않는다. 다섯 reference의 외관·절개 검사·분수 중정·제실·기록/서비스 비교를 별도로 더하고 절개를 전달 프레임으로 세지 않는다. source는 이를 `reference` 묶음의 다섯 pose로 두며 절개 검사는 지붕·천장을 숨긴 조감 보기로 연다. 이 pose는 같은 건물·방으로 읽히는지의 비교 질문이고 판정 전에는 unverified다.
 
 ## 원래 소스를 그리는 뷰어 {#viewer-path}
 

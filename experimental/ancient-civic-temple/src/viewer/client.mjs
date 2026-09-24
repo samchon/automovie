@@ -225,8 +225,34 @@ function populate(payload) {
 /** @param {Payload} payload */
 function refillStations(payload) {
   const space = spaceSelect.value;
-  const list = payload.observations.filter((o) => space === "" ? o.group === "exterior" || o.group === "junction" : o.space === space);
+  const outside = ["exterior", "junction", "section", "reference"];
+  const list = payload.observations.filter((o) => space === "" ? outside.includes(o.group) : o.space === space);
   stationSelect.replaceChildren(...list.map((o) => new Option(`${o.label}${o.position === null ? " (pose 없음)" : ""}`, o.id)));
+}
+
+let viewApplied = false;
+/**
+ * 관찰이 가진 검사 보기(연직 단면·절개 조감)를 켜고, 보기가 없는 관찰로 옮기면 그 보기를 끈다.
+ * @param {Observation} observation
+ */
+function applyView(observation) {
+  const view = observation.view;
+  if (view !== undefined) {
+    inspection.checked = true;
+    section.value = view.section;
+    sectionOffset.value = String(view.offset);
+    sectionFlip.checked = view.flip;
+    sectionOrtho.checked = view.ortho;
+    sectionSpan.value = String(view.span);
+    viewApplied = true;
+    applyInspection();
+  } else if (viewApplied) {
+    section.value = "none";
+    sectionOrtho.checked = false;
+    inspection.checked = params.get("inspect") === "1";
+    viewApplied = false;
+    applyInspection();
+  }
 }
 
 /** @param {string} id */
@@ -240,6 +266,7 @@ function selectStation(id) {
     refillStations(current.payload);
   }
   stationSelect.value = id;
+  applyView(observation);
   camera.position.set(observation.position.x, observation.position.y, observation.position.z);
   const direction = new THREE.Vector3(observation.target.x - observation.position.x,
     observation.target.y - observation.position.y, observation.target.z - observation.position.z);

@@ -19,15 +19,15 @@
 ## 관찰 전집합과 미해결의 보존 {#observation-population}
 
 <!--
-@evidence contracts/obligations-spaces.md#compiled-observations observations의 전집합 유도와 각 room/입면/roof/대지의 지역 질문, 주랑의 안쪽·현관 몸체 모서리와 접합 관찰, 단면 네 항목의 unverified 기록을 함께 읽고 방별 프레임 판정의 부재를 따로 기록한다.
+@evidence contracts/obligations-spaces.md#compiled-observations observations의 전집합 유도와 각 room/입면/roof/대지의 지역 질문, 주랑의 안쪽·현관 몸체 모서리와 접합 관찰, 연직 단면 묶음과 대각 골 단면의 unverified 기록, 제실 위쪽 외부 향 경계와 무효 창 threshold, reference 다섯 pose를 함께 읽고 방별 프레임 판정의 부재를 따로 기록한다.
 -->
 
 <!--
-@evidenceReview contracts/obligations-spaces.md#compiled-observations #09b52ea 주랑 추가 모서리 여섯과 junction pose·단면 unverified 항목이 목록에 들어가 계약의 추가 내부 경계 모서리 조건을 채우고, null·충돌 원 질문도 지우지 않는다.
+@evidenceReview contracts/obligations-spaces.md#compiled-observations 주랑 추가 모서리 여섯, junction pose, 연직 단면 묶음과 대각 골 단면의 이유 있는 unverified, 제실 위쪽 경계의 입면·창, 무효 창 threshold 넷, reference 다섯 pose가 목록에 들어 계약의 분모를 채우고 null·충돌 원 질문도 지우지 않는다.
 -->
 
-[geometry-observations](../../spaces/observations.md#geometry-observations)는 같은 generation의 built environment와 lowering에서 setting·모든 노출 입면/모서리/roof/하부/출입/개구부를 유도한다. 공간마다 자기 내부 threshold·네 모서리·중심 네 방위가 있고 주랑은 외접 상자 중앙으로 대신하지 않으며 여섯 평면 영역과 구멍/notch 경계를 추가한다. 서비스 마당은 두 문턱, 긴 봉헌실은 장축 양끝, 현관은 중앙/양끝/기둥 받침 단면, 대지는 구획 조감·두 접근·골목 경사·먼 능선 시점으로 해당 지역의 실패를 더 묻는다. 주랑은 엔진의 외측 모서리 넷에 더해 중정 쪽 안쪽 모서리 넷과 현관 몸체 모서리 둘을 source pose로 가지며, 접합 관찰은 네 골·제실 처마 아래와 파라펫 위·세 파라펫 만남·동측 박공 남쪽 끝·외곽 네 모서리 석재 띠를 pose로, 단면 네 질문을 pose 없는 unverified 항목으로 목록에 둔다. 계산 cell 접면은 새 방 모서리나 표면 소유가 아니다.
+[geometry-observations](../../spaces/observations.md#geometry-observations)는 같은 generation의 built environment와 lowering에서 setting·모든 노출 입면/모서리/roof/하부/출입/개구부를 유도한다. 공간마다 자기 내부 threshold·네 모서리·중심 네 방위가 있고 주랑은 외접 상자 중앙으로 대신하지 않으며 여섯 평면 영역과 구멍/notch 경계를 추가한다. 서비스 마당은 두 문턱, 긴 봉헌실은 장축 양끝, 현관은 중앙/양끝/기둥 받침 단면, 대지는 구획 조감·두 접근·골목 경사·먼 능선 시점으로 해당 지역의 실패를 더 묻는다. 주랑은 엔진의 외측 모서리 넷에 더해 중정 쪽 안쪽 모서리 넷과 현관 몸체 모서리 둘을 source pose로 가지며, 접합 관찰은 네 골·제실 처마 아래와 파라펫 위·세 파라펫 만남·동측 박공 남쪽 끝·외곽 네 모서리 석재 띠를 pose로 둔다. 연직 단면 질문은 `section` 묶음이 뷰어의 정확한 단면 보기로 문과 용마루의 종횡 단면, 문턱 종단면, 박공 끝 하부, 채광구, 날개 지붕의 높이 차이 끝면, 처마 돌출, L/T 접합, 외벽 하단, 현관 평행 단면을 모두 pose로 가지며, X/Z 평면으로 따라갈 수 없는 대각 골 전 길이 단면만 그 이유를 적은 pose 없는 unverified 항목이다. 제실 세 벽의 위쪽 외부 향 경계와 그 창 여섯은 외부 입면·개구부 전집합에 들고, 이전 결속이 봉헌실·주랑 안에 만든 무효 창 threshold 넷은 지우지 않고 pose 없는 unverified 항목으로 남는다. 계산 cell 접면은 새 방 모서리나 표면 소유가 아니다.
 
 관찰 함수가 다른 눈높이 또는 문에서 먼 내부 점을 반환하면 원 결과를 보존하고 설정의 요구 위치와 따로 비교한다. 충돌/null을 목록에서 빼지 않고 unverified 및 같은 공간의 보조 위치로 남긴다. 문틀·문짝·철물의 실체 sweep은 두께 없는 panel 상자와 다르며, 실제 수단이 없으면 유사 수치로 통과시키지 않는다. 북동 canopy 전체 덮임, 외벽 최저 접지, 문턱 전 폭/깊이도 한 점 검사로 대체하지 않는다.
 
-다섯 reference의 외관·절개 검사·중정·제실·기록/서비스 질문은 위 전집합에 더해진다. 절개는 검사 수단이고 전달 프레임이 아니다. [viewer-path](../../spaces/observations.md#viewer-path)는 현재 source 실체와 ID·변환·재료·관찰 generation을 함께 전달하며 기본 화면에 라벨이나 semantic support를 덮지 않는다. census·관찰 수·GPU RENDERER는 viewer payload와 화면이 매번 유도하지만 방별 프레임의 시각 판정과 pose binding의 전수 대조는 아직 없으므로 unverified다. 이 account는 계획된 전집합의 책임 배정이며 실제 관찰자 목록이 비었다는 보고가 아니다.
+다섯 reference의 외관·절개 검사·중정·제실·기록/서비스 질문은 위 전집합에 더해진다. source는 이를 `reference` 묶음의 다섯 pose로 두며 판정 전에는 unverified다. 절개는 검사 수단이고 전달 프레임이 아니다. 관찰 pose가 벽·지붕 실체 안에 놓였는지는 `npm run self-check`가 외피 겹침 스캔과 함께 센다. [viewer-path](../../spaces/observations.md#viewer-path)는 현재 source 실체와 ID·변환·재료·관찰 generation을 함께 전달하며 기본 화면에 라벨이나 semantic support를 덮지 않는다. census·관찰 수·GPU RENDERER는 viewer payload와 화면이 매번 유도하지만 방별 프레임의 시각 판정과 pose binding의 전수 대조는 아직 없으므로 unverified다. 이 account는 계획된 전집합의 책임 배정이며 실제 관찰자 목록이 비었다는 보고가 아니다.

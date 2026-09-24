@@ -242,6 +242,30 @@ const adjacentPatch = (
 };
 
 /**
+ * host 윤곽(x 단조 다각형: 수평 하단, 위쪽 꺾은선)을 수평선으로 잘라 그 아래
+ * 또는 위 부분만 남긴다. 한 host를 높이에서 두 경계로 나눌 때 쓴다.
+ */
+export const clipOutlineAtHeight = (
+  outline: ReadonlyArray<{ x: number; y: number }>, height: number, keep: "below" | "above",
+): Array<{ x: number; y: number }> => {
+  const inside = (q: { y: number }) => keep === "below" ? q.y <= height + 1e-9 : q.y >= height - 1e-9;
+  const out: Array<{ x: number; y: number }> = [];
+  outline.forEach((a, i) => {
+    const b = outline[(i + 1) % outline.length]!;
+    if (inside(a)) out.push(a);
+    if (inside(a) !== inside(b) && Math.abs(b.y - a.y) > 1e-12) {
+      out.push({ x: a.x + (b.x - a.x) * (height - a.y) / (b.y - a.y), y: height });
+    }
+  });
+  const kept = out.filter((q, i) => {
+    const n = out[(i + 1) % out.length]!;
+    return Math.hypot(q.x - n.x, q.y - n.y) > 1e-9;
+  });
+  if (kept.length < 3) throw new Error(`clipOutlineAtHeight: 높이 ${height}에서 ${keep} 쪽 윤곽이 남지 않습니다.`);
+  return kept;
+};
+
+/**
  * 경계 face의 local XY 윤곽: 길이 [from,to], 하단에서 실제 상단까지.
  * 상단은 벽 중심선에서 각 기둥 꼭짓점의 길이 좌표로 표본한다.
  */

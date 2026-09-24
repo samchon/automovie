@@ -8,22 +8,22 @@
 @evidence principles/core/common.md#declared-basis 공유 기준선과 경계 인접성을 입력으로 받아 같은 두께의 모서리 영역 배정을 유도한다.
 @evidence principles/design/spaces.md#space-topology 접촉 내부 면은 두 공간 사이의 새 통로나 노출 마감이 아니며 기존 L/T 연결을 닫는 접면이다.
 @evidence principles/design/spaces.md#space-boundary-authority junctions는 절단 입력만 계산하고 실제 벽과 완결 외측 면은 입면/boundaries의 원래 owner에 남긴다.
-@evidence principles/design/spaces.md#space-verification-address 모든 L/T 접합에서 겹친 체적은 외피 겹침 스캔으로, 빈 틈·노출 내부 끝마개는 접합 관찰로 보고 단면 판독은 수단이 없어 unverified로 남긴다.
+@evidence principles/design/spaces.md#space-verification-address 모든 L/T 접합에서 겹친 체적은 외피 겹침 스캔으로, 빈 틈·노출 내부 끝마개는 접합 관찰로, 접면의 단면은 뷰어의 정확한 연직 단면으로 읽는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 회벽 외피의 연속 요구를 대각 맞댐과 가지 벽 끝 범위로 구체화해 서로 다른 입면의 실체 중첩을 막는다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work walls의 두꺼운 실체와 fixed-graph의 직사각 외곽을 함께 읽었다. 같은 두께의 대각 접합과 내부 T 접합으로 연속 면을 만들 수 있어 상위 외곽을 변형하지 않았다.
 @evidence settings/20-envelope.md#walls 회벽 외피의 모서리가 겹친 상자 끝으로 보이지 않게 실제 벽 접촉을 닫는다.
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 외곽 네 모서리, spine과 가로벽 T 접합, 현관 후퇴벽·반환벽 끝이 모두 규칙에 들어 방 수나 문을 바꾸지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 등거리 대각면과 관통벽 접면에서 끝나는 가지 벽의 X 범위가 기준선 이름으로 적혀 source가 접합 위치를 새로 고르지 않는다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 모서리 배정은 기준선과 경계 인접성에서 유도되고 source 문장이 이미 있는 junctions.ts를 가리켜 예정 표현이 남지 않는다.
-@evidenceReview principles/design/spaces.md#space-topology #3f8d925 접촉 내부 면을 새 통로나 노출 마감으로 세지 않는다는 문장이 L/T 접합을 닫는 접면으로 한정한다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 현관 후퇴벽·반환벽은 남측 외피의 물리 소유이고 boundaries가 두 번째 실체를 만들지 않는다고 적어 이중 저작이 없다.
-@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 겹친 체적은 스캔 수치, 틈·끝마개는 화면, 단면은 unverified로 나눠 재는 수단과 남은 공백이 본문 마지막 문단에 구별돼 있다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 연속 회벽 요구에 대각 맞댐과 가지 벽 끝 범위라는 접합 규칙을 더했다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 직사각 외곽과 0.6m 외벽이 대각·T 접합으로 함께 성립해 부모 외곽을 바꿀 필요가 없었다.
-@evidenceReview settings/20-envelope.md#walls #35026c5 네 입면의 바깥 면이 전 길이로 원래 입면에 남아 겹친 상자 끝이 회벽 모서리를 대신하지 않는다.
+@evidenceReview principles/core/common.md#scope-preservation 외곽 네 모서리, spine과 가로벽 T 접합, 현관 후퇴벽·반환벽 끝이 모두 규칙과 단면 관찰에 들어 방 수나 문을 바꾸지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion 등거리 대각면과 관통벽 접면에서 끝나는 가지 벽의 X 범위가 기준선 이름으로 적혀 source가 접합 위치를 새로 고르지 않는다.
+@evidenceReview principles/core/common.md#declared-basis 모서리 배정은 기준선과 경계 인접성에서 유도되고 단면 판독의 근거는 관찰 소유의 section 묶음이며, 아직 판정에서 읽지 않은 단면 결과를 unverified로 한정한다.
+@evidenceReview principles/design/spaces.md#space-topology 접촉 내부 면을 새 통로나 노출 마감으로 세지 않는다는 문장이 L/T 접합을 닫는 접면으로 한정한다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority 현관 후퇴벽·반환벽은 남측 외피의 물리 소유이고 boundaries가 두 번째 실체를 만들지 않으며 접합 단면 관찰은 observations가 소유한다고 가리켜 이중 저작이 없다.
+@evidenceReview principles/design/spaces.md#space-verification-address 겹친 체적은 스캔 수치, 틈·끝마개는 접합 관찰 화면, 접면은 L/T 접합마다 둔 연직 단면으로 나눠 접합마다 반증 수단이 있고 판독 전 결과는 unverified다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation 부모의 연속 회벽 요구에 대각 맞댐과 가지 벽 끝 범위라는 접합 규칙을 더했다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work 직사각 외곽과 0.6m 외벽이 대각·T 접합으로 함께 성립해 부모 외곽을 바꿀 필요가 없었다.
+@evidenceReview settings/20-envelope.md#walls 네 입면의 바깥 면이 전 길이로 원래 입면에 남아 겹친 상자 끝이 회벽 모서리를 대신하지 않는다.
 -->
 
 [공유 기준선](building.md#plan-datums)과 [경계의 인접 관계](openings.md#boundary-ownership)를 소비한다. 이 결정은 방의 수·경계·문·통행을 바꾸지 않고, 같은 벽 교차부를 두 실체가 동시에 차지하지 않게 한다. source `src/spaces/junctions.ts`는 경계의 절단 입력과 접면 관계를 계산하고 완결 입면이나 방 표면을 소유하지 않는다. 물리벽은 기존 입면 또는 boundaries 소유가 그 입력으로 만든다.
@@ -32,7 +32,7 @@
 
 내부 T 접합은 관통하는 벽의 접면에서 가지 벽을 끝낸다. 서·동 spine은 north-inner~south-inner 사이에 놓이고, 제실 남벽의 X 끝은 west-ring/east-ring, 오른쪽 가로 벽의 X 끝은 east-room/east-inner다. 이로써 외벽·spine과 가지 벽의 접면은 맞닿고 체적은 겹치지 않는다. 현관 후퇴벽의 X 끝은 west-porch-outer/east-porch-outer이며 반환벽은 entrance-front에서 south-outer까지다. 반환벽의 바깥 X 면이 남측 외벽의 중앙 절단 끝에 맞닿는다. 현관 후퇴벽·반환벽은 남측 외피의 물리 소유이고 boundaries가 두 번째 실체를 만들지 않는다.
 
-접면의 양쪽 element와 면 주소는 보존하되 접촉 내부 면을 노출 마감이나 두꺼운 틈으로 그리지 않는다. 외부/방 쪽의 완결 시각 표면은 [소유 지도](ownership.md#surface-map)를 유지한다. 판정은 [관찰 소유](observations.md#geometry-observations)의 모든 L/T 접합에서 빈 틈·중복 체적·노출된 내부 끝마개를 읽고 공유 기준선의 허용 오차와 비교한다. 중복 체적은 외피 겹침 전수 스캔이 수치로 재고, 빈 틈과 내부 끝마개의 노출은 접합 관찰 위치의 화면으로 본다. 접합 단면을 그리는 수단은 아직 없으므로 단면 판독은 unverified다.
+접면의 양쪽 element와 면 주소는 보존하되 접촉 내부 면을 노출 마감이나 두꺼운 틈으로 그리지 않는다. 외부/방 쪽의 완결 시각 표면은 [소유 지도](ownership.md#surface-map)를 유지한다. 판정은 [관찰 소유](observations.md#geometry-observations)의 모든 L/T 접합에서 빈 틈·중복 체적·노출된 내부 끝마개를 읽고 공유 기준선의 허용 오차와 비교한다. 중복 체적은 외피 겹침 전수 스캔이 수치로 재고, 빈 틈과 내부 끝마개의 노출은 접합 관찰 위치의 화면으로 본다. 접면의 단면은 [관찰 소유](observations.md#geometry-observations)의 `section` 묶음이 외곽 네 모서리의 L 접합과 spine·제실 남벽·오른쪽 가로벽·현관 후퇴벽의 T 접합마다 둔 연직 단면을 뷰어의 단면 검사로 읽는다. 그 단면을 아직 판정에서 읽지 않았으므로 단면 판독 결과는 unverified다.
 
 ## 박공과 지붕 아래의 닫힌 경계 {#gable-closures}
 
@@ -50,16 +50,16 @@
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 표가 동측 박공 남쪽 끝의 코핑 관계와 제실 서쪽 처마의 봉헌실 파라펫 통과를 새 행으로 가져 리뷰에서 드러난 두 접점을 모두 포함한다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 두 새 행에 용마루 약 4.53m·기와 약 4.63m 대 코핑 아랫면 4.69m, 처마 하부 약 4.95m 대 코핑 윗면 4.85m가 적혀 접점마다 여유가 수치로 정해진다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 높이는 합성 roof와 남측 입면에서 소비하고 표는 벽 연장·표면 귀속·여유만 적어 지붕 높이를 이 H2가 새로 정하지 않는다.
-@evidenceReview principles/design/spaces.md#space-topology #3f8d925 제실 처마와 파라펫 사이 틈을 외부로 두고 파라펫·서측 spine이 양쪽을 닫는다고 적어 새 벽이나 옥상 공간을 만들지 않는다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 용마루 덮개 줄이 코핑 돌출 끝에서 멈춘다는 규칙을 표에 두고 덮개 배치는 models/instances에 남겨 표면 소유를 가져가지 않는다.
-@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 관찰 문단이 외피 겹침 스캔의 겹친 쌍이 하나라도 있으면 실패라고 정해, 조감에서 가려진 코핑 관통도 수치로 드러난다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 파라펫·박공 요구에 접점별 벽 연장과 띠 분할, roof-only 폐쇄, 코핑과의 여유 규칙을 더했다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 두 관통은 spaces의 지붕 선택에서 생긴 결함이고 수리된 부모 범위 안에서 고쳐져 부모 설정을 바꿀 필요가 없었다.
-@evidenceReview settings/20-envelope.md#roof-form #7269ea1 서측·남측·북측 봉헌실 구간 파라펫이 외쪽 지붕 끝 위로 솟고 동측 박공 용마루도 코핑 아래에 머물러 부모의 파라펫 정면이 유지된다.
-@evidenceReview settings/20-envelope.md#ceilings #c397437 낮은 천장 위 빈틈에 내부용 마감/문/관찰 방을 새로 만들지 않아 노출 하부와 비거주 틈을 구별한다.
+@evidenceReview principles/core/common.md#scope-preservation 표가 외쪽 지붕 끝 파라펫, 제실·동측·포치 박공, 제실 처마 아래, 동측 박공 남쪽 끝의 코핑, 제실 서쪽 처마의 파라펫 통과, 날개 안 높이 차이를 모두 폐쇄 owner에 배정한다.
+@evidenceReview principles/core/common.md#substantive-completion 제실 남벽·서측 spine 행이 지붕 상면 아래·위의 경계 ID를 적고, 용마루 약 4.53m·기와 약 4.63m 대 코핑 아랫면 4.69m, 처마 하부 약 4.95m 대 코핑 윗면 4.85m가 접점마다 수치로 정해진다.
+@evidenceReview principles/core/common.md#declared-basis 높이는 합성 roof와 남측 입면에서 소비하고 표는 벽 연장·표면 귀속·여유와 경계 주소만 적어 지붕 높이를 이 H2가 새로 정하지 않는다.
+@evidenceReview principles/design/spaces.md#space-topology 제실 처마와 파라펫 사이 틈을 외부로 두고 날개 지붕 위로 솟은 제실 벽을 외부 향 위쪽 경계로 주소화해 새 벽이나 옥상 공간, 아래 방과의 연결을 만들지 않는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority 용마루 덮개 줄이 코핑 돌출 끝에서 멈춘다는 규칙만 표에 두고 덮개 배치는 models/instances에, 나뉜 경계 ID는 경계 소유 H2에 남겨 표면·경계 소유를 가져가지 않는다.
+@evidenceReview principles/design/spaces.md#space-verification-address 외피 겹침 스캔(기본 0.01m 격자)의 겹친 쌍이 하나라도 있으면 실패로 정하고 박공 끝 하부 단면을 관찰 소유의 section 묶음에 이어 가려진 관통과 하부 틈이 드러난다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation 파라펫·박공 요구에 접점별 벽 연장과 띠 분할, roof-only 폐쇄, 코핑과의 여유 규칙을 더했다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work 두 관통은 spaces의 지붕 선택에서 생긴 결함이고 수리된 부모 범위 안에서 고쳐져 부모 설정을 바꿀 필요가 없었다.
+@evidenceReview settings/20-envelope.md#roof-form 서측·남측·북측 봉헌실 구간 파라펫이 외쪽 지붕 끝 위로 솟고 동측 박공 용마루도 코핑 아래에 머물러 부모의 파라펫 정면이 유지된다.
+@evidenceReview settings/20-envelope.md#ceilings 낮은 천장 위 빈틈에 내부용 마감/문/관찰 방을 새로 만들지 않아 노출 하부와 비거주 틈을 구별한다.
 -->
 
 [지붕 합성](roofs/assembly.md#roof-junctions)의 상면·평행 하부면과 [코핑 높이](facades/south.md#south-envelope)를 소비한다. 지붕 밑 벽의 상단은 벽 두께 안 각 위치의 실제 지붕 하부까지 닫고, 외쪽 지붕의 높은 끝이 닿는 외곽 벽은 지붕 위로 코핑까지 솟는 파라펫이다. 지붕에 닿는 벽 면은 지붕 하부 아래의 실내/주랑 마감, 지붕 두께 안의 가려진 접면, 지붕 상면 위의 외면으로 나뉜다. 처마 기준 높이에서 수평으로 자르거나 그 높이를 경사지붕 위로 돌출시키지 않으며 주랑의 열린 cell 사이에 새로운 바닥부터의 막음벽을 만들지 않는다.
@@ -68,9 +68,9 @@
 | --- | --- |
 | 서측 외쪽 지붕의 서·북·남 끝 | 서측 외벽, 북측 외벽의 봉헌실 구간, 남측 외벽이 코핑까지 솟는 파라펫. 지붕 아래는 봉헌실/주랑, 지붕 위 파라펫 뒷면과 코핑은 해당 입면 소유 |
 | 남쪽 주랑 외쪽 지붕의 남쪽 끝과 두 꼬리 | 남측 파라펫과 두 반환벽 파라펫. 반환벽의 주랑 쪽 면은 지붕 아래 주랑, 지붕 위는 남측 입면 소유 |
-| 북쪽 주랑 외쪽 지붕의 북쪽 끝 | boundary-sanctuary-south가 제실 박공 하부까지 솟아 닫음. 주랑 쪽 면은 지붕 아래와 위 모두 주랑, 제실 쪽은 제실 소유 |
-| 서측 외쪽 지붕의 제실 쪽 끝 | 서측 spine의 제실 구간이 제실 박공 하부까지 솟아 닫음. 봉헌실 쪽 면은 지붕 아래 봉헌실, 지붕 위로 드러난 제실 서측벽 외면은 서측 입면 소유 |
-| 제실 북·남 박공 | 북측 외벽과 boundary-sanctuary-south의 연장. 북쪽 바깥은 북측 입면, 남쪽은 주랑, 제실 쪽은 제실 소유 |
+| 북쪽 주랑 외쪽 지붕의 북쪽 끝 | 제실 남벽이 제실 박공 하부까지 솟아 닫음. 지붕 상면 아래는 boundary-sanctuary-south, 위는 외부 향 boundary-sanctuary-south.upper로 주소가 나뉘는 같은 물리벽. 주랑 쪽 면은 지붕 아래와 위 모두 주랑, 제실 쪽은 제실 소유 |
+| 서측 외쪽 지붕의 제실 쪽 끝 | 서측 spine의 제실 구간이 제실 지붕 하부까지 솟아 닫음. 지붕 상면 아래는 boundary-west-spine.sanctuary, 위는 외부 향 boundary-west-spine.sanctuary-upper. 봉헌실 쪽 면은 지붕 아래 봉헌실, 지붕 위로 드러난 제실 서측벽 외면은 서측 입면 소유 |
+| 제실 북·남 박공 | 북측 외벽과 제실 남벽(boundary-sanctuary-south.upper)의 연장. 북쪽 바깥은 북측 입면, 남쪽은 주랑, 제실 쪽은 제실 소유 |
 | 제실 처마 아래 | 서·남 처마는 봉헌실·북쪽 주랑 지붕 위에, 동쪽 처마는 마당 위에 떠 있음. 처마와 아래 지붕 사이는 외부이며 제실 측벽·남벽의 외면이 실내를 닫음 |
 | 동측 박공 북쪽, 마당과 맞닿는 구간 | boundary-yard-storage를 동측 박공 하부까지 연장. 마당 쪽은 service-yard, 보관실 천장 아래쪽은 storage 소유 |
 | 동측 박공 남쪽 끝과 남동 모서리 | 남측 파라펫이 박공보다 높아 닫음. 19도 박공의 용마루 상면은 약 4.53m, 기와 약 0.10m를 더해 약 4.63m로 코핑 아랫면 4.69m보다 낮아 코핑 안쪽 돌출(south-inner에서 0.06m) 아래로 들어간다. 용마루 덮개 줄은 그 돌출 끝에서 멈춘다. 동측 외벽의 남동 모서리 칸은 코핑 높이로 올라 파라펫과 동측 처마 벽을 이음. 바깥은 남측·동측 입면 소유 |
@@ -80,7 +80,7 @@
 
 마당의 낮은 북·동 외벽 높이를 보관실 북쪽 박공에 복사하지 않는다. 파라펫은 지붕 위 외면과 코핑을 입면에 남기고 그 뒤에 올라갈 공간이나 난간을 만들지 않는다. 다른 지붕에 붙어 숨은 절단면을 외부 띠로 추가하지 않고, 낮은 천장 위 구조 빈틈에는 내부용 새 마감·문·층·관찰 방을 만들지 않는다. source에서 접합 계산은 junctions와 벽 띠 분할, 벽 실체는 기존 경계, 지붕 실체는 각 roof owner가 받는다.
 
-관찰은 파라펫과 지붕의 만남 전 구간, 모든 박공 끝의 양면·지붕 하부 단면, 제실 처마와 아래 지붕·파라펫 사이, 마당에서 보관실 북쪽 끝을 올려다보는 위치를 포함한다. 벽·지붕·코핑·기단·바닥 실체의 양의 체적 겹침은 `npm run self-check`의 외피 겹침 전수 스캔(0.05m 격자, 깊이 한계 0.001m)이 수치로 재며 겹친 쌍이 하나라도 있으면 실패다. 높은 창 void와 문 head의 상단도 이 단면에 함께 놓는다. 누광 틈, 지붕을 뚫는 벽 상단, 코핑 아래로 드러난 지붕 끝, 마당 하늘의 잘못된 폐쇄, 주랑 통행을 가르는 막음 중 하나라도 있으면 해당 접합과 소비자를 수리한다. 실체·그림자·방 읽힘은 source와 GPU 관찰에서 확인한다.
+관찰은 파라펫과 지붕의 만남 전 구간, 모든 박공 끝의 양면·지붕 하부 단면, 제실 처마와 아래 지붕·파라펫 사이, 마당에서 보관실 북쪽 끝을 올려다보는 위치를 포함한다. 벽·지붕·코핑·기단·바닥 실체의 양의 체적 겹침은 `npm run self-check`의 외피 겹침 전수 스캔(기본 0.01m 격자, 깊이 한계 0.001m)이 수치로 재며 겹친 쌍이 하나라도 있으면 실패다. 박공 끝 하부 단면은 [관찰 소유](observations.md#geometry-observations)의 `section` 묶음이 제실 북·남, 동측 박공 두 끝, 포치 앞뒤마다 둔다. 높은 창 void와 문 head의 상단도 이 단면에 함께 놓는다. 누광 틈, 지붕을 뚫는 벽 상단, 코핑 아래로 드러난 지붕 끝, 마당 하늘의 잘못된 폐쇄, 주랑 통행을 가르는 막음 중 하나라도 있으면 해당 접합과 소비자를 수리한다. 실체·그림자·방 읽힘은 source와 GPU 관찰에서 확인한다.
 
 ## 외벽 기단과 코핑의 단면 {#plinth-coping}
 
