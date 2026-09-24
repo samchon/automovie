@@ -1,5 +1,11 @@
 {
   "alan-rickman": {
+    "cover": {
+      "photograph": 0,
+      "before": 0.004693241731906056,
+      "after": 0.004693241731906056,
+      "factor": 1
+    },
     "drop": {
       "photograph": -0.5480213510045711,
       "before": -0.5541423261078164,
@@ -14,6 +20,12 @@
     }
   },
   "daniel-radcliffe": {
+    "cover": {
+      "photograph": 0.0090046784546596,
+      "before": 0.025325023731891536,
+      "after": 0.025325023731891536,
+      "factor": 1
+    },
     "drop": {
       "photograph": -0.9147283080686103,
       "before": -0.1309685528968997,
@@ -28,6 +40,12 @@
     }
   },
   "emma-watson": {
+    "cover": {
+      "photograph": 0.001793612425426867,
+      "before": 0.26801808342771954,
+      "after": 0.008199498543064308,
+      "factor": 4.1931715220083206
+    },
     "drop": {
       "photograph": 1.7159222986959282,
       "shoulder": 0.8554438327098366,
@@ -35,13 +53,18 @@
     },
     "fringe": {
       "photograph": 0.0006932065755595167,
-      "before": 0.07547539149888143,
-      "after": 0.07547539149888143,
-      "factor": 0.8,
-      "result": "unchanged: the control does not reach the photograph"
+      "before": 0,
+      "after": 0,
+      "factor": 1
     }
   },
   "generated-black-boy-01": {
+    "cover": {
+      "photograph": 0.0026436419199146275,
+      "before": 0.006725102009974309,
+      "after": 0.006725102009974309,
+      "factor": 1
+    },
     "drop": {
       "photograph": -1.238792445028125,
       "before": -0.8916738351040534,
@@ -56,22 +79,33 @@
     }
   },
   "generated-black-girl-01": {
+    "cover": {
+      "photograph": 0.0016304067163903828,
+      "before": 0.1368661410538107,
+      "after": 0.0036189737624402222,
+      "factor": 6.38969201529164
+    },
     "drop": {
       "photograph": 0.6086889698961726,
-      "before": 2.310718817563748,
-      "after": 1.2394562447603652,
+      "before": 2.171700010406057,
+      "after": 0.8346661886247358,
       "factor": 0.2,
       "result": "unchanged: the control does not reach the photograph"
     },
     "fringe": {
       "photograph": 0,
-      "before": 0.20064237679413832,
-      "after": 0.11821238582756198,
-      "factor": 0.2,
-      "result": "unchanged: the control does not reach the photograph"
+      "before": 0,
+      "after": 0,
+      "factor": 1
     }
   },
   "generated-korean-boy-01": {
+    "cover": {
+      "photograph": 0.000928858399453876,
+      "before": 0.00031138097462245055,
+      "after": 0.00031138097462245055,
+      "factor": 1
+    },
     "drop": {
       "photograph": -1.0542050013717812,
       "before": -0.6162223154031001,
@@ -86,6 +120,12 @@
     }
   },
   "generated-white-boy-01": {
+    "cover": {
+      "photograph": 0.0015719955635810335,
+      "before": 0.0011293371351680389,
+      "after": 0.0011293371351680389,
+      "factor": 1
+    },
     "drop": {
       "photograph": -1.0828177767867688,
       "before": -0.7011545630201595,
@@ -100,6 +140,12 @@
     }
   },
   "generated-white-girl-01": {
+    "cover": {
+      "photograph": 0.002167740719360045,
+      "before": 0.0021849802020829407,
+      "after": 0.0021849802020829407,
+      "factor": 1
+    },
     "drop": "unchanged: the photograph gives no index",
     "fringe": {
       "photograph": 0.00048241206030150754,
@@ -109,6 +155,12 @@
     }
   },
   "kim-min-jung": {
+    "cover": {
+      "photograph": 0.029924961576710967,
+      "before": 0.03638148768668144,
+      "after": 0.03638148768668144,
+      "factor": 1
+    },
     "drop": {
       "photograph": -1.1450527383305231,
       "before": -0.5816198111643038,
@@ -123,6 +175,13 @@
     }
   },
   "lee-tae-ri": {
+    "cover": {
+      "photograph": 0.04227338915180197,
+      "before": 0.10016268579457221,
+      "after": 0.09604007986393552,
+      "factor": 8,
+      "result": "unchanged: the control does not reach the photograph"
+    },
     "drop": {
       "photograph": -0.15392699071356558,
       "before": 0.41485371131325666,
@@ -138,6 +197,12 @@
     }
   },
   "maggie-smith": {
+    "cover": {
+      "photograph": 0.005144995322731525,
+      "before": 0.007719618253477086,
+      "after": 0.007719618253477086,
+      "factor": 1
+    },
     "drop": {
       "photograph": -0.2768889799459092,
       "before": 0.971819219272354,
@@ -152,6 +217,11 @@
     }
   },
   "michael-gambon": {
+    "cover": {
+      "photograph": 0.21865781240022988,
+      "before": 0.004370704776145154,
+      "result": "unchanged: no layer is parted"
+    },
     "drop": {
       "photograph": 0.37802548527647095,
       "before": -0.6604011658630757,
@@ -167,6 +237,11 @@
     }
   },
   "miriam-margolyes": {
+    "cover": {
+      "photograph": 0.025966068862924307,
+      "before": 0.21839345191694423,
+      "result": "unchanged: no layer is parted"
+    },
     "drop": {
       "photograph": -0.34356422150600563,
       "before": 0.4720688896226513,
@@ -181,6 +256,13 @@
     }
   },
   "oh-seung-yoon": {
+    "cover": {
+      "photograph": 0.06538942107455227,
+      "before": 0.15131441866925963,
+      "after": 0.14408251145992498,
+      "factor": 8,
+      "result": "unchanged: the control does not reach the photograph"
+    },
     "drop": {
       "photograph": -0.31897531933573625,
       "before": 0.18716938278604928,
@@ -195,6 +277,13 @@
     }
   },
   "park-eun-bin": {
+    "cover": {
+      "photograph": 0.05968079204540605,
+      "before": 0.20882732354567235,
+      "after": 0.20882732354567235,
+      "factor": 1.25,
+      "result": "unchanged: the control does not reach the photograph"
+    },
     "drop": {
       "photograph": -0.7454073710260121,
       "before": -0.25171939895436685,
@@ -210,6 +299,12 @@
     }
   },
   "rupert-grint": {
+    "cover": {
+      "photograph": 0,
+      "before": 0.006235792008482115,
+      "after": 0.006235792008482115,
+      "factor": 1
+    },
     "drop": {
       "photograph": -0.9941115531819679,
       "before": -0.20854213643026867,
@@ -224,6 +319,12 @@
     }
   },
   "yoo-seung-ho": {
+    "cover": {
+      "photograph": 0.01933549531909686,
+      "before": 0.04980482567478714,
+      "after": 0.04980482567478714,
+      "factor": 1
+    },
     "drop": {
       "photograph": -0.897292897994859,
       "before": -0.3965264201298487,

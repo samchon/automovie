@@ -1,11 +1,11 @@
 {
- "basis": "mpfb-connected-head-2026-09-24-closed-lips",
- "recorded": "2026-09-24T18:40:43.321Z",
+ "basis": "mpfb-connected-head-2026-09-25-vermilion",
+ "recorded": "2026-09-24T19:57:22.701Z",
  "method": [
   "derive-face-documents.ts identity: population controls from subject-facts.json (facePopulationControls), sixteen frontal anthropometric indices solved one control each (faceAnthropometry, faceAnthropometrySolve) under each subject's portrait lens, on landmark-anchors-lens.json; two of them (lipParting, cornerLift) read a state and write expression, and the identity-only pass leaves them at zero",
   "derive-face-documents.ts expression: detector scores over the identity's own rest reading through expression-calibration.json (faceExpressionTransfer), each unit calibrated with its partner on the other side (faceExpressionPartner)",
   "derive-face-documents.ts identity again with that expression, then once more with each index's target corrected by what the product render of the previous documents showed through the same detector",
-  "hair, iris and material values from the source study: fit-face-hair-shape.ts (hair-shape.json), then fit-face-brows.ts, fit-face-iris.ts, fit-face-hair.ts and fit-face-lips.ts on the photographs (appearance-fit.txt)"
+  "hair, iris and material values from the source study: fit-face-hair-shape.ts (hair-shape.json: face cover, drop and fringe), then fit-face-brows.ts, fit-face-iris.ts, fit-face-hair.ts and fit-face-lips.ts on the photographs (appearance-fit.txt)"
  ],
  "identity": {
   "alan-rickman": {
@@ -20,118 +20,118 @@
    "anthropometry": {
     "faceHeight": {
      "photograph": 1.0047910744091548,
-     "correction": 0.04060278533944395,
-     "model": 1.0453945813361458,
-     "control": 0.7333174505421785,
+     "correction": 0.03791387112048161,
+     "model": 1.0427067915100483,
+     "control": 0.7233862754468946,
      "held": false
     },
     "intercanthal": {
      "photograph": 0.24832107807841527,
-     "correction": 0.022657011705695007,
-     "model": 0.2709780719320758,
-     "control": 0.7881641417828487,
+     "correction": 0.020833082087209992,
+     "model": 0.26915413490140117,
+     "control": 0.7786935298244843,
      "held": false
     },
     "fissureLength": {
      "photograph": 0.18057708364463798,
-     "correction": -0.0027524215426062426,
-     "model": 0.1778246906420917,
-     "control": -0.30397457212224255,
+     "correction": -0.0018980375474236533,
+     "model": 0.17867908166494223,
+     "control": -0.28479569428753226,
      "held": false
     },
     "fissureHeight": {
      "photograph": 0.25833042890212216,
-     "correction": 0.049811698852248454,
-     "model": 0.30814215178625143,
-     "control": -0.6408974824243152,
+     "correction": 0.05801228815770909,
+     "model": 0.31634273860005213,
+     "control": -0.32041493998539416,
      "held": false
     },
     "noseWidth": {
      "photograph": 0.30734365564906024,
-     "correction": 0.01860828518484625,
-     "model": 0.32595160279499386,
-     "control": 0.7150697509584086,
+     "correction": 0.014249450459561386,
+     "model": 0.32159265419514355,
+     "control": 0.6125138215613782,
      "held": false
     },
     "noseHeight": {
      "photograph": 0.39420271569639315,
-     "correction": 0.0015386472448309374,
-     "model": 0.39574096679421905,
-     "control": -0.5024797887711606,
+     "correction": 0.001063896235330486,
+     "model": 0.39526571926592047,
+     "control": -0.5189490801056175,
      "held": false
     },
     "mouthWidth": {
      "photograph": 0.4191342696740394,
-     "correction": 0.03275598297527377,
-     "model": 0.4518903025111174,
-     "control": -0.17920098873861462,
+     "correction": 0.035533876619279814,
+     "model": 0.45466842807301777,
+     "control": -0.07145009372769068,
      "held": false
     },
     "upperVermilion": {
      "photograph": 0.0777810300214736,
-     "correction": -0.01849859381897427,
-     "model": 0.059284193520018964,
-     "control": -0.9060865332612417,
+     "correction": -0.01999186693018999,
+     "model": 0.05779129622302404,
+     "control": -0.4566923446604919,
      "held": false
     },
     "lowerVermilion": {
      "photograph": 0.1632888631515703,
-     "correction": -0.03639820281439207,
-     "model": 0.126890321238187,
-     "control": -0.13722174834859863,
+     "correction": -0.03320211274911647,
+     "model": 0.1300862594525466,
+     "control": -0.08566358837019916,
      "held": false
     },
     "upperLip": {
      "photograph": 0.2540012315108498,
-     "correction": -0.03395612019012162,
-     "model": 0.22000859583361912,
-     "control": 0.6833138017297187,
+     "correction": -0.03098677347698492,
+     "model": 0.22296152277594458,
+     "control": 0.6528422660995454,
      "held": false
     },
     "cornerLift": {
      "photograph": 0.10664154023820946,
-     "correction": 0.023797768153458396,
-     "model": 0.1304387389357675,
-     "control": 0.7996709379503277,
+     "correction": 0.023702553997971915,
+     "model": 0.13034330343646464,
+     "control": 0.7991354672081287,
      "held": false
     },
     "lipParting": {
      "photograph": 0.21354637985463726,
-     "correction": 0.01815250010733102,
-     "model": 0.231699250363839,
-     "control": 0.7765238118698623,
+     "correction": 0.013921503198769225,
+     "model": 0.22746821733371708,
+     "control": 0.7784443095141809,
      "held": false
     },
     "lowerFaceWidth": {
      "photograph": 0.7093998404596963,
-     "correction": -0.007719236286133246,
-     "model": 0.7017004527705198,
-     "control": 0.0757389107119566,
+     "correction": -0.00536278148654723,
+     "model": 0.704096578265013,
+     "control": 0.09104178884311526,
      "held": false
     },
     "chinWidth": {
      "photograph": 0.3468246601639784,
-     "correction": -0.01272654558963815,
-     "model": 0.3341478869970446,
-     "control": -0.021618238665393034,
+     "correction": -0.012705799304600252,
+     "model": 0.33426664249679766,
+     "control": -0.013267233577220493,
      "held": false
     },
     "chinHeight": {
      "photograph": 0.2947325796056699,
-     "correction": 0.02060391683526891,
-     "model": 0.31631016543330853,
+     "correction": 0.01797518517329877,
+     "model": 0.3139915015247597,
      "control": -1,
      "held": true
     },
     "browHeight": {
      "photograph": 0.7886000849026905,
-     "correction": -0.00040253620861452344,
-     "model": 0.8054952459504254,
+     "correction": -0.026987717994619853,
+     "model": 0.8127214124688591,
      "control": -1,
      "held": true
     }
    },
-   "iterations": 6
+   "iterations": 10
   },
   "daniel-radcliffe": {
    "population": {
@@ -145,85 +145,85 @@
    "anthropometry": {
     "faceHeight": {
      "photograph": 0.8404675266189338,
-     "correction": -0.0019446988320708236,
-     "model": 0.8385033961383499,
-     "control": 0.3556736001610154,
+     "correction": -0.004610878166254051,
+     "model": 0.8358566484817495,
+     "control": 0.34037773269164084,
      "held": false
     },
     "intercanthal": {
      "photograph": 0.23028023382845017,
-     "correction": 0.011464904285712535,
-     "model": 0.24174721521765233,
-     "control": 0.1624361414429608,
+     "correction": 0.009356514474571975,
+     "model": 0.2396367476271317,
+     "control": 0.15013349049052938,
      "held": false
     },
     "fissureLength": {
      "photograph": 0.19824532265619532,
-     "correction": 0.007020663137955657,
-     "model": 0.20526507269118727,
-     "control": 0.0026906995319884645,
+     "correction": 0.008299999636390748,
+     "model": 0.20654532263065667,
+     "control": 0.045787960803211215,
      "held": false
     },
     "fissureHeight": {
      "photograph": 0.2694440041417273,
-     "correction": 0.0034010852875903663,
-     "model": 0.2728463128331028,
-     "control": -0.8005314500772007,
+     "correction": 0.005979121714975055,
+     "model": 0.2754231254057184,
+     "control": -0.7791326032213153,
      "held": false
     },
     "noseWidth": {
      "photograph": 0.3176720238953821,
-     "correction": 0.010769253968877845,
-     "model": 0.32844025811189925,
-     "control": -0.06466959610920962,
+     "correction": 0.010590782536944954,
+     "model": 0.32826280650147616,
+     "control": -0.06007340914111227,
      "held": false
     },
     "noseHeight": {
      "photograph": 0.43270410504704787,
-     "correction": 0.02013332484864777,
-     "model": 0.452849569338641,
-     "control": 0.8656641589057147,
+     "correction": 0.022137536295833538,
+     "model": 0.4548416407567658,
+     "control": 0.8924651114634775,
      "held": false
     },
     "mouthWidth": {
      "photograph": 0.47942754389387204,
-     "correction": -0.0167225355015741,
-     "model": 0.4627048970989295,
-     "control": 0.713309731813355,
+     "correction": -0.020584763426303776,
+     "model": 0.4588427804142783,
+     "control": 0.6644721612211341,
      "held": false
     },
     "upperVermilion": {
      "photograph": 0.06955682224521785,
-     "correction": 0.005332315063251644,
-     "model": 0.0748995033865207,
-     "control": -0.5311420212174577,
+     "correction": 0.005079986132870293,
+     "model": 0.07463681017273369,
+     "control": -0.06495682995864488,
      "held": false
     },
     "lowerVermilion": {
      "photograph": 0.13232942566612346,
-     "correction": -0.01386357371818736,
-     "model": 0.1185060480156128,
-     "control": -0.048058011955728036,
+     "correction": -0.013564368776877861,
+     "model": 0.11876505371220172,
+     "control": -0.05614507653860026,
      "held": false
     },
     "upperLip": {
      "photograph": 0.20592979461154928,
-     "correction": -0.0367004315584801,
-     "model": 0.16912552588380278,
-     "control": 0.11787980897327255,
+     "correction": -0.03503845029114519,
+     "model": 0.17089181167462208,
+     "control": 0.0780891060448869,
      "held": false
     },
     "cornerLift": {
      "photograph": 0.11756205451345163,
-     "correction": -0.011757737587050093,
-     "model": 0.10590023874111333,
-     "control": 0.8213000225294015,
+     "correction": -0.012154112104214507,
+     "model": 0.10540795350689655,
+     "control": 0.8313225576337118,
      "held": false
     },
     "lipParting": {
      "photograph": 0.1365799758094869,
-     "correction": 0.03986085284808005,
-     "model": 0.17035560372775083,
+     "correction": 0.03874848382177465,
+     "model": 0.17067325990566348,
      "control": 1,
      "held": true
     },
@@ -236,27 +236,27 @@
     },
     "chinWidth": {
      "photograph": 0.3314434804866375,
-     "correction": -0.033171646626874385,
-     "model": 0.3157029522580134,
+     "correction": -0.03466206295706459,
+     "model": 0.31554325203798717,
      "control": -1,
      "held": true
     },
     "chinHeight": {
      "photograph": 0.29707888906188534,
-     "correction": -0.004755864491785333,
-     "model": 0.2952130168567098,
+     "correction": -0.006113487156731157,
+     "model": 0.29310834898605603,
      "control": -1,
      "held": true
     },
     "browHeight": {
      "photograph": 0.6739860159190958,
-     "correction": -0.027378663251258373,
-     "model": 0.6466103689120783,
-     "control": -0.301155721868672,
+     "correction": -0.03374246662782876,
+     "model": 0.6402435482372656,
+     "control": -0.2916559903218923,
      "held": false
     }
    },
-   "iterations": 8
+   "iterations": 12
   },
   "emma-watson": {
    "population": {
@@ -270,85 +270,85 @@
    "anthropometry": {
     "faceHeight": {
      "photograph": 0.7765728023992988,
-     "correction": -0.007908615466657776,
-     "model": 0.7686641844601726,
-     "control": -0.4544094588294674,
+     "correction": -0.021594540858081324,
+     "model": 0.7549782501500817,
+     "control": -0.44390204641456604,
      "held": false
     },
     "intercanthal": {
      "photograph": 0.23524649084126623,
-     "correction": -0.018919803974778493,
-     "model": 0.21632668689737086,
-     "control": 0.15921567457351116,
+     "correction": -0.014937271849329165,
+     "model": 0.22030936278056298,
+     "control": 0.14121560522018342,
      "held": false
     },
     "fissureLength": {
      "photograph": 0.20200089668577845,
-     "correction": 0.007170118372570561,
-     "model": 0.20917101446557307,
-     "control": 0.13693225291447134,
+     "correction": 0.0027290705466276044,
+     "model": 0.2047299066926038,
+     "control": -0.02649571509860312,
      "held": false
     },
     "fissureHeight": {
      "photograph": 0.28722425279836883,
-     "correction": 0.017897222352926123,
-     "model": 0.3051214763961987,
-     "control": 0.2990876410265229,
+     "correction": 0.0112946788856077,
+     "model": 0.29851901550598686,
+     "control": 0.35794042141864546,
      "held": false
     },
     "noseWidth": {
      "photograph": 0.2842228018855811,
-     "correction": -0.020715439118464185,
-     "model": 0.2635073635642185,
-     "control": -0.39202497857918017,
+     "correction": -0.021860694328473373,
+     "model": 0.26236210699280904,
+     "control": -0.3282199390098087,
      "held": false
     },
     "noseHeight": {
      "photograph": 0.4529059315169277,
-     "correction": 0.046013217643186444,
-     "model": 0.48889441191067046,
+     "correction": 0.05339414006391713,
+     "model": 0.5009985677605175,
      "control": 1,
      "held": true
     },
     "mouthWidth": {
      "photograph": 0.3777722069955678,
-     "correction": -0.037311977461842116,
-     "model": 0.34046022594206243,
-     "control": -0.8003601457737046,
+     "correction": -0.043670583756697634,
+     "model": 0.33410161096453744,
+     "control": -0.9105284520390722,
      "held": false
     },
     "upperVermilion": {
      "photograph": 0.10802956737248715,
-     "correction": -0.003586355275321765,
-     "model": 0.10930180539774494,
-     "control": -1,
-     "held": true
+     "correction": 0.015936612217559418,
+     "model": 0.12396616464473753,
+     "control": -0.3078757074583517,
+     "held": false
     },
     "lowerVermilion": {
      "photograph": 0.20482633505167616,
-     "correction": 0.0029478459386891864,
-     "model": 0.2077741810885062,
-     "control": 0.22565273328334123,
+     "correction": 0.032218479663312816,
+     "model": 0.23704480189978788,
+     "control": 0.5215320756873683,
      "held": false
     },
     "upperLip": {
      "photograph": 0.30865676875040476,
-     "correction": -0.03188538865819168,
-     "model": 0.27677277084788515,
-     "control": -0.3577416623245515,
+     "correction": -0.0020666281769312067,
+     "model": 0.30658355569639983,
+     "control": -0.4295901662106498,
      "held": false
     },
     "cornerLift": {
      "photograph": 0.08253764608127297,
-     "correction": -0.01865864989287043,
-     "model": 0.06387901565344459,
-     "control": 0.5060169283723206,
+     "correction": -0.00967020638400358,
+     "model": 0.07286750824100602,
+     "control": 0.47961972002478626,
      "held": false
     },
     "lipParting": {
      "photograph": 0.003374923457401397,
-     "correction": -0.007506916714040343,
-     "model": 0.005131154923662848,
+     "correction": -0.008722212643196413,
+     "model": 0.008125404921237698,
      "control": 0,
      "held": true
     },
@@ -361,27 +361,27 @@
     },
     "chinWidth": {
      "photograph": 0.30917027780077366,
-     "correction": -0.021715036069222537,
-     "model": 0.31512409957112963,
+     "correction": -0.036460458214068736,
+     "model": 0.31464202721461443,
      "control": -1,
      "held": true
     },
     "chinHeight": {
      "photograph": 0.27694803561364706,
-     "correction": -0.0016035413859795122,
-     "model": 0.2753444814729076,
-     "control": -0.6330616021912955,
+     "correction": -0.039427691868617776,
+     "model": 0.23752027457996785,
+     "control": -0.8527014685209576,
      "held": false
     },
     "browHeight": {
      "photograph": 0.5027664817328696,
-     "correction": -0.14265232681818374,
-     "model": 0.4268384375014176,
+     "correction": -0.08875489841418005,
+     "model": 0.45377659786987246,
      "control": -1,
      "held": true
     }
    },
-   "iterations": 11
+   "iterations": 10
   },
   "generated-black-boy-01": {
    "population": {
@@ -395,118 +395,118 @@
    "anthropometry": {
     "faceHeight": {
      "photograph": 0.8937650299840109,
-     "correction": -0.004423472581087218,
-     "model": 0.8893412735720848,
-     "control": 0.5687838434665683,
+     "correction": -0.0036056538297654095,
+     "model": 0.8901592451014907,
+     "control": 0.5774634612759808,
      "held": false
     },
     "intercanthal": {
      "photograph": 0.2616551198486066,
-     "correction": 0.019521063007224088,
-     "model": 0.28117616376726706,
-     "control": 0.7981933792184798,
+     "correction": 0.0212984163075797,
+     "model": 0.2829535311836562,
+     "control": 0.8306833171724602,
      "held": false
     },
     "fissureLength": {
      "photograph": 0.2091546064973437,
-     "correction": 0.0003071591838050558,
-     "model": 0.20946169705039186,
-     "control": 0.04316539805944089,
+     "correction": 0.0007200662103443722,
+     "model": 0.20987463405107457,
+     "control": 0.054898316343449396,
      "held": false
     },
     "fissureHeight": {
      "photograph": 0.2564322858239509,
-     "correction": 0.0053256866079634535,
-     "model": 0.2617580717618572,
-     "control": -0.08405086791123892,
+     "correction": 0.014221301544042803,
+     "model": 0.270601041797008,
+     "control": 0.03067266645049428,
      "held": false
     },
     "noseWidth": {
      "photograph": 0.3719742286128989,
-     "correction": 0.023368030538154783,
-     "model": 0.39534231805675185,
-     "control": 0.5353682211836411,
+     "correction": 0.02025455195093595,
+     "model": 0.3922287854919316,
+     "control": 0.502238113881476,
      "held": false
     },
     "noseHeight": {
      "photograph": 0.3945755762721483,
-     "correction": -0.00654621759557783,
-     "model": 0.3880296506423914,
-     "control": -0.4464269427713957,
+     "correction": -0.0050892929766269135,
+     "model": 0.3894864336833836,
+     "control": -0.404218267110904,
      "held": false
     },
     "mouthWidth": {
      "photograph": 0.5104699469810573,
-     "correction": -0.017041206608180204,
-     "model": 0.4934287277992153,
-     "control": 0.8280176142275708,
+     "correction": -0.02527212954022451,
+     "model": 0.4851977791878281,
+     "control": 0.8005099308027498,
      "held": false
     },
     "upperVermilion": {
      "photograph": 0.1115919288688698,
-     "correction": 0.011305508464612743,
-     "model": 0.12290464614920785,
-     "control": -0.508502753833999,
-     "held": false
+     "correction": 0.006415089596948281,
+     "model": 0.12924346489957253,
+     "control": -1,
+     "held": true
     },
     "lowerVermilion": {
      "photograph": 0.18502187686414973,
-     "correction": -0.005565288478219993,
-     "model": 0.17945525063256348,
-     "control": -0.13158861150285212,
+     "correction": -0.02654223253256663,
+     "model": 0.15847899218176328,
+     "control": -0.5126198903532815,
      "held": false
     },
     "upperLip": {
      "photograph": 0.2775698042761967,
-     "correction": -0.020882537462784012,
-     "model": 0.25661209335455826,
-     "control": 0.2375247693235195,
+     "correction": -0.02900909159073778,
+     "model": 0.24851312529421957,
+     "control": 0.4531441967524532,
      "held": false
     },
     "cornerLift": {
      "photograph": 0.10975823150344344,
-     "correction": 0.005209605339276613,
-     "model": 0.11496969232673554,
-     "control": 0.8328647456816712,
+     "correction": 0.014455035888762152,
+     "model": 0.12421422483797011,
+     "control": 0.8160119970769965,
      "held": false
     },
     "lipParting": {
      "photograph": 0.15282513230764677,
-     "correction": 0.024190960802483924,
-     "model": 0.1620070441851027,
+     "correction": 0.05180757718543291,
+     "model": 0.15480068705499886,
      "control": 1,
      "held": true
     },
     "lowerFaceWidth": {
      "photograph": 0.6632227860624601,
-     "correction": -0.03467755384825666,
-     "model": 0.6829812998400553,
+     "correction": -0.03524884312942156,
+     "model": 0.6829394560763096,
      "control": -1,
      "held": true
     },
     "chinWidth": {
      "photograph": 0.331310599286525,
-     "correction": -0.04574405347723243,
-     "model": 0.3259276955144863,
+     "correction": -0.045632582683200584,
+     "model": 0.32474989375913377,
      "control": -1,
      "held": true
     },
     "chinHeight": {
      "photograph": 0.24441705871817723,
-     "correction": 0.011917256778962049,
-     "model": 0.2654795562287908,
+     "correction": 0.015237238850025009,
+     "model": 0.2880340419014945,
      "control": -1,
      "held": true
     },
     "browHeight": {
      "photograph": 0.7567756509701931,
-     "correction": 0.007168936171688234,
-     "model": 0.7639445394900899,
-     "control": -0.12462610659006763,
+     "correction": 0.002751637071578661,
+     "model": 0.7595798430444773,
+     "control": -0.13773799807173479,
      "held": false
     }
    },
-   "iterations": 10
+   "iterations": 11
   },
   "generated-black-girl-01": {
    "population": {
@@ -520,114 +520,114 @@
    "anthropometry": {
     "faceHeight": {
      "photograph": 0.8792343176649821,
-     "correction": 0.10121894365232809,
-     "model": 0.9804532765098993,
-     "control": 0.7037484802096234,
+     "correction": 0.02779434816258497,
+     "model": 0.9070286627874478,
+     "control": 0.43916030980228093,
      "held": false
     },
     "intercanthal": {
      "photograph": 0.2642326385274067,
-     "correction": 0.022839933131111184,
-     "model": 0.2870725663401315,
-     "control": 0.4555667236587331,
+     "correction": 0.01648569479448736,
+     "model": 0.2807183331654891,
+     "control": 0.42912177847411737,
      "held": false
     },
     "fissureLength": {
      "photograph": 0.20568457722938693,
-     "correction": -0.004449262685512073,
-     "model": 0.2012359040640506,
-     "control": -0.5455114415869009,
+     "correction": -0.0008197030767343461,
+     "model": 0.2048648739900388,
+     "control": -0.4490032195881948,
      "held": false
     },
     "fissureHeight": {
      "photograph": 0.2843151237987648,
-     "correction": 0.03959576003502224,
-     "model": 0.32390996240333797,
-     "control": -0.2043772186849387,
+     "correction": 0.0000847317308799167,
+     "model": 0.2844001155434628,
+     "control": -0.5581017594297256,
      "held": false
     },
     "noseWidth": {
      "photograph": 0.3533278093769253,
-     "correction": 0.03204557869294411,
-     "model": 0.38537327892458617,
-     "control": -0.11930816658894176,
+     "correction": 0.01947393119877794,
+     "model": 0.3728017428865163,
+     "control": -0.38968527986296925,
      "held": false
     },
     "noseHeight": {
      "photograph": 0.4288554714486591,
-     "correction": 0.0069474158367501815,
-     "model": 0.43575697495240745,
-     "control": 0.690561218427594,
+     "correction": 0.006169461536690568,
+     "model": 0.4350249362120921,
+     "control": 0.5105853817151528,
      "held": false
     },
     "mouthWidth": {
      "photograph": 0.5246816315522936,
-     "correction": 0.005967581309494152,
-     "model": 0.5306491543255474,
-     "control": 0.7987154486683388,
+     "correction": -0.014792035032269224,
+     "model": 0.509889599288095,
+     "control": 0.5258336146281722,
      "held": false
     },
     "upperVermilion": {
      "photograph": 0.09640067639996387,
-     "correction": 0.025141021679439157,
-     "model": 0.12230819023375852,
+     "correction": 0.0420376785944135,
+     "model": 0.14341566752472426,
      "control": -1,
      "held": true
     },
     "lowerVermilion": {
      "photograph": 0.16342935738476919,
-     "correction": -0.007135763714875426,
-     "model": 0.1562935975595828,
-     "control": -0.47132737898171984,
+     "correction": -0.009780641779490812,
+     "model": 0.15364870348067414,
+     "control": -0.42654491755198015,
      "held": false
     },
     "upperLip": {
      "photograph": 0.23883911250510242,
-     "correction": 0.013815767320063815,
-     "model": 0.25263903480528854,
-     "control": -0.5085240209016659,
+     "correction": 0.016076519290799673,
+     "model": 0.2549820121896859,
+     "control": -0.28652840497879273,
      "held": false
     },
     "cornerLift": {
      "photograph": 0.1546351578283723,
-     "correction": 0.009637670115754421,
-     "model": 0.14346846167688954,
+     "correction": 0.011707108940586436,
+     "model": 0.1463607573858706,
      "control": 1,
      "held": true
     },
     "lipParting": {
      "photograph": 0.1393688864118741,
-     "correction": 0.02759831332583014,
-     "model": 0.1639406536566427,
+     "correction": 0.02105114149022888,
+     "model": 0.15832271263416892,
      "control": 1,
      "held": true
     },
     "lowerFaceWidth": {
      "photograph": 0.6506112260384692,
-     "correction": 0.013960959158634711,
-     "model": 0.694214658263308,
+     "correction": -0.005181663474328135,
+     "model": 0.6941962473593126,
      "control": -1,
      "held": true
     },
     "chinWidth": {
      "photograph": 0.29948905387334923,
-     "correction": 0.013155301325807833,
-     "model": 0.3266010411550942,
+     "correction": -0.019904648756870424,
+     "model": 0.32548952352336585,
      "control": -1,
      "held": true
     },
     "chinHeight": {
      "photograph": 0.254038522761712,
-     "correction": -0.00573224841234421,
-     "model": 0.24837334163240413,
-     "control": -0.7159740430000086,
-     "held": false
+     "correction": -0.009959226776113883,
+     "model": 0.24554067163654286,
+     "control": -1,
+     "held": true
     },
     "browHeight": {
      "photograph": 0.866085061281498,
-     "correction": 0.12080852624056782,
-     "model": 0.9868907631348143,
-     "control": 0.7050444023344894,
+     "correction": 0.014940363247930577,
+     "model": 0.8810260191160617,
+     "control": 0.42123936649348365,
      "held": false
     }
    },
@@ -645,118 +645,118 @@
    "anthropometry": {
     "faceHeight": {
      "photograph": 0.8493767259244376,
-     "correction": -0.01064991935405879,
-     "model": 0.8387268096851849,
-     "control": 0.17227788683847098,
+     "correction": -0.008149060314095236,
+     "model": 0.8412276656105107,
+     "control": 0.1953005307704118,
      "held": false
     },
     "intercanthal": {
      "photograph": 0.25506453965195164,
-     "correction": 0.023280721032540808,
-     "model": 0.27834526144425675,
-     "control": 0.30632374559039277,
+     "correction": 0.019730577317142728,
+     "model": 0.27479511683401975,
+     "control": 0.24242504417523195,
      "held": false
     },
     "fissureLength": {
      "photograph": 0.1856954302836554,
-     "correction": 0.0021023564892818647,
-     "model": 0.18779778727814764,
-     "control": -0.11394718092433653,
+     "correction": 0.001110274376652065,
+     "model": 0.18680558185084037,
+     "control": -0.1571971758416932,
      "held": false
     },
     "fissureHeight": {
      "photograph": 0.28083203898564907,
-     "correction": 0.024717853349704888,
-     "model": 0.30554989265742016,
-     "control": -0.21647186769731805,
+     "correction": 0.017209104690253274,
+     "model": 0.2979424234718733,
+     "control": 0.020182596159276252,
      "held": false
     },
     "noseWidth": {
      "photograph": 0.30691565920661557,
-     "correction": 0.01914466404669979,
-     "model": 0.32606032139764374,
-     "control": 0.21653200095146133,
+     "correction": 0.0191368244194568,
+     "model": 0.32605248362425654,
+     "control": 0.24402983710878207,
      "held": false
     },
     "noseHeight": {
      "photograph": 0.4327448088463974,
-     "correction": 0.00037961406299485967,
-     "model": 0.4331173187592915,
-     "control": 0.5461089210513808,
+     "correction": 0.0011971706477792443,
+     "model": 0.4339419794726877,
+     "control": 0.5311007399880652,
      "held": false
     },
     "mouthWidth": {
      "photograph": 0.4372207086241422,
-     "correction": 0.011566972570444922,
-     "model": 0.4487878624971575,
-     "control": 0.1030531268327075,
+     "correction": 0.002060422479965074,
+     "model": 0.4392811311039378,
+     "control": 0.3256848351751108,
      "held": false
     },
     "upperVermilion": {
      "photograph": 0.08712901888167023,
-     "correction": 0.008985486360729406,
-     "model": 0.11729325611712457,
-     "control": -1,
-     "held": true
+     "correction": -0.027547357567804895,
+     "model": 0.05958166062057429,
+     "control": -0.6179974426697988,
+     "held": false
     },
     "lowerVermilion": {
      "photograph": 0.15413281166423648,
-     "correction": -0.06177729454752398,
-     "model": 0.09235612363177013,
-     "control": -0.7515481146184311,
+     "correction": -0.04953676748558969,
+     "model": 0.104596043010007,
+     "control": -0.6703209028115954,
      "held": false
     },
     "upperLip": {
      "photograph": 0.2581319895470665,
-     "correction": 0.009855702647261877,
-     "model": 0.2679295369397528,
-     "control": -0.02431264025216912,
+     "correction": 0.0014303180937322857,
+     "model": 0.25956230774377365,
+     "control": 0.14988827349120104,
      "held": false
     },
     "cornerLift": {
      "photograph": 0.10890781895653813,
-     "correction": 0.04152212807100149,
-     "model": 0.1504279691979775,
-     "control": 0.8825675347282339,
+     "correction": 0.012575102768301566,
+     "model": 0.12148292675813015,
+     "control": 0.6845744069799631,
      "held": false
     },
     "lipParting": {
      "photograph": 0.12023994249176308,
-     "correction": 0.04141662441235408,
-     "model": 0.16165553733391771,
-     "control": 0.6616751475565028,
+     "correction": 0.04892796941125355,
+     "model": 0.16916791102854378,
+     "control": 0.7508289045491064,
      "held": false
     },
     "lowerFaceWidth": {
      "photograph": 0.6506022497763178,
-     "correction": -0.03684685402974319,
-     "model": 0.6369184319159539,
+     "correction": -0.03931325303691635,
+     "model": 0.6368282154400167,
      "control": -1,
      "held": true
     },
     "chinWidth": {
      "photograph": 0.3032109043311349,
-     "correction": -0.03289398660064441,
-     "model": 0.2772851054960546,
+     "correction": -0.033485433739463,
+     "model": 0.2729185651692065,
      "control": -1,
      "held": true
     },
     "chinHeight": {
      "photograph": 0.2795938001816395,
-     "correction": -0.0012380730871723311,
-     "model": 0.2790809255731836,
+     "correction": -0.0033936713284759,
+     "model": 0.2761737467153682,
      "control": -1,
-     "held": true
+     "held": false
     },
     "browHeight": {
      "photograph": 0.8338841384948593,
-     "correction": 0.0075866475335830685,
-     "model": 0.8414707858081739,
-     "control": 0.6729776475443051,
+     "correction": 0.016953401445280902,
+     "model": 0.8509386355482158,
+     "control": 0.4791163951711017,
      "held": false
     }
    },
-   "iterations": 10
+   "iterations": 8
   },
   "generated-white-boy-01": {
    "population": {
@@ -770,86 +770,86 @@
    "anthropometry": {
     "faceHeight": {
      "photograph": 0.881896013899436,
-     "correction": -0.0003602051848016208,
-     "model": 0.8815358082560116,
-     "control": 0.49164433520577366,
+     "correction": -0.0016699061169463958,
+     "model": 0.8802261078583309,
+     "control": 0.48704111601213357,
      "held": false
     },
     "intercanthal": {
      "photograph": 0.25685672224593187,
-     "correction": 0.01971226316874472,
-     "model": 0.27656898527420254,
-     "control": 0.6030152081886091,
+     "correction": 0.02090687809134134,
+     "model": 0.27776360036021097,
+     "control": 0.6054085592943311,
      "held": false
     },
     "fissureLength": {
      "photograph": 0.20018289501768394,
-     "correction": 0.0035646652406136625,
-     "model": 0.20374756017289497,
-     "control": -0.09002333770674396,
+     "correction": 0.002672670658666665,
+     "model": 0.20285556569478264,
+     "control": -0.11474413928200891,
      "held": false
     },
     "fissureHeight": {
      "photograph": 0.22753426784046224,
-     "correction": 0.002008177868029537,
-     "model": 0.22954244573846833,
-     "control": -0.5857546331598389,
+     "correction": -0.0031988302026262905,
+     "model": 0.2243354375994255,
+     "control": -0.673826966823593,
      "held": false
     },
     "noseWidth": {
      "photograph": 0.3359572772421681,
-     "correction": 0.0035194983955851855,
-     "model": 0.33947677645160335,
-     "control": 0.2092749962275595,
+     "correction": 0.0039252789088632944,
+     "model": 0.33988255595119266,
+     "control": 0.22876229365466316,
      "held": false
     },
     "noseHeight": {
      "photograph": 0.4113260982220659,
-     "correction": 0.017611751783557672,
-     "model": 0.42893269596360656,
-     "control": 0.5043037459416334,
+     "correction": 0.01542760458873177,
+     "model": 0.4267583648644508,
+     "control": 0.4622415006783826,
      "held": false
     },
     "mouthWidth": {
      "photograph": 0.4944932232997179,
-     "correction": -0.030817735230678822,
-     "model": 0.4636756031035268,
-     "control": 0.7092484807083423,
+     "correction": -0.030730357237016337,
+     "model": 0.46376276262763233,
+     "control": 0.7391386196057468,
      "held": false
     },
     "upperVermilion": {
      "photograph": 0.07218316126677285,
-     "correction": -0.004602220322273462,
-     "model": 0.06758447442590633,
-     "control": -0.7531276538550613,
+     "correction": -0.004395397138373391,
+     "model": 0.067784567745552,
+     "control": -0.26969232731572834,
      "held": false
     },
     "lowerVermilion": {
      "photograph": 0.1388477619543446,
-     "correction": -0.019440199231250732,
-     "model": 0.1194080540153305,
-     "control": -0.11059043917432518,
+     "correction": -0.01797499370117514,
+     "model": 0.12087231919784679,
+     "control": -0.09087297018661317,
      "held": false
     },
     "upperLip": {
      "photograph": 0.24821602283059727,
-     "correction": -0.030422722808338964,
-     "model": 0.21775304300764284,
-     "control": -0.024595114994615665,
+     "correction": -0.028978627781810123,
+     "model": 0.21927392484203054,
+     "control": -0.006561759483295605,
      "held": false
     },
     "cornerLift": {
      "photograph": 0.10978023232975762,
-     "correction": -0.010646835807034502,
-     "model": 0.09913197160944216,
-     "control": 0.7628476511878198,
+     "correction": -0.012799700847967888,
+     "model": 0.09698184156457829,
+     "control": 0.7597248107396751,
      "held": false
     },
     "lipParting": {
      "photograph": 0.14593097617414771,
-     "correction": 0.04608687803700205,
-     "model": 0.19201705025747426,
-     "control": 0.8606935882503737,
+     "correction": 0.045244957125551044,
+     "model": 0.19117664744667648,
+     "control": 0.8620519085680695,
      "held": false
     },
     "lowerFaceWidth": {
@@ -861,23 +861,23 @@
     },
     "chinWidth": {
      "photograph": 0.3300369128685358,
-     "correction": -0.03927781614750947,
-     "model": 0.3161060171216609,
+     "correction": -0.041037763567477126,
+     "model": 0.3157661785653392,
      "control": -1,
      "held": true
     },
     "chinHeight": {
      "photograph": 0.2828756064031548,
-     "correction": -0.0007789792672543427,
-     "model": 0.2829103772539436,
+     "correction": -0.0006996529519371908,
+     "model": 0.2831361501177817,
      "control": -1,
      "held": true
     },
     "browHeight": {
      "photograph": 0.689420792804864,
-     "correction": -0.042601368961302066,
-     "model": 0.646819423640668,
-     "control": -0.6844592762972938,
+     "correction": -0.026296698173155386,
+     "model": 0.6631240946733107,
+     "control": -0.6257011810056274,
      "held": false
     }
    },
@@ -895,114 +895,114 @@
    "anthropometry": {
     "faceHeight": {
      "photograph": 0.8599948223792073,
-     "correction": -0.014421084513494442,
-     "model": 0.8455736574397419,
-     "control": -0.10441704854500601,
+     "correction": -0.013530126472236503,
+     "model": 0.8464644953141749,
+     "control": -0.08777315900741331,
      "held": false
     },
     "intercanthal": {
      "photograph": 0.23366066704667782,
-     "correction": -0.0035225235422762513,
-     "model": 0.23013808449543594,
-     "control": 0.11494337450365699,
+     "correction": -0.006562473859133805,
+     "model": 0.2270981378984555,
+     "control": 0.05799159949571034,
      "held": false
     },
     "fissureLength": {
      "photograph": 0.20579785289130242,
-     "correction": -0.003845871606279111,
-     "model": 0.2019523092891257,
-     "control": -0.0943569055212907,
+     "correction": -0.004732432827123073,
+     "model": 0.20106567619294333,
+     "control": -0.11893546572605605,
      "held": false
     },
     "fissureHeight": {
      "photograph": 0.3423785856405671,
-     "correction": -0.010761999881914286,
-     "model": 0.3316162402759072,
-     "control": -0.4145719976590058,
+     "correction": -0.0060368686323165055,
+     "model": 0.3363414419239897,
+     "control": -0.349379622675394,
      "held": false
     },
     "noseWidth": {
      "photograph": 0.3036215494600107,
-     "correction": -0.00921815689466371,
-     "model": 0.2944033699772572,
-     "control": -0.6714825184866795,
+     "correction": -0.01072044794997673,
+     "model": 0.2929011170197754,
+     "control": -0.7306319282369305,
      "held": false
     },
     "noseHeight": {
      "photograph": 0.43940487637102155,
-     "correction": 0.02917422335739872,
-     "model": 0.46626804688197715,
+     "correction": 0.030969386666305776,
+     "model": 0.4676319153890358,
      "control": 1,
      "held": true
     },
     "mouthWidth": {
      "photograph": 0.4350560766049448,
-     "correction": -0.020082349932249333,
-     "model": 0.4149736027850941,
-     "control": -0.6402131175347685,
+     "correction": -0.019939116772888454,
+     "model": 0.4151168745912505,
+     "control": -0.6518667683851563,
      "held": false
     },
     "upperVermilion": {
      "photograph": 0.07719782845771433,
-     "correction": -0.0015185951656698088,
-     "model": 0.08810536232784968,
-     "control": -1,
-     "held": true
+     "correction": -0.0056433544339819786,
+     "model": 0.07155632072400978,
+     "control": -0.8296491614525996,
+     "held": false
     },
     "lowerVermilion": {
      "photograph": 0.15932528552130265,
-     "correction": -0.01392628613650393,
-     "model": 0.14539876120087641,
-     "control": 0.10676981960320373,
+     "correction": -0.01300066842630615,
+     "model": 0.1463244115856285,
+     "control": 0.11578491377792795,
      "held": false
     },
     "upperLip": {
      "photograph": 0.24016079111890337,
-     "correction": -0.019351265808558338,
-     "model": 0.22101110767575016,
-     "control": -0.48051497268806087,
+     "correction": -0.02355326165075619,
+     "model": 0.21680038492056763,
+     "control": -0.4399555518576974,
      "held": false
     },
     "cornerLift": {
      "photograph": 0.14109482026214384,
-     "correction": 0.021173362445181768,
-     "model": 0.1476674030973976,
+     "correction": 0.017413935536749775,
+     "model": 0.14665426054401842,
      "control": 1,
      "held": true
     },
     "lipParting": {
      "photograph": 0.1726575777428935,
-     "correction": -0.008569605110746281,
-     "model": 0.16408812317741256,
-     "control": 0.8399298755859513,
+     "correction": -0.009799541087183172,
+     "model": 0.16285833950834216,
+     "control": 0.8424749202240507,
      "held": false
     },
     "lowerFaceWidth": {
      "photograph": 0.6366006927942851,
-     "correction": 0.002631718772566183,
-     "model": 0.6515755316447621,
+     "correction": -0.0020044406543545668,
+     "model": 0.6510124203268541,
      "control": -1,
      "held": true
     },
     "chinWidth": {
      "photograph": 0.2908772983494997,
-     "correction": -0.008002532610139834,
-     "model": 0.2828741091401683,
-     "control": -0.9203479219517474,
+     "correction": -0.012219609414213572,
+     "model": 0.2786571329514758,
+     "control": -0.9830327490975369,
      "held": false
     },
     "chinHeight": {
      "photograph": 0.2580179325160801,
-     "correction": 0.005807724882824716,
-     "model": 0.2638875254554569,
-     "control": -0.8105172154462605,
+     "correction": 0.00725304144223482,
+     "model": 0.26532335457095657,
+     "control": -0.8380026141483519,
      "held": false
     },
     "browHeight": {
      "photograph": 0.7206394423110509,
-     "correction": -0.06836455928775442,
-     "model": 0.6522734822117089,
-     "control": -0.3784263596990136,
+     "correction": -0.06832570766174473,
+     "model": 0.6523124160393808,
+     "control": -0.47406657999835555,
      "held": false
     }
    },
@@ -1020,86 +1020,86 @@
    "anthropometry": {
     "faceHeight": {
      "photograph": 0.825747302356333,
-     "correction": -0.022102272911587284,
-     "model": 0.8036450300974304,
-     "control": -0.0013646255451365205,
+     "correction": -0.014525104626792018,
+     "model": 0.8112222934148103,
+     "control": 0.030976371405615617,
      "held": false
     },
     "intercanthal": {
      "photograph": 0.24434164052339324,
-     "correction": -0.013410512164551747,
-     "model": 0.23093133187811626,
-     "control": -0.05928235649586071,
+     "correction": -0.00903883012686113,
+     "model": 0.23531150342276863,
+     "control": 0.008164692611399056,
      "held": false
     },
     "fissureLength": {
      "photograph": 0.1916381437166698,
-     "correction": 0.005205740589316804,
-     "model": 0.19684378441728664,
-     "control": 0.13016197532705648,
+     "correction": 0.004874853043374733,
+     "model": 0.19651295369511235,
+     "control": 0.11929588135152326,
      "held": false
     },
     "fissureHeight": {
      "photograph": 0.33842741686600714,
-     "correction": 0.04416335870103322,
-     "model": 0.3825909715113089,
-     "control": 0.35992356663268055,
+     "correction": 0.036042224753195795,
+     "model": 0.37446971991713335,
+     "control": 0.1406925408915792,
      "held": false
     },
     "noseWidth": {
      "photograph": 0.2903378077531581,
-     "correction": -0.008176978405036839,
-     "model": 0.28216443558064613,
-     "control": -0.05490979640140165,
+     "correction": -0.0009096542764991944,
+     "model": 0.28942815032141855,
+     "control": 0.1288138494504771,
      "held": false
     },
     "noseHeight": {
      "photograph": 0.44445367398740965,
-     "correction": 0.022740700162057037,
-     "model": 0.46719437420138377,
-     "control": 0.3665929723250117,
+     "correction": 0.025925119726076418,
+     "model": 0.4703787351296328,
+     "control": 0.40798542064596705,
      "held": false
     },
     "mouthWidth": {
      "photograph": 0.3828596083911175,
-     "correction": -0.014990035194247409,
-     "model": 0.3678695729248578,
-     "control": -0.405437050196375,
+     "correction": -0.009760118999612988,
+     "model": 0.3730994919538408,
+     "control": -0.18192961005935784,
      "held": false
     },
     "upperVermilion": {
      "photograph": 0.1350016856831994,
-     "correction": 0.0004973139306723995,
-     "model": 0.1833142970447428,
-     "control": -1,
-     "held": true
+     "correction": -0.028408876234716773,
+     "model": 0.10659280284010095,
+     "control": -0.6633144409006954,
+     "held": false
     },
     "lowerVermilion": {
      "photograph": 0.22521427209856437,
-     "correction": -0.017236733368412416,
-     "model": 0.20797753636350158,
-     "control": 0.05866164464047462,
+     "correction": -0.02561786747604297,
+     "model": 0.19959633759877435,
+     "control": 0.005128807098177381,
      "held": false
     },
     "upperLip": {
      "photograph": 0.27057263005484405,
-     "correction": 0.008234985276347306,
-     "model": 0.2788076114465912,
-     "control": 0.25664334311206877,
+     "correction": 0.014226782592753118,
+     "model": 0.28479934865193324,
+     "control": 0.21451422867030603,
      "held": false
     },
     "cornerLift": {
      "photograph": 0.0656333960640718,
-     "correction": 0.027870129909783485,
-     "model": 0.09350353482186143,
-     "control": 0.4761171226979189,
+     "correction": 0.017343041874688297,
+     "model": 0.08297600938951116,
+     "control": 0.41014735220997733,
      "held": false
     },
     "lipParting": {
      "photograph": 0.026840695812223703,
-     "correction": 0.017970741215378068,
-     "model": 0.04481143682876771,
-     "control": 0.07178448967024861,
+     "correction": 0.022347208076846405,
+     "model": 0.049187058161402675,
+     "control": 0.14852236086307913,
      "held": false
     },
     "lowerFaceWidth": {
@@ -1111,27 +1111,27 @@
     },
     "chinWidth": {
      "photograph": 0.31481433335349257,
-     "correction": -0.04388668892805686,
-     "model": 0.2709276447306683,
-     "control": -0.6698709171413422,
+     "correction": -0.04659881165614849,
+     "model": 0.26821551635955565,
+     "control": -0.6767285826625468,
      "held": false
     },
     "chinHeight": {
      "photograph": 0.28836483828192283,
-     "correction": -0.020284501102149244,
-     "model": 0.26854087587431635,
+     "correction": -0.024747148117374274,
+     "model": 0.26436435954080223,
      "control": -1,
      "held": true
     },
     "browHeight": {
      "photograph": 0.7668720552411312,
-     "correction": -0.02885815448611173,
-     "model": 0.7380142766299599,
-     "control": 0.46618954746806857,
+     "correction": 0.028530023620533362,
+     "model": 0.7954022529878233,
+     "control": 0.8663533907479136,
      "held": false
     }
    },
-   "iterations": 7
+   "iterations": 5
   },
   "lee-tae-ri": {
    "population": {
@@ -1145,118 +1145,118 @@
    "anthropometry": {
     "faceHeight": {
      "photograph": 0.780266638088543,
-     "correction": -0.02075726047829274,
-     "model": 0.7612378764540438,
-     "control": -1,
-     "held": true
+     "correction": -0.023121877935069035,
+     "model": 0.757144591556501,
+     "control": -0.8766196756222785,
+     "held": false
     },
     "intercanthal": {
      "photograph": 0.24643735158422125,
-     "correction": 0.01002635437525029,
-     "model": 0.256431454165075,
-     "control": 0.023484605608674904,
+     "correction": 0.013326141800745483,
+     "model": 0.25975601898128897,
+     "control": 0.01772408039132212,
      "held": false
     },
     "fissureLength": {
      "photograph": 0.18449555516891217,
-     "correction": -0.002633065092342346,
-     "model": 0.18186300145645332,
-     "control": -0.2328882106668336,
+     "correction": -0.005868518123102462,
+     "model": 0.17862722786449634,
+     "control": -0.32172956949643716,
      "held": false
     },
     "fissureHeight": {
      "photograph": 0.33339903841793617,
-     "correction": 0.07756869899840868,
-     "model": 0.4110896682248358,
-     "control": 0.8039782112031848,
+     "correction": 0.06264423825558768,
+     "model": 0.39604482264482604,
+     "control": 0.6173539528975257,
      "held": false
     },
     "noseWidth": {
      "photograph": 0.2862974914369467,
-     "correction": 0.003642505491531667,
-     "model": 0.2899396265184214,
-     "control": 0.237284723886373,
+     "correction": 0.0033030608358617375,
+     "model": 0.28960043588924345,
+     "control": 0.20692461577658602,
      "held": false
     },
     "noseHeight": {
      "photograph": 0.42788132580145327,
-     "correction": -0.0019656186760084182,
-     "model": 0.425487466072056,
-     "control": 1,
-     "held": true
+     "correction": -0.0007401128983043903,
+     "model": 0.42714555444650887,
+     "control": 0.8524693517737254,
+     "held": false
     },
     "mouthWidth": {
      "photograph": 0.41026345280735427,
-     "correction": -0.02712760429222094,
-     "model": 0.3831365263387988,
-     "control": -0.23316931177608075,
+     "correction": -0.024302148484523334,
+     "model": 0.38596126507689366,
+     "control": -0.15971970924381582,
      "held": false
     },
     "upperVermilion": {
      "photograph": 0.11784947678743875,
-     "correction": -0.0012522161900520995,
-     "model": 0.11662955703147149,
-     "control": -0.9595215993852151,
+     "correction": -0.004918523684188172,
+     "model": 0.11293097925150111,
+     "control": 0.4312471439451408,
      "held": false
     },
     "lowerVermilion": {
      "photograph": 0.16527107839120572,
-     "correction": -0.013536276072469794,
-     "model": 0.1516807798539401,
-     "control": -0.3966421605325484,
+     "correction": -0.010861886549996785,
+     "model": 0.15440927562813742,
+     "control": -0.4371897102425543,
      "held": false
     },
     "upperLip": {
      "photograph": 0.29378402107107865,
-     "correction": 0.005594986069432484,
-     "model": 0.28956254936229914,
-     "control": -1,
-     "held": true
+     "correction": 0.007715517358694579,
+     "model": 0.30156829092280757,
+     "control": -0.7578700158917322,
+     "held": false
     },
     "cornerLift": {
      "photograph": 0.07455066217785089,
-     "correction": 0.006092600951619995,
-     "model": 0.08068878303176634,
-     "control": 0.40116814022948166,
+     "correction": 0.0018134504826000791,
+     "model": 0.0763637238934284,
+     "control": 0.36283285191145664,
      "held": false
     },
     "lipParting": {
      "photograph": 0.002224046990732434,
-     "correction": 0.00957043042213105,
-     "model": 0.023747666647176716,
+     "correction": 0.0013962672228513273,
+     "model": 0.005031929430328874,
      "control": 0,
      "held": true
     },
     "lowerFaceWidth": {
      "photograph": 0.6784784162705223,
-     "correction": -0.020057919060308516,
-     "model": 0.6584179254891972,
-     "control": 0.0332507331761859,
+     "correction": -0.018510305353702017,
+     "model": 0.6599782615679466,
+     "control": 0.05194260511319727,
      "held": false
     },
     "chinWidth": {
      "photograph": 0.30267982700171875,
-     "correction": -0.0442867506431851,
-     "model": 0.2583879645881656,
-     "control": -0.8426087115767202,
+     "correction": -0.042189210457534154,
+     "model": 0.2604911496878677,
+     "control": -0.7937302899049128,
      "held": false
     },
     "chinHeight": {
      "photograph": 0.31597057266871587,
-     "correction": 0.004110561081263897,
-     "model": 0.3198608146367632,
-     "control": 0.4942823367403749,
+     "correction": 0.0028706225850652634,
+     "model": 0.31882312121554596,
+     "control": 0.3538280674516479,
      "held": false
     },
     "browHeight": {
      "photograph": 0.6714488357281467,
-     "correction": -0.04658746754767251,
-     "model": 0.5675469860746089,
+     "correction": -0.029040544430014248,
+     "model": 0.5998379252989994,
      "control": 1,
      "held": true
     }
    },
-   "iterations": 8
+   "iterations": 11
   },
   "maggie-smith": {
    "population": {
@@ -1270,85 +1270,85 @@
    "anthropometry": {
     "faceHeight": {
      "photograph": 0.8671764548046001,
-     "correction": 0.0057609240459892685,
-     "model": 0.8729394366258825,
-     "control": 0.09418914775166942,
+     "correction": 0.008069240139614742,
+     "model": 0.8752477247533201,
+     "control": 0.10695901633659206,
      "held": false
     },
     "intercanthal": {
      "photograph": 0.25118176133516734,
-     "correction": -0.0006677673324022027,
-     "model": 0.25051418269331693,
-     "control": 0.2468051783563125,
+     "correction": 0.0004559655676898422,
+     "model": 0.2516379233848212,
+     "control": 0.20977841116839296,
      "held": false
     },
     "fissureLength": {
      "photograph": 0.18814833736443512,
-     "correction": 0.0012747571171746463,
-     "model": 0.18942346371756433,
-     "control": -0.4760521585841438,
+     "correction": -0.0019272913829456173,
+     "model": 0.1862214069051459,
+     "control": -0.5635804383176892,
      "held": false
     },
     "fissureHeight": {
      "photograph": 0.27501506866349085,
-     "correction": -0.02037486583793574,
-     "model": 0.25463901123612487,
-     "control": 0.3280470277604372,
+     "correction": -0.019200041685688063,
+     "model": 0.25581387935987643,
+     "control": 0.2753939556047385,
      "held": false
     },
     "noseWidth": {
      "photograph": 0.32271354472872554,
-     "correction": 0.012851742677566558,
-     "model": 0.3355656695358552,
-     "control": 0.41012949218490047,
+     "correction": 0.010697496160653741,
+     "model": 0.3334114623758508,
+     "control": 0.3675889604819096,
      "held": false
     },
     "noseHeight": {
      "photograph": 0.38781355922479116,
-     "correction": 0.022263080791913692,
-     "model": 0.4100753351606609,
-     "control": -0.33984284248610286,
+     "correction": 0.02279761333199065,
+     "model": 0.4106099130764001,
+     "control": -0.33234245428928116,
      "held": false
     },
     "mouthWidth": {
      "photograph": 0.4420261503816414,
-     "correction": -0.02334038006956418,
-     "model": 0.41868626644867196,
-     "control": 0.10975139579205244,
+     "correction": -0.02458036646673628,
+     "model": 0.4174465406336537,
+     "control": 0.09415000376181473,
      "held": false
     },
     "upperVermilion": {
      "photograph": 0.06806117385983833,
-     "correction": -0.006290506338094803,
-     "model": 0.06178320169390129,
-     "control": -0.8486866693964327,
+     "correction": -0.004332199514584842,
+     "model": 0.06374130120673341,
+     "control": -0.33893217254585867,
      "held": false
     },
     "lowerVermilion": {
      "photograph": 0.1271948113506677,
-     "correction": -0.027254975088159966,
-     "model": 0.09993659358202765,
-     "control": -0.2751768193303758,
+     "correction": -0.025681027409086427,
+     "model": 0.10151027016261424,
+     "control": -0.26742969834842667,
      "held": false
     },
     "upperLip": {
      "photograph": 0.2317081223993234,
-     "correction": -0.0162147395868438,
-     "model": 0.2154019527014111,
-     "control": 0.2834481429479577,
+     "correction": -0.015985246494363725,
+     "model": 0.2156318143576798,
+     "control": 0.28013298782060925,
      "held": false
     },
     "cornerLift": {
      "photograph": 0.071066482432698,
-     "correction": -0.01339417496637725,
-     "model": 0.057670708486120784,
-     "control": 0.4956086149866237,
+     "correction": -0.014424873568417096,
+     "model": 0.056639402054099536,
+     "control": 0.5023398907755365,
      "held": false
     },
     "lipParting": {
      "photograph": 0.22131507160566055,
-     "correction": 0.02121516480500321,
-     "model": 0.19494158340069942,
+     "correction": 0.021859668420348005,
+     "model": 0.19564537308091606,
      "control": 1,
      "held": true
     },
@@ -1361,23 +1361,23 @@
     },
     "chinWidth": {
      "photograph": 0.332191120190773,
-     "correction": -0.023695758984051796,
-     "model": 0.3240838198854279,
+     "correction": -0.025479916079307607,
+     "model": 0.3240182291784838,
      "control": -1,
      "held": true
     },
     "chinHeight": {
      "photograph": 0.292691808396199,
-     "correction": 0.005960473496867402,
-     "model": 0.3214218860560064,
+     "correction": 0.005131354365555341,
+     "model": 0.32057142064327765,
      "control": -1,
      "held": true
     },
     "browHeight": {
      "photograph": 0.81113773893627,
-     "correction": 0.0321677008734933,
-     "model": 0.8433069875854297,
-     "control": -0.3878763735124657,
+     "correction": 0.05312792357588059,
+     "model": 0.8642671412218688,
+     "control": -0.37428850072884684,
      "held": false
     }
    },
@@ -1395,118 +1395,118 @@
    "anthropometry": {
     "faceHeight": {
      "photograph": 0.8630570318984155,
-     "correction": -0.008063401702798623,
-     "model": 0.8549936800202386,
-     "control": -0.043491559252670654,
+     "correction": -0.005966409803921824,
+     "model": 0.8570906211277474,
+     "control": 0.09935355683137363,
      "held": false
     },
     "intercanthal": {
      "photograph": 0.28025476398214005,
-     "correction": 0.030944349877449873,
-     "model": 0.31119911448090487,
-     "control": 0.5658771618273195,
+     "correction": 0.034019788043174515,
+     "model": 0.31427455450410424,
+     "control": 0.6530574114523747,
      "held": false
     },
     "fissureLength": {
      "photograph": 0.17992068283487472,
-     "correction": -0.01603411150088424,
-     "model": 0.16602747977567298,
-     "control": -1,
-     "held": true
+     "correction": -0.01059581877694396,
+     "model": 0.1693248656324731,
+     "control": -0.9158694975519492,
+     "held": false
     },
     "fissureHeight": {
      "photograph": 0.2283457419302488,
-     "correction": 0.054769546140475356,
-     "model": 0.2831152879032414,
-     "control": 0.2597525309248115,
+     "correction": 0.029599158417223048,
+     "model": 0.25795436896483875,
+     "control": 0.04031408655386892,
      "held": false
     },
     "noseWidth": {
      "photograph": 0.31236754408216616,
-     "correction": 0.007791977595249022,
-     "model": 0.31675414700568777,
+     "correction": 0.021970892904679684,
+     "model": 0.31570675363873035,
      "control": 1,
      "held": true
     },
     "noseHeight": {
      "photograph": 0.3991361248684818,
-     "correction": -0.003871187431510492,
-     "model": 0.3952649286704947,
-     "control": -0.5188545072809327,
+     "correction": 0.00024307459508404738,
+     "model": 0.39937924309016004,
+     "control": -0.6308030317824508,
      "held": false
     },
     "mouthWidth": {
      "photograph": 0.4035603609567983,
-     "correction": 0.0010263257368157142,
-     "model": 0.40458669837824246,
-     "control": -0.16312722844766314,
+     "correction": 0.0014350578800340075,
+     "model": 0.4049954188391401,
+     "control": -0.12280209869790791,
      "held": false
     },
     "upperVermilion": {
      "photograph": 0.12182252607989894,
-     "correction": 0.03083709328194846,
-     "model": 0.15265959738914234,
-     "control": 0.617726079779849,
-     "held": false
+     "correction": 0.046742245840581564,
+     "model": 0.16383107978642536,
+     "control": 1,
+     "held": true
     },
     "lowerVermilion": {
      "photograph": 0.189154985655844,
-     "correction": 0.02002342242927671,
-     "model": 0.20917839917627168,
-     "control": 0.5367244644823904,
+     "correction": 0.014291485625291644,
+     "model": 0.203446471525409,
+     "control": 0.4551175226667011,
      "held": false
     },
     "upperLip": {
      "photograph": 0.3044745697491661,
-     "correction": -0.010944590690478095,
-     "model": 0.2943369944870183,
+     "correction": 0.014652058484427188,
+     "model": 0.3339009051065373,
      "control": 1,
      "held": true
     },
     "cornerLift": {
      "photograph": -0.030469276162319776,
-     "correction": -0.03184147448348965,
-     "model": -0.014769763979315762,
+     "correction": -0.0230418606818786,
+     "model": -0.007007564529677391,
      "control": 0,
      "held": true
     },
     "lipParting": {
      "photograph": 0.07635915645954075,
-     "correction": -0.0587845623912691,
-     "model": 0.017574607354659523,
-     "control": 0.09710790974949586,
+     "correction": -0.06748205329199847,
+     "model": 0.008877106430230049,
+     "control": 0.026340362487623867,
      "held": false
     },
     "lowerFaceWidth": {
      "photograph": 0.7387864659364722,
-     "correction": 0.014064959024331913,
-     "model": 0.752851839915157,
-     "control": 0.3021369695972128,
+     "correction": 0.005671107731556435,
+     "model": 0.7444575723850418,
+     "control": 0.19785141800486938,
      "held": false
     },
     "chinWidth": {
      "photograph": 0.36323570001697864,
-     "correction": -0.010580925624596782,
-     "model": 0.3526602089846999,
-     "control": 0.029374477310807882,
+     "correction": -0.0003690412350546013,
+     "model": 0.36286665881688035,
+     "control": 0.09605576841868395,
      "held": false
     },
     "chinHeight": {
      "photograph": 0.2937632636056336,
-     "correction": 0.025675371457779317,
-     "model": 0.3194386669247322,
-     "control": -0.43918368727373924,
+     "correction": 0.014371137381202603,
+     "model": 0.3081343545338337,
+     "control": -0.7255479274044626,
      "held": false
     },
     "browHeight": {
      "photograph": 0.9391786015624913,
-     "correction": 0.011286217332553972,
-     "model": 0.9504648208310695,
-     "control": -0.3729982980911735,
+     "correction": 0.019647145187613124,
+     "model": 0.9588160454165999,
+     "control": -0.4211261033956091,
      "held": false
     }
    },
-   "iterations": 9
+   "iterations": 8
   },
   "miriam-margolyes": {
    "population": {
@@ -1520,118 +1520,118 @@
    "anthropometry": {
     "faceHeight": {
      "photograph": 0.8154909743997827,
-     "correction": 0.005270229426313056,
-     "model": 0.8207610368892491,
-     "control": -0.4279748052667445,
+     "correction": 0.00218941322158428,
+     "model": 0.8176799026323672,
+     "control": -0.4530890297239581,
      "held": false
     },
     "intercanthal": {
      "photograph": 0.23255295317424426,
-     "correction": -0.004808212357659547,
-     "model": 0.22774473622105687,
-     "control": 0.056134674034097526,
+     "correction": -0.00254938489228021,
+     "model": 0.23000209971989746,
+     "control": 0.02936348298548439,
      "held": false
     },
     "fissureLength": {
      "photograph": 0.1872887432569427,
-     "correction": 0.011686441541866488,
-     "model": 0.19897515855346676,
-     "control": -0.2530757954568876,
+     "correction": 0.008819711418034143,
+     "model": 0.19610838899251462,
+     "control": -0.34408887096211205,
      "held": false
     },
     "fissureHeight": {
      "photograph": 0.11303047908743563,
-     "correction": -0.04523488458864158,
-     "model": 0.06779560635151737,
-     "control": -0.8260103734359951,
+     "correction": -0.02667522120585157,
+     "model": 0.08635531842534691,
+     "control": -0.4966720527457454,
      "held": false
     },
     "noseWidth": {
      "photograph": 0.31384564244423546,
-     "correction": 0.0058172628783671465,
-     "model": 0.319662896802904,
-     "control": -0.1146019777392524,
+     "correction": 0.002244487268174944,
+     "model": 0.3160901282810133,
+     "control": -0.22216387185003186,
      "held": false
     },
     "noseHeight": {
      "photograph": 0.3690138407225724,
-     "correction": -0.0029586284854496436,
-     "model": 0.3660553319390914,
-     "control": -0.5469856562696548,
+     "correction": 0.000935105982149298,
+     "model": 0.36994936603821066,
+     "control": -0.48754249576313097,
      "held": false
     },
     "mouthWidth": {
      "photograph": 0.4418301762139598,
-     "correction": -0.04087721481962425,
-     "model": 0.400952954457804,
-     "control": -0.8526029745287528,
+     "correction": -0.04301695237859732,
+     "model": 0.39881325590145655,
+     "control": -0.8791494896425079,
      "held": false
     },
     "upperVermilion": {
      "photograph": 0.055047484875980185,
-     "correction": -0.008353086181670792,
-     "model": 0.04669456114728669,
-     "control": -0.7512988469132529,
+     "correction": -0.002107334689924252,
+     "model": 0.05294050375220643,
+     "control": -0.14011745712790813,
      "held": false
     },
     "lowerVermilion": {
      "photograph": 0.13265946070182322,
-     "correction": -0.018918648263184318,
-     "model": 0.11374085300803048,
-     "control": 0.2557940109727303,
+     "correction": -0.016147062184738964,
+     "model": 0.11651253050021852,
+     "control": 0.2885118231515848,
      "held": false
     },
     "upperLip": {
      "photograph": 0.24234442667692432,
-     "correction": -0.002403070133325691,
-     "model": 0.2399540544959619,
-     "control": -0.20070487964293418,
+     "correction": -0.006323445993952542,
+     "model": 0.2360618338245525,
+     "control": -0.21407550693182908,
      "held": false
     },
     "cornerLift": {
      "photograph": 0.1899646553285802,
-     "correction": 0.009295880688068525,
-     "model": 0.19171134172023868,
+     "correction": 0.008014361712091467,
+     "model": 0.19168639126251935,
      "control": 1,
      "held": true
     },
     "lipParting": {
      "photograph": 0.3126769597151641,
-     "correction": 0.05236872423985042,
-     "model": 0.3017779970410471,
+     "correction": 0.055086967085208716,
+     "model": 0.303379074130501,
      "control": 1,
      "held": true
     },
     "lowerFaceWidth": {
      "photograph": 0.7338185752683688,
-     "correction": -0.015437077457885917,
-     "model": 0.7183815009379632,
-     "control": -0.3840266509475362,
+     "correction": -0.020439906993988233,
+     "model": 0.7133787172617361,
+     "control": -0.7232097921462524,
      "held": false
     },
     "chinWidth": {
      "photograph": 0.36556574181688006,
-     "correction": -0.006012428910400325,
-     "model": 0.35955336056607884,
-     "control": -0.3868284905355198,
+     "correction": -0.010412809694524905,
+     "model": 0.35515311235306196,
+     "control": -0.4661139070017904,
      "held": false
     },
     "chinHeight": {
      "photograph": 0.2367884551654408,
-     "correction": 0.0058819708242811575,
-     "model": 0.27884045237442173,
+     "correction": 0.0022103899736232724,
+     "model": 0.2765227907862816,
      "control": -1,
      "held": true
     },
     "browHeight": {
      "photograph": 0.5877172162492376,
-     "correction": -0.058121893442895534,
-     "model": 0.6383490991878015,
+     "correction": -0.07028838481917232,
+     "model": 0.6433839462771225,
      "control": -1,
      "held": true
     }
    },
-   "iterations": 12
+   "iterations": 9
   },
   "oh-seung-yoon": {
    "population": {
@@ -1645,86 +1645,86 @@
    "anthropometry": {
     "faceHeight": {
      "photograph": 0.8236515422424165,
-     "correction": 0.0026043025945373666,
-     "model": 0.8262558453132426,
-     "control": 0.060109885469382146,
+     "correction": 0.0021597114716621624,
+     "model": 0.8258112540029419,
+     "control": 0.050040513781200335,
      "held": false
     },
     "intercanthal": {
      "photograph": 0.29909279662503196,
-     "correction": 0.01676887931854598,
-     "model": 0.3101663538404182,
+     "correction": 0.01609361438463003,
+     "model": 0.31166371032373,
      "control": 1,
      "held": true
     },
     "fissureLength": {
      "photograph": 0.18651573864220553,
-     "correction": -0.0007901792811118857,
-     "model": 0.18572556007864055,
-     "control": 0.14572986141959868,
+     "correction": -0.0022099785462034727,
+     "model": 0.1843057601866673,
+     "control": 0.09824822418265626,
      "held": false
     },
     "fissureHeight": {
      "photograph": 0.33701944907002207,
-     "correction": 0.03224321542771713,
-     "model": 0.36926266290702475,
-     "control": 0.08398233295032546,
+     "correction": 0.030232104355336797,
+     "model": 0.3672515512934126,
+     "control": 0.05059413077469557,
      "held": false
     },
     "noseWidth": {
      "photograph": 0.3352010986258075,
-     "correction": 0.02509419674723362,
-     "model": 0.347174988878371,
+     "correction": 0.027303852247420435,
+     "model": 0.34745839522028626,
      "control": 1,
      "held": true
     },
     "noseHeight": {
      "photograph": 0.4502799244884651,
-     "correction": 0.019165202839811712,
-     "model": 0.46944512551557055,
-     "control": 0.8033526054978208,
+     "correction": 0.01963518214853277,
+     "model": 0.46991508659668046,
+     "control": 0.7906993486027132,
      "held": false
     },
     "mouthWidth": {
      "photograph": 0.4320101292667092,
-     "correction": -0.00005627701409638419,
-     "model": 0.43195385722259,
-     "control": -0.0754699516735168,
+     "correction": 0.0040022815087701336,
+     "model": 0.4360124354371575,
+     "control": 0.07052997868413896,
      "held": false
     },
     "upperVermilion": {
      "photograph": 0.09840228105859157,
-     "correction": 0.02099960567517961,
-     "model": 0.14149742223264555,
-     "control": -1,
-     "held": true
+     "correction": -0.011706934095987137,
+     "model": 0.08669497637611441,
+     "control": -0.4041066007392209,
+     "held": false
     },
     "lowerVermilion": {
      "photograph": 0.20541884281200673,
-     "correction": -0.009259737775828392,
-     "model": 0.19615909523066474,
-     "control": 0.5925895962573846,
+     "correction": -0.0013684059712786578,
+     "model": 0.20405008740094047,
+     "control": 0.7675049030850674,
      "held": false
     },
     "upperLip": {
      "photograph": 0.2817000429763853,
-     "correction": 0.037007051689562975,
-     "model": 0.3187715762388507,
-     "control": -0.3638170239346218,
+     "correction": 0.02677686694196424,
+     "model": 0.3085174921239421,
+     "control": -0.29124690685804,
      "held": false
     },
     "cornerLift": {
      "photograph": 0.1590211644371188,
-     "correction": 0.014615473738041673,
-     "model": 0.16689518158690655,
-     "control": 1,
-     "held": true
+     "correction": 0.004865487790392947,
+     "model": 0.1638874169890388,
+     "control": 0.9574571914136513,
+     "held": false
     },
     "lipParting": {
      "photograph": 0.12492548436666509,
-     "correction": -0.022030135830115996,
-     "model": 0.10289541652678684,
-     "control": 0.4310648829846215,
+     "correction": -0.018123777471375113,
+     "model": 0.10680165084091207,
+     "control": 0.49609886114415924,
      "held": false
     },
     "lowerFaceWidth": {
@@ -1736,27 +1736,27 @@
     },
     "chinWidth": {
      "photograph": 0.32418294596064573,
-     "correction": -0.025798772633566003,
-     "model": 0.298384176400788,
-     "control": -0.5427661572602561,
+     "correction": -0.021884800735045007,
+     "model": 0.3022981493973693,
+     "control": -0.4668194083148514,
      "held": false
     },
     "chinHeight": {
      "photograph": 0.22159634361319694,
-     "correction": -0.01778112121346828,
-     "model": 0.20508795827897228,
+     "correction": -0.02034906118307475,
+     "model": 0.20242071510424028,
      "control": -1,
      "held": true
     },
     "browHeight": {
      "photograph": 0.6786899780012849,
-     "correction": -0.042235902079726495,
-     "model": 0.6364540696814404,
-     "control": -0.2557919212411823,
+     "correction": -0.029990023226052487,
+     "model": 0.6486999538796128,
+     "control": -0.24544810242205883,
      "held": false
     }
    },
-   "iterations": 11
+   "iterations": 9
   },
   "park-eun-bin": {
    "population": {
@@ -1770,118 +1770,118 @@
    "anthropometry": {
     "faceHeight": {
      "photograph": 0.8114523448398945,
-     "correction": -0.042517637375895756,
-     "model": 0.7689347073874001,
-     "control": -0.4614796263953975,
+     "correction": -0.047688384415768725,
+     "model": 0.7637553659315978,
+     "control": -0.5388130432099046,
      "held": false
     },
     "intercanthal": {
      "photograph": 0.24605686655304093,
-     "correction": -0.015021851511062306,
-     "model": 0.23103501504020385,
-     "control": -0.2385196505986994,
+     "correction": -0.014355458155133172,
+     "model": 0.23169754741699014,
+     "control": -0.27460050685462156,
      "held": false
     },
     "fissureLength": {
      "photograph": 0.19028284516160918,
-     "correction": 0.005127773594482604,
-     "model": 0.1954106187748381,
-     "control": -0.158998417153633,
+     "correction": 0.002795997204389833,
+     "model": 0.19307992226566248,
+     "control": -0.21623359148162505,
      "held": false
     },
     "fissureHeight": {
      "photograph": 0.33173436857086797,
-     "correction": 0.02693611989555006,
-     "model": 0.35867048829946047,
-     "control": 0.3161006413017844,
+     "correction": 0.019509252761704787,
+     "model": 0.35128573288265674,
+     "control": 0.2892281543018349,
      "held": false
     },
     "noseWidth": {
      "photograph": 0.29771225549977215,
-     "correction": 0.00395505436119542,
-     "model": 0.30166730986021867,
-     "control": 0.38253526985224745,
+     "correction": 0.007019545112901426,
+     "model": 0.3047264940772894,
+     "control": 0.479021436567683,
      "held": false
     },
     "noseHeight": {
      "photograph": 0.4550170815237297,
-     "correction": 0.015963728189323456,
-     "model": 0.4510067747431034,
+     "correction": 0.008265549163160413,
+     "model": 0.44883883463224994,
      "control": 1,
      "held": true
     },
     "mouthWidth": {
      "photograph": 0.3789954336175752,
-     "correction": -0.0293757616900292,
-     "model": 0.3496196719167255,
-     "control": -0.8356013590509961,
+     "correction": -0.028292331271169202,
+     "model": 0.3507079717313902,
+     "control": -0.7121454632493102,
      "held": false
     },
     "upperVermilion": {
      "photograph": 0.11317588359183947,
-     "correction": 0.013366025241365015,
-     "model": 0.14759652753898606,
-     "control": -1,
-     "held": true
+     "correction": -0.01360283692231612,
+     "model": 0.09958112612911445,
+     "control": -0.04777321985306656,
+     "held": false
     },
     "lowerVermilion": {
      "photograph": 0.17013784668627724,
-     "correction": -0.039384499808372025,
-     "model": 0.1307533367020342,
-     "control": -0.9323916670469344,
+     "correction": -0.040012425114876154,
+     "model": 0.1300426924288266,
+     "control": -0.9186986436714847,
      "held": false
     },
     "upperLip": {
      "photograph": 0.3312900203314617,
-     "correction": 0.013095620002090524,
-     "model": 0.3325361833481372,
+     "correction": 0.005604730557086213,
+     "model": 0.33265917346445456,
      "control": -1,
      "held": true
     },
     "cornerLift": {
      "photograph": 0.09546154002331689,
-     "correction": 0.015480970675148975,
-     "model": 0.11094255068482113,
-     "control": 0.5041621706717652,
+     "correction": 0.003149697419400313,
+     "model": 0.09869975774229435,
+     "control": 0.4284831213515403,
      "held": false
     },
     "lipParting": {
      "photograph": 0.0031610355585389173,
-     "correction": -0.010820157846003459,
-     "model": 0.03419449861642775,
+     "correction": -0.00039482215811740065,
+     "model": 0.028288955643398863,
      "control": 0,
      "held": true
     },
     "lowerFaceWidth": {
      "photograph": 0.6748250789702954,
-     "correction": -0.03414349304242814,
-     "model": 0.6406815858732343,
-     "control": -0.7382224367485622,
+     "correction": -0.033852328929303455,
+     "model": 0.6409570950590803,
+     "control": -0.7409270714803795,
      "held": false
     },
     "chinWidth": {
      "photograph": 0.3040189512031085,
-     "correction": -0.045918025395448314,
-     "model": 0.25810092582092015,
-     "control": -0.9747767018518647,
+     "correction": -0.04312690442045797,
+     "model": 0.26086249020293406,
+     "control": -0.9055383523487716,
      "held": false
     },
     "chinHeight": {
      "photograph": 0.28349486043534616,
-     "correction": 0.007939695753281295,
-     "model": 0.2914345374766978,
-     "control": 0.10752323854240486,
+     "correction": 0.011787659792450611,
+     "model": 0.29510821536812754,
+     "control": 0.15993428332623094,
      "held": false
     },
     "browHeight": {
      "photograph": 0.6681339672920962,
-     "correction": -0.09366605869895028,
-     "model": 0.5744679087792703,
-     "control": 0.6025128029871825,
+     "correction": -0.09469134363752474,
+     "model": 0.5733255363483185,
+     "control": 0.6162208785207831,
      "held": false
     }
    },
-   "iterations": 8
+   "iterations": 6
   },
   "rupert-grint": {
    "population": {
@@ -1895,118 +1895,118 @@
    "anthropometry": {
     "faceHeight": {
      "photograph": 0.8179431786296261,
-     "correction": -0.015818124813077206,
-     "model": 0.8021251066504205,
-     "control": -0.1643075380875072,
+     "correction": -0.013614599021014029,
+     "model": 0.8043285593203119,
+     "control": -0.12322174657214222,
      "held": false
     },
     "intercanthal": {
      "photograph": 0.23758290422331874,
-     "correction": 0.0014695698319238948,
-     "model": 0.23905240671710148,
-     "control": 0.02754250343859655,
+     "correction": -0.0025414940788650864,
+     "model": 0.23504252565962394,
+     "control": -0.02792378137683845,
      "held": false
     },
     "fissureLength": {
      "photograph": 0.1993045383925418,
-     "correction": -0.004697613975682857,
-     "model": 0.19460692469946328,
-     "control": -0.23317464388403344,
+     "correction": -0.003998453213332698,
+     "model": 0.19530607458499571,
+     "control": -0.21548511621885538,
      "held": false
     },
     "fissureHeight": {
      "photograph": 0.3074333038657195,
-     "correction": 0.03107708454730057,
-     "model": 0.33851174955269525,
-     "control": -0.7970292397587649,
+     "correction": 0.029177650088780205,
+     "model": 0.3366110089944452,
+     "control": -0.8586400513680195,
      "held": false
     },
     "noseWidth": {
      "photograph": 0.29918793218884165,
-     "correction": -0.0011747350961762715,
-     "model": 0.29801319827466183,
-     "control": 0.35052460673628794,
+     "correction": -0.0015270508516292969,
+     "model": 0.2976608707441411,
+     "control": 0.3320078679627067,
      "held": false
     },
     "noseHeight": {
      "photograph": 0.4534248188674899,
-     "correction": 0.035680830979456124,
-     "model": 0.48124909064009425,
+     "correction": 0.037913413239183624,
+     "model": 0.48423103710713933,
      "control": 1,
      "held": true
     },
     "mouthWidth": {
      "photograph": 0.40405077679667323,
-     "correction": -0.023650624859149982,
-     "model": 0.3804001532657172,
-     "control": -0.20548841680284996,
+     "correction": -0.025012383374317715,
+     "model": 0.379038380008812,
+     "control": -0.21591212706148596,
      "held": false
     },
     "upperVermilion": {
      "photograph": 0.07784587644599189,
-     "correction": -0.0005993998195697181,
-     "model": 0.09553255165030246,
-     "control": -1,
-     "held": true
+     "correction": -0.0012319941933079531,
+     "model": 0.07661388467573182,
+     "control": -0.9233197337080813,
+     "held": false
     },
     "lowerVermilion": {
      "photograph": 0.14628103380910612,
-     "correction": -0.0011614838138093442,
-     "model": 0.14511954960041334,
-     "control": -0.2932620379808715,
+     "correction": -0.00036811286681801003,
+     "model": 0.1459129201204558,
+     "control": -0.30065288936712015,
      "held": false
     },
     "upperLip": {
      "photograph": 0.2953143241717322,
-     "correction": -0.017218155035353955,
-     "model": 0.27809651289983905,
-     "control": -0.26095786125435594,
+     "correction": -0.018126857006781627,
+     "model": 0.2771880026039166,
+     "control": -0.22270777584284784,
      "held": false
     },
     "cornerLift": {
      "photograph": 0.0965975545790292,
-     "correction": -0.015722110022888827,
-     "model": 0.08087545227251071,
-     "control": 0.5216870469125687,
+     "correction": -0.01894030446714766,
+     "model": 0.07765724701492922,
+     "control": 0.5155314944667764,
      "held": false
     },
     "lipParting": {
      "photograph": 0.005871100940488486,
-     "correction": -0.003960266535754864,
-     "model": 0.011098341224413878,
+     "correction": -0.004856636915074361,
+     "model": 0.008767701324598339,
      "control": 0,
      "held": true
     },
     "lowerFaceWidth": {
      "photograph": 0.6873164245622664,
-     "correction": -0.03310407225285117,
-     "model": 0.6591487825998177,
+     "correction": -0.03262039256901328,
+     "model": 0.6590878994692093,
      "control": -1,
      "held": true
     },
     "chinWidth": {
      "photograph": 0.31737972384131646,
-     "correction": -0.02668669679980873,
-     "model": 0.2931241235534409,
+     "correction": -0.026366151761341383,
+     "model": 0.29277861066204275,
      "control": -1,
      "held": true
     },
     "chinHeight": {
      "photograph": 0.3100029931184936,
-     "correction": -0.009599714775517076,
-     "model": 0.3004032511183561,
-     "control": -0.4894522309024896,
+     "correction": -0.010091956046387518,
+     "model": 0.2999110309440848,
+     "control": -0.5440050918566777,
      "held": false
     },
     "browHeight": {
      "photograph": 0.6790740700508653,
-     "correction": -0.013952732908982468,
-     "model": 0.6651372405247052,
-     "control": -0.03546695663251668,
+     "correction": -0.014036961033129236,
+     "model": 0.6650376939487856,
+     "control": -0.04836906360015619,
      "held": false
     }
    },
-   "iterations": 10
+   "iterations": 9
   },
   "yoo-seung-ho": {
    "population": {
@@ -2020,118 +2020,118 @@
    "anthropometry": {
     "faceHeight": {
      "photograph": 0.8176871956229618,
-     "correction": -0.00004942681538544491,
-     "model": 0.8176376003489579,
-     "control": -0.08310149807537731,
+     "correction": 0.0022999563825598646,
+     "model": 0.8199869765060973,
+     "control": -0.07111209204064962,
      "held": false
     },
     "intercanthal": {
      "photograph": 0.25515460719174865,
-     "correction": -0.0009957667083678734,
-     "model": 0.2541588394077238,
-     "control": 0.1700912510300338,
+     "correction": 0.0011760513035127262,
+     "model": 0.2563306580062895,
+     "control": 0.19173834599950074,
      "held": false
     },
     "fissureLength": {
      "photograph": 0.18555595059828234,
-     "correction": 0.010525055130840677,
-     "model": 0.1960810046242765,
-     "control": 0.4569452830536507,
+     "correction": 0.010164003406872957,
+     "model": 0.19571995336561548,
+     "control": 0.44482692062560003,
      "held": false
     },
     "fissureHeight": {
      "photograph": 0.25808310307531684,
-     "correction": -0.0030320876663210705,
-     "model": 0.2550354804627151,
-     "control": -0.4372499395240356,
+     "correction": 0.004326687352143366,
+     "model": 0.26239877699815617,
+     "control": -0.4492575272505537,
      "held": false
     },
     "noseWidth": {
      "photograph": 0.2949481822020832,
-     "correction": 0.0011386906710078581,
-     "model": 0.2960867346006453,
-     "control": 0.13632361962083514,
+     "correction": 0.006265693699210206,
+     "model": 0.3012135728853656,
+     "control": 0.2559487344089842,
      "held": false
     },
     "noseHeight": {
      "photograph": 0.4124666603206467,
-     "correction": 0.007240348832086074,
-     "model": 0.4197086881270476,
-     "control": -0.008631093769402487,
+     "correction": 0.00872936532713553,
+     "model": 0.42119549519130967,
+     "control": -0.035956416835752916,
      "held": false
     },
     "mouthWidth": {
      "photograph": 0.37536081441771063,
-     "correction": 0.0019338125602725298,
-     "model": 0.37729461827262495,
-     "control": -0.14305819335968342,
+     "correction": -0.0026231899700990824,
+     "model": 0.37273819319255175,
+     "control": -0.03939998318381347,
      "held": false
     },
     "upperVermilion": {
      "photograph": 0.10567140315359427,
-     "correction": 0.010602387624765619,
-     "model": 0.14141418174764947,
-     "control": -1,
-     "held": true
+     "correction": -0.020043962584148214,
+     "model": 0.08562728535081601,
+     "control": -0.3906024975634541,
+     "held": false
     },
     "lowerVermilion": {
      "photograph": 0.2031245736109067,
-     "correction": -0.013083146648705413,
-     "model": 0.19004269868364915,
-     "control": -0.014675581299766644,
+     "correction": -0.012497978310278768,
+     "model": 0.19062630842388223,
+     "control": -0.05068029734012168,
      "held": false
     },
     "upperLip": {
      "photograph": 0.27479367726103965,
-     "correction": 0.021403028164673432,
-     "model": 0.29619373993279224,
-     "control": 0.383690280418575,
+     "correction": 0.019199963750161864,
+     "model": 0.29399413646567835,
+     "control": 0.43197196968800167,
      "held": false
     },
     "cornerLift": {
      "photograph": 0.07750132811035172,
-     "correction": 0.005211331403522659,
-     "model": 0.08271167328568263,
-     "control": 0.374327089649562,
+     "correction": -0.005927050542207865,
+     "model": 0.07157411521564698,
+     "control": 0.28952449196229263,
      "held": false
     },
     "lipParting": {
      "photograph": 0.1554775829201954,
-     "correction": -0.016166690876250528,
-     "model": 0.13930892088841193,
-     "control": 0.49275473357902105,
+     "correction": -0.009219079323950663,
+     "model": 0.14625828264437324,
+     "control": 0.5636857500640735,
      "held": false
     },
     "lowerFaceWidth": {
      "photograph": 0.6672690026272254,
-     "correction": -0.060398559341746094,
-     "model": 0.6422584918623118,
+     "correction": -0.05931540059022078,
+     "model": 0.6427268176197094,
      "control": -1,
      "held": true
     },
     "chinWidth": {
      "photograph": 0.32731184120130347,
-     "correction": -0.028533898960328097,
-     "model": 0.2987779360878162,
-     "control": -0.6996676725746378,
+     "correction": -0.02641838297032595,
+     "model": 0.30089329086528205,
+     "control": -0.6287876177150102,
      "held": false
     },
     "chinHeight": {
      "photograph": 0.26146591177784145,
-     "correction": -0.005483841487374241,
-     "model": 0.25643506601478855,
+     "correction": -0.006094520098672784,
+     "model": 0.25550309599284504,
      "control": -1,
      "held": true
     },
     "browHeight": {
      "photograph": 0.7053821490058071,
-     "correction": 0.01056903315872293,
-     "model": 0.7157691772051035,
-     "control": 0.01976870062045445,
+     "correction": 0.013784940877539564,
+     "model": 0.7190380657560225,
+     "control": 0.061869566123480435,
      "held": false
     }
    },
-   "iterations": 8
+   "iterations": 7
   },
   "kdy1": {
    "population": {
@@ -2157,7 +2157,7 @@
    },
    {
     "channel": "browInnerUp",
-    "weight": 0.014604508860799299,
+    "weight": 0.015440840453965514,
     "status": "transferred"
    },
    {
@@ -2187,7 +2187,7 @@
    },
    {
     "channel": "eyeBlinkLeft",
-    "weight": 0.1489595765507348,
+    "weight": 0.18563187292789116,
     "status": "transferred"
    },
    {
@@ -2197,12 +2197,12 @@
    },
    {
     "channel": "eyeLookDownLeft",
-    "weight": 0.09250683591783622,
+    "weight": 0.15180275997724665,
     "status": "transferred"
    },
    {
     "channel": "eyeLookDownRight",
-    "weight": 0.1608046812774228,
+    "weight": 0.22572395686755833,
     "status": "transferred"
    },
    {
@@ -2252,7 +2252,7 @@
    },
    {
     "channel": "eyeWideRight",
-    "weight": 0.03594476988921419,
+    "weight": 0.03433823150109012,
     "status": "transferred"
    },
    {
@@ -2267,7 +2267,7 @@
    },
    {
     "channel": "jawOpen",
-    "weight": 0.1646255014032865,
+    "weight": 0.16083831078063307,
     "status": "transferred"
    },
    {
@@ -2332,12 +2332,12 @@
    },
    {
     "channel": "mouthPucker",
-    "weight": 0.00007763477860300445,
+    "weight": 0.0001236293500498916,
     "status": "transferred"
    },
    {
     "channel": "mouthRight",
-    "weight": 0.16585866267813124,
+    "weight": 0.16356635115097082,
     "status": "transferred"
    },
    {
@@ -2357,17 +2357,17 @@
    },
    {
     "channel": "mouthShrugUpper",
-    "weight": 0.045930634851020676,
+    "weight": 0.05217872598017308,
     "status": "transferred"
    },
    {
     "channel": "mouthSmileLeft",
-    "weight": 0.47159443614372865,
+    "weight": 0.47013134272120766,
     "status": "transferred"
    },
    {
     "channel": "mouthSmileRight",
-    "weight": 0.5345526543254635,
+    "weight": 0.5262564806251758,
     "status": "transferred"
    },
    {
@@ -2377,7 +2377,7 @@
    },
    {
     "channel": "mouthStretchRight",
-    "weight": 0.27675624616375366,
+    "weight": 0.19481128156083624,
     "status": "transferred"
    },
    {
@@ -2444,12 +2444,12 @@
    },
    {
     "channel": "eyeBlinkLeft",
-    "weight": 0.22783549595749952,
+    "weight": 0.2310454926570368,
     "status": "transferred"
    },
    {
     "channel": "eyeBlinkRight",
-    "weight": 0.11537553375353357,
+    "weight": 0.10806180574449116,
     "status": "transferred"
    },
    {
@@ -2469,12 +2469,12 @@
    },
    {
     "channel": "eyeLookInRight",
-    "weight": 0.07245739473608562,
+    "weight": 0.06826130742755418,
     "status": "transferred"
    },
    {
     "channel": "eyeLookOutLeft",
-    "weight": 0.16833481626493008,
+    "weight": 0.1542513485409208,
     "status": "transferred"
    },
    {
@@ -2524,7 +2524,7 @@
    },
    {
     "channel": "jawOpen",
-    "weight": 0.03382194575302588,
+    "weight": 0.03233761562220435,
     "status": "transferred"
    },
    {
@@ -2564,7 +2564,7 @@
    },
    {
     "channel": "mouthLeft",
-    "weight": 0.1449592363725977,
+    "weight": 0.13549114117696776,
     "status": "transferred"
    },
    {
@@ -2589,7 +2589,7 @@
    },
    {
     "channel": "mouthPucker",
-    "weight": 0.003274007684629658,
+    "weight": 0.0034334649164570095,
     "status": "transferred"
    },
    {
@@ -2619,12 +2619,12 @@
    },
    {
     "channel": "mouthSmileLeft",
-    "weight": 0.742167353007345,
+    "weight": 0.6507171622632394,
     "status": "transferred"
    },
    {
     "channel": "mouthSmileRight",
-    "weight": 0.6298055441668144,
+    "weight": 0.5089658873260686,
     "status": "transferred"
    },
    {
@@ -2676,12 +2676,12 @@
    },
    {
     "channel": "browOuterUpLeft",
-    "weight": 0,
+    "weight": 0.025009665051065045,
     "status": "transferred"
    },
    {
     "channel": "browOuterUpRight",
-    "weight": 0,
+    "weight": 0.01010984841994039,
     "status": "transferred"
    },
    {
@@ -2701,12 +2701,12 @@
    },
    {
     "channel": "eyeBlinkLeft",
-    "weight": 0.1481045873050496,
+    "weight": 0.19614701324692327,
     "status": "transferred"
    },
    {
     "channel": "eyeBlinkRight",
-    "weight": 0.056579932884296316,
+    "weight": 0.06013145938489831,
     "status": "transferred"
    },
    {
@@ -2726,12 +2726,12 @@
    },
    {
     "channel": "eyeLookInRight",
-    "weight": 0.5101203696511087,
+    "weight": 0.52025857814491,
     "status": "transferred"
    },
    {
     "channel": "eyeLookOutLeft",
-    "weight": 0.41489192594997726,
+    "weight": 0.42037003025227393,
     "status": "transferred"
    },
    {
@@ -2781,7 +2781,7 @@
    },
    {
     "channel": "jawOpen",
-    "weight": 0.0018047490811440984,
+    "weight": 0.0019468248729351885,
     "status": "transferred"
    },
    {
@@ -2821,7 +2821,7 @@
    },
    {
     "channel": "mouthLeft",
-    "weight": 0.2909174772913824,
+    "weight": 0.5010648417649219,
     "status": "transferred"
    },
    {
@@ -2846,12 +2846,12 @@
    },
    {
     "channel": "mouthPucker",
-    "weight": 0.029349432460029252,
+    "weight": 0.030767311939242575,
     "status": "transferred"
    },
    {
     "channel": "mouthRight",
-    "weight": 0.0020678252932029915,
+    "weight": 0,
     "status": "transferred"
    },
    {
@@ -2876,12 +2876,12 @@
    },
    {
     "channel": "mouthSmileLeft",
-    "weight": 0.3799010969165425,
+    "weight": 0.3741970004491306,
     "status": "transferred"
    },
    {
     "channel": "mouthSmileRight",
-    "weight": 0.12814347645095697,
+    "weight": 0.11356818340000714,
     "status": "transferred"
    },
    {
@@ -2958,12 +2958,12 @@
    },
    {
     "channel": "eyeBlinkLeft",
-    "weight": 0.327116406030017,
+    "weight": 0.3192740835923399,
     "status": "transferred"
    },
    {
     "channel": "eyeBlinkRight",
-    "weight": 0.29672855649069807,
+    "weight": 0.2939648355968111,
     "status": "transferred"
    },
    {
@@ -2973,7 +2973,7 @@
    },
    {
     "channel": "eyeLookDownRight",
-    "weight": 0.029658012285134105,
+    "weight": 0.09800619821076913,
     "status": "transferred"
    },
    {
@@ -3038,7 +3038,7 @@
    },
    {
     "channel": "jawOpen",
-    "weight": 0.031781683185036824,
+    "weight": 0.03236271083695523,
     "status": "transferred"
    },
    {
@@ -3103,12 +3103,12 @@
    },
    {
     "channel": "mouthPucker",
-    "weight": 0.24296181230751865,
+    "weight": 0.2397526644762075,
     "status": "transferred"
    },
    {
     "channel": "mouthRight",
-    "weight": 0.04213951207943963,
+    "weight": 0.04121476297969208,
     "status": "transferred"
    },
    {
@@ -3133,12 +3133,12 @@
    },
    {
     "channel": "mouthSmileLeft",
-    "weight": 0.7328012678643602,
+    "weight": 0.7239782208896084,
     "status": "transferred"
    },
    {
     "channel": "mouthSmileRight",
-    "weight": 0.7432702174635838,
+    "weight": 0.732389086834287,
     "status": "transferred"
    },
    {
@@ -3148,7 +3148,7 @@
    },
    {
     "channel": "mouthStretchRight",
-    "weight": 0.2680645314059244,
+    "weight": 0.15682650911564863,
     "status": "transferred"
    },
    {
@@ -3215,12 +3215,12 @@
    },
    {
     "channel": "eyeBlinkLeft",
-    "weight": 0.22489559552050015,
+    "weight": 0.17158695180780048,
     "status": "transferred"
    },
    {
     "channel": "eyeBlinkRight",
-    "weight": 0.19949834496565164,
+    "weight": 0.21302355696936262,
     "status": "transferred"
    },
    {
@@ -3240,12 +3240,12 @@
    },
    {
     "channel": "eyeLookInRight",
-    "weight": 0.21329336441996938,
+    "weight": 0.17603268084441262,
     "status": "transferred"
    },
    {
     "channel": "eyeLookOutLeft",
-    "weight": 0.1815813273611258,
+    "weight": 0.18835578694176494,
     "status": "transferred"
    },
    {
@@ -3295,7 +3295,7 @@
    },
    {
     "channel": "jawOpen",
-    "weight": 0.03990645357682639,
+    "weight": 0.03988677812933111,
     "status": "transferred"
    },
    {
@@ -3335,7 +3335,7 @@
    },
    {
     "channel": "mouthLeft",
-    "weight": 0.11569977780847554,
+    "weight": 0.00034649630066474376,
     "status": "transferred"
    },
    {
@@ -3360,12 +3360,12 @@
    },
    {
     "channel": "mouthPucker",
-    "weight": 0.06971455489594018,
+    "weight": 0,
     "status": "transferred"
    },
    {
     "channel": "mouthRight",
-    "weight": 0,
+    "weight": 0.06366854486781372,
     "status": "transferred"
    },
    {
@@ -3390,12 +3390,12 @@
    },
    {
     "channel": "mouthSmileLeft",
-    "weight": 0.7714475569518355,
+    "weight": 0.9152739640507438,
     "status": "transferred"
    },
    {
     "channel": "mouthSmileRight",
-    "weight": 0.6569959768652741,
+    "weight": 0.7241937797418423,
     "status": "transferred"
    },
    {
@@ -3472,22 +3472,22 @@
    },
    {
     "channel": "eyeBlinkLeft",
-    "weight": 0.22375478708262259,
+    "weight": 0.25242953063519896,
     "status": "transferred"
    },
    {
     "channel": "eyeBlinkRight",
-    "weight": 0.15301868458845422,
+    "weight": 0.16299120551279306,
     "status": "transferred"
    },
    {
     "channel": "eyeLookDownLeft",
-    "weight": 0.008936324577653384,
+    "weight": 0.13439040067555322,
     "status": "transferred"
    },
    {
     "channel": "eyeLookDownRight",
-    "weight": 0.022681993300639084,
+    "weight": 0.17309387273497076,
     "status": "transferred"
    },
    {
@@ -3497,12 +3497,12 @@
    },
    {
     "channel": "eyeLookInRight",
-    "weight": 0.13681029862660476,
+    "weight": 0.15882418271664925,
     "status": "transferred"
    },
    {
     "channel": "eyeLookOutLeft",
-    "weight": 0.14290239093288531,
+    "weight": 0.14281738828173202,
     "status": "transferred"
    },
    {
@@ -3552,7 +3552,7 @@
    },
    {
     "channel": "jawOpen",
-    "weight": 0.07012143801427613,
+    "weight": 0.0661997523788362,
     "status": "transferred"
    },
    {
@@ -3592,7 +3592,7 @@
    },
    {
     "channel": "mouthLeft",
-    "weight": 0.06941801162026362,
+    "weight": 0.08934605759348803,
     "status": "transferred"
    },
    {
@@ -3617,7 +3617,7 @@
    },
    {
     "channel": "mouthPucker",
-    "weight": 0,
+    "weight": 0.015528267164027896,
     "status": "transferred"
    },
    {
@@ -3647,12 +3647,12 @@
    },
    {
     "channel": "mouthSmileLeft",
-    "weight": 0.6982172147236784,
+    "weight": 0.48763682665718266,
     "status": "transferred"
    },
    {
     "channel": "mouthSmileRight",
-    "weight": 0.6454370212772235,
+    "weight": 0.42259175123036974,
     "status": "transferred"
    },
    {
@@ -3729,12 +3729,12 @@
    },
    {
     "channel": "eyeBlinkLeft",
-    "weight": 0.28357628760638176,
+    "weight": 0.2890816222970666,
     "status": "transferred"
    },
    {
     "channel": "eyeBlinkRight",
-    "weight": 0.2575329719747791,
+    "weight": 0.24799640993406707,
     "status": "transferred"
    },
    {
@@ -3754,12 +3754,12 @@
    },
    {
     "channel": "eyeLookInRight",
-    "weight": 0,
+    "weight": 0.0014341949846975695,
     "status": "transferred"
    },
    {
     "channel": "eyeLookOutLeft",
-    "weight": 0.09214020178506342,
+    "weight": 0.09099967532472562,
     "status": "transferred"
    },
    {
@@ -3809,7 +3809,7 @@
    },
    {
     "channel": "jawOpen",
-    "weight": 0.1100135639537507,
+    "weight": 0.10853351471123936,
     "status": "transferred"
    },
    {
@@ -3849,7 +3849,7 @@
    },
    {
     "channel": "mouthLeft",
-    "weight": 0.04873954628862512,
+    "weight": 0.07430044566355955,
     "status": "transferred"
    },
    {
@@ -3874,12 +3874,12 @@
    },
    {
     "channel": "mouthPucker",
-    "weight": 0.00958360777467006,
+    "weight": 0.009884485657310463,
     "status": "transferred"
    },
    {
     "channel": "mouthRight",
-    "weight": 0.004856526055863437,
+    "weight": 0,
     "status": "transferred"
    },
    {
@@ -3904,12 +3904,12 @@
    },
    {
     "channel": "mouthSmileLeft",
-    "weight": 0.7163515282458538,
+    "weight": 0.6767986982939574,
     "status": "transferred"
    },
    {
     "channel": "mouthSmileRight",
-    "weight": 0.6298702158779054,
+    "weight": 0.5601523136051119,
     "status": "transferred"
    },
    {
@@ -3961,12 +3961,12 @@
    },
    {
     "channel": "browOuterUpLeft",
-    "weight": 0,
+    "weight": 0.12492011499855293,
     "status": "transferred"
    },
    {
     "channel": "browOuterUpRight",
-    "weight": 0.1573997564945,
+    "weight": 0.24046311387943517,
     "status": "transferred"
    },
    {
@@ -3986,12 +3986,12 @@
    },
    {
     "channel": "eyeBlinkLeft",
-    "weight": 0.10332925089437264,
+    "weight": 0.10444839381144136,
     "status": "transferred"
    },
    {
     "channel": "eyeBlinkRight",
-    "weight": 0.10894181562965242,
+    "weight": 0.10974893642541744,
     "status": "transferred"
    },
    {
@@ -4066,7 +4066,7 @@
    },
    {
     "channel": "jawOpen",
-    "weight": 0.007800340475815694,
+    "weight": 0.007773107547468979,
     "status": "transferred"
    },
    {
@@ -4106,7 +4106,7 @@
    },
    {
     "channel": "mouthLeft",
-    "weight": 0.021416893131263347,
+    "weight": 0,
     "status": "transferred"
    },
    {
@@ -4161,12 +4161,12 @@
    },
    {
     "channel": "mouthSmileLeft",
-    "weight": 0.39997409247521765,
+    "weight": 0.37457633332188683,
     "status": "transferred"
    },
    {
     "channel": "mouthSmileRight",
-    "weight": 0.2605570379622135,
+    "weight": 0.23330430924747436,
     "status": "transferred"
    },
    {
@@ -4176,7 +4176,7 @@
    },
    {
     "channel": "mouthStretchRight",
-    "weight": 0.6142104648884061,
+    "weight": 0.61593758592826,
     "status": "transferred"
    },
    {
@@ -4213,17 +4213,17 @@
    },
    {
     "channel": "browInnerUp",
-    "weight": 0.8247882956257307,
+    "weight": 0.7591631085436492,
     "status": "transferred"
    },
    {
     "channel": "browOuterUpLeft",
-    "weight": 0.26831128520935726,
+    "weight": 0.2358290384444889,
     "status": "transferred"
    },
    {
     "channel": "browOuterUpRight",
-    "weight": 0.03443265021086971,
+    "weight": 0,
     "status": "transferred"
    },
    {
@@ -4243,7 +4243,7 @@
    },
    {
     "channel": "eyeBlinkLeft",
-    "weight": 0.14683829974470358,
+    "weight": 0.08131569542974335,
     "status": "transferred"
    },
    {
@@ -4268,12 +4268,12 @@
    },
    {
     "channel": "eyeLookInRight",
-    "weight": 0.3368802842042198,
+    "weight": 0.35945772114458346,
     "status": "transferred"
    },
    {
     "channel": "eyeLookOutLeft",
-    "weight": 0.3185082589343188,
+    "weight": 0.3308206389091659,
     "status": "transferred"
    },
    {
@@ -4323,7 +4323,7 @@
    },
    {
     "channel": "jawOpen",
-    "weight": 0.0001781060124059213,
+    "weight": 0.0005656536603272205,
     "status": "transferred"
    },
    {
@@ -4363,7 +4363,7 @@
    },
    {
     "channel": "mouthLeft",
-    "weight": 0.13022251676710503,
+    "weight": 0.130450715756059,
     "status": "transferred"
    },
    {
@@ -4388,12 +4388,12 @@
    },
    {
     "channel": "mouthPucker",
-    "weight": 0.19747731602550778,
+    "weight": 0.27980247545659076,
     "status": "transferred"
    },
    {
     "channel": "mouthRight",
-    "weight": 0.08090262013426237,
+    "weight": 0.07525228350582591,
     "status": "transferred"
    },
    {
@@ -4418,12 +4418,12 @@
    },
    {
     "channel": "mouthSmileLeft",
-    "weight": 0.4324042108211209,
+    "weight": 0.4257614459059817,
     "status": "transferred"
    },
    {
     "channel": "mouthSmileRight",
-    "weight": 0.33628739212574443,
+    "weight": 0.32133359688015944,
     "status": "transferred"
    },
    {
@@ -4470,17 +4470,17 @@
    },
    {
     "channel": "browInnerUp",
-    "weight": 0.28152201645540537,
+    "weight": 0.23618663575453222,
     "status": "transferred"
    },
    {
     "channel": "browOuterUpLeft",
-    "weight": 0.06946255956301543,
+    "weight": 0.013815624106787444,
     "status": "transferred"
    },
    {
     "channel": "browOuterUpRight",
-    "weight": 0.16366311875310585,
+    "weight": 0.0897997883847743,
     "status": "transferred"
    },
    {
@@ -4500,7 +4500,7 @@
    },
    {
     "channel": "eyeBlinkLeft",
-    "weight": 0.032949563107122756,
+    "weight": 0.0240532251938409,
     "status": "transferred"
    },
    {
@@ -4515,7 +4515,7 @@
    },
    {
     "channel": "eyeLookDownRight",
-    "weight": 0,
+    "weight": 0.018068246306202383,
     "status": "transferred"
    },
    {
@@ -4525,12 +4525,12 @@
    },
    {
     "channel": "eyeLookInRight",
-    "weight": 0.015140822317166163,
+    "weight": 0.021254337677129406,
     "status": "transferred"
    },
    {
     "channel": "eyeLookOutLeft",
-    "weight": 0.10588078353004121,
+    "weight": 0.12241807835610216,
     "status": "transferred"
    },
    {
@@ -4560,12 +4560,12 @@
    },
    {
     "channel": "eyeWideLeft",
-    "weight": 0.00769867877310965,
+    "weight": 0.01822429605533858,
     "status": "transferred"
    },
    {
     "channel": "eyeWideRight",
-    "weight": 0.05038196346673317,
+    "weight": 0.06044011112616531,
     "status": "transferred"
    },
    {
@@ -4580,7 +4580,7 @@
    },
    {
     "channel": "jawOpen",
-    "weight": 0,
+    "weight": 0.00027907918668261685,
     "status": "transferred"
    },
    {
@@ -4620,7 +4620,7 @@
    },
    {
     "channel": "mouthLeft",
-    "weight": 0.25347548922322527,
+    "weight": 0.15794784730640885,
     "status": "transferred"
    },
    {
@@ -4645,12 +4645,12 @@
    },
    {
     "channel": "mouthPucker",
-    "weight": 0.038610089275941395,
+    "weight": 0.030317099846268993,
     "status": "transferred"
    },
    {
     "channel": "mouthRight",
-    "weight": 0,
+    "weight": 0.01988531332732213,
     "status": "transferred"
    },
    {
@@ -4675,12 +4675,12 @@
    },
    {
     "channel": "mouthSmileLeft",
-    "weight": 0.5122227481550928,
+    "weight": 0.473106601723916,
     "status": "transferred"
    },
    {
     "channel": "mouthSmileRight",
-    "weight": 0.4123775005150983,
+    "weight": 0.3698568787228574,
     "status": "transferred"
    },
    {
@@ -4727,17 +4727,17 @@
    },
    {
     "channel": "browInnerUp",
-    "weight": 0,
+    "weight": 0.0019679286605057368,
     "status": "transferred"
    },
    {
     "channel": "browOuterUpLeft",
-    "weight": 0.11209638340002424,
+    "weight": 0.13726128775932206,
     "status": "transferred"
    },
    {
     "channel": "browOuterUpRight",
-    "weight": 0,
+    "weight": 0.0056629160173075396,
     "status": "transferred"
    },
    {
@@ -4757,12 +4757,12 @@
    },
    {
     "channel": "eyeBlinkLeft",
-    "weight": 0.2910666986503225,
+    "weight": 0.28424138501213286,
     "status": "transferred"
    },
    {
     "channel": "eyeBlinkRight",
-    "weight": 0.1696097774956885,
+    "weight": 0.14071456863341525,
     "status": "transferred"
    },
    {
@@ -4837,7 +4837,7 @@
    },
    {
     "channel": "jawOpen",
-    "weight": 0.04544155083550971,
+    "weight": 0.04539279664089293,
     "status": "transferred"
    },
    {
@@ -4902,12 +4902,12 @@
    },
    {
     "channel": "mouthPucker",
-    "weight": 0.002032963303280611,
+    "weight": 0.002074564472292444,
     "status": "transferred"
    },
    {
     "channel": "mouthRight",
-    "weight": 0.004957218124454347,
+    "weight": 0.005232260916479911,
     "status": "transferred"
    },
    {
@@ -4932,12 +4932,12 @@
    },
    {
     "channel": "mouthSmileLeft",
-    "weight": 0.27172073926771034,
+    "weight": 0.26116236863034803,
     "status": "transferred"
    },
    {
     "channel": "mouthSmileRight",
-    "weight": 0.21558109641625137,
+    "weight": 0.1819050009005737,
     "status": "transferred"
    },
    {
@@ -4989,12 +4989,12 @@
    },
    {
     "channel": "browOuterUpLeft",
-    "weight": 0.7754880227625365,
+    "weight": 0.7777859366066422,
     "status": "transferred"
    },
    {
     "channel": "browOuterUpRight",
-    "weight": 0.4636379179130074,
+    "weight": 0.4105720315843957,
     "status": "transferred"
    },
    {
@@ -5014,12 +5014,12 @@
    },
    {
     "channel": "eyeBlinkLeft",
-    "weight": 0.23077612336866574,
+    "weight": 0.2579287804670001,
     "status": "transferred"
    },
    {
     "channel": "eyeBlinkRight",
-    "weight": 0.01364344654042864,
+    "weight": 0,
     "status": "transferred"
    },
    {
@@ -5039,12 +5039,12 @@
    },
    {
     "channel": "eyeLookInRight",
-    "weight": 0.596649587700769,
+    "weight": 0.5981428391396354,
     "status": "transferred"
    },
    {
     "channel": "eyeLookOutLeft",
-    "weight": 0.5220486623971692,
+    "weight": 0.5223797610717371,
     "status": "transferred"
    },
    {
@@ -5079,7 +5079,7 @@
    },
    {
     "channel": "eyeWideRight",
-    "weight": 0.01952092069268294,
+    "weight": 0.02127191725607126,
     "status": "transferred"
    },
    {
@@ -5159,12 +5159,12 @@
    },
    {
     "channel": "mouthPucker",
-    "weight": 0.0004556489629488832,
+    "weight": 0.0006934280751320979,
     "status": "transferred"
    },
    {
     "channel": "mouthRight",
-    "weight": 0.2354709988047107,
+    "weight": 0.23772828287181014,
     "status": "transferred"
    },
    {
@@ -5189,22 +5189,22 @@
    },
    {
     "channel": "mouthSmileLeft",
-    "weight": 0.11979835884597234,
+    "weight": 0.10376737875148109,
     "status": "transferred"
    },
    {
     "channel": "mouthSmileRight",
-    "weight": 0.09163587361506115,
+    "weight": 0.07302606487939291,
     "status": "transferred"
    },
    {
     "channel": "mouthStretchLeft",
-    "weight": 0.5041128437235665,
+    "weight": 0.49688859051141987,
     "status": "transferred"
    },
    {
     "channel": "mouthStretchRight",
-    "weight": 0.21126043531729094,
+    "weight": 0.13317610863554116,
     "status": "transferred"
    },
    {
@@ -5271,12 +5271,12 @@
    },
    {
     "channel": "eyeBlinkLeft",
-    "weight": 0.4481821930679948,
+    "weight": 0.4429047056390899,
     "status": "transferred"
    },
    {
     "channel": "eyeBlinkRight",
-    "weight": 0.24126289131823753,
+    "weight": 0.24702667873379716,
     "status": "transferred"
    },
    {
@@ -5296,12 +5296,12 @@
    },
    {
     "channel": "eyeLookInRight",
-    "weight": 0.592114876683191,
+    "weight": 0.6200706964545497,
     "status": "transferred"
    },
    {
     "channel": "eyeLookOutLeft",
-    "weight": 0.4734042402004468,
+    "weight": 0.5081896287693504,
     "status": "transferred"
    },
    {
@@ -5351,7 +5351,7 @@
    },
    {
     "channel": "jawOpen",
-    "weight": 0.20186055870302053,
+    "weight": 0.2000336394843611,
     "status": "transferred"
    },
    {
@@ -5416,12 +5416,12 @@
    },
    {
     "channel": "mouthPucker",
-    "weight": 0.002214531076255211,
+    "weight": 0.0022479919755473,
     "status": "transferred"
    },
    {
     "channel": "mouthRight",
-    "weight": 0.06504420487106025,
+    "weight": 0.06592927188952802,
     "status": "transferred"
    },
    {
@@ -5446,12 +5446,12 @@
    },
    {
     "channel": "mouthSmileLeft",
-    "weight": 0.36753580013916,
+    "weight": 0.3253136961775416,
     "status": "transferred"
    },
    {
     "channel": "mouthSmileRight",
-    "weight": 0.33169630884106993,
+    "weight": 0.2794472500136569,
     "status": "transferred"
    },
    {
@@ -5498,17 +5498,17 @@
    },
    {
     "channel": "browInnerUp",
-    "weight": 0.30731961421426657,
+    "weight": 0.3081148274385591,
     "status": "transferred"
    },
    {
     "channel": "browOuterUpLeft",
-    "weight": 0.04104553420953248,
+    "weight": 0.008672943117191004,
     "status": "transferred"
    },
    {
     "channel": "browOuterUpRight",
-    "weight": 0.056658925170906725,
+    "weight": 0.15482839449493305,
     "status": "transferred"
    },
    {
@@ -5528,12 +5528,12 @@
    },
    {
     "channel": "eyeBlinkLeft",
-    "weight": 0.06957947519971587,
+    "weight": 0.05960730005141905,
     "status": "transferred"
    },
    {
     "channel": "eyeBlinkRight",
-    "weight": 0.037413837150114766,
+    "weight": 0.034160751563455126,
     "status": "transferred"
    },
    {
@@ -5553,12 +5553,12 @@
    },
    {
     "channel": "eyeLookInRight",
-    "weight": 0.673932643321256,
+    "weight": 0.6295133162840617,
     "status": "transferred"
    },
    {
     "channel": "eyeLookOutLeft",
-    "weight": 0.602962595235637,
+    "weight": 0.5530944233893735,
     "status": "transferred"
    },
    {
@@ -5608,7 +5608,7 @@
    },
    {
     "channel": "jawOpen",
-    "weight": 0.03503007924446644,
+    "weight": 0.03488806768957317,
     "status": "transferred"
    },
    {
@@ -5673,12 +5673,12 @@
    },
    {
     "channel": "mouthPucker",
-    "weight": 0,
+    "weight": 0.043386940156057256,
     "status": "transferred"
    },
    {
     "channel": "mouthRight",
-    "weight": 0.03017639178440837,
+    "weight": 0.032704864458116455,
     "status": "transferred"
    },
    {
@@ -5703,12 +5703,12 @@
    },
    {
     "channel": "mouthSmileLeft",
-    "weight": 0.6497642966732751,
+    "weight": 0.44156785707301094,
     "status": "transferred"
    },
    {
     "channel": "mouthSmileRight",
-    "weight": 0.5779015422117283,
+    "weight": 0.38494076761202,
     "status": "transferred"
    },
    {
@@ -5785,12 +5785,12 @@
    },
    {
     "channel": "eyeBlinkLeft",
-    "weight": 0.04198252144463901,
+    "weight": 0.05557020117336336,
     "status": "transferred"
    },
    {
     "channel": "eyeBlinkRight",
-    "weight": 0.04442916757837837,
+    "weight": 0.023370701759133607,
     "status": "transferred"
    },
    {
@@ -5905,7 +5905,7 @@
    },
    {
     "channel": "mouthLeft",
-    "weight": 0.10322560893572069,
+    "weight": 0.13886913947674595,
     "status": "transferred"
    },
    {
@@ -5935,7 +5935,7 @@
    },
    {
     "channel": "mouthRight",
-    "weight": 0.006574844846751312,
+    "weight": 0,
     "status": "transferred"
    },
    {
@@ -5960,12 +5960,12 @@
    },
    {
     "channel": "mouthSmileLeft",
-    "weight": 0.3304130878249627,
+    "weight": 0.33035277313393907,
     "status": "transferred"
    },
    {
     "channel": "mouthSmileRight",
-    "weight": 0.3248918682593049,
+    "weight": 0.32481356034680675,
     "status": "transferred"
    },
    {
@@ -6012,7 +6012,7 @@
    },
    {
     "channel": "browInnerUp",
-    "weight": 0.6162347300677792,
+    "weight": 0.5967656498629155,
     "status": "transferred"
    },
    {
@@ -6022,7 +6022,7 @@
    },
    {
     "channel": "browOuterUpRight",
-    "weight": 0.01383738586096953,
+    "weight": 0.009687449719407869,
     "status": "transferred"
    },
    {
@@ -6107,7 +6107,7 @@
    },
    {
     "channel": "eyeWideRight",
-    "weight": 0.03162035680250135,
+    "weight": 0.029641629693882694,
     "status": "transferred"
    },
    {
@@ -6122,7 +6122,7 @@
    },
    {
     "channel": "jawOpen",
-    "weight": 0.0012598779234733169,
+    "weight": 0.0008603017101687394,
     "status": "transferred"
    },
    {
@@ -6162,7 +6162,7 @@
    },
    {
     "channel": "mouthLeft",
-    "weight": 0.033130602278123665,
+    "weight": 0,
     "status": "transferred"
    },
    {
@@ -6187,12 +6187,12 @@
    },
    {
     "channel": "mouthPucker",
-    "weight": 0.0016938583295594263,
+    "weight": 0.0018797437576698133,
     "status": "transferred"
    },
    {
     "channel": "mouthRight",
-    "weight": 0.010377482132035674,
+    "weight": 0.010968829385610905,
     "status": "transferred"
    },
    {
@@ -6217,12 +6217,12 @@
    },
    {
     "channel": "mouthSmileLeft",
-    "weight": 0.42597813299257903,
+    "weight": 0.3950502882617202,
     "status": "transferred"
    },
    {
     "channel": "mouthSmileRight",
-    "weight": 0.3893652587740386,
+    "weight": 0.3480238240912437,
     "status": "transferred"
    },
    {
@@ -6269,7 +6269,7 @@
    },
    {
     "channel": "browInnerUp",
-    "weight": 0,
+    "weight": 0.008083517401159352,
     "status": "transferred"
    },
    {
@@ -6299,12 +6299,12 @@
    },
    {
     "channel": "eyeBlinkLeft",
-    "weight": 0.2701493765866688,
+    "weight": 0.26512333339064637,
     "status": "transferred"
    },
    {
     "channel": "eyeBlinkRight",
-    "weight": 0.1468182668004246,
+    "weight": 0.12407943298208843,
     "status": "transferred"
    },
    {
@@ -6329,7 +6329,7 @@
    },
    {
     "channel": "eyeLookOutLeft",
-    "weight": 0,
+    "weight": 0.007134404178273369,
     "status": "transferred"
    },
    {
@@ -6379,7 +6379,7 @@
    },
    {
     "channel": "jawOpen",
-    "weight": 0.04754103204414753,
+    "weight": 0.046472665646817006,
     "status": "transferred"
    },
    {
@@ -6419,7 +6419,7 @@
    },
    {
     "channel": "mouthLeft",
-    "weight": 0.4450616479342545,
+    "weight": 0.4482324193841827,
     "status": "transferred"
    },
    {
@@ -6444,7 +6444,7 @@
    },
    {
     "channel": "mouthPucker",
-    "weight": 0,
+    "weight": 0.018239702955500606,
     "status": "transferred"
    },
    {
@@ -6469,17 +6469,17 @@
    },
    {
     "channel": "mouthShrugUpper",
-    "weight": 0,
+    "weight": 0.0009891685890968543,
     "status": "transferred"
    },
    {
     "channel": "mouthSmileLeft",
-    "weight": 0.3801984619064816,
+    "weight": 0.3774213990360282,
     "status": "transferred"
    },
    {
     "channel": "mouthSmileRight",
-    "weight": 0.2797827144816858,
+    "weight": 0.2761820369999166,
     "status": "transferred"
    },
    {
@@ -6489,7 +6489,7 @@
    },
    {
     "channel": "mouthStretchRight",
-    "weight": 0.07195761546079459,
+    "weight": 0.029126731582460753,
     "status": "transferred"
    },
    {
