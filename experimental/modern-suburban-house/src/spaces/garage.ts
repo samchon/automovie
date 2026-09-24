@@ -23,11 +23,10 @@ import { EXTERIOR_WALL_BOTTOM, GARAGE, MAIN } from "./building";
 import { PALETTE } from "./palette";
 import { MAIN_RIDGE_Z, ROOF_THICKNESS, rightRoof } from "./roof/junctions";
 import { type IHousePart, part, rect, slab, wallPanel } from "./solids";
-import { CEILING_RESERVATION, GROUND_LAYERS, STOREYS } from "./storeys";
+import { CEILING_FINISH, CEILING_RESERVATION, GROUND_LAYERS, STOREYS } from "./storeys";
 
 const OWNER = "garage.ts";
 /** Ceiling finish zone inside the 0.18 m reservation, owned by the garage interior (09). */
-const CEILING_FINISH = 0.015;
 
 /** Emit the main/garage shared wall with the laundry-garage door void. */
 export const buildGarageSharedWall = (): IHousePart[] => {

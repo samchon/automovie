@@ -34,8 +34,8 @@
  * bottom member are later model work and are not emitted.
  */
 import { PALETTE } from "./palette";
-import { type IHousePart, bar, block, part, straightWall } from "./solids";
-import { GROUND_LAYERS, INTERSTOREY_FLOOR_FINISH, STOREYS } from "./storeys";
+import { type IHousePart, bar, block, part, slab, straightWall } from "./solids";
+import { CEILING_FINISH, GROUND_LAYERS, INTERSTOREY_FLOOR_FINISH, STOREYS } from "./storeys";
 
 const OWNER = "stair.ts";
 const RISE = STOREYS.upperFloor / 18;
@@ -112,6 +112,41 @@ export const buildStair = (): IHousePart[] => {
     part("stair-handrail-upper", OWNER, "guard", PALETTE.stairWood, bar({ x: -0.65, y: railTop(landingTop), z: zFront }, { x: 1.87, y: railTop(STOREYS.upperFloor), z: zFront }, RESERVE)),
     part("stair-post-lower-start", OWNER, "guard", PALETTE.railing, block([-0.65 - RESERVE, RISE, -1.45 - RESERVE], [-0.65, RISE + HANDRAIL, -1.45])),
     part("stair-post-landing-corner", OWNER, "guard", PALETTE.railing, block([-0.65 - RESERVE, landingTop, -3.41 - RESERVE], [-0.65, landingTop + HANDRAIL, -3.41])),
+  );
+  // stair-floor-opening, 08 interstorey-edge-junctions: the interstorey structure stops
+  // 0.015 m short of the finished opening; this owner closes that band with the
+  // opening's vertical finish from the ground ceiling up to the upper floor, and
+  // closes the stair hall top, the open guard band Z = [-4.71, -4.56] included, with
+  // its own ceiling finish (09 upper-ceiling-closure).
+  const edgeBottom = STOREYS.groundCeiling;
+  const edgeTop = STOREYS.upperFloor;
+  const e = CEILING_FINISH;
+  const edge = (id: string, x: readonly [number, number], z: readonly [number, number]): IHousePart =>
+    part(id, OWNER, "floor", PALETTE.interiorWall, block([x[0], edgeBottom, z[0]], [x[1], edgeTop, z[1]]));
+  parts.push(
+    edge("stair-opening-edge-east", [-0.65, -0.65 + e], [-3.41 + e, -0.25]),
+    edge("stair-opening-edge-front", [-0.65, 1.87 + e], [-3.41, -3.41 + e]),
+    edge("stair-opening-edge-arrival", [1.87, 1.87 + e], [-4.56 - e, -3.41]),
+    edge("stair-opening-edge-back", [-1.8 - e, 1.87], [-4.56 - e, -4.56]),
+    edge("stair-opening-edge-west", [-1.8 - e, -1.8], [-4.56, -0.25]),
+    part(
+      "stair-hall-ceiling",
+      OWNER,
+      "ceiling",
+      PALETTE.ceiling,
+      slab({
+        outline: [
+          { x: -1.8, z: -4.71 },
+          { x: 1.87, z: -4.71 },
+          { x: 1.87, z: -3.41 },
+          { x: -0.65, z: -3.41 },
+          { x: -0.65, z: -0.25 },
+          { x: -1.8, z: -0.25 },
+        ],
+        bottom: STOREYS.upperCeiling,
+        top: STOREYS.upperCeiling + CEILING_FINISH,
+      }),
+    ),
   );
   return parts;
 };

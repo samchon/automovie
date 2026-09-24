@@ -59,7 +59,16 @@ export const buildEntry = (): IRoomBuild => ({
   storages: [{ id: "entry-coat-storage", x: [1.1, 1.87], y: [STOREYS.groundFloor, COAT_TOP], z: [-4.56, -3.51] }],
   parts: [
     roomFloor(ENTRY),
-    roomCeiling(ENTRY),
+    // Over X = [-1.80, -0.65], Z = [-1.45, -0.25] the stair opening runs on to the
+    // front wall (02 stair-floor-opening): the entry ceiling stops at its edge.
+    roomCeiling(ENTRY, [
+      { x: -0.65, z: -0.25 },
+      { x: 2.02, z: -0.25 },
+      { x: 2.02, z: -3.41 },
+      { x: -0.5, z: -3.41 },
+      { x: -0.5, z: -1.45 },
+      { x: -0.65, z: -1.45 },
+    ]),
     doorFloor(ENTRY, "entry-living-door", [-1.875, -1.8], [-1.35, -0.35]),
     part("entry-coat-back", ENTRY.owner, "partition", PALETTE.interiorWall, block([1.03, BASE, -4.56], [1.1, COAT_TOP, -3.41])),
     part("entry-coat-side", ENTRY.owner, "partition", PALETTE.interiorWall, block([1.1, BASE, -3.51], [1.87, COAT_TOP, -3.41])),

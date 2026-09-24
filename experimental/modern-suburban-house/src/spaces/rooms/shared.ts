@@ -139,9 +139,9 @@ export const doorFloor = (room: IRoomSpace, doorId: string, x: readonly [number,
  * storey's finished ceiling, under the interstorey structure (ground) or the
  * upper ceiling base (upper).
  */
-export const roomCeiling = (room: IRoomSpace): IHousePart => {
+export const roomCeiling = (room: IRoomSpace, outline: readonly IPlanPoint[] = room.outline): IHousePart => {
   const [, bottom] = roomLevels(room);
-  return part(`${room.id}-ceiling`, room.owner, "ceiling", PALETTE.ceiling, slab({ outline: room.outline, bottom, top: bottom + CEILING_FINISH }));
+  return part(`${room.id}-ceiling`, room.owner, "ceiling", PALETTE.ceiling, slab({ outline, bottom, top: bottom + CEILING_FINISH }));
 };
 
 /** Height range of a full-height partition on a storey: finished floor to finished ceiling. */

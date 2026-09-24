@@ -328,14 +328,14 @@ const length = (route: readonly IAutoMovieVector3[], upTo: number): number => {
  */
 const exteriorConnectors = (house: IHouse): IAutoMovieBuiltConnector[] => {
   const ids = (owner: string, prefix: string): string[] => house.parts.filter((p) => p.owner === owner && p.id.startsWith(prefix)).map((p) => p.id);
-  const passage = (id: string, from: string, to: string, route: IAutoMovieVector3[], elements: string[], kind: "passage" | "stair" = "passage"): IAutoMovieBuiltConnector => ({
+  const passage = (id: string, from: string, to: string, route: IAutoMovieVector3[], elements: string[], kind: "passage" | "stair" = "passage", width = kind === "stair" ? 1.5 : 1.2): IAutoMovieBuiltConnector => ({
     id,
     kind,
     from,
     to,
     bidirectional: true,
     route,
-    width: kind === "stair" ? 1.5 : 1.2,
+    width,
     clearHeight: ZONE_HEAD_CLEARANCE,
     elements,
   });
@@ -344,7 +344,7 @@ const exteriorConnectors = (house: IHouse): IAutoMovieBuiltConnector[] => {
     passage("front-walk-connector", "driveway", "front-walk", [{ x: 6.5, y: driveTop(4.85), z: 4.85 }, { x: 1.65, y: -0.45, z: 4.85 }, { x: 1.2, y: -0.45, z: 4.85 }], ids("site/front-walk.ts", "front-walk-connector")),
     passage("garden-steps", "garden-terrace", "garden-lower-landing", [{ x: 0, y: 0, z: -13.9 }, { x: 0, y: 0, z: -14.4 }, { x: 0, y: -0.45, z: -15 }, { x: 0, y: -0.45, z: -15.6 }], ids("site/terrace.ts", "garden-step-"), "stair"),
     passage("side-front-path", "driveway", "side-front-access", [{ x: 10.8, y: driveTop(5.7), z: 5.7 }, { x: 12.9, y: -0.45, z: 5.7 }, { x: 12.9, y: -0.45, z: 0.55 }], ids("site/side-walk.ts", "side-walk")),
-    passage("side-yard-gate-passage", "side-front-access", "side-rear-access", [{ x: 12.9, y: -0.45, z: 0.55 }, { x: 12.9, y: -0.45, z: -0.3 }, { x: 12.9, y: -0.45, z: -2.35 }], ["side-yard-gate-leaf"]),
+    passage("side-yard-gate-passage", "side-front-access", "side-rear-access", [{ x: 12.9, y: -0.45, z: 0.55 }, { x: 12.9, y: -0.45, z: -0.3 }, { x: 12.9, y: -0.45, z: -2.35 }], ["side-yard-gate-leaf"], "passage", 1.05),
     passage("side-rear-path", "side-rear-access", "garden-lower-landing", [{ x: 12.9, y: -0.45, z: -2.35 }, { x: 12.9, y: -0.45, z: -16.8 }, { x: 0, y: -0.45, z: -16.8 }, { x: 0, y: -0.45, z: -15.6 }], ids("site/side-walk.ts", "side-walk")),
   ];
 };
@@ -405,7 +405,8 @@ export const buildHouseEnvironment = (house: IHouse = buildHouse()): IAutoMovieB
     spaces.push({
       id: zone.id,
       kind: "exterior",
-      parent: "house-site",
+      // Every exterior zone of the route table sits on the ground storey (05, site-access-interface).
+      parent: "ground-storey",
       cells: rectangles(zone.owner, zone.outline).map((r, i) => cell(`${zone.id}/${i}`, { x: r.x, y, z: r.z })),
     });
     surfaces.push({
