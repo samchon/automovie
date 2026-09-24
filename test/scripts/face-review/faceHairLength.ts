@@ -1,6 +1,7 @@
 /**
- * How far a head's hair falls, read the same way on a photograph and on a
- * model under that photograph's camera.
+ * How far a head's hair falls and how much of the forehead it covers, read
+ * the same way on a photograph and on a model under that photograph's
+ * camera.
  *
  * The index is the image-space drop from the chin (menton, landmark 152) to
  * the lowest hair, in inter-ocular units (exocanthion to exocanthion, 33 and
@@ -88,4 +89,39 @@ export function faceHairLowestRow(mask: IFaceHairMask): number | null {
     for (let x = 0; x < mask.width; ++x)
       if (mask.data[y * mask.width + x] !== 0) return y;
   return null;
+}
+
+/**
+ * The share of the forehead the hair covers: the rectangle from the top of
+ * the forehead (landmark 10) down to the higher upper lid (159, 386) and
+ * between the lateral eye corners (33, 263), the region a fringe falls
+ * over, or null when it has no pixel.
+ */
+export function faceHairFringeCoverage(props: {
+  mask: IFaceHairMask;
+  top: readonly [number, number];
+  eyes: readonly [readonly [number, number], readonly [number, number]];
+  lids: readonly [readonly [number, number], readonly [number, number]];
+}): number | null {
+  const x0 = Math.max(
+    0,
+    Math.ceil(Math.min(props.eyes[0][0], props.eyes[1][0])),
+  );
+  const x1 = Math.min(
+    props.mask.width,
+    Math.floor(Math.max(props.eyes[0][0], props.eyes[1][0])),
+  );
+  const y0 = Math.max(0, Math.ceil(props.top[1]));
+  const y1 = Math.min(
+    props.mask.height,
+    Math.floor(Math.min(props.lids[0][1], props.lids[1][1])),
+  );
+  let covered = 0;
+  let total = 0;
+  for (let y = y0; y < y1; ++y)
+    for (let x = x0; x < x1; ++x) {
+      ++total;
+      if (props.mask.data[y * props.mask.width + x] !== 0) ++covered;
+    }
+  return total === 0 ? null : covered / total;
 }
