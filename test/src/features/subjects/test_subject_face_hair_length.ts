@@ -5,6 +5,7 @@ import {
   faceHairFringeCoverage,
   faceHairHeadMask,
   faceHairLowestRow,
+  faceHairShoulderDrop,
 } from "../../../scripts/face-review/faceHairLength";
 import { faceHairVisibleMask } from "../../../scripts/face-review/faceHairView";
 import { faceShapeFitView } from "../../../scripts/face-review/faceShapeFitCamera";
@@ -124,4 +125,23 @@ export const test_subject_face_hair_length = (): void => {
       slack: 0.001,
     }).data.reduce((sum, one) => sum + one, 0);
   TestValidator.predicate("visible", count(0.01) > 0 && count(-0.01) === 0);
+  const norms = {
+    male: { acromion: { subjects: 3, mean: 80 } },
+    female: { acromion: { subjects: 1, mean: 70 } },
+  };
+  TestValidator.predicate(
+    "shoulder",
+    nclose(faceHairShoulderDrop(norms, "male"), 0.08, 1e-12) &&
+      nclose(faceHairShoulderDrop(norms, "female"), 0.07, 1e-12) &&
+      nclose(faceHairShoulderDrop(norms, null), 0.0775, 1e-12) &&
+      throwsError(() =>
+        faceHairShoulderDrop(
+          {
+            male: { acromion: { subjects: 0, mean: 80 } },
+            female: { acromion: { subjects: 0, mean: 70 } },
+          },
+          null,
+        ),
+      ),
+  );
 };

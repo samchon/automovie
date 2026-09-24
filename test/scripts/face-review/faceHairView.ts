@@ -87,9 +87,10 @@ export function faceHairVisibleMask(props: {
 
 /**
  * One document's model as a hair index reads it under a photograph's
- * camera: the hair the camera sees (`faceHairVisibleMask`), the skin's own
- * lowest row (where the model's neck ends), and each anchored landmark's
- * projection.
+ * camera: the hair the camera sees (`faceHairVisibleMask`), each anchored
+ * landmark's projection, and the metric distance between two anchored
+ * landmarks (`span`, the lateral eye corners for the hair indices), which
+ * turns a millimetre norm into the indices' inter-ocular units.
  */
 export function observeFaceHairModel(props: {
   basis: IAutoMovieHumanFaceBasis;
@@ -97,24 +98,18 @@ export function observeFaceHairModel(props: {
   document: IAutoMovieHumanFaceBasisDocument;
   view: IFaceShapeFitView;
   anchors: Readonly<Record<number, IFaceShapeFitAnchor>>;
+  span: readonly [number, number];
 }): {
   hair: { width: number; height: number; data: Uint8Array };
-  neck: number;
   landmarks: Record<number, [number, number]>;
+  span: number;
 } {
   const model = props.build(props.document);
   const skin = faceShapeFitSurfacePositions(props.basis, model, "Human");
   const human = props.basis.surfaces.find((one) => one.id === "Human")!;
-  let neck = -Infinity;
-  for (let i = 0; i < skin.length; i += 3)
-    neck = Math.max(
-      neck,
-      faceShapeFitProject(props.view, [
-        skin[i]!,
-        skin[i + 1]!,
-        skin[i + 2]!,
-      ])[1],
-    );
+  const [a, b] = props.span.map((k) =>
+    faceShapeFitAnchorPoint(skin, props.anchors[k]!),
+  );
   return {
     hair: faceHairVisibleMask({
       view: props.view,
@@ -131,12 +126,12 @@ export function observeFaceHairModel(props: {
       ),
       slack: 0.001,
     }),
-    neck,
     landmarks: Object.fromEntries(
       Object.entries(props.anchors).map(([landmark, anchor]) => [
         landmark,
         faceShapeFitProject(props.view, faceShapeFitAnchorPoint(skin, anchor)),
       ]),
     ),
+    span: Math.hypot(...[0, 1, 2].map((k) => a![k]! - b![k]!)),
   };
 }

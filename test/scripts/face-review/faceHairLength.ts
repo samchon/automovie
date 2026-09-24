@@ -125,3 +125,33 @@ export function faceHairFringeCoverage(props: {
     }
   return total === 0 ? null : covered / total;
 }
+
+/** Chin-to-shoulder norms by sex (`population/shoulder-drop-norms.json`). */
+export interface IFaceHairShoulderNorms {
+  male: { acromion: { subjects: number; mean: number } };
+  female: { acromion: { subjects: number; mean: number } };
+}
+
+/**
+ * How far below menton the shoulder (acromion) sits for a recorded sex, in
+ * metres: the survey's mean for that sex, or for an unrecorded sex the mean
+ * over both samples weighted by their subjects. Hair a photograph shows
+ * falling further than this lies on the shoulders.
+ */
+export function faceHairShoulderDrop(
+  norms: IFaceHairShoulderNorms,
+  sex: "female" | "male" | null,
+): number {
+  const groups = sex === null ? [norms.male, norms.female] : [norms[sex]];
+  const subjects = groups.reduce((sum, one) => sum + one.acromion.subjects, 0);
+  if (!(subjects > 0))
+    throw new Error("The shoulder norms need a sample with subjects.");
+  return (
+    groups.reduce(
+      (sum, one) => sum + one.acromion.subjects * one.acromion.mean,
+      0,
+    ) /
+    subjects /
+    1000
+  );
+}

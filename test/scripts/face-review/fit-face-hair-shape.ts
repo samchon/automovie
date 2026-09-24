@@ -3,12 +3,14 @@
  * the hair falls and how much of the forehead it covers. Run from the test
  * package:
  *
- *   ttsx -P tsconfig.scripts.json --no-plugins scripts/face-review/fit-face-hair-shape.ts STUDY DETECTIONS_DIR POSES ANCHORS OUTPUT
+ *   ttsx -P tsconfig.scripts.json --no-plugins scripts/face-review/fit-face-hair-shape.ts STUDY DETECTIONS_DIR POSES ANCHORS FACTS SHOULDERS OUTPUT
  *
  * STUDY holds `basis.json.gz` and `subjects.json`; DETECTIONS_DIR is a
  * `detect-face-likeness.py` output over the photographs (ids
  * `photo:<subject>`, with their hair masks); POSES and ANCHORS are the
- * published portrait cameras and landmark anchors. Two indices are read on
+ * published portrait cameras and landmark anchors; FACTS the recorded subject
+ * facts and SHOULDERS `population/shoulder-drop-norms.json`
+ * (`derive-shoulder-drop-norms.py`). Two indices are read on
  * the photograph from its head hair (`faceHairHeadMask`, components reaching
  * above the brows, so a collar or a beard does not count) and on the
  * document's built model under the same camera from the hair the camera
@@ -25,8 +27,10 @@
  * factor is solved by a secant iteration from 1 inside [0.2, 3], the index
  * being monotone in length but not linear (the hair drapes and curls), drop
  * first. An index the photograph cannot give keeps its lengths: hair cut by
- * the frame, hair falling below where the model's neck ends (onto shoulders
- * a head model does not have), a photograph without the landmarks; so does
+ * the frame, hair falling further below the chin than the shoulders sit
+ * (ANSUR II: the acromion 79.1 mm below menton in men, 71.3 mm in women, in
+ * the model's own inter-ocular units), where it lies on shoulders a head
+ * model does not have, a photograph without the landmarks; so does
  * one its control cannot reach within its tolerance inside its range (short
  * hair whose end the hairline or curl sets, a style whose front roots comb
  * back). A document without hair and a subject without a photograph keep
@@ -43,10 +47,12 @@ import path from "node:path";
 import { gunzipSync } from "node:zlib";
 
 import {
+  type IFaceHairShoulderNorms,
   faceHairDropIndex,
   faceHairFringeCoverage,
   faceHairHeadMask,
   faceHairLowestRow,
+  faceHairShoulderDrop,
 } from "./faceHairLength";
 import { observeFaceHairModel } from "./faceHairView";
 import {
@@ -57,11 +63,23 @@ import {
 import { faceShapeFitView } from "./faceShapeFitCamera";
 import type { IFaceShapeFitAnchor } from "./faceShapeFitSurface";
 
-const [study, directory, poseFile, anchorFile, output] = process.argv.slice(2);
+const [
+  study,
+  directory,
+  poseFile,
+  anchorFile,
+  factsFile,
+  shoulderFile,
+  output,
+] = process.argv.slice(2);
 if (output === undefined || fs.existsSync(output))
   throw new Error(
-    "Supply STUDY DETECTIONS_DIR POSES ANCHORS and a new OUTPUT directory.",
+    "Supply STUDY DETECTIONS_DIR POSES ANCHORS FACTS SHOULDERS and a new OUTPUT directory.",
   );
+const facts = readFaceLikenessJson<{
+  subjects: Record<string, { sex: "female" | "male" | null }>;
+}>(factsFile!).subjects;
+const shoulders = readFaceLikenessJson<IFaceHairShoulderNorms>(shoulderFile!);
 const basis = JSON.parse(
   gunzipSync(fs.readFileSync(path.join(study!, "basis.json.gz"))).toString(
     "utf8",
@@ -177,16 +195,14 @@ const derived = documents.map((original) => {
       document,
       view: camera,
       anchors: anchored as Record<number, IFaceShapeFitAnchor>,
+      span: [33, 263],
     });
     const at = (k: number) => seen.landmarks[k]!;
     return {
       ...indices(seen.hair, at, false),
-      neck: faceHairDropIndex({
-        chin: at(152),
-        eyes: [at(33), at(263)],
-        lowest: seen.neck,
-        clipped: false,
-      })!,
+      shoulder:
+        faceHairShoulderDrop(shoulders, facts[subject]?.sex ?? null) /
+        seen.span,
     };
   };
   record[subject] = {};
@@ -199,11 +215,11 @@ const derived = documents.map((original) => {
       record[subject]![name] = "unchanged: the photograph gives no index";
       continue;
     }
-    if (name === "drop" && goal > start.neck) {
+    if (name === "drop" && goal > start.shoulder) {
       record[subject]![name] = {
         photograph: goal,
-        neck: start.neck,
-        result: "unchanged: the photograph's hair falls below the model's neck",
+        shoulder: start.shoulder,
+        result: "unchanged: the photograph's hair falls onto the shoulders",
       };
       continue;
     }
