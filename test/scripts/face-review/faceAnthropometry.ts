@@ -32,9 +32,10 @@
  * labii inferioris, `mouthLowerDown`), and a posed smile moves both: the
  * upper lip's lower edge rises 4.76 mm and the lower lip's upper edge falls
  * 3.28 mm, from a 1.8 mm to a 10.5 mm gap (Banditsaowapak and Cheng, J Dent
- * Sci 2025;20:2219-2230). So the gap's control sets both pairs together;
- * at full weight the source's pairs part the basis's seam from 0.9 to about
- * 9.8 mm, the posed-smile gap. The detector's own scores for these units
+ * Sci 2025;20:2219-2230). So the gap's control sets both pairs together, the
+ * depressor in that ratio to the raiser
+ * (`FACE_ANTHROPOMETRY_LIP_DEPRESSOR_GAIN`); at full weight the source's
+ * pairs part the basis's seam from 0.9 to about 9.2 mm. The detector's own scores for these units
  * span less on the basis than the photographs spread
  * (`faceExpressionObservable`), so the lips' landmarks carry them instead.
  * The smile is read the same way, `cornerLift`, the mouth corners' rise
@@ -68,6 +69,11 @@ export interface IFaceAnthropometryIndex {
   /** Channels set together as one control. */
   channels: readonly string[];
   /**
+   * Each channel's share of the control, aligned with `channels`; absent,
+   * every channel takes the control's value.
+   */
+  gains?: readonly number[];
+  /**
    * The channels are expression channels: the index reads a state of the
    * face, not its form, so the control is written as expression.
    */
@@ -78,6 +84,16 @@ export interface IFaceAnthropometryIndex {
 export const FACE_ANTHROPOMETRY_MIDLINE = [
   9, 168, 6, 2, 0, 13, 14, 17, 152, 199,
 ] as const;
+
+/**
+ * The lower lip depressor's share of the lip parting control: a posed smile
+ * lowers the lower lip's upper edge 3.28 mm while the upper lip's lower edge
+ * rises 4.76 mm (Banditsaowapak and Cheng 2025), a ratio of 0.689, and at
+ * full weight the source's depressor lowers the seam 4.0 mm and its raiser
+ * lifts it 4.9 mm, so the depressor takes 0.689 x 4.9 / 4.0 of the control.
+ */
+export const FACE_ANTHROPOMETRY_LIP_DEPRESSOR_GAIN =
+  (3.28 / 4.76) * (4.9 / 4.0);
 
 /** The indices, in solve order, with their paired controls. */
 export const FACE_ANTHROPOMETRY_INDICES: readonly IFaceAnthropometryIndex[] = [
@@ -146,6 +162,12 @@ export const FACE_ANTHROPOMETRY_INDICES: readonly IFaceAnthropometryIndex[] = [
       "mouthUpperUpRight",
       "mouthLowerDownLeft",
       "mouthLowerDownRight",
+    ],
+    gains: [
+      1,
+      1,
+      FACE_ANTHROPOMETRY_LIP_DEPRESSOR_GAIN,
+      FACE_ANTHROPOMETRY_LIP_DEPRESSOR_GAIN,
     ],
     expression: true,
   },

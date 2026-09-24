@@ -267,10 +267,20 @@ if (command === "identity") {
               (sum, index, k) =>
                 sum +
                 index.channels.reduce(
-                  (inner, channel) =>
+                  (inner, channel, c) =>
                     inner +
-                    contribution(channel, values[k]!, n, axis) -
-                    contribution(channel, initial[k]!, n, axis),
+                    contribution(
+                      channel,
+                      values[k]! * (index.gains?.[c] ?? 1),
+                      n,
+                      axis,
+                    ) -
+                    contribution(
+                      channel,
+                      initial[k]! * (index.gains?.[c] ?? 1),
+                      n,
+                      axis,
+                    ),
                   0,
                 ),
               0,
@@ -324,11 +334,14 @@ if (command === "identity") {
     const shape = { ...start.shape };
     const posed = { ...start.expression };
     FACE_ANTHROPOMETRY_INDICES.forEach((one, k) => {
-      const value = Number(solution.values[k]!.toFixed(5));
-      for (const channel of one.channels)
+      one.channels.forEach((channel, c) => {
+        const value = Number(
+          (solution.values[k]! * (one.gains?.[c] ?? 1)).toFixed(5),
+        );
         if (!one.expression) shape[channel] = value;
         else if (value !== 0) posed[channel] = value;
         else delete posed[channel];
+      });
     });
     report[subject] = {
       population,

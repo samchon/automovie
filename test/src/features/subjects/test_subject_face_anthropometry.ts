@@ -2,6 +2,7 @@ import { TestValidator } from "@nestia/e2e";
 
 import {
   FACE_ANTHROPOMETRY_INDICES,
+  FACE_ANTHROPOMETRY_LIP_DEPRESSOR_GAIN,
   type FaceAnthropometryPoint,
   faceAnthropometryFrame,
   measureFaceAnthropometry,
@@ -47,7 +48,9 @@ const face = (): FaceAnthropometryPoint[] => {
  *    to each lip's own inner edge, and the gap between them), every index
  *    names at least one channel, and only the lip gap's and the corner
  *    lift's are expression (the synthetic corners sit level with the lip
- *    centre, a lift of zero).
+ *    centre, a lift of zero); gains, where given, align with the channels,
+ *    and the lip depressor's is the posed-smile ratio 3.28 / 4.76 scaled by
+ *    the source units' 4.9 / 4.0 mm.
  * 2. The indices are invariant to rotating, scaling and moving the image:
  *    the face frame turns the midline vertical with the chin below the
  *    brow, even for an image turned upside down, so a raised corner reads a
@@ -86,8 +89,10 @@ export const test_subject_face_anthropometry = (): void => {
           one.channels.length > 0 &&
           one.id in m &&
           (one.expression === true) ===
-            (one.id === "lipParting" || one.id === "cornerLift"),
-      ),
+            (one.id === "lipParting" || one.id === "cornerLift") &&
+          (one.gains === undefined || one.gains.length === one.channels.length),
+      ) &&
+      nclose(FACE_ANTHROPOMETRY_LIP_DEPRESSOR_GAIN, 0.8441, 1e-4),
   );
   const angle = 0.3;
   const moved = points.map((p) =>
