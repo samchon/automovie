@@ -5,7 +5,7 @@ import { upper } from "../house/storeys/upper";
 import { stair } from "../house/circulation/stair";
 /** Realize the clear cells, shared boundaries, floors and one stair together.
  * @evidence spaces/002-spatial-graph.md 이 함수는 topology·두 storey·단일 stair를 조립하여 002의 매스, 방 경계, 문과 계단을 실물과 native graph로 함께 반환한다.
- * @evidenceReview spaces/002-spatial-graph.md #e2c31eb structure()는 topology·ground·upper·stair를 한 번씩 호출해 매스 datum, 방·벽·문턱, 기초·slab·단일 계단을 만든다. 변경된 현관 H2의 우편·충전 선반은 건축 구멍이 없는 임시 물체이며 이 조립 함수는 그 형상이나 배치를 만들지 않는다.
+ * @evidenceReview spaces/002-spatial-graph.md #6f5db52 structure()는 topology·ground·upper·stair를 한 번씩 호출해 매스 datum, 방·벽·문턱, 기초·slab·단일 계단을 만든다. 현관 선반과 상층 욕실의 임시 샤워 기구는 별도 방 source에서 나오며 이 조립 함수는 그 형상이나 최종 선택·배치를 승인하지 않는다.
  * @evidence principles/core/source-units.md#source-scope-preservation plan의 clear cell과 datum으로만 shared wall을 도출하고 002가 금지한 별도 복도·계단·보이드를 추가하지 않는다. 바닥·천장·partition은 각 층의 파일이 소유한다.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 structure()는 topology·ground·upper·stair만 호출해 clear cell, 공유 벽, 두 층의 바닥·천장과 단일 계단을 조립한다. 외피와 방의 임시 fit-out은 별도 호출 경로에 있으며 이 함수가 물체 형상이나 배치를 소유하지 않는다.
  * @evidence principles/core/source-units.md#source-substantive-completion topology는 실제 convex cells, partitions는 공개 wall kernel로 절삭한 solid와 opening operation, stair는 18개 tread 및 참을 만든다. 위임 대상은 모두 현재 호출되는 구체 함수이며 빈 source wrapper가 아니다.
@@ -23,11 +23,11 @@ import { stair } from "../house/circulation/stair";
  * @evidence spaces/002-spatial-graph.md#ground-partition 다섯 room의 clear cell에서 마주보는 face segment를 찾아 공유 벽을 생성한다. 현관–작업실·powder·공용부와 공용부–수납 연결은 해당 portals에만 존재한다.
  * @evidenceReview spaces/002-spatial-graph.md#ground-partition #5445973 1층 방의 대향 clear face에서 shared wall을 산출하여 수납·위생실 사이 잔여 틈을 임의의 복도로 만들지 않는다.
  * @evidence spaces/002-spatial-graph.md#entry entry는 x=-2.84..2.84,z=-5.76..-0.32 cell이며 계단 동측 보행대와 네 직접 출입 관계를 가진다. 별도 현관 corridor를 생성하지 않는다.
- * @evidenceReview spaces/002-spatial-graph.md#entry #796fef7 현관 room의 계단 동측 보행 띠와 세 목적지 개구는 topology·stair 조립에 남는다. 평벽 부착 충전 선반은 room source의 임시 물체 메시이며 structure()는 이를 위해 벽을 절삭하거나 niche lining을 만들지 않는다.
+ * @evidenceReview spaces/002-spatial-graph.md#entry #796fef7 topology()가 현관 cell을 등록하고 stair()가 계단 동측 보행 띠를 만든다. 세 실내 목적지의 개구는 ground()가 호출한 partitions()의 doorway()가 host 벽을 절삭해 만들며 structure()는 이 경로를 조립한다. 평벽 충전 선반은 별도 room source의 임시 물체여서 여기서 niche를 절삭하지 않는다.
  * @evidence spaces/002-spatial-graph.md#flex-workroom flex-workroom은 x=3.02..5.26의 하층 전면 cell이고 entry-flex로만 진입한다. 실제 pocket leaf는 -Z로 이동한다.
  * @evidenceReview spaces/002-spatial-graph.md#flex-workroom #4b08fbc flex는 전면 동측의 2.24m 폭 cell과 entry 출입으로 생성되며 common 쪽 폐쇄 벽을 지름길로 사용하지 않는다.
  * @evidence spaces/002-spatial-graph.md#common-room common-room은 z=-0.14..5.76의 연속 cell 하나다. 거실·식당·주방 사이에 partition이나 추가 문을 만들지 않는다.
- * @evidenceReview spaces/002-spatial-graph.md#common-room #b06ac33 후면 common의 거실·식당·주방을 한 room과 연속 바닥으로 조립하여 가구 배치가 추가 분할 벽을 만들지 않는다.
+ * @evidenceReview spaces/002-spatial-graph.md#common-room #b06ac33 topology()는 후면 common cell 하나를 등록하고 ground()는 거실·식당·주방 사이에 새 partition 없이 연속 바닥을 만든다. 이 조립은 가구의 형상·배치를 만들거나 승인하지 않는다.
  * @evidence spaces/002-spatial-graph.md#powder-utility powder-utility는 -X 전면 코어의 x=-5.26..-3.02,z=-5.76..-2.24 cell이다. entry-powder가 유일한 통행 연결이다.
  * @evidenceReview spaces/002-spatial-graph.md#powder-utility #212302a topology와 ground가 -X 전면 cell, 경계벽, 현관 쪽 문을 만든다. 세면대와 변기 등 기구는 buildHouse()의 별도 powder() 호출에서 나오는 이관 전 임시 메시이므로 structure()가 그 형상이나 배치를 조립한다는 승인으로 읽지 않는다.
  * @evidence spaces/002-spatial-graph.md#storage-1f storage-1f는 powder 뒤 z=-2.06..-0.32 cell이며 공용부에만 문이 있다. 현관과 powder의 인접 벽은 닫는다.
@@ -59,7 +59,7 @@ import { stair } from "../house/circulation/stair";
  * @evidence spaces/002-spatial-graph.md#child-bedroom-2 x=0.30..5.26,z=-0.14..2.40의 작은 침실을 상층에 둔다. 앞뒤 침실과 닫힌 벽을 공유하며 corridor-child-two만 통행한다.
  * @evidenceReview spaces/002-spatial-graph.md#child-bedroom-2 #b3ea2be child-two를 동측 중간 cell로 만들고 전용 corridor 문을 두어 다른 침실을 통과해야 들어가는 방이 되지 않는다.
  * @evidence spaces/002-spatial-graph.md#upper-bathroom x=-5.26..-3.02,z=1.28..5.76의 코어 cell을 만들고 z=1.86 방문으로 복도에 직접 잇는다.
- * @evidenceReview spaces/002-spatial-graph.md#upper-bathroom #d34d64f topology와 upper가 서측 후면 upper-bathroom cell의 경계벽과 corridor 직접 연결 문을 만든다. 샤워 트레이·세면대·변기·수건 수납은 buildHouse()가 별도로 호출하는 bathroom()의 이관 전 임시 메시이며 structure()가 조립하지 않는다. 욕조는 현재 방 source에도 없다.
+ * @evidenceReview spaces/002-spatial-graph.md#upper-bathroom #3a9f2f7 topology와 upper가 서측 후면 upper-bathroom cell의 경계벽과 corridor 직접 연결 문을 만든다. 샤워 트레이·세면대·변기·수건 수납은 buildHouse()가 별도로 호출하는 bathroom()의 이관 전 임시 메시다. 욕조는 현재 구현되지 않았고 최종 기구 결정은 이 구조 조립의 승인이 아니다.
  * @evidence spaces/002-spatial-graph.md#upper-storage x=-5.26..-3.02,z=-0.14..1.10의 cell에 복도 직결 문을 둔다. 욕실·설비 경계는 닫힌 wall이다.
  * @evidenceReview spaces/002-spatial-graph.md#upper-storage #53a7cce upper-storage는 z=-0.14..1.10의 독립 cell이고 corridor 문이 있어 욕실 벽장으로 대체되지 않는다.
  * @evidence spaces/002-spatial-graph.md#upper-service 전면 넓은 cell과 -X측 연장 cell을 같은 설비실로 묶는다. 복도 전면의 닫힌 벽과 z=-0.95 출입 벽을 구분하여 이름 없는 통로를 만들지 않는다.

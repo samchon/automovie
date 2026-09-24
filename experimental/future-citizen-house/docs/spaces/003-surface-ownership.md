@@ -4,30 +4,30 @@
 
 <!--
 @evidence settings/001-production.md#production-visual-grammar 불투명 서비스 벽·틀·유리·차양을 서로 다른 공간 점유로 구별해 시각 문법의 실제 부재 기반을 제공한다. 색과 광학·조명 구현의 성공을 공간 문서에서 주장하지 않는다.
-@evidenceReview settings/001-production.md#production-visual-grammar #a673c40 불투명 서비스 벽·금속 틀·유리·차양은 같은 외주 안에서 다른 실제 점유와 안정 면 주소를 얻는다. materials가 각 면의 finish를 결합하므로 이 분해가 색·광학·조명의 현재 화면 성공을 주장하지 않는다.
+@evidenceReview settings/001-production.md#production-visual-grammar #a673c40 서비스 벽·금속 틀·유리·차양은 외주 안에서 별도 건축 점유와 안정 주소를 가진다. v-096의 외피 설계 PASS는 이 분해의 설계 판정이며 색·광학·조명의 현재 화면 성공은 materials와 GPU 관찰에 남는다.
 -->
 
 <!--
 @evidence principles/core/common.md#declared-basis 본채와 표면 분해 선언을 받아 외피를 네 입면과 지붕으로 나누고 datum에서 두께와 층선을 받는다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 입면 geometry의 owner는 surface-decomposition, 두께와 층선은 mass-and-storeys에 근거한다. 외측 관찰면 O=C+(d/2)N은 datum의 파생값이며 material 결합은 별도 owner다. 관찰 좌표를 레퍼런스 픽셀 측량값으로 주장하지 않는다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 입면 geometry 책임은 surface-decomposition, 두께와 층선은 mass-and-storeys에서 받는다. 외측 O=C+(d/2)N은 이 datum에서 도출하며 레퍼런스 픽셀의 측량값이 아니다. v-096 설계 판정은 이 근거를 승인했으나 현재 GPU 외관 측정은 별개다.
 @evidence principles/core/common.md#scope-preservation 외벽·개구·틀·shade·return을 각 완결 표면의 범위에 남기고, 입면 아래 plinth와 위의 지붕 구조, 계단 void 앞 외벽 실내 면의 owner까지 정해 실내 floor/ceiling 책임과 연결한다.
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 다섯 외피 owner는 개구·틀·shade·return·노출 마감 면 주소를 유지하고 내부 구조 wall과 floor/ceiling은 층, 외벽 내측 면은 방에 남긴다. 지면 -0.45..0의 plinth와 현관 문턱판, roof 상부와 계단 void 앞 외벽 내측도 건축 owner에 배정한다. finish 결합만 materials가 맡으므로 외피 geometry를 무소유로 남기지 않는다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 다섯 외피 owner에 개구·틀·shade·return과 외부 노출 면을 남기고 내부 구조 wall·수평면은 층, 외벽 내측은 방에 둔다. plinth·문턱판·roof 상부·계단 void 앞 외벽 내측의 건축 owner도 지정한다. finish 결합은 materials 몫이며 이 분할의 v-096 PASS를 물체나 재료의 판정으로 확장하지 않는다.
 @evidence principles/core/common.md#substantive-completion 입면·층·방의 접합 책임, 입면 아래 plinth와 지면의 접합, 외부 boundary의 enclosing house를 지정하여 외피에 이중 소유나 무소유 면을 남기지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 전체 외부 face의 enclosing space는 house이고 각 opening의 room/storey 대응을 별도 주소에 둔다. 아래 plinth·문턱판과 위 roof 구조까지 닫는 owner를 정하며 O 관찰면을 바꿔도 C 기반 cut·힌지·connector는 움직이지 않는다. geometry 완결과 후속 finish 결합을 다른 판정으로 둔다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 외부 face는 house에 귀속하고 각 opening이 면한 room/storey는 개별 주소에 둔다. plinth·문턱판·roof 구조의 접합 owner와 O/C의 다른 용도를 정해 관찰면 변경이 cut·힌지·connector를 옮기지 않는다. 이는 v-096이 통과시킨 설계 내용이며 현재 finish와 GPU 판정은 남아 있다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 단독 표면 소유를 실제 외피의 다섯 face와 내외 마감 및 corner 접합의 공간 관계로 전개한다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모는 작성자와 건축 면 주소, 외곽 datum을 준다. 여기서는 외부 face의 house 귀속, 개구별 room 대응, C와 O의 구별 및 입면 아래위 접합을 추가한다. 이는 materials의 재료 선택을 복제하지 않는 공간 결정이다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 건축 작성자·외곽 datum에 외부 face의 house 귀속, 개구의 room 대응, 절삭 C와 관찰 O의 차이 및 상하 접합을 더했다. v-096에서 승인된 것은 이 공간 설계의 전개이며 materials의 재료 선택을 여기서 재결정하지 않는다.
 @evidence principles/design/spaces.md#space-topology 외부 전체 face는 house를 둘러싸고 개별 room/storey의 창 대응은 opening과 cell 위치에서 판정한다.
-@evidenceReview principles/design/spaces.md#space-topology #3f8d925 입면 전체는 house 외주이고 창이 면하는 room과 storey는 opening H2 및 cell로 연결한다. cut의 C와 외측 face의 O를 분리하므로 유리 재료나 양면 표시를 공간 포함의 대용으로 쓰지 않는다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 외주 전체는 house에, 창이 면한 room/storey는 opening과 cell에 바인딩한다. 벽 절삭 중심 C와 외측 face O를 분리해 유리 색이나 양면 표시로 공간 포함을 대신하지 않는다. 이 경계 판단과 GPU의 현재 읽힘은 별도다.
 @evidence principles/design/spaces.md#space-boundary-authority 외곽·층선·두께는 mass datum 하나를 쓰며 입면이 room별 창폭을 따로 복제하지 않는다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 C/O는 외곽·벽 두께 datum의 파생값이고 opening 접선·Y는 개별 개구 owner에 남는다. 돌출 덮개의 0.020m는 wall d가 아니다. geometry 주소와 materials의 finish 결합을 구별하므로 viewer가 경계나 색으로 단면을 다시 정의하지 않는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 C/O는 mass datum과 wall d에서 도출하고 opening의 접선·Y 범위는 개별 owner가 준다. 돌출 덮개 0.020m를 구조 wall 두께로 혼동하지 않는다. geometry 주소는 spaces, finish 결합은 materials이므로 viewer가 색으로 경계를 다시 소유하지 않는다.
 @evidence principles/design/spaces.md#space-verification-address normal·thickness·접합선·opening profile·층선 일치와 입면 아래 plinth 띠의 연속을 전체 공간 관찰에 연결하고 현재 형상은 unverified로 남긴다.
-@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 실제 centroid의 O±0.001N과 dot(N,actual)>1-1e-7이 외향 법선을 반증하고, opening profile·문짝 bounds·connector endpoint의 비교가 cut 이동을 잡는다. 네 외곽의 -0.45..0 띠는 plinth·문턱판·지면의 실제 bounds로 질문한다. 후속 재료 결합과 GPU 외관은 이 공간 검사로 통과 처리하지 않는다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 외향 법선은 실제 centroid의 O±0.001N과 dot(N,actual)>1-1e-7로, cut 이동은 opening profile·문짝 bounds·connector endpoint로 반증한다. -0.45..0 띠는 plinth·문턱판·지면 bounds를 본다. v-096 설계 PASS 이후에도 현재 재료 결합과 GPU 외관은 이 검사만으로 통과하지 않는다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work 단일 본채와 완결 표면의 단독 소유를 다섯 외피면 및 층/방 접합에 대조했다. 부모의 표면을 더 쪼개거나 별도 체적을 허용할 필요가 없다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 단일 본채와 surface-decomposition의 입면·층·방 경계를 C/O 분리에 대조했다. 외측 관찰면만 파생시키면 d와 실내 clear face를 유지하고 모서리·floor band도 같은 건축 owner에 남는다. 재료 결합을 materials에 두는 수정은 부모 체적이나 동선 변경을 요구하지 않는다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 단일 본채와 표면 owner 경계를 C/O 분리 및 모서리·floor band 접합에 대조했다. O를 외측 관찰면으로 도출해도 d·실내 clear face·부모 동선은 유지된다. v-096의 외피 설계 승인 범위에서 부모 체적 수정 사유는 없었고 후속 재료 결합은 이 제외에 포함되지 않는다.
 @evidence contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements 단일 직사각형 외피가 내부 방·층 경계를 소비하도록 하며 화면을 위해 고정 그래프를 바꾸지 않는다.
-@evidenceReview contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements #d31488d 단일 house 외주를 ground floor부터 upper ceiling까지 닫고 창의 방·층은 기존 cell을 따른다. C/O 관찰면과 materials의 finish 결합은 room·connector나 본채 체적을 움직이지 않는다. 실물 통행·성능 인증은 이 공간 경계 관계의 증거가 아니다.
+@evidenceReview contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements #d31488d ground floor에서 upper ceiling까지 단일 house 외주를 두고 창의 room·storey 귀속은 기존 cell에서 받는다. C/O의 관찰면 구분과 추후 materials 결합은 room·connector·본채 체적을 바꾸지 않는다. v-096의 설계 판정은 실물 통행·성능이나 최신 GPU 외관의 인증이 아니다.
 @evidence settings/003-spatial-basis.md#surface-decomposition 각 입면이 구조 return·창호·shade·노출 마감 면의 안정 주소를 맡고 층·방과 최종 면을 중복 생성하지 않는 배정을 소비한다. finish 결합은 materials가 정한다.
-@evidenceReview settings/003-spatial-basis.md#surface-decomposition #fc2e198 front/rear/left/right/roof는 전체 입면이고 floor/ceiling 노출 면은 층, 외벽 내측 면은 방에 남는다. 물체 형상·배치와 재료 결합은 후속 분기로 이관할 대상이며 현재 문자열은 임시 값이다. 현행 물체 element도 후속 part/emitter 대응 없이는 퇴역하지 않는다.
+@evidenceReview settings/003-spatial-basis.md#surface-decomposition #4264ae2 front/rear/left/right/roof는 전체 입면이고 floor/ceiling 노출 면은 층, 외벽 내측 면은 방에 남는다. 물체 형상·배치와 재료 결합은 후속 분기로 이관할 대상이며 현재 문자열은 임시 값이다. 모든 현행 발광 element도 후속 part·instance·system emitter의 대응 없이는 퇴역하지 않는다.
 -->
 
 [house](001-citizen-house.md#citizen-house-space)의 외피는 [전면](#front-face), [후면](#rear-face), [좌측](#left-face), [우측](#right-face), [지붕](#roof-face)의 다섯 완결 표면이다. 각 면은 하나의 owner가 모든 구조 return·개구·틀·shade·노출 마감 geometry의 안정 주소를 소유한다. 그 주소의 finish 결합은 materials가 결정하고 입면 owner는 결정된 id를 운반한다. 작성자와 source 파일은 [분해 선언](../settings/003-spatial-basis.md#surface-decomposition)을 따른다. 개구부 H2는 같은 입면 내부의 주소이며 작성자를 분할하지 않는다.
@@ -38,9 +38,9 @@
 
 [시각 문법](../settings/001-production.md#production-visual-grammar)이 구별하는 불투명 서비스 벽·금속 틀·유리·차양은 같은 외주 안에서 서로 다른 실제 점유를 가진다. 여기서는 그 공간 경계만 정하고 색·광학·빛의 구현은 후속 source에서 이 canon을 소비한다.
 
-각 face의 실제 boundary normal·thickness·접합선·opening profile과 바닥선 일치를 [전체 공간 관찰](001-citizen-house.md#spatial-observation)에서 검사한다. 입면 아래 -0.45..0 띠는 네 외곽 평면 전 길이에서 기초·bearing ring·문턱판의 실제 bounds가 빈 구간 없이 이어지는지와 대지 지면·보행면이 외곽에서 끝나는지를 같은 산출물에서 읽는다. 현재 형상·재료 관찰은 unverified다.
+각 face의 실제 boundary normal·thickness·접합선·opening profile과 바닥선 일치를 [전체 공간 관찰](001-citizen-house.md#spatial-observation)에서 검사한다. 입면 아래 -0.45..0 띠는 네 외곽 평면 전 길이에서 기초·bearing ring·문턱판의 실제 bounds가 빈 구간 없이 이어지는지와 대지 지면·보행면이 외곽에서 끝나는지를 같은 산출물에서 읽는다. v-096의 외피 설계 판정은 PASS이며 현 트리의 재료 결합과 새 GPU 외관 관찰은 unverified다.
 
-**입면 관찰 경계 수정 설계.** 아래 결정은 v-071의 커튼월 부재 단서와 기존 벽 중심면의 관찰 방향 오류를 수리하는 설계다. source는 2026-09-24 6562f9b0에서 이 설계를 구현했고 네 면의 native 법선이 N과 일치하는 것을 compiled 산출물에서 읽었다. 설계 판정과 새 GPU 시각 판정은 아직이다. 본문의 각 입면이 쓰는 plane center는 절삭·부재 배치용 중심 C를 뜻한다. 외부 boundary의 face는 외측 기준면 O에 둔다. 벽 중심에서 내외 공간을 구분하려는 기존 해석을 폐기한다. 외벽 두께 d와 내외측 위치는 [매스](002-spatial-graph.md#mass-and-storeys)에서 받고 O=C+(d/2)N으로 도출한다. N은 해당 입면의 외측 단위 방향이다.
+**입면 관찰 경계 수정 설계.** 아래 결정은 v-071의 커튼월 부재 단서와 기존 벽 중심면의 관찰 방향 오류를 수리하는 설계다. source는 2026-09-24 6562f9b0에서 이 설계를 구현했고 네 면의 native 법선이 N과 일치하는 것을 compiled 산출물에서 읽었다. 외피 설계는 독립 판정 v-096에서 PASS했으며 이 판정은 현재 트리의 새 GPU 시각 승인으로 확장되지 않는다. 본문의 각 입면이 쓰는 plane center는 절삭·부재 배치용 중심 C를 뜻한다. 외부 boundary의 face는 외측 기준면 O에 둔다. 벽 중심에서 내외 공간을 구분하려는 기존 해석을 폐기한다. 외벽 두께 d와 내외측 위치는 [매스](002-spatial-graph.md#mass-and-storeys)에서 받고 O=C+(d/2)N으로 도출한다. N은 해당 입면의 외측 단위 방향이다.
 
 | 전체 입면 owner | 절삭 중심 C의 법선 좌표 | 외측 면 O | N | 외측 전체 span |
 | --- | --- | --- | --- | --- |

@@ -35,7 +35,7 @@
 
 <!--
 @evidence settings/003-spatial-basis.md#surface-decomposition 1층 구조와 연속 바닥·천장을 층 owner 하나에 배정하고 개별 room이 그 최종 수평 면을 다시 만들지 못하게 한다. 이 책임은 실제 모듈 존재나 surface 검증 완료를 뜻하지 않는다.
-@evidenceReview settings/003-spatial-basis.md#surface-decomposition #fc2e198 1층 owner는 연속 바닥·천장 노출 면 주소와 구조 partition을, room owner는 내측 벽면 주소를 맡는다. materials가 finish 결합을 결정하고 현행 material 문자열은 임시 값이다. 방 물체 퇴역은 후속 part/emitter 대응표를 요구하므로 이 H2가 배치·발광을 소유하지 않는다.
+@evidenceReview settings/003-spatial-basis.md#surface-decomposition #4264ae2 1층 owner는 연속 바닥·천장 노출 면 주소와 구조 partition을, room owner는 내측 벽면 주소를 맡는다. materials가 finish 결합을 결정하고 현행 material 문자열은 임시 값이다. 방 물체와 모든 발광 element의 퇴역에는 각각 model part 및 필요한 system emitter 대응을 요구하므로 이 H2가 배치·발광을 소유하지 않는다.
 -->
 
 <!--
@@ -65,7 +65,7 @@ storey id ground-storey는 house의 자식이며 [매스와 층 datum](#mass-and
 
 <!--
 @evidence settings/003-spatial-basis.md#surface-decomposition 상층 slab·계단 구멍 및 연속 수평 마감은 upper owner가 맡고 room은 내측 벽만 맡는 배정을 소비한다. 물체 fit-out은 models와 instances로 분리하고 roof의 실외 하부와 상층 실내 ceiling을 섞지 않는다.
-@evidenceReview settings/003-spatial-basis.md#surface-decomposition #fc2e198 upper-storey는 연속 수평 노출 면과 구조 partition, 계단 바닥 개구의 주소를 제공한다. materials가 finish 결합을 결정하고 현재 문자열은 임시 값이다. room은 내측 벽면, models·instances는 아직 이관 전인 가구를 맡고 퇴역 때 part별 대응을 요구한다.
+@evidenceReview settings/003-spatial-basis.md#surface-decomposition #4264ae2 upper-storey는 연속 수평 노출 면과 구조 partition, 계단 바닥 개구의 주소를 제공한다. materials가 finish 결합을 결정하고 현재 문자열은 임시 값이다. room은 내측 벽면만 맡고 현행 가구·등기구 메시의 퇴역에는 model part·instance·발광 시 system emitter를 모두 대조한다.
 -->
 
 <!--
@@ -229,7 +229,7 @@ room id는 common-room, parent는 [ground-storey](#ground-level)다. clear cell�
 
 <!--
 @evidence settings/003-spatial-basis.md#surface-decomposition powder 방 owner의 내측 벽면과 독립 core cell을 연결한다. 세면대·변기·청소 수납의 prototype과 배치는 각각 models·instances가 맡으며 세탁 기능은 상층 설비실에 남는다.
-@evidenceReview settings/003-spatial-basis.md#surface-decomposition #fc2e198 powder 방은 내측 벽면의 안정 주소만 제공한다. 세면대·변기·청소 수납의 형상·배치는 models·instances, finish 결합은 materials가 맡는다. 현재 방 source의 기구 메시와 material 문자열은 이관 전 임시 값이며 element별 후속 part 대응 없이는 지울 수 없다.
+@evidenceReview settings/003-spatial-basis.md#surface-decomposition #4264ae2 powder 방은 내측 벽면의 안정 주소만 제공한다. 세면대·변기·청소 수납의 형상·배치는 models·instances, finish 결합은 materials가 맡는다. 현재 방 source의 기구 메시와 material 문자열은 이관 전 임시 값이며 element별 후속 part·instance 대응 없이는 지울 수 없다.
 -->
 
 <!--
@@ -546,7 +546,7 @@ upper slab의 계단 구멍은 x=-1.24..1.58, z=-5.64..-1.80에만 둔다. 구�
 
 <!--
 @evidence settings/002-household.md#household-program 가족이 한 집에서 공동생활하면서 상층 수면 프라이버시를 얻도록 복도와 독립 침실의 직접 출입에 배정한다. 실제 거주자 asset은 공간으로 만들지 않는다.
-@evidenceReview settings/002-household.md#household-program #d4b8ac1 수면실 세 개와 설비·수납을 구분하여 가족의 사적 생활 밀도를 가구 삭제 없이 배정한다.
+@evidenceReview settings/002-household.md#household-program #d4b8ac1 세 침실과 별도 욕실·수납·설비실을 복도에 직접 면한 cell로 구분한다. 생활 물품의 형상과 방별 배치는 이 공간 분할의 승인 대상이 아니다.
 @evidence settings/002-household.md#operative-subjects 성인 둘과 자녀 둘을 설명하는 주침실 하나·작은 침실 둘을 상층 room population에 보존한다. 인물 행동이나 설비 작동을 공간의 실행 주체로 추가하지 않는다.
 @evidenceReview settings/002-household.md#operative-subjects #64a96e8 주침실 하나와 자녀실 둘은 성인 둘·자녀 둘의 배경 프로그램을 소비하며 인물 asset을 만들지 않는다.
 -->
@@ -573,7 +573,7 @@ upper slab의 계단 구멍은 x=-1.24..1.58, z=-5.64..-1.80에만 둔다. 구�
 @evidence settings/003-spatial-basis.md#upper-graph 상층의 직접 연결을 여섯 실제 opening owner에 배정하며 계단 도착부터 다른 방을 통과하는 우회를 허용하지 않는다.
 @evidenceReview settings/003-spatial-basis.md#upper-graph #6e5ba76 계단 북쪽에서 시작한 복도 하나가 여섯 문을 받는 것으로 upper-graph를 구체화한다.
 @evidence settings/002-household.md#upper-program 상층의 잠·위생·수납·설비 역할을 일곱 room 전체에 배분하고 생활 프로그램을 외피 모양 때문에 줄이지 않는다.
-@evidenceReview settings/002-household.md#upper-program #e0bbac7 세 수면실의 가구와 코어 설비를 삭제하지 않고 upper-program을 분할에 수용한다.
+@evidenceReview settings/002-household.md#upper-program #55473ad 세 수면실과 욕실·수납·설비실의 독립 영역 및 복도 직접 연결을 분할에 둔다. upper-program의 물품은 후속 models·instances·systems가 실현하며 이 H2는 그 형상이나 배치를 승인하지 않는다.
 -->
 
 [2층](#upper-level)은 [복도](#upper-corridor)에서 [주침실](#primary-bedroom), [작은 침실 1](#child-bedroom-1), [작은 침실 2](#child-bedroom-2), [욕실](#upper-bathroom), [수납](#upper-storage), [설비실](#upper-service)로 직접 닿는 일곱 room이다. 각 방의 cell과 연결 H2가 유일한 치수 owner다. [설정의 상층 그래프](../settings/003-spatial-basis.md#upper-graph)를 소비하고 다른 통과실·분기 복도를 추가하지 않는다. [가족의 공동생활과 상층 수면 프라이버시](../settings/002-household.md#household-program), [성인 둘·자녀 둘의 세 수면실 배정](../settings/002-household.md#operative-subjects)을 이 복도와 세 침실의 독립 출입이 소비한다.
@@ -602,7 +602,7 @@ L자 두 방의 seam에는 벽을 만들지 않는다. 각 외주·shared gap에
 @evidence contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements 계단참에서 시작하는 짧은 일자 복도를 유일한 상층 분배 공간으로 유지한다.
 @evidenceReview contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements #d31488d 계단에서 시작하는 4.20m 일자 통로가 여섯 방에 직접 닿는다.
 @evidence settings/002-household.md#upper-program 세 침실·욕실·수납 및 별도 설비실을 직접 잇는 corridor를 실제 문 주소에 연결했다.
-@evidenceReview settings/002-household.md#upper-program #e0bbac7 upper-program의 모든 사적 방을 corridor에 직접 문으로 연결한다.
+@evidenceReview settings/002-household.md#upper-program #55473ad upper-program의 여섯 목적지에 실제 직접 문이 닿는 일자 corridor cell을 정했다. 생활 물품의 배치는 이 연결 H2가 결정하지 않는다.
 -->
 
 room id upper-corridor의 parent는 [upper-storey](#upper-level)다. clear plan은 x=-2.84..0.12, z=-1.80..2.40m인 한 직사각형이며 y 범위는 층 owner가 소유한다. 상부 계단 도착선에서 시작한다. 길이 4.20m와 clear width 2.96m의 하나의 일자 복도이며 분기나 다른 통과실을 만들지 않는다. [상층 생활 프로그램](../settings/002-household.md#upper-program)을 소비한다.
@@ -615,9 +615,9 @@ room id upper-corridor의 parent는 [upper-storey](#upper-level)다. clear plan�
 @evidence principles/core/common.md#declared-basis 상층 수면 프로그램의 주침실을 후면 clear8.10×3.18m에 배정하며25.76㎡는 저작 입력의 계산값으로만 표시한다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb primary clear cell은 upper partition과 후면 외곽에서 유도한다.
 @evidence principles/core/common.md#scope-preservation 주침실은 작은 침실과 구별되는 독립 room이며 복도를 거쳐 직접 들어가는 사적 공간으로 남긴다.
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 욕실 경계를 침범하지 않고 double bed·옷장·책상까지 방 안에 남긴다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 주침실 cell을 욕실·복도와 구분하고 후면의 독립 방으로 남긴다. 침대·옷장·책상은 후속 배치가 받아야 할 프로그램이며 이 H2의 실현 결과가 아니다.
 @evidence principles/core/common.md#substantive-completion 후면 cell의 네 경계와 층 귀속, 출입 opening을 정해 나중에 외관을 맞추려고 위치를 임의 선택할 수 없다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 침대·협탁·수납과 문 도착을 함께 배정해 빈 방만으로 주침실을 대신하지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 주침실 clear cell의 네 경계·상층 귀속·corridor-primary 문 도착을 지정했다. 침대·협탁·수납의 실제 배치와 사용성은 후속 owner의 검사에 남긴다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation upper-program의 주침실 역할에 후면 폭과 깊이 및 corridor-primary의 직접 접속을 추가했다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 주침실 목록에 후면 폭과 서측 bath 접촉을 더한다.
 @evidence principles/design/spaces.md#space-topology primary-bedroom은 upper-storey 안에 있고 corridor-primary만을 통해 상층 복도에 접속한다.
@@ -627,11 +627,11 @@ room id upper-corridor의 parent는 [upper-storey](#upper-level)다. clear plan�
 @evidence principles/design/spaces.md#space-verification-address cell containment·방문·침대 등 실물 가구와 통행 및 자기 방 안 관찰이 이 후면 room의 검증 주소다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 침대·옷장·열린 leaf를 방의 threshold와 네 방향 검사에 포함한다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work 세 침실을 요구하는 상층 프로그램과 후면 주침실 배치를 대조했다. 이 방 때문에 작은 침실이나 복도 연결을 삭제할 부모 변경은 필요하지 않다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 후면 cell 안에 주침실 가구와 직접 문이 들어가므로 부모의 침실 수를 바꿀 필요가 없다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 후면 주침실 cell과 복도 직접 문의 관계가 부모의 세 침실 그래프와 맞는다. 가구가 실제로 들어가는지와 문 간섭은 아직 검사하지 않았으며, 이 미검증을 부모의 방 수 변경 이유로 삼지 않는다.
 @evidence contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements 주침실을 짧은 복도에 직접 연결하고 다른 침실을 통과하는 사적 동선을 만들지 않는다.
 @evidenceReview contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements #d31488d 후면 주침실은 복도에서 직접 들어가는 상층 수면실로 유지된다.
 @evidence settings/002-household.md#upper-program double bed와 수납·책상으로 읽힐 주침실의 실내 영역을 제공하며 가구의 구현과 충돌 판정은 후속 작업으로 남긴다.
-@evidenceReview settings/002-household.md#upper-program #e0bbac7 double bed와 협탁·옷장·작은 책상으로 상층 부부 침실 프로그램을 소비한다.
+@evidenceReview settings/002-household.md#upper-program #55473ad double bed·협탁·옷장·책상이 들어갈 후면 주침실 cell과 직접 문을 제공한다. 해당 물체의 prototype과 방별 배치 승인은 models·instances에 남는다.
 -->
 
 room id primary-bedroom의 parent는 [upper-storey](#upper-level)다. clear plan은 x=-2.84..5.26, z=2.58..5.76m인 한 직사각형이며 y 범위는 층 owner가 소유한다. 후면의 주침실이다. 저작 입력의 평면 면적은 약25.76㎡이며 두 작은 침실보다 크다. 이는 컴파일된 유효 면적 측정이 아니다. [상층 생활 프로그램](../settings/002-household.md#upper-program)을 소비한다.
@@ -646,7 +646,7 @@ room id primary-bedroom의 parent는 [upper-storey](#upper-level)다. clear plan
 @evidence principles/core/common.md#scope-preservation 전면 침실과 복도 직결 연장부를 한 방으로 유지하고 seam에 벽을 넣어 단절된 잔여실을 만들지 않는다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 확장 cell을 복도나 별실로 세지 않아 작은 침실 두 개라는 요구를 유지한다.
 @evidence principles/core/common.md#substantive-completion 두 직사각형의 범위와 열린 seam, upper-storey 귀속 및 직접 문을 지정해 L자의 안팎을 결정했다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 침대·옷장·책상과 cell seam의 무벽 조건을 함께 정한다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 child-one의 두 clear cell 범위·열린 seam·상층 귀속·corridor-child-one 직접 문을 정했다. 침대·옷장·책상 배치는 이 공간 설계가 결정하지 않는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 상층의 첫 작은 침실에 계단 동측 본체와 복도에 닿는 연장부라는 L자 공간 결정을 더한다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 자녀실 요구에 계단 옆 출입 확장부와 주 수면 영역을 연결한다.
 @evidence principles/design/spaces.md#space-topology 두 cell은 같은 child-bedroom-1에 속하며 corridor-child-one이 연장부에서 복도와 직접 연결한다.
@@ -660,7 +660,7 @@ room id primary-bedroom의 parent는 [upper-storey](#upper-level)다. clear plan
 @evidence contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements 첫 작은 침실은 상층의 독립 수면실로 복도에 직접 닿으며 계단 측면의 남는 면적을 단절 공간으로 남기지 않는다.
 @evidenceReview contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements #d31488d L형 작은 침실도 실제 corridor 문을 가진 한 room이다.
 @evidence settings/002-household.md#upper-program single bed·wardrobe·desk 또는 shelf가 들어갈 첫 침실의 영역과 통행 검사를 배정했다.
-@evidenceReview settings/002-household.md#upper-program #e0bbac7 single bed·옷장·학습 가구를 첫 자녀실의 한 세트로 배정한다.
+@evidenceReview settings/002-household.md#upper-program #55473ad 첫 자녀실에 두 연결 cell과 복도 직결 문을 제공한다. single bed·옷장·학습 가구는 프로그램 입력이며 물체 형상과 cell 안의 배치는 후속 owner가 결정한다.
 -->
 
 room id child-bedroom-1의 parent는 [upper-storey](#upper-level)다. clear plan은 x=1.76..5.26, z=-5.76..-0.32m와 x=0.30..1.76, z=-1.62..-0.32m의 합집합이며 y 범위는 층 owner가 소유한다. 계단 동측 전면과 복도 직결 연장부가 이어진 하나의 L자 방이다. 두 cell의 공유 seam에 벽을 만들지 않는다. 저작 입력 면적은 약20.94㎡이며 실제 측정 전이다. [상층 생활 프로그램](../settings/002-household.md#upper-program)을 소비한다.
@@ -673,9 +673,9 @@ room id child-bedroom-1의 parent는 [upper-storey](#upper-level)다. clear plan
 @evidence principles/core/common.md#declared-basis 두 번째 작은 침실은 x=0.30..5.26,z=-0.14..2.40에 채택했고12.60㎡는 구현 전 설계 계산값이다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb child-two의 Z 범위는 앞 자녀실과 뒤 주침실 사이 partition에서 정한다.
 @evidence principles/core/common.md#scope-preservation 두 작은 침실을 하나로 합치지 않으며 이 방을 주침실로 가는 통과실로 쓰지 않는다.
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 작은 면적을 이유로 침대나 수납을 삭제하지 않고 독립 수면실로 남긴다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 작은 면적의 child-two도 별도 cell과 복도 직접 문을 가진 독립 수면실로 남긴다. 침대·수납 프로그램의 구현 여부는 이 공간 경계 승인에서 판단하지 않는다.
 @evidence principles/core/common.md#substantive-completion 직사각형 cell과 층 높이 소비, corridor-child-two 출입을 정해 동측 수면실의 경계를 확정한다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 single bed·옷장·desk 또는 shelf와 문 열림을 같은 cell에 배정한다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 child-two의 직사각형 clear cell·상층 귀속·corridor-child-two 문과 열림을 지정했다. single bed·옷장·desk 또는 shelf의 배치는 후속 owner의 검증 대상이다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 두 작은 bedroom 요구의 두 번째 항목에 동측 중간 구획과 독립 방문을 대응시킨다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 두 번째 자녀실 요구에 0.30..5.26의 동측 범위를 부여한다.
 @evidence principles/design/spaces.md#space-topology child-bedroom-2는 upper-storey 자식으로 복도에 직접 이어지고 양옆 침실과 통과 연결을 갖지 않는다.
@@ -689,7 +689,7 @@ room id child-bedroom-1의 parent는 [upper-storey](#upper-level)다. clear plan
 @evidence contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements 두 작은 침실 중 하나를 실제 cell과 방문으로 남겨 수면실 수와 독립 도달 관계를 보존한다.
 @evidenceReview contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements #d31488d 중간 동측 자녀실은 corridor 직접 문을 가진 두 번째 작은 침실이다.
 @evidence settings/002-household.md#upper-program 두 번째 single-bed room의 생활 물품과 통행을 삭제하지 않고 이 clear 영역 안의 후속 fit-out 질문으로 남겼다.
-@evidenceReview settings/002-household.md#upper-program #e0bbac7 작은 침실에도 단일 침대와 개인 수납·학습 영역을 남기는 upper-program을 따른다.
+@evidenceReview settings/002-household.md#upper-program #55473ad 두 번째 자녀실에 별도 clear cell과 corridor-child-two 문을 정했다. single bed·개인 수납·학습 가구는 이 방의 프로그램이며 형상·방별 배치는 후속 owner가 맡는다.
 -->
 
 room id child-bedroom-2의 parent는 [upper-storey](#upper-level)다. clear plan은 x=0.30..5.26, z=-0.14..2.40m인 한 직사각형이며 y 범위는 층 owner가 소유한다. 동측의 작은 침실이며 다른 침실의 통과실이 아니다. 저작 입력 면적은 약12.60㎡이며 실제 측정 전이다. [상층 생활 프로그램](../settings/002-household.md#upper-program)을 소비한다.
@@ -702,9 +702,9 @@ room id child-bedroom-2의 parent는 [upper-storey](#upper-level)다. clear plan
 @evidence principles/core/common.md#declared-basis upper-program의 욕실을 서측 코어 x=-5.26..-3.02,z=1.28..5.76에 배정한 저작 설계다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb bath cell은 후면 코어 구획이며 프라이버시는 settings의 고정 반투명을 따른다.
 @evidence principles/core/common.md#scope-preservation 샤워·변기·세면과 수건 수납은 한 욕실 안에서 접근되며 침실 전용 통과 동선으로 축소하지 않는다.
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 상층 프로그램의 shower/tub 가운데 샤워를 택해 샤워·변기·세면대·수건 수납을 모두 방 안에 남기고 주침실을 욕실 통로로 쓰지 않는다. 본문이 욕조를 약속하지 않으므로 source의 샤워 트레이 하나와 어긋나지 않는다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 욕실을 주침실 통과 경로가 아닌 복도 직결의 독립 cell로 남긴다. 프로그램의 shower/tub 가운데 현재 임시 room source는 샤워 트레이를 사용하며 욕조는 구현되지 않았다. 위생 기구의 최종 선택·형상·배치는 이 공간 H2의 승인이 아니다.
 @evidence principles/core/common.md#substantive-completion 길쭉한 코어 room의 경계·층 귀속·복도 문을 정해 위생 fixture의 실제 배치 영역을 제공한다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 위생 가구와 수건 수납 및 열린 방문의 관계까지 배정한다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 욕실 clear cell의 경계·상층 귀속·corridor-bathroom 문과 방 안쪽 열림을 정했다. 위생 기구와 수건 수납의 실제 점유·문 간섭은 후속 배치 검사에 남긴다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 상층 위생 프로그램을 후방 서측 코어 구획과 복도 직결 문으로 구체화한다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 욕실 목록에 후면 코어의 긴 cell과 높은 privacy opening을 더한다.
 @evidence principles/design/spaces.md#space-topology 욕실은 upper-storey 안의 room으로 corridor-bathroom을 통해 복도에서 직접 접근한다.
@@ -718,10 +718,10 @@ room id child-bedroom-2의 parent는 [upper-storey](#upper-level)다. clear plan
 @evidence contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements 욕실을 우측 불투명 코어에 모으고 상층 일자 복도에서 직접 문으로 연결한다.
 @evidenceReview contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements #d31488d 상층 욕실은 -X 코어에 모으고 corridor에서 직접 들어간다.
 @evidence settings/002-household.md#upper-program 명시한 vanity·toilet·shower/tub·towel storage를 욕실 안의 생활 범위로 유지한다.
-@evidenceReview settings/002-household.md#upper-program #e0bbac7 vanity·toilet·shower/tub·towel storage를 상층 욕실 안에 수용한다.
+@evidenceReview settings/002-household.md#upper-program #55473ad vanity·toilet·shower/tub·towel storage를 위한 별도 상층 욕실 cell과 복도 직접 문을 제공한다. 기구 prototype과 방 안 배치는 이 H2가 실현하지 않는다.
 -->
 
-room id upper-bathroom의 parent는 [upper-storey](#upper-level)다. clear plan은 x=-5.26..-3.02, z=1.28..5.76m인 한 직사각형이며 y 범위는 층 owner가 소유한다. 서측 불투명 코어의 욕실이다. 샤워(상층 프로그램의 shower/tub 가운데 샤워)·변기·세면대와 수건 수납은 이 방 안에서 접근되며 침실을 통해 들어가지 않는다. 욕조는 두지 않는다(2026-09-24 materials 전수 검사에서 source와 대조해 고침). [상층 생활 프로그램](../settings/002-household.md#upper-program)을 소비한다.
+room id upper-bathroom의 parent는 [upper-storey](#upper-level)다. clear plan은 x=-5.26..-3.02, z=1.28..5.76m인 한 직사각형이며 y 범위는 층 owner가 소유한다. 서측 불투명 코어의 욕실이다. 상층 프로그램의 shower/tub·변기·세면대·수건 수납은 이 방을 목적지로 삼고 침실을 통해 들어가지 않는다. 현재 임시 room source는 샤워 트레이를 만들고 욕조는 구현하지 않았다. 최종 기구 선택·형상·방 안 배치는 후속 owner의 판정에 남긴다. [상층 생활 프로그램](../settings/002-household.md#upper-program)을 소비한다.
 
 직접 출입은 [corridor-bathroom](#corridor-bathroom)의 실제 opening과 route를 사용한다. cell 외주와 [계단 개구](#stair-opening)를 구분하여 무소유 바닥이나 방 밖 통로를 만들지 않는다. [전수 검증](#stage-one-verification)에서 cell·문·가구 통행과 방 내부 관찰을 검사한다.
 
@@ -733,7 +733,7 @@ room id upper-bathroom의 parent는 [upper-storey](#upper-level)다. clear plan�
 @evidence principles/core/common.md#scope-preservation 수납을 욕실이나 설비실 안의 접근 불가능한 이름으로 합치지 않고 복도 직결 room으로 유지한다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 수납을 욕실 가구로 합치지 않아 요구된 직접 접근 room을 남긴다.
 @evidence principles/core/common.md#substantive-completion cell 네 경계와 upper-storey 귀속·corridor-storage 문을 정해 작은 공간도 독립 수정 주소를 가진다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 좁은 cell에도 cabinet과 열린 leaf를 함께 배정하여 빈 수납 명칭으로 끝내지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 수납실의 네 clear 경계·상층 귀속·corridor-storage 문과 열린 leaf 상태를 지정했다. cabinet과 leaf 간섭은 후속 배치에서 반증한다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 상층 storage 프로그램에 코어 중간의 짧은 구획과 독립 문이라는 배치를 추가한다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 수납 요구에 z=-0.14..1.10의 경계와 문 위치를 부여한다.
 @evidence principles/design/spaces.md#space-topology upper-storage는 욕실과 설비실 사이에 있으나 통행은 두 방이 아닌 upper-corridor에서 직접 받는다.
@@ -746,8 +746,8 @@ room id upper-bathroom의 parent는 [upper-storey](#upper-level)다. clear plan�
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 코어의 중간 cell에 문을 배정할 수 있어 부모의 수납 직접 연결 조건을 바꿀 필요가 없다.
 @evidence contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements 상층 수납은 일자 복도에서 실제 문으로 닿는 불투명 코어 방으로 남긴다.
 @evidenceReview contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements #d31488d 상층 수납은 일자 corridor에 독립 문이 난 별도 room이다.
-@evidence settings/002-household.md#upper-program linen·cleaning cabinet을 소유할 상층 수납의 독립 영역과 방문을 배정한다.
-@evidenceReview settings/002-household.md#upper-program #e0bbac7 linen·cleaning cabinet으로 침실 수납과 다른 상층 공동 수납을 실현한다.
+@evidence settings/002-household.md#upper-program linen·cleaning cabinet이 들어갈 별도 상층 수납 room의 clear 영역과 복도 직접 문을 정한다. cabinet prototype과 배치는 models·instances가 맡는다.
+@evidenceReview settings/002-household.md#upper-program #55473ad 침실이나 욕실에 합치지 않은 독립 수납 cell과 corridor-storage 문을 제공한다. linen·cleaning cabinet의 형상·배치는 이 H2의 실현 결과가 아니다.
 -->
 
 room id upper-storage의 parent는 [upper-storey](#upper-level)다. clear plan은 x=-5.26..-3.02, z=-0.14..1.10m인 한 직사각형이며 y 범위는 층 owner가 소유한다. 복도에 직접 붙은 linen 수납이다. 설비실이나 욕실에 들어가야만 수납에 닿는 연결을 만들지 않는다. [상층 생활 프로그램](../settings/002-household.md#upper-program)을 소비한다.
@@ -762,7 +762,7 @@ room id upper-storage의 parent는 [upper-storey](#upper-level)다. clear plan�
 @evidence principles/core/common.md#scope-preservation 세탁·설비실을 수면실이나 두 번째 corridor로 바꾸지 않고 계단 옆 잔여 공간까지 하나의 닫힌 room에 귀속한다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 세탁·점검 용도를 유지하고 설비 공간을 추가 침실로 바꾸지 않는다.
 @evidence principles/core/common.md#substantive-completion 두 cell 범위와 열린 seam, 계단 서측·복도 전면의 닫힌 경계를 정해 L자 외주의 끝을 설명한다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 세탁·건조기와 청소 수납·점검 영역을 두 cell 합집합에 배정한다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 설비실의 두 clear cell·열린 seam·폐쇄 외주·corridor-service 문을 정했다. 세탁·건조기, 청소 수납과 점검 점유의 배치는 후속 owner가 검증한다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation upper-service의 생활 역할에 계단 옆 넓은 전면부와 복도에 닿는 후방 날개를 결합한 L자 배치를 더한다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 upper-service 채택에 계단 옆 L형 구획과 seam 무벽 조건을 추가한다.
 @evidence principles/design/spaces.md#space-topology 두 cell은 하나의 upper-service이며 seam 통과와 corridor-service의 직접 출입을 갖고 stair hole에는 열리지 않는다.
@@ -776,7 +776,7 @@ room id upper-storage의 parent는 [upper-storey](#upper-level)다. clear plan�
 @evidence contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements 설비를 우측 불투명 코어에 모으고 계단 옆 바닥 띠를 단절 구역으로 남기지 않으면서 복도에 직접 문을 낸다.
 @evidenceReview contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements #d31488d 설비실은 불투명 코어 안의 한 room이며 두 번째 corridor로 쓰이지 않는다.
 @evidence settings/002-household.md#upper-program 세탁·건조기와 청소 수납·점검 영역을 위한 별도 상층 room을 제공하고 다른 방의 설비 통과 경로로 만들지 않는다.
-@evidenceReview settings/002-household.md#upper-program #e0bbac7 세탁·건조와 청소 수납을 가진 별도 서비스 room이라는 upper-program을 따른다.
+@evidenceReview settings/002-household.md#upper-program #55473ad 세탁·건조와 청소 수납의 프로그램을 위한 별도 L형 설비실과 복도 직접 문을 제공한다. 가전·수납의 형상과 방별 배치는 후속 owner에게 남긴다.
 -->
 
 room id upper-service의 parent는 [upper-storey](#upper-level)다. clear plan은 x=-5.26..-1.42, z=-5.76..-1.98m와 x=-5.26..-3.02, z=-1.98..-0.32m의 합집합이며 y 범위는 층 owner가 소유한다. 계단 서측 상층 바닥 띠를 포함하는 하나의 L자 방이다. 두 cell의 seam은 열고 외주에만 벽을 둔다. 계단 opening 서측 x=-1.42..-1.24와 복도 전면 z=-1.98..-1.80의 경계를 닫는다. x=-3.02..-2.84의 벽은 z=-1.98 후방에만 존재한다. [상층 생활 프로그램](../settings/002-household.md#upper-program)을 소비한다.

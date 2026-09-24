@@ -6,7 +6,7 @@ import { right } from "../house/envelope/right";
 import { roof } from "../house/envelope/roof";
 /** Complete exterior surfaces, cut profiles and measured repeating assemblies.
  * @evidence spaces/003-surface-ownership.md envelope가 네 입면과 지붕의 완결 owner를 호출한다. 각 owner가 자기 벽·개구·창호·차양·외부 노출 마감 면·corner 조각의 안정 주소를 만들며 viewer용 대체 외피가 없다. 재료 결합은 materials가 결정한다.
- * @evidenceReview spaces/003-surface-ownership.md #fa243a9 envelope가 front·rear·left·right·roof 다섯 owner만 호출하고, 각 입면 owner가 facade()로 wall body·stone panel·창호 단면·reveal·drip·spandrel cassette·louvre·roller, corners()로 자기 corner를 만드는 것을 읽었다. 이 조립은 건축 면의 주소를 제공하며 그 면의 최종 finish 결합을 소유하지 않는다.
+ * @evidenceReview spaces/003-surface-ownership.md #579a645 envelope()가 front·rear·left·right·roof 다섯 owner를 호출하고, 각 입면의 facade()와 corners()가 자기 벽·창호·차양·모서리 geometry를 만든다. v-096의 외피 설계 PASS는 이 건축 범위의 역사이고, 이 source review는 현 트리의 재료 결합이나 새 GPU 외관을 승인하지 않는다.
  * @evidence principles/core/source-units.md#source-scope-preservation 003의 plane·normal·clear span·frame 깊이·캐노피 외곽을 그대로 소비한다. 본채는 평지붕 직사각형이고 박공·굴뚝·옥상 통행이나 새 후문을 추가하지 않는다.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 외피 export는 facade·roof를 반환하며 계단이나 실내 room 경계를 다시 저작하지 않아 003의 표면 책임에 머문다.
  * @evidence principles/core/source-units.md#source-substantive-completion façade는 공개 wall kernel의 닫힌 절삭 mesh, 깊이 있는 frame과 glass, 반복 stone panel·shade를 생성한다. roof는 실제 slab·edge·지지·PV cassette를 내므로 라벨이나 빈 boundary만 남는 구현이 아니다.
@@ -14,7 +14,7 @@ import { roof } from "../house/envelope/roof";
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work 003의 전체 입면과 room별 opening을 동일 좌표에서 구현했고 유효 span 밖0.04m frame, 층선, 삼각 corner 분할을 유지했다. 닫힌 wall·창틀·불투명 return을 만들기 위해 room graph나 roof 형태를 바꿀 필요가 없었다. 광학·구조 성능 인증은 포함하지 않는다.
  * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 003의 floor band·room 끝·corner return으로 모든 외피 cut을 만들 수 있어 envelope 조립에서 상위 고정 그래프를 수정할 결손은 없었다.
  * @evidence spaces/003-surface-ownership.md#whole-surface-owners front/rear/left/right/roof 모듈이 각 표면 전체를 소유하며 full facade boundary는 house에 귀속하고 그 face는 외측 O에 둔다. 구조 내벽·실내 수평 마감과 입면 아래 plinth는 storey 모듈, 현관 출입구 아래 문턱판과 계단 void 앞 외벽 실내 면은 전면 facade에 남는다.
- * @evidenceReview spaces/003-surface-ownership.md#whole-surface-owners #d0af795 facade()는 C에서 벽을 절삭하고 외측 boundary.face.origin을 C+(d/2)N에 두며 front·rear·left·right의 안정 면 주소를 만든다. 이전 compiled scene에서 네 외측 centroid는 z=±6.00·x=±5.50, 법선은 각 외향 축과 일치했다. plinth는 ground.ts, 현관 문턱판은 front.ts의 doorway(), 위 ring은 roof.ts가 만드는 건축 면이다. 이 결과는 geometry owner를 확인한 것이며 후속 materials의 finish 결합 완료를 뜻하지 않는다.
+ * @evidenceReview spaces/003-surface-ownership.md#whole-surface-owners #209ea3f facade()는 C에서 벽을 절삭하고 외측 boundary.face.origin을 C+(d/2)N에 두며 네 입면의 안정 면 주소를 만든다. plinth는 ground.ts, 현관 문턱판은 front.ts의 doorway(), 위 ring은 roof.ts가 만드는 건축 면이다. v-096 설계 PASS와 이전 compiled centroid 측정은 현 트리의 재료 결합 또는 새 GPU 외관의 판정으로 확대하지 않는다.
  * @evidence spaces/003-surface-ownership.md#front-face 절삭 중심 z=-5.88, 외측 face z=-6.00·normal -Z의 벽에서 현관문·하상층 계단창·작업실창·상층 침실창을 절삭한다. -X 불투명 코어와 두 floor 사이 spandrel cassette를 둔다.
  * @evidenceReview spaces/003-surface-ownership.md#front-face #f877f75 front.ts의 frame plane -5.88·normal -1과 네 Glazing·현관 portal cut, compiled face centroid z=-6.00과 법선 (0,0,-1)을 읽었다. 코어 -X 구간은 창 없이 stone panel이고 계단·작업실/침실 쌍 위에 cassette 두 band가 생긴다.
  * @evidence spaces/003-surface-ownership.md#rear-face 절삭 중심 z=5.88, 외측 face z=6.00·normal +Z의 후면 벽에 common·primary·bathroom의 독립 opening을 두며 상층 코어 벽 끝을 넘어 유리를 잇지 않는다.

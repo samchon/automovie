@@ -86,19 +86,19 @@
 @evidence principles/core/settings.md#capability-boundary upper-service는 세탁·점검·수납을 담지만 수면실이나 두 번째 복도가 될 수 없다.
 @evidence principles/core/settings.md#constraint-sufficiency 방을 넓게 보이게 하려고 열거된 가구·설비를 삭제하지 못하며 문은 같은 일자 복도에 실제로 면해야 한다.
 @evidence principles/core/settings.md#observable-identity double bed·협탁·옷장과 두 single bed, 욕조/샤워·변기·세면대, linen 수납이 서로 다른 방을 구분한다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 요구 침실·욕실·수납을 유지하면서 upper-service를 별도 설비·세탁실로 채택했다고 명시한다. 추가 실의 기능을 원래 사용자 침실 수에서 자동 도출했다고 숨기지 않았다.
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 주침실, 두 작은 침실, 욕실, 수납과 채택한 설비실 모두를 같은 복도에 남긴다. 상층을 침대 몇 개의 모음으로 줄여 서비스 기능을 누락할 수 없는 내용이다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 double bed와 두 single bed, 욕실 fixture, linen 및 세탁·건조기의 프로그램을 결정했다. 설계는 방의 용도와 필수 물품을 처음부터 새로 고를 필요가 없다.
-@evidenceReview principles/core/settings.md#fact-status #93a284a 세탁기와 욕실 물품은 납품할 기능의 정의이며 이미 작동·사용성 검사를 통과한 장치가 아니다. 의도한 생활 프로그램을 현재 실행 성능으로 표현하지 않는다.
-@evidenceReview principles/core/settings.md#source-support #430bca9 침실 수와 직접 접근은 브리프에 근거하지만 욕실 규격이나 실제 가족 조사 자료를 인용하지 않는다. 프로그램 채택을 외부 건축 규정 준수의 근거로 넓힐 수 없다.
-@evidenceReview principles/core/settings.md#capability-boundary #83a6f2c upper-service는 세탁·건조·청소 수납과 점검을 위한 실이며 수면실이나 추가 복도로 사용할 수 없다. 이 실의 존재가 상층의 허용 동선 기능을 늘리지 않는다.
-@evidenceReview principles/core/settings.md#constraint-sufficiency #20cf612 모든 방문은 동일한 일자 corridor에 실제로 면해야 하고 넓어 보이도록 물품을 삭제할 수 없다. 기능을 유지하지 않은 빈 방이나 통과실은 이 프로그램의 대안이 아니다.
-@evidenceReview principles/core/settings.md#observable-identity #4ccb62e double bed·협탁·옷장과 single bed 두 세트, 욕실의 vanity·toilet·shower/tub, linen 수납이 방을 구별한다. 같은 가구 box를 모든 실에 놓고 라벨만 바꾸는 해석은 충분하지 않다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 브리프가 요구한 침실 셋·욕실·수납을 보존하고 별도 설비·세탁실은 제작 선택으로 밝힌다. 이 프로그램의 물품 목록을 물체 형상이나 배치의 설계 권한으로 해석하지 않도록 surface-decomposition을 직접 연결한다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 주침실·두 작은 침실·욕실·수납과 채택한 설비실을 같은 복도에 직접 붙인다. 물품을 삭제해 빈 방만 남기는 축소는 금지하되, 이 H2는 물품의 prototype·방별 배치·발광·마감 결합을 승인하지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 double bed·두 single bed·욕실 fixture·linen 및 세탁·건조기의 생활 기능과 목적지 방을 정했다. 구체 prototype과 방 안 transform은 분해 선언의 후속 owner가 결정하므로 공간 분할이 그것을 대신하지 않는다.
+@evidenceReview principles/core/settings.md#fact-status #93a284a 상층 물품은 납품할 생활 기능이며 현재 geometry·설비 작동·사용성 검사의 통과 기록이 아니다. 후속 owner의 구현과 독립 판정을 거쳐야 실현 결과로 읽는다.
+@evidenceReview principles/core/settings.md#source-support #430bca9 침실 수와 복도 직접 접근은 사용자 브리프의 입력이고 별도 설비실은 저작 선택이다. 욕실 규격·가족 조사나 건축 인증 자료를 근거로 꾸미지 않는다.
+@evidenceReview principles/core/settings.md#capability-boundary #83a6f2c upper-service는 세탁·건조·청소 수납과 점검을 위한 독립 실이지 수면실이나 두 번째 복도가 아니다. 생활 물품 이름은 장비 시뮬레이션 능력을 추가하지 않는다.
+@evidenceReview principles/core/settings.md#constraint-sufficiency #20cf612 여섯 목적지의 문은 한 일자 corridor에 직접 면하고 각 방의 생활 기능은 납품에 남는다. 물품 삭제나 통과실로의 병합은 허용하지 않되 구체 형상·배치는 surface-decomposition의 별도 owner가 답한다.
+@evidenceReview principles/core/settings.md#observable-identity #4ccb62e double bed·협탁·옷장, 두 single bed, 욕실의 vanity·toilet·shower/tub와 linen 수납은 각 방이 읽혀야 할 생활 단서다. 이 목록은 후속 prototype·배치·재료 판정의 입력이며 동일 상자와 라벨만으로 충족됐다는 시각 승인은 아니다.
 -->
 
 계단참에서 시작하는 짧은 하나의 일자 corridor가 primary bedroom, child bedroom 1, child bedroom 2, bathroom, storage를 직접 연결한다. corridor는 분기하지 않고 각 방은 실제 문으로 corridor에 면한다. primary bedroom은 double bed, bedside tables, wardrobe, small desk를 갖고 두 작은 bedroom은 각각 single bed, wardrobe, desk 또는 shelf를 갖는다.
 
-욕실은 vanity, toilet, shower/tub, towel storage를 포함하고 upper storage는 linen·cleaning cabinet을 가진다. upper-service는 복도에 직접 문이 난 별도의 설비·세탁실로 채택한다. 세탁·건조기, 청소 수납과 점검 영역을 포함하며 수면실이나 두 번째 복도로 사용하지 않는다. 각 room에는 의도된 생활 물품을 남기되, 방을 더 크게 보이게 하려고 가구와 설비를 삭제하지 않는다.
+욕실은 vanity, toilet, shower/tub, towel storage를 포함하고 upper storage는 linen·cleaning cabinet을 가진다. upper-service는 복도에 직접 문이 난 별도의 설비·세탁실로 채택한다. 세탁·건조기, 청소 수납과 점검 영역을 포함하며 수면실이나 두 번째 복도로 사용하지 않는다. 각 room에는 의도된 생활 물품을 남기되, 방을 더 크게 보이게 하려고 가구와 설비를 삭제하지 않는다. 이 목록은 방의 생활 기능을 정하며 물체의 형상·방별 배치·발광·마감 결합은 [표면 분해](003-spatial-basis.md#surface-decomposition)의 각 owner가 맡는다.
 
 ## 프로그램 경계 {#program-boundary}
 
