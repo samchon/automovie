@@ -143,9 +143,9 @@ shingle 원형의 `shingle-face`·`shingle-butt`·`shingle-back`·`shingle-cut` 
 @evidence principles/core/common.md#declared-basis 꿀빛 목재 현관문의 #9A6A3E·roughness 0.50은 settings/10-house.md#porch-entry의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
 @evidence principles/core/common.md#scope-preservation 꿀빛 목재 현관문은 models/02-exterior-doors.md#front-entry-door의 면에 마감만 결합하고 그 면의 geometry·경계는 host owner에 남긴다.
 @evidence principles/core/common.md#substantive-completion 꿀빛 목재 현관문은 #9A6A3E(선형 0.323, 0.144, 0.048), roughness 0.50, metallic 0.0, transmission 0.0, 결합 면, source owner `src/materials/exterior/doors.ts`, 리뷰 관찰을 모두 적었다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 settings/10-house.md#porch-entry는 색·재료를 말로만 정했고 꿀빛 목재 현관문은 #9A6A3E 값과 roughness 0.50, `leaf`·`casing`·`handle` 결합을 더한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 settings/10-house.md#porch-entry는 색·재료를 말로만 정했고 꿀빛 목재 현관문은 #9A6A3E 값과 roughness 0.50, 현관문 `leaf-exterior`·`leaf-interior`·`leaf-edge`·`leaf-panel` 결합을 더한다. 흰 `casing`과 검은 `handle`은 다른 재료에 배정한다.
 @evidence principles/design/materials.md#material-construction-appearance 꿀빛 목재 현관문은 구성을 '오일 마감 참나무 판 문짝'로, 외관의 #9A6A3E·roughness 0.50·metallic 0.0을 기준값으로 두고 아래 표면 결속 계획의 결·광학 응답으로 최상층 마감을 표현한다고 적는다.
-@evidence principles/design/materials.md#material-binding-interface 꿀빛 목재 현관문의 결합 vocabulary는 `leaf`·`casing`·`handle`이며 방향과 단면/양면은 00 면 결합 규칙을 따른다.
+@evidence principles/design/materials.md#material-binding-interface 꿀빛 목재 현관문의 결합 vocabulary는 `leaf-exterior`·`leaf-interior`·`leaf-edge`·`leaf-panel`이며 방향과 단면/양면은 00 면 결합 규칙을 따른다. `casing`과 `handle`은 각각 흰 trim과 검은 금속이 받는다.
 @evidence principles/design/materials.md#material-verification-address 꿀빛 목재 현관문의 반증 견본은 '포치 그늘 안에서 문이 흰 벽과 구별되는 중간갈색으로 읽히는지'이고 00 재료 리뷰 견본의 중성 조명 판이 #9A6A3E 값을 대조한다.
 @evidenceExclude upstream/design/materials.md#parent-revision-from-material-work 꿀빛 목재 현관문은 settings/10-house.md#porch-entry와 이번 모델 수리 뒤의 models/02-exterior-doors.md#front-entry-door를 소비한다. 문턱·충전 소유 정정은 모델 분기의 수리이며 이 재료 H2가 부모에 요구한 수정은 없다.
 @evidence contracts/texture-readability.md#material-texture-readability 현관 `leaf-exterior`·`leaf-interior`·`leaf-edge`·`leaf-panel`의 오크 결은 국소 문짝 세로축 V에 따라 늘어나는 0.15 m 폭 목재 결 맵으로 만든다. 문짝 왼쪽 아래를 원점으로 두고 패널·모서리 파티션마다 결 방향을 맞추되 문선에서는 끊는다.

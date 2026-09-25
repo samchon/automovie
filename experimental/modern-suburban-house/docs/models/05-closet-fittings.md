@@ -14,7 +14,7 @@
 @evidence obligations/design/models.md#articulation-ownership 각 문짝의 국소 X 평행 이동 0~0.45 m를 motion 인터페이스로, 기준 상태를 닫힘으로 정한다.
 @evidence spaces/rooms/entry.md#entry-coat-storage 현관 owner가 고정 몸체와 개구부만 맡는 경계를 받아 폭 0.95 m의 문짝 0.50 m 둘·겹침 0.05 m 및 통로 쪽 국소 깊이 최대 0.14 m를 이 모델에 배정한다.
 @evidence contracts/reservation-fit.md#reservation-fit 두 트랙의 국소 깊이 끝 0.14 m가 0.15 m 경계 안이고 오목 손잡이의 최대 깊이도 0.20 m 한도 안임을 산술로 보인다.
-@evidence upstream/design/models.md#settings-and-space-revision-from-model-work entry-coat-storage는 원래 문짝·봉까지 entry.ts가 소유한다고 적었으나 실제 source에는 벽과 개구부만 있었다. 부모 H2를 벽·개구부는 spaces, 문짝·봉·선반은 models로 고친 뒤 문짝 원형을 정했다.
+@evidence upstream/design/models.md#settings-and-space-revision-from-model-work entry-coat-storage는 원래 문짝·봉까지 entry.ts가 소유한다고 적었으나 실제 source에는 벽과 개구부만 있었다. 부모 H2를 벽·개구부는 spaces, 문짝·봉·선반은 models로 고쳤고 spaces/07-boundary-assembly.md#interior-boundary-ownership도 수납문이 방 면을 채우는 같은 소유 모순을 고쳐 닫힌 수납문 원형을 이 H2에 넘겼다.
 -->
 
 레퍼런스 04의 계단 옆 흰 수납문을 채택한다. 미닫이 겹침과 트랙 깊이는 현관 예약에서 정하고 사진 속 여닫이 각도를 강요하지 않는다.
@@ -44,7 +44,7 @@
 ## 린넨장의 미닫이 문짝과 선반 {#linen-closet-fittings}
 <!--
 @evidence principles/core/common.md#scope-preservation 린넨장 미닫이 문짝 0.525 m 두 장과 선반 다섯 개를 이 H2가 맡는다.
-@evidence principles/core/common.md#substantive-completion 선반 상면 0.25·0.63·1.01·1.39·1.77 m, 깊이 0.55 m·두께 0.02 m와 문짝 높이 2.16 m, 두 트랙 깊이 [0.07,0.10]/[0.11,0.14] m, 각 문 이동 0–0.475 m·닫힌 기준 상태를 확정한다.
+@evidence principles/core/common.md#substantive-completion 선반 상면 0.25·0.63·1.01·1.39·1.77 m, 안쪽 폭 1.20 m·깊이 0.55 m·두께 0.02 m와 문짝 높이 2.16 m, 두 트랙 깊이 [0.07,0.10]/[0.11,0.14] m, 각 문 이동 0–0.475 m·닫힌 기준 상태를 확정한다.
 @evidence principles/core/common.md#declared-basis 개구부·선반 규칙은 spaces/rooms/upper-hall.md#upper-linen-storage에서 받는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation upper-linen-storage의 '0.25 m부터 0.38 m 간격'을 다섯 상면 값으로 바꾼다.
 @evidence principles/design/models.md#representation-contract 문짝·트랙·선반 계층을 정한다.
@@ -55,12 +55,14 @@
 @evidence obligations/design/models.md#articulation-ownership 린넨장 문짝의 국소 X 평행 이동을 외투장과 같은 형식의 motion 인터페이스로 정한다.
 @evidence spaces/rooms/upper-hall.md#upper-linen-storage upper-linen-opening X = [1.97, 2.97] m와 다섯 선반 규칙을 문짝 0.525 m와 선반 상면 값으로 소비한다.
 @evidence contracts/reservation-fit.md#reservation-fit 선반 깊이 0.55 m 뒤에 0.05 m 여유가 있고 문 트랙은 별도의 국소 깊이 [0, 0.15] m 경계 안에 있음을 적는다.
-@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work upper-hall을 적힌 그대로 소비했고 부모 수정이 없었다.
+@evidence upstream/design/models.md#settings-and-space-revision-from-model-work upper-hall의 린넨장 치수는 그대로 소비했다. 다만 spaces/07-boundary-assembly.md#interior-boundary-ownership의 수납문 소유가 방 면과 모델 원형에 겹치던 부분은 벽 개구부만 spaces, 문짝은 models로 부모에서 고친 뒤 이 H2의 두 문짝을 지정했다.
 -->
 
 레퍼런스 05의 상층 복도 수납문과 02의 복도 수납 위치를 채택한다. 내부 다섯 선반과 수건은 사진 비례가 아닌 수납 요구로 정한다.
 
 [린넨장 owner](../spaces/rooms/upper-hall.md#upper-linen-storage)의 `upper-linen-opening`의 거친 폭 1.00 m와 높이 2.20 m를 두 미닫이 문짝이 채운다. 문짝 폭은 0.525 m(1.00 m의 절반 + 겹침 0.05 m의 절반), 두께 0.03 m, 높이 2.16 m(머리 트랙 0.03 m와 바닥 틈 0.01 m 제외)이며 트랙은 장 안쪽 면에서 복도 쪽 국소 깊이 d = [0, 0.15] m 안의 뒤 d = [0.07, 0.10] m와 앞 d = [0.11, 0.14] m에 둔다. 문짝 아래는 완성 바닥 위 0.01 m이고 위는 2.17 m다. 다섯 선반은 상면이 상층 바닥 위 0.25 m부터 0.38 m 간격으로 0.25, 0.63, 1.01, 1.39, 1.77 m이고, 뒤쪽 안쪽 면을 국소 깊이 0으로 두고 문 쪽으로 0.55 m 깊이, 두께 0.02 m로 둔다. 두 문짝 각각의 손잡이는 만남선에서 바깥쪽 0.06 m, 완성 상층 바닥 위 1.00 m 중심의 폭 0.10 m·높이 0.025 m·깊이 0.012 m 오목 홈으로 두고 `handle`을 준다. 두 문짝의 국소 가로 평행 이동은 각 0–0.475 m(폭 0.525 m에서 겹침 0.05 m를 뺌)이고 기준 상태는 둘 다 닫힘이다. 선반 앞면과 문 경계 안쪽 면 사이에는 0.05 m 간격이 있으며 문짝은 그보다 복도 쪽의 0.15 m 경계 안에서만 움직인다. 표면 id는 선반 `shelf`, 문 앞뒤와 두께 면 `leaf`, 오목 패널 `leaf-panel`, 트랙 `rail`, 파인 손잡이 `handle`이다. 소스 owner는 `src/models/closet.ts`이며 복도 도착면 view와 장 단면으로 검사한다.
+
+선반 `shelf`의 가로 길이는 장 안쪽 X=[1.87,3.07] m의 1.20 m이며, 장 중심 X=2.47 m 기준 국소 X=[−0.60,0.60] m로 양 끝면을 벽 안쪽 면에 맞댄다. 각 선반은 뒤쪽 국소 깊이 d=[0,0.55] m를 채우고 별도 브래킷은 만들지 않는다. 선반과 벽은 면으로만 접하며 문 트랙의 복도 쪽 띠에는 진입하지 않는다.
 
 ## 수납 부재의 표면 파티션 {#closet-fitting-surfaces}
 <!--

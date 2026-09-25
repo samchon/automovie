@@ -90,6 +90,8 @@ spaces와 settings가 부재 폭을 정하지 않았으므로 frame 둘레 입�
 
 motion 인터페이스는 각 `lower-sash`의 국소 +Y 평행 이동 하나이며 범위는 0부터 sash 높이의 절반까지다. `upper-sash`는 rigid 고정이다. 기준 상태는 [06](../spaces/06-openings.md#external-opening-interface)과 [settings 개구부](../settings/10-house.md#openings)대로 모두 닫힌 이동 0이다. 소스 owner는 `src/models/windows.ts`이며 닫힘과 최대 열림의 사선 투시로 검사한다.
 
+각 거친 창폭 W·높이 H·칸 수 n은 [창 부재 치수](#window-member-sizes)를 그대로 매개화한다. `mullion`은 인접 칸 사이마다 0.08 m 폭·0.14 m 깊이의 닫힌 기둥이고, 칸 폭은 c=(W−2×0.06−(n−1)×0.08)/n m다. 한 칸의 upper/lower `sash`는 각각 외곽 폭 c·높이 (H−2×0.06)/2 m, 테두리 0.05 m·깊이 0.05 m이며 안팎 트랙 간격은 위에서 정한 0.02 m다. 각 sash의 `muntin`은 중앙 세로 한 줄과 가로 한 줄의 폭 0.025 m·깊이 0.01 m 띠이고, 각 칸의 `glass`는 두께 0.006 m, 투명 사각 영역의 열 폭 (c−2×0.05−0.025)/2 m·행 높이 ((H−2×0.06)/2−2×0.05−0.025)/2 m인 네 닫힌 판이다. 문턱이나 창선은 이 창짝 원형에 중복하지 않는다.
+
 ## 고정창의 계층 {#fixed-window}
 <!--
 @evidence principles/core/common.md#scope-preservation 계단 창 한 칸과 차고 측면 창 두 칸의 고정창 계층(frame→unit-n→fixed-sash)을 이 H2가 맡는다.
@@ -110,6 +112,8 @@ motion 인터페이스는 각 `lower-sash`의 국소 +Y 평행 이동 하나이�
 레퍼런스 01의 좁은 계단·차고 창은 고정창으로 채택한다. 유리 반사 속 나무 모양은 표면 형상으로 복제하지 않는다.
 
 [계단 창](../spaces/envelope/front.md#stair-front-window)의 한 칸과 [차고 측면 창](../spaces/envelope/right.md#garage-right-window)의 두 칸은 고정창이다. 계층은 `frame` 아래 칸마다 `unit-<n>`과 `fixed-sash` 하나이며 sash는 frame 깊이의 가운데에 둔다. 관절 인터페이스는 없고 모든 부재가 rigid다. 소스 owner는 `src/models/windows.ts`이며 계단참과 차고 내부 reveal 단면으로 검사한다.
+
+고정창도 거친 폭 W·높이 H·칸 수 n을 입력받아 [창 부재 치수](#window-member-sizes)의 `frame` 둘레 0.06 m·깊이 0.14 m와 칸 사이 `mullion` 폭 0.08 m를 그대로 쓴다. 칸 폭 c=(W−2×0.06−(n−1)×0.08)/n m의 `sash`는 한 칸에 한 장이며 테두리 0.05 m·깊이 0.05 m다. `muntin`은 그 안의 세로·가로 중앙 폭 0.025 m·깊이 0.01 m이고 `glass`는 한 칸당 네 장, 각각 열 폭 (c−2×0.05−0.025)/2 m·행 높이 (H−2×0.06−2×0.05−0.025)/2 m·두께 0.006 m다. 계단 창 n=1에는 `mullion`이 0개이고 차고 두 칸 사이에는 1개다.
 
 ## 욕조 욕실의 상부 경첩창 {#awning-window}
 <!--

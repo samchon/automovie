@@ -11,7 +11,7 @@
 @evidence principles/design/models.md#reviewable-structure 03 공용부, 04 현관·계단, 05 복도의 낮은 벽과 문선 옆을 방 안쪽 모서리/중심에서 보아 흰 0.10 m 띠의 연속, 문 아래 빈 띠, 모서리 중복을 반증한다.
 @evidence principles/design/models.md#model-observable-style-basis 레퍼런스 03·04·05의 흰 벽 하단 판을 낮은 연속 띠로 채택한다. 벽보다 좁은 반광 하이라이트는 materials가 정하고 사진의 픽셀 높이는 치수 근거로 쓰지 않는다.
 @evidence principles/design/models.md#model-scale-layer-completion 닫힌 오각 단면의 다섯 꼭짓점, run 산출과 종단, 단일 id, UV·source owner·관찰을 정한다. 실측된 방 경계 외의 길이·배치 수는 후속 instances가 정한다.
-@evidence upstream/design/models.md#settings-and-space-revision-from-model-work spaces/03-surface-owners.md#interior-surface-handoff가 모든 안쪽 벽 마감을 방 owner에 주면서 materials가 요구한 별도 걸레받이를 분리하지 않았다. 그 부모 본문과 space-boundary-authority 근거에 방 벽·바닥 면은 spaces, 닫힌 걸레받이 판은 models/06이라는 단일 소유 인계를 명시했다.
+@evidence upstream/design/models.md#settings-and-space-revision-from-model-work spaces/03-surface-owners.md#interior-surface-handoff가 모든 안쪽 벽 마감을 방 owner에 주면서 materials가 요구한 별도 걸레받이를 분리하지 않았다. 그 부모 본문과 space-boundary-authority 근거에 방 벽·바닥 면은 spaces, 닫힌 걸레받이 판은 models/06이라는 단일 소유 인계를 명시했다. spaces/rooms/common.md#common-clear-routes의 공용부 순폭도 실제 걸레받이 돌출 0.015 m를 공제하도록 부모에서 고쳤다.
 @evidence spaces/03-surface-owners.md#interior-surface-handoff 방마다 완결된 안쪽 벽·바닥 마감 면과 실제 개구부를 원래 owner에게서 받고, 그 면 위의 독립 걸레받이 판만 이 모델에 둔다.
 @evidence settings/20-verification.md#visual-grammar 읽히는 실내 trim을 방의 낮은 벽에서 연속한 돌출 띠로 구현할 원형을 정한다.
 @evidence contracts/surface-ownership.md#whole-surface-owner 각 run의 앞·뒤·윗면·아랫면·절단 끝을 한 모델 owner와 `wall-baseboard` face id로 닫고 벽·바닥 마감과 중복 생성하지 않는다.

@@ -11,6 +11,7 @@ const tasks = [
   ["material hosts", process.execPath, [audit, "material-hosts"], "material-hosts"],
   ["material bindings", process.execPath, [path.join(__dirname, "material-binding-scan.cjs"), "--check"], "exit"],
   ["reviewed referents", process.execPath, [path.join(__dirname, "referent-owner-scan.cjs"), "--check"], "exit"],
+  ["model contacts", process.execPath, [path.join(__dirname, "model-contact-check.cjs")], "exit"],
   ["geometry", "cmd.exe", ["/d", "/s", "/c", "npm run geometry-audit"], "exit"],
   ["lint", "cmd.exe", ["/d", "/s", "/c", "npm run lint"], "exit"],
 ];
@@ -22,12 +23,15 @@ for (const [name, command, args, kind] of tasks) {
     maxBuffer: 1 << 25,
   });
   if (result.stdout) {
-    const visible = kind === "handoffs" && result.status === 0
-      ? (() => {
+    let visible = result.stdout;
+    if (kind === "handoffs" && result.status === 0) {
+      try {
         const value = JSON.parse(result.stdout);
-        return JSON.stringify({ files: value.files, vocabulary: value.vocabulary, candidateH2: value.candidateH2, citedCandidateH2: value.citedCandidateH2, accountRows: value.accountRows, ownerlessRows: value.ownerlessRows, invalidParentLinks: value.invalidParentLinks.length, invalidOwnerLinks: value.invalidOwnerLinks.length }) + "\n";
-      })()
-      : result.stdout;
+        visible = JSON.stringify({ files: value.files, vocabulary: value.vocabulary, candidateH2: value.candidateH2, citedCandidateH2: value.citedCandidateH2, accountRows: value.accountRows, ownerlessRows: value.ownerlessRows, invalidParentLinks: value.invalidParentLinks.length, invalidOwnerLinks: value.invalidOwnerLinks.length }) + "\n";
+      } catch {
+        // Keep the malformed producer output visible; the census parser below fails it.
+      }
+    }
     process.stdout.write(`\n[${name}]\n${visible}`);
   }
   if (result.stderr) process.stderr.write(`\n[${name}]\n${result.stderr}`);

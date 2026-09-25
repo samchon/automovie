@@ -73,6 +73,13 @@ const witness = {
 };
 const source = files("settings").concat(files("spaces"));
 const bodies = source.flatMap((file) => sections(read(file)).map(({ anchor, body }) => ({ id: `${file}#${anchor}`, body })));
+// A newly named wall or room object must enter the vocabulary before a
+// candidate-maker census can claim coverage. This deliberately scans source
+// prose independently from the hand-maintained owner dictionary.
+const attachment = /(?:^|[\s.,;:])([가-힣]{2,12})(?:이|가)\s+(?:붙는다|놓인다|설치된다|달린다|세워진다|고정된다)/gm;
+const unregisteredReferents = bodies.flatMap(({ id, body }) => [...body.matchAll(attachment)]
+  .map((match) => ({ id, term: match[1] }))
+  .filter(({ term }) => !Object.hasOwn(owner, term)));
 const all = new Map([...files("models"), ...files("spaces"), ...files("materials")].flatMap((file) => sections(read(file)).map(({ anchor, body }) => [`${file}#${anchor}`, body])));
 const rows = Object.entries(owner).map(([term, makers]) => {
   const references = bodies.filter(({ body }) => body.includes(term)).map(({ id }) => id);
@@ -88,6 +95,7 @@ const destination = path.join(docs, "accounts/models/spaces-referent-ledger.md")
 if (process.argv.includes("--write")) fs.writeFileSync(destination, output);
 else if (process.argv.includes("--check")) {
   if (read("accounts/models/spaces-referent-ledger.md").replace(/\r\n/g, "\n") !== output) { console.error("referent ledger differs from current corpus"); process.exitCode = 1; }
-  else console.log(JSON.stringify({ sourceH2: bodies.length, terms: rows.length, presentTerms: rows.filter((r) => r.references.length).length, referencePairs: rows.reduce((n, r) => n + r.references.length, 0), ownerless: absent.length }));
+  else console.log(JSON.stringify({ sourceH2: bodies.length, terms: rows.length, presentTerms: rows.filter((r) => r.references.length).length, referencePairs: rows.reduce((n, r) => n + r.references.length, 0), ownerless: absent.length, unregisteredReferents: unregisteredReferents.length }));
 } else console.log(JSON.stringify({ sourceH2: bodies.length, rows, absent }, null, 2));
 if (absent.length) { for (const row of absent) console.error(`MISSING MAKER ${row.term} ${row.invalid.join(",")}`); process.exitCode = 1; }
+if (unregisteredReferents.length) { for (const row of unregisteredReferents) console.error(`UNREGISTERED REFERENT ${row.id} :: ${row.term}`); process.exitCode = 1; }

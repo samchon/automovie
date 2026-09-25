@@ -87,7 +87,7 @@
 | [towel-bar](../../models/14-bathrooms.md#towel-bar) | 벽 앞면 0.04+봉반지름 0.01+수건 0.03 = 0.08 m; 폭은 각 방 0.25/0.50/0.75. |
 | [sliding-shower-booth](../../models/14-bathrooms.md#sliding-shower-booth) | 앞면 3×0.43−2×0.02 = 1.25 m, 열린 순폭 1.25−0.43−0.02 = 0.80 m. |
 | [bathtub](../../models/14-bathrooms.md#bathtub) | 외곽 0.80×1.80×0.55 m; 가장자리 0.06, 바닥 위 내부 최저 0.15 m. |
-| [tub-curtain-rail](../../models/14-bathrooms.md#tub-curtain-rail) | 레일 길이 1.80 m = 욕조 길이; 걷힘 0.25 m, 법선 ±0.02 ⊂ 예약 폭 0.10 m. |
+| [tub-curtain-rail](../../models/14-bathrooms.md#tub-curtain-rail) | 레일 길이 1.90 m = 뒤벽 부착 0.10 + 욕조 길이 1.80 m; 커튼 사용 구간은 뒤 0.10 m를 제외한 1.80 m, 걷힘 0.25 m, 법선 ±0.02 ⊂ 예약 폭 0.10 m. |
 | [bath-floor-mats](../../models/14-bathrooms.md#bath-floor-mats) | 샤워 매트 0.65×0.45 ⊂ 0.90×0.60 m; 욕조 매트 0.80×0.45 ⊂ 1.05×1.55 m. |
 | [shower-niche-bottles](../../models/14-bathrooms.md#shower-niche-bottles) | 벽감 0.40 m 길이에 세 병 0.06+0.07+0.055+2×0.025 = 0.235 m; 양끝 여유 0.0825 m, 깊이 0.08 m. |
 | [terrace-table](../../models/15-outdoor.md#terrace-table) | 상판 폭 6×0.125+5×0.01 = 0.80 m; 긴변 좌석 구간 [-0.65,-0.05]·[0.05,0.65], 다리 X 구간 [-0.70,-0.65]·[0.65,0.70]이라 무릎 폭과 내부 겹침 0. 상면 0.74 m. |
