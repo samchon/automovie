@@ -28,7 +28,7 @@ export class TempleWareModels {
       .rod("handle",{x:0.10,y:0.13,z:0},{x:0.035,y:0.16,z:0},0.01);
     add("small-vessel",m);
 
-    m = new ObjectMesh().vessel("bowl",0,0,[[0.01,0.04],[0.018,0.085],[0.04,0.104],[0.06,0.11]],
+    m = new ObjectMesh().vessel("bowl",0,0,[[0,0.04],[0.01,0.04],[0.018,0.085],[0.04,0.104],[0.06,0.11]],
       [[0.06,0.098],[0.043,0.08],[0.027,0.05],[0.015,0.01]],24);
     add("offering-bowl",m);
 

@@ -14,7 +14,7 @@ const onSeat = (map: ReadonlyMap<string, IAutoMovieModel>, placed: readonly Temp
 
 void test("support elevation follows both emitted host top and guest bottom", () => {
   const before = onSeat(catalogue());
-  assert.ok(Math.abs(before.y - (1 + 0.46 * 1.2 - 0.01 * 0.8)) < 1e-10);
+  assert.ok(Math.abs(before.y - (1 + 0.46 * 1.2)) < 1e-10);
   const map = catalogue();
   const bench = map.get("object.bench")!;
   map.set(bench.id, { ...bench, parts: bench.parts.map((part) => {
@@ -39,8 +39,8 @@ void test("an indexed shelf level is selected from its actual upward board faces
     "shelf", "board", 1);
   const highest = templeSupportedPlacement(catalogue(), [shelf], "room", "cloth", "offering-bowl", 0, 0,
     "shelf", "board");
-  assert.ok(Math.abs(second.y - 0.57) < 1e-10);
-  assert.ok(Math.abs(highest.y - 1.39) < 1e-10);
+  assert.ok(Math.abs(second.y - 0.58) < 1e-10);
+  assert.ok(Math.abs(highest.y - 1.4) < 1e-10);
   assert.throws(() => templeSupportedPlacement(catalogue(), [shelf], "room", "cloth", "offering-bowl", 0, 0,
     "shelf", "board", 99), /판 99 없음/);
 });
@@ -72,7 +72,7 @@ void test("non-indexed upward faces and non-mesh parts take their explicit branc
     positions: [0, 0.6, 0, 0, 0.6, 1, 1, 0.6, 0], indices: null,
   } } };
   map.set(bench.id, { ...bench, parts: [triangle] });
-  assert.ok(Math.abs(onSeat(map).y - (1 + 0.6 * 1.2 - 0.01 * 0.8)) < 1e-10);
+  assert.ok(Math.abs(onSeat(map).y - (1 + 0.6 * 1.2)) < 1e-10);
   const shape = { ...seat, geometry: { type: "shape", shape: null } } as unknown as typeof seat;
   map.set(bench.id, { ...bench, parts: [shape] });
   assert.throws(() => onSeat(map), /받침 부재 없음/);

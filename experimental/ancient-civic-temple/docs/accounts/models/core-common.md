@@ -49,42 +49,42 @@
 | [entablature/sanctuary-truss](../../models/entablature.md#sanctuary-truss) | `king-post` | 1492 | `9f544396adf91c20e49e1e6b033a23cd66e76632f79301478c80ed9b5fdef4f2` |
 | [entablature/sanctuary-truss](../../models/entablature.md#sanctuary-truss) | `strut` | 1492 | `9f544396adf91c20e49e1e6b033a23cd66e76632f79301478c80ed9b5fdef4f2` |
 | [entablature/ceiling-joist](../../models/entablature.md#ceiling-joist) | `timber` | 656 | `7749437b60ea5c4b708351b8780f3090d7581110d271b9893783493d7d53c79c` |
-| [fixtures/fountain](../../models/fixtures.md#fountain) | `step` | 1483 | `e1b3e19545969c0bcb08093e093735fc12a6ce296cfe661bbb9ccbbf3c0ef277` |
-| [fixtures/fountain](../../models/fixtures.md#fountain) | `rim` | 1483 | `e1b3e19545969c0bcb08093e093735fc12a6ce296cfe661bbb9ccbbf3c0ef277` |
-| [fixtures/fountain](../../models/fixtures.md#fountain) | `basin-inner` | 1483 | `e1b3e19545969c0bcb08093e093735fc12a6ce296cfe661bbb9ccbbf3c0ef277` |
-| [fixtures/fountain](../../models/fixtures.md#fountain) | `water` | 1483 | `e1b3e19545969c0bcb08093e093735fc12a6ce296cfe661bbb9ccbbf3c0ef277` |
-| [fixtures/fountain](../../models/fixtures.md#fountain) | `ripple` | 1483 | `e1b3e19545969c0bcb08093e093735fc12a6ce296cfe661bbb9ccbbf3c0ef277` |
-| [fixtures/fountain](../../models/fixtures.md#fountain) | `nozzle` | 1483 | `e1b3e19545969c0bcb08093e093735fc12a6ce296cfe661bbb9ccbbf3c0ef277` |
-| [fixtures/fountain](../../models/fixtures.md#fountain) | `jet` | 1483 | `e1b3e19545969c0bcb08093e093735fc12a6ce296cfe661bbb9ccbbf3c0ef277` |
-| [fixtures/altar](../../models/fixtures.md#altar) | `step` | 1036 | `847ffcbc227b67317d8d8e4168948bbbcc9c08c175e6bc347f64fe01df41077b` |
-| [fixtures/altar](../../models/fixtures.md#altar) | `top` | 1036 | `847ffcbc227b67317d8d8e4168948bbbcc9c08c175e6bc347f64fe01df41077b` |
-| [fixtures/altar](../../models/fixtures.md#altar) | `support` | 1036 | `847ffcbc227b67317d8d8e4168948bbbcc9c08c175e6bc347f64fe01df41077b` |
-| [fixtures/niche](../../models/fixtures.md#niche) | `plinth` | 815 | `f1ba9e322377228211d323c57d3120f01d24846351eb313a1f203d520b142ae7` |
-| [fixtures/niche](../../models/fixtures.md#niche) | `body` | 815 | `f1ba9e322377228211d323c57d3120f01d24846351eb313a1f203d520b142ae7` |
-| [fixtures/niche](../../models/fixtures.md#niche) | `recess-frame` | 815 | `f1ba9e322377228211d323c57d3120f01d24846351eb313a1f203d520b142ae7` |
-| [fixtures/niche](../../models/fixtures.md#niche) | `recess` | 815 | `f1ba9e322377228211d323c57d3120f01d24846351eb313a1f203d520b142ae7` |
-| [fixtures/niche](../../models/fixtures.md#niche) | `cap` | 815 | `f1ba9e322377228211d323c57d3120f01d24846351eb313a1f203d520b142ae7` |
-| [fixtures/lampstand](../../models/fixtures.md#lampstand) | `foot` | 826 | `bee0129903085afd3fa7d0f2b2cea98da05a6a6a957ffc03ea92fdd32f42872c` |
-| [fixtures/lampstand](../../models/fixtures.md#lampstand) | `stem` | 826 | `bee0129903085afd3fa7d0f2b2cea98da05a6a6a957ffc03ea92fdd32f42872c` |
-| [fixtures/lampstand](../../models/fixtures.md#lampstand) | `knop` | 826 | `bee0129903085afd3fa7d0f2b2cea98da05a6a6a957ffc03ea92fdd32f42872c` |
-| [fixtures/lampstand](../../models/fixtures.md#lampstand) | `dish` | 826 | `bee0129903085afd3fa7d0f2b2cea98da05a6a6a957ffc03ea92fdd32f42872c` |
-| [fixtures/offering-table](../../models/fixtures.md#offering-table) | `top` | 715 | `5abc65eab6e88d4299f0f1a2ab5f7a271554b439edd9df266b96a36b23530b61` |
-| [fixtures/offering-table](../../models/fixtures.md#offering-table) | `trestle` | 715 | `5abc65eab6e88d4299f0f1a2ab5f7a271554b439edd9df266b96a36b23530b61` |
-| [fixtures/display-shelf](../../models/fixtures.md#display-shelf) | `side` | 922 | `db251002050b14c9c712a8a0d5f0ab053258369412ce4ec087b83d937038581d` |
-| [fixtures/display-shelf](../../models/fixtures.md#display-shelf) | `board` | 922 | `db251002050b14c9c712a8a0d5f0ab053258369412ce4ec087b83d937038581d` |
-| [fixtures/desk](../../models/fixtures.md#desk) | `top` | 736 | `8ccb7d552a7dfc22c00f3d0c38d5687202b7311f667dc7aef633ea01ed96fedf` |
-| [fixtures/desk](../../models/fixtures.md#desk) | `leg` | 736 | `8ccb7d552a7dfc22c00f3d0c38d5687202b7311f667dc7aef633ea01ed96fedf` |
-| [fixtures/desk](../../models/fixtures.md#desk) | `stretcher` | 736 | `8ccb7d552a7dfc22c00f3d0c38d5687202b7311f667dc7aef633ea01ed96fedf` |
-| [fixtures/stool](../../models/fixtures.md#stool) | `seat` | 513 | `2a8c3da7b10c7b117a4a31c7297f0cbd52d63071847e1a63ca74dc805504406d` |
-| [fixtures/stool](../../models/fixtures.md#stool) | `leg` | 513 | `2a8c3da7b10c7b117a4a31c7297f0cbd52d63071847e1a63ca74dc805504406d` |
-| [fixtures/stool](../../models/fixtures.md#stool) | `stretcher` | 513 | `2a8c3da7b10c7b117a4a31c7297f0cbd52d63071847e1a63ca74dc805504406d` |
-| [fixtures/scroll-shelf](../../models/fixtures.md#scroll-shelf) | `frame` | 948 | `ed7623d32a3a7809b8a1229a1084eedfb5369333c9866e2f310e8d2aac8eb5e8` |
-| [fixtures/scroll-shelf](../../models/fixtures.md#scroll-shelf) | `board` | 948 | `ed7623d32a3a7809b8a1229a1084eedfb5369333c9866e2f310e8d2aac8eb5e8` |
-| [fixtures/scroll-shelf](../../models/fixtures.md#scroll-shelf) | `divider` | 948 | `ed7623d32a3a7809b8a1229a1084eedfb5369333c9866e2f310e8d2aac8eb5e8` |
-| [fixtures/chest](../../models/fixtures.md#chest) | `body` | 1453 | `66661ee0ead4becf036b0aac09be4b30ae8a605f1d4ea7ee459e894144772aa4` |
-| [fixtures/chest](../../models/fixtures.md#chest) | `lid` | 1453 | `66661ee0ead4becf036b0aac09be4b30ae8a605f1d4ea7ee459e894144772aa4` |
-| [fixtures/chest](../../models/fixtures.md#chest) | `hasp` | 1453 | `66661ee0ead4becf036b0aac09be4b30ae8a605f1d4ea7ee459e894144772aa4` |
-| [fixtures/chest](../../models/fixtures.md#chest) | `strap` | 1453 | `66661ee0ead4becf036b0aac09be4b30ae8a605f1d4ea7ee459e894144772aa4` |
+| [fixtures/fountain](../../models/fixtures.md#fountain) | `step` | 2146 | `126f8e5f43b7ea001c0dc7bca9f5c1dc469c874b0439a8ddb95a64a19782a944` |
+| [fixtures/fountain](../../models/fixtures.md#fountain) | `rim` | 2146 | `126f8e5f43b7ea001c0dc7bca9f5c1dc469c874b0439a8ddb95a64a19782a944` |
+| [fixtures/fountain](../../models/fixtures.md#fountain) | `basin-inner` | 2146 | `126f8e5f43b7ea001c0dc7bca9f5c1dc469c874b0439a8ddb95a64a19782a944` |
+| [fixtures/fountain](../../models/fixtures.md#fountain) | `water` | 2146 | `126f8e5f43b7ea001c0dc7bca9f5c1dc469c874b0439a8ddb95a64a19782a944` |
+| [fixtures/fountain](../../models/fixtures.md#fountain) | `ripple` | 2146 | `126f8e5f43b7ea001c0dc7bca9f5c1dc469c874b0439a8ddb95a64a19782a944` |
+| [fixtures/fountain](../../models/fixtures.md#fountain) | `nozzle` | 2146 | `126f8e5f43b7ea001c0dc7bca9f5c1dc469c874b0439a8ddb95a64a19782a944` |
+| [fixtures/fountain](../../models/fixtures.md#fountain) | `jet` | 2146 | `126f8e5f43b7ea001c0dc7bca9f5c1dc469c874b0439a8ddb95a64a19782a944` |
+| [fixtures/altar](../../models/fixtures.md#altar) | `step` | 1346 | `9e035f2e1d0fcc9e8e5970d7034a0f2019b242bbd5e698c442d8014659a02c2d` |
+| [fixtures/altar](../../models/fixtures.md#altar) | `top` | 1346 | `9e035f2e1d0fcc9e8e5970d7034a0f2019b242bbd5e698c442d8014659a02c2d` |
+| [fixtures/altar](../../models/fixtures.md#altar) | `support` | 1346 | `9e035f2e1d0fcc9e8e5970d7034a0f2019b242bbd5e698c442d8014659a02c2d` |
+| [fixtures/niche](../../models/fixtures.md#niche) | `plinth` | 1291 | `cd65311ab2eff5d0d7f62cdd1d9648dfaa3287b7a41936d7cfbd290c37f8d8c2` |
+| [fixtures/niche](../../models/fixtures.md#niche) | `body` | 1291 | `cd65311ab2eff5d0d7f62cdd1d9648dfaa3287b7a41936d7cfbd290c37f8d8c2` |
+| [fixtures/niche](../../models/fixtures.md#niche) | `recess-frame` | 1291 | `cd65311ab2eff5d0d7f62cdd1d9648dfaa3287b7a41936d7cfbd290c37f8d8c2` |
+| [fixtures/niche](../../models/fixtures.md#niche) | `recess` | 1291 | `cd65311ab2eff5d0d7f62cdd1d9648dfaa3287b7a41936d7cfbd290c37f8d8c2` |
+| [fixtures/niche](../../models/fixtures.md#niche) | `cap` | 1291 | `cd65311ab2eff5d0d7f62cdd1d9648dfaa3287b7a41936d7cfbd290c37f8d8c2` |
+| [fixtures/lampstand](../../models/fixtures.md#lampstand) | `foot` | 1231 | `0fe315c41a291d1d3d69a20d0e1f322ee5de9b8d7c936c5f0b132f0a924fd364` |
+| [fixtures/lampstand](../../models/fixtures.md#lampstand) | `stem` | 1231 | `0fe315c41a291d1d3d69a20d0e1f322ee5de9b8d7c936c5f0b132f0a924fd364` |
+| [fixtures/lampstand](../../models/fixtures.md#lampstand) | `knop` | 1231 | `0fe315c41a291d1d3d69a20d0e1f322ee5de9b8d7c936c5f0b132f0a924fd364` |
+| [fixtures/lampstand](../../models/fixtures.md#lampstand) | `dish` | 1231 | `0fe315c41a291d1d3d69a20d0e1f322ee5de9b8d7c936c5f0b132f0a924fd364` |
+| [fixtures/offering-table](../../models/fixtures.md#offering-table) | `top` | 962 | `8e9c76350651c6a112cef735730d66e8b86c0415670f11159085ea47551f5b24` |
+| [fixtures/offering-table](../../models/fixtures.md#offering-table) | `trestle` | 962 | `8e9c76350651c6a112cef735730d66e8b86c0415670f11159085ea47551f5b24` |
+| [fixtures/display-shelf](../../models/fixtures.md#display-shelf) | `side` | 1355 | `b50539c24c78754fb63f59644636a50f5f92beed330b40d620d9ab777fb2266e` |
+| [fixtures/display-shelf](../../models/fixtures.md#display-shelf) | `board` | 1355 | `b50539c24c78754fb63f59644636a50f5f92beed330b40d620d9ab777fb2266e` |
+| [fixtures/desk](../../models/fixtures.md#desk) | `top` | 1311 | `69ced7eecae5a06391801edfe0f37e57f3f7bdf059f5cdd10dc4475952c51c5f` |
+| [fixtures/desk](../../models/fixtures.md#desk) | `leg` | 1311 | `69ced7eecae5a06391801edfe0f37e57f3f7bdf059f5cdd10dc4475952c51c5f` |
+| [fixtures/desk](../../models/fixtures.md#desk) | `stretcher` | 1311 | `69ced7eecae5a06391801edfe0f37e57f3f7bdf059f5cdd10dc4475952c51c5f` |
+| [fixtures/stool](../../models/fixtures.md#stool) | `seat` | 825 | `9a8e28469601294212813e491b9b33af7788bd7755b4fb4ca9f2119b7f00fa76` |
+| [fixtures/stool](../../models/fixtures.md#stool) | `leg` | 825 | `9a8e28469601294212813e491b9b33af7788bd7755b4fb4ca9f2119b7f00fa76` |
+| [fixtures/stool](../../models/fixtures.md#stool) | `stretcher` | 825 | `9a8e28469601294212813e491b9b33af7788bd7755b4fb4ca9f2119b7f00fa76` |
+| [fixtures/scroll-shelf](../../models/fixtures.md#scroll-shelf) | `frame` | 1279 | `8c709c01886e0026a7fdc92e608aab3b0f2a62d0cd2de811e04d12b861532c07` |
+| [fixtures/scroll-shelf](../../models/fixtures.md#scroll-shelf) | `board` | 1279 | `8c709c01886e0026a7fdc92e608aab3b0f2a62d0cd2de811e04d12b861532c07` |
+| [fixtures/scroll-shelf](../../models/fixtures.md#scroll-shelf) | `divider` | 1279 | `8c709c01886e0026a7fdc92e608aab3b0f2a62d0cd2de811e04d12b861532c07` |
+| [fixtures/chest](../../models/fixtures.md#chest) | `body` | 1842 | `ccde90bcfac60a1b96dac4979ca125fa83fd7252f4ecea4030532d58aaa71ffc` |
+| [fixtures/chest](../../models/fixtures.md#chest) | `lid` | 1842 | `ccde90bcfac60a1b96dac4979ca125fa83fd7252f4ecea4030532d58aaa71ffc` |
+| [fixtures/chest](../../models/fixtures.md#chest) | `hasp` | 1842 | `ccde90bcfac60a1b96dac4979ca125fa83fd7252f4ecea4030532d58aaa71ffc` |
+| [fixtures/chest](../../models/fixtures.md#chest) | `strap` | 1842 | `ccde90bcfac60a1b96dac4979ca125fa83fd7252f4ecea4030532d58aaa71ffc` |
 | [landscape/cypress](../../models/landscape.md#cypress) | `trunk` | 823 | `864e187c28b632918f79b47dc7a3a454e76e9b73b9159869dc3116b2c7b3bbcd` |
 | [landscape/cypress](../../models/landscape.md#cypress) | `crown` | 823 | `864e187c28b632918f79b47dc7a3a454e76e9b73b9159869dc3116b2c7b3bbcd` |
 | [landscape/broad-tree](../../models/landscape.md#broad-tree) | `trunk` | 1069 | `a08f44189ba95c36a038b942e50644e36223b07a798c6a8fc6e8897e12c5e1eb` |
@@ -115,9 +115,9 @@
 | [portable/portable-lamp](../../models/portable.md#portable-lamp) | `foot` | 712 | `33ec3c82a84481b8860d869e18361c91f36a40a1cad47759fde065c3157ffd30` |
 | [portable/portable-lamp](../../models/portable.md#portable-lamp) | `stem` | 712 | `33ec3c82a84481b8860d869e18361c91f36a40a1cad47759fde065c3157ffd30` |
 | [portable/portable-lamp](../../models/portable.md#portable-lamp) | `dish` | 712 | `33ec3c82a84481b8860d869e18361c91f36a40a1cad47759fde065c3157ffd30` |
-| [portable/jar-rack](../../models/portable.md#jar-rack) | `top` | 837 | `1298269c4e27025087b09d68dcf00c71e61f9217ec0ea4a9e9e61a9dab62bf79` |
-| [portable/jar-rack](../../models/portable.md#jar-rack) | `leg` | 837 | `1298269c4e27025087b09d68dcf00c71e61f9217ec0ea4a9e9e61a9dab62bf79` |
-| [portable/jar-rack](../../models/portable.md#jar-rack) | `well` | 837 | `1298269c4e27025087b09d68dcf00c71e61f9217ec0ea4a9e9e61a9dab62bf79` |
+| [portable/jar-rack](../../models/portable.md#jar-rack) | `top` | 916 | `9fead5720c3569438aa42eec9d463397bcaf1a21ce7cb9a56bb350b4e98c44ba` |
+| [portable/jar-rack](../../models/portable.md#jar-rack) | `leg` | 916 | `9fead5720c3569438aa42eec9d463397bcaf1a21ce7cb9a56bb350b4e98c44ba` |
+| [portable/jar-rack](../../models/portable.md#jar-rack) | `well` | 916 | `9fead5720c3569438aa42eec9d463397bcaf1a21ce7cb9a56bb350b4e98c44ba` |
 | [portable/carrying-yoke](../../models/portable.md#carrying-yoke) | `beam` | 596 | `59d9c7b47a0741c62271c8e1fc2ac7c54242fa89e2a71df8c53d0beda8adfd86` |
 | [portable/carrying-yoke](../../models/portable.md#carrying-yoke) | `hook` | 596 | `59d9c7b47a0741c62271c8e1fc2ac7c54242fa89e2a71df8c53d0beda8adfd86` |
 | [portable/handcart](../../models/portable.md#handcart) | `deck` | 912 | `d0e9f85aa8e9d1cd264e440dd5d31ace068d4a12eaff51d960451bf9fee54eed` |
@@ -139,32 +139,32 @@
 | [portable/writing-tablet](../../models/portable.md#writing-tablet) | `writing-face` | 593 | `31ba1a51e9e509d1d025c66c6031c863b87d864b5510ea43eae552508b1613f1` |
 | [portable/rope-coil](../../models/portable.md#rope-coil) | `rope` | 613 | `f00dc0b7c7d25f5e1398c0c9eadcb3c6bcd78a5709f391df2e3f44236185bd89` |
 | [portable/rope-coil](../../models/portable.md#rope-coil) | `tie` | 613 | `f00dc0b7c7d25f5e1398c0c9eadcb3c6bcd78a5709f391df2e3f44236185bd89` |
-| [ritual/censer](../../models/ritual.md#censer) | `foot` | 565 | `4962331ff720b4b63039e2055b6a24fd152dc8ac40351e3d1249f9a9f745c2da` |
-| [ritual/censer](../../models/ritual.md#censer) | `stem` | 565 | `4962331ff720b4b63039e2055b6a24fd152dc8ac40351e3d1249f9a9f745c2da` |
-| [ritual/censer](../../models/ritual.md#censer) | `cup` | 565 | `4962331ff720b4b63039e2055b6a24fd152dc8ac40351e3d1249f9a9f745c2da` |
-| [ritual/censer](../../models/ritual.md#censer) | `ash` | 565 | `4962331ff720b4b63039e2055b6a24fd152dc8ac40351e3d1249f9a9f745c2da` |
-| [ritual/censer](../../models/ritual.md#censer) | `incense` | 565 | `4962331ff720b4b63039e2055b6a24fd152dc8ac40351e3d1249f9a9f745c2da` |
-| [ritual/floor-cushion](../../models/ritual.md#floor-cushion) | `base` | 379 | `802c9931b2f8c44854554e1dbb0dfe3bcc68fcdb8fe680239674eb12251de3bf` |
-| [ritual/floor-cushion](../../models/ritual.md#floor-cushion) | `pad` | 379 | `802c9931b2f8c44854554e1dbb0dfe3bcc68fcdb8fe680239674eb12251de3bf` |
-| [ritual/floor-cushion](../../models/ritual.md#floor-cushion) | `fold` | 379 | `802c9931b2f8c44854554e1dbb0dfe3bcc68fcdb8fe680239674eb12251de3bf` |
-| [ritual/jar-stand](../../models/ritual.md#jar-stand) | `foot` | 374 | `7859ce47ee89509de087156ade9bb3c96180061dabfa0366690a9411f782af07` |
-| [ritual/jar-stand](../../models/ritual.md#jar-stand) | `post` | 374 | `7859ce47ee89509de087156ade9bb3c96180061dabfa0366690a9411f782af07` |
-| [ritual/jar-stand](../../models/ritual.md#jar-stand) | `ring` | 374 | `7859ce47ee89509de087156ade9bb3c96180061dabfa0366690a9411f782af07` |
+| [ritual/censer](../../models/ritual.md#censer) | `foot` | 1041 | `03c78cdff6def64a07ff8534afc92a0da04e8bc90d041e52ed421b78d1f532cf` |
+| [ritual/censer](../../models/ritual.md#censer) | `stem` | 1041 | `03c78cdff6def64a07ff8534afc92a0da04e8bc90d041e52ed421b78d1f532cf` |
+| [ritual/censer](../../models/ritual.md#censer) | `cup` | 1041 | `03c78cdff6def64a07ff8534afc92a0da04e8bc90d041e52ed421b78d1f532cf` |
+| [ritual/censer](../../models/ritual.md#censer) | `ash` | 1041 | `03c78cdff6def64a07ff8534afc92a0da04e8bc90d041e52ed421b78d1f532cf` |
+| [ritual/censer](../../models/ritual.md#censer) | `incense` | 1041 | `03c78cdff6def64a07ff8534afc92a0da04e8bc90d041e52ed421b78d1f532cf` |
+| [ritual/floor-cushion](../../models/ritual.md#floor-cushion) | `base` | 711 | `663d86fee8c4491e1c0df9665db166155d5d595ee8a0cd1ad4e5def0e5312d7c` |
+| [ritual/floor-cushion](../../models/ritual.md#floor-cushion) | `pad` | 711 | `663d86fee8c4491e1c0df9665db166155d5d595ee8a0cd1ad4e5def0e5312d7c` |
+| [ritual/floor-cushion](../../models/ritual.md#floor-cushion) | `fold` | 711 | `663d86fee8c4491e1c0df9665db166155d5d595ee8a0cd1ad4e5def0e5312d7c` |
+| [ritual/jar-stand](../../models/ritual.md#jar-stand) | `foot` | 694 | `0995d8ddbeb44ab18432e5fe5ffebce1c400e970762a52a8909b2b2520013e66` |
+| [ritual/jar-stand](../../models/ritual.md#jar-stand) | `post` | 694 | `0995d8ddbeb44ab18432e5fe5ffebce1c400e970762a52a8909b2b2520013e66` |
+| [ritual/jar-stand](../../models/ritual.md#jar-stand) | `ring` | 694 | `0995d8ddbeb44ab18432e5fe5ffebce1c400e970762a52a8909b2b2520013e66` |
 | [scale/reference-scale](../../models/scale.md#reference-scale) | `공통 규칙` | 10813 | `7a000ca905d1635eae081fd3106fb279e5df6f363b5485d979b1d968277c1304` |
 | [scale/articulation-map](../../models/scale.md#articulation-map) | `공통 규칙` | 628 | `135c99baf4ca72d99c21f0af68feaf505e2210cf35f15a14cb9dd87535f7896c` |
 | [scale/model-review-board](../../models/scale.md#model-review-board) | `공통 규칙` | 529 | `8a4bcbd14c45e5247319a65707925b942fd32188c8a89adcf54724b8c2441889` |
-| [wares/storage-jar](../../models/wares.md#storage-jar) | `body` | 790 | `9b0d464ee686b38f618c048c6871081bd315eb654d984e21e259a92b1197fd07` |
-| [wares/storage-jar](../../models/wares.md#storage-jar) | `handle` | 790 | `9b0d464ee686b38f618c048c6871081bd315eb654d984e21e259a92b1197fd07` |
-| [wares/carry-jar](../../models/wares.md#carry-jar) | `body` | 694 | `7cb6a5a63b7e0e1eb51aa6f915103664aa2aa5eab1bbe89dfa0f9ed983bab1a5` |
-| [wares/carry-jar](../../models/wares.md#carry-jar) | `handle` | 694 | `7cb6a5a63b7e0e1eb51aa6f915103664aa2aa5eab1bbe89dfa0f9ed983bab1a5` |
-| [wares/small-vessel](../../models/wares.md#small-vessel) | `body` | 807 | `9671b69c35d0c565d0d85354ed54da783f3edc9787a371a51d7c253461a7cfba` |
-| [wares/small-vessel](../../models/wares.md#small-vessel) | `handle` | 807 | `9671b69c35d0c565d0d85354ed54da783f3edc9787a371a51d7c253461a7cfba` |
-| [wares/offering-bowl](../../models/wares.md#offering-bowl) | `bowl` | 688 | `413045c45f64253865cbec4d14530139b56f05a2d065ad0d989eef94a986550a` |
-| [wares/basket](../../models/wares.md#basket) | `wall` | 1227 | `0a71e5ef5228ee4a9da23a01eda403b2557061bf5f96963d20836e4e898c887f` |
-| [wares/basket](../../models/wares.md#basket) | `rim` | 1227 | `0a71e5ef5228ee4a9da23a01eda403b2557061bf5f96963d20836e4e898c887f` |
-| [wares/basket](../../models/wares.md#basket) | `floor` | 1227 | `0a71e5ef5228ee4a9da23a01eda403b2557061bf5f96963d20836e4e898c887f` |
-| [wares/scroll](../../models/wares.md#scroll) | `sheet` | 1116 | `165065adcb426180ad1490e617fe37a746a9f4ce073c6945d5eb5baaccb2d899` |
-| [wares/scroll](../../models/wares.md#scroll) | `tie` | 1116 | `165065adcb426180ad1490e617fe37a746a9f4ce073c6945d5eb5baaccb2d899` |
+| [wares/storage-jar](../../models/wares.md#storage-jar) | `body` | 1031 | `61118931e6e78ca36b1e80ae2ec7dfdb37be4c4adbfa9797feee7a855e5a66e0` |
+| [wares/storage-jar](../../models/wares.md#storage-jar) | `handle` | 1031 | `61118931e6e78ca36b1e80ae2ec7dfdb37be4c4adbfa9797feee7a855e5a66e0` |
+| [wares/carry-jar](../../models/wares.md#carry-jar) | `body` | 931 | `1df00edcf572bb8216de614e3b67a8d518bb0d2e18caf5dfc9529e2fa0a08728` |
+| [wares/carry-jar](../../models/wares.md#carry-jar) | `handle` | 931 | `1df00edcf572bb8216de614e3b67a8d518bb0d2e18caf5dfc9529e2fa0a08728` |
+| [wares/small-vessel](../../models/wares.md#small-vessel) | `body` | 1049 | `7901b3649275ddf9909ee80988abd30bf4ab45b796bfb9e732de1a59377b3bfe` |
+| [wares/small-vessel](../../models/wares.md#small-vessel) | `handle` | 1049 | `7901b3649275ddf9909ee80988abd30bf4ab45b796bfb9e732de1a59377b3bfe` |
+| [wares/offering-bowl](../../models/wares.md#offering-bowl) | `bowl` | 842 | `25939479c89987a8a577e576e3fa3eb73937e53d332fb4675bc6113fb11dbc1e` |
+| [wares/basket](../../models/wares.md#basket) | `wall` | 1538 | `0cdb84dd6d2b870bf5e4c193e7c7d34fe9da3db023f2d3b19266d132a03028ad` |
+| [wares/basket](../../models/wares.md#basket) | `rim` | 1538 | `0cdb84dd6d2b870bf5e4c193e7c7d34fe9da3db023f2d3b19266d132a03028ad` |
+| [wares/basket](../../models/wares.md#basket) | `floor` | 1538 | `0cdb84dd6d2b870bf5e4c193e7c7d34fe9da3db023f2d3b19266d132a03028ad` |
+| [wares/scroll](../../models/wares.md#scroll) | `sheet` | 1435 | `f5075e804058a90cd7e4fadcac5b7259f78f299963ded2c63a63de43bf6dc02b` |
+| [wares/scroll](../../models/wares.md#scroll) | `tie` | 1435 | `f5075e804058a90cd7e4fadcac5b7259f78f299963ded2c63a63de43bf6dc02b` |
 
 ## 작업 언어와 식별 표기 {#working-language}
 
@@ -189,14 +189,14 @@ settings의 [작업 언어](../../settings/00-delivery.md#working-language)에 �
 | cladding.md | 2 | 3310 |
 | columns.md | 2 | 2082 |
 | entablature.md | 5 | 5555 |
-| fixtures.md | 10 | 7901 |
+| fixtures.md | 10 | 11371 |
 | landscape.md | 4 | 3562 |
 | openings.md | 4 | 4429 |
-| portable.md | 13 | 7252 |
-| ritual.md | 3 | 1270 |
+| portable.md | 13 | 7315 |
+| ritual.md | 3 | 2211 |
 | scale.md | 3 | 9776 |
-| wares.md | 6 | 4493 |
-| 합계 | 52 | 49630 |
+| wares.md | 6 | 5722 |
+| 합계 | 52 | 55333 |
 
 재생성 전 원본은 작업 트리에 없지만 Git `111dba96^:experimental/ancient-civic-temple/docs/models/temple-fit-out.md`에 남아 있다. 현재 계정의 `modelDocumentBodyLength`와 같은 방식으로 해당 blob의 HTML 주석·공백을 빼고 제목을 포함해 다시 세면 한 파일·17 H2·14,799자다. 그 H2 목록에는 `Column prototype`, `Door prototype`, `Roof tile prototype`이 각각 한 번씩 있어 당시 기둥·문짝·기와를 한 절로 묶은 기록도 확인된다. 현재 판은 문틀·양개·외개·창틀, 주랑·포치 원주, 평기와·용마루를 따로 두어 서로 다른 소비자와 변경 경로를 가진 결정이 각자 주소를 가진다.
 

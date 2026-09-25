@@ -109,7 +109,7 @@ export const modelPartNounMismatches = (documents: readonly { path: string; sour
     if (!/원점/.test(body) || !/(?:X=|Y=|Z=|폭|높이)/.test(body) || !/검토 판/.test(body))
       missing.push(`${key}: origin, coordinate or neutral review missing`);
 
-    if (!body.includes("| part | X | Y | Z |")) continue;
+    if (!/^\| part \| X \| Y \| Z \|$/m.test(body)) continue;
     const rows = [
       ...body.matchAll(/^\| `([^`]+)` \| ([^\n]+) \| ([^\n]+) \| ([^\n]+) \|$/gm),
     ];

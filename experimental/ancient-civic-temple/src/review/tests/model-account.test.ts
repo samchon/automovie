@@ -36,6 +36,12 @@ void test("the same coordinate grammar rejects moved, lifted, removed and coinci
   assert.match(modelPartNounMismatches(doc(coincident)).join("\n"), /identical coordinate intervals/);
 });
 
+void test("a prototype-qualified coordinate table is not parsed as the single-prototype table", () => {
+  const source = readFileSync(join(__dirname, "../../../docs/models/ritual.md"), "utf8");
+  const section = source.split(/(?=^## )/m).find((item) => item.includes("| prototype | part | X | Y | Z |"))!;
+  assert.deepEqual(modelPartNounMismatches([{ path: "ritual.md", source: section }]), []);
+});
+
 void test("model measure excludes comments and whitespace while retaining headings", () => {
   assert.equal(modelDocumentBodyLength("# 제목\n<!-- 제외 -->\n## 단위\n가 나 · 2\n"), 11);
 });
