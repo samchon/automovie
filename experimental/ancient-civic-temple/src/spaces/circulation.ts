@@ -22,6 +22,13 @@ import { templeLevels as y } from "./storey";
  * @evidence principles/core/source-units.md#source-scope-preservation 경로 폭·유효 높이는 문 표와 실제 지붕 하부에서 읽고 새 경로나 통과 규칙을 발명하지 않는다.
  * @evidence principles/core/source-units.md#source-substantive-completion 각 connector의 두 끝점이 실제 공간 안에 있는지 검사하고 아니면 문 ID를 적은 오류로 멈추며, 계단은 단 수·챌면·디딤을 함께 낸다.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work circulation.md의 공용·서비스 경로와 site.md#site-connections의 두 접점을 적힌 그대로 구현했다. 끝점 검사와 지붕 하부 유효 높이가 모두 통과해 부모 경로를 고칠 결함이 없었다.
+ * @evidenceReview spaces/circulation.md # 문 통과·중정 단·정문 계단을 서로 다른 connector 종류로 내며 나머지 주랑 고리는 한 공간 안에 남기는 파일의 경로 분담과 같다.
+ * @evidenceReview spaces/circulation.md#public-route # door-entry와 제실·봉헌실·업무방 문 connector를 templeDoorPassages에서 만들고 중정 접점은 별도 courtyardStep 하나로 이어졌다.
+ * @evidenceReview spaces/circulation.md#service-route # door-service-exterior는 temple-site를 맞은편으로, door-yard는 colonnade를 맞은편으로 가져 마당의 외부·내부 두 문턱을 구별한다.
+ * @evidenceReview spaces/site.md#site-connections # 외부 문과 계단의 from/to에 templeSiteIds.space를 써서 대지 공간을 새 외부 방 ID로 복제하지 않는다.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation # 문 connector 폭과 높이는 door.width/height를 그대로 받고 계단 치수는 templeEntranceSteps를 받으며 여기서 경로용 문을 새로 만들지 않는다.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion # 문 양면의 cell 포함 실패와 계단 끝점·포치/날개 지붕 하부 미발견을 각각 throw해 끊긴 통행을 connector로 반환하지 않는다.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work # 공용 경로의 한 주랑 고리와 서비스 경로의 마당 양문, site의 두 외부 접점을 생성된 from/to에 대조했고 우회 공간을 요구하는 불일치가 없었다.
  */
 export const templeConnectors = (
   spaces: readonly IAutoMovieBuiltSpace[], roof: readonly RoofPatch[],

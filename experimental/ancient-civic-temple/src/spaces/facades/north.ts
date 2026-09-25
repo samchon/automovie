@@ -24,6 +24,11 @@ const wing = { tier: "wing", above: "surface.facade-north.parapet-back" } as con
  * @evidence principles/core/source-units.md#source-scope-preservation 마당 벽 상단만 가지며 보관실 북쪽 박공 높이에 복사하지 않는다.
  * @evidence principles/core/source-units.md#source-substantive-completion 숫자 상수로 북측·동측 마당 벽과 서비스 마당 공간 판단이 같은 높이를 받는다.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work facades/north.md의 2.55m를 그대로 옮겼고 서비스 마당 창 판단(마당 위 외부)이 이 값으로 성립했다.
+ * @evidenceReview spaces/facades/north.md # templeYardWallTop은 북측 설계의 마당 상단 숫자만 공개하고 WallSpec 조립은 아래 templeNorthWalls가 맡는다.
+ * @evidenceReview spaces/facades/north.md#north-envelope # 서비스 마당 윗면 Y=2.55m를 이 상수에서 동측 낮은 마당 벽도 가져가므로 두 벽 높이가 갈라지지 않는다.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation # 상수 2.55는 보관실 지붕 높이나 제실 박공선에 쓰이지 않고 yardTop과 마당 벽에만 전달된다.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion # 2.55라는 유한 literal이 북측·동측 낮은 벽의 flat top을 즉시 구성하며 임시 계산이나 미정 값이 없다.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work # north-envelope의 Y=2.55m가 상수와 일치하고 마당 위 외부를 닫을 만큼 높이지 않아 부모의 열린 마당 결정을 바꾸지 않았다.
  */
 export const templeYardWallTop = 2.55;
 
@@ -32,6 +37,10 @@ export const templeYardWallTop = 2.55;
  * @evidence principles/core/source-units.md#source-scope-preservation 코핑 높이는 남측, 마당 벽은 templeYardWallTop, 제실 구간 상단은 제실 지붕 하부를 받는다.
  * @evidence principles/core/source-units.md#source-substantive-completion 두 북측 채광구 void와 띠 분할(파라펫 뒷면)을 포함한 WallSpec을 돌려준다.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work facades/north.md#north-envelope의 세 구간과 박공 창 두 개를 그대로 구현했고 외피 겹침 0이다.
+ * @evidenceReview spaces/facades/north.md # wall.facade-north 하나의 segment 배열 안에 서측 봉헌실·중앙 제실·동측 마당의 서로 다른 높이와 표면을 배정했다.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation # 파라펫 상단은 south, 제실 상단은 sanctuary roof, 낮은 마당 상단은 templeYardWallTop에서 받아 같은 후면에 새 지붕 높이를 발명하지 않는다.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion # 북측 외벽 plan과 두 채광구 void, 여섯 구간의 top·surface·parapet-back split을 채워 후면 박공과 코핑을 실제 벽 실체로 만들 수 있다.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work # 세 높이 구간과 북측 두 창을 facades/north·openings의 주소에 맞췄고 self-check가 겹침을 찾지 않아 숨은 후문을 더하지 않았다.
  */
 export const templeNorthWalls = (bottom: number): WallSpec[] => [{
   id: "wall.facade-north", owner: "facade-north", axis: "x", bottom,

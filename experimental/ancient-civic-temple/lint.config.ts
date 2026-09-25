@@ -45,7 +45,7 @@ export const productionEvidence = {
   kind: "library",
   settings: settingsStage,
   spaces: spacesStage,
-  spaceSources: "evidence",
+  spaceSources: "review",
   models: "evidence",
   claims: [
     createAutoMovieProductionObligationClaim({
