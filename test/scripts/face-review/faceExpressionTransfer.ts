@@ -40,9 +40,10 @@
  * deviation); the photograph's reading of its own face differs from its
  * model's rest reading by an identity mismatch of that order, so an
  * increment under twice that deviation (the 95% band) is indistinct from it
- * and transfers nothing. A unit and its partner are judged together, on
- * their mean increment against their mean deviation, as observability
- * judges them, so the bound never lateralises a symmetric expression. Without that bound the calibration's flat low end
+ * and transfers nothing. A unit and its partner are judged together: the
+ * pair transfers, each side its own reading, when either side stands out,
+ * so the bound neither lateralises a symmetric expression nor erases a wink
+ * whose other side is still. Without that bound the calibration's flat low end
  * turned detector noise into weight: a mouth shift read at 0.002 over rest,
  * a third of the rest readings' deviation, became 0.14 of the channel.
  *
@@ -97,22 +98,21 @@ export function transferFaceExpression(props: {
   noise?: Readonly<Record<string, number>>;
 }): IFaceExpressionTransferRow[] {
   const units = Object.keys(props.calibration);
-  // Whether a unit's increment, with its partner's, stands out from the
-  // spread identity alone gives the rest readings.
+  // Whether a unit, or its partner, stands out from the spread identity
+  // alone gives the rest readings: a pair transfers together, each side its
+  // own reading, when either side does.
   const distinct = (channel: string): boolean => {
     const partner = faceExpressionPartner(channel, units);
     const group = partner === null ? [channel] : [channel, partner];
-    const increments = group.flatMap((one) => {
+    return group.some((one) => {
       const score = props.photo[one];
       const rest = props.rest[one];
-      return score === undefined || rest === undefined ? [] : [score - rest];
+      return (
+        score === undefined ||
+        rest === undefined ||
+        score - rest >= 2 * (props.noise?.[one] ?? 0)
+      );
     });
-    const mean = (values: readonly number[]) =>
-      values.reduce((sum, value) => sum + value, 0) / values.length;
-    return (
-      increments.length === 0 ||
-      mean(increments) >= 2 * mean(group.map((one) => props.noise?.[one] ?? 0))
-    );
   };
   return Object.entries(props.calibration).map(([channel, curve]) => {
     const points = curve.weights
