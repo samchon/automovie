@@ -161,7 +161,7 @@ export const runtimeSurfaceBindingCensus = (models, scaleSource) => {
       else if (actual !== expected) failures.push(`${model.id}/${part.id}: ${actual} != ${group} (${expected})`);
       const pair = repeats.get(group);
       const texture = model.materials.find((entry) => entry.id === part.material)?.baseColorTexture;
-      if (!pair || !texture || Math.abs(texture.transform.scale.x - 1 / pair[0]) > 1e-9 ||
+      if (!pair || !texture || typeof texture === "string" || !texture.transform || Math.abs(texture.transform.scale.x - 1 / pair[0]) > 1e-9 ||
         Math.abs(texture.transform.scale.y - 1 / pair[1]) > 1e-9)
         failures.push(`${model.id}/${part.id}: texture repeat does not consume ${group} U/V metres`);
     }

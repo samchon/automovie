@@ -51,14 +51,17 @@ void test("a changed authored repeat or emitted UV scale is rejected", () => {
   const alteredDesign = scale.replace("| `limestone` | 0.45·0.45", "| `limestone` | 0.46·0.45");
   assert.match(runtimeSurfaceBindingCensus(models, alteredDesign).failures.join("\n"), /texture repeat/);
   const original = models[0]!;
+  const first = original.materials[0]!;
+  const texture = first.baseColorTexture;
+  if (!texture || typeof texture === "string" || !texture.transform) throw new Error("object texture absent");
+  const transform = texture.transform;
   const changed = models.map((model) => model === original ? {
     ...model,
-    materials: model.materials.map((entry) => ({ ...entry,
-      baseColorTexture: entry.baseColorTexture && { ...entry.baseColorTexture,
-        transform: { ...entry.baseColorTexture.transform,
-          scale: { ...entry.baseColorTexture.transform.scale, x: entry.baseColorTexture.transform.scale.x + 0.01 } },
+    materials: model.materials.map((entry) => entry === first ? { ...entry,
+      baseColorTexture: { ...texture,
+        transform: { ...transform, scale: { ...transform.scale, x: transform.scale.x + 0.01 } },
       },
-    })),
+    } : entry),
   } : model);
   assert.match(runtimeSurfaceBindingCensus(changed, scale).failures.join("\n"), /texture repeat/);
 });
