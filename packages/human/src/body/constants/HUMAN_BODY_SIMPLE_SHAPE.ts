@@ -18,7 +18,13 @@ type Term = IAutoMovieHumanBodySimpleShapeTable["terms"][number];
  * android/gynoid split by sex, Deurenberg's age-specific body fat estimates
  * from BMI, age and sex, and the body fat bands below which the rectus,
  * deltoid and scapular relief show (ACE essential fat by sex, visible-abs
- * bands). Stature, mass and the tape measurements are not rows: they are
+ * bands), and the ANSUR II people rows: gluteal projection, hip breadth and
+ * depth, thigh and calf fat and a woman's breast position by sex over the
+ * body mass index, fitted so that people of the 2012 US Army survey
+ * reproduced from their own sex, age, stature, mass and chest and buttock
+ * girths read their own buttock depth, waist breadth, depth and girth at the
+ * omphalion, thigh and calf girths and bust point height.
+ * Stature, mass and the tape measurements are not rows: they are
  * solved by measurement against the basis, with the head allowance, the mass
  * model and the channel each measurement is solved on given here. The body
  * mass index the fat rows read is mass over stature squared.
@@ -904,6 +910,375 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
             [2, 1],
             [6, 0.6],
             [12, 0],
+          ],
+        },
+      ],
+    },
+    // The ANSUR II people rows (below): reproduced from their own sex, age,
+    // stature, mass and chest and buttock girths, the survey's people read
+    // flatter buttocks and wider waists at the omphalion than the basis gave
+    // them, more so at a higher body mass index, and men's thighs narrower.
+    // These rows are the channel weights by sex over the body mass index that
+    // minimize those unpinned residuals, fitted with the tape pins and the
+    // mass re-solved (effective responses on reference bodies of both sexes).
+    {
+      // ANSUR II people: glutealProjection, women
+      channel: "glutealProjection",
+      gain: 1,
+      curves: [
+        {
+          parameter: "sex",
+          points: [
+            [-1, 1],
+            [0, 0],
+          ],
+        },
+        {
+          parameter: "bodyMassIndex",
+          points: [
+            [18, -0.051],
+            [22, -0.013],
+            [26, 0.023],
+            [30, 0.053],
+            [35, 0.08],
+          ],
+        },
+      ],
+    },
+    {
+      // ANSUR II people: hipScaleHoriz, women
+      channel: "hipScaleHoriz",
+      gain: 1,
+      curves: [
+        {
+          parameter: "sex",
+          points: [
+            [-1, 1],
+            [0, 0],
+          ],
+        },
+        {
+          parameter: "bodyMassIndex",
+          points: [
+            [18, -0.026],
+            [22, -0.104],
+            [26, -0.175],
+            [30, -0.22],
+            [35, -0.256],
+          ],
+        },
+      ],
+    },
+    {
+      // ANSUR II people: hipScaleDepth, women
+      channel: "hipScaleDepth",
+      gain: 1,
+      curves: [
+        {
+          parameter: "sex",
+          points: [
+            [-1, 1],
+            [0, 0],
+          ],
+        },
+        {
+          parameter: "bodyMassIndex",
+          points: [
+            [18, 0.068],
+            [22, 0.143],
+            [26, 0.211],
+            [30, 0.255],
+            [35, 0.286],
+          ],
+        },
+      ],
+    },
+    {
+      // ANSUR II people: upperlegFatLeft, women
+      channel: "upperlegFatLeft",
+      gain: 1,
+      curves: [
+        {
+          parameter: "sex",
+          points: [
+            [-1, 1],
+            [0, 0],
+          ],
+        },
+        {
+          parameter: "bodyMassIndex",
+          points: [
+            [18, 0.241],
+            [22, 0.242],
+            [26, 0.233],
+            [30, 0.202],
+            [35, 0.165],
+          ],
+        },
+      ],
+    },
+    {
+      // ANSUR II people: upperlegFatRight, women
+      channel: "upperlegFatRight",
+      gain: 1,
+      curves: [
+        {
+          parameter: "sex",
+          points: [
+            [-1, 1],
+            [0, 0],
+          ],
+        },
+        {
+          parameter: "bodyMassIndex",
+          points: [
+            [18, 0.241],
+            [22, 0.242],
+            [26, 0.233],
+            [30, 0.202],
+            [35, 0.165],
+          ],
+        },
+      ],
+    },
+    {
+      // ANSUR II people: lowerlegFatLeft, women
+      channel: "lowerlegFatLeft",
+      gain: 1,
+      curves: [
+        {
+          parameter: "sex",
+          points: [
+            [-1, 1],
+            [0, 0],
+          ],
+        },
+        {
+          parameter: "bodyMassIndex",
+          points: [
+            [18, 0.229],
+            [22, 0.246],
+            [26, 0.253],
+            [30, 0.237],
+            [35, 0.213],
+          ],
+        },
+      ],
+    },
+    {
+      // ANSUR II people: lowerlegFatRight, women
+      channel: "lowerlegFatRight",
+      gain: 1,
+      curves: [
+        {
+          parameter: "sex",
+          points: [
+            [-1, 1],
+            [0, 0],
+          ],
+        },
+        {
+          parameter: "bodyMassIndex",
+          points: [
+            [18, 0.229],
+            [22, 0.246],
+            [26, 0.253],
+            [30, 0.237],
+            [35, 0.213],
+          ],
+        },
+      ],
+    },
+    {
+      // ANSUR II people: glutealProjection, men
+      channel: "glutealProjection",
+      gain: 1,
+      curves: [
+        {
+          parameter: "sex",
+          points: [
+            [0, 0],
+            [1, 1],
+          ],
+        },
+        {
+          parameter: "bodyMassIndex",
+          points: [
+            [18, -0.07],
+            [22, -0.016],
+            [26, 0.04],
+            [30, 0.098],
+            [35, 0.155],
+          ],
+        },
+      ],
+    },
+    {
+      // ANSUR II people: hipScaleHoriz, men
+      channel: "hipScaleHoriz",
+      gain: 1,
+      curves: [
+        {
+          parameter: "sex",
+          points: [
+            [0, 0],
+            [1, 1],
+          ],
+        },
+        {
+          parameter: "bodyMassIndex",
+          points: [
+            [18, 0.407],
+            [22, 0.24],
+            [26, 0.059],
+            [30, -0.138],
+            [35, -0.336],
+          ],
+        },
+      ],
+    },
+    {
+      // ANSUR II people: hipScaleDepth, men
+      channel: "hipScaleDepth",
+      gain: 1,
+      curves: [
+        {
+          parameter: "sex",
+          points: [
+            [0, 0],
+            [1, 1],
+          ],
+        },
+        {
+          parameter: "bodyMassIndex",
+          points: [
+            [18, 0.321],
+            [22, 0.376],
+            [26, 0.422],
+            [30, 0.449],
+            [35, 0.468],
+          ],
+        },
+      ],
+    },
+    {
+      // ANSUR II people: upperlegFatLeft, men
+      channel: "upperlegFatLeft",
+      gain: 1,
+      curves: [
+        {
+          parameter: "sex",
+          points: [
+            [0, 0],
+            [1, 1],
+          ],
+        },
+        {
+          parameter: "bodyMassIndex",
+          points: [
+            [18, -0.122],
+            [22, -0.102],
+            [26, -0.079],
+            [30, -0.049],
+            [35, -0.015],
+          ],
+        },
+      ],
+    },
+    {
+      // ANSUR II people: upperlegFatRight, men
+      channel: "upperlegFatRight",
+      gain: 1,
+      curves: [
+        {
+          parameter: "sex",
+          points: [
+            [0, 0],
+            [1, 1],
+          ],
+        },
+        {
+          parameter: "bodyMassIndex",
+          points: [
+            [18, -0.122],
+            [22, -0.102],
+            [26, -0.079],
+            [30, -0.049],
+            [35, -0.015],
+          ],
+        },
+      ],
+    },
+    {
+      // ANSUR II people: lowerlegFatLeft, men
+      channel: "lowerlegFatLeft",
+      gain: 1,
+      curves: [
+        {
+          parameter: "sex",
+          points: [
+            [0, 0],
+            [1, 1],
+          ],
+        },
+        {
+          parameter: "bodyMassIndex",
+          points: [
+            [18, -0.058],
+            [22, 0.038],
+            [26, 0.133],
+            [30, 0.226],
+            [35, 0.313],
+          ],
+        },
+      ],
+    },
+    {
+      // ANSUR II people: lowerlegFatRight, men
+      channel: "lowerlegFatRight",
+      gain: 1,
+      curves: [
+        {
+          parameter: "sex",
+          points: [
+            [0, 0],
+            [1, 1],
+          ],
+        },
+        {
+          parameter: "bodyMassIndex",
+          points: [
+            [18, -0.058],
+            [22, 0.038],
+            [26, 0.133],
+            [30, 0.226],
+            [35, 0.313],
+          ],
+        },
+      ],
+    },
+    {
+      // ANSUR II people: breastTransDownUp, women. The reproduced women's
+      // bust point stood 11.5 mm high below a body mass index of 20 and
+      // 11 mm low at 26 to 30; held flat past 30, where the survey sample
+      // thins (five women)
+      channel: "breastTransDownUp",
+      gain: 1,
+      curves: [
+        {
+          parameter: "sex",
+          points: [
+            [-1, 1],
+            [0, 0],
+          ],
+        },
+        {
+          parameter: "bodyMassIndex",
+          points: [
+            [18, -0.594],
+            [22, -0.257],
+            [26, 0.083],
+            [30, 0.411],
           ],
         },
       ],
