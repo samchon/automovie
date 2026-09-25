@@ -1,0 +1,57 @@
+{
+  "source": "mpfb-connected-head-2026-09-23-dental",
+  "revision": "mpfb-connected-head-2026-09-23-appearance",
+  "ocular": {
+    "materials": [
+      "Human.low-poly"
+    ],
+    "roughness": {
+      "before": [
+        0.55
+      ],
+      "after": 0
+    }
+  },
+  "enamel": {
+    "material": "Human.teeth_base",
+    "crowns": 32,
+    "texels": 603824,
+    "lab": {
+      "before": [
+        59.45518121057117,
+        1.906488883692825,
+        1.491010709590035
+      ],
+      "after": [
+        73.33588809415224,
+        0.8072905762254723,
+        13.257311482372236
+      ]
+    }
+  },
+  "recorded": "2026-09-23T14:10:57.546Z",
+  "citations": {
+    "enamel": "Maxillary central incisor enamel L* 73.5 +- 7.6, a* 2.2 +- 1.8, b* 11.9 +- 8.4 (Color and translucency of enamel in vital maxillary central incisors, J Prosthet Dent 2022, PMC9381640); maxillary central incisors of Chinese adults L* 73.02 +- 4.41, a* -0.54 +- 4.21, b* 14.50 +- 3.23 (PMC10155942).",
+    "ocularSurface": "The precorneal tear film is an optically smooth surface; roughness 0 leaves the highlight of a point light to the renderer's own roughness floor."
+  },
+  "inputs": {
+    "basis": {
+      "sha256": "e6e37a3db32bbf3bbab6cf99bb8d84e7c37c96544a8f15c33dad42b73dab3104",
+      "bytes": 18575966
+    },
+    "subjects": {
+      "sha256": "4d967019ea297d790b59b032e7f121dc18d3386fb49395f32e69c47c4b20adda",
+      "bytes": 163880
+    },
+    "controls": {
+      "sha256": "7ebcf533aa3650694385babd3c0661329f9c7db0787a26de5f0bf8296edad527",
+      "bytes": 6341
+    }
+  },
+  "outputs": {
+    "basis": {
+      "sha256": "48efc3894f96bb38bb55842ecf5154d2e0326573efcb78aa78b30a9f6019c847",
+      "bytes": 19715791
+    }
+  }
+}

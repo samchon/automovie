@@ -38,10 +38,12 @@ const requireDirection = humanFaceHairFrame.direction;
  * step. The root fan is a separate boundary transition; this free-path
  * argument does not prove root-fan or hair-to-hair nonintersection.
  *
- * A step the contact blocks entirely is retried once across the blocking
- * feature's outward side, which is the hair sliding along a wall the field
- * points into, and taken only when it advances the way the hair is combed; a
- * crevice narrower than the hair's own clearance still refuses.
+ * A step the contact blocks entirely refuses, naming where the lock stopped,
+ * its clearance there, the surface normal and the combed direction. A slide
+ * along the blocking wall was measured on the population and removed; a
+ * refusal far from any surface means the closed contact surface is not
+ * embedded there, which is what the builder's closure (a fan from its rim's
+ * current centre) exists to prevent.
  *
  * Contact projects outside, then step bisection limits chord length. The last
  * chord is truncated by its remaining metric length. Blocked directions,
@@ -264,7 +266,23 @@ export function integrateHumanFaceHairCurve(props: {
     let q = taken.point;
     const distance = taken.distance;
     if (!(distance > epsilon) || !Number.isFinite(distance))
-      throw new Error("Contact blocks a representable numerical hair step.");
+      throw new Error(
+        "Contact blocks a representable numerical hair step at (" +
+          [p.x, p.y, p.z].map((v) => v.toFixed(4)).join(", ") +
+          ") m, " +
+          (1000 * cumulative).toFixed(1) +
+          " mm along a " +
+          (1000 * length).toFixed(1) +
+          " mm lock (clearance " +
+          (1000 * hit.signedDistance).toFixed(2) +
+          " mm, surface normal " +
+          [normal.x, normal.y, normal.z].map((v) => v.toFixed(2)).join(", ") +
+          ", combed " +
+          [direction.x, direction.y, direction.z]
+            .map((v) => v.toFixed(2))
+            .join(", ") +
+          ").",
+      );
     if (gather !== undefined && !tied) {
       const remaining = Math.min(1, (length - cumulative) / distance);
       const end = Vector3.add(

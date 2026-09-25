@@ -8,10 +8,12 @@ import type { IAutoMovieHumanFaceBasis } from "../../structures/IAutoMovieHumanF
 import type { IAutoMovieHumanFaceHair } from "../../structures/IAutoMovieHumanFaceHair";
 import { assertHumanFaceHair } from "./assertHumanFaceHair";
 import { buildHumanFaceHairMesh } from "./buildHumanFaceHairMesh";
+import { closeHumanFaceHairContact } from "./closeHumanFaceHairContact";
 import { createHumanFaceHairGatherField } from "./createHumanFaceHairGatherField";
 import { createHumanFaceHairRoots } from "./createHumanFaceHairRoots";
 import { createPortraitHairMaterial } from "./createPortraitHairMaterial";
 import { growHumanFaceHairStrand } from "./growHumanFaceHairStrand";
+import { humanFaceHairClosureLoops } from "./humanFaceHairClosureLoops";
 import { humanFaceHairContact } from "./humanFaceHairContact";
 import { humanFaceHairDensity } from "./humanFaceHairDensity";
 import { humanFaceHairSequence } from "./humanFaceHairSequence";
@@ -95,16 +97,27 @@ export function createHumanFaceHairBuilder(input: IAutoMovieHumanFaceBasis) {
         throw new Error(
           "Shared hair contact closure needs complete resident triangles.",
         );
-      const indices = [...surface.indices, ...closure];
-      if (domains.size > 0)
+      // The closure names the opening it closes; its own triangles are laid
+      // over the neutral ring, and a shape that bends that ring out of its
+      // plane can fold them inside out, which turns empty space far below the
+      // head into "inside". So the cap is rebuilt on every evaluation as a fan
+      // from the current ring's centroid (`closeHumanFaceHairContact`),
+      // keeping the authored edge orientation, which stays embedded while the
+      // ring stays star-shaped about its centre.
+      const loops = humanFaceHairClosureLoops(closure);
+      const close = (current: readonly number[]) =>
+        closeHumanFaceHairContact(current, surface.indices, loops);
+      if (domains.size > 0) {
+        const closed = close(surface.positions);
         createAutoMovieSignedMeshQuery({
-          positions: surface.positions,
-          indices,
+          positions: closed.positions,
+          indices: closed.indices,
           normals: null,
           uvs: null,
           skin: null,
         });
-      return [surface.id, { surface, domains, indices }] as const;
+      }
+      return [surface.id, { surface, domains, close }] as const;
     }),
   );
   return (
@@ -162,9 +175,10 @@ export function createHumanFaceHairBuilder(input: IAutoMovieHumanFaceBasis) {
         }, 0);
       let query = queries.get(layer.surface);
       if (query === undefined) {
+        const closed = source.close(current);
         query = createAutoMovieSignedMeshQuery({
-          positions: [...current],
-          indices: source.indices,
+          positions: closed.positions,
+          indices: closed.indices,
           normals: null,
           uvs: null,
           skin: null,

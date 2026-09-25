@@ -23,14 +23,18 @@ import path from "node:path";
 import { gunzipSync } from "node:zlib";
 
 const [studyDirectory, output, filter] = process.argv.slice(2);
-if (studyDirectory === undefined || output === undefined || fs.existsSync(output))
+if (
+  studyDirectory === undefined ||
+  output === undefined ||
+  fs.existsSync(output)
+)
   throw new Error(
     "Supply the study directory, a new output directory and an optional subject filter.",
   );
 const basis = JSON.parse(
-  gunzipSync(fs.readFileSync(path.join(studyDirectory, "basis.json.gz"))).toString(
-    "utf8",
-  ),
+  gunzipSync(
+    fs.readFileSync(path.join(studyDirectory, "basis.json.gz")),
+  ).toString("utf8"),
 ) as IAutoMovieHumanFaceBasis;
 const subjects = JSON.parse(
   fs.readFileSync(path.join(studyDirectory, "subjects.json"), "utf8"),
@@ -87,6 +91,9 @@ void (async () => {
           id: material.id,
           baseColor: material.baseColor,
           roughness: material.roughness,
+          opacity: material.opacity,
+          alphaMode: material.alphaMode ?? null,
+          alphaCutoff: material.alphaCutoff ?? null,
           texture:
             typeof material.baseColorTexture === "string"
               ? material.baseColorTexture

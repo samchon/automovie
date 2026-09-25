@@ -1,0 +1,34 @@
+{
+ "source": {
+  "citation": "Gordon CC, Blackwell CL, Bradtmiller B, et al. 2012 Anthropometric Survey of U.S. Army Personnel: Methods and Summary Statistics. NATICK/TR-15/007, 2014; public working databases 2017.",
+  "sha256": {
+   "male": "0547aea0170e5293de519389981135e75803f02e6d40c77ace740decc0caac64",
+   "female": "ed7e800aa97a4d42f8286b988be2fe1883a2e789588169db959864b707d1757a"
+  }
+ },
+ "unit": "millimetres below menton",
+ "male": {
+  "acromion": {
+   "subjects": 4082,
+   "mean": 79.1,
+   "sd": 18.3
+  },
+  "suprasternale": {
+   "subjects": 4082,
+   "mean": 81.2,
+   "sd": 14.3
+  }
+ },
+ "female": {
+  "acromion": {
+   "subjects": 1986,
+   "mean": 71.3,
+   "sd": 15.7
+  },
+  "suprasternale": {
+   "subjects": 1986,
+   "mean": 76.8,
+   "sd": 13.5
+  }
+ }
+}

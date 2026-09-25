@@ -1,4 +1,5 @@
 import type { portraitDiagnosticsReview } from "./diagnostics-review";
+import type { portraitIrisReview } from "./iris-review";
 import type { portraitNasalReview } from "./nasal-review";
 import type { portraitOcularReview } from "./ocular-review";
 import type { portraitOralReview } from "./oral-review";
@@ -27,6 +28,8 @@ import type { portraitSurfaceReview } from "./surface-review";
  * @evidenceReview {@link portraitStudyReview} #db90abe Compared every subject-owned measurement, recipe, fitted assembly and reference alternative pair with the combined record. The historical source identities, frozen fitting status and rejected nasal observation remain unchanged; no new person-specific fitting occurred.
  * @evidence {@link portraitDiagnosticsReview} Retains capture identities, fit bases and historical join diagnostics inspections within the complete construction account.
  * @evidenceReview {@link portraitDiagnosticsReview} #e486445 Compared the retained byte-identity, lease, fit-basis, patch and fairing pairs with the combined record. The b3306ba5 observations and their later-source caveat remain historical; the formatted carrier keeps its scope value without rerunning or endorsing that nasal alternative.
+ * @evidence {@link portraitIrisReview} Retains the connected iris pigment source inspection within the complete construction account.
+ * @evidenceReview {@link portraitIrisReview} #7540a20 Compared the iris rule's locator, rasterizer, band colour and codec pairs with the combined record. This subject's constructed eye is unaffected and receives no acceptance.
  */
 export const portraitReview = {
   directory: ".shots/face-experiment/preview",

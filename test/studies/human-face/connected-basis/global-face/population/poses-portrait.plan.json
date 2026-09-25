@@ -1,0 +1,255 @@
+{
+  "medianDegreesPerRadian": -76.93239955216447,
+  "rows": [
+    {
+      "subject": "alan-rickman",
+      "status": "measured",
+      "referenceRelativeRotationVector": [
+        0.049542819451811305,
+        0.4262692801389389,
+        0.1068094564782899
+      ],
+      "quarterRelativeRotationVector": [
+        -0.15805485813009978,
+        -0.6542199582821199,
+        -0.0037347828804605208
+      ],
+      "yaw": -29.320593729090003
+    },
+    {
+      "subject": "daniel-radcliffe",
+      "status": "measured",
+      "referenceRelativeRotationVector": [
+        -0.029573967176548126,
+        -0.028208873138978276,
+        0.022876111869177887
+      ],
+      "quarterRelativeRotationVector": [
+        -0.18613114615481707,
+        -0.5990809426964815,
+        0.04033586432685474
+      ],
+      "yaw": 2.1189111533750644
+    },
+    {
+      "subject": "emma-watson",
+      "status": "population-calibrated",
+      "referenceRelativeRotationVector": [
+        0.18919521466891698,
+        -0.20820719257195522,
+        0.05659707684167482
+      ],
+      "quarterRelativeRotationVector": null,
+      "yaw": 16.01787892858011
+    },
+    {
+      "subject": "generated-black-boy-01",
+      "status": "measured",
+      "referenceRelativeRotationVector": [
+        -0.10958391555830327,
+        0.005399192116903251,
+        0.014184835693337802
+      ],
+      "quarterRelativeRotationVector": [
+        -0.09448346265357839,
+        -0.565646981913841,
+        0.015132482423873113
+      ],
+      "yaw": -0.42953229316028485
+    },
+    {
+      "subject": "generated-black-girl-01",
+      "status": "population-calibrated",
+      "referenceRelativeRotationVector": [
+        -0.01918461993630368,
+        0.024787439161868197,
+        0.07805116739941663
+      ],
+      "quarterRelativeRotationVector": null,
+      "yaw": -1.9069571734758128
+    },
+    {
+      "subject": "generated-korean-boy-01",
+      "status": "measured",
+      "referenceRelativeRotationVector": [
+        -0.12071524096260117,
+        -0.0029871805831418272,
+        0.02964552908359495
+      ],
+      "quarterRelativeRotationVector": [
+        -0.14860893042481405,
+        -0.5767383635144859,
+        -0.01424432481119212
+      ],
+      "yaw": 0.2330747089932503
+    },
+    {
+      "subject": "generated-white-boy-01",
+      "status": "measured",
+      "referenceRelativeRotationVector": [
+        -0.10939212623306374,
+        -0.027127844759216042,
+        0.030606554354874835
+      ],
+      "quarterRelativeRotationVector": [
+        -0.1462623962717401,
+        -0.5702010288373621,
+        0.004436810223998286
+      ],
+      "yaw": 2.140916891458146
+    },
+    {
+      "subject": "generated-white-girl-01",
+      "status": "measured",
+      "referenceRelativeRotationVector": [
+        -0.007829709252825261,
+        0.34630841586891814,
+        0.19646772620007844
+      ],
+      "quarterRelativeRotationVector": [
+        -0.18129225111159586,
+        -0.6208368668071145,
+        -0.024649712476584075
+      ],
+      "yaw": -25.101406741914726
+    },
+    {
+      "subject": "kim-min-jung",
+      "status": "measured",
+      "referenceRelativeRotationVector": [
+        0.019471174004742946,
+        -0.13779083850881838,
+        -0.016511090940293686
+      ],
+      "quarterRelativeRotationVector": [
+        -0.12272078790317177,
+        -0.6982370279965602,
+        0.005074441318017449
+      ],
+      "yaw": 8.880347910920838
+    },
+    {
+      "subject": "lee-tae-ri",
+      "status": "measured",
+      "referenceRelativeRotationVector": [
+        0.017272027908489453,
+        0.04193429438143078,
+        -0.03907398032858326
+      ],
+      "quarterRelativeRotationVector": [
+        -0.1115845932852224,
+        -0.5787768450272468,
+        -0.0024060864151795465
+      ],
+      "yaw": -3.2603986551596575
+    },
+    {
+      "subject": "maggie-smith",
+      "status": "measured",
+      "referenceRelativeRotationVector": [
+        -0.09961949339875971,
+        -0.18823493410302983,
+        0.007844093600601287
+      ],
+      "quarterRelativeRotationVector": [
+        -0.15201378960558226,
+        -0.5751719326694844,
+        -0.0036591558463263062
+      ],
+      "yaw": 14.72702604823357
+    },
+    {
+      "subject": "michael-gambon",
+      "status": "measured",
+      "referenceRelativeRotationVector": [
+        -0.3836190702568417,
+        0.11617496952247505,
+        0.07306280857170987
+      ],
+      "quarterRelativeRotationVector": [
+        -0.05357041536979753,
+        -0.6127379962450231,
+        -0.011789561356436402
+      ],
+      "yaw": -8.531988648572142
+    },
+    {
+      "subject": "miriam-margolyes",
+      "status": "measured",
+      "referenceRelativeRotationVector": [
+        -0.12055711593647502,
+        0.10229330824013042,
+        0.2968208328760984
+      ],
+      "quarterRelativeRotationVector": [
+        -0.18070463349278668,
+        -0.30297548217393033,
+        0.10965871503424653
+      ],
+      "yaw": -15.19330487660811
+    },
+    {
+      "subject": "oh-seung-yoon",
+      "status": "population-calibrated",
+      "referenceRelativeRotationVector": [
+        0.12533320367142617,
+        -0.1392098146152912,
+        0.14628230700818506
+      ],
+      "quarterRelativeRotationVector": null,
+      "yaw": 10.709745079566327
+    },
+    {
+      "subject": "park-eun-bin",
+      "status": "measured",
+      "referenceRelativeRotationVector": [
+        -0.04422650645425054,
+        0.012242195242319932,
+        0.026944816518274302
+      ],
+      "quarterRelativeRotationVector": [
+        -0.14508678787182006,
+        -0.5634018216927148,
+        0.028016491996780562
+      ],
+      "yaw": -0.9778079599552003
+    },
+    {
+      "subject": "rupert-grint",
+      "status": "measured",
+      "referenceRelativeRotationVector": [
+        0.056813371500953086,
+        0.16906775276494823,
+        0.028517258227386103
+      ],
+      "quarterRelativeRotationVector": [
+        -0.1538296106886009,
+        -0.6295700062669718,
+        -0.03231674654554245
+      ],
+      "yaw": -12.084516096207489
+    },
+    {
+      "subject": "yoo-seung-ho",
+      "status": "measured",
+      "referenceRelativeRotationVector": [
+        0.02329866085494872,
+        0.06257661600804233,
+        -0.06799333884047769
+      ],
+      "quarterRelativeRotationVector": [
+        -0.14678776172618518,
+        -0.5912135745464411,
+        0.0012192113469238547
+      ],
+      "yaw": -4.7629957118664
+    },
+    {
+      "subject": "kdy1",
+      "status": "face-undetected",
+      "referenceRelativeRotationVector": null,
+      "quarterRelativeRotationVector": null,
+      "yaw": null
+    }
+  ]
+}

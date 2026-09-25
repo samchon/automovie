@@ -1,5 +1,7 @@
 export * from "./structures";
 export * from "./assertDirection";
+export * from "./decodePortraitPng";
+export * from "./encodePortraitPng";
 export * from "./normalsOf";
 export * from "./p";
 export * from "./patch";

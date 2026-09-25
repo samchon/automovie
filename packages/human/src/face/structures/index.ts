@@ -12,6 +12,7 @@ export * from "./IAutoMovieHumanFaceExpression";
 export * from "./IAutoMovieHumanFaceGroom";
 export * from "./IAutoMovieHumanFaceGroomCard";
 export * from "./IAutoMovieHumanFaceHair";
+export * from "./IAutoMovieHumanFaceIris";
 export * from "./IAutoMovieHumanFaceRecipe";
 export * from "./IAutoMovieHumanFaceContactSummary";
 export * from "./IAutoMovieHumanFaceRigidMotion";

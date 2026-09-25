@@ -2,156 +2,70 @@
   {
     "id": "alan-rickman-connected",
     "name": "alan-rickman (connected study)",
-    "basis": "mpfb-connected-head-2026-09-23-ocular-contact",
+    "basis": "mpfb-connected-head-2026-09-25-gingiva",
     "shape": {
-      "headWidth": -0.21632129539659278,
-      "headHeight": 0.1367818148632647,
-      "headDepth": -0.03175017540157945,
-      "cheekFullness": 0.12316107838724896,
-      "chinWidth": 0.14789828583924952,
-      "chinHeight": 0.05389453968341013,
-      "chinProjection": 0.871728809781229,
-      "noseWidth": 0.4871057140333727,
-      "noseHeight": -0.002679001397384808,
-      "noseDepth": 0.7710011232027307,
-      "mouthWidth": -0.5469324225479978,
-      "mouthHeight": 0.20195274467571983,
-      "upperLipHeight": 0.25665262903250025,
-      "lowerLipHeight": -0.650549857567071,
-      "upperLipVolume": -0.9753999350814387,
-      "lowerLipVolume": -0.999990838328876,
-      "upperLipWidth": 0.22543392967853318,
-      "lowerLipWidth": -0.03990990068760439,
-      "mouthDepth": 0.8322707156481909,
-      "noseUpperWidth": 0.00530845439269622,
-      "noseMiddleWidth": 0.13510546102243734,
-      "noseLowerWidth": -0.801396751485923,
-      "nostrilWidth": 0.4479250696593658,
-      "noseFlaring": -0.9999481027708867,
-      "leftEyeScale": -0.033644198384694755,
-      "rightEyeScale": -0.033644198384694755,
-      "leftEyeHeight": 0.6990899734690852,
-      "rightEyeHeight": 0.6990899734690852,
-      "posteriorHeadDepth": -0.0017706039323125526,
-      "foreheadHeight": -0.0021094757482702973,
-      "templeWidth": -0.16409206552618344,
-      "chinBoneWidth": -0.03445051203045592,
-      "jawPrognathism": 0.11510918345436681,
-      "jawRestHeight": -0.41408398491022647,
-      "noseTipWidth": -0.022915107000643777,
-      "noseBridgeHump": 0.04584408600527437,
-      "noseSeptumAngle": 0.3611444751014481,
-      "neckWidth": 0.05922391427547837,
-      "neckDepth": 0.7893829282604957,
-      "neckUnderChinFullness": -0.003973472429591066,
-      "leftCheekVolume": 0.1628770496221199,
-      "leftCheekBone": 0.3723605196250451,
-      "leftCheekInner": 0.6725550311386963,
-      "leftEarScale": 0.06102462203266438,
-      "leftEarHeight": -0.01941079815595415,
-      "leftEarDepth": 0.028878752022733746,
-      "leftEarLobe": 0.016438525698770627,
-      "leftEarWing": 0.0009285790961616839,
-      "leftEarFlap": -0.0025976965669784894,
-      "leftEyeBagVolume": 0.4243015551060824,
-      "leftEyeBagHeight": 0.14061478657952325,
-      "rightCheekVolume": 0.1628770496221199,
-      "rightCheekBone": 0.3723605196250451,
-      "rightCheekInner": 0.6725550311386963,
-      "rightEarScale": 0.06102462203266438,
-      "rightEarHeight": -0.01941079815595415,
-      "rightEarDepth": 0.028878752022733746,
-      "rightEarLobe": 0.016438525698770627,
-      "rightEarWing": 0.0009285790961616839,
-      "rightEarFlap": -0.0025976965669784894,
-      "rightEyeBagVolume": 0.4243015551060824,
-      "rightEyeBagHeight": 0.14061478657952325,
-      "faceAgeStructure": 0.008586161886158532,
-      "philtrumVolume": 0.9978472939558285,
-      "foreheadProjection": 0.016220826668794024,
-      "browElevation": 0.02909586155149387,
-      "browProjection": -0.026670560517843042,
-      "noseTipElevation": -0.06806771173883451,
-      "noseBaseElevation": 0.1038163754901302,
-      "nostrilAngle": 0.0008948503871951194,
-      "mouthElevation": -0.24909733105279708,
-      "leftEyeElevation": -0.035831985807820904,
-      "leftEyeLateralPosition": -0.017895183379654768,
-      "leftEyeFoldHeight": 0.6898172176016282,
-      "leftEarRotation": 0.22350720967759416,
-      "rightEyeElevation": -0.035831985807820904,
-      "rightEyeLateralPosition": -0.017895183379654768,
-      "rightEyeFoldHeight": 0.6898172176016282,
-      "rightEarRotation": 0.22350720967759416,
-      "globalAgeStructure": -0.014860938365848503,
-      "globalSexualDimorphism": -0.06936187674030864,
-      "globalAdiposity": 0.002286500349657435,
-      "globalMuscularity": -0.33063014734893276
+      "globalAgeStructure": 0.6153846153846154,
+      "globalSexualDimorphism": 1,
+      "europeanAncestry": 1,
+      "headHeight": 0.70437,
+      "leftEyeLateralPosition": 0.77539,
+      "rightEyeLateralPosition": 0.77539,
+      "leftEyeScale": -0.24178,
+      "rightEyeScale": -0.24178,
+      "leftEyeHeight": -0.37199,
+      "rightEyeHeight": -0.37199,
+      "noseWidth": 0.63035,
+      "noseHeight": -0.49467,
+      "mouthWidth": -0.22493,
+      "upperLipHeight": -0.41849,
+      "lowerLipHeight": 0.00951,
+      "mouthElevation": 0.72523,
+      "cheekFullness": 0.02936,
+      "chinWidth": -0.05612,
+      "chinHeight": -1,
+      "browElevation": -1
     },
     "expression": {
-      "browDownLeft": 0.3029526654020314,
-      "browDownRight": 0.17692225643042256,
-      "browInnerUp": 0.06469392249419634,
-      "browOuterUpLeft": 0.022230312028464358,
-      "browOuterUpRight": 0.06597982342521985,
-      "cheekSquintLeft": 0.008466688984936058,
-      "cheekSquintRight": 0.0011612603496747357,
-      "eyeBlinkLeft": 0.2366503270854149,
-      "eyeBlinkRight": 0.19081151265929688,
-      "eyeLookDownLeft": 0.16626823311627018,
-      "eyeLookDownRight": 0.20780657420982512,
-      "eyeLookInLeft": 0.6868427538861773,
-      "eyeLookOutLeft": 0.0012140867933443497,
-      "eyeLookOutRight": 0.7061518056467161,
-      "eyeLookUpLeft": 0.056150401569790113,
-      "eyeLookUpRight": 0.04036836520445079,
-      "eyeSquintLeft": 0.7323879939238599,
-      "eyeSquintRight": 0.41699477662577705,
-      "eyeWideLeft": 0.0016489524235110806,
-      "eyeWideRight": 0.0003819415188577227,
-      "jawForward": 0.023553094924559127,
-      "jawLeft": 0.03011133946582828,
-      "jawOpen": 0.1796775262142918,
-      "jawRight": 0.01136470180676315,
-      "mouthClose": 0.000009658013985287544,
-      "mouthDimpleLeft": 0.000001814000463241608,
-      "mouthDimpleRight": 0.05506446991977223,
-      "mouthFrownRight": 0.05835153418555944,
-      "mouthFunnel": 3.137024280962036e-7,
-      "mouthLeft": 0.000011478451533014396,
-      "mouthLowerDownLeft": 0.09825059534634882,
-      "mouthLowerDownRight": 0.18641421079085077,
-      "mouthPressLeft": 0.031218353887465498,
-      "mouthPressRight": 0.1572233911796074,
-      "mouthRight": 0.1627948027409731,
-      "mouthRollLower": 0.03878818733726622,
-      "mouthRollUpper": 0.26377684591865247,
-      "mouthShrugLower": 0.0005418708994641608,
-      "mouthShrugUpper": 0.006199682105728237,
-      "mouthSmileLeft": 0.641109121052938,
-      "mouthSmileRight": 0.6826930534657003,
-      "mouthStretchRight": 0.17509875699487223,
-      "mouthUpperUpLeft": 0.04250378852973507,
-      "mouthUpperUpRight": 0.03193517404741287,
-      "noseSneerLeft": 0.00012083749891597465,
-      "noseSneerRight": 0.0000023644189190813858
+      "browInnerUp": 0.0149,
+      "eyeBlinkLeft": 0.1922,
+      "eyeLookDownLeft": 0.1609,
+      "eyeLookDownRight": 0.2322,
+      "eyeWideRight": 0.0341,
+      "jawOpen": 0.1615,
+      "mouthPucker": 0.0001,
+      "mouthRight": 0.165,
+      "mouthShrugUpper": 0.0521,
+      "mouthSmileLeft": 0.78328,
+      "mouthSmileRight": 0.78328,
+      "mouthStretchRight": 0.2863,
+      "mouthUpperUpLeft": 0.64409,
+      "mouthUpperUpRight": 0.64409,
+      "mouthLowerDownLeft": 0.54369,
+      "mouthLowerDownRight": 0.54369
     },
     "materials": {
       "skin": {
         "color": {
-          "r": 0.5,
-          "g": 0.28,
-          "b": 0.2
+          "r": 0.4225,
+          "g": 0.234,
+          "b": 0.1798
         },
         "roughness": 0.76
       },
       "lips": {
         "color": {
-          "r": 0.42,
-          "g": 0.21,
-          "b": 0.17
+          "r": 0.3476,
+          "g": 0.1796,
+          "b": 0.1651
         },
         "roughness": 0.57
+      },
+      "Human.eyebrow001": {
+        "pigment": [
+          0.19037,
+          0.10106,
+          0.07757
+        ]
       }
     },
     "hair": {
@@ -200,16 +114,15 @@
           },
           "finish": {
             "color": [
-              0.52,
-              0.36,
-              0.12
+              0.63997,
+              0.53409,
+              0.34268
             ],
             "roughness": 0.73,
             "fibres": 24,
             "coverage": 0.95,
             "normal": 0.2,
-            "shade": 1,
-            "grey": 0.5
+            "shade": 1
           },
           "part": {
             "normal": [
@@ -245,165 +158,98 @@
           }
         }
       ]
+    },
+    "iris": {
+      "left": {
+        "base": [
+          0.04515,
+          0.03407,
+          0.03216
+        ],
+        "variation": [
+          0.25537,
+          0.19272,
+          0.18192
+        ]
+      },
+      "right": {
+        "base": [
+          0.04515,
+          0.03407,
+          0.03216
+        ],
+        "variation": [
+          0.25537,
+          0.19272,
+          0.18192
+        ]
+      }
     }
   },
   {
     "id": "daniel-radcliffe-connected",
     "name": "daniel-radcliffe (connected study)",
-    "basis": "mpfb-connected-head-2026-09-23-ocular-contact",
+    "basis": "mpfb-connected-head-2026-09-25-gingiva",
     "shape": {
-      "headWidth": -0.14419439444168386,
-      "headHeight": 0.08076531952354073,
-      "headDepth": -0.0011922247244977174,
-      "cheekFullness": -0.1483031252352205,
-      "chinWidth": -0.26191630380876646,
-      "chinHeight": -0.10563979281401491,
-      "chinProjection": 0.0347759294528664,
-      "noseWidth": -0.34745420923198217,
-      "noseHeight": 0.020416672147026443,
-      "noseDepth": 0.2263946554434491,
-      "mouthWidth": -0.29408794851043846,
-      "mouthHeight": 0.33968279050447997,
-      "upperLipHeight": -0.16097134011483227,
-      "lowerLipHeight": -0.445345532733054,
-      "upperLipVolume": -0.06460838943565302,
-      "lowerLipVolume": -0.06015301806544255,
-      "upperLipWidth": 0.39639425247391047,
-      "lowerLipWidth": 0.009174298605414593,
-      "mouthDepth": 0.2596816774593365,
-      "noseUpperWidth": 0.9000253182369926,
-      "noseMiddleWidth": 0.07065922311880074,
-      "noseLowerWidth": 0.1703472232374251,
-      "nostrilWidth": -0.15171332950472907,
-      "noseFlaring": -0.07735357785822489,
-      "leftEyeScale": 0.308418259510174,
-      "rightEyeScale": 0.308418259510174,
-      "leftEyeHeight": 0.7211629037830369,
-      "rightEyeHeight": 0.7211629037830369,
-      "posteriorHeadDepth": -0.00029823071412324103,
-      "foreheadHeight": -0.0003430597619487837,
-      "templeWidth": -0.06295615408089401,
-      "chinBoneWidth": -0.009508719598429726,
-      "jawPrognathism": 0.026866117944807234,
-      "jawRestHeight": -0.42094107558695804,
-      "noseTipWidth": 0.08002810801162778,
-      "noseBridgeHump": -0.20113666349676312,
-      "noseSeptumAngle": 0.3826142381742378,
-      "neckWidth": 0.03319073126032934,
-      "neckDepth": -0.02879928402093336,
-      "neckUnderChinFullness": -0.0008896780496491348,
-      "leftCheekVolume": 0.30016050640210357,
-      "leftCheekBone": -0.007927554649937982,
-      "leftCheekInner": 0.3450441020308996,
-      "leftEarScale": -0.1412597352031114,
-      "leftEarHeight": -0.01939781365472235,
-      "leftEarDepth": -0.030453379109829554,
-      "leftEarLobe": 0.015380992872982668,
-      "leftEarWing": 0.015409673437097043,
-      "leftEarFlap": -0.00040494558208268737,
-      "leftEyeBagVolume": -0.637240781854422,
-      "leftEyeBagHeight": 0.19169104544661922,
-      "rightCheekVolume": 0.30016050640210357,
-      "rightCheekBone": -0.007927554649937982,
-      "rightCheekInner": 0.3450441020308996,
-      "rightEarScale": -0.1412597352031114,
-      "rightEarHeight": -0.01939781365472235,
-      "rightEarDepth": -0.030453379109829554,
-      "rightEarLobe": 0.015380992872982668,
-      "rightEarWing": 0.015409673437097043,
-      "rightEarFlap": -0.00040494558208268737,
-      "rightEyeBagVolume": -0.637240781854422,
-      "rightEyeBagHeight": 0.19169104544661922,
-      "faceAgeStructure": -0.09260750470037749,
-      "philtrumVolume": -0.9645992671169967,
-      "foreheadProjection": -0.030780860458877728,
-      "browElevation": 0.1955978558722272,
-      "browProjection": 0.02395781552476217,
-      "noseTipElevation": -0.04283218735529861,
-      "noseBaseElevation": -0.3538280491195786,
-      "nostrilAngle": -0.01205949830295451,
-      "mouthElevation": -0.24127742927553825,
-      "leftEyeElevation": -0.27699200652926664,
-      "leftEyeLateralPosition": -0.08106065391585546,
-      "leftEyeFoldHeight": 0.6057239570722447,
-      "leftEarRotation": 0.05602671964304176,
-      "rightEyeElevation": -0.27699200652926664,
-      "rightEyeLateralPosition": -0.08106065391585546,
-      "rightEyeFoldHeight": 0.6057239570722447,
-      "rightEarRotation": 0.05602671964304176,
-      "globalAgeStructure": 0.0007794511914357711,
-      "globalSexualDimorphism": 0.021938653780671738,
-      "globalAdiposity": -0.002441425560583807,
-      "globalMuscularity": -0.2657285795093327
+      "globalAgeStructure": -1,
+      "globalSexualDimorphism": 1,
+      "europeanAncestry": 1,
+      "headHeight": 0.35381,
+      "leftEyeLateralPosition": 0.19048,
+      "rightEyeLateralPosition": 0.19048,
+      "leftEyeScale": 0.03692,
+      "rightEyeScale": 0.03692,
+      "leftEyeHeight": -0.8727,
+      "rightEyeHeight": -0.8727,
+      "noseWidth": -0.11692,
+      "noseHeight": 0.87202,
+      "mouthWidth": 0.72278,
+      "upperLipHeight": -0.10838,
+      "lowerLipHeight": -0.06716,
+      "mouthElevation": 0.16401,
+      "cheekFullness": 0,
+      "chinWidth": -1,
+      "chinHeight": -1,
+      "browElevation": -0.28107
     },
     "expression": {
-      "browDownLeft": 0.017113921193899675,
-      "browDownRight": 0.0033870954848480538,
-      "browInnerUp": 0.09173703857346928,
-      "browOuterUpLeft": 0.08043003280832489,
-      "browOuterUpRight": 0.09499535910089824,
-      "cheekPuff": 0.00794415727335925,
-      "cheekSquintLeft": 0.0011200472076502543,
-      "cheekSquintRight": 0.0008824409062250692,
-      "eyeBlinkLeft": 0.20486863568669092,
-      "eyeBlinkRight": 0.16729177469614984,
-      "eyeLookDownLeft": 0.09738809969349593,
-      "eyeLookDownRight": 0.12137398735988218,
-      "eyeLookInLeft": 0.017788849164477667,
-      "eyeLookInRight": 0.17188658232751475,
-      "eyeLookOutLeft": 0.18949526379463524,
-      "eyeLookOutRight": 0.03537501687601636,
-      "eyeLookUpLeft": 0.12202026754307113,
-      "eyeLookUpRight": 0.1063347383631775,
-      "eyeSquintLeft": 0.5824649309500961,
-      "eyeSquintRight": 0.501088592554964,
-      "eyeWideLeft": 0.0012299463185419359,
-      "eyeWideRight": 0.0014286509700782652,
-      "jawForward": 0.002817435907746185,
-      "jawLeft": 0.03650176857087471,
-      "jawOpen": 0.05828291223339572,
-      "jawRight": 0.0017860900041979306,
-      "mouthClose": 0.01472264304365661,
-      "mouthDimpleLeft": 0.01673936816166876,
-      "mouthDimpleRight": 0.003414983597846727,
-      "mouthFrownLeft": 0.02256710098426462,
-      "mouthFrownRight": 0.00000746823871211248,
-      "mouthFunnel": 0.024180501408690408,
-      "mouthLeft": 0.06866853432380841,
-      "mouthLowerDownLeft": 0.056614316006728026,
-      "mouthLowerDownRight": 0.06363282219042353,
-      "mouthPressLeft": 0.0720454506300488,
-      "mouthPressRight": 0.10888765801297218,
-      "mouthPucker": 0.012759408674153368,
-      "mouthRight": 0.0004019116022769987,
-      "mouthRollLower": 0.011001895425526292,
-      "mouthRollUpper": 0.022498285377449814,
-      "mouthShrugLower": 0.0055339845433588055,
-      "mouthShrugUpper": 0.005754613470866973,
-      "mouthSmileLeft": 0.8946180621637659,
-      "mouthSmileRight": 0.8851912959813099,
-      "mouthStretchLeft": 0.08556113601764802,
-      "mouthStretchRight": 0.012904681155565605,
-      "mouthUpperUpLeft": 0.667703720210822,
-      "mouthUpperUpRight": 0.7546649335362499,
-      "noseSneerRight": 7.562200118445145e-7
+      "eyeBlinkLeft": 0.2139,
+      "eyeBlinkRight": 0.1095,
+      "eyeLookInRight": 0.071,
+      "eyeLookOutLeft": 0.1673,
+      "jawOpen": 0.0323,
+      "mouthLeft": 0.1104,
+      "mouthPucker": 0.0034,
+      "mouthSmileLeft": 0.80924,
+      "mouthSmileRight": 0.80924,
+      "mouthUpperUpLeft": 1,
+      "mouthUpperUpRight": 1,
+      "mouthLowerDownLeft": 0.84412,
+      "mouthLowerDownRight": 0.84412
     },
     "materials": {
       "skin": {
         "color": {
-          "r": 0.61,
-          "g": 0.37,
-          "b": 0.28
+          "r": 0.4225,
+          "g": 0.234,
+          "b": 0.1798
         },
         "roughness": 0.76
       },
       "lips": {
         "color": {
-          "r": 0.46,
-          "g": 0.2,
-          "b": 0.18
+          "r": 0.3212,
+          "g": 0.1332,
+          "b": 0.1028
         },
         "roughness": 0.57
+      },
+      "Human.eyebrow001": {
+        "pigment": [
+          0.03323,
+          0.01092,
+          0.00545
+        ]
       }
     },
     "hair": {
@@ -421,12 +267,12 @@
             "back": 2.1
           },
           "lengthAxes": [
-            0.075,
-            0.075,
+            0.0233,
+            0.0233,
             0.1,
-            0.045,
+            0.014,
             0.085,
-            0.085
+            0.0264
           ],
           "lengthVariation": 0.08,
           "samplingStep": 0.003,
@@ -452,9 +298,9 @@
           },
           "finish": {
             "color": [
-              0.028,
-              0.018,
-              0.011
+              0.03696,
+              0.01851,
+              0.01357
             ],
             "roughness": 0.73,
             "fibres": 24,
@@ -508,12 +354,12 @@
             "back": 2.1
           },
           "lengthAxes": [
+            0.0202,
+            0.0202,
             0.065,
+            0.0202,
             0.065,
-            0.065,
-            0.065,
-            0.065,
-            0.065
+            0.0202
           ],
           "lengthVariation": 0.08,
           "samplingStep": 0.003,
@@ -539,9 +385,9 @@
           },
           "finish": {
             "color": [
-              0.028,
-              0.018,
-              0.011
+              0.02585,
+              0.01294,
+              0.00949
             ],
             "roughness": 0.73,
             "fibres": 24,
@@ -567,160 +413,95 @@
           }
         }
       ]
+    },
+    "iris": {
+      "left": {
+        "base": [
+          0.03002,
+          0.02599,
+          0.02485
+        ],
+        "variation": [
+          0.1698,
+          0.147,
+          0.14057
+        ]
+      },
+      "right": {
+        "base": [
+          0.03002,
+          0.02599,
+          0.02485
+        ],
+        "variation": [
+          0.1698,
+          0.147,
+          0.14057
+        ]
+      }
     }
   },
   {
     "id": "emma-watson-connected",
     "name": "emma-watson (connected study)",
-    "basis": "mpfb-connected-head-2026-09-23-ocular-contact",
+    "basis": "mpfb-connected-head-2026-09-25-gingiva",
     "shape": {
-      "headWidth": 0.01719157504012354,
-      "headHeight": 0.0035971738377070027,
-      "headDepth": -0.009031107695339017,
-      "cheekFullness": -0.2447776983054416,
-      "chinWidth": -0.3688565441969885,
-      "chinHeight": -0.03946838335030997,
-      "chinProjection": 0.27944958728529407,
-      "noseWidth": -0.20301045918458613,
-      "noseHeight": 0.08127388481372765,
-      "noseDepth": 0.7894831641605944,
-      "mouthWidth": -0.36133438489037595,
-      "mouthHeight": -0.6567508357174797,
-      "upperLipHeight": -0.8443928509911337,
-      "lowerLipHeight": -0.03465663557740653,
-      "upperLipVolume": -0.9902666037143965,
-      "lowerLipVolume": 0.01252715965498392,
-      "lowerLipWidth": -0.2622961640023723,
-      "mouthDepth": 0.5200010020319161,
-      "noseUpperWidth": 0.7002918439340916,
-      "noseMiddleWidth": -0.22785525741810986,
-      "noseLowerWidth": 0.0002228127795616811,
-      "nostrilWidth": -0.03206744460283312,
-      "noseFlaring": 0.11856262417473536,
-      "leftEyeScale": 0.15631587544459682,
-      "rightEyeScale": 0.15631587544459682,
-      "leftEyeHeight": 0.5334307596385929,
-      "rightEyeHeight": 0.5334307596385929,
-      "posteriorHeadDepth": -6.565093736447674e-7,
-      "foreheadHeight": -1.1379596948743645e-7,
-      "templeWidth": 0.12043153416356392,
-      "chinBoneWidth": -0.16975979768809588,
-      "jawPrognathism": -0.023160066342768005,
-      "jawRestHeight": -0.18247332758662,
-      "noseTipWidth": -0.10036962095361412,
-      "noseBridgeHump": -0.02419288399699184,
-      "noseSeptumAngle": 0.3258002497692973,
-      "neckWidth": -0.030852817817951798,
-      "neckDepth": 0.11680165615918307,
-      "neckUnderChinFullness": 0.02336138019892237,
-      "leftCheekVolume": -0.0794135662188684,
-      "leftCheekBone": 0.16712233474582885,
-      "leftCheekInner": 0.7062251362759161,
-      "leftEarScale": 0.051940549181997,
-      "leftEarHeight": -0.253112961904276,
-      "leftEarDepth": 0.4954555576278773,
-      "leftEarLobe": 0.010060068078690376,
-      "leftEarWing": 0.021470686959930412,
-      "leftEarFlap": -0.000002025507972719438,
-      "leftEyeBagVolume": -0.4448241038193787,
-      "leftEyeBagHeight": 0.08919526608847776,
-      "rightCheekVolume": -0.0794135662188684,
-      "rightCheekBone": 0.16712233474582885,
-      "rightCheekInner": 0.7062251362759161,
-      "rightEarScale": 0.051940549181997,
-      "rightEarHeight": -0.253112961904276,
-      "rightEarDepth": 0.4954555576278773,
-      "rightEarLobe": 0.010060068078690376,
-      "rightEarWing": 0.021470686959930412,
-      "rightEarFlap": -0.000002025507972719438,
-      "rightEyeBagVolume": -0.4448241038193787,
-      "rightEyeBagHeight": 0.08919526608847776,
-      "faceAgeStructure": -0.7294303135808974,
-      "philtrumVolume": 0.6452209405328,
-      "foreheadProjection": -0.003117728891959873,
-      "browElevation": 0.35248149382597854,
-      "browProjection": 0.1384955973192269,
-      "browAngle": -0.25068749579517985,
-      "noseTipElevation": -0.03984184479657242,
-      "noseBaseElevation": -0.36225512167874924,
-      "nostrilAngle": 0.006596738312564706,
-      "mouthElevation": -0.016231690176281413,
-      "leftEyeElevation": -0.14529358416932844,
-      "leftEyeLateralPosition": -0.0049034717522998695,
-      "leftEyeFoldHeight": -0.38281921080564985,
-      "leftEarRotation": -0.02208641165274948,
-      "rightEyeElevation": -0.14529358416932844,
-      "rightEyeLateralPosition": -0.0049034717522998695,
-      "rightEyeFoldHeight": -0.38281921080564985,
-      "rightEarRotation": -0.02208641165274948,
-      "globalAgeStructure": -0.03853557843984765,
-      "globalSexualDimorphism": -0.04765096297169834,
-      "globalAdiposity": 3.8780697366295237e-7,
-      "globalMuscularity": 0.00023825900511785096
+      "globalAgeStructure": -0.08333333333333326,
+      "globalSexualDimorphism": -1,
+      "europeanAncestry": 1,
+      "headHeight": -0.40128,
+      "leftEyeLateralPosition": 0.14993,
+      "rightEyeLateralPosition": 0.14993,
+      "leftEyeScale": 0.00988,
+      "rightEyeScale": 0.00988,
+      "leftEyeHeight": 0.3455,
+      "rightEyeHeight": 0.3455,
+      "noseWidth": -0.31118,
+      "noseHeight": 1,
+      "mouthWidth": -0.90467,
+      "upperLipHeight": -0.30452,
+      "lowerLipHeight": 0.50683,
+      "mouthElevation": -0.42072,
+      "cheekFullness": 0,
+      "chinWidth": -1,
+      "chinHeight": -0.87766,
+      "browElevation": -1
     },
     "expression": {
-      "browDownLeft": 0.19455847780601854,
-      "browDownRight": 0.15523142682150934,
-      "browInnerUp": 0.0008885836577988556,
-      "browOuterUpLeft": 0.025104258739733577,
-      "browOuterUpRight": 0.04402979501037216,
-      "cheekPuff": 0.0008937529937901356,
-      "cheekSquintRight": 0.0022926485756091857,
-      "eyeBlinkLeft": 0.1648517334086957,
-      "eyeBlinkRight": 0.08704536353922816,
-      "eyeLookDownLeft": 0.02118175285760583,
-      "eyeLookDownRight": 0.0159687685620247,
-      "eyeLookInLeft": 0.0009934772651534103,
-      "eyeLookInRight": 0.41862754746502934,
-      "eyeLookOutLeft": 0.39004551558591805,
-      "eyeLookOutRight": 0.00258100290353099,
-      "eyeLookUpLeft": 0.34064188282049773,
-      "eyeLookUpRight": 0.32397257097933485,
-      "eyeSquintLeft": 0.6152919903786068,
-      "eyeSquintRight": 0.5585890334002516,
-      "eyeWideLeft": 0.005468886270012074,
-      "eyeWideRight": 0.005854338678826757,
-      "jawForward": 1.086006995775352e-7,
-      "jawLeft": 0.010892336048582736,
-      "jawOpen": 0.028236811834754846,
-      "mouthClose": 0.0001151947593446947,
-      "mouthDimpleLeft": 0.04412775980868226,
-      "mouthDimpleRight": 0.000012222564678372999,
-      "mouthFrownLeft": 0.04418603177232741,
-      "mouthFunnel": 0.006492702635108423,
-      "mouthLeft": 0.0820121967693239,
-      "mouthLowerDownLeft": 0.01332653030937576,
-      "mouthPressLeft": 0.09705619966426036,
-      "mouthPressRight": 0.014369858968708895,
-      "mouthPucker": 0.0064665716972786376,
-      "mouthRight": 0.000038065558053052935,
-      "mouthRollLower": 0.003561618110748624,
-      "mouthRollUpper": 0.03485925607913895,
-      "mouthShrugLower": 0.013877446623787657,
-      "mouthShrugUpper": 0.016320854884223263,
-      "mouthSmileLeft": 0.40869106104744934,
-      "mouthSmileRight": 0.22042941584013603,
-      "mouthStretchLeft": 0.0748963577379879,
-      "mouthStretchRight": 0.000001582181043731322,
-      "mouthUpperUpRight": 0.022270935787284955,
-      "noseSneerRight": 0.005540815876875372
+      "browOuterUpLeft": 0.0128,
+      "eyeBlinkLeft": 0.2276,
+      "eyeBlinkRight": 0.0685,
+      "eyeLookInRight": 0.4935,
+      "eyeLookOutLeft": 0.3968,
+      "jawOpen": 0.002,
+      "mouthLeft": 0.5027,
+      "mouthPucker": 0.03,
+      "mouthSmileLeft": 0.47752,
+      "mouthSmileRight": 0.47752
     },
     "materials": {
       "skin": {
         "color": {
-          "r": 0.9662499999999999,
-          "g": 0.72625,
-          "b": 0.6162500000000002
+          "r": 0.463,
+          "g": 0.2714,
+          "b": 0.2091
         },
         "roughness": 0.76
       },
       "lips": {
         "color": {
-          "r": 0.55,
-          "g": 0.065,
-          "b": 0.09
+          "r": 0.3352,
+          "g": 0.0302,
+          "b": 0.0304
         },
         "roughness": 0.57
+      },
+      "Human.eyebrow001": {
+        "pigment": [
+          0.02403,
+          0.00831,
+          0.00362
+        ]
       }
     },
     "hair": {
@@ -769,9 +550,9 @@
           },
           "finish": {
             "color": [
-              0.095,
-              0.048,
-              0.019
+              0.03248,
+              0.01509,
+              0.0066
             ],
             "roughness": 0.73,
             "fibres": 24,
@@ -793,7 +574,7 @@
               -0.3
             ],
             "strength": 4,
-            "reach": 0.035,
+            "reach": 0.14676,
             "region": {
               "center": [
                 0,
@@ -813,162 +594,99 @@
           }
         }
       ]
+    },
+    "iris": {
+      "left": {
+        "base": [
+          0.01382,
+          0.00579,
+          0.0026
+        ],
+        "variation": [
+          0.07816,
+          0.03275,
+          0.0147
+        ]
+      },
+      "right": {
+        "base": [
+          0.01382,
+          0.00579,
+          0.0026
+        ],
+        "variation": [
+          0.07816,
+          0.03275,
+          0.0147
+        ]
+      }
     }
   },
   {
     "id": "generated-black-boy-01-connected",
     "name": "generated-black-boy-01 (connected study)",
-    "basis": "mpfb-connected-head-2026-09-23-ocular-contact",
+    "basis": "mpfb-connected-head-2026-09-25-gingiva",
     "shape": {
-      "headWidth": -0.14328040296794559,
-      "headHeight": 0.1015997121074854,
-      "headDepth": -0.0003149170832868437,
-      "cheekFullness": -0.6460522174312058,
-      "chinWidth": -0.325394642883445,
-      "chinHeight": -0.03646913497660191,
-      "chinProjection": -0.19148545757633015,
-      "noseWidth": 0.38212425433516506,
-      "noseHeight": 0.03681033740493192,
-      "noseDepth": 0.18136432612800688,
-      "mouthWidth": 0.03355922178121982,
-      "mouthHeight": 0.41800542767518645,
-      "upperLipHeight": 0.9438398903582707,
-      "lowerLipHeight": 0.5693464699723917,
-      "upperLipVolume": -0.38665992837379765,
-      "lowerLipVolume": 0.023820429291327546,
-      "upperLipWidth": 0.6281779971748701,
-      "lowerLipWidth": 0.49960765073058655,
-      "mouthDepth": -0.534343224517445,
-      "noseUpperWidth": 0.3126681991233018,
-      "noseMiddleWidth": -0.05902840219650222,
-      "noseLowerWidth": -0.253535637578221,
-      "nostrilWidth": 0.3428642920434574,
-      "noseFlaring": -0.048642040558521796,
-      "leftEyeScale": 0.5203840222896499,
-      "rightEyeScale": 0.5203840222896499,
-      "leftEyeHeight": 0.9399420200073744,
-      "rightEyeHeight": 0.9399420200073744,
-      "posteriorHeadDepth": 0.00021339327884623932,
-      "foreheadHeight": 0.00025926809090374406,
-      "templeWidth": -0.002606343457847881,
-      "chinBoneWidth": -0.4030859390516541,
-      "jawPrognathism": -0.06193007925831513,
-      "jawRestHeight": -0.518721773874975,
-      "noseTipWidth": 0.09148275702397257,
-      "noseBridgeHump": -0.003966021767017925,
-      "noseSeptumAngle": 0.43431290953658747,
-      "neckWidth": -0.05326687546738248,
-      "neckDepth": 0.05596385692662099,
-      "neckUnderChinFullness": 0.025257745137917634,
-      "leftCheekVolume": 0.2604378564408393,
-      "leftCheekBone": 0.4611649214718675,
-      "leftCheekInner": 0.1660708059901428,
-      "leftEarScale": -0.08445905180709423,
-      "leftEarHeight": -0.10388858638013646,
-      "leftEarDepth": 0.043551038993725824,
-      "leftEarLobe": -0.02039459068728297,
-      "leftEarWing": 0.0005526551697734755,
-      "leftEarFlap": 0.00032865484314791813,
-      "leftEyeBagVolume": 0.9007443660413736,
-      "leftEyeBagHeight": 0.18457360297152028,
-      "rightCheekVolume": 0.2604378564408393,
-      "rightCheekBone": 0.4611649214718675,
-      "rightCheekInner": 0.1660708059901428,
-      "rightEarScale": -0.08445905180709423,
-      "rightEarHeight": -0.10388858638013646,
-      "rightEarDepth": 0.043551038993725824,
-      "rightEarLobe": -0.02039459068728297,
-      "rightEarWing": 0.0005526551697734755,
-      "rightEarFlap": 0.00032865484314791813,
-      "rightEyeBagVolume": 0.9007443660413736,
-      "rightEyeBagHeight": 0.18457360297152028,
-      "faceAgeStructure": -0.12541314658928426,
-      "philtrumVolume": 0.9975375868754971,
-      "foreheadProjection": -0.04390919143306186,
-      "browElevation": 0.06623290559452506,
-      "browProjection": 0.8029521810715906,
-      "noseTipElevation": 0.35592562309081377,
-      "noseBaseElevation": 0.15399760157954534,
-      "nostrilAngle": -0.012400637733596306,
-      "mouthElevation": -0.4789551423084433,
-      "leftEyeElevation": -0.4974150519747562,
-      "leftEyeLateralPosition": 0.4091196867233542,
-      "leftEyeFoldHeight": 0.9766145850233743,
-      "leftEarRotation": 0.1292910686091476,
-      "rightEyeElevation": -0.4974150519747562,
-      "rightEyeLateralPosition": 0.4091196867233542,
-      "rightEyeFoldHeight": 0.9766145850233743,
-      "rightEarRotation": 0.1292910686091476,
-      "globalAgeStructure": -0.03055773660482636,
-      "globalSexualDimorphism": -0.014428318080403053,
-      "globalAdiposity": 0.00035670020869755766,
-      "globalMuscularity": 0.00034488328443240237
+      "globalAgeStructure": -0.8333333333333333,
+      "globalSexualDimorphism": 1,
+      "africanAncestry": 1,
+      "headHeight": 0.60413,
+      "leftEyeLateralPosition": 0.79052,
+      "rightEyeLateralPosition": 0.79052,
+      "leftEyeScale": 0.07003,
+      "rightEyeScale": 0.07003,
+      "leftEyeHeight": 0.11271,
+      "rightEyeHeight": 0.11271,
+      "noseWidth": 0.55572,
+      "noseHeight": -0.42745,
+      "mouthWidth": 0.81689,
+      "upperLipHeight": -0.94998,
+      "lowerLipHeight": -0.28822,
+      "mouthElevation": 0.48008,
+      "cheekFullness": -1,
+      "chinWidth": -1,
+      "chinHeight": -1,
+      "browElevation": -0.20117
     },
     "expression": {
-      "browDownLeft": 0.0006368133881359483,
-      "browDownRight": 0.0006507416213129925,
-      "browInnerUp": 0.14845484841643264,
-      "browOuterUpLeft": 0.10107707393996873,
-      "browOuterUpRight": 0.08787800793015929,
-      "cheekPuff": 0.007549218236508145,
-      "eyeBlinkLeft": 0.2955302385284076,
-      "eyeBlinkRight": 0.2881798590719522,
-      "eyeLookDownLeft": 0.19784957688767918,
-      "eyeLookDownRight": 0.22338740185147188,
-      "eyeLookInLeft": 0.06701509621484257,
-      "eyeLookInRight": 0.05824566178585149,
-      "eyeLookOutLeft": 0.07114911373739778,
-      "eyeLookOutRight": 0.09105440140101098,
-      "eyeLookUpLeft": 0.05335799861056999,
-      "eyeLookUpRight": 0.045925066046021236,
-      "eyeSquintLeft": 0.340884161026126,
-      "eyeSquintRight": 0.3288221750136137,
-      "eyeWideLeft": 0.0010637195308400478,
-      "eyeWideRight": 0.0003513417787678475,
-      "jawForward": 0.00007884418059140418,
-      "jawLeft": 0.0061035666928786645,
-      "jawOpen": 0.10573599676373323,
-      "jawRight": 8.459086932004372e-7,
-      "mouthClose": 0.005336821227294159,
-      "mouthDimpleLeft": 0.000011637208496848567,
-      "mouthDimpleRight": 0.004603933840575358,
-      "mouthFrownLeft": 0.010110257007370664,
-      "mouthFrownRight": 0.00005345053308835023,
-      "mouthFunnel": 0.12602232714521705,
-      "mouthLeft": 0.008672688334088916,
-      "mouthLowerDownLeft": 0.04232700287084809,
-      "mouthLowerDownRight": 0.0494629167906873,
-      "mouthPressLeft": 0.010602107112092227,
-      "mouthPressRight": 0.030282086955098667,
-      "mouthPucker": 0.17245814399854503,
-      "mouthRight": 0.01219489278766579,
-      "mouthRollLower": 0.00006134711867210613,
-      "mouthRollUpper": 0.04177609778480305,
-      "mouthShrugLower": 0.00003864028587588802,
-      "mouthShrugUpper": 0.000035987139465343076,
-      "mouthSmileLeft": 0.8352887858409743,
-      "mouthSmileRight": 0.9060081080663969,
-      "mouthStretchLeft": 0.03846896786176091,
-      "mouthStretchRight": 0.11729105060325432,
-      "mouthUpperUpLeft": 0.49231436313305005,
-      "mouthUpperUpRight": 0.6033535731983147
+      "eyeBlinkLeft": 0.3266,
+      "eyeBlinkRight": 0.2974,
+      "eyeLookDownLeft": 0.0629,
+      "eyeLookDownRight": 0.1717,
+      "jawOpen": 0.0321,
+      "mouthPucker": 0.24,
+      "mouthRight": 0.0415,
+      "mouthSmileLeft": 0.80828,
+      "mouthSmileRight": 0.80828,
+      "mouthStretchRight": 0.2583,
+      "mouthUpperUpLeft": 1,
+      "mouthUpperUpRight": 1,
+      "mouthLowerDownLeft": 0.84412,
+      "mouthLowerDownRight": 0.84412
     },
     "materials": {
       "skin": {
         "color": {
-          "r": 0.24,
-          "g": 0.105,
-          "b": 0.062
+          "r": 0.1497,
+          "g": 0.0801,
+          "b": 0.0553
         },
         "roughness": 0.76
       },
       "lips": {
         "color": {
-          "r": 0.25,
-          "g": 0.1,
-          "b": 0.075
+          "r": 0.134,
+          "g": 0.0727,
+          "b": 0.0702
         },
         "roughness": 0.57
+      },
+      "Human.eyebrow001": {
+        "pigment": [
+          0.01354,
+          0.01031,
+          0.00974
+        ]
       }
     },
     "hair": {
@@ -986,12 +704,12 @@
             "back": 2.1
           },
           "lengthAxes": [
-            0.025,
-            0.025,
+            0.005,
+            0.005,
             0.042,
-            0.02,
+            0.004,
             0.032,
-            0.03
+            0.006
           ],
           "lengthVariation": 0.08,
           "samplingStep": 0.002,
@@ -1017,9 +735,9 @@
           },
           "finish": {
             "color": [
-              0.009,
-              0.006,
-              0.005
+              0.00833,
+              0.01135,
+              0.01429
             ],
             "roughness": 0.94,
             "fibres": 24,
@@ -1033,163 +751,97 @@
           }
         }
       ]
+    },
+    "iris": {
+      "left": {
+        "base": [
+          0.00107,
+          0.0012,
+          0.0015
+        ],
+        "variation": [
+          0.00603,
+          0.00679,
+          0.00849
+        ]
+      },
+      "right": {
+        "base": [
+          0.00107,
+          0.0012,
+          0.0015
+        ],
+        "variation": [
+          0.00603,
+          0.00679,
+          0.00849
+        ]
+      }
     }
   },
   {
     "id": "generated-black-girl-01-connected",
     "name": "generated-black-girl-01 (connected study)",
-    "basis": "mpfb-connected-head-2026-09-23-ocular-contact",
+    "basis": "mpfb-connected-head-2026-09-25-gingiva",
     "shape": {
-      "headWidth": -0.30097483094693617,
-      "headHeight": 0.15275383036912965,
-      "headDepth": -0.0012763775882885728,
-      "cheekFullness": -0.4757086157847906,
-      "chinWidth": -0.5786585521495347,
-      "chinHeight": -0.09955255483072582,
-      "chinProjection": 0.1095572269341889,
-      "noseWidth": -0.1171898128755427,
-      "noseHeight": 0.013296184026884442,
-      "noseDepth": 0.12924768046808602,
-      "mouthWidth": -0.060130751062003066,
-      "mouthHeight": 0.505554246186603,
-      "upperLipHeight": -0.9053940070583444,
-      "lowerLipHeight": 0.41593197044804425,
-      "upperLipVolume": -0.03533637550451333,
-      "lowerLipVolume": -0.04223124549734932,
-      "upperLipWidth": 0.548971432775995,
-      "lowerLipWidth": 0.2877977614261206,
-      "mouthDepth": 0.3172806903046027,
-      "noseUpperWidth": 0.9999999612815536,
-      "noseMiddleWidth": 0.17821983106478734,
-      "noseLowerWidth": 0.023137679561826135,
-      "nostrilWidth": 0.19189468638758486,
-      "noseFlaring": 0.0254736891967914,
-      "leftEyeScale": 0.34348596286930205,
-      "rightEyeScale": 0.34348596286930205,
-      "leftEyeHeight": 0.7814266646291375,
-      "rightEyeHeight": 0.7814266646291375,
-      "posteriorHeadDepth": -0.001964633927932869,
-      "foreheadHeight": -0.0020166467636911624,
-      "templeWidth": -0.0341914224465256,
-      "chinBoneWidth": -0.4095581827181992,
-      "jawPrognathism": 0.02750892153800188,
-      "jawRestHeight": -0.6014605037923761,
-      "noseTipWidth": 0.07251044126588381,
-      "noseBridgeHump": -0.2994537966207047,
-      "noseSeptumAngle": 0.08526667533803586,
-      "neckWidth": -0.038127392971785565,
-      "neckDepth": 0.0020879147377867078,
-      "neckUnderChinFullness": -0.0024960644732350285,
-      "leftCheekVolume": 0.2330608933640239,
-      "leftCheekBone": 0.2590485044077435,
-      "leftCheekInner": 0.2230077781439568,
-      "leftEarScale": 0.016680391502385792,
-      "leftEarHeight": -0.1972820950129225,
-      "leftEarDepth": -0.04448173283898989,
-      "leftEarLobe": 0.009419751753552044,
-      "leftEarWing": 0.01351322518500604,
-      "leftEarFlap": -0.0020647963816627013,
-      "leftEyeBagVolume": -0.9790772355958305,
-      "leftEyeBagHeight": 0.31303693700814506,
-      "rightCheekVolume": 0.2330608933640239,
-      "rightCheekBone": 0.2590485044077435,
-      "rightCheekInner": 0.2230077781439568,
-      "rightEarScale": 0.016680391502385792,
-      "rightEarHeight": -0.1972820950129225,
-      "rightEarDepth": -0.04448173283898989,
-      "rightEarLobe": 0.009419751753552044,
-      "rightEarWing": 0.01351322518500604,
-      "rightEarFlap": -0.0020647963816627013,
-      "rightEyeBagVolume": -0.9790772355958305,
-      "rightEyeBagHeight": 0.31303693700814506,
-      "faceAgeStructure": -0.7102548823907631,
-      "philtrumVolume": -0.956676130432303,
-      "foreheadProjection": -0.06928796399180237,
-      "browElevation": 0.3288477123686984,
-      "browProjection": 0.1332685363718035,
-      "noseTipElevation": -0.08031971382758343,
-      "noseBaseElevation": -0.2209076899558182,
-      "nostrilAngle": -0.00012555824367172245,
-      "mouthElevation": -0.3119964069170814,
-      "leftEyeElevation": -0.713187006295935,
-      "leftEyeLateralPosition": 0.3093665461454389,
-      "leftEyeFoldHeight": 0.7790985890827872,
-      "leftEarRotation": 0.18583838989175622,
-      "rightEyeElevation": -0.713187006295935,
-      "rightEyeLateralPosition": 0.3093665461454389,
-      "rightEyeFoldHeight": 0.7790985890827872,
-      "rightEarRotation": 0.18583838989175622,
-      "globalAgeStructure": -0.01870282929286641,
-      "globalSexualDimorphism": -0.02428261890682383,
-      "globalAdiposity": -0.0013062144737662597,
-      "globalMuscularity": 0.00004351686603127339
+      "globalAgeStructure": -0.8333333333333333,
+      "globalSexualDimorphism": -1,
+      "africanAncestry": 1,
+      "headHeight": 0.17767,
+      "leftEyeLateralPosition": 0.41335,
+      "rightEyeLateralPosition": 0.41335,
+      "leftEyeScale": -0.44976,
+      "rightEyeScale": -0.44976,
+      "leftEyeHeight": -0.38124,
+      "rightEyeHeight": -0.38124,
+      "noseWidth": -0.40534,
+      "noseHeight": 0.83191,
+      "mouthWidth": 0.57948,
+      "upperLipHeight": -1,
+      "lowerLipHeight": -0.45335,
+      "mouthElevation": -0.64644,
+      "cheekFullness": -1,
+      "chinWidth": -1,
+      "chinHeight": -0.47332,
+      "browElevation": 0.71423
     },
     "expression": {
-      "browDownLeft": 0.00006700445613816372,
-      "browDownRight": 0.00021980920137323057,
-      "browInnerUp": 0.24615859910627497,
-      "browOuterUpLeft": 0.4109087194886685,
-      "browOuterUpRight": 0.2170541175262391,
-      "cheekPuff": 0.011585922183289498,
-      "cheekSquintLeft": 0.0020291561574980375,
-      "cheekSquintRight": 0.000014286543405219925,
-      "eyeBlinkLeft": 0.1828658718339138,
-      "eyeBlinkRight": 0.25133691643078304,
-      "eyeLookDownLeft": 0.18562337428114614,
-      "eyeLookDownRight": 0.22616930890659642,
-      "eyeLookInLeft": 0.04374031099868503,
-      "eyeLookInRight": 0.14809129276881322,
-      "eyeLookOutLeft": 0.1308940043184812,
-      "eyeLookOutRight": 0.03762997363636568,
-      "eyeLookUpLeft": 0.06656096529030503,
-      "eyeLookUpRight": 0.0439045849914432,
-      "eyeSquintLeft": 0.4342067780067198,
-      "eyeSquintRight": 0.3386157757098571,
-      "eyeWideLeft": 0.0005796555896254746,
-      "eyeWideRight": 0.00010354025319646882,
-      "jawLeft": 0.00006775917975921686,
-      "jawOpen": 0.05784804318244224,
-      "jawRight": 0.014143369252610798,
-      "mouthClose": 0.032503934521402766,
-      "mouthDimpleLeft": 0.014967640424584615,
-      "mouthDimpleRight": 0.006103707947386222,
-      "mouthFrownLeft": 0.004878176231933089,
-      "mouthFrownRight": 0.002190458340892658,
-      "mouthFunnel": 0.12387991032490603,
-      "mouthLeft": 0.02205730488710419,
-      "mouthLowerDownLeft": 0.038188947120335964,
-      "mouthLowerDownRight": 0.05816323223160182,
-      "mouthPressLeft": 0.07922212926781369,
-      "mouthPressRight": 0.06841909486152774,
-      "mouthPucker": 0.07778428005951159,
-      "mouthRight": 0.015001404469632605,
-      "mouthRollLower": 0.0001072787710563052,
-      "mouthRollUpper": 0.015058919558687173,
-      "mouthShrugLower": 0.0001602595736120416,
-      "mouthShrugUpper": 0.00002447865873619839,
-      "mouthSmileLeft": 0.961720421133235,
-      "mouthSmileRight": 0.9700195837146152,
-      "mouthStretchLeft": 0.0883535385613133,
-      "mouthStretchRight": 0.15747903773177083,
-      "mouthUpperUpLeft": 0.7432613042881281,
-      "mouthUpperUpRight": 0.7650692670157679
+      "eyeBlinkLeft": 0.1809,
+      "eyeBlinkRight": 0.2185,
+      "eyeLookInRight": 0.1759,
+      "eyeLookOutLeft": 0.181,
+      "jawOpen": 0.0399,
+      "mouthRight": 0.0638,
+      "mouthSmileLeft": 1,
+      "mouthSmileRight": 1,
+      "mouthUpperUpLeft": 1,
+      "mouthUpperUpRight": 1,
+      "mouthLowerDownLeft": 0.84412,
+      "mouthLowerDownRight": 0.84412
     },
     "materials": {
       "skin": {
         "color": {
-          "r": 0.22,
-          "g": 0.087,
-          "b": 0.051
+          "r": 0.2178,
+          "g": 0.1153,
+          "b": 0.0695
         },
         "roughness": 0.76
       },
       "lips": {
         "color": {
-          "r": 0.3,
-          "g": 0.095,
-          "b": 0.105
+          "r": 0.1624,
+          "g": 0.0773,
+          "b": 0.0665
         },
         "roughness": 0.57
+      },
+      "Human.eyebrow001": {
+        "pigment": [
+          0.0257,
+          0.01659,
+          0.01333
+        ]
       }
     },
     "hair": {
@@ -1238,9 +890,9 @@
           },
           "finish": {
             "color": [
-              0.012,
-              0.007,
-              0.005
+              0.00869,
+              0.01071,
+              0.01168
             ],
             "roughness": 0.94,
             "fibres": 24,
@@ -1262,7 +914,7 @@
               -0.3
             ],
             "strength": 4,
-            "reach": 0.035,
+            "reach": 0.22364,
             "region": {
               "center": [
                 0,
@@ -1282,163 +934,100 @@
           }
         }
       ]
+    },
+    "iris": {
+      "left": {
+        "base": [
+          0.00216,
+          0.00191,
+          0.00187
+        ],
+        "variation": [
+          0.01223,
+          0.01082,
+          0.01059
+        ]
+      },
+      "right": {
+        "base": [
+          0.00216,
+          0.00191,
+          0.00187
+        ],
+        "variation": [
+          0.01223,
+          0.01082,
+          0.01059
+        ]
+      }
     }
   },
   {
     "id": "generated-korean-boy-01-connected",
     "name": "generated-korean-boy-01 (connected study)",
-    "basis": "mpfb-connected-head-2026-09-23-ocular-contact",
+    "basis": "mpfb-connected-head-2026-09-25-gingiva",
     "shape": {
-      "headWidth": -0.2766879029455006,
-      "headHeight": 0.08957223698417179,
-      "headDepth": -0.0033329233558506578,
-      "cheekFullness": -0.21832025856033194,
-      "chinWidth": -0.4690527081404606,
-      "chinHeight": -0.1708621358545511,
-      "chinProjection": -0.028326298367452863,
-      "noseWidth": -0.2897545125396649,
-      "noseHeight": 0.03269812170985912,
-      "noseDepth": -0.0735888507512398,
-      "mouthWidth": -0.35752772124622256,
-      "mouthHeight": -0.15717749235136202,
-      "upperLipHeight": -0.5614005131020636,
-      "lowerLipHeight": -0.054942121662959045,
-      "upperLipVolume": 0.13466285914690418,
-      "lowerLipVolume": -0.1156224781957893,
-      "upperLipWidth": 0.34571116539514607,
-      "lowerLipWidth": -0.04888986619861764,
-      "mouthDepth": -0.09387655048828494,
-      "noseUpperWidth": 0.5561196830130377,
-      "noseMiddleWidth": 0.19114003471100074,
-      "noseLowerWidth": 0.017983147214984122,
-      "nostrilWidth": 0.05494405687031161,
-      "noseFlaring": 0.032451067694585056,
-      "leftEyeScale": -0.008425077751584405,
-      "rightEyeScale": -0.008425077751584405,
-      "leftEyeHeight": 0.7483661649847375,
-      "rightEyeHeight": 0.7483661649847375,
-      "posteriorHeadDepth": -0.005402601020474851,
-      "foreheadHeight": -0.005868820455602002,
-      "templeWidth": 0.13275742825382889,
-      "chinBoneWidth": -0.32337699598455755,
-      "jawPrognathism": -0.022457170450060248,
-      "jawRestHeight": -0.485055546310322,
-      "noseTipWidth": 0.07378703603341932,
-      "noseBridgeHump": -0.2331842272705359,
-      "noseSeptumAngle": 0.2438083833172993,
-      "neckWidth": -0.03921984762218291,
-      "neckDepth": 0.01137518156069618,
-      "neckUnderChinFullness": -0.007060989557044379,
-      "leftCheekVolume": -0.050021857857869875,
-      "leftCheekBone": 0.32933721569418245,
-      "leftCheekInner": 0.1880982977432009,
-      "leftEarScale": -0.058552051836136695,
-      "leftEarHeight": 0.004687567120854518,
-      "leftEarDepth": -0.03678474946657493,
-      "leftEarLobe": -0.0001828535845232109,
-      "leftEarWing": 0.00032372965433987756,
-      "leftEarFlap": -0.006464086871336304,
-      "leftEyeBagVolume": 0.5564851300324186,
-      "leftEyeBagHeight": 0.3496916774463643,
-      "rightCheekVolume": -0.050021857857869875,
-      "rightCheekBone": 0.32933721569418245,
-      "rightCheekInner": 0.1880982977432009,
-      "rightEarScale": -0.058552051836136695,
-      "rightEarHeight": 0.004687567120854518,
-      "rightEarDepth": -0.03678474946657493,
-      "rightEarLobe": -0.0001828535845232109,
-      "rightEarWing": 0.00032372965433987756,
-      "rightEarFlap": -0.006464086871336304,
-      "rightEyeBagVolume": 0.5564851300324186,
-      "rightEyeBagHeight": 0.3496916774463643,
-      "faceAgeStructure": -0.4979646654418262,
-      "philtrumVolume": -0.8636154915476697,
-      "foreheadProjection": -0.0337281532846439,
-      "browElevation": 0.19425184095956743,
-      "browProjection": 0.47363225490172234,
-      "noseTipElevation": -0.08992130775530845,
-      "noseBaseElevation": -0.3711337431259918,
-      "nostrilAngle": -0.00460545825993617,
-      "mouthElevation": -0.262106419699662,
-      "leftEyeElevation": -0.5161752661122777,
-      "leftEyeLateralPosition": 0.06189929610862682,
-      "leftEyeFoldHeight": 0.709942961558513,
-      "leftEarRotation": 0.017246133583171515,
-      "rightEyeElevation": -0.5161752661122777,
-      "rightEyeLateralPosition": 0.06189929610862682,
-      "rightEyeFoldHeight": 0.709942961558513,
-      "rightEarRotation": 0.017246133583171515,
-      "globalAgeStructure": -0.02988774351273031,
-      "globalSexualDimorphism": -0.028645754700926746,
-      "globalAdiposity": -0.005058783552522821,
-      "globalMuscularity": 0.0013487132906656939
+      "globalAgeStructure": -0.8333333333333333,
+      "globalSexualDimorphism": 1,
+      "asianAncestry": 1,
+      "headHeight": 0.21118,
+      "leftEyeLateralPosition": 0.2985,
+      "rightEyeLateralPosition": 0.2985,
+      "leftEyeScale": -0.04717,
+      "rightEyeScale": -0.04717,
+      "leftEyeHeight": 0.13091,
+      "rightEyeHeight": 0.13091,
+      "noseWidth": 0.27082,
+      "noseHeight": 0.49636,
+      "mouthWidth": 0.2916,
+      "upperLipHeight": -0.68712,
+      "lowerLipHeight": -0.67145,
+      "mouthElevation": 0.17962,
+      "cheekFullness": -1,
+      "chinWidth": -1,
+      "chinHeight": -1,
+      "browElevation": 0.37729
     },
     "expression": {
-      "browDownLeft": 0.0007486425961308966,
-      "browDownRight": 0.0025107362247608163,
-      "browInnerUp": 0.1785933935652733,
-      "browOuterUpLeft": 0.12683141663240383,
-      "browOuterUpRight": 0.08629596982233716,
-      "cheekPuff": 0.008347765299581813,
-      "cheekSquintLeft": 1.3625534454499958e-7,
-      "eyeBlinkLeft": 0.18319072309577722,
-      "eyeBlinkRight": 0.23197034845781825,
-      "eyeLookDownLeft": 0.13965785473160874,
-      "eyeLookDownRight": 0.16129503321844366,
-      "eyeLookInLeft": 0.05418865700085134,
-      "eyeLookInRight": 0.14645624251777192,
-      "eyeLookOutLeft": 0.12090679158432349,
-      "eyeLookOutRight": 0.023123493885788927,
-      "eyeLookUpLeft": 0.07727801868807191,
-      "eyeLookUpRight": 0.05379016089964155,
-      "eyeSquintLeft": 0.5247919015379732,
-      "eyeSquintRight": 0.42398959974828354,
-      "eyeWideLeft": 0.002268391353607765,
-      "jawForward": 0.0010809040519925875,
-      "jawLeft": 0.002210185150910794,
-      "jawOpen": 0.10030585936802598,
-      "jawRight": 0.005387135327257501,
-      "mouthClose": 0.0036900143594283297,
-      "mouthDimpleLeft": 0.0026984411742069637,
-      "mouthDimpleRight": 0.0023514305074898993,
-      "mouthFrownLeft": 0.007549087065684274,
-      "mouthFrownRight": 0.00841631175265597,
-      "mouthFunnel": 0.03291903533739933,
-      "mouthLeft": 9.738594361897065e-7,
-      "mouthLowerDownLeft": 0.025440181913863845,
-      "mouthLowerDownRight": 0.034635634439513806,
-      "mouthPressLeft": 0.037734429714651,
-      "mouthPressRight": 0.048062781425654455,
-      "mouthPucker": 0.018429168119367217,
-      "mouthRight": 0.0025907633255755854,
-      "mouthRollLower": 0.006551104095500333,
-      "mouthRollUpper": 0.03430027666844971,
-      "mouthShrugLower": 0.002396619614275679,
-      "mouthShrugUpper": 0.001278252033569609,
-      "mouthSmileLeft": 0.779996296762612,
-      "mouthSmileRight": 0.7838601455645716,
-      "mouthStretchLeft": 0.008117451754335208,
-      "mouthStretchRight": 0.02081984542847831,
-      "mouthUpperUpLeft": 0.18642809848647893,
-      "mouthUpperUpRight": 0.2034035572454386,
-      "noseSneerRight": 2.0742259432398708e-7
+      "eyeBlinkLeft": 0.2543,
+      "eyeBlinkRight": 0.1739,
+      "eyeLookDownLeft": 0.1532,
+      "eyeLookDownRight": 0.198,
+      "eyeLookInRight": 0.176,
+      "eyeLookOutLeft": 0.1596,
+      "jawOpen": 0.0662,
+      "mouthLeft": 0.0921,
+      "mouthPucker": 0.0157,
+      "mouthSmileLeft": 0.68496,
+      "mouthSmileRight": 0.68496,
+      "mouthUpperUpLeft": 0.73235,
+      "mouthUpperUpRight": 0.73235,
+      "mouthLowerDownLeft": 0.61819,
+      "mouthLowerDownRight": 0.61819
     },
     "materials": {
       "skin": {
         "color": {
-          "r": 0.56,
-          "g": 0.32,
-          "b": 0.22
+          "r": 0.4206,
+          "g": 0.2393,
+          "b": 0.1743
         },
         "roughness": 0.76
       },
       "lips": {
         "color": {
-          "r": 0.43,
-          "g": 0.2,
-          "b": 0.19
+          "r": 0.3213,
+          "g": 0.1057,
+          "b": 0.0899
         },
         "roughness": 0.57
+      },
+      "Human.eyebrow001": {
+        "pigment": [
+          0.02464,
+          0.01505,
+          0.0126
+        ]
       }
     },
     "hair": {
@@ -1456,12 +1045,12 @@
             "back": 2.1
           },
           "lengthAxes": [
-            0.035,
-            0.035,
+            0.0177,
+            0.0177,
             0.085,
-            0.02,
+            0.0101,
             0.07,
-            0.045
+            0.0228
           ],
           "lengthVariation": 0.08,
           "samplingStep": 0.003,
@@ -1487,9 +1076,9 @@
           },
           "finish": {
             "color": [
-              0.023,
-              0.018,
-              0.015
+              0.03876,
+              0.02858,
+              0.02492
             ],
             "roughness": 0.73,
             "fibres": 24,
@@ -1531,164 +1120,97 @@
           }
         }
       ]
+    },
+    "iris": {
+      "left": {
+        "base": [
+          0.00517,
+          0.00285,
+          0.00239
+        ],
+        "variation": [
+          0.02925,
+          0.01613,
+          0.0135
+        ]
+      },
+      "right": {
+        "base": [
+          0.00517,
+          0.00285,
+          0.00239
+        ],
+        "variation": [
+          0.02925,
+          0.01613,
+          0.0135
+        ]
+      }
     }
   },
   {
     "id": "generated-white-boy-01-connected",
     "name": "generated-white-boy-01 (connected study)",
-    "basis": "mpfb-connected-head-2026-09-23-ocular-contact",
+    "basis": "mpfb-connected-head-2026-09-25-gingiva",
     "shape": {
-      "headWidth": -0.10871872190194158,
-      "headHeight": 0.1295620657450308,
-      "headDepth": 0.0009911663600598755,
-      "cheekFullness": -0.38788552682365485,
-      "chinWidth": -0.3583467874170069,
-      "chinHeight": -0.0651515160090571,
-      "chinProjection": 0.17923628598633323,
-      "noseWidth": 0.010891886923303059,
-      "noseHeight": 0.1337166589590471,
-      "noseDepth": 0.016376930900046056,
-      "mouthWidth": -0.2508953571662737,
-      "mouthHeight": 0.2041206601559355,
-      "upperLipHeight": 0.6688106875170701,
-      "lowerLipHeight": -0.02193674802718545,
-      "upperLipVolume": -0.6454165615500067,
-      "lowerLipVolume": 0.05251136007575806,
-      "upperLipWidth": 0.5245886591306395,
-      "lowerLipWidth": -0.005513639079985355,
-      "mouthDepth": 0.008065382154449642,
-      "noseUpperWidth": 0.3646444991991958,
-      "noseMiddleWidth": -0.22798301829618756,
-      "noseLowerWidth": -0.09667456260245941,
-      "nostrilWidth": 0.013225151326023843,
-      "noseFlaring": -0.009306030695792378,
-      "leftEyeScale": 0.2725059458113316,
-      "rightEyeScale": 0.2725059458113316,
-      "leftEyeHeight": 0.8256733966487511,
-      "rightEyeHeight": 0.8256733966487511,
-      "posteriorHeadDepth": 0.00040396556046538043,
-      "foreheadHeight": 0.0005092861090153756,
-      "templeWidth": 0.039610823496363363,
-      "chinBoneWidth": -0.3073831276185963,
-      "jawPrognathism": -0.003425966745025693,
-      "jawRestHeight": -0.3997518430279941,
-      "noseTipWidth": -0.06157268389381144,
-      "noseBridgeHump": 0.034053051929495905,
-      "noseSeptumAngle": 0.49470462564342627,
-      "neckWidth": -0.044049000689030345,
-      "neckDepth": 0.0319714599569228,
-      "neckUnderChinFullness": -0.0007947469150385046,
-      "leftCheekVolume": 0.10235591025936416,
-      "leftCheekBone": 0.3515014863417479,
-      "leftCheekInner": 0.09036951251290022,
-      "leftEarScale": -0.04186135067852874,
-      "leftEarHeight": -0.09154176260499094,
-      "leftEarDepth": -0.10268612601640287,
-      "leftEarLobe": 0.003291160265547571,
-      "leftEarWing": 0.0006915712689927394,
-      "leftEarFlap": 0.0006892370768155505,
-      "leftEyeBagVolume": 0.7171088737811072,
-      "leftEyeBagHeight": 0.14733618715172056,
-      "rightCheekVolume": 0.10235591025936416,
-      "rightCheekBone": 0.3515014863417479,
-      "rightCheekInner": 0.09036951251290022,
-      "rightEarScale": -0.04186135067852874,
-      "rightEarHeight": -0.09154176260499094,
-      "rightEarDepth": -0.10268612601640287,
-      "rightEarLobe": 0.003291160265547571,
-      "rightEarWing": 0.0006915712689927394,
-      "rightEarFlap": 0.0006892370768155505,
-      "rightEyeBagVolume": 0.7171088737811072,
-      "rightEyeBagHeight": 0.14733618715172056,
-      "faceAgeStructure": -0.1249973090833813,
-      "philtrumVolume": 0.9751969764443342,
-      "foreheadProjection": -0.019175374109686616,
-      "browElevation": 0.15479269325438094,
-      "browProjection": 0.5445094539554739,
-      "noseTipElevation": 0.14673066132494095,
-      "noseBaseElevation": -0.05222059042673528,
-      "nostrilAngle": -0.04628291454667054,
-      "mouthElevation": -0.36298305636542894,
-      "leftEyeElevation": -0.26219721158789777,
-      "leftEyeLateralPosition": 0.21551674872104148,
-      "leftEyeFoldHeight": 0.7671964635426365,
-      "leftEarRotation": 0.20215069653818804,
-      "rightEyeElevation": -0.26219721158789777,
-      "rightEyeLateralPosition": 0.21551674872104148,
-      "rightEyeFoldHeight": 0.7671964635426365,
-      "rightEarRotation": 0.20215069653818804,
-      "globalAgeStructure": -0.013059591568213139,
-      "globalSexualDimorphism": 0.021842638094123602,
-      "globalAdiposity": 0.000770665976697578,
-      "globalMuscularity": 0.0007356621191094901
+      "globalAgeStructure": -0.8333333333333333,
+      "globalSexualDimorphism": 1,
+      "europeanAncestry": 1,
+      "headHeight": 0.50073,
+      "leftEyeLateralPosition": 0.56267,
+      "rightEyeLateralPosition": 0.56267,
+      "leftEyeScale": -0.09792,
+      "rightEyeScale": -0.09792,
+      "leftEyeHeight": -0.59777,
+      "rightEyeHeight": -0.59777,
+      "noseWidth": 0.18542,
+      "noseHeight": 0.5131,
+      "mouthWidth": 0.72125,
+      "upperLipHeight": -0.28667,
+      "lowerLipHeight": -0.11745,
+      "mouthElevation": -0.03289,
+      "cheekFullness": 0,
+      "chinWidth": -1,
+      "chinHeight": -1,
+      "browElevation": -0.65389
     },
     "expression": {
-      "browDownLeft": 0.16265220194127958,
-      "browDownRight": 0.14772481979722712,
-      "browInnerUp": 0.056607122088570085,
-      "browOuterUpLeft": 0.051039965398745814,
-      "browOuterUpRight": 0.035670287392369465,
-      "cheekPuff": 0.008588211579538645,
-      "cheekSquintLeft": 0.000010614934837629879,
-      "eyeBlinkLeft": 0.2463334543450479,
-      "eyeBlinkRight": 0.2830280797992554,
-      "eyeLookDownLeft": 0.20848998590079115,
-      "eyeLookDownRight": 0.23881756621337075,
-      "eyeLookInLeft": 0.040502464333528373,
-      "eyeLookInRight": 0.09830372648192656,
-      "eyeLookOutLeft": 0.11113832542398529,
-      "eyeLookOutRight": 0.059595209373267746,
-      "eyeLookUpLeft": 0.05239469155272309,
-      "eyeLookUpRight": 0.035630042969920867,
-      "eyeSquintLeft": 0.5824118151758368,
-      "eyeSquintRight": 0.48264683545359643,
-      "eyeWideLeft": 0.005075753520354328,
-      "eyeWideRight": 0.002174888883631781,
-      "jawForward": 0.00010026378789164206,
-      "jawLeft": 0.00001371250301361019,
-      "jawOpen": 0.13322403333952473,
-      "jawRight": 0.019748841136515486,
-      "mouthClose": 0.03271863044243511,
-      "mouthDimpleLeft": 0.00805014723446269,
-      "mouthDimpleRight": 0.0005262476999270924,
-      "mouthFrownLeft": 0.011499887981031865,
-      "mouthFrownRight": 0.0001223573951307068,
-      "mouthFunnel": 0.021048513815885624,
-      "mouthLeft": 0.015546512808765522,
-      "mouthLowerDownLeft": 0.0405649342578507,
-      "mouthLowerDownRight": 0.0699987576388707,
-      "mouthPressLeft": 0.09972305224788335,
-      "mouthPressRight": 0.09731521135946705,
-      "mouthPucker": 0.01051191108633231,
-      "mouthRight": 0.0043797148024407265,
-      "mouthRollLower": 0.004515531351921615,
-      "mouthRollUpper": 0.06393469893729418,
-      "mouthShrugLower": 0.000011149974383405098,
-      "mouthShrugUpper": 0.006669053510108886,
-      "mouthSmileLeft": 0.8646691854613755,
-      "mouthSmileRight": 0.8590543163538609,
-      "mouthStretchLeft": 0.04914026005223135,
-      "mouthStretchRight": 0.08902048687241736,
-      "mouthUpperUpLeft": 0.41766810508912716,
-      "mouthUpperUpRight": 0.48752970672882917,
-      "noseSneerRight": 1.1348314033566864e-7
+      "eyeBlinkLeft": 0.2841,
+      "eyeBlinkRight": 0.2594,
+      "eyeLookOutLeft": 0.0409,
+      "jawOpen": 0.1082,
+      "mouthLeft": 0.0596,
+      "mouthPucker": 0.0099,
+      "mouthSmileLeft": 0.76839,
+      "mouthSmileRight": 0.76839,
+      "mouthUpperUpLeft": 0.86803,
+      "mouthUpperUpRight": 0.86803,
+      "mouthLowerDownLeft": 0.73272,
+      "mouthLowerDownRight": 0.73272
     },
     "materials": {
       "skin": {
         "color": {
-          "r": 0.66,
-          "g": 0.405,
-          "b": 0.31
+          "r": 0.4225,
+          "g": 0.234,
+          "b": 0.1798
         },
         "roughness": 0.76
       },
       "lips": {
         "color": {
-          "r": 0.49,
-          "g": 0.23,
-          "b": 0.21
+          "r": 0.2791,
+          "g": 0.1028,
+          "b": 0.0953
         },
         "roughness": 0.57
+      },
+      "Human.eyebrow001": {
+        "pigment": [
+          0.02628,
+          0.01284,
+          0.00963
+        ]
       }
     },
     "hair": {
@@ -1706,12 +1228,12 @@
             "back": 2.1
           },
           "lengthAxes": [
-            0.03,
-            0.03,
+            0.0163,
+            0.0163,
             0.075,
-            0.02,
+            0.0108,
             0.055,
-            0.04
+            0.0217
           ],
           "lengthVariation": 0.08,
           "samplingStep": 0.003,
@@ -1737,9 +1259,9 @@
           },
           "finish": {
             "color": [
-              0.075,
-              0.043,
-              0.024
+              0.09322,
+              0.05951,
+              0.04126
             ],
             "roughness": 0.73,
             "fibres": 24,
@@ -1781,160 +1303,97 @@
           }
         }
       ]
+    },
+    "iris": {
+      "left": {
+        "base": [
+          0.00982,
+          0.00615,
+          0.00441
+        ],
+        "variation": [
+          0.05553,
+          0.03478,
+          0.02492
+        ]
+      },
+      "right": {
+        "base": [
+          0.00982,
+          0.00615,
+          0.00441
+        ],
+        "variation": [
+          0.05553,
+          0.03478,
+          0.02492
+        ]
+      }
     }
   },
   {
     "id": "generated-white-girl-01-connected",
     "name": "generated-white-girl-01 (connected study)",
-    "basis": "mpfb-connected-head-2026-09-23-ocular-contact",
+    "basis": "mpfb-connected-head-2026-09-25-gingiva",
     "shape": {
-      "headWidth": -0.032921385087665414,
-      "headHeight": 0.02350585561485061,
-      "headDepth": -0.034634676507796176,
-      "cheekFullness": -0.005691335972671117,
-      "chinWidth": -0.43544247474248915,
-      "chinHeight": -0.21311315461967054,
-      "chinProjection": 0.7565951925416609,
-      "noseWidth": 0.27860436394536764,
-      "noseHeight": -0.1633649941642743,
-      "noseDepth": 0.8463754654229844,
-      "mouthWidth": -0.6017049016905791,
-      "mouthHeight": 0.17983721756001933,
-      "upperLipHeight": 0.17402806013791694,
-      "lowerLipHeight": -0.1751174714425233,
-      "upperLipVolume": -0.9996866119567739,
-      "lowerLipVolume": 0.0006849839904180099,
-      "upperLipWidth": 0.17931617556849205,
-      "lowerLipWidth": -0.09559899093245652,
-      "mouthDepth": 0.9212069942222791,
-      "noseUpperWidth": 0.3891651372699516,
-      "noseMiddleWidth": 0.07479990031100478,
-      "noseLowerWidth": -0.6428016572416372,
-      "nostrilWidth": 0.3650149310246253,
-      "noseFlaring": -0.9347350200974508,
-      "leftEyeScale": 0.5561630143526701,
-      "rightEyeScale": 0.5561630143526701,
-      "leftEyeHeight": 0.711117263870408,
-      "rightEyeHeight": 0.711117263870408,
-      "posteriorHeadDepth": -0.00016869367960379398,
-      "foreheadHeight": -0.0002878875456512398,
-      "templeWidth": 0.3225034306325391,
-      "chinBoneWidth": -0.22706230132683597,
-      "jawPrognathism": -0.07806441056087096,
-      "jawRestHeight": -0.564885245001797,
-      "noseTipWidth": -0.08961534059393998,
-      "noseBridgeHump": -0.06543523390720858,
-      "noseSeptumAngle": -0.038480561848863296,
-      "neckWidth": -0.045484608425062446,
-      "neckDepth": 0.3072781809082543,
-      "neckUnderChinFullness": -0.0021937890876409737,
-      "leftCheekVolume": -0.23136581313137547,
-      "leftCheekBone": 0.6619128094613457,
-      "leftCheekInner": 0.6664319307055392,
-      "leftEarScale": 0.0777157225659197,
-      "leftEarHeight": -0.10288434731633374,
-      "leftEarDepth": 0.3555053055712349,
-      "leftEarLobe": 0.023633784082646322,
-      "leftEarWing": 0.00015061434254166575,
-      "leftEarFlap": -0.0006658333609821618,
-      "leftEyeBagVolume": -0.9607399006112868,
-      "leftEyeBagHeight": 0.12603741962960446,
-      "rightCheekVolume": -0.23136581313137547,
-      "rightCheekBone": 0.6619128094613457,
-      "rightCheekInner": 0.6664319307055392,
-      "rightEarScale": 0.0777157225659197,
-      "rightEarHeight": -0.10288434731633374,
-      "rightEarDepth": 0.3555053055712349,
-      "rightEarLobe": 0.023633784082646322,
-      "rightEarWing": 0.00015061434254166575,
-      "rightEarFlap": -0.0006658333609821618,
-      "rightEyeBagVolume": -0.9607399006112868,
-      "rightEyeBagHeight": 0.12603741962960446,
-      "faceAgeStructure": -0.573134024816143,
-      "philtrumVolume": 0.6350582494928724,
-      "foreheadProjection": 0.045744044444042516,
-      "browElevation": 0.295893839919204,
-      "browProjection": 0.17372673670454403,
-      "noseTipElevation": -0.12097126998502129,
-      "noseBaseElevation": -0.18234715534297793,
-      "nostrilAngle": 0.09235827137944708,
-      "mouthElevation": -0.21992549136406597,
-      "leftEyeElevation": -0.41815156186052077,
-      "leftEyeLateralPosition": 0.1582362298569955,
-      "leftEyeFoldHeight": 0.5945180179275702,
-      "leftEarRotation": 0.44658967617074874,
-      "rightEyeElevation": -0.41815156186052077,
-      "rightEyeLateralPosition": 0.1582362298569955,
-      "rightEyeFoldHeight": 0.5945180179275702,
-      "rightEarRotation": 0.44658967617074874,
-      "globalAgeStructure": -0.09124561004528453,
-      "globalSexualDimorphism": -0.1033883614784928,
-      "globalAdiposity": 0.0011781239267033162,
-      "globalMuscularity": 0.0000953545655794478
+      "globalAgeStructure": -0.9166666666666667,
+      "globalSexualDimorphism": -1,
+      "europeanAncestry": 1,
+      "headHeight": -0.17409,
+      "leftEyeLateralPosition": 0.09248,
+      "rightEyeLateralPosition": 0.09248,
+      "leftEyeScale": -0.07564,
+      "rightEyeScale": -0.07564,
+      "leftEyeHeight": -0.22354,
+      "rightEyeHeight": -0.22354,
+      "noseWidth": -0.79828,
+      "noseHeight": 1,
+      "mouthWidth": -0.61556,
+      "upperLipHeight": -0.7135,
+      "lowerLipHeight": 0.15314,
+      "mouthElevation": -0.52778,
+      "cheekFullness": -1,
+      "chinWidth": -0.93292,
+      "chinHeight": -0.65474,
+      "browElevation": -0.4331
     },
     "expression": {
-      "browDownLeft": 0.00042469286447220335,
-      "browDownRight": 0.000019048939805580056,
-      "browInnerUp": 0.07543097081116908,
-      "browOuterUpLeft": 0.17376662646102128,
-      "browOuterUpRight": 0.1471494051945911,
-      "cheekSquintLeft": 0.006916709517226728,
-      "cheekSquintRight": 0.000003720115258383071,
-      "eyeBlinkLeft": 0.12642557923441702,
-      "eyeBlinkRight": 0.13770887936850112,
-      "eyeLookDownLeft": 0.07504996934798967,
-      "eyeLookDownRight": 0.09518852366286225,
-      "eyeLookInLeft": 0.8835919006822528,
-      "eyeLookInRight": 2.433267730372825e-7,
-      "eyeLookOutRight": 0.881665421522583,
-      "eyeLookUpLeft": 0.15316950865615944,
-      "eyeLookUpRight": 0.11845111170834598,
-      "eyeSquintLeft": 0.496494423269776,
-      "eyeSquintRight": 0.21339211138052744,
-      "eyeWideLeft": 0.006721018362903769,
-      "jawLeft": 0.0000262086332556762,
-      "jawOpen": 0.09542065225757308,
-      "jawRight": 0.025741836591724576,
-      "mouthClose": 0.00007574026810139963,
-      "mouthDimpleLeft": 0.0023292895523301035,
-      "mouthDimpleRight": 0.055086128483831556,
-      "mouthFrownLeft": 5.400770219536257e-7,
-      "mouthFrownRight": 0.07243693561268175,
-      "mouthLeft": 0.00002134355169786994,
-      "mouthLowerDownLeft": 0.12151982044659551,
-      "mouthLowerDownRight": 0.2071009971857226,
-      "mouthPressLeft": 0.04997485617163009,
-      "mouthPressRight": 0.2330256414472904,
-      "mouthRight": 0.1602697747478889,
-      "mouthRollLower": 0.00791050716796069,
-      "mouthRollUpper": 0.09760187576916425,
-      "mouthShrugLower": 0.0013990536195013401,
-      "mouthShrugUpper": 0.024690365609675483,
-      "mouthSmileLeft": 0.9173758645028928,
-      "mouthSmileRight": 0.8255661507719895,
-      "mouthStretchLeft": 1.3109617115556383e-7,
-      "mouthStretchRight": 0.24521249978706708,
-      "mouthUpperUpLeft": 0.3159333454493787,
-      "mouthUpperUpRight": 0.2724939587113667,
-      "noseSneerLeft": 1.5858154116799968e-7,
-      "noseSneerRight": 0.000005506349170123863
+      "browOuterUpLeft": 0.054,
+      "browOuterUpRight": 0.2263,
+      "eyeBlinkLeft": 0.1156,
+      "eyeBlinkRight": 0.1111,
+      "jawOpen": 0.0078,
+      "mouthSmileLeft": 1,
+      "mouthSmileRight": 1,
+      "mouthStretchRight": 0.6159,
+      "mouthUpperUpLeft": 0.87265,
+      "mouthUpperUpRight": 0.87265,
+      "mouthLowerDownLeft": 0.73662,
+      "mouthLowerDownRight": 0.73662
     },
     "materials": {
       "skin": {
         "color": {
-          "r": 0.67,
-          "g": 0.425,
-          "b": 0.34
+          "r": 0.463,
+          "g": 0.2714,
+          "b": 0.2091
         },
         "roughness": 0.76
       },
       "lips": {
         "color": {
-          "r": 0.5,
-          "g": 0.19,
-          "b": 0.21
+          "r": 0.348,
+          "g": 0.1223,
+          "b": 0.1192
         },
         "roughness": 0.57
+      },
+      "Human.eyebrow001": {
+        "pigment": [
+          0.06424,
+          0.03426,
+          0.02611
+        ]
       }
     },
     "hair": {
@@ -2011,9 +1470,9 @@
           },
           "finish": {
             "color": [
-              0.06,
-              0.032,
-              0.019
+              0.03874,
+              0.02322,
+              0.01606
             ],
             "roughness": 0.73,
             "fibres": 24,
@@ -2046,159 +1505,100 @@
           }
         }
       ]
+    },
+    "iris": {
+      "left": {
+        "base": [
+          0.00938,
+          0.00715,
+          0.00531
+        ],
+        "variation": [
+          0.05305,
+          0.04047,
+          0.03006
+        ]
+      },
+      "right": {
+        "base": [
+          0.00938,
+          0.00715,
+          0.00531
+        ],
+        "variation": [
+          0.05305,
+          0.04047,
+          0.03006
+        ]
+      }
     }
   },
   {
     "id": "kim-min-jung-connected",
     "name": "kim-min-jung (connected study)",
-    "basis": "mpfb-connected-head-2026-09-23-ocular-contact",
+    "basis": "mpfb-connected-head-2026-09-25-gingiva",
     "shape": {
-      "headWidth": -0.16994681164962133,
-      "headHeight": 0.05454993462577807,
-      "headDepth": -0.017263202335064457,
-      "cheekFullness": 0.003684152508261312,
-      "chinWidth": -0.34560950657216244,
-      "chinHeight": -0.15215922680542707,
-      "chinProjection": -0.08552257860970523,
-      "noseWidth": -0.23052186314667716,
-      "noseHeight": 0.046228280647264586,
-      "noseDepth": 0.7586517777343121,
-      "mouthWidth": -0.26903922966838173,
-      "mouthHeight": -0.4071010062767848,
-      "upperLipHeight": -0.5115965841202774,
-      "lowerLipHeight": 0.21619683490013336,
-      "upperLipVolume": -0.13417134854415477,
-      "lowerLipVolume": 0.06745094897139123,
-      "upperLipWidth": 0.20428918918342875,
-      "lowerLipWidth": -0.031540864073112816,
-      "mouthDepth": 0.5184161003070832,
-      "noseUpperWidth": 0.675447634787174,
-      "noseMiddleWidth": 0.006029791745716914,
-      "noseLowerWidth": -0.02154307112695917,
-      "nostrilWidth": 0.0666982805905658,
-      "noseFlaring": 0.07085788632791554,
-      "leftEyeScale": 0.21484134233391136,
-      "rightEyeScale": 0.21484134233391136,
-      "leftEyeHeight": 0.8641680404453985,
-      "rightEyeHeight": 0.8641680404453985,
-      "posteriorHeadDepth": -0.0001605859042185887,
-      "foreheadHeight": -0.00016644718071009108,
-      "templeWidth": 0.08864988472905894,
-      "chinBoneWidth": -0.00047748170034126846,
-      "jawPrognathism": -0.09377843116211941,
-      "jawRestHeight": -0.3028945549219709,
-      "noseTipWidth": -0.08511914605743112,
-      "noseBridgeHump": -0.5560939583732216,
-      "noseSeptumAngle": 0.27693996683019556,
-      "neckWidth": 0.009259957653391217,
-      "neckDepth": -0.006045016536073972,
-      "neckUnderChinFullness": -0.00006696634364393435,
-      "leftCheekVolume": 0.33280275975806545,
-      "leftCheekBone": 0.024937743411622665,
-      "leftCheekInner": 0.3981568291427815,
-      "leftEarScale": -0.21744089549036505,
-      "leftEarHeight": 0.16250410478367924,
-      "leftEarDepth": 0.3871534503637486,
-      "leftEarLobe": 0.004151439812626708,
-      "leftEarWing": -0.1050586765255557,
-      "leftEarFlap": -0.00017382858850185297,
-      "leftEyeBagVolume": 0.27964252874634676,
-      "leftEyeBagHeight": 0.43260516991987463,
-      "rightCheekVolume": 0.33280275975806545,
-      "rightCheekBone": 0.024937743411622665,
-      "rightCheekInner": 0.3981568291427815,
-      "rightEarScale": -0.21744089549036505,
-      "rightEarHeight": 0.16250410478367924,
-      "rightEarDepth": 0.3871534503637486,
-      "rightEarLobe": 0.004151439812626708,
-      "rightEarWing": -0.1050586765255557,
-      "rightEarFlap": -0.00017382858850185297,
-      "rightEyeBagVolume": 0.27964252874634676,
-      "rightEyeBagHeight": 0.43260516991987463,
-      "faceAgeStructure": -0.17926197629455706,
-      "philtrumVolume": -0.5690962356508461,
-      "foreheadProjection": -0.004548379327660349,
-      "browElevation": 0.26235318931802304,
-      "browProjection": -0.13626885462074734,
-      "noseTipElevation": -0.02986059616505335,
-      "noseBaseElevation": -0.6035652887478066,
-      "nostrilAngle": -0.0019733768410086206,
-      "mouthElevation": 0.04095144145364655,
-      "leftEyeElevation": -0.5016518956849525,
-      "leftEyeLateralPosition": 0.04071290045419458,
-      "leftEyeFoldHeight": 0.784841896332396,
-      "leftEarRotation": 0.14400536872106182,
-      "rightEyeElevation": -0.5016518956849525,
-      "rightEyeLateralPosition": 0.04071290045419458,
-      "rightEyeFoldHeight": 0.784841896332396,
-      "rightEarRotation": 0.14400536872106182,
-      "globalAgeStructure": -0.009032187525937242,
-      "globalSexualDimorphism": -0.028960810570593232,
-      "globalAdiposity": -0.0019050443112916026,
-      "globalMuscularity": 0.0000017161027839216625
+      "globalAgeStructure": 0.01538461538461533,
+      "globalSexualDimorphism": -1,
+      "asianAncestry": 1,
+      "headHeight": 0.02837,
+      "leftEyeLateralPosition": -0.00246,
+      "rightEyeLateralPosition": -0.00246,
+      "leftEyeScale": 0.16357,
+      "rightEyeScale": 0.16357,
+      "leftEyeHeight": 0.162,
+      "rightEyeHeight": 0.162,
+      "noseWidth": 0.09822,
+      "noseHeight": 0.42888,
+      "mouthWidth": -0.1884,
+      "upperLipHeight": -0.65513,
+      "lowerLipHeight": -0.00052,
+      "mouthElevation": 0.20713,
+      "cheekFullness": 0,
+      "chinWidth": -0.70091,
+      "chinHeight": -1,
+      "browElevation": 0.97177
     },
     "expression": {
-      "browDownLeft": 0.000023832172071641646,
-      "browDownRight": 0.0002483646806205695,
-      "browInnerUp": 0.3981246919404097,
-      "browOuterUpLeft": 0.26699472818509706,
-      "browOuterUpRight": 0.16650600840051252,
-      "cheekPuff": 0.0013432241164002046,
-      "eyeBlinkLeft": 0.15019740582430893,
-      "eyeBlinkRight": 0.09324430830987378,
-      "eyeLookDownLeft": 0.12044708385419499,
-      "eyeLookDownRight": 0.11378249669645456,
-      "eyeLookInLeft": 0.017980053462507636,
-      "eyeLookInRight": 0.22377129345490826,
-      "eyeLookOutLeft": 0.21468018133024402,
-      "eyeLookOutRight": 0.015372767653505303,
-      "eyeLookUpLeft": 0.08026506920888293,
-      "eyeLookUpRight": 0.09637840899845743,
-      "eyeSquintLeft": 0.3629085653609865,
-      "eyeSquintRight": 0.3374446550048302,
-      "eyeWideLeft": 0.0036753655130314354,
-      "eyeWideRight": 0.004922679803535881,
-      "jawForward": 8.21215385781187e-7,
-      "jawLeft": 0.036256258364468705,
-      "jawOpen": 0.034229447606566335,
-      "jawRight": 0.000003186062201054489,
-      "mouthDimpleLeft": 0.02641503672275628,
-      "mouthFrownLeft": 0.0334997505260372,
-      "mouthFrownRight": 0.0000287847482423319,
-      "mouthFunnel": 0.012145368481177324,
-      "mouthLeft": 0.05630320435081565,
-      "mouthLowerDownLeft": 0.010522110921146358,
-      "mouthLowerDownRight": 0.000002513979013308522,
-      "mouthPressLeft": 0.029862974439276817,
-      "mouthPucker": 0.32999308731569654,
-      "mouthRollLower": 0.0006888586628036602,
-      "mouthRollUpper": 0.021697670544929774,
-      "mouthShrugLower": 0.006296975768691646,
-      "mouthShrugUpper": 0.05286943859336118,
-      "mouthSmileLeft": 0.4785685401136672,
-      "mouthSmileRight": 0.41351716380342446,
-      "mouthStretchLeft": 0.046801608963228485,
-      "mouthStretchRight": 0.000018873255453695524,
-      "mouthUpperUpLeft": 0.00018012444381207518,
-      "mouthUpperUpRight": 0.022567862030759445,
-      "noseSneerRight": 0.0010008897926930764
+      "browInnerUp": 0.7356,
+      "browOuterUpLeft": 0.2219,
+      "eyeBlinkLeft": 0.093,
+      "eyeLookInRight": 0.353,
+      "eyeLookOutLeft": 0.3243,
+      "jawOpen": 0.0006,
+      "mouthLeft": 0.1385,
+      "mouthPucker": 0.2772,
+      "mouthRight": 0.07,
+      "mouthSmileLeft": 0.40993,
+      "mouthSmileRight": 0.40993,
+      "mouthUpperUpLeft": 0.14903,
+      "mouthUpperUpRight": 0.14903,
+      "mouthLowerDownLeft": 0.1258,
+      "mouthLowerDownRight": 0.1258
     },
     "materials": {
       "skin": {
         "color": {
-          "r": 0.56,
-          "g": 0.35,
-          "b": 0.28
+          "r": 0.4802,
+          "g": 0.295,
+          "b": 0.2237
         },
         "roughness": 0.76
       },
       "lips": {
         "color": {
-          "r": 0.43,
-          "g": 0.19,
-          "b": 0.21
+          "r": 0.2824,
+          "g": 0.0804,
+          "b": 0.0834
         },
         "roughness": 0.57
+      },
+      "Human.eyebrow001": {
+        "pigment": [
+          0.01183,
+          0.01605,
+          0.01677
+        ]
       }
     },
     "hair": {
@@ -2216,12 +1616,12 @@
             "back": 2.1
           },
           "lengthAxes": [
-            0.065,
-            0.065,
+            0.013,
+            0.013,
             0.13,
-            0.04,
-            0.105,
-            0.1
+            0.008,
+            0.1924,
+            0.02
           ],
           "lengthVariation": 0.08,
           "samplingStep": 0.003,
@@ -2247,9 +1647,9 @@
           },
           "finish": {
             "color": [
-              0.009,
-              0.006,
-              0.005
+              0.01667,
+              0.03146,
+              0.04325
             ],
             "roughness": 0.73,
             "fibres": 24,
@@ -2275,12 +1675,12 @@
             "back": 2.1
           },
           "lengthAxes": [
+            0.011,
+            0.011,
             0.055,
-            0.055,
-            0.055,
-            0.055,
-            0.055,
-            0.055
+            0.011,
+            0.1008,
+            0.011
           ],
           "lengthVariation": 0.08,
           "samplingStep": 0.003,
@@ -2306,9 +1706,9 @@
           },
           "finish": {
             "color": [
-              0.009,
-              0.006,
-              0.005
+              0.01166,
+              0.022,
+              0.03025
             ],
             "roughness": 0.73,
             "fibres": 24,
@@ -2334,163 +1734,103 @@
           }
         }
       ]
+    },
+    "iris": {
+      "left": {
+        "base": [
+          0.00242,
+          0.00326,
+          0.00385
+        ],
+        "variation": [
+          0.01371,
+          0.01844,
+          0.02179
+        ]
+      },
+      "right": {
+        "base": [
+          0.00242,
+          0.00326,
+          0.00385
+        ],
+        "variation": [
+          0.01371,
+          0.01844,
+          0.02179
+        ]
+      }
     }
   },
   {
     "id": "lee-tae-ri-connected",
     "name": "lee-tae-ri (connected study)",
-    "basis": "mpfb-connected-head-2026-09-23-ocular-contact",
+    "basis": "mpfb-connected-head-2026-09-25-gingiva",
     "shape": {
-      "headWidth": -0.1321221610190711,
-      "headHeight": 0.1188071368156422,
-      "headDepth": 0.000022774231139076804,
-      "cheekFullness": 0.08718618634828365,
-      "chinWidth": -0.48321350349871856,
-      "chinHeight": -0.21914084535594702,
-      "chinProjection": 0.11616950779238093,
-      "noseWidth": -0.16963158926321484,
-      "noseHeight": 0.010994197981372505,
-      "noseDepth": -0.01958603323731387,
-      "mouthWidth": -0.33459788370230154,
-      "mouthHeight": -0.40625893127235996,
-      "upperLipHeight": -0.5735390516000597,
-      "lowerLipHeight": -0.34426936655902707,
-      "upperLipVolume": -0.04160910890268275,
-      "lowerLipVolume": 0.17732452407956312,
-      "upperLipWidth": 0.3001199509616002,
-      "lowerLipWidth": -0.11871461809381975,
-      "mouthDepth": 0.00946699662754936,
-      "noseUpperWidth": -0.0038391087959421142,
-      "noseMiddleWidth": 0.056459390690870206,
-      "noseLowerWidth": 0.004095831628658218,
-      "nostrilWidth": -0.04502486100980814,
-      "noseFlaring": 0.011549901491739473,
-      "leftEyeScale": 0.1461449688975808,
-      "rightEyeScale": 0.1461449688975808,
-      "leftEyeHeight": 0.8371361918099914,
-      "rightEyeHeight": 0.8371361918099914,
-      "posteriorHeadDepth": 0.00022843458596764551,
-      "foreheadHeight": 0.0002827181728975839,
-      "templeWidth": -0.15102715932209218,
-      "chinBoneWidth": 0.10617946790901359,
-      "jawPrognathism": 0.0141903820362995,
-      "jawRestHeight": -0.29433606608608165,
-      "noseTipWidth": -0.07723235906292474,
-      "noseBridgeHump": 0.5887530344716356,
-      "noseSeptumAngle": 0.15874819977120008,
-      "neckWidth": 0.07273058972028035,
-      "neckDepth": 0.014995289479878575,
-      "neckUnderChinFullness": -0.0005815122510548722,
-      "leftCheekVolume": 0.3381583100105722,
-      "leftCheekBone": 0.07195683150723704,
-      "leftCheekInner": 0.09796906976148628,
-      "leftEarScale": -0.44076795709187483,
-      "leftEarHeight": 0.6086844312825368,
-      "leftEarDepth": -0.024427040373885725,
-      "leftEarLobe": -0.0020879601878847965,
-      "leftEarWing": 0.00037332903304473024,
-      "leftEarFlap": 0.00036978800632958336,
-      "leftEyeBagVolume": 0.6850460338289786,
-      "leftEyeBagHeight": 0.43203966698761104,
-      "rightCheekVolume": 0.3381583100105722,
-      "rightCheekBone": 0.07195683150723704,
-      "rightCheekInner": 0.09796906976148628,
-      "rightEarScale": -0.44076795709187483,
-      "rightEarHeight": 0.6086844312825368,
-      "rightEarDepth": -0.024427040373885725,
-      "rightEarLobe": -0.0020879601878847965,
-      "rightEarWing": 0.00037332903304473024,
-      "rightEarFlap": 0.00036978800632958336,
-      "rightEyeBagVolume": 0.6850460338289786,
-      "rightEyeBagHeight": 0.43203966698761104,
-      "faceAgeStructure": 0.011786941841125718,
-      "philtrumVolume": 0.3274124647022011,
-      "foreheadProjection": -0.015606954335212421,
-      "browElevation": 0.006646506555523652,
-      "browProjection": 0.5007460161607405,
-      "noseTipElevation": -0.05168969642720343,
-      "noseBaseElevation": 0.06838101350657952,
-      "nostrilAngle": -0.007977269351640696,
-      "mouthElevation": -0.08938645019056858,
-      "leftEyeElevation": -0.5411672937684072,
-      "leftEyeLateralPosition": 0.14033172442114897,
-      "leftEyeFoldHeight": 0.7874785438781579,
-      "leftEarRotation": 0.13921891179420068,
-      "rightEyeElevation": -0.5411672937684072,
-      "rightEyeLateralPosition": 0.14033172442114897,
-      "rightEyeFoldHeight": 0.7874785438781579,
-      "rightEarRotation": 0.13921891179420068,
-      "globalAgeStructure": 0.01769514404968628,
-      "globalSexualDimorphism": 0.029785059243061594,
-      "globalAdiposity": 0.00040684968130043554,
-      "globalMuscularity": 0.000391093593598051
+      "globalAgeStructure": 0.09230769230769242,
+      "globalSexualDimorphism": -1,
+      "asianAncestry": 1,
+      "headHeight": -0.92064,
+      "leftEyeLateralPosition": 0.05352,
+      "rightEyeLateralPosition": 0.05352,
+      "leftEyeScale": -0.21961,
+      "rightEyeScale": -0.21961,
+      "leftEyeHeight": 0.69745,
+      "rightEyeHeight": 0.69745,
+      "noseWidth": 0.22429,
+      "noseHeight": 1,
+      "mouthWidth": -0.14456,
+      "upperLipHeight": 0.45658,
+      "lowerLipHeight": -0.41281,
+      "mouthElevation": -0.88503,
+      "cheekFullness": 0.03907,
+      "chinWidth": -0.77417,
+      "chinHeight": 0.42575,
+      "browElevation": 1
     },
     "expression": {
-      "browDownLeft": 0.04820016642051606,
-      "browDownRight": 0.005599966633258724,
-      "browInnerUp": 0.20133503095760608,
-      "browOuterUpLeft": 0.05467029386989823,
-      "browOuterUpRight": 0.09251579898203513,
-      "cheekPuff": 0.002783976652235303,
-      "cheekSquintRight": 0.0000060706635760167875,
-      "eyeBlinkLeft": 0.11101757675503814,
-      "eyeBlinkRight": 0.0761497387010115,
-      "eyeLookDownLeft": 0.13108472172122557,
-      "eyeLookDownRight": 0.14552042865978604,
-      "eyeLookInLeft": 0.053007635363888965,
-      "eyeLookInRight": 0.05469775444045553,
-      "eyeLookOutLeft": 0.0890127321805127,
-      "eyeLookOutRight": 0.09744051200942834,
-      "eyeLookUpLeft": 0.07152029037930238,
-      "eyeLookUpRight": 0.07517955279552666,
-      "eyeSquintLeft": 0.47931859884573147,
-      "eyeSquintRight": 0.2747355370358349,
-      "eyeWideLeft": 0.004389312124367355,
-      "eyeWideRight": 0.0012363830150354071,
-      "jawForward": 0.003778350935267581,
-      "jawLeft": 0.04746504668817948,
-      "jawOpen": 0.04016147123845054,
-      "mouthClose": 0.0011510290200065013,
-      "mouthDimpleLeft": 0.00569622373585941,
-      "mouthDimpleRight": 0.00019857457784295523,
-      "mouthFrownLeft": 0.022263982943594444,
-      "mouthFrownRight": 0.016483842751968868,
-      "mouthFunnel": 0.027724153808040438,
-      "mouthLeft": 0.007690953453665595,
-      "mouthLowerDownLeft": 0.0006666708744118507,
-      "mouthLowerDownRight": 0.0003620937898154077,
-      "mouthPressLeft": 0.03811416189267769,
-      "mouthPressRight": 0.007777363103219487,
-      "mouthPucker": 0.03893446171776759,
-      "mouthRollLower": 0.006250201489292005,
-      "mouthRollUpper": 0.015271201005919041,
-      "mouthShrugLower": 0.04586920753329112,
-      "mouthShrugUpper": 0.011558065269520442,
-      "mouthSmileLeft": 0.6962602923647169,
-      "mouthSmileRight": 0.6126033162308624,
-      "mouthStretchLeft": 0.016144812357347327,
-      "mouthStretchRight": 0.010996820622377071,
-      "mouthUpperUpLeft": 0.0017909114498492126,
-      "mouthUpperUpRight": 0.006244527729431528,
-      "noseSneerLeft": 0.000033295593176504374,
-      "noseSneerRight": 1.3624283440847215e-7
+      "browInnerUp": 0.239,
+      "browOuterUpRight": 0.0706,
+      "eyeBlinkLeft": 0.0352,
+      "eyeLookDownLeft": 0.0132,
+      "eyeLookDownRight": 0.0544,
+      "eyeLookOutLeft": 0.0982,
+      "eyeWideLeft": 0.0148,
+      "eyeWideRight": 0.06,
+      "jawOpen": 0.0002,
+      "mouthLeft": 0.1785,
+      "mouthPucker": 0.025,
+      "mouthRight": 0.0178,
+      "mouthSmileLeft": 0.35013,
+      "mouthSmileRight": 0.35013,
+      "mouthUpperUpLeft": 0.00702,
+      "mouthUpperUpRight": 0.00702,
+      "mouthLowerDownLeft": 0.00592,
+      "mouthLowerDownRight": 0.00592
     },
     "materials": {
       "skin": {
         "color": {
-          "r": 0.6,
-          "g": 0.39,
-          "b": 0.32
+          "r": 0.4802,
+          "g": 0.295,
+          "b": 0.2237
         },
         "roughness": 0.76
       },
       "lips": {
         "color": {
-          "r": 0.47,
-          "g": 0.23,
-          "b": 0.24
+          "r": 0.291,
+          "g": 0.0774,
+          "b": 0.0792
         },
         "roughness": 0.57
+      },
+      "Human.eyebrow001": {
+        "pigment": [
+          0.02869,
+          0.0161,
+          0.01299
+        ]
       }
     },
     "hair": {
@@ -2508,12 +1848,12 @@
             "back": 2.1
           },
           "lengthAxes": [
-            0.095,
-            0.095,
+            0.058,
+            0.058,
             0.145,
-            0.065,
+            0.0397,
             0.105,
-            0.105
+            0.0641
           ],
           "lengthVariation": 0.08,
           "samplingStep": 0.003,
@@ -2539,9 +1879,9 @@
           },
           "finish": {
             "color": [
-              0.012,
-              0.009,
-              0.008
+              0.03293,
+              0.0284,
+              0.02553
             ],
             "roughness": 0.73,
             "fibres": 24,
@@ -2583,162 +1923,98 @@
           }
         }
       ]
+    },
+    "iris": {
+      "left": {
+        "base": [
+          0.0054,
+          0.00289,
+          0.00222
+        ],
+        "variation": [
+          0.03055,
+          0.01636,
+          0.01257
+        ]
+      },
+      "right": {
+        "base": [
+          0.0054,
+          0.00289,
+          0.00222
+        ],
+        "variation": [
+          0.03055,
+          0.01636,
+          0.01257
+        ]
+      }
     }
   },
   {
     "id": "maggie-smith-connected",
     "name": "maggie-smith (connected study)",
-    "basis": "mpfb-connected-head-2026-09-23-ocular-contact",
+    "basis": "mpfb-connected-head-2026-09-25-gingiva",
     "shape": {
-      "headWidth": -0.15998379022793405,
-      "headHeight": 0.15132059397286912,
-      "headDepth": -0.0052796407820941285,
-      "cheekFullness": -0.03150998138126377,
-      "chinWidth": -0.27485333115795535,
-      "chinHeight": -0.12174567857589519,
-      "chinProjection": 0.8078954868339085,
-      "noseWidth": -0.2228239587033471,
-      "noseHeight": -0.025823881990732118,
-      "noseDepth": 0.43288880656099715,
-      "mouthWidth": -0.3896913302015269,
-      "mouthHeight": 0.38019887677798825,
-      "upperLipHeight": 0.7108613436203545,
-      "lowerLipHeight": -0.4707626880723577,
-      "upperLipVolume": -0.6312422836510285,
-      "lowerLipVolume": -0.01349451015988248,
-      "upperLipWidth": 0.20429356245120847,
-      "lowerLipWidth": -0.10724161725083706,
-      "mouthDepth": 0.7843564649292102,
-      "noseUpperWidth": 0.4794299737839999,
-      "noseMiddleWidth": -0.26822383745817124,
-      "noseLowerWidth": 0.08213363212670623,
-      "nostrilWidth": -0.08795728668496615,
-      "noseFlaring": 0.024535816741221336,
-      "leftEyeScale": 0.0281670058845678,
-      "rightEyeScale": 0.0281670058845678,
-      "leftEyeHeight": 0.9600709060843329,
-      "rightEyeHeight": 0.9600709060843329,
-      "posteriorHeadDepth": 0.0000520924584044661,
-      "foreheadHeight": 0.0000795245722791277,
-      "templeWidth": 0.05492143205487188,
-      "chinBoneWidth": -0.01691186824180411,
-      "jawPrognathism": 0.0364404318782329,
-      "jawRestHeight": -0.3558995928920279,
-      "noseTipWidth": -0.17722232851747538,
-      "noseBridgeHump": -0.11480645116949141,
-      "noseSeptumAngle": 0.6611049312330437,
-      "neckWidth": -0.029225654256178665,
-      "neckDepth": 0.3193424332460631,
-      "neckUnderChinFullness": -0.006010196798755825,
-      "leftCheekVolume": 0.1069210309926351,
-      "leftCheekBone": 0.1771366952613737,
-      "leftCheekInner": 0.40746051776396647,
-      "leftEarScale": -0.11648472756851853,
-      "leftEarHeight": 0.11533038374103563,
-      "leftEarDepth": 0.014597424727222301,
-      "leftEarLobe": -0.008147726286952397,
-      "leftEarWing": 0.0001758094637316201,
-      "leftEarFlap": 0.0001440051962502791,
-      "leftEyeBagVolume": 0.5815662306068539,
-      "leftEyeBagHeight": 0.1571642465378829,
-      "rightCheekVolume": 0.1069210309926351,
-      "rightCheekBone": 0.1771366952613737,
-      "rightCheekInner": 0.40746051776396647,
-      "rightEarScale": -0.11648472756851853,
-      "rightEarHeight": 0.11533038374103563,
-      "rightEarDepth": 0.014597424727222301,
-      "rightEarLobe": -0.008147726286952397,
-      "rightEarWing": 0.0001758094637316201,
-      "rightEarFlap": 0.0001440051962502791,
-      "rightEyeBagVolume": 0.5815662306068539,
-      "rightEyeBagHeight": 0.1571642465378829,
-      "faceAgeStructure": -0.0038692567417161015,
-      "philtrumVolume": 0.9969814345417384,
-      "foreheadProjection": -0.10704901618931345,
-      "browElevation": 0.012577980690485003,
-      "browProjection": 0.4666133261244706,
-      "noseTipElevation": 0.3359845674107063,
-      "noseBaseElevation": 0.0027477732471229035,
-      "nostrilAngle": -0.05799164033390206,
-      "mouthElevation": -0.29473543952277803,
-      "leftEyeElevation": -0.46888739450679406,
-      "leftEyeLateralPosition": 0.08842409266527408,
-      "leftEyeFoldHeight": 0.9723224562729761,
-      "leftEarRotation": -0.08382563307118884,
-      "rightEyeElevation": -0.46888739450679406,
-      "rightEyeLateralPosition": 0.08842409266527408,
-      "rightEyeFoldHeight": 0.9723224562729761,
-      "rightEarRotation": -0.08382563307118884,
-      "globalAgeStructure": 0.01892141918126765,
-      "globalSexualDimorphism": -0.0054946841097183105,
-      "globalAdiposity": 0.00018231053152008238,
-      "globalMuscularity": 0.00016506266947072156
+      "globalAgeStructure": 0.8461538461538463,
+      "globalSexualDimorphism": -1,
+      "europeanAncestry": 1,
+      "headHeight": 0.08443,
+      "leftEyeLateralPosition": 0.23196,
+      "rightEyeLateralPosition": 0.23196,
+      "leftEyeScale": -0.52243,
+      "rightEyeScale": -0.52243,
+      "leftEyeHeight": 0.36759,
+      "rightEyeHeight": 0.36759,
+      "noseWidth": 0.40005,
+      "noseHeight": -0.32049,
+      "mouthWidth": 0.07387,
+      "upperLipHeight": -0.35263,
+      "lowerLipHeight": -0.20205,
+      "mouthElevation": 0.26722,
+      "cheekFullness": 0,
+      "chinWidth": -1,
+      "chinHeight": -1,
+      "browElevation": -0.37295
     },
     "expression": {
-      "browDownLeft": 0.0023964156204226423,
-      "browDownRight": 0.03626629061759252,
-      "browInnerUp": 0.08324963523738638,
-      "browOuterUpLeft": 0.11358529734958184,
-      "browOuterUpRight": 0.09083642759960978,
-      "cheekPuff": 0.002286378413811928,
-      "cheekSquintLeft": 0.0003111563314468254,
-      "eyeBlinkLeft": 0.290855519398572,
-      "eyeBlinkRight": 0.2267023154847662,
-      "eyeLookDownLeft": 0.32602356847076464,
-      "eyeLookDownRight": 0.3572278956431087,
-      "eyeLookInLeft": 0.07131361327898972,
-      "eyeLookInRight": 0.01796138794931277,
-      "eyeLookOutLeft": 0.10011125345047969,
-      "eyeLookOutRight": 0.3075964938689402,
-      "eyeLookUpLeft": 0.02229032537130119,
-      "eyeLookUpRight": 0.005094442093747756,
-      "eyeSquintLeft": 0.2768371563974875,
-      "eyeSquintRight": 0.3028767272075978,
-      "eyeWideLeft": 0.008433932121020431,
-      "eyeWideRight": 0.001277906207082324,
-      "jawForward": 0.010229592322837244,
-      "jawOpen": 0.07447827606694829,
-      "jawRight": 0.031719806771942326,
-      "mouthClose": 0.0005082539350863343,
-      "mouthDimpleLeft": 0.02607065618019645,
-      "mouthDimpleRight": 0.00019031755307511757,
-      "mouthFrownLeft": 0.02502671985388375,
-      "mouthFrownRight": 0.002604223430369955,
-      "mouthFunnel": 0.0164944983409442,
-      "mouthLeft": 0.09021307183702437,
-      "mouthLowerDownLeft": 0.14360014324162348,
-      "mouthLowerDownRight": 0.1941657253019802,
-      "mouthPressLeft": 0.11267323065071438,
-      "mouthPressRight": 0.1027245282408703,
-      "mouthPucker": 0.0012015442886907815,
-      "mouthRight": 0.0014350860983915145,
-      "mouthRollLower": 0.03221562141658066,
-      "mouthRollUpper": 0.07337867427082562,
-      "mouthShrugLower": 0.005623884024680721,
-      "mouthShrugUpper": 0.011761568636911978,
-      "mouthSmileLeft": 0.7957139329800998,
-      "mouthSmileRight": 0.7720707199612251,
-      "mouthStretchLeft": 0.054810520700326396,
-      "mouthUpperUpLeft": 0.6125228179561353,
-      "mouthUpperUpRight": 0.6538395536218911,
-      "noseSneerRight": 0.00018515042617070287
+      "browInnerUp": 0.0002,
+      "browOuterUpLeft": 0.139,
+      "eyeBlinkLeft": 0.3108,
+      "eyeBlinkRight": 0.1892,
+      "jawOpen": 0.045,
+      "mouthPucker": 0.0023,
+      "mouthRight": 0.0053,
+      "mouthSmileLeft": 0.4743,
+      "mouthSmileRight": 0.4743,
+      "mouthUpperUpLeft": 1,
+      "mouthUpperUpRight": 1,
+      "mouthLowerDownLeft": 0.84412,
+      "mouthLowerDownRight": 0.84412
     },
     "materials": {
       "skin": {
         "color": {
-          "r": 0.53,
-          "g": 0.3,
-          "b": 0.23
+          "r": 0.463,
+          "g": 0.2714,
+          "b": 0.2091
         },
         "roughness": 0.76
       },
       "lips": {
         "color": {
-          "r": 0.4,
-          "g": 0.21,
-          "b": 0.19
+          "r": 0.4025,
+          "g": 0.1624,
+          "b": 0.1793
         },
         "roughness": 0.57
+      },
+      "Human.eyebrow001": {
+        "pigment": [
+          0.41294,
+          0.23822,
+          0.16256
+        ]
       }
     },
     "hair": {
@@ -2756,12 +2032,12 @@
             "back": 2.1
           },
           "lengthAxes": [
-            0.15,
-            0.15,
+            0.0517,
+            0.0517,
             0.2,
-            0.1,
+            0.0345,
             0.16,
-            0.18
+            0.062
           ],
           "lengthVariation": 0.08,
           "samplingStep": 0.003,
@@ -2787,16 +2063,15 @@
           },
           "finish": {
             "color": [
-              0.3125,
-              0.15,
-              0.025
+              0.16373,
+              0.11289,
+              0.08755
             ],
             "roughness": 0.73,
             "fibres": 24,
             "coverage": 0.95,
             "normal": 0.2,
-            "shade": 1,
-            "grey": 0.2
+            "shade": 1
           },
           "part": {
             "normal": [
@@ -2832,156 +2107,101 @@
           }
         }
       ]
+    },
+    "iris": {
+      "left": {
+        "base": [
+          0.01196,
+          0.00675,
+          0.00924
+        ],
+        "variation": [
+          0.06767,
+          0.03817,
+          0.05225
+        ]
+      },
+      "right": {
+        "base": [
+          0.01196,
+          0.00675,
+          0.00924
+        ],
+        "variation": [
+          0.06767,
+          0.03817,
+          0.05225
+        ]
+      }
     }
   },
   {
     "id": "michael-gambon-connected",
     "name": "michael-gambon (connected study)",
-    "basis": "mpfb-connected-head-2026-09-23-ocular-contact",
+    "basis": "mpfb-connected-head-2026-09-25-gingiva",
     "shape": {
-      "headWidth": -0.09607843620429035,
-      "headHeight": -0.023221640542795283,
-      "headDepth": -0.009903363284046176,
-      "cheekFullness": 0.13670347661528762,
-      "chinWidth": 0.22032560063601248,
-      "chinHeight": 0.05961734030559943,
-      "chinProjection": 0.16827114660531517,
-      "noseWidth": 0.2809870451993454,
-      "noseHeight": 0.34768732672087144,
-      "noseDepth": 0.3767250277615327,
-      "mouthWidth": 0.16140588505300626,
-      "mouthHeight": -0.27106537529140895,
-      "upperLipHeight": -0.7599322635801714,
-      "lowerLipHeight": -0.028383114093356667,
-      "upperLipVolume": -0.3906178554705408,
-      "lowerLipVolume": -0.6863004919673857,
-      "upperLipWidth": 0.06703206039722882,
-      "lowerLipWidth": 0.12390132713544906,
-      "mouthDepth": -0.5845239379935363,
-      "noseUpperWidth": 0.2302818951870325,
-      "noseMiddleWidth": 0.24197601837568614,
-      "noseLowerWidth": -0.2220044841992301,
-      "nostrilWidth": 0.15480577723796304,
-      "noseFlaring": -0.32197830623159024,
-      "leftEyeScale": -0.002949797660330681,
-      "rightEyeScale": -0.002949797660330681,
-      "leftEyeHeight": 0.9673863038079319,
-      "rightEyeHeight": 0.9673863038079319,
-      "posteriorHeadDepth": -5.69992843176227e-7,
-      "templeWidth": -0.1996731319427591,
-      "chinBoneWidth": 0.010462638496729872,
-      "jawPrognathism": -0.028507815942083597,
-      "jawRestHeight": -0.037234465989510974,
-      "noseTipWidth": 0.15816067503695094,
-      "noseBridgeHump": -0.128924132019025,
-      "noseSeptumAngle": 0.5835756222639868,
-      "neckWidth": -0.02323917112087383,
-      "neckDepth": 0.12654352571973485,
-      "neckUnderChinFullness": -0.0030023484099323005,
-      "leftCheekVolume": 0.47315096442329796,
-      "leftCheekBone": 0.08800442867606564,
-      "leftCheekInner": -0.006198621906525313,
-      "leftEarScale": 0.12404389773750217,
-      "leftEarHeight": 0.03348793875402777,
-      "leftEarDepth": 0.22656280479401728,
-      "leftEarLobe": -0.09018669011823179,
-      "leftEarWing": 0.0005235841621159079,
-      "leftEyeBagVolume": 0.904841626949577,
-      "leftEyeBagHeight": 0.5243455208862708,
-      "rightCheekVolume": 0.47315096442329796,
-      "rightCheekBone": 0.08800442867606564,
-      "rightCheekInner": -0.006198621906525313,
-      "rightEarScale": 0.12404389773750217,
-      "rightEarHeight": 0.03348793875402777,
-      "rightEarDepth": 0.22656280479401728,
-      "rightEarLobe": -0.09018669011823179,
-      "rightEarWing": 0.0005235841621159079,
-      "rightEyeBagVolume": 0.904841626949577,
-      "rightEyeBagHeight": 0.5243455208862708,
-      "faceAgeStructure": 0.0054999787727257055,
-      "philtrumVolume": 0.8179646170481654,
-      "foreheadProjection": -0.7341716122929492,
-      "browElevation": 0.00023280000017790456,
-      "browProjection": 0.7015425793151646,
-      "noseTipElevation": 0.44754860793573387,
-      "noseBaseElevation": -0.28381425459066545,
-      "nostrilAngle": 0.17465596451597204,
-      "mouthElevation": -0.29705941748223613,
-      "leftEyeElevation": 0.015798235708709696,
-      "leftEyeLateralPosition": 0.34086362550978494,
-      "leftEyeFoldHeight": 0.9453404049293577,
-      "leftEarRotation": 0.07571984844499922,
-      "rightEyeElevation": 0.015798235708709696,
-      "rightEyeLateralPosition": 0.34086362550978494,
-      "rightEyeFoldHeight": 0.9453404049293577,
-      "rightEarRotation": 0.07571984844499922,
-      "globalAgeStructure": 0.0037752526078463863,
-      "globalSexualDimorphism": 0.06656413581155932,
-      "globalAdiposity": 0.000008118228230620693,
-      "globalMuscularity": 0.000008944168715136969
+      "globalAgeStructure": 0.7230769230769232,
+      "globalSexualDimorphism": 1,
+      "europeanAncestry": 1,
+      "headHeight": 0.09866,
+      "leftEyeLateralPosition": 0.7108,
+      "rightEyeLateralPosition": 0.7108,
+      "leftEyeScale": -0.87092,
+      "rightEyeScale": -0.87092,
+      "leftEyeHeight": 0.02805,
+      "rightEyeHeight": 0.02805,
+      "noseWidth": 1,
+      "noseHeight": -0.64358,
+      "mouthWidth": -0.07824,
+      "upperLipHeight": 1,
+      "lowerLipHeight": 0.49527,
+      "mouthElevation": 1,
+      "cheekFullness": 0.23176,
+      "chinWidth": 0.11277,
+      "chinHeight": -0.71004,
+      "browElevation": -0.41594
     },
     "expression": {
-      "browDownRight": 0.000001953784593118003,
-      "browInnerUp": 0.7628877910180708,
-      "browOuterUpLeft": 0.6148219088092212,
-      "browOuterUpRight": 0.2089515891365748,
-      "cheekPuff": 0.000008093954079235041,
-      "eyeBlinkLeft": 0.28720915110812933,
-      "eyeBlinkRight": 0.2666022692960211,
-      "eyeLookDownLeft": 0.2516692737045538,
-      "eyeLookDownRight": 0.23383381940163425,
-      "eyeLookInLeft": 0.009632608072775304,
-      "eyeLookInRight": 0.40076114053559936,
-      "eyeLookOutLeft": 0.3505795240996661,
-      "eyeLookOutRight": 0.011795046691073367,
-      "eyeLookUpLeft": 0.03875020594306645,
-      "eyeLookUpRight": 0.04300789135687862,
-      "eyeSquintLeft": 0.31501121766372686,
-      "eyeSquintRight": 0.45184985480753376,
-      "eyeWideLeft": 0.0004224661785399778,
-      "eyeWideRight": 0.000005847266759412583,
-      "jawForward": 0.0034141577243601874,
-      "jawLeft": 0.012440255893552623,
-      "jawOpen": 0.06984786603023899,
-      "mouthClose": 0.016455946788998477,
-      "mouthDimpleRight": 0.026350655899142084,
-      "mouthFrownLeft": 0.0018562097422775402,
-      "mouthFrownRight": 0.021030955285331932,
-      "mouthFunnel": 0.00011091229291568549,
-      "mouthLeft": 1.2176914868425433e-7,
-      "mouthLowerDownLeft": 0.005450077543069955,
-      "mouthLowerDownRight": 0.01584764818785191,
-      "mouthPressLeft": 0.03453222678123079,
-      "mouthPressRight": 0.08160808370598253,
-      "mouthRight": 0.07426443393215336,
-      "mouthRollLower": 0.0011221716042172137,
-      "mouthRollUpper": 0.047871368908573096,
-      "mouthShrugLower": 0.0005793886734509702,
-      "mouthShrugUpper": 0.0001446902716585389,
-      "mouthSmileLeft": 0.06743694757865953,
-      "mouthSmileRight": 0.07612976721926452,
-      "mouthStretchLeft": 0.013456056096508478,
-      "mouthStretchRight": 0.06149422441258831,
-      "mouthUpperUpLeft": 0.007364427139828437,
-      "mouthUpperUpRight": 0.02010081201741273,
-      "noseSneerLeft": 1.8281183703964162e-7
+      "browInnerUp": 1,
+      "browOuterUpLeft": 0.7419,
+      "browOuterUpRight": 0.4072,
+      "eyeBlinkLeft": 0.2596,
+      "eyeBlinkRight": 0.0119,
+      "eyeLookInRight": 0.5955,
+      "eyeLookOutLeft": 0.5164,
+      "eyeWideRight": 0.018,
+      "mouthPucker": 0.0007,
+      "mouthRight": 0.2373,
+      "mouthStretchLeft": 0.4722,
+      "mouthStretchRight": 0.1299,
+      "mouthUpperUpLeft": 0.04916,
+      "mouthUpperUpRight": 0.04916,
+      "mouthLowerDownLeft": 0.0415,
+      "mouthLowerDownRight": 0.0415
     },
     "materials": {
       "skin": {
         "color": {
-          "r": 0.46,
-          "g": 0.33,
-          "b": 0.27
+          "r": 0.4225,
+          "g": 0.234,
+          "b": 0.1798
         },
         "roughness": 0.76
       },
       "lips": {
         "color": {
-          "r": 0.38,
-          "g": 0.21,
-          "b": 0.2
+          "r": 0.159,
+          "g": 0.159,
+          "b": 0.159
         },
         "roughness": 0.57
+      },
+      "Human.eyebrow001": {
+        "pigment": [
+          0.03569,
+          0.03569,
+          0.03569
+        ]
       }
     },
     "hair": {
@@ -3030,16 +2250,15 @@
           },
           "finish": {
             "color": [
-              0.0909,
-              0.0909,
-              0.0909
+              0.60493,
+              0.33504,
+              0.25743
             ],
             "roughness": 0.73,
             "fibres": 24,
             "coverage": 0.95,
             "normal": 0.2,
-            "shade": 1,
-            "grey": 0.45
+            "shade": 1
           },
           "guides": {
             "fraction": 0.125,
@@ -3047,163 +2266,98 @@
           }
         }
       ]
+    },
+    "iris": {
+      "left": {
+        "base": [
+          0.00683,
+          0.00683,
+          0.00683
+        ],
+        "variation": [
+          0.03862,
+          0.03862,
+          0.03862
+        ]
+      },
+      "right": {
+        "base": [
+          0.00683,
+          0.00683,
+          0.00683
+        ],
+        "variation": [
+          0.03862,
+          0.03862,
+          0.03862
+        ]
+      }
     }
   },
   {
     "id": "miriam-margolyes-connected",
     "name": "miriam-margolyes (connected study)",
-    "basis": "mpfb-connected-head-2026-09-23-ocular-contact",
+    "basis": "mpfb-connected-head-2026-09-25-gingiva",
     "shape": {
-      "headWidth": 0.10955686052421654,
-      "headHeight": -0.1354776231017277,
-      "headDepth": -0.0004395735650293955,
-      "cheekFullness": 0.034560900710900976,
-      "chinWidth": 0.19787455677275462,
-      "chinHeight": 0.05742282905969882,
-      "chinProjection": -0.04224879807177097,
-      "noseWidth": -0.18426966640470763,
-      "noseHeight": -0.3346938675705307,
-      "noseDepth": -0.10049452504942123,
-      "mouthWidth": -0.5450959480323914,
-      "mouthHeight": 0.6846093035533692,
-      "upperLipHeight": 0.8434342111443459,
-      "lowerLipHeight": 0.3847018261789213,
-      "upperLipVolume": -0.05330868511820233,
-      "lowerLipVolume": -0.032351914633632246,
-      "upperLipWidth": 0.23637934232995253,
-      "lowerLipWidth": 0.00513064576841105,
-      "mouthDepth": 0.1825635537164645,
-      "noseUpperWidth": 0.41037509908107667,
-      "noseMiddleWidth": 0.07356241249898615,
-      "noseLowerWidth": 0.10158011380700255,
-      "nostrilWidth": -0.049651547350388375,
-      "noseFlaring": -0.00020144281131408398,
-      "leftEyeScale": -0.16077046369645928,
-      "rightEyeScale": -0.16077046369645928,
-      "leftEyeHeight": 0.6984720361505705,
-      "rightEyeHeight": 0.6984720361505705,
-      "posteriorHeadDepth": -4.958156328390837e-7,
-      "foreheadHeight": -9.321890620667608e-7,
-      "templeWidth": -0.21431154662071178,
-      "chinBoneWidth": -0.015864892502922053,
-      "jawPrognathism": -0.038886301964822824,
-      "jawRestHeight": -0.6204901190851861,
-      "noseTipWidth": 0.16677399028140408,
-      "noseBridgeHump": -0.00442717116898118,
-      "noseSeptumAngle": 0.13171786602073446,
-      "neckWidth": 0.3585255813342133,
-      "neckDepth": -0.041651623286101815,
-      "neckUnderChinFullness": -0.0015656628172816805,
-      "leftCheekVolume": 0.33153956977081184,
-      "leftCheekBone": 0.07418623279064751,
-      "leftCheekInner": 0.1596735196822379,
-      "leftEarScale": -0.3671331101629031,
-      "leftEarHeight": 0.18635544190221828,
-      "leftEarDepth": -0.0069823336862122306,
-      "leftEarLobe": 0.042444042575807646,
-      "leftEarWing": 0.0004853100200932379,
-      "leftEarFlap": -0.0000029766648964433887,
-      "leftEyeBagVolume": 0.5140323266924591,
-      "leftEyeBagHeight": -0.017771658768980722,
-      "rightCheekVolume": 0.33153956977081184,
-      "rightCheekBone": 0.07418623279064751,
-      "rightCheekInner": 0.1596735196822379,
-      "rightEarScale": -0.3671331101629031,
-      "rightEarHeight": 0.18635544190221828,
-      "rightEarDepth": -0.0069823336862122306,
-      "rightEarLobe": 0.042444042575807646,
-      "rightEarWing": 0.0004853100200932379,
-      "rightEarFlap": -0.0000029766648964433887,
-      "rightEyeBagVolume": 0.5140323266924591,
-      "rightEyeBagHeight": -0.017771658768980722,
-      "faceAgeStructure": 0.028361577819642665,
-      "philtrumVolume": -0.431613748669425,
-      "foreheadProjection": -0.020766460211785392,
-      "browProjection": 0.26992835481198,
-      "browAngle": -0.004189545867382533,
-      "noseTipElevation": 0.04882363489666603,
-      "noseBaseElevation": -0.00035381871007826685,
-      "nostrilAngle": 0.37975072359254797,
-      "mouthElevation": -0.37773043015668184,
-      "leftEyeElevation": -0.039033023649790756,
-      "leftEyeLateralPosition": -0.26539626413028,
-      "leftEyeFoldHeight": 0.49716532162907134,
-      "leftEarRotation": 0.17601869733544911,
-      "rightEyeElevation": -0.039033023649790756,
-      "rightEyeLateralPosition": -0.26539626413028,
-      "rightEyeFoldHeight": 0.49716532162907134,
-      "rightEarRotation": 0.17601869733544911,
-      "globalAgeStructure": -0.00005780127427185217,
-      "globalSexualDimorphism": -0.05945686059024794,
-      "globalAdiposity": 0.000003837333053543708,
-      "globalMuscularity": -0.5843876953572168
+      "globalAgeStructure": 0.7076923076923078,
+      "globalSexualDimorphism": -1,
+      "europeanAncestry": 1,
+      "headHeight": -0.39713,
+      "leftEyeLateralPosition": -0.10811,
+      "rightEyeLateralPosition": -0.10811,
+      "leftEyeScale": -0.37892,
+      "rightEyeScale": -0.37892,
+      "leftEyeHeight": -0.71677,
+      "rightEyeHeight": -0.71677,
+      "noseWidth": -0.02155,
+      "noseHeight": -0.58928,
+      "mouthWidth": -0.77561,
+      "upperLipHeight": -0.13159,
+      "lowerLipHeight": 0.28303,
+      "mouthElevation": -0.21,
+      "cheekFullness": 0.08448,
+      "chinWidth": -0.25113,
+      "chinHeight": -1,
+      "browElevation": -1
     },
     "expression": {
-      "browDownLeft": 0.40650857163933357,
-      "browDownRight": 0.49303125989876306,
-      "browInnerUp": 0.020716101553844377,
-      "browOuterUpLeft": 0.06357368853121484,
-      "browOuterUpRight": 0.01890546064879674,
-      "cheekPuff": 0.019264791114129924,
-      "cheekSquintLeft": 0.02380058996205513,
-      "cheekSquintRight": 5.104267285799612e-7,
-      "eyeBlinkLeft": 0.42277654492567884,
-      "eyeBlinkRight": 0.311014798765219,
-      "eyeLookDownLeft": 0.11742993635005539,
-      "eyeLookDownRight": 0.11876804490566037,
-      "eyeLookInLeft": 0.014318134412841329,
-      "eyeLookInRight": 0.47394430233548446,
-      "eyeLookOutLeft": 0.4217932542942308,
-      "eyeLookOutRight": 0.003086604109260801,
-      "eyeLookUpLeft": 0.15675628442608247,
-      "eyeLookUpRight": 0.14399096845644552,
-      "eyeSquintLeft": 0.8065276536229801,
-      "eyeSquintRight": 0.6095616584064572,
-      "eyeWideLeft": 0.010482961071548462,
-      "eyeWideRight": 0.007538858011682332,
-      "jawForward": 0.001881674829521942,
-      "jawLeft": 0.0000011281017776983063,
-      "jawOpen": 0.22054314070363304,
-      "jawRight": 0.09265891256091428,
-      "mouthClose": 0.006830445399005758,
-      "mouthDimpleLeft": 0.12050330836319335,
-      "mouthDimpleRight": 0.07319856872261266,
-      "mouthFrownLeft": 0.0000030121082535232945,
-      "mouthFrownRight": 0.025563451715217195,
-      "mouthFunnel": 0.0055613140110374725,
-      "mouthLeft": 0.0000047294383587872794,
-      "mouthLowerDownLeft": 0.5738048003946452,
-      "mouthLowerDownRight": 0.8345535328473525,
-      "mouthPressLeft": 0.12081276520359097,
-      "mouthPressRight": 0.18391150882259205,
-      "mouthPucker": 0.03510666589186406,
-      "mouthRight": 0.13362377489565838,
-      "mouthRollLower": 0.00016078984026827095,
-      "mouthRollUpper": 0.10737555345098615,
-      "mouthShrugUpper": 0.0008617565792552389,
-      "mouthSmileLeft": 0.9555508249015277,
-      "mouthSmileRight": 0.8825242983848034,
-      "mouthStretchRight": 0.0698832813952737,
-      "mouthUpperUpLeft": 0.26706562955947627,
-      "mouthUpperUpRight": 0.2516521172815933,
-      "noseSneerRight": 0.00004084710447487068
+      "eyeBlinkLeft": 0.4446,
+      "eyeBlinkRight": 0.2499,
+      "eyeLookInRight": 0.576,
+      "eyeLookOutLeft": 0.441,
+      "jawOpen": 0.2002,
+      "mouthPucker": 0.0022,
+      "mouthRight": 0.0666,
+      "mouthSmileLeft": 1,
+      "mouthSmileRight": 1,
+      "mouthUpperUpLeft": 1,
+      "mouthUpperUpRight": 1,
+      "mouthLowerDownLeft": 0.84412,
+      "mouthLowerDownRight": 0.84412
     },
     "materials": {
       "skin": {
         "color": {
-          "r": 0.6487499999999999,
-          "g": 0.28750000000000003,
-          "b": 0.2375
+          "r": 0.463,
+          "g": 0.2714,
+          "b": 0.2091
         },
         "roughness": 0.76
       },
       "lips": {
         "color": {
-          "r": 0.44,
-          "g": 0.18,
-          "b": 0.2
+          "r": 0.3947,
+          "g": 0.1123,
+          "b": 0.1156
         },
         "roughness": 0.57
+      },
+      "Human.eyebrow001": {
+        "pigment": [
+          0.1625,
+          0.1077,
+          0.08686
+        ]
       }
     },
     "hair": {
@@ -3221,12 +2375,12 @@
             "back": 2.1
           },
           "lengthAxes": [
-            0.155,
-            0.155,
+            0.0524,
+            0.0524,
             0.2,
-            0.1,
+            0.0338,
             0.165,
-            0.18
+            0.0608
           ],
           "lengthVariation": 0.08,
           "samplingStep": 0.003,
@@ -3252,16 +2406,15 @@
           },
           "finish": {
             "color": [
-              0.1273,
-              0.0909,
-              0.0545
+              1,
+              1,
+              1
             ],
             "roughness": 0.94,
             "fibres": 24,
             "coverage": 0.95,
             "normal": 0.2,
-            "shade": 1,
-            "grey": 0.45
+            "shade": 1
           },
           "guides": {
             "fraction": 0.125,
@@ -3281,12 +2434,12 @@
             "back": 2.1
           },
           "lengthAxes": [
+            0.0237,
+            0.0237,
             0.07,
+            0.0237,
             0.07,
-            0.07,
-            0.07,
-            0.07,
-            0.07
+            0.0237
           ],
           "lengthVariation": 0.08,
           "samplingStep": 0.003,
@@ -3312,16 +2465,15 @@
           },
           "finish": {
             "color": [
-              0.1273,
-              0.0909,
-              0.0545
+              1,
+              1,
+              1
             ],
             "roughness": 0.94,
             "fibres": 24,
             "coverage": 0.95,
             "normal": 0.2,
-            "shade": 1,
-            "grey": 0.45
+            "shade": 1
           },
           "rootRegion": {
             "center": [
@@ -3341,157 +2493,91 @@
           }
         }
       ]
+    },
+    "iris": {
+      "left": {
+        "base": [
+          0.01786,
+          0.01205,
+          0.01114
+        ],
+        "variation": [
+          0.101,
+          0.06813,
+          0.06302
+        ]
+      },
+      "right": {
+        "base": [
+          0.01786,
+          0.01205,
+          0.01114
+        ],
+        "variation": [
+          0.101,
+          0.06813,
+          0.06302
+        ]
+      }
     }
   },
   {
     "id": "oh-seung-yoon-connected",
     "name": "oh-seung-yoon (connected study)",
-    "basis": "mpfb-connected-head-2026-09-23-ocular-contact",
+    "basis": "mpfb-connected-head-2026-09-25-gingiva",
     "shape": {
-      "headWidth": -0.14621778961613513,
-      "headHeight": 0.045378305918042504,
-      "headDepth": -0.02558440133109831,
-      "cheekFullness": -0.2349853150629136,
-      "chinWidth": -0.25682888236888374,
-      "chinHeight": -0.2252447873525209,
-      "chinProjection": 0.7891360521997356,
-      "noseWidth": 0.04204049487235943,
-      "noseHeight": 0.02768192185330228,
-      "noseDepth": 0.8180848737213184,
-      "mouthWidth": -0.39112999867827286,
-      "mouthHeight": 0.38342892053602584,
-      "upperLipHeight": -0.5809592413276431,
-      "lowerLipHeight": 0.40946365163804604,
-      "upperLipVolume": -0.22767937897527094,
-      "lowerLipVolume": 0.11883572159807283,
-      "upperLipWidth": 0.3668294231843468,
-      "lowerLipWidth": 0.0037562045724607025,
-      "mouthDepth": 0.8079041389899791,
-      "noseUpperWidth": 0.6712496620647783,
-      "noseMiddleWidth": -0.1834330305470272,
-      "noseLowerWidth": 0.002218614968479681,
-      "nostrilWidth": 0.1814215204503538,
-      "noseFlaring": 0.005893925670464154,
-      "leftEyeScale": 0.024616365006640526,
-      "rightEyeScale": 0.024616365006640526,
-      "leftEyeHeight": 0.8238343215071762,
-      "rightEyeHeight": 0.8238343215071762,
-      "posteriorHeadDepth": -4.863410500406989e-7,
-      "templeWidth": -0.01828980476907459,
-      "chinBoneWidth": -0.14999757850811235,
-      "jawPrognathism": 0.3036994093623853,
-      "jawRestHeight": -0.6390601354130372,
-      "noseTipWidth": -0.1561415448528834,
-      "noseBridgeHump": 0.2504279507805032,
-      "noseSeptumAngle": 0.20699394982157096,
-      "neckWidth": -0.021328900030446747,
-      "neckDepth": 0.036074518876265026,
-      "neckUnderChinFullness": -0.00012571020207465206,
-      "leftCheekVolume": 0.22021529258925263,
-      "leftCheekBone": 0.14792160239675017,
-      "leftCheekInner": 0.2661832665280477,
-      "leftEarScale": -0.3115178288735872,
-      "leftEarHeight": 0.024825880752064808,
-      "leftEarDepth": 0.4049612740105719,
-      "leftEarLobe": 0.006201577978147125,
-      "leftEarWing": 0.006445472082929289,
-      "leftEyeBagVolume": 0.10013866793141409,
-      "leftEyeBagHeight": 0.37111572108432506,
-      "rightCheekVolume": 0.22021529258925263,
-      "rightCheekBone": 0.14792160239675017,
-      "rightCheekInner": 0.2661832665280477,
-      "rightEarScale": -0.3115178288735872,
-      "rightEarHeight": 0.024825880752064808,
-      "rightEarDepth": 0.4049612740105719,
-      "rightEarLobe": 0.006201577978147125,
-      "rightEarWing": 0.006445472082929289,
-      "rightEyeBagVolume": 0.10013866793141409,
-      "rightEyeBagHeight": 0.37111572108432506,
-      "faceAgeStructure": -0.31621387012118407,
-      "philtrumVolume": -0.7108476587595729,
-      "foreheadProjection": 0.00021700454757120913,
-      "browElevation": 0.11848971754512803,
-      "browProjection": -0.06546224609466315,
-      "noseTipElevation": -0.06307270193903558,
-      "noseBaseElevation": -0.2560093026930964,
-      "nostrilAngle": -0.03332988346877729,
-      "mouthElevation": -0.2965357075271037,
-      "leftEyeElevation": -0.19371082801930484,
-      "leftEyeLateralPosition": 0.5176843060485743,
-      "leftEyeFoldHeight": 0.6698315498875563,
-      "leftEarRotation": -0.0015227385284962626,
-      "rightEyeElevation": -0.19371082801930484,
-      "rightEyeLateralPosition": 0.5176843060485743,
-      "rightEyeFoldHeight": 0.6698315498875563,
-      "rightEarRotation": -0.0015227385284962626,
-      "globalAgeStructure": -0.056789870016590444,
-      "globalSexualDimorphism": -0.029927040136424617,
-      "globalAdiposity": 3.987352542806567e-7,
-      "globalMuscularity": -0.22543926905094544
+      "globalAgeStructure": -0.75,
+      "globalSexualDimorphism": 1,
+      "asianAncestry": 1,
+      "headHeight": 0.02836,
+      "leftEyeLateralPosition": 1,
+      "rightEyeLateralPosition": 1,
+      "leftEyeScale": 0.13357,
+      "rightEyeScale": 0.13357,
+      "leftEyeHeight": 0.08066,
+      "rightEyeHeight": 0.08066,
+      "noseWidth": 1,
+      "noseHeight": 0.68036,
+      "mouthWidth": 0.0654,
+      "upperLipHeight": -0.52847,
+      "lowerLipHeight": 0.7417,
+      "mouthElevation": -0.21565,
+      "cheekFullness": 0,
+      "chinWidth": -0.48511,
+      "chinHeight": -1,
+      "browElevation": -0.25393
     },
     "expression": {
-      "browDownLeft": 0.004725781844087824,
-      "browDownRight": 0.0016747052862897118,
-      "browInnerUp": 0.22401738608793376,
-      "browOuterUpLeft": 0.1345462001633148,
-      "browOuterUpRight": 0.13050400484428543,
-      "cheekPuff": 0.00011480486055369077,
-      "cheekSquintLeft": 0.004823921256405351,
-      "cheekSquintRight": 0.0024315541056339645,
-      "eyeBlinkLeft": 0.09343202382871515,
-      "eyeBlinkRight": 0.11098776006891226,
-      "eyeLookDownLeft": 0.03964894171370155,
-      "eyeLookDownRight": 0.05655469718988873,
-      "eyeLookInLeft": 0.0013489798343896636,
-      "eyeLookInRight": 0.5029644350040162,
-      "eyeLookOutLeft": 0.48676603085594167,
-      "eyeLookOutRight": 0.0010848508634848158,
-      "eyeLookUpLeft": 0.19677905758649977,
-      "eyeLookUpRight": 0.19122422451862217,
-      "eyeSquintLeft": 0.538580692229019,
-      "eyeSquintRight": 0.36970068413164975,
-      "eyeWideLeft": 0.006359895564308955,
-      "eyeWideRight": 0.0042417389885823446,
-      "jawForward": 0.000004213035821396522,
-      "jawLeft": 0.000032960637818378506,
-      "jawOpen": 0.09043095900396346,
-      "jawRight": 0.0015464143242825495,
-      "mouthClose": 0.000025709266794023872,
-      "mouthDimpleLeft": 0.021710752271715195,
-      "mouthDimpleRight": 0.000006740025752635055,
-      "mouthFrownLeft": 0.04961043479626134,
-      "mouthFunnel": 0.061215667356636784,
-      "mouthLeft": 0.05423283143878524,
-      "mouthLowerDownLeft": 0.04142063248594642,
-      "mouthLowerDownRight": 0.020484687632910246,
-      "mouthPressLeft": 0.027837405263150698,
-      "mouthPucker": 0.06488717862521877,
-      "mouthRight": 0.0000013706766221414197,
-      "mouthRollLower": 0.000012660711666597588,
-      "mouthRollUpper": 0.01896318971107234,
-      "mouthShrugUpper": 0.003791406607268481,
-      "mouthSmileLeft": 0.7183016423466555,
-      "mouthSmileRight": 0.7880780771026078,
-      "mouthStretchLeft": 0.07684056483132069,
-      "mouthStretchRight": 0.000007432680722014164,
-      "mouthUpperUpLeft": 0.0005819622388680512,
-      "mouthUpperUpRight": 0.06617730558465186,
-      "noseSneerRight": 0.001797745848661494
+      "browInnerUp": 0.3017,
+      "browOuterUpRight": 0.0815,
+      "eyeBlinkLeft": 0.054,
+      "eyeBlinkRight": 0.0377,
+      "eyeLookInRight": 0.6251,
+      "eyeLookOutLeft": 0.5525,
+      "jawOpen": 0.0349,
+      "mouthPucker": 0.0502,
+      "mouthRight": 0.0328,
+      "mouthSmileLeft": 0.93587,
+      "mouthSmileRight": 0.93587,
+      "mouthUpperUpLeft": 0.39898,
+      "mouthUpperUpRight": 0.39898,
+      "mouthLowerDownLeft": 0.33679,
+      "mouthLowerDownRight": 0.33679
     },
     "materials": {
       "skin": {
         "color": {
-          "r": 0.52,
-          "g": 0.29,
-          "b": 0.2
+          "r": 0.4206,
+          "g": 0.2393,
+          "b": 0.1743
         },
         "roughness": 0.76
       },
       "lips": {
         "color": {
-          "r": 0.43,
-          "g": 0.18,
-          "b": 0.16
+          "r": 0.331,
+          "g": 0.1149,
+          "b": 0.1205
         },
         "roughness": 0.57
       }
@@ -3511,12 +2597,12 @@
             "back": 2.1
           },
           "lengthAxes": [
-            0.085,
-            0.085,
+            0.0431,
+            0.0431,
             0.125,
-            0.065,
+            0.0329,
             0.11,
-            0.1
+            0.0507
           ],
           "lengthVariation": 0.08,
           "samplingStep": 0.003,
@@ -3542,9 +2628,9 @@
           },
           "finish": {
             "color": [
-              0.014,
-              0.01,
-              0.008
+              0.00112,
+              0.00122,
+              0.00139
             ],
             "roughness": 0.73,
             "fibres": 24,
@@ -3598,12 +2684,12 @@
             "back": 2.1
           },
           "lengthAxes": [
+            0.0431,
+            0.0431,
             0.085,
+            0.0431,
             0.085,
-            0.085,
-            0.085,
-            0.085,
-            0.085
+            0.0431
           ],
           "lengthVariation": 0.08,
           "samplingStep": 0.003,
@@ -3629,9 +2715,9 @@
           },
           "finish": {
             "color": [
-              0.014,
-              0.01,
-              0.008
+              0.00078,
+              0.00085,
+              0.00098
             ],
             "roughness": 0.73,
             "fibres": 24,
@@ -3657,165 +2743,90 @@
           }
         }
       ]
+    },
+    "iris": {
+      "left": {
+        "base": [
+          0.00076,
+          0.00049,
+          0.00029
+        ],
+        "variation": [
+          0.0043,
+          0.00275,
+          0.00162
+        ]
+      },
+      "right": {
+        "base": [
+          0.00076,
+          0.00049,
+          0.00029
+        ],
+        "variation": [
+          0.0043,
+          0.00275,
+          0.00162
+        ]
+      }
     }
   },
   {
     "id": "park-eun-bin-connected",
     "name": "park-eun-bin (connected study)",
-    "basis": "mpfb-connected-head-2026-09-23-ocular-contact",
+    "basis": "mpfb-connected-head-2026-09-25-gingiva",
     "shape": {
-      "headWidth": -0.1642515472027471,
-      "headHeight": 0.12540294461983814,
-      "headDepth": -0.001333972444393234,
-      "cheekFullness": -0.03132112325601732,
-      "chinWidth": -0.4856726605561014,
-      "chinHeight": -0.1708602319381119,
-      "chinProjection": -0.15318428280701438,
-      "noseWidth": 0.05305310803179489,
-      "noseHeight": 0.09397964549185528,
-      "noseDepth": 0.16517025108636896,
-      "mouthWidth": -0.3676548240402577,
-      "mouthHeight": -0.7316944152146598,
-      "upperLipHeight": -0.9820880237323695,
-      "lowerLipHeight": 0.03412695551928374,
-      "upperLipVolume": 0.09206189732147649,
-      "lowerLipVolume": -0.15555877149993821,
-      "upperLipWidth": 0.028679200208189263,
-      "lowerLipWidth": -0.20074635496951643,
-      "mouthDepth": 0.18610383758983917,
-      "noseUpperWidth": 0.4157048278150106,
-      "noseMiddleWidth": 0.1236084253517441,
-      "noseLowerWidth": -0.03820680643032383,
-      "nostrilWidth": -0.028248220088805336,
-      "noseFlaring": -0.02119947041674093,
-      "leftEyeScale": 0.09378208283297772,
-      "rightEyeScale": 0.09378208283297772,
-      "leftEyeHeight": 0.9272632153559789,
-      "rightEyeHeight": 0.9272632153559789,
-      "posteriorHeadDepth": 0.000037356270041901234,
-      "foreheadHeight": 0.00004099708259263331,
-      "templeWidth": -0.042797298984063585,
-      "chinBoneWidth": 0.024610032211538006,
-      "jawPrognathism": -0.02611549697221815,
-      "jawRestHeight": -0.3585478011042958,
-      "noseTipWidth": -0.07700372241584139,
-      "noseBridgeHump": 0.44061037707488326,
-      "noseSeptumAngle": 0.25270081901414815,
-      "neckWidth": -0.022184226510377453,
-      "neckDepth": -0.029674451278685652,
-      "neckUnderChinFullness": -0.00032618617401078246,
-      "leftCheekVolume": 0.27755199630232386,
-      "leftCheekBone": 0.2879442159124662,
-      "leftCheekInner": 0.10327946369652041,
-      "leftEarScale": -0.1596149394569344,
-      "leftEarHeight": 0.20152668423551737,
-      "leftEarDepth": 0.1056448968761606,
-      "leftEarLobe": 0.010929215799697333,
-      "leftEarWing": 0.00023070322292426741,
-      "leftEarFlap": 0.00004507788083395307,
-      "leftEyeBagVolume": 0.9306338630631273,
-      "leftEyeBagHeight": 0.4613457337655595,
-      "rightCheekVolume": 0.27755199630232386,
-      "rightCheekBone": 0.2879442159124662,
-      "rightCheekInner": 0.10327946369652041,
-      "rightEarScale": -0.1596149394569344,
-      "rightEarHeight": 0.20152668423551737,
-      "rightEarDepth": 0.1056448968761606,
-      "rightEarLobe": 0.010929215799697333,
-      "rightEarWing": 0.00023070322292426741,
-      "rightEarFlap": 0.00004507788083395307,
-      "rightEyeBagVolume": 0.9306338630631273,
-      "rightEyeBagHeight": 0.4613457337655595,
-      "faceAgeStructure": -0.15653918420255872,
-      "philtrumVolume": 0.645818034547943,
-      "foreheadProjection": -0.03905177156829507,
-      "browElevation": 0.4568621932006241,
-      "browProjection": 0.016621346053796653,
-      "noseTipElevation": -0.04051251107666783,
-      "noseBaseElevation": -0.33024811072171445,
-      "nostrilAngle": -0.02027748758152296,
-      "mouthElevation": -0.13689284358459902,
-      "leftEyeElevation": -0.443855823399205,
-      "leftEyeLateralPosition": 0.04757966936786524,
-      "leftEyeFoldHeight": 0.6522408019656032,
-      "leftEarRotation": 0.09476783755890954,
-      "rightEyeElevation": -0.443855823399205,
-      "rightEyeLateralPosition": 0.04757966936786524,
-      "rightEyeFoldHeight": 0.6522408019656032,
-      "rightEarRotation": 0.09476783755890954,
-      "globalAgeStructure": 0.022689445381048966,
-      "globalSexualDimorphism": 0.020808506187766876,
-      "globalAdiposity": 0.0000464107653536374,
-      "globalMuscularity": 0.00004586751646814343
+      "globalAgeStructure": -0.41666666666666674,
+      "globalSexualDimorphism": -1,
+      "asianAncestry": 1,
+      "headHeight": -0.47889,
+      "leftEyeLateralPosition": -0.18862,
+      "rightEyeLateralPosition": -0.18862,
+      "leftEyeScale": -0.11083,
+      "rightEyeScale": -0.11083,
+      "leftEyeHeight": 0.26746,
+      "rightEyeHeight": 0.26746,
+      "noseWidth": 0.49846,
+      "noseHeight": 1,
+      "mouthWidth": -0.68784,
+      "upperLipHeight": -0.13961,
+      "lowerLipHeight": -0.96311,
+      "mouthElevation": -1,
+      "cheekFullness": -0.6554,
+      "chinWidth": -0.88391,
+      "chinHeight": 0.12764,
+      "browElevation": 0.60227
     },
     "expression": {
-      "browDownLeft": 0.0025076684522107886,
-      "browDownRight": 0.1033221176521087,
-      "browInnerUp": 0.10536739503113975,
-      "browOuterUpLeft": 0.07076138539849974,
-      "browOuterUpRight": 0.03377594117193751,
-      "cheekPuff": 0.0044748288172842595,
-      "cheekSquintLeft": 0.0017685683188305714,
-      "cheekSquintRight": 0.000013885679906573467,
-      "eyeBlinkLeft": 0.08609630160669443,
-      "eyeBlinkRight": 0.1382189504296781,
-      "eyeLookDownLeft": 0.08217796077628804,
-      "eyeLookDownRight": 0.1074280888358472,
-      "eyeLookInLeft": 0.1079495258599837,
-      "eyeLookInRight": 0.050476123824583996,
-      "eyeLookOutLeft": 0.038892361751751696,
-      "eyeLookOutRight": 0.07849021646495438,
-      "eyeLookUpLeft": 0.1123936486069544,
-      "eyeLookUpRight": 0.08463181399936734,
-      "eyeSquintLeft": 0.5602293954597501,
-      "eyeSquintRight": 0.4104809265893416,
-      "eyeWideLeft": 0.009765654757686783,
-      "eyeWideRight": 0.0002932425322119128,
-      "jawForward": 0.00026818993009770177,
-      "jawLeft": 8.201748145694986e-7,
-      "jawOpen": 0.011999849337495433,
-      "jawRight": 0.0430192779041299,
-      "mouthClose": 0.0004839904928412652,
-      "mouthDimpleLeft": 0.01822317039182055,
-      "mouthDimpleRight": 0.015104404254066742,
-      "mouthFrownLeft": 0.005078865249402315,
-      "mouthFrownRight": 0.007348579581089746,
-      "mouthFunnel": 0.02527865674418734,
-      "mouthLeft": 0.00021569933965234805,
-      "mouthLowerDownLeft": 0.0020214171164095163,
-      "mouthLowerDownRight": 0.0026904320707931513,
-      "mouthPressLeft": 0.09498304562436445,
-      "mouthPressRight": 0.1237208575736574,
-      "mouthPucker": 0.00455159089964253,
-      "mouthRight": 0.007997220063162482,
-      "mouthRollLower": 0.00952655999154711,
-      "mouthRollUpper": 0.032437189778702,
-      "mouthShrugLower": 0.00874734631524125,
-      "mouthSmileLeft": 0.31497429664048254,
-      "mouthSmileRight": 0.3551182851976258,
-      "mouthStretchLeft": 0.004280476540680329,
-      "mouthStretchRight": 0.008835485701112427,
-      "mouthUpperUpLeft": 0.000029005390128097827,
-      "mouthUpperUpRight": 0.0018098510429728973,
-      "noseSneerLeft": 0.000013632208111363364,
-      "noseSneerRight": 0.00008925415285402914
+      "eyeBlinkLeft": 0.065,
+      "eyeBlinkRight": 0.034,
+      "mouthLeft": 0.1388,
+      "mouthSmileLeft": 0.44278,
+      "mouthSmileRight": 0.44278
     },
     "materials": {
       "skin": {
         "color": {
-          "r": 0.65,
-          "g": 0.42,
-          "b": 0.33
+          "r": 0.4802,
+          "g": 0.295,
+          "b": 0.2237
         },
         "roughness": 0.76
       },
       "lips": {
         "color": {
-          "r": 0.53,
-          "g": 0.19,
-          "b": 0.25
+          "r": 0.4062,
+          "g": 0.132,
+          "b": 0.1331
         },
         "roughness": 0.57
+      },
+      "Human.eyebrow001": {
+        "pigment": [
+          0.07728,
+          0.03517,
+          0.03081
+        ]
       }
     },
     "hair": {
@@ -3833,12 +2844,12 @@
             "back": 2.1
           },
           "lengthAxes": [
-            0.095,
-            0.095,
+            0.0489,
+            0.0489,
             0.15,
-            0.06,
+            0.0309,
             0.12,
-            0.135
+            0.0695
           ],
           "lengthVariation": 0.08,
           "samplingStep": 0.003,
@@ -3864,9 +2875,9 @@
           },
           "finish": {
             "color": [
-              0.019,
-              0.012,
-              0.008
+              0.01903,
+              0.01313,
+              0.01265
             ],
             "roughness": 0.73,
             "fibres": 24,
@@ -3920,12 +2931,12 @@
             "back": 2.1
           },
           "lengthAxes": [
+            0.0438,
+            0.0438,
             0.085,
+            0.0438,
             0.085,
-            0.085,
-            0.085,
-            0.085,
-            0.085
+            0.0438
           ],
           "lengthVariation": 0.08,
           "samplingStep": 0.003,
@@ -3951,9 +2962,9 @@
           },
           "finish": {
             "color": [
-              0.019,
-              0.012,
-              0.008
+              0.01331,
+              0.00918,
+              0.00885
             ],
             "roughness": 0.73,
             "fibres": 24,
@@ -3979,164 +2990,94 @@
           }
         }
       ]
+    },
+    "iris": {
+      "left": {
+        "base": [
+          0.00592,
+          0.00225,
+          0.00221
+        ],
+        "variation": [
+          0.03349,
+          0.01272,
+          0.0125
+        ]
+      },
+      "right": {
+        "base": [
+          0.00592,
+          0.00225,
+          0.00221
+        ],
+        "variation": [
+          0.03349,
+          0.01272,
+          0.0125
+        ]
+      }
     }
   },
   {
     "id": "rupert-grint-connected",
     "name": "rupert-grint (connected study)",
-    "basis": "mpfb-connected-head-2026-09-23-ocular-contact",
+    "basis": "mpfb-connected-head-2026-09-25-gingiva",
     "shape": {
-      "headWidth": -0.04806101701215676,
-      "headHeight": 0.05477567938155129,
-      "headDepth": -0.006103547633174835,
-      "cheekFullness": -0.20128604317139343,
-      "chinWidth": -0.2725502981360434,
-      "chinHeight": -0.13386049844688291,
-      "chinProjection": 0.4131507694521959,
-      "noseWidth": 0.1252708913679023,
-      "noseHeight": 0.20984693088492717,
-      "noseDepth": 0.6587182301406643,
-      "mouthWidth": -0.4490521684607288,
-      "mouthHeight": -0.6674000505193166,
-      "upperLipHeight": -0.7824600601170943,
-      "lowerLipHeight": -0.4893264835339023,
-      "upperLipVolume": -0.30482964688436703,
-      "lowerLipVolume": 0.13405290416404272,
-      "upperLipWidth": 0.08905629054040719,
-      "lowerLipWidth": -0.2941179333646142,
-      "mouthDepth": 0.3274518513904654,
-      "noseUpperWidth": 0.456896703203622,
-      "noseMiddleWidth": 0.11250323704159436,
-      "noseLowerWidth": -0.1468787620732768,
-      "nostrilWidth": 0.07325503736122409,
-      "noseFlaring": -0.2400961487926791,
-      "leftEyeScale": 0.38137527174914104,
-      "rightEyeScale": 0.38137527174914104,
-      "leftEyeHeight": 0.8620182719463011,
-      "rightEyeHeight": 0.8620182719463011,
-      "posteriorHeadDepth": 0.0009180788428100896,
-      "foreheadHeight": 0.0010077540231088116,
-      "templeWidth": 0.2397829463931942,
-      "chinBoneWidth": -0.06055892617618134,
-      "jawPrognathism": 0.08075540300317899,
-      "jawRestHeight": -0.33206756003681887,
-      "noseTipWidth": -0.033881845670479825,
-      "noseBridgeHump": 0.21248118260350976,
-      "noseSeptumAngle": 0.3517934440298568,
-      "neckWidth": -0.0023214906331176684,
-      "neckDepth": 0.045582338821925465,
-      "neckUnderChinFullness": -0.0014874573949472181,
-      "leftCheekVolume": 0.23440695065879502,
-      "leftCheekBone": 0.16015914996779573,
-      "leftCheekInner": 0.19361493777934136,
-      "leftEarScale": -0.08757082263383258,
-      "leftEarHeight": 0.02541636651161798,
-      "leftEarDepth": 0.37226632129261183,
-      "leftEarLobe": 0.012516224008364616,
-      "leftEarWing": 0.0009980054366104654,
-      "leftEarFlap": 0.0011257219467593763,
-      "leftEyeBagVolume": 0.22897002392733642,
-      "leftEyeBagHeight": 0.3792617345400922,
-      "rightCheekVolume": 0.23440695065879502,
-      "rightCheekBone": 0.16015914996779573,
-      "rightCheekInner": 0.19361493777934136,
-      "rightEarScale": -0.08757082263383258,
-      "rightEarHeight": 0.02541636651161798,
-      "rightEarDepth": 0.37226632129261183,
-      "rightEarLobe": 0.012516224008364616,
-      "rightEarWing": 0.0009980054366104654,
-      "rightEarFlap": 0.0011257219467593763,
-      "rightEyeBagVolume": 0.22897002392733642,
-      "rightEyeBagHeight": 0.3792617345400922,
-      "faceAgeStructure": -0.20810960001525985,
-      "philtrumVolume": 0.7047071071085369,
-      "foreheadProjection": 0.03334420934558633,
-      "browElevation": 0.3722676106469364,
-      "browProjection": -0.014481978642638211,
-      "noseTipElevation": -0.04122792824831587,
-      "noseBaseElevation": -0.2513367594974828,
-      "nostrilAngle": -0.01720793859354936,
-      "mouthElevation": -0.14305453215312694,
-      "leftEyeElevation": -0.346175234209228,
-      "leftEyeLateralPosition": 0.11941031303364463,
-      "leftEyeFoldHeight": 0.8718910004858067,
-      "leftEarRotation": 0.0808993590999164,
-      "rightEyeElevation": -0.346175234209228,
-      "rightEyeLateralPosition": 0.11941031303364463,
-      "rightEyeFoldHeight": 0.8718910004858067,
-      "rightEarRotation": 0.0808993590999164,
-      "globalAgeStructure": 0.026784978741014154,
-      "globalSexualDimorphism": -0.004761466011985804,
-      "globalAdiposity": 0.001168856750584411,
-      "globalMuscularity": 0.0011509613331614106
+      "globalAgeStructure": -0.9166666666666667,
+      "globalSexualDimorphism": 1,
+      "europeanAncestry": 1,
+      "headHeight": -0.14535,
+      "leftEyeLateralPosition": 0.03387,
+      "rightEyeLateralPosition": 0.03387,
+      "leftEyeScale": -0.21935,
+      "rightEyeScale": -0.21935,
+      "leftEyeHeight": -0.84497,
+      "rightEyeHeight": -0.84497,
+      "noseWidth": 0.3232,
+      "noseHeight": 1,
+      "mouthWidth": -0.22203,
+      "upperLipHeight": -0.90465,
+      "lowerLipHeight": -0.27473,
+      "mouthElevation": -0.24174,
+      "cheekFullness": -1,
+      "chinWidth": -1,
+      "chinHeight": -0.51001,
+      "browElevation": -0.07902
     },
     "expression": {
-      "browDownLeft": 0.002543196354146258,
-      "browDownRight": 0.000026166865080082028,
-      "browInnerUp": 0.33824673257476257,
-      "browOuterUpLeft": 0.038211624408021776,
-      "browOuterUpRight": 0.08400479711620817,
-      "cheekPuff": 0.008441265024738959,
-      "cheekSquintLeft": 0.00001722329104392944,
-      "cheekSquintRight": 0.000009627530754212672,
-      "eyeBlinkLeft": 0.15343455742951398,
-      "eyeBlinkRight": 0.1457744366228885,
-      "eyeLookDownLeft": 0.11973414731786511,
-      "eyeLookDownRight": 0.14278313708502027,
-      "eyeLookInLeft": 0.31425731985927,
-      "eyeLookInRight": 0.004343239295714594,
-      "eyeLookOutLeft": 0.009558978083652615,
-      "eyeLookOutRight": 0.3101266865999445,
-      "eyeLookUpLeft": 0.08517346203683084,
-      "eyeLookUpRight": 0.06591785032876647,
-      "eyeSquintLeft": 0.490278886233147,
-      "eyeSquintRight": 0.34443942941564365,
-      "eyeWideLeft": 0.0021403936318400646,
-      "eyeWideRight": 1.3675288490634144e-7,
-      "jawForward": 2.3622525665493558e-7,
-      "jawLeft": 0.0006813596947799745,
-      "jawOpen": 0.05515580840967413,
-      "jawRight": 0.008286397132546275,
-      "mouthDimpleLeft": 0.0030874757043619374,
-      "mouthDimpleRight": 0.007264219130469612,
-      "mouthFrownRight": 0.0376019539277716,
-      "mouthFunnel": 0.0327732269427238,
-      "mouthLeft": 0.00023866144879567438,
-      "mouthLowerDownLeft": 0.000005606798657638099,
-      "mouthLowerDownRight": 0.006937029602779912,
-      "mouthPressLeft": 0.11848879814390108,
-      "mouthPressRight": 0.20144204840916824,
-      "mouthPucker": 0.0010018755850175354,
-      "mouthRight": 0.021199088996448925,
-      "mouthRollLower": 0.020762925234230414,
-      "mouthRollUpper": 0.04430209642525542,
-      "mouthShrugLower": 0.08950177041758088,
-      "mouthShrugUpper": 0.0008644798592038035,
-      "mouthSmileLeft": 0.5697006086770843,
-      "mouthSmileRight": 0.5353416575483924,
-      "mouthStretchLeft": 0.000008292514798618598,
-      "mouthStretchRight": 0.044342679971304415,
-      "mouthUpperUpLeft": 0.002914910354537233,
-      "mouthUpperUpRight": 0.0003931331004746201,
-      "noseSneerLeft": 0.00005438780668384751,
-      "noseSneerRight": 0.000012507108553349988
+      "browInnerUp": 0.6148,
+      "browOuterUpRight": 0.0111,
+      "eyeWideRight": 0.0361,
+      "jawOpen": 0.0008,
+      "mouthLeft": 0.0029,
+      "mouthPucker": 0.0019,
+      "mouthRight": 0.011,
+      "mouthSmileLeft": 0.52229,
+      "mouthSmileRight": 0.52229
     },
     "materials": {
       "skin": {
         "color": {
-          "r": 0.62,
-          "g": 0.36,
-          "b": 0.26
+          "r": 0.4225,
+          "g": 0.234,
+          "b": 0.1798
         },
         "roughness": 0.76
       },
       "lips": {
         "color": {
-          "r": 0.45,
-          "g": 0.21,
-          "b": 0.2
+          "r": 0.3125,
+          "g": 0.0736,
+          "b": 0.0777
         },
         "roughness": 0.57
+      },
+      "Human.eyebrow001": {
+        "pigment": [
+          0.1515,
+          0.07143,
+          0.04015
+        ]
       }
     },
     "hair": {
@@ -4154,12 +3095,12 @@
             "back": 2.1
           },
           "lengthAxes": [
-            0.065,
-            0.065,
+            0.013,
+            0.013,
             0.11,
-            0.045,
+            0.009,
             0.09,
-            0.085
+            0.017
           ],
           "lengthVariation": 0.08,
           "samplingStep": 0.003,
@@ -4185,9 +3126,9 @@
           },
           "finish": {
             "color": [
-              0.16,
-              0.06,
-              0.017
+              0.08081,
+              0.02739,
+              0.00749
             ],
             "roughness": 0.73,
             "fibres": 24,
@@ -4229,159 +3170,98 @@
           }
         }
       ]
+    },
+    "iris": {
+      "left": {
+        "base": [
+          0.02349,
+          0.02253,
+          0.01712
+        ],
+        "variation": [
+          0.13287,
+          0.12744,
+          0.09685
+        ]
+      },
+      "right": {
+        "base": [
+          0.02349,
+          0.02253,
+          0.01712
+        ],
+        "variation": [
+          0.13287,
+          0.12744,
+          0.09685
+        ]
+      }
     }
   },
   {
     "id": "yoo-seung-ho-connected",
     "name": "yoo-seung-ho (connected study)",
-    "basis": "mpfb-connected-head-2026-09-23-ocular-contact",
+    "basis": "mpfb-connected-head-2026-09-25-gingiva",
     "shape": {
-      "headWidth": -0.04682910582488017,
-      "headHeight": 0.023046590402676176,
-      "headDepth": -0.00941785064651683,
-      "cheekFullness": -0.437282678785919,
-      "chinWidth": -0.06212074965083247,
-      "chinHeight": 0.021579324824316765,
-      "chinProjection": 0.27249687030016245,
-      "noseWidth": -0.1341667232912523,
-      "noseHeight": -0.05230840552090478,
-      "noseDepth": 0.30513978423522015,
-      "mouthWidth": -0.31369187992003306,
-      "mouthHeight": -0.047211209709302975,
-      "upperLipHeight": -0.38824082254169545,
-      "lowerLipHeight": 0.29814084957920517,
-      "upperLipVolume": -0.001121687247562588,
-      "lowerLipVolume": 0.0035865308624583574,
-      "upperLipWidth": 0.026004710176258845,
-      "lowerLipWidth": -0.07718488338626975,
-      "mouthDepth": 0.32246628463757765,
-      "noseUpperWidth": 0.5531122797179048,
-      "noseMiddleWidth": 0.2695062793583463,
-      "noseLowerWidth": 0.08907984147174113,
-      "nostrilWidth": 0.054292024411352786,
-      "noseFlaring": -0.0759880002358561,
-      "leftEyeScale": -0.03964859233190021,
-      "rightEyeScale": -0.03964859233190021,
-      "leftEyeHeight": 0.6731044370917074,
-      "rightEyeHeight": 0.6731044370917074,
-      "posteriorHeadDepth": -1.208404643882225e-7,
-      "templeWidth": -0.14086242750607372,
-      "chinBoneWidth": -0.22706194219650477,
-      "jawPrognathism": 0.073387829083669,
-      "jawRestHeight": -0.41088361935323986,
-      "noseTipWidth": 0.010139131169053116,
-      "noseBridgeHump": 0.2871919241157138,
-      "noseSeptumAngle": 0.26643557983774857,
-      "neckWidth": -0.011546968798277827,
-      "neckDepth": -0.011767825814253587,
-      "neckUnderChinFullness": -0.0007466758925352977,
-      "leftCheekVolume": -0.0670944044556645,
-      "leftCheekBone": 0.15812094214264025,
-      "leftCheekInner": 0.18611779364113137,
-      "leftEarScale": -0.09600716804913277,
-      "leftEarHeight": -0.11350194443161811,
-      "leftEarDepth": 0.22047862232576734,
-      "leftEarLobe": 0.006237742911085464,
-      "leftEarWing": 0.000016902990998015025,
-      "leftEyeBagVolume": -0.74588551973022,
-      "leftEyeBagHeight": 0.2510087292355326,
-      "rightCheekVolume": -0.0670944044556645,
-      "rightCheekBone": 0.15812094214264025,
-      "rightCheekInner": 0.18611779364113137,
-      "rightEarScale": -0.09600716804913277,
-      "rightEarHeight": -0.11350194443161811,
-      "rightEarDepth": 0.22047862232576734,
-      "rightEarLobe": 0.006237742911085464,
-      "rightEarWing": 0.000016902990998015025,
-      "rightEyeBagVolume": -0.74588551973022,
-      "rightEyeBagHeight": 0.2510087292355326,
-      "faceAgeStructure": -0.38412576468548787,
-      "philtrumVolume": -0.21291448659752607,
-      "foreheadProjection": -0.006179866226528385,
-      "browElevation": 0.000955836175402414,
-      "browProjection": -0.04223608956143138,
-      "noseTipElevation": -0.044486794530411045,
-      "noseBaseElevation": -0.0932748873041937,
-      "nostrilAngle": 0.0035400964949884495,
-      "mouthElevation": -0.17721965888641023,
-      "leftEyeElevation": -0.2763280560748238,
-      "leftEyeLateralPosition": 0.15230333626888806,
-      "leftEyeFoldHeight": 0.504392255991844,
-      "leftEarRotation": -0.008462165791684647,
-      "rightEyeElevation": -0.2763280560748238,
-      "rightEyeLateralPosition": 0.15230333626888806,
-      "rightEyeFoldHeight": 0.504392255991844,
-      "rightEarRotation": -0.008462165791684647,
-      "globalAgeStructure": -0.028044196900363173,
-      "globalSexualDimorphism": -0.03090425138691108,
-      "globalMuscularity": -0.18735863929889693
+      "globalAgeStructure": -0.25,
+      "globalSexualDimorphism": 1,
+      "asianAncestry": 1,
+      "headHeight": -0.07098,
+      "leftEyeLateralPosition": 0.17705,
+      "rightEyeLateralPosition": 0.17705,
+      "leftEyeScale": 0.44676,
+      "rightEyeScale": 0.44676,
+      "leftEyeHeight": -0.5037,
+      "rightEyeHeight": -0.5037,
+      "noseWidth": 0.25888,
+      "noseHeight": -0.03392,
+      "mouthWidth": -0.02498,
+      "upperLipHeight": -0.3843,
+      "lowerLipHeight": -0.08219,
+      "mouthElevation": 0.43475,
+      "cheekFullness": -1,
+      "chinWidth": -0.62557,
+      "chinHeight": -1,
+      "browElevation": 0.06107
     },
     "expression": {
-      "browDownLeft": 0.0018730226975777597,
-      "browDownRight": 0.00046586962891146164,
-      "browInnerUp": 0.10071779763459772,
-      "browOuterUpLeft": 0.10443810060716309,
-      "browOuterUpRight": 0.12126640095986382,
-      "cheekPuff": 0.009375826215479218,
-      "cheekSquintRight": 0.0025650131198582766,
-      "eyeBlinkLeft": 0.213436142886305,
-      "eyeBlinkRight": 0.17666894561488808,
-      "eyeLookDownLeft": 0.06342521193130793,
-      "eyeLookDownRight": 0.05757678859827174,
-      "eyeLookInLeft": 0.11030307864022593,
-      "eyeLookInRight": 0.040142232973400555,
-      "eyeLookOutLeft": 0.031977172995898674,
-      "eyeLookOutRight": 0.10392813426074668,
-      "eyeLookUpLeft": 0.184183703462878,
-      "eyeLookUpRight": 0.19651172525601673,
-      "eyeSquintLeft": 0.47318515315157433,
-      "eyeSquintRight": 0.5418083108536982,
-      "eyeWideLeft": 0.0026243147419450904,
-      "eyeWideRight": 0.0007262651220078105,
-      "jawForward": 0.000016159383373218532,
-      "jawLeft": 0.004208191947021009,
-      "jawOpen": 0.07757132282742876,
-      "jawRight": 0.000011257945773988113,
-      "mouthClose": 0.0059271485469147315,
-      "mouthDimpleLeft": 0.041515140220800294,
-      "mouthDimpleRight": 0.009743520872699292,
-      "mouthFrownLeft": 0.00013161114379794687,
-      "mouthFrownRight": 0.00000695284490567726,
-      "mouthFunnel": 0.03411325122508596,
-      "mouthLeft": 0.04553181964979957,
-      "mouthLowerDownLeft": 0.016484279582796506,
-      "mouthLowerDownRight": 0.030553536652449132,
-      "mouthPressLeft": 0.04314628099437551,
-      "mouthPressRight": 0.02995905109370565,
-      "mouthPucker": 0.02932746529745486,
-      "mouthRight": 0.0003929644797763977,
-      "mouthRollLower": 0.00031112890912851914,
-      "mouthRollUpper": 0.010490647745013303,
-      "mouthShrugUpper": 0.015231100422018983,
-      "mouthSmileLeft": 0.4082425695413756,
-      "mouthSmileRight": 0.29704032979677547,
-      "mouthStretchLeft": 0.0008966249638094385,
-      "mouthStretchRight": 0.02050724397861692,
-      "mouthUpperUpLeft": 0.030709770340663335,
-      "mouthUpperUpRight": 0.017121199995259566,
-      "noseSneerRight": 1.0401772827931977e-7
+      "eyeBlinkLeft": 0.2665,
+      "eyeBlinkRight": 0.1242,
+      "eyeLookOutLeft": 0.0045,
+      "jawOpen": 0.0466,
+      "mouthLeft": 0.4484,
+      "mouthPucker": 0.019,
+      "mouthSmileLeft": 0.27927,
+      "mouthSmileRight": 0.27927,
+      "mouthStretchRight": 0.0108,
+      "mouthUpperUpLeft": 0.55332,
+      "mouthUpperUpRight": 0.55332,
+      "mouthLowerDownLeft": 0.46706,
+      "mouthLowerDownRight": 0.46706
     },
     "materials": {
       "skin": {
         "color": {
-          "r": 0.51,
-          "g": 0.29,
-          "b": 0.21
+          "r": 0.4206,
+          "g": 0.2393,
+          "b": 0.1743
         },
         "roughness": 0.76
       },
       "lips": {
         "color": {
-          "r": 0.41,
-          "g": 0.17,
-          "b": 0.18
+          "r": 0.2399,
+          "g": 0.0862,
+          "b": 0.08
         },
         "roughness": 0.57
+      },
+      "Human.eyebrow001": {
+        "pigment": [
+          0.01516,
+          0.01221,
+          0.01266
+        ]
       }
     },
     "hair": {
@@ -4399,12 +3279,12 @@
             "back": 2.1
           },
           "lengthAxes": [
-            0.045,
-            0.045,
+            0.0211,
+            0.0211,
             0.095,
-            0.025,
-            0.085,
-            0.055
+            0.0117,
+            0.1099,
+            0.0258
           ],
           "lengthVariation": 0.08,
           "samplingStep": 0.003,
@@ -4430,9 +3310,9 @@
           },
           "finish": {
             "color": [
-              0.025,
-              0.018,
-              0.013
+              0.02943,
+              0.02566,
+              0.02537
             ],
             "roughness": 0.73,
             "fibres": 24,
@@ -4486,12 +3366,12 @@
             "back": 2.1
           },
           "lengthAxes": [
+            0.0328,
+            0.0328,
             0.07,
-            0.07,
-            0.07,
-            0.07,
-            0.07,
-            0.07
+            0.0328,
+            0.0905,
+            0.0328
           ],
           "lengthVariation": 0.08,
           "samplingStep": 0.003,
@@ -4517,9 +3397,9 @@
           },
           "finish": {
             "color": [
-              0.025,
-              0.018,
-              0.013
+              0.02058,
+              0.01794,
+              0.01774
             ],
             "roughness": 0.73,
             "fibres": 24,
@@ -4545,145 +3425,42 @@
           }
         }
       ]
+    },
+    "iris": {
+      "left": {
+        "base": [
+          0.00755,
+          0.00378,
+          0.00537
+        ],
+        "variation": [
+          0.04271,
+          0.0214,
+          0.03037
+        ]
+      },
+      "right": {
+        "base": [
+          0.00755,
+          0.00378,
+          0.00537
+        ],
+        "variation": [
+          0.04271,
+          0.0214,
+          0.03037
+        ]
+      }
     }
   },
   {
     "id": "kdy1-connected",
     "name": "kdy1 (connected study)",
-    "basis": "mpfb-connected-head-2026-09-23-ocular-contact",
+    "basis": "mpfb-connected-head-2026-09-25-gingiva",
     "shape": {
-      "headWidth": -0.1663319127017783,
-      "headHeight": 0.05669548953187567,
-      "headDepth": -0.005647107127453206,
-      "cheekFullness": 0.13685887439087632,
-      "chinWidth": -0.3073056194116098,
-      "chinHeight": -0.26134937460702645,
-      "chinProjection": 0.500075990284848,
-      "noseWidth": -0.2614803445741299,
-      "noseHeight": 0.27246841818841583,
-      "noseDepth": 0.28405081391677334,
-      "mouthWidth": -0.5691161408849632,
-      "mouthHeight": -0.8186627838801525,
-      "upperLipHeight": -0.8872810975426579,
-      "lowerLipHeight": -0.3934998268629292,
-      "upperLipVolume": -0.47908072568273097,
-      "lowerLipVolume": -0.6393892915620478,
-      "upperLipWidth": -0.2763664052492778,
-      "lowerLipWidth": -0.25439138912872533,
-      "mouthDepth": 0.23587285694027724,
-      "noseUpperWidth": 0.2946598938142161,
-      "noseMiddleWidth": 0.5249783274695381,
-      "noseLowerWidth": -0.16995131930420437,
-      "nostrilWidth": -0.13900289316646047,
-      "noseFlaring": -0.15379750558879438,
-      "leftEyeScale": -0.24501786137145187,
-      "rightEyeScale": -0.24501786137145187,
-      "leftEyeHeight": 0.9876258562251305,
-      "rightEyeHeight": 0.9876258562251305,
-      "posteriorHeadDepth": 0.0000016050410884365015,
-      "foreheadHeight": 0.000003336779246113442,
-      "templeWidth": 0.2950584477174828,
-      "chinBoneWidth": -0.008633937648411543,
-      "jawPrognathism": 0.04699511418467717,
-      "jawRestHeight": -0.6096101540159802,
-      "noseTipWidth": -0.008549328772470754,
-      "noseBridgeHump": -0.34810217019188,
-      "noseSeptumAngle": 0.013330070852952937,
-      "neckWidth": 0.061197914275848135,
-      "neckDepth": 0.09606956569374166,
-      "neckUnderChinFullness": -0.0010152755388472157,
-      "leftCheekVolume": 0.01193000607343689,
-      "leftCheekBone": 0.1637609760375289,
-      "leftCheekInner": 0.1870910073584822,
-      "leftEarScale": -0.19010426019780066,
-      "leftEarHeight": 0.4613553819020442,
-      "leftEarDepth": 0.03941849550485748,
-      "leftEarLobe": -0.0038972776295718814,
-      "leftEarWing": 0.0002122169815395827,
-      "leftEarFlap": 0.000004857682405844711,
-      "leftEyeBagVolume": 0.14763223278922868,
-      "leftEyeBagHeight": 0.5914371514762663,
-      "rightCheekVolume": 0.01193000607343689,
-      "rightCheekBone": 0.1637609760375289,
-      "rightCheekInner": 0.1870910073584822,
-      "rightEarScale": -0.19010426019780066,
-      "rightEarHeight": 0.4613553819020442,
-      "rightEarDepth": 0.03941849550485748,
-      "rightEarLobe": -0.0038972776295718814,
-      "rightEarWing": 0.0002122169815395827,
-      "rightEarFlap": 0.000004857682405844711,
-      "rightEyeBagVolume": 0.14763223278922868,
-      "rightEyeBagHeight": 0.5914371514762663,
-      "faceAgeStructure": -0.06546215831161159,
-      "philtrumVolume": 0.8234075509115703,
-      "foreheadProjection": -0.028889285546645972,
-      "browElevation": 0.17710909720558493,
-      "browProjection": 0.6017690381282483,
-      "noseTipElevation": 0.03998865143535696,
-      "noseBaseElevation": -0.23932160861722054,
-      "nostrilAngle": -0.047637682534485574,
-      "mouthElevation": -0.14324906337360954,
-      "leftEyeElevation": -0.7780106185727833,
-      "leftEyeLateralPosition": -0.3174461778103115,
-      "leftEyeFoldHeight": 0.9946596129431043,
-      "leftEarRotation": -0.028764932101446542,
-      "rightEyeElevation": -0.7780106185727833,
-      "rightEyeLateralPosition": -0.3174461778103115,
-      "rightEyeFoldHeight": 0.9946596129431043,
-      "rightEarRotation": -0.028764932101446542,
-      "globalAgeStructure": 0.03813657280686074,
-      "globalSexualDimorphism": -0.04218187044857757,
-      "globalAdiposity": 0.000005610045706690419,
-      "globalMuscularity": 0.000005281187146608818
+      "asianAncestry": 1
     },
-    "expression": {
-      "browDownLeft": 0.0000033759014463497514,
-      "browInnerUp": 0.5031444967481251,
-      "browOuterUpLeft": 0.38019596692481955,
-      "browOuterUpRight": 0.23026523861764028,
-      "cheekPuff": 0.004634075218196329,
-      "eyeBlinkLeft": 0.15136294469493816,
-      "eyeBlinkRight": 0.16571536621092148,
-      "eyeLookDownLeft": 0.23517415180007586,
-      "eyeLookDownRight": 0.28219857205838067,
-      "eyeLookInLeft": 0.26994157481058806,
-      "eyeLookInRight": 0.03944293166801042,
-      "eyeLookOutLeft": 0.010840212583537902,
-      "eyeLookOutRight": 0.1843343340318229,
-      "eyeLookUpLeft": 0.04243196018216496,
-      "eyeLookUpRight": 0.0111892003524607,
-      "eyeSquintLeft": 0.2752406248141696,
-      "eyeSquintRight": 0.2574659757963769,
-      "eyeWideLeft": 0.008031683104230063,
-      "eyeWideRight": 0.0020945654952025036,
-      "jawForward": 4.7495755701711556e-7,
-      "jawLeft": 0.0002153181458749694,
-      "jawOpen": 0.0033308415347606795,
-      "jawRight": 0.009061002927077117,
-      "mouthClose": 0.012932121747044776,
-      "mouthDimpleLeft": 0.003567585751560783,
-      "mouthDimpleRight": 0.0008563878955537489,
-      "mouthFrownLeft": 0.0005618433691279838,
-      "mouthFrownRight": 0.03701957826900343,
-      "mouthFunnel": 0.04504243093840615,
-      "mouthLeft": 0.006887330196356589,
-      "mouthLowerDownRight": 0.015244047337269952,
-      "mouthPressLeft": 0.03636085746239869,
-      "mouthPressRight": 0.03819363770758205,
-      "mouthPucker": 0.029444750125900497,
-      "mouthRight": 0.022134465243460587,
-      "mouthRollLower": 0.31596090623640005,
-      "mouthRollUpper": 0.1868748644041858,
-      "mouthShrugLower": 0.17602578136053953,
-      "mouthShrugUpper": 0.00039863904713718343,
-      "mouthSmileLeft": 0.02142487128986845,
-      "mouthSmileRight": 0.0001810886523398585,
-      "mouthStretchLeft": 0.0000028848891585037465,
-      "mouthStretchRight": 0.03051852174584598,
-      "mouthUpperUpLeft": 0.0009224295674974166,
-      "mouthUpperUpRight": 0.00007641862650435841,
-      "noseSneerLeft": 0.000040436661577653273
-    },
+    "expression": {},
     "hair": {
       "layers": [
         {
@@ -4774,6 +3551,15 @@
           }
         }
       ]
+    },
+    "materials": {
+      "skin": {
+        "color": {
+          "r": 0.4504,
+          "g": 0.2673,
+          "b": 0.1991
+        }
+      }
     }
   }
 ]

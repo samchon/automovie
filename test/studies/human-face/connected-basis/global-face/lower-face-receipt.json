@@ -1,0 +1,55 @@
+{
+  "source": "mpfb-connected-head-2026-09-24-brow-rest",
+  "revision": "mpfb-connected-head-2026-09-24-lower-face",
+  "factor": 0.574125473353852,
+  "corners": [
+    {
+      "label": "North American White men",
+      "targetMetres": 0.0726,
+      "beforeMetres": 0.05925,
+      "afterMetres": 0.07100000000000001
+    },
+    {
+      "label": "North American White women",
+      "targetMetres": 0.0643,
+      "beforeMetres": 0.05870264826613679,
+      "afterMetres": 0.0675
+    },
+    {
+      "label": "African-American men",
+      "targetMetres": 0.0789,
+      "beforeMetres": 0.06075,
+      "afterMetres": 0.07250000000000001
+    },
+    {
+      "label": "African-American women",
+      "targetMetres": 0.0715,
+      "beforeMetres": 0.06178961668549682,
+      "afterMetres": 0.06725
+    }
+  ],
+  "recorded": "2026-09-24T02:12:29.364Z",
+  "citations": {
+    "norms": "Farkas LG, Katic MJ, Forrest CR. Comparison of craniofacial measurements of young adult African-American and North American white males and females. Ann Plast Surg 2007;59(6):692-698, as tabulated in PMC6384287 Tables 2 and 3: sn-me 72.6 (4.5) and 64.3 (4.0) mm NAW men and women (n 109, 200), 78.9 (6.7) and 71.5 (5.2) mm AA men and women (n 50 each); sn-sto 22.3, 20.1, 26.1, 24.5 mm."
+  },
+  "inputs": {
+    "basis": {
+      "sha256": "94c45540d49a2fbe73f127f8d18e5e41c022800552a708718848302f50962dd4",
+      "bytes": 25849816
+    },
+    "subjects": {
+      "sha256": "c79bf783333c46570cfeab6dd929fa5654b5b42ef4491b1a190bd5d06fd7bc35",
+      "bytes": 165912
+    },
+    "controls": {
+      "sha256": "e669714ad7b3e8dc095c31fca951c63239349658e6eb77af9c447afe1780aed7",
+      "bytes": 7448
+    }
+  },
+  "outputs": {
+    "basis": {
+      "sha256": "29e2ede1fcaaae9b637acf77e37cbdb0dd9346242c41be4562ae47b87487bdb5",
+      "bytes": 25850738
+    }
+  }
+}

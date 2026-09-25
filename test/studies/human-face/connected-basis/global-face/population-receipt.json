@@ -1,0 +1,42 @@
+{
+  "source": {
+    "basis": "mpfb-connected-head-2026-09-23-appearance",
+    "mpfbCommit": "817587ceb2ea03ea17a5b47e04396cbb4ddfa2d5",
+    "systemAssets": "makehuman_system_assets_cc0.zip, 280737770 bytes (system-assets-receipt.json)",
+    "sampling": "extract-face-population.py: race {equal mixture, african, asian, caucasian} x gender {0, 0.5, 1} x age {0.25, 0.5, 1}; muscle and weight 0.5"
+  },
+  "revision": "mpfb-connected-head-2026-09-24-population",
+  "channels": [
+    "africanAncestry",
+    "asianAncestry",
+    "europeanAncestry"
+  ],
+  "correctives": 28,
+  "rowVertices": 728655,
+  "recorded": "2026-09-23T18:32:52.690Z",
+  "model": "MPFB TargetService.calculate_target_stack_from_macro_info_dict: race-gender-age and universal-gender-age-muscle-weight targets weighted by products of their components, which is multilinear in the ancestry shares and in each side of the dimorphism and age channels.",
+  "inputs": {
+    "basis": {
+      "sha256": "48efc3894f96bb38bb55842ecf5154d2e0326573efcb78aa78b30a9f6019c847",
+      "bytes": 19715791
+    },
+    "subjects": {
+      "sha256": "36248e6dca486bccf197cc06899fabc38229c83a4c031916c07b400ab2eadfe7",
+      "bytes": 165930
+    },
+    "controls": {
+      "sha256": "7483026c31a72c82a7c12a40aef807ac3fd3604dc71773cd178f017d5d5b3b10",
+      "bytes": 6345
+    },
+    "rows": {
+      "sha256": "1fb7fce2edf3fe2b887f5f72c8c9234202e5d82dfe981013087e509acff7d1d2",
+      "bytes": 6231451
+    }
+  },
+  "outputs": {
+    "basis": {
+      "sha256": "5486e8c9e14b05f4614ef45550700e78b5d9684057b5c61ffa4fc5a8a4ae5190",
+      "bytes": 25849780
+    }
+  }
+}

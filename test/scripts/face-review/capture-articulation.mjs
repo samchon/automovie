@@ -11,7 +11,8 @@
  * visible numerical-hair parts as white over black, preserving their fibre
  * alpha and the other parts' depth occlusion for photo-silhouette comparisons.
  * An optional pose file maps model IDs to estimated {yaw,pitch} angles and
- * optional fixed camera distance/target for a whole-hair frame;
+ * optional fixed camera distance/target for a whole-hair frame and vertical
+ * field of view (degrees, 28 when omitted);
  * `reference-yaw` and `reference-yaw-hair-mask` use that same per-model camera.
  * This runner records an estimate, not recovered physical intrinsics.
  * A JSON file without model parts and materials is skipped. Views include front,
@@ -36,6 +37,7 @@ const VIEWS = {
   front: { yaw: 0, pitch: 0 },
   "front-hair-mask": { yaw: 0, pitch: 0, hairMask: true },
   "left-quarter": { yaw: 45, pitch: 0 },
+  "front-high": { yaw: 0, pitch: 20 },
   "right-quarter": { yaw: -45, pitch: 0 },
   left: { yaw: 90, pitch: 0 },
   right: { yaw: -90, pitch: 0 },
@@ -110,6 +112,7 @@ for (const file of fs
         yaw: options.yaw,
         pitch: options.pitch,
         distance: options.distance ?? 0.62,
+        fov: options.fov ?? 28,
         target: options.target ?? [0, 0, 0.06],
       },
     });
