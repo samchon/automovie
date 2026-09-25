@@ -38,11 +38,11 @@ part와 표면은 `lining`(안감), `surround`(양면 테)이며 두 표면을 �
 @evidence principles/core/common.md#declared-basis 변형 치수는 openings.md#doors의 door-entry 1.8×2.5m·door-sanctuary 1.4×2.5m, 열림 판정 1.4m는 10-building#use-profile, 관절은 scale.md#articulation-map에서 온다고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 어두운 목재 양개문이라는 설정을 테두리 판문 구조와 짝마다 hinge node를 가진 모델 결정으로 바꾼다.
 @evidence principles/design/models.md#representation-contract frame·panel·plate·pin·ring·hinge part로 목재와 철물의 각 독립 표면을 구별하고 손잡이·경첩을 짝 node의 자식으로 둔다.
-@evidence principles/design/models.md#spatial-convention 짝 원점을 경첩 축 바닥 점, 축을 문틀 안감 안쪽 모서리 선 위 여는 쪽 벽면 0.05m 안쪽에 두고 닫힌 자세의 X·Z 범위를 적는다.
+@evidence principles/design/models.md#spatial-convention 짝 원점을 경첩 쪽 판 모서리 바닥 점, hinge 축을 X=+0.021·Z=0에 두고 여는 쪽 벽면 0.05m 안쪽에 설치하며 닫힌 자세의 X·Z 범위를 적는다.
 @evidence principles/design/models.md#reviewable-structure 닫힘·열림 두 상태의 정면·평면과 건물 안에서 열린 짝이 90°에 멈추고 정문 유효폭 1.4m 이상을 남기는지를 본다.
 @evidence principles/design/models.md#model-observable-style-basis 이미지 01의 정문 양개문과 이미지 04의 판과 테두리를 근거로 하고 판 하나로 된 문을 실패로 둔다.
 @evidence principles/design/models.md#model-scale-layer-completion 두 변형 치수·관절 범위·기본 open 상태·열린 폭 판정이 함께 정해져 관절 모델 층이 완결된다.
-@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work door-entry·door-sanctuary의 유효 치수와 room-double 스윙, use-profile의 열린 정문 1.4m를 짝 폭 0.9/0.7m에 대조했고 90° 열린 두 짝의 두께와 손잡이 돌출을 빼도 정문에 산술상 약 1.64m가 남아 부모를 고치지 않았다.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work door-entry·door-sanctuary의 유효 치수와 room-double 스윙, use-profile의 열린 정문 1.4m를 짝 폭 0.9/0.7m에 대조했고 90° 열린 두 짝의 두께와 손잡이 돌출을 빼도 정문에 산술상 약 1.62m가 남아 부모를 고치지 않았다.
 @evidence settings/20-envelope.md#openings 어두운 목재 양개 정문과 제실 문이라는 설정을 양개 문짝 두 변형으로 받는다.
 @evidence spaces/openings.md#doors door-entry 1.8×2.5m와 door-sanctuary 1.4×2.5m, room-double 스윙을 두 변형 치수와 여는 방향으로 소비한다.
 @evidence settings/10-building.md#use-profile 열린 정문 1.4m 통과 조건을 열린 짝이 남길 유효폭 판정으로 쓴다.
@@ -52,7 +52,7 @@ part와 표면은 `lining`(안감), `surround`(양면 테)이며 두 표면을 �
 
 [개구부와 문짝](../settings/20-envelope.md#openings)의 어두운 목재 양개 정문과 제실 문이다. 이미지 01의 정문 양개문과 이미지 04의 판과 테두리가 근거다. 판정된 `door-entry`(유효 1.8×2.5m)와 `door-sanctuary`(1.4×2.5m)의 두 변형만 만들며 한 짝의 폭은 유효 폭의 절반이다.
 
-각 짝의 로컬 원점은 경첩 축의 바닥 점이다. 축은 연직이며 문틀 안감의 안쪽 모서리 선 위, 여는 쪽 벽면에서 0.05m 안쪽에 있다. 닫힌 자세에서 판은 로컬 X 0~(유효 폭/2), Z −0.05~0 범위를 차지하고 바닥에서 0.01m 띄워 높이는 유효 높이−0.01m다. 판은 두께 0.05m이며 선대 폭 0.10m, 윗 가로대 0.10m, 가운데 가로대 0.10m(아랫면 높이 1.00m), 아래 가로대 0.16m로 테두리를 짜고 그 사이 두 판은 양면에서 0.015m 들어가 두께 0.02m다. 맞닿는 선대 쪽 높이 1.05m에 청동 고리 손잡이(바깥 반지름 0.06m, 관 반지름 0.006m)와 받침판(반지름 0.06m, 두께 0.006m, 둘레 16분할 원판)이 양면에 있고, 경첩 쪽 모서리 위·아래에 핀 경첩(반지름 0.02m, 높이 0.10m 원통) 두 개가 있다. 손잡이와 받침판 중심은 각 짝의 X=(유효 폭/2)−0.15m·Y=1.05m이고 받침판은 문 중앙 가로대의 면 Z=0~+0.006m/−0.056~−0.05m에서 판문과 면 접촉한다. 받침판의 반지름 0.06m 원판 중 Y=1.00~1.10m 띠는 가로대 위에 직접 붙고 윗 0.01m 부분만 가로대 위쪽으로 나온다. 고리 중심면은 Z=+0.015m/−0.065m다. 고리는 로컬 XY 평면 원환(주환 16분할·관 8분할)이며 중심선 반지름 0.054m다. 반지름 0.006m의 연결 핀 두 개는 둘레 12분할 원통으로 각 받침판 바깥면의 (X,Y)=(손잡이 중심 X,1.104m)에서 해당 면 법선 방향으로 길이 0.009m 뻗어 고리 맨 위 관의 중심선과 겹친다. 핀 축의 받침판 중심으로부터 거리 0.054m에 핀 반지름 0.006m를 더해도 받침판 반지름 0.06m 안이며 접촉 원판 넓이는 양수다. 앞핀은 Z=+0.006~+0.015m, 뒷핀은 Z=−0.056~−0.065m이므로 고리와 받침판 모두에 실체 접촉하고 그 조립은 가로대를 통해 문에 붙는다. 두 경첩 원통 중심은 X=0·Z=−0.025m, Y=0.25m와 (유효 높이−0.25m)이며 둘레 12분할이다. 철물까지 포함한 닫힌 한 짝의 점유 범위는 X=−0.02~(유효 폭/2)m, Y=0.01~유효 높이 m, Z=−0.071~+0.021m다.
+각 짝의 로컬 원점은 판의 경첩 쪽 아래 모서리다. `hinge.<짝 ID>`의 연직 회전축은 이 원점에서 X=+0.021m·Z=0m이며 문틀 안감 안쪽 끝 X=0에서 통과 영역 쪽으로 0.02m 물러난다. 설치 때 여는 쪽 벽면에서 0.05m 안쪽의 판 Z=0면을 기준으로 하고, room-double 스윙 방향으로 로컬 축을 향하게 한다. 닫힌 자세에서 판은 로컬 X 0~(유효 폭/2), Z −0.05~0 범위를 차지하고 바닥에서 0.01m 띄워 높이는 유효 높이−0.01m다. 판은 두께 0.05m이며 선대 폭 0.10m, 윗 가로대 0.10m, 가운데 가로대 0.10m(아랫면 높이 1.00m), 아래 가로대 0.16m로 테두리를 짜고 그 사이 두 판은 양면에서 0.015m 들어가 두께 0.02m다. 맞닿는 선대 쪽 높이 1.05m에 청동 고리 손잡이(바깥 반지름 0.06m, 관 반지름 0.006m)와 받침판(반지름 0.06m, 두께 0.006m, 둘레 16분할 원판)이 양면에 있고, 경첩 쪽 모서리 위·아래에 핀 경첩(반지름 0.02m, 높이 0.10m 원통) 두 개가 있다. 손잡이와 받침판 중심은 각 짝의 X=(유효 폭/2)−0.15m·Y=1.05m이고 받침판은 문 중앙 가로대의 면 Z=0~+0.006m/−0.056~−0.05m에서 판문과 면 접촉한다. 받침판의 반지름 0.06m 원판 중 Y=1.00~1.10m 띠는 가로대 위에 직접 붙고 윗 0.01m 부분만 가로대 위쪽으로 나온다. 고리 중심면은 Z=+0.015m/−0.065m다. 고리는 로컬 XY 평면 원환(주환 16분할·관 8분할)이며 중심선 반지름 0.054m다. 반지름 0.006m의 연결 핀 두 개는 둘레 12분할 원통으로 각 받침판 바깥면의 (X,Y)=(손잡이 중심 X,1.104m)에서 해당 면 법선 방향으로 길이 0.009m 뻗어 고리 맨 위 관의 중심선과 겹친다. 핀 축의 받침판 중심으로부터 거리 0.054m에 핀 반지름 0.006m를 더해도 받침판 반지름 0.06m 안이며 접촉 원판 넓이는 양수다. 앞핀은 Z=+0.006~+0.015m, 뒷핀은 Z=−0.056~−0.065m이므로 고리와 받침판 모두에 실체 접촉하고 그 조립은 가로대를 통해 문에 붙는다. 두 경첩 원통 중심은 회전축과 같은 X=+0.021m·Z=0m, Y=0.25m와 (유효 높이−0.25m)이며 둘레 12분할이다. 철물까지 포함한 닫힌 한 짝의 점유 범위는 X=0~(유효 폭/2)m, Y=0.01~유효 높이 m, Z=−0.071~+0.021m다.
 
 관절 인터페이스는 [공통 관절 규칙](scale.md#articulation-map)의 `hinge.<짝 ID>`이며 범위 0°~90°, 기본 `open` 90°, 여는 방향은 spaces의 스윙 예약이다. 손잡이·경첩은 짝 node의 자식이다. part와 표면은 `frame`(선대·가로대), `panel`, `plate`, `pin`, `ring`, `hinge`로 나눠 목재와 금속의 각 표면을 구별한다.
 
@@ -66,11 +66,11 @@ part와 표면은 `lining`(안감), `surround`(양면 테)이며 두 표면을 �
 @evidence principles/core/common.md#declared-basis 변형 치수와 여는 방향은 openings.md#doors의 여섯 문과 스윙, 열린 폭 0.9m 판정은 10-building#use-profile, 관절 규칙은 scale.md#articulation-map에서 온다고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 서비스·업무 문의 단순한 판문이라는 설정을 한 면에만 띠와 쇠 띠가 있는 비대칭 판과 hinge node라는 모델 결정으로 바꾼다.
 @evidence principles/design/models.md#representation-contract board·batten·strap·pin·ring part로 목재와 금속 표면을 나누고 여는 쪽 면과 반대면의 형상 차이를 정한다.
-@evidence principles/design/models.md#spatial-convention 원점을 경첩 축 바닥 점으로 두고 축과 닫힌 자세 규칙을 양개 문짝과 같게 하며 짝 폭 = 유효 폭, 높이 = 유효 높이−0.01m로 정한다.
+@evidence principles/design/models.md#spatial-convention 원점을 경첩 쪽 판 모서리 바닥 점으로 두고 외개 hinge 축은 쇠 띠 앞면 Z=+0.031m, 닫힌 짝 폭 = 유효 폭·높이 = 유효 높이−0.01m로 정한다.
 @evidence principles/design/models.md#reviewable-structure 두 상태와 두 면에서 띠가 한 면에만 있는지, 이음 홈이 반대면에서 읽히는지, 열린 짝이 스윙 예약 안에 머무는지를 본다.
 @evidence principles/design/models.md#model-observable-style-basis 이미지 01의 서비스 문과 이미지 05의 업무방 문처럼 세로 널을 가로 띠로 묶은 판문을 근거로 하고 양개문과 구별되지 않는 판을 실패로 둔다.
 @evidence principles/design/models.md#model-scale-layer-completion 세 치수 변형·경첩 쪽·여는 방향·열린 폭 판정이 함께 정해져 외개 문 층이 완결된다.
-@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 여섯 문의 유효 치수(1.2×2.3, 1.0×2.2, 1.1×2.2m)와 북·남 스윙 예약, use-profile의 방 문 0.9m를 짝 폭에 대조했고 가장 좁은 1.0m 문에서도 열린 짝 두께와 손잡이 돌출을 빼면 산술상 약 0.91m가 남아 부모를 고치지 않았다.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 여섯 문의 유효 치수(1.2×2.3, 1.0×2.2, 1.1×2.2m)와 북·남 스윙 예약, use-profile의 방 문 0.9m를 짝 폭에 대조했고 가장 좁은 1.0m 문에서도 열린 짝 두께와 손잡이 돌출을 빼면 산술상 최소 0.901m가 남아 부모를 고치지 않았다.
 @evidence settings/20-envelope.md#openings 봉헌실·업무방·마당의 목재 판문이라는 개구부 설정을 외개 문짝으로 받는다.
 @evidence spaces/openings.md#doors door-offering·door-administration·door-records·door-yard·door-storage·door-service-exterior의 치수와 스윙을 세 변형과 여는 방향으로 소비한다.
 @evidence settings/10-building.md#use-profile 방 문 0.9m 통과 조건을 열린 외개 짝이 남길 유효 폭 판정으로 쓴다.
@@ -82,7 +82,7 @@ part와 표면은 `lining`(안감), `surround`(양면 테)이며 두 표면을 �
 
 봉헌실·세 업무방·마당 두 문의 외개 목재 문이다. 이미지 01의 서비스 문과 이미지 05의 업무방 문처럼 세로 널을 가로 띠로 묶은 단순한 판문이 근거다. 판정된 `door-offering`(1.2×2.3m), `door-administration`·`door-records`·`door-yard`(1.0×2.2m), `door-storage`·`door-service-exterior`(1.1×2.2m)의 세 치수 변형을 만든다.
 
-로컬 원점은 경첩 축의 바닥 점이며 축과 닫힌 자세의 규칙은 양개 문짝과 같다. 짝은 폭 = 유효 폭, 높이 = 유효 높이−0.01m, 두께 0.05m이다. 여는 쪽 면에는 가로 띠 두 줄(연직 폭 0.12m, 두께 0.025m, 아랫면 높이 0.25m와 유효 높이−0.40m)이 있다. 각 쇠 띠 경첩은 X=0에서 시작해 X=0.6×유효 폭에서 끝나며 Y 중심은 아래 띠 0.31m, 위 띠 유효 높이−0.34m다. 연직 폭 0.04m·두께 0.006m이고 앞면 Z=+0.025~+0.031m에 놓여 두 가로 띠의 앞면과 면 접촉한다. 반대면은 세로 널 다섯 장의 이음 홈(폭 0.01m, 깊이 0.004m)만 보인다. 경첩 반대쪽의 쇠 고리 손잡이(바깥 반지름 0.05m, 관 반지름 0.005m)는 양면에서 중심 X=(유효 폭−0.12m)·Y=1.05m, Z=+0.025m/−0.075m이고 로컬 XY 평면의 주환 16분할·관 8분할이다. 각 고리의 중심선 반지름은 0.045m다. 앞·뒤 연결 핀은 반지름 0.006m·둘레 12분할 원통이고 (X,Y)=(유효 폭−0.12m,1.095m)에서 판 앞면 Z=0m→+0.025m와 뒷면 Z=−0.05m→−0.075m로 각각 길이 0.025m 뻗는다. 각 핀의 끝은 고리 맨 위 관 중심선과 겹치므로 고리와 판 양쪽에 실체 접촉한다. 쇠 띠와 고리까지 포함한 닫힌 문짝 점유 범위는 X=0~유효 폭 m, Y=0.01~유효 높이 m, Z=−0.080~+0.031m다.
+로컬 원점은 경첩 쪽 판 모서리의 바닥 점이며 닫힌 자세의 판 방향은 양개 문짝과 같다. 외개문 `hinge.<문 ID>`의 연직 축은 이 원점에서 X=0·Z=+0.031m, 곧 쇠 띠 경첩의 앞면에 놓인다. 정해진 방 쪽 스윙에 맞춰 prototype 전체를 설치한 뒤 `open`은 이 로컬 축을 기준으로 −90° 회전한다. 열림 때 여는 쪽 면의 Z≤+0.031m는 Xopen=0.031m−Z≥0가 되어 문틀 안감 X<0 안으로 들어가지 않는다. 짝은 폭 = 유효 폭, 높이 = 유효 높이−0.01m, 두께 0.05m이다. 여는 쪽 면에는 가로 띠 두 줄(연직 폭 0.12m, 두께 0.025m, 아랫면 높이 0.25m와 유효 높이−0.40m)이 있다. 각 쇠 띠 경첩은 X=0에서 시작해 X=0.6×유효 폭에서 끝나며 Y 중심은 아래 띠 0.31m, 위 띠 유효 높이−0.34m다. 연직 폭 0.04m·두께 0.006m이고 앞면 Z=+0.025~+0.031m에 놓여 두 가로 띠의 앞면과 면 접촉한다. 반대면은 세로 널 다섯 장의 이음 홈(폭 0.01m, 깊이 0.004m)만 보인다. 경첩 반대쪽의 쇠 고리 손잡이(바깥 반지름 0.05m, 관 반지름 0.005m)는 양면에서 중심 X=(유효 폭−0.12m)·Y=1.05m, Z=+0.025m/−0.063m이고 로컬 XY 평면의 주환 16분할·관 8분할이다. 각 고리의 중심선 반지름은 0.045m다. 앞·뒤 연결 핀은 반지름 0.006m·둘레 12분할 원통이고 (X,Y)=(유효 폭−0.12m,1.095m)에서 판 앞면 Z=0m→+0.025m와 뒷면 Z=−0.05m→−0.063m로 각각 앞핀 0.025m·뒷핀 0.013m 뻗는다. 각 핀의 끝은 고리 맨 위 관 중심선과 겹치므로 고리와 판 양쪽에 실체 접촉한다. 쇠 띠와 고리까지 포함한 닫힌 문짝 점유 범위는 X=0~유효 폭 m, Y=0.01~유효 높이 m, Z=−0.068~+0.031m다.
 
 관절은 `hinge.<문 ID>` 하나이며 범위와 기본 상태는 공통 규칙을, 경첩 쪽과 여는 방향은 spaces의 스윙 예약(봉헌실 북쪽, 관리실·기록실·보관실 남쪽, 마당 두 문 북쪽)을 따른다. part와 표면은 `board`, `batten`, `strap`, `pin`, `ring`이다.
 

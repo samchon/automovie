@@ -31,6 +31,25 @@ export const ridgeFootGap = (datum, tileThickness, footX, angleDegrees) => {
   return datum - (tileThickness / Math.cos(angle) - footX * Math.tan(angle));
 };
 
+/**
+ * The inner arc is clipped to the sloped flat tile. Beyond its inner radius,
+ * the full foot follows that tile. A copied level foot would penetrate it.
+ * @param {number} datum @param {number} outerRadius @param {number} shellThickness
+ * @param {number} flatThickness @param {number} angleDegrees @param {number} x
+ */
+export const ridgeSectionAt = (datum, outerRadius, shellThickness, flatThickness, angleDegrees, x) => {
+  const absoluteX = Math.abs(x);
+  if (outerRadius <= shellThickness || absoluteX > outerRadius) throw new RangeError("ridge section outside shell");
+  const slope = angleDegrees * Math.PI / 180;
+  const tile = flatThickness / Math.cos(slope) - absoluteX * Math.tan(slope);
+  const innerRadius = outerRadius - shellThickness;
+  const lower = absoluteX <= innerRadius
+    ? Math.max(datum + Math.sqrt(Math.max(0, innerRadius ** 2 - absoluteX ** 2)), tile)
+    : tile;
+  const upper = datum + Math.sqrt(Math.max(0, outerRadius ** 2 - absoluteX ** 2));
+  return { tile, lower, upper };
+};
+
 /** @param {number} battenBottom @param {number} battenHeight @param {number} strapCentre @param {number} strapHeight */
 export const strapBattenVerticalMargin = (battenBottom, battenHeight, strapCentre, strapHeight) =>
   Math.min(strapCentre + strapHeight / 2, battenBottom + battenHeight) -

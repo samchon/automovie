@@ -39,12 +39,16 @@ const decisions = {
     ["전체 높이 h는", "colonnade capital supports beam underside"],
     ["source는 반올림한", "non-contact: instruction to consume the exact formula"],
     ["기단이 바닥에", "colonnade base and capital contact their hosts"],
+    ["동측 보 양끝은", "corner columns carry north-south beams and side beams butt to them"],
     ["원통 하나로", "non-contact: stated failure condition, not a positive joint"],
   ],
   "columns#porch-column": [["주두 판 윗면은", "porch capital supports stone beam underside"]],
   "entablature#colonnade-beam": [
-    ["이것을 보 윗면으로", "rafter touches slab and beam"],
-    ["보 아랫면은", "colonnade capital supports beam underside"],
+    ["각 변에서 이 값을 보 윗면으로", "rafter touches slab and beam"],
+    ["네 모서리 원주는", "corner columns carry north-south beams and side beams butt to them"],
+    ["동·서 보는", "corner columns carry north-south beams and side beams butt to them"],
+    ["동측 보 윗면은", "east beam side joint retains contact height"],
+    ["서측 보와", "colonnade beam ends abut without overlap"],
     ["아랫면 중 기둥", "colonnade beam ends abut without overlap"],
     ["검토 판에서는", "non-contact: future visual review question"],
     ["기둥 위 공백", "non-contact: failure conditions for the measured joint"],
@@ -103,7 +107,7 @@ const decisions = {
     ["앞쪽 0.05m", "ridge nose meets preceding shell"],
     ["내부 이음에", "non-contact: topology instruction about omitting duplicate caps"],
     ["양쪽 경사의", "ridge cap contacts both roof tiles and clears coping"],
-    ["아랫 가장자리", "ridge foot to flat tile at 19 degrees"],
+    ["뒤쪽 발 X=±0.13m", "ridge foot to flat tile at 19 degrees"],
     ["용마루 없이", "non-contact: stated failure conditions"],
   ],
   "fixtures#fountain": [
@@ -119,7 +123,7 @@ const decisions = {
   "fixtures#lampstand": [["줄기는 반지름", "lamp stem top supports dish bottom"]],
   "fixtures#offering-table": [
     ["받침 윗면은", "offering trestles touch top underside"],
-    ["상판 윗면은", "non-contact: surfaces reserved for later instance placement"],
+    ["다리받침 윗면은", "offering trestles touch top underside"],
   ],
   "fixtures#chest": [
     ["아래 구간은", "chest lower hasp touches body"],
@@ -135,7 +139,10 @@ const decisions = {
     ["목과 어깨를", "carry handle endpoints intersect vessel profile"],
   ],
   "wares#small-vessel": [["한쪽 +X의", "small vessel handle endpoints intersect profile"]],
-  "wares#basket": [["테두리는 중심선", "basket rim touches wall top"]],
+  "wares#basket": [
+    ["두 원판은", "non-contact: tessellation and closed-floor construction"],
+    ["테두리는 중심선", "basket rim touches wall top"],
+  ],
   "wares#scroll": [
     ["한 개의 묶음", "three-roll tie touches paper"],
     ["세 개 묶음은", "three-roll cylinders mutually tangent"],
@@ -146,6 +153,7 @@ const decisions = {
     ["줄기·가지 덩어리", "non-contact: review-distance silhouette criterion"],
     ["줄기는 반지름", "cypress masses overlap trunk and neighbors"],
   ],
+  "scale#reference-scale:supplemental": [["Z축 연결 핀은", "non-contact: UV projection rule rather than an assembly claim"]],
   "scale#articulation-map:supplemental": [["궤 뚜껑은", "non-contact: temporal behavior and ownership boundary"]],
   "scale#model-review-board:supplemental": [["조명은 건물", "non-contact: review-board light setting"]],
   "entablature#rafter:supplemental": [
@@ -154,6 +162,8 @@ const decisions = {
   ],
   "entablature#sanctuary-truss:supplemental": [
     ["평보는 길이", "truss touches wall and roof underside"],
+    ["평보 쪽 아랫끝은", "truss principal foot cuts at tie top"],
+    ["버팀재 위끝은", "truss strut tip meets principal underside"],
     ["검토 판에서", "non-contact: future visual review question"],
     ["벽을 뚫는", "non-contact: stated failure conditions"],
   ],
@@ -172,6 +182,7 @@ const decisions = {
     ["검토 판에서", "non-contact: future visual review question"],
   ],
   "fixtures#stool:supplemental": [["네 다리 중심을", "stool braces connect all four legs"]],
+  "fixtures#scroll-shelf:supplemental": [["칸막이는 다섯 열린", "non-contact: disjoint-panel construction interval"]],
   "fixtures#chest:supplemental": [
     ["이미지 05의", "non-contact: reference and static-state decision"],
     ["연결 구간은", "chest hasp joints meet without penetration"],
@@ -195,6 +206,10 @@ const decisions = {
     ["신전보다 높은", "non-contact: stated failure conditions"],
   ],
 };
+
+/** Reviewed classification inventory. The test owns its expected rows independently. */
+export const nonContactDecisionRows = () => Object.entries(decisions).flatMap(([section, rows]) =>
+  rows.flatMap(([, check], index) => check.startsWith("non-contact: ") ? [`${section}:${index + 1}|${check}`] : []));
 
 /** @param {Claim[]} claims @param {string[]} passLines @param {Record<string, [string,string][]>} decisionsBySection */
 export const auditContactClaims = (claims, passLines, decisionsBySection) => {
@@ -230,7 +245,7 @@ export const checkModelContactCensus = (output) => {
   const passLines = output.split(/\r?\n/).filter((line) => line.startsWith("PASS "));
   const claims = [...modelContactClaims(), ...modelContactClaims(true)];
   const result = auditContactClaims(claims, passLines, decisions);
-  console.log(`model contact census: ${claims.length} lexical sentences, ${result.measured} measured, ${result.classified} classified non-contact, ${result.failures.length} unresolved`);
+  console.log(`model contact census: ${claims.length} lexical sentences, ${result.measured} PASS-linked claims (not independent coordinate measurements), ${result.classified} classified non-contact, ${result.failures.length} unresolved`);
   for (const failure of result.failures) console.error(failure);
   return result.failures;
 };

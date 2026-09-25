@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import assert from "node:assert/strict";
-import { imbrexFootMargin, pinPlateRadialMargin, ridgeFootGap, rollSheetGap, strapBattenVerticalMargin } from "./model-contact-math.mjs";
+import { imbrexFootMargin, pinPlateRadialMargin, ridgeFootGap, ridgeSectionAt, rollSheetGap, strapBattenVerticalMargin } from "./model-contact-math.mjs";
 // Fail on the source prose itself if a reviewed contact, section, or bound drifts.
 const root = new URL("../../docs/models/", import.meta.url);
 /** @param {string} file @param {string} anchor */
@@ -30,10 +30,19 @@ const column = h2("columns", "colonnade-column");
 const beam = h2("entablature", "colonnade-beam");
 const rafter = h2("entablature", "rafter");
 const roofAssembly = readFileSync(new URL("../../docs/spaces/roofs/assembly.md", import.meta.url), "utf8");
-const columnTop = n(column, /h=2\.905543738…−0\.28=([\d.]+)…m/);
-const beamTop = n(beam, /−0\.12=([\d.]+)…m/);
+const columnTop = n(column, /12° 외쪽 변은 h=[\d.]+−0\.28=([\d.]+)m/);
+const columnTopEast = n(column, /19° 동측 박공 변은 h=[\d.]+−0\.28=([\d.]+)m/);
+const beamTop = n(beam, /12° 외쪽 변은 Ybeam=([\d.]+)m/);
+const beamTopEast = n(beam, /19° 동측 박공 변은 Ybeam=([\d.]+)m/);
 const beamDepth = n(beam, /단면은 폭 [\d.]+m·깊이 ([\d.]+)m/);
 near("colonnade capital supports beam underside", columnTop, beamTop - beamDepth, 1e-6);
+near("east capital supports east beam underside", columnTopEast, beamTopEast - beamDepth, 1e-6);
+pass("corner columns carry north-south beams and side beams butt to them",
+  column.includes("모서리 원주는 남·북 보 아래의 12° 높이 변형") &&
+    column.includes("동측 보 양끝은 모서리 원주가 아니라 남·북 보의 옆면 접촉") &&
+    beam.includes("네 모서리 원주는 12° 높이 변형으로 남·북 보를 직접 받친다") &&
+    beam.includes("동·서 보는 남·북 보의 서로 마주 보는 옆면에 끝면을 맞대고"));
+near("east beam side joint retains contact height", beamDepth - (beamTop - beamTopEast), 0.275345671, 1e-6);
 pass("colonnade base and capital contact their hosts",
   /로컬 원점은 기단 바닥면/.test(column) &&
   n(column, /기단\(정방 [\d.]+×[\d.]+m, 높이 ([\d.]+)m/) > 0 &&
@@ -54,12 +63,12 @@ const roofThickness = n(roofAssembly, /법선 두께는 ([\d.]+)m/);
 const rafterDepth = n(rafter, /단면은 폭 [\d.]+m·깊이 ([\d.]+)m/);
 const slope = 12 * Math.PI / 180;
 near("rafter touches slab and beam", beamTop,
-  roofSupport + beamNearEdge * Math.tan(slope) - roofThickness / Math.cos(slope) - rafterDepth,
+  roofSupport + beamNearEdge * Math.tan(slope) - (roofThickness + rafterDepth) / Math.cos(slope),
   1e-6);
-near("east gable rafter bearing within 1 mm of common beam top", beamTop,
+near("east gable rafter bearing on east beam", beamTopEast,
   roofSupport + beamNearEdge * Math.tan(19 * Math.PI / 180) -
-    roofThickness / Math.cos(19 * Math.PI / 180) - rafterDepth,
-  0.001);
+    (roofThickness + rafterDepth) / Math.cos(19 * Math.PI / 180),
+  1e-6);
 const northSouthLength = n(beam, /길이\(입력 산술상 약 ([\d.]+)m\)/);
 const eastWestLength = n(beam, /잇는 길이\(약 ([\d.]+)m\)/);
 near("north-south beam reaches both capital ends", northSouthLength,
@@ -164,8 +173,21 @@ near("sanctuary rafter tips meet at ridge", rafterY(-0), rafterY(+0));
 pass("truss touches wall and roof underside",
   Math.abs(n(truss, /길이 ([\d.]+)m/) - 2 * innerWallFace) < 1e-6 &&
   Math.abs(n(truss, /하부\(약 ([\d.]+)m\)/) - sanctuaryLowerAtSide) < 0.01 &&
-  Math.abs(n(truss, /하부 약 ([\d.]+)m\)까지 오르고/) - sanctuaryLowerAtRidge) < 0.01,
+  truss.includes("Yprincipal(|X|)=5.35+(5.75−|X|)tan(22°)−0.18/cos(22°)") &&
+  Math.abs(n(truss, /중심 높이 약 ([\d.]+)m/) - (sanctuaryLowerAtRidge - 0.20 / Math.cos(porchSlope))) < 0.001,
   `wall face X=±${innerWallFace}; roof underside side/ridge ${sanctuaryLowerAtSide}/${sanctuaryLowerAtRidge}`);
+const trussTieTop = n(truss, /윗면 ([\d.]+)m로/);
+const principalDepth = n(truss, /Yprincipal−([\d.]+)\/cos\(22°\)/);
+/** @param {number} x */
+const principalTopAt = (x) => sanctuarySupportY + (sanctuaryRoofSupportX - x) * Math.tan(porchSlope) - roofThickness / Math.cos(porchSlope);
+near("truss principal foot cuts at tie top", Math.max(principalTopAt(innerWallFace) - principalDepth / Math.cos(porchSlope), trussTieTop), trussTieTop);
+const strutFootX = n(truss, /발끝 중심은 가운데 기둥의 양 측면 X=±([\d.]+)m/);
+const strutFootY = n(truss, /양 측면 X=±[\d.]+m·Y=([\d.]+)m/);
+const strutTipX = n(truss, /끝 중심은 각 경사재의 수평 구간 중간 X=±([\d.]+)m/);
+const strutTipY = n(truss, /그 아랫면 Y≈([\d.]+)m/);
+near("truss strut foot meets king-post side", strutFootX, n(truss, /가운데 기둥\(([\d.]+)×/) / 2);
+near("truss strut tip meets principal underside", strutTipY, principalTopAt(strutTipX) - principalDepth / Math.cos(porchSlope), 0.001);
+assert.ok(strutTipY > strutFootY, "strut must rise from king side to principal");
 const doorFrame = h2("openings", "door-frame");
 near("door lining leaves the clear passage",
   n(doorFrame, /상인방은 길이\(유효 폭\+([\d.]+)m\)/),
@@ -283,13 +305,24 @@ const ridge = h2("cladding", "ridge-tile");
 const ridgeDatum = ridge.match(/Y0=([\d.]+)m\/cos\(α\)−([\d.]+)m×tan\(α\)/);
 assert.ok(ridgeDatum, "ridge datum needs both tile thickness and cap foot offset");
 const flatThickness = n(tile, /기본 판은 Y=0~([\d.]+)m/);
-const capFootX = n(ridge, /아랫 가장자리 X=±([\d.]+)m/);
+const capFootX = n(ridge, /뒤쪽 발 X=±([\d.]+)m/);
 near("ridge datum uses flat-tile thickness", Number(ridgeDatum[1]), flatThickness);
 near("ridge datum uses actual cap foot", Number(ridgeDatum[2]), capFootX);
 for (const angle of [19, 22]) {
   const rad = angle * Math.PI / 180;
   const capFoot = Number(ridgeDatum[1]) / Math.cos(rad) - Number(ridgeDatum[2]) * Math.tan(rad);
   near("ridge foot to flat tile at " + angle + " degrees", ridgeFootGap(capFoot, flatThickness, capFootX, angle), 0);
+  const noseRadius = n(ridge, /겹침 코는 바깥 반지름 ([\d.]+)m/);
+  const shellThickness = n(ridge, /바깥 반지름 [\d.]+m·두께 ([\d.]+)m다/);
+  pass("ridge feet follow pitched tile at " + angle + " degrees",
+    ridge.includes("Ytile(X)=0.02m/cos(α)−|X|tan(α)") &&
+    ridge.includes("r−0.02m<|X|≤r에서 `Ytile(X)`") &&
+    [capFootX, noseRadius].every((radius) =>
+      [radius - shellThickness / 2, radius].every((x) => {
+        const section = ridgeSectionAt(capFoot, radius, shellThickness, flatThickness, angle, x);
+        return section.upper >= section.lower - 1e-9 && Math.abs(section.lower - section.tile) < 1e-9;
+      })),
+    `regular foot ${capFootX}, nose foot ${noseRadius}`);
 }
 assert.ok(tile.includes("마지막 0.16m의 경사 구간은 둥근기와와 두 턱을 만들지 않고") &&
   ridge.includes("용마루 앞 0.16m에서 둥근기와와 턱을 멈추고"),

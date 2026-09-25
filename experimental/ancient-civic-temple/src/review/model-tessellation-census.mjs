@@ -39,11 +39,15 @@ export const tessellationFailures = (id, body) => {
     ["round plate", /받침판\([^)]*반지름/, /받침판.*분할/],
     ["connecting pin", /반지름 [\d.]+m의 연결 핀|연결 핀.*반지름/, /연결 핀.*분할/],
     ["tapered shell", /원통 껍질.*반지름/, /원통 껍질.*분할/],
-    ["circular floor", /바닥.*원판/, /바닥.*원판.*(?:분할|개 삼각형)/],
   ];
   for (const [name, trigger, rule] of rules)
     if (has((sentence) => trigger.test(sentence)) && !has((sentence) => rule.test(sentence)))
       failures.push(`${id}: ${name} has no own circumference division`);
+  if (has((sentence) => /바닥.*원판/.test(sentence)) &&
+    !has((sentence) => /두 원판은 각각 둘레 \d+분할/.test(sentence)) &&
+    !(has((sentence) => /두 원판은 각각 \d+개 삼각형/.test(sentence)) && /둘레 \d+분할/.test(body)) &&
+    !has((sentence) => /바닥.*원판.*둘레 \d+분할/.test(sentence) && !/두 원판/.test(body)))
+    failures.push(`${id}: circular floor has no own circumference division`);
   if (/원통 껍질/.test(body)) {
     if (/가로 띠/.test(body) && !has((sentence) => /가로 띠.*분할/.test(sentence)))
       failures.push(`${id}: curved horizontal bands have no circumference division`);

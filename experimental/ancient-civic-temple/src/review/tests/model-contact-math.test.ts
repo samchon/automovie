@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { imbrexFootMargin, pinPlateRadialMargin, ridgeFootGap, rollSheetGap, strapBattenVerticalMargin } from "../model-contact-math.mjs";
+import { imbrexFootMargin, pinPlateRadialMargin, ridgeFootGap, ridgeSectionAt, rollSheetGap, strapBattenVerticalMargin } from "../model-contact-math.mjs";
 
 const openingSource = readFileSync(join(__dirname, "../../../docs/models/openings.md"), "utf8");
 const tileSource = readFileSync(join(__dirname, "../../../docs/models/cladding.md"), "utf8");
@@ -71,6 +71,22 @@ void test("ridge foot datum follows the actual tile top on both pitches", () => 
     const datum = 0.02 / Math.cos(a) - 0.13 * Math.tan(a);
     assert.ok(Math.abs(ridgeFootGap(datum, 0.02, 0.13, angle)) < 1e-10);
     assert.ok(ridgeFootGap(datum + 0.025, 0.02, 0.13, angle) > 0);
+  }
+});
+
+void test("both ridge shell foot strips follow sloped tile without penetration or floating", () => {
+  for (const angle of [19, 22]) {
+    const a = angle * Math.PI / 180;
+    const datum = 0.02 / Math.cos(a) - 0.13 * Math.tan(a);
+    for (const radius of [0.13, 0.15]) {
+      for (const x of [radius - 0.02, radius - 0.015, radius - 0.01, radius - 0.005, radius]) {
+        const profile = ridgeSectionAt(datum, radius, 0.02, 0.02, angle, x);
+        assert.ok(profile.upper >= profile.lower - 1e-9);
+        assert.ok(profile.lower >= profile.tile - 1e-9);
+        if (x > radius - 0.02) assert.ok(Math.abs(profile.lower - profile.tile) < 1e-9);
+      }
+    }
+    assert.throws(() => ridgeSectionAt(datum, 0.13, 0.02, 0.02, angle, 0.14));
   }
 });
 

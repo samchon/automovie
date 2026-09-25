@@ -17,7 +17,7 @@ import { templeLevels as y } from "../storey";
  * @evidence principles/core/source-units.md#source-scope-preservation 기준선으로만 평면을 정한다.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 # 중정 plan은 templePlan의 네 datum 참조뿐이며 렌더용 확장이나 임의 치수는 없다.
  * @evidence principles/core/source-units.md#source-substantive-completion as const 사각형으로 바닥·cell·분수 중심이 같은 평면을 받는다.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f # Floor와 courtyard cell, FountainInputs가 한 CourtyardPlan을 공유하므로 수반 중심과 바닥 중심이 갈라지지 않는다.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f # Floor와 courtyard cell은 CourtyardPlan을 직접 소비하고 FountainInputs도 그 네 변의 평균을 읽으므로 수반 중심과 바닥 중심이 갈라지지 않는다.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work rooms/courtyard.md의 7.0×7.85m 중정 범위를 그대로 옮겼다.
  * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 # 네 경계는 판정된 7.0×7.85m 중정의 기준선이고 source에서 폭이나 길이를 재결정하지 않아 부모를 고치지 않았다.
  */
@@ -87,17 +87,17 @@ export const templeCourtyard = (): IAutoMovieBuiltSpace => ({
 /**
  * 방 경계의 산술 중심과 m 단위 부재 입력. 분수의 구현 완료를 뜻하지 않는다.
  * @evidence spaces/rooms/courtyard.md 수반 중심(중정 경계의 산술 중점)과 외경 2.0m, 테두리 0.52m, 물면 0.08m 아래, 물줄기 0.65m의 m 단위 소비 입력을 낸다.
- * @evidenceReview spaces/rooms/courtyard.md #740476a # FountainInputs의 X·Z가 중정 양끝의 평균이고 외경·rim·water·jet 높이가 설계의 2.0·0.52·−0.08·+0.65m 관계를 따른다.
+ * @evidenceReview spaces/rooms/courtyard.md #740476a # FountainInputs의 X·Z는 CourtyardPlan.west/east/north/south 평균이고 외경·rim·water·jet 높이는 설계의 2.0·0.52·−0.08·+0.65m 관계를 따른다.
  * @evidence principles/core/source-units.md#source-scope-preservation 수반 geometry를 만들지 않고 후속 model/system이 쓸 입력만 돌려준다.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 # 이 함수는 center와 치수만 반환하며 수반 mesh나 물 애니메이션을 방 소스에 만들지 않는다.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 # CourtyardPlan에서 얻은 center와 치수만 반환하고 수반 mesh·물 애니메이션은 방 소스에 만들지 않는다.
  * @evidence principles/core/source-units.md#source-substantive-completion 중심 좌표와 네 높이를 계산된 값으로 돌려줘 소비자가 치수를 다시 정하지 않는다.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f # waterHeight와 jetTop이 rimHeight에서 순서대로 산술 계산되어 후속 모델이 물 높이를 새로 선택하지 않는다.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f # center는 CourtyardPlan의 네 변에서, waterHeight와 jetTop은 rimHeight에서 순서대로 계산되므로 후속 모델이 중심·물 높이를 새로 선택하지 않는다.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work rooms/courtyard.md#court-volume의 분수 치수를 그대로 옮겼다.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 # 분수 입력의 중앙점·외경·물면·물줄기 범위가 기존 중정 예약과 같아 이 함수에서 공간 크기 수정이 드러나지 않았다.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 # CourtyardPlan의 네 변으로 다시 계산한 중앙점과 외경·물면·물줄기 범위가 기존 중정 예약과 같아 공간 크기 수리는 필요하지 않았다.
  */
 export const templeFountainInputs = () => ({
-  center: { x: (p.westCourt + p.eastCourt) / 2, y: y.courtyard,
-    z: (p.courtBack + p.courtFront) / 2 },
+  center: { x: (templeCourtyardPlan.west + templeCourtyardPlan.east) / 2, y: y.courtyard,
+    z: (templeCourtyardPlan.north + templeCourtyardPlan.south) / 2 },
   outerDiameter: 2,
   rimHeight: y.courtyard + 0.52,
   waterHeight: y.courtyard + 0.52 - 0.08,

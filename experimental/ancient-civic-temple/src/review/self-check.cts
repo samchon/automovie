@@ -190,6 +190,16 @@ try {
   if (failure.stdout) console.error(String(failure.stdout).trim());
   if (failure.stderr) console.error(String(failure.stderr).trim());
 }
+let geometryFailures = 0;
+try {
+  console.log(execFileSync(process.execPath, [join(__dirname, "model-geometry-bounds.mjs")], { encoding: "utf8" }).trim());
+} catch (error) {
+  geometryFailures = 1;
+  const failure = error as { stdout?: Buffer | string; stderr?: Buffer | string; message?: string };
+  console.error("model geometry bounds FAIL:", failure.message ?? String(error));
+  if (failure.stdout) console.error(String(failure.stdout).trim());
+  if (failure.stderr) console.error(String(failure.stderr).trim());
+}
 const tessellation = checkModelTessellation();
 const sectionRanks = modelSectionMeasures(modelDocuments);
 console.log(`model H2 ranks: ${sectionRanks.length} sections; top 7 ${sectionRanks.slice(0, 7).map((row) => `${row.title}=${row.body}`).join(", ")}; shortest 4 ${sectionRanks.slice(-4).reverse().map((row) => `${row.title}=${row.body}`).join(", ")}`);
@@ -222,6 +232,6 @@ if (retired.length > 0) {
     console.log(`  ${value}: ${hits.length}${hits.length > 0 ? ` — ${hits.join(", ")}` : ""}`);
   }
 }
-const failureCount = review.failures + accountMismatches.length + modelMismatches.length + parameterAuditMismatches.length + partNounMismatches.length + ownerless.length + arithmeticFailures + tessellation.failures.length + Number(addressControlFailed) + Number(ownViewControlFailed);
+const failureCount = review.failures + accountMismatches.length + modelMismatches.length + parameterAuditMismatches.length + partNounMismatches.length + ownerless.length + arithmeticFailures + geometryFailures + tessellation.failures.length + Number(addressControlFailed) + Number(ownViewControlFailed);
 console.log(`self-check failures: ${failureCount}`);
 process.exitCode = failureCount > 0 ? 1 : 0;
