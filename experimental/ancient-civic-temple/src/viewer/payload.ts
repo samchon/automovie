@@ -76,7 +76,7 @@ export const createViewerPayload = () => {
       models: models.length, triangles,
     },
     notices: [
-      "재료 미결속: materials 층이 아직 열리지 않아 모든 표면을 중성 클레이로 표시합니다.",
+      "재료 초안: 기존 표면에 석재·포장·회벽·목재·기와·금속·직물·흙 등의 재료를 결합했습니다. 이미지가 없으면 같은 재료의 기본색으로 표시합니다.",
       "이웃·수목 없음: 배치 구역은 있으나 이웃 외피와 식생 개체는 아직 배치되지 않았습니다. 외벽 하단 " + built.wallBottom.toFixed(2) + "m는 대지 지면의 최저 접촉에서 유도했습니다.",
       `사물 배치: ${placements.filter((entry) => entry.node.startsWith("temple/temple.object.")).length}개 역할의 개별 요소와 재사용 prototype을 실제 scene에서 표시합니다. 구조의 독립 기둥·문짝·문틀·기와는 아직 이 전달값에 없습니다.`,
       "조명 미결정: systems 층 미개시. 뷰어는 설정 주광의 방향·고도(정면 좌측 위 45°)만 따르고 강도·노출은 검토용 기본값입니다.",

@@ -61,6 +61,8 @@ const main = async (): Promise<void> => {
     ["/vendor/three.module.js", resolve(threeBuild, "three.module.js")],
     ["/vendor/three.core.js", resolve(threeBuild, "three.core.js")],
     ["/vendor/OrbitControls.js", resolve(threeBuild, "../examples/jsm/controls/OrbitControls.js")],
+    ...["stone", "paving", "plaster", "timber", "tile", "textile", "earth"].map((name): [string, string] =>
+      [`/textures/${name}.png`, resolve(productionRoot, "public/textures", `${name}.png`)]),
   ]);
   const handle = async (request: IncomingMessage, response: ServerResponse): Promise<void> => {
     response.setHeader("Cache-Control", "no-store");
@@ -106,7 +108,8 @@ const main = async (): Promise<void> => {
       return;
     }
     const type = file.endsWith(".html") ? "text/html; charset=utf-8"
-      : file.endsWith(".css") ? "text/css; charset=utf-8" : "text/javascript; charset=utf-8";
+      : file.endsWith(".css") ? "text/css; charset=utf-8"
+      : file.endsWith(".png") ? "image/png" : "text/javascript; charset=utf-8";
     response.writeHead(200, { "Content-Type": type }).end(await readFile(file));
   };
   const server = createServer((request, response) => {

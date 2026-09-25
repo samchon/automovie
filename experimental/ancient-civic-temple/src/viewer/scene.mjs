@@ -14,9 +14,10 @@ const unboundClay = () => new THREE.MeshStandardMaterial({ name: "unbound-clay",
 
 /**
  * @param {Payload} payload
+ * @param {Map<string, THREE.Texture>} textures
  * @returns {{ root: THREE.Group, meshes: THREE.Mesh[], ownerMaterials: Map<string, THREE.Material>, beautyMaterials: Map<THREE.Mesh, THREE.Material> }}
  */
-export function uploadTemple(payload) {
+export function uploadTemple(payload, textures = new Map()) {
   const root = new THREE.Group();
   root.name = payload.environmentId;
   const clay = unboundClay();
@@ -50,6 +51,7 @@ export function uploadTemple(payload) {
           name: bound.id, color: new THREE.Color(bound.baseColor.r, bound.baseColor.g, bound.baseColor.b),
           roughness: bound.roughness, metalness: bound.metallic, opacity: bound.opacity,
           transparent: bound.opacity < 1, side: bound.doubleSided ? THREE.DoubleSide : THREE.FrontSide,
+          map: part.mesh.uvs ? textures.get(bound.id) ?? null : null,
         });
       }
       const mesh = new THREE.Mesh(geometry, material);
@@ -68,6 +70,34 @@ export function uploadTemple(payload) {
     root.add(node);
   }
   return { root, meshes, ownerMaterials, beautyMaterials };
+}
+
+/** Load each authored base-color image once. Missing files retain the material's flat-color fallback. @param {Payload} payload */
+export async function loadTempleTextures(payload) {
+  /** @type {Map<string, THREE.Texture>} */
+  const textures = new Map();
+  const loader = new THREE.TextureLoader();
+  const materials = new Map(payload.models.flatMap((model) => model.materials.map((material) => [material.id, material])));
+  await Promise.all([...materials.values()].map(async (material) => {
+    const binding = material.baseColorTexture;
+    if (binding === null) return;
+    const asset = typeof binding === "string" ? binding : binding.asset;
+    try {
+      const texture = await loader.loadAsync(`/${asset}`);
+      texture.colorSpace = THREE.SRGBColorSpace;
+      texture.wrapS = THREE.RepeatWrapping;
+      texture.wrapT = THREE.RepeatWrapping;
+      if (typeof binding !== "string" && binding.transform) {
+        texture.offset.set(binding.transform.offset.x, binding.transform.offset.y);
+        texture.repeat.set(binding.transform.scale.x, binding.transform.scale.y);
+        texture.rotation = binding.transform.rotationDeg * Math.PI / 180;
+      }
+      textures.set(material.id, texture);
+    } catch (error) {
+      console.warn(`texture ${asset}: flat material fallback`, error);
+    }
+  }));
+  return textures;
 }
 
 /** 표면 ID 해시 색(검사 전용). @param {string} id */

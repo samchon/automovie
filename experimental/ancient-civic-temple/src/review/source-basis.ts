@@ -22,7 +22,7 @@ export const sourceBasis = (): string => {
       else if (item.isFile()) hash.update(child).update(readFileSync(resolve(productionRoot, child)));
     }
   };
-  for (const directory of ["src", "public", "docs/spaces", "docs/settings"]) visit(directory);
+  for (const directory of ["src", "public", "docs/spaces", "docs/settings", "docs/materials"]) visit(directory);
   for (const file of ["package.json", "lint.config.ts"]) hash.update(file).update(readFileSync(resolve(productionRoot, file)));
   return hash.digest("hex").slice(0, 16);
 };

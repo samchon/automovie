@@ -10,7 +10,7 @@
  */
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { disposeTree, uploadSupports, uploadTemple } from "./scene.mjs";
+import { disposeTree, loadTempleTextures, uploadSupports, uploadTemple } from "./scene.mjs";
 
 /** @typedef {import("./payload.js").ViewerPayload} Payload */
 /** @typedef {Payload["observations"][number]} Observation */
@@ -81,7 +81,7 @@ sun.shadow.bias = -0.0002;
 sun.shadow.normalBias = 0.02;
 scene.add(hemisphere, sun, sun.target);
 
-/** @type {{ payload: Payload, basis: string, root: THREE.Group, supports: THREE.Group, meshes: THREE.Mesh[], ownerMaterials: Map<string, THREE.Material>, beautyMaterials: Map<THREE.Mesh, THREE.Material> } | null} */
+/** @type {{ payload: Payload, basis: string, root: THREE.Group, supports: THREE.Group, meshes: THREE.Mesh[], ownerMaterials: Map<string, THREE.Material>, beautyMaterials: Map<THREE.Mesh, THREE.Material>, textures: Map<string, THREE.Texture> } | null} */
 let current = null;
 /** @type {Observation | null} */
 let station = null;
@@ -173,6 +173,7 @@ function fail(message) {
     scene.remove(current.root, current.supports);
     disposeTree(current.root);
     disposeTree(current.supports);
+    for (const texture of current.textures.values()) texture.dispose();
     current = null;
   }
   banner.hidden = false;
@@ -194,15 +195,17 @@ async function load() {
   camera.near = body.payload.lens.near;
   camera.far = body.payload.lens.far;
   camera.updateProjectionMatrix();
-  const uploaded = uploadTemple(body.payload);
+  const textures = await loadTempleTextures(body.payload);
+  const uploaded = uploadTemple(body.payload, textures);
   const supports = uploadSupports(body.payload);
   supports.visible = false;
   if (current !== null) {
     scene.remove(current.root, current.supports);
     disposeTree(current.root);
     disposeTree(current.supports);
+    for (const texture of current.textures.values()) texture.dispose();
   }
-  current = { payload: body.payload, basis: body.basis, supports, ...uploaded };
+  current = { payload: body.payload, basis: body.basis, supports, textures, ...uploaded };
   scene.add(uploaded.root, supports);
   banner.hidden = true;
   populate(body.payload);
