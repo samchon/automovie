@@ -71,7 +71,10 @@ for (const [label, section, snippet] of [
   ["folding top", body("12-service-rooms.md", "laundry-folding-top"), "X=[5.485,5.50]"],
   ["upper cabinet", body("12-service-rooms.md", "laundry-upper-storage"), "X=[5.485,5.50]"],
 ]) assert(casing.includes("X=[5.485,5.50]") && section.includes(snippet), `${label}: laundry garage casing volume not subtracted`);
-assert(interiorDoor.includes("팬트리 선반의 가장 가까운 Z=−4.70 m") && interiorDoor.includes("0.30 m 떨어져"), "pantry shelf casing separation");
+const pantry = body("12-service-rooms.md", "pantry-l-shelf");
+const notch = /X=\[3\.22,3\.235\]·Z=\[−5\.82,−5\.80\]/.test(pantry);
+assert(notch && pantry.includes("판 두께 전체에서 빼고") && pantry.includes("받침 띠에서도 같은 겹침을 제거한다"),
+  "pantry shelf and cleat must subtract the casing intersection");
 
 const front = body("02-exterior-doors.md", "front-entry-door");
 const garden = body("02-exterior-doors.md", "garden-door-pair");
@@ -96,5 +99,39 @@ assert(skirtSafe(skirt), "upper stair skirt must end at the ceiling edge without
 /** @param {string} source */
 function skirtSafe(source) { return source.includes("Y=2.75 m") && source.includes("Y≥2.75 m") && source.includes("X>Xc"); }
 
-console.log(JSON.stringify({ baseboardDepth: depth, baseboardHeight: height, checkedContacts, failures }));
+// The formulas in the design are checked as arithmetic against their stated
+// limits. This pass walks every model document; it does not select a member id.
+const modelFiles = fs.readdirSync(docs).filter((name) => name.endsWith(".md"));
+let angularClaims = 0;
+let clippedSlopes = 0;
+for (const file of modelFiles) {
+  const plain = fs.readFileSync(path.join(docs, file), "utf8").replace(/<!--[\s\S]*?-->/g, "");
+  for (const claim of plain.matchAll(/(\d+(?:\.\d+)?)×sin\(π\/(\d+)\)=(\d+(?:\.\d+)?)[^\n]{0,100}?([\d.]+) m 예약/g)) {
+    const actual = Number(claim[1]) * Math.sin(Math.PI / Number(claim[2]));
+    const reported = Number(claim[3]);
+    const limit = Number(claim[4]);
+    angularClaims++;
+    assert(Math.abs(actual - reported) <= 0.0001 && actual <= limit + 1e-8,
+      `${file}: angular motion ${actual.toFixed(4)} exceeds its stated reservation ${limit}`);
+  }
+  for (const section of plain.split(/^## /m).slice(1)) {
+    if (!section.includes("Xc=")) continue;
+    const slope = /Y=(\d+(?:\.\d+)?)\+(\d+(?:\.\d+)?)×\(X\+(\d+(?:\.\d+)?)\)\/(\d+(?:\.\d+)?)/.exec(section);
+    const clip = /Xc=(?:[^=\n]*=)?(\d+(?:\.\d+)?)/.exec(section);
+    const upper = /Y≥(\d+(?:\.\d+)?)/.exec(section);
+    const offset = /위 모서리는 그 값\+(\d+(?:\.\d+)?)/.exec(section);
+    if (!slope || !clip || !upper || !offset) {
+      assert(false, `${file}: clipped slope lacks a measured equation`);
+      continue;
+    }
+    const top = Number(slope[1]) + Number(slope[2]) * (Number(clip[1]) + Number(slope[3])) / Number(slope[4]) + Number(offset[1]);
+    clippedSlopes++;
+    assert(Math.abs(top - Number(upper[1])) < 0.001,
+      `${file}: clipped slope top ${top.toFixed(4)} differs from boundary ${upper[1]}`);
+  }
+}
+assert(angularClaims > 0, "no angular reservation arithmetic measured");
+assert(clippedSlopes > 0, "no clipped-slope junction measured");
+
+console.log(JSON.stringify({ baseboardDepth: depth, baseboardHeight: height, angularClaims, clippedSlopes, checkedContacts, failures }));
 if (failures.length) process.exitCode = 1;

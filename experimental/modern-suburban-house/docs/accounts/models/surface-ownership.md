@@ -68,7 +68,7 @@
 | [mudroom-bench](../../models/12-service-rooms.md#mudroom-bench) | `src/models/furnishings/service-rooms.ts` | `seat`·`carcass`·`shelf`·`shoe` |
 | [mudroom-coat-hooks](../../models/12-service-rooms.md#mudroom-coat-hooks) | `src/models/furnishings/service-rooms.ts` | `board`·`hook`·`clothes` |
 | [pantry-l-shelf](../../models/12-service-rooms.md#pantry-l-shelf) | `src/models/furnishings/service-rooms.ts` | `shelf`·`cleat` |
-| [pantry-containers](../../models/12-service-rooms.md#pantry-containers) | `src/models/furnishings/service-rooms.ts` | `container`·`lid`·`basket` |
+| [pantry-containers](../../models/12-service-rooms.md#pantry-containers) | `src/models/furnishings/service-rooms.ts` | `container`·`lid`·`box`·`basket` |
 | [garage-shelving](../../models/12-service-rooms.md#garage-shelving) | `src/models/furnishings/service-rooms.ts` | `post`·`shelf`·`bin` |
 | [garage-workbench](../../models/12-service-rooms.md#garage-workbench) | `src/models/furnishings/service-rooms.ts` | `top`·`leg`·`drawer-front`·`handle` |
 | [garage-tool-board](../../models/12-service-rooms.md#garage-tool-board) | `src/models/furnishings/service-rooms.ts` | `board`·`tool-steel`·`tool-grip`·`bin` |
@@ -129,7 +129,7 @@
 | [stainless-steel](../../materials/03-furnishings.md#stainless-steel) | `appliance-body`·`faucet`·`basin`·`rail`·`rod`·`post`·`shelf`·`tool-steel`·`utensil`·`door-ring`·`drum` |
 | [black-glass-panel](../../materials/03-furnishings.md#black-glass-panel) | `control-panel`·`appliance-glass`·`cooktop`·`burner` |
 | [white-enamel](../../materials/03-furnishings.md#white-enamel) | `ceramic`·`toilet-seat`·`shower-tray`·`appliance-interior`·`lid`·`container`·`accessory`·`bowl`·`lamp-base` |
-| [furniture-wood](../../materials/03-furnishings.md#furniture-wood) | `top`·`apron`·`leg`·`footrest`·`seat`·`base`·`back`·`carcass`·`shelf`·`plinth`·`cleat`·`board`·`tool-grip`·`tray`·`cutting-board`·`mantel`·`basket`·`pencil`·`headboard`·`bed-frame` |
+| [furniture-wood](../../materials/03-furnishings.md#furniture-wood) | `top`·`apron`·`leg`·`footrest`·`seat`·`base`·`back`·`carcass`·`shelf`·`plinth`·`cleat`·`board`·`tool-grip`·`tray`·`cutting-board`·`mantel`·`basket`·`box`·`pencil`·`headboard`·`bed-frame` |
 | [dark-bookcase-wood](../../materials/03-furnishings.md#dark-bookcase-wood) | `carcass`·`plinth`·`shelf`·`art-frame` |
 | [grey-beige-upholstery](../../materials/03-furnishings.md#grey-beige-upholstery) | `arm`·`back`·`seat-cushion`·`clothes`·`pillow` |
 | [primary-bedding](../../materials/03-furnishings.md#primary-bedding) | `bedding`·`pillow`·`mattress` |
@@ -142,7 +142,7 @@
 | [planting-bark-foliage](../../materials/03-furnishings.md#planting-bark-foliage) | `bark`·`foliage`·`stem` |
 | [light-fixture-surfaces](../../materials/03-furnishings.md#light-fixture-surfaces) | `fixture-diffuser`·`fixture-glass` |
 | [food-art-finishes](../../materials/03-furnishings.md#food-art-finishes) | `fruit`·`art-print` |
-| [minor-prop-partitions](../../materials/03-furnishings.md#minor-prop-partitions) | `bin`·`shoe`·`shoe-box`·`container`·`lid`·`basket`·`book`·`pencil`·`handle` |
+| [minor-prop-partitions](../../materials/03-furnishings.md#minor-prop-partitions) | `bin`·`shoe`·`shoe-box`·`container`·`lid`·`basket`·`box`·`book`·`pencil`·`handle` |
 
 spaces의 전후면 문턱 상면 +0.02 m는 `src/spaces/envelope/front.ts`·`rear.ts`만, 울타리 기둥과 가로 보는 `src/spaces/site/fence.ts`만, 외투장 벽과 개구부는 `src/spaces/rooms/entry.ts`만 만든다. models는 문짝·대문 문짝·외투장 문짝과 봉만 만든다. 벽난로 벽돌과 void는 `src/spaces/envelope/left.ts`, 금속 화구와 목재 선반은 `src/models/furnishings/living.ts`가 만든다. 처마 구조와 fascia는 spaces 지붕 source, 홈통과 선홈통은 models `exterior/*`가 만든다. source가 실제로 닫힌 면을 중복 생성하지 않는지는 source 구현 후 재검사한다.
 

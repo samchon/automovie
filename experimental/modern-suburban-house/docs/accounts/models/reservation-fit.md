@@ -104,7 +104,7 @@
 | [porch-wall-sconce](../../models/17-light-fixtures.md#porch-wall-sconce) | 앞 돌출 0.015+0.015+0.14=0.17 m, 갓 높이 0.20 m; 포치 유효 깊이 1.80 m에서 벽등 앞 잔여 1.63 m이고 문은 실내로 열려 회전과 분리. |
 | [porch-mat-planter](../../models/18-house-props.md#porch-mat-planter) | 발판 0.60×0.40×0.008 m, 화분 높이 ≤0.72 m; 포치 보행폭과 충돌은 instance 배치 뒤 검사. |
 | [kitchen-food-utensils](../../models/18-house-props.md#kitchen-food-utensils) | 도마 0.35×0.25 m, 도구 5개 높이 ≤0.38, 식탁 그릇 지름 0.28·과일 5개. |
-| [linen-folded-towels](../../models/18-house-props.md#linen-folded-towels) | 선반마다 3×0.28+2×0.02 = 0.88 ≤ 1.00 m; 앞 여유 0.55−0.05−0.32 = 0.18 m; 5×3×2 = 30장. |
+| [linen-folded-towels](../../models/18-house-props.md#linen-folded-towels) | 선반마다 3×0.28+2×0.02 = 0.88 ≤ 린넨장 선반 1.20 m; 양끝 0.16 m씩 남고 앞 여유 0.55−0.05−0.32 = 0.18 m; 5×3×2 = 30장. |
 | [living-tabletop-props](../../models/19-room-accents.md#living-tabletop-props) | 책 0.22×0.16, 쟁반 0.24×0.18, 꽃병 높이 0.12+줄기 0.12+꽃 지름 0.04 = 0.28 m. |
 | [wall-art-indoor-plant](../../models/19-room-accents.md#wall-art-indoor-plant) | 액자 0.50×0.35 또는 0.60×0.40·깊이 0.025 m, 작은 식물 높이 0.17+0.22+0.16−0.03 = 0.52 m. |
 | [sofa-throws](../../models/19-room-accents.md#sofa-throws) | 쿠션 둘 0.42×0.42×0.10, 담요 0.65×0.45×0.025 m; 소파 외곽 2.10×0.95 m 안의 host 배치 필요. |

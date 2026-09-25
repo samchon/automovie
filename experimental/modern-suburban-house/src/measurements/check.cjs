@@ -16,6 +16,7 @@ const tasks = [
   ["material bindings", process.execPath, [path.join(__dirname, "material-binding-scan.cjs"), "--check"], "exit"],
   ["reviewed referents", process.execPath, [path.join(__dirname, "referent-owner-scan.cjs"), "--check"], "exit"],
   ["model contacts", process.execPath, [path.join(__dirname, "model-contact-check.cjs")], "exit"],
+  ["door casing versus spaces", process.execPath, [path.join(__dirname, "casing-space-scan.cjs")], "exit"],
   ["geometry", process.execPath, [npmCli, "run", "geometry-audit"], "exit"],
   ["lint", process.execPath, [npmCli, "run", "lint"], "exit"],
 ];

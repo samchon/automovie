@@ -2,7 +2,7 @@
 
 ## 방 벽 걸레받이 원형 {#wall-baseboard}
 <!--
-@evidence principles/core/common.md#scope-preservation 1·2층 마른 실내 벽과 세탁실의 노출 벽 하단 걸레받이 한 원형, 문선·계단 첫 챌판·타일·붙박이 몸통에서의 종단, 여덟 벽붙임 원형 뒤에서의 연속, 닫힌 면 id와 후속 반복 인계를 맡는다. 흰 경사 측판은 models/04의 별도 원형이다.
+@evidence principles/core/common.md#scope-preservation 1·2층 도장 벽과 차고 도장 석고보드의 노출 하단 걸레받이 한 원형, 문선·계단 첫 챌판·타일 경계에서의 종단, 열 벽붙임 원형 뒤에서의 연속, 닫힌 면 id와 후속 반복 인계를 맡는다. 흰 경사 측판은 models/04의 별도 원형이다.
 @evidence principles/core/common.md#substantive-completion 높이 0.10 m·최대 돌출 0.015 m·윗면 0.01 m 사면의 닫힌 오각 단면, 실제 벽 구간에서 산출하는 길이 L, miter·끝 마개, `wall-baseboard` id와 UV를 정한다.
 @evidence principles/core/common.md#declared-basis 벽 위치·열린 개구부·방 마감 면은 spaces/03-surface-owners.md#interior-surface-handoff에서, 흰 부재와 레퍼런스 03·04·05의 읽힘은 settings/20-verification.md#visual-grammar에서 받으며 픽셀로 치수를 재지 않는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 방의 완결 벽 마감 owner와 구별되는 별도 닫힌 0.10 × 0.015 m 부재, 개구부와 계단에서의 종단, face id와 반복 입력을 더한다.

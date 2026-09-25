@@ -101,7 +101,7 @@
 ## 꿀빛 가구 목재 {#furniture-wood}
 <!--
 @evidence principles/core/common.md#declared-basis 꿀빛 가구 목재의 #A87A4E·roughness 0.50은 settings/10-house.md#living의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
-@evidence principles/core/common.md#scope-preservation 꿀빛 목재는 식탁·의자뿐 아니라 책상·침대·협탁·팬트리 선반·벤치·작업대·테라스 가구·벽난로 `mantel`의 지정된 목재 면에 결합하며 각각의 부재 경계는 모델 owner에 남긴다.
+@evidence principles/core/common.md#scope-preservation 꿀빛 목재는 식탁·의자뿐 아니라 책상·침대·협탁·팬트리 선반과 원목 식료품 상자·벤치·작업대·테라스 가구·벽난로 `mantel`의 지정된 목재 면에 결합하며 각각의 부재 경계는 모델 owner에 남긴다.
 @evidence principles/core/common.md#substantive-completion 꿀빛 가구 목재는 #A87A4E(선형 0.392, 0.195, 0.076), roughness 0.50, metallic 0.0, transmission 0.0, 결합 면, source owner `src/materials/furnishings/wood.ts`, 리뷰 관찰을 모두 적었다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 settings/10-house.md#living는 색·재료를 말로만 정했고 꿀빛 가구 목재는 #A87A4E 값과 roughness 0.50, `top`·`apron`·`leg`·`seat` 결합을 더한다.
 @evidence principles/design/materials.md#material-construction-appearance 꿀빛 가구 목재는 구성을 '오일 마감 참나무 집성재'로, 외관의 #A87A4E·roughness 0.50·metallic 0.0을 기준값으로 두고 아래 표면 결속 계획의 결·광학 응답으로 최상층 마감을 표현한다고 적는다.
@@ -117,11 +117,11 @@
 
 [낮은 목재 테이블](../models/11-living.md#low-table)의 `top`·`leg`, [작은 책상](../models/13-bedrooms.md#child-desk)의 `top`·`leg`·`shelf`, [머리판 있는 침대](../models/13-bedrooms.md#headboard-bed)의 `headboard`·`bed-frame`, [협탁](../models/13-bedrooms.md#nightstand-lamp)의 `carcass`·`drawer-front`, [낮은 서랍장](../models/13-bedrooms.md#low-dresser)의 `carcass`·`drawer-front`·`leg`, 소파·[안락의자](../models/11-living.md#reading-armchair)의 `leg`, [팬트리 L형 선반](../models/12-service-rooms.md#pantry-l-shelf)의 `shelf`·`cleat`, [머드룸 신발 벤치](../models/12-service-rooms.md#mudroom-bench)의 `seat`·`carcass`·`shelf`, [공구 작업대](../models/12-service-rooms.md#garage-workbench)의 `top`·`leg`·`drawer-front`, [테라스 식탁](../models/15-outdoor.md#terrace-table)·[테라스 의자](../models/15-outdoor.md#terrace-chair)의 목재 면도 같은 재료를 받는다. source owner는 `src/materials/furnishings/wood.ts`이고, 리뷰는 03과 05 view에서 가구와 마루가 같은 계열이되 구별되는지를 관찰한다.
 
-탁자·벤치의 `base`·`plinth`, 공구판의 `board`·`tool-grip`, 거실 `tray`, 주방 `cutting-board`, 벽난로 `mantel`, 선반 `basket`, 책상 `pencil`의 목재 부피도 이 재료를 받는다. 부재마다 길이 U·폭 V를 새로 시작한다.
+탁자·벤치의 `base`·`plinth`, 공구판의 `board`·`tool-grip`, 거실 `tray`, 주방 `cutting-board`, 벽난로 `mantel`, 선반 `basket`, [원목 식료품 상자](../models/12-service-rooms.md#pantry-containers)의 `box`, 책상 `pencil`의 목재 부피도 이 재료를 받는다. 상자 결은 각 상자의 밑면 한 모서리에서 U를 길이, V를 높이로 투영하고 판 끝에서 새로 시작한다. 다른 부재도 길이 U·폭 V를 새로 시작한다.
 
 표면 결속 계획: 식탁·침대·의자·선반 목재의 오크 결은 판 길이 U와 폭 0.15 m 모듈을 쓴다. 각 모델 부재 시작 모서리를 원점으로 하고 다리·상판·서랍 전면의 접합에서 결 방향을 새로 잡는다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
 
-추가 부재의 결합 owner는 `plinth`가 [주방 하부장](../models/10-kitchen-dining.md#kitchen-base-run)과 [책장](../models/11-living.md#dark-bookcase), `board`·`tool-grip`이 [차고 공구판](../models/12-service-rooms.md#garage-tool-board), `cutting-board`가 [주방 소품](../models/18-house-props.md#kitchen-food-utensils), `tray`가 [거실 탁자 소품](../models/19-room-accents.md#living-tabletop-props), `basket`이 [팬트리 용기](../models/12-service-rooms.md#pantry-containers)와 [옷방 선반](../models/13-bedrooms.md#wardrobe-shelves)이다. 이 링크는 같은 목재 재료를 받는 서로 다른 닫힌 부재를 뜻한다.
+추가 부재의 결합 owner는 `plinth`가 [주방 하부장](../models/10-kitchen-dining.md#kitchen-base-run)과 [책장](../models/11-living.md#dark-bookcase), `board`·`tool-grip`이 [차고 공구판](../models/12-service-rooms.md#garage-tool-board), `cutting-board`가 [주방 소품](../models/18-house-props.md#kitchen-food-utensils), `tray`가 [거실 탁자 소품](../models/19-room-accents.md#living-tabletop-props), `basket`이 [팬트리 용기](../models/12-service-rooms.md#pantry-containers)와 [옷방 선반](../models/13-bedrooms.md#wardrobe-shelves), `box`가 [팬트리 원목 상자](../models/12-service-rooms.md#pantry-containers)다. 이 링크는 같은 목재 재료를 받는 서로 다른 닫힌 부재를 뜻한다.
 
 ## 짙은 책장 목재 {#dark-bookcase-wood}
 <!--
@@ -381,7 +381,7 @@
 | [옷방](../models/13-bedrooms.md#wardrobe-hanging) | `rod` | [스테인리스](#stainless-steel) |
 | [외투장 문](../models/05-closet-fittings.md#coat-closet-doors), [린넨장](../models/05-closet-fittings.md#linen-closet-fittings), [미닫이 옷장](../models/13-bedrooms.md#sliding-closet) | `handle` | [검은 도장 금속](02-interior-shell.md#black-coated-metal) |
 | [미닫이 옷장](../models/13-bedrooms.md#sliding-closet)·[옷방](../models/13-bedrooms.md#wardrobe-hanging)·[머드룸 외투 걸이](../models/12-service-rooms.md#mudroom-coat-hooks) | 세 원형 각각의 `clothes` | 순번별 [회베이지](#grey-beige-upholstery)·[청회색](#blue-grey-bedding)·[올리브](#olive-bedding) 직물 |
-| [팬트리 용기](../models/12-service-rooms.md#pantry-containers) | `container` / `lid`·`basket` | [투명 유리](01-exterior.md#glass-clear) / [가구 목재](#furniture-wood) |
+| [팬트리 용기](../models/12-service-rooms.md#pantry-containers) | `container` / `lid`·`basket`·`box` | [투명 유리](01-exterior.md#glass-clear) / [가구 목재](#furniture-wood) |
 | [머드룸 걸이](../models/12-service-rooms.md#mudroom-coat-hooks) | `board` / `hook` | [가구 목재](#furniture-wood) / [검은 도장 금속](02-interior-shell.md#black-coated-metal) |
 | [차고 선반](../models/12-service-rooms.md#garage-shelving) | `bin` | [검은 도장 금속](02-interior-shell.md#black-coated-metal) |
 | [차고 공구판](../models/12-service-rooms.md#garage-tool-board) | `bin`·`tool-grip` / `board` / `tool-steel` | [검은 도장 금속](02-interior-shell.md#black-coated-metal) / [가구 목재](#furniture-wood) / [스테인리스](#stainless-steel) |

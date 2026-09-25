@@ -161,11 +161,11 @@ service-pantry-door의 팬트리 쪽 −Z 문선은 세계 X=[3.22,3.235]·Z=[�
 @evidence principles/core/common.md#substantive-completion 밀폐 용기 0.12 × 0.12 × 0.20 m, 상자 0.18 × 0.18 × 0.25 m, 바구니 0.30 × 0.20 × 0.15 m를 정한다.
 @evidence principles/core/common.md#declared-basis 세 변형 치수는 방 문서의 물건 깊이 0.20·0.25 m와 선반 위 0.30 m 한계를 근거로 택했다고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 방 문서가 준 깊이·높이 한계를 세 변형의 구체 치수와 몸통·뚜껑·테두리 구성으로 좁힌다.
-@evidence principles/design/models.md#representation-contract 밀폐 용기는 몸통과 뚜껑, 상자는 한 상자, 바구니는 테두리 있는 열린 상자로 두고 재질 경계를 `container`·`lid`·`basket`으로 정한다. 보이지 않는 한계는 본문의 "라벨·내용물·투명 용기의 투과는 표현하지 않는다."로 밝힌다.
+@evidence principles/design/models.md#representation-contract 밀폐 용기는 몸통과 뚜껑, 목재 식료품 상자는 한 닫힌 상자, 바구니는 테두리 있는 열린 상자로 두고 재질 경계를 `container`·`lid`·`box`·`basket`으로 정한다. 보이지 않는 한계는 본문의 "라벨·내용물·투명 용기의 투과는 표현하지 않는다."로 밝힌다.
 @evidence principles/design/models.md#spatial-convention 선반 위 소품이므로 원점을 밑면 중심에 둔다고 가구 국소 좌표의 예외를 밝힌다.
 @evidence principles/design/models.md#reviewable-structure 선반 위 용기가 선반 끝을 넘지 않는지를 모델 리뷰 뷰의 고정 뷰로 반증한다.
 @evidence principles/design/models.md#model-observable-style-basis 레퍼런스 02의 팬트리는 속 물건이 보이지 않는다. 상표나 식품 종류 라벨 없이 뚜껑 있는 용기·닫힌 상자·테두리 있는 열린 바구니라는 세 실루엣 구분만 둔다.
-@evidence principles/design/models.md#model-scale-layer-completion 세 변형 치수, 세 재질 경계, 관절 없음, instances로 넘긴 개수·배치와 한 관찰로 소품 원형이 결정된다.
+@evidence principles/design/models.md#model-scale-layer-completion 세 변형 치수, 네 재질 경계, 관절 없음, instances로 넘긴 개수·배치와 한 관찰로 소품 원형이 결정된다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 팬트리 점유의 물건 깊이·높이·0.02 m 물림 한계를 그대로 소비했고 고칠 부모 결함이 없었다.
 @evidence settings/10-house.md#pantry 설정의 식품 보관 용기·상자를 밀폐 용기·상자·바구니 세 변형의 소품 원형으로 만든다.
 @evidence spaces/rooms/pantry.md#pantry-storage-use 뒤 선반 0.20 m·오른쪽 0.25 m 깊이와 선반 위 0.30 m 이내 높이 안에 세 변형 치수를 고른다.
@@ -175,9 +175,9 @@ service-pantry-door의 팬트리 쪽 −Z 문선은 세계 X=[3.22,3.235]·Z=[�
 
 식품은 밀폐 용기, 작은 식료품 상자, 낮은 바구니의 세 변형을 가진 한 소품 원형이다. [방 문서](../spaces/rooms/pantry.md#pantry-storage-use)가 뒤 선반 물건 깊이 0.20 m, 오른쪽 0.25 m, 높이 선반 위 0.30 m 이내, 선반 끝에서 0.02 m 물림을 정하므로 변형 치수를 밀폐 용기 0.12 × 0.12 × 0.20 m, 상자 0.18 × 0.18 × 0.25 m, 바구니 0.30 × 0.20 × 0.15 m로 택한다. [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)의 예외로 선반 위 소품이므로 원점을 밑면 중심에 둔다.
 
-밀폐 용기는 몸통과 뚜껑, 상자는 한 상자, 바구니는 테두리가 있는 열린 상자다. 재질 경계는 `container`, `lid`, `basket`이고 관절은 없다. 라벨·내용물·투명 용기의 투과는 표현하지 않는다. 소스 owner는 `src/models/furnishings/service-rooms.ts`이며 개수와 배치는 instances가 소유한다. 관찰은 선반 위 용기가 선반 끝을 넘지 않는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
+밀폐 용기는 몸통과 뚜껑, 상자는 얇은 원목 식료품 상자 한 부재, 바구니는 테두리가 있는 열린 상자다. 재질 경계는 `container`, `lid`, `box`, `basket`이고 관절은 없다. 라벨·내용물·투명 용기의 투과는 표현하지 않는다. 소스 owner는 `src/models/furnishings/service-rooms.ts`이며 개수와 배치는 instances가 소유한다. 관찰은 선반 위 용기가 선반 끝을 넘지 않는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
 
-밀폐 용기 `container`는 0.12×0.12×0.18 m 몸통이고 `lid`는 같은 0.12×0.12 m 평면에 두께 0.02 m로 얹혀 완성 높이 0.20 m가 된다. 식료품 상자는 `box` 한 닫힌 0.18×0.18×0.25 m 부재다. `basket`은 0.30×0.20×0.15 m 외곽에서 네 벽 두께 0.01 m·바닥 두께 0.015 m를 남긴 열린 상자다. 세 변형 모두 원점은 각 밑면 중심이고 선반 표면에 맞댄다.
+밀폐 용기 `container`는 0.12×0.12×0.18 m 몸통이고 `lid`는 같은 0.12×0.12 m 평면에 두께 0.02 m로 얹혀 완성 높이 0.20 m가 된다. 원목 식료품 상자 `box`는 밑면 중심 원점에서 X=[−0.09,0.09]·Z=[−0.09,0.09]·Y=[0,0.25] m의 한 닫힌 0.18×0.18×0.25 m 부재다. `basket`은 0.30×0.20×0.15 m 외곽에서 네 벽 두께 0.01 m·바닥 두께 0.015 m를 남긴 열린 상자다. 세 변형 모두 원점은 각 밑면 중심이고 선반 표면에 맞댄다.
 
 ## 차고 금속 선반 {#garage-shelving}
 <!--
