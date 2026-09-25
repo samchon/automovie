@@ -20,7 +20,9 @@ import { nclose, throwsError } from "../internal/predicates";
  *    lacks is absent.
  * 4. A dip in the curve is flattened by the running maximum; an increment
  *    under twice the deviation of the population's rest readings of the
- *    unit (a unit read once has none) is indistinct and transfers nothing.
+ *    unit (a unit read once has none) is indistinct and transfers nothing;
+ *    a left/right pair is judged on its mean increment and mean deviation,
+ *    so both sides transfer or neither does.
  * 5. Observability: a unit whose span reaches its photographs' 2-sigma
  *    spread passes, a unit narrower than it fails, and a left/right pair
  *    passes or fails together on its mean; fewer than two photographs and a
@@ -86,6 +88,35 @@ export const test_subject_face_expression_transfer = (): void => {
       gated(0.25).weight === 0 &&
       gated(0.35).status === "transferred" &&
       gated(0.35).weight > 0,
+  );
+  // A left/right pair is judged on its mean increment: 0.3 and 0.05 average
+  // under twice the 0.1 deviation, 0.4 and 0.1 over it, and each side then
+  // keeps its own reading.
+  const paired = {
+    eyeBlinkLeft: { weights: [0, 1], scores: [0, 1] },
+    eyeBlinkRight: { weights: [0, 1], scores: [0, 1] },
+  };
+  const pair = (left: number, right: number) =>
+    transferFaceExpression({
+      calibration: paired,
+      observable: ["eyeBlinkLeft", "eyeBlinkRight"],
+      photo: { eyeBlinkLeft: left, eyeBlinkRight: right },
+      rest: { eyeBlinkLeft: 0, eyeBlinkRight: 0 },
+      noise: { eyeBlinkLeft: 0.1, eyeBlinkRight: 0.1 },
+    }).map((one) => [one.status, one.weight]);
+  TestValidator.equals(
+    "a pair stands out together",
+    [pair(0.3, 0.05), pair(0.4, 0.1)],
+    [
+      [
+        ["indistinct", 0],
+        ["indistinct", 0],
+      ],
+      [
+        ["transferred", 0.4],
+        ["transferred", 0.1],
+      ],
+    ],
   );
   const low = rows({ smile: 0.05, dip: 0.9 }, { smile: 0.1, dip: 0 });
   TestValidator.predicate(

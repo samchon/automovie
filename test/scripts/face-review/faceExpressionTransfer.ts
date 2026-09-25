@@ -40,7 +40,9 @@
  * deviation); the photograph's reading of its own face differs from its
  * model's rest reading by an identity mismatch of that order, so an
  * increment under twice that deviation (the 95% band) is indistinct from it
- * and transfers nothing. Without that bound the calibration's flat low end
+ * and transfers nothing. A unit and its partner are judged together, on
+ * their mean increment against their mean deviation, as observability
+ * judges them, so the bound never lateralises a symmetric expression. Without that bound the calibration's flat low end
  * turned detector noise into weight: a mouth shift read at 0.002 over rest,
  * a third of the rest readings' deviation, became 0.14 of the channel.
  *
@@ -94,6 +96,24 @@ export function transferFaceExpression(props: {
   /** Each unit's rest-reading deviation across the population's renders. */
   noise?: Readonly<Record<string, number>>;
 }): IFaceExpressionTransferRow[] {
+  const units = Object.keys(props.calibration);
+  // Whether a unit's increment, with its partner's, stands out from the
+  // spread identity alone gives the rest readings.
+  const distinct = (channel: string): boolean => {
+    const partner = faceExpressionPartner(channel, units);
+    const group = partner === null ? [channel] : [channel, partner];
+    const increments = group.flatMap((one) => {
+      const score = props.photo[one];
+      const rest = props.rest[one];
+      return score === undefined || rest === undefined ? [] : [score - rest];
+    });
+    const mean = (values: readonly number[]) =>
+      values.reduce((sum, value) => sum + value, 0) / values.length;
+    return (
+      increments.length === 0 ||
+      mean(increments) >= 2 * mean(group.map((one) => props.noise?.[one] ?? 0))
+    );
+  };
   return Object.entries(props.calibration).map(([channel, curve]) => {
     const points = curve.weights
       .map((w, k) => [w, curve.scores[k]] as const)
@@ -121,7 +141,7 @@ export function transferFaceExpression(props: {
     const asked = score - rest;
     if (asked <= 0)
       return { channel, weight: 0, status: "transferred" as const };
-    if (asked < 2 * (props.noise?.[channel] ?? 0))
+    if (!distinct(channel))
       return { channel, weight: 0, status: "indistinct" as const };
     if (asked >= span) return { channel, weight: 1, status: "held" as const };
     for (let k = 1; k < increments.length; ++k) {

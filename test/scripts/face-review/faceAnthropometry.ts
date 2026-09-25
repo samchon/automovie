@@ -55,10 +55,14 @@
  * photographs' smiles; the corners' own landmarks read only the corners. It
  * supersedes the detector's smile transfer, and the measurement's corner
  * lift is then a derivation input rather than an independent check.
- * The mouth's sideways shift is read the same way, `mouthShift`: the mouth
- * centre across from the nasion-subnasale line, which the mouth does not
- * move, over mouth width, signed and paired with `mouthLeft` for one sign
- * and `mouthRight` for the other (`negative`). The detector's scores for
+ * The mouth's sideways shift is read the same way, `mouthShift`: the lip
+ * centre (the stomion pair) across from subnasale, which the mouth does not
+ * move and which lies at nearly the lips' depth, over mouth width, signed
+ * and paired with `mouthLeft` for one sign and `mouthRight` for the other
+ * (`negative`). A reference deeper in the face (nasion) or a mouth centre
+ * taken at the corners, which sit about a centimetre behind the lips, turns
+ * any error in the camera's yaw into a sideways shift: at the n-sn line
+ * three turned heads (25 to 30 degrees) asked for the whole of the unit. The detector's scores for
  * those units sit near its noise on every photograph (0.001 to 0.014) where
  * their calibration is flattest, and their transfer made a skewed mouth of
  * a symmetric smile.
@@ -210,7 +214,7 @@ export const FACE_ANTHROPOMETRY_INDICES: readonly IFaceAnthropometryIndex[] = [
   {
     id: "mouthShift",
     definition:
-      "mouth centre (midpoint of 61 and 291) across from the n-sn line (168, 2) at its height over mouth width, signed",
+      "lip centre (midpoint of 13 and 14) across from subnasale (2) over mouth width, signed",
     channels: ["mouthLeft"],
     negative: ["mouthRight"],
     expression: true,
@@ -293,13 +297,10 @@ export function measureFaceAnthropometry(
         : null;
     })(),
     mouthShift: ((): number | null => {
-      const [r, q, n, sn] = [61, 291, 168, 2].map(at);
-      if (!r || !q || !n || !sn || mw === null || !(mw > 0) || n[1] === sn[1])
-        return null;
-      const cx = (r[0] + q[0]) / 2;
-      const cy = (r[1] + q[1]) / 2;
-      const line = n[0] + ((sn[0] - n[0]) * (cy - n[1])) / (sn[1] - n[1]);
-      return (cx - line) / mw;
+      const [u, l, sn] = [13, 14, 2].map(at);
+      return u && l && sn && mw !== null && mw > 0
+        ? ((u[0] + l[0]) / 2 - sn[0]) / mw
+        : null;
     })(),
     lowerFaceWidth: ratio(W(136, 365), fw),
     chinWidth: ratio(W(176, 400), fw),
