@@ -18,7 +18,7 @@
 <!--
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 날개 합성·골·높이 차이 끝면과 그 주머니 쪽 뒷면·떠 있는 처마·파라펫 끝·하부 소유가 한 H2에 있고, 코핑과 만나는 세 지붕의 관계는 gable-closures 표로 넘겨 빠진 접점이 없다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 네 지지 높이와 세 경사(12·22·19도), 두께·돌출, 동측만 19도인 이유, 높이 차이 끝면의 앞면·뒷면 소유와 현재 해당하는 Z=-2.8m 끝면이 본문에 있어 source가 경사나 면 소유를 따로 고르지 않는다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 서측 약 4.56m와 제실 용마루 약 7.67m는 입력 산술이며 겹침은 스캔으로 잰다고 적고, 뒷면 규칙은 주랑 안에서 끝면 너머가 비쳐 보이는 관찰에서 나왔다고 밝혀 산술·측정·관찰이 구별된다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 서측 약 4.56m와 제실 용마루 약 7.67m는 입력 산술이고 겹침은 스캔으로 잰다고 본문이 구별한다. 끝면 뒷면은 주랑 위 주머니를 닫는 별도 표면 결정이다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 골은 중정 네 안쪽 모서리에만 생기고 제실 처마는 낮은 지붕을 지우지 않고 떠 있으며, 높이 차이 끝면의 뒷면이 주랑 위 주머니를 닫아도 새 공간이나 바닥부터의 막음벽이 생기지 않는다.
 @evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 잘린 조각과 끝면 앞면은 원래 roof owner의 surface ID에, 끝면 뒷면과 실내 하부는 아래 구획의 방 owner에 남고 뒷면은 같은 한 장의 다른 면이라 assembly가 표면을 가져가거나 부재를 복제하지 않는다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 22도 동측 박공과 5.05m 제실 지지가 코핑을 뚫은 사례와 끝면 뒷면이 없으면 주랑에서 바깥이 비치는 조건을 본문에 적고, 겹침은 스캔으로, 끝면은 단면과 양쪽 관찰로 재게 해 산술만으로 통과시키지 않는다.

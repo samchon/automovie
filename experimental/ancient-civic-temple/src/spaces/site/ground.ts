@@ -17,7 +17,7 @@ import {
 
 /**
  * @evidence spaces/site.md 대지 조각의 표면 종류(earth·paving·ground)다.
- * @evidenceReview spaces/site.md #df1874e # TempleSiteSurface의 earth·paving·ground 세 값이 흙띠·포장·이웃 지면의 서로 다른 표면 owner다.
+ * @evidenceReview spaces/site.md #cf4222b # TempleSiteSurface의 earth·paving·ground 세 값이 흙띠·포장·이웃 지면의 서로 다른 표면 owner다.
  * @evidence principles/core/source-units.md#source-scope-preservation 세 종류만 허용한다.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 # 문자열 합집합 밖의 경계석·나무 표면을 지면 조각 종류로 넣지 않는다.
  * @evidence principles/core/source-units.md#source-substantive-completion 문자열 합집합 타입으로 조각 표와 표면 ID가 같은 이름을 쓴다.
@@ -29,7 +29,7 @@ export type TempleSiteSurface = "earth" | "paving" | "ground";
 
 /**
  * @evidence spaces/site.md 대지 구획 조각 하나(ID·표면·사각 범위)의 타입이다.
- * @evidenceReview spaces/site.md #df1874e # TempleSitePiece 한 행은 안정 ID, earth/paving/ground owner, 네 끝선 rect를 모두 갖는다.
+ * @evidenceReview spaces/site.md #cf4222b # TempleSitePiece 한 행은 안정 ID, earth/paving/ground owner, 네 끝선 rect를 모두 갖는다.
  * @evidence principles/core/source-units.md#source-scope-preservation 구획표의 한 행만 담는다.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 # 인터페이스에 지면 높이나 이웃 원형은 없고 구획 식별·표면·범위만 있다.
  * @evidence principles/core/source-units.md#source-substantive-completion 세 필드로 지면 면·support가 같은 조각을 쓴다.
@@ -40,7 +40,7 @@ export type TempleSiteSurface = "earth" | "paving" | "ground";
 export interface TempleSitePiece {
   /**
    * @evidence spaces/site.md TempleSitePiece.id는 earth.front-west 같은 구획 ID다.
-   * @evidenceReview spaces/site.md #df1874e # id는 earth.front-west처럼 조각별 이름을 담고 이 값을 support.site.<id> 번호 접두어로 다시 쓴다.
+   * @evidenceReview spaces/site.md #cf4222b # id는 earth.front-west처럼 조각별 이름을 담고 이 값을 support.site.<id> 번호 접두어로 다시 쓴다.
    * @evidence principles/core/source-units.md#source-scope-preservation TempleSitePiece.id는 구획 ID 문자열만 담는다.
    * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 # string 이름표 한 필드라 조각의 평면 범위나 지면 높이를 id에 인코딩하지 않는다.
    * @evidence principles/core/source-units.md#source-substantive-completion TempleSitePiece.id는 string으로 support ID support.site.<id>.<n>이 만들어진다.
@@ -51,7 +51,7 @@ export interface TempleSitePiece {
   id: string;
   /**
    * @evidence spaces/site.md TempleSitePiece.surface는 조각의 표면 종류다.
-   * @evidenceReview spaces/site.md #df1874e # surface가 earth·paving·ground 중 한 owner로 각 조각을 분류한다.
+   * @evidenceReview spaces/site.md #cf4222b # surface가 earth·paving·ground 중 한 owner로 각 조각을 분류한다.
    * @evidence principles/core/source-units.md#source-scope-preservation TempleSitePiece.surface는 earth·paving·ground 셋 중 하나만 담는다.
    * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 # TempleSiteSurface 타입으로 curb와 ridge를 구획의 지면 재료처럼 잘못 지정할 수 없다.
    * @evidence principles/core/source-units.md#source-substantive-completion TempleSitePiece.surface는 TempleSiteSurface로 지면 면의 surface.site.<종류> ID가 정해진다.
@@ -62,7 +62,7 @@ export interface TempleSitePiece {
   surface: TempleSiteSurface;
   /**
    * @evidence spaces/site.md TempleSitePiece.rect는 조각의 평면 사각 범위다.
-   * @evidenceReview spaces/site.md #df1874e # rect는 west/east/north/south 범위로 각 포장·흙띠·이웃 바닥 조각의 평면을 지정한다.
+   * @evidenceReview spaces/site.md #cf4222b # rect는 west/east/north/south 범위로 각 포장·흙띠·이웃 바닥 조각의 평면을 지정한다.
    * @evidence principles/core/source-units.md#source-scope-preservation TempleSitePiece.rect는 평면 사각 범위만 담고 높이는 지면 규칙에서 받는다.
    * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 # PlanRectangle에는 Y가 없고 gradeBands가 별도 plane을 계산하므로 구획 행이 독립 경사를 만들지 않는다.
    * @evidence principles/core/source-units.md#source-substantive-completion TempleSitePiece.rect는 PlanRectangle로 gradeBands가 경사 전환선에서 조각을 나눈다.
@@ -79,7 +79,7 @@ const entry = { west: -l.entryHalfWidth, east: l.entryHalfWidth };
 /**
  * 표의 구획을 서로 겹치지 않는 직사각형으로 낸다.
  * @evidence spaces/site.md 흙띠·포장·이웃 바닥을 서로 겹치지 않는 열여섯 사각 조각으로 낸다.
- * @evidenceReview spaces/site.md #df1874e # SitePieces 배열을 세어 earth 6·paving 6·ground 4의 열여섯 rect이며 중정 내부 땅이나 개별 포장석은 없다.
+ * @evidenceReview spaces/site.md #cf4222b # SitePieces 배열을 세어 earth 6·paving 6·ground 4의 열여섯 rect이며 중정 내부 땅이나 개별 포장석은 없다.
  * @evidence spaces/site.md#site-paving 정면·서·동·북 흙띠, 정면 거리·서/동 골목·북 골목·정문 진입·서비스 앞마당 포장, 네 이웃 바닥을 구획표대로 둔다.
  * @evidenceReview spaces/site.md#site-paving #417e67d # 흙띠의 앞 두 조각과 서·동·북, 포장 여섯 구간, ground 네 방향의 ID·끝선을 부모 구획표와 대조했다.
  * @evidence principles/core/source-units.md#source-scope-preservation 구획표에 없는 조각이나 개별 포장석을 만들지 않는다.
@@ -111,7 +111,7 @@ export const templeSitePieces = (): TempleSitePiece[] => [
 /**
  * 경계석 띠. 정문 진입과 서비스 문 앞에서 끊기고 네 모서리에서 닫힌다.
  * @evidence spaces/site.md 경계석 띠 여섯 조각을 정문 진입과 서비스 문 앞에서 끊고 네 모서리에서 닫는다.
- * @evidenceReview spaces/site.md #df1874e # Curbs의 남쪽 둘·서쪽 하나·동쪽 둘·북쪽 하나가 진입로와 서비스 apron의 두 끊김을 남긴다.
+ * @evidenceReview spaces/site.md #cf4222b # Curbs의 남쪽 둘·서쪽 하나·동쪽 둘·북쪽 하나가 진입로와 서비스 apron의 두 끊김을 남긴다.
  * @evidence principles/core/source-units.md#source-scope-preservation 끊김 위치는 진입 폭과 앞마당 범위에서만 온다.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 # 남면 중단은 entryHalfWidth, 동면 중단은 apron north/south를 읽어 별도 개구 폭을 고르지 않는다.
  * @evidence principles/core/source-units.md#source-substantive-completion 사각 조각 목록을 돌려준다.
@@ -131,7 +131,7 @@ export const templeSiteCurbs = (): PlanRectangle[] => [
 /**
  * 경사 전환선에서 나눈 평면 조각과 그 지면 평면.
  * @evidence spaces/site.md 사각 범위를 경사 전환선에서 나눠 조각마다 지면 평면을 붙인다.
- * @evidenceReview spaces/site.md #df1874e # GradeBands는 두 break 중 사각 내부에 든 선만 cuts에 넣고 각 밴드 중간 Z로 grade plane을 고른다.
+ * @evidenceReview spaces/site.md #cf4222b # GradeBands는 두 break 중 사각 내부에 든 선만 cuts에 넣고 각 밴드 중간 Z로 grade plane을 고른다.
  * @evidence principles/core/source-units.md#source-scope-preservation 전환선에서만 나누고 범위를 바꾸지 않는다.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 # 시작·끝과 실제 내부 break만 사용하며 원 rect의 west/east는 그대로 두고 추가 가로줄을 만들지 않는다.
  * @evidence principles/core/source-units.md#source-substantive-completion 범위·평면 쌍 목록을 돌려줘 각 조각이 한 평면 위에 놓인다.
@@ -152,7 +152,7 @@ const offset = (plane: HeightPlane, dy: number): HeightPlane => ({ ...plane, con
 /**
  * 윗면만 가진 열린 지면 표면. prism 윗면과 같은 꼭짓점 순서를 쓴다.
  * @evidence spaces/site.md 지면 조각의 윗면만 가진 열린 표면을 만든다.
- * @evidenceReview spaces/site.md #df1874e # gradeTopFaces가 각 band의 네 높이 꼭짓점으로 surface ID 하나의 열린 윗면만 반환한다.
+ * @evidenceReview spaces/site.md #cf4222b # gradeTopFaces가 각 band의 네 높이 꼭짓점으로 surface ID 하나의 열린 윗면만 반환한다.
  * @evidence principles/core/source-units.md#source-scope-preservation 윗면 하나만 내고 두께나 옆면을 만들지 않는다.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 # rectangle polygon을 한 면으로 되돌리고 prism 측면·아랫면은 생성하지 않는다.
  * @evidence principles/core/source-units.md#source-substantive-completion 경사 띠마다 prism 윗면과 같은 순서의 네 꼭짓점 면을 돌려준다.
@@ -170,7 +170,7 @@ export const gradeTopFaces = (rect: PlanRectangle, surface: string, lift = 0): W
 
 /**
  * @evidence spaces/site.md 모든 구획 조각의 윗면을 surface.site.<종류>로 낸다.
- * @evidenceReview spaces/site.md #df1874e # GroundFaces는 SitePieces 전부를 순회해 각 조각의 earth·paving·ground ID로 gradeTopFaces를 만든다.
+ * @evidenceReview spaces/site.md #cf4222b # GroundFaces는 SitePieces 전부를 순회해 각 조각의 earth·paving·ground ID로 gradeTopFaces를 만든다.
  * @evidence principles/core/source-units.md#source-scope-preservation 조각 표와 지면 평면만 소비한다.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 # 각 면 입력은 piece.rect와 piece.surface뿐이고 개별 포장석 반복이나 terrain noise가 없다.
  * @evidence principles/core/source-units.md#source-substantive-completion 열여섯 구획의 경사 띠마다 윗면 하나씩 면 목록을 돌려주며 site-ground model이 열린 표면으로 결산된다.
@@ -184,7 +184,7 @@ export const templeSiteGroundFaces = (): WallFace[] =>
 /**
  * 경계석 조각끼리 맞닿는 끝면은 제거해 한 띠로 잇는다.
  * @evidence spaces/site.md 경계석을 지면 아래 0.1m에서 위 0.12m까지의 닫힌 띠로 만든다.
- * @evidenceReview spaces/site.md #df1874e # CurbFaces가 각 grade band의 plane을 −embed와 +rise로 평행 이동해 지면 안팎을 잇는 prism 띠를 만든다.
+ * @evidenceReview spaces/site.md #cf4222b # CurbFaces가 각 grade band의 plane을 −embed와 +rise로 평행 이동해 지면 안팎을 잇는 prism 띠를 만든다.
  * @evidence principles/core/source-units.md#source-scope-preservation 경계석 조각과 지면 평면만 쓰고 맞닿은 끝면은 culling해 한 띠로 잇는다.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 # 여섯 curb rect를 prismFaces로 만들고 cullCoincidentVerticalFaces가 내부 맞댐 끝면을 제거한다.
  * @evidence principles/core/source-units.md#source-substantive-completion 여섯 경계석 조각을 경사 띠마다 prism으로 만든 뒤 맞닿은 끝면을 지운 면 목록을 돌려주며 site-curbs model이 닫힌 실체로 결산된다.
@@ -201,7 +201,7 @@ export const templeSiteCurbFaces = (): WallFace[] => cullCoincidentVerticalFaces
 /**
  * 흙띠와 포장 조각의 보행 support. 이웃 바닥과 경계석은 보행 목록 밖이다.
  * @evidence spaces/site.md 흙띠·포장·이웃 바닥 조각의 보행 support를 지면 평면 높이 규칙으로 낸다.
- * @evidenceReview spaces/site.md #df1874e # SiteSupports는 열여섯 조각의 경사 band마다 floor surface를 생성해 대지 관찰에 실제 지면 높이를 제공한다.
+ * @evidenceReview spaces/site.md #cf4222b # SiteSupports는 열여섯 조각의 경사 band마다 floor surface를 생성해 대지 관찰에 실제 지면 높이를 제공한다.
  * @evidence principles/core/source-units.md#source-scope-preservation 조각마다 경사 띠 하나씩 plane 높이 support를 만들고 경계석은 넣지 않는다.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 # 지원 목록은 templeSitePieces만 순회하고 curb rect는 입력하지 않아 경계석 상단을 걷는 support로 만들지 않는다.
  * @evidence principles/core/source-units.md#source-substantive-completion IAutoMovieBuiltSurface 목록을 돌려주며 대지 관찰 눈높이가 이 support를 읽는다.
@@ -221,7 +221,7 @@ export const templeSiteSupports = (space: string): IAutoMovieBuiltSurface[] =>
 
 /**
  * @evidence spaces/site.md support 중 이웃 바닥을 뺀 보행 가능 ID 목록을 만든다.
- * @evidenceReview spaces/site.md #df1874e # Walkable은 supports에서 ground.* 이웃 구획 ID를 제외하고 earth·paving support ID만 반환한다.
+ * @evidenceReview spaces/site.md #cf4222b # Walkable은 supports에서 ground.* 이웃 구획 ID를 제외하고 earth·paving support ID만 반환한다.
  * @evidence principles/core/source-units.md#source-scope-preservation ID 접두어로 이웃 바닥만 뺀다.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 # 필터가 support.site.ground. 접두어만 지워 흙띠와 포장 구획은 보행에서 유지한다.
  * @evidence principles/core/source-units.md#source-substantive-completion 문자열 목록을 돌려준다.

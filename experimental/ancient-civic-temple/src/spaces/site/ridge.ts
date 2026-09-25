@@ -12,7 +12,7 @@ import { gradeTopFaces } from "./ground";
 
 /**
  * @evidence spaces/site.md 먼 능선 고리의 안쪽 기슭 56m·마루 88m·바깥 기슭 108m, 기슭 높이 -0.3m, 72분할, 기슭 반폭 110m를 둔다.
- * @evidenceReview spaces/site.md #df1874e # templeRidge의 세 반지름 56/88/108m와 −0.3m 기슭, 72분할·110m 외곽이 먼 배경 한 고리의 설계값에 대응한다.
+ * @evidenceReview spaces/site.md #cf4222b # templeRidge의 세 반지름 56/88/108m와 −0.3m 기슭, 72분할·110m 외곽이 먼 배경 한 고리의 설계값에 대응한다.
  * @evidence spaces/site.md#distant-ridge 원점 중심 고리 능선과 국소 대지 밖 기슭의 치수를 설계 값 그대로 옮긴다.
  * @evidenceReview spaces/site.md#distant-ridge #b237983 # ridge 객체가 56·88·108m 동심 고리와 220m 기슭 사각형의 반폭을 정해 국소 대지 표면과 분리된다.
  * @evidence principles/core/source-units.md#source-scope-preservation 능선 치수만 가진다.
@@ -29,7 +29,7 @@ export const templeRidge = {
 /**
  * 방위각 φ(정면 +Z에서 0, 동쪽 +X로 증가)의 마루 높이(m).
  * @evidence spaces/site.md 방위각의 마루 높이 H(φ)=7.0−2.5·cos φ+1.2·sin(3φ+0.7)+0.6·sin(7φ+1.9)를 계산한다.
- * @evidenceReview spaces/site.md #df1874e # Crest가 7−2.5cosφ+1.2sin(3φ+0.7)+0.6sin(7φ+1.9)를 항별로 구현해 능선 높이의 방위 변화를 보존한다.
+ * @evidenceReview spaces/site.md #cf4222b # Crest가 7−2.5cosφ+1.2sin(3φ+0.7)+0.6sin(7φ+1.9)를 항별로 구현해 능선 높이의 방위 변화를 보존한다.
  * @evidence principles/core/source-units.md#source-scope-preservation 설계 식만 계산한다.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 # phi 입력과 부모 식의 네 항만 사용하며 임의 잡음값이나 측정 이미지 높이를 더하지 않는다.
  * @evidence principles/core/source-units.md#source-substantive-completion 한 숫자를 돌려주며
@@ -47,7 +47,7 @@ const at = (radius: number, phi: number, height: number): IAutoMovieVector3 => (
 /**
  * 조각마다 안쪽 경사 두 삼각형과 바깥 경사 두 삼각형. 윗면이 바깥을 본다.
  * @evidence spaces/site.md 고리 능선의 안쪽·바깥 경사 삼각형 면을 72조각으로 만든다.
- * @evidenceReview spaces/site.md #df1874e # 72개 방위각 간격마다 안쪽 두 면과 바깥 두 면을 반환해 마루를 사이에 둔 열린 고리 표면을 이룬다.
+ * @evidenceReview spaces/site.md #cf4222b # 72개 방위각 간격마다 안쪽 두 면과 바깥 두 면을 반환해 마루를 사이에 둔 열린 고리 표면을 이룬다.
  * @evidence principles/core/source-units.md#source-scope-preservation 배경 표면만 내고 보행 support·cell에 넣지 않는다.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 # Face 배열은 surface.site-distant.ridge만 가지고 support나 temple-site cell을 추가하지 않는다.
  * @evidence principles/core/source-units.md#source-substantive-completion 윗면이 바깥을 보는 삼각형 면 목록을 돌려준다.
@@ -77,7 +77,7 @@ export const templeRidgeFaces = (): WallFace[] => {
 /**
  * 국소 대지 범위를 둘러싼 네 기슭 띠.
  * @evidence spaces/site.md 국소 대지 범위를 둘러싼 네 기슭 띠를 한 변 220m 사각형 안에 둔다.
- * @evidenceReview spaces/site.md #df1874e # FootholdRects가 farHalf=110m 사각형에서 local extent를 뺀 남·북·서·동 네 띠를 반환한다.
+ * @evidenceReview spaces/site.md #cf4222b # FootholdRects가 farHalf=110m 사각형에서 local extent를 뺀 남·북·서·동 네 띠를 반환한다.
  * @evidence principles/core/source-units.md#source-scope-preservation 대지 범위 밖만 채운다.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 # 각 띠의 안쪽 끝이 templeSiteExtent의 바깥선에 닿고 중앙 local site를 다시 덮지 않는다.
  * @evidence principles/core/source-units.md#source-substantive-completion 사각 목록을 돌려준다.
@@ -97,7 +97,7 @@ export const templeFootholdRects = (): PlanRectangle[] => {
 
 /**
  * @evidence spaces/site.md 기슭 띠의 지면 윗면을 surface.site-distant.ground로 낸다.
- * @evidenceReview spaces/site.md #df1874e # 각 기슭 사각형을 gradeTopFaces로 변환해 먼 배경 지면의 윗면을 site-distant.ground owner로 낸다.
+ * @evidenceReview spaces/site.md #cf4222b # 각 기슭 사각형을 gradeTopFaces로 변환해 먼 배경 지면의 윗면을 site-distant.ground owner로 낸다.
  * @evidence principles/core/source-units.md#source-scope-preservation 대지 지면 규칙을 이어받은 윗면만 만든다.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 # 이 함수는 gradeTopFaces만 호출하므로 먼 기슭의 옆면·아랫면·보행 support를 만들지 않는다.
  * @evidence principles/core/source-units.md#source-substantive-completion 네 기슭 띠의 경사 띠 윗면을 돌려주며 능선 삼각형과 함께 site-distant model이 열린 표면으로 결산된다.

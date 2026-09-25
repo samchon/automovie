@@ -24,48 +24,48 @@
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 표는 설계 답이고, 방출 surface ID의 owner 열거와 표 행의 대조가 별도 역검사라고 마지막 문단이 구별한다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 한 공유벽의 양쪽 마감과 내부 접촉면을 구별해 실체와 시각 면을 같은 것으로 세지 않는다.
 @evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 cell 분해나 반복이 완결 면을 나눌 권한이 없고 독립 물체와 이웃·식생의 표면은 prototype 하나에 남는다.
-@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 역검사를 `npm run self-check`의 owner 열거로 수행한다고 적어, 누락 owner가 하나라도 있으면 1단계를 닫지 않는 조건을 실제로 적용할 수단이 있다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 `npm run self-check`의 surfaceOwnerAudit가 표의 방출 owner 열과 실제 방출 owner를 양방향 대조하고 누락·중복을 failure 합에 넣으므로 표 밖 방출을 실패로 돌린다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 settings의 분기 배정을 각 입면·방·roof·대지·내부 경계벽의 단독 파일과 접합 면의 귀속으로 구체화했다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 물리벽과 양면 마감, reveal을 구별하면 분담이 유지돼 이 표면 지도에서 드러난 부모 결함은 없고, 대지 행 수정은 site의 upstream 보고로 분리돼 있다.
 @evidenceReview settings/00-delivery.md#build-scope #8d597f9 고친 build-scope의 대지 행이 표의 두 대지 행으로, 독립 물체 행이 prototype 소유 문장으로 대응한다.
 @evidenceReview obligations/design/spaces.md#addressable-spatial-decisions #9c97153 기준·문·접합·표면·관찰·대지·내부 경계벽 owner를 전체 문서와 대조했고 junctions는 새 완결 면 owner가 아니다.
 @evidenceReview contracts/obligations-spaces.md#surface-ownership #1a50ebe 방 바닥의 벽 두께 문턱, roof 하부·박공, 대지 표면, 내부 경계벽 reveal까지 표에서 귀속시켜 최초 분해를 지급한다.
-@evidenceExcludeReview settings/00-delivery.md#coverage-map #fe00d39 현재 27파일 45 H2 어디에도 settings 파일 소유 목록 자체를 다시 완성하는 host는 없다.
+@evidenceExcludeReview settings/00-delivery.md#coverage-map #fe00d39 이 공간 소유 지도는 settings 파일 소유 목록 자체를 다시 완성하는 host가 아니며, 각 공간은 설정 목록이 가리킨 실제 그래프·외피·실내·대지·관찰 target을 소비한다.
 @evidenceExcludeReview settings/40-environment.md#daylight #eac4028 창·roof·대지 표면의 가림은 결정됐지만 태양 고도·광원 방향·노출을 정하는 host는 없고 조명 수치는 systems에 남는다.
 -->
 
 [추가 공간 의무](../contracts/obligations-spaces.md#surface-ownership)를 실제 평면 경계와 연결한다. 아래의 source 경로는 각 완결 표면의 단독 저작 owner다. 표가 있다는 사실은 compiled binding의 역검사 통과를 뜻하지 않는다. 저작자는 이번 production 세션 한 명이고 fan-out이 생겨도 하나의 행이 가진 완결 표면을 여러 사람에게 나누지 않는다. 내부벽의 물리 topology는 [boundaries](openings.md#boundary-ownership) 한 소유이며 마주 보는 두 마감은 각각의 방 소유다.
 
-| 완결 표면/역할 | design owner | 후속 source owner |
-| --- | --- | --- |
-| 남측 외피와 후퇴 입구 바깥 반환면 | [남측](facades/south.md#south-envelope) | src/spaces/facades/south.ts |
-| 북측 외피·제실 북 박공 | [북측](facades/north.md#north-envelope) | src/spaces/facades/north.ts |
-| 서측 전체 외피 | [서측](facades/west.md#west-envelope) | src/spaces/facades/west.ts |
-| 동측 전체 외피·서비스 문 바깥 | [동측](facades/east.md#east-envelope) | src/spaces/facades/east.ts |
-| 한 층의 기준·바닥 구조체 공유 접합 | [층](storey.md#ground-storey) | src/spaces/storey.ts |
-| 내부 경계벽의 실체와 그 벽을 뚫은 문·창의 reveal(문설주·인방 안쪽 면) | [경계와 개구부](openings.md#boundary-ownership) | src/spaces/boundaries.ts |
-| 현관 안쪽 반환면·계단·상부참 | [현관](rooms/entrance.md#entrance-volume) | src/spaces/rooms/entrance.ts |
-| 중정 바닥·연속 석재 턱 | [중정](rooms/courtyard.md#court-volume) | src/spaces/rooms/courtyard.ts |
-| 한 고리 전체 내벽·바닥·노출 천장 | [주랑](rooms/colonnade.md#ring-volume) | src/spaces/rooms/colonnade.ts |
-| 제실 내벽·바닥·노출 박공 하부 | [제실](rooms/sanctuary.md#sanctuary-volume) | src/spaces/rooms/sanctuary.ts |
-| 봉헌실 내벽·바닥·낮은 천장 | [봉헌실](rooms/offering.md#offering-volume) | src/spaces/rooms/offering.ts |
-| 관리실 내벽·바닥·천장 | [관리실](rooms/administration.md#office-volume) | src/spaces/rooms/administration.ts |
-| 기록실 내벽·바닥·천장 | [기록실](rooms/records.md#records-volume) | src/spaces/rooms/records.ts |
-| 보관실 내벽·바닥·천장 | [보관실](rooms/storage.md#storage-volume) | src/spaces/rooms/storage.ts |
-| 마당 포장·안쪽 벽·낮은 벽 상단 | [서비스 마당](rooms/service-yard.md#yard-volume) | src/spaces/rooms/service-yard.ts |
-| 제실 지붕 상부·바깥 처마 하부 | [제실 지붕](roofs/sanctuary.md#sanctuary-roof) | src/spaces/roofs/sanctuary.ts |
-| 서측 날개 지붕 상부·바깥 하부 | [서측 지붕](roofs/west.md#west-roof) | src/spaces/roofs/west.ts |
-| 동측 날개 지붕 상부·바깥 하부 | [동측 지붕](roofs/east.md#east-roof) | src/spaces/roofs/east.ts |
-| 남북 주랑 덮개 상부·바깥 끝 | [주랑 지붕](roofs/colonnade.md) | src/spaces/roofs/colonnade.ts |
-| 포치 지붕과 외부 처마 전체 | [포치 지붕](roofs/porch.md#porch-roof) | src/spaces/roofs/porch.ts |
-| 대지 흙띠·경계석·포장·이웃 바닥 | [흙띠·경계석·포장](site.md#site-paving) | src/spaces/site/ground.ts |
-| 먼 능선과 기슭 | [먼 능선과 기슭](site.md#distant-ridge) | src/spaces/site/ridge.ts |
+| 완결 표면/역할 | design owner | 후속 source owner | 방출 owner |
+| --- | --- | --- | --- |
+| 남측 외피와 후퇴 입구 바깥 반환면 | [남측](facades/south.md#south-envelope) | src/spaces/facades/south.ts | `facade-south` |
+| 북측 외피·제실 북 박공 | [북측](facades/north.md#north-envelope) | src/spaces/facades/north.ts | `facade-north` |
+| 서측 전체 외피 | [서측](facades/west.md#west-envelope) | src/spaces/facades/west.ts | `facade-west` |
+| 동측 전체 외피·서비스 문 바깥 | [동측](facades/east.md#east-envelope) | src/spaces/facades/east.ts | `facade-east` |
+| 한 층의 기준·바닥 구조체 공유 접합 | [층](storey.md#ground-storey) | src/spaces/storey.ts | 없음(각 방 바닥 owner에 귀속) |
+| 내부 경계벽의 실체와 그 벽을 뚫은 문·창의 reveal(문설주·인방 안쪽 면) | [경계와 개구부](openings.md#boundary-ownership) | src/spaces/boundaries.ts | `boundaries` |
+| 현관 안쪽 반환면·계단·상부참 | [현관](rooms/entrance.md#entrance-volume) | src/spaces/rooms/entrance.ts | `entrance` |
+| 중정 바닥·연속 석재 턱 | [중정](rooms/courtyard.md#court-volume) | src/spaces/rooms/courtyard.ts | `courtyard` |
+| 한 고리 전체 내벽·바닥·노출 천장 | [주랑](rooms/colonnade.md#ring-volume) | src/spaces/rooms/colonnade.ts | `colonnade` |
+| 제실 내벽·바닥·노출 박공 하부 | [제실](rooms/sanctuary.md#sanctuary-volume) | src/spaces/rooms/sanctuary.ts | `sanctuary` |
+| 봉헌실 내벽·바닥·낮은 천장 | [봉헌실](rooms/offering.md#offering-volume) | src/spaces/rooms/offering.ts | `offering` |
+| 관리실 내벽·바닥·천장 | [관리실](rooms/administration.md#office-volume) | src/spaces/rooms/administration.ts | `administration` |
+| 기록실 내벽·바닥·천장 | [기록실](rooms/records.md#records-volume) | src/spaces/rooms/records.ts | `records` |
+| 보관실 내벽·바닥·천장 | [보관실](rooms/storage.md#storage-volume) | src/spaces/rooms/storage.ts | `storage` |
+| 마당 포장·안쪽 벽·낮은 벽 상단 | [서비스 마당](rooms/service-yard.md#yard-volume) | src/spaces/rooms/service-yard.ts | `service-yard` |
+| 제실 지붕 상부·바깥 처마 하부 | [제실 지붕](roofs/sanctuary.md#sanctuary-roof) | src/spaces/roofs/sanctuary.ts | `roof-sanctuary` |
+| 서측 날개 지붕 상부·바깥 하부 | [서측 지붕](roofs/west.md#west-roof) | src/spaces/roofs/west.ts | `roof-west` |
+| 동측 날개 지붕 상부·바깥 하부 | [동측 지붕](roofs/east.md#east-roof) | src/spaces/roofs/east.ts | `roof-east` |
+| 남북 주랑 덮개 상부·바깥 끝 | [주랑 지붕](roofs/colonnade.md) | src/spaces/roofs/colonnade.ts | `roof-colonnade` |
+| 포치 지붕과 외부 처마 전체 | [포치 지붕](roofs/porch.md#porch-roof) | src/spaces/roofs/porch.ts | `roof-porch` |
+| 대지 흙띠·경계석·포장·이웃 바닥 | [흙띠·경계석·포장](site.md#site-paving) | src/spaces/site/ground.ts | `site` |
+| 먼 능선과 기슭 | [먼 능선과 기슭](site.md#distant-ridge) | src/spaces/site/ridge.ts | `site-distant` |
 
 surface ID는 `surface.<owner>.<face>`로 안정되게 정하고 실제 boundary/element의 면 범위에 결속한다. [벽 접합](junctions.md#wall-junctions)의 공통 내부 접면은 노출 마감이 아니며 모서리 절단이 외측 면의 소유를 바꾸지 않는다. [박공 폐쇄](junctions.md#gable-closures)의 노출 면도 위의 입면·방·지붕 소유에 속한다. junctions는 접합 계산의 소유이고 완결 시각 표면의 새 공동 소유자가 아니다. 마감의 수치값은 materials가 이 host를 소비하며 면을 다른 owner로 쪼개지 않는다. 기둥·문틀·문짝·수반·제단 같은 독립 물체의 전체 표면은 해당 model prototype 한 소유이고 방 파일은 배치와 접촉을 소비한다. 반복 instance마다 표면 정의를 복제하지 않는다.
 
 표의 방 바닥은 [문턱 귀속](storey.md#threshold-support)에 배정된 벽 두께 안 문턱까지 포함한다. 같은 문턱을 주랑과 방이 반씩 만들거나 문 model이 별도 바닥으로 덮지 않는다. 계측용 support patch나 계산 cell의 분해도 이 완결 표면 소유를 나누지 않는다.
 
-이 지도는 compiled host binding이 아니다. source의 실제 모든 노출 면을 역으로 읽어 빠진 면·두 owner가 붙은 면·존재하지 않는 경계를 분모에 남긴다. `npm run self-check`가 방출된 surface ID를 owner별로 열거하며, 그 owner마다 위 표의 행이 있는지 대조한다. 한 누락이라도 있으면 최초 공간 단계는 닫히지 않는다. 대지의 지면·경계석·먼 능선 표면은 [대지](site.md#site-extent) owner가 건물과 다른 소유 단위로 만든다. 이웃 외피·나무·풀의 전체 표면은 각 model prototype 한 소유이고 instances가 [배치 구역](site.md#placement-zones) 안에 둔다. 대지 표면을 건물 표면에 섞지 않는다.
+이 지도는 compiled host binding이 아니다. source의 실제 모든 노출 면을 역으로 읽어 빠진 면·두 owner가 붙은 면·존재하지 않는 경계를 분모에 남긴다. `npm run self-check`가 방출된 surface ID를 owner별로 열거하고 위 표의 `방출 owner` 열과 양방향으로 대조한다. 방출 owner가 표에 없거나 표의 owner가 방출되지 않거나 표에 중복되면 실패한다. 대지의 지면·경계석·먼 능선 표면은 [대지](site.md#site-extent) owner가 건물과 다른 소유 단위로 만든다. 이웃 외피·나무·풀의 전체 표면은 각 model prototype 한 소유이고 instances가 [배치 구역](site.md#placement-zones) 안에 둔다. 대지 표면을 건물 표면에 섞지 않는다.
 
 ## 주랑과 제실 벽의 하부 띠 {#interior-dado}
 

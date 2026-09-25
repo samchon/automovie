@@ -99,7 +99,7 @@ storey ID `temple-ground`의 부모는 `temple`이다. [건물 연결](building.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 현관 석단 앞과 동·서 외벽 경사 접촉을 포함한 종단면에서 부유·체적 중첩·묻힌 석단·문 위 벽 띠가 각각 실패이며 판정은 unverified로 남았다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 접지 요구에 대지 지면을 읽는 하단 유도와 받침 아래 0.06m 틈을 막는 구조체 연장을 더한 것이 이 단위의 결정이다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 대지 지면이 정문·서비스 두 높이를 잇고 최저 접촉을 공급해 기단 접촉이 성립하므로 부모에 지형이나 구조 보증을 더할 결함이 없었다.
-@evidenceReview settings/40-environment.md#site #f317e20 접촉선 전체의 최저값을 쓰므로 정면보다 높은 동·서 외벽 경사 구간에서도 벽이 지면 위에서 끝나지 않는다.
+@evidenceReview settings/40-environment.md#site #44f3c09 접촉선 전체의 최저값을 쓰므로 정면보다 높은 동·서 외벽 경사 구간에서도 벽이 지면 위에서 끝나지 않는다.
 -->
 
 [환경의 접지 요구](../settings/40-environment.md#site)를 소비한다. 외부 지면의 높이는 [대지 지면](site.md#site-grade)이 소유하며 이 층에서 새 경사나 지형을 만들지 않는다. 실제 외벽 바깥 접촉선을 따라 읽은 지면의 최저 높이와, 외벽에 닿는 바닥·석단의 최저 완성면 중 낮은 값에서 [일반 바닥 두께](#ground-storey)를 뺀 높이를 공통 외벽 하단으로 선택한다. 이 매입 여유는 렌더에서 노출 틈을 남기지 않을 형상 입력이며 지반 지지력·기초 구조계산이나 고대 시공 치수의 주장으로 쓰지 않는다.

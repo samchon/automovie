@@ -1,12 +1,12 @@
 /** Perimeter observations derived from current boundary and opening hosts. */
 import { builtEnvironmentBuildingCensus, builtSpaceContainsPoint, builtSpaceObservationStations, builtSpaceVolumeBounds, Quaternion } from "@automovie/engine";
 import type { IAutoMovieBuiltEnvironment, IAutoMovieBuiltSpace, IAutoMovieVector3 } from "@automovie/interface";
+import { templeObservationEye as eye, templeViewerLens } from "../geometry/observation-datum";
 import { templePlan as p } from "./building";
 import { templeDoorPassages } from "./openings";
 import { templeRoofRules } from "./roofs/assembly";
 import type { TempleObservation } from "./observations";
 
-const eye = 1.6;
 
 /**
  * Follow the opening's actual host normal toward the compiled room centre, then stand back from its far wall.
@@ -79,8 +79,8 @@ export const openingFacingObservations = (environment: IAutoMovieBuiltEnvironmen
     // Interior inspection stays level with the opening; the required centre/corner views remain at floor + 1.6 m.
     const eyeHeight = target.y;
     const profileHeight = Math.max(...outline.map((corner) => corner.y)) - Math.min(...outline.map((corner) => corner.y));
-    // Fit the physical profile within 70% of the 50-degree vertical view; keep at least 2 m of wall context.
-    const desiredDistance = Math.max(profileHeight / (0.7 * 2 * Math.tan(25 * Math.PI / 180)), 2);
+    // Fit the physical profile within 70% of the shared vertical view; keep at least 2 m of wall context.
+    const desiredDistance = Math.max(profileHeight / (0.7 * 2 * Math.tan(templeViewerLens.halfVerticalRadians)), 2);
     const position = space === undefined || anchor === undefined ? null
       : openingFacingEye(space, target, normal, anchor, eyeHeight, desiredDistance);
     if (position === null) throw new Error(`temple/observations: ${opening.id} room-facing eye outside ${room ?? "?"}`);
@@ -92,8 +92,8 @@ export const openingFacingObservations = (environment: IAutoMovieBuiltEnvironmen
   });
 };
 
-/** 1600×1000, 수직 50° 프레임에서 폭 width가 약 78%를 채우는 거리(m). */
-const fitDistance = (width: number): number => (width / 0.78) / 2 / (Math.tan(25 * Math.PI / 180) * 1.6);
+/** 공통 비교 프레임에서 폭 width가 약 78%를 채우는 거리(m). */
+const fitDistance = (width: number): number => (width / 0.78) / 2 / (Math.tan(templeViewerLens.halfVerticalRadians) * templeViewerLens.aspect);
 
 /**
  * @evidence spaces/observations.md 외부 setting과 경계·개구부 관찰을 현재 environment에서 유도한다.
@@ -144,7 +144,7 @@ export const exteriorObservations = (environment: IAutoMovieBuiltEnvironment): T
       } : entrySideUpper ? {
         x: returnSide * 5.0, y: 5.8, z: p.entranceBack - 2,
       } : entryEndLower ? {
-        x: face.centroid.x, y: 1.6, z: (p.courtBack + p.courtFront) / 2,
+        x: face.centroid.x, y: eye, z: (p.courtBack + p.courtFront) / 2,
       } : entrySideLower ? {
         x: returnSide * 4.2, y: 1.4, z: (p.entranceBack + p.entranceFront) / 2,
       } : streetEnd ? {
@@ -152,7 +152,7 @@ export const exteriorObservations = (environment: IAutoMovieBuiltEnvironment): T
       } : pedimentFront ? {
         x: 0, y: 4.8, z: p.southOuter + 4,
       } : pedimentBack ? {
-        x: 0, y: 3.3, z: p.southInner - 0.35,
+        x: 0, y: 3.3, z: p.southInner - templeRoofRules.overhang,
       } : {
         x: face.centroid.x + outward.x * distance, y: elevated ? face.centroid.y + 0.8 : eye + 0.6,
         z: face.centroid.z + outward.z * distance,

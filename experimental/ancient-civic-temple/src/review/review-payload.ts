@@ -16,6 +16,9 @@ import { sourceBasis, sourceRevision, type SourceRevision } from "./source-basis
 import { addressCoverageCensus, type AddressCoverage } from "./address-coverage";
 import { ownFacadeFailures, ownFacadeViews, type OwnFacadeRow } from "./own-facade-view";
 import { exposedAddressExceptions } from "./address-exceptions";
+import { auditSurfaceOwners } from "./surface-owner-audit";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 
 export interface ReviewPayload {
   basis: string;
@@ -30,6 +33,7 @@ export interface ReviewPayload {
   ledger: LedgerRow[];
   /** 방출된 완결 표면 ID를 owner별로 모은 목록(표면 소유 역검사). */
   surfaces: Array<{ owner: string; ids: string[] }>;
+  surfaceOwnerAudit: ReturnType<typeof auditSurfaceOwners>;
   /** 계약을 어긴 결산 행 수와 겹친 쌍·실체 안 pose 수의 합. 0이 아니면 자가검사 실패다. */
   failures: number;
 }
@@ -62,13 +66,16 @@ export const createReviewPayload = (grid: number): ReviewPayload => {
   }
   const surfaces = [...owners].sort(([a], [b]) => a.localeCompare(b))
     .map(([owner, ids]) => ({ owner, ids: [...ids].sort((a, b) => a.localeCompare(b)) }));
+  const surfaceOwnerAudit = auditSurfaceOwners(
+    readFileSync(join(__dirname, "../../docs/spaces/ownership.md"), "utf8"), surfaces,
+  );
   return {
     basis, revision, overlaps,
     observations: { count: list.length, withoutPose: list.filter((o) => o.position === null).length, buried }, boundaryUpper, openingFrustum, addressCoverage, missingExceptionObservations, ownFacades,
-    ledger, surfaces,
+    ledger, surfaces, surfaceOwnerAudit,
     failures: pairs.length + buried.length + ledger.filter((row) => row.findings.length > 0).length +
       boundaryUpper.filter((row) => row.exposed > 0).length + openingFrustum.filter((row) => !row.roomCenterVisible || !row.completeProfileFramed).length +
       addressCoverage.unexpected + addressCoverage.addressedInException + addressCoverage.exceptions.filter((entry) => entry.samples === 0).length +
-      ownFacadeFailures(ownFacades).length + missingExceptionObservations.length,
+      ownFacadeFailures(ownFacades).length + missingExceptionObservations.length + surfaceOwnerAudit.failures.length,
   };
 };

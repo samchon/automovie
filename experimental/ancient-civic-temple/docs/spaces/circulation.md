@@ -60,7 +60,7 @@
 <!--
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 대지 서비스 문 앞 포장에서 보관실 중앙까지 반입 순서가 이어지고 제실·기록실을 거치지 않아 서비스 기능이 공용 방을 잠식하지 않는다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 contact-temple-service, door-service-exterior, door-yard, door-storage가 차례로 명명돼 반입 경로의 시작과 도착이 정해진다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 외부 쪽 Y=0 지면과 서비스 문 connector는 site 링크, 운반 포락은 설정, 건물 안 높이는 층에서 받는다고 구분했다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb site 링크는 외부 Y=0 지면과 서비스 문 접속을 주고, 이 H2는 운반 포락과 층 바닥 높이를 경로 검사 입력으로 지명한다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 북동 주랑의 짧은 구간을 공유하므로 마당-보관실 사이에 새 문이나 두 번째 순환 복도가 필요하지 않다.
 @evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 문 위치를 다시 적지 않고 openings를 소비하며 이 H2는 반입 순서와 회전 검사만 결정한다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 좁은 마당 문 앞과 북동 모서리 회전점이 지정돼 직선 통과만으로 반입 경로를 통과시킬 수 없다.

@@ -18,7 +18,7 @@
 <!--
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 두 단과 상부참, 양측 받침 위 두 기둥, 기둥 위 보와 후퇴벽 문턱까지 현관 안에 남겨 정면 포치의 부재가 빠지지 않는다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 기둥 중심 Z=10.00m와 보 폭 0.30m가 적혀 보가 기둥 머리에 얹히는 위치를 source가 새로 고르지 않는다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb Z 구간 표는 south-outer에서 두 디딤을 뺀 산술이고, 기둥 기단 앞면을 south-outer에 맞춘 선택도 삼각 막음 위치에서 유도했다고 밝힌다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb Z 구간 표는 south-outer에서 두 디딤을 뺀 산술이고, 기둥 기단 앞면을 south-outer에 맞춘 선택은 이 H2에서 별도로 채택했다고 밝힌다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 기둥을 앞으로 옮겨도 entrance 하나 안의 cell과 받침만 쓰며 정문 축과 중정 사이에 새 방을 끼우지 않는다.
 @evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 보 위 삼각 막음은 남측 입면, 안쪽 반환면과 석단은 현관, 포치 roof는 porch owner로 남아 한 면의 이중 저작이 없다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 기둥 받침을 지나는 평행 단면과 종단면을 적어 기둥이 첫 디딤 옆 받침 위에 서는지 확인하게 했다.
@@ -46,4 +46,4 @@
 
 현관은 한 `entrance` 공간이며 바닥 높이가 바뀌는 구간과 양측 받침에서 `cells`를 나눈다. 아래 경계는 각 구간의 완성면이고 위 경계는 [합성된 포치 지붕](../roofs/porch.md#porch-roof)의 실제 하부다. 계단의 최저 높이를 현관 전체의 바닥으로 복사해 석재 내부를 공간에 포함하지 않는다. 동일 높이의 둘째 디딤·참은 합칠 수 있고, 경사지붕 때문에 더 나눈 cell도 같은 공간에 남는다. 후퇴벽의 문턱 통과 cell은 기존 층 배정을 따른다. cell 접면은 물리벽·새 방·새 순환 경로를 만들지 않으며, 실제 보·기둥·문짝 충돌은 별도로 확인한다.
 
-source `src/spaces/rooms/entrance.ts`가 현관 공간, 석단·상부참, 안쪽 반환벽의 완결 표면을 맡는다. 바깥 정면과 포치 지붕은 각 [입면](../facades/south.md#south-envelope)과 [지붕](../roofs/porch.md#porch-roof) owner다. 관찰은 도로→두 단→상부참→열린 문→주랑의 종단면, 네 모서리와 문 안/밖 threshold이며 카메라 이동으로 실제 발 디딤 연결을 대신하지 않는다.
+source `src/spaces/rooms/entrance.ts`가 현관 공간, 석단·상부참, 안쪽 반환벽의 완결 표면을 맡는다. 바깥 정면과 포치 지붕은 각 [입면](../facades/south.md#south-envelope)과 [지붕](../roofs/porch.md#porch-roof) owner다. 관찰은 도로→두 단→상부참→열린 문→주랑의 종단면, 기둥 받침 X=±1.35m를 지나는 [평행 단면](../observations.md#geometry-observations), 네 모서리와 문 안/밖 threshold다. 종단면 X=0은 기둥 받침을 지나지 않으므로 평행 단면에서 받침과 기둥의 접촉을 별도로 확인하며 카메라 이동으로 실제 발 디딤 연결을 대신하지 않는다.

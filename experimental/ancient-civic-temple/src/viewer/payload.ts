@@ -6,6 +6,7 @@
  */
 import { builtEnvironmentBuildingCensus, lowerBuiltEnvironment, tessellateToMesh } from "@automovie/engine";
 import type { IAutoMovieHeightRule, IAutoMovieMesh, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import { templeViewerLens } from "../geometry/observation-datum";
 import { createTempleEnvironment } from "../spaces/environment";
 import { templeObservations, templeSpaceNames } from "../spaces/observations";
 
@@ -53,6 +54,8 @@ export const createViewerPayload = () => {
     s + (part.mesh.indices?.length ?? part.mesh.positions.length / 3) / 3, 0), 0);
   return {
     environmentId: environment.id,
+    lens: { verticalDegrees: templeViewerLens.verticalDegrees, aspect: templeViewerLens.aspect,
+      near: templeViewerLens.near, far: templeViewerLens.far },
     models,
     placements,
     spaces: environment.spaces.filter((s) => s.cells.length > 0).map((s) => ({

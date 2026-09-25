@@ -95,11 +95,15 @@ export const templeCourtyard = (): IAutoMovieBuiltSpace => ({
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work rooms/courtyard.md#court-volume의 분수 치수를 그대로 옮겼다.
  * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 # CourtyardPlan의 네 변으로 다시 계산한 중앙점과 외경·물면·물줄기 범위가 기존 중정 예약과 같아 공간 크기 수리는 필요하지 않았다.
  */
-export const templeFountainInputs = () => ({
-  center: { x: (templeCourtyardPlan.west + templeCourtyardPlan.east) / 2, y: y.courtyard,
-    z: (templeCourtyardPlan.north + templeCourtyardPlan.south) / 2 },
-  outerDiameter: 2,
-  rimHeight: y.courtyard + 0.52,
-  waterHeight: y.courtyard + 0.52 - 0.08,
-  jetTop: y.courtyard + 0.52 - 0.08 + 0.65,
-});
+export const templeFountainInputs = () => {
+  const rimHeight = y.courtyard + 0.52;
+  const waterHeight = rimHeight - 0.08;
+  return {
+    center: { x: (templeCourtyardPlan.west + templeCourtyardPlan.east) / 2, y: y.courtyard,
+      z: (templeCourtyardPlan.north + templeCourtyardPlan.south) / 2 },
+    outerDiameter: 2,
+    rimHeight,
+    waterHeight,
+    jetTop: waterHeight + 0.65,
+  };
+};

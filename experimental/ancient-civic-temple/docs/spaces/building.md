@@ -21,7 +21,7 @@
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 폐기 후보의 얕은 제실과 현재 깊이 5.5m를 비교한 선택이 있어 면적 숫자만 적은 평면이 아니다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 21×20.5의 산술을 compiled 값과 구별하고 사진 픽셀에서 얻지 않았다고 명시했다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 왼쪽 봉헌실을 쪼개지 않은 채 중앙 고리와 우측 작업실을 수용하는 관계를 읽었다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 범위와 조립을 building.ts에 남기면서 완결 외피를 입면 owner로 보내는 경계가 있다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 범위와 조립은 building.ts에 남기고 본문은 입면 마감을 평면 파일에 몰아넣지 않아 외피 owner의 결정을 침범하지 않는다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 실제 범위의 불일치와 두 번째 층·중정의 발생을 실패로 삼아 이 외곽 결정을 반증할 수 있다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모가 허용한 거의 정방형 규모에서 벽 두께와 제실/중정의 유효 깊이를 추가 결정했다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 면적과 제단 조건을 후보에 대조한 결과는 제단 축소가 아니라 평면 선택 변경이다. 상위 요구를 버린 근거는 없다.
@@ -114,7 +114,7 @@ building ID는 `temple`이다. source 소유는 `src/spaces/building.ts`이며 b
 <!--
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 서비스 마당까지 같은 지상층 목록에 있으며 방끼리 통과해야 하는 막힌 목적지가 없다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 부모 위계와 문/고리/경로의 참조 주소가 있어 이름 목록 뒤의 연결 결정을 찾을 수 있다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb settings의 단층 조건이 temple 아래 지상층 하나라는 구체 부모 관계의 권위다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb [층의 부모 관계](storey.md#ground-storey)를 참조해 temple 아래 지상층 하나라는 관계를 이 목록에 사용한다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 네 변을 별도 방으로 등록하지 말라는 본문이 하나의 주랑 identity를 보존한다.
 @evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 부모 목록이 door 위치나 고리 윤곽을 다시 정하지 않고 각 owner로 보낸다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 storeyId 대조만으로 끝내지 않고 void·바닥·문짝을 읽어 명목상 도달의 오판을 막는다.
@@ -154,7 +154,7 @@ building ID는 `temple`이다. source 소유는 `src/spaces/building.ts`이며 b
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정의 도로/서비스 접근을 public/service 두 안정 ID와 서로 다른 진입 방향·높이로 나눈 것이 이 단위가 더한 결정이다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 정문 석단과 서비스 무단차가 두 접점에서 양립하고 대지 쪽 connector도 그 높이를 그대로 받아 부모에서 고칠 결함이 드러나지 않았다.
 @evidenceReview settings/10-building.md#ground-access #be07d7d 서비스 행이 층 owner의 서비스 외부 높이를 소비해 정문 계단 하단 높이와 구별되고 서비스 문턱에 단이 생기지 않는다.
-@evidenceReview settings/40-environment.md#site #f317e20 설정의 외부 길 연속 요구가 대지 connector 두 개로 건물 접면까지 이어지며 실제 왕복 통과는 unverified로 남는다.
+@evidenceReview settings/40-environment.md#site #44f3c09 설정의 외부 길 연속 요구가 대지 connector 두 개로 건물 접면까지 이어지며 실제 왕복 통과는 unverified로 남는다.
 -->
 
 건물 `temple`은 외부 보행을 아래 두 접점에서 받아 기존 지상층 공간으로 잇는다. 이 ID는 건물 측 바닥·출입 경계의 식별자이며 새 방, 추가 출입문 또는 대지 쪽 공간이 아니다. 좌표는 [기준선](#plan-datums), 바닥 높이는 [층](storey.md#ground-storey), 폭은 실제 계단과 문을 소유하는 설계에서 가져온다. `src/spaces/building.ts`는 이 관계를 내보내고 바닥이나 문 mesh를 복제하지 않는다.

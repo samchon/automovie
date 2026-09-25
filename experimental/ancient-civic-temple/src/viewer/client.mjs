@@ -1,7 +1,7 @@
 // @ts-check
 /**
  * 신전 뷰어 클라이언트. 서버가 현재 source로 만든 payload만 그린다.
- * 원근 카메라(수직 50°), 설정의 주광 방향(정면 좌측 위, 고도 45°)과 하늘
+ * 원근 카메라의 source 렌즈, 설정의 주광 방향(정면 좌측 위, 고도 45°)과 하늘
  * 보조광, 부드러운 그림자, 깊이를 쓴다. 라벨·support·표면 소유 색·절개는
  * 검사 모드에서만 켠다. 연직 단면은 X 또는 Z 평면으로 자르고, 서버가 현재
  * source의 실체에서 계산한 정확한 단면 조각과 지면선을 그 평면에 그리며,
@@ -65,7 +65,7 @@ console.info("RENDERER", rendererName);
 
 const scene = new THREE.Scene();
 scene.background = skyTexture();
-const camera = new THREE.PerspectiveCamera(50, 1.6, 0.05, 400);
+const camera = new THREE.PerspectiveCamera();
 const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = false;
 controls.maxDistance = 160;
@@ -189,6 +189,11 @@ async function load() {
   }
   /** @type {{ basis: string, payload: Payload }} */
   const body = await response.json();
+  camera.fov = body.payload.lens.verticalDegrees;
+  camera.aspect = body.payload.lens.aspect;
+  camera.near = body.payload.lens.near;
+  camera.far = body.payload.lens.far;
+  camera.updateProjectionMatrix();
   const uploaded = uploadTemple(body.payload);
   const supports = uploadSupports(body.payload);
   supports.visible = false;
@@ -324,7 +329,7 @@ function describe() {
   const f = (/** @type {{x:number,y:number,z:number}} */ v) => `(${v.x.toFixed(2)}, ${v.y.toFixed(2)}, ${v.z.toFixed(2)})`;
   details.textContent = [
     `관찰: ${station.id}`, `이름: ${station.label}`, `역할: ${station.role}`,
-    `카메라: ${f(camera.position)}`, `target: ${f(controls.target)}`, "렌즈: 수직 50°, 1600×1000 비교 프레임",
+    `카메라: ${f(camera.position)}`, `target: ${f(controls.target)}`, `렌즈: 수직 ${camera.fov}°, 화면 비율 ${camera.aspect.toFixed(2)}`,
     `모드: ${inspection.checked ? `검사(${section.value})` : "납품 보기"}`,
     sectionLine(),
     station.note === null ? "" : `메모: ${station.note}`,

@@ -4,18 +4,18 @@
 
 <!--
 @evidence principles/core/common.md#scope-preservation 정문 길·경계석·마른 흙과 도로/서비스 접근, 건물 기단 접촉을 함께 다룬다.
-@evidence principles/core/common.md#substantive-completion 국소 보행·이웃·식생의 범위를 외벽에서 최대 25m로 정하고 먼 배경은 분리한다.
+@evidence principles/core/common.md#substantive-completion 국소 보행·이웃·식생의 범위를 건물 네 바깥면을 각각 25m 바깥으로 옮긴 직사각형으로 정하고 먼 배경은 분리한다.
 @evidence principles/core/common.md#declared-basis 이미지 01의 길을 참고하고 25m 한계는 저작자의 국소 setting 선택이다.
-@evidence principles/core/settings.md#fact-status 이 반경은 배경 제작 범위이지 발굴 구역이나 실제 도로 폭의 측정값이 아니다.
+@evidence principles/core/settings.md#fact-status 이 직사각형은 배경 제작 범위이지 발굴 구역이나 실제 도로 폭의 측정값이 아니다.
 @evidence principles/core/settings.md#source-support 외관 image의 포장·흙 관계를 따르며 실제 도시 기반시설 자료로 해석하지 않는다.
 @evidence principles/core/settings.md#capability-boundary 대지는 외부 출입·그림자·접촉을 관찰할 공간을 제공하지만 단색 정육면체로 대체할 수 없다.
-@evidence principles/core/settings.md#constraint-sufficiency 도로와 서비스 접근의 연속, 지면-기단 맞닿음과 25m 밖 먼 지형 소유를 명시한다.
+@evidence principles/core/settings.md#constraint-sufficiency 도로와 서비스 접근의 연속, 지면-기단 맞닿음과 직사각형 밖 먼 지형 소유를 명시한다.
 @evidence principles/core/settings.md#observable-identity 거친 석재 길과 낮은 경계석, 벽 가장자리의 좁은 마른 흙이 신전의 지상 접촉을 보여 준다.
 -->
 
 <!--
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 정문 포장뿐 아니라 서비스 접근과 기단 접촉도 요구해 건물이 지면 위에 떠 있는 상태를 남기지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 외벽에서 최대 25m라는 범위와 먼 지형 소유를 정해 인접 환경의 끝을 후속 저작자가 다시 정하지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 네 외벽 평면을 각각 25m 옮긴 직사각형과 먼 지형 소유를 정해 인접 환경의 끝을 후속 저작자가 다시 정하지 않는다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 01의 포장·흙은 참고이고 25m는 저작자의 국소 setting 선택으로 표시했다.
 @evidenceReview principles/core/settings.md#fact-status #93a284a 국소 제작 한계를 정한 거리이며 발굴 구역이나 실재 도로의 측정값으로 제시하지 않는다.
 @evidenceReview principles/core/settings.md#source-support #430bca9 외관 이미지의 석재 길·벽 밑 흙은 확인되지만 실제 기반시설 자료를 확보했다는 주장은 없다.
@@ -24,7 +24,7 @@
 @evidenceReview principles/core/settings.md#observable-identity #4ccb62e 거친 석재 포장·낮은 경계석·좁은 마른 흙의 대비가 신전 주변의 지상 접촉을 읽게 한다.
 -->
 
-이미지 01에 근거해 정문 앞에는 거친 석재 포장 길과 낮은 경계석, 벽 가장자리에는 좁은 마른 흙 구간을 둔다. 저작자 결정: 보행·인접 건물·식생을 저작하는 국소 setting은 신전 외벽에서 최대 25m 이내로 한정한다. 먼 배경의 별도 범위는 [먼 지형](#distant-terrain)을 따른다. 도로와 외부 서비스 접근이 끊기지 않고 지면과 건물 기단이 맞닿는다. 대지를 단색 정육면체로 대신하지 않는다. 외부 출입·그림자·지면 접촉을 확인할 수 있는 공간을 남긴다.
+이미지 01에 근거해 정문 앞에는 거친 석재 포장 길과 낮은 경계석, 벽 가장자리에는 좁은 마른 흙 구간을 둔다. 저작자 결정: 보행·인접 건물·식생을 저작하는 국소 setting은 신전의 서·동·북·남 바깥면을 각각 수직으로 25m 옮겨 만든 직사각형으로 한정한다. 모서리는 외벽의 가장 가까운 점에서 25m를 넘을 수 있으며, 25m는 반경이 아니라 각 바깥면에서 해당 끝선까지의 수직 거리다. 먼 배경의 별도 범위는 [먼 지형](#distant-terrain)을 따른다. 도로와 외부 서비스 접근이 끊기지 않고 지면과 건물 기단이 맞닿는다. 대지를 단색 정육면체로 대신하지 않는다. 외부 출입·그림자·지면 접촉을 확인할 수 있는 공간을 남긴다.
 
 ## 주변 건물과 먼 배경 {#neighborhood}
 
@@ -126,8 +126,8 @@
 @evidenceReview principles/core/settings.md#fact-status #93a284a 허용 거리 범위일 뿐 사진 속 지형의 실제 위치나 지명을 복원한 결과가 아니다.
 @evidenceReview principles/core/settings.md#source-support #430bca9 외관 이미지의 낮은 윤곽이 형태 근거이고 지리 고도나 측량 출처를 꾸미지 않는다.
 @evidenceReview principles/core/settings.md#capability-boundary #83a6f2c 대지 owner가 높이·윤곽을 정해도 평면 사진은 금지돼 먼 거리라는 이유로 billboard 우회를 허용하지 않는다.
-@evidenceReview principles/core/settings.md#constraint-sufficiency #20cf612 국소 25m 밖이라는 경계와 신전-하늘 분리 역할을 같이 정해 중간 구역을 새 보행 납품으로 오인하지 않는다.
+@evidenceReview principles/core/settings.md#constraint-sufficiency #20cf612 국소 대지 직사각형 밖이라는 경계와 신전-하늘 분리 역할을 같이 정해 중간 구역을 새 보행 납품으로 오인하지 않는다.
 @evidenceReview principles/core/settings.md#observable-identity #4ccb62e 완만한 낮은 능선이어야 하므로 절벽이나 큰 산이 신전보다 주인공처럼 보이는 구성을 거부한다.
 -->
 
-이미지 01의 낮은 언덕 윤곽을 근거로 한다. 저작자 결정: 인접 대지 25m 범위 밖의 배경은 건물에서 40~100m 떨어진 낮고 완만한 입체 능선으로 한정한다. 국소 대지의 도로와 달리 보행·시설·식생 개체를 추가 납품하는 영역이 아니다. 배경 전용이라는 이유로 평면 사진을 붙이지 않으며 높이·윤곽은 spaces의 대지 owner가 신전과 하늘의 분리를 돕도록 결정한다. 산이나 절벽이 신전보다 주인공처럼 보이지 않게 한다.
+이미지 01의 낮은 언덕 윤곽을 근거로 한다. 저작자 결정: [국소 대지](#site)의 직사각형 밖 배경은 건물에서 40~100m 떨어진 낮고 완만한 입체 능선으로 한정한다. 국소 대지의 도로와 달리 보행·시설·식생 개체를 추가 납품하는 영역이 아니다. 배경 전용이라는 이유로 평면 사진을 붙이지 않으며 높이·윤곽은 spaces의 대지 owner가 신전과 하늘의 분리를 돕도록 결정한다. 산이나 절벽이 신전보다 주인공처럼 보이지 않게 한다.

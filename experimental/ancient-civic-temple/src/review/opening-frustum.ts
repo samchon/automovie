@@ -1,6 +1,7 @@
 /** Perspective/frustum audit for the complete compiled opening population. */
 import { Quaternion } from "@automovie/engine";
 import type { IAutoMovieBuiltEnvironment, IAutoMovieVector3 } from "@automovie/interface";
+import { templeViewerLens } from "../geometry/observation-datum";
 import type { TempleObservation } from "../spaces/observations";
 
 const dot = (a: IAutoMovieVector3, b: IAutoMovieVector3): number => a.x * b.x + a.y * b.y + a.z * b.z;
@@ -11,7 +12,7 @@ const unit = (a: IAutoMovieVector3): IAutoMovieVector3 => {
   return { x: a.x / length, y: a.y / length, z: a.z / length };
 };
 
-/** Matches the viewer's 50 degree vertical FOV, 1600:1000 aspect and 0.05 m near plane. */
+/** Uses the same vertical field, capture aspect, and near plane as the viewer payload. */
 export const inViewerFrustum = (position: IAutoMovieVector3, target: IAutoMovieVector3, point: IAutoMovieVector3): boolean => {
   const forward = unit(sub(target, position));
   const horizontal = Math.hypot(forward.x, forward.z);
@@ -19,8 +20,8 @@ export const inViewerFrustum = (position: IAutoMovieVector3, target: IAutoMovieV
   const up = { x: -forward.y * right.z, y: right.z * forward.x - right.x * forward.z, z: forward.y * right.x };
   const ray = sub(point, position);
   const depth = dot(ray, forward);
-  const halfHeight = depth * Math.tan(25 * Math.PI / 180);
-  return depth >= 0.05 && Math.abs(dot(ray, right)) <= halfHeight * 1.6 + 1e-9 &&
+  const halfHeight = depth * Math.tan(templeViewerLens.halfVerticalRadians);
+  return depth >= templeViewerLens.near && Math.abs(dot(ray, right)) <= halfHeight * templeViewerLens.aspect + 1e-9 &&
     Math.abs(dot(ray, up)) <= halfHeight + 1e-9;
 };
 

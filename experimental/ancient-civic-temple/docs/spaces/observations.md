@@ -27,7 +27,7 @@
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 중정 구멍과 현관 notch를 보존하고 끝 칸·반환벽·안타·박공을 기존 공간에 묶는다. 제실 양쪽 처마 밑과 마당 spine 상부는 접합 질문이고 박공 뒷면은 열린 현관 질문이라 새 방이 생기지 않는다.
 @evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 compiled boundary/opening ID를 소비하며 박공 양면은 각기 기존 물리 host를 가리킨다. 서·동 spine 처마 밑과 마당 쪽 spine 상부는 원래 벽 소유 그대로 section에, 박공 뒷면은 현관 경계에 남는다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 입면 face 밖 노출 띠 20구간을 모서리·T·파라펫 질문에 결속하고 실제 프레임 판독은 unverified로 둔다. 5cm 외부점의 15방향 탈출로 처마 밑의 좁은 노출을, 열린 현관 cell과 접한 박공 뒷면은 별도 주소 요구로 판정한다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 끝 칸 넷·안타 둘·박공 앞뒤를 각각 입면으로, 외곽 17띠와 제실 spine 접합 두 띠·서비스 마당 spine 상부 한 띠를 단면·모서리로 둔다. 현관 박공 안쪽도 주소를 잃지 않는다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 끝 칸 넷·안타 둘·박공 앞뒤를 각각 입면으로, 외곽의 미주소 띠와 제실 spine 접합 두 띠·서비스 마당 spine 상부 한 띠를 단면·모서리로 둔다. 현관 박공 안쪽도 주소를 잃지 않는다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 높은 입면과 박공 안쪽을 보는 보조 pose, 처마 밑·마당 spine 상부 접합 질문은 support 위 1.6m인 필수 실내·대지 station의 대체가 아니다.
 @evidenceReview settings/00-delivery.md#review-condition #6daf6ae 공간 필수 station은 support 위 1.6m, opening-facing은 창 profile 중심, 높은 입면은 가림을 푸는 pose다. 현관 박공 뒷면과 제실·마당 spine 상부 띠는 각각의 질문을 보존한다.
 @evidenceReview settings/00-delivery.md#governing-aim #df3c7b2 reference 다섯은 topology 질문에 추가되고 안타·박공·끝 칸·반환벽은 각 자기 면으로, 주소 밖 20띠는 접합 단면으로 답한다. 열린 현관 박공 안쪽도 제외하지 않는다.

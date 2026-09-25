@@ -27,7 +27,7 @@ import { templeLevels as y } from "./storey";
  * @evidenceReview spaces/circulation.md#service-route #49bf8ec # door-service-exterior는 temple-site를 맞은편으로, door-yard는 colonnade를 맞은편으로 가져 마당의 외부·내부 두 문턱을 구별한다.
  * @evidenceReview spaces/site.md#site-connections #13eaa36 # 외부 문과 계단의 from/to에 templeSiteIds.space를 써서 대지 공간을 새 외부 방 ID로 복제하지 않는다.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 # 문 connector 폭과 높이는 door.width/height를 그대로 받고 계단 치수는 templeEntranceSteps를 받으며 여기서 경로용 문을 새로 만들지 않는다.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f # 문 양면의 cell 포함 실패와 계단 끝점·포치/날개 지붕 하부 미발견을 각각 throw해 끊긴 통행을 connector로 반환하지 않는다.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f # spaceContains가 door.room과 맞은편 공간의 양 끝, 계단·중정 단의 from/to를 확인하고 포치/날개 roof의 유효 높이 실패도 throw해 끊긴 통행을 반환하지 않는다.
  * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 # 공용 경로의 한 주랑 고리와 서비스 경로의 마당 양문, site의 두 외부 접점을 생성된 from/to에 대조했고 우회 공간을 요구하는 불일치가 없었다.
  */
 export const templeConnectors = (
@@ -36,18 +36,22 @@ export const templeConnectors = (
   ...templeDoorPassages.map((door) => {
     const [a, b] = [door.wallLow - 0.3, door.wallHigh + 0.3].map((offset): IAutoMovieVector3 =>
       door.axis === "x" ? { x: door.center, y: y.floor, z: offset } : { x: offset, y: y.floor, z: door.center });
+    const adjacent = door.adjacent === "exterior" ? templeSiteIds.space : door.adjacent;
     const roomFirst = spaceContains(spaces, door.room, a!);
-    if (!roomFirst && !spaceContains(spaces, door.room, b!)) {
-      throw new Error(`temple/circulation: ${door.id}의 양쪽 어느 점도 ${door.room} 안에 있지 않습니다.`);
+    const roomSecond = spaceContains(spaces, door.room, b!);
+    const adjacentFirst = spaceContains(spaces, adjacent, a!);
+    const adjacentSecond = spaceContains(spaces, adjacent, b!);
+    if (!(roomFirst && adjacentSecond) && !(roomSecond && adjacentFirst)) {
+      throw new Error(`temple/circulation: ${door.id}의 양 끝이 ${door.room}와 ${adjacent}에 각각 닿지 않습니다.`);
     }
     return {
       id: `connector.${door.id}`, kind: "passage" as const, from: door.room,
-      to: door.adjacent === "exterior" ? templeSiteIds.space : door.adjacent,
+      to: adjacent,
       bidirectional: true, route: roomFirst ? [a!, b!] : [b!, a!],
       width: door.width, clearHeight: door.height, elements: [],
     };
   }),
-  courtyardStep(roof),
+  courtyardStep(spaces, roof),
   entranceStair(spaces, roof),
 ];
 
@@ -70,7 +74,7 @@ const entranceStair = (
     .filter((patch) => patch.tier === "porch" && patch.polygon.every((q, i) =>
       planeHeight(edgeInside(q, patch.polygon[(i + 1) % patch.polygon.length]!), point) >= 0))
     .map((patch) => planeHeight(patch.height, point) - patch.thickness - point.y));
-  if (clear.length === 0) throw new Error("temple/circulation: 정문 계단 위 포치 지붕 하부를 찾지 못했습니다.");
+  if (clear.length === 0 || Math.min(...clear) <= 0) throw new Error("temple/circulation: 정문 계단 위 포치 지붕 하부에 통과 높이가 없습니다.");
   return {
     id: "connector.site-entrance-stair", kind: "stair", from: templeSiteIds.space, to: "entrance",
     bidirectional: true, width: s.width, clearHeight: Math.min(...clear), elements: [], route,
@@ -82,13 +86,16 @@ const entranceStair = (
  * 남쪽 축의 한 단 내려가는 중정 접점(폭 1.8m 디딤 구간).
  * 유효 높이는 경로 위 실제 날개 지붕 하부에서 읽고, 열린 하늘 구간은 제외한다.
  */
-const courtyardStep = (roof: readonly RoofPatch[]): IAutoMovieBuiltConnector => {
+const courtyardStep = (spaces: readonly IAutoMovieBuiltSpace[], roof: readonly RoofPatch[]): IAutoMovieBuiltConnector => {
   const route = [{ x: 0, y: y.floor, z: p.courtFront + 0.4 }, { x: 0, y: y.courtyard, z: p.courtFront - 0.4 }];
+  if (!spaceContains(spaces, "colonnade", route[0]!) || !spaceContains(spaces, "courtyard", route[1]!)) {
+    throw new Error("temple/circulation: 중정 단의 양 끝이 주랑과 중정에 각각 닿지 않습니다.");
+  }
   const clear = route.flatMap((point) => roof
     .filter((patch) => patch.tier === "wing" && patch.polygon.every((q, i) =>
       planeHeight(edgeInside(q, patch.polygon[(i + 1) % patch.polygon.length]!), point) >= 0))
     .map((patch) => planeHeight(patch.height, point) - patch.thickness - point.y));
-  if (clear.length === 0) throw new Error("temple/circulation: 중정 단 위 지붕 하부를 찾지 못했습니다.");
+  if (clear.length === 0 || Math.min(...clear) <= 0) throw new Error("temple/circulation: 중정 단 위 지붕 하부에 통과 높이가 없습니다.");
   return {
     id: "connector.courtyard-south-step", kind: "passage", from: "colonnade", to: "courtyard",
     bidirectional: true, width: 1.8, clearHeight: Math.min(...clear), elements: [], route,

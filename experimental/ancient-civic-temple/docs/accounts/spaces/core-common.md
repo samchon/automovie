@@ -7,7 +7,7 @@
 -->
 
 <!--
-@evidenceReview obligations/core/common.md#purpose-fit #7b32c66 27파일을 각 역할의 결과에 다시 대조했다. 기준선·방 목록·site·junctions 단면에 더해, ownership의 하부 띠 분할을 빼면 materials가 주랑·제실 벽 하부에만 적갈색을 결속할 경계가 사라진다는 결손이 본문 첫 문단의 ownership 문장으로 드러난다.
+@evidenceReview obligations/core/common.md#purpose-fit #7b32c66 공간 파일을 각 역할의 결과에 다시 대조했다. 기준선·방 목록·site·junctions 단면에 더해, ownership의 하부 띠 분할을 빼면 materials가 주랑·제실 벽 하부에만 적갈색을 결속할 경계가 사라진다는 결손이 본문 첫 문단의 ownership 문장으로 드러난다.
 -->
 
 이 population은 한 단층 신전의 건물 내부와 외피를 함께 설계한다. [building](../../spaces/building.md)은 외곽·공유 기준선·부모 위계·외부 접점을, [storey](../../spaces/storey.md)는 높이·문턱 지지·외벽 하단을 소유한다. 둘 중 하나가 없으면 방의 평면만 맞아도 도로·문턱·지면을 같은 건물로 연결할 수 없다. [openings](../../spaces/openings.md)는 경계 identity와 실제 void/문/창 위치를, [junctions](../../spaces/junctions.md)는 벽 끝/박공의 폐쇄와 외벽 기단·코핑의 단면을 정한다. 후자는 개구부 표만으로는 막을 수 없는 모서리 중첩·roof 아래 누광과, 네 입면이 따로 정하면 모서리에서 어긋날 석재 띠의 만남을 다룬다. [circulation](../../spaces/circulation.md)은 공용/서비스의 서로 다른 시작과 주랑 경유 순서를 정한다.
@@ -61,14 +61,14 @@ viewer-path의 한국어 설명과 키보드 조작은 설계 요구이며 이�
 | 역할 | 파일/H2 | 파일별 본문 문자 수 |
 | --- | --- | --- |
 | building·storey | 2/7 | 3578·3143 |
-| openings·junctions·circulation | 3/8 | 6945·4705·1869 |
+| openings·junctions·circulation | 3/8 | 6945·4789·1869 |
 | 남·북·서·동 입면 | 4/4 | 1326·887·824·820 |
-| 현관·중정·주랑 | 3/3 | 1744·978·1693 |
+| 현관·중정·주랑 | 3/3 | 1850·978·1693 |
 | 제실·봉헌실 | 2/2 | 733·646 |
 | 관리실·기록실·보관실·마당 | 4/4 | 624·580·577·960 |
-| assembly·sanctuary·west·east·porch·colonnade roof | 6/7 | 2194·944·909·936·650·1488 |
-| ownership·observations | 2/4 | 3860·11039 |
-| site | 1/6 | 5518 |
+| assembly·sanctuary·west·east·porch·colonnade roof | 6/7 | 2194·944·909·936·758·1488 |
+| ownership·observations | 2/4 | 4181·11039 |
+| site | 1/6 | 5588 |
 
 주랑과 현관이 다른 방보다 긴 이유는 각각 구멍 있는 합집합과 구간별 계단 바닥을 따로 결정하기 때문이다. 가장 짧은 porch roof도 두 지지선·앞끝 돌출·후퇴벽 위 뒤끝·삼각 막음의 소유·하부 관찰을 갖는다. site는 범위·지면 식·구획표·connector·배치 구역·능선을 여섯 H2로 나눠 결정하므로 건물 한 문서보다 길다. 반대로 observations는 topology 전집합, 반환 pose의 한계, 실제 문턱/접합/지면, 전송 경계를 모두 책임져 단일 대표 view 설명으로 줄일 수 없다. 동일한 골격의 일반 방보다 이 인터페이스들에 상세가 집중된 것은 납품 효과에 맞는다.
 

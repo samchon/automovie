@@ -119,6 +119,8 @@ console.log(`ledger rows violating their contract: ${review.ledger.filter((row) 
 
 console.log(`emitted surface owners: ${review.surfaces.length}`);
 for (const { owner, ids } of review.surfaces) console.log(`  ${owner}: ${ids.map((id) => id.split(".").slice(2).join(".")).join(", ")}`);
+console.log(`surface owner audit: ${review.surfaceOwnerAudit.rows} table rows; ${review.surfaceOwnerAudit.declared} declared; ${review.surfaceOwnerAudit.emitted} emitted; ${review.surfaceOwnerAudit.failures.length} failures`);
+for (const failure of review.surfaceOwnerAudit.failures) console.log(`  FAIL ${failure}`);
 
 const docs = join(__dirname, "..", "..", "docs");
 const walk = (dir: string): string[] => readdirSync(dir).flatMap((name) => {

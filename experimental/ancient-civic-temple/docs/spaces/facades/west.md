@@ -17,7 +17,7 @@
 
 <!--
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 창이 없는 면도 두 끝과 파라펫 뒤, 제실 서측벽 외면 관찰을 남겨 서측 전체를 생략할 수 없다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 무창 파라펫 전 길이와 코핑 4.85m, 안쪽 세 띠, 대각 끝 접합과 지면 접촉을 정해 서벽 실체의 경계를 닫는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 무창 파라펫 전 길이와 남측 입면에서 받은 코핑 높이, 안쪽 세 띠, 대각 끝 접합과 지면 접촉을 정해 서벽 실체의 경계를 닫는다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 코핑과 기단은 남측 입면, 접합과 띠 분할은 junctions에서 받아 서측이 별도 높이를 고르지 않는다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 안쪽은 봉헌실 하나이고 파라펫 뒤에도 공간이 없으며 기존 주랑 문으로만 접근한다.
 @evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 제실 서측벽의 지붕 위 외면을 서측 입면에 배정해 날개 지붕 위로 드러난 면의 소유 공백을 메웠다.

@@ -15,10 +15,12 @@ import { builtSpaceObservationStations } from "@automovie/engine";
 import type { IAutoMovieBuiltEnvironment, IAutoMovieVector3 } from "@automovie/interface";
 import { exteriorObservations, openingFacingObservations } from "./perimeter-observations";
 import { roofStepClosures } from "../geometry/roof-solids";
+import { templeObservationEye as eye } from "../geometry/observation-datum";
 import { templePlan as p } from "./building";
 import { templeDoorPassages } from "./openings";
 import { templeRoofEnvelope, templeRoofRules } from "./roofs/assembly";
 import { templeColonnadeRegions } from "./rooms/colonnade";
+import { templeSiteIds } from "./site/assembly";
 
 /**
  * 관찰을 고를 때 뷰어가 함께 켜는 검사 보기. 연직 단면은 서버가 현재 source의
@@ -219,10 +221,9 @@ export interface TempleObservation {
 export const templeSpaceNames: Record<string, string> = {
   entrance: "현관", courtyard: "중정", colonnade: "주랑", sanctuary: "제실",
   offering: "봉헌실", administration: "관리실", records: "기록실", storage: "보관실",
-  "service-yard": "서비스 마당", "temple-site": "대지",
+  "service-yard": "서비스 마당", [templeSiteIds.space]: "대지",
 };
 
-const eye = 1.6;
 const directionNames: Record<string, string> = {
   "center-x-minus": "중심→서", "center-x-plus": "중심→동",
   "center-z-minus": "중심→북", "center-z-plus": "중심→남",
@@ -347,7 +348,7 @@ const junctionObservations = (): TempleObservation[] => {
     pose("parapet.east-gable-ridge", "동측 박공 남쪽 용마루와 남측 코핑", { x: 7.36, y: 5.6, z: 6.6 }, { x: 7.36, y: 4.6, z: p.southInner }),
     ...([["northwest", p.westOuter, p.northOuter], ["northeast", p.eastOuter, p.northOuter],
       ["southwest", p.westOuter, p.southOuter], ["southeast", p.eastOuter, p.southOuter]] as const).map(([id, x, z]) =>
-      pose(`trim.${id}`, `외곽 모서리 코핑·기단 · ${id}`, { x: x + Math.sign(x) * 3.2, y: 2.4, z: z + Math.sign(z) * 3.2 }, { x, y: 1.6, z })),
+      pose(`trim.${id}`, `외곽 모서리 코핑·기단 · ${id}`, { x: x + Math.sign(x) * 3.2, y: 2.4, z: z + Math.sign(z) * 3.2 }, { x, y: eye, z })),
     section("section.valleys", "지붕 골 전 길이의 양쪽 단면(네 골은 대각선이라 X/Z 연직 단면으로 따라 자를 수 없다)"),
   ];
 };
@@ -418,7 +419,7 @@ const sectionObservations = (): TempleObservation[] => {
     cut("eave.sanctuary-east", "제실 동쪽 처마 돌출", "z", -6.9, { u: p.eastRoom, y: 5 }, 1.2),
     cut("eave.porch-front", "포치 앞끝 돌출", "x", 0, { u: p.southOuter, y: 4.4 }, 1.2),
     ...([["northwest", -1, -1], ["northeast", 1, -1], ["southwest", -1, 1], ["southeast", 1, 1]] as const).map(([id, sx, sz]) =>
-      cut(`corner.${id}`, `외곽 모서리 L 접합 ${id}`, "x", sx * 10.2, { u: sz * 10.0, y: 1.6 }, 2)),
+      cut(`corner.${id}`, `외곽 모서리 L 접합 ${id}`, "x", sx * 10.2, { u: sz * 10.0, y: eye }, 2)),
     ...([[-1, "west"], [1, "east"]] as const).flatMap(([sx, side]) => [
       cut(`tee.${side}-spine-north`, `${side} spine과 북측 외벽 T 접합`, "x", sx * 5.75, { u: p.northInner, y: 2 }, 2),
       cut(`tee.${side}-spine-south`, `${side} spine과 남측 외벽 T 접합`, "x", sx * 5.75, { u: p.southInner, y: 2 }, 2),
@@ -466,7 +467,7 @@ const referenceObservations = (): TempleObservation[] => {
  */
 const siteObservations = (environment: IAutoMovieBuiltEnvironment): TempleObservation[] => {
   const standing = (x: number, z: number): IAutoMovieVector3 => {
-    const floor = supportHeight(environment, "temple-site", { x, y: 0, z });
+    const floor = supportHeight(environment, templeSiteIds.space, { x, y: 0, z });
     if (floor === null) throw new Error(`temple/observations: 대지 관찰 위치 (${x}, ${z})에 support가 없습니다.`);
     return { x, y: floor + eye, z };
   };
@@ -478,7 +479,7 @@ const siteObservations = (environment: IAutoMovieBuiltEnvironment): TempleObserv
     ["site.ridge-front", "대지 · 정면 거리 서쪽에서 먼 능선", standing(-26, 18), { x: -4, y: 4, z: -80 }],
   ];
   return entries.map(([id, label, position, target]) => ({
-    id, group: "site", space: "temple-site", role: id.split(".")[1]!, label, position, target, note: null,
+    id, group: "site", space: templeSiteIds.space, role: id.split(".")[1]!, label, position, target, note: null,
   }));
 };
 

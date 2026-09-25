@@ -1,6 +1,7 @@
 /** Measures whether a facade's own inspection camera can see its emitted face, not just its boundary ID. */
 import { Quaternion } from "@automovie/engine";
 import type { IAutoMovieBuiltEnvironment, IAutoMovieVector3 } from "@automovie/interface";
+import { templeViewerLens } from "../geometry/observation-datum";
 import type { TempleObservation } from "../spaces/observations";
 import { emittedTriangles, pointInOutline, rayTriangle } from "./address-coverage";
 
@@ -37,7 +38,7 @@ export const ownFacadeViews = (environment: IAutoMovieBuiltEnvironment, observat
     const nearY = Math.min(observation.position.y, ...face.outline.map((point) => point.y)) - 0.04;
     const farY = Math.max(observation.position.y, ...face.outline.map((point) => point.y)) + 0.04;
     const possibleOccluders = triangles.filter((triangle) => triangle.maxY >= nearY && triangle.minY <= farY);
-    const tanVertical = Math.tan(25 * Math.PI / 180);
+    const tanVertical = Math.tan(templeViewerLens.halfVerticalRadians);
     const u0 = Math.min(...face.outline.map((point) => point.x));
     const u1 = Math.max(...face.outline.map((point) => point.x));
     const v0 = Math.min(...face.outline.map((point) => point.y));
@@ -58,7 +59,7 @@ export const ownFacadeViews = (environment: IAutoMovieBuiltEnvironment, observat
         sampled++;
         const delta = sub(point, observation.position);
         const forward = dot(delta, look);
-        if (forward <= 0.05 || Math.abs(dot(delta, right) / forward) > tanVertical * 1.6 ||
+        if (forward <= templeViewerLens.near || Math.abs(dot(delta, right) / forward) > tanVertical * templeViewerLens.aspect ||
           Math.abs(dot(delta, up) / forward) > tanVertical) continue;
         const length = Math.hypot(delta.x, delta.y, delta.z);
         const direction = unit(delta);

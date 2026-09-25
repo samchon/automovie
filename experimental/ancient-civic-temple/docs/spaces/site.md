@@ -3,7 +3,7 @@
 ## 대지 단위와 범위 {#site-extent}
 
 <!--
-@evidence principles/core/common.md#scope-preservation 대지를 건물 외곽 밖 25m 범위 전체로 잡고 지면·포장·배치 구역과 범위 밖 먼 능선의 자리를 나눠 외관 앞 한 조각만 만드는 축소를 막는다.
+@evidence principles/core/common.md#scope-preservation 대지를 건물 네 바깥면에서 각각 25m 나간 직사각형 전체로 잡고 지면·포장·배치 구역과 범위 밖 먼 능선의 자리를 나눠 외관 앞 한 조각만 만드는 축소를 막는다.
 @evidence principles/core/common.md#substantive-completion 소유 단위 temple-site, 뿌리 element site.root, kind site 공간과 네 볼록 cell의 X·Z·Y 범위를 수치로 정한다.
 @evidence principles/core/common.md#declared-basis 25m 범위는 40-environment#site의 저작자 선택에서, 외곽 좌표는 building#footprint에서 받고 필지나 실측 도로선이 아니라고 밝힌다.
 @evidence principles/design/spaces.md#space-topology temple-site가 건물·층 아래에 들지 않는 별도 뿌리이며 두 connector로만 건물 공간과 이어지고 네 cell이 건물 공간과 외곽 바깥면에서만 만나는 관계를 적는다.
@@ -11,7 +11,7 @@
 @evidence principles/design/spaces.md#space-verification-address 대지 공간과 외곽의 겹침, 범위 밖 포장, site.root 아래 건물 element를 관찰 owner의 대지 항목에서 실패로 삼는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 설정의 25m 국소 setting과 대지 배정을 별도 소유 단위·뿌리 공간·네 cell의 공간 구조로 바꾼다.
 @evidence upstream/design/spaces.md#settings-and-map-revision-from-space-work 대지를 공간으로 놓으려 하자 build-scope가 대지를 열 수 없는 maps에 배정했음이 드러났다. spaces가 이미 review라 maps를 활성화하면 builder가 거부하므로 00-delivery#build-scope의 대지 행을 spaces의 대지 owner로 고쳤다.
-@evidence settings/40-environment.md#site 외벽에서 최대 25m인 국소 setting을 대지 범위 X=-35.5~35.5, Z=-35.25~35.25로 옮기고 먼 배경을 범위 밖으로 나눈다.
+@evidence settings/40-environment.md#site 네 바깥면을 각각 수직 25m 옮긴 국소 setting을 대지 범위 X=-35.5~35.5, Z=-35.25~35.25로 옮기고 먼 배경을 범위 밖으로 나눈다.
 @evidence settings/00-delivery.md#build-scope 고친 배정대로 지면·경계석·먼 능선과 배치 구역을 이 파일이 소유하고 이웃·식생 개체는 models/instances에 남긴다.
 -->
 
@@ -22,15 +22,15 @@
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 대지가 temple이나 temple-ground 아래에 없다는 포함 관계, 두 connector만의 접속, 네 cell이 건물 공간과 바깥면에서만 만나는 관계를 mesh 없이 읽을 수 있어 장소 그래프가 복원된다.
 @evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 외곽 좌표를 다시 정하지 않고 building 링크로 소비하며 현관 후퇴부 바닥을 entrance에 남겨 한 바닥을 두 owner가 만들지 않는다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 대지 cell이 외곽과 겹치는 경우와 건물 element가 site.root 아래로 들어가는 경우가 각각 관찰 대지 항목의 실패로 적혀 있다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정은 25m 반경만 주었고 소유 단위 분리·뿌리 공간·네 볼록 cell은 이 공간 단위가 더한 결정이다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정은 네 바깥면별 25m 직사각형만 주었고 소유 단위 분리·뿌리 공간·네 볼록 cell은 이 공간 단위가 더한 결정이다.
 @evidenceReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 드러난 결함은 build-scope의 maps 대지 배정이고, 그 원인인 stage 규칙과 수정한 00-delivery#build-scope 행이 함께 적혀 있다.
-@evidenceReview settings/40-environment.md#site #f317e20 설정의 외벽에서 최대 25m가 네 바깥면 각각에서 25m인 직사각형으로 옮겨졌고 먼 지형은 범위 밖 H2로 분리됐다.
+@evidenceReview settings/40-environment.md#site #44f3c09 설정의 네 바깥면별 수직 25m가 X=-35.5~35.5m, Z=-35.25~35.25m 직사각형 끝선이 되고 먼 지형은 범위 밖 H2로 분리됐다.
 @evidenceReview settings/00-delivery.md#build-scope #8d597f9 고친 표 첫 행의 지면·경계석·먼 능선·배치 구역을 이 H2가 떠맡고 이웃 외피 prototype과 배치는 models/instances 행에 남겼다.
 -->
 
 [국소 대지](../settings/40-environment.md#site)와 [제작 대상과 분기](../settings/00-delivery.md#build-scope)의 지면·길·경계·배치 구역 배정을 소비한다. 대지는 건물 `temple`과 별도의 소유 단위 `temple-site`다. 이 단위의 뿌리 element는 `site.root`, 뿌리 공간은 kind `site`의 `temple-site`이며 어느 쪽도 건물 뿌리나 `temple-ground` 층 아래에 들어가지 않는다. 건물 안 공간과 대지는 [대지와 건물의 연결](#site-connections)의 두 connector로만 만난다. 이 production에서 maps 분기는 열리지 않는다. spaces가 이미 review이고 활성화된 미검토 기반 위에서는 spaces가 review에 머물 수 없으므로, 부모 설정의 대지 배정이 spaces로 옮겨졌고 이 파일이 그 단독 공간 owner다.
 
-범위는 [외곽](building.md#footprint)의 네 바깥면에서 각각 25m 떨어진 직사각형 X=-35.5~35.5m, Z=-35.25~35.25m다. 이 선은 설정이 정한 국소 제작 한계이며 필지 경계나 실측 도로선의 선언이 아니다. 범위 안에는 [지면 높이](#site-grade), [흙띠·경계석·포장](#site-paving), [배치 구역](#placement-zones)이 있고 범위 밖은 [먼 능선과 기슭](#distant-ridge)만 있다. 건물 외곽 X=±10.5m, Z=±10.25m 안에는 대지 표면·공간·배치가 없으며 현관 후퇴부의 바닥도 기존 [현관](rooms/entrance.md#entrance-volume) 소유다.
+범위는 [국소 대지 설정](../settings/40-environment.md#site)이 정한 대로 [외곽](building.md#footprint)의 네 바깥면에서 각각 수직으로 25m 떨어진 직사각형 X=-35.5~35.5m, Z=-35.25~35.25m다. 모서리의 외벽 최근접점 거리는 25m보다 길며 이 선은 설정이 정한 국소 제작 한계이지 필지 경계나 실측 도로선이 아니다. 범위 안에는 [지면 높이](#site-grade), [흙띠·경계석·포장](#site-paving), [배치 구역](#placement-zones)이 있고 범위 밖은 [먼 능선과 기슭](#distant-ridge)만 있다. 건물 외곽 X=±10.5m, Z=±10.25m 안에는 대지 표면·공간·배치가 없으며 현관 후퇴부의 바닥도 기존 [현관](rooms/entrance.md#entrance-volume) 소유다.
 
 `temple-site` 공간은 건물 외곽을 뺀 범위를 남·북 띠(X 전폭, Z=10.25~35.25m와 -35.25~-10.25m)와 동·서 띠(Z=-10.25~10.25m, X=10.5~35.5m와 -35.5~-10.5m)의 네 볼록 cell로 덮는다. 각 cell은 Y=-0.30m에서 Y=6.0m까지다. 아래 한계는 가장 낮은 지면 -0.24m 아래이고 위 한계는 보행·관찰을 담는 논리 범위이며 하늘을 가리는 면이 아니다. 네 cell은 서로 면으로만 맞닿고 건물 공간과는 외곽의 바깥면에서만 만나며 어느 쪽과도 양의 체적으로 겹치지 않는다.
 
@@ -61,7 +61,7 @@ source 조립 owner는 `src/spaces/site/assembly.ts`이고 범위·기준선은 
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모는 연속과 접촉만 요구했고 Z 전용 3구간 식과 조각 분할은 공간 층이 더한 결정이다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 ground-access의 두 조건과 storey 두 높이가 1.9% 경사 하나로 양립함을 식으로 보였고 부모를 고칠 결함은 드러나지 않았다.
 @evidenceReview settings/10-building.md#ground-access #be07d7d 정문 -0.24와 서비스 0이 서로 다른 구간으로 남아 정문 석단 높이가 서비스 문 앞에 복사되지 않는다.
-@evidenceReview settings/40-environment.md#site #f317e20 동·서 외벽을 따라 경사가 벽 바깥면에 그대로 닿아 기단이 뜨는 구간 없이 도로에서 서비스 문까지 지면이 이어진다.
+@evidenceReview settings/40-environment.md#site #44f3c09 동·서 외벽을 따라 경사가 벽 바깥면에 그대로 닿아 기단이 뜨는 구간 없이 도로에서 서비스 문까지 지면이 이어진다.
 -->
 
 [바닥 접근](../settings/10-building.md#ground-access)의 정문 석단과 서비스 무단차 조건, [층](storey.md#ground-storey)의 정문 도로 Y=-0.24m와 서비스 외부 Y=0을 한 지면으로 잇는다. 지면 높이는 Z에만 따른다. [기준선](building.md#plan-datums) `yard-front` Z=-2.45m보다 북쪽은 Y=0, `south-outer` Z=10.25m보다 남쪽은 Y=-0.24m이고 그 사이 12.7m는 Y=-0.24×(Z+2.45)/12.7로 곧게 이어진다. 기울기는 약 1.9%로 남쪽 정면을 향해 낮아진다. X 방향 경사나 국소 둔덕은 두지 않는다.
@@ -87,13 +87,13 @@ source 조립 owner는 `src/spaces/site/assembly.ts`이고 범위·기준선은 
 <!--
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 표의 여덟 행과 범위 안의 나머지인 이웃 바닥이 범위 전체를 덮어 표면이 없는 대지 구멍이나 건물 뒤 빈 땅이 생기지 않는다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 모든 구획에 X·Z 범위가 있고 경계석의 폭·상면 높이·매입 깊이까지 적혀 source가 치수를 추정하지 않는다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 세 재료의 관계는 설정·이미지 01에서, 3.0m·1.0m·0.30m 같은 치수는 저작 선택으로 구별된다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 설정에서 거친 포장·낮은 경계석·마른 흙의 관계를 받고 이 H2는 3.0m·1.0m·0.30m 구획 치수를 평면표로 정한다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 경계석 끊김이 정문 진입 포장과 서비스 문 앞 포장 두 곳뿐이라는 문장이 접근 경로와 턱의 관계를 정한다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 진입 포장 폭 X=±1.65는 현관 반환벽 안쪽 면, 서비스 문 앞 길이는 문 유효 폭에서 유도해 두 값을 이 H2가 새로 발명하지 않는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 진입 포장 폭 X=±1.65는 현관 반환벽 안쪽 면에서 유도하고, 서비스 문 앞 포장의 Z=-7.3~-5.5m 범위와 양쪽 0.35m 여유는 이 H2의 배치 결정으로 둔다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 흙띠가 벽에 닿지 않는 경우, 경계석이 접근 경로를 막는 경우, 두 표면이 겹치는 경우가 각각 관찰 실패로 적혀 있다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정은 세 재료의 존재만 정했고 구획 좌표와 끊김 규칙은 공간 층의 결정이다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 포장·경계석·흙과 벽 밑 풀이 모두 표 안에 자리를 얻어 설정의 재료 관계나 25m 범위에 결함이 드러나지 않았다.
-@evidenceReview settings/40-environment.md#site #f317e20 설정의 세 재료가 표의 paving·curb·earth 세 표면 ID로 하나씩 대응해 단색 정육면체 대지가 될 여지가 없다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 포장·경계석·흙과 벽 밑 풀이 모두 이 H2의 구획 안에 자리를 얻어 설정의 재료 관계에 결함이 드러나지 않았다.
+@evidenceReview settings/40-environment.md#site #44f3c09 설정의 세 재료가 표의 paving·curb·earth 세 표면 ID로 하나씩 대응해 단색 정육면체 대지가 될 여지가 없다.
 -->
 
 [국소 대지](../settings/40-environment.md#site)의 정문 앞 거친 석재 포장, 낮은 경계석, 벽 가장자리의 좁은 마른 흙을 평면으로 배정한다. 모든 높이는 [지면의 높이](#site-grade)를 따른다.
@@ -139,7 +139,7 @@ source owner는 `src/spaces/site/ground.ts`다. 관찰은 조감의 구획 평�
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 connector가 경계석이나 기둥을 통과하는 경우와 끝점이 자기 공간 밖인 경우가 종단면 관찰의 실패로 명시돼 있다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 building은 접점 ID와 방향만 줬고 stair/passage 종류·경로·유효 높이 규칙은 이 H2가 더했다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 접점 두 개와 계단·문 치수가 대지 쪽에서 그대로 성립해 부모 접점을 옮기거나 설정 접근 조건을 바꿀 필요가 없었다.
-@evidenceReview settings/40-environment.md#site #f317e20 설정의 도로와 외부 서비스 접근이 끊기지 않는다는 조건이 두 connector로 실제 공간 사이 연결이 되었다.
+@evidenceReview settings/40-environment.md#site #44f3c09 설정의 도로와 외부 서비스 접근이 끊기지 않는다는 조건이 두 connector로 실제 공간 사이 연결이 되었다.
 @evidenceReview settings/10-building.md#ground-access #be07d7d 정문만 stair이고 서비스 문은 Y=0 passage라 서비스 경로에 단이 생기지 않는다.
 -->
 
@@ -172,7 +172,7 @@ source owner는 `src/spaces/site/ground.ts`다. 관찰은 조감의 구획 평�
 <!--
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 구역 밖 금지와 시선 보호가 같이 적혀 이웃과 나무를 건물 바로 앞 거리에 두는 배치가 범위 안으로 들어오지 않는다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 네 구역의 좌표표와 후퇴·띠·금지 폭이 적혀 instances가 구역 경계를 새로 정할 필요가 없다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 높이·비가림은 설정 링크, 1.5m 후퇴와 0.6m 띠는 저작 결정으로 나뉘어 있다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 높이·비가림은 설정 링크에서 받고, 이 H2의 표와 문단은 1.5m 후퇴와 0.6m 띠를 구역 수치로 정한다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 표 바로 뒤 문단이 구역은 모두 포장 가장자리에서 1.5m 물러난 이웃 바닥 위이고 포장·경계석·두 접근 포장에는 개체를 두지 않는다고 적어, 좌표표와 함께 포장과 겹치지 않는 관계를 준다.
 @evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 이 H2는 개체 수나 크기를 하나도 정하지 않고 instances·models에 남겨 배치 결정을 두 번 저작하지 않는다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 시선을 막는 개체는 구역 안이라도 거부된다는 조건이 조감 대조만 통과하는 배치를 실패로 돌린다.
@@ -213,13 +213,13 @@ source owner는 `src/spaces/site/ground.ts`다. 관찰은 조감의 구획 평�
 <!--
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 능선과 기슭에 개체를 두지 않는다는 문장이 먼 배경을 새 보행·식생 납품 구역으로 넓히지 않는다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 반지름 세 개와 H(φ) 식, 72조각, 220m 기슭이 있어 능선 형상을 source가 새로 고르지 않는다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 40~100m와 낮은 윤곽은 설정, 56·88·108m와 식의 계수는 저작 선택으로 구별돼 있다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 40~100m와 낮은 윤곽은 설정 링크에서 받고, 이 H2는 56·88·108m 반지름과 H(φ) 계수를 능선 형상 입력으로 정한다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 능선을 support·cell·구역에 넣지 않는다고 적어 배경 표면이 보행 가능한 장소로 읽히지 않는다.
 @evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 기슭의 높이를 새로 정하지 않고 site-grade 규칙을 이어받아 대지 경계에서 두 높이 규칙이 겹치지 않는다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 능선이 신전 실루엣 뒤에 낮게 놓이는지와 대지-기슭 단차가 지정된 두 시점의 실패 조건으로 남는다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정의 거리·역할만으로는 형상이 없고 고리 반지름·마루 높이 식이 공간 층의 결정이다.
 @evidenceReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 드러난 결함인 #distant-terrain의 maps 높이 배정과 수정한 부모 H2가 적혀 있다.
-@evidenceReview settings/40-environment.md#distant-terrain #77d325d 최소 41.3m·최대 97.8m 거리와 뒤쪽 약 19°, 정면 쪽 11° 이하의 안쪽 경사가 설정의 40~100m 낮고 완만한 능선을 지킨다.
+@evidenceReview settings/40-environment.md#distant-terrain #b7a4529 최소 41.3m·최대 97.8m 거리와 뒤쪽 약 19°, 정면 쪽 11° 이하의 안쪽 경사가 설정의 40~100m 낮고 완만한 능선을 지킨다.
 -->
 
 [먼 지형](../settings/40-environment.md#distant-terrain)의 40~100m 낮고 완만한 입체 능선을 소유한다. 능선은 원점을 중심으로 한 고리 모양의 열린 표면이다. 안쪽 발치 반지름 56m, 마루 반지름 88m, 바깥 발치 반지름 108m이고 발치는 Y=-0.30m에서 지면 아래로 들어간다. 건물에서 가장 가까운 거리는 외곽 모서리(반지름 약 14.7m)에서 안쪽 발치까지 약 41.3m, 가장 먼 거리는 축 방향 바깥면에서 바깥 발치까지 약 97.8m로 설정 범위 안에 있다.

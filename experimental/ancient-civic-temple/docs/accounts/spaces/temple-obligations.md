@@ -23,7 +23,7 @@
 -->
 
 <!--
-@evidenceReview contracts/obligations-spaces.md#compiled-observations #09b52ea 본문은 방별 station·접합·연직 단면, 안타 끝 둘과 박공 앞뒤 입면, 처마 밑 제실·spine 양쪽과 마당 spine 상부를 포함한 미주소 띠 20구간의 단면·모서리 질문과 unverified 상태를 구별한다. 개구부 16개·무효 창 threshold 넷·reference 다섯도 남는다.
+@evidenceReview contracts/obligations-spaces.md#compiled-observations #09b52ea 본문은 방별 station·접합·연직 단면, 안타 끝 둘과 박공 앞뒤 입면, 처마 밑 제실·spine 양쪽과 마당 spine 상부를 포함한 미주소 띠 20구간의 단면·모서리 질문과 unverified 상태를 구별한다. 개구부·무효 창 threshold·reference 관찰도 남는다.
 -->
 
 [geometry-observations](../../spaces/observations.md#geometry-observations)는 같은 generation의 built environment와 lowering에서 setting·경계 주소를 가진 노출 입면/모서리/roof/하부/출입/개구부를 유도하고, 입면 host 중심선 밖의 노출 접합 띠 20구간(그중 제실·spine 처마 밑 상부 두 구간)은 observations#geometry-observations의 모서리·T 접합·파라펫 질문과 명시된 unverified 단면에 결속한다. 안타 끝 둘과 포치 박공 양면은 별도 입면 주소를 가진다. 공간마다 자기 내부 threshold·네 모서리·중심 네 방위가 있고 주랑은 외접 상자 중앙으로 대신하지 않으며 여섯 평면 영역과 구멍/notch 경계를 추가한다. 서비스 마당은 두 문턱, 긴 봉헌실은 장축 양끝, 현관은 중앙/양끝/기둥 받침 단면, 대지는 구획 조감·두 접근·골목 경사·먼 능선 시점으로 해당 지역의 실패를 더 묻는다. 주랑은 엔진의 외측 모서리 넷에 더해 중정 쪽 안쪽 모서리 넷과 현관 몸체 모서리 둘을 source pose로 가지며, 접합 관찰은 네 골·제실 처마 아래와 파라펫 위·세 파라펫 만남·동측 박공 남쪽 끝·외곽 네 모서리 석재 띠를 pose로 둔다. 연직 단면 질문은 `section` 묶음이 뷰어의 정확한 단면 보기로 문과 용마루의 종횡 단면, 문턱 종단면, 박공 끝 하부, 채광구, 날개 지붕의 높이 차이 끝면, 처마 돌출, L/T 접합, 외벽 하단, 현관 평행 단면을 모두 pose로 가지며, X/Z 평면으로 따라갈 수 없는 대각 골 전 길이 단면만 그 이유를 적은 pose 없는 unverified 항목이다. 여섯 일정 높이 host와 두 반환벽의 네 위쪽 외부 향 경계·후퇴벽 끝 칸의 네 높은 외부 향 북면·옆면 및 네 낮은 한 공간 경계·두 포치 자유 끝, 제실 창 여덟은 외부 입면·개구부 전집합에 들고, 이전 결속이 봉헌실·주랑 안에 만든 무효 창 threshold 넷은 지우지 않고 pose 없는 unverified 항목으로 남는다. 포치 자유 끝의 자기 면 가시율은 방출 면 광선으로 재며 한 시점에서 가려진 부분은 unverified다. 계산 cell 접면은 새 방 모서리나 표면 소유가 아니다.

@@ -22,7 +22,7 @@
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 코핑 4.85m와 삼각 막음 3.50m, 기단 0.65m가 함께 있어 후퇴부까지 외피의 상하 경계가 정해진다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 코핑 범위는 roof-form, 후퇴벽 상단은 포치 하부, 접합은 junctions에서 받아 별도 지붕 높이를 발명하지 않는다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 반환부와 후퇴벽이 양 날개 파라펫과 이어져 바깥 입면과 안쪽 현관·주랑이 같은 경계이고 파라펫 뒤 통로가 없다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 원주 prototype과 포치 roof를 중복 생성하지 않고 파라펫 뒷면·코핑만 입면에 더했다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 원주 prototype과 포치 roof를 중복 생성하지 않고 파라펫 뒷면·코핑·삼각 막음·벽 실체를 남측 입면에 귀속한다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 파라펫 뒤 지붕 만남과 반환부 단면도 관찰해 정면 실루엣만 맞는 틈을 찾는다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 포치 정체성에 파라펫 사이 후퇴부와 코핑 높이, 지면을 따른 기단 한계를 더했다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 회벽/기단·포치 부재·코핑 범위를 후퇴 파라펫 외피에 배정할 수 있어 이 입면으로 부모를 고칠 필요가 없었다.

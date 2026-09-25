@@ -16,9 +16,9 @@
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 서쪽 주랑 문, 동쪽 외부 문, 2.55m 낮은 벽과 열린 하늘을 한 마당에 두어 운반물 자리까지 빠진 요소가 없다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 서쪽 주랑 문, 동쪽 외부 문, 낮은 마당 벽과 열린 하늘을 한 마당에 두어 운반물 자리까지 빠진 요소가 없다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 두 문턱의 소유, Y=0 바닥, 3.20m 논리 상한이 적혀 있어 마당 공기 영역을 다른 값으로 다시 정하지 않고 주소화할 수 있다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 상한은 주랑 처마 지지 높이에서 받지만 실제 빈 공간과 외부 지면은 확인 전이라는 구분이 본문에 남아 있다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 상한은 주랑 처마 지지 높이에서 받고 본문은 논리 범위가 실제 용기·문짝·처마와 충돌하지 않는 빈 공간을 보증하지 않는다고 구별한다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 주랑 접면 north-ring~yard-front 안에 문을 두고 제실 쪽 서벽에는 문이 없어 제실이 서비스 통로가 되지 않는다.
 @evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 안쪽 둘레 면·포장·벽 윗면은 마당, 바깥은 북·동 입면이며 3.20m 상한은 지붕이나 support를 만들지 않는다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 두 threshold와 외부→주랑 경로가 네 모서리·네 방위와 함께 적혀 마당 중앙 한 장으로 단절을 숨길 수 없다.

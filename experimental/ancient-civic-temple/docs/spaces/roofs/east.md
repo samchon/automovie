@@ -21,7 +21,7 @@
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 용마루 약 X=7.36m·4.53m, 코핑 아래 약 0.16m, 안쪽 면 하부 약 3.46m가 19도 산술이며 실측이 아니라고 적었다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 북쪽 끝이 마당 앞 공유벽 위에서 멈추고 주랑 위만 외쪽 지붕과 합성돼 마당이 덮인 방으로 바뀌지 않는다.
 @evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 남쪽 끝과 코핑의 만남은 gable-closures 표를 따른다고 적어 이 H2가 코핑이나 용마루 덮개의 규칙을 두 번 정하지 않는다.
-@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 남측 파라펫 뒤 끝이 관찰 목록에 있고, 22도에서 그 자리의 용마루가 코핑을 뚫었다는 사실이 19도 수정으로 이어졌다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 남측 파라펫 뒤 끝이 관찰 목록에 있고, 이전 경사에서 그 자리의 용마루가 코핑을 뚫었다는 사실이 19도 수정으로 이어졌다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 업무 날개 박공에 북단 공유벽·남단 파라펫 멈춤과 동측 지지 높이, 동측 전용 경사를 더했다.
 @evidenceReview settings/30-interiors.md#service-yard #bc0ce16 마당 쪽은 0.35m 돌출 처마까지만 나가 서비스 마당의 열린 하늘을 지킨다.
 @evidenceReview settings/20-envelope.md#roof-form #7269ea1 19도는 수리된 18~28도 안이고 가운데 용마루 박공과 동측 외벽 쪽 바깥 처마가 유지된다.

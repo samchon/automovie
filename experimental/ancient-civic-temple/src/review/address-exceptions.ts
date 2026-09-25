@@ -18,15 +18,16 @@ const strip = (wall: string, face: number, axis: "x" | "z", from: number, to: nu
   lowerEdge?: AddressException["lowerEdge"]): AddressException =>
   ({ wall, face, axis, from, to, observation, evidence, minY, lowerEdge });
 
-/** Each interval comes from a named outside corner or a 0.30/0.60 m wall junction in templePlan. */
+/** Each interval comes from a named outside corner or wall junction in templePlan. */
+const outerWallHalf = (p.westInner - p.westOuter) / 2;
 export const exposedAddressExceptions: readonly AddressException[] = [
-  strip("wall.facade-north", 0, "x", p.westOuter, p.westOuter + 0.3, "exterior.corner.northwest", "spaces/observations.md#geometry-observations"),
-  strip("wall.facade-west", 3, "z", p.northOuter, p.northOuter + 0.3, "exterior.corner.northwest", "spaces/observations.md#geometry-observations"),
-  strip("wall.facade-north", 0, "x", p.eastOuter - 0.3, p.eastOuter, "exterior.corner.northeast", "spaces/observations.md#geometry-observations"),
-  strip("wall.facade-east", 1, "z", p.northOuter, p.northOuter + 0.3, "exterior.corner.northeast", "spaces/observations.md#geometry-observations"),
-  strip("wall.facade-south.west", 2, "x", p.westOuter, p.westOuter + 0.3, "exterior.corner.southwest", "spaces/observations.md#geometry-observations"),
-  strip("wall.facade-west", 3, "z", p.southOuter - 0.3, p.southOuter, "exterior.corner.southwest", "spaces/observations.md#geometry-observations"),
-  strip("wall.facade-south.east", 2, "x", p.eastOuter - 0.3, p.eastOuter, "exterior.corner.southeast", "spaces/observations.md#geometry-observations"),
+  strip("wall.facade-north", 0, "x", p.westOuter, p.westOuter + outerWallHalf, "exterior.corner.northwest", "spaces/observations.md#geometry-observations"),
+  strip("wall.facade-west", 3, "z", p.northOuter, p.northOuter + outerWallHalf, "exterior.corner.northwest", "spaces/observations.md#geometry-observations"),
+  strip("wall.facade-north", 0, "x", p.eastOuter - outerWallHalf, p.eastOuter, "exterior.corner.northeast", "spaces/observations.md#geometry-observations"),
+  strip("wall.facade-east", 1, "z", p.northOuter, p.northOuter + outerWallHalf, "exterior.corner.northeast", "spaces/observations.md#geometry-observations"),
+  strip("wall.facade-south.west", 2, "x", p.westOuter, p.westOuter + outerWallHalf, "exterior.corner.southwest", "spaces/observations.md#geometry-observations"),
+  strip("wall.facade-west", 3, "z", p.southOuter - outerWallHalf, p.southOuter, "exterior.corner.southwest", "spaces/observations.md#geometry-observations"),
+  strip("wall.facade-south.east", 2, "x", p.eastOuter - outerWallHalf, p.eastOuter, "exterior.corner.southeast", "spaces/observations.md#geometry-observations"),
   strip("wall.facade-east", 1, "z", p.southInner, p.southOuter, "exterior.corner.southeast", "spaces/observations.md#geometry-observations", undefined,
     { untilZ: 9.95, atZ: 9.70, atY: 3.60, rise: 4.25 }),
   strip("wall.facade-north", 0, "x", p.westRoom, p.westRing, "section.tee.west-spine-north", "spaces/observations.md#geometry-observations"),

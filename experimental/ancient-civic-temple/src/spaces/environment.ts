@@ -57,7 +57,7 @@ import { templeLevels as y, templeWallBottom } from "./storey";
  * @evidence obligations/design/space-sources.md#space-source-design-ownership environment의 모든 공간·경계·개구부·지붕·대지 사실은 각자 한 spaces 설계 파일을 인용하는 owner export에서 오며, 막음 뒷면처럼 source가 먼저 드러낸 결정은 부모 H2를 고친 뒤에만 실었다.
  * @evidenceReview spaces/building.md #2e32d08 # templeSpaceHierarchy의 건물·층·아홉 공간을 주형으로 삼고 모델·경계·개구부·경로를 같은 environment에 조립하는 파일 전체 소유를 확인했다.
  * @evidenceReview spaces/building.md#approach-contacts #6e35a95 # templeConnectors가 낸 두 대지 연결과 site.space를 하나의 spaces/connector 배열에 넣어 정문과 서비스 접근이 서로 다른 기존 공간에 닿는다.
- * @evidenceReview spaces/junctions.md#gable-closures #0ab0c0e # roofStepClosures를 동전면 culling에 넣고 closureBacks로 높은 조각 아래 주머니 쪽 뒷면을 만들어 박공 접합의 실내 구멍을 막는다.
+ * @evidenceReview spaces/junctions.md#gable-closures #4ca854c # roofStepClosures를 동전면 culling에 넣고 closureBacks로 높은 조각 아래 주머니 쪽 뒷면을 만들어 박공 접합의 실내 구멍을 막는다.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 # 방 cell·벽 WallSpec·지붕 patch·대지 입력은 각 owner 호출에서 받고 문짝·기둥·수반 모델은 models 분기에 남긴다.
  * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f # 조립된 environment를 validateBuiltEnvironment에 넘겨 violations의 path/expected를 모아 throw하며 성공 때에만 동일 입력의 walls·roof·floors·site·trim을 돌린다.
  * @evidenceReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 # 상부 채광 경계와 반환벽 지붕 분할, 끝 칸·박공 양면 주소, 막음 뒷면을 먼저 각 parent H2에 기록한 뒤 이 조립이 실제 boundary/face로 소비한다.

@@ -47,7 +47,8 @@
     "format": "ttsc format --cache-dir node_modules/.cache/ttsc -p package.json",
     "viewer": "tsx src/viewer/server.cts",
     "self-check": "tsx src/review/self-check.cts",
-    "test": "tsx --test src/review/tests/*.test.ts"
+    "test": "tsx --test src/review/tests/*.test.ts",
+    "audit": "node src/review/audit-all.cjs"
   },
   "dependencies": {
     "@automovie/archetypes": "workspace:^",

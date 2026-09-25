@@ -17,7 +17,7 @@
 
 <!--
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 봉헌실 뒤 파라펫과 제실 박공, 마당 낮은 벽 및 상부 창을 후면에서 빠뜨리지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 코핑 4.85m 파라펫, 제실 박공 하부까지의 벽, Y=2.55m 마당 벽을 구별해 일직선 후면의 세 높이를 정했다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 남측 입면과 같은 코핑 높이의 봉헌실 파라펫, 제실 박공 하부까지의 벽, Y=2.55m 마당 벽을 구별해 일직선 후면의 세 높이를 정했다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 코핑은 남측 입면, 박공 벽 상단은 제실 roof 하부를 소비해 교차부에 임의 수평 상단이 생기지 않는다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 상부 창 외에 후문을 추가하지 않고 마당 위는 열린 영역, 파라펫 뒤는 봉헌실 지붕으로 남는다.
 @evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 외측 벽·코핑·파라펫 뒷면은 north가 만들고 실내/마당 안쪽 표면과 창 void는 원래 owner에 남는다.

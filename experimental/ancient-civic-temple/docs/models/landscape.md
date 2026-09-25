@@ -16,7 +16,7 @@
 @evidence settings/40-environment.md#vegetation 키 큰 좁은 수관의 상록수를 세 덩어리 수관 나무로 받는다.
 @evidence spaces/site.md#placement-zones 이웃·수목을 허용하는 네 배치 구역을 개체 위치가 들어갈 범위로 넘긴다.
 @evidence settings/50-production.md#references 이미지 01의 짙은 세로 수관을 근거로 쓴다.
-@evidenceExclude settings/40-environment.md#distant-terrain 25m 밖 먼 지형은 식생 개체를 납품하지 않는 배경 능선이라 수목 prototype이 놓이지 않고 능선 형상은 spaces 대지가 소유한다.
+@evidenceExclude settings/40-environment.md#distant-terrain 국소 대지 직사각형 밖 먼 지형은 식생 개체를 납품하지 않는 배경 능선이라 수목 prototype이 놓이지 않고 능선 형상은 spaces 대지가 소유한다.
 @evidenceExclude spaces/site.md#site-grade 수목 원점은 지면 중심이며 놓일 지면 높이는 instances가 대지 지면 규칙에서 읽어 prototype이 경사를 담지 않는다.
 -->
 
