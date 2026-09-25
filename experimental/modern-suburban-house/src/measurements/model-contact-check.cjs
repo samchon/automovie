@@ -104,8 +104,16 @@ function skirtSafe(source) { return source.includes("Y=2.75 m") && source.includ
 const modelFiles = fs.readdirSync(docs).filter((name) => name.endsWith(".md"));
 let angularClaims = 0;
 let clippedSlopes = 0;
+let depthClaims = 0;
 for (const file of modelFiles) {
   const plain = fs.readFileSync(path.join(docs, file), "utf8").replace(/<!--[\s\S]*?-->/g, "");
+  // A measured sub-body cannot exceed the same sentence's declared outer
+  // envelope. This is an arithmetic relation, independent of member name.
+  for (const claim of plain.matchAll(/몸통 깊이는\s*(\d+(?:\.\d+)?)\s*m[^\n]*?외곽 깊이\s*(\d+(?:\.\d+)?)\s*m/g)) {
+    depthClaims++;
+    assert(Number(claim[1]) <= Number(claim[2]) + 1e-8,
+      `${file}: body depth ${claim[1]} exceeds outer depth ${claim[2]}`);
+  }
   for (const claim of plain.matchAll(/(\d+(?:\.\d+)?)×sin\(π\/(\d+)\)=(\d+(?:\.\d+)?)[^\n]{0,100}?([\d.]+) m 예약/g)) {
     const actual = Number(claim[1]) * Math.sin(Math.PI / Number(claim[2]));
     const reported = Number(claim[3]);
@@ -132,6 +140,7 @@ for (const file of modelFiles) {
 }
 assert(angularClaims > 0, "no angular reservation arithmetic measured");
 assert(clippedSlopes > 0, "no clipped-slope junction measured");
+assert(depthClaims > 0, "no measured body-to-envelope depth relation");
 
-console.log(JSON.stringify({ baseboardDepth: depth, baseboardHeight: height, angularClaims, clippedSlopes, checkedContacts, failures }));
+console.log(JSON.stringify({ baseboardDepth: depth, baseboardHeight: height, angularClaims, clippedSlopes, depthClaims, checkedContacts, failures }));
 if (failures.length) process.exitCode = 1;

@@ -34,7 +34,7 @@
 ## 협탁과 등 {#nightstand-lamp}
 <!--
 @evidence principles/core/common.md#scope-preservation 주침실 두 협탁과 두 작은 침실의 협탁 하나씩을 S·T·U 세 인자의 한 원형으로 받아 등까지 포함한다.
-@evidence principles/core/common.md#substantive-completion 등 받침 지름 0.14 m와 상판 중심 (0,S/2), 갓 지름 0.25 m·높이 0.22 m 원뿔대, 서랍 전면 X=[−S/2+0.04,S/2−0.04]·Y=[T−0.20,T−0.05]·Z=[S−0.02,S] m를 확정한다 몸통·서랍의 국소 X/Y/Z 범위와 등 받침 중심 (0,S/2)을 정한다.
+@evidence principles/core/common.md#substantive-completion 몸통의 국소 X=[−S/2,S/2]·Z=[0,S]·Y=[0,T] m, 서랍 전면 X=[−S/2+0.04,S/2−0.04]·Y=[T−0.20,T−0.05]·Z=[S−0.02,S] m, 등 받침 지름 0.14 m와 상판 중심 (0,S/2), 갓 지름 0.25 m·높이 0.22 m 원뿔대를 정한다.
 @evidence principles/core/common.md#declared-basis S·T·U는 방 예약 링크의 값이고 서랍 전면이 강체인 근거를 방 문서가 협탁 서랍 작동을 예약하지 않았다는 데 둔다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 방 예약은 협탁 외곽과 상면·등 상단 높이만 주고 이 H2는 몸통·서랍 전면·등 받침·기둥·갓 부품 구성과 갓 상단을 U에 맞추는 결정을 더한다.
 @evidence principles/design/models.md#representation-contract 몸통, 강체 서랍 전면, 등 받침·기둥·원뿔대 갓 계층과 `carcass`·`drawer-front`·`lamp-base`·`lamp-shade` 경계를 두고 빛 방출은 lighting 소유로 넘긴다. 보이지 않는 한계는 본문의 "등 전선·스위치·갓의 반투명은 표현하지 않는다."로 밝힌다.

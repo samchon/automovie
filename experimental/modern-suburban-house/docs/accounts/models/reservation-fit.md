@@ -32,7 +32,7 @@
 | [exterior-door-surfaces](../../models/02-exterior-doors.md#exterior-door-surfaces) | 면 계약 H2; 문턱은 spaces, 문짝은 위 네 원형이 맡아 점유 중복 0으로 설계됨. |
 | [exterior-door-fidelity](../../models/02-exterior-doors.md#exterior-door-fidelity) | 표현 범위 H2; 추가 스프링·모터 점유 없음, 레일 실제 충돌은 unverified. |
 | [interior-door-members](../../models/03-interior-doors.md#interior-door-members) | 11개 문의 순폭은 거친 폭−2×0.03−0.04 = 거친 폭−0.10 m; 문짝 높이 2.20−0.03−0.01 = 2.16 m. 팬트리 문은 문설주 0.03+문짝 0.04+파인 손잡이 0 = 0.07 ≤ 부모 작동 예약 0.08 m다. 옷방문 열린 손잡이는 종전 0.055에서 0.030 m로 줄여 부모 Z≥−0.20 m를 지키고, 세탁실 두 문은 파인 손잡이로 횡단 띠 Z≤−3.42 m를 비운다. 세탁실–차고 문선 세로 판은 X=[5.485,5.50]·Z=[−3.35,−3.28]·Y=[0,2.20] m, 머리 판은 같은 X/Z·Y=[2.20,2.27] m다. |
-| [interior-door-hinges](../../models/03-interior-doors.md#interior-door-hinges) | 11개 회전 0–π/2; entry-living-door 반경 0.94 m는 수정된 living-door-swing X=[−2.89,−1.95] m의 깊이 0.94 m와 같다. 나머지 경첩·열림 쪽은 방 owner에서 받고 door swing 및 route의 교집합은 기준 상태에서 각 문마다 측정한다. |
+| [interior-door-hinges](../../models/03-interior-doors.md#interior-door-hinges) | [문선·기준 열림 생산자](../../../src/measurements/casing-space-scan.cjs)는 source 개구부 11개와 이 H2의 표 11행을 결합해 π/2 열림 문짝 외곽 11개를 계산한다. source 방 윤곽 11/11 포함, 같은 방 route 교차 0, 가구·설비·수납 예약 교차 0(`npm run check`, door-casing 과제). 문짝·손잡이의 중간 회전 sweep와 아직 없는 실제 model mesh는 unverified다. |
 | [interior-door-surfaces](../../models/03-interior-doors.md#interior-door-surfaces) | 면 계약 H2; jamb-a/b/core는 한 개구부 챌면을 분할하고 추가 점유 없음. |
 | [interior-door-fidelity](../../models/03-interior-doors.md#interior-door-fidelity) | 표현 범위 H2; 차고 단차는 laundry의 바닥 datum, 모델 문턱 0개. |
 | [stair-balusters](../../models/04-stair-members.md#stair-balusters) | 난간살 0.02 ≤ 0.075 m 예약; n=ceil((L−0.10)/0.12), 빈 간격 (L−0.02n)/(n+1) ≤ 0.10 m는 각 입력 L에서 재계산한다. |

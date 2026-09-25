@@ -76,6 +76,7 @@ const garageWall = { id: "garage-shared-wall", file: "garage.ts", axis: "z", acr
 partitions.push(garageWall);
 doors.push({ id: shared[1], wall: garageWall, from: Number(shared[2]), to: Number(shared[3]) });
 if (doors.length !== 11) throw new Error(`Expected eleven authored interior doors; found ${doors.length}: ${doors.map((d) => d.id).join(", ")}`);
+if (process.argv.includes("--inventory")) console.log(JSON.stringify({ doors }, null, 2));
 
 /** A reservation is an allowed host envelope. An actual casing may overlap
  * that envelope only where the host document explicitly subtracts the overlap. */
@@ -140,7 +141,8 @@ for (const door of doors) {
     }
     for (const box of boxes) {
       if (!box.y || box.kind === "swing" || box.kind === "use" || box.kind === "route") continue;
-      const by = box.file.match(/bedroom|primary|shower|tub|upper-hall|wardrobe/) ? box.y.map((v) => v + upperFloor) : box.y;
+      // Reservation boxes in src/spaces already store world Y on both floors.
+      const by = box.y;
       /** @type {{x:Span,z:Span,y:Span}} */
       const hit = { x: [Math.max(x[0], box.x[0]), Math.min(x[1], box.x[1])],
         z: [Math.max(z[0], box.z[0]), Math.min(z[1], box.z[1])],
@@ -151,5 +153,71 @@ for (const door of doors) {
     }
   }
 }
-console.log(JSON.stringify({ doors: doors.length, partitions: partitions.length, reservationBoxes: boxes.length, reservationIntersections, partitionIntersections, failures }));
+const hinges = modelSource.split(/^## /m).find((s) => s.split("\n", 1)[0].includes("{#interior-door-hinges}")) ?? "";
+const hingeRows = [...hinges.matchAll(/^\| `([^\x60]+-door)` \| (low|high) ([XZ]) \| ([+−-])([XZ]) \| (\d+(?:\.\d+)?) \| \[[^\]]+\]\(\.\.\/spaces\/rooms\/([^#)]+)#[^)]+\) \|/gm)]
+  .map((m) => ({ id: m[1], end: m[2], alongAxis: m[3].toLowerCase(), sign: m[4] === "+" ? 1 : -1,
+    openAxis: m[5].toLowerCase(), handle: Number(m[6]), roomFile: m[7].replace(/\.md$/, ".ts") }));
+if (hingeRows.length !== doors.length || new Set(hingeRows.map((v) => v.id)).size !== doors.length)
+  failures.push(`Door hinge table has ${hingeRows.length} rows for ${doors.length} distinct source doors`);
+const jambInset = Number(/문설주의 개구부 쪽 면 폭을\s*(0\.\d+) m/.exec(modelBody)?.[1]);
+const leafThickness = Number(/문짝 두께를\s*(0\.\d+) m/.exec(modelBody)?.[1]);
+if (![jambInset, leafThickness].every(Number.isFinite)) throw new Error("Cannot read shared door jamb and leaf thickness");
+/** @type {{id:string,x:Span,z:Span,routeHits:string[],obstructionHits:string[]}[]} */
+const openLeaves = [];
+/** @param {Span} x @param {Span} z @param {string} source */
+function insideRoom(x, z, source) {
+  const boxMatch = /outline:\s*box\(\[([^\]]+)\],\s*\[([^\]]+)\]\)/.exec(source);
+  if (boxMatch) return subset(x, pair(boxMatch[1])) && subset(z, pair(boxMatch[2]));
+  const poly = /outline:\s*\[([\s\S]*?)\],\s*floor:/.exec(source)?.[1];
+  if (!poly) return false;
+  const points = [...poly.matchAll(/\{\s*x:\s*(-?\d+(?:\.\d+)?),\s*z:\s*(-?\d+(?:\.\d+)?)\s*\}/g)]
+    .map((m) => [Number(m[1]), Number(m[2])]);
+  if (points.length < 3) return false;
+  const xs = [...new Set([x[0], x[1], ...points.map((p) => p[0]).filter((v) => v > x[0] && v < x[1])])].sort((a, b) => a - b);
+  const zs = [...new Set([z[0], z[1], ...points.map((p) => p[1]).filter((v) => v > z[0] && v < z[1])])].sort((a, b) => a - b);
+  for (let i = 0; i + 1 < xs.length; i++) for (let j = 0; j + 1 < zs.length; j++) {
+    const px = (xs[i] + xs[i + 1]) / 2, pz = (zs[j] + zs[j + 1]) / 2;
+    let inside = false;
+    for (let k = 0, l = points.length - 1; k < points.length; l = k++) {
+      const a = points[k], b = points[l];
+      if ((a[1] > pz) !== (b[1] > pz) && px < a[0] + (pz - a[1]) * (b[0] - a[0]) / (b[1] - a[1])) inside = !inside;
+    }
+    if (!inside) return false;
+  }
+  return true;
+}
+for (const door of doors) {
+  const row = hingeRows.find((v) => v.id === door.id);
+  if (!row) { failures.push(`No hinge decision for ${door.id}`); continue; }
+  const alongAxis = door.wall.axis === "z" ? "z" : "x";
+  const openAxis = alongAxis === "z" ? "x" : "z";
+  if (row.alongAxis !== alongAxis || row.openAxis !== openAxis)
+    failures.push(`${door.id} hinge/open axes contradict its source wall`);
+  const pivot = row.end === "low" ? door.from + jambInset : door.to - jambInset;
+  const leafWidth = door.to - door.from - 2 * jambInset;
+  const face = row.sign > 0 ? door.wall.across[1] : door.wall.across[0];
+  const open = row.sign > 0 ? [face, face + leafWidth] : [face - leafWidth, face];
+  const side = row.end === "low" ? [pivot - row.handle, pivot + leafThickness] :
+    [pivot - leafThickness, pivot + row.handle];
+  const x = /** @type {Span} */ (openAxis === "x" ? open : side);
+  const z = /** @type {Span} */ (openAxis === "z" ? open : side);
+  const roomText = sources.find((source) => source.file === row.roomFile)?.text;
+  if (!roomText) failures.push(`${door.id}: no measured room source at ${row.roomFile}`);
+  else if (!insideRoom(x, z, roomText))
+    failures.push(`${door.id}: open leaf outside its reviewed room outline x=${x} z=${z}`);
+  const routeHits = boxes.filter((b) => b.kind === "route" && b.file === row.roomFile &&
+    isPositive(overlap(x, b.x)) && isPositive(overlap(z, b.z))).map((b) => b.id);
+  if (routeHits.length) failures.push(`${door.id}: open leaf intersects routes ${routeHits.join(",")}`);
+  const obstructionHits = boxes.filter((b) => ["furniture", "fixture", "storage"].includes(b.kind) &&
+    b.file === row.roomFile && b.y && isPositive(overlap(x, b.x)) && isPositive(overlap(z, b.z)) &&
+    isPositive(overlap([door.wall.floor, door.wall.floor + 2.16], b.y))).map((b) => b.id);
+  if (obstructionHits.length) failures.push(`${door.id}: open leaf intersects reserved objects ${obstructionHits.join(",")}`);
+  openLeaves.push({ id: door.id, x, z, routeHits, obstructionHits });
+}
+console.log(JSON.stringify({ doors: doors.length, partitions: partitions.length, reservationBoxes: boxes.length,
+  reservationIntersections, partitionIntersections, hingeRows: hingeRows.length,
+  measuredOpenLeaves: openLeaves.length,
+  openLeafRouteHits: openLeaves.reduce((n, leaf) => n + leaf.routeHits.length, 0),
+  openLeafObstructionHits: openLeaves.reduce((n, leaf) => n + leaf.obstructionHits.length, 0),
+  openLeaves: process.argv.includes("--inventory") ? openLeaves : undefined, failures }));
 if (failures.length) process.exitCode = 1;

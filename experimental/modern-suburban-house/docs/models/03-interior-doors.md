@@ -61,7 +61,21 @@ hall-tub-door는 복도 쪽 −Z 모서리에서 다음 샤워 욕실 칸막이�
 
 레퍼런스 05의 열린 방문은 여닫이 부재로 채택한다. 어느 각도에서 멈췄는지는 사진에서 측정하지 않고 방별 회전 예약을 따른다.
 
-`hinge-pivot`은 경첩 쪽 문설주 안쪽 모서리와 열림 쪽 벽면이 만나는 수직선이며 motion이 쓸 수 있는 유일한 인터페이스는 이 축의 회전이다. 범위는 0부터 π/2 rad까지이고 [settings 개구부](../settings/10-house.md#openings)가 문을 기준 상태에서 통행이 읽히게 연다고 정하므로 기준 상태는 π/2 rad 열림이다. 경첩 쪽과 열림 방향은 각 room owner를 그대로 받는다. [entry-living-door](../spaces/rooms/living.md#living-plan)는 -Z 문설주에서 거실 쪽 -X, [service-powder-door](../spaces/rooms/powder.md#powder-plan)는 -Z 문설주에서 +X, [service-laundry-door와 laundry-garage-door](../spaces/rooms/laundry.md#laundry-plan)는 둘 다 -Z 문설주에서 머드룸 안쪽, [service-pantry-door](../spaces/rooms/pantry.md#pantry-plan)는 +Z 문설주에서 +X, [hall-bedroom-two-door](../spaces/rooms/bedroom-two.md#bedroom-two-plan)는 +X 문설주에서 +Z, [hall-bedroom-three-door](../spaces/rooms/bedroom-three.md#bedroom-three-plan)는 -Z 문설주에서 +X, [hall-primary-door](../spaces/rooms/primary.md#primary-plan)와 [hall-shower-door](../spaces/rooms/shower-bath.md#shower-bath-plan)는 -X 문설주에서 -Z, [hall-tub-door](../spaces/rooms/tub-bath.md#tub-bath-plan)는 +Z 문설주에서 +X, [primary-wardrobe-door](../spaces/rooms/wardrobe.md#primary-wardrobe-plan)는 -Z 문설주에서 -X로 연다.
+`hinge-pivot`은 경첩 쪽 문설주 안쪽 모서리와 열림 쪽 벽면이 만나는 수직선이다. motion 인터페이스는 0–π/2 rad 회전 하나이고 [settings 개구부](../settings/10-house.md#openings)의 기준 상태는 π/2 rad 열림이다. 아래 표에서 low/high는 각 문의 개구부 좌표가 증가하는 축의 낮은/높은 끝이다. 열림 방향은 월드 평면축으로 적었으며 모두 [각 room owner](../spaces/05-route-network.md#room-route-network)가 정한 방향을 따른다. 열림 쪽 벽면을 국소 원점 면으로 두면 모델의 열림은 언제나 국소 +Z다.
+
+| 문 id | 경첩 끝 | 월드 열림 | 열린 면 손잡이 돌출 (m) | 공간 owner |
+|---|---|---|---|---|
+| `hall-bedroom-three-door` | low Z | +X | 0.055 | [셋째 침실](../spaces/rooms/bedroom-three.md#bedroom-three-plan) |
+| `hall-bedroom-two-door` | high X | +Z | 0.055 | [둘째 침실](../spaces/rooms/bedroom-two.md#bedroom-two-plan) |
+| `service-laundry-door` | low Z | +X | 0 | [세탁실](../spaces/rooms/laundry.md#laundry-plan) |
+| `entry-living-door` | low Z | −X | 0.055 | [거실](../spaces/rooms/living.md#living-plan) |
+| `service-pantry-door` | high Z | +X | 0 | [팬트리](../spaces/rooms/pantry.md#pantry-plan) |
+| `service-powder-door` | low Z | +X | 0.055 | [파우더룸](../spaces/rooms/powder.md#powder-plan) |
+| `hall-primary-door` | low X | −Z | 0.055 | [주침실](../spaces/rooms/primary.md#primary-plan) |
+| `hall-shower-door` | low X | −Z | 0.055 | [샤워 욕실](../spaces/rooms/shower-bath.md#shower-bath-plan) |
+| `hall-tub-door` | high Z | +X | 0.055 | [욕조 욕실](../spaces/rooms/tub-bath.md#tub-bath-plan) |
+| `primary-wardrobe-door` | low Z | −X | 0.030 | [열림 쪽 주침실](../spaces/rooms/primary.md#primary-plan) |
+| `laundry-garage-door` | low Z | −X | 0 | [세탁실](../spaces/rooms/laundry.md#laundry-plan) |
 
 모델은 경첩 쪽을 국소 -X 또는 +X 중 하나로 두는 좌우 거울 변형 두 가지만 가지며, 열림 쪽 벽면을 원점 면으로 두므로 열림 방향은 항상 국소 +Z다. 소스 owner는 `src/models/interior-door.ts`이며 각 방 threshold view에서 열린 문짝이 room owner의 문 앞 비움 구역을 침범하지 않는지 검사한다.
 

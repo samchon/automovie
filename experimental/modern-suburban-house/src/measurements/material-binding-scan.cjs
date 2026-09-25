@@ -72,6 +72,13 @@ const semanticPart = {
  * @param {string} model @param {string} id */
 const bodyWitness = (model, id) => {
   const body = modelBodies.get(model) ?? "";
+  // A named plate cannot be certified by a thickness alone. Its defining
+  // sentence must place the plate in at least two axes; dimensions elsewhere
+  // in the H2 may belong to different members.
+  const plateDefinitions = body.split(/(?<=다\.)\s*|\r?\n/g).filter((line) =>
+    new RegExp("`" + id + "`(?:은|는)[^\\n]*두께[^\\n]*판이다").test(line));
+  if (plateDefinitions.some((line) =>
+    !/[XYZ]\s*=\s*\[|(?:중앙|벽|개구부|창대|안쪽 면|각 칸)/.test(line))) return false;
   if (id === "exterior-trim" && model === "02-exterior-doors.md#front-entry-door")
     return /^현관문 `exterior-trim`은[^\n]*X\s*=\s*\[[^\n]*Y\s*=\s*\[[^\n]*두께 0\.035 m/m.test(body);
   if (id === "exterior-trim" && model === "02-exterior-doors.md#garden-door-pair")

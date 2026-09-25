@@ -2,15 +2,15 @@
 
 ## 주방 하부장 띠 {#kitchen-base-run}
 <!--
-@evidence principles/core/common.md#scope-preservation 이 H2가 L형 하부장 띠의 세 길이 3.35·0.30·1.30 m, 걸레받이·몸통·전면·손잡이·상판 부품, 재질 경계 여섯, 블로킹 한계와 관찰을 한곳에서 정하고 타일 backsplash는 벽 마감으로 이 원형 밖에 둔다.
+@evidence principles/core/common.md#scope-preservation 이 H2가 L형 하부장 띠의 세 길이 3.35·0.30·1.30 m, 발판·몸통·문·서랍 전면·손잡이·상판 부품, 재질 경계 여섯, 블로킹 한계와 관찰을 한곳에서 정하고 타일 backsplash는 벽 마감으로 이 원형 밖에 둔다.
 @evidence principles/core/common.md#substantive-completion 깊이 0.65 m, 상판 상면 0.91 m, 몸통 Y = [0.10, 0.88]·깊이 0.60 m, 손잡이 앞 끝 Z = 0.64 m, 상판 아래 0.15 m 서랍 띠와 round(L/0.60 m) 칸 수를 정한다. 각 손잡이의 세부 단면은 공통 가구 부재 규칙을 따른다.
 @evidence principles/core/common.md#declared-basis 깊이 0.65 m와 상판 0.91 m는 공용부 벽 주방 예약에서 그대로 받은 값이고, 서랍 띠·돌출 손잡이는 주방 설비 설정의 구별 요구가 근거이며, 칸 폭은 이 층의 결정이라고 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 예약이 준 L형 두 띠 외곽 위에 교차 코너를 뒤쪽 띠 하나가 소유하는 세 조각 분할, 전면에서 0.07 m 들어간 걸레받이, 서랍 띠와 문 칸의 전면 분할이라는 구성 결정을 더한다.
-@evidence principles/design/models.md#representation-contract 걸레받이·몸통·문과 서랍 전면·손잡이·상판의 부품과 `plinth`·`carcass`·`leaf`·`drawer-front`·`handle`·`countertop` 재질 경계를 고정하고, 경첩·서랍 레일·수전 배관·걸레받이 발 조절을 표현하지 않는 블로킹 한계를 적는다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 예약이 준 L형 두 띠 외곽 위에 교차 코너를 뒤쪽 띠 하나가 소유하는 세 조각 분할, 전면에서 0.07 m 들어간 발판, 서랍 띠와 문 칸의 전면 분할이라는 구성 결정을 더한다.
+@evidence principles/design/models.md#representation-contract 발판·몸통·문과 서랍 전면·손잡이·상판의 부품과 `plinth`·`carcass`·`leaf`·`drawer-front`·`handle`·`countertop` 재질 경계를 고정하고, 경첩·서랍 레일·수전 배관·발판 높이 조절을 표현하지 않는 블로킹 한계를 적는다.
 @evidence principles/design/models.md#spatial-convention 가구 국소 좌표를 따르며 +Z를 사용자가 서는 작업면으로 두고, 몸통 앞면 Z = 0.62 m·손잡이 앞 끝 Z = 0.64 m·상판 Y = [0.88, 0.91]로 점유를 예약 깊이 0.65 m 안에 둔다.
 @evidence principles/design/models.md#reviewable-structure 측면 정사영의 상판 0.91 m·걸레받이 홈·상판 앞 돌출 0.03 m와 평면의 세 조각 합집합·한 번만 채운 코너를 리뷰가 드러낼 실루엣과 분할로 지정하고, 문과 서랍은 관절을 노출하지 않는다고 밝힌다.
 @evidence principles/design/models.md#model-observable-style-basis 레퍼런스 03의 회갈색 하부장 띠와 밝은 상판을 채택한다. 스타일 라벨 없이 상판 아래 0.15 m 서랍 띠와 그 아래 문 칸, 전면에서 0.02 m 돌출한 가로 막대 손잡이라는 관찰 가능한 구성 결정을 리뷰 거리 구별 요구에 묶는다.
-@evidence principles/design/models.md#model-scale-layer-completion 예약에서 받은 0.65·0.91 m 스케일, 다섯 부품, 관절 없는 강체 문·서랍, 여섯 재질 경계, 블로킹 한계, 측면·평면 관찰이 함께 적혀 하부장 띠 표현에 빠진 층이 없다.
+@evidence principles/design/models.md#model-scale-layer-completion 예약에서 받은 0.65·0.91 m 스케일, 여섯 부품, 관절 없는 강체 문·서랍, 여섯 재질 경계, 블로킹 한계, 측면·평면 관찰이 함께 적혀 하부장 띠 표현에 빠진 층이 없다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 공용부 벽 주방 예약의 뒤쪽 띠 Z = [-10.45, -9.80]·왼쪽 띠 X = [-5.50, -4.85]·Y = [0, 0.91]과 주방 설비 설정의 서랍·문·손잡이 구별 요구를 적힌 그대로 소비했고, 세 조각이 두 띠를 틈 없이 채워 부모 수정이 필요 없었다.
 @evidence settings/10-house.md#kitchen-equipment 주방 설비 설정의 L형 하부 수납을 길이 L 매개 원형으로 만들고, 서랍·문·손잡이가 리뷰 거리에서 구별되어야 한다는 요구를 0.15 m 서랍 띠 분할과 0.02 m 돌출 손잡이로 소비한다.
 @evidence spaces/rooms/common.md#common-kitchen-wall-reservation 뒤쪽 띠 Z = [-10.45, -9.80]과 왼쪽 띠 X = [-5.50, -4.85]의 폭 0.65 m, Y = [0, 0.91]을 원형 깊이·높이로 받고, 손잡이 앞 끝 Z = 0.64 m를 외곽 안에 둬 손잡이·전면 돌출 포함 조건을 지킨다.
