@@ -18,7 +18,12 @@
  * without it (an active set), and the row says which were held, because a
  * proportion the basis cannot reach is a finding about the basis, not a
  * value to hide. Iteration stops when every free index is within `tolerance`
- * (relative) of its target or after `iterations` steps.
+ * (relative) of its target or after `iterations` steps. The active set holds
+ * one control per step and may release it again, so the default budget is
+ * three steps per control (one to hold it, one to release it, one Newton
+ * step): a fixed twelve had run out on a face whose photograph pressed seven
+ * of twenty controls to their bounds, leaving a released control where its
+ * hold had put it and that index unsolved.
  *
  * Pure apart from calling `evaluate`.
  */
@@ -58,7 +63,7 @@ export function solveFaceAnthropometry(props: {
     );
   const step = props.step ?? 0.05;
   const tolerance = props.tolerance ?? 1e-3;
-  const iterations = props.iterations ?? 12;
+  const iterations = props.iterations ?? 3 * n;
   const values = props.controls.map((c) => c.start);
   let current = props.evaluate(values);
   const unmeasured = [...new Array(n).keys()].filter(

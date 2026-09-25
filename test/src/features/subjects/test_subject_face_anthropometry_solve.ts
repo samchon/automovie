@@ -15,7 +15,10 @@ import { nclose, throwsError } from "../internal/predicates";
  * 2. A target beyond a control's envelope holds that control at its bound
  *    and still solves the other.
  * 3. An unmeasured target keeps its control at its start.
- * 4. A target list of another length and a singular system refuse.
+ * 4. Twenty coupled controls of which sixteen are asked past their bounds:
+ *    the default budget (three steps per control) holds all sixteen and
+ *    solves the other four, where twelve steps leave them unsolved.
+ * 5. A target list of another length and a singular system refuse.
  */
 export const test_subject_face_anthropometry_solve = (): void => {
   const model = (v: readonly number[]) => [
@@ -61,6 +64,28 @@ export const test_subject_face_anthropometry_solve = (): void => {
     unmeasured.values[0] === 0 &&
       unmeasured.unmeasured.includes(0) &&
       unmeasured.achieved[0] === null,
+  );
+  const wide = [...new Array(20).keys()];
+  const coupled = (v: readonly number[]) =>
+    v.map(
+      (x, i) =>
+        x + 0.05 * v.reduce((sum, y, j) => (j === i ? sum : sum + y), 0),
+    );
+  const many = {
+    controls: wide.map((i) => ({ id: `c${i}`, start: 0, lower: -1, upper: 1 })),
+    targets: wide.map((i) => (i < 16 ? 3 : 0.5)),
+    evaluate: coupled,
+  };
+  const budget = solveFaceAnthropometry(many);
+  const short = solveFaceAnthropometry({ ...many, iterations: 12 });
+  const solvedFree = (solution: typeof budget) =>
+    wide.slice(16).every((i) => nclose(solution.achieved[i]!, 0.5, 0.5e-3));
+  TestValidator.predicate(
+    "budget per control",
+    budget.held.length === 16 &&
+      solvedFree(budget) &&
+      budget.iterations > 12 &&
+      !solvedFree(short),
   );
   TestValidator.predicate(
     "length",
