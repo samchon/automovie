@@ -1,0 +1,436 @@
+{
+  "basis": "mpfb-connected-body-2026-09-26-anatomy-r10",
+  "supersedes": "mpfb-connected-body-2026-09-26-anatomy-r9",
+  "recorded": "2026-09-26",
+  "channel": {
+    "id": "glutealProjection",
+    "kind": "shape",
+    "group": "buttocks",
+    "mirror": null,
+    "minimum": -1,
+    "maximum": 1,
+    "positive": "buttocks/gluteal-projection-incr",
+    "negative": "buttocks/gluteal-projection-decr"
+  },
+  "trait": {
+    "region": "the tissue the source's buttocks/buttocks-volume-incr endpoint moves (floor 0.1 of its largest displacement, 6 smoothing sweeps at relaxation 0.5), gated to back-facing skin (normal z from 0.2 to -0.2) and away from the cleft (|x| from 0.012 to 0.04 m)",
+    "coordinate": "height above the left hip joint landmark (joint-l-upper-leg), metres",
+    "positive": {
+      "direction": "normal",
+      "amplitudeMetres": 0.025,
+      "profile": {
+        "kind": "bell",
+        "centre": -0.015,
+        "sigma": 0.045
+      }
+    },
+    "negative": {
+      "direction": "normal",
+      "amplitudeMetres": -0.02,
+      "profile": {
+        "kind": "bell",
+        "centre": -0.015,
+        "sigma": 0.045
+      }
+    },
+    "endpoints": {
+      "buttocks/gluteal-projection-incr": {
+        "vertices": 1241,
+        "mostMetres": 0.025000037699971576
+      },
+      "buttocks/gluteal-projection-decr": {
+        "vertices": 1234,
+        "mostMetres": 0.019999975924985508
+      }
+    }
+  },
+  "why": "Reproduced ANSUR II people (each built from their own sex, age, stature, mass, chest and buttock circumference at muscle 0) read buttocks 12 mm (women) and 32 mm (men) flatter than the people and their greatest protrusion 16 and 45 mm too high; the flattening grows by about 3.5 mm per unit of body mass index in both sexes. At the survey's buttock level the weight macro adds depth at the front, buttocksVolume grows the buttock sideways and low (its largest backward move at 0.466 of stature) and the source's muscle adds 3 to 7 mm there; no channel carried the projection.",
+  "research": [
+    {
+      "claim": "ANSUR II, the 2012 anthropometric survey of US Army personnel (4,082 men, 1,986 women), public data; buttock height is to the greatest protrusion of the buttock, 0.512 of stature for women",
+      "source": "Gordon CC et al. 2014, 2012 Anthropometric Survey of U.S. Army Personnel: Methods and Summary Statistics, NATICK/TR-15/007; public CSV via the Penn State OPEN Design Lab"
+    }
+  ],
+  "calibration": {
+    "scope": "women only: the men's fitted rows closed a muscular man's gluteal cleft in the census body matrix at a body mass index of 30 (the hip depth row even at three tenths of its size) and, held to what stayed clean (no hip depth, a hip breadth that never narrows), narrowed the hips' reach (four more surveyed men refused) and restored none of the improvement, so men keep the source's buttock, waist and thigh",
+    "fade": "each fitted row goes to zero at a body mass index of 15 and 45 (40 for the breast row), past the survey's support; held flat there, they crossed the census's heaviest and oldest bodies",
+    "pelvis": "hipScaleVert -0.6 for women from a body mass index of 18 to 35, fading to zero at 15 and 45 like the other rows (a thin woman of 90 folded her thigh with it at 15): per unit, with stature, girths and mass re-solved, the crotch rises 20 mm and the buttock's greatest protrusion falls 6 mm; -1 raised the hips' smallest reachable girth past ordinary surveyed women's (refused by 2 to 3 mm), -0.6 is the largest that builds every surveyed woman of the subset",
+    "method": "The simple tier's rows for glutealProjection, hipScaleHoriz, hipScaleDepth, the upper and lower leg fat channels and a woman's breastTransDownUp are channel weights by sex over body mass index knots 18, 22, 26, 30 and 35, fitted by least squares to the census residuals of 253 reproduced people (the buttock depth and height, the waist breadth, depth and girth at the omphalion and the thigh and calf girths, each over its population sd; the women's bust point height for the breast row, whose response the pins leave alone: +17 to +33 mm per unit), using effective responses in which the bust and hip girths and the mass are re-solved by measureBustCirc, measureHipsCirc and macroWeight on reference bodies of both sexes (women at BMI 19, 22, 28; men at 24, 30), with second-difference smoothing and a small weight penalty. Each person's latent muscle was fitted too and came out near zero on average (women +0.01, men -0.13), so the survey's fitness does not explain the residuals.",
+    "rows": [
+      {
+        "channel": "glutealProjection",
+        "sex": "women",
+        "bodyMassIndex": [
+          [
+            15,
+            0.0
+          ],
+          [
+            18.0,
+            -0.051
+          ],
+          [
+            22.0,
+            -0.013
+          ],
+          [
+            26.0,
+            0.023
+          ],
+          [
+            30.0,
+            0.053
+          ],
+          [
+            35.0,
+            0.08
+          ],
+          [
+            45,
+            0.0
+          ]
+        ]
+      },
+      {
+        "channel": "hipScaleHoriz",
+        "sex": "women",
+        "bodyMassIndex": [
+          [
+            15,
+            0.0
+          ],
+          [
+            18.0,
+            -0.026
+          ],
+          [
+            22.0,
+            -0.104
+          ],
+          [
+            26.0,
+            -0.175
+          ],
+          [
+            30.0,
+            -0.22
+          ],
+          [
+            35.0,
+            -0.256
+          ],
+          [
+            45,
+            0.0
+          ]
+        ]
+      },
+      {
+        "channel": "hipScaleDepth",
+        "sex": "women",
+        "bodyMassIndex": [
+          [
+            15,
+            0.0
+          ],
+          [
+            18.0,
+            0.068
+          ],
+          [
+            22.0,
+            0.143
+          ],
+          [
+            26.0,
+            0.211
+          ],
+          [
+            30.0,
+            0.255
+          ],
+          [
+            35.0,
+            0.286
+          ],
+          [
+            45,
+            0.0
+          ]
+        ]
+      },
+      {
+        "channel": "upperlegFatLeft",
+        "sex": "women",
+        "bodyMassIndex": [
+          [
+            15,
+            0.0
+          ],
+          [
+            18.0,
+            0.241
+          ],
+          [
+            22.0,
+            0.242
+          ],
+          [
+            26.0,
+            0.233
+          ],
+          [
+            30.0,
+            0.202
+          ],
+          [
+            35.0,
+            0.165
+          ],
+          [
+            45,
+            0.0
+          ]
+        ]
+      },
+      {
+        "channel": "upperlegFatRight",
+        "sex": "women",
+        "bodyMassIndex": [
+          [
+            15,
+            0.0
+          ],
+          [
+            18.0,
+            0.241
+          ],
+          [
+            22.0,
+            0.242
+          ],
+          [
+            26.0,
+            0.233
+          ],
+          [
+            30.0,
+            0.202
+          ],
+          [
+            35.0,
+            0.165
+          ],
+          [
+            45,
+            0.0
+          ]
+        ]
+      },
+      {
+        "channel": "lowerlegFatLeft",
+        "sex": "women",
+        "bodyMassIndex": [
+          [
+            15,
+            0.0
+          ],
+          [
+            18.0,
+            0.229
+          ],
+          [
+            22.0,
+            0.246
+          ],
+          [
+            26.0,
+            0.253
+          ],
+          [
+            30.0,
+            0.237
+          ],
+          [
+            35.0,
+            0.213
+          ],
+          [
+            45,
+            0.0
+          ]
+        ]
+      },
+      {
+        "channel": "lowerlegFatRight",
+        "sex": "women",
+        "bodyMassIndex": [
+          [
+            15,
+            0.0
+          ],
+          [
+            18.0,
+            0.229
+          ],
+          [
+            22.0,
+            0.246
+          ],
+          [
+            26.0,
+            0.253
+          ],
+          [
+            30.0,
+            0.237
+          ],
+          [
+            35.0,
+            0.213
+          ],
+          [
+            45,
+            0.0
+          ]
+        ]
+      },
+      {
+        "channel": "breastTransDownUp",
+        "sex": "women",
+        "bodyMassIndex": [
+          [
+            15,
+            0.0
+          ],
+          [
+            18,
+            -0.594
+          ],
+          [
+            22,
+            -0.257
+          ],
+          [
+            26,
+            0.083
+          ],
+          [
+            30,
+            0.411
+          ],
+          [
+            40,
+            0.0
+          ]
+        ]
+      },
+      {
+        "channel": "hipScaleVert",
+        "sex": "women",
+        "bodyMassIndex": [
+          [
+            15,
+            0
+          ],
+          [
+            18,
+            -0.6
+          ],
+          [
+            35,
+            -0.6
+          ],
+          [
+            45,
+            0
+          ]
+        ]
+      }
+    ],
+    "validation": {
+      "women": {
+        "people": 26,
+        "buttockdepth": {
+          "beforeMillimetres": -12.2,
+          "afterMillimetres": -0.9
+        },
+        "buttockheight": {
+          "beforeMillimetres": 11.8,
+          "afterMillimetres": 6.2
+        },
+        "waistbreadth": {
+          "beforeMillimetres": 29.5,
+          "afterMillimetres": 8.4
+        },
+        "waistdepth": {
+          "beforeMillimetres": 1.6,
+          "afterMillimetres": -1.9
+        },
+        "waistcircumference": {
+          "beforeMillimetres": 18.8,
+          "afterMillimetres": -19.8
+        },
+        "thighcircumference": {
+          "beforeMillimetres": -13.9,
+          "afterMillimetres": -1.2
+        },
+        "calfcircumference": {
+          "beforeMillimetres": -8.0,
+          "afterMillimetres": -0.8
+        },
+        "crotchheight": {
+          "beforeMillimetres": -26.5,
+          "afterMillimetres": -14.0
+        },
+        "chestheight": {
+          "beforeMillimetres": -5.8,
+          "afterMillimetres": -0.1
+        }
+      },
+      "men": {
+        "note": "no rows: the men's residuals are the previous revision's on the same people",
+        "people": 26
+      }
+    },
+    "breastPosition": {
+      "note": "the women's bust point height residual of the full census (117 women) by body mass index band, before and after the breast row, from its effective response (the pins leave it alone)",
+      "bands": [
+        {
+          "bodyMassIndex": [
+            15,
+            20
+          ],
+          "beforeMillimetres": 11.5,
+          "afterMillimetres": 2.5
+        },
+        {
+          "bodyMassIndex": [
+            20,
+            23
+          ],
+          "beforeMillimetres": 9.7,
+          "afterMillimetres": 3.8
+        },
+        {
+          "bodyMassIndex": [
+            23,
+            26
+          ],
+          "beforeMillimetres": 1.0,
+          "afterMillimetres": -0.1
+        },
+        {
+          "bodyMassIndex": [
+            26,
+            30
+          ],
+          "beforeMillimetres": -11.2,
+          "afterMillimetres": -5.1
+        }
+      ]
+    }
+  },
+  "uncompressedSha256": "b71c4a993738954cf036a48e77ef62e45057ee419e6aadf48bd4f47482e9df00",
+  "uncompressedBytes": 131668600
+}

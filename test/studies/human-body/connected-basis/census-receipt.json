@@ -1,10 +1,10 @@
 {
-  "basis": "mpfb-connected-body-2026-09-26-anatomy-r9",
+  "basis": "mpfb-connected-body-2026-09-26-anatomy-r10",
   "restPairs": [],
   "sets": {
     "channels": {
-      "states": 281,
-      "clean": 281,
+      "states": 283,
+      "clean": 283,
       "withFindings": 0,
       "refused": [],
       "pairsByFrequency": [],
@@ -4676,25 +4676,25 @@
     },
     "bodyposes": {
       "states": 210,
-      "clean": 97,
-      "withFindings": 113,
+      "clean": 93,
+      "withFindings": 117,
       "refused": [],
       "pairsByFrequency": [
         {
           "pair": "hips x hips",
-          "states": 49
+          "states": 53
         },
         {
           "pair": "leftUpperLeg x leftUpperLeg",
-          "states": 47
+          "states": 49
         },
         {
           "pair": "leftUpperArm x leftUpperArm",
-          "states": 39
+          "states": 37
         },
         {
           "pair": "upperChest x leftUpperArm",
-          "states": 33
+          "states": 34
         },
         {
           "pair": "leftLowerLeg x leftLowerLeg",
@@ -4706,11 +4706,11 @@
         },
         {
           "pair": "hips x leftUpperLeg",
-          "states": 21
+          "states": 24
         },
         {
           "pair": "spine x leftUpperLeg",
-          "states": 13
+          "states": 17
         },
         {
           "pair": "spine x spine",
@@ -4718,7 +4718,7 @@
         },
         {
           "pair": "upperChest x upperChest",
-          "states": 10
+          "states": 9
         },
         {
           "pair": "hips x rightUpperLeg",
@@ -4734,7 +4734,7 @@
         },
         {
           "pair": "neck x neck",
-          "states": 4
+          "states": 5
         },
         {
           "pair": "leftLowerArm x leftLowerArm",
@@ -4784,7 +4784,7 @@
               "deltoidDefinitionLeft": 0,
               "deltoidDefinitionRight": 0,
               "scapularDefinition": 0,
-              "breastTransDownUp": 0,
+              "breastTransDownUp": -0.594,
               "breastVolumeVertDownUp": 0,
               "breastPoint": 0,
               "macroCupsize": -0.3,
@@ -4792,36 +4792,42 @@
               "stomachNavelDownUp": 0,
               "neckDouble": 0,
               "upperarmFatLeft": 0,
-              "upperlegFatLeft": 0,
+              "upperlegFatLeft": 0.241,
               "upperarmFatRight": 0,
-              "upperlegFatRight": 0,
+              "upperlegFatRight": 0.241,
               "torsoVshape": 0,
               "musculatureDefinition": 0.1325625000000001,
               "chestDefinition": 0.01988437500000002,
               "skeletalProminence": 0.24400000000000036,
+              "glutealProjection": -0.051,
+              "hipScaleHoriz": -0.026,
+              "hipScaleDepth": 0.068,
+              "lowerlegFatLeft": 0.229,
+              "lowerlegFatRight": 0.229,
+              "hipScaleVert": -0.6,
               "macroFirmness": 0,
               "macroHeight": 0.16642034583301069,
-              "macroWeight": -0.8566801550203141
+              "macroWeight": -0.9396779568791267
             }
           },
           "fresh": [
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 102,
-              "otherTriangles": 102
+              "triangles": 107,
+              "otherTriangles": 107
             },
             {
               "part": "leftUpperLeg",
               "other": "leftLowerLeg",
-              "triangles": 25,
-              "otherTriangles": 22
+              "triangles": 37,
+              "otherTriangles": 33
             },
             {
               "part": "leftLowerLeg",
               "other": "leftLowerLeg",
-              "triangles": 16,
-              "otherTriangles": 16
+              "triangles": 20,
+              "otherTriangles": 20
             }
           ],
           "grown": []
@@ -4864,7 +4870,7 @@
               "deltoidDefinitionLeft": 1,
               "deltoidDefinitionRight": 1,
               "scapularDefinition": 1,
-              "breastTransDownUp": 0,
+              "breastTransDownUp": -0.594,
               "breastVolumeVertDownUp": 0,
               "breastPoint": 0,
               "macroCupsize": -0.3,
@@ -4872,24 +4878,30 @@
               "stomachNavelDownUp": 0,
               "neckDouble": 0,
               "upperarmFatLeft": 0,
-              "upperlegFatLeft": 0,
+              "upperlegFatLeft": 0.241,
               "upperarmFatRight": 0,
-              "upperlegFatRight": 0,
+              "upperlegFatRight": 0.241,
               "torsoVshape": 0.3,
               "musculatureDefinition": 1,
               "chestDefinition": 0.15,
               "skeletalProminence": 0.25,
+              "glutealProjection": -0.051,
+              "hipScaleHoriz": -0.026,
+              "hipScaleDepth": 0.068,
+              "lowerlegFatLeft": 0.229,
+              "lowerlegFatRight": 0.229,
+              "hipScaleVert": -0.6,
               "macroFirmness": 0,
               "macroHeight": 0.1690651176617148,
-              "macroWeight": -1.6834086786491145
+              "macroWeight": -1.8427819587178256
             }
           },
           "fresh": [
             {
               "part": "spine",
               "other": "spine",
-              "triangles": 24,
-              "otherTriangles": 24
+              "triangles": 21,
+              "otherTriangles": 21
             }
           ],
           "grown": []
@@ -4932,7 +4944,7 @@
               "deltoidDefinitionLeft": 0,
               "deltoidDefinitionRight": 0,
               "scapularDefinition": 0,
-              "breastTransDownUp": -0.07875000000000008,
+              "breastTransDownUp": -0.08074999999999975,
               "breastVolumeVertDownUp": 0,
               "breastPoint": 0,
               "macroCupsize": 0.11250000000000013,
@@ -4940,16 +4952,22 @@
               "stomachNavelDownUp": -9.947598300641402e-17,
               "neckDouble": 2.0301221021717148e-16,
               "upperarmFatLeft": 0.13500000000000015,
-              "upperlegFatLeft": 0.11250000000000013,
+              "upperlegFatLeft": 0.3477500000000001,
               "upperarmFatRight": 0.13500000000000015,
-              "upperlegFatRight": 0.11250000000000013,
+              "upperlegFatRight": 0.3477500000000001,
               "torsoVshape": 0,
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0.014000000000000032,
+              "hipScaleHoriz": -0.15725000000000006,
+              "hipScaleDepth": 0.19400000000000006,
+              "lowerlegFatLeft": 0.25125000000000003,
+              "lowerlegFatRight": 0.25125000000000003,
+              "hipScaleVert": -0.6,
               "macroFirmness": 0,
               "macroHeight": 0.16645306105688948,
-              "macroWeight": 1.5300386479845483
+              "macroWeight": 1.3503582968588104
             }
           },
           "fresh": [
@@ -5000,7 +5018,7 @@
               "deltoidDefinitionLeft": 0.7312499999999997,
               "deltoidDefinitionRight": 0.7312499999999997,
               "scapularDefinition": 0.7312499999999997,
-              "breastTransDownUp": -0.07875000000000008,
+              "breastTransDownUp": -0.08074999999999975,
               "breastVolumeVertDownUp": 0,
               "breastPoint": 0,
               "macroCupsize": 0.11250000000000013,
@@ -5008,30 +5026,36 @@
               "stomachNavelDownUp": -9.947598300641402e-17,
               "neckDouble": 2.0301221021717148e-16,
               "upperarmFatLeft": 0.13500000000000015,
-              "upperlegFatLeft": 0.11250000000000013,
+              "upperlegFatLeft": 0.3477500000000001,
               "upperarmFatRight": 0.13500000000000015,
-              "upperlegFatRight": 0.11250000000000013,
+              "upperlegFatRight": 0.3477500000000001,
               "torsoVshape": 0.3,
               "musculatureDefinition": 0.28874999999999984,
               "chestDefinition": 0.043312499999999976,
               "skeletalProminence": 0.046249999999999944,
+              "glutealProjection": 0.014000000000000032,
+              "hipScaleHoriz": -0.15725000000000006,
+              "hipScaleDepth": 0.19400000000000006,
+              "lowerlegFatLeft": 0.25125000000000003,
+              "lowerlegFatRight": 0.25125000000000003,
+              "hipScaleVert": -0.6,
               "macroFirmness": 0,
               "macroHeight": 0.16924419144502495,
-              "macroWeight": 0.3506973699186834
+              "macroWeight": 0.2906091832382751
             }
           },
           "fresh": [
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 92,
-              "otherTriangles": 92
+              "triangles": 97,
+              "otherTriangles": 97
             },
             {
               "part": "leftUpperLeg",
               "other": "leftLowerLeg",
-              "triangles": 37,
-              "otherTriangles": 24
+              "triangles": 80,
+              "otherTriangles": 54
             },
             {
               "part": "leftLowerLeg",
@@ -5080,7 +5104,7 @@
               "deltoidDefinitionLeft": 0,
               "deltoidDefinitionRight": 0,
               "scapularDefinition": 0,
-              "breastTransDownUp": -0.22799999999999998,
+              "breastTransDownUp": 0.1008,
               "breastVolumeVertDownUp": 0,
               "breastPoint": 0,
               "macroCupsize": 0.33999999999999997,
@@ -5088,16 +5112,22 @@
               "stomachNavelDownUp": -0.19599999999999998,
               "neckDouble": 0.4,
               "upperarmFatLeft": 0.408,
-              "upperlegFatLeft": 0.33999999999999997,
+              "upperlegFatLeft": 0.5272,
               "upperarmFatRight": 0.408,
-              "upperlegFatRight": 0.33999999999999997,
+              "upperlegFatRight": 0.5272,
               "torsoVshape": 0,
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0.0638,
+              "hipScaleHoriz": -0.2344,
+              "hipScaleDepth": 0.26739999999999997,
+              "lowerlegFatLeft": 0.2274,
+              "lowerlegFatRight": 0.2274,
+              "hipScaleVert": -0.6,
               "macroFirmness": 0,
               "macroHeight": 0.16756313350586372,
-              "macroWeight": 3.767174724626261
+              "macroWeight": 3.5852098939637993
             }
           },
           "fresh": [
@@ -5148,7 +5178,7 @@
               "deltoidDefinitionLeft": 0,
               "deltoidDefinitionRight": 0,
               "scapularDefinition": 0,
-              "breastTransDownUp": -0.22799999999999998,
+              "breastTransDownUp": 0.1008,
               "breastVolumeVertDownUp": 0,
               "breastPoint": 0,
               "macroCupsize": 0.33999999999999997,
@@ -5156,48 +5186,54 @@
               "stomachNavelDownUp": -0.19599999999999998,
               "neckDouble": 0.4,
               "upperarmFatLeft": 0.408,
-              "upperlegFatLeft": 0.33999999999999997,
+              "upperlegFatLeft": 0.5272,
               "upperarmFatRight": 0.408,
-              "upperlegFatRight": 0.33999999999999997,
+              "upperlegFatRight": 0.5272,
               "torsoVshape": 0,
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0.0638,
+              "hipScaleHoriz": -0.2344,
+              "hipScaleDepth": 0.26739999999999997,
+              "lowerlegFatLeft": 0.2274,
+              "lowerlegFatRight": 0.2274,
+              "hipScaleVert": -0.6,
               "macroFirmness": 0,
               "macroHeight": 0.16756313350586372,
-              "macroWeight": 3.767174724626261
+              "macroWeight": 3.5852098939637993
             }
           },
           "fresh": [
             {
               "part": "hips",
               "other": "hips",
-              "triangles": 6,
-              "otherTriangles": 6
+              "triangles": 2,
+              "otherTriangles": 2
             },
             {
               "part": "hips",
               "other": "leftUpperLeg",
               "triangles": 38,
-              "otherTriangles": 41
+              "otherTriangles": 30
             },
             {
               "part": "spine",
               "other": "spine",
-              "triangles": 16,
-              "otherTriangles": 16
+              "triangles": 19,
+              "otherTriangles": 19
             },
             {
               "part": "spine",
               "other": "leftUpperLeg",
-              "triangles": 24,
-              "otherTriangles": 26
+              "triangles": 44,
+              "otherTriangles": 46
             },
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 19,
-              "otherTriangles": 19
+              "triangles": 18,
+              "otherTriangles": 18
             }
           ],
           "grown": []
@@ -5240,7 +5276,7 @@
               "deltoidDefinitionLeft": 0,
               "deltoidDefinitionRight": 0,
               "scapularDefinition": 0,
-              "breastTransDownUp": -0.22799999999999998,
+              "breastTransDownUp": 0.1008,
               "breastVolumeVertDownUp": 0,
               "breastPoint": 0,
               "macroCupsize": 0.33999999999999997,
@@ -5248,30 +5284,36 @@
               "stomachNavelDownUp": -0.19599999999999998,
               "neckDouble": 0.4,
               "upperarmFatLeft": 0.408,
-              "upperlegFatLeft": 0.33999999999999997,
+              "upperlegFatLeft": 0.5272,
               "upperarmFatRight": 0.408,
-              "upperlegFatRight": 0.33999999999999997,
+              "upperlegFatRight": 0.5272,
               "torsoVshape": 0.3,
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0.0638,
+              "hipScaleHoriz": -0.2344,
+              "hipScaleDepth": 0.26739999999999997,
+              "lowerlegFatLeft": 0.2274,
+              "lowerlegFatRight": 0.2274,
+              "hipScaleVert": -0.6,
               "macroFirmness": 0,
               "macroHeight": 0.17044937438999025,
-              "macroWeight": 0.9926880756048784
+              "macroWeight": 0.9242187624596001
             }
           },
           "fresh": [
             {
               "part": "upperChest",
               "other": "leftUpperArm",
-              "triangles": 57,
-              "otherTriangles": 72
+              "triangles": 62,
+              "otherTriangles": 75
             },
             {
               "part": "leftUpperArm",
               "other": "leftUpperArm",
-              "triangles": 7,
-              "otherTriangles": 7
+              "triangles": 6,
+              "otherTriangles": 6
             }
           ],
           "grown": []
@@ -5314,7 +5356,7 @@
               "deltoidDefinitionLeft": 0,
               "deltoidDefinitionRight": 0,
               "scapularDefinition": 0,
-              "breastTransDownUp": -0.3,
+              "breastTransDownUp": -0.29999999999999993,
               "breastVolumeVertDownUp": 0,
               "breastPoint": 0,
               "macroCupsize": 0.5,
@@ -5322,16 +5364,22 @@
               "stomachNavelDownUp": -0.34,
               "neckDouble": 0.8,
               "upperarmFatLeft": 0.6,
-              "upperlegFatLeft": 0.5,
+              "upperlegFatLeft": 0.5825,
               "upperarmFatRight": 0.6,
-              "upperlegFatRight": 0.5,
+              "upperlegFatRight": 0.5825,
               "torsoVshape": 0,
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0.04,
+              "hipScaleHoriz": -0.128,
+              "hipScaleDepth": 0.143,
+              "lowerlegFatLeft": 0.1065,
+              "lowerlegFatRight": 0.1065,
+              "hipScaleVert": -0.3,
               "macroFirmness": 0,
               "macroHeight": 0.1686732059548374,
-              "macroWeight": 6.237212679295645
+              "macroWeight": 6.1594890668343965
             }
           },
           "fresh": [
@@ -5388,7 +5436,7 @@
               "deltoidDefinitionLeft": 0,
               "deltoidDefinitionRight": 0,
               "scapularDefinition": 0,
-              "breastTransDownUp": -0.3,
+              "breastTransDownUp": -0.29999999999999993,
               "breastVolumeVertDownUp": 0,
               "breastPoint": 0,
               "macroCupsize": 0.5,
@@ -5396,24 +5444,30 @@
               "stomachNavelDownUp": -0.34,
               "neckDouble": 0.8,
               "upperarmFatLeft": 0.6,
-              "upperlegFatLeft": 0.5,
+              "upperlegFatLeft": 0.5825,
               "upperarmFatRight": 0.6,
-              "upperlegFatRight": 0.5,
+              "upperlegFatRight": 0.5825,
               "torsoVshape": 0,
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0.04,
+              "hipScaleHoriz": -0.128,
+              "hipScaleDepth": 0.143,
+              "lowerlegFatLeft": 0.1065,
+              "lowerlegFatRight": 0.1065,
+              "hipScaleVert": -0.3,
               "macroFirmness": 0,
               "macroHeight": 0.1686732059548374,
-              "macroWeight": 6.237212679295645
+              "macroWeight": 6.1594890668343965
             }
           },
           "fresh": [
             {
               "part": "hips",
               "other": "hips",
-              "triangles": 76,
-              "otherTriangles": 76
+              "triangles": 79,
+              "otherTriangles": 79
             },
             {
               "part": "hips",
@@ -5436,8 +5490,8 @@
             {
               "part": "leftUpperLeg",
               "other": "leftLowerLeg",
-              "triangles": 29,
-              "otherTriangles": 32
+              "triangles": 32,
+              "otherTriangles": 35
             },
             {
               "part": "leftLowerLeg",
@@ -5492,7 +5546,7 @@
               "deltoidDefinitionLeft": 0,
               "deltoidDefinitionRight": 0,
               "scapularDefinition": 0,
-              "breastTransDownUp": -0.3,
+              "breastTransDownUp": -0.29999999999999993,
               "breastVolumeVertDownUp": 0,
               "breastPoint": 0,
               "macroCupsize": 0.5,
@@ -5500,16 +5554,22 @@
               "stomachNavelDownUp": -0.34,
               "neckDouble": 0.8,
               "upperarmFatLeft": 0.6,
-              "upperlegFatLeft": 0.5,
+              "upperlegFatLeft": 0.5825,
               "upperarmFatRight": 0.6,
-              "upperlegFatRight": 0.5,
+              "upperlegFatRight": 0.5825,
               "torsoVshape": 0.3,
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0.04,
+              "hipScaleHoriz": -0.128,
+              "hipScaleDepth": 0.143,
+              "lowerlegFatLeft": 0.1065,
+              "lowerlegFatRight": 0.1065,
+              "hipScaleVert": -0.3,
               "macroFirmness": 0,
               "macroHeight": 0.17158185778496476,
-              "macroWeight": 3.5956766588077937
+              "macroWeight": 3.4659727772058684
             }
           },
           "fresh": [
@@ -5566,7 +5626,7 @@
               "deltoidDefinitionLeft": 0,
               "deltoidDefinitionRight": 0,
               "scapularDefinition": 0,
-              "breastTransDownUp": -0.3,
+              "breastTransDownUp": -0.29999999999999993,
               "breastVolumeVertDownUp": 0,
               "breastPoint": 0,
               "macroCupsize": 0.5,
@@ -5574,30 +5634,48 @@
               "stomachNavelDownUp": -0.34,
               "neckDouble": 0.8,
               "upperarmFatLeft": 0.6,
-              "upperlegFatLeft": 0.5,
+              "upperlegFatLeft": 0.5825,
               "upperarmFatRight": 0.6,
-              "upperlegFatRight": 0.5,
+              "upperlegFatRight": 0.5825,
               "torsoVshape": 0.3,
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0.04,
+              "hipScaleHoriz": -0.128,
+              "hipScaleDepth": 0.143,
+              "lowerlegFatLeft": 0.1065,
+              "lowerlegFatRight": 0.1065,
+              "hipScaleVert": -0.3,
               "macroFirmness": 0,
               "macroHeight": 0.17158185778496476,
-              "macroWeight": 3.5956766588077937
+              "macroWeight": 3.4659727772058684
             }
           },
           "fresh": [
             {
               "part": "hips",
+              "other": "hips",
+              "triangles": 5,
+              "otherTriangles": 5
+            },
+            {
+              "part": "hips",
               "other": "leftUpperLeg",
-              "triangles": 8,
-              "otherTriangles": 14
+              "triangles": 25,
+              "otherTriangles": 40
             },
             {
               "part": "spine",
               "other": "leftUpperLeg",
-              "triangles": 5,
-              "otherTriangles": 7
+              "triangles": 26,
+              "otherTriangles": 23
+            },
+            {
+              "part": "leftUpperLeg",
+              "other": "leftUpperLeg",
+              "triangles": 9,
+              "otherTriangles": 9
             }
           ],
           "grown": []
@@ -5640,7 +5718,7 @@
               "deltoidDefinitionLeft": 1,
               "deltoidDefinitionRight": 1,
               "scapularDefinition": 1,
-              "breastTransDownUp": -0.45599999999999996,
+              "breastTransDownUp": -1,
               "breastVolumeVertDownUp": -0.325,
               "breastPoint": -0.27999999999999997,
               "macroCupsize": -0.3,
@@ -5648,36 +5726,42 @@
               "stomachNavelDownUp": 0,
               "neckDouble": 0.15,
               "upperarmFatLeft": 0,
-              "upperlegFatLeft": 0,
+              "upperlegFatLeft": 0.241,
               "upperarmFatRight": 0,
-              "upperlegFatRight": 0,
+              "upperlegFatRight": 0.241,
               "torsoVshape": 0.3,
               "musculatureDefinition": 0.525,
               "chestDefinition": 0.07875,
               "skeletalProminence": 0.125,
+              "glutealProjection": -0.051,
+              "hipScaleHoriz": -0.026,
+              "hipScaleDepth": 0.068,
+              "lowerlegFatLeft": 0.229,
+              "lowerlegFatRight": 0.229,
+              "hipScaleVert": -0.6,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.17876341050596917,
-              "macroWeight": -1.4734030527995212
+              "macroWeight": -1.61844784663824
             }
           },
           "fresh": [
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 78,
-              "otherTriangles": 78
+              "triangles": 74,
+              "otherTriangles": 74
             },
             {
               "part": "leftUpperLeg",
               "other": "leftLowerLeg",
-              "triangles": 28,
+              "triangles": 31,
               "otherTriangles": 21
             },
             {
               "part": "leftLowerLeg",
               "other": "leftLowerLeg",
-              "triangles": 20,
-              "otherTriangles": 20
+              "triangles": 21,
+              "otherTriangles": 21
             }
           ],
           "grown": []
@@ -5720,7 +5804,7 @@
               "deltoidDefinitionLeft": 0,
               "deltoidDefinitionRight": 0,
               "scapularDefinition": 0,
-              "breastTransDownUp": -0.5347500000000001,
+              "breastTransDownUp": -0.5367499999999997,
               "breastVolumeVertDownUp": -0.325,
               "breastPoint": -0.27999999999999997,
               "macroCupsize": 0.11250000000000013,
@@ -5728,24 +5812,42 @@
               "stomachNavelDownUp": -9.947598300641402e-17,
               "neckDouble": 0.1500000000000002,
               "upperarmFatLeft": 0.13500000000000015,
-              "upperlegFatLeft": 0.11250000000000013,
+              "upperlegFatLeft": 0.3477500000000001,
               "upperarmFatRight": 0.13500000000000015,
-              "upperlegFatRight": 0.11250000000000013,
+              "upperlegFatRight": 0.3477500000000001,
               "torsoVshape": 0,
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0.014000000000000032,
+              "hipScaleHoriz": -0.15725000000000006,
+              "hipScaleDepth": 0.19400000000000006,
+              "lowerlegFatLeft": 0.25125000000000003,
+              "lowerlegFatRight": 0.25125000000000003,
+              "hipScaleVert": -0.6,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.17691556252539836,
-              "macroWeight": 1.0941016835682758
+              "macroWeight": 0.9659801812565665
             }
           },
           "fresh": [
             {
+              "part": "hips",
+              "other": "leftUpperLeg",
+              "triangles": 25,
+              "otherTriangles": 24
+            },
+            {
+              "part": "spine",
+              "other": "leftUpperLeg",
+              "triangles": 16,
+              "otherTriangles": 19
+            },
+            {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 4,
-              "otherTriangles": 4
+              "triangles": 38,
+              "otherTriangles": 38
             }
           ],
           "grown": []
@@ -5788,7 +5890,7 @@
               "deltoidDefinitionLeft": 0,
               "deltoidDefinitionRight": 0,
               "scapularDefinition": 0,
-              "breastTransDownUp": -0.6839999999999999,
+              "breastTransDownUp": -0.35519999999999996,
               "breastVolumeVertDownUp": -0.325,
               "breastPoint": -0.27999999999999997,
               "macroCupsize": 0.33999999999999997,
@@ -5796,42 +5898,140 @@
               "stomachNavelDownUp": -0.19599999999999998,
               "neckDouble": 0.55,
               "upperarmFatLeft": 0.408,
-              "upperlegFatLeft": 0.33999999999999997,
+              "upperlegFatLeft": 0.5272,
               "upperarmFatRight": 0.408,
-              "upperlegFatRight": 0.33999999999999997,
+              "upperlegFatRight": 0.5272,
               "torsoVshape": 0,
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0.0638,
+              "hipScaleHoriz": -0.2344,
+              "hipScaleDepth": 0.26739999999999997,
+              "lowerlegFatLeft": 0.2274,
+              "lowerlegFatRight": 0.2274,
+              "hipScaleVert": -0.6,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.17803566188565015,
-              "macroWeight": 3.393498184218357
+              "macroWeight": 3.246382136910629
             }
           },
           "fresh": [
             {
               "part": "hips",
               "other": "hips",
-              "triangles": 20,
-              "otherTriangles": 20
+              "triangles": 26,
+              "otherTriangles": 26
             },
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 38,
-              "otherTriangles": 38
+              "triangles": 43,
+              "otherTriangles": 43
             },
             {
               "part": "leftUpperLeg",
               "other": "leftLowerLeg",
-              "triangles": 25,
-              "otherTriangles": 20
+              "triangles": 32,
+              "otherTriangles": 24
             },
             {
               "part": "leftLowerLeg",
               "other": "leftLowerLeg",
               "triangles": 7,
               "otherTriangles": 7
+            }
+          ],
+          "grown": []
+        },
+        {
+          "name": "sex-1-age60-bmi32-muscle1:thigh",
+          "document": {
+            "pose": [
+              {
+                "bone": "leftUpperLeg",
+                "flexion": 90,
+                "abduction": null,
+                "twist": null
+              }
+            ],
+            "shape": {
+              "macroGender": -1,
+              "macroAge": 0.5384615384615384,
+              "macroMuscle": 0.8200000000000001,
+              "upperarmMuscleLeft": 0.7,
+              "upperarmMuscleRight": 0.7,
+              "upperarmShoulderMuscleLeft": 0.7,
+              "upperarmShoulderMuscleRight": 0.7,
+              "lowerarmMuscleLeft": 0.7,
+              "lowerarmMuscleRight": 0.7,
+              "upperlegMuscleLeft": 0.7,
+              "upperlegMuscleRight": 0.7,
+              "lowerlegMuscleLeft": 0.7,
+              "lowerlegMuscleRight": 0.7,
+              "torsoMusclePectoral": 0.7,
+              "torsoMuscleDorsi": 0.7,
+              "buttocksPtosis": 0.3999999999999999,
+              "buttocksVolume": 0.31999999999999995,
+              "pelvisTone": 0.2,
+              "stomachOverhang": 0.56,
+              "flankFat": 0.47531249999999997,
+              "outerThighFatLeft": 0.5707936507936507,
+              "outerThighFatRight": 0.5707936507936507,
+              "absDefinition": 0,
+              "deltoidDefinitionLeft": 0,
+              "deltoidDefinitionRight": 0,
+              "scapularDefinition": 0,
+              "breastTransDownUp": -0.35519999999999996,
+              "breastVolumeVertDownUp": -0.325,
+              "breastPoint": -0.27999999999999997,
+              "macroCupsize": 0.33999999999999997,
+              "stomachTone": -0.03999999999999998,
+              "stomachNavelDownUp": -0.19599999999999998,
+              "neckDouble": 0.55,
+              "upperarmFatLeft": 0.408,
+              "upperlegFatLeft": 0.5272,
+              "upperarmFatRight": 0.408,
+              "upperlegFatRight": 0.5272,
+              "torsoVshape": 0.3,
+              "musculatureDefinition": 0,
+              "chestDefinition": 0,
+              "skeletalProminence": 0,
+              "glutealProjection": 0.0638,
+              "hipScaleHoriz": -0.2344,
+              "hipScaleDepth": 0.26739999999999997,
+              "lowerlegFatLeft": 0.2274,
+              "lowerlegFatRight": 0.2274,
+              "hipScaleVert": -0.6,
+              "macroFirmness": -0.6666666666666666,
+              "macroHeight": 0.18003043738680247,
+              "macroWeight": 1.7271126069462837
+            }
+          },
+          "fresh": [
+            {
+              "part": "hips",
+              "other": "hips",
+              "triangles": 6,
+              "otherTriangles": 6
+            },
+            {
+              "part": "hips",
+              "other": "leftUpperLeg",
+              "triangles": 15,
+              "otherTriangles": 31
+            },
+            {
+              "part": "spine",
+              "other": "leftUpperLeg",
+              "triangles": 6,
+              "otherTriangles": 5
+            },
+            {
+              "part": "leftUpperLeg",
+              "other": "leftUpperLeg",
+              "triangles": 14,
+              "otherTriangles": 14
             }
           ],
           "grown": []
@@ -5882,36 +6082,36 @@
               "stomachNavelDownUp": -0.34,
               "neckDouble": 0.9500000000000001,
               "upperarmFatLeft": 0.6,
-              "upperlegFatLeft": 0.5,
+              "upperlegFatLeft": 0.5825,
               "upperarmFatRight": 0.6,
-              "upperlegFatRight": 0.5,
+              "upperlegFatRight": 0.5825,
               "torsoVshape": 0,
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0.04,
+              "hipScaleHoriz": -0.128,
+              "hipScaleDepth": 0.143,
+              "lowerlegFatLeft": 0.1065,
+              "lowerlegFatRight": 0.1065,
+              "hipScaleVert": -0.3,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.17915576124590216,
-              "macroWeight": 5.759091453806817
+              "macroWeight": 5.698436564480302
             }
           },
           "fresh": [
             {
               "part": "upperChest",
               "other": "upperChest",
-              "triangles": 14,
-              "otherTriangles": 14
+              "triangles": 12,
+              "otherTriangles": 12
             },
             {
               "part": "upperChest",
               "other": "leftUpperArm",
-              "triangles": 56,
-              "otherTriangles": 63
-            },
-            {
-              "part": "leftUpperArm",
-              "other": "leftUpperArm",
-              "triangles": 3,
-              "otherTriangles": 3
+              "triangles": 55,
+              "otherTriangles": 56
             }
           ],
           "grown": []
@@ -5962,16 +6162,22 @@
               "stomachNavelDownUp": -0.34,
               "neckDouble": 0.9500000000000001,
               "upperarmFatLeft": 0.6,
-              "upperlegFatLeft": 0.5,
+              "upperlegFatLeft": 0.5825,
               "upperarmFatRight": 0.6,
-              "upperlegFatRight": 0.5,
+              "upperlegFatRight": 0.5825,
               "torsoVshape": 0,
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0.04,
+              "hipScaleHoriz": -0.128,
+              "hipScaleDepth": 0.143,
+              "lowerlegFatLeft": 0.1065,
+              "lowerlegFatRight": 0.1065,
+              "hipScaleVert": -0.3,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.17915576124590216,
-              "macroWeight": 5.759091453806817
+              "macroWeight": 5.698436564480302
             }
           },
           "fresh": [
@@ -5984,7 +6190,7 @@
             {
               "part": "hips",
               "other": "rightUpperLeg",
-              "triangles": 2,
+              "triangles": 1,
               "otherTriangles": 1
             }
           ],
@@ -6036,16 +6242,22 @@
               "stomachNavelDownUp": -0.34,
               "neckDouble": 0.9500000000000001,
               "upperarmFatLeft": 0.6,
-              "upperlegFatLeft": 0.5,
+              "upperlegFatLeft": 0.5825,
               "upperarmFatRight": 0.6,
-              "upperlegFatRight": 0.5,
+              "upperlegFatRight": 0.5825,
               "torsoVshape": 0.3,
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0.04,
+              "hipScaleHoriz": -0.128,
+              "hipScaleDepth": 0.143,
+              "lowerlegFatLeft": 0.1065,
+              "lowerlegFatRight": 0.1065,
+              "hipScaleVert": -0.3,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.1811650363438473,
-              "macroWeight": 4.418590548385852
+              "macroWeight": 4.308418037422674
             }
           },
           "fresh": [
@@ -6110,16 +6322,22 @@
               "stomachNavelDownUp": -0.34,
               "neckDouble": 0.9500000000000001,
               "upperarmFatLeft": 0.6,
-              "upperlegFatLeft": 0.5,
+              "upperlegFatLeft": 0.5825,
               "upperarmFatRight": 0.6,
-              "upperlegFatRight": 0.5,
+              "upperlegFatRight": 0.5825,
               "torsoVshape": 0.3,
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0.04,
+              "hipScaleHoriz": -0.128,
+              "hipScaleDepth": 0.143,
+              "lowerlegFatLeft": 0.1065,
+              "lowerlegFatRight": 0.1065,
+              "hipScaleVert": -0.3,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.1811650363438473,
-              "macroWeight": 4.418590548385852
+              "macroWeight": 4.308418037422674
             }
           },
           "fresh": [
@@ -6132,20 +6350,20 @@
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 73,
-              "otherTriangles": 73
+              "triangles": 70,
+              "otherTriangles": 70
             },
             {
               "part": "leftUpperLeg",
               "other": "leftLowerLeg",
-              "triangles": 106,
-              "otherTriangles": 80
+              "triangles": 105,
+              "otherTriangles": 83
             },
             {
               "part": "leftLowerLeg",
               "other": "leftLowerLeg",
-              "triangles": 30,
-              "otherTriangles": 30
+              "triangles": 33,
+              "otherTriangles": 33
             }
           ],
           "grown": []
@@ -6203,6 +6421,12 @@
               "musculatureDefinition": 0.20606250000000007,
               "chestDefinition": 0.20606250000000007,
               "skeletalProminence": 0.46800000000000025,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": 0,
               "macroHeight": -0.040581621058320305,
               "macroWeight": -2.261525751984357
@@ -6277,6 +6501,12 @@
               "musculatureDefinition": 0.019031250000000034,
               "chestDefinition": 0.019031250000000034,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": 0,
               "macroHeight": -0.04049239163671575,
               "macroWeight": 0.8904380838713114
@@ -6351,6 +6581,12 @@
               "musculatureDefinition": 0.6250000000000003,
               "chestDefinition": 0.6250000000000003,
               "skeletalProminence": 0.15625000000000008,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": 0,
               "macroHeight": -0.040642177339548446,
               "macroWeight": 0.057864526433118776
@@ -6425,6 +6661,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": 0,
               "macroHeight": -0.03833737986192359,
               "macroWeight": 3.4325639956659235
@@ -6493,6 +6735,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": 0,
               "macroHeight": -0.03833737986192359,
               "macroWeight": 3.4325639956659235
@@ -6573,6 +6821,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": 0,
               "macroHeight": -0.03814874824803116,
               "macroWeight": 0.8044161679193554
@@ -6641,6 +6895,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": 0,
               "macroHeight": -0.03814874824803116,
               "macroWeight": 0.8044161679193554
@@ -6747,6 +7007,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": 0,
               "macroHeight": -0.036191447572137325,
               "macroWeight": 6.1278569844211015
@@ -6815,6 +7081,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": 0,
               "macroHeight": -0.036191447572137325,
               "macroWeight": 6.1278569844211015
@@ -6895,6 +7167,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": 0,
               "macroHeight": -0.036191447572137325,
               "macroWeight": 6.1278569844211015
@@ -6999,6 +7277,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": 0,
               "macroHeight": -0.03595951294825539,
               "macroWeight": 3.222978400107234
@@ -7079,6 +7363,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": 0,
               "macroHeight": -0.03595951294825539,
               "macroWeight": 3.222978400107234
@@ -7171,6 +7461,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": -0.2,
               "macroHeight": 0.0020847755524254306,
               "macroWeight": 0.5469131432123784
@@ -7251,6 +7547,12 @@
               "musculatureDefinition": 0.08249999999999998,
               "chestDefinition": 0.08249999999999998,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": -0.2,
               "macroHeight": 0.0021535223526566063,
               "macroWeight": 0.2524901247040987
@@ -7319,6 +7621,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": -0.2,
               "macroHeight": 0.003204008282297958,
               "macroWeight": 2.8901831910604403
@@ -7387,6 +7695,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": -0.2,
               "macroHeight": 0.003308037748651087,
               "macroWeight": 1.2908213574995424
@@ -7461,6 +7775,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": -0.2,
               "macroHeight": 0.003308037748651087,
               "macroWeight": 1.2908213574995424
@@ -7541,6 +7861,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": -0.2,
               "macroHeight": 0.00432324101217048,
               "macroWeight": 5.6246747716625975
@@ -7627,6 +7953,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": -0.2,
               "macroHeight": 0.00432324101217048,
               "macroWeight": 5.6246747716625975
@@ -7707,6 +8039,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": -0.2,
               "macroHeight": 0.004441759138130184,
               "macroWeight": 4.139511799699871
@@ -7793,6 +8131,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": -0.2,
               "macroHeight": 0.004441759138130184,
               "macroWeight": 4.139511799699871
@@ -7858,7 +8202,7 @@
               "deltoidDefinitionLeft": 1,
               "deltoidDefinitionRight": 1,
               "scapularDefinition": 1,
-              "breastTransDownUp": 0,
+              "breastTransDownUp": -0.594,
               "breastVolumeVertDownUp": 0,
               "breastPoint": 0,
               "macroCupsize": -0.3,
@@ -7866,30 +8210,36 @@
               "stomachNavelDownUp": 0,
               "neckDouble": 0,
               "upperarmFatLeft": 0,
-              "upperlegFatLeft": 0,
+              "upperlegFatLeft": 0.241,
               "upperarmFatRight": 0,
-              "upperlegFatRight": 0,
+              "upperlegFatRight": 0.241,
               "torsoVshape": 0.3,
               "musculatureDefinition": 1,
               "chestDefinition": 0.15,
               "skeletalProminence": 0.25,
+              "glutealProjection": -0.051,
+              "hipScaleHoriz": -0.026,
+              "hipScaleDepth": 0.068,
+              "lowerlegFatLeft": 0.229,
+              "lowerlegFatRight": 0.229,
+              "hipScaleVert": -0.6,
               "macroFirmness": 0,
               "macroHeight": 0.1690651176617148,
-              "macroWeight": -1.6834086786491145
+              "macroWeight": -1.8427819587178256
             }
           },
           "fresh": [
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 77,
-              "otherTriangles": 77
+              "triangles": 68,
+              "otherTriangles": 68
             },
             {
               "part": "leftUpperLeg",
               "other": "leftLowerLeg",
-              "triangles": 9,
-              "otherTriangles": 11
+              "triangles": 13,
+              "otherTriangles": 10
             },
             {
               "part": "leftLowerLeg",
@@ -7938,7 +8288,7 @@
               "deltoidDefinitionLeft": 0,
               "deltoidDefinitionRight": 0,
               "scapularDefinition": 0,
-              "breastTransDownUp": -0.07875000000000008,
+              "breastTransDownUp": -0.08074999999999975,
               "breastVolumeVertDownUp": 0,
               "breastPoint": 0,
               "macroCupsize": 0.11250000000000013,
@@ -7946,36 +8296,128 @@
               "stomachNavelDownUp": -9.947598300641402e-17,
               "neckDouble": 2.0301221021717148e-16,
               "upperarmFatLeft": 0.13500000000000015,
-              "upperlegFatLeft": 0.11250000000000013,
+              "upperlegFatLeft": 0.3477500000000001,
               "upperarmFatRight": 0.13500000000000015,
-              "upperlegFatRight": 0.11250000000000013,
+              "upperlegFatRight": 0.3477500000000001,
               "torsoVshape": 0,
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0.014000000000000032,
+              "hipScaleHoriz": -0.15725000000000006,
+              "hipScaleDepth": 0.19400000000000006,
+              "lowerlegFatLeft": 0.25125000000000003,
+              "lowerlegFatRight": 0.25125000000000003,
+              "hipScaleVert": -0.6,
               "macroFirmness": 0,
               "macroHeight": 0.16645306105688948,
-              "macroWeight": 1.5300386479845483
+              "macroWeight": 1.3503582968588104
             }
           },
           "fresh": [
             {
               "part": "hips",
+              "other": "hips",
+              "triangles": 2,
+              "otherTriangles": 2
+            },
+            {
+              "part": "hips",
               "other": "leftUpperLeg",
-              "triangles": 4,
-              "otherTriangles": 7
+              "triangles": 35,
+              "otherTriangles": 36
             },
             {
               "part": "spine",
               "other": "spine",
-              "triangles": 20,
-              "otherTriangles": 20
+              "triangles": 24,
+              "otherTriangles": 24
+            },
+            {
+              "part": "spine",
+              "other": "leftUpperLeg",
+              "triangles": 18,
+              "otherTriangles": 25
             },
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 9,
-              "otherTriangles": 9
+              "triangles": 14,
+              "otherTriangles": 14
+            }
+          ],
+          "grown": []
+        },
+        {
+          "name": "sex-1-age25-bmi25-muscle1:reach",
+          "document": {
+            "shoulders": [
+              {
+                "bone": "leftUpperArm",
+                "plane": 90,
+                "elevation": 90,
+                "axialRotation": 0
+              }
+            ],
+            "shape": {
+              "macroGender": -1,
+              "macroAge": 0,
+              "macroMuscle": 1,
+              "upperarmMuscleLeft": 0.7,
+              "upperarmMuscleRight": 0.7,
+              "upperarmShoulderMuscleLeft": 0.7,
+              "upperarmShoulderMuscleRight": 0.7,
+              "lowerarmMuscleLeft": 0.7,
+              "lowerarmMuscleRight": 0.7,
+              "upperlegMuscleLeft": 0.7,
+              "upperlegMuscleRight": 0.7,
+              "lowerlegMuscleLeft": 0.7,
+              "lowerlegMuscleRight": 0.7,
+              "torsoMusclePectoral": 0.7,
+              "torsoMuscleDorsi": 0.7,
+              "buttocksPtosis": -0.4,
+              "buttocksVolume": 0.5,
+              "pelvisTone": 0.5,
+              "stomachOverhang": 2.3447910280083307e-16,
+              "flankFat": 0.14400000000000018,
+              "outerThighFatLeft": 0.3000000000000003,
+              "outerThighFatRight": 0.3000000000000003,
+              "absDefinition": 0.23099999999999987,
+              "deltoidDefinitionLeft": 0.7312499999999997,
+              "deltoidDefinitionRight": 0.7312499999999997,
+              "scapularDefinition": 0.7312499999999997,
+              "breastTransDownUp": -0.08074999999999975,
+              "breastVolumeVertDownUp": 0,
+              "breastPoint": 0,
+              "macroCupsize": 0.11250000000000013,
+              "stomachTone": 0.4999999999999999,
+              "stomachNavelDownUp": -9.947598300641402e-17,
+              "neckDouble": 2.0301221021717148e-16,
+              "upperarmFatLeft": 0.13500000000000015,
+              "upperlegFatLeft": 0.3477500000000001,
+              "upperarmFatRight": 0.13500000000000015,
+              "upperlegFatRight": 0.3477500000000001,
+              "torsoVshape": 0.3,
+              "musculatureDefinition": 0.28874999999999984,
+              "chestDefinition": 0.043312499999999976,
+              "skeletalProminence": 0.046249999999999944,
+              "glutealProjection": 0.014000000000000032,
+              "hipScaleHoriz": -0.15725000000000006,
+              "hipScaleDepth": 0.19400000000000006,
+              "lowerlegFatLeft": 0.25125000000000003,
+              "lowerlegFatRight": 0.25125000000000003,
+              "hipScaleVert": -0.6,
+              "macroFirmness": 0,
+              "macroHeight": 0.16924419144502495,
+              "macroWeight": 0.2906091832382751
+            }
+          },
+          "fresh": [
+            {
+              "part": "neck",
+              "other": "neck",
+              "triangles": 5,
+              "otherTriangles": 5
             }
           ],
           "grown": []
@@ -8018,7 +8460,7 @@
               "deltoidDefinitionLeft": 0,
               "deltoidDefinitionRight": 0,
               "scapularDefinition": 0,
-              "breastTransDownUp": -0.22799999999999998,
+              "breastTransDownUp": 0.1008,
               "breastVolumeVertDownUp": 0,
               "breastPoint": 0,
               "macroCupsize": 0.33999999999999997,
@@ -8026,16 +8468,22 @@
               "stomachNavelDownUp": -0.19599999999999998,
               "neckDouble": 0.4,
               "upperarmFatLeft": 0.408,
-              "upperlegFatLeft": 0.33999999999999997,
+              "upperlegFatLeft": 0.5272,
               "upperarmFatRight": 0.408,
-              "upperlegFatRight": 0.33999999999999997,
+              "upperlegFatRight": 0.5272,
               "torsoVshape": 0,
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0.0638,
+              "hipScaleHoriz": -0.2344,
+              "hipScaleDepth": 0.26739999999999997,
+              "lowerlegFatLeft": 0.2274,
+              "lowerlegFatRight": 0.2274,
+              "hipScaleVert": -0.6,
               "macroFirmness": 0,
               "macroHeight": 0.16756313350586372,
-              "macroWeight": 3.767174724626261
+              "macroWeight": 3.5852098939637993
             }
           },
           "fresh": [
@@ -8092,7 +8540,7 @@
               "deltoidDefinitionLeft": 0,
               "deltoidDefinitionRight": 0,
               "scapularDefinition": 0,
-              "breastTransDownUp": -0.22799999999999998,
+              "breastTransDownUp": 0.1008,
               "breastVolumeVertDownUp": 0,
               "breastPoint": 0,
               "macroCupsize": 0.33999999999999997,
@@ -8100,16 +8548,22 @@
               "stomachNavelDownUp": -0.19599999999999998,
               "neckDouble": 0.4,
               "upperarmFatLeft": 0.408,
-              "upperlegFatLeft": 0.33999999999999997,
+              "upperlegFatLeft": 0.5272,
               "upperarmFatRight": 0.408,
-              "upperlegFatRight": 0.33999999999999997,
+              "upperlegFatRight": 0.5272,
               "torsoVshape": 0,
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0.0638,
+              "hipScaleHoriz": -0.2344,
+              "hipScaleDepth": 0.26739999999999997,
+              "lowerlegFatLeft": 0.2274,
+              "lowerlegFatRight": 0.2274,
+              "hipScaleVert": -0.6,
               "macroFirmness": 0,
               "macroHeight": 0.16756313350586372,
-              "macroWeight": 3.767174724626261
+              "macroWeight": 3.5852098939637993
             }
           },
           "fresh": [
@@ -8128,20 +8582,106 @@
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 73,
-              "otherTriangles": 73
+              "triangles": 75,
+              "otherTriangles": 75
             },
             {
               "part": "leftUpperLeg",
               "other": "leftLowerLeg",
-              "triangles": 28,
-              "otherTriangles": 24
+              "triangles": 39,
+              "otherTriangles": 26
             },
             {
               "part": "leftLowerLeg",
               "other": "leftLowerLeg",
-              "triangles": 6,
-              "otherTriangles": 6
+              "triangles": 7,
+              "otherTriangles": 7
+            }
+          ],
+          "grown": []
+        },
+        {
+          "name": "sex-1-age25-bmi32-muscle1:thigh",
+          "document": {
+            "pose": [
+              {
+                "bone": "leftUpperLeg",
+                "flexion": 90,
+                "abduction": null,
+                "twist": null
+              }
+            ],
+            "shape": {
+              "macroGender": -1,
+              "macroAge": 0,
+              "macroMuscle": 1,
+              "upperarmMuscleLeft": 0.7,
+              "upperarmMuscleRight": 0.7,
+              "upperarmShoulderMuscleLeft": 0.7,
+              "upperarmShoulderMuscleRight": 0.7,
+              "lowerarmMuscleLeft": 0.7,
+              "lowerarmMuscleRight": 0.7,
+              "upperlegMuscleLeft": 0.7,
+              "upperlegMuscleRight": 0.7,
+              "lowerlegMuscleLeft": 0.7,
+              "lowerlegMuscleRight": 0.7,
+              "torsoMusclePectoral": 0.7,
+              "torsoMuscleDorsi": 0.7,
+              "buttocksPtosis": -0.4,
+              "buttocksVolume": 0.5,
+              "pelvisTone": 0.5,
+              "stomachOverhang": 0.4620000000000001,
+              "flankFat": 0.39,
+              "outerThighFatLeft": 0.8285714285714285,
+              "outerThighFatRight": 0.8285714285714285,
+              "absDefinition": 0,
+              "deltoidDefinitionLeft": 0,
+              "deltoidDefinitionRight": 0,
+              "scapularDefinition": 0,
+              "breastTransDownUp": 0.1008,
+              "breastVolumeVertDownUp": 0,
+              "breastPoint": 0,
+              "macroCupsize": 0.33999999999999997,
+              "stomachTone": 0.26,
+              "stomachNavelDownUp": -0.19599999999999998,
+              "neckDouble": 0.4,
+              "upperarmFatLeft": 0.408,
+              "upperlegFatLeft": 0.5272,
+              "upperarmFatRight": 0.408,
+              "upperlegFatRight": 0.5272,
+              "torsoVshape": 0.3,
+              "musculatureDefinition": 0,
+              "chestDefinition": 0,
+              "skeletalProminence": 0,
+              "glutealProjection": 0.0638,
+              "hipScaleHoriz": -0.2344,
+              "hipScaleDepth": 0.26739999999999997,
+              "lowerlegFatLeft": 0.2274,
+              "lowerlegFatRight": 0.2274,
+              "hipScaleVert": -0.6,
+              "macroFirmness": 0,
+              "macroHeight": 0.17044937438999025,
+              "macroWeight": 0.9242187624596001
+            }
+          },
+          "fresh": [
+            {
+              "part": "hips",
+              "other": "hips",
+              "triangles": 11,
+              "otherTriangles": 11
+            },
+            {
+              "part": "hips",
+              "other": "leftUpperLeg",
+              "triangles": 11,
+              "otherTriangles": 11
+            },
+            {
+              "part": "spine",
+              "other": "leftUpperLeg",
+              "triangles": 4,
+              "otherTriangles": 4
             }
           ],
           "grown": []
@@ -8184,7 +8724,7 @@
               "deltoidDefinitionLeft": 0,
               "deltoidDefinitionRight": 0,
               "scapularDefinition": 0,
-              "breastTransDownUp": -0.3,
+              "breastTransDownUp": -0.29999999999999993,
               "breastVolumeVertDownUp": 0,
               "breastPoint": 0,
               "macroCupsize": 0.5,
@@ -8192,30 +8732,36 @@
               "stomachNavelDownUp": -0.34,
               "neckDouble": 0.8,
               "upperarmFatLeft": 0.6,
-              "upperlegFatLeft": 0.5,
+              "upperlegFatLeft": 0.5825,
               "upperarmFatRight": 0.6,
-              "upperlegFatRight": 0.5,
+              "upperlegFatRight": 0.5825,
               "torsoVshape": 0,
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0.04,
+              "hipScaleHoriz": -0.128,
+              "hipScaleDepth": 0.143,
+              "lowerlegFatLeft": 0.1065,
+              "lowerlegFatRight": 0.1065,
+              "hipScaleVert": -0.3,
               "macroFirmness": 0,
               "macroHeight": 0.1686732059548374,
-              "macroWeight": 6.237212679295645
+              "macroWeight": 6.1594890668343965
             }
           },
           "fresh": [
             {
               "part": "upperChest",
               "other": "upperChest",
-              "triangles": 34,
-              "otherTriangles": 34
+              "triangles": 31,
+              "otherTriangles": 31
             },
             {
               "part": "upperChest",
               "other": "leftUpperArm",
-              "triangles": 60,
-              "otherTriangles": 78
+              "triangles": 62,
+              "otherTriangles": 77
             },
             {
               "part": "neck",
@@ -8226,8 +8772,8 @@
             {
               "part": "leftUpperArm",
               "other": "leftUpperArm",
-              "triangles": 3,
-              "otherTriangles": 3
+              "triangles": 5,
+              "otherTriangles": 5
             }
           ],
           "grown": []
@@ -8270,7 +8816,7 @@
               "deltoidDefinitionLeft": 0,
               "deltoidDefinitionRight": 0,
               "scapularDefinition": 0,
-              "breastTransDownUp": -0.3,
+              "breastTransDownUp": -0.29999999999999993,
               "breastVolumeVertDownUp": 0,
               "breastPoint": 0,
               "macroCupsize": 0.5,
@@ -8278,29 +8824,35 @@
               "stomachNavelDownUp": -0.34,
               "neckDouble": 0.8,
               "upperarmFatLeft": 0.6,
-              "upperlegFatLeft": 0.5,
+              "upperlegFatLeft": 0.5825,
               "upperarmFatRight": 0.6,
-              "upperlegFatRight": 0.5,
+              "upperlegFatRight": 0.5825,
               "torsoVshape": 0,
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0.04,
+              "hipScaleHoriz": -0.128,
+              "hipScaleDepth": 0.143,
+              "lowerlegFatLeft": 0.1065,
+              "lowerlegFatRight": 0.1065,
+              "hipScaleVert": -0.3,
               "macroFirmness": 0,
               "macroHeight": 0.1686732059548374,
-              "macroWeight": 6.237212679295645
+              "macroWeight": 6.1594890668343965
             }
           },
           "fresh": [
             {
               "part": "hips",
               "other": "hips",
-              "triangles": 35,
-              "otherTriangles": 35
+              "triangles": 33,
+              "otherTriangles": 33
             },
             {
               "part": "hips",
               "other": "rightUpperLeg",
-              "triangles": 3,
+              "triangles": 2,
               "otherTriangles": 1
             }
           ],
@@ -8344,7 +8896,7 @@
               "deltoidDefinitionLeft": 0,
               "deltoidDefinitionRight": 0,
               "scapularDefinition": 0,
-              "breastTransDownUp": -0.3,
+              "breastTransDownUp": -0.29999999999999993,
               "breastVolumeVertDownUp": 0,
               "breastPoint": 0,
               "macroCupsize": 0.5,
@@ -8352,16 +8904,22 @@
               "stomachNavelDownUp": -0.34,
               "neckDouble": 0.8,
               "upperarmFatLeft": 0.6,
-              "upperlegFatLeft": 0.5,
+              "upperlegFatLeft": 0.5825,
               "upperarmFatRight": 0.6,
-              "upperlegFatRight": 0.5,
+              "upperlegFatRight": 0.5825,
               "torsoVshape": 0.3,
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0.04,
+              "hipScaleHoriz": -0.128,
+              "hipScaleDepth": 0.143,
+              "lowerlegFatLeft": 0.1065,
+              "lowerlegFatRight": 0.1065,
+              "hipScaleVert": -0.3,
               "macroFirmness": 0,
               "macroHeight": 0.17158185778496476,
-              "macroWeight": 3.5956766588077937
+              "macroWeight": 3.4659727772058684
             }
           },
           "fresh": [
@@ -8418,7 +8976,7 @@
               "deltoidDefinitionLeft": 0,
               "deltoidDefinitionRight": 0,
               "scapularDefinition": 0,
-              "breastTransDownUp": -0.3,
+              "breastTransDownUp": -0.29999999999999993,
               "breastVolumeVertDownUp": 0,
               "breastPoint": 0,
               "macroCupsize": 0.5,
@@ -8426,16 +8984,22 @@
               "stomachNavelDownUp": -0.34,
               "neckDouble": 0.8,
               "upperarmFatLeft": 0.6,
-              "upperlegFatLeft": 0.5,
+              "upperlegFatLeft": 0.5825,
               "upperarmFatRight": 0.6,
-              "upperlegFatRight": 0.5,
+              "upperlegFatRight": 0.5825,
               "torsoVshape": 0.3,
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0.04,
+              "hipScaleHoriz": -0.128,
+              "hipScaleDepth": 0.143,
+              "lowerlegFatLeft": 0.1065,
+              "lowerlegFatRight": 0.1065,
+              "hipScaleVert": -0.3,
               "macroFirmness": 0,
               "macroHeight": 0.17158185778496476,
-              "macroWeight": 3.5956766588077937
+              "macroWeight": 3.4659727772058684
             }
           },
           "fresh": [
@@ -8448,20 +9012,20 @@
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 107,
-              "otherTriangles": 107
+              "triangles": 102,
+              "otherTriangles": 102
             },
             {
               "part": "leftUpperLeg",
               "other": "leftLowerLeg",
-              "triangles": 101,
+              "triangles": 102,
               "otherTriangles": 88
             },
             {
               "part": "leftLowerLeg",
               "other": "leftLowerLeg",
-              "triangles": 19,
-              "otherTriangles": 19
+              "triangles": 16,
+              "otherTriangles": 16
             }
           ],
           "grown": []
@@ -8504,7 +9068,7 @@
               "deltoidDefinitionLeft": 0,
               "deltoidDefinitionRight": 0,
               "scapularDefinition": 0,
-              "breastTransDownUp": -0.5347500000000001,
+              "breastTransDownUp": -0.5367499999999997,
               "breastVolumeVertDownUp": -0.325,
               "breastPoint": -0.27999999999999997,
               "macroCupsize": 0.11250000000000013,
@@ -8512,110 +9076,42 @@
               "stomachNavelDownUp": -9.947598300641402e-17,
               "neckDouble": 0.1500000000000002,
               "upperarmFatLeft": 0.13500000000000015,
-              "upperlegFatLeft": 0.11250000000000013,
+              "upperlegFatLeft": 0.3477500000000001,
               "upperarmFatRight": 0.13500000000000015,
-              "upperlegFatRight": 0.11250000000000013,
+              "upperlegFatRight": 0.3477500000000001,
               "torsoVshape": 0,
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0.014000000000000032,
+              "hipScaleHoriz": -0.15725000000000006,
+              "hipScaleDepth": 0.19400000000000006,
+              "lowerlegFatLeft": 0.25125000000000003,
+              "lowerlegFatRight": 0.25125000000000003,
+              "hipScaleVert": -0.6,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.17691556252539836,
-              "macroWeight": 1.0941016835682758
+              "macroWeight": 0.9659801812565665
             }
           },
           "fresh": [
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 47,
-              "otherTriangles": 47
+              "triangles": 50,
+              "otherTriangles": 50
             },
             {
               "part": "leftUpperLeg",
               "other": "leftLowerLeg",
-              "triangles": 15,
-              "otherTriangles": 14
+              "triangles": 17,
+              "otherTriangles": 17
             },
             {
               "part": "leftLowerLeg",
               "other": "leftLowerLeg",
-              "triangles": 4,
-              "otherTriangles": 4
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "sex-1-age60-bmi32-muscle1:overheadSide",
-          "document": {
-            "shoulders": [
-              {
-                "bone": "leftUpperArm",
-                "plane": 0,
-                "elevation": 170,
-                "axialRotation": 0
-              }
-            ],
-            "shape": {
-              "macroGender": -1,
-              "macroAge": 0.5384615384615384,
-              "macroMuscle": 0.8200000000000001,
-              "upperarmMuscleLeft": 0.7,
-              "upperarmMuscleRight": 0.7,
-              "upperarmShoulderMuscleLeft": 0.7,
-              "upperarmShoulderMuscleRight": 0.7,
-              "lowerarmMuscleLeft": 0.7,
-              "lowerarmMuscleRight": 0.7,
-              "upperlegMuscleLeft": 0.7,
-              "upperlegMuscleRight": 0.7,
-              "lowerlegMuscleLeft": 0.7,
-              "lowerlegMuscleRight": 0.7,
-              "torsoMusclePectoral": 0.7,
-              "torsoMuscleDorsi": 0.7,
-              "buttocksPtosis": 0.3999999999999999,
-              "buttocksVolume": 0.31999999999999995,
-              "pelvisTone": 0.2,
-              "stomachOverhang": 0.56,
-              "flankFat": 0.47531249999999997,
-              "outerThighFatLeft": 0.5707936507936507,
-              "outerThighFatRight": 0.5707936507936507,
-              "absDefinition": 0,
-              "deltoidDefinitionLeft": 0,
-              "deltoidDefinitionRight": 0,
-              "scapularDefinition": 0,
-              "breastTransDownUp": -0.6839999999999999,
-              "breastVolumeVertDownUp": -0.325,
-              "breastPoint": -0.27999999999999997,
-              "macroCupsize": 0.33999999999999997,
-              "stomachTone": -0.03999999999999998,
-              "stomachNavelDownUp": -0.19599999999999998,
-              "neckDouble": 0.55,
-              "upperarmFatLeft": 0.408,
-              "upperlegFatLeft": 0.33999999999999997,
-              "upperarmFatRight": 0.408,
-              "upperlegFatRight": 0.33999999999999997,
-              "torsoVshape": 0.3,
-              "musculatureDefinition": 0,
-              "chestDefinition": 0,
-              "skeletalProminence": 0,
-              "macroFirmness": -0.6666666666666666,
-              "macroHeight": 0.18003043738680247,
-              "macroWeight": 1.9596713345702457
-            }
-          },
-          "fresh": [
-            {
-              "part": "upperChest",
-              "other": "leftUpperArm",
-              "triangles": 1,
-              "otherTriangles": 2
-            },
-            {
-              "part": "leftUpperArm",
-              "other": "leftUpperArm",
-              "triangles": 4,
-              "otherTriangles": 4
+              "triangles": 8,
+              "otherTriangles": 8
             }
           ],
           "grown": []
@@ -8658,7 +9154,7 @@
               "deltoidDefinitionLeft": 0,
               "deltoidDefinitionRight": 0,
               "scapularDefinition": 0,
-              "breastTransDownUp": -0.6839999999999999,
+              "breastTransDownUp": -0.35519999999999996,
               "breastVolumeVertDownUp": -0.325,
               "breastPoint": -0.27999999999999997,
               "macroCupsize": 0.33999999999999997,
@@ -8666,36 +9162,42 @@
               "stomachNavelDownUp": -0.19599999999999998,
               "neckDouble": 0.55,
               "upperarmFatLeft": 0.408,
-              "upperlegFatLeft": 0.33999999999999997,
+              "upperlegFatLeft": 0.5272,
               "upperarmFatRight": 0.408,
-              "upperlegFatRight": 0.33999999999999997,
+              "upperlegFatRight": 0.5272,
               "torsoVshape": 0.3,
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0.0638,
+              "hipScaleHoriz": -0.2344,
+              "hipScaleDepth": 0.26739999999999997,
+              "lowerlegFatLeft": 0.2274,
+              "lowerlegFatRight": 0.2274,
+              "hipScaleVert": -0.6,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.18003043738680247,
-              "macroWeight": 1.9596713345702457
+              "macroWeight": 1.7271126069462837
             }
           },
           "fresh": [
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 84,
-              "otherTriangles": 84
+              "triangles": 86,
+              "otherTriangles": 86
             },
             {
               "part": "leftUpperLeg",
               "other": "leftLowerLeg",
-              "triangles": 108,
-              "otherTriangles": 84
+              "triangles": 105,
+              "otherTriangles": 85
             },
             {
               "part": "leftLowerLeg",
               "other": "leftLowerLeg",
-              "triangles": 14,
-              "otherTriangles": 14
+              "triangles": 13,
+              "otherTriangles": 13
             }
           ],
           "grown": []
@@ -8746,16 +9248,22 @@
               "stomachNavelDownUp": -0.34,
               "neckDouble": 0.9500000000000001,
               "upperarmFatLeft": 0.6,
-              "upperlegFatLeft": 0.5,
+              "upperlegFatLeft": 0.5825,
               "upperarmFatRight": 0.6,
-              "upperlegFatRight": 0.5,
+              "upperlegFatRight": 0.5825,
               "torsoVshape": 0,
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0.04,
+              "hipScaleHoriz": -0.128,
+              "hipScaleDepth": 0.143,
+              "lowerlegFatLeft": 0.1065,
+              "lowerlegFatRight": 0.1065,
+              "hipScaleVert": -0.3,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.17915576124590216,
-              "macroWeight": 5.759091453806817
+              "macroWeight": 5.698436564480302
             }
           },
           "fresh": [
@@ -8820,24 +9328,30 @@
               "stomachNavelDownUp": -0.34,
               "neckDouble": 0.9500000000000001,
               "upperarmFatLeft": 0.6,
-              "upperlegFatLeft": 0.5,
+              "upperlegFatLeft": 0.5825,
               "upperarmFatRight": 0.6,
-              "upperlegFatRight": 0.5,
+              "upperlegFatRight": 0.5825,
               "torsoVshape": 0,
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0.04,
+              "hipScaleHoriz": -0.128,
+              "hipScaleDepth": 0.143,
+              "lowerlegFatLeft": 0.1065,
+              "lowerlegFatRight": 0.1065,
+              "hipScaleVert": -0.3,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.17915576124590216,
-              "macroWeight": 5.759091453806817
+              "macroWeight": 5.698436564480302
             }
           },
           "fresh": [
             {
               "part": "hips",
               "other": "leftUpperLeg",
-              "triangles": 43,
-              "otherTriangles": 47
+              "triangles": 38,
+              "otherTriangles": 37
             },
             {
               "part": "spine",
@@ -8848,14 +9362,14 @@
             {
               "part": "spine",
               "other": "leftUpperLeg",
-              "triangles": 42,
-              "otherTriangles": 48
+              "triangles": 45,
+              "otherTriangles": 55
             },
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 32,
-              "otherTriangles": 32
+              "triangles": 15,
+              "otherTriangles": 15
             }
           ],
           "grown": []
@@ -8906,30 +9420,110 @@
               "stomachNavelDownUp": -0.34,
               "neckDouble": 0.9500000000000001,
               "upperarmFatLeft": 0.6,
-              "upperlegFatLeft": 0.5,
+              "upperlegFatLeft": 0.5825,
               "upperarmFatRight": 0.6,
-              "upperlegFatRight": 0.5,
+              "upperlegFatRight": 0.5825,
               "torsoVshape": 0.3,
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0.04,
+              "hipScaleHoriz": -0.128,
+              "hipScaleDepth": 0.143,
+              "lowerlegFatLeft": 0.1065,
+              "lowerlegFatRight": 0.1065,
+              "hipScaleVert": -0.3,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.1811650363438473,
-              "macroWeight": 4.418590548385852
+              "macroWeight": 4.308418037422674
             }
           },
           "fresh": [
             {
               "part": "upperChest",
               "other": "leftUpperArm",
-              "triangles": 49,
-              "otherTriangles": 51
+              "triangles": 47,
+              "otherTriangles": 49
             },
             {
               "part": "leftUpperArm",
               "other": "leftUpperArm",
-              "triangles": 16,
-              "otherTriangles": 16
+              "triangles": 12,
+              "otherTriangles": 12
+            }
+          ],
+          "grown": []
+        },
+        {
+          "name": "sex-1-age60-bmi40-muscle1:elbow",
+          "document": {
+            "pose": [
+              {
+                "bone": "leftLowerArm",
+                "flexion": 120,
+                "abduction": null,
+                "twist": null
+              }
+            ],
+            "shape": {
+              "macroGender": -1,
+              "macroAge": 0.5384615384615384,
+              "macroMuscle": 0.8200000000000001,
+              "upperarmMuscleLeft": 0.7,
+              "upperarmMuscleRight": 0.7,
+              "upperarmShoulderMuscleLeft": 0.7,
+              "upperarmShoulderMuscleRight": 0.7,
+              "lowerarmMuscleLeft": 0.7,
+              "lowerarmMuscleRight": 0.7,
+              "upperlegMuscleLeft": 0.7,
+              "upperlegMuscleRight": 0.7,
+              "lowerlegMuscleLeft": 0.7,
+              "lowerlegMuscleRight": 0.7,
+              "torsoMusclePectoral": 0.7,
+              "torsoMuscleDorsi": 0.7,
+              "buttocksPtosis": 0.45999999999999996,
+              "buttocksVolume": 0.31999999999999995,
+              "pelvisTone": 0.2,
+              "stomachOverhang": 1,
+              "flankFat": 0.585,
+              "outerThighFatLeft": 0.6888888888888889,
+              "outerThighFatRight": 0.6888888888888889,
+              "absDefinition": 0,
+              "deltoidDefinitionLeft": 0,
+              "deltoidDefinitionRight": 0,
+              "scapularDefinition": 0,
+              "breastTransDownUp": -0.756,
+              "breastVolumeVertDownUp": -0.325,
+              "breastPoint": -0.27999999999999997,
+              "macroCupsize": 0.5,
+              "stomachTone": -0.2,
+              "stomachNavelDownUp": -0.34,
+              "neckDouble": 0.9500000000000001,
+              "upperarmFatLeft": 0.6,
+              "upperlegFatLeft": 0.5825,
+              "upperarmFatRight": 0.6,
+              "upperlegFatRight": 0.5825,
+              "torsoVshape": 0.3,
+              "musculatureDefinition": 0,
+              "chestDefinition": 0,
+              "skeletalProminence": 0,
+              "glutealProjection": 0.04,
+              "hipScaleHoriz": -0.128,
+              "hipScaleDepth": 0.143,
+              "lowerlegFatLeft": 0.1065,
+              "lowerlegFatRight": 0.1065,
+              "hipScaleVert": -0.3,
+              "macroFirmness": -0.6666666666666666,
+              "macroHeight": 0.1811650363438473,
+              "macroWeight": 4.308418037422674
+            }
+          },
+          "fresh": [
+            {
+              "part": "hips",
+              "other": "hips",
+              "triangles": 4,
+              "otherTriangles": 4
             }
           ],
           "grown": []
@@ -8987,6 +9581,12 @@
               "musculatureDefinition": 0.20606250000000007,
               "chestDefinition": 0.20606250000000007,
               "skeletalProminence": 0.46800000000000025,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": 0,
               "macroHeight": -0.040581621058320305,
               "macroWeight": -2.261525751984357
@@ -9055,6 +9655,12 @@
               "musculatureDefinition": 0.019031250000000034,
               "chestDefinition": 0.019031250000000034,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": 0,
               "macroHeight": -0.04049239163671575,
               "macroWeight": 0.8904380838713114
@@ -9149,6 +9755,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": 0,
               "macroHeight": -0.03833737986192359,
               "macroWeight": 3.4325639956659235
@@ -9217,6 +9829,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": 0,
               "macroHeight": -0.03833737986192359,
               "macroWeight": 3.4325639956659235
@@ -9285,6 +9903,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": 0,
               "macroHeight": -0.03833737986192359,
               "macroWeight": 3.4325639956659235
@@ -9371,6 +9995,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": 0,
               "macroHeight": -0.03814874824803116,
               "macroWeight": 0.8044161679193554
@@ -9439,6 +10069,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": 0,
               "macroHeight": -0.03814874824803116,
               "macroWeight": 0.8044161679193554
@@ -9525,6 +10161,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": 0,
               "macroHeight": -0.036191447572137325,
               "macroWeight": 6.1278569844211015
@@ -9605,6 +10247,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": 0,
               "macroHeight": -0.036191447572137325,
               "macroWeight": 6.1278569844211015
@@ -9711,6 +10359,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": 0,
               "macroHeight": -0.03595951294825539,
               "macroWeight": 3.222978400107234
@@ -9779,6 +10433,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": 0,
               "macroHeight": -0.03595951294825539,
               "macroWeight": 3.222978400107234
@@ -9859,6 +10519,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": 0,
               "macroHeight": -0.03595951294825539,
               "macroWeight": 3.222978400107234
@@ -9945,6 +10611,12 @@
               "musculatureDefinition": 0.08249999999999998,
               "chestDefinition": 0.08249999999999998,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": -0.2,
               "macroHeight": 0.0021535223526566063,
               "macroWeight": 0.2524901247040987
@@ -10025,6 +10697,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": -0.2,
               "macroHeight": 0.003204008282297958,
               "macroWeight": 2.8901831910604403
@@ -10099,6 +10777,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": -0.2,
               "macroHeight": 0.003204008282297958,
               "macroWeight": 2.8901831910604403
@@ -10179,6 +10863,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": -0.2,
               "macroHeight": 0.003308037748651087,
               "macroWeight": 1.2908213574995424
@@ -10253,6 +10943,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": -0.2,
               "macroHeight": 0.003308037748651087,
               "macroWeight": 1.2908213574995424
@@ -10353,6 +11049,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": -0.2,
               "macroHeight": 0.00432324101217048,
               "macroWeight": 5.6246747716625975
@@ -10421,6 +11123,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": -0.2,
               "macroHeight": 0.00432324101217048,
               "macroWeight": 5.6246747716625975
@@ -10501,6 +11209,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": -0.2,
               "macroHeight": 0.00432324101217048,
               "macroWeight": 5.6246747716625975
@@ -10605,6 +11319,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": -0.2,
               "macroHeight": 0.004441759138130184,
               "macroWeight": 4.139511799699871
@@ -10691,6 +11411,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": -0.2,
               "macroHeight": 0.004441759138130184,
               "macroWeight": 4.139511799699871
@@ -10756,7 +11482,7 @@
               "deltoidDefinitionLeft": 0,
               "deltoidDefinitionRight": 0,
               "scapularDefinition": 0,
-              "breastTransDownUp": 0,
+              "breastTransDownUp": -0.594,
               "breastVolumeVertDownUp": 0,
               "breastPoint": 0,
               "macroCupsize": -0.3,
@@ -10764,16 +11490,22 @@
               "stomachNavelDownUp": 0,
               "neckDouble": 0,
               "upperarmFatLeft": 0,
-              "upperlegFatLeft": 0,
+              "upperlegFatLeft": 0.241,
               "upperarmFatRight": 0,
-              "upperlegFatRight": 0,
+              "upperlegFatRight": 0.241,
               "torsoVshape": 0,
               "musculatureDefinition": 0.1325625000000001,
               "chestDefinition": 0.01988437500000002,
               "skeletalProminence": 0.24400000000000036,
+              "glutealProjection": -0.051,
+              "hipScaleHoriz": -0.026,
+              "hipScaleDepth": 0.068,
+              "lowerlegFatLeft": 0.229,
+              "lowerlegFatRight": 0.229,
+              "hipScaleVert": -0.6,
               "macroFirmness": 0,
               "macroHeight": 0.16642034583301069,
-              "macroWeight": -0.8566801550203141
+              "macroWeight": -0.9396779568791267
             }
           },
           "fresh": [
@@ -10824,7 +11556,7 @@
               "deltoidDefinitionLeft": 1,
               "deltoidDefinitionRight": 1,
               "scapularDefinition": 1,
-              "breastTransDownUp": 0,
+              "breastTransDownUp": -0.594,
               "breastVolumeVertDownUp": 0,
               "breastPoint": 0,
               "macroCupsize": -0.3,
@@ -10832,16 +11564,22 @@
               "stomachNavelDownUp": 0,
               "neckDouble": 0,
               "upperarmFatLeft": 0,
-              "upperlegFatLeft": 0,
+              "upperlegFatLeft": 0.241,
               "upperarmFatRight": 0,
-              "upperlegFatRight": 0,
+              "upperlegFatRight": 0.241,
               "torsoVshape": 0.3,
               "musculatureDefinition": 1,
               "chestDefinition": 0.15,
               "skeletalProminence": 0.25,
+              "glutealProjection": -0.051,
+              "hipScaleHoriz": -0.026,
+              "hipScaleDepth": 0.068,
+              "lowerlegFatLeft": 0.229,
+              "lowerlegFatRight": 0.229,
+              "hipScaleVert": -0.6,
               "macroFirmness": 0,
               "macroHeight": 0.1690651176617148,
-              "macroWeight": -1.6834086786491145
+              "macroWeight": -1.8427819587178256
             }
           },
           "fresh": [
@@ -10892,7 +11630,7 @@
               "deltoidDefinitionLeft": 0,
               "deltoidDefinitionRight": 0,
               "scapularDefinition": 0,
-              "breastTransDownUp": -0.07875000000000008,
+              "breastTransDownUp": -0.08074999999999975,
               "breastVolumeVertDownUp": 0,
               "breastPoint": 0,
               "macroCupsize": 0.11250000000000013,
@@ -10900,30 +11638,36 @@
               "stomachNavelDownUp": -9.947598300641402e-17,
               "neckDouble": 2.0301221021717148e-16,
               "upperarmFatLeft": 0.13500000000000015,
-              "upperlegFatLeft": 0.11250000000000013,
+              "upperlegFatLeft": 0.3477500000000001,
               "upperarmFatRight": 0.13500000000000015,
-              "upperlegFatRight": 0.11250000000000013,
+              "upperlegFatRight": 0.3477500000000001,
               "torsoVshape": 0,
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0.014000000000000032,
+              "hipScaleHoriz": -0.15725000000000006,
+              "hipScaleDepth": 0.19400000000000006,
+              "lowerlegFatLeft": 0.25125000000000003,
+              "lowerlegFatRight": 0.25125000000000003,
+              "hipScaleVert": -0.6,
               "macroFirmness": 0,
               "macroHeight": 0.16645306105688948,
-              "macroWeight": 1.5300386479845483
+              "macroWeight": 1.3503582968588104
             }
           },
           "fresh": [
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 53,
-              "otherTriangles": 53
+              "triangles": 68,
+              "otherTriangles": 68
             },
             {
               "part": "leftUpperLeg",
               "other": "leftLowerLeg",
-              "triangles": 20,
-              "otherTriangles": 15
+              "triangles": 21,
+              "otherTriangles": 19
             },
             {
               "part": "leftLowerLeg",
@@ -10972,7 +11716,7 @@
               "deltoidDefinitionLeft": 0.7312499999999997,
               "deltoidDefinitionRight": 0.7312499999999997,
               "scapularDefinition": 0.7312499999999997,
-              "breastTransDownUp": -0.07875000000000008,
+              "breastTransDownUp": -0.08074999999999975,
               "breastVolumeVertDownUp": 0,
               "breastPoint": 0,
               "macroCupsize": 0.11250000000000013,
@@ -10980,24 +11724,30 @@
               "stomachNavelDownUp": -9.947598300641402e-17,
               "neckDouble": 2.0301221021717148e-16,
               "upperarmFatLeft": 0.13500000000000015,
-              "upperlegFatLeft": 0.11250000000000013,
+              "upperlegFatLeft": 0.3477500000000001,
               "upperarmFatRight": 0.13500000000000015,
-              "upperlegFatRight": 0.11250000000000013,
+              "upperlegFatRight": 0.3477500000000001,
               "torsoVshape": 0.3,
               "musculatureDefinition": 0.28874999999999984,
               "chestDefinition": 0.043312499999999976,
               "skeletalProminence": 0.046249999999999944,
+              "glutealProjection": 0.014000000000000032,
+              "hipScaleHoriz": -0.15725000000000006,
+              "hipScaleDepth": 0.19400000000000006,
+              "lowerlegFatLeft": 0.25125000000000003,
+              "lowerlegFatRight": 0.25125000000000003,
+              "hipScaleVert": -0.6,
               "macroFirmness": 0,
               "macroHeight": 0.16924419144502495,
-              "macroWeight": 0.3506973699186834
+              "macroWeight": 0.2906091832382751
             }
           },
           "fresh": [
             {
               "part": "spine",
               "other": "spine",
-              "triangles": 13,
-              "otherTriangles": 13
+              "triangles": 14,
+              "otherTriangles": 14
             }
           ],
           "grown": []
@@ -11040,7 +11790,7 @@
               "deltoidDefinitionLeft": 0,
               "deltoidDefinitionRight": 0,
               "scapularDefinition": 0,
-              "breastTransDownUp": -0.22799999999999998,
+              "breastTransDownUp": 0.1008,
               "breastVolumeVertDownUp": 0,
               "breastPoint": 0,
               "macroCupsize": 0.33999999999999997,
@@ -11048,24 +11798,36 @@
               "stomachNavelDownUp": -0.19599999999999998,
               "neckDouble": 0.4,
               "upperarmFatLeft": 0.408,
-              "upperlegFatLeft": 0.33999999999999997,
+              "upperlegFatLeft": 0.5272,
               "upperarmFatRight": 0.408,
-              "upperlegFatRight": 0.33999999999999997,
+              "upperlegFatRight": 0.5272,
               "torsoVshape": 0,
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0.0638,
+              "hipScaleHoriz": -0.2344,
+              "hipScaleDepth": 0.26739999999999997,
+              "lowerlegFatLeft": 0.2274,
+              "lowerlegFatRight": 0.2274,
+              "hipScaleVert": -0.6,
               "macroFirmness": 0,
               "macroHeight": 0.16756313350586372,
-              "macroWeight": 3.767174724626261
+              "macroWeight": 3.5852098939637993
             }
           },
           "fresh": [
             {
+              "part": "upperChest",
+              "other": "leftUpperArm",
+              "triangles": 14,
+              "otherTriangles": 19
+            },
+            {
               "part": "neck",
               "other": "neck",
-              "triangles": 4,
-              "otherTriangles": 4
+              "triangles": 5,
+              "otherTriangles": 5
             }
           ],
           "grown": []
@@ -11108,7 +11870,7 @@
               "deltoidDefinitionLeft": 0,
               "deltoidDefinitionRight": 0,
               "scapularDefinition": 0,
-              "breastTransDownUp": -0.22799999999999998,
+              "breastTransDownUp": 0.1008,
               "breastVolumeVertDownUp": 0,
               "breastPoint": 0,
               "macroCupsize": 0.33999999999999997,
@@ -11116,29 +11878,35 @@
               "stomachNavelDownUp": -0.19599999999999998,
               "neckDouble": 0.4,
               "upperarmFatLeft": 0.408,
-              "upperlegFatLeft": 0.33999999999999997,
+              "upperlegFatLeft": 0.5272,
               "upperarmFatRight": 0.408,
-              "upperlegFatRight": 0.33999999999999997,
+              "upperlegFatRight": 0.5272,
               "torsoVshape": 0.3,
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0.0638,
+              "hipScaleHoriz": -0.2344,
+              "hipScaleDepth": 0.26739999999999997,
+              "lowerlegFatLeft": 0.2274,
+              "lowerlegFatRight": 0.2274,
+              "hipScaleVert": -0.6,
               "macroFirmness": 0,
               "macroHeight": 0.17044937438999025,
-              "macroWeight": 0.9926880756048784
+              "macroWeight": 0.9242187624596001
             }
           },
           "fresh": [
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 120,
-              "otherTriangles": 120
+              "triangles": 117,
+              "otherTriangles": 117
             },
             {
               "part": "leftUpperLeg",
               "other": "leftLowerLeg",
-              "triangles": 107,
+              "triangles": 113,
               "otherTriangles": 92
             },
             {
@@ -11188,7 +11956,7 @@
               "deltoidDefinitionLeft": 0,
               "deltoidDefinitionRight": 0,
               "scapularDefinition": 0,
-              "breastTransDownUp": -0.3,
+              "breastTransDownUp": -0.29999999999999993,
               "breastVolumeVertDownUp": 0,
               "breastPoint": 0,
               "macroCupsize": 0.5,
@@ -11196,16 +11964,22 @@
               "stomachNavelDownUp": -0.34,
               "neckDouble": 0.8,
               "upperarmFatLeft": 0.6,
-              "upperlegFatLeft": 0.5,
+              "upperlegFatLeft": 0.5825,
               "upperarmFatRight": 0.6,
-              "upperlegFatRight": 0.5,
+              "upperlegFatRight": 0.5825,
               "torsoVshape": 0,
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0.04,
+              "hipScaleHoriz": -0.128,
+              "hipScaleDepth": 0.143,
+              "lowerlegFatLeft": 0.1065,
+              "lowerlegFatRight": 0.1065,
+              "hipScaleVert": -0.3,
               "macroFirmness": 0,
               "macroHeight": 0.1686732059548374,
-              "macroWeight": 6.237212679295645
+              "macroWeight": 6.1594890668343965
             }
           },
           "fresh": [
@@ -11219,7 +11993,7 @@
               "part": "upperChest",
               "other": "leftUpperArm",
               "triangles": 3,
-              "otherTriangles": 3
+              "otherTriangles": 4
             }
           ],
           "grown": []
@@ -11262,7 +12036,7 @@
               "deltoidDefinitionLeft": 0,
               "deltoidDefinitionRight": 0,
               "scapularDefinition": 0,
-              "breastTransDownUp": -0.3,
+              "breastTransDownUp": -0.29999999999999993,
               "breastVolumeVertDownUp": 0,
               "breastPoint": 0,
               "macroCupsize": 0.5,
@@ -11270,48 +12044,48 @@
               "stomachNavelDownUp": -0.34,
               "neckDouble": 0.8,
               "upperarmFatLeft": 0.6,
-              "upperlegFatLeft": 0.5,
+              "upperlegFatLeft": 0.5825,
               "upperarmFatRight": 0.6,
-              "upperlegFatRight": 0.5,
+              "upperlegFatRight": 0.5825,
               "torsoVshape": 0,
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0.04,
+              "hipScaleHoriz": -0.128,
+              "hipScaleDepth": 0.143,
+              "lowerlegFatLeft": 0.1065,
+              "lowerlegFatRight": 0.1065,
+              "hipScaleVert": -0.3,
               "macroFirmness": 0,
               "macroHeight": 0.1686732059548374,
-              "macroWeight": 6.237212679295645
+              "macroWeight": 6.1594890668343965
             }
           },
           "fresh": [
             {
               "part": "hips",
-              "other": "hips",
-              "triangles": 4,
-              "otherTriangles": 4
-            },
-            {
-              "part": "hips",
               "other": "leftUpperLeg",
-              "triangles": 45,
-              "otherTriangles": 39
+              "triangles": 41,
+              "otherTriangles": 34
             },
             {
               "part": "spine",
               "other": "spine",
-              "triangles": 20,
-              "otherTriangles": 20
+              "triangles": 21,
+              "otherTriangles": 21
             },
             {
               "part": "spine",
               "other": "leftUpperLeg",
-              "triangles": 44,
-              "otherTriangles": 51
+              "triangles": 53,
+              "otherTriangles": 56
             },
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 29,
-              "otherTriangles": 29
+              "triangles": 13,
+              "otherTriangles": 13
             }
           ],
           "grown": []
@@ -11354,7 +12128,7 @@
               "deltoidDefinitionLeft": 0,
               "deltoidDefinitionRight": 0,
               "scapularDefinition": 0,
-              "breastTransDownUp": -0.3,
+              "breastTransDownUp": -0.29999999999999993,
               "breastVolumeVertDownUp": 0,
               "breastPoint": 0,
               "macroCupsize": 0.5,
@@ -11362,16 +12136,22 @@
               "stomachNavelDownUp": -0.34,
               "neckDouble": 0.8,
               "upperarmFatLeft": 0.6,
-              "upperlegFatLeft": 0.5,
+              "upperlegFatLeft": 0.5825,
               "upperarmFatRight": 0.6,
-              "upperlegFatRight": 0.5,
+              "upperlegFatRight": 0.5825,
               "torsoVshape": 0.3,
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0.04,
+              "hipScaleHoriz": -0.128,
+              "hipScaleDepth": 0.143,
+              "lowerlegFatLeft": 0.1065,
+              "lowerlegFatRight": 0.1065,
+              "hipScaleVert": -0.3,
               "macroFirmness": 0,
               "macroHeight": 0.17158185778496476,
-              "macroWeight": 3.5956766588077937
+              "macroWeight": 3.4659727772058684
             }
           },
           "fresh": [
@@ -11379,13 +12159,13 @@
               "part": "upperChest",
               "other": "leftUpperArm",
               "triangles": 80,
-              "otherTriangles": 92
+              "otherTriangles": 91
             },
             {
               "part": "leftUpperArm",
               "other": "leftUpperArm",
-              "triangles": 26,
-              "otherTriangles": 26
+              "triangles": 27,
+              "otherTriangles": 27
             }
           ],
           "grown": []
@@ -11428,7 +12208,7 @@
               "deltoidDefinitionLeft": 0,
               "deltoidDefinitionRight": 0,
               "scapularDefinition": 0,
-              "breastTransDownUp": -0.45599999999999996,
+              "breastTransDownUp": -1,
               "breastVolumeVertDownUp": -0.325,
               "breastPoint": -0.27999999999999997,
               "macroCupsize": -0.3,
@@ -11436,36 +12216,42 @@
               "stomachNavelDownUp": 0,
               "neckDouble": 0.15,
               "upperarmFatLeft": 0,
-              "upperlegFatLeft": 0,
+              "upperlegFatLeft": 0.241,
               "upperarmFatRight": 0,
-              "upperlegFatRight": 0,
+              "upperlegFatRight": 0.241,
               "torsoVshape": 0,
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": -0.051,
+              "hipScaleHoriz": -0.026,
+              "hipScaleDepth": 0.068,
+              "lowerlegFatLeft": 0.229,
+              "lowerlegFatRight": 0.229,
+              "hipScaleVert": -0.6,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.17691556252539836,
-              "macroWeight": -0.5836408286390542
+              "macroWeight": -0.6390239488093613
             }
           },
           "fresh": [
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 87,
-              "otherTriangles": 87
+              "triangles": 86,
+              "otherTriangles": 86
             },
             {
               "part": "leftUpperLeg",
               "other": "leftLowerLeg",
-              "triangles": 28,
-              "otherTriangles": 25
+              "triangles": 34,
+              "otherTriangles": 35
             },
             {
               "part": "leftLowerLeg",
               "other": "leftLowerLeg",
-              "triangles": 18,
-              "otherTriangles": 18
+              "triangles": 16,
+              "otherTriangles": 16
             }
           ],
           "grown": []
@@ -11508,7 +12294,7 @@
               "deltoidDefinitionLeft": 1,
               "deltoidDefinitionRight": 1,
               "scapularDefinition": 1,
-              "breastTransDownUp": -0.45599999999999996,
+              "breastTransDownUp": -1,
               "breastVolumeVertDownUp": -0.325,
               "breastPoint": -0.27999999999999997,
               "macroCupsize": -0.3,
@@ -11516,24 +12302,30 @@
               "stomachNavelDownUp": 0,
               "neckDouble": 0.15,
               "upperarmFatLeft": 0,
-              "upperlegFatLeft": 0,
+              "upperlegFatLeft": 0.241,
               "upperarmFatRight": 0,
-              "upperlegFatRight": 0,
+              "upperlegFatRight": 0.241,
               "torsoVshape": 0.3,
               "musculatureDefinition": 0.525,
               "chestDefinition": 0.07875,
               "skeletalProminence": 0.125,
+              "glutealProjection": -0.051,
+              "hipScaleHoriz": -0.026,
+              "hipScaleDepth": 0.068,
+              "lowerlegFatLeft": 0.229,
+              "lowerlegFatRight": 0.229,
+              "hipScaleVert": -0.6,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.17876341050596917,
-              "macroWeight": -1.4734030527995212
+              "macroWeight": -1.61844784663824
             }
           },
           "fresh": [
             {
               "part": "spine",
               "other": "spine",
-              "triangles": 14,
-              "otherTriangles": 14
+              "triangles": 16,
+              "otherTriangles": 16
             }
           ],
           "grown": []
@@ -11576,7 +12368,7 @@
               "deltoidDefinitionLeft": 0,
               "deltoidDefinitionRight": 0,
               "scapularDefinition": 0,
-              "breastTransDownUp": -0.5347500000000001,
+              "breastTransDownUp": -0.5367499999999997,
               "breastVolumeVertDownUp": -0.325,
               "breastPoint": -0.27999999999999997,
               "macroCupsize": 0.11250000000000013,
@@ -11584,30 +12376,36 @@
               "stomachNavelDownUp": -9.947598300641402e-17,
               "neckDouble": 0.1500000000000002,
               "upperarmFatLeft": 0.13500000000000015,
-              "upperlegFatLeft": 0.11250000000000013,
+              "upperlegFatLeft": 0.3477500000000001,
               "upperarmFatRight": 0.13500000000000015,
-              "upperlegFatRight": 0.11250000000000013,
+              "upperlegFatRight": 0.3477500000000001,
               "torsoVshape": 0.3,
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0.014000000000000032,
+              "hipScaleHoriz": -0.15725000000000006,
+              "hipScaleDepth": 0.19400000000000006,
+              "lowerlegFatLeft": 0.25125000000000003,
+              "lowerlegFatRight": 0.25125000000000003,
+              "hipScaleVert": -0.6,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.17889583842975781,
-              "macroWeight": 0.4702823911801851
+              "macroWeight": 0.3883705579357678
             }
           },
           "fresh": [
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 73,
-              "otherTriangles": 73
+              "triangles": 71,
+              "otherTriangles": 71
             },
             {
               "part": "leftUpperLeg",
               "other": "leftLowerLeg",
-              "triangles": 65,
-              "otherTriangles": 39
+              "triangles": 90,
+              "otherTriangles": 69
             },
             {
               "part": "leftLowerLeg",
@@ -11656,7 +12454,7 @@
               "deltoidDefinitionLeft": 0,
               "deltoidDefinitionRight": 0,
               "scapularDefinition": 0,
-              "breastTransDownUp": -0.6839999999999999,
+              "breastTransDownUp": -0.35519999999999996,
               "breastVolumeVertDownUp": -0.325,
               "breastPoint": -0.27999999999999997,
               "macroCupsize": 0.33999999999999997,
@@ -11664,42 +12462,122 @@
               "stomachNavelDownUp": -0.19599999999999998,
               "neckDouble": 0.55,
               "upperarmFatLeft": 0.408,
-              "upperlegFatLeft": 0.33999999999999997,
+              "upperlegFatLeft": 0.5272,
               "upperarmFatRight": 0.408,
-              "upperlegFatRight": 0.33999999999999997,
+              "upperlegFatRight": 0.5272,
               "torsoVshape": 0,
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0.0638,
+              "hipScaleHoriz": -0.2344,
+              "hipScaleDepth": 0.26739999999999997,
+              "lowerlegFatLeft": 0.2274,
+              "lowerlegFatRight": 0.2274,
+              "hipScaleVert": -0.6,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.17803566188565015,
-              "macroWeight": 3.393498184218357
+              "macroWeight": 3.246382136910629
             }
           },
           "fresh": [
             {
               "part": "hips",
               "other": "leftUpperLeg",
-              "triangles": 30,
-              "otherTriangles": 31
+              "triangles": 43,
+              "otherTriangles": 42
             },
             {
               "part": "spine",
               "other": "spine",
-              "triangles": 6,
-              "otherTriangles": 6
+              "triangles": 10,
+              "otherTriangles": 10
             },
             {
               "part": "spine",
               "other": "leftUpperLeg",
-              "triangles": 21,
-              "otherTriangles": 21
+              "triangles": 42,
+              "otherTriangles": 48
             },
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 44,
-              "otherTriangles": 44
+              "triangles": 45,
+              "otherTriangles": 45
+            }
+          ],
+          "grown": []
+        },
+        {
+          "name": "sex-1-age60-bmi32-muscle1:reach",
+          "document": {
+            "shoulders": [
+              {
+                "bone": "leftUpperArm",
+                "plane": 90,
+                "elevation": 90,
+                "axialRotation": 0
+              }
+            ],
+            "shape": {
+              "macroGender": -1,
+              "macroAge": 0.5384615384615384,
+              "macroMuscle": 0.8200000000000001,
+              "upperarmMuscleLeft": 0.7,
+              "upperarmMuscleRight": 0.7,
+              "upperarmShoulderMuscleLeft": 0.7,
+              "upperarmShoulderMuscleRight": 0.7,
+              "lowerarmMuscleLeft": 0.7,
+              "lowerarmMuscleRight": 0.7,
+              "upperlegMuscleLeft": 0.7,
+              "upperlegMuscleRight": 0.7,
+              "lowerlegMuscleLeft": 0.7,
+              "lowerlegMuscleRight": 0.7,
+              "torsoMusclePectoral": 0.7,
+              "torsoMuscleDorsi": 0.7,
+              "buttocksPtosis": 0.3999999999999999,
+              "buttocksVolume": 0.31999999999999995,
+              "pelvisTone": 0.2,
+              "stomachOverhang": 0.56,
+              "flankFat": 0.47531249999999997,
+              "outerThighFatLeft": 0.5707936507936507,
+              "outerThighFatRight": 0.5707936507936507,
+              "absDefinition": 0,
+              "deltoidDefinitionLeft": 0,
+              "deltoidDefinitionRight": 0,
+              "scapularDefinition": 0,
+              "breastTransDownUp": -0.35519999999999996,
+              "breastVolumeVertDownUp": -0.325,
+              "breastPoint": -0.27999999999999997,
+              "macroCupsize": 0.33999999999999997,
+              "stomachTone": -0.03999999999999998,
+              "stomachNavelDownUp": -0.19599999999999998,
+              "neckDouble": 0.55,
+              "upperarmFatLeft": 0.408,
+              "upperlegFatLeft": 0.5272,
+              "upperarmFatRight": 0.408,
+              "upperlegFatRight": 0.5272,
+              "torsoVshape": 0.3,
+              "musculatureDefinition": 0,
+              "chestDefinition": 0,
+              "skeletalProminence": 0,
+              "glutealProjection": 0.0638,
+              "hipScaleHoriz": -0.2344,
+              "hipScaleDepth": 0.26739999999999997,
+              "lowerlegFatLeft": 0.2274,
+              "lowerlegFatRight": 0.2274,
+              "hipScaleVert": -0.6,
+              "macroFirmness": -0.6666666666666666,
+              "macroHeight": 0.18003043738680247,
+              "macroWeight": 1.7271126069462837
+            }
+          },
+          "fresh": [
+            {
+              "part": "upperChest",
+              "other": "leftUpperArm",
+              "triangles": 7,
+              "otherTriangles": 18
             }
           ],
           "grown": []
@@ -11750,16 +12628,22 @@
               "stomachNavelDownUp": -0.34,
               "neckDouble": 0.9500000000000001,
               "upperarmFatLeft": 0.6,
-              "upperlegFatLeft": 0.5,
+              "upperlegFatLeft": 0.5825,
               "upperarmFatRight": 0.6,
-              "upperlegFatRight": 0.5,
+              "upperlegFatRight": 0.5825,
               "torsoVshape": 0,
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0.04,
+              "hipScaleHoriz": -0.128,
+              "hipScaleDepth": 0.143,
+              "lowerlegFatLeft": 0.1065,
+              "lowerlegFatRight": 0.1065,
+              "hipScaleVert": -0.3,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.17915576124590216,
-              "macroWeight": 5.759091453806817
+              "macroWeight": 5.698436564480302
             }
           },
           "fresh": [
@@ -11824,30 +12708,36 @@
               "stomachNavelDownUp": -0.34,
               "neckDouble": 0.9500000000000001,
               "upperarmFatLeft": 0.6,
-              "upperlegFatLeft": 0.5,
+              "upperlegFatLeft": 0.5825,
               "upperarmFatRight": 0.6,
-              "upperlegFatRight": 0.5,
+              "upperlegFatRight": 0.5825,
               "torsoVshape": 0,
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0.04,
+              "hipScaleHoriz": -0.128,
+              "hipScaleDepth": 0.143,
+              "lowerlegFatLeft": 0.1065,
+              "lowerlegFatRight": 0.1065,
+              "hipScaleVert": -0.3,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.17915576124590216,
-              "macroWeight": 5.759091453806817
+              "macroWeight": 5.698436564480302
             }
           },
           "fresh": [
             {
               "part": "hips",
               "other": "hips",
-              "triangles": 56,
-              "otherTriangles": 56
+              "triangles": 58,
+              "otherTriangles": 58
             },
             {
               "part": "hips",
               "other": "leftUpperLeg",
               "triangles": 2,
-              "otherTriangles": 2
+              "otherTriangles": 5
             },
             {
               "part": "hips",
@@ -11858,13 +12748,13 @@
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 45,
-              "otherTriangles": 45
+              "triangles": 54,
+              "otherTriangles": 54
             },
             {
               "part": "leftUpperLeg",
               "other": "leftLowerLeg",
-              "triangles": 27,
+              "triangles": 28,
               "otherTriangles": 30
             },
             {
@@ -11876,8 +12766,8 @@
             {
               "part": "rightUpperLeg",
               "other": "rightUpperLeg",
-              "triangles": 17,
-              "otherTriangles": 17
+              "triangles": 18,
+              "otherTriangles": 18
             }
           ],
           "grown": []
@@ -11928,36 +12818,36 @@
               "stomachNavelDownUp": -0.34,
               "neckDouble": 0.9500000000000001,
               "upperarmFatLeft": 0.6,
-              "upperlegFatLeft": 0.5,
+              "upperlegFatLeft": 0.5825,
               "upperarmFatRight": 0.6,
-              "upperlegFatRight": 0.5,
+              "upperlegFatRight": 0.5825,
               "torsoVshape": 0.3,
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0.04,
+              "hipScaleHoriz": -0.128,
+              "hipScaleDepth": 0.143,
+              "lowerlegFatLeft": 0.1065,
+              "lowerlegFatRight": 0.1065,
+              "hipScaleVert": -0.3,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.1811650363438473,
-              "macroWeight": 4.418590548385852
+              "macroWeight": 4.308418037422674
             }
           },
           "fresh": [
             {
               "part": "upperChest",
-              "other": "upperChest",
-              "triangles": 2,
-              "otherTriangles": 2
-            },
-            {
-              "part": "upperChest",
               "other": "leftUpperArm",
-              "triangles": 8,
+              "triangles": 10,
               "otherTriangles": 9
             },
             {
               "part": "leftUpperArm",
               "other": "leftUpperArm",
-              "triangles": 19,
-              "otherTriangles": 19
+              "triangles": 15,
+              "otherTriangles": 15
             }
           ],
           "grown": []
@@ -12008,36 +12898,42 @@
               "stomachNavelDownUp": -0.34,
               "neckDouble": 0.9500000000000001,
               "upperarmFatLeft": 0.6,
-              "upperlegFatLeft": 0.5,
+              "upperlegFatLeft": 0.5825,
               "upperarmFatRight": 0.6,
-              "upperlegFatRight": 0.5,
+              "upperlegFatRight": 0.5825,
               "torsoVshape": 0.3,
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0.04,
+              "hipScaleHoriz": -0.128,
+              "hipScaleDepth": 0.143,
+              "lowerlegFatLeft": 0.1065,
+              "lowerlegFatRight": 0.1065,
+              "hipScaleVert": -0.3,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.1811650363438473,
-              "macroWeight": 4.418590548385852
+              "macroWeight": 4.308418037422674
             }
           },
           "fresh": [
             {
               "part": "hips",
               "other": "leftUpperLeg",
-              "triangles": 17,
-              "otherTriangles": 17
+              "triangles": 24,
+              "otherTriangles": 26
             },
             {
               "part": "spine",
               "other": "leftUpperLeg",
-              "triangles": 15,
-              "otherTriangles": 15
+              "triangles": 26,
+              "otherTriangles": 27
             },
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 7,
-              "otherTriangles": 7
+              "triangles": 31,
+              "otherTriangles": 31
             }
           ],
           "grown": []
@@ -12095,6 +12991,12 @@
               "musculatureDefinition": 0.20606250000000007,
               "chestDefinition": 0.20606250000000007,
               "skeletalProminence": 0.46800000000000025,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": 0,
               "macroHeight": -0.040581621058320305,
               "macroWeight": -2.261525751984357
@@ -12169,6 +13071,12 @@
               "musculatureDefinition": 0.019031250000000034,
               "chestDefinition": 0.019031250000000034,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": 0,
               "macroHeight": -0.04049239163671575,
               "macroWeight": 0.8904380838713114
@@ -12249,6 +13157,12 @@
               "musculatureDefinition": 0.6250000000000003,
               "chestDefinition": 0.6250000000000003,
               "skeletalProminence": 0.15625000000000008,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": 0,
               "macroHeight": -0.040642177339548446,
               "macroWeight": 0.057864526433118776
@@ -12329,6 +13243,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": 0,
               "macroHeight": -0.03833737986192359,
               "macroWeight": 3.4325639956659235
@@ -12409,6 +13329,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": 0,
               "macroHeight": -0.03833737986192359,
               "macroWeight": 3.4325639956659235
@@ -12503,6 +13429,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": 0,
               "macroHeight": -0.03814874824803116,
               "macroWeight": 0.8044161679193554
@@ -12571,6 +13503,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": 0,
               "macroHeight": -0.03814874824803116,
               "macroWeight": 0.8044161679193554
@@ -12639,6 +13577,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": 0,
               "macroHeight": -0.03814874824803116,
               "macroWeight": 0.8044161679193554
@@ -12725,6 +13669,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": 0,
               "macroHeight": -0.036191447572137325,
               "macroWeight": 6.1278569844211015
@@ -12805,6 +13755,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": 0,
               "macroHeight": -0.036191447572137325,
               "macroWeight": 6.1278569844211015
@@ -12891,6 +13847,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": 0,
               "macroHeight": -0.03595951294825539,
               "macroWeight": 3.222978400107234
@@ -12977,6 +13939,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": 0,
               "macroHeight": -0.03595951294825539,
               "macroWeight": 3.222978400107234
@@ -13057,6 +14025,12 @@
               "musculatureDefinition": 0.023625000000000052,
               "chestDefinition": 0.023625000000000052,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": -0.2,
               "macroHeight": 0.0020788970039231375,
               "macroWeight": -1.7647351442985577
@@ -13125,6 +14099,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": -0.2,
               "macroHeight": 0.003204008282297958,
               "macroWeight": 2.8901831910604403
@@ -13193,6 +14173,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": -0.2,
               "macroHeight": 0.003204008282297958,
               "macroWeight": 2.8901831910604403
@@ -13279,6 +14265,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": -0.2,
               "macroHeight": 0.003308037748651087,
               "macroWeight": 1.2908213574995424
@@ -13353,6 +14345,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": -0.2,
               "macroHeight": 0.00432324101217048,
               "macroWeight": 5.6246747716625975
@@ -13433,6 +14431,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": -0.2,
               "macroHeight": 0.00432324101217048,
               "macroWeight": 5.6246747716625975
@@ -13527,6 +14531,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": -0.2,
               "macroHeight": 0.004441759138130184,
               "macroWeight": 4.139511799699871
@@ -13595,6 +14605,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": -0.2,
               "macroHeight": 0.004441759138130184,
               "macroWeight": 4.139511799699871
@@ -13681,6 +14697,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": -0.2,
               "macroHeight": 0.004441759138130184,
               "macroWeight": 4.139511799699871
@@ -13734,11 +14756,11 @@
         },
         {
           "pair": "hips x hips",
-          "states": 33
+          "states": 34
         },
         {
           "pair": "hips x spine",
-          "states": 30
+          "states": 31
         },
         {
           "pair": "leftUpperLeg x leftUpperLeg",
@@ -13766,11 +14788,11 @@
         },
         {
           "pair": "chest x chest",
-          "states": 21
+          "states": 22
         },
         {
           "pair": "spine x chest",
-          "states": 17
+          "states": 16
         },
         {
           "pair": "hips x leftUpperLeg",
@@ -13779,6 +14801,18 @@
         {
           "pair": "hips x rightUpperLeg",
           "states": 9
+        },
+        {
+          "pair": "spine x leftUpperLeg",
+          "states": 2
+        },
+        {
+          "pair": "spine x rightUpperLeg",
+          "states": 2
+        },
+        {
+          "pair": "leftUpperLeg x rightUpperLeg",
+          "states": 2
         },
         {
           "pair": "upperChest x upperChest",
@@ -13798,18 +14832,6 @@
         },
         {
           "pair": "rightUpperArm x rightUpperArm",
-          "states": 1
-        },
-        {
-          "pair": "spine x leftUpperLeg",
-          "states": 1
-        },
-        {
-          "pair": "spine x rightUpperLeg",
-          "states": 1
-        },
-        {
-          "pair": "leftUpperLeg x rightUpperLeg",
           "states": 1
         }
       ],
@@ -14343,7 +15365,7 @@
               "deltoidDefinitionLeft": 0.28322138424930215,
               "deltoidDefinitionRight": 0.28322138424930215,
               "scapularDefinition": 0.28322138424930215,
-              "breastTransDownUp": -0.027,
+              "breastTransDownUp": -0.5086332540154668,
               "breastVolumeVertDownUp": 0,
               "breastPoint": 0,
               "macroCupsize": -0.19997025580011885,
@@ -14351,80 +15373,80 @@
               "stomachNavelDownUp": 0,
               "neckDouble": 0,
               "upperarmFatLeft": 0,
-              "upperlegFatLeft": 0,
+              "upperlegFatLeft": 0.24133343248066627,
               "upperarmFatRight": 0,
-              "upperlegFatRight": 0,
+              "upperlegFatRight": 0.24133343248066627,
               "torsoVshape": 0.09,
               "musculatureDefinition": 0.22696130883173932,
               "chestDefinition": 0.0340441963247609,
               "skeletalProminence": 0.22558821066215168,
+              "glutealProjection": -0.038329565734681714,
+              "hipScaleHoriz": -0.0520077334919691,
+              "hipScaleDepth": 0.09300743604997029,
+              "lowerlegFatLeft": 0.23466835217132662,
+              "lowerlegFatRight": 0.23466835217132662,
+              "hipScaleVert": -0.6,
               "macroFirmness": -0.06,
               "macroHeight": 0.07327510016331296,
-              "measureHipsCirc": 0.4746724773836549,
-              "measureBustCirc": -0.0022377493882713064,
-              "macroWeight": -0.7295081370707746
+              "measureHipsCirc": 0.38939768388908774,
+              "measureBustCirc": -0.13947322978827867,
+              "macroWeight": -0.700460304741041
             }
           },
           "fresh": [
             {
               "part": "hips",
               "other": "hips",
-              "triangles": 6,
-              "otherTriangles": 6
+              "triangles": 23,
+              "otherTriangles": 23
             },
             {
               "part": "hips",
               "other": "spine",
-              "triangles": 3,
-              "otherTriangles": 4
+              "triangles": 2,
+              "otherTriangles": 2
             },
             {
               "part": "spine",
               "other": "spine",
-              "triangles": 79,
-              "otherTriangles": 79
-            },
-            {
-              "part": "spine",
-              "other": "chest",
-              "triangles": 6,
-              "otherTriangles": 6
+              "triangles": 82,
+              "otherTriangles": 82
             },
             {
               "part": "chest",
               "other": "chest",
-              "triangles": 18,
-              "otherTriangles": 18
+              "triangles": 13,
+              "otherTriangles": 13
             },
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 122,
-              "otherTriangles": 122
+              "triangles": 130,
+              "otherTriangles": 130
             },
             {
               "part": "leftUpperLeg",
               "other": "leftLowerLeg",
-              "triangles": 17,
-              "otherTriangles": 21
+              "triangles": 23,
+              "otherTriangles": 31
             },
             {
               "part": "leftLowerLeg",
               "other": "leftLowerLeg",
-              "triangles": 25,
-              "otherTriangles": 25
+              "triangles": 26,
+              "otherTriangles": 26
             },
             {
               "part": "rightUpperLeg",
               "other": "rightUpperLeg",
-              "triangles": 127,
-              "otherTriangles": 127
+              "triangles": 124,
+              "otherTriangles": 124
             },
             {
               "part": "rightUpperLeg",
               "other": "rightLowerLeg",
-              "triangles": 16,
-              "otherTriangles": 24
+              "triangles": 21,
+              "otherTriangles": 29
             },
             {
               "part": "rightLowerLeg",
@@ -14491,7 +15513,7 @@
               "deltoidDefinitionLeft": 0,
               "deltoidDefinitionRight": 0,
               "scapularDefinition": 0,
-              "breastTransDownUp": 0,
+              "breastTransDownUp": -0.044532871972318804,
               "breastVolumeVertDownUp": 0,
               "breastPoint": 0,
               "macroCupsize": -0.3,
@@ -14499,17 +15521,23 @@
               "stomachNavelDownUp": 0,
               "neckDouble": 0,
               "upperarmFatLeft": 0,
-              "upperlegFatLeft": 0,
+              "upperlegFatLeft": 0.018068050749711836,
               "upperarmFatRight": 0,
-              "upperlegFatRight": 0,
+              "upperlegFatRight": 0.018068050749711836,
               "torsoVshape": 0,
               "musculatureDefinition": 0.10149037334853714,
               "chestDefinition": 0.015223556002280569,
               "skeletalProminence": 0.303002563699276,
+              "glutealProjection": -0.003823529411764745,
+              "hipScaleHoriz": -0.0019492502883506546,
+              "hipScaleDepth": 0.005098039215686328,
+              "lowerlegFatLeft": 0.017168396770473073,
+              "lowerlegFatRight": 0.017168396770473073,
+              "hipScaleVert": -0.04498269896193818,
               "macroFirmness": 0,
               "macroHeight": 0.2803511182831144,
-              "measureHipsCirc": -0.38131008638731034,
-              "macroWeight": -0.9768507861197844
+              "measureHipsCirc": -0.3899345249393847,
+              "macroWeight": -0.9801623239073359
             }
           },
           "fresh": [
@@ -14641,6 +15669,12 @@
               "musculatureDefinition": 0.5446099845673584,
               "chestDefinition": 0.5446099845673584,
               "skeletalProminence": 0.2807616690626755,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": -0.012000000000000002,
               "macroHeight": 0.23504163685391596,
               "macroWeight": -1.2593020974661016
@@ -14781,6 +15815,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": -0.04200000000000001,
               "macroHeight": 0.1448867676438096,
               "macroWeight": 0.6422090989872222
@@ -14897,6 +15937,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": -0.12000000000000002,
               "macroHeight": 0.18534223051502727,
               "macroWeight": 2.678900211246128
@@ -15019,6 +16065,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": -0.15000000000000002,
               "macroHeight": 0.028033651001964126,
               "measureWaistCirc": 2.346792773217045,
@@ -15151,7 +16203,7 @@
               "deltoidDefinitionLeft": 0,
               "deltoidDefinitionRight": 0,
               "scapularDefinition": 0,
-              "breastTransDownUp": -0.5143593964334705,
+              "breastTransDownUp": -0.34246730681298554,
               "breastVolumeVertDownUp": -0.18,
               "breastPoint": -0.168,
               "macroCupsize": 0.416354214296601,
@@ -15159,66 +16211,84 @@
               "stomachNavelDownUp": -0.2898125285779606,
               "neckDouble": 0.6508855357415024,
               "upperarmFatLeft": 0.4996250571559212,
-              "upperlegFatLeft": 0.416354214296601,
+              "upperlegFatLeft": 0.5678619875019052,
               "upperarmFatRight": 0.4996250571559212,
-              "upperlegFatRight": 0.416354214296601,
+              "upperlegFatRight": 0.5678619875019052,
               "torsoVshape": 0,
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0.07345831428135961,
+              "hipScaleHoriz": -0.23506660570035073,
+              "hipScaleDepth": 0.26261347355586057,
+              "lowerlegFatLeft": 0.19558276177411996,
+              "lowerlegFatRight": 0.19558276177411996,
+              "hipScaleVert": -0.550937357110197,
               "macroFirmness": -0.46,
               "macroHeight": 0.04897153328504429,
-              "macroWeight": 2.706951324026363
+              "macroWeight": 2.611077584496092
             }
           },
           "fresh": [
             {
               "part": "hips",
               "other": "hips",
-              "triangles": 66,
-              "otherTriangles": 66
+              "triangles": 114,
+              "otherTriangles": 114
+            },
+            {
+              "part": "hips",
+              "other": "spine",
+              "triangles": 6,
+              "otherTriangles": 2
             },
             {
               "part": "hips",
               "other": "leftUpperLeg",
-              "triangles": 20,
-              "otherTriangles": 25
+              "triangles": 33,
+              "otherTriangles": 27
             },
             {
               "part": "hips",
               "other": "rightUpperLeg",
-              "triangles": 20,
-              "otherTriangles": 25
+              "triangles": 34,
+              "otherTriangles": 29
             },
             {
               "part": "spine",
               "other": "spine",
-              "triangles": 31,
-              "otherTriangles": 31
+              "triangles": 36,
+              "otherTriangles": 36
             },
             {
               "part": "spine",
               "other": "leftUpperLeg",
-              "triangles": 26,
-              "otherTriangles": 27
+              "triangles": 42,
+              "otherTriangles": 54
             },
             {
               "part": "spine",
               "other": "rightUpperLeg",
-              "triangles": 26,
-              "otherTriangles": 27
+              "triangles": 42,
+              "otherTriangles": 50
             },
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 65,
-              "otherTriangles": 65
+              "triangles": 107,
+              "otherTriangles": 107
             },
             {
               "part": "leftUpperLeg",
               "other": "leftLowerLeg",
-              "triangles": 42,
-              "otherTriangles": 36
+              "triangles": 58,
+              "otherTriangles": 41
+            },
+            {
+              "part": "leftUpperLeg",
+              "other": "rightUpperLeg",
+              "triangles": 6,
+              "otherTriangles": 6
             },
             {
               "part": "leftLowerLeg",
@@ -15229,20 +16299,20 @@
             {
               "part": "rightUpperLeg",
               "other": "rightUpperLeg",
-              "triangles": 67,
-              "otherTriangles": 67
+              "triangles": 107,
+              "otherTriangles": 107
             },
             {
               "part": "rightUpperLeg",
               "other": "rightLowerLeg",
-              "triangles": 35,
-              "otherTriangles": 31
+              "triangles": 47,
+              "otherTriangles": 32
             },
             {
               "part": "rightLowerLeg",
               "other": "rightLowerLeg",
-              "triangles": 18,
-              "otherTriangles": 18
+              "triangles": 19,
+              "otherTriangles": 19
             }
           ],
           "grown": []
@@ -15315,7 +16385,7 @@
               "deltoidDefinitionLeft": 0,
               "deltoidDefinitionRight": 0,
               "scapularDefinition": 0,
-              "breastTransDownUp": -0.6360301246537395,
+              "breastTransDownUp": -0.7763611495844875,
               "breastVolumeVertDownUp": -0.48,
               "breastPoint": -0.3856,
               "macroCupsize": 0.05147160664819941,
@@ -15323,48 +16393,54 @@
               "stomachNavelDownUp": 0,
               "neckDouble": 0.3,
               "upperarmFatLeft": 0.06176592797783929,
-              "upperlegFatLeft": 0.05147160664819941,
+              "upperlegFatLeft": 0.2903833102493074,
               "upperarmFatRight": 0.06176592797783929,
-              "upperlegFatRight": 0.05147160664819941,
+              "upperlegFatRight": 0.2903833102493074,
               "torsoVshape": 0,
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": -0.000646814404432143,
+              "hipScaleHoriz": -0.1283632271468144,
+              "hipScaleDepth": 0.1663337950138504,
+              "lowerlegFatLeft": 0.2484020083102493,
+              "lowerlegFatRight": 0.2484020083102493,
+              "hipScaleVert": -0.6,
               "macroFirmness": -1,
               "macroHeight": -0.2054096330748672,
-              "macroWeight": 0.2755375747439803
+              "macroWeight": 0.2582111812372371
             }
           },
           "fresh": [
             {
               "part": "hips",
               "other": "hips",
-              "triangles": 3,
-              "otherTriangles": 3
+              "triangles": 36,
+              "otherTriangles": 36
             },
             {
               "part": "hips",
               "other": "spine",
               "triangles": 6,
-              "otherTriangles": 9
+              "otherTriangles": 10
             },
             {
               "part": "spine",
               "other": "spine",
-              "triangles": 68,
-              "otherTriangles": 68
+              "triangles": 74,
+              "otherTriangles": 74
             },
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 129,
-              "otherTriangles": 129
+              "triangles": 128,
+              "otherTriangles": 128
             },
             {
               "part": "leftUpperLeg",
               "other": "leftLowerLeg",
-              "triangles": 21,
-              "otherTriangles": 18
+              "triangles": 22,
+              "otherTriangles": 21
             },
             {
               "part": "leftLowerLeg",
@@ -15375,20 +16451,20 @@
             {
               "part": "rightUpperLeg",
               "other": "rightUpperLeg",
-              "triangles": 125,
-              "otherTriangles": 125
+              "triangles": 129,
+              "otherTriangles": 129
             },
             {
               "part": "rightUpperLeg",
               "other": "rightLowerLeg",
               "triangles": 20,
-              "otherTriangles": 26
+              "otherTriangles": 28
             },
             {
               "part": "rightLowerLeg",
               "other": "rightLowerLeg",
-              "triangles": 19,
-              "otherTriangles": 19
+              "triangles": 18,
+              "otherTriangles": 18
             }
           ],
           "grown": []
@@ -15464,6 +16540,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": -0.30000000000000004,
               "macroHeight": -0.1183041289076825,
               "macroWeight": -0.08880630192421367
@@ -16051,7 +17133,7 @@
               "deltoidDefinitionLeft": 0.1,
               "deltoidDefinitionRight": 0.1,
               "scapularDefinition": 0.1,
-              "breastTransDownUp": 0,
+              "breastTransDownUp": -0.4071229496298445,
               "breastVolumeVertDownUp": 0,
               "breastPoint": 0,
               "macroCupsize": -0.3,
@@ -16059,16 +17141,22 @@
               "stomachNavelDownUp": 0,
               "neckDouble": 0,
               "upperarmFatLeft": 0,
-              "upperlegFatLeft": 0,
+              "upperlegFatLeft": 0.16517951323365748,
               "upperarmFatRight": 0,
-              "upperlegFatRight": 0,
+              "upperlegFatRight": 0.16517951323365748,
               "torsoVshape": 0.03,
               "musculatureDefinition": 0.23243914552678802,
               "chestDefinition": 0.0348658718290182,
               "skeletalProminence": 0.40736036439343637,
+              "glutealProjection": -0.03495500072579474,
+              "hipScaleHoriz": -0.017820196448444375,
+              "hipScaleDepth": 0.04660666763439298,
+              "lowerlegFatLeft": 0.15695480718052932,
+              "lowerlegFatRight": 0.15695480718052932,
+              "hipScaleVert": -0.4112353026564086,
               "macroFirmness": 0,
               "macroHeight": 0.13943589576935728,
-              "macroWeight": -1.1490528618158737
+              "macroWeight": -1.2213021423786727
             }
           },
           "fresh": [
@@ -16082,13 +17170,19 @@
               "part": "hips",
               "other": "spine",
               "triangles": 2,
-              "otherTriangles": 4
+              "otherTriangles": 3
             },
             {
               "part": "spine",
               "other": "spine",
-              "triangles": 78,
-              "otherTriangles": 78
+              "triangles": 80,
+              "otherTriangles": 80
+            },
+            {
+              "part": "chest",
+              "other": "chest",
+              "triangles": 8,
+              "otherTriangles": 8
             },
             {
               "part": "leftUpperLeg",
@@ -16099,8 +17193,8 @@
             {
               "part": "leftUpperLeg",
               "other": "leftLowerLeg",
-              "triangles": 28,
-              "otherTriangles": 34
+              "triangles": 30,
+              "otherTriangles": 39
             },
             {
               "part": "leftLowerLeg",
@@ -16111,20 +17205,20 @@
             {
               "part": "rightUpperLeg",
               "other": "rightUpperLeg",
-              "triangles": 134,
-              "otherTriangles": 134
+              "triangles": 137,
+              "otherTriangles": 137
             },
             {
               "part": "rightUpperLeg",
               "other": "rightLowerLeg",
-              "triangles": 25,
-              "otherTriangles": 33
+              "triangles": 31,
+              "otherTriangles": 39
             },
             {
               "part": "rightLowerLeg",
               "other": "rightLowerLeg",
-              "triangles": 25,
-              "otherTriangles": 25
+              "triangles": 24,
+              "otherTriangles": 24
             }
           ],
           "grown": []
@@ -16185,7 +17279,7 @@
               "deltoidDefinitionLeft": 0.28322138424930215,
               "deltoidDefinitionRight": 0.28322138424930215,
               "scapularDefinition": 0.28322138424930215,
-              "breastTransDownUp": -0.027,
+              "breastTransDownUp": -0.5086332540154668,
               "breastVolumeVertDownUp": 0,
               "breastPoint": 0,
               "macroCupsize": -0.19997025580011885,
@@ -16193,31 +17287,37 @@
               "stomachNavelDownUp": 0,
               "neckDouble": 0,
               "upperarmFatLeft": 0,
-              "upperlegFatLeft": 0,
+              "upperlegFatLeft": 0.24133343248066627,
               "upperarmFatRight": 0,
-              "upperlegFatRight": 0,
+              "upperlegFatRight": 0.24133343248066627,
               "torsoVshape": 0.09,
               "musculatureDefinition": 0.22696130883173932,
               "chestDefinition": 0.0340441963247609,
               "skeletalProminence": 0.22558821066215168,
+              "glutealProjection": -0.038329565734681714,
+              "hipScaleHoriz": -0.0520077334919691,
+              "hipScaleDepth": 0.09300743604997029,
+              "lowerlegFatLeft": 0.23466835217132662,
+              "lowerlegFatRight": 0.23466835217132662,
+              "hipScaleVert": -0.6,
               "macroFirmness": -0.06,
               "macroHeight": 0.07327510016331296,
-              "measureHipsCirc": 0.4746724773836549,
-              "measureBustCirc": -0.0022377493882713064,
-              "macroWeight": -0.7295081370707746
+              "measureHipsCirc": 0.38939768388908774,
+              "measureBustCirc": -0.13947322978827867,
+              "macroWeight": -0.700460304741041
             }
           },
           "fresh": [
             {
               "part": "hips",
               "other": "hips",
-              "triangles": 2,
-              "otherTriangles": 2
+              "triangles": 21,
+              "otherTriangles": 21
             },
             {
               "part": "hips",
               "other": "spine",
-              "triangles": 2,
+              "triangles": 3,
               "otherTriangles": 2
             },
             {
@@ -16235,26 +17335,26 @@
             {
               "part": "leftUpperLeg",
               "other": "leftLowerLeg",
-              "triangles": 20,
-              "otherTriangles": 16
+              "triangles": 25,
+              "otherTriangles": 20
             },
             {
               "part": "leftLowerLeg",
               "other": "leftLowerLeg",
-              "triangles": 9,
-              "otherTriangles": 9
+              "triangles": 8,
+              "otherTriangles": 8
             },
             {
               "part": "rightUpperLeg",
               "other": "rightUpperLeg",
-              "triangles": 79,
-              "otherTriangles": 79
+              "triangles": 85,
+              "otherTriangles": 85
             },
             {
               "part": "rightUpperLeg",
               "other": "rightLowerLeg",
-              "triangles": 19,
-              "otherTriangles": 15
+              "triangles": 24,
+              "otherTriangles": 21
             },
             {
               "part": "rightLowerLeg",
@@ -16348,6 +17448,12 @@
               "musculatureDefinition": 0.009704210755712681,
               "chestDefinition": 0.009704210755712681,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": -0.06000000000000001,
               "macroHeight": 0.11402823394784593,
               "macroWeight": -1.9626328291748638
@@ -16488,6 +17594,12 @@
               "musculatureDefinition": 0.5446099845673584,
               "chestDefinition": 0.5446099845673584,
               "skeletalProminence": 0.2807616690626755,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": -0.012000000000000002,
               "macroHeight": 0.23504163685391596,
               "macroWeight": -1.2593020974661016
@@ -16604,6 +17716,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": -0.12000000000000002,
               "macroHeight": 0.18534223051502727,
               "macroWeight": 2.678900211246128
@@ -16768,6 +17886,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": -0.15000000000000002,
               "macroHeight": 0.028033651001964126,
               "measureWaistCirc": 2.346792773217045,
@@ -16879,6 +18003,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": -0.030000000000000006,
               "macroHeight": 0.746125187857383,
               "macroWeight": 0.414517793061982
@@ -17016,7 +18146,7 @@
               "deltoidDefinitionLeft": 0,
               "deltoidDefinitionRight": 0,
               "scapularDefinition": 0,
-              "breastTransDownUp": -0.6360301246537395,
+              "breastTransDownUp": -0.7763611495844875,
               "breastVolumeVertDownUp": -0.48,
               "breastPoint": -0.3856,
               "macroCupsize": 0.05147160664819941,
@@ -17024,35 +18154,47 @@
               "stomachNavelDownUp": 0,
               "neckDouble": 0.3,
               "upperarmFatLeft": 0.06176592797783929,
-              "upperlegFatLeft": 0.05147160664819941,
+              "upperlegFatLeft": 0.2903833102493074,
               "upperarmFatRight": 0.06176592797783929,
-              "upperlegFatRight": 0.05147160664819941,
+              "upperlegFatRight": 0.2903833102493074,
               "torsoVshape": 0,
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": -0.000646814404432143,
+              "hipScaleHoriz": -0.1283632271468144,
+              "hipScaleDepth": 0.1663337950138504,
+              "lowerlegFatLeft": 0.2484020083102493,
+              "lowerlegFatRight": 0.2484020083102493,
+              "hipScaleVert": -0.6,
               "macroFirmness": -1,
               "macroHeight": -0.2054096330748672,
-              "macroWeight": 0.2755375747439803
+              "macroWeight": 0.2582111812372371
             }
           },
           "fresh": [
             {
+              "part": "hips",
+              "other": "hips",
+              "triangles": 25,
+              "otherTriangles": 25
+            },
+            {
               "part": "spine",
               "other": "spine",
-              "triangles": 8,
-              "otherTriangles": 8
+              "triangles": 9,
+              "otherTriangles": 9
             },
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 49,
-              "otherTriangles": 49
+              "triangles": 69,
+              "otherTriangles": 69
             },
             {
               "part": "leftUpperLeg",
               "other": "leftLowerLeg",
-              "triangles": 9,
+              "triangles": 11,
               "otherTriangles": 11
             },
             {
@@ -17064,8 +18206,8 @@
             {
               "part": "rightUpperLeg",
               "other": "rightUpperLeg",
-              "triangles": 54,
-              "otherTriangles": 54
+              "triangles": 69,
+              "otherTriangles": 69
             },
             {
               "part": "rightUpperLeg",
@@ -17076,8 +18218,8 @@
             {
               "part": "rightLowerLeg",
               "other": "rightLowerLeg",
-              "triangles": 5,
-              "otherTriangles": 5
+              "triangles": 4,
+              "otherTriangles": 4
             }
           ],
           "grown": []
@@ -17742,7 +18884,7 @@
               "deltoidDefinitionLeft": 0.1,
               "deltoidDefinitionRight": 0.1,
               "scapularDefinition": 0.1,
-              "breastTransDownUp": 0,
+              "breastTransDownUp": -0.4071229496298445,
               "breastVolumeVertDownUp": 0,
               "breastPoint": 0,
               "macroCupsize": -0.3,
@@ -17750,16 +18892,22 @@
               "stomachNavelDownUp": 0,
               "neckDouble": 0,
               "upperarmFatLeft": 0,
-              "upperlegFatLeft": 0,
+              "upperlegFatLeft": 0.16517951323365748,
               "upperarmFatRight": 0,
-              "upperlegFatRight": 0,
+              "upperlegFatRight": 0.16517951323365748,
               "torsoVshape": 0.03,
               "musculatureDefinition": 0.23243914552678802,
               "chestDefinition": 0.0348658718290182,
               "skeletalProminence": 0.40736036439343637,
+              "glutealProjection": -0.03495500072579474,
+              "hipScaleHoriz": -0.017820196448444375,
+              "hipScaleDepth": 0.04660666763439298,
+              "lowerlegFatLeft": 0.15695480718052932,
+              "lowerlegFatRight": 0.15695480718052932,
+              "hipScaleVert": -0.4112353026564086,
               "macroFirmness": 0,
               "macroHeight": 0.13943589576935728,
-              "macroWeight": -1.1490528618158737
+              "macroWeight": -1.2213021423786727
             }
           },
           "fresh": [
@@ -17772,8 +18920,8 @@
             {
               "part": "hips",
               "other": "spine",
-              "triangles": 2,
-              "otherTriangles": 3
+              "triangles": 1,
+              "otherTriangles": 2
             },
             {
               "part": "spine",
@@ -17784,13 +18932,13 @@
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 78,
-              "otherTriangles": 78
+              "triangles": 81,
+              "otherTriangles": 81
             },
             {
               "part": "leftUpperLeg",
               "other": "leftLowerLeg",
-              "triangles": 20,
+              "triangles": 24,
               "otherTriangles": 16
             },
             {
@@ -17802,13 +18950,13 @@
             {
               "part": "rightUpperLeg",
               "other": "rightUpperLeg",
-              "triangles": 79,
-              "otherTriangles": 79
+              "triangles": 82,
+              "otherTriangles": 82
             },
             {
               "part": "rightUpperLeg",
               "other": "rightLowerLeg",
-              "triangles": 23,
+              "triangles": 21,
               "otherTriangles": 17
             },
             {
@@ -17888,7 +19036,7 @@
               "deltoidDefinitionLeft": 0,
               "deltoidDefinitionRight": 0,
               "scapularDefinition": 0,
-              "breastTransDownUp": 0,
+              "breastTransDownUp": -0.044532871972318804,
               "breastVolumeVertDownUp": 0,
               "breastPoint": 0,
               "macroCupsize": -0.3,
@@ -17896,17 +19044,23 @@
               "stomachNavelDownUp": 0,
               "neckDouble": 0,
               "upperarmFatLeft": 0,
-              "upperlegFatLeft": 0,
+              "upperlegFatLeft": 0.018068050749711836,
               "upperarmFatRight": 0,
-              "upperlegFatRight": 0,
+              "upperlegFatRight": 0.018068050749711836,
               "torsoVshape": 0,
               "musculatureDefinition": 0.10149037334853714,
               "chestDefinition": 0.015223556002280569,
               "skeletalProminence": 0.303002563699276,
+              "glutealProjection": -0.003823529411764745,
+              "hipScaleHoriz": -0.0019492502883506546,
+              "hipScaleDepth": 0.005098039215686328,
+              "lowerlegFatLeft": 0.017168396770473073,
+              "lowerlegFatRight": 0.017168396770473073,
+              "hipScaleVert": -0.04498269896193818,
               "macroFirmness": 0,
               "macroHeight": 0.2803511182831144,
-              "measureHipsCirc": -0.38131008638731034,
-              "macroWeight": -0.9768507861197844
+              "measureHipsCirc": -0.3899345249393847,
+              "macroWeight": -0.9801623239073359
             }
           },
           "fresh": [
@@ -17931,14 +19085,14 @@
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 115,
-              "otherTriangles": 115
+              "triangles": 117,
+              "otherTriangles": 117
             },
             {
               "part": "leftUpperLeg",
               "other": "leftLowerLeg",
-              "triangles": 31,
-              "otherTriangles": 31
+              "triangles": 33,
+              "otherTriangles": 32
             },
             {
               "part": "leftLowerLeg",
@@ -18038,6 +19192,12 @@
               "musculatureDefinition": 0.009704210755712681,
               "chestDefinition": 0.009704210755712681,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": -0.06000000000000001,
               "macroHeight": 0.11402823394784593,
               "macroWeight": -1.9626328291748638
@@ -18136,6 +19296,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": -0.04200000000000001,
               "macroHeight": 0.1448867676438096,
               "macroWeight": 0.6422090989872222
@@ -18288,6 +19454,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": -0.12000000000000002,
               "macroHeight": 0.18534223051502727,
               "macroWeight": 2.678900211246128
@@ -18425,7 +19597,7 @@
               "deltoidDefinitionLeft": 0,
               "deltoidDefinitionRight": 0,
               "scapularDefinition": 0,
-              "breastTransDownUp": -0.5143593964334705,
+              "breastTransDownUp": -0.34246730681298554,
               "breastVolumeVertDownUp": -0.18,
               "breastPoint": -0.168,
               "macroCupsize": 0.416354214296601,
@@ -18433,78 +19605,96 @@
               "stomachNavelDownUp": -0.2898125285779606,
               "neckDouble": 0.6508855357415024,
               "upperarmFatLeft": 0.4996250571559212,
-              "upperlegFatLeft": 0.416354214296601,
+              "upperlegFatLeft": 0.5678619875019052,
               "upperarmFatRight": 0.4996250571559212,
-              "upperlegFatRight": 0.416354214296601,
+              "upperlegFatRight": 0.5678619875019052,
               "torsoVshape": 0,
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0.07345831428135961,
+              "hipScaleHoriz": -0.23506660570035073,
+              "hipScaleDepth": 0.26261347355586057,
+              "lowerlegFatLeft": 0.19558276177411996,
+              "lowerlegFatRight": 0.19558276177411996,
+              "hipScaleVert": -0.550937357110197,
               "macroFirmness": -0.46,
               "macroHeight": 0.04897153328504429,
-              "macroWeight": 2.706951324026363
+              "macroWeight": 2.611077584496092
             }
           },
           "fresh": [
             {
               "part": "hips",
               "other": "hips",
-              "triangles": 82,
-              "otherTriangles": 82
+              "triangles": 163,
+              "otherTriangles": 163
             },
             {
               "part": "hips",
               "other": "spine",
-              "triangles": 4,
-              "otherTriangles": 13
+              "triangles": 16,
+              "otherTriangles": 18
             },
             {
               "part": "hips",
               "other": "leftUpperLeg",
-              "triangles": 2,
-              "otherTriangles": 1
+              "triangles": 27,
+              "otherTriangles": 38
             },
             {
               "part": "hips",
               "other": "rightUpperLeg",
-              "triangles": 2,
-              "otherTriangles": 1
+              "triangles": 31,
+              "otherTriangles": 37
             },
             {
               "part": "spine",
               "other": "spine",
-              "triangles": 99,
-              "otherTriangles": 99
+              "triangles": 109,
+              "otherTriangles": 109
+            },
+            {
+              "part": "spine",
+              "other": "leftUpperLeg",
+              "triangles": 34,
+              "otherTriangles": 50
+            },
+            {
+              "part": "spine",
+              "other": "rightUpperLeg",
+              "triangles": 42,
+              "otherTriangles": 50
             },
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 117,
-              "otherTriangles": 117
+              "triangles": 141,
+              "otherTriangles": 141
             },
             {
               "part": "leftUpperLeg",
               "other": "leftLowerLeg",
-              "triangles": 24,
-              "otherTriangles": 31
+              "triangles": 38,
+              "otherTriangles": 44
             },
             {
               "part": "leftLowerLeg",
               "other": "leftLowerLeg",
-              "triangles": 36,
-              "otherTriangles": 36
+              "triangles": 37,
+              "otherTriangles": 37
             },
             {
               "part": "rightUpperLeg",
               "other": "rightUpperLeg",
-              "triangles": 95,
-              "otherTriangles": 95
+              "triangles": 124,
+              "otherTriangles": 124
             },
             {
               "part": "rightUpperLeg",
               "other": "rightLowerLeg",
-              "triangles": 18,
-              "otherTriangles": 25
+              "triangles": 24,
+              "otherTriangles": 26
             },
             {
               "part": "rightLowerLeg",
@@ -18586,6 +19776,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": -0.030000000000000006,
               "macroHeight": 0.746125187857383,
               "macroWeight": 0.414517793061982
@@ -18684,6 +19880,12 @@
               "musculatureDefinition": 0,
               "chestDefinition": 0,
               "skeletalProminence": 0,
+              "glutealProjection": 0,
+              "hipScaleHoriz": 0,
+              "hipScaleDepth": 0,
+              "lowerlegFatLeft": 0,
+              "lowerlegFatRight": 0,
+              "hipScaleVert": 0,
               "macroFirmness": -0.30000000000000004,
               "macroHeight": -0.1183041289076825,
               "macroWeight": -0.08880630192421367
@@ -24380,8 +25582,8 @@
       ]
     },
     "traits": {
-      "states": 450,
-      "clean": 450,
+      "states": 508,
+      "clean": 508,
       "withFindings": 0,
       "refused": [],
       "pairsByFrequency": [],
