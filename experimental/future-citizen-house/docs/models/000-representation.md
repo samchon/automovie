@@ -36,6 +36,8 @@ source는 모든 부품 vertex의 합집합으로 실제 점유를 재고 선언
 
 `@vessel-attachments state[,state]: part, spoutY, channel, gripY최소..최대, holeX최소..최대, holeY최소..최대, gripZ`는 같은 `round` cavity profile을 가진 용기의 주둥이와 관통 손잡이 비율을 소유한다. 값은 모두 양의 분수이며 spoutY·gripY·holeY는 H, channel은 목 안반지름, holeX는 몸통 반지름 R, gripZ는 W에 곱한다. 주둥이 내반경에 벽 두께를 더한 외반경이 local X·Y 점유를 넘지 않아야 하고 몸통 전면부터 +Z 경계까지 길이가 양수여야 한다. 손잡이 판은 y=gripY×H에서 x=R(y)−벽 두께/2..R, z=몸통 중심 Z±gripZ×W이고 holeX×R·holeY×H 사각형을 Z로 관통 절삭한다. 구멍은 몸통 외벽 밖이며 판 안에 양의 두께를 남기고 판의 안쪽 가장자리가 몸통 외벽과 겹쳐야 한다. 이 비율은 문서의 구조 행 한 곳에서만 정하고 후속 source가 소비한다.
 
+`@vessel-closure state[,state]: part, capHeight`는 열린 `@cavity-profile` 입구를 같은 part의 닫힌 캡으로 막는 상태를 정한다. capHeight는 H의 양의 분수다. 캡의 바닥은 y=H−capHeight×H, 상단은 part의 Y 최댓값이고, 단면 바깥 반지름은 profile의 목 안반지름+벽 두께 두 겹이다. 바닥 원판이 목 안쪽을 막고 둘레는 목 외벽과 유한 부피로 겹쳐 최종 형상에 열린 통로가 남지 않는다. 캡은 선언 AABB를 넘지 않아야 하고 그 아래 몸통 공동은 그대로 비어 있어야 한다.
+
 `@part`의 `suspension` 접촉은 물체 local y=0의 상부 걸림점이 옷장 봉이나 다른 독립 물체의 걸림 면에 매달리는 상태다. 이때 부품 최고 y가 0이어야 하며 아래쪽 본체를 바닥에 붙여 계산하지 않는다. 모델은 걸림점의 형상과 주소만 소유하고 실제 옷장 봉·옷걸이와 맞추는 변환 및 접촉은 instances가 검증한다.
 
 `@part`의 `underside` 접촉은 상부장 같은 독립 물체의 밑면을 local y=0 접합 평면으로 삼는다. 이때 부품 최고 y가 0이어야 하고 접합할 상부장과의 실제 면적·배치 일치는 instances가 검증한다.

@@ -83,6 +83,8 @@ palette는 engine에서 절대 sRGB 색으로 쓰인다. materialSources는 새 
 | kitchen-smallwares | glass-jar | body/* | prop-container-glass | 없음 | face normal만 사용 | solid baseColor·transmission |
 | kitchen-smallwares | toaster,coffee-brewer | body/* | prop-appliance: #c8cbc7, roughness .38, metallic .18 | 없음 | face normal만 사용 | solid baseColor |
 | bath-accessories | soap-dispenser,toothbrush-cup,toothbrush,shampoo-bottle,detergent-bottle,waste-bin,laundry-basket | body/* | prop-plastic: #d6d5ce, roughness .48, metallic 0 | 없음 | face normal만 사용 | solid baseColor |
+| bath-accessories | soap-dispenser,shampoo-bottle,detergent-bottle | body/cap-side | prop-cap: #59655d, roughness .55, metallic 0 | 없음 | face normal만 사용 | solid baseColor |
+| bath-accessories | soap-dispenser | body/pump-top | coated-metal | 없음 | face normal만 사용 | solid 기준색 |
 | bath-accessories | tissue-holder | body/* | coated-metal | 없음 | face normal만 사용 | solid 기준색 |
 | bath-accessories | tissue-roll,tissue-pack | body/* | prop-paper: #e4e2db, roughness .92, metallic 0 | 없음 | face normal만 사용 | solid baseColor |
 | household-boxes | file-box,toy-box,storage-box,recycling-box | body/* | prop-paper | 없음 | face normal만 사용 | solid baseColor |

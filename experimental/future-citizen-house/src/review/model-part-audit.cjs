@@ -953,6 +953,128 @@ function cavityProfileErrors(part, profile) {
   return errors;
 }
 
+/** @param {string} value */
+function positiveFraction(value) {
+  const match = /^(\d+)\/(\d+)$/.exec(value);
+  if (!match || Number(match[2]) === 0) throw Error(`invalid positive fraction ${value}`);
+  const result = Number(match[1]) / Number(match[2]);
+  if (!(result > 0 && Number.isFinite(result))) throw Error(`invalid positive fraction ${value}`);
+  return result;
+}
+
+/** @param {string} value @returns {[number,number]} */
+function fractionInterval(value) {
+  const match = /^(\d+\/\d+)\.\.(\d+\/\d+)$/.exec(value);
+  if (!match) throw Error(`invalid fraction interval ${value}`);
+  return [positiveFraction(match[1]), positiveFraction(match[2])];
+}
+
+/** @param {string[]} lines @param {string} anchor @param {ReturnType<typeof parse>} design */
+function vesselAttachmentProof(lines, anchor, design) {
+  const errors = [];
+  let rows = 0, states = 0, proved = 0;
+  const seen = new Set();
+  if (lines.some((line) => line.includes("`@vessel-attachments`")) &&
+    !lines.some((line) => line.startsWith("@vessel-attachments")))
+    errors.push(`${anchor}: prose names vessel attachments but no row declares them`);
+  for (const line of lines.filter((candidate) => candidate.startsWith("@vessel-attachments"))) {
+    rows++;
+    const match = /^@vessel-attachments\s+([^:]+):\s*(.+)$/.exec(line);
+    if (!match) { errors.push(`${anchor}: malformed vessel attachment row`); continue; }
+    const cells = match[2].split(",").map((cell) => cell.trim());
+    if (cells.length !== 7) { errors.push(`${anchor}: vessel attachment needs seven fields`); continue; }
+    let spoutY, channel, gripY, holeX, holeY, gripZ;
+    try {
+      spoutY = positiveFraction(cells[1]); channel = positiveFraction(cells[2]);
+      gripY = fractionInterval(cells[3]); holeX = fractionInterval(cells[4]);
+      holeY = fractionInterval(cells[5]); gripZ = positiveFraction(cells[6]);
+    } catch (error) { errors.push(`${anchor}: ${String(error)}`); continue; }
+    for (const state of match[1].split(",").map((value) => value.trim())) {
+      states++;
+      const key = `${state}/${cells[0]}`;
+      if (seen.has(key)) { errors.push(`${anchor}/${key}: repeated vessel attachment`); continue; }
+      seen.add(key);
+      const part = design.parts.get(key), profile = design.cavityProfiles.get(key);
+      if (!part || !profile || profile.section !== "round") {
+        errors.push(`${anchor}/${key}: attachment needs a measured round cavity profile`); continue;
+      }
+      const W = part.x[1] - part.x[0], H = part.y[1] - part.y[0], D = part.z[1] - part.z[0];
+      const R = Math.min(W, D) / 2, wall = Math.min(W, D) / profile.wallDivisor;
+      const shoulder = profile.shoulderNumerator / profile.shoulderDenominator;
+      const mouth = profile.mouthRadius, centerZ = part.z[0] + R;
+      /** @param {number} y */
+      const outerAt = (y) => R + (mouth + wall - R) * (y - shoulder) / (1 - shoulder);
+      /** @param {number} y */
+      const innerAt = (y) => R - wall + (mouth - (R - wall)) * (y - shoulder) / (1 - shoulder);
+      const spoutInner = channel * mouth, spoutOuter = spoutInner + wall;
+      const problem = [];
+      if (!(W > 0 && H > 0 && D > 0 && wall > 0 && shoulder > 0 && shoulder < 1))
+        problem.push("invalid body or shoulder");
+      if (!(spoutY > shoulder && spoutY < 1 && spoutInner > 0 && spoutInner < mouth &&
+        spoutInner < innerAt(spoutY) && spoutOuter < R &&
+        spoutY * H - spoutOuter > 0 && spoutY * H + spoutOuter < H &&
+        part.z[1] - (centerZ + R) > 0)) problem.push("spout leaves cavity or measured bounds");
+      if (!(shoulder <= gripY[0] && gripY[0] < holeY[0] && holeY[0] < holeY[1] &&
+        holeY[1] < gripY[1] && gripY[1] < 1 &&
+        0 < holeX[0] && holeX[0] < holeX[1] && holeX[1] < 1 &&
+        holeX[0] * R > outerAt(holeY[0]) &&
+        R - (outerAt(gripY[0]) - wall / 2) > 0 &&
+        gripZ > 0 && centerZ - gripZ * W > part.z[0] &&
+        centerZ + gripZ * W < part.z[1] && holeX[0] * R > spoutOuter))
+        problem.push("grip hole or finite root leaves measured bounds");
+      if (problem.length) errors.push(`${anchor}/${key}: ${problem.join("; ")}`);
+      else proved++;
+    }
+  }
+  for (const [key, profile] of design.cavityProfiles) {
+    const part = design.parts.get(key);
+    if (profile.section === "round" && part &&
+      part.z[1] - part.z[0] > part.x[1] - part.x[0] + epsilon && !seen.has(key))
+      errors.push(`${anchor}/${key}: round cavity has extra depth but no vessel attachment`);
+  }
+  return { rows, states, proved, errors };
+}
+
+/** @param {string[]} lines @param {string} anchor @param {ReturnType<typeof parse>} design */
+function vesselClosureProof(lines, anchor, design) {
+  const errors = [];
+  let rows = 0, states = 0, proved = 0;
+  const seen = new Set();
+  const declarations = lines.filter((candidate) => candidate.startsWith("@vessel-closure"));
+  const named = lines.some((line) => line.includes("`@vessel-closure`"));
+  if (named && !declarations.length)
+    errors.push(`${anchor}: prose names vessel closure but no row declares it`);
+  for (const line of declarations) {
+    rows++;
+    const match = /^@vessel-closure\s+([^:]+):\s*([^,]+),\s*(\d+\/\d+)$/.exec(line);
+    if (!match) { errors.push(`${anchor}: malformed vessel closure row`); continue; }
+    const capHeight = positiveFraction(match[3]);
+    for (const state of match[1].split(",").map((value) => value.trim())) {
+      states++;
+      const key = `${state}/${match[2].trim()}`;
+      if (seen.has(key)) { errors.push(`${anchor}/${key}: repeated vessel closure`); continue; }
+      seen.add(key);
+      const part = design.parts.get(key), profile = design.cavityProfiles.get(key);
+      if (!part || !profile || part.shape !== "hollow") {
+        errors.push(`${anchor}/${key}: closure needs a hollow part and cavity profile`); continue;
+      }
+      const W = part.x[1] - part.x[0], H = part.y[1] - part.y[0], D = part.z[1] - part.z[0];
+      const wall = Math.min(W, D) / profile.wallDivisor;
+      const shoulder = profile.shoulderNumerator / profile.shoulderDenominator;
+      const capRadius = profile.mouthRadius + 2 * wall;
+      if (!(W > 0 && H > 0 && D > 0 && wall > 0 && shoulder > 0 && shoulder < 1 &&
+        profile.mouthRadius > 0 && capHeight > 0 && capHeight < 1 - shoulder &&
+        capRadius > profile.mouthRadius + wall && capRadius < Math.min(W, D) / 2))
+        errors.push(`${anchor}/${key}: cap cannot close the neck within measured bounds`);
+      else proved++;
+    }
+  }
+  for (const [key, profile] of design.cavityProfiles)
+    if (named && profile.section === "ellipse" && !seen.has(key))
+      errors.push(`${anchor}/${key}: ellipse cavity profile lacks a closure`);
+  return { rows, states, proved, errors };
+}
+
 /** @param {Map<string,string[]>} allSections @param {(anchor:string, parsed:ReturnType<typeof parse>)=>void} [mutate] @param {string} [onlyState] */
 function audit(allSections, mutate, onlyState) {
   const errors = [];
@@ -962,11 +1084,27 @@ function audit(allSections, mutate, onlyState) {
   let provedHollowParts = 0;
   let cavityProfileParts = 0;
   let provedCavityProfiles = 0;
+  let vesselRows = 0;
+  let vesselStates = 0;
+  let provedVesselStates = 0;
+  let closureRows = 0;
+  let closureStates = 0;
+  let provedClosureStates = 0;
   let measuredPrototypes = 0;
   for (const [anchor, lines] of allSections) {
     const parsed = parse(lines, anchor);
     mutate?.(anchor, parsed);
     const { envelopes, parts, inventory, compositions, supportBindings, pinFaces, emitterFaces, miterJoints, voids, pieces, shearsZ, radial, radialZ, bores, cavityProfiles, boresZ, boresX, ellipses, tangents, flatContacts, capContacts, cavityContacts, curveLayers, linearCurves, grids } = parsed;
+    const vessel = vesselAttachmentProof(lines, anchor, parsed);
+    vesselRows += vessel.rows;
+    vesselStates += vessel.states;
+    provedVesselStates += vessel.proved;
+    errors.push(...vessel.errors);
+    const closure = vesselClosureProof(lines, anchor, parsed);
+    closureRows += closure.rows;
+    closureStates += closure.states;
+    provedClosureStates += closure.proved;
+    errors.push(...closure.errors);
     for (const [key, profile] of cavityProfiles) {
       cavityProfileParts++;
       const part = parts.get(key);
@@ -1422,7 +1560,8 @@ function audit(allSections, mutate, onlyState) {
     if (anchor === "work-equipment") errors.push(...equipmentFormula(lines, envelopes, parts, grids));
   }
   return { prototypes: allSections.size, measuredPrototypes, parts: examined, hollowParts, provedHollowParts,
-    cavityProfileParts, provedCavityProfiles,
+    cavityProfileParts, provedCavityProfiles, vesselRows, vesselStates, provedVesselStates,
+    closureRows, closureStates, provedClosureStates,
     unprovedCurvedContacts: [...unprovedCurved], errors };
 }
 
@@ -1538,6 +1677,97 @@ function randomFixture() {
   if (red !== results.length) throw Error(`random model mutation red ${red}/${results.length}`);
   return { population: candidates.length, cavityPopulation: cavityRows.length,
     profilePopulation: profiles.length, ellipseProfilePopulation: ellipseProfiles.length,
+    mutations: results.length, red, results };
+}
+
+function randomVesselFixture() {
+  const baseline = sections(), candidates = [];
+  for (const [owner, lines] of baseline) for (let index = 0; index < lines.length; index++)
+    if (lines[index].startsWith("@vessel-attachments")) candidates.push({ owner, index });
+  if (!candidates.length) throw Error("empty vessel attachment mutation population");
+  const picked = candidates[randomInt(candidates.length)];
+  const results = [];
+  for (const field of [1, 2, 3, 4, 5, 6]) {
+    const lines = [...(baseline.get(picked.owner) || [])];
+    const match = /^(@vessel-attachments\s+[^:]+:\s*)(.+)$/.exec(lines[picked.index]);
+    if (!match) throw Error("selected vessel declaration vanished");
+    const cells = match[2].split(",").map((cell) => cell.trim());
+    cells[field] = field >= 3 && field <= 5 ? "2/1..3/1" : "2/1";
+    lines[picked.index] = match[1] + cells.join(", ");
+    const changed = new Map(baseline);
+    changed.set(picked.owner, lines);
+    const findings = audit(changed).errors;
+    results.push({ field, red: findings.length > 0, first: findings[0] || null });
+  }
+  const original = baseline.get(picked.owner) || [];
+  const removed = [...original];
+  removed.splice(picked.index, 1);
+  const without = new Map(baseline);
+  without.set(picked.owner, removed);
+  const missing = audit(without).errors;
+  results.push({ field: "declaration removed", red: missing.some((error) =>
+    error.includes("round cavity has extra depth")), first: missing[0] || null });
+  const declaration = /^@vessel-attachments\s+([^:]+):\s*([^,]+)/.exec(original[picked.index]);
+  if (!declaration) throw Error("selected vessel declaration vanished");
+  const stateOptions = declaration[1].split(",").map((value) => value.trim());
+  const state = stateOptions[randomInt(stateOptions.length)];
+  const profileLines = [...original];
+  const profileAt = profileLines.findIndex((line) =>
+    line.startsWith(`@cavity-profile ${state}: ${declaration[2].trim()},`));
+  const part = parse(profileLines, picked.owner).parts.get(`${state}/${declaration[2].trim()}`);
+  if (profileAt < 0 || !part) throw Error("selected vessel profile vanished");
+  profileLines[profileAt] = profileLines[profileAt].replace(/[\d.]+$/,
+    String(part.x[1] - part.x[0]));
+  const changed = new Map(baseline);
+  changed.set(picked.owner, profileLines);
+  const findings = audit(changed).errors;
+  results.push({ field: "random profile mouth", state, red: findings.some((error) =>
+    error.startsWith(`${picked.owner}/${state}/`)), first: findings[0] || null });
+  const red = results.filter((result) => result.red).length;
+  if (red !== results.length) throw Error(`vessel attachment mutations red ${red}/${results.length}`);
+  return { population: candidates.length, statePopulation: stateOptions.length,
+    mutations: results.length, red, results };
+}
+
+function randomClosureFixture() {
+  const baseline = sections(), candidates = [];
+  for (const [owner, lines] of baseline) for (let index = 0; index < lines.length; index++)
+    if (lines[index].startsWith("@vessel-closure")) candidates.push({ owner, index });
+  if (!candidates.length) throw Error("empty vessel closure mutation population");
+  const picked = candidates[randomInt(candidates.length)];
+  const source = baseline.get(picked.owner) || [];
+  const results = [];
+  const invalid = [...source];
+  invalid[picked.index] = invalid[picked.index].replace(/\d+\/\d+$/, "2/1");
+  if (invalid[picked.index] === source[picked.index]) throw Error("selected vessel closure declaration unchanged");
+  const withInvalid = new Map(baseline); withInvalid.set(picked.owner, invalid);
+  const invalidErrors = audit(withInvalid).errors;
+  results.push({ kind: "cap height", red: invalidErrors.some((error) =>
+    error.includes("cap cannot close the neck within measured bounds")), first: invalidErrors[0] || null });
+  const removed = [...source]; removed.splice(picked.index, 1);
+  const without = new Map(baseline); without.set(picked.owner, removed);
+  const removedErrors = audit(without).errors;
+  results.push({ kind: "closure deleted", red: removedErrors.some((error) =>
+    error.startsWith(`${picked.owner}: prose names vessel closure`) ||
+    error.startsWith(`${picked.owner}/`) && error.includes("lacks a closure")),
+    first: removedErrors[0] || null });
+  const declaration = /^@vessel-closure\s+([^:]+):\s*([^,]+),/.exec(source[picked.index]);
+  if (!declaration) throw Error("selected vessel closure disappeared");
+  const states = declaration[1].split(",").map((value) => value.trim());
+  const state = states[randomInt(states.length)];
+  const profileLines = [...source];
+  const profileAt = profileLines.findIndex((line) =>
+    line.startsWith(`@cavity-profile ${state}: ${declaration[2].trim()},`));
+  const part = parse(profileLines, picked.owner).parts.get(`${state}/${declaration[2].trim()}`);
+  if (profileAt < 0 || !part) throw Error("selected closure profile disappeared");
+  profileLines[profileAt] = profileLines[profileAt].replace(/[\d.]+$/, String(part.x[1] - part.x[0]));
+  const withWideMouth = new Map(baseline); withWideMouth.set(picked.owner, profileLines);
+  const profileErrors = audit(withWideMouth).errors;
+  results.push({ kind: "random mouth", state, red: profileErrors.some((error) =>
+    error.startsWith(`${picked.owner}/${state}/`)), first: profileErrors[0] || null });
+  const red = results.filter((result) => result.red).length;
+  if (red !== results.length) throw Error(`vessel closure mutations red ${red}/${results.length}`);
+  return { population: candidates.length, statePopulation: states.length,
     mutations: results.length, red, results };
 }
 
@@ -1884,7 +2114,8 @@ if (require.main !== module) {
     results.push({ label: `${axis}-axis cap finite/tangent`, caught: true });
   }
   console.log(JSON.stringify({ baselineParts: baseline.parts, measuredParts, mutationChecks,
-    mutations: results, unselected: randomFixture() }, null, 2));
+    mutations: results, unselected: randomFixture(), vesselAttachments: randomVesselFixture(),
+    vesselClosures: randomClosureFixture() }, null, 2));
 } else {
   const result = audit(sections());
   if (result.unprovedCurvedContacts.length) result.errors.push(

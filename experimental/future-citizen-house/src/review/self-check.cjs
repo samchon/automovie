@@ -18,8 +18,6 @@ const checks = [
   ["model-owner-audit.cjs"],
   ["model-part-audit.cjs"],
   ["model-part-audit.cjs", "--fixture"],
-  ["model-vessel-audit.cjs"],
-  ["model-vessel-audit.cjs", "--fixture"],
 ];
 let failures = 0;
 for (const args of checks) {

@@ -224,9 +224,9 @@ ref03의 주방 조리대·섬 위에서 작은 도구가 가전과 겹쳐 보�
 
 ## 욕실 위생 소품 {#bath-accessories}
 
-`bath-accessories`는 비누 용기, 휴지 걸이, 휴지 한 롤과 묶음, 칫솔 컵, 칫솔, 샴푸 병, 세제 병, 욕실 휴지통, 빨래 바구니를 공통 욕실·세탁 소품의 치수 상태로 둔다. 바닥·선반 물체의 원점은 놓이는 면 중심이고 휴지 걸이의 원점은 벽 접촉면의 아래 중심이다. +Z는 사용자가 바라보는 전면이다. 걸이는 벽 접촉 `body/back/arm`, 병·컵·바구니는 `body/outer/inner/rim/sole`, 소모품은 `body/outer/end/sole`을 사용한다. 실제 충전물·배관·배출은 별도 system과 instance가 결정한다.
+`bath-accessories`는 비누 용기, 휴지 걸이, 휴지 한 롤과 묶음, 칫솔 컵, 칫솔, 샴푸 병, 세제 병, 욕실 휴지통, 빨래 바구니를 공통 욕실·세탁 소품의 치수 상태로 둔다. 바닥·선반 물체의 원점은 놓이는 면 중심이고 휴지 걸이의 원점은 벽 접촉면의 아래 중심이다. +Z는 사용자가 바라보는 전면이다. 걸이는 벽 접촉 `body/back/arm`, 컵·바구니는 `body/outer/inner/rim/sole`, 막힌 병은 `body/outer/inner/rim/sole/cap-top/cap-side`와 비누 용기만의 `body/pump-top`, 소모품은 `body/outer/end/sole`을 사용한다. 실제 충전물·배관·배출은 별도 system과 instance가 결정한다.
 
-컵·휴지통·바구니는 폭 W와 깊이 D의 둥근 사각 또는 원형 외벽에서 벽 두께 min(W,D)/18을 빼고 상부를 열며 바닥 두께 H/12를 남긴다. 병 세 상태는 `@cavity-profile`이 정한 넓은 몸통 내부에서 어깨를 거쳐 좁은 목으로 이어지고, 펌프 또는 뚜껑은 전체 H 안에 닫힌 돌출로 남긴다. 휴지 롤은 바깥 반지름 W/2, 안쪽 반지름 W/8의 Y축 관통 고리이고 묶음은 두 롤씩 쌓인 외곽을 한 덩어리의 네 원형 끝 face로 구별한다. 걸이는 벽쪽 판과 두 팔의 아래 빈 공간, 칫솔은 가는 손잡이와 윗부분 짧은 머리의 연속 판이다. 롤을 벽걸이에 끼우는 회전은 instances가 소유한다. 빈 용기 안쪽은 실제로 열리고 닫힌 바닥에서 끝나며 렌더러가 불투명 덩어리로 막아서는 안 된다.
+컵·휴지통·바구니는 폭 W와 깊이 D의 둥근 사각 또는 원형 외벽에서 벽 두께 min(W,D)/18을 빼고 상부를 열며 바닥 두께 H/12를 남긴다. 병 세 상태는 `@cavity-profile`이 정한 넓은 몸통 내부에서 어깨를 거쳐 좁은 목으로 이어지고, `@vessel-closure`의 캡이 그 목을 선언 높이 안에서 막는다. 비누 용기의 펌프는 캡 상면의 별도 face로, 두 병의 뚜껑은 캡 둘레 face로 구분하되 액체·펌프 작동은 만들지 않는다. 휴지 롤은 바깥 반지름 W/2, 안쪽 반지름 W/8의 Y축 관통 고리이고 묶음은 두 롤씩 쌓인 외곽을 한 덩어리의 네 원형 끝 face로 구별한다. 걸이는 벽쪽 판과 두 팔의 아래 빈 공간, 칫솔은 가는 손잡이와 윗부분 짧은 머리의 연속 판이다. 롤을 벽걸이에 끼우는 회전은 instances가 소유한다. 열린 컵·휴지통·바구니의 안쪽은 실제로 열리고 닫힌 바닥에서 끝나며, 막힌 병은 캡 아래 공동을 불투명 덩어리로 채우지 않는다.
 
 각 상태의 정확한 점유는 아래 표가 소유한다. 용기 안팎·림·바닥, 걸이 뒷판·팔, 휴지 롤의 관통 구멍은 각각 실제 형상에 있는 face 집합으로만 발행한다.
 
@@ -238,6 +238,11 @@ ref02의 욕실과 서비스 코어에서 세면대·변기·세탁기와 구분
 @bore toothbrush-cup: body, 0.037, 0.01..0.115
 @cavity-profile shampoo-bottle: body, ellipse, 12, 4/5, 18, 0.013
 @cavity-profile detergent-bottle: body, ellipse, 12, 4/5, 18, 0.018
+@vessel-closure soap-dispenser,shampoo-bottle,detergent-bottle: body, 1/10
+@material-face soap-dispenser: body/cap-side
+@material-face shampoo-bottle: body/cap-side
+@material-face detergent-bottle: body/cap-side
+@material-face soap-dispenser: body/pump-top
 @bore waste-bin: body, 0.12, 0.029..0.34
 @void laundry-basket: body, -0.22..0.22, 0.023..0.4, -0.155..0.155
 
