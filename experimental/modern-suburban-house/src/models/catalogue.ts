@@ -12,7 +12,7 @@ import { sidingSpecs } from "./exterior/siding";
 import { exteriorTrimSpecs } from "./exterior/trim";
 import { shingleSpecs } from "./exterior/shingle";
 import { drainageSpecs } from "./exterior/drainage";
-import { plantingSpecs } from "./planting";
+import { plantingSpecs, siteTreeSizes } from "./planting";
 import { lightingFixtureSpecs, pendantDimensions } from "./lighting-fixtures";
 import { housePropSpecs } from "./furnishings/props";
 
@@ -169,6 +169,12 @@ export function buildHouseObjects(parents: HousePrototype[] = buildHousePrototyp
       extractObject(source,{id:`${room}-nightstand-lamp`,parent:source.id,surfaces:["lamp-base","lamp-shade"]}),
     ];
   });
-  return [...parents.filter((p)=>!splitParents.has(p.id)&&p.id!==pendantHost.id&&p.id!==laundryHost.id&&p.id!==bedHost.id&&p.id!==deskHost.id),
-    ...separate,...pendants,...machines,...beds,...desks,...childNightstands];
+  const treeHost=housePrototypeSpecs.find((spec)=>spec.id==="site-tree-prototypes")!;
+  if(!byId.has(treeHost.id)) throw Error("site-tree-prototypes: missing design host");
+  const trees=([
+    ["front-mature-tree",siteTreeSizes.front],
+    ["rear-yard-tree",siteTreeSizes.rear],
+  ] as const).map(([id,size])=>buildPrototype({...treeHost,id,size}));
+  return [...parents.filter((p)=>!splitParents.has(p.id)&&p.id!==pendantHost.id&&p.id!==laundryHost.id&&p.id!==bedHost.id&&p.id!==deskHost.id&&p.id!==treeHost.id),
+    ...separate,...pendants,...machines,...beds,...desks,...childNightstands,...trees];
 }
