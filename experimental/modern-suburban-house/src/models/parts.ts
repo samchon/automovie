@@ -7,7 +7,8 @@ import type { IAutoMovieMesh, IAutoMovieModel, IAutoMovieModelPart, IAutoMovieMa
 export type Point = readonly [number, number, number];
 export type Size = readonly [number, number, number];
 export type FinishRole = "furniture-wood" | "upholstery" | "siding" | "trim-white" | "roof-shingle" | "charcoal-metal"
-  | "greige-cabinet" | "stone-counter" | "dark-bookcase" | "stainless-steel" | "white-enamel";
+  | "greige-cabinet" | "stone-counter" | "dark-bookcase" | "stainless-steel" | "white-enamel"
+  | "primary-bedding" | "olive-bedding" | "blue-grey-bedding" | "mirror-silver";
 const finishRoles: Record<FinishRole,{ fallback:number; scale:readonly [number,number]; roughness:number; metallic:number }> = {
   "furniture-wood": {fallback:0xa87a4e,scale:[1,1],roughness:0.50,metallic:0},
   upholstery: {fallback:0xb7afa3,scale:[0.01,0.01],roughness:0.92,metallic:0},
@@ -20,6 +21,10 @@ const finishRoles: Record<FinishRole,{ fallback:number; scale:readonly [number,n
   "dark-bookcase": {fallback:0x4a3a2e,scale:[1,1],roughness:0.55,metallic:0},
   "stainless-steel": {fallback:0xc0c2c4,scale:[1,1],roughness:0.30,metallic:1},
   "white-enamel": {fallback:0xf5f5f2,scale:[1,1],roughness:0.25,metallic:0},
+  "primary-bedding": {fallback:0xcfc8bc,scale:[0.01,0.01],roughness:0.93,metallic:0},
+  "olive-bedding": {fallback:0x6b7040,scale:[0.01,0.01],roughness:0.92,metallic:0},
+  "blue-grey-bedding": {fallback:0x6e7f8c,scale:[0.01,0.01],roughness:0.92,metallic:0},
+  "mirror-silver": {fallback:0xededed,scale:[1,1],roughness:0.02,metallic:1},
 };
 export interface SurfaceBinding {
   /** Stable material face id from docs/models/00-model-frame.md. */

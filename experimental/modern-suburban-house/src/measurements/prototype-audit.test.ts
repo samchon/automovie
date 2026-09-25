@@ -79,6 +79,11 @@ test("separate room objects keep each reviewed face once", () => {
     assert.ok(Math.abs(Math.max(...xs)-Math.min(...xs)-width)<1e-9);
     assert.equal(bed.model.parts.filter((part)=>part.material==="pillow").length,pillows);
   }
+  const beds=["primary-bed","bedroom-two-bed","bedroom-three-bed"].map((id)=>objects.find((p)=>p.id===id)!);
+  assert.equal(new Set(beds.map((bed)=>bed.bindings.find((b)=>b.surface==="bedding")!.fallback)).size,3);
+  assert.equal(new Set(beds.map((bed)=>bed.bindings.find((b)=>b.surface==="pillow")!.fallback)).size,1);
+  const mirror=objects.find((p)=>p.id==="wall-mirror")!;
+  assert.equal(mirror.model.materials.find((material)=>material.id==="mirror")?.metallic,1);
   const withoutMat=structuredClone(parents);
   const porch=withoutMat.find((p)=>p.id==="porch-mat-planter")!;
   porch.model.parts.splice(0,porch.model.parts.length,...porch.model.parts.filter((p)=>p.material!=="field"&&p.material!=="border"));

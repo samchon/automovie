@@ -146,10 +146,11 @@ export function buildHouseObjects(parents: HousePrototype[] = buildHousePrototyp
   const bedHost=housePrototypeSpecs.find((spec)=>spec.id==="headboard-bed")!;
   if(!byId.has(bedHost.id)) throw Error("headboard-bed: missing design host");
   const beds=([
-    ["primary-bed",bedSizes.primary],
-    ["bedroom-two-bed",bedSizes.childTwo],
-    ["bedroom-three-bed",bedSizes.childThree],
-  ] as const).map(([id,size])=>buildPrototype({...bedHost,id,size,mattressTop:bedMattressTop(size)}));
+    ["primary-bed",bedSizes.primary,"primary-bedding"],
+    ["bedroom-two-bed",bedSizes.childTwo,"olive-bedding"],
+    ["bedroom-three-bed",bedSizes.childThree,"blue-grey-bedding"],
+  ] as const).map(([id,size,cover])=>buildPrototype({...bedHost,id,size,mattressTop:bedMattressTop(size),
+    finishes:{...bedHost.finishes,bedding:cover}}));
   return [...parents.filter((p)=>!splitParents.has(p.id)&&p.id!==pendantHost.id&&p.id!==laundryHost.id&&p.id!==bedHost.id),
     ...separate,...pendants,...machines,...beds];
 }
