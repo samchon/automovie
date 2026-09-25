@@ -51,8 +51,8 @@
 @evidence principles/core/common.md#declared-basis flight 방향·폭·18개 챌판과 upper-floor 높이는 spaces/02-stair.md#stair-reservation, 현관 순폭은 spaces/02-stair.md#stair-clearance에서 받는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 닫힌 계단 구조 옆면과 열린 가장자리 난간 사이에 독립 흰 경사 마감판 원형을 더하고 끝 접속을 정한다.
 @evidence principles/design/models.md#representation-contract 세 닫힌 강체 부재의 앞·뒤·윗면·아랫면·끝면을 한 `stair-skirt` id로 소유하고 spaces tread의 옆면을 복제하지 않는다.
-@evidence principles/design/models.md#spatial-convention flight의 실제 바깥 옆면을 국소 깊이 0으로 받아 두께 0.015 m를 열린 방 쪽으로 두고, 길이는 첫 챌판에서 참과 상층 도착까지 산출한다.
-@evidence principles/design/models.md#reviewable-structure 현관에서 본 아래 flight, 참 안쪽 모서리, 상층 도착과 측면 직교 단면에서 디딤·난간·걸레받이와 부피 교차 및 흰 띠의 끊김을 반증한다.
+@evidence principles/design/models.md#spatial-convention flight의 실제 바깥 옆면을 국소 깊이 0으로 받아 두께 0.015 m를 열린 방 쪽으로 두고, 아래 판은 참 연결판 앞면까지, 위 판은 1층 천장선 Y=2.75 m까지 산출해 그 위 상층 경계는 spaces에 남긴다.
+@evidence principles/design/models.md#reviewable-structure 현관에서 본 아래 flight, 참 안쪽 모서리, 위 판의 천장선 종단과 측면 직교 단면에서 디딤·난간·걸레받이 및 상층 경계와의 부피 교차와 흰 띠의 끊김을 반증한다.
 @evidence principles/design/models.md#model-observable-style-basis 레퍼런스 03·05의 디딤 아래 흰 경사 띠를 실내 trim과 같은 닫힌 판으로 채택하고 사진 비례는 치수 근거로 쓰지 않는다.
 @evidence principles/design/models.md#model-scale-layer-completion 경사식·두께·모서리 연결·종단·face id·미터 UV·후속 source owner를 정하며 새 계단이나 방 경계는 만들지 않는다.
 @evidence spaces/02-stair.md#stair-reservation 0.17 m rise와 0.28 m run, 아래 7단·참·위 9단의 단일 L형 계단을 두 경사 판의 길이와 기울기 입력으로 받는다.

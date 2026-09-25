@@ -168,14 +168,14 @@
 ## 주침실에서 시작하는 여덟 창의 얇은 커튼 {#primary-window-curtains}
 <!--
 @evidence principles/core/common.md#scope-preservation 주침실 두 창과 거실·가족실·작은 침실 여섯 창, 합계 여덟 창에 한 커튼 원형을 결속하고 벽·창틀·유리 면은 소유하지 않는다.
-@evidence principles/core/common.md#substantive-completion 창 폭 W·머리 높이·층 바닥을 인자로 받아 봉 중심을 창 머리 위 0.10 m, 드레이프 아랫단을 바닥 위 0.10 m, 앞돌출을 0.103 m 이내, 양끝 모임 폭을 각 0.18 m로 결정한다.
+@evidence principles/core/common.md#substantive-completion 창 폭 W·머리 높이·층 바닥을 인자로 받아 봉 중심을 창 머리 위 0.10 m, 드레이프 아랫단을 바닥 위 0.10 m, 앞돌출을 0.106 m 이내, 양끝 모임 폭을 각 0.18 m로 결정한다.
 @evidence principles/core/common.md#declared-basis 주침실 두 창은 primary-furniture-use, 다른 여섯 창은 selected-window-curtain-strips의 점유 띠와 각 입면 폭에서 받고 봉·천 형상은 이 한 원형에서 정한다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 두 부모 예약이 각각 주침실 두 창과 다른 여섯 창의 점유만 주므로 이 H2가 여덟 창 공통의 개방 상태·접힘·부품·면 분할을 더한다.
 @evidence principles/design/models.md#representation-contract 봉·받침·양쪽 얇은 천 패널의 부품과 `rod`·`bracket`·`curtain` 표면을 구분하고 고정 개방 상태와 세 굵은 접힘만 표현을 밝힌다.
 @evidence principles/design/models.md#spatial-convention 창의 안쪽 왼쪽 아래를 국소 원점, 개구부 너비를 U, 높이를 V, 방 안쪽을 +N으로 두고 전·후·좌·우 입면 축 회전만 배치에서 바꾼다.
 @evidence principles/design/models.md#reviewable-structure 정면에서 두 끝 0.18 m 모임이 창 대부분을 열어 두는지, 측면에서 최대 돌출 0.12 m를 지키는지를 반증 견본으로 둔다.
 @evidence principles/design/models.md#model-observable-style-basis 곧은 봉과 서로 분리된 얇은 두 드레이프를 두어 여덟 창에서 라벨 없이 커튼으로 읽히게 하고 직물 결·투과는 materials에 남긴다.
-@evidence principles/design/models.md#model-scale-layer-completion 여덟 창의 W·head·floor 입력, 0.103 m 앞돌출, 세 표면 id, 고정 개방 상태와 두 방향 리뷰를 함께 정한다.
+@evidence principles/design/models.md#model-scale-layer-completion 여덟 창의 W·head·floor 입력, 0.106 m 앞돌출, 세 표면 id, 고정 개방 상태와 두 방향 리뷰를 함께 정한다.
 @evidence upstream/design/models.md#settings-and-space-revision-from-model-work 주침실 예약의 좌우·상하 부족은 이전에 primary-furniture-use에서 고쳤고, 나머지 여섯 창의 커튼 전제에 대응하는 띠가 없어 spaces/06-openings.md#selected-window-curtain-strips를 추가했다. spaces/rooms/bedroom-two.md#bedroom-two-furniture-use도 기존 커튼을 settings 요구처럼 적던 문장을 고쳐 그 띠에서 인계받는 별도 공간 결정으로 정정했다. 두 부모 수정은 원형의 여덟 창 소비와 직접 연결된다.
 @evidence settings/10-house.md#primary-bedroom 주침실의 얇은 커튼 요구를 후면·왼쪽 두 창에 적용한다. 다른 여섯 창에 같은 원형을 반복하는 근거는 settings의 구별 문장이 아니라 spaces/06-openings.md#selected-window-curtain-strips의 별도 점유 띠다.
 @evidence spaces/envelope/rear.md#primary-rear-window X = [-3.85, -1.45] m의 후면 개구부를 W = 2.40 m 커튼 원형의 첫 배치로 받는다.
@@ -196,7 +196,7 @@
 ## 옷방 옷걸이 구간 {#wardrobe-hanging}
 <!--
 @evidence principles/core/common.md#scope-preservation 옷방 예약의 옷걸이 구간을 봉·상단 선반·몸통·옷까지 한 모델로 맡는다.
-@evidence principles/core/common.md#substantive-completion 길이 2.15 m, 깊이 0.55 m, 봉 후면에서 0.28 m·높이 1.65 m, 상단 선반 2.05 m, 옷 36벌 두께 0.035–0.045 m·폭 0.50 m를 고정식으로 확정한다.
+@evidence principles/core/common.md#substantive-completion 외곽 길이 2.15 m·깊이 0.55 m 안에 두께 0.03 m 옆판 둘과 그 사이 실제 길이 2.09 m 봉·선반을 두고, 봉 깊이 0.28 m·높이 1.65 m, 선반 상면 2.05 m, 옷 36벌 두께 0.035–0.045 m·폭 0.50 m를 확정한다.
 @evidence principles/core/common.md#declared-basis 외곽과 높이 2.05 m는 옷방 예약에서 받고 옷 판 치수와 인덱스 기반 결정식은 이 H2의 저작 선택으로 적힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 옷방 예약은 외곽과 높이만 주고 이 H2는 봉 위치, 상단 선반, 순번 i mod 3의 결정식으로 만든 옷 판 묶음을 더한다.
 @evidence principles/design/models.md#representation-contract 봉·상단 선반·몸통·옷 계층과 `rod`·`shelf`·`carcass`·`clothes` 경계를 두고 관절이 없다고 적는다. 보이지 않는 한계는 본문의 "옷걸이 개별 형상·소매·옷 주름은 표현하지 않는다."로 밝힌다.
@@ -205,7 +205,7 @@
 @evidence principles/design/models.md#model-observable-style-basis 레퍼런스 05 복도 옆 열린 옷장의 걸린 옷을 채택한다. 걸린 옷을 순번별 두께 0.035–0.045 m, 폭 0.50 m인 36개 판 묶음이라는 추상화로 정한다.
 @evidence principles/design/models.md#model-scale-layer-completion 외곽 치수, 네 부품 층, 네 재질 경계, 관절 없음, 옷 앞 끝 관찰이 함께 적혀 있고 관찰은 unverified다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 옷방 예약 X = [2.10, 4.25], Z = [-10.45, -9.90], 높이 2.05 m를 적힌 그대로 소비했고 부모 수정이 없었다.
-@evidence settings/10-house.md#primary-bedroom 주침실의 별도 옷 수납 요구 중 옷걸이 구간을 길이 2.15 m 봉과 선반으로 받는다.
+@evidence settings/10-house.md#primary-bedroom 주침실의 별도 옷 수납 요구 중 옷걸이 구간을 외곽 2.15 m·옆판 사이 봉과 선반 2.09 m로 받는다.
 @evidence settings/10-house.md#storage 옷걸이 봉과 상단 선반, 0.55 m 실제 내부 깊이를 둬 수납을 빈 문짝으로 대신하지 않는다.
 @evidence spaces/rooms/wardrobe.md#wardrobe-storage-use 옷방 예약 X = [2.10, 4.25], Z = [-10.45, -9.90]과 높이 2.05 m를 길이 2.15 m·깊이 0.55 m 외곽으로 소비한다.
 @evidence obligations/design/models.md#representation-ceiling 옷을 순번 i mod 3의 결정식으로 두께·길이를 고정한 판 묶음 대리 형상으로 두고 이 대리가 받치는 관찰을 위에서 옷 앞 끝이 Z = -9.90 m를 넘지 않는지로 한정한다.
@@ -220,7 +220,7 @@
 ## 옷방 선반 구간 {#wardrobe-shelves}
 <!--
 @evidence principles/core/common.md#scope-preservation 옷방 예약의 선반 구간을 네 선반과 접은 옷·신발 상자까지 맡는다.
-@evidence principles/core/common.md#substantive-completion 길이 1.10 m, 깊이 0.55 m, 선반 상면 0.20·0.65·1.10·1.55 m, 두께 0.03 m, 상자·바구니 각각 0.30 × 0.35 × 0.20 m를 확정한다.
+@evidence principles/core/common.md#substantive-completion 외곽 길이 1.10 m·깊이 0.55 m 안에 두께 0.03 m 옆판 둘과 그 사이 실제 길이 1.04 m 선반 넷을 두고, 선반 상면 0.20·0.65·1.10·1.55 m와 두께 0.03 m, 상자·바구니 각각 0.30 × 0.35 × 0.20 m를 확정한다.
 @evidence principles/core/common.md#declared-basis 외곽은 옷방 예약에서 받고 0.20 m 시작과 0.45 m 간격의 네 단은 이 H2의 저작 값으로 적힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 옷방 예약은 선반 구간 외곽만 주고 이 H2는 네 단 높이와 접은 옷·신발 상자 대리를 더한다.
 @evidence principles/design/models.md#representation-contract 선반·몸통·접은 옷·신발 상자·바구니 계층과 `shelf`·`carcass`·`folded`·`shoe-box`·`basket` 경계를 두고 관절이 없다고 적는다. 보이지 않는 한계는 본문의 "접은 옷의 층·신발 형상·선반 브래킷은 표현하지 않는다."로 밝힌다.
