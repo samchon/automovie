@@ -1697,6 +1697,42 @@ ref04 책상 왼쪽 벽붙박이 선반의 가로 책판과 목재 측판 읽힘
 | @part | wall/2900x980x360/open | handle-4 | box | 0.8746..0.8906 | 0.4947..0.6547 | 0.6734..0.6854 | door-4 |
 <!-- @generated-cabinet-parts:end -->
 
+<!-- @generated-address-state:start -->
+@address-state bench-base/1150x440x480/closed: back, bottom, top, side-left, side-right, toe, shelf-1, stile-1, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1
+@address-state bench-base/1150x440x480/open: back, bottom, top, side-left, side-right, toe, shelf-1, stile-1, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1
+@address-state island-base/880x870x2650/closed: bottom, top, toe, end-negative, end-positive, dining-side, service-strip-bottom, service-strip-top, shelf-1, shelf-2, service-stile-1, service-stile-2, service-stile-3, service-stile-4, service-door-0, service-hinge-0, service-hinge-1, service-handle-0, service-door-1, service-hinge-2, service-hinge-3, service-handle-1, service-door-2, service-hinge-4, service-hinge-5, service-handle-2, service-door-3, service-hinge-6, service-hinge-7, service-handle-3, service-door-4, service-hinge-8, service-hinge-9, service-handle-4
+@address-state island-base/880x870x2650/open: bottom, top, toe, end-negative, end-positive, dining-side, service-strip-bottom, service-strip-top, shelf-1, shelf-2, service-stile-1, service-stile-2, service-stile-3, service-stile-4, service-door-0, service-hinge-0, service-hinge-1, service-handle-0, service-door-1, service-hinge-2, service-hinge-3, service-handle-1, service-door-2, service-hinge-4, service-hinge-5, service-handle-2, service-door-3, service-hinge-6, service-hinge-7, service-handle-3, service-door-4, service-hinge-8, service-hinge-9, service-handle-4
+@address-state kitchen-base/2900x870x620/closed: back, bottom, top, side-left, side-right, toe, fixed-front, bay-divider-left, bay-divider-right, oven-sill, drawer-0, handle-0, drawer-1, handle-1, drawer-2, handle-2, drawer-3, handle-3, drawer-4, handle-4, drawer-5, handle-5
+@address-state media/2000x440x350/closed: back, bottom, top, side-left, side-right, toe, fixed-front, bay-divider-left, bay-divider-right, drawer-0, handle-0, drawer-1, handle-1
+@address-state nightstand/500x460x460/closed: back, bottom, top, side-left, side-right, toe, fixed-front, drawer-0, runner-0-left, runner-0-right, handle-0, drawer-1, runner-1-left, runner-1-right, handle-1
+@address-state open-shelf/1100x2600x500/open: back, bottom, top, side-left, side-right, toe, shelf-1, shelf-2, shelf-3, shelf-4, shelf-5, shelf-6, shelf-7
+@address-state open-shelf/1550x2500x500/open: back, bottom, top, side-left, side-right, toe, shelf-1, shelf-2, shelf-3, shelf-4, shelf-5, shelf-6, shelf-7
+@address-state open-shelf/600x1100x380/open: back, bottom, top, side-left, side-right, toe, shelf-1, shelf-2
+@address-state open-shelf/750x1200x400/open: back, bottom, top, side-left, side-right, toe, shelf-1, shelf-2, shelf-3
+@address-state open-shelf/850x2400x450/open: back, bottom, top, side-left, side-right, toe, shelf-1, shelf-2, shelf-3, shelf-4, shelf-5, shelf-6
+@address-state open-shelf/950x1350x250/open: back, bottom, top, side-left, side-right, toe, shelf-1, shelf-2, shelf-3
+@address-state service/1100x2400x560/closed: back, bottom, top, side-left, side-right, toe, shelf-1, shelf-2, shelf-3, shelf-4, shelf-5, shelf-6, stile-1, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1
+@address-state service/1100x2400x560/open: back, bottom, top, side-left, side-right, toe, shelf-1, shelf-2, shelf-3, shelf-4, shelf-5, shelf-6, stile-1, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1
+@address-state service/640x840x600/closed: back, bottom, top, side-left, side-right, toe, shelf-1, shelf-2, stile-1, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1
+@address-state service/640x840x600/open: back, bottom, top, side-left, side-right, toe, shelf-1, shelf-2, stile-1, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1
+@address-state tall/1300x2650x600/closed: back, bottom, top, side-left, side-right, toe, divider, rod, shelf-1, shelf-2, shelf-3, shelf-4, shelf-5, shelf-6, shelf-7, stile-1, stile-2, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1, door-2, hinge-4, hinge-5, handle-2
+@address-state tall/1300x2650x600/open: back, bottom, top, side-left, side-right, toe, divider, rod, shelf-1, shelf-2, shelf-3, shelf-4, shelf-5, shelf-6, shelf-7, stile-1, stile-2, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1, door-2, hinge-4, hinge-5, handle-2
+@address-state tall/1400x2600x540/closed: back, bottom, top, side-left, side-right, toe, divider, rod, shelf-1, shelf-2, shelf-3, shelf-4, shelf-5, shelf-6, shelf-7, stile-1, stile-2, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1, door-2, hinge-4, hinge-5, handle-2
+@address-state tall/1400x2600x540/open: back, bottom, top, side-left, side-right, toe, divider, rod, shelf-1, shelf-2, shelf-3, shelf-4, shelf-5, shelf-6, shelf-7, stile-1, stile-2, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1, door-2, hinge-4, hinge-5, handle-2
+@address-state tall/2720x2650x600/closed: back, bottom, top, side-left, side-right, toe, divider, rod, shelf-1, shelf-2, shelf-3, shelf-4, shelf-5, shelf-6, shelf-7, stile-1, stile-2, stile-3, stile-4, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1, door-2, hinge-4, hinge-5, handle-2, door-3, hinge-6, hinge-7, handle-3, door-4, hinge-8, hinge-9, handle-4
+@address-state tall/2720x2650x600/open: back, bottom, top, side-left, side-right, toe, divider, rod, shelf-1, shelf-2, shelf-3, shelf-4, shelf-5, shelf-6, shelf-7, stile-1, stile-2, stile-3, stile-4, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1, door-2, hinge-4, hinge-5, handle-2, door-3, hinge-6, hinge-7, handle-3, door-4, hinge-8, hinge-9, handle-4
+@address-state tall/520x2250x520/closed: back, bottom, top, side-left, side-right, toe, shelf-1, shelf-2, shelf-3, shelf-4, shelf-5, shelf-6, stile-1, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1
+@address-state tall/520x2250x520/open: back, bottom, top, side-left, side-right, toe, shelf-1, shelf-2, shelf-3, shelf-4, shelf-5, shelf-6, stile-1, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1
+@address-state tall/600x2300x500/closed: back, bottom, top, side-left, side-right, toe, shelf-1, shelf-2, shelf-3, shelf-4, shelf-5, shelf-6, stile-1, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1
+@address-state tall/600x2300x500/open: back, bottom, top, side-left, side-right, toe, shelf-1, shelf-2, shelf-3, shelf-4, shelf-5, shelf-6, stile-1, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1
+@address-state tall/900x2650x600/closed: back, bottom, top, side-left, side-right, toe, shelf-1, shelf-2, shelf-3, shelf-4, shelf-5, shelf-6, shelf-7, stile-1, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1
+@address-state tall/900x2650x600/open: back, bottom, top, side-left, side-right, toe, shelf-1, shelf-2, shelf-3, shelf-4, shelf-5, shelf-6, shelf-7, stile-1, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1
+@address-state vanity/1000x800x480/closed: back, bottom, top, side-left, side-right, toe, fixed-front, drawer-0, runner-0-left, runner-0-right, handle-0, drawer-1, runner-1-left, runner-1-right, handle-1
+@address-state vanity/800x800x480/closed: back, bottom, top, side-left, side-right, toe, fixed-front, drawer-0, runner-0-left, runner-0-right, handle-0, drawer-1, runner-1-left, runner-1-right, handle-1
+@address-state wall/2900x980x360/closed: back, bottom, top, side-left, side-right, cleat-0, cleat-1, fixed-front-bottom, shelf-1, shelf-2, stile-1, stile-2, stile-3, stile-4, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1, door-2, hinge-4, hinge-5, handle-2, door-3, hinge-6, hinge-7, handle-3, door-4, hinge-8, hinge-9, handle-4
+@address-state wall/2900x980x360/open: back, bottom, top, side-left, side-right, cleat-0, cleat-1, fixed-front-bottom, shelf-1, shelf-2, stile-1, stile-2, stile-3, stile-4, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1, door-2, hinge-4, hinge-5, handle-2, door-3, hinge-6, hinge-7, handle-3, door-4, hinge-8, hinge-9, handle-4
+<!-- @generated-address-state:end -->
+
 ## 현관 벤치와 신발장 {#entry-bench}
 
 이 wrapper의 단독 부품은 방석 하나다. `support@0.44`는 별도 cabinet/bench-base의 상단 접촉면이며 cabinet 판을 이 부품 표에 복제하지 않는다.
@@ -1711,6 +1747,10 @@ ref04 책상 왼쪽 벽붙박이 선반의 가로 책판과 목재 측판 읽힘
 
 `entry-bench`는 폭 1.15, 외함 깊이 0.48, 방석 앞 돌출을 포함한 전체 깊이 0.49, 전체 높이 0.52m다. 바닥 외함 중심이 원점, +Z가 앉는 앞이다. `cabinet/bench-base/1150x440x480/closed`의 두 문 외함 위에 두께 0.08m 방석을 얹어 상면 y=0.52를 만든다. 방석은 z 앞쪽으로 0.01m만 돌출하며 문 seam·손잡이 높이를 가리지 않는다. `entry-bench` wrapper는 `cushion/upper/side/underside`만 만들고, 외함은 독립 `cabinet/bench-base/1150x440x480/closed`의 back·side·door·edge 주소를 그대로 운반한다. wrapper가 외함 판을 복제하거나 새 표면 ID로 바꾸지 않는다. 정면·측면·45°에서 수납 두 leaf와 착석 면이 함께 보여야 한다. ref02 현관의 벤치·신발장 기능을 채택하며 ref01의 바깥 포치를 벤치 형태로 옮기지 않는다. ref03·04·05에는 현관 벤치를 판독할 세부가 없다. 착석 하중·문 간섭은 `unverified`다.
 
+<!-- @generated-address-state:start -->
+@address-state default: cushion
+<!-- @generated-address-state:end -->
+
 ## 현관 평벽 충전 선반 {#entry-charging-shelf}
 
 `entry-charging-shelf`는 폭 0.32, 깊이 0.15, 몸판 두께 0.045m의 벽걸이 물체다. 원점은 평벽 마감면의 선반 아래 중앙(z=0)이며 +Z가 벽에서 실내로 나오는 방향, +Y가 위다. 판은 x=±0.16, y=0..0.045, z=0..0.15이고 뒤쪽 숨은 cleat는 0.22×0.030×0.025m로 x=±0.11,y=-0.030..0,z=0..0.025에 놓여 벽면과 판 아래면에 닿는다. 양 끝 아래의 지지 브래킷 둘은 두께 0.012m, 깊이 0.12m, 높이 0.08m이며 x=±0.125 중심,y=-0.08..0,z=0..0.12다. 각 브래킷은 z=0에서 평벽, y=0에서 판 아래면에 닿고 cleat와 x에서 겹치지 않는다. 우편을 올리는 상면은 평평하고 충전기 자리는 후속 배치다. `board/upper/underside/front-edge/side-left/side-right/back-contact`, `cleat/outer/contact`, `bracket-left/right/outer/contact`가 안정 주소다. 실제 건축 구멍이나 lining을 만들지 않는다. 정면·측면·상부에서 판 깊이와 평벽 접합이 읽혀야 한다. ref02의 현관 수납 기능과 settings의 건축 구멍 없는 선반 결정을 채택한다. ref01·03·04·05의 벽 장면을 충전 niche의 증거로 쓰지 않는다. 실제 앵커 하중은 `unverified`다.
@@ -1724,6 +1764,10 @@ ref04 책상 왼쪽 벽붙박이 선반의 가로 책판과 목재 측판 읽힘
 | @part | default | cleat | box | -0.11..0.11 | -0.03..0 | 0..0.025 | wall,board |
 | @part | default | bracket-left | box | -0.131..-0.119 | -0.08..0 | 0..0.12 | wall,board |
 | @part | default | bracket-right | box | 0.119..0.131 | -0.08..0 | 0..0.12 | wall,board |
+
+<!-- @generated-address-state:start -->
+@address-state default: board, cleat, bracket-left, bracket-right
+<!-- @generated-address-state:end -->
 
 ## 고정 침대와 침구 {#fixed-bed}
 
@@ -1768,6 +1812,11 @@ ref04 책상 왼쪽 벽붙박이 선반의 가로 책판과 목재 측판 읽힘
 | @part | 1000 | headboard | box | -0.54..0.54 | 0.28..1.01 | -1.09..-1.03 | frame-head |
 | @part | 1000 | pillow-0 | box | -0.41..0.41 | 0.50..0.62 | -0.95..-0.57 | mattress |
 
+<!-- @generated-address-state:start -->
+@address-state 1800: frame-side-left, frame-side-right, frame-head, frame-foot, support-deck, leg-0, leg-1, leg-2, leg-3, mattress, duvet, headboard, pillow-0, pillow-1
+@address-state 1000: frame-side-left, frame-side-right, frame-head, frame-foot, support-deck, leg-0, leg-1, leg-2, leg-3, mattress, duvet, headboard, pillow-0
+<!-- @generated-address-state:end -->
+
 ## 작업실 수납 침대 {#murphy-bed}
 
 외함 뒤판의 상단은 y=2.32m에서 끝나 상판 아랫면과 접한다. 힌지 축의 원통형 recess를 품는 측판 점유는 아래 표에서 힌지 AABB를 둘러싼 절삭 범위로 나타낸다. 실제 원형 경계는 지름 0.05m와 X축으로 결정하고 원통 밖 모서리에는 측판 재료가 남는다. guest 베개는 중심 y=0.655m라 아래면이 매트리스 y=0.60m에 닿는다.
@@ -1811,3 +1860,8 @@ ref04 책상 왼쪽 벽붙박이 선반의 가로 책판과 목재 측판 읽힘
 `murphy-bed`는 명시 상태 `work` 또는 `guest`를 받는다. 바닥 외함 중심 원점, +Z가 방 안쪽이다. 외함은 폭 1.30, 높이 2.36, 깊이 0.46m로 x=±0.65, z=±0.23이며 두 상태에서 같다. 뒤판 두께 0.025m는 z=-0.23..-0.205, 측판 두께 0.045m는 x=−0.65..−0.605와 +0.605..+0.65, y=0..2.32,z=−0.205..+0.23이고 상판 두께 0.04m는 y=2.32..2.36,z=−0.23..+0.23이다. pivot은 양쪽 x=±0.625, y=0.32, z=0.205의 동일 X축 한 줄이며 각 힌지는 지름 0.05m, X축 길이 0.05m의 닫힌 부품이다. 측판에는 각 힌지의 x=±(0.60..0.65), y=0.295..0.345, z=0.18..0.23 점유를 따라 닫힌 원통형 recess를 빼고 접촉 edge를 남긴다. 각 힌지의 X축 끝 원판 x=±0.60은 세로 panel 측면과 손님 프레임의 옆면에 닿는다. 손님 프레임은 z=0.22부터 시작하므로 원판 중심 z=0.205·반경 0.025와 y≥0.32,z≥0.22인 프레임 옆면의 교집합이 양의 면적이다. z=0.23의 접선만으로 지지하지 않는다. 작업 상태의 세로 panel은 폭 1.20, 높이 2.28, 두께 0.035m로 x=±0.60,y=0.04..2.32,z=0.21..0.245에 닫힌다. 손잡이 0.32×0.025×0.025m는 x=±0.16,y=1.0175..1.0425,z=0.245..0.270에 보이며 작업 상태 AABB는 x=±0.65,y=0..2.36,z=−0.23..+0.27m다. 손님 상태 AABB는 x=±0.65,y=0..2.36,z=−0.23..+2.18m다. 손님 상태의 수평 프레임은 pivot에서 +Z로 뻗어 외함 전면 근처 z=0.22부터 발치 z=2.18까지, 폭 1.20m·두께 0.12m로 y=0.32..0.44에 놓인다. 매트리스는 폭 1.10, 길이 1.82, 두께 0.16m로 z=0.27..2.09,y=0.44..0.60이다. 접지 지지 다리 두 개는 단면 0.045×0.045m, 중심 x=±0.52, z=2.08, y=0..0.32에 세워 프레임 아래면 y=0.32에서 끝내며 프레임 부피를 관통하지 않는다. 손님 침대에는 폭 1.08·길이 1.30·두께 0.055m의 이불을 y=0.60..0.655, z=0.72..2.02에, 폭 0.72·깊이 0.34·높이 0.11m의 베개 하나를 중심 z=0.50, y=0.655에 둔다. 별도 머리판은 외함의 내부 뒤판이 대신한다. 닫힌 panel과 펼친 frame·매트리스·침구는 동시에 나타나지 않는다. 실제 중간 회전 경로·잠금·하중은 `unverified`다.
 
 공유 주소는 `case-back/front/back/edge`, `case-side-left/right/outer/inner/front-edge/back-edge/top/sole`, `case-top/upper/underside/edge`, `hinge-left/right/outer/contact`다. 작업만 `closed-panel/front/back/edge`, `pull/outer/contact`, 손님만 `bed-frame/upper/edge/underside`, `mattress/upper/side/underside`, `support-left/right/shaft/top/sole`, `duvet/upper/side/underside`, `pillow/upper/side/underside`를 낸다. 두 상태 모두 뒤판 앞면이 외함 내부에서 관찰될 수 있어 뒷면과 분리한다. 같은 45°·측면 중립 카메라와 작업실 출입 뷰에서 외함 점유의 동일함과 상태별 part 분리를 확인한다. ref04의 평평한 접이식 전면과 책상·계단으로 이어지는 열린 작업실을 채택하고, ref02의 작업실 정지 상태는 평면 관계 확인에 쓴다. ref01·03·05의 고정 방을 침대 동작 근거로 쓰지 않는다. 출입 원통 성립은 instances의 배치 검증 대상이다.
+
+<!-- @generated-address-state:start -->
+@address-state work: case-back, case-side-left, case-side-right, case-top, hinge-left, hinge-right, closed-panel, pull
+@address-state guest: case-back, case-side-left, case-side-right, case-top, hinge-left, hinge-right, bed-frame, mattress, support-left, support-right, duvet, pillow
+<!-- @generated-address-state:end -->

@@ -14,11 +14,11 @@ function expand(token) {
   return Array.from({ length: last - first + 1 }, (_, i) => `${range[1]}-${first + i}`);
 }
 
-/** @param {string} root */
-function inventory(root) {
+/** @param {string} root @param {Map<string,string>} [overrides] */
+function inventory(root, overrides = new Map()) {
   const result = new Map();
   for (const name of files) {
-    const source = fs.readFileSync(path.join(root, "docs/models", `${name}.md`), "utf8");
+    const source = overrides.get(name) ?? fs.readFileSync(path.join(root, "docs/models", `${name}.md`), "utf8");
     let anchor = "";
     for (const line of source.split(/\r?\n/)) {
       const heading = /^## .*\{#([^}]+)\}/.exec(line);

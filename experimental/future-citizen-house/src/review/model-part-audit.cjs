@@ -370,8 +370,66 @@ function occupiedBoxes(part, voids, pieces = new Map()) {
   return boxes;
 }
 
-/** @param {Part} a @param {Part} b @param {Map<string,{inner:number,outer:number,centerX:number,centerZ:number}>} radial @param {Map<string,{inner:number,outer:number,centerX:number,centerY:number}>} radialZ @param {Map<string,{centerX:number,centerY:number,radius:number,z:[number,number]}>} boresZ @param {Map<string,Bounds[]>} voids @param {Map<string,Bounds[]>} pieces @param {Set<string>} provedTangents @param {Set<string>} provedCurves @param {Map<string,boolean>} provedLinear @param {Set<string>} plantContacts */
-function actualContact(a, b, radial, radialZ, boresZ, voids, pieces, provedTangents, provedCurves, provedLinear, plantContacts) {
+/** A rectangular hollow is exact only when its subtraction is explicitly declared.
+ * @param {Part} part
+ * @param {Map<string, Bounds[]>} voids
+ * @param {Map<string, Bounds[]>} pieces
+ * @param {Map<string,{inner:number,outer:number,centerX:number,centerZ:number}>} radial
+ * @param {Map<string,{inner:number,outer:number,centerX:number,centerY:number}>} radialZ
+ */
+function exactRectangularOccupancy(part, voids, pieces, radial, radialZ) {
+  if (part.shape === "box") return true;
+  const key = `${part.state}/${part.id}`;
+  return part.shape === "hollow" && voids.has(key) && !pieces.has(key) &&
+    !radial.has(key) && !radialZ.has(key);
+}
+
+/**
+ * Return a cylinder axis only when the two transverse AABB diameters agree.
+ * Equal three-axis bounds are ambiguous and need an explicit shape proof.
+ * @param {Part} part
+ * @returns {"x"|"y"|"z"|undefined}
+ */
+function cylinderAxis(part) {
+  if (part.shape !== "cylinder") return undefined;
+  const lengths = { x: part.x[1] - part.x[0], y: part.y[1] - part.y[0], z: part.z[1] - part.z[0] };
+  const possibilities = /** @type {const} */ (["x", "y", "z"]).filter((axis) => {
+    const others = /** @type {const} */ (["x", "y", "z"]).filter((candidate) => candidate !== axis);
+    return Math.abs(lengths[others[0]] - lengths[others[1]]) <= epsilon &&
+      Math.abs(lengths[axis] - lengths[others[0]]) > epsilon;
+  });
+  return possibilities.length === 1 ? possibilities[0] : undefined;
+}
+
+/** Positive disk/rectangle intersection on the cylinder's planar end cap.
+ * @param {Part} cylinder
+ * @param {Bounds} targetBox
+ * @param {"x"|"y"|"z"} axis
+ */
+function cylinderCapArea(cylinder, targetBox, axis) {
+  const other = /** @type {const} */ (["x", "y", "z"]).filter((candidate) => candidate !== axis);
+  const u = other[0], v = other[1];
+  if (!(Math.abs(cylinder[axis][0] - targetBox[axis][1]) <= epsilon ||
+    Math.abs(cylinder[axis][1] - targetBox[axis][0]) <= epsilon)) return 0;
+  const centerU = (cylinder[u][0] + cylinder[u][1]) / 2;
+  const centerV = (cylinder[v][0] + cylinder[v][1]) / 2;
+  const radius = (cylinder[u][1] - cylinder[u][0]) / 2;
+  const lo = Math.max(cylinder[u][0], targetBox[u][0]);
+  const hi = Math.min(cylinder[u][1], targetBox[u][1]);
+  if (hi - lo <= epsilon) return 0;
+  const steps = 512, du = (hi - lo) / steps;
+  let area = 0;
+  for (let i = 0; i < steps; i++) {
+    const uu = lo + (i + 0.5) * du;
+    const reach = Math.sqrt(Math.max(0, radius ** 2 - (uu - centerU) ** 2));
+    area += Math.max(0, Math.min(targetBox[v][1], centerV + reach) -
+      Math.max(targetBox[v][0], centerV - reach)) * du;
+  }
+  return area;
+}
+
+/** @param {Part} a @param {Part} b @param {Map<string,{inner:number,outer:number,centerX:number,centerZ:number}>} radial @param {Map<string,{inner:number,outer:number,centerX:number,centerY:number}>} radialZ @param {Map<string,{centerX:number,centerY:number,radius:number,z:[number,number]}>} boresZ @param {Map<string,Bounds[]>} voids @param {Map<string,Bounds[]>} pieces @param {Set<string>} provedTangents @param {Set<string>} provedCurves @param {Map<string,boolean>} provedLinear @param {Set<string>} plantContacts @param {Set<string>} unprovedCurved @param {string} owner */
+function actualContact(a, b, radial, radialZ, boresZ, voids, pieces, provedTangents, provedCurves, provedLinear, plantContacts, unprovedCurved, owner) {
   const key = `${a.state}/${[a.id, b.id].sort((left, right) => left.localeCompare(right)).join("/")}`;
   if (plantContacts.has(key)) return true;
   if (provedTangents.has(key) || provedCurves.has(key)) return true;
@@ -398,7 +456,19 @@ function actualContact(a, b, radial, radialZ, boresZ, voids, pieces, provedTange
     return (Math.abs(depth) <= epsilon && radius > epsilon) ||
       (depth > epsilon && (Math.abs(az.outer - bz.inner) <= epsilon || Math.abs(bz.outer - az.inner) <= epsilon));
   }
-  return occupiedBoxes(a, voids, pieces).some((aa) => occupiedBoxes(b, voids, pieces).some((bb) => surfaceContact(aa, bb)));
+  const contact = occupiedBoxes(a, voids, pieces).some((aa) => occupiedBoxes(b, voids, pieces).some((bb) => surfaceContact(aa, bb)));
+  const exactA = exactRectangularOccupancy(a, voids, pieces, radial, radialZ);
+  const exactB = exactRectangularOccupancy(b, voids, pieces, radial, radialZ);
+  const capA = cylinderAxis(a);
+  const capB = cylinderAxis(b);
+  const finiteCap = (capA && exactB && occupiedBoxes(b, voids, pieces).some((box) =>
+    cylinderCapArea(a, box, capA) > 1e-8)) ||
+    (capB && exactA && occupiedBoxes(a, voids, pieces).some((box) =>
+      cylinderCapArea(b, box, capB) > 1e-8));
+  if (contact && [a.shape, b.shape].some((shape) => ["curved", "cylinder", "hollow"].includes(shape)) &&
+    !(exactA && exactB) && !finiteCap)
+    unprovedCurved.add(`${owner}/${key}`);
+  return contact;
 }
 
 /** @param {Part} a @param {Part} b @param {Map<string,{inner:number,outer:number,centerX:number,centerZ:number}>} radial @param {Map<string,{inner:number,outer:number,centerX:number,centerY:number}>} radialZ @param {Map<string,{centerX:number,centerY:number,radius:number,z:[number,number]}>} boresZ @param {Map<string,Bounds[]>} voids @param {Map<string,Bounds[]>} pieces @param {Set<string>} provedTangents @param {Set<string>} provedCurves @param {Map<string,boolean>} provedLinear @param {Set<string>} plantNonOverlaps */
@@ -749,6 +819,7 @@ function plantProof(parsed) {
 /** @param {Map<string,string[]>} allSections @param {(anchor:string, parsed:ReturnType<typeof parse>)=>void} [mutate] @param {string} [onlyState] */
 function audit(allSections, mutate, onlyState) {
   const errors = [];
+  const unprovedCurved = new Set();
   let examined = 0;
   let measuredPrototypes = 0;
   for (const [anchor, lines] of allSections) {
@@ -803,6 +874,20 @@ function audit(allSections, mutate, onlyState) {
           if (Math.abs(declared - top) > epsilon || Math.abs(part.y[0] - top) > epsilon ||
             sharedX <= epsilon || sharedZ <= epsilon)
             errors.push(`${anchor}/${state}/${part.id}: support face differs from ${binding.anchor}/${binding.state}/${binding.part}`);
+        }
+        if (child) for (const own of stateParts) {
+          const ownBoxes = occupiedBoxes(own, voids, pieces);
+          for (const referent of child.parts.values()) {
+            if (referent.state !== binding.state) continue;
+            const childBoxes = occupiedBoxes(referent, child.voids, child.pieces).map((box) => ({
+              x: /** @type {[number,number]} */ ([box.x[0] + binding.offset[0], box.x[1] + binding.offset[0]]),
+              y: /** @type {[number,number]} */ ([box.y[0] + binding.offset[1], box.y[1] + binding.offset[1]]),
+              z: /** @type {[number,number]} */ ([box.z[0] + binding.offset[2], box.z[1] + binding.offset[2]])
+            }));
+            if (ownBoxes.some((box) => childBoxes.some((other) =>
+              overlap(box, other).every((depth) => depth > epsilon))))
+              errors.push(`${anchor}/${state}/${own.id}: penetrates support child ${binding.anchor}/${binding.state}/${referent.id}`);
+          }
         }
       }
       if (composition) {
@@ -859,6 +944,7 @@ function audit(allSections, mutate, onlyState) {
           }
         } else valid = false;
         if (!valid) errors.push(`${anchor}/${key}: flat contact has no finite common patch`);
+        else if (host) provedCurves.add(`${state}/${[patch.guest, patch.host].sort((a, b) => a.localeCompare(b)).join("/")}`);
       }
       if (anchor === "recessed-light" && !emitterFaces.has(state))
         errors.push(`${anchor}/${state}: emitter face declaration absent`);
@@ -879,6 +965,7 @@ function audit(allSections, mutate, onlyState) {
         if (!pin || !target || pin.shape !== "cylinder" || !pin.contact.includes(targetId) ||
           pinFaceArea(pin, target) <= 1e-8)
           errors.push(`${anchor}/${key}: pin end cap has no finite contact face with ${targetId}`);
+        else provedCurves.add(`${state}/${[pin.id, targetId].sort((a, b) => a.localeCompare(b)).join("/")}`);
       }
       for (const [key, cavities] of voids) {
         if (!key.startsWith(`${state}/`)) continue;
@@ -1042,7 +1129,7 @@ function audit(allSections, mutate, onlyState) {
         for (const target of part.contact) {
           const adjacent = byId.get(target);
           if (adjacent) {
-            if (!actualContact(part, adjacent, radial, radialZ, boresZ, voids, pieces, provedTangents, provedCurves, provedLinear, plant.contacts))
+            if (!actualContact(part, adjacent, radial, radialZ, boresZ, voids, pieces, provedTangents, provedCurves, provedLinear, plant.contacts, unprovedCurved, anchor))
               errors.push(`${anchor}/${state}/${part.id}: no face contact with ${target}`);
           } else if (target === "ground" || target === "support" || /^support@[\d.]+$/.test(target)) {
             const height = target.startsWith("support@") ? Number(target.slice(8)) : 0;
@@ -1112,7 +1199,8 @@ function audit(allSections, mutate, onlyState) {
     if (anchor === "bathtub") errors.push(...tubFormula(lines, envelopes, parts, voids));
     if (anchor === "work-equipment") errors.push(...equipmentFormula(lines, envelopes, parts, grids));
   }
-  return { prototypes: allSections.size, measuredPrototypes, parts: examined, errors };
+  return { prototypes: allSections.size, measuredPrototypes, parts: examined,
+    unprovedCurvedContacts: [...unprovedCurved], errors };
 }
 
 if (require.main !== module) {
@@ -1298,15 +1386,16 @@ if (require.main !== module) {
     ["recessed-light", "default", (parsed) => { const part = parsed.parts.get("default/diffuser"); if (!part) throw Error("diffuser absent"); part.y = [-0.015, -0.012]; }, "emissive face is occluded"],
     ["murphy-bed", "guest", (parsed) => { parsed.pinFaces.delete("guest/hinge-right"); }, "missing pin-face declaration"],
     ["toilet", "lid-open", (parsed) => { const ring = parsed.ellipses.get("lid-open/seat"); if (!ring) throw Error("seat ring absent"); ring.centerZ = 0.10; }, "elliptic ring differs"],
-    ["cooking-appliances", "oven", (parsed) => { const binding = parsed.supportBindings.get("oven"); if (!binding) throw Error("oven support absent"); binding.state = "unknown"; }, "support child part absent"]
+    ["cooking-appliances", "oven", (parsed) => { const binding = parsed.supportBindings.get("oven"); if (!binding) throw Error("oven support absent"); binding.state = "unknown"; }, "support child part absent"],
+    ["kitchen-island", "default", (parsed) => { const binding = parsed.supportBindings.get("default"); if (!binding) throw Error("island support absent"); binding.offset[0] = -0.30; }, "penetrates support child"]
   ];
   for (const [anchor, state, mutate, expected] of curvedMutations) {
     const lines = sections().get(anchor);
     if (!lines) throw Error(`${anchor}: curved-contact fixture absent`);
     const cabinetLines = sections().get("cabinet-and-shelf");
-    if (anchor === "cooking-appliances" && !cabinetLines) throw Error("cabinet fixture child absent");
+    if ((anchor === "cooking-appliances" || anchor === "kitchen-island") && !cabinetLines) throw Error("cabinet fixture child absent");
     const sample = new Map([[anchor, lines]]);
-    if (anchor === "cooking-appliances" && cabinetLines) sample.set("cabinet-and-shelf", cabinetLines);
+    if ((anchor === "cooking-appliances" || anchor === "kitchen-island") && cabinetLines) sample.set("cabinet-and-shelf", cabinetLines);
     const errors = audit(sample, (owner, parsed) => { if (owner === anchor) mutate(parsed); }, state).errors;
     if (!errors.some((error) => error.includes(expected)))
       throw Error(`${anchor}/${state}: mutation did not reach ${expected}: ${errors}`);
@@ -1420,9 +1509,30 @@ if (require.main !== module) {
       check((entry) => { entry.contact = []; }, "contact path absent");
     }
   }
+  for (const axis of /** @type {const} */ (["x", "y", "z"])) {
+    const transverse = /** @type {const} */ (["x", "y", "z"]).filter((candidate) => candidate !== axis);
+    /** @type {Part} */
+    const cylinder = { state: "test", id: `cylinder-${axis}`, shape: "cylinder",
+      x: [-0.1, 0.1], y: [-0.1, 0.1], z: [-0.1, 0.1], contact: [] };
+    cylinder[axis] = [0, 0.4];
+    /** @type {Bounds} */
+    const broad = { x: [-0.05, 0.05], y: [-0.05, 0.05], z: [-0.05, 0.05] };
+    broad[axis] = [0.4, 0.5];
+    /** @type {Bounds} */
+    const tangent = { x: [-0.05, 0.05], y: [-0.05, 0.05], z: [-0.05, 0.05] };
+    tangent[axis] = [0.4, 0.5];
+    tangent[transverse[0]] = [0.1, 0.2];
+    if (cylinderAxis(cylinder) !== axis || cylinderCapArea(cylinder, broad, axis) <= 1e-8 ||
+      cylinderCapArea(cylinder, tangent, axis) > 1e-8)
+      throw Error(`${axis}-axis cylinder cap accepted a tangent or rejected a finite patch`);
+    results.push({ label: `${axis}-axis cap finite/tangent`, caught: true });
+  }
   console.log(JSON.stringify({ baselineParts: baseline.parts, measuredParts, mutationChecks, mutations: results }, null, 2));
 } else {
   const result = audit(sections());
+  if (result.unprovedCurvedContacts.length) result.errors.push(
+    `${result.unprovedCurvedContacts.length} curved contacts lack a measured finite contact face; ` +
+    `first: ${result.unprovedCurvedContacts.slice(0, 5).join(", ")}`);
   // A part population is valid only when the prose claims and the measured
   // inventory agree. Keep the standalone producer for its own mutation run,
   // and include its failure in this public part-audit exit code as well.

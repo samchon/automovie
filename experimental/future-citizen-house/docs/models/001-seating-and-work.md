@@ -70,6 +70,11 @@
 
 ref02 작업실의 초록 안락의자는 이 거실 소파의 축소형으로 채택하지 않는다. ref04의 작업실은 접이식 침대 전면·책상·계단 출입 사이의 빈 바닥이 핵심이고, 안락의자 추가 배치가 그 통행을 침범하는지는 아직 검사되지 않았다. 이 모델 단계에서 안락의자를 놓았다고 주장하지 않으며 작업실 가구 밀도는 instances 관찰 전까지 `unverified`다.
 
+<!-- @generated-address-state:start -->
+@address-state straight: frame, leg-0, leg-1, leg-2, leg-3, seat-0, seat-1, seat-2, back-frame, back-cushion-0, back-cushion-1, back-cushion-2, arm-left, arm-right, pillow-0, pillow-1, pillow-2
+@address-state chaise-right: frame, leg-0, leg-1, leg-2, leg-3, seat-0, seat-1, seat-2, back-frame, back-cushion-0, back-cushion-1, back-cushion-2, arm-left, arm-right, pillow-0, pillow-1, pillow-2, chaise-frame, chaise-seat, chaise-front-leg-0, chaise-front-leg-1
+<!-- @generated-address-state:end -->
+
 ## 여섯 자리 식탁 {#dining-table}
 
 `dining-table`은 X 폭 1.80, Z 깊이 0.92, Y 높이 0.74m다. 원점은 네 다리 접촉의 중심, +Z가 한 좌석 열의 접근 방향이다. 0.044m 상판은 y=0.696..0.740이고 수평 코너 반경 0.025m다. 다리 네 개는 0.045m 정사각 단면, y=0..0.696이며 중심은 x=±0.81, z=±0.37이다. 상판 아래는 의자 무릎이 접근하는 빈 공간이고 다리 사이를 판으로 막지 않는다.
@@ -89,6 +94,10 @@ ref02 작업실의 초록 안락의자는 이 거실 소파의 축소형으로 �
 
 안정 주소는 `top/upper`, `top/edge`, `top/underside`, `leg-0..3/shaft`, `leg-0..3/top`, `leg-0..3/sole`이다. 상판의 UV 장축은 X이며 side와 underside는 각각 자기 면 주소에서 이음이 끝난다. 상판은 닫힌 두께, 다리도 각각 닫힌 부품이다. 정면·상부·45°와 하부에서 상판 두께·네 발·빈 무릎 공간을 확인한다. ref03의 여섯 자리 식탁과 좌석 간격 관계, ref02의 공용부 내 식탁 위치 역할을 채택한다. ref01·04·05는 식탁 형상을 제공하지 않으므로 다른 세부나 치수를 차용하지 않는다. 여섯 의자의 transform은 instances 소유이고 실제 식탁 하중은 `unverified`다.
 
+<!-- @generated-address-state:start -->
+@address-state default: top, leg-0, leg-1, leg-2, leg-3
+<!-- @generated-address-state:end -->
+
 ## 거실 낮은 탁자 {#coffee-table}
 
 `coffee-table`은 X 폭 0.90, Z 깊이 1.25, 높이 0.36m다. 바닥의 네 발 중심이 원점이고 +Z가 긴 축이다. 상판은 두께 0.04m로 y=0.32..0.36, 모서리 반경 0.02m이며 다리 0.04×0.04m 네 개의 중심은 x=±0.39, z=±0.55, y=0..0.32다. `top/upper/edge/underside`와 `leg-0..3/shaft/top/sole`은 식탁과 별도 prototype 주소다. 상면 UV 장축은 Z, edge 이음은 underside로 이어지는 접합선에서 끝난다. 정면·상부·45°와 하부에서 낮은 높이와 상판 아래 빈 공간이 드러나야 한다. ref03 전경의 낮은 탁자와 ref02의 거실 탁자 위치 역할을 채택하지만 ref03 사진의 그릇을 탁자 메시로 합치지 않는다. ref01·04·05에는 이 탁자를 판독할 근거가 없다. 그릇·쟁반 prototype은 [식탁 소품](004-decor-and-fixtures.md#tabletop-props)이, 위 배치는 instances가 맡는다. 실제 탁자 하중은 `unverified`다.
@@ -105,6 +114,10 @@ ref02 작업실의 초록 안락의자는 이 거실 소파의 축소형으로 �
 | @part | default | leg-3 | box | 0.37..0.41 | 0..0.32 | 0.53..0.57 | ground,top |
 
 ref03 전경의 막힌 상자형 낮은 탁자 외형은 현재 `coffee-table`에 그대로 채택하지 않는다. 실제 공용부의 한쪽 소파 발과 식탁 접근 사이에서 바닥이 보이는 네 다리 구조를 사용하며, 사진의 낮은 탁자 위치와 높이 관계만 채택한다. 그 차이는 공용부 최종 시각 판정에서 다시 대조할 항목이다.
+
+<!-- @generated-address-state:start -->
+@address-state default: top, leg-0, leg-1, leg-2, leg-3
+<!-- @generated-address-state:end -->
 
 ## 천 씌운 식탁 의자 {#dining-chair}
 
@@ -131,6 +144,10 @@ ref03 전경의 막힌 상자형 낮은 탁자 외형은 현재 `coffee-table`�
 
 `dining-chair`는 폭 0.48, 깊이 0.55, 높이 0.84m이며 바닥에서 좌판 기준 X/Z 좌표가 각각 0인 점을 원점으로 두고 +Z를 앉는 앞쪽으로 둔다. 목재 좌판 구조는 폭 0.48·깊이 0.52m, x=±0.24,z=±0.26,y=0.38..0.415이고 그 위 분리된 천 좌판은 폭 0.44·깊이 0.48m, x=±0.22,z=±0.24,y=0.415..0.45다. 등판은 폭 0.46m·두께 0.025m, y=0.49..0.84이고 중앙선 z(y)=−0.15−0.07t−0.03×4t(1−t), t=(y−0.49)/0.35로 굽힌다. 따라서 양 끝 중앙선 z=−0.15/−0.22이고 가운데가 0.03m 더 뒤로 휜다. 좌판과 등판 사이에는 높이 0.04m의 틈이 남는다. 다리 단면은 0.03×0.03m이고 x=±0.19, 앞쪽 z=+0.19의 두 다리는 y=0..0.38이다. 뒤쪽 두 다리는 y=0..0.45에서 중심 z=−0.275로 좌판 뒤 edge z=−0.26에 외측 면으로 닿고, y=0.45..0.49의 위 조각은 `@shear-z`의 선형 중심선 z(y)=−0.275+0.125(y−0.45)/0.04를 따르는 X 폭 0.03m·세계 Z 방향 반두께 0.015m의 닫힌 사각 단면이다. y=0.45와 y=0.49에서 수평 평면으로 끝단을 절단한다. 따라서 위 조각의 Z 범위는 −0.29..−0.135이고 y=0.45의 아래 끝면은 z=−0.29..−0.26에서 아래 shaft와 0.03×0.03m로 닿는다. 이 끝면은 좌판 뒤 edge z=−0.26보다 뒤에 있으므로 좌판·천 좌판을 관통하지 않는다. y=0.49의 위 끝면 z=−0.165..−0.135는 등판 하단 z=−0.1625..−0.1375와 X 폭 0.03m·Z 겹침 0.025m의 면으로 닿으며 등판 부피를 관통하지 않는다. 각 뒤 다리는 하나의 연속 부품이며 0.04m 열린 등 아래 틈의 좌우 가장자리만 지난다. `seat-frame/upper/edge/underside`, `seat-pad/upper/edge/underside`, `back/front/rear/edge`, `leg-0..3/shaft/top/sole`이 안정 주소다. 좌판 직물과 구조 목재가 한 face를 공유하지 않는다. 정면·측면·45°에서 천 좌판의 두께와 등판의 분리·곡률을 확인한다. ref03에서 목재 의자의 별도 천 좌판과 뒤 지지를 채택하고 ref02에서 여섯 자리 반복만 받는다. ref04의 껍질형 책상 의자는 [책상 의자](#desk-chair)로 구분한다. ref01·05에는 식탁 의자가 없다. 실제 착석 강도는 `unverified`다.
 
+<!-- @generated-address-state:start -->
+@address-state default: seat-frame, seat-pad, back, leg-0, leg-1, leg-2, leg-3
+<!-- @generated-address-state:end -->
+
 ## 고리 발받침 섬 스툴 {#island-stool}
 
 `island-stool`은 좌판 지름 0.36, 상면 y=0.63, 전체 메시 점유 0.36×0.36×0.63m다. 네 발 접촉 중심이 원점이고 +Z는 섬을 향한다. 좌판은 두께 0.045m, 다리 네 개는 0.025m 사각 단면에 x/z=±0.13 중심이며 y=0..0.585다. 발받침은 y=0.23에서 중심선 x/z=±0.1175를 따르는 0.018×0.018m 사각 단면의 네 수평 막대가 끝에서 45° 맞댐으로 닫힌 사각 고리를 이룬다. X 방향 두 막대는 x=−0.1175..+0.1175에서 끝나고 Z 방향 두 막대는 z=−0.1175..+0.1175에서 끝나므로 각 끝면이 다리의 내부 X/Z 면과 높이 0.018m·가로 0.009m의 유한 면으로 닿는다. 45° 맞댐은 모서리 겹침 삼각 부피를 양쪽에서 절삭해 한 접촉면만 남긴다. 고리의 바깥 경계 x/z=±0.1265는 네 다리 외곽 ±0.1425 안에 있고 서로 이격된 장식 네 조각으로 보이지 않는다. `seat/upper/edge/underside`, `leg-0..3/shaft/top/sole`, `footrest-0..3/outer/contact`가 안정 주소다. 위·옆·아래 45°에서 고리의 연속성과 빈 중앙이 보여야 한다. ref03의 발받침 고리와 긴 섬 측면의 세 스툴 관계를 채택한다. ref02의 간단한 스툴은 배치 확인에만 쓰고, ref01·04·05에서 형상을 역산하지 않는다. 실제 하중은 `unverified`다.
@@ -155,6 +172,10 @@ ref03 전경의 막힌 상자형 낮은 탁자 외형은 현재 `coffee-table`�
 | @part | default | footrest-1 | mitered-box | -0.1175..0.1175 | 0.221..0.239 | 0.1085..0.1265 | leg-1,leg-3 |
 | @part | default | footrest-2 | mitered-box | -0.1265..-0.1085 | 0.221..0.239 | -0.1175..0.1175 | leg-0,leg-1 |
 | @part | default | footrest-3 | mitered-box | 0.1085..0.1265 | 0.221..0.239 | -0.1175..0.1175 | leg-2,leg-3 |
+
+<!-- @generated-address-state:start -->
+@address-state default: seat, leg-0, leg-1, leg-2, leg-3, footrest-0, footrest-1, footrest-2, footrest-3
+<!-- @generated-address-state:end -->
 
 ## 벽 연결 작업 책상과 침실 변종 {#work-desk}
 
@@ -227,6 +248,14 @@ prototype은 `work-desk/flex-1400`, `work-desk/bed-1200`, `work-desk/bed-1240`, 
 
 안정 part는 `top/upper/edge/underside`, `back-rail/front/back/top/underside/edge`; 침실에만 `support-left/right/shaft/top/sole`과 `drawer-one/front/back/side-left/side-right/top/underside/edge`; flex에만 `drawer-case/front/back/side-left/side-right/top/underside`, `drawer-0..2/front/back/side-left/side-right/top/underside/edge`, `telescopic-lower/outer/inner/top/sole`, `telescopic-upper/outer/top/contact`, `collar/outer/inner/contact`, `aux-panel/front/back/edge`, `aux-hinge/outer/contact`, `aux-pull/outer/contact`다. H2의 변종 키와 flex의 필수 `folded|open` 상태가 부품 집합·AABB를 고정한다. 정면·측면·상부·45°에서 무릎 공간과 벽 rail·서랍, flex의 기둥·접힌 판을 확인한다. ref04의 벽에 붙은 책상과 서랍선을 채택하되 사진의 숨은 지지 방식은 채택하지 않는다. settings의 조절식 단서를 보여야 하므로 ref04에 보이지 않는 기둥을 보이는 형태로 둔다. ref02의 침실 책상은 작은 고정 변종의 척도 관계로 채택하고 ref01·03·05에는 책상 세부가 없다. 실제 벽 앵커·높이 조절 작동·하중은 `unverified`다.
 
+<!-- @generated-address-state:start -->
+@address-state folded: top, back-rail, drawer-case, drawer-0, drawer-1, drawer-2, telescopic-lower, telescopic-upper, collar, aux-panel, aux-hinge, aux-pull
+@address-state open: top, back-rail, drawer-case, drawer-0, drawer-1, drawer-2, telescopic-lower, telescopic-upper, collar, aux-panel, aux-hinge, aux-pull
+@address-state bed-1200: top, back-rail, support-left, support-right, drawer-one
+@address-state bed-1240: top, back-rail, support-left, support-right, drawer-one
+@address-state bed-1250: top, back-rail, support-left, support-right, drawer-one
+<!-- @generated-address-state:end -->
+
 ## 천 씌운 셸 책상 의자 {#desk-chair}
 
 `@curve-layer`는 t=(y−0.415)/0.415에서 등 셸의 뒤 곡선 `−0.10−0.25t+0.08t²`, 셸 두께 0.025m, 천층 두께 0.035m를 뜻한다. 천층은 좌판과 등판이 한 부품이되 두 연결된 점유 조각을 가진다. 등판 두 층은 같은 다항 곡면의 앞뒤 면에서만 접하고 체적을 겹치지 않는다.
@@ -249,6 +278,10 @@ prototype은 `work-desk/flex-1400`, `work-desk/bed-1200`, `work-desk/bed-1240`, 
 
 `desk-chair`는 폭 0.52, 깊이 0.55, 높이 0.83m다. 바닥에서 셸 좌면 기준 X/Z 좌표가 각각 0인 점이 원점이고 +Z가 앉는 앞쪽이다. 등받이와 좌면은 외관상 한 장의 곡면 셸이다. 좌면 셸은 폭 0.52m, z=−0.10..+0.28, y=0.39..0.415이고 그 위 폭 0.48m의 천 좌면은 y=0.415..0.45에서 앞 edge z=+0.26이고 뒤 edge z_rear(y)=−0.10−0.17t−0.02×4t(1−t)+0.026m, t=(y−0.415)/0.415다. 이 뒤 edge는 등 셸 앞면보다 0.001m 앞쪽이고 천 좌면의 아래면은 y=0.415에서 셸 좌면 위에 면 접촉한다. 등 셸은 y=0.415..0.83에서 뒤쪽 표면 z(y)=−0.10−0.17t−0.02×4t(1−t), t=(y−0.415)/0.415로 굽고 두께 0.025m를 +Z로 낸다. 앞쪽 천층은 그 표면에서 +Z로 다시 0.035m, 폭 0.48m이며 y=0.415의 좌면 천 뒤 edge z=−0.074와 등 천 하단 앞면 z=−0.04를 잇는 0.035m 두께의 굽은 목 부분을 포함한다. 두 천 부피의 공유 접합면은 제거하여 하나의 닫힌 upholstery 부품으로 만든다. 등 뒤 기울기는 하단 z=−0.10에서 상단 z=−0.27로 0.17m다. 셸과 천층은 각각 닫힌 부품으로 만들고, 좌면 아래 네 다리는 중심 x=±0.18, 뒤쪽 z=−0.08·앞쪽 z=+0.18에 지름 0.025m, y=0..0.39로 둔다. 각 다리 상단은 좌면 셸의 y=0.39 아래면과 접하고 X/Z 단면은 좌면 범위 안이다. 연속 셸은 공유 모서리에서 용접하되 좌면과 등판 표면을 `shell-seat/upper/edge/underside`, `shell-back/front/rear/edge`로 나눈다. `upholstery/seat/back/edge`, `leg-0..3/shaft/top/sole`도 안정 주소다. 정면·측면·45°에서 좌면과 등판이 이어진 곡률을 확인하고 다리 사이를 막지 않는다. ref04의 초록 천 씌운 연결형 셸 의자를 채택하여 현재 `chair()`의 독립 직각 등판을 교체한다. ref02의 침실 책상 의자는 동일 prototype 반복의 근거이고 ref03의 목재 식탁 의자와 혼용하지 않는다. ref01·05에는 책상 의자를 판독할 형상이 없다. 인체 적합성은 `unverified`다.
 
+<!-- @generated-address-state:start -->
+@address-state default: shell-seat, shell-back, upholstery, leg-0, leg-1, leg-2, leg-3
+<!-- @generated-address-state:end -->
+
 ## 책상 화면과 키보드 {#work-equipment}
 
 `work-display`의 전체 화면판은 폭 0.50, 높이 0.30, 깊이 0.025m이고 놓이는 받침 아래면 중심이 원점, +Z가 사용자 쪽이다. 화면 하단은 y=0.12, 중앙 stand shaft는 높이 0.106m·0.04×0.04m로 y=0.014..0.12, 받침은 0.18×0.12×0.014m다. housing 뒤판은 x=±0.25,y=0.12..0.42,z=−0.0125..0.006이고 display-bezel은 같은 x/y 외곽에서 z=0.006..0.0125의 0.0065m 전면 띠다. bezel 안쪽은 x=±0.238,y=0.132..0.408을 관통 절삭한다. screen은 같은 안쪽 폭·높이에서 z=0.006..0.009에 놓여 housing에 닿고 bezel보다 0.0035m 물린다. `display-bezel/front/back/edge`, `screen/front/back/edge`, `housing/front/back/edge`, `stand-shaft/outer/top/sole`, `stand-base/upper/edge/sole`로 나눈다. `work-keyboard`는 폭 0.35, 깊이 0.12, 높이 0.015m이며 아래면 중심이 원점, +Z가 사용자 쪽이다. 본체는 y=0..0.012, 12열×4행의 낮은 key cap은 각각 0.018×0.013×0.003m로 y=0.012..0.015에 놓는다. cap 중심은 열 c=0..11에서 x=(c−5.5)×0.025m, 행 r=0..3에서 z=(r−1.5)×0.023m이고 key id는 12r+c다. 이 가로·세로 pitch를 명시하고 `keyboard-body/top/edge/underside`, `keys-0..47/top/edge/underside` 주소를 갖는다. 두 물체는 desk 상판을 생성하거나 material을 빌리지 않는다. 정면·측면·45°에서 stand의 접지와 독립 키 배열을 확인한다. ref04의 책상 위 작업 도구를 채택하지만 화면 UI나 글자는 만들지 않는다. ref02의 책상은 추가 배치의 근거이고 ref01·03·05는 장치 모델의 형상을 지정하지 않는다. 출력·전원은 `unverified`다.
@@ -270,3 +303,8 @@ prototype은 `work-desk/flex-1400`, `work-desk/bed-1200`, `work-desk/bed-1240`, 
 | @part | display | screen | box | -0.238..0.238 | 0.132..0.408 | 0.006..0.009 | housing,display-bezel |
 | @envelope | keyboard | * | bounds | -0.175..0.175 | 0..0.015 | -0.06..0.06 | - |
 | @part | keyboard | keyboard-body | box | -0.175..0.175 | 0..0.012 | -0.06..0.06 | support,keys-0 |
+
+<!-- @generated-address-state:start -->
+@address-state display: stand-base, stand-shaft, housing, display-bezel, screen
+@address-state keyboard: keyboard-body, keys-0, keys-1, keys-2, keys-3, keys-4, keys-5, keys-6, keys-7, keys-8, keys-9, keys-10, keys-11, keys-12, keys-13, keys-14, keys-15, keys-16, keys-17, keys-18, keys-19, keys-20, keys-21, keys-22, keys-23, keys-24, keys-25, keys-26, keys-27, keys-28, keys-29, keys-30, keys-31, keys-32, keys-33, keys-34, keys-35, keys-36, keys-37, keys-38, keys-39, keys-40, keys-41, keys-42, keys-43, keys-44, keys-45, keys-46, keys-47
+<!-- @generated-address-state:end -->

@@ -8,6 +8,8 @@
 
 네 발 물체에서 `leg-0..3`의 순서는 `0=(−X,−Z)`, `1=(−X,+Z)`, `2=(+X,−Z)`, `3=(+X,+Z)`이며 번호는 회전이나 방 배치에 따라 다시 매기지 않는다. ref01의 외피를 독립 물체 part로 옮기지 않고 ref02~05의 물체가 받는 안정 주소만 정의한다. 실제 모델 source의 face 완결 여부는 아직 `unverified`다.
 
+각 prototype의 `@address-state state:`는 해당 상태에서 face 주소를 받는 독립 part ID 집합이다. 같은 상태의 `@inventory`와 일대일로 맞아야 하고, H2 산문에 한 번도 등장하지 않는 part를 선언할 수 없다. `model-address-audit`는 산문 주소→part, inventory→산문 주소, 상태별 address↔inventory를 모두 검사한다. 이 선언은 현재 inventory에서 명시적으로 재생성하되 검증 실행은 재생성하지 않는다. 산문의 part/face 경로에서 `/`는 계층 구분이며 여러 part를 줄여 적은 표현은 `@address-state`의 개별 ID로 풀어 읽는다.
+
 ## 메트릭 UV와 곡면 분할 {#model-uv-and-topology}
 
 평면 face의 primary UV는 0..1로 재정규화하지 않은 m 좌표다. 국소 법선 ±X면은 U=+Z·V=+Y, ±Z면은 U=+X·V=+Y, ±Y면은 U=+X·V=+Z이고 원점은 그 face AABB의 각 U/V 최소 접점이다. 반대쪽 법선 face는 winding만 뒤집고 UV의 물리 축은 유지한다. 둥근 외벽은 local −Z 뒤쪽을 U=0 이음으로 하여 둘레 실제 호 길이를 U, local 높이를 V로 쓰고 안쪽 벽은 반대 winding을 쓴다. 곡면 좌판·쿠션·잎은 뒤쪽 local −Z 이음에서 각 위도 ring의 실제 edge 길이를 U, 아래쪽 pole부터의 meridian 길이를 V로 쓴다. 원형·원통형 둘레는 24개 같은 각도 구간, 닫힌 타원·구형은 같은 24개 경도와 12개 위도 구간을 사용한다. 양 극은 단일 vertex와 각각 24개 삼각형 부채로 닫고 퇴화 ring을 내지 않는다. 90° 둥근 모서리는 6개 구간, 얇은 잎은 8개 경계 vertex와 앞뒤 한 장씩을 두께 edge로 연결한다. 이 정수 규칙이 각 ID·상태에서 vertex 순서와 UV ring을 고정한다. 두 면의 서로 다른 투영은 모델 face edge에서만 끊고 한 face 안에서 UV를 임의 회전하거나 크기를 정규화하지 않는다. 실제 마감의 반복 길이·grain 축·색은 materials가 이 metric 좌표를 소비해 결정한다. 각 닫힌 부품은 퇴화 삼각형·비다양체 모서리 없이 2-manifold여야 하며 의도적으로 열린 cavity는 rim에서 두께를 가진 내·외벽으로 닫는다. 산출 producer는 부품별 position/index·연결 성분·경계/비다양체 edge·normal·UV·점유와 face별 삼각형 중복/누락을 검사한다. ref02~04의 원통 등·도기·잎을 같은 수치 세분화로 저작하고 ref01·05의 원경에서 곡면 밀도를 역산하지 않는다. 실제 재료 텍스처의 UV 반복 결과는 `unverified`다.
