@@ -117,12 +117,12 @@
 @evidence principles/core/common.md#scope-preservation 거실 러그·가족실 러그·현관 매트와 침대 세 개의 host 유도 덮개를 L·W·T 한 원형으로 받아 여섯 매개변수 셋, 몸판과 가장자리 띠, 재질 경계, 가구 겹침 규칙, 관찰을 이 H2에서 정한다.
 @evidence principles/core/common.md#substantive-completion 거실 2.35×2.00×0.008 m, 가족실 1.70×1.55×0.008 m, 현관 0.90×0.65×0.006 m와 침대 셋의 길이·폭 유도식 및 발치 쪽 이동 규칙, 0.04 m 테두리·Y=0 밑면을 정한다.
 @evidence principles/core/common.md#declared-basis 외곽은 거실 러그 예약과 현관 매트 예약에서 받고 가족실 러그 외곽도 common-family-reservation에서 받으며, 두 덮개를 한 원형으로 묶고 원점 예외를 두는 근거를 '사람이 밟고 지나가는 얇은 바닥 덮개'라는 이유로 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 예약은 외곽만 주고 이 H2는 몸판과 둘레 0.04 m 띠의 면 분할, 띠의 높이를 올리지 않는 규칙, 가구 다리 겹침을 허용하되 덮개가 가구를 들어 올리지 않는 규칙을 더한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 예약은 외곽만 주고 이 H2는 몸판과 둘레 0.04 m 띠의 면 분할, 띠의 높이를 올리지 않는 규칙, 바닥 접촉 가구의 발자국을 덮개에서 빼는 입력을 더한다.
 @evidence principles/design/models.md#representation-contract 몸판 하나와 같은 두께의 가장자리 띠 하나로 부품을 두고 재질 경계 `field`·`border`를 고정하며 무늬·털 높이·술 장식은 표현하지 않는다고 명시한다.
 @evidence principles/design/models.md#spatial-convention 로컬 원점을 바닥 평면 중심에, +X를 L 방향에, 밑면을 Y = 0에 두며 러그는 L이 world Z, 매트는 L이 world X다.
 @evidence principles/design/models.md#reviewable-structure 측면에서 두께가 T를 넘지 않아 문턱처럼 읽히지 않는지, 위에서 여섯 배치의 외곽이 각 예약과 같은지, 바닥면과 z-fighting 없이 구분되는지를 고정 뷰로 확인한다.
 @evidence principles/design/models.md#model-observable-style-basis 러그와 매트 표지에서 이 H2가 기하로 정하는 것은 T = 0.008/0.006 m의 얇은 두께와 `field`·`border` 두 면 분할뿐이고 무늬·털 높이·술 장식은 표현하지 않는다고 밝힌다.
-@evidence principles/design/models.md#model-scale-layer-completion 여섯 배치의 T 0.008 m·0.006 m, 침대 발끝 방향 러그 이동 0.07·0.11·0.01 m, 몸판과 같은 두께의 띠 한 층, 가구 다리 겹침 규칙, 세 관찰을 함께 적는다.
+@evidence principles/design/models.md#model-scale-layer-completion 여섯 배치의 T 0.008 m·0.006 m, 침대 발끝 방향 러그 이동 0.07·0.11·0.01 m, 몸판과 같은 두께의 띠 한 층, 가구 접촉 발자국 절개 규칙, 세 관찰을 함께 적는다.
 @evidence upstream/design/models.md#settings-and-space-revision-from-model-work 거실과 현관 예약은 그대로 받았으나 가족실 러그의 world 위치가 부모에 없어서 spaces/rooms/common.md#common-family-reservation에 X·Z 예약을 올렸다. models는 그 폭·길이만 소비한다.
 @evidence settings/10-house.md#living 거실 설정의 '절제된 무늬 러그'를 T = 0.008 m의 거실 러그 배치로 받되 무늬는 기하로 표현하지 않고 `field`·`border` 면 분할만 둔다.
 @evidence settings/10-house.md#entry 현관 설정의 '얕은 매트'를 T = 0.006 m 매트로 받아 측면에서 문턱처럼 읽히지 않는지를 관찰하게 한다.
@@ -134,7 +134,7 @@
 
 러그와 현관 매트는 사람이 밟고 지나가는 얇은 바닥 덮개이므로 길이 L, 폭 W, 두께 T를 받는 한 원형으로 만든다. [거실 러그 예약](../spaces/rooms/living.md#living-furniture-use)은 X = [-4.00, -2.00], Z = [-3.90, -1.55]로 L = 2.35 m(world Z), W = 2.00 m, T = 0.008 m다. [가족실 러그 예약](../spaces/rooms/common.md#common-family-reservation)은 X 방향 폭 1.55 m, Z 방향 길이 1.70 m, 두께 0.008 m로 받는다. 배치 원점과 회전은 그 부모 예약을 소비하는 instances가 정한다. [현관 매트 예약](../spaces/rooms/entry.md#entry-use-routes)은 X = [0.45, 1.35], Z = [-1.95, -1.30]으로 L = 0.90 m(world X), W = 0.65 m, T = 0.006 m다. 레퍼런스 02의 침대 아래 얇은 러그도 채택한다. [침대 원형](13-bedrooms.md#headboard-bed)의 길이·폭에 각각 0.30 m를 더한 host 유도 변형으로 주침실은 2.45 × 1.90 × 0.008 m, 작은 침실 둘은 각각 2.45 × 1.45 × 0.008 m다. 침대 중심 기준 사방 0.15 m 노출을 시작값으로 삼되, 머리 쪽 러그 끝이 방 벽 마감과 0.02 m보다 가까우면 그 부족 거리만큼 러그 전체를 발끝 방향으로 옮긴다. 주침실은 머리 쪽 침범 0.05 m를 해소하려고 침대 국소 발끝 방향으로 0.07 m, 둘째 침실은 침범 0.09 m를 해소하려고 같은 방향으로 0.11 m, 셋째 침실은 벽과의 0.01 m 틈을 0.02 m로 늘리려고 같은 방향으로 0.01 m 옮긴다. 외곽 2.45 × 1.90/1.45 m와 두께 0.008 m는 유지하고 노출 폭의 비대칭은 위 세 결정값으로 고정한다. 별도 방이나 새 벽을 만들지 않고, 실제 배치가 문 회전·가구 다리와 맞는지는 instance 적합 검사의 대상이며 지금은 unverified다. [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)의 예외로 밟고 지나가는 덮개이므로 로컬 원점을 바닥 평면 중심에 두고 +X를 L 방향으로 두며 밑면이 Y = 0에 놓인다.
 
-부품은 몸판 하나와 가장자리 띠 하나다. 가장자리 띠는 몸판 둘레 0.04 m 폭의 같은 두께 영역으로 면만 나누고 높이를 올리지 않는다. 재질 경계는 `field`, `border`다. 무늬·털 높이·술 장식은 표현하지 않는다. 덮개 위에 가구가 놓이며 가구 다리와 겹치는 것은 허용하고 덮개가 가구를 들어 올리지 않는다.
+부품은 몸판 하나와 가장자리 띠 하나다. 가장자리 띠는 몸판 둘레 0.04 m 폭의 같은 두께 영역으로 면만 나누고 높이를 올리지 않는다. 재질 경계는 `field`, `border`다. 무늬·털 높이·술 장식은 표현하지 않는다. 배치가 주는 바닥 접촉 발자국을 덮개의 평면에서 빼고 생긴 수직 절단면은 원래 영역의 `field` 또는 `border` id로 닫는다. 발자국은 가구의 모든 Y=[0,T] 고체를 덮개 국소 평면으로 변환해 얻은 합집합이며, 발이 없는 침대 머리판·바닥까지 내려온 협탁 몸통도 빠짐없이 포함한다. 발자국 가장자리는 0.001 m 바깥으로 넓혀 별도 원형의 면이 수치 오차로 교차하지 않게 한다. 덮개가 없는 곳의 가구 높이는 바꾸지 않고, 덮개가 가구를 들어 올리거나 같은 부피를 차지하지 않는다. 발자국 목록과 world 변환은 후속 instances가 배치한 실제 원형에서 계산하며 이 H2는 방별 가구 좌표를 복제하지 않는다.
 
 소스 owner는 `src/models/furnishings/living.ts`다. 관찰은 측면에서 두께가 T를 넘지 않아 문턱처럼 읽히지 않는지, 위에서 여섯 배치의 외곽이 각 예약과 같은지, 바닥면과 z-fighting 없이 구분되는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
 
