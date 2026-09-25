@@ -17,7 +17,7 @@ import { execFileSync } from "node:child_process";
 import { join, relative } from "node:path";
 import { parseArgs } from "node:util";
 import { createReviewPayload } from "./review-payload";
-import { modelAccountMismatches, modelAccountRows, modelDocumentBodyLength, modelSectionMeasures, modelInputHeader, modelSourceInputRows, modelSourceInputMismatches } from "./model-account";
+import { modelAccountMismatches, modelAccountRows, modelDocumentBodyLength, modelSectionMeasures, modelInputHeader, modelSourceInputRows, modelSourceInputMismatches, modelPartNounMismatches } from "./model-account";
 import { spaceAccountMismatches, spaceAccountRows, spaceDocumentBodyLength } from "./space-account";
 import { replaceMeasuredTable } from "./account-sync";
 import { handoffOtherOwners, modelHandoffRows } from "./model-handoff-audit";
@@ -169,6 +169,7 @@ const modelAccount = values["sync-accounts"]
 if (values["sync-accounts"] && modelAccount !== rawModelAccount) writeFileSync(modelAccountPath, modelAccount, "utf8");
 const modelMismatches = modelAccountMismatches(modelAccount, modelRows);
 const parameterAuditMismatches = modelSourceInputMismatches(modelAccount, modelInputs);
+const partNounMismatches = modelPartNounMismatches(modelDocuments);
 console.log(`docs/models population: ${models.length} files, ${modelMeasures.reduce((sum, row) => sum + row.headings, 0)} H2`);
 console.log("generated docs/accounts/models/core-common.md#proportion rows:");
 for (const row of modelRows) console.log(row);
@@ -176,7 +177,18 @@ console.log(`models account table mismatches: ${modelMismatches.length}`);
 for (const row of modelMismatches) console.log(`  stale: ${row}`);
 console.log(`model source-input index: ${modelDocuments.reduce((sum, document) => sum + [...document.source.matchAll(/^## /gm)].length, 0)} sections, ${modelInputs.length} part rows; ${parameterAuditMismatches.length} stale, missing or duplicate`);
 for (const row of parameterAuditMismatches) console.log(`  parameter audit: ${row}`);
-console.log(execFileSync(process.execPath, [join(__dirname, "model-design-arithmetic.mjs")], { encoding: "utf8" }).trim());
+console.log(`model construction noun/part census: ${modelDocuments.reduce((sum, document) => sum + [...document.source.matchAll(/^## /gm)].length, 0) - 3} geometry H2; ${partNounMismatches.length} missing nouns or part owners`);
+for (const row of partNounMismatches) console.log(`  part owner: ${row}`);
+let arithmeticFailures = 0;
+try {
+  console.log(execFileSync(process.execPath, [join(__dirname, "model-design-arithmetic.mjs")], { encoding: "utf8" }).trim());
+} catch (error) {
+  arithmeticFailures = 1;
+  const failure = error as { stdout?: Buffer | string; stderr?: Buffer | string; message?: string };
+  console.error("model design arithmetic FAIL:", failure.message ?? String(error));
+  if (failure.stdout) console.error(String(failure.stdout).trim());
+  if (failure.stderr) console.error(String(failure.stderr).trim());
+}
 const sectionRanks = modelSectionMeasures(modelDocuments);
 console.log(`model H2 ranks: ${sectionRanks.length} sections; top 7 ${sectionRanks.slice(0, 7).map((row) => `${row.title}=${row.body}`).join(", ")}; shortest 4 ${sectionRanks.slice(-4).reverse().map((row) => `${row.title}=${row.body}`).join(", ")}`);
 
@@ -208,5 +220,6 @@ if (retired.length > 0) {
     console.log(`  ${value}: ${hits.length}${hits.length > 0 ? ` — ${hits.join(", ")}` : ""}`);
   }
 }
-console.log(`self-check failures: ${review.failures + accountMismatches.length + modelMismatches.length + parameterAuditMismatches.length + ownerless.length + Number(addressControlFailed) + Number(ownViewControlFailed)}`);
-process.exitCode = review.failures + accountMismatches.length + modelMismatches.length + parameterAuditMismatches.length + ownerless.length + Number(addressControlFailed) + Number(ownViewControlFailed) > 0 ? 1 : 0;
+const failureCount = review.failures + accountMismatches.length + modelMismatches.length + parameterAuditMismatches.length + partNounMismatches.length + ownerless.length + arithmeticFailures + Number(addressControlFailed) + Number(ownViewControlFailed);
+console.log(`self-check failures: ${failureCount}`);
+process.exitCode = failureCount > 0 ? 1 : 0;

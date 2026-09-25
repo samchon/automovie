@@ -77,10 +77,10 @@
 | [fixtures/stool](../../models/fixtures.md#stool) | `stretcher` | 456 | `7e79b27de0002941ca867d0d0a8b1345f0c55183bc4230522adc138e49c532cf` |
 | [fixtures/scroll-shelf](../../models/fixtures.md#scroll-shelf) | `frame` | 536 | `1c0e411dde19e198cdc1399be2bb51a48797144f97f71d65e9f478dfccaae339` |
 | [fixtures/scroll-shelf](../../models/fixtures.md#scroll-shelf) | `divider` | 536 | `1c0e411dde19e198cdc1399be2bb51a48797144f97f71d65e9f478dfccaae339` |
-| [fixtures/chest](../../models/fixtures.md#chest) | `body` | 1193 | `6ca3b55fe2300ea4ab060373d5cd9383ccf769e8f8e38394c06c466ebf9ca81b` |
-| [fixtures/chest](../../models/fixtures.md#chest) | `lid` | 1193 | `6ca3b55fe2300ea4ab060373d5cd9383ccf769e8f8e38394c06c466ebf9ca81b` |
-| [fixtures/chest](../../models/fixtures.md#chest) | `hasp` | 1193 | `6ca3b55fe2300ea4ab060373d5cd9383ccf769e8f8e38394c06c466ebf9ca81b` |
-| [fixtures/chest](../../models/fixtures.md#chest) | `strap` | 1193 | `6ca3b55fe2300ea4ab060373d5cd9383ccf769e8f8e38394c06c466ebf9ca81b` |
+| [fixtures/chest](../../models/fixtures.md#chest) | `body` | 1281 | `b641550c99789b99fc426327bbdfdcd0df056e1e10cd5f907256c9cf734d7e15` |
+| [fixtures/chest](../../models/fixtures.md#chest) | `lid` | 1281 | `b641550c99789b99fc426327bbdfdcd0df056e1e10cd5f907256c9cf734d7e15` |
+| [fixtures/chest](../../models/fixtures.md#chest) | `hasp` | 1281 | `b641550c99789b99fc426327bbdfdcd0df056e1e10cd5f907256c9cf734d7e15` |
+| [fixtures/chest](../../models/fixtures.md#chest) | `strap` | 1281 | `b641550c99789b99fc426327bbdfdcd0df056e1e10cd5f907256c9cf734d7e15` |
 | [landscape/cypress](../../models/landscape.md#cypress) | `trunk` | 792 | `254b0764f26382bc6cbeb3a4d3cc8db68fd634ff15fd9570abd4b1d23dc74489` |
 | [landscape/cypress](../../models/landscape.md#cypress) | `crown` | 792 | `254b0764f26382bc6cbeb3a4d3cc8db68fd634ff15fd9570abd4b1d23dc74489` |
 | [landscape/broad-tree](../../models/landscape.md#broad-tree) | `trunk` | 1025 | `eb8574f38ce79c1cd8465bbb65e70a19d4d08825871d474542579adb29145d2d` |
@@ -113,8 +113,8 @@
 | [wares/storage-jar](../../models/wares.md#storage-jar) | `handle` | 755 | `6677b4efe096596073b394101da9ab7cd1ae797db9412e181feb0c94c54bbb95` |
 | [wares/carry-jar](../../models/wares.md#carry-jar) | `body` | 659 | `6a74465072a35c93df709e5bc4e721d0abde848546e5b58b6ac49f295fca28cc` |
 | [wares/carry-jar](../../models/wares.md#carry-jar) | `handle` | 659 | `6a74465072a35c93df709e5bc4e721d0abde848546e5b58b6ac49f295fca28cc` |
-| [wares/small-vessel](../../models/wares.md#small-vessel) | `body` | 627 | `6802302ba6b577cc3cbbcaa3432370d3b313ca0b154caec92f28d70bc4717169` |
-| [wares/small-vessel](../../models/wares.md#small-vessel) | `handle` | 627 | `6802302ba6b577cc3cbbcaa3432370d3b313ca0b154caec92f28d70bc4717169` |
+| [wares/small-vessel](../../models/wares.md#small-vessel) | `body` | 740 | `36735e449dc6368bfe5a4430f7695676075d704c3f85223e2760fff8f201bc29` |
+| [wares/small-vessel](../../models/wares.md#small-vessel) | `handle` | 740 | `36735e449dc6368bfe5a4430f7695676075d704c3f85223e2760fff8f201bc29` |
 | [wares/offering-bowl](../../models/wares.md#offering-bowl) | `bowl` | 670 | `6a2e8259b62bb2aa43d8624ac1219f14f4ad3365db100c14cac58ae71a513ad5` |
 | [wares/basket](../../models/wares.md#basket) | `wall` | 718 | `0af8abe6a767ba8ba5240951a9b8b5e9b0bbcab0d22abe3feedc1f0f41bef40b` |
 | [wares/basket](../../models/wares.md#basket) | `rim` | 718 | `0af8abe6a767ba8ba5240951a9b8b5e9b0bbcab0d22abe3feedc1f0f41bef40b` |
@@ -142,15 +142,15 @@ settings의 [작업 언어](../../settings/00-delivery.md#working-language)에 �
 
 | 모델 파일 | H2 | 주석·공백 제외 본문 문자 수 |
 | --- | ---: | ---: |
-| fixtures.md | 10 | 6705 |
+| fixtures.md | 10 | 6783 |
 | entablature.md | 5 | 3838 |
 | openings.md | 4 | 3830 |
-| wares.md | 6 | 3837 |
+| wares.md | 6 | 3933 |
 | landscape.md | 4 | 3353 |
 | scale.md | 3 | 5008 |
 | columns.md | 2 | 1732 |
 | cladding.md | 2 | 2971 |
-| 합계 | 36 | 31274 |
+| 합계 | 36 | 31448 |
 
 재생성 전 원본은 작업 트리에 없지만 Git `111dba96^:experimental/ancient-civic-temple/docs/models/temple-fit-out.md`에 남아 있다. 현재 계정의 `modelDocumentBodyLength`와 같은 방식으로 해당 blob의 HTML 주석·공백을 빼고 제목을 포함해 다시 세면 한 파일·17 H2·14,799자다. 그 H2 목록에는 `Column prototype`, `Door prototype`, `Roof tile prototype`이 각각 한 번씩 있어 당시 기둥·문짝·기와를 한 절로 묶은 기록도 확인된다. 현재 판은 문틀·양개·외개·창틀, 주랑·포치 원주, 평기와·용마루를 따로 두어 서로 다른 소비자와 변경 경로를 가진 결정이 각자 주소를 가진다.
 

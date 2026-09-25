@@ -61,6 +61,73 @@ export const modelAccountMismatches = (account: string, rows: readonly string[])
 export const modelInputHeader = "| 모델 H2 | part | 본문 문자 수 | 본문 SHA-256 |";
 
 /**
+ * Independent Korean construction nouns expected before each H2's part declaration.
+ * This covers all 33 geometry H2s, so dropping a part from the declaration while
+ * leaving its designed geometry behind fails instead of silently shrinking the index.
+ * A changed design must revise its H2 and this audit together.
+ */
+const geometryNounsByPart: Record<string, Record<string, string>> = {
+  "cladding#roof-tile": { tegula: "평기와", imbrex: "둥근기와" },
+  "cladding#ridge-tile": { ridge: "덮개" },
+  "columns#colonnade-column": { plinth: "기단", base: "받침", shaft: "몸통", capital: "주두" },
+  "columns#porch-column": { plinth: "기단", base: "받침", shaft: "몸통", capital: "주두" },
+  "entablature#colonnade-beam": { timber: "목재" },
+  "entablature#rafter": { timber: "서까래" },
+  "entablature#porch-entablature": { beam: "보는", cornice: "코니스", "raking-trim": "경사 트림" },
+  "entablature#sanctuary-truss": { "tie-beam": "평보", principal: "경사재", "king-post": "가운데 기둥", strut: "버팀재" },
+  "entablature#ceiling-joist": { timber: "목재 보" },
+  "openings#door-frame": { lining: "안감", surround: "테" },
+  "openings#double-door-leaf": { frame: "선대", panel: "판은", plate: "받침판", pin: "연결 핀", ring: "고리", hinge: "경첩" },
+  "openings#single-door-leaf": { board: "널 다섯", batten: "가로 띠", strap: "쇠 띠", pin: "연결 핀", ring: "고리" },
+  "openings#window-frame": { lining: "안감", surround: "테" },
+  "fixtures#fountain": { step: "받침단", rim: "테두리", "basin-inner": "안쪽 바닥", water: "물면", ripple: "파문", nozzle: "노즐", jet: "물줄기" },
+  "fixtures#altar": { step: "석단", top: "상판", support: "받침" },
+  "fixtures#niche": { plinth: "받침", body: "몸체", recess: "오목한 칸", cap: "머리판" },
+  "fixtures#lampstand": { foot: "원판", stem: "줄기", knop: "마디", dish: "접시" },
+  "fixtures#offering-table": { top: "상판", trestle: "다리받침" },
+  "fixtures#display-shelf": { side: "측판", board: "선반 판" },
+  "fixtures#desk": { top: "상판", leg: "다리", stretcher: "가로 지지재" },
+  "fixtures#stool": { seat: "좌판", leg: "다리", stretcher: "가로 지지재" },
+  "fixtures#scroll-shelf": { frame: "측판", divider: "칸막이" },
+  "fixtures#chest": { body: "몸체", lid: "뚜껑", hasp: "걸쇠", strap: "띠는" },
+  "wares#storage-jar": { body: "바깥 윤곽", handle: "손잡이" },
+  "wares#carry-jar": { body: "바깥 윤곽", handle: "손잡이" },
+  "wares#small-vessel": { body: "바깥 윤곽", handle: "손잡이" },
+  "wares#offering-bowl": { bowl: "껍질" },
+  "wares#basket": { wall: "벽은", rim: "테두리", floor: "안쪽 바닥" },
+  "wares#scroll": { sheet: "종이", tie: "끈" },
+  "landscape#cypress": { trunk: "줄기", crown: "수관" },
+  "landscape#broad-tree": { trunk: "줄기", branch: "가지", crown: "수관" },
+  "landscape#grass-tuft": { blade: "잎" },
+  "landscape#neighbor-house": { wall: "벽", plinth: "기단 띠", roof: "지붕", recess: "문·창 자리" },
+};
+
+/** Cross-check every construction noun against the exported face owner inventory. */
+export const modelPartNounMismatches = (documents: readonly { path: string; source: string }[]): string[] => {
+  const missing: string[] = [];
+  const seen = new Set<string>();
+  for (const { path, source } of documents) for (const section of source.replace(/\r\n/g, "\n").split(/(?=^## )/m).filter((item) => item.startsWith("## "))) {
+    const anchor = section.match(/^## .+ \{#([^}]+)\}/)?.[1];
+    if (!anchor) throw new Error(`모델 H2 anchor가 없습니다: ${path}`);
+    const key = `${path.replace(/\.md$/, "")}#${anchor}`;
+    if (path === "scale.md") continue;
+    seen.add(key);
+    const nouns = geometryNounsByPart[key];
+    if (!nouns) { missing.push(`${key}: no independent noun mapping`); continue; }
+    const prose = section.replace(/<!--[\s\S]*?-->/g, "").split("part와 표면은")[0] ?? "";
+    const declared = section.replace(/<!--[\s\S]*?-->/g, "").split("part와 표면은")[1]?.split("다.")[0] ?? "";
+    const parts = [...declared.matchAll(/`([^`]+)`/g)].map((match) => match[1]!);
+    for (const [part, noun] of Object.entries(nouns)) {
+      if (!prose.includes(noun)) missing.push(`${key}: construction noun ${noun} for ${part} absent`);
+      if (!parts.includes(part)) missing.push(`${key}: ${noun} has no ${part} surface`);
+    }
+    for (const part of parts) if (!(part in nouns)) missing.push(`${key}: declared ${part} has no independent construction noun`);
+  }
+  for (const key of Object.keys(geometryNounsByPart)) if (!seen.has(key)) missing.push(`${key}: audited H2 absent`);
+  return missing;
+};
+
+/**
  * Produce a part-by-part source-input index from the H2 body itself. The table
  * deliberately has no manually maintained "remaining decisions: 0" column:
  * exact prose changes change the generated row and are reviewed at the owner.

@@ -258,7 +258,7 @@ part와 표면은 `frame`, `divider`다. 스무 칸의 빈 공간과 선반 판 
 <!--
 @evidence principles/core/common.md#scope-preservation 보관 궤를 몸체·분리된 뚜껑·이음 선·걸쇠·경첩 띠·모서리 띠까지 닫힌 고정 상태로 정한다.
 @evidence principles/core/common.md#substantive-completion 몸체·뚜껑·0.005m 이격, 몸체와 뚜껑 앞면을 잇는 걸쇠의 세 접촉 구간, 경첩 띠 X=±0.27m의 꺾인 접촉 경로와 네 모서리 L단면 띠를 확정해 source가 궤 철물 접점을 다시 고르지 않는다.
-@evidence principles/core/common.md#declared-basis 구성은 35-objects#chests, 잠금 궤가 놓이는 방은 30-interiors#records, 형태는 이미지 05의 걸쇠 달린 낮은 궤에서 온다고 밝힌다.
+@evidence principles/core/common.md#declared-basis 구성은 35-objects#chests, 잠금 궤와 뚜껑 상자의 방별 쓰임은 30-interiors#records와 #storage, 형태는 이미지 05의 걸쇠 달린 낮은 궤에서 온다고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 보관 궤 설정을 닫힌 뚜껑의 이음 선과 금속 띠로 읽히는 고정 부재라는 모델 결정으로 바꾼다.
 @evidence principles/design/models.md#representation-contract body·lid·hasp·strap part와 표면을 정하고 속 빈 공간과 내용물을 납품하지 않는다고 적는다.
 @evidence principles/design/models.md#spatial-convention 원점을 바닥면 중심, 앞을 +Z로 두고 띠·뚜껑을 포함한 점유 상자 0.82×0.505×0.535m를 적는다.
@@ -268,10 +268,11 @@ part와 표면은 `frame`, `divider`다. 스무 칸의 빈 공간과 선반 판 
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work chests 구성과 records 설정의 여닫을 공간 요구를 닫힌 고정 궤에 대조했고 여닫는 동작은 납품하지 않되 공간은 spaces가 남겨 부모를 고치지 않았다.
 @evidence settings/35-objects.md#chests 목재 몸체와 분리된 뚜껑의 보관 궤를 이 prototype으로 받는다.
 @evidence settings/30-interiors.md#records 기록실의 잠금 장치가 보이는 낮은 궤를 걸쇠 달린 궤로 받는다.
+@evidence settings/30-interiors.md#storage 보관실의 뚜껑 있는 상자를 이 분리된 뚜껑·걸쇠가 있는 고정 궤 원형으로 받는다.
 @evidence settings/50-production.md#references 이미지 05의 걸쇠 달린 낮은 궤를 근거로 쓴다.
 -->
 
-[보관 궤](../settings/35-objects.md#chests)의 목재 몸체와 분리된 뚜껑이다. 이미지 05의 잠금 걸쇠가 있는 낮은 궤가 근거이며 닫힌 상태로 고정한다.
+[보관 궤](../settings/35-objects.md#chests)의 목재 몸체와 분리된 뚜껑이다. 이미지 05의 잠금 걸쇠가 있는 낮은 궤가 근거이며 닫힌 상태로 고정한다. [보관실](../settings/30-interiors.md#storage)의 뚜껑 있는 상자도 이 원형으로 만들고 위치·개수는 instances가 정한다.
 
 로컬 원점은 바닥면 중심, 앞은 +Z다. 몸체는 폭 0.80m·깊이 0.50m·높이 0.44m 상자이고 뚜껑은 폭 0.82m·깊이 0.52m·두께 0.06m로 몸체 위 Y=0.445~0.505m에 놓인다. 몸체 윗면 Y=0.44m와 뚜껑 아랫면 사이의 0.005m 열린 이음 선은 두 부재 사이 실제 틈이며 몸체나 뚜껑에 가짜 음각을 새기지 않는다. 앞면 가운데 쇠 걸쇠 `hasp`는 X=−0.04~+0.04m의 폭 0.08m로 몸체와 뚜껑을 잇는 한 꺾인 판이다. 아래 구간은 Y=0.35~0.44m·Z=+0.25~+0.26m라 몸체 앞면에 닿는다. 연결 구간은 Y=0.44~0.445m에서 Z의 앞·뒤 면이 +0.25/+0.26m에서 +0.26/+0.27m로 함께 선형 이동해 0.005m 뚜껑 틈을 건넌다. 윗 구간은 Y=0.445~0.505m·Z=+0.26~+0.27m라 뚜껑 앞면에 닿는다. 각 구간은 만나는 Y면에서 같은 폭·두께의 판면을 공유하고 몸체와 뚜껑의 실체 내부에는 들어가지 않는다. 뒷면 두 경첩 띠는 중심 X=±0.27m·폭 0.04m·두께 0.005m인 꺾인 금속판이다. 각 띠는 몸체 뒷면 Z=−0.25m에 닿는 구간 Y=0.36~0.44m, 이음 위로 0.005m 오르며 Z=−0.25→−0.26m로 뒤로 꺾인 연결 구간, 뚜껑 뒷면 Z=−0.26m에 닿는 구간 Y=0.445~0.505m를 순서대로 잇는다. 몸체 쪽 띠는 Z=−0.255~−0.25m, 뚜껑 쪽 띠는 Z=−0.265~−0.26m이며 위 끝이 뚜껑 윗면 높이에 닿는다. 네 모서리 띠는 몸체 앞왼쪽·앞오른쪽·뒤왼쪽·뒤오른쪽 연직 모서리(X=±0.40m,Z=±0.25m)를 감싼 ㄱ자 단면이다. 각 띠는 맞닿는 X면과 Z면에서 모서리로부터 각각 0.04m 폭·바깥쪽 0.005m 두께이고 Y=0~0.44m로 이어진다. 전체 높이 0.505m, 점유 상자는 0.82×0.505×0.535m다.
 

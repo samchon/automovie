@@ -58,7 +58,7 @@ part와 표면은 `body`, `handle`이다. 손잡이 안쪽 고리와 입 안쪽�
 <!--
 @evidence principles/core/common.md#scope-preservation 작은 탁상 용기를 윤곽 네 점·입 안쪽 깊이·손잡이 하나까지 정한다.
 @evidence principles/core/common.md#substantive-completion 높이별 반지름과 입 안쪽 깊이에 +X 손잡이의 아래·위 부착점, 두 제어점과 12구간 경로·관 8분할을 더해 source가 손잡이 형상을 새로 고르지 않는다.
-@evidence principles/core/common.md#declared-basis 높이 0.12~0.30m 탁상 용기 범위는 35-objects#vessels에서 오고 봉헌실·관리실·감실의 쓰임은 각 선반·감실 모델 H2가 받는다고 밝힌다.
+@evidence principles/core/common.md#declared-basis 높이 0.12~0.30m 탁상 용기 범위는 35-objects#vessels에서, 작은 도구 용기라는 관리실의 쓰임은 30-interiors#administration에서 받는다. 봉헌실·감실의 배치는 각 선반·감실 모델 H2와 instances가 받는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 도기 설정을 좁은 목과 한쪽 손잡이의 0.20m 용기라는 모델 결정으로 바꾼다.
 @evidence principles/design/models.md#representation-contract body·handle part와 입 안쪽 빈 공간을 정한다.
 @evidence principles/design/models.md#spatial-convention 원점을 바닥면 중심에 두고 손잡이를 포함한 점유 범위 X=−0.08~0.11m·Y=0~0.20m·Z=−0.08~0.08m를 적는다.
@@ -67,9 +67,10 @@ part와 표면은 `body`, `handle`이다. 손잡이 안쪽 고리와 입 안쪽�
 @evidence principles/design/models.md#model-scale-layer-completion 높이 0.20m가 탁상 범위 안이고 위치·수량 소유가 정해져 탁상 용기 층이 완결된다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work vessels의 0.12~0.30m 범위를 높이 0.20m에 대조했고 감실 칸 0.80m·선반 칸 높이 안에 들어 부모를 고치지 않았다.
 @evidence settings/35-objects.md#vessels 높이 0.12~0.30m 탁상 용기 범위를 0.20m 용기로 받는다.
+@evidence settings/30-interiors.md#administration 작업대의 작은 도구 용기를 이 열린 입을 가진 작은 탁상 용기로 받으며 도구의 수와 배치는 instances에 남긴다.
 -->
 
-봉헌실·관리실·감실의 작은 도기다. [도기와 봉헌 그릇](../settings/35-objects.md#vessels)의 높이 0.12~0.30m 탁상 용기가 근거다.
+봉헌실·관리실·감실의 작은 도기다. [도기와 봉헌 그릇](../settings/35-objects.md#vessels)의 높이 0.12~0.30m 탁상 용기가 근거다. [관리실](../settings/30-interiors.md#administration)의 작은 도구 용기는 이 원형의 열린 입을 쓰는 한 배치다. 도구의 수와 배치 위치는 instances가 정한다.
 
 로컬 원점은 바닥면 중심이다. 바깥 윤곽은 (높이,반지름)=(0,0.05),(0.10,0.08),(0.16,0.035),(0.20,0.045)m의 직선 연결이다. 입 안쪽은 (0.20,0.028)→(0.16,0.022)→(0.15,0.018)m의 직선 연결 뒤 Y=0.15m에서 중심까지 닫힌 바닥으로, 목의 벽 두께가 0.013m다. 한쪽 +X의 고리 손잡이(관 반지름 0.01m)는 아래 부착점 (0.08,0.10,0)m에서 제어점 (0.10,0.10,0)m·(0.10,0.16,0)m를 지나 위 부착점 (0.035,0.16,0)m으로 이어지는 3차 베지어 곡선이다. 경로 12분할·관 둘레 8분할, 몸체 회전 12분할이다. 손잡이의 최대 X는 베지어 상한 0.10m에 관 반지름을 더한 0.11m이며 점유 상자는 X −0.08~0.11m, Y 0~0.20m, Z −0.08~0.08m다.
 

@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import assert from "node:assert/strict";
+import { imbrexFootMargin, pinPlateRadialMargin, ridgeFootGap, rollSheetGap, strapBattenVerticalMargin } from "./model-contact-math.mjs";
 // Fail on the source prose itself if a reviewed contact, section, or bound drifts.
 const root = new URL("../../docs/models/", import.meta.url);
 /** @param {string} file @param {string} anchor */
@@ -20,6 +21,25 @@ const near = (label, actual, expected, eps = 1e-6) => {
   assert.ok(Math.abs(actual - expected) <= eps, label + ": " + actual + " vs " + expected);
   console.log("PASS", label, actual, expected);
 };
+const column = h2("columns", "colonnade-column");
+const beam = h2("entablature", "colonnade-beam");
+const columnTop = n(column, /전체 높이는 약 ([\d.]+)m/);
+const beamTop = n(beam, /보 윗면 높이는[^\n]*?약 ([\d.]+)m/);
+const beamDepth = n(beam, /단면은 폭 [\d.]+m·깊이 ([\d.]+)m/);
+near("colonnade capital supports beam underside", columnTop, beamTop - beamDepth);
+const capitalWidth = n(column, /주두 판\(정방 ([\d.]+)×/);
+const beamWidth = n(beam, /단면은 폭 ([\d.]+)m/);
+assert.ok(beamWidth <= capitalWidth, "beam must fit on the capital plate");
+console.log("PASS colonnade beam fits the capital", beamWidth, capitalWidth);
+const porchColumn = h2("columns", "porch-column");
+const porchBeam = h2("entablature", "porch-entablature");
+near("porch capital supports stone beam underside",
+  n(porchColumn, /전체 높이 ([\d.]+)m/),
+  n(porchBeam, /아랫면 Y=([\d.]+)m가 두/));
+const joist = h2("entablature", "ceiling-joist");
+near("ceiling joist touches the boarding underside",
+  n(joist, /아랫면은 ([\d.]+)m다/) + n(joist, /깊이 ([\d.]+)m/),
+  n(joist, /윗면 Y=([\d.]+)m가 널판/));
 const d = h2("openings", "double-door-leaf");
 near("double ring to upper pin", n(d, /받침판 중심은[^\n]*?Y=([\d.]+)m/) + n(d, /중심선 반지름 ([\d.]+)m/), n(d, /연결 핀 두 개는[^\n]*?\(X,Y\)=\(손잡이 중심 X,([\d.]+)m\)/));
 near("double front pin to ring Z", n(d, /앞핀은 Z=\+[\d.]+~\+([\d.]+)m/), n(d, /고리 중심면은 Z=\+([\d.]+)m/));
@@ -28,7 +48,7 @@ const plateRadius = n(d, /받침판\(반지름 ([\d.]+)m, 두께/);
 const plateCenterY = n(d, /손잡이와 받침판 중심은[^\n]*?Y=([\d.]+)m/);
 const doublePinY = n(d, /연결 핀 두 개는[^\n]*?\(X,Y\)=\(손잡이 중심 X,([\d.]+)m\)/);
 const doublePinRadius = n(d, /반지름 ([\d.]+)m의 연결 핀 두 개/);
-assert.ok(Math.abs(doublePinY - plateCenterY) < plateRadius + doublePinRadius,
+assert.ok(pinPlateRadialMargin(plateRadius, plateCenterY, doublePinRadius, doublePinY) > 0,
   "double pin must overlap plate disk; detached at its circumference");
 assert.ok(plateRadius > doublePinRadius && Math.abs(doublePinY - plateCenterY) < plateRadius,
   "double pin axis must penetrate the plate disk, not merely touch its rim");
@@ -40,6 +60,12 @@ const single = h2("openings", "single-door-leaf");
 near("single ring to upper pin", n(single, /중심 X=\([^\n]+?Y=([\d.]+)m/) + n(single, /중심선 반지름은 ([\d.]+)m/), n(single, /연결 핀은[^\n]*?Y\)=\([^,]+,([\d.]+)m\)/));
 near("single lower strap centred on batten", n(single, /Y 중심은 아래 띠 ([\d.]+)m/),
   n(single, /아랫면 높이 ([\d.]+)m와 유효 높이/) + n(single, /가로 띠 두 줄\(연직 폭 ([\d.]+)m/) / 2);
+assert.ok(strapBattenVerticalMargin(
+  n(single, /아랫면 높이 ([\d.]+)m와 유효 높이/),
+  n(single, /가로 띠 두 줄\(연직 폭 ([\d.]+)m/),
+  n(single, /Y 중심은 아래 띠 ([\d.]+)m/),
+  n(single, /연직 폭 ([\d.]+)m·두께 [\d.]+m이고 앞면/)) > 0,
+"single lower steel strap must intersect the batten's height interval");
 assert.ok(single.includes("X=0에서 시작해 X=0.6×유효 폭에서 끝나며") &&
   single.includes("위 띠 유효 높이−0.34m") &&
   single.includes("앞면 Z=+0.025~+0.031m에 놓여 두 가로 띠의 앞면과 면 접촉"),
@@ -85,12 +111,15 @@ near("tegula raised thickness", n(tile, /바닥과 윗면을 각각 Y=[\d.]+\/([
 const imbrexCentre = n(tile, /둥근기와의 X 중심은[^\n]*?X=\+([\d.]+)m/);
 const imbrexOuter = n(tile, /바깥 반지름은 Z=0\.08m에서 ([\d.]+)m/);
 const imbrexThickness = n(tile, /두께는 ([\d.]+)m, 반원은/);
-const leftRib = [0.10, 0.20], rightRib = [0.20, 0.30];
-assert.ok(imbrexCentre - imbrexOuter >= leftRib[0] &&
-  imbrexCentre - (imbrexOuter - imbrexThickness) <= leftRib[1] &&
-  imbrexCentre + (imbrexOuter - imbrexThickness) >= rightRib[0] &&
-  imbrexCentre + imbrexOuter <= rightRib[1],
-"both imbrex feet must sit inside the adjacent raised ribs");
+const ribMatch = tile.match(/\+([\d.]+)~\+([\d.]+)m에는 Z=0\.08~0\.44m 구간/);
+assert.ok(ribMatch, "raised rib needs a positive X interval");
+/** @type {[number, number]} */
+const leftRib = [Number(ribMatch[1]), Number(ribMatch[2])];
+const pitch = n(tile, /X 줄 간격 ([\d.]+)m/);
+/** @type {[number, number]} */
+const rightRib = [pitch - leftRib[1], pitch - leftRib[0]];
+assert.ok(imbrexFootMargin(imbrexCentre, imbrexOuter, imbrexThickness, leftRib, rightRib) > 0,
+  "both imbrex feet must sit inside the adjacent raised ribs");
 near("tile unit occupancy includes seam cover", 0.20 + imbrexCentre + imbrexOuter,
   n(tile, /상자 ([\d.]+)×0\.125×0\.52m/));
 assert.ok(tile.includes("Z=0.08~0.44m 구간에 한해") &&
@@ -99,13 +128,16 @@ assert.ok(tile.includes("Z=0.08~0.44m 구간에 한해") &&
 "tile rib must stop before the following tile's lifted 0.08m overlap");
 console.log("PASS tile feet land on ribs without overlap", imbrexCentre, imbrexOuter);
 const ridge = h2("cladding", "ridge-tile");
-assert.ok(ridge.includes("Y0=0.02m/cos(α)−0.13m×tan(α)"),
-  "ridge foot height must derive from the tilted flat tile's vertical top");
+const ridgeDatum = ridge.match(/Y0=([\d.]+)m\/cos\(α\)−([\d.]+)m×tan\(α\)/);
+assert.ok(ridgeDatum, "ridge datum needs both tile thickness and cap foot offset");
+const flatThickness = n(tile, /기본 판은 Y=0~([\d.]+)m/);
+const capFootX = n(ridge, /아랫 가장자리 X=±([\d.]+)m/);
+near("ridge datum uses flat-tile thickness", Number(ridgeDatum[1]), flatThickness);
+near("ridge datum uses actual cap foot", Number(ridgeDatum[2]), capFootX);
 for (const angle of [19, 22]) {
   const rad = angle * Math.PI / 180;
-  const tileTop = 0.02 / Math.cos(rad) - 0.13 * Math.tan(rad);
-  const capFoot = 0.02 / Math.cos(rad) - 0.13 * Math.tan(rad);
-  near("ridge foot to flat tile at " + angle + " degrees", capFoot, tileTop);
+  const capFoot = Number(ridgeDatum[1]) / Math.cos(rad) - Number(ridgeDatum[2]) * Math.tan(rad);
+  near("ridge foot to flat tile at " + angle + " degrees", ridgeFootGap(capFoot, flatThickness, capFootX, angle), 0);
 }
 assert.ok(tile.includes("마지막 0.16m의 경사 구간은 둥근기와와 두 턱을 만들지 않고") &&
   ridge.includes("용마루 앞 0.16m에서 둥근기와와 턱을 멈추고"),
@@ -120,12 +152,12 @@ const scroll = h2("wares", "scroll");
 assert.ok(scroll.includes("(0,−0.03),(0,+0.03),(0.03√3,0)") && scroll.includes("0.03√3+0.07"));
 assert.ok(scroll.includes("(Y,Z)=(0.02,±(0.175+√(0.02²−0.018²)))m"),
   "scroll roll centre must be derived from its sheet-edge tangent");
-near("open scroll roll touches sheet top edge", Math.hypot(0.02 - 0.002,
-  Math.sqrt(0.02 ** 2 - 0.018 ** 2)), 0.02);
+near("open scroll roll touches sheet top edge", rollSheetGap(0.002, 0.175, 0.02,
+  0.175 + Math.sqrt(0.02 ** 2 - 0.018 ** 2), 0.02), 0);
 const rollRadius = n(scroll, /반지름 ([\d.]+)m·길이 [\d.]+m 원통/);
 const tieRadius = n(scroll, /중심선 반지름 ([\d.]+)m·관 반지름/);
 const tubeRadius = n(scroll, /중심선 반지름 [\d.]+m·관 반지름 ([\d.]+)m/);
 const boxExtra = n(scroll, /묶음 0\.288×\(0\.03√3\+([\d.]+)\)/);
 near("three-roll tie envelope width", 2 * (tieRadius + tubeRadius), boxExtra);
 near("three-roll tie touches paper", tieRadius - tubeRadius, rollRadius);
-console.log("checked source H2 arithmetic and contact claims");
+console.log("checked the arithmetic and contact claims explicitly named above; a whole-H2 contact census remains outstanding");

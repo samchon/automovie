@@ -1,7 +1,21 @@
 /** 모델 분량 계측과 계정 표가 동일한 전집합을 쓰는지 검사한다. */
 import assert from "node:assert/strict";
 import test from "node:test";
-import { modelAccountMismatches, modelAccountRows, modelDocumentBodyLength, modelSectionMeasures, modelInputHeader, modelSourceInputRows, modelSourceInputMismatches } from "../model-account";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import { modelAccountMismatches, modelAccountRows, modelDocumentBodyLength, modelSectionMeasures, modelInputHeader, modelSourceInputRows, modelSourceInputMismatches, modelPartNounMismatches } from "../model-account";
+
+void test("every geometry noun retains a part owner, including an omitted truss strut", () => {
+  const root = join(__dirname, "../../../docs/models");
+  const docs = ["fixtures", "entablature", "openings", "wares", "landscape", "scale", "columns", "cladding"]
+    .map((name) => ({ path: `${name}.md`, source: readFileSync(join(root, `${name}.md`), "utf8") }));
+  assert.deepEqual(modelPartNounMismatches(docs), []);
+  const changed = docs.map((doc) => doc.path !== "entablature.md" ? doc : {
+    ...doc,
+    source: doc.source.replace("`tie-beam`, `principal`, `king-post`, `strut`", "`tie-beam`, `principal`, `king-post`"),
+  });
+  assert.match(modelPartNounMismatches(changed).join("\n"), /sanctuary-truss: 버팀재 has no strut surface/);
+});
 
 void test("model measure excludes comments and whitespace while retaining headings", () => {
   assert.equal(modelDocumentBodyLength("# 제목\n<!-- 제외 -->\n## 단위\n가 나 · 2\n"), 11);
