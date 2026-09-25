@@ -1,20 +1,22 @@
 /** 모델 분량 계측과 계정 표가 동일한 전집합을 쓰는지 검사한다. */
 import assert from "node:assert/strict";
 import test from "node:test";
-import { modelAccountMismatches, modelAccountRows, modelDocumentBodyLength, modelSectionMeasures, modelParameterAuditMismatches } from "../model-account";
+import { modelAccountMismatches, modelAccountRows, modelDocumentBodyLength, modelSectionMeasures, modelInputHeader, modelSourceInputRows, modelSourceInputMismatches } from "../model-account";
 
 void test("model measure excludes comments and whitespace while retaining headings", () => {
   assert.equal(modelDocumentBodyLength("# 제목\n<!-- 제외 -->\n## 단위\n가 나 · 2\n"), 11);
 });
 
-void test("parameter audit has one closed row per real H2 and rejects an omitted, duplicate or open row", () => {
-  const docs = [{ path: "fixture.md", source: "## 하나 {#one}\n본문\n## 둘 {#two}\n본문" }];
-  const table = ["| 모델 H2 | source에 남긴 새 치수 결정 | 본문의 닫힘 근거 |", "| --- | ---: | --- |",
-    "| [one](../../models/fixture.md#one) | 0 | 값 |", "| [two](../../models/fixture.md#two) | 0 | 값 |"].join("\n");
-  assert.deepEqual(modelParameterAuditMismatches(docs, table), []);
-  assert.ok(modelParameterAuditMismatches(docs, table.replace("| [two](../../models/fixture.md#two) | 0 | 값 |", "")).some((row) => row.includes("two")));
-  assert.ok(modelParameterAuditMismatches(docs, `${table}\n| [one](../../models/fixture.md#one) | 0 | 값 |`).some((row) => row.includes("duplicate")));
-  assert.ok(modelParameterAuditMismatches(docs, table.replace("#two) | 0", "#two) | 1")).some((row) => row.includes("not closed")));
+void test("source-input rows follow every part and reject stale values, omitted parts and extra rows", () => {
+  const docs = [{ path: "fixture.md", source: "## 하나 {#one}\n원점 X=0, 반지름 0.2m, 8분할, 벽에 닿는다.\npart와 표면은 `body`, `rim`이다.\n## 둘 {#two}\n판 두께 0.03m.\npart와 표면은 `board`다." }];
+  const rows = modelSourceInputRows(docs);
+  assert.equal(rows.length, 3);
+  const table = [modelInputHeader, "| --- | --- | ---: | --- |", ...rows].join("\n");
+  assert.deepEqual(modelSourceInputMismatches(table, rows), []);
+  assert.ok(modelSourceInputMismatches(table, modelSourceInputRows([{ ...docs[0]!, source: docs[0]!.source.replace("0.2m", "0.3m") }])).some((row) => row.includes("stale")));
+  assert.ok(modelSourceInputMismatches(table.replace(`${rows[1]}\n`, ""), rows).length > 0);
+  assert.ok(modelSourceInputMismatches(`${table}\n${rows[0]}`, rows).some((row) => row.includes("unexpected")));
+  assert.throws(() => modelSourceInputRows([{ path: "fixture.md", source: "## 셋 {#three}\npart 선언 없음" }]), /part 선언/);
 });
 
 void test("H2 rank measure excludes evidence comments and keeps each section distinct", () => {

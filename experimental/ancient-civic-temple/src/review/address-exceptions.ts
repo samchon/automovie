@@ -42,6 +42,8 @@ export const exposedAddressExceptions: readonly AddressException[] = [
     "section.tee.sanctuary-south-west", "spaces/observations.md#geometry-observations", 3.7),
   strip("wall.boundary-east-spine", 1, "z", p.sanctuaryFront, p.northRing,
     "section.tee.sanctuary-south-east", "spaces/observations.md#geometry-observations", 3.2),
+  strip("wall.boundary-east-spine", 1, "z", p.yardFront - 0.35, p.yardFront - 0.15,
+    "section.tee.yard-storage-east-spine", "spaces/observations.md#geometry-observations", 3.5),
 ];
 
 export const exposedAddressExceptionFor = (wall: string, face: number, point: { x: number; y: number; z: number }): AddressException | undefined =>

@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+
 /**
  * docs/accounts/models/core-common.md#proportion의 분량 표를 docs/models 전집합에서
  * 생성한다. 기존 모델 계정은 제목을 포함하고 HTML 주석과 공백만 제외해 세었다.
@@ -56,26 +58,41 @@ export const modelAccountMismatches = (account: string, rows: readonly string[])
   ];
 };
 
-/** The authored one-line parameter audit must cover each actual model H2 exactly once. */
-export const modelParameterAuditMismatches = (documents: readonly { path: string; source: string }[], account: string): string[] => {
-  const expected = documents.flatMap(({ path, source }) => [...source.replace(/\r\n/g, "\n").matchAll(/^## .+ \{#([^}]+)\}$/gm)]
-    .map((match) => `${path}#${match[1]}`));
+export const modelInputHeader = "| 모델 H2 | part | 본문 문자 수 | 본문 SHA-256 |";
+
+/**
+ * Produce a part-by-part source-input index from the H2 body itself. The table
+ * deliberately has no manually maintained "remaining decisions: 0" column:
+ * exact prose changes change the generated row and are reviewed at the owner.
+ */
+export const modelSourceInputRows = (documents: readonly { path: string; source: string }[]): string[] =>
+  documents.flatMap(({ path, source }) => source.replace(/\r\n/g, "\n").split(/(?=^## )/m).filter((section) => section.startsWith("## ")).flatMap((section) => {
+    const anchor = section.match(/^## .+ \{#([^}]+)\}/)?.[1];
+    if (anchor === undefined) throw new Error(`모델 H2 anchor가 없습니다: ${path}`);
+    const body = section.replace(/^## [^\n]+\n?/, "").replace(/<!--[\s\S]*?-->/g, "").trim();
+    const partLine = body.split("\n").find((line) => line.includes("part와 표면은"));
+    const partClause = partLine?.split("part와 표면은")[1]?.split("다.")[0] ?? "";
+    const parts = [...partClause.matchAll(/`([^`]+)`/g)].map((match) => match[1]!);
+    if (parts.length === 0 && path !== "scale.md") throw new Error(`모델 part 선언이 없습니다: ${path}#${anchor}`);
+    const geometry = body.replace(/\s+/g, " ");
+    if (geometry.length === 0) throw new Error(`모델 본문이 없습니다: ${path}#${anchor}`);
+    const digest = createHash("sha256").update(geometry).digest("hex");
+    return (parts.length > 0 ? [...new Set(parts)] : ["공통 규칙"]).map((part) =>
+      `| [${path.replace(/\.md$/, "")}/${anchor}](../../models/${path}#${anchor}) | \`${part}\` | ${[...geometry].length} | \`${digest}\` |`);
+  }));
+
+/** Verify every generated row, including changed values in an unchanged H2 list. */
+export const modelSourceInputMismatches = (account: string, expected: readonly string[]): string[] => {
   const lines = account.replace(/\r\n/g, "\n").split("\n");
-  const header = lines.indexOf("| 모델 H2 | source에 남긴 새 치수 결정 | 본문의 닫힘 근거 |");
-  if (header < 0 || lines[header + 1] !== "| --- | ---: | --- |") return ["model parameter audit header missing"];
-  const rows: string[] = [];
+  const header = lines.indexOf(modelInputHeader);
+  if (header < 0 || lines[header + 1] !== "| --- | --- | ---: | --- |") return ["model input table header missing"];
+  const actual: string[] = [];
   for (const line of lines.slice(header + 2)) {
     if (!line.startsWith("|")) break;
-    rows.push(line);
+    actual.push(line);
   }
-  const actual = rows.map((line) => {
-    const match = line.match(/^\| \[[^\]]+\]\(\.\.\/\.\.\/models\/([^#)]+#[^)]+)\) \| (\d+) \| [^|]+ \|$/);
-    return match === null ? `malformed:${line}` : `${match[1]}:${match[2]}`;
-  });
-  const observed = actual.map((key) => key.replace(/:\d+$/, ""));
   return [
-    ...expected.filter((key) => observed.filter((item) => item === key).length !== 1).map((key) => `missing/duplicate ${key}`),
-    ...observed.filter((key) => !expected.includes(key)).map((key) => `unexpected ${key}`),
-    ...actual.filter((key) => !key.endsWith(":0")).map((key) => `not closed ${key}`),
+    ...expected.filter((row, i) => actual[i] !== row).map((row) => `stale: ${row.slice(0, 100)}`),
+    ...actual.slice(expected.length).map((row) => `unexpected: ${row.slice(0, 100)}`),
   ];
 };

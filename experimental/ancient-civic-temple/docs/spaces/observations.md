@@ -21,21 +21,21 @@
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 주랑과 열린 현관의 내부 질문, 접합·단면, 문·창 16개, reference 다섯 질문을 유지한다. 박공 앞뒤와 제실 남벽 양쪽 처마 밑 질문도 빠지지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 opening-facing 거리식, 끝 칸·높은 띠·안타·박공 pose, 네 종횡 단면과 19개 미주소 wall#face 구간을 정한다. 현관 cell에 접한 박공 뒷면의 별도 주소 의무까지 본문에 있다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 창 threshold와 창을 향한 pose가 다른 질문이며, 박공의 앞뒤 주소는 같은 실체라도 각 주소 법선 쪽 방출 면을 5cm로 본다. 접합 띠의 실제 화면 판독은 unverified다.
-@evidenceReview principles/design/spaces.md#space-topology #3f8d925 중정 구멍과 현관 notch를 보존하고 끝 칸·반환벽·안타·박공을 기존 공간에 묶는다. 제실 양쪽 처마 밑은 접합 질문이고 박공 뒷면은 열린 현관 질문이라 새 방이 생기지 않는다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 compiled boundary/opening ID를 소비하며 박공 양면은 각기 기존 물리 host를 가리킨다. 서·동 spine 처마 밑은 원래 벽 소유 그대로 section에, 박공 뒷면은 현관 경계에 남는다.
-@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 입면 face 밖 노출 띠 19구간을 모서리·T·파라펫 질문에 결속하고 실제 프레임 판독은 unverified로 둔다. 5cm 외부점의 다방향 탈출로 처마 밑을, 열린 현관 cell과 접한 박공 뒷면은 별도 주소 요구로 판정한다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 끝 칸 넷·안타 둘·박공 앞뒤를 각각 입면으로, 외곽 17띠와 제실 spine 접합 두 띠를 단면·모서리로 둔다. 현관 박공 안쪽도 주소를 잃지 않는다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 높은 입면과 박공 안쪽을 보는 보조 pose, 처마 밑 단면은 support 위 1.6m인 필수 실내·대지 station의 대체가 아니다.
-@evidenceReview settings/00-delivery.md#review-condition #6daf6ae 공간 필수 station은 support 위 1.6m, opening-facing은 창 profile 중심, 높은 입면은 가림을 푸는 pose다. 현관 박공 뒷면과 처마 밑 띠는 각각의 질문을 보존한다.
-@evidenceReview settings/00-delivery.md#governing-aim #df3c7b2 reference 다섯은 topology 질문에 추가되고 안타·박공·끝 칸·반환벽은 각 자기 면으로, 주소 밖 19띠는 접합 단면으로 답한다. 열린 현관 박공 안쪽도 제외하지 않는다.
-@evidenceReview settings/50-production.md#references #eb34a79 reference 02는 절개 검사이고 전달 프레임이 아니다. 문·창 16개, 제실 박공·처마 밑, 포치 박공 앞뒤는 서로 별도 관찰이다.
-@evidenceReview settings/50-production.md#measurement-truth #c6e89a8 겹침 0.01m, 개구부 절두체, 주소 법선 쪽 방출 면 시야, 앞 2cm 공기·5cm 외부점의 대지 cell 또는 일곱 탈출 방향을 구별한다. 박공 안쪽은 열린 현관 cell의 별도 주소 대상이며 프레임에서의 방 정체성은 unverified다.
-@evidenceReview settings/50-production.md#acceptance #2c49b7f reference 다섯, 골·천장·경계석·충돌 원과 19개 접합 띠는 실제 프레임 판독 전까지 미완료다. 박공 뒷면의 주소 검증만으로 화면 완료라 쓰지 않는다.
-@evidenceReview obligations/design/spaces.md#space-review-set #86bcab4 Y=1.2m 평면·네 종횡 단면과 방별 threshold·모서리·방위를 유지한다. 19개 주소 밖 띠 중 둘은 제실 남벽 spine 접합이고 포치 박공 뒷면은 별도 단일 공간 주소다.
-@evidenceReview contracts/obligations-spaces.md#compiled-observations #09b52ea 안타·포치 박공 앞뒤의 compiled 주소를 각각 관찰하고 19개 노출 접합 띠를 모서리·section으로 연결한다. 문·창 16개와 reference 다섯도 유지한다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 주랑과 열린 현관의 내부 질문, 접합·단면, 문·창 16개, reference 다섯 질문을 유지한다. 박공 앞뒤와 제실 남벽 양쪽 처마 밑, 마당 동측 spine 접합 위쪽을 포함한 20구간을 묻는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 opening-facing 거리식, 끝 칸·높은 띠·안타·박공 pose, 네 종횡 단면과 20개 미주소 wall#face 구간을 정한다. 서비스 마당 쪽 동측 spine 상부의 0.20m 접합 띠와 현관 박공 뒷면의 별도 주소 의무도 본문에 있다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 창 threshold와 창을 향한 pose가 다른 질문이며, 박공의 앞뒤 주소는 같은 실체라도 각 주소 법선 쪽 방출 면을 5cm로 본다. 마당 상부 띠는 15방향 대각 광선의 외부 탈출로 검출하되 실제 화면 판독은 unverified다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 중정 구멍과 현관 notch를 보존하고 끝 칸·반환벽·안타·박공을 기존 공간에 묶는다. 제실 양쪽 처마 밑과 마당 spine 상부는 접합 질문이고 박공 뒷면은 열린 현관 질문이라 새 방이 생기지 않는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 compiled boundary/opening ID를 소비하며 박공 양면은 각기 기존 물리 host를 가리킨다. 서·동 spine 처마 밑과 마당 쪽 spine 상부는 원래 벽 소유 그대로 section에, 박공 뒷면은 현관 경계에 남는다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 입면 face 밖 노출 띠 20구간을 모서리·T·파라펫 질문에 결속하고 실제 프레임 판독은 unverified로 둔다. 5cm 외부점의 15방향 탈출로 처마 밑의 좁은 노출을, 열린 현관 cell과 접한 박공 뒷면은 별도 주소 요구로 판정한다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 끝 칸 넷·안타 둘·박공 앞뒤를 각각 입면으로, 외곽 17띠와 제실 spine 접합 두 띠·서비스 마당 spine 상부 한 띠를 단면·모서리로 둔다. 현관 박공 안쪽도 주소를 잃지 않는다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 높은 입면과 박공 안쪽을 보는 보조 pose, 처마 밑·마당 spine 상부 접합 질문은 support 위 1.6m인 필수 실내·대지 station의 대체가 아니다.
+@evidenceReview settings/00-delivery.md#review-condition #6daf6ae 공간 필수 station은 support 위 1.6m, opening-facing은 창 profile 중심, 높은 입면은 가림을 푸는 pose다. 현관 박공 뒷면과 제실·마당 spine 상부 띠는 각각의 질문을 보존한다.
+@evidenceReview settings/00-delivery.md#governing-aim #df3c7b2 reference 다섯은 topology 질문에 추가되고 안타·박공·끝 칸·반환벽은 각 자기 면으로, 주소 밖 20띠는 접합 단면으로 답한다. 열린 현관 박공 안쪽도 제외하지 않는다.
+@evidenceReview settings/50-production.md#references #eb34a79 reference 02는 절개 검사이고 전달 프레임이 아니다. 문·창 16개, 제실 박공·처마 밑, 마당 spine 상부 접합과 포치 박공 앞뒤는 서로 별도 관찰이다.
+@evidenceReview settings/50-production.md#measurement-truth #c6e89a8 겹침 0.01m, 개구부 절두체, 주소 법선 쪽 방출 면 시야, 앞 2cm 공기·5cm 외부점의 대지 cell 또는 15 탈출 방향을 구별한다. 박공 안쪽은 열린 현관 cell의 별도 주소 대상이며 프레임에서의 방 정체성은 unverified다.
+@evidenceReview settings/50-production.md#acceptance #2c49b7f reference 다섯, 골·천장·경계석·충돌 원과 20개 접합 띠는 실제 프레임 판독 전까지 미완료다. 박공 뒷면의 주소 검증만으로 화면 완료라 쓰지 않는다.
+@evidenceReview obligations/design/spaces.md#space-review-set #86bcab4 Y=1.2m 평면·네 종횡 단면과 방별 threshold·모서리·방위를 유지한다. 20개 주소 밖 띠 중 둘은 제실 남벽 spine 접합, 하나는 마당 spine 상부이며 포치 박공 뒷면은 별도 단일 공간 주소다.
+@evidenceReview contracts/obligations-spaces.md#compiled-observations #09b52ea 안타·포치 박공 앞뒤의 compiled 주소를 각각 관찰하고 20개 노출 접합 띠를 모서리·section으로 연결한다. 문·창 16개와 reference 다섯도 유지한다.
 -->
 
 [관찰 계약](../contracts/obligations-spaces.md#compiled-observations)과 [검토 프레임](../settings/00-delivery.md#review-condition)을 그대로 소비한다. 입력은 한 generation의 실제 built environment와 lowering 산출물이며 viewer와 계측이 같은 값을 쓴다. `builtEnvironmentBuildingCensus`의 외피·지붕·처마 하부·모서리·외부 출입 population을 소비하되 내부 개구부는 별도 actual boundary/opening 전집합에서 더한다. 이 census는 host face를 가진 단일 공간 경계만 입면으로 세며 지붕은 경계 face가 아니어서 지붕·처마 하부 population이 비므로, 네 방향 지붕 조감과 네 입면의 처마 하부 관찰을 source owner가 별도로 더한다.
@@ -70,7 +70,7 @@
 
 후퇴벽 낮은 끝 칸 북면 둘은 X=각 면 중심·Y=1.6m·Z=2.175m의 주랑 쪽에서, 옆면 둘은 X=±4.20m·Y=1.4m·Z=8.20m의 같은 쪽 주랑에서 본다. 거리 쪽 안타 끝면 둘은 X=각 면 중심·Y=2.6m·Z=14.25m, 포치 박공 앞면은 X=0·Y=4.8m·Z=14.25m, 뒷면은 X=0·Y=3.3m·Z=9.30m에서 본다. 이 네 면은 [개구부 소유](openings.md#boundary-ownership)의 전용 단일 공간 경계에 결속한다. 방출된 단일 공간 입면의 양면을 5cm 격자로 재고 자기 면 가시율이 50% 미만이면 실패한다. 앞·뒤 주소가 같은 물리벽을 공유하는 포치 박공은 각 주소의 법선 쪽 면을 자기 면으로 고정하고, 다른 단일 공간 입면은 카메라가 선 쪽 방출 면을 자기 면으로 삼는다. 반환벽 `.outer-upper`의 포치 쪽 반대 면은 그 시점에서 0/187이지만 후퇴벽 쪽 다른 관찰이 답하도록 보조 질문에 귀속하며, 해당 시각 판독 전에는 unverified다.
 
-방출 벽면의 0.1m 표본마다 면 앞 2cm가 공기인지, 5cm 앞이 대지 cell 또는 지붕 위 외부인지 대조한다. 대지 cell 밖의 지붕 위 점은 방출 벽·지붕·천장의 삼각면에 대해 면 법선, 연직 및 다섯 비스듬한 방향의 고정된 일곱 광선 중 하나라도 실체를 만나지 않고 빠져나가면 외부로 판정한다. 따라서 처마 아래에서 연직선만 막혀도 노출이 사라지지 않는다. `surface.entrance.pediment-back`은 열린 현관 cell 안의 공기와 접하는 박공 뒷면이라 외부 탈출의 대상은 아니지만 `boundary-porch-pediment.back`의 독립 주소가 반드시 필요하다. 아래 19개 wall#face·구간은 입면 face가 아니라 기존 모서리·T 접합·파라펫 접합 질문이 맡는 미주소 띠다. 각 행의 좁은 구간 밖에 노출 미주소 표본이나 주소 없는 박공 뒷면 표본이 하나라도 생기면 self-check가 실패한다. 가려진 기단 뒤·실체 접면은 노출 표본이 아니다.
+방출 벽면의 0.1m 표본마다 면 앞 2cm가 공기인지, 5cm 앞이 대지 cell 또는 지붕 위 외부인지 대조한다. 대지 cell 밖의 지붕 위 점은 방출 벽·지붕·천장의 삼각면에 대해 면 법선·연직·비스듬한 일곱 기본 방향과 법선에서 좌우 15°·30°, 위쪽 10°·30°의 여덟 방향, 합계 15개 고정 광선 중 하나라도 실체를 만나지 않고 빠져나가면 외부로 판정한다. 따라서 처마 아래에서 연직선만 막혀도 노출이 사라지지 않는다. `surface.entrance.pediment-back`은 열린 현관 cell 안의 공기와 접하는 박공 뒷면이라 외부 탈출의 대상은 아니지만 `boundary-porch-pediment.back`의 독립 주소가 반드시 필요하다. 아래 20개 wall#face·구간은 입면 face가 아니라 기존 모서리·T 접합·파라펫 접합 질문이 맡는 미주소 띠다. 각 행의 좁은 구간 밖에 노출 미주소 표본이나 주소 없는 박공 뒷면 표본이 하나라도 생기면 self-check가 실패한다. 가려진 기단 뒤·실체 접면은 노출 표본이 아니다.
 
 | 미주소 접합 wall#face | 길이 방향 구간(m) | 질문 |
 | --- | --- | --- |
@@ -83,8 +83,9 @@
 | `wall.facade-south.west#2`, `wall.facade-south.east#2` | X −5.90~−5.60, 5.60~5.90 | `section.tee.{west,east}-spine-south` |
 | `wall.facade-south.west#0`, `wall.facade-south.east#0`(Y>3.80) | X −5.90~−5.60, 5.60~5.90 | `junction.parapet.south`, `junction.parapet.east-gable-ridge` |
 | `wall.boundary-west-spine#3`(Y>3.70), `wall.boundary-east-spine#1`(Y>3.20) | Z −4.15~−3.85의 제실 남벽 접합 양쪽 상부. 아래쪽은 각 공간 또는 기존 경계가 답한다 | `section.tee.sanctuary-south-west`, `section.tee.sanctuary-south-east` |
+| `wall.boundary-east-spine#1`(Y>3.50) | Z=마당 앞선−0.35~−0.15m의 마당·보관실 T 접합 옆 상부 0.20m. 기존 `boundary-east-spine.yard-upper`의 반대쪽 면에 해당한다 | `section.tee.yard-storage-east-spine` |
 
-이 표는 19개 wall#face 구간을 아홉 줄로 묶었다. 동남 모서리의 기울어진 하한은 compiled 동측 경계가 덮는 133개 표본을 허용 목록에서 빼기 위한 것으로, 0.1m 방출 표본의 마지막 주소 높이와 첫 미주소 높이 사이에 놓인다. 모서리·접합의 실체 표면 소유자는 기존 facade/model이며, 표는 표면을 지우거나 새 방을 만들지 않는다. 외부 frame과 단면 frame이 답하는 실제 범위·가림은 시각 판독 전까지 unverified다.
+이 표는 20개 wall#face 구간을 열 줄로 묶었다. 동남 모서리의 기울어진 하한은 compiled 동측 경계가 덮는 133개 표본을 허용 목록에서 빼기 위한 것으로, 0.1m 방출 표본의 마지막 주소 높이와 첫 미주소 높이 사이에 놓인다. 마당 쪽 spine 상부는 기본 일곱 방향에서는 가려졌지만 15°·30° 대각 탈출에서 3개 표본이 외부였으며, 가까운 `section.tee.yard-storage-east-spine`이 그 접합을 묻는다. 모서리·접합의 실체 표면 소유자는 기존 facade/model이며, 표는 표면을 지우거나 새 방을 만들지 않는다. 외부 frame과 단면 frame이 답하는 실제 범위·가림은 시각 판독 전까지 unverified다.
 
 ## 원래 소스를 그리는 뷰어 {#viewer-path}
 

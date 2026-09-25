@@ -33,7 +33,7 @@ part와 표면은 `timber` 하나다. 아랫면 중 기둥 위 구간과 윗면 
 
 <!--
 @evidence principles/core/common.md#scope-preservation 주랑 외쪽 지붕·동측 박공·제실의 서까래를 한 가족으로 묶어 단면, 경사 유도, 처마 쪽 연직 절단, 뒷벽 끝 접촉, 만들지 않는 숨은 서까래까지 정한다.
-@evidence principles/core/common.md#substantive-completion 폭 0.08·깊이 0.12m 단면과 경사를 해당 지붕 조각에서 유도하는 규칙, 뒷벽 목록이 있어 source가 변형을 새로 고르지 않는다.
+@evidence principles/core/common.md#substantive-completion 폭 0.08·깊이 0.12m 단면과 지붕 조각에서 경사를 유도하는 규칙, 주랑·동측 뒷벽 목록 및 제실 서·동 처마 끝→용마루 절단선이 있어 source가 변형 끝점을 새로 고르지 않는다.
 @evidence principles/core/common.md#declared-basis 주랑 12°는 west·east·north-canopy·south-canopy 지붕에서, 동측 19°는 roofs/assembly의 판정된 동측 박공에서, 제실 22°는 제실 지붕에서 온다고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 천장과 지붕 하부의 노출 서까래라는 설정을 경사 매개변수 가족·plumb cut·벽 접촉 끝이라는 모델 결정으로 바꾼다.
 @evidence principles/design/models.md#representation-contract timber part 하나에 지붕 slab 아랫면과 보 윗면의 가려진 접촉면을 두고 널판 천장 위 숨은 서까래는 만들지 않는 경계를 정한다.
@@ -53,7 +53,7 @@ part와 표면은 `timber` 하나다. 아랫면 중 기둥 위 구간과 윗면 
 
 [천장과 지붕 하부](../settings/20-envelope.md#ceilings)의 반복 서까래 끝이다. 이미지 03의 주랑 처마 아래로 규칙적으로 드러나는 각재 끝과 이미지 04의 제실 지붕 아래 서까래가 근거다. 단면은 폭 0.08m·깊이 0.12m이며 지붕 slab 아랫면 바로 밑에서 경사를 따라 놓인다.
 
-로컬 원점은 처마 쪽 아래 모서리 선의 중심이다. 로컬 +Z가 경사를 따라 오르는 방향, +Y는 서까래 윗면의 법선이다. 모델은 수평 길이와 경사를 매개변수로 가진 가족이며 source는 판정된 지붕에서 변형을 만든다. 주랑 외쪽 지붕 아래 서까래는 12° 경사로 중정 쪽 처마 끝선에서 주랑 뒷벽(서측·동측 spine의 주랑 쪽 면, 제실 남벽, 후퇴벽, 남측 파라펫)까지 이어지고, 동측 박공 아래는 [판정된 지붕](../spaces/roofs/assembly.md#roof-junctions)의 동측 박공과 같은 19° 경사다. 변형의 경사는 해당 지붕 조각의 경사에서 유도하며 이 문서가 따로 고르지 않는다. 처마 쪽 끝은 연직으로 잘린 면(plumb cut)이 드러나고 뒷벽 쪽 끝은 벽면에 닿는다. [제실 서까래](#sanctuary-truss)는 같은 가족의 22° 변형이다. 널판 천장 위에 숨는 봉헌실·업무방 위 서까래는 이 표현 상한에서 만들지 않는다.
+로컬 원점은 처마 쪽 아래 모서리 선의 중심이다. 로컬 +Z가 경사를 따라 오르는 방향, +Y는 서까래 윗면의 법선이다. 모델은 수평 길이와 경사를 매개변수로 가진 가족이며 source는 판정된 지붕에서 변형을 만든다. 주랑 외쪽 지붕 아래 서까래는 12° 경사로 중정 쪽 처마 끝선에서 주랑 뒷벽(서측·동측 spine의 주랑 쪽 면, 제실 남벽, 후퇴벽, 남측 파라펫)까지 이어지고, 동측 박공 아래는 [판정된 지붕](../spaces/roofs/assembly.md#roof-junctions)의 동측 박공과 같은 19° 경사다. 변형의 경사는 해당 지붕 조각의 경사에서 유도하며 이 문서가 따로 고르지 않는다. 주랑·동측 박공의 처마 쪽 끝은 연직으로 잘린 면(plumb cut)이 드러나고 뒷벽 쪽 끝은 벽면에 닿는다. 제실의 22° 변형은 서·동 경사면 각각의 실제 바깥 처마 끝선(벽 바깥 0.35m)에서 같은 연직 끝면으로 시작해 X=0 용마루 연직면에서 끝난다. 양 경사면의 윗끝은 X=0 면에서 서로 맞닿고 지붕 slab 하부를 뚫지 않는다. 제실 변형에는 뒷벽 끝 규칙을 적용하지 않는다. 널판 천장 위에 숨는 봉헌실·업무방 위 서까래는 이 표현 상한에서 만들지 않는다.
 
 part와 표면은 `timber` 하나다. 윗면은 지붕 slab 아랫면에, 중간 아랫면은 보 윗면에 닿는 가려진 접촉면이다. 배치 간격(주랑 0.50m 중심 간격을 기본 제안으로 둔다)과 모서리 골 쪽에서 짧아지는 길이는 instances가 판정된 골선에서 유도한다.
 

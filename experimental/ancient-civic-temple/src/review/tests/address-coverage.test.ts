@@ -6,7 +6,7 @@ import { rectanglePolygon } from "../../geometry/planar-domain";
 import { levelPlane, prismFaces } from "../../geometry/prism";
 import { levelCell } from "../../geometry/spatial-cells";
 import { wallFaces, type WallSpec } from "../../geometry/wall-solids";
-import { addressCoverageCensus, pointInOutline, rayTriangle } from "../address-coverage";
+import { addressCoverageCensus, pointInOutline, rayIntersectsBounds, rayTriangle, reachesExterior, type Triangle } from "../address-coverage";
 import { exposedAddressExceptionFor, exposedAddressExceptions } from "../address-exceptions";
 import { ownFacadeFailures, type OwnFacadeRow } from "../own-facade-view";
 
@@ -56,6 +56,34 @@ void test("ray reaches a two-sided emitted face, and an open edge has no hit", (
   assert.equal(rayTriangle({ x: 0.25, y: 0.25, z: 1 }, { x: 1, y: 0, z: 0 }, triangle), null);
 });
 
+void test("a narrow diagonal escape survives seven individually blocked base rays", () => {
+  const s = Math.SQRT1_2;
+  const base = [{ x: 1, y: 0, z: 0 }, { x: 0, y: 1, z: 0 },
+    { x: s, y: s, z: 0 }, { x: s, y: 0, z: s }, { x: s, y: 0, z: -s },
+    { x: 0.5, y: 0.866, z: 0 }, { x: 0.9659, y: 0.2588, z: 0 }];
+  const cross = (a: { x: number; y: number; z: number }, b: { x: number; y: number; z: number }) =>
+    ({ x: a.y * b.z - a.z * b.y, y: a.z * b.x - a.x * b.z, z: a.x * b.y - a.y * b.x });
+  const screens: Triangle[] = base.map((d, i) => {
+    const u0 = cross(d, Math.abs(d.y) > 0.9 ? { x: 1, y: 0, z: 0 } : { x: 0, y: 1, z: 0 });
+    const uLength = Math.hypot(u0.x, u0.y, u0.z);
+    const u = { x: u0.x / uLength, y: u0.y / uLength, z: u0.z / uLength };
+    const v = cross(d, u);
+    const vertex = (along: number, across: number) =>
+      ({ x: d.x + u.x * along + v.x * across,
+        y: d.y + u.y * along + v.y * across,
+        z: d.z + u.z * along + v.z * across });
+    const a = vertex(0.08, 0), b = vertex(-0.04, 0.07), c = vertex(-0.04, -0.07);
+    return { a, b, c, element: `screen-${i}`, part: "screen",
+      minX: Math.min(a.x, b.x, c.x), maxX: Math.max(a.x, b.x, c.x),
+      minY: Math.min(a.y, b.y, c.y), maxY: Math.max(a.y, b.y, c.y),
+      minZ: Math.min(a.z, b.z, c.z), maxZ: Math.max(a.z, b.z, c.z) };
+  });
+  const origin = { x: 0, y: 0, z: 0 };
+  assert.ok(base.every((d) => screens.some((screen) =>
+    rayIntersectsBounds(origin, d, screen) && rayTriangle(origin, d, screen) !== null)));
+  assert.equal(reachesExterior(origin, { x: 1, y: 0, z: 0 }, screens), true);
+});
+
 void test("emitted exposed wall loses its address when the boundary is removed", () => {
   const addressed = addressCoverageCensus(fixture(true), [wall], solids);
   const removed = addressCoverageCensus(fixture(false), [wall], solids);
@@ -74,7 +102,9 @@ void test("a wall below a projecting roof remains exterior when its vertical sky
     models: [...bare.models, eave],
     elements: [...bare.elements, { id: "element.roof.fixture", model: eave.id,
       transform: identityTransform(), parent: null, space: "temple-site" }],
-    spaces: [{ ...bare.spaces[0]!, cells: [levelCell("site", { west: -1, east: 2, north: -1, south: 2 }, -1, 0.25)] }],
+    // All wall samples are above the site cell, so a sky-only implementation
+    // cannot pass by counting the lower wall as already inside temple-site.
+    spaces: [{ ...bare.spaces[0]!, cells: [levelCell("site", { west: -1, east: 2, north: -1, south: 2 }, -1, -0.1)] }],
   } as IAutoMovieBuiltEnvironment;
   const result = addressCoverageCensus(environment, [wall], solids);
   assert.ok(result.uncovered > 0);
@@ -94,7 +124,7 @@ void test("the open porch pediment inner surface still requires its own address"
 });
 
 void test("junction exceptions are restricted to their named wall, face, interval and height", () => {
-  assert.equal(exposedAddressExceptions.length, 19);
+  assert.equal(exposedAddressExceptions.length, 20);
   for (const entry of exposedAddressExceptions) {
     const middle = (entry.from + entry.to) / 2;
     const sample = { x: entry.axis === "x" ? middle : 0, y: Math.max(4, entry.minY ?? 0),

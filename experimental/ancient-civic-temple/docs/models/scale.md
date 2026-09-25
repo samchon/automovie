@@ -16,7 +16,7 @@
 @evidence settings/00-delivery.md#coordinates 오른손 Y-up, 길이 m 규약을 모델 좌표로 그대로 쓴다.
 @evidence settings/10-building.md#use-profile 성인 보행 포락 0.6×0.4×1.9m를 모든 모델의 공유 축척 기준으로 지명한다.
 @evidence settings/50-production.md#fidelity 입체 부재가 리뷰 거리에서 읽히되 사진 같은 열화 복제는 증명하지 않는다는 요구를 blocking geometry 상한과 허용·금지 주장으로 옮긴다.
-@evidence settings/20-envelope.md#material-language 색·roughness·texture scale이 materials의 후속 결정이라는 경계를 받아 모델은 안정된 표면 ID만 낸다고 정한다.
+@evidence settings/20-envelope.md#material-language 색·roughness·texture 이미지와 반복 빈도는 materials가 결정하고 모델은 안정된 표면 ID와 1 UV=1m의 UV0 투영 좌표를 낸다고 정한다.
 @evidence settings/00-delivery.md#build-scope 기둥·문짝·기와·집기 prototype은 models, 반복 배치는 instances라는 분담표를 반복 부재 규칙으로 옮긴다.
 @evidence obligations/design/models.md#representation-ceiling population의 표현 상한과 모델이 주장할 수 없는 시각 추론(조각·세로 홈·풍화·기와 한 장씩의 불규칙·정확한 고대 비례)을 이 H2가 정한다.
 @evidence obligations/design/models.md#reference-scale 공유 축척 기준을 보행 포락으로 지명하고 점유 상자를 settings 범위·포락과 대조하는 도출·검사 규칙을 정한다.
@@ -35,7 +35,30 @@
 
 모든 신전 모델은 오른손 Y-up, 길이 m의 [좌표 규약](../settings/00-delivery.md#coordinates)을 따르고 별도의 앞·위 축을 두지 않는다. 공유 축척 기준은 [이용 조건](../settings/10-building.md#use-profile)의 성인 보행 포락 폭 0.6m·깊이 0.4m·높이 1.9m다. 각 모델의 치수는 해당 settings 범위([물체](../settings/35-objects.md), [외피](../settings/20-envelope.md), [실내](../settings/30-interiors.md))와 판정된 spaces의 순치수(문 유효 폭·높이, 주랑 기둥 예산, 지붕 하부 높이)에서 유도하며 primitive 기본 크기를 치수로 쓰지 않는다. 비교 규칙은 모델의 점유 상자를 그 settings 범위와 보행 포락에 함께 대조하는 것이다. 범위를 벗어나거나 보행 포락보다 큰 집기가 방 통로를 막으면 그 모델 H2가 실패다.
 
-표현 상한은 결정론적 blocking geometry다. 허용하는 시각 주장은 리뷰 거리(눈높이 1.6m, 대상까지 약 2~25m)의 실루엣, 부재 분리(기단·몸통·주두, 문틀·문짝의 선대·가로대·판, 테두리·몸통·목), 실제 빈 공간(문 개구, 수반 안쪽, 선반 칸, 궤 뚜껑의 틈), 실제 두께다. 조각 장식, 세로 홈, 공구 자국, 나뭇결과 기와 한 장씩의 불규칙, 풍화, 끈과 짜임의 미세 형상, 특정 고대 양식의 정확한 비례는 주장하지 않는다. 곡면은 각 H2가 정한 분할 수의 다면체이며 부드러운 법선은 그 H2가 요구한 곳에만 쓴다. 재료의 색·거칠기·결과 무늬는 materials가 정하며 모델은 안정된 표면 ID만 낸다.
+표현 상한은 결정론적 blocking geometry다. 허용하는 시각 주장은 리뷰 거리(눈높이 1.6m, 대상까지 약 2~25m)의 실루엣, 부재 분리(기단·몸통·주두, 문틀·문짝의 선대·가로대·판, 테두리·몸통·목), 실제 빈 공간(문 개구, 수반 안쪽, 선반 칸, 궤 뚜껑의 틈), 실제 두께다. 조각 장식, 세로 홈, 공구 자국, 기하로 새긴 나뭇결과 기와 한 장씩의 불규칙, 기하로 새긴 풍화, 끈과 짜임의 미세 형상, 특정 고대 양식의 정확한 비례는 주장하지 않는다. 곡면은 각 H2가 정한 분할 수의 다면체이며 부드러운 법선은 그 H2가 요구한 곳에만 쓴다. 재료의 색·거칠기·결과 무늬는 materials가 정한다. 모델은 안정된 표면 ID와 다음 UV0 물리 좌표를 모두 낸다.
+
+모든 방출 part는 position마다 유한한 UV0 한 쌍을 가진다. 로컬 원점에서 1 UV 단위는 1m다. 기본 평면 투영은 각 삼각형의 주법선 축으로 정한다: ±Y 면은 (U,V)=(X,Z), ±Z 면은 (X,Y), ±X 면은 (Z,Y)이며 음의 법선 면에서는 U의 부호를 바꿔 좌우 거울상을 피한다. 면이 바뀌는 단단한 모서리와 서로 다른 part·표면 ID에서는 정점을 복제해 이음을 끊는다. 삼각형 하나 안에서 투영 축을 바꾸지 않는다. 잘린 끝면은 새 면 법선으로 다시 투영하고, 같은 면 안의 반복 부재는 각 prototype의 로컬 원점을 유지하므로 배치가 UV 원점을 새로 고르지 않는다. materials는 이 미터 좌표에서 반복 빈도·색·거칠기·텍스처 이미지를 결정한다. UV0가 없는 part에 texture를 결속하려 하면 source/viewer 검증이 실패해야 하며 단색으로 조용히 건너뛰지 않는다.
+
+Y축 회전체의 옆면은 평면 투영 대신 +X 반직선에서 시작해 +Z 쪽으로 도는 각도 θ=atan2(Z,X)를 [0,2π]로 펼치고 (U,V)=(기준 반지름×θ,Y)를 쓴다. 기준 반지름은 각 단면 고리의 실제 반지름이며 θ=0 이음의 정점을 복제한다. 원뿔대도 각 높이 고리의 반지름을 쓴다. 원판 윗·아랫면은 기본 ±Y 투영이다. 원환 관은 큰 원 중심선의 호길이를 U, 작은 관 단면 호길이를 V로 하고 두 닫힘 각도 0에서 이음을 복제한다. 길이 방향 결을 읽는 목재 각재는 해당 H2가 지정한 부재 장축을 U, 그에 직교하는 면 내 축을 V로 두며 부재마다 로컬 0에서 시작한다. H2가 지정하지 않은 비정형 면은 위 기본 평면 규칙을 따른다. normal·UV·part 범위는 modelSources의 concrete exported class가 함께 방출하며, class는 여기서 없는 투영법을 새로 고르지 않는다.
+
+다음 표는 기본 평면 투영과 다른 표면을 빠짐없이 지정한다. 길이축 U는 해당 H2의 로컬 원점에서 시작해 표에 적힌 양의 축으로 증가하고, V는 표면의 양의 법선 쪽에서 U를 바라볼 때 오른손 방향의 면내 직교축이다. 이음은 표의 부재 끝·원주 시접에서만 끊는다. 음의 길이 방향 부재는 배치 전에 prototype의 양의 길이축으로 뒤집으며, instances가 UV를 재작성하지 않는다.
+
+| H2 | part·면 | UV0 투영과 이음 |
+| --- | --- | --- |
+| `columns#colonnade-column`, `columns#porch-column` | `base`, `shaft`, `capital`의 둥근 옆면 | Y축 원통 전개; 각 단면의 실제 반지름, +X 시접. 정방 `plinth`·주두 판은 기본 평면 투영. |
+| `entablature#colonnade-beam` | 목재 `timber`의 노출 긴 면 | 부재 시작에서 길이 방향 +X를 U로 전개; 부재 끝·모서리에서 이음. `entablature#porch-entablature`의 석재 `beam`·`cornice`·`raking-trim`은 기본 평면 투영. |
+| `entablature#rafter`, `#sanctuary-truss`, `#ceiling-joist` | `timber`, `tie-beam`, `principal`, `king-post`, `strut`의 목재 긴 면 | 각 각재의 지정된 처마→용마루 또는 한 끝→다른 끝 장축을 U로 전개; 각 부재 끝에서 이음. |
+| `openings#door-frame`, `#window-frame` | 석재 `lining`, `surround` | 기본 평면 투영; 각 선대·가로대의 맞댐과 part 경계에서 이음. |
+| `openings#double-door-leaf`, `#single-door-leaf` | `frame`, `panel`, `board`, `batten`, `strap`의 목재·쇠 띠 면 | 세로 판과 선대는 +Y, 가로대·띠는 +X를 U로 전개; 각 판·띠 끝에서 이음. `ring`, `hinge`는 원환·Y축 원통 규칙. |
+| `cladding#roof-tile` | `tegula`, `imbrex`의 윗면·곡면 | 로컬 +Z 경사 오름을 V, +X 가로를 U로 둔다. 반원통은 처마 쪽 −X 가장자리에서 +X 쪽으로 호길이 U를 펼친다. 단위의 Z 양끝과 두 part 경계에서 이음. |
+| `cladding#ridge-tile` | `ridge` 반원통 | 로컬 +Z 용마루 길이를 V, −X 가장자리에서 +X로 도는 반원 호길이를 U로 펼친다. 각 단위의 Z 끝과 반지름 단차에서 이음. |
+| `fixtures#fountain`, `#lampstand` | 돌·금속 원형 옆면, 노즐, 물줄기, 파문, 접시 | Y축 회전체와 원환 전개; 물면·받침의 수평면은 기본 평면 투영. 각 원형 part의 +X 시접에서 이음. |
+| `fixtures#altar`, `#niche`, `#offering-table` | 석재 `step`, `top`, `support`, `plinth`, `body`, `recess`, `cap`, `trestle` | 기본 평면 투영; 각 독립 석판과 오목한 칸의 단단한 모서리에서 이음. |
+| `fixtures#display-shelf`, `#desk`, `#stool`, `#scroll-shelf`, `#chest` | 목재 `top`, `board`, `frame`, `leg`, `stretcher`, `divider`, `side`, `seat`, `body`, `lid` 긴 면 | 각 판은 가장 긴 로컬 모서리를 U로, 정방 다리는 +Y를 U로 전개한다. 길이가 같으면 +X를 먼저 택한다. 금속 `strap`·걸쇠는 기본 투영. 각 독립 판·다리 끝에서 이음. |
+| `wares#storage-jar`, `#carry-jar`, `#small-vessel`, `#offering-bowl`, `#basket` | 항아리·그릇·바구니 원형 몸체와 손잡이 | Y축 회전체와 원환 전개; 손잡이 베지어 관은 아래 부착점에서 위 부착점까지 중심선 호길이 U와 관 둘레 호길이 V. 바구니 띠는 각 원형 띠의 호길이 U, 세로 살은 +Y를 U. +X 시접·각 손잡이 부착점에서 이음. |
+| `wares#scroll` | `sheet`, `tie` | 말린 종이·끈은 원통/원환 전개, 펼친 종이는 로컬 +Z 긴 방향을 U, +X를 V로 하는 평면 투영; 종이 끝과 끈 시접에서 이음. |
+| `landscape#cypress`, `#broad-tree`, `#grass-tuft` | 줄기·가지·잎·풀 | 줄기와 가지는 각 축의 원통 전개, 잎과 풀의 앞뒷면은 기본 평면 투영; 줄기·가지 +X 시접과 각 잎·풀의 외곽에서 이음. |
+| `landscape#neighbor-house` | `roof`, `wall`, `plinth`, `recess` | 지붕 가로 +X를 U, 변형 A는 처마→용마루 경사 방향, 변형 B는 앞 처마→높은 뒤 처마 방향을 V로 둔다. 벽·기단·문창 안쪽은 기본 평면 투영; 지붕 경사·건물 모서리·개구부에서 이음. |
 
 반복 부재(원주·보·서까래·천장 보·기와)는 prototype 하나를 instances가 측정값과 반복 규칙으로 배치한다. 모델 H2는 배치 수와 간격을 정하지 않고 prototype의 점유 상자와 배치 기준점만 준다. 이 상한 아래에서 보이는 것은 형태의 읽힘이며 재료 표현이나 사진 같은 완성도가 아니다.
 
