@@ -98,7 +98,7 @@
 
 `lining(a,room)` 12곳은 room 내측 벽의 건축 면이므로 다음 순서대로 **spaces owner**에 남는다: bathroom, child-one, child-two, common, corridor, entry, flex, powder, primary, service-upper, storage-ground, storage-upper. `lights(a,room,points)`도 같은 12곳에서 각각 2,2,1,5,3,3,2,1,2,2,1,1개의 점을 받으며 합계 25점이다. 각 점의 `room-light-trim-i`는 `recessed-light/trim`, `room-light-i`는 `recessed-light/diffuser` **및** system emitter로 대응한다. common의 pendant 1과 primary의 bedside 2를 합하면 기존 emissive element는 28개다. 모든 기존 emissive ID마다 후속 instance/part **및** emitter가 필요하다. `lining`은 model prototype이나 material binding을 소유하지 않는다.
 
-이 계정의 모집단은 정적 작성 지점 `Item` 46 + 직접 primitive 10 + `lining` 12 + `lights` 12 = 80곳이다. 실제 전개 element ID·중복·퇴역 의도·추가 prototype의 배치는 [상류 이관 조건](../../settings/003-spatial-basis.md#surface-decomposition)의 단일 커밋에서 compiled producer로 재계수한다. 이 초안 표가 현재 source에서 구현됐다는 주장은 `unverified`다.
+이 계정의 모집단은 정적 작성 지점 `Item` 46 + 직접 primitive 10 + `lining` 12 + `lights` 12 = 80곳이다. [정적 측정 producer](../../../src/review/model-owner-audit.cjs)가 현재 방 source와 이 표의 source별 행 수·빈 owner를 계산하고 누락 행을 제거한 대조가 실패하는지 함께 확인한다. 실제 전개 element ID·중복·퇴역 의도·추가 prototype의 배치는 [상류 이관 조건](../../settings/003-spatial-basis.md#surface-decomposition)의 단일 커밋에서 compiled producer로 재계수한다. 이 초안 표가 현재 source에서 구현됐다는 주장은 `unverified`다.
 
 ## 상위·형제 층의 물품 요구 역대응 {#upstream-demand-correspondence}
 
