@@ -10,6 +10,12 @@
 
 선언 점유는 0.60H 수관 상한을 사방으로 남겨 둔 상자가 아니라, 고정된 다섯 방위에서 실제 pot·soil·stem·branch·leaf 부품 AABB의 축별 최솟값과 최댓값이다. 생산자는 이 합집합을 높이 변종마다 계산한다.
 
+@cap-contact 180: soil, stem, Y, +
+@cap-contact 280: soil, stem, Y, +
+@cap-contact 600: soil, stem, Y, +
+@cap-contact 800: soil, stem, Y, +
+@cap-contact 1100: soil, stem, Y, +
+
 <!-- @generated-plant-parts:start -->
 @inventory 180: pot, soil, stem, branch-0, leaf-0, leaf-1, leaf-2, branch-1, leaf-3, leaf-4, leaf-5, branch-2, leaf-6, leaf-7, leaf-8, branch-3, leaf-9, leaf-10, leaf-11, branch-4, leaf-12, leaf-13, leaf-14
 
@@ -242,6 +248,8 @@
 
 ## 손잡이 있는 빈 바구니 {#storage-basket}
 
+@axis-control default: wall, X, 0.195, handle recess center
+
 `storage-basket`은 폭 0.40, 깊이 0.65, 높이 0.28m다. 선반 접촉 중심 원점, +Z가 꺼내는 앞이다. 바닥 두께 0.012m, 네 벽 두께 0.010m, 상단 rim 폭 0.018m이며 내부는 열린 빈 공간이다. 양쪽 손잡이는 x=±0.195m 측벽의 z=−0.06..+0.06,y=0.208..0.243m인 0.12×0.035m 관통 구멍을 감싼 두께 0.012m 띠다. 보강 띠는 벽의 안쪽 x=±(0.188..0.200)에 매립되어 전체 폭을 늘리지 않는다. 그 바깥 경계는 z=±0.072,y=0.196..0.255m이며 위 rim과 0.007m 떨어진다. `wall/outer/inner/edge`, `rim/upper/edge/underside`, `bottom/upper/edge/underside`, `handle-left/right/outer/inner/cut-edge/contact`가 안정 주소다. 상부·정면·45°에서 내부와 구멍 둘을 확인한다. ref02의 1층 수납과 상층 linen의 바구니 역할을 채택하고 ref04의 책을 바구니 안 내용물로 자동 생성하지 않는다. ref01·03·05는 바구니 형상 근거가 없다. 내용물·개수는 instances가 결정하고 손잡이 하중은 `unverified`다.
 
 벽은 y=0.012..0.262, rim은 y=0.262..0.280이다. 벽 내부의 빈 공간은 x=±0.190,z=±0.315로 관통하고 rim의 열린 안쪽은 x=±0.182,z=±0.307이다. 각 손잡이의 외곽 x=−0.200..−0.188 또는 +0.188..+0.200, y=0.196..0.255,z=±0.072를 벽에서 먼저 절삭하고 동일한 외곽의 별도 띠 부품을 넣는다. 띠 중앙은 y=0.208..0.243,z=±0.060으로 절삭한다. 벽과 띠는 바깥 모서리를 공유하지만 부피를 복제하지 않는다.
@@ -350,12 +358,17 @@
 
 ## 빈 그릇·쟁반·컵 {#tabletop-props}
 
+@axis-control cup: handle, Y, 0.050, handle ring center
+@axis-control cup: handle, Y, 0.034, lower joining pad
+@axis-control cup: handle, Y, 0.042, lower joining pad edge
+
 `decor-bowl`은 외경 0.22, 높이 0.07m, 벽 두께 0.008m이고 아래면 중심 원점, +Y 위다. 상단 개구 내경 0.204m, 안쪽 바닥 y=0.014이며 `shell/outer/inner/rim/sole`로 나눈다. `decor-tray`는 전체 폭 0.36·깊이 0.24·높이 0.032m이며 y=0..0.018m의 타원형 바닥과 y=0.018..0.032m의 높이 0.014m·두께 0.006m 둘레 턱을 가진 낮은 판이고 `base/upper/underside/edge`, `rim/inner/outer/top/underside`이다. `decor-cup`은 몸체 외경 0.085, 높이 0.095, 벽 두께 0.006m의 빈 원통과 외경 0.04m 손잡이를 가진다. 손잡이는 YZ 평면의 외경 0.04m인 닫힌 고리로 튜브 지름 0.006m, 중심 y=0.050,z=+0.0625에 둔다. 고리의 뒤쪽 끝 z=+0.0425는 몸체 외벽에 닿고 앞쪽 끝은 z=+0.0825다. 한 handle 부품 안의 위·아래 접합 pad는 각각 y=0.034..0.042와 0.063..0.071, x=±0.006m이며 뒷면은 컵의 반지름 0.0425m인 원통 바깥면을 따라 굽는다. 두 pad는 몸체 외벽의 유한 곡면에 접하고 빈 내벽 반지름 0.0365m 안으로 들어가지 않는다. pad의 앞면은 고리 몸체에 연속 접합한다. 바닥 접촉 중심 기준 전체 AABB는 x=±0.0425,y=0..0.095,z=−0.0425..+0.0825m다. 주소는 `body/outer/inner/rim/sole`, `handle/outer/inner/contact`다. 세 물체는 모두 놓이는 아래면 중심이 원점이고 +Z는 손잡이가 향한 앞이다. 위·측면·45°와 식탁 거리에서 빈 내부와 서로 다른 높이가 읽혀야 한다. ref03 낮은 탁자의 그릇과 조리대의 작은 소품, ref02 식탁의 그릇을 채택한다. ref01·04·05의 식사 장면은 없으므로 음식·브랜드·문구는 만들지 않는다. 각 소품의 개수와 놓이는 상판은 instances가 맡고 식품 접촉 성능은 `unverified`다.
 
 컵 pad 뒷면은 `z_back(x)=sqrt(R²−x²)`로서 R=0.0425m이고 |x|≤0.006m다. 이 곡면을 몸체 외면과 공유하는 단 하나의 접촉 경계로 두며 pad의 닫힌 내부는 몸체 바깥쪽에만 있다. 따라서 handle의 Z 최소값은 sqrt(0.0425²−0.006²)=0.042074m(바깥쪽 반올림)이고, 단순 AABB의 0.000426m 겹침은 고체 관통이 아니다. `@bore`는 Y축 원통 내부의 위쪽 열린 구멍, `@ellipse`는 타원형 rim의 안쪽·바깥쪽 반축을 적는다. `support`는 탁자 상면의 y=0 접촉이다.
 
 @inventory bowl: shell
 @inventory tray: base, rim
+@cap-contact tray: base, rim, Y, +
 @inventory cup: body, handle
 @bore bowl: shell, 0.102, 0.014..0.07
 @ellipse tray: rim, 0.174, 0.114, 0.18, 0.12
@@ -453,9 +466,14 @@ bezel의 중앙 개구는 x=±0.697,y=±0.382,z=0.039..0.045를 관통하고 그
 
 ## 바닥 독서등·구형 협탁등·작업등 {#portable-lamps}
 
+@axis-control bedside-globe: globe, Y, 0.072, sphere cut and neck top
+
 세 변종의 부품 표는 바닥 또는 놓인 상판을 y=0으로 삼는다. reading shade의 중앙 mounting bridge는 독립 `shade-bridge` 부품이고 안쪽 개구와 정확히 맞닿는다. desk-task head의 음각은 diffuser와 같은 외곽에서 끝나며 서로 체적을 공유하지 않는다.
 
 @inventory reading: base, stem-lower, shade, shade-bridge, diffuser
+@cap-contact bedside-globe: base, stem-short, Y, +
+@cap-contact desk-task: base, stem-lower, Y, +
+@cap-contact desk-task: stem-lower, stem-upper, Y, +
 @radial reading: base, 0, 0.125
 @radial reading: stem-lower, 0, 0.009
 @radial reading: shade, 0.095, 0.1
@@ -465,6 +483,7 @@ bezel의 중앙 개구는 x=±0.697,y=±0.382,z=0.039..0.045를 관통하고 그
 @flat-contact bedside-globe: globe, stem-short, -Y, 0.07, -0.006..0.006, -0.006..0.006
 @inventory desk-task: base, stem-lower, stem-upper, task-head, diffuser
 @void desk-task: task-head, -0.045..0.045, 0.36..0.364, 0.045..0.135
+@cavity-contact desk-task: task-head, diffuser, Y
 
 | kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
 | --- | --- | --- | --- | --- | --- | --- | --- |

@@ -5,8 +5,10 @@ const fs = require("node:fs");
 const path = require("node:path");
 
 const root = path.resolve(__dirname, "../..");
-const names = ["001-seating-and-work", "002-storage-and-sleep", "003-service-fixtures", "004-decor-and-fixtures"];
-const coordinate = /(?<![A-Za-z])([xyzXYZ])\s*=\s*([±+−-]?\d+\.\d+(?:\.\.[+−-]?\d+\.\d+)?)/g;
+const names = fs.readdirSync(path.join(root, "docs/models"))
+  .filter((name) => /^(?!000)\d{3}-.+\.md$/.test(name)).sort((a, b) => a.localeCompare(b))
+  .map((name) => name.slice(0, -3));
+const coordinate = /(?<![A-Za-z])([xyzXYZ])\s*=\s*([±+−-]?\d+\.\d+(?:\.\.[+−-]?\d+\.\d+)?)(?!\d*[WH])/g;
 const decimals = /\d+\.\d+/g;
 const proseDecimal = /(?<![\w.\-/])(\d+\.\d+)(?![\w.]*[x/])/g;
 
@@ -29,7 +31,23 @@ function interval(values, text) {
 function witnesses(lines) {
   /** @type {Record<"x"|"y"|"z", Set<number>>} */
   const result = { x: new Set(), y: new Set(), z: new Set() };
+  const measured = new Map();
+  for (const line of lines) if (line.startsWith("| @")) {
+    const cells = line.split("|").slice(1, -1).map((cell) => cell.trim());
+    if (cells.length === 8 && (cells[0] === "@part" || cells[0] === "@envelope"))
+      measured.set(`${cells[1]}/${cells[2]}`, { x: cells[4], y: cells[5], z: cells[6] });
+  }
   for (const line of lines) {
+    const control = /^@axis-control\s+([^:]+):\s*([^,]+),\s*([XYZ]),\s*([+−-]?[\d.]+),\s*(.+)$/.exec(line);
+    if (control) {
+      const row = measured.get(`${control[1].trim()}/${control[2].trim()}`);
+      const axis = /** @type {"x"|"y"|"z"} */ (control[3].toLowerCase());
+      const value = Number(control[4].replace("−", "-"));
+      const limits = row?.[axis]?.replaceAll("−", "-").split("..").map(Number);
+      if (!limits || !Number.isFinite(value) || value < limits[0] - 0.000001 ||
+        value > limits[1] + 0.000001) throw Error(`axis control outside measured part: ${line}`);
+      add(result[axis], value);
+    }
     if (line.startsWith("| @")) {
       const cells = line.split("|").slice(1, -1).map((cell) => cell.trim());
       if (cells.length === 8) for (const [i, axis] of /** @type {const} */ (["x", "y", "z"]).entries())
@@ -62,6 +80,10 @@ function witnesses(lines) {
     const shear = /^@shear-z\s+[^:]+:\s*[^,]+,\s*([^,]+),\s*([^,]+),\s*([\d.]+)$/.exec(line);
     if (shear) {
       interval(result.y, shear[1]); interval(result.z, shear[2]); add(result.z, Number(shear[3]));
+      const centers = shear[2].replaceAll("−", "-").split("..").map(Number);
+      const halfDepth = Number(shear[3]);
+      for (const center of centers) for (const side of [-1, 1])
+        add(result.z, center + side * halfDepth);
     }
     const linear = /^@curve-linear\s+[^:]+:\s*[^,]+,\s*[^,]+,\s*([\d.]+),\s*([\d.]+),\s*([−-]?[\d.]+),\s*([−-]?[\d.]+),\s*([\d.]+),\s*([\d.]+),\s*([\d.]+)$/.exec(line);
     if (linear) {
@@ -121,7 +143,8 @@ function audit(overrides = new Map()) {
     check(anchor, lines);
   }
   const nonAxisDecimals = proseDecimals - values;
-  if (nonAxisDecimals > 0) errors.push(`${nonAxisDecimals} prose decimals are outside the local-axis coordinate grammar`);
+  // Other prose dimensions are measured by the independent part and
+  // prose/table audits; this audit owns local-axis coordinates only.
   return { h2, proseDecimals, coordinateClaims: claims, coordinateValues: values,
     witnessedCoordinateValues: witnessed, unwitnessedCoordinateValues: values - witnessed,
     nonAxisDecimals, coverage, errors };

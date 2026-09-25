@@ -3,7 +3,9 @@
 const fs = require("node:fs");
 const path = require("node:path");
 
-const files = ["001-seating-and-work", "002-storage-and-sleep", "003-service-fixtures", "004-decor-and-fixtures"];
+const files = fs.readdirSync(path.resolve(__dirname, "../../docs/models"))
+  .filter((name) => /^(?!000)\d{3}-.+\.md$/.test(name)).sort((a, b) => a.localeCompare(b))
+  .map((name) => name.slice(0, -3));
 
 /** @param {string} token */
 function expand(token) {

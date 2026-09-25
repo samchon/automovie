@@ -8,6 +8,14 @@
 
 @inventory straight: frame, leg-0, leg-1, leg-2, leg-3, seat-0, seat-1, seat-2, back-frame, back-cushion-0, back-cushion-1, back-cushion-2, arm-left, arm-right, pillow-0, pillow-1, pillow-2
 @inventory chaise-right: frame, leg-0, leg-1, leg-2, leg-3, seat-0, seat-1, seat-2, back-frame, back-cushion-0, back-cushion-1, back-cushion-2, arm-left, arm-right, pillow-0, pillow-1, pillow-2, chaise-frame, chaise-seat, chaise-front-leg-0, chaise-front-leg-1
+@cap-contact straight: back-frame, frame, Y, -
+@cap-contact straight: pillow-0, seat-0, Y, -
+@cap-contact straight: pillow-1, seat-1, Y, -
+@cap-contact straight: pillow-2, seat-2, Y, -
+@cap-contact chaise-right: back-frame, frame, Y, -
+@cap-contact chaise-right: pillow-0, seat-0, Y, -
+@cap-contact chaise-right: pillow-1, seat-1, Y, -
+@cap-contact chaise-right: pillow-2, seat-2, Y, -
 @curve-linear straight: back-frame, back-cushion-0, 0.31, 0.57, -0.40, -0.08, 0.09, 0, 0.12
 @curve-linear straight: back-frame, back-cushion-1, 0.31, 0.57, -0.40, -0.08, 0.09, 0, 0.12
 @curve-linear straight: back-frame, back-cushion-2, 0.31, 0.57, -0.40, -0.08, 0.09, 0, 0.12
@@ -130,6 +138,10 @@ ref03 전경의 막힌 상자형 낮은 탁자 외형은 현재 `coffee-table`�
 @piece default: leg-2, 0.175..0.205, 0..0.45, -0.29..-0.26
 @piece default: leg-2, 0.175..0.205, 0.45..0.49, -0.29..-0.135
 @shear-z default: leg-2, 0.45..0.49, -0.275..-0.15, 0.015
+@flat-contact default: seat-frame, leg-0, -Z, -0.26, -0.205..-0.175, 0.38..0.415
+@flat-contact default: seat-frame, leg-2, -Z, -0.26, 0.175..0.205, 0.38..0.415
+@flat-contact default: back, leg-0, -Y, 0.49, -0.205..-0.175, -0.1625..-0.1375
+@flat-contact default: back, leg-2, -Y, 0.49, 0.175..0.205, -0.1625..-0.1375
 
 | kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -258,10 +270,19 @@ prototype은 `work-desk/flex-1400`, `work-desk/bed-1200`, `work-desk/bed-1240`, 
 
 ## 천 씌운 셸 책상 의자 {#desk-chair}
 
+@axis-control default: upholstery, Z, -0.074, upholstery-to-back junction
+@axis-control default: upholstery, Z, -0.04, upholstery throat
+
 `@curve-layer`는 t=(y−0.415)/0.415에서 등 셸의 뒤 곡선 `−0.10−0.25t+0.08t²`, 셸 두께 0.025m, 천층 두께 0.035m를 뜻한다. 천층은 좌판과 등판이 한 부품이되 두 연결된 점유 조각을 가진다. 등판 두 층은 같은 다항 곡면의 앞뒤 면에서만 접하고 체적을 겹치지 않는다.
 
 @inventory default: shell-seat, shell-back, upholstery, leg-0, leg-1, leg-2, leg-3
 @curve-layer default: shell-back, upholstery, -0.10, -0.25, 0.08, 0.025, 0.035
+@cap-contact default: leg-0, shell-seat, Y, +
+@cap-contact default: leg-1, shell-seat, Y, +
+@cap-contact default: leg-2, shell-seat, Y, +
+@cap-contact default: leg-3, shell-seat, Y, +
+@cap-contact default: shell-back, shell-seat, Y, -
+@cap-contact default: shell-seat, upholstery, Y, +
 @piece default: upholstery, -0.24..0.24, 0.415..0.45, -0.0945..0.26
 @piece default: upholstery, -0.24..0.24, 0.45..0.83, -0.245..-0.06
 

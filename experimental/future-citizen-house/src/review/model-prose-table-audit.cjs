@@ -3,7 +3,9 @@
 const fs = require("node:fs");
 const path = require("node:path");
 const root = path.resolve(__dirname, "../..");
-const names = ["001-seating-and-work", "002-storage-and-sleep", "003-service-fixtures", "004-decor-and-fixtures"];
+const names = fs.readdirSync(path.join(root, "docs/models"))
+  .filter((name) => /^(?!000)\d{3}-.+\.md$/.test(name)).sort((a, b) => a.localeCompare(b))
+  .map((name) => name.slice(0, -3));
 /** @param {Map<string,string>} [overrides] */
 function audit(overrides = new Map()) {
 /** @type {Map<string,{text:string,parts:Map<string,{x:number[],y:number[],z:number[]}>,envelopes:Map<string,{x:number[],y:number[],z:number[]}>}>} */
@@ -213,6 +215,10 @@ envelopeSpan("portable-lamps", "reading", "y", claim("portable-lamps", /`portabl
 envelopeSpan("portable-lamps", "bedside-globe", "y", claim("portable-lamps", /`portable-lamp\/bedside-globe`의 전체 점유는 폭·깊이 [\d.]+, 높이 ([\d.]+)m/), "globe height");
 envelopeMax("portable-lamps", "desk-task", "y", claim("portable-lamps", /`portable-lamp\/desk-task`의 전체 점유는 x=±[\d.]+,y=0\.\.([\d.]+)/), "task height");
 
+for (const [anchor, section] of sections) {
+  const representative = /첫 변종 `([^`]+)`의 대표 국소 상면은 y=([\d.]+)/.exec(section.text);
+  if (representative) envelopeMax(anchor, representative[1], "y", Number(representative[2]), "representative height");
+}
 if (crossCompared.size !== sections.size) {
   for (const anchor of sections.keys()) if (!crossCompared.has(anchor)) errors.push(`${anchor}: no prose/table cross comparison`);
 }

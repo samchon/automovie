@@ -4,6 +4,9 @@
 
 ## 세면대·수전·거울 {#basin}
 
+@axis-control 800: tap-spout, Y, 1.104, support-to-tube seam
+@axis-control 1000: tap-spout, Y, 1.104, support-to-tube seam
+
 부품 표에서 `support@0.80`은 별도 [vanity 외함](../models/002-storage-and-sleep.md#cabinet-and-shelf)의 상단 접촉면이며 이 prototype 내부에 외함 판을 중복 생성하지 않는다. bowl의 안쪽과 rim의 개구는 서로 다른 경계이고, bowl 바깥쪽 입술이 rim 아랫면에 면으로 닿는다. 거울은 벽에 독립 부착한다. drain은 bowl 바닥의 지름 0.045m 열린 구멍 면 주소다.
 
 @inventory 800: rim, bowl, tap-body, tap-spout, mirror-frame, mirror-glass
@@ -49,6 +52,9 @@
 
 ## 변기 {#toilet}
 
+@axis-control lid-open: bowl, Y, 0.29, interior floor
+@axis-control lid-open: seat, Z, -0.125, rear ring edge
+
 `toilet`은 바닥 점유 0.42×0.72m, seat 상단 0.465m, cistern 상단 0.82m, 버튼을 포함한 최고점 0.828m다. 바닥 접촉 중심이 원점, +Z가 앉는 앞이다. pedestal은 x폭 0.31, z깊이 0.47, y=0..0.27; bowl 외곽은 0.41×0.59m, y=0.27..0.43이며 아래면이 pedestal 상면에 닿는다. bowl의 상단 안쪽 구멍은 0.27×0.40m 타원과 깊이 0.14m의 음각(바닥 y=0.29)이다. seat는 x=±0.21,z=−0.21..+0.36,y=0.43..0.465의 두께 0.035m 고리로 bowl 상면에 닿고, lid는 뒤쪽 힌지 x=0,y=0.465,z=−0.20에서 위로 선 검사 상태 하나로 두며 폭 0.35, 높이 0.34, 두께 0.018m이고 y=0.465..0.805, z=−0.20..−0.182다. 이는 bowl을 보이게 하는 열린 상태이며 닫힘 상태를 동시에 내지 않는다. cistern은 0.40×0.145×0.39m로 z=−0.36..−0.215, y=0.43..0.82이며 bowl 뒤쪽 상면과 y=0.43에서 닿는다. seat 뒤 edge z=−0.21과 cistern 앞면 사이에는 0.005m의 열린 틈이 있고 seat는 bowl 고리의 유한 면으로 지지된다. flush 버튼은 0.05×0.035×0.008m로 중심 x=0,y=0.824,z=−0.285로 아래면 y=0.82가 cistern 상면에 면 접촉한다. `pedestal/outer/sole`, `bowl/inner/outer/rim`, `seat/upper/edge/underside`, `lid/front/back/edge`, `cistern/front/back/side/top/sole`, `flush/outer/contact`가 안정 주소다. bowl 내부는 바닥으로 이어지는 닫힌 곡면이며 상단 개구와 중앙 빈 공간만 열린 공간이다. 상부·정면·측면에서 bowl 구멍, seat와 tank 경계가 읽혀야 한다. ref02의 두 화장실 도기 형상을 채택하지만 사진의 화면 면적에서 폭을 추정하지 않는다. ref01·03·04·05에는 변기 판별 세부가 없고 수세 성능은 `unverified`다.
 
 타원형 bowl 구멍의 X 반축은 0.135m, Z 반축은 0.20m이고 중심은 (x=0,z=0)이다. seat의 타원형 구멍은 같은 반축을 가지되 외곽 좌표에 맞춰 중심 (x=0,z=+0.075)로 옮긴다. 두 열린 영역의 교집합이 bowl 내부를 드러내며 seat 뒤쪽 z=−0.21..−0.125m의 고리 상면에 lid 하단 z=−0.20..−0.182m가 유한 면으로 닿는다. `@ellipse`의 마지막 두 값은 호스트 외곽 타원의 X/Z 중심이고, bowl과 seat는 각각 상단 아래로 안쪽 면을 계속 내려 닫힌 바닥을 갖는다.
@@ -56,6 +62,10 @@
 @ellipse lid-open: bowl, 0.135, 0.20, 0.205, 0.295, 0, 0
 @ellipse lid-open: seat, 0.135, 0.20, 0.21, 0.285, 0, 0.075
 @inventory lid-open: pedestal, bowl, seat, lid, cistern, flush
+@cap-contact lid-open: bowl, pedestal, Y, -
+@cap-contact lid-open: bowl, seat, Y, +
+@cap-contact lid-open: bowl, cistern, Y, +
+@cap-contact lid-open: lid, seat, Y, -
 
 | kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -80,6 +90,7 @@
 tray의 중앙은 x=−0.980..+0.980,z=−0.680..+0.680에서 y=0.055..0.070을 절삭하여 0.045m curb를 만든다. drain은 중심 x/z=0, 반지름 0.060m로 tray 바닥 y=0..0.055를 뚫는 빈 구멍의 `tray/drain-inner`·`tray/drain-edge` 면 주소다. bracket의 고리는 `@radial-at`에 적은 공통 중심과 반지름으로 닫히며 임의의 C자 단면을 코드에서 고르지 않는다. `ground`는 tray y=0, `wall`은 후면 z=−0.725의 외부 접합 평면이며 각 bracket 패드의 접촉 넓이는 0.04×0.03m다.
 
 @inventory default: tray, screen, screen-rail, riser, riser-bracket-0, riser-bracket-1, riser-bracket-2, head
+@cap-contact default: head, riser, Y, -
 @void default: tray, -0.98..0.98, 0.055..0.07, -0.68..0.68
 @bore default: tray, 0.06, 0..0.055
 @radial-at default: riser, -0.85, -0.705, 0, 0.0125
@@ -108,12 +119,17 @@ tray의 중앙은 x=−0.980..+0.980,z=−0.680..+0.680에서 y=0.055..0.070을 
 
 ## 욕조 {#bathtub}
 
+@axis-control default: floor, Z, 0.50, drain center
+@axis-control default: floor, Y, 0.185, drain low point
+@axis-control default: shell, Y, 0.43, overflow center
+
 `bathtub`은 바닥 점유 1.62×0.76m, rim 높이 0.58m, 내부 바닥판의 아래면 y=0.12m다. 바닥 접촉 중심이 원점이고 +Z가 긴 축이며 어느 방 벽에 붙일지는 instances가 정한다. 외함은 0.045m 두께의 끝벽과 0.04m 두께의 긴 측벽, 상단 폭 0.055m의 rim을 가지며 네 외벽이 y=0..0.58에서 바닥에 닿는다. 내부 바닥판 아래 y=0..0.12는 외벽 안에서 비운다. 외함의 내벽 간 치수는 길이 1.53×폭 0.68m, rim 안쪽의 실제 위쪽 개구는 1.51×0.65m, 중심 (x=0,z=0)의 안쪽 바닥은 식에 따라 y≈0.191m이며, 내부 경계에서 y≤0.20m이고 +Z 끝벽 중앙에서는 식에 따라 y≈0.188m다. 배수구 중심은 (x=0,z=+0.50)이고 지름은 0.05m다. 욕조 바닥의 아래면은 y=0.12, 안쪽 면은 배수구에서 y=0.185이고 둘 사이에 닫힌 두께를 둔다. 바닥은 내부 x=±0.34,z=±0.765에서 y=0.20을 상한으로 두고 r=min(1,sqrt((x/0.34)^2+((z−0.50)/1.265)^2))에 따라 y=0.185+0.015r로 배수구 중심까지 내려간다. overflow는 발치 반대쪽 내벽 z=−0.765의 x=0,y=0.43에 지름 0.04m의 관통 음각으로 둔다. `shell/outer/inner/end/underside/overflow-inner/overflow-edge`, `rim/upper/inner/outer/underside`, `floor/inner/underside/drain-inner/drain-edge`가 안정 주소다. 두께 있는 rim에서 외·내벽이 연결되며 물이 담길 빈 공간을 위에서 확인할 수 있다. 상부·측면·45°에서 개구와 길이 방향 벽이 샤워 tray와 구별돼야 한다. ref02 욕실의 낮은 욕조를 채택해 누락된 생활 기능을 복구한다. ref01·03·04·05는 욕조 세부를 주지 않으므로 그 이미지의 다른 유리 면을 욕조 외함으로 읽지 않는다. 욕조와 샤워의 같은 방 안 배치·통행은 instances의 별도 검증이며 실제 급배수와 하중은 `unverified`다.
 
 네 외벽의 독립 부품 `shell`은 y=0..0.525이고 `rim`은 y=0.525..0.58에서 맞대므로 두 부품의 합이 위의 y=0..0.58 외벽이다. shell 내부는 x=±0.34,z=±0.765를 바닥부터 위까지 비우고, 그 안에 y=0.12..0.20의 곡면 floor를 측면에 맞댄다. rim의 안쪽 개구는 x=±0.325,z=±0.755다. `floor/drain-inner`·`floor/drain-edge`는 floor에서, `shell/overflow-inner`·`shell/overflow-edge`는 shell의 −Z 끝벽에서 잘라 낸 구멍의 면 주소이며 별도 고체 부품이 아니다. 다음 표의 `@void`는 두 직사각형 내부 공백을 재고, 원형 drain·overflow는 위 식과 중심·지름으로 결정한다.
 
 @inventory default: shell, floor, rim
 @void default: shell, -0.34..0.34, 0..0.525, -0.765..0.765
+@cavity-contact default: shell, floor, X
 @void default: rim, -0.325..0.325, 0.525..0.58, -0.755..0.755
 
 | kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
@@ -128,6 +144,10 @@ tray의 중앙은 x=−0.980..+0.980,z=−0.680..+0.680에서 y=0.055..0.070을 
 <!-- @authored-address-state:end -->
 
 ## 주방 섬·싱크 {#kitchen-island}
+
+@axis-control default: tap-spout, X, -0.13, spout endpoint
+@axis-control default: tap-spout, Z, 0.72, spout endpoint
+@axis-control default: tap-spout, Y, 1.273, support-to-tube seam
 
 섬 하부장은 별도 cabinet prototype이다. 이 부품 표의 `support@0.87`은 그 상단 접촉면이다. sink 안쪽에는 0.02m 바닥을 남기며 바깥 lip이 counter 절삭보다 각 변에서 0.02m 넓어 아래면에 닿는다. 배수구는 sink 바닥의 면 주소로 둔다.
 
@@ -204,6 +224,8 @@ tray의 중앙은 x=−0.980..+0.980,z=−0.680..+0.680에서 y=0.055..0.070을 
 
 ## 두 문 냉장고 {#refrigerator}
 
+@axis-control default: body, Y, 1.05, door seam
+
 `refrigerator`는 X 폭 0.90, 높이 2.65, 손잡이 포함 Z 깊이 0.785m다. 바닥 중심 원점, +Z가 문 앞이다. body는 x=±0.45,y=0.08..2.65,z=−0.38..+0.29, 상·하 문은 z=+0.29..+0.38의 두께 0.09m이고 하부 문 y=0.08..1.047, 상부 문 y=1.053..2.65라 y=1.05에 0.006m seam이 보인다. 손잡이는 문마다 0.022×0.28×0.025m로 x=+0.37, z=+0.38..+0.405, 중심 높이 y=1.65와 0.57이다. toe는 x=±0.45,y=0..0.08,z=−0.38..+0.33으로 문 앞면 z=+0.38보다 0.05m 물린다. `body/front/side-left/side-right/back/top/sole`, `door-upper/lower/front/back/edge`, `handle-upper/lower/outer/contact`, `toe/front/back/top/underside/side`가 안정 주소다. 내부는 구현하지 않으며 일반 tall pantry와 전면 분할로 구별한다. 정면·측면·45°에서 두 문과 깊이를 확인한다. ref03 주방 벽장의 기기 위치와 ref02의 tall unit을 채택하되 사진의 문틀 폭을 복제하지 않는다. ref01·04·05에는 냉장고 상세가 없다. 냉각은 `unverified`다.
 
 @inventory default: body, door-lower, door-upper, handle-lower, handle-upper, toe
@@ -228,6 +250,14 @@ tray의 중앙은 x=−0.980..+0.980,z=−0.680..+0.680에서 y=0.055..0.070을 
 
 @inventory washer: body, drum-inner, drum-rim, window, controls-panel, controls-dial, controls-button-0, controls-button-1, hinge-barrel, hinge-tongue
 @inventory dryer: body, drum-inner, drum-rim, window, controls-panel, controls-dial, controls-button-0, controls-button-1, controls-button-2, hinge-barrel, hinge-tongue
+@cap-contact washer: body, drum-rim, Z, +
+@cap-contact washer: body, controls-panel, Z, +
+@cap-contact washer: body, hinge-barrel, Z, +
+@cap-contact washer: hinge-barrel, hinge-tongue, X, +
+@cap-contact dryer: body, drum-rim, Z, +
+@cap-contact dryer: body, controls-panel, Z, +
+@cap-contact dryer: body, hinge-barrel, Z, +
+@cap-contact dryer: hinge-barrel, hinge-tongue, X, +
 @radial-z washer: drum-inner, 0, 0.38, 0, 0.19
 @radial-z washer: drum-rim, 0, 0.38, 0.175, 0.23
 @radial-z washer: window, 0, 0.38, 0, 0.175
@@ -238,6 +268,8 @@ tray의 중앙은 x=−0.980..+0.980,z=−0.680..+0.680에서 y=0.055..0.070을 
 @bore-z dryer: body, 0, 0.38, 0.19, 0.246..0.30
 @void washer: drum-rim, -0.23..-0.21, 0.35..0.41, 0.305..0.315
 @void dryer: drum-rim, -0.23..-0.21, 0.35..0.41, 0.305..0.315
+@cavity-contact washer: drum-rim, hinge-tongue, X
+@cavity-contact dryer: drum-rim, hinge-tongue, X
 
 | kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
 | --- | --- | --- | --- | --- | --- | --- | --- |

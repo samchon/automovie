@@ -7,7 +7,9 @@ const path = require("node:path");
 const root = path.resolve(__dirname, "../..");
 /** @type {Map<string, string>} */
 const sections = new Map();
-for (const name of ["000-representation", "001-seating-and-work", "002-storage-and-sleep", "003-service-fixtures", "004-decor-and-fixtures"]) {
+for (const name of fs.readdirSync(path.join(root, "docs/models"))
+  .filter((file) => /^\d{3}-.+\.md$/.test(file)).sort((a, b) => a.localeCompare(b))
+  .map((file) => file.slice(0, -3))) {
   const source = fs.readFileSync(path.join(root, "docs/models", `${name}.md`), "utf8");
   const lines = source.split(/\r?\n/);
   let anchor = "";
@@ -81,7 +83,17 @@ const prototypes = {
   "living-display": ["1.43", "0.80", "0.045", "0.039..0.042"],
   "recessed-light": ["0.12", "0.04", "−0.025..0"],
   "dining-pendant": ["1.00", "0.045", "−1.00..−0.62"],
-  "portable-lamps": ["1.24", "0.29", "0.42", "z=+0.09"]
+  "portable-lamps": ["1.24", "0.29", "0.42", "z=+0.09"],
+  "household-textiles": ["bench-cushion", "bedding-set", "bath-mat"],
+  "personal-articles": ["shoe", "coat", "umbrella"],
+  "dining-wares": ["plate", "fork", "water-bottle"],
+  "kitchen-smallwares": ["pot", "toaster", "drying-rack"],
+  "bath-accessories": ["soap-dispenser", "tissue-roll", "laundry-basket"],
+  "household-boxes": ["file-box", "storage-box", "parcel-locker"],
+  "household-tools": ["tool-box", "vacuum", "hose-reel"],
+  "exterior-furnishings": ["mailbox", "rain-barrel", "bicycle"],
+  "wall-accessories": ["entry-mirror", "wall-sconce"],
+  "desk-controls": ["pointing-device", "personal-device"]
 };
 const common = ["model-address-and-scale", "model-uv-and-topology", "model-articulation-ownership", "model-bounds-and-states", "model-neutral-observation"];
 for (const anchor of common) hasDesign(anchor, []);
@@ -281,6 +293,14 @@ checkDeskAndMurphy();
 checkWetAndAppliances();
 checkShelvesAndLamps();
 checkRemainingPrototypes();
+for (const anchor of ["household-textiles", "personal-articles", "dining-wares",
+  "kitchen-smallwares", "bath-accessories", "household-boxes", "household-tools",
+  "exterior-furnishings", "wall-accessories", "desk-controls"]) {
+  const first = numeric(anchor, /대표 국소 상면은 y=([\d.]+)/);
+  const row = /\| @part \| [^|]+ \| body \| [^|]+ \| [^|]+ \| 0\.\.([\d.]+) \|/.exec(sections.get(anchor) || "");
+  requireThat(!!row, `${anchor}: measured body row absent`);
+  if (row) equalLength(first, Number(row[1]), `${anchor}: representative height differs from first body`);
+}
 for (const anchor of Object.keys(prototypes)) requireThat(measuredAnchors.has(anchor), `${anchor}: no numeric measurement`);
 
 // Mutate the in-memory authored H2 and rerun the same checks. A missing or

@@ -1,6 +1,7 @@
 // Read-only measurement of the draft model inventory. Run from the production root.
 const fs = require("node:fs");
 const path = require("node:path");
+const { inventory } = require("./model-inventory.cjs");
 
 const root = path.resolve(__dirname, "../..");
 const rooms = path.join(root, "src/house/rooms");
@@ -110,7 +111,43 @@ function audit(account) {
   if (sites.lining !== 12 || sites.lights !== 12) errors.push(`lining/lights sites ${sites.lining}/${sites.lights} != 12/12`);
   if (roots.blank.length || direct.blank.length || demands.blank.length) errors.push(`blank owner rows ${roots.blank.length + direct.blank.length + demands.blank.length}`);
   errors.push(...missingModelAnswers.map((item) => `model H2 missing anchor/ref/unverified: ${item}`));
-  return { sites, roots: roots.rows.length, direct: direct.rows.length, demands: demands.rows.length, h2Count, blankOwners: roots.blank.length + direct.blank.length + demands.blank.length, errors };
+  const roomSource = fs.readFileSync(path.join(root, ".wiki/사물-목록.md"), "utf8");
+  const models = inventory(root);
+  /** @type {Map<string,string>} */ const uses = new Map();
+  for (const line of roomSource.split(/\r?\n/)) {
+    const match = /^@uses\s+([^:]+):\s*([^\s]+)$/.exec(line);
+    if (!match) continue;
+    for (const label of match[1].split(",").map((value) => value.trim())) {
+      if (uses.has(label)) errors.push(`${label}: duplicate model mapping`);
+      uses.set(label, match[2]);
+    }
+  }
+  const used = new Set();
+  let modelRooms = 0, modelKinds = 0, modelObjects = 0, coveredObjects = 0;
+  for (const line of roomSource.split(/\r?\n/)) {
+    const row = /^\| ([^|]+) \| ([^|]+) \|/.exec(line);
+    if (!row || !/×\d+/.test(row[2])) continue;
+    modelRooms++;
+    for (const item of row[2].split(",")) {
+      const match = /^\s*(.+?)×(\d+)\s*$/.exec(item);
+      if (!match) { errors.push(`${row[1]}: malformed object ${item}`); continue; }
+      const label = match[1].trim(), count = Number(match[2]);
+      modelKinds++;
+      modelObjects += count;
+      const binding = uses.get(label);
+      if (!binding) { errors.push(`${row[1]}: ${label} has no model mapping`); continue; }
+      used.add(label);
+      const slash = binding.indexOf("/");
+      const owner = binding.slice(0, slash), state = binding.slice(slash + 1);
+      if (slash < 0 || !models.get(owner)?.has(state))
+        errors.push(`${row[1]}: ${label} resolves to absent ${binding}`);
+      else coveredObjects += count;
+    }
+  }
+  for (const label of uses.keys()) if (!used.has(label)) errors.push(`${label}: mapping has no room object`);
+  return { sites, roots: roots.rows.length, direct: direct.rows.length, demands: demands.rows.length,
+    h2Count, blankOwners: roots.blank.length + direct.blank.length + demands.blank.length,
+    modelRooms, modelKinds, modelObjects, coveredObjects, errors };
 }
 
 const account = fs.readFileSync(accountPath, "utf8");
