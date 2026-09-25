@@ -15,3 +15,5 @@ export * from "./resolveHumanBodyPelvifemoralRhythm";
 export * from "./resolveHumanBodySkeleton";
 export * from "./resolveHumanBodyShoulders";
 export * from "./skinHumanBodySurface";
+export * from "./createHumanBodySkinDetailTexture";
+export * from "./humanBodySkinMetresPerUv";
