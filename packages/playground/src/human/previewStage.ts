@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-import { balanceHumanPreviewRig } from "./previewExposure";
+import { addHumanPreviewRig } from "./previewRig";
 import { createHumanPreviewCamera } from "./previewScene";
 
 /**
@@ -50,75 +50,12 @@ export function createHumanPreviewStage(props: {
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   const scene = new THREE.Scene();
-  const shadowLights: THREE.DirectionalLight[] = [];
   scene.background = new THREE.Color(0x1c252e);
-  // The authored rig: a warm key high on the left that casts the shadows, a
-  // cool fill on the right, a rim behind, and a sky over ground. The
-  // photograph's white balance and exposure are then taken on a grey card
-  // turned to the key (`balanceHumanPreviewRig`).
-  const linear = (hex: number): [number, number, number] => {
-    const color = new THREE.Color(hex);
-    return [color.r, color.g, color.b];
-  };
-  const key: [number, number, number] = [-0.3, 0.35, 0.45];
-  const rig = balanceHumanPreviewRig(
-    [
-      {
-        kind: "hemisphere",
-        sky: linear(0xffeee2),
-        ground: linear(0x526578),
-        intensity: 0.5,
-      },
-      ...(
-        [
-          [key, 2.3, 0xffe9d8],
-          [[0.35, 0.1, 0.3], 0.85, 0xdaeaff],
-          [[0.1, 0.3, -0.25], 1.6, 0xffffff],
-        ] as const
-      ).map(([direction, intensity, hex]) => ({
-        kind: "directional" as const,
-        direction,
-        color: linear(hex),
-        intensity,
-      })),
-    ],
-    key,
-  );
-  renderer.toneMappingExposure = rig.exposure;
-  for (const one of rig.lights) {
-    if (one.kind === "hemisphere") {
-      scene.add(
-        new THREE.HemisphereLight(
-          new THREE.Color(...one.sky),
-          new THREE.Color(...one.ground),
-          one.intensity,
-        ),
-      );
-      continue;
-    }
-    const light = new THREE.DirectionalLight(
-      new THREE.Color(...one.color),
-      one.intensity,
-    );
-    light.position.set(...one.direction);
-    scene.add(light);
-    if (one.direction === key) {
-      shadowLights.push(light);
-      light.castShadow = true;
-      light.shadow.mapSize.set(4096, 4096);
-      Object.assign(light.shadow.camera, {
-        left: -0.2,
-        right: 0.2,
-        top: 0.2,
-        bottom: -0.2,
-        near: 0.01,
-        far: 2,
-      });
-      light.shadow.normalBias = 0.0008;
-      light.shadow.bias = -0.00005;
-      light.shadow.camera.updateProjectionMatrix();
-    }
-  }
+  const shadowLights = addHumanPreviewRig({
+    scene,
+    renderer,
+    scale: 1,
+  });
   const camera = new THREE.PerspectiveCamera(30, 1, 0.01, 10);
   const orbit = props.orbit(camera);
   orbit.target.set(0, -0.015, 0);
