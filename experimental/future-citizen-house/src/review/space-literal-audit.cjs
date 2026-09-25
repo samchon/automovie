@@ -29,11 +29,18 @@ const executable = (source) =>
     (match) => match.replace(/[^\r\n]/g, " "),
   );
 const numberSyntax =
-  /(?<![\w.$])[-+]?(?:\d+(?:\.\d+)?|\.\d+)(?:[eE][-+]?\d+)?(?![\w.])/g;
+  /(?<![\w$])[-+]?(?:\d+(?:\.\d+)?|\.\d+)(?:[eE][-+]?\d+)?(?!\w)/g;
 /** @param {string} source */
-const numericTokens = (source) => [
-  ...executable(source).matchAll(numberSyntax),
-];
+const numericTokens = (source) => {
+  const code = executable(source);
+  return [...code.matchAll(numberSyntax)].filter((match) => {
+    const start = match.index, end = start + match[0].length;
+    // A single dot adjacent to another digit extends a numeric token. Two
+    // dots delimit range notation, so both endpoints remain visible.
+    return !(code[start - 1] === "." && /\d/.test(code[start - 2] || "")) &&
+      !(code[end] === "." && /\d/.test(code[end + 1] || ""));
+  });
+};
 const plan = fs.readFileSync(planFile, "utf8");
 const datumDeclaration = plan.match(
   /export const datum\s*=\s*\{([\s\S]*?)\}\s*as const/,

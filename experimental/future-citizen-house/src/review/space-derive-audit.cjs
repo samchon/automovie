@@ -204,6 +204,11 @@ try {
   fs.mkdirSync(baseline);
   fs.cpSync(source, path.join(baseline, "src"), { recursive: true });
   const original = run(baseline);
+  const upperFitoutFamilies = Object.keys(original).filter((key) =>
+    key.startsWith("upper-fitout:"),
+  );
+  if (!upperFitoutFamilies.length)
+    throw new Error("No upper-room fit-out transforms were checked");
   if (Number(original.stairCollisions) !== 0) {
     failures++;
     console.error(
@@ -212,7 +217,7 @@ try {
   }
   for (const scenario of cases) {
     const affected = scenario.name === "upper floor"
-      ? [...scenario.affected, ...Object.keys(original).filter((key) => key.startsWith("upper-fitout:"))]
+      ? [...scenario.affected, ...upperFitoutFamilies]
       : scenario.affected;
     const dir = path.join(work, scenario.name.replace(/\W+/g, "-"));
     fs.mkdirSync(dir);
@@ -268,7 +273,7 @@ try {
     }
   }
   console.log(
-    `space-derive-audit: ${cases.length} plan scalars, ${checked} consumer families, ${roomCases.length} eligible room edges, ${roomChecked} random room mutations, ${roomMoved} moved, ${original.stairPairs} stringer/tread pairs, ${failures} failures`,
+    `space-derive-audit: ${cases.length} plan scalars, ${checked} consumer families (${upperFitoutFamilies.length} upper fit-out transforms), ${roomCases.length} eligible room edges, ${roomChecked} random room mutations, ${roomMoved} moved, ${original.stairPairs} stringer/tread pairs, ${failures} failures`,
   );
   if (!roomChecked || failures) process.exitCode = 1;
 } finally {

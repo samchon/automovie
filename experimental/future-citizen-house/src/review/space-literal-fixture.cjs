@@ -69,6 +69,8 @@ for (const file of [
 const roomCandidates = candidates.filter((candidate) =>
   candidate.file.startsWith(path.join(house, "rooms") + path.sep),
 );
+if (!roomCandidates.length)
+  throw Error("No upper-room datum uses were eligible for mutation");
 let red = 0,
   sampled = 0;
 try {
