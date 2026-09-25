@@ -24,7 +24,7 @@
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 22도 동측 박공과 5.05m 제실 지지가 코핑을 뚫은 사례와 끝면 뒷면이 없으면 주랑에서 바깥이 비치는 조건을 본문에 적고, 겹침은 스캔으로, 끝면은 단면과 양쪽 관찰로 재게 해 산술만으로 통과시키지 않는다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정은 경사·높이 범위만 줬고 세 합성 단위와 지지 높이, 동측 전용 경사, 높이 차이 끝면의 양면 소유는 공간 층의 결정이다.
 @evidenceReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 첫 렌더 대조에서 드러난 roof-form 범위 결함과 그 수리가 적혀 있고, 19도·7.67m는 그 범위 안이며 끝면 뒷면은 지붕 형상을 바꾸지 않는 표면 결정이라 부모를 다시 고치지 않았다.
-@evidenceReview settings/20-envelope.md#roof-form #7269ea1 외쪽 12도는 10~16도, 박공 19·22도는 18~28도, 제실 약 7.67m는 6.8~7.8m, 코핑 4.85m는 4.5~5.2m 안에 있다.
+@evidenceReview settings/20-envelope.md#roof-form #7269ea1 본문의 외쪽 12도, 박공 19·22도, 제실 약 7.67m와 코핑 4.85m는 각각 인용 설정의 허용 범위 안에 있다.
 @evidenceReview settings/20-envelope.md#ceilings #c397437 주랑·제실의 노출 하부와 높이 차이 끝면의 주랑 쪽 뒷면은 방 owner, 널판 천장 위 틈은 비거주로 남아 지붕 하부가 새 공간이 되지 않고 주랑 천장에 틈이 비치지 않는다.
 -->
 

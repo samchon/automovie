@@ -31,7 +31,7 @@
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 높은 입면과 박공 안쪽을 보는 보조 pose, 처마 밑·마당 spine 상부 접합 질문은 support 위 1.6m인 필수 실내·대지 station의 대체가 아니다.
 @evidenceReview settings/00-delivery.md#review-condition #6daf6ae 공간 필수 station은 support 위 1.6m, opening-facing은 창 profile 중심, 높은 입면은 가림을 푸는 pose다. 현관 박공 뒷면과 제실·마당 spine 상부 띠는 각각의 질문을 보존한다.
 @evidenceReview settings/00-delivery.md#governing-aim #df3c7b2 reference 다섯은 topology 질문에 추가되고 안타·박공·끝 칸·반환벽은 각 자기 면으로, 주소 밖 20띠는 접합 단면으로 답한다. 열린 현관 박공 안쪽도 제외하지 않는다.
-@evidenceReview settings/50-production.md#references #eb34a79 reference 02는 절개 검사이고 전달 프레임이 아니다. 문·창 16개, 제실 박공·처마 밑, 마당 spine 상부 접합과 포치 박공 앞뒤는 서로 별도 관찰이다.
+@evidenceReview settings/50-production.md#references #eb34a79 절개 레퍼런스는 검사 자료이고 전달 프레임이 아니다. 문·창 16개, 제실 박공·처마 밑, 마당 spine 상부 접합과 포치 박공 앞뒤는 서로 별도 관찰이다.
 @evidenceReview settings/50-production.md#measurement-truth #c6e89a8 겹침 0.01m, 개구부 절두체, 주소 법선 쪽 방출 면 시야, 앞 2cm 공기·5cm 외부점의 대지 cell 또는 15 탈출 방향을 구별한다. 박공 안쪽은 열린 현관 cell의 별도 주소 대상이며 프레임에서의 방 정체성은 unverified다.
 @evidenceReview settings/50-production.md#acceptance #2c49b7f reference 다섯, 골·천장·경계석·충돌 원과 20개 접합 띠는 실제 프레임 판독 전까지 미완료다. 박공 뒷면의 주소 검증만으로 화면 완료라 쓰지 않는다.
 @evidenceReview obligations/design/spaces.md#space-review-set #86bcab4 Y=1.2m 평면·네 종횡 단면과 방별 threshold·모서리·방위를 유지한다. 20개 주소 밖 띠 중 둘은 제실 남벽 spine 접합, 하나는 마당 spine 상부이며 포치 박공 뒷면은 별도 단일 공간 주소다.
