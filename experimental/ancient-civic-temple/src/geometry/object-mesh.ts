@@ -146,9 +146,9 @@ export class ObjectMesh {
   loop(name: string, x: number, y: number, z: number, radius: number, thickness: number, plane: "xz" | "xy" | "yz" = "xz", segments = 16): this {
     const path = Array.from({ length: segments+1 }, (_, i) => {
       const angle = 2*Math.PI*i/segments;
-      return plane === "xz" ? point(x+radius*Math.cos(angle),y,z+radius*Math.sin(angle))
+      return plane === "xz" ? point(x+radius*Math.cos(angle),y,z-radius*Math.sin(angle))
         : plane === "xy" ? point(x+radius*Math.cos(angle),y+radius*Math.sin(angle),z)
-        : point(x,y+radius*Math.cos(angle),z+radius*Math.sin(angle));
+        : point(x,y+radius*Math.sin(angle),z+radius*Math.cos(angle));
     });
     let distance = 0;
     for (let i=0;i<segments;++i) {

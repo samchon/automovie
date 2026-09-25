@@ -58,3 +58,23 @@ void test("vessel outside and inside unwrap from their separate low rings", () =
   close(uv[innerSide * 2 + 1]!, Math.hypot(0.9, 0.2));
   close(uv[(innerSide + 2) * 2 + 1]!, 0);
 });
+
+void test("loop seam starts on the documented radial axis and follows its angle", () => {
+  for (const plane of ["xz", "yz"] as const) {
+    const part = new ObjectMesh().loop("rim", 1, 2, 3, 0.4, 0.01, plane, 8)
+      .model("object.sample", "sample").parts[0]!.geometry;
+    assert.equal(part.type, "mesh");
+    if (part.type !== "mesh") continue;
+    const p = part.mesh.positions;
+    const centre = (first: number): number[] => [0, 1, 2].map((axis) =>
+      Array.from({ length: 6 }, (_, i) => p[(first + i) * 3 + axis]!).reduce((a, b) => a + b) / 6);
+    const a = centre(0), b = centre(36);
+    close(a[0]!, 1 + (plane === "xz" ? 0.4 : 0));
+    close(a[1]!, 2);
+    close(a[2]!, 3 + (plane === "yz" ? 0.4 : 0));
+    close(b[0]!, 1 + (plane === "xz" ? 0.4 * Math.cos(Math.PI / 4) : 0));
+    close(b[1]!, 2 + (plane === "yz" ? 0.4 * Math.sin(Math.PI / 4) : 0));
+    close(b[2]!, 3 + (plane === "xz" ? -0.4 * Math.sin(Math.PI / 4)
+      : 0.4 * Math.cos(Math.PI / 4)));
+  }
+});
