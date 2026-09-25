@@ -152,6 +152,7 @@ The connected editor selects whatever `basis.json.gz` reads as its `id`; every d
 | `mpfb-connected-head-2026-09-26-valid-envelope` | unseen-envelope | `prepare-valid-envelope-basis.ts`: each face control side whose surface stops being a face inside its envelope brought in to where it still is, by the fault count or by a render study of every control at both ends | [valid-envelope-receipt.json](valid-envelope-receipt.json) |
 | `mpfb-connected-head-2026-09-26-tongue` | valid-envelope | `prepare-tongue-basis.ts`: under every shape channel the tongue follows the mandibular arch's affine motion | [tongue-receipt.json](tongue-receipt.json) |
 | `mpfb-connected-head-2026-09-26-arch-width` | tongue | `prepare-arch-width-basis.ts`: the dentition widens with the mouth only by the dental arch's regression on the mouth among adults | [arch-width-receipt.json](arch-width-receipt.json) |
+| `mpfb-connected-head-2026-09-26-valid-envelope-2` | arch-width | `prepare-valid-envelope-basis.ts` (`eye-elevation`): the eye close-up pass of the render audit brings `EyeElevation`'s maximum in | [valid-envelope-eye-elevation-receipt.json](valid-envelope-eye-elevation-receipt.json) |
 
 ### Single channels first
 
@@ -405,7 +406,9 @@ Every face control (the 97 shape channels other than the population macros, pair
 
 An extension past an authored end amplifies a sculptor's variation rather than following an anatomical one, so the measure it was extended for (the nasolabial angle, the nasal tip protrusion index) can keep moving while the shape leaves the face: the septum's 2.5 reached a nasolabial angle of 71.5 degrees with a lump for a tip. The extensions kept here (chinProjection to 1.39, nasalRootProjection to -1.46, lowerLipVolume to -1.7, the septum to -1.05, each ear's scale to 1.38) read as faces from every side. What these limits cost is recorded, not hidden: the septum no longer reaches the African nasolabial angles below its 1.25, the nasal tip protrusion index stops short of the populations' upper tail, and the thinnest upper and lower vermilions of the lip revision's interval are out of reach.
 
-Outside the envelopes, two defects remain for their own revisions: `jawPrognathism` below -0.554 retrudes the mandibular teeth behind the resting tongue, which does not follow the mandible under any shape control, so the builder refuses the document; and the dentition scales with `mouthWidth` (19 percent per unit across the arch), which tooth size does not.
+A profile pass of the nose, mouth, jaw, brow, head and cheek controls at both ends (yaw 90) found every end a face (a temporal hollow at `templeWidth` -1, a bimaxillary protrusion at `mouthForwardPosition` +1). The eye close-up pass found `EyeElevation` clean at 0.5, a thin medial lid line at 0.75 and a lit ridge along the medial upper lid at 1, and a second revision (`valid-envelope-2`, [valid-envelope-eye-elevation-receipt.json](valid-envelope-eye-elevation-receipt.json)) ends its maximum at 0.75; no derived document goes past 0.5.
+
+Outside the envelopes, two defects remained for their own revisions (the tongue and arch width revisions below): `jawPrognathism` below -0.554 retrudes the mandibular teeth behind the resting tongue, which does not follow the mandible under any shape control, so the builder refuses the document; and the dentition scales with `mouthWidth` (19 percent per unit across the arch), which tooth size does not.
 
 ## Tongue on the mandible
 
