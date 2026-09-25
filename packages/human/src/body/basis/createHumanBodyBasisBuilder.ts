@@ -17,16 +17,20 @@ import typia from "typia";
 import { createHumanFaceBasisRegion } from "../../face/basis/createHumanFaceBasisRegion";
 import { humanFaceBasisRegion } from "../../face/basis/humanFaceBasisRegion";
 import { portraitNormals } from "../../face/mesh/portraitNormals";
+import { HUMAN_BODY_SKIN_DETAIL } from "../constants/HUMAN_BODY_SKIN_DETAIL";
 import { HUMAN_BODY_SKIN_SITES } from "../constants/HUMAN_BODY_SKIN_SITES";
 import { admitHumanBodyBasisDocument } from "../document/admitHumanBodyBasisDocument";
+import { humanBodySimpleShapeMath } from "../simple/humanBodySimpleShapeMath";
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanBodyBasisDocument } from "../structures/IAutoMovieHumanBodyBasisDocument";
 import type { IAutoMovieHumanBodyBuild } from "../structures/IAutoMovieHumanBodyBuild";
 import { assertHumanBodyBasis } from "./assertHumanBodyBasis";
 import { createHumanBodySkinColour } from "./createHumanBodySkinColour";
+import { createHumanBodySkinDetailTexture } from "./createHumanBodySkinDetailTexture";
 import { evaluateHumanBodyShape } from "./evaluateHumanBodyShape";
 import { humanBodyBasisWeights } from "./humanBodyBasisWeights";
 import { humanBodyShoulderReaches } from "./humanBodyShoulderReaches";
+import { humanBodySkinMetresPerUv } from "./humanBodySkinMetresPerUv";
 import { resolveHumanBodyPelvifemoralRhythm } from "./resolveHumanBodyPelvifemoralRhythm";
 import { resolveHumanBodyShoulders } from "./resolveHumanBodyShoulders";
 import { resolveHumanBodySkeleton } from "./resolveHumanBodySkeleton";
@@ -81,6 +85,8 @@ export function createHumanBodyBasisBuilder(
   assertHumanBodyBasis(basis);
   // read off the rig on the first document that asks for it
   let siteColour: ReturnType<typeof createHumanBodySkinColour> | null = null;
+  // the micro-relief tile and its scale over the skin's UVs, on first use
+  let relief: { texture: string; turns: number } | null = null;
   return (inputDocument) => {
     const document = admitHumanBodyBasisDocument(inputDocument);
     if (
@@ -241,6 +247,52 @@ export function createHumanBodyBasisBuilder(
         b,
         hex: null,
       };
+    }
+    // the skin's micro-relief as a tiled normal map, deepening with age
+    const detail = document.skinDetail;
+    if (detail !== undefined) {
+      if (
+        !materialMap.has(skin) ||
+        !(detail.strength >= 0 && detail.strength <= 1) ||
+        basis.surfaces.some((surface) =>
+          surface.regions.some(
+            (region) => region.material === skin && region.uvs === null,
+          ),
+        )
+      )
+        throw new Error(
+          "Body skin detail needs a skin material on textured regions and a strength in [0,1].",
+        );
+      relief ??= {
+        texture: createHumanBodySkinDetailTexture(HUMAN_BODY_SKIN_DETAIL),
+        turns:
+          humanBodySkinMetresPerUv(basis, skin) /
+          (HUMAN_BODY_SKIN_DETAIL.tileMillimetres / 1000),
+      };
+      const material = materialMap.get(skin)!;
+      material.normalTexture = {
+        asset: relief.texture,
+        texCoord: 0,
+        coordinateSource: "source-uv",
+        colorSpace: "linear",
+        transform: {
+          offset: { x: 0, y: 0 },
+          scale: { x: relief.turns, y: relief.turns },
+          rotationDeg: 0,
+        },
+        sampler: {
+          wrapS: "repeat",
+          wrapT: "repeat",
+          minFilter: "linearMipmapLinear",
+          magFilter: "linear",
+        },
+      };
+      material.normalScale =
+        detail.strength *
+        humanBodySimpleShapeMath.curve(
+          HUMAN_BODY_SKIN_DETAIL.age,
+          document.shape.macroAge ?? 0,
+        );
     }
     const parts = basis.surfaces.flatMap((surface, index) => {
       const positions = skinHumanBodySurface(
