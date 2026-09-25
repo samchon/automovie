@@ -74,14 +74,14 @@
 
 ## 공통 helper의 자식 면과 발광 {#legacy-helper-correspondence}
 
-`Item.box/round`가 낸 child id는 위 root 뒤에 `-<name>`으로 붙는다. work·guest 상태의 child ID 합집합을 [현재 source 전개 producer](../../../src/review/model-child-audit.cjs)로 세고, 각 ID가 아래의 서로 다른 후속 part 주소 또는 명명 퇴역 한 곳에만 닿아야 한다. 아래 변환은 재료 문자열(`oak`, `white`, `green`, `tile`, `metal`)이 아니라 호출 경로·부품 역할로 고른다. 각 행의 범위는 정수 반복의 끝까지 포함한다.
+`Item.box/round`가 낸 child id는 위 root 뒤에 `-<name>`으로 붙는다. work·guest 상태의 child ID 합집합을 [현재 source 전개 producer](../../../src/review/model-child-audit.cjs)로 세고, 각 ID가 아래의 서로 다른 후속 part/face 주소 또는 명명 퇴역 한 곳에만 닿아야 한다. 아래 변환은 재료 문자열(`oak`, `white`, `green`, `tile`, `metal`)이 아니라 호출 경로·부품 역할로 고른다. 각 행의 범위는 정수 반복의 끝까지 포함한다.
 
 | helper 또는 수제 child | 기존 name 범위 | 후속 part/face 또는 명시 퇴역 |
 | --- | --- | --- |
 | `table()` | `top`, `leg-<x>-<z>` (x,z=±1) | dining/coffee `top`, `leg-0..3`; `desk()` 안에서는 work-desk의 `top`, 앞쪽 두 `support-*`; flex의 네 옛 다리와 침실 변종의 뒤쪽 여섯 옛 다리는 명명 퇴역 |
 | `chair()` | `seat`, `back`, `leg-<x>-<z>` | dining-chair는 seat-frame/seat-pad/back/leg, 네 책상 의자의 old seat와 back은 각각 `shell-seat`와 `shell-back`에 일대일 대응하며 upholstery와 leg는 새 주소를 받는다; 한 기존 부재의 새 face는 전체 면을 분할 |
 | `cabinet()` | `back`, `side-±1`, `shelf-0..ceil(H/.38)`, 닫힌 경우 `door-±1`, `handle-±1` | 동일 외함의 back·side·bottom·top·shelf·door 또는 drawer·handle. `shelf-0`은 bottom, 마지막은 top이며 가운데는 형상형에 따라 확정 내부 shelf 또는 아래 표의 명명 퇴역이다. 새 수식이 추가한 shelf는 신규 부재다. `nightstand`·`vanity`·`media`의 old door −1/+1은 새 `drawer-0/1`, `kitchen-base`의 old door −1/+1은 `drawer-0/5`에 일대일 대응한다. 같은 번호의 old handle도 대응하고 나머지 서랍·손잡이는 신규 부재다. `base-drawer` 형상형은 만들지 않는다. 내부 선반의 명명 퇴역은 아래 표에 적는다 |
-| `bed()` | `base`, `leg-<x>-<z>`, `mattress`, `duvet`, `head`, `pillow-<i>` | fixed-bed의 frame/leg/mattress/duvet/headboard/pillow; guest root의 앞쪽 두 다리만 murphy의 `support-left/right`에 대응한다. 뒤쪽 두 다리와 옛 자유 침대 `head`는 외함 힌지·뒤판 지지로 기능을 옮겨 이름별로 퇴역한다 |
+| `bed()` | `base`, `leg-<x>-<z>`, `mattress`, `duvet`, `head`, `pillow-<i>` | fixed-bed의 옛 단일 base는 명명 퇴역하고 네 frame rail과 매트리스 아래 `support-deck`을 신규 부품으로 만든다. 나머지는 leg/mattress/duvet/headboard/pillow; guest root의 앞쪽 두 다리만 murphy의 `support-left/right`에 대응한다. 뒤쪽 두 다리와 옛 자유 침대 `head`는 외함 힌지·뒤판 지지로 기능을 옮겨 이름별로 퇴역한다 |
 | `plant()` | `pot`, `stem`, `leaf-0..8` | potted-plant pot/stem/leaf-0..8; 새 branch-0..4·leaf-9..14는 추가 부재 |
 | `desk()` | `table()`의 top/leg, `screen`, `screen-stand`, `keyboard` | work-desk top/앞쪽 support; 옛 flex 네 다리·침실 변종 뒤쪽 다리는 아래 명명 퇴역, 독립 work-display screen/stand, work-keyboard body/keys |
 | `basin()` | `cabinet()`의 판, `rim`, `bowl`, `tap`, `spout`, `mirror` | vanity cabinet의 판, basin rim/bowl/tap-body/tap-spout/mirror의 안정 face |
@@ -105,6 +105,10 @@
 | `flex-desk-leg-<x>-<z>` (x,z=−1,+1) | 4 | 왼쪽 서랍장과 오른쪽 접지 telescopic 기둥으로 지지 체계를 바꾸며 네 낱개 다리를 퇴역한다. |
 | `primary-desk-leg-<x>--1`, `child-one-desk-leg-<x>--1`, `child-two-desk-leg-<x>--1` (x=−1,+1) | 6 | 침실 책상 뒤쪽 두 다리씩은 벽측 back rail로 교체한다. 앞쪽 `z=+1` 두 다리씩만 `support-left/right`에 대응한다. |
 | `flex-guest-bed-leg-<x>--1` (x=−1,+1) | 2 | 펼친 침대 뒤쪽 접지는 murphy 외함·pivot이 맡는다. 앞쪽 `z=+1` 둘만 `support-left/right`에 대응한다. |
+| `primary-bed-base`, `child-one-bed-base`, `child-two-bed-base` | 3 | 기존 막힌 단일 base 부피는 퇴역한다. 각 침대에는 [고정 침대](../../models/002-storage-and-sleep.md#fixed-bed)의 `frame-side-left/right`와 `frame-head/foot` 네 열린 rail과 그 사이의 `support-deck`을 새 주소로 저작한다. |
+| `kitchen-fridge-pantry-shelf-0..7` | 8 | 냉장고 내장을 납품하지 않으므로 열린 pantry 선반을 퇴역한다. |
+| `flex-guest-bed-head` | 1 | guest 머리 지지는 murphy 외함 뒤판으로 옮긴다. |
+| `kitchen-island-sink-basin` | 1 | 평판 basin을 퇴역하고 kitchen-island의 음각 bowl로 대체한다. |
 
 고정 closet 내부와 실제 냉장고 내부는 같은 기능이 아니다. `kitchen-fridge-pantry-shelf-0..7`은 냉장고 내장을 납품하지 않는 [냉장고 설계](../../models/003-service-fixtures.md#refrigerator)에 따라 **이름을 명시해 의도적으로 제거**하고, `kitchen-fridge-pantry-door-±1`은 두 냉장고 문, `handle-±1`은 상하 손잡이에 대응한다. `flex-guest-bed-head`는 [murphy 설계](../../models/002-storage-and-sleep.md#murphy-bed)의 손님 상태에서 외함 뒤판이 머리 지지를 맡으므로 **이름을 명시해 제거**한다. `flex-guest-bed-pillow-0`과 `flex-guest-bed-duvet`는 각각 같은 설계의 guest `pillow`와 `duvet`에 대응한다. `kitchen-island-sink-basin`은 위의 음각 bowl로 **교체**하며 얕은 판 부피를 중복 보존하지 않는다. 이 삭제·교체는 후속 instanceSource 구현 때 source의 실제 전개 ID와 하나씩 대조해 누락을 실패로 보고해야 한다.
 

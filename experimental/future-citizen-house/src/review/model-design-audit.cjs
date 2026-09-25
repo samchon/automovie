@@ -52,7 +52,7 @@ const prototypes = {
   "living-sofa": ["2.70", "0.88", "0.96", "0.45..0.67"],
   "dining-table": ["1.80", "0.92", "0.74", "0..0.696"],
   "coffee-table": ["0.90", "1.25", "0.36", "0..0.32"],
-  "dining-chair": ["0.48", "0.52", "0.84", "0.415..0.49"],
+  "dining-chair": ["0.48", "0.58", "0.84", "0.45..0.49"],
   "island-stool": ["0.36", "0.63", "0..0.585"],
   "work-desk": ["folded", "open", "0.70..1.00", "0..0.44"],
   "desk-chair": ["0.52", "0.55", "0.83", "z=−0.08·앞쪽 z=+0.18"],
@@ -64,7 +64,7 @@ const prototypes = {
   "murphy-bed": ["work", "guest", "0..0.32", "0.32..0.44"],
   basin: ["basin/800", "bowl", "mirror"],
   toilet: ["0.42", "0.72", "0.465", "0.82"],
-  shower: ["2.05", "1.45", "2.25", "x=-0.85"],
+  shower: ["2.05", "1.45", "2.25", "x=−0.85"],
   bathtub: ["1.62", "0.76", "0.58", "0.12"],
   "kitchen-island": ["1.20", "2.82", "서비스 문 다섯 장", "0.93"],
   "cooking-appliances": ["0.014", "0.586", "개방 bay"],
@@ -79,7 +79,7 @@ const prototypes = {
   "wall-art": ["0.60", "0.42", "0.035", "0.010"],
   "tabletop-props": ["0.22", "0.36", "0.085", "0.095"],
   "living-display": ["1.43", "0.80", "0.045", "0.039..0.042"],
-  "recessed-light": ["0.12", "0.04", "-0.025..0"],
+  "recessed-light": ["0.12", "0.04", "−0.025..0"],
   "dining-pendant": ["1.00", "0.045", "-0.62..-1.00"],
   "portable-lamps": ["1.24", "0.29", "0.42", "z=+0.09"]
 };
@@ -106,10 +106,10 @@ function checkSeating() {
   const pillowBottom = numeric("living-sofa", /베개 셋은.*?y=([\d.]+)\.\.0\.67/);
   equalLength(sofaSeatTop, pillowBottom, "sofa pillow-to-seat contact");
   const sofaRear = numeric("living-sofa", /본체는 x=±1\.35, z=±([\d.]+)/);
-  const pillowRear = numeric("living-sofa", /베개 셋은.*?z=([−\d.]+)\.\.−0\.08/);
+  const pillowRear = numeric("living-sofa", /베개 Z 점유를 바깥으로 반올림한 선언 범위는 ([−\d.]+)\.\.[−\d.]+m/);
   contains(-sofaRear, sofaRear, pillowRear, "sofa pillow rear Z");
   const diningBackBottom = numeric("dining-chair", /등판은.*?y=([\d.]+)\.\.0\.84/);
-  const diningRearLegTop = numeric("dining-chair", /y=0\.415\.\.([\d.]+)에서 중심선을/);
+  const diningRearLegTop = numeric("dining-chair", /y=0\.45\.\.([\d.]+)에서 중심선을/);
   equalLength(diningBackBottom, diningRearLegTop, "dining back-to-rear-leg contact");
   const chairSeatRear = numeric("desk-chair", /좌면 셸은.*?z=([−\d.]+)\.\.\+0\.28/);
   const chairLegRear = numeric("desk-chair", /뒤쪽 z=([−\d.]+)·앞쪽/);
@@ -128,7 +128,7 @@ function checkDeskAndMurphy() {
   const openEnvelopeMax = numeric("work-desk", /`open` 상태는.*?전체 메시 AABB는 x=−0\.70\.\.\+([\d.]+)/);
   contains(-0.70, foldedMax, foldedPanelMax, "folded desk occupied X");
   contains(-0.70, openEnvelopeMax, openMax, "open desk occupied X");
-  const lowerBottom = numeric("work-desk", /기둥의 외관은 y=([\d.]+)\.\.0\.44/);
+  const lowerBottom = numeric("work-desk", /기둥은 y=([\d.]+)\.\.0\.44의 외경/);
   equalLength(lowerBottom, 0, "telescopic lower-to-floor contact");
   const frameBottom = numeric("murphy-bed", /수평 프레임은.*?y=([\d.]+)\.\.0\.44/);
   const supportTop = numeric("murphy-bed", /지지 다리.*?y=0\.\.([\d.]+)에 세워/);
@@ -136,8 +136,8 @@ function checkDeskAndMurphy() {
 }
 function checkWetAndAppliances() {
   const showerWidth = numeric("shower", /X 폭 ([\d.]+)/);
-  const showerHeadX = numeric("shower", /head는 x=([-−\d.]+)/);
-  const showerHeadHalfWidth = numeric("shower", /head는.*?([\d.]+)m 폭/) / 2;
+  const showerHeadX = numeric("shower", /head는 x=([-−\d.]+)를 중심으로/);
+  const showerHeadHalfWidth = numeric("shower", /head는.*?폭 ([\d.]+)m/) / 2;
   contains(-showerWidth / 2, showerWidth / 2, showerHeadX - showerHeadHalfWidth, "shower head occupied X");
   const declaredCooktopHeight = numeric("cooking-appliances", /`cooktop`\(0\.65×0\.50×([\d.]+)m\)/);
   const cooktopBottom = numeric("cooking-appliances", /cooktop 본체는 y=([\d.]+)\.\./);
@@ -182,6 +182,9 @@ function checkShelvesAndLamps() {
   const hingeInset = numeric("cabinet-and-shelf", /짝수 leaf는 왼쪽 edge에서 ([\d.]+)m 안쪽/);
   const hingeRadius = numeric("cabinet-and-shelf", /문마다 지름 ([\d.]+)m·축 길이/) / 2;
   requireThat(hingeInset + 0.003 >= hingeRadius, "cabinet hinge stays inside declared width");
+  const hingeZInset = numeric("cabinet-and-shelf", /일반형 힌지 축 z=D\/2−([\d.]+)와 반경/);
+  requireThat(hingeZInset >= hingeRadius && 0.018 - hingeZInset >= hingeRadius,
+    "cabinet hinge stays within both faces of door thickness");
   const islandHingeX = numeric("cabinet-and-shelf", /섬 문은 x=−0\.44\.\.−0\.422이고 축은 x=([−\d.]+)/);
   requireThat(islandHingeX - hingeRadius >= -0.44, "island hinge stays inside declared width");
   const islandOpenMinX = numeric("cabinet-and-shelf", /`x=([−\d.]+)\.\.\+0\.440,y=0\.\.0\.87/);
@@ -199,16 +202,18 @@ function checkRemainingPrototypes() {
   const stoolLegHalf = numeric("island-stool", /다리 네 개는 ([\d.]+)m 사각 단면/) / 2;
   const footrestCenter = numeric("island-stool", /중심선 x\/z=±([\d.]+)를 따르는/);
   const footrestHalf = numeric("island-stool", /([\d.]+)×0\.018m 사각 단면의 네 수평 막대/) / 2;
-  equalLength(footrestCenter + footrestHalf, stoolLegCenter - stoolLegHalf,
-    "stool footrest meets inner leg faces without penetration");
+  equalLength(footrestCenter, stoolLegCenter - stoolLegHalf,
+    "stool footrest bar end meets inner leg face");
+  requireThat(footrestCenter + footrestHalf > stoolLegCenter - stoolLegHalf,
+    "stool footrest has positive face-contact area");
   const keyboardBodyTop = numeric("work-equipment", /본체는 y=0\.\.([\d.]+)/);
   const keyboardCapTop = numeric("work-equipment", /key cap은.*?y=0\.012\.\.([\d.]+)/);
   equalLength(keyboardCapTop - keyboardBodyTop, 0.003, "keyboard cap height");
   const benchBaseH = numeric("entry-bench", /bench-base\/1150x(\d+)x480/) / 1000;
   const benchCushionH = numeric("entry-bench", /두께 ([\d.]+)m 방석/);
   equalLength(benchBaseH + benchCushionH, 0.52, "bench total height");
-  const bedFrameBottom = numeric("fixed-bed", /프레임은 y=([\d.]+)\.\.0\.28/);
-  const bedLegTop = numeric("fixed-bed", /다리는 y=0\.\.([\d.]+)/);
+  const bedFrameBottom = numeric("fixed-bed", /측면 rail은.*?y=([\d.]+)\.\.0\.28/);
+  const bedLegTop = numeric("fixed-bed", /네 다리는.*?y=0\.\.([\d.]+)/);
   equalLength(bedFrameBottom, bedLegTop, "fixed bed leg-to-frame contact");
   const basinRimBottom = numeric("basin", /rim은 y=([\d.]+)\.\.0\.85/);
   equalLength(basinRimBottom + 0.05, 0.85, "basin rim-to-vanity contact");
@@ -235,7 +240,7 @@ function checkRemainingPrototypes() {
   const bookMinThickness = numeric("books", /두께\(X\) ([\d.]+)\.\.0\.05/);
   const bookCoverThickness = numeric("books", /표지 두 장은 두께 ([\d.]+)m/);
   requireThat(bookMinThickness > 2 * bookCoverThickness, "book has positive page width");
-  const towelGap = numeric("folded-towels", /겹 사이 두 곳에 ([\d.]+)m/);
+  const towelGap = numeric("folded-towels", /두 ([\d.]+)m 음영 틈의/);
   equalLength(2 * towelGap, 0.008, "towel fold-gap contribution");
   const basketWall = numeric("storage-basket", /네 벽 두께 ([\d.]+)m/);
   requireThat(basketWall > 0 && basketWall < 0.40 / 2, "basket cavity width positive");
@@ -251,16 +256,19 @@ function checkRemainingPrototypes() {
   equalLength(bowlOuter - bowlInner, 2 * 0.008, "decor bowl wall thickness");
   const cupHandleOuter = numeric("tabletop-props", /외경 ([\d.]+)m 손잡이/);
   const cupTubeDiameter = numeric("tabletop-props", /튜브 지름 ([\d.]+)m/);
+  requireThat(cupTubeDiameter > 0 && cupTubeDiameter < cupHandleOuter,
+    "decor cup handle tube fits within outside diameter");
   const cupHandleCenterZ = numeric("tabletop-props", /중심 y=0\.050,z=\+([\d.]+)/);
   const cupBoundFrontZ = numeric("tabletop-props", /z=−0\.0425\.\.\+([\d.]+)m다/);
-  equalLength(cupHandleCenterZ + (cupHandleOuter + cupTubeDiameter) / 2, cupBoundFrontZ,
+  equalLength(cupHandleCenterZ + cupHandleOuter / 2, cupBoundFrontZ,
     "decor cup handle within declared Z bound");
   const displayMountDepth = numeric("living-display", /mount는.*?깊이 ([\d.]+)m/);
   const displayHousingDepth = numeric("living-display", /housing은.*?깊이 ([\d.]+)m/);
   equalLength(displayMountDepth + displayHousingDepth, 0.045, "display total depth");
-  const recessedTrimBottom = numeric("recessed-light", /trim은 y=([-−\d.]+)\.\.0/);
-  const recessedHousingTop = numeric("recessed-light", /housing은.*?y=0\.\.([\d.]+)/);
-  equalLength(recessedHousingTop - recessedTrimBottom, 0.04, "recessed light total depth");
+  const recessedTrimBottom = numeric("recessed-light", /trim은.*?y=([-−\d.]+)\.\.0/);
+  const recessedHousingBottom = numeric("recessed-light", /housing의 몸체는.*?y=([−\d.]+)\.\.−0\.025/);
+  equalLength(-recessedHousingBottom, 0.04, "surface light total depth");
+  equalLength(recessedTrimBottom, -0.025, "surface light trim meets housing");
   const pendantShadeBottom = numeric("dining-pendant", /shade는 y=-0\.62\.\.([-−\d.]+)/);
   equalLength(-pendantShadeBottom, 1.00, "pendant downward length");
 }
@@ -287,7 +295,7 @@ function exerciseMutation(anchor, before, after, check, label) {
   if (errors.length === start) throw Error(`${label}: mutated H2 incorrectly passed`);
   mutation.push({ label, errors: errors.splice(start) });
 }
-exerciseMutation("shower", "head는 x=-0.85", "head는 x=-0.90",
+exerciseMutation("shower", "head는 x=−0.85를", "head는 x=−0.95를",
   checkWetAndAppliances, "shower head outside declared X");
 exerciseMutation("desk-chair", "뒤쪽 z=−0.08·앞쪽", "뒤쪽 z=−0.18·앞쪽",
   checkSeating, "desk-chair rear legs miss seat");
@@ -297,11 +305,11 @@ exerciseMutation("portable-lamps", "헤드 아래 중심 z=+0.09", "헤드 아�
   checkShelvesAndLamps, "task lamp diffuser exits head");
 exerciseMutation("work-desk", "flex는 `folded`와 `open` 중 하나의 명시 상태를 반드시 받으며 상태 없는 호출을 거부한다",
   "flex는 상태 없는 호출을 받는다", checkDeskAndMurphy, "flex desk loses required state");
-exerciseMutation("dining-chair", "y=0.415..0.49에서 중심선을", "y=0.415..0.45에서 중심선을",
+exerciseMutation("dining-chair", "y=0.45..0.49에서 중심선을", "y=0.45..0.45에서 중심선을",
   checkSeating, "dining-chair rear leg misses back");
-exerciseMutation("living-sofa", "y=0.45..0.67,z=−0.24", "y=0.55..0.67,z=−0.24",
+exerciseMutation("living-sofa", "높이 0.22·깊이 0.16m로 y=0.45..0.67", "높이 0.22·깊이 0.16m로 y=0.55..0.67",
   checkSeating, "sofa pillow misses seat");
-exerciseMutation("work-desk", "기둥의 외관은 y=0..0.44", "기둥의 외관은 y=0.05..0.44",
+exerciseMutation("work-desk", "기둥은 y=0..0.44의 외경", "기둥은 y=0.05..0.44의 외경",
   checkDeskAndMurphy, "flex desk lower post misses floor");
 exerciseMutation("cabinet-and-shelf", "`oven-sill`(x=±0.32,y=0.098..0.15", "`oven-sill`(x=±0.32,y=0.15..0.15",
   checkWetAndAppliances, "oven sill misses cabinet bottom");
@@ -314,9 +322,9 @@ exerciseMutation("cabinet-and-shelf", "leaf 수는 `n=max(2,ceil((W−0.006)/0.6
   "overhead single leaf exceeds 0.60 m");
 exerciseMutation("bathtub", "네 외벽이 y=0..0.58", "네 외벽이 y=0.12..0.58",
   checkRemainingPrototypes, "bathtub outer wall misses floor");
-exerciseMutation("tabletop-props", "z=−0.0425..+0.0755m다", "z=−0.0425..+0.0725m다",
+exerciseMutation("tabletop-props", "z=−0.0425..+0.0825m다", "z=−0.0425..+0.0755m다",
   checkRemainingPrototypes, "decor cup handle exceeds Z bound");
-exerciseMutation("island-stool", "중심선 x/z=±0.1085", "중심선 x/z=±0.13",
+exerciseMutation("island-stool", "중심선 x/z=±0.1175", "중심선 x/z=±0.13",
   checkRemainingPrototypes, "stool ring penetrates legs");
 console.log(JSON.stringify({ h2: sections.size, prototypes: Object.keys(prototypes).length,
   measuredPrototypes: measuredAnchors.size, assertions: verifiedAssertions, errors, mutation }, null, 2));

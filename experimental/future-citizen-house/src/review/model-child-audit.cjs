@@ -22,6 +22,84 @@ const accountRoots = rootBlock.split(/\r?\n/).flatMap((line) => {
   return [{ label, rx: new RegExp(expression), owner: cells[2] }];
 });
 
+// The account is an input to the check, not a prose echo of the route() code.
+// Every explicitly retired child must be in its finite table, and every helper
+// exported by the legacy fit-out source must have an account row.
+const retiredBlock = account.split("| 명명 퇴역 child ID 또는 유한 전개 |")[1]?.split(/\r?\n\r?\n/)[0];
+const helperBlock = account.split("| helper 또는 수제 child |")[1]?.split(/\r?\n\r?\n/)[0];
+if (!retiredBlock || !helperBlock) throw Error("legacy child or helper table is missing");
+
+/** @param {string} pattern @returns {string[]} */
+function expandRetirement(pattern) {
+  const variable = /<([xz])>/.exec(pattern);
+  if (variable) return [-1, 1].flatMap((value) => expandRetirement(pattern.replace(variable[0], String(value))));
+  const range = /(\d+)\.\.(\d+)$/.exec(pattern);
+  if (range) return Array.from({ length: Number(range[2]) - Number(range[1]) + 1 }, (_, i) =>
+    pattern.slice(0, range.index) + (Number(range[1]) + i));
+  const alternatives = /(\d+)\/(\d+)$/.exec(pattern);
+  if (alternatives) return [alternatives[1], alternatives[2]].map((value) => pattern.slice(0, alternatives.index) + value);
+  return [pattern];
+}
+
+/** @type {Set<string>} */
+const accountRetired = new Set();
+/** @type {string[]} */
+const accountErrors = [];
+for (const line of retiredBlock.split(/\r?\n/).filter((value) => /^\| `/.test(value))) {
+  const cells = line.split("|").slice(1, -1).map((value) => value.trim());
+  const ids = [...cells[0].matchAll(/`([^`]+)`/g)].flatMap((match) => expandRetirement(match[1]));
+  if (ids.length !== Number(cells[1])) accountErrors.push(`retirement row count ${cells[0]}: ${ids.length} != ${cells[1]}`);
+  for (const id of ids) {
+    if (accountRetired.has(id)) accountErrors.push(`${id}: duplicate retirement row`);
+    accountRetired.add(id);
+  }
+}
+const helperRows = new Set([...helperBlock.matchAll(/^\| `(\w+)\(\)` \|/gm)].map((match) => match[1]));
+const interior = fs.readFileSync(path.join(root, "src/house/rooms/interior.ts"), "utf8");
+const sourceHelpers = new Set([...interior.matchAll(/^export function (\w+)\(/gm)]
+  .map((match) => match[1]).filter((name) => name !== "lining" && name !== "lights"));
+for (const name of sourceHelpers) if (!helperRows.has(name)) accountErrors.push(`${name}(): no helper account row`);
+for (const name of helperRows) if (!sourceHelpers.has(name)) accountErrors.push(`${name}(): account row has no helper export`);
+
+/** @type {Map<string,string>} */
+const modelH2 = new Map();
+for (const filename of ["001-seating-and-work", "002-storage-and-sleep", "003-service-fixtures", "004-decor-and-fixtures"]) {
+  const lines = fs.readFileSync(path.join(root, "docs/models", `${filename}.md`), "utf8").split(/\r?\n/);
+  let anchor = "";
+  for (const line of lines) {
+    const heading = /^## .*\{#([^}]+)\}/.exec(line);
+    if (heading) { anchor = heading[1]; modelH2.set(anchor, ""); }
+    else if (anchor) modelH2.set(anchor, modelH2.get(anchor) + "\n" + line);
+  }
+}
+const specialAnchor = { "work-display": "work-equipment", "work-keyboard": "work-equipment", cabinet: "cabinet-and-shelf",
+  "wall-worktop": "cooking-appliances", cooktop: "cooking-appliances", oven: "cooking-appliances",
+  "laundry-washer": "laundry-appliances", "laundry-dryer": "laundry-appliances" };
+/** @param {string} value */
+function escapePattern(value) { return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); }
+/** @param {string} body @param {string} part */
+function hasPart(body, part) {
+  const direct = new RegExp("`" + escapePattern(part) + "[/`]");
+  if (direct.test(body)) return true;
+  const namedSide = /^(.*)-(left|right|upper|lower|negative|positive)$/.exec(part);
+  if (namedSide && new RegExp("`" + escapePattern(namedSide[1]) + "-(?:left/right|right/left|upper/lower|lower/upper|negative/positive)[/`]").test(body)) return true;
+  const numbered = /^(.*)-(\d+)$/.exec(part);
+  if (numbered && new RegExp("`" + escapePattern(numbered[1]) + "-(?:\\d+\\.\\.\\d+|\\d+\\.\\.n-1|j)[/`]").test(body)) return true;
+  return false;
+}
+/** @param {string} address */
+function addressExists(address) {
+  const pieces = address.split("/");
+  const anchor = /** @type {Record<string,string>} */ (specialAnchor)[pieces[0]] || pieces[0];
+  const body = modelH2.get(anchor);
+  if (!body) return false;
+  const part = pieces[0] === "cabinet" && pieces[1] === "island-base" ? pieces[2] : pieces[1];
+  if (!part || !hasPart(body, part)) return false;
+  if (pieces.length <= (pieces[0] === "cabinet" && pieces[1] === "island-base" ? 3 : 2)) return true;
+  const face = pieces.at(-1);
+  return [...body.matchAll(/`([^`]+)`/g)].some((match) => match[1].startsWith(part + "/") && match[1].split("/").includes(face || ""));
+}
+
 function legacyRoots() {
   /** @type {Map<string, LegacyRoot>} */
   const byId = new Map();
@@ -91,11 +169,11 @@ function route(item, child, owner) {
   }
   if (id === "upper-laundry") {
     const match = /^(machine|drum|window|controls)-([01])$/.exec(child);
-    if (match) return mapped(`${match[2] === "0" ? "laundry-washer" : "laundry-dryer"}/${({ machine: "body", drum: "drum", window: "drum-window", controls: "controls-panel" })[match[1]]}`);
+    if (match) return mapped(`${match[2] === "0" ? "laundry-washer" : "laundry-dryer"}/${({ machine: "body", drum: "drum", window: "drum/window-front", controls: "controls-panel" })[match[1]]}`);
   }
   if (owner.includes("refrigerator") && id === "kitchen-fridge-pantry") {
-    if (child === "back") return mapped("refrigerator/body-back");
-    if (side) return mapped(`refrigerator/body-side-${side[1] === "-1" ? "left" : "right"}`);
+    if (child === "back") return mapped("refrigerator/body/back");
+    if (side) return mapped(`refrigerator/body/side-${side[1] === "-1" ? "left" : "right"}`);
     if (shelf) return retired("sealed refrigerator replaces open pantry shelves");
     if (door) return mapped(`refrigerator/door-${door[1] === "-1" ? "lower" : "upper"}`);
     if (handle) return mapped(`refrigerator/handle-${handle[1] === "-1" ? "lower" : "upper"}`);
@@ -132,7 +210,7 @@ function route(item, child, owner) {
   if (owner.includes("potted-plant") && ["pot", "stem"].includes(child)) return mapped(`potted-plant/${child}`);
   if (owner.includes("potted-plant") && /^leaf-[0-8]$/.test(child)) return mapped(`potted-plant/${child}`);
   if (owner.includes("fixed-bed/") && id !== "flex-guest-bed") {
-    if (child === "base") return mapped("fixed-bed/frame");
+    if (child === "base") return retired("solid bed base replaced by four open frame rails");
     if (leg !== null) return mapped(`fixed-bed/leg-${leg}`);
     if (["mattress", "duvet", "head"].includes(child)) return mapped(`fixed-bed/${child === "head" ? "headboard" : child}`);
     if (/^pillow-[01]$/.test(child)) return mapped(`fixed-bed/${child}`);
@@ -191,7 +269,7 @@ function checkCoverage(expected, entries) {
 function census() {
   /** @type {Correspondence[]} */
   const entries = [];
-  const errors = [];
+  const errors = [...accountErrors];
   const roots = legacyRoots();
   const expected = new Set();
   const used = new Map();
@@ -214,6 +292,17 @@ function census() {
   }
   for (const row of accountRoots) if (!roots.some((item) => row.rx.test(item.id))) errors.push(`${row.label}: root account row has no compiled member`);
   errors.push(...checkCoverage(expected, entries));
+  const routedRetired = new Set(entries.filter((entry) => entry.retired).map((entry) => entry.id));
+  for (const id of routedRetired) if (!accountRetired.has(id)) errors.push(`${id}: retired without account row`);
+  for (const id of accountRetired) if (!routedRetired.has(id)) errors.push(`${id}: account retirement has no retired child`);
+  for (const entry of entries) if (entry.part && !addressExists(entry.part))
+    errors.push(`${entry.id}: destination ${entry.part} has no model part/face address`);
+  const bedRetirement = account.split("| `primary-bed-base`,")[1]?.split(/\r?\n/)[0] || "";
+  const fixedBed = modelH2.get("fixed-bed") || "";
+  for (const rail of ["frame-side-left/right", "frame-head/foot", "support-deck"]) {
+    if (!bedRetirement.includes(rail) || !fixedBed.includes(rail))
+      errors.push(`fixed-bed replacement rail ${rail} absent from account or model H2`);
+  }
   return { roots: roots.length, children: expected.size, retired: entries.filter((e) => e.retired).length, entries, errors, expected };
 }
 
