@@ -53,6 +53,14 @@ export interface IAutoMovieHumanBodyBasisDocument {
    */
   skinColour?: { cheek: { r: number; g: number; b: number } };
 
+  /**
+   * Optional micro-relief of the skin: the skin material takes a tiled
+   * normal map of its primary lines and pores (`HUMAN_BODY_SKIN_DETAIL`) at
+   * `strength` in [0,1], deepening with the document's age; omission keeps
+   * the skin smooth.
+   */
+  skinDetail?: { strength: number };
+
   /** Optional linear RGB and roughness, each in [0,1], by existing material ID. */
   materials?: Record<
     string,
