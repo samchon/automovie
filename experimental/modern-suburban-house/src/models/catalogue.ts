@@ -5,7 +5,7 @@ import type { HousePrototype } from "./parts";
 import { kitchenDiningSpecs } from "./furnishings/kitchen-dining";
 import { livingSpecs } from "./furnishings/living";
 import { serviceRoomSpecs, laundryMachineSizes } from "./furnishings/service-rooms";
-import { bedroomSpecs, bedSizes, bedMattressTop, deskSizes } from "./furnishings/bedrooms";
+import { bedroomSpecs, bedSizes, bedMattressTop, deskSizes, nightstandSizes, nightstandBodyTop } from "./furnishings/bedrooms";
 import { bathroomSpecs } from "./furnishings/bathrooms";
 import { outdoorFurnitureSpecs } from "./furnishings/outdoor";
 import { sidingSpecs } from "./exterior/siding";
@@ -157,6 +157,18 @@ export function buildHouseObjects(parents: HousePrototype[] = buildHousePrototyp
     ["bedroom-two-desk",deskSizes.childTwo],
     ["bedroom-three-desk",deskSizes.childThree],
   ] as const).map(([id,size])=>buildPrototype({...deskHost,id,size}));
+  const nightstandHost=housePrototypeSpecs.find((spec)=>spec.id==="nightstand-lamp")!;
+  if(!byId.has(nightstandHost.id)) throw Error("nightstand-lamp: missing design host");
+  const childNightstands=([
+    ["bedroom-two",nightstandSizes.childTwo],
+    ["bedroom-three",nightstandSizes.childThree],
+  ] as const).flatMap(([room,size])=>{
+    const source=buildPrototype({...nightstandHost,id:`${room}-nightstand-source`,size,bodyTop:nightstandBodyTop(size)});
+    return [
+      extractObject(source,{id:`${room}-nightstand`,parent:source.id,surfaces:["carcass","drawer-front"]}),
+      extractObject(source,{id:`${room}-nightstand-lamp`,parent:source.id,surfaces:["lamp-base","lamp-shade"]}),
+    ];
+  });
   return [...parents.filter((p)=>!splitParents.has(p.id)&&p.id!==pendantHost.id&&p.id!==laundryHost.id&&p.id!==bedHost.id&&p.id!==deskHost.id),
-    ...separate,...pendants,...machines,...beds,...desks];
+    ...separate,...pendants,...machines,...beds,...desks,...childNightstands];
 }

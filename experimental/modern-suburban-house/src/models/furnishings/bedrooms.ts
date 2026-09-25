@@ -14,13 +14,19 @@ export const deskSizes = {
   childTwo:fromReservation("bedroom-two-desk","z"),
   childThree:fromReservation("bedroom-three-desk"),
 } as const;
+export const nightstandSizes = {
+  primary:fromReservation("primary-bedroom-rear-nightstand"),
+  childTwo:fromReservation("bedroom-two-nightstand"),
+  childThree:fromReservation("bedroom-three-nightstand"),
+} as const;
+export const nightstandBodyTop = (size:readonly [number,number,number]) => size[1]-0.55;
 
 export const bedroomSpecs: readonly PrototypeSpec[] = [
   ...group("13-bedrooms.md", "src/models/furnishings/bedrooms.ts", [
     ["headboard-bed","bed",bedSizes.primary,"headboard bed-frame mattress bedding pillow",
       {mattressTop:bedMattressTop(bedSizes.primary),finishes:{...finishFaces("furniture-wood","headboard","bed-frame"),
         ...finishFaces("primary-bedding","mattress","bedding","pillow")}}],
-    ["nightstand-lamp","cabinet",fromReservation("primary-bedroom-rear-nightstand"),"carcass drawer-front lamp-base lamp-shade",{bodyTop:0.55}],
+    ["nightstand-lamp","cabinet",nightstandSizes.primary,"carcass drawer-front lamp-base lamp-shade",{bodyTop:nightstandBodyTop(nightstandSizes.primary)}],
     ["low-dresser","cabinet",fromReservation("primary-bedroom-dresser","z"),"carcass drawer-front handle leg"],
     ["child-desk","table",deskSizes.childTwo,"top leg shelf book container pencil"],
     ["desk-chair","chair",[0.45,0.82,0.48],"seat leg back",{finishes:woodenChairFinishes}],

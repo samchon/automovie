@@ -45,7 +45,7 @@ test("metric generators reject impossible solids and produce aligned UVs", () =>
 test("separate room objects keep each reviewed face once", () => {
   const parents=buildHousePrototypes();
   const objects=buildHouseObjects(parents);
-  assert.equal(objects.length,80);
+  assert.equal(objects.length,84);
   assert.ok(!objects.some((p)=>["porch-mat-planter","wall-art-indoor-plant","pantry-containers","kitchen-food-utensils","pendant-fixtures","laundry-machine","headboard-bed","child-desk"].includes(p.id)));
   for(const [parentId,children] of [
     ["porch-mat-planter",["porch-mat","porch-planter"]],
@@ -78,6 +78,17 @@ test("separate room objects keep each reviewed face once", () => {
     if(top?.type!=="mesh") throw Error(`${id}: top missing`);
     const xs=top.mesh.positions.filter((_,i)=>i%3===0);
     assert.ok(Math.abs(Math.max(...xs)-Math.min(...xs)-width)<1e-9);
+  }
+  for(const room of ["bedroom-two","bedroom-three"]) {
+    const stand=objects.find((p)=>p.id===`${room}-nightstand`)!;
+    const lamp=objects.find((p)=>p.id===`${room}-nightstand-lamp`)!;
+    assert.ok(stand&&lamp);
+    const xs=stand.model.parts.filter((part)=>part.material==="carcass").flatMap((part)=>{
+      if(part.geometry.type!=="mesh") throw Error(`${room}: nightstand body missing`);
+      return part.geometry.mesh.positions.filter((_,i)=>i%3===0);
+    });
+    assert.ok(Math.abs(Math.max(...xs)-Math.min(...xs)-0.45)<1e-9);
+    assert.deepEqual(lamp.bindings.map((b)=>b.surface).sort(),["lamp-base","lamp-shade"]);
   }
   for(const [id,width,pillows] of [["primary-bed",1.60,2],["bedroom-two-bed",1.15,1],["bedroom-three-bed",1.15,1]] as const) {
     const bed=objects.find((p)=>p.id===id)!;
