@@ -1,9 +1,11 @@
 import { TestValidator } from "@nestia/e2e";
 
 import {
+  type FaceMidsagittalPoint,
   faceMidsagittalLandmarks,
   faceMidsagittalProfile,
   faceMidsagittalSection,
+  faceProfileLandmarks,
 } from "../../../scripts/face-review/faceMidsagittal";
 import { nclose, throwsError } from "../internal/predicates";
 
@@ -120,5 +122,83 @@ export const test_subject_face_midsagittal = (): void => {
           }),
         "nose band",
       ),
+  );
+};
+
+/** A profile through the given (y, z) vertices, sampled every 0.5 down. */
+const sampled = (
+  vertices: readonly [number, number][],
+): FaceMidsagittalPoint[] => {
+  const out: FaceMidsagittalPoint[] = [];
+  for (let k = 1; k < vertices.length; ++k) {
+    const [a, b] = [vertices[k - 1]!, vertices[k]!];
+    for (let y = a[0]; y > b[0]; y -= 0.5)
+      out.push([y, a[1] + ((y - a[0]) / (b[0] - a[0])) * (b[1] - a[1])]);
+  }
+  out.push(vertices[vertices.length - 1]!);
+  return out;
+};
+
+/**
+ * The profile's lip, chin and nasal-root landmarks.
+ * Scenarios:
+ * 1. On a profile with glabella at (45, 158), nasion (35, 150), pronasale
+ *    (0, 175), subnasale (-10, 152), labrale superius (-20, 156), the seam at
+ *    -30, labrale inferius (-36, 154), the fold at (-44, 146), the chin's
+ *    tangent point (-55, 151) and menton (-65, 140), each is found.
+ * 2. Without profile between subnasale and stomion there is no ls, without
+ *    any below stomion inferius no li or pog', and with no root reach no n
+ *    or g.
+ */
+export const test_subject_face_midsagittal_profile_landmarks = (): void => {
+  const profile = sampled([
+    [60, 150],
+    [45, 158],
+    [35, 150],
+    [0, 175],
+    [-10, 152],
+    [-20, 156],
+    [-30, 150],
+    [-36, 154],
+    [-44, 146],
+    [-55, 151],
+    [-65, 140],
+  ]);
+  const base = {
+    profile,
+    pronasale: [0, 175] as FaceMidsagittalPoint,
+    subnasale: [-10, 152] as FaceMidsagittalPoint,
+    stomion: -30,
+    inferius: -31,
+    menton: [-65, 140] as FaceMidsagittalPoint,
+    root: 40,
+  };
+  const found = faceProfileLandmarks(base);
+  const at = (point: FaceMidsagittalPoint | null, y: number, z: number) =>
+    point !== null && nclose(point[0], y, 1e-9) && nclose(point[1], z, 1e-9);
+  TestValidator.predicate(
+    "landmarks",
+    at(found.labraleSuperius, -20, 156) &&
+      at(found.labraleInferius, -36, 154) &&
+      at(found.pogonion, -55, 151) &&
+      at(found.nasion, 35, 150) &&
+      at(found.glabella, 45, 158),
+  );
+  const empty = faceProfileLandmarks({
+    ...base,
+    subnasale: [-29.9, 150] as FaceMidsagittalPoint,
+    inferius: -64.9,
+    root: 0,
+  });
+  TestValidator.equals(
+    "absent",
+    [
+      empty.labraleSuperius,
+      empty.labraleInferius,
+      empty.pogonion,
+      empty.nasion,
+      empty.glabella,
+    ],
+    [null, null, null, null, null],
   );
 };

@@ -178,3 +178,111 @@ export function faceMidsagittalLandmarks(props: {
     lowerFaceHeight: subnasale[0] - menton[0],
   };
 }
+
+/**
+ * The profile's soft-tissue landmarks of lips, chin and nasal root (Farkas
+ * 1994), read on a profile (`faceMidsagittalProfile`, front-most z at each
+ * height, heights descending) around the landmarks
+ * `faceMidsagittalLandmarks` finds:
+ *
+ * - labrale superius (ls): the upper lip's front-most point between
+ *   subnasale and stomion;
+ * - labrale inferius (li): the lower lip's front-most point between stomion
+ *   inferius (below which the upper lip's overhang no longer shows) and
+ *   supramentale, the labiomental fold's depth (the point deepest behind
+ *   the lower profile's front hull);
+ * - soft-tissue pogonion (pog'): the chin's most prominent point between
+ *   supramentale and menton, the one a line from pronasale touches
+ *   (Ricketts's E-line tangent);
+ * - soft-tissue nasion (n): the deepest point of the profile above
+ *   pronasale, within `root` of it;
+ * - glabella (g): the front-most point of the profile above n, within
+ *   `root` of it.
+ *
+ * Null where a landmark's stretch of profile is empty. Pure.
+ */
+export function faceProfileLandmarks(props: {
+  profile: readonly FaceMidsagittalPoint[];
+  pronasale: FaceMidsagittalPoint;
+  subnasale: FaceMidsagittalPoint;
+  stomion: number;
+  /** Stomion inferius's height: below it only the lower lip shows. */
+  inferius: number;
+  menton: FaceMidsagittalPoint;
+  root: number;
+}): {
+  labraleSuperius: FaceMidsagittalPoint | null;
+  labraleInferius: FaceMidsagittalPoint | null;
+  pogonion: FaceMidsagittalPoint | null;
+  nasion: FaceMidsagittalPoint | null;
+  glabella: FaceMidsagittalPoint | null;
+} {
+  const { profile } = props;
+  const front = (points: readonly FaceMidsagittalPoint[]) =>
+    points.length === 0 ? null : points.reduce((a, b) => (b[1] > a[1] ? b : a));
+  const deep = (points: readonly FaceMidsagittalPoint[]) =>
+    points.length === 0 ? null : points.reduce((a, b) => (b[1] < a[1] ? b : a));
+  const labraleSuperius = front(
+    profile.filter(([y]) => y < props.subnasale[0] && y > props.stomion),
+  );
+  // Below stomion the lower lip swells forward, the profile falls back into
+  // the labiomental fold and swells again over the chin. Supramentale, the
+  // fold's depth, is the point deepest behind the profile's front hull (its
+  // least concave majorant), which the lip and the chin span and which small
+  // ripples of the surface do not reach; li and pog' are the front-most
+  // points above and below it.
+  const lower = profile.filter(
+    ([y]) => y < props.inferius && y > props.menton[0],
+  );
+  const hull: FaceMidsagittalPoint[] = [];
+  for (const point of [...lower].reverse()) {
+    while (hull.length >= 2) {
+      const [a, b] = [hull[hull.length - 2]!, hull[hull.length - 1]!];
+      // Keep the chain concave from below in z as y rises.
+      const cross =
+        (b[0] - a[0]) * (point[1] - a[1]) - (b[1] - a[1]) * (point[0] - a[0]);
+      if (cross >= 0) hull.pop();
+      else break;
+    }
+    hull.push(point);
+  }
+  // The hull runs up the face from the lowest point; every profile height
+  // lies within one of its segments, whose ends' heights differ.
+  const majorant = (y: number): number => {
+    const k = hull.findIndex((point) => point[0] >= y);
+    const [a, b] = [hull[Math.max(0, k - 1)]!, hull[k]!];
+    return a === b ? b[1] : a[1] + ((y - a[0]) / (b[0] - a[0])) * (b[1] - a[1]);
+  };
+  const fold =
+    lower.length < 3
+      ? null
+      : lower.reduce((a, b) =>
+          majorant(b[0]) - b[1] > majorant(a[0]) - a[1] ? b : a,
+        );
+  const labraleInferius =
+    fold === null ? null : front(lower.filter(([y]) => y > fold[0]));
+  // The chin's most prominent point is the one a line from pronasale
+  // touches (Ricketts's E-line tangent), which a receding chin still has.
+  const pogonion =
+    fold === null
+      ? null
+      : lower
+          .filter(([y]) => y < fold[0])
+          .reduce<FaceMidsagittalPoint | null>((best, point) => {
+            const slope = (q: FaceMidsagittalPoint) =>
+              (q[1] - props.pronasale[1]) / (props.pronasale[0] - q[0]);
+            return best === null || slope(point) > slope(best) ? point : best;
+          }, null);
+  const nasion = deep(
+    profile.filter(
+      ([y]) => y > props.pronasale[0] && y <= props.pronasale[0] + props.root,
+    ),
+  );
+  const glabella =
+    nasion === null
+      ? null
+      : front(
+          profile.filter(([y]) => y > nasion[0] && y <= nasion[0] + props.root),
+        );
+  return { labraleSuperius, labraleInferius, pogonion, nasion, glabella };
+}
