@@ -39,7 +39,14 @@ import { nclose, throwsError } from "../internal/predicates";
  *    0.429 with the first two indices met and only the third control held.
  *    When the release probe loses the second index (its reading absent
  *    between 0.9 and 0.97), the control stays held.
- * 9. A target list of another length and a singular system refuse.
+ * 9. Three coupled quadratic indices (rows 1 0.9 0.8 / 0.4 1 0.4 /
+ *    -1.1 -0.9 1, each plus 0.7, 0.5 and 0.1 times its own control
+ *    squared) asked for -1.3, -0.4 and 0.6: the first control, released
+ *    from one bound, is carried by a step to the other; not pinned there,
+ *    it ends inside with the first and third indices met and only the
+ *    second control held. Pinned at the bound it had not tried, it stayed
+ *    at +1 with its index at 1.40.
+ * 10. A target list of another length and a singular system refuse.
  */
 export const test_subject_face_anthropometry_solve = (): void => {
   const model = (v: readonly number[]) => [
@@ -214,6 +221,32 @@ export const test_subject_face_anthropometry_solve = (): void => {
       nclose(answered.achieved[1]!, -0.7, 7e-4) &&
       unanswered.held.join() === "1,2" &&
       unanswered.values[1] === 1,
+  );
+  const crossed = solveFaceAnthropometry({
+    controls: [0, 1, 2].map((k) => ({
+      id: `c${k}`,
+      start: 0,
+      lower: -1,
+      upper: 1,
+    })),
+    targets: [-1.3, -0.4, 0.6],
+    evaluate: (v) =>
+      [
+        [1, 0.9, 0.8],
+        [0.4, 1, 0.4],
+        [-1.1, -0.9, 1],
+      ].map(
+        (row, i) =>
+          row.reduce((sum, m, k) => sum + m * v[k]!, 0) +
+          [0.7, 0.5, 0.1][i]! * v[i]! ** 2,
+      ),
+  });
+  TestValidator.predicate(
+    "crossed, not pinned",
+    crossed.held.join() === "1" &&
+      nclose(crossed.values[0]!, -0.0805, 1e-3) &&
+      nclose(crossed.achieved[0]!, -1.3, 1.3e-3) &&
+      nclose(crossed.achieved[2]!, 0.6, 6e-4),
   );
   TestValidator.predicate(
     "length",

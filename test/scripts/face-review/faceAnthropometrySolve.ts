@@ -30,9 +30,11 @@
  * this: a coupled step can carry a control to the bound its own index
  * does not ask for (a lower-face width asked below its reach held at the
  * widest end), and the free controls' answer can reverse what the control
- * does to its index. One held again after a release stays held: its index
- * cannot settle inside, and releasing it again would only repeat the
- * cycle. Iteration stops when every free index is within `tolerance`
+ * does to its index. One held again at a bound it was released from stays
+ * held: its index cannot settle inside, and releasing it again would only
+ * repeat the cycle. One a step carries across to the other bound is not:
+ * that bound has not been tried, and pinning it there kept a coupled
+ * index at the end it had just left. Iteration stops when every free index is within `tolerance`
  * (relative) of its target, or within its control's `resolution` (absolute:
  * the least difference its measurement resolves, for an index whose target
  * may lie at zero), or after `iterations` steps. The active set holds
@@ -89,8 +91,9 @@ export function solveFaceAnthropometry(props: {
     (i) => props.targets[i] === null || current[i] === null,
   );
   const held = new Set<number>();
-  // Controls once released, and those held again after it.
-  const released = new Set<number>();
+  // The bounds each control was released from, and the controls held again
+  // at one of them.
+  const released = new Map<number, Set<number>>();
   const pinned = new Set<number>();
   let count = 0;
   const converged = () =>
@@ -161,7 +164,7 @@ export function solveFaceAnthropometry(props: {
       const control = free[worst]!;
       const { lower, upper } = props.controls[control]!;
       values[control] = delta[worst]! > 0 ? upper : lower;
-      if (released.has(control)) pinned.add(control);
+      if (released.get(control)?.has(values[control]!)) pinned.add(control);
       held.add(control);
     }
     current = props.evaluate(values);
@@ -200,7 +203,10 @@ export function solveFaceAnthropometry(props: {
           (values[control] === lower && error * slope > 0);
         if (inward) {
           held.delete(control);
-          released.add(control);
+          released.set(
+            control,
+            new Set([...(released.get(control) ?? []), values[control]!]),
+          );
         }
       }
   }
