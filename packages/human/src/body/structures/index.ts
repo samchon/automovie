@@ -7,3 +7,4 @@ export * from "./IAutoMovieHumanBodyChannelScale";
 export * from "./IAutoMovieHumanBodyMeasurement";
 export * from "./IAutoMovieHumanBodySimpleShape";
 export * from "./IAutoMovieHumanBodySimpleShapeTable";
+export * from "./IAutoMovieHumanBodySkinSites";

@@ -3,6 +3,7 @@ export * from "./assertHumanBodyPelvifemoral";
 export * from "./assertHumanBodyRig";
 export * from "./assertSparseRows";
 export * from "./createHumanBodyBasisBuilder";
+export * from "./createHumanBodySkinColour";
 export * from "./evaluateHumanBodyShape";
 export * from "./humanBodyBasisWeights";
 export * from "./humanBodyShoulderTtRotation";
