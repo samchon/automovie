@@ -43,15 +43,18 @@ export class TempleWareModels {
     }
     add("basket",m);
 
+    const rollHalfLength = 0.14, coreProjection = 0.004;
+    const rollRadius = 0.03, coreRadius = 0.012;
+    const tieRadius = 0.0325, tieWireRadius = 0.0025;
     const rolledSheet = (mesh: ObjectMesh, yy: number, zz: number, part = "sheet"): ObjectMesh => mesh
-      .rod(part,{x:-0.14,y:yy,z:zz},{x:0.14,y:yy,z:zz},0.03,16)
-      .rod(part,{x:-0.144,y:yy,z:zz},{x:-0.14,y:yy,z:zz},0.012,12)
-      .rod(part,{x:0.14,y:yy,z:zz},{x:0.144,y:yy,z:zz},0.012,12);
+      .rod(part,{x:-rollHalfLength,y:yy,z:zz},{x:rollHalfLength,y:yy,z:zz},rollRadius,16)
+      .rod(part,{x:-rollHalfLength-coreProjection,y:yy,z:zz},{x:-rollHalfLength,y:yy,z:zz},coreRadius,12)
+      .rod(part,{x:rollHalfLength,y:yy,z:zz},{x:rollHalfLength+coreProjection,y:yy,z:zz},coreRadius,12);
     // A single rolled document, with a visible tie and end cores.
-    m = rolledSheet(new ObjectMesh(),0,0).loop("tie",0,0,0,0.0325,0.0025,"yz",16);
+    m = rolledSheet(new ObjectMesh(),0,0).loop("tie",0,0,0,tieRadius,tieWireRadius,"yz",16);
     add("scroll",m);
     // Three touching rolls share one rounded triangular outer cord.
-    const centres: readonly (readonly [number, number])[] = [[0,-0.03],[0,0.03],[0.03*Math.sqrt(3),0]];
+    const centres: readonly (readonly [number, number])[] = [[0,-rollRadius],[0,rollRadius],[rollRadius*Math.sqrt(3),0]];
     m = new ObjectMesh();
     for (const [index,[yy,zz]] of centres.entries()) rolledSheet(m,yy,zz,`sheet-${index+1}`);
     const normal = (a: readonly [number, number], b: readonly [number, number]): readonly [number, number] => {
@@ -68,14 +71,14 @@ export class TempleWareModels {
       while (to >= from) to -= 2*Math.PI;
       for (let step=0;step<=16;step++) {
         const angle = from+(to-from)*step/16;
-        tiePath.push({x:0,y:current[0]+0.0325*Math.cos(angle),z:current[1]+0.0325*Math.sin(angle)});
+        tiePath.push({x:0,y:current[0]+tieRadius*Math.cos(angle),z:current[1]+tieRadius*Math.sin(angle)});
       }
     }
     tiePath.push(tiePath[0]!);
     let uStart = 0;
     for (let i=0;i<tiePath.length-1;i++) {
       const a=tiePath[i]!, b=tiePath[i+1]!;
-      m.rod("tie",a,b,0.0025,8,uStart);
+      m.rod("tie",a,b,tieWireRadius,8,uStart);
       uStart += Math.hypot(b.y-a.y,b.z-a.z);
     }
     add("scroll-bundle",m);
