@@ -1,5 +1,6 @@
 /** Portable stone, wood, metal, textile, and working objects. */
 import type { IAutoMovieModel } from "@automovie/interface";
+import { jarRackBoardParts } from "../geometry/jar-rack-board";
 import { ObjectMesh } from "../geometry/object-mesh";
 
 export class TemplePortableModels {
@@ -15,11 +16,12 @@ export class TemplePortableModels {
       .vessel("dish",0,0,[[0.23,0.11],[0.28,0.12]],[[0.28,0.10],[0.245,0.10]],16);
     add("portable-lamp",m);
 
-    m = new ObjectMesh().box("top",0,0.22,0,1.18,0.06,0.58);
+    m = new ObjectMesh();
     for (const x of [-0.52,0.52]) for (const z of [-0.22,0.22])
       m.box("leg",x,0,z,0.07,0.22,0.07);
-    for (const x of [-0.29,0.29]) m.frustum("well",x,0,0.268,0.28,0.16,0.16,16);
-    add("jar-rack",m);
+    const rack = m.model("object.jar-rack","jar-rack");
+    const [top, well] = jarRackBoardParts();
+    out.push({ ...rack, parts: [top, ...rack.parts, well] });
 
     m = new ObjectMesh().box("beam",0,-0.025,0,1.16,0.05,0.05);
     for (const x of [-0.5,0.5]) m.loop("hook",x,-0.085,0,0.05,0.01,"yz");
