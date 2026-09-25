@@ -25,7 +25,7 @@
 ## 섬과 식탁의 매단 등 {#pendant-fixtures}
 <!--
 @evidence principles/core/common.md#scope-preservation 섬 두 개와 식탁 한 개의 서로 다른 갓 원형을 맡고 광원·배치·줄 반복은 systems와 instances에 남긴다.
-@evidence principles/core/common.md#substantive-completion 섬 원형 외경 0.28 m·내림 0.80 m, 식탁 원형 외경 0.48 m·내림 1.20 m, 천장 접합판·줄·갓 치수를 정한다.
+@evidence principles/core/common.md#substantive-completion 섬 원형 외경 0.28 m·내림 0.80 m, 식탁 원형 외경 0.48 m·내림 1.20 m, 천장 접합판·줄·갓 치수를 정한다 섬·식탁 확산판의 내경 0.264·0.464 m와 갓 입술에 맞댄 깊이를 정한다.
 @evidence principles/core/common.md#declared-basis spaces의 섬과 식탁 상판 및 systems/02-interior-fixtures.md#interior-common-pendants의 광원 역할과 갓 상한을 대조한다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 섬은 작은 종형 두 개, 식탁은 넓은 원통형 한 개로 분리해 레퍼런스 03의 두 조명 구역을 형상으로 만든다.
 @evidence principles/design/models.md#representation-contract 16각 접합판·닫힌 매달림 줄·두께 있는 갓·안쪽 확산면을 제공하고 `fixture-canopy`·`fixture-stem`·`fixture-shade`·`fixture-diffuser`로 면을 나눈다.
@@ -42,13 +42,14 @@
 -->
 
 [레퍼런스 03의 공용부](../settings/10-house.md#common-room)는 섬 위의 작은 등 둘과 식탁 위의 넓은 등 하나로 기능을 구분한다. 이 H2는 그 두 기구 형상만 소유한다. 원점은 천장 접점 중심, +Y는 위다. 섬 종형은 천장에서 갓 아래까지 0.80 m, 외경 0.28 m다. 식탁 원통형은 내림 1.20 m, 외경 0.48 m다. 두 변형의 천장 접합판은 지름 0.10 m·두께 0.025 m, 줄은 지름 0.012 m의 닫힌 원통이다. 섬 갓은 아래에서 위로 반지름 0.14, 0.12, 0.055 m의 세 16각 링을 각각 갓 아래·위로 0.10·0.22 m에 둔 종형 껍질이며 두께 0.008 m다. 식탁 갓은 반지름 0.24 m·높이 0.20 m의 16각 원통 껍질이고 아래에 두께 0.008 m의 확산 원판이 있다. 갓 윗면·아랫면·두께 면도 닫고 `fixture-shade`, 접합판은 `fixture-canopy`, 줄은 `fixture-stem`, 확산판은 `fixture-diffuser`다. 면 UV는 평면 X·Z 또는 둘레 U·높이 V를 미터로 둔다. 식탁 갓 아래면은 식탁 상판 위 0.80 m, 섬 갓 아래면은 섬 상판 위 1.04 m로 두어 앉은 사람의 머리 공간과 분리한다. 배치와 광원은 instances와 systems가 정한다. 소스 owner는 `src/models/lighting-fixtures.ts`; 실제 점유와 조명 프레임은 unverified다.
+섬 종형의 `fixture-diffuser`는 갓 아래 테 내경 0.264 m에 맞는 16각 원판으로 갓 아래 입술의 윗면에서 0.008 m 올라간 평면에 두고 두께 0.006 m를 갓 안쪽으로 둔다. 둘레 끝은 갓 안쪽 면과 면으로만 접하며 갓의 바닥 개구부를 남긴다. 식탁 변형의 확산 원판도 내경 0.464 m·두께 0.008 m로 갓 아래 테 안쪽에 맞댄다.
 
 접합판 아래면은 국소 Y=−0.025 m다. 섬 갓의 윗 테는 Y=−0.58 m, 식탁 갓의 윗 테는 Y=−1.00 m이므로 각 `fixture-stem`의 노출 축 구간은 Y=[−0.58,−0.025] m와 [−1.00,−0.025] m다. 줄 아래 끝은 갓 윗 테의 중앙 구멍에 면으로 맞대고, 갓 안쪽에서 별도의 줄 조각을 만들지 않는다. 갓 윗 테 안쪽의 지름 0.012 m 구멍 절단면은 `fixture-shade`가 덮는다.
 
 ## 세면 거울 위 벽등 {#vanity-wall-fixture}
 <!--
 @evidence principles/core/common.md#scope-preservation 세 위생실의 거울 위 벽등 몸체 한 원형만 맡고 광원과 방별 위치는 systems와 instances에 남긴다.
-@evidence principles/core/common.md#substantive-completion 폭 0.36 m·높이 0.06 m·벽 돌출 0.08 m와 받침·확산봉의 면 id를 정한다.
+@evidence principles/core/common.md#substantive-completion 폭 0.36 m·높이 0.06 m·벽 돌출 0.08 m와 받침·확산봉의 면 id를 정한다 확산봉의 X=[−0.155,0.155] m·축 깊이 0.0575 m와 지름 0.045 m를 정한다.
 @evidence principles/core/common.md#declared-basis settings의 위생실 조명 요구와 spaces의 거울 위 빈 벽을 근거로 둔다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 거울 위 짧은 가로 조명을 방별로 같은 원형으로 두어 침실 천장등이나 협탁등과 구별한다.
 @evidence principles/design/models.md#representation-contract 닫힌 벽판과 앞쪽 확산봉을 만들고 금속·확산면을 별도 id로 분리하며 광원 자체는 만들지 않는다.
@@ -67,6 +68,7 @@
 레퍼런스 02·05의 욕실 거울 위 밝은 띠를 세면 벽등으로 채택한다. 사진의 빛 번짐을 기구 형상으로 복제하지 않는다.
 
 세 위생실은 같은 벽등 원형을 거울 위에 쓴다. 원점은 벽 접점 중앙, +Z는 방 안쪽이다. 뒤 받침판은 폭 0.36 m·높이 0.06 m·두께 0.015 m, 양끝 받침은 폭 0.025 m·높이 0.06 m·앞 돌출 0.08 m, 확산봉은 양끝 받침 사이 길이 0.31 m·지름 0.045 m다. 전체 벽 돌출은 0.08 m로 [실내 기구의 0.10 m 상한](../systems/02-interior-fixtures.md#interior-baths) 안이다. 금속 판과 받침 모든 면은 `fixture-housing`, 확산봉 모든 면은 `fixture-diffuser`다. 길이 U·둘레 V를 미터로 제공한다. 빛의 세기와 색은 systems, 위치는 instances가 정한다. 소스 owner는 `src/models/lighting-fixtures.ts`; 거울 간섭과 실제 프레임은 unverified다.
+거울 위 확산봉 `fixture-diffuser`의 축은 뒤판 중심에서 벽 법선 +Z=0.0575 m, 수평 X 방향 X=[−0.155,0.155] m다. 지름 0.045 m이므로 가장 앞점은 Z=0.080 m이고 두 끝은 받침의 안쪽 X 끝에 면으로 닿는다. 양끝 받침은 판 앞면 Z=0.015 m에서 축 깊이까지 이어지며 확산봉 안으로 끝을 밀어 넣지 않는다.
 
 ## 포치 문 옆의 벽등 {#porch-wall-sconce}
 <!--

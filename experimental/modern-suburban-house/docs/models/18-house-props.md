@@ -25,7 +25,7 @@
 ## 주방과 식탁의 식료품·조리도구 {#kitchen-food-utensils}
 <!--
 @evidence principles/core/common.md#scope-preservation 작업면 위의 소량 식료품과 조리도구, 식탁 과일 그릇의 원형을 맡고 캐비닛·싱크·가전 원형은 10에 남긴다.
-@evidence principles/core/common.md#substantive-completion 도마·도구통·다섯 도구·밀폐 용기·과일 그릇과 과일 다섯의 부피를 정하고, 과일 넷은 반지름 0.08 m 원 위·다섯째는 중앙에 둬 중심 간격 0.08 m가 최대 반지름 합 0.0775 m보다 크다고 산출한다.
+@evidence principles/core/common.md#substantive-completion 도마·도구통·다섯 도구·밀폐 용기·과일 그릇과 과일 다섯의 부피를 정하고, 과일 넷은 반지름 0.08 m 원 위·다섯째는 중앙에 둬 중심 간격 0.08 m가 최대 반지름 합 0.0775 m보다 크다고 산출한다 주걱·숟가락·거품기 머리의 폭·길이·두께와 막대 끝 접합을 정한다.
 @evidence principles/core/common.md#declared-basis settings/10-house.md#kitchen-equipment의 작업면을 가리지 않는 식료품 일부·조리도구와 레퍼런스 03의 식탁 그릇을 근거로 택한다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 실제 조리대는 비워 쓸 수 있도록 0.35 m 도마와 작은 도구통만 두고 식탁 중심에는 낮은 과일 그릇 하나를 둔다.
 @evidence principles/design/models.md#representation-contract 닫힌 도마·도구통·막대 도구·그릇·과일 부피의 모든 면을 `cutting-board`·`container`·`utensil`·`bowl`·`fruit`로 나눈다.
@@ -41,6 +41,7 @@
 -->
 
 [주방 설비 설정](../settings/10-house.md#kitchen-equipment)은 식료품 일부와 조리도구를 요구한다. 모델은 각 상판의 접점 중심에 원점을 둔다. 도마는 0.35 × 0.25 × 0.02 m의 둥근 모서리 판, 도구통은 아래 지름 0.10 m·위 지름 0.12 m·높이 0.18 m의 열린 12각 용기다. 도구 다섯은 지름 0.012 m·길이 0.25 m 막대에 끝 폭 0.03 m 납작 주걱 둘, 지름 0.035 m 숟가락 둘, 지름 0.04 m 거품기 하나를 붙이고 각 끝은 원형의 전체 높이 0.38 m 이내다. 작은 식료품 병은 0.12 × 0.12 × 0.20 m 한 개이며 [팬트리 용기](12-service-rooms.md#pantry-containers)와 같은 부피 원형을 재사용한다. 도마·통·도구·병의 배치는 싱크·조리면·벽 주방 준비면을 가리지 않는 host 상판 좌표에서 instances가 맡는다.
+조리도구의 머리는 막대 끝 Y=0.25 m를 기준으로 주걱 두 개는 X폭 0.03 m·Y길이 0.06 m·두께 0.004 m의 둥근 판, 숟가락 둘은 지름 0.035 m·두께 0.006 m 타원 접시, 거품기는 지름 0.04 m·Y길이 0.08 m의 8각 철사 고리다. 머리 아래면을 막대 끝면에 맞대고 최대 높이 0.33 m로 통 0.18 m와 함께 세워도 전체 0.38 m 한도를 넘지 않는다.
 
 식탁에는 외경 0.28 m·높이 0.075 m·벽 두께 0.008 m의 열린 16각 그릇 하나를 두고 과일 다섯을 순번 i = 0…4에 대해 지름 `0.06 + 0.005i` m인 닫힌 12각 타원체로 둔다. 과일 i = 0…3의 중심은 그릇 중심에서 반지름 0.08 m의 원 위에 90i°로 두고, i = 4만 정확히 중앙에 둔다. 가장 큰 둘레 과일 반지름 0.0375 m와 중앙 과일 반지름 0.04 m의 합 0.0775 m보다 중심 간격 0.08 m가 커서 겹치지 않는다. 표면은 도마 `cutting-board`, 통·병 `container`, 도구 `utensil`, 그릇 `bowl`, 과일 `fruit`다. 모든 닫힌 면은 정확히 한 id를 가지며 평면은 X·Z, 측면은 둘레 U·높이 V 미터 UV를 둔다. 레퍼런스 03의 식탁 과일 그릇을 채택하고 두 번째 수도꼭지와 과도한 식품 진열은 [설정의 채택 범위](../settings/10-house.md#kitchen-equipment)에 따라 두지 않는다. 소스 owner는 `src/models/furnishings/props.ts`; 실제 상판 점유와 프레임은 unverified다.
 

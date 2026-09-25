@@ -21,6 +21,33 @@ const files = (directory) => fs.readdirSync(path.join(docs, directory), { withFi
 });
 /** Each address is a physical maker H2 or a declared no-mesh mask. */
 const owner = {
+  "차고": ["spaces/rooms/garage-interior.md#garage-interior-plan"],
+  "지붕군": ["spaces/roof/00-junctions.md#roof-mass-allocation"],
+  "매트": ["models/18-house-props.md#porch-mat-planter"],
+  "바닥": ["spaces/10-ground-floor.md#garage-ground-floor-base"],
+  "복도": ["spaces/rooms/upper-hall.md#upper-hall-plan"],
+  "문턱": ["spaces/10-ground-floor.md#ground-threshold-junctions"],
+  "천장판": ["spaces/09-ceiling-assembly.md#upper-ceiling-closure"],
+  "패널문": ["models/02-exterior-doors.md#garage-sectional-door"],
+  "외벽": ["spaces/envelope/front.md#front-roof-closures"],
+  "현관": ["spaces/rooms/entry.md#entry-plan"],
+  "지붕": ["spaces/roof/00-junctions.md#roof-mass-allocation"],
+  "처마": ["spaces/roof/00-junctions.md#roof-profile-datums"],
+  "옷장": ["models/13-bedrooms.md#sliding-closet"],
+  "식탁": ["models/10-kitchen-dining.md#dining-table"],
+  "벤치": ["models/12-service-rooms.md#mudroom-bench"],
+  "벽난로": ["models/11-living.md#fireplace-insert-mantel"],
+  "벽감": ["spaces/rooms/shower-bath.md#shower-fixture-use"],
+  "의류": ["models/13-bedrooms.md#wardrobe-hanging"],
+  "화분": ["models/18-house-props.md#porch-mat-planter"],
+  "테이블": ["models/11-living.md#low-table", "models/10-kitchen-dining.md#dining-table"],
+  "소품": ["models/18-house-props.md#kitchen-food-utensils", "models/19-room-accents.md#living-tabletop-props"],
+  "수건": ["models/18-house-props.md#linen-folded-towels"],
+  "분리벽": ["spaces/02-stair.md#stair-boundary-heights"],
+  "칸막이": ["spaces/rooms/common.md#common-room-plan"],
+  "용기": ["models/12-service-rooms.md#pantry-containers"],
+  "뒤판": ["spaces/rooms/shower-bath.md#shower-fixture-use"],
+  "린넨장": ["models/05-closet-fittings.md#linen-closet-fittings"],
   "걸레받이": ["models/06-interior-trim.md#wall-baseboard"],
   "계단 측판": ["models/04-stair-members.md#stair-side-skirt"],
   "문선": ["models/01-windows.md#window-sill-trim", "models/02-exterior-doors.md#front-entry-door", "models/02-exterior-doors.md#garden-door-pair", "models/03-interior-doors.md#interior-door-members"],
@@ -60,9 +87,18 @@ const owner = {
   "밀폐": ["models/12-service-rooms.md#pantry-containers"],
   "줄눈": ["materials/02-interior-shell.md#tile-grout", "spaces/site/01-paving-support.md#paving-depth-reservation"],
 };
+/** Audited non-prototype nouns from the reviewed parent corpus. They denote
+ * routes, boundaries, measurements, states, or later map placement rather than
+ * an independently fabricated model. New nouns are not auto-enrolled here. */
+const nonPrototype = new Set(["정체성","복귀","원형","읽기","상태","배치","관계","공간","용도","프레임","수납","체계","관찰","기능","위계","화단","규모","인증","계산값","문자열","증거","마감","경계","검사","전이","조정자","코드","경로","합격","판정","승인","외곽","결과","주장","예약","결정","구멍","도착","아래면","하나","순서","형태","합격값","부재","통로","모듈","책임","대기","입력","소유자","구역","접면","질문","시야","경우","점유","순폭","전체","접점","단면","출입","지지","포장","통행","깊이","연결","시점","읽히는지","폐쇄","대지","보행길","관계없","산출물","구간","평면","접합","규칙","절단","역할","바탕","권한","몸체","나머지","윤곽","외곽선","지시","배정","천장","부분","높이","패널","빈틈","평탄면","한계","돌아","입면","교차선","단차","모서리","두께","가족실","선택","상단","측정값","실루엣","개구부","완료","내부","수치","검증","합집합","뒤쪽","목표","회전","읽힘","접촉","위치","접속","여유","계측값","사이","순간","코너","머드룸","일부","배열","선언","불일치","변환","끝선","높이식","하단","분할","검증값","거리","정원","예외"]);
+for (const nonObject of ["기준", "대기면", "분절"]) nonPrototype.add(nonObject);
 if (process.argv.includes("--mutate-drop-baseboard-maker")) owner["걸레받이"] = [];
 /** @type {Record<string, RegExp>} */
 const witness = {
+  "테이블": /테이블|식탁/,
+  "소품": /소품|조리도구|식료품/,
+  "패널문": /차고문|분절 패널/,
+  "의류": /옷걸이|옷 18벌/,
   "문선": /문선|casing/,
   "문틀": /문설주|jamb/,
   "트림": /트림|trim/,
@@ -76,10 +112,12 @@ const bodies = source.flatMap((file) => sections(read(file)).map(({ anchor, body
 // A newly named wall or room object must enter the vocabulary before a
 // candidate-maker census can claim coverage. This deliberately scans source
 // prose independently from the hand-maintained owner dictionary.
-const attachment = /(?:^|[\s.,;:])([가-힣]{2,12})(?:이|가)\s+(?:붙는다|놓인다|설치된다|달린다|세워진다|고정된다)/gm;
+// Observe physical-object candidates independently of the particular verb:
+// "우편함을 둔다" must enter the same audit as "우편함이 붙는다".
+const attachment = /(?:^|[\s.,;:])([가-힣]{2,12})(?:이|가|을|를)\s+[가-힣]{1,12}다(?=[\s.,;:])/gm;
 const unregisteredReferents = bodies.flatMap(({ id, body }) => [...body.matchAll(attachment)]
   .map((match) => ({ id, term: match[1] }))
-  .filter(({ term }) => !Object.hasOwn(owner, term)));
+  .filter(({ term }) => !Object.hasOwn(owner, term) && !nonPrototype.has(term)));
 const all = new Map([...files("models"), ...files("spaces"), ...files("materials")].flatMap((file) => sections(read(file)).map(({ anchor, body }) => [`${file}#${anchor}`, body])));
 const rows = Object.entries(owner).map(([term, makers]) => {
   const references = bodies.filter(({ body }) => body.includes(term)).map(({ id }) => id);

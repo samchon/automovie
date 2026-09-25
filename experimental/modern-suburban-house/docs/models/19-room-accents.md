@@ -3,7 +3,7 @@
 ## 낮은 탁자 위의 책·쟁반·꽃병 {#living-tabletop-props}
 <!--
 @evidence principles/core/common.md#scope-preservation 11의 낮은 탁자 위 소품만 맡고 상판과 다리를 다시 만들지 않는다.
-@evidence principles/core/common.md#substantive-completion 책 두 권·쟁반 하나·꽃병 하나의 개수와 각 외곽·꽃 세 줄기를 정한다.
+@evidence principles/core/common.md#substantive-completion 책 두 권·쟁반 하나·꽃병 하나의 개수와 각 외곽·꽃 세 줄기를 정한다 세 꽃줄기의 120° 간격·0.015 m 시작 반지름과 꽃 덩어리 접점을 정한다.
 @evidence principles/core/common.md#declared-basis 레퍼런스 04의 커피테이블 위 책·쟁반·꽃을 채택하고 11의 상판 안에 담는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 낮은 목재 탁자의 빈 상판에 소량 물건을 올려 가구 자체와 별도 부품으로 만든다.
 @evidence principles/design/models.md#representation-contract 닫힌 책·쟁반·꽃병·줄기·꽃 덩어리를 `book`·`tray`·`container`·`stem`·`foliage`로 나눈다.
@@ -18,11 +18,12 @@
 -->
 
 레퍼런스 04의 낮은 탁자에는 책과 쟁반, 꽃이 있다. [낮은 탁자](11-living.md#low-table)의 상판을 host로 삼고 책 두 권은 각각 0.22 × 0.16 × 0.025 m, 쟁반은 0.24 × 0.18 × 0.025 m, 꽃병은 아래 지름 0.08 m·윗지름 0.06 m·높이 0.12 m다. 꽃병에는 지름 0.004 m·길이 0.12 m의 줄기 세 개와 각 끝의 지름 0.04 m 닫힌 꽃 덩어리 세 개를 둔다. 전체 높이는 상판 위 0.28 m 이하이며 착석 시야를 가리지 않는다. 책의 모든 면은 `book`, 쟁반은 `tray`, 꽃병은 `container`, 줄기는 `stem`, 꽃 덩어리는 `foliage`다. UV는 판 가로·세로 또는 둘레·높이를 미터로 둔다. 소품 원점은 상판 접점 중앙이고 실제 놓는 좌표는 instances가 1.30 × 0.50 m와 1.10 × 0.55 m 상판 중 선택한 host에 맞춰 결정한다. 글자·개별 꽃잎은 표현하지 않는다. 레퍼런스 04의 안락의자 옆 별도 탁자는 [거실 예약](../spaces/rooms/living.md#living-furniture-use)의 주 통행 띠·의자 사용·책장 접근 구간과 겹칠 별도 0.40 m 박스가 없어 채택하지 않는다. 이 거부는 04의 중심 커피테이블 원형을 없애지 않는다. 소스 owner는 `src/models/furnishings/props.ts`; 실제 간섭과 프레임은 unverified다.
+탁자 꽃의 세 줄기 시작은 꽃병 입구 중심에서 수평 반지름 0.015 m, 방위각 0·120·240°이고 각 끝의 높이는 꽃병 입구 위 0.12 m다. 지름 0.04 m 꽃 덩어리의 중심은 줄기 끝보다 0.02 m 높여 줄기 끝면과 면으로만 맞댄다. 액자의 `art-print` 판은 폭·높이에서 테 0.025 m씩 뺀 작은 변형 0.45×0.30 m 또는 큰 변형 0.55×0.35 m, 두께 0.002 m이고 뒤판에서 앞쪽 0.018 m에 아랫면을 둔다.
 
 ## 벽 액자와 상판 위 작은 식물 {#wall-art-indoor-plant}
 <!--
 @evidence principles/core/common.md#scope-preservation 기존 벽에 거는 액자와 이미 예약된 가구 상판 위 식물만 맡고 벽·가구 면을 만들지 않는다.
-@evidence principles/core/common.md#substantive-completion 액자 0.50 × 0.35/0.60 × 0.40 m, 화분 외경 0.18 m·전체 높이 0.55 m와 부품·면을 정한다.
+@evidence principles/core/common.md#substantive-completion 액자 0.50 × 0.35/0.60 × 0.40 m, 화분 외경 0.18 m·전체 높이 0.55 m와 부품·면을 정한다 액자 인쇄 판의 두 폭·높이와 두께 0.002 m·뒤판 앞 깊이 0.018 m도 정한다.
 @evidence principles/core/common.md#declared-basis 레퍼런스 02–05의 액자와 04·05의 화분을 채택하고 방의 창·문·통행과 겹치지 않는 host 결속을 요구한다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 벽 장식과 실내 식물의 새 면만 더하며 실내 공간 그래프와 예약 가구의 표면 소유는 유지한다.
 @evidence principles/design/models.md#representation-contract 액자는 `art-frame`·`art-print`, 화분은 `container`·`stem`·`foliage`로 모든 닫힌 면을 덮는다.

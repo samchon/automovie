@@ -55,7 +55,7 @@
 @evidence principles/core/common.md#scope-preservation 판 한 장의 쐐기 단면·높이 0.18 m·겹침 0.03 m·노출 0.15 m, 길이 매개변수 L, 국소 좌표, 표면 id와 소스 owner `src/models/exterior/siding.ts`를 맡는다. 시작 datum·절단·구성원 수는 instances, 모서리 끝마감은 #exterior-corner-trim에 남긴다.
 @evidence principles/core/common.md#substantive-completion 판 높이 0.18 m, 아래 끝 두께 0.018 m에서 위 끝 0.006 m로 줄어드는 쐐기, 0.03 m 겹침에서 위 판 뒷면이 아래 판 위 끝 앞면에 얹히는 관계, 직각 판 끝을 정한다.
 @evidence principles/core/common.md#declared-basis 0.18 m를 노출 0.15 m와 겹침 0.03 m의 합으로 산출하고, 겹침의 근거를 재료 읽힘 설정 링크의 course별 그림자 선 요구로 댄다. 실제 제품 노출·두께와의 대조는 외부 출처 확인 전까지 추론이라고 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 재료 읽힘 설정의 일관된 수평 결에 0.15 m 노출·0.03 m 겹침·쐐기 두께 0.018→0.006 m·판 높이 0.18 m·약 0.012 m 앞기울기를 더한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 재료 읽힘 설정의 일관된 수평 결에 0.15 m 노출·0.03 m 겹침·쐐기 두께 0.018→0.006 m·판 높이 0.18 m·0.012 m 두께 차와 arctan(0.012/0.18) 앞면 기울기를 더한다.
 @evidence principles/design/models.md#representation-contract 길이 L로 뽑는 쐐기 단면 판을 결과 형상으로 두고 넓은 면·아래 끝·뒷면·위 끝·절단 끝을 `siding-face`·`siding-butt`·`siding-back`·`siding-top`·`siding-cut`으로 나누며 관절은 없다. 실제 제품 노출·두께 대조는 추론으로 남긴다.
 @evidence principles/design/models.md#spatial-convention 로컬 원점을 판 아래 가장자리의 길이 중심이자 뒷면 위에 두고 +X 판 길이, +Y 위, +Z 날씨 면 바깥 법선으로 정한다.
 @evidence principles/design/models.md#reviewable-structure 측면 직교 단면에서 쐐기와 0.03 m 겹침, 정면에서 course마다 `siding-butt`가 수평 그림자 선으로 읽히는지를 반증 관찰로 둔다.
@@ -71,7 +71,7 @@
 
 [재료 읽힘 설정](../settings/20-verification.md#visual-grammar)의 일관된 수평 course를 위해 판 한 장의 단면과 노출 0.15 m를 이 원형에서 정한다. [siding course 반복 법칙](../instances/03-exterior-repetition.md#siding-course-law)은 이 원형을 소비하여 시작 datum·절단·구성원 수를 정한다. 이 원형은 길이 L을 매개변수로 받는 쐐기 단면 판이며 L은 instances가 벽 구간과 개구부 절단에서 정한다. 로컬 원점은 판 아래 가장자리의 길이 중심이며 뒷면(외벽 바탕 면) 위에 있고, +X가 판 길이 방향, +Y가 위, +Z가 날씨 면 바깥 법선이다.
 
-판 높이는 0.18 m로 정한다. 노출 0.15 m에 위 판과의 겹침 0.03 m를 더한 값이며, 근거는 [재료 읽힘 설정](../settings/20-verification.md#visual-grammar)의 "일관된 course"가 리뷰 거리에서 수평 그림자 선으로 읽혀야 한다는 요구다. 이 원형이 노출과 겹침을 정하고 instances는 그 값을 반복한다. 겹침 0.03 m가 있어야 판마다 아래 끝 두께 면이 생긴다. 단면은 아래 끝 두께 0.018 m에서 위 끝 0.006 m로 줄어드는 쐐기이며, 겹침 구간에서 위 판의 뒷면이 아래 판 위 끝의 앞면에 얹혀 판마다 약 0.012 m 앞으로 기운다. 판 끝은 직각으로 자르고 끝마감 몰딩은 [모서리 trim 원형](#exterior-corner-trim)이 맡는다. 실제 제품 노출·두께와의 대조는 외부 출처 확인 전까지 추론이다.
+판 높이는 0.18 m로 정한다. 노출 0.15 m에 위 판과의 겹침 0.03 m를 더한 값이며, 근거는 [재료 읽힘 설정](../settings/20-verification.md#visual-grammar)의 "일관된 course"가 리뷰 거리에서 수평 그림자 선으로 읽혀야 한다는 요구다. 이 원형이 노출과 겹침을 정하고 instances는 그 값을 반복한다. 겹침 0.03 m가 있어야 판마다 아래 끝 두께 면이 생긴다. 단면은 아래 끝 두께 0.018 m에서 위 끝 0.006 m로 줄어드는 쐐기이며, 아래 끝과 위 끝의 두께 차는 0.018−0.006=0.012 m다. 판의 앞면 기울기는 이 차이를 높이 0.18 m로 나눈 arctan(0.012/0.18)이고 겹침 구간에서는 위 판 뒷면을 아래 판 앞면에 맞대며 추가 0.012 m 평행 이동을 만들지 않는다. 판 끝은 직각으로 자르고 끝마감 몰딩은 [모서리 trim 원형](#exterior-corner-trim)이 맡는다. 실제 제품 노출·두께와의 대조는 외부 출처 확인 전까지 추론이다.
 
 표면 id는 넓은 날씨 면 `siding-face`, 아래 끝 두께 면 `siding-butt`, 외벽 바탕을 향한 뒷면 `siding-back`, 위 끝 두께 면 `siding-top`, 양쪽 끝과 개구부 절단면 `siding-cut`이다. 각 끝면도 정확히 하나의 id를 받는다. 전면 UV는 판의 왼쪽 아래를 원점으로 길이 U·높이 V를 미터 단위로, 절단 끝은 모서리 길이 U·두께 V로 새로 투영한다. 관절은 없다. 소스 owner는 `src/models/exterior/siding.ts`다. 관찰은 측면 직교 단면에서 쐐기와 0.03 m 겹침이 보이는지, 정면에서 course마다 아래 끝 두께 면이 수평 그림자 선으로 읽히는지다. 모든 관찰은 unverified다.
 
@@ -99,6 +99,7 @@
 국소 원점은 두 외벽 날씨 면 교선의 실제 노출 하단이다. +Y는 위, +X와 +Z는 각 이웃 입면의 외벽 면을 따라 모서리에서 멀어지는 방향이고 두 날씨 면은 국소 X=0·Z=0이다. 바깥쪽으로 돌출한 닫힌 L단면은 XZ 평면의 꼭짓점 `(-0.035,-0.035) → (0.075,-0.035) → (0.075,0) → (0,0) → (0,0.075) → (-0.035,0.075)` m를 잇는다. 따라서 각 날개는 해당 벽면을 따라 0.075 m 뻗고 날씨 면보다 0.035 m 돌출하며 두께도 0.035 m다. siding 판의 butt 최외점은 날씨 면에서 0.030 m이므로 trim 앞점이 0.005 m 더 나와 끝 절단면을 가린다. 사이딩 줄은 모서리에서 trim의 안쪽 X/Z=0.075 m 면에 맞대고 trim 뒤로 겹치지 않는다. 두 날개의 공통 모서리 사각형은 이 단면 한 번에만 포함되어 두 직육면체가 겹치지 않는다. 판의 하단은 외벽의 실제 노출 시작선, 상단은 해당 외벽의 처마 아래면 또는 박공 경사와 만나는 선으로 받으며, 지표·기단·지붕 구조를 관통하지 않고 그 선에서 절단·마감한다. 시작선과 끝선이 높이마다 달라지면 각 날개를 해당 선으로 자르고 두 날개의 공통 꼭짓점은 하나의 닫힌 접합으로 유지한다. 건물의 노출 모서리 목록과 실제 길이는 spaces 경계에서 후속 instances가 읽는다.
 
 0.035 m 두께의 L자 몸체 `exterior-trim`은 위 XZ 여섯 꼭짓점 단면을 실제 노출 높이만큼 압출해 앞·옆·뒤·상단·하단·절단 끝을 한 번만 닫는다. 모든 삼각형의 id는 `exterior-trim`이다. UV는 각 날개 바깥면의 하단에서 수직 부재 길이 U·수평 날개 폭 V를 미터로 두고 접힌 모서리에서는 날개마다 방향을 다시 잡는다. 위·아래·뒤 절단면은 면의 왼쪽 아래에서 새로 시작해 같은 미터 척도를 유지한다. 판은 강체이고 소스 owner는 `src/models/exterior/trim.ts`다. [흰 trim 재료](../materials/01-exterior.md#trim-white)가 id를 받는다. 전면·측면·차고 모서리 외관과 단면에서 두 면 접합, 세로 그림자 선, 기단·처마 비관통을 검사한다. 실제 모델 소스와 GPU 프레임은 unverified다.
+모서리 trim은 노출 벽 run을 지붕 처마·차고 지붕의 실제 교선에서 각각 끝내고 그 위에서 다시 시작하는 별개의 수직 부재로 분할한다. 절단 상·하단에는 `exterior-trim` 끝면을 닫고 지붕널·fascia 부피로 연장하지 않는다. 울타리가 벽에 만나는 높이에서는 울타리 끝 기둥이 차지하는 벽 측면 구간을 trim run에서 빼고 그 상하에 별개의 끝면을 둔다. 교선·기둥의 world 좌표는 두 owner의 컴파일된 경계에서 얻으며 추정한 고정 높이를 넣지 않는다.
 
 ## asphalt shingle 줄 단면 {#asphalt-shingle-strip}
 <!--

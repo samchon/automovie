@@ -33,7 +33,7 @@
 ## 주방 상부장 {#kitchen-wall-cabinet}
 <!--
 @evidence principles/core/common.md#scope-preservation 왼쪽 1.30 m·뒤쪽 0.85 m 두 길이의 벽걸이 상부장 원형, 몸통·문 전면·손잡이 부품, 재질 경계, 냉장고·전자레인지 예약과의 비겹침을 이 H2 안에서 정한다.
-@evidence principles/core/common.md#substantive-completion 걸림 높이 1.45 m, 높이 0.90 m, 몸통 0.31 m + 문 0.02 m + 손잡이 0.02 m = 0.35 m 깊이, 왼쪽 두 문·뒤쪽 한 문 분할까지 확정한다.
+@evidence principles/core/common.md#substantive-completion 걸림 높이 1.45 m, 높이 0.90 m, 몸통 0.31 m + 문 0.02 m + 손잡이 0.02 m = 0.35 m 깊이, 왼쪽 두 문·뒤쪽 한 문과 문 하단에서 Y=[0.04,0.16] m의 손잡이 받침축·막대까지 확정한다 손잡이 Z=0.344 m와 지지목·막대의 Y=0.04–0.16 m 범위를 정한다.
 @evidence principles/core/common.md#declared-basis 깊이 0.35 m와 Y = [1.45, 2.35]는 공용부 벽 주방 예약에서 받고, 돌출 손잡이의 근거는 주방 설비 설정의 상하부장 손잡이 구별 요구라고 적는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 예약의 X = [-5.50, -5.15]·Z = [-10.45, -10.10] 외곽에 0.31/0.02/0.02 m 깊이 분할, 문 개수, 하단 모서리 세로 막대 손잡이 위치를 더한다.
 @evidence principles/design/models.md#representation-contract 몸통·문 전면·손잡이 계층과 `carcass`·`leaf`·`handle` 경계를 두고 아래에서 보이는 밑면을 `carcass`에 귀속시키며 문을 관절 없는 강체로 선언한다. 보이지 않는 한계는 본문의 "경첩·내부 선반·문 사이 틈 그림자는 표현하지 않는다."로 밝힌다.
@@ -50,14 +50,14 @@
 
 벽에 매단 상부장은 길이 L을 받는 한 원형이다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르되 벽걸이 원형이므로 원점을 뒤쪽 모서리 선의 하단 중심에 두고 걸림 높이 1.45 m에 놓는다. 깊이 0.35 m와 높이 0.90 m는 [공용부 벽 주방 예약](../spaces/rooms/common.md#common-kitchen-wall-reservation)의 왼쪽 상부장 X = [-5.50, -5.15]와 뒤쪽 짧은 상부장 Z = [-10.45, -10.10], 두 예약의 Y = [1.45, 2.35]에서 받는다. 길이는 왼쪽 1.30 m, 뒤쪽 0.85 m다.
 
-부품은 몸통, 문 전면, 손잡이다. 몸통 깊이 0.31 m에 문 전면 0.02 m와 하단 모서리의 세로 막대 손잡이 돌출 0.02 m를 더해 0.35 m가 된다. 문 전면은 왼쪽 상부장을 두 문, 뒤쪽 상부장을 한 문으로 나눈다. 상하부장 손잡이가 리뷰 거리에서 구별되어야 한다는 [주방 설비 설정](../settings/10-house.md#kitchen-equipment)이 돌출 손잡이의 근거다. 재질 경계는 `carcass`, `leaf`, `handle`이며 아래에서 보이는 밑면은 `carcass`에 속한다. 문은 강체이며 관절이 없다.
+부품은 몸통, 문 전면, 손잡이다. 몸통 깊이 0.31 m에 문 전면 0.02 m와 하단 모서리의 세로 막대 손잡이 돌출 0.02 m를 더해 0.35 m가 된다. 문 전면은 왼쪽 상부장을 두 문, 뒤쪽 상부장을 한 문으로 나눈다. 상하부장 손잡이가 리뷰 거리에서 구별되어야 한다는 [주방 설비 설정](../settings/10-house.md#kitchen-equipment)이 돌출 손잡이의 근거다.  손잡이 `handle`의 지름 0.012 m·길이 0.12 m 세로 막대는 각 문 자유단에서 가로 0.04 m 안쪽, 문 하단에서 Y=[0.04,0.16] m에 둔다. 막대 중심은 Z=0.344 m, 반지름은 0.006 m이며 문 앞면 Z=0.33 m에서 막대 뒤면 Z=0.338 m까지 두께 0.008 m의 짧은 지지축이 잇는다. 앞끝은 Z=0.35 m라 예약을 넘지 않는다. 재질 경계는 `carcass`, `leaf`, `handle`이며 아래에서 보이는 밑면은 `carcass`에 속한다. 문은 강체이며 관절이 없다.
 
 냉장고·전자레인지 예약과 겹치지 않는다는 조건은 배치가 아니라 이 원형의 길이 값으로 지켜진다. 경첩·내부 선반·문 사이 틈 그림자는 표현하지 않는다. 소스 owner는 `src/models/furnishings/kitchen-dining.ts`다. 관찰은 정면 정사영에서 하단 1.45 m·상단 2.35 m가 하부장 상판과 0.54 m 간격을 이루는지, 뒤쪽 상부장이 주방 창 오른쪽 끝에서 멈추는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
 
 ## 양문 냉장고 {#kitchen-refrigerator}
 <!--
 @evidence principles/core/common.md#scope-preservation 양문 냉장고의 외곽, 위 두 문·아래 서랍·세 손잡이 계층, 세 피벗과 작동 범위, 다섯 재질 경계, 내부 표현 한계, 세 관찰을 한 H2가 소유한다.
-@evidence principles/core/common.md#substantive-completion 몸통 0.72 m·문 0.05 m·손잡이 0.03 m 깊이 분할, 서랍 Y = [0.05, 0.75], 문 Y = [0.77, 1.85], 문 폭 0.47 m·중앙 틈 0.005 m, 서랍 인출 0.55 m와 뒤 하단 0.015 × 0.10 m 걸레받이 홈을 확정한다.
+@evidence principles/core/common.md#substantive-completion 몸통 0.72 m·문 0.05 m·손잡이 0.03 m 깊이 분할, 서랍 Y=[0.05,0.75], 문 Y=[0.77,1.85], 문 폭 0.47 m·중앙 틈 0.005 m, 양문 경첩축 국소 X=±0.4725 m·Z=0.77 m, 서랍 인출 0.55 m와 뒤 하단 0.015×0.10 m 걸레받이 홈을 정한다.
 @evidence principles/core/common.md#declared-basis X = [-5.50, -4.70]·Z = [-7.40, -6.45]·Y = [0, 1.85]는 예약에서 그대로 받고, 0.80 m 깊이 분할은 이 층의 결정이며, 90° 열림 0.47 + 0.03 = 0.50 m가 작동 예약 0.55 m 안이라는 산술을 근거로 든다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 예약 외곽 위에 위 두 문·아래 서랍 구성, 바깥 세로 모서리 경첩 피벗, 서랍의 +Z 0.55 m 미끄럼이라는 작동 인터페이스를 더한다.
 @evidence principles/design/models.md#representation-contract 몸통 아래 두 문·서랍·세 손잡이 계층과 `appliance-body`·`leaf`·`drawer-front`·`handle`·열린 상태 전용 `appliance-interior`를 정하고 내부를 빈 상자 하나의 proxy로 둔다.
@@ -81,7 +81,7 @@
 
 걸레받이가 노출되는 냉장고 뒤 벽에서 외곽 뒤 기준선은 유지한다. `appliance-body`의 바닥 뒤 하단만 국소 Z=[0,0.015], Y=[0,0.10] m의 직사각 띠를 파내고, 그 위 몸통과 양쪽 끝·앞문·서랍·손잡이의 외곽은 기존 0.95×0.80×1.85 m 그대로 둔다. 파낸 면도 `appliance-body`이며 0.015 m 돌출 걸레받이의 앞면과 맞대되 겹치지 않는다. 뒤를 0.015 m 통째로 밀지 않으므로 두 문의 0.50 m 열림과 서랍 0.55 m 인출 예약은 변하지 않는다.
 
-냉장고 `leaf` 두 장은 각각 폭 0.47 m·높이 1.08 m·두께 0.05 m이며 Y=[0.77,1.85] m, 몸통 앞의 깊이 Z=[0.72,0.77] m에 놓인다. 아래 `drawer-front`는 폭 0.95 m·높이 0.70 m·두께 0.05 m로 Y=[0.05,0.75]·Z=[0.72,0.77] m다. 세 판의 `handle`은 각각 전면에 수직 길이 0.25 m·지름 0.020 m로 고정하고 총 돌출 0.03 m를 써 Z=0.80 m에서 끝난다. 서랍 손잡이는 서랍 가로 중앙·높이 Y=0.40 m이며 문 손잡이는 각 문 자유단에서 0.06 m·높이 Y=1.31 m다.
+냉장고 `leaf` 두 장은 각각 폭 0.47 m·높이 1.08 m·두께 0.05 m이며 Y=[0.77,1.85] m, 몸통 앞의 깊이 Z=[0.72,0.77] m에 놓인다. `door-left`·`door-right`의 수직 경첩 축은 각각 바깥 세로 끝 X=−0.4725·+0.4725 m와 문 앞면 Z=0.77 m의 교선이다. 두 문은 그 앞쪽 모서리에서 로컬 +Z로 벌어져 뒤 몸통을 쓸지 않는다. 아래 `drawer-front`는 폭 0.95 m·높이 0.70 m·두께 0.05 m로 Y=[0.05,0.75]·Z=[0.72,0.77] m다. 세 판의 `handle`은 각각 전면에 수직 길이 0.25 m·지름 0.020 m로 고정하고 총 돌출 0.03 m를 써 Z=0.80 m에서 끝난다. 서랍 손잡이는 서랍 가로 중앙·높이 Y=0.40 m이며 문 손잡이는 각 문 자유단에서 0.06 m·높이 Y=1.31 m다.
 
 문을 열 때 보이는 `appliance-interior`는 몸통 안의 폭 0.89 m·깊이 0.66 m·높이 1.02 m 빈 상자 내벽이다. 외곽 몸통에서 좌우·뒤 각각 0.03 m를 남겨 X=[−0.445,0.445]·Z=[0.03,0.69]·Y=[0.80,1.82] m에 놓고 앞면 Z=0.72 m는 문이 열렸을 때만 노출되는 열린 면으로 둔다. 내부 선반과 하부 서랍 속 물건은 만들지 않는다.
 
@@ -141,7 +141,7 @@
 ## 싱크 섬 {#kitchen-island}
 <!--
 @evidence principles/core/common.md#scope-preservation 섬의 외곽·상판·수납 몸통·무릎 공간·싱크 절개와 볼·수전·식기세척기 빈 칸·재질 경계·세 관찰을 이 H2가 정하고, 식기세척기 기기는 별도 H2로 넘긴다.
-@evidence principles/core/common.md#substantive-completion 2.25 × 1.05 × 0.91 m, 몸통 깊이 0.75 m·무릎 공간 0.30 m, 뒤쪽 끝·작업면에서 0.10 m 떨어진 0.50 × 0.50 m 싱크 절개, 볼 깊이 0.20 m, 수전 0.35 m, 식기세척기 칸 0.65–1.25 m·깊이 0.60 m를 확정한다.
+@evidence principles/core/common.md#substantive-completion 2.25 × 1.05 × 0.91 m, 몸통 0.71 m·전면 0.02 m·손잡이 0.02 m·무릎 공간 0.30 m, 0.50 × 0.50 m 싱크 절개와 몸통의 볼 칸 제거, 볼 깊이 0.20 m, 수전 0.35 m, 식기세척기 칸 0.65–1.25 m·깊이 0.60 m를 확정한다.
 @evidence principles/core/common.md#declared-basis 외곽·무릎 공간·싱크 위치는 섬 예약에서 받고, 수전 높이 상판 위 0.35 m는 예약 상한 1.31 m 아래에 두는 이 층의 선택이라고 적는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 예약 외곽에 yaw -π/2 방향 규약, 몸통/무릎 공간 0.75/0.30 m 분할, 싱크 볼·꺾인 토출구 수전 형상, 식기세척기 빈 칸 위치를 더한다.
 @evidence principles/design/models.md#representation-contract 걸레받이 0.10 m·몸통·상판·싱크 볼·수전 부품과 재질 경계 목록을 두고 싱크 볼을 0.20 m 깊이의 열린 상자, 식기세척기 칸을 빈 칸으로 적으며 섬 끝 기둥·벽이 없다고 밝힌다. 보이지 않는 한계는 본문의 "싱크 배수구·수전 손잡이 개별 형상·상판 가장자리 몰딩은 표현하지 않는다."로 밝힌다.

@@ -3,7 +3,7 @@
 ## 난간살의 단면과 반복 {#stair-balusters}
 <!--
 @evidence principles/core/common.md#scope-preservation 계단 난간살의 0.02 m 정사각 단면, 0.075 m 예약 가운데 배치, 개수와 간격 산출을 이 H2가 맡고 기둥·손잡이는 spaces source에 남긴다.
-@evidence principles/core/common.md#substantive-completion n = ceil((L-0.10)/0.12)와 간격 (L-0.02n)/(n+1)로 빈 간격 0.10 m 이하를 산출한다.
+@evidence principles/core/common.md#substantive-completion 아래 flight·참은 양 끝 기둥 안쪽, 상부 flight는 참 기둥 안쪽부터 X=1.87 m 손잡이 자유단까지를 L로 잡고 n = ceil((L-0.10)/0.12)와 간격 (L-0.02n)/(n+1)로 빈 간격 0.10 m 이하를 산출한다 위쪽 flight에는 끝 기둥이 없으므로 난간살 L은 착지 기둥 안쪽부터 손잡이 자유단 X=1.87 m까지로 정한다.
 @evidence principles/core/common.md#declared-basis 간격 상한과 역할은 spaces/02-stair.md#stair-boundary-heights, 점유 예약은 #stair-clearance, 철제 수직살은 settings/10-house.md#stair에서 받는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 02의 '반복 개수는 후속 모듈이 산출'을 개수·간격 공식이라는 모델 결정으로 바꾼다.
 @evidence principles/design/models.md#representation-contract rigid 난간살 원형과 위아래 끝의 접속을 정한다.
@@ -21,7 +21,7 @@
 
 레퍼런스 03·04의 계단에서 일정 간격으로 이어지는 검은 난간살을 채택한다. 개수는 사진을 세지 않고 각 flight 길이로 산출한다.
 
-[계단 경계 높이 owner](../spaces/02-stair.md#stair-boundary-heights)가 모델에 남긴 것은 기둥·손잡이 사이를 채우는 검은 수직 철제 난간살의 부재와 반복이다. 기둥과 손잡이는 spaces source가 [양쪽 0.075 m 예약](../spaces/02-stair.md#stair-clearance) 안에 이미 만들므로 이 모델은 다시 만들지 않는다. 난간살은 [단일 꺾임계단 설정](../settings/10-house.md#stair)의 가는 철제 수직살을 위해 한 변 0.02 m의 정사각 단면으로 택하며, 0.075 m 예약의 가운데 선에 두어 통행 쪽 점유가 예약선을 넘지 않는다. 한 구간의 유효 길이 L(양 끝 기둥 안쪽 사이)에서 난간살 개수는 n = ceil((L - 0.10) / 0.12)로 산출하고 간격은 (L - 0.02n) / (n + 1)로 같게 나눠 owner의 빈 간격 0.10 m 이하를 지킨다.
+[계단 경계 높이 owner](../spaces/02-stair.md#stair-boundary-heights)가 모델에 남긴 것은 기둥·손잡이 사이를 채우는 검은 수직 철제 난간살의 부재와 반복이다. 기둥과 손잡이는 spaces source가 [양쪽 0.075 m 예약](../spaces/02-stair.md#stair-clearance) 안에 이미 만들므로 이 모델은 다시 만들지 않는다. 난간살은 [단일 꺾임계단 설정](../settings/10-house.md#stair)의 가는 철제 수직살을 위해 한 변 0.02 m의 정사각 단면으로 택하며, 0.075 m 예약의 가운데 선에 두어 통행 쪽 점유가 예약선을 넘지 않는다. 아래 flight와 참에서는 양끝 기둥의 안쪽 면 사이를 L로 잡는다. 상부 flight는 도착 쪽 기둥이 없으므로 참 기둥 안쪽 면에서 [상부 손잡이](../../src/spaces/stair.ts)의 도착 끝면 X=1.87 m까지를 L로 잡고 마지막 살과 자유단의 빈 간격도 같은 식으로 검사한다. 각 L에서 난간살 개수는 n = ceil((L - 0.10) / 0.12)로 산출하고 간격은 (L - 0.02n) / (n + 1)로 같게 나눠 owner의 빈 간격 0.10 m 이하를 지킨다.
 
 국소 원점은 난간살 아래 끝 중심, 국소 +Y는 world +Y이며 모든 난간살은 rigid이고 관절 인터페이스가 없다. 위 끝은 손잡이 아래면까지, 아래 끝은 [아래 부재](#stair-bottom-member)의 윗면까지다. 소스 owner는 `src/models/stair-baluster.ts`이며 검사 주소는 02가 적은 현관에서 보이는 아래 flight, 중간참 두 방향, 상부 도착과 복도 가장자리다.
 

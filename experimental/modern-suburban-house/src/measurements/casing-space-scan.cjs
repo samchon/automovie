@@ -17,8 +17,11 @@ if (!modelBody) throw new Error("Missing interior door design H2");
 const authoredCasingWidth = Number(/문선.*?폭 (0\.\d+) m 띠/.exec(modelBody)?.[1]);
 const casingWidth = process.argv.includes("--mutate-widen-casing") ? authoredCasingWidth + 0.03 : authoredCasingWidth;
 const projection = Number(/벽면에서 (0\.\d+) m 돌출/.exec(modelBody)?.[1]);
-const headTop = Number(/머리 판은[^\n]*Y=\[2\.20,(\d+\.\d+)\]/.exec(modelBody)?.[1]);
-if (![casingWidth, projection, headTop].every(Number.isFinite)) throw new Error("Casing dimensions are not parseable");
+const verticalLine = modelBody.split(/\r?\n/).find((line) => line.includes("`casing-a`·`casing-b` 좌우 세로 판")) ?? "";
+const vertical = [...verticalLine.matchAll(/Y=\[([^\]]+)\]/g)].map((m) => m[1].split(",").map(Number));
+const [[casingBottom, casingShoulder] = [], [headBase, headTop] = []] = vertical;
+if (![casingWidth, projection, casingBottom, casingShoulder, headBase, headTop].every(Number.isFinite))
+  throw new Error("Casing dimensions are not parseable");
 const floorSource = fs.readFileSync(path.join(root, "src/spaces/storeys.ts"), "utf8");
 const upperFloor = Number(/upperFloor:\s*(\d+(?:\.\d+)?)/.exec(floorSource)?.[1]);
 if (!Number.isFinite(upperFloor)) throw new Error("Upper storey datum is not parseable");
@@ -102,6 +105,8 @@ const casingOverrides = modelBody.replace(/<!--[\s\S]*?-->/g, "").split(/\r?\n/)
     return id && xs.length && zs.length ? [{ id, x: xs[0], z: zs[0] }] : [];
   });
 const failures = [];
+if (Math.abs(casingBottom) > 1e-8) failures.push(`Casing feet float above or penetrate the room floor by ${casingBottom} m`);
+if (Math.abs(casingShoulder - headBase) > 1e-8) failures.push("Casing head and vertical boards do not meet by face");
 let reservationIntersections = 0;
 let partitionIntersections = 0;
 for (const door of doors) {
@@ -110,8 +115,8 @@ for (const door of doors) {
   /** @type {Span[]} */
   const faces = [[across[0] - projection, across[0]], [across[1], across[1] + projection]];
   /** @type {[number,number,number,number][]} */
-  const strips = [[from - casingWidth, from, 0, 2.2], [to, to + casingWidth, 0, 2.2],
-    [from - casingWidth, to + casingWidth, 2.2, headTop]];
+  const strips = [[from - casingWidth, from, casingBottom, casingShoulder], [to, to + casingWidth, casingBottom, casingShoulder],
+    [from - casingWidth, to + casingWidth, headBase, headTop]];
   for (const dep of faces) for (const [a, b, low, high] of strips) {
     /** @type {Span} */
     let x = axis === "z" ? dep : [a, b];

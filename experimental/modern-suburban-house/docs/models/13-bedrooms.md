@@ -34,7 +34,7 @@
 ## 협탁과 등 {#nightstand-lamp}
 <!--
 @evidence principles/core/common.md#scope-preservation 주침실 두 협탁과 두 작은 침실의 협탁 하나씩을 S·T·U 세 인자의 한 원형으로 받아 등까지 포함한다.
-@evidence principles/core/common.md#substantive-completion 등 받침 지름 0.14 m, 갓 지름 0.25 m·높이 0.22 m 원뿔대, 서랍 전면이 상면 아래 0.15 m라는 치수를 확정한다.
+@evidence principles/core/common.md#substantive-completion 등 받침 지름 0.14 m와 상판 중심 (0,S/2), 갓 지름 0.25 m·높이 0.22 m 원뿔대, 서랍 전면 X=[−S/2+0.04,S/2−0.04]·Y=[T−0.20,T−0.05]·Z=[S−0.02,S] m를 확정한다 몸통·서랍의 국소 X/Y/Z 범위와 등 받침 중심 (0,S/2)을 정한다.
 @evidence principles/core/common.md#declared-basis S·T·U는 방 예약 링크의 값이고 서랍 전면이 강체인 근거를 방 문서가 협탁 서랍 작동을 예약하지 않았다는 데 둔다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 방 예약은 협탁 외곽과 상면·등 상단 높이만 주고 이 H2는 몸통·서랍 전면·등 받침·기둥·갓 부품 구성과 갓 상단을 U에 맞추는 결정을 더한다.
 @evidence principles/design/models.md#representation-contract 몸통, 강체 서랍 전면, 등 받침·기둥·원뿔대 갓 계층과 `carcass`·`drawer-front`·`lamp-base`·`lamp-shade` 경계를 두고 빛 방출은 lighting 소유로 넘긴다. 보이지 않는 한계는 본문의 "등 전선·스위치·갓의 반투명은 표현하지 않는다."로 밝힌다.
@@ -57,10 +57,12 @@
 
 부품은 몸통, 서랍 전면 하나, 등 받침, 등 기둥, 갓이다. 서랍 전면은 상면 아래 0.15 m 높이이며 방 문서가 협탁 서랍 작동을 예약하지 않으므로 강체다. 등은 지름 0.14 m·높이 0.025 m 받침, 지름 0.018 m 기둥, 하단 지름 0.25 m·상단 지름 0.16 m·높이 0.22 m 원뿔대 갓이다. 갓 상단은 U, 갓 하단은 U − 0.22 m, 기둥은 받침 상단부터 갓 하단까지 이어진다. 재질 경계는 `carcass`, `drawer-front`, `lamp-base`, `lamp-shade`다. 빛 방출은 lighting 소유다. 등 전선·스위치·갓의 반투명은 표현하지 않는다. 소스 owner는 `src/models/furnishings/bedrooms.ts`다. 관찰은 측면에서 T와 U, 위에서 갓이 S 안에 드는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
 
+협탁 `carcass`는 로컬 X=[−S/2,S/2]·Z=[0,S]·Y=[0,T] m의 닫힌 상자에서 서랍 전면 자리를 비운다. `drawer-front` 한 장은 X=[−S/2+0.04,S/2−0.04]·Z=[S−0.02,S]·Y=[T−0.20,T−0.05] m의 두께 0.02 m 판이며 몸통 개구 절단면에 면으로 접한다. `lamp-base`의 지름 0.14 m 받침 중심은 협탁 윗면의 로컬 (X,Z)=(0,S/2)이고 바닥은 Y=T m다. 기둥과 `lamp-shade`는 그 중심축을 공유한다. 이 좌표는 S=0.45 m인 작은 협탁에서도 사방 0.155 m 이상 여백을 남긴다.
+
 ## 낮은 서랍장 {#low-dresser}
 <!--
 @evidence principles/core/common.md#scope-preservation 주침실의 낮은 서랍장 하나를 몸통·다리 넷·서랍 여섯까지 모델로 맡는다.
-@evidence principles/core/common.md#substantive-completion 길이 1.40 m, 깊이 0.50 m, 높이 0.80 m, 다리 0.08 m, 2열 × 3단 서랍·최대 인출 0.40 m와 돌출 없는 홈, 뒤 다리 Z=0.015 m·뒤판 Y=0.10 m 시작 및 옆판 하단 홈을 확정한다.
+@evidence principles/core/common.md#substantive-completion 길이 1.40 m, 깊이 0.50 m, 높이 0.80 m, 다리 0.04 m 각재·높이 0.08 m, X 두 열과 Y 세 단의 서랍 전면 좌표·최대 인출 0.40 m, 뒤 다리 Z=0.015 m·뒤판 Y=0.10 m 시작 및 옆판 하단 홈을 확정한다 0.04 m 다리 단면과 서랍 두 열·세 행의 국소 X/Y/Z 격자를 정한다.
 @evidence principles/core/common.md#declared-basis 외곽과 상면 0.80 m는 주침실 예약에서, 인출 0.40 m는 서랍 작동 예약 X = [-5.00, -4.60]과 같다는 근거로 정한다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 방 예약은 외곽과 서랍 작동 범위만 주고 이 H2는 2열 × 3단 분할, 홈 손잡이, 피벗 이름을 더한다.
 @evidence principles/design/models.md#representation-contract 몸통·다리·서랍 여섯 계층과 `carcass`·`drawer-front`·`handle`·`leg` 경계를 두고 손잡이를 돌출 없는 윗 모서리 홈으로 정한다. 보이지 않는 한계는 본문의 "서랍 레일·서랍 내부 칸막이는 표현하지 않는다."로 밝힌다.
@@ -82,10 +84,12 @@
 
 서랍장의 외곽 뒤 기준선과 앞 서랍 면은 유지한다. 뒤쪽 두 `leg`의 뒤 경계를 국소 Z=0.015 m에 두고, `carcass` 뒤판의 시작 높이는 Y=0.10 m로 올리며 두 옆판 하단 국소 Z=[0,0.015], Y=[0,0.10] m를 파낸다. 걸레받이와 홈이 맞대며 서랍 앞면·손잡이의 0.40 m 인출 끝, 상면 0.80 m, 깊이 0.50 m는 바뀌지 않는다.
 
+서랍장 `leg` 네 개는 0.04×0.04 m 각재로 로컬 X 중심 ±0.665 m, Z 중심 0.035·0.465 m, Y=[0,0.08] m에 둔다. 뒤 다리 끝 Z=0.015 m는 벽 걸레받이 앞면과 접하고 앞 다리 끝 Z=0.485 m는 외곽 0.50 m 안이다. 두 열의 `drawer-front`는 각각 X=[−0.67,−0.01]·[0.01,0.67] m이고, 세 단은 Y=[0.12,0.32]·[0.35,0.55]·[0.58,0.78] m다. 여섯 전면 판은 Z=[0.48,0.50] m에 있으며 몸통 `carcass`는 그 여섯 전면 자리를 뺀 닫힌 옆·뒤·윗판으로 만든다. 손잡이 홈은 각 판 가로 중심에 놓아 0.02 m 열 간격과 0.03 m 단 간격을 침범하지 않는다.
+
 ## 작은 책상 {#child-desk}
 <!--
 @evidence principles/core/common.md#scope-preservation 두 작은 침실의 책상을 길이 L 한 인자의 원형으로 받고 상판·다리·선반·소품까지 맡는다.
-@evidence principles/core/common.md#substantive-completion 깊이 0.60 m, 상면 0.75 m, 상판 0.03 m, 다리 0.04 m 각, 선반 0.10 m 높이, 소품을 상판 뒤쪽 0.25 m 안에 두는 값을 확정한다.
+@evidence principles/core/common.md#substantive-completion 깊이 0.60 m, 상면 0.75 m, 상판 0.03 m, 다리 0.04 m 각재의 X/Z 네 중심, 뒤 선반 X=[−L/2+0.06,L/2−0.06]·Z=[0.04,0.24]·Y=[0.62,0.72] m, 소품을 상판 뒤쪽 0.25 m 안에 두는 값을 확정한다 다리·윗선반의 국소 범위와 상판 높이 Y=[0.72,0.75] m를 정한다.
 @evidence principles/core/common.md#declared-basis L 1.20/1.15 m는 방 예약에서 받고 램프 대신 책 세 권 묶음과 연필꽂이를 둔다는 소품 선택은 이 H2의 저작 결정으로 적힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 방 예약은 책상 외곽만 주고 이 H2는 앞으로 열리지 않는 얕은 칸막이 선반과 무릎 공간 0.62 m를 더한다.
 @evidence principles/design/models.md#representation-contract 상판·다리 넷·칸막이 선반·소품 계층과 `top`·`leg`·`shelf`·`book`·`container`·`pencil` 경계를 두고 관절이 없다고 적는다. 보이지 않는 한계는 본문의 "책 표지·연필 개별 형상·상판 모따기는 표현하지 않는다."로 밝힌다.
@@ -107,6 +111,8 @@
 부품은 상판(0.03 m), 다리 넷(0.04 m 각), 상판 아래 앞으로 열리지 않는 얕은 칸막이 선반 하나(0.10 m 높이)다. 책상 소품은 램프 대신 0.20 × 0.14 × 0.025 m 책 세 권을 쌓아 높이 0.075 m로, 지름 0.065 m·높이 0.10 m 원통 연필꽂이 하나와 지름 0.006 m·높이 0.18 m 연필 넷을 상판 뒤쪽 0.25 m 안에 둔다. 책은 `book`, 컵은 `container`, 연필은 `pencil`이고 책상 구조는 `top`, `leg`, `shelf`다. 각 닫힌 면에는 이 여섯 id 중 하나를 붙이고 상판·책은 국소 가로 U·세로 V, 원통은 둘레 U·높이 V 미터 UV를 둔다. 관절은 없다. 책 표지·연필 개별 형상·상판 모따기는 표현하지 않는다. 소스 owner는 `src/models/furnishings/bedrooms.ts`다. 관찰은 측면에서 상판 아래 무릎 공간 0.62 m가 비어 있는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
 
 두 침실 책상은 뒤쪽 두 다리의 뒤 경계를 국소 Z=0.015 m로 옮겨 벽 걸레받이와 맞댄다. 상판·뒤 가로 선반은 Y=0.10 m보다 위에서만 벽 마감에 닿고 바닥으로 내려가는 다른 뒤 판은 만들지 않는다. 앞쪽 다리와 앞 상판 끝은 그대로라 두 방의 깊이 0.60 m와 의자 사용 영역은 줄지 않는다.
+
+책상 `top`은 로컬 X=[−L/2,L/2]·Z=[0,0.60]·Y=[0.72,0.75] m다. 네 `leg`는 0.04×0.04 m 각재로 X 중심 ±(L/2−0.04) m, Z 중심 0.035·0.565 m, Y=[0,0.72] m에 선다. 뒤 다리 끝 Z=0.015 m는 걸레받이 앞면과 맞대고 앞 다리 끝 Z=0.585 m는 외곽 안이다. `shelf`는 X=[−L/2+0.06,L/2−0.06]·Z=[0.04,0.24]·Y=[0.62,0.72] m의 뒤쪽 얕은 칸으로, 상판 밑면에 닿고 앞쪽 Z=[0.24,0.60] m에는 바닥부터 Y=0.72 m까지 무릎을 비운다. 무릎 공간 0.62 m는 선반 바로 앞/아래의 최저 통과 높이이며 선반을 앞쪽으로 늘리지 않는다.
 
 ## 책상 의자 {#desk-chair}
 <!--
@@ -134,7 +140,7 @@
 ## 미닫이 옷장 {#sliding-closet}
 <!--
 @evidence principles/core/common.md#scope-preservation 둘째·셋째 침실 옷장 두 예약을 한 원형으로 받고 문·전면 문선·봉·선반·옷까지 맡는다.
-@evidence principles/core/common.md#substantive-completion 폭 1.50 m·깊이 0.60 m·높이 2.20 m, 두 문 0.76×2.16×0.02 m, 몸통 앞끝 Z=0.49 m, 뒤/앞 레일 [0.50,0.52]/[0.55,0.57] m, 전면 문선 Z=[0.57,0.60] m, 봉 깊이 0.28 m·높이 1.65 m, 윗선반 1.85 m와 옷 18벌의 식을 정한다. 벽 앞 상자의 뒤 하단은 걸레받이를 비운다.
+@evidence principles/core/common.md#substantive-completion 폭 1.50 m·깊이 0.60 m·높이 2.20 m, 두 문 0.76×2.16×0.02 m, 몸통 앞끝 Z=0.49 m, 뒤/앞 레일 [0.50,0.52]/[0.55,0.57] m, 전면 문선 Z=[0.57,0.60] m, 봉 깊이 0.28 m·높이 1.65 m, 윗선반 1.85 m와 옷 18벌의 식을 정한다. 벽 앞 상자의 뒤 하단은 걸레받이를 비운다 바닥판과 옆판은 Z=[0.02,0.49] m, 뒤판은 Z=[0,0.02] m로 나뉘어 문 레일과 겹치지 않는다.
 @evidence principles/core/common.md#declared-basis 외곽과 -X 면 미닫이 문은 두 방 예약에서, 문·봉·선반 치수는 이 H2의 저작 값으로 적힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 방 예약은 옷장 외곽과 문 면만 주고 이 H2는 두 레일·미닫이 문, 봉·윗선반과 식으로 치수를 고정한 옷 18벌을 더한다.
 @evidence principles/design/models.md#representation-contract 몸통·두 문·봉·윗선반·옷·전면 문선 계층과 `carcass`·`leaf`·`handle`·`rail`·`rod`·`shelf`·`clothes`·`casing` 경계를 둔다. 미닫이 롤러·옷걸이 개별 형상·옷 주름은 표현하지 않는다.
@@ -155,7 +161,7 @@
 
 옷장은 [둘째 침실](../spaces/rooms/bedroom-two.md#bedroom-two-furniture-use) X = [-2.55, -1.95], Z = [-2.95, -1.45]와 [셋째 침실](../spaces/rooms/bedroom-three.md#bedroom-three-furniture-use) X = [4.90, 5.50], Z = [-2.80, -1.30]에 쓰는 한 원형이다. 두 예약 모두 폭 1.50 m, 깊이 0.60 m, 높이 2.20 m이고 -X 면에 미닫이 문을 둔다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르되 원점은 몸통 뒤면 바닥 중앙이고 +Z는 문 면이다.
 
-몸통은 로컬 X=[-0.75,0.75], Z=[0,0.60], Y=[0,2.20] m다. 옆판·뒤판·바닥판·상판은 두께 0.02 m이며 옆판은 X 양끝, 뒤판은 Z=[0,0.02], 바닥판은 Y=[0,0.02], 상판은 Y=[2.18,2.20] m에 놓인다. 앞 왼쪽 문 `door-front`의 닫힌 X=[-0.75,0.01], 깊이 Z=[0.55,0.57] m이고 뒤 오른쪽 문 `door-back`의 닫힌 X=[-0.01,0.75], Z=[0.50,0.52] m다. 각 문은 폭 0.76 m·높이 2.16 m·두께 0.02 m이며 Y=[0.01,2.17] m다. 두 문의 닫힌 겹침은 0.02 m이고 기준 상태는 둘 다 닫힘이다. 앞 문은 +X, 뒤 문은 -X로 각각 0–0.72 m만 움직여 바깥 가로·깊이 범위를 넘지 않는다. 두 깊이마다 폭 0.02 m의 직사각 레일을 바닥 Y=[0,0.01] m와 상부 Y=[2.17,2.20] m에 두고 길이는 몸통 폭 1.50 m다. 몸통 속 옷걸이 봉은 뒤에서 Z=0.28 m, Y=1.65 m에 둔 지름 0.03 m 원통이고, 윗선반은 상면 1.85 m·두께 0.025 m·깊이 0.45 m다. 문짝의 손잡이는 만남선에서 각 바깥쪽으로 0.06 m, 바닥 위 1.05 m 중심의 폭 0.10 m·높이 0.025 m·깊이 0.008 m 오목 홈이라 외곽을 늘리지 않는다.
+몸통은 로컬 X=[-0.75,0.75], Z=[0,0.60], Y=[0,2.20] m다. 옆판·뒤판·바닥판·상판은 두께 0.02 m이며 뒤판만 Z=[0,0.02] m의 전폭을 채운다. 두 옆판은 X 양끝·Z=[0.02,0.49] m, 바닥판은 Z=[0.02,0.49]·Y=[0,0.02] m, 상판은 Z=[0.02,0.49]·Y=[2.18,2.20] m에 놓여 뒤판과 면으로만 만난다. 앞 왼쪽 문 `door-front`의 닫힌 X=[-0.75,0.01], 깊이 Z=[0.55,0.57] m이고 뒤 오른쪽 문 `door-back`의 닫힌 X=[-0.01,0.75], Z=[0.50,0.52] m다. 각 문은 폭 0.76 m·높이 2.16 m·두께 0.02 m이며 Y=[0.01,2.17] m다. 두 문의 닫힌 겹침은 0.02 m이고 기준 상태는 둘 다 닫힘이다. 앞 문은 +X, 뒤 문은 -X로 각각 0–0.72 m만 움직여 바깥 가로·깊이 범위를 넘지 않는다. 두 깊이마다 폭 0.02 m의 직사각 레일을 바닥 Y=[0,0.01] m와 상부 Y=[2.17,2.20] m에 두고 길이는 몸통 폭 1.50 m다. 몸통 속 옷걸이 봉은 뒤에서 Z=0.28 m, Y=1.65 m에 둔 지름 0.03 m 원통이고, 윗선반은 상면 1.85 m·두께 0.025 m·깊이 0.45 m다. 문짝의 손잡이는 만남선에서 각 바깥쪽으로 0.06 m, 바닥 위 1.05 m 중심의 폭 0.10 m·높이 0.025 m·깊이 0.008 m 오목 홈이라 외곽을 늘리지 않는다.
 
 걸린 옷은 18벌이다. 순번 i=0…17에 두께 `0.035+0.005×(i mod 3)` m, 앞뒤 폭 0.38 m, 어깨 아래 길이 `0.85+0.05×(i mod 3)` m를 준다. 여섯 주기 두께 합은 `6×(0.035+0.040+0.045)=0.720` m이므로 봉 중앙에서 X=[-0.36,0.36] m에 순서대로 걸고 양끝 0.39 m씩 비운다. 각 옷의 깊이 중심은 봉 Z=0.28 m로 Z=[0.09,0.47] m여서 뒤 문 안쪽 Z=0.50 m보다 0.03 m 앞에서 멈춘다. 어깨는 봉 아래 0.05 m인 Y=1.60 m, 가장 긴 옷의 아랫끝은 Y=0.65 m다. 옷은 어깨가 둥근 닫힌 얇은 부피이고 옷걸이·소매·주름은 표현하지 않는다. 재질 경계는 `carcass`, `leaf`, `handle`, `rail`, `rod`, `shelf`, `clothes`다. 소스 owner는 `src/models/furnishings/bedrooms.ts`다. 관찰은 닫힘·각 문 최대 열림에서 문과 옷이 몸통 밖으로 나오지 않는지다. 실제 source·프레임은 unverified다.
 

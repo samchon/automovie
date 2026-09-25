@@ -86,7 +86,7 @@
 ## 짙은 책장과 책 {#dark-bookcase}
 <!--
 @evidence principles/core/common.md#scope-preservation 거실 책장 예약을 외곽으로 받아 몸체 판재, 선반 다섯, 책 묶음, 재질 경계, 관찰, 소스 owner를 이 H2에서 정한다.
-@evidence principles/core/common.md#substantive-completion 옆판·윗판 0.02 m, 뒤판 0.01 m, 책장 plinth 0.08 m와 벽 걸레받이용 뒤 하단 홈, 선반 상면 0.20·0.55·0.90·1.25·1.60 m, 25권씩의 시드 1952 책 두께·높이·깊이와 칸 폭 77.6–78.6 % 채움을 본문 식으로 정한다.
+@evidence principles/core/common.md#substantive-completion 옆판·윗판 0.02 m, 뒤판 0.01 m, 책장 plinth 0.08 m와 벽 걸레받이용 뒤 하단 홈, 선반 상면 0.20·0.55·0.90·1.25·1.60 m, 25권씩의 시드 1952 책 두께·높이·깊이와 국소 깊이 Z=[0.12,0.32] m, 칸 폭 77.6–78.6 % 채움을 본문 식으로 정한다 책 깊이 Z=[0.12,0.32] m와 선반 앞끝 0.03 m 여유를 정한다.
 @evidence principles/core/common.md#declared-basis 외곽과 선반 산출 규칙(0.20 m부터 0.35 m 간격)은 방 문서에서 상속하고, 판 두께·책 치수 범위·고정 시드 산출은 부모 링크 없이 이 H2가 새로 정한 값으로 적는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 방 문서는 외곽과 선반 상면 산출 규칙을 주고 이 H2는 판재 구성, 선반 두께 0.02 m를 상면 아래로 두는 규칙, 고정 시드 책 묶음과 그 채움 비율을 더한다.
 @evidence principles/design/models.md#representation-contract 옆판 둘·뒤판·윗판·걸레받이·선반 다섯의 부품, 책장에 고정된 자식 부품인 책, 문 없는 열린 선반, 책이 몸체 깊이 안에 있어 전면 밖으로 나오지 않는다는 점유 경계를 정한다.
@@ -110,7 +110,7 @@
 
 책장 외곽의 뒤 기준선은 벽에 두되 `carcass`의 뒤판은 Y=0.10 m에서 시작하고 두 옆판은 국소 Z=[0,0.015], Y=[0,0.10] m를 파낸다. 높이 0.08 m의 책장 `plinth`는 뒤 끝을 Z=0.015 m에 두어 벽 걸레받이와 나란히 맞대며, 앞면은 원래 0.35 m 깊이 끝에 남긴다. 선반·책은 움직이지 않고 외곽 1.00×0.35×1.90 m 및 다섯 선반 높이도 보존한다. 책장 자체 plinth와 벽 `wall-baseboard`는 다른 닫힌 부재다.
 
-각 `shelf`는 책장 안쪽 폭 0.96 m·깊이 0.34 m·두께 0.02 m의 닫힌 판이며 상면은 0.20+0.35s m(s=0…4)다. 각 `book`은 위의 인덱스 i와 시드 1952 식에서 나온 두께 0.025–0.035 m·높이 0.20–0.28 m·깊이 0.20 m의 개별 닫힌 상자다. 다섯 묶음 모두 선반 안쪽 X 시작에서 0.02 m 띄우고 앞면은 선반 앞끝보다 뒤에 둔다.
+각 `shelf`는 책장 안쪽 폭 0.96 m·깊이 0.34 m·두께 0.02 m의 닫힌 판이며 상면은 0.20+0.35s m(s=0…4)다. 각 `book`은 위의 인덱스 i와 시드 1952 식에서 나온 두께 0.025–0.035 m·높이 0.20–0.28 m·깊이 0.20 m의 개별 닫힌 상자다. 다섯 묶음 모두 선반 안쪽 X 시작에서 0.02 m 띄우고 국소 깊이 Z=[0.12,0.32] m로 놓아 뒤판 앞면 Z=0.01 m와 0.11 m 떨어지고 선반 앞끝 Z=0.35 m에서 0.03 m 물린다. 다섯 묶음의 책은 이 깊이에서 선반 윗면에 접한다.
 
 ## 얇은 바닥 깔개 {#floor-covering}
 <!--
@@ -141,7 +141,7 @@
 ## 벽난로의 검은 화구와 목재 선반 {#fireplace-insert-mantel}
 <!--
 @evidence principles/core/common.md#scope-preservation spaces가 만든 벽돌 앞면과 굴뚝을 복제하지 않고 그 앞면의 실제 빈 화구 속과 상부 목재 선반만 맡는다.
-@evidence principles/core/common.md#substantive-completion 화구 폭 1.04 m·높이 0.64 m·깊이 0.55 m, 검은 안쪽 판 두께 0.025 m, 선반 1.60 × 0.55 × 0.10 m를 정한다.
+@evidence principles/core/common.md#substantive-completion 화구 폭 1.04 m·높이 0.64 m·깊이 0.55 m, 검은 안쪽 판 두께 0.025 m, 선반 1.60 × 0.55 × 0.10 m를 정한다 화구 전면 테의 X=[−0.52,0.52]·Y=[0.23,0.87]·Z=[−0.015,0] m와 속 빈 사각 테의 폭까지 정한다.
 @evidence principles/core/common.md#declared-basis settings/10-house.md#living의 검은 화구·벽돌 본체·목재 선반 구분과 spaces/envelope/left.md#chimney-roof-interface의 실내 앞면 예약에서 치수를 받는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 빈 벽돌 상자 대신 실제 화구 void 안의 검은 다섯 면과 바로 위 선반을 별도 원형으로 결정한다.
 @evidence principles/design/models.md#representation-contract 화구의 뒤·좌우·위·아래 다섯 닫힌 금속판은 `firebox`, 전면 얇은 테는 `firebox-trim`, 목재 선반의 모든 면은 `mantel`로 덮는다. 불꽃과 실제 연도는 만들지 않는다.
@@ -159,3 +159,4 @@
 [거실 조건](../settings/10-house.md#living)은 검은 화구·벽돌 본체·목재 선반을 구별한다. 벽돌 앞면과 굴뚝은 [왼쪽 입면 owner](../spaces/envelope/left.md#chimney-roof-interface)가 지었고, 화구 자리만 빈다. 이 원형의 국소 원점은 화구 아래 가운데의 벽돌 앞면이고 +Z는 거실 쪽, +X는 화구 가로, +Y는 위다. 화구 void는 폭 1.04 m, 높이 0.64 m, 바닥 위 0.23–0.87 m, 깊이 0.55 m다. 뒤·좌우·위·아래에 각각 두께 0.025 m의 닫힌 검은 금속 판을 놓되 판의 외곽은 void를 넘지 않는다. 전면 테는 폭 0.025 m, 두께 0.015 m이며 벽돌 앞면 안으로 물려 거실 쪽으로 돌출하지 않는다. 내부에서 벽돌과 화구가 함께 보이게 하는 것이 목적이고 불꽃·연도·연소는 구현하지 않는다.
 
 목재 선반은 벽돌 앞면 전체 폭 1.60 m, 깊이 0.55 m, 높이 0.10 m다. 바닥 위 Y = [1.30, 1.40] m를 채워 그 아래 벽돌 상단과 한 경계에서 만난다. 상면·아래면·네 옆면 모두 `mantel`, 금속 내부 판 모든 면은 `firebox`, 전면 테 모든 면은 `firebox-trim`이다. 목재 결을 위한 UV는 가로를 U·깊이를 V로, 검은 판은 각 판 국소 가로·세로를 미터로 투영한다. 위치와 크기는 [실내 앞면 예약](../spaces/envelope/left.md#chimney-roof-interface) 안이며 벽난로 앞 0.90 m 통로까지 늘어나지 않는다. 소스 owner는 `src/models/furnishings/living.ts`; [모델 고정 뷰](00-model-frame.md#model-review-set)와 레퍼런스 04의 거실 정면에서 검은 중심·벽돌·목재 세 재료를 대조한다. 실제 source와 렌더는 unverified다.
+`firebox-trim`은 화구 입구의 벽돌 앞면을 국소 Z=0으로 할 때 Z=[−0.015,0] m의 얇은 네 판 링이다. 바깥 X=[−0.52,0.52] m·Y=[0.23,0.87] m, 안쪽 X=[−0.495,0.495] m·Y=[0.255,0.845] m를 비워 폭 0.025 m를 만들고 네 판의 만나는 끝은 45° 맞댐으로 나눈다. 테의 뒤면은 내부 금속판 입구에 면으로 닿고 앞면은 벽돌 앞면 밖으로 돌출하지 않는다.

@@ -93,7 +93,7 @@
 ## 수건걸이와 수건 {#towel-bar}
 <!--
 @evidence principles/core/common.md#scope-preservation 폭 W·높이 H를 받는 수건걸이와 걸린 수건 원형으로 세 방 배치를 맡고 수건 주름은 표현하지 않는다.
-@evidence principles/core/common.md#substantive-completion 봉 지름 0.02 m, 봉 앞면 벽에서 0.05 m·수건 앞면 0.08 m, 예약 상단 0.03 m 아래, 두께 0.03 m 수건 판 둘이 봉 폭의 90 %를 덮고 예약 하단까지 내려온다고 정한다.
+@evidence principles/core/common.md#substantive-completion 봉 지름 0.02 m, 봉 앞면 벽에서 0.05 m·수건 앞면 0.08 m, 예약 상단 0.03 m 아래, 두께 0.03 m 수건 판 둘이 봉 폭의 70 %를 덮고 예약 하단까지 내려온다고 정한다.
 @evidence principles/core/common.md#declared-basis W·H 세 쌍(0.50/0.30 m, 0.25/0.40 m, 0.75/0.40 m)은 방 예약의 폭과 높이 범위에서 왔고 걸린 수건까지 돌출 0.08 m 안에 담는다는 한계를 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 세 방의 수건 예약 상자에 벽 받침 둘·가로 봉·앞뒤 두 판으로 접은 수건이라는 부품 결정을 더한다.
 @evidence principles/design/models.md#representation-contract 벽 받침 둘, 가로 봉, 걸린 수건의 부품과 표면 id `bracket`, `rod`, `towel`을 두고 주름은 이 프록시가 주장하지 않는다.
@@ -114,9 +114,9 @@
 
 수건걸이는 폭 W와 높이 H를 받는 한 원형이며 걸린 수건까지 돌출 0.08 m 안에 담는다. [파우더룸](../spaces/rooms/powder.md#powder-fixture-use) X = [4.40, 4.90], 높이 1.20–1.50 m는 W = 0.50 m, H = 0.30 m이고, [샤워 욕실](../spaces/rooms/shower-bath.md#shower-fixture-use) X = [2.20, 2.45], 상층 바닥 위 1.10–1.50 m는 W = 0.25 m, H = 0.40 m이며, [욕조 욕실](../spaces/rooms/tub-bath.md#tub-fixture-use) Z = [-6.85, -6.10], 상층 바닥 위 1.10–1.50 m는 W = 0.75 m, H = 0.40 m다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르되 벽걸이 원형이므로 원점을 벽면 위 예약 하단의 가로 중심에 둔다.
 
-부품은 벽 받침 둘, 가로 봉, 걸린 수건이다. 가로 봉의 표면 id는 `rod`다. 봉은 지름 0.02 m이고 중심이 벽에서 0.04 m라 봉 앞면이 0.05 m에 오며, 예약 상단 0.03 m 아래에 둔다. 돌출 0.08 m는 벽면에서 앞쪽 수건 판의 앞면까지 잰 값이며 봉 앞면 0.05 m에 수건 두께 0.03 m를 더해 정확히 0.08 m다. 벽 받침 둘은 지름 0.03 m 원판과 짧은 팔이며 표면 id는 `bracket`이다. 수건은 봉에 반으로 접어 건 두께 0.03 m의 판 둘(앞뒤)로 봉 폭의 90 %를 덮고 예약 하단까지 내려온다. 표면 id는 `rod`, `bracket`, `towel`이다. 주름은 표현하지 않는다. 소스 owner는 `src/models/furnishings/bathrooms.ts`다. 관찰은 측면에서 수건 앞면이 벽에서 0.08 m 안인지다. 모든 관찰은 unverified다.
+부품은 벽 받침 둘, 가로 봉, 걸린 수건이다. 가로 봉의 표면 id는 `rod`다. 봉은 지름 0.02 m이고 중심이 벽에서 0.04 m라 봉 앞면이 0.05 m에 오며, 예약 상단 0.03 m 아래에 둔다. 돌출 0.08 m는 벽면에서 앞쪽 수건 판의 앞면까지 잰 값이며 봉 앞면 0.05 m에 수건 두께 0.03 m를 더해 정확히 0.08 m다. 벽 받침 둘은 지름 0.03 m 원판과 짧은 팔이며 표면 id는 `bracket`이다. 수건은 봉에 반으로 접어 건 두께 0.03 m의 판 둘(앞뒤)로 봉 폭의 70 %를 덮고 예약 하단까지 내려온다. 표면 id는 `rod`, `bracket`, `towel`이다. 주름은 표현하지 않는다. 소스 owner는 `src/models/furnishings/bathrooms.ts`다. 관찰은 측면에서 수건 앞면이 벽에서 0.08 m 안인지다. 모든 관찰은 unverified다.
 
-두 `bracket`의 원판 두께는 0.006 m이고 중심은 봉 양끝에서 안쪽 0.03 m다. 각 팔은 지름 0.012 m·길이 0.034 m의 원통으로 벽면 법선에 따라 원판 앞면 0.006 m부터 봉 축 0.040 m까지 뻗는다. 팔 끝은 봉 옆면에 맞대며 수건 앞면 0.08 m 한도를 넘지 않는다.
+두 `bracket`의 원판 두께는 0.006 m이고 중심은 봉 양끝에서 안쪽 0.015 m다. 각 팔은 지름 0.012 m·길이 0.024 m의 원통으로 벽면 법선에 따라 원판 앞면 0.006 m부터 봉 뒷면 0.030 m까지 뻗는다. 팔 끝은 봉 뒷면에 맞대며, 좁은 W=0.25 m에서도 수건의 양끝 여백 0.15W=0.0375 m가 받침 원판의 안쪽 끝 0.030 m보다 0.0075 m 더 안쪽이라 수건 판과 받침은 겹치지 않고, 수건 앞면 0.08 m 한도를 넘지 않는다.
 
 ## 미닫이 유리 샤워부스 {#sliding-shower-booth}
 <!--
@@ -184,7 +184,7 @@
 @evidence principles/design/models.md#spatial-convention 선형 부재 예외로 원점을 뒤쪽 벽에 닿는 레일 끝의 높이 2.05 m 점에 두고, 벽에서 욕조 뒤끝까지 0.10 m는 고정 부착 구간으로 비우며 +Z를 레일 방향, yaw 0으로 로컬 +Z = world +Z라고 적는다.
 @evidence principles/design/models.md#reviewable-structure 펼친 상태와 걷은 상태의 사선 투시에서 커튼이 욕조 사용 범위로 늘어지지 않는지가 반증 관찰이다.
 @evidence principles/design/models.md#model-observable-style-basis 라벨 없이 지름 0.025 m 원형 레일과 꺾인 판 주름이라는 추상화 수준만 정한다.
-@evidence principles/design/models.md#model-scale-layer-completion 레일 전체 길이 1.90 m와 커튼 사용 길이 1.80 m·높이 2.05 m, 천장까지 내려오는 매달림 봉, `curtain-open` 인터페이스, 두 상태 관찰이 함께 커튼 블로킹을 결정한다.
+@evidence principles/design/models.md#model-scale-layer-completion 레일 전체 길이 1.80 m와 커튼 사용 길이 1.80 m·높이 2.05 m, 천장까지 내려오는 매달림 봉, `curtain-open` 인터페이스, 두 상태 관찰이 함께 커튼 블로킹을 결정한다.
 @evidence upstream/design/models.md#settings-and-space-revision-from-model-work 기존 레일이 욕조 전면보다 건조한 통로 쪽 0.08 m에 있어 커튼이 물을 욕조 밖으로 흘릴 수 있고 원형 점유 띠도 없었다. spaces/rooms/tub-bath.md#tub-fixture-use를 욕조 안쪽 0.04 m와 폭 0.10 m 띠로 정정하고 이 H2는 그 띠를 소비한다.
 @evidence spaces/rooms/tub-bath.md#tub-fixture-use 욕조 욕실 사용 예약의 물 쪽 0.04 m 레일·폭 0.10 m 띠·높이 2.05 m와 욕조 길이 1.80 m를 레일 원점과 점유 범위로 소비한다.
 @evidence settings/10-house.md#tub-bathroom 욕조 욕실 설정이 기능 표지로 든 curtain rail/커튼을 지름 0.025 m 레일과 `curtain-open`으로 펼침 길이가 바뀌는 커튼 판으로 제공한다.

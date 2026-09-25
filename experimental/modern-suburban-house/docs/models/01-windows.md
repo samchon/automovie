@@ -22,7 +22,7 @@
 ## 창틀·sash·mullion·살대의 부재 치수 {#window-member-sizes}
 <!--
 @evidence principles/core/common.md#scope-preservation frame 0.06·sash 0.05·mullion 0.08·살대 0.025 m 부재 폭과 칸 폭 산출식, 깊이 배분, 유리 법선·UV를 이 H2가 맡는다.
-@evidence principles/core/common.md#substantive-completion 칸 폭 = (거친 폭 - 2×0.06 - (칸 수-1)×0.08)/칸 수와 0.30 m 미만 실패 조건, 계단 창 유리 폭 0.56 m 산출을 적는다.
+@evidence principles/core/common.md#substantive-completion 칸 폭 = (거친 폭 - 2×0.06 - (칸 수-1)×0.08)/칸 수와 0.30 m 미만 실패 조건, 계단 창 유리 폭 0.56 m 산출을 적는다 유리 Z=[−0.113,−0.107] m와 sash Z=[−0.13,−0.08] m의 구멍·접면까지 정한다.
 @evidence principles/core/common.md#declared-basis 부재 폭 근거를 settings/20-verification.md#visual-grammar의 charcoal 창틀과 #frame-condition의 외부 기본 view, 계단 창 폭 0.78 m에서 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation settings openings의 '두께 있는 frame·sash·유리·살대'를 네 부재 폭과 유리 두께 0.006 m라는 모델 결정으로 바꾼다.
 @evidence principles/design/models.md#representation-contract 부재 폭·깊이와 유리를 닫힌 얇은 상자(양면 바깥 법선)로 정하고, 금속 프레임은 부재 길이를 U로 한 미터 UV를 낸다.
@@ -38,6 +38,7 @@
 레퍼런스 01의 넓은 전면 창과 좁은 계단 창에 공통인 검은 테를 채택한다. 서로 다른 창폭에 맞는 유리 순폭은 예약별 산술로 정한다.
 
 spaces와 settings가 부재 폭을 정하지 않았으므로 frame 둘레 입면 폭 0.06 m, sash 둘레 0.05 m, 칸 사이 mullion 0.08 m, 살대 0.025 m를 모델 결정으로 택한다. 근거는 [공통 재료와 외피 인상](../settings/20-verification.md#visual-grammar)의 짙은 charcoal 창틀이 흰 trim 안쪽에서 선으로 읽혀야 하고 [리뷰 프레임 조건](../settings/20-verification.md#frame-condition)의 외부 기본 view에서도 frame과 sash가 구별돼야 한다는 점, 그리고 가장 작은 [계단 창](../spaces/envelope/front.md#stair-front-window) 폭 0.78 m에서도 유리 폭이 0.56 m 남는다는 산출이다. 칸 폭은 (거친 폭 - 2 × 0.06 - (칸 수 - 1) × 0.08) / 칸 수이고 이 값이 0.30 m 미만이면 실패로 보고한다. 깊이는 frame 0.14 m 전부, sash 0.05 m, 유리는 두께 0.006 m 판 하나다. 유리는 앞뒤 면이 각각 바깥 법선을 갖는 닫힌 얇은 상자로 만들어 실내외 양쪽 view에서 같은 판이 보이게 한다. 창틀·sash·살대는 면마다 평면 법선을 쓰고, [charcoal 미세결](../materials/01-exterior.md#window-frame-charcoal)이 붙을 수 있도록 각 직선 부재의 시작 모서리를 원점으로 길이 U·부재 폭 V를 미터 단위로 기록하며 맞댐에서 끊는다. 유리 앞뒤 면에는 창 유리판의 왼쪽 아래를 원점으로 가로 U·세로 V를 미터 단위로 기록한다. 소스 owner는 `src/models/windows.ts`이며 정면 직교 뷰에서 부재 폭을 잰다.
+유리 `glass`는 날씨 면을 국소 Z=0으로 하는 공통 깊이에서 Z=[−0.113,−0.107] m에 놓고, `sash`는 Z=[−0.13,−0.08] m 안에서 그 유리 외곽을 둘러싼다. 유리가 점유하는 사각형은 sash 안쪽의 유리 순폭·순높이이며 그 자리의 sash 면은 실제 구멍으로 비운다. 욕조 경첩창의 `awning-sash`도 닫힌 깊이 Z=[−0.13,−0.08] m이고 위쪽 회전축은 그 날씨 쪽 윗모서리 Z=−0.08 m다.
 
 ## 살대 격자 {#window-muntin-grid}
 <!--
@@ -118,7 +119,7 @@ motion 인터페이스는 각 `lower-sash`의 국소 +Y 평행 이동 하나이�
 ## 욕조 욕실의 상부 경첩창 {#awning-window}
 <!--
 @evidence principles/core/common.md#scope-preservation 욕조 욕실 창 한 칸의 상부 경첩창 계층, 경첩 축, 열림 범위, 흐린 유리 표면을 이 H2가 맡는다.
-@evidence principles/core/common.md#substantive-completion 경첩 축을 sash 위 변 바깥 모서리의 국소 X 평행선으로, 범위를 0~π/8 rad로 정하고 sash 높이 0.63 m에서 바깥 돌출 0.2411 m를 산출해 부모 0.25 m 예약과 비교한다.
+@evidence principles/core/common.md#substantive-completion 경첩 축을 sash 위 변 바깥 모서리의 국소 X 평행선으로, 범위를 0~π/8 rad로 정하고 sash 높이 0.63 m에서 바깥 돌출 0.2411 m를 산출해 부모 0.25 m 예약과 비교한다 닫힌 경첩창 sash Z=[−0.13,−0.08] m와 날씨 쪽 위 모서리의 회전축도 고정한다.
 @evidence principles/core/common.md#declared-basis 개구부와 흐린 유리 배정은 spaces/envelope/right.md#tub-right-window와 spaces/06-openings.md#external-opening-interface에서 받는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 06의 '높은 욕실 창은 흐린 유리의 상부 경첩창'을 위 변 축 회전과 부모의 바깥 점유 0.25 m를 지키는 π/8 상한이라는 모델 관절로 바꾼다.
 @evidence principles/design/models.md#representation-contract frame 아래 awning-sash 하나와 obscured-glass 표면을 정한다.
