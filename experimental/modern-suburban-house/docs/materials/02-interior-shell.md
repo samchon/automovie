@@ -56,7 +56,7 @@
 
 [03–05의 흰 실내 문선 및 패널문](../settings/10-house.md#openings)과 계단의 [흰 챌판과 기둥](../settings/10-house.md#stair)이다. 구성은 반광 도장한 목재·MDF 부재이며 패널 분절은 모델 geometry가 만든다. 외관은 도막을 근사하는 `#F4F2EC`(선형 0.905, 0.888, 0.839), roughness 0.35, metallic 0.0, transmission 0.0이다. 결합 면은 [실내 문의 표면 파티션](../models/03-interior-doors.md#interior-door-surfaces)의 `leaf`·`leaf-panel`·`jamb-a`·`jamb-b`·`jamb-core`·`casing-a`·`casing-b`, 현관문 `casing`, [벽 걸레받이 원형](../models/06-interior-trim.md#wall-baseboard)의 `wall-baseboard`, 창 안쪽 `interior-sill`([창의 표면 파티션](../models/01-windows.md#window-surface-partitions)), 계단 챌판과 난간 기둥, [외투장](../models/05-closet-fittings.md#coat-closet-doors)·[린넨장](../models/05-closet-fittings.md#linen-closet-fittings) 문짝과 선반, 외투장 [봉과 선반](../models/05-closet-fittings.md#coat-closet-rod-shelf)의 `shelf`다. source owner는 `src/materials/interior/trim.ts`이고, 리뷰는 05의 복도 view에서 흰 문짝과 문선이 벽과 분리되고 반광 하이라이트가 벽보다 좁은지를 관찰한다.
 
-창의 안쪽 `interior-sill`, 외투장·린넨장과 미닫이 옷장의 흰 몸통 `carcass`도 이 반광 도장을 받는다. 검은 레일·봉·손잡이에는 결합하지 않는다.
+창의 안쪽 `interior-sill`과 미닫이 옷장의 흰 몸통 `carcass`도 이 반광 도장을 받는다. 외투장·린넨장은 spaces의 벽 속 수납 개구부여서 별도 `carcass` 메시가 없고 문짝 `leaf`·`leaf-panel`과 선반 `shelf`만 받는다. 검은 레일·봉·손잡이에는 결합하지 않는다.
 
 표면 결속 계획: 실내 문선·걸레받이·패널 문짝의 도장 솔결은 부재 길이 U의 0.10 m 모듈이다. 각 파티션의 시작 모서리를 원점으로 하고 패널 오목부·문짝 가장자리에서 결 방향과 이음을 새로 잡는다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
 

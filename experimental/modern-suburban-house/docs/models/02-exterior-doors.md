@@ -9,8 +9,8 @@
 @evidence principles/design/models.md#representation-contract door→jamb·exterior-trim·casing·hinge-pivot→leaf·muntin·glass·handle 계층을 정하며 문턱판은 만들지 않는다.
 @evidence principles/design/models.md#spatial-convention 원점 면을 전면 벽 날씨 면으로, 경첩을 +X 문설주, 열림을 실내 -Z로 적는다.
 @evidence principles/design/models.md#reviewable-structure 포치 정면과 현관 threshold view에서 순폭과 유리 구간을 반증한다.
-@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 01·04의 목재 현관문, 위쪽 세 열·두 행 유리 여섯 칸, 아래쪽 판을 채택한다. 목재 문짝이 유리 액자가 아닌 목재 틀로 읽히도록 stile/rail 0.12 m를 정한다.
-@evidence principles/design/models.md#model-scale-layer-completion 순폭 척도와 유리·목재 층, 경첩 인터페이스를 함께 정한다.
+@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 01의 현관문 위쪽 세 열·두 행 유리 여섯 칸과 아래쪽 목재 판을 채택한다. 레퍼런스 04에서는 목재 문짝과 흰 실내 문선의 관계만 받는다. stile/rail 0.12 m와 양쪽 trim의 별도 판을 정한다.
+@evidence principles/design/models.md#model-scale-layer-completion 순폭·유리·목재·경첩과 안팎 문선 세 판의 폭·돌출·끝점을 정한다.
 @evidence obligations/design/models.md#articulation-ownership 현관문 hinge-pivot의 0~π/2 rad 회전을 motion 인터페이스로, 기준 상태를 닫힘 0으로 정한다.
 @evidence spaces/rooms/entry.md#entry-plan X = [0.40, 1.40], Y = [0, 2.20] m 개구부와 +X 경첩·실내 -Z 열림·0.90 m 목표를 문짝 치수와 관절로 소비한다.
 @evidence spaces/envelope/front.md#front-entry-filling 상부 유리 세 열·두 행과 경첩 반대편 검은 손잡이를 유리 구간 1.30–2.05 m와 -X 손잡이로 소비한다.
@@ -25,6 +25,8 @@
 레퍼런스 01·04의 목재 현관문, 위쪽 세 열·두 행의 유리 여섯 칸, 아래쪽 판을 채택한다. 문설주와 문선은 이 모델 원형이 만들고, 문턱판은 spaces owner의 부재라 겹치지 않는다.
 
 `front-door`는 [현관 owner](../spaces/rooms/entry.md#entry-plan)의 거친 개구부 X = [0.40, 1.40], Y = [0, 2.20] m(폭 1.00 m)를 채운다. [공통 국소 좌표](00-model-frame.md#model-local-frame)에 따라 원점 면은 전면 벽의 날씨 면이고 문짝은 그 반대인 실내 -Z로 열린다. [실내 문](03-interior-doors.md#interior-door-members)과 같은 문설주 면 폭 0.03 m와 문짝 두께 0.04 m를 택해 90° 순폭 0.90 m로 owner의 0.90 m 이상 목표를 만족한다. 문설주 깊이는 0.25 m 외벽 예약 전체다. 좌우 세로 문설주의 아랫면은 spaces 문턱 상면 Y = 0.02 m에 접하고 Y = [0.02, 2.17] m를 차지한다. 문턱판 두께 구간에는 문설주를 다시 만들지 않는다. 계층은 `door` 아래 `jamb`, 바깥 `exterior-trim`, 안쪽 `casing`, `hinge-pivot` 아래 `leaf`, `muntin`, `glass`, `handle`이다. [바탕과 문턱의 단일 owner](../spaces/10-ground-floor.md#ground-threshold-junctions)가 만든 문턱 상면은 완성 바닥 위 0.02 m다. 문짝 아래는 그 위 0.01 m인 Y = 0.03 m, 문짝 위는 머리 문설주 아래 Y = 2.17 m이므로 문짝 폭 0.94 m·높이는 2.14 m다. [전면 충전 owner](../spaces/envelope/front.md#front-entry-filling)의 상부 유리는 바닥 위 1.30–2.05 m 구간을 세 열·두 행으로 나누고 살대 폭 0.03 m, 문짝 둘레 stile/rail 폭 0.12 m로 택한다. 유리 위 끝 2.05 m는 문짝 위 끝 2.17 - top rail 0.12 m이고, 아래 끝 1.30 m는 [리뷰 프레임 조건](../settings/20-verification.md#frame-condition)의 눈높이 1.6 m가 유리 구간 안에 들어오고 손잡이 높이 0.95 m 주변의 목재 lock rail·아래 패널을 남기도록 정한 모델 결정이다. stile/rail 0.12 m는 유리 폭 0.94 - 2 × 0.12 = 0.70 m를 세 열로 나눠 lite 폭 약 0.21 m를 남기면서 [settings 개구부](../settings/10-house.md#openings)의 목재 문짝이 유리 액자가 아닌 목재 틀로 읽히게 하는 폭이다. 경첩은 +X 문설주, 열림은 실내 -Z이고 motion 인터페이스는 경첩 축 회전 0–π/2 rad, 기준 상태는 닫힘 0이다. 검은 손잡이는 경첩 반대편 -X 쪽, 바닥 위 0.95 m, 문짝 자유단에서 0.07 m 안쪽에 둔다. 손잡이는 날씨 면과 실내 면에 같은 원형을 거울 배치한 두 개다. 각 손잡이의 원판 받침은 지름 0.065 m·두께 0.008 m, 길이 0.11 m 레버는 지름 0.016 m 막대이고 각 문짝 넓은 면에서 해당 방향으로 최대 0.06 m 돌출한다. 세 경첩은 문짝 하단 위 0.20·1.05·1.90 m 중심에 두며 각 원통 knuckle은 지름 0.018 m·높이 0.08 m다. 아래 오목 목재 패널은 stile 안쪽 폭 0.70 m, 문짝 하단 위 0.12–1.15 m, 깊이 0.008 m이고 바닥과 네 챌면은 `leaf-panel`이다. 열림 회전 반경은 문짝 폭 0.94 m이며 손잡이는 문짝 가장자리 안쪽에 있어 반경을 늘리지 않는다. 소스 owner는 `src/models/exterior-door.ts`이며 포치 정면과 현관 threshold view로 검사한다.
+
+현관문 `exterior-trim`은 거친 개구부 바깥의 좌우 세로 판 X=[0.30,0.40]·[1.40,1.50] m, Y=[0.02,2.20] m와 머리 판 X=[0.30,1.50] m, Y=[2.20,2.30] m의 세 닫힌 부재다. 각 판 폭은 0.10 m, 두께는 0.020 m이며 바깥 siding 완성 면에서 날씨 쪽으로 돌출한다. 세로 판은 머리 판 아래에서 직각으로 맞대고 문턱 상면에서 끝나며 두 판이 공유 부피를 만들지 않는다. 안쪽 `casing`도 세 부재로 만들되 폭 0.07 m, 실내 벽 마감 면에서 방 쪽 돌출 0.015 m다. 좌우 판은 X=[0.33,0.40]·[1.40,1.47] m, Y=[0.02,2.20] m이고 머리 판은 X=[0.33,1.47] m, Y=[2.20,2.27] m다. 문턱판과 개구부 속 `jamb`는 각각 기존 owner와 이 H2의 별도 부재이며 trim 판이 문턱이나 문짝의 회전 체적을 침범하지 않는다. 각 판의 모든 절단면까지 같은 face id를 받고, 길이 방향 U·폭 방향 V의 미터 UV는 세 판의 시작 끝에서 각각 새로 시작한다.
 
 ## 두 대 폭의 분절 차고문 {#garage-sectional-door}
 <!--
@@ -58,7 +60,7 @@
 @evidence principles/design/models.md#spatial-convention 원점 면을 후벽 바깥 날씨 면으로, 경첩을 양 끝 문설주로 적는다.
 @evidence principles/design/models.md#reviewable-structure 공용부 안쪽과 테라스 쪽 view에서 순폭과 회전 반경을 반증한다.
 @evidence principles/design/models.md#model-observable-style-basis 레퍼런스 03의 식당 뒤 두 유리문을 채택한다. stile/rail 0.10 m 외에는 유리로 두어 유리문으로 읽히게 한다.
-@evidence principles/design/models.md#model-scale-layer-completion 두 문짝 관절과 spaces 문턱 +0.02 m 위 0.01 m 바닥 틈을 정한다.
+@evidence principles/design/models.md#model-scale-layer-completion 두 문짝 관절, spaces 문턱 +0.02 m 위 0.01 m 바닥 틈, 안팎 문선 세 판 외곽과 끝점을 정한다.
 @evidence obligations/design/models.md#articulation-ownership 두 경첩 축 각각의 0~π/2 rad 회전을 motion 인터페이스로, 기준 상태를 둘 다 닫힘으로 정한다.
 @evidence spaces/envelope/rear.md#garden-door X = [-1.20, 1.20] m 개구부, 바깥 -Z 열림, 0.95 m 목표, 1.80 m 바깥 대기를 문짝 1.17 m와 순폭 1.13 m로 소비한다. 후벽·void·문턱판은 rear owner에 남기고 닫힌 문틀·두 문짝·철물은 이 모델 원형이 받는다.
 @evidence contracts/reservation-fit.md#reservation-fit 순폭 1.13 m와 회전 반경 1.17 m를 owner 목표 0.95 m와 대기 깊이 1.80 m에 대조한다.
@@ -69,6 +71,8 @@
 레퍼런스 03의 식당 뒤 두 유리문을 채택한다. 문을 열어 뒤뜰로 나가는 순폭은 사진 비례가 아니라 예약으로 정한다.
 
 `garden-door`는 [후면 owner](../spaces/envelope/rear.md#garden-door)의 X = [-1.20, 1.20], Y = [0, 2.25] m를 채운다. 원점 면은 열림 쪽인 후벽 바깥 날씨 면이다. 문설주 면 폭 0.03 m, 문짝 두께 0.04 m, 문짝 폭 각 1.17 m로 둔다. 세로 문설주는 spaces 문턱 상면 Y = 0.02 m에서 시작해 머리 문설주 아래 Y = 2.22 m까지이며 문턱판 부피에는 들어가지 않는다. 이 부재 배분으로 +X 주 문만 90° 열 때 순폭은 1.20 - 0.03 - 0.04 = 1.13 m이며 중앙 손잡이 돌출 0.06 m를 빼도 목표 0.95 m보다 크다. 경첩은 양 끝 문설주, 손잡이는 중앙 만남에 두고 각 문짝의 열림 회전 반경은 문짝 폭 1.17 m로 owner의 바깥 대기 깊이 1.80 m 안에 들어간다. 문짝 둘레 stile/rail 폭은 0.10 m, 나머지는 `glass`다. 각 문짝의 바깥·안쪽 넓은 목재 면은 `leaf-exterior`·`leaf-interior`, 네 두께 면은 `leaf-edge`, 유리와 만나는 안쪽 턱은 `sash`다. 각 중앙 레버는 바닥 위 0.95 m, 만남선에서 0.07 m 안쪽에 두고 원판 지름 0.065 m·두께 0.008 m, 막대 지름 0.016 m·길이 0.11 m, 최대 돌출 0.06 m로 현관문과 같은 원형을 공유한다. 각 문짝에는 하단 위 0.20·1.05·1.90 m에 지름 0.018 m·높이 0.08 m의 경첩 knuckle 셋을 둔다. [바탕과 문턱의 단일 owner](../spaces/10-ground-floor.md#ground-threshold-junctions)가 만든 문턱 상면은 완성 바닥 위 0.02 m이고 모델은 문턱을 만들지 않는다. 문짝 아래는 문턱 위 0.01 m인 Y = 0.03 m, 위는 머리 문설주 아래 Y = 2.22 m이므로 높이는 2.19 m다. motion 인터페이스는 두 경첩 축 각각의 회전 0–π/2 rad이며 기준 상태는 둘 다 닫힘이다. 소스 owner는 `src/models/exterior-door.ts`이며 공용부 안쪽과 테라스 쪽 view로 검사한다.
+
+정원문 `exterior-trim`은 거친 개구부 X=[-1.20,1.20] m 바깥의 좌우 세로 판 X=[-1.30,-1.20]·[1.20,1.30] m, Y=[0.02,2.25] m와 머리 판 X=[-1.30,1.30] m, Y=[2.25,2.35] m다. 폭 0.10 m·두께 0.020 m로 siding 완성 면에서 바깥쪽으로 돌출하며 세로 판은 머리 판 아래에서 직각으로 끝난다. 실내 `casing`은 폭 0.07 m·돌출 0.015 m의 세 판으로, 세로 판 X=[-1.27,-1.20]·[1.20,1.27] m, Y=[0.02,2.25] m와 머리 판 X=[-1.27,1.27] m, Y=[2.25,2.32] m다. 문턱판은 spaces 한 owner가 만들고 이 판들은 그 상면에서 끝난다. 후벽의 개구부 바깥 구조 벽, 안팎 마감 면, 두 짝 회전 범위와 각 판의 부피는 분리한다. `exterior-trim`과 `casing`의 절단면을 포함한 모든 면은 각각 그 id 하나를 받고, 판마다 시작 끝의 길이 U·폭 V로 미터 UV를 다시 시작한다. 이 H2의 `leaf-exterior`·`leaf-interior`는 재료를 결정하지 않는 형상 이름이며 실제 charcoal 금속 도막은 materials의 결합을 따른다.
 
 ## 옆마당 목재 대문 {#side-yard-gate}
 <!--
@@ -111,6 +115,8 @@
 레퍼런스 01의 목재 현관문·검은 차고문·흰 문선은 서로 다른 재료로 읽힌다. 면 id는 각각의 전면·안면·끝면을 분리한다.
 
 [이름 규칙](00-model-frame.md#model-surface-partition-naming)에 따라 현관문과 정원문은 `jamb`, `exterior-trim`, `casing`, `muntin`, `glass`, `handle`, `hinge`를 쓴다. 포치·정원 쪽 문짝 넓은 면은 `leaf-exterior`, 방 쪽 넓은 면은 `leaf-interior`, 두 면을 잇는 위·아래·좌우 절단면은 `leaf-edge`다. 오목한 목재 판은 `leaf-panel`로 두되 그 오목한 바닥과 네 챌면을 모두 같은 id로 덮는다. 문턱판은 [spaces의 네 출입 경계](../spaces/10-ground-floor.md#ground-threshold-junctions)가 소유한다. 차고문의 네 패널 넓은 양면은 `leaf-exterior`·`leaf-interior`, 오목 분절은 `leaf-panel`, 패널 사이 홈과 위아래·양끝 두께 면은 `panel-edge`, 채광창은 `glass`, 문설주와 레일은 `jamb`·`rail`이다. 대문의 세로 목판은 앞뒤와 절단 끝 모두 `leaf-panel`, 경첩·손잡이는 `hinge`·`handle`이다. 현관문과 대문의 목재 결 방향은 materials가 정하되, 모델은 문짝 면의 UV를 문짝 국소 X·Y에 정렬하고 절단면마다 길이를 U로 새로 시작해 결이 문짝 높이 방향을 따를 수 있게 한다. 소스 owner는 `src/models/exterior-door.ts`, `src/models/garage-door.ts`, `src/models/gate.ts`다.
+
+현관문·정원문의 `jamb`와 세 판씩의 `exterior-trim`·`casing`은 각 세로 판 바닥 끝과 머리 판 왼쪽 끝을 원점으로 부재 길이 U·폭 V를 1 UV/m로 투영한다. 현관문의 `muntin`과 정원문의 `sash`는 각 유리 칸 왼쪽 아래 부재 끝에서 길이 U를 시작한다. 두 문의 `hinge`·`handle`은 별도 원통마다 국소 +Z 앞쪽 seam에서 둘레 U·축 V를 시작한다. 차고문 `rail`은 문 옆 수직 시작점에서 경로 호길이 U·레일 단면 둘레 V를 쓰며 굽힘에서는 연속하고 실제 조인트에서만 이음을 끊는다. 문짝·패널·대문 판재와 모든 뒷면·절단면에도 [전 계열 기본 UV](00-model-frame.md#model-furniture-local-frame)를 적용한다.
 
 ## 외부 문의 표현 한계 {#exterior-door-fidelity}
 <!--

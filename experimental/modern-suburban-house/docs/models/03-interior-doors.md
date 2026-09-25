@@ -77,6 +77,8 @@
 
 안정 표면 id는 [이름 규칙](00-model-frame.md#model-surface-partition-naming)의 `jamb`, `casing`, `leaf`, `leaf-panel`, `handle`, `hinge`에서 파생한다. 문이 열리는 쪽 방을 A, 반대쪽을 B로 두고 양쪽 벽면에 각각 닿는 문설주 바깥 면은 `jamb-a`·`jamb-b`, 그 사이 개구부 안쪽 두 옆과 머리 챌면은 `jamb-core`다. A·B 쪽 별도 문선의 앞뒤·절단 끝 전체는 각각 `casing-a`·`casing-b`다. 문짝의 두 넓은 면과 위아래·양옆 두께 면은 모두 `leaf`, 오목 패널의 바닥과 네 챌면은 `leaf-panel`, 철물은 `handle`·`hinge`다. 한 완결 면에 id 둘을 겹치지 않는다. 문짝과 문선의 UV는 각 판 왼쪽 아래를 원점으로 국소 X 폭·Y 높이를 미터 단위로, 절단 끝은 길이 방향 U·두께 V로 새로 투영한다. 소스 owner는 `src/models/interior-door.ts`다.
 
+`jamb-a`·`jamb-b`·`jamb-core`는 해당 세로 문설주의 바닥 끝과 머리 문설주의 왼쪽 끝을 각각 원점으로 부재 길이 U·폭 V를 1 UV/m로 둔다. `casing-a`·`casing-b`도 각 방의 세로 판과 머리 판을 별도 길이 U로 투영한다. `hinge`의 knuckle과 `handle`의 판·막대는 각 부품의 국소 +Z 앞쪽 seam에서 실제 둘레 길이 U·축 길이 V를 시작하며 판에서 원통으로 넘어갈 때 이음을 끊는다. 모든 끝면·뒷면에도 공통 UV 규칙을 적용한다.
+
 ## 실내 문의 표현 한계 {#interior-door-fidelity}
 <!--
 @evidence principles/core/common.md#scope-preservation 실내 문 부재 H2가 정한 경첩 knuckle 셋만 만들고 걸쇠·잠금·닫힘 장치와 실내 문턱을 만들지 않는 범위를 이 H2가 맡는다.

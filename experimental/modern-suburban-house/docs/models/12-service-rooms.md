@@ -27,6 +27,8 @@
 
 소스 owner는 `src/models/furnishings/service-rooms.ts`다. 관찰은 정면에서 두 기기가 같은 몸통과 다른 조작 띠 표시로 구분되는지, 문 90° 평면에서 손잡이 끝이 X = 4.25 m에 닿지 않는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
 
+세탁기·건조기는 벽에 붙는 뒤 몸통의 국소 Z=[0,0.015], Y=[0,0.10] m만 파낸다. 각 기기의 뒤 아래 `appliance-body` 새 홈 면은 같은 id로 덮고 옆 패널·문·드럼·앞 손잡이는 옮기지 않는다. 뒤 벽 걸레받이와 홈 면이 맞대며, 두 기기의 바깥 폭 0.65 m씩, 깊이 0.75 m씩, 작동 앞면 X=-4.75 m는 그대로다. 두 기기 사이 Z 접면에는 걸레받이를 세우지 않는다.
+
 ## 세탁기 위 접는 상판 {#laundry-folding-top}
 <!--
 @evidence principles/core/common.md#scope-preservation 세탁기 위 접는 상판과 받침목 두 부품만 맡고 아래 두 기기는 다른 H2에 두며, 기기 문을 가리는 지지 부재를 세우지 않는다.
@@ -93,6 +95,8 @@
 신발 벤치는 [예약](../spaces/rooms/laundry.md#laundry-equipment-use)의 X = [3.22, 3.62], Z = [-2.85, -2.05], 좌면 0.45 m를 외곽으로 받아 길이 0.80 m, 깊이 0.40 m, 높이 0.45 m다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르며 +Z가 앉는 정면이며 배치에서 world +X를 향한다.
 
 부품은 좌판, 옆판 둘, 신발 선반 하나다. 좌판은 Y = [0.42, 0.45], 옆판 두께 0.03 m, 신발 선반 상면은 0.10 m다. 신발 두 켤레를 선반 위의 낮은 상자 둘(0.28 × 0.10 × 0.10 m)로 둔다. 재질 경계는 `seat`, `carcass`, `shelf`, `shoe`이고 관절은 없다. 신발 끈·밑창 형상과 좌판 모서리 모따기는 표현하지 않는다. 소스 owner는 `src/models/furnishings/service-rooms.ts`다. 관찰은 측면에서 좌면 0.45 m와 신발 선반이 읽히는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
+
+벤치 뒤 벽의 걸레받이는 계속 두고, 바닥에 닿는 `carcass` 뒤 하단과 `seat` 아래 뒤 받침의 국소 Z=[0,0.015], Y=[0,0.10] m를 비운다. 새 홈의 닫힌 면은 각 부재의 기존 id로 받으며, 앉는 상판과 신발 선반의 앞 가장자리·벤치 예약 외곽은 움직이지 않는다. 벤치 뒤쪽 윗부분만 벽 마감에 닿는다.
 
 ## 벤치 위 외투 걸이 {#mudroom-coat-hooks}
 <!--

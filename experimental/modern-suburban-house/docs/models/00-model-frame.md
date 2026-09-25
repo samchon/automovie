@@ -102,13 +102,13 @@
 
 ## 가구·설비 원형의 국소 좌표 {#model-furniture-local-frame}
 <!--
-@evidence principles/core/common.md#scope-preservation 개구부를 채우지 않는 가구·설비·수납 원형의 원점·축·뒤 모서리 선택·배치 회전을 이 H2가 맡아 10번 이후 가구 파일이 링크로 소비하게 한다.
-@evidence principles/core/common.md#substantive-completion 원점을 바닥에 닿는 뒤쪽 모서리 선의 가로 중앙, +Z를 사용자가 서는 앞쪽으로 정하고 벽에서 떨어진 섬·식탁은 사용 방향 반대쪽 외곽을 뒤 모서리로 삼는 규칙까지 적는다.
+@evidence principles/core/common.md#scope-preservation 가구·설비·수납의 원점·축·뒤 모서리 선택·배치 회전과 01–19 모든 모델 부재의 공통 미터 UV를 이 H2가 맡는다.
+@evidence principles/core/common.md#substantive-completion 원점을 뒤쪽 바닥선 중앙, +Z를 사용 앞쪽으로 정하고 걸레받이 띠를 비우는 규칙 및 모든 model 면의 기본 UV 축·원점·척도·이음을 적는다.
 @evidence principles/core/common.md#declared-basis 단위와 축은 settings/00-production.md#coordinate-units, 외곽 치수는 contracts/reservation-fit.md#reservation-fit에 따른 room owner 예약에서 받는다고 링크로 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation coordinate-units의 가구 local transform 요구를 뒤 모서리 중앙 원점, 사용자 쪽 +Z, instances가 계산하는 Y축 회전 하나라는 모델 결정으로 바꾼다.
 @evidence principles/design/models.md#representation-contract 가구 원형의 점유 범위가 room owner의 상한 박스와 사용 공간 예약에서 온다고 정해 각 가구 H2의 외곽 산출 기준을 준다.
 @evidence principles/design/models.md#spatial-convention 가구 원형의 원점·+Y·+Z·+X와 world 배치가 Y축 회전 하나라는 관례를 적는다.
-@evidence principles/design/models.md#reviewable-structure 뒤 모서리가 벽 마감 면에 닿는지와 +Z가 사용 공간을 향하는지가 room 관찰에서 반증 가능한 배치 경계다.
+@evidence principles/design/models.md#reviewable-structure 가구 외곽의 뒤 기준면은 벽 마감 면에 두고, 하단 0.10 m에서는 걸레받이 0.015 m가 차지하는 띠를 비웠는지와 +Z가 사용 공간을 향하는지를 room 관찰에서 반증한다.
 @evidence principles/design/models.md#model-observable-style-basis 레퍼런스 01–05는 치수 도면으로 사용하지 않는다. 스타일 라벨 없이 벽에 붙는 면과 사용 방향이라는 관찰 가능한 배치 결정만 정하고 재료·조명을 주장하지 않는다.
 @evidence principles/design/models.md#model-scale-layer-completion 척도는 m, 층은 바닥 접지 면, 인터페이스는 뒤 모서리 원점으로 정해 가구 원형 배치에 빠진 척도나 층이 없다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work coordinate-units와 reservation-fit 계약을 적힌 그대로 소비했고 가구 원점 규칙을 정하는 데 settings나 spaces의 결함을 찾지 못했다.
@@ -116,11 +116,11 @@
 
 레퍼런스 01–05는 치수 도면으로 사용하지 않는다. 이 H2의 기술 규칙은 설정과 공간 예약에서 정하며 사진 비례를 근거로 삼지 않는다. 이 판단은 사진으로 척도를 역산하지 않는다는 경계이며 외곽·동선의 owner를 바꾸지 않는다.
 
-개구부를 채우지 않는 가구·설비·수납 원형은 [제작 좌표](../settings/00-production.md#coordinate-units)의 단위와 축을 쓰고 국소 원점을 바닥에 닿는 뒤쪽 모서리 선의 가로 중앙에 둔다. 국소 +Z는 사용자가 서서 쓰는 앞쪽, 국소 +Y는 world +Y, 국소 +X는 앞에서 보아 오른쪽이다. 뒤쪽 모서리 선은 벽에 붙는 원형이면 벽 마감 면에, 섬·식탁처럼 벽에서 떨어진 원형이면 사용 방향 반대쪽 외곽에 둔다. 외곽 치수는 [예약 맞춤 계약](../contracts/reservation-fit.md#reservation-fit)에 따라 room owner의 상한 박스와 사용 공간 예약에서 받고, world 배치 회전은 Y축 회전 하나로 instances가 room owner의 좌표에서 계산한다. 소스 owner는 `src/models/frame.ts`이며 각 가구 H2가 이 규칙을 링크로 소비한다.
+개구부를 채우지 않는 가구·설비·수납 원형은 [제작 좌표](../settings/00-production.md#coordinate-units)의 단위와 축을 쓰고 국소 원점을 바닥에 닿는 뒤쪽 모서리 선의 가로 중앙에 둔다. 국소 +Z는 사용자가 서서 쓰는 앞쪽, 국소 +Y는 world +Y, 국소 +X는 앞에서 보아 오른쪽이다. 뒤쪽 모서리 선은 벽에 붙는 원형이면 벽 마감 면에, 섬·식탁처럼 벽에서 떨어진 원형이면 사용 방향 반대쪽 외곽에 둔다. 이 원점은 점유 외곽의 기준일 뿐 고체 부재의 평평한 뒤판을 뜻하지 않는다. 노출 걸레받이가 있는 벽에 뒤 원점을 붙이는 원형은 바닥 위 국소 Y=[0,0.10] m와 벽에서 방 쪽 Z=[0,0.015] m의 열린 띠에 메시를 만들지 않는다. 각 원형은 이 띠를 비우는 발 위치·뒤판 시작 높이·하부 notch를 본문에서 지정하고, 상부의 뒤면 및 앞면·손잡이·작동 최대치가 받았던 예약 외곽을 넘지 않는다. 붙박이 장 뒤처럼 걸레받이가 종료하는 곳은 이 띠를 비우지 않고 종료선을 원형 H2가 지정한다. 외곽 치수는 [예약 맞춤 계약](../contracts/reservation-fit.md#reservation-fit)에 따라 room owner의 상한 박스와 사용 공간 예약에서 받고, world 배치 회전은 Y축 회전 하나로 instances가 room owner의 좌표에서 계산한다. 소스 owner는 `src/models/frame.ts`이며 각 가구 H2가 이 규칙을 링크로 소비한다.
 
 별도 손잡이 치수가 없는 가구 판에는 다음 공통 원형을 적용하고, 해당 H2가 다른 치수·오목 홈을 정했다면 그 값을 우선한다. 가로 막대는 길이 0.12 m·지름 0.012 m이며 문짝 자유단에서 안쪽 0.06 m, 윗변에서 아래 0.06 m에 중심을 두고, 서랍에는 가로 중앙과 서랍 띠 높이 중앙에 둔다. 판 앞면에서 막대 앞끝까지 총 돌출은 0.02 m이고 받침 두 개의 길이는 0.014 m라 지름을 더해 돌출을 두 번 세지 않는다. 세로 막대는 길이 0.12 m·지름 0.012 m로 자유단에서 0.04 m, 하부 모서리에서 위 0.08 m에 중심을 둔다. 가전의 금속 막대는 길이 0.25 m·지름 0.020 m, 자유단에서 0.06 m·세로 중앙에 놓고 판 앞면에서 총 0.03 m 돌출한다. 같은 `handle` 면 id여도 캐비닛의 검은 도장 금속과 가전의 스테인리스는 model H2·instance 변형을 함께 키로 삼아 materials가 고른다. 모든 막대는 닫힌 12각 부피이며 길이 U·둘레 V를 미터 UV로 기록한다.
 
-10–19의 가구·설비·소품 원형은 각 H2가 별도 UV를 정한 경우를 제외하고 다음 미터 UV를 상속한다. 수평 상·하면은 국소 왼쪽 뒤 모서리를 (0,0)으로 X 방향 U·Z 방향 V, 세로 앞·뒤면은 국소 왼쪽 아래를 (0,0)으로 X 방향 U·Y 방향 V, 세로 옆면은 앞/뒤 깊이 방향 U·Y 방향 V다. 절단 끝면은 해당 부재 길이 방향 U·두께 방향 V로 새로 시작하고, 원통·원뿔대는 지정된 앞쪽 seam에서 둘레 길이 U·축 길이 V다. 같은 평면의 연속 판은 UV를 이어 쓰고 문짝·서랍·선반·쿠션·기구 갓처럼 실제 분리되는 부재의 끝에서만 이음을 끊는다. 뒷면과 밑면에도 UV를 주며 UV가 없는 비색상 면을 허용하지 않는다. 이 좌표는 결의 방향·물리척도를 전달하고 반복 길이와 광학값은 materials가 정한다.
+01–19의 창·문·계단·수납·걸레받이·가구·설비·외피 반복·소품 원형은 각 H2가 별도 UV를 정한 경우를 제외하고 다음 미터 UV를 상속한다. 원점은 각 독립 부재의 국소 왼쪽 아래 뒤 모서리이며 평면마다 (0,0)에서 다시 시작한다. 수평 상·하면은 X 방향 U·Z 방향 V, 세로 앞·뒤면은 X 방향 U·Y 방향 V, 세로 옆면은 Z 깊이 방향 U·Y 방향 V다. 절단 끝면은 그 면의 가장 긴 실제 변을 U, 다음 변을 V로 삼아 새로 시작한다. 원통·원뿔대는 앞쪽 국소 +Z에서 seam을 두고 둘레 실제 길이 U·축 실제 길이 V다. 모든 좌표는 1.00 UV 단위가 부재 표면의 1.00 m이며 음수 축을 향하는 반대 면에서는 축을 뒤집어 각 면의 왼쪽 아래가 (0,0)이 되게 한다. 같은 평면의 연속 판은 UV를 이어 쓰고 창틀·문설주·문선·문짝·경첩·레일·봉·선반·서랍·쿠션·기구 갓·지붕널 줄처럼 실제 분리되는 부재의 절단 끝에서만 이음을 끊는다. 목재 부재의 별도 긴 결은 길이 방향 U로 회전하고, 지붕 경사 부재의 국소 축과 seam은 해당 H2의 예외가 우선한다. 뒷면·밑면·오목한 면·두께 면에도 UV를 주며 UV 없는 면을 허용하지 않는다. 이 좌표는 결 방향과 물리척도를 전달하고 반복 길이와 광학값은 materials가 정한다.
 
 ## 기준 척도와 대조 치수 {#model-reference-scale}
 <!--

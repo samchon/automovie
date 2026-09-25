@@ -150,6 +150,8 @@ motion 인터페이스는 각 `lower-sash`의 국소 +Y 평행 이동 하나이�
 
 외부 trim은 [06의 예약](../spaces/06-openings.md#external-opening-interface)대로 거친 개구부의 좌우·위·아래에 0.10 m 폭으로 두고, [공통 재료와 외피 인상](../settings/20-verification.md#visual-grammar)의 trim이 실제 돌출과 음영으로 접합을 설명한다는 조건을 위해 날씨 면에서 0.02 m 돌출시킨다. 안쪽 창대는 frame 안쪽 면 -0.18 m에서 실내 마감 면 -0.25 m를 지나 방 쪽 끝 -0.31 m까지 0.13 m 돌출하는 두께 0.03 m 판이며 실내 마감 면 기준으로 0.06 m만 돌출해 06의 한도를 지킨다. `exterior-trim`과 `interior-sill`은 `frame`의 형제 노드다. 소스 owner는 `src/models/windows.ts`이며 입면 정면과 측면 단면으로 검사한다.
 
+창 `exterior-trim`의 네 판은 각각 왼쪽 아래 끝을 UV 원점으로 삼고 판 길이 방향 U·폭 방향 V를 1 UV/m로 둔다. `interior-sill`의 상·하면은 왼쪽 벽 접점을 원점으로 창 폭 방향 U·방 쪽 돌출 방향 V를 쓰며, 끝면·두께 면은 독립 면 시작점에서 길이 U·두께 V로 다시 투영한다. 이음은 네 trim 판의 맞댐, 창대 끝과 frame 접선에서 끊는다. 두 부재의 뒷면에도 UV를 준다.
+
 ## 창의 표면 파티션 {#window-surface-partitions}
 <!--
 @evidence principles/core/common.md#scope-preservation 창의 표면 id 8개(frame·sash·mullion·muntin·glass·obscured-glass·exterior-trim·interior-sill)를 이 H2가 맡는다.

@@ -133,6 +133,8 @@
 
 표면 id는 `shingle-face`, `shingle-butt`(아래 끝 두께 면), `shingle-back`, `shingle-cut`이고, 접힌 금속 띠의 앞·뒤·절단 끝은 모두 `roof-flashing`이며 지붕널 네 id의 어두운 결은 [shingle 재료](../materials/01-exterior.md#roof-shingle)가, 금속 `roof-flashing`은 [charcoal 금속](../materials/01-exterior.md#window-frame-charcoal)이 바인딩한다. 모든 변형은 피벗이 없는 강체다. 못·접착 띠·입자 질감·방수와 풍하중 성능은 표현하지 않는다. 소스 owner는 `src/models/exterior/shingle.ts`다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 측면 직교 단면에서 쐐기와 0.16 m 겹침, 0.004 m 단차가 보이는지, 정면에서 세 탭과 홈의 반 탭 어긋남이 규칙적인 결로 읽히는지, 용마루 캡이 두 경사에 좌우 대칭으로 앉는지다. 모든 관찰은 unverified다.
 
+지붕널 `shingle-face`와 starter 윗면은 각 줄의 왼쪽 아래 butt를 UV 원점으로 길이 +X를 U, 지붕 경사 위쪽 +Y를 V로 1 UV/m 투영한다. `shingle-back`은 같은 물리축을 밑면 왼쪽 아래에서 새로 시작하고 `shingle-butt`·`shingle-cut`은 각 절단면의 긴 변 U·두께 V를 쓴다. 세 탭의 홈과 각 course 절단면·starter의 끝에서 이음을 끊되 같은 줄의 연속 윗면은 잇는다. ridge-cap은 용마루 방향을 U, 양쪽 경사 아래쪽을 각각 V로 하여 접힌 용마루 선에서 V를 다시 시작한다. `roof-flashing`은 각 연속 금속 띠의 시작점에서 접촉선 길이 U, 벽 또는 경사 위 폭 V를 쓰고 절곡선은 V가 연속하며 골짜기·굴뚝 모서리·벽 접합의 물리적 겹침 끝에서는 이음을 끊는다. 금속의 뒷면·0.003 m 두께 절단면도 1 UV/m다.
+
 ## 노출 처마의 홈통과 선홈통 {#eave-gutter-downspout}
 <!--
 @evidence principles/core/common.md#scope-preservation 노출 수평 처마의 홈통과 각 연속 배수 구간 끝의 선홈통 부재를 맡고 지붕판·용마루·외벽 면을 복제하지 않는다.

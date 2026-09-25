@@ -77,6 +77,8 @@
 
 재질 경계는 `appliance-body`, `leaf`, `drawer-front`, `handle`, 그리고 열린 상태에서만 보이는 `appliance-interior`다. 내부 선반·조명·가스켓은 표현하지 않고 `appliance-interior`는 빈 상자 하나다. 소스 owner는 `src/models/furnishings/kitchen-dining.ts`다. 관찰은 닫힌 상태의 측면에서 손잡이 끝이 0.80 m 안에 드는지, 두 문 90° 열림과 서랍 0.55 m 인출의 평면에서 앞 끝이 X = -4.15 m를 넘지 않는지, 옆 하부장보다 0.15 m 튀어나온 몸체가 통로 쪽에서 보이는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
 
+걸레받이가 노출되는 냉장고 뒤 벽에서 외곽 뒤 기준선은 유지한다. `appliance-body`의 바닥 뒤 하단만 국소 Z=[0,0.015], Y=[0,0.10] m의 직사각 띠를 파내고, 그 위 몸통과 양쪽 끝·앞문·서랍·손잡이의 외곽은 기존 0.95×0.80×1.85 m 그대로 둔다. 파낸 면도 `appliance-body`이며 0.015 m 돌출 걸레받이의 앞면과 맞대되 겹치지 않는다. 뒤를 0.015 m 통째로 밀지 않으므로 두 문의 0.50 m 열림과 서랍 0.55 m 인출 예약은 변하지 않는다.
+
 ## 레인지와 아래 오븐 {#kitchen-range}
 <!--
 @evidence principles/core/common.md#scope-preservation 레인지와 아래 오븐의 외곽, 조리 상판·네 화구 링·조작 띠·오븐 문·손잡이 부품, `oven-door` 피벗, 재질 경계, 표현 한계, 세 관찰을 이 H2가 소유하고 뒤쪽 조작 패널을 두지 않는 이유도 적는다.
@@ -100,6 +102,8 @@
 부품은 몸통, 조리 상판, 네 화구 링, 전면 조작 띠, 오븐 문, 오븐 손잡이다. 조리 상판은 Y = [0.88, 0.91]이고 화구 링 넷은 지름 0.20 m, 두께 0.01 m의 얇은 링으로 Y = [0.90, 0.91] m에 매립해 상면 0.91 m를 넘지 않는다. 로컬 폭 X=[-0.40,0.40] m, 깊이 Z=[0,0.65] m에서 링 중심은 X=±0.20 m와 Z=0.19·0.46 m의 직교 조합 네 점으로 정해, 링 가장자리가 좌우 0.10 m·앞뒤 0.09 m 이상 안쪽에 남는다. 오븐 문은 Y = [0.10, 0.62]의 0.52 m 높이이며 아래 모서리의 수평 경첩 피벗 `oven-door`로 +Z 쪽으로 최대 90° 내려 연다. 이때 문 높이 0.52 m와 손잡이 0.03 m의 합 0.55 m가 [오븐 작동 예약 X = [-4.85, -4.30]](../spaces/rooms/common.md#common-kitchen-wall-reservation)과 같다. 조작 띠는 Y = [0.66, 0.86]에 둔다.
 
 오븐 문 중앙에는 폭 0.48 m·높이 0.24 m의 검은 내열 유리 `appliance-glass`를 앞면과 같은 깊이에 끼우고 문 테두리 금속 `leaf`를 사방 0.06 m 이상 남긴다. 유리는 불투명 검은 반사판이며 오븐 내부 투과를 주장하지 않는다. 재질 경계는 `appliance-body`, `cooktop`, `burner`, `control-panel`, `leaf`, `appliance-glass`, `handle`, `appliance-interior`다. 불꽃·열·유리 투과·조작 손잡이 개별 형상은 표현하지 않는다. 소스 owner는 `src/models/furnishings/kitchen-dining.ts`다. 관찰은 측면에서 상판이 옆 하부장과 같은 0.91 m 선에 있는지, 문을 90° 연 평면에서 손잡이 끝이 X = -4.30 m에 멈추는지, 위에서 네 화구가 읽히는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
+
+레인지도 외곽 뒤 기준선을 유지하고 `appliance-body`의 국소 Z=[0,0.015], Y=[0,0.10] m 뒤 하단만 파내 걸레받이와 맞댄다. 몸통의 윗면·양옆·앞면과 오븐 문 경첩축은 움직이지 않으므로 0.65 m 깊이, 0.91 m 높이와 0.55 m 오븐 문 작동 예약이 그대로다. 홈의 새 뒤·윗 절단면은 `appliance-body` 하나가 덮는다.
 
 ## 레인지 위 전자레인지 {#kitchen-microwave}
 <!--
