@@ -128,15 +128,21 @@ export function extendFaceEnvelope(props: {
 
 /**
  * Faults of a changed surface within a support: its triangles turned over
- * against the source, plus the pairs of its triangles that cross each other
- * less those that crossed in the source. Triangles sharing a vertex are not
- * a pair.
+ * against the source, plus the pairs of the surface's triangles, one of them
+ * in the support, that cross each other less those that crossed in the
+ * source. A moving part that passes through skin it does not move (a nasal
+ * tip lowered through the upper lip) is a fault as much as one that folds
+ * through itself. Triangles sharing a vertex are not a pair, nor are two of
+ * `contact`: the triangles of bodies that meet (the two lips), whose
+ * overlap is their contact, which the lips' own contact governs, not a
+ * fold.
  */
 export function faceSupportFaults(props: {
   source: readonly number[];
   positions: readonly number[];
   indices: readonly number[];
   triangles: readonly number[];
+  contact?: ReadonlySet<number>;
 }): number {
   const { indices: I, triangles } = props;
   const normal = (P: readonly number[], t: number) => {
@@ -153,27 +159,32 @@ export function faceSupportFaults(props: {
     const [a, b] = [normal(props.source, t), normal(props.positions, t)];
     return a[0]! * b[0]! + a[1]! * b[1]! + a[2]! * b[2]! < 0;
   }).length;
+  const support = new Set(triangles);
+  const contact = props.contact ?? new Set<number>();
   return (
     turned +
     Math.max(
       0,
-      crossings(props.positions, I, triangles) -
-        crossings(props.source, I, triangles),
+      crossings(props.positions, I, support, contact) -
+        crossings(props.source, I, support, contact),
     )
   );
 }
 
-/** Pairs of the triangles that cross, found through a 4 mm grid. */
+/**
+ * Pairs of the surface's triangles, one of them in the support, that cross,
+ * found through a 4 mm grid over the support's cells.
+ */
 function crossings(
   P: readonly number[],
   I: readonly number[],
-  triangles: readonly number[],
+  support: ReadonlySet<number>,
+  contact: ReadonlySet<number>,
 ): number {
   const corner = (t: number, e: number) =>
     [0, 1, 2].map((k) => P[3 * I[t + e]! + k]!);
   const cell = 0.004;
-  const grid = new Map<string, number[]>();
-  triangles.forEach((t, i) => {
+  const cells = (t: number) => {
     const points = [0, 1, 2].map((e) => corner(t, e));
     const lo = [0, 1, 2].map((k) =>
       Math.floor(Math.min(...points.map((p) => p[k]!)) / cell),
@@ -181,24 +192,31 @@ function crossings(
     const hi = [0, 1, 2].map((k) =>
       Math.floor(Math.max(...points.map((p) => p[k]!)) / cell),
     );
+    const keys: string[] = [];
     for (let x = lo[0]!; x <= hi[0]!; ++x)
       for (let y = lo[1]!; y <= hi[1]!; ++y)
-        for (let z = lo[2]!; z <= hi[2]!; ++z) {
-          const key = `${x},${y},${z}`;
-          if (!grid.has(key)) grid.set(key, []);
-          grid.get(key)!.push(i);
-        }
-  });
+        for (let z = lo[2]!; z <= hi[2]!; ++z) keys.push(`${x},${y},${z}`);
+    return keys;
+  };
+  const grid = new Map<string, number[]>();
+  for (const t of support)
+    for (const key of cells(t)) {
+      if (!grid.has(key)) grid.set(key, []);
+      grid.get(key)!.push(t);
+    }
+  for (let t = 0; t < I.length; t += 3)
+    if (!support.has(t)) for (const key of cells(t)) grid.get(key)?.push(t);
   const seen = new Set<string>();
   let count = 0;
   for (const members of grid.values())
     for (let a = 0; a < members.length; ++a)
       for (let b = a + 1; b < members.length; ++b) {
-        const [i, j] = [members[a]!, members[b]!];
-        const key = i < j ? `${i},${j}` : `${j},${i}`;
+        const [s, t] = [members[a]!, members[b]!];
+        if (!support.has(s) && !support.has(t)) continue;
+        if (contact.has(s) && contact.has(t)) continue;
+        const key = s < t ? `${s},${t}` : `${t},${s}`;
         if (seen.has(key)) continue;
         seen.add(key);
-        const [s, t] = [triangles[i]!, triangles[j]!];
         const own = [0, 1, 2].map((e) => I[s + e]!);
         if ([0, 1, 2].some((e) => own.includes(I[t + e]!))) continue;
         const A = [0, 1, 2].map((e) => corner(s, e));
