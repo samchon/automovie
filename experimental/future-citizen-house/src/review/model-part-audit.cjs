@@ -8,6 +8,7 @@ const root = path.resolve(__dirname, "../..");
 const names = ["001-seating-and-work", "002-storage-and-sleep", "003-service-fixtures", "004-decor-and-fixtures"];
 const epsilon = 0.000001;
 /** @typedef {{state:string,id:string,shape:string,x:[number,number],y:[number,number],z:[number,number],contact:string[]}} Part */
+/** @typedef {{x:[number,number],y:[number,number],z:[number,number]}} Bounds */
 
 function sections() {
   /** @type {Map<string, string[]>} */
@@ -49,6 +50,10 @@ function parse(lines, anchor) {
   const inventory = new Map();
   /** @type {Set<string>} */
   const miterJoints = new Set();
+  /** @type {Map<string, {x:[number,number],y:[number,number],z:[number,number]}[]>} */
+  const voids = new Map();
+  /** @type {Map<string,{inner:number,outer:number}>} */
+  const radial = new Map();
   for (const line of lines) {
     const list = /^@inventory\s+([^:]+):\s*(.+)$/.exec(line);
     if (list) {
@@ -58,6 +63,21 @@ function parse(lines, anchor) {
     }
     const joint = /^@joint\s+([^:]+):\s*([^,]+),\s*([^,]+),\s*(miter45-xz)$/.exec(line);
     if (joint) miterJoints.add(`${joint[1].trim()}/${[joint[2].trim(), joint[3].trim()].sort((a, b) => a.localeCompare(b)).join("/")}`);
+    const cut = /^@void\s+([^:]+):\s*([^,]+),\s*([^,]+),\s*([^,]+),\s*([^,]+)$/.exec(line);
+    if (cut) {
+      const state = cut[1].trim(), host = cut[2].trim(), key = `${state}/${host}`;
+      const region = { x: interval(cut[3], `${anchor}/${key}/void-x`),
+        y: interval(cut[4], `${anchor}/${key}/void-y`), z: interval(cut[5], `${anchor}/${key}/void-z`) };
+      voids.set(key, [...(voids.get(key) || []), region]);
+    }
+    const ring = /^@radial\s+([^:]+):\s*([^,]+),\s*([\d.]+),\s*([\d.]+)$/.exec(line);
+    if (ring) {
+      const key = `${ring[1].trim()}/${ring[2].trim()}`;
+      if (radial.has(key)) throw Error(`${anchor}/${key}: duplicate radial declaration`);
+      const inner = Number(ring[3]), outer = Number(ring[4]);
+      if (!(inner >= 0 && outer > inner)) throw Error(`${anchor}/${key}: invalid radial interval`);
+      radial.set(key, { inner, outer });
+    }
   }
   for (const line of rows) {
     const cells = line.split("|").slice(1, -1).map((cell) => cell.trim());
@@ -77,20 +97,75 @@ function parse(lines, anchor) {
       parts.set(key, entry);
     }
   }
-  return { envelopes, parts, inventory, miterJoints };
+  return { envelopes, parts, inventory, miterJoints, voids, radial };
 }
 
-/** @param {Part} a @param {Part} b */
+/** @param {Bounds} a @param {Bounds} b */
 function overlap(a, b) {
   return /** @type {const} */ (["x", "y", "z"]).map((axis) => Math.min(a[axis][1], b[axis][1]) - Math.max(a[axis][0], b[axis][0]));
 }
 
-/** @param {Part} a @param {Part} b */
+/** @param {Bounds} a @param {Bounds} b */
 function surfaceContact(a, b) {
   const separation = overlap(a, b);
   return separation.every((size) => size >= -epsilon) &&
     separation.filter((size) => Math.abs(size) <= epsilon).length === 1 &&
     separation.filter((size) => size > epsilon).length === 2;
+}
+
+/**
+ * Removes an axis-aligned cavity and returns disjoint remaining boxes.
+ * @param {Bounds} box
+ * @param {Bounds} cavity
+ */
+function subtractBox(box, cavity) {
+  /** @type {Bounds} */
+  const cut = {
+    x: [Math.max(box.x[0], cavity.x[0]), Math.min(box.x[1], cavity.x[1])],
+    y: [Math.max(box.y[0], cavity.y[0]), Math.min(box.y[1], cavity.y[1])],
+    z: [Math.max(box.z[0], cavity.z[0]), Math.min(box.z[1], cavity.z[1])]
+  };
+  if (/** @type {const} */ (["x", "y", "z"]).some((axis) => cut[axis][1] - cut[axis][0] <= epsilon)) return [box];
+  /** @type {Bounds[]} */
+  const result = [];
+  /** @param {[number,number]} x @param {[number,number]} y @param {[number,number]} z */
+  const add = (x, y, z) => { if ([x, y, z].every(([lo, hi]) => hi - lo > epsilon)) result.push({ x, y, z }); };
+  add([box.x[0], cut.x[0]], box.y, box.z);
+  add([cut.x[1], box.x[1]], box.y, box.z);
+  add(cut.x, [box.y[0], cut.y[0]], box.z);
+  add(cut.x, [cut.y[1], box.y[1]], box.z);
+  add(cut.x, cut.y, [box.z[0], cut.z[0]]);
+  add(cut.x, cut.y, [cut.z[1], box.z[1]]);
+  return result;
+}
+
+/** @param {Part} part @param {Map<string, Bounds[]>} voids */
+function occupiedBoxes(part, voids) {
+  /** @type {Bounds[]} */
+  let boxes = [part];
+  for (const cavity of voids.get(`${part.state}/${part.id}`) || [])
+    boxes = boxes.flatMap((box) => subtractBox(box, cavity));
+  return boxes;
+}
+
+/** @param {Part} a @param {Part} b @param {Map<string,{inner:number,outer:number}>} radial @param {Map<string,Bounds[]>} voids */
+function actualContact(a, b, radial, voids) {
+  const ar = radial.get(`${a.state}/${a.id}`), br = radial.get(`${b.state}/${b.id}`);
+  if (ar && br) {
+    const vertical = Math.min(a.y[1], b.y[1]) - Math.max(a.y[0], b.y[0]);
+    const radius = Math.min(ar.outer, br.outer) - Math.max(ar.inner, br.inner);
+    return (Math.abs(vertical) <= epsilon && radius > epsilon) ||
+      (vertical > epsilon && (Math.abs(ar.outer - br.inner) <= epsilon || Math.abs(br.outer - ar.inner) <= epsilon));
+  }
+  return occupiedBoxes(a, voids).some((aa) => occupiedBoxes(b, voids).some((bb) => surfaceContact(aa, bb)));
+}
+
+/** @param {Part} a @param {Part} b @param {Map<string,{inner:number,outer:number}>} radial @param {Map<string,Bounds[]>} voids */
+function actualOverlap(a, b, radial, voids) {
+  const ar = radial.get(`${a.state}/${a.id}`), br = radial.get(`${b.state}/${b.id}`);
+  if (ar && br) return Math.min(a.y[1], b.y[1]) - Math.max(a.y[0], b.y[0]) > epsilon &&
+    Math.min(ar.outer, br.outer) - Math.max(ar.inner, br.inner) > epsilon;
+  return occupiedBoxes(a, voids).some((aa) => occupiedBoxes(b, voids).some((bb) => overlap(aa, bb).every((size) => size > epsilon)));
 }
 
 /** @param {string[]} lines @param {Map<string, Part>} envelopes @param {Map<string, Part>} parts */
@@ -135,13 +210,155 @@ function towelFormula(lines, envelopes, parts) {
   return errors;
 }
 
+/** @param {string[]} lines @param {Map<string, Part>} envelopes @param {Map<string, {x:[number,number],y:[number,number],z:[number,number]}[]>} voids */
+function chargerFormula(lines, envelopes, voids) {
+  const prose = lines.join("\n");
+  const outer = /폭 ([\d.]+), 깊이 ([\d.]+), 높이 ([\d.]+)m/.exec(prose);
+  const interfaceCut = /본체 위쪽 x=±([\d.]+),z=±([\d.]+),y=([\d.]+)\.\.([\d.]+)m/.exec(prose);
+  const portCut = /앞쪽 edge z=\+([\d.]+)\.\.\+([\d.]+),x=±([\d.]+),y=([\d.]+)\.\.([\d.]+)m/.exec(prose);
+  if (!outer || !interfaceCut || !portCut) return ["entry-charger: prose dimensions absent"];
+  const envelope = envelopes.get("default"), cuts = voids.get("default/body");
+  if (!envelope || !cuts || cuts.length !== 2) return ["entry-charger: measured envelope/voids absent"];
+  /** @type {[number[],number[]][]} */
+  const expected = [
+    [envelope.x, [-Number(outer[1]) / 2, Number(outer[1]) / 2]],
+    [envelope.y, [0, Number(outer[3])]],
+    [envelope.z, [-Number(outer[2]) / 2, Number(outer[2]) / 2]],
+    [cuts[0].x, [-Number(interfaceCut[1]), Number(interfaceCut[1])]],
+    [cuts[0].y, [Number(interfaceCut[3]), Number(interfaceCut[4])]],
+    [cuts[0].z, [-Number(interfaceCut[2]), Number(interfaceCut[2])]],
+    [cuts[1].x, [-Number(portCut[3]), Number(portCut[3])]],
+    [cuts[1].y, [Number(portCut[4]), Number(portCut[5])]],
+    [cuts[1].z, [Number(portCut[1]), Number(portCut[2])]]
+  ];
+  return expected.flatMap(([actual, target], index) =>
+    Math.abs(actual[0] - target[0]) > epsilon || Math.abs(actual[1] - target[1]) > epsilon
+      ? [`entry-charger: prose/table interval ${index} differs`] : []);
+}
+
+/** @param {string[]} lines @param {Map<string, Part>} envelopes @param {Map<string, Part>} parts @param {Map<string, Bounds[]>} voids @param {Map<string,{inner:number,outer:number}>} radial */
+function rugFormula(lines, envelopes, parts, voids, radial) {
+  const prose = lines.join("\n");
+  const dimensions = /폭 ([\d.]+), 깊이 ([\d.]+), 높이 ([\d.]+)m, `bedroom-rug\/1600x2200`은 폭 ([\d.]+), 깊이 ([\d.]+), 높이 ([\d.]+)m/.exec(prose);
+  const bases = /base 높이는 living ([\d.]+)m·bedroom ([\d.]+)m, pile 높이는 두 변종 모두 ([\d.]+)m/.exec(prose);
+  const round = /지름 ([\d.]+)m·높이 ([\d.]+)m 변종/.exec(prose);
+  const edge = /안쪽으로 ([\d.]+)m 폭의 bound-edge/.exec(prose);
+  if (!dimensions || !bases || !round || !edge) return ["rugs: prose dimensions absent"];
+  const errors = [];
+  /** @param {string} state @param {number} width @param {number} depth @param {number} height @param {number} baseHeight */
+  const check = (state, width, depth, height, baseHeight) => {
+    const envelope = envelopes.get(state), base = parts.get(`${state}/base`), pile = parts.get(`${state}/pile`), border = parts.get(`${state}/bound-edge`);
+    if (!envelope || !base || !pile || !border) { errors.push(`rugs/${state}: table state absent`); return; }
+    const expected = [[envelope.x[0], -width / 2], [envelope.x[1], width / 2], [envelope.z[0], -depth / 2],
+      [envelope.z[1], depth / 2], [envelope.y[1], height], [base.y[1], baseHeight],
+      [pile.y[0], baseHeight], [pile.y[1], height], [border.y[0], baseHeight], [border.y[1], height]];
+    for (const [actual, target] of expected) if (Math.abs(actual - target) > epsilon)
+      errors.push(`rugs/${state}: prose/table interval differs`);
+  };
+  check("living", Number(dimensions[1]), Number(dimensions[2]), Number(dimensions[3]), Number(bases[1]));
+  check("bedroom1600x2200", Number(dimensions[4]), Number(dimensions[5]), Number(dimensions[6]), Number(bases[2]));
+  check("round1200", Number(round[1]), Number(round[1]), Number(round[2]), 0.009);
+  const borderWidth = Number(edge[1]);
+  /** @type {[string,number,number][]} */
+  const rectangularStates = [["living", Number(dimensions[1]) / 2, Number(dimensions[2]) / 2],
+    ["bedroom1600x2200", Number(dimensions[4]) / 2, Number(dimensions[5]) / 2]];
+  for (const [state, halfX, halfZ] of rectangularStates) {
+    const cut = voids.get(`${state}/bound-edge`)?.[0], pile = parts.get(`${state}/pile`);
+    if (!cut || !pile || Math.abs(cut.x[1] - (halfX - borderWidth)) > epsilon ||
+      Math.abs(cut.z[1] - (halfZ - borderWidth)) > epsilon ||
+      Math.abs(pile.x[1] - cut.x[1]) > epsilon || Math.abs(pile.z[1] - cut.z[1]) > epsilon)
+      errors.push(`rugs/${state}: prose border width differs from table`);
+  }
+  const ring = radial.get("round1200/bound-edge"), circle = radial.get("round1200/pile");
+  if (!ring || !circle || Math.abs(ring.inner - (Number(round[1]) / 2 - borderWidth)) > epsilon ||
+    Math.abs(circle.outer - ring.inner) > epsilon)
+    errors.push("rugs/round1200: prose radial border width differs from table");
+  return errors;
+}
+
+/** @param {string} anchor @param {string[]} lines @param {Map<string,Part>} envelopes
+ * Cross-checks authored first-sentence dimensions against every new single-state envelope. */
+function simpleProseEnvelope(anchor, lines, envelopes) {
+  /** @type {Record<string,{pattern:RegExp,order:("x"|"y"|"z")[]}>} */
+  const rules = {
+    "storage-basket": { pattern: /폭 ([\d.]+), 깊이 ([\d.]+), 높이 ([\d.]+)m/, order: ["x", "z", "y"] },
+    "wall-art": { pattern: /폭 ([\d.]+), 높이 ([\d.]+), 전체 깊이 ([\d.]+)m/, order: ["x", "y", "z"] },
+    "living-display": { pattern: /폭 ([\d.]+), 높이 ([\d.]+), 깊이 ([\d.]+)m/, order: ["x", "y", "z"] },
+  };
+  const rule = rules[anchor];
+  if (!rule) return [];
+  const values = rule.pattern.exec(lines.join("\n"));
+  const envelope = envelopes.get("default");
+  if (!values || !envelope) return [`${anchor}: prose envelope dimensions absent`];
+  const errors = [];
+  for (let i = 0; i < rule.order.length; i++) {
+    const axis = rule.order[i];
+    const span = envelope[axis][1] - envelope[axis][0];
+    if (Math.abs(span - Number(values[i + 1])) > epsilon)
+      errors.push(`${anchor}: prose/table ${axis} envelope differs`);
+  }
+  return errors;
+}
+
+/** @param {string[]} lines @param {Map<string,Part>} envelopes @param {Map<string,{inner:number,outer:number}>} radial */
+function pendantFormula(lines, envelopes, radial) {
+  const prose = lines.join("\n");
+  const length = /전체 하향 길이 ([\d.]+)m/.exec(prose);
+  const cord = /cord는 y=−[\d.]+\.\.0에 지름 ([\d.]+)m/.exec(prose);
+  const shade = /shade는 y=−[\d.]+\.\.−[\d.]+에 지름 ([\d.]+)m/.exec(prose);
+  const diffuser = /diffuser는 지름 ([\d.]+)m·두께/.exec(prose);
+  const canopy = /canopy는 지름 ([\d.]+), 높이 ([\d.]+)m/.exec(prose);
+  if (!length || !cord || !shade || !diffuser || !canopy) return ["dining-pendant: prose diameter/length absent"];
+  const observed = [envelopes.get("default")?.y[0], radial.get("default/cord")?.outer,
+    radial.get("default/shade-wall")?.outer, radial.get("default/diffuser")?.outer,
+    radial.get("default/canopy")?.outer];
+  const expected = [-Number(length[1]), Number(cord[1]) / 2, Number(shade[1]) / 2,
+    Number(diffuser[1]) / 2, Number(canopy[1]) / 2];
+  return observed.flatMap((value, i) => value === undefined || Math.abs(value - expected[i]) > epsilon
+    ? [`dining-pendant: prose/table dimension ${i} differs`] : []);
+}
+
+/** @param {string[]} lines @param {Map<string,Part>} envelopes @param {Map<string,Part>} parts */
+function bookFormula(lines, envelopes, parts) {
+  const prose = lines.join("\n");
+  const allowed = /허용 조합은 ([^.]+) 세 가지다/.exec(prose);
+  const cover = /표지 두 장은 두께 ([\d.]+)m/.exec(prose);
+  const spine = /z=D\/2−([\d.]+)\.\.D\/2의 별도 판/.exec(prose);
+  if (!allowed || !cover || !spine) return ["books: prose variant/formula absent"];
+  const C = Number(cover[1]), S = Number(spine[1]);
+  const states = [...allowed[1].matchAll(/`(\d+x\d+x\d+)`/g)].map((match) => match[1]);
+  if (states.length !== 3 || states.join(",") !== [...envelopes.keys()].join(","))
+    return ["books: prose variants differ from table states"];
+  const errors = [];
+  for (const state of states) {
+    const [H, T, D] = state.split("x").map((value) => Number(value) / 1000);
+    /** @type {Record<string,Bounds>} */
+    const expected = {
+      "*": { x: [-T / 2, T / 2], y: [0, H], z: [-D / 2, D / 2] },
+      "cover-left": { x: [-T / 2, -T / 2 + C], y: [0, H], z: [-D / 2, D / 2 - S] },
+      "cover-right": { x: [T / 2 - C, T / 2], y: [0, H], z: [-D / 2, D / 2 - S] },
+      pages: { x: [-T / 2 + C, T / 2 - C], y: [C, H - C], z: [-D / 2, D / 2 - S] },
+      spine: { x: [-T / 2, T / 2], y: [0, H], z: [D / 2 - S, D / 2] }
+    };
+    for (const [id, bounds] of Object.entries(expected)) {
+      const observed = id === "*" ? envelopes.get(state) : parts.get(`${state}/${id}`);
+      if (!observed) { errors.push(`books/${state}/${id}: table part absent`); continue; }
+      for (const axis of /** @type {const} */ (["x", "y", "z"]))
+        if (Math.abs(observed[axis][0] - bounds[axis][0]) > epsilon ||
+          Math.abs(observed[axis][1] - bounds[axis][1]) > epsilon)
+          errors.push(`books/${state}/${id}/${axis}: prose formula differs from table`);
+    }
+  }
+  return errors;
+}
+
 /** @param {Map<string,string[]>} allSections */
 function audit(allSections) {
   const errors = [];
   let examined = 0;
   let measuredPrototypes = 0;
   for (const [anchor, lines] of allSections) {
-    const { envelopes, parts, inventory, miterJoints } = parse(lines, anchor);
+    const { envelopes, parts, inventory, miterJoints, voids, radial } = parse(lines, anchor);
     const provedMiterJoints = new Set();
     if (!envelopes.size) { errors.push(`${anchor}: no @envelope rows`); continue; }
     measuredPrototypes++;
@@ -149,6 +366,25 @@ function audit(allSections) {
       const stateParts = [...parts.values()].filter((part) => part.state === state);
       if (!stateParts.length) errors.push(`${anchor}/${state}: no @part rows`);
       const byId = new Map(stateParts.map((part) => [part.id, part]));
+      for (const [key, cavities] of voids) {
+        if (!key.startsWith(`${state}/`)) continue;
+        const host = byId.get(key.slice(state.length + 1));
+        if (!host) { errors.push(`${anchor}/${key}: void host absent`); continue; }
+        for (const cavity of cavities) {
+          for (const axis of /** @type {const} */ (["x", "y", "z"]))
+            if (cavity[axis][0] < host[axis][0] - epsilon || cavity[axis][1] > host[axis][1] + epsilon)
+              errors.push(`${anchor}/${key}: void ${axis} exits host`);
+        }
+        if (!occupiedBoxes(host, voids).length) errors.push(`${anchor}/${key}: void removes entire host`);
+      }
+      for (const [key, radii] of radial) {
+        if (!key.startsWith(`${state}/`)) continue;
+        const host = byId.get(key.slice(state.length + 1));
+        if (!host) { errors.push(`${anchor}/${key}: radial host absent`); continue; }
+        if (Math.abs(host.x[0] + radii.outer) > epsilon || Math.abs(host.x[1] - radii.outer) > epsilon ||
+          Math.abs(host.z[0] + radii.outer) > epsilon || Math.abs(host.z[1] - radii.outer) > epsilon)
+          errors.push(`${anchor}/${key}: radial radius differs from AABB`);
+      }
       const names = inventory.get(state);
       if (!names) errors.push(`${anchor}/${state}: no @inventory row`);
       else {
@@ -163,21 +399,25 @@ function audit(allSections) {
             errors.push(`${anchor}/${state}/${part.id}: ${axis} exits declared envelope`);
         if (!part.contact.length) errors.push(`${anchor}/${state}/${part.id}: contact path absent`);
         for (const target of part.contact) {
-          if (target === "ground") {
-            if (Math.abs(part.y[0]) > epsilon) errors.push(`${anchor}/${state}/${part.id}: misses ground`);
-          } else if (target === "wall") {
-            if (Math.abs(part.z[0]) > epsilon) errors.push(`${anchor}/${state}/${part.id}: misses wall datum`);
-          } else {
-            const adjacent = byId.get(target);
-            if (!adjacent) errors.push(`${anchor}/${state}/${part.id}: contact target ${target} absent`);
-            else if (!surfaceContact(part, adjacent))
+          const adjacent = byId.get(target);
+          if (adjacent) {
+            if (!actualContact(part, adjacent, radial, voids))
               errors.push(`${anchor}/${state}/${part.id}: no face contact with ${target}`);
-          }
+          } else if (target === "ground" || target === "support") {
+            if (!occupiedBoxes(part, voids).some((box) => Math.abs(box.y[0]) <= epsilon))
+              errors.push(`${anchor}/${state}/${part.id}: misses ${target}`);
+          } else if (target === "wall") {
+            if (!occupiedBoxes(part, voids).some((box) => Math.abs(box.z[0]) <= epsilon))
+              errors.push(`${anchor}/${state}/${part.id}: misses wall datum`);
+          } else if (target === "ceiling") {
+            if (!occupiedBoxes(part, voids).some((box) => Math.abs(box.y[1]) <= epsilon))
+              errors.push(`${anchor}/${state}/${part.id}: misses ceiling datum`);
+          } else errors.push(`${anchor}/${state}/${part.id}: contact target ${target} absent`);
         }
       }
       for (let i = 0; i < stateParts.length; i++) for (let j = i + 1; j < stateParts.length; j++) {
         const a = stateParts[i], b = stateParts[j], extent = overlap(a, b);
-        if (extent.every((size) => size > epsilon)) {
+        if (actualOverlap(a, b, radial, voids)) {
           if (a.shape === "box" && b.shape === "box")
             errors.push(`${anchor}/${state}: ${a.id} intersects ${b.id} (${extent.join(" x ")})`);
           else {
@@ -192,7 +432,8 @@ function audit(allSections) {
           }
         }
       }
-      const reached = new Set(stateParts.filter((part) => part.contact.includes("ground") || part.contact.includes("wall")).map((part) => part.id));
+      const reached = new Set(stateParts.filter((part) => part.contact.includes("ground") || part.contact.includes("support") ||
+        part.contact.includes("ceiling") || (part.contact.includes("wall") && !byId.has("wall"))).map((part) => part.id));
       let changed = true;
       while (changed) {
         changed = false;
@@ -205,11 +446,18 @@ function audit(allSections) {
     }
     for (const part of parts.values()) if (!envelopes.has(part.state))
       errors.push(`${anchor}/${part.state}/${part.id}: undeclared state`);
+    for (const key of voids.keys()) if (!parts.has(key)) errors.push(`${anchor}/${key}: void has no part`);
+    for (const key of radial.keys()) if (!parts.has(key)) errors.push(`${anchor}/${key}: radial declaration has no part`);
     for (const state of inventory.keys()) if (!envelopes.has(state))
       errors.push(`${anchor}/${state}: inventory for undeclared state`);
     for (const key of miterJoints) if (!provedMiterJoints.has(key))
       errors.push(`${anchor}/${key}: miter proof has no qualifying joint`);
     if (anchor === "folded-towels") errors.push(...towelFormula(lines, envelopes, parts));
+    if (anchor === "entry-charger") errors.push(...chargerFormula(lines, envelopes, voids));
+    if (anchor === "rugs") errors.push(...rugFormula(lines, envelopes, parts, voids, radial));
+    errors.push(...simpleProseEnvelope(anchor, lines, envelopes));
+    if (anchor === "dining-pendant") errors.push(...pendantFormula(lines, envelopes, radial));
+    if (anchor === "books") errors.push(...bookFormula(lines, envelopes, parts));
   }
   return { prototypes: allSections.size, measuredPrototypes, parts: examined, errors };
 }
@@ -264,6 +512,66 @@ if (process.argv.includes("--fixture")) {
   if (changedFormula === towelSource || !audit(new Map([["folded-towels", changedFormula.split("\n")]])).errors.some((error) => error.includes("differs from prose formula")))
     throw Error("folded towel prose formula mutation did not fail");
   results.push({ label: "towel prose formula changed", caught: true });
+  const charger = sections().get("entry-charger");
+  if (!charger) throw Error("entry-charger H2 absent");
+  const chargerSource = charger.join("\n");
+  if (audit(new Map([["entry-charger", charger]])).errors.length)
+    throw Error("entry-charger baseline failed");
+  const chargerMutations = [
+    ["recess deleted", "@void default: body, -0.026..0.026, 0.013..0.015, -0.0375..0.0375", "", "needs shape intersection proof"],
+    ["recess narrowed", "@void default: body, -0.026..0.026, 0.013..0.015, -0.0375..0.0375", "@void default: body, -0.020..0.020, 0.013..0.015, -0.0375..0.0375", "needs shape intersection proof"],
+    ["cavity exits host", "@void default: body, -0.006..0.006, 0.0045..0.0105, 0.05..0.06", "@void default: body, -0.006..0.006, 0.0045..0.0105, 0.05..0.07", "void z exits host"],
+    ["prose width changed", "폭 0.07, 깊이 0.12", "폭 0.08, 깊이 0.12", "prose/table interval"]
+  ];
+  for (const [label, before, after, expected] of chargerMutations) {
+    if (!chargerSource.includes(before)) throw Error(`entry-charger ${label}: mutation source absent`);
+    const changed = chargerSource.replace(before, after).split("\n");
+    const errors = audit(new Map([["entry-charger", changed]])).errors;
+    if (!errors.some((error) => error.includes(expected)))
+      throw Error(`entry-charger ${label}: expected ${expected}, got ${errors}`);
+    results.push({ label: `entry-charger ${label}`, caught: true });
+  }
+  const rugs = sections().get("rugs");
+  if (!rugs) throw Error("rugs H2 absent");
+  const rugsSource = rugs.join("\n");
+  if (audit(new Map([["rugs", rugs]])).errors.length) throw Error("rugs baseline failed");
+  const rugMutations = [
+    ["rectangular cavity deleted", "@void living: bound-edge, -1.375..1.375, 0.013..0.016, -1.8..1.8", "", "needs shape intersection proof"],
+    ["radial ring widened inward", "@radial round1200: bound-edge, 0.575, 0.6", "@radial round1200: bound-edge, 0.57, 0.6", "needs shape intersection proof"],
+    ["round pile radius changed", "@radial round1200: pile, 0, 0.575", "@radial round1200: pile, 0, 0.57", "prose radial border width differs"],
+    ["prose living width changed", "폭 2.80, 깊이 3.65", "폭 2.90, 깊이 3.65", "prose/table interval differs"]
+  ];
+  for (const [label, before, after, expected] of rugMutations) {
+    if (!rugsSource.includes(before)) throw Error(`rugs ${label}: mutation source absent`);
+    const errors = audit(new Map([["rugs", rugsSource.replace(before, after).split("\n")]])).errors;
+    if (!errors.some((error) => error.includes(expected)))
+      throw Error(`rugs ${label}: expected ${expected}, got ${errors}`);
+    results.push({ label: `rugs ${label}`, caught: true });
+  }
+  for (const [anchor, before, after] of [
+    ["storage-basket", "폭 0.40, 깊이 0.65", "폭 0.41, 깊이 0.65"],
+    ["wall-art", "폭 0.60, 높이 0.42", "폭 0.61, 높이 0.42"],
+    ["living-display", "폭 1.43, 높이 0.80", "폭 1.44, 높이 0.80"]
+  ]) {
+    const source = sections().get(anchor)?.join("\n");
+    if (!source || !source.includes(before)) throw Error(`${anchor}: prose mutation source absent`);
+    const errors = audit(new Map([[anchor, source.replace(before, after).split("\n")]])).errors;
+    if (!errors.some((error) => error.includes("prose/table x envelope differs")))
+      throw Error(`${anchor}: prose mutation missed envelope mismatch: ${errors}`);
+    results.push({ label: `${anchor} prose width changed`, caught: true });
+  }
+  const pendantSource = sections().get("dining-pendant")?.join("\n");
+  if (!pendantSource || !pendantSource.includes("지름 0.045m")) throw Error("pendant mutation source absent");
+  const pendantErrors = audit(new Map([["dining-pendant", pendantSource.replace("지름 0.045m", "지름 0.050m").split("\n")]])).errors;
+  if (!pendantErrors.some((error) => error.includes("prose/table dimension")))
+    throw Error(`pendant diameter mutation was not caught: ${pendantErrors}`);
+  results.push({ label: "dining-pendant prose shade diameter changed", caught: true });
+  const bookSource = sections().get("books")?.join("\n");
+  if (!bookSource || !bookSource.includes("두께 0.004m")) throw Error("books mutation source absent");
+  const bookErrors = audit(new Map([["books", bookSource.replace("두께 0.004m", "두께 0.005m").split("\n")]])).errors;
+  if (!bookErrors.some((error) => error.includes("prose formula differs from table")))
+    throw Error(`books cover-thickness mutation was not caught: ${bookErrors}`);
+  results.push({ label: "books prose cover thickness changed", caught: true });
   let measuredParts = 0;
   let mutationChecks = 0;
   for (const [anchor, lines] of sections()) {

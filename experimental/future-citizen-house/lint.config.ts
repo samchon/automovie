@@ -4,6 +4,7 @@ import {
   createAutoMovieEvidenceConfig,
   createAutoMoviePopulationAccountClaims,
   createBlankAutoMovieProductionEvidence,
+  createAutoMovieProductionObligationClaim,
   createAutoMovieProductionPrincipleClaim,
   evidence,
 } from "@automovie/evidence";
@@ -85,6 +86,14 @@ export const productionEvidence = {
       stage: "review",
       populationScope: { mode: "complete-production" },
       symbol: "h2",
+    }),
+    createAutoMovieProductionObligationClaim({
+      name: "Citizen house legacy fit-out has one model destination per child",
+      document: "contracts/model-fitout-handoff.md",
+      account: "accounts/models/legacy-fitout.md",
+      layer: "models",
+      stage: "draft",
+      populationScope: { mode: "complete-production" },
     }),
   ],
 } satisfies IAutoMovieEvidenceConfigProps;

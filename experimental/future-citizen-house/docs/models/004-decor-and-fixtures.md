@@ -10,7 +10,31 @@
 
 ## 개별 책 {#books}
 
-`book/<높이-mm>x<두께-mm>x<깊이-mm>`는 높이 0.18..0.30, 두께(X) 0.02..0.05, 깊이(Z) 0.12..0.20m의 세 값을 모두 ID에 넣는다. 선반 접촉 중심이 원점, +Z가 책등이 보이는 앞이다. 표지 두 장은 두께 0.004m로 각각 x=−T/2..−T/2+0.004와 x=T/2−0.004..T/2, y=0..H,z=−D/2..+D/2다. 종이 블록은 x=−T/2+0.004..T/2−0.004, y=0.004..H−0.004,z=−D/2..D/2−0.006이며 책등은 양 표지의 +Z 끝을 잇는 반경 0.004m 둥근 판이다. `cover-left/right/outer/inner/top/bottom/fore-edge/spine-edge`, `spine/outer/inner/top/bottom`, `pages/front/left/right/top/bottom/back`의 실제 면을 분리한다. 각각 닫힌 부피이며 표지 접합선은 책등의 안쪽에서 끝난다. 정면·상부·45°에서 책등과 개별 폭이 읽혀야 한다. ref04 벽 책장과 ref02 작은 침실 책상·선반의 개별 책을 채택하되 ref03의 장식 그릇을 책으로 바꾸지 않는다. ref01·05에는 책 치수 근거가 없다. 책의 수·회전은 instances가, 제목·인쇄는 미정 설정이 정하기 전까지 `unverified`다.
+`book/<높이-mm>x<두께-mm>x<깊이-mm>`는 높이·두께(X)·깊이(Z)의 세 값을 모두 ID에 넣는다. 허용 조합은 `180x30x120`, `240x35x160`, `300x50x200` 세 가지다. 선반 접촉 중심이 원점, +Z가 책등이 보이는 앞이다. 표지 두 장은 두께 0.004m로 각각 x=−T/2..−T/2+0.004와 x=T/2−0.004..T/2, y=0..H,z=−D/2..D/2−0.006이다. 종이 블록은 x=−T/2+0.004..T/2−0.004, y=0.004..H−0.004,z=−D/2..D/2−0.006이며 책등은 양 표지의 +Z 끝을 잇는 z=D/2−0.006..D/2의 별도 판이다. 책등의 앞 모서리 반경 0.004m는 이 판의 폐합 범위 안에서 깎고 뒤쪽 접합면은 두 표지와 종이에 면 접촉한다. `cover-left/right/outer/inner/top/bottom/fore-edge/spine-edge`, `spine/outer/inner/top/bottom`, `pages/front/left/right/top/bottom/back`의 실제 면을 분리한다. 각각 닫힌 부피이며 표지 접합선은 책등의 안쪽에서 끝난다. 정면·상부·45°에서 책등과 개별 폭이 읽혀야 한다. ref04 벽 책장과 ref02 작은 침실 책상·선반의 개별 책을 채택하되 ref03의 장식 그릇을 책으로 바꾸지 않는다. ref01·05에는 책 치수 근거가 없다. 책의 수·회전은 instances가, 제목·인쇄는 미정 설정이 정하기 전까지 `unverified`다.
+
+아래 세 상태의 `support`는 선반 상면 y=0이며, `H/T/D`를 위 ID의 mm 값에서 m로 변환해 식대로 전개했다. 연속 범위 안의 임의 네 번째 크기는 이 설계에 없으므로 새 prototype ID로 만들지 않는다.
+
+@inventory 180x30x120: cover-left, cover-right, pages, spine
+@inventory 240x35x160: cover-left, cover-right, pages, spine
+@inventory 300x50x200: cover-left, cover-right, pages, spine
+
+| kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| @envelope | 180x30x120 | * | bounds | -0.015..0.015 | 0..0.18 | -0.06..0.06 | - |
+| @part | 180x30x120 | cover-left | box | -0.015..-0.011 | 0..0.18 | -0.06..0.054 | support,pages,spine |
+| @part | 180x30x120 | cover-right | box | 0.011..0.015 | 0..0.18 | -0.06..0.054 | support,pages,spine |
+| @part | 180x30x120 | pages | box | -0.011..0.011 | 0.004..0.176 | -0.06..0.054 | cover-left,cover-right,spine |
+| @part | 180x30x120 | spine | box | -0.015..0.015 | 0..0.18 | 0.054..0.06 | support,cover-left,cover-right,pages |
+| @envelope | 240x35x160 | * | bounds | -0.0175..0.0175 | 0..0.24 | -0.08..0.08 | - |
+| @part | 240x35x160 | cover-left | box | -0.0175..-0.0135 | 0..0.24 | -0.08..0.074 | support,pages,spine |
+| @part | 240x35x160 | cover-right | box | 0.0135..0.0175 | 0..0.24 | -0.08..0.074 | support,pages,spine |
+| @part | 240x35x160 | pages | box | -0.0135..0.0135 | 0.004..0.236 | -0.08..0.074 | cover-left,cover-right,spine |
+| @part | 240x35x160 | spine | box | -0.0175..0.0175 | 0..0.24 | 0.074..0.08 | support,cover-left,cover-right,pages |
+| @envelope | 300x50x200 | * | bounds | -0.025..0.025 | 0..0.3 | -0.1..0.1 | - |
+| @part | 300x50x200 | cover-left | box | -0.025..-0.021 | 0..0.3 | -0.1..0.094 | support,pages,spine |
+| @part | 300x50x200 | cover-right | box | 0.021..0.025 | 0..0.3 | -0.1..0.094 | support,pages,spine |
+| @part | 300x50x200 | pages | box | -0.021..0.021 | 0.004..0.296 | -0.1..0.094 | cover-left,cover-right,spine |
+| @part | 300x50x200 | spine | box | -0.025..0.025 | 0..0.3 | 0.094..0.1 | support,cover-left,cover-right,pages |
 
 ## 접힌 수건 {#folded-towels}
 
@@ -47,9 +71,40 @@
 
 `storage-basket`은 폭 0.40, 깊이 0.65, 높이 0.28m다. 선반 접촉 중심 원점, +Z가 꺼내는 앞이다. 바닥 두께 0.012m, 네 벽 두께 0.010m, 상단 rim 폭 0.018m이며 내부는 열린 빈 공간이다. 양쪽 손잡이는 x=±0.195m 측벽의 z=−0.06..+0.06,y=0.208..0.243m인 0.12×0.035m 관통 구멍을 감싼 두께 0.012m 띠다. 보강 띠는 벽의 안쪽 x=±(0.188..0.200)에 매립되어 전체 폭을 늘리지 않는다. 그 바깥 경계는 z=±0.072,y=0.196..0.255m이며 위 rim과 0.007m 떨어진다. `wall/outer/inner/edge`, `rim/upper/edge/underside`, `bottom/upper/edge/underside`, `handle-left/right/outer/inner/cut-edge/contact`가 안정 주소다. 상부·정면·45°에서 내부와 구멍 둘을 확인한다. ref02의 1층 수납과 상층 linen의 바구니 역할을 채택하고 ref04의 책을 바구니 안 내용물로 자동 생성하지 않는다. ref01·03·05는 바구니 형상 근거가 없다. 내용물·개수는 instances가 결정하고 손잡이 하중은 `unverified`다.
 
+벽은 y=0.012..0.262, rim은 y=0.262..0.280이다. 벽 내부의 빈 공간은 x=±0.190,z=±0.315로 관통하고 rim의 열린 안쪽은 x=±0.182,z=±0.307이다. 각 손잡이의 외곽 x=−0.200..−0.188 또는 +0.188..+0.200, y=0.196..0.255,z=±0.072를 벽에서 먼저 절삭하고 동일한 외곽의 별도 띠 부품을 넣는다. 띠 중앙은 y=0.208..0.243,z=±0.060으로 절삭한다. 벽과 띠는 바깥 모서리를 공유하지만 부피를 복제하지 않는다.
+
+@inventory default: bottom, wall, rim, handle-left, handle-right
+@void default: wall, -0.19..0.19, 0.012..0.262, -0.315..0.315
+@void default: wall, -0.2..-0.188, 0.196..0.255, -0.072..0.072
+@void default: wall, 0.188..0.2, 0.196..0.255, -0.072..0.072
+@void default: rim, -0.182..0.182, 0.262..0.28, -0.307..0.307
+@void default: handle-left, -0.2..-0.188, 0.208..0.243, -0.06..0.06
+@void default: handle-right, 0.188..0.2, 0.208..0.243, -0.06..0.06
+
+| kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| @envelope | default | * | bounds | -0.2..0.2 | 0..0.28 | -0.325..0.325 | - |
+| @part | default | bottom | box | -0.2..0.2 | 0..0.012 | -0.325..0.325 | support,wall |
+| @part | default | wall | hollow | -0.2..0.2 | 0.012..0.262 | -0.325..0.325 | bottom,rim,handle-left,handle-right |
+| @part | default | rim | hollow | -0.2..0.2 | 0.262..0.28 | -0.325..0.325 | wall |
+| @part | default | handle-left | hollow | -0.2..-0.188 | 0.196..0.255 | -0.072..0.072 | wall |
+| @part | default | handle-right | hollow | 0.188..0.2 | 0.196..0.255 | -0.072..0.072 | wall |
+
 ## 현관 충전 물체 {#entry-charger}
 
 `entry-charger`는 폭 0.07, 깊이 0.12, 높이 0.015m다. [벽걸이 선반](002-storage-and-sleep.md#entry-charging-shelf)에 닿는 아래면 중심이 원점, +Z가 조작면이다. 본체 위쪽 x=±0.026,z=±0.0375,y=0.013..0.015m를 절삭해 0.052×0.075×0.002m 인터페이스를 flush로 끼운다. 앞쪽 edge z=+0.05..+0.06,x=±0.006,y=0.0045..0.0105m에는 폭 0.012·높이 0.006·깊이 0.010m 단자 구멍을 실제로 절삭한다. `body/front/back/top/edge/sole`, `interface/front/back/edge`, `port/inner/edge`가 안정 주소다. 정면·상부·측면과 현관 리뷰 거리 관찰에서 과장된 두꺼운 판으로 보이지 않는지 확인한다. ref02의 현관 충전 기능을 settings의 평벽 선반에 연결한다. ref01·03·04·05의 창·작업 기기를 충전기 형상으로 삼지 않는다. 실제 충전 과정은 systems 결정 전까지 `unverified`다.
+
+`port`는 빈 구멍의 내면 주소이며 별도 고체 부품이 아니다. 아래 두 `@void`는 body의 정확한 직육면체 절삭 체적이다. 첫 절삭에 interface가 측면·바닥으로 접하고 두 번째는 빈 단자 구멍이다. 이 표의 `support`는 모델 원점 y=0에서 선반 상면과 닿는 접촉 평면이다.
+
+@inventory default: body, interface
+@void default: body, -0.026..0.026, 0.013..0.015, -0.0375..0.0375
+@void default: body, -0.006..0.006, 0.0045..0.0105, 0.05..0.06
+
+| kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| @envelope | default | * | bounds | -0.035..0.035 | 0..0.015 | -0.06..0.06 | - |
+| @part | default | body | hollow | -0.035..0.035 | 0..0.015 | -0.06..0.06 | support,interface |
+| @part | default | interface | box | -0.026..0.026 | 0.013..0.015 | -0.0375..0.0375 | body |
 
 ## 거실·침실 러그 {#rugs}
 
@@ -57,9 +112,50 @@
 
 `round-rug/1200`은 ref02의 작은 침실에서 보이는 원형 러그를 채택한 지름 1.20m·높이 0.012m 변종이다. 접지 중심이 원점이고 장식 회전은 둘레가 균등하므로 +Z가 방 입구를 향한다. y=0..0.009의 닫힌 원판 base, y=0.009..0.012의 pile, 바깥 반경 0.60m에서 안쪽으로 0.025m 폭의 bound-edge를 갖는다. 원형 둘레는 [공통 곡면 분할](000-representation.md#model-uv-and-topology)의 24구간을 사용하고 `pile/upper/edge/underside`, `bound-edge/upper/inner/outer/underside`, `base/upper/edge/contact`를 직사각 변종과 같이 낸다. 실제 작은 침실의 문 호와 침대 발 사이 통행을 침범하는지는 instances의 배치 검증 전까지 `unverified`다.
 
+다음 표에서 직사각형 `bound-edge`의 `@void`는 전체 높이를 관통하는 안쪽 직사각형이며 그 자리에 `pile`이 정확히 맞닿는다. `round1200`의 `@radial`은 Y축 동심 원판·환형 띠의 실제 반지름 구간이다. `support`는 바닥과 만나는 y=0 평면이다. 세 상태 모두 base·pile·bound-edge를 빠짐없이 낸다.
+
+@inventory living: base, pile, bound-edge
+@inventory bedroom1600x2200: base, pile, bound-edge
+@inventory round1200: base, pile, bound-edge
+@void living: bound-edge, -1.375..1.375, 0.013..0.016, -1.8..1.8
+@void bedroom1600x2200: bound-edge, -0.775..0.775, 0.009..0.012, -1.075..1.075
+@radial round1200: base, 0, 0.6
+@radial round1200: pile, 0, 0.575
+@radial round1200: bound-edge, 0.575, 0.6
+
+| kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| @envelope | living | * | bounds | -1.4..1.4 | 0..0.016 | -1.825..1.825 | - |
+| @part | living | base | box | -1.4..1.4 | 0..0.013 | -1.825..1.825 | support,pile,bound-edge |
+| @part | living | pile | box | -1.375..1.375 | 0.013..0.016 | -1.8..1.8 | base,bound-edge |
+| @part | living | bound-edge | hollow | -1.4..1.4 | 0.013..0.016 | -1.825..1.825 | base,pile |
+| @envelope | bedroom1600x2200 | * | bounds | -0.8..0.8 | 0..0.012 | -1.1..1.1 | - |
+| @part | bedroom1600x2200 | base | box | -0.8..0.8 | 0..0.009 | -1.1..1.1 | support,pile,bound-edge |
+| @part | bedroom1600x2200 | pile | box | -0.775..0.775 | 0.009..0.012 | -1.075..1.075 | base,bound-edge |
+| @part | bedroom1600x2200 | bound-edge | hollow | -0.8..0.8 | 0.009..0.012 | -1.1..1.1 | base,pile |
+| @envelope | round1200 | * | bounds | -0.6..0.6 | 0..0.012 | -0.6..0.6 | - |
+| @part | round1200 | base | cylinder | -0.6..0.6 | 0..0.009 | -0.6..0.6 | support,pile,bound-edge |
+| @part | round1200 | pile | cylinder | -0.575..0.575 | 0.009..0.012 | -0.575..0.575 | base,bound-edge |
+| @part | round1200 | bound-edge | hollow | -0.6..0.6 | 0.009..0.012 | -0.6..0.6 | base,pile |
+
 ## 벽 액자 {#wall-art}
 
 `wall-art/600x420`은 폭 0.60, 높이 0.42, 전체 깊이 0.035m다. 벽 접합 뒷면 중심이 원점, +Z가 보는 앞이다. 폭 0.025m 프레임 띠, z=0..0.012의 뒤판, z=0.012..0.013의 중앙 이미지 수신용 빈 종이 면, z=0.013..0.021의 0.008m 매트, z=0.031..0.035의 0.004m 전면 cover를 가진다. z=0.021..0.031은 0.010m 빈 공기층이고 프레임은 외곽에서 z=0.012..0.035를 연결한다. `frame/front/edge/back`, `mat/front/back/edge`, `artwork/front/back/edge`, `cover/front/back/edge`, `back/outer/contact`가 안정 주소다. 실제 그림 내용·색은 model이 결정하지 않고 materials의 결합 전까지 중립 면이다. 정면·측면·45°와 침실 거리에서 사진 billboard가 아닌 실제 두께·frame이 보여야 한다. ref02 작은 침실 벽의 액자 한 점을 채택한다. ref01·03·04·05의 창 너머 장면을 액자 이미지로 붙이지 않는다. 특정 가족 사진·직업 단서는 설정에 없으므로 표현하지 않으며 실제 그림 내용은 `unverified`다.
+
+프레임의 안쪽 경계는 x=±0.275,y=±0.185이고 이 개구를 z=0.012..0.035에 관통 절삭한다. 매트는 그 개구를 채우는 테두리로서 중앙 x=±0.230,y=±0.140을 z=0.013..0.021에 절삭한다. 종이 artwork는 그 중앙 x=±0.230,y=±0.140을 채우고 뒤판에 붙으며, 투명 cover는 프레임 개구 전체 x=±0.275,y=±0.185에서 z=0.031..0.035로 프레임 안쪽 네 면에 닿는다. 빈 공기층에는 감춘 지지대나 중복 평판이 없다.
+
+@inventory default: back, frame, mat, artwork, cover
+@void default: frame, -0.275..0.275, -0.185..0.185, 0.012..0.035
+@void default: mat, -0.23..0.23, -0.14..0.14, 0.013..0.021
+
+| kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| @envelope | default | * | bounds | -0.3..0.3 | -0.21..0.21 | 0..0.035 | - |
+| @part | default | back | box | -0.3..0.3 | -0.21..0.21 | 0..0.012 | wall,frame,artwork |
+| @part | default | frame | hollow | -0.3..0.3 | -0.21..0.21 | 0.012..0.035 | back,mat,cover |
+| @part | default | mat | hollow | -0.275..0.275 | -0.185..0.185 | 0.013..0.021 | frame |
+| @part | default | artwork | box | -0.23..0.23 | -0.14..0.14 | 0.012..0.013 | back |
+| @part | default | cover | box | -0.275..0.275 | -0.185..0.185 | 0.031..0.035 | frame |
 
 ## 빈 그릇·쟁반·컵 {#tabletop-props}
 
@@ -67,15 +163,62 @@
 
 ## 거실 화면 {#living-display}
 
-`living-display`는 폭 1.43, 높이 0.80, 깊이 0.045m다. 벽 mount 접합면 중심이 원점, +Z가 시청자 쪽이다. mount는 폭 0.18·높이 0.12·깊이 0.018m로 z=0..0.018, housing은 폭 1.43·높이 0.80·깊이 0.027m로 z=0.018..0.045다. bezel은 바깥 가장자리에서 폭 0.018m를 차지하며 중앙 screen을 위한 전면 개구를 실제로 절삭한다. screen은 z=0.039..0.042m의 두께 0.003m 판이고 bezel 전면 z=0.042..0.045보다 뒤로 물린다. `screen/front/back/edge`, `bezel/front/back/edge`, `housing/front/back/edge`, `mount/outer/contact`가 안정 주소다. 정면·측면·45°에서 bezel와 벽 이격을 확인한다. ref02와 ref03 거실의 미디어 장치를 채택하며 ref01·04·05의 유리 벽을 화면으로 오인하지 않는다. 영상 내용과 전력 상태는 이 형상에서 `unverified`다.
+`living-display`는 폭 1.43, 높이 0.80, 깊이 0.045m다. 벽 mount 접합면 중심이 원점, +Z가 시청자 쪽이다. mount는 폭 0.18·높이 0.12·깊이 0.018m로 z=0..0.018이다. 뒤판 housing은 폭 1.43·높이 0.80·깊이 0.021m로 z=0.018..0.039이고 bezel의 0.006m 깊이를 합치면 display 외함의 전체 깊이가 0.027m다. bezel은 바깥 가장자리에서 폭 0.018m를 차지하며 중앙 screen을 위한 전면 개구를 실제로 절삭한다. screen은 z=0.039..0.042m의 두께 0.003m 판이고 bezel 전면 z=0.045보다 0.003m 물린다. `screen/front/back/edge`, `bezel/front/back/edge`, `housing/front/back/edge`, `mount/outer/contact`가 안정 주소다. 정면·측면·45°에서 bezel와 벽 이격을 확인한다. ref02와 ref03 거실의 미디어 장치를 채택하며 ref01·04·05의 유리 벽을 화면으로 오인하지 않는다. 영상 내용과 전력 상태는 이 형상에서 `unverified`다.
+
+bezel의 중앙 개구는 x=±0.697,y=±0.382,z=0.039..0.045를 관통하고 그 내벽이 screen의 절단 edge에 닿는다. housing 뒤판과 screen 뒷면은 z=0.039에서 맞닿으며 두 부품의 면은 복제하지 않는다.
+
+@inventory default: mount, housing, bezel, screen
+@void default: bezel, -0.697..0.697, -0.382..0.382, 0.039..0.045
+
+| kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| @envelope | default | * | bounds | -0.715..0.715 | -0.4..0.4 | 0..0.045 | - |
+| @part | default | mount | box | -0.09..0.09 | -0.06..0.06 | 0..0.018 | wall,housing |
+| @part | default | housing | box | -0.715..0.715 | -0.4..0.4 | 0.018..0.039 | mount,bezel,screen |
+| @part | default | bezel | hollow | -0.715..0.715 | -0.4..0.4 | 0.039..0.045 | housing,screen |
+| @part | default | screen | box | -0.697..0.697 | -0.382..0.382 | 0.039..0.042 | housing,bezel |
 
 ## 천장 매입등 {#recessed-light}
 
-`recessed-light`는 외경 0.12, 전체 깊이 0.04m다. 천장 접합면 중심이 원점이고 +Y가 천장 안쪽이므로 보이는 trim은 외경 0.12m·내경 0.095m의 닫힌 고리로 y=−0.025..0이고, 별도 천장 구멍을 요구하지 않는 얕은 housing의 몸체는 외경 0.085m, y=−0.040..−0.025다. housing과 한 부품인 상단 flange는 외경 0.10m,y=−0.028..−0.025이며 trim 아래면의 반지름 0.0475..0.05m 환형 접촉면에 닿는다. 이는 천장면 아래에서 마감되는 0.04m 표면 부착 다운라이트이며 천장 안으로 매립된 부품이라고 주장하지 않는다. 확산면 지름 0.095m·두께 0.003m는 y=−0.015..−0.012에 후퇴하고 그 바깥 원통면은 trim의 내벽에 유한 면으로 닿는다. `housing/outer/inner/contact`, `trim/front/edge/contact`, `diffuser/front/back/edge`가 안정 주소다. diffuser의 발광 과정은 system emitter와 별도 대응하고 housing은 emissive가 아니다. 아래·45°와 실내 거리에서 trim 깊이를 확인한다. ref03·04·05의 작은 천장 점등을 채택하고 ref01의 실내 빛점을 특정 fixture의 형상 근거로 쓰지 않는다. ref02는 두 층 반복 위치의 검사 자료다. 실제 광량은 systems 소유이며 이 모델 H2의 결과로는 `unverified`다.
+`recessed-light`는 외경 0.12, 전체 깊이 0.04m다. 천장 접합면 중심이 원점이고 +Y가 천장 안쪽이므로 보이는 trim은 외경 0.12m·내경 0.095m의 닫힌 고리로 y=−0.025..0이고, 별도 천장 구멍을 요구하지 않는 얕은 housing-body는 외경 0.085m, y=−0.040..−0.028다. housing-flange는 별도 닫힌 원판으로 외경 0.10m,y=−0.028..−0.025이며 housing-body 상면과 trim 아래면의 반지름 0.0475..0.05m 환형 접촉면에 닿는다. 이는 천장면 아래에서 마감되는 0.04m 표면 부착 다운라이트이며 천장 안으로 매립된 부품이라고 주장하지 않는다. 확산면 지름 0.095m·두께 0.003m는 y=−0.015..−0.012에 후퇴하고 그 바깥 원통면은 trim의 내벽에 유한 면으로 닿는다. `housing-body/outer/sole/top`, `housing-flange/top/edge/underside`, `trim/front/edge/contact`, `diffuser/front/back/edge`가 안정 주소다. diffuser의 발광 과정은 system emitter와 별도 대응하고 housing은 emissive가 아니다. 아래·45°와 실내 거리에서 trim 깊이를 확인한다. ref03·04·05의 작은 천장 점등을 채택하고 ref01의 실내 빛점을 특정 fixture의 형상 근거로 쓰지 않는다. ref02는 두 층 반복 위치의 검사 자료다. 실제 광량은 systems 소유이며 이 모델 H2의 결과로는 `unverified`다.
+
+`@radial`은 동심 Y축 부품의 실제 내·외 반지름이며 `ceiling`은 y=0 접촉 평면이다. housing-flange가 몸체의 윗면과 맞대고 trim의 고리 아래면에서 유한 환형 접촉면을 만든다.
+
+@inventory default: housing-body, housing-flange, trim, diffuser
+@radial default: housing-body, 0, 0.0425
+@radial default: housing-flange, 0, 0.05
+@radial default: trim, 0.0475, 0.06
+@radial default: diffuser, 0, 0.0475
+
+| kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| @envelope | default | * | bounds | -0.06..0.06 | -0.04..0 | -0.06..0.06 | - |
+| @part | default | housing-body | cylinder | -0.0425..0.0425 | -0.04..-0.028 | -0.0425..0.0425 | housing-flange |
+| @part | default | housing-flange | cylinder | -0.05..0.05 | -0.028..-0.025 | -0.05..0.05 | housing-body,trim |
+| @part | default | trim | hollow | -0.06..0.06 | -0.025..0 | -0.06..0.06 | ceiling,housing-flange,diffuser |
+| @part | default | diffuser | cylinder | -0.0475..0.0475 | -0.015..-0.012 | -0.0475..0.0475 | trim |
 
 ## 가는 원통 식탁 펜던트 {#dining-pendant}
 
-`dining-pendant`는 천장 cord 고정점이 원점, +Y가 천장 안쪽, 아래가 식탁으로 향한다. 전체 하향 길이 1.00m 중 cord는 y=0..-0.62에 지름 0.006m, 가는 원통 shade는 y=-0.62..-1.00에 지름 0.045m, 하단 diffuser는 지름 0.038m·두께 0.003m로 y=-0.989..-0.986에 후퇴한다. 천장 canopy는 지름 0.08, 높이 0.018m로 천장면 아래 y=−0.018..0에 닿는다. cord가 지나는 중앙 지름 0.006m 구멍을 절삭하고 그 edge에서 cord에 접하므로 천장 안쪽으로 들어가지 않는다. `cord/outer/end`, `canopy/outer/contact`, `shade/outer/inner/edge`, `diffuser/front/back/edge`가 안정 주소다. 원통 내부는 diffuser까지 열린 음영 공간이며 원판형 0.38m shade를 남기지 않는다. 정면·측면·45°와 ref03 식탁 거리에서 가는 세로선으로 보여야 한다. ref03의 원통 펜던트를 채택하고 ref02는 식탁 위 매달린 위치 관계만 채택한다. ref01·04·05에는 펜던트 형상 증거가 없다. 발광은 system emitter가 소유하고 모델 형상만으로 광량은 `unverified`다.
+`dining-pendant`는 천장 cord 고정점이 원점, +Y가 천장 안쪽, 아래가 식탁으로 향한다. 전체 하향 길이 1.00m 중 cord는 y=−0.62..0에 지름 0.006m, 가는 원통 shade는 y=−1.00..−0.62에 지름 0.045m, 하단 diffuser는 지름 0.038m·두께 0.003m로 y=−0.989..−0.986에 후퇴한다. 천장 canopy는 지름 0.08, 높이 0.018m로 천장면 아래 y=−0.018..0에 닿는다. cord가 지나는 중앙 지름 0.006m 구멍을 절삭하고 그 edge에서 cord에 접하므로 천장 안쪽으로 들어가지 않는다. shade는 안쪽 반지름 0.019m인 `shade-wall`(y=−1.00..−0.625)과 그 위의 닫힌 `shade-cap`(y=−0.625..−0.620) 두 부품으로 연결하고 cap 상면에 cord 단면을 맞댄다. `cord/outer/end`, `canopy/outer/contact`, `shade-wall/outer/inner/edge`, `shade-cap/top/underside/edge`, `diffuser/front/back/edge`가 안정 주소다. 원통 내부는 diffuser까지 열린 음영 공간이며 원판형 0.38m shade를 남기지 않는다. 정면·측면·45°와 ref03 식탁 거리에서 가는 세로선으로 보여야 한다. ref03의 원통 펜던트를 채택하고 ref02는 식탁 위 매달린 위치 관계만 채택한다. ref01·04·05에는 펜던트 형상 증거가 없다. 발광은 system emitter가 소유하고 모델 형상만으로 광량은 `unverified`다.
+
+다음 `@radial`은 Y축 동심 부품의 실제 내·외반경이다. `ceiling`은 y=0의 천장 접합 평면이다. shade의 벽·cap은 서로 맞댐이고 diffuser 반지름 0.019m가 벽의 내반경에 면 접촉한다.
+
+@inventory default: canopy, cord, shade-wall, shade-cap, diffuser
+@radial default: canopy, 0.003, 0.04
+@radial default: cord, 0, 0.003
+@radial default: shade-wall, 0.019, 0.0225
+@radial default: shade-cap, 0, 0.0225
+@radial default: diffuser, 0, 0.019
+
+| kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| @envelope | default | * | bounds | -0.04..0.04 | -1..0 | -0.04..0.04 | - |
+| @part | default | canopy | hollow | -0.04..0.04 | -0.018..0 | -0.04..0.04 | ceiling,cord |
+| @part | default | cord | cylinder | -0.003..0.003 | -0.62..0 | -0.003..0.003 | canopy,shade-cap |
+| @part | default | shade-wall | hollow | -0.0225..0.0225 | -1..-0.625 | -0.0225..0.0225 | shade-cap,diffuser |
+| @part | default | shade-cap | cylinder | -0.0225..0.0225 | -0.625..-0.62 | -0.0225..0.0225 | shade-wall,cord |
+| @part | default | diffuser | cylinder | -0.019..0.019 | -0.989..-0.986 | -0.019..0.019 | shade-wall |
 
 ## 바닥 독서등·구형 협탁등·작업등 {#portable-lamps}
 

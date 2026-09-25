@@ -71,7 +71,7 @@ const prototypes = {
   refrigerator: ["0.90", "2.65", "0.785", "0..0.08"],
   "laundry-appliances": ["0.66", "0.84", "controls-panel"],
   "potted-plant": ["0.18", "0.28", "0.60", "1.10"],
-  books: ["0.18..0.30", "0.02..0.05", "0.12..0.20"],
+  books: ["180x30x120", "240x35x160", "300x50x200"],
   "folded-towels": ["0.08", "0.12", "0.16", "0.004"],
   "storage-basket": ["0.40", "0.65", "0.28", "0.012"],
   "entry-charger": ["0.07", "0.12", "0.015", "0.010"],
@@ -80,7 +80,7 @@ const prototypes = {
   "tabletop-props": ["0.22", "0.36", "0.085", "0.095"],
   "living-display": ["1.43", "0.80", "0.045", "0.039..0.042"],
   "recessed-light": ["0.12", "0.04", "−0.025..0"],
-  "dining-pendant": ["1.00", "0.045", "-0.62..-1.00"],
+  "dining-pendant": ["1.00", "0.045", "−1.00..−0.62"],
   "portable-lamps": ["1.24", "0.29", "0.42", "z=+0.09"]
 };
 const common = ["model-address-and-scale", "model-uv-and-topology", "model-articulation-ownership", "model-bounds-and-states", "model-neutral-observation"];
@@ -237,7 +237,7 @@ function checkRemainingPrototypes() {
   equalLength(0.33 - laundryRear, 0.66, "laundry depth incl drum");
   const plantPotFraction = numeric("potted-plant", /화분 높이는 ([\d.]+)H/);
   contains(0, 1, plantPotFraction, "plant pot within total H");
-  const bookMinThickness = numeric("books", /두께\(X\) ([\d.]+)\.\.0\.05/);
+  const bookMinThickness = numeric("books", /허용 조합은 `\d+x(\d+)x\d+`/) / 1000;
   const bookCoverThickness = numeric("books", /표지 두 장은 두께 ([\d.]+)m/);
   requireThat(bookMinThickness > 2 * bookCoverThickness, "book has positive page width");
   const towelGap = numeric("folded-towels", /두 ([\d.]+)m 음영 틈의/);
@@ -263,13 +263,15 @@ function checkRemainingPrototypes() {
   equalLength(cupHandleCenterZ + cupHandleOuter / 2, cupBoundFrontZ,
     "decor cup handle within declared Z bound");
   const displayMountDepth = numeric("living-display", /mount는.*?깊이 ([\d.]+)m/);
-  const displayHousingDepth = numeric("living-display", /housing은.*?깊이 ([\d.]+)m/);
-  equalLength(displayMountDepth + displayHousingDepth, 0.045, "display total depth");
+  const displayHousingDepth = numeric("living-display", /뒤판 housing은.*?깊이 ([\d.]+)m/);
+  const displayBezelDepth = numeric("living-display", /bezel의 ([\d.]+)m 깊이/);
+  equalLength(displayMountDepth + displayHousingDepth + displayBezelDepth, 0.045, "display total depth");
   const recessedTrimBottom = numeric("recessed-light", /trim은.*?y=([-−\d.]+)\.\.0/);
-  const recessedHousingBottom = numeric("recessed-light", /housing의 몸체는.*?y=([−\d.]+)\.\.−0\.025/);
+  const recessedHousingBottom = numeric("recessed-light", /housing-body는.*?y=([−\d.]+)\.\.−0\.028/);
+  const recessedFlangeTop = numeric("recessed-light", /housing-flange는.*?y=−0\.028\.\.([−\d.]+)/);
   equalLength(-recessedHousingBottom, 0.04, "surface light total depth");
-  equalLength(recessedTrimBottom, -0.025, "surface light trim meets housing");
-  const pendantShadeBottom = numeric("dining-pendant", /shade는 y=-0\.62\.\.([-−\d.]+)/);
+  equalLength(recessedTrimBottom, recessedFlangeTop, "surface light trim meets flange");
+  const pendantShadeBottom = numeric("dining-pendant", /shade는 y=([-−\d.]+)\.\.−0\.62/);
   equalLength(-pendantShadeBottom, 1.00, "pendant downward length");
 }
 checkSeating();
