@@ -61,7 +61,7 @@
 
 ## 실내 문의 표면 파티션 {#interior-door-surfaces}
 <!--
-@evidence principles/core/common.md#scope-preservation 실내 문의 표면 id(jamb·casing·leaf·leaf-panel·handle·hinge)와 벽면별 -a/-b 분리를 이 H2가 맡는다.
+@evidence principles/core/common.md#scope-preservation 실내 문의 표면 id(`jamb-a/b/core`·`casing-a/b`·`leaf`·`leaf-panel`·`handle`·`hinge`)와 A/B 벽면별 문설주·문선 분리, 절단 끝의 UV를 이 H2가 맡는다.
 @evidence principles/core/common.md#substantive-completion 문설주와 casing을 양쪽 방 마감 차이 때문에 나누고 leaf는 한 면으로 둔다고 적는다.
 @evidence principles/core/common.md#declared-basis jamb·casing·leaf·leaf-panel·handle·hinge id 규칙은 00-model-frame.md#model-surface-partition-naming에서 받는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 공통 id 규칙을 실내 문 두 벽면의 분리로 바꾼다.

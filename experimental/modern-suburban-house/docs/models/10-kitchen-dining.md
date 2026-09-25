@@ -55,7 +55,7 @@
 ## 양문 냉장고 {#kitchen-refrigerator}
 <!--
 @evidence principles/core/common.md#scope-preservation 양문 냉장고의 외곽, 위 두 문·아래 서랍·세 손잡이 계층, 세 피벗과 작동 범위, 다섯 재질 경계, 내부 표현 한계, 세 관찰을 한 H2가 소유한다.
-@evidence principles/core/common.md#substantive-completion 몸통 0.72 m·문 0.05 m·손잡이 0.03 m 깊이 분할, 서랍 Y = [0.05, 0.75], 문 Y = [0.77, 1.85], 문 폭 0.47 m·중앙 틈 0.005 m, 서랍 인출 0.55 m까지 확정한다.
+@evidence principles/core/common.md#substantive-completion 몸통 0.72 m·문 0.05 m·손잡이 0.03 m 깊이 분할, 서랍 Y = [0.05, 0.75], 문 Y = [0.77, 1.85], 문 폭 0.47 m·중앙 틈 0.005 m, 서랍 인출 0.55 m와 뒤 하단 0.015 × 0.10 m 걸레받이 홈을 확정한다.
 @evidence principles/core/common.md#declared-basis X = [-5.50, -4.70]·Z = [-7.40, -6.45]·Y = [0, 1.85]는 예약에서 그대로 받고, 0.80 m 깊이 분할은 이 층의 결정이며, 90° 열림 0.47 + 0.03 = 0.50 m가 작동 예약 0.55 m 안이라는 산술을 근거로 든다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 예약 외곽 위에 위 두 문·아래 서랍 구성, 바깥 세로 모서리 경첩 피벗, 서랍의 +Z 0.55 m 미끄럼이라는 작동 인터페이스를 더한다.
 @evidence principles/design/models.md#representation-contract 몸통 아래 두 문·서랍·세 손잡이 계층과 `appliance-body`·`leaf`·`drawer-front`·`handle`·열린 상태 전용 `appliance-interior`를 정하고 내부를 빈 상자 하나의 proxy로 둔다.
@@ -82,7 +82,7 @@
 ## 레인지와 아래 오븐 {#kitchen-range}
 <!--
 @evidence principles/core/common.md#scope-preservation 레인지와 아래 오븐의 외곽, 조리 상판·네 화구 링·조작 띠·오븐 문·손잡이 부품, `oven-door` 피벗, 재질 경계, 표현 한계, 세 관찰을 이 H2가 소유하고 뒤쪽 조작 패널을 두지 않는 이유도 적는다.
-@evidence principles/core/common.md#substantive-completion 0.80 × 0.65 × 0.91 m 외곽, 조리 상판 Y = [0.88, 0.91], 화구 지름 0.20 m·높이 0.01 m 이내, 오븐 문 Y = [0.10, 0.62], 조작 띠 Y = [0.66, 0.86]을 확정한다.
+@evidence principles/core/common.md#substantive-completion 0.80 × 0.65 × 0.91 m 외곽, 조리 상판 Y = [0.88, 0.91], 화구 지름 0.20 m·높이 0.01 m 이내, 오븐 문 Y = [0.10, 0.62], 조작 띠 Y = [0.66, 0.86], 뒤 하단 0.015 × 0.10 m 걸레받이 홈을 확정한다.
 @evidence principles/core/common.md#declared-basis 외곽은 예약 X = [-5.50, -4.85]·Z = [-9.50, -8.70]·Y = [0, 0.91]에서 받고, 뒤쪽 패널 제외는 0.91 m 상한 위 패널이 예약을 벗어난다는 이유로, 오븐 문 높이는 0.52 + 0.03 = 0.55 m 산술로 정당화한다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 예약 외곽에 네 화구 링, 전면 상단 조작 띠, 아래 모서리 수평 경첩 오븐 문이라는 구성과 작동 인터페이스를 더한다.
 @evidence principles/design/models.md#representation-contract 몸통·조리 상판·네 화구 링·전면 조작 띠·오븐 문·오븐 손잡이 계층과 여덟 재질 경계를 정하고 불꽃·열·유리 투과·조작 손잡이 개별 형상을 표현하지 않는다고 밝힌다.

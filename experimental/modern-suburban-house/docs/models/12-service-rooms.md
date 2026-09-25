@@ -3,7 +3,7 @@
 ## 드럼 세탁기와 건조기 {#laundry-machine}
 <!--
 @evidence principles/core/common.md#scope-preservation 세탁기·건조기 한 원형의 두 변형만 맡아 몸통·원형 문·손잡이·조작 띠를 정하고 드럼 회전·세제함·배관은 표현하지 않는다고 범위를 닫는다.
-@evidence principles/core/common.md#substantive-completion 몸통 깊이 0.72 m, 문 지름 0.45 m·중심 높이 0.42 m, 드럼 지름 0.36 m·깊이 0.06 m, 조작 띠 Y = [0.76, 0.86]과 왼쪽 경첩 축을 본문에서 확정한다.
+@evidence principles/core/common.md#substantive-completion 몸통 깊이 0.72 m와 0.102 m 원형 구멍, 문 지름 0.45 m·중심 높이 0.42 m, 드럼 지름 0.36 m·깊이 0.06 m, 조작 띠 Y = [0.76, 0.86], 왼쪽 경첩 축과 벽/차고문 문선용 L자 뒤 절개를 본문에서 정한다.
 @evidence principles/core/common.md#declared-basis 외곽 깊이 0.75 m·폭 0.65 m·높이 0.88 m는 세탁 작업 예약의 두 기기 범위에서 읽은 값이고 문 90° 돌출 0.48 m는 0.45 m와 0.03 m의 산술이라고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 공간 예약이 준 기기 외곽 위에 원형 문 경첩 피벗 `door`, 몸통 0.72 m와 문·손잡이 0.03 m의 깊이 분할, 조작 띠 표시로만 다른 두 변형이라는 모델 결정을 더한다.
 @evidence principles/design/models.md#representation-contract 부품을 몸통·구멍 절단면·원형 고리 문·문 손잡이·조작 띠·고정 드럼으로, 표면 owner를 `appliance-body`, `leaf`, `door-ring`, `glass`, `handle`, `control-panel`, `appliance-interior`, `drum`로 정하고 드럼 회전·세제함·배관은 이 proxy가 표현하지 않는 것으로 둔다.
@@ -76,7 +76,7 @@
 ## 머드룸 신발 벤치 {#mudroom-bench}
 <!--
 @evidence principles/core/common.md#scope-preservation 머드룸 신발 벤치의 좌판·옆판·신발 선반과 선반 위 신발 두 켤레만 맡고 외투 걸이는 다음 H2에 둔다.
-@evidence principles/core/common.md#substantive-completion 좌판 Y = [0.42, 0.45], 옆판 두께 0.03 m, 신발 선반 상면 0.10 m, 신발 상자 0.28 × 0.10 × 0.10 m를 정한다.
+@evidence principles/core/common.md#substantive-completion 좌판 Y = [0.42, 0.45], 옆판 두께 0.03 m, 신발 선반 상면 0.10 m, 신발 상자 0.28 × 0.10 × 0.10 m와 뒤 하단 Z=[0,0.015]·Y=[0,0.10] m 빈 띠를 정한다.
 @evidence principles/core/common.md#declared-basis 길이 0.80 m·깊이 0.40 m·좌면 0.45 m는 예약 X = [3.22, 3.62], Z = [-2.85, -2.05]와 좌면 0.45 m에서 받았고 신발을 낮은 상자 둘로 두는 것은 저작 선택이다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 예약이 준 벤치 범위와 좌면 높이 위에 좌판·옆판 둘·신발 선반 분할과 신발 두 켤레 proxy를 더한다.
 @evidence principles/design/models.md#representation-contract 부품을 좌판·옆판 둘·신발 선반과 신발 상자 둘로, 재질 경계를 `seat`·`carcass`·`shelf`·`shoe`로 정하고 관절은 두지 않는다. 보이지 않는 한계는 본문의 "신발 끈·밑창 형상과 좌판 모서리 모따기는 표현하지 않는다."로 밝힌다.

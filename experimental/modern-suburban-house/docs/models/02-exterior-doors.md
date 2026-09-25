@@ -2,7 +2,7 @@
 
 ## 목재 현관문 {#front-entry-door}
 <!--
-@evidence principles/core/common.md#scope-preservation front-door의 문짝 0.94×2.14 m, 문설주 0.03 m, 상부 유리 3열×2행, 경첩과 손잡이를 이 H2가 맡고 문턱판은 spaces에 남긴다.
+@evidence principles/core/common.md#scope-preservation front-door의 문짝 0.94×2.14 m, 문설주 0.03 m, 바깥 `exterior-trim`과 안쪽 `casing` 세 판씩, 상부 유리 3열×2행, 경첩과 손잡이를 이 H2가 맡고 문턱판은 spaces에 남긴다.
 @evidence principles/core/common.md#substantive-completion 90° 순폭 1.00−0.06−0.04=0.90 m, 유리 구간 1.30–2.05 m, stile/rail 0.12 m, 살대 0.03 m, 회전 반경 0.94 m를 산출해 적는다.
 @evidence principles/core/common.md#declared-basis 개구부·경첩·열림은 spaces/rooms/entry.md#entry-plan, 유리 분할은 spaces/envelope/front.md#front-entry-filling, 유리 하단 근거는 settings/20-verification.md#frame-condition의 눈높이 1.6 m에서 받는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation entry의 '유효 폭 0.90 m 이상 문틀'을 문설주 0.03 m와 문짝 0.04 m의 산술로, front-entry-filling의 3열×2행을 유리 구간 수치로 바꾼다.
@@ -52,7 +52,7 @@
 
 ## 정원 쪽 유리문 두 장 {#garden-door-pair}
 <!--
-@evidence principles/core/common.md#scope-preservation 정원문 두 장의 문짝 1.17 m, 문설주, 경첩, 중앙 손잡이와 회전 반경을 이 H2가 맡고 문턱판은 spaces에 남긴다.
+@evidence principles/core/common.md#scope-preservation 정원문 두 장의 문짝 1.17 m, 문설주, 바깥 `exterior-trim`과 안쪽 `casing` 세 판씩, 경첩, 중앙 손잡이와 회전 반경을 이 H2가 맡고 문턱판은 spaces에 남긴다.
 @evidence principles/core/common.md#substantive-completion 주 문만 열 때 순폭 1.20-0.03-0.04=1.13 m, 손잡이 0.06 m를 빼도 0.95 m 초과, 회전 반경 1.17 m가 바깥 대기 1.80 m 안이라고 산출한다.
 @evidence principles/core/common.md#declared-basis 개구부·열림·목표·대기는 spaces/envelope/rear.md#garden-door에서 받는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation garden-door의 '유리 경첩 문 두 장, 주 문 0.95 m'를 문짝 폭과 순폭 산술로 바꾼다.
@@ -100,7 +100,7 @@
 ## 외부 문의 표면 파티션 {#exterior-door-surfaces}
 <!--
 @evidence principles/core/common.md#scope-preservation 현관문·정원문·차고문·대문의 표면 id와 leaf-exterior/leaf-interior 분리, 문짝 UV 정렬을 이 H2가 맡는다.
-@evidence principles/core/common.md#substantive-completion 문짝 UV를 국소 X·Y에 맞춰 목재 결이 높이 방향을 따를 수 있다고 적는다.
+@evidence principles/core/common.md#substantive-completion 현관 목재 문짝과 대문 판재의 국소 X·Y UV, 문선·문설주·경첩·손잡이의 길이/둘레 UV, 차고문 rail 경로의 호길이 UV를 부재별 원점과 이음으로 정한다.
 @evidence principles/core/common.md#declared-basis id 규칙은 00-model-frame.md#model-surface-partition-naming, 분담은 settings/20-verification.md#surface-allocation에서 받는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation surface-allocation의 인계를 외부 문 네 종류의 id 목록으로 바꾼다.
 @evidence principles/design/models.md#representation-contract 포치와 현관에서 다른 마감을 받는 문짝 면을 별도 표면으로 둔다.

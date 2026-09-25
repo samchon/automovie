@@ -3,7 +3,7 @@
 ## 패브릭 소파 {#fabric-sofa}
 <!--
 @evidence principles/core/common.md#scope-preservation 거실 소파 예약과 가족실 소파 예약 두 곳을 한 원형으로 받아 외곽 2.10 × 0.95 × 0.90 m, 부품, 재질 경계, 관찰, 소스 owner `src/models/furnishings/living.ts`를 모두 이 H2 안에서 정한다.
-@evidence principles/core/common.md#substantive-completion 받침 Y = [0.08, 0.30], 팔걸이 폭 0.15 m·높이 0.62 m, 등받이 깊이 0.20 m·상단 0.90 m, 쿠션 세 칸 0.596 m·깊이 0.75 m·상면 0.43 m, 쿠션 사이 틈 0.006 m까지 수치로 확정해 구현자가 단면을 새로 정할 일이 없다.
+@evidence principles/core/common.md#substantive-completion 받침 Y = [0.08, 0.30], 팔걸이 폭 0.15 m·높이 0.62 m, 등받이 깊이 0.20 m·상단 0.90 m, 쿠션 세 칸 0.596 m·깊이 0.75 m·상면 0.43 m, 쿠션 사이 틈 0.006 m와 뒤 하단 걸레받이 relief를 수치로 정한다.
 @evidence principles/core/common.md#declared-basis 외곽은 두 예약의 같은 길이·깊이·높이에서, 좌면 0.43 m는 거실 표에서 상속하며, 가족실 좌면도 0.43 m로 둔 것은 두 외곽이 같고 거실 설정의 회색/미색 패브릭 소파 정체성을 공유한다는 근거를 밝힌 이 층의 결정이라고 적는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 예약은 외곽과 거실 좌면 0.43 m만 주는데 이 H2는 팔걸이·등받이·세 쿠션의 분할과 0.43/0.62/0.90 m 세 단, 그리고 부모가 정하지 않은 가족실 좌면 높이 결정을 더한다.
 @evidence principles/design/models.md#representation-contract 받침·좌석 쿠션 셋·등받이·팔걸이 둘과 네 모서리 0.08 m 다리로 부품을 나누고 재질 경계 `leg`·`base`·`seat-cushion`·`back`·`arm`을 고정하며 쿠션 눌림·주름·솔기는 표현하지 않는다는 한계를 명시한다.
@@ -82,7 +82,7 @@
 ## 짙은 책장과 책 {#dark-bookcase}
 <!--
 @evidence principles/core/common.md#scope-preservation 거실 책장 예약을 외곽으로 받아 몸체 판재, 선반 다섯, 책 묶음, 재질 경계, 관찰, 소스 owner를 이 H2에서 정한다.
-@evidence principles/core/common.md#substantive-completion 옆판·윗판 0.02 m, 뒤판 0.01 m, 걸레받이 0.08 m, 선반 상면 0.20·0.55·0.90·1.25·1.60 m, 책 두께 0.025–0.035 m·높이 0.20–0.28 m·깊이 0.20 m, 칸 폭 70–85 % 채움을 수치로 정한다.
+@evidence principles/core/common.md#substantive-completion 옆판·윗판 0.02 m, 뒤판 0.01 m, 책장 plinth 0.08 m와 벽 걸레받이용 뒤 하단 홈, 선반 상면 0.20·0.55·0.90·1.25·1.60 m, 25권씩의 시드 1952 책 두께·높이·깊이와 칸 폭 77.6–78.6 % 채움을 본문 식으로 정한다.
 @evidence principles/core/common.md#declared-basis 외곽과 선반 산출 규칙(0.20 m부터 0.35 m 간격)은 방 문서에서 상속하고, 판 두께·책 치수 범위·고정 시드 산출은 부모 링크 없이 이 H2가 새로 정한 값으로 적는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 방 문서는 외곽과 선반 상면 산출 규칙을 주고 이 H2는 판재 구성, 선반 두께 0.02 m를 상면 아래로 두는 규칙, 고정 시드 책 묶음과 그 채움 비율을 더한다.
 @evidence principles/design/models.md#representation-contract 옆판 둘·뒤판·윗판·걸레받이·선반 다섯의 부품, 책장에 고정된 자식 부품인 책, 문 없는 열린 선반, 책이 몸체 깊이 안에 있어 전면 밖으로 나오지 않는다는 점유 경계를 정한다.
@@ -109,7 +109,7 @@
 ## 얇은 바닥 깔개 {#floor-covering}
 <!--
 @evidence principles/core/common.md#scope-preservation 거실 러그·가족실 러그·현관 매트와 침대 세 개의 host 유도 덮개를 L·W·T 한 원형으로 받아 여섯 매개변수 셋, 몸판과 가장자리 띠, 재질 경계, 가구 겹침 규칙, 관찰을 이 H2에서 정한다.
-@evidence principles/core/common.md#substantive-completion 거실 L = 2.35 m·W = 2.00 m·T = 0.008 m, 가족실 L = 1.70 m·W = 1.55 m·T = 0.008 m, 현관 L = 0.90 m·W = 0.65 m·T = 0.006 m, 침대 아래 L = 침대 길이 + 0.30 m·W = 침대 폭 + 0.30 m·T = 0.008 m, 가장자리 띠 폭 0.04 m, 밑면 Y = 0을 확정한다.
+@evidence principles/core/common.md#substantive-completion 거실 2.35×2.00×0.008 m, 가족실 1.70×1.55×0.008 m, 현관 0.90×0.65×0.006 m와 침대 셋의 길이·폭 유도식 및 발치 쪽 이동 규칙, 0.04 m 테두리·Y=0 밑면을 정한다.
 @evidence principles/core/common.md#declared-basis 외곽은 거실 러그 예약과 현관 매트 예약에서 받고 가족실 러그 외곽도 common-family-reservation에서 받으며, 두 덮개를 한 원형으로 묶고 원점 예외를 두는 근거를 '사람이 밟고 지나가는 얇은 바닥 덮개'라는 이유로 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 예약은 외곽만 주고 이 H2는 몸판과 둘레 0.04 m 띠의 면 분할, 띠의 높이를 올리지 않는 규칙, 가구 다리 겹침을 허용하되 덮개가 가구를 들어 올리지 않는 규칙을 더한다.
 @evidence principles/design/models.md#representation-contract 몸판 하나와 같은 두께의 가장자리 띠 하나로 부품을 두고 재질 경계 `field`·`border`를 고정하며 무늬·털 높이·술 장식은 표현하지 않는다고 명시한다.

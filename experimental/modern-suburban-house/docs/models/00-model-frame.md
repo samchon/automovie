@@ -165,7 +165,7 @@
 ## 표면 파티션 이름 규칙 {#model-surface-partition-naming}
 <!--
 @evidence principles/core/common.md#scope-preservation 개구부와 가구·설비·외장 반복 부재의 역할별 id를 역할별로 한 목록에 두고 '한 id는 한 역할'과 -exterior/-interior 접미사 규칙을 이 H2가 맡는다.
-@evidence principles/core/common.md#substantive-completion frame·sash·glass·leaf·jamb·wall-baseboard부터 siding-face·siding-cut·shingle-face·roof-flashing·fixture-glass·firebox-trim까지 각 id의 역할을 적고, 닫힌 부재의 절단 끝을 포함한 모든 삼각형에 하나의 id를 주며 관절 이름은 면 id에서 뺀다.
+@evidence principles/core/common.md#substantive-completion 창 안쪽 문선 `interior-casing`, 벽판 `wall-baseboard`, 바깥 문선 `exterior-trim`, 실내 문선 `casing-a/b`와 나머지 부재의 면 역할을 본문에서 구별한다. 닫힌 부재의 절단 끝까지 모든 삼각형에 id 하나를 주고 관절 이름은 면 id에서 뺀다.
 @evidence principles/core/common.md#declared-basis 모델이 표면 id만 제공하고 색·광학값·텍스처 scale을 정하지 않는 분담을 settings/20-verification.md#surface-allocation에서 받는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation surface-allocation의 'models는 경계를 받아 두께 있는 부재를' 인계를 kebab-case 역할 id 목록과 안팎 접미사 규칙으로 바꾼다.
 @evidence principles/design/models.md#representation-contract 인접 면이 다른 응답을 받을 때 -exterior/-interior로 별도 안정 표면을 준다는 규칙과 공통 id 목록을 정한다.

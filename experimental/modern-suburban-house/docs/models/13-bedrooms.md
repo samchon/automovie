@@ -60,7 +60,7 @@
 ## 낮은 서랍장 {#low-dresser}
 <!--
 @evidence principles/core/common.md#scope-preservation 주침실의 낮은 서랍장 하나를 몸통·다리 넷·서랍 여섯까지 모델로 맡는다.
-@evidence principles/core/common.md#substantive-completion 길이 1.40 m, 깊이 0.50 m, 높이 0.80 m, 다리 0.08 m, 2열 × 3단 서랍·최대 인출 0.40 m와 서랍별 폭 0.12×높이 0.025×깊이 0.012 m의 돌출 없는 홈을 확정한다.
+@evidence principles/core/common.md#substantive-completion 길이 1.40 m, 깊이 0.50 m, 높이 0.80 m, 다리 0.08 m, 2열 × 3단 서랍·최대 인출 0.40 m와 돌출 없는 홈, 뒤 다리 Z=0.015 m·뒤판 Y=0.10 m 시작 및 옆판 하단 홈을 확정한다.
 @evidence principles/core/common.md#declared-basis 외곽과 상면 0.80 m는 주침실 예약에서, 인출 0.40 m는 서랍 작동 예약 X = [-5.00, -4.60]과 같다는 근거로 정한다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 방 예약은 외곽과 서랍 작동 범위만 주고 이 H2는 2열 × 3단 분할, 홈 손잡이, 피벗 이름을 더한다.
 @evidence principles/design/models.md#representation-contract 몸통·다리·서랍 여섯 계층과 `carcass`·`drawer-front`·`handle`·`leg` 경계를 두고 손잡이를 돌출 없는 윗 모서리 홈으로 정한다. 보이지 않는 한계는 본문의 "서랍 레일·서랍 내부 칸막이는 표현하지 않는다."로 밝힌다.
@@ -134,7 +134,7 @@
 ## 미닫이 옷장 {#sliding-closet}
 <!--
 @evidence principles/core/common.md#scope-preservation 둘째·셋째 침실 옷장 두 예약을 한 원형으로 받고 문·봉·선반·옷까지 맡는다.
-@evidence principles/core/common.md#substantive-completion 폭 1.50 m·깊이 0.60 m·높이 2.20 m, 두 문 0.76×2.16×0.02 m, 뒤/앞 레일 깊이 [0.50,0.52]/[0.55,0.57] m, 봉 깊이 0.28 m·높이 1.65 m, 윗선반 1.85 m와 옷 18벌의 두께·길이 식을 정한다.
+@evidence principles/core/common.md#substantive-completion 폭 1.50 m·깊이 0.60 m·높이 2.20 m, 두 문 0.76×2.16×0.02 m, 뒤/앞 레일 깊이 [0.50,0.52]/[0.55,0.57] m, 봉 깊이 0.28 m·높이 1.65 m, 윗선반 1.85 m와 옷 18벌의 식을 정하고 벽 걸레받이는 옷장 양끝 옆판에서 종단한다.
 @evidence principles/core/common.md#declared-basis 외곽과 -X 면 미닫이 문은 두 방 예약에서, 문·봉·선반 치수는 이 H2의 저작 값으로 적힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 방 예약은 옷장 외곽과 문 면만 주고 이 H2는 두 레일·미닫이 문, 봉·윗선반과 식으로 치수를 고정한 옷 18벌을 더한다.
 @evidence principles/design/models.md#representation-contract 몸통·두 문·봉·윗선반·옷 계층과 `carcass`·`leaf`·`handle`·`rail`·`rod`·`shelf`·`clothes` 경계를 둔다. 미닫이 롤러·옷걸이 개별 형상·옷 주름은 표현하지 않는다.

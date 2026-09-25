@@ -65,7 +65,7 @@
 ## 수납 부재의 표면 파티션 {#closet-fitting-surfaces}
 <!--
 @evidence principles/core/common.md#scope-preservation 수납 부재의 표면 id(leaf·leaf-panel·rail·rod·shelf·handle)와 문짝 UV를 이 H2가 맡는다.
-@evidence principles/core/common.md#substantive-completion 문짝 UV를 실내 문과 같이 국소 X·Y에 정렬한다고 적는다.
+@evidence principles/core/common.md#substantive-completion 문짝은 국소 X·Y UV, 트랙은 시작 끝의 길이 U, 봉은 둘레 U, 선반은 왼쪽 뒤 모서리의 가로 U로 정하고 절단 끝마다 이음을 새로 시작한다.
 @evidence principles/core/common.md#declared-basis leaf·rail·rod·shelf·handle id 규칙은 00-model-frame.md#model-surface-partition-naming에서 받는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 공통 id 규칙을 수납 부재 목록으로 바꾼다.
 @evidence principles/design/models.md#representation-contract 수납 부재의 안정 표면을 정한다.

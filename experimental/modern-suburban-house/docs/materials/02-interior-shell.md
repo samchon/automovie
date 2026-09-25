@@ -42,11 +42,11 @@
 ## 흰 실내 trim과 패널 문짝 {#interior-trim-white}
 <!--
 @evidence principles/core/common.md#declared-basis 흰 실내 trim과 패널 문짝의 #F4F2EC·roughness 0.35은 settings/10-house.md#openings의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
-@evidence principles/core/common.md#scope-preservation 흰 실내 trim과 패널 문짝은 models 03 실내 문·05 수납·01 창 안쪽 창대·06 벽 걸레받이 파티션과 `src/spaces/stair.ts` 계단의 챌판·난간 기둥에 마감만 결합하고 그 면의 geometry·경계와 개수는 host owner에 남긴다.
+@evidence principles/core/common.md#scope-preservation 흰 실내 trim과 패널 문짝은 models 02 외부 문의 실내 문선·03 실내 문·05 수납·01 창 안쪽 창대와 창선·06 벽 걸레받이 파티션과 `src/spaces/stair.ts` 계단의 챌판·난간 기둥에 마감만 결합하고 그 면의 geometry·경계와 개수는 host owner에 남긴다.
 @evidence principles/core/common.md#substantive-completion 흰 실내 trim과 패널 문짝은 #F4F2EC(선형 0.905, 0.888, 0.839), roughness 0.35, metallic 0.0, transmission 0.0, 결합 면, source owner `src/materials/interior/trim.ts`, 리뷰 관찰을 모두 적었다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 settings/10-house.md#openings는 색·재료를 말로만 정했고 흰 실내 trim과 패널 문짝은 #F4F2EC 값과 roughness 0.35, `leaf`·`leaf-panel`·`jamb-a`·`jamb-b`·`jamb-core`·`casing-a`·`casing-b` 결합을 더한다.
 @evidence principles/design/materials.md#material-construction-appearance 흰 실내 trim과 패널 문짝은 구성을 '반광 도장한 목재·MDF 부재'로, 외관의 #F4F2EC·roughness 0.35·metallic 0.0을 기준값으로 두고 아래 표면 결속 계획의 결·광학 응답으로 최상층 마감을 표현한다고 적는다.
-@evidence principles/design/materials.md#material-binding-interface 흰 실내 trim과 패널 문짝의 결합 vocabulary에는 문짝·문설주·문선의 `leaf`·`leaf-panel`·`jamb-a`·`jamb-b`·`jamb-core`·`casing-a`·`casing-b`, 창대 `interior-sill`·안쪽 문선 `interior-casing`, 독립 걸레받이 `wall-baseboard`가 있고 계단 챌판·기둥은 spaces 계단 owner의 면을 쓴다.
+@evidence principles/design/materials.md#material-binding-interface 흰 실내 trim과 패널 문짝은 실내 문의 `leaf`·`leaf-panel`·`jamb-a`·`jamb-b`·`jamb-core`·`casing-a`·`casing-b`, 현관·정원문의 `casing`, 창의 `interior-sill`·`interior-casing`, 독립 걸레받이 `wall-baseboard`에 결합하고 계단 챌판·기둥은 spaces 계단 owner의 면을 쓴다.
 @evidence principles/design/materials.md#material-verification-address 흰 실내 trim과 패널 문짝의 반증 견본은 '05의 복도 view에서 흰 문짝과 문선이 벽과 분리되고 반광 하이라이트가 벽보다 좁은지'이고 00 재료 리뷰 견본의 중성 조명 판이 #F4F2EC 값을 대조한다.
 @evidenceExclude upstream/design/materials.md#parent-revision-from-material-work 흰 실내 trim과 패널 문짝은 settings/10-house.md#openings, settings/10-house.md#stair를 적힌 그대로 소비했고 수정할 부모 결함을 찾지 않았다.
 @evidence contracts/texture-readability.md#material-texture-readability 실내 문선·걸레받이·패널 문짝의 도장 솔결은 부재 길이 U의 0.10 m 모듈이다. 각 파티션의 시작 모서리를 원점으로 하고 패널 오목부·문짝 가장자리에서 결 방향과 이음을 새로 잡는다.

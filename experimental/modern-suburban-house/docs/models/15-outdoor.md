@@ -101,7 +101,7 @@
 ## asphalt shingle 줄 단면 {#asphalt-shingle-strip}
 <!--
 @evidence principles/core/common.md#scope-preservation 탭 폭·한 장 두께·0.14 m 노출과의 짝·처마/골짜기/용마루 절단과 골짜기·굴뚝·차고 지붕/본채 벽 접합의 금속 flashing을 이 H2가 맡고, course 배치·순서·구성원 id는 instances에 남긴다.
-@evidence principles/core/common.md#substantive-completion 줄 길이 1.00 m, 높이 0.30 m, 탭 셋 각 0.330 m, 홈 폭 0.005 m·깊이 0.14 m, 쐐기 두께 0.010→0.002 m, 겹침 0.16 m, 처마 시작 줄·절단면·용마루 캡과 골짜기·굴뚝 flashing 변형까지 수치로 정해 구현자가 단면을 새로 정하지 않는다.
+@evidence principles/core/common.md#substantive-completion 줄 길이 1.00 m, 높이 0.30 m, 탭 셋 각 0.330 m, 홈 폭 0.005 m·깊이 0.14 m, 쐐기 두께 0.010→0.002 m, 겹침 0.16 m, 처마 시작 줄·용마루 캡·flashing 변형과 지붕널·금속의 경사/접촉선 UV·이음까지 정한다.
 @evidence principles/core/common.md#declared-basis 줄 높이·탭 폭·두께는 settings와 spaces에 수치가 없어 이 branch의 결정이라고 밝히고, 근거를 "작고 규칙적인 어두운 asphalt shingle의 중첩 결"과 course 노출 0.14 m의 두 겹 덮임으로 적으며 실제 제품 치수 대조는 추론이라고 남긴다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 설정의 작은 중첩 결에 0.14 m 노출, 탭 폭 0.330 m(반 탭 0.165 m), 겹침 0.16 m, 한 course 선마다 약 0.004 m의 butt 단차라는 단면 결정을 더한다.
 @evidence principles/design/models.md#representation-contract 결과는 밑면이 지붕 바탕 평면에 닿는 강체 쐐기 판 하나와 starter·ridge-cap과 금속 flashing 변형, 평면 절단 연산이며, shingle course끼리의 중첩 부피만 교차를 허용하고 금속과의 접면은 0.003 m 국소 들림으로 분리하며 못·접착 띠·입자 질감은 표현하지 않는 proxy라고 밝힌다.

@@ -69,7 +69,7 @@
 ## 포치 문 옆의 벽등 {#porch-wall-sconce}
 <!--
 @evidence principles/core/common.md#scope-preservation 포치 현관문 옆 벽등 몸체만 맡고 광원의 낮 기준 상태·위치는 systems와 instances에 남긴다.
-@evidence principles/core/common.md#substantive-completion 벽판 0.10 × 0.18 m, 갓 위/아래 외경 0.10/0.14 m와 Y=[−0.16,0.04] m, 벽판 앞면부터 목 길이 0.045 m, 갓 최전점 0.17 m, 세 표면 id를 정한다.
+@evidence principles/core/common.md#substantive-completion 벽판 0.10 × 0.18 m, 갓 위/아래 외경 0.10/0.14 m와 Y=[−0.16,0.04] m, Y=0.015 m 목 길이 0.045 m와 갓 안 접촉 0.010 m, 최전점 0.17 m, 세 표면 id를 정한다.
 @evidence principles/core/common.md#declared-basis settings/10-house.md#porch-entry와 systems/03-exterior-fixtures.md#exterior-porch-sconce의 문 옆 기구 인계를 받는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 포치 천장이나 차고에 등을 늘리지 않고 문 옆 한 기구의 세로 벽판·투명 갓을 정한다.
 @evidence principles/design/models.md#representation-contract 닫힌 벽판·짧은 목·갓을 별도 부피로 만들며 `fixture-housing`·`fixture-stem`·`fixture-glass`로 모든 면을 덮는다.
