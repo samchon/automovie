@@ -45,8 +45,8 @@ test("metric generators reject impossible solids and produce aligned UVs", () =>
 test("separate room objects keep each reviewed face once", () => {
   const parents=buildHousePrototypes();
   const objects=buildHouseObjects(parents);
-  assert.equal(objects.length,79);
-  assert.ok(!objects.some((p)=>["porch-mat-planter","wall-art-indoor-plant","pantry-containers","kitchen-food-utensils","pendant-fixtures","laundry-machine","headboard-bed"].includes(p.id)));
+  assert.equal(objects.length,80);
+  assert.ok(!objects.some((p)=>["porch-mat-planter","wall-art-indoor-plant","pantry-containers","kitchen-food-utensils","pendant-fixtures","laundry-machine","headboard-bed","child-desk"].includes(p.id)));
   for(const [parentId,children] of [
     ["porch-mat-planter",["porch-mat","porch-planter"]],
     ["wall-art-indoor-plant",["wall-art","indoor-plant"]],
@@ -71,6 +71,14 @@ test("separate room objects keep each reviewed face once", () => {
   assert.throws(()=>buildHouseObjects(parents.filter((p)=>p.id!=="pendant-fixtures")),/missing design host/);
   assert.throws(()=>buildHouseObjects(parents.filter((p)=>p.id!=="laundry-machine")),/missing design host/);
   assert.throws(()=>buildHouseObjects(parents.filter((p)=>p.id!=="headboard-bed")),/missing design host/);
+  assert.throws(()=>buildHouseObjects(parents.filter((p)=>p.id!=="child-desk")),/missing design host/);
+  for(const [id,width] of [["bedroom-two-desk",1.20],["bedroom-three-desk",1.15]] as const) {
+    const desk=objects.find((p)=>p.id===id)!;
+    const top=desk.model.parts.find((part)=>part.material==="top")?.geometry;
+    if(top?.type!=="mesh") throw Error(`${id}: top missing`);
+    const xs=top.mesh.positions.filter((_,i)=>i%3===0);
+    assert.ok(Math.abs(Math.max(...xs)-Math.min(...xs)-width)<1e-9);
+  }
   for(const [id,width,pillows] of [["primary-bed",1.60,2],["bedroom-two-bed",1.15,1],["bedroom-three-bed",1.15,1]] as const) {
     const bed=objects.find((p)=>p.id===id)!;
     const headboard=bed.model.parts.find((part)=>part.material==="headboard")?.geometry;

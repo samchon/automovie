@@ -5,7 +5,7 @@ import type { HousePrototype } from "./parts";
 import { kitchenDiningSpecs } from "./furnishings/kitchen-dining";
 import { livingSpecs } from "./furnishings/living";
 import { serviceRoomSpecs, laundryMachineSizes } from "./furnishings/service-rooms";
-import { bedroomSpecs, bedSizes, bedMattressTop } from "./furnishings/bedrooms";
+import { bedroomSpecs, bedSizes, bedMattressTop, deskSizes } from "./furnishings/bedrooms";
 import { bathroomSpecs } from "./furnishings/bathrooms";
 import { outdoorFurnitureSpecs } from "./furnishings/outdoor";
 import { sidingSpecs } from "./exterior/siding";
@@ -151,6 +151,12 @@ export function buildHouseObjects(parents: HousePrototype[] = buildHousePrototyp
     ["bedroom-three-bed",bedSizes.childThree,"blue-grey-bedding"],
   ] as const).map(([id,size,cover])=>buildPrototype({...bedHost,id,size,mattressTop:bedMattressTop(size),
     finishes:{...bedHost.finishes,bedding:cover}}));
-  return [...parents.filter((p)=>!splitParents.has(p.id)&&p.id!==pendantHost.id&&p.id!==laundryHost.id&&p.id!==bedHost.id),
-    ...separate,...pendants,...machines,...beds];
+  const deskHost=housePrototypeSpecs.find((spec)=>spec.id==="child-desk")!;
+  if(!byId.has(deskHost.id)) throw Error("child-desk: missing design host");
+  const desks=([
+    ["bedroom-two-desk",deskSizes.childTwo],
+    ["bedroom-three-desk",deskSizes.childThree],
+  ] as const).map(([id,size])=>buildPrototype({...deskHost,id,size}));
+  return [...parents.filter((p)=>!splitParents.has(p.id)&&p.id!==pendantHost.id&&p.id!==laundryHost.id&&p.id!==bedHost.id&&p.id!==deskHost.id),
+    ...separate,...pendants,...machines,...beds,...desks];
 }
