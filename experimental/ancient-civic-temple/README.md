@@ -31,6 +31,7 @@ Use the commands declared in `package.json`:
 | --- | --- |
 | `npm run lint` | Check the complete TypeScript program and active authored evidence. |
 | `npm run format` | Format source with the configured compiler formatter. |
+| `npm run review-audit` | Run lint, tests, self-check, and the seven benchmark probes; set `AUTOMOVIE_BENCH_PROBES` when the probes are outside `D:/AutoMovieBench/probes`. |
 
 The scaffold provides instructions, contracts, and source lint, not prewritten production or viewer code. Author only the concrete source the requested work needs through the packages' public APIs. It supplies no film build, capture, render, or publication command.
 

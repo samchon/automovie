@@ -70,7 +70,7 @@ export const templeAdministration = (): IAutoMovieBuiltSpace => ({
  * @evidence principles/core/source-units.md#source-substantive-completion ceilingBoardFaces로 관리실 4.0×3.75m 판의 아랫면을 surface.administration.ceiling, 윗면과 옆면을 ceiling-back으로 가진 닫힌 판을 돌려준다.
  * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f # ceilingBoardFaces의 administration 소유와 직사각 평면 입력으로 천장 정면과 뒷면이 같은 방 범위에서 방출되는지 확인했다.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work 관리실 널판 천장은 rooms/administration.md와 storey.md의 3.10m·0.10m 예약 그대로 이웃 기록실 천장과 칸막이 벽 위에서 겹치지 않았고 부모에서 고칠 결정이 없었다.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 # 관리실 천장은 기존 lowCeiling과 boardReserve를 사용하며 독립 ceilingBoardFaces 구획이라 기록실 천장 치수나 층 예약을 재정의하지 않았다.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 # 관리실 천장은 기존 y.lowCeiling과 y.ceilingBoardReserve를 사용하며 독립 ceilingBoardFaces 구획이라 기록실 천장 치수나 층 예약을 재정의하지 않았다.
  */
 export const templeAdministrationCeiling = () => ceilingBoardFaces(
   "administration", rectanglePolygon(templeAdministrationPlan), y.lowCeiling, y.ceilingBoardReserve,

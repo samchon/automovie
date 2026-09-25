@@ -64,7 +64,7 @@ export const templeStorage = (): IAutoMovieBuiltSpace => ({
  * 낮은 널판 천장 실체. 아랫면 Y=lowCeiling과 위쪽 널판 예약은 층 소유
  * 값을 소비하며 노출 보의 단면은 후속 부재 단계가 이 예약 아래에 둔다.
  * @evidence spaces/rooms/storage.md 보관실의 낮은 널판 천장 실체를 아랫면 3.10m, 두께 0.10m의 판으로 낸다.
- * @evidenceReview spaces/rooms/storage.md #b8b7a08 # ceilingBoardFaces가 StoragePlan 위 lowCeiling=3.10m와 boardReserve=0.10m의 보관실 천장을 낸다.
+ * @evidenceReview spaces/rooms/storage.md #b8b7a08 # ceilingBoardFaces가 StoragePlan 위 y.lowCeiling=3.10m와 y.ceilingBoardReserve=0.10m의 보관실 천장을 낸다.
  * @evidence principles/core/source-units.md#source-scope-preservation 보관실 평면에 층의 낮은 천장 높이와 널판 예약만 쓰고 궤 위 노출 보는 만들지 않는다(후속 부재).
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 # Ceiling export는 storey의 예약 값으로 판만 만들고 궤·장선 기하를 보관실 공간 소스로 끌어오지 않는다.
  * @evidence principles/core/source-units.md#source-substantive-completion ceilingBoardFaces로 보관실 4.0×3.7m 판의 아랫면을 surface.storage.ceiling, 윗면과 옆면을 ceiling-back으로 가진 닫힌 판을 돌려준다.

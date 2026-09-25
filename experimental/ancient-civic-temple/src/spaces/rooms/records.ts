@@ -64,7 +64,7 @@ export const templeRecords = (): IAutoMovieBuiltSpace => ({
  * 낮은 널판 천장 실체. 아랫면 Y=lowCeiling과 위쪽 널판 예약은 층 소유
  * 값을 소비하며 노출 보의 단면은 후속 부재 단계가 이 예약 아래에 둔다.
  * @evidence spaces/rooms/records.md 기록실의 낮은 널판 천장 실체를 아랫면 3.10m, 두께 0.10m의 판으로 낸다.
- * @evidenceReview spaces/rooms/records.md #04708a2 # Ceiling이 records plan을 3.10m lowCeiling과 0.10m boardReserve로 닫아 판정된 기록실 천장 판을 낸다.
+ * @evidenceReview spaces/rooms/records.md #04708a2 # Ceiling이 records plan을 3.10m y.lowCeiling과 0.10m y.ceilingBoardReserve로 닫아 판정된 기록실 천장 판을 낸다.
  * @evidence principles/core/source-units.md#source-scope-preservation 기록실 평면에 층의 낮은 천장 높이와 널판 예약만 쓰고 칸 선반을 받칠 노출 보는 만들지 않는다(후속 부재).
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 # 천장 호출은 records plan과 층 값만 쓰며 칸 선반·노출 장선 부재를 이 공간 소스가 직접 만들지 않는다.
  * @evidence principles/core/source-units.md#source-substantive-completion ceilingBoardFaces로 기록실 4.0×3.75m 판의 아랫면을 surface.records.ceiling, 윗면과 옆면을 ceiling-back으로 가진 닫힌 판을 돌려준다.
