@@ -110,7 +110,7 @@ export const modelSurfaceBindingCensus = (documents, scaleSource) => {
 
 /**
  * Compare every emitted object part with its document binding, including finish.
- * @param {readonly {id:string;parts:readonly {id:string;material:string|null}[]}[]} models
+ * @param {readonly import('@automovie/interface').IAutoMovieModel[]} models
  * @param {string} scaleSource
  */
 export const runtimeSurfaceBindingCensus = (models, scaleSource) => {
@@ -122,7 +122,13 @@ export const runtimeSurfaceBindingCensus = (models, scaleSource) => {
     ["soil", "earth"], ["water", "water"],
   ]);
   const bindings = new Map();
+  const repeats = new Map();
   const failures = [];
+  for (const cells of tableRows(scaleSource, "| 결속 키 | 반복 길이 U·V (m) | 비트맵 부재 시 단색 fallback |")) {
+    const key = cells[0]?.match(/^`([^`]+)`$/)?.[1];
+    const pair = cells[1]?.match(/^(\d+(?:\.\d+)?)·(\d+(?:\.\d+)?)$/);
+    if (key && pair) repeats.set(key, [Number(pair[1]), Number(pair[2])]);
+  }
   for (const cells of tableRows(scaleSource, "| 모델 H2 | part 표면 | 결속 키 | UV0 방식 |")) {
     const ids = [...(cells[0] ?? "").matchAll(/`([^`]+)`/g)].map((match) => match[1]);
     const parts = [...(cells[1] ?? "").matchAll(/`([^`]+)`/g)].map((match) => match[1]);
@@ -153,6 +159,11 @@ export const runtimeSurfaceBindingCensus = (models, scaleSource) => {
       const actual = part.material?.replace(/^temple\./, "");
       if (expected === undefined) failures.push(`${model.id}/${part.id}: no authored finish for ${owner}`);
       else if (actual !== expected) failures.push(`${model.id}/${part.id}: ${actual} != ${group} (${expected})`);
+      const pair = repeats.get(group);
+      const texture = model.materials.find((entry) => entry.id === part.material)?.baseColorTexture;
+      if (!pair || !texture || Math.abs(texture.transform.scale.x - 1 / pair[0]) > 1e-9 ||
+        Math.abs(texture.transform.scale.y - 1 / pair[1]) > 1e-9)
+        failures.push(`${model.id}/${part.id}: texture repeat does not consume ${group} U/V metres`);
     }
   }
   if (checked === 0) failures.push("no emitted object parts checked");

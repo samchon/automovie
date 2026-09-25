@@ -46,6 +46,23 @@ void test("ten selected finish mutations are rejected by the same full-populatio
   assert.equal(rejected, 10);
 });
 
+void test("a changed authored repeat or emitted UV scale is rejected", () => {
+  const models = boundObjects();
+  const alteredDesign = scale.replace("| `limestone` | 0.45·0.45", "| `limestone` | 0.46·0.45");
+  assert.match(runtimeSurfaceBindingCensus(models, alteredDesign).failures.join("\n"), /texture repeat/);
+  const original = models[0]!;
+  const changed = models.map((model) => model === original ? {
+    ...model,
+    materials: model.materials.map((entry) => ({ ...entry,
+      baseColorTexture: entry.baseColorTexture && { ...entry.baseColorTexture,
+        transform: { ...entry.baseColorTexture.transform,
+          scale: { ...entry.baseColorTexture.transform.scale, x: entry.baseColorTexture.transform.scale.x + 0.01 } },
+      },
+    })),
+  } : model);
+  assert.match(runtimeSurfaceBindingCensus(changed, scale).failures.join("\n"), /texture repeat/);
+});
+
 void test("surface grammar covers every authored prototype and every part", () => {
   const result = modelSurfaceBindingCensus(documents, scale);
   assert.equal(result.prototypes, 49);
