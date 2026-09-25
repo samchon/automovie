@@ -4,7 +4,8 @@
  * rendering delegate to the same package/viewport owners as the connected
  * face page. The neutral connected face is built once by the face worker and
  * shown seated on the body's head bone, so the whole figure is judged
- * together; it never enters the body document or its export. The face
+ * together; it never enters the body document or its export, though its
+ * skin finish is the cheek the body's skin is coloured from. The face
  * document names the face basis revision read off the head of the basis
  * asset, so this page loads no face study and never parses the face basis
  * itself. A companion that cannot be built is reported on the status line and
@@ -16,6 +17,7 @@ import {
   type IAutoMovieHumanBodyShoulderPose,
   type IAutoMovieHumanBodySimpleShape,
   type IAutoMovieHumanFaceBasisDocument,
+  createPortraitMaterials,
   serializeHumanFaceBasisDocument,
 } from "@automovie/human";
 import type {
@@ -84,11 +86,17 @@ async function main(): Promise<void> {
         ),
       ),
   });
+  // the neutral companion face wears its skin finish as the cheek, and the
+  // body's skin is coloured by site from it, meeting the face at the neck
+  const faceSkin = createPortraitMaterials().find(
+    (material) => material.id === "skin",
+  )!.baseColor;
   const initial: IAutoMovieHumanBodyBasisDocument = {
     id: "connected-body",
     name: "CC0 connected body",
     basis: basis.id,
     shape: {},
+    skinColour: { cheek: { r: faceSkin.r, g: faceSkin.g, b: faceSkin.b } },
   };
   const loader = new GLTFLoader();
   const decode = async (bytes: Uint8Array<ArrayBuffer>) =>

@@ -44,6 +44,15 @@ export interface IAutoMovieHumanBodyBasisDocument {
    */
   shoulders?: IAutoMovieHumanBodyShoulderPose[];
 
+  /**
+   * Optional skin colour by anatomical site: the cheek albedo the face wears,
+   * linear RGB, each channel in (0,1]. The skin material's regions are then
+   * coloured by site from it (`HUMAN_BODY_SKIN_SITES`), meeting the face in
+   * that colour at the neck; omission keeps the one material colour. A colour
+   * override of that material in `materials` is refused beside it.
+   */
+  skinColour?: { cheek: { r: number; g: number; b: number } };
+
   /** Optional linear RGB and roughness, each in [0,1], by existing material ID. */
   materials?: Record<
     string,
