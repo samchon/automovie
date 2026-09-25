@@ -915,12 +915,16 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
       ],
     },
     // The ANSUR II people rows (below): reproduced from their own sex, age,
-    // stature, mass and chest and buttock girths, the survey's people read
-    // flatter buttocks and wider waists at the omphalion than the basis gave
-    // them, more so at a higher body mass index, and men's thighs narrower.
-    // These rows are the channel weights by sex over the body mass index that
-    // minimize those unpinned residuals, fitted with the tape pins and the
-    // mass re-solved (effective responses on reference bodies of both sexes).
+    // stature, mass and chest and buttock girths, the survey's women read
+    // flatter buttocks, wider waists at the omphalion (more so at a higher
+    // body mass index), bust points and crotches out of place. These rows are
+    // the channel weights over the body mass index that minimize those
+    // unpinned residuals, fitted with the tape pins and the mass re-solved,
+    // and fade to zero at 15 and 45 (40 for the breast), past the survey's
+    // support, where they crossed the census's extreme bodies. The men's
+    // fitted rows closed a muscular man's gluteal cleft at 30 and, held to
+    // what stayed clean, narrowed the hips' reach and helped nothing, so men
+    // keep the source's buttock, waist and thigh (the study README's Limits).
     {
       // ANSUR II people: glutealProjection, women
       channel: "glutealProjection",
@@ -936,11 +940,13 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
         {
           parameter: "bodyMassIndex",
           points: [
+            [15, 0],
             [18, -0.051],
             [22, -0.013],
             [26, 0.023],
             [30, 0.053],
             [35, 0.08],
+            [45, 0],
           ],
         },
       ],
@@ -960,11 +966,13 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
         {
           parameter: "bodyMassIndex",
           points: [
+            [15, 0],
             [18, -0.026],
             [22, -0.104],
             [26, -0.175],
             [30, -0.22],
             [35, -0.256],
+            [45, 0],
           ],
         },
       ],
@@ -984,11 +992,13 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
         {
           parameter: "bodyMassIndex",
           points: [
+            [15, 0],
             [18, 0.068],
             [22, 0.143],
             [26, 0.211],
             [30, 0.255],
             [35, 0.286],
+            [45, 0],
           ],
         },
       ],
@@ -1008,11 +1018,13 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
         {
           parameter: "bodyMassIndex",
           points: [
+            [15, 0],
             [18, 0.241],
             [22, 0.242],
             [26, 0.233],
             [30, 0.202],
             [35, 0.165],
+            [45, 0],
           ],
         },
       ],
@@ -1032,11 +1044,13 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
         {
           parameter: "bodyMassIndex",
           points: [
+            [15, 0],
             [18, 0.241],
             [22, 0.242],
             [26, 0.233],
             [30, 0.202],
             [35, 0.165],
+            [45, 0],
           ],
         },
       ],
@@ -1056,11 +1070,13 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
         {
           parameter: "bodyMassIndex",
           points: [
+            [15, 0],
             [18, 0.229],
             [22, 0.246],
             [26, 0.253],
             [30, 0.237],
             [35, 0.213],
+            [45, 0],
           ],
         },
       ],
@@ -1080,188 +1096,19 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
         {
           parameter: "bodyMassIndex",
           points: [
+            [15, 0],
             [18, 0.229],
             [22, 0.246],
             [26, 0.253],
             [30, 0.237],
             [35, 0.213],
+            [45, 0],
           ],
         },
       ],
     },
     {
-      // ANSUR II people: glutealProjection, men
-      channel: "glutealProjection",
-      gain: 1,
-      curves: [
-        {
-          parameter: "sex",
-          points: [
-            [0, 0],
-            [1, 1],
-          ],
-        },
-        {
-          parameter: "bodyMassIndex",
-          points: [
-            [18, -0.07],
-            [22, -0.016],
-            [26, 0.04],
-            [30, 0.098],
-            [35, 0.155],
-          ],
-        },
-      ],
-    },
-    {
-      // ANSUR II people: hipScaleHoriz, men
-      channel: "hipScaleHoriz",
-      gain: 1,
-      curves: [
-        {
-          parameter: "sex",
-          points: [
-            [0, 0],
-            [1, 1],
-          ],
-        },
-        {
-          parameter: "bodyMassIndex",
-          points: [
-            [18, 0.407],
-            [22, 0.24],
-            [26, 0.059],
-            [30, -0.138],
-            [35, -0.336],
-          ],
-        },
-      ],
-    },
-    {
-      // ANSUR II people: hipScaleDepth, men
-      channel: "hipScaleDepth",
-      gain: 1,
-      curves: [
-        {
-          parameter: "sex",
-          points: [
-            [0, 0],
-            [1, 1],
-          ],
-        },
-        {
-          parameter: "bodyMassIndex",
-          points: [
-            [18, 0.321],
-            [22, 0.376],
-            [26, 0.422],
-            [30, 0.449],
-            [35, 0.468],
-          ],
-        },
-      ],
-    },
-    {
-      // ANSUR II people: upperlegFatLeft, men
-      channel: "upperlegFatLeft",
-      gain: 1,
-      curves: [
-        {
-          parameter: "sex",
-          points: [
-            [0, 0],
-            [1, 1],
-          ],
-        },
-        {
-          parameter: "bodyMassIndex",
-          points: [
-            [18, -0.122],
-            [22, -0.102],
-            [26, -0.079],
-            [30, -0.049],
-            [35, -0.015],
-          ],
-        },
-      ],
-    },
-    {
-      // ANSUR II people: upperlegFatRight, men
-      channel: "upperlegFatRight",
-      gain: 1,
-      curves: [
-        {
-          parameter: "sex",
-          points: [
-            [0, 0],
-            [1, 1],
-          ],
-        },
-        {
-          parameter: "bodyMassIndex",
-          points: [
-            [18, -0.122],
-            [22, -0.102],
-            [26, -0.079],
-            [30, -0.049],
-            [35, -0.015],
-          ],
-        },
-      ],
-    },
-    {
-      // ANSUR II people: lowerlegFatLeft, men
-      channel: "lowerlegFatLeft",
-      gain: 1,
-      curves: [
-        {
-          parameter: "sex",
-          points: [
-            [0, 0],
-            [1, 1],
-          ],
-        },
-        {
-          parameter: "bodyMassIndex",
-          points: [
-            [18, -0.058],
-            [22, 0.038],
-            [26, 0.133],
-            [30, 0.226],
-            [35, 0.313],
-          ],
-        },
-      ],
-    },
-    {
-      // ANSUR II people: lowerlegFatRight, men
-      channel: "lowerlegFatRight",
-      gain: 1,
-      curves: [
-        {
-          parameter: "sex",
-          points: [
-            [0, 0],
-            [1, 1],
-          ],
-        },
-        {
-          parameter: "bodyMassIndex",
-          points: [
-            [18, -0.058],
-            [22, 0.038],
-            [26, 0.133],
-            [30, 0.226],
-            [35, 0.313],
-          ],
-        },
-      ],
-    },
-    {
-      // ANSUR II people: breastTransDownUp, women. The reproduced women's
-      // bust point stood 11.5 mm high below a body mass index of 20 and
-      // 11 mm low at 26 to 30; held flat past 30, where the survey sample
-      // thins (five women)
+      // ANSUR II people: breastTransDownUp, women
       channel: "breastTransDownUp",
       gain: 1,
       curves: [
@@ -1275,10 +1122,42 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
         {
           parameter: "bodyMassIndex",
           points: [
+            [15, 0],
             [18, -0.594],
             [22, -0.257],
             [26, 0.083],
             [30, 0.411],
+            [40, 0],
+          ],
+        },
+      ],
+    },
+    {
+      // ANSUR II people: hipScaleVert, women. The reproduced women's crotch
+      // stood 23 mm below theirs at every body mass index (men's 8 mm
+      // above) and their buttock's greatest protrusion stood high; a shorter
+      // pelvis raises the crotch by 20 mm and lowers that protrusion by 6 mm
+      // per unit with stature, girths and mass re-solved. -0.6 is the largest
+      // that still builds every surveyed woman: past it the hips' smallest
+      // reachable girth passes ordinary women's. It fades as the other rows
+      // do past the survey's support (a thin woman of 90 folded her thigh)
+      channel: "hipScaleVert",
+      gain: 1,
+      curves: [
+        {
+          parameter: "sex",
+          points: [
+            [-1, 1],
+            [0, 0],
+          ],
+        },
+        {
+          parameter: "bodyMassIndex",
+          points: [
+            [15, 0],
+            [18, -0.6],
+            [35, -0.6],
+            [45, 0],
           ],
         },
       ],

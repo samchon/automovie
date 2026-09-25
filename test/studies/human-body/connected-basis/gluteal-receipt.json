@@ -52,6 +52,9 @@
     }
   ],
   "calibration": {
+    "scope": "women only: the men's fitted rows closed a muscular man's gluteal cleft in the census body matrix at a body mass index of 30 (the hip depth row even at three tenths of its size) and, held to what stayed clean (no hip depth, a hip breadth that never narrows), narrowed the hips' reach (four more surveyed men refused) and restored none of the improvement, so men keep the source's buttock, waist and thigh",
+    "fade": "each fitted row goes to zero at a body mass index of 15 and 45 (40 for the breast row), past the survey's support; held flat there, they crossed the census's heaviest and oldest bodies",
+    "pelvis": "hipScaleVert -0.6 for women from a body mass index of 18 to 35, fading to zero at 15 and 45 like the other rows (a thin woman of 90 folded her thigh with it at 15): per unit, with stature, girths and mass re-solved, the crotch rises 20 mm and the buttock's greatest protrusion falls 6 mm; -1 raised the hips' smallest reachable girth past ordinary surveyed women's (refused by 2 to 3 mm), -0.6 is the largest that builds every surveyed woman of the subset",
     "method": "The simple tier's rows for glutealProjection, hipScaleHoriz, hipScaleDepth, the upper and lower leg fat channels and a woman's breastTransDownUp are channel weights by sex over body mass index knots 18, 22, 26, 30 and 35, fitted by least squares to the census residuals of 253 reproduced people (the buttock depth and height, the waist breadth, depth and girth at the omphalion and the thigh and calf girths, each over its population sd; the women's bust point height for the breast row, whose response the pins leave alone: +17 to +33 mm per unit), using effective responses in which the bust and hip girths and the mass are re-solved by measureBustCirc, measureHipsCirc and macroWeight on reference bodies of both sexes (women at BMI 19, 22, 28; men at 24, 30), with second-difference smoothing and a small weight penalty. Each person's latent muscle was fitted too and came out near zero on average (women +0.01, men -0.13), so the survey's fitness does not explain the residuals.",
     "rows": [
       {
@@ -59,12 +62,16 @@
         "sex": "women",
         "bodyMassIndex": [
           [
+            15,
+            0.0
+          ],
+          [
             18.0,
-            -0.0507
+            -0.051
           ],
           [
             22.0,
-            -0.0133
+            -0.013
           ],
           [
             26.0,
@@ -72,11 +79,15 @@
           ],
           [
             30.0,
-            0.0531
+            0.053
           ],
           [
             35.0,
             0.08
+          ],
+          [
+            45,
+            0.0
           ]
         ]
       },
@@ -85,24 +96,32 @@
         "sex": "women",
         "bodyMassIndex": [
           [
+            15,
+            0.0
+          ],
+          [
             18.0,
-            -0.0259
+            -0.026
           ],
           [
             22.0,
-            -0.1037
+            -0.104
           ],
           [
             26.0,
-            -0.1746
+            -0.175
           ],
           [
             30.0,
-            -0.2203
+            -0.22
           ],
           [
             35.0,
-            -0.2557
+            -0.256
+          ],
+          [
+            45,
+            0.0
           ]
         ]
       },
@@ -111,24 +130,32 @@
         "sex": "women",
         "bodyMassIndex": [
           [
+            15,
+            0.0
+          ],
+          [
             18.0,
-            0.0684
+            0.068
           ],
           [
             22.0,
-            0.1428
+            0.143
           ],
           [
             26.0,
-            0.2113
+            0.211
           ],
           [
             30.0,
-            0.2546
+            0.255
           ],
           [
             35.0,
-            0.2865
+            0.286
+          ],
+          [
+            45,
+            0.0
           ]
         ]
       },
@@ -137,12 +164,16 @@
         "sex": "women",
         "bodyMassIndex": [
           [
+            15,
+            0.0
+          ],
+          [
             18.0,
-            0.2411
+            0.241
           ],
           [
             22.0,
-            0.2422
+            0.242
           ],
           [
             26.0,
@@ -150,11 +181,15 @@
           ],
           [
             30.0,
-            0.2024
+            0.202
           ],
           [
             35.0,
-            0.1653
+            0.165
+          ],
+          [
+            45,
+            0.0
           ]
         ]
       },
@@ -163,12 +198,16 @@
         "sex": "women",
         "bodyMassIndex": [
           [
+            15,
+            0.0
+          ],
+          [
             18.0,
-            0.2411
+            0.241
           ],
           [
             22.0,
-            0.2422
+            0.242
           ],
           [
             26.0,
@@ -176,11 +215,15 @@
           ],
           [
             30.0,
-            0.2024
+            0.202
           ],
           [
             35.0,
-            0.1653
+            0.165
+          ],
+          [
+            45,
+            0.0
           ]
         ]
       },
@@ -189,12 +232,16 @@
         "sex": "women",
         "bodyMassIndex": [
           [
+            15,
+            0.0
+          ],
+          [
             18.0,
-            0.2292
+            0.229
           ],
           [
             22.0,
-            0.2463
+            0.246
           ],
           [
             26.0,
@@ -202,11 +249,15 @@
           ],
           [
             30.0,
-            0.2374
+            0.237
           ],
           [
             35.0,
-            0.2132
+            0.213
+          ],
+          [
+            45,
+            0.0
           ]
         ]
       },
@@ -215,12 +266,16 @@
         "sex": "women",
         "bodyMassIndex": [
           [
+            15,
+            0.0
+          ],
+          [
             18.0,
-            0.2292
+            0.229
           ],
           [
             22.0,
-            0.2463
+            0.246
           ],
           [
             26.0,
@@ -228,193 +283,15 @@
           ],
           [
             30.0,
-            0.2374
+            0.237
           ],
           [
             35.0,
-            0.2132
-          ]
-        ]
-      },
-      {
-        "channel": "glutealProjection",
-        "sex": "men",
-        "bodyMassIndex": [
-          [
-            18.0,
-            -0.0702
+            0.213
           ],
           [
-            22.0,
-            -0.0162
-          ],
-          [
-            26.0,
-            0.0402
-          ],
-          [
-            30.0,
-            0.0984
-          ],
-          [
-            35.0,
-            0.1552
-          ]
-        ]
-      },
-      {
-        "channel": "hipScaleHoriz",
-        "sex": "men",
-        "bodyMassIndex": [
-          [
-            18.0,
-            0.4069
-          ],
-          [
-            22.0,
-            0.2397
-          ],
-          [
-            26.0,
-            0.0594
-          ],
-          [
-            30.0,
-            -0.1375
-          ],
-          [
-            35.0,
-            -0.3362
-          ]
-        ]
-      },
-      {
-        "channel": "hipScaleDepth",
-        "sex": "men",
-        "bodyMassIndex": [
-          [
-            18.0,
-            0.3208
-          ],
-          [
-            22.0,
-            0.3763
-          ],
-          [
-            26.0,
-            0.4222
-          ],
-          [
-            30.0,
-            0.4493
-          ],
-          [
-            35.0,
-            0.4679
-          ]
-        ]
-      },
-      {
-        "channel": "upperlegFatLeft",
-        "sex": "men",
-        "bodyMassIndex": [
-          [
-            18.0,
-            -0.1219
-          ],
-          [
-            22.0,
-            -0.1022
-          ],
-          [
-            26.0,
-            -0.0791
-          ],
-          [
-            30.0,
-            -0.0487
-          ],
-          [
-            35.0,
-            -0.0151
-          ]
-        ]
-      },
-      {
-        "channel": "upperlegFatRight",
-        "sex": "men",
-        "bodyMassIndex": [
-          [
-            18.0,
-            -0.1219
-          ],
-          [
-            22.0,
-            -0.1022
-          ],
-          [
-            26.0,
-            -0.0791
-          ],
-          [
-            30.0,
-            -0.0487
-          ],
-          [
-            35.0,
-            -0.0151
-          ]
-        ]
-      },
-      {
-        "channel": "lowerlegFatLeft",
-        "sex": "men",
-        "bodyMassIndex": [
-          [
-            18.0,
-            -0.0576
-          ],
-          [
-            22.0,
-            0.0377
-          ],
-          [
-            26.0,
-            0.1331
-          ],
-          [
-            30.0,
-            0.2255
-          ],
-          [
-            35.0,
-            0.3131
-          ]
-        ]
-      },
-      {
-        "channel": "lowerlegFatRight",
-        "sex": "men",
-        "bodyMassIndex": [
-          [
-            18.0,
-            -0.0576
-          ],
-          [
-            22.0,
-            0.0377
-          ],
-          [
-            26.0,
-            0.1331
-          ],
-          [
-            30.0,
-            0.2255
-          ],
-          [
-            35.0,
-            0.3131
+            45,
+            0.0
           ]
         ]
       },
@@ -422,6 +299,10 @@
         "channel": "breastTransDownUp",
         "sex": "women",
         "bodyMassIndex": [
+          [
+            15,
+            0.0
+          ],
           [
             18,
             -0.594
@@ -437,6 +318,32 @@
           [
             30,
             0.411
+          ],
+          [
+            40,
+            0.0
+          ]
+        ]
+      },
+      {
+        "channel": "hipScaleVert",
+        "sex": "women",
+        "bodyMassIndex": [
+          [
+            15,
+            0
+          ],
+          [
+            18,
+            -0.6
+          ],
+          [
+            35,
+            -0.6
+          ],
+          [
+            45,
+            0
           ]
         ]
       }
@@ -446,63 +353,44 @@
         "people": 26,
         "buttockdepth": {
           "beforeMillimetres": -12.2,
-          "afterMillimetres": 0.3
+          "afterMillimetres": -0.9
         },
         "buttockheight": {
           "beforeMillimetres": 11.8,
-          "afterMillimetres": 10.0
+          "afterMillimetres": 6.2
         },
         "waistbreadth": {
           "beforeMillimetres": 29.5,
-          "afterMillimetres": 7.2
+          "afterMillimetres": 8.4
         },
         "waistdepth": {
           "beforeMillimetres": 1.6,
-          "afterMillimetres": 3.0
+          "afterMillimetres": -1.9
         },
         "waistcircumference": {
           "beforeMillimetres": 18.8,
-          "afterMillimetres": -16.6
+          "afterMillimetres": -19.8
         },
         "thighcircumference": {
           "beforeMillimetres": -13.9,
-          "afterMillimetres": -4.8
+          "afterMillimetres": -1.2
         },
         "calfcircumference": {
           "beforeMillimetres": -8.0,
-          "afterMillimetres": -3.7
+          "afterMillimetres": -0.8
+        },
+        "crotchheight": {
+          "beforeMillimetres": -26.5,
+          "afterMillimetres": -14.0
+        },
+        "chestheight": {
+          "beforeMillimetres": -5.8,
+          "afterMillimetres": -0.1
         }
       },
       "men": {
-        "people": 25,
-        "buttockdepth": {
-          "beforeMillimetres": -33.7,
-          "afterMillimetres": -14.6
-        },
-        "buttockheight": {
-          "beforeMillimetres": 49.1,
-          "afterMillimetres": 46.8
-        },
-        "waistbreadth": {
-          "beforeMillimetres": 10.4,
-          "afterMillimetres": -4.2
-        },
-        "waistdepth": {
-          "beforeMillimetres": -8.8,
-          "afterMillimetres": 7.5
-        },
-        "waistcircumference": {
-          "beforeMillimetres": -16.5,
-          "afterMillimetres": -18.3
-        },
-        "thighcircumference": {
-          "beforeMillimetres": -32.7,
-          "afterMillimetres": -19.5
-        },
-        "calfcircumference": {
-          "beforeMillimetres": -13.5,
-          "afterMillimetres": -14.8
-        }
+        "note": "no rows: the men's residuals are the previous revision's on the same people",
+        "people": 26
       }
     },
     "breastPosition": {
