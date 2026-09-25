@@ -357,6 +357,48 @@ The source's lash texture is a cosmetic one: clumped strands three to six textur
 
 The editor's rig rendered a key-lit 18 percent grey card at L* 45.9 with a warm cast (sRGB 118, 107, 99), where a photograph is exposed and white balanced on the light falling on the subject. The rig is balanced as a photographer would: one von Kries gain per channel makes the key-lit grey card neutral at its own luminance, and the tone mapping exposure puts the card at CIE L* 50 through the renderer's ACES curve (ISO 2720, the incident-meter calibration). The rig's directions, relative powers and the key and fill colours' contrast stay as authored. Read back on the GPU the card is 119, 119, 119 (L* 50.0).
 
+## Cameras by landmark reprojection
+
+The published poses carried the yaw the detector's transformation matrix reads and a pitch of zero, and the detector's pose is itself a fit of its own canonical face: seven of seventeen subjects read 9 to 19 degrees between photograph and render, and those were the subjects whose mouths the shift index skewed (a mouth moved half a unit sideways on a centred smile). `plan-face-likeness.ts pnp` moves each camera to the yaw and pitch under which the subject's own document, its interior landmarks placed by the view's anchors, projects best onto the photograph's landmarks after a 2D similarity (perspective-n-point on the rig's two free angles, `searchFaceLikenessPose`; the face-oval landmarks are left out, being a different surface point from every direction). A camera is kept only where the documents derived again at it fit the photograph better.
+
+On the documents derived with the canthal tilt index and the balanced rig, the reprojection moved Miriam Margolyes's yaw from -15.2 to -1.7 degrees, Maggie Smith's from 14.7 to 6.5 and Emma Watson's from 16.0 to 9.0 with a pitch of 7.0, and gave Michael Gambon a pitch of -9.8; every subject's reprojection residual fell. Derived again at the moved cameras with their anchors bound again, the median landmark RMS over the sixteen common subjects fell from 0.0332 to 0.0313 inter-ocular and the mean from 0.0417 to 0.0318 (Emma Watson 0.085 to 0.040, Miriam Margolyes 0.095 to 0.055, Michael Gambon 0.055 to 0.039), 14 of 17 renders nearest their own photograph (15). Thirteen cameras fit better and were kept; four (Alan Rickman, the generated Black girl, Oh Seung-yoon, Park Eun-bin) fit worse and keep the previous camera, documents and anchors.
+
+## Brow density from the outline's coverage
+
+Rendered through the source's mask the brows covered their outline nearly whole (0.8 to 0.98 of it) where the photographs show 0.3 to 0.9 (a sparse ginger brow 0.38, a grey one none), so every brow read as a dark bar: against the cheek the render's brow tone sat 0.62 log units below the photograph's. An outline's tone is its fibres and the skin between them mixed by coverage, `tone = c fibre + (1 - c)` in luminance over the cheek's, which cancels exposure, so the coverage is `(1 - tone) / (1 - fibre)` wherever the fibres differ from the skin by a tenth or more (`faceLikenessBrowCoverage`, the fibre sample being the outline's darkest tenth and the tone its median). The fibre rule already scales a card's coverage by a document `density`; `fit-face-brows.ts` sets it to the current density times the photograph's coverage over the render's (`fitFaceLikenessBrowDensity`), held to the rule's [0, 4].
+
+Measured renders of documents derived with the fitted densities have not been compared yet; the method stands on its own derivation, and its effect on the brow tone is left to the next likeness round.
+
+## What the photograph cannot show
+
+A frontal photograph gives no measurement of the face's depths, of the head behind it, or of the ears (the detector has no ear landmark), so those channels kept the source's artistic defaults: a nose projecting 13.1 mm from subnasale where European adults measure 20 to 21 mm, ears 0.43 of the face's height and standing 12 mm off the head where every sample measures about 0.52 and 20 to 23 mm, a head of cephalic index 0.74. `faceUnseenNorms` reads each on the built skin at rest by its classical definition and pairs it with the one control that means it:
+
+| reading | control | norms | spread |
+| --- | --- | --- | --- |
+| upper and lower lip to Ricketts's E-line | mouthForwardPosition, lowerLipVolume | untreated non-aesthetic samples by ancestry and sex, aged by Pecora 2008 | 2 mm |
+| facial convexity g-sn-pog' | chinProjection | Wen et al. 2015 meta-analysis | 4 deg |
+| nasofrontal angle | nasalRootProjection | Wen et al. 2015 | 7 deg |
+| nasolabial angle cm-sn-ls | noseSeptumAngle | Wen et al. 2015 | 8 deg |
+| nasal tip protrusion sn-prn / n-sn | noseDepth | 3D Facial Norms, scaled by Zaidi 2017's one-instrument ancestry ratios | 0.02 |
+| cephalic index eu-eu / g-op | posteriorHeadDepth | ANSUR II; AIST and Du 2008 for East Asians | 0.03 |
+| ear length sa-sba / n-me, each ear | left/rightEarScale | ANSUR II | 0.04 |
+| ear protrusion (mastoid to lateral edge) / ear length, each ear | left/rightEarFlap | ANSUR II | 0.045 |
+
+The auricle is the source's ear-shape region where the surface is under a centimetre thick (`faceAuricle`). `derive-face-documents.ts identity` solves them after the photograph's indices, block by block until a sweep leaves the unseen block still: the photograph's indices exactly, then the unseen readings as the most probable form, the controls within their envelopes that minimise the sum of squared standard scores against the norms (`solveFaceNorms`). The photograph is measured and met; the norms are the prior. Where the controls cannot meet every norm together (the source's lips, nose and chin pull the E-line, the convexity and the nasolabial angle against each other) the face settles where the population makes it most probable. A Newton solve of the same readings did not converge: their landmarks step between samples of the profile.
+
+Measured on the seventeen photographs through the product editor (stage A, the documents compared as derived; stage B, after the render correction), with the frontal indices alone (fine controls, no unseen norms), then with the unseen form as first solved, then on the valid envelope basis with both solver fixes:
+
+| | frontal only | unseen, first | unseen, valid basis |
+| --- | --- | --- | --- |
+| stage A median / mean landmark RMS (16 common) | 0.0329 / 0.0354 | 0.0376 / 0.0373 | 0.0346 / 0.0377 |
+| stage A renders nearest their own photograph | 15 of 17 | 16 of 17 | 13 of 17 |
+| stage B median / mean landmark RMS | 0.0314 / 0.0329 | 0.0329 / 0.0335 | 0.0312 / 0.0353 |
+| stage B renders nearest their own photograph | 17 of 17 | 15 of 17 | 16 of 17 |
+
+The unseen form costs the frontal landmarks little and not uniformly: a turned photograph shows some of the depth the norms set (Alan Rickman at yaw -31, the generated white girl at -28), and the reprojection residual of each document at its camera moves by up to a tenth either way with it. On the valid basis the unseen readings end within their populations (median |z| 0.05 over all readings, 90th percentile 0.64), except where an envelope stops them: the nasolabial angle is held at the septum's valid end (1.25) for fourteen subjects, a quarter to two deviations more obtuse than their norms, because the source's nose is upturned and its septum turns into a lump past 1.25. At stage B the valid basis measures the best median of the three (0.0312) and the lowest pose difference the detector reads between photograph and render (5.7 degrees against 6.3 and 6.1). Two regressions are measurement rather than form: Miriam Margolyes's curly fringe covers her render's eyes (her photograph shows them clear), so the detector's eye landmarks on her render move from round to round, and the generated Black girl's photograph reads far from every round but one.
+
+What the fine documents still lack is recorded, not hidden. The women among them read more masculine than their photographs: no index or unseen reading covers the brow ridge and the orbit, the upper face's sexually dimorphic regions (in computed tomography of 154 adults the male glabella lies 1.6 mm further forward and the forehead's centre 1.7 mm further back, Plast Reconstr Surg Glob Open 2025, PMC12459598), and their norms on the skin are still to be found. No control moves the eye in its orbit, so how deep-set an eye is (exophthalmometry, 15.4 to 18.5 mm by sex and ancestry: Migliori and Gladstone 1984; 15.7 in Han Chinese adults, Sci Rep 2015) is the source's, which reads a few millimetres deep. And stage B's render correction is taken per subject: the detector places the inner lip landmark about 1 to 2 percent of the inter-ocular distance above the lip's visible edge on a render, which the correction repays one person at a time where one calibration of the detector's render-to-photograph gap would be the shared form.
+
 ## Lip envelopes
 
 A control that means one anatomical measure should reach every value adults show. The source's lip height controls end at plus and minus one, where its upper vermilion measures 0.160 of the mouth's width and its lower 0.182: the means of European men (3D Facial Norms: 7.9 and 9.2 mm over 50.4). Half of them lay beyond the envelope, and in documents of fine controls alone, which start from the source's neutral (0.210 and 0.256: fuller than every sampled population's mean below, the vermilion revision having normed the ancestry corners and left the neutral), the photographs of thin upper lips held `upperLipHeight` at -1 for thirteen to fifteen of the seventeen subjects.
