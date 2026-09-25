@@ -1,5 +1,6 @@
 import {
   type IAutoMovieHumanBodyBasis,
+  assertHumanBodyBasis,
   createHumanBodyBasisBuilder,
   createHumanBodySurfaceSag,
 } from "@automovie/human";
@@ -187,11 +188,10 @@ export const test_human_body_surface_sag = (): void => {
     if (geometry.type !== "mesh") throw new Error("expected a mesh");
     return geometry.mesh.positions;
   };
+  const unsagged = positionsOf(plain(document));
   TestValidator.predicate(
     "a neutral document builds as without the sag",
-    positionsOf(sagging(document)).every(
-      (value, i) => value === positionsOf(plain(document))[i],
-    ),
+    positionsOf(sagging(document)).every((value, i) => value === unsagged[i]),
   );
   const built = order(tube());
   const at = built.indexOf(16 * SEGMENTS); // y = 1.6, angle 0: spine-rigid
@@ -282,14 +282,14 @@ export const test_human_body_surface_sag = (): void => {
     TestValidator.predicate(
       `sag ${title} refused`,
       throwsError(
-        () => createHumanBodyBasisBuilder(withSag({ ...SAG, ...bad } as Sag)),
+        () => assertHumanBodyBasis(withSag({ ...SAG, ...bad } as Sag)),
         "Body surface sag",
       ),
     );
     TestValidator.predicate(
       `sag ${title} twin admitted`,
       !throwsError(() =>
-        createHumanBodyBasisBuilder(withSag({ ...SAG, ...good } as Sag)),
+        assertHumanBodyBasis(withSag({ ...SAG, ...good } as Sag)),
       ),
     );
   }
