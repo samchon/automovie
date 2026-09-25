@@ -536,7 +536,7 @@ ref04의 책상 앞 소형 기기 밀도를 따르고 ref02의 개인 침실 책
 
 ## 주방 상부장 밑면 선형등 {#under-cabinet-light}
 
-ref03의 조리대 위 상부장 밑에 보이는 연속 광띠를 한 개의 독립 등기구로 둔다. local 원점은 상부장 밑면의 접합 중심이고 +X는 광띠의 길이, −Y는 조리대 방향, +Z는 실내 쪽이다. 표가 소유하는 낮은 직육면체이며 밑면의 `body/diffuser`와 나머지 `body/housing`, 양 끝 `body/end`를 분리해 주소를 준다. 실제 전기 연결과 빛의 퍼짐은 systems에서 확인하며 이 설계만으로는 `unverified`다.
+ref03의 조리대 위 상부장 밑에 보이는 광띠를 같은 변종의 좌우 독립 등기구로 둔다. 후드 바깥쪽 상부장 밑면에 하나씩 배치해 금속 후드와 겹치지 않는 위치는 instances가 소유한다. local 원점은 상부장 밑면의 접합 중심이고 +X는 광띠의 길이, −Y는 조리대 방향, +Z는 실내 쪽이다. 표가 소유하는 낮은 직육면체이며 밑면의 `body/diffuser`와 나머지 `body/housing`, 양 끝 `body/end`를 분리해 주소를 준다. 실제 전기 연결과 빛의 퍼짐은 systems에서 확인하며 이 설계만으로는 `unverified`다.
 
 `underside`는 상부장 밑면 y=0의 접합 평면이다. 전체 x 상면이 그 평면에 닿아야 하고 상부장 실체와의 면적·가림은 instances에서 검증한다. ref03의 간접 빛을 기준으로 밑면과 45°에서 연속 확산면, 끝 마개 및 상부장 접합을 확인한다.
 
@@ -545,8 +545,8 @@ ref03의 조리대 위 상부장 밑에 보이는 연속 광띠를 한 개의 �
 
 | kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| @envelope | default | * | bounds | -0.8..0.8 | -0.03..0 | -0.025..0.025 | - |
-| @part | default | body | box | -0.8..0.8 | -0.03..0 | -0.025..0.025 | underside |
+| @envelope | default | * | bounds | -0.4..0.4 | -0.03..0 | -0.025..0.025 | - |
+| @part | default | body | box | -0.4..0.4 | -0.03..0 | -0.025..0.025 | underside |
 
 <!-- @authored-address-state:start -->
 @address-state default: body
