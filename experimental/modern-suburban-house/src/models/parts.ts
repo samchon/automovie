@@ -148,6 +148,27 @@ export function metricSkewedPanelZ(min:Point,max:Point,startX:number,endX:number
   return mesh;
 }
 
+/** Square post whose top center may shift in both ground-plane axes. */
+export function metricLeaningPost(bottom:Point,top:Point,width:number):IAutoMovieMesh {
+  if(![...bottom,...top,width].every(Number.isFinite)||width<=0||top[1]<=bottom[1]) throw Error("invalid leaning post");
+  const half=width/2,mesh=metricBox([-half,bottom[1],-half],[half,top[1],half]);
+  const rise=top[1]-bottom[1],dx=(top[0]-bottom[0])/rise,dz=(top[2]-bottom[2])/rise;
+  for(let i=0;i<mesh.positions.length;i+=3) {
+    const y=mesh.positions[i+1]!;
+    mesh.positions[i]+=bottom[0]+dx*(y-bottom[1]);
+    mesh.positions[i+2]+=bottom[2]+dz*(y-bottom[1]);
+  }
+  for(let face=0;face<6;face++) {
+    const start=face*12,a=mesh.positions.slice(start,start+3),b=mesh.positions.slice(start+3,start+6),c=mesh.positions.slice(start+6,start+9);
+    const u=[0,1,2].map((k)=>b[k]!-a[k]!),v=[0,1,2].map((k)=>c[k]!-a[k]!);
+    const cross=[u[1]!*v[2]!-u[2]!*v[1]!,u[2]!*v[0]!-u[0]!*v[2]!,u[0]!*v[1]!-u[1]!*v[0]!];
+    const length=Math.hypot(...cross);
+    for(let j=0;j<4;j++) for(let k=0;k<3;k++) mesh.normals![start+j*3+k]=cross[k]!/length;
+    if(face<4) for(let j=0;j<4;j++) mesh.uvs![face*8+j*2+1]*=Math.hypot(1,dx,dz);
+  }
+  return mesh;
+}
+
 /** Closed twelve or more sided cylinder/frustum; UVs are arc length and Y. */
 export function metricFrustum(center: Point, bottomRadius: number, topRadius: number, height: number, sides = 16): IAutoMovieMesh {
   if (![...center,bottomRadius,topRadius,height,sides].every(Number.isFinite) || bottomRadius <= 0 || topRadius <= 0 || height <= 0 || sides < 3)
@@ -418,6 +439,9 @@ export class PrototypeBuilder {
   }
   skewedPanelZ(surface:string,min:Point,max:Point,startX:number,endX:number):this {
     return this.add(surface,metricSkewedPanelZ(min,max,startX,endX),"box-metric");
+  }
+  leaningPost(surface:string,bottom:Point,top:Point,width:number):this {
+    return this.add(surface,metricLeaningPost(bottom,top,width),"box-metric");
   }
   frustum(surface: string, center: Point, r0:number, r1:number, height:number, sides=16): this {
     return this.add(surface, metricFrustum(center,r0,r1,height,sides), "cylinder-metric");

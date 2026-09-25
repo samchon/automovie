@@ -33,7 +33,7 @@ export interface PrototypeSpec {
   pendant?: "island" | "dining";
   ceiling?: "flush";
   laundry?: "washer" | "dryer";
-  chairProfile?: "terrace" | "dining" | "desk";
+  chairProfile?: "terrace" | "dining" | "desk" | "stool";
   tableProfile?: "terrace";
   borderWidth?: number;
   tubCurtainLength?: number;
@@ -497,6 +497,23 @@ export function buildPrototype(spec: PrototypeSpec): HousePrototype {
           b.box("back",[x-postWidth/2,seatTop-0.03,sideInset-postWidth/2],[x+postWidth/2,h,sideInset+postWidth/2]);
         b.box("back",[-0.175,0.62,sideInset], [0.175,0.80,sideInset+0.025]);
         for(const face of ["seat","leg","back"]) pending.delete(face);
+        break;
+      }
+      if(spec.chairProfile==="stool") {
+        const top=0.64,seatUnder=top-0.05,footY=0.24,footWidth=0.02;
+        b.box("seat",[-0.20,seatUnder,0.02],[0.20,top,0.42]);
+        for(const side of [-1,1]) for(const front of [false,true]) {
+          const lower:[number,number,number]=[side*0.205,0,front?0.425:0.015];
+          const upper:[number,number,number]=[side*0.16,seatUnder,front?0.38:0.06];
+          b.leaningPost("leg",lower,upper,0.03);
+        }
+        const fraction=0.25/seatUnder;
+        const x=0.205+fraction*(0.16-0.205),rear=0.015+fraction*(0.06-0.015),front=0.425+fraction*(0.38-0.425);
+        for(const z of [rear,front])
+          b.box("footrest",[-x+0.015,footY,z-footWidth/2],[x-0.015,footY+footWidth,z+footWidth/2]);
+        for(const side of [-1,1])
+          b.box("footrest",[side*x-footWidth/2,footY,rear+0.015],[side*x+footWidth/2,footY+footWidth,front-0.015]);
+        for(const face of ["seat","leg","footrest"]) pending.delete(face);
         break;
       }
       const stool=pending.has("footrest");

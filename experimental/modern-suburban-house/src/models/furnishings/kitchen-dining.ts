@@ -24,7 +24,7 @@ export const kitchenDiningSpecs: readonly PrototypeSpec[] = [
     ["kitchen-dishwasher","appliance",fromReservation("common-dishwasher"),"appliance-body leaf control-panel handle appliance-interior",
       {finishes:{...finishFaces("stainless-steel","appliance-body","leaf","handle"),
         ...finishFaces("black-glass-panel","control-panel"),...finishFaces("white-enamel","appliance-interior")}}],
-    ["kitchen-island-stool","chair",[0.40,0.64,0.42],"seat leg footrest",{finishes:woodenStoolFinishes}],
+    ["kitchen-island-stool","chair",[0.40,0.64,0.42],"seat leg footrest",{finishes:woodenStoolFinishes,chairProfile:"stool"}],
     ["dining-table","table",fromReservation("common-dining-table"),"top apron leg"],
     ["dining-chair","chair",[0.45,0.85,0.50],"seat leg back",{finishes:woodenChairFinishes,chairProfile:"dining"}],
   ]),

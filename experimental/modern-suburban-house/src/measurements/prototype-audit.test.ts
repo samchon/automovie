@@ -1,7 +1,7 @@
 import { strict as assert } from "node:assert";
 import { test } from "node:test";
 import { buildHouseObjects, buildHousePrototypes, buildTubCurtain, buildWindowCurtains, housePrototypeSpecs } from "../models/catalogue";
-import { metricBeam, metricBox, metricCup, metricEllipsoid, metricFrustum, metricInvertedCup, metricOvalCup, metricPleatedCurtain, metricRingZ, metricShearedBox, metricSkewedPanelZ } from "../models/parts";
+import { metricBeam, metricBox, metricCup, metricEllipsoid, metricFrustum, metricInvertedCup, metricLeaningPost, metricOvalCup, metricPleatedCurtain, metricRingZ, metricShearedBox, metricSkewedPanelZ } from "../models/parts";
 import { buildPrototype } from "../models/templates";
 import { auditPrototypePopulation, runRandomMutations } from "./prototype-audit";
 
@@ -31,6 +31,7 @@ test("metric generators reject impossible solids and produce aligned UVs", () =>
     metricPleatedCurtain(0,-0.75,1.5),
     metricShearedBox([-0.02,0.42,0.07],[0.02,0.85,0.11],0.45,-Math.tan(8*Math.PI/180)),
     metricSkewedPanelZ([-0.005,0.60,0],[0.005,2.05,0.45],0,0.015),
+    metricLeaningPost([0.205,0,0.015],[0.16,0.59,0.06],0.03),
   ]) {
     assert.ok(mesh.indices?.length);
     assert.equal(mesh.uvs?.length,mesh.positions.length/3*2);
@@ -44,6 +45,7 @@ test("metric generators reject impossible solids and produce aligned UVs", () =>
   assert.throws(()=>metricPleatedCurtain(0,1,0));
   assert.throws(()=>metricShearedBox([0,0,0],[1,1,1],0,Infinity));
   assert.throws(()=>metricSkewedPanelZ([0,0,0],[1,1,1],0,Infinity));
+  assert.throws(()=>metricLeaningPost([0,0,0],[0,0,0],0.03));
 });
 
 test("bath curtain opens within its measured rail and keeps four joined folds", () => {
@@ -222,6 +224,13 @@ test("separate room objects keep each reviewed face once", () => {
   const boardYs=backBoard.mesh.positions.filter((_,i)=>i%3===1);
   assert.ok(Math.abs(Math.min(...boardYs)-0.62)<1e-9);
   assert.ok(Math.abs(Math.max(...boardYs)-0.80)<1e-9);
+  const stool=objects.find((p)=>p.id==="kitchen-island-stool")!;
+  assert.equal(stool.model.parts.filter((part)=>part.material==="leg").length,4);
+  assert.equal(stool.model.parts.filter((part)=>part.material==="footrest").length,4);
+  const stoolPositions=stool.model.parts.flatMap((part)=>part.geometry.type==="mesh"?part.geometry.mesh.positions:[]);
+  const stoolZs=stoolPositions.filter((_,i)=>i%3===2),stoolXs=stoolPositions.filter((_,i)=>i%3===0);
+  assert.ok(Math.abs(Math.max(...stoolXs)-Math.min(...stoolXs)-0.44)<1e-9);
+  assert.ok(Math.abs(Math.max(...stoolZs)-Math.min(...stoolZs)-0.44)<1e-9);
   for(const [id,width,drop] of [["island-pendant",0.28,0.80],["dining-pendant",0.48,1.20]] as const) {
     const object=objects.find((p)=>p.id===id)!;
     const positions=object.model.parts.flatMap((part)=>part.geometry.type==="mesh"?part.geometry.mesh.positions:[]);
