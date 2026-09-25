@@ -24,7 +24,7 @@
 
 분수의 흐름·빛 반사와 등잔의 상태 변화는 systems·motions의 후속 결정이며 모델은 정지 형상만 낸다. 외벽 기단과 코핑, 문턱 바닥, 대지 지면과 먼 능선은 spaces가 이미 소유한 실체라 모델 population에 다시 들이지 않는다. 문틀이 문턱 바닥을, 이웃 외피가 포장 구획을, 창틀이 벽 void 위치를 새로 만들지 않는 것이 각 H2에서 이 경계를 지키는 방식이다.
 
-아래 표는 열 문서의 원형 H2에서는 part마다, 공통 규칙인 scale의 세 H2에서는 `공통 규칙` 요약 행으로 만드는 source 입력 색인이다. `공통 규칙`은 방출 part 이름이 아니다. 각 행은 원본 H2 링크·본문 문자 수·SHA-256을 보존하고, 값이 바뀌면 `self-check --sync-accounts`에서 기계적으로 바뀐다. self-check는 52개 H2와 132개 형상 part 주소의 정확한 일치를 검사한다. 이 색인은 빠진 설계 결정을 `0`으로 인증하지 않는다. 리뷰어와 저작자는 링크된 원본 H2의 위치·크기·단면·분할·접합을 판정하고 구현 중 빠진 선택을 찾으면 해당 H2를 먼저 고친다.
+아래 표는 열 문서의 원형 H2에서는 part마다, 공통 규칙인 scale의 세 H2에서는 `공통 규칙` 요약 행으로 만드는 source 입력 색인이다. `공통 규칙`은 방출 part 이름이 아니다. 각 행은 원본 H2 링크·본문 문자 수·SHA-256을 보존하고, 값이 바뀌면 `self-check --sync-accounts`에서 기계적으로 바뀐다. self-check는 52개 H2와 134개 형상 part 주소의 정확한 일치를 검사한다. 이 색인은 빠진 설계 결정을 `0`으로 인증하지 않는다. 리뷰어와 저작자는 링크된 원본 H2의 위치·크기·단면·분할·접합을 판정하고 구현 중 빠진 선택을 찾으면 해당 H2를 먼저 고친다.
 
 | 모델 H2 | part | 본문 문자 수 | 본문 SHA-256 |
 | --- | --- | ---: | --- |
@@ -59,11 +59,11 @@
 | [fixtures/altar](../../models/fixtures.md#altar) | `step` | 1036 | `847ffcbc227b67317d8d8e4168948bbbcc9c08c175e6bc347f64fe01df41077b` |
 | [fixtures/altar](../../models/fixtures.md#altar) | `top` | 1036 | `847ffcbc227b67317d8d8e4168948bbbcc9c08c175e6bc347f64fe01df41077b` |
 | [fixtures/altar](../../models/fixtures.md#altar) | `support` | 1036 | `847ffcbc227b67317d8d8e4168948bbbcc9c08c175e6bc347f64fe01df41077b` |
-| [fixtures/niche](../../models/fixtures.md#niche) | `plinth` | 745 | `2b1c1c55a51af9207784d0379d4f7eaaed927db5bb518a63ecc01a42a61e135d` |
-| [fixtures/niche](../../models/fixtures.md#niche) | `body` | 745 | `2b1c1c55a51af9207784d0379d4f7eaaed927db5bb518a63ecc01a42a61e135d` |
-| [fixtures/niche](../../models/fixtures.md#niche) | `recess-frame` | 745 | `2b1c1c55a51af9207784d0379d4f7eaaed927db5bb518a63ecc01a42a61e135d` |
-| [fixtures/niche](../../models/fixtures.md#niche) | `recess` | 745 | `2b1c1c55a51af9207784d0379d4f7eaaed927db5bb518a63ecc01a42a61e135d` |
-| [fixtures/niche](../../models/fixtures.md#niche) | `cap` | 745 | `2b1c1c55a51af9207784d0379d4f7eaaed927db5bb518a63ecc01a42a61e135d` |
+| [fixtures/niche](../../models/fixtures.md#niche) | `plinth` | 815 | `f1ba9e322377228211d323c57d3120f01d24846351eb313a1f203d520b142ae7` |
+| [fixtures/niche](../../models/fixtures.md#niche) | `body` | 815 | `f1ba9e322377228211d323c57d3120f01d24846351eb313a1f203d520b142ae7` |
+| [fixtures/niche](../../models/fixtures.md#niche) | `recess-frame` | 815 | `f1ba9e322377228211d323c57d3120f01d24846351eb313a1f203d520b142ae7` |
+| [fixtures/niche](../../models/fixtures.md#niche) | `recess` | 815 | `f1ba9e322377228211d323c57d3120f01d24846351eb313a1f203d520b142ae7` |
+| [fixtures/niche](../../models/fixtures.md#niche) | `cap` | 815 | `f1ba9e322377228211d323c57d3120f01d24846351eb313a1f203d520b142ae7` |
 | [fixtures/lampstand](../../models/fixtures.md#lampstand) | `foot` | 826 | `bee0129903085afd3fa7d0f2b2cea98da05a6a6a957ffc03ea92fdd32f42872c` |
 | [fixtures/lampstand](../../models/fixtures.md#lampstand) | `stem` | 826 | `bee0129903085afd3fa7d0f2b2cea98da05a6a6a957ffc03ea92fdd32f42872c` |
 | [fixtures/lampstand](../../models/fixtures.md#lampstand) | `knop` | 826 | `bee0129903085afd3fa7d0f2b2cea98da05a6a6a957ffc03ea92fdd32f42872c` |
@@ -189,14 +189,14 @@ settings의 [작업 언어](../../settings/00-delivery.md#working-language)에 �
 | cladding.md | 2 | 3310 |
 | columns.md | 2 | 2082 |
 | entablature.md | 5 | 5555 |
-| fixtures.md | 10 | 7850 |
+| fixtures.md | 10 | 7901 |
 | landscape.md | 4 | 3562 |
 | openings.md | 4 | 4429 |
 | portable.md | 13 | 7252 |
 | ritual.md | 3 | 1270 |
 | scale.md | 3 | 9776 |
 | wares.md | 6 | 4493 |
-| 합계 | 52 | 49579 |
+| 합계 | 52 | 49630 |
 
 재생성 전 원본은 작업 트리에 없지만 Git `111dba96^:experimental/ancient-civic-temple/docs/models/temple-fit-out.md`에 남아 있다. 현재 계정의 `modelDocumentBodyLength`와 같은 방식으로 해당 blob의 HTML 주석·공백을 빼고 제목을 포함해 다시 세면 한 파일·17 H2·14,799자다. 그 H2 목록에는 `Column prototype`, `Door prototype`, `Roof tile prototype`이 각각 한 번씩 있어 당시 기둥·문짝·기와를 한 절로 묶은 기록도 확인된다. 현재 판은 문틀·양개·외개·창틀, 주랑·포치 원주, 평기와·용마루를 따로 두어 서로 다른 소비자와 변경 경로를 가진 결정이 각자 주소를 가진다.
 
