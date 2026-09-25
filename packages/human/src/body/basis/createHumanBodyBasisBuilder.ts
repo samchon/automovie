@@ -14,13 +14,16 @@ import type {
 } from "@automovie/interface";
 import typia from "typia";
 
+import { createHumanFaceBasisRegion } from "../../face/basis/createHumanFaceBasisRegion";
 import { humanFaceBasisRegion } from "../../face/basis/humanFaceBasisRegion";
 import { portraitNormals } from "../../face/mesh/portraitNormals";
+import { HUMAN_BODY_SKIN_SITES } from "../constants/HUMAN_BODY_SKIN_SITES";
 import { admitHumanBodyBasisDocument } from "../document/admitHumanBodyBasisDocument";
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanBodyBasisDocument } from "../structures/IAutoMovieHumanBodyBasisDocument";
 import type { IAutoMovieHumanBodyBuild } from "../structures/IAutoMovieHumanBodyBuild";
 import { assertHumanBodyBasis } from "./assertHumanBodyBasis";
+import { createHumanBodySkinColour } from "./createHumanBodySkinColour";
 import { evaluateHumanBodyShape } from "./evaluateHumanBodyShape";
 import { humanBodyBasisWeights } from "./humanBodyBasisWeights";
 import { humanBodyShoulderReaches } from "./humanBodyShoulderReaches";
@@ -76,6 +79,8 @@ export function createHumanBodyBasisBuilder(
     typia.assertEquals<IAutoMovieHumanBodyBasis>(input),
   );
   assertHumanBodyBasis(basis);
+  // read off the rig on the first document that asks for it
+  let siteColour: ReturnType<typeof createHumanBodySkinColour> | null = null;
   return (inputDocument) => {
     const document = admitHumanBodyBasisDocument(inputDocument);
     if (
@@ -206,6 +211,37 @@ export function createHumanBodyBasisBuilder(
       if (override.roughness !== undefined)
         material.roughness = override.roughness;
     }
+    // the skin's colour by site, from the cheek the face wears: the material
+    // takes the largest albedo and its regions the multipliers of it
+    const skin = HUMAN_BODY_SKIN_SITES.material;
+    const cheek = document.skinColour?.cheek;
+    if (
+      cheek !== undefined &&
+      (!materialMap.has(skin) ||
+        document.materials?.[skin]?.color !== undefined ||
+        [cheek.r, cheek.g, cheek.b].some((value) => value <= 0 || value > 1))
+    )
+      throw new Error(
+        "Body skin colour needs a skin material without a colour override and a cheek albedo in (0,1].",
+      );
+    const coloured =
+      cheek === undefined
+        ? null
+        : (siteColour ??= createHumanBodySkinColour(basis))([
+            cheek.r,
+            cheek.g,
+            cheek.b,
+          ]);
+    if (coloured !== null) {
+      const [r, g, b] = coloured.base;
+      materialMap.get(skin)!.baseColor = {
+        ...materialMap.get(skin)!.baseColor,
+        r,
+        g,
+        b,
+        hex: null,
+      };
+    }
     const parts = basis.surfaces.flatMap((surface, index) => {
       const positions = skinHumanBodySurface(
         shaped.surfaces[index],
@@ -220,7 +256,14 @@ export function createHumanBodyBasisBuilder(
         material: region.material,
         geometry: {
           type: "mesh" as const,
-          mesh: humanFaceBasisRegion(positions, normals, region),
+          mesh:
+            coloured === null || region.material !== skin
+              ? humanFaceBasisRegion(positions, normals, region)
+              : createHumanFaceBasisRegion(region)(
+                  positions,
+                  normals,
+                  coloured.colors[index],
+                ),
         },
         attachedBone: null,
         transform: null,
