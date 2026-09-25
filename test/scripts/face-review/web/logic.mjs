@@ -41,7 +41,9 @@ export function portraitWebCapturePose(poses, id, hairMask) {
       (!Number.isFinite(pose.distance) || pose.distance <= 0)) ||
     (pose.target !== undefined &&
       (pose.target.length !== 3 ||
-        pose.target.some((value) => !Number.isFinite(value))))
+        pose.target.some((value) => !Number.isFinite(value)))) ||
+    (pose.fov !== undefined &&
+      (!Number.isFinite(pose.fov) || pose.fov <= 0 || pose.fov >= 180))
   )
     throw new Error(
       "A matched face view needs a finite measured camera pose and frame.",
@@ -52,6 +54,7 @@ export function portraitWebCapturePose(poses, id, hairMask) {
     hairMask,
     ...(pose.distance === undefined ? {} : { distance: pose.distance }),
     ...(pose.target === undefined ? {} : { target: [...pose.target] }),
+    ...(pose.fov === undefined ? {} : { fov: pose.fov }),
   };
 }
 
@@ -229,4 +232,18 @@ export function portraitWebReferenceFrame(profile) {
       1,
     ],
   };
+}
+
+/**
+ * Alpha test of an exported material, following the product viewer's
+ * `buildMaterial`: `mask` cuts at the material's own `alphaCutoff` (0.5
+ * when absent), `blend` and `opaque` do not cut. A record exported before
+ * alpha fields were carried (no `alphaMode` key at all) keeps the historical
+ * 0.45 so an old census renders as it did.
+ */
+export function portraitWebAlphaTest(material) {
+  if (!Object.hasOwn(material, "alphaMode")) return 0.45;
+  const mode =
+    material.alphaMode ?? ((material.opacity ?? 1) < 1 ? "blend" : "opaque");
+  return mode === "mask" ? (material.alphaCutoff ?? 0.5) : 0;
 }

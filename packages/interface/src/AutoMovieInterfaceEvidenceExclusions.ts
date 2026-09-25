@@ -12,6 +12,8 @@
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-articulation Production schemas carry evaluated meshes; facial joints, landmarks and attachment weights are human authoring data.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-contact Portable structures carry no oral contact rule; the human basis declares apertures, closure and colliders.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-articulation The pure production AST does not evaluate facial articulation or sparse attachments; the human package owns that order.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-iris The pure production AST carries a material texture binding but neither decodes nor repaints an eye texture; the human builder owns the iris rule.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-fibre The pure production AST carries a material texture binding but neither decodes nor repaints a fibre texture; the human builder owns the fibre rule.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-contact The interface package declares models and meshes, not the contact evaluation order the human builder runs.
  * An exclusion neither implements a feature nor approves a rendered asset.
  * Add a boundary at its semantic owner and retain native graph validation.
