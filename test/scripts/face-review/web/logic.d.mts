@@ -12,6 +12,7 @@ export declare function portraitWebCapturePose(
       pitch: number;
       distance?: number;
       target?: [number, number, number];
+      fov?: number;
     } | null
   > | null,
   id: string,
@@ -22,6 +23,7 @@ export declare function portraitWebCapturePose(
   hairMask: boolean;
   distance?: number;
   target?: number[];
+  fov?: number;
 };
 export declare function resetPortraitWebSubject(subject: {
   matrixAutoUpdate: boolean;
@@ -63,3 +65,8 @@ export declare function portraitWebReferenceFrame(profile: {
   };
   reference: { crop: { x: number; y: number; size: number } };
 }): { target: number[]; position: number[]; span: number; matrix: number[] };
+export declare function portraitWebAlphaTest(material: {
+  alphaMode?: "opaque" | "mask" | "blend" | null;
+  alphaCutoff?: number | null;
+  opacity?: number | null;
+}): number;

@@ -26,6 +26,8 @@ const { perpendicular, direction: requireDirection } = humanFaceHairFrame;
  * Successive averaged tangents use Rodrigues' minimal rotation. Antiparallel
  * tangents have no unique minimal transport and refuse. Projection removes
  * accumulated floating-point drift from the transverse frame before normalizing.
+ * The root frame's sign is chosen so the ribbon's triangles face along the
+ * root's outward normal: a ribbon over the scalp faces away from it.
  * Generated triangles must remain finite and nondegenerate. This does not
  * establish root-fan clearance, self-intersection freedom or hair-to-hair contact.
  *
@@ -135,7 +137,19 @@ export function buildHumanFaceHairMesh(
           Vector3.length(Vector3.cross(tangents[0], tangent)) >
           64 * Number.EPSILON,
       ) ?? curve.normal;
+    // The frame's sign is free, and with this winding it sets which way the
+    // ribbon's triangles face (tangent cross frame). A ribbon lies over the
+    // scalp, so it faces away from it: the renderer offsets a shadow lookup
+    // along the stored normal, and a ribbon facing into the head reads its
+    // own shadow on the lit side. A root emerging along the normal faces
+    // nowhere yet, so the bend it combs into decides with it.
     let frame = perpendicular(tangents[0], reference);
+    const facing = [tangents[0], reference].reduce(
+      (sum, tangent) =>
+        sum + Vector3.dot(Vector3.cross(tangent, frame), curve.normal),
+      0,
+    );
+    if (facing < 0) frame = Vector3.scale(frame, -1);
     positions.push(points[0].x, points[0].y, points[0].z);
     uvs.push(0.5, 0);
     for (let at = 1; at < points.length; at++) {

@@ -254,7 +254,9 @@ export class AutoMovieTextureCache {
 }
 
 /**
- * Build a `three.js` physical PBR material from an automovie material.
+ * Build a `three.js` physical PBR material from an automovie material. It
+ * carries the material's name, or its id when unnamed, as the glTF export
+ * does, so a preview can recognise a finish by it.
  *
  * @evidence requirements/rendering/materials-lighting-and-color.md#rendering-material-resolution Resolves this public surface into the declared render material.
  * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-material-color Implements the material and color binding at the render boundary.
@@ -267,6 +269,7 @@ export const buildMaterial = (
   const alphaMode =
     material.alphaMode ?? (material.opacity < 1 ? "blend" : "opaque");
   const std = new THREE.MeshPhysicalMaterial({
+    name: material.name ?? material.id,
     color: new THREE.Color(c.r, c.g, c.b),
     metalness: material.metallic,
     roughness: material.roughness,
