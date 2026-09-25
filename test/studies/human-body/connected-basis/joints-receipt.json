@@ -1,5 +1,5 @@
 {
-  "basis": "mpfb-connected-body-2026-09-26-anatomy-r8",
+  "basis": "mpfb-connected-body-2026-09-26-anatomy-r9",
   "worstExclusiveRmsMetres": 0.004498943348317394,
   "worstRadiusDeviationMetres": 0.001708840575781495,
   "segments": [
@@ -90,7 +90,7 @@
       "exclusiveRms": null,
       "exclusiveDegrees": null,
       "dominantVertices": 4464,
-      "dominantRms": 0.00394292281540066,
+      "dominantRms": 0.00394299910302829,
       "radiusDeviation": 0,
       "chordSagittaIfLinear": 0
     },
@@ -103,7 +103,7 @@
       "exclusiveRms": null,
       "exclusiveDegrees": null,
       "dominantVertices": 4464,
-      "dominantRms": 0.0012063634442886024,
+      "dominantRms": 0.0012063732763437519,
       "radiusDeviation": 0,
       "chordSagittaIfLinear": 0
     },
@@ -116,7 +116,7 @@
       "exclusiveRms": null,
       "exclusiveDegrees": null,
       "dominantVertices": 4464,
-      "dominantRms": 0.0015360305761831627,
+      "dominantRms": 0.0015354687801806299,
       "radiusDeviation": 0,
       "chordSagittaIfLinear": 0
     },

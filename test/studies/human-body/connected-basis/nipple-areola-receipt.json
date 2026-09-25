@@ -1,0 +1,32 @@
+{
+  "basis": "mpfb-connected-body-2026-09-26-anatomy-r9",
+  "supersedes": "mpfb-connected-body-2026-09-26-anatomy-r8",
+  "recorded": "2026-09-26",
+  "method": "The nipple-areola complex, every vertex within radiusMetres of the extraction fill's centre on the front (recovered where the neutral's uniform bilaplacian vanishes) and that set's exact mirror, refilled in the neutral and in every endpoint by the fill minimizing the integrated squared Laplacian in the cotangent Laplacian and lumped mass of the neutral (Q = L M^-1 L), two rings outside held. The map from the held rings to the region is linear, so an endpoint's delta inside the region is the same map of its delta on the rings and channels combine as before. The neutral's refill is averaged with its mirror and stored at 1 um; every other coordinate keeps its published value, so the neck ring still meets the face basis by identity; the endpoints' refilled rows are stored at 10 um.",
+  "why": "The extraction's fill weighs every neighbour alike and so follows the mesh's sampling rather than its shape: the breast is sampled about ten times more densely than the abdomen, and the same uniform fill misplaced a featureless 8 to 10 cm abdominal disc by up to 15 mm (the cotangent fill: -3 to -7 mm, the navel). On built bodies the apex stood up to 3.8 mm above a cotangent refill within 18 mm of it, growing with the cup, and read as a nipple in three-quarter views.",
+  "research": [
+    {
+      "claim": "mean adult areola diameter 38.1 mm",
+      "source": "Hussain M, et al. Breast-areola-nipple proportion. Ann Plast Surg 2003",
+      "pmid": "12792541"
+    },
+    {
+      "claim": "mean areola diameter 4.0 cm over 600 breasts",
+      "source": "Morphologic study of nipple-areola complex in 600 breasts",
+      "pmid": "18626683"
+    }
+  ],
+  "radiusMetres": 0.02,
+  "centre": [
+    0.1015,
+    -0.31081,
+    0.14563
+  ],
+  "regionVertices": 480,
+  "heldVertices": 142,
+  "neutralMovedMaxMetres": 0.003124,
+  "endpointsRefilled": 157,
+  "endpointLargestChangeMetres": 0.00801,
+  "uncompressedSha256": "c0b50f173954cf3da2fb11eaaba942b92a56121bc4fb156ba878d4dae80e12fb",
+  "uncompressedBytes": 131590511
+}
