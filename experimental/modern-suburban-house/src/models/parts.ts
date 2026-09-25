@@ -257,6 +257,41 @@ export function metricInvertedCup(top:Point,lowerRadius:number,upperRadius:numbe
   return mesh;
 }
 
+/** Closed thin drape: continuous front/back folds with metre UVs. */
+export function metricPleatedCurtain(left:number,bottom:number,top:number,baseDepth=0.083):IAutoMovieMesh {
+  if(![left,bottom,top,baseDepth].every(Number.isFinite)||top<=bottom||baseDepth<=0.023)
+    throw Error("invalid pleated curtain");
+  const positions:number[]=[],normals:number[]=[],uvs:number[]=[],indices:number[]=[];
+  const face=(points:readonly Point[],tex:readonly (readonly [number,number])[],outward:Point)=>{
+    for(const [a,b,c] of [[0,1,2],[0,2,3]]) {
+      const p=points[a]!,q=points[b]!,r=points[c]!;
+      const ab=[q[0]-p[0],q[1]-p[1],q[2]-p[2]],ac=[r[0]-p[0],r[1]-p[1],r[2]-p[2]];
+      const cross=[ab[1]*ac[2]-ab[2]*ac[1],ab[2]*ac[0]-ab[0]*ac[2],ab[0]*ac[1]-ab[1]*ac[0]];
+      const sign=cross.reduce((sum,value,k)=>sum+value*outward[k]!,0)>=0?1:-1;
+      const normal=cross.map((value)=>value*sign/Math.hypot(...cross));
+      const order=sign>0?[a,b,c]:[a,c,b],start=positions.length/3;
+      for(const index of order) { positions.push(...points[index]!); normals.push(...normal); uvs.push(...tex[index]!); }
+      indices.push(start,start+1,start+2);
+    }
+  };
+  const segments=12,width=0.18,thickness=0.006;
+  const depth=(i:number)=>baseDepth+0.02*Math.sin(6*Math.PI*i/segments);
+  for(let i=0;i<segments;i++) {
+    const x0=left+i*width/segments,x1=left+(i+1)*width/segments,z0=depth(i),z1=depth(i+1);
+    const front0=z0+thickness/2,front1=z1+thickness/2,back0=z0-thickness/2,back1=z1-thickness/2;
+    face([[x0,bottom,front0],[x1,bottom,front1],[x1,top,front1],[x0,top,front0]],[[x0,bottom],[x1,bottom],[x1,top],[x0,top]],[0,0,1]);
+    face([[x0,bottom,back0],[x1,bottom,back1],[x1,top,back1],[x0,top,back0]],[[x0,bottom],[x1,bottom],[x1,top],[x0,top]],[0,0,-1]);
+    face([[x0,top,back0],[x1,top,back1],[x1,top,front1],[x0,top,front0]],[[x0,back0],[x1,back1],[x1,front1],[x0,front0]],[0,1,0]);
+    face([[x0,bottom,back0],[x1,bottom,back1],[x1,bottom,front1],[x0,bottom,front0]],[[x0,back0],[x1,back1],[x1,front1],[x0,front0]],[0,-1,0]);
+  }
+  for(const i of [0,segments]) {
+    const x=left+i*width/segments,z=depth(i),direction=i===0?-1:1;
+    face([[x,bottom,z-thickness/2],[x,bottom,z+thickness/2],[x,top,z+thickness/2],[x,top,z-thickness/2]],
+      [[0,bottom],[thickness,bottom],[thickness,top],[0,top]],[direction,0,0]);
+  }
+  return {positions,normals,uvs,indices,skin:null};
+}
+
 const fallback = (surface: string): number => {
   if (/countertop|ceramic|basin/.test(surface)) return 0xe9e6df;
   if (/fixture-shade/.test(surface)) return 0xd9cdb8;
@@ -301,6 +336,9 @@ export class PrototypeBuilder {
   }
   invertedCup(surface:string,top:Point,lowerRadius:number,upperRadius:number,height:number,wall:number):this {
     return this.add(surface,metricInvertedCup(top,lowerRadius,upperRadius,height,wall),"cylinder-metric");
+  }
+  pleatedCurtain(surface:string,left:number,bottom:number,top:number):this {
+    return this.add(surface,metricPleatedCurtain(left,bottom,top),"box-metric");
   }
   private add(surface:string, mesh:IAutoMovieMesh, uv:Exclude<SurfaceBinding["uv"],"mixed-metric">):this {
     const prior=this.surfaceKinds.get(surface);

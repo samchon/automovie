@@ -1,7 +1,7 @@
 import { strict as assert } from "node:assert";
 import { test } from "node:test";
 import { buildHouseObjects, buildHousePrototypes, buildWindowCurtains, housePrototypeSpecs } from "../models/catalogue";
-import { metricBeam, metricBox, metricCup, metricEllipsoid, metricFrustum, metricInvertedCup, metricOvalCup, metricRingZ } from "../models/parts";
+import { metricBeam, metricBox, metricCup, metricEllipsoid, metricFrustum, metricInvertedCup, metricOvalCup, metricPleatedCurtain, metricRingZ } from "../models/parts";
 import { buildPrototype } from "../models/templates";
 import { auditPrototypePopulation, runRandomMutations } from "./prototype-audit";
 
@@ -28,6 +28,7 @@ test("metric generators reject impossible solids and produce aligned UVs", () =>
     metricCup([0,0,0],0.1,0.14,0.1,0.008),
     metricOvalCup([0,0,0],0.1,0.14,0.1,0.008),
     metricInvertedCup([0,0,0],0.14,0.10,0.1,0.008),
+    metricPleatedCurtain(0,-0.75,1.5),
   ]) {
     assert.ok(mesh.indices?.length);
     assert.equal(mesh.uvs?.length,mesh.positions.length/3*2);
@@ -38,13 +39,14 @@ test("metric generators reject impossible solids and produce aligned UVs", () =>
   assert.throws(()=>metricCup([0,0,0],0.1,0.14,0.1,0.11));
   assert.throws(()=>metricOvalCup([0,0,0],0.1,0.008,0.1,0.008));
   assert.throws(()=>metricInvertedCup([0,0,0],0.14,0.10,0.1,0.11));
+  assert.throws(()=>metricPleatedCurtain(0,1,0));
 });
 
 test("separate room objects keep each reviewed face once", () => {
   const parents=buildHousePrototypes();
   const objects=buildHouseObjects(parents);
-  assert.equal(objects.length,70);
-  assert.ok(!objects.some((p)=>["porch-mat-planter","wall-art-indoor-plant","pantry-containers","kitchen-food-utensils","pendant-fixtures"].includes(p.id)));
+  assert.equal(objects.length,71);
+  assert.ok(!objects.some((p)=>["porch-mat-planter","wall-art-indoor-plant","pantry-containers","kitchen-food-utensils","pendant-fixtures","laundry-machine"].includes(p.id)));
   for(const [parentId,children] of [
     ["porch-mat-planter",["porch-mat","porch-planter"]],
     ["wall-art-indoor-plant",["wall-art","indoor-plant"]],
@@ -64,6 +66,7 @@ test("separate room objects keep each reviewed face once", () => {
   }
   assert.throws(()=>buildHouseObjects(parents.filter((p)=>p.id!=="porch-mat-planter")),/missing design host/);
   assert.throws(()=>buildHouseObjects(parents.filter((p)=>p.id!=="pendant-fixtures")),/missing design host/);
+  assert.throws(()=>buildHouseObjects(parents.filter((p)=>p.id!=="laundry-machine")),/missing design host/);
   const withoutMat=structuredClone(parents);
   const porch=withoutMat.find((p)=>p.id==="porch-mat-planter")!;
   porch.model.parts.splice(0,porch.model.parts.length,...porch.model.parts.filter((p)=>p.material!=="field"&&p.material!=="border"));
@@ -89,6 +92,16 @@ test("separate room objects keep each reviewed face once", () => {
     assert.ok(Math.abs(Math.min(...ys)+drop)<1e-9);
     assert.equal(Math.max(...ys),0);
   }
+  const washer=objects.find((p)=>p.id==="laundry-washer")!;
+  const dryer=objects.find((p)=>p.id==="laundry-dryer")!;
+  assert.equal(washer.owner,dryer.owner);
+  assert.deepEqual(washer.bindings.map((b)=>b.surface),dryer.bindings.map((b)=>b.surface));
+  const markX=(p:typeof washer)=>{
+    const geometry=p.model.parts.find((part)=>part.id==="control-panel-2")?.geometry;
+    if(geometry?.type!=="mesh") throw Error("laundry marking missing");
+    return Math.min(...geometry.mesh.positions.filter((_,i)=>i%3===0));
+  };
+  assert.notEqual(markX(washer),markX(dryer));
 });
 
 test("ceiling pendant lives below its origin and rejects an upward escape", () => {
@@ -117,7 +130,7 @@ test("one curtain generator follows its opening lower-left origin across hosts",
     assert.equal(Math.min(...ys),-input.floorDrop);
     assert.ok(Math.abs(Math.max(...ys)-input.openingHeight-0.1125)<1e-9);
     assert.ok(Math.max(...zs)<0.12);
-    assert.ok(model.model.parts.filter((part)=>part.material==="curtain").length>=12);
+    assert.equal(model.model.parts.filter((part)=>part.material==="curtain").length,2);
   }
   assert.throws(()=>buildWindowCurtains({openingWidth:0,openingHeight:1,floorDrop:0.6}),/invalid curtain dimensions/);
 });

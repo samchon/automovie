@@ -3,10 +3,14 @@ import { fromLReservations, fromReservation, group } from "../specs";
 import type { PrototypeSpec } from "../templates";
 
 const pantryPlan=fromLReservations("pantry-back-shelf","pantry-right-shelf");
+export const laundryMachineSizes = {
+  washer:fromReservation("laundry-washer","z"),
+  dryer:fromReservation("laundry-dryer","z"),
+} as const;
 
 export const serviceRoomSpecs: readonly PrototypeSpec[] = [
   ...group("12-service-rooms.md", "src/models/furnishings/service-rooms.ts", [
-    ["laundry-machine","appliance",fromReservation("laundry-washer","z"),"appliance-body leaf door-ring glass handle control-panel appliance-interior drum"],
+    ["laundry-machine","appliance",laundryMachineSizes.washer,"appliance-body leaf door-ring glass handle control-panel appliance-interior drum",{laundry:"washer"}],
     ["laundry-folding-top","table",fromReservation("laundry-folding-top","z"),"top cleat"],
     ["laundry-upper-storage","cabinet",fromReservation("laundry-upper-storage","z"),"carcass leaf"],
     ["mudroom-bench","shelf",fromReservation("laundry-shoe-bench","z"),"seat carcass shelf shoe",{finishes:{seat:"furniture-wood"}}],

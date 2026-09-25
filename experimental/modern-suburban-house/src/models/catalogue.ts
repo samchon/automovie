@@ -4,7 +4,7 @@ import { buildPrototype, curtainEnvelope, type PrototypeSpec, type WindowCurtain
 import type { HousePrototype } from "./parts";
 import { kitchenDiningSpecs } from "./furnishings/kitchen-dining";
 import { livingSpecs } from "./furnishings/living";
-import { serviceRoomSpecs } from "./furnishings/service-rooms";
+import { serviceRoomSpecs, laundryMachineSizes } from "./furnishings/service-rooms";
 import { bedroomSpecs } from "./furnishings/bedrooms";
 import { bathroomSpecs } from "./furnishings/bathrooms";
 import { outdoorFurnitureSpecs } from "./furnishings/outdoor";
@@ -129,5 +129,10 @@ export function buildHouseObjects(parents: HousePrototype[] = buildHousePrototyp
     ["island-pendant",pendantDimensions.island,"island"],
     ["dining-pendant",pendantDimensions.dining,"dining"],
   ] as const).map(([id,size,pendant])=>buildPrototype({...pendantHost,id,size,pendant}));
-  return [...parents.filter((p)=>!splitParents.has(p.id)&&p.id!==pendantHost.id),...separate,...pendants];
+  const laundryHost=housePrototypeSpecs.find((spec)=>spec.id==="laundry-machine")!;
+  if(!byId.has(laundryHost.id)) throw Error("laundry-machine: missing design host");
+  const machines=(["washer","dryer"] as const).map((laundry)=>buildPrototype({
+    ...laundryHost,id:`laundry-${laundry}`,size:laundryMachineSizes[laundry],laundry,
+  }));
+  return [...parents.filter((p)=>!splitParents.has(p.id)&&p.id!==pendantHost.id&&p.id!==laundryHost.id),...separate,...pendants,...machines];
 }

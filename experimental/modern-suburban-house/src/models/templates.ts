@@ -31,6 +31,7 @@ export interface PrototypeSpec {
   wallBar?: boolean;
   /** One ceiling pendant profile, sharing the same measured generator. */
   pendant?: "island" | "dining";
+  laundry?: "washer" | "dryer";
   curtain?: WindowCurtainSize;
   lShelf?: { backDepth:number; rightWidth:number };
 }
@@ -257,6 +258,10 @@ export function buildPrototype(spec: PrototypeSpec): HousePrototype {
           pending.delete("glass");
         }
         box("control-panel",-w/2+0.025,h-0.12,d-0.025,w/2-0.025,h-0.02,d);
+        if(spec.laundry) {
+          const markX=spec.laundry==="washer"?-w*0.22:w*0.16;
+          b.box("control-panel",[markX,h-0.095,d-0.024],[markX+0.055,h-0.075,d]);
+        }
         box("handle",-w*0.28,cy-0.045,d-0.008,-w*0.22,cy+0.045,d);
         break;
       }
@@ -338,23 +343,37 @@ export function buildPrototype(spec: PrototypeSpec): HousePrototype {
       break;
       }
     case "sofa":
-      legs("leg",0.09);
-      box("base",-w/2+0.02,0.09,0,w/2-0.02,0.31,d);
+      {
+      const wide=w>1.5,leg=0.06,legX=w/2-(wide?0.10:0.06);
+      const legZ=wide?[0.045,d-0.05]:[0.08,d-0.08];
+      for(const x of [-legX,legX]) for(const z of legZ)
+        b.box("leg",[x-leg/2,0,z-leg/2],[x+leg/2,0.08,z+leg/2]);
+      pending.delete("leg");
+      if(wide) {
+        b.box("base",[-w/2,0.08,0.015],[w/2,0.10,d]);
+        b.box("base",[-w/2,0.10,0],[w/2,0.30,d]);
+      } else b.box("base",[-w/2,0.08,0],[w/2,0.30,d]);
+      pending.delete("base");
+      const inner=wide?w/2-0.15:w/2-0.12;
+      const cushionBack=wide?0.20:0.18,cushionFront=wide?d:d-0.05;
       if (pending.has("seat-cushion")) {
-        const count=w>1.5?3:1;
+        const count=wide?3:1,gap=wide?0.006:0;
+        const width=(2*inner-(count-1)*gap)/count;
         for (let i=0;i<count;i++) {
-          const q=w/count;
-          b.box("seat-cushion",[-w/2+i*q+0.006,0.31,d*0.20],[-w/2+(i+1)*q-0.006,0.43,d*0.94]);
+          const left=-inner+i*(width+gap);
+          b.box("seat-cushion",[left,0.30,cushionBack],[left+width,0.43,cushionFront]);
         }
         pending.delete("seat-cushion");
       }
-      box("back",-w/2+0.12,0.31,0,w/2-0.12,h,d*0.20);
+      box("back",wide?-inner:-w/2,0.30,0,wide?inner:w/2,h,cushionBack);
       if (pending.has("arm")) {
-        b.box("arm",[-w/2,0.31,0],[-w/2+0.12,0.62,d]);
-        b.box("arm",[w/2-0.12,0.31,0],[w/2,0.62,d]);
+        const front=wide?d:d-0.05,top=wide?0.62:0.60,back=wide?0:cushionBack;
+        b.box("arm",[-w/2,0.30,back],[-inner,top,front]);
+        b.box("arm",[inner,0.30,back],[w/2,top,front]);
         pending.delete("arm");
       }
       break;
+      }
     case "shelf":
       if(spec.lShelf) {
         const {backDepth,rightWidth}=spec.lShelf;
@@ -620,12 +639,7 @@ export function buildPrototype(spec: PrototypeSpec): HousePrototype {
           b.beam("rod",[-0.10,height+0.10,0.06],[width+0.10,height+0.10,0.06],0.0125,0.0125);
           for(const x of [-0.10,width+0.075])
             b.box("bracket",[x,height+0.04,0],[x+0.025,height+0.10,0.08]);
-          for(const side of [0,1]) for(let fold=0;fold<6;fold++) {
-            const u=(fold+0.5)*0.03;
-            const x=side===0?fold*0.03:width-0.18+fold*0.03;
-            const z=0.083+0.02*Math.sin(6*Math.PI*u/0.18);
-            b.box("curtain",[x,-floorDrop,z-0.003],[x+0.03,height+0.10,z+0.003]);
-          }
+          for(const left of [0,width-0.18]) b.pleatedCurtain("curtain",left,-floorDrop,height+0.10);
           for(const face of ["rod","bracket","curtain"]) pending.delete(face);
           break;
         }
