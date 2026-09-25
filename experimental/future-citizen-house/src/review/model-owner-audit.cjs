@@ -46,13 +46,18 @@ function audit(account) {
   const sites = { item: 0, box: 0, ellipsoid: 0, lining: 0, lights: 0 };
   /** @type {Record<string, number>} */
   const perSource = {};
+  /** @type {Record<string, number>} */
+  const directBySource = {};
   for (const source of sources) {
     const value = fs.readFileSync(path.join(rooms, source), "utf8");
     const items = count(value, /\bnew\s+Item\s*\(/g);
     perSource[source] = items;
     sites.item += items;
-    sites.box += count(value, /\ba\.box\s*\(/g);
-    sites.ellipsoid += count(value, /\ba\.ellipsoid\s*\(/g);
+    const boxes = count(value, /\ba\.box\s*\(/g);
+    const ellipsoids = count(value, /\ba\.ellipsoid\s*\(/g);
+    directBySource[source] = boxes + ellipsoids;
+    sites.box += boxes;
+    sites.ellipsoid += ellipsoids;
     sites.lining += count(value, /\blining\s*\(/g);
     sites.lights += count(value, /\blights\s*\(/g);
   }
@@ -62,9 +67,15 @@ function audit(account) {
   const demands = ownedRows(section(account, "## 상위·형제 층의 물품 요구 역대응", undefined));
   /** @type {Record<string, number>} */
   const accountedBySource = {};
+  /** @type {Record<string, number>} */
+  const accountedDirect = {};
   for (const row of roots.rows) {
     const source = row.split("|")[1].trim();
     accountedBySource[source] = (accountedBySource[source] || 0) + 1;
+  }
+  for (const row of direct.rows) {
+    const source = row.split("|")[1].trim().split(" ")[0];
+    accountedDirect[source] = (accountedDirect[source] || 0) + 1;
   }
 
   const modelFiles = fs.readdirSync(path.join(root, "docs/models")).filter((name) => /^\d{3}-.+\.md$/.test(name));
@@ -88,9 +99,13 @@ function audit(account) {
   if (sites.box + sites.ellipsoid !== direct.rows.length) errors.push(`primitive sites ${sites.box + sites.ellipsoid} != direct rows ${direct.rows.length}`);
   for (const source of sources) {
     if (perSource[source] !== (accountedBySource[source] || 0)) errors.push(`${source}: Item sites ${perSource[source]} != root rows ${accountedBySource[source] || 0}`);
+    if (directBySource[source] !== (accountedDirect[source] || 0)) errors.push(`${source}: primitive sites ${directBySource[source]} != direct rows ${accountedDirect[source] || 0}`);
   }
   for (const source of Object.keys(accountedBySource)) {
     if (!(source in perSource)) errors.push(`${source}: account row has no room source`);
+  }
+  for (const source of Object.keys(accountedDirect)) {
+    if (!(source in directBySource)) errors.push(`${source}: direct row has no room source`);
   }
   if (sites.lining !== 12 || sites.lights !== 12) errors.push(`lining/lights sites ${sites.lining}/${sites.lights} != 12/12`);
   if (roots.blank.length || direct.blank.length || demands.blank.length) errors.push(`blank owner rows ${roots.blank.length + direct.blank.length + demands.blank.length}`);
