@@ -8,8 +8,11 @@ export type Point = readonly [number, number, number];
 export type Size = readonly [number, number, number];
 export type FinishRole = "furniture-wood" | "upholstery" | "siding" | "trim-white" | "roof-shingle" | "charcoal-metal"
   | "greige-cabinet" | "stone-counter" | "dark-bookcase" | "stainless-steel" | "white-enamel"
-  | "primary-bedding" | "olive-bedding" | "blue-grey-bedding" | "mirror-silver" | "black-glass-panel";
-const finishRoles: Record<FinishRole,{ fallback:number; scale:readonly [number,number]; roughness:number; metallic:number }> = {
+  | "primary-bedding" | "olive-bedding" | "blue-grey-bedding" | "mirror-silver" | "black-glass-panel"
+  | "muted-rug" | "towel-textile" | "thin-curtain" | "firebox-black" | "bark" | "foliage"
+  | "light-diffuser" | "light-glass" | "art-print" | "fruit" | "black-coated-metal"
+  | "clear-glass" | "obscured-glass";
+const finishRoles: Record<FinishRole,{ fallback:number; scale:readonly [number,number]; roughness:number; metallic:number; opacity?:number }> = {
   "furniture-wood": {fallback:0xa87a4e,scale:[1,1],roughness:0.50,metallic:0},
   upholstery: {fallback:0xb7afa3,scale:[0.01,0.01],roughness:0.92,metallic:0},
   siding: {fallback:0xede8dc,scale:[0.3,0.3],roughness:0.55,metallic:0},
@@ -26,6 +29,37 @@ const finishRoles: Record<FinishRole,{ fallback:number; scale:readonly [number,n
   "blue-grey-bedding": {fallback:0x6e7f8c,scale:[0.01,0.01],roughness:0.92,metallic:0},
   "mirror-silver": {fallback:0xededed,scale:[1,1],roughness:0.02,metallic:1},
   "black-glass-panel": {fallback:0x1f1f20,scale:[1,1],roughness:0.08,metallic:0},
+  "muted-rug": {fallback:0x8e8579,scale:[0.15,0.15],roughness:0.95,metallic:0},
+  "towel-textile": {fallback:0xeae6dc,scale:[0.01,0.01],roughness:0.95,metallic:0},
+  "thin-curtain": {fallback:0xede9e0,scale:[0.02,0.02],roughness:0.90,metallic:0,opacity:0.70},
+  "firebox-black": {fallback:0x1f1f20,scale:[0.10,0.10],roughness:0.90,metallic:0},
+  bark: {fallback:0x675746,scale:[0.08,0.08],roughness:0.92,metallic:0},
+  foliage: {fallback:0x617343,scale:[0.025,0.025],roughness:0.88,metallic:0},
+  "light-diffuser": {fallback:0xf4f1e9,scale:[1,1],roughness:0.36,metallic:0,opacity:0.65},
+  "light-glass": {fallback:0xf4f1e9,scale:[1,1],roughness:0.06,metallic:0,opacity:0.22},
+  "art-print": {fallback:0xece8df,scale:[0.05,0.05],roughness:0.90,metallic:0},
+  fruit: {fallback:0x859344,scale:[0.008,0.008],roughness:0.62,metallic:0},
+  "black-coated-metal": {fallback:0x1f1f20,scale:[0.05,0.05],roughness:0.40,metallic:0},
+  "clear-glass": {fallback:0xe8eef0,scale:[1,1],roughness:0.03,metallic:0,opacity:0.08},
+  "obscured-glass": {fallback:0xe8eef0,scale:[0.002,0.002],roughness:0.55,metallic:0,opacity:0.20},
+};
+const implicitFinish: Readonly<Record<string,FinishRole>> = {
+  towel:"towel-textile",folded:"towel-textile",curtain:"thin-curtain",
+  "lamp-shade":"thin-curtain","fixture-shade":"thin-curtain",
+  firebox:"firebox-black","firebox-trim":"firebox-black",
+  bark:"bark",stem:"bark",foliage:"foliage",
+  "fixture-diffuser":"light-diffuser","fixture-glass":"light-glass",
+  "fixture-housing":"black-coated-metal","fixture-canopy":"black-coated-metal",
+  "fixture-stem":"black-coated-metal",hook:"black-coated-metal",handle:"black-coated-metal",
+  rail:"black-coated-metal",rod:"black-coated-metal",bracket:"black-coated-metal",
+  "mirror-frame":"black-coated-metal",shoe:"black-coated-metal",bin:"black-coated-metal",
+  box:"furniture-wood",basket:"furniture-wood",tray:"furniture-wood",
+  pencil:"furniture-wood","shoe-box":"furniture-wood",board:"furniture-wood",
+  bowl:"white-enamel",clothes:"upholstery",
+  faucet:"stainless-steel",utensil:"stainless-steel","tool-steel":"stainless-steel",
+  ceramic:"white-enamel","shower-tray":"white-enamel",
+  "art-print":"art-print","art-frame":"dark-bookcase",fruit:"fruit",
+  glass:"clear-glass","obscured-glass":"obscured-glass",
 };
 export interface SurfaceBinding {
   /** Stable material face id from docs/models/00-model-frame.md. */
@@ -92,6 +126,24 @@ export function metricShearedBox(min:Point,max:Point,pivotY:number,slope:number)
     const length=Math.hypot(...cross);
     for(let j=0;j<4;j++) for(let k=0;k<3;k++) mesh.normals![start+j*3+k]=cross[k]!/length;
     if(face<4) for(let j=0;j<4;j++) mesh.uvs![face*8+j*2+1]*=Math.hypot(1,slope);
+  }
+  return mesh;
+}
+
+/** A thin closed panel whose depth-running edges bend to fixed X offsets. */
+export function metricSkewedPanelZ(min:Point,max:Point,startX:number,endX:number):IAutoMovieMesh {
+  if(!Number.isFinite(startX)||!Number.isFinite(endX)) throw Error("invalid panel fold");
+  const mesh=metricBox(min,max),slope=(endX-startX)/(max[2]-min[2]);
+  for(let i=0;i<mesh.positions.length;i+=3)
+    mesh.positions[i]+=startX+slope*(mesh.positions[i+2]!-min[2]);
+  for(let face=0;face<6;face++) {
+    const start=face*12,a=mesh.positions.slice(start,start+3),b=mesh.positions.slice(start+3,start+6),c=mesh.positions.slice(start+6,start+9);
+    const u=[0,1,2].map((k)=>b[k]!-a[k]!),v=[0,1,2].map((k)=>c[k]!-a[k]!);
+    const cross=[u[1]!*v[2]!-u[2]!*v[1]!,u[2]!*v[0]!-u[0]!*v[2]!,u[0]!*v[1]!-u[1]!*v[0]!];
+    const length=Math.hypot(...cross);
+    for(let j=0;j<4;j++) for(let k=0;k<3;k++) mesh.normals![start+j*3+k]=cross[k]!/length;
+    if(face===2||face===3) for(let j=0;j<4;j++) mesh.uvs![face*8+j*2]*=Math.hypot(1,slope);
+    if(face===4||face===5) for(let j=0;j<4;j++) mesh.uvs![face*8+j*2+1]*=Math.hypot(1,slope);
   }
   return mesh;
 }
@@ -364,6 +416,9 @@ export class PrototypeBuilder {
   shearedBox(surface:string,min:Point,max:Point,pivotY:number,slope:number):this {
     return this.add(surface,metricShearedBox(min,max,pivotY,slope),"box-metric");
   }
+  skewedPanelZ(surface:string,min:Point,max:Point,startX:number,endX:number):this {
+    return this.add(surface,metricSkewedPanelZ(min,max,startX,endX),"box-metric");
+  }
   frustum(surface: string, center: Point, r0:number, r1:number, height:number, sides=16): this {
     return this.add(surface, metricFrustum(center,r0,r1,height,sides), "cylinder-metric");
   }
@@ -400,7 +455,7 @@ export class PrototypeBuilder {
   }
   finish(): HousePrototype {
     if (!this.parts.length) throw Error(`${this.id}: empty prototype`);
-    const role=(surface:string)=>this.finishes[surface]??this.finishAll;
+    const role=(surface:string)=>this.finishes[surface]??this.finishAll??implicitFinish[surface];
     const bindings=[...this.surfaceKinds].map(([surface,uv]):SurfaceBinding=>({surface,uv,
       scale:role(surface)?finishRoles[role(surface)!].scale:scale(surface),
       fallback:role(surface)?finishRoles[role(surface)!].fallback:fallback(surface)}));
@@ -409,7 +464,8 @@ export class PrototypeBuilder {
       metallic:role(binding.surface)?finishRoles[role(binding.surface)!].metallic:
         !(/diffuser|glass|shade/.test(binding.surface)) && /steel|metal|handle|rail|rod|hinge|bracket|fixture|faucet|appliance/.test(binding.surface)?0.65:0,
       roughness:role(binding.surface)?finishRoles[role(binding.surface)!].roughness:/glass|mirror/.test(binding.surface)?0.14:0.72,
-      emissive:null,opacity:/glass/.test(binding.surface)&&binding.surface!=="appliance-glass"?0.38:1,baseColorTexture:null,
+      emissive:null,opacity:role(binding.surface)?finishRoles[role(binding.surface)!].opacity??1:
+        /glass/.test(binding.surface)&&binding.surface!=="appliance-glass"?0.38:1,baseColorTexture:null,
     }));
     return { id:this.id, owner:this.owner, bindings, model:{id:this.id,name:this.id,origin:"generated",parts:this.parts,skeleton:null,body:null,materials,asset:null} };
   }

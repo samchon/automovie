@@ -10,7 +10,8 @@ export const livingSpecs: readonly PrototypeSpec[] = [
     ["reading-armchair","sofa",fromReservation("living-reading-chair"),"leg base seat-cushion back arm",{finishes:upholsteredSeatFinishes}],
     ["dark-bookcase","shelf",fromReservation("living-bookcase","z"),"carcass plinth shelf book",
       {finishes:finishFaces("dark-bookcase","carcass","plinth","shelf")}],
-    ["floor-covering","mat",fromReservation("living-rug","z"),"field border"],
+    ["floor-covering","mat",fromReservation("living-rug","z"),"field border",
+      {finishes:{field:"muted-rug",border:"upholstery"}}],
     ["fireplace-insert-mantel","panel",[1.60,1.40,0.55],"firebox firebox-trim mantel"],
   ]),
 ];

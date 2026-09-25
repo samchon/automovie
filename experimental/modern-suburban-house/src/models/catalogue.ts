@@ -41,6 +41,13 @@ export function buildWindowCurtains(input:WindowCurtainSize):HousePrototype {
   return buildPrototype({...base,size:curtainEnvelope(input),curtain:input});
 }
 
+/** Fixed bath curtain folded across its reviewed 0.25–1.80 m opening range. */
+export function buildTubCurtain(openLength:number):HousePrototype {
+  const base=housePrototypeSpecs.find((spec)=>spec.id==="tub-curtain-rail");
+  if(!base) throw Error("tub-curtain-rail: missing design host");
+  return buildPrototype({...base,tubCurtainLength:openLength});
+}
+
 /** A design H2 may specify several objects whose placement belongs to
  * different room hosts. The partition names the actual parts, never guessed
  * screen positions; each partition gets its own bottom-centred local origin. */

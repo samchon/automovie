@@ -20,7 +20,9 @@ export const bathroomSpecs: readonly PrototypeSpec[] = [
     ["sliding-shower-booth","shower",fromReservation("shower-bathroom-booth"),"shower-tray glass rail handle faucet"],
     ["bathtub","tub",[tubFootprint[0],1.90,tubFootprint[2]],"ceramic faucet",{rimHeight:tubFootprint[1]}],
     ["tub-curtain-rail","bath",[0.10,2.05,1.80],"rail rod curtain"],
-    ["bath-floor-mats","mat",bathMatSizes.shower,"field border",{borderWidth:0.04}],
-    ["shower-niche-bottles","bath",[0.235,0.20,0.08],"container lid"],
+    ["bath-floor-mats","mat",bathMatSizes.shower,"field border",
+      {borderWidth:0.04,finishes:finishFaces("muted-rug","field","border")}],
+    ["shower-niche-bottles","bath",[0.235,0.20,0.08],"container lid",
+      {finishes:{container:"white-enamel",lid:"black-coated-metal"}}],
   ]),
 ];

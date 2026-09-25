@@ -1,7 +1,7 @@
 import { strict as assert } from "node:assert";
 import { test } from "node:test";
-import { buildHouseObjects, buildHousePrototypes, buildWindowCurtains, housePrototypeSpecs } from "../models/catalogue";
-import { metricBeam, metricBox, metricCup, metricEllipsoid, metricFrustum, metricInvertedCup, metricOvalCup, metricPleatedCurtain, metricRingZ, metricShearedBox } from "../models/parts";
+import { buildHouseObjects, buildHousePrototypes, buildTubCurtain, buildWindowCurtains, housePrototypeSpecs } from "../models/catalogue";
+import { metricBeam, metricBox, metricCup, metricEllipsoid, metricFrustum, metricInvertedCup, metricOvalCup, metricPleatedCurtain, metricRingZ, metricShearedBox, metricSkewedPanelZ } from "../models/parts";
 import { buildPrototype } from "../models/templates";
 import { auditPrototypePopulation, runRandomMutations } from "./prototype-audit";
 
@@ -30,6 +30,7 @@ test("metric generators reject impossible solids and produce aligned UVs", () =>
     metricInvertedCup([0,0,0],0.14,0.10,0.1,0.008),
     metricPleatedCurtain(0,-0.75,1.5),
     metricShearedBox([-0.02,0.42,0.07],[0.02,0.85,0.11],0.45,-Math.tan(8*Math.PI/180)),
+    metricSkewedPanelZ([-0.005,0.60,0],[0.005,2.05,0.45],0,0.015),
   ]) {
     assert.ok(mesh.indices?.length);
     assert.equal(mesh.uvs?.length,mesh.positions.length/3*2);
@@ -42,6 +43,25 @@ test("metric generators reject impossible solids and produce aligned UVs", () =>
   assert.throws(()=>metricInvertedCup([0,0,0],0.14,0.10,0.1,0.11));
   assert.throws(()=>metricPleatedCurtain(0,1,0));
   assert.throws(()=>metricShearedBox([0,0,0],[1,1,1],0,Infinity));
+  assert.throws(()=>metricSkewedPanelZ([0,0,0],[1,1,1],0,Infinity));
+});
+
+test("bath curtain opens within its measured rail and keeps four joined folds", () => {
+  for(const spread of [0.25,1.80]) {
+    const curtain=buildTubCurtain(spread);
+    const pieces=curtain.model.parts.filter((part)=>part.material==="curtain");
+    assert.equal(pieces.length,4);
+    const bounds=pieces.map((part)=>{
+      if(part.geometry.type!=="mesh") throw Error("curtain mesh missing");
+      const zs=part.geometry.mesh.positions.filter((_,i)=>i%3===2);
+      return [Math.min(...zs),Math.max(...zs)];
+    });
+    assert.ok(Math.abs(bounds.at(-1)![1]-spread)<1e-9);
+    for(let i=1;i<bounds.length;i++) assert.ok(Math.abs(bounds[i-1]![1]-bounds[i]![0])<1e-9);
+    assert.equal(auditPrototypePopulation([curtain],undefined,"selectable").failures.length,0);
+  }
+  assert.throws(()=>buildTubCurtain(0.24),/invalid tub curtain length/);
+  assert.throws(()=>buildTubCurtain(1.81),/invalid tub curtain length/);
 });
 
 test("separate room objects keep each reviewed face once", () => {

@@ -35,6 +35,7 @@ export interface PrototypeSpec {
   chairProfile?: "terrace";
   tableProfile?: "terrace";
   borderWidth?: number;
+  tubCurtainLength?: number;
   curtain?: WindowCurtainSize;
   lShelf?: { backDepth:number; rightWidth:number };
 }
@@ -776,13 +777,13 @@ export function buildPrototype(spec: PrototypeSpec): HousePrototype {
         break;
       }
       if(pending.has("rail")) {
+        const spread=spec.tubCurtainLength??d;
+        if(!Number.isFinite(spread)||spread<0.25||spread>d) throw Error(`${spec.id}: invalid tub curtain length`);
         b.beam("rail",[0,h,0],[0,h,d],0.0125,0.0125);
         for(const z of [0,d]) b.beam("rod",[0,h,z],[0,h+0.16,z],0.010,0.010,8);
-        for(let i=0;i<4;i++) {
-          const z0=i*d/4,z1=(i+1)*d/4;
-          const offset=[0,0.015,0,-0.015][i]!;
-          b.box("curtain",[offset-0.005,0.60,z0],[offset+0.005,h,z1]);
-        }
+        const folds=[0,0.015,0,-0.015,0];
+        for(let i=0;i<4;i++)
+          b.skewedPanelZ("curtain",[-0.005,0.60,i*spread/4],[0.005,h,(i+1)*spread/4],folds[i]!,folds[i+1]!);
         for(const face of ["rail","rod","curtain"]) pending.delete(face);
         break;
       }

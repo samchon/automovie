@@ -8,7 +8,7 @@ test("each window kind fills its own measured opening with separate infill faces
     const width=2.8,height=1.6;
     const window=buildWindowPrototype({id:`test-${kind}`,width,height,units,kind});
     const result=validateModel({model:window.model});
-    assert.equal(result.success,true,JSON.stringify(result.violations));
+    assert.equal(result.success,true,result.success?"":JSON.stringify(result.violations));
     const faces=new Set(window.model.parts.map((part)=>part.material));
     assert.ok(faces.has("frame")&&faces.has("sash"));
     assert.equal(faces.has("mullion"),units>1);

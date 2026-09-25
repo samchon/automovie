@@ -28,7 +28,7 @@ test("entry infill refuses glassless dimensions", () => {
 test("garden infill keeps two glazed leaves and six outer hinges", () => {
   const door=buildGardenDoorPrototype("garden-door",2.40,2.25);
   const result=validateModel({model:door.model});
-  assert.equal(result.success,true,JSON.stringify(result.violations));
+  assert.equal(result.success,true,result.success?"":JSON.stringify(result.violations));
   const count=(face:string)=>door.model.parts.filter((part)=>part.material===face).length;
   assert.equal(count("glass"),2);
   assert.equal(count("hinge"),2*frontDoorProfile.hingeLevels.length);

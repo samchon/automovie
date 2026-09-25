@@ -6,7 +6,7 @@ import { buildGatePrototype, gateProfile } from "../models/gate";
 test("gate plank gaps stay open and the model owns no post", () => {
   const model=buildGatePrototype("side-yard-gate",1.18,1.65);
   const result=validateModel({model:model.model});
-  assert.equal(result.success,true,JSON.stringify(result.violations));
+  assert.equal(result.success,true,result.success?"":JSON.stringify(result.violations));
   const planks=model.model.parts.filter((part)=>part.material==="leaf-panel");
   assert.equal(planks.length,gateProfile.plankCount);
   const spans=planks.map((part)=>{
