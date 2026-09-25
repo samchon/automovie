@@ -141,7 +141,7 @@ export function prepareTongueBasis(input: {
       }),
     );
     const next: number[] = [];
-    for (const [vertex, weight] of bound) {
+    for (const [vertex, weight] of [...bound].sort((x, y) => x[0] - y[0])) {
       const d = apply(at(tongue.positions, vertex)).map((v) => v * weight);
       if (d.some((v) => v !== 0)) next.push(vertex, ...d);
     }
