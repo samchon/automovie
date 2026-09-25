@@ -48,7 +48,7 @@ for (const entry of datum.matchAll(
 const candidates = [];
 for (const file of [
   path.join(house, "topology.ts"),
-  ...["storeys", "circulation", "envelope"].flatMap((dir) =>
+  ...["storeys", "circulation", "envelope", "rooms"].flatMap((dir) =>
     files(path.join(house, dir)),
   ),
 ]) {
@@ -66,14 +66,23 @@ for (const file of [
       });
   }
 }
+const roomCandidates = candidates.filter((candidate) =>
+  candidate.file.startsWith(path.join(house, "rooms") + path.sep),
+);
 let red = 0,
   sampled = 0;
 try {
   const fixtureHouse = path.join(scratch, "house");
   fs.cpSync(house, fixtureHouse, { recursive: true });
   const pool = [...candidates];
+  // Guarantee that the random sample exercises the room fit-out rule too.
+  if (roomCandidates.length) {
+    const selected = roomCandidates[randomInt(roomCandidates.length)];
+    pool.splice(pool.indexOf(selected), 1);
+    pool.unshift(selected);
+  }
   while (pool.length && sampled < 12) {
-    const [candidate] = pool.splice(randomInt(pool.length), 1);
+    const [candidate] = pool.splice(sampled === 0 ? 0 : randomInt(pool.length), 1);
     const target = path.join(
       fixtureHouse,
       path.relative(house, candidate.file),
@@ -102,7 +111,7 @@ try {
     fs.writeFileSync(target, before);
   }
   console.log(
-    `space-literal-fixture: ${candidates.length} eligible source uses, ${sampled} random substitutions, ${red} red, ${sampled - red} failures`,
+    `space-literal-fixture: ${candidates.length} eligible source uses (${roomCandidates.length} room uses), ${sampled} random substitutions, ${red} red, ${sampled - red} failures`,
   );
   if (!sampled || red !== sampled) process.exitCode = 1;
 } finally {

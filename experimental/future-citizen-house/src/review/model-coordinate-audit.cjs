@@ -151,8 +151,11 @@ function audit(overrides = new Map()) {
     check(anchor, lines);
   }
   const nonAxisDecimals = proseDecimals - values;
-  // Other prose dimensions are measured by the independent part and
-  // prose/table audits; this audit owns local-axis coordinates only.
+  // A coordinate witness says nothing about the other prose dimensions.
+  // Keep every unmeasured H2 visible as a failure until a generic rule or an
+  // independently checked derivation actually reaches those claims.
+  for (const item of coverage) if (item.outsideGrammar)
+    errors.push(`${item.owner}: ${item.outsideGrammar} prose decimals outside measured coordinate grammar`);
   return { h2, proseDecimals, coordinateClaims: claims, coordinateValues: values,
     witnessedCoordinateValues: witnessed, unwitnessedCoordinateValues: values - witnessed,
     nonAxisDecimals, coverage, errors };

@@ -33,6 +33,9 @@ groups.upperSlab = hash(e.elements.filter((x) => x.id.startsWith("upper-slab")))
 groups.ceilings = hash([e.elements.filter((x) => x.id.startsWith("ceiling-")), e.models.filter((m) => m.id.startsWith("ceiling-mesh-"))]);
 groups.partitions = hash(e.boundaries.filter((b) => b.kind === "partition"));
 groups.approach = hash([e.elements.filter((x) => x.id.startsWith("approach-")), e.surfaces.filter((s) => s.surface.id === "entry-approach-landing")]);
+const upperRooms = new Set(e.spaces.filter((s) => s.kind === "room" && s.parent === "upper-storey").map((s) => s.id));
+for (const element of e.elements.filter((x) => x.kind === "fit-out" && upperRooms.has(x.space)))
+  groups["upper-fitout:" + element.id] = hash(element.transform);
 const stringers = e.elements.filter((x) => /^stair-\\d-stringer-/.test(x.id));
 const treads = e.elements.filter((x) => /-tread$/.test(x.id) && x.id.startsWith("stair-"));
 let collisions = 0;
@@ -208,6 +211,9 @@ try {
     );
   }
   for (const scenario of cases) {
+    const affected = scenario.name === "upper floor"
+      ? [...scenario.affected, ...Object.keys(original).filter((key) => key.startsWith("upper-fitout:"))]
+      : scenario.affected;
     const dir = path.join(work, scenario.name.replace(/\W+/g, "-"));
     fs.mkdirSync(dir);
     change(dir, scenario.pattern);
@@ -215,14 +221,14 @@ try {
     try {
       mutant = run(dir);
     } catch (error) {
-      failures += scenario.affected.length;
-      checked += scenario.affected.length;
+      failures += affected.length;
+      checked += affected.length;
       console.error(
-        `THREW ${scenario.name}; ${scenario.affected.length} families unmeasured: ${error}`,
+        `THREW ${scenario.name}; ${affected.length} families unmeasured: ${error}`,
       );
       continue;
     }
-    for (const family of scenario.affected) {
+    for (const family of affected) {
       checked++;
       if (original[family] === mutant[family]) {
         failures++;

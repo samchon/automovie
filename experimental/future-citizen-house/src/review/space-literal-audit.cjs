@@ -44,6 +44,11 @@ const datumValues = new Set(
     .map((match) => Math.abs(Number(match[0])))
     .filter((value) => value >= 2.5),
 );
+const upperFloor = Number(
+  datumDeclaration[1].match(/floors:\s*\[\s*[^,]+,\s*(-?\d+(?:\.\d+)?)/)?.[1],
+);
+if (!Number.isFinite(upperFloor))
+  throw Error("Cannot locate the upper floor datum");
 
 const consumers = [
   path.join(house, "topology.ts"),
@@ -71,11 +76,25 @@ for (const file of consumers) {
     }
   }
 }
+// Room fit-outs use absolute world Y coordinates. Audit every room source,
+// including a future room that forgets to import the datum altogether.
+const roomConsumers = files(path.join(house, "rooms"));
+let roomTokens = 0;
+for (const file of roomConsumers) {
+  const source = fs.readFileSync(file, "utf8");
+  for (const match of numericTokens(source)) {
+    roomTokens++;
+    if (Number(match[0]) === upperFloor) {
+      const line = source.slice(0, match.index).split("\n").length;
+      copied.push(`${path.relative(house, file)}:${line} ${match[0]}`);
+    }
+  }
+}
 console.log(
-  `space-literal-audit: ${datumValues.size} datum scalar values, ${consumers.length} structural consumer files, ${tokens} executable numeric tokens, ${arithmeticDivisors} arithmetic divisors, ${copied.length} repeated datum tokens`,
+  `space-literal-audit: ${datumValues.size} datum scalar values, ${consumers.length} structural consumer files, ${tokens} structural numeric tokens, ${roomConsumers.length} room consumer files, ${roomTokens} room numeric tokens, ${arithmeticDivisors} arithmetic divisors, ${copied.length} repeated datum tokens`,
 );
 for (const item of copied) console.error("RETYPED " + item);
-if (!datumValues.size || !consumers.length || !tokens)
+if (!datumValues.size || !consumers.length || !tokens || !roomConsumers.length || !roomTokens)
   console.error("NOTHING WAS CHECKED");
-if (copied.length || !datumValues.size || !consumers.length || !tokens)
+if (copied.length || !datumValues.size || !consumers.length || !tokens || !roomConsumers.length || !roomTokens)
   process.exitCode = 1;
