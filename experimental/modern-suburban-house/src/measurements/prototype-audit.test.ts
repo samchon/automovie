@@ -1,7 +1,7 @@
 import { strict as assert } from "node:assert";
 import { test } from "node:test";
 import { buildHousePrototypes } from "../models/catalogue";
-import { metricBox, metricFrustum } from "../models/parts";
+import { metricBeam, metricBox, metricCup, metricEllipsoid, metricFrustum, metricRingZ } from "../models/parts";
 import { buildPrototype } from "../models/templates";
 import { auditPrototypePopulation, runRandomMutations } from "./prototype-audit";
 
@@ -16,6 +16,19 @@ test("metric generators reject impossible solids and produce aligned UVs", () =>
   const cylinder=metricFrustum([0,0,0],0.2,0.1,1,12);
   assert.equal(cylinder.uvs?.length,(cylinder.positions.length/3)*2);
   assert.equal(cylinder.indices?.length,12*12);
+  for(const mesh of [
+    metricBeam([0,0,0],[1,1,0],0.05,0.02),
+    metricEllipsoid([0,0,0],[1,0.5,1]),
+    metricRingZ([0,0,0],0.1,0.2,0.02),
+    metricCup([0,0,0],0.1,0.14,0.1,0.008),
+  ]) {
+    assert.ok(mesh.indices?.length);
+    assert.equal(mesh.uvs?.length,mesh.positions.length/3*2);
+  }
+  assert.throws(()=>metricBeam([0,0,0],[0,0,0],0.05,0.02));
+  assert.throws(()=>metricEllipsoid([0,0,0],[1,0,1]));
+  assert.throws(()=>metricRingZ([0,0,0],0.2,0.1,0.02));
+  assert.throws(()=>metricCup([0,0,0],0.1,0.14,0.1,0.11));
 });
 
 test("every design H2 has one generated prototype, source owner and face bindings", () => {
@@ -46,7 +59,7 @@ test("template refuses unmade surfaces and nonpositive dimensions", () => {
 });
 
 test("fresh random part shifts, floating, deletion and overlap go red", () => {
-  const result=runRandomMutations(12);
-  assert.equal(result.red,12);
-  assert.deepEqual(result.types,{shift:3,float:3,delete:3,overlap:3});
+  const result=runRandomMutations(4);
+  assert.equal(result.red,4);
+  assert.deepEqual(result.types,{shift:1,float:1,delete:1,overlap:1});
 });

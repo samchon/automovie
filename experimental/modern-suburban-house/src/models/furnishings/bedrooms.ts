@@ -12,6 +12,6 @@ export const bedroomSpecs: readonly PrototypeSpec[] = [
     ["sliding-closet","shelf",fromReservation("bedroom-two-closet","z"),"carcass leaf handle rail rod shelf clothes casing"],
     ["primary-window-curtains","bath",[2.10,1.80,0.12],"rod bracket curtain"],
     ["wardrobe-hanging","shelf",fromReservation("primary-wardrobe-hanging"),"rod shelf carcass clothes"],
-    ["wardrobe-shelves","shelf",[1.10,1.55,0.55],"shelf carcass folded shoe-box basket"],
+    ["wardrobe-shelves","shelf",[1.10,1.78,0.55],"shelf carcass folded shoe-box basket"],
   ]),
 ];

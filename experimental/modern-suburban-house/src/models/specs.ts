@@ -3,7 +3,7 @@ import type { Size } from "./parts";
 import type { PrototypeKind, PrototypeSpec } from "./templates";
 import { buildHouse } from "../spaces/house";
 
-export type PrototypeRow = readonly [string, PrototypeKind, Size, string, { bodyTop?: number; mattressTop?: number }?];
+export type PrototypeRow = readonly [string, PrototypeKind, Size, string, { bodyTop?: number; mattressTop?: number; wallBar?: boolean; lShelf?: { backDepth:number; rightWidth:number } }?];
 export const group = (design: string, owner: string, rows: readonly PrototypeRow[]): PrototypeSpec[] =>
   rows.map(([id,kind,size,faces,details])=>({id,design,owner,kind,size,faces:faces.split(" "),...details}));
 
@@ -24,4 +24,14 @@ export const fromStorage = (id:string):Size => {
   const storage=storages.get(id);
   if(!storage) throw Error(`model storage missing: ${id}`);
   return [storage.x[1]-storage.x[0],storage.y[1]-storage.y[0],storage.z[1]-storage.z[0]];
+};
+
+/** Two touching reservation bands define one L without copying their spans. */
+export const fromLReservations = (backId:string,sideId:string) => {
+  const back=reservations.get(backId),side=reservations.get(sideId);
+  if(!back?.y||!side?.y) throw Error(`model L reservation missing: ${backId}/${sideId}`);
+  const width=Math.max(back.x[1],side.x[1])-Math.min(back.x[0],side.x[0]);
+  const depth=Math.max(back.z[1],side.z[1])-Math.min(back.z[0],side.z[0]);
+  return {size:[width,back.y[1]-back.y[0],depth] as Size,
+    lShelf:{backDepth:back.z[1]-back.z[0],rightWidth:side.x[1]-side.x[0]}};
 };

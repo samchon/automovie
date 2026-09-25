@@ -9,6 +9,6 @@ export const livingSpecs: readonly PrototypeSpec[] = [
     ["reading-armchair","sofa",fromReservation("living-reading-chair"),"leg base seat-cushion back arm"],
     ["dark-bookcase","shelf",fromReservation("living-bookcase","z"),"carcass plinth shelf book"],
     ["floor-covering","mat",fromReservation("living-rug","z"),"field border"],
-    ["fireplace-insert-mantel","panel",[1.04,0.64,0.55],"firebox firebox-trim mantel"],
+    ["fireplace-insert-mantel","panel",[1.60,1.40,0.55],"firebox firebox-trim mantel"],
   ]),
 ];

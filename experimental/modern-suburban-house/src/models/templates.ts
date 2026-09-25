@@ -17,6 +17,9 @@ export interface PrototypeSpec {
   bodyTop?: number;
   /** Top of a mattress beneath its separate bedding layer. */
   mattressTop?: number;
+  /** A short horizontal fixture mounted on a vertical wall. */
+  wallBar?: boolean;
+  lShelf?: { backDepth:number; rightWidth:number };
 }
 
 /** A canonical 62-item spec is built by the domain files. This function
@@ -136,6 +139,11 @@ export function buildPrototype(spec: PrototypeSpec): HousePrototype {
         side("appliance-body");
         if(body) {
           b.box("appliance-body",[-w/2,h-0.025,0],[w/2,h,d]);
+          const radius=0.26,plate=0.015;
+          b.box("appliance-body",[-w/2,0,front-plate],[w/2,cy-radius,front]);
+          b.box("appliance-body",[-w/2,cy+radius,front-plate],[w/2,h-0.12,front]);
+          b.box("appliance-body",[-w/2,cy-radius,front-plate],[-radius,cy+radius,front]);
+          b.box("appliance-body",[radius,cy-radius,front-plate],[w/2,cy+radius,front]);
           b.ringZ("appliance-body",[0,cy,front-0.08],0.20,0.26,0.08);
         }
         if(pending.has("appliance-interior")) {
@@ -236,6 +244,161 @@ export function buildPrototype(spec: PrototypeSpec): HousePrototype {
       }
       break;
     case "shelf":
+      if(spec.lShelf) {
+        const {backDepth,rightWidth}=spec.lShelf;
+        if(pending.has("shelf")) {
+          for(let level=0;level<5;level++) {
+            const top=0.20+0.40*level;
+            b.box("shelf",[-w/2,top-0.03,0],[w/2,top,backDepth]);
+            b.box("shelf",[w/2-rightWidth,top-0.03,backDepth],[w/2,top,d]);
+          }
+          pending.delete("shelf");
+        }
+        if(pending.has("cleat")) {
+          for(let level=0;level<5;level++) {
+            const y=0.20+0.40*level-0.06;
+            b.box("cleat",[-w/2,y,0],[w/2,y+0.03,0.02]);
+            b.box("cleat",[w/2-0.02,y,backDepth],[w/2,y+0.03,d]);
+          }
+          pending.delete("cleat");
+        }
+        break;
+      }
+      if(pending.has("seat")) {
+        box("seat",-w/2,h-0.03,0,w/2,h,d);
+        if(pending.has("carcass")) {
+          for(const x of [-w/2,w/2-0.03]) b.box("carcass",[x,0,0],[x+0.03,h-0.03,d]);
+          pending.delete("carcass");
+        }
+        box("shelf",-w/2+0.03,0.07,0.015,w/2-0.03,0.10,d-0.025);
+        if(pending.has("shoe")) {
+          for(const x of [-w*0.28,w*0.05]) b.box("shoe",[x,0.10,d*0.35],[x+0.28,0.20,d*0.60]);
+          pending.delete("shoe");
+        }
+        break;
+      }
+      if(pending.has("post")) {
+        legs("post",h);
+        if(pending.has("shelf")) {
+          for(let level=0;level<5;level++) {
+            const top=0.20+0.40*level;
+            b.box("shelf",[-w/2+0.04,top-0.03,0.04],[w/2-0.04,top,d-0.04]);
+          }
+          pending.delete("shelf");
+        }
+        if(pending.has("bin")) {
+          for(let level=0;level<2;level++) for(const x of [-w*0.28,w*0.04]) {
+            const top=0.20+0.40*level;
+            b.box("bin",[x,top,d*0.18],[x+0.40,top+0.28,d*0.18+0.35]);
+          }
+          pending.delete("bin");
+        }
+        break;
+      }
+      if(pending.has("book")) {
+        side("carcass");
+        box("plinth",-w/2,0,0,w/2,0.08,d);
+        if(pending.has("shelf")) {
+          for(let level=0;level<5;level++) {
+            const top=0.20+0.35*level;
+            b.box("shelf",[-w/2+0.02,top-0.02,0.01],[w/2-0.02,top,d]);
+          }
+          pending.delete("shelf");
+        }
+        let x= -w/2+0.04;
+        for(let shelf=0;shelf<5;shelf++) {
+          x=-w/2+0.04;
+          for(let i=0;i<25;i++) {
+            const width=0.025+0.001*((1952+17*shelf+7*i)%11);
+            const height=0.20+0.01*((1952+13*shelf+5*i)%9);
+            const top=0.20+0.35*shelf;
+            b.box("book",[x,top,0.12],[x+width,top+height,0.32]);
+            x+=width;
+          }
+        }
+        pending.delete("book");
+        break;
+      }
+      if(pending.has("leaf")) {
+        side("carcass",0,h);
+        if(pending.has("shelf")) {
+          b.box("shelf",[-w/2+0.02,1.825,0.02],[w/2-0.02,1.85,Math.min(d-0.11,0.49)]);
+          pending.delete("shelf");
+        }
+        if(pending.has("rod")) {
+          b.beam("rod",[-w/2+0.03,1.65,0.28],[w/2-0.03,1.65,0.28],0.015,0.015);
+          pending.delete("rod");
+        }
+        if(pending.has("clothes")) {
+          let x=-0.36;
+          for(let i=0;i<18;i++) {
+            const width=0.035+0.005*(i%3),length=0.85+0.05*(i%3);
+            b.box("clothes",[x,1.635-length,0.09],[x+width,1.635,0.47]);
+            x+=width;
+          }
+          pending.delete("clothes");
+        }
+        if(pending.has("leaf")) {
+          b.box("leaf",[-w/2,0.01,d-0.05],[0.01,h-0.03,d-0.03]);
+          b.box("leaf",[-0.01,0.01,d-0.10],[w/2,h-0.03,d-0.08]);
+          pending.delete("leaf");
+        }
+        if(pending.has("rail")) {
+          for(const z of [d-0.10,d-0.05]) for(const y of [0,h-0.03])
+            b.box("rail",[-w/2,y,z],[w/2,y+0.01,z+0.02]);
+          pending.delete("rail");
+        }
+        if(pending.has("handle")) {
+          for(const x of [-0.05,0.05]) b.box("handle",[x-0.02,1.04,d-0.025],[x+0.02,1.065,d-0.01]);
+          pending.delete("handle");
+        }
+        if(pending.has("casing")) {
+          for(const x of [-w/2,w/2-0.03]) b.box("casing",[x,0,d-0.03],[x+0.03,h-0.03,d]);
+          b.box("casing",[-w/2,h-0.03,d-0.03],[w/2,h,d]);
+          pending.delete("casing");
+        }
+        break;
+      }
+      if(pending.has("clothes")) {
+        if(pending.has("carcass")) {
+          for(const x of [-w/2,w/2-0.03]) b.box("carcass",[x,0,0],[x+0.03,h,d]);
+          pending.delete("carcass");
+        }
+        box("shelf",-w/2+0.03,h-0.03,0,w/2-0.03,h,d);
+        if(pending.has("rod")) {
+          b.beam("rod",[-w/2+0.03,1.65,0.28],[w/2-0.03,1.65,0.28],0.015,0.015);
+          pending.delete("rod");
+        }
+        let x=-0.72;
+        for(let i=0;i<36;i++) {
+          const width=0.035+0.005*(i%3),length=0.85+0.10*(i%3);
+          b.box("clothes",[x,1.60-length,0.03],[x+width,1.60,0.53]);
+          x+=width;
+        }
+        pending.delete("clothes");
+        break;
+      }
+      if(pending.has("folded")) {
+        if(pending.has("carcass")) {
+          for(const x of [-w/2,w/2-0.03]) b.box("carcass",[x,0,0],[x+0.03,h,d]);
+          pending.delete("carcass");
+        }
+        for(let level=0;level<4;level++) {
+          const top=0.20+0.45*level;
+          b.box("shelf",[-w/2+0.03,top-0.03,0],[w/2-0.03,top,d]);
+          for(const x of [-w/2+0.10,-w/2+0.40])
+            b.box("folded",[x,top,0.05],[x+0.28,top+0.12,0.37]);
+          const x=w/2-0.37;
+          if(level<3) b.box("shoe-box",[x,top,0.03],[x+0.30,top+0.20,0.38]);
+          else {
+            b.box("basket",[x,top,0.03],[x+0.30,top+0.015,0.38]);
+            for(const bx of [x,x+0.285]) b.box("basket",[bx,top+0.015,0.03],[bx+0.015,top+0.20,0.38]);
+            for(const z of [0.03,0.365]) b.box("basket",[x+0.015,top+0.015,z],[x+0.285,top+0.20,z+0.015]);
+          }
+        }
+        for(const face of ["shelf","folded","shoe-box","basket"]) pending.delete(face);
+        break;
+      }
       side("carcass");
       legs("post",h);
       box("plinth",-w/2,0,0,w/2,0.08,d);
@@ -284,6 +447,22 @@ export function buildPrototype(spec: PrototypeSpec): HousePrototype {
       }
       break;
     case "panel":
+      if(pending.has("firebox")) {
+        const left=-0.52,right=0.52,low=0.23,high=0.87,t=0.025;
+        b.box("firebox",[left,low,-d],[right,high,-d+t]);
+        b.box("firebox",[left,low,-d+t],[left+t,high,0]);
+        b.box("firebox",[right-t,low,-d+t],[right,high,0]);
+        b.box("firebox",[left+t,low,-d+t],[right-t,low+t,0]);
+        b.box("firebox",[left+t,high-t,-d+t],[right-t,high,0]);
+        const z=-0.015;
+        b.box("firebox-trim",[left,low,z],[left+t,high,0]);
+        b.box("firebox-trim",[right-t,low,z],[right,high,0]);
+        b.box("firebox-trim",[left+t,low,z],[right-t,low+t,0]);
+        b.box("firebox-trim",[left+t,high-t,z],[right-t,high,0]);
+        b.box("mantel",[-w/2,1.30,-d],[w/2,1.40,0]);
+        for(const face of ["firebox","firebox-trim","mantel"]) pending.delete(face);
+        break;
+      }
       // Physical profiles are separate addressable sheets, not a solid cube.
       box("siding-face",-w/2,0,d-0.006,w/2,h,d);
       box("siding-butt",-w/2,0,0,w/2,0.006,d);
@@ -305,6 +484,45 @@ export function buildPrototype(spec: PrototypeSpec): HousePrototype {
       box("mirror",-w/2+0.02,0.02,d*0.6,w/2-0.02,h-0.02,d*0.85);
       break;
     case "bath":
+      if(pending.has("towel")) {
+        b.beam("rod",[-w/2+0.015,h-0.04,d*0.5],[w/2-0.015,h-0.04,d*0.5],0.0125,0.0125);
+        for(const x of [-w/2+0.015,w/2-0.04]) b.box("bracket",[x,h-0.08,0],[x+0.025,h,d*0.5]);
+        b.box("towel",[-w*0.36,0,d*0.48],[w*0.36,h-0.04,d*0.60]);
+        for(const face of ["rod","bracket","towel"]) pending.delete(face);
+        break;
+      }
+      if(pending.has("rail")) {
+        b.beam("rail",[0,h,0],[0,h,d],0.0125,0.0125);
+        for(const z of [0,d]) b.beam("rod",[0,h,z],[0,h+0.16,z],0.010,0.010,8);
+        for(let i=0;i<4;i++) {
+          const z0=i*d/4,z1=(i+1)*d/4;
+          const offset=[0,0.015,0,-0.015][i]!;
+          b.box("curtain",[offset-0.005,0.60,z0],[offset+0.005,h,z1]);
+        }
+        for(const face of ["rail","rod","curtain"]) pending.delete(face);
+        break;
+      }
+      if(pending.has("curtain")&&pending.has("bracket")) {
+        b.beam("rod",[-w/2,h-0.02,d*0.5],[w/2,h-0.02,d*0.5],0.0125,0.0125);
+        for(const x of [-w/2,w/2-0.025]) b.box("bracket",[x,h-0.06,0],[x+0.025,h,d*0.65]);
+        for(const side of [-1,1]) for(let fold=0;fold<3;fold++) {
+          const x0=side<0?-w/2+fold*0.06:w/2-0.18+fold*0.06;
+          const z=0.083+0.02*Math.sin((fold+0.5)*Math.PI);
+          b.box("curtain",[x0,0,z-0.003],[x0+0.06,h-0.06,z+0.003]);
+        }
+        for(const face of ["rod","bracket","curtain"]) pending.delete(face);
+        break;
+      }
+      if(pending.has("container")&&pending.has("lid")) {
+        let x=-w/2;
+        for(const [i,diameter,height] of [[0,0.06,0.18],[1,0.07,0.20],[2,0.055,0.14]]) {
+          b.frustum("container",[x+diameter/2,0,d/2],diameter/2,diameter/2,height-0.035,12);
+          b.frustum("lid",[x+diameter/2,height-0.035,d/2],0.0125,0.0125,0.035,12);
+          x+=diameter+(i<2?0.025:0);
+        }
+        pending.delete("container");pending.delete("lid");
+        break;
+      }
       cylinder("faucet",0,h*0.72,d*0.15,0.018,0.018,0.18);
       box("rail",-w/2,h-0.03,d-0.04,w/2,h,d);
       box("rod",-w/2,h-0.04,d*0.5,w/2,h-0.02,d*0.53);
@@ -321,7 +539,8 @@ export function buildPrototype(spec: PrototypeSpec): HousePrototype {
         b.box("ceramic",[-w/2,0.40,0],[w/2,h-0.04,0.20]);
         b.box("ceramic",[-w/2,h-0.04,0],[w/2,h,0.20]);
         b.box("ceramic",[-0.12,0,0.32],[0.12,0.20,0.67]);
-        b.frustum("ceramic",[0,0.20,0.53],0.17,0.19,0.21,12);
+        b.box("ceramic",[-0.15,0.25,0.18],[0.15,0.40,0.34]);
+        b.ovalCup("ceramic",[0,0.20,0.505],0.19,0.225,0.20,0.055);
         pending.delete("ceramic");
       }
       if (pending.has("toilet-seat")) {
@@ -332,8 +551,11 @@ export function buildPrototype(spec: PrototypeSpec): HousePrototype {
         b.box("toilet-seat",[-0.12,0.41,z1-0.06],[0.12,0.43,z1]);
         pending.delete("toilet-seat");
       }
-      box("lid",-0.19,0.43,0.31,0.19,0.455,d);
-      box("handle",w/2-0.075,0.63,0.19,w/2-0.015,0.655,0.21);
+      if(pending.has("lid")) {
+        b.ellipsoid("lid",[0,0.4425,0.505],[0.19,0.0125,0.225]);
+        pending.delete("lid");
+      }
+      box("handle",-0.22,0.6725,0.20,-0.14,0.6875,0.215);
       break;
     }
     case "shower": {
@@ -378,6 +600,14 @@ export function buildPrototype(spec: PrototypeSpec): HousePrototype {
       cylinder("faucet",-w*0.40,h,d*0.5,0.016,0.016,0.18);
       break;
     case "fixture":
+      if(spec.wallBar) {
+        b.box("fixture-housing",[-w/2,0,0],[w/2,h,0.015]);
+        for(const x of [-w/2,w/2-0.025])
+          b.box("fixture-housing",[x,0,0.015],[x+0.025,h,0.0575]);
+        b.beam("fixture-diffuser",[-w/2+0.025,h/2,0.0575],[w/2-0.025,h/2,0.0575],0.0225,0.0225,16);
+        pending.delete("fixture-housing"); pending.delete("fixture-diffuser");
+        break;
+      }
       cylinder("fixture-housing",0,0,0,w*0.47,w*0.47,Math.min(h*0.35,0.08));
       cylinder("fixture-diffuser",0,Math.min(h*0.35,0.08),0,w*0.40,w*0.40,Math.min(h*0.25,0.08));
       cylinder("fixture-canopy",0,0,0,0.05,0.05,0.025);

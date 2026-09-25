@@ -7,6 +7,7 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { IAutoMovieMesh, IAutoMovieModelPart } from "@automovie/interface";
+import { validateModel } from "@automovie/engine";
 import { buildHousePrototypes, housePrototypeSpecs } from "../models/catalogue";
 import type { HousePrototype } from "../models/parts";
 
@@ -37,6 +38,7 @@ export interface PrototypeAudit {
   designed: number;
   accounted: number;
   built: number;
+  engineValidated: number;
   measuredParts: number;
   measuredSurfaces: number;
   failures: string[];
@@ -64,6 +66,7 @@ export function auditPrototypePopulation(population:readonly HousePrototype[], r
   const failures:string[]=[];
   const ids=new Set<string>();
   let measuredParts=0,measuredSurfaces=0;
+  let engineValidated=0;
   const canonical=new Map((reference??[]).map((p)=>[p.id,p]));
   const specs=new Map(housePrototypeSpecs.map((s)=>[s.id,s]));
   if(design.size!==account.size) failures.push(`design/account count ${design.size}/${account.size}`);
@@ -77,6 +80,12 @@ export function auditPrototypePopulation(population:readonly HousePrototype[], r
     if(ids.has(p.id)) failures.push(`${p.id}: duplicate prototype`);
     ids.add(p.id);
     const expected=account.get(p.id);
+    if(!reference) {
+      const engine=validateModel({model:p.model});
+      engineValidated++;
+      if(!engine.success) for(const violation of engine.violations)
+        failures.push(`${p.id}: engine ${violation.path} ${violation.expected}`);
+    }
     if(!expected) { failures.push(`${p.id}: no model account`); continue; }
     const faces=new Set(p.model.parts.map((part)=>part.material));
     const boundFaces=new Set(p.bindings.map((binding)=>binding.surface));
@@ -104,8 +113,14 @@ export function auditPrototypePopulation(population:readonly HousePrototype[], r
       const bb=bounds(mesh);
       const spec=specs.get(p.id);
       if(spec) {
-        const limit=10*Math.max(...spec.size);
-        if([...bb.min,...bb.max].some((n)=>Math.abs(n)>limit)) failures.push(`${p.id}/${part.id}: outside model scale`);
+        const [width,height,depth]=spec.size;
+        const margin=0.40;
+        const back=spec.kind==="plant"?-depth/2-margin:spec.kind==="panel"?-depth-margin:-margin;
+        const front=spec.kind==="plant"?depth/2+margin:depth+margin;
+        if(bb.min[0]<-width/2-margin||bb.max[0]>width/2+margin||
+          bb.min[1]<-margin||bb.max[1]>height+margin||
+          bb.min[2]<back||bb.max[2]>front)
+          failures.push(`${p.id}/${part.id}: outside declared model envelope`);
       }
       for(const index of mesh.indices) if(!Number.isInteger(index)||index<0||index>=count) failures.push(`${p.id}/${part.id}: invalid index ${index}`);
       for(let i=0;i<mesh.indices.length;i+=3) {
@@ -139,7 +154,7 @@ export function auditPrototypePopulation(population:readonly HousePrototype[], r
     }
   }
   for(const id of design.keys()) if(!ids.has(id)) failures.push(`${id}: missing prototype`);
-  return {designed:design.size,accounted:account.size,built:ids.size,measuredParts,measuredSurfaces,failures};
+  return {designed:design.size,accounted:account.size,built:ids.size,engineValidated,measuredParts,measuredSurfaces,failures};
 }
 
 /** Fresh random index per trial; no chosen model id or fixed damaged part. */
@@ -163,10 +178,9 @@ export function runRandomMutations(trials:number):{trials:number;red:number;type
     if(kind==="delete") parts.splice(index,1);
     else {
       const mesh=partMesh(parts[index]!);
-      const extent=Math.max(...housePrototypeSpecs.find((s)=>s.id===candidate.id)!.size);
       if(kind==="shift"||kind==="float") {
         const axis=kind==="shift"?2:1;
-        for(let i=axis;i<mesh.positions.length;i+=3) mesh.positions[i]+=extent*12;
+        for(let i=axis;i<mesh.positions.length;i+=3) mesh.positions[i]+=0.5;
       } else {
         const disjoint=parts.flatMap((a,i)=>parts.slice(i+1).flatMap((b,j)=>
           overlap(bounds(partMesh(a)),bounds(partMesh(b)))<1e-12 ? [[i,i+j+1] as const] : []));

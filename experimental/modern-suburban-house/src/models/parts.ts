@@ -215,7 +215,23 @@ export function metricCup(center:Point,bottomRadius:number,topRadius:number,heig
   return {positions,normals,uvs,indices,skin:null};
 }
 
+/** An oval open bowl derived from the same watertight vessel geometry. */
+export function metricOvalCup(center:Point,radiusX:number,radiusZ:number,height:number,wall:number,sides=12):IAutoMovieMesh {
+  if(!Number.isFinite(radiusZ)||radiusZ<=wall) throw Error("invalid oval cup depth");
+  const mesh=metricCup(center,radiusX,radiusX,height,wall,sides);
+  const stretch=radiusZ/radiusX;
+  for(let i=0;i<mesh.positions.length;i+=3) {
+    mesh.positions[i+2]=center[2]+(mesh.positions[i+2]!-center[2])*stretch;
+    const nx=mesh.normals![i]!,ny=mesh.normals![i+1]!,nz=mesh.normals![i+2]!/stretch;
+    const norm=Math.hypot(nx,ny,nz);
+    mesh.normals!.splice(i,3,nx/norm,ny/norm,nz/norm);
+  }
+  return mesh;
+}
+
 const fallback = (surface: string): number => {
+  if (/countertop|ceramic|basin/.test(surface)) return 0xe9e6df;
+  if (/appliance-body|control-panel/.test(surface)) return 0xa9aaa8;
   if (/glass|mirror|firebox|appliance-interior/.test(surface)) return 0x30383b;
   if (/steel|metal|handle|rail|rod|hinge|bracket|fixture|faucet|appliance/.test(surface)) return 0x55585a;
   if (/foliage|fruit/.test(surface)) return 0x657c43;
@@ -248,6 +264,9 @@ export class PrototypeBuilder {
   }
   cup(surface:string,center:Point,bottomRadius:number,topRadius:number,height:number,wall:number):this {
     return this.add(surface,metricCup(center,bottomRadius,topRadius,height,wall),"cylinder-metric");
+  }
+  ovalCup(surface:string,center:Point,radiusX:number,radiusZ:number,height:number,wall:number):this {
+    return this.add(surface,metricOvalCup(center,radiusX,radiusZ,height,wall),"cylinder-metric");
   }
   private add(surface:string, mesh:IAutoMovieMesh, uv:Exclude<SurfaceBinding["uv"],"mixed-metric">):this {
     const prior=this.surfaceKinds.get(surface);

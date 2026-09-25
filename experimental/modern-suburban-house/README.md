@@ -32,7 +32,9 @@ Use the commands declared in `package.json`:
 | `npm run lint` | Check the complete TypeScript program and active authored evidence. |
 | `npm run format` | Format source with the configured compiler formatter. |
 | `npm run check` | Run model accounts, reverse handoffs, material bindings, reviewed referents, settings review host checks, tests, geometry, and lint; report every failure. |
-| `npm run viewer` | Start the current space-source viewer from this directory on port 4173. |
+| `npm run viewer` | Start the current source viewer from this directory on port 4173. `?subject=<model-id>` isolates a generated prototype. |
+| `npm run prototype-audit` | Count and inspect all design-model prototypes, parts, surfaces, mesh attributes, and random geometry mutations. |
+| `npm run prototype-test` | Run the generated-model geometry and audit tests. |
 
 The scaffold provides instructions, contracts, and source lint, not prewritten production or viewer code. Author only the concrete source the requested work needs through the packages' public APIs. It supplies no film build, capture, render, or publication command.
 
@@ -42,7 +44,7 @@ The installed `automovie` CLI separately provides Markdown TOC maintenance, exte
 
 When the task needs a model view, building walkthrough, or film playback, follow [Live viewing](.agents/skills/review-verification/live-viewing.md) to implement the required view over the production's own source. A page and its controls are authored for that need, not selected from seeded viewer templates.
 
-The current viewer is opened at `http://127.0.0.1:4173/`. Its input is `buildHouseEnvironment(buildHouse())`: it renders the authored space parts, which each contain one geometry part. It has no input path for future `src/models` prototypes or `src/instances` placement, and its color-only scene payload carries no face-id material bindings or UV texture data. Iterating `model.parts` in `houseScene.cts` therefore does not yet make multipart model prototypes visible. Until those paths are implemented, this viewer cannot verify model geometry, furnishings, or textures; those observations remain `unverified`.
+The viewer opens at `http://127.0.0.1:4173/`. The default view renders `buildHouseEnvironment(buildHouse())`, so it still shows the space structure without furnished instances. `?subject=<model-id>` renders one current-source `src/models` prototype with its generated parts and fallback colors; the prototype retains surface ids, metre UVs, repeat scale, and the bitmap-free fallback material. This isolated view can show whether a model reads in front, side, top, and three-quarter observations. It does not place objects in rooms or verify the later material and instance bindings.
 
 ## Ownership
 
