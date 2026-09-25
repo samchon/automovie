@@ -11,8 +11,8 @@ export const gateProfile = {
   battenDepth: 0.025,
   battenLevels: [0.35,1.30],
   hingeLevels: [0.25,1.40],
-  hingeRadius: 0.009,
-  hingeHeight: 0.08,
+  hingeRadius: 0.0125,
+  hingeHeight: 0.10,
   handleLevel: 0.90,
 } as const;
 

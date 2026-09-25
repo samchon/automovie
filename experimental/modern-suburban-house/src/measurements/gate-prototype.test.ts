@@ -19,6 +19,13 @@ test("gate plank gaps stay open and the model owns no post", () => {
   assert.deepEqual([...new Set(model.bindings.map((binding)=>binding.surface))].sort(),
     ["gate-batten","handle","hinge","leaf-panel"].sort());
   assert.ok(!model.model.parts.some((part)=>/post|header/.test(part.id)));
+  for(const hinge of model.model.parts.filter((part)=>part.material==="hinge")) {
+    if(hinge.geometry.type!=="mesh") throw Error("hinge mesh missing");
+    const axis=(n:number)=>hinge.geometry.mesh.positions.filter((_,index)=>index%3===n);
+    const span=(n:number)=>Math.max(...axis(n))-Math.min(...axis(n));
+    assert.ok(Math.abs(span(0)-2*gateProfile.hingeRadius)<1e-9);
+    assert.ok(Math.abs(span(1)-gateProfile.hingeHeight)<1e-9);
+  }
 });
 
 test("gate refuses a reservation that cannot contain its hardware", () => {

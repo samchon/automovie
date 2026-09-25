@@ -10,6 +10,10 @@ export const windowProfile = {
   mullion: 0.08,
   sash: 0.05,
   sashDepth: 0.05,
+  fixedSashInset: 0.04,
+  trackMargin: 0.01,
+  trackGap: 0.02,
+  glassInset: 0.017,
   muntin: 0.025,
   muntinDepth: 0.01,
   glassDepth: 0.006,
@@ -57,15 +61,18 @@ export function buildWindowPrototype(opening: WindowOpening): HousePrototype {
     const panels=kind==="double-hung" ? [[lower,(lower+upper)/2],[(lower+upper)/2,upper]] : [[lower,upper]];
     for (const [panelIndex,panel] of panels.entries()) {
       const [y0,y1]=panel as [number,number];
-      // Two tracks stay inside the frame depth, with a clear 0.02 m separation.
-      const sashBack=kind==="double-hung" && panelIndex===1 ? back : back+p.sashDepth+0.02;
+      // Two hung tracks keep equal margins inside the frame. Fixed and awning
+      // sashes occupy the shallower common slot specified by the model owner.
+      const sashBack=kind==="double-hung"
+        ? back+p.trackMargin+(1-panelIndex)*(p.sashDepth+p.trackGap)
+        : front-p.fixedSashInset-p.sashDepth;
       const sashFront=sashBack+p.sashDepth;
       rail("sash",x0,x0+p.sash,y0,y1,sashBack,sashFront);
       rail("sash",x1-p.sash,x1,y0,y1,sashBack,sashFront);
       rail("sash",x0+p.sash,x1-p.sash,y0,y0+p.sash,sashBack,sashFront);
       rail("sash",x0+p.sash,x1-p.sash,y1-p.sash,y1,sashBack,sashFront);
       const gx0=x0+p.sash, gx1=x1-p.sash, gy0=y0+p.sash, gy1=y1-p.sash;
-      const glassBack=sashBack+(p.sashDepth-p.glassDepth)/2;
+      const glassBack=sashBack+p.glassInset;
       const glassFront=glassBack+p.glassDepth;
       b.box(kind==="awning"?"obscured-glass":"glass",
         [gx0,gy0,glassBack],[gx1,gy1,glassFront]);

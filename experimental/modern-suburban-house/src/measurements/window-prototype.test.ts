@@ -32,3 +32,25 @@ test("window member grammar rejects missing, fractional and glassless openings",
   assert.throws(()=>buildWindowPrototype({id:"bad",width:windowProfile.minUnitWidth, height:1, units:1,kind:"fixed"}),/cover the glass/);
   assert.throws(()=>buildWindowPrototype({id:"bad",width:1, height:0, units:1,kind:"fixed"}),/invalid/);
 });
+
+test("window panes follow their own sash track instead of a shared glass plane", () => {
+  const zBounds=(window:ReturnType<typeof buildWindowPrototype>,face:string)=>
+    window.model.parts.filter((part)=>part.material===face).map((part)=>{
+      if(part.geometry.type!=="mesh") throw Error("pane mesh missing");
+      const z=part.geometry.mesh.positions.filter((_,index)=>index%3===2);
+      return [Math.min(...z),Math.max(...z)] as const;
+    });
+  const fixed=buildWindowPrototype({id:"fixed-depth",width:0.78,height:1.1,units:1,kind:"fixed"});
+  const awning=buildWindowPrototype({id:"awning-depth",width:0.9,height:0.75,units:1,kind:"awning"});
+  const hung=buildWindowPrototype({id:"hung-depth",width:1.2,height:1.4,units:1,kind:"double-hung"});
+  for(const pane of [...zBounds(fixed,"glass"),...zBounds(awning,"obscured-glass")]) {
+    assert.ok(Math.abs(pane[0]+0.113)<1e-9);
+    assert.ok(Math.abs(pane[1]+0.107)<1e-9);
+  }
+  const panes=zBounds(hung,"glass");
+  assert.equal(panes.length,2);
+  assert.ok(Math.abs(panes[0]![0]+0.083)<1e-9);
+  assert.ok(Math.abs(panes[0]![1]+0.077)<1e-9);
+  assert.ok(Math.abs(panes[1]![0]+0.153)<1e-9);
+  assert.ok(Math.abs(panes[1]![1]+0.147)<1e-9);
+});
