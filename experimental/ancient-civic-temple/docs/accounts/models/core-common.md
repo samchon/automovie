@@ -3,7 +3,7 @@
 ## 파일 역할과 모델 납품 {#file-roles}
 
 <!--
-@evidence obligations/core/common.md#purpose-fit 아홉 파일을 건물 부재·상설 가구·손에 드는 비품·대지 개체로 대조했다. portable이 없으면 방별 78개 사물 역할 중 벤치·수레·직물·작성 도구 등의 형상 주소가 사라지고, fixtures·wares가 없으면 그 비품이 놓일 제단·선반·도기 원형이 비며, scale이 없으면 그 모두의 UV0·결속·검토 기준이 갈라진다. 구조와 경관 파일의 별도 결손은 아래 본문에 적었다.
+@evidence obligations/core/common.md#purpose-fit 아홉 파일을 건물 부재·상설 가구·손에 드는 비품·대지 개체로 대조했다. portable이 없으면 방별 사물 역할 중 벤치·수레·직물·작성 도구 등의 형상 주소가 사라지고, fixtures·wares가 없으면 그 비품이 놓일 제단·선반·도기 원형이 비며, scale이 없으면 그 모두의 UV0·결속·검토 기준이 갈라진다. 구조와 경관 파일의 별도 결손은 아래 본문에 적었다.
 -->
 
 이 population은 한 단층 시민 신전과 그 대지가 소비할 독립 부재의 blocking prototype을 설계한다. [scale](../../models/scale.md)은 공유 축척 기준과 표현 상한, 관절 인터페이스, 중립 검토 판이라는 모든 모델의 공통 기준을 소유한다. 이 파일이 없으면 각 모델이 보행 포락 대신 제각각의 크기 기준과 fidelity 주장을 쓰고 문짝의 hinge 이름과 검토 시점이 모델마다 달라진다.
@@ -179,7 +179,7 @@ settings의 [작업 언어](../../settings/00-delivery.md#working-language)에 �
 ## 규모와 전개 분량의 비교 {#proportion}
 
 <!--
-@evidence obligations/core/common.md#proportionate-development 아래 아홉 파일·49 H2의 생성 표와 H2별 분포를 사물 78역할의 prototype 재사용에 대조했다. 기와·양개 문짝·수반은 기존 상세 단면을 유지하고 첨필·봉헌판은 얇은 부재만 정했으며 portable의 13 H2는 한 방 전용 복제 대신 다방 재사용을 맡는다. 재생성 전 기준은 Git `111dba96^:experimental/ancient-civic-temple/docs/models/temple-fit-out.md`의 실제 blob을 같은 계수식으로 다시 재어 17 H2·14,799자로 검증했다.
+@evidence obligations/core/common.md#proportionate-development 아래 아홉 파일·49 H2의 생성 표와 H2별 분포를 사물 역할의 prototype 재사용에 대조했다. 기와·양개 문짝·수반은 기존 상세 단면을 유지하고 첨필·봉헌판은 얇은 부재만 정했으며 portable의 13 H2는 한 방 전용 복제 대신 다방 재사용을 맡는다. 재생성 전 기준은 Git `111dba96^:experimental/ancient-civic-temple/docs/models/temple-fit-out.md`의 실제 blob을 같은 계수식으로 다시 재어 17 H2·14,799자로 검증했다.
 -->
 
 현재 모델 population의 파일·H2·본문 분량은 아래 self-check 생성 표로 고정한다. 본문 문자는 HTML 주석과 공백을 빼고 제목은 포함한 유니코드 코드 포인트 수다. 표에 없는 파일, 중복 파일, 낡은 행은 self-check 실패로 처리한다.
