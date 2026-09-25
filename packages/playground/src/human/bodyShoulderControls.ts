@@ -1,6 +1,7 @@
-import type {
-  IAutoMovieHumanBodyBasis,
-  IAutoMovieHumanBodyShoulderPose,
+import {
+  type IAutoMovieHumanBodyBasis,
+  type IAutoMovieHumanBodyShoulderPose,
+  humanBodyShoulderElevationLimit,
 } from "@automovie/human";
 
 const AXES = ["plane", "elevation", "axialRotation"] as const;
@@ -20,8 +21,14 @@ type Shoulder = NonNullable<
  * identify all three numbers. The editor preserves what the author wrote and
  * explains that ambiguity instead of silently changing their document.
  *
+ * The elevation note states the joint-sinus maximum of the painted plane
+ * (`humanBodyShoulderElevationLimit`), so a goal the builder will refuse as
+ * past the plane's reach is visible before it is written. The slider keeps
+ * the whole total-elevation range: clamping it per plane would silently
+ * rewrite an authored elevation whenever the plane moved.
+ *
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Lets the author edit each humerus by a named thorax-relative plane, total elevation and axial rotation while retaining newer draft edits.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Displays the basis's shoulder rest and clinical ranges, the plane period and the two pole ambiguities beside the controls.
+ * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Displays the basis's shoulder rest, clinical ranges, the painted plane's joint-sinus reach, the plane period and the two pole ambiguities beside the controls.
  */
 export function renderBodyShoulderControls(props: {
   dom: Document;
@@ -35,6 +42,7 @@ export function renderBodyShoulderControls(props: {
   const { dom, container, shoulder, bone } = props;
   container.replaceChildren();
   const rendered = props.shoulders.find((one) => one.bone === bone);
+  const plane = rendered?.plane ?? shoulder.neutral.plane;
   const write = (axis: (typeof AXES)[number], value: number): void => {
     const latest = props.currentShoulders();
     const current = latest.find((one) => one.bone === bone);
@@ -88,7 +96,7 @@ export function renderBodyShoulderControls(props: {
       axis === "plane"
         ? "thorax plane [-180°, 180°): 0° lateral, +90° anterior, -90° posterior"
         : axis === "elevation"
-          ? `total humerothoracic elevation ${range.min}° to ${range.max}°, rest ${shoulder.neutral.elevation.toFixed(2)}°`
+          ? `total humerothoracic elevation ${range.min}° to ${range.max}°, rest ${shoulder.neutral.elevation.toFixed(2)}°; reach in the ${plane}° plane ${humanBodyShoulderElevationLimit(shoulder.range, plane).toFixed(1)}° (overhead 180° is one direction for every plane)`
           : `external (+) / internal (-) axial rotation ${range.min}° to ${range.max}°, rest ${shoulder.neutral.axialRotation.toFixed(2)}°`;
     entry.append(slider, number, rest);
     row.append(label, entry, note);

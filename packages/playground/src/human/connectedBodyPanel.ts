@@ -11,7 +11,6 @@ import {
   type IAutoMovieHumanBodyBasis,
   type IAutoMovieHumanBodyBasisDocument,
   type IAutoMovieHumanBodyChannelScale,
-  type IAutoMovieHumanBodyShoulderPose,
   type IAutoMovieHumanBodySimpleShape,
   createHumanFaceEditor,
   measureHumanBodyBasisChannels,
@@ -19,12 +18,11 @@ import {
   resolveHumanBodyCouplings,
   serializeHumanBodyBasisDocument,
 } from "@automovie/human";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieJointPose,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
+import { createBodyContactWatch } from "./bodyContactWatch";
 import { renderBodyPoseControls } from "./bodyPoseControls";
+import { type BodyPosePreset, renderBodyPosePresets } from "./bodyPosePresets";
 import { renderBodyShoulderControls } from "./bodyShoulderControls";
 import { renderBodySimpleControls } from "./bodySimpleControls";
 import { createBodyIntentGate } from "./createBodyIntentGate";
@@ -64,11 +62,7 @@ export function mountConnectedBodyPanel<
       name: string;
       shape: Record<string, number> | (() => Promise<Record<string, number>>);
     }[];
-    poses: {
-      name: string;
-      pose?: IAutoMovieJointPose[];
-      shoulders?: IAutoMovieHumanBodyShoulderPose[];
-    }[];
+    poses: BodyPosePreset[];
     viewport: (canvas: HTMLCanvasElement) => {
       build: (
         document: IAutoMovieHumanBodyBasisDocument,
@@ -84,6 +78,12 @@ export function mountConnectedBodyPanel<
       cameraView: (degrees: number) => void;
       setClay: (enabled: boolean) => void;
       setShadows: (enabled: boolean) => void;
+      /** Solve the arms-down preset on a document's body, off the page. */
+      armsDown?: (
+        document: IAutoMovieHumanBodyBasisDocument,
+      ) => Promise<
+        Pick<IAutoMovieHumanBodyBasisDocument, "pose" | "shoulders">
+      >;
     };
     /** Seat the companion face on the published body, or hide it. */
     seat: (model: Model | null) => void;
@@ -158,6 +158,14 @@ export function mountConnectedBodyPanel<
     if (editor !== undefined) draft = editor.snapshot().document;
     status(error instanceof Error ? error.message : String(error), "error");
   };
+  const contacts = createBodyContactWatch({
+    build: viewport.build,
+    dispose: viewport.dispose,
+    isCurrent: intents.isCurrent,
+    report: (text) => {
+      element("body-status").textContent += String.fromCharCode(10) + text;
+    },
+  });
   const show = (model: Model): void => {
     viewport.publish(model);
     props.seat(element<HTMLInputElement>("face").checked ? model : null);
@@ -188,6 +196,7 @@ export function mountConnectedBodyPanel<
     if (!intents.isCurrent(ticket)) return;
     if (success) show(editor!.snapshot().model);
     refresh();
+    if (success) void contacts.after(editor!.snapshot().document, ticket);
   };
   const applyText = async (
     text: string,
@@ -381,17 +390,18 @@ export function mountConnectedBodyPanel<
     };
     element("shape-presets").append(button);
   }
-  for (const preset of props.poses) {
-    const button = dom.createElement("button");
-    button.textContent = preset.name;
-    button.onclick = () =>
-      change({
-        ...structuredClone(draft),
-        pose: structuredClone(preset.pose ?? []),
-        shoulders: structuredClone(preset.shoulders ?? []),
-      });
-    element("pose-presets").append(button);
-  }
+  renderBodyPosePresets({
+    dom,
+    container: element("pose-presets"),
+    presets: props.poses,
+    current: () => draft,
+    armsDown: viewport.armsDown,
+    reserve: withdraw,
+    isCurrent: intents.isCurrent,
+    apply: (document, ticket) => void change(document, ticket),
+    refuse,
+    busy: (text) => status(text, "building"),
+  });
   element("document-apply").onclick = () => {
     const ticket = withdraw();
     void applyText(element<HTMLTextAreaElement>("document-json").value, ticket);
@@ -416,9 +426,8 @@ export function mountConnectedBodyPanel<
     }
   };
   // The body's rest crosses nothing by construction (the shipped census says
-  // so), so the reading is absolute: any pair is a finding.
-  const line = (entry: IAutoMovieModelCrossing): string =>
-    `${entry.part} x ${entry.other} ${entry.triangles}/${entry.otherTriangles}`;
+  // so, between segments and within each), so the reading is absolute: any
+  // entry is a finding, and a segment named twice passes through itself.
   element("body-contacts").onclick = async () => {
     const ticket = withdraw();
     status("Measuring which skin segments cross…", "building");
@@ -427,13 +436,10 @@ export function mountConnectedBodyPanel<
       const reading = posed.crossings;
       viewport.dispose(posed);
       if (!intents.isCurrent(ticket)) return;
+      const text = contacts.describe(reading);
       status(
-        reading === null || reading === undefined
-          ? "This build does not supply a crossing reading."
-          : reading.length === 0
-            ? "No skin segment crosses another in this pose."
-            : "Crossing segments: " + reading.map(line).join(", "),
-        reading === null || reading === undefined ? "error" : "ready",
+        text ?? "This build does not supply a crossing reading.",
+        text === null ? "error" : "ready",
       );
     } catch (error) {
       if (intents.isCurrent(ticket)) refuse(error);

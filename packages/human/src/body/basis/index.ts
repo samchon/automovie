@@ -1,4 +1,5 @@
 export * from "./assertHumanBodyBasis";
+export * from "./assertHumanBodyPelvifemoral";
 export * from "./assertHumanBodyRig";
 export * from "./assertSparseRows";
 export * from "./createHumanBodyBasisBuilder";
@@ -6,7 +7,10 @@ export * from "./evaluateHumanBodyShape";
 export * from "./humanBodyBasisWeights";
 export * from "./humanBodyShoulderTtRotation";
 export * from "./humanBodyShoulderOrientationDistance";
+export * from "./humanBodyShoulderElevationLimit";
+export * from "./humanBodyShoulderReaches";
 export * from "./resolveHumanBodyCouplings";
+export * from "./resolveHumanBodyPelvifemoralRhythm";
 export * from "./resolveHumanBodySkeleton";
 export * from "./resolveHumanBodyShoulders";
 export * from "./skinHumanBodySurface";
