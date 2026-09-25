@@ -112,12 +112,14 @@ const bodies = source.flatMap((file) => sections(read(file)).map(({ anchor, body
 // A newly named wall or room object must enter the vocabulary before a
 // candidate-maker census can claim coverage. This deliberately scans source
 // prose independently from the hand-maintained owner dictionary.
-// Observe physical-object candidates independently of the particular verb:
-// "우편함을 둔다" must enter the same audit as "우편함이 붙는다".
-const attachment = /(?:^|[\s.,;:])([가-힣]{2,12})(?:이|가|을|를)\s+[가-힣]{1,12}다(?=[\s.,;:])/gm;
+// Select particle-marked Korean noun candidates without conditioning on any
+// verb. The previous six-verb matcher let an authoring change from "붙인다"
+// to "둔다" make the same new object disappear from the owner census.
+const attachment = /(?:^|[\s.,;:])([가-힣]{2,12})(?:에서|에게|으로|까지|부터|은|는|이|가|을|를|도|과|와|에|의)(?=[\s.,;:])/gm;
 const unregisteredReferents = bodies.flatMap(({ id, body }) => [...body.matchAll(attachment)]
   .map((match) => ({ id, term: match[1] }))
   .filter(({ term }) => !Object.hasOwn(owner, term) && !nonPrototype.has(term)));
+const unregisteredTerms = [...new Set(unregisteredReferents.map(({ term }) => term))];
 const all = new Map([...files("models"), ...files("spaces"), ...files("materials")].flatMap((file) => sections(read(file)).map(({ anchor, body }) => [`${file}#${anchor}`, body])));
 const rows = Object.entries(owner).map(([term, makers]) => {
   const references = bodies.filter(({ body }) => body.includes(term)).map(({ id }) => id);
@@ -128,12 +130,23 @@ const absent = rows.filter((row) => row.references.length && (!row.makers.length
 /** @param {string} id */
 const link = (id) => `[${id}](../../${id})`;
 const table = ["| 명명 부재 | 부모·형제 H2 참조 | 제작 H2 후보 |", "|---|---|---|", ...rows.filter((row) => row.references.length).map((row) => `| ${row.term} | ${row.references.map(link).join(", ")} | ${row.makers.map(link).join(", ")} |`)].join("\n");
-const output = `# reviewed 층의 부재 참조에서 출발한 제작자 역대조\n\n## 명명 부재와 제작자 후보 {#spaces-referent-ledger}\n<!--\n@evidence contracts/model-referent-audit.md#model-referent-audit reviewed settings·spaces의 모든 H2 본문을 아래 부재 어휘로 조사하고 참조 H2와 본문에 해당 부재를 명명한 제작 H2 후보를 함께 낸다. 이 계측은 어휘 수준이므로 개별 참조와 제작자의 장소별 일치는 별도 원문 대조가 필요하다.\n-->\n\n생산자 \`node src/measurements/referent-owner-scan.cjs --check\`가 원본 H2와 아래 제작자 본문을 다시 읽는다. 어휘는 생산자 source에 있다. 오른쪽 열은 어휘별 제작자 **후보**이며 같은 단어가 쓰인 각 장소의 정확한 제작자가 모두 확인됐다는 뜻이 아니다. 구체 장소별 부재는 해당 참조 H2와 제작 H2의 문장을 함께 대조해야 한다. 영어 면 토큰은 별도 [재료 면 목록](material-face-ledger.md#material-face-ledger)이 검사한다.\n\n${table}\n`;
+const unknownTable = ["| 미분류 어휘 | 등장 횟수 | 첫 reviewed H2 | 상태 |", "|---|---:|---|---|",
+  ...unregisteredTerms.map((term) => {
+    const refs = unregisteredReferents.filter((item) => item.term === term);
+    return `| ${term} | ${refs.length} | ${link(refs[0].id)} | UNCLASSIFIED |`;
+  }),
+].join("\n");
+const output = `# reviewed 층의 부재 참조에서 출발한 제작자 역대조\n\n## 명명 부재와 제작자 후보 {#spaces-referent-ledger}\n<!--\n@evidence contracts/model-referent-audit.md#model-referent-audit reviewed settings·spaces의 모든 H2 본문을 아래 부재 어휘로 조사하고 참조 H2와 본문에 해당 부재를 명명한 제작 H2 후보를 함께 낸다. 미분류 명사 후보는 별도 표에 남겨 물리 제작 대상인지 아직 판정되지 않았음을 드러낸다. 이 계측은 어휘 수준이므로 개별 참조와 제작자의 장소별 일치는 별도 원문 대조가 필요하다.\n-->\n\n생산자 \`node src/measurements/referent-owner-scan.cjs --check\`가 원본 H2와 아래 제작자 본문을 다시 읽는다. 어휘는 생산자 source에 있다. 오른쪽 열은 어휘별 제작자 **후보**이며 같은 단어가 쓰인 각 장소의 정확한 제작자가 모두 확인됐다는 뜻이 아니다. 구체 장소별 부재는 해당 참조 H2와 제작 H2의 문장을 함께 대조해야 한다. 영어 면 토큰은 별도 [재료 면 목록](material-face-ledger.md#material-face-ledger)이 검사한다. 조사 결합 명사 후보는 실제 부재가 아닐 수도 있으므로 아래 표를 분류하기 전까지 owner 누락 0을 주장하지 않는다.\n\n${table}\n\n### 미분류 명사 후보\n\n${unknownTable}\n`;
 const destination = path.join(docs, "accounts/models/spaces-referent-ledger.md");
 if (process.argv.includes("--write")) fs.writeFileSync(destination, output);
 else if (process.argv.includes("--check")) {
   if (read("accounts/models/spaces-referent-ledger.md").replace(/\r\n/g, "\n") !== output) { console.error("referent ledger differs from current corpus"); process.exitCode = 1; }
-  else console.log(JSON.stringify({ sourceH2: bodies.length, terms: rows.length, presentTerms: rows.filter((r) => r.references.length).length, referencePairs: rows.reduce((n, r) => n + r.references.length, 0), ownerless: absent.length, unregisteredReferents: unregisteredReferents.length }));
+  else console.log(JSON.stringify({ sourceH2: bodies.length, terms: rows.length, presentTerms: rows.filter((r) => r.references.length).length, referencePairs: rows.reduce((n, r) => n + r.references.length, 0), ownerless: absent.length, unregisteredTerms: unregisteredTerms.length, unregisteredReferents: unregisteredReferents.length }));
 } else console.log(JSON.stringify({ sourceH2: bodies.length, rows, absent }, null, 2));
 if (absent.length) { for (const row of absent) console.error(`MISSING MAKER ${row.term} ${row.invalid.join(",")}`); process.exitCode = 1; }
-if (unregisteredReferents.length) { for (const row of unregisteredReferents) console.error(`UNREGISTERED REFERENT ${row.id} :: ${row.term}`); process.exitCode = 1; }
+if (unregisteredReferents.length) {
+  const visible = process.argv.includes("--verbose") ? unregisteredTerms : unregisteredTerms.slice(0, 25);
+  for (const term of visible) console.error(`UNREGISTERED TERM ${term} :: ${unregisteredReferents.find((row) => row.term === term)?.id}`);
+  if (visible.length < unregisteredTerms.length) console.error(`... ${unregisteredTerms.length - visible.length} more terms; --verbose lists all`);
+  process.exitCode = 1;
+}
