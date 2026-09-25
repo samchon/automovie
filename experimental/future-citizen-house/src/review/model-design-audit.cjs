@@ -109,7 +109,7 @@ function checkSeating() {
   const pillowRear = numeric("living-sofa", /베개 Z 점유를 바깥으로 반올림한 선언 범위는 ([−\d.]+)\.\.[−\d.]+m/);
   contains(-sofaRear, sofaRear, pillowRear, "sofa pillow rear Z");
   const diningBackBottom = numeric("dining-chair", /등판은.*?y=([\d.]+)\.\.0\.84/);
-  const diningRearLegTop = numeric("dining-chair", /y=0\.45\.\.([\d.]+)에서 중심선을/);
+  const diningRearLegTop = numeric("dining-chair", /y=0\.45\.\.([\d.]+)의 위 조각/);
   equalLength(diningBackBottom, diningRearLegTop, "dining back-to-rear-leg contact");
   const chairSeatRear = numeric("desk-chair", /좌면 셸은.*?z=([−\d.]+)\.\.\+0\.28/);
   const chairLegRear = numeric("desk-chair", /뒤쪽 z=([−\d.]+)·앞쪽/);
@@ -309,7 +309,7 @@ exerciseMutation("portable-lamps", "헤드 아래 중심 z=+0.09", "헤드 아�
   checkShelvesAndLamps, "task lamp diffuser exits head");
 exerciseMutation("work-desk", "flex는 `folded`와 `open` 중 하나의 명시 상태를 반드시 받으며 상태 없는 호출을 거부한다",
   "flex는 상태 없는 호출을 받는다", checkDeskAndMurphy, "flex desk loses required state");
-exerciseMutation("dining-chair", "y=0.45..0.49에서 중심선을", "y=0.45..0.45에서 중심선을",
+exerciseMutation("dining-chair", "y=0.45..0.49의 위 조각", "y=0.45..0.45의 위 조각",
   checkSeating, "dining-chair rear leg misses back");
 exerciseMutation("living-sofa", "높이 0.22·깊이 0.16m로 y=0.45..0.67", "높이 0.22·깊이 0.16m로 y=0.55..0.67",
   checkSeating, "sofa pillow misses seat");

@@ -11,6 +11,7 @@ const names = ["001-seating-and-work", "002-storage-and-sleep", "003-service-fix
 const epsilon = 0.000001;
 /** @typedef {{state:string,id:string,shape:string,x:[number,number],y:[number,number],z:[number,number],contact:string[]}} Part */
 /** @typedef {{x:[number,number],y:[number,number],z:[number,number]}} Bounds */
+/** @typedef {{guest:string,host:string,axis:string,plane:number,u:[number,number],v:[number,number]}} FlatContact */
 
 function sections() {
   /** @type {Map<string, string[]>} */
@@ -64,16 +65,22 @@ function parse(lines, anchor) {
   const voids = new Map();
   /** @type {Map<string, Bounds[]>} */
   const pieces = new Map();
+  /** @type {Map<string,{y:[number,number],z:[number,number],halfDepth:number}>} */
+  const shearsZ = new Map();
   /** @type {Map<string,{inner:number,outer:number,centerX:number,centerZ:number}>} */
   const radial = new Map();
   /** @type {Map<string,{inner:number,outer:number,centerX:number,centerY:number}>} */
   const radialZ = new Map();
   /** @type {Map<string,{radius:number,y:[number,number]}>} */
   const bores = new Map();
+  /** @type {Map<string,{centerX:number,centerY:number,radius:number,z:[number,number]}>} */
+  const boresZ = new Map();
   /** @type {Map<string,{innerX:number,innerZ:number,outerX:number,outerZ:number,centerX:number,centerZ:number}>} */
   const ellipses = new Map();
   /** @type {Map<string,{host:string,guest:string,radius:number,halfWidth:number}>} */
   const tangents = new Map();
+  /** @type {Map<string,FlatContact>} */
+  const flatContacts = new Map();
   /** @type {Map<string,{shell:string,cover:string,c0:number,c1:number,c2:number,shellDepth:number,coverDepth:number}>} */
   const curveLayers = new Map();
   /** @type {Map<string,{host:string,guest:string,originY:number,spanY:number,c0:number,c1:number,hostDepth:number,gap:number,guestDepth:number}>} */
@@ -138,6 +145,13 @@ function parse(lines, anchor) {
         y: interval(segment[4], `${anchor}/${key}/piece-y`), z: interval(segment[5], `${anchor}/${key}/piece-z`) };
       pieces.set(key, [...(pieces.get(key) || []), region]);
     }
+    const shear = /^@shear-z\s+([^:]+):\s*([^,]+),\s*([^,]+),\s*([^,]+),\s*([\d.]+)$/.exec(line);
+    if (shear) {
+      const key = `${shear[1].trim()}/${shear[2].trim()}`;
+      if (shearsZ.has(key)) throw Error(`${anchor}/${key}: duplicate shear-z`);
+      shearsZ.set(key, { y: interval(shear[3], `${anchor}/${key}/shear-y`),
+        z: interval(shear[4], `${anchor}/${key}/shear-z`), halfDepth: Number(shear[5]) });
+    }
     const ring = /^@radial\s+([^:]+):\s*([^,]+),\s*([\d.]+),\s*([\d.]+)$/.exec(line);
     if (ring) {
       const key = `${ring[1].trim()}/${ring[2].trim()}`;
@@ -166,6 +180,14 @@ function parse(lines, anchor) {
     const bore = /^@bore\s+([^:]+):\s*([^,]+),\s*([\d.]+),\s*(.+)$/.exec(line);
     if (bore) bores.set(`${bore[1].trim()}/${bore[2].trim()}`, {
       radius: Number(bore[3]), y: interval(bore[4], `${anchor}/bore-y`) });
+    const boreZ = /^@bore-z\s+([^:]+):\s*([^,]+),\s*([−-]?[\d.]+),\s*([−-]?[\d.]+),\s*([\d.]+),\s*(.+)$/.exec(line);
+    if (boreZ) {
+      const key = `${boreZ[1].trim()}/${boreZ[2].trim()}`;
+      if (boresZ.has(key)) throw Error(`${anchor}/${key}: duplicate bore-z`);
+      boresZ.set(key, { centerX: Number(boreZ[3].replace("−", "-")),
+        centerY: Number(boreZ[4].replace("−", "-")), radius: Number(boreZ[5]),
+        z: interval(boreZ[6], `${anchor}/${key}/bore-z`) });
+    }
     const ellipse = /^@ellipse\s+([^:]+):\s*([^,]+),\s*([\d.]+),\s*([\d.]+),\s*([\d.]+),\s*([\d.]+)(?:,\s*([−-]?[\d.]+),\s*([−-]?[\d.]+))?$/.exec(line);
     if (ellipse) ellipses.set(`${ellipse[1].trim()}/${ellipse[2].trim()}`, {
       innerX: Number(ellipse[3]), innerZ: Number(ellipse[4]), outerX: Number(ellipse[5]), outerZ: Number(ellipse[6]),
@@ -176,6 +198,14 @@ function parse(lines, anchor) {
       const key = `${state}/${[host, guest].sort((a, b) => a.localeCompare(b)).join("/")}`;
       if (tangents.has(key)) throw Error(`${anchor}/${key}: duplicate tangent proof`);
       tangents.set(key, { host, guest, radius: Number(tangent[4]), halfWidth: Number(tangent[5]) });
+    }
+    const flat = /^@flat-contact\s+([^:]+):\s*([^,]+),\s*([^,]+),\s*(-Y|-Z),\s*([−-]?[\d.]+),\s*([^,]+),\s*([^,]+)$/.exec(line);
+    if (flat) {
+      const state = flat[1].trim(), guest = flat[2].trim(), host = flat[3].trim();
+      const key = `${state}/${guest}/${host}`;
+      if (flatContacts.has(key)) throw Error(`${anchor}/${key}: duplicate flat contact`);
+      flatContacts.set(key, { guest, host, axis: flat[4], plane: Number(flat[5].replace("−", "-")),
+        u: interval(flat[6], `${anchor}/${key}/flat-u`), v: interval(flat[7], `${anchor}/${key}/flat-v`) });
     }
     const curve = /^@curve-layer\s+([^:]+):\s*([^,]+),\s*([^,]+),\s*([−-]?[\d.]+),\s*([−-]?[\d.]+),\s*([−-]?[\d.]+),\s*([\d.]+),\s*([\d.]+)$/.exec(line);
     if (curve) {
@@ -236,7 +266,7 @@ function parse(lines, anchor) {
     if (parts.has(`${state}/${id}`)) throw Error(`${anchor}: grid part duplicate ${state}/${id}`);
     parts.set(`${state}/${id}`, entry);
   }
-  return { envelopes, parts, inventory, compositions, supportBindings, pinFaces, emitterFaces, miterJoints, voids, pieces, radial, radialZ, bores, ellipses, tangents, curveLayers, linearCurves, grids };
+  return { envelopes, parts, inventory, compositions, supportBindings, pinFaces, emitterFaces, miterJoints, voids, pieces, shearsZ, radial, radialZ, bores, boresZ, ellipses, tangents, flatContacts, curveLayers, linearCurves, grids };
 }
 
 /** @param {Part} emitter @param {Part[]} blockers @param {Map<string,{inner:number,outer:number,centerX:number,centerZ:number}>} radial @param {string} state */
@@ -340,12 +370,20 @@ function occupiedBoxes(part, voids, pieces = new Map()) {
   return boxes;
 }
 
-/** @param {Part} a @param {Part} b @param {Map<string,{inner:number,outer:number,centerX:number,centerZ:number}>} radial @param {Map<string,{inner:number,outer:number,centerX:number,centerY:number}>} radialZ @param {Map<string,Bounds[]>} voids @param {Map<string,Bounds[]>} pieces @param {Set<string>} provedTangents @param {Set<string>} provedCurves @param {Map<string,boolean>} provedLinear @param {Set<string>} plantContacts */
-function actualContact(a, b, radial, radialZ, voids, pieces, provedTangents, provedCurves, provedLinear, plantContacts) {
+/** @param {Part} a @param {Part} b @param {Map<string,{inner:number,outer:number,centerX:number,centerZ:number}>} radial @param {Map<string,{inner:number,outer:number,centerX:number,centerY:number}>} radialZ @param {Map<string,{centerX:number,centerY:number,radius:number,z:[number,number]}>} boresZ @param {Map<string,Bounds[]>} voids @param {Map<string,Bounds[]>} pieces @param {Set<string>} provedTangents @param {Set<string>} provedCurves @param {Map<string,boolean>} provedLinear @param {Set<string>} plantContacts */
+function actualContact(a, b, radial, radialZ, boresZ, voids, pieces, provedTangents, provedCurves, provedLinear, plantContacts) {
   const key = `${a.state}/${[a.id, b.id].sort((left, right) => left.localeCompare(right)).join("/")}`;
   if (plantContacts.has(key)) return true;
   if (provedTangents.has(key) || provedCurves.has(key)) return true;
   if (provedLinear.has(key)) return provedLinear.get(key);
+  for (const [host, guest] of [[a, b], [b, a]]) {
+    const bore = boresZ.get(`${host.state}/${host.id}`);
+    const ring = radialZ.get(`${guest.state}/${guest.id}`);
+    if (bore && ring && Math.abs(bore.centerX - ring.centerX) <= epsilon &&
+      Math.abs(bore.centerY - ring.centerY) <= epsilon &&
+      Math.min(bore.z[1], guest.z[1]) - Math.max(bore.z[0], guest.z[0]) > epsilon)
+      return Math.abs(ring.outer - bore.radius) <= epsilon;
+  }
   const ar = radial.get(`${a.state}/${a.id}`), br = radial.get(`${b.state}/${b.id}`);
   if (ar && br && Math.abs(ar.centerX - br.centerX) <= epsilon && Math.abs(ar.centerZ - br.centerZ) <= epsilon) {
     const vertical = Math.min(a.y[1], b.y[1]) - Math.max(a.y[0], b.y[0]);
@@ -363,11 +401,19 @@ function actualContact(a, b, radial, radialZ, voids, pieces, provedTangents, pro
   return occupiedBoxes(a, voids, pieces).some((aa) => occupiedBoxes(b, voids, pieces).some((bb) => surfaceContact(aa, bb)));
 }
 
-/** @param {Part} a @param {Part} b @param {Map<string,{inner:number,outer:number,centerX:number,centerY:number}>} radialZ @param {Map<string,{inner:number,outer:number,centerX:number,centerZ:number}>} radial @param {Map<string,Bounds[]>} voids @param {Map<string,Bounds[]>} pieces @param {Set<string>} provedTangents @param {Set<string>} provedCurves @param {Map<string,boolean>} provedLinear @param {Set<string>} plantNonOverlaps */
-function actualOverlap(a, b, radial, radialZ, voids, pieces, provedTangents, provedCurves, provedLinear, plantNonOverlaps) {
+/** @param {Part} a @param {Part} b @param {Map<string,{inner:number,outer:number,centerX:number,centerZ:number}>} radial @param {Map<string,{inner:number,outer:number,centerX:number,centerY:number}>} radialZ @param {Map<string,{centerX:number,centerY:number,radius:number,z:[number,number]}>} boresZ @param {Map<string,Bounds[]>} voids @param {Map<string,Bounds[]>} pieces @param {Set<string>} provedTangents @param {Set<string>} provedCurves @param {Map<string,boolean>} provedLinear @param {Set<string>} plantNonOverlaps */
+function actualOverlap(a, b, radial, radialZ, boresZ, voids, pieces, provedTangents, provedCurves, provedLinear, plantNonOverlaps) {
   const key = `${a.state}/${[a.id, b.id].sort((left, right) => left.localeCompare(right)).join("/")}`;
   if (plantNonOverlaps.has(key)) return false;
   if (provedTangents.has(key) || provedCurves.has(key) || provedLinear.has(key)) return false;
+  for (const [host, guest] of [[a, b], [b, a]]) {
+    const bore = boresZ.get(`${host.state}/${host.id}`);
+    const ring = radialZ.get(`${guest.state}/${guest.id}`);
+    if (bore && ring && Math.abs(bore.centerX - ring.centerX) <= epsilon &&
+      Math.abs(bore.centerY - ring.centerY) <= epsilon &&
+      Math.min(bore.z[1], guest.z[1]) - Math.max(bore.z[0], guest.z[0]) > epsilon)
+      return ring.outer > bore.radius + epsilon;
+  }
   const ar = radial.get(`${a.state}/${a.id}`), br = radial.get(`${b.state}/${b.id}`);
   if (ar && br && Math.abs(ar.centerX - br.centerX) <= epsilon && Math.abs(ar.centerZ - br.centerZ) <= epsilon)
     return Math.min(a.y[1], b.y[1]) - Math.max(a.y[0], b.y[0]) > epsilon &&
@@ -708,7 +754,7 @@ function audit(allSections, mutate, onlyState) {
   for (const [anchor, lines] of allSections) {
     const parsed = parse(lines, anchor);
     mutate?.(anchor, parsed);
-    const { envelopes, parts, inventory, compositions, supportBindings, pinFaces, emitterFaces, miterJoints, voids, pieces, radial, radialZ, bores, ellipses, tangents, curveLayers, linearCurves, grids } = parsed;
+    const { envelopes, parts, inventory, compositions, supportBindings, pinFaces, emitterFaces, miterJoints, voids, pieces, shearsZ, radial, radialZ, bores, boresZ, ellipses, tangents, flatContacts, curveLayers, linearCurves, grids } = parsed;
     const provedMiterJoints = new Set();
     const provedTangents = new Set();
     const provedCurves = new Set();
@@ -786,6 +832,34 @@ function audit(allSections, mutate, onlyState) {
         }
       }
       const byId = new Map(stateParts.map((part) => [part.id, part]));
+      for (const [key, patch] of flatContacts) {
+        if (!key.startsWith(`${state}/`)) continue;
+        const guest = byId.get(patch.guest), host = byId.get(patch.host);
+        const axis = patch.axis === "-Y" ? "y" : "z";
+        const transverse = patch.axis === "-Y" ? "z" : "y";
+        /** @param {[number,number]} interval @param {[number,number]} bounds */
+        const inRange = (interval, bounds) => interval[0] >= bounds[0] - epsilon &&
+          interval[1] <= bounds[1] + epsilon;
+        let valid = !!guest && guest.contact.includes(patch.host) &&
+          Math.abs(guest[axis][0] - patch.plane) <= epsilon &&
+          inRange(patch.u, guest.x) && inRange(patch.v, guest[transverse]) &&
+          patch.u[1] - patch.u[0] > epsilon && patch.v[1] - patch.v[0] > epsilon;
+        if (patch.host === "wall") valid &&= patch.axis === "-Z";
+        else if (host) {
+          valid &&= Math.abs(host[axis][1] - patch.plane) <= epsilon &&
+            inRange(patch.u, host.x) && inRange(patch.v, host[transverse]);
+          if (patch.axis === "-Y" && host.shape === "cylinder") {
+            const radiusX = (host.x[1] - host.x[0]) / 2;
+            const radiusZ = (host.z[1] - host.z[0]) / 2;
+            const centerX = (host.x[0] + host.x[1]) / 2;
+            const centerZ = (host.z[0] + host.z[1]) / 2;
+            valid &&= Math.abs(radiusX - radiusZ) <= epsilon &&
+              patch.u.every((x) => patch.v.every((z) =>
+                Math.hypot(x - centerX, z - centerZ) < radiusX - epsilon));
+          }
+        } else valid = false;
+        if (!valid) errors.push(`${anchor}/${key}: flat contact has no finite common patch`);
+      }
       if (anchor === "recessed-light" && !emitterFaces.has(state))
         errors.push(`${anchor}/${state}: emitter face declaration absent`);
       const luminousId = emitterFaces.get(state);
@@ -840,6 +914,21 @@ function audit(allSections, mutate, onlyState) {
         }
         if (visited.size !== regions.length) errors.push(`${anchor}/${key}: piece union disconnected`);
       }
+      for (const [key, shear] of shearsZ) {
+        if (!key.startsWith(`${state}/`)) continue;
+        const host = byId.get(key.slice(state.length + 1));
+        const regions = pieces.get(key) || [];
+        const upper = regions.find((piece) =>
+          Math.abs(piece.y[0] - shear.y[0]) <= epsilon && Math.abs(piece.y[1] - shear.y[1]) <= epsilon);
+        if (!host || host.shape !== "curved" || !upper || !(shear.halfDepth > epsilon) ||
+          Math.abs(upper.z[0] - (shear.z[0] - shear.halfDepth)) > epsilon ||
+          Math.abs(upper.z[1] - (shear.z[1] + shear.halfDepth)) > epsilon ||
+          !regions.some((piece) => Math.abs(piece.y[1] - shear.y[0]) <= epsilon &&
+            Math.min(piece.x[1], upper?.x[1] || 0) - Math.max(piece.x[0], upper?.x[0] || 0) > epsilon &&
+            Math.min(piece.z[1], shear.z[0] + shear.halfDepth) -
+              Math.max(piece.z[0], shear.z[0] - shear.halfDepth) > epsilon))
+          errors.push(`${anchor}/${key}: shear-z bounds or lower finite contact differ`);
+      }
       for (const [key, radii] of radial) {
         if (!key.startsWith(`${state}/`)) continue;
         const host = byId.get(key.slice(state.length + 1));
@@ -867,6 +956,17 @@ function audit(allSections, mutate, onlyState) {
           bore.radius >= Math.min(host.x[1] - host.x[0], host.z[1] - host.z[0]) / 2 - epsilon ||
           bore.y[0] < host.y[0] - epsilon || bore.y[1] > host.y[1] + epsilon)
           errors.push(`${anchor}/${key}: bore is not a contained open cavity`);
+      }
+      for (const [key, bore] of boresZ) {
+        if (!key.startsWith(`${state}/`)) continue;
+        const host = byId.get(key.slice(state.length + 1));
+        if (!host || host.shape !== "hollow" || bore.radius <= 0 ||
+          bore.centerX - bore.radius <= host.x[0] + epsilon ||
+          bore.centerX + bore.radius >= host.x[1] - epsilon ||
+          bore.centerY - bore.radius <= host.y[0] + epsilon ||
+          bore.centerY + bore.radius >= host.y[1] - epsilon ||
+          bore.z[0] < host.z[0] - epsilon || bore.z[1] > host.z[1] + epsilon)
+          errors.push(`${anchor}/${key}: bore-z is not a contained circular cavity`);
       }
       for (const [key, ellipse] of ellipses) {
         if (!key.startsWith(`${state}/`)) continue;
@@ -942,7 +1042,7 @@ function audit(allSections, mutate, onlyState) {
         for (const target of part.contact) {
           const adjacent = byId.get(target);
           if (adjacent) {
-            if (!actualContact(part, adjacent, radial, radialZ, voids, pieces, provedTangents, provedCurves, provedLinear, plant.contacts))
+            if (!actualContact(part, adjacent, radial, radialZ, boresZ, voids, pieces, provedTangents, provedCurves, provedLinear, plant.contacts))
               errors.push(`${anchor}/${state}/${part.id}: no face contact with ${target}`);
           } else if (target === "ground" || target === "support" || /^support@[\d.]+$/.test(target)) {
             const height = target.startsWith("support@") ? Number(target.slice(8)) : 0;
@@ -959,7 +1059,7 @@ function audit(allSections, mutate, onlyState) {
       }
       for (let i = 0; i < stateParts.length; i++) for (let j = i + 1; j < stateParts.length; j++) {
         const a = stateParts[i], b = stateParts[j], extent = overlap(a, b);
-        if (actualOverlap(a, b, radial, radialZ, voids, pieces, provedTangents, provedCurves, provedLinear, plant.nonOverlaps)) {
+        if (actualOverlap(a, b, radial, radialZ, boresZ, voids, pieces, provedTangents, provedCurves, provedLinear, plant.nonOverlaps)) {
           if (a.shape === "box" && b.shape === "box")
             errors.push(`${anchor}/${state}: ${a.id} intersects ${b.id} (${extent.join(" x ")})`);
           else {
@@ -993,6 +1093,7 @@ function audit(allSections, mutate, onlyState) {
     for (const key of radial.keys()) if (!parts.has(key)) errors.push(`${anchor}/${key}: radial declaration has no part`);
     for (const key of radialZ.keys()) if (!parts.has(key)) errors.push(`${anchor}/${key}: radial-z declaration has no part`);
     for (const key of bores.keys()) if (!parts.has(key)) errors.push(`${anchor}/${key}: bore has no part`);
+    for (const key of boresZ.keys()) if (!parts.has(key)) errors.push(`${anchor}/${key}: bore-z has no part`);
     for (const key of ellipses.keys()) if (!parts.has(key)) errors.push(`${anchor}/${key}: ellipse has no part`);
     for (const key of tangents.keys()) if (!provedTangents.has(key)) errors.push(`${anchor}/${key}: tangent proof was not discharged`);
     for (const key of curveLayers.keys()) if (!provedCurves.has(key)) errors.push(`${anchor}/${key}: curved layer proof was not discharged`);
@@ -1210,6 +1311,54 @@ if (require.main !== module) {
     if (!errors.some((error) => error.includes(expected)))
       throw Error(`${anchor}/${state}: mutation did not reach ${expected}: ${errors}`);
     results.push({ label: `${anchor}/${state} ${expected}`, caught: true });
+  }
+  const laundryBoreLines = sections().get("laundry-appliances");
+  if (!laundryBoreLines) throw Error("laundry circular bore fixture absent");
+  const laundryBoreSource = laundryBoreLines.join("\n");
+  const circularBore = "@bore-z washer: body, 0, 0.38, 0.19, 0.246..0.30";
+  if (!laundryBoreSource.includes(circularBore)) throw Error("laundry circular bore declaration absent");
+  for (const [label, replacement, expected] of [
+    ["laundry circular bore narrowed", "@bore-z washer: body, 0, 0.38, 0.17, 0.246..0.30", "needs shape intersection proof"],
+    ["laundry circular bore widened", "@bore-z washer: body, 0, 0.38, 0.21, 0.246..0.30", "no face contact"],
+    ["laundry circular bore removed", "", "needs shape intersection proof"],
+  ]) {
+    const errors = audit(new Map([["laundry-appliances", laundryBoreSource.replace(circularBore, replacement).split("\n")]])).errors;
+    if (!errors.some((error) => error.includes(expected)))
+      throw Error(`${label}: expected ${expected}, got ${errors}`);
+    results.push({ label, caught: true });
+  }
+  /** @type {Array<[string,string,string,(patch:FlatContact)=>void,string]>} */
+  const flatMutations = [
+    ["basin", "800", "800/tap-spout/tap-body", (patch) => { patch.u = [0.14, 0.17]; }, "no finite common patch"],
+    ["kitchen-island", "default", "default/tap-spout/tap-body", (patch) => { patch.plane += 0.001; }, "no finite common patch"],
+    ["shower", "default", "default/riser-bracket-1/wall", (patch) => { patch.v = [1.41, 1.47]; }, "no finite common patch"],
+    ["portable-lamps", "bedside-globe", "bedside-globe/globe/stem-short", (patch) => { patch.u = [-0.009, 0.009]; }, "no finite common patch"],
+  ];
+  for (const [anchor, state, key, change, expected] of flatMutations) {
+    const lines = sections().get(anchor);
+    if (!lines) throw Error(`${anchor}: flat-contact fixture owner absent`);
+    const errors = audit(new Map([[anchor, lines]]), (owner, parsed) => {
+      if (owner !== anchor) return;
+      const patch = parsed.flatContacts.get(key);
+      if (!patch) throw Error(`${anchor}/${key}: flat-contact fixture absent`);
+      change(patch);
+    }, state).errors;
+    if (!errors.some((error) => error.includes(expected)))
+      throw Error(`${anchor}/${key}: expected ${expected}, got ${errors}`);
+    results.push({ label: `${anchor}/${key} finite contact mutation`, caught: true });
+  }
+  {
+    const anchor = "dining-chair", state = "default", lines = sections().get(anchor);
+    if (!lines) throw Error(`${anchor}: shear fixture owner absent`);
+    const errors = audit(new Map([[anchor, lines]]), (owner, parsed) => {
+      if (owner !== anchor) return;
+      const shear = parsed.shearsZ.get("default/leg-0");
+      if (!shear) throw Error(`${anchor}: shear fixture declaration absent`);
+      shear.z[1] += 0.01;
+    }, state).errors;
+    if (!errors.some((error) => error.includes("shear-z bounds")))
+      throw Error(`${anchor}: shear mutation remained green: ${errors}`);
+    results.push({ label: `${anchor} shear-z endpoint mutation`, caught: true });
   }
   const plantSource = fs.readFileSync(path.join(root, "docs/models/004-decor-and-fixtures.md"), "utf8");
   if (!plantSource.includes("0.18, 0.28, 0.60, 0.80, 1.10m")) throw Error("plant prose mutation source absent");
