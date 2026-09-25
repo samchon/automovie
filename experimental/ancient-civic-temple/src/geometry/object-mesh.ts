@@ -6,7 +6,7 @@
 import type { IAutoMovieMesh, IAutoMovieModel, IAutoMovieVector3 } from "@automovie/interface";
 
 type Point = IAutoMovieVector3;
-type Buffer = { positions: number[]; indices: number[]; uvs: number[] };
+type Buffer = { positions: number[]; indices: number[]; normals: number[]; uvs: number[] };
 const point = (x: number, y: number, z: number): Point => ({ x, y, z });
 
 export class ObjectMesh {
@@ -15,7 +15,7 @@ export class ObjectMesh {
   private buffer(name: string): Buffer {
     let result = this.parts.get(name);
     if (result === undefined) {
-      result = { positions: [], indices: [], uvs: [] };
+      result = { positions: [], indices: [], normals: [], uvs: [] };
       this.parts.set(name, result);
     }
     return result;
@@ -29,6 +29,8 @@ export class ObjectMesh {
     const nx = (b.y-a.y)*(c.z-a.z)-(b.z-a.z)*(c.y-a.y);
     const ny = (b.z-a.z)*(c.x-a.x)-(b.x-a.x)*(c.z-a.z);
     const nz = (b.x-a.x)*(c.y-a.y)-(b.y-a.y)*(c.x-a.x);
+    const magnitude = Math.hypot(nx, ny, nz);
+    if (!(magnitude > 1e-12)) throw new Error(`${name}: 퇴화된 면은 법선을 낼 수 없습니다.`);
     const projected = (v: Point): readonly [number, number] => {
       if (Math.abs(ny) >= Math.abs(nx) && Math.abs(ny) >= Math.abs(nz))
         return ny >= 0 ? [v.x, -v.z] : [v.x, v.z];
@@ -38,6 +40,7 @@ export class ObjectMesh {
     for (let i = 0; i < vertices.length; ++i) {
       const [u, v] = coordinates?.[i] ?? projected(vertices[i]!);
       buffer.uvs.push(u, v);
+      buffer.normals.push(nx / magnitude, ny / magnitude, nz / magnitude);
     }
     for (let i = 1; i < vertices.length - 1; ++i) buffer.indices.push(first, first + i, first + i + 1);
   }
@@ -164,7 +167,8 @@ export class ObjectMesh {
     return {
       id, name, origin: "generated", skeleton: null, body: null, asset: null, materials: [],
       parts: [...this.parts].map(([part, buffer]) => {
-        const mesh: IAutoMovieMesh = { positions: buffer.positions, indices: buffer.indices, normals: null, uvs: buffer.uvs, skin: null };
+        const mesh: IAutoMovieMesh = { positions: buffer.positions, indices: buffer.indices,
+          normals: buffer.normals, uvs: buffer.uvs, skin: null };
         return { id: part, name: null, material: null, attachedBone: null, transform: null,
           geometry: { type: "mesh" as const, mesh } };
       }),

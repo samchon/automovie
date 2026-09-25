@@ -197,9 +197,25 @@ void test("all object parts emit finite metre UV0 and every placement resolves",
       const mesh = part.geometry.mesh;
       assert.ok(mesh.positions.length > 0 && mesh.positions.length % 3 === 0);
       assert.equal(mesh.uvs?.length, mesh.positions.length / 3 * 2);
+      assert.equal(mesh.normals?.length, mesh.positions.length, `${model.id}/${part.id} normals`);
       assert.ok(mesh.positions.every(Number.isFinite));
       assert.ok(mesh.uvs?.every(Number.isFinite));
+      assert.ok(mesh.normals?.every(Number.isFinite));
+      for (let i = 0; i < mesh.normals!.length; i += 3)
+        assert.ok(Math.abs(Math.hypot(mesh.normals![i]!, mesh.normals![i + 1]!, mesh.normals![i + 2]!) - 1) < 1e-9);
       assert.ok(mesh.indices?.every((i) => Number.isInteger(i) && i >= 0 && i < mesh.positions.length / 3));
+      for (let i = 0; i < mesh.indices!.length; i += 3) {
+        const a = mesh.indices![i]! * 3, b = mesh.indices![i + 1]! * 3, c = mesh.indices![i + 2]! * 3;
+        const p = mesh.positions;
+        const ab = [p[b]! - p[a]!, p[b + 1]! - p[a + 1]!, p[b + 2]! - p[a + 2]!];
+        const ac = [p[c]! - p[a]!, p[c + 1]! - p[a + 1]!, p[c + 2]! - p[a + 2]!];
+        const face = [ab[1]! * ac[2]! - ab[2]! * ac[1]!,
+          ab[2]! * ac[0]! - ab[0]! * ac[2]!, ab[0]! * ac[1]! - ab[1]! * ac[0]!];
+        const area = Math.hypot(...face);
+        if (area > 1e-10)
+          assert.ok(face.reduce((sum, value, axis) => sum + value * mesh.normals![a + axis]!, 0) > 0,
+            `${model.id}/${part.id}: normal opposes triangle ${i / 3}`);
+      }
     }
   }
   const placements = TempleObjectInstances.placements();

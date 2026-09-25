@@ -3,13 +3,13 @@ import type { IAutoMovieModel, IAutoMovieVector3 } from "@automovie/interface";
 
 type Point = IAutoMovieVector3;
 type Part = IAutoMovieModel["parts"][number];
-type Buffer = { positions: number[]; indices: number[]; uvs: number[] };
+type Buffer = { positions: number[]; indices: number[]; normals: number[]; uvs: number[] };
 const point = (x: number, y: number, z: number): Point => ({ x, y, z });
 
 export const jarRackBoardParts = (): [Part, Part] => {
   const buffers = new Map<string, Buffer>([
-    ["top", { positions: [], indices: [], uvs: [] }],
-    ["well", { positions: [], indices: [], uvs: [] }],
+    ["top", { positions: [], indices: [], normals: [], uvs: [] }],
+    ["well", { positions: [], indices: [], normals: [], uvs: [] }],
   ]);
   const face = (name: "top" | "well", vertices: Point[], normal: Point): void => {
     const buffer = buffers.get(name)!;
@@ -21,8 +21,10 @@ export const jarRackBoardParts = (): [Part, Part] => {
     const offset = buffer.positions.length / 3;
     for (const v of vertices) {
       buffer.positions.push(v.x, v.y, v.z);
-      const uv = Math.abs(normal.y) > 0.5 ? [v.x, v.z]
-        : Math.abs(normal.x) > 0.5 ? [v.z, v.y] : [v.x, v.y];
+      buffer.normals.push(normal.x, normal.y, normal.z);
+      const uv = Math.abs(normal.y) > 0.5 ? [v.x, normal.y > 0 ? -v.z : v.z]
+        : Math.abs(normal.x) > 0.5 ? [normal.x > 0 ? -v.z : v.z, v.y]
+          : [normal.z > 0 ? v.x : -v.x, v.y];
       buffer.uvs.push(uv[0]!, uv[1]!);
     }
     for (let i = 1; i < vertices.length-1; ++i) buffer.indices.push(offset, offset+i, offset+i+1);
@@ -88,7 +90,7 @@ export const jarRackBoardParts = (): [Part, Part] => {
     const buffer = buffers.get(id)!;
     return { id, name: null, material: null, attachedBone: null, transform: null,
       geometry: { type: "mesh", mesh: { positions: buffer.positions, indices: buffer.indices,
-        normals: null, uvs: buffer.uvs, skin: null } } };
+        normals: buffer.normals, uvs: buffer.uvs, skin: null } } };
   };
   return [part("top"), part("well")];
 };
