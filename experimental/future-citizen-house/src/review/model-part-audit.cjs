@@ -993,8 +993,8 @@ if (process.argv.includes("--fixture")) {
   for (const [label, before, after] of [
     ["cabinet prose island door clearance changed", "y=0.101..0.849", "y=0.101..0.850"],
     ["cabinet measured part name changed",
-      "| @part | bench-base/1150x440x480/delivered | back |",
-      "| @part | bench-base/1150x440x480/delivered | back-damaged |"]
+      "| @part | bench-base/1150x440x480/closed | back |",
+      "| @part | bench-base/1150x440x480/closed | back-damaged |"]
   ]) {
     if (!cabinetSource.includes(before)) throw Error(`${label}: mutation source absent`);
     let caught = false;

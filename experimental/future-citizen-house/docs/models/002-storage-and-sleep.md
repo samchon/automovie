@@ -16,7 +16,7 @@ ref04 책상 왼쪽 벽붙박이 선반의 가로 책판과 목재 측판 읽힘
 
 일반형 `open` 검사 상태에서 각 닫힌 문 사각형의 X 경계를 `[x_i,x_i+L]`, 앞뒤를 `[D/2−0.018,D/2]`, 힌지를 `(h_x,h_z)`라 둔다. 짝수 문은 `x'=h_x−(z−h_z), z'=h_z+(x−h_x)`, 홀수 문은 `x'=h_x+(z−h_z), z'=h_z−(x−h_x)`로 90° 돌린다. 그러면 외함과 모든 열린 문의 합집합 AABB는 일반형 `x=±W/2,y=0..H,z=−D/2..D/2+L−0.022`이고 `wall`만 z 최소가 `−D/2−0.025`다. 여기서 `L=(W−(n+1)×0.003)/n`이다. 섬 `open`은 다섯 서비스 문 각각의 −Z 경계에서 0.009m 안쪽인 `(h_x=−0.427,h_z)`를 축으로 `x'=h_x−(z−h_z),z'=h_z+(x−h_x)`로 돌려 `x=−0.9432..+0.440,y=0..0.87,z=±1.325m`를 낸다. 이 값은 문 부피와 외함의 합집합이며 회전 중간 경로나 손잡이 간섭은 `unverified`다.
 
-부품 표는 아래 명명된 계측 생산자가 이 H2의 수치와 허용 variant를 입력으로 결정론적으로 만든다. `@envelope`과 `@part`의 모든 행은 국소 m 좌표이며 `@void`와 `@piece`는 판 절삭과 접합을 기록한다. 생산자 `src/review/model-cabinet-producer.cjs`는 생성 블록을 수식과 정확히 대조하고 외함·힌지·서랍·섬 문에 관한 산문 단서를 별도로 검사한다.
+부품 표는 아래 명명된 계측 생산자가 이 H2의 수치와 허용 variant를 입력으로 결정론적으로 만든다. `@envelope`과 `@part`의 상태 키는 호출 가능한 `cabinet/<형상형>/<폭-mm>x<높이-mm>x<깊이-mm>/<closed|open>` ID와 정확히 같으며 행은 국소 m 좌표다. `open-shelf`는 `open`만 갖고 나머지 납품 변종은 `closed`이며 힌지가 있는 다섯 형상형에 한해 같은 치수 토큰의 `open` 검사 상태를 추가한다. `@void`와 `@piece`는 판 절삭과 접합을 기록한다. 생산자 `src/review/model-cabinet-producer.cjs`는 생성 블록을 수식과 정확히 대조하고 외함·힌지·서랍·섬 문에 관한 산문 단서를 별도로 검사한다.
 
 섬 서비스 하단 고정띠는 x=−0.440..−0.418,y=0.080..0.101,z=−1.307..+1.307이고 상단 고정띠는 같은 X/Z에서 y=0.849..0.870이다. 서비스 문은 이 두 띠 사이에 있고 각 service hinge는 x=−0.435..−0.418에서 축 barrel과 후면 연결편으로 분리되어 끝판 또는 service-stile에 면 접촉한다. `wall`의 toe 없는 전면 하단 프레임은 x=±W/2,y=0..0.083,z=D/2−0.023..D/2다. 이 고정띠와 프레임은 각각 `service-strip-bottom/top`과 `fixed-front-bottom` 안정 주소를 가진다.
 
@@ -24,1677 +24,1677 @@ ref04 책상 왼쪽 벽붙박이 선반의 가로 책판과 목재 측판 읽힘
 @cabinet-variants: bench-base/1150x440x480/closed, island-base/880x870x2650/closed, kitchen-base/2900x870x620/closed, media/2000x440x350/closed, nightstand/500x460x460/closed, open-shelf/1100x2600x500/open, open-shelf/1550x2500x500/open, open-shelf/600x1100x380/open, open-shelf/750x1200x400/open, open-shelf/850x2400x450/open, open-shelf/950x1350x250/open, service/1100x2400x560/closed, service/640x840x600/closed, tall/1300x2650x600/closed, tall/1400x2600x540/closed, tall/2720x2650x600/closed, tall/520x2250x520/closed, tall/600x2300x500/closed, tall/900x2650x600/closed, vanity/1000x800x480/closed, vanity/800x800x480/closed, wall/2900x980x360/closed
 
 <!-- @generated-cabinet-parts:start -->
-@inventory bench-base/1150x440x480/delivered: back, bottom, top, side-left, side-right, toe, shelf-1, stile-1, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1
+@inventory bench-base/1150x440x480/closed: back, bottom, top, side-left, side-right, toe, shelf-1, stile-1, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1
 
-@void bench-base/1150x440x480/delivered: shelf-1, -0.009..0.009, 0.211..0.229, 0.199..0.217
-@void bench-base/1150x440x480/delivered: door-0, -0.567..-0.551, 0.14..0.18, 0.222..0.239
-@void bench-base/1150x440x480/delivered: door-0, -0.567..-0.551, 0.26..0.3, 0.222..0.239
-@void bench-base/1150x440x480/delivered: door-0, -0.0625..-0.0505, 0.1977..0.3577, 0.224..0.24
-@void bench-base/1150x440x480/delivered: door-1, 0.551..0.567, 0.14..0.18, 0.222..0.239
-@void bench-base/1150x440x480/delivered: door-1, 0.551..0.567, 0.26..0.3, 0.222..0.239
-@void bench-base/1150x440x480/delivered: door-1, 0.0505..0.0625, 0.1977..0.3577, 0.224..0.24
-@piece bench-base/1150x440x480/delivered: hinge-0, -0.567..-0.551, 0.14..0.18, 0.217..0.222
-@piece bench-base/1150x440x480/delivered: hinge-0, -0.567..-0.551, 0.14..0.18, 0.222..0.239
-@piece bench-base/1150x440x480/delivered: hinge-1, -0.567..-0.551, 0.26..0.3, 0.217..0.222
-@piece bench-base/1150x440x480/delivered: hinge-1, -0.567..-0.551, 0.26..0.3, 0.222..0.239
-@piece bench-base/1150x440x480/delivered: hinge-2, 0.551..0.567, 0.14..0.18, 0.217..0.222
-@piece bench-base/1150x440x480/delivered: hinge-2, 0.551..0.567, 0.14..0.18, 0.222..0.239
-@piece bench-base/1150x440x480/delivered: hinge-3, 0.551..0.567, 0.26..0.3, 0.217..0.222
-@piece bench-base/1150x440x480/delivered: hinge-3, 0.551..0.567, 0.26..0.3, 0.222..0.239
+@void bench-base/1150x440x480/closed: shelf-1, -0.009..0.009, 0.211..0.229, 0.199..0.217
+@void bench-base/1150x440x480/closed: door-0, -0.567..-0.551, 0.14..0.18, 0.222..0.239
+@void bench-base/1150x440x480/closed: door-0, -0.567..-0.551, 0.26..0.3, 0.222..0.239
+@void bench-base/1150x440x480/closed: door-0, -0.0625..-0.0505, 0.1977..0.3577, 0.224..0.24
+@void bench-base/1150x440x480/closed: door-1, 0.551..0.567, 0.14..0.18, 0.222..0.239
+@void bench-base/1150x440x480/closed: door-1, 0.551..0.567, 0.26..0.3, 0.222..0.239
+@void bench-base/1150x440x480/closed: door-1, 0.0505..0.0625, 0.1977..0.3577, 0.224..0.24
+@piece bench-base/1150x440x480/closed: hinge-0, -0.567..-0.551, 0.14..0.18, 0.217..0.222
+@piece bench-base/1150x440x480/closed: hinge-0, -0.567..-0.551, 0.14..0.18, 0.222..0.239
+@piece bench-base/1150x440x480/closed: hinge-1, -0.567..-0.551, 0.26..0.3, 0.217..0.222
+@piece bench-base/1150x440x480/closed: hinge-1, -0.567..-0.551, 0.26..0.3, 0.222..0.239
+@piece bench-base/1150x440x480/closed: hinge-2, 0.551..0.567, 0.14..0.18, 0.217..0.222
+@piece bench-base/1150x440x480/closed: hinge-2, 0.551..0.567, 0.14..0.18, 0.222..0.239
+@piece bench-base/1150x440x480/closed: hinge-3, 0.551..0.567, 0.26..0.3, 0.217..0.222
+@piece bench-base/1150x440x480/closed: hinge-3, 0.551..0.567, 0.26..0.3, 0.222..0.239
 | kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| @envelope | bench-base/1150x440x480/delivered | * | bounds | -0.575..0.575 | 0..0.44 | -0.24..0.24 | - |
-| @part | bench-base/1150x440x480/delivered | back | box | -0.575..0.575 | 0.08..0.422 | -0.24..-0.228 | toe,bottom,top |
-| @part | bench-base/1150x440x480/delivered | bottom | box | -0.575..0.575 | 0.08..0.098 | -0.228..0.217 | back,side-left,side-right |
-| @part | bench-base/1150x440x480/delivered | top | box | -0.575..0.575 | 0.422..0.44 | -0.24..0.217 | back,side-left,side-right |
-| @part | bench-base/1150x440x480/delivered | side-left | box | -0.575..-0.557 | 0.098..0.422 | -0.228..0.217 | back,bottom,top |
-| @part | bench-base/1150x440x480/delivered | side-right | box | 0.557..0.575 | 0.098..0.422 | -0.228..0.217 | back,bottom,top |
-| @part | bench-base/1150x440x480/delivered | toe | box | -0.575..0.575 | 0..0.08 | -0.24..0.19 | ground,back,bottom |
-| @part | bench-base/1150x440x480/delivered | shelf-1 | box | -0.557..0.557 | 0.211..0.229 | -0.228..0.217 | side-left,side-right,back |
-| @part | bench-base/1150x440x480/delivered | stile-1 | box | -0.009..0.009 | 0.098..0.422 | 0.199..0.217 | bottom,top |
-| @part | bench-base/1150x440x480/delivered | door-0 | box | -0.572..-0.0015 | 0.083..0.437 | 0.222..0.24 | hinge-0,hinge-1 |
-| @part | bench-base/1150x440x480/delivered | hinge-0 | curved | -0.567..-0.551 | 0.14..0.18 | 0.217..0.239 | door-0,side-left |
-| @part | bench-base/1150x440x480/delivered | hinge-1 | curved | -0.567..-0.551 | 0.26..0.3 | 0.217..0.239 | door-0,side-left |
-| @part | bench-base/1150x440x480/delivered | handle-0 | box | -0.0625..-0.0505 | 0.1977..0.3577 | 0.224..0.24 | door-0 |
-| @part | bench-base/1150x440x480/delivered | door-1 | box | 0.0015..0.572 | 0.083..0.437 | 0.222..0.24 | hinge-2,hinge-3 |
-| @part | bench-base/1150x440x480/delivered | hinge-2 | curved | 0.551..0.567 | 0.14..0.18 | 0.217..0.239 | door-1,side-right |
-| @part | bench-base/1150x440x480/delivered | hinge-3 | curved | 0.551..0.567 | 0.26..0.3 | 0.217..0.239 | door-1,side-right |
-| @part | bench-base/1150x440x480/delivered | handle-1 | box | 0.0505..0.0625 | 0.1977..0.3577 | 0.224..0.24 | door-1 |
+| @envelope | bench-base/1150x440x480/closed | * | bounds | -0.575..0.575 | 0..0.44 | -0.24..0.24 | - |
+| @part | bench-base/1150x440x480/closed | back | box | -0.575..0.575 | 0.08..0.422 | -0.24..-0.228 | toe,bottom,top |
+| @part | bench-base/1150x440x480/closed | bottom | box | -0.575..0.575 | 0.08..0.098 | -0.228..0.217 | back,side-left,side-right |
+| @part | bench-base/1150x440x480/closed | top | box | -0.575..0.575 | 0.422..0.44 | -0.24..0.217 | back,side-left,side-right |
+| @part | bench-base/1150x440x480/closed | side-left | box | -0.575..-0.557 | 0.098..0.422 | -0.228..0.217 | back,bottom,top |
+| @part | bench-base/1150x440x480/closed | side-right | box | 0.557..0.575 | 0.098..0.422 | -0.228..0.217 | back,bottom,top |
+| @part | bench-base/1150x440x480/closed | toe | box | -0.575..0.575 | 0..0.08 | -0.24..0.19 | ground,back,bottom |
+| @part | bench-base/1150x440x480/closed | shelf-1 | box | -0.557..0.557 | 0.211..0.229 | -0.228..0.217 | side-left,side-right,back |
+| @part | bench-base/1150x440x480/closed | stile-1 | box | -0.009..0.009 | 0.098..0.422 | 0.199..0.217 | bottom,top |
+| @part | bench-base/1150x440x480/closed | door-0 | box | -0.572..-0.0015 | 0.083..0.437 | 0.222..0.24 | hinge-0,hinge-1 |
+| @part | bench-base/1150x440x480/closed | hinge-0 | curved | -0.567..-0.551 | 0.14..0.18 | 0.217..0.239 | door-0,side-left |
+| @part | bench-base/1150x440x480/closed | hinge-1 | curved | -0.567..-0.551 | 0.26..0.3 | 0.217..0.239 | door-0,side-left |
+| @part | bench-base/1150x440x480/closed | handle-0 | box | -0.0625..-0.0505 | 0.1977..0.3577 | 0.224..0.24 | door-0 |
+| @part | bench-base/1150x440x480/closed | door-1 | box | 0.0015..0.572 | 0.083..0.437 | 0.222..0.24 | hinge-2,hinge-3 |
+| @part | bench-base/1150x440x480/closed | hinge-2 | curved | 0.551..0.567 | 0.14..0.18 | 0.217..0.239 | door-1,side-right |
+| @part | bench-base/1150x440x480/closed | hinge-3 | curved | 0.551..0.567 | 0.26..0.3 | 0.217..0.239 | door-1,side-right |
+| @part | bench-base/1150x440x480/closed | handle-1 | box | 0.0505..0.0625 | 0.1977..0.3577 | 0.224..0.24 | door-1 |
 
-@inventory bench-base/1150x440x480/inspection-open: back, bottom, top, side-left, side-right, toe, shelf-1, stile-1, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1
+@inventory bench-base/1150x440x480/open: back, bottom, top, side-left, side-right, toe, shelf-1, stile-1, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1
 
-@void bench-base/1150x440x480/inspection-open: shelf-1, -0.009..0.009, 0.211..0.229, 0.199..0.217
-@void bench-base/1150x440x480/inspection-open: door-0, -0.567..-0.55, 0.14..0.18, 0.223..0.239
-@void bench-base/1150x440x480/inspection-open: door-0, -0.568..-0.55, 0.14..0.18, 0.218..0.239
-@void bench-base/1150x440x480/inspection-open: door-0, -0.567..-0.55, 0.26..0.3, 0.223..0.239
-@void bench-base/1150x440x480/inspection-open: door-0, -0.568..-0.55, 0.26..0.3, 0.218..0.239
-@void bench-base/1150x440x480/inspection-open: door-0, -0.568..-0.552, 0.1977..0.3577, 0.7275..0.7395
-@void bench-base/1150x440x480/inspection-open: door-1, 0.55..0.567, 0.14..0.18, 0.223..0.239
-@void bench-base/1150x440x480/inspection-open: door-1, 0.55..0.568, 0.14..0.18, 0.218..0.239
-@void bench-base/1150x440x480/inspection-open: door-1, 0.55..0.567, 0.26..0.3, 0.223..0.239
-@void bench-base/1150x440x480/inspection-open: door-1, 0.55..0.568, 0.26..0.3, 0.218..0.239
-@void bench-base/1150x440x480/inspection-open: door-1, 0.552..0.568, 0.1977..0.3577, 0.7275..0.7395
-@piece bench-base/1150x440x480/inspection-open: hinge-0, -0.567..-0.551, 0.14..0.18, 0.217..0.222
-@piece bench-base/1150x440x480/inspection-open: hinge-0, -0.567..-0.551, 0.14..0.18, 0.222..0.239
-@piece bench-base/1150x440x480/inspection-open: hinge-1, -0.567..-0.551, 0.26..0.3, 0.217..0.222
-@piece bench-base/1150x440x480/inspection-open: hinge-1, -0.567..-0.551, 0.26..0.3, 0.222..0.239
-@piece bench-base/1150x440x480/inspection-open: hinge-2, 0.551..0.567, 0.14..0.18, 0.217..0.222
-@piece bench-base/1150x440x480/inspection-open: hinge-2, 0.551..0.567, 0.14..0.18, 0.222..0.239
-@piece bench-base/1150x440x480/inspection-open: hinge-3, 0.551..0.567, 0.26..0.3, 0.217..0.222
-@piece bench-base/1150x440x480/inspection-open: hinge-3, 0.551..0.567, 0.26..0.3, 0.222..0.239
+@void bench-base/1150x440x480/open: shelf-1, -0.009..0.009, 0.211..0.229, 0.199..0.217
+@void bench-base/1150x440x480/open: door-0, -0.567..-0.55, 0.14..0.18, 0.223..0.239
+@void bench-base/1150x440x480/open: door-0, -0.568..-0.55, 0.14..0.18, 0.218..0.239
+@void bench-base/1150x440x480/open: door-0, -0.567..-0.55, 0.26..0.3, 0.223..0.239
+@void bench-base/1150x440x480/open: door-0, -0.568..-0.55, 0.26..0.3, 0.218..0.239
+@void bench-base/1150x440x480/open: door-0, -0.568..-0.552, 0.1977..0.3577, 0.7275..0.7395
+@void bench-base/1150x440x480/open: door-1, 0.55..0.567, 0.14..0.18, 0.223..0.239
+@void bench-base/1150x440x480/open: door-1, 0.55..0.568, 0.14..0.18, 0.218..0.239
+@void bench-base/1150x440x480/open: door-1, 0.55..0.567, 0.26..0.3, 0.223..0.239
+@void bench-base/1150x440x480/open: door-1, 0.55..0.568, 0.26..0.3, 0.218..0.239
+@void bench-base/1150x440x480/open: door-1, 0.552..0.568, 0.1977..0.3577, 0.7275..0.7395
+@piece bench-base/1150x440x480/open: hinge-0, -0.567..-0.551, 0.14..0.18, 0.217..0.222
+@piece bench-base/1150x440x480/open: hinge-0, -0.567..-0.551, 0.14..0.18, 0.222..0.239
+@piece bench-base/1150x440x480/open: hinge-1, -0.567..-0.551, 0.26..0.3, 0.217..0.222
+@piece bench-base/1150x440x480/open: hinge-1, -0.567..-0.551, 0.26..0.3, 0.222..0.239
+@piece bench-base/1150x440x480/open: hinge-2, 0.551..0.567, 0.14..0.18, 0.217..0.222
+@piece bench-base/1150x440x480/open: hinge-2, 0.551..0.567, 0.14..0.18, 0.222..0.239
+@piece bench-base/1150x440x480/open: hinge-3, 0.551..0.567, 0.26..0.3, 0.217..0.222
+@piece bench-base/1150x440x480/open: hinge-3, 0.551..0.567, 0.26..0.3, 0.222..0.239
 | kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| @envelope | bench-base/1150x440x480/inspection-open | * | bounds | -0.575..0.575 | 0..0.44 | -0.24..0.7885 | - |
-| @part | bench-base/1150x440x480/inspection-open | back | box | -0.575..0.575 | 0.08..0.422 | -0.24..-0.228 | toe,bottom,top |
-| @part | bench-base/1150x440x480/inspection-open | bottom | box | -0.575..0.575 | 0.08..0.098 | -0.228..0.217 | back,side-left,side-right |
-| @part | bench-base/1150x440x480/inspection-open | top | box | -0.575..0.575 | 0.422..0.44 | -0.24..0.217 | back,side-left,side-right |
-| @part | bench-base/1150x440x480/inspection-open | side-left | box | -0.575..-0.557 | 0.098..0.422 | -0.228..0.217 | back,bottom,top |
-| @part | bench-base/1150x440x480/inspection-open | side-right | box | 0.557..0.575 | 0.098..0.422 | -0.228..0.217 | back,bottom,top |
-| @part | bench-base/1150x440x480/inspection-open | toe | box | -0.575..0.575 | 0..0.08 | -0.24..0.19 | ground,back,bottom |
-| @part | bench-base/1150x440x480/inspection-open | shelf-1 | box | -0.557..0.557 | 0.211..0.229 | -0.228..0.217 | side-left,side-right,back |
-| @part | bench-base/1150x440x480/inspection-open | stile-1 | box | -0.009..0.009 | 0.098..0.422 | 0.199..0.217 | bottom,top |
-| @part | bench-base/1150x440x480/inspection-open | door-0 | box | -0.568..-0.55 | 0.083..0.437 | 0.218..0.7885 | hinge-0,hinge-1 |
-| @part | bench-base/1150x440x480/inspection-open | hinge-0 | curved | -0.567..-0.551 | 0.14..0.18 | 0.217..0.239 | door-0,side-left |
-| @part | bench-base/1150x440x480/inspection-open | hinge-1 | curved | -0.567..-0.551 | 0.26..0.3 | 0.217..0.239 | door-0,side-left |
-| @part | bench-base/1150x440x480/inspection-open | handle-0 | box | -0.568..-0.552 | 0.1977..0.3577 | 0.7275..0.7395 | door-0 |
-| @part | bench-base/1150x440x480/inspection-open | door-1 | box | 0.55..0.568 | 0.083..0.437 | 0.218..0.7885 | hinge-2,hinge-3 |
-| @part | bench-base/1150x440x480/inspection-open | hinge-2 | curved | 0.551..0.567 | 0.14..0.18 | 0.217..0.239 | door-1,side-right |
-| @part | bench-base/1150x440x480/inspection-open | hinge-3 | curved | 0.551..0.567 | 0.26..0.3 | 0.217..0.239 | door-1,side-right |
-| @part | bench-base/1150x440x480/inspection-open | handle-1 | box | 0.552..0.568 | 0.1977..0.3577 | 0.7275..0.7395 | door-1 |
+| @envelope | bench-base/1150x440x480/open | * | bounds | -0.575..0.575 | 0..0.44 | -0.24..0.7885 | - |
+| @part | bench-base/1150x440x480/open | back | box | -0.575..0.575 | 0.08..0.422 | -0.24..-0.228 | toe,bottom,top |
+| @part | bench-base/1150x440x480/open | bottom | box | -0.575..0.575 | 0.08..0.098 | -0.228..0.217 | back,side-left,side-right |
+| @part | bench-base/1150x440x480/open | top | box | -0.575..0.575 | 0.422..0.44 | -0.24..0.217 | back,side-left,side-right |
+| @part | bench-base/1150x440x480/open | side-left | box | -0.575..-0.557 | 0.098..0.422 | -0.228..0.217 | back,bottom,top |
+| @part | bench-base/1150x440x480/open | side-right | box | 0.557..0.575 | 0.098..0.422 | -0.228..0.217 | back,bottom,top |
+| @part | bench-base/1150x440x480/open | toe | box | -0.575..0.575 | 0..0.08 | -0.24..0.19 | ground,back,bottom |
+| @part | bench-base/1150x440x480/open | shelf-1 | box | -0.557..0.557 | 0.211..0.229 | -0.228..0.217 | side-left,side-right,back |
+| @part | bench-base/1150x440x480/open | stile-1 | box | -0.009..0.009 | 0.098..0.422 | 0.199..0.217 | bottom,top |
+| @part | bench-base/1150x440x480/open | door-0 | box | -0.568..-0.55 | 0.083..0.437 | 0.218..0.7885 | hinge-0,hinge-1 |
+| @part | bench-base/1150x440x480/open | hinge-0 | curved | -0.567..-0.551 | 0.14..0.18 | 0.217..0.239 | door-0,side-left |
+| @part | bench-base/1150x440x480/open | hinge-1 | curved | -0.567..-0.551 | 0.26..0.3 | 0.217..0.239 | door-0,side-left |
+| @part | bench-base/1150x440x480/open | handle-0 | box | -0.568..-0.552 | 0.1977..0.3577 | 0.7275..0.7395 | door-0 |
+| @part | bench-base/1150x440x480/open | door-1 | box | 0.55..0.568 | 0.083..0.437 | 0.218..0.7885 | hinge-2,hinge-3 |
+| @part | bench-base/1150x440x480/open | hinge-2 | curved | 0.551..0.567 | 0.14..0.18 | 0.217..0.239 | door-1,side-right |
+| @part | bench-base/1150x440x480/open | hinge-3 | curved | 0.551..0.567 | 0.26..0.3 | 0.217..0.239 | door-1,side-right |
+| @part | bench-base/1150x440x480/open | handle-1 | box | 0.552..0.568 | 0.1977..0.3577 | 0.7275..0.7395 | door-1 |
 
-@inventory island-base/880x870x2650/delivered: bottom, top, toe, end-negative, end-positive, dining-side, service-strip-bottom, service-strip-top, shelf-1, shelf-2, service-stile-1, service-stile-2, service-stile-3, service-stile-4, service-door-0, service-hinge-0, service-hinge-1, service-handle-0, service-door-1, service-hinge-2, service-hinge-3, service-handle-1, service-door-2, service-hinge-4, service-hinge-5, service-handle-2, service-door-3, service-hinge-6, service-hinge-7, service-handle-3, service-door-4, service-hinge-8, service-hinge-9, service-handle-4
+@inventory island-base/880x870x2650/closed: bottom, top, toe, end-negative, end-positive, dining-side, service-strip-bottom, service-strip-top, shelf-1, shelf-2, service-stile-1, service-stile-2, service-stile-3, service-stile-4, service-door-0, service-hinge-0, service-hinge-1, service-handle-0, service-door-1, service-hinge-2, service-hinge-3, service-handle-1, service-door-2, service-hinge-4, service-hinge-5, service-handle-2, service-door-3, service-hinge-6, service-hinge-7, service-handle-3, service-door-4, service-hinge-8, service-hinge-9, service-handle-4
 
-@void island-base/880x870x2650/delivered: top, -0.34..0.18, 0.852..0.87, 0.45..0.85
-@void island-base/880x870x2650/delivered: shelf-1, -0.418..-0.4, 0.294333..0.312333, -0.8028..-0.7848
-@void island-base/880x870x2650/delivered: shelf-2, -0.418..-0.4, 0.557667..0.575667, -0.8028..-0.7848
-@void island-base/880x870x2650/delivered: shelf-1, -0.418..-0.4, 0.294333..0.312333, -0.2736..-0.2556
-@void island-base/880x870x2650/delivered: shelf-2, -0.418..-0.4, 0.557667..0.575667, -0.2736..-0.2556
-@void island-base/880x870x2650/delivered: shelf-1, -0.418..-0.4, 0.294333..0.312333, 0.2556..0.2736
-@void island-base/880x870x2650/delivered: shelf-2, -0.418..-0.4, 0.557667..0.575667, 0.2556..0.2736
-@void island-base/880x870x2650/delivered: shelf-1, -0.418..-0.4, 0.294333..0.312333, 0.7848..0.8028
-@void island-base/880x870x2650/delivered: shelf-2, -0.418..-0.4, 0.557667..0.575667, 0.7848..0.8028
-@void island-base/880x870x2650/delivered: service-door-0, -0.435..-0.422, 0.14..0.18, -1.32..-1.304
-@void island-base/880x870x2650/delivered: service-door-0, -0.435..-0.422, 0.69..0.73, -1.32..-1.304
-@void island-base/880x870x2650/delivered: service-door-0, -0.44..-0.424, 0.4342..0.5942, -0.8568..-0.8448
-@void island-base/880x870x2650/delivered: service-door-1, -0.435..-0.422, 0.14..0.18, -0.7908..-0.7748
-@void island-base/880x870x2650/delivered: service-door-1, -0.435..-0.422, 0.69..0.73, -0.7908..-0.7748
-@void island-base/880x870x2650/delivered: service-door-1, -0.44..-0.424, 0.4342..0.5942, -0.3276..-0.3156
-@void island-base/880x870x2650/delivered: service-door-2, -0.435..-0.422, 0.14..0.18, -0.2616..-0.2456
-@void island-base/880x870x2650/delivered: service-door-2, -0.435..-0.422, 0.69..0.73, -0.2616..-0.2456
-@void island-base/880x870x2650/delivered: service-door-2, -0.44..-0.424, 0.4342..0.5942, 0.2016..0.2136
-@void island-base/880x870x2650/delivered: service-door-3, -0.435..-0.422, 0.14..0.18, 0.2676..0.2836
-@void island-base/880x870x2650/delivered: service-door-3, -0.435..-0.422, 0.69..0.73, 0.2676..0.2836
-@void island-base/880x870x2650/delivered: service-door-3, -0.44..-0.424, 0.4342..0.5942, 0.7308..0.7428
-@void island-base/880x870x2650/delivered: service-door-4, -0.435..-0.422, 0.14..0.18, 0.7968..0.8128
-@void island-base/880x870x2650/delivered: service-door-4, -0.435..-0.422, 0.69..0.73, 0.7968..0.8128
-@void island-base/880x870x2650/delivered: service-door-4, -0.44..-0.424, 0.4342..0.5942, 1.26..1.272
-@piece island-base/880x870x2650/delivered: service-hinge-0, -0.435..-0.422, 0.14..0.18, -1.32..-1.304
-@piece island-base/880x870x2650/delivered: service-hinge-0, -0.422..-0.418, 0.14..0.18, -1.32..-1.304
-@piece island-base/880x870x2650/delivered: service-hinge-1, -0.435..-0.422, 0.69..0.73, -1.32..-1.304
-@piece island-base/880x870x2650/delivered: service-hinge-1, -0.422..-0.418, 0.69..0.73, -1.32..-1.304
-@piece island-base/880x870x2650/delivered: service-hinge-2, -0.435..-0.422, 0.14..0.18, -0.7908..-0.7748
-@piece island-base/880x870x2650/delivered: service-hinge-2, -0.422..-0.418, 0.14..0.18, -0.7908..-0.7748
-@piece island-base/880x870x2650/delivered: service-hinge-3, -0.435..-0.422, 0.69..0.73, -0.7908..-0.7748
-@piece island-base/880x870x2650/delivered: service-hinge-3, -0.422..-0.418, 0.69..0.73, -0.7908..-0.7748
-@piece island-base/880x870x2650/delivered: service-hinge-4, -0.435..-0.422, 0.14..0.18, -0.2616..-0.2456
-@piece island-base/880x870x2650/delivered: service-hinge-4, -0.422..-0.418, 0.14..0.18, -0.2616..-0.2456
-@piece island-base/880x870x2650/delivered: service-hinge-5, -0.435..-0.422, 0.69..0.73, -0.2616..-0.2456
-@piece island-base/880x870x2650/delivered: service-hinge-5, -0.422..-0.418, 0.69..0.73, -0.2616..-0.2456
-@piece island-base/880x870x2650/delivered: service-hinge-6, -0.435..-0.422, 0.14..0.18, 0.2676..0.2836
-@piece island-base/880x870x2650/delivered: service-hinge-6, -0.422..-0.418, 0.14..0.18, 0.2676..0.2836
-@piece island-base/880x870x2650/delivered: service-hinge-7, -0.435..-0.422, 0.69..0.73, 0.2676..0.2836
-@piece island-base/880x870x2650/delivered: service-hinge-7, -0.422..-0.418, 0.69..0.73, 0.2676..0.2836
-@piece island-base/880x870x2650/delivered: service-hinge-8, -0.435..-0.422, 0.14..0.18, 0.7968..0.8128
-@piece island-base/880x870x2650/delivered: service-hinge-8, -0.422..-0.418, 0.14..0.18, 0.7968..0.8128
-@piece island-base/880x870x2650/delivered: service-hinge-9, -0.435..-0.422, 0.69..0.73, 0.7968..0.8128
-@piece island-base/880x870x2650/delivered: service-hinge-9, -0.422..-0.418, 0.69..0.73, 0.7968..0.8128
+@void island-base/880x870x2650/closed: top, -0.34..0.18, 0.852..0.87, 0.45..0.85
+@void island-base/880x870x2650/closed: shelf-1, -0.418..-0.4, 0.294333..0.312333, -0.8028..-0.7848
+@void island-base/880x870x2650/closed: shelf-2, -0.418..-0.4, 0.557667..0.575667, -0.8028..-0.7848
+@void island-base/880x870x2650/closed: shelf-1, -0.418..-0.4, 0.294333..0.312333, -0.2736..-0.2556
+@void island-base/880x870x2650/closed: shelf-2, -0.418..-0.4, 0.557667..0.575667, -0.2736..-0.2556
+@void island-base/880x870x2650/closed: shelf-1, -0.418..-0.4, 0.294333..0.312333, 0.2556..0.2736
+@void island-base/880x870x2650/closed: shelf-2, -0.418..-0.4, 0.557667..0.575667, 0.2556..0.2736
+@void island-base/880x870x2650/closed: shelf-1, -0.418..-0.4, 0.294333..0.312333, 0.7848..0.8028
+@void island-base/880x870x2650/closed: shelf-2, -0.418..-0.4, 0.557667..0.575667, 0.7848..0.8028
+@void island-base/880x870x2650/closed: service-door-0, -0.435..-0.422, 0.14..0.18, -1.32..-1.304
+@void island-base/880x870x2650/closed: service-door-0, -0.435..-0.422, 0.69..0.73, -1.32..-1.304
+@void island-base/880x870x2650/closed: service-door-0, -0.44..-0.424, 0.4342..0.5942, -0.8568..-0.8448
+@void island-base/880x870x2650/closed: service-door-1, -0.435..-0.422, 0.14..0.18, -0.7908..-0.7748
+@void island-base/880x870x2650/closed: service-door-1, -0.435..-0.422, 0.69..0.73, -0.7908..-0.7748
+@void island-base/880x870x2650/closed: service-door-1, -0.44..-0.424, 0.4342..0.5942, -0.3276..-0.3156
+@void island-base/880x870x2650/closed: service-door-2, -0.435..-0.422, 0.14..0.18, -0.2616..-0.2456
+@void island-base/880x870x2650/closed: service-door-2, -0.435..-0.422, 0.69..0.73, -0.2616..-0.2456
+@void island-base/880x870x2650/closed: service-door-2, -0.44..-0.424, 0.4342..0.5942, 0.2016..0.2136
+@void island-base/880x870x2650/closed: service-door-3, -0.435..-0.422, 0.14..0.18, 0.2676..0.2836
+@void island-base/880x870x2650/closed: service-door-3, -0.435..-0.422, 0.69..0.73, 0.2676..0.2836
+@void island-base/880x870x2650/closed: service-door-3, -0.44..-0.424, 0.4342..0.5942, 0.7308..0.7428
+@void island-base/880x870x2650/closed: service-door-4, -0.435..-0.422, 0.14..0.18, 0.7968..0.8128
+@void island-base/880x870x2650/closed: service-door-4, -0.435..-0.422, 0.69..0.73, 0.7968..0.8128
+@void island-base/880x870x2650/closed: service-door-4, -0.44..-0.424, 0.4342..0.5942, 1.26..1.272
+@piece island-base/880x870x2650/closed: service-hinge-0, -0.435..-0.422, 0.14..0.18, -1.32..-1.304
+@piece island-base/880x870x2650/closed: service-hinge-0, -0.422..-0.418, 0.14..0.18, -1.32..-1.304
+@piece island-base/880x870x2650/closed: service-hinge-1, -0.435..-0.422, 0.69..0.73, -1.32..-1.304
+@piece island-base/880x870x2650/closed: service-hinge-1, -0.422..-0.418, 0.69..0.73, -1.32..-1.304
+@piece island-base/880x870x2650/closed: service-hinge-2, -0.435..-0.422, 0.14..0.18, -0.7908..-0.7748
+@piece island-base/880x870x2650/closed: service-hinge-2, -0.422..-0.418, 0.14..0.18, -0.7908..-0.7748
+@piece island-base/880x870x2650/closed: service-hinge-3, -0.435..-0.422, 0.69..0.73, -0.7908..-0.7748
+@piece island-base/880x870x2650/closed: service-hinge-3, -0.422..-0.418, 0.69..0.73, -0.7908..-0.7748
+@piece island-base/880x870x2650/closed: service-hinge-4, -0.435..-0.422, 0.14..0.18, -0.2616..-0.2456
+@piece island-base/880x870x2650/closed: service-hinge-4, -0.422..-0.418, 0.14..0.18, -0.2616..-0.2456
+@piece island-base/880x870x2650/closed: service-hinge-5, -0.435..-0.422, 0.69..0.73, -0.2616..-0.2456
+@piece island-base/880x870x2650/closed: service-hinge-5, -0.422..-0.418, 0.69..0.73, -0.2616..-0.2456
+@piece island-base/880x870x2650/closed: service-hinge-6, -0.435..-0.422, 0.14..0.18, 0.2676..0.2836
+@piece island-base/880x870x2650/closed: service-hinge-6, -0.422..-0.418, 0.14..0.18, 0.2676..0.2836
+@piece island-base/880x870x2650/closed: service-hinge-7, -0.435..-0.422, 0.69..0.73, 0.2676..0.2836
+@piece island-base/880x870x2650/closed: service-hinge-7, -0.422..-0.418, 0.69..0.73, 0.2676..0.2836
+@piece island-base/880x870x2650/closed: service-hinge-8, -0.435..-0.422, 0.14..0.18, 0.7968..0.8128
+@piece island-base/880x870x2650/closed: service-hinge-8, -0.422..-0.418, 0.14..0.18, 0.7968..0.8128
+@piece island-base/880x870x2650/closed: service-hinge-9, -0.435..-0.422, 0.69..0.73, 0.7968..0.8128
+@piece island-base/880x870x2650/closed: service-hinge-9, -0.422..-0.418, 0.69..0.73, 0.7968..0.8128
 | kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| @envelope | island-base/880x870x2650/delivered | * | bounds | -0.44..0.44 | 0..0.87 | -1.325..1.325 | - |
-| @part | island-base/880x870x2650/delivered | bottom | box | -0.418..0.44 | 0.08..0.098 | -1.325..1.325 | toe,end-negative,end-positive |
-| @part | island-base/880x870x2650/delivered | top | box | -0.418..0.44 | 0.852..0.87 | -1.325..1.325 | end-negative,end-positive,dining-side |
-| @part | island-base/880x870x2650/delivered | toe | box | -0.44..0.44 | 0..0.08 | -1.325..1.275 | ground,bottom |
-| @part | island-base/880x870x2650/delivered | end-negative | box | -0.418..0.44 | 0.098..0.852 | -1.325..-1.307 | bottom,top,dining-side |
-| @part | island-base/880x870x2650/delivered | end-positive | box | -0.418..0.44 | 0.098..0.852 | 1.307..1.325 | bottom,top,dining-side |
-| @part | island-base/880x870x2650/delivered | dining-side | box | 0.422..0.44 | 0.098..0.852 | -1.307..1.307 | bottom,top,end-negative,end-positive |
-| @part | island-base/880x870x2650/delivered | service-strip-bottom | box | -0.44..-0.418 | 0.08..0.101 | -1.307..1.307 | toe,bottom |
-| @part | island-base/880x870x2650/delivered | service-strip-top | box | -0.44..-0.418 | 0.849..0.87 | -1.307..1.307 | top |
-| @part | island-base/880x870x2650/delivered | shelf-1 | box | -0.418..0.422 | 0.294333..0.312333 | -1.307..1.307 | end-negative,end-positive,dining-side |
-| @part | island-base/880x870x2650/delivered | shelf-2 | box | -0.418..0.422 | 0.557667..0.575667 | -1.307..1.307 | end-negative,end-positive,dining-side |
-| @part | island-base/880x870x2650/delivered | service-stile-1 | box | -0.418..-0.4 | 0.098..0.852 | -0.8028..-0.7848 | bottom,top |
-| @part | island-base/880x870x2650/delivered | service-stile-2 | box | -0.418..-0.4 | 0.098..0.852 | -0.2736..-0.2556 | bottom,top |
-| @part | island-base/880x870x2650/delivered | service-stile-3 | box | -0.418..-0.4 | 0.098..0.852 | 0.2556..0.2736 | bottom,top |
-| @part | island-base/880x870x2650/delivered | service-stile-4 | box | -0.418..-0.4 | 0.098..0.852 | 0.7848..0.8028 | bottom,top |
-| @part | island-base/880x870x2650/delivered | service-door-0 | box | -0.44..-0.422 | 0.101..0.849 | -1.321..-0.7958 | service-hinge-0,service-hinge-1 |
-| @part | island-base/880x870x2650/delivered | service-hinge-0 | curved | -0.435..-0.418 | 0.14..0.18 | -1.32..-1.304 | service-door-0,end-negative |
-| @part | island-base/880x870x2650/delivered | service-hinge-1 | curved | -0.435..-0.418 | 0.69..0.73 | -1.32..-1.304 | service-door-0,end-negative |
-| @part | island-base/880x870x2650/delivered | service-handle-0 | box | -0.44..-0.424 | 0.4342..0.5942 | -0.8568..-0.8448 | service-door-0 |
-| @part | island-base/880x870x2650/delivered | service-door-1 | box | -0.44..-0.422 | 0.101..0.849 | -0.7918..-0.2666 | service-hinge-2,service-hinge-3 |
-| @part | island-base/880x870x2650/delivered | service-hinge-2 | curved | -0.435..-0.418 | 0.14..0.18 | -0.7908..-0.7748 | service-door-1,service-stile-1 |
-| @part | island-base/880x870x2650/delivered | service-hinge-3 | curved | -0.435..-0.418 | 0.69..0.73 | -0.7908..-0.7748 | service-door-1,service-stile-1 |
-| @part | island-base/880x870x2650/delivered | service-handle-1 | box | -0.44..-0.424 | 0.4342..0.5942 | -0.3276..-0.3156 | service-door-1 |
-| @part | island-base/880x870x2650/delivered | service-door-2 | box | -0.44..-0.422 | 0.101..0.849 | -0.2626..0.2626 | service-hinge-4,service-hinge-5 |
-| @part | island-base/880x870x2650/delivered | service-hinge-4 | curved | -0.435..-0.418 | 0.14..0.18 | -0.2616..-0.2456 | service-door-2,service-stile-2 |
-| @part | island-base/880x870x2650/delivered | service-hinge-5 | curved | -0.435..-0.418 | 0.69..0.73 | -0.2616..-0.2456 | service-door-2,service-stile-2 |
-| @part | island-base/880x870x2650/delivered | service-handle-2 | box | -0.44..-0.424 | 0.4342..0.5942 | 0.2016..0.2136 | service-door-2 |
-| @part | island-base/880x870x2650/delivered | service-door-3 | box | -0.44..-0.422 | 0.101..0.849 | 0.2666..0.7918 | service-hinge-6,service-hinge-7 |
-| @part | island-base/880x870x2650/delivered | service-hinge-6 | curved | -0.435..-0.418 | 0.14..0.18 | 0.2676..0.2836 | service-door-3,service-stile-3 |
-| @part | island-base/880x870x2650/delivered | service-hinge-7 | curved | -0.435..-0.418 | 0.69..0.73 | 0.2676..0.2836 | service-door-3,service-stile-3 |
-| @part | island-base/880x870x2650/delivered | service-handle-3 | box | -0.44..-0.424 | 0.4342..0.5942 | 0.7308..0.7428 | service-door-3 |
-| @part | island-base/880x870x2650/delivered | service-door-4 | box | -0.44..-0.422 | 0.101..0.849 | 0.7958..1.321 | service-hinge-8,service-hinge-9 |
-| @part | island-base/880x870x2650/delivered | service-hinge-8 | curved | -0.435..-0.418 | 0.14..0.18 | 0.7968..0.8128 | service-door-4,service-stile-4 |
-| @part | island-base/880x870x2650/delivered | service-hinge-9 | curved | -0.435..-0.418 | 0.69..0.73 | 0.7968..0.8128 | service-door-4,service-stile-4 |
-| @part | island-base/880x870x2650/delivered | service-handle-4 | box | -0.44..-0.424 | 0.4342..0.5942 | 1.26..1.272 | service-door-4 |
+| @envelope | island-base/880x870x2650/closed | * | bounds | -0.44..0.44 | 0..0.87 | -1.325..1.325 | - |
+| @part | island-base/880x870x2650/closed | bottom | box | -0.418..0.44 | 0.08..0.098 | -1.325..1.325 | toe,end-negative,end-positive |
+| @part | island-base/880x870x2650/closed | top | box | -0.418..0.44 | 0.852..0.87 | -1.325..1.325 | end-negative,end-positive,dining-side |
+| @part | island-base/880x870x2650/closed | toe | box | -0.44..0.44 | 0..0.08 | -1.325..1.275 | ground,bottom |
+| @part | island-base/880x870x2650/closed | end-negative | box | -0.418..0.44 | 0.098..0.852 | -1.325..-1.307 | bottom,top,dining-side |
+| @part | island-base/880x870x2650/closed | end-positive | box | -0.418..0.44 | 0.098..0.852 | 1.307..1.325 | bottom,top,dining-side |
+| @part | island-base/880x870x2650/closed | dining-side | box | 0.422..0.44 | 0.098..0.852 | -1.307..1.307 | bottom,top,end-negative,end-positive |
+| @part | island-base/880x870x2650/closed | service-strip-bottom | box | -0.44..-0.418 | 0.08..0.101 | -1.307..1.307 | toe,bottom |
+| @part | island-base/880x870x2650/closed | service-strip-top | box | -0.44..-0.418 | 0.849..0.87 | -1.307..1.307 | top |
+| @part | island-base/880x870x2650/closed | shelf-1 | box | -0.418..0.422 | 0.294333..0.312333 | -1.307..1.307 | end-negative,end-positive,dining-side |
+| @part | island-base/880x870x2650/closed | shelf-2 | box | -0.418..0.422 | 0.557667..0.575667 | -1.307..1.307 | end-negative,end-positive,dining-side |
+| @part | island-base/880x870x2650/closed | service-stile-1 | box | -0.418..-0.4 | 0.098..0.852 | -0.8028..-0.7848 | bottom,top |
+| @part | island-base/880x870x2650/closed | service-stile-2 | box | -0.418..-0.4 | 0.098..0.852 | -0.2736..-0.2556 | bottom,top |
+| @part | island-base/880x870x2650/closed | service-stile-3 | box | -0.418..-0.4 | 0.098..0.852 | 0.2556..0.2736 | bottom,top |
+| @part | island-base/880x870x2650/closed | service-stile-4 | box | -0.418..-0.4 | 0.098..0.852 | 0.7848..0.8028 | bottom,top |
+| @part | island-base/880x870x2650/closed | service-door-0 | box | -0.44..-0.422 | 0.101..0.849 | -1.321..-0.7958 | service-hinge-0,service-hinge-1 |
+| @part | island-base/880x870x2650/closed | service-hinge-0 | curved | -0.435..-0.418 | 0.14..0.18 | -1.32..-1.304 | service-door-0,end-negative |
+| @part | island-base/880x870x2650/closed | service-hinge-1 | curved | -0.435..-0.418 | 0.69..0.73 | -1.32..-1.304 | service-door-0,end-negative |
+| @part | island-base/880x870x2650/closed | service-handle-0 | box | -0.44..-0.424 | 0.4342..0.5942 | -0.8568..-0.8448 | service-door-0 |
+| @part | island-base/880x870x2650/closed | service-door-1 | box | -0.44..-0.422 | 0.101..0.849 | -0.7918..-0.2666 | service-hinge-2,service-hinge-3 |
+| @part | island-base/880x870x2650/closed | service-hinge-2 | curved | -0.435..-0.418 | 0.14..0.18 | -0.7908..-0.7748 | service-door-1,service-stile-1 |
+| @part | island-base/880x870x2650/closed | service-hinge-3 | curved | -0.435..-0.418 | 0.69..0.73 | -0.7908..-0.7748 | service-door-1,service-stile-1 |
+| @part | island-base/880x870x2650/closed | service-handle-1 | box | -0.44..-0.424 | 0.4342..0.5942 | -0.3276..-0.3156 | service-door-1 |
+| @part | island-base/880x870x2650/closed | service-door-2 | box | -0.44..-0.422 | 0.101..0.849 | -0.2626..0.2626 | service-hinge-4,service-hinge-5 |
+| @part | island-base/880x870x2650/closed | service-hinge-4 | curved | -0.435..-0.418 | 0.14..0.18 | -0.2616..-0.2456 | service-door-2,service-stile-2 |
+| @part | island-base/880x870x2650/closed | service-hinge-5 | curved | -0.435..-0.418 | 0.69..0.73 | -0.2616..-0.2456 | service-door-2,service-stile-2 |
+| @part | island-base/880x870x2650/closed | service-handle-2 | box | -0.44..-0.424 | 0.4342..0.5942 | 0.2016..0.2136 | service-door-2 |
+| @part | island-base/880x870x2650/closed | service-door-3 | box | -0.44..-0.422 | 0.101..0.849 | 0.2666..0.7918 | service-hinge-6,service-hinge-7 |
+| @part | island-base/880x870x2650/closed | service-hinge-6 | curved | -0.435..-0.418 | 0.14..0.18 | 0.2676..0.2836 | service-door-3,service-stile-3 |
+| @part | island-base/880x870x2650/closed | service-hinge-7 | curved | -0.435..-0.418 | 0.69..0.73 | 0.2676..0.2836 | service-door-3,service-stile-3 |
+| @part | island-base/880x870x2650/closed | service-handle-3 | box | -0.44..-0.424 | 0.4342..0.5942 | 0.7308..0.7428 | service-door-3 |
+| @part | island-base/880x870x2650/closed | service-door-4 | box | -0.44..-0.422 | 0.101..0.849 | 0.7958..1.321 | service-hinge-8,service-hinge-9 |
+| @part | island-base/880x870x2650/closed | service-hinge-8 | curved | -0.435..-0.418 | 0.14..0.18 | 0.7968..0.8128 | service-door-4,service-stile-4 |
+| @part | island-base/880x870x2650/closed | service-hinge-9 | curved | -0.435..-0.418 | 0.69..0.73 | 0.7968..0.8128 | service-door-4,service-stile-4 |
+| @part | island-base/880x870x2650/closed | service-handle-4 | box | -0.44..-0.424 | 0.4342..0.5942 | 1.26..1.272 | service-door-4 |
 
-@inventory island-base/880x870x2650/inspection-open: bottom, top, toe, end-negative, end-positive, dining-side, service-strip-bottom, service-strip-top, shelf-1, shelf-2, service-stile-1, service-stile-2, service-stile-3, service-stile-4, service-door-0, service-hinge-0, service-hinge-1, service-handle-0, service-door-1, service-hinge-2, service-hinge-3, service-handle-1, service-door-2, service-hinge-4, service-hinge-5, service-handle-2, service-door-3, service-hinge-6, service-hinge-7, service-handle-3, service-door-4, service-hinge-8, service-hinge-9, service-handle-4
+@inventory island-base/880x870x2650/open: bottom, top, toe, end-negative, end-positive, dining-side, service-strip-bottom, service-strip-top, shelf-1, shelf-2, service-stile-1, service-stile-2, service-stile-3, service-stile-4, service-door-0, service-hinge-0, service-hinge-1, service-handle-0, service-door-1, service-hinge-2, service-hinge-3, service-handle-1, service-door-2, service-hinge-4, service-hinge-5, service-handle-2, service-door-3, service-hinge-6, service-hinge-7, service-handle-3, service-door-4, service-hinge-8, service-hinge-9, service-handle-4
 
-@void island-base/880x870x2650/inspection-open: top, -0.34..0.18, 0.852..0.87, 0.45..0.85
-@void island-base/880x870x2650/inspection-open: shelf-1, -0.418..-0.4, 0.294333..0.312333, -0.8028..-0.7848
-@void island-base/880x870x2650/inspection-open: shelf-2, -0.418..-0.4, 0.557667..0.575667, -0.8028..-0.7848
-@void island-base/880x870x2650/inspection-open: shelf-1, -0.418..-0.4, 0.294333..0.312333, -0.2736..-0.2556
-@void island-base/880x870x2650/inspection-open: shelf-2, -0.418..-0.4, 0.557667..0.575667, -0.2736..-0.2556
-@void island-base/880x870x2650/inspection-open: shelf-1, -0.418..-0.4, 0.294333..0.312333, 0.2556..0.2736
-@void island-base/880x870x2650/inspection-open: shelf-2, -0.418..-0.4, 0.557667..0.575667, 0.2556..0.2736
-@void island-base/880x870x2650/inspection-open: shelf-1, -0.418..-0.4, 0.294333..0.312333, 0.7848..0.8028
-@void island-base/880x870x2650/inspection-open: shelf-2, -0.418..-0.4, 0.557667..0.575667, 0.7848..0.8028
-@void island-base/880x870x2650/inspection-open: service-door-0, -0.435..-0.419, 0.14..0.18, -1.32..-1.307
-@void island-base/880x870x2650/inspection-open: service-door-0, -0.46..-0.418, 0.14..0.18, -1.325..-1.307
-@void island-base/880x870x2650/inspection-open: service-door-0, -0.435..-0.419, 0.69..0.73, -1.32..-1.307
-@void island-base/880x870x2650/inspection-open: service-door-0, -0.46..-0.418, 0.69..0.73, -1.325..-1.307
-@void island-base/880x870x2650/inspection-open: service-door-0, -0.8942..-0.8822, 0.4342..0.5942, -1.325..-1.309
-@void island-base/880x870x2650/inspection-open: service-door-1, -0.435..-0.419, 0.14..0.18, -0.7908..-0.7778
-@void island-base/880x870x2650/inspection-open: service-door-1, -0.46..-0.418, 0.14..0.18, -0.7958..-0.7778
-@void island-base/880x870x2650/inspection-open: service-door-1, -0.435..-0.419, 0.69..0.73, -0.7908..-0.7778
-@void island-base/880x870x2650/inspection-open: service-door-1, -0.46..-0.418, 0.69..0.73, -0.7958..-0.7778
-@void island-base/880x870x2650/inspection-open: service-door-1, -0.8942..-0.8822, 0.4342..0.5942, -0.7958..-0.7798
-@void island-base/880x870x2650/inspection-open: service-door-2, -0.435..-0.419, 0.14..0.18, -0.2616..-0.2486
-@void island-base/880x870x2650/inspection-open: service-door-2, -0.46..-0.418, 0.14..0.18, -0.2666..-0.2486
-@void island-base/880x870x2650/inspection-open: service-door-2, -0.435..-0.419, 0.69..0.73, -0.2616..-0.2486
-@void island-base/880x870x2650/inspection-open: service-door-2, -0.46..-0.418, 0.69..0.73, -0.2666..-0.2486
-@void island-base/880x870x2650/inspection-open: service-door-2, -0.8942..-0.8822, 0.4342..0.5942, -0.2666..-0.2506
-@void island-base/880x870x2650/inspection-open: service-door-3, -0.435..-0.419, 0.14..0.18, 0.2676..0.2806
-@void island-base/880x870x2650/inspection-open: service-door-3, -0.46..-0.418, 0.14..0.18, 0.2626..0.2806
-@void island-base/880x870x2650/inspection-open: service-door-3, -0.435..-0.419, 0.69..0.73, 0.2676..0.2806
-@void island-base/880x870x2650/inspection-open: service-door-3, -0.46..-0.418, 0.69..0.73, 0.2626..0.2806
-@void island-base/880x870x2650/inspection-open: service-door-3, -0.8942..-0.8822, 0.4342..0.5942, 0.2626..0.2786
-@void island-base/880x870x2650/inspection-open: service-door-4, -0.435..-0.419, 0.14..0.18, 0.7968..0.8098
-@void island-base/880x870x2650/inspection-open: service-door-4, -0.46..-0.418, 0.14..0.18, 0.7918..0.8098
-@void island-base/880x870x2650/inspection-open: service-door-4, -0.435..-0.419, 0.69..0.73, 0.7968..0.8098
-@void island-base/880x870x2650/inspection-open: service-door-4, -0.46..-0.418, 0.69..0.73, 0.7918..0.8098
-@void island-base/880x870x2650/inspection-open: service-door-4, -0.8942..-0.8822, 0.4342..0.5942, 0.7918..0.8078
-@piece island-base/880x870x2650/inspection-open: service-hinge-0, -0.435..-0.422, 0.14..0.18, -1.32..-1.304
-@piece island-base/880x870x2650/inspection-open: service-hinge-0, -0.422..-0.418, 0.14..0.18, -1.32..-1.304
-@piece island-base/880x870x2650/inspection-open: service-hinge-1, -0.435..-0.422, 0.69..0.73, -1.32..-1.304
-@piece island-base/880x870x2650/inspection-open: service-hinge-1, -0.422..-0.418, 0.69..0.73, -1.32..-1.304
-@piece island-base/880x870x2650/inspection-open: service-hinge-2, -0.435..-0.422, 0.14..0.18, -0.7908..-0.7748
-@piece island-base/880x870x2650/inspection-open: service-hinge-2, -0.422..-0.418, 0.14..0.18, -0.7908..-0.7748
-@piece island-base/880x870x2650/inspection-open: service-hinge-3, -0.435..-0.422, 0.69..0.73, -0.7908..-0.7748
-@piece island-base/880x870x2650/inspection-open: service-hinge-3, -0.422..-0.418, 0.69..0.73, -0.7908..-0.7748
-@piece island-base/880x870x2650/inspection-open: service-hinge-4, -0.435..-0.422, 0.14..0.18, -0.2616..-0.2456
-@piece island-base/880x870x2650/inspection-open: service-hinge-4, -0.422..-0.418, 0.14..0.18, -0.2616..-0.2456
-@piece island-base/880x870x2650/inspection-open: service-hinge-5, -0.435..-0.422, 0.69..0.73, -0.2616..-0.2456
-@piece island-base/880x870x2650/inspection-open: service-hinge-5, -0.422..-0.418, 0.69..0.73, -0.2616..-0.2456
-@piece island-base/880x870x2650/inspection-open: service-hinge-6, -0.435..-0.422, 0.14..0.18, 0.2676..0.2836
-@piece island-base/880x870x2650/inspection-open: service-hinge-6, -0.422..-0.418, 0.14..0.18, 0.2676..0.2836
-@piece island-base/880x870x2650/inspection-open: service-hinge-7, -0.435..-0.422, 0.69..0.73, 0.2676..0.2836
-@piece island-base/880x870x2650/inspection-open: service-hinge-7, -0.422..-0.418, 0.69..0.73, 0.2676..0.2836
-@piece island-base/880x870x2650/inspection-open: service-hinge-8, -0.435..-0.422, 0.14..0.18, 0.7968..0.8128
-@piece island-base/880x870x2650/inspection-open: service-hinge-8, -0.422..-0.418, 0.14..0.18, 0.7968..0.8128
-@piece island-base/880x870x2650/inspection-open: service-hinge-9, -0.435..-0.422, 0.69..0.73, 0.7968..0.8128
-@piece island-base/880x870x2650/inspection-open: service-hinge-9, -0.422..-0.418, 0.69..0.73, 0.7968..0.8128
+@void island-base/880x870x2650/open: top, -0.34..0.18, 0.852..0.87, 0.45..0.85
+@void island-base/880x870x2650/open: shelf-1, -0.418..-0.4, 0.294333..0.312333, -0.8028..-0.7848
+@void island-base/880x870x2650/open: shelf-2, -0.418..-0.4, 0.557667..0.575667, -0.8028..-0.7848
+@void island-base/880x870x2650/open: shelf-1, -0.418..-0.4, 0.294333..0.312333, -0.2736..-0.2556
+@void island-base/880x870x2650/open: shelf-2, -0.418..-0.4, 0.557667..0.575667, -0.2736..-0.2556
+@void island-base/880x870x2650/open: shelf-1, -0.418..-0.4, 0.294333..0.312333, 0.2556..0.2736
+@void island-base/880x870x2650/open: shelf-2, -0.418..-0.4, 0.557667..0.575667, 0.2556..0.2736
+@void island-base/880x870x2650/open: shelf-1, -0.418..-0.4, 0.294333..0.312333, 0.7848..0.8028
+@void island-base/880x870x2650/open: shelf-2, -0.418..-0.4, 0.557667..0.575667, 0.7848..0.8028
+@void island-base/880x870x2650/open: service-door-0, -0.435..-0.419, 0.14..0.18, -1.32..-1.307
+@void island-base/880x870x2650/open: service-door-0, -0.46..-0.418, 0.14..0.18, -1.325..-1.307
+@void island-base/880x870x2650/open: service-door-0, -0.435..-0.419, 0.69..0.73, -1.32..-1.307
+@void island-base/880x870x2650/open: service-door-0, -0.46..-0.418, 0.69..0.73, -1.325..-1.307
+@void island-base/880x870x2650/open: service-door-0, -0.8942..-0.8822, 0.4342..0.5942, -1.325..-1.309
+@void island-base/880x870x2650/open: service-door-1, -0.435..-0.419, 0.14..0.18, -0.7908..-0.7778
+@void island-base/880x870x2650/open: service-door-1, -0.46..-0.418, 0.14..0.18, -0.7958..-0.7778
+@void island-base/880x870x2650/open: service-door-1, -0.435..-0.419, 0.69..0.73, -0.7908..-0.7778
+@void island-base/880x870x2650/open: service-door-1, -0.46..-0.418, 0.69..0.73, -0.7958..-0.7778
+@void island-base/880x870x2650/open: service-door-1, -0.8942..-0.8822, 0.4342..0.5942, -0.7958..-0.7798
+@void island-base/880x870x2650/open: service-door-2, -0.435..-0.419, 0.14..0.18, -0.2616..-0.2486
+@void island-base/880x870x2650/open: service-door-2, -0.46..-0.418, 0.14..0.18, -0.2666..-0.2486
+@void island-base/880x870x2650/open: service-door-2, -0.435..-0.419, 0.69..0.73, -0.2616..-0.2486
+@void island-base/880x870x2650/open: service-door-2, -0.46..-0.418, 0.69..0.73, -0.2666..-0.2486
+@void island-base/880x870x2650/open: service-door-2, -0.8942..-0.8822, 0.4342..0.5942, -0.2666..-0.2506
+@void island-base/880x870x2650/open: service-door-3, -0.435..-0.419, 0.14..0.18, 0.2676..0.2806
+@void island-base/880x870x2650/open: service-door-3, -0.46..-0.418, 0.14..0.18, 0.2626..0.2806
+@void island-base/880x870x2650/open: service-door-3, -0.435..-0.419, 0.69..0.73, 0.2676..0.2806
+@void island-base/880x870x2650/open: service-door-3, -0.46..-0.418, 0.69..0.73, 0.2626..0.2806
+@void island-base/880x870x2650/open: service-door-3, -0.8942..-0.8822, 0.4342..0.5942, 0.2626..0.2786
+@void island-base/880x870x2650/open: service-door-4, -0.435..-0.419, 0.14..0.18, 0.7968..0.8098
+@void island-base/880x870x2650/open: service-door-4, -0.46..-0.418, 0.14..0.18, 0.7918..0.8098
+@void island-base/880x870x2650/open: service-door-4, -0.435..-0.419, 0.69..0.73, 0.7968..0.8098
+@void island-base/880x870x2650/open: service-door-4, -0.46..-0.418, 0.69..0.73, 0.7918..0.8098
+@void island-base/880x870x2650/open: service-door-4, -0.8942..-0.8822, 0.4342..0.5942, 0.7918..0.8078
+@piece island-base/880x870x2650/open: service-hinge-0, -0.435..-0.422, 0.14..0.18, -1.32..-1.304
+@piece island-base/880x870x2650/open: service-hinge-0, -0.422..-0.418, 0.14..0.18, -1.32..-1.304
+@piece island-base/880x870x2650/open: service-hinge-1, -0.435..-0.422, 0.69..0.73, -1.32..-1.304
+@piece island-base/880x870x2650/open: service-hinge-1, -0.422..-0.418, 0.69..0.73, -1.32..-1.304
+@piece island-base/880x870x2650/open: service-hinge-2, -0.435..-0.422, 0.14..0.18, -0.7908..-0.7748
+@piece island-base/880x870x2650/open: service-hinge-2, -0.422..-0.418, 0.14..0.18, -0.7908..-0.7748
+@piece island-base/880x870x2650/open: service-hinge-3, -0.435..-0.422, 0.69..0.73, -0.7908..-0.7748
+@piece island-base/880x870x2650/open: service-hinge-3, -0.422..-0.418, 0.69..0.73, -0.7908..-0.7748
+@piece island-base/880x870x2650/open: service-hinge-4, -0.435..-0.422, 0.14..0.18, -0.2616..-0.2456
+@piece island-base/880x870x2650/open: service-hinge-4, -0.422..-0.418, 0.14..0.18, -0.2616..-0.2456
+@piece island-base/880x870x2650/open: service-hinge-5, -0.435..-0.422, 0.69..0.73, -0.2616..-0.2456
+@piece island-base/880x870x2650/open: service-hinge-5, -0.422..-0.418, 0.69..0.73, -0.2616..-0.2456
+@piece island-base/880x870x2650/open: service-hinge-6, -0.435..-0.422, 0.14..0.18, 0.2676..0.2836
+@piece island-base/880x870x2650/open: service-hinge-6, -0.422..-0.418, 0.14..0.18, 0.2676..0.2836
+@piece island-base/880x870x2650/open: service-hinge-7, -0.435..-0.422, 0.69..0.73, 0.2676..0.2836
+@piece island-base/880x870x2650/open: service-hinge-7, -0.422..-0.418, 0.69..0.73, 0.2676..0.2836
+@piece island-base/880x870x2650/open: service-hinge-8, -0.435..-0.422, 0.14..0.18, 0.7968..0.8128
+@piece island-base/880x870x2650/open: service-hinge-8, -0.422..-0.418, 0.14..0.18, 0.7968..0.8128
+@piece island-base/880x870x2650/open: service-hinge-9, -0.435..-0.422, 0.69..0.73, 0.7968..0.8128
+@piece island-base/880x870x2650/open: service-hinge-9, -0.422..-0.418, 0.69..0.73, 0.7968..0.8128
 | kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| @envelope | island-base/880x870x2650/inspection-open | * | bounds | -0.9432..0.44 | 0..0.87 | -1.325..1.325 | - |
-| @part | island-base/880x870x2650/inspection-open | bottom | box | -0.418..0.44 | 0.08..0.098 | -1.325..1.325 | toe,end-negative,end-positive |
-| @part | island-base/880x870x2650/inspection-open | top | box | -0.418..0.44 | 0.852..0.87 | -1.325..1.325 | end-negative,end-positive,dining-side |
-| @part | island-base/880x870x2650/inspection-open | toe | box | -0.44..0.44 | 0..0.08 | -1.325..1.275 | ground,bottom |
-| @part | island-base/880x870x2650/inspection-open | end-negative | box | -0.418..0.44 | 0.098..0.852 | -1.325..-1.307 | bottom,top,dining-side |
-| @part | island-base/880x870x2650/inspection-open | end-positive | box | -0.418..0.44 | 0.098..0.852 | 1.307..1.325 | bottom,top,dining-side |
-| @part | island-base/880x870x2650/inspection-open | dining-side | box | 0.422..0.44 | 0.098..0.852 | -1.307..1.307 | bottom,top,end-negative,end-positive |
-| @part | island-base/880x870x2650/inspection-open | service-strip-bottom | box | -0.44..-0.418 | 0.08..0.101 | -1.307..1.307 | toe,bottom |
-| @part | island-base/880x870x2650/inspection-open | service-strip-top | box | -0.44..-0.418 | 0.849..0.87 | -1.307..1.307 | top |
-| @part | island-base/880x870x2650/inspection-open | shelf-1 | box | -0.418..0.422 | 0.294333..0.312333 | -1.307..1.307 | end-negative,end-positive,dining-side |
-| @part | island-base/880x870x2650/inspection-open | shelf-2 | box | -0.418..0.422 | 0.557667..0.575667 | -1.307..1.307 | end-negative,end-positive,dining-side |
-| @part | island-base/880x870x2650/inspection-open | service-stile-1 | box | -0.418..-0.4 | 0.098..0.852 | -0.8028..-0.7848 | bottom,top |
-| @part | island-base/880x870x2650/inspection-open | service-stile-2 | box | -0.418..-0.4 | 0.098..0.852 | -0.2736..-0.2556 | bottom,top |
-| @part | island-base/880x870x2650/inspection-open | service-stile-3 | box | -0.418..-0.4 | 0.098..0.852 | 0.2556..0.2736 | bottom,top |
-| @part | island-base/880x870x2650/inspection-open | service-stile-4 | box | -0.418..-0.4 | 0.098..0.852 | 0.7848..0.8028 | bottom,top |
-| @part | island-base/880x870x2650/inspection-open | service-door-0 | box | -0.9432..-0.418 | 0.101..0.849 | -1.325..-1.307 | service-hinge-0,service-hinge-1 |
-| @part | island-base/880x870x2650/inspection-open | service-hinge-0 | curved | -0.435..-0.418 | 0.14..0.18 | -1.32..-1.304 | service-door-0,end-negative |
-| @part | island-base/880x870x2650/inspection-open | service-hinge-1 | curved | -0.435..-0.418 | 0.69..0.73 | -1.32..-1.304 | service-door-0,end-negative |
-| @part | island-base/880x870x2650/inspection-open | service-handle-0 | box | -0.8942..-0.8822 | 0.4342..0.5942 | -1.325..-1.309 | service-door-0 |
-| @part | island-base/880x870x2650/inspection-open | service-door-1 | box | -0.9432..-0.418 | 0.101..0.849 | -0.7958..-0.7778 | service-hinge-2,service-hinge-3 |
-| @part | island-base/880x870x2650/inspection-open | service-hinge-2 | curved | -0.435..-0.418 | 0.14..0.18 | -0.7908..-0.7748 | service-door-1,service-stile-1 |
-| @part | island-base/880x870x2650/inspection-open | service-hinge-3 | curved | -0.435..-0.418 | 0.69..0.73 | -0.7908..-0.7748 | service-door-1,service-stile-1 |
-| @part | island-base/880x870x2650/inspection-open | service-handle-1 | box | -0.8942..-0.8822 | 0.4342..0.5942 | -0.7958..-0.7798 | service-door-1 |
-| @part | island-base/880x870x2650/inspection-open | service-door-2 | box | -0.9432..-0.418 | 0.101..0.849 | -0.2666..-0.2486 | service-hinge-4,service-hinge-5 |
-| @part | island-base/880x870x2650/inspection-open | service-hinge-4 | curved | -0.435..-0.418 | 0.14..0.18 | -0.2616..-0.2456 | service-door-2,service-stile-2 |
-| @part | island-base/880x870x2650/inspection-open | service-hinge-5 | curved | -0.435..-0.418 | 0.69..0.73 | -0.2616..-0.2456 | service-door-2,service-stile-2 |
-| @part | island-base/880x870x2650/inspection-open | service-handle-2 | box | -0.8942..-0.8822 | 0.4342..0.5942 | -0.2666..-0.2506 | service-door-2 |
-| @part | island-base/880x870x2650/inspection-open | service-door-3 | box | -0.9432..-0.418 | 0.101..0.849 | 0.2626..0.2806 | service-hinge-6,service-hinge-7 |
-| @part | island-base/880x870x2650/inspection-open | service-hinge-6 | curved | -0.435..-0.418 | 0.14..0.18 | 0.2676..0.2836 | service-door-3,service-stile-3 |
-| @part | island-base/880x870x2650/inspection-open | service-hinge-7 | curved | -0.435..-0.418 | 0.69..0.73 | 0.2676..0.2836 | service-door-3,service-stile-3 |
-| @part | island-base/880x870x2650/inspection-open | service-handle-3 | box | -0.8942..-0.8822 | 0.4342..0.5942 | 0.2626..0.2786 | service-door-3 |
-| @part | island-base/880x870x2650/inspection-open | service-door-4 | box | -0.9432..-0.418 | 0.101..0.849 | 0.7918..0.8098 | service-hinge-8,service-hinge-9 |
-| @part | island-base/880x870x2650/inspection-open | service-hinge-8 | curved | -0.435..-0.418 | 0.14..0.18 | 0.7968..0.8128 | service-door-4,service-stile-4 |
-| @part | island-base/880x870x2650/inspection-open | service-hinge-9 | curved | -0.435..-0.418 | 0.69..0.73 | 0.7968..0.8128 | service-door-4,service-stile-4 |
-| @part | island-base/880x870x2650/inspection-open | service-handle-4 | box | -0.8942..-0.8822 | 0.4342..0.5942 | 0.7918..0.8078 | service-door-4 |
+| @envelope | island-base/880x870x2650/open | * | bounds | -0.9432..0.44 | 0..0.87 | -1.325..1.325 | - |
+| @part | island-base/880x870x2650/open | bottom | box | -0.418..0.44 | 0.08..0.098 | -1.325..1.325 | toe,end-negative,end-positive |
+| @part | island-base/880x870x2650/open | top | box | -0.418..0.44 | 0.852..0.87 | -1.325..1.325 | end-negative,end-positive,dining-side |
+| @part | island-base/880x870x2650/open | toe | box | -0.44..0.44 | 0..0.08 | -1.325..1.275 | ground,bottom |
+| @part | island-base/880x870x2650/open | end-negative | box | -0.418..0.44 | 0.098..0.852 | -1.325..-1.307 | bottom,top,dining-side |
+| @part | island-base/880x870x2650/open | end-positive | box | -0.418..0.44 | 0.098..0.852 | 1.307..1.325 | bottom,top,dining-side |
+| @part | island-base/880x870x2650/open | dining-side | box | 0.422..0.44 | 0.098..0.852 | -1.307..1.307 | bottom,top,end-negative,end-positive |
+| @part | island-base/880x870x2650/open | service-strip-bottom | box | -0.44..-0.418 | 0.08..0.101 | -1.307..1.307 | toe,bottom |
+| @part | island-base/880x870x2650/open | service-strip-top | box | -0.44..-0.418 | 0.849..0.87 | -1.307..1.307 | top |
+| @part | island-base/880x870x2650/open | shelf-1 | box | -0.418..0.422 | 0.294333..0.312333 | -1.307..1.307 | end-negative,end-positive,dining-side |
+| @part | island-base/880x870x2650/open | shelf-2 | box | -0.418..0.422 | 0.557667..0.575667 | -1.307..1.307 | end-negative,end-positive,dining-side |
+| @part | island-base/880x870x2650/open | service-stile-1 | box | -0.418..-0.4 | 0.098..0.852 | -0.8028..-0.7848 | bottom,top |
+| @part | island-base/880x870x2650/open | service-stile-2 | box | -0.418..-0.4 | 0.098..0.852 | -0.2736..-0.2556 | bottom,top |
+| @part | island-base/880x870x2650/open | service-stile-3 | box | -0.418..-0.4 | 0.098..0.852 | 0.2556..0.2736 | bottom,top |
+| @part | island-base/880x870x2650/open | service-stile-4 | box | -0.418..-0.4 | 0.098..0.852 | 0.7848..0.8028 | bottom,top |
+| @part | island-base/880x870x2650/open | service-door-0 | box | -0.9432..-0.418 | 0.101..0.849 | -1.325..-1.307 | service-hinge-0,service-hinge-1 |
+| @part | island-base/880x870x2650/open | service-hinge-0 | curved | -0.435..-0.418 | 0.14..0.18 | -1.32..-1.304 | service-door-0,end-negative |
+| @part | island-base/880x870x2650/open | service-hinge-1 | curved | -0.435..-0.418 | 0.69..0.73 | -1.32..-1.304 | service-door-0,end-negative |
+| @part | island-base/880x870x2650/open | service-handle-0 | box | -0.8942..-0.8822 | 0.4342..0.5942 | -1.325..-1.309 | service-door-0 |
+| @part | island-base/880x870x2650/open | service-door-1 | box | -0.9432..-0.418 | 0.101..0.849 | -0.7958..-0.7778 | service-hinge-2,service-hinge-3 |
+| @part | island-base/880x870x2650/open | service-hinge-2 | curved | -0.435..-0.418 | 0.14..0.18 | -0.7908..-0.7748 | service-door-1,service-stile-1 |
+| @part | island-base/880x870x2650/open | service-hinge-3 | curved | -0.435..-0.418 | 0.69..0.73 | -0.7908..-0.7748 | service-door-1,service-stile-1 |
+| @part | island-base/880x870x2650/open | service-handle-1 | box | -0.8942..-0.8822 | 0.4342..0.5942 | -0.7958..-0.7798 | service-door-1 |
+| @part | island-base/880x870x2650/open | service-door-2 | box | -0.9432..-0.418 | 0.101..0.849 | -0.2666..-0.2486 | service-hinge-4,service-hinge-5 |
+| @part | island-base/880x870x2650/open | service-hinge-4 | curved | -0.435..-0.418 | 0.14..0.18 | -0.2616..-0.2456 | service-door-2,service-stile-2 |
+| @part | island-base/880x870x2650/open | service-hinge-5 | curved | -0.435..-0.418 | 0.69..0.73 | -0.2616..-0.2456 | service-door-2,service-stile-2 |
+| @part | island-base/880x870x2650/open | service-handle-2 | box | -0.8942..-0.8822 | 0.4342..0.5942 | -0.2666..-0.2506 | service-door-2 |
+| @part | island-base/880x870x2650/open | service-door-3 | box | -0.9432..-0.418 | 0.101..0.849 | 0.2626..0.2806 | service-hinge-6,service-hinge-7 |
+| @part | island-base/880x870x2650/open | service-hinge-6 | curved | -0.435..-0.418 | 0.14..0.18 | 0.2676..0.2836 | service-door-3,service-stile-3 |
+| @part | island-base/880x870x2650/open | service-hinge-7 | curved | -0.435..-0.418 | 0.69..0.73 | 0.2676..0.2836 | service-door-3,service-stile-3 |
+| @part | island-base/880x870x2650/open | service-handle-3 | box | -0.8942..-0.8822 | 0.4342..0.5942 | 0.2626..0.2786 | service-door-3 |
+| @part | island-base/880x870x2650/open | service-door-4 | box | -0.9432..-0.418 | 0.101..0.849 | 0.7918..0.8098 | service-hinge-8,service-hinge-9 |
+| @part | island-base/880x870x2650/open | service-hinge-8 | curved | -0.435..-0.418 | 0.14..0.18 | 0.7968..0.8128 | service-door-4,service-stile-4 |
+| @part | island-base/880x870x2650/open | service-hinge-9 | curved | -0.435..-0.418 | 0.69..0.73 | 0.7968..0.8128 | service-door-4,service-stile-4 |
+| @part | island-base/880x870x2650/open | service-handle-4 | box | -0.8942..-0.8822 | 0.4342..0.5942 | 0.7918..0.8078 | service-door-4 |
 
-@inventory kitchen-base/2900x870x620/delivered: back, bottom, top, side-left, side-right, toe, fixed-front, bay-divider-left, bay-divider-right, oven-sill, drawer-0, handle-0, drawer-1, handle-1, drawer-2, handle-2, drawer-3, handle-3, drawer-4, handle-4, drawer-5, handle-5
+@inventory kitchen-base/2900x870x620/closed: back, bottom, top, side-left, side-right, toe, fixed-front, bay-divider-left, bay-divider-right, oven-sill, drawer-0, handle-0, drawer-1, handle-1, drawer-2, handle-2, drawer-3, handle-3, drawer-4, handle-4, drawer-5, handle-5
 
-@void kitchen-base/2900x870x620/delivered: fixed-front, -0.32..0.32, 0.15..0.74, 0.287..0.31
-@void kitchen-base/2900x870x620/delivered: fixed-front, -1.45..-0.32, 0.097..0.303, 0.287..0.31
-@void kitchen-base/2900x870x620/delivered: drawer-0, -0.965..-0.805, 0.194..0.206, 0.294..0.31
-@void kitchen-base/2900x870x620/delivered: fixed-front, -1.45..-0.32, 0.337..0.543, 0.287..0.31
-@void kitchen-base/2900x870x620/delivered: drawer-1, -0.965..-0.805, 0.434..0.446, 0.294..0.31
-@void kitchen-base/2900x870x620/delivered: fixed-front, -1.45..-0.32, 0.577..0.783, 0.287..0.31
-@void kitchen-base/2900x870x620/delivered: drawer-2, -0.965..-0.805, 0.674..0.686, 0.294..0.31
-@void kitchen-base/2900x870x620/delivered: fixed-front, 0.32..1.45, 0.097..0.303, 0.287..0.31
-@void kitchen-base/2900x870x620/delivered: drawer-3, 0.805..0.965, 0.194..0.206, 0.294..0.31
-@void kitchen-base/2900x870x620/delivered: fixed-front, 0.32..1.45, 0.337..0.543, 0.287..0.31
-@void kitchen-base/2900x870x620/delivered: drawer-4, 0.805..0.965, 0.434..0.446, 0.294..0.31
-@void kitchen-base/2900x870x620/delivered: fixed-front, 0.32..1.45, 0.577..0.783, 0.287..0.31
-@void kitchen-base/2900x870x620/delivered: drawer-5, 0.805..0.965, 0.674..0.686, 0.294..0.31
-@piece kitchen-base/2900x870x620/delivered: drawer-0, -1.447..-0.323, 0.1..0.3, 0.292..0.31
-@piece kitchen-base/2900x870x620/delivered: drawer-0, -1.432..-0.338, 0.115..0.127, -0.29..0.292
-@piece kitchen-base/2900x870x620/delivered: drawer-0, -1.432..-1.42, 0.127..0.29, -0.29..0.292
-@piece kitchen-base/2900x870x620/delivered: drawer-0, -0.35..-0.338, 0.127..0.29, -0.29..0.292
-@piece kitchen-base/2900x870x620/delivered: drawer-0, -1.42..-0.35, 0.127..0.29, -0.29..-0.278
-@piece kitchen-base/2900x870x620/delivered: drawer-1, -1.447..-0.323, 0.34..0.54, 0.292..0.31
-@piece kitchen-base/2900x870x620/delivered: drawer-1, -1.432..-0.338, 0.355..0.367, -0.29..0.292
-@piece kitchen-base/2900x870x620/delivered: drawer-1, -1.432..-1.42, 0.367..0.53, -0.29..0.292
-@piece kitchen-base/2900x870x620/delivered: drawer-1, -0.35..-0.338, 0.367..0.53, -0.29..0.292
-@piece kitchen-base/2900x870x620/delivered: drawer-1, -1.42..-0.35, 0.367..0.53, -0.29..-0.278
-@piece kitchen-base/2900x870x620/delivered: drawer-2, -1.447..-0.323, 0.58..0.78, 0.292..0.31
-@piece kitchen-base/2900x870x620/delivered: drawer-2, -1.432..-0.338, 0.595..0.607, -0.29..0.292
-@piece kitchen-base/2900x870x620/delivered: drawer-2, -1.432..-1.42, 0.607..0.77, -0.29..0.292
-@piece kitchen-base/2900x870x620/delivered: drawer-2, -0.35..-0.338, 0.607..0.77, -0.29..0.292
-@piece kitchen-base/2900x870x620/delivered: drawer-2, -1.42..-0.35, 0.607..0.77, -0.29..-0.278
-@piece kitchen-base/2900x870x620/delivered: drawer-3, 0.323..1.447, 0.1..0.3, 0.292..0.31
-@piece kitchen-base/2900x870x620/delivered: drawer-3, 0.338..1.432, 0.115..0.127, -0.29..0.292
-@piece kitchen-base/2900x870x620/delivered: drawer-3, 0.338..0.35, 0.127..0.29, -0.29..0.292
-@piece kitchen-base/2900x870x620/delivered: drawer-3, 1.42..1.432, 0.127..0.29, -0.29..0.292
-@piece kitchen-base/2900x870x620/delivered: drawer-3, 0.35..1.42, 0.127..0.29, -0.29..-0.278
-@piece kitchen-base/2900x870x620/delivered: drawer-4, 0.323..1.447, 0.34..0.54, 0.292..0.31
-@piece kitchen-base/2900x870x620/delivered: drawer-4, 0.338..1.432, 0.355..0.367, -0.29..0.292
-@piece kitchen-base/2900x870x620/delivered: drawer-4, 0.338..0.35, 0.367..0.53, -0.29..0.292
-@piece kitchen-base/2900x870x620/delivered: drawer-4, 1.42..1.432, 0.367..0.53, -0.29..0.292
-@piece kitchen-base/2900x870x620/delivered: drawer-4, 0.35..1.42, 0.367..0.53, -0.29..-0.278
-@piece kitchen-base/2900x870x620/delivered: drawer-5, 0.323..1.447, 0.58..0.78, 0.292..0.31
-@piece kitchen-base/2900x870x620/delivered: drawer-5, 0.338..1.432, 0.595..0.607, -0.29..0.292
-@piece kitchen-base/2900x870x620/delivered: drawer-5, 0.338..0.35, 0.607..0.77, -0.29..0.292
-@piece kitchen-base/2900x870x620/delivered: drawer-5, 1.42..1.432, 0.607..0.77, -0.29..0.292
-@piece kitchen-base/2900x870x620/delivered: drawer-5, 0.35..1.42, 0.607..0.77, -0.29..-0.278
+@void kitchen-base/2900x870x620/closed: fixed-front, -0.32..0.32, 0.15..0.74, 0.287..0.31
+@void kitchen-base/2900x870x620/closed: fixed-front, -1.45..-0.32, 0.097..0.303, 0.287..0.31
+@void kitchen-base/2900x870x620/closed: drawer-0, -0.965..-0.805, 0.194..0.206, 0.294..0.31
+@void kitchen-base/2900x870x620/closed: fixed-front, -1.45..-0.32, 0.337..0.543, 0.287..0.31
+@void kitchen-base/2900x870x620/closed: drawer-1, -0.965..-0.805, 0.434..0.446, 0.294..0.31
+@void kitchen-base/2900x870x620/closed: fixed-front, -1.45..-0.32, 0.577..0.783, 0.287..0.31
+@void kitchen-base/2900x870x620/closed: drawer-2, -0.965..-0.805, 0.674..0.686, 0.294..0.31
+@void kitchen-base/2900x870x620/closed: fixed-front, 0.32..1.45, 0.097..0.303, 0.287..0.31
+@void kitchen-base/2900x870x620/closed: drawer-3, 0.805..0.965, 0.194..0.206, 0.294..0.31
+@void kitchen-base/2900x870x620/closed: fixed-front, 0.32..1.45, 0.337..0.543, 0.287..0.31
+@void kitchen-base/2900x870x620/closed: drawer-4, 0.805..0.965, 0.434..0.446, 0.294..0.31
+@void kitchen-base/2900x870x620/closed: fixed-front, 0.32..1.45, 0.577..0.783, 0.287..0.31
+@void kitchen-base/2900x870x620/closed: drawer-5, 0.805..0.965, 0.674..0.686, 0.294..0.31
+@piece kitchen-base/2900x870x620/closed: drawer-0, -1.447..-0.323, 0.1..0.3, 0.292..0.31
+@piece kitchen-base/2900x870x620/closed: drawer-0, -1.432..-0.338, 0.115..0.127, -0.29..0.292
+@piece kitchen-base/2900x870x620/closed: drawer-0, -1.432..-1.42, 0.127..0.29, -0.29..0.292
+@piece kitchen-base/2900x870x620/closed: drawer-0, -0.35..-0.338, 0.127..0.29, -0.29..0.292
+@piece kitchen-base/2900x870x620/closed: drawer-0, -1.42..-0.35, 0.127..0.29, -0.29..-0.278
+@piece kitchen-base/2900x870x620/closed: drawer-1, -1.447..-0.323, 0.34..0.54, 0.292..0.31
+@piece kitchen-base/2900x870x620/closed: drawer-1, -1.432..-0.338, 0.355..0.367, -0.29..0.292
+@piece kitchen-base/2900x870x620/closed: drawer-1, -1.432..-1.42, 0.367..0.53, -0.29..0.292
+@piece kitchen-base/2900x870x620/closed: drawer-1, -0.35..-0.338, 0.367..0.53, -0.29..0.292
+@piece kitchen-base/2900x870x620/closed: drawer-1, -1.42..-0.35, 0.367..0.53, -0.29..-0.278
+@piece kitchen-base/2900x870x620/closed: drawer-2, -1.447..-0.323, 0.58..0.78, 0.292..0.31
+@piece kitchen-base/2900x870x620/closed: drawer-2, -1.432..-0.338, 0.595..0.607, -0.29..0.292
+@piece kitchen-base/2900x870x620/closed: drawer-2, -1.432..-1.42, 0.607..0.77, -0.29..0.292
+@piece kitchen-base/2900x870x620/closed: drawer-2, -0.35..-0.338, 0.607..0.77, -0.29..0.292
+@piece kitchen-base/2900x870x620/closed: drawer-2, -1.42..-0.35, 0.607..0.77, -0.29..-0.278
+@piece kitchen-base/2900x870x620/closed: drawer-3, 0.323..1.447, 0.1..0.3, 0.292..0.31
+@piece kitchen-base/2900x870x620/closed: drawer-3, 0.338..1.432, 0.115..0.127, -0.29..0.292
+@piece kitchen-base/2900x870x620/closed: drawer-3, 0.338..0.35, 0.127..0.29, -0.29..0.292
+@piece kitchen-base/2900x870x620/closed: drawer-3, 1.42..1.432, 0.127..0.29, -0.29..0.292
+@piece kitchen-base/2900x870x620/closed: drawer-3, 0.35..1.42, 0.127..0.29, -0.29..-0.278
+@piece kitchen-base/2900x870x620/closed: drawer-4, 0.323..1.447, 0.34..0.54, 0.292..0.31
+@piece kitchen-base/2900x870x620/closed: drawer-4, 0.338..1.432, 0.355..0.367, -0.29..0.292
+@piece kitchen-base/2900x870x620/closed: drawer-4, 0.338..0.35, 0.367..0.53, -0.29..0.292
+@piece kitchen-base/2900x870x620/closed: drawer-4, 1.42..1.432, 0.367..0.53, -0.29..0.292
+@piece kitchen-base/2900x870x620/closed: drawer-4, 0.35..1.42, 0.367..0.53, -0.29..-0.278
+@piece kitchen-base/2900x870x620/closed: drawer-5, 0.323..1.447, 0.58..0.78, 0.292..0.31
+@piece kitchen-base/2900x870x620/closed: drawer-5, 0.338..1.432, 0.595..0.607, -0.29..0.292
+@piece kitchen-base/2900x870x620/closed: drawer-5, 0.338..0.35, 0.607..0.77, -0.29..0.292
+@piece kitchen-base/2900x870x620/closed: drawer-5, 1.42..1.432, 0.607..0.77, -0.29..0.292
+@piece kitchen-base/2900x870x620/closed: drawer-5, 0.35..1.42, 0.607..0.77, -0.29..-0.278
 | kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| @envelope | kitchen-base/2900x870x620/delivered | * | bounds | -1.45..1.45 | 0..0.87 | -0.31..0.31 | - |
-| @part | kitchen-base/2900x870x620/delivered | back | box | -1.45..1.45 | 0.08..0.852 | -0.31..-0.298 | toe,bottom,top |
-| @part | kitchen-base/2900x870x620/delivered | bottom | box | -1.45..1.45 | 0.08..0.098 | -0.298..0.287 | back,side-left,side-right |
-| @part | kitchen-base/2900x870x620/delivered | top | box | -1.45..1.45 | 0.852..0.87 | -0.31..0.287 | back,side-left,side-right |
-| @part | kitchen-base/2900x870x620/delivered | side-left | box | -1.45..-1.432 | 0.098..0.852 | -0.298..0.287 | back,bottom,top |
-| @part | kitchen-base/2900x870x620/delivered | side-right | box | 1.432..1.45 | 0.098..0.852 | -0.298..0.287 | back,bottom,top |
-| @part | kitchen-base/2900x870x620/delivered | toe | box | -1.45..1.45 | 0..0.08 | -0.31..0.26 | ground,back,bottom |
-| @part | kitchen-base/2900x870x620/delivered | fixed-front | box | -1.45..1.45 | 0.08..0.852 | 0.287..0.31 | side-left,side-right |
-| @part | kitchen-base/2900x870x620/delivered | bay-divider-left | box | -0.338..-0.32 | 0.098..0.852 | -0.298..0.287 | bottom,top,back |
-| @part | kitchen-base/2900x870x620/delivered | bay-divider-right | box | 0.32..0.338 | 0.098..0.852 | -0.298..0.287 | bottom,top,back |
-| @part | kitchen-base/2900x870x620/delivered | oven-sill | box | -0.32..0.32 | 0.098..0.15 | -0.298..0.287 | bottom,bay-divider-left,bay-divider-right |
-| @part | kitchen-base/2900x870x620/delivered | drawer-0 | hollow | -1.447..-0.323 | 0.1..0.3 | -0.29..0.31 | side-left,bay-divider-left,handle-0 |
-| @part | kitchen-base/2900x870x620/delivered | handle-0 | box | -0.965..-0.805 | 0.194..0.206 | 0.294..0.31 | drawer-0 |
-| @part | kitchen-base/2900x870x620/delivered | drawer-1 | hollow | -1.447..-0.323 | 0.34..0.54 | -0.29..0.31 | side-left,bay-divider-left,handle-1 |
-| @part | kitchen-base/2900x870x620/delivered | handle-1 | box | -0.965..-0.805 | 0.434..0.446 | 0.294..0.31 | drawer-1 |
-| @part | kitchen-base/2900x870x620/delivered | drawer-2 | hollow | -1.447..-0.323 | 0.58..0.78 | -0.29..0.31 | side-left,bay-divider-left,handle-2 |
-| @part | kitchen-base/2900x870x620/delivered | handle-2 | box | -0.965..-0.805 | 0.674..0.686 | 0.294..0.31 | drawer-2 |
-| @part | kitchen-base/2900x870x620/delivered | drawer-3 | hollow | 0.323..1.447 | 0.1..0.3 | -0.29..0.31 | bay-divider-right,side-right,handle-3 |
-| @part | kitchen-base/2900x870x620/delivered | handle-3 | box | 0.805..0.965 | 0.194..0.206 | 0.294..0.31 | drawer-3 |
-| @part | kitchen-base/2900x870x620/delivered | drawer-4 | hollow | 0.323..1.447 | 0.34..0.54 | -0.29..0.31 | bay-divider-right,side-right,handle-4 |
-| @part | kitchen-base/2900x870x620/delivered | handle-4 | box | 0.805..0.965 | 0.434..0.446 | 0.294..0.31 | drawer-4 |
-| @part | kitchen-base/2900x870x620/delivered | drawer-5 | hollow | 0.323..1.447 | 0.58..0.78 | -0.29..0.31 | bay-divider-right,side-right,handle-5 |
-| @part | kitchen-base/2900x870x620/delivered | handle-5 | box | 0.805..0.965 | 0.674..0.686 | 0.294..0.31 | drawer-5 |
+| @envelope | kitchen-base/2900x870x620/closed | * | bounds | -1.45..1.45 | 0..0.87 | -0.31..0.31 | - |
+| @part | kitchen-base/2900x870x620/closed | back | box | -1.45..1.45 | 0.08..0.852 | -0.31..-0.298 | toe,bottom,top |
+| @part | kitchen-base/2900x870x620/closed | bottom | box | -1.45..1.45 | 0.08..0.098 | -0.298..0.287 | back,side-left,side-right |
+| @part | kitchen-base/2900x870x620/closed | top | box | -1.45..1.45 | 0.852..0.87 | -0.31..0.287 | back,side-left,side-right |
+| @part | kitchen-base/2900x870x620/closed | side-left | box | -1.45..-1.432 | 0.098..0.852 | -0.298..0.287 | back,bottom,top |
+| @part | kitchen-base/2900x870x620/closed | side-right | box | 1.432..1.45 | 0.098..0.852 | -0.298..0.287 | back,bottom,top |
+| @part | kitchen-base/2900x870x620/closed | toe | box | -1.45..1.45 | 0..0.08 | -0.31..0.26 | ground,back,bottom |
+| @part | kitchen-base/2900x870x620/closed | fixed-front | box | -1.45..1.45 | 0.08..0.852 | 0.287..0.31 | side-left,side-right |
+| @part | kitchen-base/2900x870x620/closed | bay-divider-left | box | -0.338..-0.32 | 0.098..0.852 | -0.298..0.287 | bottom,top,back |
+| @part | kitchen-base/2900x870x620/closed | bay-divider-right | box | 0.32..0.338 | 0.098..0.852 | -0.298..0.287 | bottom,top,back |
+| @part | kitchen-base/2900x870x620/closed | oven-sill | box | -0.32..0.32 | 0.098..0.15 | -0.298..0.287 | bottom,bay-divider-left,bay-divider-right |
+| @part | kitchen-base/2900x870x620/closed | drawer-0 | hollow | -1.447..-0.323 | 0.1..0.3 | -0.29..0.31 | side-left,bay-divider-left,handle-0 |
+| @part | kitchen-base/2900x870x620/closed | handle-0 | box | -0.965..-0.805 | 0.194..0.206 | 0.294..0.31 | drawer-0 |
+| @part | kitchen-base/2900x870x620/closed | drawer-1 | hollow | -1.447..-0.323 | 0.34..0.54 | -0.29..0.31 | side-left,bay-divider-left,handle-1 |
+| @part | kitchen-base/2900x870x620/closed | handle-1 | box | -0.965..-0.805 | 0.434..0.446 | 0.294..0.31 | drawer-1 |
+| @part | kitchen-base/2900x870x620/closed | drawer-2 | hollow | -1.447..-0.323 | 0.58..0.78 | -0.29..0.31 | side-left,bay-divider-left,handle-2 |
+| @part | kitchen-base/2900x870x620/closed | handle-2 | box | -0.965..-0.805 | 0.674..0.686 | 0.294..0.31 | drawer-2 |
+| @part | kitchen-base/2900x870x620/closed | drawer-3 | hollow | 0.323..1.447 | 0.1..0.3 | -0.29..0.31 | bay-divider-right,side-right,handle-3 |
+| @part | kitchen-base/2900x870x620/closed | handle-3 | box | 0.805..0.965 | 0.194..0.206 | 0.294..0.31 | drawer-3 |
+| @part | kitchen-base/2900x870x620/closed | drawer-4 | hollow | 0.323..1.447 | 0.34..0.54 | -0.29..0.31 | bay-divider-right,side-right,handle-4 |
+| @part | kitchen-base/2900x870x620/closed | handle-4 | box | 0.805..0.965 | 0.434..0.446 | 0.294..0.31 | drawer-4 |
+| @part | kitchen-base/2900x870x620/closed | drawer-5 | hollow | 0.323..1.447 | 0.58..0.78 | -0.29..0.31 | bay-divider-right,side-right,handle-5 |
+| @part | kitchen-base/2900x870x620/closed | handle-5 | box | 0.805..0.965 | 0.674..0.686 | 0.294..0.31 | drawer-5 |
 
-@inventory media/2000x440x350/delivered: back, bottom, top, side-left, side-right, toe, fixed-front, bay-divider-left, bay-divider-right, drawer-0, handle-0, drawer-1, handle-1
+@inventory media/2000x440x350/closed: back, bottom, top, side-left, side-right, toe, fixed-front, bay-divider-left, bay-divider-right, drawer-0, handle-0, drawer-1, handle-1
 
-@void media/2000x440x350/delivered: fixed-front, -0.16..0.16, 0.098..0.422, 0.152..0.175
-@void media/2000x440x350/delivered: fixed-front, -1..-0.16, 0.187..0.373, 0.152..0.175
-@void media/2000x440x350/delivered: drawer-0, -0.66..-0.5, 0.274..0.286, 0.159..0.175
-@void media/2000x440x350/delivered: fixed-front, 0.16..1, 0.187..0.373, 0.152..0.175
-@void media/2000x440x350/delivered: drawer-1, 0.5..0.66, 0.274..0.286, 0.159..0.175
-@piece media/2000x440x350/delivered: drawer-0, -0.997..-0.163, 0.19..0.37, 0.157..0.175
-@piece media/2000x440x350/delivered: drawer-0, -0.982..-0.178, 0.205..0.217, -0.155..0.157
-@piece media/2000x440x350/delivered: drawer-0, -0.982..-0.97, 0.217..0.36, -0.155..0.157
-@piece media/2000x440x350/delivered: drawer-0, -0.19..-0.178, 0.217..0.36, -0.155..0.157
-@piece media/2000x440x350/delivered: drawer-0, -0.97..-0.19, 0.217..0.36, -0.155..-0.143
-@piece media/2000x440x350/delivered: drawer-1, 0.163..0.997, 0.19..0.37, 0.157..0.175
-@piece media/2000x440x350/delivered: drawer-1, 0.178..0.982, 0.205..0.217, -0.155..0.157
-@piece media/2000x440x350/delivered: drawer-1, 0.178..0.19, 0.217..0.36, -0.155..0.157
-@piece media/2000x440x350/delivered: drawer-1, 0.97..0.982, 0.217..0.36, -0.155..0.157
-@piece media/2000x440x350/delivered: drawer-1, 0.19..0.97, 0.217..0.36, -0.155..-0.143
+@void media/2000x440x350/closed: fixed-front, -0.16..0.16, 0.098..0.422, 0.152..0.175
+@void media/2000x440x350/closed: fixed-front, -1..-0.16, 0.187..0.373, 0.152..0.175
+@void media/2000x440x350/closed: drawer-0, -0.66..-0.5, 0.274..0.286, 0.159..0.175
+@void media/2000x440x350/closed: fixed-front, 0.16..1, 0.187..0.373, 0.152..0.175
+@void media/2000x440x350/closed: drawer-1, 0.5..0.66, 0.274..0.286, 0.159..0.175
+@piece media/2000x440x350/closed: drawer-0, -0.997..-0.163, 0.19..0.37, 0.157..0.175
+@piece media/2000x440x350/closed: drawer-0, -0.982..-0.178, 0.205..0.217, -0.155..0.157
+@piece media/2000x440x350/closed: drawer-0, -0.982..-0.97, 0.217..0.36, -0.155..0.157
+@piece media/2000x440x350/closed: drawer-0, -0.19..-0.178, 0.217..0.36, -0.155..0.157
+@piece media/2000x440x350/closed: drawer-0, -0.97..-0.19, 0.217..0.36, -0.155..-0.143
+@piece media/2000x440x350/closed: drawer-1, 0.163..0.997, 0.19..0.37, 0.157..0.175
+@piece media/2000x440x350/closed: drawer-1, 0.178..0.982, 0.205..0.217, -0.155..0.157
+@piece media/2000x440x350/closed: drawer-1, 0.178..0.19, 0.217..0.36, -0.155..0.157
+@piece media/2000x440x350/closed: drawer-1, 0.97..0.982, 0.217..0.36, -0.155..0.157
+@piece media/2000x440x350/closed: drawer-1, 0.19..0.97, 0.217..0.36, -0.155..-0.143
 | kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| @envelope | media/2000x440x350/delivered | * | bounds | -1..1 | 0..0.44 | -0.175..0.175 | - |
-| @part | media/2000x440x350/delivered | back | box | -1..1 | 0.08..0.422 | -0.175..-0.163 | toe,bottom,top |
-| @part | media/2000x440x350/delivered | bottom | box | -1..1 | 0.08..0.098 | -0.163..0.152 | back,side-left,side-right |
-| @part | media/2000x440x350/delivered | top | box | -1..1 | 0.422..0.44 | -0.175..0.152 | back,side-left,side-right |
-| @part | media/2000x440x350/delivered | side-left | box | -1..-0.982 | 0.098..0.422 | -0.163..0.152 | back,bottom,top |
-| @part | media/2000x440x350/delivered | side-right | box | 0.982..1 | 0.098..0.422 | -0.163..0.152 | back,bottom,top |
-| @part | media/2000x440x350/delivered | toe | box | -1..1 | 0..0.08 | -0.175..0.125 | ground,back,bottom |
-| @part | media/2000x440x350/delivered | fixed-front | box | -1..1 | 0.08..0.422 | 0.152..0.175 | side-left,side-right |
-| @part | media/2000x440x350/delivered | bay-divider-left | box | -0.178..-0.16 | 0.098..0.422 | -0.163..0.152 | bottom,top,back |
-| @part | media/2000x440x350/delivered | bay-divider-right | box | 0.16..0.178 | 0.098..0.422 | -0.163..0.152 | bottom,top,back |
-| @part | media/2000x440x350/delivered | drawer-0 | hollow | -0.997..-0.163 | 0.19..0.37 | -0.155..0.175 | side-left,bay-divider-left,handle-0 |
-| @part | media/2000x440x350/delivered | handle-0 | box | -0.66..-0.5 | 0.274..0.286 | 0.159..0.175 | drawer-0 |
-| @part | media/2000x440x350/delivered | drawer-1 | hollow | 0.163..0.997 | 0.19..0.37 | -0.155..0.175 | bay-divider-right,side-right,handle-1 |
-| @part | media/2000x440x350/delivered | handle-1 | box | 0.5..0.66 | 0.274..0.286 | 0.159..0.175 | drawer-1 |
+| @envelope | media/2000x440x350/closed | * | bounds | -1..1 | 0..0.44 | -0.175..0.175 | - |
+| @part | media/2000x440x350/closed | back | box | -1..1 | 0.08..0.422 | -0.175..-0.163 | toe,bottom,top |
+| @part | media/2000x440x350/closed | bottom | box | -1..1 | 0.08..0.098 | -0.163..0.152 | back,side-left,side-right |
+| @part | media/2000x440x350/closed | top | box | -1..1 | 0.422..0.44 | -0.175..0.152 | back,side-left,side-right |
+| @part | media/2000x440x350/closed | side-left | box | -1..-0.982 | 0.098..0.422 | -0.163..0.152 | back,bottom,top |
+| @part | media/2000x440x350/closed | side-right | box | 0.982..1 | 0.098..0.422 | -0.163..0.152 | back,bottom,top |
+| @part | media/2000x440x350/closed | toe | box | -1..1 | 0..0.08 | -0.175..0.125 | ground,back,bottom |
+| @part | media/2000x440x350/closed | fixed-front | box | -1..1 | 0.08..0.422 | 0.152..0.175 | side-left,side-right |
+| @part | media/2000x440x350/closed | bay-divider-left | box | -0.178..-0.16 | 0.098..0.422 | -0.163..0.152 | bottom,top,back |
+| @part | media/2000x440x350/closed | bay-divider-right | box | 0.16..0.178 | 0.098..0.422 | -0.163..0.152 | bottom,top,back |
+| @part | media/2000x440x350/closed | drawer-0 | hollow | -0.997..-0.163 | 0.19..0.37 | -0.155..0.175 | side-left,bay-divider-left,handle-0 |
+| @part | media/2000x440x350/closed | handle-0 | box | -0.66..-0.5 | 0.274..0.286 | 0.159..0.175 | drawer-0 |
+| @part | media/2000x440x350/closed | drawer-1 | hollow | 0.163..0.997 | 0.19..0.37 | -0.155..0.175 | bay-divider-right,side-right,handle-1 |
+| @part | media/2000x440x350/closed | handle-1 | box | 0.5..0.66 | 0.274..0.286 | 0.159..0.175 | drawer-1 |
 
-@inventory nightstand/500x460x460/delivered: back, bottom, top, side-left, side-right, toe, fixed-front, drawer-0, runner-0-left, runner-0-right, handle-0, drawer-1, runner-1-left, runner-1-right, handle-1
+@inventory nightstand/500x460x460/closed: back, bottom, top, side-left, side-right, toe, fixed-front, drawer-0, runner-0-left, runner-0-right, handle-0, drawer-1, runner-1-left, runner-1-right, handle-1
 
-@void nightstand/500x460x460/delivered: fixed-front, -0.247..0.247, 0.087..0.233, 0.207..0.23
-@void nightstand/500x460x460/delivered: drawer-0, -0.08..0.08, 0.154..0.166, 0.214..0.23
-@void nightstand/500x460x460/delivered: fixed-front, -0.247..0.247, 0.267..0.413, 0.207..0.23
-@void nightstand/500x460x460/delivered: drawer-1, -0.08..0.08, 0.334..0.346, 0.214..0.23
-@piece nightstand/500x460x460/delivered: drawer-0, -0.244..0.244, 0.09..0.23, 0.212..0.23
-@piece nightstand/500x460x460/delivered: drawer-0, -0.229..0.229, 0.105..0.117, -0.21..0.212
-@piece nightstand/500x460x460/delivered: drawer-0, -0.229..-0.217, 0.117..0.22, -0.21..0.212
-@piece nightstand/500x460x460/delivered: drawer-0, 0.217..0.229, 0.117..0.22, -0.21..0.212
-@piece nightstand/500x460x460/delivered: drawer-0, -0.217..0.217, 0.117..0.22, -0.21..-0.198
-@piece nightstand/500x460x460/delivered: drawer-1, -0.244..0.244, 0.27..0.41, 0.212..0.23
-@piece nightstand/500x460x460/delivered: drawer-1, -0.229..0.229, 0.285..0.297, -0.21..0.212
-@piece nightstand/500x460x460/delivered: drawer-1, -0.229..-0.217, 0.297..0.4, -0.21..0.212
-@piece nightstand/500x460x460/delivered: drawer-1, 0.217..0.229, 0.297..0.4, -0.21..0.212
-@piece nightstand/500x460x460/delivered: drawer-1, -0.217..0.217, 0.297..0.4, -0.21..-0.198
+@void nightstand/500x460x460/closed: fixed-front, -0.247..0.247, 0.087..0.233, 0.207..0.23
+@void nightstand/500x460x460/closed: drawer-0, -0.08..0.08, 0.154..0.166, 0.214..0.23
+@void nightstand/500x460x460/closed: fixed-front, -0.247..0.247, 0.267..0.413, 0.207..0.23
+@void nightstand/500x460x460/closed: drawer-1, -0.08..0.08, 0.334..0.346, 0.214..0.23
+@piece nightstand/500x460x460/closed: drawer-0, -0.244..0.244, 0.09..0.23, 0.212..0.23
+@piece nightstand/500x460x460/closed: drawer-0, -0.229..0.229, 0.105..0.117, -0.21..0.212
+@piece nightstand/500x460x460/closed: drawer-0, -0.229..-0.217, 0.117..0.22, -0.21..0.212
+@piece nightstand/500x460x460/closed: drawer-0, 0.217..0.229, 0.117..0.22, -0.21..0.212
+@piece nightstand/500x460x460/closed: drawer-0, -0.217..0.217, 0.117..0.22, -0.21..-0.198
+@piece nightstand/500x460x460/closed: drawer-1, -0.244..0.244, 0.27..0.41, 0.212..0.23
+@piece nightstand/500x460x460/closed: drawer-1, -0.229..0.229, 0.285..0.297, -0.21..0.212
+@piece nightstand/500x460x460/closed: drawer-1, -0.229..-0.217, 0.297..0.4, -0.21..0.212
+@piece nightstand/500x460x460/closed: drawer-1, 0.217..0.229, 0.297..0.4, -0.21..0.212
+@piece nightstand/500x460x460/closed: drawer-1, -0.217..0.217, 0.297..0.4, -0.21..-0.198
 | kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| @envelope | nightstand/500x460x460/delivered | * | bounds | -0.25..0.25 | 0..0.46 | -0.23..0.23 | - |
-| @part | nightstand/500x460x460/delivered | back | box | -0.25..0.25 | 0.08..0.442 | -0.23..-0.218 | toe,bottom,top |
-| @part | nightstand/500x460x460/delivered | bottom | box | -0.25..0.25 | 0.08..0.098 | -0.218..0.207 | back,side-left,side-right |
-| @part | nightstand/500x460x460/delivered | top | box | -0.25..0.25 | 0.442..0.46 | -0.23..0.207 | back,side-left,side-right |
-| @part | nightstand/500x460x460/delivered | side-left | box | -0.25..-0.232 | 0.098..0.442 | -0.218..0.207 | back,bottom,top |
-| @part | nightstand/500x460x460/delivered | side-right | box | 0.232..0.25 | 0.098..0.442 | -0.218..0.207 | back,bottom,top |
-| @part | nightstand/500x460x460/delivered | toe | box | -0.25..0.25 | 0..0.08 | -0.23..0.18 | ground,back,bottom |
-| @part | nightstand/500x460x460/delivered | fixed-front | box | -0.25..0.25 | 0.08..0.442 | 0.207..0.23 | side-left,side-right |
-| @part | nightstand/500x460x460/delivered | drawer-0 | hollow | -0.244..0.244 | 0.09..0.23 | -0.21..0.23 | runner-0-left,runner-0-right,handle-0 |
-| @part | nightstand/500x460x460/delivered | runner-0-left | box | -0.232..-0.229 | 0.117..0.129 | -0.21..0.207 | side-left,drawer-0 |
-| @part | nightstand/500x460x460/delivered | runner-0-right | box | 0.229..0.232 | 0.117..0.129 | -0.21..0.207 | side-right,drawer-0 |
-| @part | nightstand/500x460x460/delivered | handle-0 | box | -0.08..0.08 | 0.154..0.166 | 0.214..0.23 | drawer-0 |
-| @part | nightstand/500x460x460/delivered | drawer-1 | hollow | -0.244..0.244 | 0.27..0.41 | -0.21..0.23 | runner-1-left,runner-1-right,handle-1 |
-| @part | nightstand/500x460x460/delivered | runner-1-left | box | -0.232..-0.229 | 0.297..0.309 | -0.21..0.207 | side-left,drawer-1 |
-| @part | nightstand/500x460x460/delivered | runner-1-right | box | 0.229..0.232 | 0.297..0.309 | -0.21..0.207 | side-right,drawer-1 |
-| @part | nightstand/500x460x460/delivered | handle-1 | box | -0.08..0.08 | 0.334..0.346 | 0.214..0.23 | drawer-1 |
+| @envelope | nightstand/500x460x460/closed | * | bounds | -0.25..0.25 | 0..0.46 | -0.23..0.23 | - |
+| @part | nightstand/500x460x460/closed | back | box | -0.25..0.25 | 0.08..0.442 | -0.23..-0.218 | toe,bottom,top |
+| @part | nightstand/500x460x460/closed | bottom | box | -0.25..0.25 | 0.08..0.098 | -0.218..0.207 | back,side-left,side-right |
+| @part | nightstand/500x460x460/closed | top | box | -0.25..0.25 | 0.442..0.46 | -0.23..0.207 | back,side-left,side-right |
+| @part | nightstand/500x460x460/closed | side-left | box | -0.25..-0.232 | 0.098..0.442 | -0.218..0.207 | back,bottom,top |
+| @part | nightstand/500x460x460/closed | side-right | box | 0.232..0.25 | 0.098..0.442 | -0.218..0.207 | back,bottom,top |
+| @part | nightstand/500x460x460/closed | toe | box | -0.25..0.25 | 0..0.08 | -0.23..0.18 | ground,back,bottom |
+| @part | nightstand/500x460x460/closed | fixed-front | box | -0.25..0.25 | 0.08..0.442 | 0.207..0.23 | side-left,side-right |
+| @part | nightstand/500x460x460/closed | drawer-0 | hollow | -0.244..0.244 | 0.09..0.23 | -0.21..0.23 | runner-0-left,runner-0-right,handle-0 |
+| @part | nightstand/500x460x460/closed | runner-0-left | box | -0.232..-0.229 | 0.117..0.129 | -0.21..0.207 | side-left,drawer-0 |
+| @part | nightstand/500x460x460/closed | runner-0-right | box | 0.229..0.232 | 0.117..0.129 | -0.21..0.207 | side-right,drawer-0 |
+| @part | nightstand/500x460x460/closed | handle-0 | box | -0.08..0.08 | 0.154..0.166 | 0.214..0.23 | drawer-0 |
+| @part | nightstand/500x460x460/closed | drawer-1 | hollow | -0.244..0.244 | 0.27..0.41 | -0.21..0.23 | runner-1-left,runner-1-right,handle-1 |
+| @part | nightstand/500x460x460/closed | runner-1-left | box | -0.232..-0.229 | 0.297..0.309 | -0.21..0.207 | side-left,drawer-1 |
+| @part | nightstand/500x460x460/closed | runner-1-right | box | 0.229..0.232 | 0.297..0.309 | -0.21..0.207 | side-right,drawer-1 |
+| @part | nightstand/500x460x460/closed | handle-1 | box | -0.08..0.08 | 0.334..0.346 | 0.214..0.23 | drawer-1 |
 
-@inventory open-shelf/1100x2600x500/delivered: back, bottom, top, side-left, side-right, toe, shelf-1, shelf-2, shelf-3, shelf-4, shelf-5, shelf-6, shelf-7
-
-| kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| @envelope | open-shelf/1100x2600x500/delivered | * | bounds | -0.55..0.55 | 0..2.6 | -0.25..0.25 | - |
-| @part | open-shelf/1100x2600x500/delivered | back | box | -0.55..0.55 | 0.08..2.582 | -0.25..-0.238 | toe,bottom,top |
-| @part | open-shelf/1100x2600x500/delivered | bottom | box | -0.55..0.55 | 0.08..0.098 | -0.238..0.25 | back,side-left,side-right |
-| @part | open-shelf/1100x2600x500/delivered | top | box | -0.55..0.55 | 2.582..2.6 | -0.25..0.25 | back,side-left,side-right |
-| @part | open-shelf/1100x2600x500/delivered | side-left | box | -0.55..-0.532 | 0.098..2.582 | -0.238..0.25 | back,bottom,top |
-| @part | open-shelf/1100x2600x500/delivered | side-right | box | 0.532..0.55 | 0.098..2.582 | -0.238..0.25 | back,bottom,top |
-| @part | open-shelf/1100x2600x500/delivered | toe | box | -0.55..0.55 | 0..0.08 | -0.25..0.2 | ground,back,bottom |
-| @part | open-shelf/1100x2600x500/delivered | shelf-1 | box | -0.532..0.532 | 0.346..0.364 | -0.238..0.25 | side-left,side-right,back |
-| @part | open-shelf/1100x2600x500/delivered | shelf-2 | box | -0.532..0.532 | 0.661..0.679 | -0.238..0.25 | side-left,side-right,back |
-| @part | open-shelf/1100x2600x500/delivered | shelf-3 | box | -0.532..0.532 | 0.976..0.994 | -0.238..0.25 | side-left,side-right,back |
-| @part | open-shelf/1100x2600x500/delivered | shelf-4 | box | -0.532..0.532 | 1.291..1.309 | -0.238..0.25 | side-left,side-right,back |
-| @part | open-shelf/1100x2600x500/delivered | shelf-5 | box | -0.532..0.532 | 1.606..1.624 | -0.238..0.25 | side-left,side-right,back |
-| @part | open-shelf/1100x2600x500/delivered | shelf-6 | box | -0.532..0.532 | 1.921..1.939 | -0.238..0.25 | side-left,side-right,back |
-| @part | open-shelf/1100x2600x500/delivered | shelf-7 | box | -0.532..0.532 | 2.236..2.254 | -0.238..0.25 | side-left,side-right,back |
-
-@inventory open-shelf/1550x2500x500/delivered: back, bottom, top, side-left, side-right, toe, shelf-1, shelf-2, shelf-3, shelf-4, shelf-5, shelf-6, shelf-7
+@inventory open-shelf/1100x2600x500/open: back, bottom, top, side-left, side-right, toe, shelf-1, shelf-2, shelf-3, shelf-4, shelf-5, shelf-6, shelf-7
 
 | kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| @envelope | open-shelf/1550x2500x500/delivered | * | bounds | -0.775..0.775 | 0..2.5 | -0.25..0.25 | - |
-| @part | open-shelf/1550x2500x500/delivered | back | box | -0.775..0.775 | 0.08..2.482 | -0.25..-0.238 | toe,bottom,top |
-| @part | open-shelf/1550x2500x500/delivered | bottom | box | -0.775..0.775 | 0.08..0.098 | -0.238..0.25 | back,side-left,side-right |
-| @part | open-shelf/1550x2500x500/delivered | top | box | -0.775..0.775 | 2.482..2.5 | -0.25..0.25 | back,side-left,side-right |
-| @part | open-shelf/1550x2500x500/delivered | side-left | box | -0.775..-0.757 | 0.098..2.482 | -0.238..0.25 | back,bottom,top |
-| @part | open-shelf/1550x2500x500/delivered | side-right | box | 0.757..0.775 | 0.098..2.482 | -0.238..0.25 | back,bottom,top |
-| @part | open-shelf/1550x2500x500/delivered | toe | box | -0.775..0.775 | 0..0.08 | -0.25..0.2 | ground,back,bottom |
-| @part | open-shelf/1550x2500x500/delivered | shelf-1 | box | -0.757..0.757 | 0.3335..0.3515 | -0.238..0.25 | side-left,side-right,back |
-| @part | open-shelf/1550x2500x500/delivered | shelf-2 | box | -0.757..0.757 | 0.636..0.654 | -0.238..0.25 | side-left,side-right,back |
-| @part | open-shelf/1550x2500x500/delivered | shelf-3 | box | -0.757..0.757 | 0.9385..0.9565 | -0.238..0.25 | side-left,side-right,back |
-| @part | open-shelf/1550x2500x500/delivered | shelf-4 | box | -0.757..0.757 | 1.241..1.259 | -0.238..0.25 | side-left,side-right,back |
-| @part | open-shelf/1550x2500x500/delivered | shelf-5 | box | -0.757..0.757 | 1.5435..1.5615 | -0.238..0.25 | side-left,side-right,back |
-| @part | open-shelf/1550x2500x500/delivered | shelf-6 | box | -0.757..0.757 | 1.846..1.864 | -0.238..0.25 | side-left,side-right,back |
-| @part | open-shelf/1550x2500x500/delivered | shelf-7 | box | -0.757..0.757 | 2.1485..2.1665 | -0.238..0.25 | side-left,side-right,back |
+| @envelope | open-shelf/1100x2600x500/open | * | bounds | -0.55..0.55 | 0..2.6 | -0.25..0.25 | - |
+| @part | open-shelf/1100x2600x500/open | back | box | -0.55..0.55 | 0.08..2.582 | -0.25..-0.238 | toe,bottom,top |
+| @part | open-shelf/1100x2600x500/open | bottom | box | -0.55..0.55 | 0.08..0.098 | -0.238..0.25 | back,side-left,side-right |
+| @part | open-shelf/1100x2600x500/open | top | box | -0.55..0.55 | 2.582..2.6 | -0.25..0.25 | back,side-left,side-right |
+| @part | open-shelf/1100x2600x500/open | side-left | box | -0.55..-0.532 | 0.098..2.582 | -0.238..0.25 | back,bottom,top |
+| @part | open-shelf/1100x2600x500/open | side-right | box | 0.532..0.55 | 0.098..2.582 | -0.238..0.25 | back,bottom,top |
+| @part | open-shelf/1100x2600x500/open | toe | box | -0.55..0.55 | 0..0.08 | -0.25..0.2 | ground,back,bottom |
+| @part | open-shelf/1100x2600x500/open | shelf-1 | box | -0.532..0.532 | 0.346..0.364 | -0.238..0.25 | side-left,side-right,back |
+| @part | open-shelf/1100x2600x500/open | shelf-2 | box | -0.532..0.532 | 0.661..0.679 | -0.238..0.25 | side-left,side-right,back |
+| @part | open-shelf/1100x2600x500/open | shelf-3 | box | -0.532..0.532 | 0.976..0.994 | -0.238..0.25 | side-left,side-right,back |
+| @part | open-shelf/1100x2600x500/open | shelf-4 | box | -0.532..0.532 | 1.291..1.309 | -0.238..0.25 | side-left,side-right,back |
+| @part | open-shelf/1100x2600x500/open | shelf-5 | box | -0.532..0.532 | 1.606..1.624 | -0.238..0.25 | side-left,side-right,back |
+| @part | open-shelf/1100x2600x500/open | shelf-6 | box | -0.532..0.532 | 1.921..1.939 | -0.238..0.25 | side-left,side-right,back |
+| @part | open-shelf/1100x2600x500/open | shelf-7 | box | -0.532..0.532 | 2.236..2.254 | -0.238..0.25 | side-left,side-right,back |
 
-@inventory open-shelf/600x1100x380/delivered: back, bottom, top, side-left, side-right, toe, shelf-1, shelf-2
-
-| kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| @envelope | open-shelf/600x1100x380/delivered | * | bounds | -0.3..0.3 | 0..1.1 | -0.19..0.19 | - |
-| @part | open-shelf/600x1100x380/delivered | back | box | -0.3..0.3 | 0.08..1.082 | -0.19..-0.178 | toe,bottom,top |
-| @part | open-shelf/600x1100x380/delivered | bottom | box | -0.3..0.3 | 0.08..0.098 | -0.178..0.19 | back,side-left,side-right |
-| @part | open-shelf/600x1100x380/delivered | top | box | -0.3..0.3 | 1.082..1.1 | -0.19..0.19 | back,side-left,side-right |
-| @part | open-shelf/600x1100x380/delivered | side-left | box | -0.3..-0.282 | 0.098..1.082 | -0.178..0.19 | back,bottom,top |
-| @part | open-shelf/600x1100x380/delivered | side-right | box | 0.282..0.3 | 0.098..1.082 | -0.178..0.19 | back,bottom,top |
-| @part | open-shelf/600x1100x380/delivered | toe | box | -0.3..0.3 | 0..0.08 | -0.19..0.14 | ground,back,bottom |
-| @part | open-shelf/600x1100x380/delivered | shelf-1 | box | -0.282..0.282 | 0.371..0.389 | -0.178..0.19 | side-left,side-right,back |
-| @part | open-shelf/600x1100x380/delivered | shelf-2 | box | -0.282..0.282 | 0.711..0.729 | -0.178..0.19 | side-left,side-right,back |
-
-@inventory open-shelf/750x1200x400/delivered: back, bottom, top, side-left, side-right, toe, shelf-1, shelf-2, shelf-3
+@inventory open-shelf/1550x2500x500/open: back, bottom, top, side-left, side-right, toe, shelf-1, shelf-2, shelf-3, shelf-4, shelf-5, shelf-6, shelf-7
 
 | kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| @envelope | open-shelf/750x1200x400/delivered | * | bounds | -0.375..0.375 | 0..1.2 | -0.2..0.2 | - |
-| @part | open-shelf/750x1200x400/delivered | back | box | -0.375..0.375 | 0.08..1.182 | -0.2..-0.188 | toe,bottom,top |
-| @part | open-shelf/750x1200x400/delivered | bottom | box | -0.375..0.375 | 0.08..0.098 | -0.188..0.2 | back,side-left,side-right |
-| @part | open-shelf/750x1200x400/delivered | top | box | -0.375..0.375 | 1.182..1.2 | -0.2..0.2 | back,side-left,side-right |
-| @part | open-shelf/750x1200x400/delivered | side-left | box | -0.375..-0.357 | 0.098..1.182 | -0.188..0.2 | back,bottom,top |
-| @part | open-shelf/750x1200x400/delivered | side-right | box | 0.357..0.375 | 0.098..1.182 | -0.188..0.2 | back,bottom,top |
-| @part | open-shelf/750x1200x400/delivered | toe | box | -0.375..0.375 | 0..0.08 | -0.2..0.15 | ground,back,bottom |
-| @part | open-shelf/750x1200x400/delivered | shelf-1 | box | -0.357..0.357 | 0.311..0.329 | -0.188..0.2 | side-left,side-right,back |
-| @part | open-shelf/750x1200x400/delivered | shelf-2 | box | -0.357..0.357 | 0.591..0.609 | -0.188..0.2 | side-left,side-right,back |
-| @part | open-shelf/750x1200x400/delivered | shelf-3 | box | -0.357..0.357 | 0.871..0.889 | -0.188..0.2 | side-left,side-right,back |
+| @envelope | open-shelf/1550x2500x500/open | * | bounds | -0.775..0.775 | 0..2.5 | -0.25..0.25 | - |
+| @part | open-shelf/1550x2500x500/open | back | box | -0.775..0.775 | 0.08..2.482 | -0.25..-0.238 | toe,bottom,top |
+| @part | open-shelf/1550x2500x500/open | bottom | box | -0.775..0.775 | 0.08..0.098 | -0.238..0.25 | back,side-left,side-right |
+| @part | open-shelf/1550x2500x500/open | top | box | -0.775..0.775 | 2.482..2.5 | -0.25..0.25 | back,side-left,side-right |
+| @part | open-shelf/1550x2500x500/open | side-left | box | -0.775..-0.757 | 0.098..2.482 | -0.238..0.25 | back,bottom,top |
+| @part | open-shelf/1550x2500x500/open | side-right | box | 0.757..0.775 | 0.098..2.482 | -0.238..0.25 | back,bottom,top |
+| @part | open-shelf/1550x2500x500/open | toe | box | -0.775..0.775 | 0..0.08 | -0.25..0.2 | ground,back,bottom |
+| @part | open-shelf/1550x2500x500/open | shelf-1 | box | -0.757..0.757 | 0.3335..0.3515 | -0.238..0.25 | side-left,side-right,back |
+| @part | open-shelf/1550x2500x500/open | shelf-2 | box | -0.757..0.757 | 0.636..0.654 | -0.238..0.25 | side-left,side-right,back |
+| @part | open-shelf/1550x2500x500/open | shelf-3 | box | -0.757..0.757 | 0.9385..0.9565 | -0.238..0.25 | side-left,side-right,back |
+| @part | open-shelf/1550x2500x500/open | shelf-4 | box | -0.757..0.757 | 1.241..1.259 | -0.238..0.25 | side-left,side-right,back |
+| @part | open-shelf/1550x2500x500/open | shelf-5 | box | -0.757..0.757 | 1.5435..1.5615 | -0.238..0.25 | side-left,side-right,back |
+| @part | open-shelf/1550x2500x500/open | shelf-6 | box | -0.757..0.757 | 1.846..1.864 | -0.238..0.25 | side-left,side-right,back |
+| @part | open-shelf/1550x2500x500/open | shelf-7 | box | -0.757..0.757 | 2.1485..2.1665 | -0.238..0.25 | side-left,side-right,back |
 
-@inventory open-shelf/850x2400x450/delivered: back, bottom, top, side-left, side-right, toe, shelf-1, shelf-2, shelf-3, shelf-4, shelf-5, shelf-6
-
-| kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| @envelope | open-shelf/850x2400x450/delivered | * | bounds | -0.425..0.425 | 0..2.4 | -0.225..0.225 | - |
-| @part | open-shelf/850x2400x450/delivered | back | box | -0.425..0.425 | 0.08..2.382 | -0.225..-0.213 | toe,bottom,top |
-| @part | open-shelf/850x2400x450/delivered | bottom | box | -0.425..0.425 | 0.08..0.098 | -0.213..0.225 | back,side-left,side-right |
-| @part | open-shelf/850x2400x450/delivered | top | box | -0.425..0.425 | 2.382..2.4 | -0.225..0.225 | back,side-left,side-right |
-| @part | open-shelf/850x2400x450/delivered | side-left | box | -0.425..-0.407 | 0.098..2.382 | -0.213..0.225 | back,bottom,top |
-| @part | open-shelf/850x2400x450/delivered | side-right | box | 0.407..0.425 | 0.098..2.382 | -0.213..0.225 | back,bottom,top |
-| @part | open-shelf/850x2400x450/delivered | toe | box | -0.425..0.425 | 0..0.08 | -0.225..0.175 | ground,back,bottom |
-| @part | open-shelf/850x2400x450/delivered | shelf-1 | box | -0.407..0.407 | 0.362429..0.380429 | -0.213..0.225 | side-left,side-right,back |
-| @part | open-shelf/850x2400x450/delivered | shelf-2 | box | -0.407..0.407 | 0.693857..0.711857 | -0.213..0.225 | side-left,side-right,back |
-| @part | open-shelf/850x2400x450/delivered | shelf-3 | box | -0.407..0.407 | 1.025286..1.043286 | -0.213..0.225 | side-left,side-right,back |
-| @part | open-shelf/850x2400x450/delivered | shelf-4 | box | -0.407..0.407 | 1.356714..1.374714 | -0.213..0.225 | side-left,side-right,back |
-| @part | open-shelf/850x2400x450/delivered | shelf-5 | box | -0.407..0.407 | 1.688143..1.706143 | -0.213..0.225 | side-left,side-right,back |
-| @part | open-shelf/850x2400x450/delivered | shelf-6 | box | -0.407..0.407 | 2.019571..2.037571 | -0.213..0.225 | side-left,side-right,back |
-
-@inventory open-shelf/950x1350x250/delivered: back, bottom, top, side-left, side-right, toe, shelf-1, shelf-2, shelf-3
+@inventory open-shelf/600x1100x380/open: back, bottom, top, side-left, side-right, toe, shelf-1, shelf-2
 
 | kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| @envelope | open-shelf/950x1350x250/delivered | * | bounds | -0.475..0.475 | 0..1.35 | -0.125..0.125 | - |
-| @part | open-shelf/950x1350x250/delivered | back | box | -0.475..0.475 | 0.08..1.332 | -0.125..-0.113 | toe,bottom,top |
-| @part | open-shelf/950x1350x250/delivered | bottom | box | -0.475..0.475 | 0.08..0.098 | -0.113..0.125 | back,side-left,side-right |
-| @part | open-shelf/950x1350x250/delivered | top | box | -0.475..0.475 | 1.332..1.35 | -0.125..0.125 | back,side-left,side-right |
-| @part | open-shelf/950x1350x250/delivered | side-left | box | -0.475..-0.457 | 0.098..1.332 | -0.113..0.125 | back,bottom,top |
-| @part | open-shelf/950x1350x250/delivered | side-right | box | 0.457..0.475 | 0.098..1.332 | -0.113..0.125 | back,bottom,top |
-| @part | open-shelf/950x1350x250/delivered | toe | box | -0.475..0.475 | 0..0.08 | -0.125..0.075 | ground,back,bottom |
-| @part | open-shelf/950x1350x250/delivered | shelf-1 | box | -0.457..0.457 | 0.3485..0.3665 | -0.113..0.125 | side-left,side-right,back |
-| @part | open-shelf/950x1350x250/delivered | shelf-2 | box | -0.457..0.457 | 0.666..0.684 | -0.113..0.125 | side-left,side-right,back |
-| @part | open-shelf/950x1350x250/delivered | shelf-3 | box | -0.457..0.457 | 0.9835..1.0015 | -0.113..0.125 | side-left,side-right,back |
+| @envelope | open-shelf/600x1100x380/open | * | bounds | -0.3..0.3 | 0..1.1 | -0.19..0.19 | - |
+| @part | open-shelf/600x1100x380/open | back | box | -0.3..0.3 | 0.08..1.082 | -0.19..-0.178 | toe,bottom,top |
+| @part | open-shelf/600x1100x380/open | bottom | box | -0.3..0.3 | 0.08..0.098 | -0.178..0.19 | back,side-left,side-right |
+| @part | open-shelf/600x1100x380/open | top | box | -0.3..0.3 | 1.082..1.1 | -0.19..0.19 | back,side-left,side-right |
+| @part | open-shelf/600x1100x380/open | side-left | box | -0.3..-0.282 | 0.098..1.082 | -0.178..0.19 | back,bottom,top |
+| @part | open-shelf/600x1100x380/open | side-right | box | 0.282..0.3 | 0.098..1.082 | -0.178..0.19 | back,bottom,top |
+| @part | open-shelf/600x1100x380/open | toe | box | -0.3..0.3 | 0..0.08 | -0.19..0.14 | ground,back,bottom |
+| @part | open-shelf/600x1100x380/open | shelf-1 | box | -0.282..0.282 | 0.371..0.389 | -0.178..0.19 | side-left,side-right,back |
+| @part | open-shelf/600x1100x380/open | shelf-2 | box | -0.282..0.282 | 0.711..0.729 | -0.178..0.19 | side-left,side-right,back |
 
-@inventory service/1100x2400x560/delivered: back, bottom, top, side-left, side-right, toe, shelf-1, shelf-2, shelf-3, shelf-4, shelf-5, shelf-6, stile-1, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1
+@inventory open-shelf/750x1200x400/open: back, bottom, top, side-left, side-right, toe, shelf-1, shelf-2, shelf-3
 
-@void service/1100x2400x560/delivered: shelf-1, -0.009..0.009, 0.362429..0.380429, 0.239..0.257
-@void service/1100x2400x560/delivered: shelf-2, -0.009..0.009, 0.693857..0.711857, 0.239..0.257
-@void service/1100x2400x560/delivered: shelf-3, -0.009..0.009, 1.025286..1.043286, 0.239..0.257
-@void service/1100x2400x560/delivered: shelf-4, -0.009..0.009, 1.356714..1.374714, 0.239..0.257
-@void service/1100x2400x560/delivered: shelf-5, -0.009..0.009, 1.688143..1.706143, 0.239..0.257
-@void service/1100x2400x560/delivered: shelf-6, -0.009..0.009, 2.019571..2.037571, 0.239..0.257
-@void service/1100x2400x560/delivered: door-0, -0.542..-0.526, 0.14..0.18, 0.262..0.279
-@void service/1100x2400x560/delivered: door-0, -0.542..-0.526, 2.22..2.26, 0.262..0.279
-@void service/1100x2400x560/delivered: door-0, -0.0625..-0.0505, 1.2757..1.4357, 0.264..0.28
-@void service/1100x2400x560/delivered: door-1, 0.526..0.542, 0.14..0.18, 0.262..0.279
-@void service/1100x2400x560/delivered: door-1, 0.526..0.542, 2.22..2.26, 0.262..0.279
-@void service/1100x2400x560/delivered: door-1, 0.0505..0.0625, 1.2757..1.4357, 0.264..0.28
-@piece service/1100x2400x560/delivered: hinge-0, -0.542..-0.526, 0.14..0.18, 0.257..0.262
-@piece service/1100x2400x560/delivered: hinge-0, -0.542..-0.526, 0.14..0.18, 0.262..0.279
-@piece service/1100x2400x560/delivered: hinge-1, -0.542..-0.526, 2.22..2.26, 0.257..0.262
-@piece service/1100x2400x560/delivered: hinge-1, -0.542..-0.526, 2.22..2.26, 0.262..0.279
-@piece service/1100x2400x560/delivered: hinge-2, 0.526..0.542, 0.14..0.18, 0.257..0.262
-@piece service/1100x2400x560/delivered: hinge-2, 0.526..0.542, 0.14..0.18, 0.262..0.279
-@piece service/1100x2400x560/delivered: hinge-3, 0.526..0.542, 2.22..2.26, 0.257..0.262
-@piece service/1100x2400x560/delivered: hinge-3, 0.526..0.542, 2.22..2.26, 0.262..0.279
 | kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| @envelope | service/1100x2400x560/delivered | * | bounds | -0.55..0.55 | 0..2.4 | -0.28..0.28 | - |
-| @part | service/1100x2400x560/delivered | back | box | -0.55..0.55 | 0.08..2.382 | -0.28..-0.268 | toe,bottom,top |
-| @part | service/1100x2400x560/delivered | bottom | box | -0.55..0.55 | 0.08..0.098 | -0.268..0.257 | back,side-left,side-right |
-| @part | service/1100x2400x560/delivered | top | box | -0.55..0.55 | 2.382..2.4 | -0.28..0.257 | back,side-left,side-right |
-| @part | service/1100x2400x560/delivered | side-left | box | -0.55..-0.532 | 0.098..2.382 | -0.268..0.257 | back,bottom,top |
-| @part | service/1100x2400x560/delivered | side-right | box | 0.532..0.55 | 0.098..2.382 | -0.268..0.257 | back,bottom,top |
-| @part | service/1100x2400x560/delivered | toe | box | -0.55..0.55 | 0..0.08 | -0.28..0.23 | ground,back,bottom |
-| @part | service/1100x2400x560/delivered | shelf-1 | box | -0.532..0.532 | 0.362429..0.380429 | -0.268..0.257 | side-left,side-right,back |
-| @part | service/1100x2400x560/delivered | shelf-2 | box | -0.532..0.532 | 0.693857..0.711857 | -0.268..0.257 | side-left,side-right,back |
-| @part | service/1100x2400x560/delivered | shelf-3 | box | -0.532..0.532 | 1.025286..1.043286 | -0.268..0.257 | side-left,side-right,back |
-| @part | service/1100x2400x560/delivered | shelf-4 | box | -0.532..0.532 | 1.356714..1.374714 | -0.268..0.257 | side-left,side-right,back |
-| @part | service/1100x2400x560/delivered | shelf-5 | box | -0.532..0.532 | 1.688143..1.706143 | -0.268..0.257 | side-left,side-right,back |
-| @part | service/1100x2400x560/delivered | shelf-6 | box | -0.532..0.532 | 2.019571..2.037571 | -0.268..0.257 | side-left,side-right,back |
-| @part | service/1100x2400x560/delivered | stile-1 | box | -0.009..0.009 | 0.098..2.382 | 0.239..0.257 | bottom,top |
-| @part | service/1100x2400x560/delivered | door-0 | box | -0.547..-0.0015 | 0.083..2.397 | 0.262..0.28 | hinge-0,hinge-1 |
-| @part | service/1100x2400x560/delivered | hinge-0 | curved | -0.542..-0.526 | 0.14..0.18 | 0.257..0.279 | door-0,side-left |
-| @part | service/1100x2400x560/delivered | hinge-1 | curved | -0.542..-0.526 | 2.22..2.26 | 0.257..0.279 | door-0,side-left |
-| @part | service/1100x2400x560/delivered | handle-0 | box | -0.0625..-0.0505 | 1.2757..1.4357 | 0.264..0.28 | door-0 |
-| @part | service/1100x2400x560/delivered | door-1 | box | 0.0015..0.547 | 0.083..2.397 | 0.262..0.28 | hinge-2,hinge-3 |
-| @part | service/1100x2400x560/delivered | hinge-2 | curved | 0.526..0.542 | 0.14..0.18 | 0.257..0.279 | door-1,side-right |
-| @part | service/1100x2400x560/delivered | hinge-3 | curved | 0.526..0.542 | 2.22..2.26 | 0.257..0.279 | door-1,side-right |
-| @part | service/1100x2400x560/delivered | handle-1 | box | 0.0505..0.0625 | 1.2757..1.4357 | 0.264..0.28 | door-1 |
+| @envelope | open-shelf/750x1200x400/open | * | bounds | -0.375..0.375 | 0..1.2 | -0.2..0.2 | - |
+| @part | open-shelf/750x1200x400/open | back | box | -0.375..0.375 | 0.08..1.182 | -0.2..-0.188 | toe,bottom,top |
+| @part | open-shelf/750x1200x400/open | bottom | box | -0.375..0.375 | 0.08..0.098 | -0.188..0.2 | back,side-left,side-right |
+| @part | open-shelf/750x1200x400/open | top | box | -0.375..0.375 | 1.182..1.2 | -0.2..0.2 | back,side-left,side-right |
+| @part | open-shelf/750x1200x400/open | side-left | box | -0.375..-0.357 | 0.098..1.182 | -0.188..0.2 | back,bottom,top |
+| @part | open-shelf/750x1200x400/open | side-right | box | 0.357..0.375 | 0.098..1.182 | -0.188..0.2 | back,bottom,top |
+| @part | open-shelf/750x1200x400/open | toe | box | -0.375..0.375 | 0..0.08 | -0.2..0.15 | ground,back,bottom |
+| @part | open-shelf/750x1200x400/open | shelf-1 | box | -0.357..0.357 | 0.311..0.329 | -0.188..0.2 | side-left,side-right,back |
+| @part | open-shelf/750x1200x400/open | shelf-2 | box | -0.357..0.357 | 0.591..0.609 | -0.188..0.2 | side-left,side-right,back |
+| @part | open-shelf/750x1200x400/open | shelf-3 | box | -0.357..0.357 | 0.871..0.889 | -0.188..0.2 | side-left,side-right,back |
 
-@inventory service/1100x2400x560/inspection-open: back, bottom, top, side-left, side-right, toe, shelf-1, shelf-2, shelf-3, shelf-4, shelf-5, shelf-6, stile-1, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1
+@inventory open-shelf/850x2400x450/open: back, bottom, top, side-left, side-right, toe, shelf-1, shelf-2, shelf-3, shelf-4, shelf-5, shelf-6
 
-@void service/1100x2400x560/inspection-open: shelf-1, -0.009..0.009, 0.362429..0.380429, 0.239..0.257
-@void service/1100x2400x560/inspection-open: shelf-2, -0.009..0.009, 0.693857..0.711857, 0.239..0.257
-@void service/1100x2400x560/inspection-open: shelf-3, -0.009..0.009, 1.025286..1.043286, 0.239..0.257
-@void service/1100x2400x560/inspection-open: shelf-4, -0.009..0.009, 1.356714..1.374714, 0.239..0.257
-@void service/1100x2400x560/inspection-open: shelf-5, -0.009..0.009, 1.688143..1.706143, 0.239..0.257
-@void service/1100x2400x560/inspection-open: shelf-6, -0.009..0.009, 2.019571..2.037571, 0.239..0.257
-@void service/1100x2400x560/inspection-open: door-0, -0.542..-0.525, 0.14..0.18, 0.263..0.279
-@void service/1100x2400x560/inspection-open: door-0, -0.543..-0.525, 0.14..0.18, 0.258..0.279
-@void service/1100x2400x560/inspection-open: door-0, -0.542..-0.525, 2.22..2.26, 0.263..0.279
-@void service/1100x2400x560/inspection-open: door-0, -0.543..-0.525, 2.22..2.26, 0.258..0.279
-@void service/1100x2400x560/inspection-open: door-0, -0.543..-0.527, 1.2757..1.4357, 0.7425..0.7545
-@void service/1100x2400x560/inspection-open: door-1, 0.525..0.542, 0.14..0.18, 0.263..0.279
-@void service/1100x2400x560/inspection-open: door-1, 0.525..0.543, 0.14..0.18, 0.258..0.279
-@void service/1100x2400x560/inspection-open: door-1, 0.525..0.542, 2.22..2.26, 0.263..0.279
-@void service/1100x2400x560/inspection-open: door-1, 0.525..0.543, 2.22..2.26, 0.258..0.279
-@void service/1100x2400x560/inspection-open: door-1, 0.527..0.543, 1.2757..1.4357, 0.7425..0.7545
-@piece service/1100x2400x560/inspection-open: hinge-0, -0.542..-0.526, 0.14..0.18, 0.257..0.262
-@piece service/1100x2400x560/inspection-open: hinge-0, -0.542..-0.526, 0.14..0.18, 0.262..0.279
-@piece service/1100x2400x560/inspection-open: hinge-1, -0.542..-0.526, 2.22..2.26, 0.257..0.262
-@piece service/1100x2400x560/inspection-open: hinge-1, -0.542..-0.526, 2.22..2.26, 0.262..0.279
-@piece service/1100x2400x560/inspection-open: hinge-2, 0.526..0.542, 0.14..0.18, 0.257..0.262
-@piece service/1100x2400x560/inspection-open: hinge-2, 0.526..0.542, 0.14..0.18, 0.262..0.279
-@piece service/1100x2400x560/inspection-open: hinge-3, 0.526..0.542, 2.22..2.26, 0.257..0.262
-@piece service/1100x2400x560/inspection-open: hinge-3, 0.526..0.542, 2.22..2.26, 0.262..0.279
 | kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| @envelope | service/1100x2400x560/inspection-open | * | bounds | -0.55..0.55 | 0..2.4 | -0.28..0.8035 | - |
-| @part | service/1100x2400x560/inspection-open | back | box | -0.55..0.55 | 0.08..2.382 | -0.28..-0.268 | toe,bottom,top |
-| @part | service/1100x2400x560/inspection-open | bottom | box | -0.55..0.55 | 0.08..0.098 | -0.268..0.257 | back,side-left,side-right |
-| @part | service/1100x2400x560/inspection-open | top | box | -0.55..0.55 | 2.382..2.4 | -0.28..0.257 | back,side-left,side-right |
-| @part | service/1100x2400x560/inspection-open | side-left | box | -0.55..-0.532 | 0.098..2.382 | -0.268..0.257 | back,bottom,top |
-| @part | service/1100x2400x560/inspection-open | side-right | box | 0.532..0.55 | 0.098..2.382 | -0.268..0.257 | back,bottom,top |
-| @part | service/1100x2400x560/inspection-open | toe | box | -0.55..0.55 | 0..0.08 | -0.28..0.23 | ground,back,bottom |
-| @part | service/1100x2400x560/inspection-open | shelf-1 | box | -0.532..0.532 | 0.362429..0.380429 | -0.268..0.257 | side-left,side-right,back |
-| @part | service/1100x2400x560/inspection-open | shelf-2 | box | -0.532..0.532 | 0.693857..0.711857 | -0.268..0.257 | side-left,side-right,back |
-| @part | service/1100x2400x560/inspection-open | shelf-3 | box | -0.532..0.532 | 1.025286..1.043286 | -0.268..0.257 | side-left,side-right,back |
-| @part | service/1100x2400x560/inspection-open | shelf-4 | box | -0.532..0.532 | 1.356714..1.374714 | -0.268..0.257 | side-left,side-right,back |
-| @part | service/1100x2400x560/inspection-open | shelf-5 | box | -0.532..0.532 | 1.688143..1.706143 | -0.268..0.257 | side-left,side-right,back |
-| @part | service/1100x2400x560/inspection-open | shelf-6 | box | -0.532..0.532 | 2.019571..2.037571 | -0.268..0.257 | side-left,side-right,back |
-| @part | service/1100x2400x560/inspection-open | stile-1 | box | -0.009..0.009 | 0.098..2.382 | 0.239..0.257 | bottom,top |
-| @part | service/1100x2400x560/inspection-open | door-0 | box | -0.543..-0.525 | 0.083..2.397 | 0.258..0.8035 | hinge-0,hinge-1 |
-| @part | service/1100x2400x560/inspection-open | hinge-0 | curved | -0.542..-0.526 | 0.14..0.18 | 0.257..0.279 | door-0,side-left |
-| @part | service/1100x2400x560/inspection-open | hinge-1 | curved | -0.542..-0.526 | 2.22..2.26 | 0.257..0.279 | door-0,side-left |
-| @part | service/1100x2400x560/inspection-open | handle-0 | box | -0.543..-0.527 | 1.2757..1.4357 | 0.7425..0.7545 | door-0 |
-| @part | service/1100x2400x560/inspection-open | door-1 | box | 0.525..0.543 | 0.083..2.397 | 0.258..0.8035 | hinge-2,hinge-3 |
-| @part | service/1100x2400x560/inspection-open | hinge-2 | curved | 0.526..0.542 | 0.14..0.18 | 0.257..0.279 | door-1,side-right |
-| @part | service/1100x2400x560/inspection-open | hinge-3 | curved | 0.526..0.542 | 2.22..2.26 | 0.257..0.279 | door-1,side-right |
-| @part | service/1100x2400x560/inspection-open | handle-1 | box | 0.527..0.543 | 1.2757..1.4357 | 0.7425..0.7545 | door-1 |
+| @envelope | open-shelf/850x2400x450/open | * | bounds | -0.425..0.425 | 0..2.4 | -0.225..0.225 | - |
+| @part | open-shelf/850x2400x450/open | back | box | -0.425..0.425 | 0.08..2.382 | -0.225..-0.213 | toe,bottom,top |
+| @part | open-shelf/850x2400x450/open | bottom | box | -0.425..0.425 | 0.08..0.098 | -0.213..0.225 | back,side-left,side-right |
+| @part | open-shelf/850x2400x450/open | top | box | -0.425..0.425 | 2.382..2.4 | -0.225..0.225 | back,side-left,side-right |
+| @part | open-shelf/850x2400x450/open | side-left | box | -0.425..-0.407 | 0.098..2.382 | -0.213..0.225 | back,bottom,top |
+| @part | open-shelf/850x2400x450/open | side-right | box | 0.407..0.425 | 0.098..2.382 | -0.213..0.225 | back,bottom,top |
+| @part | open-shelf/850x2400x450/open | toe | box | -0.425..0.425 | 0..0.08 | -0.225..0.175 | ground,back,bottom |
+| @part | open-shelf/850x2400x450/open | shelf-1 | box | -0.407..0.407 | 0.362429..0.380429 | -0.213..0.225 | side-left,side-right,back |
+| @part | open-shelf/850x2400x450/open | shelf-2 | box | -0.407..0.407 | 0.693857..0.711857 | -0.213..0.225 | side-left,side-right,back |
+| @part | open-shelf/850x2400x450/open | shelf-3 | box | -0.407..0.407 | 1.025286..1.043286 | -0.213..0.225 | side-left,side-right,back |
+| @part | open-shelf/850x2400x450/open | shelf-4 | box | -0.407..0.407 | 1.356714..1.374714 | -0.213..0.225 | side-left,side-right,back |
+| @part | open-shelf/850x2400x450/open | shelf-5 | box | -0.407..0.407 | 1.688143..1.706143 | -0.213..0.225 | side-left,side-right,back |
+| @part | open-shelf/850x2400x450/open | shelf-6 | box | -0.407..0.407 | 2.019571..2.037571 | -0.213..0.225 | side-left,side-right,back |
 
-@inventory service/640x840x600/delivered: back, bottom, top, side-left, side-right, toe, shelf-1, shelf-2, stile-1, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1
+@inventory open-shelf/950x1350x250/open: back, bottom, top, side-left, side-right, toe, shelf-1, shelf-2, shelf-3
 
-@void service/640x840x600/delivered: shelf-1, -0.009..0.009, 0.284333..0.302333, 0.259..0.277
-@void service/640x840x600/delivered: shelf-2, -0.009..0.009, 0.537667..0.555667, 0.259..0.277
-@void service/640x840x600/delivered: door-0, -0.312..-0.296, 0.14..0.18, 0.282..0.299
-@void service/640x840x600/delivered: door-0, -0.312..-0.296, 0.66..0.7, 0.282..0.299
-@void service/640x840x600/delivered: door-0, -0.0625..-0.0505, 0.4177..0.5777, 0.284..0.3
-@void service/640x840x600/delivered: door-1, 0.296..0.312, 0.14..0.18, 0.282..0.299
-@void service/640x840x600/delivered: door-1, 0.296..0.312, 0.66..0.7, 0.282..0.299
-@void service/640x840x600/delivered: door-1, 0.0505..0.0625, 0.4177..0.5777, 0.284..0.3
-@piece service/640x840x600/delivered: hinge-0, -0.312..-0.296, 0.14..0.18, 0.277..0.282
-@piece service/640x840x600/delivered: hinge-0, -0.312..-0.296, 0.14..0.18, 0.282..0.299
-@piece service/640x840x600/delivered: hinge-1, -0.312..-0.296, 0.66..0.7, 0.277..0.282
-@piece service/640x840x600/delivered: hinge-1, -0.312..-0.296, 0.66..0.7, 0.282..0.299
-@piece service/640x840x600/delivered: hinge-2, 0.296..0.312, 0.14..0.18, 0.277..0.282
-@piece service/640x840x600/delivered: hinge-2, 0.296..0.312, 0.14..0.18, 0.282..0.299
-@piece service/640x840x600/delivered: hinge-3, 0.296..0.312, 0.66..0.7, 0.277..0.282
-@piece service/640x840x600/delivered: hinge-3, 0.296..0.312, 0.66..0.7, 0.282..0.299
 | kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| @envelope | service/640x840x600/delivered | * | bounds | -0.32..0.32 | 0..0.84 | -0.3..0.3 | - |
-| @part | service/640x840x600/delivered | back | box | -0.32..0.32 | 0.08..0.822 | -0.3..-0.288 | toe,bottom,top |
-| @part | service/640x840x600/delivered | bottom | box | -0.32..0.32 | 0.08..0.098 | -0.288..0.277 | back,side-left,side-right |
-| @part | service/640x840x600/delivered | top | box | -0.32..0.32 | 0.822..0.84 | -0.3..0.277 | back,side-left,side-right |
-| @part | service/640x840x600/delivered | side-left | box | -0.32..-0.302 | 0.098..0.822 | -0.288..0.277 | back,bottom,top |
-| @part | service/640x840x600/delivered | side-right | box | 0.302..0.32 | 0.098..0.822 | -0.288..0.277 | back,bottom,top |
-| @part | service/640x840x600/delivered | toe | box | -0.32..0.32 | 0..0.08 | -0.3..0.25 | ground,back,bottom |
-| @part | service/640x840x600/delivered | shelf-1 | box | -0.302..0.302 | 0.284333..0.302333 | -0.288..0.277 | side-left,side-right,back |
-| @part | service/640x840x600/delivered | shelf-2 | box | -0.302..0.302 | 0.537667..0.555667 | -0.288..0.277 | side-left,side-right,back |
-| @part | service/640x840x600/delivered | stile-1 | box | -0.009..0.009 | 0.098..0.822 | 0.259..0.277 | bottom,top |
-| @part | service/640x840x600/delivered | door-0 | box | -0.317..-0.0015 | 0.083..0.837 | 0.282..0.3 | hinge-0,hinge-1 |
-| @part | service/640x840x600/delivered | hinge-0 | curved | -0.312..-0.296 | 0.14..0.18 | 0.277..0.299 | door-0,side-left |
-| @part | service/640x840x600/delivered | hinge-1 | curved | -0.312..-0.296 | 0.66..0.7 | 0.277..0.299 | door-0,side-left |
-| @part | service/640x840x600/delivered | handle-0 | box | -0.0625..-0.0505 | 0.4177..0.5777 | 0.284..0.3 | door-0 |
-| @part | service/640x840x600/delivered | door-1 | box | 0.0015..0.317 | 0.083..0.837 | 0.282..0.3 | hinge-2,hinge-3 |
-| @part | service/640x840x600/delivered | hinge-2 | curved | 0.296..0.312 | 0.14..0.18 | 0.277..0.299 | door-1,side-right |
-| @part | service/640x840x600/delivered | hinge-3 | curved | 0.296..0.312 | 0.66..0.7 | 0.277..0.299 | door-1,side-right |
-| @part | service/640x840x600/delivered | handle-1 | box | 0.0505..0.0625 | 0.4177..0.5777 | 0.284..0.3 | door-1 |
+| @envelope | open-shelf/950x1350x250/open | * | bounds | -0.475..0.475 | 0..1.35 | -0.125..0.125 | - |
+| @part | open-shelf/950x1350x250/open | back | box | -0.475..0.475 | 0.08..1.332 | -0.125..-0.113 | toe,bottom,top |
+| @part | open-shelf/950x1350x250/open | bottom | box | -0.475..0.475 | 0.08..0.098 | -0.113..0.125 | back,side-left,side-right |
+| @part | open-shelf/950x1350x250/open | top | box | -0.475..0.475 | 1.332..1.35 | -0.125..0.125 | back,side-left,side-right |
+| @part | open-shelf/950x1350x250/open | side-left | box | -0.475..-0.457 | 0.098..1.332 | -0.113..0.125 | back,bottom,top |
+| @part | open-shelf/950x1350x250/open | side-right | box | 0.457..0.475 | 0.098..1.332 | -0.113..0.125 | back,bottom,top |
+| @part | open-shelf/950x1350x250/open | toe | box | -0.475..0.475 | 0..0.08 | -0.125..0.075 | ground,back,bottom |
+| @part | open-shelf/950x1350x250/open | shelf-1 | box | -0.457..0.457 | 0.3485..0.3665 | -0.113..0.125 | side-left,side-right,back |
+| @part | open-shelf/950x1350x250/open | shelf-2 | box | -0.457..0.457 | 0.666..0.684 | -0.113..0.125 | side-left,side-right,back |
+| @part | open-shelf/950x1350x250/open | shelf-3 | box | -0.457..0.457 | 0.9835..1.0015 | -0.113..0.125 | side-left,side-right,back |
 
-@inventory service/640x840x600/inspection-open: back, bottom, top, side-left, side-right, toe, shelf-1, shelf-2, stile-1, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1
+@inventory service/1100x2400x560/closed: back, bottom, top, side-left, side-right, toe, shelf-1, shelf-2, shelf-3, shelf-4, shelf-5, shelf-6, stile-1, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1
 
-@void service/640x840x600/inspection-open: shelf-1, -0.009..0.009, 0.284333..0.302333, 0.259..0.277
-@void service/640x840x600/inspection-open: shelf-2, -0.009..0.009, 0.537667..0.555667, 0.259..0.277
-@void service/640x840x600/inspection-open: door-0, -0.312..-0.295, 0.14..0.18, 0.283..0.299
-@void service/640x840x600/inspection-open: door-0, -0.313..-0.295, 0.14..0.18, 0.278..0.299
-@void service/640x840x600/inspection-open: door-0, -0.312..-0.295, 0.66..0.7, 0.283..0.299
-@void service/640x840x600/inspection-open: door-0, -0.313..-0.295, 0.66..0.7, 0.278..0.299
-@void service/640x840x600/inspection-open: door-0, -0.313..-0.297, 0.4177..0.5777, 0.5325..0.5445
-@void service/640x840x600/inspection-open: door-1, 0.295..0.312, 0.14..0.18, 0.283..0.299
-@void service/640x840x600/inspection-open: door-1, 0.295..0.313, 0.14..0.18, 0.278..0.299
-@void service/640x840x600/inspection-open: door-1, 0.295..0.312, 0.66..0.7, 0.283..0.299
-@void service/640x840x600/inspection-open: door-1, 0.295..0.313, 0.66..0.7, 0.278..0.299
-@void service/640x840x600/inspection-open: door-1, 0.297..0.313, 0.4177..0.5777, 0.5325..0.5445
-@piece service/640x840x600/inspection-open: hinge-0, -0.312..-0.296, 0.14..0.18, 0.277..0.282
-@piece service/640x840x600/inspection-open: hinge-0, -0.312..-0.296, 0.14..0.18, 0.282..0.299
-@piece service/640x840x600/inspection-open: hinge-1, -0.312..-0.296, 0.66..0.7, 0.277..0.282
-@piece service/640x840x600/inspection-open: hinge-1, -0.312..-0.296, 0.66..0.7, 0.282..0.299
-@piece service/640x840x600/inspection-open: hinge-2, 0.296..0.312, 0.14..0.18, 0.277..0.282
-@piece service/640x840x600/inspection-open: hinge-2, 0.296..0.312, 0.14..0.18, 0.282..0.299
-@piece service/640x840x600/inspection-open: hinge-3, 0.296..0.312, 0.66..0.7, 0.277..0.282
-@piece service/640x840x600/inspection-open: hinge-3, 0.296..0.312, 0.66..0.7, 0.282..0.299
+@void service/1100x2400x560/closed: shelf-1, -0.009..0.009, 0.362429..0.380429, 0.239..0.257
+@void service/1100x2400x560/closed: shelf-2, -0.009..0.009, 0.693857..0.711857, 0.239..0.257
+@void service/1100x2400x560/closed: shelf-3, -0.009..0.009, 1.025286..1.043286, 0.239..0.257
+@void service/1100x2400x560/closed: shelf-4, -0.009..0.009, 1.356714..1.374714, 0.239..0.257
+@void service/1100x2400x560/closed: shelf-5, -0.009..0.009, 1.688143..1.706143, 0.239..0.257
+@void service/1100x2400x560/closed: shelf-6, -0.009..0.009, 2.019571..2.037571, 0.239..0.257
+@void service/1100x2400x560/closed: door-0, -0.542..-0.526, 0.14..0.18, 0.262..0.279
+@void service/1100x2400x560/closed: door-0, -0.542..-0.526, 2.22..2.26, 0.262..0.279
+@void service/1100x2400x560/closed: door-0, -0.0625..-0.0505, 1.2757..1.4357, 0.264..0.28
+@void service/1100x2400x560/closed: door-1, 0.526..0.542, 0.14..0.18, 0.262..0.279
+@void service/1100x2400x560/closed: door-1, 0.526..0.542, 2.22..2.26, 0.262..0.279
+@void service/1100x2400x560/closed: door-1, 0.0505..0.0625, 1.2757..1.4357, 0.264..0.28
+@piece service/1100x2400x560/closed: hinge-0, -0.542..-0.526, 0.14..0.18, 0.257..0.262
+@piece service/1100x2400x560/closed: hinge-0, -0.542..-0.526, 0.14..0.18, 0.262..0.279
+@piece service/1100x2400x560/closed: hinge-1, -0.542..-0.526, 2.22..2.26, 0.257..0.262
+@piece service/1100x2400x560/closed: hinge-1, -0.542..-0.526, 2.22..2.26, 0.262..0.279
+@piece service/1100x2400x560/closed: hinge-2, 0.526..0.542, 0.14..0.18, 0.257..0.262
+@piece service/1100x2400x560/closed: hinge-2, 0.526..0.542, 0.14..0.18, 0.262..0.279
+@piece service/1100x2400x560/closed: hinge-3, 0.526..0.542, 2.22..2.26, 0.257..0.262
+@piece service/1100x2400x560/closed: hinge-3, 0.526..0.542, 2.22..2.26, 0.262..0.279
 | kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| @envelope | service/640x840x600/inspection-open | * | bounds | -0.32..0.32 | 0..0.84 | -0.3..0.5935 | - |
-| @part | service/640x840x600/inspection-open | back | box | -0.32..0.32 | 0.08..0.822 | -0.3..-0.288 | toe,bottom,top |
-| @part | service/640x840x600/inspection-open | bottom | box | -0.32..0.32 | 0.08..0.098 | -0.288..0.277 | back,side-left,side-right |
-| @part | service/640x840x600/inspection-open | top | box | -0.32..0.32 | 0.822..0.84 | -0.3..0.277 | back,side-left,side-right |
-| @part | service/640x840x600/inspection-open | side-left | box | -0.32..-0.302 | 0.098..0.822 | -0.288..0.277 | back,bottom,top |
-| @part | service/640x840x600/inspection-open | side-right | box | 0.302..0.32 | 0.098..0.822 | -0.288..0.277 | back,bottom,top |
-| @part | service/640x840x600/inspection-open | toe | box | -0.32..0.32 | 0..0.08 | -0.3..0.25 | ground,back,bottom |
-| @part | service/640x840x600/inspection-open | shelf-1 | box | -0.302..0.302 | 0.284333..0.302333 | -0.288..0.277 | side-left,side-right,back |
-| @part | service/640x840x600/inspection-open | shelf-2 | box | -0.302..0.302 | 0.537667..0.555667 | -0.288..0.277 | side-left,side-right,back |
-| @part | service/640x840x600/inspection-open | stile-1 | box | -0.009..0.009 | 0.098..0.822 | 0.259..0.277 | bottom,top |
-| @part | service/640x840x600/inspection-open | door-0 | box | -0.313..-0.295 | 0.083..0.837 | 0.278..0.5935 | hinge-0,hinge-1 |
-| @part | service/640x840x600/inspection-open | hinge-0 | curved | -0.312..-0.296 | 0.14..0.18 | 0.277..0.299 | door-0,side-left |
-| @part | service/640x840x600/inspection-open | hinge-1 | curved | -0.312..-0.296 | 0.66..0.7 | 0.277..0.299 | door-0,side-left |
-| @part | service/640x840x600/inspection-open | handle-0 | box | -0.313..-0.297 | 0.4177..0.5777 | 0.5325..0.5445 | door-0 |
-| @part | service/640x840x600/inspection-open | door-1 | box | 0.295..0.313 | 0.083..0.837 | 0.278..0.5935 | hinge-2,hinge-3 |
-| @part | service/640x840x600/inspection-open | hinge-2 | curved | 0.296..0.312 | 0.14..0.18 | 0.277..0.299 | door-1,side-right |
-| @part | service/640x840x600/inspection-open | hinge-3 | curved | 0.296..0.312 | 0.66..0.7 | 0.277..0.299 | door-1,side-right |
-| @part | service/640x840x600/inspection-open | handle-1 | box | 0.297..0.313 | 0.4177..0.5777 | 0.5325..0.5445 | door-1 |
+| @envelope | service/1100x2400x560/closed | * | bounds | -0.55..0.55 | 0..2.4 | -0.28..0.28 | - |
+| @part | service/1100x2400x560/closed | back | box | -0.55..0.55 | 0.08..2.382 | -0.28..-0.268 | toe,bottom,top |
+| @part | service/1100x2400x560/closed | bottom | box | -0.55..0.55 | 0.08..0.098 | -0.268..0.257 | back,side-left,side-right |
+| @part | service/1100x2400x560/closed | top | box | -0.55..0.55 | 2.382..2.4 | -0.28..0.257 | back,side-left,side-right |
+| @part | service/1100x2400x560/closed | side-left | box | -0.55..-0.532 | 0.098..2.382 | -0.268..0.257 | back,bottom,top |
+| @part | service/1100x2400x560/closed | side-right | box | 0.532..0.55 | 0.098..2.382 | -0.268..0.257 | back,bottom,top |
+| @part | service/1100x2400x560/closed | toe | box | -0.55..0.55 | 0..0.08 | -0.28..0.23 | ground,back,bottom |
+| @part | service/1100x2400x560/closed | shelf-1 | box | -0.532..0.532 | 0.362429..0.380429 | -0.268..0.257 | side-left,side-right,back |
+| @part | service/1100x2400x560/closed | shelf-2 | box | -0.532..0.532 | 0.693857..0.711857 | -0.268..0.257 | side-left,side-right,back |
+| @part | service/1100x2400x560/closed | shelf-3 | box | -0.532..0.532 | 1.025286..1.043286 | -0.268..0.257 | side-left,side-right,back |
+| @part | service/1100x2400x560/closed | shelf-4 | box | -0.532..0.532 | 1.356714..1.374714 | -0.268..0.257 | side-left,side-right,back |
+| @part | service/1100x2400x560/closed | shelf-5 | box | -0.532..0.532 | 1.688143..1.706143 | -0.268..0.257 | side-left,side-right,back |
+| @part | service/1100x2400x560/closed | shelf-6 | box | -0.532..0.532 | 2.019571..2.037571 | -0.268..0.257 | side-left,side-right,back |
+| @part | service/1100x2400x560/closed | stile-1 | box | -0.009..0.009 | 0.098..2.382 | 0.239..0.257 | bottom,top |
+| @part | service/1100x2400x560/closed | door-0 | box | -0.547..-0.0015 | 0.083..2.397 | 0.262..0.28 | hinge-0,hinge-1 |
+| @part | service/1100x2400x560/closed | hinge-0 | curved | -0.542..-0.526 | 0.14..0.18 | 0.257..0.279 | door-0,side-left |
+| @part | service/1100x2400x560/closed | hinge-1 | curved | -0.542..-0.526 | 2.22..2.26 | 0.257..0.279 | door-0,side-left |
+| @part | service/1100x2400x560/closed | handle-0 | box | -0.0625..-0.0505 | 1.2757..1.4357 | 0.264..0.28 | door-0 |
+| @part | service/1100x2400x560/closed | door-1 | box | 0.0015..0.547 | 0.083..2.397 | 0.262..0.28 | hinge-2,hinge-3 |
+| @part | service/1100x2400x560/closed | hinge-2 | curved | 0.526..0.542 | 0.14..0.18 | 0.257..0.279 | door-1,side-right |
+| @part | service/1100x2400x560/closed | hinge-3 | curved | 0.526..0.542 | 2.22..2.26 | 0.257..0.279 | door-1,side-right |
+| @part | service/1100x2400x560/closed | handle-1 | box | 0.0505..0.0625 | 1.2757..1.4357 | 0.264..0.28 | door-1 |
 
-@inventory tall/1300x2650x600/delivered: back, bottom, top, side-left, side-right, toe, divider, rod, shelf-1, shelf-2, shelf-3, shelf-4, shelf-5, shelf-6, shelf-7, stile-1, stile-2, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1, door-2, hinge-4, hinge-5, handle-2
+@inventory service/1100x2400x560/open: back, bottom, top, side-left, side-right, toe, shelf-1, shelf-2, shelf-3, shelf-4, shelf-5, shelf-6, stile-1, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1
 
-@void tall/1300x2650x600/delivered: shelf-1, 0.207167..0.225167, 0.35225..0.37025, 0.259..0.277
-@void tall/1300x2650x600/delivered: shelf-2, 0.207167..0.225167, 0.6735..0.6915, 0.259..0.277
-@void tall/1300x2650x600/delivered: shelf-3, 0.207167..0.225167, 0.99475..1.01275, 0.259..0.277
-@void tall/1300x2650x600/delivered: shelf-4, 0.207167..0.225167, 1.316..1.334, 0.259..0.277
-@void tall/1300x2650x600/delivered: shelf-5, 0.207167..0.225167, 1.63725..1.65525, 0.259..0.277
-@void tall/1300x2650x600/delivered: shelf-6, 0.207167..0.225167, 1.9585..1.9765, 0.259..0.277
-@void tall/1300x2650x600/delivered: shelf-7, 0.207167..0.225167, 2.27975..2.29775, 0.259..0.277
-@void tall/1300x2650x600/delivered: door-0, -0.642..-0.626, 0.14..0.18, 0.282..0.299
-@void tall/1300x2650x600/delivered: door-0, -0.642..-0.626, 2.47..2.51, 0.282..0.299
-@void tall/1300x2650x600/delivered: door-0, -0.278667..-0.266667, 1.4132..1.5732, 0.284..0.3
-@void tall/1300x2650x600/delivered: door-1, 0.193667..0.209667, 0.14..0.18, 0.282..0.299
-@void tall/1300x2650x600/delivered: door-1, 0.193667..0.209667, 2.47..2.51, 0.282..0.299
-@void tall/1300x2650x600/delivered: door-1, -0.165667..-0.153667, 1.4132..1.5732, 0.284..0.3
-@void tall/1300x2650x600/delivered: door-2, 0.222667..0.238667, 0.14..0.18, 0.282..0.299
-@void tall/1300x2650x600/delivered: door-2, 0.222667..0.238667, 2.47..2.51, 0.282..0.299
-@void tall/1300x2650x600/delivered: door-2, 0.586..0.598, 1.4132..1.5732, 0.284..0.3
-@piece tall/1300x2650x600/delivered: hinge-0, -0.642..-0.626, 0.14..0.18, 0.277..0.282
-@piece tall/1300x2650x600/delivered: hinge-0, -0.642..-0.626, 0.14..0.18, 0.282..0.299
-@piece tall/1300x2650x600/delivered: hinge-1, -0.642..-0.626, 2.47..2.51, 0.277..0.282
-@piece tall/1300x2650x600/delivered: hinge-1, -0.642..-0.626, 2.47..2.51, 0.282..0.299
-@piece tall/1300x2650x600/delivered: hinge-2, 0.193667..0.209667, 0.14..0.18, 0.277..0.282
-@piece tall/1300x2650x600/delivered: hinge-2, 0.193667..0.209667, 0.14..0.18, 0.282..0.299
-@piece tall/1300x2650x600/delivered: hinge-3, 0.193667..0.209667, 2.47..2.51, 0.277..0.282
-@piece tall/1300x2650x600/delivered: hinge-3, 0.193667..0.209667, 2.47..2.51, 0.282..0.299
-@piece tall/1300x2650x600/delivered: hinge-4, 0.222667..0.238667, 0.14..0.18, 0.277..0.282
-@piece tall/1300x2650x600/delivered: hinge-4, 0.222667..0.238667, 0.14..0.18, 0.282..0.299
-@piece tall/1300x2650x600/delivered: hinge-5, 0.222667..0.238667, 2.47..2.51, 0.277..0.282
-@piece tall/1300x2650x600/delivered: hinge-5, 0.222667..0.238667, 2.47..2.51, 0.282..0.299
+@void service/1100x2400x560/open: shelf-1, -0.009..0.009, 0.362429..0.380429, 0.239..0.257
+@void service/1100x2400x560/open: shelf-2, -0.009..0.009, 0.693857..0.711857, 0.239..0.257
+@void service/1100x2400x560/open: shelf-3, -0.009..0.009, 1.025286..1.043286, 0.239..0.257
+@void service/1100x2400x560/open: shelf-4, -0.009..0.009, 1.356714..1.374714, 0.239..0.257
+@void service/1100x2400x560/open: shelf-5, -0.009..0.009, 1.688143..1.706143, 0.239..0.257
+@void service/1100x2400x560/open: shelf-6, -0.009..0.009, 2.019571..2.037571, 0.239..0.257
+@void service/1100x2400x560/open: door-0, -0.542..-0.525, 0.14..0.18, 0.263..0.279
+@void service/1100x2400x560/open: door-0, -0.543..-0.525, 0.14..0.18, 0.258..0.279
+@void service/1100x2400x560/open: door-0, -0.542..-0.525, 2.22..2.26, 0.263..0.279
+@void service/1100x2400x560/open: door-0, -0.543..-0.525, 2.22..2.26, 0.258..0.279
+@void service/1100x2400x560/open: door-0, -0.543..-0.527, 1.2757..1.4357, 0.7425..0.7545
+@void service/1100x2400x560/open: door-1, 0.525..0.542, 0.14..0.18, 0.263..0.279
+@void service/1100x2400x560/open: door-1, 0.525..0.543, 0.14..0.18, 0.258..0.279
+@void service/1100x2400x560/open: door-1, 0.525..0.542, 2.22..2.26, 0.263..0.279
+@void service/1100x2400x560/open: door-1, 0.525..0.543, 2.22..2.26, 0.258..0.279
+@void service/1100x2400x560/open: door-1, 0.527..0.543, 1.2757..1.4357, 0.7425..0.7545
+@piece service/1100x2400x560/open: hinge-0, -0.542..-0.526, 0.14..0.18, 0.257..0.262
+@piece service/1100x2400x560/open: hinge-0, -0.542..-0.526, 0.14..0.18, 0.262..0.279
+@piece service/1100x2400x560/open: hinge-1, -0.542..-0.526, 2.22..2.26, 0.257..0.262
+@piece service/1100x2400x560/open: hinge-1, -0.542..-0.526, 2.22..2.26, 0.262..0.279
+@piece service/1100x2400x560/open: hinge-2, 0.526..0.542, 0.14..0.18, 0.257..0.262
+@piece service/1100x2400x560/open: hinge-2, 0.526..0.542, 0.14..0.18, 0.262..0.279
+@piece service/1100x2400x560/open: hinge-3, 0.526..0.542, 2.22..2.26, 0.257..0.262
+@piece service/1100x2400x560/open: hinge-3, 0.526..0.542, 2.22..2.26, 0.262..0.279
 | kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| @envelope | tall/1300x2650x600/delivered | * | bounds | -0.65..0.65 | 0..2.65 | -0.3..0.3 | - |
-| @part | tall/1300x2650x600/delivered | back | box | -0.65..0.65 | 0.08..2.632 | -0.3..-0.288 | toe,bottom,top |
-| @part | tall/1300x2650x600/delivered | bottom | box | -0.65..0.65 | 0.08..0.098 | -0.288..0.277 | back,side-left,side-right |
-| @part | tall/1300x2650x600/delivered | top | box | -0.65..0.65 | 2.632..2.65 | -0.3..0.277 | back,side-left,side-right |
-| @part | tall/1300x2650x600/delivered | side-left | box | -0.65..-0.632 | 0.098..2.632 | -0.288..0.277 | back,bottom,top |
-| @part | tall/1300x2650x600/delivered | side-right | box | 0.632..0.65 | 0.098..2.632 | -0.288..0.277 | back,bottom,top |
-| @part | tall/1300x2650x600/delivered | toe | box | -0.65..0.65 | 0..0.08 | -0.3..0.25 | ground,back,bottom |
-| @part | tall/1300x2650x600/delivered | divider | box | 0.13..0.148 | 0.098..2.632 | -0.288..0.282 | bottom,top |
-| @part | tall/1300x2650x600/delivered | rod | cylinder | -0.632..0.13 | 2.2875..2.3125 | -0.0925..-0.0675 | side-left,divider |
-| @part | tall/1300x2650x600/delivered | shelf-1 | box | 0.148..0.632 | 0.35225..0.37025 | -0.288..0.277 | divider,side-right,back |
-| @part | tall/1300x2650x600/delivered | shelf-2 | box | 0.148..0.632 | 0.6735..0.6915 | -0.288..0.277 | divider,side-right,back |
-| @part | tall/1300x2650x600/delivered | shelf-3 | box | 0.148..0.632 | 0.99475..1.01275 | -0.288..0.277 | divider,side-right,back |
-| @part | tall/1300x2650x600/delivered | shelf-4 | box | 0.148..0.632 | 1.316..1.334 | -0.288..0.277 | divider,side-right,back |
-| @part | tall/1300x2650x600/delivered | shelf-5 | box | 0.148..0.632 | 1.63725..1.65525 | -0.288..0.277 | divider,side-right,back |
-| @part | tall/1300x2650x600/delivered | shelf-6 | box | 0.148..0.632 | 1.9585..1.9765 | -0.288..0.277 | divider,side-right,back |
-| @part | tall/1300x2650x600/delivered | shelf-7 | box | 0.148..0.632 | 2.27975..2.29775 | -0.288..0.277 | divider,side-right,back |
-| @part | tall/1300x2650x600/delivered | stile-1 | box | -0.225167..-0.207167 | 0.098..2.632 | 0.259..0.277 | bottom,top |
-| @part | tall/1300x2650x600/delivered | stile-2 | box | 0.207167..0.225167 | 0.098..2.632 | 0.259..0.277 | bottom,top |
-| @part | tall/1300x2650x600/delivered | door-0 | box | -0.647..-0.217667 | 0.083..2.647 | 0.282..0.3 | hinge-0,hinge-1 |
-| @part | tall/1300x2650x600/delivered | hinge-0 | curved | -0.642..-0.626 | 0.14..0.18 | 0.277..0.299 | door-0,side-left |
-| @part | tall/1300x2650x600/delivered | hinge-1 | curved | -0.642..-0.626 | 2.47..2.51 | 0.277..0.299 | door-0,side-left |
-| @part | tall/1300x2650x600/delivered | handle-0 | box | -0.278667..-0.266667 | 1.4132..1.5732 | 0.284..0.3 | door-0 |
-| @part | tall/1300x2650x600/delivered | door-1 | box | -0.214667..0.214667 | 0.083..2.647 | 0.282..0.3 | hinge-2,hinge-3 |
-| @part | tall/1300x2650x600/delivered | hinge-2 | curved | 0.193667..0.209667 | 0.14..0.18 | 0.277..0.299 | door-1,stile-2 |
-| @part | tall/1300x2650x600/delivered | hinge-3 | curved | 0.193667..0.209667 | 2.47..2.51 | 0.277..0.299 | door-1,stile-2 |
-| @part | tall/1300x2650x600/delivered | handle-1 | box | -0.165667..-0.153667 | 1.4132..1.5732 | 0.284..0.3 | door-1 |
-| @part | tall/1300x2650x600/delivered | door-2 | box | 0.217667..0.647 | 0.083..2.647 | 0.282..0.3 | hinge-4,hinge-5 |
-| @part | tall/1300x2650x600/delivered | hinge-4 | curved | 0.222667..0.238667 | 0.14..0.18 | 0.277..0.299 | door-2,stile-2 |
-| @part | tall/1300x2650x600/delivered | hinge-5 | curved | 0.222667..0.238667 | 2.47..2.51 | 0.277..0.299 | door-2,stile-2 |
-| @part | tall/1300x2650x600/delivered | handle-2 | box | 0.586..0.598 | 1.4132..1.5732 | 0.284..0.3 | door-2 |
+| @envelope | service/1100x2400x560/open | * | bounds | -0.55..0.55 | 0..2.4 | -0.28..0.8035 | - |
+| @part | service/1100x2400x560/open | back | box | -0.55..0.55 | 0.08..2.382 | -0.28..-0.268 | toe,bottom,top |
+| @part | service/1100x2400x560/open | bottom | box | -0.55..0.55 | 0.08..0.098 | -0.268..0.257 | back,side-left,side-right |
+| @part | service/1100x2400x560/open | top | box | -0.55..0.55 | 2.382..2.4 | -0.28..0.257 | back,side-left,side-right |
+| @part | service/1100x2400x560/open | side-left | box | -0.55..-0.532 | 0.098..2.382 | -0.268..0.257 | back,bottom,top |
+| @part | service/1100x2400x560/open | side-right | box | 0.532..0.55 | 0.098..2.382 | -0.268..0.257 | back,bottom,top |
+| @part | service/1100x2400x560/open | toe | box | -0.55..0.55 | 0..0.08 | -0.28..0.23 | ground,back,bottom |
+| @part | service/1100x2400x560/open | shelf-1 | box | -0.532..0.532 | 0.362429..0.380429 | -0.268..0.257 | side-left,side-right,back |
+| @part | service/1100x2400x560/open | shelf-2 | box | -0.532..0.532 | 0.693857..0.711857 | -0.268..0.257 | side-left,side-right,back |
+| @part | service/1100x2400x560/open | shelf-3 | box | -0.532..0.532 | 1.025286..1.043286 | -0.268..0.257 | side-left,side-right,back |
+| @part | service/1100x2400x560/open | shelf-4 | box | -0.532..0.532 | 1.356714..1.374714 | -0.268..0.257 | side-left,side-right,back |
+| @part | service/1100x2400x560/open | shelf-5 | box | -0.532..0.532 | 1.688143..1.706143 | -0.268..0.257 | side-left,side-right,back |
+| @part | service/1100x2400x560/open | shelf-6 | box | -0.532..0.532 | 2.019571..2.037571 | -0.268..0.257 | side-left,side-right,back |
+| @part | service/1100x2400x560/open | stile-1 | box | -0.009..0.009 | 0.098..2.382 | 0.239..0.257 | bottom,top |
+| @part | service/1100x2400x560/open | door-0 | box | -0.543..-0.525 | 0.083..2.397 | 0.258..0.8035 | hinge-0,hinge-1 |
+| @part | service/1100x2400x560/open | hinge-0 | curved | -0.542..-0.526 | 0.14..0.18 | 0.257..0.279 | door-0,side-left |
+| @part | service/1100x2400x560/open | hinge-1 | curved | -0.542..-0.526 | 2.22..2.26 | 0.257..0.279 | door-0,side-left |
+| @part | service/1100x2400x560/open | handle-0 | box | -0.543..-0.527 | 1.2757..1.4357 | 0.7425..0.7545 | door-0 |
+| @part | service/1100x2400x560/open | door-1 | box | 0.525..0.543 | 0.083..2.397 | 0.258..0.8035 | hinge-2,hinge-3 |
+| @part | service/1100x2400x560/open | hinge-2 | curved | 0.526..0.542 | 0.14..0.18 | 0.257..0.279 | door-1,side-right |
+| @part | service/1100x2400x560/open | hinge-3 | curved | 0.526..0.542 | 2.22..2.26 | 0.257..0.279 | door-1,side-right |
+| @part | service/1100x2400x560/open | handle-1 | box | 0.527..0.543 | 1.2757..1.4357 | 0.7425..0.7545 | door-1 |
 
-@inventory tall/1300x2650x600/inspection-open: back, bottom, top, side-left, side-right, toe, divider, rod, shelf-1, shelf-2, shelf-3, shelf-4, shelf-5, shelf-6, shelf-7, stile-1, stile-2, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1, door-2, hinge-4, hinge-5, handle-2
+@inventory service/640x840x600/closed: back, bottom, top, side-left, side-right, toe, shelf-1, shelf-2, stile-1, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1
 
-@void tall/1300x2650x600/inspection-open: shelf-1, 0.207167..0.225167, 0.35225..0.37025, 0.259..0.277
-@void tall/1300x2650x600/inspection-open: shelf-2, 0.207167..0.225167, 0.6735..0.6915, 0.259..0.277
-@void tall/1300x2650x600/inspection-open: shelf-3, 0.207167..0.225167, 0.99475..1.01275, 0.259..0.277
-@void tall/1300x2650x600/inspection-open: shelf-4, 0.207167..0.225167, 1.316..1.334, 0.259..0.277
-@void tall/1300x2650x600/inspection-open: shelf-5, 0.207167..0.225167, 1.63725..1.65525, 0.259..0.277
-@void tall/1300x2650x600/inspection-open: shelf-6, 0.207167..0.225167, 1.9585..1.9765, 0.259..0.277
-@void tall/1300x2650x600/inspection-open: shelf-7, 0.207167..0.225167, 2.27975..2.29775, 0.259..0.277
-@void tall/1300x2650x600/inspection-open: door-0, -0.642..-0.625, 0.14..0.18, 0.283..0.299
-@void tall/1300x2650x600/inspection-open: door-0, -0.643..-0.625, 0.14..0.18, 0.278..0.299
-@void tall/1300x2650x600/inspection-open: door-0, -0.642..-0.625, 2.47..2.51, 0.283..0.299
-@void tall/1300x2650x600/inspection-open: door-0, -0.643..-0.625, 2.47..2.51, 0.278..0.299
-@void tall/1300x2650x600/inspection-open: door-0, -0.643..-0.627, 1.4132..1.5732, 0.646333..0.658333
-@void tall/1300x2650x600/inspection-open: door-1, 0.192667..0.209667, 0.14..0.18, 0.283..0.299
-@void tall/1300x2650x600/inspection-open: door-1, 0.192667..0.210667, 0.14..0.18, 0.278..0.299
-@void tall/1300x2650x600/inspection-open: door-1, 0.192667..0.209667, 2.47..2.51, 0.283..0.299
-@void tall/1300x2650x600/inspection-open: door-1, 0.192667..0.210667, 2.47..2.51, 0.278..0.299
-@void tall/1300x2650x600/inspection-open: door-1, 0.194667..0.210667, 1.4132..1.5732, 0.646334..0.658334
-@void tall/1300x2650x600/inspection-open: door-2, 0.222667..0.239667, 0.14..0.18, 0.283..0.299
-@void tall/1300x2650x600/inspection-open: door-2, 0.221667..0.239667, 0.14..0.18, 0.278..0.299
-@void tall/1300x2650x600/inspection-open: door-2, 0.222667..0.239667, 2.47..2.51, 0.283..0.299
-@void tall/1300x2650x600/inspection-open: door-2, 0.221667..0.239667, 2.47..2.51, 0.278..0.299
-@void tall/1300x2650x600/inspection-open: door-2, 0.221667..0.237667, 1.4132..1.5732, 0.646333..0.658333
-@piece tall/1300x2650x600/inspection-open: hinge-0, -0.642..-0.626, 0.14..0.18, 0.277..0.282
-@piece tall/1300x2650x600/inspection-open: hinge-0, -0.642..-0.626, 0.14..0.18, 0.282..0.299
-@piece tall/1300x2650x600/inspection-open: hinge-1, -0.642..-0.626, 2.47..2.51, 0.277..0.282
-@piece tall/1300x2650x600/inspection-open: hinge-1, -0.642..-0.626, 2.47..2.51, 0.282..0.299
-@piece tall/1300x2650x600/inspection-open: hinge-2, 0.193667..0.209667, 0.14..0.18, 0.277..0.282
-@piece tall/1300x2650x600/inspection-open: hinge-2, 0.193667..0.209667, 0.14..0.18, 0.282..0.299
-@piece tall/1300x2650x600/inspection-open: hinge-3, 0.193667..0.209667, 2.47..2.51, 0.277..0.282
-@piece tall/1300x2650x600/inspection-open: hinge-3, 0.193667..0.209667, 2.47..2.51, 0.282..0.299
-@piece tall/1300x2650x600/inspection-open: hinge-4, 0.222667..0.238667, 0.14..0.18, 0.277..0.282
-@piece tall/1300x2650x600/inspection-open: hinge-4, 0.222667..0.238667, 0.14..0.18, 0.282..0.299
-@piece tall/1300x2650x600/inspection-open: hinge-5, 0.222667..0.238667, 2.47..2.51, 0.277..0.282
-@piece tall/1300x2650x600/inspection-open: hinge-5, 0.222667..0.238667, 2.47..2.51, 0.282..0.299
+@void service/640x840x600/closed: shelf-1, -0.009..0.009, 0.284333..0.302333, 0.259..0.277
+@void service/640x840x600/closed: shelf-2, -0.009..0.009, 0.537667..0.555667, 0.259..0.277
+@void service/640x840x600/closed: door-0, -0.312..-0.296, 0.14..0.18, 0.282..0.299
+@void service/640x840x600/closed: door-0, -0.312..-0.296, 0.66..0.7, 0.282..0.299
+@void service/640x840x600/closed: door-0, -0.0625..-0.0505, 0.4177..0.5777, 0.284..0.3
+@void service/640x840x600/closed: door-1, 0.296..0.312, 0.14..0.18, 0.282..0.299
+@void service/640x840x600/closed: door-1, 0.296..0.312, 0.66..0.7, 0.282..0.299
+@void service/640x840x600/closed: door-1, 0.0505..0.0625, 0.4177..0.5777, 0.284..0.3
+@piece service/640x840x600/closed: hinge-0, -0.312..-0.296, 0.14..0.18, 0.277..0.282
+@piece service/640x840x600/closed: hinge-0, -0.312..-0.296, 0.14..0.18, 0.282..0.299
+@piece service/640x840x600/closed: hinge-1, -0.312..-0.296, 0.66..0.7, 0.277..0.282
+@piece service/640x840x600/closed: hinge-1, -0.312..-0.296, 0.66..0.7, 0.282..0.299
+@piece service/640x840x600/closed: hinge-2, 0.296..0.312, 0.14..0.18, 0.277..0.282
+@piece service/640x840x600/closed: hinge-2, 0.296..0.312, 0.14..0.18, 0.282..0.299
+@piece service/640x840x600/closed: hinge-3, 0.296..0.312, 0.66..0.7, 0.277..0.282
+@piece service/640x840x600/closed: hinge-3, 0.296..0.312, 0.66..0.7, 0.282..0.299
 | kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| @envelope | tall/1300x2650x600/inspection-open | * | bounds | -0.65..0.65 | 0..2.65 | -0.3..0.707333 | - |
-| @part | tall/1300x2650x600/inspection-open | back | box | -0.65..0.65 | 0.08..2.632 | -0.3..-0.288 | toe,bottom,top |
-| @part | tall/1300x2650x600/inspection-open | bottom | box | -0.65..0.65 | 0.08..0.098 | -0.288..0.277 | back,side-left,side-right |
-| @part | tall/1300x2650x600/inspection-open | top | box | -0.65..0.65 | 2.632..2.65 | -0.3..0.277 | back,side-left,side-right |
-| @part | tall/1300x2650x600/inspection-open | side-left | box | -0.65..-0.632 | 0.098..2.632 | -0.288..0.277 | back,bottom,top |
-| @part | tall/1300x2650x600/inspection-open | side-right | box | 0.632..0.65 | 0.098..2.632 | -0.288..0.277 | back,bottom,top |
-| @part | tall/1300x2650x600/inspection-open | toe | box | -0.65..0.65 | 0..0.08 | -0.3..0.25 | ground,back,bottom |
-| @part | tall/1300x2650x600/inspection-open | divider | box | 0.13..0.148 | 0.098..2.632 | -0.288..0.282 | bottom,top |
-| @part | tall/1300x2650x600/inspection-open | rod | cylinder | -0.632..0.13 | 2.2875..2.3125 | -0.0925..-0.0675 | side-left,divider |
-| @part | tall/1300x2650x600/inspection-open | shelf-1 | box | 0.148..0.632 | 0.35225..0.37025 | -0.288..0.277 | divider,side-right,back |
-| @part | tall/1300x2650x600/inspection-open | shelf-2 | box | 0.148..0.632 | 0.6735..0.6915 | -0.288..0.277 | divider,side-right,back |
-| @part | tall/1300x2650x600/inspection-open | shelf-3 | box | 0.148..0.632 | 0.99475..1.01275 | -0.288..0.277 | divider,side-right,back |
-| @part | tall/1300x2650x600/inspection-open | shelf-4 | box | 0.148..0.632 | 1.316..1.334 | -0.288..0.277 | divider,side-right,back |
-| @part | tall/1300x2650x600/inspection-open | shelf-5 | box | 0.148..0.632 | 1.63725..1.65525 | -0.288..0.277 | divider,side-right,back |
-| @part | tall/1300x2650x600/inspection-open | shelf-6 | box | 0.148..0.632 | 1.9585..1.9765 | -0.288..0.277 | divider,side-right,back |
-| @part | tall/1300x2650x600/inspection-open | shelf-7 | box | 0.148..0.632 | 2.27975..2.29775 | -0.288..0.277 | divider,side-right,back |
-| @part | tall/1300x2650x600/inspection-open | stile-1 | box | -0.225167..-0.207167 | 0.098..2.632 | 0.259..0.277 | bottom,top |
-| @part | tall/1300x2650x600/inspection-open | stile-2 | box | 0.207167..0.225167 | 0.098..2.632 | 0.259..0.277 | bottom,top |
-| @part | tall/1300x2650x600/inspection-open | door-0 | box | -0.643..-0.625 | 0.083..2.647 | 0.278..0.707333 | hinge-0,hinge-1 |
-| @part | tall/1300x2650x600/inspection-open | hinge-0 | curved | -0.642..-0.626 | 0.14..0.18 | 0.277..0.299 | door-0,side-left |
-| @part | tall/1300x2650x600/inspection-open | hinge-1 | curved | -0.642..-0.626 | 2.47..2.51 | 0.277..0.299 | door-0,side-left |
-| @part | tall/1300x2650x600/inspection-open | handle-0 | box | -0.643..-0.627 | 1.4132..1.5732 | 0.646333..0.658333 | door-0 |
-| @part | tall/1300x2650x600/inspection-open | door-1 | box | 0.192667..0.210667 | 0.083..2.647 | 0.278..0.707333 | hinge-2,hinge-3 |
-| @part | tall/1300x2650x600/inspection-open | hinge-2 | curved | 0.193667..0.209667 | 0.14..0.18 | 0.277..0.299 | door-1,stile-2 |
-| @part | tall/1300x2650x600/inspection-open | hinge-3 | curved | 0.193667..0.209667 | 2.47..2.51 | 0.277..0.299 | door-1,stile-2 |
-| @part | tall/1300x2650x600/inspection-open | handle-1 | box | 0.194667..0.210667 | 1.4132..1.5732 | 0.646334..0.658334 | door-1 |
-| @part | tall/1300x2650x600/inspection-open | door-2 | box | 0.221667..0.239667 | 0.083..2.647 | 0.278..0.707333 | hinge-4,hinge-5 |
-| @part | tall/1300x2650x600/inspection-open | hinge-4 | curved | 0.222667..0.238667 | 0.14..0.18 | 0.277..0.299 | door-2,stile-2 |
-| @part | tall/1300x2650x600/inspection-open | hinge-5 | curved | 0.222667..0.238667 | 2.47..2.51 | 0.277..0.299 | door-2,stile-2 |
-| @part | tall/1300x2650x600/inspection-open | handle-2 | box | 0.221667..0.237667 | 1.4132..1.5732 | 0.646333..0.658333 | door-2 |
+| @envelope | service/640x840x600/closed | * | bounds | -0.32..0.32 | 0..0.84 | -0.3..0.3 | - |
+| @part | service/640x840x600/closed | back | box | -0.32..0.32 | 0.08..0.822 | -0.3..-0.288 | toe,bottom,top |
+| @part | service/640x840x600/closed | bottom | box | -0.32..0.32 | 0.08..0.098 | -0.288..0.277 | back,side-left,side-right |
+| @part | service/640x840x600/closed | top | box | -0.32..0.32 | 0.822..0.84 | -0.3..0.277 | back,side-left,side-right |
+| @part | service/640x840x600/closed | side-left | box | -0.32..-0.302 | 0.098..0.822 | -0.288..0.277 | back,bottom,top |
+| @part | service/640x840x600/closed | side-right | box | 0.302..0.32 | 0.098..0.822 | -0.288..0.277 | back,bottom,top |
+| @part | service/640x840x600/closed | toe | box | -0.32..0.32 | 0..0.08 | -0.3..0.25 | ground,back,bottom |
+| @part | service/640x840x600/closed | shelf-1 | box | -0.302..0.302 | 0.284333..0.302333 | -0.288..0.277 | side-left,side-right,back |
+| @part | service/640x840x600/closed | shelf-2 | box | -0.302..0.302 | 0.537667..0.555667 | -0.288..0.277 | side-left,side-right,back |
+| @part | service/640x840x600/closed | stile-1 | box | -0.009..0.009 | 0.098..0.822 | 0.259..0.277 | bottom,top |
+| @part | service/640x840x600/closed | door-0 | box | -0.317..-0.0015 | 0.083..0.837 | 0.282..0.3 | hinge-0,hinge-1 |
+| @part | service/640x840x600/closed | hinge-0 | curved | -0.312..-0.296 | 0.14..0.18 | 0.277..0.299 | door-0,side-left |
+| @part | service/640x840x600/closed | hinge-1 | curved | -0.312..-0.296 | 0.66..0.7 | 0.277..0.299 | door-0,side-left |
+| @part | service/640x840x600/closed | handle-0 | box | -0.0625..-0.0505 | 0.4177..0.5777 | 0.284..0.3 | door-0 |
+| @part | service/640x840x600/closed | door-1 | box | 0.0015..0.317 | 0.083..0.837 | 0.282..0.3 | hinge-2,hinge-3 |
+| @part | service/640x840x600/closed | hinge-2 | curved | 0.296..0.312 | 0.14..0.18 | 0.277..0.299 | door-1,side-right |
+| @part | service/640x840x600/closed | hinge-3 | curved | 0.296..0.312 | 0.66..0.7 | 0.277..0.299 | door-1,side-right |
+| @part | service/640x840x600/closed | handle-1 | box | 0.0505..0.0625 | 0.4177..0.5777 | 0.284..0.3 | door-1 |
 
-@inventory tall/1400x2600x540/delivered: back, bottom, top, side-left, side-right, toe, divider, rod, shelf-1, shelf-2, shelf-3, shelf-4, shelf-5, shelf-6, shelf-7, stile-1, stile-2, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1, door-2, hinge-4, hinge-5, handle-2
+@inventory service/640x840x600/open: back, bottom, top, side-left, side-right, toe, shelf-1, shelf-2, stile-1, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1
 
-@void tall/1400x2600x540/delivered: shelf-1, 0.223833..0.241833, 0.346..0.364, 0.229..0.247
-@void tall/1400x2600x540/delivered: shelf-2, 0.223833..0.241833, 0.661..0.679, 0.229..0.247
-@void tall/1400x2600x540/delivered: shelf-3, 0.223833..0.241833, 0.976..0.994, 0.229..0.247
-@void tall/1400x2600x540/delivered: shelf-4, 0.223833..0.241833, 1.291..1.309, 0.229..0.247
-@void tall/1400x2600x540/delivered: shelf-5, 0.223833..0.241833, 1.606..1.624, 0.229..0.247
-@void tall/1400x2600x540/delivered: shelf-6, 0.223833..0.241833, 1.921..1.939, 0.229..0.247
-@void tall/1400x2600x540/delivered: shelf-7, 0.223833..0.241833, 2.236..2.254, 0.229..0.247
-@void tall/1400x2600x540/delivered: door-0, -0.692..-0.676, 0.14..0.18, 0.252..0.269
-@void tall/1400x2600x540/delivered: door-0, -0.692..-0.676, 2.42..2.46, 0.252..0.269
-@void tall/1400x2600x540/delivered: door-0, -0.295333..-0.283333, 1.3857..1.5457, 0.254..0.27
-@void tall/1400x2600x540/delivered: door-1, 0.210333..0.226333, 0.14..0.18, 0.252..0.269
-@void tall/1400x2600x540/delivered: door-1, 0.210333..0.226333, 2.42..2.46, 0.252..0.269
-@void tall/1400x2600x540/delivered: door-1, -0.182333..-0.170333, 1.3857..1.5457, 0.254..0.27
-@void tall/1400x2600x540/delivered: door-2, 0.239333..0.255333, 0.14..0.18, 0.252..0.269
-@void tall/1400x2600x540/delivered: door-2, 0.239333..0.255333, 2.42..2.46, 0.252..0.269
-@void tall/1400x2600x540/delivered: door-2, 0.636..0.648, 1.3857..1.5457, 0.254..0.27
-@piece tall/1400x2600x540/delivered: hinge-0, -0.692..-0.676, 0.14..0.18, 0.247..0.252
-@piece tall/1400x2600x540/delivered: hinge-0, -0.692..-0.676, 0.14..0.18, 0.252..0.269
-@piece tall/1400x2600x540/delivered: hinge-1, -0.692..-0.676, 2.42..2.46, 0.247..0.252
-@piece tall/1400x2600x540/delivered: hinge-1, -0.692..-0.676, 2.42..2.46, 0.252..0.269
-@piece tall/1400x2600x540/delivered: hinge-2, 0.210333..0.226333, 0.14..0.18, 0.247..0.252
-@piece tall/1400x2600x540/delivered: hinge-2, 0.210333..0.226333, 0.14..0.18, 0.252..0.269
-@piece tall/1400x2600x540/delivered: hinge-3, 0.210333..0.226333, 2.42..2.46, 0.247..0.252
-@piece tall/1400x2600x540/delivered: hinge-3, 0.210333..0.226333, 2.42..2.46, 0.252..0.269
-@piece tall/1400x2600x540/delivered: hinge-4, 0.239333..0.255333, 0.14..0.18, 0.247..0.252
-@piece tall/1400x2600x540/delivered: hinge-4, 0.239333..0.255333, 0.14..0.18, 0.252..0.269
-@piece tall/1400x2600x540/delivered: hinge-5, 0.239333..0.255333, 2.42..2.46, 0.247..0.252
-@piece tall/1400x2600x540/delivered: hinge-5, 0.239333..0.255333, 2.42..2.46, 0.252..0.269
+@void service/640x840x600/open: shelf-1, -0.009..0.009, 0.284333..0.302333, 0.259..0.277
+@void service/640x840x600/open: shelf-2, -0.009..0.009, 0.537667..0.555667, 0.259..0.277
+@void service/640x840x600/open: door-0, -0.312..-0.295, 0.14..0.18, 0.283..0.299
+@void service/640x840x600/open: door-0, -0.313..-0.295, 0.14..0.18, 0.278..0.299
+@void service/640x840x600/open: door-0, -0.312..-0.295, 0.66..0.7, 0.283..0.299
+@void service/640x840x600/open: door-0, -0.313..-0.295, 0.66..0.7, 0.278..0.299
+@void service/640x840x600/open: door-0, -0.313..-0.297, 0.4177..0.5777, 0.5325..0.5445
+@void service/640x840x600/open: door-1, 0.295..0.312, 0.14..0.18, 0.283..0.299
+@void service/640x840x600/open: door-1, 0.295..0.313, 0.14..0.18, 0.278..0.299
+@void service/640x840x600/open: door-1, 0.295..0.312, 0.66..0.7, 0.283..0.299
+@void service/640x840x600/open: door-1, 0.295..0.313, 0.66..0.7, 0.278..0.299
+@void service/640x840x600/open: door-1, 0.297..0.313, 0.4177..0.5777, 0.5325..0.5445
+@piece service/640x840x600/open: hinge-0, -0.312..-0.296, 0.14..0.18, 0.277..0.282
+@piece service/640x840x600/open: hinge-0, -0.312..-0.296, 0.14..0.18, 0.282..0.299
+@piece service/640x840x600/open: hinge-1, -0.312..-0.296, 0.66..0.7, 0.277..0.282
+@piece service/640x840x600/open: hinge-1, -0.312..-0.296, 0.66..0.7, 0.282..0.299
+@piece service/640x840x600/open: hinge-2, 0.296..0.312, 0.14..0.18, 0.277..0.282
+@piece service/640x840x600/open: hinge-2, 0.296..0.312, 0.14..0.18, 0.282..0.299
+@piece service/640x840x600/open: hinge-3, 0.296..0.312, 0.66..0.7, 0.277..0.282
+@piece service/640x840x600/open: hinge-3, 0.296..0.312, 0.66..0.7, 0.282..0.299
 | kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| @envelope | tall/1400x2600x540/delivered | * | bounds | -0.7..0.7 | 0..2.6 | -0.27..0.27 | - |
-| @part | tall/1400x2600x540/delivered | back | box | -0.7..0.7 | 0.08..2.582 | -0.27..-0.258 | toe,bottom,top |
-| @part | tall/1400x2600x540/delivered | bottom | box | -0.7..0.7 | 0.08..0.098 | -0.258..0.247 | back,side-left,side-right |
-| @part | tall/1400x2600x540/delivered | top | box | -0.7..0.7 | 2.582..2.6 | -0.27..0.247 | back,side-left,side-right |
-| @part | tall/1400x2600x540/delivered | side-left | box | -0.7..-0.682 | 0.098..2.582 | -0.258..0.247 | back,bottom,top |
-| @part | tall/1400x2600x540/delivered | side-right | box | 0.682..0.7 | 0.098..2.582 | -0.258..0.247 | back,bottom,top |
-| @part | tall/1400x2600x540/delivered | toe | box | -0.7..0.7 | 0..0.08 | -0.27..0.22 | ground,back,bottom |
-| @part | tall/1400x2600x540/delivered | divider | box | 0.14..0.158 | 0.098..2.582 | -0.258..0.252 | bottom,top |
-| @part | tall/1400x2600x540/delivered | rod | cylinder | -0.682..0.14 | 2.2375..2.2625 | -0.0925..-0.0675 | side-left,divider |
-| @part | tall/1400x2600x540/delivered | shelf-1 | box | 0.158..0.682 | 0.346..0.364 | -0.258..0.247 | divider,side-right,back |
-| @part | tall/1400x2600x540/delivered | shelf-2 | box | 0.158..0.682 | 0.661..0.679 | -0.258..0.247 | divider,side-right,back |
-| @part | tall/1400x2600x540/delivered | shelf-3 | box | 0.158..0.682 | 0.976..0.994 | -0.258..0.247 | divider,side-right,back |
-| @part | tall/1400x2600x540/delivered | shelf-4 | box | 0.158..0.682 | 1.291..1.309 | -0.258..0.247 | divider,side-right,back |
-| @part | tall/1400x2600x540/delivered | shelf-5 | box | 0.158..0.682 | 1.606..1.624 | -0.258..0.247 | divider,side-right,back |
-| @part | tall/1400x2600x540/delivered | shelf-6 | box | 0.158..0.682 | 1.921..1.939 | -0.258..0.247 | divider,side-right,back |
-| @part | tall/1400x2600x540/delivered | shelf-7 | box | 0.158..0.682 | 2.236..2.254 | -0.258..0.247 | divider,side-right,back |
-| @part | tall/1400x2600x540/delivered | stile-1 | box | -0.241833..-0.223833 | 0.098..2.582 | 0.229..0.247 | bottom,top |
-| @part | tall/1400x2600x540/delivered | stile-2 | box | 0.223833..0.241833 | 0.098..2.582 | 0.229..0.247 | bottom,top |
-| @part | tall/1400x2600x540/delivered | door-0 | box | -0.697..-0.234333 | 0.083..2.597 | 0.252..0.27 | hinge-0,hinge-1 |
-| @part | tall/1400x2600x540/delivered | hinge-0 | curved | -0.692..-0.676 | 0.14..0.18 | 0.247..0.269 | door-0,side-left |
-| @part | tall/1400x2600x540/delivered | hinge-1 | curved | -0.692..-0.676 | 2.42..2.46 | 0.247..0.269 | door-0,side-left |
-| @part | tall/1400x2600x540/delivered | handle-0 | box | -0.295333..-0.283333 | 1.3857..1.5457 | 0.254..0.27 | door-0 |
-| @part | tall/1400x2600x540/delivered | door-1 | box | -0.231333..0.231333 | 0.083..2.597 | 0.252..0.27 | hinge-2,hinge-3 |
-| @part | tall/1400x2600x540/delivered | hinge-2 | curved | 0.210333..0.226333 | 0.14..0.18 | 0.247..0.269 | door-1,stile-2 |
-| @part | tall/1400x2600x540/delivered | hinge-3 | curved | 0.210333..0.226333 | 2.42..2.46 | 0.247..0.269 | door-1,stile-2 |
-| @part | tall/1400x2600x540/delivered | handle-1 | box | -0.182333..-0.170333 | 1.3857..1.5457 | 0.254..0.27 | door-1 |
-| @part | tall/1400x2600x540/delivered | door-2 | box | 0.234333..0.697 | 0.083..2.597 | 0.252..0.27 | hinge-4,hinge-5 |
-| @part | tall/1400x2600x540/delivered | hinge-4 | curved | 0.239333..0.255333 | 0.14..0.18 | 0.247..0.269 | door-2,stile-2 |
-| @part | tall/1400x2600x540/delivered | hinge-5 | curved | 0.239333..0.255333 | 2.42..2.46 | 0.247..0.269 | door-2,stile-2 |
-| @part | tall/1400x2600x540/delivered | handle-2 | box | 0.636..0.648 | 1.3857..1.5457 | 0.254..0.27 | door-2 |
+| @envelope | service/640x840x600/open | * | bounds | -0.32..0.32 | 0..0.84 | -0.3..0.5935 | - |
+| @part | service/640x840x600/open | back | box | -0.32..0.32 | 0.08..0.822 | -0.3..-0.288 | toe,bottom,top |
+| @part | service/640x840x600/open | bottom | box | -0.32..0.32 | 0.08..0.098 | -0.288..0.277 | back,side-left,side-right |
+| @part | service/640x840x600/open | top | box | -0.32..0.32 | 0.822..0.84 | -0.3..0.277 | back,side-left,side-right |
+| @part | service/640x840x600/open | side-left | box | -0.32..-0.302 | 0.098..0.822 | -0.288..0.277 | back,bottom,top |
+| @part | service/640x840x600/open | side-right | box | 0.302..0.32 | 0.098..0.822 | -0.288..0.277 | back,bottom,top |
+| @part | service/640x840x600/open | toe | box | -0.32..0.32 | 0..0.08 | -0.3..0.25 | ground,back,bottom |
+| @part | service/640x840x600/open | shelf-1 | box | -0.302..0.302 | 0.284333..0.302333 | -0.288..0.277 | side-left,side-right,back |
+| @part | service/640x840x600/open | shelf-2 | box | -0.302..0.302 | 0.537667..0.555667 | -0.288..0.277 | side-left,side-right,back |
+| @part | service/640x840x600/open | stile-1 | box | -0.009..0.009 | 0.098..0.822 | 0.259..0.277 | bottom,top |
+| @part | service/640x840x600/open | door-0 | box | -0.313..-0.295 | 0.083..0.837 | 0.278..0.5935 | hinge-0,hinge-1 |
+| @part | service/640x840x600/open | hinge-0 | curved | -0.312..-0.296 | 0.14..0.18 | 0.277..0.299 | door-0,side-left |
+| @part | service/640x840x600/open | hinge-1 | curved | -0.312..-0.296 | 0.66..0.7 | 0.277..0.299 | door-0,side-left |
+| @part | service/640x840x600/open | handle-0 | box | -0.313..-0.297 | 0.4177..0.5777 | 0.5325..0.5445 | door-0 |
+| @part | service/640x840x600/open | door-1 | box | 0.295..0.313 | 0.083..0.837 | 0.278..0.5935 | hinge-2,hinge-3 |
+| @part | service/640x840x600/open | hinge-2 | curved | 0.296..0.312 | 0.14..0.18 | 0.277..0.299 | door-1,side-right |
+| @part | service/640x840x600/open | hinge-3 | curved | 0.296..0.312 | 0.66..0.7 | 0.277..0.299 | door-1,side-right |
+| @part | service/640x840x600/open | handle-1 | box | 0.297..0.313 | 0.4177..0.5777 | 0.5325..0.5445 | door-1 |
 
-@inventory tall/1400x2600x540/inspection-open: back, bottom, top, side-left, side-right, toe, divider, rod, shelf-1, shelf-2, shelf-3, shelf-4, shelf-5, shelf-6, shelf-7, stile-1, stile-2, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1, door-2, hinge-4, hinge-5, handle-2
+@inventory tall/1300x2650x600/closed: back, bottom, top, side-left, side-right, toe, divider, rod, shelf-1, shelf-2, shelf-3, shelf-4, shelf-5, shelf-6, shelf-7, stile-1, stile-2, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1, door-2, hinge-4, hinge-5, handle-2
 
-@void tall/1400x2600x540/inspection-open: shelf-1, 0.223833..0.241833, 0.346..0.364, 0.229..0.247
-@void tall/1400x2600x540/inspection-open: shelf-2, 0.223833..0.241833, 0.661..0.679, 0.229..0.247
-@void tall/1400x2600x540/inspection-open: shelf-3, 0.223833..0.241833, 0.976..0.994, 0.229..0.247
-@void tall/1400x2600x540/inspection-open: shelf-4, 0.223833..0.241833, 1.291..1.309, 0.229..0.247
-@void tall/1400x2600x540/inspection-open: shelf-5, 0.223833..0.241833, 1.606..1.624, 0.229..0.247
-@void tall/1400x2600x540/inspection-open: shelf-6, 0.223833..0.241833, 1.921..1.939, 0.229..0.247
-@void tall/1400x2600x540/inspection-open: shelf-7, 0.223833..0.241833, 2.236..2.254, 0.229..0.247
-@void tall/1400x2600x540/inspection-open: door-0, -0.692..-0.675, 0.14..0.18, 0.253..0.269
-@void tall/1400x2600x540/inspection-open: door-0, -0.693..-0.675, 0.14..0.18, 0.248..0.269
-@void tall/1400x2600x540/inspection-open: door-0, -0.692..-0.675, 2.42..2.46, 0.253..0.269
-@void tall/1400x2600x540/inspection-open: door-0, -0.693..-0.675, 2.42..2.46, 0.248..0.269
-@void tall/1400x2600x540/inspection-open: door-0, -0.693..-0.677, 1.3857..1.5457, 0.649667..0.661667
-@void tall/1400x2600x540/inspection-open: door-1, 0.209333..0.226333, 0.14..0.18, 0.253..0.269
-@void tall/1400x2600x540/inspection-open: door-1, 0.209333..0.227333, 0.14..0.18, 0.248..0.269
-@void tall/1400x2600x540/inspection-open: door-1, 0.209333..0.226333, 2.42..2.46, 0.253..0.269
-@void tall/1400x2600x540/inspection-open: door-1, 0.209333..0.227333, 2.42..2.46, 0.248..0.269
-@void tall/1400x2600x540/inspection-open: door-1, 0.211333..0.227333, 1.3857..1.5457, 0.649666..0.661666
-@void tall/1400x2600x540/inspection-open: door-2, 0.239333..0.256333, 0.14..0.18, 0.253..0.269
-@void tall/1400x2600x540/inspection-open: door-2, 0.238333..0.256333, 0.14..0.18, 0.248..0.269
-@void tall/1400x2600x540/inspection-open: door-2, 0.239333..0.256333, 2.42..2.46, 0.253..0.269
-@void tall/1400x2600x540/inspection-open: door-2, 0.238333..0.256333, 2.42..2.46, 0.248..0.269
-@void tall/1400x2600x540/inspection-open: door-2, 0.238333..0.254333, 1.3857..1.5457, 0.649667..0.661667
-@piece tall/1400x2600x540/inspection-open: hinge-0, -0.692..-0.676, 0.14..0.18, 0.247..0.252
-@piece tall/1400x2600x540/inspection-open: hinge-0, -0.692..-0.676, 0.14..0.18, 0.252..0.269
-@piece tall/1400x2600x540/inspection-open: hinge-1, -0.692..-0.676, 2.42..2.46, 0.247..0.252
-@piece tall/1400x2600x540/inspection-open: hinge-1, -0.692..-0.676, 2.42..2.46, 0.252..0.269
-@piece tall/1400x2600x540/inspection-open: hinge-2, 0.210333..0.226333, 0.14..0.18, 0.247..0.252
-@piece tall/1400x2600x540/inspection-open: hinge-2, 0.210333..0.226333, 0.14..0.18, 0.252..0.269
-@piece tall/1400x2600x540/inspection-open: hinge-3, 0.210333..0.226333, 2.42..2.46, 0.247..0.252
-@piece tall/1400x2600x540/inspection-open: hinge-3, 0.210333..0.226333, 2.42..2.46, 0.252..0.269
-@piece tall/1400x2600x540/inspection-open: hinge-4, 0.239333..0.255333, 0.14..0.18, 0.247..0.252
-@piece tall/1400x2600x540/inspection-open: hinge-4, 0.239333..0.255333, 0.14..0.18, 0.252..0.269
-@piece tall/1400x2600x540/inspection-open: hinge-5, 0.239333..0.255333, 2.42..2.46, 0.247..0.252
-@piece tall/1400x2600x540/inspection-open: hinge-5, 0.239333..0.255333, 2.42..2.46, 0.252..0.269
+@void tall/1300x2650x600/closed: shelf-1, 0.207167..0.225167, 0.35225..0.37025, 0.259..0.277
+@void tall/1300x2650x600/closed: shelf-2, 0.207167..0.225167, 0.6735..0.6915, 0.259..0.277
+@void tall/1300x2650x600/closed: shelf-3, 0.207167..0.225167, 0.99475..1.01275, 0.259..0.277
+@void tall/1300x2650x600/closed: shelf-4, 0.207167..0.225167, 1.316..1.334, 0.259..0.277
+@void tall/1300x2650x600/closed: shelf-5, 0.207167..0.225167, 1.63725..1.65525, 0.259..0.277
+@void tall/1300x2650x600/closed: shelf-6, 0.207167..0.225167, 1.9585..1.9765, 0.259..0.277
+@void tall/1300x2650x600/closed: shelf-7, 0.207167..0.225167, 2.27975..2.29775, 0.259..0.277
+@void tall/1300x2650x600/closed: door-0, -0.642..-0.626, 0.14..0.18, 0.282..0.299
+@void tall/1300x2650x600/closed: door-0, -0.642..-0.626, 2.47..2.51, 0.282..0.299
+@void tall/1300x2650x600/closed: door-0, -0.278667..-0.266667, 1.4132..1.5732, 0.284..0.3
+@void tall/1300x2650x600/closed: door-1, 0.193667..0.209667, 0.14..0.18, 0.282..0.299
+@void tall/1300x2650x600/closed: door-1, 0.193667..0.209667, 2.47..2.51, 0.282..0.299
+@void tall/1300x2650x600/closed: door-1, -0.165667..-0.153667, 1.4132..1.5732, 0.284..0.3
+@void tall/1300x2650x600/closed: door-2, 0.222667..0.238667, 0.14..0.18, 0.282..0.299
+@void tall/1300x2650x600/closed: door-2, 0.222667..0.238667, 2.47..2.51, 0.282..0.299
+@void tall/1300x2650x600/closed: door-2, 0.586..0.598, 1.4132..1.5732, 0.284..0.3
+@piece tall/1300x2650x600/closed: hinge-0, -0.642..-0.626, 0.14..0.18, 0.277..0.282
+@piece tall/1300x2650x600/closed: hinge-0, -0.642..-0.626, 0.14..0.18, 0.282..0.299
+@piece tall/1300x2650x600/closed: hinge-1, -0.642..-0.626, 2.47..2.51, 0.277..0.282
+@piece tall/1300x2650x600/closed: hinge-1, -0.642..-0.626, 2.47..2.51, 0.282..0.299
+@piece tall/1300x2650x600/closed: hinge-2, 0.193667..0.209667, 0.14..0.18, 0.277..0.282
+@piece tall/1300x2650x600/closed: hinge-2, 0.193667..0.209667, 0.14..0.18, 0.282..0.299
+@piece tall/1300x2650x600/closed: hinge-3, 0.193667..0.209667, 2.47..2.51, 0.277..0.282
+@piece tall/1300x2650x600/closed: hinge-3, 0.193667..0.209667, 2.47..2.51, 0.282..0.299
+@piece tall/1300x2650x600/closed: hinge-4, 0.222667..0.238667, 0.14..0.18, 0.277..0.282
+@piece tall/1300x2650x600/closed: hinge-4, 0.222667..0.238667, 0.14..0.18, 0.282..0.299
+@piece tall/1300x2650x600/closed: hinge-5, 0.222667..0.238667, 2.47..2.51, 0.277..0.282
+@piece tall/1300x2650x600/closed: hinge-5, 0.222667..0.238667, 2.47..2.51, 0.282..0.299
 | kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| @envelope | tall/1400x2600x540/inspection-open | * | bounds | -0.7..0.7 | 0..2.6 | -0.27..0.710667 | - |
-| @part | tall/1400x2600x540/inspection-open | back | box | -0.7..0.7 | 0.08..2.582 | -0.27..-0.258 | toe,bottom,top |
-| @part | tall/1400x2600x540/inspection-open | bottom | box | -0.7..0.7 | 0.08..0.098 | -0.258..0.247 | back,side-left,side-right |
-| @part | tall/1400x2600x540/inspection-open | top | box | -0.7..0.7 | 2.582..2.6 | -0.27..0.247 | back,side-left,side-right |
-| @part | tall/1400x2600x540/inspection-open | side-left | box | -0.7..-0.682 | 0.098..2.582 | -0.258..0.247 | back,bottom,top |
-| @part | tall/1400x2600x540/inspection-open | side-right | box | 0.682..0.7 | 0.098..2.582 | -0.258..0.247 | back,bottom,top |
-| @part | tall/1400x2600x540/inspection-open | toe | box | -0.7..0.7 | 0..0.08 | -0.27..0.22 | ground,back,bottom |
-| @part | tall/1400x2600x540/inspection-open | divider | box | 0.14..0.158 | 0.098..2.582 | -0.258..0.252 | bottom,top |
-| @part | tall/1400x2600x540/inspection-open | rod | cylinder | -0.682..0.14 | 2.2375..2.2625 | -0.0925..-0.0675 | side-left,divider |
-| @part | tall/1400x2600x540/inspection-open | shelf-1 | box | 0.158..0.682 | 0.346..0.364 | -0.258..0.247 | divider,side-right,back |
-| @part | tall/1400x2600x540/inspection-open | shelf-2 | box | 0.158..0.682 | 0.661..0.679 | -0.258..0.247 | divider,side-right,back |
-| @part | tall/1400x2600x540/inspection-open | shelf-3 | box | 0.158..0.682 | 0.976..0.994 | -0.258..0.247 | divider,side-right,back |
-| @part | tall/1400x2600x540/inspection-open | shelf-4 | box | 0.158..0.682 | 1.291..1.309 | -0.258..0.247 | divider,side-right,back |
-| @part | tall/1400x2600x540/inspection-open | shelf-5 | box | 0.158..0.682 | 1.606..1.624 | -0.258..0.247 | divider,side-right,back |
-| @part | tall/1400x2600x540/inspection-open | shelf-6 | box | 0.158..0.682 | 1.921..1.939 | -0.258..0.247 | divider,side-right,back |
-| @part | tall/1400x2600x540/inspection-open | shelf-7 | box | 0.158..0.682 | 2.236..2.254 | -0.258..0.247 | divider,side-right,back |
-| @part | tall/1400x2600x540/inspection-open | stile-1 | box | -0.241833..-0.223833 | 0.098..2.582 | 0.229..0.247 | bottom,top |
-| @part | tall/1400x2600x540/inspection-open | stile-2 | box | 0.223833..0.241833 | 0.098..2.582 | 0.229..0.247 | bottom,top |
-| @part | tall/1400x2600x540/inspection-open | door-0 | box | -0.693..-0.675 | 0.083..2.597 | 0.248..0.710667 | hinge-0,hinge-1 |
-| @part | tall/1400x2600x540/inspection-open | hinge-0 | curved | -0.692..-0.676 | 0.14..0.18 | 0.247..0.269 | door-0,side-left |
-| @part | tall/1400x2600x540/inspection-open | hinge-1 | curved | -0.692..-0.676 | 2.42..2.46 | 0.247..0.269 | door-0,side-left |
-| @part | tall/1400x2600x540/inspection-open | handle-0 | box | -0.693..-0.677 | 1.3857..1.5457 | 0.649667..0.661667 | door-0 |
-| @part | tall/1400x2600x540/inspection-open | door-1 | box | 0.209333..0.227333 | 0.083..2.597 | 0.248..0.710667 | hinge-2,hinge-3 |
-| @part | tall/1400x2600x540/inspection-open | hinge-2 | curved | 0.210333..0.226333 | 0.14..0.18 | 0.247..0.269 | door-1,stile-2 |
-| @part | tall/1400x2600x540/inspection-open | hinge-3 | curved | 0.210333..0.226333 | 2.42..2.46 | 0.247..0.269 | door-1,stile-2 |
-| @part | tall/1400x2600x540/inspection-open | handle-1 | box | 0.211333..0.227333 | 1.3857..1.5457 | 0.649666..0.661666 | door-1 |
-| @part | tall/1400x2600x540/inspection-open | door-2 | box | 0.238333..0.256333 | 0.083..2.597 | 0.248..0.710667 | hinge-4,hinge-5 |
-| @part | tall/1400x2600x540/inspection-open | hinge-4 | curved | 0.239333..0.255333 | 0.14..0.18 | 0.247..0.269 | door-2,stile-2 |
-| @part | tall/1400x2600x540/inspection-open | hinge-5 | curved | 0.239333..0.255333 | 2.42..2.46 | 0.247..0.269 | door-2,stile-2 |
-| @part | tall/1400x2600x540/inspection-open | handle-2 | box | 0.238333..0.254333 | 1.3857..1.5457 | 0.649667..0.661667 | door-2 |
+| @envelope | tall/1300x2650x600/closed | * | bounds | -0.65..0.65 | 0..2.65 | -0.3..0.3 | - |
+| @part | tall/1300x2650x600/closed | back | box | -0.65..0.65 | 0.08..2.632 | -0.3..-0.288 | toe,bottom,top |
+| @part | tall/1300x2650x600/closed | bottom | box | -0.65..0.65 | 0.08..0.098 | -0.288..0.277 | back,side-left,side-right |
+| @part | tall/1300x2650x600/closed | top | box | -0.65..0.65 | 2.632..2.65 | -0.3..0.277 | back,side-left,side-right |
+| @part | tall/1300x2650x600/closed | side-left | box | -0.65..-0.632 | 0.098..2.632 | -0.288..0.277 | back,bottom,top |
+| @part | tall/1300x2650x600/closed | side-right | box | 0.632..0.65 | 0.098..2.632 | -0.288..0.277 | back,bottom,top |
+| @part | tall/1300x2650x600/closed | toe | box | -0.65..0.65 | 0..0.08 | -0.3..0.25 | ground,back,bottom |
+| @part | tall/1300x2650x600/closed | divider | box | 0.13..0.148 | 0.098..2.632 | -0.288..0.282 | bottom,top |
+| @part | tall/1300x2650x600/closed | rod | cylinder | -0.632..0.13 | 2.2875..2.3125 | -0.0925..-0.0675 | side-left,divider |
+| @part | tall/1300x2650x600/closed | shelf-1 | box | 0.148..0.632 | 0.35225..0.37025 | -0.288..0.277 | divider,side-right,back |
+| @part | tall/1300x2650x600/closed | shelf-2 | box | 0.148..0.632 | 0.6735..0.6915 | -0.288..0.277 | divider,side-right,back |
+| @part | tall/1300x2650x600/closed | shelf-3 | box | 0.148..0.632 | 0.99475..1.01275 | -0.288..0.277 | divider,side-right,back |
+| @part | tall/1300x2650x600/closed | shelf-4 | box | 0.148..0.632 | 1.316..1.334 | -0.288..0.277 | divider,side-right,back |
+| @part | tall/1300x2650x600/closed | shelf-5 | box | 0.148..0.632 | 1.63725..1.65525 | -0.288..0.277 | divider,side-right,back |
+| @part | tall/1300x2650x600/closed | shelf-6 | box | 0.148..0.632 | 1.9585..1.9765 | -0.288..0.277 | divider,side-right,back |
+| @part | tall/1300x2650x600/closed | shelf-7 | box | 0.148..0.632 | 2.27975..2.29775 | -0.288..0.277 | divider,side-right,back |
+| @part | tall/1300x2650x600/closed | stile-1 | box | -0.225167..-0.207167 | 0.098..2.632 | 0.259..0.277 | bottom,top |
+| @part | tall/1300x2650x600/closed | stile-2 | box | 0.207167..0.225167 | 0.098..2.632 | 0.259..0.277 | bottom,top |
+| @part | tall/1300x2650x600/closed | door-0 | box | -0.647..-0.217667 | 0.083..2.647 | 0.282..0.3 | hinge-0,hinge-1 |
+| @part | tall/1300x2650x600/closed | hinge-0 | curved | -0.642..-0.626 | 0.14..0.18 | 0.277..0.299 | door-0,side-left |
+| @part | tall/1300x2650x600/closed | hinge-1 | curved | -0.642..-0.626 | 2.47..2.51 | 0.277..0.299 | door-0,side-left |
+| @part | tall/1300x2650x600/closed | handle-0 | box | -0.278667..-0.266667 | 1.4132..1.5732 | 0.284..0.3 | door-0 |
+| @part | tall/1300x2650x600/closed | door-1 | box | -0.214667..0.214667 | 0.083..2.647 | 0.282..0.3 | hinge-2,hinge-3 |
+| @part | tall/1300x2650x600/closed | hinge-2 | curved | 0.193667..0.209667 | 0.14..0.18 | 0.277..0.299 | door-1,stile-2 |
+| @part | tall/1300x2650x600/closed | hinge-3 | curved | 0.193667..0.209667 | 2.47..2.51 | 0.277..0.299 | door-1,stile-2 |
+| @part | tall/1300x2650x600/closed | handle-1 | box | -0.165667..-0.153667 | 1.4132..1.5732 | 0.284..0.3 | door-1 |
+| @part | tall/1300x2650x600/closed | door-2 | box | 0.217667..0.647 | 0.083..2.647 | 0.282..0.3 | hinge-4,hinge-5 |
+| @part | tall/1300x2650x600/closed | hinge-4 | curved | 0.222667..0.238667 | 0.14..0.18 | 0.277..0.299 | door-2,stile-2 |
+| @part | tall/1300x2650x600/closed | hinge-5 | curved | 0.222667..0.238667 | 2.47..2.51 | 0.277..0.299 | door-2,stile-2 |
+| @part | tall/1300x2650x600/closed | handle-2 | box | 0.586..0.598 | 1.4132..1.5732 | 0.284..0.3 | door-2 |
 
-@inventory tall/2720x2650x600/delivered: back, bottom, top, side-left, side-right, toe, divider, rod, shelf-1, shelf-2, shelf-3, shelf-4, shelf-5, shelf-6, shelf-7, stile-1, stile-2, stile-3, stile-4, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1, door-2, hinge-4, hinge-5, handle-2, door-3, hinge-6, hinge-7, handle-3, door-4, hinge-8, hinge-9, handle-4
+@inventory tall/1300x2650x600/open: back, bottom, top, side-left, side-right, toe, divider, rod, shelf-1, shelf-2, shelf-3, shelf-4, shelf-5, shelf-6, shelf-7, stile-1, stile-2, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1, door-2, hinge-4, hinge-5, handle-2
 
-@void tall/2720x2650x600/delivered: divider, 0.272..0.2807, 0.098..2.632, 0.259..0.282
-@void tall/2720x2650x600/delivered: shelf-1, 0.8061..0.8241, 0.35225..0.37025, 0.259..0.277
-@void tall/2720x2650x600/delivered: shelf-2, 0.8061..0.8241, 0.6735..0.6915, 0.259..0.277
-@void tall/2720x2650x600/delivered: shelf-3, 0.8061..0.8241, 0.99475..1.01275, 0.259..0.277
-@void tall/2720x2650x600/delivered: shelf-4, 0.8061..0.8241, 1.316..1.334, 0.259..0.277
-@void tall/2720x2650x600/delivered: shelf-5, 0.8061..0.8241, 1.63725..1.65525, 0.259..0.277
-@void tall/2720x2650x600/delivered: shelf-6, 0.8061..0.8241, 1.9585..1.9765, 0.259..0.277
-@void tall/2720x2650x600/delivered: shelf-7, 0.8061..0.8241, 2.27975..2.29775, 0.259..0.277
-@void tall/2720x2650x600/delivered: door-0, -1.352..-1.336, 0.14..0.18, 0.282..0.299
-@void tall/2720x2650x600/delivered: door-0, -1.352..-1.336, 2.47..2.51, 0.282..0.299
-@void tall/2720x2650x600/delivered: door-0, -0.8776..-0.8656, 1.4132..1.5732, 0.284..0.3
-@void tall/2720x2650x600/delivered: door-1, -0.2942..-0.2782, 0.14..0.18, 0.282..0.299
-@void tall/2720x2650x600/delivered: door-1, -0.2942..-0.2782, 2.47..2.51, 0.282..0.299
-@void tall/2720x2650x600/delivered: door-1, -0.7646..-0.7526, 1.4132..1.5732, 0.284..0.3
-@void tall/2720x2650x600/delivered: door-2, -0.2652..-0.2492, 0.14..0.18, 0.282..0.299
-@void tall/2720x2650x600/delivered: door-2, -0.2652..-0.2492, 2.47..2.51, 0.282..0.299
-@void tall/2720x2650x600/delivered: door-2, 0.2092..0.2212, 1.4132..1.5732, 0.284..0.3
-@void tall/2720x2650x600/delivered: door-3, 0.7926..0.8086, 0.14..0.18, 0.282..0.299
-@void tall/2720x2650x600/delivered: door-3, 0.7926..0.8086, 2.47..2.51, 0.282..0.299
-@void tall/2720x2650x600/delivered: door-3, 0.3222..0.3342, 1.4132..1.5732, 0.284..0.3
-@void tall/2720x2650x600/delivered: door-4, 0.8216..0.8376, 0.14..0.18, 0.282..0.299
-@void tall/2720x2650x600/delivered: door-4, 0.8216..0.8376, 2.47..2.51, 0.282..0.299
-@void tall/2720x2650x600/delivered: door-4, 1.296..1.308, 1.4132..1.5732, 0.284..0.3
-@piece tall/2720x2650x600/delivered: hinge-0, -1.352..-1.336, 0.14..0.18, 0.277..0.282
-@piece tall/2720x2650x600/delivered: hinge-0, -1.352..-1.336, 0.14..0.18, 0.282..0.299
-@piece tall/2720x2650x600/delivered: hinge-1, -1.352..-1.336, 2.47..2.51, 0.277..0.282
-@piece tall/2720x2650x600/delivered: hinge-1, -1.352..-1.336, 2.47..2.51, 0.282..0.299
-@piece tall/2720x2650x600/delivered: hinge-2, -0.2942..-0.2782, 0.14..0.18, 0.277..0.282
-@piece tall/2720x2650x600/delivered: hinge-2, -0.2942..-0.2782, 0.14..0.18, 0.282..0.299
-@piece tall/2720x2650x600/delivered: hinge-3, -0.2942..-0.2782, 2.47..2.51, 0.277..0.282
-@piece tall/2720x2650x600/delivered: hinge-3, -0.2942..-0.2782, 2.47..2.51, 0.282..0.299
-@piece tall/2720x2650x600/delivered: hinge-4, -0.2652..-0.2492, 0.14..0.18, 0.277..0.282
-@piece tall/2720x2650x600/delivered: hinge-4, -0.2652..-0.2492, 0.14..0.18, 0.282..0.299
-@piece tall/2720x2650x600/delivered: hinge-5, -0.2652..-0.2492, 2.47..2.51, 0.277..0.282
-@piece tall/2720x2650x600/delivered: hinge-5, -0.2652..-0.2492, 2.47..2.51, 0.282..0.299
-@piece tall/2720x2650x600/delivered: hinge-6, 0.7926..0.8086, 0.14..0.18, 0.277..0.282
-@piece tall/2720x2650x600/delivered: hinge-6, 0.7926..0.8086, 0.14..0.18, 0.282..0.299
-@piece tall/2720x2650x600/delivered: hinge-7, 0.7926..0.8086, 2.47..2.51, 0.277..0.282
-@piece tall/2720x2650x600/delivered: hinge-7, 0.7926..0.8086, 2.47..2.51, 0.282..0.299
-@piece tall/2720x2650x600/delivered: hinge-8, 0.8216..0.8376, 0.14..0.18, 0.277..0.282
-@piece tall/2720x2650x600/delivered: hinge-8, 0.8216..0.8376, 0.14..0.18, 0.282..0.299
-@piece tall/2720x2650x600/delivered: hinge-9, 0.8216..0.8376, 2.47..2.51, 0.277..0.282
-@piece tall/2720x2650x600/delivered: hinge-9, 0.8216..0.8376, 2.47..2.51, 0.282..0.299
+@void tall/1300x2650x600/open: shelf-1, 0.207167..0.225167, 0.35225..0.37025, 0.259..0.277
+@void tall/1300x2650x600/open: shelf-2, 0.207167..0.225167, 0.6735..0.6915, 0.259..0.277
+@void tall/1300x2650x600/open: shelf-3, 0.207167..0.225167, 0.99475..1.01275, 0.259..0.277
+@void tall/1300x2650x600/open: shelf-4, 0.207167..0.225167, 1.316..1.334, 0.259..0.277
+@void tall/1300x2650x600/open: shelf-5, 0.207167..0.225167, 1.63725..1.65525, 0.259..0.277
+@void tall/1300x2650x600/open: shelf-6, 0.207167..0.225167, 1.9585..1.9765, 0.259..0.277
+@void tall/1300x2650x600/open: shelf-7, 0.207167..0.225167, 2.27975..2.29775, 0.259..0.277
+@void tall/1300x2650x600/open: door-0, -0.642..-0.625, 0.14..0.18, 0.283..0.299
+@void tall/1300x2650x600/open: door-0, -0.643..-0.625, 0.14..0.18, 0.278..0.299
+@void tall/1300x2650x600/open: door-0, -0.642..-0.625, 2.47..2.51, 0.283..0.299
+@void tall/1300x2650x600/open: door-0, -0.643..-0.625, 2.47..2.51, 0.278..0.299
+@void tall/1300x2650x600/open: door-0, -0.643..-0.627, 1.4132..1.5732, 0.646333..0.658333
+@void tall/1300x2650x600/open: door-1, 0.192667..0.209667, 0.14..0.18, 0.283..0.299
+@void tall/1300x2650x600/open: door-1, 0.192667..0.210667, 0.14..0.18, 0.278..0.299
+@void tall/1300x2650x600/open: door-1, 0.192667..0.209667, 2.47..2.51, 0.283..0.299
+@void tall/1300x2650x600/open: door-1, 0.192667..0.210667, 2.47..2.51, 0.278..0.299
+@void tall/1300x2650x600/open: door-1, 0.194667..0.210667, 1.4132..1.5732, 0.646334..0.658334
+@void tall/1300x2650x600/open: door-2, 0.222667..0.239667, 0.14..0.18, 0.283..0.299
+@void tall/1300x2650x600/open: door-2, 0.221667..0.239667, 0.14..0.18, 0.278..0.299
+@void tall/1300x2650x600/open: door-2, 0.222667..0.239667, 2.47..2.51, 0.283..0.299
+@void tall/1300x2650x600/open: door-2, 0.221667..0.239667, 2.47..2.51, 0.278..0.299
+@void tall/1300x2650x600/open: door-2, 0.221667..0.237667, 1.4132..1.5732, 0.646333..0.658333
+@piece tall/1300x2650x600/open: hinge-0, -0.642..-0.626, 0.14..0.18, 0.277..0.282
+@piece tall/1300x2650x600/open: hinge-0, -0.642..-0.626, 0.14..0.18, 0.282..0.299
+@piece tall/1300x2650x600/open: hinge-1, -0.642..-0.626, 2.47..2.51, 0.277..0.282
+@piece tall/1300x2650x600/open: hinge-1, -0.642..-0.626, 2.47..2.51, 0.282..0.299
+@piece tall/1300x2650x600/open: hinge-2, 0.193667..0.209667, 0.14..0.18, 0.277..0.282
+@piece tall/1300x2650x600/open: hinge-2, 0.193667..0.209667, 0.14..0.18, 0.282..0.299
+@piece tall/1300x2650x600/open: hinge-3, 0.193667..0.209667, 2.47..2.51, 0.277..0.282
+@piece tall/1300x2650x600/open: hinge-3, 0.193667..0.209667, 2.47..2.51, 0.282..0.299
+@piece tall/1300x2650x600/open: hinge-4, 0.222667..0.238667, 0.14..0.18, 0.277..0.282
+@piece tall/1300x2650x600/open: hinge-4, 0.222667..0.238667, 0.14..0.18, 0.282..0.299
+@piece tall/1300x2650x600/open: hinge-5, 0.222667..0.238667, 2.47..2.51, 0.277..0.282
+@piece tall/1300x2650x600/open: hinge-5, 0.222667..0.238667, 2.47..2.51, 0.282..0.299
 | kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| @envelope | tall/2720x2650x600/delivered | * | bounds | -1.36..1.36 | 0..2.65 | -0.3..0.3 | - |
-| @part | tall/2720x2650x600/delivered | back | box | -1.36..1.36 | 0.08..2.632 | -0.3..-0.288 | toe,bottom,top |
-| @part | tall/2720x2650x600/delivered | bottom | box | -1.36..1.36 | 0.08..0.098 | -0.288..0.277 | back,side-left,side-right |
-| @part | tall/2720x2650x600/delivered | top | box | -1.36..1.36 | 2.632..2.65 | -0.3..0.277 | back,side-left,side-right |
-| @part | tall/2720x2650x600/delivered | side-left | box | -1.36..-1.342 | 0.098..2.632 | -0.288..0.277 | back,bottom,top |
-| @part | tall/2720x2650x600/delivered | side-right | box | 1.342..1.36 | 0.098..2.632 | -0.288..0.277 | back,bottom,top |
-| @part | tall/2720x2650x600/delivered | toe | box | -1.36..1.36 | 0..0.08 | -0.3..0.25 | ground,back,bottom |
-| @part | tall/2720x2650x600/delivered | divider | box | 0.272..0.29 | 0.098..2.632 | -0.288..0.282 | bottom,top |
-| @part | tall/2720x2650x600/delivered | rod | cylinder | -1.342..0.272 | 2.2875..2.3125 | -0.0925..-0.0675 | side-left,divider |
-| @part | tall/2720x2650x600/delivered | shelf-1 | box | 0.29..1.342 | 0.35225..0.37025 | -0.288..0.277 | divider,side-right,back |
-| @part | tall/2720x2650x600/delivered | shelf-2 | box | 0.29..1.342 | 0.6735..0.6915 | -0.288..0.277 | divider,side-right,back |
-| @part | tall/2720x2650x600/delivered | shelf-3 | box | 0.29..1.342 | 0.99475..1.01275 | -0.288..0.277 | divider,side-right,back |
-| @part | tall/2720x2650x600/delivered | shelf-4 | box | 0.29..1.342 | 1.316..1.334 | -0.288..0.277 | divider,side-right,back |
-| @part | tall/2720x2650x600/delivered | shelf-5 | box | 0.29..1.342 | 1.63725..1.65525 | -0.288..0.277 | divider,side-right,back |
-| @part | tall/2720x2650x600/delivered | shelf-6 | box | 0.29..1.342 | 1.9585..1.9765 | -0.288..0.277 | divider,side-right,back |
-| @part | tall/2720x2650x600/delivered | shelf-7 | box | 0.29..1.342 | 2.27975..2.29775 | -0.288..0.277 | divider,side-right,back |
-| @part | tall/2720x2650x600/delivered | stile-1 | box | -0.8241..-0.8061 | 0.098..2.632 | 0.259..0.277 | bottom,top |
-| @part | tall/2720x2650x600/delivered | stile-2 | box | -0.2807..-0.2627 | 0.098..2.632 | 0.259..0.277 | bottom,top |
-| @part | tall/2720x2650x600/delivered | stile-3 | box | 0.2627..0.2807 | 0.098..2.632 | 0.259..0.277 | bottom,top |
-| @part | tall/2720x2650x600/delivered | stile-4 | box | 0.8061..0.8241 | 0.098..2.632 | 0.259..0.277 | bottom,top |
-| @part | tall/2720x2650x600/delivered | door-0 | box | -1.357..-0.8166 | 0.083..2.647 | 0.282..0.3 | hinge-0,hinge-1 |
-| @part | tall/2720x2650x600/delivered | hinge-0 | curved | -1.352..-1.336 | 0.14..0.18 | 0.277..0.299 | door-0,side-left |
-| @part | tall/2720x2650x600/delivered | hinge-1 | curved | -1.352..-1.336 | 2.47..2.51 | 0.277..0.299 | door-0,side-left |
-| @part | tall/2720x2650x600/delivered | handle-0 | box | -0.8776..-0.8656 | 1.4132..1.5732 | 0.284..0.3 | door-0 |
-| @part | tall/2720x2650x600/delivered | door-1 | box | -0.8136..-0.2732 | 0.083..2.647 | 0.282..0.3 | hinge-2,hinge-3 |
-| @part | tall/2720x2650x600/delivered | hinge-2 | curved | -0.2942..-0.2782 | 0.14..0.18 | 0.277..0.299 | door-1,stile-2 |
-| @part | tall/2720x2650x600/delivered | hinge-3 | curved | -0.2942..-0.2782 | 2.47..2.51 | 0.277..0.299 | door-1,stile-2 |
-| @part | tall/2720x2650x600/delivered | handle-1 | box | -0.7646..-0.7526 | 1.4132..1.5732 | 0.284..0.3 | door-1 |
-| @part | tall/2720x2650x600/delivered | door-2 | box | -0.2702..0.2702 | 0.083..2.647 | 0.282..0.3 | hinge-4,hinge-5 |
-| @part | tall/2720x2650x600/delivered | hinge-4 | curved | -0.2652..-0.2492 | 0.14..0.18 | 0.277..0.299 | door-2,stile-2 |
-| @part | tall/2720x2650x600/delivered | hinge-5 | curved | -0.2652..-0.2492 | 2.47..2.51 | 0.277..0.299 | door-2,stile-2 |
-| @part | tall/2720x2650x600/delivered | handle-2 | box | 0.2092..0.2212 | 1.4132..1.5732 | 0.284..0.3 | door-2 |
-| @part | tall/2720x2650x600/delivered | door-3 | box | 0.2732..0.8136 | 0.083..2.647 | 0.282..0.3 | hinge-6,hinge-7 |
-| @part | tall/2720x2650x600/delivered | hinge-6 | curved | 0.7926..0.8086 | 0.14..0.18 | 0.277..0.299 | door-3,stile-4 |
-| @part | tall/2720x2650x600/delivered | hinge-7 | curved | 0.7926..0.8086 | 2.47..2.51 | 0.277..0.299 | door-3,stile-4 |
-| @part | tall/2720x2650x600/delivered | handle-3 | box | 0.3222..0.3342 | 1.4132..1.5732 | 0.284..0.3 | door-3 |
-| @part | tall/2720x2650x600/delivered | door-4 | box | 0.8166..1.357 | 0.083..2.647 | 0.282..0.3 | hinge-8,hinge-9 |
-| @part | tall/2720x2650x600/delivered | hinge-8 | curved | 0.8216..0.8376 | 0.14..0.18 | 0.277..0.299 | door-4,stile-4 |
-| @part | tall/2720x2650x600/delivered | hinge-9 | curved | 0.8216..0.8376 | 2.47..2.51 | 0.277..0.299 | door-4,stile-4 |
-| @part | tall/2720x2650x600/delivered | handle-4 | box | 1.296..1.308 | 1.4132..1.5732 | 0.284..0.3 | door-4 |
+| @envelope | tall/1300x2650x600/open | * | bounds | -0.65..0.65 | 0..2.65 | -0.3..0.707333 | - |
+| @part | tall/1300x2650x600/open | back | box | -0.65..0.65 | 0.08..2.632 | -0.3..-0.288 | toe,bottom,top |
+| @part | tall/1300x2650x600/open | bottom | box | -0.65..0.65 | 0.08..0.098 | -0.288..0.277 | back,side-left,side-right |
+| @part | tall/1300x2650x600/open | top | box | -0.65..0.65 | 2.632..2.65 | -0.3..0.277 | back,side-left,side-right |
+| @part | tall/1300x2650x600/open | side-left | box | -0.65..-0.632 | 0.098..2.632 | -0.288..0.277 | back,bottom,top |
+| @part | tall/1300x2650x600/open | side-right | box | 0.632..0.65 | 0.098..2.632 | -0.288..0.277 | back,bottom,top |
+| @part | tall/1300x2650x600/open | toe | box | -0.65..0.65 | 0..0.08 | -0.3..0.25 | ground,back,bottom |
+| @part | tall/1300x2650x600/open | divider | box | 0.13..0.148 | 0.098..2.632 | -0.288..0.282 | bottom,top |
+| @part | tall/1300x2650x600/open | rod | cylinder | -0.632..0.13 | 2.2875..2.3125 | -0.0925..-0.0675 | side-left,divider |
+| @part | tall/1300x2650x600/open | shelf-1 | box | 0.148..0.632 | 0.35225..0.37025 | -0.288..0.277 | divider,side-right,back |
+| @part | tall/1300x2650x600/open | shelf-2 | box | 0.148..0.632 | 0.6735..0.6915 | -0.288..0.277 | divider,side-right,back |
+| @part | tall/1300x2650x600/open | shelf-3 | box | 0.148..0.632 | 0.99475..1.01275 | -0.288..0.277 | divider,side-right,back |
+| @part | tall/1300x2650x600/open | shelf-4 | box | 0.148..0.632 | 1.316..1.334 | -0.288..0.277 | divider,side-right,back |
+| @part | tall/1300x2650x600/open | shelf-5 | box | 0.148..0.632 | 1.63725..1.65525 | -0.288..0.277 | divider,side-right,back |
+| @part | tall/1300x2650x600/open | shelf-6 | box | 0.148..0.632 | 1.9585..1.9765 | -0.288..0.277 | divider,side-right,back |
+| @part | tall/1300x2650x600/open | shelf-7 | box | 0.148..0.632 | 2.27975..2.29775 | -0.288..0.277 | divider,side-right,back |
+| @part | tall/1300x2650x600/open | stile-1 | box | -0.225167..-0.207167 | 0.098..2.632 | 0.259..0.277 | bottom,top |
+| @part | tall/1300x2650x600/open | stile-2 | box | 0.207167..0.225167 | 0.098..2.632 | 0.259..0.277 | bottom,top |
+| @part | tall/1300x2650x600/open | door-0 | box | -0.643..-0.625 | 0.083..2.647 | 0.278..0.707333 | hinge-0,hinge-1 |
+| @part | tall/1300x2650x600/open | hinge-0 | curved | -0.642..-0.626 | 0.14..0.18 | 0.277..0.299 | door-0,side-left |
+| @part | tall/1300x2650x600/open | hinge-1 | curved | -0.642..-0.626 | 2.47..2.51 | 0.277..0.299 | door-0,side-left |
+| @part | tall/1300x2650x600/open | handle-0 | box | -0.643..-0.627 | 1.4132..1.5732 | 0.646333..0.658333 | door-0 |
+| @part | tall/1300x2650x600/open | door-1 | box | 0.192667..0.210667 | 0.083..2.647 | 0.278..0.707333 | hinge-2,hinge-3 |
+| @part | tall/1300x2650x600/open | hinge-2 | curved | 0.193667..0.209667 | 0.14..0.18 | 0.277..0.299 | door-1,stile-2 |
+| @part | tall/1300x2650x600/open | hinge-3 | curved | 0.193667..0.209667 | 2.47..2.51 | 0.277..0.299 | door-1,stile-2 |
+| @part | tall/1300x2650x600/open | handle-1 | box | 0.194667..0.210667 | 1.4132..1.5732 | 0.646334..0.658334 | door-1 |
+| @part | tall/1300x2650x600/open | door-2 | box | 0.221667..0.239667 | 0.083..2.647 | 0.278..0.707333 | hinge-4,hinge-5 |
+| @part | tall/1300x2650x600/open | hinge-4 | curved | 0.222667..0.238667 | 0.14..0.18 | 0.277..0.299 | door-2,stile-2 |
+| @part | tall/1300x2650x600/open | hinge-5 | curved | 0.222667..0.238667 | 2.47..2.51 | 0.277..0.299 | door-2,stile-2 |
+| @part | tall/1300x2650x600/open | handle-2 | box | 0.221667..0.237667 | 1.4132..1.5732 | 0.646333..0.658333 | door-2 |
 
-@inventory tall/2720x2650x600/inspection-open: back, bottom, top, side-left, side-right, toe, divider, rod, shelf-1, shelf-2, shelf-3, shelf-4, shelf-5, shelf-6, shelf-7, stile-1, stile-2, stile-3, stile-4, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1, door-2, hinge-4, hinge-5, handle-2, door-3, hinge-6, hinge-7, handle-3, door-4, hinge-8, hinge-9, handle-4
+@inventory tall/1400x2600x540/closed: back, bottom, top, side-left, side-right, toe, divider, rod, shelf-1, shelf-2, shelf-3, shelf-4, shelf-5, shelf-6, shelf-7, stile-1, stile-2, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1, door-2, hinge-4, hinge-5, handle-2
 
-@void tall/2720x2650x600/inspection-open: divider, 0.272..0.2807, 0.098..2.632, 0.259..0.282
-@void tall/2720x2650x600/inspection-open: shelf-1, 0.8061..0.8241, 0.35225..0.37025, 0.259..0.277
-@void tall/2720x2650x600/inspection-open: shelf-2, 0.8061..0.8241, 0.6735..0.6915, 0.259..0.277
-@void tall/2720x2650x600/inspection-open: shelf-3, 0.8061..0.8241, 0.99475..1.01275, 0.259..0.277
-@void tall/2720x2650x600/inspection-open: shelf-4, 0.8061..0.8241, 1.316..1.334, 0.259..0.277
-@void tall/2720x2650x600/inspection-open: shelf-5, 0.8061..0.8241, 1.63725..1.65525, 0.259..0.277
-@void tall/2720x2650x600/inspection-open: shelf-6, 0.8061..0.8241, 1.9585..1.9765, 0.259..0.277
-@void tall/2720x2650x600/inspection-open: shelf-7, 0.8061..0.8241, 2.27975..2.29775, 0.259..0.277
-@void tall/2720x2650x600/inspection-open: door-0, -1.352..-1.335, 0.14..0.18, 0.283..0.299
-@void tall/2720x2650x600/inspection-open: door-0, -1.353..-1.335, 0.14..0.18, 0.278..0.299
-@void tall/2720x2650x600/inspection-open: door-0, -1.352..-1.335, 2.47..2.51, 0.283..0.299
-@void tall/2720x2650x600/inspection-open: door-0, -1.353..-1.335, 2.47..2.51, 0.278..0.299
-@void tall/2720x2650x600/inspection-open: door-0, -1.353..-1.337, 1.4132..1.5732, 0.7574..0.7694
-@void tall/2720x2650x600/inspection-open: door-1, -0.2952..-0.2782, 0.14..0.18, 0.283..0.299
-@void tall/2720x2650x600/inspection-open: door-1, -0.2952..-0.2772, 0.14..0.18, 0.278..0.299
-@void tall/2720x2650x600/inspection-open: door-1, -0.2952..-0.2782, 2.47..2.51, 0.283..0.299
-@void tall/2720x2650x600/inspection-open: door-1, -0.2952..-0.2772, 2.47..2.51, 0.278..0.299
-@void tall/2720x2650x600/inspection-open: door-1, -0.2932..-0.2772, 1.4132..1.5732, 0.7574..0.7694
-@void tall/2720x2650x600/inspection-open: door-2, -0.2652..-0.2482, 0.14..0.18, 0.283..0.299
-@void tall/2720x2650x600/inspection-open: door-2, -0.2662..-0.2482, 0.14..0.18, 0.278..0.299
-@void tall/2720x2650x600/inspection-open: door-2, -0.2652..-0.2482, 2.47..2.51, 0.283..0.299
-@void tall/2720x2650x600/inspection-open: door-2, -0.2662..-0.2482, 2.47..2.51, 0.278..0.299
-@void tall/2720x2650x600/inspection-open: door-2, -0.2662..-0.2502, 1.4132..1.5732, 0.7574..0.7694
-@void tall/2720x2650x600/inspection-open: door-3, 0.7916..0.8086, 0.14..0.18, 0.283..0.299
-@void tall/2720x2650x600/inspection-open: door-3, 0.7916..0.8096, 0.14..0.18, 0.278..0.299
-@void tall/2720x2650x600/inspection-open: door-3, 0.7916..0.8086, 2.47..2.51, 0.283..0.299
-@void tall/2720x2650x600/inspection-open: door-3, 0.7916..0.8096, 2.47..2.51, 0.278..0.299
-@void tall/2720x2650x600/inspection-open: door-3, 0.7936..0.8096, 1.4132..1.5732, 0.7574..0.7694
-@void tall/2720x2650x600/inspection-open: door-4, 0.8216..0.8386, 0.14..0.18, 0.283..0.299
-@void tall/2720x2650x600/inspection-open: door-4, 0.8206..0.8386, 0.14..0.18, 0.278..0.299
-@void tall/2720x2650x600/inspection-open: door-4, 0.8216..0.8386, 2.47..2.51, 0.283..0.299
-@void tall/2720x2650x600/inspection-open: door-4, 0.8206..0.8386, 2.47..2.51, 0.278..0.299
-@void tall/2720x2650x600/inspection-open: door-4, 0.8206..0.8366, 1.4132..1.5732, 0.7574..0.7694
-@piece tall/2720x2650x600/inspection-open: hinge-0, -1.352..-1.336, 0.14..0.18, 0.277..0.282
-@piece tall/2720x2650x600/inspection-open: hinge-0, -1.352..-1.336, 0.14..0.18, 0.282..0.299
-@piece tall/2720x2650x600/inspection-open: hinge-1, -1.352..-1.336, 2.47..2.51, 0.277..0.282
-@piece tall/2720x2650x600/inspection-open: hinge-1, -1.352..-1.336, 2.47..2.51, 0.282..0.299
-@piece tall/2720x2650x600/inspection-open: hinge-2, -0.2942..-0.2782, 0.14..0.18, 0.277..0.282
-@piece tall/2720x2650x600/inspection-open: hinge-2, -0.2942..-0.2782, 0.14..0.18, 0.282..0.299
-@piece tall/2720x2650x600/inspection-open: hinge-3, -0.2942..-0.2782, 2.47..2.51, 0.277..0.282
-@piece tall/2720x2650x600/inspection-open: hinge-3, -0.2942..-0.2782, 2.47..2.51, 0.282..0.299
-@piece tall/2720x2650x600/inspection-open: hinge-4, -0.2652..-0.2492, 0.14..0.18, 0.277..0.282
-@piece tall/2720x2650x600/inspection-open: hinge-4, -0.2652..-0.2492, 0.14..0.18, 0.282..0.299
-@piece tall/2720x2650x600/inspection-open: hinge-5, -0.2652..-0.2492, 2.47..2.51, 0.277..0.282
-@piece tall/2720x2650x600/inspection-open: hinge-5, -0.2652..-0.2492, 2.47..2.51, 0.282..0.299
-@piece tall/2720x2650x600/inspection-open: hinge-6, 0.7926..0.8086, 0.14..0.18, 0.277..0.282
-@piece tall/2720x2650x600/inspection-open: hinge-6, 0.7926..0.8086, 0.14..0.18, 0.282..0.299
-@piece tall/2720x2650x600/inspection-open: hinge-7, 0.7926..0.8086, 2.47..2.51, 0.277..0.282
-@piece tall/2720x2650x600/inspection-open: hinge-7, 0.7926..0.8086, 2.47..2.51, 0.282..0.299
-@piece tall/2720x2650x600/inspection-open: hinge-8, 0.8216..0.8376, 0.14..0.18, 0.277..0.282
-@piece tall/2720x2650x600/inspection-open: hinge-8, 0.8216..0.8376, 0.14..0.18, 0.282..0.299
-@piece tall/2720x2650x600/inspection-open: hinge-9, 0.8216..0.8376, 2.47..2.51, 0.277..0.282
-@piece tall/2720x2650x600/inspection-open: hinge-9, 0.8216..0.8376, 2.47..2.51, 0.282..0.299
+@void tall/1400x2600x540/closed: shelf-1, 0.223833..0.241833, 0.346..0.364, 0.229..0.247
+@void tall/1400x2600x540/closed: shelf-2, 0.223833..0.241833, 0.661..0.679, 0.229..0.247
+@void tall/1400x2600x540/closed: shelf-3, 0.223833..0.241833, 0.976..0.994, 0.229..0.247
+@void tall/1400x2600x540/closed: shelf-4, 0.223833..0.241833, 1.291..1.309, 0.229..0.247
+@void tall/1400x2600x540/closed: shelf-5, 0.223833..0.241833, 1.606..1.624, 0.229..0.247
+@void tall/1400x2600x540/closed: shelf-6, 0.223833..0.241833, 1.921..1.939, 0.229..0.247
+@void tall/1400x2600x540/closed: shelf-7, 0.223833..0.241833, 2.236..2.254, 0.229..0.247
+@void tall/1400x2600x540/closed: door-0, -0.692..-0.676, 0.14..0.18, 0.252..0.269
+@void tall/1400x2600x540/closed: door-0, -0.692..-0.676, 2.42..2.46, 0.252..0.269
+@void tall/1400x2600x540/closed: door-0, -0.295333..-0.283333, 1.3857..1.5457, 0.254..0.27
+@void tall/1400x2600x540/closed: door-1, 0.210333..0.226333, 0.14..0.18, 0.252..0.269
+@void tall/1400x2600x540/closed: door-1, 0.210333..0.226333, 2.42..2.46, 0.252..0.269
+@void tall/1400x2600x540/closed: door-1, -0.182333..-0.170333, 1.3857..1.5457, 0.254..0.27
+@void tall/1400x2600x540/closed: door-2, 0.239333..0.255333, 0.14..0.18, 0.252..0.269
+@void tall/1400x2600x540/closed: door-2, 0.239333..0.255333, 2.42..2.46, 0.252..0.269
+@void tall/1400x2600x540/closed: door-2, 0.636..0.648, 1.3857..1.5457, 0.254..0.27
+@piece tall/1400x2600x540/closed: hinge-0, -0.692..-0.676, 0.14..0.18, 0.247..0.252
+@piece tall/1400x2600x540/closed: hinge-0, -0.692..-0.676, 0.14..0.18, 0.252..0.269
+@piece tall/1400x2600x540/closed: hinge-1, -0.692..-0.676, 2.42..2.46, 0.247..0.252
+@piece tall/1400x2600x540/closed: hinge-1, -0.692..-0.676, 2.42..2.46, 0.252..0.269
+@piece tall/1400x2600x540/closed: hinge-2, 0.210333..0.226333, 0.14..0.18, 0.247..0.252
+@piece tall/1400x2600x540/closed: hinge-2, 0.210333..0.226333, 0.14..0.18, 0.252..0.269
+@piece tall/1400x2600x540/closed: hinge-3, 0.210333..0.226333, 2.42..2.46, 0.247..0.252
+@piece tall/1400x2600x540/closed: hinge-3, 0.210333..0.226333, 2.42..2.46, 0.252..0.269
+@piece tall/1400x2600x540/closed: hinge-4, 0.239333..0.255333, 0.14..0.18, 0.247..0.252
+@piece tall/1400x2600x540/closed: hinge-4, 0.239333..0.255333, 0.14..0.18, 0.252..0.269
+@piece tall/1400x2600x540/closed: hinge-5, 0.239333..0.255333, 2.42..2.46, 0.247..0.252
+@piece tall/1400x2600x540/closed: hinge-5, 0.239333..0.255333, 2.42..2.46, 0.252..0.269
 | kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| @envelope | tall/2720x2650x600/inspection-open | * | bounds | -1.36..1.36 | 0..2.65 | -0.3..0.8184 | - |
-| @part | tall/2720x2650x600/inspection-open | back | box | -1.36..1.36 | 0.08..2.632 | -0.3..-0.288 | toe,bottom,top |
-| @part | tall/2720x2650x600/inspection-open | bottom | box | -1.36..1.36 | 0.08..0.098 | -0.288..0.277 | back,side-left,side-right |
-| @part | tall/2720x2650x600/inspection-open | top | box | -1.36..1.36 | 2.632..2.65 | -0.3..0.277 | back,side-left,side-right |
-| @part | tall/2720x2650x600/inspection-open | side-left | box | -1.36..-1.342 | 0.098..2.632 | -0.288..0.277 | back,bottom,top |
-| @part | tall/2720x2650x600/inspection-open | side-right | box | 1.342..1.36 | 0.098..2.632 | -0.288..0.277 | back,bottom,top |
-| @part | tall/2720x2650x600/inspection-open | toe | box | -1.36..1.36 | 0..0.08 | -0.3..0.25 | ground,back,bottom |
-| @part | tall/2720x2650x600/inspection-open | divider | box | 0.272..0.29 | 0.098..2.632 | -0.288..0.282 | bottom,top |
-| @part | tall/2720x2650x600/inspection-open | rod | cylinder | -1.342..0.272 | 2.2875..2.3125 | -0.0925..-0.0675 | side-left,divider |
-| @part | tall/2720x2650x600/inspection-open | shelf-1 | box | 0.29..1.342 | 0.35225..0.37025 | -0.288..0.277 | divider,side-right,back |
-| @part | tall/2720x2650x600/inspection-open | shelf-2 | box | 0.29..1.342 | 0.6735..0.6915 | -0.288..0.277 | divider,side-right,back |
-| @part | tall/2720x2650x600/inspection-open | shelf-3 | box | 0.29..1.342 | 0.99475..1.01275 | -0.288..0.277 | divider,side-right,back |
-| @part | tall/2720x2650x600/inspection-open | shelf-4 | box | 0.29..1.342 | 1.316..1.334 | -0.288..0.277 | divider,side-right,back |
-| @part | tall/2720x2650x600/inspection-open | shelf-5 | box | 0.29..1.342 | 1.63725..1.65525 | -0.288..0.277 | divider,side-right,back |
-| @part | tall/2720x2650x600/inspection-open | shelf-6 | box | 0.29..1.342 | 1.9585..1.9765 | -0.288..0.277 | divider,side-right,back |
-| @part | tall/2720x2650x600/inspection-open | shelf-7 | box | 0.29..1.342 | 2.27975..2.29775 | -0.288..0.277 | divider,side-right,back |
-| @part | tall/2720x2650x600/inspection-open | stile-1 | box | -0.8241..-0.8061 | 0.098..2.632 | 0.259..0.277 | bottom,top |
-| @part | tall/2720x2650x600/inspection-open | stile-2 | box | -0.2807..-0.2627 | 0.098..2.632 | 0.259..0.277 | bottom,top |
-| @part | tall/2720x2650x600/inspection-open | stile-3 | box | 0.2627..0.2807 | 0.098..2.632 | 0.259..0.277 | bottom,top |
-| @part | tall/2720x2650x600/inspection-open | stile-4 | box | 0.8061..0.8241 | 0.098..2.632 | 0.259..0.277 | bottom,top |
-| @part | tall/2720x2650x600/inspection-open | door-0 | box | -1.353..-1.335 | 0.083..2.647 | 0.278..0.8184 | hinge-0,hinge-1 |
-| @part | tall/2720x2650x600/inspection-open | hinge-0 | curved | -1.352..-1.336 | 0.14..0.18 | 0.277..0.299 | door-0,side-left |
-| @part | tall/2720x2650x600/inspection-open | hinge-1 | curved | -1.352..-1.336 | 2.47..2.51 | 0.277..0.299 | door-0,side-left |
-| @part | tall/2720x2650x600/inspection-open | handle-0 | box | -1.353..-1.337 | 1.4132..1.5732 | 0.7574..0.7694 | door-0 |
-| @part | tall/2720x2650x600/inspection-open | door-1 | box | -0.2952..-0.2772 | 0.083..2.647 | 0.278..0.8184 | hinge-2,hinge-3 |
-| @part | tall/2720x2650x600/inspection-open | hinge-2 | curved | -0.2942..-0.2782 | 0.14..0.18 | 0.277..0.299 | door-1,stile-2 |
-| @part | tall/2720x2650x600/inspection-open | hinge-3 | curved | -0.2942..-0.2782 | 2.47..2.51 | 0.277..0.299 | door-1,stile-2 |
-| @part | tall/2720x2650x600/inspection-open | handle-1 | box | -0.2932..-0.2772 | 1.4132..1.5732 | 0.7574..0.7694 | door-1 |
-| @part | tall/2720x2650x600/inspection-open | door-2 | box | -0.2662..-0.2482 | 0.083..2.647 | 0.278..0.8184 | hinge-4,hinge-5 |
-| @part | tall/2720x2650x600/inspection-open | hinge-4 | curved | -0.2652..-0.2492 | 0.14..0.18 | 0.277..0.299 | door-2,stile-2 |
-| @part | tall/2720x2650x600/inspection-open | hinge-5 | curved | -0.2652..-0.2492 | 2.47..2.51 | 0.277..0.299 | door-2,stile-2 |
-| @part | tall/2720x2650x600/inspection-open | handle-2 | box | -0.2662..-0.2502 | 1.4132..1.5732 | 0.7574..0.7694 | door-2 |
-| @part | tall/2720x2650x600/inspection-open | door-3 | box | 0.7916..0.8096 | 0.083..2.647 | 0.278..0.8184 | hinge-6,hinge-7 |
-| @part | tall/2720x2650x600/inspection-open | hinge-6 | curved | 0.7926..0.8086 | 0.14..0.18 | 0.277..0.299 | door-3,stile-4 |
-| @part | tall/2720x2650x600/inspection-open | hinge-7 | curved | 0.7926..0.8086 | 2.47..2.51 | 0.277..0.299 | door-3,stile-4 |
-| @part | tall/2720x2650x600/inspection-open | handle-3 | box | 0.7936..0.8096 | 1.4132..1.5732 | 0.7574..0.7694 | door-3 |
-| @part | tall/2720x2650x600/inspection-open | door-4 | box | 0.8206..0.8386 | 0.083..2.647 | 0.278..0.8184 | hinge-8,hinge-9 |
-| @part | tall/2720x2650x600/inspection-open | hinge-8 | curved | 0.8216..0.8376 | 0.14..0.18 | 0.277..0.299 | door-4,stile-4 |
-| @part | tall/2720x2650x600/inspection-open | hinge-9 | curved | 0.8216..0.8376 | 2.47..2.51 | 0.277..0.299 | door-4,stile-4 |
-| @part | tall/2720x2650x600/inspection-open | handle-4 | box | 0.8206..0.8366 | 1.4132..1.5732 | 0.7574..0.7694 | door-4 |
+| @envelope | tall/1400x2600x540/closed | * | bounds | -0.7..0.7 | 0..2.6 | -0.27..0.27 | - |
+| @part | tall/1400x2600x540/closed | back | box | -0.7..0.7 | 0.08..2.582 | -0.27..-0.258 | toe,bottom,top |
+| @part | tall/1400x2600x540/closed | bottom | box | -0.7..0.7 | 0.08..0.098 | -0.258..0.247 | back,side-left,side-right |
+| @part | tall/1400x2600x540/closed | top | box | -0.7..0.7 | 2.582..2.6 | -0.27..0.247 | back,side-left,side-right |
+| @part | tall/1400x2600x540/closed | side-left | box | -0.7..-0.682 | 0.098..2.582 | -0.258..0.247 | back,bottom,top |
+| @part | tall/1400x2600x540/closed | side-right | box | 0.682..0.7 | 0.098..2.582 | -0.258..0.247 | back,bottom,top |
+| @part | tall/1400x2600x540/closed | toe | box | -0.7..0.7 | 0..0.08 | -0.27..0.22 | ground,back,bottom |
+| @part | tall/1400x2600x540/closed | divider | box | 0.14..0.158 | 0.098..2.582 | -0.258..0.252 | bottom,top |
+| @part | tall/1400x2600x540/closed | rod | cylinder | -0.682..0.14 | 2.2375..2.2625 | -0.0925..-0.0675 | side-left,divider |
+| @part | tall/1400x2600x540/closed | shelf-1 | box | 0.158..0.682 | 0.346..0.364 | -0.258..0.247 | divider,side-right,back |
+| @part | tall/1400x2600x540/closed | shelf-2 | box | 0.158..0.682 | 0.661..0.679 | -0.258..0.247 | divider,side-right,back |
+| @part | tall/1400x2600x540/closed | shelf-3 | box | 0.158..0.682 | 0.976..0.994 | -0.258..0.247 | divider,side-right,back |
+| @part | tall/1400x2600x540/closed | shelf-4 | box | 0.158..0.682 | 1.291..1.309 | -0.258..0.247 | divider,side-right,back |
+| @part | tall/1400x2600x540/closed | shelf-5 | box | 0.158..0.682 | 1.606..1.624 | -0.258..0.247 | divider,side-right,back |
+| @part | tall/1400x2600x540/closed | shelf-6 | box | 0.158..0.682 | 1.921..1.939 | -0.258..0.247 | divider,side-right,back |
+| @part | tall/1400x2600x540/closed | shelf-7 | box | 0.158..0.682 | 2.236..2.254 | -0.258..0.247 | divider,side-right,back |
+| @part | tall/1400x2600x540/closed | stile-1 | box | -0.241833..-0.223833 | 0.098..2.582 | 0.229..0.247 | bottom,top |
+| @part | tall/1400x2600x540/closed | stile-2 | box | 0.223833..0.241833 | 0.098..2.582 | 0.229..0.247 | bottom,top |
+| @part | tall/1400x2600x540/closed | door-0 | box | -0.697..-0.234333 | 0.083..2.597 | 0.252..0.27 | hinge-0,hinge-1 |
+| @part | tall/1400x2600x540/closed | hinge-0 | curved | -0.692..-0.676 | 0.14..0.18 | 0.247..0.269 | door-0,side-left |
+| @part | tall/1400x2600x540/closed | hinge-1 | curved | -0.692..-0.676 | 2.42..2.46 | 0.247..0.269 | door-0,side-left |
+| @part | tall/1400x2600x540/closed | handle-0 | box | -0.295333..-0.283333 | 1.3857..1.5457 | 0.254..0.27 | door-0 |
+| @part | tall/1400x2600x540/closed | door-1 | box | -0.231333..0.231333 | 0.083..2.597 | 0.252..0.27 | hinge-2,hinge-3 |
+| @part | tall/1400x2600x540/closed | hinge-2 | curved | 0.210333..0.226333 | 0.14..0.18 | 0.247..0.269 | door-1,stile-2 |
+| @part | tall/1400x2600x540/closed | hinge-3 | curved | 0.210333..0.226333 | 2.42..2.46 | 0.247..0.269 | door-1,stile-2 |
+| @part | tall/1400x2600x540/closed | handle-1 | box | -0.182333..-0.170333 | 1.3857..1.5457 | 0.254..0.27 | door-1 |
+| @part | tall/1400x2600x540/closed | door-2 | box | 0.234333..0.697 | 0.083..2.597 | 0.252..0.27 | hinge-4,hinge-5 |
+| @part | tall/1400x2600x540/closed | hinge-4 | curved | 0.239333..0.255333 | 0.14..0.18 | 0.247..0.269 | door-2,stile-2 |
+| @part | tall/1400x2600x540/closed | hinge-5 | curved | 0.239333..0.255333 | 2.42..2.46 | 0.247..0.269 | door-2,stile-2 |
+| @part | tall/1400x2600x540/closed | handle-2 | box | 0.636..0.648 | 1.3857..1.5457 | 0.254..0.27 | door-2 |
 
-@inventory tall/520x2250x520/delivered: back, bottom, top, side-left, side-right, toe, shelf-1, shelf-2, shelf-3, shelf-4, shelf-5, shelf-6, stile-1, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1
+@inventory tall/1400x2600x540/open: back, bottom, top, side-left, side-right, toe, divider, rod, shelf-1, shelf-2, shelf-3, shelf-4, shelf-5, shelf-6, shelf-7, stile-1, stile-2, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1, door-2, hinge-4, hinge-5, handle-2
 
-@void tall/520x2250x520/delivered: shelf-1, -0.009..0.009, 0.341..0.359, 0.219..0.237
-@void tall/520x2250x520/delivered: shelf-2, -0.009..0.009, 0.651..0.669, 0.219..0.237
-@void tall/520x2250x520/delivered: shelf-3, -0.009..0.009, 0.961..0.979, 0.219..0.237
-@void tall/520x2250x520/delivered: shelf-4, -0.009..0.009, 1.271..1.289, 0.219..0.237
-@void tall/520x2250x520/delivered: shelf-5, -0.009..0.009, 1.581..1.599, 0.219..0.237
-@void tall/520x2250x520/delivered: shelf-6, -0.009..0.009, 1.891..1.909, 0.219..0.237
-@void tall/520x2250x520/delivered: door-0, -0.252..-0.236, 0.14..0.18, 0.242..0.259
-@void tall/520x2250x520/delivered: door-0, -0.252..-0.236, 2.07..2.11, 0.242..0.259
-@void tall/520x2250x520/delivered: door-0, -0.0625..-0.0505, 1.1932..1.3532, 0.244..0.26
-@void tall/520x2250x520/delivered: door-1, 0.236..0.252, 0.14..0.18, 0.242..0.259
-@void tall/520x2250x520/delivered: door-1, 0.236..0.252, 2.07..2.11, 0.242..0.259
-@void tall/520x2250x520/delivered: door-1, 0.0505..0.0625, 1.1932..1.3532, 0.244..0.26
-@piece tall/520x2250x520/delivered: hinge-0, -0.252..-0.236, 0.14..0.18, 0.237..0.242
-@piece tall/520x2250x520/delivered: hinge-0, -0.252..-0.236, 0.14..0.18, 0.242..0.259
-@piece tall/520x2250x520/delivered: hinge-1, -0.252..-0.236, 2.07..2.11, 0.237..0.242
-@piece tall/520x2250x520/delivered: hinge-1, -0.252..-0.236, 2.07..2.11, 0.242..0.259
-@piece tall/520x2250x520/delivered: hinge-2, 0.236..0.252, 0.14..0.18, 0.237..0.242
-@piece tall/520x2250x520/delivered: hinge-2, 0.236..0.252, 0.14..0.18, 0.242..0.259
-@piece tall/520x2250x520/delivered: hinge-3, 0.236..0.252, 2.07..2.11, 0.237..0.242
-@piece tall/520x2250x520/delivered: hinge-3, 0.236..0.252, 2.07..2.11, 0.242..0.259
+@void tall/1400x2600x540/open: shelf-1, 0.223833..0.241833, 0.346..0.364, 0.229..0.247
+@void tall/1400x2600x540/open: shelf-2, 0.223833..0.241833, 0.661..0.679, 0.229..0.247
+@void tall/1400x2600x540/open: shelf-3, 0.223833..0.241833, 0.976..0.994, 0.229..0.247
+@void tall/1400x2600x540/open: shelf-4, 0.223833..0.241833, 1.291..1.309, 0.229..0.247
+@void tall/1400x2600x540/open: shelf-5, 0.223833..0.241833, 1.606..1.624, 0.229..0.247
+@void tall/1400x2600x540/open: shelf-6, 0.223833..0.241833, 1.921..1.939, 0.229..0.247
+@void tall/1400x2600x540/open: shelf-7, 0.223833..0.241833, 2.236..2.254, 0.229..0.247
+@void tall/1400x2600x540/open: door-0, -0.692..-0.675, 0.14..0.18, 0.253..0.269
+@void tall/1400x2600x540/open: door-0, -0.693..-0.675, 0.14..0.18, 0.248..0.269
+@void tall/1400x2600x540/open: door-0, -0.692..-0.675, 2.42..2.46, 0.253..0.269
+@void tall/1400x2600x540/open: door-0, -0.693..-0.675, 2.42..2.46, 0.248..0.269
+@void tall/1400x2600x540/open: door-0, -0.693..-0.677, 1.3857..1.5457, 0.649667..0.661667
+@void tall/1400x2600x540/open: door-1, 0.209333..0.226333, 0.14..0.18, 0.253..0.269
+@void tall/1400x2600x540/open: door-1, 0.209333..0.227333, 0.14..0.18, 0.248..0.269
+@void tall/1400x2600x540/open: door-1, 0.209333..0.226333, 2.42..2.46, 0.253..0.269
+@void tall/1400x2600x540/open: door-1, 0.209333..0.227333, 2.42..2.46, 0.248..0.269
+@void tall/1400x2600x540/open: door-1, 0.211333..0.227333, 1.3857..1.5457, 0.649666..0.661666
+@void tall/1400x2600x540/open: door-2, 0.239333..0.256333, 0.14..0.18, 0.253..0.269
+@void tall/1400x2600x540/open: door-2, 0.238333..0.256333, 0.14..0.18, 0.248..0.269
+@void tall/1400x2600x540/open: door-2, 0.239333..0.256333, 2.42..2.46, 0.253..0.269
+@void tall/1400x2600x540/open: door-2, 0.238333..0.256333, 2.42..2.46, 0.248..0.269
+@void tall/1400x2600x540/open: door-2, 0.238333..0.254333, 1.3857..1.5457, 0.649667..0.661667
+@piece tall/1400x2600x540/open: hinge-0, -0.692..-0.676, 0.14..0.18, 0.247..0.252
+@piece tall/1400x2600x540/open: hinge-0, -0.692..-0.676, 0.14..0.18, 0.252..0.269
+@piece tall/1400x2600x540/open: hinge-1, -0.692..-0.676, 2.42..2.46, 0.247..0.252
+@piece tall/1400x2600x540/open: hinge-1, -0.692..-0.676, 2.42..2.46, 0.252..0.269
+@piece tall/1400x2600x540/open: hinge-2, 0.210333..0.226333, 0.14..0.18, 0.247..0.252
+@piece tall/1400x2600x540/open: hinge-2, 0.210333..0.226333, 0.14..0.18, 0.252..0.269
+@piece tall/1400x2600x540/open: hinge-3, 0.210333..0.226333, 2.42..2.46, 0.247..0.252
+@piece tall/1400x2600x540/open: hinge-3, 0.210333..0.226333, 2.42..2.46, 0.252..0.269
+@piece tall/1400x2600x540/open: hinge-4, 0.239333..0.255333, 0.14..0.18, 0.247..0.252
+@piece tall/1400x2600x540/open: hinge-4, 0.239333..0.255333, 0.14..0.18, 0.252..0.269
+@piece tall/1400x2600x540/open: hinge-5, 0.239333..0.255333, 2.42..2.46, 0.247..0.252
+@piece tall/1400x2600x540/open: hinge-5, 0.239333..0.255333, 2.42..2.46, 0.252..0.269
 | kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| @envelope | tall/520x2250x520/delivered | * | bounds | -0.26..0.26 | 0..2.25 | -0.26..0.26 | - |
-| @part | tall/520x2250x520/delivered | back | box | -0.26..0.26 | 0.08..2.232 | -0.26..-0.248 | toe,bottom,top |
-| @part | tall/520x2250x520/delivered | bottom | box | -0.26..0.26 | 0.08..0.098 | -0.248..0.237 | back,side-left,side-right |
-| @part | tall/520x2250x520/delivered | top | box | -0.26..0.26 | 2.232..2.25 | -0.26..0.237 | back,side-left,side-right |
-| @part | tall/520x2250x520/delivered | side-left | box | -0.26..-0.242 | 0.098..2.232 | -0.248..0.237 | back,bottom,top |
-| @part | tall/520x2250x520/delivered | side-right | box | 0.242..0.26 | 0.098..2.232 | -0.248..0.237 | back,bottom,top |
-| @part | tall/520x2250x520/delivered | toe | box | -0.26..0.26 | 0..0.08 | -0.26..0.21 | ground,back,bottom |
-| @part | tall/520x2250x520/delivered | shelf-1 | box | -0.242..0.242 | 0.341..0.359 | -0.248..0.237 | side-left,side-right,back |
-| @part | tall/520x2250x520/delivered | shelf-2 | box | -0.242..0.242 | 0.651..0.669 | -0.248..0.237 | side-left,side-right,back |
-| @part | tall/520x2250x520/delivered | shelf-3 | box | -0.242..0.242 | 0.961..0.979 | -0.248..0.237 | side-left,side-right,back |
-| @part | tall/520x2250x520/delivered | shelf-4 | box | -0.242..0.242 | 1.271..1.289 | -0.248..0.237 | side-left,side-right,back |
-| @part | tall/520x2250x520/delivered | shelf-5 | box | -0.242..0.242 | 1.581..1.599 | -0.248..0.237 | side-left,side-right,back |
-| @part | tall/520x2250x520/delivered | shelf-6 | box | -0.242..0.242 | 1.891..1.909 | -0.248..0.237 | side-left,side-right,back |
-| @part | tall/520x2250x520/delivered | stile-1 | box | -0.009..0.009 | 0.098..2.232 | 0.219..0.237 | bottom,top |
-| @part | tall/520x2250x520/delivered | door-0 | box | -0.257..-0.0015 | 0.083..2.247 | 0.242..0.26 | hinge-0,hinge-1 |
-| @part | tall/520x2250x520/delivered | hinge-0 | curved | -0.252..-0.236 | 0.14..0.18 | 0.237..0.259 | door-0,side-left |
-| @part | tall/520x2250x520/delivered | hinge-1 | curved | -0.252..-0.236 | 2.07..2.11 | 0.237..0.259 | door-0,side-left |
-| @part | tall/520x2250x520/delivered | handle-0 | box | -0.0625..-0.0505 | 1.1932..1.3532 | 0.244..0.26 | door-0 |
-| @part | tall/520x2250x520/delivered | door-1 | box | 0.0015..0.257 | 0.083..2.247 | 0.242..0.26 | hinge-2,hinge-3 |
-| @part | tall/520x2250x520/delivered | hinge-2 | curved | 0.236..0.252 | 0.14..0.18 | 0.237..0.259 | door-1,side-right |
-| @part | tall/520x2250x520/delivered | hinge-3 | curved | 0.236..0.252 | 2.07..2.11 | 0.237..0.259 | door-1,side-right |
-| @part | tall/520x2250x520/delivered | handle-1 | box | 0.0505..0.0625 | 1.1932..1.3532 | 0.244..0.26 | door-1 |
+| @envelope | tall/1400x2600x540/open | * | bounds | -0.7..0.7 | 0..2.6 | -0.27..0.710667 | - |
+| @part | tall/1400x2600x540/open | back | box | -0.7..0.7 | 0.08..2.582 | -0.27..-0.258 | toe,bottom,top |
+| @part | tall/1400x2600x540/open | bottom | box | -0.7..0.7 | 0.08..0.098 | -0.258..0.247 | back,side-left,side-right |
+| @part | tall/1400x2600x540/open | top | box | -0.7..0.7 | 2.582..2.6 | -0.27..0.247 | back,side-left,side-right |
+| @part | tall/1400x2600x540/open | side-left | box | -0.7..-0.682 | 0.098..2.582 | -0.258..0.247 | back,bottom,top |
+| @part | tall/1400x2600x540/open | side-right | box | 0.682..0.7 | 0.098..2.582 | -0.258..0.247 | back,bottom,top |
+| @part | tall/1400x2600x540/open | toe | box | -0.7..0.7 | 0..0.08 | -0.27..0.22 | ground,back,bottom |
+| @part | tall/1400x2600x540/open | divider | box | 0.14..0.158 | 0.098..2.582 | -0.258..0.252 | bottom,top |
+| @part | tall/1400x2600x540/open | rod | cylinder | -0.682..0.14 | 2.2375..2.2625 | -0.0925..-0.0675 | side-left,divider |
+| @part | tall/1400x2600x540/open | shelf-1 | box | 0.158..0.682 | 0.346..0.364 | -0.258..0.247 | divider,side-right,back |
+| @part | tall/1400x2600x540/open | shelf-2 | box | 0.158..0.682 | 0.661..0.679 | -0.258..0.247 | divider,side-right,back |
+| @part | tall/1400x2600x540/open | shelf-3 | box | 0.158..0.682 | 0.976..0.994 | -0.258..0.247 | divider,side-right,back |
+| @part | tall/1400x2600x540/open | shelf-4 | box | 0.158..0.682 | 1.291..1.309 | -0.258..0.247 | divider,side-right,back |
+| @part | tall/1400x2600x540/open | shelf-5 | box | 0.158..0.682 | 1.606..1.624 | -0.258..0.247 | divider,side-right,back |
+| @part | tall/1400x2600x540/open | shelf-6 | box | 0.158..0.682 | 1.921..1.939 | -0.258..0.247 | divider,side-right,back |
+| @part | tall/1400x2600x540/open | shelf-7 | box | 0.158..0.682 | 2.236..2.254 | -0.258..0.247 | divider,side-right,back |
+| @part | tall/1400x2600x540/open | stile-1 | box | -0.241833..-0.223833 | 0.098..2.582 | 0.229..0.247 | bottom,top |
+| @part | tall/1400x2600x540/open | stile-2 | box | 0.223833..0.241833 | 0.098..2.582 | 0.229..0.247 | bottom,top |
+| @part | tall/1400x2600x540/open | door-0 | box | -0.693..-0.675 | 0.083..2.597 | 0.248..0.710667 | hinge-0,hinge-1 |
+| @part | tall/1400x2600x540/open | hinge-0 | curved | -0.692..-0.676 | 0.14..0.18 | 0.247..0.269 | door-0,side-left |
+| @part | tall/1400x2600x540/open | hinge-1 | curved | -0.692..-0.676 | 2.42..2.46 | 0.247..0.269 | door-0,side-left |
+| @part | tall/1400x2600x540/open | handle-0 | box | -0.693..-0.677 | 1.3857..1.5457 | 0.649667..0.661667 | door-0 |
+| @part | tall/1400x2600x540/open | door-1 | box | 0.209333..0.227333 | 0.083..2.597 | 0.248..0.710667 | hinge-2,hinge-3 |
+| @part | tall/1400x2600x540/open | hinge-2 | curved | 0.210333..0.226333 | 0.14..0.18 | 0.247..0.269 | door-1,stile-2 |
+| @part | tall/1400x2600x540/open | hinge-3 | curved | 0.210333..0.226333 | 2.42..2.46 | 0.247..0.269 | door-1,stile-2 |
+| @part | tall/1400x2600x540/open | handle-1 | box | 0.211333..0.227333 | 1.3857..1.5457 | 0.649666..0.661666 | door-1 |
+| @part | tall/1400x2600x540/open | door-2 | box | 0.238333..0.256333 | 0.083..2.597 | 0.248..0.710667 | hinge-4,hinge-5 |
+| @part | tall/1400x2600x540/open | hinge-4 | curved | 0.239333..0.255333 | 0.14..0.18 | 0.247..0.269 | door-2,stile-2 |
+| @part | tall/1400x2600x540/open | hinge-5 | curved | 0.239333..0.255333 | 2.42..2.46 | 0.247..0.269 | door-2,stile-2 |
+| @part | tall/1400x2600x540/open | handle-2 | box | 0.238333..0.254333 | 1.3857..1.5457 | 0.649667..0.661667 | door-2 |
 
-@inventory tall/520x2250x520/inspection-open: back, bottom, top, side-left, side-right, toe, shelf-1, shelf-2, shelf-3, shelf-4, shelf-5, shelf-6, stile-1, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1
+@inventory tall/2720x2650x600/closed: back, bottom, top, side-left, side-right, toe, divider, rod, shelf-1, shelf-2, shelf-3, shelf-4, shelf-5, shelf-6, shelf-7, stile-1, stile-2, stile-3, stile-4, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1, door-2, hinge-4, hinge-5, handle-2, door-3, hinge-6, hinge-7, handle-3, door-4, hinge-8, hinge-9, handle-4
 
-@void tall/520x2250x520/inspection-open: shelf-1, -0.009..0.009, 0.341..0.359, 0.219..0.237
-@void tall/520x2250x520/inspection-open: shelf-2, -0.009..0.009, 0.651..0.669, 0.219..0.237
-@void tall/520x2250x520/inspection-open: shelf-3, -0.009..0.009, 0.961..0.979, 0.219..0.237
-@void tall/520x2250x520/inspection-open: shelf-4, -0.009..0.009, 1.271..1.289, 0.219..0.237
-@void tall/520x2250x520/inspection-open: shelf-5, -0.009..0.009, 1.581..1.599, 0.219..0.237
-@void tall/520x2250x520/inspection-open: shelf-6, -0.009..0.009, 1.891..1.909, 0.219..0.237
-@void tall/520x2250x520/inspection-open: door-0, -0.252..-0.235, 0.14..0.18, 0.243..0.259
-@void tall/520x2250x520/inspection-open: door-0, -0.253..-0.235, 0.14..0.18, 0.238..0.259
-@void tall/520x2250x520/inspection-open: door-0, -0.252..-0.235, 2.07..2.11, 0.243..0.259
-@void tall/520x2250x520/inspection-open: door-0, -0.253..-0.235, 2.07..2.11, 0.238..0.259
-@void tall/520x2250x520/inspection-open: door-0, -0.253..-0.237, 1.1932..1.3532, 0.4325..0.4445
-@void tall/520x2250x520/inspection-open: door-1, 0.235..0.252, 0.14..0.18, 0.243..0.259
-@void tall/520x2250x520/inspection-open: door-1, 0.235..0.253, 0.14..0.18, 0.238..0.259
-@void tall/520x2250x520/inspection-open: door-1, 0.235..0.252, 2.07..2.11, 0.243..0.259
-@void tall/520x2250x520/inspection-open: door-1, 0.235..0.253, 2.07..2.11, 0.238..0.259
-@void tall/520x2250x520/inspection-open: door-1, 0.237..0.253, 1.1932..1.3532, 0.4325..0.4445
-@piece tall/520x2250x520/inspection-open: hinge-0, -0.252..-0.236, 0.14..0.18, 0.237..0.242
-@piece tall/520x2250x520/inspection-open: hinge-0, -0.252..-0.236, 0.14..0.18, 0.242..0.259
-@piece tall/520x2250x520/inspection-open: hinge-1, -0.252..-0.236, 2.07..2.11, 0.237..0.242
-@piece tall/520x2250x520/inspection-open: hinge-1, -0.252..-0.236, 2.07..2.11, 0.242..0.259
-@piece tall/520x2250x520/inspection-open: hinge-2, 0.236..0.252, 0.14..0.18, 0.237..0.242
-@piece tall/520x2250x520/inspection-open: hinge-2, 0.236..0.252, 0.14..0.18, 0.242..0.259
-@piece tall/520x2250x520/inspection-open: hinge-3, 0.236..0.252, 2.07..2.11, 0.237..0.242
-@piece tall/520x2250x520/inspection-open: hinge-3, 0.236..0.252, 2.07..2.11, 0.242..0.259
+@void tall/2720x2650x600/closed: divider, 0.272..0.2807, 0.098..2.632, 0.259..0.282
+@void tall/2720x2650x600/closed: shelf-1, 0.8061..0.8241, 0.35225..0.37025, 0.259..0.277
+@void tall/2720x2650x600/closed: shelf-2, 0.8061..0.8241, 0.6735..0.6915, 0.259..0.277
+@void tall/2720x2650x600/closed: shelf-3, 0.8061..0.8241, 0.99475..1.01275, 0.259..0.277
+@void tall/2720x2650x600/closed: shelf-4, 0.8061..0.8241, 1.316..1.334, 0.259..0.277
+@void tall/2720x2650x600/closed: shelf-5, 0.8061..0.8241, 1.63725..1.65525, 0.259..0.277
+@void tall/2720x2650x600/closed: shelf-6, 0.8061..0.8241, 1.9585..1.9765, 0.259..0.277
+@void tall/2720x2650x600/closed: shelf-7, 0.8061..0.8241, 2.27975..2.29775, 0.259..0.277
+@void tall/2720x2650x600/closed: door-0, -1.352..-1.336, 0.14..0.18, 0.282..0.299
+@void tall/2720x2650x600/closed: door-0, -1.352..-1.336, 2.47..2.51, 0.282..0.299
+@void tall/2720x2650x600/closed: door-0, -0.8776..-0.8656, 1.4132..1.5732, 0.284..0.3
+@void tall/2720x2650x600/closed: door-1, -0.2942..-0.2782, 0.14..0.18, 0.282..0.299
+@void tall/2720x2650x600/closed: door-1, -0.2942..-0.2782, 2.47..2.51, 0.282..0.299
+@void tall/2720x2650x600/closed: door-1, -0.7646..-0.7526, 1.4132..1.5732, 0.284..0.3
+@void tall/2720x2650x600/closed: door-2, -0.2652..-0.2492, 0.14..0.18, 0.282..0.299
+@void tall/2720x2650x600/closed: door-2, -0.2652..-0.2492, 2.47..2.51, 0.282..0.299
+@void tall/2720x2650x600/closed: door-2, 0.2092..0.2212, 1.4132..1.5732, 0.284..0.3
+@void tall/2720x2650x600/closed: door-3, 0.7926..0.8086, 0.14..0.18, 0.282..0.299
+@void tall/2720x2650x600/closed: door-3, 0.7926..0.8086, 2.47..2.51, 0.282..0.299
+@void tall/2720x2650x600/closed: door-3, 0.3222..0.3342, 1.4132..1.5732, 0.284..0.3
+@void tall/2720x2650x600/closed: door-4, 0.8216..0.8376, 0.14..0.18, 0.282..0.299
+@void tall/2720x2650x600/closed: door-4, 0.8216..0.8376, 2.47..2.51, 0.282..0.299
+@void tall/2720x2650x600/closed: door-4, 1.296..1.308, 1.4132..1.5732, 0.284..0.3
+@piece tall/2720x2650x600/closed: hinge-0, -1.352..-1.336, 0.14..0.18, 0.277..0.282
+@piece tall/2720x2650x600/closed: hinge-0, -1.352..-1.336, 0.14..0.18, 0.282..0.299
+@piece tall/2720x2650x600/closed: hinge-1, -1.352..-1.336, 2.47..2.51, 0.277..0.282
+@piece tall/2720x2650x600/closed: hinge-1, -1.352..-1.336, 2.47..2.51, 0.282..0.299
+@piece tall/2720x2650x600/closed: hinge-2, -0.2942..-0.2782, 0.14..0.18, 0.277..0.282
+@piece tall/2720x2650x600/closed: hinge-2, -0.2942..-0.2782, 0.14..0.18, 0.282..0.299
+@piece tall/2720x2650x600/closed: hinge-3, -0.2942..-0.2782, 2.47..2.51, 0.277..0.282
+@piece tall/2720x2650x600/closed: hinge-3, -0.2942..-0.2782, 2.47..2.51, 0.282..0.299
+@piece tall/2720x2650x600/closed: hinge-4, -0.2652..-0.2492, 0.14..0.18, 0.277..0.282
+@piece tall/2720x2650x600/closed: hinge-4, -0.2652..-0.2492, 0.14..0.18, 0.282..0.299
+@piece tall/2720x2650x600/closed: hinge-5, -0.2652..-0.2492, 2.47..2.51, 0.277..0.282
+@piece tall/2720x2650x600/closed: hinge-5, -0.2652..-0.2492, 2.47..2.51, 0.282..0.299
+@piece tall/2720x2650x600/closed: hinge-6, 0.7926..0.8086, 0.14..0.18, 0.277..0.282
+@piece tall/2720x2650x600/closed: hinge-6, 0.7926..0.8086, 0.14..0.18, 0.282..0.299
+@piece tall/2720x2650x600/closed: hinge-7, 0.7926..0.8086, 2.47..2.51, 0.277..0.282
+@piece tall/2720x2650x600/closed: hinge-7, 0.7926..0.8086, 2.47..2.51, 0.282..0.299
+@piece tall/2720x2650x600/closed: hinge-8, 0.8216..0.8376, 0.14..0.18, 0.277..0.282
+@piece tall/2720x2650x600/closed: hinge-8, 0.8216..0.8376, 0.14..0.18, 0.282..0.299
+@piece tall/2720x2650x600/closed: hinge-9, 0.8216..0.8376, 2.47..2.51, 0.277..0.282
+@piece tall/2720x2650x600/closed: hinge-9, 0.8216..0.8376, 2.47..2.51, 0.282..0.299
 | kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| @envelope | tall/520x2250x520/inspection-open | * | bounds | -0.26..0.26 | 0..2.25 | -0.26..0.4935 | - |
-| @part | tall/520x2250x520/inspection-open | back | box | -0.26..0.26 | 0.08..2.232 | -0.26..-0.248 | toe,bottom,top |
-| @part | tall/520x2250x520/inspection-open | bottom | box | -0.26..0.26 | 0.08..0.098 | -0.248..0.237 | back,side-left,side-right |
-| @part | tall/520x2250x520/inspection-open | top | box | -0.26..0.26 | 2.232..2.25 | -0.26..0.237 | back,side-left,side-right |
-| @part | tall/520x2250x520/inspection-open | side-left | box | -0.26..-0.242 | 0.098..2.232 | -0.248..0.237 | back,bottom,top |
-| @part | tall/520x2250x520/inspection-open | side-right | box | 0.242..0.26 | 0.098..2.232 | -0.248..0.237 | back,bottom,top |
-| @part | tall/520x2250x520/inspection-open | toe | box | -0.26..0.26 | 0..0.08 | -0.26..0.21 | ground,back,bottom |
-| @part | tall/520x2250x520/inspection-open | shelf-1 | box | -0.242..0.242 | 0.341..0.359 | -0.248..0.237 | side-left,side-right,back |
-| @part | tall/520x2250x520/inspection-open | shelf-2 | box | -0.242..0.242 | 0.651..0.669 | -0.248..0.237 | side-left,side-right,back |
-| @part | tall/520x2250x520/inspection-open | shelf-3 | box | -0.242..0.242 | 0.961..0.979 | -0.248..0.237 | side-left,side-right,back |
-| @part | tall/520x2250x520/inspection-open | shelf-4 | box | -0.242..0.242 | 1.271..1.289 | -0.248..0.237 | side-left,side-right,back |
-| @part | tall/520x2250x520/inspection-open | shelf-5 | box | -0.242..0.242 | 1.581..1.599 | -0.248..0.237 | side-left,side-right,back |
-| @part | tall/520x2250x520/inspection-open | shelf-6 | box | -0.242..0.242 | 1.891..1.909 | -0.248..0.237 | side-left,side-right,back |
-| @part | tall/520x2250x520/inspection-open | stile-1 | box | -0.009..0.009 | 0.098..2.232 | 0.219..0.237 | bottom,top |
-| @part | tall/520x2250x520/inspection-open | door-0 | box | -0.253..-0.235 | 0.083..2.247 | 0.238..0.4935 | hinge-0,hinge-1 |
-| @part | tall/520x2250x520/inspection-open | hinge-0 | curved | -0.252..-0.236 | 0.14..0.18 | 0.237..0.259 | door-0,side-left |
-| @part | tall/520x2250x520/inspection-open | hinge-1 | curved | -0.252..-0.236 | 2.07..2.11 | 0.237..0.259 | door-0,side-left |
-| @part | tall/520x2250x520/inspection-open | handle-0 | box | -0.253..-0.237 | 1.1932..1.3532 | 0.4325..0.4445 | door-0 |
-| @part | tall/520x2250x520/inspection-open | door-1 | box | 0.235..0.253 | 0.083..2.247 | 0.238..0.4935 | hinge-2,hinge-3 |
-| @part | tall/520x2250x520/inspection-open | hinge-2 | curved | 0.236..0.252 | 0.14..0.18 | 0.237..0.259 | door-1,side-right |
-| @part | tall/520x2250x520/inspection-open | hinge-3 | curved | 0.236..0.252 | 2.07..2.11 | 0.237..0.259 | door-1,side-right |
-| @part | tall/520x2250x520/inspection-open | handle-1 | box | 0.237..0.253 | 1.1932..1.3532 | 0.4325..0.4445 | door-1 |
+| @envelope | tall/2720x2650x600/closed | * | bounds | -1.36..1.36 | 0..2.65 | -0.3..0.3 | - |
+| @part | tall/2720x2650x600/closed | back | box | -1.36..1.36 | 0.08..2.632 | -0.3..-0.288 | toe,bottom,top |
+| @part | tall/2720x2650x600/closed | bottom | box | -1.36..1.36 | 0.08..0.098 | -0.288..0.277 | back,side-left,side-right |
+| @part | tall/2720x2650x600/closed | top | box | -1.36..1.36 | 2.632..2.65 | -0.3..0.277 | back,side-left,side-right |
+| @part | tall/2720x2650x600/closed | side-left | box | -1.36..-1.342 | 0.098..2.632 | -0.288..0.277 | back,bottom,top |
+| @part | tall/2720x2650x600/closed | side-right | box | 1.342..1.36 | 0.098..2.632 | -0.288..0.277 | back,bottom,top |
+| @part | tall/2720x2650x600/closed | toe | box | -1.36..1.36 | 0..0.08 | -0.3..0.25 | ground,back,bottom |
+| @part | tall/2720x2650x600/closed | divider | box | 0.272..0.29 | 0.098..2.632 | -0.288..0.282 | bottom,top |
+| @part | tall/2720x2650x600/closed | rod | cylinder | -1.342..0.272 | 2.2875..2.3125 | -0.0925..-0.0675 | side-left,divider |
+| @part | tall/2720x2650x600/closed | shelf-1 | box | 0.29..1.342 | 0.35225..0.37025 | -0.288..0.277 | divider,side-right,back |
+| @part | tall/2720x2650x600/closed | shelf-2 | box | 0.29..1.342 | 0.6735..0.6915 | -0.288..0.277 | divider,side-right,back |
+| @part | tall/2720x2650x600/closed | shelf-3 | box | 0.29..1.342 | 0.99475..1.01275 | -0.288..0.277 | divider,side-right,back |
+| @part | tall/2720x2650x600/closed | shelf-4 | box | 0.29..1.342 | 1.316..1.334 | -0.288..0.277 | divider,side-right,back |
+| @part | tall/2720x2650x600/closed | shelf-5 | box | 0.29..1.342 | 1.63725..1.65525 | -0.288..0.277 | divider,side-right,back |
+| @part | tall/2720x2650x600/closed | shelf-6 | box | 0.29..1.342 | 1.9585..1.9765 | -0.288..0.277 | divider,side-right,back |
+| @part | tall/2720x2650x600/closed | shelf-7 | box | 0.29..1.342 | 2.27975..2.29775 | -0.288..0.277 | divider,side-right,back |
+| @part | tall/2720x2650x600/closed | stile-1 | box | -0.8241..-0.8061 | 0.098..2.632 | 0.259..0.277 | bottom,top |
+| @part | tall/2720x2650x600/closed | stile-2 | box | -0.2807..-0.2627 | 0.098..2.632 | 0.259..0.277 | bottom,top |
+| @part | tall/2720x2650x600/closed | stile-3 | box | 0.2627..0.2807 | 0.098..2.632 | 0.259..0.277 | bottom,top |
+| @part | tall/2720x2650x600/closed | stile-4 | box | 0.8061..0.8241 | 0.098..2.632 | 0.259..0.277 | bottom,top |
+| @part | tall/2720x2650x600/closed | door-0 | box | -1.357..-0.8166 | 0.083..2.647 | 0.282..0.3 | hinge-0,hinge-1 |
+| @part | tall/2720x2650x600/closed | hinge-0 | curved | -1.352..-1.336 | 0.14..0.18 | 0.277..0.299 | door-0,side-left |
+| @part | tall/2720x2650x600/closed | hinge-1 | curved | -1.352..-1.336 | 2.47..2.51 | 0.277..0.299 | door-0,side-left |
+| @part | tall/2720x2650x600/closed | handle-0 | box | -0.8776..-0.8656 | 1.4132..1.5732 | 0.284..0.3 | door-0 |
+| @part | tall/2720x2650x600/closed | door-1 | box | -0.8136..-0.2732 | 0.083..2.647 | 0.282..0.3 | hinge-2,hinge-3 |
+| @part | tall/2720x2650x600/closed | hinge-2 | curved | -0.2942..-0.2782 | 0.14..0.18 | 0.277..0.299 | door-1,stile-2 |
+| @part | tall/2720x2650x600/closed | hinge-3 | curved | -0.2942..-0.2782 | 2.47..2.51 | 0.277..0.299 | door-1,stile-2 |
+| @part | tall/2720x2650x600/closed | handle-1 | box | -0.7646..-0.7526 | 1.4132..1.5732 | 0.284..0.3 | door-1 |
+| @part | tall/2720x2650x600/closed | door-2 | box | -0.2702..0.2702 | 0.083..2.647 | 0.282..0.3 | hinge-4,hinge-5 |
+| @part | tall/2720x2650x600/closed | hinge-4 | curved | -0.2652..-0.2492 | 0.14..0.18 | 0.277..0.299 | door-2,stile-2 |
+| @part | tall/2720x2650x600/closed | hinge-5 | curved | -0.2652..-0.2492 | 2.47..2.51 | 0.277..0.299 | door-2,stile-2 |
+| @part | tall/2720x2650x600/closed | handle-2 | box | 0.2092..0.2212 | 1.4132..1.5732 | 0.284..0.3 | door-2 |
+| @part | tall/2720x2650x600/closed | door-3 | box | 0.2732..0.8136 | 0.083..2.647 | 0.282..0.3 | hinge-6,hinge-7 |
+| @part | tall/2720x2650x600/closed | hinge-6 | curved | 0.7926..0.8086 | 0.14..0.18 | 0.277..0.299 | door-3,stile-4 |
+| @part | tall/2720x2650x600/closed | hinge-7 | curved | 0.7926..0.8086 | 2.47..2.51 | 0.277..0.299 | door-3,stile-4 |
+| @part | tall/2720x2650x600/closed | handle-3 | box | 0.3222..0.3342 | 1.4132..1.5732 | 0.284..0.3 | door-3 |
+| @part | tall/2720x2650x600/closed | door-4 | box | 0.8166..1.357 | 0.083..2.647 | 0.282..0.3 | hinge-8,hinge-9 |
+| @part | tall/2720x2650x600/closed | hinge-8 | curved | 0.8216..0.8376 | 0.14..0.18 | 0.277..0.299 | door-4,stile-4 |
+| @part | tall/2720x2650x600/closed | hinge-9 | curved | 0.8216..0.8376 | 2.47..2.51 | 0.277..0.299 | door-4,stile-4 |
+| @part | tall/2720x2650x600/closed | handle-4 | box | 1.296..1.308 | 1.4132..1.5732 | 0.284..0.3 | door-4 |
 
-@inventory tall/600x2300x500/delivered: back, bottom, top, side-left, side-right, toe, shelf-1, shelf-2, shelf-3, shelf-4, shelf-5, shelf-6, stile-1, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1
+@inventory tall/2720x2650x600/open: back, bottom, top, side-left, side-right, toe, divider, rod, shelf-1, shelf-2, shelf-3, shelf-4, shelf-5, shelf-6, shelf-7, stile-1, stile-2, stile-3, stile-4, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1, door-2, hinge-4, hinge-5, handle-2, door-3, hinge-6, hinge-7, handle-3, door-4, hinge-8, hinge-9, handle-4
 
-@void tall/600x2300x500/delivered: shelf-1, -0.009..0.009, 0.348143..0.366143, 0.209..0.227
-@void tall/600x2300x500/delivered: shelf-2, -0.009..0.009, 0.665286..0.683286, 0.209..0.227
-@void tall/600x2300x500/delivered: shelf-3, -0.009..0.009, 0.982429..1.000429, 0.209..0.227
-@void tall/600x2300x500/delivered: shelf-4, -0.009..0.009, 1.299571..1.317571, 0.209..0.227
-@void tall/600x2300x500/delivered: shelf-5, -0.009..0.009, 1.616714..1.634714, 0.209..0.227
-@void tall/600x2300x500/delivered: shelf-6, -0.009..0.009, 1.933857..1.951857, 0.209..0.227
-@void tall/600x2300x500/delivered: door-0, -0.292..-0.276, 0.14..0.18, 0.232..0.249
-@void tall/600x2300x500/delivered: door-0, -0.292..-0.276, 2.12..2.16, 0.232..0.249
-@void tall/600x2300x500/delivered: door-0, -0.0625..-0.0505, 1.2207..1.3807, 0.234..0.25
-@void tall/600x2300x500/delivered: door-1, 0.276..0.292, 0.14..0.18, 0.232..0.249
-@void tall/600x2300x500/delivered: door-1, 0.276..0.292, 2.12..2.16, 0.232..0.249
-@void tall/600x2300x500/delivered: door-1, 0.0505..0.0625, 1.2207..1.3807, 0.234..0.25
-@piece tall/600x2300x500/delivered: hinge-0, -0.292..-0.276, 0.14..0.18, 0.227..0.232
-@piece tall/600x2300x500/delivered: hinge-0, -0.292..-0.276, 0.14..0.18, 0.232..0.249
-@piece tall/600x2300x500/delivered: hinge-1, -0.292..-0.276, 2.12..2.16, 0.227..0.232
-@piece tall/600x2300x500/delivered: hinge-1, -0.292..-0.276, 2.12..2.16, 0.232..0.249
-@piece tall/600x2300x500/delivered: hinge-2, 0.276..0.292, 0.14..0.18, 0.227..0.232
-@piece tall/600x2300x500/delivered: hinge-2, 0.276..0.292, 0.14..0.18, 0.232..0.249
-@piece tall/600x2300x500/delivered: hinge-3, 0.276..0.292, 2.12..2.16, 0.227..0.232
-@piece tall/600x2300x500/delivered: hinge-3, 0.276..0.292, 2.12..2.16, 0.232..0.249
+@void tall/2720x2650x600/open: divider, 0.272..0.2807, 0.098..2.632, 0.259..0.282
+@void tall/2720x2650x600/open: shelf-1, 0.8061..0.8241, 0.35225..0.37025, 0.259..0.277
+@void tall/2720x2650x600/open: shelf-2, 0.8061..0.8241, 0.6735..0.6915, 0.259..0.277
+@void tall/2720x2650x600/open: shelf-3, 0.8061..0.8241, 0.99475..1.01275, 0.259..0.277
+@void tall/2720x2650x600/open: shelf-4, 0.8061..0.8241, 1.316..1.334, 0.259..0.277
+@void tall/2720x2650x600/open: shelf-5, 0.8061..0.8241, 1.63725..1.65525, 0.259..0.277
+@void tall/2720x2650x600/open: shelf-6, 0.8061..0.8241, 1.9585..1.9765, 0.259..0.277
+@void tall/2720x2650x600/open: shelf-7, 0.8061..0.8241, 2.27975..2.29775, 0.259..0.277
+@void tall/2720x2650x600/open: door-0, -1.352..-1.335, 0.14..0.18, 0.283..0.299
+@void tall/2720x2650x600/open: door-0, -1.353..-1.335, 0.14..0.18, 0.278..0.299
+@void tall/2720x2650x600/open: door-0, -1.352..-1.335, 2.47..2.51, 0.283..0.299
+@void tall/2720x2650x600/open: door-0, -1.353..-1.335, 2.47..2.51, 0.278..0.299
+@void tall/2720x2650x600/open: door-0, -1.353..-1.337, 1.4132..1.5732, 0.7574..0.7694
+@void tall/2720x2650x600/open: door-1, -0.2952..-0.2782, 0.14..0.18, 0.283..0.299
+@void tall/2720x2650x600/open: door-1, -0.2952..-0.2772, 0.14..0.18, 0.278..0.299
+@void tall/2720x2650x600/open: door-1, -0.2952..-0.2782, 2.47..2.51, 0.283..0.299
+@void tall/2720x2650x600/open: door-1, -0.2952..-0.2772, 2.47..2.51, 0.278..0.299
+@void tall/2720x2650x600/open: door-1, -0.2932..-0.2772, 1.4132..1.5732, 0.7574..0.7694
+@void tall/2720x2650x600/open: door-2, -0.2652..-0.2482, 0.14..0.18, 0.283..0.299
+@void tall/2720x2650x600/open: door-2, -0.2662..-0.2482, 0.14..0.18, 0.278..0.299
+@void tall/2720x2650x600/open: door-2, -0.2652..-0.2482, 2.47..2.51, 0.283..0.299
+@void tall/2720x2650x600/open: door-2, -0.2662..-0.2482, 2.47..2.51, 0.278..0.299
+@void tall/2720x2650x600/open: door-2, -0.2662..-0.2502, 1.4132..1.5732, 0.7574..0.7694
+@void tall/2720x2650x600/open: door-3, 0.7916..0.8086, 0.14..0.18, 0.283..0.299
+@void tall/2720x2650x600/open: door-3, 0.7916..0.8096, 0.14..0.18, 0.278..0.299
+@void tall/2720x2650x600/open: door-3, 0.7916..0.8086, 2.47..2.51, 0.283..0.299
+@void tall/2720x2650x600/open: door-3, 0.7916..0.8096, 2.47..2.51, 0.278..0.299
+@void tall/2720x2650x600/open: door-3, 0.7936..0.8096, 1.4132..1.5732, 0.7574..0.7694
+@void tall/2720x2650x600/open: door-4, 0.8216..0.8386, 0.14..0.18, 0.283..0.299
+@void tall/2720x2650x600/open: door-4, 0.8206..0.8386, 0.14..0.18, 0.278..0.299
+@void tall/2720x2650x600/open: door-4, 0.8216..0.8386, 2.47..2.51, 0.283..0.299
+@void tall/2720x2650x600/open: door-4, 0.8206..0.8386, 2.47..2.51, 0.278..0.299
+@void tall/2720x2650x600/open: door-4, 0.8206..0.8366, 1.4132..1.5732, 0.7574..0.7694
+@piece tall/2720x2650x600/open: hinge-0, -1.352..-1.336, 0.14..0.18, 0.277..0.282
+@piece tall/2720x2650x600/open: hinge-0, -1.352..-1.336, 0.14..0.18, 0.282..0.299
+@piece tall/2720x2650x600/open: hinge-1, -1.352..-1.336, 2.47..2.51, 0.277..0.282
+@piece tall/2720x2650x600/open: hinge-1, -1.352..-1.336, 2.47..2.51, 0.282..0.299
+@piece tall/2720x2650x600/open: hinge-2, -0.2942..-0.2782, 0.14..0.18, 0.277..0.282
+@piece tall/2720x2650x600/open: hinge-2, -0.2942..-0.2782, 0.14..0.18, 0.282..0.299
+@piece tall/2720x2650x600/open: hinge-3, -0.2942..-0.2782, 2.47..2.51, 0.277..0.282
+@piece tall/2720x2650x600/open: hinge-3, -0.2942..-0.2782, 2.47..2.51, 0.282..0.299
+@piece tall/2720x2650x600/open: hinge-4, -0.2652..-0.2492, 0.14..0.18, 0.277..0.282
+@piece tall/2720x2650x600/open: hinge-4, -0.2652..-0.2492, 0.14..0.18, 0.282..0.299
+@piece tall/2720x2650x600/open: hinge-5, -0.2652..-0.2492, 2.47..2.51, 0.277..0.282
+@piece tall/2720x2650x600/open: hinge-5, -0.2652..-0.2492, 2.47..2.51, 0.282..0.299
+@piece tall/2720x2650x600/open: hinge-6, 0.7926..0.8086, 0.14..0.18, 0.277..0.282
+@piece tall/2720x2650x600/open: hinge-6, 0.7926..0.8086, 0.14..0.18, 0.282..0.299
+@piece tall/2720x2650x600/open: hinge-7, 0.7926..0.8086, 2.47..2.51, 0.277..0.282
+@piece tall/2720x2650x600/open: hinge-7, 0.7926..0.8086, 2.47..2.51, 0.282..0.299
+@piece tall/2720x2650x600/open: hinge-8, 0.8216..0.8376, 0.14..0.18, 0.277..0.282
+@piece tall/2720x2650x600/open: hinge-8, 0.8216..0.8376, 0.14..0.18, 0.282..0.299
+@piece tall/2720x2650x600/open: hinge-9, 0.8216..0.8376, 2.47..2.51, 0.277..0.282
+@piece tall/2720x2650x600/open: hinge-9, 0.8216..0.8376, 2.47..2.51, 0.282..0.299
 | kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| @envelope | tall/600x2300x500/delivered | * | bounds | -0.3..0.3 | 0..2.3 | -0.25..0.25 | - |
-| @part | tall/600x2300x500/delivered | back | box | -0.3..0.3 | 0.08..2.282 | -0.25..-0.238 | toe,bottom,top |
-| @part | tall/600x2300x500/delivered | bottom | box | -0.3..0.3 | 0.08..0.098 | -0.238..0.227 | back,side-left,side-right |
-| @part | tall/600x2300x500/delivered | top | box | -0.3..0.3 | 2.282..2.3 | -0.25..0.227 | back,side-left,side-right |
-| @part | tall/600x2300x500/delivered | side-left | box | -0.3..-0.282 | 0.098..2.282 | -0.238..0.227 | back,bottom,top |
-| @part | tall/600x2300x500/delivered | side-right | box | 0.282..0.3 | 0.098..2.282 | -0.238..0.227 | back,bottom,top |
-| @part | tall/600x2300x500/delivered | toe | box | -0.3..0.3 | 0..0.08 | -0.25..0.2 | ground,back,bottom |
-| @part | tall/600x2300x500/delivered | shelf-1 | box | -0.282..0.282 | 0.348143..0.366143 | -0.238..0.227 | side-left,side-right,back |
-| @part | tall/600x2300x500/delivered | shelf-2 | box | -0.282..0.282 | 0.665286..0.683286 | -0.238..0.227 | side-left,side-right,back |
-| @part | tall/600x2300x500/delivered | shelf-3 | box | -0.282..0.282 | 0.982429..1.000429 | -0.238..0.227 | side-left,side-right,back |
-| @part | tall/600x2300x500/delivered | shelf-4 | box | -0.282..0.282 | 1.299571..1.317571 | -0.238..0.227 | side-left,side-right,back |
-| @part | tall/600x2300x500/delivered | shelf-5 | box | -0.282..0.282 | 1.616714..1.634714 | -0.238..0.227 | side-left,side-right,back |
-| @part | tall/600x2300x500/delivered | shelf-6 | box | -0.282..0.282 | 1.933857..1.951857 | -0.238..0.227 | side-left,side-right,back |
-| @part | tall/600x2300x500/delivered | stile-1 | box | -0.009..0.009 | 0.098..2.282 | 0.209..0.227 | bottom,top |
-| @part | tall/600x2300x500/delivered | door-0 | box | -0.297..-0.0015 | 0.083..2.297 | 0.232..0.25 | hinge-0,hinge-1 |
-| @part | tall/600x2300x500/delivered | hinge-0 | curved | -0.292..-0.276 | 0.14..0.18 | 0.227..0.249 | door-0,side-left |
-| @part | tall/600x2300x500/delivered | hinge-1 | curved | -0.292..-0.276 | 2.12..2.16 | 0.227..0.249 | door-0,side-left |
-| @part | tall/600x2300x500/delivered | handle-0 | box | -0.0625..-0.0505 | 1.2207..1.3807 | 0.234..0.25 | door-0 |
-| @part | tall/600x2300x500/delivered | door-1 | box | 0.0015..0.297 | 0.083..2.297 | 0.232..0.25 | hinge-2,hinge-3 |
-| @part | tall/600x2300x500/delivered | hinge-2 | curved | 0.276..0.292 | 0.14..0.18 | 0.227..0.249 | door-1,side-right |
-| @part | tall/600x2300x500/delivered | hinge-3 | curved | 0.276..0.292 | 2.12..2.16 | 0.227..0.249 | door-1,side-right |
-| @part | tall/600x2300x500/delivered | handle-1 | box | 0.0505..0.0625 | 1.2207..1.3807 | 0.234..0.25 | door-1 |
+| @envelope | tall/2720x2650x600/open | * | bounds | -1.36..1.36 | 0..2.65 | -0.3..0.8184 | - |
+| @part | tall/2720x2650x600/open | back | box | -1.36..1.36 | 0.08..2.632 | -0.3..-0.288 | toe,bottom,top |
+| @part | tall/2720x2650x600/open | bottom | box | -1.36..1.36 | 0.08..0.098 | -0.288..0.277 | back,side-left,side-right |
+| @part | tall/2720x2650x600/open | top | box | -1.36..1.36 | 2.632..2.65 | -0.3..0.277 | back,side-left,side-right |
+| @part | tall/2720x2650x600/open | side-left | box | -1.36..-1.342 | 0.098..2.632 | -0.288..0.277 | back,bottom,top |
+| @part | tall/2720x2650x600/open | side-right | box | 1.342..1.36 | 0.098..2.632 | -0.288..0.277 | back,bottom,top |
+| @part | tall/2720x2650x600/open | toe | box | -1.36..1.36 | 0..0.08 | -0.3..0.25 | ground,back,bottom |
+| @part | tall/2720x2650x600/open | divider | box | 0.272..0.29 | 0.098..2.632 | -0.288..0.282 | bottom,top |
+| @part | tall/2720x2650x600/open | rod | cylinder | -1.342..0.272 | 2.2875..2.3125 | -0.0925..-0.0675 | side-left,divider |
+| @part | tall/2720x2650x600/open | shelf-1 | box | 0.29..1.342 | 0.35225..0.37025 | -0.288..0.277 | divider,side-right,back |
+| @part | tall/2720x2650x600/open | shelf-2 | box | 0.29..1.342 | 0.6735..0.6915 | -0.288..0.277 | divider,side-right,back |
+| @part | tall/2720x2650x600/open | shelf-3 | box | 0.29..1.342 | 0.99475..1.01275 | -0.288..0.277 | divider,side-right,back |
+| @part | tall/2720x2650x600/open | shelf-4 | box | 0.29..1.342 | 1.316..1.334 | -0.288..0.277 | divider,side-right,back |
+| @part | tall/2720x2650x600/open | shelf-5 | box | 0.29..1.342 | 1.63725..1.65525 | -0.288..0.277 | divider,side-right,back |
+| @part | tall/2720x2650x600/open | shelf-6 | box | 0.29..1.342 | 1.9585..1.9765 | -0.288..0.277 | divider,side-right,back |
+| @part | tall/2720x2650x600/open | shelf-7 | box | 0.29..1.342 | 2.27975..2.29775 | -0.288..0.277 | divider,side-right,back |
+| @part | tall/2720x2650x600/open | stile-1 | box | -0.8241..-0.8061 | 0.098..2.632 | 0.259..0.277 | bottom,top |
+| @part | tall/2720x2650x600/open | stile-2 | box | -0.2807..-0.2627 | 0.098..2.632 | 0.259..0.277 | bottom,top |
+| @part | tall/2720x2650x600/open | stile-3 | box | 0.2627..0.2807 | 0.098..2.632 | 0.259..0.277 | bottom,top |
+| @part | tall/2720x2650x600/open | stile-4 | box | 0.8061..0.8241 | 0.098..2.632 | 0.259..0.277 | bottom,top |
+| @part | tall/2720x2650x600/open | door-0 | box | -1.353..-1.335 | 0.083..2.647 | 0.278..0.8184 | hinge-0,hinge-1 |
+| @part | tall/2720x2650x600/open | hinge-0 | curved | -1.352..-1.336 | 0.14..0.18 | 0.277..0.299 | door-0,side-left |
+| @part | tall/2720x2650x600/open | hinge-1 | curved | -1.352..-1.336 | 2.47..2.51 | 0.277..0.299 | door-0,side-left |
+| @part | tall/2720x2650x600/open | handle-0 | box | -1.353..-1.337 | 1.4132..1.5732 | 0.7574..0.7694 | door-0 |
+| @part | tall/2720x2650x600/open | door-1 | box | -0.2952..-0.2772 | 0.083..2.647 | 0.278..0.8184 | hinge-2,hinge-3 |
+| @part | tall/2720x2650x600/open | hinge-2 | curved | -0.2942..-0.2782 | 0.14..0.18 | 0.277..0.299 | door-1,stile-2 |
+| @part | tall/2720x2650x600/open | hinge-3 | curved | -0.2942..-0.2782 | 2.47..2.51 | 0.277..0.299 | door-1,stile-2 |
+| @part | tall/2720x2650x600/open | handle-1 | box | -0.2932..-0.2772 | 1.4132..1.5732 | 0.7574..0.7694 | door-1 |
+| @part | tall/2720x2650x600/open | door-2 | box | -0.2662..-0.2482 | 0.083..2.647 | 0.278..0.8184 | hinge-4,hinge-5 |
+| @part | tall/2720x2650x600/open | hinge-4 | curved | -0.2652..-0.2492 | 0.14..0.18 | 0.277..0.299 | door-2,stile-2 |
+| @part | tall/2720x2650x600/open | hinge-5 | curved | -0.2652..-0.2492 | 2.47..2.51 | 0.277..0.299 | door-2,stile-2 |
+| @part | tall/2720x2650x600/open | handle-2 | box | -0.2662..-0.2502 | 1.4132..1.5732 | 0.7574..0.7694 | door-2 |
+| @part | tall/2720x2650x600/open | door-3 | box | 0.7916..0.8096 | 0.083..2.647 | 0.278..0.8184 | hinge-6,hinge-7 |
+| @part | tall/2720x2650x600/open | hinge-6 | curved | 0.7926..0.8086 | 0.14..0.18 | 0.277..0.299 | door-3,stile-4 |
+| @part | tall/2720x2650x600/open | hinge-7 | curved | 0.7926..0.8086 | 2.47..2.51 | 0.277..0.299 | door-3,stile-4 |
+| @part | tall/2720x2650x600/open | handle-3 | box | 0.7936..0.8096 | 1.4132..1.5732 | 0.7574..0.7694 | door-3 |
+| @part | tall/2720x2650x600/open | door-4 | box | 0.8206..0.8386 | 0.083..2.647 | 0.278..0.8184 | hinge-8,hinge-9 |
+| @part | tall/2720x2650x600/open | hinge-8 | curved | 0.8216..0.8376 | 0.14..0.18 | 0.277..0.299 | door-4,stile-4 |
+| @part | tall/2720x2650x600/open | hinge-9 | curved | 0.8216..0.8376 | 2.47..2.51 | 0.277..0.299 | door-4,stile-4 |
+| @part | tall/2720x2650x600/open | handle-4 | box | 0.8206..0.8366 | 1.4132..1.5732 | 0.7574..0.7694 | door-4 |
 
-@inventory tall/600x2300x500/inspection-open: back, bottom, top, side-left, side-right, toe, shelf-1, shelf-2, shelf-3, shelf-4, shelf-5, shelf-6, stile-1, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1
+@inventory tall/520x2250x520/closed: back, bottom, top, side-left, side-right, toe, shelf-1, shelf-2, shelf-3, shelf-4, shelf-5, shelf-6, stile-1, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1
 
-@void tall/600x2300x500/inspection-open: shelf-1, -0.009..0.009, 0.348143..0.366143, 0.209..0.227
-@void tall/600x2300x500/inspection-open: shelf-2, -0.009..0.009, 0.665286..0.683286, 0.209..0.227
-@void tall/600x2300x500/inspection-open: shelf-3, -0.009..0.009, 0.982429..1.000429, 0.209..0.227
-@void tall/600x2300x500/inspection-open: shelf-4, -0.009..0.009, 1.299571..1.317571, 0.209..0.227
-@void tall/600x2300x500/inspection-open: shelf-5, -0.009..0.009, 1.616714..1.634714, 0.209..0.227
-@void tall/600x2300x500/inspection-open: shelf-6, -0.009..0.009, 1.933857..1.951857, 0.209..0.227
-@void tall/600x2300x500/inspection-open: door-0, -0.292..-0.275, 0.14..0.18, 0.233..0.249
-@void tall/600x2300x500/inspection-open: door-0, -0.293..-0.275, 0.14..0.18, 0.228..0.249
-@void tall/600x2300x500/inspection-open: door-0, -0.292..-0.275, 2.12..2.16, 0.233..0.249
-@void tall/600x2300x500/inspection-open: door-0, -0.293..-0.275, 2.12..2.16, 0.228..0.249
-@void tall/600x2300x500/inspection-open: door-0, -0.293..-0.277, 1.2207..1.3807, 0.4625..0.4745
-@void tall/600x2300x500/inspection-open: door-1, 0.275..0.292, 0.14..0.18, 0.233..0.249
-@void tall/600x2300x500/inspection-open: door-1, 0.275..0.293, 0.14..0.18, 0.228..0.249
-@void tall/600x2300x500/inspection-open: door-1, 0.275..0.292, 2.12..2.16, 0.233..0.249
-@void tall/600x2300x500/inspection-open: door-1, 0.275..0.293, 2.12..2.16, 0.228..0.249
-@void tall/600x2300x500/inspection-open: door-1, 0.277..0.293, 1.2207..1.3807, 0.4625..0.4745
-@piece tall/600x2300x500/inspection-open: hinge-0, -0.292..-0.276, 0.14..0.18, 0.227..0.232
-@piece tall/600x2300x500/inspection-open: hinge-0, -0.292..-0.276, 0.14..0.18, 0.232..0.249
-@piece tall/600x2300x500/inspection-open: hinge-1, -0.292..-0.276, 2.12..2.16, 0.227..0.232
-@piece tall/600x2300x500/inspection-open: hinge-1, -0.292..-0.276, 2.12..2.16, 0.232..0.249
-@piece tall/600x2300x500/inspection-open: hinge-2, 0.276..0.292, 0.14..0.18, 0.227..0.232
-@piece tall/600x2300x500/inspection-open: hinge-2, 0.276..0.292, 0.14..0.18, 0.232..0.249
-@piece tall/600x2300x500/inspection-open: hinge-3, 0.276..0.292, 2.12..2.16, 0.227..0.232
-@piece tall/600x2300x500/inspection-open: hinge-3, 0.276..0.292, 2.12..2.16, 0.232..0.249
+@void tall/520x2250x520/closed: shelf-1, -0.009..0.009, 0.341..0.359, 0.219..0.237
+@void tall/520x2250x520/closed: shelf-2, -0.009..0.009, 0.651..0.669, 0.219..0.237
+@void tall/520x2250x520/closed: shelf-3, -0.009..0.009, 0.961..0.979, 0.219..0.237
+@void tall/520x2250x520/closed: shelf-4, -0.009..0.009, 1.271..1.289, 0.219..0.237
+@void tall/520x2250x520/closed: shelf-5, -0.009..0.009, 1.581..1.599, 0.219..0.237
+@void tall/520x2250x520/closed: shelf-6, -0.009..0.009, 1.891..1.909, 0.219..0.237
+@void tall/520x2250x520/closed: door-0, -0.252..-0.236, 0.14..0.18, 0.242..0.259
+@void tall/520x2250x520/closed: door-0, -0.252..-0.236, 2.07..2.11, 0.242..0.259
+@void tall/520x2250x520/closed: door-0, -0.0625..-0.0505, 1.1932..1.3532, 0.244..0.26
+@void tall/520x2250x520/closed: door-1, 0.236..0.252, 0.14..0.18, 0.242..0.259
+@void tall/520x2250x520/closed: door-1, 0.236..0.252, 2.07..2.11, 0.242..0.259
+@void tall/520x2250x520/closed: door-1, 0.0505..0.0625, 1.1932..1.3532, 0.244..0.26
+@piece tall/520x2250x520/closed: hinge-0, -0.252..-0.236, 0.14..0.18, 0.237..0.242
+@piece tall/520x2250x520/closed: hinge-0, -0.252..-0.236, 0.14..0.18, 0.242..0.259
+@piece tall/520x2250x520/closed: hinge-1, -0.252..-0.236, 2.07..2.11, 0.237..0.242
+@piece tall/520x2250x520/closed: hinge-1, -0.252..-0.236, 2.07..2.11, 0.242..0.259
+@piece tall/520x2250x520/closed: hinge-2, 0.236..0.252, 0.14..0.18, 0.237..0.242
+@piece tall/520x2250x520/closed: hinge-2, 0.236..0.252, 0.14..0.18, 0.242..0.259
+@piece tall/520x2250x520/closed: hinge-3, 0.236..0.252, 2.07..2.11, 0.237..0.242
+@piece tall/520x2250x520/closed: hinge-3, 0.236..0.252, 2.07..2.11, 0.242..0.259
 | kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| @envelope | tall/600x2300x500/inspection-open | * | bounds | -0.3..0.3 | 0..2.3 | -0.25..0.5235 | - |
-| @part | tall/600x2300x500/inspection-open | back | box | -0.3..0.3 | 0.08..2.282 | -0.25..-0.238 | toe,bottom,top |
-| @part | tall/600x2300x500/inspection-open | bottom | box | -0.3..0.3 | 0.08..0.098 | -0.238..0.227 | back,side-left,side-right |
-| @part | tall/600x2300x500/inspection-open | top | box | -0.3..0.3 | 2.282..2.3 | -0.25..0.227 | back,side-left,side-right |
-| @part | tall/600x2300x500/inspection-open | side-left | box | -0.3..-0.282 | 0.098..2.282 | -0.238..0.227 | back,bottom,top |
-| @part | tall/600x2300x500/inspection-open | side-right | box | 0.282..0.3 | 0.098..2.282 | -0.238..0.227 | back,bottom,top |
-| @part | tall/600x2300x500/inspection-open | toe | box | -0.3..0.3 | 0..0.08 | -0.25..0.2 | ground,back,bottom |
-| @part | tall/600x2300x500/inspection-open | shelf-1 | box | -0.282..0.282 | 0.348143..0.366143 | -0.238..0.227 | side-left,side-right,back |
-| @part | tall/600x2300x500/inspection-open | shelf-2 | box | -0.282..0.282 | 0.665286..0.683286 | -0.238..0.227 | side-left,side-right,back |
-| @part | tall/600x2300x500/inspection-open | shelf-3 | box | -0.282..0.282 | 0.982429..1.000429 | -0.238..0.227 | side-left,side-right,back |
-| @part | tall/600x2300x500/inspection-open | shelf-4 | box | -0.282..0.282 | 1.299571..1.317571 | -0.238..0.227 | side-left,side-right,back |
-| @part | tall/600x2300x500/inspection-open | shelf-5 | box | -0.282..0.282 | 1.616714..1.634714 | -0.238..0.227 | side-left,side-right,back |
-| @part | tall/600x2300x500/inspection-open | shelf-6 | box | -0.282..0.282 | 1.933857..1.951857 | -0.238..0.227 | side-left,side-right,back |
-| @part | tall/600x2300x500/inspection-open | stile-1 | box | -0.009..0.009 | 0.098..2.282 | 0.209..0.227 | bottom,top |
-| @part | tall/600x2300x500/inspection-open | door-0 | box | -0.293..-0.275 | 0.083..2.297 | 0.228..0.5235 | hinge-0,hinge-1 |
-| @part | tall/600x2300x500/inspection-open | hinge-0 | curved | -0.292..-0.276 | 0.14..0.18 | 0.227..0.249 | door-0,side-left |
-| @part | tall/600x2300x500/inspection-open | hinge-1 | curved | -0.292..-0.276 | 2.12..2.16 | 0.227..0.249 | door-0,side-left |
-| @part | tall/600x2300x500/inspection-open | handle-0 | box | -0.293..-0.277 | 1.2207..1.3807 | 0.4625..0.4745 | door-0 |
-| @part | tall/600x2300x500/inspection-open | door-1 | box | 0.275..0.293 | 0.083..2.297 | 0.228..0.5235 | hinge-2,hinge-3 |
-| @part | tall/600x2300x500/inspection-open | hinge-2 | curved | 0.276..0.292 | 0.14..0.18 | 0.227..0.249 | door-1,side-right |
-| @part | tall/600x2300x500/inspection-open | hinge-3 | curved | 0.276..0.292 | 2.12..2.16 | 0.227..0.249 | door-1,side-right |
-| @part | tall/600x2300x500/inspection-open | handle-1 | box | 0.277..0.293 | 1.2207..1.3807 | 0.4625..0.4745 | door-1 |
+| @envelope | tall/520x2250x520/closed | * | bounds | -0.26..0.26 | 0..2.25 | -0.26..0.26 | - |
+| @part | tall/520x2250x520/closed | back | box | -0.26..0.26 | 0.08..2.232 | -0.26..-0.248 | toe,bottom,top |
+| @part | tall/520x2250x520/closed | bottom | box | -0.26..0.26 | 0.08..0.098 | -0.248..0.237 | back,side-left,side-right |
+| @part | tall/520x2250x520/closed | top | box | -0.26..0.26 | 2.232..2.25 | -0.26..0.237 | back,side-left,side-right |
+| @part | tall/520x2250x520/closed | side-left | box | -0.26..-0.242 | 0.098..2.232 | -0.248..0.237 | back,bottom,top |
+| @part | tall/520x2250x520/closed | side-right | box | 0.242..0.26 | 0.098..2.232 | -0.248..0.237 | back,bottom,top |
+| @part | tall/520x2250x520/closed | toe | box | -0.26..0.26 | 0..0.08 | -0.26..0.21 | ground,back,bottom |
+| @part | tall/520x2250x520/closed | shelf-1 | box | -0.242..0.242 | 0.341..0.359 | -0.248..0.237 | side-left,side-right,back |
+| @part | tall/520x2250x520/closed | shelf-2 | box | -0.242..0.242 | 0.651..0.669 | -0.248..0.237 | side-left,side-right,back |
+| @part | tall/520x2250x520/closed | shelf-3 | box | -0.242..0.242 | 0.961..0.979 | -0.248..0.237 | side-left,side-right,back |
+| @part | tall/520x2250x520/closed | shelf-4 | box | -0.242..0.242 | 1.271..1.289 | -0.248..0.237 | side-left,side-right,back |
+| @part | tall/520x2250x520/closed | shelf-5 | box | -0.242..0.242 | 1.581..1.599 | -0.248..0.237 | side-left,side-right,back |
+| @part | tall/520x2250x520/closed | shelf-6 | box | -0.242..0.242 | 1.891..1.909 | -0.248..0.237 | side-left,side-right,back |
+| @part | tall/520x2250x520/closed | stile-1 | box | -0.009..0.009 | 0.098..2.232 | 0.219..0.237 | bottom,top |
+| @part | tall/520x2250x520/closed | door-0 | box | -0.257..-0.0015 | 0.083..2.247 | 0.242..0.26 | hinge-0,hinge-1 |
+| @part | tall/520x2250x520/closed | hinge-0 | curved | -0.252..-0.236 | 0.14..0.18 | 0.237..0.259 | door-0,side-left |
+| @part | tall/520x2250x520/closed | hinge-1 | curved | -0.252..-0.236 | 2.07..2.11 | 0.237..0.259 | door-0,side-left |
+| @part | tall/520x2250x520/closed | handle-0 | box | -0.0625..-0.0505 | 1.1932..1.3532 | 0.244..0.26 | door-0 |
+| @part | tall/520x2250x520/closed | door-1 | box | 0.0015..0.257 | 0.083..2.247 | 0.242..0.26 | hinge-2,hinge-3 |
+| @part | tall/520x2250x520/closed | hinge-2 | curved | 0.236..0.252 | 0.14..0.18 | 0.237..0.259 | door-1,side-right |
+| @part | tall/520x2250x520/closed | hinge-3 | curved | 0.236..0.252 | 2.07..2.11 | 0.237..0.259 | door-1,side-right |
+| @part | tall/520x2250x520/closed | handle-1 | box | 0.0505..0.0625 | 1.1932..1.3532 | 0.244..0.26 | door-1 |
 
-@inventory tall/900x2650x600/delivered: back, bottom, top, side-left, side-right, toe, shelf-1, shelf-2, shelf-3, shelf-4, shelf-5, shelf-6, shelf-7, stile-1, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1
+@inventory tall/520x2250x520/open: back, bottom, top, side-left, side-right, toe, shelf-1, shelf-2, shelf-3, shelf-4, shelf-5, shelf-6, stile-1, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1
 
-@void tall/900x2650x600/delivered: shelf-1, -0.009..0.009, 0.35225..0.37025, 0.259..0.277
-@void tall/900x2650x600/delivered: shelf-2, -0.009..0.009, 0.6735..0.6915, 0.259..0.277
-@void tall/900x2650x600/delivered: shelf-3, -0.009..0.009, 0.99475..1.01275, 0.259..0.277
-@void tall/900x2650x600/delivered: shelf-4, -0.009..0.009, 1.316..1.334, 0.259..0.277
-@void tall/900x2650x600/delivered: shelf-5, -0.009..0.009, 1.63725..1.65525, 0.259..0.277
-@void tall/900x2650x600/delivered: shelf-6, -0.009..0.009, 1.9585..1.9765, 0.259..0.277
-@void tall/900x2650x600/delivered: shelf-7, -0.009..0.009, 2.27975..2.29775, 0.259..0.277
-@void tall/900x2650x600/delivered: door-0, -0.442..-0.426, 0.14..0.18, 0.282..0.299
-@void tall/900x2650x600/delivered: door-0, -0.442..-0.426, 2.47..2.51, 0.282..0.299
-@void tall/900x2650x600/delivered: door-0, -0.0625..-0.0505, 1.4132..1.5732, 0.284..0.3
-@void tall/900x2650x600/delivered: door-1, 0.426..0.442, 0.14..0.18, 0.282..0.299
-@void tall/900x2650x600/delivered: door-1, 0.426..0.442, 2.47..2.51, 0.282..0.299
-@void tall/900x2650x600/delivered: door-1, 0.0505..0.0625, 1.4132..1.5732, 0.284..0.3
-@piece tall/900x2650x600/delivered: hinge-0, -0.442..-0.426, 0.14..0.18, 0.277..0.282
-@piece tall/900x2650x600/delivered: hinge-0, -0.442..-0.426, 0.14..0.18, 0.282..0.299
-@piece tall/900x2650x600/delivered: hinge-1, -0.442..-0.426, 2.47..2.51, 0.277..0.282
-@piece tall/900x2650x600/delivered: hinge-1, -0.442..-0.426, 2.47..2.51, 0.282..0.299
-@piece tall/900x2650x600/delivered: hinge-2, 0.426..0.442, 0.14..0.18, 0.277..0.282
-@piece tall/900x2650x600/delivered: hinge-2, 0.426..0.442, 0.14..0.18, 0.282..0.299
-@piece tall/900x2650x600/delivered: hinge-3, 0.426..0.442, 2.47..2.51, 0.277..0.282
-@piece tall/900x2650x600/delivered: hinge-3, 0.426..0.442, 2.47..2.51, 0.282..0.299
+@void tall/520x2250x520/open: shelf-1, -0.009..0.009, 0.341..0.359, 0.219..0.237
+@void tall/520x2250x520/open: shelf-2, -0.009..0.009, 0.651..0.669, 0.219..0.237
+@void tall/520x2250x520/open: shelf-3, -0.009..0.009, 0.961..0.979, 0.219..0.237
+@void tall/520x2250x520/open: shelf-4, -0.009..0.009, 1.271..1.289, 0.219..0.237
+@void tall/520x2250x520/open: shelf-5, -0.009..0.009, 1.581..1.599, 0.219..0.237
+@void tall/520x2250x520/open: shelf-6, -0.009..0.009, 1.891..1.909, 0.219..0.237
+@void tall/520x2250x520/open: door-0, -0.252..-0.235, 0.14..0.18, 0.243..0.259
+@void tall/520x2250x520/open: door-0, -0.253..-0.235, 0.14..0.18, 0.238..0.259
+@void tall/520x2250x520/open: door-0, -0.252..-0.235, 2.07..2.11, 0.243..0.259
+@void tall/520x2250x520/open: door-0, -0.253..-0.235, 2.07..2.11, 0.238..0.259
+@void tall/520x2250x520/open: door-0, -0.253..-0.237, 1.1932..1.3532, 0.4325..0.4445
+@void tall/520x2250x520/open: door-1, 0.235..0.252, 0.14..0.18, 0.243..0.259
+@void tall/520x2250x520/open: door-1, 0.235..0.253, 0.14..0.18, 0.238..0.259
+@void tall/520x2250x520/open: door-1, 0.235..0.252, 2.07..2.11, 0.243..0.259
+@void tall/520x2250x520/open: door-1, 0.235..0.253, 2.07..2.11, 0.238..0.259
+@void tall/520x2250x520/open: door-1, 0.237..0.253, 1.1932..1.3532, 0.4325..0.4445
+@piece tall/520x2250x520/open: hinge-0, -0.252..-0.236, 0.14..0.18, 0.237..0.242
+@piece tall/520x2250x520/open: hinge-0, -0.252..-0.236, 0.14..0.18, 0.242..0.259
+@piece tall/520x2250x520/open: hinge-1, -0.252..-0.236, 2.07..2.11, 0.237..0.242
+@piece tall/520x2250x520/open: hinge-1, -0.252..-0.236, 2.07..2.11, 0.242..0.259
+@piece tall/520x2250x520/open: hinge-2, 0.236..0.252, 0.14..0.18, 0.237..0.242
+@piece tall/520x2250x520/open: hinge-2, 0.236..0.252, 0.14..0.18, 0.242..0.259
+@piece tall/520x2250x520/open: hinge-3, 0.236..0.252, 2.07..2.11, 0.237..0.242
+@piece tall/520x2250x520/open: hinge-3, 0.236..0.252, 2.07..2.11, 0.242..0.259
 | kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| @envelope | tall/900x2650x600/delivered | * | bounds | -0.45..0.45 | 0..2.65 | -0.3..0.3 | - |
-| @part | tall/900x2650x600/delivered | back | box | -0.45..0.45 | 0.08..2.632 | -0.3..-0.288 | toe,bottom,top |
-| @part | tall/900x2650x600/delivered | bottom | box | -0.45..0.45 | 0.08..0.098 | -0.288..0.277 | back,side-left,side-right |
-| @part | tall/900x2650x600/delivered | top | box | -0.45..0.45 | 2.632..2.65 | -0.3..0.277 | back,side-left,side-right |
-| @part | tall/900x2650x600/delivered | side-left | box | -0.45..-0.432 | 0.098..2.632 | -0.288..0.277 | back,bottom,top |
-| @part | tall/900x2650x600/delivered | side-right | box | 0.432..0.45 | 0.098..2.632 | -0.288..0.277 | back,bottom,top |
-| @part | tall/900x2650x600/delivered | toe | box | -0.45..0.45 | 0..0.08 | -0.3..0.25 | ground,back,bottom |
-| @part | tall/900x2650x600/delivered | shelf-1 | box | -0.432..0.432 | 0.35225..0.37025 | -0.288..0.277 | side-left,side-right,back |
-| @part | tall/900x2650x600/delivered | shelf-2 | box | -0.432..0.432 | 0.6735..0.6915 | -0.288..0.277 | side-left,side-right,back |
-| @part | tall/900x2650x600/delivered | shelf-3 | box | -0.432..0.432 | 0.99475..1.01275 | -0.288..0.277 | side-left,side-right,back |
-| @part | tall/900x2650x600/delivered | shelf-4 | box | -0.432..0.432 | 1.316..1.334 | -0.288..0.277 | side-left,side-right,back |
-| @part | tall/900x2650x600/delivered | shelf-5 | box | -0.432..0.432 | 1.63725..1.65525 | -0.288..0.277 | side-left,side-right,back |
-| @part | tall/900x2650x600/delivered | shelf-6 | box | -0.432..0.432 | 1.9585..1.9765 | -0.288..0.277 | side-left,side-right,back |
-| @part | tall/900x2650x600/delivered | shelf-7 | box | -0.432..0.432 | 2.27975..2.29775 | -0.288..0.277 | side-left,side-right,back |
-| @part | tall/900x2650x600/delivered | stile-1 | box | -0.009..0.009 | 0.098..2.632 | 0.259..0.277 | bottom,top |
-| @part | tall/900x2650x600/delivered | door-0 | box | -0.447..-0.0015 | 0.083..2.647 | 0.282..0.3 | hinge-0,hinge-1 |
-| @part | tall/900x2650x600/delivered | hinge-0 | curved | -0.442..-0.426 | 0.14..0.18 | 0.277..0.299 | door-0,side-left |
-| @part | tall/900x2650x600/delivered | hinge-1 | curved | -0.442..-0.426 | 2.47..2.51 | 0.277..0.299 | door-0,side-left |
-| @part | tall/900x2650x600/delivered | handle-0 | box | -0.0625..-0.0505 | 1.4132..1.5732 | 0.284..0.3 | door-0 |
-| @part | tall/900x2650x600/delivered | door-1 | box | 0.0015..0.447 | 0.083..2.647 | 0.282..0.3 | hinge-2,hinge-3 |
-| @part | tall/900x2650x600/delivered | hinge-2 | curved | 0.426..0.442 | 0.14..0.18 | 0.277..0.299 | door-1,side-right |
-| @part | tall/900x2650x600/delivered | hinge-3 | curved | 0.426..0.442 | 2.47..2.51 | 0.277..0.299 | door-1,side-right |
-| @part | tall/900x2650x600/delivered | handle-1 | box | 0.0505..0.0625 | 1.4132..1.5732 | 0.284..0.3 | door-1 |
+| @envelope | tall/520x2250x520/open | * | bounds | -0.26..0.26 | 0..2.25 | -0.26..0.4935 | - |
+| @part | tall/520x2250x520/open | back | box | -0.26..0.26 | 0.08..2.232 | -0.26..-0.248 | toe,bottom,top |
+| @part | tall/520x2250x520/open | bottom | box | -0.26..0.26 | 0.08..0.098 | -0.248..0.237 | back,side-left,side-right |
+| @part | tall/520x2250x520/open | top | box | -0.26..0.26 | 2.232..2.25 | -0.26..0.237 | back,side-left,side-right |
+| @part | tall/520x2250x520/open | side-left | box | -0.26..-0.242 | 0.098..2.232 | -0.248..0.237 | back,bottom,top |
+| @part | tall/520x2250x520/open | side-right | box | 0.242..0.26 | 0.098..2.232 | -0.248..0.237 | back,bottom,top |
+| @part | tall/520x2250x520/open | toe | box | -0.26..0.26 | 0..0.08 | -0.26..0.21 | ground,back,bottom |
+| @part | tall/520x2250x520/open | shelf-1 | box | -0.242..0.242 | 0.341..0.359 | -0.248..0.237 | side-left,side-right,back |
+| @part | tall/520x2250x520/open | shelf-2 | box | -0.242..0.242 | 0.651..0.669 | -0.248..0.237 | side-left,side-right,back |
+| @part | tall/520x2250x520/open | shelf-3 | box | -0.242..0.242 | 0.961..0.979 | -0.248..0.237 | side-left,side-right,back |
+| @part | tall/520x2250x520/open | shelf-4 | box | -0.242..0.242 | 1.271..1.289 | -0.248..0.237 | side-left,side-right,back |
+| @part | tall/520x2250x520/open | shelf-5 | box | -0.242..0.242 | 1.581..1.599 | -0.248..0.237 | side-left,side-right,back |
+| @part | tall/520x2250x520/open | shelf-6 | box | -0.242..0.242 | 1.891..1.909 | -0.248..0.237 | side-left,side-right,back |
+| @part | tall/520x2250x520/open | stile-1 | box | -0.009..0.009 | 0.098..2.232 | 0.219..0.237 | bottom,top |
+| @part | tall/520x2250x520/open | door-0 | box | -0.253..-0.235 | 0.083..2.247 | 0.238..0.4935 | hinge-0,hinge-1 |
+| @part | tall/520x2250x520/open | hinge-0 | curved | -0.252..-0.236 | 0.14..0.18 | 0.237..0.259 | door-0,side-left |
+| @part | tall/520x2250x520/open | hinge-1 | curved | -0.252..-0.236 | 2.07..2.11 | 0.237..0.259 | door-0,side-left |
+| @part | tall/520x2250x520/open | handle-0 | box | -0.253..-0.237 | 1.1932..1.3532 | 0.4325..0.4445 | door-0 |
+| @part | tall/520x2250x520/open | door-1 | box | 0.235..0.253 | 0.083..2.247 | 0.238..0.4935 | hinge-2,hinge-3 |
+| @part | tall/520x2250x520/open | hinge-2 | curved | 0.236..0.252 | 0.14..0.18 | 0.237..0.259 | door-1,side-right |
+| @part | tall/520x2250x520/open | hinge-3 | curved | 0.236..0.252 | 2.07..2.11 | 0.237..0.259 | door-1,side-right |
+| @part | tall/520x2250x520/open | handle-1 | box | 0.237..0.253 | 1.1932..1.3532 | 0.4325..0.4445 | door-1 |
 
-@inventory tall/900x2650x600/inspection-open: back, bottom, top, side-left, side-right, toe, shelf-1, shelf-2, shelf-3, shelf-4, shelf-5, shelf-6, shelf-7, stile-1, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1
+@inventory tall/600x2300x500/closed: back, bottom, top, side-left, side-right, toe, shelf-1, shelf-2, shelf-3, shelf-4, shelf-5, shelf-6, stile-1, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1
 
-@void tall/900x2650x600/inspection-open: shelf-1, -0.009..0.009, 0.35225..0.37025, 0.259..0.277
-@void tall/900x2650x600/inspection-open: shelf-2, -0.009..0.009, 0.6735..0.6915, 0.259..0.277
-@void tall/900x2650x600/inspection-open: shelf-3, -0.009..0.009, 0.99475..1.01275, 0.259..0.277
-@void tall/900x2650x600/inspection-open: shelf-4, -0.009..0.009, 1.316..1.334, 0.259..0.277
-@void tall/900x2650x600/inspection-open: shelf-5, -0.009..0.009, 1.63725..1.65525, 0.259..0.277
-@void tall/900x2650x600/inspection-open: shelf-6, -0.009..0.009, 1.9585..1.9765, 0.259..0.277
-@void tall/900x2650x600/inspection-open: shelf-7, -0.009..0.009, 2.27975..2.29775, 0.259..0.277
-@void tall/900x2650x600/inspection-open: door-0, -0.442..-0.425, 0.14..0.18, 0.283..0.299
-@void tall/900x2650x600/inspection-open: door-0, -0.443..-0.425, 0.14..0.18, 0.278..0.299
-@void tall/900x2650x600/inspection-open: door-0, -0.442..-0.425, 2.47..2.51, 0.283..0.299
-@void tall/900x2650x600/inspection-open: door-0, -0.443..-0.425, 2.47..2.51, 0.278..0.299
-@void tall/900x2650x600/inspection-open: door-0, -0.443..-0.427, 1.4132..1.5732, 0.6625..0.6745
-@void tall/900x2650x600/inspection-open: door-1, 0.425..0.442, 0.14..0.18, 0.283..0.299
-@void tall/900x2650x600/inspection-open: door-1, 0.425..0.443, 0.14..0.18, 0.278..0.299
-@void tall/900x2650x600/inspection-open: door-1, 0.425..0.442, 2.47..2.51, 0.283..0.299
-@void tall/900x2650x600/inspection-open: door-1, 0.425..0.443, 2.47..2.51, 0.278..0.299
-@void tall/900x2650x600/inspection-open: door-1, 0.427..0.443, 1.4132..1.5732, 0.6625..0.6745
-@piece tall/900x2650x600/inspection-open: hinge-0, -0.442..-0.426, 0.14..0.18, 0.277..0.282
-@piece tall/900x2650x600/inspection-open: hinge-0, -0.442..-0.426, 0.14..0.18, 0.282..0.299
-@piece tall/900x2650x600/inspection-open: hinge-1, -0.442..-0.426, 2.47..2.51, 0.277..0.282
-@piece tall/900x2650x600/inspection-open: hinge-1, -0.442..-0.426, 2.47..2.51, 0.282..0.299
-@piece tall/900x2650x600/inspection-open: hinge-2, 0.426..0.442, 0.14..0.18, 0.277..0.282
-@piece tall/900x2650x600/inspection-open: hinge-2, 0.426..0.442, 0.14..0.18, 0.282..0.299
-@piece tall/900x2650x600/inspection-open: hinge-3, 0.426..0.442, 2.47..2.51, 0.277..0.282
-@piece tall/900x2650x600/inspection-open: hinge-3, 0.426..0.442, 2.47..2.51, 0.282..0.299
+@void tall/600x2300x500/closed: shelf-1, -0.009..0.009, 0.348143..0.366143, 0.209..0.227
+@void tall/600x2300x500/closed: shelf-2, -0.009..0.009, 0.665286..0.683286, 0.209..0.227
+@void tall/600x2300x500/closed: shelf-3, -0.009..0.009, 0.982429..1.000429, 0.209..0.227
+@void tall/600x2300x500/closed: shelf-4, -0.009..0.009, 1.299571..1.317571, 0.209..0.227
+@void tall/600x2300x500/closed: shelf-5, -0.009..0.009, 1.616714..1.634714, 0.209..0.227
+@void tall/600x2300x500/closed: shelf-6, -0.009..0.009, 1.933857..1.951857, 0.209..0.227
+@void tall/600x2300x500/closed: door-0, -0.292..-0.276, 0.14..0.18, 0.232..0.249
+@void tall/600x2300x500/closed: door-0, -0.292..-0.276, 2.12..2.16, 0.232..0.249
+@void tall/600x2300x500/closed: door-0, -0.0625..-0.0505, 1.2207..1.3807, 0.234..0.25
+@void tall/600x2300x500/closed: door-1, 0.276..0.292, 0.14..0.18, 0.232..0.249
+@void tall/600x2300x500/closed: door-1, 0.276..0.292, 2.12..2.16, 0.232..0.249
+@void tall/600x2300x500/closed: door-1, 0.0505..0.0625, 1.2207..1.3807, 0.234..0.25
+@piece tall/600x2300x500/closed: hinge-0, -0.292..-0.276, 0.14..0.18, 0.227..0.232
+@piece tall/600x2300x500/closed: hinge-0, -0.292..-0.276, 0.14..0.18, 0.232..0.249
+@piece tall/600x2300x500/closed: hinge-1, -0.292..-0.276, 2.12..2.16, 0.227..0.232
+@piece tall/600x2300x500/closed: hinge-1, -0.292..-0.276, 2.12..2.16, 0.232..0.249
+@piece tall/600x2300x500/closed: hinge-2, 0.276..0.292, 0.14..0.18, 0.227..0.232
+@piece tall/600x2300x500/closed: hinge-2, 0.276..0.292, 0.14..0.18, 0.232..0.249
+@piece tall/600x2300x500/closed: hinge-3, 0.276..0.292, 2.12..2.16, 0.227..0.232
+@piece tall/600x2300x500/closed: hinge-3, 0.276..0.292, 2.12..2.16, 0.232..0.249
 | kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| @envelope | tall/900x2650x600/inspection-open | * | bounds | -0.45..0.45 | 0..2.65 | -0.3..0.7235 | - |
-| @part | tall/900x2650x600/inspection-open | back | box | -0.45..0.45 | 0.08..2.632 | -0.3..-0.288 | toe,bottom,top |
-| @part | tall/900x2650x600/inspection-open | bottom | box | -0.45..0.45 | 0.08..0.098 | -0.288..0.277 | back,side-left,side-right |
-| @part | tall/900x2650x600/inspection-open | top | box | -0.45..0.45 | 2.632..2.65 | -0.3..0.277 | back,side-left,side-right |
-| @part | tall/900x2650x600/inspection-open | side-left | box | -0.45..-0.432 | 0.098..2.632 | -0.288..0.277 | back,bottom,top |
-| @part | tall/900x2650x600/inspection-open | side-right | box | 0.432..0.45 | 0.098..2.632 | -0.288..0.277 | back,bottom,top |
-| @part | tall/900x2650x600/inspection-open | toe | box | -0.45..0.45 | 0..0.08 | -0.3..0.25 | ground,back,bottom |
-| @part | tall/900x2650x600/inspection-open | shelf-1 | box | -0.432..0.432 | 0.35225..0.37025 | -0.288..0.277 | side-left,side-right,back |
-| @part | tall/900x2650x600/inspection-open | shelf-2 | box | -0.432..0.432 | 0.6735..0.6915 | -0.288..0.277 | side-left,side-right,back |
-| @part | tall/900x2650x600/inspection-open | shelf-3 | box | -0.432..0.432 | 0.99475..1.01275 | -0.288..0.277 | side-left,side-right,back |
-| @part | tall/900x2650x600/inspection-open | shelf-4 | box | -0.432..0.432 | 1.316..1.334 | -0.288..0.277 | side-left,side-right,back |
-| @part | tall/900x2650x600/inspection-open | shelf-5 | box | -0.432..0.432 | 1.63725..1.65525 | -0.288..0.277 | side-left,side-right,back |
-| @part | tall/900x2650x600/inspection-open | shelf-6 | box | -0.432..0.432 | 1.9585..1.9765 | -0.288..0.277 | side-left,side-right,back |
-| @part | tall/900x2650x600/inspection-open | shelf-7 | box | -0.432..0.432 | 2.27975..2.29775 | -0.288..0.277 | side-left,side-right,back |
-| @part | tall/900x2650x600/inspection-open | stile-1 | box | -0.009..0.009 | 0.098..2.632 | 0.259..0.277 | bottom,top |
-| @part | tall/900x2650x600/inspection-open | door-0 | box | -0.443..-0.425 | 0.083..2.647 | 0.278..0.7235 | hinge-0,hinge-1 |
-| @part | tall/900x2650x600/inspection-open | hinge-0 | curved | -0.442..-0.426 | 0.14..0.18 | 0.277..0.299 | door-0,side-left |
-| @part | tall/900x2650x600/inspection-open | hinge-1 | curved | -0.442..-0.426 | 2.47..2.51 | 0.277..0.299 | door-0,side-left |
-| @part | tall/900x2650x600/inspection-open | handle-0 | box | -0.443..-0.427 | 1.4132..1.5732 | 0.6625..0.6745 | door-0 |
-| @part | tall/900x2650x600/inspection-open | door-1 | box | 0.425..0.443 | 0.083..2.647 | 0.278..0.7235 | hinge-2,hinge-3 |
-| @part | tall/900x2650x600/inspection-open | hinge-2 | curved | 0.426..0.442 | 0.14..0.18 | 0.277..0.299 | door-1,side-right |
-| @part | tall/900x2650x600/inspection-open | hinge-3 | curved | 0.426..0.442 | 2.47..2.51 | 0.277..0.299 | door-1,side-right |
-| @part | tall/900x2650x600/inspection-open | handle-1 | box | 0.427..0.443 | 1.4132..1.5732 | 0.6625..0.6745 | door-1 |
+| @envelope | tall/600x2300x500/closed | * | bounds | -0.3..0.3 | 0..2.3 | -0.25..0.25 | - |
+| @part | tall/600x2300x500/closed | back | box | -0.3..0.3 | 0.08..2.282 | -0.25..-0.238 | toe,bottom,top |
+| @part | tall/600x2300x500/closed | bottom | box | -0.3..0.3 | 0.08..0.098 | -0.238..0.227 | back,side-left,side-right |
+| @part | tall/600x2300x500/closed | top | box | -0.3..0.3 | 2.282..2.3 | -0.25..0.227 | back,side-left,side-right |
+| @part | tall/600x2300x500/closed | side-left | box | -0.3..-0.282 | 0.098..2.282 | -0.238..0.227 | back,bottom,top |
+| @part | tall/600x2300x500/closed | side-right | box | 0.282..0.3 | 0.098..2.282 | -0.238..0.227 | back,bottom,top |
+| @part | tall/600x2300x500/closed | toe | box | -0.3..0.3 | 0..0.08 | -0.25..0.2 | ground,back,bottom |
+| @part | tall/600x2300x500/closed | shelf-1 | box | -0.282..0.282 | 0.348143..0.366143 | -0.238..0.227 | side-left,side-right,back |
+| @part | tall/600x2300x500/closed | shelf-2 | box | -0.282..0.282 | 0.665286..0.683286 | -0.238..0.227 | side-left,side-right,back |
+| @part | tall/600x2300x500/closed | shelf-3 | box | -0.282..0.282 | 0.982429..1.000429 | -0.238..0.227 | side-left,side-right,back |
+| @part | tall/600x2300x500/closed | shelf-4 | box | -0.282..0.282 | 1.299571..1.317571 | -0.238..0.227 | side-left,side-right,back |
+| @part | tall/600x2300x500/closed | shelf-5 | box | -0.282..0.282 | 1.616714..1.634714 | -0.238..0.227 | side-left,side-right,back |
+| @part | tall/600x2300x500/closed | shelf-6 | box | -0.282..0.282 | 1.933857..1.951857 | -0.238..0.227 | side-left,side-right,back |
+| @part | tall/600x2300x500/closed | stile-1 | box | -0.009..0.009 | 0.098..2.282 | 0.209..0.227 | bottom,top |
+| @part | tall/600x2300x500/closed | door-0 | box | -0.297..-0.0015 | 0.083..2.297 | 0.232..0.25 | hinge-0,hinge-1 |
+| @part | tall/600x2300x500/closed | hinge-0 | curved | -0.292..-0.276 | 0.14..0.18 | 0.227..0.249 | door-0,side-left |
+| @part | tall/600x2300x500/closed | hinge-1 | curved | -0.292..-0.276 | 2.12..2.16 | 0.227..0.249 | door-0,side-left |
+| @part | tall/600x2300x500/closed | handle-0 | box | -0.0625..-0.0505 | 1.2207..1.3807 | 0.234..0.25 | door-0 |
+| @part | tall/600x2300x500/closed | door-1 | box | 0.0015..0.297 | 0.083..2.297 | 0.232..0.25 | hinge-2,hinge-3 |
+| @part | tall/600x2300x500/closed | hinge-2 | curved | 0.276..0.292 | 0.14..0.18 | 0.227..0.249 | door-1,side-right |
+| @part | tall/600x2300x500/closed | hinge-3 | curved | 0.276..0.292 | 2.12..2.16 | 0.227..0.249 | door-1,side-right |
+| @part | tall/600x2300x500/closed | handle-1 | box | 0.0505..0.0625 | 1.2207..1.3807 | 0.234..0.25 | door-1 |
 
-@inventory vanity/1000x800x480/delivered: back, bottom, top, side-left, side-right, toe, fixed-front, drawer-0, runner-0-left, runner-0-right, handle-0, drawer-1, runner-1-left, runner-1-right, handle-1
+@inventory tall/600x2300x500/open: back, bottom, top, side-left, side-right, toe, shelf-1, shelf-2, shelf-3, shelf-4, shelf-5, shelf-6, stile-1, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1
 
-@void vanity/1000x800x480/delivered: top, -0.36..0.36, 0.782..0.8, -0.145..0.195
-@void vanity/1000x800x480/delivered: fixed-front, -0.497..0.497, 0.127..0.373, 0.217..0.24
-@void vanity/1000x800x480/delivered: drawer-0, -0.08..0.08, 0.244..0.256, 0.224..0.24
-@void vanity/1000x800x480/delivered: fixed-front, -0.497..0.497, 0.447..0.693, 0.217..0.24
-@void vanity/1000x800x480/delivered: drawer-1, -0.08..0.08, 0.564..0.576, 0.224..0.24
-@piece vanity/1000x800x480/delivered: drawer-0, -0.494..0.494, 0.13..0.37, 0.222..0.24
-@piece vanity/1000x800x480/delivered: drawer-0, -0.479..0.479, 0.145..0.157, -0.22..0.222
-@piece vanity/1000x800x480/delivered: drawer-0, -0.479..-0.467, 0.157..0.36, -0.22..0.222
-@piece vanity/1000x800x480/delivered: drawer-0, 0.467..0.479, 0.157..0.36, -0.22..0.222
-@piece vanity/1000x800x480/delivered: drawer-0, -0.467..0.467, 0.157..0.36, -0.22..-0.208
-@piece vanity/1000x800x480/delivered: drawer-1, -0.494..0.494, 0.45..0.69, 0.222..0.24
-@piece vanity/1000x800x480/delivered: drawer-1, -0.479..0.479, 0.465..0.477, -0.22..0.222
-@piece vanity/1000x800x480/delivered: drawer-1, -0.479..-0.467, 0.477..0.68, -0.22..0.222
-@piece vanity/1000x800x480/delivered: drawer-1, 0.467..0.479, 0.477..0.68, -0.22..0.222
-@piece vanity/1000x800x480/delivered: drawer-1, -0.467..0.467, 0.477..0.68, -0.22..-0.208
+@void tall/600x2300x500/open: shelf-1, -0.009..0.009, 0.348143..0.366143, 0.209..0.227
+@void tall/600x2300x500/open: shelf-2, -0.009..0.009, 0.665286..0.683286, 0.209..0.227
+@void tall/600x2300x500/open: shelf-3, -0.009..0.009, 0.982429..1.000429, 0.209..0.227
+@void tall/600x2300x500/open: shelf-4, -0.009..0.009, 1.299571..1.317571, 0.209..0.227
+@void tall/600x2300x500/open: shelf-5, -0.009..0.009, 1.616714..1.634714, 0.209..0.227
+@void tall/600x2300x500/open: shelf-6, -0.009..0.009, 1.933857..1.951857, 0.209..0.227
+@void tall/600x2300x500/open: door-0, -0.292..-0.275, 0.14..0.18, 0.233..0.249
+@void tall/600x2300x500/open: door-0, -0.293..-0.275, 0.14..0.18, 0.228..0.249
+@void tall/600x2300x500/open: door-0, -0.292..-0.275, 2.12..2.16, 0.233..0.249
+@void tall/600x2300x500/open: door-0, -0.293..-0.275, 2.12..2.16, 0.228..0.249
+@void tall/600x2300x500/open: door-0, -0.293..-0.277, 1.2207..1.3807, 0.4625..0.4745
+@void tall/600x2300x500/open: door-1, 0.275..0.292, 0.14..0.18, 0.233..0.249
+@void tall/600x2300x500/open: door-1, 0.275..0.293, 0.14..0.18, 0.228..0.249
+@void tall/600x2300x500/open: door-1, 0.275..0.292, 2.12..2.16, 0.233..0.249
+@void tall/600x2300x500/open: door-1, 0.275..0.293, 2.12..2.16, 0.228..0.249
+@void tall/600x2300x500/open: door-1, 0.277..0.293, 1.2207..1.3807, 0.4625..0.4745
+@piece tall/600x2300x500/open: hinge-0, -0.292..-0.276, 0.14..0.18, 0.227..0.232
+@piece tall/600x2300x500/open: hinge-0, -0.292..-0.276, 0.14..0.18, 0.232..0.249
+@piece tall/600x2300x500/open: hinge-1, -0.292..-0.276, 2.12..2.16, 0.227..0.232
+@piece tall/600x2300x500/open: hinge-1, -0.292..-0.276, 2.12..2.16, 0.232..0.249
+@piece tall/600x2300x500/open: hinge-2, 0.276..0.292, 0.14..0.18, 0.227..0.232
+@piece tall/600x2300x500/open: hinge-2, 0.276..0.292, 0.14..0.18, 0.232..0.249
+@piece tall/600x2300x500/open: hinge-3, 0.276..0.292, 2.12..2.16, 0.227..0.232
+@piece tall/600x2300x500/open: hinge-3, 0.276..0.292, 2.12..2.16, 0.232..0.249
 | kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| @envelope | vanity/1000x800x480/delivered | * | bounds | -0.5..0.5 | 0..0.8 | -0.24..0.24 | - |
-| @part | vanity/1000x800x480/delivered | back | box | -0.5..0.5 | 0.08..0.782 | -0.24..-0.228 | toe,bottom,top |
-| @part | vanity/1000x800x480/delivered | bottom | box | -0.5..0.5 | 0.08..0.098 | -0.228..0.217 | back,side-left,side-right |
-| @part | vanity/1000x800x480/delivered | top | box | -0.5..0.5 | 0.782..0.8 | -0.24..0.217 | back,side-left,side-right |
-| @part | vanity/1000x800x480/delivered | side-left | box | -0.5..-0.482 | 0.098..0.782 | -0.228..0.217 | back,bottom,top |
-| @part | vanity/1000x800x480/delivered | side-right | box | 0.482..0.5 | 0.098..0.782 | -0.228..0.217 | back,bottom,top |
-| @part | vanity/1000x800x480/delivered | toe | box | -0.5..0.5 | 0..0.08 | -0.24..0.19 | ground,back,bottom |
-| @part | vanity/1000x800x480/delivered | fixed-front | box | -0.5..0.5 | 0.08..0.782 | 0.217..0.24 | side-left,side-right |
-| @part | vanity/1000x800x480/delivered | drawer-0 | hollow | -0.494..0.494 | 0.13..0.37 | -0.22..0.24 | runner-0-left,runner-0-right,handle-0 |
-| @part | vanity/1000x800x480/delivered | runner-0-left | box | -0.482..-0.479 | 0.157..0.169 | -0.22..0.217 | side-left,drawer-0 |
-| @part | vanity/1000x800x480/delivered | runner-0-right | box | 0.479..0.482 | 0.157..0.169 | -0.22..0.217 | side-right,drawer-0 |
-| @part | vanity/1000x800x480/delivered | handle-0 | box | -0.08..0.08 | 0.244..0.256 | 0.224..0.24 | drawer-0 |
-| @part | vanity/1000x800x480/delivered | drawer-1 | hollow | -0.494..0.494 | 0.45..0.69 | -0.22..0.24 | runner-1-left,runner-1-right,handle-1 |
-| @part | vanity/1000x800x480/delivered | runner-1-left | box | -0.482..-0.479 | 0.477..0.489 | -0.22..0.217 | side-left,drawer-1 |
-| @part | vanity/1000x800x480/delivered | runner-1-right | box | 0.479..0.482 | 0.477..0.489 | -0.22..0.217 | side-right,drawer-1 |
-| @part | vanity/1000x800x480/delivered | handle-1 | box | -0.08..0.08 | 0.564..0.576 | 0.224..0.24 | drawer-1 |
+| @envelope | tall/600x2300x500/open | * | bounds | -0.3..0.3 | 0..2.3 | -0.25..0.5235 | - |
+| @part | tall/600x2300x500/open | back | box | -0.3..0.3 | 0.08..2.282 | -0.25..-0.238 | toe,bottom,top |
+| @part | tall/600x2300x500/open | bottom | box | -0.3..0.3 | 0.08..0.098 | -0.238..0.227 | back,side-left,side-right |
+| @part | tall/600x2300x500/open | top | box | -0.3..0.3 | 2.282..2.3 | -0.25..0.227 | back,side-left,side-right |
+| @part | tall/600x2300x500/open | side-left | box | -0.3..-0.282 | 0.098..2.282 | -0.238..0.227 | back,bottom,top |
+| @part | tall/600x2300x500/open | side-right | box | 0.282..0.3 | 0.098..2.282 | -0.238..0.227 | back,bottom,top |
+| @part | tall/600x2300x500/open | toe | box | -0.3..0.3 | 0..0.08 | -0.25..0.2 | ground,back,bottom |
+| @part | tall/600x2300x500/open | shelf-1 | box | -0.282..0.282 | 0.348143..0.366143 | -0.238..0.227 | side-left,side-right,back |
+| @part | tall/600x2300x500/open | shelf-2 | box | -0.282..0.282 | 0.665286..0.683286 | -0.238..0.227 | side-left,side-right,back |
+| @part | tall/600x2300x500/open | shelf-3 | box | -0.282..0.282 | 0.982429..1.000429 | -0.238..0.227 | side-left,side-right,back |
+| @part | tall/600x2300x500/open | shelf-4 | box | -0.282..0.282 | 1.299571..1.317571 | -0.238..0.227 | side-left,side-right,back |
+| @part | tall/600x2300x500/open | shelf-5 | box | -0.282..0.282 | 1.616714..1.634714 | -0.238..0.227 | side-left,side-right,back |
+| @part | tall/600x2300x500/open | shelf-6 | box | -0.282..0.282 | 1.933857..1.951857 | -0.238..0.227 | side-left,side-right,back |
+| @part | tall/600x2300x500/open | stile-1 | box | -0.009..0.009 | 0.098..2.282 | 0.209..0.227 | bottom,top |
+| @part | tall/600x2300x500/open | door-0 | box | -0.293..-0.275 | 0.083..2.297 | 0.228..0.5235 | hinge-0,hinge-1 |
+| @part | tall/600x2300x500/open | hinge-0 | curved | -0.292..-0.276 | 0.14..0.18 | 0.227..0.249 | door-0,side-left |
+| @part | tall/600x2300x500/open | hinge-1 | curved | -0.292..-0.276 | 2.12..2.16 | 0.227..0.249 | door-0,side-left |
+| @part | tall/600x2300x500/open | handle-0 | box | -0.293..-0.277 | 1.2207..1.3807 | 0.4625..0.4745 | door-0 |
+| @part | tall/600x2300x500/open | door-1 | box | 0.275..0.293 | 0.083..2.297 | 0.228..0.5235 | hinge-2,hinge-3 |
+| @part | tall/600x2300x500/open | hinge-2 | curved | 0.276..0.292 | 0.14..0.18 | 0.227..0.249 | door-1,side-right |
+| @part | tall/600x2300x500/open | hinge-3 | curved | 0.276..0.292 | 2.12..2.16 | 0.227..0.249 | door-1,side-right |
+| @part | tall/600x2300x500/open | handle-1 | box | 0.277..0.293 | 1.2207..1.3807 | 0.4625..0.4745 | door-1 |
 
-@inventory vanity/800x800x480/delivered: back, bottom, top, side-left, side-right, toe, fixed-front, drawer-0, runner-0-left, runner-0-right, handle-0, drawer-1, runner-1-left, runner-1-right, handle-1
+@inventory tall/900x2650x600/closed: back, bottom, top, side-left, side-right, toe, shelf-1, shelf-2, shelf-3, shelf-4, shelf-5, shelf-6, shelf-7, stile-1, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1
 
-@void vanity/800x800x480/delivered: top, -0.292..0.292, 0.782..0.8, -0.145..0.195
-@void vanity/800x800x480/delivered: fixed-front, -0.397..0.397, 0.127..0.373, 0.217..0.24
-@void vanity/800x800x480/delivered: drawer-0, -0.08..0.08, 0.244..0.256, 0.224..0.24
-@void vanity/800x800x480/delivered: fixed-front, -0.397..0.397, 0.447..0.693, 0.217..0.24
-@void vanity/800x800x480/delivered: drawer-1, -0.08..0.08, 0.564..0.576, 0.224..0.24
-@piece vanity/800x800x480/delivered: drawer-0, -0.394..0.394, 0.13..0.37, 0.222..0.24
-@piece vanity/800x800x480/delivered: drawer-0, -0.379..0.379, 0.145..0.157, -0.22..0.222
-@piece vanity/800x800x480/delivered: drawer-0, -0.379..-0.367, 0.157..0.36, -0.22..0.222
-@piece vanity/800x800x480/delivered: drawer-0, 0.367..0.379, 0.157..0.36, -0.22..0.222
-@piece vanity/800x800x480/delivered: drawer-0, -0.367..0.367, 0.157..0.36, -0.22..-0.208
-@piece vanity/800x800x480/delivered: drawer-1, -0.394..0.394, 0.45..0.69, 0.222..0.24
-@piece vanity/800x800x480/delivered: drawer-1, -0.379..0.379, 0.465..0.477, -0.22..0.222
-@piece vanity/800x800x480/delivered: drawer-1, -0.379..-0.367, 0.477..0.68, -0.22..0.222
-@piece vanity/800x800x480/delivered: drawer-1, 0.367..0.379, 0.477..0.68, -0.22..0.222
-@piece vanity/800x800x480/delivered: drawer-1, -0.367..0.367, 0.477..0.68, -0.22..-0.208
+@void tall/900x2650x600/closed: shelf-1, -0.009..0.009, 0.35225..0.37025, 0.259..0.277
+@void tall/900x2650x600/closed: shelf-2, -0.009..0.009, 0.6735..0.6915, 0.259..0.277
+@void tall/900x2650x600/closed: shelf-3, -0.009..0.009, 0.99475..1.01275, 0.259..0.277
+@void tall/900x2650x600/closed: shelf-4, -0.009..0.009, 1.316..1.334, 0.259..0.277
+@void tall/900x2650x600/closed: shelf-5, -0.009..0.009, 1.63725..1.65525, 0.259..0.277
+@void tall/900x2650x600/closed: shelf-6, -0.009..0.009, 1.9585..1.9765, 0.259..0.277
+@void tall/900x2650x600/closed: shelf-7, -0.009..0.009, 2.27975..2.29775, 0.259..0.277
+@void tall/900x2650x600/closed: door-0, -0.442..-0.426, 0.14..0.18, 0.282..0.299
+@void tall/900x2650x600/closed: door-0, -0.442..-0.426, 2.47..2.51, 0.282..0.299
+@void tall/900x2650x600/closed: door-0, -0.0625..-0.0505, 1.4132..1.5732, 0.284..0.3
+@void tall/900x2650x600/closed: door-1, 0.426..0.442, 0.14..0.18, 0.282..0.299
+@void tall/900x2650x600/closed: door-1, 0.426..0.442, 2.47..2.51, 0.282..0.299
+@void tall/900x2650x600/closed: door-1, 0.0505..0.0625, 1.4132..1.5732, 0.284..0.3
+@piece tall/900x2650x600/closed: hinge-0, -0.442..-0.426, 0.14..0.18, 0.277..0.282
+@piece tall/900x2650x600/closed: hinge-0, -0.442..-0.426, 0.14..0.18, 0.282..0.299
+@piece tall/900x2650x600/closed: hinge-1, -0.442..-0.426, 2.47..2.51, 0.277..0.282
+@piece tall/900x2650x600/closed: hinge-1, -0.442..-0.426, 2.47..2.51, 0.282..0.299
+@piece tall/900x2650x600/closed: hinge-2, 0.426..0.442, 0.14..0.18, 0.277..0.282
+@piece tall/900x2650x600/closed: hinge-2, 0.426..0.442, 0.14..0.18, 0.282..0.299
+@piece tall/900x2650x600/closed: hinge-3, 0.426..0.442, 2.47..2.51, 0.277..0.282
+@piece tall/900x2650x600/closed: hinge-3, 0.426..0.442, 2.47..2.51, 0.282..0.299
 | kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| @envelope | vanity/800x800x480/delivered | * | bounds | -0.4..0.4 | 0..0.8 | -0.24..0.24 | - |
-| @part | vanity/800x800x480/delivered | back | box | -0.4..0.4 | 0.08..0.782 | -0.24..-0.228 | toe,bottom,top |
-| @part | vanity/800x800x480/delivered | bottom | box | -0.4..0.4 | 0.08..0.098 | -0.228..0.217 | back,side-left,side-right |
-| @part | vanity/800x800x480/delivered | top | box | -0.4..0.4 | 0.782..0.8 | -0.24..0.217 | back,side-left,side-right |
-| @part | vanity/800x800x480/delivered | side-left | box | -0.4..-0.382 | 0.098..0.782 | -0.228..0.217 | back,bottom,top |
-| @part | vanity/800x800x480/delivered | side-right | box | 0.382..0.4 | 0.098..0.782 | -0.228..0.217 | back,bottom,top |
-| @part | vanity/800x800x480/delivered | toe | box | -0.4..0.4 | 0..0.08 | -0.24..0.19 | ground,back,bottom |
-| @part | vanity/800x800x480/delivered | fixed-front | box | -0.4..0.4 | 0.08..0.782 | 0.217..0.24 | side-left,side-right |
-| @part | vanity/800x800x480/delivered | drawer-0 | hollow | -0.394..0.394 | 0.13..0.37 | -0.22..0.24 | runner-0-left,runner-0-right,handle-0 |
-| @part | vanity/800x800x480/delivered | runner-0-left | box | -0.382..-0.379 | 0.157..0.169 | -0.22..0.217 | side-left,drawer-0 |
-| @part | vanity/800x800x480/delivered | runner-0-right | box | 0.379..0.382 | 0.157..0.169 | -0.22..0.217 | side-right,drawer-0 |
-| @part | vanity/800x800x480/delivered | handle-0 | box | -0.08..0.08 | 0.244..0.256 | 0.224..0.24 | drawer-0 |
-| @part | vanity/800x800x480/delivered | drawer-1 | hollow | -0.394..0.394 | 0.45..0.69 | -0.22..0.24 | runner-1-left,runner-1-right,handle-1 |
-| @part | vanity/800x800x480/delivered | runner-1-left | box | -0.382..-0.379 | 0.477..0.489 | -0.22..0.217 | side-left,drawer-1 |
-| @part | vanity/800x800x480/delivered | runner-1-right | box | 0.379..0.382 | 0.477..0.489 | -0.22..0.217 | side-right,drawer-1 |
-| @part | vanity/800x800x480/delivered | handle-1 | box | -0.08..0.08 | 0.564..0.576 | 0.224..0.24 | drawer-1 |
+| @envelope | tall/900x2650x600/closed | * | bounds | -0.45..0.45 | 0..2.65 | -0.3..0.3 | - |
+| @part | tall/900x2650x600/closed | back | box | -0.45..0.45 | 0.08..2.632 | -0.3..-0.288 | toe,bottom,top |
+| @part | tall/900x2650x600/closed | bottom | box | -0.45..0.45 | 0.08..0.098 | -0.288..0.277 | back,side-left,side-right |
+| @part | tall/900x2650x600/closed | top | box | -0.45..0.45 | 2.632..2.65 | -0.3..0.277 | back,side-left,side-right |
+| @part | tall/900x2650x600/closed | side-left | box | -0.45..-0.432 | 0.098..2.632 | -0.288..0.277 | back,bottom,top |
+| @part | tall/900x2650x600/closed | side-right | box | 0.432..0.45 | 0.098..2.632 | -0.288..0.277 | back,bottom,top |
+| @part | tall/900x2650x600/closed | toe | box | -0.45..0.45 | 0..0.08 | -0.3..0.25 | ground,back,bottom |
+| @part | tall/900x2650x600/closed | shelf-1 | box | -0.432..0.432 | 0.35225..0.37025 | -0.288..0.277 | side-left,side-right,back |
+| @part | tall/900x2650x600/closed | shelf-2 | box | -0.432..0.432 | 0.6735..0.6915 | -0.288..0.277 | side-left,side-right,back |
+| @part | tall/900x2650x600/closed | shelf-3 | box | -0.432..0.432 | 0.99475..1.01275 | -0.288..0.277 | side-left,side-right,back |
+| @part | tall/900x2650x600/closed | shelf-4 | box | -0.432..0.432 | 1.316..1.334 | -0.288..0.277 | side-left,side-right,back |
+| @part | tall/900x2650x600/closed | shelf-5 | box | -0.432..0.432 | 1.63725..1.65525 | -0.288..0.277 | side-left,side-right,back |
+| @part | tall/900x2650x600/closed | shelf-6 | box | -0.432..0.432 | 1.9585..1.9765 | -0.288..0.277 | side-left,side-right,back |
+| @part | tall/900x2650x600/closed | shelf-7 | box | -0.432..0.432 | 2.27975..2.29775 | -0.288..0.277 | side-left,side-right,back |
+| @part | tall/900x2650x600/closed | stile-1 | box | -0.009..0.009 | 0.098..2.632 | 0.259..0.277 | bottom,top |
+| @part | tall/900x2650x600/closed | door-0 | box | -0.447..-0.0015 | 0.083..2.647 | 0.282..0.3 | hinge-0,hinge-1 |
+| @part | tall/900x2650x600/closed | hinge-0 | curved | -0.442..-0.426 | 0.14..0.18 | 0.277..0.299 | door-0,side-left |
+| @part | tall/900x2650x600/closed | hinge-1 | curved | -0.442..-0.426 | 2.47..2.51 | 0.277..0.299 | door-0,side-left |
+| @part | tall/900x2650x600/closed | handle-0 | box | -0.0625..-0.0505 | 1.4132..1.5732 | 0.284..0.3 | door-0 |
+| @part | tall/900x2650x600/closed | door-1 | box | 0.0015..0.447 | 0.083..2.647 | 0.282..0.3 | hinge-2,hinge-3 |
+| @part | tall/900x2650x600/closed | hinge-2 | curved | 0.426..0.442 | 0.14..0.18 | 0.277..0.299 | door-1,side-right |
+| @part | tall/900x2650x600/closed | hinge-3 | curved | 0.426..0.442 | 2.47..2.51 | 0.277..0.299 | door-1,side-right |
+| @part | tall/900x2650x600/closed | handle-1 | box | 0.0505..0.0625 | 1.4132..1.5732 | 0.284..0.3 | door-1 |
 
-@inventory wall/2900x980x360/delivered: back, bottom, top, side-left, side-right, cleat-0, cleat-1, fixed-front-bottom, shelf-1, shelf-2, stile-1, stile-2, stile-3, stile-4, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1, door-2, hinge-4, hinge-5, handle-2, door-3, hinge-6, hinge-7, handle-3, door-4, hinge-8, hinge-9, handle-4
+@inventory tall/900x2650x600/open: back, bottom, top, side-left, side-right, toe, shelf-1, shelf-2, shelf-3, shelf-4, shelf-5, shelf-6, shelf-7, stile-1, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1
 
-@void wall/2900x980x360/delivered: shelf-1, -0.8781..-0.8601, 0.317667..0.335667, 0.139..0.157
-@void wall/2900x980x360/delivered: shelf-2, -0.8781..-0.8601, 0.644333..0.662333, 0.139..0.157
-@void wall/2900x980x360/delivered: shelf-1, -0.2987..-0.2807, 0.317667..0.335667, 0.139..0.157
-@void wall/2900x980x360/delivered: shelf-2, -0.2987..-0.2807, 0.644333..0.662333, 0.139..0.157
-@void wall/2900x980x360/delivered: shelf-1, 0.2807..0.2987, 0.317667..0.335667, 0.139..0.157
-@void wall/2900x980x360/delivered: shelf-2, 0.2807..0.2987, 0.644333..0.662333, 0.139..0.157
-@void wall/2900x980x360/delivered: shelf-1, 0.8601..0.8781, 0.317667..0.335667, 0.139..0.157
-@void wall/2900x980x360/delivered: shelf-2, 0.8601..0.8781, 0.644333..0.662333, 0.139..0.157
-@void wall/2900x980x360/delivered: door-0, -1.442..-1.426, 0.14..0.18, 0.162..0.179
-@void wall/2900x980x360/delivered: door-0, -1.442..-1.426, 0.8..0.84, 0.162..0.179
-@void wall/2900x980x360/delivered: door-0, -0.9316..-0.9196, 0.4947..0.6547, 0.164..0.18
-@void wall/2900x980x360/delivered: door-1, -0.3122..-0.2962, 0.14..0.18, 0.162..0.179
-@void wall/2900x980x360/delivered: door-1, -0.3122..-0.2962, 0.8..0.84, 0.162..0.179
-@void wall/2900x980x360/delivered: door-1, -0.8186..-0.8066, 0.4947..0.6547, 0.164..0.18
-@void wall/2900x980x360/delivered: door-2, -0.2832..-0.2672, 0.14..0.18, 0.162..0.179
-@void wall/2900x980x360/delivered: door-2, -0.2832..-0.2672, 0.8..0.84, 0.162..0.179
-@void wall/2900x980x360/delivered: door-2, 0.2272..0.2392, 0.4947..0.6547, 0.164..0.18
-@void wall/2900x980x360/delivered: door-3, 0.8466..0.8626, 0.14..0.18, 0.162..0.179
-@void wall/2900x980x360/delivered: door-3, 0.8466..0.8626, 0.8..0.84, 0.162..0.179
-@void wall/2900x980x360/delivered: door-3, 0.3402..0.3522, 0.4947..0.6547, 0.164..0.18
-@void wall/2900x980x360/delivered: door-4, 0.8756..0.8916, 0.14..0.18, 0.162..0.179
-@void wall/2900x980x360/delivered: door-4, 0.8756..0.8916, 0.8..0.84, 0.162..0.179
-@void wall/2900x980x360/delivered: door-4, 1.386..1.398, 0.4947..0.6547, 0.164..0.18
-@piece wall/2900x980x360/delivered: hinge-0, -1.442..-1.426, 0.14..0.18, 0.157..0.162
-@piece wall/2900x980x360/delivered: hinge-0, -1.442..-1.426, 0.14..0.18, 0.162..0.179
-@piece wall/2900x980x360/delivered: hinge-1, -1.442..-1.426, 0.8..0.84, 0.157..0.162
-@piece wall/2900x980x360/delivered: hinge-1, -1.442..-1.426, 0.8..0.84, 0.162..0.179
-@piece wall/2900x980x360/delivered: hinge-2, -0.3122..-0.2962, 0.14..0.18, 0.157..0.162
-@piece wall/2900x980x360/delivered: hinge-2, -0.3122..-0.2962, 0.14..0.18, 0.162..0.179
-@piece wall/2900x980x360/delivered: hinge-3, -0.3122..-0.2962, 0.8..0.84, 0.157..0.162
-@piece wall/2900x980x360/delivered: hinge-3, -0.3122..-0.2962, 0.8..0.84, 0.162..0.179
-@piece wall/2900x980x360/delivered: hinge-4, -0.2832..-0.2672, 0.14..0.18, 0.157..0.162
-@piece wall/2900x980x360/delivered: hinge-4, -0.2832..-0.2672, 0.14..0.18, 0.162..0.179
-@piece wall/2900x980x360/delivered: hinge-5, -0.2832..-0.2672, 0.8..0.84, 0.157..0.162
-@piece wall/2900x980x360/delivered: hinge-5, -0.2832..-0.2672, 0.8..0.84, 0.162..0.179
-@piece wall/2900x980x360/delivered: hinge-6, 0.8466..0.8626, 0.14..0.18, 0.157..0.162
-@piece wall/2900x980x360/delivered: hinge-6, 0.8466..0.8626, 0.14..0.18, 0.162..0.179
-@piece wall/2900x980x360/delivered: hinge-7, 0.8466..0.8626, 0.8..0.84, 0.157..0.162
-@piece wall/2900x980x360/delivered: hinge-7, 0.8466..0.8626, 0.8..0.84, 0.162..0.179
-@piece wall/2900x980x360/delivered: hinge-8, 0.8756..0.8916, 0.14..0.18, 0.157..0.162
-@piece wall/2900x980x360/delivered: hinge-8, 0.8756..0.8916, 0.14..0.18, 0.162..0.179
-@piece wall/2900x980x360/delivered: hinge-9, 0.8756..0.8916, 0.8..0.84, 0.157..0.162
-@piece wall/2900x980x360/delivered: hinge-9, 0.8756..0.8916, 0.8..0.84, 0.162..0.179
+@void tall/900x2650x600/open: shelf-1, -0.009..0.009, 0.35225..0.37025, 0.259..0.277
+@void tall/900x2650x600/open: shelf-2, -0.009..0.009, 0.6735..0.6915, 0.259..0.277
+@void tall/900x2650x600/open: shelf-3, -0.009..0.009, 0.99475..1.01275, 0.259..0.277
+@void tall/900x2650x600/open: shelf-4, -0.009..0.009, 1.316..1.334, 0.259..0.277
+@void tall/900x2650x600/open: shelf-5, -0.009..0.009, 1.63725..1.65525, 0.259..0.277
+@void tall/900x2650x600/open: shelf-6, -0.009..0.009, 1.9585..1.9765, 0.259..0.277
+@void tall/900x2650x600/open: shelf-7, -0.009..0.009, 2.27975..2.29775, 0.259..0.277
+@void tall/900x2650x600/open: door-0, -0.442..-0.425, 0.14..0.18, 0.283..0.299
+@void tall/900x2650x600/open: door-0, -0.443..-0.425, 0.14..0.18, 0.278..0.299
+@void tall/900x2650x600/open: door-0, -0.442..-0.425, 2.47..2.51, 0.283..0.299
+@void tall/900x2650x600/open: door-0, -0.443..-0.425, 2.47..2.51, 0.278..0.299
+@void tall/900x2650x600/open: door-0, -0.443..-0.427, 1.4132..1.5732, 0.6625..0.6745
+@void tall/900x2650x600/open: door-1, 0.425..0.442, 0.14..0.18, 0.283..0.299
+@void tall/900x2650x600/open: door-1, 0.425..0.443, 0.14..0.18, 0.278..0.299
+@void tall/900x2650x600/open: door-1, 0.425..0.442, 2.47..2.51, 0.283..0.299
+@void tall/900x2650x600/open: door-1, 0.425..0.443, 2.47..2.51, 0.278..0.299
+@void tall/900x2650x600/open: door-1, 0.427..0.443, 1.4132..1.5732, 0.6625..0.6745
+@piece tall/900x2650x600/open: hinge-0, -0.442..-0.426, 0.14..0.18, 0.277..0.282
+@piece tall/900x2650x600/open: hinge-0, -0.442..-0.426, 0.14..0.18, 0.282..0.299
+@piece tall/900x2650x600/open: hinge-1, -0.442..-0.426, 2.47..2.51, 0.277..0.282
+@piece tall/900x2650x600/open: hinge-1, -0.442..-0.426, 2.47..2.51, 0.282..0.299
+@piece tall/900x2650x600/open: hinge-2, 0.426..0.442, 0.14..0.18, 0.277..0.282
+@piece tall/900x2650x600/open: hinge-2, 0.426..0.442, 0.14..0.18, 0.282..0.299
+@piece tall/900x2650x600/open: hinge-3, 0.426..0.442, 2.47..2.51, 0.277..0.282
+@piece tall/900x2650x600/open: hinge-3, 0.426..0.442, 2.47..2.51, 0.282..0.299
 | kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| @envelope | wall/2900x980x360/delivered | * | bounds | -1.45..1.45 | 0..0.98 | -0.205..0.18 | - |
-| @part | wall/2900x980x360/delivered | back | box | -1.45..1.45 | 0..0.962 | -0.18..-0.168 | cleat-0,bottom,top |
-| @part | wall/2900x980x360/delivered | bottom | box | -1.45..1.45 | 0..0.018 | -0.168..0.157 | back,side-left,side-right |
-| @part | wall/2900x980x360/delivered | top | box | -1.45..1.45 | 0.962..0.98 | -0.18..0.157 | back,side-left,side-right |
-| @part | wall/2900x980x360/delivered | side-left | box | -1.45..-1.432 | 0.018..0.962 | -0.168..0.157 | back,bottom,top |
-| @part | wall/2900x980x360/delivered | side-right | box | 1.432..1.45 | 0.018..0.962 | -0.168..0.157 | back,bottom,top |
-| @part | wall/2900x980x360/delivered | cleat-0 | box | -1.37..-1.29 | 0.13..0.19 | -0.205..-0.18 | back,wall |
-| @part | wall/2900x980x360/delivered | cleat-1 | box | 1.29..1.37 | 0.13..0.19 | -0.205..-0.18 | back,wall |
-| @part | wall/2900x980x360/delivered | fixed-front-bottom | box | -1.45..1.45 | 0..0.083 | 0.157..0.18 | side-left,side-right,bottom |
-| @part | wall/2900x980x360/delivered | shelf-1 | box | -1.432..1.432 | 0.317667..0.335667 | -0.168..0.157 | side-left,side-right,back |
-| @part | wall/2900x980x360/delivered | shelf-2 | box | -1.432..1.432 | 0.644333..0.662333 | -0.168..0.157 | side-left,side-right,back |
-| @part | wall/2900x980x360/delivered | stile-1 | box | -0.8781..-0.8601 | 0.018..0.962 | 0.139..0.157 | bottom,top |
-| @part | wall/2900x980x360/delivered | stile-2 | box | -0.2987..-0.2807 | 0.018..0.962 | 0.139..0.157 | bottom,top |
-| @part | wall/2900x980x360/delivered | stile-3 | box | 0.2807..0.2987 | 0.018..0.962 | 0.139..0.157 | bottom,top |
-| @part | wall/2900x980x360/delivered | stile-4 | box | 0.8601..0.8781 | 0.018..0.962 | 0.139..0.157 | bottom,top |
-| @part | wall/2900x980x360/delivered | door-0 | box | -1.447..-0.8706 | 0.083..0.977 | 0.162..0.18 | hinge-0,hinge-1 |
-| @part | wall/2900x980x360/delivered | hinge-0 | curved | -1.442..-1.426 | 0.14..0.18 | 0.157..0.179 | door-0,side-left |
-| @part | wall/2900x980x360/delivered | hinge-1 | curved | -1.442..-1.426 | 0.8..0.84 | 0.157..0.179 | door-0,side-left |
-| @part | wall/2900x980x360/delivered | handle-0 | box | -0.9316..-0.9196 | 0.4947..0.6547 | 0.164..0.18 | door-0 |
-| @part | wall/2900x980x360/delivered | door-1 | box | -0.8676..-0.2912 | 0.083..0.977 | 0.162..0.18 | hinge-2,hinge-3 |
-| @part | wall/2900x980x360/delivered | hinge-2 | curved | -0.3122..-0.2962 | 0.14..0.18 | 0.157..0.179 | door-1,stile-2 |
-| @part | wall/2900x980x360/delivered | hinge-3 | curved | -0.3122..-0.2962 | 0.8..0.84 | 0.157..0.179 | door-1,stile-2 |
-| @part | wall/2900x980x360/delivered | handle-1 | box | -0.8186..-0.8066 | 0.4947..0.6547 | 0.164..0.18 | door-1 |
-| @part | wall/2900x980x360/delivered | door-2 | box | -0.2882..0.2882 | 0.083..0.977 | 0.162..0.18 | hinge-4,hinge-5 |
-| @part | wall/2900x980x360/delivered | hinge-4 | curved | -0.2832..-0.2672 | 0.14..0.18 | 0.157..0.179 | door-2,stile-2 |
-| @part | wall/2900x980x360/delivered | hinge-5 | curved | -0.2832..-0.2672 | 0.8..0.84 | 0.157..0.179 | door-2,stile-2 |
-| @part | wall/2900x980x360/delivered | handle-2 | box | 0.2272..0.2392 | 0.4947..0.6547 | 0.164..0.18 | door-2 |
-| @part | wall/2900x980x360/delivered | door-3 | box | 0.2912..0.8676 | 0.083..0.977 | 0.162..0.18 | hinge-6,hinge-7 |
-| @part | wall/2900x980x360/delivered | hinge-6 | curved | 0.8466..0.8626 | 0.14..0.18 | 0.157..0.179 | door-3,stile-4 |
-| @part | wall/2900x980x360/delivered | hinge-7 | curved | 0.8466..0.8626 | 0.8..0.84 | 0.157..0.179 | door-3,stile-4 |
-| @part | wall/2900x980x360/delivered | handle-3 | box | 0.3402..0.3522 | 0.4947..0.6547 | 0.164..0.18 | door-3 |
-| @part | wall/2900x980x360/delivered | door-4 | box | 0.8706..1.447 | 0.083..0.977 | 0.162..0.18 | hinge-8,hinge-9 |
-| @part | wall/2900x980x360/delivered | hinge-8 | curved | 0.8756..0.8916 | 0.14..0.18 | 0.157..0.179 | door-4,stile-4 |
-| @part | wall/2900x980x360/delivered | hinge-9 | curved | 0.8756..0.8916 | 0.8..0.84 | 0.157..0.179 | door-4,stile-4 |
-| @part | wall/2900x980x360/delivered | handle-4 | box | 1.386..1.398 | 0.4947..0.6547 | 0.164..0.18 | door-4 |
+| @envelope | tall/900x2650x600/open | * | bounds | -0.45..0.45 | 0..2.65 | -0.3..0.7235 | - |
+| @part | tall/900x2650x600/open | back | box | -0.45..0.45 | 0.08..2.632 | -0.3..-0.288 | toe,bottom,top |
+| @part | tall/900x2650x600/open | bottom | box | -0.45..0.45 | 0.08..0.098 | -0.288..0.277 | back,side-left,side-right |
+| @part | tall/900x2650x600/open | top | box | -0.45..0.45 | 2.632..2.65 | -0.3..0.277 | back,side-left,side-right |
+| @part | tall/900x2650x600/open | side-left | box | -0.45..-0.432 | 0.098..2.632 | -0.288..0.277 | back,bottom,top |
+| @part | tall/900x2650x600/open | side-right | box | 0.432..0.45 | 0.098..2.632 | -0.288..0.277 | back,bottom,top |
+| @part | tall/900x2650x600/open | toe | box | -0.45..0.45 | 0..0.08 | -0.3..0.25 | ground,back,bottom |
+| @part | tall/900x2650x600/open | shelf-1 | box | -0.432..0.432 | 0.35225..0.37025 | -0.288..0.277 | side-left,side-right,back |
+| @part | tall/900x2650x600/open | shelf-2 | box | -0.432..0.432 | 0.6735..0.6915 | -0.288..0.277 | side-left,side-right,back |
+| @part | tall/900x2650x600/open | shelf-3 | box | -0.432..0.432 | 0.99475..1.01275 | -0.288..0.277 | side-left,side-right,back |
+| @part | tall/900x2650x600/open | shelf-4 | box | -0.432..0.432 | 1.316..1.334 | -0.288..0.277 | side-left,side-right,back |
+| @part | tall/900x2650x600/open | shelf-5 | box | -0.432..0.432 | 1.63725..1.65525 | -0.288..0.277 | side-left,side-right,back |
+| @part | tall/900x2650x600/open | shelf-6 | box | -0.432..0.432 | 1.9585..1.9765 | -0.288..0.277 | side-left,side-right,back |
+| @part | tall/900x2650x600/open | shelf-7 | box | -0.432..0.432 | 2.27975..2.29775 | -0.288..0.277 | side-left,side-right,back |
+| @part | tall/900x2650x600/open | stile-1 | box | -0.009..0.009 | 0.098..2.632 | 0.259..0.277 | bottom,top |
+| @part | tall/900x2650x600/open | door-0 | box | -0.443..-0.425 | 0.083..2.647 | 0.278..0.7235 | hinge-0,hinge-1 |
+| @part | tall/900x2650x600/open | hinge-0 | curved | -0.442..-0.426 | 0.14..0.18 | 0.277..0.299 | door-0,side-left |
+| @part | tall/900x2650x600/open | hinge-1 | curved | -0.442..-0.426 | 2.47..2.51 | 0.277..0.299 | door-0,side-left |
+| @part | tall/900x2650x600/open | handle-0 | box | -0.443..-0.427 | 1.4132..1.5732 | 0.6625..0.6745 | door-0 |
+| @part | tall/900x2650x600/open | door-1 | box | 0.425..0.443 | 0.083..2.647 | 0.278..0.7235 | hinge-2,hinge-3 |
+| @part | tall/900x2650x600/open | hinge-2 | curved | 0.426..0.442 | 0.14..0.18 | 0.277..0.299 | door-1,side-right |
+| @part | tall/900x2650x600/open | hinge-3 | curved | 0.426..0.442 | 2.47..2.51 | 0.277..0.299 | door-1,side-right |
+| @part | tall/900x2650x600/open | handle-1 | box | 0.427..0.443 | 1.4132..1.5732 | 0.6625..0.6745 | door-1 |
 
-@inventory wall/2900x980x360/inspection-open: back, bottom, top, side-left, side-right, cleat-0, cleat-1, fixed-front-bottom, shelf-1, shelf-2, stile-1, stile-2, stile-3, stile-4, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1, door-2, hinge-4, hinge-5, handle-2, door-3, hinge-6, hinge-7, handle-3, door-4, hinge-8, hinge-9, handle-4
+@inventory vanity/1000x800x480/closed: back, bottom, top, side-left, side-right, toe, fixed-front, drawer-0, runner-0-left, runner-0-right, handle-0, drawer-1, runner-1-left, runner-1-right, handle-1
 
-@void wall/2900x980x360/inspection-open: shelf-1, -0.8781..-0.8601, 0.317667..0.335667, 0.139..0.157
-@void wall/2900x980x360/inspection-open: shelf-2, -0.8781..-0.8601, 0.644333..0.662333, 0.139..0.157
-@void wall/2900x980x360/inspection-open: shelf-1, -0.2987..-0.2807, 0.317667..0.335667, 0.139..0.157
-@void wall/2900x980x360/inspection-open: shelf-2, -0.2987..-0.2807, 0.644333..0.662333, 0.139..0.157
-@void wall/2900x980x360/inspection-open: shelf-1, 0.2807..0.2987, 0.317667..0.335667, 0.139..0.157
-@void wall/2900x980x360/inspection-open: shelf-2, 0.2807..0.2987, 0.644333..0.662333, 0.139..0.157
-@void wall/2900x980x360/inspection-open: shelf-1, 0.8601..0.8781, 0.317667..0.335667, 0.139..0.157
-@void wall/2900x980x360/inspection-open: shelf-2, 0.8601..0.8781, 0.644333..0.662333, 0.139..0.157
-@void wall/2900x980x360/inspection-open: door-0, -1.442..-1.425, 0.14..0.18, 0.163..0.179
-@void wall/2900x980x360/inspection-open: door-0, -1.443..-1.425, 0.14..0.18, 0.158..0.179
-@void wall/2900x980x360/inspection-open: door-0, -1.442..-1.425, 0.8..0.84, 0.163..0.179
-@void wall/2900x980x360/inspection-open: door-0, -1.443..-1.425, 0.8..0.84, 0.158..0.179
-@void wall/2900x980x360/inspection-open: door-0, -1.443..-1.427, 0.4947..0.6547, 0.6734..0.6854
-@void wall/2900x980x360/inspection-open: door-1, -0.3132..-0.2962, 0.14..0.18, 0.163..0.179
-@void wall/2900x980x360/inspection-open: door-1, -0.3132..-0.2952, 0.14..0.18, 0.158..0.179
-@void wall/2900x980x360/inspection-open: door-1, -0.3132..-0.2962, 0.8..0.84, 0.163..0.179
-@void wall/2900x980x360/inspection-open: door-1, -0.3132..-0.2952, 0.8..0.84, 0.158..0.179
-@void wall/2900x980x360/inspection-open: door-1, -0.3112..-0.2952, 0.4947..0.6547, 0.6734..0.6854
-@void wall/2900x980x360/inspection-open: door-2, -0.2832..-0.2662, 0.14..0.18, 0.163..0.179
-@void wall/2900x980x360/inspection-open: door-2, -0.2842..-0.2662, 0.14..0.18, 0.158..0.179
-@void wall/2900x980x360/inspection-open: door-2, -0.2832..-0.2662, 0.8..0.84, 0.163..0.179
-@void wall/2900x980x360/inspection-open: door-2, -0.2842..-0.2662, 0.8..0.84, 0.158..0.179
-@void wall/2900x980x360/inspection-open: door-2, -0.2842..-0.2682, 0.4947..0.6547, 0.6734..0.6854
-@void wall/2900x980x360/inspection-open: door-3, 0.8456..0.8626, 0.14..0.18, 0.163..0.179
-@void wall/2900x980x360/inspection-open: door-3, 0.8456..0.8636, 0.14..0.18, 0.158..0.179
-@void wall/2900x980x360/inspection-open: door-3, 0.8456..0.8626, 0.8..0.84, 0.163..0.179
-@void wall/2900x980x360/inspection-open: door-3, 0.8456..0.8636, 0.8..0.84, 0.158..0.179
-@void wall/2900x980x360/inspection-open: door-3, 0.8476..0.8636, 0.4947..0.6547, 0.6734..0.6854
-@void wall/2900x980x360/inspection-open: door-4, 0.8756..0.8926, 0.14..0.18, 0.163..0.179
-@void wall/2900x980x360/inspection-open: door-4, 0.8746..0.8926, 0.14..0.18, 0.158..0.179
-@void wall/2900x980x360/inspection-open: door-4, 0.8756..0.8926, 0.8..0.84, 0.163..0.179
-@void wall/2900x980x360/inspection-open: door-4, 0.8746..0.8926, 0.8..0.84, 0.158..0.179
-@void wall/2900x980x360/inspection-open: door-4, 0.8746..0.8906, 0.4947..0.6547, 0.6734..0.6854
-@piece wall/2900x980x360/inspection-open: hinge-0, -1.442..-1.426, 0.14..0.18, 0.157..0.162
-@piece wall/2900x980x360/inspection-open: hinge-0, -1.442..-1.426, 0.14..0.18, 0.162..0.179
-@piece wall/2900x980x360/inspection-open: hinge-1, -1.442..-1.426, 0.8..0.84, 0.157..0.162
-@piece wall/2900x980x360/inspection-open: hinge-1, -1.442..-1.426, 0.8..0.84, 0.162..0.179
-@piece wall/2900x980x360/inspection-open: hinge-2, -0.3122..-0.2962, 0.14..0.18, 0.157..0.162
-@piece wall/2900x980x360/inspection-open: hinge-2, -0.3122..-0.2962, 0.14..0.18, 0.162..0.179
-@piece wall/2900x980x360/inspection-open: hinge-3, -0.3122..-0.2962, 0.8..0.84, 0.157..0.162
-@piece wall/2900x980x360/inspection-open: hinge-3, -0.3122..-0.2962, 0.8..0.84, 0.162..0.179
-@piece wall/2900x980x360/inspection-open: hinge-4, -0.2832..-0.2672, 0.14..0.18, 0.157..0.162
-@piece wall/2900x980x360/inspection-open: hinge-4, -0.2832..-0.2672, 0.14..0.18, 0.162..0.179
-@piece wall/2900x980x360/inspection-open: hinge-5, -0.2832..-0.2672, 0.8..0.84, 0.157..0.162
-@piece wall/2900x980x360/inspection-open: hinge-5, -0.2832..-0.2672, 0.8..0.84, 0.162..0.179
-@piece wall/2900x980x360/inspection-open: hinge-6, 0.8466..0.8626, 0.14..0.18, 0.157..0.162
-@piece wall/2900x980x360/inspection-open: hinge-6, 0.8466..0.8626, 0.14..0.18, 0.162..0.179
-@piece wall/2900x980x360/inspection-open: hinge-7, 0.8466..0.8626, 0.8..0.84, 0.157..0.162
-@piece wall/2900x980x360/inspection-open: hinge-7, 0.8466..0.8626, 0.8..0.84, 0.162..0.179
-@piece wall/2900x980x360/inspection-open: hinge-8, 0.8756..0.8916, 0.14..0.18, 0.157..0.162
-@piece wall/2900x980x360/inspection-open: hinge-8, 0.8756..0.8916, 0.14..0.18, 0.162..0.179
-@piece wall/2900x980x360/inspection-open: hinge-9, 0.8756..0.8916, 0.8..0.84, 0.157..0.162
-@piece wall/2900x980x360/inspection-open: hinge-9, 0.8756..0.8916, 0.8..0.84, 0.162..0.179
+@void vanity/1000x800x480/closed: top, -0.36..0.36, 0.782..0.8, -0.145..0.195
+@void vanity/1000x800x480/closed: fixed-front, -0.497..0.497, 0.127..0.373, 0.217..0.24
+@void vanity/1000x800x480/closed: drawer-0, -0.08..0.08, 0.244..0.256, 0.224..0.24
+@void vanity/1000x800x480/closed: fixed-front, -0.497..0.497, 0.447..0.693, 0.217..0.24
+@void vanity/1000x800x480/closed: drawer-1, -0.08..0.08, 0.564..0.576, 0.224..0.24
+@piece vanity/1000x800x480/closed: drawer-0, -0.494..0.494, 0.13..0.37, 0.222..0.24
+@piece vanity/1000x800x480/closed: drawer-0, -0.479..0.479, 0.145..0.157, -0.22..0.222
+@piece vanity/1000x800x480/closed: drawer-0, -0.479..-0.467, 0.157..0.36, -0.22..0.222
+@piece vanity/1000x800x480/closed: drawer-0, 0.467..0.479, 0.157..0.36, -0.22..0.222
+@piece vanity/1000x800x480/closed: drawer-0, -0.467..0.467, 0.157..0.36, -0.22..-0.208
+@piece vanity/1000x800x480/closed: drawer-1, -0.494..0.494, 0.45..0.69, 0.222..0.24
+@piece vanity/1000x800x480/closed: drawer-1, -0.479..0.479, 0.465..0.477, -0.22..0.222
+@piece vanity/1000x800x480/closed: drawer-1, -0.479..-0.467, 0.477..0.68, -0.22..0.222
+@piece vanity/1000x800x480/closed: drawer-1, 0.467..0.479, 0.477..0.68, -0.22..0.222
+@piece vanity/1000x800x480/closed: drawer-1, -0.467..0.467, 0.477..0.68, -0.22..-0.208
 | kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| @envelope | wall/2900x980x360/inspection-open | * | bounds | -1.45..1.45 | 0..0.98 | -0.205..0.7344 | - |
-| @part | wall/2900x980x360/inspection-open | back | box | -1.45..1.45 | 0..0.962 | -0.18..-0.168 | cleat-0,bottom,top |
-| @part | wall/2900x980x360/inspection-open | bottom | box | -1.45..1.45 | 0..0.018 | -0.168..0.157 | back,side-left,side-right |
-| @part | wall/2900x980x360/inspection-open | top | box | -1.45..1.45 | 0.962..0.98 | -0.18..0.157 | back,side-left,side-right |
-| @part | wall/2900x980x360/inspection-open | side-left | box | -1.45..-1.432 | 0.018..0.962 | -0.168..0.157 | back,bottom,top |
-| @part | wall/2900x980x360/inspection-open | side-right | box | 1.432..1.45 | 0.018..0.962 | -0.168..0.157 | back,bottom,top |
-| @part | wall/2900x980x360/inspection-open | cleat-0 | box | -1.37..-1.29 | 0.13..0.19 | -0.205..-0.18 | back,wall |
-| @part | wall/2900x980x360/inspection-open | cleat-1 | box | 1.29..1.37 | 0.13..0.19 | -0.205..-0.18 | back,wall |
-| @part | wall/2900x980x360/inspection-open | fixed-front-bottom | box | -1.45..1.45 | 0..0.083 | 0.157..0.18 | side-left,side-right,bottom |
-| @part | wall/2900x980x360/inspection-open | shelf-1 | box | -1.432..1.432 | 0.317667..0.335667 | -0.168..0.157 | side-left,side-right,back |
-| @part | wall/2900x980x360/inspection-open | shelf-2 | box | -1.432..1.432 | 0.644333..0.662333 | -0.168..0.157 | side-left,side-right,back |
-| @part | wall/2900x980x360/inspection-open | stile-1 | box | -0.8781..-0.8601 | 0.018..0.962 | 0.139..0.157 | bottom,top |
-| @part | wall/2900x980x360/inspection-open | stile-2 | box | -0.2987..-0.2807 | 0.018..0.962 | 0.139..0.157 | bottom,top |
-| @part | wall/2900x980x360/inspection-open | stile-3 | box | 0.2807..0.2987 | 0.018..0.962 | 0.139..0.157 | bottom,top |
-| @part | wall/2900x980x360/inspection-open | stile-4 | box | 0.8601..0.8781 | 0.018..0.962 | 0.139..0.157 | bottom,top |
-| @part | wall/2900x980x360/inspection-open | door-0 | box | -1.443..-1.425 | 0.083..0.977 | 0.158..0.7344 | hinge-0,hinge-1 |
-| @part | wall/2900x980x360/inspection-open | hinge-0 | curved | -1.442..-1.426 | 0.14..0.18 | 0.157..0.179 | door-0,side-left |
-| @part | wall/2900x980x360/inspection-open | hinge-1 | curved | -1.442..-1.426 | 0.8..0.84 | 0.157..0.179 | door-0,side-left |
-| @part | wall/2900x980x360/inspection-open | handle-0 | box | -1.443..-1.427 | 0.4947..0.6547 | 0.6734..0.6854 | door-0 |
-| @part | wall/2900x980x360/inspection-open | door-1 | box | -0.3132..-0.2952 | 0.083..0.977 | 0.158..0.7344 | hinge-2,hinge-3 |
-| @part | wall/2900x980x360/inspection-open | hinge-2 | curved | -0.3122..-0.2962 | 0.14..0.18 | 0.157..0.179 | door-1,stile-2 |
-| @part | wall/2900x980x360/inspection-open | hinge-3 | curved | -0.3122..-0.2962 | 0.8..0.84 | 0.157..0.179 | door-1,stile-2 |
-| @part | wall/2900x980x360/inspection-open | handle-1 | box | -0.3112..-0.2952 | 0.4947..0.6547 | 0.6734..0.6854 | door-1 |
-| @part | wall/2900x980x360/inspection-open | door-2 | box | -0.2842..-0.2662 | 0.083..0.977 | 0.158..0.7344 | hinge-4,hinge-5 |
-| @part | wall/2900x980x360/inspection-open | hinge-4 | curved | -0.2832..-0.2672 | 0.14..0.18 | 0.157..0.179 | door-2,stile-2 |
-| @part | wall/2900x980x360/inspection-open | hinge-5 | curved | -0.2832..-0.2672 | 0.8..0.84 | 0.157..0.179 | door-2,stile-2 |
-| @part | wall/2900x980x360/inspection-open | handle-2 | box | -0.2842..-0.2682 | 0.4947..0.6547 | 0.6734..0.6854 | door-2 |
-| @part | wall/2900x980x360/inspection-open | door-3 | box | 0.8456..0.8636 | 0.083..0.977 | 0.158..0.7344 | hinge-6,hinge-7 |
-| @part | wall/2900x980x360/inspection-open | hinge-6 | curved | 0.8466..0.8626 | 0.14..0.18 | 0.157..0.179 | door-3,stile-4 |
-| @part | wall/2900x980x360/inspection-open | hinge-7 | curved | 0.8466..0.8626 | 0.8..0.84 | 0.157..0.179 | door-3,stile-4 |
-| @part | wall/2900x980x360/inspection-open | handle-3 | box | 0.8476..0.8636 | 0.4947..0.6547 | 0.6734..0.6854 | door-3 |
-| @part | wall/2900x980x360/inspection-open | door-4 | box | 0.8746..0.8926 | 0.083..0.977 | 0.158..0.7344 | hinge-8,hinge-9 |
-| @part | wall/2900x980x360/inspection-open | hinge-8 | curved | 0.8756..0.8916 | 0.14..0.18 | 0.157..0.179 | door-4,stile-4 |
-| @part | wall/2900x980x360/inspection-open | hinge-9 | curved | 0.8756..0.8916 | 0.8..0.84 | 0.157..0.179 | door-4,stile-4 |
-| @part | wall/2900x980x360/inspection-open | handle-4 | box | 0.8746..0.8906 | 0.4947..0.6547 | 0.6734..0.6854 | door-4 |
+| @envelope | vanity/1000x800x480/closed | * | bounds | -0.5..0.5 | 0..0.8 | -0.24..0.24 | - |
+| @part | vanity/1000x800x480/closed | back | box | -0.5..0.5 | 0.08..0.782 | -0.24..-0.228 | toe,bottom,top |
+| @part | vanity/1000x800x480/closed | bottom | box | -0.5..0.5 | 0.08..0.098 | -0.228..0.217 | back,side-left,side-right |
+| @part | vanity/1000x800x480/closed | top | box | -0.5..0.5 | 0.782..0.8 | -0.24..0.217 | back,side-left,side-right |
+| @part | vanity/1000x800x480/closed | side-left | box | -0.5..-0.482 | 0.098..0.782 | -0.228..0.217 | back,bottom,top |
+| @part | vanity/1000x800x480/closed | side-right | box | 0.482..0.5 | 0.098..0.782 | -0.228..0.217 | back,bottom,top |
+| @part | vanity/1000x800x480/closed | toe | box | -0.5..0.5 | 0..0.08 | -0.24..0.19 | ground,back,bottom |
+| @part | vanity/1000x800x480/closed | fixed-front | box | -0.5..0.5 | 0.08..0.782 | 0.217..0.24 | side-left,side-right |
+| @part | vanity/1000x800x480/closed | drawer-0 | hollow | -0.494..0.494 | 0.13..0.37 | -0.22..0.24 | runner-0-left,runner-0-right,handle-0 |
+| @part | vanity/1000x800x480/closed | runner-0-left | box | -0.482..-0.479 | 0.157..0.169 | -0.22..0.217 | side-left,drawer-0 |
+| @part | vanity/1000x800x480/closed | runner-0-right | box | 0.479..0.482 | 0.157..0.169 | -0.22..0.217 | side-right,drawer-0 |
+| @part | vanity/1000x800x480/closed | handle-0 | box | -0.08..0.08 | 0.244..0.256 | 0.224..0.24 | drawer-0 |
+| @part | vanity/1000x800x480/closed | drawer-1 | hollow | -0.494..0.494 | 0.45..0.69 | -0.22..0.24 | runner-1-left,runner-1-right,handle-1 |
+| @part | vanity/1000x800x480/closed | runner-1-left | box | -0.482..-0.479 | 0.477..0.489 | -0.22..0.217 | side-left,drawer-1 |
+| @part | vanity/1000x800x480/closed | runner-1-right | box | 0.479..0.482 | 0.477..0.489 | -0.22..0.217 | side-right,drawer-1 |
+| @part | vanity/1000x800x480/closed | handle-1 | box | -0.08..0.08 | 0.564..0.576 | 0.224..0.24 | drawer-1 |
+
+@inventory vanity/800x800x480/closed: back, bottom, top, side-left, side-right, toe, fixed-front, drawer-0, runner-0-left, runner-0-right, handle-0, drawer-1, runner-1-left, runner-1-right, handle-1
+
+@void vanity/800x800x480/closed: top, -0.292..0.292, 0.782..0.8, -0.145..0.195
+@void vanity/800x800x480/closed: fixed-front, -0.397..0.397, 0.127..0.373, 0.217..0.24
+@void vanity/800x800x480/closed: drawer-0, -0.08..0.08, 0.244..0.256, 0.224..0.24
+@void vanity/800x800x480/closed: fixed-front, -0.397..0.397, 0.447..0.693, 0.217..0.24
+@void vanity/800x800x480/closed: drawer-1, -0.08..0.08, 0.564..0.576, 0.224..0.24
+@piece vanity/800x800x480/closed: drawer-0, -0.394..0.394, 0.13..0.37, 0.222..0.24
+@piece vanity/800x800x480/closed: drawer-0, -0.379..0.379, 0.145..0.157, -0.22..0.222
+@piece vanity/800x800x480/closed: drawer-0, -0.379..-0.367, 0.157..0.36, -0.22..0.222
+@piece vanity/800x800x480/closed: drawer-0, 0.367..0.379, 0.157..0.36, -0.22..0.222
+@piece vanity/800x800x480/closed: drawer-0, -0.367..0.367, 0.157..0.36, -0.22..-0.208
+@piece vanity/800x800x480/closed: drawer-1, -0.394..0.394, 0.45..0.69, 0.222..0.24
+@piece vanity/800x800x480/closed: drawer-1, -0.379..0.379, 0.465..0.477, -0.22..0.222
+@piece vanity/800x800x480/closed: drawer-1, -0.379..-0.367, 0.477..0.68, -0.22..0.222
+@piece vanity/800x800x480/closed: drawer-1, 0.367..0.379, 0.477..0.68, -0.22..0.222
+@piece vanity/800x800x480/closed: drawer-1, -0.367..0.367, 0.477..0.68, -0.22..-0.208
+| kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| @envelope | vanity/800x800x480/closed | * | bounds | -0.4..0.4 | 0..0.8 | -0.24..0.24 | - |
+| @part | vanity/800x800x480/closed | back | box | -0.4..0.4 | 0.08..0.782 | -0.24..-0.228 | toe,bottom,top |
+| @part | vanity/800x800x480/closed | bottom | box | -0.4..0.4 | 0.08..0.098 | -0.228..0.217 | back,side-left,side-right |
+| @part | vanity/800x800x480/closed | top | box | -0.4..0.4 | 0.782..0.8 | -0.24..0.217 | back,side-left,side-right |
+| @part | vanity/800x800x480/closed | side-left | box | -0.4..-0.382 | 0.098..0.782 | -0.228..0.217 | back,bottom,top |
+| @part | vanity/800x800x480/closed | side-right | box | 0.382..0.4 | 0.098..0.782 | -0.228..0.217 | back,bottom,top |
+| @part | vanity/800x800x480/closed | toe | box | -0.4..0.4 | 0..0.08 | -0.24..0.19 | ground,back,bottom |
+| @part | vanity/800x800x480/closed | fixed-front | box | -0.4..0.4 | 0.08..0.782 | 0.217..0.24 | side-left,side-right |
+| @part | vanity/800x800x480/closed | drawer-0 | hollow | -0.394..0.394 | 0.13..0.37 | -0.22..0.24 | runner-0-left,runner-0-right,handle-0 |
+| @part | vanity/800x800x480/closed | runner-0-left | box | -0.382..-0.379 | 0.157..0.169 | -0.22..0.217 | side-left,drawer-0 |
+| @part | vanity/800x800x480/closed | runner-0-right | box | 0.379..0.382 | 0.157..0.169 | -0.22..0.217 | side-right,drawer-0 |
+| @part | vanity/800x800x480/closed | handle-0 | box | -0.08..0.08 | 0.244..0.256 | 0.224..0.24 | drawer-0 |
+| @part | vanity/800x800x480/closed | drawer-1 | hollow | -0.394..0.394 | 0.45..0.69 | -0.22..0.24 | runner-1-left,runner-1-right,handle-1 |
+| @part | vanity/800x800x480/closed | runner-1-left | box | -0.382..-0.379 | 0.477..0.489 | -0.22..0.217 | side-left,drawer-1 |
+| @part | vanity/800x800x480/closed | runner-1-right | box | 0.379..0.382 | 0.477..0.489 | -0.22..0.217 | side-right,drawer-1 |
+| @part | vanity/800x800x480/closed | handle-1 | box | -0.08..0.08 | 0.564..0.576 | 0.224..0.24 | drawer-1 |
+
+@inventory wall/2900x980x360/closed: back, bottom, top, side-left, side-right, cleat-0, cleat-1, fixed-front-bottom, shelf-1, shelf-2, stile-1, stile-2, stile-3, stile-4, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1, door-2, hinge-4, hinge-5, handle-2, door-3, hinge-6, hinge-7, handle-3, door-4, hinge-8, hinge-9, handle-4
+
+@void wall/2900x980x360/closed: shelf-1, -0.8781..-0.8601, 0.317667..0.335667, 0.139..0.157
+@void wall/2900x980x360/closed: shelf-2, -0.8781..-0.8601, 0.644333..0.662333, 0.139..0.157
+@void wall/2900x980x360/closed: shelf-1, -0.2987..-0.2807, 0.317667..0.335667, 0.139..0.157
+@void wall/2900x980x360/closed: shelf-2, -0.2987..-0.2807, 0.644333..0.662333, 0.139..0.157
+@void wall/2900x980x360/closed: shelf-1, 0.2807..0.2987, 0.317667..0.335667, 0.139..0.157
+@void wall/2900x980x360/closed: shelf-2, 0.2807..0.2987, 0.644333..0.662333, 0.139..0.157
+@void wall/2900x980x360/closed: shelf-1, 0.8601..0.8781, 0.317667..0.335667, 0.139..0.157
+@void wall/2900x980x360/closed: shelf-2, 0.8601..0.8781, 0.644333..0.662333, 0.139..0.157
+@void wall/2900x980x360/closed: door-0, -1.442..-1.426, 0.14..0.18, 0.162..0.179
+@void wall/2900x980x360/closed: door-0, -1.442..-1.426, 0.8..0.84, 0.162..0.179
+@void wall/2900x980x360/closed: door-0, -0.9316..-0.9196, 0.4947..0.6547, 0.164..0.18
+@void wall/2900x980x360/closed: door-1, -0.3122..-0.2962, 0.14..0.18, 0.162..0.179
+@void wall/2900x980x360/closed: door-1, -0.3122..-0.2962, 0.8..0.84, 0.162..0.179
+@void wall/2900x980x360/closed: door-1, -0.8186..-0.8066, 0.4947..0.6547, 0.164..0.18
+@void wall/2900x980x360/closed: door-2, -0.2832..-0.2672, 0.14..0.18, 0.162..0.179
+@void wall/2900x980x360/closed: door-2, -0.2832..-0.2672, 0.8..0.84, 0.162..0.179
+@void wall/2900x980x360/closed: door-2, 0.2272..0.2392, 0.4947..0.6547, 0.164..0.18
+@void wall/2900x980x360/closed: door-3, 0.8466..0.8626, 0.14..0.18, 0.162..0.179
+@void wall/2900x980x360/closed: door-3, 0.8466..0.8626, 0.8..0.84, 0.162..0.179
+@void wall/2900x980x360/closed: door-3, 0.3402..0.3522, 0.4947..0.6547, 0.164..0.18
+@void wall/2900x980x360/closed: door-4, 0.8756..0.8916, 0.14..0.18, 0.162..0.179
+@void wall/2900x980x360/closed: door-4, 0.8756..0.8916, 0.8..0.84, 0.162..0.179
+@void wall/2900x980x360/closed: door-4, 1.386..1.398, 0.4947..0.6547, 0.164..0.18
+@piece wall/2900x980x360/closed: hinge-0, -1.442..-1.426, 0.14..0.18, 0.157..0.162
+@piece wall/2900x980x360/closed: hinge-0, -1.442..-1.426, 0.14..0.18, 0.162..0.179
+@piece wall/2900x980x360/closed: hinge-1, -1.442..-1.426, 0.8..0.84, 0.157..0.162
+@piece wall/2900x980x360/closed: hinge-1, -1.442..-1.426, 0.8..0.84, 0.162..0.179
+@piece wall/2900x980x360/closed: hinge-2, -0.3122..-0.2962, 0.14..0.18, 0.157..0.162
+@piece wall/2900x980x360/closed: hinge-2, -0.3122..-0.2962, 0.14..0.18, 0.162..0.179
+@piece wall/2900x980x360/closed: hinge-3, -0.3122..-0.2962, 0.8..0.84, 0.157..0.162
+@piece wall/2900x980x360/closed: hinge-3, -0.3122..-0.2962, 0.8..0.84, 0.162..0.179
+@piece wall/2900x980x360/closed: hinge-4, -0.2832..-0.2672, 0.14..0.18, 0.157..0.162
+@piece wall/2900x980x360/closed: hinge-4, -0.2832..-0.2672, 0.14..0.18, 0.162..0.179
+@piece wall/2900x980x360/closed: hinge-5, -0.2832..-0.2672, 0.8..0.84, 0.157..0.162
+@piece wall/2900x980x360/closed: hinge-5, -0.2832..-0.2672, 0.8..0.84, 0.162..0.179
+@piece wall/2900x980x360/closed: hinge-6, 0.8466..0.8626, 0.14..0.18, 0.157..0.162
+@piece wall/2900x980x360/closed: hinge-6, 0.8466..0.8626, 0.14..0.18, 0.162..0.179
+@piece wall/2900x980x360/closed: hinge-7, 0.8466..0.8626, 0.8..0.84, 0.157..0.162
+@piece wall/2900x980x360/closed: hinge-7, 0.8466..0.8626, 0.8..0.84, 0.162..0.179
+@piece wall/2900x980x360/closed: hinge-8, 0.8756..0.8916, 0.14..0.18, 0.157..0.162
+@piece wall/2900x980x360/closed: hinge-8, 0.8756..0.8916, 0.14..0.18, 0.162..0.179
+@piece wall/2900x980x360/closed: hinge-9, 0.8756..0.8916, 0.8..0.84, 0.157..0.162
+@piece wall/2900x980x360/closed: hinge-9, 0.8756..0.8916, 0.8..0.84, 0.162..0.179
+| kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| @envelope | wall/2900x980x360/closed | * | bounds | -1.45..1.45 | 0..0.98 | -0.205..0.18 | - |
+| @part | wall/2900x980x360/closed | back | box | -1.45..1.45 | 0..0.962 | -0.18..-0.168 | cleat-0,bottom,top |
+| @part | wall/2900x980x360/closed | bottom | box | -1.45..1.45 | 0..0.018 | -0.168..0.157 | back,side-left,side-right |
+| @part | wall/2900x980x360/closed | top | box | -1.45..1.45 | 0.962..0.98 | -0.18..0.157 | back,side-left,side-right |
+| @part | wall/2900x980x360/closed | side-left | box | -1.45..-1.432 | 0.018..0.962 | -0.168..0.157 | back,bottom,top |
+| @part | wall/2900x980x360/closed | side-right | box | 1.432..1.45 | 0.018..0.962 | -0.168..0.157 | back,bottom,top |
+| @part | wall/2900x980x360/closed | cleat-0 | box | -1.37..-1.29 | 0.13..0.19 | -0.205..-0.18 | back,wall |
+| @part | wall/2900x980x360/closed | cleat-1 | box | 1.29..1.37 | 0.13..0.19 | -0.205..-0.18 | back,wall |
+| @part | wall/2900x980x360/closed | fixed-front-bottom | box | -1.45..1.45 | 0..0.083 | 0.157..0.18 | side-left,side-right,bottom |
+| @part | wall/2900x980x360/closed | shelf-1 | box | -1.432..1.432 | 0.317667..0.335667 | -0.168..0.157 | side-left,side-right,back |
+| @part | wall/2900x980x360/closed | shelf-2 | box | -1.432..1.432 | 0.644333..0.662333 | -0.168..0.157 | side-left,side-right,back |
+| @part | wall/2900x980x360/closed | stile-1 | box | -0.8781..-0.8601 | 0.018..0.962 | 0.139..0.157 | bottom,top |
+| @part | wall/2900x980x360/closed | stile-2 | box | -0.2987..-0.2807 | 0.018..0.962 | 0.139..0.157 | bottom,top |
+| @part | wall/2900x980x360/closed | stile-3 | box | 0.2807..0.2987 | 0.018..0.962 | 0.139..0.157 | bottom,top |
+| @part | wall/2900x980x360/closed | stile-4 | box | 0.8601..0.8781 | 0.018..0.962 | 0.139..0.157 | bottom,top |
+| @part | wall/2900x980x360/closed | door-0 | box | -1.447..-0.8706 | 0.083..0.977 | 0.162..0.18 | hinge-0,hinge-1 |
+| @part | wall/2900x980x360/closed | hinge-0 | curved | -1.442..-1.426 | 0.14..0.18 | 0.157..0.179 | door-0,side-left |
+| @part | wall/2900x980x360/closed | hinge-1 | curved | -1.442..-1.426 | 0.8..0.84 | 0.157..0.179 | door-0,side-left |
+| @part | wall/2900x980x360/closed | handle-0 | box | -0.9316..-0.9196 | 0.4947..0.6547 | 0.164..0.18 | door-0 |
+| @part | wall/2900x980x360/closed | door-1 | box | -0.8676..-0.2912 | 0.083..0.977 | 0.162..0.18 | hinge-2,hinge-3 |
+| @part | wall/2900x980x360/closed | hinge-2 | curved | -0.3122..-0.2962 | 0.14..0.18 | 0.157..0.179 | door-1,stile-2 |
+| @part | wall/2900x980x360/closed | hinge-3 | curved | -0.3122..-0.2962 | 0.8..0.84 | 0.157..0.179 | door-1,stile-2 |
+| @part | wall/2900x980x360/closed | handle-1 | box | -0.8186..-0.8066 | 0.4947..0.6547 | 0.164..0.18 | door-1 |
+| @part | wall/2900x980x360/closed | door-2 | box | -0.2882..0.2882 | 0.083..0.977 | 0.162..0.18 | hinge-4,hinge-5 |
+| @part | wall/2900x980x360/closed | hinge-4 | curved | -0.2832..-0.2672 | 0.14..0.18 | 0.157..0.179 | door-2,stile-2 |
+| @part | wall/2900x980x360/closed | hinge-5 | curved | -0.2832..-0.2672 | 0.8..0.84 | 0.157..0.179 | door-2,stile-2 |
+| @part | wall/2900x980x360/closed | handle-2 | box | 0.2272..0.2392 | 0.4947..0.6547 | 0.164..0.18 | door-2 |
+| @part | wall/2900x980x360/closed | door-3 | box | 0.2912..0.8676 | 0.083..0.977 | 0.162..0.18 | hinge-6,hinge-7 |
+| @part | wall/2900x980x360/closed | hinge-6 | curved | 0.8466..0.8626 | 0.14..0.18 | 0.157..0.179 | door-3,stile-4 |
+| @part | wall/2900x980x360/closed | hinge-7 | curved | 0.8466..0.8626 | 0.8..0.84 | 0.157..0.179 | door-3,stile-4 |
+| @part | wall/2900x980x360/closed | handle-3 | box | 0.3402..0.3522 | 0.4947..0.6547 | 0.164..0.18 | door-3 |
+| @part | wall/2900x980x360/closed | door-4 | box | 0.8706..1.447 | 0.083..0.977 | 0.162..0.18 | hinge-8,hinge-9 |
+| @part | wall/2900x980x360/closed | hinge-8 | curved | 0.8756..0.8916 | 0.14..0.18 | 0.157..0.179 | door-4,stile-4 |
+| @part | wall/2900x980x360/closed | hinge-9 | curved | 0.8756..0.8916 | 0.8..0.84 | 0.157..0.179 | door-4,stile-4 |
+| @part | wall/2900x980x360/closed | handle-4 | box | 1.386..1.398 | 0.4947..0.6547 | 0.164..0.18 | door-4 |
+
+@inventory wall/2900x980x360/open: back, bottom, top, side-left, side-right, cleat-0, cleat-1, fixed-front-bottom, shelf-1, shelf-2, stile-1, stile-2, stile-3, stile-4, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1, door-2, hinge-4, hinge-5, handle-2, door-3, hinge-6, hinge-7, handle-3, door-4, hinge-8, hinge-9, handle-4
+
+@void wall/2900x980x360/open: shelf-1, -0.8781..-0.8601, 0.317667..0.335667, 0.139..0.157
+@void wall/2900x980x360/open: shelf-2, -0.8781..-0.8601, 0.644333..0.662333, 0.139..0.157
+@void wall/2900x980x360/open: shelf-1, -0.2987..-0.2807, 0.317667..0.335667, 0.139..0.157
+@void wall/2900x980x360/open: shelf-2, -0.2987..-0.2807, 0.644333..0.662333, 0.139..0.157
+@void wall/2900x980x360/open: shelf-1, 0.2807..0.2987, 0.317667..0.335667, 0.139..0.157
+@void wall/2900x980x360/open: shelf-2, 0.2807..0.2987, 0.644333..0.662333, 0.139..0.157
+@void wall/2900x980x360/open: shelf-1, 0.8601..0.8781, 0.317667..0.335667, 0.139..0.157
+@void wall/2900x980x360/open: shelf-2, 0.8601..0.8781, 0.644333..0.662333, 0.139..0.157
+@void wall/2900x980x360/open: door-0, -1.442..-1.425, 0.14..0.18, 0.163..0.179
+@void wall/2900x980x360/open: door-0, -1.443..-1.425, 0.14..0.18, 0.158..0.179
+@void wall/2900x980x360/open: door-0, -1.442..-1.425, 0.8..0.84, 0.163..0.179
+@void wall/2900x980x360/open: door-0, -1.443..-1.425, 0.8..0.84, 0.158..0.179
+@void wall/2900x980x360/open: door-0, -1.443..-1.427, 0.4947..0.6547, 0.6734..0.6854
+@void wall/2900x980x360/open: door-1, -0.3132..-0.2962, 0.14..0.18, 0.163..0.179
+@void wall/2900x980x360/open: door-1, -0.3132..-0.2952, 0.14..0.18, 0.158..0.179
+@void wall/2900x980x360/open: door-1, -0.3132..-0.2962, 0.8..0.84, 0.163..0.179
+@void wall/2900x980x360/open: door-1, -0.3132..-0.2952, 0.8..0.84, 0.158..0.179
+@void wall/2900x980x360/open: door-1, -0.3112..-0.2952, 0.4947..0.6547, 0.6734..0.6854
+@void wall/2900x980x360/open: door-2, -0.2832..-0.2662, 0.14..0.18, 0.163..0.179
+@void wall/2900x980x360/open: door-2, -0.2842..-0.2662, 0.14..0.18, 0.158..0.179
+@void wall/2900x980x360/open: door-2, -0.2832..-0.2662, 0.8..0.84, 0.163..0.179
+@void wall/2900x980x360/open: door-2, -0.2842..-0.2662, 0.8..0.84, 0.158..0.179
+@void wall/2900x980x360/open: door-2, -0.2842..-0.2682, 0.4947..0.6547, 0.6734..0.6854
+@void wall/2900x980x360/open: door-3, 0.8456..0.8626, 0.14..0.18, 0.163..0.179
+@void wall/2900x980x360/open: door-3, 0.8456..0.8636, 0.14..0.18, 0.158..0.179
+@void wall/2900x980x360/open: door-3, 0.8456..0.8626, 0.8..0.84, 0.163..0.179
+@void wall/2900x980x360/open: door-3, 0.8456..0.8636, 0.8..0.84, 0.158..0.179
+@void wall/2900x980x360/open: door-3, 0.8476..0.8636, 0.4947..0.6547, 0.6734..0.6854
+@void wall/2900x980x360/open: door-4, 0.8756..0.8926, 0.14..0.18, 0.163..0.179
+@void wall/2900x980x360/open: door-4, 0.8746..0.8926, 0.14..0.18, 0.158..0.179
+@void wall/2900x980x360/open: door-4, 0.8756..0.8926, 0.8..0.84, 0.163..0.179
+@void wall/2900x980x360/open: door-4, 0.8746..0.8926, 0.8..0.84, 0.158..0.179
+@void wall/2900x980x360/open: door-4, 0.8746..0.8906, 0.4947..0.6547, 0.6734..0.6854
+@piece wall/2900x980x360/open: hinge-0, -1.442..-1.426, 0.14..0.18, 0.157..0.162
+@piece wall/2900x980x360/open: hinge-0, -1.442..-1.426, 0.14..0.18, 0.162..0.179
+@piece wall/2900x980x360/open: hinge-1, -1.442..-1.426, 0.8..0.84, 0.157..0.162
+@piece wall/2900x980x360/open: hinge-1, -1.442..-1.426, 0.8..0.84, 0.162..0.179
+@piece wall/2900x980x360/open: hinge-2, -0.3122..-0.2962, 0.14..0.18, 0.157..0.162
+@piece wall/2900x980x360/open: hinge-2, -0.3122..-0.2962, 0.14..0.18, 0.162..0.179
+@piece wall/2900x980x360/open: hinge-3, -0.3122..-0.2962, 0.8..0.84, 0.157..0.162
+@piece wall/2900x980x360/open: hinge-3, -0.3122..-0.2962, 0.8..0.84, 0.162..0.179
+@piece wall/2900x980x360/open: hinge-4, -0.2832..-0.2672, 0.14..0.18, 0.157..0.162
+@piece wall/2900x980x360/open: hinge-4, -0.2832..-0.2672, 0.14..0.18, 0.162..0.179
+@piece wall/2900x980x360/open: hinge-5, -0.2832..-0.2672, 0.8..0.84, 0.157..0.162
+@piece wall/2900x980x360/open: hinge-5, -0.2832..-0.2672, 0.8..0.84, 0.162..0.179
+@piece wall/2900x980x360/open: hinge-6, 0.8466..0.8626, 0.14..0.18, 0.157..0.162
+@piece wall/2900x980x360/open: hinge-6, 0.8466..0.8626, 0.14..0.18, 0.162..0.179
+@piece wall/2900x980x360/open: hinge-7, 0.8466..0.8626, 0.8..0.84, 0.157..0.162
+@piece wall/2900x980x360/open: hinge-7, 0.8466..0.8626, 0.8..0.84, 0.162..0.179
+@piece wall/2900x980x360/open: hinge-8, 0.8756..0.8916, 0.14..0.18, 0.157..0.162
+@piece wall/2900x980x360/open: hinge-8, 0.8756..0.8916, 0.14..0.18, 0.162..0.179
+@piece wall/2900x980x360/open: hinge-9, 0.8756..0.8916, 0.8..0.84, 0.157..0.162
+@piece wall/2900x980x360/open: hinge-9, 0.8756..0.8916, 0.8..0.84, 0.162..0.179
+| kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| @envelope | wall/2900x980x360/open | * | bounds | -1.45..1.45 | 0..0.98 | -0.205..0.7344 | - |
+| @part | wall/2900x980x360/open | back | box | -1.45..1.45 | 0..0.962 | -0.18..-0.168 | cleat-0,bottom,top |
+| @part | wall/2900x980x360/open | bottom | box | -1.45..1.45 | 0..0.018 | -0.168..0.157 | back,side-left,side-right |
+| @part | wall/2900x980x360/open | top | box | -1.45..1.45 | 0.962..0.98 | -0.18..0.157 | back,side-left,side-right |
+| @part | wall/2900x980x360/open | side-left | box | -1.45..-1.432 | 0.018..0.962 | -0.168..0.157 | back,bottom,top |
+| @part | wall/2900x980x360/open | side-right | box | 1.432..1.45 | 0.018..0.962 | -0.168..0.157 | back,bottom,top |
+| @part | wall/2900x980x360/open | cleat-0 | box | -1.37..-1.29 | 0.13..0.19 | -0.205..-0.18 | back,wall |
+| @part | wall/2900x980x360/open | cleat-1 | box | 1.29..1.37 | 0.13..0.19 | -0.205..-0.18 | back,wall |
+| @part | wall/2900x980x360/open | fixed-front-bottom | box | -1.45..1.45 | 0..0.083 | 0.157..0.18 | side-left,side-right,bottom |
+| @part | wall/2900x980x360/open | shelf-1 | box | -1.432..1.432 | 0.317667..0.335667 | -0.168..0.157 | side-left,side-right,back |
+| @part | wall/2900x980x360/open | shelf-2 | box | -1.432..1.432 | 0.644333..0.662333 | -0.168..0.157 | side-left,side-right,back |
+| @part | wall/2900x980x360/open | stile-1 | box | -0.8781..-0.8601 | 0.018..0.962 | 0.139..0.157 | bottom,top |
+| @part | wall/2900x980x360/open | stile-2 | box | -0.2987..-0.2807 | 0.018..0.962 | 0.139..0.157 | bottom,top |
+| @part | wall/2900x980x360/open | stile-3 | box | 0.2807..0.2987 | 0.018..0.962 | 0.139..0.157 | bottom,top |
+| @part | wall/2900x980x360/open | stile-4 | box | 0.8601..0.8781 | 0.018..0.962 | 0.139..0.157 | bottom,top |
+| @part | wall/2900x980x360/open | door-0 | box | -1.443..-1.425 | 0.083..0.977 | 0.158..0.7344 | hinge-0,hinge-1 |
+| @part | wall/2900x980x360/open | hinge-0 | curved | -1.442..-1.426 | 0.14..0.18 | 0.157..0.179 | door-0,side-left |
+| @part | wall/2900x980x360/open | hinge-1 | curved | -1.442..-1.426 | 0.8..0.84 | 0.157..0.179 | door-0,side-left |
+| @part | wall/2900x980x360/open | handle-0 | box | -1.443..-1.427 | 0.4947..0.6547 | 0.6734..0.6854 | door-0 |
+| @part | wall/2900x980x360/open | door-1 | box | -0.3132..-0.2952 | 0.083..0.977 | 0.158..0.7344 | hinge-2,hinge-3 |
+| @part | wall/2900x980x360/open | hinge-2 | curved | -0.3122..-0.2962 | 0.14..0.18 | 0.157..0.179 | door-1,stile-2 |
+| @part | wall/2900x980x360/open | hinge-3 | curved | -0.3122..-0.2962 | 0.8..0.84 | 0.157..0.179 | door-1,stile-2 |
+| @part | wall/2900x980x360/open | handle-1 | box | -0.3112..-0.2952 | 0.4947..0.6547 | 0.6734..0.6854 | door-1 |
+| @part | wall/2900x980x360/open | door-2 | box | -0.2842..-0.2662 | 0.083..0.977 | 0.158..0.7344 | hinge-4,hinge-5 |
+| @part | wall/2900x980x360/open | hinge-4 | curved | -0.2832..-0.2672 | 0.14..0.18 | 0.157..0.179 | door-2,stile-2 |
+| @part | wall/2900x980x360/open | hinge-5 | curved | -0.2832..-0.2672 | 0.8..0.84 | 0.157..0.179 | door-2,stile-2 |
+| @part | wall/2900x980x360/open | handle-2 | box | -0.2842..-0.2682 | 0.4947..0.6547 | 0.6734..0.6854 | door-2 |
+| @part | wall/2900x980x360/open | door-3 | box | 0.8456..0.8636 | 0.083..0.977 | 0.158..0.7344 | hinge-6,hinge-7 |
+| @part | wall/2900x980x360/open | hinge-6 | curved | 0.8466..0.8626 | 0.14..0.18 | 0.157..0.179 | door-3,stile-4 |
+| @part | wall/2900x980x360/open | hinge-7 | curved | 0.8466..0.8626 | 0.8..0.84 | 0.157..0.179 | door-3,stile-4 |
+| @part | wall/2900x980x360/open | handle-3 | box | 0.8476..0.8636 | 0.4947..0.6547 | 0.6734..0.6854 | door-3 |
+| @part | wall/2900x980x360/open | door-4 | box | 0.8746..0.8926 | 0.083..0.977 | 0.158..0.7344 | hinge-8,hinge-9 |
+| @part | wall/2900x980x360/open | hinge-8 | curved | 0.8756..0.8916 | 0.14..0.18 | 0.157..0.179 | door-4,stile-4 |
+| @part | wall/2900x980x360/open | hinge-9 | curved | 0.8756..0.8916 | 0.8..0.84 | 0.157..0.179 | door-4,stile-4 |
+| @part | wall/2900x980x360/open | handle-4 | box | 0.8746..0.8906 | 0.4947..0.6547 | 0.6734..0.6854 | door-4 |
 <!-- @generated-cabinet-parts:end -->
 
 ## 현관 벤치와 신발장 {#entry-bench}

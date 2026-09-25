@@ -43,6 +43,7 @@ function specification(source) {
     throw Error("cabinet parameter record differs from authored design");
   const prose = h2.slice(0, h2.indexOf(startMarker));
   const commitments = [
+    "상태 키는 호출 가능한 `cabinet/<형상형>/<폭-mm>x<높이-mm>x<깊이-mm>/<closed|open>` ID와 정확히 같으며",
     "일반형은 폭 0.50..2.90m",
     "측판은 두께 0.018m로 x=±W/2의 안쪽에, y=0.098..H−0.018",
     "하판은 y=0.08..0.098,z=−D/2+0.012..D/2−0.023",
@@ -85,7 +86,7 @@ function assemble(p, id, opened) {
   if (!match) throw Error(`cabinet variant ${id} invalid`);
   const [, kind, wm, hm, dm] = match;
   const W = Number(wm) / 1000, H = Number(hm) / 1000, D = Number(dm) / 1000;
-  const state = id.replace(/\/(closed|open)$/, opened ? "/inspection-open" : "/delivered");
+  const state = opened ? id.replace(/\/closed$/, "/open") : id;
   /** @type {Part[]} */ const parts = [];
   /** @type {Assembly["voids"]} */ const voids = [];
   /** @type {Assembly["pieces"]} */ const pieces = [];
