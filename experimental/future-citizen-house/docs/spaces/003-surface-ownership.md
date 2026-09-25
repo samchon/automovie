@@ -507,7 +507,7 @@ frame 면 폭과 reveal 깊이는 [창호 인터페이스](#glazing-interface)�
 
 <!--
 @evidence principles/core/common.md#declared-basis 욕실 후면의 x=-4.86..-3.42 span과 upper floor+1.00/ceiling-0.45는 이 창의 저작 선택이다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb X=-4.86..-3.42와 높이 4.20..5.65는 bathroom 내부에서 정한다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 이 opening H2가 욕실 clear cell 안의 X=-4.86..-3.42m를 저작 span으로 정하고, 높이는 상층 floor+1.00m에서 ceiling-0.45m까지로 정한다.
 @evidence principles/core/common.md#scope-preservation 욕실 privacy 창을 남기되 frame까지 실제 bath bounds 안에 들어가야 하며 주침실로 span을 늘리지 않는다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 작은 privacy 창을 primary의 대면적 유리로 합치지 않는다.
 @evidence principles/core/common.md#substantive-completion host·room·유효 폭·높이 offset과 반투명 상태를 정해 후면 코어의 제한된 개구를 확정한다.
