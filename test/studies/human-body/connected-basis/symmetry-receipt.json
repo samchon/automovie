@@ -1,23 +1,83 @@
 {
-  "basis": "mpfb-connected-body-2026-09-21-envelopes-raw+sym",
-  "supersedes": "mpfb-connected-body-2026-09-21-envelopes-raw",
-  "method": "every mirror vertex pair (positions matched with x negated, within 20 µm) takes the mean of its two weight sets with the bone names mirrored, a midline vertex the mean of its own and its mirrored set; the four largest influences are kept and renormalized",
-  "mirrorPairs": 18486,
-  "asymmetricPairsBefore": 1760,
-  "worstAsymmetryBefore": 0.5174,
-  "asymmetryHistogramBefore": {
-    "0.00-0.01": 16726,
-    "0.01-0.02": 466,
-    "0.02-0.03": 266,
-    "0.03-0.04": 153,
-    "0.04-0.05": 117,
-    "0.05-0.06": 84,
-    "0.06-0.07": 74,
-    "0.07-0.08": 77,
-    "0.08-0.09": 73,
-    "0.09-0.10": 61,
-    ">=0.10": 389
+  "weights": {
+    "basis": "mpfb-connected-body-2026-09-21-envelopes-raw+sym",
+    "supersedes": "mpfb-connected-body-2026-09-21-envelopes-raw",
+    "method": "every mirror vertex pair (positions matched with x negated, within 20 \u00b5m) takes the mean of its two weight sets with the bone names mirrored, a midline vertex the mean of its own and its mirrored set; the four largest influences are kept and renormalized",
+    "mirrorPairs": 18486,
+    "asymmetricPairsBefore": 1760,
+    "worstAsymmetryBefore": 0.5174,
+    "asymmetryHistogramBefore": {
+      "0.00-0.01": 16726,
+      "0.01-0.02": 466,
+      "0.02-0.03": 266,
+      "0.03-0.04": 153,
+      "0.04-0.05": 117,
+      "0.05-0.06": 84,
+      "0.06-0.07": 74,
+      "0.07-0.08": 77,
+      "0.08-0.09": 73,
+      "0.09-0.10": 61,
+      ">=0.10": 389
+    },
+    "largestWeightDropped": 0.015851,
+    "uncompressedSha256": "3e938d2ced5543277dcc0cb516701dcb29c0979ba8b09ebbe32428a2ffc617a3"
   },
-  "largestWeightDropped": 0.015851,
-  "uncompressedSha256": "3e938d2ced5543277dcc0cb516701dcb29c0979ba8b09ebbe32428a2ffc617a3"
+  "basis": "mpfb-connected-body-2026-09-25-tt-r5",
+  "shoulderWeights": {
+    "supersedes": "mpfb-connected-body-2026-09-24-tt-r5-lattice-base",
+    "method": "each upper arm's blend zone (vertices whose upper-arm weight lies strictly between zero and one, none influenced by the hand or a digit) grown by 6 rings over vertices whose every influence is that upper arm, its girdle, the upper chest, the chest or the spine; inside it every free vertex's weights diffused for 40 Jacobi sweeps (uniform Laplacian, weight 1/2) with the outermost ring held; each vertex then keeps its four largest influences, renormalized, a bone split over two source slots summed first",
+    "rings": 6,
+    "sweeps": 40,
+    "diffusedVertices": 5220
+  },
+  "correctives": [
+    {
+      "basis": "mpfb-connected-body-2026-09-25-tt-r5-r1",
+      "supersedes": "mpfb-connected-body-2026-09-25-tt-r5-r1-asym",
+      "method": "each sided corrective is replaced by the left one of its mirror pair and that one's exact mirror (vertex mirrored by position with x negated within 20 um, x displacement negated, input names with left and right swapped, a TT kernel's orientation kept), a sided corrective without a partner gains its mirror, and a corrective whose inputs name no side takes the mean of its field and the field's mirror",
+      "correctivesBefore": 1272,
+      "correctivesAfter": 1285,
+      "pairs": 563,
+      "mirroredFromLeft": 13,
+      "mirroredFromRight": 0,
+      "midline": 133,
+      "oddSided": 0
+    },
+    {
+      "basis": "mpfb-connected-body-2026-09-25-tt-r5-r2",
+      "supersedes": "mpfb-connected-body-2026-09-25-tt-r5-r2-asym",
+      "method": "each sided corrective is replaced by the left one of its mirror pair and that one's exact mirror (vertex mirrored by position with x negated within 20 um, x displacement negated, input names with left and right swapped, a TT kernel's orientation kept), a sided corrective without a partner gains its mirror, and a corrective whose inputs name no side takes the mean of its field and the field's mirror",
+      "correctivesBefore": 1690,
+      "correctivesAfter": 2080,
+      "pairs": 576,
+      "mirroredFromLeft": 390,
+      "mirroredFromRight": 0,
+      "midline": 148,
+      "oddSided": 0
+    },
+    {
+      "basis": "mpfb-connected-body-2026-09-25-tt-r5-r3a",
+      "supersedes": "mpfb-connected-body-2026-09-25-tt-r5-r3a-asym",
+      "method": "each sided corrective is replaced by the left one of its mirror pair and that one's exact mirror (vertex mirrored by position with x negated within 20 um, x displacement negated, input names with left and right swapped, a TT kernel's orientation kept), a sided corrective without a partner gains its mirror, and a corrective whose inputs name no side takes the mean of its field and the field's mirror",
+      "correctivesBefore": 2080,
+      "correctivesAfter": 2080,
+      "pairs": 966,
+      "mirroredFromLeft": 0,
+      "mirroredFromRight": 0,
+      "midline": 148,
+      "oddSided": 0
+    },
+    {
+      "basis": "mpfb-connected-body-2026-09-25-tt-r5-r3",
+      "supersedes": "mpfb-connected-body-2026-09-25-tt-r5-r3-asym",
+      "method": "each sided corrective is replaced by the left one of its mirror pair and that one's exact mirror (vertex mirrored by position with x negated within 20 um, x displacement negated, input names with left and right swapped, a TT kernel's orientation kept), a sided corrective without a partner gains its mirror, and a corrective whose inputs name no side takes the mean of its field and the field's mirror",
+      "correctivesBefore": 2794,
+      "correctivesAfter": 3009,
+      "pairs": 966,
+      "mirroredFromLeft": 215,
+      "mirroredFromRight": 0,
+      "midline": 148,
+      "oddSided": 499
+    }
+  ]
 }

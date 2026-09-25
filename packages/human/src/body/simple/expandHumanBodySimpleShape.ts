@@ -103,10 +103,11 @@ export function expandHumanBodySimpleShape(
     target: number,
     read: (trial: Record<string, number>) => number | null,
     what: string,
+    saturate = false,
   ): void => {
     Object.assign(
       shape,
-      direction.solve(basis, shape, along, target, read, what),
+      direction.solve(basis, shape, along, target, read, what, saturate),
     );
   };
   solve(
@@ -118,7 +119,13 @@ export function expandHumanBodySimpleShape(
   const density = math.density(
     math.fat(simple, parameters.bodyMassIndex).percent,
   );
-  for (let pass = 0; pass < PASSES; pass++) {
+  // The tape girths and the mass move each other, so they are solved against
+  // each other until the weights settle, each step saturating at its reach
+  // end: a girth read before the mass has converged may be out of reach of
+  // that intermediate body and within reach of the solved one. The pass that
+  // follows the fixed point is strict, so a target the converged body cannot
+  // reach is refused with that body's reach and nothing is clamped.
+  const pass = (saturate: boolean): number => {
     const before = { ...shape };
     for (const entry of table.measurements) {
       const target = simple[entry.parameter];
@@ -128,6 +135,7 @@ export function expandHumanBodySimpleShape(
         target,
         (trial) => measure.channel(basis, trial, entry.channel),
         entry.parameter,
+        saturate,
       );
     }
     solve(
@@ -136,14 +144,17 @@ export function expandHumanBodySimpleShape(
       (trial) =>
         measure.mass(measure.volume(basis, trial), density, simple.ageYears),
       "mass",
+      saturate,
     );
-    const moved = Math.max(
+    return Math.max(
       ...Object.keys(shape).map((id) =>
         Math.abs(shape[id] - (before[id] ?? 0)),
       ),
     );
-    if (moved < CONVERGENCE) break;
-  }
+  };
+  for (let round = 0; round < PASSES; round++)
+    if (pass(true) < CONVERGENCE) break;
+  pass(false);
   if (over === undefined) return shape;
   // only the measurements this request names are read back, so an omitted
   // one leaves its channel exactly as the shape had it

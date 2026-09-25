@@ -1,6 +1,6 @@
 {
-  "basis": "mpfb-connected-body-2026-09-21-envelopes-raw+sym+digits+rhythm+single+combos+envelope",
-  "supersedes": "mpfb-connected-body-2026-09-21-envelopes-raw+sym+digits+rhythm+single+combos",
+  "basis": "mpfb-connected-body-2026-09-25-tt-r5",
+  "supersedes": "mpfb-connected-body-2026-09-21-envelopes-raw+sym+digits+rhythm+single+combos+envelope",
   "method": "each channel endpoint worn past its authored node is low-passed as a vector (its motion) and the residual's thickness along the rest surface's normal is split into a smooth part (implicit heat diffusion over the skin, cotangent Laplacian with a lumped mass, diffusion length 40 mm, the motion pass at 150 mm, the neck boundary held) and a detail part; one corrective per extended side ramps from the node to the envelope's end and subtracts the detail's extrapolation along the normal, so past the node the thickness detail stays at the node's while the smooth thickness and the tangential part grow with the weight; the individuality channels, generated fields of a clinical grade, keep their linear extension",
   "sigmaMetres": 0.04,
   "correctives": [
@@ -170,10 +170,10 @@
       "id": "envelope/macroWeight.positive",
       "channel": "macroWeight",
       "side": "positive",
-      "end": 5.5,
+      "end": 9,
       "detailFraction": 0.111,
-      "worstRemovedAtEndMillimetres": 22.1,
-      "rows": 36608
+      "worstRemovedAtEndMillimetres": 39.4,
+      "rows": 36635
     },
     {
       "id": "envelope/macroWeight.negative",
@@ -401,62 +401,62 @@
     "state/shapes:measureShoulderDist@-2:leftUpperArm.abduction@-5",
     "state/channels:macroWeight@5.5"
   ],
-  "uncompressedSha256": "99655a6c9fcec54fd9504e5037cd1b5e142e352ce1721cd1be48f9f9d25c00f2",
+  "symmetrized": "the envelope correctives' fields were then made bilaterally symmetric with the pose correctives (symmetry-receipt.json)",
   "reach": {
-    "basis": "mpfb-connected-body-2026-09-23-sym+digits+rhythm+envelope+correctives-r4",
+    "basis": "mpfb-connected-body-2026-09-25-tt-r5",
     "mass": [
       {
         "statureMetres": 1.55,
         "sex": -1,
-        "heightWeight": -0.13118241384427454,
+        "heightWeight": -0.13118110993477222,
         "massKilograms": [
           31.2,
-          86.7
+          116.5
         ]
       },
       {
         "statureMetres": 1.55,
         "sex": 1,
-        "heightWeight": -0.49041672338935155,
+        "heightWeight": -0.49041801265125345,
         "massKilograms": [
           40.5,
-          92.8
+          122.3
         ]
       },
       {
         "statureMetres": 1.75,
         "sex": -1,
-        "heightWeight": 0.24642767860664505,
+        "heightWeight": 0.24642723428163685,
         "massKilograms": [
           43.6,
-          112.4
+          148.6
         ]
       },
       {
         "statureMetres": 1.75,
         "sex": 1,
-        "heightWeight": 0.06077385934368512,
+        "heightWeight": 0.0607739171791954,
         "massKilograms": [
           53.6,
-          118
+          154
         ]
       },
       {
         "statureMetres": 1.95,
         "sex": -1,
-        "heightWeight": 0.5607016737820013,
+        "heightWeight": 0.5606998799480507,
         "massKilograms": [
           59.6,
-          143.1
+          186.4
         ]
       },
       {
         "statureMetres": 1.95,
         "sex": 1,
-        "heightWeight": 0.374965717701653,
+        "heightWeight": 0.3749633987621958,
         "massKilograms": [
           71.9,
-          150.6
+          193.8
         ]
       }
     ],

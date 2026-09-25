@@ -1,4 +1,10 @@
-import { resolvePose, validateModel, validatePose } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  resolvePose,
+  validateModel,
+  validatePose,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieModel,
@@ -17,6 +23,8 @@ import type { IAutoMovieHumanBodyBuild } from "../structures/IAutoMovieHumanBody
 import { assertHumanBodyBasis } from "./assertHumanBodyBasis";
 import { evaluateHumanBodyShape } from "./evaluateHumanBodyShape";
 import { humanBodyBasisWeights } from "./humanBodyBasisWeights";
+import { humanBodyShoulderReaches } from "./humanBodyShoulderReaches";
+import { resolveHumanBodyPelvifemoralRhythm } from "./resolveHumanBodyPelvifemoralRhythm";
 import { resolveHumanBodyShoulders } from "./resolveHumanBodyShoulders";
 import { resolveHumanBodySkeleton } from "./resolveHumanBodySkeleton";
 import { skinHumanBodySurface } from "./skinHumanBodySurface";
@@ -33,9 +41,13 @@ import { skinHumanBodySurface } from "./skinHumanBodySurface";
  * The document's non-humeral clinical angles gain the declared couplings
  * (`resolveHumanBodyCouplings`, called inside `humanBodyBasisWeights` so the
  * corrective ramps read the same coupled angles) and are validated by the
- * engine. The separately authored TT humerothoracic goals are range checked
- * against the basis and resolved from the thorax after the engine's forward
- * kinematics and the girdle's movement, then dual
+ * engine, together with the pelvic-relative reading a declared pelvifemoral
+ * rhythm gives them (`resolveHumanBodyPelvifemoralRhythm`). The separately
+ * authored TT humerothoracic goals are checked against the basis's clinical
+ * reach (`humanBodyShoulderReaches`: the plane's joint-sinus maximum and the
+ * axial range) and resolved from the thorax after the engine's forward
+ * kinematics and the girdle's movement; the rhythm then turns the pelvis
+ * about the hip centres, then dual
  * quaternion skinning (`skinHumanBodySurface`), then common normals and material
  * regions. The couplings are added before validation so a girdle angle the
  * document wrote plus the rhythm an elevated arm adds is refused past the
@@ -55,8 +67,6 @@ import { skinHumanBodySurface } from "./skinHumanBodySurface";
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-joints Validates the coupled sparse pose, resolves TT shoulder goals after the girdle and recomputes normals after skinning.
  * @evidenceExclude requirements/actors/body-authoring/README.md#body-requirements This domain index also covers the editing screen, export and census review; the builder owns evaluation, not the complete authoring workflow.
  * @evidenceExclude specifications/asset-and-representation/body-authoring/README.md#body-specifications This index joins evaluation, measurement, document and later editor boundaries; the builder does not own the browser adapter or the review process.
- * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-editor This renderer-independent evaluator exposes no DOM, camera or file picker; the playground body page binds those to it.
- * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view The builder has no inputs, presets or display state; it evaluates the document the editor commits.
  * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor The builder owns no transaction history or worker; the face editor's state owner and the playground worker do.
  */
 export function createHumanBodyBasisBuilder(
@@ -82,10 +92,7 @@ export function createHumanBodyBasisBuilder(
       )?.shoulder;
       if (
         contract === undefined ||
-        shoulder.elevation < contract.range.elevation.min ||
-        shoulder.elevation > contract.range.elevation.max ||
-        shoulder.axialRotation < contract.range.axialRotation.min ||
-        shoulder.axialRotation > contract.range.axialRotation.max
+        !humanBodyShoulderReaches(contract, shoulder)
       )
         throw new Error(
           "Body shoulder goal exceeds its thorax-tt clinical range: " +
@@ -97,16 +104,28 @@ export function createHumanBodyBasisBuilder(
       basis,
       shaped.landmarks,
     );
+    // The coupled document pose is what forward kinematics turns, and its
+    // angles are judged against the clinical ranges. With a pelvifemoral
+    // rhythm the legs' document flexion is trunk-relative, so the rig's
+    // pelvic-relative hips and lumbar joint (the rhythm's additions applied)
+    // are judged too: a request must hold under both readings.
     const pose: IAutoMoviePose = {
       skeleton: skeleton.id,
       root: null,
       joints: state.pose,
     };
-    const violations = validatePose({ pose, skeleton });
-    if (violations.items.length > 0)
+    const rhythm = resolveHumanBodyPelvifemoralRhythm(basis, state.pose);
+    const violations = [
+      ...validatePose({ pose, skeleton }).items,
+      ...(rhythm.contributions.length === 0
+        ? []
+        : validatePose({ pose: { ...pose, joints: rhythm.joints }, skeleton })
+            .items),
+    ];
+    if (violations.length > 0)
       throw new Error(
         "Body pose violates the skeleton or its clinical ranges: " +
-          JSON.stringify(violations.items),
+          JSON.stringify(violations),
       );
     const transforms = new Map<
       AutoMovieHumanoidBone,
@@ -115,12 +134,42 @@ export function createHumanBodyBasisBuilder(
         posed: { position: IAutoMovieVector3; rotation: IAutoMovieQuaternion };
       }
     >();
+    // The rhythm leaves the trunk and both thighs where the document put
+    // them relative to the trunk and turns only the pelvis, posteriorly by
+    // the tilt about the line through both hip centres, which leaves the hip
+    // centres, the lifted thigh's authored direction and the other foot in
+    // place while the pelvis-to-thigh and pelvis-to-lumbar angles change.
+    const tilt = -(
+      rhythm.contributions.find((one) => one.bone === "hips")?.degrees ?? 0
+    );
     const resolvedBones = resolveHumanBodyShoulders(
       basis,
       document.shoulders ?? [],
       rest,
       resolvePose(pose, skeleton, undefined, frames),
     );
+    if (tilt !== 0) {
+      const at = (bone: AutoMovieHumanoidBone) =>
+        resolvedBones.find((one) => one.bone === bone)!;
+      const left = at("leftUpperLeg").worldPosition;
+      const axis = Vector3.normalize(
+        Vector3.subtract(left, at("rightUpperLeg").worldPosition),
+      );
+      // about +X (the subject's left) a positive angle carries the top of
+      // the pelvis forward; a posterior tilt is the negative one
+      const turn = Quaternion.fromAxisAngle(axis, -tilt);
+      const pelvis = at("hips");
+      pelvis.worldPosition = Vector3.add(
+        left,
+        Quaternion.rotateVector(
+          turn,
+          Vector3.subtract(pelvis.worldPosition, left),
+        ),
+      );
+      pelvis.worldRotation = Quaternion.normalize(
+        Quaternion.multiply(turn, pelvis.worldRotation),
+      );
+    }
     for (const resolved of resolvedBones)
       transforms.set(resolved.bone, {
         rest: rest.get(resolved.bone)!,
@@ -161,6 +210,7 @@ export function createHumanBodyBasisBuilder(
       const positions = skinHumanBodySurface(
         shaped.surfaces[index],
         surface.skin,
+        basis.joints,
         transforms,
       );
       const normals = portraitNormals(positions, surface.indices);
