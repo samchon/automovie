@@ -40,7 +40,7 @@
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 본문이 family-right-window·tub-right-window·garage-right-window 세 창의 벽 배정과 공유 벽·서비스실 무창 결정을 모두 적어 오른쪽 외벽 개구부 범위에 owner 없는 항목이 없음을 확인했다.
 @evidence principles/core/common.md#substantive-completion 본채 오른쪽 창은 X = [5.50, 5.75] m, 차고 오른쪽 창은 X = [11.45, 11.70] m 외벽에 바인딩하는 원칙을 정한다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 본문의 본채 외벽 X = [5.50, 5.75] m와 차고 외벽 X = [11.45, 11.70] m 바인딩, 세 창의 방 배정을 대조해 다음 단계가 오른쪽 창의 벽 소속을 새로 정할 필요가 없음을 확인했다.
-@evidence principles/core/common.md#declared-basis 두 외벽 구간은 본채·차고 외곽 owner, 창틀은 공통 인계에서 받는다.
+@evidence principles/core/common.md#declared-basis 두 외벽 구간은 본채·차고 외곽 owner에서 받고, 창 void와 reveal은 이 입면이 만들며 닫힌 창틀은 models/01 원형에 넘긴다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 본문의 두 외벽 X 구간이 main-building-extent·attached-garage-extent 링크, 창 규칙이 external-opening-interface 링크에서 오는지 대조해 right-openings의 각 진술이 근거 owner를 가짐을 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 차고가 가리는 본채 오른쪽 구간에 서비스실 창을 두지 않고 청회색 침실은 전면 창을 쓰는 방별 창 유무를 결정한다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정 service-band와 openings가 정하지 않은 방별 창 유무를 본문이 서비스실 무창, 청회색 침실 전면 창, 가족실·욕실·차고 측면 창으로 정한 것을 대조해 부모에 없는 결정임을 확인했다.
@@ -68,7 +68,7 @@
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 본문이 family-right-window 한 개를 kitchen-dining-family의 두 번째 외벽 창으로만 맡고 소파·커튼 접근은 unverified 관찰로 남겨 가족실 측면 창 범위가 빠짐없이 소유됨을 확인했다.
 @evidence principles/core/common.md#substantive-completion 본채 오른쪽 벽의 Z = [-9.95, -8.25], Y = [0.75, 2.30] m 개구부와 수직 창 두 칸을 정한다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 family-right-window의 Z = [-9.95, -8.25], Y = [0.75, 2.30] m 개구부와 공통 인계 수직 창 두 칸이 본문에 확정돼 다음 단계가 측면 창의 위치·분할을 발명할 필요가 없음을 확인했다.
-@evidence principles/core/common.md#declared-basis 차고 뒤로 노출되는 벽 구간은 차고 외곽에서, 창틀은 공통 인계에서 받는다.
+@evidence principles/core/common.md#declared-basis 차고 뒤로 노출되는 벽 구간은 차고 외곽에서 받고, 창 void와 reveal은 이 입면이 만들며 닫힌 창틀은 models/01 원형에 넘긴다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 본문에서 노출 벽 구간은 attached-garage-extent 후벽과 settings garage 깊이 링크, 창틀은 external-opening-interface 링크에서 받아 family-right-window 배치의 근거가 지목됨을 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 가족실이 후면 창과 함께 오른쪽 노출 외벽 창을 갖도록 차고 뒤 구간에 위치를 정한다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정 common-room의 가족실 우측 배치에 본문이 더한 family-right-window Z = [-9.95, -8.25] m가 후면 창과 같은 방을 비추는 두 번째 창이라는 결정을 대조해 부모에 없는 추가임을 확인했다.
@@ -118,7 +118,7 @@
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 본문이 garage-right-window 한 개와 상부 문 이동 예약·후벽 선반/작업대 예약과의 관계를 함께 적어 차고 측면 채광 범위와 그 인접 점유가 빠짐없이 소유됨을 확인했다.
 @evidence principles/core/common.md#substantive-completion 차고 오른쪽 벽의 Z = [-5.85, -4.25], Y = [1.40, 2.20] m 개구부를 높은 고정창 두 칸으로 정한다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 garage-right-window의 Z = [-5.85, -4.25], Y = [1.40, 2.20] m 개구부와 높은 고정창 두 칸이 본문에 확정돼 다음 단계가 차고 측면 창의 위치·유형을 발명할 필요가 없음을 확인했다.
-@evidence principles/core/common.md#declared-basis 벽 구간은 right-openings의 차고 오른쪽 벽, 상부 문 이동 예약은 garage-front-opening, 창틀은 공통 인계에서 받는다.
+@evidence principles/core/common.md#declared-basis 벽 구간은 right-openings의 차고 오른쪽 벽, 상부 문 이동 예약은 garage-front-opening에서 받고, 닫힌 창틀은 models/01 원형에 넘긴다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 본문에서 벽 구간은 right-openings 링크, 이동 예약은 front.md#garage-front-opening 링크, 창틀은 external-opening-interface 링크로 받아 garage-right-window 진술마다 근거 owner가 지목됨을 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 측면 고정창을 상부 문 이동 예약보다 뒤쪽 벽에 두고 선반/작업대가 창 전체를 막지 않게 하는 배치를 더한다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정 garage의 선반·공구 수납과 문 레일 요구에 본문이 더한 garage-right-window의 레일 뒤 배치와 선반이 창 전체를 막지 않는 조건을 대조해 부모에 없는 측면 창 결정임을 확인했다.

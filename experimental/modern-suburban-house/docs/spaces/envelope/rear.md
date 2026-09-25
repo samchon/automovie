@@ -136,7 +136,7 @@
 
 ## 공용부에서 정원으로 나가는 문 {#garden-door}
 <!--
-@evidence principles/core/common.md#scope-preservation 공용부의 정원 출입문 두 장, 안쪽/바깥 대기, 문턱, 식탁·테라스와의 관계, 표면 owner 구분을 맡는다.
+@evidence principles/core/common.md#scope-preservation 공용부 정원 출입문의 후벽 void·reveal·문턱판, 안쪽/바깥 대기와 식탁·테라스 관계, models/02의 닫힌 두 문짝과의 표면 owner 구분을 맡는다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 본문이 garden-door 두 문짝의 설계 예약, 안쪽/바깥 대기, 0.02 m 이내 문턱, 식탁·테라스 관계와 terrace.ts 바닥·rear.ts 벽/문턱·models/02 문짝/문틀의 표면 구분을 모두 적어 정원 출입 범위에 owner 없는 항목이 없음을 확인했다.
 @evidence principles/core/common.md#substantive-completion 후벽의 X = [-1.20, 1.20], Y = [0, 2.25] m 개구부에 바깥 -Z로 열리는 유리 경첩 문 두 장, 주 문만 90° 열었을 때의 유효 폭 목표 0.95 m, 깊이 1.80 m의 바깥 대기를 정한다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 garden-door의 X = [-1.20, 1.20], Y = [0, 2.25] m 개구부, -Z로 여는 유리 경첩 문 두 장, 주 문 90° 유효 폭 0.95 m, 1.80 m 바깥 대기를 대조해 출입 결정이 다음 단계 발명 없이 완결됨을 확인했다.

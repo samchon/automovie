@@ -64,8 +64,8 @@
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 네 표 행의 바탕 끝 면과 문턱 단일 owner를 대조했다. front-door 행은 spaces의 문턱판과 models의 문설주·문선·문짝 충전을 분리하고, 벽 몸체 겹침 구역은 바닥 owner에 맡겨 네 출입 경계에 빈 owner가 없다.
 @evidence principles/core/common.md#substantive-completion 네 경계마다 바탕이 어느 벽 면까지 이어지고 문턱 상면·챌면을 누가 맡는지 표로 정하고 현관 문턱 돌출을 양쪽 완성 바닥 위 0.02 m 이내로 둔다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 표 네 행의 바탕 끝 면(전면·후벽·차고 전면 바깥 면, 공유 벽 차고 쪽 면)과 문턱 owner, front-door 상면 돌출 0.02 m 이내를 대조했다. 문턱 단면은 이 층에서 정하고 문설주·문짝 치수는 models가 정한다.
-@evidence principles/core/common.md#declared-basis 각 문의 거친 void 폭과 안팎 벽 면은 원래 문 owner에서 받고 front-door 아래는 현관·포치 두 완성 바닥의 datum을, laundry-garage-door 아래는 본채 완성 높이와 차고의 기존 낮은 datum을 유지한다고 밝힌다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 네 경계가 원래 문 owner의 거친 void 폭과 안팎 벽 면을 소비하고 front-door 행이 두 완성 바닥 datum을, laundry-garage-door 행이 차고의 기존 낮은 datum을 유지한다고 적은 것을 대조해 근거를 확인했다.
+@evidence principles/core/common.md#declared-basis 각 문의 거친 void 폭과 안팎 벽 면은 05의 spaces 개구부 owner에서 받고 front-door 아래는 현관·포치 두 완성 바닥의 datum을, laundry-garage-door 아래는 본채 완성 높이와 차고의 기존 낮은 datum을 유지한다고 밝힌다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 네 경계가 05의 spaces 개구부 owner에게서 거친 void 폭과 안팎 벽 면을 소비하고 front-door 행이 두 완성 바닥 datum을, laundry-garage-door 행이 차고의 낮은 datum을 유지한다고 적은 것을 대조했다. 모델의 닫힌 문틀·문짝과는 다른 바탕 책임이다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 실제 문턱 요구에 벽 두께를 지나는 지지 바탕과 문설주 받침·문턱의 같은 단면 맞물림을 더하고 머드룸의 기존 한 단은 상면·챌면을 laundry owner 하나에 둔다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 settings openings의 문틀·문턱 구별 요구에 벽 두께를 지나는 지지 바탕, 문설주 받침·문턱의 같은 단면 맞물림, 머드룸 한 단 상면·챌면의 laundry.ts 단일 소유가 더해졌음을 대조해 확인했다.
 @evidence principles/design/spaces.md#space-topology 창 아래나 닫힌 벽 아래까지 바닥 마감을 늘리지 않고 머드룸 쪽에 새로운 디딤판이나 두 번째 단을 두지 않는다.
@@ -80,7 +80,7 @@
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 openings의 문턱 구별과 service-band의 머드룸-차고 직접 맞닿음을 laundry-garage-door 행의 공유 벽 차고 쪽 챌면과 나머지 세 행에 대조해 기존 datum으로 부모 수정 없이 성립함을 확인했다.
 -->
 
-본채와 차고의 실내 바닥은 평면에서 벽 안쪽에 끝나지만, 출입 개구부 아래에는 벽 두께를 지나는 지지 바탕이 필요하다. 아래 네 경계는 원래 문 owner의 거친 void 폭과 안팎 벽 면을 소비한다. 바탕은 자기 실내 바닥 예약 높이로 그 띠 전체를 받치고, 문틀·문턱의 최종 순폭은 충전 부재를 넣은 뒤 읽는다. 창 아래나 닫힌 벽 아래까지 바닥 마감을 연장하는 규칙은 아니다.
+본채와 차고의 실내 바닥은 평면에서 벽 안쪽에 끝나지만, 출입 개구부 아래에는 벽 두께를 지나는 지지 바탕이 필요하다. 아래 네 경계는 [방별 경로 표](05-route-network.md#room-route-network)의 spaces 개구부 owner가 정한 거친 void 폭과 안팎 벽 면을 소비한다. 바탕은 자기 실내 바닥 예약 높이로 그 띠 전체를 받치고, models가 만든 문틀·문짝을 넣은 뒤 문턱의 최종 순폭을 읽는다. 창 아래나 닫힌 벽 아래까지 바닥 마감을 연장하는 규칙은 아니다.
 
 | 경계와 연결 | 바탕의 끝과 단면 | 문턱의 완결 소유 |
 | --- | --- | --- |

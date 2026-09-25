@@ -202,7 +202,7 @@
 @evidence settings/10-house.md#primary-bedroom 주침실의 별도 옷 수납 요구 중 옷걸이 구간을 길이 2.15 m 봉과 선반으로 받는다.
 @evidence settings/10-house.md#storage 옷걸이 봉과 상단 선반, 0.55 m 실제 내부 깊이를 둬 수납을 빈 문짝으로 대신하지 않는다.
 @evidence spaces/rooms/wardrobe.md#wardrobe-storage-use 옷방 예약 X = [2.10, 4.25], Z = [-10.45, -9.90]과 높이 2.05 m를 길이 2.15 m·깊이 0.55 m 외곽으로 소비한다.
-@evidence obligations/design/models.md#representation-ceiling 옷을 고정 시드 판 묶음 대리 형상으로 두고 이 대리가 받치는 관찰을 위에서 옷 앞 끝이 Z = -9.90 m를 넘지 않는지로 한정한다.
+@evidence obligations/design/models.md#representation-ceiling 옷을 순번 i mod 3의 결정식으로 두께·길이를 고정한 판 묶음 대리 형상으로 두고 이 대리가 받치는 관찰을 위에서 옷 앞 끝이 Z = -9.90 m를 넘지 않는지로 한정한다.
 -->
 
 레퍼런스 05 복도 옆 열린 옷장의 걸린 옷을 채택한다. 36벌의 두께와 길이 순서는 사진의 옷을 세지 않고 결정 규칙으로 만든다.

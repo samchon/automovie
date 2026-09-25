@@ -28,8 +28,8 @@
 
 | 완결 면 또는 공유 경계 | 소스 파일 owner | 책임과 접합 |
 | --- | --- | --- |
-| 전면 전체 입면 | `src/spaces/envelope/front.ts` | [본채 박공 삼각 벽·포치 접점·차고 정면](envelope/front.md#front-roof-closures). 거실/상층 창과 현관/차고문은 실제 방/벽 binding에서 받는다. |
-| 후면 전체 입면 | `src/spaces/envelope/rear.ts` | [본채 지붕 단차·차고 뒤 처마 아래의 후벽](envelope/rear.md#rear-roof-closures), 공용부 정원 출입과 상층 창. 테라스 때문에 벽을 숨기지 않는다. |
+| 전면 전체 입면 | `src/spaces/envelope/front.ts` | [본채 박공 삼각 벽·포치 접점·차고 정면](envelope/front.md#front-roof-closures). 거실/상층 창과 현관/차고문의 벽 void·reveal을 방/벽 binding에서 받되 닫힌 창호·문 충전은 models가 만든다. |
+| 후면 전체 입면 | `src/spaces/envelope/rear.ts` | [본채 지붕 단차·차고 뒤 처마 아래의 후벽](envelope/rear.md#rear-roof-closures), 공용부 정원 출입과 상층 창의 벽 void·reveal. 닫힌 정원문·창호는 models가 만들며 테라스 때문에 벽을 숨기지 않는다. |
 | 왼쪽 전체 입면 | `src/spaces/envelope/left.ts` | [주 지붕 삼각 벽](envelope/left.md#left-roof-closure)과 [벽난로/굴뚝 접면](envelope/left.md#chimney-roof-interface), 창 둘레. |
 | 오른쪽 노출 입면 전체 | `src/spaces/envelope/right.ts` | [본채 지붕 단차·오른쪽 박공·차고 박공과 벽 접합](envelope/right.md#right-roof-closures). 가려진 공유 벽과 노출 면을 구별한다. |
 | 본채/차고 공유 벽체 | `src/spaces/garage.ts` | 구조 기준 한 개와 머드룸 문 void. 두 실 안쪽 면의 owner는 각 실이다. |

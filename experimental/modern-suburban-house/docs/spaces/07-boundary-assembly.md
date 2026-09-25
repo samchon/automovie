@@ -12,8 +12,8 @@
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 settings surface-allocation은 방 내부 완결 면과 접합 owner 선언만 요구하나 본문은 공유 칸막이 몸체를 실 쌍별 source 하나에 두고 안쪽 마감은 03-surface-owners에 남기는 분리를 더했음을 확인했다.
 @evidence principles/design/spaces.md#space-topology 현관과 서비스의 열린 접속과 계단 끝의 복도 도착은 벽 없이 두고 거실/서비스와 공용부 사이는 상인방 아래 void 외의 전면 칸막이를 닫는다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 현관-서비스 열린 접속과 upper-hall 계단 도착을 벽 없는 연결로, 거실/서비스-공용부를 상인방 아래 void 외 닫힌 칸막이로 둔 문단을 대조해 연결 edge와 막힌 경계가 메쉬 없이 구별됨을 확인했다.
-@evidence principles/design/spaces.md#space-boundary-authority 공유 벽은 garage.ts, 계단 보호/분리는 stair.ts, 외투장·린넨장은 entry·upper-hall이 유지하고 boundaries.ts는 경계 계산만 하며 벽 geometry를 소유하지 않는다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 본채/차고 공유 벽·계단 경계·외투장·린넨장이 00-building·02-stair·rooms/entry·rooms/upper-hall 링크 owner를 유지하고 boundaries.ts가 벽 geometry를 갖지 않는지 대조해 칸막이 몸체의 이중 저작이 없음을 확인했다.
+@evidence principles/design/spaces.md#space-boundary-authority 공유 벽은 garage.ts, 계단 보호/분리는 stair.ts, 외투장·린넨장의 고정 몸체와 void는 entry·upper-hall, 닫힌 문짝·레일은 models/05가 맡는다. boundaries.ts는 경계 계산만 하며 벽 geometry를 소유하지 않는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 본채/차고 공유 벽·계단 경계·수납 고정 몸체가 00-building·02-stair·rooms/entry·rooms/upper-hall에 남고 닫힌 수납문은 models/05에 있는 본문을 대조했다. boundaries.ts는 벽 geometry를 갖지 않아 같은 몸체를 복제하지 않는다.
 @evidence principles/design/spaces.md#space-verification-address 상대가 하나뿐인 실내 벽, 설명 없는 겹친 방, owner 없는 접면, 두 구조 owner가 같은 접면을 만든 상태를 층 평면·높이 단면·공유 면 census에서 찾는다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 상대가 하나뿐인 벽·설명 없는 겹친 방·owner 없는 접면·이중 구조 owner를 실패로 정하고 층 평면·높이 단면·공유 면 census를 검사 주소로 둔 문단을 대조해 칸막이 배정이 반증 가능함을 확인했다.
 @evidence settings/20-verification.md#surface-allocation 한 공유 구조와 양쪽 완결 마감을 따로 배정해 같은 벽을 두 번 생성하지 않는다.
@@ -42,7 +42,7 @@
 
 각 행은 방 사이에 실제로 존재하는 구간에만 적용한다. 표의 슬래시로 묶인 상대끼리 새 벽을 만들지 않는다. [현관과 서비스의 열린 접속](rooms/service.md#service-access-plan)과 [계단 끝의 복도 도착](rooms/upper-hall.md#upper-hall-plan)은 벽 없는 연결로 유지한다. 거실/서비스와 공용부 사이에는 기존 상인방 아래의 큰 void가 있고, 나머지 전면 칸막이는 닫힌다. 연결 edge라는 이유로 벽 전체를 삭제하지 않는다.
 
-[본채/차고 공유 벽](00-building.md#attached-garage-extent)은 기존 `src/spaces/garage.ts`, [계단과 보호/분리 경계](02-stair.md#stair-floor-opening)는 기존 `src/spaces/stair.ts`의 구조 책임을 유지한다. 계단 owner의 통행 구멍을 소비하는 층간 몸체와 벽/층판 접합은 [단일 층간 조립](08-floor-assembly.md#interstorey-edge-junctions)이 배정한다. 현관 외투장과 상층 린넨장의 몸체·문·자기 둘레는 각각 [entry](rooms/entry.md#entry-coat-storage), [upper-hall](rooms/upper-hall.md#upper-linen-storage)이 소유하고 계단 구조를 다시 만들지 않는다. 계단 주변은 [높이별 닫힌 벽/열린 보호 경계](02-stair.md#stair-boundary-heights)를 소비하며 평면 예약을 두 층 높이의 막힌 벽으로 일괄 압출하지 않는다. 일반 실내 칸막이의 높이는 해당 storey의 완성 바닥에서 천장까지이며, 계단/수납의 별도 높이를 덮어쓰지 않는다.
+[본채/차고 공유 벽](00-building.md#attached-garage-extent)은 기존 `src/spaces/garage.ts`, [계단과 보호/분리 경계](02-stair.md#stair-floor-opening)는 기존 `src/spaces/stair.ts`의 구조 책임을 유지한다. 계단 owner의 통행 구멍을 소비하는 층간 몸체와 벽/층판 접합은 [단일 층간 조립](08-floor-assembly.md#interstorey-edge-junctions)이 배정한다. 현관 외투장과 상층 린넨장의 고정 몸체·개구부·둘레는 각각 [entry](rooms/entry.md#entry-coat-storage), [upper-hall](rooms/upper-hall.md#upper-linen-storage)이 소유하고, 그 개구부의 닫힌 문짝·레일·철물은 [수납 원형](../models/05-closet-fittings.md#closet-fitting-surfaces)이 소유한다. 계단 구조는 다시 만들지 않는다. 계단 주변은 [높이별 닫힌 벽/열린 보호 경계](02-stair.md#stair-boundary-heights)를 소비하며 평면 예약을 두 층 높이의 막힌 벽으로 일괄 압출하지 않는다. 일반 실내 칸막이의 높이는 해당 storey의 완성 바닥에서 천장까지이며, 계단/수납의 별도 높이를 덮어쓰지 않는다.
 
 `src/spaces/boundaries.ts`는 방·벽·개구부의 동일 경계 인계와 아래 접합 계산을 맡을 예정이며, 벽 geometry나 입면/방 마감을 소유하지 않는다. 조립은 각 경계의 두 상대 공간, storey, 구간, 높이 역할, 구조 바탕 owner, 양쪽 마감 owner를 함께 전달한다. 상대가 하나뿐인 실내 벽, 설명 없는 겹친 방, owner 없는 접면 또는 두 구조 owner가 같은 접면을 생성한 상태는 실패다. 실내의 한쪽이 계단 아래 비통행 영역인 경우 그 역할을 명시하며 새로운 방이나 숨은 통로로 세지 않는다. 전체 층 평면·해당 높이 단면·공유 면 census가 검사 주소이고 실제 조립은 unverified다.
 
@@ -52,8 +52,8 @@
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 끝점·L·T·십자 접합과 문 절단은 spaces, 닫힌 문틀·문선·문짝은 models/03, 문 아래 바닥 전환은 spaces라는 분할을 본문과 대조했다. 수건걸이·거울·선반 지지 접면과 10-ground-floor 출입구 인계도 이 H2가 남겨 둔다.
 @evidence principles/core/common.md#substantive-completion 접합 구역을 한 번 공통 몸체로 만들고 일반 칸막이끼리의 생성 책임을 source 경로 사전식 첫 owner로, 실내 문 아래 마감 전환선을 거친 칸막이 두께의 중앙면으로 정한다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 접합 구역의 단일 공통 몸체와 직선 몸체 차감, source 경로 사전식 첫 owner 배정, 거친 칸막이 두께 중앙면 전환선을 대조해 다음 층이 접합 책임이나 마감 경계를 새로 정할 일이 없음을 확인했다.
-@evidence principles/core/common.md#declared-basis 접합 구역은 원래 방 윤곽과 두께에서 높이 구간이 겹치는 부분만 산출하고 문 절단은 05의 원래 문 owner에서 받는다고 밝힌다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 접합 평면 구역을 #interior-boundary-ownership의 원래 윤곽·두께에서 높이 겹침만으로 산출하고 문 절단을 05의 원래 문 owner에서 받는다는 문장을 대조해 접합 진술의 근거가 추적됨을 확인했다.
+@evidence principles/core/common.md#declared-basis 접합 구역은 원래 방 윤곽과 두께에서 높이 구간이 겹치는 부분만 산출하고 문 절단은 05가 지정한 spaces 방 개구부 owner에서 받는다고 밝힌다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 접합 평면 구역을 #interior-boundary-ownership의 원래 윤곽·두께에서 높이 겹침만으로 산출하고 문 절단을 05의 spaces 방 개구부 owner에서 받는다는 문장을 대조했다. 닫힌 문 부재는 그 방이 아닌 models/03의 몫이다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 한 구조 기준 요구에 문서 행 순서나 런타임 평가 순서에 흔들리지 않는 접합 배정 규칙과 부착물이 닫힌 벽 구간에만 붙는 조건을 더한다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 surface-allocation의 단일 기준 요구 위에 행 순서·런타임 순서와 무관한 사전식 owner 규칙과 부착물 접면 전체가 닫힌 벽 구간에 있어야 하는 조건이 본문에 더해졌음을 확인했다.
 @evidence principles/design/spaces.md#space-topology 층이 다르거나 계단 위아래에 있는 면을 평면 투영 겹침만으로 합치지 않고 머드룸 한 단·포치·정원문·계단 구멍에는 같은 높이 규칙을 적용하지 않는다.
@@ -78,7 +78,7 @@
 
 벽 개구부의 위치는 [원래 방 owner](05-route-network.md#room-route-network)에서 받아 공통 몸체와 양쪽 마감에 같은 절단 경계로 전달한다. 그 표에서 각 문 개구부의 설계 경계/개구부 owner로 지정한 단일 spaces 방 H2가 벽 절단·reveal과 아래 바닥 마감 전환만 만든다. [실내 문 모델 원형](../models/03-interior-doors.md#interior-door-members)이 이 절단을 받아 닫힌 문설주·문선·문짝·경첩·손잡이를 한 번 만들고, 반대편 방은 같은 부재의 반대 면을 관찰한다. 양 방에 문짝을 각각 생성하지 않는다. 거실/서비스에서 공용부로 들어가는 문 없는 개구부도 같은 절단을 사용한다. 외부 문/창은 [외부 개구부 인계](06-openings.md#external-opening-interface)의 입면/방 역할을 유지한다. 개구부가 다른 접합 몸체에 다시 막히거나 문을 닫은 상태를 벽의 void 부재로 오해하면 실패다.
 
-벽 부착물의 지지 접면도 같은 절단 뒤의 실제 벽 면을 소비한다. room 이름과 평면상의 벽 방향만으로 수건걸이·거울·상부장·선반을 배정하지 않는다. 해당 층의 높이 기준을 적용한 접면 전체가 닫힌 벽 구간에 있어야 하며 개구부를 가로지르는 가짜 받침을 생성하지 않는다. 각 room owner는 자기 부착물/담긴 물건의 최대 점유와 원래 문·창 owner의 틀/문선 및 개폐 점유를 같은 좌표로 대조한다. 충돌하면 부착물의 배치를 원래 room에서 고치며 문을 막거나 반대쪽 방의 벽을 이동하지 않는다. 창 앞 커튼처럼 의도적으로 개구부를 덮는 가동 물건도 벽의 지지 위치와 사용 상태를 구별한다.
+벽 부착물의 지지 접면도 같은 절단 뒤의 실제 벽 면을 소비한다. room 이름과 평면상의 벽 방향만으로 수건걸이·거울·상부장·선반을 배정하지 않는다. 해당 층의 높이 기준을 적용한 접면 전체가 닫힌 벽 구간에 있어야 하며 개구부를 가로지르는 가짜 받침을 생성하지 않는다. 각 room owner는 자기 부착물/담긴 물건의 최대 점유와 [실내 문](../models/03-interior-doors.md#interior-door-members)·[외부 문](../models/02-exterior-doors.md#exterior-door-surfaces)·[창](../models/01-windows.md#window-surface-partitions)의 닫힌 틀/문선 및 개폐 점유를 같은 좌표로 대조한다. 충돌하면 부착물의 배치를 원래 room에서 고치며 문을 막거나 반대쪽 방의 벽을 이동하지 않는다. 창 앞 커튼처럼 의도적으로 개구부를 덮는 가동 물건도 벽의 지지 위치와 사용 상태를 구별한다.
 
 같은 높이의 실내 문 아래는 [해당 층 바닥 owner](03-surface-owners.md#exterior-surface-handoff)가 벽 두께 방향까지 연속된 바탕을 제공한다. 바닥 위 마감 전환선은 거친 칸막이 두께의 중앙면으로 정하고 각 방의 마감이 그 선에서 만난다. 문짝의 경첩 위치를 기준으로 바닥 경계를 이동하지 않는다. 바닥 문턱/전환 면은 위 05 표의 해당 문 개구부 owner인 한 spaces 방 H2가 통합하고 양쪽 방이 같은 높이와 접면을 소비한다. 별도 문 충전은 models/03의 부재이며 이 바닥 면을 복제하지 않는다. [머드룸/차고의 한 단](rooms/laundry.md#laundry-plan), 포치·정원문, 계단 바닥 구멍에는 이 동일 높이 규칙을 적용하지 않으며 각 기존 datum/통행 경계를 보존한다.
 

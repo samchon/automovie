@@ -7,13 +7,13 @@
 @evidence principles/core/common.md#substantive-completion L을 굴뚝 덮개와 본채의 더 왼쪽 외곽에서 -X로 0.60 m, R을 세로 관리길 오른쪽 끝에서 +X로 0.35 m, B를 뒤 가로 길 바깥 끝에서 -Z로 0.35 m로 정한다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 L = 굴뚝 덮개·본채 중 더 왼쪽 외곽 -0.60 m, R = 세로 관리길 오른쪽 끝 +0.35 m, B = 뒤 가로 길 바깥 끝 -0.35 m와 다섯 구간 좌표 쌍을 대조해 울타리 선이 이 H2에서 확정됨을 확인했다.
 @evidence principles/core/common.md#declared-basis 이 값은 울타리 중심선의 내부 배치 선택이며 필지 경계나 법정 이격 거리가 아니라고 밝히고 좌표는 coordinate-units에서 받는다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb L·R·B 오프셋을 필지 경계·법정 이격이 아닌 내부 배치 선택으로, 좌표를 coordinate-units, F를 관리문 owner, maps 수용 여부를 map-handoff-inputs에 둔 본문을 대조해 근거 종류가 구분됨을 확인했다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb L·R·B 오프셋을 필지 경계·법정 이격이 아닌 내부 배치 선택으로, 좌표를 coordinate-units, F의 Z를 side-walk#side-gate-interface의 차고 전면 날씨 면, maps 수용 여부를 map-handoff-inputs에 둔 본문을 대조했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 대지 설정의 우측 목재 울타리를 관리문과 함께 정원 뒤까지 이어지는 하나의 울타리 선으로 해석한다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 site-identity의 '우측의 목재 울타리'에 없는 관리문→오른쪽→뒤쪽→왼쪽→본채 왼쪽 벽까지의 다섯 구간 폐합선과 앞마당 횡단 금지를 본문이 더하는지 대조해 부모 반복이 아님을 확인했다.
 @evidence principles/design/spaces.md#space-topology 울타리 양 끝이 본채 왼쪽 벽과 차고 오른쪽 앞 모서리에 닿고 건물 외피가 나머지 정원 경계를 이어 앞마당을 횡단하지 않는다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 다섯 구간 표의 시작·끝과 '양 끝은 본채 왼쪽 벽과 차고 오른쪽 앞 모서리에 닿는다', 건물 외피가 나머지 경계를 잇는다는 본문을 대조해 정원 안팎 경계 그래프가 복원됨을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 울타리 내부 지표는 maps, 테라스·관리길은 각 spaces owner가 소유하고 울타리는 별도 바닥을 만들지 않는다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 울타리 내부 지표는 maps, 테라스·관리길은 각 spaces owner에 두고 garden-fence가 별도 바닥을 만들지 않으며 F를 관리문 owner Z에서 받는 본문을 대조해 공유 값을 재저작하지 않음을 확인했다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 울타리 내부 지표는 maps, 테라스·관리길은 각 spaces owner에 두고 garden-fence가 별도 바닥을 만들지 않으며 F를 side-walk의 문 평면 Z에서 받는 본문을 대조했다.
 @evidence principles/design/spaces.md#space-verification-address 전체 평면과 양쪽 벽 접점, 모든 꺾임의 안팎 시야로 폐합을 검사한다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 전체 평면, 본채·차고 두 벽 접점, 모든 꺾임의 안팎 시야를 전체 관찰에 넣고 길이·부재 수·폐합·필지 포함을 측정하지 않았다고 적은 본문을 대조해 폐합 주장의 반증 지점을 확인했다.
 @evidence settings/10-house.md#site-identity 우측의 목재 울타리를 기존 관리문에서 정원 뒤까지 다섯 연속 구간으로 잇고 기존 건물 외피와 함께 정원 쪽 경계를 이루어 앞마당을 가로지르지 않게 한다.
@@ -26,7 +26,7 @@
 
 `garden-fence`는 `house-site`/`ground-storey`의 외부 경계다. [대지와 식재](../../settings/10-house.md#site-identity)의 우측 목재 울타리를 기존 [관리문](side-walk.md#side-gate-interface)과 함께 정원 뒤까지 이어지는 하나의 울타리로 해석한다. 집 안의 방이나 도로 접근 node를 추가하지 않는다. 울타리 내부의 지표는 maps, 기존 테라스·관리길은 각 spaces owner가 소유하며 울타리가 별도 바닥을 생성하지 않는다.
 
-좌표는 [공통 world 기준](../../settings/00-production.md#coordinate-units)이다. 앞쪽 평면 F는 관리문 owner가 정한 Z, 왼쪽 선 L은 [굴뚝 덮개](../envelope/left.md#chimney-roof-interface)와 [본채](../00-building.md#main-building-extent)의 더 왼쪽 외곽에서 -X로 0.60 m, 오른쪽 선 R은 [세로 관리길](side-walk.md#side-walk-plan)의 오른쪽 끝에서 +X로 0.35 m, 뒤쪽 선 B는 같은 owner의 뒤 가로 길 바깥 끝에서 -Z로 0.35 m다. 이 값은 울타리 중심선의 내부 배치 선택이며 필지 경계 선언이나 법정 이격 거리가 아니다. maps의 실제 경계가 이 울타리 점유를 수용하는지는 [입력 인계](00-access.md#map-handoff-inputs)에서 확인해야 한다.
+좌표는 [공통 world 기준](../../settings/00-production.md#coordinate-units)이다. 앞쪽 평면 F의 Z는 [관리문 개구부 owner](side-walk.md#side-gate-interface)가 소비한 차고 전면 바깥 면과 같고, 왼쪽 선 L은 [굴뚝 덮개](../envelope/left.md#chimney-roof-interface)와 [본채](../00-building.md#main-building-extent)의 더 왼쪽 외곽에서 -X로 0.60 m, 오른쪽 선 R은 [세로 관리길](side-walk.md#side-walk-plan)의 오른쪽 끝에서 +X로 0.35 m, 뒤쪽 선 B는 같은 owner의 뒤 가로 길 바깥 끝에서 -Z로 0.35 m다. 이 값은 울타리 중심선의 내부 배치 선택이며 필지 경계 선언이나 법정 이격 거리가 아니다. maps의 실제 경계가 이 울타리 점유를 수용하는지는 [입력 인계](00-access.md#map-handoff-inputs)에서 확인해야 한다.
 
 | 연속 구간 | 중심선의 시작과 끝 | 관계 |
 | --- | --- | --- |
