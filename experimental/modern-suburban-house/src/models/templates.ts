@@ -31,6 +31,7 @@ export interface PrototypeSpec {
   wallBar?: boolean;
   /** One ceiling pendant profile, sharing the same measured generator. */
   pendant?: "island" | "dining";
+  ceiling?: "flush";
   laundry?: "washer" | "dryer";
   chairProfile?: "terrace" | "dining" | "desk";
   tableProfile?: "terrace";
@@ -937,6 +938,16 @@ export function buildPrototype(spec: PrototypeSpec): HousePrototype {
       break;
       }
     case "fixture":
+      if(spec.ceiling==="flush") {
+        const radius=w/2,inner=radius-0.02,neck=0.35*w;
+        b.ringY("fixture-housing",[0,-0.02,0],inner,radius,0.03);
+        b.frustum("fixture-housing",[0,-0.02,0],radius,radius,0.005,16);
+        b.frustum("fixture-housing",[0,-0.015,0],neck,neck,0.007,16);
+        b.frustum("fixture-housing",[0,-0.008,0],neck,neck,0.008,16);
+        b.frustum("fixture-diffuser",[0,-0.05,0],inner,inner,0.012,16);
+        pending.delete("fixture-housing"); pending.delete("fixture-diffuser");
+        break;
+      }
       if(spec.pendant) {
         const island=spec.pendant==="island";
         const shadeHeight=island?0.22:0.20;

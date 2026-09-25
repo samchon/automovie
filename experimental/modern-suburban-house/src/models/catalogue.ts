@@ -3,7 +3,7 @@
 import { buildPrototype, curtainEnvelope, type PrototypeSpec, type WindowCurtainSize } from "./templates";
 import type { HousePrototype } from "./parts";
 import { kitchenDiningSpecs } from "./furnishings/kitchen-dining";
-import { livingSpecs } from "./furnishings/living";
+import { livingSpecs, floorCoveringSizes } from "./furnishings/living";
 import { serviceRoomSpecs, laundryMachineSizes } from "./furnishings/service-rooms";
 import { bedroomSpecs, bedSizes, bedMattressTop, deskSizes, nightstandSizes, nightstandBodyTop } from "./furnishings/bedrooms";
 import { bathroomSpecs, bathMatSizes } from "./furnishings/bathrooms";
@@ -13,7 +13,7 @@ import { exteriorTrimSpecs } from "./exterior/trim";
 import { shingleSpecs } from "./exterior/shingle";
 import { drainageSpecs } from "./exterior/drainage";
 import { plantingSpecs, siteTreeSizes } from "./planting";
-import { lightingFixtureSpecs, pendantDimensions } from "./lighting-fixtures";
+import { lightingFixtureSpecs, pendantDimensions, flushCeilingSizes } from "./lighting-fixtures";
 import { housePropSpecs } from "./furnishings/props";
 
 export const housePrototypeSpecs: readonly PrototypeSpec[] = [
@@ -188,6 +188,22 @@ export function buildHouseObjects(parents: HousePrototype[] = buildHousePrototyp
     ["shower-bath-mat",bathMatSizes.shower],
     ["tub-bath-mat",bathMatSizes.tub],
   ] as const).map(([id,size])=>buildPrototype({...matHost,id,size}));
-  return [...parents.filter((p)=>!splitParents.has(p.id)&&p.id!==pendantHost.id&&p.id!==laundryHost.id&&p.id!==bedHost.id&&p.id!==deskHost.id&&p.id!==treeHost.id&&p.id!==matHost.id),
-    ...separate,...pendants,...machines,...beds,...desks,...childNightstands,...trees,...bathMats];
+  const ceilingHost=housePrototypeSpecs.find((spec)=>spec.id==="flush-ceiling-fixture")!;
+  if(!byId.has(ceilingHost.id)) throw Error("flush-ceiling-fixture: missing design host");
+  const ceilingFixtures=([
+    ["room-ceiling-fixture",flushCeilingSizes.rooms],
+    ["garage-ceiling-fixture",flushCeilingSizes.garage],
+  ] as const).map(([id,size])=>buildPrototype({...ceilingHost,id,size}));
+  const coveringHost=housePrototypeSpecs.find((spec)=>spec.id==="floor-covering")!;
+  if(!byId.has(coveringHost.id)) throw Error("floor-covering: missing design host");
+  const coverings=([
+    ["living-rug",floorCoveringSizes.living],
+    ["family-rug",floorCoveringSizes.family],
+    ["entry-mat",floorCoveringSizes.entry],
+    ["primary-bed-rug",floorCoveringSizes.primary],
+    ["bedroom-two-bed-rug",floorCoveringSizes.childTwo],
+    ["bedroom-three-bed-rug",floorCoveringSizes.childThree],
+  ] as const).map(([id,size])=>buildPrototype({...coveringHost,id,size}));
+  return [...parents.filter((p)=>!splitParents.has(p.id)&&p.id!==pendantHost.id&&p.id!==laundryHost.id&&p.id!==bedHost.id&&p.id!==deskHost.id&&p.id!==treeHost.id&&p.id!==matHost.id&&p.id!==ceilingHost.id&&p.id!==coveringHost.id),
+    ...separate,...pendants,...machines,...beds,...desks,...childNightstands,...trees,...bathMats,...ceilingFixtures,...coverings];
 }

@@ -67,8 +67,8 @@ test("bath curtain opens within its measured rail and keeps four joined folds", 
 test("separate room objects keep each reviewed face once", () => {
   const parents=buildHousePrototypes();
   const objects=buildHouseObjects(parents);
-  assert.equal(objects.length,86);
-  assert.ok(!objects.some((p)=>["porch-mat-planter","wall-art-indoor-plant","pantry-containers","kitchen-food-utensils","pendant-fixtures","laundry-machine","headboard-bed","child-desk","site-tree-prototypes","bath-floor-mats"].includes(p.id)));
+  assert.equal(objects.length,92);
+  assert.ok(!objects.some((p)=>["porch-mat-planter","wall-art-indoor-plant","pantry-containers","kitchen-food-utensils","pendant-fixtures","laundry-machine","headboard-bed","child-desk","site-tree-prototypes","bath-floor-mats","flush-ceiling-fixture","floor-covering"].includes(p.id)));
   for(const [parentId,children] of [
     ["porch-mat-planter",["porch-mat","porch-planter"]],
     ["wall-art-indoor-plant",["wall-art","indoor-plant"]],
@@ -96,6 +96,34 @@ test("separate room objects keep each reviewed face once", () => {
   assert.throws(()=>buildHouseObjects(parents.filter((p)=>p.id!=="child-desk")),/missing design host/);
   assert.throws(()=>buildHouseObjects(parents.filter((p)=>p.id!=="site-tree-prototypes")),/missing design host/);
   assert.throws(()=>buildHouseObjects(parents.filter((p)=>p.id!=="bath-floor-mats")),/missing design host/);
+  assert.throws(()=>buildHouseObjects(parents.filter((p)=>p.id!=="flush-ceiling-fixture")),/missing design host/);
+  assert.throws(()=>buildHouseObjects(parents.filter((p)=>p.id!=="floor-covering")),/missing design host/);
+  for(const [id,length,width,thickness] of [
+    ["living-rug",2.35,2.00,0.008],["family-rug",1.70,1.55,0.008],
+    ["entry-mat",0.90,0.65,0.006],["primary-bed-rug",2.45,1.90,0.008],
+    ["bedroom-two-bed-rug",2.45,1.45,0.008],["bedroom-three-bed-rug",2.45,1.45,0.008],
+  ] as const) {
+    const covering=objects.find((p)=>p.id===id)!;
+    const positions=covering.model.parts.flatMap((part)=>part.geometry.type==="mesh"?part.geometry.mesh.positions:[]);
+    for(const [axis,expected] of [[0,length],[1,thickness],[2,width]] as const) {
+      const values=positions.filter((_,i)=>i%3===axis);
+      assert.ok(Math.abs(Math.max(...values)-Math.min(...values)-expected)<1e-9,`${id}: axis ${axis}`);
+    }
+    const field=covering.model.parts.find((part)=>part.material==="field")!.geometry;
+    if(field.type!=="mesh") throw Error(`${id}: field mesh missing`);
+    const fieldXs=field.mesh.positions.filter((_,i)=>i%3===0);
+    assert.ok(Math.abs(Math.max(...fieldXs)-Math.min(...fieldXs)-(length-0.08))<1e-9);
+  }
+  for(const [id,diameter] of [["room-ceiling-fixture",0.24],["garage-ceiling-fixture",0.40]] as const) {
+    const fixture=objects.find((p)=>p.id===id)!;
+    const positions=fixture.model.parts.flatMap((part)=>part.geometry.type==="mesh"?part.geometry.mesh.positions:[]);
+    const xs=positions.filter((_,i)=>i%3===0),ys=positions.filter((_,i)=>i%3===1);
+    assert.ok(Math.abs(Math.max(...xs)-Math.min(...xs)-diameter)<1e-9);
+    assert.ok(Math.abs(Math.min(...ys)+0.05)<1e-9);
+    assert.ok(Math.abs(Math.max(...ys))<1e-9);
+    assert.equal(fixture.model.parts.filter((part)=>part.material==="fixture-housing").length,4);
+    assert.equal(fixture.model.parts.filter((part)=>part.material==="fixture-diffuser").length,1);
+  }
   for(const [id,width] of [["shower-bath-mat",0.65],["tub-bath-mat",0.80]] as const) {
     const mat=objects.find((p)=>p.id===id)!;
     const positions=mat.model.parts.flatMap((part)=>part.geometry.type==="mesh"?part.geometry.mesh.positions:[]);
