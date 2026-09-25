@@ -24,7 +24,11 @@
  *   above the ears) over its length from glabella to opisthocranion (the
  *   midline's most posterior point), which hair hides;
  * - each ear's length (sa-sba, `faceAuricleLength`) over the face's height
- *   from soft-tissue nasion to menton.
+ *   from soft-tissue nasion to menton;
+ * - each ear's protrusion over its length: the ear's most lateral point
+ *   less the head behind it (ANSUR II: from the mastoid to the ear's most
+ *   lateral edge, horizontally), the head being the most lateral skin within
+ *   5 mm of that point's height and 2 cm behind the auricle.
  *
  * The profile's landmarks are `faceProfileLandmarks`'s. Each reading is
  * paired with the one control that means it (`FACE_UNSEEN_INDICES`) and
@@ -71,13 +75,16 @@ export interface IFaceUnseenNorm {
   nasalProtrusion: number;
   cephalicIndex: number;
   earLength: number;
+  earProtrusion: number;
 }
 
 /** One reading of the unseen form on the model. */
 export type FaceUnseenReading =
-  | Exclude<keyof IFaceUnseenNorm, "earLength">
+  | Exclude<keyof IFaceUnseenNorm, "earLength" | "earProtrusion">
   | "earLengthLeft"
-  | "earLengthRight";
+  | "earLengthRight"
+  | "earProtrusionLeft"
+  | "earProtrusionRight";
 
 /** One unseen reading, the norm it is held to and the control that means it. */
 export interface IFaceUnseenIndex extends IFaceAnthropometryIndex {
@@ -96,14 +103,14 @@ export interface IFaceUnseenIndex extends IFaceAnthropometryIndex {
  * convexity, the nasal root's depth the nasofrontal angle, the columella's
  * inclination the nasolabial angle, the nose's depth its tip's
  * protrusion, the occiput's depth the head's length, and each ear's scale
- * its length. Distances resolve to 0.01 mm, angles to 0.01 degree, a
+ * its length and its flap its protrusion. Distances resolve to 0.01 mm, angles to 0.01 degree, a
  * tenth of the profile's sampling, and ratios to 0.0001. Each spread is
  * the reading's standard deviation among adults: 2 mm to the E-line
  * (Ricketts 1968), 4 degrees of convexity and 8 of the nasolabial angle
  * (Legan and Burstone 1980), 7 of the nasofrontal angle (Farkas 1994,
  * North American White), 0.02 of the nasal tip protrusion index (Zaidi
  * 2017, individual data), 0.03 of the cephalic index and 0.04 of the ear's
- * ratio (ANSUR II).
+ * ratio, and 0.045 of the ear's protrusion over its length (ANSUR II).
  */
 export const FACE_UNSEEN_INDICES: readonly IFaceUnseenIndex[] = [
   {
@@ -178,6 +185,22 @@ export const FACE_UNSEEN_INDICES: readonly IFaceUnseenIndex[] = [
     resolution: 1e-4,
     spread: 0.04,
   },
+  {
+    id: "earProtrusionLeft",
+    norm: "earProtrusion",
+    definition: "left ear's lateral point to the head behind it, over sa-sba",
+    channels: ["leftEarFlap"],
+    resolution: 1e-4,
+    spread: 0.045,
+  },
+  {
+    id: "earProtrusionRight",
+    norm: "earProtrusion",
+    definition: "right ear's lateral point to the head behind it, over sa-sba",
+    channels: ["rightEarFlap"],
+    resolution: 1e-4,
+    spread: 0.045,
+  },
 ];
 
 /**
@@ -215,8 +238,8 @@ export const FACE_UNSEEN_INDICES: readonly IFaceUnseenIndex[] = [
  * database 2008) and Chinese workers (Du et al., Ann Occup Hyg
  * 2008;52:773-782), their two ratios averaged.
  *
- * Ear length over face height (sellion to menton): the mean of the
- * individual ratios in ANSUR II, soldiers 18 to 35, White, Black, and those
+ * Ear length over face height (sellion to menton) and ear protrusion over
+ * ear length: the means of the individual ratios in ANSUR II, soldiers 18 to 35, White, Black, and those
  * of Chinese, Korean or Japanese ethnicity (47 men and 27 women).
  */
 export const FACE_UNSEEN_NORMS: Record<
@@ -233,6 +256,7 @@ export const FACE_UNSEEN_NORMS: Record<
       nasalProtrusion: 0.372,
       cephalicIndex: 0.7708,
       earLength: 0.5225,
+      earProtrusion: 0.368,
     },
     female: {
       eLineUpper: -0.00497,
@@ -243,6 +267,7 @@ export const FACE_UNSEEN_NORMS: Record<
       nasalProtrusion: 0.366,
       cephalicIndex: 0.778,
       earLength: 0.5282,
+      earProtrusion: 0.3525,
     },
   },
   african: {
@@ -255,6 +280,7 @@ export const FACE_UNSEEN_NORMS: Record<
       nasalProtrusion: 0.337,
       cephalicIndex: 0.7671,
       earLength: 0.4976,
+      earProtrusion: 0.362,
     },
     female: {
       eLineUpper: 0.00188,
@@ -265,6 +291,7 @@ export const FACE_UNSEEN_NORMS: Record<
       nasalProtrusion: 0.32,
       cephalicIndex: 0.7651,
       earLength: 0.5127,
+      earProtrusion: 0.3378,
     },
   },
   asian: {
@@ -277,6 +304,7 @@ export const FACE_UNSEEN_NORMS: Record<
       nasalProtrusion: 0.332,
       cephalicIndex: 0.8484,
       earLength: 0.5214,
+      earProtrusion: 0.3695,
     },
     female: {
       eLineUpper: -0.00008,
@@ -287,6 +315,7 @@ export const FACE_UNSEEN_NORMS: Record<
       nasalProtrusion: 0.322,
       cephalicIndex: 0.8553,
       earLength: 0.5256,
+      earProtrusion: 0.3569,
     },
   },
 };
@@ -342,8 +371,8 @@ export function faceUnseenNorm(facts: {
  * The unseen readings on a built skin, each null where the surface does not
  * show its landmarks. `stomion` and `inferius` are the vermilion seam's
  * upper and lower heights, `scalp` the vertices hair grows from, over which
- * the head's breadth is read, and `auricles` each ear's vertices
- * (`faceAuricleVertices`).
+ * the head's breadth is read, `auricles` each ear's vertices
+ * (`faceAuricleVertices`) and `mastoids` the head's skin about each ear.
  */
 export function measureFaceUnseen(props: {
   positions: readonly number[];
@@ -352,6 +381,7 @@ export function measureFaceUnseen(props: {
   inferius: number;
   scalp: readonly number[];
   auricles: { left: readonly number[]; right: readonly number[] };
+  mastoids: { left: readonly number[]; right: readonly number[] };
   step: number;
 }): Record<FaceUnseenReading, number | null> {
   const none = {
@@ -364,6 +394,8 @@ export function measureFaceUnseen(props: {
     cephalicIndex: null,
     earLengthLeft: null,
     earLengthRight: null,
+    earProtrusionLeft: null,
+    earProtrusionRight: null,
   };
   let base: ReturnType<typeof faceMidsagittalLandmarks>;
   try {
@@ -465,6 +497,26 @@ export function measureFaceUnseen(props: {
     const length = faceAuricleLength(props.positions, vertices);
     return length === null || height === null ? null : length / height;
   };
+  // The ear's most lateral point against the head behind it.
+  const protrusion = (
+    auricle: readonly number[],
+    head: readonly number[],
+  ): number | null => {
+    const length = faceAuricleLength(props.positions, auricle);
+    if (length === null) return null;
+    const P = props.positions;
+    const out = (v: number) => Math.abs(P[3 * v]!);
+    const edge = auricle.reduce((a, b) => (out(b) > out(a) ? b : a));
+    const back = Math.min(...auricle.map((v) => P[3 * v + 2]!));
+    const behind = head.filter(
+      (v) =>
+        Math.abs(P[3 * v + 1]! - P[3 * edge + 1]!) <= 0.005 &&
+        P[3 * v + 2]! <= back &&
+        P[3 * v + 2]! >= back - 0.02,
+    );
+    if (behind.length === 0) return null;
+    return (out(edge) - Math.max(...behind.map(out))) / length;
+  };
   return {
     eLineUpper: eLine(upperLip),
     eLineLower: eLine(
@@ -492,5 +544,7 @@ export function measureFaceUnseen(props: {
         : breadth / Math.hypot(glabella[0] - back[0], glabella[1] - back[1]),
     earLengthLeft: ear(props.auricles.left),
     earLengthRight: ear(props.auricles.right),
+    earProtrusionLeft: protrusion(props.auricles.left, props.mastoids.left),
+    earProtrusionRight: protrusion(props.auricles.right, props.mastoids.right),
   };
 }

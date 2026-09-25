@@ -87,7 +87,10 @@ const strip = (
  *    back at (-80, 90); an "ear" of the strip's first two left vertices,
  *    (75, 150) and (60, 160), is hypot(15, 10) mm long over a face from
  *    nasion to menton (-63, 142), and an ear without vertices has no
- *    length.
+ *    length; no ear has a protrusion without the head's skin behind it or
+ *    without a length. A small ear set off the strip, its lateral point 10
+ *    mm out from the head behind it (another head point lies too high to
+ *    count), protrudes 10 mm over its length.
  * 4. A surface that does not reach the midsagittal plane has no reading;
  *    a profile with no chin below the lower lip has no E-line or convexity
  *    and keeps its nasal angles, cephalic index and ear length; with no
@@ -155,6 +158,7 @@ export const test_subject_face_unseen_norms = (): void => {
     inferius: -0.031,
     scalp: [0, 1],
     auricles: { left: [0, 2], right: [] },
+    mastoids: { left: [], right: [] },
     step: 0.00025,
   };
   const measured = measureFaceUnseen({ positions, indices, ...options });
@@ -188,7 +192,34 @@ export const test_subject_face_unseen_norms = (): void => {
         Math.hypot(15, 10) / Math.hypot(98, 8),
         1e-9,
       ) &&
-      measured.earLengthRight === null,
+      measured.earLengthRight === null &&
+      measured.earProtrusionLeft === null &&
+      measured.earProtrusionRight === null,
+  );
+  // A small ear off the strip: its lateral point (80, 20, 30) mm, its lobe
+  // (75, -30, 35), the head behind it at (70, 22, 20) and, too high to
+  // count, (72, 100, 20).
+  const base = positions.length / 3;
+  const eared = measureFaceUnseen({
+    positions: [
+      ...positions,
+      ...[80, 20, 30, 75, -30, 35, 70, 22, 20, 72, 100, 20].map(
+        (v) => v / 1000,
+      ),
+    ],
+    indices,
+    ...options,
+    auricles: { left: [0, 2], right: [base, base + 1] },
+    mastoids: { left: [], right: [base + 2, base + 3] },
+  });
+  TestValidator.predicate(
+    "ear protrusion",
+    nclose(eared.earProtrusionRight!, 10 / Math.hypot(5, 50, 5), 1e-9) &&
+      nclose(
+        eared.earLengthRight!,
+        Math.hypot(5, 50, 5) / Math.hypot(98, 8),
+        1e-9,
+      ),
   );
   const unreadable = {
     eLineUpper: null,
@@ -200,6 +231,8 @@ export const test_subject_face_unseen_norms = (): void => {
     cephalicIndex: null,
     earLengthLeft: null,
     earLengthRight: null,
+    earProtrusionLeft: null,
+    earProtrusionRight: null,
   };
   TestValidator.equals(
     "unreadable",

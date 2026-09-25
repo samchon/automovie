@@ -239,6 +239,33 @@ if (command === "identity") {
       }),
     ]),
   ) as Record<"left" | "right", number[]>;
+  // The head's skin about each ear, the auricle left out, within 3 cm of
+  // the auricle's box: where the ear's protrusion is read from.
+  const skin = new Set(
+    human.regions
+      .filter((region) => region.id.endsWith("/skin"))
+      .flatMap((region) => region.indices),
+  );
+  const mastoids = Object.fromEntries(
+    (["left", "right"] as const).map((side) => {
+      const auricle = new Set(auricles[side]);
+      const P = human.positions;
+      const box = [0, 1, 2].map((k) => {
+        const along = auricles[side].map((v) => P[3 * v + k]!);
+        return [Math.min(...along) - 0.03, Math.max(...along) + 0.03] as const;
+      });
+      return [
+        side,
+        [...skin].filter(
+          (v) =>
+            !auricle.has(v) &&
+            box.every(
+              ([lo, hi], k) => P[3 * v + k]! >= lo && P[3 * v + k]! <= hi,
+            ),
+        ),
+      ];
+    }),
+  ) as Record<"left" | "right", number[]>;
   const scalp = [
     ...new Set(
       (human.hairDomains ?? []).flatMap((domain) =>
@@ -388,6 +415,8 @@ if (command === "identity") {
       ...scalp,
       ...auricles.left,
       ...auricles.right,
+      ...mastoids.left,
+      ...mastoids.right,
     ]);
     const midline: number[] = [];
     for (let t = 0; t < human.indices.length; t += 3) {
@@ -445,6 +474,7 @@ if (command === "identity") {
         inferius: positions[3 * lips.lower + 1]!,
         scalp,
         auricles,
+        mastoids,
         step: 0.0001,
       });
       return FACE_UNSEEN_INDICES.map((one) => read[one.id]);
