@@ -103,6 +103,29 @@ export interface IAutoMovieHumanBodySimpleShapeTable {
     /** Authored interpolation interval; the study reports separate age domains. */
     transitionAgeYears: [number, number];
     essentialBySex: [number, number][];
+
+    /**
+     * Fat-free mass index (kg/m²) one unit of the muscle parameter adds over
+     * the regression's body at the same stature and mass, by sex: the fat
+     * the definition gates read is the regression's less the mass that
+     * muscle displaces (`100 · Δ · muscle / BMI` points). Deurenberg's
+     * regression knows no muscularity, so without this an athlete reads the
+     * fat of an untrained body of the same mass index.
+     */
+    muscleFatFreeMassIndex: [number, number][];
+  };
+
+  /**
+   * The ages over which a body becomes able to build muscle, as curves over
+   * sex: before `startAgeYears` training adds no measurable muscle, from
+   * `endAgeYears` it adds an adult's, linearly between. The derived
+   * `developedMuscle` is the muscle parameter times this ramp; relations
+   * calibrated on adult training read it instead of `muscle`, and so does
+   * the fat-free mass the definition gates subtract.
+   */
+  maturity: {
+    startAgeYears: [number, number][];
+    endAgeYears: [number, number][];
   };
 
   /** Channel weight = Σ gain · Π curve(parameter) over the rows naming that channel. */

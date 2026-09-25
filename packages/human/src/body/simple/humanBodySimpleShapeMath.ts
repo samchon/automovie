@@ -5,7 +5,7 @@ import type { IAutoMovieHumanBodySimpleShape } from "../structures/IAutoMovieHum
 /**
  * The arithmetic the simple tier's expansion and projection share: the
  * piecewise-linear curves of the table, their inverses, the derived fat
- * parameters, the child/adult head mass share, and the term rows evaluated on
+ * and developed muscle parameters, the child/adult head mass share, and the term rows evaluated on
  * a parameter record.
  *
  * Kept apart from the two public functions so that each of them reads as
@@ -82,6 +82,50 @@ export const humanBodySimpleShapeMath = {
     };
   },
 
+  /**
+   * How far a body has matured to build muscle, 0 before the sex's
+   * adolescent muscle spurt and 1 after it, linear between the table's ages.
+   */
+  maturity(
+    simple: Pick<IAutoMovieHumanBodySimpleShape, "sex" | "ageYears">,
+  ): number {
+    const table = HUMAN_BODY_SIMPLE_SHAPE.maturity;
+    const start = humanBodySimpleShapeMath.curve(
+      table.startAgeYears,
+      simple.sex,
+    );
+    const end = humanBodySimpleShapeMath.curve(table.endAgeYears, simple.sex);
+    return Math.min(1, Math.max(0, (simple.ageYears - start) / (end - start)));
+  },
+
+  /** The muscle parameter as far as the body has matured to build it. */
+  developedMuscle(
+    simple: Pick<IAutoMovieHumanBodySimpleShape, "sex" | "ageYears" | "muscle">,
+  ): number {
+    return simple.muscle * humanBodySimpleShapeMath.maturity(simple);
+  },
+
+  /**
+   * The excess fat the definition gates read, above essential fat: the
+   * regression's estimate less the fat-free mass the developed muscle adds
+   * (a trained body at the same mass index carries less fat; a child, who
+   * has not built it, keeps the regression), never below one point over
+   * essential fat. The mass model's density keeps the regression's estimate.
+   */
+  visibleFat(
+    simple: Pick<IAutoMovieHumanBodySimpleShape, "sex" | "ageYears" | "muscle">,
+    bodyMassIndex: number,
+  ): number {
+    const { excess } = humanBodySimpleShapeMath.fat(simple, bodyMassIndex);
+    const added =
+      humanBodySimpleShapeMath.developedMuscle(simple) *
+      humanBodySimpleShapeMath.curve(
+        HUMAN_BODY_SIMPLE_SHAPE.fat.muscleFatFreeMassIndex,
+        simple.sex,
+      );
+    return Math.max(1, excess - (100 * added) / bodyMassIndex);
+  },
+
   /** Fraction of total mass above the body clip ring, with a stated study-domain bridge. */
   headAndNeckFraction(ageYears: number): number {
     const table = HUMAN_BODY_SIMPLE_SHAPE.mass.headAndNeck;
@@ -113,8 +157,11 @@ export const humanBodySimpleShapeMath = {
       ageYears: simple.ageYears,
       bodyMassIndex,
       muscle: simple.muscle,
-      excessFatPercent: humanBodySimpleShapeMath.fat(simple, bodyMassIndex)
-        .excess,
+      developedMuscle: humanBodySimpleShapeMath.developedMuscle(simple),
+      excessFatPercent: humanBodySimpleShapeMath.visibleFat(
+        simple,
+        bodyMassIndex,
+      ),
     };
   },
 
