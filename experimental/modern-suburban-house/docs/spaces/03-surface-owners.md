@@ -42,7 +42,7 @@
 | 차고 지붕 전방 면·하부 | `src/spaces/roof/garage-front.ts` | 차고 정면과 본채 접합의 닫힌 경계. |
 | 차고 지붕 후방 면·하부 | `src/spaces/roof/garage-back.ts` | 차고 후벽·본채 접면과 처마. |
 | 낮은 포치 지붕·하부 | `src/spaces/porch.ts` | [보·기둥·받침](porch.md#porch-roof-columns)과 [바닥/현관 접근](porch.md#porch-platform-access)을 함께 소유한다. |
-| 본채 1층 바닥 구조 바탕 | `src/spaces/floors/ground.ts` | [연속 바탕](10-ground-floor.md#main-ground-floor-base)과 [문 아래 지지](10-ground-floor.md#ground-threshold-junctions)를 받는다. 보이는 방 마감은 각 room, 전후면 외부 문턱판은 front/rear 입면 owner, 같은 높이 실내 문 아래 바닥 전환은 [05의 단일 방 owner](07-boundary-assembly.md#interior-boundary-junctions)가 맡고 층간 구조/1층 천장을 중복 생성하지 않는다. |
+| 본채 1층 바닥 구조 바탕 | `src/spaces/floors/ground.ts` | [연속 바탕](10-ground-floor.md#main-ground-floor-base)과 [문 아래 지지](10-ground-floor.md#ground-threshold-junctions)를 받는다. 보이는 방 마감은 각 room, 전후면 외부 문턱판은 front/rear 입면 owner, 같은 높이 실내 문 아래 바닥 전환은 [07의 단일 방 owner](07-boundary-assembly.md#interior-boundary-junctions)가 맡고 층간 구조/1층 천장을 중복 생성하지 않는다. |
 | 차고의 낮은 바닥 바탕 | `src/spaces/garage.ts` | [독립 차고 바탕](10-ground-floor.md#garage-ground-floor-base)과 전면문 아래 지지. 노출 콘크리트 상면은 garage-interior, 머드룸의 높은 문턱/챌면은 laundry owner다. |
 | 본채 층간 구조와 2층 천장 바탕 | `src/spaces/floors/upper.ts` | [단일 층간 구조](08-floor-assembly.md#interstorey-floor-boundary)와 같은 계단 구멍·상부 도착. [최상부 천장 바탕](09-ceiling-assembly.md#upper-ceiling-closure)에는 층간 구멍을 복제하지 않는다. 보이는 바닥/천장 마감은 각 방 owner다. |
 | 차고의 독립 천장 바탕 | `src/spaces/garage.ts` | [차고 천장](09-ceiling-assembly.md#garage-ceiling-closure)의 구조/벽 접점. 보이는 전체 천장 마감은 garage-interior owner다. |
@@ -82,7 +82,7 @@
 @evidence principles/design/spaces.md#space-topology 린넨장은 upper-hall, 외투장은 entry의 접면으로 두고 수납 이름으로 방의 질문을 없애지 않는다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 ‘상층 복도와 린넨 수납 접면’·‘실내 현관과 외투 수납 접면’ 행과 ‘이 분류로 실제 방의 질문을 줄이지 않는다’를 대조해 얕은 수납의 포함 관계가 소비 방 안에 명시됨을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 구조 벽과 층판은 외곽/공유 기준을 소비하고 문·창 void는 경계 owner가 한 번 절단한다. 방 owner는 안쪽 벽·바닥·reveal 마감 면을 만들며 별도 닫힌 문짝·창호·벽 걸레받이는 models가 만들어 같은 접면에 맞춘다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 본문의 방별 표는 안쪽 벽·바닥·reveal 면을 방 source에 두고 문짝·창호·걸레받이의 닫힌 부재를 각 models/03·01·06에 둔다. 방 source가 그 판을 복제하지 않고 두 모델이 받은 void와 벽·바닥 접선을 각각 맞추도록 한 문장을 확인했다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 본문의 방별 설명은 안쪽 벽·바닥·reveal 면을 방 source에 두고 문짝·창호·걸레받이의 닫힌 부재를 각 models/03·01·06에 둔다. 방 source가 그 판을 복제하지 않고 두 모델이 받은 void와 벽·바닥 접선을 각각 맞추도록 한 문장을 확인했다.
 @evidence principles/design/spaces.md#space-verification-address 방별 경계·문·창·storey binding을 05와 대조하고 표의 행 수를 방의 면 개수로 쓰지 않게 한다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 ‘방의 면 개수를 표의 행 수로 대체하지 않는다’와 방별 binding을 05의 방 owner와 대조하라는 문장이 동선 표 교차 대조와 source 이후 census를 이 배정의 반증 검사로 지목함을 확인했다.
 @evidence settings/10-house.md#storage 사람이 들어가는 옷방은 자기 파일·전체 관찰을 가지며 얕은 장은 소비 방에 속한다.

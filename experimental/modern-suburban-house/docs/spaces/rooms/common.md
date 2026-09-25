@@ -177,7 +177,7 @@
 @evidence principles/design/spaces.md#space-verification-address 닫힌/열린 기구·의자 사용 점유를 함께 놓은 평면, 섬과 벽 주방 단면, 정원문/의자/후면 띠 단면, 두 진입의 왕복 시야를 관찰로 든다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 닫힌/열린 기구·의자 점유 평면, 섬·벽 주방 단면, 정원문/의자/후면 띠 단면, 두 진입 왕복 시야를 반증 관찰로 들고 좌표 산술을 도달성 판정으로 바꾸지 않음을 확인했다.
 @evidence settings/00-production.md#use-profile 바구니 포함 사용 점유체의 양방향 이동과 0.90 m 이상 통로 목표를 주 경로에 적용한다.
-@evidenceReview settings/00-production.md#use-profile #6ef5afe 오른쪽 띠 X = 2.10~3.07의 0.97 m와 뒤쪽 띠 후벽~Z = -9.25의 1.20 m가 use-profile 0.90 m 하한을 넘음을 대조하고 바구니 포함 점유체의 양방향 이동은 확인 항목으로 둠을 확인했다.
+@evidenceReview settings/00-production.md#use-profile #6ef5afe 오른쪽 띠 X = 2.10~3.07의 거친 폭 0.97 m와 뒤쪽 띠 후벽~Z = -9.25의 거친 폭 1.20 m에서 벽 걸레받이 돌출 0.015 m를 최대 양쪽까지 빼도 보수적 순폭 0.94 m·1.17 m로 use-profile 0.90 m 하한을 넘음을 대조했다. 양방향 이동은 실제 관찰 항목으로 남긴다.
 @evidence settings/10-house.md#common-room service-common-opening에서 들어와 garden-door 안쪽 대기로 가는 오른쪽·뒤쪽 두 띠를 두어 주방 작업대나 식탁 사이만이 유일한 통로가 되지 않게 한다.
 @evidenceReview settings/10-house.md#common-room #3c2b543 설정의 유일 통로 금지를 식탁 오른쪽 X = 2.10부터의 오른쪽 띠와 뒤쪽 띠가 작업대·식탁 사이를 거치지 않고 garden-door 대기에 닿는 배치에 대조해 성립함을 확인했다.
 @evidence obligations/design/spaces.md#space-access-circulation service-common-opening에서 garden-door 안쪽 대기와 가족실 좌석으로 가는 두 띠를 손잡이·사용 점유로 줄이지 않고 living-common-opening에서 기기를 닫은 기준 상태의 작업면 사이로 후면 띠에 합류하는 주방 경로를 배정한다.
@@ -190,4 +190,4 @@
 
 거실에서 주방으로는 [living-common-opening](#common-room-plan) 중 벽 기구와 섬 사이로 들어간다. 기기를 닫은 기준 상태에서 작업면 사이를 따라 후면의 X = [-4.85, -0.35], Z = [-9.80, -8.70] m 띠로 돌아 위 뒤쪽 주 경로에 합류한다. 냉장고가 다른 하부장보다 돌출한 구간은 그 몸체 외곽에서 순폭을 읽는다. 이 후면 띠는 식탁의 긴 변 좌석과 끝 좌석 사이 빈 모서리를 지나며 실제 좌석별 점유를 대조한다. 열린 기기 앞 작업 공간을 다른 사람의 통과 폭으로 중복 계상하지 않는다.
 
-주 경로에서는 [바구니 포함 사용 점유체](../../settings/00-production.md#use-profile)의 양방향 이동과 0.90 m 이상 통로 목표를 확인한다. 주방의 열린 기기 작업은 해당 H2의 별도 사용 자세로 검사한다. 필요한 관찰은 바닥 평면에 닫힌/열린 기구·의자 사용 점유를 함께 놓은 대조, 섬과 벽 주방의 단면, 정원문/의자/후면 띠 단면, 두 진입에서 각 기능과 정원으로 갔다 돌아오는 시야다. 외곽 좌표의 산술을 실제 충돌·도달성 판정으로 바꾸지 않는다. 전체 방의 threshold·코너·중심 방향과 03의 추가 질문은 [관찰 owner](../04-observations.md#spatial-observation-derivation)가 유지하며 모든 실제 순폭·경로·프레임은 unverified다.
+주 경로에서는 [바구니 포함 사용 점유체](../../settings/00-production.md#use-profile)의 양방향 이동과 0.90 m 이상 통로 목표를 확인한다. 오른쪽 띠의 거친 0.97 m에서 벽 쪽 걸레받이 0.015 m를 빼면 최소 0.955 m이고, 뒤쪽 띠의 거친 1.20 m에서 후벽 걸레받이 0.015 m를 빼면 최소 1.185 m다. 다른 쪽에도 노출 걸레받이가 생기는 구간은 다시 0.015 m를 빼며 두 경우 모두 0.90 m보다 크다. 주방의 열린 기기 작업은 해당 H2의 별도 사용 자세로 검사한다. 필요한 관찰은 바닥 평면에 닫힌/열린 기구·의자 사용 점유를 함께 놓은 대조, 섬과 벽 주방의 단면, 정원문/의자/후면 띠 단면, 두 진입에서 각 기능과 정원으로 갔다 돌아오는 시야다. 외곽 좌표의 산술을 실제 충돌·도달성 판정으로 바꾸지 않는다. 전체 방의 threshold·코너·중심 방향과 03의 추가 질문은 [관찰 owner](../04-observations.md#spatial-observation-derivation)가 유지하며 모든 실제 순폭·경로·프레임은 unverified다.

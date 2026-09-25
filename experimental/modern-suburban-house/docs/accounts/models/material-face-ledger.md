@@ -61,6 +61,7 @@
 | [02-interior-shell.md#interior-trim-white](../../materials/02-interior-shell.md#interior-trim-white) | `casing` | [02-exterior-doors.md#front-entry-door](../../models/02-exterior-doors.md#front-entry-door) |
 | [02-interior-shell.md#interior-trim-white](../../materials/02-interior-shell.md#interior-trim-white) | `casing-a` | [03-interior-doors.md#interior-door-members](../../models/03-interior-doors.md#interior-door-members) |
 | [02-interior-shell.md#interior-trim-white](../../materials/02-interior-shell.md#interior-trim-white) | `casing-b` | [03-interior-doors.md#interior-door-members](../../models/03-interior-doors.md#interior-door-members) |
+| [02-interior-shell.md#interior-trim-white](../../materials/02-interior-shell.md#interior-trim-white) | `interior-casing` | [01-windows.md#window-sill-trim](../../models/01-windows.md#window-sill-trim) |
 | [02-interior-shell.md#interior-trim-white](../../materials/02-interior-shell.md#interior-trim-white) | `interior-sill` | [01-windows.md#window-sill-trim](../../models/01-windows.md#window-sill-trim) |
 | [02-interior-shell.md#interior-trim-white](../../materials/02-interior-shell.md#interior-trim-white) | `jamb-a` | [03-interior-doors.md#interior-door-members](../../models/03-interior-doors.md#interior-door-members) |
 | [02-interior-shell.md#interior-trim-white](../../materials/02-interior-shell.md#interior-trim-white) | `jamb-b` | [03-interior-doors.md#interior-door-members](../../models/03-interior-doors.md#interior-door-members) |

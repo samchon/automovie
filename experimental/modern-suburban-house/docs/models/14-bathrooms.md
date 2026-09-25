@@ -9,7 +9,7 @@
 @evidence principles/design/models.md#representation-contract 물탱크·탱크 뚜껑·받침·변기 몸통·시트·시트 덮개·세척 레버와 12각 타원 컷 몸통을 정하고 표면 id `ceramic`, `toilet-seat`, `lid`, `handle`을 두며, 트랩·급수관은 이 프록시가 주장하지 않는다.
 @evidence principles/design/models.md#spatial-convention 로컬 좌표는 가구 국소 좌표를 따라 +Z가 앉는 정면이고, 몸통은 벽에서 0.75 m까지 이어지며 `seat-lid` 피벗은 시트 덮개의 뒤쪽 가로 경첩에 둔다.
 @evidence principles/design/models.md#reviewable-structure 모델 리뷰 뷰의 측면에서 좌면 0.43 m와 뚜껑 0.82 m가 보이는지, 세 배치의 평면에서 앞 끝이 각 사용 예약 경계에 멈추는지가 이 변기를 반증할 관찰이다.
-@evidence principles/design/models.md#model-observable-style-basis 스타일 라벨을 두지 않고 폭 0.50 m 물탱크 위의 뚜껑과 폭 0.38 m 둥근 끝 몸통이라는 실루엣·비례만 정하며, 재질 선택 없이 표면 id `ceramic`만 남긴다.
+@evidence principles/design/models.md#model-observable-style-basis 스타일 라벨을 두지 않고 폭 0.50 m 물탱크 위의 뚜껑과 폭 0.38 m 둥근 끝 몸통이라는 실루엣·비례만 정하며, 재질 선택 없이 재료 선택 없이 표면 id `ceramic`·`toilet-seat`·`lid`·`handle`을 남긴다.
 @evidence principles/design/models.md#model-scale-layer-completion 기준 치수 좌면 0.43 m, 일곱 부품 계층, 닫힘을 기준 상태로 둔 `seat-lid` 인터페이스, 앞끝 테 이외에는 표현하지 않는 도기 쉘 두께·배관, unverified 관찰 두 가지가 함께 적혀 변기 블로킹 표현을 결정한다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 파우더룸·샤워 욕실·욕조 욕실 사용 예약의 X·Z 범위와 좌면 0.43 m·최대 높이 0.82 m를 적힌 그대로 소비했고, 세 예약 모두 폭 0.50 m 원형을 여유 있게 담아 방 문서나 설정에 고칠 결함이 없었다.
 @evidence spaces/rooms/powder.md#powder-fixture-use 파우더룸 예약 X = [4.75, 5.50], Z = [-1.65, -0.95], 전면 -X, 깊이 0.75 m·폭 0.70 m를 원형의 외곽 깊이와 폭 상한으로 소비한다.

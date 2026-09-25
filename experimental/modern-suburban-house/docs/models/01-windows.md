@@ -133,8 +133,8 @@ motion 인터페이스는 각 `lower-sash`의 국소 +Y 평행 이동 하나이�
 
 ## 창대와 외부 trim {#window-sill-trim}
 <!--
-@evidence principles/core/common.md#scope-preservation 외부 trim과 안쪽 창대의 폭·돌출·두께와 frame 형제 노드 배치를 이 H2가 맡는다.
-@evidence principles/core/common.md#substantive-completion trim을 0.10 m 폭·0.02 m 돌출로, 창대를 frame 안쪽 면에서 0.13 m 돌출·0.03 m 두께로 수치화한다.
+@evidence principles/core/common.md#scope-preservation 외부 trim·안쪽 창대·안쪽 흰 문선의 폭·돌출·두께와 frame 형제 노드 배치를 이 H2가 맡는다.
+@evidence principles/core/common.md#substantive-completion 바깥 trim을 0.10 m 폭·0.02 m 돌출, 창대를 frame 안쪽 면에서 0.13 m 돌출·0.03 m 두께, 안쪽 세 문선은 폭 0.07 m·돌출 0.015 m로 수치화한다.
 @evidence principles/core/common.md#declared-basis 0.10 m·0.06 m 한도는 spaces/06-openings.md#external-opening-interface, 돌출 근거는 settings/20-verification.md#visual-grammar에서 받는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 06의 trim 0.10 m 이내·돌출 0.06 m 이내 예약을 실제 부재 치수로 바꾼다.
 @evidence principles/design/models.md#representation-contract exterior-trim과 interior-sill을 frame의 형제 노드로 두는 계층을 정한다.
@@ -150,11 +150,13 @@ motion 인터페이스는 각 `lower-sash`의 국소 +Y 평행 이동 하나이�
 
 외부 trim은 [06의 예약](../spaces/06-openings.md#external-opening-interface)대로 거친 개구부의 좌우·위·아래에 0.10 m 폭으로 두고, [공통 재료와 외피 인상](../settings/20-verification.md#visual-grammar)의 trim이 실제 돌출과 음영으로 접합을 설명한다는 조건을 위해 날씨 면에서 0.02 m 돌출시킨다. 안쪽 창대는 frame 안쪽 면 -0.18 m에서 실내 마감 면 -0.25 m를 지나 방 쪽 끝 -0.31 m까지 0.13 m 돌출하는 두께 0.03 m 판이며 실내 마감 면 기준으로 0.06 m만 돌출해 06의 한도를 지킨다. `exterior-trim`과 `interior-sill`은 `frame`의 형제 노드다. 소스 owner는 `src/models/windows.ts`이며 입면 정면과 측면 단면으로 검사한다.
 
-창 `exterior-trim`의 네 판은 각각 왼쪽 아래 끝을 UV 원점으로 삼고 판 길이 방향 U·폭 방향 V를 1 UV/m로 둔다. `interior-sill`의 상·하면은 왼쪽 벽 접점을 원점으로 창 폭 방향 U·방 쪽 돌출 방향 V를 쓰며, 끝면·두께 면은 독립 면 시작점에서 길이 U·두께 V로 다시 투영한다. 이음은 네 trim 판의 맞댐, 창대 끝과 frame 접선에서 끊는다. 두 부재의 뒷면에도 UV를 준다.
+창 안쪽 흰 문선 `interior-casing`은 창대 위의 좌우 세로 판과 머리 판 세 개다. 거친 개구부 폭 W·높이 H와 창대 상면을 입력으로 하여 세로 판은 개구부 좌우 바깥으로 각각 0.07 m, 창대 상면부터 개구부 머리까지 이어지고 머리 판은 좌우 끝을 각 0.07 m 넘겨 개구부 머리에서 위로 0.07 m를 덮는다. 세 판 모두 실내 완성 벽면에서 방으로 0.015 m 돌출하며 두께 면과 절단 끝을 포함해 닫는다. 세로 판 아랫면은 창대 상면과 접하고 창대 안으로 관통하지 않는다. 머리 판은 세로 판 위끝에 직각으로 접하고 같은 부피를 복제하지 않는다. 실내 문선의 반복 수는 창 거친 개구부 12개에서 산출하고 욕실 타일 벽에서는 타일 종료선과 맞대어 별도 타일을 만들지 않는다. 이 부재의 모든 면은 `interior-casing` 하나의 face id를 받는다.
+
+창 `exterior-trim`의 네 판은 각각 왼쪽 아래 끝을 UV 원점으로 삼고 판 길이 방향 U·폭 방향 V를 1 UV/m로 둔다. `interior-sill`의 상·하면은 왼쪽 벽 접점을 원점으로 창 폭 방향 U·방 쪽 돌출 방향 V를 쓰며, 끝면·두께 면은 독립 면 시작점에서 길이 U·두께 V로 다시 투영한다. `interior-casing`은 세 판의 아래 또는 왼쪽 끝에서 길이 U·폭 V를 1 UV/m로 투영하고 뒷면과 끝면도 같은 척도로 판마다 새로 시작한다. 이음은 trim 판의 맞댐, 창대 끝과 frame 접선, 실내 문선과 창대 접선에서 끊는다. 세 부재의 뒷면에도 UV를 준다.
 
 ## 창의 표면 파티션 {#window-surface-partitions}
 <!--
-@evidence principles/core/common.md#scope-preservation 창의 표면 id 8개(frame·sash·mullion·muntin·glass·obscured-glass·exterior-trim·interior-sill)를 이 H2가 맡는다.
+@evidence principles/core/common.md#scope-preservation 창의 표면 id 9개(frame·sash·mullion·muntin·glass·obscured-glass·exterior-trim·interior-sill·interior-casing)를 이 H2가 맡는다.
 @evidence principles/core/common.md#substantive-completion frame·sash·mullion·muntin을 교체 경로 때문에 분리한다고 적어 표면 경계를 구현자가 합치지 않게 한다.
 @evidence principles/core/common.md#declared-basis id 규칙은 00-model-frame.md#model-surface-partition-naming, 유리 조건은 settings/10-house.md#openings에서 받는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation settings openings의 '유리는 불투명 검은 판이 아니다'를 glass/obscured-glass 별도 표면으로 바꾼다.
@@ -169,7 +171,7 @@ motion 인터페이스는 각 `lower-sash`의 국소 +Y 평행 이동 하나이�
 
 레퍼런스 01·05의 검은 창호와 흰 안팎 문선을 서로 다른 면으로 채택한다. 유리 반사 색은 여기서 정하지 않는다.
 
-[이름 규칙](00-model-frame.md#model-surface-partition-naming)에 따라 창의 안정 표면 id는 `frame`, `sash`, `mullion`, `muntin`, `glass`, `obscured-glass`, `exterior-trim`, `interior-sill`이다. `frame`·`sash`·`mullion`·`muntin`은 같은 charcoal 계열로 쓰일 예정이지만 교체 경로가 달라 분리한다. 유리를 불투명 검은 판으로 대신하지 않는다는 [settings](../settings/10-house.md#openings) 조건은 materials가 소비한다. 소스 owner는 `src/models/windows.ts`다.
+[이름 규칙](00-model-frame.md#model-surface-partition-naming)에 따라 창의 안정 표면 id는 `frame`, `sash`, `mullion`, `muntin`, `glass`, `obscured-glass`, `exterior-trim`, `interior-sill`, `interior-casing`이다. `frame`·`sash`·`mullion`·`muntin`은 같은 charcoal 계열로 쓰일 예정이지만 교체 경로가 달라 분리한다. 유리를 불투명 검은 판으로 대신하지 않는다는 [settings](../settings/10-house.md#openings) 조건은 materials가 소비한다. 소스 owner는 `src/models/windows.ts`다.
 
 ## 창의 표현 한계 {#window-fidelity}
 <!--

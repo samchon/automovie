@@ -92,7 +92,7 @@
 @evidence principles/design/models.md#spatial-convention 가구 국소 좌표에서 +Z를 앉는 쪽으로 두고 소품을 상판 뒤쪽 0.25 m 안에 배치한다.
 @evidence principles/design/models.md#reviewable-structure 측면에서 상판 아래 무릎 공간 0.62 m가 비어 있는지를 음의 공간 관찰로 지정한다.
 @evidence principles/design/models.md#model-observable-style-basis 작은 책상을 0.03 m 얇은 상판, 0.04 m 각 다리, 0.10 m 얕은 선반이라는 비례로 정하고 램프를 두지 않는다.
-@evidence principles/design/models.md#model-scale-layer-completion L 두 값, 상면 0.75 m, 네 부품 층, 네 재질 경계, 관절 없음, 무릎 공간 관찰이 함께 적혀 있고 관찰은 unverified다.
+@evidence principles/design/models.md#model-scale-layer-completion L 두 값, 상면 0.75 m, 네 부품 층, 여섯 재질 경계, 관절 없음, 무릎 공간 관찰이 함께 적혀 있고 관찰은 unverified다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 둘째·셋째 침실의 책상 예약 좌표와 L을 적힌 그대로 소비했고 고칠 부모 결함이 없었다.
 @evidence settings/10-house.md#bedroom-two 책상 요구를 둘째 침실 L = 1.20 m 책상으로 받는다.
 @evidence settings/10-house.md#bedroom-three 책상 요구를 셋째 침실 L = 1.15 m 책상으로 받아 첫 자녀 방과 같은 학습 기능을 준다.
@@ -113,11 +113,11 @@
 @evidence principles/core/common.md#scope-preservation 두 작은 침실의 책상 의자를 식탁 의자와 구별되는 별도 원형으로 맡는다.
 @evidence principles/core/common.md#substantive-completion 몸체 예약이 없는 의자에 폭 0.45 m, 깊이 0.48 m, 좌면 0.45 m, 등받이 0.82 m를 확정한다.
 @evidence principles/core/common.md#declared-basis 치수 근거를 책상 상면 0.75 m와 0.30 m 차이의 앉은 자세, 사용 영역 안에서 밀고 당기는 여유로 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 식탁 의자 링크와 같은 좌면·다리·등받이 구성을 쓰되 등받이가 낮고 폭이 좁다는 차이로 별도 원형임을 밝힌다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 식탁 의자 링크와 같은 좌면·다리·등받이 구성을 쓰되 등받이가 낮고 깊이가 0.48 m인 차이로 별도 원형임을 밝힌다.
 @evidence principles/design/models.md#representation-contract 좌면·다리·등받이 계층과 `seat`·`leg`·`back` 경계를 두고 관절이 없다고 적는다. 보이지 않는 한계는 본문의 "좌판 곡면·다리 이음·바퀴는 표현하지 않는다."로 밝힌다.
 @evidence principles/design/models.md#spatial-convention 의자 사용 예약 0.75 × 0.75 m 안에 폭 0.45 m·깊이 0.48 m 몸체를 두는 치수 관계를 정한다.
 @evidence principles/design/models.md#reviewable-structure 밀어 넣은 상태에서 의자가 책상 다리 사이에 드는지를 검토 관찰로 둔다.
-@evidence principles/design/models.md#model-observable-style-basis 책상 의자를 식탁 의자보다 낮은 등받이 0.82 m와 좁은 폭 0.45 m라는 비례 차이로 구분한다.
+@evidence principles/design/models.md#model-observable-style-basis 책상 의자를 식탁 의자보다 낮은 등받이 0.82 m와 깊이 0.48 m라는 비례 차이로 구분한다.
 @evidence principles/design/models.md#model-scale-layer-completion 외곽과 좌면·등받이 치수, 좌판 두께·다리 단면과 위치·등판 치수, 세 재질 경계, 관절 없음, 밀어 넣기 관찰이 함께 적혀 있고 관찰은 unverified다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 둘째 침실 의자 사용 예약 0.75 × 0.75 m를 적힌 그대로 소비했고 몸체 예약 부재를 부모 결함으로 고치지 않고 이 층이 치수를 택했다.
 @evidence settings/10-house.md#bedroom-two 책상과 의자 요구 중 의자를 좌면 0.45 m 책상 의자로 받는다.
@@ -127,7 +127,7 @@
 
 레퍼런스 02·05에는 책상 의자의 형태가 보이지 않으므로 그 사진에서 등받이 모양을 채택하지 않는다. 두 방의 책상과 사용 예약에 맞는 단순한 등판 의자를 이 H2에서 결정한다.
 
-책상 의자는 두 침실의 [의자 사용 예약](../spaces/rooms/bedroom-two.md#bedroom-two-furniture-use) 0.75 × 0.75 m 안에서 쓰는 한 원형이다. 몸체 예약이 없으므로 폭 0.45 m, 깊이 0.48 m, 좌면 0.45 m, 등받이 0.82 m를 이 층이 택하며, 근거는 책상 상면 0.75 m와 0.30 m 차이의 앉은 자세와 사용 영역 안에서 밀고 당기는 여유다. [식탁 의자](10-kitchen-dining.md#dining-chair)와 같은 좌면·다리·등받이 구성을 쓰되 등받이가 낮고 폭이 좁아 별도 원형이다.
+책상 의자는 두 침실의 [의자 사용 예약](../spaces/rooms/bedroom-two.md#bedroom-two-furniture-use) 0.75 × 0.75 m 안에서 쓰는 한 원형이다. 몸체 예약이 없으므로 폭 0.45 m, 깊이 0.48 m, 좌면 0.45 m, 등받이 0.82 m를 이 층이 택하며, 근거는 책상 상면 0.75 m와 0.30 m 차이의 앉은 자세와 사용 영역 안에서 밀고 당기는 여유다. [식탁 의자](10-kitchen-dining.md#dining-chair)와 같은 좌면·다리·등받이 구성을 쓰되 등받이 높이 0.82 m와 깊이 0.48 m가 식탁 의자와 달라 별도 원형이다.
 
 좌판은 폭 0.45 m·깊이 0.48 m·두께 0.03 m로 상면 0.45 m다. 다리 네 개는 0.035 m 각재, 좌판 모서리에서 X·Z 각각 0.04 m 안쪽에 중심을 둔다. 등받이는 뒤쪽 두 다리에서 이어지는 같은 단면의 기둥 두 개와 폭 0.35 m·높이 0.18 m·두께 0.025 m 판 하나이며 판 하단은 0.62 m, 상단은 0.80 m, 기둥 상단은 0.82 m다. 등판은 앞뒤로 기울이지 않고 좌판 뒤 가장자리에서 0.04 m 앞에 두므로 의자 깊이 0.48 m 안에 든다. 재질 경계는 `seat`, `leg`, `back`이고 관절은 없다. 좌판 곡면·다리 이음·바퀴는 표현하지 않는다. 소스 owner는 `src/models/furnishings/bedrooms.ts`다. 관찰은 밀어 넣은 상태에서 의자가 책상 다리 사이에 드는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
 
@@ -172,7 +172,7 @@
 @evidence principles/design/models.md#reviewable-structure 정면에서 두 끝 0.18 m 모임이 창 대부분을 열어 두는지, 측면에서 최대 돌출 0.12 m를 지키는지를 반증 견본으로 둔다.
 @evidence principles/design/models.md#model-observable-style-basis 곧은 봉과 서로 분리된 얇은 두 드레이프를 두어 여덟 창에서 라벨 없이 커튼으로 읽히게 하고 직물 결·투과는 materials에 남긴다.
 @evidence principles/design/models.md#model-scale-layer-completion 여덟 창의 W·head·floor 입력, 0.103 m 앞돌출, 세 표면 id, 고정 개방 상태와 두 방향 리뷰를 함께 정한다.
-@evidence upstream/design/models.md#settings-and-space-revision-from-model-work 주침실 예약의 좌우·상하 부족은 이전에 primary-furniture-use에서 고쳤고, 나머지 여섯 창의 커튼 전제에 대응하는 띠가 없어 이번에 spaces/06-openings.md#selected-window-curtain-strips를 추가했다.
+@evidence upstream/design/models.md#settings-and-space-revision-from-model-work 주침실 예약의 좌우·상하 부족은 이전에 primary-furniture-use에서 고쳤고, 나머지 여섯 창의 커튼 전제에 대응하는 띠가 없어 spaces/06-openings.md#selected-window-curtain-strips를 추가했다. spaces/rooms/bedroom-two.md#bedroom-two-furniture-use도 기존 커튼을 settings 요구처럼 적던 문장을 고쳐 그 띠에서 인계받는 별도 공간 결정으로 정정했다. 두 부모 수정은 원형의 여덟 창 소비와 직접 연결된다.
 @evidence settings/10-house.md#primary-bedroom 주침실의 얇은 커튼 요구를 후면·왼쪽 두 창에 적용한다. 다른 여섯 창에 같은 원형을 반복하는 근거는 settings의 구별 문장이 아니라 spaces/06-openings.md#selected-window-curtain-strips의 별도 점유 띠다.
 @evidence spaces/envelope/rear.md#primary-rear-window X = [-3.85, -1.45] m의 후면 개구부를 W = 2.40 m 커튼 원형의 첫 배치로 받는다.
 @evidence spaces/envelope/left.md#primary-left-window Z = [-8.90, -7.30] m의 측면 개구부를 W = 1.60 m 같은 원형의 둘째 배치로 받는다.
@@ -191,7 +191,7 @@
 <!--
 @evidence principles/core/common.md#scope-preservation 옷방 예약의 옷걸이 구간을 봉·상단 선반·몸통·옷까지 한 모델로 맡는다.
 @evidence principles/core/common.md#substantive-completion 길이 2.15 m, 깊이 0.55 m, 봉 후면에서 0.28 m·높이 1.65 m, 상단 선반 2.05 m, 옷 36벌 두께 0.035–0.045 m·폭 0.50 m를 고정식으로 확정한다.
-@evidence principles/core/common.md#declared-basis 외곽과 높이 2.05 m는 옷방 예약에서 받고 옷 판 치수와 고정 시드 배열은 이 H2의 저작 선택으로 적힌다.
+@evidence principles/core/common.md#declared-basis 외곽과 높이 2.05 m는 옷방 예약에서 받고 옷 판 치수와 인덱스 기반 결정식은 이 H2의 저작 선택으로 적힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 옷방 예약은 외곽과 높이만 주고 이 H2는 봉 위치, 상단 선반, 고정 시드 옷 판 묶음을 더한다.
 @evidence principles/design/models.md#representation-contract 봉·상단 선반·몸통·옷 계층과 `rod`·`shelf`·`carcass`·`clothes` 경계를 두고 관절이 없다고 적는다. 보이지 않는 한계는 본문의 "옷걸이 개별 형상·소매·옷 주름은 표현하지 않는다."로 밝힌다.
 @evidence principles/design/models.md#spatial-convention 옷 판을 뒤벽과 0.55 m 앞면 사이에 머물게 해 점유 범위를 Z = [-10.45, -9.90] 안으로 한정한다.

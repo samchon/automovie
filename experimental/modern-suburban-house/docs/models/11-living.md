@@ -59,13 +59,13 @@
 <!--
 @evidence principles/core/common.md#scope-preservation 거실 안락의자 예약 하나를 외곽으로 받아 다리·받침·쿠션·등받이·팔걸이의 단면, 재질 경계, 관찰, 소스 owner를 이 H2에서 정한다.
 @evidence principles/core/common.md#substantive-completion 다리 0.08 m, 받침 Y = [0.08, 0.30], 팔걸이 폭 0.12 m·높이 0.60 m, 등받이 깊이 0.18 m·상단 0.90 m, 좌면 0.43 m, 좌석 폭 0.61 m를 수치로 확정한다.
-@evidence principles/core/common.md#declared-basis 외곽 0.85 × 0.85 m·높이 0.90 m는 거실 예약에서 받고, 단면 높이는 '소파와 같은 단면 규칙'을 근거로 적으며 좌석 폭 0.61 m는 한 사람 좌석임을 읽히게 하려는 이 층의 선택으로 둔다.
+@evidence principles/core/common.md#declared-basis 외곽 0.85 × 0.85 m·높이 0.90 m는 거실 예약에서 받고, 단면 높이는 소파와 좌면 0.43 m·등 상단 0.90 m만 공유하고 나머지 팔걸이·등 깊이는 한 사람용 0.85 m 외곽에 맞춰 따로 결정하며 좌석 폭 0.61 m는 한 사람 좌석임을 읽히게 하려는 이 층의 선택으로 둔다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 예약은 외곽과 높이 0.90 m만 주고 이 H2는 쿠션 하나의 한 사람 좌석, 팔걸이 0.12 m·등받이 0.18 m의 단면, 좌면 0.43 m를 더한다.
 @evidence principles/design/models.md#representation-contract 다리 넷·받침·좌석 쿠션 하나·등받이·팔걸이 둘로 부품을 나누고 재질 경계 `leg`·`base`·`seat-cushion`·`back`·`arm`을 두며 관절이 없다고 정한다. 보이지 않는 한계는 본문의 "쿠션 눌림·솔기·패브릭 주름은 표현하지 않는다."로 밝힌다.
 @evidence principles/design/models.md#spatial-convention 가구 국소 좌표를 따라 +Z를 정면으로 두고 배치에서 world +Z를 향하며 외곽은 폭 0.85 m·깊이 0.85 m·높이 0.90 m다.
 @evidence principles/design/models.md#reviewable-structure 측면에서 좌면·팔걸이·등받이 높이가 소파와 같은 계열로 보이는지, 위에서 0.85 m 정사각 외곽이 의자 발 사용 범위 Z = [-4.80, -4.20]로 넘어가지 않는지를 고정 뷰로 확인한다.
 @evidence principles/design/models.md#model-observable-style-basis 레퍼런스 04 벽난로 앞 안락의자를 채택한다. '독서 안락의자' 표지를 좌석 폭 0.61 m의 한 사람 좌석과 소파와 같은 계열의 단면이라는 관찰 가능한 결정으로 옮기며 재질과 색은 정하지 않는다.
-@evidence principles/design/models.md#model-scale-layer-completion 좌면 0.43 m·팔걸이 0.60 m·등받이 0.90 m의 높이 층을 소파와 같은 단면 규칙에 묶고 다섯 재질 경계와 두 관찰을 함께 적어 예약 안의 표현이 결정된다.
+@evidence principles/design/models.md#model-scale-layer-completion 좌면 0.43 m·팔걸이 0.60 m·등받이 0.90 m의 높이 층을 소파와 좌면·등 상단만 공유하는 별도 단면으로 정하고 다섯 재질 경계와 두 관찰을 함께 적어 예약 안의 표현이 결정된다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 거실 예약 X = [-3.90, -3.05]·Z = [-5.65, -4.80]·높이 0.90 m와 의자 발 사용 범위 Z = [-4.80, -4.20]을 적힌 그대로 외곽과 관찰 한계로 썼고 부모 수정이 필요하지 않았다.
 @evidence settings/10-house.md#living 거실 설정 정체성의 '작은 안락의자'를 0.85 m 정사각 외곽의 한 사람 좌석으로 구체화한다.
 @evidence spaces/rooms/living.md#living-furniture-use 거실 예약 X = [-3.90, -3.05], Z = [-5.65, -4.80], 높이 0.90 m를 외곽으로, 의자 발 사용 범위 Z = [-4.80, -4.20]을 넘지 말아야 할 관찰 경계로 소비한다.
@@ -75,7 +75,7 @@
 
 [거실 설정](../settings/10-house.md#living)의 작은 독서 안락의자는 [거실 예약](../spaces/rooms/living.md#living-furniture-use)의 X = [-3.90, -3.05], Z = [-5.65, -4.80], 높이 0.90 m를 외곽으로 받아 폭 0.85 m, 깊이 0.85 m다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르며 +Z가 정면이며 배치에서 world +Z를 향한다.
 
-부품은 다리 넷, 받침, 좌석 쿠션 하나, 등받이, 팔걸이 둘이다. 소파와 같은 단면 규칙으로 다리 0.08 m, 받침 Y = [0.08, 0.30], 팔걸이 폭 0.12 m·높이 0.60 m, 등받이 깊이 0.18 m·상단 0.90 m, 좌석 쿠션 상면 0.43 m를 둔다. 좌석 폭은 0.61 m이며 한 사람 좌석임이 소파와의 차이로 읽혀야 한다. 재질 경계는 `leg`, `base`, `seat-cushion`, `back`, `arm`이고 관절은 없다.
+부품은 다리 넷, 받침, 좌석 쿠션 하나, 등받이, 팔걸이 둘이다. 소파와 좌면·등 상단만 공유하면서 한 사람용 외곽에 맞춰 다리 0.08 m, 받침 Y = [0.08, 0.30], 팔걸이 폭 0.12 m·높이 0.60 m, 등받이 깊이 0.18 m·상단 0.90 m, 좌석 쿠션 상면 0.43 m를 둔다. 좌석 폭은 0.61 m이며 한 사람 좌석임이 소파와의 차이로 읽혀야 한다. 재질 경계는 `leg`, `base`, `seat-cushion`, `back`, `arm`이고 관절은 없다.
 
 쿠션 눌림·솔기·패브릭 주름은 표현하지 않는다. 소스 owner는 `src/models/furnishings/living.ts`다. 관찰은 측면에서 좌면·팔걸이·등받이 높이가 소파와 같은 계열로 보이는지, 위에서 0.85 m 정사각 외곽이 의자 발 사용 범위 Z = [-4.80, -4.20]로 넘어가지 않는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
 
@@ -126,7 +126,7 @@
 @evidence obligations/design/models.md#model-representation-completion 이 H2는 덮개 원형의 몸판·띠 층, 여섯 배치의 L·W·T, 재질 경계 `field`·`border`, 표현하지 않는 무늬·털·술, 세 관찰을 모두 적되 모든 관찰이 unverified라 구조적 유효성과 의미적 완결성 판정은 아직 없다.
 -->
 
-러그와 현관 매트는 사람이 밟고 지나가는 얇은 바닥 덮개이므로 길이 L, 폭 W, 두께 T를 받는 한 원형으로 만든다. [거실 러그 예약](../spaces/rooms/living.md#living-furniture-use)은 X = [-4.00, -2.00], Z = [-3.90, -1.55]로 L = 2.35 m(world Z), W = 2.00 m, T = 0.008 m다. [가족실 러그 예약](../spaces/rooms/common.md#common-family-reservation)은 X 방향 폭 1.55 m, Z 방향 길이 1.70 m, 두께 0.008 m로 받는다. 배치 원점과 회전은 그 부모 예약을 소비하는 instances가 정한다. [현관 매트 예약](../spaces/rooms/entry.md#entry-use-routes)은 X = [0.45, 1.35], Z = [-1.95, -1.30]으로 L = 0.90 m(world X), W = 0.65 m, T = 0.006 m다. 레퍼런스 02의 침대 아래 얇은 러그도 채택한다. [침대 원형](13-bedrooms.md#headboard-bed)의 길이·폭에 각각 0.30 m를 더한 host 유도 변형으로 주침실은 2.45 × 1.90 × 0.008 m, 작은 침실 둘은 각각 2.45 × 1.45 × 0.008 m다. 침대 중심에서 사방 0.15 m씩 보이되 문턱·바닥 관찰 통로의 높이를 0.008 m 이상 올리지 않는다. 별도 방이나 새 벽을 만들지 않고, 실제 배치가 문 회전·가구 다리와 맞는지는 instance 적합 검사의 대상이며 지금은 unverified다. [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)의 예외로 밟고 지나가는 덮개이므로 로컬 원점을 바닥 평면 중심에 두고 +X를 L 방향으로 두며 밑면이 Y = 0에 놓인다.
+러그와 현관 매트는 사람이 밟고 지나가는 얇은 바닥 덮개이므로 길이 L, 폭 W, 두께 T를 받는 한 원형으로 만든다. [거실 러그 예약](../spaces/rooms/living.md#living-furniture-use)은 X = [-4.00, -2.00], Z = [-3.90, -1.55]로 L = 2.35 m(world Z), W = 2.00 m, T = 0.008 m다. [가족실 러그 예약](../spaces/rooms/common.md#common-family-reservation)은 X 방향 폭 1.55 m, Z 방향 길이 1.70 m, 두께 0.008 m로 받는다. 배치 원점과 회전은 그 부모 예약을 소비하는 instances가 정한다. [현관 매트 예약](../spaces/rooms/entry.md#entry-use-routes)은 X = [0.45, 1.35], Z = [-1.95, -1.30]으로 L = 0.90 m(world X), W = 0.65 m, T = 0.006 m다. 레퍼런스 02의 침대 아래 얇은 러그도 채택한다. [침대 원형](13-bedrooms.md#headboard-bed)의 길이·폭에 각각 0.30 m를 더한 host 유도 변형으로 주침실은 2.45 × 1.90 × 0.008 m, 작은 침실 둘은 각각 2.45 × 1.45 × 0.008 m다. 침대 중심 기준 사방 0.15 m 노출을 시작값으로 삼되, 머리 쪽 러그 끝이 방 벽 마감과 0.02 m보다 가까우면 그 부족 거리만큼 러그 전체를 발끝 방향으로 옮긴다. 주침실은 머리 쪽 침범 0.05 m를 해소하려고 발끝인 world -X로 0.07 m, 둘째 침실은 침범 0.09 m를 해소하려고 world +Z로 0.11 m, 셋째 침실은 벽과의 0.005 m 접촉을 없애려고 world +Z로 0.025 m 옮긴다. 외곽 2.45 × 1.90/1.45 m와 두께 0.008 m는 유지하고 노출 폭의 비대칭은 위 세 결정값으로 고정한다. 별도 방이나 새 벽을 만들지 않고, 실제 배치가 문 회전·가구 다리와 맞는지는 instance 적합 검사의 대상이며 지금은 unverified다. [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)의 예외로 밟고 지나가는 덮개이므로 로컬 원점을 바닥 평면 중심에 두고 +X를 L 방향으로 두며 밑면이 Y = 0에 놓인다.
 
 부품은 몸판 하나와 가장자리 띠 하나다. 가장자리 띠는 몸판 둘레 0.04 m 폭의 같은 두께 영역으로 면만 나누고 높이를 올리지 않는다. 재질 경계는 `field`, `border`다. 무늬·털 높이·술 장식은 표현하지 않는다. 덮개 위에 가구가 놓이며 가구 다리와 겹치는 것은 허용하고 덮개가 가구를 들어 올리지 않는다.
 

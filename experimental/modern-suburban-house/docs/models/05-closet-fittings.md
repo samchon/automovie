@@ -7,11 +7,11 @@
 @evidence principles/core/common.md#declared-basis 개구부와 돌출 한도는 spaces/rooms/entry.md#entry-coat-storage에서 받는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation entry-coat-storage의 '겹쳐 미는 두 장'을 문짝 치수와 트랙 좌표로 바꾼다.
 @evidence principles/design/models.md#representation-contract 두 문짝과 트랙, 오목 패널 계층을 정한다.
-@evidence principles/design/models.md#spatial-convention 문짝 이동 축을 국소 Z로 적는다.
+@evidence principles/design/models.md#spatial-convention 개구부 폭과 평행한 국소 X를 문짝 이동 축으로 적고 국소 깊이 d와 구분한다.
 @evidence principles/design/models.md#reviewable-structure 서비스 통로 쪽 정면과 계단 아래 단면에서 반증한다.
 @evidence principles/design/models.md#model-observable-style-basis 레퍼런스 04의 계단 옆 흰 수납문을 채택한다. 실내 문과 같은 오목 패널 두 개로 흰 패널문 문법을 잇는다.
 @evidence principles/design/models.md#model-scale-layer-completion 미닫이 인터페이스와 트랙 층을 정한다.
-@evidence obligations/design/models.md#articulation-ownership 각 문짝의 국소 Z 평행 이동 0~0.45 m를 motion 인터페이스로, 기준 상태를 닫힘으로 정한다.
+@evidence obligations/design/models.md#articulation-ownership 각 문짝의 국소 X 평행 이동 0~0.45 m를 motion 인터페이스로, 기준 상태를 닫힘으로 정한다.
 @evidence spaces/rooms/entry.md#entry-coat-storage 개구부 폭 0.95 m와 통로 쪽 돌출 한도를 문짝 0.50 m 둘·겹침 0.05 m 및 국소 깊이 최대 0.14 m로 소비한다.
 @evidence contracts/reservation-fit.md#reservation-fit 두 트랙의 국소 깊이 끝 0.14 m가 0.15 m 경계 안이고 오목 손잡이의 최대 깊이도 0.20 m 한도 안임을 산술로 보인다.
 @evidence upstream/design/models.md#settings-and-space-revision-from-model-work entry-coat-storage는 원래 문짝·봉까지 entry.ts가 소유한다고 적었으나 실제 source에는 벽과 개구부만 있었다. 부모 H2를 벽·개구부는 spaces, 문짝·봉·선반은 models로 고친 뒤 문짝 원형을 정했다.
@@ -19,7 +19,7 @@
 
 레퍼런스 04의 계단 옆 흰 수납문을 채택한다. 미닫이 겹침과 트랙 깊이는 현관 예약에서 정하고 사진 속 여닫이 각도를 강요하지 않는다.
 
-[현관 외투장 owner](../spaces/rooms/entry.md#entry-coat-storage)는 X = 2.02 m 면에 겹쳐 미는 두 장의 수납문을 둔다. `entry-coat-opening` Z = [-4.51, -3.56], Y = [0, 2.15] m를 채우는 두 문짝은 폭 0.50 m(0.95 m의 절반 + 겹침 0.05 m의 절반), 높이 2.11 m(머리 트랙 0.03 m와 바닥 틈 0.01 m 제외), 두께 0.03 m로 택하고 뒤쪽 경계에서 통로 쪽으로 재는 국소 깊이 d ∈ [0, 0.15] m 안에 앞 트랙 d = [0.11, 0.14] m, 뒤 트랙 d = [0.07, 0.10] m를 둔다. 두께 0.03 m와 겹침 0.05 m는 두 트랙이 0.15 m 경계 안에 들어가고 닫힌 상태에서 두 문짝 사이 틈이 정면에서 보이지 않게 하려는 모델 결정이다. 앞뒤 문짝 각각의 손잡이는 만남선에서 바깥쪽 0.06 m, 완성 바닥 위 1.00 m 중심의 폭 0.10 m·높이 0.025 m·깊이 0.02 m 오목 홈이다. 앞 문짝 손잡이는 문짝 면보다 돌출하지 않아 owner의 통로 쪽 돌출 한도 d = 0.20 m 안인 d = 0.14 m에 머문다. motion 인터페이스는 각 문짝의 국소 Z 평행 이동이며 범위는 0부터 문짝 폭 - 0.05 m까지이고 기준 상태는 둘 다 닫힘이다. 흰 패널문 문법을 위해 [실내 문](03-interior-doors.md#interior-door-members)과 같은 오목 패널 두 개를 둔다. 소스 owner는 `src/models/closet.ts`이며 서비스 통로 쪽 정면과 계단 아래 단면으로 검사한다.
+[현관 외투장 owner](../spaces/rooms/entry.md#entry-coat-storage)는 X = 2.02 m 면에 겹쳐 미는 두 장의 수납문을 둔다. `entry-coat-opening` Z = [-4.51, -3.56], Y = [0, 2.15] m를 채우는 두 문짝은 폭 0.50 m(0.95 m의 절반 + 겹침 0.05 m의 절반), 높이 2.11 m(머리 트랙 0.03 m와 바닥 틈 0.01 m 제외), 두께 0.03 m로 택하고 뒤쪽 경계에서 통로 쪽으로 재는 국소 깊이 d ∈ [0, 0.15] m 안에 앞 트랙 d = [0.11, 0.14] m, 뒤 트랙 d = [0.07, 0.10] m를 둔다. 두께 0.03 m와 겹침 0.05 m는 두 트랙이 0.15 m 경계 안에 들어가고 닫힌 상태에서 두 문짝 사이 틈이 정면에서 보이지 않게 하려는 모델 결정이다. 앞뒤 문짝 각각의 손잡이는 만남선에서 바깥쪽 0.06 m, 완성 바닥 위 1.00 m 중심의 폭 0.10 m·높이 0.025 m·깊이 0.02 m 오목 홈이다. 앞 문짝 손잡이는 문짝 면보다 돌출하지 않아 owner의 통로 쪽 돌출 한도 d = 0.20 m 안인 d = 0.14 m에 머문다. motion 인터페이스는 각 문짝의 개구부 폭과 평행한 국소 X 이동이며 범위는 0부터 문짝 폭 - 0.05 m까지이고 기준 상태는 둘 다 닫힘이다. 흰 패널문 문법을 위해 [실내 문](03-interior-doors.md#interior-door-members)과 같은 오목 패널 두 개를 둔다. 소스 owner는 `src/models/closet.ts`이며 서비스 통로 쪽 정면과 계단 아래 단면으로 검사한다.
 
 ## 외투장의 봉과 선반 {#coat-closet-rod-shelf}
 <!--
@@ -52,7 +52,7 @@
 @evidence principles/design/models.md#reviewable-structure 복도 도착면 view와 장 단면에서 반증한다.
 @evidence principles/design/models.md#model-observable-style-basis 스타일 라벨 없이 수납 부재만 정한다.
 @evidence principles/design/models.md#model-scale-layer-completion 미닫이 인터페이스와 선반 층을 정한다.
-@evidence obligations/design/models.md#articulation-ownership 린넨장 문짝의 국소 Z 평행 이동을 외투장과 같은 형식의 motion 인터페이스로 정한다.
+@evidence obligations/design/models.md#articulation-ownership 린넨장 문짝의 국소 X 평행 이동을 외투장과 같은 형식의 motion 인터페이스로 정한다.
 @evidence spaces/rooms/upper-hall.md#upper-linen-storage upper-linen-opening X = [1.97, 2.97] m와 다섯 선반 규칙을 문짝 0.525 m와 선반 상면 값으로 소비한다.
 @evidence contracts/reservation-fit.md#reservation-fit 선반 깊이 0.55 m 뒤에 0.05 m 여유가 있고 문 트랙은 별도의 국소 깊이 [0, 0.15] m 경계 안에 있음을 적는다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work upper-hall을 적힌 그대로 소비했고 부모 수정이 없었다.

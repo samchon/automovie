@@ -22,8 +22,8 @@
 | [double-hung-window](../../models/01-windows.md#double-hung-window) | `src/models/windows.ts` | `frame`·`sash`·`mullion`·`muntin`·`glass` |
 | [fixed-window](../../models/01-windows.md#fixed-window) | `src/models/windows.ts` | `frame`·`sash`·`mullion`·`muntin`·`glass` |
 | [awning-window](../../models/01-windows.md#awning-window) | `src/models/windows.ts` | `frame`·`sash`·`obscured-glass` |
-| [window-sill-trim](../../models/01-windows.md#window-sill-trim) | `src/models/windows.ts` | `exterior-trim`·`interior-sill` |
-| [window-surface-partitions](../../models/01-windows.md#window-surface-partitions) | — (규칙) | `frame`·`sash`·`mullion`·`muntin`·`glass`·`obscured-glass`·`exterior-trim`·`interior-sill` |
+| [window-sill-trim](../../models/01-windows.md#window-sill-trim) | `src/models/windows.ts` | `exterior-trim`·`interior-sill`·`interior-casing` |
+| [window-surface-partitions](../../models/01-windows.md#window-surface-partitions) | — (규칙) | `frame`·`sash`·`mullion`·`muntin`·`glass`·`obscured-glass`·`exterior-trim`·`interior-sill`·`interior-casing` |
 | [window-fidelity](../../models/01-windows.md#window-fidelity) | — (규칙) | — (새 메시 없음) |
 | [front-entry-door](../../models/02-exterior-doors.md#front-entry-door) | `src/models/exterior-door.ts` | `jamb`·`exterior-trim`·`casing`·`leaf-exterior`·`leaf-interior`·`leaf-edge`·`leaf-panel`·`muntin`·`glass`·`handle`·`hinge` |
 | [garage-sectional-door](../../models/02-exterior-doors.md#garage-sectional-door) | `src/models/garage-door.ts` | `jamb`·`rail`·`leaf-exterior`·`leaf-interior`·`leaf-panel`·`panel-edge`·`glass`·`sash` |
@@ -121,7 +121,7 @@
 | [front-door-wood](../../materials/01-exterior.md#front-door-wood) | `leaf-exterior`·`leaf-interior`·`leaf-edge`·`leaf-panel` |
 | [garage-door-charcoal](../../materials/01-exterior.md#garage-door-charcoal) | `leaf-exterior`·`leaf-interior`·`leaf-panel`·`panel-edge` |
 | [fence-wood](../../materials/01-exterior.md#fence-wood) | `leaf-panel`·`gate-batten` |
-| [interior-trim-white](../../materials/02-interior-shell.md#interior-trim-white) | `interior-sill`·`casing`·`casing-a`·`casing-b`·`jamb-a`·`jamb-b`·`jamb-core`·`leaf`·`leaf-panel`·`shelf`·`carcass`·`wall-baseboard` |
+| [interior-trim-white](../../materials/02-interior-shell.md#interior-trim-white) | `interior-sill`·`interior-casing`·`casing`·`casing-a`·`casing-b`·`jamb-a`·`jamb-b`·`jamb-core`·`leaf`·`leaf-panel`·`shelf`·`carcass`·`wall-baseboard` |
 | [black-coated-metal](../../materials/02-interior-shell.md#black-coated-metal) | `hinge`·`handle`·`baluster`·`bottom-rail`·`hook`·`rail`·`bracket`·`mirror-frame`·`fixture-housing`·`fixture-canopy`·`fixture-stem` |
 | [greige-cabinet](../../materials/03-furnishings.md#greige-cabinet) | `plinth`·`carcass`·`leaf`·`drawer-front` |
 | [light-countertop](../../materials/03-furnishings.md#light-countertop) | `countertop` |

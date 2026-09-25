@@ -61,7 +61,7 @@
 | [dark-bookcase](../../models/11-living.md#dark-bookcase) | 폭 1.00−2×0.02 = 0.96 m; 책 묶음 0.745–0.755 m로 내부의 77.6–78.6%. 뒤판 시작 Y=0.10, 옆판·plinth 뒤 하단 Z≥0.015 m여서 벽 걸레받이와 겹침 0, 외곽 깊이 0.35 m 불변. |
 | [floor-covering](../../models/11-living.md#floor-covering) | 거실 2.35×2.00×0.008 m, 가족실 1.70×1.55×0.008 m(X=[3.00,4.55], Z=[-8.55,-6.85], 오른쪽 통로 5.50−4.55=0.95 m), 현관 0.90×0.65×0.006; 침대 변형은 bed L/W+0.30 m. |
 | [fireplace-insert-mantel](../../models/11-living.md#fireplace-insert-mantel) | 화구 void 1.04×0.64×0.55 m에 0.025 m 판; 선반 1.60×0.55×0.10 m가 벽돌 상단 Y 1.30에 닿는다. |
-| [laundry-machine](../../models/12-service-rooms.md#laundry-machine) | 깊이 0.72+문·손잡이 0.03 = 0.75 m; 회전 돌출 0.45+0.03 = 0.48 ≤ 0.50 m. 두 기기 뒤 하단 Z=[0,0.015], Y=[0,0.10] 홈으로 걸레받이와 겹침 0, 두 0.65 m 폭과 앞 작동 한계는 불변. |
+| [laundry-machine](../../models/12-service-rooms.md#laundry-machine) | 깊이 0.72+문·손잡이 0.03 = 0.75 m; 회전 돌출 0.45+0.03 = 0.48 ≤ 0.50 m. 두 기기 뒤 하단 국소 Z=[0,0.015], Y=[0,0.10] 홈으로 걸레받이와 겹침 0. 세탁기 뒤 가로 모서리는 국소 X=[-0.325,-0.255]·Z=[0,0.015]·Y=[0.10,0.88] m를 추가로 비워 폭 0.07·돌출 0.015 m 차고 문선과 겹침 0; 두 0.65 m 폭과 앞 작동 한계는 불변. |
 | [laundry-folding-top](../../models/12-service-rooms.md#laundry-folding-top) | 상판 위 0.94−기기 위 0.88 = 두께 0.06 m; 앞 다리·옆판 0. |
 | [laundry-upper-storage](../../models/12-service-rooms.md#laundry-upper-storage) | 깊이 0.28+문 0.02 = 0.30 m; 상판 위 0.94→장 아래 1.50의 작업 틈 0.56 m. |
 | [mudroom-bench](../../models/12-service-rooms.md#mudroom-bench) | 0.80×0.40×0.45 m; 신발 선반 상면 0.10, 좌면까지 0.35 m. 뒤 하단 Z=[0,0.015], Y=[0,0.10]을 비워 걸레받이와 겹침 0, 앞 0.40 m 외곽 불변. |
@@ -92,7 +92,7 @@
 | [terrace-table](../../models/15-outdoor.md#terrace-table) | 상판 폭 6×0.125+5×0.01 = 0.80 m; 긴변 좌석 구간 [-0.65,-0.05]·[0.05,0.65], 다리 X 구간 [-0.70,-0.65]·[0.65,0.70]이라 무릎 폭과 내부 겹침 0. 상면 0.74 m. |
 | [terrace-chair](../../models/15-outdoor.md#terrace-chair) | 좌판 깊이 4×0.13+3×0.01 = 0.55 m; 꺼낸 뒤끝 0.40+0.30+0.55 = 1.25 ≤ 1.35 m. |
 | [lap-siding-board](../../models/15-outdoor.md#lap-siding-board) | 판 높이 0.18−겹침 0.03 = 노출 0.15 m; 길이 L은 입면과 개구부 절단에서 받는다. |
-| [exterior-corner-trim](../../models/15-outdoor.md#exterior-corner-trim) | 외벽 두 날씨 면의 교선에서 각 날개 폭 0.075 m·바깥 돌출/두께 0.022 m; 시작·끝 높이는 노출 외벽과 처마/박공 경계에서 받는다. 실제 모서리별 충돌은 modelSources·instances 뒤 검사. |
+| [exterior-corner-trim](../../models/15-outdoor.md#exterior-corner-trim) | 외벽 두 날씨 면의 교선에서 각 날개 폭 0.075 m·바깥 돌출/두께 0.035 m; siding butt 최대 0.030 m보다 0.005 m 앞선다. 사이딩 절단 끝은 trim의 안쪽 면에 맞대며 구조 벽을 침범하지 않는다. 시작·끝 높이는 노출 외벽과 처마/박공 경계에서 받는다. 실제 모서리별 충돌은 modelSources·instances 뒤 검사. |
 | [asphalt-shingle-strip](../../models/15-outdoor.md#asphalt-shingle-strip) | 줄 길이 3×0.330+2×0.005 = 1.00 m; 높이 0.30−겹침 0.16 = 노출 0.14 m. 골짜기 양쪽 절단 물림 0.05 m씩으로 중앙 노출 금속 폭 0.10 m, 금속 각 면 폭 0.10 m 중 바깥 0.05 m씩은 지붕널 아래다. 굴뚝 금속은 지붕 위 0.12 m·벽돌 위 0.08 m로 공유 접면에 닿는다. |
 | [eave-gutter-downspout](../../models/15-outdoor.md#eave-gutter-downspout) | 홈통 단면 0.12×0.08 m; 선홈통 0.08×0.06 m·벽 이격 0.02; 길이는 처마·지표 입력에서 계산, 실제 충돌은 unverified. |
 | [site-tree-prototypes](../../models/16-planting.md#site-tree-prototypes) | 성목 H 8.00·R 3.00 m, 뒤 나무 H 6.00·R 2.00; 배치 충돌은 instances 개설 후 검사. |

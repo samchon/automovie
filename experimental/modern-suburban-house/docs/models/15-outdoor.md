@@ -38,7 +38,7 @@
 @evidence principles/design/models.md#reviewable-structure 측면에서 좌면 높이와 등받이 기울기가 보이는지, 네 의자를 꺼낸 평면이 예약 안에 드는지를 반증 관찰로 두고 표면 분할은 `seat`·`leg`·`back`이다.
 @evidence principles/design/models.md#model-observable-style-basis 양식 라벨 없이 팔걸이 없음, 널 넷의 좌판, 8° 기운 등받이 널 셋이라는 관찰 가능한 구성으로 의자를 정한다.
 @evidence principles/design/models.md#model-scale-layer-completion 외곽·좌면·등받이 높이, 널·다리·등받이 기둥 단면, 기울기 축과 깊이 점유, 세 표면 id, 무관절과 측면·평면 관찰을 정한다.
-@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work spaces/site/terrace.md#garden-terrace-plan의 2.70 m 가구 사용 구역과 식탁 반폭 0.40 m를 적힌 그대로 소비했고 꺼낸 끝 1.25 m가 그 안에 들어 부모 수정이 없었다.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work spaces/site/terrace.md#garden-terrace-plan의 2.70 m 가구 사용 구역과 식탁 반폭 0.40 m는 이 models 층의 식탁 원형에서 받아 함께 계산했고 꺼낸 끝 1.25 m가 그 안에 들어 부모 수정이 없었다.
 @evidence settings/10-house.md#site-identity 후면 정원 포장 테라스에 두라는 의자를 팔걸이 없는 0.50 × 0.55 m 의자 원형으로 만든다. 본문은 공간 예약과 사용 가정을 직접 소비한다.
 @evidence spaces/site/terrace.md#garden-terrace-plan 테라스의 X = [1.50, 4.20] m·Z = [-14.10, -11.40] m 가구 예약에 대해 의자를 식탁 가장자리에서 0.30 m 꺼낸 뒤쪽 끝 1.25 m가 예약 반폭 1.35 m 안에 든다는 산술로 받는다.
 @evidence obligations/design/models.md#reference-scale 의자 깊이 0.55 m를 식탁 반폭 0.40 m·꺼냄 0.30 m와 더해 예약 반폭 1.35 m에 대조하는 외곽 확인 규칙을 둔다. 공통 척도 기준 자체는 이 H2가 지명하지 않는다.
@@ -78,23 +78,23 @@
 ## 외벽 모서리 trim 판 {#exterior-corner-trim}
 <!--
 @evidence principles/core/common.md#scope-preservation 본채·차고의 노출 직각 외벽 모서리에서 구조 벽·사이딩 절단면을 복제하지 않는 두 날개의 닫힌 L자 trim 원형을 맡는다.
-@evidence principles/core/common.md#substantive-completion 각 외벽 면을 따라 폭 0.075 m·날씨 법선 돌출/판 두께 0.022 m인 두 날개, 시작·끝 입력선, 모든 닫힌 면의 id를 정한다.
+@evidence principles/core/common.md#substantive-completion 각 외벽 면을 따라 폭 0.075 m·날씨 법선 돌출/판 두께 0.035 m인 두 날개, siding butt 최대 0.030 m보다 앞선 0.005 m 음영선, 시작·끝 입력선, 모든 닫힌 면의 id를 정한다.
 @evidence principles/core/common.md#declared-basis 노출 모서리와 높이 끝은 spaces/07-boundary-assembly.md#exterior-boundary-junctions와 각 입면의 실제 지표·처마/박공 절단에서 받고 흰 돌출 trim의 읽힘은 settings/20-verification.md#visual-grammar에서 받는다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 입면 구조 몸체 owner와 별개인 닫힌 L자 판의 owner, 0.075 m 폭·0.022 m 그림자 깊이와 서로 만나는 두 날개의 단일 접합을 더한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 입면 구조 몸체 owner와 별개인 닫힌 L자 판의 owner, 0.075 m 폭·0.035 m 앞점과 서로 만나는 두 날개의 단일 접합을 더한다.
 @evidence principles/design/models.md#representation-contract 수직 강체 trim의 두 날개를 하나의 닫힌 직각 단면으로 만들고 그 판의 모든 앞·옆·뒤·끝면을 `exterior-trim`에 귀속한다.
 @evidence principles/design/models.md#spatial-convention 모서리의 두 외벽 날씨 면 교선을 국소 Y축으로, 첫 입면을 +X, 인접 입면을 +Z로 두고 시작점은 두 면의 실제 노출 하단 교점에서 받는다.
 @evidence principles/design/models.md#reviewable-structure 전면·측면 모서리와 높은/낮은 지붕 교차에서 판이 두 면에 연속해 붙고 처마·개구부·기단에 뚫고 들어가지 않는지를 측면 단면과 외관에서 반증한다.
 @evidence principles/design/models.md#model-observable-style-basis 레퍼런스 01의 박공·차고 흰 모서리 판을 두 면의 얕은 돌출과 세로 그림자 선으로 채택하며 픽셀에서 폭을 역산하지 않는다.
 @evidence principles/design/models.md#model-scale-layer-completion L단면 폭·두께·돌출, 높이 입력·종단 규칙, UV·면 id·소스 owner를 정하고 실제 외벽 모서리 길이와 반복 위치는 후속 배치가 원래 경계에서 받는다.
 @evidence upstream/design/models.md#settings-and-space-revision-from-model-work spaces/07-boundary-assembly.md#exterior-boundary-junctions는 모서리 구조 몸체만 배정하고 trim은 쪼개지 말라고만 적어 별도 판의 owner가 없었다. 부모 H2에 모서리 구조와 모델의 닫힌 trim 판을 구별해 인계하도록 고쳤다.
-@evidence settings/20-verification.md#visual-grammar 흰 trim이 벽 접합을 돌출과 음영으로 설명해야 한다는 요구를 두 날개와 날씨 면보다 0.022 m 앞선 판으로 받는다.
+@evidence settings/20-verification.md#visual-grammar 흰 trim이 벽 접합을 돌출과 음영으로 설명해야 한다는 요구를 siding butt 최대 0.030 m보다 0.005 m 앞선 0.035 m 날개 앞점으로 받는다.
 @evidence spaces/07-boundary-assembly.md#exterior-boundary-junctions front/rear/garage 구조 모서리 몸체는 spaces에 두고 그 두 날씨 면이 만나는 선만 닫힌 trim 판의 배치 입력으로 받는다.
 @evidence contracts/surface-ownership.md#whole-surface-owner 구조 벽·siding 절단면·독립 L자 trim의 닫힌 면을 서로 다른 owner로 나누고 어느 끝면도 복제하지 않는다.
 -->
 
 레퍼런스 01에서 흰 본채 박공과 차고 외벽 모서리의 세로 판을 채택한다. [외벽 모서리 몸체](../spaces/07-boundary-assembly.md#exterior-boundary-junctions)는 spaces가 만들고, 이 원형은 그 두 날씨 면이 만나는 외측 교선에 붙는 하나의 닫힌 L자 trim만 만든다. 구조 벽·사이딩 판의 절단면·처마 fascia·창과 문 casing을 다시 만들지 않는다.
 
-국소 원점은 두 외벽 날씨 면 교선의 실제 노출 하단이다. +Y는 위, +X와 +Z는 각 이웃 입면의 외벽 면을 따라 모서리에서 멀어지는 방향이고 두 날씨 면은 국소 X=0·Z=0이다. 바깥쪽으로 돌출한 닫힌 L단면은 XZ 평면의 꼭짓점 `(-0.022,-0.022) → (0.075,-0.022) → (0.075,0) → (0,0) → (0,0.075) → (-0.022,0.075)` m를 잇는다. 따라서 각 날개는 해당 벽면을 따라 0.075 m 뻗고 날씨 면보다 0.022 m 돌출하며 두께도 0.022 m다. 두 날개의 공통 모서리 사각형은 이 단면 한 번에만 포함되어 두 직육면체가 겹치지 않는다. 판의 하단은 외벽의 실제 노출 시작선, 상단은 해당 외벽의 처마 아래면 또는 박공 경사와 만나는 선으로 받으며, 지표·기단·지붕 구조를 관통하지 않고 그 선에서 절단·마감한다. 시작선과 끝선이 높이마다 달라지면 각 날개를 해당 선으로 자르고 두 날개의 공통 꼭짓점은 하나의 닫힌 접합으로 유지한다. 건물의 노출 모서리 목록과 실제 길이는 spaces 경계에서 후속 instances가 읽는다.
+국소 원점은 두 외벽 날씨 면 교선의 실제 노출 하단이다. +Y는 위, +X와 +Z는 각 이웃 입면의 외벽 면을 따라 모서리에서 멀어지는 방향이고 두 날씨 면은 국소 X=0·Z=0이다. 바깥쪽으로 돌출한 닫힌 L단면은 XZ 평면의 꼭짓점 `(-0.035,-0.035) → (0.075,-0.035) → (0.075,0) → (0,0) → (0,0.075) → (-0.035,0.075)` m를 잇는다. 따라서 각 날개는 해당 벽면을 따라 0.075 m 뻗고 날씨 면보다 0.035 m 돌출하며 두께도 0.035 m다. siding 판의 butt 최외점은 날씨 면에서 0.030 m이므로 trim 앞점이 0.005 m 더 나와 끝 절단면을 가린다. 사이딩 줄은 모서리에서 trim의 안쪽 X/Z=0.075 m 면에 맞대고 trim 뒤로 겹치지 않는다. 두 날개의 공통 모서리 사각형은 이 단면 한 번에만 포함되어 두 직육면체가 겹치지 않는다. 판의 하단은 외벽의 실제 노출 시작선, 상단은 해당 외벽의 처마 아래면 또는 박공 경사와 만나는 선으로 받으며, 지표·기단·지붕 구조를 관통하지 않고 그 선에서 절단·마감한다. 시작선과 끝선이 높이마다 달라지면 각 날개를 해당 선으로 자르고 두 날개의 공통 꼭짓점은 하나의 닫힌 접합으로 유지한다. 건물의 노출 모서리 목록과 실제 길이는 spaces 경계에서 후속 instances가 읽는다.
 
 앞·옆·뒤·상단·하단·절단 끝까지 모든 삼각형의 id는 `exterior-trim`이다. UV는 각 날개 바깥면의 모서리 왼쪽 하단에서 수평 길이 U·수직 높이 V를 미터로 두고 접힌 모서리에서 U를 연속시킨다. 위·아래·뒤 절단면은 면의 왼쪽 아래에서 새로 시작해 같은 미터 척도를 유지한다. 판은 강체이고 소스 owner는 `src/models/exterior/trim.ts`다. [흰 trim 재료](../materials/01-exterior.md#trim-white)가 id를 받는다. 전면·측면·차고 모서리 외관과 단면에서 두 면 접합, 세로 그림자 선, 기단·처마 비관통을 검사한다. 실제 모델 소스와 GPU 프레임은 unverified다.
 
