@@ -13,7 +13,7 @@ export const createTempleObjectScene = () => {
     ...TempleFixtureModels.build(), ...TempleWareModels.build(),
     ...TemplePortableModels.build(), ...TempleRitualModels.build(),
   ];
-  const objectElements = TempleObjectInstances.elements();
+  const objectElements = TempleObjectInstances.elements(objectModels);
   const ids = new Set(objectModels.map((model) => model.id));
   for (const element of objectElements) if (!ids.has(element.model!))
     throw new Error(`${element.id}: prototype ${element.model} 없음`);

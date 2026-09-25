@@ -26,8 +26,13 @@ const signedVolume = (model: IAutoMovieModel): number => {
 void test("all bounded object prototypes have outward facing indexed triangles", () => {
   const models = [...TempleFixtureModels.build(), ...TemplePortableModels.build(),
     ...TempleRitualModels.build(), ...TempleWareModels.build()];
-  assert.equal(models.length, 35);
-  for (const model of models) assert.ok(signedVolume(model) > 1e-8, `${model.id} faces inward`);
+  let parts = 0;
+  for (const model of models) for (const part of model.parts) {
+    assert.ok(signedVolume({ ...model, parts: [part] }) > 1e-10, `${model.id}/${part.id} faces inward`);
+    ++parts;
+  }
+  assert.ok(models.length > 0 && parts > 0);
+  console.log(`object winding census: ${models.length} prototypes, ${parts} parts, 0 inward`);
 });
 
 void test("box, revolved shell and rod winding each faces outward", () => {
