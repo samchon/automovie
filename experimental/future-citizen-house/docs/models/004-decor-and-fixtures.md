@@ -161,13 +161,13 @@
 
 `pot/outer/inner/rim/sole`, `soil/upper/edge/underside`, `stem/outer/contact`, `branch-0..4/outer/contact`, `leaf-0..14/front/back/edge`가 안정 주소다. 잎은 앞·뒤가 각각 winding과 normal을 가진 닫힌 얇은 부피이고 UV가 각 면의 길이 축을 따른다. 45°·상부·방 거리 view에서 pot 개구, 연결된 가지와 잎 사이 빈 공간이 드러나야 한다. ref03 조리대 작은 화분, ref04 책장 식물은 0.18/0.28m 변종으로 채택하고 ref02의 바닥 화분은 0.60..1.10m 변종으로 채택한다. ref01의 외부 수목·생울타리는 spaces의 대지 owner이므로 이 prototype으로 옮기지 않는다. ref05 창 밖 식물도 이 실내 화분의 배치 증거로 쓰지 않는다. 실제 종의 특정과 성장·바람 응답은 이 형상에서 `unverified`다.
 
-<!-- @generated-address-state:start -->
+<!-- @authored-address-state:start -->
 @address-state 180: pot, soil, stem, branch-0, leaf-0, leaf-1, leaf-2, branch-1, leaf-3, leaf-4, leaf-5, branch-2, leaf-6, leaf-7, leaf-8, branch-3, leaf-9, leaf-10, leaf-11, branch-4, leaf-12, leaf-13, leaf-14
 @address-state 280: pot, soil, stem, branch-0, leaf-0, leaf-1, leaf-2, branch-1, leaf-3, leaf-4, leaf-5, branch-2, leaf-6, leaf-7, leaf-8, branch-3, leaf-9, leaf-10, leaf-11, branch-4, leaf-12, leaf-13, leaf-14
 @address-state 600: pot, soil, stem, branch-0, leaf-0, leaf-1, leaf-2, branch-1, leaf-3, leaf-4, leaf-5, branch-2, leaf-6, leaf-7, leaf-8, branch-3, leaf-9, leaf-10, leaf-11, branch-4, leaf-12, leaf-13, leaf-14
 @address-state 800: pot, soil, stem, branch-0, leaf-0, leaf-1, leaf-2, branch-1, leaf-3, leaf-4, leaf-5, branch-2, leaf-6, leaf-7, leaf-8, branch-3, leaf-9, leaf-10, leaf-11, branch-4, leaf-12, leaf-13, leaf-14
 @address-state 1100: pot, soil, stem, branch-0, leaf-0, leaf-1, leaf-2, branch-1, leaf-3, leaf-4, leaf-5, branch-2, leaf-6, leaf-7, leaf-8, branch-3, leaf-9, leaf-10, leaf-11, branch-4, leaf-12, leaf-13, leaf-14
-<!-- @generated-address-state:end -->
+<!-- @authored-address-state:end -->
 
 ## 개별 책 {#books}
 
@@ -197,11 +197,11 @@
 | @part | 300x50x200 | pages | box | -0.021..0.021 | 0.004..0.296 | -0.1..0.094 | cover-left,cover-right,spine |
 | @part | 300x50x200 | spine | box | -0.025..0.025 | 0..0.3 | 0.094..0.1 | support,cover-left,cover-right,pages |
 
-<!-- @generated-address-state:start -->
+<!-- @authored-address-state:start -->
 @address-state 180x30x120: cover-left, cover-right, pages, spine
 @address-state 240x35x160: cover-left, cover-right, pages, spine
 @address-state 300x50x200: cover-left, cover-right, pages, spine
-<!-- @generated-address-state:end -->
+<!-- @authored-address-state:end -->
 
 ## 접힌 수건 {#folded-towels}
 
@@ -234,11 +234,11 @@
 | @part | 160 | fold-0 | box | -0.19..0.19 | 0.0506666..0.0546667 | -0.30..-0.27 | layer-0,layer-1 |
 | @part | 160 | fold-1 | box | -0.19..0.19 | 0.1053333..0.1093334 | 0.27..0.30 | layer-1,layer-2 |
 
-<!-- @generated-address-state:start -->
+<!-- @authored-address-state:start -->
 @address-state 80: layer-0, layer-1, layer-2, fold-0, fold-1
 @address-state 120: layer-0, layer-1, layer-2, fold-0, fold-1
 @address-state 160: layer-0, layer-1, layer-2, fold-0, fold-1
-<!-- @generated-address-state:end -->
+<!-- @authored-address-state:end -->
 
 ## 손잡이 있는 빈 바구니 {#storage-basket}
 
@@ -263,9 +263,9 @@
 | @part | default | handle-left | hollow | -0.2..-0.188 | 0.196..0.255 | -0.072..0.072 | wall |
 | @part | default | handle-right | hollow | 0.188..0.2 | 0.196..0.255 | -0.072..0.072 | wall |
 
-<!-- @generated-address-state:start -->
+<!-- @authored-address-state:start -->
 @address-state default: bottom, wall, rim, handle-left, handle-right
-<!-- @generated-address-state:end -->
+<!-- @authored-address-state:end -->
 
 ## 현관 충전 물체 {#entry-charger}
 
@@ -283,9 +283,9 @@
 | @part | default | body | hollow | -0.035..0.035 | 0..0.015 | -0.06..0.06 | support,interface |
 | @part | default | interface | box | -0.026..0.026 | 0.013..0.015 | -0.0375..0.0375 | body |
 
-<!-- @generated-address-state:start -->
+<!-- @authored-address-state:start -->
 @address-state default: body, interface
-<!-- @generated-address-state:end -->
+<!-- @authored-address-state:end -->
 
 ## 거실·침실 러그 {#rugs}
 
@@ -319,11 +319,11 @@
 | @part | round1200 | pile | cylinder | -0.575..0.575 | 0.009..0.012 | -0.575..0.575 | base,bound-edge |
 | @part | round1200 | bound-edge | hollow | -0.6..0.6 | 0.009..0.012 | -0.6..0.6 | base,pile |
 
-<!-- @generated-address-state:start -->
+<!-- @authored-address-state:start -->
 @address-state living: base, pile, bound-edge
 @address-state bedroom1600x2200: base, pile, bound-edge
 @address-state round1200: base, pile, bound-edge
-<!-- @generated-address-state:end -->
+<!-- @authored-address-state:end -->
 
 ## 벽 액자 {#wall-art}
 
@@ -344,9 +344,9 @@
 | @part | default | artwork | box | -0.23..0.23 | -0.14..0.14 | 0.012..0.013 | back |
 | @part | default | cover | box | -0.275..0.275 | -0.185..0.185 | 0.031..0.035 | frame |
 
-<!-- @generated-address-state:start -->
+<!-- @authored-address-state:start -->
 @address-state default: back, frame, mat, artwork, cover
-<!-- @generated-address-state:end -->
+<!-- @authored-address-state:end -->
 
 ## 빈 그릇·쟁반·컵 {#tabletop-props}
 
@@ -373,11 +373,11 @@
 | @part | cup | body | hollow | -0.0425..0.0425 | 0..0.095 | -0.0425..0.0425 | support,handle |
 | @part | cup | handle | curved | -0.006..0.006 | 0.03..0.071 | 0.042074..0.0825 | body |
 
-<!-- @generated-address-state:start -->
+<!-- @authored-address-state:start -->
 @address-state bowl: shell
 @address-state tray: base, rim
 @address-state cup: body, handle
-<!-- @generated-address-state:end -->
+<!-- @authored-address-state:end -->
 
 ## 거실 화면 {#living-display}
 
@@ -396,9 +396,9 @@ bezel의 중앙 개구는 x=±0.697,y=±0.382,z=0.039..0.045를 관통하고 그
 | @part | default | bezel | hollow | -0.715..0.715 | -0.4..0.4 | 0.039..0.045 | housing,screen |
 | @part | default | screen | box | -0.697..0.697 | -0.382..0.382 | 0.039..0.042 | housing,bezel |
 
-<!-- @generated-address-state:start -->
+<!-- @authored-address-state:start -->
 @address-state default: mount, housing, bezel, screen
-<!-- @generated-address-state:end -->
+<!-- @authored-address-state:end -->
 
 ## 천장 매입등 {#recessed-light}
 
@@ -421,9 +421,9 @@ bezel의 중앙 개구는 x=±0.697,y=±0.382,z=0.039..0.045를 관통하고 그
 | @part | default | trim | hollow | -0.06..0.06 | -0.025..0 | -0.06..0.06 | ceiling,housing-flange |
 | @part | default | diffuser | cylinder | -0.0475..0.0475 | -0.04..-0.037 | -0.0475..0.0475 | housing-body |
 
-<!-- @generated-address-state:start -->
+<!-- @authored-address-state:start -->
 @address-state default: housing-body, housing-flange, trim, diffuser
-<!-- @generated-address-state:end -->
+<!-- @authored-address-state:end -->
 
 ## 가는 원통 식탁 펜던트 {#dining-pendant}
 
@@ -447,9 +447,9 @@ bezel의 중앙 개구는 x=±0.697,y=±0.382,z=0.039..0.045를 관통하고 그
 | @part | default | shade-cap | cylinder | -0.0225..0.0225 | -0.625..-0.62 | -0.0225..0.0225 | shade-wall,cord |
 | @part | default | diffuser | cylinder | -0.019..0.019 | -0.989..-0.986 | -0.019..0.019 | shade-wall |
 
-<!-- @generated-address-state:start -->
+<!-- @authored-address-state:start -->
 @address-state default: canopy, cord, shade-wall, shade-cap, diffuser
-<!-- @generated-address-state:end -->
+<!-- @authored-address-state:end -->
 
 ## 바닥 독서등·구형 협탁등·작업등 {#portable-lamps}
 
@@ -487,8 +487,8 @@ bezel의 중앙 개구는 x=±0.697,y=±0.382,z=0.039..0.045를 관통하고 그
 
 `portable-lamp/reading`의 전체 점유는 폭·깊이 0.25, 높이 1.24m이고 바닥 받침 지름 0.25m로, 지름 0.018m stem이 y=0.025..1.10, 0.20m 지름의 원통 shade가 y=1.03..1.24다. `portable-lamp/bedside-globe`의 전체 점유는 폭·깊이 0.22, 높이 0.29m이며 상판 받침 지름 0.12·높이 0.015m, 짧은 stem 높이 0.055m, 구형 diffuser 지름 0.22m, 총 높이 0.29m다. `portable-lamp/desk-task`의 전체 점유는 x=±0.065,y=0..0.42,z=−0.065..+0.14m이며 받침 지름 0.13m, 총 높이 0.42m다. 이 변종은 0.015m 지름의 고정 두 구간 stem이 y=0.02..0.25와 y=0.25..0.36, 길이 0.14m 헤드가 +Z 방향으로 뻗어 아래쪽 diffuser 지름 0.09m를 드러낸다. 세 변종 모두 받침 아래면 중심이 원점, +Z가 빛을 향하는 방향이다. `base/upper/edge/sole`은 공통 주소다. reading은 y=0.025..1.10의 `stem-lower/outer/top/contact`, `shade/outer/inner/edge`, `shade-bridge/upper/edge/underside`, 아래쪽 y=1.03..1.034의 `diffuser/front/back/edge`를 낸다. shade의 외경은 0.20m, 벽 두께는 0.005m이고 독립 `shade-bridge` 부품은 y=1.10..1.12에서 stem 상면과 shade 내벽에 각각 유한 면으로 닿는다. diffuser는 외경 0.19m·중앙 통과 구멍 지름 0.020m인 얇은 환형 판으로 그 외곽이 shade 내벽에 닿는다. 지름 0.018m stem은 0.001m 반경 여유를 두고 diffuser 구멍을 통과하므로 발광판을 관통하지 않는다. bedside-globe는 y=0.015..0.070의 `stem-short/outer/top/contact`와 중심 y=0.18인 `globe/outer/inner/contact`를 낸다. 구는 반지름 0.11m로 y=0.072에서 수평 절단해 닫고, 같은 globe 부품의 반지름 0.009m 원통형 목을 y=0.070..0.072에 잇는다. 목의 하단에서 x/z=±0.006m 정사각형은 stem-short 상단 반지름 0.009m 원판 안에 들어가 유한 면으로 닿는다. 나머지 globe 외면은 확산면이다. desk-task는 `stem-lower/outer/top/contact`, `stem-upper/outer/top/contact`, y=0.36..0.42·z=0..0.14의 `task-head/outer/inner/edge`, 헤드 아래 중심 z=+0.09,y=0.36..0.364의 `diffuser/front/back/edge`를 낸다. 변종에 없는 stem·shade·globe·head·diffuser의 주소를 빈 부품으로 만들지 않는다. reading·desk-task의 diffuser와 bedside-globe의 globe 외면은 각각 별도 system emitter가 필요하다. 정면·측면·45°에서 바닥형/탁상형의 크기 차이, 구체와 두 구간 작업등을 판별한다. ref03의 거실 독서등, ref04의 구형 탁상등과 작업등을 각각 채택하고 ref02 협탁의 낮은 조명을 크기 관계로 받는다. ref01·05의 외피 빛 반사를 램프 형상으로 가져오지 않는다. 전기 안전·조도는 `unverified`다.
 
-<!-- @generated-address-state:start -->
+<!-- @authored-address-state:start -->
 @address-state reading: base, stem-lower, shade, shade-bridge, diffuser
 @address-state bedside-globe: base, stem-short, globe
 @address-state desk-task: base, stem-lower, stem-upper, task-head, diffuser
-<!-- @generated-address-state:end -->
+<!-- @authored-address-state:end -->

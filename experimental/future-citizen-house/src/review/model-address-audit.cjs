@@ -1,6 +1,5 @@
-// Prose face addresses and state-local part inventories must name the same
-// population. The generated state-address record locks each reviewed state;
-// regenerating it is a design edit, never part of validation.
+// Prose face addresses and independently authored state-local part inventories
+// must name the same population. Validation never writes either population.
 const fs = require("node:fs");
 const path = require("node:path");
 const { inventory } = require("./model-inventory.cjs");
@@ -8,28 +7,6 @@ const { inventory } = require("./model-inventory.cjs");
 const root = path.resolve(__dirname, "../..");
 const files = ["001-seating-and-work", "002-storage-and-sleep", "003-service-fixtures", "004-decor-and-fixtures"];
 const populations = inventory(root);
-const startMarker = "<!-- @generated-address-state:start -->";
-const endMarker = "<!-- @generated-address-state:end -->";
-
-function writeStateAddresses() {
-  for (const name of files) {
-    const file = path.join(root, "docs/models", `${name}.md`);
-    const original = fs.readFileSync(file, "utf8");
-    const eol = original.includes("\r\n") ? "\r\n" : "\n";
-    const blocks = original.split(/(?=^## )/m);
-    const next = blocks.map((block) => {
-      const match = /^## .*\{#([^}]+)\}/.exec(block);
-      const states = match && populations.get(match[1]);
-      if (!states) return block;
-      const without = block.replace(new RegExp(`\\r?\\n${startMarker}[\\s\\S]*?${endMarker}\\r?\\n?`), "").trimEnd();
-      const declarations = [...states].map(([state, parts]) =>
-        `@address-state ${state}: ${[...parts].join(", ")}`);
-      return `${without}${eol}${eol}${startMarker}${eol}${declarations.join(eol)}${eol}${endMarker}${eol}${eol}`;
-    }).join("").replace(/(?:\r?\n)+$/, eol);
-    if (next !== original) fs.writeFileSync(file, next);
-  }
-}
-
 /** @param {string} token @param {Set<string>} members */
 function resolvePart(token, members) {
   const range = /^(.*?)-(\d+)\.\.(\d+|n-1|2n-1)$/.exec(token);
@@ -150,7 +127,6 @@ function fixture() {
 }
 
 if (require.main === module) {
-  if (process.argv.includes("--write")) writeStateAddresses();
   const result = audit();
   console.log(JSON.stringify(result, null, 2));
   if (result.errors.length) process.exitCode = 1;

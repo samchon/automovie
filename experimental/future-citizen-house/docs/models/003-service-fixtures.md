@@ -42,10 +42,10 @@
 
 주소는 `rim/upper/edge/underside`, `bowl/inner/outer/bottom/rim/drain-inner/drain-edge`, `tap-body/outer/contact`, `tap-spout/outer/end`, `mirror-glass/front/back/edge`, `mirror-frame/front/back/edge`이며 vanity의 각 판 주소는 cabinet 쪽에서 유지한다. 내부와 외부 normal이 반대이고 bowl의 rim은 두 벽을 잇는 닫힌 두께다. 정면·상부·45°에서 실제 음각과 mirror/frame·tap을 확인한다. ref02의 1층/2층 위생기구 위치 역할을 채택하고 ref03·04·05의 거실/작업/복도 유리를 욕실 거울로 복제하지 않는다. ref01에는 basin 세부가 없다. 거울 광학 응답·급배수·실제 사용성은 `unverified`다.
 
-<!-- @generated-address-state:start -->
+<!-- @authored-address-state:start -->
 @address-state 800: rim, bowl, tap-body, tap-spout, mirror-frame, mirror-glass
 @address-state 1000: rim, bowl, tap-body, tap-spout, mirror-frame, mirror-glass
-<!-- @generated-address-state:end -->
+<!-- @authored-address-state:end -->
 
 ## 변기 {#toilet}
 
@@ -67,9 +67,9 @@
 | @part | lid-open | cistern | box | -0.20..0.20 | 0.43..0.82 | -0.36..-0.215 | bowl,flush |
 | @part | lid-open | flush | box | -0.025..0.025 | 0.82..0.828 | -0.3025..-0.2675 | cistern |
 
-<!-- @generated-address-state:start -->
+<!-- @authored-address-state:start -->
 @address-state lid-open: pedestal, bowl, seat, lid, cistern, flush
-<!-- @generated-address-state:end -->
+<!-- @authored-address-state:end -->
 
 ## 고정 스크린 샤워 {#shower}
 
@@ -102,9 +102,9 @@ tray의 중앙은 x=−0.980..+0.980,z=−0.680..+0.680에서 y=0.055..0.070을 
 | @part | default | riser-bracket-2 | hollow | -0.87..-0.83 | 2.085..2.115 | -0.725..-0.685 | wall,riser |
 | @part | default | head | curved | -1..-0.7 | 2.2..2.225 | -0.705..-0.485 | riser |
 
-<!-- @generated-address-state:start -->
+<!-- @authored-address-state:start -->
 @address-state default: tray, screen, screen-rail, riser, riser-bracket-0, riser-bracket-1, riser-bracket-2, head
-<!-- @generated-address-state:end -->
+<!-- @authored-address-state:end -->
 
 ## 욕조 {#bathtub}
 
@@ -123,9 +123,9 @@ tray의 중앙은 x=−0.980..+0.980,z=−0.680..+0.680에서 y=0.055..0.070을 
 | @part | default | floor | curved | -0.34..0.34 | 0.12..0.2 | -0.765..0.765 | shell |
 | @part | default | rim | hollow | -0.38..0.38 | 0.525..0.58 | -0.81..0.81 | shell |
 
-<!-- @generated-address-state:start -->
+<!-- @authored-address-state:start -->
 @address-state default: shell, floor, rim
-<!-- @generated-address-state:end -->
+<!-- @authored-address-state:end -->
 
 ## 주방 섬·싱크 {#kitchen-island}
 
@@ -150,9 +150,9 @@ tray의 중앙은 x=−0.980..+0.980,z=−0.680..+0.680에서 y=0.055..0.070을 
 
 안정 주소는 `counter/upper/edge/underside`, `sink/rim/inner/outer/bottom/drain-inner/drain-edge`, `tap-body/outer/contact`, `tap-spout/outer/end`이며 base의 panel·door·edge 주소는 cabinet H2가 낸다. 배수 개구는 sink 바닥 두께 0.02m를 중심 (x=−0.12,z=+0.65)에서 지름 0.045m로 관통 절삭한 면이며 독립 고체 part가 아니다. 상부·+X 식사 쪽·-X 서비스 쪽·45°에서 긴 측면의 문 유무, 0.20m overhang, bowl 깊이와 스툴 접근을 확인한다. ref03의 긴 섬·싱크·세 스툴 관계를 채택하고 ref02의 조감으로 kitchen과 식탁의 한 공간 관계를 확인한다. ref01·04·05의 다른 유리나 책상을 조리대 세부로 차용하지 않는다. 실제 급배수와 앉는 무릎 안전은 `unverified`다.
 
-<!-- @generated-address-state:start -->
+<!-- @authored-address-state:start -->
 @address-state default: counter, sink, tap-body, tap-spout
-<!-- @generated-address-state:end -->
+<!-- @authored-address-state:end -->
 
 ## 벽 조리대·쿡탑·오븐 {#cooking-appliances}
 
@@ -196,11 +196,11 @@ tray의 중앙은 x=−0.980..+0.980,z=−0.680..+0.680에서 y=0.055..0.070을 
 
 주소는 `top/upper/edge/underside`(wall-worktop), `body/top/edge/underside`, `rim/upper/edge/underside`, `zone-0..3/upper/edge`(cooktop), `body/front/back/side-left/side-right/top/sole`, `front-frame/front/back/edge`, `window/front/back/edge`, `handle/outer/contact`, `controls/front/edge`, `knob-0..1/outer/contact`(oven)다. 정면·상부·45°에서 네 zone, oven 빈 bay, 서랍과 가전의 분리를 확인한다. ref03의 초록 서랍 하부장·밝은 상판·검은 매립 조리면을 채택한다. ref02는 공용부 위치 근거이며 ref01·04·05에서는 조리대 치수를 읽지 않는다. 가열·후드 환기 성능은 `unverified`다.
 
-<!-- @generated-address-state:start -->
+<!-- @authored-address-state:start -->
 @address-state wall-worktop: top
 @address-state cooktop: body, rim, zone-0, zone-1, zone-2, zone-3
 @address-state oven: body, front-frame, window, controls, knob-0, knob-1, handle
-<!-- @generated-address-state:end -->
+<!-- @authored-address-state:end -->
 
 ## 두 문 냉장고 {#refrigerator}
 
@@ -218,9 +218,9 @@ tray의 중앙은 x=−0.980..+0.980,z=−0.680..+0.680에서 y=0.055..0.070을 
 | @part | default | handle-upper | box | 0.359..0.381 | 1.51..1.79 | 0.38..0.405 | door-upper |
 | @part | default | toe | box | -0.45..0.45 | 0..0.08 | -0.38..0.33 | ground,body |
 
-<!-- @generated-address-state:start -->
+<!-- @authored-address-state:start -->
 @address-state default: body, door-lower, door-upper, handle-lower, handle-upper, toe
-<!-- @generated-address-state:end -->
+<!-- @authored-address-state:end -->
 
 ## 세탁기와 건조기 {#laundry-appliances}
 
@@ -267,7 +267,7 @@ tray의 중앙은 x=−0.980..+0.980,z=−0.680..+0.680에서 y=0.055..0.070을 
 
 `laundry-washer`와 `laundry-dryer`는 각각 폭·깊이 0.66, 높이 0.84m다. 각 장치의 바닥 중심이 원점, +Z가 전면이다. 본체는 z=-0.33..+0.30, 전면 드럼 문은 z=+0.30..+0.33이다. drum 중심은 x=0,y=0.38이고 rim 외경 0.46, 투명 창 외경 0.35m다. 창은 z=0.326..0.330, 유리 뒤 z=0.246..0.326의 0.08m 깊이에는 중심 (x=0,y=0.38)·반지름 0.19m의 원형 보어를 몸체에 뚫고, 바깥 반지름 0.23m의 rim으로 개구 둘레를 덮는다. 몸체 앞면에 네모난 개구 모서리를 남기지 않는다. 문 힌지는 y=0.34..0.42의 `hinge-barrel`과 y=0.35..0.41의 `hinge-tongue` 두 닫힌 부품이다. 바깥 D형 barrel은 x=−0.25..−0.23,z=0.30..0.32에 있고 XZ 단면은 x=−0.25..−0.23,z=0.30..0.31의 직사각형과 중심 (x=−0.24,z=0.31), 반지름 0.01의 +Z 반원 합집합이다. 뒤쪽 평면 z=0.30에서 몸체 전면과 0.02×0.08m 면으로 접한다. 별도 부품인 직사각 tongue는 x=−0.23..−0.21,y=0.35..0.41,z=0.305..0.315이며 드럼 rim의 이 점유만 원래 닫힌 부피에서 절삭한 recess에 들어가 유한 면으로 접한다. barrel과 tongue는 x=−0.23, y=0.35..0.41, z=0.305..0.31의 0.06×0.005m 직사각형 면으로 이어지고 몸체·rim의 남은 고체를 관통하지 않는다. 두 부품은 고정 도어의 조립 이음이며 열림 검사 상태나 작동 궤적을 주장하지 않는다. controls 판은 0.25×0.055×0.014m로 중심 x=+0.10,y=0.74,z=0.307이다. washer는 x=0.015 다이얼 하나와 x=0.12,0.17 버튼 둘, dryer는 x=0.19 다이얼 하나와 x=0.015,0.07,0.12 버튼 셋을 고정 형상으로 둔다. 각 다이얼은 지름 0.035, 버튼은 지름 0.014m이며 모두 판 앞 z=0.314..0.329에 머문다. `body/front/side-left/side-right/back/top/sole`, `drum-inner/inner/outer/edge`, `drum-rim/front/back/inner/outer`, `window/front/back/edge`, `controls-panel/front/back/edge`, `controls-dial/outer/contact`, washer의 `controls-button-0..1/outer/contact` 또는 dryer의 `controls-button-0..2/outer/contact`, `hinge-barrel/outer/contact`, `hinge-tongue/outer/contact`가 안정 주소다. 위아래 적층 transform은 instances가 정하고 모델 내부에 1.68m 탑을 미리 만들지 않는다. 정면·측면·45°에서 두 controls 배열과 창 깊이를 확인한다. ref02 우측 서비스 코어의 세탁기 목적지 관계를 채택한다. ref01·03·04·05에서는 세탁기 형상을 특정할 자료가 없으며 세척·건조·진동은 `unverified`다.
 
-<!-- @generated-address-state:start -->
+<!-- @authored-address-state:start -->
 @address-state washer: body, drum-inner, drum-rim, window, controls-panel, controls-dial, controls-button-0, controls-button-1, hinge-barrel, hinge-tongue
 @address-state dryer: body, drum-inner, drum-rim, window, controls-panel, controls-dial, controls-button-0, controls-button-1, controls-button-2, hinge-barrel, hinge-tongue
-<!-- @generated-address-state:end -->
+<!-- @authored-address-state:end -->

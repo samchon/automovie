@@ -8,7 +8,7 @@
 
 네 발 물체에서 `leg-0..3`의 순서는 `0=(−X,−Z)`, `1=(−X,+Z)`, `2=(+X,−Z)`, `3=(+X,+Z)`이며 번호는 회전이나 방 배치에 따라 다시 매기지 않는다. ref01의 외피를 독립 물체 part로 옮기지 않고 ref02~05의 물체가 받는 안정 주소만 정의한다. 실제 모델 source의 face 완결 여부는 아직 `unverified`다.
 
-각 prototype의 `@address-state state:`는 해당 상태에서 face 주소를 받는 독립 part ID 집합이다. 같은 상태의 `@inventory`와 일대일로 맞아야 하고, H2 산문에 한 번도 등장하지 않는 part를 선언할 수 없다. `model-address-audit`는 산문 주소→part, inventory→산문 주소, 상태별 address↔inventory를 모두 검사한다. 이 선언은 현재 inventory에서 명시적으로 재생성하되 검증 실행은 재생성하지 않는다. 산문의 part/face 경로에서 `/`는 계층 구분이며 여러 part를 줄여 적은 표현은 `@address-state`의 개별 ID로 풀어 읽는다.
+각 prototype의 `@address-state state:`는 해당 상태에서 face 주소를 받는 독립 part ID 집합이다. 같은 상태의 `@inventory`와 일대일로 맞아야 하고, H2 산문에 한 번도 등장하지 않는 part를 선언할 수 없다. `model-address-audit`는 산문 주소→part, inventory→산문 주소, 상태별 address↔inventory를 모두 검사한다. 주소 상태 선언은 모델 설계의 별도 저작값이며 검증은 이를 inventory에서 재생성하거나 고치지 않는다. 산문의 part/face 경로에서 `/`는 계층 구분이며 여러 part를 줄여 적은 표현은 `@address-state`의 개별 ID로 풀어 읽는다.
 
 ## 메트릭 UV와 곡면 분할 {#model-uv-and-topology}
 

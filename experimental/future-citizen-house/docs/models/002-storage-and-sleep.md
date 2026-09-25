@@ -1697,7 +1697,7 @@ ref04 책상 왼쪽 벽붙박이 선반의 가로 책판과 목재 측판 읽힘
 | @part | wall/2900x980x360/open | handle-4 | box | 0.8746..0.8906 | 0.4947..0.6547 | 0.6734..0.6854 | door-4 |
 <!-- @generated-cabinet-parts:end -->
 
-<!-- @generated-address-state:start -->
+<!-- @authored-address-state:start -->
 @address-state bench-base/1150x440x480/closed: back, bottom, top, side-left, side-right, toe, shelf-1, stile-1, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1
 @address-state bench-base/1150x440x480/open: back, bottom, top, side-left, side-right, toe, shelf-1, stile-1, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1
 @address-state island-base/880x870x2650/closed: bottom, top, toe, end-negative, end-positive, dining-side, service-strip-bottom, service-strip-top, shelf-1, shelf-2, service-stile-1, service-stile-2, service-stile-3, service-stile-4, service-door-0, service-hinge-0, service-hinge-1, service-handle-0, service-door-1, service-hinge-2, service-hinge-3, service-handle-1, service-door-2, service-hinge-4, service-hinge-5, service-handle-2, service-door-3, service-hinge-6, service-hinge-7, service-handle-3, service-door-4, service-hinge-8, service-hinge-9, service-handle-4
@@ -1731,7 +1731,7 @@ ref04 책상 왼쪽 벽붙박이 선반의 가로 책판과 목재 측판 읽힘
 @address-state vanity/800x800x480/closed: back, bottom, top, side-left, side-right, toe, fixed-front, drawer-0, runner-0-left, runner-0-right, handle-0, drawer-1, runner-1-left, runner-1-right, handle-1
 @address-state wall/2900x980x360/closed: back, bottom, top, side-left, side-right, cleat-0, cleat-1, fixed-front-bottom, shelf-1, shelf-2, stile-1, stile-2, stile-3, stile-4, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1, door-2, hinge-4, hinge-5, handle-2, door-3, hinge-6, hinge-7, handle-3, door-4, hinge-8, hinge-9, handle-4
 @address-state wall/2900x980x360/open: back, bottom, top, side-left, side-right, cleat-0, cleat-1, fixed-front-bottom, shelf-1, shelf-2, stile-1, stile-2, stile-3, stile-4, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1, door-2, hinge-4, hinge-5, handle-2, door-3, hinge-6, hinge-7, handle-3, door-4, hinge-8, hinge-9, handle-4
-<!-- @generated-address-state:end -->
+<!-- @authored-address-state:end -->
 
 ## 현관 벤치와 신발장 {#entry-bench}
 
@@ -1747,9 +1747,9 @@ ref04 책상 왼쪽 벽붙박이 선반의 가로 책판과 목재 측판 읽힘
 
 `entry-bench`는 폭 1.15, 외함 깊이 0.48, 방석 앞 돌출을 포함한 전체 깊이 0.49, 전체 높이 0.52m다. 바닥 외함 중심이 원점, +Z가 앉는 앞이다. `cabinet/bench-base/1150x440x480/closed`의 두 문 외함 위에 두께 0.08m 방석을 얹어 상면 y=0.52를 만든다. 방석은 z 앞쪽으로 0.01m만 돌출하며 문 seam·손잡이 높이를 가리지 않는다. `entry-bench` wrapper는 `cushion/upper/side/underside`만 만들고, 외함은 독립 `cabinet/bench-base/1150x440x480/closed`의 back·side·door·edge 주소를 그대로 운반한다. wrapper가 외함 판을 복제하거나 새 표면 ID로 바꾸지 않는다. 정면·측면·45°에서 수납 두 leaf와 착석 면이 함께 보여야 한다. ref02 현관의 벤치·신발장 기능을 채택하며 ref01의 바깥 포치를 벤치 형태로 옮기지 않는다. ref03·04·05에는 현관 벤치를 판독할 세부가 없다. 착석 하중·문 간섭은 `unverified`다.
 
-<!-- @generated-address-state:start -->
+<!-- @authored-address-state:start -->
 @address-state default: cushion
-<!-- @generated-address-state:end -->
+<!-- @authored-address-state:end -->
 
 ## 현관 평벽 충전 선반 {#entry-charging-shelf}
 
@@ -1765,9 +1765,9 @@ ref04 책상 왼쪽 벽붙박이 선반의 가로 책판과 목재 측판 읽힘
 | @part | default | bracket-left | box | -0.131..-0.119 | -0.08..0 | 0..0.12 | wall,board |
 | @part | default | bracket-right | box | 0.119..0.131 | -0.08..0 | 0..0.12 | wall,board |
 
-<!-- @generated-address-state:start -->
+<!-- @authored-address-state:start -->
 @address-state default: board, cleat, bracket-left, bracket-right
-<!-- @generated-address-state:end -->
+<!-- @authored-address-state:end -->
 
 ## 고정 침대와 침구 {#fixed-bed}
 
@@ -1812,10 +1812,10 @@ ref04 책상 왼쪽 벽붙박이 선반의 가로 책판과 목재 측판 읽힘
 | @part | 1000 | headboard | box | -0.54..0.54 | 0.28..1.01 | -1.09..-1.03 | frame-head |
 | @part | 1000 | pillow-0 | box | -0.41..0.41 | 0.50..0.62 | -0.95..-0.57 | mattress |
 
-<!-- @generated-address-state:start -->
+<!-- @authored-address-state:start -->
 @address-state 1800: frame-side-left, frame-side-right, frame-head, frame-foot, support-deck, leg-0, leg-1, leg-2, leg-3, mattress, duvet, headboard, pillow-0, pillow-1
 @address-state 1000: frame-side-left, frame-side-right, frame-head, frame-foot, support-deck, leg-0, leg-1, leg-2, leg-3, mattress, duvet, headboard, pillow-0
-<!-- @generated-address-state:end -->
+<!-- @authored-address-state:end -->
 
 ## 작업실 수납 침대 {#murphy-bed}
 
@@ -1861,7 +1861,7 @@ ref04 책상 왼쪽 벽붙박이 선반의 가로 책판과 목재 측판 읽힘
 
 공유 주소는 `case-back/front/back/edge`, `case-side-left/right/outer/inner/front-edge/back-edge/top/sole`, `case-top/upper/underside/edge`, `hinge-left/right/outer/contact`다. 작업만 `closed-panel/front/back/edge`, `pull/outer/contact`, 손님만 `bed-frame/upper/edge/underside`, `mattress/upper/side/underside`, `support-left/right/shaft/top/sole`, `duvet/upper/side/underside`, `pillow/upper/side/underside`를 낸다. 두 상태 모두 뒤판 앞면이 외함 내부에서 관찰될 수 있어 뒷면과 분리한다. 같은 45°·측면 중립 카메라와 작업실 출입 뷰에서 외함 점유의 동일함과 상태별 part 분리를 확인한다. ref04의 평평한 접이식 전면과 책상·계단으로 이어지는 열린 작업실을 채택하고, ref02의 작업실 정지 상태는 평면 관계 확인에 쓴다. ref01·03·05의 고정 방을 침대 동작 근거로 쓰지 않는다. 출입 원통 성립은 instances의 배치 검증 대상이다.
 
-<!-- @generated-address-state:start -->
+<!-- @authored-address-state:start -->
 @address-state work: case-back, case-side-left, case-side-right, case-top, hinge-left, hinge-right, closed-panel, pull
 @address-state guest: case-back, case-side-left, case-side-right, case-top, hinge-left, hinge-right, bed-frame, mattress, support-left, support-right, duvet, pillow
-<!-- @generated-address-state:end -->
+<!-- @authored-address-state:end -->

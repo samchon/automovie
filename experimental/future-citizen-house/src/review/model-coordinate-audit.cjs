@@ -80,6 +80,8 @@ function witnesses(lines) {
 /** @param {Map<string,string>} [overrides] */
 function audit(overrides = new Map()) {
   /** @type {string[]} */ const errors = [];
+  /** @type {Array<{owner:string, proseDecimals:number, axisValues:number, unwitnessed:number, outsideGrammar:number}>} */
+  const coverage = [];
   let h2 = 0, claims = 0, values = 0, witnessed = 0, proseDecimals = 0;
   for (const name of names) {
     const source = overrides.get(name) ?? fs.readFileSync(path.join(root, "docs/models", `${name}.md`), "utf8");
@@ -90,6 +92,7 @@ function audit(overrides = new Map()) {
       if (!owner) return;
       h2++;
       const sourceValues = witnesses(body);
+      const before = { proseDecimals, values, witnessed };
       for (const [index, line] of body.entries()) {
         if (!line.trim() || /^\||^@|^<!--/.test(line)) continue;
         proseDecimals += [...line.matchAll(proseDecimal)].length;
@@ -104,6 +107,11 @@ function audit(overrides = new Map()) {
           }
         }
       }
+      const localDecimals = proseDecimals - before.proseDecimals;
+      const localValues = values - before.values;
+      coverage.push({ owner, proseDecimals: localDecimals, axisValues: localValues,
+        unwitnessed: localValues - (witnessed - before.witnessed),
+        outsideGrammar: localDecimals - localValues });
     };
     for (const line of source.split(/\r?\n/)) {
       const heading = /^## .*\{#([^}]+)\}/.exec(line);
@@ -116,7 +124,7 @@ function audit(overrides = new Map()) {
   if (nonAxisDecimals > 0) errors.push(`${nonAxisDecimals} prose decimals are outside the local-axis coordinate grammar`);
   return { h2, proseDecimals, coordinateClaims: claims, coordinateValues: values,
     witnessedCoordinateValues: witnessed, unwitnessedCoordinateValues: values - witnessed,
-    nonAxisDecimals, errors };
+    nonAxisDecimals, coverage, errors };
 }
 
 // Every prototype, rather than a hand-picked sentence, supplies one measured
