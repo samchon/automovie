@@ -161,7 +161,7 @@
 @evidence principles/core/common.md#scope-preservation 회베이지는 주침실 침대의 `bedding`과 세 침대 공통 원형의 `pillow`·`mattress`에 결합하고 침대·베개·매트리스 형상은 모델 owner에 남긴다.
 @evidence principles/core/common.md#substantive-completion 회베이지 주침실 침구는 #CFC8BC(선형 0.624, 0.578, 0.503), roughness 0.93, metallic 0.0, transmission 0.0, 결합 면, source owner `src/materials/furnishings/textiles.ts`, 리뷰 관찰을 모두 적었다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 settings/10-house.md#primary-bedroom는 색·재료를 말로만 정했고 회베이지 주침실 침구는 #CFC8BC 값과 roughness 0.93, `bedding`·`pillow`·`mattress` 결합을 더한다.
-@evidence principles/design/materials.md#material-construction-appearance 회베이지 주침실 침구는 구성을 '면 직물 이불·베개'로, 외관의 #CFC8BC·roughness 0.93·metallic 0.0을 기준값으로 두고 아래 표면 결속 계획의 결·광학 응답으로 최상층 마감을 표현한다고 적는다.
+@evidence principles/design/materials.md#material-construction-appearance 회베이지 주침실 침구는 면 직물 이불·베개와 같은 회베이지 면 매트리스 커버를 포함하며, 외관의 #CFC8BC·roughness 0.93·metallic 0.0을 기준값으로 두고 아래 표면 결속 계획의 결·광학 응답으로 최상층 마감을 표현한다고 적는다.
 @evidence principles/design/materials.md#material-binding-interface 회베이지 주침실 침구의 결합 vocabulary는 `bedding`·`pillow`·`mattress`이며 방향과 단면/양면은 00 면 결합 규칙을 따른다.
 @evidence principles/design/materials.md#material-verification-address 회베이지 주침실 침구의 반증 견본은 '주침실 view에서 침구가 목재 침대와 카펫 사이에서 구별되는지'이고 00 재료 리뷰 견본의 중성 조명 판이 #CFC8BC 값을 대조한다.
 @evidenceExclude upstream/design/materials.md#parent-revision-from-material-work 회베이지 주침실 침구는 settings/10-house.md#primary-bedroom, models/13-bedrooms.md#headboard-bed를 적힌 그대로 소비했고 수정할 부모 결함을 찾지 않았다.
