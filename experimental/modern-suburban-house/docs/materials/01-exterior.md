@@ -99,6 +99,8 @@ shingle 원형의 `shingle-face`·`shingle-butt`·`shingle-back`·`shingle-cut` 
 
 표면 결속 계획: `frame`·`sash`·`mullion`·`muntin`과 굴뚝 cap·지붕 flashing의 도장 금속 미세결은 각 부재 길이를 U로 한 0.05 m 모듈이다. 국소 부재 끝을 원점으로 하고 맞댐마다 결 방향을 새로 잡으며 모서리 하이라이트를 유지한다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
 
+`frame`·`mullion`의 물리 폭과 깊이는 [창 부재 치수](../models/01-windows.md#window-member-sizes)가 정한다. [창 표면 파티션](../models/01-windows.md#window-surface-partitions)은 이름 경계만 정하며 그 H2만으로 메시를 만들지 않는다.
+
 ## 투명 창유리 {#glass-clear}
 <!--
 @evidence principles/core/common.md#declared-basis 투명 창유리의 #E8EEF0·roughness 0.03은 settings/10-house.md#openings의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.

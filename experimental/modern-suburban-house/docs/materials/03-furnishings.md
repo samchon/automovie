@@ -57,6 +57,8 @@
 
 표면 결속 계획: 가전·수전의 노출 스테인리스에는 0.02 m 반복의 방향성 헤어라인 거칠기 맵을 쓴다. 판의 길이 U를 연마 방향으로, 판 시작 모서리를 원점으로 하고 문·손잡이 파티션 경계에서 방향을 새로 잡는다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
 
+추가 `rod`는 [외투장 봉](../models/05-closet-fittings.md#coat-closet-rod-shelf)·[옷방 봉](../models/13-bedrooms.md#wardrobe-hanging)·[수건걸이](../models/14-bathrooms.md#towel-bar)의 금속부이고, 주방 `utensil`은 [조리 소품](../models/18-house-props.md#kitchen-food-utensils)이다. 검은 커튼 봉은 이 스테인리스가 아니라 실내 도장 금속이 받는다.
+
 ## 검은 유리 조작부 {#black-glass-panel}
 <!--
 @evidence principles/core/common.md#declared-basis 검은 유리 조작부의 #1F1F20·roughness 0.08은 settings/20-verification.md#visual-grammar의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
@@ -94,6 +96,8 @@
 
 표면 결속 계획: 흰 도기·에나멜은 의도적으로 매끈한 유약 면이다. roughness 0.25의 넓은 하이라이트와 실제 곡면 법선·그림자로 부피를 읽히게 하며 금속·벽 타일 파티션과의 접합에서 끝난다. 실제 GPU 근접·리뷰 거리 판정은 아직 없으므로 unverified다.
 
+[협탁등](../models/13-bedrooms.md#nightstand-lamp)의 `lamp-base`도 이 흰 도기 값에 결합한다.
+
 ## 꿀빛 가구 목재 {#furniture-wood}
 <!--
 @evidence principles/core/common.md#declared-basis 꿀빛 가구 목재의 #A87A4E·roughness 0.50은 settings/10-house.md#living의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
@@ -114,6 +118,8 @@
 탁자·벤치의 `base`·`plinth`, 공구판의 `board`·`tool-grip`, 거실 `tray`, 주방 `cutting-board`, 벽난로 `mantel`, 선반 `basket`, 책상 `pencil`의 목재 부피도 이 재료를 받는다. 부재마다 길이 U·폭 V를 새로 시작한다.
 
 표면 결속 계획: 식탁·침대·의자·선반 목재의 오크 결은 판 길이 U와 폭 0.15 m 모듈을 쓴다. 각 모델 부재 시작 모서리를 원점으로 하고 다리·상판·서랍 전면의 접합에서 결 방향을 새로 잡는다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
+
+추가 부재의 결합 owner는 `plinth`가 [주방 하부장](../models/10-kitchen-dining.md#kitchen-base-run)과 [책장](../models/11-living.md#dark-bookcase), `board`·`tool-grip`이 [차고 공구판](../models/12-service-rooms.md#garage-tool-board), `cutting-board`가 [주방 소품](../models/18-house-props.md#kitchen-food-utensils), `tray`가 [거실 탁자 소품](../models/19-room-accents.md#living-tabletop-props), `basket`이 [팬트리 용기](../models/12-service-rooms.md#pantry-containers)와 [옷방 선반](../models/13-bedrooms.md#wardrobe-shelves)이다. 이 링크는 같은 목재 재료를 받는 서로 다른 닫힌 부재를 뜻한다.
 
 ## 짙은 책장 목재 {#dark-bookcase-wood}
 <!--
@@ -255,6 +261,8 @@
 
 표면 결속 계획: 수건은 0.01 m 파일 결, 얇은 커튼은 0.02 m 투과 직조 결을 각 파티션에 따로 쓴다. 세로 매달림을 V, 폭을 U로 두고 각각 아래 왼쪽을 원점으로 하며 봉제 끝·창틀 경계에서 끊는다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
 
+밝은 직물을 받는 `fixture-shade`는 [펜던트 갓](../models/17-light-fixtures.md#pendant-fixtures)의 별도 부재다.
+
 ## 거울 {#mirror}
 <!--
 @evidence principles/core/common.md#declared-basis 거울의 #EDEDED·roughness 0.02은 settings/10-house.md#powder의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
@@ -325,6 +333,8 @@
 
 [등기구 원형](../models/17-light-fixtures.md#flush-ceiling-fixture)의 `fixture-diffuser`는 폴리카보네이트 `#F4F1E9`(roughness 0.36, metallic 0, transmission 0.35), [포치 벽등](../models/17-light-fixtures.md#porch-wall-sconce)의 `fixture-glass`는 같은 색의 유리(roughness 0.06, metallic 0, transmission 0.78, ior 1.50)다. 두 면은 무문양이지만 실제 반사와 투과, 두께 있는 몸체와 떨어진 경계로 구별한다. 빛의 세기·색온도·그림자는 [systems](../systems/00-lighting-frame.md#lighting-allocation)의 소유다. `fixture-housing`·`fixture-canopy`·`fixture-stem`은 [검은 도장 금속](02-interior-shell.md#black-coated-metal), `fixture-shade`는 [얇은 커튼](#towel-curtain-textile)의 밝은 직물 값을 받는다. source owner는 `src/materials/furnishings/fixtures.ts`이며 실제 GPU 프레임은 unverified다.
 
+금속 원형 `fixture-canopy`·직물 `fixture-shade`는 [펜던트](../models/17-light-fixtures.md#pendant-fixtures)에서, 직물과 별도의 유리 `fixture-glass`는 [포치 벽등](../models/17-light-fixtures.md#porch-wall-sconce)에서 온다. 이 H2는 이름을 재료 경계로만 소비하고 몸체를 만들지 않는다.
+
 ## 음식과 액자 인쇄면 {#food-art-finishes}
 <!--
 @evidence principles/core/common.md#declared-basis 레퍼런스 03의 과일 그릇과 02–05의 벽 액자에 근거해 음식과 인쇄면을 별도 마감한다.
@@ -376,6 +386,6 @@
 | [벽 액자·실내 식물](../models/19-room-accents.md#wall-art-indoor-plant) | `art-frame` / `art-print` / `container` / `stem`·`foliage` | [짙은 목재](#dark-bookcase-wood) / [인쇄면](#food-art-finishes) / [흰 도기](#white-enamel) / [식재](#planting-bark-foliage) |
 | [등기구](../models/17-light-fixtures.md#flush-ceiling-fixture) | `fixture-housing`·`fixture-canopy`·`fixture-stem` / `fixture-shade` / `fixture-diffuser`·`fixture-glass` | [검은 도장 금속](02-interior-shell.md#black-coated-metal) / [밝은 직물](#towel-curtain-textile) / [등기구 확산면](#light-fixture-surfaces) |
 
-이 표는 설계 결속이다. 실제 `src/materials` 바인딩과 GPU 표면 읽힘은 unverified다. 각 면의 UV 축·원점·반복 길이·경계 절단은 링크된 재료 H2를 따르며, 원형 안의 관절 이름·배치 id는 결속 표에 넣지 않는다. source owner는 `src/materials/bindings.ts`다.
+이 표는 설계 결속이다. `board`·`tool-grip`·`tool-steel`은 [차고 공구판](../models/12-service-rooms.md#garage-tool-board), `fixture-canopy`·`fixture-shade`·`fixture-stem`은 [펜던트](../models/17-light-fixtures.md#pendant-fixtures), `fixture-glass`와 다른 `fixture-stem`은 [포치 벽등](../models/17-light-fixtures.md#porch-wall-sconce)이 각각 만든다. 실제 `src/materials` 바인딩과 GPU 표면 읽힘은 unverified다. 각 면의 UV 축·원점·반복 길이·경계 절단은 링크된 재료 H2를 따르며, 원형 안의 관절 이름·배치 id는 결속 표에 넣지 않는다. source owner는 `src/materials/bindings.ts`다.
 
 머드룸의 `shoe`는 [검은 도장 금속](02-interior-shell.md#black-coated-metal)의 어두운 무광 값, 옷방의 `shoe-box`는 [가구 목재](#furniture-wood)의 따뜻한 갈색 값을 부피의 모든 면에 받는다.

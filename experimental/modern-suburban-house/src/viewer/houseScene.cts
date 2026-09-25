@@ -55,24 +55,38 @@ export function buildHouseScene(sourceDigest: string): IViewerScene {
   const models = new Map((lowered.models ?? []).map((m) => [m.id, m]));
   for (const piece of lowered.set ?? []) {
     const part = parts.get(piece.model);
-    const geometry = models.get(piece.model)?.parts[0]?.geometry;
-    if (part === undefined || geometry === undefined || geometry.type !== "mesh")
-      throw new Error(`set piece ${piece.node} has no emitted part or mesh model`);
-    const mesh = transformAutoMovieMesh(geometry.mesh, { translation: piece.position, rotation: piece.rotation });
-    if (mesh.normals === null || mesh.indices === null)
-      throw new Error(`house part ${part.id} (${part.owner}) lacks normals or indices`);
-    items.push({
-      id: part.id,
-      role: part.role,
-      owner: part.owner,
-      color: part.color,
-      position: [0, 0, 0],
-      positions: mesh.positions,
-      normals: mesh.normals,
-      indices: mesh.indices,
-      castShadow: true,
-      receiveShadow: true,
-    });
+    const model = models.get(piece.model);
+    if (part === undefined || model === undefined || model.parts.length === 0)
+      throw new Error(`set piece ${piece.node} has no emitted part or model`);
+    for (const member of model.parts) {
+      const sourceMesh = member.geometry.type === "mesh"
+        ? member.geometry.mesh
+        : tessellateToMesh(member.geometry.shape);
+      const localMesh = member.transform === null
+        ? sourceMesh
+        : transformAutoMovieMesh(sourceMesh, member.transform);
+      const mesh = transformAutoMovieMesh(localMesh, {
+        translation: piece.position,
+        rotation: piece.rotation,
+        scale: typeof piece.scale === "number"
+          ? { x: piece.scale, y: piece.scale, z: piece.scale }
+          : piece.scale,
+      });
+      if (mesh.normals === null || mesh.indices === null)
+        throw new Error(`house part ${part.id}/${member.id} (${part.owner}) lacks normals or indices`);
+      items.push({
+        id: model.parts.length === 1 ? part.id : `${part.id}/${member.id}`,
+        role: part.role,
+        owner: part.owner,
+        color: part.color,
+        position: [0, 0, 0],
+        positions: mesh.positions,
+        normals: mesh.normals,
+        indices: mesh.indices,
+        castShadow: true,
+        receiveShadow: true,
+      });
+    }
   }
   return {
     subject: "house",

@@ -60,6 +60,8 @@
 
 표면 결속 계획: 실내 문선·걸레받이·패널 문짝의 도장 솔결은 부재 길이 U의 0.10 m 모듈이다. 각 파티션의 시작 모서리를 원점으로 하고 패널 오목부·문짝 가장자리에서 결 방향과 이음을 새로 잡는다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
 
+`jamb-a`·`jamb-b`·`jamb-core`·`casing-a`·`casing-b`의 물리 판은 [실내 문 부재](../models/03-interior-doors.md#interior-door-members)가 정한다. 이 H2의 `casing`은 [현관문 원형](../models/02-exterior-doors.md#front-entry-door)의 실내 판이고 `carcass`는 [침실 붙박이 미닫이 옷장](../models/13-bedrooms.md#sliding-closet)의 몸통이다. 외투장·린넨장의 개구부 벽을 `carcass`로 다시 만들지 않는다.
+
 ## 참나무색 마루 {#oak-floor}
 <!--
 @evidence principles/core/common.md#declared-basis 참나무색 마루의 #B08050·roughness 0.50은 settings/10-house.md#entry의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
@@ -141,6 +143,8 @@
 머드룸 `hook`, 문과 수납의 검은 `handle`·`hinge`·`rail`, 수건걸이의 `bracket`, 거울의 `mirror-frame`, 등기구의 `fixture-housing`·`fixture-canopy`·`fixture-stem`도 이 금속 도막을 받는다. 수납 `handle`에는 [주방 하부장](../models/10-kitchen-dining.md#kitchen-base-run)·[상부장](../models/10-kitchen-dining.md#kitchen-wall-cabinet)·[섬](../models/10-kitchen-dining.md#kitchen-island)·[세면장](../models/14-bathrooms.md#vanity-basin)·[세탁 상부장](../models/12-service-rooms.md#laundry-upper-storage)·[외투장](../models/05-closet-fittings.md#coat-closet-doors)·[린넨장](../models/05-closet-fittings.md#linen-closet-fittings)·[침실 미닫이 옷장](../models/13-bedrooms.md#sliding-closet)·[낮은 서랍장](../models/13-bedrooms.md#low-dresser)·[차고 작업대](../models/12-service-rooms.md#garage-workbench)의 돌출 손잡이 또는 오목 홈 안쪽 면을 포함한다. [식기세척기 손잡이](../models/10-kitchen-dining.md#kitchen-dishwasher)와 [변기 세척 레버](../models/14-bathrooms.md#shared-toilet)는 스테인리스가 받는다. 각 부품 길이 U·둘레 V의 미터 UV를 부품 끝에서 끊는다.
 
 표면 결속 계획: 난간살·손잡이·등기구 검은 도장 금속은 0.05 m 모듈의 미세 분체결을 부재 국소 길이 U로 투영한다. 각 파티션 시작점에서 위상을 잡고 접합에서 끊어 광택이 검은 단색판으로 뭉개지지 않게 한다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
+
+추가 결속을 낸 `hinge`는 [실내 문 경첩](../models/03-interior-doors.md#interior-door-hinges)과 [현관문](../models/02-exterior-doors.md#front-entry-door)의 철물, `hook`은 [머드룸 걸이](../models/12-service-rooms.md#mudroom-coat-hooks), `fixture-canopy`는 [펜던트](../models/17-light-fixtures.md#pendant-fixtures), `fixture-stem`은 [펜던트](../models/17-light-fixtures.md#pendant-fixtures)와 [포치 벽등](../models/17-light-fixtures.md#porch-wall-sconce)의 금속 몸체다. 한 이름의 모든 적용 부재를 각 원형 face id로 따로 검사한다.
 
 ## 베이지 카펫 {#beige-carpet}
 <!--
