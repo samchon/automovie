@@ -9,10 +9,15 @@ import { deflateSync } from "node:zlib";
 const size = 256;
 const out = "public/textures";
 mkdirSync(out, { recursive: true });
+/** @type {(n: number) => number} */
 const clamp = (n) => Math.max(0, Math.min(255, Math.round(n)));
+/** @type {(n: number) => number} */
 const fract = (n) => n - Math.floor(n);
+/** @type {(x: number, y: number, seed: number) => number} */
 const hash = (x, y, seed) => fract(Math.sin(x * 127.1 + y * 311.7 + seed * 74.7) * 43758.5453123);
+/** @type {(t: number) => number} */
 const smooth = (t) => t * t * (3 - 2 * t);
+/** @type {(u: number, v: number, cells: number, seed: number) => number} */
 const noise = (u, v, cells, seed) => {
   const x = u * cells;
   const y = v * cells;
@@ -20,12 +25,15 @@ const noise = (u, v, cells, seed) => {
   const iy = Math.floor(y);
   const fx = smooth(fract(x));
   const fy = smooth(fract(y));
+  /** @type {(dx: number, dy: number) => number} */
   const sample = (dx, dy) => hash((ix + dx) % cells, (iy + dy) % cells, seed);
   const a = sample(0, 0) * (1 - fx) + sample(1, 0) * fx;
   const b = sample(0, 1) * (1 - fx) + sample(1, 1) * fx;
   return a * (1 - fy) + b * fy;
 };
+/** @type {(value: number) => number} */
 const edge = (value) => Math.min(fract(value), 1 - fract(value));
+/** @type {Record<string, (u: number, v: number) => number>} */
 const pattern = {
   stone: (u, v) => 225 + 27 * (noise(u, v, 8, 1) - 0.5) + 20 * (noise(u, v, 48, 2) - 0.5),
   paving: (u, v) => {
@@ -56,11 +64,13 @@ const crcTable = Uint32Array.from({ length: 256 }, (_, index) => {
   for (let bit = 0; bit < 8; bit++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
   return c >>> 0;
 });
+/** @type {(buffer: Buffer) => number} */
 const crc = (buffer) => {
   let c = 0xffffffff;
   for (const byte of buffer) c = crcTable[(c ^ byte) & 255] ^ (c >>> 8);
   return (c ^ 0xffffffff) >>> 0;
 };
+/** @type {(name: string, data: Buffer) => Buffer} */
 const chunk = (name, data) => {
   const kind = Buffer.from(name);
   const length = Buffer.alloc(4);
