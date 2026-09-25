@@ -99,7 +99,7 @@ for (const row of receipt.subjects) {
     row.subject,
     "pigment",
     pigment.map((value) => value.toFixed(4)).join(" "),
-    fit.clamped ? "clamped" : "",
+    ...(fit.clamped ? ["clamped"] : []),
   );
 }
 fs.writeFileSync(

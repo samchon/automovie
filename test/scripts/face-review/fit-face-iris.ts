@@ -94,7 +94,7 @@ for (const row of receipt.subjects) {
     row.subject,
     "mean",
     fit.mean.map((value) => value.toFixed(4)).join(" "),
-    fit.scaled ? "scaled" : "",
+    ...(fit.scaled ? ["scaled"] : []),
   );
 }
 fs.writeFileSync(

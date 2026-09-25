@@ -107,7 +107,7 @@ for (const row of receipt.subjects) {
       row.subject,
       "color",
       layer.finish.color.map((value) => value.toFixed(4)).join(" "),
-      fit.clamped ? "clamped" : "",
+      ...(fit.clamped ? ["clamped"] : []),
     );
   }
 }

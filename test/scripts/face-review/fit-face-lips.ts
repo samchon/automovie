@@ -105,7 +105,7 @@ for (const document of documents) {
     ...document.materials,
     lips: { ...document.materials?.lips, color: { r: r!, g: g!, b: b! } },
   };
-  console.log(subject, "lips", r, g, b, fit.clamped ? "clamped" : "");
+  console.log(subject, "lips", r, g, b, ...(fit.clamped ? ["clamped"] : []));
 }
 fs.writeFileSync(
   output ?? subjectsFile,
