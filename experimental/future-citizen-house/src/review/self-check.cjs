@@ -3,6 +3,11 @@
 const { spawnSync } = require("node:child_process");
 
 const checks = [
+  ["--lint"],
+  ["pure-tests.cjs", "--tsx"],
+  ["space-literal-audit.cjs"],
+  ["space-literal-fixture.cjs"],
+  ["space-derive-audit.cjs"],
   ["model-design-audit.cjs"],
   ["model-child-audit.cjs"],
   ["model-address-audit.cjs"],
@@ -17,16 +22,35 @@ const checks = [
 ];
 let failures = 0;
 for (const args of checks) {
-  const result = spawnSync(process.execPath, args, {
-    cwd: __dirname,
-    encoding: "utf8",
-    maxBuffer: 64 * 1024 * 1024,
-  });
+  const lint = args.includes("--lint");
+  const tsx = args.includes("--tsx");
+  const command = lint
+    ? process.platform === "win32"
+      ? ["/d", "/s", "/c", "npm run lint"]
+      : ["run", "lint"]
+    : tsx
+      ? ["-r", "tsx/cjs", ...args.filter((arg) => arg !== "--tsx")]
+      : args;
+  const result = spawnSync(
+    lint
+      ? process.platform === "win32"
+        ? "cmd.exe"
+        : "npm"
+      : process.execPath,
+    command,
+    {
+      cwd: lint ? require("node:path").resolve(__dirname, "../..") : __dirname,
+      encoding: "utf8",
+      maxBuffer: 64 * 1024 * 1024,
+    },
+  );
   const label = args.join(" ");
   if (result.stdout) process.stdout.write(result.stdout);
   if (result.stderr) process.stderr.write(result.stderr);
   const failed = result.error || result.status !== 0;
-  console.log(`${label}: ${failed ? `FAIL (${result.error?.message || result.status})` : "PASS"}`);
+  console.log(
+    `${label}: ${failed ? `FAIL (${result.error?.message || result.status})` : "PASS"}`,
+  );
   if (failed) failures++;
 }
 console.log(`self-check: ${checks.length} checks, ${failures} failures`);

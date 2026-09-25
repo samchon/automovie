@@ -1,21 +1,22 @@
 import { Assembly } from "../house/assembly";
-import { topology } from "../house/topology";
+import { stair } from "../house/circulation/stair";
 import { ground } from "../house/storeys/ground";
 import { upper } from "../house/storeys/upper";
-import { stair } from "../house/circulation/stair";
+import { topology } from "../house/topology";
+
 /** Realize the clear cells, shared boundaries, floors and one stair together.
  * @evidence spaces/002-spatial-graph.md 이 함수는 topology·두 storey·단일 stair를 조립하여 002의 매스, 방 경계, 문과 계단을 실물과 native graph로 함께 반환한다.
- * @evidenceReview spaces/002-spatial-graph.md #d18b17d structure()는 topology·ground·upper·stair를 호출해 현재 설계의 매스 datum·방·벽·문턱·기초·slab·단일 계단을 조립한다. stair.ts의 참·난간은 이미 구현됐고 마감 결합은 materials가 맡는다. v-112가 건축 source와 GPU 화면을 대조해 상류 review 자격을 재확인했으나 이 함수가 물체 이관과 전체 production의 시각 판정을 대신하지 않는다. 현관 선반과 욕실 기구는 별도 임시 room source에 남는다.
+ * @evidenceReview spaces/002-spatial-graph.md #76e568f structure()는 topology()·ground()·upper()·stair()를 호출해 datum에서 유도한 매스·방·벽·문턱·slab과 단일 계단을 조립한다. stair()의 양옆 stringer는 tread 밖에 놓고 참·난간을 유지한다. 건축 source와 과거 GPU 관찰은 전체 production의 시각 판정을 대신하지 않으며 현관 선반과 욕실 기구는 별도 임시 room source에 남는다.
  * @evidence principles/core/source-units.md#source-scope-preservation plan의 clear cell과 datum으로만 shared wall을 도출하고 002가 금지한 별도 복도·계단·보이드를 추가하지 않는다. 바닥·천장·partition은 각 층의 파일이 소유한다.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 structure()는 topology·ground·upper·stair만 호출해 clear cell, 공유 벽, 두 층의 바닥·천장과 단일 계단을 조립한다. 외피와 방의 임시 fit-out은 별도 호출 경로에 있으며 이 함수가 물체 형상이나 배치를 소유하지 않는다.
  * @evidence principles/core/source-units.md#source-substantive-completion topology는 실제 convex cells, partitions는 공개 wall kernel로 절삭한 solid와 opening operation, stair는 18개 tread 및 참을 만든다. 위임 대상은 모두 현재 호출되는 구체 함수이며 빈 source wrapper가 아니다.
  * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f rooms·walls·stair가 실제 geometry와 connector를 반환하므로 설계 배열을 복사한 메타데이터만으로 소스 실현을 주장하지 않는다.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work 002의 3.20m 층차, clear cell, 0.18m shared wall과 단일 꺾임계단을 그대로 구현했다. connector.steps.run이 참을 포함한 전체 route 길이를 검사하므로 그 선택 필드는 생략하고 명목 going은 실제 tread geometry에서 읽게 했다. 설계 route나 치수를 바꾸어 engine metric에 맞추지 않았다.
  * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 002가 정한 L형 seam·계단 hole·문 열림을 구현할 입력이 모두 있어 구조 export에서 부모 방 수나 corridor 형식을 바꿀 필요는 없었다.
- * @evidence obligations/design/space-sources.md#space-source-design-ownership 매스·층은 datum, room은 rooms, passage는 portals가 해당 H2의 입력을 하나씩 소유한다. walls는 마주보는 clear face의 교집합이며 뷰어가 별도 방 경계를 정의하지 않는다. 이전 독립 판정은 건축 source와 GPU 화면을 관찰했으며 v-112가 상류 수리 트리의 review 자격을 재확인했고 물체 이관은 별도 단계다.
- * @evidenceReview obligations/design/space-sources.md#space-source-design-ownership #c0afa1f 구조 조립은 designPlan의 방·층·개구 주소를 받아 사용하며 검증 편의를 위한 독립 공간 그래프를 만들지 않는다.
- * @evidence spaces/002-spatial-graph.md#mass-and-storeys 11×12 외곽, 외벽0.24, 내벽0.18, floor0/3.20, ceiling2.90/6.10을 plan에서 공유한다. gross와 clear cell 면적은 구분하며 audit가 각 방 cell 면적을 산출한다.
- * @evidenceReview spaces/002-spatial-graph.md#mass-and-storeys #1efc285 topology()가 11×12m 외곽과 3.20m 상층 datum을 한 house에 등록하고 ground()·upper()가 그 층 높이를 사용한다. v-112의 상류 GPU 판정이 이 건축 범위를 재확인했으나 전체 production 완료나 실제 유효 면적을 승인하지 않는다.
+ * @evidence obligations/design/space-sources.md#space-source-design-ownership 매스·층은 plan.ts의 datum, room은 rooms, passage는 portals가 해당 H2의 입력을 하나씩 소유한다. sharedWalls()는 마주보는 clear face의 교집합이며 뷰어가 별도 방 경계를 정의하지 않는다. 이전 독립 판정은 건축 source와 GPU 화면을 관찰했으며 v-112가 상류 수리 트리의 review 자격을 재확인했고 물체 이관은 별도 단계다.
+ * @evidenceReview obligations/design/space-sources.md#space-source-design-ownership #c0afa1f structure()가 호출하는 topology()는 plan.ts의 rooms·datum을, partitions()는 rooms·portals·sharedWalls()를 값으로 받아 방·층·개구를 생성한다. 검증 편의를 위한 독립 공간 그래프는 없다.
+ * @evidence spaces/002-spatial-graph.md#mass-and-storeys 11×12 외곽, 외벽0.24, 내벽0.18, floor0/3.20, ceiling2.90/6.10의 값 소유자는 plan.ts의 datum이다. topology()의 house·storey cell, ground()·upper()의 slab·room 바닥과 partitions()의 층 frame은 그 값 import를 따른다.
+ * @evidenceReview spaces/002-spatial-graph.md#mass-and-storeys #1efc285 structure()가 호출하는 topology()의 house·storey cell은 datum의 외곽·floors[1]·roof를 읽고, ground()·upper()는 같은 datum을 가져와 slab·바닥·천장을 만든다. 상층 높이를 바꾼 실행 대조에서 cell과 계단 도착이 함께 이동하는지 별도 확인한다.
  * @evidence spaces/002-spatial-graph.md#ground-level ground는 y=-0.60..-0.016의 기초와 외벽 아래 bearing ring, 마감 바닥·천장·partition을 생성한다. 기초가 지면 -0.45보다 깊어 plinth 외면이 지면에 닿고, 다섯 하층 room의 parent는 ground-storey다.
  * @evidenceReview spaces/002-spatial-graph.md#ground-level #8a83d4e ground.ts가 foundationBottom=-0.60부터 slabTop(0)까지 외곽 전체 기초를 만들고 slabTop이 floors.ts의 finishDepth=0.016(본문의 1층 바닥 마감 두께)을 빼며 exteriorWallZone마다 -0.016..0 ring을 두는 것을 읽었다. compiled scene에서 ground-foundation-0이 x=-5.50..5.50, y=-0.60..-0.016, z=-6.00..6.00이고, 이전에 요소가 0개이던 외곽 아래 x=-5.49..5.49, y=-0.44..-0.31 구간을 그 기초가 채운다. 대지 지면은 외곽 밖에서 끝나 plinth에 닿는다. ring이 비는 현관 출입구 폭 x=1.695..2.745의 y=-0.016..0은 walls.ts doorway가 만든 front-entry-threshold가 z=-6.00..-5.76 전체로 채운다.
  * @evidence spaces/002-spatial-graph.md#upper-level upper는 계단 hole을 제외한 slab과 방별 연속 바닥을 생성한다. 일곱 상층 room이 upper-storey에 속하고 그 cell 꼭짓점은 부모 포함 판정을 받는다.
@@ -44,8 +45,8 @@ import { stair } from "../house/circulation/stair";
  * @evidenceReview spaces/002-spatial-graph.md#entry-powder #f50ad3b powder 안쪽으로 열리는 z=-3.20 방문이 현관에서 위생실로 직접 닿고 entry 보행 띠를 차지하지 않는다.
  * @evidence spaces/002-spatial-graph.md#common-storage x=-4.14,폭0.90의 수납 진입을 shared wall에 만든다. leaf는 수납 안쪽으로 열리고 공용부 endpoint와 직접 연결된다.
  * @evidenceReview spaces/002-spatial-graph.md#common-storage #c0661ec common-storage 문을 x=-4.14의 공용부 경계에 내어 수납 접근이 폐쇄된 현관 측 벽을 관통하지 않는다.
- * @evidence spaces/002-spatial-graph.md#single-stair 3.20/18 rise와0.28 going으로9+9 tread를 만들고 y=1.60의 폭2.64 참을 연결한다. route는 tread 상단과 참을 소비하며 양 flight에 금속 baluster·handrail·stringer를 둔다.
- * @evidenceReview spaces/002-spatial-graph.md#single-stair #68d61c9 9+9 riser와 중간 landing으로 3.20m를 올라 마지막 tread와 층 바닥을 중복된 한 단으로 세지 않는다. stair.ts가 참·난간·handrail 형상을 만들고 최종 finish 결합은 materials에 남는다. headroom과 실제 통행 성능은 이 형상 존재만으로 검증되지 않는다.
+ * @evidence spaces/002-spatial-graph.md#single-stair datum.floors[1]-floors[0]의 층차를 18 riser로 나누고 0.28 going으로 9+9 tread를 만든다. 참 높이는 9×rise이며 route는 tread 상단과 참을 소비한다. 양 flight의 stringer 중심은 tread 반폭+반지름+0.015m 바깥에 둔다.
+ * @evidenceReview spaces/002-spatial-graph.md#single-stair #c2ea2a2 stair()는 datum.floors의 층차에서 rise·참 높이·상층 도착을 유도하고 9+9 tread와 하나의 landing을 만든다. stringerX는 treadWidth/2+stringerRadius+0.015로 양쪽 측면 밖에 있으며 축이 tread·riser를 관통하지 않는다. headroom과 실제 통행 성능은 형상 존재만으로 검증되지 않는다.
  * @evidence spaces/002-spatial-graph.md#stair-opening slab과 하층 ceiling에서 x=-1.24..1.58,z=-5.64..-1.80의 같은 hole을 실제로 뺀다. upper floor finish는 room clear cells에만 놓여 이 구멍을 덮지 않는다.
  * @evidenceReview spaces/002-spatial-graph.md#stair-opening #e8f2534 상층 slab에서 명시된 stair-opening만 빼므로 계단 구멍을 거실 복층 보이드로 확대하지 않는다.
  * @evidence spaces/002-spatial-graph.md#upper-partition upper-corridor의 짧은 cell 하나에서 여섯 방문이 직접 뻗고 계단 route가 그 앞에 닿는다. L자 room의 cell union 내부에는 벽을 만들지 않는다.
@@ -108,19 +109,24 @@ import { stair } from "../house/circulation/stair";
  * @evidenceReview spaces/002-spatial-graph.md#wall-service-storage #5f882f6 service-storage Z 벽에는 문을 만들지 않아 각 실의 corridor 직접 연결을 바꾸지 않는다.
  * @evidence spaces/002-spatial-graph.md#wall-storage-bath 수납 뒤와 욕실 앞 사이 전체 x segment가 닫힌 shared wall을 가진다. 두 방은 각 corridor 문으로만 출입한다.
  * @evidenceReview spaces/002-spatial-graph.md#wall-storage-bath #32e3fec storage-bath Z 벽이 linen 수납과 위생실을 분리하므로 한쪽 문으로 두 room을 통과하지 않는다.
- * @evidence spaces/002-spatial-graph.md#wall-bath-primary 욕실+X와 주침실-X clear edge 평균면에서 z 교집합을 닫는다. 후면 유리 범위와 이 벽 끝을 외피 owner가 함께 소비한다.
+ * @evidence spaces/002-spatial-graph.md#wall-bath-primary 욕실+X와 주침실-X clear edge 평균면에서 z 교집합을 닫는다. rear.ts의 roomEdge()가 두 방의 x clear edge에서 후면 유리 범위를 따로 도출하여 이 벽 끝을 넘지 않는다.
  * @evidenceReview spaces/002-spatial-graph.md#wall-bath-primary #4d85462 bath-primary의 X 경계는 양 room 사이를 폐쇄하여 주침실에서 욕실로 임의 출입을 만들지 않는다.
  * @evidence spaces/002-spatial-graph.md#wall-service-corridor-front 설비실 큰 cell 뒤와 corridor 앞의 겹치는 x segment에는 opening을 넣지 않는다. 문 중심이 segment 안에 드는지 판정해 측면 출입 벽과 구분한다.
  * @evidenceReview spaces/002-spatial-graph.md#wall-service-corridor-front #07903a5 service-corridor-front Z 벽은 폐쇄된 채 유지되고 서비스 출입은 서측 X 벽에만 남는다.
  * @evidence spaces/002-spatial-graph.md#stair-enclosure hole 서·동 edge 밖에 두 측벽을 z=-5.76부터 두고 child-one 연장부 앞의 북측 return을 닫는다. 계단 쪽 lining은 slab 상면 3.184부터 서·동측은 z=-5.766까지 만들고 구멍 가장자리의 두 junction도 3.184에서 시작한다. 복도 도착 구간을 wall로 막지 않는다.
- * @evidenceReview spaces/002-spatial-graph.md#stair-enclosure #8152e06 partitions의 두 측벽 frame이 a=-datum.innerZ(-5.76)에서 시작하고, stair의 lining이 frame.floor 대신 slabTop(1)=3.184에서 시작하며 z축 frame은 -5.766까지 늘어나는 것을 코드로 읽었다. junction 생성에서 hole 경계에 면이 놓이고 겹침이 있는 칸만 3.184에서 시작한다. compiled scene에서 바뀐 요소는 두 측벽 body, 세 lining, 두 room lining, 두 junction의 bounds뿐이고 id 4652개와 audit 통과는 그대로였다. 복도 도착 x=-1.24..0.12는 여전히 벽 없이 열려 있다.
+ * @evidenceReview spaces/002-spatial-graph.md#stair-enclosure #8152e06 partitions()의 두 측벽 frame은 a=-datum.innerZ에서 시작하고 floor·top은 datum.floors[1]·ceilings[1]을 읽는다. stair()의 lining은 frame.floor 대신 slabTop(1)에서 시작하며 z축 frame은 room lining 두께만큼 전면으로 늘어난다. junction은 hole 경계에 닿는 칸만 slabTop(1)에서 시작하고 복도 도착 x=-1.24..0.12는 벽 없이 열려 있다.
  * @evidence spaces/002-spatial-graph.md#wall-entry-storage 현관과 하층 수납의 x edge 사이 벽은 폐쇄 상태로 생성한다. 수납의 실제 route는 common-storage뿐이다.
  * @evidenceReview spaces/002-spatial-graph.md#wall-entry-storage #f5f7f83 entry-storage X 벽은 개구 없이 생성되어 수납 접근은 common-storage 연결 하나로 유지된다.
  * @evidence spaces/002-spatial-graph.md#wall-junctions 층의 clear cell과 wall strip으로 분할한 평면에서 두 wall 끝이 접하고 room·stair hole 밖에 남는 작은 직사각형만 junction으로 만든다. 정렬한 인접 boundary id로 안정 id를 만들고 그 boundary들이 같은 element를 참조한다.
  * @evidenceReview spaces/002-spatial-graph.md#wall-junctions #0c7c374 벽 끝 접합의 남은 실체만 별도 ID로 채워 room cell·opening·계단 hole 안에 보강 덩어리를 추가하지 않는다.
- * @evidence spaces/002-spatial-graph.md#envelope-interface 외피는 같은 plan datum·clear edge에서 절삭 범위와 bay를 소비하고 캐노피는1.20×1.90 최대 pitch로 등분한다. 대지 landing과 현관 sill은 같은 y=0이다.
- * @evidenceReview spaces/002-spatial-graph.md#envelope-interface #e6db593 facade가 plan datum의 clear edge에서 cut을 만들고 roof.ts의 canopy가 nx=ceil(11.6/1.2)·nz=ceil(13/1.9)로 등분하는 것, approach-landing 상단과 현관 문턱 상면이 모두 y=0인 것을 compiled scene에서 읽었다. roof가 PV 부재와 안정 면 주소를 만들며 최종 finish 결합은 materials에 남는다.
+ * @evidence spaces/002-spatial-graph.md#envelope-interface exteriorFrame()은 plan.ts의 datum outline·inner clear edge·outerWall로 네 입면 frame을 만들고 roomEdge()와 stairHole은 창 cut의 clear 범위를 준다. canopy.nx·nz는 datum에서 유도한 canopy 외곽을 1.20×1.90 최대 pitch로 등분한다. 대지 landing과 현관 sill은 같은 y=0이다.
+ * @evidenceReview spaces/002-spatial-graph.md#envelope-interface #e6db593 structure()의 후속 envelope()가 쓰는 exteriorFrame()은 datum의 외곽·innerX·innerZ를, 네 입면의 roomEdge()는 rooms의 clear cell을 값으로 읽어 cut을 만든다. roof.ts의 canopy.nx·nz는 datum에서 유도한 canopy 폭·깊이를 각각 1.20·1.90m로 등분한다. 접근 landing과 문턱 상면은 datum.floors[0]에 접한다. 최종 finish 결합은 materials에 남는다.
  * @evidence spaces/002-spatial-graph.md#stage-one-verification auditHouse가 native validation, room/storey 포함, entry 도달, stair 수, endpoint와 tread bounds를 출력한다. observations는 모든 필수·추가 질문을 유지한다. 연속 원통 충돌과 현재 GPU 판정은 측정했다고 주장하지 않고 limits에 unverified로 낸다. 외곽 접지 질문은 auditHouse가 계산하지 않으며 limits.outlineGrounding이 그 사실과 compiled bounds에서 읽는 경로를 낸다.
  * @evidenceReview spaces/002-spatial-graph.md#stage-one-verification #45dc0e0 native audit가 storey 포함과 entry 도달을 검사하지만 연속 인체 통행·성능 인증을 그 결과로 주장하지 않는다. 표에 더해진 외곽 접지 행은 audit.ts가 계산하지 않고 limits.outlineGrounding에 그렇게 적혀 있음을 읽었다. 이전 대조에서 compiled bounds로 읽은 기초·ring·문턱판의 연속은 이 audit의 출력이 아니며 v-112 상류 판정 뒤에도 이 표를 전체 production의 전수 완료 기록으로 승인하지 않는다.
  */
-export function structure(a: Assembly): void { topology(a); ground(a); upper(a); stair(a); }
+export function structure(a: Assembly): void {
+  topology(a);
+  ground(a);
+  upper(a);
+  stair(a);
+}

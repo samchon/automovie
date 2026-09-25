@@ -1,9 +1,10 @@
 import { Assembly } from "../house/assembly";
 import { front } from "../house/envelope/front";
-import { rear } from "../house/envelope/rear";
 import { left } from "../house/envelope/left";
+import { rear } from "../house/envelope/rear";
 import { right } from "../house/envelope/right";
 import { roof } from "../house/envelope/roof";
+
 /** Complete exterior surfaces, cut profiles and measured repeating assemblies.
  * @evidence spaces/003-surface-ownership.md envelope가 네 입면과 지붕의 완결 owner를 호출한다. 각 owner가 자기 벽·개구·창호·차양·외부 노출 마감 면·corner 조각의 안정 주소를 만들며 viewer용 대체 외피가 없다. 재료 결합은 materials가 결정한다.
  * @evidenceReview spaces/003-surface-ownership.md #85b2c68 envelope()가 front·rear·left·right·roof 다섯 owner를 호출하고, 각 입면의 facade()와 corners()가 자기 벽·창호·차양·모서리 geometry를 만든다. right.ts의 배수관·clip·덮개와 roof.ts의 PV·배수 부재도 현재 구현되어 있다. v-076·v-096의 설계 PASS는 이 건축 범위의 역사이며 현 트리의 재료 결합이나 새 GPU 외관을 승인하지 않는다.
@@ -33,7 +34,7 @@ import { roof } from "../house/envelope/roof";
  * @evidenceReview spaces/003-surface-ownership.md#front-flex-glazing #74f735e front.ts의 a=3.06·b=5.22·privacy lower와 두 bay, 하부 frosted 0.12..1.37을 compiled scene에서 읽었다. roller drop은 facade.ts 상태식대로 사적·야간 100%다.
  * @evidence spaces/003-surface-ownership.md#front-bedroom-glazing child-one의 x=1.80..5.22 span에 하층 작업실 서측 jamb 중심 x=3.04를 우선 분할선으로 넣고, 상층 sill/head와 privacy band를 따로 적용한다.
  * @evidenceReview spaces/003-surface-ownership.md#front-bedroom-glazing #8007264 front.ts의 breaks [3.04]로 edge가 1.80·3.04·4.13·5.22가 되어 첫 분할이 하층 작업실 서측 jamb 중심과 맞는 것과, 상층 sill 3.32·head 6.00, 하부 frosted 띠 3.32..4.57을 compiled scene에서 확인했다.
- * @evidence spaces/003-surface-ownership.md#rear-common-glazing common의 후면 clear 폭에서 frame margin을 뺀 x=-5.22..5.22에 고정 curtainwall을 만든다. 뒤뜰로 통하는 추가 door나 route는 없다.
+ * @evidence spaces/003-surface-ownership.md#rear-common-glazing rear.ts는 roomEdge("common-room", "x", "min/max")에서 glazingInset을 양끝에 적용해 현재 x=-5.22..5.22의 고정 curtainwall을 만든다. 뒤뜰로 통하는 추가 door나 route는 없다.
  * @evidenceReview spaces/003-surface-ownership.md#rear-common-glazing #8601cc9 rear.ts의 a=-5.22·b=5.22·sill 0.12·head 2.80과 아홉 bay를 읽었고, 이 창과 연결된 portal이나 connector가 없어 뒤뜰 통로를 만들지 않는다.
  * @evidence spaces/003-surface-ownership.md#rear-bedroom-glazing primary의 x=-2.80..5.22 span을 upper floor에 맞춰 나누며 -X 욕실과 shared wall의 끝을 관통하지 않는다.
  * @evidenceReview spaces/003-surface-ownership.md#rear-bedroom-glazing #5c225a6 rear.ts의 a=-2.80·b=5.22·privacy lower와 일곱 bay(pane 14장)를 compiled scene에서 읽었다. 서측 jamb 바깥 cut -2.84는 욕실·주침실 벽(-3.02..-2.84)의 끝과 맞닿고 넘지 않는다.
@@ -52,4 +53,10 @@ import { roof } from "../house/envelope/roof";
  * @evidence spaces/003-surface-ownership.md#envelope-corners 각0.24×0.24 코너를 inner–outer 대각선의 두 convex triangle prism으로 나눈다. 한 조각은 정면/후면, 다른 조각은 측면이 소유하고 각 boundary가 자기 실물 element를 참조한다.
  * @evidenceReview spaces/003-surface-ownership.md#envelope-corners #187c93e facade.ts corners()가 inner(5.26,5.76)·edge·outer(5.50,6.00) 세 점 삼각 profile을 6.1 높이로 압출해 입면마다 두 prism을 만들고 해당 boundary.elements에 넣는 것을 읽었다. compiled scene에 corner prism 8개가 있다.
  */
-export function envelope(a: Assembly): void { front(a); rear(a); left(a); right(a); roof(a); }
+export function envelope(a: Assembly): void {
+  front(a);
+  rear(a);
+  left(a);
+  right(a);
+  roof(a);
+}

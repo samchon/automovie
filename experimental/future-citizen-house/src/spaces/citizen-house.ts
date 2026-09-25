@@ -1,7 +1,10 @@
 import type { IAutoMovieLibrarySourceOwner } from "@automovie/interface";
+
 import { buildHouse } from "../house/build";
-/** Deterministic library registration. The surface owners consume shared metric
- * plan inputs; preview and delivery invoke this same CJS producer.
+
+/** Deterministic library registration. This source owner calls buildHouse for
+ * library delivery; the live viewer calls buildHouse directly from payload.ts.
+ * Both paths execute the same CJS house builder and its metric plan inputs.
  * @evidence spaces/001-citizen-house.md 집·대지·관찰 입력을 하나의 library 환경으로 등록한다. 현재 buildHouse 호출에는 topology·건축 표면과 방 source의 임시 fit-out 메시가 함께 들어가지만, 물체의 영구 소유권은 이 spaceSource에 있지 않다.
  * @evidenceReview spaces/001-citizen-house.md #ae737d6 현재 citizenHouseSpaceSource는 buildHouse의 topology·storey·envelope·garden·rooms 결과를 등록한다. 방 fit-out과 조경의 직접 material 문자열은 이관 중 소비 경로이며 최종 finish 결합은 materials가 결정한다. 2026-09-22 여섯 프레임과 뒤따른 v-109 GPU 캡처는 각각 기록된 시점의 관찰이며 현재 트리의 전체 공간·GPU 승인을 뜻하지 않는다.
  * @evidence spaces/001-citizen-house.md#citizen-house-space house를 citizen-site 아래 두 storey의 부모로 만들고 독립된 매스나 추가 계단을 생성하지 않는다. 각 완결 표면의 파일을 buildHouse가 호출한다.
