@@ -1,6 +1,6 @@
 /** Complete docs/models/10–19 prototype census. Dimensions live only in
  * their reviewed domain owner files; this file only composes the population. */
-import { buildPrototype, type PrototypeSpec } from "./templates";
+import { buildPrototype, curtainEnvelope, type PrototypeSpec, type WindowCurtainSize } from "./templates";
 import type { HousePrototype } from "./parts";
 import { kitchenDiningSpecs } from "./furnishings/kitchen-dining";
 import { livingSpecs } from "./furnishings/living";
@@ -33,6 +33,13 @@ export const housePrototypeSpecs: readonly PrototypeSpec[] = [
 ];
 
 export const buildHousePrototypes = () => housePrototypeSpecs.map(buildPrototype);
+
+/** Reuse the same window object for each host opening; only its host-derived size changes. */
+export function buildWindowCurtains(input:WindowCurtainSize):HousePrototype {
+  const base=housePrototypeSpecs.find((spec)=>spec.id==="primary-window-curtains");
+  if(!base) throw Error("primary-window-curtains: missing design host");
+  return buildPrototype({...base,size:curtainEnvelope(input),curtain:input});
+}
 
 /** A design H2 may specify several objects whose placement belongs to
  * different room hosts. The partition names the actual parts, never guessed

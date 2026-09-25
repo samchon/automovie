@@ -6,10 +6,14 @@ import type { IAutoMovieMesh, IAutoMovieModel, IAutoMovieModelPart, IAutoMovieMa
 
 export type Point = readonly [number, number, number];
 export type Size = readonly [number, number, number];
-export type FinishRole = "furniture-wood" | "upholstery";
+export type FinishRole = "furniture-wood" | "upholstery" | "siding" | "trim-white" | "roof-shingle" | "charcoal-metal";
 const finishRoles: Record<FinishRole,{ fallback:number; scale:readonly [number,number]; roughness:number }> = {
   "furniture-wood": {fallback:0xa87a4e,scale:[1,1],roughness:0.50},
   upholstery: {fallback:0xb7afa3,scale:[0.01,0.01],roughness:0.92},
+  siding: {fallback:0xede8dc,scale:[0.3,0.3],roughness:0.55},
+  "trim-white": {fallback:0xf6f4ee,scale:[1,1],roughness:0.35},
+  "roof-shingle": {fallback:0x3a3c3e,scale:[0.3,0.3],roughness:0.90},
+  "charcoal-metal": {fallback:0x2e3033,scale:[1,1],roughness:0.40},
 };
 export interface SurfaceBinding {
   /** Stable material face id from docs/models/00-model-frame.md. */
@@ -78,11 +82,11 @@ export function metricFrustum(center: Point, bottomRadius: number, topRadius: nu
     const na=[Math.cos(a), (bottomRadius-topRadius)/height, Math.sin(a)];
     const nb=[Math.cos(b), (bottomRadius-topRadius)/height, Math.sin(b)];
     const la=Math.hypot(...na), lb=Math.hypot(...nb);
-    const u0=2*Math.PI*bottomRadius*i/sides, u1=2*Math.PI*bottomRadius*(i+1)/sides;
+    const u0=bottomRadius*a, u1=bottomRadius*b, topU0=topRadius*a, topU1=topRadius*b;
     const p=add(cx+bottomRadius*Math.cos(a),cy,cz+bottomRadius*Math.sin(a),na[0]/la,na[1]/la,na[2]/la,u0,0);
     add(cx+bottomRadius*Math.cos(b),cy,cz+bottomRadius*Math.sin(b),nb[0]/lb,nb[1]/lb,nb[2]/lb,u1,0);
-    add(cx+topRadius*Math.cos(b),cy+height,cz+topRadius*Math.sin(b),nb[0]/lb,nb[1]/lb,nb[2]/lb,u1,height);
-    add(cx+topRadius*Math.cos(a),cy+height,cz+topRadius*Math.sin(a),na[0]/la,na[1]/la,na[2]/la,u0,height);
+    add(cx+topRadius*Math.cos(b),cy+height,cz+topRadius*Math.sin(b),nb[0]/lb,nb[1]/lb,nb[2]/lb,topU1,height);
+    add(cx+topRadius*Math.cos(a),cy+height,cz+topRadius*Math.sin(a),na[0]/la,na[1]/la,na[2]/la,topU0,height);
     indices.push(p,p+2,p+1,p,p+3,p+2);
     for (const [y,r,normal,reverse] of [[cy,bottomRadius,-1,true],[cy+height,topRadius,1,false]] as const) {
       const mid=add(cx,y,cz,0,normal,0,r,r);
@@ -209,18 +213,20 @@ export function metricCup(center:Point,bottomRadius:number,topRadius:number,heig
     tri(p[0]!,p[2]!,p[3]!,[uv[0]!,uv[2]!,uv[3]!],outward);
   };
   for(let i=0;i<sides;i++) {
-    const a=2*Math.PI*i/sides,b=2*Math.PI*(i+1)/sides,u0=2*Math.PI*topRadius*i/sides,u1=2*Math.PI*topRadius*(i+1)/sides;
+    const a=2*Math.PI*i/sides,b=2*Math.PI*(i+1)/sides;
     const radial:Point=[Math.cos((a+b)/2),0,Math.sin((a+b)/2)];
     const surface=(r0:number,r1:number,y0:number,y1:number,outward:Point)=>{
-      quad([point(r0,a,y0),point(r0,b,y0),point(r1,b,y1),point(r1,a,y1)],[[u0,y0],[u1,y0],[u1,y1],[u0,y1]],outward);
+      quad([point(r0,a,y0),point(r0,b,y0),point(r1,b,y1),point(r1,a,y1)],
+        [[r0*a,y0],[r0*b,y0],[r1*b,y1],[r1*a,y1]],outward);
     };
     surface(bottomRadius,topRadius,0,height,radial);
     surface(bottomRadius-wall,topRadius-wall,wall,height,[-radial[0],0,-radial[2]]);
     quad([point(topRadius-wall,a,height),point(topRadius-wall,b,height),point(topRadius,b,height),point(topRadius,a,height)],
-      [[u0,0],[u1,0],[u1,wall],[u0,wall]],[0,1,0]);
-    tri(center,point(bottomRadius,a,0),point(bottomRadius,b,0),[[0,0],[bottomRadius,0],[0,bottomRadius]],[0,-1,0]);
+      [[(topRadius-wall)*a,0],[(topRadius-wall)*b,0],[topRadius*b,wall],[topRadius*a,wall]],[0,1,0]);
+    tri(center,point(bottomRadius,a,0),point(bottomRadius,b,0),
+      [[0,0],[bottomRadius*Math.cos(a),bottomRadius*Math.sin(a)],[bottomRadius*Math.cos(b),bottomRadius*Math.sin(b)]],[0,-1,0]);
     tri([center[0],center[1]+wall,center[2]],point(bottomRadius-wall,a,wall),point(bottomRadius-wall,b,wall),
-      [[0,0],[bottomRadius-wall,0],[0,bottomRadius-wall]],[0,1,0]);
+      [[0,0],[(bottomRadius-wall)*Math.cos(a),(bottomRadius-wall)*Math.sin(a)],[(bottomRadius-wall)*Math.cos(b),(bottomRadius-wall)*Math.sin(b)]],[0,1,0]);
   }
   return {positions,normals,uvs,indices,skin:null};
 }
@@ -270,7 +276,8 @@ const scale = (surface: string): readonly [number,number] =>
 export class PrototypeBuilder {
   private readonly parts: IAutoMovieModelPart[] = [];
   private readonly surfaceKinds = new Map<string, SurfaceBinding["uv"]>();
-  constructor(readonly id: string, readonly owner: string, readonly finishes:Readonly<Record<string,FinishRole>>={}) {}
+  constructor(readonly id: string, readonly owner: string,
+    readonly finishes:Readonly<Record<string,FinishRole>>={}, readonly finishAll?:FinishRole) {}
   box(surface: string, min: Point, max: Point): this {
     return this.add(surface, metricBox(min,max), "box-metric");
   }
@@ -304,12 +311,13 @@ export class PrototypeBuilder {
   }
   finish(): HousePrototype {
     if (!this.parts.length) throw Error(`${this.id}: empty prototype`);
+    const role=(surface:string)=>this.finishes[surface]??this.finishAll;
     const bindings=[...this.surfaceKinds].map(([surface,uv]):SurfaceBinding=>({surface,uv,
-      scale:this.finishes[surface]?finishRoles[this.finishes[surface]].scale:scale(surface),
-      fallback:this.finishes[surface]?finishRoles[this.finishes[surface]].fallback:fallback(surface)}));
+      scale:role(surface)?finishRoles[role(surface)!].scale:scale(surface),
+      fallback:role(surface)?finishRoles[role(surface)!].fallback:fallback(surface)}));
     const materials:IAutoMovieMaterial[]=bindings.map((binding)=>({
       id:binding.surface,name:binding.surface,baseColor:rgb(binding.fallback),metallic:!(/diffuser|glass|shade/.test(binding.surface)) && /steel|metal|handle|rail|rod|hinge|bracket|fixture|faucet|appliance/.test(binding.surface)?0.65:0,
-      roughness:this.finishes[binding.surface]?finishRoles[this.finishes[binding.surface]].roughness:/glass|mirror/.test(binding.surface)?0.14:0.72,
+      roughness:role(binding.surface)?finishRoles[role(binding.surface)!].roughness:/glass|mirror/.test(binding.surface)?0.14:0.72,
       emissive:null,opacity:/glass/.test(binding.surface)?0.38:1,baseColorTexture:null,
     }));
     return { id:this.id, owner:this.owner, bindings, model:{id:this.id,name:this.id,origin:"generated",parts:this.parts,skeleton:null,body:null,materials,asset:null} };

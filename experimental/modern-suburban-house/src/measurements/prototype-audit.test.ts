@@ -1,6 +1,6 @@
 import { strict as assert } from "node:assert";
 import { test } from "node:test";
-import { buildHouseObjects, buildHousePrototypes, housePrototypeSpecs } from "../models/catalogue";
+import { buildHouseObjects, buildHousePrototypes, buildWindowCurtains, housePrototypeSpecs } from "../models/catalogue";
 import { metricBeam, metricBox, metricCup, metricEllipsoid, metricFrustum, metricInvertedCup, metricOvalCup, metricRingZ } from "../models/parts";
 import { buildPrototype } from "../models/templates";
 import { auditPrototypePopulation, runRandomMutations } from "./prototype-audit";
@@ -16,6 +16,11 @@ test("metric generators reject impossible solids and produce aligned UVs", () =>
   const cylinder=metricFrustum([0,0,0],0.2,0.1,1,12);
   assert.equal(cylinder.uvs?.length,(cylinder.positions.length/3)*2);
   assert.equal(cylinder.indices?.length,12*12);
+  assert.ok(Math.abs(cylinder.uvs![2]-0.2*2*Math.PI/12)<1e-12);
+  assert.ok(Math.abs(cylinder.uvs![4]-0.1*2*Math.PI/12)<1e-12);
+  const cup=metricCup([0,0,0],0.1,0.14,0.1,0.008);
+  assert.ok(cup.uvs!.slice(0,12).some((u)=>Math.abs(u-0.1*2*Math.PI/16)<1e-12));
+  assert.ok(cup.uvs!.slice(0,12).some((u)=>Math.abs(u-0.14*2*Math.PI/16)<1e-12));
   for(const mesh of [
     metricBeam([0,0,0],[1,1,0],0.05,0.02),
     metricEllipsoid([0,0,0],[1,0.5,1]),
@@ -99,6 +104,24 @@ test("ceiling pendant lives below its origin and rejects an upward escape", () =
   assert.ok(auditPrototypePopulation(models).failures.some((line)=>line.includes("pendant-fixtures")&&line.includes("outside declared model envelope")));
 });
 
+test("one curtain generator follows its opening lower-left origin across hosts", () => {
+  for(const input of [
+    {openingWidth:2.40,openingHeight:1.40,floorDrop:0.75},
+    {openingWidth:1.60,openingHeight:1.20,floorDrop:0.60},
+  ]) {
+    const model=buildWindowCurtains(input);
+    const positions=model.model.parts.flatMap((part)=>part.geometry.type==="mesh"?part.geometry.mesh.positions:[]);
+    const xs=positions.filter((_,i)=>i%3===0),ys=positions.filter((_,i)=>i%3===1),zs=positions.filter((_,i)=>i%3===2);
+    assert.ok(Math.abs(Math.min(...xs)+0.10)<1e-9);
+    assert.ok(Math.abs(Math.max(...xs)-input.openingWidth-0.10)<1e-9);
+    assert.equal(Math.min(...ys),-input.floorDrop);
+    assert.ok(Math.abs(Math.max(...ys)-input.openingHeight-0.1125)<1e-9);
+    assert.ok(Math.max(...zs)<0.12);
+    assert.ok(model.model.parts.filter((part)=>part.material==="curtain").length>=12);
+  }
+  assert.throws(()=>buildWindowCurtains({openingWidth:0,openingHeight:1,floorDrop:0.6}),/invalid curtain dimensions/);
+});
+
 test("every design H2 has one generated prototype, source owner and face bindings", () => {
   const report=auditPrototypePopulation(buildHousePrototypes());
   assert.ok(report.designed>0);
@@ -109,14 +132,20 @@ test("every design H2 has one generated prototype, source owner and face binding
   assert.ok(!buildHousePrototypes().some((p)=>/car|automobile|vehicle/.test(p.id)));
 });
 
-test("every declared furniture finish binds its own fallback, scale, and roughness", () => {
+test("every declared finish binds its own fallback, scale, and roughness", () => {
   const models=new Map(buildHousePrototypes().map((p)=>[p.id,p]));
   const expected={
     "furniture-wood":{fallback:0xa87a4e,scale:[1,1],roughness:0.50},
     upholstery:{fallback:0xb7afa3,scale:[0.01,0.01],roughness:0.92},
+    siding:{fallback:0xede8dc,scale:[0.3,0.3],roughness:0.55},
+    "trim-white":{fallback:0xf6f4ee,scale:[1,1],roughness:0.35},
+    "roof-shingle":{fallback:0x3a3c3e,scale:[0.3,0.3],roughness:0.90},
+    "charcoal-metal":{fallback:0x2e3033,scale:[1,1],roughness:0.40},
   } as const;
   let checked=0;
-  for(const spec of housePrototypeSpecs) for(const [surface,role] of Object.entries(spec.finishes??{})) {
+  for(const spec of housePrototypeSpecs) for(const surface of spec.faces) {
+    const role=spec.finishes?.[surface]??spec.finishAll;
+    if(!role) continue;
     const model=models.get(spec.id)!;
     const binding=model.bindings.find((b)=>b.surface===surface);
     const material=model.model.materials.find((m)=>m.id===surface);

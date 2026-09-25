@@ -6,6 +6,11 @@ import { PrototypeBuilder, type FinishRole, type HousePrototype, type Size } fro
 export type PrototypeKind =
   | "cabinet" | "appliance" | "table" | "chair" | "sofa" | "shelf"
   | "bed" | "mat" | "panel" | "bath" | "toilet" | "shower" | "tub" | "fixture" | "plant" | "props";
+export interface WindowCurtainSize { openingWidth:number; openingHeight:number; floorDrop:number }
+export const curtainEnvelope = ({openingWidth:w,openingHeight:h,floorDrop:drop}:WindowCurtainSize):Size => {
+  if (![w,h,drop].every((n)=>Number.isFinite(n)&&n>0)) throw Error("invalid curtain dimensions");
+  return [w+0.20,h+0.10+drop,0.12];
+};
 export interface PrototypeSpec {
   id: string;
   design: string;
@@ -15,6 +20,8 @@ export interface PrototypeSpec {
   faces: readonly string[];
   /** A face whose visible fallback and UV scale depend on this object's finish. */
   finishes?: Readonly<Record<string,FinishRole>>;
+  /** Default finish for every face of a one-material object. */
+  finishAll?: FinishRole;
   /** Worktop height when the full model height includes an accessory. */
   bodyTop?: number;
   /** Top of a mattress beneath its separate bedding layer. */
@@ -24,6 +31,7 @@ export interface PrototypeSpec {
   wallBar?: boolean;
   /** One ceiling pendant profile, sharing the same measured generator. */
   pendant?: "island" | "dining";
+  curtain?: WindowCurtainSize;
   lShelf?: { backDepth:number; rightWidth:number };
 }
 
@@ -34,7 +42,7 @@ export function buildPrototype(spec: PrototypeSpec): HousePrototype {
   if (!(w>0&&h>0&&d>0)) throw Error(`${spec.id}: invalid dimensions`);
   if(spec.finishes && Object.keys(spec.finishes).some((face)=>!spec.faces.includes(face)))
     throw Error(`${spec.id}: finish names an unmade face`);
-  const b=new PrototypeBuilder(spec.id,spec.owner,spec.finishes);
+  const b=new PrototypeBuilder(spec.id,spec.owner,spec.finishes,spec.finishAll);
   const pending=new Set(spec.faces);
   const box=(face:string,x0:number,y0:number,z0:number,x1:number,y1:number,z1:number) => {
     if (!pending.has(face)) return;
@@ -607,6 +615,20 @@ export function buildPrototype(spec: PrototypeSpec): HousePrototype {
         break;
       }
       if(pending.has("curtain")&&pending.has("bracket")) {
+        if(spec.curtain) {
+          const {openingWidth:width,openingHeight:height,floorDrop}=spec.curtain;
+          b.beam("rod",[-0.10,height+0.10,0.06],[width+0.10,height+0.10,0.06],0.0125,0.0125);
+          for(const x of [-0.10,width+0.075])
+            b.box("bracket",[x,height+0.04,0],[x+0.025,height+0.10,0.08]);
+          for(const side of [0,1]) for(let fold=0;fold<6;fold++) {
+            const u=(fold+0.5)*0.03;
+            const x=side===0?fold*0.03:width-0.18+fold*0.03;
+            const z=0.083+0.02*Math.sin(6*Math.PI*u/0.18);
+            b.box("curtain",[x,-floorDrop,z-0.003],[x+0.03,height+0.10,z+0.003]);
+          }
+          for(const face of ["rod","bracket","curtain"]) pending.delete(face);
+          break;
+        }
         b.beam("rod",[-w/2,h-0.02,d*0.5],[w/2,h-0.02,d*0.5],0.0125,0.0125);
         for(const x of [-w/2,w/2-0.025]) b.box("bracket",[x,h-0.06,0],[x+0.025,h,d*0.65]);
         for(const side of [-1,1]) for(let fold=0;fold<3;fold++) {
