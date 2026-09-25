@@ -63,11 +63,15 @@ function execute(tasks, run) {
   const results = [];
   for (const [name, command, args] of tasks) {
     const result = run(command, args);
-    const status = result.status ?? 1;
+    const unchecked = /\bNOTHING (?:WAS )?CHECKED\b/i.test(
+      `${result.stdout ?? ""}\n${result.stderr ?? ""}`,
+    );
+    const status = Math.max(result.status ?? 1, unchecked ? 1 : 0);
     exitSum += status;
     results.push({
       name,
       status,
+      unchecked,
       stdout: result.stdout ?? "",
       stderr: result.stderr ?? "",
       error: result.error?.message ?? "",
@@ -98,7 +102,7 @@ if (require.main === module) {
       const log = path.join(logs, `${result.name}.txt`);
       fs.writeFileSync(log, result.stdout + result.stderr + result.error);
       console.log(
-        `${result.name}: exit=${result.status} log=${path.relative(root, log)}`,
+        `${result.name}: exit=${result.status}${result.unchecked ? " (nothing checked)" : ""} log=${path.relative(root, log)}`,
       );
     }
     console.log(`review-check: ${results.length} tasks, exit sum=${exitSum}`);

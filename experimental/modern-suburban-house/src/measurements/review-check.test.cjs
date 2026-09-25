@@ -46,3 +46,18 @@ test("every check runs and nonzero or failed spawn statuses accumulate", () => {
     [0, 2, 1],
   );
 });
+
+test("a zero-population probe is counted as unverified even when it exits zero", () => {
+  /** @type {Array<[string, string, string[]]>} */
+  const tasks = [
+    ["a", "node", []],
+    ["b", "node", []],
+    ["c", "node", []],
+  ];
+  const outputs = ["NOTHING CHECKED", "NOTHING WAS CHECKED", "1 row checked"];
+  let called = 0;
+  const result = execute(tasks, () => ({ status: 0, stdout: outputs[called++] }));
+  assert.equal(result.exitSum, 2);
+  assert.deepEqual(result.results.map((row) => row.status), [1, 1, 0]);
+  assert.deepEqual(result.results.map((row) => row.unchecked), [true, true, false]);
+});
