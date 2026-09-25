@@ -118,7 +118,7 @@ ref03 전경의 막힌 상자형 낮은 탁자 외형은 현재 `coffee-table`�
 
 | kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| @envelope | default | * | bounds | -0.24..0.24 | 0..0.84 | -0.29..0.29 | - |
+| @envelope | default | * | bounds | -0.24..0.24 | 0..0.84 | -0.29..0.26 | - |
 | @part | default | seat-frame | box | -0.24..0.24 | 0.38..0.415 | -0.26..0.26 | leg-0,leg-2,seat-pad |
 | @part | default | seat-pad | box | -0.22..0.22 | 0.415..0.45 | -0.24..0.24 | seat-frame |
 | @part | default | back | curved | -0.23..0.23 | 0.49..0.84 | -0.22521..-0.125 | leg-2,leg-3 |
@@ -127,7 +127,7 @@ ref03 전경의 막힌 상자형 낮은 탁자 외형은 현재 `coffee-table`�
 | @part | default | leg-2 | curved | -0.205..-0.175 | 0..0.49 | -0.29..-0.135 | ground,seat-frame,back |
 | @part | default | leg-3 | curved | 0.175..0.205 | 0..0.49 | -0.29..-0.135 | ground,seat-frame,back |
 
-`dining-chair`는 폭 0.48, 깊이 0.58, 높이 0.84m이며 바닥 네 발 중심을 원점, +Z를 앉는 앞쪽으로 둔다. 목재 좌판 구조는 폭 0.48·깊이 0.52m, x=±0.24,z=±0.26,y=0.38..0.415이고 그 위 분리된 천 좌판은 폭 0.44·깊이 0.48m, x=±0.22,z=±0.24,y=0.415..0.45다. 등판은 폭 0.46m·두께 0.025m, y=0.49..0.84이고 중앙선 z(y)=−0.15−0.07t−0.03×4t(1−t), t=(y−0.49)/0.35로 굽힌다. 따라서 양 끝 중앙선 z=−0.15/−0.22이고 가운데가 0.03m 더 뒤로 휜다. 좌판과 등판 사이에는 높이 0.04m의 틈이 남는다. 다리 단면은 0.03×0.03m이고 x=±0.19, 앞쪽 z=+0.19의 두 다리는 y=0..0.38이다. 뒤쪽 두 다리는 y=0..0.45에서 중심 z=−0.275로 좌판 뒤 edge z=−0.26에 외측 면으로 닿고, y=0.45..0.49에서 중심선을 z=−0.275에서 −0.15로 굽힌다. 단면 0.03m의 뒷다리는 z=−0.29..−0.26으로 좌판 아래·천 좌판 뒤에 놓이다가 천 좌판 상면 y=0.45를 넘은 뒤에만 앞으로 굽는다. y=0.49의 다리 상면은 등판 하단의 z=−0.1625..−0.1375와 면 접촉하며 등판 부피를 관통하지 않는다. 각 뒤 다리는 하나의 연속 부품이며 0.04m 열린 등 아래 틈의 좌우 가장자리만 지난다. `seat-frame/upper/edge/underside`, `seat-pad/upper/edge/underside`, `back/front/rear/edge`, `leg-0..3/shaft/top/sole`이 안정 주소다. 좌판 직물과 구조 목재가 한 face를 공유하지 않는다. 정면·측면·45°에서 천 좌판의 두께와 등판의 분리·곡률을 확인한다. ref03에서 목재 의자의 별도 천 좌판과 뒤 지지를 채택하고 ref02에서 여섯 자리 반복만 받는다. ref04의 껍질형 책상 의자는 [책상 의자](#desk-chair)로 구분한다. ref01·05에는 식탁 의자가 없다. 실제 착석 강도는 `unverified`다.
+`dining-chair`는 폭 0.48, 깊이 0.55, 높이 0.84m이며 바닥 네 발 중심을 원점, +Z를 앉는 앞쪽으로 둔다. 목재 좌판 구조는 폭 0.48·깊이 0.52m, x=±0.24,z=±0.26,y=0.38..0.415이고 그 위 분리된 천 좌판은 폭 0.44·깊이 0.48m, x=±0.22,z=±0.24,y=0.415..0.45다. 등판은 폭 0.46m·두께 0.025m, y=0.49..0.84이고 중앙선 z(y)=−0.15−0.07t−0.03×4t(1−t), t=(y−0.49)/0.35로 굽힌다. 따라서 양 끝 중앙선 z=−0.15/−0.22이고 가운데가 0.03m 더 뒤로 휜다. 좌판과 등판 사이에는 높이 0.04m의 틈이 남는다. 다리 단면은 0.03×0.03m이고 x=±0.19, 앞쪽 z=+0.19의 두 다리는 y=0..0.38이다. 뒤쪽 두 다리는 y=0..0.45에서 중심 z=−0.275로 좌판 뒤 edge z=−0.26에 외측 면으로 닿고, y=0.45..0.49에서 중심선을 z=−0.275에서 −0.15로 굽힌다. 단면 0.03m의 뒷다리는 z=−0.29..−0.26으로 좌판 아래·천 좌판 뒤에 놓이다가 천 좌판 상면 y=0.45를 넘은 뒤에만 앞으로 굽는다. y=0.49의 다리 상면은 등판 하단의 z=−0.1625..−0.1375와 면 접촉하며 등판 부피를 관통하지 않는다. 각 뒤 다리는 하나의 연속 부품이며 0.04m 열린 등 아래 틈의 좌우 가장자리만 지난다. `seat-frame/upper/edge/underside`, `seat-pad/upper/edge/underside`, `back/front/rear/edge`, `leg-0..3/shaft/top/sole`이 안정 주소다. 좌판 직물과 구조 목재가 한 face를 공유하지 않는다. 정면·측면·45°에서 천 좌판의 두께와 등판의 분리·곡률을 확인한다. ref03에서 목재 의자의 별도 천 좌판과 뒤 지지를 채택하고 ref02에서 여섯 자리 반복만 받는다. ref04의 껍질형 책상 의자는 [책상 의자](#desk-chair)로 구분한다. ref01·05에는 식탁 의자가 없다. 실제 착석 강도는 `unverified`다.
 
 ## 고리 발받침 섬 스툴 {#island-stool}
 
@@ -156,7 +156,72 @@ ref03 전경의 막힌 상자형 낮은 탁자 외형은 현재 `coffee-table`�
 
 ## 벽 연결 작업 책상과 침실 변종 {#work-desk}
 
-prototype은 `work-desk/flex-1400`, `work-desk/bed-1200`, `work-desk/bed-1240`, `work-desk/bed-1250` 네 개다. 숫자는 상판 X 폭 mm이며 모두 깊이 0.60, 기본 높이 0.74m다. 원점은 바닥에서 상판 폭·깊이의 중심, +Z가 앉는 자리다. flex 상판은 두께 0.04m로 y=0.70..0.74, 좌측 중심 x=-0.61,z=0에 폭 0.18·깊이 0.46·높이 0.70m(y=0..0.70)의 서랍장을, 우측 중심 x=+0.61,z=0에 외경 0.05m의 두 겹 사각 기둥을 둔다. 서랍장 전면의 얕은 세 줄은 y=0.16, 0.32, 0.48 중심의 높이 0.14m 서랍 face이며 손잡이 틈은 각 0.01m다. 벽측에는 길이 1.40m, 높이 0.12m의 고정 back rail을 상판 뒤 z=-0.30..-0.275에 두되 벽 구멍이나 방 lining을 생성하지 않는다. 조절을 읽히게 하는 기둥은 y=0..0.44의 외경 0.05m 하부 사각 sleeve와 y=0.39..0.70의 외경 0.038m 상부 사각 shaft다. 하부 sleeve는 벽 두께 0.006m이고 내경 0.038m의 속 빈 통이며 상부 shaft는 그 보어에 들어가 y=0.39..0.44에서 벽면에만 접한다. 폭 0.062m collar는 y=0.43..0.47, 내경 0.05m의 속 빈 고리로서 y=0.43..0.44에서는 하부 외벽에 접하고 y=0.44..0.47에서는 상부 shaft 둘레에 0.006m 간격을 남긴다. 세 닫힌 부품은 실제 부피를 공유하지 않는다. 기본 상태 하나만 표시하고 높이 이동이나 전동 성능은 주장하지 않는다. 책상 우측에 접힌 보조판은 0.30×0.42×0.025m, 경첩 축은 x=W/2=0.70, y=0.715, z=-0.10..+0.32이며 닫힌 판이 상판 아래에 수직으로 붙는다. 손잡이는 X 0.018×Y 0.08×Z 0.014m로 접힌 판 외측의 x=0.707..0.725,y=0.53..0.61,z=0.09..0.104에 매립하고 판의 해당 면을 절삭한다. flex의 필수 `folded` 상태 전체 메시 AABB는 x=−0.70..+0.725,y=0..0.86,z=−0.30..+0.32m이며 숫자 1400은 상판 폭이다. flex의 back rail은 폭 1.40·깊이 0.025·높이 0.12m로 z=-0.30..-0.275, y=0.74..0.86에 놓는다. flex는 `folded`와 `open` 중 하나의 명시 상태를 반드시 받으며 상태 없는 호출을 거부한다. 보조판의 `folded` 상태는 x=0.70..0.725,y=0.415..0.715,z=-0.10..+0.32이다. 지름 0.024m의 `aux-hinge`는 Z축 x=0.70,y=0.715,z=−0.10..+0.32를 따른다. 상판에는 이 축의 x=0.688..0.70,y=0.703..0.727 점유를, 보조판에는 접힌 상태 x=0.70..0.712,y=0.703..0.715 및 열린 상태 x=0.70..0.712,y=0.715..0.727의 점유를 같은 Z 구간에서 각각 원통형으로 절삭한다. 핀의 원통면은 절삭한 두 면에 닿고 어느 상태에서도 판의 닫힌 부피를 관통하지 않는다. `open` 상태는 이 Z축으로 바깥쪽 90° 회전한 판 x=0.70..1.00,y=0.715..0.740,z=-0.10..+0.32와 같은 판에 묻힌 손잡이를 내며 전체 메시 AABB는 x=−0.70..+1.00,y=0..0.86,z=−0.30..+0.32m다. 닫힌 판과 열린 판을 동시에 내지 않는다. 세 침실 변종의 전체 AABB는 각 폭 W, 높이 0.82, 깊이 0.60m다. 세 침실 변종은 같은 상판 두께, 앞쪽 z=+0.24·x=±(W/2−0.065)에 y=0..0.70인 단면 0.045m 고정 다리 둘, 뒤쪽 z=-0.30..-0.275·y=0.74..0.82의 폭 W back rail과 왼쪽 중심 x=−W/2+0.37, y=0.64, z=0인 폭 0.30·깊이 0.46·높이 0.12m 한 서랍을 사용하고 telescopic·collar·aux를 생성하지 않는다.
+flex의 세 서랍 전면은 서랍장 전면 z=0.23에 두께 0.006m로 면 부착한다. 기둥 sleeve와 collar는 각 내경을 실제 빈 점유로 절삭한다. 보조 경첩의 Z축은 상판 범위에 맞춰 z=−0.10..+0.30m에서 끝나며 보조판 앞의 추가 0.02m는 판 자체의 돌출이다. 접힌 손잡이는 판에 매립되고 열린 상태에서는 같은 판 회전으로 x=0.805..0.885,y=0.722..0.740에 옮겨진다.
+
+@inventory folded: top, back-rail, drawer-case, drawer-0, drawer-1, drawer-2, telescopic-lower, telescopic-upper, collar, aux-panel, aux-hinge, aux-pull
+@inventory open: top, back-rail, drawer-case, drawer-0, drawer-1, drawer-2, telescopic-lower, telescopic-upper, collar, aux-panel, aux-hinge, aux-pull
+@inventory bed-1200: top, back-rail, support-left, support-right, drawer-one
+@inventory bed-1240: top, back-rail, support-left, support-right, drawer-one
+@inventory bed-1250: top, back-rail, support-left, support-right, drawer-one
+@void folded: telescopic-lower, 0.591..0.629, 0.39..0.44, -0.019..0.019
+@void open: telescopic-lower, 0.591..0.629, 0.39..0.44, -0.019..0.019
+@void folded: collar, 0.585..0.635, 0.43..0.47, -0.025..0.025
+@void open: collar, 0.585..0.635, 0.43..0.47, -0.025..0.025
+@void folded: top, 0.688..0.70, 0.703..0.727, -0.10..0.30
+@void open: top, 0.688..0.70, 0.703..0.727, -0.10..0.30
+@void folded: aux-panel, 0.70..0.712, 0.703..0.715, -0.10..0.30
+@void open: aux-panel, 0.70..0.712, 0.715..0.727, -0.10..0.30
+@void folded: aux-panel, 0.707..0.725, 0.53..0.61, 0.09..0.104
+@void open: aux-panel, 0.805..0.885, 0.722..0.740, 0.09..0.104
+
+| kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| @envelope | folded | * | bounds | -0.70..0.725 | 0..0.86 | -0.30..0.32 | - |
+| @part | folded | top | hollow | -0.70..0.70 | 0.70..0.74 | -0.30..0.30 | drawer-case,telescopic-upper,back-rail,aux-hinge,aux-panel |
+| @part | folded | back-rail | box | -0.70..0.70 | 0.74..0.86 | -0.30..-0.275 | top |
+| @part | folded | drawer-case | box | -0.70..-0.52 | 0..0.70 | -0.23..0.23 | ground,top,drawer-0 |
+| @part | folded | drawer-0 | box | -0.69..-0.53 | 0.09..0.23 | 0.23..0.236 | drawer-case |
+| @part | folded | drawer-1 | box | -0.69..-0.53 | 0.25..0.39 | 0.23..0.236 | drawer-case |
+| @part | folded | drawer-2 | box | -0.69..-0.53 | 0.41..0.55 | 0.23..0.236 | drawer-case |
+| @part | folded | telescopic-lower | hollow | 0.585..0.635 | 0..0.44 | -0.025..0.025 | ground,telescopic-upper,collar |
+| @part | folded | telescopic-upper | box | 0.591..0.629 | 0.39..0.70 | -0.019..0.019 | telescopic-lower,top |
+| @part | folded | collar | hollow | 0.579..0.641 | 0.43..0.47 | -0.031..0.031 | telescopic-lower |
+| @part | folded | aux-panel | hollow | 0.70..0.725 | 0.415..0.715 | -0.10..0.32 | top,aux-hinge,aux-pull |
+| @part | folded | aux-hinge | cylinder | 0.688..0.712 | 0.703..0.727 | -0.10..0.30 | top,aux-panel |
+| @part | folded | aux-pull | box | 0.707..0.725 | 0.53..0.61 | 0.09..0.104 | aux-panel |
+| @envelope | open | * | bounds | -0.70..1.00 | 0..0.86 | -0.30..0.32 | - |
+| @part | open | top | hollow | -0.70..0.70 | 0.70..0.74 | -0.30..0.30 | drawer-case,telescopic-upper,back-rail,aux-hinge,aux-panel |
+| @part | open | back-rail | box | -0.70..0.70 | 0.74..0.86 | -0.30..-0.275 | top |
+| @part | open | drawer-case | box | -0.70..-0.52 | 0..0.70 | -0.23..0.23 | ground,top,drawer-0 |
+| @part | open | drawer-0 | box | -0.69..-0.53 | 0.09..0.23 | 0.23..0.236 | drawer-case |
+| @part | open | drawer-1 | box | -0.69..-0.53 | 0.25..0.39 | 0.23..0.236 | drawer-case |
+| @part | open | drawer-2 | box | -0.69..-0.53 | 0.41..0.55 | 0.23..0.236 | drawer-case |
+| @part | open | telescopic-lower | hollow | 0.585..0.635 | 0..0.44 | -0.025..0.025 | ground,telescopic-upper,collar |
+| @part | open | telescopic-upper | box | 0.591..0.629 | 0.39..0.70 | -0.019..0.019 | telescopic-lower,top |
+| @part | open | collar | hollow | 0.579..0.641 | 0.43..0.47 | -0.031..0.031 | telescopic-lower |
+| @part | open | aux-panel | hollow | 0.70..1.00 | 0.715..0.740 | -0.10..0.32 | top,aux-hinge,aux-pull |
+| @part | open | aux-hinge | cylinder | 0.688..0.712 | 0.703..0.727 | -0.10..0.30 | top,aux-panel |
+| @part | open | aux-pull | box | 0.805..0.885 | 0.722..0.740 | 0.09..0.104 | aux-panel |
+| @envelope | bed-1200 | * | bounds | -0.60..0.60 | 0..0.82 | -0.30..0.30 | - |
+| @part | bed-1200 | top | box | -0.60..0.60 | 0.70..0.74 | -0.30..0.30 | support-left,drawer-one,back-rail |
+| @part | bed-1200 | back-rail | box | -0.60..0.60 | 0.74..0.82 | -0.30..-0.275 | top |
+| @part | bed-1200 | support-left | box | -0.5575..-0.5125 | 0..0.70 | 0.2175..0.2625 | ground,top |
+| @part | bed-1200 | support-right | box | 0.5125..0.5575 | 0..0.70 | 0.2175..0.2625 | ground,top |
+| @part | bed-1200 | drawer-one | box | -0.38..-0.08 | 0.58..0.70 | -0.23..0.23 | top |
+| @envelope | bed-1240 | * | bounds | -0.62..0.62 | 0..0.82 | -0.30..0.30 | - |
+| @part | bed-1240 | top | box | -0.62..0.62 | 0.70..0.74 | -0.30..0.30 | support-left,drawer-one,back-rail |
+| @part | bed-1240 | back-rail | box | -0.62..0.62 | 0.74..0.82 | -0.30..-0.275 | top |
+| @part | bed-1240 | support-left | box | -0.5775..-0.5325 | 0..0.70 | 0.2175..0.2625 | ground,top |
+| @part | bed-1240 | support-right | box | 0.5325..0.5775 | 0..0.70 | 0.2175..0.2625 | ground,top |
+| @part | bed-1240 | drawer-one | box | -0.40..-0.10 | 0.58..0.70 | -0.23..0.23 | top |
+| @envelope | bed-1250 | * | bounds | -0.625..0.625 | 0..0.82 | -0.30..0.30 | - |
+| @part | bed-1250 | top | box | -0.625..0.625 | 0.70..0.74 | -0.30..0.30 | support-left,drawer-one,back-rail |
+| @part | bed-1250 | back-rail | box | -0.625..0.625 | 0.74..0.82 | -0.30..-0.275 | top |
+| @part | bed-1250 | support-left | box | -0.5825..-0.5375 | 0..0.70 | 0.2175..0.2625 | ground,top |
+| @part | bed-1250 | support-right | box | 0.5375..0.5825 | 0..0.70 | 0.2175..0.2625 | ground,top |
+| @part | bed-1250 | drawer-one | box | -0.405..-0.105 | 0.58..0.70 | -0.23..0.23 | top |
+
+prototype은 `work-desk/flex-1400`, `work-desk/bed-1200`, `work-desk/bed-1240`, `work-desk/bed-1250` 네 개다. 숫자는 상판 X 폭 mm이며 모두 깊이 0.60, 기본 높이 0.74m다. 원점은 바닥에서 상판 폭·깊이의 중심, +Z가 앉는 자리다. flex 상판은 두께 0.04m로 y=0.70..0.74, 좌측 중심 x=-0.61,z=0에 폭 0.18·깊이 0.46·높이 0.70m(y=0..0.70)의 서랍장을, 우측 중심 x=+0.61,z=0에 외경 0.05m의 두 겹 사각 기둥을 둔다. 서랍장 전면의 얕은 세 줄은 y=0.16, 0.32, 0.48 중심의 높이 0.14m 서랍 face이며 손잡이 틈은 각 0.01m다. 벽측에는 길이 1.40m, 높이 0.12m의 고정 back rail을 상판 뒤 z=-0.30..-0.275에 두되 벽 구멍이나 방 lining을 생성하지 않는다. 조절을 읽히게 하는 기둥은 y=0..0.44의 외경 0.05m 하부 사각 sleeve와 y=0.39..0.70의 외경 0.038m 상부 사각 shaft다. 하부 sleeve는 벽 두께 0.006m이고 내경 0.038m의 속 빈 통이며 상부 shaft는 그 보어에 들어가 y=0.39..0.44에서 벽면에만 접한다. 폭 0.062m collar는 y=0.43..0.47, 내경 0.05m의 속 빈 고리로서 y=0.43..0.44에서는 하부 외벽에 접하고 y=0.44..0.47에서는 상부 shaft 둘레에 0.006m 간격을 남긴다. 세 닫힌 부품은 실제 부피를 공유하지 않는다. 기본 상태 하나만 표시하고 높이 이동이나 전동 성능은 주장하지 않는다. 책상 우측에 접힌 보조판은 0.30×0.42×0.025m, 경첩 축은 x=W/2=0.70, y=0.715, z=-0.10..+0.32이며 닫힌 판이 상판 아래에 수직으로 붙는다. 손잡이는 X 0.018×Y 0.08×Z 0.014m로 접힌 판 외측의 x=0.707..0.725,y=0.53..0.61,z=0.09..0.104에 매립하고 판의 해당 면을 절삭한다. flex의 필수 `folded` 상태 전체 메시 AABB는 x=−0.70..+0.725,y=0..0.86,z=−0.30..+0.32m이며 숫자 1400은 상판 폭이다. flex의 back rail은 폭 1.40·깊이 0.025·높이 0.12m로 z=-0.30..-0.275, y=0.74..0.86에 놓는다. flex는 `folded`와 `open` 중 하나의 명시 상태를 반드시 받으며 상태 없는 호출을 거부한다. 보조판의 `folded` 상태는 x=0.70..0.725,y=0.415..0.715,z=-0.10..+0.32이다. 지름 0.024m의 `aux-hinge`는 Z축 x=0.70,y=0.715,z=−0.10..+0.30을 따른다. 상판에는 이 축의 x=0.688..0.70,y=0.703..0.727 점유를, 보조판에는 접힌 상태 x=0.70..0.712,y=0.703..0.715 및 열린 상태 x=0.70..0.712,y=0.715..0.727의 점유를 같은 Z 구간에서 각각 원통형으로 절삭한다. 핀의 원통면은 절삭한 두 면에 닿고 어느 상태에서도 판의 닫힌 부피를 관통하지 않는다. `open` 상태는 이 Z축으로 바깥쪽 90° 회전한 판 x=0.70..1.00,y=0.715..0.740,z=-0.10..+0.32와 같은 판에 묻힌 손잡이를 내며 전체 메시 AABB는 x=−0.70..+1.00,y=0..0.86,z=−0.30..+0.32m다. 닫힌 판과 열린 판을 동시에 내지 않는다. 세 침실 변종의 전체 AABB는 각 폭 W, 높이 0.82, 깊이 0.60m다. 세 침실 변종은 같은 상판 두께, 앞쪽 z=+0.24·x=±(W/2−0.065)에 y=0..0.70인 단면 0.045m 고정 다리 둘, 뒤쪽 z=-0.30..-0.275·y=0.74..0.82의 폭 W back rail과 왼쪽 중심 x=−W/2+0.37, y=0.64, z=0인 폭 0.30·깊이 0.46·높이 0.12m 한 서랍을 사용하고 telescopic·collar·aux를 생성하지 않는다.
 
 안정 part는 `top/upper/edge/underside`, `back-rail/front/back/top/underside/edge`; 침실에만 `support-left/right/shaft/top/sole`과 `drawer-one/front/back/side-left/side-right/top/underside/edge`; flex에만 `drawer-case/front/back/side-left/side-right/top/underside`, `drawer-0..2/front/back/side-left/side-right/top/underside/edge`, `telescopic-lower/outer/inner/top/sole`, `telescopic-upper/outer/top/contact`, `collar/outer/inner/contact`, `aux-panel/front/back/edge`, `aux-hinge/outer/contact`, `aux-pull/outer/contact`다. H2의 변종 키와 flex의 필수 `folded|open` 상태가 부품 집합·AABB를 고정한다. 정면·측면·상부·45°에서 무릎 공간과 벽 rail·서랍, flex의 기둥·접힌 판을 확인한다. ref04의 벽에 붙은 책상과 서랍선을 채택하되 사진의 숨은 지지 방식은 채택하지 않는다. settings의 조절식 단서를 보여야 하므로 ref04에 보이지 않는 기둥을 보이는 형태로 둔다. ref02의 침실 책상은 작은 고정 변종의 척도 관계로 채택하고 ref01·03·05에는 책상 세부가 없다. 실제 벽 앵커·높이 조절 작동·하중은 `unverified`다.
 

@@ -3,6 +3,8 @@
 // Run from the production root: node src/review/model-part-audit.cjs
 const fs = require("node:fs");
 const path = require("node:path");
+const plantProducer = require("./model-plant-producer.cjs");
+const cabinetProducer = require("./model-cabinet-producer.cjs");
 
 const root = path.resolve(__dirname, "../..");
 const names = ["001-seating-and-work", "002-storage-and-sleep", "003-service-fixtures", "004-decor-and-fixtures"];
@@ -248,9 +250,10 @@ function occupiedBoxes(part, voids, pieces = new Map()) {
   return boxes;
 }
 
-/** @param {Part} a @param {Part} b @param {Map<string,{inner:number,outer:number,centerX:number,centerZ:number}>} radial @param {Map<string,{inner:number,outer:number,centerX:number,centerY:number}>} radialZ @param {Map<string,Bounds[]>} voids @param {Map<string,Bounds[]>} pieces @param {Set<string>} provedTangents @param {Set<string>} provedCurves @param {Map<string,boolean>} provedLinear */
-function actualContact(a, b, radial, radialZ, voids, pieces, provedTangents, provedCurves, provedLinear) {
+/** @param {Part} a @param {Part} b @param {Map<string,{inner:number,outer:number,centerX:number,centerZ:number}>} radial @param {Map<string,{inner:number,outer:number,centerX:number,centerY:number}>} radialZ @param {Map<string,Bounds[]>} voids @param {Map<string,Bounds[]>} pieces @param {Set<string>} provedTangents @param {Set<string>} provedCurves @param {Map<string,boolean>} provedLinear @param {Set<string>} plantContacts */
+function actualContact(a, b, radial, radialZ, voids, pieces, provedTangents, provedCurves, provedLinear, plantContacts) {
   const key = `${a.state}/${[a.id, b.id].sort((left, right) => left.localeCompare(right)).join("/")}`;
+  if (plantContacts.has(key)) return true;
   if (provedTangents.has(key) || provedCurves.has(key)) return true;
   if (provedLinear.has(key)) return provedLinear.get(key);
   const ar = radial.get(`${a.state}/${a.id}`), br = radial.get(`${b.state}/${b.id}`);
@@ -270,9 +273,10 @@ function actualContact(a, b, radial, radialZ, voids, pieces, provedTangents, pro
   return occupiedBoxes(a, voids, pieces).some((aa) => occupiedBoxes(b, voids, pieces).some((bb) => surfaceContact(aa, bb)));
 }
 
-/** @param {Part} a @param {Part} b @param {Map<string,{inner:number,outer:number,centerX:number,centerZ:number}>} radial @param {Map<string,{inner:number,outer:number,centerX:number,centerY:number}>} radialZ @param {Map<string,Bounds[]>} voids @param {Map<string,Bounds[]>} pieces @param {Set<string>} provedTangents @param {Set<string>} provedCurves @param {Map<string,boolean>} provedLinear */
-function actualOverlap(a, b, radial, radialZ, voids, pieces, provedTangents, provedCurves, provedLinear) {
+/** @param {Part} a @param {Part} b @param {Map<string,{inner:number,outer:number,centerX:number,centerY:number}>} radialZ @param {Map<string,{inner:number,outer:number,centerX:number,centerZ:number}>} radial @param {Map<string,Bounds[]>} voids @param {Map<string,Bounds[]>} pieces @param {Set<string>} provedTangents @param {Set<string>} provedCurves @param {Map<string,boolean>} provedLinear @param {Set<string>} plantNonOverlaps */
+function actualOverlap(a, b, radial, radialZ, voids, pieces, provedTangents, provedCurves, provedLinear, plantNonOverlaps) {
   const key = `${a.state}/${[a.id, b.id].sort((left, right) => left.localeCompare(right)).join("/")}`;
+  if (plantNonOverlaps.has(key)) return false;
   if (provedTangents.has(key) || provedCurves.has(key) || provedLinear.has(key)) return false;
   const ar = radial.get(`${a.state}/${a.id}`), br = radial.get(`${b.state}/${b.id}`);
   if (ar && br && Math.abs(ar.centerX - br.centerX) <= epsilon && Math.abs(ar.centerZ - br.centerZ) <= epsilon)
@@ -398,6 +402,7 @@ function rugFormula(lines, envelopes, parts, voids, radial) {
 function simpleProseEnvelope(anchor, lines, envelopes) {
   /** @type {Record<string,{pattern:RegExp,order:("x"|"y"|"z")[]}>} */
   const rules = {
+    "dining-chair": { pattern: /`dining-chair`는 폭 ([\d.]+), 깊이 ([\d.]+), 높이 ([\d.]+)m/, order: ["x", "z", "y"] },
     "storage-basket": { pattern: /폭 ([\d.]+), 깊이 ([\d.]+), 높이 ([\d.]+)m/, order: ["x", "z", "y"] },
     "wall-art": { pattern: /폭 ([\d.]+), 높이 ([\d.]+), 전체 깊이 ([\d.]+)m/, order: ["x", "y", "z"] },
     "living-display": { pattern: /폭 ([\d.]+), 높이 ([\d.]+), 깊이 ([\d.]+)m/, order: ["x", "y", "z"] },
@@ -541,8 +546,72 @@ function equipmentFormula(lines, envelopes, parts, grids) {
     ? [`work-equipment: prose/table dimension ${i} differs`] : []);
 }
 
-/** @param {Map<string,string[]>} allSections @param {(anchor:string, parsed:ReturnType<typeof parse>)=>void} [mutate] */
-function audit(allSections, mutate) {
+/**
+ * Certifies the generated plant table against its H2 formula. Conical pot and
+ * soil share an inner-wall boundary; branch cylinders start tangent to the
+ * stem; tapered leaf prisms start tangent to the branch caps. The five azimuths
+ * and three vertical fan sectors are analytically disjoint away from those
+ * prescribed contact boundaries.
+ * @param {ReturnType<typeof parse>} parsed
+ */
+function plantProof(parsed) {
+  const errors = [];
+  const contacts = new Set();
+  const nonOverlaps = new Set();
+  const source = fs.readFileSync(path.join(root, "docs/models/004-decor-and-fixtures.md"), "utf8");
+  let input;
+  try { input = plantProducer.check(source); }
+  catch (error) { return { errors: [`potted-plant: ${String(error)}`], contacts, nonOverlaps }; }
+  const fan = input.leafFanDegrees * Math.PI / 180;
+  const branchBase = input.stemRadius + input.branchRadius;
+  const minLeafRadius = branchBase + input.branchLength + input.branchRadius - input.leafLength * Math.sin(fan);
+  if (!(2 * branchBase * Math.sin(Math.PI / 5) > 2 * input.branchRadius &&
+    2 * minLeafRadius * Math.sin(Math.PI / 5) > input.leafWidth + input.leafThickness &&
+    Math.tan(fan) > input.leafThickness / (input.leafLength * Math.cos(fan))))
+    errors.push("potted-plant: branch azimuths or leaf fan prisms collide");
+  /** @param {string} state @param {string} left @param {string} right */
+  const pair = (state, left, right) => `${state}/${[left, right].sort((a, b) => a.localeCompare(b)).join("/")}`;
+  let expectedCount = 0;
+  for (const millimetres of input.heights) {
+    const state = String(millimetres);
+    const expected = plantProducer.partsFor(input, millimetres);
+    const envelope = parsed.envelopes.get(state);
+    const inventory = parsed.inventory.get(state);
+    const actual = [...parsed.parts.values()].filter((part) => part.state === state);
+    expectedCount += expected.parts.length;
+    if (!envelope || !inventory || actual.length !== expected.parts.length ||
+      inventory.join(",") !== expected.parts.map((part) => part.id).join(",")) {
+      errors.push(`potted-plant/${state}: generated part population differs from formula`);
+      continue;
+    }
+    for (const axis of /** @type {const} */ (["x", "y", "z"]))
+      if (envelope[axis].some((value, i) => Math.abs(value - expected.envelope[axis][i]) > epsilon))
+        errors.push(`potted-plant/${state}: ${axis} envelope differs from formula`);
+    const actualById = new Map(actual.map((part) => [part.id, part]));
+    for (const part of expected.parts) {
+      const found = actualById.get(part.id);
+      if (!found || found.shape !== part.shape || found.contact.join(",") !== part.contact ||
+        /** @type {const} */ (["x", "y", "z"]).some((axis) => found[axis].some((value, i) => Math.abs(value - part[axis][i]) > epsilon)))
+        errors.push(`potted-plant/${state}/${part.id}: bounds, shape or contact differs from formula`);
+    }
+    /** @param {string} left @param {string} right */
+    const attach = (left, right) => { const key = pair(state, left, right); contacts.add(key); nonOverlaps.add(key); };
+    attach("pot", "soil");
+    for (let i = 0; i < 5; i++) {
+      attach("stem", `branch-${i}`);
+      for (let j = 0; j < 3; j++) attach(`branch-${i}`, `leaf-${3 * i + j}`);
+      for (let a = 0; a < 3; a++) for (let b = a + 1; b < 3; b++)
+        nonOverlaps.add(pair(state, `leaf-${3 * i + a}`, `leaf-${3 * i + b}`));
+    }
+  }
+  if (parsed.parts.size !== expectedCount || parsed.envelopes.size !== input.heights.length)
+    errors.push("potted-plant: undeclared generated state or part");
+  if (errors.length) { contacts.clear(); nonOverlaps.clear(); }
+  return { errors, contacts, nonOverlaps };
+}
+
+/** @param {Map<string,string[]>} allSections @param {(anchor:string, parsed:ReturnType<typeof parse>)=>void} [mutate] @param {string} [onlyState] */
+function audit(allSections, mutate, onlyState) {
   const errors = [];
   let examined = 0;
   let measuredPrototypes = 0;
@@ -555,9 +624,18 @@ function audit(allSections, mutate) {
     const provedCurves = new Set();
     /** @type {Map<string,boolean>} */
     const provedLinear = new Map();
+    const plant = anchor === "potted-plant" ? plantProof(parsed) : { errors: [], contacts: new Set(), nonOverlaps: new Set() };
+    errors.push(...plant.errors);
+    if (anchor === "cabinet-and-shelf") {
+      try {
+        const source = fs.readFileSync(path.join(root, "docs/models/002-storage-and-sleep.md"), "utf8");
+        cabinetProducer.check(source);
+      } catch (error) { errors.push(`cabinet-and-shelf: ${String(error)}`); }
+    }
     if (!envelopes.size) { errors.push(`${anchor}: no @envelope rows`); continue; }
     measuredPrototypes++;
     for (const [state, envelope] of envelopes) {
+      if (onlyState && state !== onlyState) continue;
       const stateParts = [...parts.values()].filter((part) => part.state === state);
       if (!stateParts.length) errors.push(`${anchor}/${state}: no @part rows`);
       const byId = new Map(stateParts.map((part) => [part.id, part]));
@@ -695,7 +773,7 @@ function audit(allSections, mutate) {
         for (const target of part.contact) {
           const adjacent = byId.get(target);
           if (adjacent) {
-            if (!actualContact(part, adjacent, radial, radialZ, voids, pieces, provedTangents, provedCurves, provedLinear))
+            if (!actualContact(part, adjacent, radial, radialZ, voids, pieces, provedTangents, provedCurves, provedLinear, plant.contacts))
               errors.push(`${anchor}/${state}/${part.id}: no face contact with ${target}`);
           } else if (target === "ground" || target === "support" || /^support@[\d.]+$/.test(target)) {
             const height = target.startsWith("support@") ? Number(target.slice(8)) : 0;
@@ -712,7 +790,7 @@ function audit(allSections, mutate) {
       }
       for (let i = 0; i < stateParts.length; i++) for (let j = i + 1; j < stateParts.length; j++) {
         const a = stateParts[i], b = stateParts[j], extent = overlap(a, b);
-        if (actualOverlap(a, b, radial, radialZ, voids, pieces, provedTangents, provedCurves, provedLinear)) {
+        if (actualOverlap(a, b, radial, radialZ, voids, pieces, provedTangents, provedCurves, provedLinear, plant.nonOverlaps)) {
           if (a.shape === "box" && b.shape === "box")
             errors.push(`${anchor}/${state}: ${a.id} intersects ${b.id} (${extent.join(" x ")})`);
           else {
@@ -854,6 +932,7 @@ if (process.argv.includes("--fixture")) {
     results.push({ label: `rugs ${label}`, caught: true });
   }
   for (const [anchor, before, after] of [
+    ["dining-chair", "폭 0.48, 깊이 0.55", "폭 0.49, 깊이 0.55"],
     ["storage-basket", "폭 0.40, 깊이 0.65", "폭 0.41, 깊이 0.65"],
     ["wall-art", "폭 0.60, 높이 0.42", "폭 0.61, 높이 0.42"],
     ["living-display", "폭 1.43, 높이 0.80", "폭 1.44, 높이 0.80"]
@@ -910,6 +989,27 @@ if (process.argv.includes("--fixture")) {
       throw Error(`${label}: expected ${expected}, got ${errors}`);
     results.push({ label: `work-equipment ${label}`, caught: true });
   }
+  const cabinetSource = fs.readFileSync(path.join(root, "docs/models/002-storage-and-sleep.md"), "utf8");
+  for (const [label, before, after] of [
+    ["cabinet prose island door clearance changed", "y=0.101..0.849", "y=0.101..0.850"],
+    ["cabinet measured part name changed",
+      "| @part | bench-base/1150x440x480/delivered | back |",
+      "| @part | bench-base/1150x440x480/delivered | back-damaged |"]
+  ]) {
+    if (!cabinetSource.includes(before)) throw Error(`${label}: mutation source absent`);
+    let caught = false;
+    try { cabinetProducer.check(cabinetSource.replace(before, after)); }
+    catch { caught = true; }
+    if (!caught) throw Error(`${label}: cabinet prose/table divergence passed`);
+    results.push({ label, caught });
+  }
+  const plantSource = fs.readFileSync(path.join(root, "docs/models/004-decor-and-fixtures.md"), "utf8");
+  if (!plantSource.includes("0.18, 0.28, 0.60, 0.80, 1.10m")) throw Error("plant prose mutation source absent");
+  let plantCaught = false;
+  try { plantProducer.check(plantSource.replace("0.18, 0.28, 0.60, 0.80, 1.10m", "0.18, 0.28, 0.61, 0.80, 1.10m")); }
+  catch { plantCaught = true; }
+  if (!plantCaught) throw Error("plant prose/table divergence passed");
+  results.push({ label: "potted plant prose height changed", caught: true });
   let measuredParts = 0;
   let mutationChecks = 0;
   for (const [anchor, lines] of sections()) {
@@ -925,7 +1025,7 @@ if (process.argv.includes("--fixture")) {
           const entry = parsed.parts.get(`${part.state}/${part.id}`);
           if (!entry) throw Error(`${anchor}/${part.state}/${part.id}: mutation target absent`);
           change(entry, parsed);
-        }).errors;
+        }, part.state).errors;
         if (!found.some((error) => error.includes(expected)))
           throw Error(`${anchor}/${part.state}/${part.id}: mutation missed ${expected}: ${found}`);
         mutationChecks++;
