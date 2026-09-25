@@ -15,6 +15,7 @@ const epsilon = 0.000001;
 /** @typedef {{state:string,id:string,shape:string,x:[number,number],y:[number,number],z:[number,number],contact:string[]}} Part */
 /** @typedef {{x:[number,number],y:[number,number],z:[number,number]}} Bounds */
 /** @typedef {{guest:string,host:string,axis:string,plane:number,u:[number,number],v:[number,number]}} FlatContact */
+/** @typedef {{section:"round"|"ellipse",bottomDivisor:number,shoulderNumerator:number,shoulderDenominator:number,wallDivisor:number,mouthRadius:number}} CavityProfile */
 
 function sections() {
   /** @type {Map<string, string[]>} */
@@ -76,6 +77,8 @@ function parse(lines, anchor) {
   const radialZ = new Map();
   /** @type {Map<string,{radius:number,y:[number,number]}>} */
   const bores = new Map();
+  /** @type {Map<string,CavityProfile>} */
+  const cavityProfiles = new Map();
   /** @type {Map<string,{centerX:number,centerY:number,radius:number,z:[number,number]}>} */
   const boresZ = new Map();
   /** @type {Map<string,{x:[number,number],centerY:number,centerZ:number,radius:number}>} */
@@ -203,6 +206,14 @@ function parse(lines, anchor) {
     const bore = /^@bore\s+([^:]+):\s*([^,]+),\s*([\d.]+),\s*(.+)$/.exec(line);
     if (bore) bores.set(`${bore[1].trim()}/${bore[2].trim()}`, {
       radius: Number(bore[3]), y: interval(bore[4], `${anchor}/bore-y`) });
+    const profile = /^@cavity-profile\s+([^:]+):\s*([^,]+),\s*(round|ellipse),\s*(\d+),\s*(\d+)\/(\d+),\s*(\d+),\s*([\d.]+)$/.exec(line);
+    if (profile) {
+      const key = `${profile[1].trim()}/${profile[2].trim()}`;
+      if (cavityProfiles.has(key)) throw Error(`${anchor}/${key}: duplicate cavity profile`);
+      cavityProfiles.set(key, { section: /** @type {"round"|"ellipse"} */ (profile[3]), bottomDivisor: Number(profile[4]),
+        shoulderNumerator: Number(profile[5]), shoulderDenominator: Number(profile[6]),
+        wallDivisor: Number(profile[7]), mouthRadius: Number(profile[8]) });
+    }
     const boreZ = /^@bore-z\s+([^:]+):\s*([^,]+),\s*([−-]?[\d.]+),\s*([−-]?[\d.]+),\s*([\d.]+),\s*(.+)$/.exec(line);
     if (boreZ) {
       const key = `${boreZ[1].trim()}/${boreZ[2].trim()}`;
@@ -297,7 +308,7 @@ function parse(lines, anchor) {
     if (parts.has(`${state}/${id}`)) throw Error(`${anchor}: grid part duplicate ${state}/${id}`);
     parts.set(`${state}/${id}`, entry);
   }
-  return { envelopes, parts, inventory, compositions, supportBindings, pinFaces, emitterFaces, miterJoints, voids, pieces, shearsZ, radial, radialZ, bores, boresZ, boresX, ellipses, tangents, flatContacts, capContacts, cavityContacts, curveLayers, linearCurves, grids };
+  return { envelopes, parts, inventory, compositions, supportBindings, pinFaces, emitterFaces, miterJoints, voids, pieces, shearsZ, radial, radialZ, bores, cavityProfiles, boresZ, boresX, ellipses, tangents, flatContacts, capContacts, cavityContacts, curveLayers, linearCurves, grids };
 }
 
 /** @param {Part} emitter @param {Part[]} blockers @param {Map<string,{inner:number,outer:number,centerX:number,centerZ:number}>} radial @param {string} state */
@@ -918,6 +929,30 @@ function plantProof(parsed) {
   return { errors, contacts, nonOverlaps };
 }
 
+/** @param {Part} part @param {CavityProfile} profile */
+function cavityProfileErrors(part, profile) {
+  const width = part.x[1] - part.x[0];
+  const height = part.y[1] - part.y[0];
+  const depth = part.z[1] - part.z[0];
+  const diameter = Math.min(width, depth);
+  const wall = diameter / profile.wallDivisor;
+  const bottom = height / profile.bottomDivisor;
+  const shoulder = height * profile.shoulderNumerator / profile.shoulderDenominator;
+  const bodyInner = diameter / 2 - wall;
+  const mouthOuter = profile.mouthRadius + wall;
+  /** @type {string[]} */ const errors = [];
+  if (part.shape !== "hollow") errors.push("cavity profile requires a hollow part");
+  if (![width, height, depth, wall, bottom, shoulder, profile.mouthRadius, mouthOuter].every(Number.isFinite) ||
+    !(width > 0 && height > 0 && depth > 0 && bottom > 0 && bottom < shoulder && shoulder < height))
+    errors.push("cavity profile has invalid body or vertical intervals");
+  if (!(wall > 0 && profile.mouthRadius > 0 && mouthOuter < diameter / 2 &&
+    bodyInner > profile.mouthRadius))
+    errors.push("cavity profile mouth or wall leaves no finite body cavity");
+  if (profile.section === "round" && width > depth + epsilon)
+    errors.push("round cavity body cannot reach declared X bounds");
+  return errors;
+}
+
 /** @param {Map<string,string[]>} allSections @param {(anchor:string, parsed:ReturnType<typeof parse>)=>void} [mutate] @param {string} [onlyState] */
 function audit(allSections, mutate, onlyState) {
   const errors = [];
@@ -925,11 +960,22 @@ function audit(allSections, mutate, onlyState) {
   let examined = 0;
   let hollowParts = 0;
   let provedHollowParts = 0;
+  let cavityProfileParts = 0;
+  let provedCavityProfiles = 0;
   let measuredPrototypes = 0;
   for (const [anchor, lines] of allSections) {
     const parsed = parse(lines, anchor);
     mutate?.(anchor, parsed);
-    const { envelopes, parts, inventory, compositions, supportBindings, pinFaces, emitterFaces, miterJoints, voids, pieces, shearsZ, radial, radialZ, bores, boresZ, boresX, ellipses, tangents, flatContacts, capContacts, cavityContacts, curveLayers, linearCurves, grids } = parsed;
+    const { envelopes, parts, inventory, compositions, supportBindings, pinFaces, emitterFaces, miterJoints, voids, pieces, shearsZ, radial, radialZ, bores, cavityProfiles, boresZ, boresX, ellipses, tangents, flatContacts, capContacts, cavityContacts, curveLayers, linearCurves, grids } = parsed;
+    for (const [key, profile] of cavityProfiles) {
+      cavityProfileParts++;
+      const part = parts.get(key);
+      if (!part) { errors.push(`${anchor}/${key}: cavity profile has no part`); continue; }
+      if (bores.has(key)) errors.push(`${anchor}/${key}: cavity profile duplicates a bore`);
+      const findings = cavityProfileErrors(part, profile);
+      if (!findings.length) provedCavityProfiles++;
+      errors.push(...findings.map((finding) => `${anchor}/${key}: ${finding}`));
+    }
     const provedMiterJoints = new Set();
     const provedTangents = new Set();
     const provedCurves = new Set();
@@ -954,7 +1000,7 @@ function audit(allSections, mutate, onlyState) {
       for (const part of stateParts) if (part.shape === "hollow") {
         hollowParts++;
         const key = `${state}/${part.id}`;
-        if (voids.has(key) || bores.has(key) || boresZ.has(key) || ellipses.has(key) || radial.has(key) || radialZ.has(key) || lines.some((line) => line.startsWith("@plant-spec:")))
+        if (voids.has(key) || bores.has(key) || cavityProfiles.has(key) || boresZ.has(key) || ellipses.has(key) || radial.has(key) || radialZ.has(key) || lines.some((line) => line.startsWith("@plant-spec:")))
           provedHollowParts++;
         else errors.push(`${anchor}/${key}: hollow part has no authored cavity`);
       }
@@ -1314,7 +1360,7 @@ function audit(allSections, mutate, onlyState) {
           } else if (target === "wall") {
             if (!occupiedBoxes(part, voids, pieces).some((box) => Math.abs(box.z[0] - envelope.z[0]) <= epsilon))
               errors.push(`${anchor}/${state}/${part.id}: misses wall datum`);
-          } else if (target === "ceiling" || target === "suspension") {
+          } else if (target === "ceiling" || target === "suspension" || target === "underside") {
             if (!occupiedBoxes(part, voids, pieces).some((box) => Math.abs(box.y[1]) <= epsilon))
               errors.push(`${anchor}/${state}/${part.id}: misses ${target} datum`);
           } else errors.push(`${anchor}/${state}/${part.id}: contact target ${target} absent`);
@@ -1338,7 +1384,7 @@ function audit(allSections, mutate, onlyState) {
         }
       }
       const reached = new Set(stateParts.filter((part) => part.contact.includes("ground") || part.contact.some((target) => target === "support" || /^support@[\d.]+$/.test(target)) ||
-        part.contact.includes("ceiling") || part.contact.includes("suspension") || (part.contact.includes("wall") && !byId.has("wall"))).map((part) => part.id));
+        part.contact.includes("ceiling") || part.contact.includes("suspension") || part.contact.includes("underside") || (part.contact.includes("wall") && !byId.has("wall"))).map((part) => part.id));
       let changed = true;
       while (changed) {
         changed = false;
@@ -1376,6 +1422,7 @@ function audit(allSections, mutate, onlyState) {
     if (anchor === "work-equipment") errors.push(...equipmentFormula(lines, envelopes, parts, grids));
   }
   return { prototypes: allSections.size, measuredPrototypes, parts: examined, hollowParts, provedHollowParts,
+    cavityProfileParts, provedCavityProfiles,
     unprovedCurvedContacts: [...unprovedCurved], errors };
 }
 
@@ -1429,7 +1476,7 @@ function randomFixture() {
   for (const [owner, lines] of baseline) {
     const grouped = new Map();
     for (let index = 0; index < lines.length; index++) {
-      const match = /^@(bore|bore-z|void|ellipse|radial|radial-z)\s+([^:]+):\s*([^,]+)/.exec(lines[index]);
+      const match = /^@(bore|bore-z|cavity-profile|void|ellipse|radial|radial-z)\s+([^:]+):\s*([^,]+)/.exec(lines[index]);
       if (!match) continue;
       const key = `${match[2].trim()}/${match[3].trim()}`;
       grouped.set(key, [...(grouped.get(key) || []), index]);
@@ -1449,9 +1496,49 @@ function randomFixture() {
   const cavityError = audit(cavityChanged).errors.find((error) => error.includes(`${cavity.owner}/${cavity.key}: hollow part has no authored cavity`));
   results.push({ kind: "cavity-delete", owner: cavity.owner, state: cavity.key.split("/")[0],
     part: cavity.key.split("/")[1], red: !!cavityError, first: cavityError || null });
+  const profiles = [];
+  for (const [owner, lines] of baseline) for (let index = 0; index < lines.length; index++) {
+    const match = /^@cavity-profile\s+([^:]+):\s*([^,]+),/.exec(lines[index]);
+    if (match) profiles.push({ owner, index, state: match[1].trim(), part: match[2].trim() });
+  }
+  if (!profiles.length) throw Error("empty cavity profile mutation population");
+  const selectedProfile = profiles[randomInt(profiles.length)];
+  const profileSource = baseline.get(selectedProfile.owner);
+  if (!profileSource) throw Error(`missing model section ${selectedProfile.owner}`);
+  const profileLines = [...profileSource];
+  const profilePart = parse(profileLines, selectedProfile.owner).parts.get(`${selectedProfile.state}/${selectedProfile.part}`);
+  if (!profilePart) throw Error(`missing cavity profile part ${selectedProfile.owner}/${selectedProfile.state}`);
+  profileLines[selectedProfile.index] = profileLines[selectedProfile.index].replace(/[\d.]+$/,
+    String(profilePart.x[1] - profilePart.x[0]));
+  const profileChanged = new Map(baseline);
+  profileChanged.set(selectedProfile.owner, profileLines);
+  const profileError = audit(profileChanged).errors.find((error) =>
+    error.includes(`${selectedProfile.owner}/${selectedProfile.state}/${selectedProfile.part}: cavity profile mouth`));
+  results.push({ kind: "profile-mouth", owner: selectedProfile.owner,
+    state: selectedProfile.state, part: selectedProfile.part, red: !!profileError, first: profileError || null });
+  const ellipseProfiles = profiles.filter((entry) => {
+    const lines = baseline.get(entry.owner);
+    if (!lines || !/^@cavity-profile\s+[^:]+:\s*[^,]+,\s*ellipse,/.test(lines[entry.index])) return false;
+    const part = parse(lines, entry.owner).parts.get(`${entry.state}/${entry.part}`);
+    return part && part.x[1] - part.x[0] > part.z[1] - part.z[0] + epsilon;
+  });
+  if (!ellipseProfiles.length) throw Error("empty elliptical cavity profile population");
+  const selectedEllipse = ellipseProfiles[randomInt(ellipseProfiles.length)];
+  const ellipseSource = baseline.get(selectedEllipse.owner);
+  if (!ellipseSource) throw Error(`missing model section ${selectedEllipse.owner}`);
+  const ellipseLines = [...ellipseSource];
+  ellipseLines[selectedEllipse.index] = ellipseLines[selectedEllipse.index].replace(", ellipse,", ", round,");
+  const ellipseChanged = new Map(baseline);
+  ellipseChanged.set(selectedEllipse.owner, ellipseLines);
+  const ellipseError = audit(ellipseChanged).errors.find((error) =>
+    error.includes(`${selectedEllipse.owner}/${selectedEllipse.state}/${selectedEllipse.part}: round cavity body`));
+  results.push({ kind: "profile-section", owner: selectedEllipse.owner,
+    state: selectedEllipse.state, part: selectedEllipse.part, red: !!ellipseError, first: ellipseError || null });
   const red = results.filter((result) => result.red).length;
   if (red !== results.length) throw Error(`random model mutation red ${red}/${results.length}`);
-  return { population: candidates.length, cavityPopulation: cavityRows.length, mutations: results.length, red, results };
+  return { population: candidates.length, cavityPopulation: cavityRows.length,
+    profilePopulation: profiles.length, ellipseProfilePopulation: ellipseProfiles.length,
+    mutations: results.length, red, results };
 }
 
 if (require.main !== module) {
@@ -1525,6 +1612,24 @@ if (require.main !== module) {
       throw Error(`entry-charger ${label}: expected ${expected}, got ${errors}`);
     results.push({ label: `entry-charger ${label}`, caught: true });
   }
+  const undersideSections = sections();
+  const undersideCandidates = [...undersideSections].flatMap(([owner, lines]) =>
+    lines.flatMap((line, index) => {
+      const cells = line.split("|").slice(1, -1).map((cell) => cell.trim());
+      return cells.length === 8 && cells[0] === "@part" && cells[7].split(",").includes("underside")
+        ? [{ owner, index, cells }] : [];
+    }));
+  if (!undersideCandidates.length) throw Error("empty underside contact mutation population");
+  const underside = undersideCandidates[randomInt(undersideCandidates.length)];
+  const lowered = [...(undersideSections.get(underside.owner) || [])];
+  const y = interval(underside.cells[5], "underside fixture y");
+  const shifted = [...underside.cells];
+  shifted[5] = `${y[0] - (y[1] - y[0])}..${y[0]}`;
+  lowered[underside.index] = `| ${shifted.join(" | ")} |`;
+  undersideSections.set(underside.owner, lowered);
+  if (!audit(undersideSections).errors.some((error) => error.includes("misses underside datum")))
+    throw Error(`${underside.owner}/${underside.cells[1]}/${underside.cells[2]}: underside contact mutation did not fail`);
+  results.push({ label: "random underside contact detached", caught: true });
   const rugs = sections().get("rugs");
   if (!rugs) throw Error("rugs H2 absent");
   const rugsSource = rugs.join("\n");

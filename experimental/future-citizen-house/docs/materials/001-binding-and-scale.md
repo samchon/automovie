@@ -100,8 +100,10 @@ palette는 engine에서 절대 sRGB 색으로 쓰인다. materialSources는 새 
 | wall-accessories | coat-hook | body/* | coated-metal | 없음 | face normal만 사용 | solid 기준색 |
 | desk-controls | pointing-device,personal-device | body/* | prop-appliance | 없음 | face normal만 사용 | solid baseColor |
 | desk-controls | personal-device | body/screen | prop-screen: #253139, roughness .18, metallic 0, emissive #182329 | 없음 | face normal만 사용 | solid baseColor·emissive |
+| under-cabinet-light | default | body/* | coated-metal | 없음 | face normal만 사용 | solid 기준색 |
+| under-cabinet-light | default | body/diffuser | prop-diffuser | 없음 | face normal만 사용 | solid baseColor·transmission |
 
-이 표의 새 `prop-*`는 색·roughness·metallic과 적힌 clearcoat·transmission·thickness·ior 외에는 [재료 기본값](#material-delivery)을 따른다. `prop-container-glass`는 투명 용기 근사이고 `prop-mirror`는 환경 반사만 반영해 정확한 실내 거울상은 `unverified`다. 위의 결합은 제작 목표이며 현재 materialSources의 실제 바인딩이나 렌더 관찰을 뜻하지 않는다. 누락된 owner/state/part/face 또는 texture 자원은 같은 주소를 출력하고 실패한다. 단색 행의 fallback은 없는 texture를 찾는 경로가 아니라 명시된 baseColor 자체다. 비균일 크기 변종은 [metric 규칙](#metric-texture-coordinates)에 따라 실제 표면 m로 UV를 작성한다.
+이 표의 새 `prop-*`는 색·roughness·metallic과 적힌 clearcoat·transmission·thickness·ior 외에는 [재료 기본값](#material-delivery)을 따른다. `prop-container-glass`의 thickness는 광학 응답값이며 용기의 실제 벽 두께는 models의 형상이 소유한다. `prop-container-glass`는 투명 용기 근사이고 `prop-mirror`는 환경 반사만 반영해 정확한 실내 거울상은 `unverified`다. 위의 결합은 제작 목표이며 현재 materialSources의 실제 바인딩이나 렌더 관찰을 뜻하지 않는다. 누락된 owner/state/part/face 또는 texture 자원은 같은 주소를 출력하고 실패한다. 단색 행의 fallback은 없는 texture를 찾는 경로가 아니라 명시된 baseColor 자체다. 비균일 크기 변종은 [metric 규칙](#metric-texture-coordinates)에 따라 실제 표면 m로 UV를 작성한다.
 
 ## 미터 좌표와 반복 {#metric-texture-coordinates}
 
