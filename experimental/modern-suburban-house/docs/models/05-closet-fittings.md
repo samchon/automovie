@@ -65,7 +65,7 @@
 ## 수납 부재의 표면 파티션 {#closet-fitting-surfaces}
 <!--
 @evidence principles/core/common.md#scope-preservation 수납 부재의 표면 id(leaf·leaf-panel·rail·rod·shelf·handle)와 문짝 UV를 이 H2가 맡는다.
-@evidence principles/core/common.md#substantive-completion 문짝은 국소 X·Y UV, 트랙은 시작 끝의 길이 U, 봉은 둘레 U, 선반은 왼쪽 뒤 모서리의 가로 U로 정하고 절단 끝마다 이음을 새로 시작한다.
+@evidence principles/core/common.md#substantive-completion 문짝은 국소 X·Y UV, 트랙은 시작 끝의 길이 U, 봉은 축 길이 U, 선반은 왼쪽 뒤 모서리의 가로 U로 정하고 절단 끝마다 이음을 새로 시작한다.
 @evidence principles/core/common.md#declared-basis leaf·rail·rod·shelf·handle id 규칙은 00-model-frame.md#model-surface-partition-naming에서 받는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 공통 id 규칙을 수납 부재 목록으로 바꾼다.
 @evidence principles/design/models.md#representation-contract 수납 부재의 안정 표면을 정한다.
@@ -80,7 +80,7 @@
 
 [이름 규칙](00-model-frame.md#model-surface-partition-naming)에 따라 문짝은 `leaf`와 `leaf-panel`, 트랙은 `rail`, 봉은 `rod`, 선반은 `shelf`, 손잡이 홈은 `handle`을 쓴다. 문짝 면은 [실내 문](03-interior-doors.md#interior-door-members)과 같이 문짝 국소 X·Y에 정렬한 미터 단위 UV를 가진다. 소스 owner는 `src/models/closet.ts`다.
 
-`rail`은 각 트랙의 시작 끝에서 길이 U·폭 V, `rod`는 문 쪽 seam에서 실제 둘레 U·축 길이 V, `shelf`는 왼쪽 뒤 모서리에서 가로 길이 U·앞쪽 깊이 V로 1 UV/m를 쓴다. 오목 `handle`은 홈의 바닥과 네 챌면을 각각 실제 길이 U·깊이 V로 투영한다. 트랙·봉·선반·문짝·손잡이의 절단 끝마다 원점을 다시 잡으며 뒷면·아랫면도 빠뜨리지 않는다.
+`rail`은 각 트랙의 시작 끝에서 길이 U·폭 V, `rod`는 문 쪽 seam에서 축 길이 U·실제 둘레 V, `shelf`는 왼쪽 뒤 모서리에서 가로 길이 U·앞쪽 깊이 V로 1 UV/m를 쓴다. 오목 `handle`은 홈의 바닥과 네 챌면을 각각 실제 길이 U·깊이 V로 투영한다. 트랙·봉·선반·문짝·손잡이의 절단 끝마다 원점을 다시 잡으며 뒷면·아랫면도 빠뜨리지 않는다.
 
 ## 수납 부재의 표현 한계 {#closet-fitting-fidelity}
 <!--

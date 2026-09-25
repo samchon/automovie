@@ -2,7 +2,7 @@
 
 ## 명명 부재와 제작자 후보 {#spaces-referent-ledger}
 <!--
-@evidence contracts/surface-ownership.md#whole-surface-owner reviewed settings·spaces의 모든 H2 본문을 아래 부재 어휘로 조사하고 참조 H2와 본문에 해당 부재를 명명한 제작 H2 후보를 함께 낸다. 이 계측은 어휘 수준이므로 개별 참조와 제작자의 장소별 일치는 별도 원문 대조가 필요하다.
+@evidence contracts/model-referent-audit.md#model-referent-audit reviewed settings·spaces의 모든 H2 본문을 아래 부재 어휘로 조사하고 참조 H2와 본문에 해당 부재를 명명한 제작 H2 후보를 함께 낸다. 이 계측은 어휘 수준이므로 개별 참조와 제작자의 장소별 일치는 별도 원문 대조가 필요하다.
 -->
 
 생산자 `node src/measurements/referent-owner-scan.cjs --check`가 원본 H2와 아래 제작자 본문을 다시 읽는다. 어휘는 생산자 source에 있다. 오른쪽 열은 어휘별 제작자 **후보**이며 같은 단어가 쓰인 각 장소의 정확한 제작자가 모두 확인됐다는 뜻이 아니다. 구체 장소별 부재는 해당 참조 H2와 제작 H2의 문장을 함께 대조해야 한다. 영어 면 토큰은 별도 [재료 면 목록](material-face-ledger.md#material-face-ledger)이 검사한다.

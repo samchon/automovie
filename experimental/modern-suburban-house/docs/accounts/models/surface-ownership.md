@@ -66,7 +66,7 @@
 | [laundry-folding-top](../../models/12-service-rooms.md#laundry-folding-top) | `src/models/furnishings/service-rooms.ts` | `top`·`cleat` |
 | [laundry-upper-storage](../../models/12-service-rooms.md#laundry-upper-storage) | `src/models/furnishings/service-rooms.ts` | `carcass`·`leaf` |
 | [mudroom-bench](../../models/12-service-rooms.md#mudroom-bench) | `src/models/furnishings/service-rooms.ts` | `seat`·`carcass`·`shelf`·`shoe` |
-| [mudroom-coat-hooks](../../models/12-service-rooms.md#mudroom-coat-hooks) | `src/models/furnishings/service-rooms.ts` | `rail`·`hook`·`clothes` |
+| [mudroom-coat-hooks](../../models/12-service-rooms.md#mudroom-coat-hooks) | `src/models/furnishings/service-rooms.ts` | `board`·`hook`·`clothes` |
 | [pantry-l-shelf](../../models/12-service-rooms.md#pantry-l-shelf) | `src/models/furnishings/service-rooms.ts` | `shelf`·`cleat` |
 | [pantry-containers](../../models/12-service-rooms.md#pantry-containers) | `src/models/furnishings/service-rooms.ts` | `container`·`lid`·`basket` |
 | [garage-shelving](../../models/12-service-rooms.md#garage-shelving) | `src/models/furnishings/service-rooms.ts` | `post`·`shelf`·`bin` |

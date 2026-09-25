@@ -29,6 +29,8 @@
 
 세탁기·건조기는 벽에 붙는 뒤 몸통의 국소 Z=[0,0.015], Y=[0,0.10] m만 파낸다. 각 기기의 뒤 아래 `appliance-body` 새 홈 면은 같은 id로 덮고 옆 패널·문·드럼·앞 손잡이는 옮기지 않는다. 뒤 벽 걸레받이와 홈 면이 맞대며, 두 기기의 바깥 폭 0.65 m씩, 깊이 0.75 m씩, 앞 작동 한계는 그대로다. 두 기기 사이 가로 접면에는 걸레받이를 세우지 않는다. [세탁실 출입 개구부](../spaces/rooms/laundry.md#laundry-plan)의 끝에 닿는 세탁기 뒤쪽 가로 모서리에서는 차고 출입문 문선이 차지하는 국소 X=[-0.325,-0.255], Z=[0,0.015], Y=[0.10,0.88] m를 `appliance-body`에서 추가로 파낸다. 문선 폭 0.07 m와 실내 돌출 0.015 m를 정확히 비우며, 이미 비운 Y=[0,0.10] m와 이어진 하나의 L자 후면 절개다. 몸통의 정면·회전 원형 문·손잡이·드럼의 앞쪽 점유는 그대로여서 공유 벽의 거친 문폭과 기기 작동 폭을 줄이지 않는다.
 
+건조기의 앞벽 쪽 국소 +X 끝은 world Z=−2.05 m의 도장 벽에 닿는다. `appliance-body`의 이 끝에서 안쪽 0.015 m, 국소 Y=[0,0.10] m, 전체 깊이 Z=[0,0.75] m를 옆 홈으로 비우며 뒤 홈과 만나는 모서리는 한 번만 뺀다. 따라서 앞벽 걸레받이의 0.015×0.10 m 단면은 건조기 아래를 지나고 몸통의 상부 옆면·앞면·문 작동 끝은 예약대로 남는다. 세탁기 차고 문선 홈과 건조기 옆 홈은 서로 다른 기기에 적용한다.
+
 ## 세탁기 위 접는 상판 {#laundry-folding-top}
 <!--
 @evidence principles/core/common.md#scope-preservation 세탁기 위 접는 상판과 받침목 두 부품만 맡고 아래 두 기기는 다른 H2에 두며, 기기 문을 가리는 지지 부재를 세우지 않는다.
@@ -51,6 +53,8 @@
 
 부품은 상판과 받침목 둘이다. 받침목은 상판 아래 벽면을 따라 높이 0.04 m, 깊이 0.03 m로 두되 예약 Y 범위 안에 들도록 상판 두께에 파묻은 홈으로 처리한다. 재질 경계는 `top`, `cleat`이고 관절은 없다. 상판 가장자리 몰딩과 받침목 고정 철물은 표현하지 않는다. 소스 owner는 `src/models/furnishings/service-rooms.ts`다. 관찰은 측면에서 상판 상면 0.94 m와 기기 상면 0.88 m 사이 틈이 없는지, 정면에서 문 앞 지지 부재가 없는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
 
+차고 출입문이 끝나는 쪽의 상판·받침목은 [실내 문선](03-interior-doors.md#interior-door-members)의 세로 판 world X=[5.485,5.50], Z=[−3.35,−3.28], Y=[0,2.20] m를 공유하지 않는다. 상판의 뒤쪽 오른쪽 모서리에서 이 0.015×0.07 m 평면 직사각형을 Y=[0.88,0.94] m 내내 빼고 새 절단면을 `top`으로 닫는다. 두 받침목도 같은 직사각형에 들어가는 끝을 잘라 `cleat`으로 닫는다. 예약의 X·Z 바깥 모서리와 작업 앞끝은 움직이지 않는다.
+
 ## 세탁실 상부 수납 {#laundry-upper-storage}
 <!--
 @evidence principles/core/common.md#scope-preservation 세탁실 벽걸이 상부 수납 한 원형을 맡고 주방 상부장과 같은 구성이라도 깊이·높이가 달라 별도 원형으로 둔다고 경계를 긋는다.
@@ -72,6 +76,8 @@
 상부 수납은 [예약](../spaces/rooms/laundry.md#laundry-equipment-use)의 X = [5.20, 5.50], Z = [-3.35, -2.05], Y = [1.50, 2.30]을 외곽으로 받아 길이 1.30 m, 깊이 0.30 m, 높이 0.80 m다. [주방 상부장](10-kitchen-dining.md#kitchen-wall-cabinet)과 같은 몸통·전면 판 구성을 쓰되 깊이와 높이가 달라 별도 원형으로 둔다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르되 벽걸이 원형이므로 원점을 뒤쪽 모서리 선의 하단 중심 1.50 m에 둔다.
 
 부품은 몸통(깊이 0.28 m)과 두 문 전면 판(0.02 m)이며 손잡이는 각 문짝 하단에서 0.04 m 위, 각 문짝 가로 중심에 파는 폭 0.12 m·높이 0.025 m·깊이 0.012 m의 하단 홈으로, 돌출하지 않고 `leaf` 한 id를 쓴다. 재질 경계는 `carcass`, `leaf`이고 문은 강체다. 경첩·내부 선반·세제 용기는 표현하지 않는다. 소스 owner는 `src/models/furnishings/service-rooms.ts`다. 관찰은 정면에서 하단 1.50 m가 접는 상판 위 0.56 m 작업 높이를 남기는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
+
+몸통과 두 문 판의 차고 출입문 쪽 끝에서도 world X=[5.485,5.50], Z=[−3.35,−3.28], Y=[1.50,2.20] m의 문선 부피를 합집합에서 뺀다. 판마다 남는 수직 절단면을 원래 `carcass` 또는 `leaf`로 닫으며 홈 손잡이 중심은 기존 각 문 판의 남은 가로 폭 중앙에서 다시 산출한다. Y=[2.20,2.30] m의 윗몸통은 문선 머리보다 위라 원래 깊이를 유지한다. 팬트리 오른쪽 선반의 가장 가까운 Z 끝 −4.70 m는 차고 문선 끝 −4.40 m에서 0.30 m 떨어져 있어 이 문선에 대한 절개가 필요 없다.
 
 ## 머드룸 신발 벤치 {#mudroom-bench}
 <!--
@@ -96,7 +102,9 @@
 
 부품은 좌판, 옆판 둘, 신발 선반 하나다. 좌판은 Y = [0.42, 0.45], 옆판 두께 0.03 m, 신발 선반 상면은 0.10 m다. 신발 두 켤레를 선반 위의 낮은 상자 둘(0.28 × 0.10 × 0.10 m)로 둔다. 재질 경계는 `seat`, `carcass`, `shelf`, `shoe`이고 관절은 없다. 신발 끈·밑창 형상과 좌판 모서리 모따기는 표현하지 않는다. 소스 owner는 `src/models/furnishings/service-rooms.ts`다. 관찰은 측면에서 좌면 0.45 m와 신발 선반이 읽히는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
 
-벤치 뒤 벽의 걸레받이는 계속 두고, 바닥에 닿는 `carcass` 뒤 하단과 `seat` 아래 뒤 받침의 국소 Z=[0,0.015], Y=[0,0.10] m를 비운다. 새 홈의 닫힌 면은 각 부재의 기존 id로 받으며, 앉는 상판과 신발 선반의 앞 가장자리·벤치 예약 외곽은 움직이지 않는다. 벤치 뒤쪽 윗부분만 벽 마감에 닿는다.
+벤치 뒤 벽의 걸레받이는 계속 두고, 바닥에 닿는 두 `carcass` 옆판의 뒤 하단 국소 Z=[0,0.015], Y=[0,0.10] m를 비운다. 별도 뒤 받침은 만들지 않는다. 새 홈의 닫힌 면은 `carcass`로 받으며, 앉는 상판과 신발 선반의 앞 가장자리·벤치 예약 외곽은 움직이지 않는다. 벤치 뒤쪽 윗부분만 벽 마감에 닿는다.
+
+벤치의 앞벽 쪽 국소 −X 끝은 world Z=−2.05 m의 걸레받이 벽에 닿는다. 두께 0.03 m 옆판의 이 끝에서 안쪽 0.015 m, Y=[0,0.10] m와 전체 깊이 Z=[0,0.40] m를 비운다. 하단 선반도 그 끝 0.015 m를 비우고 `carcass`·`shelf`의 새 끝면으로 각각 닫는다. 앞벽 걸레받이는 이 옆 홈에서 이어지고 0.03 m 옆판에는 위쪽 0.015 m 단면이 남아 좌판을 받친다. 뒤 홈과 옆 홈의 공통 모서리는 한 번만 제거하므로 두 방 경계를 넘어 몸통을 옮기지 않는다.
 
 ## 벤치 위 외투 걸이 {#mudroom-coat-hooks}
 <!--
@@ -104,7 +112,7 @@
 @evidence principles/core/common.md#substantive-completion 걸이판 0.80 × 0.10 × 0.02 m, 하단 1.65 m, 걸이 넷 중심 -0.25·-0.08·+0.08·+0.25 m·돌출 0.08 m, 외투 폭 0.30 m·깊이 0.25 m를 정한다.
 @evidence principles/core/common.md#declared-basis 외곽 Y = [1.10, 1.85]와 X·Z 범위는 예약에서 받았고 외투가 걸이 아래 1.10 m 높이까지 내려온다는 값은 그 범위 하단에 맞춘 것이다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 예약 범위 안에 걸이판 하단 1.65 m, 걸이 중심 -0.25·-0.08·+0.08·+0.25 m, 외투를 둥근 모서리 판 덩어리로 매단다는 모델 결정을 더한다.
-@evidence principles/design/models.md#representation-contract 부품을 걸이판·걸이 넷·외투 둘로, 재질 경계를 `rail`·`hook`·`clothes`로 두고 천 주름·소매는 표현하지 않는다고 밝힌다.
+@evidence principles/design/models.md#representation-contract 부품을 걸이판·걸이 넷·외투 둘로, 재질 경계를 `board`·`hook`·`clothes`로 두고 천 주름·소매는 표현하지 않는다고 밝힌다.
 @evidence principles/design/models.md#spatial-convention 벽걸이 원형이므로 원점을 벽면의 걸이판 하단 중심에 두고 두 외투의 가로 점유는 각각 [-0.40, -0.10]·[0.10, 0.40] m로 0.80 m 예약 안에서 0.20 m 떨어지고, 외투까지 포함한 돌출은 0.40 m 깊이 안에 든다.
 @evidence principles/design/models.md#reviewable-structure 측면에서 외투 하단이 벤치 좌면 위 0.65 m에 멈추는지를 모델 리뷰 뷰로 반증한다.
 @evidence principles/design/models.md#model-observable-style-basis 레퍼런스 02에는 머드룸 외투의 개별 형상이 선명하지 않다. 양식 라벨 없이 둥근 모서리 판 덩어리 외투와 0.08 m 돌출 걸이라는 추상화 수준을 관찰 가능한 결정으로 적는다.
@@ -118,7 +126,7 @@
 
 외투 걸이는 [예약](../spaces/rooms/laundry.md#laundry-equipment-use)의 X = [3.22, 3.62], Z = [-2.85, -2.05], Y = [1.10, 1.85] 안에 걸이와 걸린 외투의 최대 돌출을 함께 담는다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르되 벽걸이 원형이므로 원점을 벽면의 걸이판 하단 중심에 둔다. 걸이판은 길이 0.80 m, 높이 0.10 m, 두께 0.02 m이며 하단이 1.65 m에 오고, 걸이 넷은 판 중심에서 -0.25·-0.08·+0.08·+0.25 m, 돌출 0.08 m다.
 
-걸린 외투 둘은 양끝 걸이(-0.25·+0.25 m)에 매단 둥근 모서리 판 덩어리로 두며 폭 0.30 m, 깊이 0.25 m, 걸이 아래 1.10 m 높이까지 내려온다. 두 외투의 가로 점유는 각각 [-0.40, -0.10]·[0.10, 0.40] m로 0.80 m 예약 안에서 0.20 m 떨어지고, 외투까지 포함한 돌출은 0.40 m 깊이 안에 든다. 재질 경계는 `rail`, `hook`, `clothes`이고 관절은 없다. 천 주름·소매는 표현하지 않는다. 소스 owner는 `src/models/furnishings/service-rooms.ts`다. 관찰은 측면에서 외투 하단이 벤치 좌면 위 0.65 m에 멈추는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
+걸린 외투 둘은 양끝 걸이(-0.25·+0.25 m)에 매단 둥근 모서리 판 덩어리로 두며 폭 0.30 m, 깊이 0.25 m, 걸이 아래 1.10 m 높이까지 내려온다. 두 외투의 가로 점유는 각각 [-0.40, -0.10]·[0.10, 0.40] m로 0.80 m 예약 안에서 0.20 m 떨어지고, 외투까지 포함한 돌출은 0.40 m 깊이 안에 든다. 걸이판의 모든 면은 `board`, 고리는 `hook`, 외투 판은 `clothes`이고 관절은 없다. 천 주름·소매는 표현하지 않는다. 소스 owner는 `src/models/furnishings/service-rooms.ts`다. 관찰은 측면에서 외투 하단이 벤치 좌면 위 0.65 m에 멈추는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
 
 ## 팬트리 L형 선반 {#pantry-l-shelf}
 <!--

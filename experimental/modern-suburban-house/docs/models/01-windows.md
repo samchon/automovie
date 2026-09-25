@@ -114,33 +114,33 @@ motion 인터페이스는 각 `lower-sash`의 국소 +Y 평행 이동 하나이�
 ## 욕조 욕실의 상부 경첩창 {#awning-window}
 <!--
 @evidence principles/core/common.md#scope-preservation 욕조 욕실 창 한 칸의 상부 경첩창 계층, 경첩 축, 열림 범위, 흐린 유리 표면을 이 H2가 맡는다.
-@evidence principles/core/common.md#substantive-completion 경첩 축을 sash 위 변 바깥 모서리의 국소 X 평행선으로, 범위를 0~π/6 rad로 정하고 sash 높이 0.63 m에서 바깥 돌출 약 0.32 m를 산출한다.
+@evidence principles/core/common.md#substantive-completion 경첩 축을 sash 위 변 바깥 모서리의 국소 X 평행선으로, 범위를 0~π/8 rad로 정하고 sash 높이 0.63 m에서 바깥 돌출 0.2411 m를 산출해 부모 0.25 m 예약과 비교한다.
 @evidence principles/core/common.md#declared-basis 개구부와 흐린 유리 배정은 spaces/envelope/right.md#tub-right-window와 spaces/06-openings.md#external-opening-interface에서 받는다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 06의 '높은 욕실 창은 흐린 유리의 상부 경첩창'을 위 변 축 회전과 π/6 상한이라는 모델 관절로 바꾼다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 06의 '높은 욕실 창은 흐린 유리의 상부 경첩창'을 위 변 축 회전과 부모의 바깥 점유 0.25 m를 지키는 π/8 상한이라는 모델 관절로 바꾼다.
 @evidence principles/design/models.md#representation-contract frame 아래 awning-sash 하나와 obscured-glass 표면을 정한다.
 @evidence principles/design/models.md#spatial-convention 경첩 축 위치와 회전 방향(바깥)을 국소 좌표로 적는다.
 @evidence principles/design/models.md#reviewable-structure 욕실 안쪽 단면과 최대 열림 사선 투시로 돌출을 반증한다.
 @evidence principles/design/models.md#model-observable-style-basis 레퍼런스 05의 욕실 옆 상부 창은 채광하는 작은 창으로 읽는다. 흐림 정도는 materials에 넘기고 모델은 흐린 유리 표면 경계만 정한다.
 @evidence principles/design/models.md#model-scale-layer-completion 경첩 인터페이스와 열림 상한을 정해 관절 없는 욕실 창이 통과하지 않게 한다.
-@evidence obligations/design/models.md#articulation-ownership awning-sash의 위 변 축 회전을 0~π/6 rad motion 인터페이스로 정한다.
+@evidence obligations/design/models.md#articulation-ownership awning-sash의 위 변 축 회전을 0~π/8 rad motion 인터페이스로 정한다.
 @evidence spaces/envelope/right.md#tub-right-window Z = [-8.40, -7.50], Y = [4.56, 5.31] m 욕실 창을 상부 경첩창 한 칸으로 채운다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work right.md와 06의 욕실 창 배정을 그대로 소비했고 수정할 부모 결함이 없었다.
 -->
 
 레퍼런스 05의 욕실 옆 상부 창은 채광하는 작은 창으로 읽는다. 경첩 방향은 사진에서 단정하지 않고 부모 예약에 맞춘 상부 힌지로 결정한다.
 
-[욕조 욕실 창](../spaces/envelope/right.md#tub-right-window) Z = [-8.40, -7.50], Y = [4.56, 5.31] m은 한 칸의 상부 경첩창이다. 계층은 `frame` 아래 `awning-sash` 하나이며 경첩 축은 sash 위 변 바깥 모서리를 지나는 국소 X 평행선이다. motion 인터페이스는 이 축의 바깥쪽 회전 하나이고 범위는 0–π/6 rad다. 이 상한은 높이 0.75 m 개구부에서 frame을 뺀 sash 높이 0.63 m의 아래 변 바깥 돌출을 약 0.32 m로 묶어 오른쪽 입면 윤곽에서 튀어나온 판으로 읽히지 않게 하려는 모델 결정이다. 기준 상태는 닫힌 0 rad이다. 흐림은 `obscured-glass` 표면으로 넘기고 정도는 materials가 정한다. 소스 owner는 `src/models/windows.ts`다.
+[욕조 욕실 창](../spaces/envelope/right.md#tub-right-window) Z = [−8.40,−7.50], Y = [4.56,5.31] m은 한 칸의 상부 경첩창이다. 계층은 `frame` 아래 `awning-sash` 하나이며 경첩 축은 sash 위 변 바깥 모서리를 지나는 국소 X 평행선이다. motion 인터페이스는 이 축의 바깥쪽 회전 하나이고 범위는 0–π/8 rad다. 높이 0.75 m 개구부에서 frame을 뺀 sash 높이 0.63 m의 아래 변 바깥 돌출은 `0.63×sin(π/8)=0.2411` m이므로 [오른쪽 입면의 0.25 m 예약](../spaces/envelope/right.md#tub-right-window) 안에 0.0089 m 남는다. frame 들임을 유리하게 빼지 않은 상한이다. 기준 상태는 닫힌 0 rad이다. 흐림은 `obscured-glass` 표면으로 넘기고 정도는 materials가 정한다. 소스 owner는 `src/models/windows.ts`다.
 
 ## 창대와 외부 trim {#window-sill-trim}
 <!--
 @evidence principles/core/common.md#scope-preservation 외부 trim·안쪽 창대·안쪽 흰 문선의 폭·돌출·두께와 frame 형제 노드 배치를 이 H2가 맡는다.
-@evidence principles/core/common.md#substantive-completion 바깥 trim을 0.10 m 폭·0.02 m 돌출, 창대를 frame 안쪽 면에서 0.13 m 돌출·0.03 m 두께, 안쪽 세 문선은 폭 0.07 m·돌출 0.015 m로 수치화한다.
+@evidence principles/core/common.md#substantive-completion 바깥 trim을 0.10 m 폭·구조 날씨 면에서 0.035 m 두께, 창대를 W+0.14 m 길이·0.13 m 깊이·0.03 m 두께, 안쪽 세 문선은 폭 0.07 m·돌출 0.015 m로 수치화한다.
 @evidence principles/core/common.md#declared-basis 0.10 m·0.06 m 한도는 spaces/06-openings.md#external-opening-interface, 돌출 근거는 settings/20-verification.md#visual-grammar에서 받는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 06의 trim 0.10 m 이내·돌출 0.06 m 이내 예약을 실제 부재 치수로 바꾼다.
 @evidence principles/design/models.md#representation-contract exterior-trim과 interior-sill을 frame의 형제 노드로 두는 계층을 정한다.
 @evidence principles/design/models.md#spatial-convention trim은 날씨 면 기준, 창대는 frame 안쪽 면과 실내 마감 면 두 기준에서 돌출을 산출한다.
 @evidence principles/design/models.md#reviewable-structure 입면 정면과 측면 단면에서 trim 폭과 창대 돌출을 반증한다.
-@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 01의 흰 창 둘레 돌출과 04·05의 실내 창대를 채택한다. trim이 실제 돌출과 음영으로 접합을 설명한다는 visual-grammar를 0.02 m 돌출로 구체화한다.
+@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 01의 흰 창 둘레 돌출과 04·05의 실내 창대를 채택한다. 구조 날씨 면 기준 0.035 m trim은 최대 0.030 m siding 절단부 앞에 0.005 m 서서 접합 음영을 만든다.
 @evidence principles/design/models.md#model-scale-layer-completion trim과 창대 층을 창 원형에 포함시켜 층 누락을 막는다.
 @evidence upstream/design/models.md#settings-and-space-revision-from-model-work spaces/03-surface-owners.md#exterior-surface-handoff가 바깥 trim을 입면 owner에 남겨 이 창대·문선 원형과 같은 닫힌 면의 owner가 겹쳤다. 그 부모 H2를 벽 몸체·void·절단면은 spaces, 닫힌 외부 trim·창대는 models로 고쳤다. spaces/06-openings.md#external-opening-interface의 0.10 m 폭·0.06 m 돌출 예약과 settings/20-verification.md#visual-grammar는 유지했다.
 @evidence spaces/03-surface-owners.md#exterior-surface-handoff 입면의 벽 절단면은 spaces에 남기고 창 둘레 닫힌 trim과 창대를 이 원형이 한 번 만든다.
@@ -148,11 +148,13 @@ motion 인터페이스는 각 `lower-sash`의 국소 +Y 평행 이동 하나이�
 
 레퍼런스 01의 흰 창 둘레 돌출과 04·05의 실내 창대를 채택한다. 창대가 실내 마감보다 실제로 0.06 m 나오는지를 단면 산술로 확인한다.
 
-외부 trim은 [06의 예약](../spaces/06-openings.md#external-opening-interface)대로 거친 개구부의 좌우·위·아래에 0.10 m 폭으로 두고, [공통 재료와 외피 인상](../settings/20-verification.md#visual-grammar)의 trim이 실제 돌출과 음영으로 접합을 설명한다는 조건을 위해 날씨 면에서 0.02 m 돌출시킨다. 안쪽 창대는 frame 안쪽 면 -0.18 m에서 실내 마감 면 -0.25 m를 지나 방 쪽 끝 -0.31 m까지 0.13 m 돌출하는 두께 0.03 m 판이며 실내 마감 면 기준으로 0.06 m만 돌출해 06의 한도를 지킨다. `exterior-trim`과 `interior-sill`은 `frame`의 형제 노드다. 소스 owner는 `src/models/windows.ts`이며 입면 정면과 측면 단면으로 검사한다.
+외부 `exterior-trim`은 [06의 예약](../spaces/06-openings.md#external-opening-interface)대로 거친 개구부 폭 W, 아래 y0, 위 y1의 좌우·위·아래에 폭 0.10 m의 닫힌 판 네 개를 둔다. 좌우 판은 개구부 양끝의 바깥 0.10 m에서 Y=[y0,y1]을 차지하고, 아래 판은 X=[왼끝−0.10,오른끝+0.10]·Y=[y0−0.10,y0], 머리 판은 같은 X·Y=[y1,y1+0.10] m다. 판 뒷면은 구조 외벽의 평평한 날씨 면, 앞면은 그 면에서 바깥으로 0.035 m다. 사이딩 절단부 최대 0.030 m보다 0.005 m 앞서 [공통 재료와 외피 인상](../settings/20-verification.md#visual-grammar)의 trim 음영을 만들며 문·모서리 trim과 같은 기준면이다. 아래·위 판은 세로 판 끝면에 맞대고 한 부피를 복제하지 않는다. 안쪽 `interior-sill`은 frame 안쪽 면 −0.18 m에서 실내 마감 면 −0.25 m를 지나 방 쪽 끝 −0.31 m까지 깊이 0.13 m, 두께 0.03 m인 판이다. 실내 마감 면 기준 방 쪽 돌출은 0.06 m로 06의 한도를 지킨다. 창대의 길이는 개구부 폭 W 양끝에 문선 발을 받는 귀 0.07 m씩을 더한 W+0.14 m이고, 가로 X=[개구부 왼끝−0.07,오른끝+0.07] m·세로 Y=[y0−0.03,y0] m다. `exterior-trim`과 `interior-sill`은 `frame`의 형제 노드다. 소스 owner는 `src/models/windows.ts`이며 입면 정면과 측면 단면으로 검사한다.
 
 창 안쪽 흰 문선 `interior-casing`은 창대 위의 좌우 세로 판과 머리 판 세 개다. 거친 개구부 폭 W·높이 H와 창대 상면을 입력으로 하여 세로 판은 개구부 좌우 바깥으로 각각 0.07 m, 창대 상면부터 개구부 머리까지 이어지고 머리 판은 좌우 끝을 각 0.07 m 넘겨 개구부 머리에서 위로 0.07 m를 덮는다. 세 판 모두 실내 완성 벽면에서 방으로 0.015 m 돌출하며 두께 면과 절단 끝을 포함해 닫는다. 세로 판 아랫면은 창대 상면과 접하고 창대 안으로 관통하지 않는다. 머리 판은 세로 판 위끝에 직각으로 접하고 같은 부피를 복제하지 않는다. 실내 문선의 반복 수는 창 거친 개구부 12개에서 산출하고 욕실 타일 벽에서는 타일 종료선과 맞대어 별도 타일을 만들지 않는다. 이 부재의 모든 면은 `interior-casing` 하나의 face id를 받는다.
 
 창 `exterior-trim`의 네 판은 각각 왼쪽 아래 끝을 UV 원점으로 삼고 판 길이 방향 U·폭 방향 V를 1 UV/m로 둔다. `interior-sill`의 상·하면은 왼쪽 벽 접점을 원점으로 창 폭 방향 U·방 쪽 돌출 방향 V를 쓰며, 끝면·두께 면은 독립 면 시작점에서 길이 U·두께 V로 다시 투영한다. `interior-casing`은 세 판의 아래 또는 왼쪽 끝에서 길이 U·폭 V를 1 UV/m로 투영하고 뒷면과 끝면도 같은 척도로 판마다 새로 시작한다. 이음은 trim 판의 맞댐, 창대 끝과 frame 접선, 실내 문선과 창대 접선에서 끊는다. 세 부재의 뒷면에도 UV를 준다.
+
+세로 `mullion`은 각 부재 아래끝의 뒷면 모서리에서 높이 방향 U·폭 방향 V를 1 UV/m로 두고, 위아래 절단 끝은 해당 끝의 왼쪽 모서리에서 독립 투영한다. 이는 넓은 창틀 판의 기본 XY 투영보다 우선해 세로 부재의 결을 그 길이로 보낸다.
 
 ## 창의 표면 파티션 {#window-surface-partitions}
 <!--

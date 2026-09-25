@@ -374,7 +374,7 @@
 | [외투장 문](../models/05-closet-fittings.md#coat-closet-doors), [린넨장](../models/05-closet-fittings.md#linen-closet-fittings), [미닫이 옷장](../models/13-bedrooms.md#sliding-closet) | `handle` | [검은 도장 금속](02-interior-shell.md#black-coated-metal) |
 | [미닫이 옷장](../models/13-bedrooms.md#sliding-closet)·[옷방](../models/13-bedrooms.md#wardrobe-hanging)·[머드룸 외투 걸이](../models/12-service-rooms.md#mudroom-coat-hooks) | `clothes` | 순번별 [회베이지](#grey-beige-upholstery)·[청회색](#blue-grey-bedding)·[올리브](#olive-bedding) 직물 |
 | [팬트리 용기](../models/12-service-rooms.md#pantry-containers) | `container` / `lid`·`basket` | [투명 유리](01-exterior.md#glass-clear) / [가구 목재](#furniture-wood) |
-| [머드룸 걸이](../models/12-service-rooms.md#mudroom-coat-hooks) | `rail` / `hook` | [가구 목재](#furniture-wood) / [검은 도장 금속](02-interior-shell.md#black-coated-metal) |
+| [머드룸 걸이](../models/12-service-rooms.md#mudroom-coat-hooks) | `board` / `hook` | [가구 목재](#furniture-wood) / [검은 도장 금속](02-interior-shell.md#black-coated-metal) |
 | [차고 선반·공구판](../models/12-service-rooms.md#garage-shelving) | `bin`·`tool-grip` / `board` / `tool-steel` | [검은 도장 금속](02-interior-shell.md#black-coated-metal) / [가구 목재](#furniture-wood) / [스테인리스](#stainless-steel) |
 | [작은 책상 소품](../models/13-bedrooms.md#child-desk) | `book` / `container` / `pencil` | [침구색 순환](#olive-bedding) / [흰 에나멜](#white-enamel) / [가구 목재](#furniture-wood) |
 | [옷방 선반 바구니](../models/13-bedrooms.md#wardrobe-shelves) | `basket` | [가구 목재](#furniture-wood) |

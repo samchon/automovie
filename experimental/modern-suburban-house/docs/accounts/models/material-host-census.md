@@ -2,7 +2,7 @@
 
 ## 모든 재료 H2의 결합 대상과 설계 소유 {#material-host-census}
 <!--
-@evidence contracts/surface-ownership.md#whole-surface-owner materials 네 파일의 H2 전부를 아래 표에 한 번씩 놓고 각 결합 대상의 실제 부재 owner를 역으로 대조한다. 규칙·견본 H2는 새 geometry가 없다고 밝히며 실제 modelSources/materialSources 메시와 GPU 결속은 unverified다.
+@evidence contracts/model-material-host-audit.md#model-material-host-audit materials 네 파일의 H2 전부를 아래 표에 한 번씩 놓고 각 결합 대상의 실제 부재 owner를 역으로 대조한다. 규칙·견본 H2는 새 geometry가 없다고 밝히며 실제 modelSources/materialSources 메시와 GPU 결속은 unverified다.
 -->
 
 이 표는 materials가 부르는 면·부재를 출발점으로 삼는다. 첫 열은 네 파일의 H2 모집단이고, 셋째 열은 그 재료가 붙을 물리 부재를 설계한 owner다. 규칙과 견본은 새 메시를 요구하지 않는다. 링크 존재 검사와 사람이 읽는 결합 의미 대조를 구별한다. [모델 face id 계정](surface-ownership.md#model-surface-ownership)은 모델 면 이름을, 이 표는 그 면을 생산할 부재 원형 또는 기존 spaces 몸체를 확인한다. 실제 소스 메시와 결속은 unverified다.

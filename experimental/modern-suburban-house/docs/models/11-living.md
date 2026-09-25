@@ -31,6 +31,8 @@
 
 두 소파 배치 모두 벽에 닿는 외곽 뒤 기준선은 유지한다. 네 발 중 뒤쪽 두 발의 뒤 경계를 국소 Z=0.015 m로 옮기고 앞쪽 발은 그대로 둔다. Y=[0.08,0.10] m의 `base` 뒤 하단은 Z=[0,0.015] m를 파내 걸레받이 앞면에 맞댄다. 등받이와 팔걸이는 바닥 위 0.10 m보다 높은 구간만 뒤 벽에 닿고, 앞 가장자리와 2.10×0.95×0.90 m 외곽은 유지한다. 이 relief가 없던 평평한 뒤 아래판은 만들지 않는다.
 
+국소 X 외곽은 [−1.05,1.05] m, Z 외곽은 [0,0.95] m다. 네 `leg`는 각각 단면 0.06×0.06 m·Y=[0,0.08] m이고 X=[−0.98,−0.92]·[0.92,0.98] m에 두 쌍으로 둔다. 뒤 다리의 깊이는 Z=[0.015,0.075] m, 앞 다리는 Z=[0.87,0.93] m다. `base`는 X=[−1.05,1.05]·Z=[0,0.95]·Y=[0.08,0.30] m에서 뒤 하단의 Z=[0,0.015]·Y=[0.08,0.10] m만 빼 닫는다. 두 `arm`의 국소 X는 [−1.05,−0.90]·[0.90,1.05] m, Z=[0,0.95] m, Y=[0.30,0.62] m다. `back`은 X=[−0.90,0.90]·Z=[0,0.20]·Y=[0.30,0.90] m다. 세 좌석 쿠션은 남은 X 폭 1.80 m의 세 구간과 Z=[0.20,0.95]·Y=[0.30,0.43] m를 차지한다. 그러므로 낮은 벽 접촉에서는 뒤 다리 0.015 m와 받침 홈이 걸레받이를 비우고, 팔걸이·등받이는 Y≥0.30 m에서만 뒤벽까지 닿는다.
+
 ## 낮은 목재 테이블 {#low-table}
 <!--
 @evidence principles/core/common.md#scope-preservation 거실과 가족실의 낮은 테이블 두 예약을 길이 L·폭 W 매개변수 한 원형으로 받아 두 매개변수 쌍, 상판과 다리, 재질 경계, 관찰, 소스 owner를 이 H2에 모은다.
@@ -116,7 +118,7 @@
 @evidence principles/design/models.md#spatial-convention 로컬 원점을 바닥 평면 중심에, +X를 L 방향에, 밑면을 Y = 0에 두며 러그는 L이 world Z, 매트는 L이 world X다.
 @evidence principles/design/models.md#reviewable-structure 측면에서 두께가 T를 넘지 않아 문턱처럼 읽히지 않는지, 위에서 여섯 배치의 외곽이 각 예약과 같은지, 바닥면과 z-fighting 없이 구분되는지를 고정 뷰로 확인한다.
 @evidence principles/design/models.md#model-observable-style-basis 러그와 매트 표지에서 이 H2가 기하로 정하는 것은 T = 0.008/0.006 m의 얇은 두께와 `field`·`border` 두 면 분할뿐이고 무늬·털 높이·술 장식은 표현하지 않는다고 밝힌다.
-@evidence principles/design/models.md#model-scale-layer-completion 여섯 배치의 T 0.008 m·0.006 m, 침대 발끝 방향 러그 이동 0.07·0.11·0.025 m, 몸판과 같은 두께의 띠 한 층, 가구 다리 겹침 규칙, 세 관찰을 함께 적는다.
+@evidence principles/design/models.md#model-scale-layer-completion 여섯 배치의 T 0.008 m·0.006 m, 침대 발끝 방향 러그 이동 0.07·0.11·0.01 m, 몸판과 같은 두께의 띠 한 층, 가구 다리 겹침 규칙, 세 관찰을 함께 적는다.
 @evidence upstream/design/models.md#settings-and-space-revision-from-model-work 거실과 현관 예약은 그대로 받았으나 가족실 러그의 world 위치가 부모에 없어서 spaces/rooms/common.md#common-family-reservation에 X·Z 예약을 올렸다. models는 그 폭·길이만 소비한다.
 @evidence settings/10-house.md#living 거실 설정의 '절제된 무늬 러그'를 T = 0.008 m의 거실 러그 배치로 받되 무늬는 기하로 표현하지 않고 `field`·`border` 면 분할만 둔다.
 @evidence settings/10-house.md#entry 현관 설정의 '얕은 매트'를 T = 0.006 m 매트로 받아 측면에서 문턱처럼 읽히지 않는지를 관찰하게 한다.
@@ -126,7 +128,7 @@
 @evidence obligations/design/models.md#model-representation-completion 이 H2는 덮개 원형의 몸판·띠 층, 여섯 배치의 L·W·T, 재질 경계 `field`·`border`, 표현하지 않는 무늬·털·술, 세 관찰을 모두 적되 모든 관찰이 unverified라 구조적 유효성과 의미적 완결성 판정은 아직 없다.
 -->
 
-러그와 현관 매트는 사람이 밟고 지나가는 얇은 바닥 덮개이므로 길이 L, 폭 W, 두께 T를 받는 한 원형으로 만든다. [거실 러그 예약](../spaces/rooms/living.md#living-furniture-use)은 X = [-4.00, -2.00], Z = [-3.90, -1.55]로 L = 2.35 m(world Z), W = 2.00 m, T = 0.008 m다. [가족실 러그 예약](../spaces/rooms/common.md#common-family-reservation)은 X 방향 폭 1.55 m, Z 방향 길이 1.70 m, 두께 0.008 m로 받는다. 배치 원점과 회전은 그 부모 예약을 소비하는 instances가 정한다. [현관 매트 예약](../spaces/rooms/entry.md#entry-use-routes)은 X = [0.45, 1.35], Z = [-1.95, -1.30]으로 L = 0.90 m(world X), W = 0.65 m, T = 0.006 m다. 레퍼런스 02의 침대 아래 얇은 러그도 채택한다. [침대 원형](13-bedrooms.md#headboard-bed)의 길이·폭에 각각 0.30 m를 더한 host 유도 변형으로 주침실은 2.45 × 1.90 × 0.008 m, 작은 침실 둘은 각각 2.45 × 1.45 × 0.008 m다. 침대 중심 기준 사방 0.15 m 노출을 시작값으로 삼되, 머리 쪽 러그 끝이 방 벽 마감과 0.02 m보다 가까우면 그 부족 거리만큼 러그 전체를 발끝 방향으로 옮긴다. 주침실은 머리 쪽 침범 0.05 m를 해소하려고 침대 국소 발끝 방향으로 0.07 m, 둘째 침실은 침범 0.09 m를 해소하려고 같은 방향으로 0.11 m, 셋째 침실은 벽과의 0.005 m 접촉을 없애려고 같은 방향으로 0.025 m 옮긴다. 외곽 2.45 × 1.90/1.45 m와 두께 0.008 m는 유지하고 노출 폭의 비대칭은 위 세 결정값으로 고정한다. 별도 방이나 새 벽을 만들지 않고, 실제 배치가 문 회전·가구 다리와 맞는지는 instance 적합 검사의 대상이며 지금은 unverified다. [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)의 예외로 밟고 지나가는 덮개이므로 로컬 원점을 바닥 평면 중심에 두고 +X를 L 방향으로 두며 밑면이 Y = 0에 놓인다.
+러그와 현관 매트는 사람이 밟고 지나가는 얇은 바닥 덮개이므로 길이 L, 폭 W, 두께 T를 받는 한 원형으로 만든다. [거실 러그 예약](../spaces/rooms/living.md#living-furniture-use)은 X = [-4.00, -2.00], Z = [-3.90, -1.55]로 L = 2.35 m(world Z), W = 2.00 m, T = 0.008 m다. [가족실 러그 예약](../spaces/rooms/common.md#common-family-reservation)은 X 방향 폭 1.55 m, Z 방향 길이 1.70 m, 두께 0.008 m로 받는다. 배치 원점과 회전은 그 부모 예약을 소비하는 instances가 정한다. [현관 매트 예약](../spaces/rooms/entry.md#entry-use-routes)은 X = [0.45, 1.35], Z = [-1.95, -1.30]으로 L = 0.90 m(world X), W = 0.65 m, T = 0.006 m다. 레퍼런스 02의 침대 아래 얇은 러그도 채택한다. [침대 원형](13-bedrooms.md#headboard-bed)의 길이·폭에 각각 0.30 m를 더한 host 유도 변형으로 주침실은 2.45 × 1.90 × 0.008 m, 작은 침실 둘은 각각 2.45 × 1.45 × 0.008 m다. 침대 중심 기준 사방 0.15 m 노출을 시작값으로 삼되, 머리 쪽 러그 끝이 방 벽 마감과 0.02 m보다 가까우면 그 부족 거리만큼 러그 전체를 발끝 방향으로 옮긴다. 주침실은 머리 쪽 침범 0.05 m를 해소하려고 침대 국소 발끝 방향으로 0.07 m, 둘째 침실은 침범 0.09 m를 해소하려고 같은 방향으로 0.11 m, 셋째 침실은 벽과의 0.01 m 틈을 0.02 m로 늘리려고 같은 방향으로 0.01 m 옮긴다. 외곽 2.45 × 1.90/1.45 m와 두께 0.008 m는 유지하고 노출 폭의 비대칭은 위 세 결정값으로 고정한다. 별도 방이나 새 벽을 만들지 않고, 실제 배치가 문 회전·가구 다리와 맞는지는 instance 적합 검사의 대상이며 지금은 unverified다. [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)의 예외로 밟고 지나가는 덮개이므로 로컬 원점을 바닥 평면 중심에 두고 +X를 L 방향으로 두며 밑면이 Y = 0에 놓인다.
 
 부품은 몸판 하나와 가장자리 띠 하나다. 가장자리 띠는 몸판 둘레 0.04 m 폭의 같은 두께 영역으로 면만 나누고 높이를 올리지 않는다. 재질 경계는 `field`, `border`다. 무늬·털 높이·술 장식은 표현하지 않는다. 덮개 위에 가구가 놓이며 가구 다리와 겹치는 것은 허용하고 덮개가 가구를 들어 올리지 않는다.
 
