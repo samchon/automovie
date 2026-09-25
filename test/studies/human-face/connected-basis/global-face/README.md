@@ -149,6 +149,7 @@ The connected editor selects whatever `basis.json.gz` reads as its `id`; every d
 | `mpfb-connected-head-2026-09-25-eyelash` | canthal-tilt | `prepare-eyelash-basis.ts`: each lid's lash cards redrawn from lash anatomy (count, lengths, fibre diameter, growing share), coverage as alpha, lash and brow materials blended | [eyelash-receipt.json](eyelash-receipt.json) |
 | `mpfb-connected-head-2026-09-26-lip-envelope` | eyelash | `prepare-lip-envelope-basis.ts`: each lip height control's envelope extended over the adult reference interval of its vermilion height, as far as the control still means it and the surface stays valid: `upperLipHeight` [-2.05, 1], `lowerLipHeight` [-2.23, 1] | [lip-envelope-receipt.json](lip-envelope-receipt.json) |
 | `mpfb-connected-head-2026-09-26-unseen-envelope` | lip-envelope | `prepare-unseen-envelope-basis.ts`: each control holding a reading of what a frontal photograph cannot show extended over that reading's adult interval, as far as it still means it and the surface stays valid | [unseen-envelope-receipt.json](unseen-envelope-receipt.json) |
+| `mpfb-connected-head-2026-09-26-valid-envelope` | unseen-envelope | `prepare-valid-envelope-basis.ts`: each face control side whose surface stops being a face inside its envelope brought in to where it still is, by the fault count or by a render study of every control at both ends | [valid-envelope-receipt.json](valid-envelope-receipt.json) |
 
 ### Single channels first
 
@@ -374,6 +375,35 @@ The documents' unseen form (E-line, facial convexity, nasofrontal and nasolabial
 | each ear's length | left/rightEarScale | 0.418 to 0.608 | [-1, 1.38] |
 
 The occiput's depth moves the cephalic index no further past its authored end (0.83 at -1, where the interval reaches 0.92), and each ear's flap turns triangles past +1 (a protrusion of 0.41 of the ear's length, where it reaches 0.46), so they keep their envelopes. The lower lip's retrusion is the envelope's largest shortfall: the lip's own control reaches 3.5 mm behind the line where the norm of European men at 60 is 7.2, and the lip's distance to the E-line also follows the nose and chin, whose own controls carry it further. Rendered at their new ends, none shows a fault.
+
+## Valid envelopes
+
+Every face control (the 97 shape channels other than the population macros, paired sides together) was rendered at both ends through the product editor, each with its region's camera, then the flagged sides again in steps from the front, three-quarter and profile or the region's close-up, and every end was counted for faults (`faceSupportFaults`: triangles turned over against the source, and surface pairs one of which the control moves that come to cross, the two lips' overlap excepted as their contact). The source's own targets fold the skin before their authored ends in three controls; others stay fault-free but stop reading as a human face; and two envelopes the unseen revision extended past the authored end kept their measure while the nose they made stopped being a nose. `prepareValidEnvelopeBasis` ([valid-envelope-receipt.json](valid-envelope-receipt.json)) brings each such side in: to the last 0.05 step before the first fault, or to the last step of the render study that still reads as a face.
+
+| control | side | from | to | evidence |
+| --- | --- | --- | --- | --- |
+| left/rightEyeFoldHeight | minimum | -1 | -0.6 | 34 triangles turn over from -0.65 (a dark gap at the lid crease) |
+| left/rightEpicanthalFold | maximum | 1 | 0.25 | 87 turn over from 0.3 (a skin sheet over the medial canthus) |
+| left/rightEarWing | minimum | -1 | -0.9 | 102 faults from -0.95 |
+| left/rightEyelidFoldConvexity | minimum | -1 | -0.3 | -0.4 overhangs the lid with a lit ridge; -1 folds back (16 turned) |
+| left/rightEpicanthalFold | minimum | -1 | -0.5 | -0.75 opens a dark notch at the medial canthus |
+| left/rightEarAngularOutline | minimum | -1 | -0.2 | -0.3 points the helix; -1 is a pointed, non-human ear |
+| left/rightEarAngularOutline | maximum | 1 | 0.5 | 0.75 squares the helix (3 faults at 1) |
+| left/rightEarLobe | maximum | 1 | 0.75 | 1 draws the lobule into a point |
+| left/rightEarHeight | minimum | -1 | -0.75 | -1 crushes the auricle |
+| noseFlaring | maximum | 1 | 0.5 | 0.75 thins the alar rim into a slit |
+| nostrilAngle | minimum | -1 | -0.5 | -0.75 notches the alar rim |
+| noseTipElevation | minimum | -1 | -0.75 | -1 hangs the tip over the upper lip |
+| browProjection | maximum | 1 | 0.5 | 0.75 turns the brow into a shelf |
+| noseSeptumAngle | maximum | 2.5 | 1.25 | 1.5 swells the tip into a lump; 2.5 hooks the columella |
+| noseDepth | maximum | 1.94 | 1.2 | 1.4 flattens the nasal sidewall into a plane running to the cheek |
+| upperLipHeight | minimum | -2.05 | -1.5 | -1.75 crumples the thinned upper lip's lower border |
+| lowerLipHeight | minimum | -2.23 | -1.25 | -1.5 notches the lower lip at the midline |
+| mouthForwardPosition | minimum | -1.6 | -1.4 | -1.6 bares the nostrils' underside |
+
+An extension past an authored end amplifies a sculptor's variation rather than following an anatomical one, so the measure it was extended for (the nasolabial angle, the nasal tip protrusion index) can keep moving while the shape leaves the face: the septum's 2.5 reached a nasolabial angle of 71.5 degrees with a lump for a tip. The extensions kept here (chinProjection to 1.39, nasalRootProjection to -1.46, lowerLipVolume to -1.7, the septum to -1.05, each ear's scale to 1.38) read as faces from every side. What these limits cost is recorded, not hidden: the septum no longer reaches the African nasolabial angles below its 1.25, the nasal tip protrusion index stops short of the populations' upper tail, and the thinnest upper and lower vermilions of the lip revision's interval are out of reach.
+
+Outside the envelopes, two defects remain for their own revisions: `jawPrognathism` below -0.554 retrudes the mandibular teeth behind the resting tongue, which does not follow the mandible under any shape control, so the builder refuses the document; and the dentition scales with `mouthWidth` (19 percent per unit across the arch), which tooth size does not.
 
 ## Eighteen-subject acceptance
 
