@@ -65,6 +65,44 @@ palette는 engine에서 절대 sRGB 색으로 쓰인다. materialSources는 새 
 
 검사는 [전체 바인딩 census](007-observation.md#binding-census)다. 기존 모델 ID의 증가 자체는 geometry 증가가 아니지만 모델별 부재 선택, 동일 world bounds, member 정체성, 모든 기존 topology 참조를 대조해야 한다. 하나의 완결 표면을 여러 사후 칠하기 owner가 나누어 갖는 구현은 이 설계와 맞지 않는다.
 
+새 [생활 사물 모델](../models/005-everyday-objects.md)의 `body`는 아래 상태별 역할에 결합한다. `states` 열의 쉼표는 같은 prototype 안의 각 명시 상태를 뜻한다. `body/*`는 해당 상태가 선언한 모든 가시 face이며, 닫힌 접촉면은 같은 재료 ID를 갖지만 렌더하지 않는다. 모델이 face를 더 만들면 같은 상태의 역할을 따라야 하고, 물체 형상·부품·배치는 이 표가 추가하지 않는다. 기존 33개 모델의 결합은 각 마감 H2가 소유한다. 아래의 `solid`는 baseColor만, `oak-grain`과 `woven-grain`은 이미 정한 절차형 색상 texture를 뜻한다. texture 비트맵 파일은 이 설계에 넣지 않는다.
+
+| prototype | states | surface | finish/response | tile U×V (m) | primary UV | texture 실패 시 fallback |
+| --- | --- | --- | --- | --- | --- | --- |
+| household-textiles | bench-cushion,sofa-cushion,pillow,blanket,bedding-set,folded-sheet,placemat,dishcloth,bath-mat,entry-mat | body/* | textile-linen/green/blue/white: 해당 방의 [직물 색](005-soft-finishes.md#textiles) | [직물 반복](005-soft-finishes.md#textiles) | 모델 face의 surface-metres; 곡면 뒤쪽 −Z 이음 | texture 자원 누락은 주소 Error |
+| household-textiles | outdoor-mat | body/* | prop-rubber: #343735, roughness .90, metallic 0 | 없음 | face normal만 사용 | solid baseColor |
+| personal-articles | shoe,coat,garment,umbrella | body/* | prop-fabric: #6b735c, roughness .88, metallic 0 | [직물 반복](005-soft-finishes.md#textiles) woven-grain | surface-metres, 물체 local +Y를 V | texture 자원 누락은 주소 Error |
+| personal-articles | shoe | body/sole | prop-rubber | 없음 | face normal만 사용 | solid baseColor |
+| personal-articles | hanger,umbrella-stand | body/* | coated-metal: [도장 금속](002-exterior-solids.md#coated-metal) | 없음 | face normal만 사용 | solid 기준색 |
+| dining-wares | plate,flower-vase | body/* | prop-ceramic: #e7e6df, roughness .26, metallic 0, clearcoat .10 | 없음 | face normal만 사용 | solid baseColor |
+| dining-wares | water-bottle | body/* | prop-container-glass: #cbd7d2, roughness .12, metallic 0, transmission .68, thickness .003m, ior 1.5 | 없음 | face normal만 사용 | solid baseColor·transmission |
+| dining-wares | fork,spoon,table-knife | body/* | prop-steel: #a9b0ad, roughness .32, metallic .78 | 없음 | face normal만 사용 | solid baseColor |
+| kitchen-smallwares | pot,pan,kettle,utensil,drying-rack | body/* | prop-steel | 없음 | face normal만 사용 | solid baseColor |
+| kitchen-smallwares | cutting-board,knife-block | body/* | oak-furniture: [가구 목재](004-wood.md#furniture-wood) | [목재 반복](004-wood.md#furniture-wood) oak-grain | surface-metres, 긴 local 축을 V | texture 자원 누락은 주소 Error |
+| kitchen-smallwares | utensil-crock | body/* | prop-ceramic | 없음 | face normal만 사용 | solid baseColor |
+| kitchen-smallwares | glass-jar | body/* | prop-container-glass | 없음 | face normal만 사용 | solid baseColor·transmission |
+| kitchen-smallwares | toaster,coffee-brewer | body/* | prop-appliance: #c8cbc7, roughness .38, metallic .18 | 없음 | face normal만 사용 | solid baseColor |
+| bath-accessories | soap-dispenser,toothbrush-cup,toothbrush,shampoo-bottle,detergent-bottle,waste-bin,laundry-basket | body/* | prop-plastic: #d6d5ce, roughness .48, metallic 0 | 없음 | face normal만 사용 | solid baseColor |
+| bath-accessories | tissue-holder | body/* | coated-metal | 없음 | face normal만 사용 | solid 기준색 |
+| bath-accessories | tissue-roll,tissue-pack | body/* | prop-paper: #e4e2db, roughness .92, metallic 0 | 없음 | face normal만 사용 | solid baseColor |
+| household-boxes | file-box,toy-box,storage-box,recycling-box | body/* | prop-paper | 없음 | face normal만 사용 | solid baseColor |
+| household-boxes | parcel-locker | body/* | coated-metal | 없음 | face normal만 사용 | solid 기준색 |
+| household-tools | tool-box,vacuum,folded-ladder,cleaning-tool,spare-light,machine-case,garden-tool,hose-reel | body/* | prop-appliance | 없음 | face normal만 사용 | solid baseColor |
+| household-tools | spare-light | body/diffuser | prop-diffuser: #e7e6df, roughness .65, metallic 0, transmission .25 | 없음 | face normal만 사용 | solid baseColor·transmission |
+| exterior-furnishings | mailbox,outdoor-bench,outdoor-chair,outdoor-table,garden-light,rain-barrel,bike-rack,bicycle | body/* | coated-metal | 없음 | face normal만 사용 | solid 기준색 |
+| exterior-furnishings | garden-light | body/diffuser | prop-diffuser | 없음 | face normal만 사용 | solid baseColor·transmission |
+| exterior-furnishings | bicycle | body/wheel | prop-rubber | 없음 | face normal만 사용 | solid baseColor |
+| exterior-furnishings | outdoor-waste-bin | body/* | prop-exterior-plastic: #51564e, roughness .70, metallic 0 | 없음 | face normal만 사용 | solid baseColor |
+| wall-accessories | entry-mirror | body/* | coated-metal | 없음 | face normal만 사용 | solid 기준색 |
+| wall-accessories | entry-mirror | body/front | prop-mirror: #cbd7d2, roughness .06, metallic .85 | 없음 | face normal만 사용 | solid baseColor·환경 반사 근사 |
+| wall-accessories | wall-sconce | body/* | coated-metal | 없음 | face normal만 사용 | solid 기준색 |
+| wall-accessories | wall-sconce | body/diffuser | prop-diffuser | 없음 | face normal만 사용 | solid baseColor·transmission |
+| wall-accessories | coat-hook | body/* | coated-metal | 없음 | face normal만 사용 | solid 기준색 |
+| desk-controls | pointing-device,personal-device | body/* | prop-appliance | 없음 | face normal만 사용 | solid baseColor |
+| desk-controls | personal-device | body/screen | prop-screen: #253139, roughness .18, metallic 0, emissive #182329 | 없음 | face normal만 사용 | solid baseColor·emissive |
+
+이 표의 새 `prop-*`는 색·roughness·metallic과 적힌 clearcoat·transmission·thickness·ior 외에는 [재료 기본값](#material-delivery)을 따른다. `prop-container-glass`는 투명 용기 근사이고 `prop-mirror`는 환경 반사만 반영해 정확한 실내 거울상은 `unverified`다. 위의 결합은 제작 목표이며 현재 materialSources의 실제 바인딩이나 렌더 관찰을 뜻하지 않는다. 누락된 owner/state/part/face 또는 texture 자원은 같은 주소를 출력하고 실패한다. 단색 행의 fallback은 없는 texture를 찾는 경로가 아니라 명시된 baseColor 자체다. 비균일 크기 변종은 [metric 규칙](#metric-texture-coordinates)에 따라 실제 표면 m로 UV를 작성한다.
+
 ## 미터 좌표와 반복 {#metric-texture-coordinates}
 
 <!--

@@ -923,6 +923,8 @@ function audit(allSections, mutate, onlyState) {
   const errors = [];
   const unprovedCurved = new Set();
   let examined = 0;
+  let hollowParts = 0;
+  let provedHollowParts = 0;
   let measuredPrototypes = 0;
   for (const [anchor, lines] of allSections) {
     const parsed = parse(lines, anchor);
@@ -949,6 +951,13 @@ function audit(allSections, mutate, onlyState) {
       if (onlyState && state !== onlyState) continue;
       const stateParts = [...parts.values()].filter((part) => part.state === state);
       if (!stateParts.length) errors.push(`${anchor}/${state}: no @part rows`);
+      for (const part of stateParts) if (part.shape === "hollow") {
+        hollowParts++;
+        const key = `${state}/${part.id}`;
+        if (voids.has(key) || bores.has(key) || boresZ.has(key) || ellipses.has(key) || radial.has(key) || radialZ.has(key) || lines.some((line) => line.startsWith("@plant-spec:")))
+          provedHollowParts++;
+        else errors.push(`${anchor}/${key}: hollow part has no authored cavity`);
+      }
       const composition = compositions.get(state);
       const supported = stateParts.filter((part) => part.contact.some((target) => /^support@[\d.]+$/.test(target)));
       const binding = supportBindings.get(state);
@@ -1305,9 +1314,9 @@ function audit(allSections, mutate, onlyState) {
           } else if (target === "wall") {
             if (!occupiedBoxes(part, voids, pieces).some((box) => Math.abs(box.z[0] - envelope.z[0]) <= epsilon))
               errors.push(`${anchor}/${state}/${part.id}: misses wall datum`);
-          } else if (target === "ceiling") {
+          } else if (target === "ceiling" || target === "suspension") {
             if (!occupiedBoxes(part, voids, pieces).some((box) => Math.abs(box.y[1]) <= epsilon))
-              errors.push(`${anchor}/${state}/${part.id}: misses ceiling datum`);
+              errors.push(`${anchor}/${state}/${part.id}: misses ${target} datum`);
           } else errors.push(`${anchor}/${state}/${part.id}: contact target ${target} absent`);
         }
       }
@@ -1329,7 +1338,7 @@ function audit(allSections, mutate, onlyState) {
         }
       }
       const reached = new Set(stateParts.filter((part) => part.contact.includes("ground") || part.contact.some((target) => target === "support" || /^support@[\d.]+$/.test(target)) ||
-        part.contact.includes("ceiling") || (part.contact.includes("wall") && !byId.has("wall"))).map((part) => part.id));
+        part.contact.includes("ceiling") || part.contact.includes("suspension") || (part.contact.includes("wall") && !byId.has("wall"))).map((part) => part.id));
       let changed = true;
       while (changed) {
         changed = false;
@@ -1366,7 +1375,7 @@ function audit(allSections, mutate, onlyState) {
     if (anchor === "bathtub") errors.push(...tubFormula(lines, envelopes, parts, voids));
     if (anchor === "work-equipment") errors.push(...equipmentFormula(lines, envelopes, parts, grids));
   }
-  return { prototypes: allSections.size, measuredPrototypes, parts: examined,
+  return { prototypes: allSections.size, measuredPrototypes, parts: examined, hollowParts, provedHollowParts,
     unprovedCurvedContacts: [...unprovedCurved], errors };
 }
 
@@ -1416,9 +1425,33 @@ function randomFixture() {
     results.push({ kind, owner: picked.owner, state: cells[1], part: cells[2],
       red: findings.length > 0, first: findings[0] || null });
   }
+  const cavityRows = [];
+  for (const [owner, lines] of baseline) {
+    const grouped = new Map();
+    for (let index = 0; index < lines.length; index++) {
+      const match = /^@(bore|bore-z|void|ellipse|radial|radial-z)\s+([^:]+):\s*([^,]+)/.exec(lines[index]);
+      if (!match) continue;
+      const key = `${match[2].trim()}/${match[3].trim()}`;
+      grouped.set(key, [...(grouped.get(key) || []), index]);
+    }
+    const parsed = parse(lines, owner);
+    for (const [key, indices] of grouped) if (indices.length === 1 && parsed.parts.get(key)?.shape === "hollow")
+      cavityRows.push({ owner, key, index: indices[0] });
+  }
+  if (!cavityRows.length) throw Error("empty hollow cavity mutation population");
+  const cavity = cavityRows[randomInt(cavityRows.length)];
+  const sourceLines = baseline.get(cavity.owner);
+  if (!sourceLines) throw Error(`missing model section ${cavity.owner}`);
+  const cavityLines = [...sourceLines];
+  cavityLines.splice(cavity.index, 1);
+  const cavityChanged = new Map(baseline);
+  cavityChanged.set(cavity.owner, cavityLines);
+  const cavityError = audit(cavityChanged).errors.find((error) => error.includes(`${cavity.owner}/${cavity.key}: hollow part has no authored cavity`));
+  results.push({ kind: "cavity-delete", owner: cavity.owner, state: cavity.key.split("/")[0],
+    part: cavity.key.split("/")[1], red: !!cavityError, first: cavityError || null });
   const red = results.filter((result) => result.red).length;
   if (red !== results.length) throw Error(`random model mutation red ${red}/${results.length}`);
-  return { population: candidates.length, mutations: results.length, red, results };
+  return { population: candidates.length, cavityPopulation: cavityRows.length, mutations: results.length, red, results };
 }
 
 if (require.main !== module) {
@@ -1752,10 +1785,8 @@ if (require.main !== module) {
   if (result.unprovedCurvedContacts.length) result.errors.push(
     `${result.unprovedCurvedContacts.length} curved contacts lack a measured finite contact face; ` +
     `first: ${result.unprovedCurvedContacts.slice(0, 5).join(", ")}`);
-  // A part population is valid only when the prose claims and the measured
-  // inventory agree. Keep the standalone producer for its own mutation run,
-  // and include its failure in this public part-audit exit code as well.
-  result.errors.push(...require("./model-prose-table-audit.cjs").audit().errors);
+  // The coordinate and design audits run in the aggregate command and
+  // separately inspect prose and complete H2 populations.
   console.log(JSON.stringify(result, null, 2));
   if (result.errors.length) process.exitCode = 1;
 }
