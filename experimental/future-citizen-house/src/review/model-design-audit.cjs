@@ -195,6 +195,12 @@ function checkRemainingPrototypes() {
   const stoolTop = numeric("island-stool", /상면 y=([\d.]+)/);
   const stoolSeatThickness = numeric("island-stool", /좌판은 두께 ([\d.]+)/);
   equalLength(stoolTop - stoolSeatThickness, 0.585, "stool leg-to-seat contact");
+  const stoolLegCenter = numeric("island-stool", /x\/z=±([\d.]+) 중심/);
+  const stoolLegHalf = numeric("island-stool", /다리 네 개는 ([\d.]+)m 사각 단면/) / 2;
+  const footrestCenter = numeric("island-stool", /중심선 x\/z=±([\d.]+)를 따르는/);
+  const footrestHalf = numeric("island-stool", /([\d.]+)×0\.018m 사각 단면의 네 수평 막대/) / 2;
+  equalLength(footrestCenter + footrestHalf, stoolLegCenter - stoolLegHalf,
+    "stool footrest meets inner leg faces without penetration");
   const keyboardBodyTop = numeric("work-equipment", /본체는 y=0\.\.([\d.]+)/);
   const keyboardCapTop = numeric("work-equipment", /key cap은.*?y=0\.012\.\.([\d.]+)/);
   equalLength(keyboardCapTop - keyboardBodyTop, 0.003, "keyboard cap height");
@@ -310,6 +316,8 @@ exerciseMutation("bathtub", "네 외벽이 y=0..0.58", "네 외벽이 y=0.12..0.
   checkRemainingPrototypes, "bathtub outer wall misses floor");
 exerciseMutation("tabletop-props", "z=−0.0425..+0.0755m다", "z=−0.0425..+0.0725m다",
   checkRemainingPrototypes, "decor cup handle exceeds Z bound");
+exerciseMutation("island-stool", "중심선 x/z=±0.1085", "중심선 x/z=±0.13",
+  checkRemainingPrototypes, "stool ring penetrates legs");
 console.log(JSON.stringify({ h2: sections.size, prototypes: Object.keys(prototypes).length,
   measuredPrototypes: measuredAnchors.size, assertions: verifiedAssertions, errors, mutation }, null, 2));
 if (errors.length) process.exitCode = 1;
