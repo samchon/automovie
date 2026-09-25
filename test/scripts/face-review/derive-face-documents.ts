@@ -2,7 +2,7 @@
  * Derive every published document's shape and expression from its subject's
  * recorded facts and photograph by shared rules, from the test CWD:
  *
- *   ttsx -P tsconfig.scripts.json --no-plugins scripts/face-review/derive-face-documents.ts identity \
+ *   ttsx -P tsconfig.scripts.json --no-plugins scripts/face-review/derive-face-documents.ts identity [--fine] \
  *     STUDY FACTS DETECTIONS POSES ANCHORS OUTPUT [EXPRESSION_STUDY [PREVIOUS_STUDY RENDER_DETECTIONS]]
  *   ttsx ... derive-face-documents.ts calibration-study STUDY POSE.json OUTPUT
  *   ttsx ... derive-face-documents.ts calibrate CALIBRATION_DETECTIONS DETECTIONS OUTPUT.json
@@ -15,10 +15,16 @@
  *
  * `identity` writes shape, and of expression only the controls an index
  * reads as a state of the face (`lipParting`). The population controls come from the facts
- * (`facePopulationControls`); every other shape channel starts at zero; the
- * anthropometric controls (`FACE_ANTHROPOMETRY_INDICES`) are then solved one
- * per index so the model under the photograph's camera has the photograph's
- * proportions (`solveFaceAnthropometry`). The model's landmarks are the
+ * (`facePopulationControls`), or with `--fine` stay at the source's
+ * midpoint so the document is its fine controls alone; every other shape
+ * channel starts at zero; the anthropometric controls
+ * (`FACE_ANTHROPOMETRY_INDICES`) are then solved one per index so the model
+ * under the photograph's camera has the photograph's proportions
+ * (`solveFaceAnthropometry`), together with the controls of what a frontal
+ * photograph cannot measure (`FACE_UNSEEN_INDICES`: the profile, the head
+ * behind the face and the ears), set to the subject's population at their
+ * sex and age (`faceUnseenNorm`) and read on the skin at rest; without a
+ * recorded sex or ancestry they keep their start. The model's landmarks are the
  * published anchors of that camera on the surface, and shape endpoints are
  * linear, so an index is read from the endpoint rows at the anchored
  * vertices on top of one real build at the starting controls (with the
@@ -66,10 +72,12 @@ import {
   FACE_ANTHROPOMETRY_INDICES,
   FACE_ANTHROPOMETRY_LOWER_EDGE,
   FACE_ANTHROPOMETRY_UPPER_EDGE,
+  type IFaceAnthropometryIndex,
   faceAnthropometryWeights,
   measureFaceAnthropometry,
 } from "./faceAnthropometry";
 import { solveFaceAnthropometry } from "./faceAnthropometrySolve";
+import { faceAuricleVertices } from "./faceAuricle";
 import {
   type IFaceExpressionCalibration,
   faceExpressionCalibrationDocuments,
@@ -90,6 +98,11 @@ import {
   faceShapeFitAnchorPoint,
   faceShapeFitSurfacePositions,
 } from "./faceShapeFitSurface";
+import {
+  FACE_UNSEEN_INDICES,
+  faceUnseenNorm,
+  measureFaceUnseen,
+} from "./faceUnseenNorms";
 
 const [command, ...args] = process.argv.slice(2);
 const json = <T>(file: string): T =>
@@ -135,6 +148,7 @@ const write = (
 };
 
 if (command === "identity") {
+  const fine = args.includes("--fine");
   const [
     study,
     factsFile,
@@ -145,10 +159,10 @@ if (command === "identity") {
     expressionStudy,
     previousStudy,
     renderDetectionFile,
-  ] = args;
+  ] = args.filter((one) => one !== "--fine");
   if (output === undefined)
     throw new Error(
-      "identity STUDY FACTS DETECTIONS POSES ANCHORS OUTPUT [EXPRESSION_STUDY [PREVIOUS_STUDY RENDER_DETECTIONS]]",
+      "identity [--fine] STUDY FACTS DETECTIONS POSES ANCHORS OUTPUT [EXPRESSION_STUDY [PREVIOUS_STUDY RENDER_DETECTIONS]]",
     );
   // The render-side correction: what the anchored model said minus what the
   // detector reads on the product render of the same documents.
@@ -198,12 +212,49 @@ if (command === "identity") {
   const channels = new Map(basis.channels.map((one) => [one.id, one]));
   const build = createHumanFaceBasisBuilder(basis);
   const ids = FACE_ANTHROPOMETRY_INDICES.map((one) => one.id);
+  const indices: readonly (IFaceAnthropometryIndex & {
+    resolution?: number;
+  })[] = [...FACE_ANTHROPOMETRY_INDICES, ...FACE_UNSEEN_INDICES];
+  const lips = basis.contact?.lips ?? null;
+  // The auricles, each the flap its side's auricle-shape targets move, and
+  // the scalp, over which the head's breadth is read.
+  const auricles = Object.fromEntries(
+    (["left", "right"] as const).map((side) => [
+      side,
+      faceAuricleVertices({
+        positions: human.positions,
+        indices: human.indices,
+        region: ["EarFlap", "EarWing", "EarLobe"].flatMap((name) => {
+          const one = channels.get(`${side}${name}`)!;
+          return [one.positive, one.negative].flatMap((endpoint) =>
+            (endpoint === null ? [] : (human.targets[endpoint] ?? [])).filter(
+              (_, i) => i % 4 === 0,
+            ),
+          );
+        }),
+        thickness: 0.01,
+      }),
+    ]),
+  ) as Record<"left" | "right", number[]>;
+  const scalp = [
+    ...new Set(
+      (human.hairDomains ?? []).flatMap((domain) =>
+        domain.triangles.flatMap((t) => human.indices.slice(3 * t, 3 * t + 3)),
+      ),
+    ),
+  ];
   const report: Record<string, unknown> = {};
   const derived = documents.map((document) => {
     const subject = subjectOf(document);
-    const population = facePopulationControls(
-      facts[subject] ?? { ageYears: null, sex: null, ancestry: null },
-    );
+    const recorded = facts[subject] ?? {
+      ageYears: null,
+      sex: null,
+      ancestry: null,
+    };
+    const population = fine
+      ? { shape: {}, ageHeld: false }
+      : facePopulationControls(recorded);
+    const norm = faceUnseenNorm(recorded);
     const expression = expressions.get(document.id)?.expression ?? {};
     const start: IAutoMovieHumanFaceBasisDocument = {
       ...document,
@@ -325,20 +376,95 @@ if (command === "identity") {
       const name = weight > 0 ? one.positive : one.negative;
       return name === null ? 0 : Math.abs(weight) * endpoint(name)[n]![axis]!;
     };
-    const initial = FACE_ANTHROPOMETRY_INDICES.map((one) => {
+    const initial = indices.map((one) => {
       const own = one.expression ? start.expression : start.shape;
       return (
         (own[one.channels[0]!] ?? 0) -
         (one.negative === undefined ? 0 : (own[one.negative[0]!] ?? 0))
       );
     });
+    // The unseen form is the face at rest: the skin built without
+    // expression, moved by the same endpoint rows at the vertices the
+    // readings use (the triangles that reach the midsagittal plane, the
+    // scalp and the auricles).
+    const rest = faceShapeFitSurfacePositions(
+      basis,
+      build({ ...start, hair: undefined, expression: {} }),
+      human.id,
+    );
+    const near = new Set<number>([
+      ...(lips === null ? [] : [lips.upper, lips.lower]),
+      ...scalp,
+      ...auricles.left,
+      ...auricles.right,
+    ]);
+    const midline: number[] = [];
+    for (let t = 0; t < human.indices.length; t += 3) {
+      const triangle = human.indices.slice(t, t + 3);
+      const xs = triangle.map((vertex) => rest[3 * vertex]!);
+      if (Math.min(...xs) > 0.005 || Math.max(...xs) < -0.005) continue;
+      midline.push(...triangle);
+      for (const vertex of triangle) near.add(vertex);
+    }
+    const rows = new Map<string, number[][]>();
+    const row = (name: string): number[][] => {
+      if (!rows.has(name)) {
+        const flat = human.targets[name] ?? [];
+        const own: number[][] = [];
+        for (let i = 0; i < flat.length; i += 4)
+          if (near.has(flat[i]!))
+            own.push([flat[i]!, flat[i + 1]!, flat[i + 2]!, flat[i + 3]!]);
+        rows.set(name, own);
+      }
+      return rows.get(name)!;
+    };
+    const unseen = (values: readonly number[]) => {
+      if (norm === null || lips === null)
+        return FACE_UNSEEN_INDICES.map(() => null);
+      const positions = [...rest];
+      const move = (channel: string, weight: number, sign: number) => {
+        if (weight === 0) return;
+        const one = channels.get(channel)!;
+        const name = weight > 0 ? one.positive : one.negative;
+        if (name === null) return;
+        const scale = sign * Math.abs(weight);
+        for (const [vertex, dx, dy, dz] of row(name)) {
+          positions[3 * vertex!] += scale * dx!;
+          positions[3 * vertex! + 1] += scale * dy!;
+          positions[3 * vertex! + 2] += scale * dz!;
+        }
+      };
+      indices.forEach((index, k) => {
+        if (index.expression) return;
+        for (const [channel, weight] of faceAnthropometryWeights(
+          index,
+          values[k]!,
+        ))
+          move(channel, weight, 1);
+        for (const [channel, weight] of faceAnthropometryWeights(
+          index,
+          initial[k]!,
+        ))
+          move(channel, weight, -1);
+      });
+      const read = measureFaceUnseen({
+        positions,
+        indices: midline,
+        stomion: positions[3 * lips.upper + 1]!,
+        inferius: positions[3 * lips.lower + 1]!,
+        scalp,
+        auricles,
+        step: 0.0001,
+      });
+      return FACE_UNSEEN_INDICES.map((one) => read[one.id]);
+    };
     const evaluate = (values: readonly number[]) => {
       const points: ([number, number] | undefined)[] = [];
       list.forEach((one, n) => {
         const p = [0, 1, 2].map(
           (axis) =>
             base[n]![axis]! +
-            FACE_ANTHROPOMETRY_INDICES.reduce(
+            indices.reduce(
               (sum, index, k) =>
                 sum +
                 faceAnthropometryWeights(index, values[k]!).reduce(
@@ -357,7 +483,7 @@ if (command === "identity") {
         points[one.landmark] = faceShapeFitProject(camera, p);
       });
       const measured = measureFaceAnthropometry(points);
-      return ids.map((id) => measured[id]!);
+      return [...ids.map((id) => measured[id]!), ...unseen(values)];
     };
     // The photograph's upper incisal edge where its mouth profile reads the
     // edge itself, not a bound.
@@ -395,7 +521,7 @@ if (command === "identity") {
       ]),
     );
     const solution = solveFaceAnthropometry({
-      controls: FACE_ANTHROPOMETRY_INDICES.map((one, k) => ({
+      controls: indices.map((one, k) => ({
         id: one.id,
         start: initial[k]!,
         lower:
@@ -403,20 +529,24 @@ if (command === "identity") {
             ? channels.get(one.channels[0]!)!.minimum
             : -channels.get(one.negative[0]!)!.maximum,
         upper: channels.get(one.channels[0]!)!.maximum,
+        resolution: one.resolution ?? 0,
       })),
       // Without an expression study the documents are the identity at rest,
       // whose renders are the expression transfer's rest reading, so a state
       // of the face is not solved there and stays at its start, zero.
-      targets: FACE_ANTHROPOMETRY_INDICES.map((one) =>
-        one.expression === true && expressionStudy === undefined
-          ? null
-          : target[one.id]!,
-      ),
+      targets: [
+        ...FACE_ANTHROPOMETRY_INDICES.map((one) =>
+          one.expression === true && expressionStudy === undefined
+            ? null
+            : target[one.id]!,
+        ),
+        ...FACE_UNSEEN_INDICES.map((one) => norm?.[one.norm] ?? null),
+      ],
       evaluate,
     });
     const shape = { ...start.shape };
     const posed = { ...start.expression };
-    FACE_ANTHROPOMETRY_INDICES.forEach((one, k) => {
+    indices.forEach((one, k) => {
       for (const [channel, weight] of faceAnthropometryWeights(
         one,
         solution.values[k]!,
@@ -440,6 +570,20 @@ if (command === "identity") {
             held: solution.held.includes(k),
           },
         ]),
+      ),
+      unseen: Object.fromEntries(
+        FACE_UNSEEN_INDICES.map((one, j) => {
+          const k = ids.length + j;
+          return [
+            one.id,
+            {
+              norm: norm?.[one.norm] ?? null,
+              model: solution.achieved[k],
+              control: solution.values[k],
+              held: solution.held.includes(k),
+            },
+          ];
+        }),
       ),
       iterations: solution.iterations,
     };

@@ -18,7 +18,14 @@ import { nclose, throwsError } from "../internal/predicates";
  * 4. Twenty coupled controls of which sixteen are asked past their bounds:
  *    the default budget (three steps per control) holds all sixteen and
  *    solves the other four, where twelve steps leave them unsolved.
- * 5. A target list of another length and a singular system refuse.
+ * 5. A reading that resolves only odd multiples of 0.01 mm, asked for
+ *    zero, stops within its control's resolution after one step, where the
+ *    relative tolerance alone keeps it stepping to the budget.
+ * 6. An index that stops reading beyond a control value its Newton step
+ *    crosses (the first, lost past 0.3) leaves the system with its control
+ *    where it stands, and the other index is still solved; so does one
+ *    whose Jacobian probe crosses it, from a start of 0.26, at 0.26.
+ * 7. A target list of another length and a singular system refuse.
  */
 export const test_subject_face_anthropometry_solve = (): void => {
   const model = (v: readonly number[]) => [
@@ -86,6 +93,59 @@ export const test_subject_face_anthropometry_solve = (): void => {
       solvedFree(budget) &&
       budget.iterations > 12 &&
       !solvedFree(short),
+  );
+  const quantized = (v: readonly number[]) => [
+    Math.round((v[0]! - 0.3) / 2e-5) * 2e-5 + 1e-5,
+  ];
+  const zero = { id: "z", start: 0, lower: -1, upper: 1 };
+  const resolved = solveFaceAnthropometry({
+    controls: [{ ...zero, resolution: 1e-5 }],
+    targets: [0],
+    evaluate: quantized,
+    iterations: 10,
+  });
+  const unresolved = solveFaceAnthropometry({
+    controls: [zero],
+    targets: [0],
+    evaluate: quantized,
+    iterations: 10,
+  });
+  TestValidator.predicate(
+    "resolution",
+    resolved.iterations === 1 &&
+      nclose(resolved.achieved[0]!, 0, 1e-5 + 1e-12) &&
+      unresolved.iterations === 10,
+  );
+  const losing = (v: readonly number[]) => {
+    const [a, b] = model(v);
+    return [v[0]! > 0.3 ? null : a!, b!];
+  };
+  const lost = solveFaceAnthropometry({
+    controls,
+    targets: model(truth),
+    evaluate: losing,
+  });
+  TestValidator.predicate(
+    "lost on the way",
+    lost.unmeasured.includes(0) &&
+      lost.achieved[0] === null &&
+      lost.values[0]! > 0.3 &&
+      nclose(model(lost.values)[1]!, model(truth)[1]!, 1e-3 * model(truth)[1]!),
+  );
+  const probed = solveFaceAnthropometry({
+    controls: [{ ...controls[0]!, start: 0.26 }, controls[1]!],
+    targets: model([0.28, -0.3]),
+    evaluate: losing,
+  });
+  TestValidator.predicate(
+    "lost in the probe",
+    probed.unmeasured.includes(0) &&
+      probed.values[0] === 0.26 &&
+      nclose(
+        model(probed.values)[1]!,
+        model([0.28, -0.3])[1]!,
+        1e-3 * model([0.28, -0.3])[1]!,
+      ),
   );
   TestValidator.predicate(
     "length",

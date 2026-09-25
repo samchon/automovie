@@ -38,12 +38,14 @@ const PROFILE: [number, number][] = [
   [-90, 80],
 ];
 
-const strip = (): { positions: number[]; indices: number[] } => {
+const strip = (
+  profile: readonly [number, number][] = PROFILE,
+): { positions: number[]; indices: number[] } => {
   const positions: number[] = [];
-  for (const [y, z] of PROFILE)
+  for (const [y, z] of profile)
     positions.push(-0.001, y / 1000, z / 1000, 0.001, y / 1000, z / 1000);
   const indices: number[] = [];
-  for (let k = 0; k + 1 < PROFILE.length; ++k) {
+  for (let k = 0; k + 1 < profile.length; ++k) {
     const a = 2 * k;
     indices.push(a, a + 1, a + 3, a, a + 3, a + 2);
   }
@@ -54,13 +56,20 @@ const strip = (): { positions: number[]; indices: number[] } => {
  * Midsagittal soft-tissue landmarks.
  * Scenarios:
  * 1. The section of the strip recovers every profile vertex, and the
- *    profile reads the front-most z at each height.
+ *    profile reads the front-most z at each height, skipping heights above
+ *    the section.
  * 2. Pronasale is the tip; subnasale ends the columella at y -11, where
  *    the profile turns from losing more depth than height to less; menton
  *    is the chin's level underside at y -70, found by following the chin
  *    back from its turn; upper lip and lower face heights are 19 and 59 mm.
- * 3. A surface that does not reach x = 0, a nose band with no profile, and
- *    a profile without a columella refuse.
+ * 3. A surface that does not reach x = 0 and a nose band with no profile
+ *    refuse.
+ * 4. A chin standing 3 mm in front of the lower lip, read from a stomion
+ *    above the seam's steep crevice, still gives menton at the chin's level
+ *    underside at y -70.
+ * 5. A nose barely standing off the lip, its tip at (0, 150) and no
+ *    columella steeper than 45 degrees, meets the lip at the concavity's
+ *    depth, (-12, 144.8).
  */
 export const test_subject_face_midsagittal = (): void => {
   const { positions, indices } = strip();
@@ -73,9 +82,12 @@ export const test_subject_face_midsagittal = (): void => {
     PROFILE.every(([y]) => ys.has(Math.round(y * 100))),
   );
   const profile = faceMidsagittalProfile(section, 0.02, -0.09, 0.001);
+  const above = faceMidsagittalProfile(section, 0.03, -0.09, 0.001);
   TestValidator.predicate(
     "profile",
-    nclose(profile.find(([y]) => nclose(y, -0.016, 1e-9))![1], 0.1454, 1e-9),
+    nclose(profile.find(([y]) => nclose(y, -0.016, 1e-9))![1], 0.1454, 1e-9) &&
+      above.length === profile.length &&
+      nclose(above[0]![0], 0.02, 1e-9),
   );
   const landmarks = faceMidsagittalLandmarks({
     positions,
@@ -101,6 +113,49 @@ export const test_subject_face_midsagittal = (): void => {
     level: 0.1,
     step: 0.00025,
   };
+  const projecting = strip(
+    PROFILE.map(([y, z]): [number, number] =>
+      y === -30
+        ? [y, 142]
+        : y === -50 || y === -60
+          ? [y, z + 9]
+          : y === -64
+            ? [y, 148]
+            : [y, z],
+    ),
+  );
+  TestValidator.predicate(
+    "projecting chin",
+    nclose(
+      faceMidsagittalLandmarks({
+        ...projecting,
+        stomion: -0.0275,
+        nose: [-0.02, 0.02],
+        chinDepth: 0.03,
+        level: 0.1,
+        step: 0.00025,
+      }).menton[0],
+      -0.07,
+      0.0005,
+    ),
+  );
+  const flat = strip(
+    PROFILE.map(([y, z]): [number, number] =>
+      y === 0 ? [y, 150] : y === -2 ? [y, 149.5] : [y, z],
+    ),
+  );
+  const shallow = faceMidsagittalLandmarks({
+    ...flat,
+    stomion: -0.03,
+    nose: [-0.02, 0.02],
+    chinDepth: 0.03,
+    level: 0.1,
+    step: 0.00025,
+  }).subnasale;
+  TestValidator.predicate(
+    "flat nose",
+    nclose(shallow[0], -0.012, 1e-9) && nclose(shallow[1], 0.1448, 1e-9),
+  );
   TestValidator.predicate(
     "refusals",
     throwsError(
@@ -142,18 +197,24 @@ const sampled = (
 /**
  * The profile's lip, chin and nasal-root landmarks.
  * Scenarios:
- * 1. On a profile with glabella at (45, 158), nasion (35, 150), pronasale
- *    (0, 175), subnasale (-10, 152), labrale superius (-20, 156), the seam at
- *    -30, labrale inferius (-36, 154), the fold at (-44, 146), the chin's
- *    tangent point (-55, 151) and menton (-65, 140), each is found.
+ * 1. On a profile with glabella at (60, 160) over a brow rising from
+ *    nasion (35, 150) through (40, 153) and (45, 158), pronasale (0, 175),
+ *    subnasale (-10, 152), labrale superius (-20, 156), the seam at -30,
+ *    labrale inferius (-36, 154), the fold (supramentale) at (-44, 146), the
+ *    chin's tangent point (-55, 151) and menton (-65, 140), each is found:
+ *    n is where the forehead's tangent and the line to the tip make their
+ *    least angle, that tangent touching the brow at (45, 158), and g is the
+ *    front-most point above n.
  * 2. Without profile between subnasale and stomion there is no ls, without
- *    any below stomion inferius no li or pog', and with no root reach no n
- *    or g.
+ *    any below stomion inferius no sm, li or pog', and with no root reach no
+ *    n or g.
  */
 export const test_subject_face_midsagittal_profile_landmarks = (): void => {
   const profile = sampled([
-    [60, 150],
+    [75, 150],
+    [60, 160],
     [45, 158],
+    [40, 153],
     [35, 150],
     [0, 175],
     [-10, 152],
@@ -171,7 +232,7 @@ export const test_subject_face_midsagittal_profile_landmarks = (): void => {
     stomion: -30,
     inferius: -31,
     menton: [-65, 140] as FaceMidsagittalPoint,
-    root: 40,
+    root: 60,
   };
   const found = faceProfileLandmarks(base);
   const at = (point: FaceMidsagittalPoint | null, y: number, z: number) =>
@@ -179,10 +240,12 @@ export const test_subject_face_midsagittal_profile_landmarks = (): void => {
   TestValidator.predicate(
     "landmarks",
     at(found.labraleSuperius, -20, 156) &&
+      at(found.supramentale, -44, 146) &&
       at(found.labraleInferius, -36, 154) &&
       at(found.pogonion, -55, 151) &&
       at(found.nasion, 35, 150) &&
-      at(found.glabella, 45, 158),
+      at(found.forehead, 45, 158) &&
+      at(found.glabella, 60, 160),
   );
   const empty = faceProfileLandmarks({
     ...base,
@@ -194,11 +257,13 @@ export const test_subject_face_midsagittal_profile_landmarks = (): void => {
     "absent",
     [
       empty.labraleSuperius,
+      empty.supramentale,
       empty.labraleInferius,
       empty.pogonion,
       empty.nasion,
+      empty.forehead,
       empty.glabella,
     ],
-    [null, null, null, null, null],
+    [null, null, null, null, null, null, null],
   );
 };

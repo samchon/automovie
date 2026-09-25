@@ -9,7 +9,9 @@
  * face by its measured proportions and nothing else: there is no residual to
  * minimise and no prior to weigh, and a control whose index is not measured
  * (its landmark absent in the photograph or on the model) keeps its starting
- * value and leaves the system with its index.
+ * value and leaves the system with its index; one whose index stops reading
+ * on the way (a landmark the model loses as it changes) leaves it where it
+ * stands.
  *
  * Newton's method on the measured Jacobian (central differences of
  * `evaluate`, step `step`), because a control moves its neighbours' indices
@@ -18,7 +20,9 @@
  * without it (an active set), and the row says which were held, because a
  * proportion the basis cannot reach is a finding about the basis, not a
  * value to hide. Iteration stops when every free index is within `tolerance`
- * (relative) of its target or after `iterations` steps. The active set holds
+ * (relative) of its target, or within its control's `resolution` (absolute:
+ * the least difference its measurement resolves, for an index whose target
+ * may lie at zero), or after `iterations` steps. The active set holds
  * one control per step and may release it again, so the default budget is
  * three steps per control (one to hold it, one to release it, one Newton
  * step): a fixed twelve had run out on a face whose photograph pressed seven
@@ -34,6 +38,8 @@ export interface IFaceAnthropometryControl {
   start: number;
   lower: number;
   upper: number;
+  /** Index difference below which its measurement cannot tell; default 0. */
+  resolution?: number;
 }
 
 /** The solved controls and how each index ended. */
@@ -77,7 +83,10 @@ export function solveFaceAnthropometry(props: {
         unmeasured.includes(i) ||
         held.has(i) ||
         Math.abs(current[i]! - props.targets[i]!) <=
-          tolerance * Math.abs(props.targets[i]!),
+          Math.max(
+            tolerance * Math.abs(props.targets[i]!),
+            props.controls[i]!.resolution ?? 0,
+          ),
     );
   while (count < iterations && !converged()) {
     ++count;
@@ -86,6 +95,7 @@ export function solveFaceAnthropometry(props: {
     );
     // Jacobian of the free indices with respect to the free controls.
     const J = free.map(() => free.map(() => 0));
+    const lost = new Set<number>();
     free.forEach((control, column) => {
       const up = [...values];
       const down = [...values];
@@ -95,10 +105,16 @@ export function solveFaceAnthropometry(props: {
       const a = props.evaluate(up);
       const b = props.evaluate(down);
       free.forEach((index, row) => {
-        J[row]![column] =
-          (a[index]! - b[index]!) / (up[control]! - down[control]!);
+        if (a[index] === null || b[index] === null) lost.add(index);
+        else
+          J[row]![column] =
+            (a[index]! - b[index]!) / (up[control]! - down[control]!);
       });
     });
+    if (lost.size !== 0) {
+      unmeasured.push(...lost);
+      continue;
+    }
     const residual = free.map((i) => props.targets[i]! - current[i]!);
     const delta = solveLinear(J, residual);
     // A step that leaves an envelope was solved with that control free, so
@@ -125,6 +141,7 @@ export function solveFaceAnthropometry(props: {
         values[control] = values[control]! + delta[column]!;
       });
     current = props.evaluate(values);
+    unmeasured.push(...free.filter((i) => !held.has(i) && current[i] === null));
     // A held control whose index now asks to come back inside is released.
     if (!changed)
       for (const control of [...held]) {
