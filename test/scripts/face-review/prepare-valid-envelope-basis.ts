@@ -2,10 +2,12 @@
  * Prepare the valid envelope revision of the published face basis, from the
  * test CWD:
  *
- *   ttsx -P tsconfig.scripts.json --no-plugins scripts/face-review/prepare-valid-envelope-basis.ts STUDY REVISION OUTPUT
+ *   ttsx -P tsconfig.scripts.json --no-plugins scripts/face-review/prepare-valid-envelope-basis.ts STUDY REVISION OUTPUT SET
  *
- * `LIMITS` lists every side of a shape channel whose surface stops being a
- * face inside its envelope, found by rendering each face control at both
+ * `LIMITS[SET]` lists every side of a shape channel whose surface stops
+ * being a face inside its envelope, each set the limits of one published
+ * revision (`first`: the whole-editor audit; `eye-elevation`: its eye
+ * close-up pass), found by rendering each face control at both
  * ends through the product editor (front, three-quarter and profile, or the
  * region's close-up; README "Valid envelopes") and by counting faults at
  * each end (`faceSupportFaults`). A side the fault count finds ends at the
@@ -40,7 +42,7 @@ const both = (
     side,
     ...(value === undefined ? {} : { value, study }),
   }));
-const LIMITS: IFaceValidLimit[] = [
+const FIRST: IFaceValidLimit[] = [
   // The source's own folds, turned over before their authored end.
   ...both("EyeFoldHeight", "minimum"),
   ...both("EpicanthalFold", "maximum"),
@@ -130,15 +132,27 @@ const LIMITS: IFaceValidLimit[] = [
   },
 ];
 
-const [studyDirectory, revision, output] = process.argv.slice(2);
+const LIMITS: Record<string, IFaceValidLimit[]> = {
+  first: FIRST,
+  "eye-elevation": both(
+    "EyeElevation",
+    "maximum",
+    0.75,
+    "1 raises a lit ridge along the medial upper lid",
+  ),
+};
+
+const [studyDirectory, revision, output, set] = process.argv.slice(2);
 if (
   studyDirectory === undefined ||
   revision === undefined ||
   output === undefined ||
-  fs.existsSync(output)
+  fs.existsSync(output) ||
+  set === undefined ||
+  LIMITS[set] === undefined
 )
   throw new Error(
-    "Supply the study directory, the new revision and a new output directory.",
+    `Supply the study directory, the new revision, a new output directory and a limit set (${Object.keys(LIMITS).join(", ")}).`,
   );
 const read = (name: string): { bytes: Buffer; json: unknown } => {
   const bytes = fs.readFileSync(path.join(studyDirectory, name));
@@ -160,7 +174,7 @@ const prepared = prepareValidEnvelopeBasis({
   surface: "Human",
   contact: ["Human/lips"],
   step: 0.05,
-  limits: LIMITS,
+  limits: LIMITS[set]!,
 });
 fs.mkdirSync(output, { recursive: true });
 const basisBytes = gzipSync(JSON.stringify(prepared.basis) + "\n", {
@@ -188,7 +202,12 @@ const receipt = {
   outputs: { basis: { sha256: digest(basisBytes), bytes: basisBytes.length } },
 };
 fs.writeFileSync(
-  path.join(output, "valid-envelope-receipt.json"),
+  path.join(
+    output,
+    set === "first"
+      ? "valid-envelope-receipt.json"
+      : `valid-envelope-${set}-receipt.json`,
+  ),
   JSON.stringify(receipt, null, 2) + "\n",
 );
 console.log(
