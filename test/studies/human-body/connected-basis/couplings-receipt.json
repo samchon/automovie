@@ -1,6 +1,6 @@
 {
-  "basis": "mpfb-connected-body-2026-09-25-tt-r5",
-  "supersedes": "mpfb-connected-body-2026-09-21-envelopes-raw+sym+digits+rhythm",
+  "basis": "mpfb-connected-body-2026-09-26-anatomy-r6",
+  "supersedes": "mpfb-connected-body-2026-09-25-tt-r5",
   "method": "each upper arm's total humerothoracic elevation (the TT goal's elevation, or the measured A-pose elevation when the document omits the arm) drives its girdle bone: elevation (abduction) to 11 degrees and retraction (negative flexion) to 16 degrees at 180, both capped by the girdle's pinned range, from a zero knot at the A-pose rest elevation (Ludewig 2009; Inman 1944); the humeral goal is solved after the girdle moves, so the coupling does not add to the authored total. The pelvifemoral rhythm tilts the pelvis posteriorly by 18.1% of the larger trunk-relative thigh flexion (Murray 2002) about the hip centres, the lumbar joint reading the tilt as flexion",
   "couplings": [
     {
@@ -93,7 +93,7 @@
       "glenohumeralCentreLiftMillimetres": 28.4
     }
   },
-  "uncompressedSha256": "95c8348d6d773e1ea06bc34044145e2c22c81f926dda8d0713f21973dec5da7b",
+  "uncompressedSha256": "368445dd5603a1873229e2b4ec61c997610da033323552ab2c220064aa2aa17b",
   "pelvifemoral": {
     "id": "pelvifemoralRhythm",
     "lumbar": "spine",

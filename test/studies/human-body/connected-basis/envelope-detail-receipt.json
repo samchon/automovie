@@ -1,6 +1,6 @@
 {
-  "basis": "mpfb-connected-body-2026-09-25-tt-r5",
-  "supersedes": "mpfb-connected-body-2026-09-21-envelopes-raw+sym+digits+rhythm+single+combos+envelope",
+  "basis": "mpfb-connected-body-2026-09-26-anatomy-r6",
+  "supersedes": "mpfb-connected-body-2026-09-25-tt-r5",
   "method": "each channel endpoint worn past its authored node is low-passed as a vector (its motion) and the residual's thickness along the rest surface's normal is split into a smooth part (implicit heat diffusion over the skin, cotangent Laplacian with a lumped mass, diffusion length 40 mm, the motion pass at 150 mm, the neck boundary held) and a detail part; one corrective per extended side ramps from the node to the envelope's end and subtracts the detail's extrapolation along the normal, so past the node the thickness detail stays at the node's while the smooth thickness and the tangential part grow with the weight; the individuality channels, generated fields of a clinical grade, keep their linear extension",
   "sigmaMetres": 0.04,
   "correctives": [
@@ -403,7 +403,7 @@
   ],
   "symmetrized": "the envelope correctives' fields were then made bilaterally symmetric with the pose correctives (symmetry-receipt.json)",
   "reach": {
-    "basis": "mpfb-connected-body-2026-09-25-tt-r5",
+    "basis": "mpfb-connected-body-2026-09-26-anatomy-r6",
     "mass": [
       {
         "statureMetres": 1.55,

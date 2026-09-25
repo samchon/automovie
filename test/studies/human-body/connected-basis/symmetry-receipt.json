@@ -22,7 +22,7 @@
     "largestWeightDropped": 0.015851,
     "uncompressedSha256": "3e938d2ced5543277dcc0cb516701dcb29c0979ba8b09ebbe32428a2ffc617a3"
   },
-  "basis": "mpfb-connected-body-2026-09-25-tt-r5",
+  "basis": "mpfb-connected-body-2026-09-26-anatomy-r6",
   "shoulderWeights": {
     "supersedes": "mpfb-connected-body-2026-09-24-tt-r5-lattice-base",
     "method": "each upper arm's blend zone (vertices whose upper-arm weight lies strictly between zero and one, none influenced by the hand or a digit) grown by 6 rings over vertices whose every influence is that upper arm, its girdle, the upper chest, the chest or the spine; inside it every free vertex's weights diffused for 40 Jacobi sweeps (uniform Laplacian, weight 1/2) with the outermost ring held; each vertex then keeps its four largest influences, renormalized, a bone split over two source slots summed first",
@@ -78,6 +78,18 @@
       "mirroredFromRight": 0,
       "midline": 148,
       "oddSided": 499
+    },
+    {
+      "basis": "mpfb-connected-body-2026-09-26-anatomy-r6",
+      "supersedes": "mpfb-connected-body-2026-09-25-anatomy-r6a-asym",
+      "method": "each sided corrective is replaced by the left one of its mirror pair and that one's exact mirror (vertex mirrored by position with x negated within 20 um, x displacement negated, input names with left and right swapped, a TT kernel's orientation kept), a sided corrective without a partner gains its mirror, and a corrective whose inputs name no side takes the mean of its field and the field's mirror",
+      "correctivesBefore": 2329,
+      "correctivesAfter": 2329,
+      "pairs": 1044,
+      "mirroredFromLeft": 0,
+      "mirroredFromRight": 0,
+      "midline": 160,
+      "oddSided": 81
     }
   ]
 }

@@ -12,10 +12,12 @@ type Term = IAutoMovieHumanBodySimpleShapeTable["terms"][number];
  * sources pinned in the body study, MakeHuman's age nodes (child 11 years,
  * young 25, old 90), the sarcopenia figure of three to five percent of muscle
  * per decade after thirty, Gonzalez's gluteal ptosis rising with age and
- * weight change, the redistribution of fat from the limbs to the trunk with
- * age, the WHO android/gynoid split by sex, Deurenberg's age-specific body
- * fat estimates from BMI, age and sex, and the body fat bands below which
- * the rectus, deltoid and scapular relief show (ACE essential fat by sex, visible-abs
+ * weight change, the gluteal mass and pelvic tone muscle raises and age
+ * takes, the adolescent maturity before which training builds no muscle, the
+ * redistribution of fat from the limbs to the trunk with age, the WHO
+ * android/gynoid split by sex, Deurenberg's age-specific body fat estimates
+ * from BMI, age and sex, and the body fat bands below which the rectus,
+ * deltoid and scapular relief show (ACE essential fat by sex, visible-abs
  * bands). Stature, mass and the tape measurements are not rows: they are
  * solved by measurement against the basis, with the head allowance, the mass
  * model and the channel each measurement is solved on given here. The body
@@ -31,7 +33,9 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
     ageYears: [11, 90],
     statureMetres: [1.2, 2.2],
     massKilograms: [25, 250],
-    muscle: [-1, 1],
+    // to 2: the source's competition node, a fat-free mass index near the
+    // natural limit of 25 (Kouri et al. 1995) at an athlete's mass index
+    muscle: [-1, 2],
     waistMetres: [0.4, 2],
     hipsMetres: [0.5, 2],
     bustMetres: [0.5, 2],
@@ -118,6 +122,35 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
       [-1, 13],
       [1, 5],
     ],
+    // a trained body carries more fat-free mass at the same mass index: the
+    // median young man's fat-free mass index is 18.9 and the young woman's
+    // 15.4 (Schutz et al. 2002), natural male athletes average 21.8 (Kouri
+    // et al. 1995); a unit of muscle takes an average young man at a mass
+    // index of 24 to that 21.8, and a woman by the same share of her median
+    muscleFatFreeMassIndex: [
+      [-1, 1.8],
+      [1, 2.2],
+    ],
+  },
+  /**
+   * Training builds little muscle before puberty: children's strength gains
+   * are neural rather than hypertrophic (Faigenbaum et al. 2009; Lloyd et al.
+   * 2014), and the muscle spurt follows peak height velocity, at 11.8 years
+   * in girls and 13.5 in boys (Baxter-Jones et al. 2008), the lean mass
+   * gained fastest in the year after it and the spurt lasting about two years
+   * (Tanner et al. 1981). The ramp runs from a year before peak height
+   * velocity to three years after it: an authored bridge over those
+   * findings, not a fitted curve.
+   */
+  maturity: {
+    startAgeYears: [
+      [-1, 10.8],
+      [1, 12.5],
+    ],
+    endAgeYears: [
+      [-1, 14.8],
+      [1, 16.5],
+    ],
   },
   /** Channel weight = Σ rows gain · Π curve(parameter); missing channels are skipped. */
   terms: [
@@ -156,7 +189,7 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
           parameter: "muscle",
           points: [
             [-1, -1],
-            [1, 1],
+            [2, 2],
           ],
         },
       ],
@@ -195,10 +228,11 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
         gain: 0.7,
         curves: [
           {
-            parameter: "muscle",
+            parameter: "developedMuscle",
             points: [
               [-1, -1],
               [1, 1],
+              [2, 1.43],
             ],
           },
         ],
@@ -230,12 +264,14 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
       ],
     },
     {
-      // a young muscular body lifts
+      // a muscular body lifts, less as the muscle ages: the gluteus maximus
+      // carries the fold, and it loses three to five percent a decade after
+      // thirty (sarcopenia), so an old muscular body keeps part of the lift
       channel: "buttocksPtosis",
       gain: -0.4,
       curves: [
         {
-          parameter: "muscle",
+          parameter: "developedMuscle",
           points: [
             [0, 0],
             [1, 1],
@@ -244,8 +280,69 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
         {
           parameter: "ageYears",
           points: [
-            [25, 1],
-            [50, 0],
+            [30, 1],
+            [60, 0.6],
+            [90, 0.35],
+          ],
+        },
+      ],
+    },
+    {
+      // gluteal muscle mass, both ways from the average: the muscle a body
+      // carries shows as the buttock's projection
+      channel: "buttocksVolume",
+      gain: 0.5,
+      curves: [
+        {
+          parameter: "developedMuscle",
+          points: [
+            [-1, -1],
+            [1, 1],
+          ],
+        },
+      ],
+    },
+    {
+      // and it atrophies with age (sarcopenia after thirty; the skin
+      // envelope, fat and muscle all diminish with age, Gonzalez)
+      channel: "buttocksVolume",
+      gain: -0.4,
+      curves: [
+        {
+          parameter: "ageYears",
+          points: [
+            [30, 0],
+            [60, 0.45],
+            [90, 1],
+          ],
+        },
+      ],
+    },
+    {
+      // the pelvic soft tissue's tone: raised by muscle, lost with age, the
+      // lost tone lowering the gluteal mass as a whole (global tissue ptosis)
+      channel: "pelvisTone",
+      gain: 0.5,
+      curves: [
+        {
+          parameter: "developedMuscle",
+          points: [
+            [-1, -1],
+            [1, 1],
+          ],
+        },
+      ],
+    },
+    {
+      channel: "pelvisTone",
+      gain: -0.6,
+      curves: [
+        {
+          parameter: "ageYears",
+          points: [
+            [30, 0],
+            [60, 0.5],
+            [90, 1],
           ],
         },
       ],
@@ -337,17 +434,22 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
       gain: 1,
       curves: [
         {
-          parameter: "muscle",
+          parameter: "developedMuscle",
           points: [
             [0, 0],
             [1, 1],
           ],
         },
         {
+          // the rectus shows in outline at about 10-12 percent fat on a man
+          // and 20-22 on a woman and distinctly below about 9 and 16: over
+          // each sex's essential fat, one band (consumer body-composition
+          // guidance, not a clinical study)
           parameter: "excessFatPercent",
           points: [
-            [5, 1],
-            [9, 0.8],
+            [2, 1],
+            [5, 0.7],
+            [9, 0.3],
             [14, 0],
           ],
         },
@@ -363,7 +465,7 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
         gain: 1,
         curves: [
           {
-            parameter: "muscle",
+            parameter: "developedMuscle",
             points: [
               [0, 0],
               [1, 1],
@@ -380,10 +482,422 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
       }),
     ),
     {
-      // the skeleton reads through where little more than essential fat covers it
+      // the breast descends with age, most across menopause, and with body mass (Regnault grades; post-menopause and BMI are independent risk factors)
+      channel: "breastTransDownUp",
+      gain: -0.6,
+      curves: [
+        {
+          parameter: "sex",
+          points: [
+            [-1, 1],
+            [1, 0],
+          ],
+        },
+        {
+          parameter: "ageYears",
+          points: [
+            [25, 0],
+            [45, 0.3],
+            [55, 0.7],
+            [80, 1],
+          ],
+        },
+      ],
+    },
+    {
+      // heavier breasts descend further
+      channel: "breastTransDownUp",
+      gain: -0.3,
+      curves: [
+        {
+          parameter: "sex",
+          points: [
+            [-1, 1],
+            [1, 0],
+          ],
+        },
+        {
+          parameter: "bodyMassIndex",
+          points: [
+            [22, 0],
+            [30, 0.7],
+            [40, 1],
+          ],
+        },
+      ],
+    },
+    {
+      // the lower pole fills as the gland involutes to fat
+      channel: "breastVolumeVertDownUp",
+      gain: -0.5,
+      curves: [
+        {
+          parameter: "sex",
+          points: [
+            [-1, 1],
+            [1, 0],
+          ],
+        },
+        {
+          parameter: "ageYears",
+          points: [
+            [30, 0],
+            [50, 0.4],
+            [70, 0.9],
+            [90, 1],
+          ],
+        },
+      ],
+    },
+    {
+      // and loses projection
+      channel: "breastPoint",
+      gain: -0.4,
+      curves: [
+        {
+          parameter: "sex",
+          points: [
+            [-1, 1],
+            [1, 0],
+          ],
+        },
+        {
+          parameter: "ageYears",
+          points: [
+            [30, 0],
+            [60, 0.7],
+            [85, 1],
+          ],
+        },
+      ],
+    },
+    {
+      // breast volume tracks body fat (the breast is largely adipose)
+      channel: "macroCupsize",
+      gain: 0.5,
+      curves: [
+        {
+          parameter: "sex",
+          points: [
+            [-1, 1],
+            [1, 0],
+          ],
+        },
+        {
+          parameter: "bodyMassIndex",
+          points: [
+            [18, -0.6],
+            [22, 0],
+            [30, 0.6],
+            [40, 1],
+          ],
+        },
+      ],
+    },
+    {
+      // an adipose male chest (pseudogynecomastia) with body mass, held back by the pectoral muscle
+      channel: "macroCupsize",
+      gain: 0.4,
+      curves: [
+        {
+          parameter: "sex",
+          points: [
+            [-1, 0],
+            [1, 1],
+          ],
+        },
+        {
+          parameter: "bodyMassIndex",
+          points: [
+            [26, 0],
+            [32, 0.6],
+            [40, 1],
+          ],
+        },
+        {
+          parameter: "developedMuscle",
+          points: [
+            [-1, 1],
+            [0, 1],
+            [1, 0.4],
+          ],
+        },
+      ],
+    },
+    {
+      // the abdominal wall's tone: raised by muscle
+      channel: "stomachTone",
+      gain: 0.5,
+      curves: [
+        {
+          parameter: "developedMuscle",
+          points: [
+            [-1, -1],
+            [1, 1],
+          ],
+        },
+      ],
+    },
+    {
+      // lost with age (diastasis and laxity)
+      channel: "stomachTone",
+      gain: -0.5,
+      curves: [
+        {
+          parameter: "ageYears",
+          points: [
+            [30, 0],
+            [60, 0.6],
+            [90, 1],
+          ],
+        },
+      ],
+    },
+    {
+      // and with abdominal fat
+      channel: "stomachTone",
+      gain: -0.4,
+      curves: [
+        {
+          parameter: "bodyMassIndex",
+          points: [
+            [25, 0],
+            [32, 0.6],
+            [40, 1],
+          ],
+        },
+      ],
+    },
+    {
+      // the navel lowers as abdominal fat grows
+      channel: "stomachNavelDownUp",
+      gain: -0.4,
+      curves: [
+        {
+          parameter: "bodyMassIndex",
+          points: [
+            [25, 0],
+            [35, 0.7],
+            [45, 1],
+          ],
+        },
+      ],
+    },
+    {
+      // submental fat with body mass
+      channel: "neckDouble",
+      gain: 0.8,
+      curves: [
+        {
+          parameter: "bodyMassIndex",
+          points: [
+            [25, 0],
+            [32, 0.5],
+            [40, 1],
+          ],
+        },
+      ],
+    },
+    {
+      // and with age as the neck's skin loosens
+      channel: "neckDouble",
+      gain: 0.3,
+      curves: [
+        {
+          parameter: "ageYears",
+          points: [
+            [40, 0],
+            [80, 1],
+          ],
+        },
+      ],
+    },
+    {
+      // upper-arm fat, more on women (triceps site)
+      channel: "upperarmFatLeft",
+      gain: 0.6,
+      curves: [
+        {
+          parameter: "sex",
+          points: [
+            [-1, 1],
+            [1, 0.4],
+          ],
+        },
+        {
+          parameter: "bodyMassIndex",
+          points: [
+            [22, 0],
+            [30, 0.6],
+            [40, 1],
+          ],
+        },
+      ],
+    },
+    {
+      // thigh fat, more on women (gynoid, front and lateral thigh sites)
+      channel: "upperlegFatLeft",
+      gain: 0.5,
+      curves: [
+        {
+          parameter: "sex",
+          points: [
+            [-1, 1],
+            [1, 0.3],
+          ],
+        },
+        {
+          parameter: "bodyMassIndex",
+          points: [
+            [22, 0],
+            [30, 0.6],
+            [40, 1],
+          ],
+        },
+      ],
+    },
+    {
+      // upper-arm fat, more on women (triceps site)
+      channel: "upperarmFatRight",
+      gain: 0.6,
+      curves: [
+        {
+          parameter: "sex",
+          points: [
+            [-1, 1],
+            [1, 0.4],
+          ],
+        },
+        {
+          parameter: "bodyMassIndex",
+          points: [
+            [22, 0],
+            [30, 0.6],
+            [40, 1],
+          ],
+        },
+      ],
+    },
+    {
+      // thigh fat, more on women (gynoid, front and lateral thigh sites)
+      channel: "upperlegFatRight",
+      gain: 0.5,
+      curves: [
+        {
+          parameter: "sex",
+          points: [
+            [-1, 1],
+            [1, 0.3],
+          ],
+        },
+        {
+          parameter: "bodyMassIndex",
+          points: [
+            [22, 0],
+            [30, 0.6],
+            [40, 1],
+          ],
+        },
+      ],
+    },
+    {
+      // a trained upper body widens from the latissimus and deltoids into a
+      // V over a narrower waist, more on a man (swimmers' wide shoulders and
+      // narrow pelvis; the latissimus drives every stroke)
+      channel: "torsoVshape",
+      gain: 0.6,
+      curves: [
+        {
+          parameter: "developedMuscle",
+          points: [
+            [0, 0],
+            [1, 1],
+          ],
+        },
+        {
+          parameter: "sex",
+          points: [
+            [-1, 0.5],
+            [1, 1],
+          ],
+        },
+      ],
+    },
+    {
+      // the superficial musculature shows through thin subcutaneous fat:
+      // an average body at low fat shows some of it, a muscular one all of
+      // it, and it is gone well before the fat bands where the belly and the
+      // hips keep their fat longest
+      channel: "musculatureDefinition",
+      gain: 1,
+      curves: [
+        {
+          parameter: "developedMuscle",
+          points: [
+            [-1, 0],
+            [0, 0.35],
+            [1, 1],
+          ],
+        },
+        {
+          parameter: "excessFatPercent",
+          points: [
+            [2, 1],
+            [6, 0.6],
+            [12, 0.15],
+            [16, 0],
+          ],
+        },
+      ],
+    },
+    {
+      // the same relief over the breast mound, gated by sex
+      channel: "chestDefinition",
+      gain: 1,
+      curves: [
+        {
+          // over the breast mound the gland and its fat cover the pectoralis
+          parameter: "sex",
+          points: [
+            [-1, 0.15],
+            [1, 1],
+          ],
+        },
+        {
+          parameter: "developedMuscle",
+          points: [
+            [-1, 0],
+            [0, 0.35],
+            [1, 1],
+          ],
+        },
+        {
+          parameter: "excessFatPercent",
+          points: [
+            [2, 1],
+            [6, 0.6],
+            [12, 0.15],
+            [16, 0],
+          ],
+        },
+      ],
+    },
+    {
+      // the skeleton reads through where little more than essential fat
+      // covers it and little muscle does: a lean athlete's ribs and spine sit
+      // under the latissimus and the erectors, an emaciated body's do not
       channel: "skeletalProminence",
       gain: 1,
       curves: [
+        {
+          parameter: "developedMuscle",
+          points: [
+            [-1, 1],
+            [0, 0.8],
+            [1, 0.25],
+            [2, 0.1],
+          ],
+        },
         {
           parameter: "excessFatPercent",
           points: [
