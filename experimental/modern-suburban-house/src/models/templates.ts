@@ -287,6 +287,67 @@ export function buildPrototype(spec: PrototypeSpec): HousePrototype {
         box("handle",-w*0.28,cy-0.045,d-0.008,-w*0.22,cy+0.045,d);
         break;
       }
+      if(pending.has("burner")) {
+        // The oven mouth is open behind a four-sided opaque door surround.
+        const mouth={left:-0.32,right:0.32,bottom:0.12,top:0.60,back:0.08,front:0.61};
+        const body=pending.has("appliance-body"),interior=pending.has("appliance-interior");
+        if(body) {
+          for(const x of [-w/2,mouth.right])
+            b.box("appliance-body",[x,0,0],[x+(x<0?mouth.left+w/2:w/2-mouth.right),0.88,d]);
+          b.box("appliance-body",[mouth.left,0,0],[mouth.right,0.88,mouth.back]);
+          b.box("appliance-body",[mouth.left,0,mouth.back],[mouth.right,mouth.bottom,d]);
+          b.box("appliance-body",[mouth.left,mouth.top,mouth.back],[mouth.right,0.88,d]);
+          pending.delete("appliance-body");
+        }
+        if(interior) {
+          const t=0.02;
+          for(const x of [mouth.left,mouth.right-t])
+            b.box("appliance-interior",[x,mouth.bottom,mouth.back],[x+t,mouth.top,mouth.front]);
+          for(const y of [mouth.bottom,mouth.top-t])
+            b.box("appliance-interior",[mouth.left+t,y,mouth.back],[mouth.right-t,y+t,mouth.front]);
+          b.box("appliance-interior",[mouth.left+t,mouth.bottom+t,mouth.back],[mouth.right-t,mouth.top-t,mouth.back+t]);
+          pending.delete("appliance-interior");
+        }
+        box("cooktop",-w/2,0.88,0,w/2,0.91,d);
+        for(const x of [-0.20,0.20]) for(const z of [0.19,0.46])
+          b.frustum("burner",[x,0.90,z],0.075,0.075,0.01);
+        pending.delete("burner");
+        box("control-panel",-w/2,0.66,0.63,w/2,0.86,0.65);
+        const door={left:-0.34,right:0.34,bottom:0.10,top:0.62,back:0.61,front:0.65};
+        const glass={left:-0.24,right:0.24,bottom:0.22,top:0.46};
+        if(pending.has("leaf")) {
+          for(const x of [door.left,glass.right])
+            b.box("leaf",[x,door.bottom,door.back],[x+(x<0?glass.left-door.left:door.right-glass.right),door.top,door.front]);
+          for(const y of [door.bottom,glass.top])
+            b.box("leaf",[glass.left,y,door.back],[glass.right,y+(y<glass.bottom?glass.bottom-door.bottom:door.top-glass.top),door.front]);
+          pending.delete("leaf");
+        }
+        box("appliance-glass",glass.left,glass.bottom,door.back,glass.right,glass.top,door.front);
+        box("handle",-0.24,0.56,0.64,0.24,0.60,0.65);
+        break;
+      }
+      if(pending.has("control-panel")&&pending.has("appliance-interior")&&!pending.has("drawer-front")) {
+        const mouth={left:-0.28,right:0.28,bottom:0.12,top:0.68,back:0.08,front:0.58};
+        if(pending.has("appliance-body")) {
+          for(const x of [-w/2,mouth.right])
+            b.box("appliance-body",[x,0,0],[x+(x<0?mouth.left+w/2:w/2-mouth.right),h,d]);
+          b.box("appliance-body",[mouth.left,0,0],[mouth.right,h,mouth.back]);
+          b.box("appliance-body",[mouth.left,0,mouth.back],[mouth.right,mouth.bottom,d]);
+          b.box("appliance-body",[mouth.left,mouth.top,mouth.back],[mouth.right,h,d]);
+          pending.delete("appliance-body");
+        }
+        const t=0.02;
+        for(const x of [mouth.left,mouth.right-t])
+          b.box("appliance-interior",[x,mouth.bottom,mouth.back],[x+t,mouth.top,mouth.front]);
+        for(const y of [mouth.bottom,mouth.top-t])
+          b.box("appliance-interior",[mouth.left+t,y,mouth.back],[mouth.right-t,y+t,mouth.front]);
+        b.box("appliance-interior",[mouth.left+t,mouth.bottom+t,mouth.back],[mouth.right-t,mouth.top-t,mouth.back+t]);
+        pending.delete("appliance-interior");
+        box("leaf",-w/2,0.10,0.58,w/2,0.70,0.60);
+        box("control-panel",-w/2,0.70,0.58,w/2,h,0.60);
+        box("handle",-0.06,0.66,0.588,0.06,0.69,0.60);
+        break;
+      }
       // Side/back/top panels leave a real front mouth for the leaf and interior.
       side("appliance-body");
       box("appliance-interior",-w*0.43,h*0.20,0.03,w*0.43,h*0.80,d*0.22);
@@ -863,7 +924,7 @@ export function buildPrototype(spec: PrototypeSpec): HousePrototype {
       }
       if(pending.has("pillow")&&pending.has("folded")) {
         for(const x of [-w*0.35,w*0.35])
-          b.box("pillow",[x-0.21,0.43,0.15],[x+0.21,0.85,0.25]);
+          b.ellipsoid("pillow",[x,0.64,0.20],[0.21,0.21,0.05]);
         for(let i=0;i<5;i++)
           b.box("folded",[w/2-0.13,0.62+0.025*i,0.25],[w/2,0.645+0.025*i,0.70]);
         pending.delete("pillow");pending.delete("folded");
@@ -895,7 +956,12 @@ export function buildPrototype(spec: PrototypeSpec): HousePrototype {
       }
       if(pending.has("book")&&pending.has("tray")) {
         for(let i=0;i<2;i++) b.box("book",[-w/2,0.025*i,0.02],[-w/2+0.22,0.025*(i+1),0.18]);
-        b.box("tray",[-0.10,0,d-0.20],[0.14,0.025,d-0.02]);
+        const trayLeft=-0.10,trayRight=0.14,trayBack=d-0.20,trayFront=d-0.02,rim=0.008;
+        b.box("tray",[trayLeft,0,trayBack],[trayRight,0.005,trayFront]);
+        b.box("tray",[trayLeft,0.005,trayBack],[trayRight,0.025,trayBack+rim]);
+        b.box("tray",[trayLeft,0.005,trayFront-rim],[trayRight,0.025,trayFront]);
+        b.box("tray",[trayLeft,0.005,trayBack+rim],[trayLeft+rim,0.025,trayFront-rim]);
+        b.box("tray",[trayRight-rim,0.005,trayBack+rim],[trayRight,0.025,trayFront-rim]);
         b.cup("container",[w/2-0.10,0,d*0.34],0.04,0.03,0.12,0.006);
         for(let i=0;i<3;i++) {
           const angle=i*2*Math.PI/3;
@@ -962,13 +1028,18 @@ export function buildPrototype(spec: PrototypeSpec): HousePrototype {
         break;
       }
       if(pending.has("board")&&pending.has("tool-steel")) {
-        b.box("board",[-w/2,0,0],[w/2,h,0.025]);
-        for(let i=0;i<3;i++) {
-          const x=-w*0.35+i*w*0.30;
-          b.box("tool-grip",[x,0.13,0.025],[x+0.045,0.48,0.075]);
-          b.box("tool-steel",[x-0.02,0.48,0.025],[x+0.065,0.78-0.07*i,0.075]);
-        }
-        for(const x of [-w*0.30,w*0.10]) b.box("bin",[x,0.02,0.025],[x+w*0.19,0.16,0.14]);
+        const boardFront=0.02;
+        b.box("board",[-w/2,0,0],[w/2,h,boardFront]);
+        // Hammer, wrench, and saw share the same board and local depth rule.
+        b.box("tool-grip",[-0.3625,0.39,boardFront],[-0.3375,0.71,0.045]);
+        b.box("tool-steel",[-0.41,0.715,boardFront],[-0.29,0.75,0.055]);
+        b.box("tool-steel",[-0.0625,0.47,boardFront],[-0.0375,0.73,0.045]);
+        for(const y of [0.45,0.73])
+          b.box("tool-steel",[-0.08,y,boardFront],[-0.02,y+0.02,0.045]);
+        b.box("tool-steel",[0.14,0.52,boardFront],[0.38,0.64,0.05]);
+        b.box("tool-grip",[0.38,0.53,boardFront],[0.46,0.63,0.05]);
+        for(const x of [-0.24,0.24])
+          b.box("bin",[x-0.08,0.12,boardFront],[x+0.08,0.24,0.12]);
         for(const face of ["board","tool-grip","tool-steel","bin"]) pending.delete(face);
         break;
       }
