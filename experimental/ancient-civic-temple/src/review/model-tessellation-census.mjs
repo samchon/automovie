@@ -4,11 +4,10 @@
  * count table: a new curved H2 or another plate, pin, shell, or woven band must
  * carry its own segment rule. Rectangular pieces need no circular segments.
  */
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
 const root = new URL("../../docs/models/", import.meta.url);
-const files = ["columns", "entablature", "openings", "cladding", "fixtures", "wares", "landscape"];
 const curved = /원판|원통|원환|원뿔대|타원체|베지어|반원통|반타원|곡면|파문/;
 const segments = /\d+(?:×\d+)?분할|\d+정점|\d+등분|\d+개 삼각형/;
 
@@ -104,12 +103,14 @@ export const checkModelTessellation = () => {
   const failures = [];
   let sections = 0;
   let curvedSections = 0;
+  const files = readdirSync(root).filter((file) => file.endsWith(".md") && file !== "scale.md")
+    .sort((a, b) => a.localeCompare(b));
   for (const file of files) {
-    const source = readFileSync(new URL(file + ".md", root), "utf8");
+    const source = readFileSync(new URL(file, root), "utf8");
     for (const section of modelSections(source)) {
       sections++;
       if (curved.test(section.body)) curvedSections++;
-      failures.push(...tessellationFailures(`${file}#${section.id}`, section.body));
+      failures.push(...tessellationFailures(`${file.slice(0, -3)}#${section.id}`, section.body));
     }
   }
   console.log(`model tessellation census: ${sections} H2, ${curvedSections} with curved vocabulary, ${failures.length} unresolved`);

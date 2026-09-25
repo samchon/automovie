@@ -7,7 +7,7 @@ import { modelAccountMismatches, modelAccountRows, modelDocumentBodyLength, mode
 
 void test("every geometry noun retains a part owner, including an omitted truss strut", () => {
   const root = join(__dirname, "../../../docs/models");
-  const docs = ["fixtures", "entablature", "openings", "wares", "landscape", "scale", "columns", "cladding"]
+  const docs = ["fixtures", "entablature", "openings", "wares", "landscape", "scale", "columns", "cladding", "portable"]
     .map((name) => ({ path: `${name}.md`, source: readFileSync(join(root, `${name}.md`), "utf8") }));
   assert.deepEqual(modelPartNounMismatches(docs), []);
   const changed = docs.map((doc) => doc.path !== "entablature.md" ? doc : {
@@ -15,6 +15,25 @@ void test("every geometry noun retains a part owner, including an omitted truss 
     source: doc.source.replace("`tie-beam`, `principal`, `king-post`, `strut`", "`tie-beam`, `principal`, `king-post`"),
   });
   assert.match(modelPartNounMismatches(changed).join("\n"), /sanctuary-truss: 버팀재 has no strut surface/);
+});
+
+void test("the same coordinate grammar rejects moved, lifted, removed and coincident parts", () => {
+  const source = readFileSync(join(__dirname, "../../../docs/models/portable.md"), "utf8");
+  const section = source.split(/(?=^## )/m).find((item) => item.includes("| part | X | Y | Z |"))!;
+  const rows = [...section.matchAll(/^\| `[^`]+` \| [^\n]+$/gm)].map((match) => match[0]);
+  assert.ok(rows.length >= 2);
+  const doc = (text: string) => [{ path: "object.md", source: text }];
+  assert.deepEqual(modelPartNounMismatches(doc(section)), []);
+  const moved = section.replace(rows[0]!, rows[0]!.replace(/X=([+−-]?\d+(?:\.\d+)?)/, "X=9"));
+  const lifted = section.replace(rows[1]!, rows[1]!.replace(/Y=0~/, "Y=0.01~"));
+  const removed = section.replace(`${rows[1]}\n`, "");
+  const firstCoordinates = rows[0]!.slice(rows[0]!.indexOf(" | ") + 3);
+  const secondPart = rows[1]!.match(/^\| `[^`]+`/)![0];
+  const coincident = section.replace(rows[1]!, `${secondPart} | ${firstCoordinates}`);
+  assert.ok(modelPartNounMismatches(doc(moved)).length > 0);
+  assert.ok(modelPartNounMismatches(doc(lifted)).length > 0);
+  assert.ok(modelPartNounMismatches(doc(removed)).length > 0);
+  assert.match(modelPartNounMismatches(doc(coincident)).join("\n"), /identical coordinate intervals/);
 });
 
 void test("model measure excludes comments and whitespace while retaining headings", () => {
@@ -42,13 +61,13 @@ void test("H2 rank measure excludes evidence comments and keeps each section dis
 void test("model account includes each source file once and detects stale or extra rows", () => {
   const paths = [
     "fixtures.md", "entablature.md", "openings.md", "wares.md",
-    "landscape.md", "scale.md", "columns.md", "cladding.md",
+    "landscape.md", "scale.md", "columns.md", "cladding.md", "portable.md",
   ];
   const measures = paths.map((path, i) => ({ path, headings: i + 1, body: (i + 1) * 10 }));
   const rows = modelAccountRows(measures);
-  assert.equal(rows.length, 9);
+  assert.equal(rows.length, 10);
   assert.equal(rows[0], "| fixtures.md | 1 | 10 |");
-  assert.equal(rows.at(-1), "| 합계 | 36 | 360 |");
+  assert.equal(rows.at(-1), "| 합계 | 45 | 450 |");
   const table = ["| 모델 파일 | H2 | 주석·공백 제외 본문 문자 수 |", "| --- | ---: | ---: |", ...rows].join("\n");
   assert.deepEqual(modelAccountMismatches(table, rows), []);
   assert.deepEqual(modelAccountMismatches(table.replace(/\n/g, "\r\n"), rows), []);

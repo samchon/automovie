@@ -1,8 +1,7 @@
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { modelSections } from "./model-tessellation-census.mjs";
 
-const files = ["scale", "columns", "entablature", "openings", "cladding", "fixtures", "wares", "landscape"];
 const root = new URL("../../docs/models/", import.meta.url);
 
 /** Evaluate the small arithmetic grammar used by explicit dimensional equations. */
@@ -135,12 +134,14 @@ export const declaredBoundRows = (id, body) => {
 
 export const checkModelProseConsistency = () => {
   const equations = [], ranges = [], bounds = [];
+  const files = readdirSync(root).filter((file) => file.endsWith(".md")).sort((a, b) => a.localeCompare(b));
   for (const file of files) {
-    const source = readFileSync(new URL(`${file}.md`, root), "utf8");
+    const source = readFileSync(new URL(file, root), "utf8");
     for (const section of modelSections(source)) {
-      equations.push(...explicitEquationRows(`${file}#${section.id}`, section.body));
-      ranges.push(...explicitRangeRows(`${file}#${section.id}`, section.body));
-      bounds.push(...declaredBoundRows(`${file}#${section.id}`, section.body));
+      const id = `${file.slice(0, -3)}#${section.id}`;
+      equations.push(...explicitEquationRows(id, section.body));
+      ranges.push(...explicitRangeRows(id, section.body));
+      bounds.push(...declaredBoundRows(id, section.body));
     }
   }
   const failures = [

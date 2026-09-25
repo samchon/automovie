@@ -28,6 +28,7 @@ import { templeObservations } from "../spaces/observations";
 import { envelopeSolids } from "./envelope-overlaps";
 import { checkModelTessellation } from "./model-tessellation-census.mjs";
 import { checkModelProseConsistency } from "./model-prose-consistency.mjs";
+import { checkModelSurfaceBinding } from "./model-surface-binding.mjs";
 
 const { values } = parseArgs({ options: { grid: { type: "string", default: "0.01" }, retired: { type: "string", default: "" }, "sync-accounts": { type: "boolean", default: false }, handoffs: { type: "boolean", default: false } } });
 const grid = Number(values.grid);
@@ -181,7 +182,7 @@ console.log(`models account table mismatches: ${modelMismatches.length}`);
 for (const row of modelMismatches) console.log(`  stale: ${row}`);
 console.log(`model source-input index: ${modelDocuments.reduce((sum, document) => sum + [...document.source.matchAll(/^## /gm)].length, 0)} sections, ${modelInputs.length} part rows; ${parameterAuditMismatches.length} stale, missing or duplicate`);
 for (const row of parameterAuditMismatches) console.log(`  parameter audit: ${row}`);
-console.log(`model construction noun/part census: ${modelDocuments.reduce((sum, document) => sum + [...document.source.matchAll(/^## /gm)].length, 0) - 3} geometry H2; ${partNounMismatches.length} missing nouns or part owners`);
+console.log(`model construction noun/part census: ${modelDocuments.filter((document) => document.path !== "scale.md").reduce((sum, document) => sum + [...document.source.matchAll(/^## /gm)].length, 0)} geometry H2; ${partNounMismatches.length} missing nouns or part owners`);
 for (const row of partNounMismatches) console.log(`  part owner: ${row}`);
 let arithmeticFailures = 0;
 try {
@@ -205,6 +206,7 @@ try {
 }
 const tessellation = checkModelTessellation();
 const proseConsistency = checkModelProseConsistency();
+const surfaceBinding = checkModelSurfaceBinding();
 const npmCli = [process.env.npm_execpath, join(dirname(process.execPath), "node_modules", "npm", "bin", "npm-cli.js")]
   .find((path) => path !== undefined && existsSync(path));
 const unit = npmCli
@@ -247,6 +249,6 @@ if (retired.length > 0) {
     console.log(`  ${value}: ${hits.length}${hits.length > 0 ? ` — ${hits.join(", ")}` : ""}`);
   }
 }
-const failureCount = review.failures + accountMismatches.length + modelMismatches.length + parameterAuditMismatches.length + partNounMismatches.length + ownerless.length + arithmeticFailures + geometryFailures + tessellation.failures.length + proseConsistency.failures.length + unitFailure + Number(addressControlFailed) + Number(ownViewControlFailed);
+const failureCount = review.failures + accountMismatches.length + modelMismatches.length + parameterAuditMismatches.length + partNounMismatches.length + ownerless.length + arithmeticFailures + geometryFailures + tessellation.failures.length + proseConsistency.failures.length + surfaceBinding.failures.length + unitFailure + Number(addressControlFailed) + Number(ownViewControlFailed);
 console.log(`self-check failures: ${failureCount}`);
 process.exitCode = failureCount > 0 ? 1 : 0;

@@ -19,7 +19,7 @@ export const modelContactClaims = (supplemental = false) => {
     for (const section of source.split(/^## /m).slice(1)) {
       const anchor = section.match(/\{#([^}]+)\}/)?.[1];
       assert.ok(anchor, `missing H2 anchor in ${file}`);
-      const body = section.replace(/<!--[\s\S]*?-->/g, "").split("\n").slice(1).join(" ");
+      const body = section.replace(/<!--[\s\S]*?-->/g, "").replace(/^부재 대응: [^\n]*$/gm, "").split("\n").slice(1).join(" ");
       const sentences = body.split(/(?<=다\.)\s+/).filter((sentence) => supplemental
         ? supplementalWord.test(sentence) && !contactWord.test(sentence) : contactWord.test(sentence));
       sentences.forEach((sentence, index) => claims.push({ id: `${file}#${anchor}${supplemental ? ":supplemental" : ""}:${index + 1}`, sentence }));
