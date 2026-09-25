@@ -20,11 +20,11 @@ const wall = (space: string) => `surface.${space}.wall`;
  * @evidence principles/core/source-units.md#source-scope-preservation 내부벽 실체와 양쪽 마감 표면 이름만 정하고 벽 두께·끝선은 building/junctions의 값을, 상단은 합성 지붕 하부를 그대로 받는다.
  * @evidence principles/core/source-units.md#source-substantive-completion 여섯 벽의 평면·구간·상단 정책·void·띠 분할을 모두 채운 WallSpec 배열을 반환해 wallFaces가 바로 기둥 프리즘을 만든다.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work openings.md#boundary-ownership의 spine 구간 경계, 가로 벽 세 개의 east-room~east-inner 범위, 제실 남벽의 west-ring~east-ring 범위와 문 void를 적힌 그대로 구현했고 여기서 드러난 부모 결함은 없다.
- * @evidenceReview spaces/openings.md # 내부 경계벽의 실체를 이 함수가 내고 문 위치는 templeDoorVoidsOn이 맡는 분업을 openings 파일의 경계·문 단위와 대조했다.
- * @evidenceReview spaces/openings.md#boundary-ownership # west/east spine을 각 하나의 plan으로, sanctuary-south를 가로벽으로, 동측 세 가로벽을 cross()로 내며 각 segment가 한 물리벽의 양쪽 표면을 나눈다.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation # 두 spine과 제실 남벽의 끝선은 p와 templeInteriorWallEnds에서 받고 지붕 top도 tier 참조만 두어 별도 치수·마감 mesh를 만들지 않는다.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion # 반환 배열의 여섯 WallSpec은 bottom·plan·segments·roof top·door void를 가지며 제실 상부 세 채광구는 전용 upper ID로 뚫는다.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work # openings의 spine 분할과 동측 세 가로벽 범위를 wall.spec 구간에 적용해 부모의 벽 위치를 임의로 옮기거나 숨은 방을 넣지 않았다.
+ * @evidenceReview spaces/openings.md #a3a99de # 내부 경계벽의 실체를 이 함수가 내고 문 위치는 templeDoorVoidsOn이 맡는 분업을 openings 파일의 경계·문 단위와 대조했다.
+ * @evidenceReview spaces/openings.md#boundary-ownership #0984b09 # west/east spine을 각 하나의 plan으로, sanctuary-south를 가로벽으로, 동측 세 가로벽을 cross()로 내며 각 segment가 한 물리벽의 양쪽 표면을 나눈다.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 # 두 spine과 제실 남벽의 끝선은 p와 templeInteriorWallEnds에서 받고 지붕 top도 tier 참조만 두어 별도 치수·마감 mesh를 만들지 않는다.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f # 반환 배열의 여섯 WallSpec은 bottom·plan·segments·roof top·door void를 가지며 제실 상부 세 채광구는 전용 upper ID로 뚫는다.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 # openings의 spine 분할과 동측 세 가로벽 범위를 wall.spec 구간에 적용해 부모의 벽 위치를 임의로 옮기거나 숨은 방을 넣지 않았다.
  */
 export const templeInteriorWalls = (): WallSpec[] => {
   const ends = templeInteriorWallEnds();

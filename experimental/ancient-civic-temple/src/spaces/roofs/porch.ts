@@ -13,11 +13,11 @@ import { templePlan as p } from "../building";
  * @evidence principles/core/source-units.md#source-scope-preservation 지지 4.00m·경사·두께는 규칙 값에서 받고 옆 처마를 만들지 않는다.
  * @evidence principles/core/source-units.md#source-substantive-completion gablePlanes로 용마루 X=0 양쪽에 west-porch-inner~east-porch-inner 폭의 두 조각을 돌려준다.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work roofs/porch.md#porch-roof의 폭·앞 돌출·뒤끝을 그대로 구현했다.
- * @evidenceReview spaces/roofs/porch.md # 두 반환벽 안쪽 사이의 독립 tier porch 박공을 생성하고 전면 처마만 건물 외곽 밖으로 내민다.
- * @evidenceReview spaces/roofs/porch.md#porch-roof # westPorchInner~eastPorchInner가 옆 처마 없는 폭이고 entranceBack부터 southOuter+0.35까지라 후퇴벽이 뒤끝, 앞 돌출이 정면이 된다.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation # 지지 4.00m와 22도, 두께는 rules에서 받고 기둥·삼각 막음·반환벽 실체는 만들지 않는다.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion # gablePlanes가 X=0 용마루 양쪽의 두 RoofPatch를 반환해 포치 지붕이 열린 전면 위의 실제 경사 실체로 조립된다.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work # 원본의 3.30m 반환벽 안쪽 폭과 앞 0.35m 돌출·뒤 entranceBack을 후보 영역에 맞췄고 코핑 높이를 바꿀 필요가 없었다.
+ * @evidenceReview spaces/roofs/porch.md #13cf7cc # 두 반환벽 안쪽 사이의 독립 tier porch 박공을 생성하고 전면 처마만 건물 외곽 밖으로 내민다.
+ * @evidenceReview spaces/roofs/porch.md#porch-roof #215aa7a # westPorchInner~eastPorchInner가 옆 처마 없는 폭이고 entranceBack부터 southOuter+0.35까지라 후퇴벽이 뒤끝, 앞 돌출이 정면이 된다.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 # 지지 4.00m와 22도, 두께는 rules에서 받고 기둥·삼각 막음·반환벽 실체는 만들지 않는다.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f # gablePlanes가 X=0 용마루 양쪽의 두 RoofPatch를 반환해 포치 지붕이 열린 전면 위의 실제 경사 실체로 조립된다.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 # 원본의 3.30m 반환벽 안쪽 폭과 앞 0.35m 돌출·뒤 entranceBack을 후보 영역에 맞췄고 코핑 높이를 바꿀 필요가 없었다.
  */
 export const templePorchRoof = (rules: RoofRules) => gablePlanes({
   owner: "roof-porch", id: "roof-porch", tier: "porch", axis: "x",

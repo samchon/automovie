@@ -25,182 +25,182 @@ import { templeColonnadeRegions } from "./rooms/colonnade";
  * 실체를 그 평면으로 잘라 그린 정확한 조각을 정사영으로 보고, roof-off는
  * 지붕·천장을 숨긴 절개 조감이다.
  * @evidence spaces/observations.md 관찰을 고를 때 뷰어가 함께 켜는 검사 보기(roof-off 절개 조감, X/Z 연직 단면)의 타입이다.
- * @evidenceReview spaces/observations.md # TempleView는 지붕 숨김과 X/Z 절단을 section 값으로 나누고 나머지 네 값으로 절단 카메라를 재현할 수 있게 한다.
+ * @evidenceReview spaces/observations.md #909ee89 # TempleView는 지붕 숨김과 X/Z 절단을 section 값으로 나누고 나머지 네 값으로 절단 카메라를 재현할 수 있게 한다.
  * @evidence spaces/observations.md#viewer-path 뷰어가 관찰의 보기를 받아 검사 모드·단면 위치·정사영·반높이를 켜게 하는 전달 계약이다.
- * @evidenceReview spaces/observations.md#viewer-path # section·offset·ortho·span·flip이 서버 절단축과 클라이언트 정사영 설정에 각각 전달되는 계약을 타입이 담는다.
+ * @evidenceReview spaces/observations.md#viewer-path #037f6c0 # section·offset·ortho·span·flip이 서버 절단축과 클라이언트 정사영 설정에 각각 전달되는 계약을 타입이 담는다.
  * @evidence principles/core/source-units.md#source-scope-preservation 보기 설정만 담고 건물 geometry를 새로 만들지 않는다.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation # 인터페이스 필드는 보기의 좌표·투영 옵션뿐이고 지붕을 삭제한 별도 구조 형상을 소유하지 않는다.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 # 인터페이스 필드는 보기의 좌표·투영 옵션뿐이고 지붕을 삭제한 별도 구조 형상을 소유하지 않는다.
  * @evidence principles/core/source-units.md#source-substantive-completion section·offset·ortho·span·flip 다섯 필드로 클라이언트가 추측 없이 보기를 재현한다.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion # 다섯 필드가 절단 종류·평면·투영·틀 크기·남길 방향을 각각 구분해 관찰 선택 시 보기를 완결한다.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f # 다섯 필드가 절단 종류·평면·투영·틀 크기·남길 방향을 각각 구분해 관찰 선택 시 보기를 완결한다.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work observations.md#viewer-path의 검사 모드·절개 규칙을 그대로 담는다.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work # 부모가 정한 roof-off와 두 연직축만 section 합집합에 넣어 새로운 검사 모드의 설계 개정이 없다.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 # 부모가 정한 roof-off와 두 연직축만 section 합집합에 넣어 새로운 검사 모드의 설계 개정이 없다.
  */
 export interface TempleView {
   /**
    * @evidence spaces/observations.md TempleView.section는 roof-off·cut-x·cut-z 중 하나로 절개 조감과 X/Z 연직 단면을 가른다.
-   * @evidenceReview spaces/observations.md # section 합집합이 roof-off, cut-x, cut-z 세 검사 방식만 허용하는지 확인했다.
+   * @evidenceReview spaces/observations.md #909ee89 # section 합집합이 roof-off, cut-x, cut-z 세 검사 방식만 허용하는지 확인했다.
    * @evidence principles/core/source-units.md#source-scope-preservation TempleView.section는 절개 방식을 roof-off·cut-x·cut-z 세 값으로 닫아 대각 단면 같은 설계 밖 보기를 받지 않는다.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation # 대각 골의 임의 축 값은 이 합집합에 없으므로 X/Z 밖 절단을 암묵적으로 가능하다고 선언하지 않는다.
+   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 # 대각 골의 임의 축 값은 이 합집합에 없으므로 X/Z 밖 절단을 암묵적으로 가능하다고 선언하지 않는다.
    * @evidence principles/core/source-units.md#source-substantive-completion TempleView.section는 문자열 합집합이라 뷰어가 모르는 모드를 받지 못하고 cut-x·cut-z가 서버 단면 축으로 그대로 간다.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion # 서버에 전달되는 두 cut 축과 roof-off 토큰이 명시되어 viewer mode를 별도 문자열 추측으로 만들지 않는다.
+   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f # 서버에 전달되는 두 cut 축과 roof-off 토큰이 명시되어 viewer mode를 별도 문자열 추측으로 만들지 않는다.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work TempleView.section는 observations.md#viewer-path의 roof-off 절개와 X/Z 연직 단면 두 수단을 그대로 담는다.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work # viewer-path의 세 모드를 타입에서 그대로 제한하며 대각 골 단면을 추가하지 않아 부모 검사 수단을 수정하지 않았다.
+   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 # viewer-path의 세 모드를 타입에서 그대로 제한하며 대각 골 단면을 추가하지 않아 부모 검사 수단을 수정하지 않았다.
    */
   section: "roof-off" | "cut-x" | "cut-z";
   /**
    * @evidence spaces/observations.md TempleView.offset는 연직 단면 평면의 world 좌표(m)다.
-   * @evidenceReview spaces/observations.md # offset 숫자가 cut-x에는 세계 X, cut-z에는 세계 Z 절단 위치로 사용되는 단면 평면 좌표임을 확인했다.
+   * @evidenceReview spaces/observations.md #909ee89 # offset 숫자가 cut-x에는 세계 X, cut-z에는 세계 Z 절단 위치로 사용되는 단면 평면 좌표임을 확인했다.
    * @evidence principles/core/source-units.md#source-scope-preservation TempleView.offset는 단면 평면 위치 한 숫자만 담고 두께나 범위를 더하지 않는다.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation # offset은 number 하나라 절단 slab 두께나 대각 축을 이 필드에 실어 보내지 않는다.
+   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 # offset은 number 하나라 절단 slab 두께나 대각 축을 이 필드에 실어 보내지 않는다.
    * @evidence principles/core/source-units.md#source-substantive-completion TempleView.offset는 number 하나로 서버가 그 world 좌표 평면에서 현재 source 실체를 자른다.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion # section과 offset의 쌍이 현재 실체를 자를 정확한 연직 평면 하나를 지정한다.
+   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f # section과 offset의 쌍이 현재 실체를 자를 정확한 연직 평면 하나를 지정한다.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work TempleView.offset는 observations.md#viewer-path의 정확한 평면 단면 규칙을 그대로 담는다.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work # 숫자 위치만 받는 필드라 설계에 없는 두꺼운 절단 영역이나 새 단면 좌표계를 요구하지 않았다.
+   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 # 숫자 위치만 받는 필드라 설계에 없는 두꺼운 절단 영역이나 새 단면 좌표계를 요구하지 않았다.
    */
   offset: number;
   /**
    * @evidence spaces/observations.md TempleView.ortho는 단면을 평면에 수직인 정사영으로 볼지 정한다.
-   * @evidenceReview spaces/observations.md # ortho boolean이 단면 질문의 정사영 선택을 뷰어에 명시적으로 전달한다.
+   * @evidenceReview spaces/observations.md #909ee89 # ortho boolean이 단면 질문의 정사영 선택을 뷰어에 명시적으로 전달한다.
    * @evidence principles/core/source-units.md#source-scope-preservation TempleView.ortho는 원근과 정사영 중 하나를 고르는 값만 담는다.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation # 이 속성은 카메라 투영 여부만 표현하며 절단 평면 위치나 부재 geometry를 바꾸지 않는다.
+   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 # 이 속성은 카메라 투영 여부만 표현하며 절단 평면 위치나 부재 geometry를 바꾸지 않는다.
    * @evidence principles/core/source-units.md#source-substantive-completion TempleView.ortho는 boolean으로 뷰어가 단면 평면에 수직인 정사영 카메라를 켤지 정한다.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion # 단면 view의 true 값으로 orthographic 카메라를 선택하고 false는 reference 절개 조감의 원근을 허용한다.
+   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f # 단면 view의 true 값으로 orthographic 카메라를 선택하고 false는 reference 절개 조감의 원근을 허용한다.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work TempleView.ortho는 observations.md#viewer-path의 단면 정사영 판독 요구를 그대로 담는다.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work # viewer-path가 요구하는 단면 정사영 선택만 실어 보내 상위 공간·지붕 치수를 수정하지 않았다.
+   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 # viewer-path가 요구하는 단면 정사영 선택만 실어 보내 상위 공간·지붕 치수를 수정하지 않았다.
    */
   ortho: boolean;
   /**
    * @evidence spaces/observations.md TempleView.span는 정사영 화면의 반높이(m)다.
-   * @evidenceReview spaces/observations.md # span은 section cut 관찰에서 1.2~7m 등 m 단위 정사영 반높이로 지정된다.
+   * @evidenceReview spaces/observations.md #909ee89 # span은 section cut 관찰에서 1.2~7m 등 m 단위 정사영 반높이로 지정된다.
    * @evidence principles/core/source-units.md#source-scope-preservation TempleView.span는 정사영 반높이만 담고 카메라 위치는 관찰 pose에서 받는다.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation # span 자체는 number 한 값이고 camera position은 TempleObservation.position에 남아 역할이 뒤섞이지 않는다.
+   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 # span 자체는 number 한 값이고 camera position은 TempleObservation.position에 남아 역할이 뒤섞이지 않는다.
    * @evidence principles/core/source-units.md#source-substantive-completion TempleView.span는 number(m)로 정사영 틀 크기를 정해 같은 단면이 매번 같은 배율로 보인다.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion # sectionObservations가 각 cut에 span을 채워 클라이언트가 별도 자동 맞춤값 없이 동일한 틀 크기로 연다.
+   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f # sectionObservations가 각 cut에 span을 채워 클라이언트가 별도 자동 맞춤값 없이 동일한 틀 크기로 연다.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work TempleView.span는 observations.md#viewer-path의 단면 틀 규칙을 그대로 담는다.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work # 단면 반높이의 전송 필드라 부모의 실제 건물 높이나 카메라 위치를 재설계하지 않았다.
+   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 # 단면 반높이의 전송 필드라 부모의 실제 건물 높이나 카메라 위치를 재설계하지 않았다.
    */
   span: number;
   /**
    * @evidence spaces/observations.md TempleView.flip는 단면 평면의 좌표가 큰 쪽과 작은 쪽 중 어느 쪽을 남길지 정한다.
-   * @evidenceReview spaces/observations.md # flip은 cut 평면 어느 절반을 남길지 나타내는 값으로, 모든 section 질문에서 false가 명시된다.
+   * @evidenceReview spaces/observations.md #909ee89 # flip은 cut 평면 어느 절반을 남길지 나타내는 값으로, 모든 section 질문에서 false가 명시된다.
    * @evidence principles/core/source-units.md#source-scope-preservation TempleView.flip는 남길 쪽을 고르는 값만 담는다.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation # boolean 하나로 절단의 좌우만 고르고 새로운 mesh 복사나 두 번째 공간을 요구하지 않는다.
+   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 # boolean 하나로 절단의 좌우만 고르고 새로운 mesh 복사나 두 번째 공간을 요구하지 않는다.
    * @evidence principles/core/source-units.md#source-substantive-completion TempleView.flip는 boolean으로 뷰어 절단 평면이 좌표가 큰 쪽과 작은 쪽 중 무엇을 남길지 정한다.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion # viewer의 cut-x/cut-z에 같은 flip 플래그를 줄 수 있어 어느 반공간을 제거할지 관찰 값에 결속된다.
+   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f # viewer의 cut-x/cut-z에 같은 flip 플래그를 줄 수 있어 어느 반공간을 제거할지 관찰 값에 결속된다.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work TempleView.flip는 observations.md#viewer-path의 단면 양쪽 판독 요구를 그대로 담는다.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work # 단면 양쪽 중 보존 쪽을 지정하는 설계 필드만 구현했고 새 건축 결정을 이 속성에 싣지 않았다.
+   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 # 단면 양쪽 중 보존 쪽을 지정하는 설계 필드만 구현했고 새 건축 결정을 이 속성에 싣지 않았다.
    */
   flip: boolean;
 }
 
 /**
  * @evidence spaces/observations.md 관찰 하나(ID·묶음·공간·역할·라벨·pose·보기·note)의 타입이다.
- * @evidenceReview spaces/observations.md # TempleObservation은 id부터 view까지 관찰 운영에 필요한 값과 pose 불가 사유 note를 한 레코드로 선언한다.
+ * @evidenceReview spaces/observations.md #909ee89 # TempleObservation은 id부터 view까지 관찰 운영에 필요한 값과 pose 불가 사유 note를 한 레코드로 선언한다.
  * @evidence principles/core/source-units.md#source-scope-preservation 관찰 위치와 이유만 담고 시각 판정 결과를 담지 않는다.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation # 인터페이스에는 합격·불합격이나 이미지 비교 결과 필드가 없고 위치·시선·검사 보기만 있다.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 # 인터페이스에는 합격·불합격이나 이미지 비교 결과 필드가 없고 위치·시선·검사 보기만 있다.
  * @evidence principles/core/source-units.md#source-substantive-completion pose가 없을 때 position·target이 null이고 note가 이유를 적는 규칙까지 타입이 정한다.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion # position과 target의 nullable 형식 및 note 필드가 관찰 실패를 목록에서 지우지 않고 표현할 자리를 마련한다.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f # position과 target의 nullable 형식 및 note 필드가 관찰 실패를 목록에서 지우지 않고 표현할 자리를 마련한다.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work observations.md#geometry-observations의 관찰 항목 구성을 그대로 담는다.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work # 부모의 관찰 항목 필드만 타입으로 옮기고 결과 판정 필드를 더하지 않아 관찰 설계의 범위를 바꾸지 않았다.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 # 부모의 관찰 항목 필드만 타입으로 옮기고 결과 판정 필드를 더하지 않아 관찰 설계의 범위를 바꾸지 않았다.
  */
 export interface TempleObservation {
   /**
    * @evidence spaces/observations.md TempleObservation.id는 묶음과 공간·역할을 담은 안정 관찰 ID다.
-   * @evidenceReview spaces/observations.md # 각 관찰 producer가 exterior.facade.<boundary> 또는 <space>.<station>처럼 group·소속·역할을 담은 id를 이 필드에 넣는다.
+   * @evidenceReview spaces/observations.md #909ee89 # 각 관찰 producer가 exterior.facade.<boundary> 또는 <space>.<station>처럼 group·소속·역할을 담은 id를 이 필드에 넣는다.
    * @evidence principles/core/source-units.md#source-scope-preservation TempleObservation.id는 관찰 ID 문자열만 담고 번호를 입력에서 복사하지 않는다.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation # id의 형식은 string 한 개이고 하드코딩된 관찰 개수나 컴파일 순번을 이 속성에 담지 않는다.
+   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 # id의 형식은 string 한 개이고 하드코딩된 관찰 개수나 컴파일 순번을 이 속성에 담지 않는다.
    * @evidence principles/core/source-units.md#source-substantive-completion TempleObservation.id는 string으로 뷰어 목록 선택과 자가검사 보고가 같은 관찰을 가리킨다.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion # 문자열 ID가 viewer 선택과 review 출력 양쪽에서 같은 질문을 식별할 수 있는 필수 필드다.
+   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f # 문자열 ID가 viewer 선택과 review 출력 양쪽에서 같은 질문을 식별할 수 있는 필수 필드다.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work TempleObservation.id는 observations.md#geometry-observations의 관찰 항목별 식별 요구를 그대로 담는다.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work # 개별 station을 구별할 식별자만 실어 관찰 분모나 공간 ID를 새로 정하지 않았다.
+   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 # 개별 station을 구별할 식별자만 실어 관찰 분모나 공간 ID를 새로 정하지 않았다.
    */
   id: string;
   /**
    * @evidence spaces/observations.md TempleObservation.group는 space·exterior·site·junction·section·reference 여섯 묶음 중 하나다.
-   * @evidenceReview spaces/observations.md # group 합집합 여섯 토큰을 세어 공간·외부·대지·접합·단면·레퍼런스 분류와 각각 대응한다.
+   * @evidenceReview spaces/observations.md #909ee89 # group 합집합 여섯 토큰을 세어 공간·외부·대지·접합·단면·레퍼런스 분류와 각각 대응한다.
    * @evidence principles/core/source-units.md#source-scope-preservation TempleObservation.group는 space·exterior·site·junction·section·reference 밖의 값을 받지 않는다.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation # 타입 밖의 일곱 번째 관찰 묶음은 허용하지 않아 질문 집합을 조용히 재분류할 수 없다.
+   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 # 타입 밖의 일곱 번째 관찰 묶음은 허용하지 않아 질문 집합을 조용히 재분류할 수 없다.
    * @evidence principles/core/source-units.md#source-substantive-completion TempleObservation.group는 문자열 합집합으로 뷰어가 묶음별 목록을 나눈다.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion # 각 observation의 group 필수값이 viewer의 목록 묶음을 안정적으로 지정한다.
+   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f # 각 observation의 group 필수값이 viewer의 목록 묶음을 안정적으로 지정한다.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work TempleObservation.group는 observations.md#geometry-observations의 여섯 관찰 묶음을 그대로 담는다.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work # 여섯 그룹은 부모 관찰 설계의 분류를 그대로 타입화하므로 새 질문 계층을 만들지 않았다.
+   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 # 여섯 그룹은 부모 관찰 설계의 분류를 그대로 타입화하므로 새 질문 계층을 만들지 않았다.
    */
   group: "exterior" | "space" | "site" | "junction" | "section" | "reference";
   /**
    * @evidence spaces/observations.md TempleObservation.space는 내부 관찰의 소속 공간 ID이고 외부·단면·reference는 null이다.
-   * @evidenceReview spaces/observations.md # 내부 station에는 공간 ID가 들어가고 exterior·section·reference producer는 null을 써 질문 소속을 분리한다.
+   * @evidenceReview spaces/observations.md #909ee89 # 내부 station에는 공간 ID가 들어가고 exterior·section·reference producer는 null을 써 질문 소속을 분리한다.
    * @evidence principles/core/source-units.md#source-scope-preservation TempleObservation.space는 내부 관찰에만 공간 ID를 두고 외부·단면 관찰에 공간을 지어내지 않는다.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation # string|null 허용으로 외부 질문에 가짜 방 ID를 강제하지 않는다.
+   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 # string|null 허용으로 외부 질문에 가짜 방 ID를 강제하지 않는다.
    * @evidence principles/core/source-units.md#source-substantive-completion TempleObservation.space는 string|null로 뷰어가 공간 선택 필터를 건다.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion # null과 실제 space ID를 구별해 viewer가 방 선택 시 외부 질문을 분리할 근거가 된다.
+   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f # null과 실제 space ID를 구별해 viewer가 방 선택 시 외부 질문을 분리할 근거가 된다.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work TempleObservation.space는 observations.md#geometry-observations의 공간별 station 규칙을 그대로 담는다.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work # 내부 관찰 소속을 전달할 뿐 새로운 방을 선언하지 않아 부모 공간 그래프가 유지된다.
+   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 # 내부 관찰 소속을 전달할 뿐 새로운 방을 선언하지 않아 부모 공간 그래프가 유지된다.
    */
   space: string | null;
   /**
    * @evidence spaces/observations.md TempleObservation.role는 threshold·corner·center·facade 같은 관찰 역할이다.
-   * @evidenceReview spaces/observations.md # role 필드가 engine station의 threshold·corner와 외부 census의 facade 등 각 producer 역할을 수용한다.
+   * @evidenceReview spaces/observations.md #909ee89 # role 필드가 engine station의 threshold·corner와 외부 census의 facade 등 각 producer 역할을 수용한다.
    * @evidence principles/core/source-units.md#source-scope-preservation TempleObservation.role는 역할 이름만 담고 판정 결과를 담지 않는다.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation # 이 string은 질문 종류이며 보임 비율이나 합격 상태를 싣는 필드가 아니다.
+   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 # 이 string은 질문 종류이며 보임 비율이나 합격 상태를 싣는 필드가 아니다.
    * @evidence principles/core/source-units.md#source-substantive-completion TempleObservation.role는 string으로 engine station의 threshold·corner·center 역할과 census의 facade 역할을 그대로 옮긴다.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion # templeObservations와 exteriorObservations가 각 station 또는 census의 role을 넣어 필터 가능한 목록을 완성한다.
+   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f # templeObservations와 exteriorObservations가 각 station 또는 census의 role을 넣어 필터 가능한 목록을 완성한다.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work TempleObservation.role는 observations.md#geometry-observations의 station 역할 구분을 그대로 담는다.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work # 상위 station 역할 이름을 담기만 하고 새 관찰 형식의 검증 기준을 더하지 않았다.
+   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 # 상위 station 역할 이름을 담기만 하고 새 관찰 형식의 검증 기준을 더하지 않았다.
    */
   role: string;
   /**
    * @evidence spaces/observations.md TempleObservation.label는 한국어 운영 라벨이다.
-   * @evidenceReview spaces/observations.md # label에는 현관·제실 등 한국어 공간명과 입면·단면 질문의 한국어 설명이 결합된다.
+   * @evidenceReview spaces/observations.md #909ee89 # label에는 현관·제실 등 한국어 공간명과 입면·단면 질문의 한국어 설명이 결합된다.
    * @evidence principles/core/source-units.md#source-scope-preservation TempleObservation.label는 한국어 라벨만 담는다.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation # 이 필드는 UI용 이름표이며 관찰 결과를 라벨 문자열에 숨겨 넣지 않는다.
+   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 # 이 필드는 UI용 이름표이며 관찰 결과를 라벨 문자열에 숨겨 넣지 않는다.
    * @evidence principles/core/source-units.md#source-substantive-completion TempleObservation.label는 string으로 뷰어 목록이 운영 언어로 관찰을 보인다.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion # 필수 label 문자열이 viewer 목록에서 선택할 관찰을 운영 언어로 노출한다.
+   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f # 필수 label 문자열이 viewer 목록에서 선택할 관찰을 운영 언어로 노출한다.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work TempleObservation.label는 observations.md#geometry-observations의 운영 언어 관찰 이름을 그대로 담는다.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work # 라벨은 질문 표시용이어서 부모의 장소명이나 방 경계를 수정하지 않았다.
+   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 # 라벨은 질문 표시용이어서 부모의 장소명이나 방 경계를 수정하지 않았다.
    */
   label: string;
   /**
    * @evidence spaces/observations.md TempleObservation.position는 카메라 위치이며 pose가 없으면 null이다.
-   * @evidenceReview spaces/observations.md # position은 실제 관찰의 eye 좌표이고 불가능한 옛 창 threshold에는 null을 기록한다.
+   * @evidenceReview spaces/observations.md #909ee89 # position은 실제 관찰의 eye 좌표이고 불가능한 옛 창 threshold에는 null을 기록한다.
    * @evidence principles/core/source-units.md#source-scope-preservation TempleObservation.position는 카메라 위치만 담고 pose가 불가능하면 null로 비운다.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation # Vector3|null만 허용하고 카메라가 없는 항목에 임의 대체 점을 넣도록 강제하지 않는다.
+   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 # Vector3|null만 허용하고 카메라가 없는 항목에 임의 대체 점을 넣도록 강제하지 않는다.
    * @evidence principles/core/source-units.md#source-substantive-completion TempleObservation.position는 IAutoMovieVector3|null로 뷰어 카메라와 자가검사의 실체 안 pose 검사가 같은 점을 쓴다.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion # viewer 이동과 self-check의 내부 실체 탐침이 이 같은 좌표를 읽어 무효 station을 일관되게 구별한다.
+   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f # viewer 이동과 self-check의 내부 실체 탐침이 이 같은 좌표를 읽어 무효 station을 일관되게 구별한다.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work TempleObservation.position는 observations.md#geometry-observations의 바닥+1.6m 눈높이 재배치 규칙을 그대로 담는다.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work # 유효 내부 pose는 supportHeight 뒤 floor+1.6m로 세우고 불가 시 null이어서 부모 눈높이 요구를 바꾸지 않았다.
+   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 # 유효 내부 pose는 supportHeight 뒤 floor+1.6m로 세우고 불가 시 null이어서 부모 눈높이 요구를 바꾸지 않았다.
    */
   position: IAutoMovieVector3 | null;
   /**
    * @evidence spaces/observations.md TempleObservation.target는 카메라가 보는 점이며 pose가 없으면 null이다.
-   * @evidenceReview spaces/observations.md # target은 engine station이나 section cut의 실제 시선점이며 pose 없는 대각 골에는 null을 둔다.
+   * @evidenceReview spaces/observations.md #909ee89 # target은 engine station이나 section cut의 실제 시선점이며 pose 없는 대각 골에는 null을 둔다.
    * @evidence principles/core/source-units.md#source-scope-preservation TempleObservation.target는 시선 점만 담고 pose가 불가능하면 null로 비운다.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation # Vector3|null 타입으로 카메라가 없는 검사를 가짜 target으로 메우지 않는다.
+   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 # Vector3|null 타입으로 카메라가 없는 검사를 가짜 target으로 메우지 않는다.
    * @evidence principles/core/source-units.md#source-substantive-completion TempleObservation.target는 IAutoMovieVector3|null로 뷰어 카메라 방향이 정해진다.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion # position과 별도 target이 있어 단면·입면 관찰의 카메라 시선 방향을 명시한다.
+   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f # position과 별도 target이 있어 단면·입면 관찰의 카메라 시선 방향을 명시한다.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work TempleObservation.target는 observations.md#geometry-observations의 시선 방향 규칙을 그대로 담는다.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work # 시선 좌표만 전달해 관찰 대상 건물 위치나 경계를 새로 결정하지 않았다.
+   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 # 시선 좌표만 전달해 관찰 대상 건물 위치나 경계를 새로 결정하지 않았다.
    */
   target: IAutoMovieVector3 | null;
   /**
    * @evidence spaces/observations.md TempleObservation.note는 pose 없음·높이 이동·무효 같은 이유를 적는 문장이다.
-   * @evidenceReview spaces/observations.md # note가 engine station 반환 불가, support 부재, 옛 창 threshold 무효의 이유를 실제 관찰 항목에 보존한다.
+   * @evidenceReview spaces/observations.md #909ee89 # note가 engine station 반환 불가, support 부재, 옛 창 threshold 무효의 이유를 실제 관찰 항목에 보존한다.
    * @evidence principles/core/source-units.md#source-scope-preservation TempleObservation.note는 이유 문장만 담고 시각 판정 결과를 적지 않는다.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation # note의 문자열은 pose 상태 설명이며 레퍼런스와 같은지에 대한 결과값을 미리 쓰지 않는다.
+   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 # note의 문자열은 pose 상태 설명이며 레퍼런스와 같은지에 대한 결과값을 미리 쓰지 않는다.
    * @evidence principles/core/source-units.md#source-substantive-completion TempleObservation.note는 string|null로 pose 없음·높이 이동·무효 항목이 지워지지 않고 이유와 함께 남는다.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion # null 아닌 note와 null pose를 함께 허용해 측정 불가 질문이 전집합에서 빠지지 않는다.
+   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f # null 아닌 note와 null pose를 함께 허용해 측정 불가 질문이 전집합에서 빠지지 않는다.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work TempleObservation.note는 observations.md#geometry-observations의 반환 불가 항목 보존 규칙을 그대로 담는다.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work # 옛 무효 질문도 note와 함께 남기는 상위 규칙을 구현하며 새 판정 사실을 추가하지 않았다.
+   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 # 옛 무효 질문도 note와 함께 남기는 상위 규칙을 구현하며 새 판정 사실을 추가하지 않았다.
    */
   note: string | null;
   /**
    * @evidence spaces/observations.md TempleObservation.view는 관찰이 함께 켤 검사 보기이며 없으면 생략한다.
-   * @evidenceReview spaces/observations.md # view 선택 필드가 reference 02의 roof-off 및 각 section의 cut-x/cut-z 보기를 관찰 ID에 결속한다.
+   * @evidenceReview spaces/observations.md #909ee89 # view 선택 필드가 reference 02의 roof-off 및 각 section의 cut-x/cut-z 보기를 관찰 ID에 결속한다.
    * @evidence principles/core/source-units.md#source-scope-preservation TempleObservation.view는 관찰이 켤 보기만 담고 없으면 생략한다.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation # 일반 공간 station에서는 view가 생략되어 기본 카메라를 쓰고 검사 보기만 별도 옵션을 받는다.
+   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 # 일반 공간 station에서는 view가 생략되어 기본 카메라를 쓰고 검사 보기만 별도 옵션을 받는다.
    * @evidence principles/core/source-units.md#source-substantive-completion TempleObservation.view는 선택 필드 TempleView로 뷰어가 관찰 선택과 함께 검사 보기를 켠다.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion # 선택된 section 질문의 TempleView 다섯 값을 viewer에 함께 전달할 수 있는 타입 연결이 있다.
+   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f # 선택된 section 질문의 TempleView 다섯 값을 viewer에 함께 전달할 수 있는 타입 연결이 있다.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work TempleObservation.view는 observations.md#viewer-path의 관찰별 검사 보기 전달을 그대로 담는다.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work # viewer-path의 검사 보기를 관찰별 옵션으로만 실어 상위 지붕이나 대지 모델을 변경하지 않았다.
+   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 # viewer-path의 검사 보기를 관찰별 옵션으로만 실어 상위 지붕이나 대지 모델을 변경하지 않았다.
    */
   view?: TempleView;
 }
@@ -208,13 +208,13 @@ export interface TempleObservation {
 /**
  * 운영 언어(한국어) 공간명.
  * @evidence spaces/observations.md 관찰 라벨에 쓰는 아홉 공간과 대지의 한국어 이름표다.
- * @evidenceReview spaces/observations.md # templeSpaceNames의 현관부터 서비스 마당까지 아홉 방과 temple-site를 각각 한국어 이름에 매핑한다.
+ * @evidenceReview spaces/observations.md #909ee89 # templeSpaceNames의 현관부터 서비스 마당까지 아홉 방과 temple-site를 각각 한국어 이름에 매핑한다.
  * @evidence principles/core/source-units.md#source-scope-preservation 공간 ID에 이름만 붙이고 공간을 더하지 않는다.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation # 이 객체는 ID→라벨 값뿐이라 실제 environment.spaces에 새 방을 등록하지 않는다.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 # 이 객체는 ID→라벨 값뿐이라 실제 environment.spaces에 새 방을 등록하지 않는다.
  * @evidence principles/core/source-units.md#source-substantive-completion ID→이름 레코드로 관찰과 뷰어가 같은 이름을 쓴다.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion # station label 조립이 이 레코드에서 name을 읽고 viewer도 같은 관찰 label을 받아 운영명 불일치를 피한다.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f # station label 조립이 이 레코드에서 name을 읽고 viewer도 같은 관찰 label을 받아 운영명 불일치를 피한다.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work observations.md의 한국어 관찰 UI 요구를 그대로 담는다.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work # 한국어 표시명만 부여하고 공간 topology를 바꾸지 않으므로 부모 관찰 규칙 개정이 없다.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 # 한국어 표시명만 부여하고 공간 topology를 바꾸지 않으므로 부모 관찰 규칙 개정이 없다.
  */
 export const templeSpaceNames: Record<string, string> = {
   entrance: "현관", courtyard: "중정", colonnade: "주랑", sanctuary: "제실",
@@ -232,15 +232,15 @@ const directionNames: Record<string, string> = {
 
 /**
  * @evidence spaces/observations.md 현재 built environment에서 공간·외부·대지·접합·단면·reference 관찰 전집합을 유도한다.
- * @evidenceReview spaces/observations.md # 함수는 현재 environment의 공간 station부터 외부 census·site 및 독립 접합·단면·다섯 reference를 한 result에 결합한다.
+ * @evidenceReview spaces/observations.md #909ee89 # 함수는 현재 environment의 공간 station부터 외부 census·site 및 독립 접합·단면·다섯 reference를 한 result에 결합한다.
  * @evidence spaces/observations.md#geometry-observations 공간 station을 바닥+1.6m로 다시 세우고 주랑 여섯 영역·추가 모서리, census 입면·모서리·지붕·처마 하부·외부 개구부, 접합 pose, 연직 단면 질문, reference 다섯을 만들며 반환 불가·무효 항목은 이유와 함께 pose 없이 남긴다.
- * @evidenceReview spaces/observations.md#geometry-observations # builtSpaceObservationStations 전체 순회와 supportHeight 재배치 뒤 여섯 주랑 영역, 단면·접합·reference, perimeter·site 함수를 합치며 null station을 삭제하지 않는다.
+ * @evidenceReview spaces/observations.md#geometry-observations #4155dcf # builtSpaceObservationStations 전체 순회와 supportHeight 재배치 뒤 여섯 주랑 영역, 단면·접합·reference, perimeter·site 함수를 합치며 null station을 삭제하지 않는다.
  * @evidence principles/core/source-units.md#source-scope-preservation environment를 읽기만 하고 건물 geometry를 만들지 않으며 관찰 수를 입력에서 복사하지 않는다.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation # 이 함수는 environment를 조회하고 TempleObservation 배열만 만들며 입면·방 수를 매개변수 숫자로 받지 않는다.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 # 이 함수는 environment를 조회하고 TempleObservation 배열만 만들며 입면·방 수를 매개변수 숫자로 받지 않는다.
  * @evidence principles/core/source-units.md#source-substantive-completion 관찰 목록을 돌려주며 자가검사가 이 목록의 pose가 실체 안에 묻혔는지 센다.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion # 공간·외부·대지 등 모든 질문을 하나의 result로 돌려 self-check가 실제 pose와 null 사유를 함께 검사할 수 있다.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f # 공간·외부·대지 등 모든 질문을 하나의 result로 돌려 self-check가 실제 pose와 null 사유를 함께 검사할 수 있다.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work observations.md#geometry-observations의 전집합 규칙과 묶음을 그대로 구현했다.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work # 기존 관찰 분모의 여섯 묶음을 합성하고 무효 창 threshold를 note로 보존하므로 질문 수를 임의로 축소하는 상위 변경이 없다.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 # 기존 관찰 분모의 여섯 묶음을 합성하고 무효 창 threshold를 note로 보존하므로 질문 수를 임의로 축소하는 상위 변경이 없다.
  */
 export const templeObservations = (environment: IAutoMovieBuiltEnvironment): TempleObservation[] => {
   const result: TempleObservation[] = [];

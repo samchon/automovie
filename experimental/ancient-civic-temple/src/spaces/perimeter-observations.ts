@@ -11,15 +11,15 @@ const eye = 1.6;
 /**
  * Follow the opening's actual host normal toward the compiled room centre, then stand back from its far wall.
  * @evidence spaces/observations.md The opening-facing camera position is compiled from the current host and room geometry.
- * @evidenceReview spaces/observations.md # openingFacingEye uses the compiled room bounds and rotated host normal rather than a saved camera coordinate, matching the observation derivation rule.
+ * @evidenceReview spaces/observations.md #909ee89 # openingFacingEye uses the compiled room bounds and rotated host normal rather than a saved camera coordinate, matching the observation derivation rule.
  * @evidence spaces/observations.md#geometry-observations The room-facing observation is derived from the compiled host and room volume instead of copying a door coordinate.
- * @evidenceReview spaces/observations.md#geometry-observations # The normal ray samples 0.1 m interior points and chooses a position within the room volume for the exact mouth and anchor supplied by the caller.
+ * @evidenceReview spaces/observations.md#geometry-observations #4155dcf # The normal ray samples 0.1 m interior points and chooses a position within the room volume for the exact mouth and anchor supplied by the caller.
  * @evidence principles/core/source-units.md#source-scope-preservation This function locates a camera only; it does not create another opening, room, or building surface.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation # This helper returns one vector or null and does not mutate the room, its boundary, or the opening profile.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 # This helper returns one vector or null and does not mutate the room, its boundary, or the opening profile.
  * @evidence principles/core/source-units.md#source-substantive-completion The room-side point is tested against the room's own compiled volume and returns null when the host direction cannot supply one.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion # A missing bound, zero normal, ambiguous anchor side, or point outside builtSpaceContainsPoint returns null; a valid point is measured against the same room.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f # A missing bound, zero normal, ambiguous anchor side, or point outside builtSpaceContainsPoint returns null; a valid point is measured against the same room.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The corrected observation rule was paid at observations.md#geometry-observations before this helper realized it.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work # The room-facing pose rule was repaired in observations.md before this normal-ray helper consumed it; this export exposed no further host or room revision.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 # The room-facing pose rule was repaired in observations.md before this normal-ray helper consumed it; this export exposed no further host or room revision.
  */
 export const openingFacingEye = (
   space: IAutoMovieBuiltSpace, mouth: IAutoMovieVector3, normal: IAutoMovieVector3, anchor: IAutoMovieVector3,
@@ -51,15 +51,15 @@ export const openingFacingEye = (
  * 개구부 ID와 실제 host profile에 결속된 방 안쪽 시점. 엔진 threshold의 도착 방향을
  * 창을 향한 시선으로 오인하지 않는다.
  * @evidence spaces/observations.md 실제 개구부 관찰 전집합에 방 안쪽 시점을 더한다.
- * @evidenceReview spaces/observations.md # The map visits environment.openings rather than a handpicked window list, so each compiled door or clerestory receives a room-facing question.
+ * @evidenceReview spaces/observations.md #909ee89 # The map visits environment.openings rather than a handpicked window list, so each compiled door or clerestory receives a room-facing question.
  * @evidence spaces/observations.md#geometry-observations 16개 개구부마다 해당 profile을 향하는 방 안 pose를 별도 관찰로 만든다.
- * @evidenceReview spaces/observations.md#geometry-observations # For each opening the target is its rotated profile midpoint and the room-side eye is obtained from that same host normal; the engine arrival threshold is not reused.
+ * @evidenceReview spaces/observations.md#geometry-observations #4155dcf # For each opening the target is its rotated profile midpoint and the room-side eye is obtained from that same host normal; the engine arrival threshold is not reused.
  * @evidence principles/core/source-units.md#source-scope-preservation 공간·경계·개구부에서 시점만 유도하고 벽·창·문 geometry는 추가하지 않는다.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation # The result consists only of TempleObservation records; no boundary face, window profile, or door solid is produced.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 # The result consists only of TempleObservation records; no boundary face, window profile, or door solid is produced.
  * @evidence principles/core/source-units.md#source-substantive-completion 모든 opening ID에 대해 공간 안 눈높이 pose와 실제 profile 중심 target을 반환하며 공간 밖이면 오류를 낸다.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion # A missing boundary/profile or an eye outside its chosen room throws; successful records bind opening.id, real profile target, and inside-room position.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f # A missing boundary/profile or an eye outside its chosen room throws; successful records bind opening.id, real profile target, and inside-room position.
  * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work openings.md#clerestories가 도착 threshold를 창 판독에서 제외하고 창 ID 방향 pose를 요구하며, observations.md#geometry-observations가 문·창 16개의 별도 방 쪽 관찰 규칙을 정한 뒤 이 함수를 구현했다.
- * @evidenceReview upstream/design/space-sources.md#design-revision-from-space-source-work # The reviewed opening-facing rule and exclusion of arrival thresholds precede this implementation; it derives the new eye from those repaired owners rather than adding a second undocumented window rule.
+ * @evidenceReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 # The reviewed opening-facing rule and exclusion of arrival thresholds precede this implementation; it derives the new eye from those repaired owners rather than adding a second undocumented window rule.
  */
 export const openingFacingObservations = (environment: IAutoMovieBuiltEnvironment): TempleObservation[] => {
   return environment.openings.map((opening) => {
@@ -97,15 +97,15 @@ const fitDistance = (width: number): number => (width / 0.78) / 2 / (Math.tan(25
 
 /**
  * @evidence spaces/observations.md 외부 setting과 경계·개구부 관찰을 현재 environment에서 유도한다.
- * @evidenceReview spaces/observations.md # ExteriorObservations begins with a setting, traverses compiled facades and openings, and adds four corner plus roof/underside stations from the same plan.
+ * @evidenceReview spaces/observations.md #909ee89 # ExteriorObservations begins with a setting, traverses compiled facades and openings, and adds four corner plus roof/underside stations from the same plan.
  * @evidence spaces/observations.md#geometry-observations 실제 census의 노출 입면과 opening profile에서 외부 시점을 유도한다.
- * @evidenceReview spaces/observations.md#geometry-observations # The facade loop consumes builtEnvironmentBuildingCensus and the opening loop consumes environment.openings, preserving compiled IDs in the resulting exterior questions.
+ * @evidenceReview spaces/observations.md#geometry-observations #4155dcf # The facade loop consumes builtEnvironmentBuildingCensus and the opening loop consumes environment.openings, preserving compiled IDs in the resulting exterior questions.
  * @evidence principles/core/source-units.md#source-scope-preservation 현재 boundary와 opening을 읽고 외부 시점만 만들며 입면이나 창을 다시 저작하지 않는다.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation # Camera position, target, and label are the only new values; boundary and profile arrays are read but never changed.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 # Camera position, target, and label are the only new values; boundary and profile arrays are read but never changed.
  * @evidence principles/core/source-units.md#source-substantive-completion setting, 입면, 네 모서리·지붕·처마 하부, 외부 개구부를 안정 ID의 관찰 목록으로 반환한다.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion # The final out list contains explicit setting/corner/roof/underside IDs plus one census-based facade and each outside-facing opening ID.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f # The final out list contains explicit setting/corner/roof/underside IDs plus one census-based facade and each outside-facing opening ID.
  * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work observations.md#geometry-observations에서 후퇴벽 낮은 네 면의 기본 pose가 벽 반대편을 향하는 결함을 먼저 고치고, 안타 끝·포치 박공 양면의 새 입면 관찰을 정한 뒤 그 규칙을 구현한다.
- * @evidenceReview upstream/design/space-sources.md#design-revision-from-space-source-work # The lower return, anta end, and two pediment sides use the poses added to the upstream geometry-observations rule, so this function realizes the repair already recorded there.
+ * @evidenceReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 # The lower return, anta end, and two pediment sides use the poses added to the upstream geometry-observations rule, so this function realizes the repair already recorded there.
  */
 export const exteriorObservations = (environment: IAutoMovieBuiltEnvironment): TempleObservation[] => {
   const census = builtEnvironmentBuildingCensus(environment)[0];
