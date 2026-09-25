@@ -68,14 +68,14 @@
 <!--
 @evidence principles/core/common.md#scope-preservation 폭 W를 받는 벽 거울 원형으로 파우더룸·욕조 욕실·샤워 욕실 세 배치를 맡고 실제 반사는 materials와 렌더 소유로 넘긴다.
 @evidence principles/core/common.md#substantive-completion 높이 0.80 m, 돌출 0.04 m, 테두리 폭 0.02 m·깊이 0.04 m, 테두리 안쪽 면에서 0.03 m 뒤의 깊이 0.01 m 거울 판을 정한다.
-@evidence principles/core/common.md#declared-basis W = 0.60 m와 0.85 m는 두 방 거울 예약의 가로 폭이고 높이 0.80 m는 두 예약의 1.10–1.90 m 범위와 같아 수치의 출처가 본문 링크에서 추적된다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 방 문서의 거울 예약 상자(두께 0.04 m, 높이 1.10–1.90 m) 위에 테두리와 뒤로 물러난 거울 판의 두 부품 구성, 하단 중심 원점이라는 모델 결정을 더한다.
+@evidence principles/core/common.md#declared-basis W = 0.60·0.70·0.85 m는 파우더룸·샤워 욕실·욕조 욕실 거울 예약의 가로 폭이고 높이 0.80 m는 세 예약의 1.10–1.90 m 범위와 같아 수치의 출처가 본문 링크에서 추적된다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 세 방 문서의 거울 예약 상자(두께 0.04 m, 높이 1.10–1.90 m) 위에 테두리와 뒤로 물러난 거울 판의 두 부품 구성, 하단 중심 원점이라는 모델 결정을 더한다.
 @evidence principles/design/models.md#representation-contract 테두리와 거울 판 두 부품, 표면 id `mirror-frame`, `mirror`를 두고 이 원형은 평면만 주며 반사를 주장하지 않는다고 적는다. 보이지 않는 한계는 본문의 "거울 뒤 고정 철물과 모서리 모따기는 표현하지 않는다."로 밝힌다.
 @evidence principles/design/models.md#spatial-convention 벽걸이 원형이므로 원점을 벽면 위 거울 하단의 가로 중심 1.10 m에 두는 가구 국소 좌표의 예외를 밝힌다.
 @evidence principles/design/models.md#reviewable-structure 측면에서 돌출이 0.04 m를 넘지 않는지, 정면에서 하단이 세면장 상면 위 0.25 m에 있는지가 거울을 반증할 관찰이다.
 @evidence principles/design/models.md#model-observable-style-basis 레퍼런스 02의 욕실 거울은 세면장 위 직사각으로 채택한다. 스타일 라벨 없이 폭 0.02 m 얇은 테두리와 0.03 m 들어간 판이라는 구성만 정하고 반사 외관은 materials와 렌더에 둔다.
 @evidence principles/design/models.md#model-scale-layer-completion 돌출 0.04 m·높이 0.80 m 규모, 테두리·판 두 부품 계층, 반사 비표현 한계, unverified 관찰 두 가지가 함께 거울 블로킹을 결정한다.
-@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 파우더룸 거울 X = [3.65, 4.25]·Z = [-0.29, -0.25]와 욕조 욕실 거울 X = [5.46, 5.50]·Z = [-5.75, -4.90]의 1.10–1.90 m 범위를 적힌 그대로 받았고 돌출 0.04 m가 두 예약 두께와 같아 부모 수정이 없었다.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 파우더룸 X=[3.65,4.25]·Z=[-0.29,-0.25], 샤워 욕실 X=[3.03,3.07]·Z=[-6.80,-6.10], 욕조 욕실 X=[5.46,5.50]·Z=[-5.75,-4.90]의 거울 예약과 1.10–1.90 m 높이를 적힌 그대로 받았고 돌출 0.04 m가 세 예약 두께와 같아 부모 수정이 없었다.
 @evidence spaces/rooms/powder.md#powder-fixture-use 파우더룸 거울 예약 X = [3.65, 4.25], Z = [-0.29, -0.25], 높이 1.10–1.90 m를 W = 0.60 m 거울로 소비한다.
 @evidence spaces/rooms/tub-bath.md#tub-fixture-use 욕조 욕실 거울 예약 X = [5.46, 5.50], Z = [-5.75, -4.90], 상층 바닥 위 1.10–1.90 m를 W = 0.85 m 거울로 소비한다.
 @evidence settings/10-house.md#powder 파우더룸 설정이 요구하는 거울을 이 원형의 W = 0.60 m 배치로 제공한다.
