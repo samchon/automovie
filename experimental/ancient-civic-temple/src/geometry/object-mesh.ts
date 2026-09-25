@@ -29,9 +29,12 @@ export class ObjectMesh {
     const nx = (b.y-a.y)*(c.z-a.z)-(b.z-a.z)*(c.y-a.y);
     const ny = (b.z-a.z)*(c.x-a.x)-(b.x-a.x)*(c.z-a.z);
     const nz = (b.x-a.x)*(c.y-a.y)-(b.y-a.y)*(c.x-a.x);
-    const projected = (v: Point): readonly [number, number] =>
-      Math.abs(ny) >= Math.abs(nx) && Math.abs(ny) >= Math.abs(nz) ? [v.x, v.z]
-        : Math.abs(nx) >= Math.abs(nz) ? [v.z, v.y] : [v.x, v.y];
+    const projected = (v: Point): readonly [number, number] => {
+      if (Math.abs(ny) >= Math.abs(nx) && Math.abs(ny) >= Math.abs(nz))
+        return ny >= 0 ? [v.x, -v.z] : [v.x, v.z];
+      if (Math.abs(nx) >= Math.abs(nz)) return nx >= 0 ? [-v.z, v.y] : [v.z, v.y];
+      return nz >= 0 ? [v.x, v.y] : [-v.x, v.y];
+    };
     for (let i = 0; i < vertices.length; ++i) {
       const [u, v] = coordinates?.[i] ?? projected(vertices[i]!);
       buffer.uvs.push(u, v);
@@ -63,17 +66,18 @@ export class ObjectMesh {
     const low: Point[] = [], high: Point[] = [];
     for (let i = 0; i < segments; ++i) {
       const angle = 2 * Math.PI * i / segments;
-      low.push(point(x + lowerRadius * Math.cos(angle), bottom, z + lowerRadius * Math.sin(angle)));
-      high.push(point(x + upperRadius * Math.cos(angle), top, z + upperRadius * Math.sin(angle)));
+      low.push(point(x + lowerRadius * Math.cos(angle), bottom, z - lowerRadius * Math.sin(angle)));
+      high.push(point(x + upperRadius * Math.cos(angle), top, z - upperRadius * Math.sin(angle)));
     }
-    this.outwardPolygon(name, [...low].reverse());
-    this.outwardPolygon(name, high);
+    this.polygon(name, [...low].reverse());
+    this.polygon(name, high);
     for (let i = 0; i < segments; ++i) {
       const next = (i + 1) % segments;
-      const circumference = Math.PI * (lowerRadius + upperRadius);
-      const u0 = circumference * i / segments, u1 = circumference * (i+1) / segments;
-      this.outwardPolygon(name, [low[i]!, low[next]!, high[next]!, high[i]!],
-        [[u0,bottom],[u1,bottom],[u1,top],[u0,top]]);
+      const angle0 = 2*Math.PI*i/segments, angle1 = 2*Math.PI*(i+1)/segments;
+      const rise = Math.hypot(top-bottom, upperRadius-lowerRadius);
+      this.polygon(name, [low[i]!, low[next]!, high[next]!, high[i]!],
+        [[lowerRadius*angle0,0],[lowerRadius*angle1,0],
+          [upperRadius*angle1,rise],[upperRadius*angle0,rise]]);
     }
     return this;
   }
@@ -84,22 +88,31 @@ export class ObjectMesh {
     if (profile.length < 4) throw new Error(`${name}: 용기 단면 부족`);
     const ring = (height: number, radius: number): Point[] => Array.from({ length: segments }, (_, i) => {
       const angle = 2 * Math.PI * i / segments;
-      return point(x + radius * Math.cos(angle), height, z + radius * Math.sin(angle));
+      return point(x + radius * Math.cos(angle), height, z - radius * Math.sin(angle));
     });
     const rings = profile.map(([height, radius]) => ring(height, radius));
+    const lengthFromBottom = (profilePoints: readonly (readonly [number, number])[]): number[] => {
+      const lengths = [0];
+      for (let i=1;i<profilePoints.length;++i)
+        lengths.push(lengths[i-1]! + Math.hypot(profilePoints[i]![0]-profilePoints[i-1]![0],
+          profilePoints[i]![1]-profilePoints[i-1]![1]));
+      return lengths;
+    };
+    const outerLength = lengthFromBottom(outside);
+    const innerReverse = lengthFromBottom([...inside].reverse()).reverse();
+    const arcLength = [...outerLength, ...innerReverse];
     for (let j = 0; j < rings.length - 1; ++j) {
       const a = rings[j]!, b = rings[j + 1]!;
       for (let i = 0; i < segments; ++i) {
         const next = (i + 1) % segments;
-        const circumference = Math.PI * (profile[j]![1] + profile[j+1]![1]);
-        const u0 = circumference * i / segments, u1 = circumference * (i+1) / segments;
-        this.outwardPolygon(name, [a[i]!, a[next]!, b[next]!, b[i]!],
-          [[u0,profile[j]![0]],[u1,profile[j]![0]],
-            [u1,profile[j+1]![0]],[u0,profile[j+1]![0]]]);
+        const angle0 = 2*Math.PI*i/segments, angle1 = 2*Math.PI*(i+1)/segments;
+        this.polygon(name, [a[i]!, a[next]!, b[next]!, b[i]!],
+          [[profile[j]![1]*angle0,arcLength[j]!],[profile[j]![1]*angle1,arcLength[j]!],
+            [profile[j+1]![1]*angle1,arcLength[j+1]!],[profile[j+1]![1]*angle0,arcLength[j+1]!]]);
       }
     }
-    this.outwardPolygon(name, [...rings[0]!].reverse());
-    this.outwardPolygon(name, rings[rings.length - 1]!);
+    this.polygon(name, [...rings[0]!].reverse());
+    this.polygon(name, rings[rings.length - 1]!);
     return this;
   }
 

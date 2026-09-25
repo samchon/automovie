@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { randomInt } from "node:crypto";
 import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import type { IAutoMovieModel } from "@automovie/interface";
@@ -68,8 +69,7 @@ void test("every documented object coordinate row bounds the emitted part", () =
   assert.deepEqual(result.failures, []);
 });
 
-void test("the same census rejects a moved part outside its authored interval", () => {
-  const models = objectModels();
+void test("the same census rejects randomly selected moved parts", () => {
   const addresses = readdirSync(root).filter((file) => file.endsWith(".md")).flatMap((file) => {
     const source = readFileSync(join(root, file), "utf8");
     return source.split(/(?=^## )/m).filter((section) => section.includes("| part | X | Y | Z |"))
@@ -80,13 +80,18 @@ void test("the same census rejects a moved part outside its authored interval", 
       });
   });
   assert.ok(addresses.length > 0);
-  const chosen = addresses.find(({ model, part }) => model === "object.bench" && part === "seat")!;
-  assert.ok(chosen);
-  const part = models.find((model) => model.id === chosen.model)!.parts.find((item) => item.id === chosen.part)!;
-  if (part.geometry.type !== "mesh") throw new Error(`${chosen.model}/${chosen.part}: mesh absent`);
-  const x = part.geometry.mesh.positions;
-  x[0]! += 10;
-  assert.match(boundsCensus(models).failures.join("\n"), new RegExp(`${chosen.model.replaceAll(".", "\\.")}/${chosen.part} X 1`));
+  const pool = [...addresses];
+  const sampleSize = Math.min(10, pool.length);
+  for (let trial = 0; trial < sampleSize; trial++) {
+    const [chosen] = pool.splice(randomInt(pool.length), 1);
+    const models = objectModels();
+    const part = models.find((model) => model.id === chosen!.model)!.parts.find((item) => item.id === chosen!.part)!;
+    if (part.geometry.type !== "mesh") throw new Error(`${chosen!.model}/${chosen!.part}: mesh absent`);
+    part.geometry.mesh.positions[0]! += 10;
+    assert.ok(boundsCensus(models).failures.some((failure) =>
+      failure.startsWith(`${chosen!.model}/${chosen!.part} X`)), `${chosen!.model}/${chosen!.part} mutation stayed green`);
+  }
+  console.log(`object coordinate negative probes: ${sampleSize}/${sampleSize} randomly selected parts red`);
 });
 
 void test("all object parts emit finite metre UV0 and every placement resolves", () => {

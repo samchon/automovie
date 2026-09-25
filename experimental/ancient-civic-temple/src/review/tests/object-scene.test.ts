@@ -8,8 +8,8 @@ void test("every inventoried object role reaches the compiled viewer scene as a 
   const scene = createViewerPayload();
   const models = new Map(scene.models.map((model) => [model.id, model]));
   const placed = new Map(scene.placements.map((placement) => [placement.node, placement]));
-  assert.equal(roles.length, 76);
-  assert.equal(new Set(roles.map(({ space, role }) => `${space}.${role}`)).size, 76);
+  assert.equal(roles.length, 78);
+  assert.equal(new Set(roles.map(({ space, role }) => `${space}.${role}`)).size, roles.length);
   for (const role of roles) {
     const node = `temple/temple.object.${role.space}.${role.role}`;
     const placement = placed.get(node);
@@ -20,6 +20,6 @@ void test("every inventoried object role reaches the compiled viewer scene as a 
     assert.ok(model?.parts.length, `${node} has no mesh parts`);
     assert.ok(model.parts.every((part) => part.mesh.positions.length >= 9), `${node} has an empty part`);
   }
-  assert.equal(scene.placements.filter(({ node }) => node.startsWith("temple/temple.object.")).length, 76);
-  assert.equal(new Set(roles.map(({ prototype }) => prototype)).size, 34);
+  assert.equal(scene.placements.filter(({ node }) => node.startsWith("temple/temple.object.")).length, roles.length);
+  assert.equal(new Set(roles.map(({ prototype }) => prototype)).size, 35);
 });
