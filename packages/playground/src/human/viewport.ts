@@ -4,6 +4,7 @@ import type { JSONDocument } from "@gltf-transform/core";
 import * as THREE from "three";
 
 import { createHumanPreviewBuilder } from "./previewBuilder";
+import { balanceHumanPreviewRig } from "./previewExposure";
 import {
   createHumanPreviewCamera,
   disposeHumanPreview,
@@ -79,22 +80,61 @@ export function createHumanViewport<
   renderer.setPixelRatio(Math.min(props.pixelRatio, 2));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1;
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   const scene = new THREE.Scene();
   const shadowLights: THREE.DirectionalLight[] = [];
   scene.background = new THREE.Color(0x1c252e);
-  scene.add(new THREE.HemisphereLight(0xffeee2, 0x526578, 0.5));
-  for (const [x, y, z, power, color] of [
-    [-0.3, 0.35, 0.45, 2.3, 0xffe9d8],
-    [0.35, 0.1, 0.3, 0.85, 0xdaeaff],
-    [0.1, 0.3, -0.25, 1.6, 0xffffff],
-  ]) {
-    const light = new THREE.DirectionalLight(color, power);
+  // The same authored rig as the connected stage, white balanced and exposed
+  // on a grey card turned to the key (`balanceHumanPreviewRig`).
+  const linear = (hex: number): [number, number, number] => {
+    const color = new THREE.Color(hex);
+    return [color.r, color.g, color.b];
+  };
+  const key: [number, number, number] = [-0.3, 0.35, 0.45];
+  const rig = balanceHumanPreviewRig(
+    [
+      {
+        kind: "hemisphere",
+        sky: linear(0xffeee2),
+        ground: linear(0x526578),
+        intensity: 0.5,
+      },
+      ...(
+        [
+          [key, 2.3, 0xffe9d8],
+          [[0.35, 0.1, 0.3], 0.85, 0xdaeaff],
+          [[0.1, 0.3, -0.25], 1.6, 0xffffff],
+        ] as const
+      ).map(([direction, intensity, hex]) => ({
+        kind: "directional" as const,
+        direction,
+        color: linear(hex),
+        intensity,
+      })),
+    ],
+    key,
+  );
+  renderer.toneMappingExposure = rig.exposure;
+  for (const one of rig.lights) {
+    if (one.kind === "hemisphere") {
+      scene.add(
+        new THREE.HemisphereLight(
+          new THREE.Color(...one.sky),
+          new THREE.Color(...one.ground),
+          one.intensity,
+        ),
+      );
+      continue;
+    }
+    const light = new THREE.DirectionalLight(
+      new THREE.Color(...one.color),
+      one.intensity,
+    );
+    const [x, y, z] = one.direction;
     light.position.set(x * scale, y * scale, z * scale);
     scene.add(light);
-    if (x < 0) {
+    if (one.direction === key) {
       shadowLights.push(light);
       light.castShadow = true;
       light.shadow.mapSize.set(4096, 4096);
