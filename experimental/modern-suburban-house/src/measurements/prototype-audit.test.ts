@@ -66,6 +66,13 @@ test("bath curtain opens within its measured rail and keeps four joined folds", 
   assert.throws(()=>buildTubCurtain(1.81),/invalid tub curtain length/);
 });
 
+test("kitchen tool cup has two spatulas, two spoons, and an eight-piece wire whisk", () => {
+  const parent=buildHousePrototypes().find((prototype)=>prototype.id==="kitchen-food-utensils")!;
+  const toolParts=parent.model.parts.filter((part)=>part.material==="utensil");
+  assert.equal(toolParts.length,17); // five handles, four solid heads, eight whisk wires
+  assert.ok(toolParts.slice(-8).every((part)=>part.geometry.type==="mesh"&&part.geometry.mesh.indices!.length>0));
+});
+
 test("separate room objects keep each reviewed face once", () => {
   const parents=buildHousePrototypes();
   const objects=buildHouseObjects(parents);

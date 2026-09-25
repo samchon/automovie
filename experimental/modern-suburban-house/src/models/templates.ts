@@ -1062,7 +1062,16 @@ export function buildPrototype(spec: PrototypeSpec): HousePrototype {
           const offset=(i-2)*0.018;
           b.beam("utensil",[toolX+offset,0.13,0.13],[toolX+offset*1.5,0.28,0.13],0.006,0.006,8);
           if(i<2) b.box("utensil",[toolX+offset*1.5-0.015,0.28,0.128],[toolX+offset*1.5+0.015,0.34,0.132]);
-          else b.ellipsoid("utensil",[toolX+offset*1.5,0.31,0.13],[0.018,0.025,0.006]);
+          else if(i<4) b.ellipsoid("utensil",[toolX+offset*1.5,0.31,0.13],[0.018,0.025,0.006]);
+          else {
+            // The fifth tool is the 0.04 m wide, 0.08 m long wire whisk.
+            const whiskX=toolX+offset*1.5;
+            for(let segment=0;segment<8;segment++) {
+              const end=(angle:number):[number,number,number]=>
+                [whiskX+0.02*Math.cos(angle),0.32+0.04*Math.sin(angle),0.13];
+              b.beam("utensil",end(segment*Math.PI/4),end((segment+1)*Math.PI/4),0.002,0.002,8);
+            }
+          }
         }
         const bowlZ=d-0.15;
         b.cup("bowl",[-0.02,0,bowlZ],0.11,0.14,0.075,0.008);
