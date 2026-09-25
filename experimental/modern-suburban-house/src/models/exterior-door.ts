@@ -24,6 +24,8 @@ export const frontDoorProfile = {
   handleInset:0.07,
   handleRadius:0.008,
   hingeLevels:[0.20,1.05,1.90],
+  hingeRadius:0.009,
+  hingeHeight:0.08,
 } as const;
 
 export function buildFrontDoorPrototype(id:string,roughWidth:number,roughHeight:number):HousePrototype {
@@ -88,7 +90,8 @@ export function buildFrontDoorPrototype(id:string,roughWidth:number,roughHeight:
     box("muntin",[innerLeft,y,zRoom],[innerRight,y+p.muntin,zWeather]);
   }
   for(const level of p.hingeLevels)
-    b.frustum("hinge",[x1,level-0.04,zRoom],0.009,0.009,0.08,12);
+    b.frustum("hinge",[x1,y0+level-p.hingeHeight/2,zRoom],
+      p.hingeRadius,p.hingeRadius,p.hingeHeight,12);
   const hx=x0+p.handleInset;
   for(const z of [zWeather+0.01,zRoom-0.018]) {
     b.ringZ("handle",[hx,p.handleY,z],0.003,0.0325,0.008);
@@ -149,7 +152,8 @@ export function buildGardenDoorPrototype(id:string,roughWidth:number,roughHeight
       [inner1-lip,innerTop-lip,mid+p.glassDepth/2]);
     const hingeX=leaf===0?x0:x1;
     for(const level of p.hingeLevels)
-      b.frustum("hinge",[hingeX,level-0.04,room],0.009,0.009,0.08,12);
+      b.frustum("hinge",[hingeX,leafBottom+level-p.hingeHeight/2,room],
+        p.hingeRadius,p.hingeRadius,p.hingeHeight,12);
     const hx=leaf===0?x1-p.handleInset:x0+p.handleInset;
     for(const z of [weather+0.01,room-0.018]) {
       b.ringZ("handle",[hx,p.handleY,z],0.003,0.0325,0.008);
