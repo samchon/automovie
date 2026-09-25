@@ -62,7 +62,7 @@
 ## 독서 안락의자 {#reading-armchair}
 <!--
 @evidence principles/core/common.md#scope-preservation 거실 안락의자 예약 하나를 외곽으로 받아 다리·받침·쿠션·등받이·팔걸이의 단면, 재질 경계, 관찰, 소스 owner를 이 H2에서 정한다.
-@evidence principles/core/common.md#substantive-completion 다리 0.08 m, 받침 Y = [0.08, 0.30], 팔걸이 폭 0.12 m·높이 0.60 m, 등받이 깊이 0.18 m·상단 0.90 m, 좌면 0.43 m, 좌석 폭 0.61 m를 수치로 확정한다.
+@evidence principles/core/common.md#substantive-completion 다리 네 개는 0.06 m 각재·X 중심 ±0.365 m·Z 중심 0.08/0.77 m·Y=[0,0.08] m이고, 받침 X=[−0.425,0.425]·Z=[0,0.85]·Y=[0.08,0.30] m다. 등받이는 Z=[0,0.18]·Y=[0.30,0.90], 팔걸이는 양쪽 폭 0.12·Z=[0.18,0.80]·Y=[0.30,0.60], 쿠션은 폭 0.61·깊이 0.62·Y=[0.30,0.43] m로 본문에서 확정한다.
 @evidence principles/core/common.md#declared-basis 외곽 0.85 × 0.85 m·높이 0.90 m는 거실 예약에서 받고, 단면 높이는 소파와 좌면 0.43 m·등 상단 0.90 m만 공유하고 나머지 팔걸이·등 깊이는 한 사람용 0.85 m 외곽에 맞춰 따로 결정하며 좌석 폭 0.61 m는 한 사람 좌석임을 읽히게 하려는 이 층의 선택으로 둔다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 예약은 외곽과 높이 0.90 m만 주고 이 H2는 쿠션 하나의 한 사람 좌석, 팔걸이 0.12 m·등받이 0.18 m의 단면, 좌면 0.43 m를 더한다.
 @evidence principles/design/models.md#representation-contract 다리 넷·받침·좌석 쿠션 하나·등받이·팔걸이 둘로 부품을 나누고 재질 경계 `leg`·`base`·`seat-cushion`·`back`·`arm`을 두며 관절이 없다고 정한다. 보이지 않는 한계는 본문의 "쿠션 눌림·솔기·패브릭 주름은 표현하지 않는다."로 밝힌다.
@@ -115,7 +115,7 @@
 ## 얇은 바닥 깔개 {#floor-covering}
 <!--
 @evidence principles/core/common.md#scope-preservation 거실 러그·가족실 러그·현관 매트와 침대 세 개의 host 유도 덮개를 L·W·T 한 원형으로 받아 여섯 매개변수 셋, 몸판과 가장자리 띠, 재질 경계, 가구 겹침 규칙, 관찰을 이 H2에서 정한다.
-@evidence principles/core/common.md#substantive-completion 거실 2.35×2.00×0.008 m, 가족실 1.70×1.55×0.008 m, 현관 0.90×0.65×0.006 m와 침대 셋의 길이·폭 유도식 및 발치 쪽 이동 규칙, 0.04 m 테두리·Y=0 밑면을 정한다.
+@evidence principles/core/common.md#substantive-completion 거실 2.35×2.00×0.008 m, 가족실 1.70×1.55×0.008 m, 현관 0.90×0.65×0.006 m와 침대 셋의 길이·폭 유도식 및 발치 쪽 이동 규칙, 0.04 m 테두리·Y=0 밑면을 정한다. 가구가 Y=[0,T]에서 실제로 차지하는 발자국의 합집합을 0.001 m 넓혀 러그의 field/border에서 빼고 절단면도 같은 id로 닫는다.
 @evidence principles/core/common.md#declared-basis 외곽은 거실 러그 예약과 현관 매트 예약에서 받고 가족실 러그 외곽도 common-family-reservation에서 받으며, 두 덮개를 한 원형으로 묶고 원점 예외를 두는 근거를 '사람이 밟고 지나가는 얇은 바닥 덮개'라는 이유로 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 예약은 외곽만 주고 이 H2는 몸판과 둘레 0.04 m 띠의 면 분할, 띠의 높이를 올리지 않는 규칙, 바닥 접촉 가구의 발자국을 덮개에서 빼는 입력을 더한다.
 @evidence principles/design/models.md#representation-contract 몸판 하나와 같은 두께의 가장자리 띠 하나로 부품을 두고 재질 경계 `field`·`border`를 고정하며 무늬·털 높이·술 장식은 표현하지 않는다고 명시한다.

@@ -14,6 +14,7 @@ const tasks = [
   ["reverse handoffs", process.execPath, [audit, "handoffs"], "handoffs"],
   ["material hosts", process.execPath, [audit, "material-hosts"], "material-hosts"],
   ["material bindings", process.execPath, [path.join(__dirname, "material-binding-scan.cjs"), "--check"], "exit"],
+  ["model face review candidates", process.execPath, [path.join(__dirname, "face-witness-audit.cjs"), "--strict"], "exit"],
   ["reviewed referents", process.execPath, [path.join(__dirname, "referent-owner-scan.cjs"), "--check"], "exit"],
   ["model contacts", process.execPath, [path.join(__dirname, "model-contact-check.cjs")], "exit"],
   ["door casing versus spaces", process.execPath, [path.join(__dirname, "casing-space-scan.cjs")], "exit"],

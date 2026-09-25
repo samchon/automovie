@@ -40,55 +40,16 @@ for (const line of account.split(/\r?\n/)) {
   if (match && match[3].includes("src/models/")) modelIds.set(`${match[1]}#${match[2]}`, new Set([...match[4].matchAll(/`([a-z0-9-]+)`/g)].map((x) => x[1])));
   if (match && match[3].includes("규칙")) ruleIds.add(`${match[1]}#${match[2]}`);
 }
-// A face name sometimes lives in a separate surface H2. Require its physical
-// H2 to describe the named part and a dimension, rather than accepting only
-// the surface table. These aliases are reviewed prose, not inferred geometry.
-/** @type {Record<string, RegExp>} */
-const semanticPart = {
-  frame: /창틀|frame/,
-  mullion: /세로.*(?:칸|부재)|mullion/,
-  muntin: /살대/,
-  sash: /sash|창짝/,
-  glass: /유리/,
-  jamb: /문설주|jamb/,
-  "leaf-exterior": /문짝/,
-  "leaf-interior": /문짝/,
-  "leaf-edge": /문짝/,
-  leaf: /문짝/,
-  "leaf-panel": /패널/,
-  handle: /손잡이/,
-  rail: /트랙|레일/,
-  "casing-a": /문선|casing/,
-  "casing-b": /문선|casing/,
-  "jamb-a": /문설주|jamb/,
-  "jamb-b": /문설주|jamb/,
-  "jamb-core": /문설주|jamb/,
-  baluster: /난간살|baluster/,
-  hinge: /경첩|hinge/,
-};
-/** A name list and an unrelated H2 measurement do not make a physical part.
- * Examine one coherent prose paragraph at a time, outside evidence comments. The two
- * stair axes are necessary because a single slope value cannot close its
- * three solids or prove they avoid the reviewed opening edge.
+/** A token in one numeric paragraph is only a link candidate, not proof that
+ * this particular face has a position, size, UV or nonoverlapping occupancy.
+ * The exhaustive face audit reports the unresolved physical definitions.
  * @param {string} model @param {string} id */
 const bodyWitness = (model, id) => {
   const body = modelBodies.get(model) ?? "";
-  // A named plate cannot be certified by a thickness alone. Its defining
-  // sentence must place the plate in at least two axes; dimensions elsewhere
-  // in the H2 may belong to different members.
-  const plateDefinitions = body.split(/(?<=다\.)\s*|\r?\n/g).filter((line) =>
-    new RegExp("`" + id + "`(?:은|는)[^\\n]*두께[^\\n]*판이다").test(line));
-  if (plateDefinitions.some((line) =>
-    !/[XYZ]\s*=\s*\[|(?:중앙|벽|개구부|창대|안쪽 면|각 칸)/.test(line))) return false;
-  if (id === "exterior-trim" && model === "02-exterior-doors.md#front-entry-door")
-    return /^현관문 `exterior-trim`은[^\n]*X\s*=\s*\[[^\n]*Y\s*=\s*\[[^\n]*두께 0\.035 m/m.test(body);
-  if (id === "exterior-trim" && model === "02-exterior-doors.md#garden-door-pair")
-    return /^정원문 `exterior-trim`은[^\n]*X\s*=\s*\[[^\n]*Y\s*=\s*\[[^\n]*두께 0\.035 m/m.test(body);
   return body.split(/\n\s*\n/).some((paragraph) => {
-    if (!paragraph.includes(`\`${id}\``) && !(semanticPart[id]?.test(paragraph) ?? false)) return false;
+    if (!paragraph.includes(`\`${id}\``)) return false;
     if (/^(?:재질 경계|표면 id|면 id|face id|id 목록)/.test(paragraph.trim())) return false;
-    if (!/\d+(?:\.\d+)?\s*m|\d+\s*×/.test(paragraph)) return false;
-    if (id === "stair-skirt") return /X\s*=\s*\[/.test(paragraph) && /Z\s*=\s*\[/.test(paragraph);
+    if (!/\d+(?:\.\d+)?\s*m|\[[−+\-.\d,\s]+\]\s*m|\d+\s*×/.test(paragraph)) return false;
     return /(?:X|Y|Z|U|V)\s*=\s*\[|길이|폭|높이|두께|지름|깊이|간격|옆판|몸통/.test(paragraph);
   });
 };
@@ -212,14 +173,15 @@ const table = [
       : row.owners.length ? row.owners.map((id) => link("models", id)).join(", ")
       : row.spaceLinks.length ? row.spaceLinks.map((id) => link("spaces", id)).join(", ")
       : row.id === "(no face token)" ? "[H2별 부재군 계정](material-host-census.md#material-host-census) (면 id 없음)"
-      : "UNOWNED";
+      : row.declaredAnywhere.length ? "UNVERIFIED (면 이름만 계정에 있음)" : "UNOWNED";
     const proof = row.mask ? "독립 면 없는 UV 마스크" : row.owners.length
-      ? row.owners.map((id) => (modelBodies.get(id) ?? "").includes(`\`${row.id}\``) ? "같은 단락의 face id·치수" : "같은 단락의 부재 이름·치수").join(", ")
-      : row.spaceLinks.length ? "spaces 부재 후보; host 계정에서 대조" : "face id 없음; host 계정에서 대조";
+      ? row.owners.map(() => "면 id·숫자 단락 후보; 위치·크기·UV 별도 검토").join(", ")
+      : row.spaceLinks.length ? "spaces 부재 후보; host 계정에서 대조"
+      : row.declaredAnywhere.length ? "부재 위치·크기·UV 확인 필요" : "face id 없음; host 계정에서 대조";
     return `| ${link("materials", row.material)} | ${row.id === "(no face token)" ? "면 id 없음" : `\`${row.id}\``} | ${owner} | ${proof} |`;
   }),
 ].join("\n");
-const document = `# 재료 결합 면에서 출발한 설계 owner 전수\n\n## 모든 material H2의 명명 면 역대조 {#material-face-ledger}\n<!--\n@evidence contracts/model-material-face-audit.md#model-material-face-audit 네 재료 문서의 모든 H2를 읽고 긍정 결합 문장이 있으면 그 모든 문장의 면 토큰을, 없으면 해당 H2 본문의 면 토큰을 재생성하여 모델 face 계정과 교차한다. 결합 문장에 이름 붙은 다른 재료의 면은 제외한다. UV 줄눈 마스크는 독립 메시가 없음을 별도 응답으로 남긴다. 이것은 설계 owner 계정이며 아직 없는 modelSources/materialSources 메시 결속은 unverified다.\n-->\n\n이 목록은 \`node src/measurements/material-binding-scan.cjs --check\`가 재료 H2 본문 49개와 [모델 face 계정](surface-ownership.md#model-surface-ownership)을 다시 읽어 대조한다. 결합 문장이 있는 H2에서는 모든 긍정 결합 문장을, 없는 H2에서는 본문 전체의 면 토큰을 센다. face id를 쓰지 않고 물리 부재를 부르는 H2는 [부재군 역대조](material-host-census.md#material-host-census)가 받는다. owner가 여러 개면 같은 id가 각각의 원형에서 만들어지는 것이며, 서로 한 면을 중복 생성한다는 뜻이 아니다. 표의 본문 증거는 해당 물리 원형 H2의 같은 단락에 있는 면 id 또는 검토한 동의어와 치수에서 산출한다. 명칭·치수의 의미적 일치와 실제 메시 결속은 이 표만으로 증명하지 못하므로 modelSources 이전에는 unverified다.\n\n${table}\n`;
+const document = `# 재료 결합 면에서 출발한 설계 owner 전수\n\n## 모든 material H2의 명명 면 역대조 {#material-face-ledger}\n<!--\n@evidence contracts/model-material-face-audit.md#model-material-face-audit 네 재료 문서의 모든 H2를 읽고 긍정 결합 문장이 있으면 그 모든 문장의 면 토큰을, 없으면 해당 H2 본문의 면 토큰을 재생성하여 모델 face 계정과 교차한다. 결합 문장에 이름 붙은 다른 재료의 면은 제외한다. UV 줄눈 마스크는 독립 메시가 없음을 별도 응답으로 남긴다. 이 표의 숫자 단락 적중은 물리 제작의 검증이 아니며 별도 면별 대조가 필요하다. 아직 없는 modelSources/materialSources 메시 결속은 unverified다.\n-->\n\n이 목록은 \`node src/measurements/material-binding-scan.cjs --check\`가 재료 H2 본문 49개와 [모델 face 계정](surface-ownership.md#model-surface-ownership)을 다시 읽어 대조한다. 결합 문장이 있는 H2에서는 모든 긍정 결합 문장을, 없는 H2에서는 본문 전체의 면 토큰을 센다. face id를 쓰지 않고 물리 부재를 부르는 H2는 [부재군 역대조](material-host-census.md#material-host-census)가 받는다. owner가 여러 개면 같은 id가 각각의 원형에서 만들어지는 것이며, 서로 한 면을 중복 생성한다는 뜻이 아니다. 표의 '단락 후보'는 같은 H2에 면 이름과 숫자가 함께 있다는 구문 대조일 뿐이다. 그 숫자가 같은 부재의 위치·크기·UV를 정하는지와 이웃 고체와 겹치지 않는지는 [면별 검토 후보 생산자](../../../src/measurements/face-witness-audit.cjs) 및 별도 기하 대조에서 확인해야 한다. 실제 메시 결속은 modelSources 이전에 unverified다.\n\n${table}\n`;
 if (process.argv.includes("--write")) fs.writeFileSync(ledgerFile, document);
 else if (process.argv.includes("--check")) {
   const observed = fs.readFileSync(ledgerFile, "utf8").replace(/\r\n/g, "\n");
@@ -229,7 +191,13 @@ else if (process.argv.includes("--check")) {
     for (const row of falseLinkedMakers) console.error(`NO BODY WITNESS ${row}`);
     process.exitCode = 1;
   }
-  else console.log(JSON.stringify(summary));
+  else {
+    console.log(JSON.stringify(summary));
+    for (const row of unowned) console.error(`${row.declaredAnywhere.length ? "UNVERIFIED MAKER" : "UNOWNED"} ${row.material} :: ${row.id}`);
+    for (const row of falseLinkedMakers) console.error(`NO NUMERIC PARAGRAPH CANDIDATE ${row}`);
+    for (const row of allModelPairs.filter((pair) => !pair.witnessed))
+      console.error(`MODEL FACE NEEDS REVIEW ${row.model} :: ${row.id}`);
+  }
 }
 else if (process.argv.includes("--all-model-pairs")) console.log(JSON.stringify({ count: allModelPairs.length, unwitnessed: allModelPairs.filter((row) => !row.witnessed) }, null, 2));
 else if (process.argv.includes("--json")) console.log(JSON.stringify({ summary, results, unowned, unlinkedAssignments, falseLinkedMakers, explicitInvalid, tableInvalid }, null, 2));
