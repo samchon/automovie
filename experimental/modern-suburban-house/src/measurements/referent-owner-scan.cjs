@@ -140,8 +140,9 @@ const output = `# reviewed 층의 부재 참조에서 출발한 제작자 역대
 const destination = path.join(docs, "accounts/models/spaces-referent-ledger.md");
 if (process.argv.includes("--write")) fs.writeFileSync(destination, output);
 else if (process.argv.includes("--check")) {
-  if (read("accounts/models/spaces-referent-ledger.md").replace(/\r\n/g, "\n") !== output) { console.error("referent ledger differs from current corpus"); process.exitCode = 1; }
-  else console.log(JSON.stringify({ sourceH2: bodies.length, terms: rows.length, presentTerms: rows.filter((r) => r.references.length).length, referencePairs: rows.reduce((n, r) => n + r.references.length, 0), ownerless: absent.length, unregisteredTerms: unregisteredTerms.length, unregisteredReferents: unregisteredReferents.length }));
+  const ledgerDiff = read("accounts/models/spaces-referent-ledger.md").replace(/\r\n/g, "\n") !== output;
+  console.log(JSON.stringify({ sourceH2: bodies.length, terms: rows.length, presentTerms: rows.filter((r) => r.references.length).length, referencePairs: rows.reduce((n, r) => n + r.references.length, 0), ownerless: absent.length, unregisteredTerms: unregisteredTerms.length, unregisteredReferents: unregisteredReferents.length, ledgerDiff }));
+  if (ledgerDiff) { console.error("referent ledger differs from current corpus"); process.exitCode = 1; }
 } else console.log(JSON.stringify({ sourceH2: bodies.length, rows, absent }, null, 2));
 if (absent.length) { for (const row of absent) console.error(`MISSING MAKER ${row.term} ${row.invalid.join(",")}`); process.exitCode = 1; }
 if (unregisteredReferents.length) {

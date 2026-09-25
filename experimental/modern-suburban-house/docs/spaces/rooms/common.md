@@ -17,7 +17,7 @@
 @evidence principles/design/spaces.md#space-verification-address 두 진입에서 세 기능으로 가는 길, 정원문과 실제 외벽, 03의 공용부 시야와 각 구석 관찰을 반증 주소로 둔다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 두 진입에서 세 기능으로 가는 길, 정원문과 실제 외벽, 03 공용부 시야와 각 구석 관찰을 이 방 외곽·개구부 주장의 반증 관찰로 열거하고 unverified로 둠을 확인했다.
 @evidence settings/10-house.md#common-room 주방·식당·가족실을 완전 높이 칸막이 없이 한 방에 두고 주방은 왼쪽, 식탁은 정원 출입 가까이, 가족실은 오른쪽에 둔다.
-@evidenceReview settings/10-house.md#common-room #3c2b543 설정의 완전 높이 벽 금지와 03 배치를 kitchen-dining-family 한 방 id, 문짝 없는 두 개구부, 왼쪽 주방·정원 출입 가까운 중앙 식사·오른쪽 가족실에 대조해 성립함을 확인했다.
+@evidenceReview settings/10-house.md#common-room #eb2f09d 설정의 완전 높이 벽 금지와 03 배치를 kitchen-dining-family 한 방 id, 문짝 없는 두 개구부, 왼쪽 주방·정원 출입 가까운 중앙 식사·오른쪽 가족실에 대조해 성립함을 확인했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work common-room의 연속 공간·세 기능 위치를 대조했고 문짝 없는 living-common-opening·service-common-opening과 팬트리 뒤 X = [3.22, 5.50] 닫힌 벽으로 성립해 부모 수정이 없었다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 설정 common-room의 연속 공간·세 기능 위치를 한 방 외곽 X = [-5.50, 5.50]과 Y = [0, 2.40]의 두 열린 개구부에 대조해 앞 경계에서 모순 없이 닫혀 부모 수정이 필요 없음을 확인했다.
 -->
@@ -87,9 +87,9 @@
 @evidence settings/10-house.md#kitchen-equipment 싱크와 수도꼭지가 있는 섬과 식기세척기를 섬 설비로 둔다.
 @evidenceReview settings/10-house.md#kitchen-equipment #39c68f2 설정의 싱크·수도꼭지 있는 섬과 식기세척기를 싱크 예약 Z = [-8.60, -8.10], 외벽 창과 별개인 섬 수도꼭지, 섬 -X 전면 식기세척기 몸체 깊이 0.60 m 예약에 대조해 성립함을 확인했다.
 @evidence settings/10-house.md#common-room 섬 앞 좌석 3개를 개수·pitch 규칙으로 배치한다.
-@evidenceReview settings/10-house.md#common-room #3c2b543 설정의 섬 앞 좌석 3개를 -X를 향하는 세 스툴, Z 중심 -8.30 m부터 0.70 m 간격 산출, 섬 동쪽 끝부터 X = -1.65 m까지의 사용 점유에 대조해 개수·배치가 성립함을 확인했다.
+@evidenceReview settings/10-house.md#common-room #eb2f09d 설정의 섬 앞 좌석 3개를 -X를 향하는 세 스툴, Z 중심 -8.30 m부터 0.70 m 간격 산출, 섬 동쪽 끝부터 X = -1.65 m까지의 사용 점유에 대조해 개수·배치가 성립함을 확인했다.
 @evidence settings/00-production.md#build-allocation 스툴 원형/다리/등받이는 models, 세 개 배치는 instances가 이 공간 입력을 소비하도록 역할을 나눈다.
-@evidenceReview settings/00-production.md#build-allocation #b85e84f build-allocation의 models 원형·instances 개체 배분을 스툴 원형/다리/등받이는 models, 세 개 배치는 instances가 소비한다는 문장에 대조해 space가 좌석 형상을 소유하지 않음을 확인했다.
+@evidenceReview settings/00-production.md#build-allocation #eda898f build-allocation의 models 원형·instances 개체 배분을 스툴 원형/다리/등받이는 models, 세 개 배치는 instances가 소비한다는 문장에 대조해 space가 좌석 형상을 소유하지 않음을 확인했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work common-room의 섬 좌석 3개, kitchen-equipment의 섬 싱크, use-profile의 사람 폭을 대조했고 0.70 m 간격 세 좌석과 무릎 공간이 들어가 부모 수정이 없었다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 설정의 섬 좌석 3개·섬 싱크와 use-profile 사람 폭을 섬 Z = [-8.70, -6.45] 안 중심 양옆 0.325 m 세 스툴과 0.30 m 무릎 공간에 적용해 들어맞아 부모 수정이 필요 없음을 확인했다.
 -->
@@ -119,7 +119,7 @@
 @evidence principles/design/spaces.md#space-verification-address 의자 수·반복·방/층 binding, 꺼낸 여섯 좌석과 문짝/경로의 충돌, 03의 식사 자리 읽힘을 반증 관찰로 둔다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 의자 수·반복·방/층 binding, 꺼낸 여섯 좌석과 문짝/경로의 충돌, 03 식사 자리 읽힘을 식탁 예약의 반증 관찰로 열거하고 unverified로 둠을 확인했다.
 @evidence settings/10-house.md#common-room 식탁을 후면 정원 출입 가까이에 두고 가족과 손님이 함께 앉는 6개 좌석을 배정한다.
-@evidenceReview settings/10-house.md#common-room #3c2b543 설정의 정원 출입 가까운 식탁과 가족·손님 6개 좌석을 정원문 앞을 비운 중앙 상판과 두 반복 규칙으로 생성되는 여섯 좌석에 대조해 성립함을 확인했다.
+@evidenceReview settings/10-house.md#common-room #eb2f09d 설정의 정원 출입 가까운 식탁과 가족·손님 6개 좌석을 정원문 앞을 비운 중앙 상판과 두 반복 규칙으로 생성되는 여섯 좌석에 대조해 성립함을 확인했다.
 @evidence settings/00-production.md#use-profile 각 좌석 폭 방향 사용 점유를 중심 양옆 0.325 m, 깊이를 상판 끝에서 바깥으로 0.75 m로 두어 사람 점유체를 줄이지 않고 소비한다.
 @evidenceReview settings/00-production.md#use-profile #6ef5afe 좌석 폭 중심 양옆 0.325 m의 0.65 m와 깊이 0.75 m를 use-profile 점유체 폭 0.60 m·깊이 0.45 m에 대조하고 사용 중 의자 뒤를 통로로 세지 않는 규칙까지 확인했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work common-room의 6개 좌석·정원 출입 근접과 use-profile의 사람 폭을 대조했고 X = [-0.35, 1.35], Z = [-8.40, -7.50] m 상판 주위에 여섯 사용 점유가 문 대기와 분리돼 부모 수정이 없었다.
@@ -149,7 +149,7 @@
 @evidence principles/design/spaces.md#space-verification-address 서비스 진입에서 좌석과 두 창으로의 접근, 앉은 시야, 03의 세 기능과 점유/그림자 읽힘을 반증 관찰로 둔다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 서비스 진입에서 좌석과 두 창으로의 접근, 앉은 시야, 03 공용부 세 기능과 실제 점유/그림자 읽힘을 가족실 예약의 반증 관찰로 열거하고 unverified로 둠을 확인했다.
 @evidence settings/10-house.md#common-room 우측 가족실 좌석에 소파와 낮은 테이블을 두고 주 통과 경로를 그 사이에만 두지 않는다.
-@evidenceReview settings/10-house.md#common-room #3c2b543 설정의 우측 소파·낮은 테이블과 유일 통로 금지를 두 가구 사이를 앉고 일어나는 자리로만 두고 소파 왼쪽 중앙 경로와 테이블 오른쪽 통로를 따로 둔 배치에 대조해 성립함을 확인했다.
+@evidenceReview settings/10-house.md#common-room #eb2f09d 설정의 우측 소파·낮은 테이블과 유일 통로 금지를 두 가구 사이를 앉고 일어나는 자리로만 두고 소파 왼쪽 중앙 경로와 테이블 오른쪽 통로를 따로 둔 배치에 대조해 성립함을 확인했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work common-room의 우측 가족실·소파와 낮은 테이블, use-profile의 0.90 m 통로를 대조했고 창 쪽 측면 통로가 유지돼 부모 수정이 없었다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 설정 common-room 우측 가족실과 use-profile 0.90 m를 테이블 X = 4.50부터 방 안쪽 5.50까지의 창 쪽 통로와 커튼·소품 이후 폭 유지 조건에 적용해 부모 수정이 필요 없음을 확인했다.
 -->
@@ -179,7 +179,7 @@
 @evidence settings/00-production.md#use-profile 바구니 포함 사용 점유체의 양방향 이동과 0.90 m 이상 통로 목표를 주 경로에 적용한다.
 @evidenceReview settings/00-production.md#use-profile #6ef5afe 오른쪽 띠 X = 2.10~3.07의 거친 폭 0.97 m와 뒤쪽 띠 후벽~Z = -9.25의 거친 폭 1.20 m에서 벽 걸레받이 돌출 0.015 m를 최대 양쪽까지 빼도 보수적 순폭 0.94 m·1.17 m로 use-profile 0.90 m 하한을 넘음을 대조했다. 양방향 이동은 실제 관찰 항목으로 남긴다.
 @evidence settings/10-house.md#common-room service-common-opening에서 들어와 garden-door 안쪽 대기로 가는 오른쪽·뒤쪽 두 띠를 두어 주방 작업대나 식탁 사이만이 유일한 통로가 되지 않게 한다.
-@evidenceReview settings/10-house.md#common-room #3c2b543 설정의 유일 통로 금지를 식탁 오른쪽 X = 2.10부터의 오른쪽 띠와 뒤쪽 띠가 작업대·식탁 사이를 거치지 않고 garden-door 대기에 닿는 배치에 대조해 성립함을 확인했다.
+@evidenceReview settings/10-house.md#common-room #eb2f09d 설정의 유일 통로 금지를 식탁 오른쪽 X = 2.10부터의 오른쪽 띠와 뒤쪽 띠가 작업대·식탁 사이를 거치지 않고 garden-door 대기에 닿는 배치에 대조해 성립함을 확인했다.
 @evidence obligations/design/spaces.md#space-access-circulation service-common-opening에서 garden-door 안쪽 대기와 가족실 좌석으로 가는 두 띠를 손잡이·사용 점유로 줄이지 않고 living-common-opening에서 기기를 닫은 기준 상태의 작업면 사이로 후면 띠에 합류하는 주방 경로를 배정한다.
 @evidenceReview obligations/design/spaces.md#space-access-circulation #76c5e04 서비스 개구부→garden-door·가족실 두 띠와 living-common-opening→후면 띠 주방 경로를 손잡이·사용 점유로 줄이지 않는 폭, 기기 닫힘 기준 상태, 바구니 포함 점유체 프로필에 대조해 배정을 확인했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work common-room의 유일 통로 금지와 use-profile의 바구니 포함 사용 점유체를 주 경로에 적용했고 가구 예약을 돌아가는 띠가 성립해 부모 수정이 없었다.

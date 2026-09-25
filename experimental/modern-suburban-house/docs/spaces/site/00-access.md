@@ -19,7 +19,7 @@
 @evidence settings/10-house.md#site-identity 앞 보도·차고 진입 차도·현관 보행길을 포장 끝에서 받고 구체 경계와 지표는 maps의 저작 선택으로 남긴다.
 @evidenceReview settings/10-house.md#site-identity #452f15e site-identity의 앞 보도·차고 진입 차도·현관 보행길을 Z = 6.50 m 전면 포장 끝과 두 포트에 대조해 세 요소가 한 끝선에서 만나고 필지·보도 형상은 maps에 남음을 확인했다.
 @evidence settings/00-production.md#build-allocation 대지와 외부 접근은 maps, 방 경계·동선은 spaces라는 배분에 따라 필지와 외부 node를 maps에 넘긴다.
-@evidenceReview settings/00-production.md#build-allocation #b85e84f build-allocation의 '대지와 외부 접근은 maps' 배분을 본문의 maps 소유 필지 경계·보도·연석·도로·`house-site-access` node에 대조해 spaces가 외부 접근을 가로채지 않음을 확인했다.
+@evidenceReview settings/00-production.md#build-allocation #eda898f build-allocation의 '대지와 외부 접근은 maps' 배분을 본문의 maps 소유 필지 경계·보도·연석·도로·`house-site-access` node에 대조해 spaces가 외부 접근을 가로채지 않음을 확인했다.
 @evidence obligations/design/spaces.md#space-reference-topology house-site를 이름 있는 site 프레임으로 두고 건물·외부 구역·maps의 단일 접근 node 사이의 포함과 접속을 명시한다.
 @evidenceReview obligations/design/spaces.md#space-reference-topology #5053f99 house-site를 site 프레임으로, 본채·차고·포치·외부 구역을 포함 요소로, `house-site-access`를 유일한 외부 접속으로 둔 본문을 대조해 이름 없는 경계 통과 없이 주소화됨을 확인했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work site-identity의 앞 보도·차도·보행길, build-allocation의 maps 소유, coordinate-units의 +Z 전면을 대조했고 maps는 disabled라 map 부모가 없으며 설정만으로 포장 끝을 정할 수 있어 부모 수정이 없었다.

@@ -19,7 +19,7 @@
 @evidence settings/10-house.md#main-mass 본채 오른쪽 끝의 더 낮은 지붕과 우측 박공을 단차 벽과 삼각 벽으로 닫는다.
 @evidenceReview settings/10-house.md#main-mass #edcb5ab 설정 main-mass의 '각 박공은 실제 삼각 벽…으로 닫혀야 한다'를 본문의 낮은 지붕 앞/뒤 아래면에 맞춘 본채 오른쪽 삼각 벽과 분할면 단차 벽에 대조해 오른쪽 박공이 닫힘을 확인했다.
 @evidence settings/10-house.md#garage 차고의 낮은 박공 지붕 오른쪽 삼각 벽을 차고 외벽 두께 안에서 별도로 닫는다.
-@evidenceReview settings/10-house.md#garage #f6816c7 설정 garage의 낮은 박공 지붕을 본문의 Gfront/Gback 아래면에 맞춘 차고 오른쪽 별도 삼각 벽과 대조해 기존 외벽 두께 안에서 겹친 장식판 없이 닫힘을 확인했다.
+@evidenceReview settings/10-house.md#garage #261be15 설정 garage의 낮은 박공 지붕을 본문의 Gfront/Gback 아래면에 맞춘 차고 오른쪽 별도 삼각 벽과 대조해 기존 외벽 두께 안에서 겹친 장식판 없이 닫힘을 확인했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work main-mass의 오른쪽 낮은 지붕·우측 박공과 garage의 낮은 박공을 오른쪽 입면에 적용했고 "골짜기와 합류부에 빈틈이나 중첩 지붕판을 남기지 않는다"를 단차 벽 배정으로 충족해 부모 수정이 없었다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 설정 main-mass의 '골짜기와 합류부에 빈틈이나 중첩 지붕판을 남기지 않는다'를 본문의 분할면 단차 벽과 주 지붕 두께 막음 비중복 규칙에 대입해 부모 수정 없이 충족됨을 확인했다.
 -->
@@ -79,7 +79,7 @@
 @evidence principles/design/spaces.md#space-verification-address 소파/커튼 앞 접근, 뒤 모서리에서 두 창의 일치를 반증 관찰로 둔다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 본문 끝의 소파/커튼 앞 접근과 뒤 모서리에서 두 창의 일치 unverified 목록이 family-right-window의 Z 구간·방 binding 주장을 반증할 관찰을 지정하는지 대조해 성립함을 확인했다.
 @evidence settings/10-house.md#common-room 후면 창과 이 창이 같은 가족실을 비추도록 kitchen-dining-family의 오른쪽 노출 외벽에 창을 둔다.
-@evidenceReview settings/10-house.md#common-room #3c2b543 설정 common-room의 가족실 좌석 우측을 본문의 family-right-window가 우측 노출 외벽에서 후면 창과 같은 가족실을 비춘다는 진술과 대조해 한 공용부 안에서 충족됨을 확인했다.
+@evidenceReview settings/10-house.md#common-room #eb2f09d 설정 common-room의 가족실 좌석 우측을 본문의 family-right-window가 우측 노출 외벽에서 후면 창과 같은 가족실을 비춘다는 진술과 대조해 한 공용부 안에서 충족됨을 확인했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work common-room의 가족실 우측 배치와 garage의 깊이 6.0–6.6 m를 대조했고 차고 뒤에 노출 외벽이 남아 부모 수정이 없었다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 attached-garage-extent의 차고 후면 Z = -6.70 m를 family-right-window의 Z = [-9.95, -8.25] m와 대조해 설정 garage 깊이 범위와 common-room 가족실 우측이 부모 수정 없이 창 자리를 남김을 확인했다.
 -->
@@ -129,7 +129,7 @@
 @evidence principles/design/spaces.md#space-verification-address 문 레일/수납과의 간섭, 안팎 reveal, 채광과 차고 내부 읽힘을 반증 관찰로 둔다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 본문 끝의 문 레일/수납 간섭·안팎 reveal·채광·차고 내부 읽힘 unverified 목록이 garage-right-window의 위치 주장을 반증할 관찰을 지정하는지 대조해 성립함을 확인했다.
 @evidence settings/10-house.md#garage 선반·공구 수납이 있는 빈 차고 내부에 측면 채광창을 두고 후벽 선반/작업대가 그 창 전체를 막지 않게 한다.
-@evidenceReview settings/10-house.md#garage #f6816c7 설정 garage의 선반·공구 수납과 빈 차고 완성 요구를 본문의 garage-right-window와 후벽 선반/작업대 예약이 창 전체를 막지 않는 조건에 대조해 채광창과 수납이 공존함을 확인했다.
+@evidenceReview settings/10-house.md#garage #261be15 설정 garage의 선반·공구 수납과 빈 차고 완성 요구를 본문의 garage-right-window와 후벽 선반/작업대 예약이 창 전체를 막지 않는 조건에 대조해 채광창과 수납이 공존함을 확인했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work garage의 문 레일/상부 구조·선반 수납과 폭 5.8–6.4 m 외곽을 대조했고 창이 레일 뒤 벽에 들어가 부모 수정이 없었다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 garage-front-opening의 상부 예약 Z = [-3.40, -0.55] m를 garage-right-window의 Z = [-5.85, -4.25] m와 대조해 설정 garage의 문 레일·선반과 외곽 폭 범위가 부모 수정 없이 창 자리를 남김을 확인했다.
 -->

@@ -201,7 +201,7 @@
 @evidence principles/design/spaces.md#space-verification-address 열린 패널 순높이, 곡선 레일의 이동/간섭, 상부 예약과 천장/보/수납의 대조, 빈 차고의 읽힘을 반증 관찰로 둔다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 본문이 열린 패널 순높이, 곡선 레일의 이동/간섭, X = [6.00, 11.20] m 상부 예약과 차고 천장/보/수납의 대조, 빈 차고의 읽힘을 unverified 관찰로 적었는지 확인했다.
 @evidence settings/10-house.md#garage 두 대용 폭 분절 패널문 하나·상부 채광 유리·문 레일/상부 구조와 닫힌 기준 상태를 개구부와 이동 예약으로 만든다.
-@evidenceReview settings/10-house.md#garage #f6816c7 garage의 두 대 폭 분절 패널문 하나·상부 채광 유리·문 레일/상부 구조·닫힌 기준 상태를 본문의 단일 개구부, 네 열 유리, 가이드/레일 예약, 기본 닫힘에 대조해 모두 대응됨을 확인했다.
+@evidenceReview settings/10-house.md#garage #261be15 garage의 두 대 폭 분절 패널문 하나·상부 채광 유리·문 레일/상부 구조·닫힌 기준 상태를 본문의 단일 개구부, 네 열 유리, 가이드/레일 예약, 기본 닫힘에 대조해 모두 대응됨을 확인했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work garage의 외곽 폭 5.8–6.4 m 범위, 문 하나·상부 유리·레일, "문을 임시 제거한 외부 view로 완성을 주장하지 않는다"를 X = [6.10, 11.10] m 개구부와 레일 예약에 적용했고 모두 함께 성립해 부모 수정이 없었다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 garage의 문 하나·상부 유리·레일과 문 제거 view 금지를 본문의 X = [6.10, 11.10] m 개구부·X = [6.00, 11.20] m 예약·머드룸 경유 검사에 대조했고 차고 외곽 X = [5.50, 11.70] m 안에서 성립함을 확인했다.
 -->

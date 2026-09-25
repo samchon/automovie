@@ -31,7 +31,7 @@ Use the commands declared in `package.json`:
 | --- | --- |
 | `npm run lint` | Check the complete TypeScript program and active authored evidence. |
 | `npm run format` | Format source with the configured compiler formatter. |
-| `npm run check` | Run model accounts, reverse handoffs, material bindings, reviewed referents, geometry, and lint; report every failure. |
+| `npm run check` | Run model accounts, reverse handoffs, material bindings, reviewed referents, settings review host checks, tests, geometry, and lint; report every failure. |
 | `npm run viewer` | Start the current space-source viewer from this directory on port 4173. |
 
 The scaffold provides instructions, contracts, and source lint, not prewritten production or viewer code. Author only the concrete source the requested work needs through the packages' public APIs. It supplies no film build, capture, render, or publication command.

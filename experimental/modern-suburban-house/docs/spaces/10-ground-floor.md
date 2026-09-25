@@ -47,7 +47,7 @@
 @evidence principles/design/spaces.md#space-verification-address 차고 바닥 전체 평면, 전면문 양 끝, 머드룸의 단, 선반/작업대 발치와 네 벽 하단 단면에서 겹친 몸체·떠 있는 레일/선반·다른 문턱 높이를 찾게 한다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 차고 바닥 전체 평면, 전면문 양 끝, 머드룸의 단, 선반/작업대 발치와 네 벽 하단 단면, garage-use-routes 유지를 대조해 겹친 몸체·떠 있는 레일/선반·다른 문턱 높이 주장이 반증 가능함을 확인했다.
 @evidence settings/10-house.md#garage 콘크리트 바닥을 차고 완성 바닥 아래 0.15 m의 독립 바탕으로 두어 수납/레일의 발치가 차량 없이 이 실제 바닥을 소비하게 한다.
-@evidenceReview settings/10-house.md#garage #f6816c7 settings garage의 콘크리트 바닥·선반·공구 수납·자동차 비저작 요구를 0.15 m 독립 콘크리트 바탕과 수납/레일 발치가 차량 없이 이 바닥을 소비한다는 문장에 대조해 성립함을 확인했다.
+@evidenceReview settings/10-house.md#garage #261be15 settings garage의 콘크리트 바닥·선반·공구 수납·자동차 비저작 요구를 0.15 m 독립 콘크리트 바탕과 수납/레일 발치가 차량 없이 이 바닥을 소비한다는 문장에 대조해 성립함을 확인했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work garage의 "콘크리트 바닥"을 차고 바탕에 대조했고 본채 바닥을 연장하지 않는 낮은 독립 바탕이 머드룸 한 단과 함께 성립해 부모 수정이 없었다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 garage의 콘크리트 바닥을 본채 바닥을 연장하지 않는 낮은 독립 바탕에 대조해 머드룸 한 단과 전면 문턱 높이가 그대로 남으므로 부모 수정 없이 성립함을 확인했다.
 -->

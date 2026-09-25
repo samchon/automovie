@@ -49,7 +49,7 @@
 @evidence principles/design/spaces.md#space-verification-address 차고 반사 천장 평면, 전면 레일을 따라 지붕까지 보는 단면, 공유 벽 접점, 네 안쪽 모서리와 문 닫힘/열림 시야를 두게 한다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 차고 반사 천장 평면, 전면 레일을 따라 지붕까지 보는 단면, 공유 벽 접점, 네 안쪽 모서리, 문 닫힘/열림 실내 시야를 대조해 위층 바닥식 천장·레일 충돌·천장 빈틈 주장이 반증 가능함을 확인했다.
 @evidence settings/10-house.md#garage 빈 차고의 내부 천장을 차고 지붕 아래에서 닫고 열린 전면 패널/가이드 예약을 완성 천장 아래에 유지하며 후벽 선반/작업대 높이는 차고 내부 owner에서 소비한다.
-@evidenceReview settings/10-house.md#garage #f6816c7 settings garage의 내부 천장·문 레일/상부 구조·선반 요구를 차고 지붕 아래 천장 폐합, 완성 천장 아래 패널/가이드 예약, rooms/garage-interior 후벽 선반/작업대 높이 소비에 대조해 성립함을 확인했다.
+@evidenceReview settings/10-house.md#garage #261be15 settings garage의 내부 천장·문 레일/상부 구조·선반 요구를 차고 지붕 아래 천장 폐합, 완성 천장 아래 패널/가이드 예약, rooms/garage-interior 후벽 선반/작업대 높이 소비에 대조해 성립함을 확인했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work garage의 "문 레일/상부 구조, 콘크리트 바닥과 내부 천장"과 닫힌 문 기준을 대조했고 가이드 예약과 천장 바탕을 분리해 성립해 부모 수정이 없었다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 garage의 문 레일/상부 구조·내부 천장과 문 닫힘/열림 상태를 패널/가이드 예약과 천장 바탕의 입력상 0.05 m 분리에 대조해 부모 수정 없이 성립함을 확인했다.
 -->

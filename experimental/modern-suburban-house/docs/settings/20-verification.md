@@ -212,7 +212,7 @@ settings 전체 관찰 의무의 원문은 ../contracts/observation-denominator.
 @evidenceReview contracts/surface-ownership.md#whole-surface-owner #0e24f29 1단계에 입면·방 내부·층판·계단 구멍·접합의 owner와 source 파일을 선언하도록 정했다. 한 명 저작도 분해를 면제하지 않으며 models·instances·materials는 같은 면 binding을 이어받는다.
 -->
 
-../contracts/surface-ownership.md#whole-surface-owner를 1단계 폐쇄의 필수 산출물로 적용한다. spaces는 외부 입면, 각 방 내부의 완결 면, 각 층 바닥·천장·계단 구멍과 접합의 owner 및 source 파일 경계를 처음부터 선언한다. models는 그 경계를 받아 두께 있는 부재를, instances는 측정값과 반복 법칙으로 외장 모듈을, materials는 동일 surface binding으로 마감을 구현한다. 같은 완결 표면의 무작위 레코드 복제나 여러 소유자의 독립 기준을 허용하지 않는다. 저작자 한 명이 구현해도 표면 소유와 파일 분해를 생략하지 않는다. 이번 settings는 이 인계 의무를 정하며 실제 면 목록은 1단계 topology 없이는 완료할 수 없다.
+사용자 제작 규칙에 따라 ../contracts/surface-ownership.md#whole-surface-owner를 1단계 폐쇄의 필수 산출물로 적용한다. spaces는 외부 입면, 각 방 내부의 완결 면, 각 층 바닥·천장·계단 구멍과 접합의 owner 및 source 파일 경계를 처음부터 선언한다. models는 그 경계를 받아 두께 있는 부재를, instances는 측정값과 반복 법칙으로 외장 모듈을, materials는 동일 surface binding으로 마감을 구현한다. 같은 완결 표면의 무작위 레코드 복제나 여러 소유자의 독립 기준을 허용하지 않는다. 저작자 한 명이 구현해도 표면 소유와 파일 분해를 생략하지 않는다. 이번 settings는 이 인계 의무를 정하며 실제 면 목록은 1단계 topology 없이는 완료할 수 없다.
 
 ## 실행과 모듈 경계 {#execution-boundary}
 <!--
@@ -322,7 +322,7 @@ settings 전체 관찰 의무의 원문은 ../contracts/observation-denominator.
 @evidenceReview principles/core/settings.md#observable-identity #4ccb62e 검증 명령의 통과와 프레임 읽힘은 data-authority로 구별되어 콘솔 성공이 건물의 시각 정체성을 증명하지 않는다.
 -->
 
-사용자가 지정한 검증 명령은 이 production 디렉터리에서 README가 소유하는 npm run lint 그대로다. 대체 명령, 추가 플래그, binary 직접 호출과 우회 설정을 사용하지 않는다. 보고에는 실제 실행한 명령과 종료 코드를 함께 적고, 실행되지 않은 명령이나 결과를 수령하지 못한 명령을 통과 또는 실패로 꾸미지 않는다. 측정 수단의 부재와 프레임의 책임은 data-authority에 따른다.
+사용자가 지정한 정규 evidence 검증 명령은 이 production 디렉터리에서 README가 소유하는 npm run lint 그대로다. 별도의 npm run check는 문서 review 본문 대조·모델 계정과 결합·접촉·기하·테스트를 끝까지 실행하고 lint도 함께 호출해 실패 수와 종료 코드를 합친다. check는 lint의 판정 의미를 대체하지 않는다. 정규 lint에 추가 플래그, binary 직접 호출과 우회 설정을 사용하지 않는다. 보고에는 실제 실행한 두 명령과 각 종료 코드를 함께 적고, 실행되지 않은 명령이나 결과를 수령하지 못한 명령을 통과 또는 실패로 꾸미지 않는다. 측정 수단의 부재와 프레임의 책임은 data-authority에 따른다.
 
 ## 커밋과 푸시 {#submission-boundary}
 <!--
@@ -366,7 +366,7 @@ settings 전체 관찰 의무의 원문은 ../contracts/observation-denominator.
 @evidenceReview principles/core/settings.md#observable-identity #4ccb62e 기동 확인은 HTTP 200과 콘솔 오류 없음까지이고 보이는 집의 정체성은 renderer-boundary의 실제 3D로 남아 응답 코드만으로 빈 canvas를 완성 화면으로 인정하지 않는다.
 -->
 
-사용자와 조정자의 지시에 따라 뷰어를 구현했으면 시작 명령, 실행 디렉터리, 포트, 열어야 할 경로를 보고한다. 뷰어 서버는 `--port` 인자로 포트를 받고 인자가 없으면 조정자가 배정한 4173을 쓴다. 실행 스크립트는 조정자 지시대로 `tsx`로 돌려 evidence 그래프 lint와 분리한다. lint가 실패한 동안에도 서버 기동이 막히지 않게 하기 위한 분리이며 lint를 건너뛰는 검증 경로가 아니다. 저작자는 구현 turn에서 서버를 잠깐 띄워 HTTP 200과 브라우저 콘솔 오류 없음을 확인한 뒤 종료한다. 상시 기동과 유지는 조정자가 맡는다. 이 인계는 renderer-boundary가 요구하는 실제 3D 결과와 현재 소스 연결을 약화하지 않으며, HTTP 200은 화면의 합격이 아니다. viewer 미구현 상태에서는 이전 뷰어의 명령이나 주소를 새 실행 경로로 보고하지 않는다.
+사용자와 조정자의 지시에 따라 뷰어를 구현했으면 시작 명령, 실행 디렉터리, 포트, 열어야 할 경로를 보고한다. 뷰어 서버는 `--port` 인자로 포트를 받고 인자가 없으면 조정자가 배정한 4173을 쓴다. 실행 스크립트는 조정자 지시대로 `tsx`로 돌려 evidence 그래프 lint와 분리한다. lint가 실패한 동안에도 서버 기동이 막히지 않게 하기 위한 분리이며 lint를 건너뛰는 검증 경로가 아니다. 조정자 인계에 따라 저작자는 구현 turn에서 서버를 잠깐 띄워 HTTP 200과 브라우저 콘솔 오류 없음을 확인한 뒤 종료한다. 사용자 지시에 따라 상시 기동과 유지는 조정자가 맡는다. 이 인계는 renderer-boundary가 요구하는 실제 3D 결과와 현재 소스 연결을 약화하지 않으며, HTTP 200은 화면의 합격이 아니다. viewer 미구현 상태에서는 이전 뷰어의 명령이나 주소를 새 실행 경로로 보고하지 않는다.
 
 ## 완료와 기록 {#completion-boundary}
 <!--

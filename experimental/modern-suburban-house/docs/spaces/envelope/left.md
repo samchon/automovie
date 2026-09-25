@@ -97,7 +97,7 @@
 @evidence principles/design/spaces.md#space-verification-address 창대/커튼과 침대 주변 경로, 후면 창과 함께 보이는 시야, 실제 단면을 반증 관찰로 둔다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 본문이 창대/커튼과 침대 주변 경로, 후면 창과 함께 보이는 시야, 실제 단면/프레임을 unverified 관찰로 적었는지 확인해 주침실 측면 창 배치를 반증할 주소가 있음을 확인했다.
 @evidence settings/10-house.md#primary-bedroom 주침실의 "창과 얇은 커튼" 가운데 창을 뒤쪽 본체의 측면 두 칸 창으로 실현하고 창대/커튼은 관찰 대상으로 남긴다.
-@evidenceReview settings/10-house.md#primary-bedroom #24d88c6 primary-bedroom의 '창과 얇은 커튼' 가운데 창을 본문의 뒤쪽 본체 Z = [-8.90, -7.30], Y = [3.91, 5.31] m 두 칸 창에 대조하고 창대/커튼이 관찰 대상으로 남았음을 확인했다.
+@evidenceReview settings/10-house.md#primary-bedroom #50cf2e5 primary-bedroom의 '창과 얇은 커튼' 가운데 창을 본문의 뒤쪽 본체 Z = [-8.90, -7.30], Y = [3.91, 5.31] m 두 칸 창에 대조하고 창대/커튼이 관찰 대상으로 남았음을 확인했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work primary-bedroom의 창·커튼 요구를 대조했고 Y = [3.91, 5.31] m 두 칸 창을 앞쪽 복도·자녀실이 아닌 주침실 뒤쪽 본체에 두는 것으로 성립해 부모 수정이 없었다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 primary-bedroom의 창·커튼 요구를 본문의 뒤쪽 본체 소속 Y = [3.91, 5.31] m 두 칸 창과 앞쪽 복도·자녀실 배제에 대조해 주침실 창이 부모 수정 없이 성립함을 확인했다.
 -->

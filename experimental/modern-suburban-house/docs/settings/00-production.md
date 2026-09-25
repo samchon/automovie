@@ -151,7 +151,7 @@
 @evidence principles/core/common.md#substantive-completion 명시 canon·incidental default·설계의 후속 결정·범위 밖을 분류해 빈 항목을 일반 관행으로 메우지 않게 한다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 명시 canon·부수 기본값·설계 결정·범위 밖을 구분해 하위 층이 생산 사실을 임의 복원하지 않아도 된다.
 @evidence principles/core/common.md#declared-basis 각 파일의 현재 소유 항목을 직접 가리키며 공통 중력 같은 성질만 inherited default로 남긴다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 10-house와 20-verification의 소유 항목을 직접 지목하고 광학값과 치수만 설계 선택으로 남긴 근거가 읽힌다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 10-house와 20-verification의 소유 항목을 직접 지목하고 광학값·문 여닫힘 위치·반복 간격·치수를 설계 선택으로 남긴 근거가 읽힌다.
 @evidence principles/core/settings.md#fact-status 실제 치수·광학값은 후속 설계 결정이고 현재 설정의 미해결 생산 사실과 혼동하지 않도록 구분한다.
 @evidenceReview principles/core/settings.md#fact-status #93a284a 실제 치수와 문 상태는 후속 설계 결정이며 미해결 settings 사실이 없다는 말이 그 값의 확정으로 확대되지 않는다.
 @evidence principles/core/settings.md#source-support 중력 같은 통상 성질을 제외한 구체 주택 조건은 저작 canon이며 실주소·법규 인증을 조사 사실로 추가하지 않는다.
@@ -165,10 +165,10 @@
 @evidence obligations/core/settings.md#settings-coverage-map 전달·사용은 00, 주택·방·대지는 10, 렌더·관찰·권한은 20에 배정하며 명시 canon과 중력 등의 부수 기본값, 설계가 결정할 수치와 실제 주소·차량 등 범위 밖을 구별한다.
 @evidenceReview obligations/core/settings.md#settings-coverage-map #e72f282 00의 전달·사용, 10의 집과 방, 20의 렌더·검토·권한을 전용 owner와 대조했다. 실주소·차량은 밖이고 실제 치수·광학값은 설계 결정이므로 미분류 사실을 익숙한 주택이라는 말로 넘기지 않는다.
 @evidence obligations/core/settings.md#minimal-departure 중력과 불투명 벽 같은 부수 성질만 묵시적으로 두고 치수·광학값·문 상태·반복 간격은 각 branch가 canon 안에서 결정하도록 하여 익숙한 주택이라는 이유로 생산 사실을 복원하지 못하게 한다.
-@evidenceReview obligations/core/settings.md#minimal-departure #040e95c 중력·불투명 벽 너머의 비가시성만 부수 기본값으로 두고 문 상태·치수·UV 성격의 결정은 각 설계가 명시하도록 했다. 구현 결과를 바꾸는 중요한 수치를 묵시 기본값으로 숨기지 않는다.
+@evidenceReview obligations/core/settings.md#minimal-departure #040e95c 중력·불투명 벽 너머의 비가시성·가구의 정적인 사용 흔적만 부수 기본값으로 두고 광학값·문 여닫힘 위치·반복 간격·치수는 각 설계가 명시하도록 했다. 구현 결과를 바꾸는 중요한 수치를 묵시 기본값으로 숨기지 않는다.
 -->
 
-현재 설정의 명시적 canon은 이 파일의 전달·사용·좌표·언어·접근성과 사용 가정, 10-house.md의 규모·매스·각 방과 조경 정체성, 20-verification.md의 레퍼런스 권위·GPU·계측·관찰·소유 분해·저작 순서·역할·편집 및 설치·정규 검증·Git 제출·뷰어 인계 조건이다. 수용 결과는 20-verification.md#completion-boundary가 소유한다. 통상적인 중력, 불투명 벽 너머를 볼 수 없다는 성질, 가구의 정적인 사용 흔적은 incidental inherited default다. 소재의 광학값·문 여닫힘 위치·반복 간격·실제 치수는 이 canon 안에서 각 설계 branch가 정할 결정이며 묵시적 사실로 넘기지 않는다. 실제 주소·법규 인증·숨은 설비 성능·가족 전기·차량·사람 모델·날씨 변화·오디오는 범위 밖이다. settings에 필요한 미해결 생산 사실은 없으며 이후 표현 불가능성이나 외부 사실이 발견되면 해당 canon을 먼저 열어 해결한다.
+현재 설정의 명시적 canon은 00-production.md의 전달·사용·좌표·언어·접근성과 사용 가정, 10-house.md의 규모·매스·각 방과 조경 정체성, 20-verification.md의 레퍼런스 권위·공통 재료와 외피 인상·표현 수준·빛과 기준 상태·GPU·리뷰 프레임·계측·관찰·소유 분해·저작 순서·역할·편집 및 설치·정규 검증·Git 제출·뷰어 인계·실행과 모듈 경계 조건이다. 수용 결과는 20-verification.md#completion-boundary가 소유한다. 통상적인 중력, 불투명 벽 너머를 볼 수 없다는 성질, 가구의 정적인 사용 흔적은 incidental inherited default다. 소재의 광학값·문 여닫힘 위치·반복 간격·실제 치수는 이 canon 안에서 각 설계 branch가 정할 결정이며 묵시적 사실로 넘기지 않는다. 실제 주소·법규 인증·숨은 설비 성능·가족 전기·차량·사람 모델·날씨 변화·오디오는 범위 밖이다. settings에 필요한 미해결 생산 사실은 없으며 이후 표현 불가능성이나 외부 사실이 발견되면 해당 canon을 먼저 열어 해결한다.
 
 ## 작동 주체와 자원 {#operative-subjects}
 <!--
@@ -240,4 +240,4 @@
 @evidenceReview obligations/core/settings.md#subject-breakdown-production-scope #d8fa940 주택·가구·식재는 build, 사진은 비교 입력 adopt, 반복·관찰은 derive다. branch별 담당과 자원 부족 시 표현 보존·제한 기록이 있어 placeholder나 데모 집을 계획된 자산으로 섞지 않는다.
 -->
 
-주택 외형·각 방·계단·문·창·차고·가구·설비·소품·식재는 production 안에서 build한다. 레퍼런스는 눈으로 비교할 입력으로 adopt하며 asset geometry나 texture로 복사하지 않는다. 대지와 외부 접근은 maps, 방 경계·외피·동선은 spaces, 실제 부재·가구·수목 원형은 models, 표면 표현은 materials, 외장 반복 및 가구·식재 개체는 instances, 조명은 systems가 소유한다. 반복 결과와 관찰은 이 설계에서 derive한다. 각 matching source branch와 뷰어는 같은 산출물을 소비하며 복제한 데모 집을 갖지 않는다. 명시적 랜덤 seed 없는 변동과 외부 생성 이미지 서비스는 채택하지 않는다. 설치된 공개 엔진 기능을 검토한 뒤 자원 부족은 batch/instance 등 표현 보존 방식으로 다루며 성능을 이유로 방·면·질문을 생략하지 않는다. 설치된 공개 엔진에 필요한 기능이 없으면 실제 제한을 기록해 조정자에게 올리고, 필요한 외부 패키지는 [편집과 의존성 경계](20-verification.md#implementation-boundary)의 절차로 선언·설치한다.
+주택 외형·각 방·계단·문·창·차고·가구·설비·소품·식재는 production 안에서 build한다. 사용자 금지에 따라 레퍼런스는 눈으로 비교할 입력으로 adopt하며 asset geometry나 texture로 복사하지 않는다. 대지와 외부 접근은 maps, 방 경계·외피·동선은 spaces, 실제 부재·가구·수목 원형은 models, 표면 표현은 materials, 외장 반복 및 가구·식재 개체는 instances, 조명은 systems가 소유한다. 반복 결과와 관찰은 이 설계에서 derive한다. 각 matching source branch와 뷰어는 같은 산출물을 소비하며 복제한 데모 집을 갖지 않는다. 명시적 랜덤 seed 없는 변동과 외부 생성 이미지 서비스는 채택하지 않는다. 설치된 공개 엔진 기능을 검토한 뒤 자원 부족은 batch/instance 등 표현 보존 방식으로 다루며 성능을 이유로 방·면·질문을 생략하지 않는다. 설치된 공개 엔진에 필요한 기능이 없으면 실제 제한을 기록해 조정자에게 올리고, 필요한 외부 패키지는 [편집과 의존성 경계](20-verification.md#implementation-boundary)의 절차로 선언·설치한다.

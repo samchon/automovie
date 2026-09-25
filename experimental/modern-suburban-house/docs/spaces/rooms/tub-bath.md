@@ -17,7 +17,7 @@
 @evidence principles/design/spaces.md#space-verification-address 변기나 세면장을 넘지 않고 욕조에 닿는 경로, 창의 접근/프라이버시, 모든 구석과 부재 읽힘을 검사한다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 변기나 세면장을 넘지 않는 욕조 경로, 창의 접근/프라이버시, 문/창의 실제 방 binding, 모든 구석과 부재 읽힘을 이 H2 주장을 반증할 관찰로 두고 unverified로 남겼음을 확인했다.
 @evidence settings/10-house.md#tub-bathroom 샤워 욕실과 벽을 사이에 둔 독립 욕실로 두고 한 실의 좌우 구역으로 합치지 않는다.
-@evidenceReview settings/10-house.md#tub-bathroom #71a5a4f 설정의 '샤워 욕실과 벽을 사이에 둔 독립 공간, 한 실의 좌우 구역으로 합치지 않는다'를 X = [3.07, 3.22] 공유 벽과 샤워 욕실 쪽 통과문 금지, 복도 쪽 자기 문에 대조했다.
+@evidenceReview settings/10-house.md#tub-bathroom #2fd6326 설정의 '샤워 욕실과 벽을 사이에 둔 독립 공간, 한 실의 좌우 구역으로 합치지 않는다'를 X = [3.07, 3.22] 공유 벽과 샤워 욕실 쪽 통과문 금지, 복도 쪽 자기 문에 대조했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work tub-bathroom의 자기 문·독립 실·욕조 접근 조건을 대조했고 복도에 닿는 왼쪽 벽의 hall-tub-door와 샤워 욕실·침실 쪽 통과문 없는 독립 실로 성립해 부모 수정이 없었다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 설정 tub-bathroom의 자기 문 조건을 hall-tub-door Z = [-5.86, -4.86]가 복도에 닿는 왼쪽 벽 앞 부분에 있는 배치에 대조해 샤워 욕실을 거치지 않고 설정 수정 없이 성립함을 확인했다.
 -->
@@ -45,7 +45,7 @@
 @evidence principles/design/spaces.md#space-verification-address 기구 위에 올라서야 가능한 창 조작을 합격으로 처리하지 않고 커튼을 펴거나 걷은 프라이버시와 두 방향 진입을 검사한다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 기구 위에 올라서야 되는 높은 흐린 창 조작을 불합격으로 두고, 커튼을 펴거나 걷은 프라이버시와 두 방향 진입, 02 욕조 욕실 시야를 spatial-observation-derivation에 넘겼음을 확인했다.
 @evidence settings/10-house.md#tub-bathroom 욕조 가장자리 높이 0.55 m, 뒤쪽 끝의 욕조 수전/샤워기, X = 4.74 m의 커튼 레일과 뒤쪽 끝에 모으는 커튼, 세면장 위 거울, 문 뒤 닫힌 구간의 수건걸이를 공간 예약으로 둔다.
-@evidenceReview settings/10-house.md#tub-bathroom #71a5a4f 설정의 욕조 가장자리·샤워 수전·curtain rail/커튼·거울·수건을 가장자리 0.55 m, 뒤쪽 끝 수전/샤워기, X = 4.74 m 레일과 뒤쪽 0.25 m 커튼 모음, 세면장 Z 폭 거울, 수건걸이 예약에 대조했다.
+@evidenceReview settings/10-house.md#tub-bathroom #2fd6326 설정의 욕조 가장자리·샤워 수전·curtain rail/커튼·거울·수건을 가장자리 0.55 m, 뒤쪽 끝 수전/샤워기, X = 4.74 m 레일과 뒤쪽 0.25 m 커튼 모음, 세면장 Z 폭 거울, 수건걸이 예약에 대조했다.
 @evidence settings/00-production.md#use-profile 실제 문/기구/수전/커튼·창·수건을 소비한 평면과 단면에서 같은 사용체로 경로를 검사한다.
 @evidenceReview settings/00-production.md#use-profile #6ef5afe 주 경로 X = [3.32, 4.22] 폭이 use-profile 연속 통로 0.90 m와 같고, 실제 문/기구/수전/커튼·창·수건을 소비한 평면·단면에서 같은 사용체로 재검한다는 본문을 대조했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work tub-bathroom의 기구 목록·비넘김 경로와 use-profile을 오른쪽 기구 열과 왼쪽 주 경로 X = [3.32, 4.22] m에 적용했고 수건걸이를 문 뒤 닫힌 구간 Z = [-6.85, -6.10] m로 옮겨 이 H2 안에서 해결해 부모 수정이 없었다.

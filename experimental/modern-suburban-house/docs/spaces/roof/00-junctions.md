@@ -88,7 +88,7 @@
 @evidence settings/10-house.md#main-mass 골짜기에서 빈틈이나 중첩 판을 남기지 않도록 우세 영역만 소유한다.
 @evidenceReview settings/10-house.md#main-mass #edcb5ab 설정의 '골짜기와 합류부에 빈틈이나 중첩 지붕판을 남기지 않는다'를 본문의 '같은 위치에 두 지붕판을 겹쳐 놓는 방법을 쓰지 않는다'와 박공 용마루 뒤 묻힌 판 제거에 대조해 이행을 확인했다.
 @evidence settings/00-production.md#build-allocation 일반 Boolean이나 메쉬 병합 성능을 전제하지 않고 명시적 면 구성이 공개 엔진 경로에서 표현되지 않으면 한계를 기록해 조정자에게 이관하도록 정한다.
-@evidenceReview settings/00-production.md#build-allocation #b85e84f 설정 build-allocation의 '필요한 기능이 없으면 실제 제한을 기록해 조정자에게 올린다'를 본문의 Boolean·메쉬 병합 비전제와 명시적 면 구성 한계 이관 문장에 대조해 일치함을 확인했다.
+@evidenceReview settings/00-production.md#build-allocation #eda898f 설정 build-allocation의 '필요한 기능이 없으면 실제 제한을 기록해 조정자에게 올린다'를 본문의 Boolean·메쉬 병합 비전제와 명시적 면 구성 한계 이관 문장에 대조해 일치함을 확인했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work main-mass의 "골짜기와 합류부에 빈틈이나 중첩 지붕판을 남기지 않는다"와 박공 9/12·주 지붕 8/12 기울기를 합류 경계에 대조했고 등고 경계 하나로 성립해 부모 수정이 없었다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 설정 main-mass의 합류부 무틈 조건을 박공 9/12와 주 지붕 8/12가 만나는 등고 경계 하나에 대조했고 두 기울기 모두 부모 경사 범위 안에서 한 경계로 닫혀 설정 수정이 필요 없음을 확인했다.
 -->

@@ -17,7 +17,7 @@
 @evidence principles/design/spaces.md#space-verification-address 차고 정면, 본채 벽 접합의 앞 끝, 지붕/문/천장 단면을 차고문을 제거하지 않은 상태로 검사하게 한다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 검사 주소인 차고 정면, 본채 벽 접합의 앞 끝, 지붕/문/천장 단면과 '차고문을 제거한 빈 공간으로 검사하지 않는다'를 대조해 차고 앞 면의 반증 관찰이 닫힌 문 기준으로 지정됨을 확인했다.
 @evidence settings/10-house.md#garage 낮은 박공 아래에서 닫힌 패널문과 내부 레일 높이를 유지한다.
-@evidenceReview settings/10-house.md#garage #f6816c7 설정 garage의 낮은 박공 지붕, 문 레일/상부 구조, 닫힌 차고문 기준을 본문의 기존 datum 유지, garage-front-opening 예약 대조, 문 제거 검사 금지에 대조해 차고 앞 면의 이행을 확인했다.
+@evidenceReview settings/10-house.md#garage #261be15 설정 garage의 낮은 박공 지붕, 문 레일/상부 구조, 닫힌 차고문 기준을 본문의 기존 datum 유지, garage-front-opening 예약 대조, 문 제거 검사 금지에 대조해 차고 앞 면의 이행을 확인했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work garage의 "낮은 박공 지붕"과 "차고문은 닫힌 기준 상태"를 앞 면에 대조했고 Gfront 아래에 닫힌 문과 레일 높이가 남아 부모 수정이 없었다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 설정 garage의 닫힌 차고문 기준과 낮은 박공을 Gfront 앞 면 아래의 ground-threshold-datums 내부 높이·문·레일 예약 대조에 적용해 부모와 충돌이 없어 설정 수정이 필요 없음을 확인했다.
 -->

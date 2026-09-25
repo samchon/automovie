@@ -17,7 +17,7 @@
 @evidence principles/design/spaces.md#space-verification-address 계단 끝의 회전, 다섯 출입문, 두 팔 끝에서 되돌아오는 길을 같은 사용 프로필로 검사한다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 FOV로 통로를 넓혀 보이게 하는 대신 계단 끝 회전·다섯 출입문·두 팔 끝 귀환을 반증 검사로 두고, 두 팔의 순폭·가려진 코너 관찰은 unverified로 남겼음을 확인했다.
 @evidence settings/10-house.md#upper-hall 순폭 1.20 m의 L형 복도 하나를 숨은 우회로 없이 세 침실·두 욕실의 실제 문과 린넨 접면에 직접 닿게 한다.
-@evidenceReview settings/10-house.md#upper-hall #9a473e3 설정의 '짧은 복도 하나가 세 침실·두 욕실·수납에 직접'과 '숨은 길 금지', '계단 도착 여유'를 다섯 방 문, 린넨 접면 소유, 도착하는 +X 끝을 막지 않는 보호 경계와 대조했다.
+@evidenceReview settings/10-house.md#upper-hall #9d73c9d 설정의 '짧은 복도 하나가 세 침실·두 욕실·수납에 직접'과 '숨은 길 금지', '계단 도착 여유'를 다섯 방 문, 린넨 접면 소유, 도착하는 +X 끝을 막지 않는 보호 경계와 대조했다.
 @evidence obligations/design/spaces.md#space-access-circulation 순폭 1.20 m의 두 부분에 계단 끝의 회전, 다섯 출입문, 두 팔 끝에서 되돌아오는 길을 같은 사용 프로필로 배정한다.
 @evidenceReview obligations/design/spaces.md#space-access-circulation #76c5e04 계단 도착·다섯 출입문·두 팔 끝 귀환이라는 과제를 1.20 m 도착·가로 두 부분에 같은 사용 프로필로 배정하고 문짝이 복도 바닥으로 돌출하지 않게 한 본문을 경로 요건과 대조했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work upper-hall의 직접 접근·짧은 복도 조건을 대조했고 위 계단 끝에서 들어오는 순폭 1.20 m L형 복도에서 다섯 방의 실제 문이 열려 부모 수정이 없었다.
@@ -49,7 +49,7 @@
 @evidence settings/10-house.md#storage 복도 수납에 린넨 선반과 접힌 수건을 두고 실제 안쪽 깊이를 갖게 한다.
 @evidenceReview settings/10-house.md#storage #cc3fdd3 설정 storage의 '린넨 선반과 접힌 수건', '실제 내부 깊이'를 장 안쪽 0.60 m, 뒤쪽 면에서 최대 0.55 m 선반 깊이, 수건/용기가 선반 깊이를 넘지 않는 규칙과 대조했다.
 @evidence settings/10-house.md#upper-hall 린넨장 문을 계단 도착 바닥으로 회전하지 않는 미닫이로 두고 장 사용자가 비켜난 상태에서도 남은 문틀/손잡이가 계단 도착 경로를 침범하지 않게 한다.
-@evidenceReview settings/10-house.md#upper-hall #9a473e3 설정 upper-hall의 '여닫힘과 계단 도착 여유는 겹쳐 막히지 않는다'를 계단 도착 바닥으로 회전하지 않는 미닫이와 사용자가 비켜난 뒤 문틀/손잡이가 도착 경로를 침범하지 않는 조건에 대조했다.
+@evidenceReview settings/10-house.md#upper-hall #9d73c9d 설정 upper-hall의 '여닫힘과 계단 도착 여유는 겹쳐 막히지 않는다'를 계단 도착 바닥으로 회전하지 않는 미닫이와 사용자가 비켜난 뒤 문틀/손잡이가 도착 경로를 침범하지 않는 조건에 대조했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work storage의 "계단참에 가까운 복도 수납에는 린넨 선반과 접힌 수건"을 대조했고 도착면 앞의 깊이 0.60 m 선반장과 계단 도착 바닥으로 회전하지 않는 미닫이로 성립해 부모 수정이 없었다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 설정 storage 조건을 청회색 침실에서 뺀 X = [1.72, 3.22] 칸막이 포함 예약과 도착자와 동시 통행을 주장하지 않는 순차 사용에 대조해 설정 수정 없이 린넨장이 성립함을 확인했다.
 -->

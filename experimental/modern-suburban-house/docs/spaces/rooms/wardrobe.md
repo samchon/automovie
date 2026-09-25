@@ -19,7 +19,7 @@
 @evidence settings/10-house.md#storage 사람이 들어가는 옷 수납실을 얕은 붙박이장으로 분류해 관찰을 없애지 않는다.
 @evidenceReview settings/10-house.md#storage #cc3fdd3 storage 설정의 '붙박이장이라는 이름으로 실제 방의 질문을 없애지 않는다'를 이 방을 얕은 붙박이장으로 분류하지 않고 자기 문·경계·전체 방 관찰을 부담하게 한 본문과 대조했다.
 @evidence settings/10-house.md#primary-bedroom 주침실의 별도 옷 수납을 주침실에서 직접 들어가는 방으로 만든다.
-@evidenceReview settings/10-house.md#primary-bedroom #24d88c6 primary-bedroom 설정의 '별도 옷 수납'을 주침실 쪽 -X로 여는 primary-wardrobe-door와, 주침실 owner의 옷방 문 앞 대기와 맞물리는 Z = [-10.20, -9.20] 개구부에 대조했다.
+@evidenceReview settings/10-house.md#primary-bedroom #50cf2e5 primary-bedroom 설정의 '별도 옷 수납'을 주침실 쪽 -X로 여는 primary-wardrobe-door와, 주침실 owner의 옷방 문 앞 대기와 맞물리는 Z = [-10.20, -9.20] 개구부에 대조했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work storage의 사람이 들어가는 수납실 조건을 대조했고 upper-storey 소속의 자기 문·경계를 갖고 욕실 쪽 문 없이 주침실에서 들어와 같은 문으로 되돌아오는 방으로 성립해 부모 수정이 없었다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 설정 storage·primary-bedroom의 별도 옷 수납 조건을 X = [0.75, 0.90] 공유 벽 문과 후면 창 없는 외벽, 욕실 쪽 문 없는 배치에 대조해 설정 수정 없이 성립함을 확인했다.
 -->

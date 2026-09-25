@@ -17,7 +17,7 @@
 @evidence principles/design/spaces.md#space-verification-address 왼쪽 부분까지 방 바닥이 이어지는지와 모든 내부 코너, 면적 비교·문/창 binding·옷방 접근을 검사한다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 왼쪽 부분까지 방 바닥이 이어지는지와 모든 내부 코너, 면적 비교·문/창 binding·침대 양옆 여유·옷방 접근을 L자 합집합과 직접 출입 주장을 반증할 검사로 두고 unverified로 남겼음을 확인했다.
 @evidence settings/10-house.md#primary-bedroom 가장 큰 침실을 복도에서 직접 들어가게 하고 욕실을 통과하거나 방을 통과해 공용 욕실에 가는 길을 만들지 않는다.
-@evidenceReview settings/10-house.md#primary-bedroom #24d88c6 설정의 '복도에서 직접'과 '욕실을 통과해 방에 들어가거나 방을 통과해 공용 욕실에 갈 수 없다'를 복도 벽의 hall-primary-door와 두 문을 거치지 않는 욕실 경로 서술에 대조했다.
+@evidenceReview settings/10-house.md#primary-bedroom #50cf2e5 설정의 '복도에서 직접'과 '욕실을 통과해 방에 들어가거나 방을 통과해 공용 욕실에 갈 수 없다'를 복도 벽의 hall-primary-door와 두 문을 거치지 않는 욕실 경로 서술에 대조했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work primary-bedroom의 직접 출입·비통과·별도 옷 수납 조건을 대조했고 복도에서 여는 hall-primary-door, 별도 개구부인 옷방 문, 두 직사각형을 합친 upper-storey의 가장 큰 침실로 성립해 부모 수정이 없었다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 설정 primary-bedroom의 가장 큰 침실·직접 출입·별도 옷 수납 조건을 두 직사각형 합집합, 복도 벽 Z = [-6.06, -5.91]의 문, wardrobe owner의 별도 개구부에 대조해 설정 수정 없이 성립함을 확인했다.
 -->
@@ -45,7 +45,7 @@
 @evidence principles/design/spaces.md#space-verification-address 문 개방·침대 양옆·발치·두 창·열린 서랍·옷방 진입의 평면/단면과 02·05 시야를 검사한다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 문 개방·침대 양옆·발치·두 창·열린 서랍·옷방 진입의 평면/단면과 02·05 및 방 전체 시야를 spatial-observation-derivation에 넘겨 배치 주장을 반증 가능하게 하고 점유·회전은 unverified로 뒀음을 확인했다.
 @evidence settings/10-house.md#primary-bedroom 성인 둘의 침대·양쪽 협탁과 등·낮은 서랍장을 평면 예약으로 두고 두 창의 커튼을 방 안쪽 돌출 0.12 m 안에 둔다.
-@evidenceReview settings/10-house.md#primary-bedroom #24d88c6 설정의 성인 둘 침대·양옆 협탁과 조명·낮은 서랍장을 표의 네 행과 '등 포함 1.10 m' 높이로, 창과 얇은 커튼을 두 창 커튼의 방 안쪽 0.12 m 한계로 대응시켰음을 확인했다.
+@evidenceReview settings/10-house.md#primary-bedroom #50cf2e5 설정의 성인 둘 침대·양옆 협탁과 조명·낮은 서랍장을 표의 네 행과 '등 포함 1.10 m' 높이로, 창과 얇은 커튼을 두 창 커튼의 방 안쪽 0.12 m 한계로 대응시켰음을 확인했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work primary-bedroom의 가구 목록과 "양옆과 발치의 사용 여유"를 침대 발치 띠 X = [-2.50, -1.50] m와 왼쪽 부분에서 접근하는 서랍장 앞 작업에 적용했고 협탁 뒤를 유일한 통로로 세지 않고도 성립해 부모 수정이 없었다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 설정의 '양옆과 발치의 사용 여유'를 앞쪽은 복도 문과 침대 사이, 뒤쪽은 침대와 후면 창 사이 바닥, 뒤쪽 협탁 Z = [-9.15, -8.65]가 옷방 대기 밖인 배치에 대조해 설정 수정 없이 성립함을 확인했다.
 -->

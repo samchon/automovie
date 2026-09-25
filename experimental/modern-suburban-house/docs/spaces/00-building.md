@@ -51,7 +51,7 @@
 @evidence principles/design/spaces.md#space-verification-address 공유 벽의 이중 두께, 머드룸 밖으로 연결된 차고문, 별동 차고, 닫힌 정면문을 제거해야만 가능한 내부 관찰을 실패 조건으로 든다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 셋째 문단이 공유 벽 이중 두께, 머드룸 밖으로 연결된 차고문, 별동 차고, 닫힌 정면문 제거가 필요한 내부 관찰을 실패로 지목해 공유 벽·머드룸 접면 주장을 반증할 주소를 둠을 확인했다.
 @evidence settings/10-house.md#garage 두 대용 외곽 범위에서 빈 바닥을 예약하고 차량이나 주차 성능을 주장하지 않는다.
-@evidenceReview settings/10-house.md#garage #f6816c7 garage 설정의 외곽 5.8–6.4 m·6.0–6.6 m와 차량 금지를 6.20 m·6.40 m 외곽과 ‘차량은 저작하지 않는다’, 순내부를 두 대 주차 성능으로 쓰지 않는 문장에 대조했다.
+@evidenceReview settings/10-house.md#garage #261be15 garage 설정의 외곽 5.8–6.4 m·6.0–6.6 m와 차량 금지를 6.20 m·6.40 m 외곽과 ‘차량은 저작하지 않는다’, 순내부를 두 대 주차 성능으로 쓰지 않는 문장에 대조했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work garage의 외곽 폭 5.8–6.4 m·깊이 6.0–6.6 m와 차량 금지, service-band의 "차고 출입문은 머드룸과 직접 맞닿는다"를 대조했고 공유 벽 하나의 붙박이 배치로 모두 성립해 부모 수정이 없었다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 garage의 5.8–6.4 m·6.0–6.6 m·차량 금지와 service-band의 차고 출입문–머드룸 직접 접면을 6.20 × 6.40 m 외곽과 공유 벽 void의 머드룸 문에 대조해 settings 수정 없이 성립함을 확인했다.
 -->

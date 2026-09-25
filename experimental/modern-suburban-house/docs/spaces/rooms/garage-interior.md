@@ -17,7 +17,7 @@
 @evidence principles/design/spaces.md#space-verification-address 앞문·레일·천장·저장 가구를 넣은 뒤의 경계, 머드룸 접근, 각 코너의 실내 pose, 콘크리트 바닥과 문 구조의 읽힘을 검사한다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 앞문·문 레일·천장·저장 가구를 넣은 뒤의 경계, 머드룸 접근, 각 코너 실내 pose, 콘크리트 바닥과 문 구조 읽힘을 차고 평면의 반증 관찰로 들고 binding·부재를 unverified로 둔 것을 확인했다.
 @evidence settings/10-house.md#garage 자동차를 어떤 형태로도 저작하지 않고 내부 관찰을 머드룸 연결로 확보한다.
-@evidenceReview settings/10-house.md#garage #f6816c7 설정 garage의 차량 무저작·닫힌 차고문 기준·머드룸 경유 내부 관찰을 차량 점유를 비운 바닥, 서쪽 경계에 바인딩된 머드룸 문, 문이 닫혀도 도달하는 관찰에 대조해 성립함을 확인했다.
+@evidenceReview settings/10-house.md#garage #261be15 설정 garage의 차량 무저작·닫힌 차고문 기준·머드룸 경유 내부 관찰을 차량 점유를 비운 바닥, 서쪽 경계에 바인딩된 머드룸 문, 문이 닫혀도 도달하는 관찰에 대조해 성립함을 확인했다.
 @evidence settings/00-production.md#delivery-scope 자동차가 전달물에 없으므로 주차용 가짜 실루엣·차량의 일부도 차고에 추가하지 않는다.
 @evidenceReview settings/00-production.md#delivery-scope #12a5e84 delivery-scope의 자동차 제외를 이 H2가 자동차·주차용 가짜 실루엣·차량 일부를 추가하지 않고 그 바닥을 수납·경로에 배정한 문장에 대조해 전달 범위를 넘지 않음을 확인했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work garage의 차량 금지·머드룸 관찰·콘크리트 바닥과 천장 요구, delivery-scope의 자동차 제외를 대조했고 빈 바닥과 수납 배정으로 성립해 부모 수정이 없었다.
@@ -51,7 +51,7 @@
 @evidence principles/design/spaces.md#space-verification-address 점유/순높이/간섭과 빈 차고의 읽힘, 측면 고정창의 안쪽 깊이와 손잡이 접근을 검사한다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 실제 점유/순높이/간섭과 빈 차고 읽힘을 unverified 반증 대상으로 두고 측면 고정창의 안쪽 깊이·손잡이/창대 접근은 내부 경로 H2에서 검사하도록 넘긴 것을 확인했다.
 @evidence settings/10-house.md#garage 선반·공구 수납을 후벽 선반 X = [7.15, 8.85] m, 공구 작업대 X = [9.00, 10.20] m와 공구판의 공간 예약으로 두고 중앙 바닥과 머드룸 대기를 비운다.
-@evidenceReview settings/10-house.md#garage #f6816c7 설정 garage의 선반·공구 수납을 다섯 단 선반, 서랍 있는 작업대, 후벽 0.15 m 이내 공구판 예약에 대조하고 수납을 후벽에 모아 중앙 바닥과 머드룸 대기가 비는 것을 확인했다.
+@evidenceReview settings/10-house.md#garage #261be15 설정 garage의 선반·공구 수납을 다섯 단 선반, 서랍 있는 작업대, 후벽 0.15 m 이내 공구판 예약에 대조하고 수납을 후벽에 모아 중앙 바닥과 머드룸 대기가 비는 것을 확인했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work garage의 선반·공구 수납과 차고문 레일/상부 구조를 대조했고 수납을 레일 뒤 후벽에 두어 성립해 부모 수정이 없었다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 설정 garage의 선반·공구 수납과 문 레일/상부 구조를 대조해 높이 2.05 m 선반과 작업대가 상부 문 이동 예약 뒤 후벽에 들어가 설정 수정 없이 성립함을 확인했다.
 -->

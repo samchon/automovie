@@ -17,7 +17,7 @@
 @evidence principles/design/spaces.md#space-verification-address 차고 문턱, 양옆 문설주, 연결로 접점과 바깥 포트의 종횡 단면으로 경사/폭/연결 높이를 반증한다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 차고 문턱·양옆 문설주·연결로 접점·바깥 포트의 종횡 단면을 전체 관찰에 넣고 경사/폭/연결 높이와 열린 문 기구 간섭을 unverified로 둔 본문을 대조해 D(Z) 주장의 반증 지점을 확인했다.
 @evidence settings/10-house.md#garage 차도를 차고와 함께 완성하되 자동차·주차 표시·가짜 실루엣을 넣지 않는다.
-@evidenceReview settings/10-house.md#garage #f6816c7 garage의 차도 완성 요구와 자동차 금지를 본문의 driveway 상면·가장자리 owner, 문 닫힌 기준 상태, 머드룸 관찰, '차량·주차 표시·가짜 실루엣을 넣지 않는다'에 대조해 조건이 지켜짐을 확인했다.
+@evidenceReview settings/10-house.md#garage #261be15 garage의 차도 완성 요구와 자동차 금지를 본문의 driveway 상면·가장자리 owner, 문 닫힌 기준 상태, 머드룸 관찰, '차량·주차 표시·가짜 실루엣을 넣지 않는다'에 대조해 조건이 지켜짐을 확인했다.
 @evidence settings/10-house.md#site-identity 차고 진입 콘크리트 차도를 앞 보도 쪽 끝까지 잇는다.
 @evidenceReview settings/10-house.md#site-identity #452f15e site-identity의 차고 진입 콘크리트 차도를 뒤쪽 garage-front-door 바깥 벽면에서 앞쪽 전면 포장 끝까지 이어지는 driveway 범위에 대조해 차도가 앞 보도 쪽 끝선까지 닿음을 확인했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work garage의 차도·차량 금지와 site-identity의 콘크리트 차도를 두 datum 사이 경사에 적용했고 측량/주행성 주장 없이 성립해 부모 수정이 없었다.

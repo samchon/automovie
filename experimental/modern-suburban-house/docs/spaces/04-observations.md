@@ -31,9 +31,9 @@
 @evidence obligations/design/spaces.md#space-review-set 평면·단면·입면·지붕 합류와 방별 내부 시점, 계단·문턱·포장·울타리 접합 단면을 compiled topology에서 파생하는 유한 관찰 집합으로 선택한다.
 @evidenceReview obligations/design/spaces.md#space-review-set #86bcab4 두 storey 평면, 계단·문턱·포치·포장·울타리 단면, 네 방향 입면, 자기 실 내부 시점이 모두 compiled topology에서 파생되는 관찰로 정해져 review-set의 평면·단면·입면·투시 네 종류를 덮음을 확인했다.
 @evidenceExclude settings/20-verification.md#viewer-handoff spaces 47개 문서 어디에도 뷰어의 시작 명령·실행 디렉터리·포트·경로를 정하거나 소비하는 공간 결정이 없다. 이 H2가 넘기는 것은 관찰 질문과 자기 공간 내부 pose의 파생 규칙이며 포트와 기동 조건은 settings의 viewer-handoff가 소유한다.
-@evidenceExcludeReview settings/20-verification.md#viewer-handoff #7601a9c viewer-handoff의 시작 명령·실행 디렉터리·포트 4173·`--port`·tsx 실행기를 이 H2 본문과 대조해, 마지막 문단이 뷰어의 실행·포트 조건을 settings에 남길 뿐 어떤 값도 쓰지 않음을 확인했다.
+@evidenceExcludeReview settings/20-verification.md#viewer-handoff #b2569d3 viewer-handoff의 시작 명령·실행 디렉터리·포트 4173·`--port`·tsx 실행기를 이 H2 본문과 대조해, 마지막 문단이 뷰어의 실행·포트 조건을 settings에 남길 뿐 어떤 값도 쓰지 않음을 확인했다.
 @evidenceExclude settings/20-verification.md#validation-boundary spaces 47개 문서 어디에도 lint나 검증 명령을 입력으로 쓰는 공간 결정이 없다. 이 H2의 unverified 표기는 data-authority의 계측 부재 규칙을 따르며 npm run lint 실행은 저작 turn의 검증 절차이지 경계·경로·관찰의 입력이 아니다.
-@evidenceExcludeReview settings/20-verification.md#validation-boundary #a610afe validation-boundary의 npm run lint·대체 명령 금지·종료 코드 보고를 이 H2와 대조해, 본문의 unverified 표기가 data-authority 링크에서 오고 검증 명령을 관찰 파생의 입력으로 쓰지 않음을 확인했다.
+@evidenceExcludeReview settings/20-verification.md#validation-boundary #3933e8d validation-boundary의 npm run lint·대체 명령 금지·종료 코드 보고를 이 H2와 대조해, 본문의 unverified 표기가 data-authority 링크에서 오고 검증 명령을 관찰 파생의 입력으로 쓰지 않음을 확인했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work observation-allocation의 공간-소스 배분, data-authority의 산출물 판독, frame-condition의 초기 pose 조건을 공간 관찰 파생에 적용했고 settings가 관찰 수를 상수로 정하지 않아 파생 규칙과 충돌하지 않아 부모 수정이 없었다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 관찰 배분의 ‘관찰 수를 상수로 정하지 않는다’, data-authority의 산출물 판독, frame-condition의 초기 pose를 이 H2의 파생 규칙에 적용해 settings를 고치지 않고 방별 질문과 pose 기록이 성립함을 확인했다.
 -->
@@ -111,7 +111,7 @@
 @evidence settings/00-production.md#operator-access 02의 평면과 절개를 검사 모드에서만 보게 한다.
 @evidenceReview settings/00-production.md#operator-access #bebfca7 operator-access의 절개는 검사 모드에만 속하고 외피가 온전한 상태로 먼저 본다는 조건을 02 행의 ‘평면과 절개를 검사 모드에서만 본다’와 01 행의 ‘온전한 외피’ 배정에 대조했다.
 @evidence settings/00-production.md#build-allocation 부재 원형·마감·반복·조명을 해당 branch가 실현할 일로 남긴다.
-@evidenceReview settings/00-production.md#build-allocation #b85e84f build-allocation의 models·materials·instances·systems 소유를 ‘부재 원형·마감·반복·조명은 제작 배분의 해당 branch가 실현할 일’과 대조해 이 배정 표가 그 몫을 공간 결정으로 가져오지 않음을 확인했다.
+@evidenceReview settings/00-production.md#build-allocation #eda898f build-allocation의 models·materials·instances·systems 소유를 ‘부재 원형·마감·반복·조명은 제작 배분의 해당 branch가 실현할 일’과 대조해 이 배정 표가 그 몫을 공간 결정으로 가져오지 않음을 확인했다.
 @evidence contracts/observation-denominator.md#dual-completion 집의 GPU 프레임·RENDERER·compiled topology가 없고 관찰자 목록도 미수령이라 다섯 비교를 완료로 바꾸지 않는다.
 @evidenceReview contracts/observation-denominator.md#dual-completion #fde3ae6 계약의 두 목록 동시 해소와 독립 시각 판정을 마지막 문단의 GPU 프레임·RENDERER·compiled topology/surface census 부재, 관찰자 목록 미수령, 다섯 비교 unverified와 대조해 완료로 바꾸지 않음을 확인했다.
 @evidence obligations/design/spaces.md#space-review-set 다섯 참조의 공간 비교를 산출물 전체 관찰에 더하는 추가 관찰로 선택한다.

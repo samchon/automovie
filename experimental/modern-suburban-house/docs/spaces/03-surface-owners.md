@@ -17,7 +17,7 @@
 @evidence principles/design/spaces.md#space-verification-address 표의 행 수를 면 개수로 쓰지 않고 현재 spaces part 측정과 후속 model 충전 면 census를 단계별로 구분한다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 현재 spaces 골격의 part 측정과 후속 model 충전 면의 미구현을 본문에서 구분하며 표의 행 수를 전체 표면 수로 읽지 않는지 다시 확인했다.
 @evidence settings/20-verification.md#surface-allocation 외피·층·지붕과 접합을 실제 source 파일 경계로 나누어 첫 저작에 넘긴다.
-@evidenceReview settings/20-verification.md#surface-allocation #aae54d5 surface-allocation의 외부 입면·층 바닥·천장·계단 구멍과 접합 owner 선언을 입면 네 행, floors/ground·upper, 차고 천장, stair 행과 07·08·10 접합 문단에 대조해 첫 저작 전 파일 경계가 정해졌음을 확인했다.
+@evidenceReview settings/20-verification.md#surface-allocation #a6f76e5 surface-allocation의 외부 입면·층 바닥·천장·계단 구멍과 접합 owner 선언을 입면 네 행, floors/ground·upper, 차고 천장, stair 행과 07·08·10 접합 문단에 대조해 첫 저작 전 파일 경계가 정해졌음을 확인했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work surface-allocation의 "여러 소유자의 독립 기준을 허용하지 않는다"를 계산 파일과 면 owner의 분리에 대조했고 공유 계산이 면을 소유하지 않아 부모 수정이 없었다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 surface-allocation의 동일 면 복제·독립 기준 금지를 ‘공유 계산은 경사면을 소유하는 두 번째 geometry가 아니다’와 `boundaries.ts`의 계산 한정에 대조해 settings 문장을 고치지 않고 배정이 성립함을 확인했다.
 @evidence contracts/surface-ownership.md#whole-surface-owner 입면·지붕 경사면·포치·층 바탕·계단·포장·울타리 패널과 문기둥의 완결 면을 한 spaces source에 배정하고 대문 문짝·철물은 models/02에 넘긴다. building·junctions·openings·site 계산 파일은 표면을 소유하지 않는다.

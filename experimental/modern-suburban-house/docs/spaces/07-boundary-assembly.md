@@ -17,7 +17,7 @@
 @evidence principles/design/spaces.md#space-verification-address 상대가 하나뿐인 실내 벽, 설명 없는 겹친 방, owner 없는 접면, 두 구조 owner가 같은 접면을 만든 상태를 층 평면·높이 단면·공유 면 census에서 찾는다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 상대가 하나뿐인 벽·설명 없는 겹친 방·owner 없는 접면·이중 구조 owner를 실패로 정하고 층 평면·높이 단면·공유 면 census를 검사 주소로 둔 문단을 대조해 칸막이 배정이 반증 가능함을 확인했다.
 @evidence settings/20-verification.md#surface-allocation 한 공유 구조와 양쪽 완결 마감을 따로 배정해 같은 벽을 두 번 생성하지 않는다.
-@evidenceReview settings/20-verification.md#surface-allocation #aae54d5 표의 구조 바탕 owner와 03-surface-owners의 방별 안쪽 마감을 나누고 마감 위치의 두 번째 불투명 판을 금지한 문장을 surface-allocation의 단일 기준 요구에 대조해 성립함을 확인했다.
+@evidenceReview settings/20-verification.md#surface-allocation #a6f76e5 표의 구조 바탕 owner와 03-surface-owners의 방별 안쪽 마감을 나누고 마감 위치의 두 번째 불투명 판을 금지한 문장을 surface-allocation의 단일 기준 요구에 대조해 성립함을 확인했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work surface-allocation의 "외부 입면, 각 방 내부의 완결 면"과 공유 벽 기준 하나를 실제 방 쌍 표에 적용했고 모든 쌍이 생성 owner 하나로 정해져 부모 수정이 없었다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 surface-allocation의 방 내부 완결 면과 단일 기준 요구를 ground·upper 11개 표 행에 대조해 각 행이 source owner 하나로 끝나고 부모 수정 없이 성립함을 확인했다.
 -->
@@ -65,7 +65,7 @@
 @evidence settings/10-house.md#openings 벽의 실제 void와 닫힌 문 부재를 양 방이 공유하되 spaces 절단·바닥 전환과 models 문 충전을 구별한다.
 @evidenceReview settings/10-house.md#openings #5663f6c settings의 문틀·문턱 구별을 벽 개구부의 단일 절단, spaces 바닥 전환, models 문틀·문짝의 별도 닫힌 면에 대조했다. 닫힌 문짝을 벽 void를 메우는 구조 벽으로 세지 않는다.
 @evidence settings/00-production.md#build-allocation 공개 엔진이 이 공통 몸체/절단/면 인계를 지원하지 않으면 표현 한계를 기록해 조정자에게 올리도록 정해, 엔진에 없는 기능을 제한 기록으로 다루는 배분을 따른다.
-@evidenceReview settings/00-production.md#build-allocation #b85e84f 공통 몸체/절단/면 인계의 엔진 표현 가능성을 아직 실행하지 않았고 미지원 시 한계를 기록해 조정자에게 올린다는 검사 문단을 build-allocation의 엔진 기능 부족 처리에 대조해 일치함을 확인했다.
+@evidenceReview settings/00-production.md#build-allocation #eda898f 공통 몸체/절단/면 인계의 엔진 표현 가능성을 아직 실행하지 않았고 미지원 시 한계를 기록해 조정자에게 올린다는 검사 문단을 build-allocation의 엔진 기능 부족 처리에 대조해 일치함을 확인했다.
 @evidenceExclude settings/20-verification.md#implementation-boundary spaces 47개 문서에는 편집 범위·의존성 선언·설치·lockfile 제출을 정하거나 소비하는 공간 결정이 없다. 이 H2처럼 엔진 기능 부족을 다루는 문장은 기록과 조정자 이관만 말하며 그 배분은 build-allocation이 소유한다.
 @evidenceExcludeReview settings/20-verification.md#implementation-boundary #e90ff46 본문의 엔진 관련 문장이 표현 한계 기록과 조정자 이관뿐이고 package.json 선언·pnpm install·lockfile을 다루지 않음을 implementation-boundary 범위에 대조해 이 H2가 그 모집단 밖임을 확인했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work settings/10-house.md#openings는 문짝·경첩·손잡이·문틀·문턱을 구별하라고 이미 정한다. 이 H2는 절단과 바닥 전환을 spaces에, 별도 문 부재를 models/03에 배분하여 그 부모 설정을 고치지 않았다.
@@ -103,7 +103,7 @@
 @evidence principles/design/spaces.md#space-verification-address 모든 외벽 모서리·공유 벽 두 끝·단차 교차·굴뚝 접점의 높이별 평면과 상단 단면에서 몸체 합집합·교집합과 void 재폐쇄를 읽게 한다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 모든 외벽 모서리·공유 벽 두 끝·단차 교차·굴뚝 접점의 높이별 평면과 상단 단면, 몸체 합집합/교집합과 void 재폐쇄 읽기, 표 행 수를 census로 쓰지 않는 조건을 대조해 반증 주소를 확인했다.
 @evidence settings/20-verification.md#surface-allocation 접합 몸체의 단일 생성과 입면별 완결 마감을 구별해 모서리 소유를 이어 준다.
-@evidenceReview settings/20-verification.md#surface-allocation #aae54d5 표의 구조 몸체 배정, 03-surface-owners의 입면 마감과 models/15의 닫힌 모서리 trim을 각각 다른 표면으로 대조했다. 입면의 연속 날씨 면을 모서리 판 때문에 쪼개지 않으며 판의 닫힌 면은 모델 원형 한 곳이 소유한다.
+@evidenceReview settings/20-verification.md#surface-allocation #a6f76e5 표의 구조 몸체 배정, 03-surface-owners의 입면 마감과 models/15의 닫힌 모서리 trim을 각각 다른 표면으로 대조했다. 입면의 연속 날씨 면을 모서리 판 때문에 쪼개지 않으며 판의 닫힌 면은 모델 원형 한 곳이 소유한다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work surface-allocation의 "여러 소유자의 독립 기준을 허용하지 않는다"와 main-mass의 "본채 오른쪽 끝의 더 낮은 지붕"을 모서리·단차 몸체에 대조했고 구역별 단일 owner로 성립해 부모 수정이 없었다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 main-mass의 본채 오른쪽 낮은 지붕을 단차 벽 행의 front/rear 우선·right 제외 배정에, surface-allocation 단일 기준을 모서리 행에 대조해 부모 수정 없이 성립함을 확인했다.
 @evidence obligations/design/spaces.md#space-envelope-interface 본채·차고 외벽 모서리, 차고 앞뒤 벽의 왼쪽 끝, 단차 벽과 앞뒤 외벽의 교차 몸체를 front·rear·garage 공유 벽 owner 가운데 하나에 배정해 만나는 두 입면이 같은 몸체를 겹치지 않게 하고, 방의 안쪽 면과 문·창·storey 관계는 그대로 둔다.

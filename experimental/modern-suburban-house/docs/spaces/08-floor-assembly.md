@@ -51,7 +51,7 @@ upper-storey의 실문 아래는 [문턱 중앙면의 마감 인계](07-boundary
 @evidence principles/design/spaces.md#space-verification-address 외벽 둘레, 공유 벽 접점, 칸막이 상하, 구멍 꺾임·전면 끝·상부 도착 단면과 계단/복도 양방향 시야에서 노출된 층판 띠·막힌 도착·마감 후 머리 공간을 읽게 한다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 외벽-층간 전체 둘레, 공유 벽 접점, 칸막이 상하, 구멍 꺾임·전면 끝·상부 도착 단면과 계단/복도 양방향 시야를 04-observations에 더하는 문단을 대조해 층판 띠·막힌 도착 주장이 반증 가능함을 확인했다.
 @evidence settings/20-verification.md#surface-allocation 층판과 계단 구멍의 몸체·수직 마감·도착 바닥을 각각 기존 소유에 잇는다.
-@evidenceReview settings/20-verification.md#surface-allocation #aae54d5 surface-allocation의 층판·계단 구멍 owner 요구를 외벽 두께 구역의 입면/공유 벽 owner 유지, 구멍 단면의 stair.ts 단일 마감, 방 마감 owner의 테두리 덧씌움 금지에 대조해 표면 분해가 이어짐을 확인했다.
+@evidenceReview settings/20-verification.md#surface-allocation #a6f76e5 surface-allocation의 층판·계단 구멍 owner 요구를 외벽 두께 구역의 입면/공유 벽 owner 유지, 구멍 단면의 stair.ts 단일 마감, 방 마감 owner의 테두리 덧씌움 금지에 대조해 표면 분해가 이어짐을 확인했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work surface-allocation의 "각 층 바닥·천장·계단 구멍과 접합의 owner"를 층간 가장자리에 대조했고 구조·수직 마감·도착 바닥을 기존 owner로 나눌 수 있어 부모 수정이 없었다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 surface-allocation의 층 바닥·천장·계단 구멍·접합 owner 요구를 외벽 둘레·분리벽 겹침·구멍 단면·도착 끝 네 가장자리에 대조해 기존 owner 분할로 부모 수정 없이 성립함을 확인했다.
 -->

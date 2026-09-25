@@ -19,7 +19,7 @@
 @evidence settings/10-house.md#main-mass 본채 오른쪽 끝의 더 낮은 지붕이 만드는 높이 차를 후벽 상단에서 닫는다.
 @evidenceReview settings/10-house.md#main-mass #edcb5ab 설정 main-mass의 '본채 오른쪽 끝의 더 낮은 지붕'을 본문의 주/낮은 뒤 지붕 아래면까지 닫는 본채 후벽과 대조해 두 지붕 높이 차가 후벽 상단 단차로 빈틈 없이 닫힘을 확인했다.
 @evidence settings/10-house.md#garage 차고의 낮은 박공 지붕 아래 후벽을 본채 후벽과 별도 평면으로 닫는다.
-@evidenceReview settings/10-house.md#garage #f6816c7 설정 garage의 낮은 박공 지붕을 본문의 Gback 아래면까지 닫는 차고 후벽과 대조해 본채 후벽과 다른 Z의 별도 평면이며 뒤 처마 돌출 끝까지 벽을 늘리지 않음을 확인했다.
+@evidenceReview settings/10-house.md#garage #261be15 설정 garage의 낮은 박공 지붕을 본문의 Gback 아래면까지 닫는 차고 후벽과 대조해 본채 후벽과 다른 Z의 별도 평면이며 뒤 처마 돌출 끝까지 벽을 늘리지 않음을 확인했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work main-mass의 두 지붕 높이 관계와 garage의 낮은 박공·깊이 6.0–6.6 m를 후면 폐합에 대조했고 두 후벽이 서로 다른 Z에서 닫혀 부모 수정이 없었다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 attached-garage-extent의 Z = [-6.70, -0.30] m가 설정 garage 깊이 범위 안에서 본채 후면을 넘지 않음을 이 H2의 두 후벽 폐합과 대조해 main-mass·garage 부모가 후면 폐합에 충분함을 확인했다.
 -->
@@ -49,7 +49,7 @@
 @evidence principles/design/spaces.md#space-verification-address 창/정원문의 방 binding과 뒤 처마·각 모서리의 읽힘을 반증 관찰로 둔다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 본문이 창/정원문의 방 binding과 뒤 처마·각 모서리 읽힘을 unverified 관찰로 남겨 네 개구부의 오배정이 드러날 관찰 위치를 지정하는지 대조했고 rear-openings의 반증 주소가 명시됨을 확인했다.
 @evidence settings/10-house.md#common-room 주방·식당·가족실을 하나의 연속 공간으로 두어 후면 창마다 칸막이 방을 만들지 않는다.
-@evidenceReview settings/10-house.md#common-room #3c2b543 설정 common-room의 '완전 높이 벽이나 닫힌 문으로 세 방을 만들지 않는다'를 본문의 하나의 kitchen-dining-family 안 세 개구부 배치와 대조해 후면 창마다 방이 생기지 않음을 확인했다.
+@evidenceReview settings/10-house.md#common-room #eb2f09d 설정 common-room의 '완전 높이 벽이나 닫힌 문으로 세 방을 만들지 않는다'를 본문의 하나의 kitchen-dining-family 안 세 개구부 배치와 대조해 후면 창마다 방이 생기지 않음을 확인했다.
 @evidence settings/20-verification.md#lighting-state 창이 없는 옷방의 밝기를 채광 결과로 추정하지 않고 후속 실내 조명으로 관찰하게 한다.
 @evidenceReview settings/20-verification.md#lighting-state #4eed16b 설정 lighting-state의 '어두운 방을 view별 임의 밝기로 숨기지 않는다'를 본문의 창 없는 옷방 밝기 처리와 대조해 채광 추정 대신 후속 조명 관찰로 넘기는 경로가 있음을 확인했다.
 @evidence obligations/design/spaces.md#space-envelope-interface 후면 입면의 개구부를 공용부 세 기능과 주침실의 실내 배치에 묶고 옷방·차고 쪽을 닫아 안팎이 같은 후벽을 설명하게 한다.
@@ -103,7 +103,7 @@
 @evidence principles/design/spaces.md#space-verification-address 소파/커튼/창대 앞 접근, 오른쪽 모서리에서 측면 창과의 만남, 채광을 반증 관찰로 둔다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 본문의 소파/커튼/창대 앞 접근, 오른쪽 모서리에서 측면 창과의 만남, 채광/프레임 unverified 목록이 family-rear-window 배치를 반증할 관찰을 지정하는지 대조해 성립함을 확인했다.
 @evidence settings/10-house.md#common-room 가족실 좌석을 우측에 둔 공용부의 일부로 이 창을 같은 방에 둔다.
-@evidenceReview settings/10-house.md#common-room #3c2b543 설정 common-room의 가족실 우측 좌석과 연속 공간 조건을 본문의 family-rear-window가 kitchen-dining-family에 속하고 별도 벽을 더하지 않는다는 진술과 대조해 충족함을 확인했다.
+@evidenceReview settings/10-house.md#common-room #eb2f09d 설정 common-room의 가족실 우측 좌석과 연속 공간 조건을 본문의 family-rear-window가 kitchen-dining-family에 속하고 별도 벽을 더하지 않는다는 진술과 대조해 충족함을 확인했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work common-room의 "가족실 좌석은 우측"과 완전 높이 칸막이 금지를 후벽 오른쪽 창에 대조했고 하나의 방 안에서 성립해 부모 수정이 없었다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 공용부 설정을 family-rear-window의 X = [2.75, 4.75] m 개구부에 대입했을 때 좌석 우측·칸막이 금지 어느 쪽도 창을 위해 바뀌어야 할 조건이 아님을 확인했다.
 -->
@@ -127,7 +127,7 @@
 @evidence principles/design/spaces.md#space-verification-address 뒤 처마 아래 창 단면, 침대 양옆에서 창/서랍장에 닿는 경로를 반증 관찰로 둔다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 본문 끝의 뒤 처마 아래 창 단면과 침대 양옆에서 창/서랍장에 닿는 경로 목록이 primary-rear-window의 높이·폭 주장을 반증할 관찰을 지정하는지 대조해 성립함을 확인했다.
 @evidence settings/10-house.md#primary-bedroom 주침실에 요구된 창을 upper-storey primary-bedroom 후벽의 수직 창 두 칸으로 실현한다.
-@evidenceReview settings/10-house.md#primary-bedroom #24d88c6 설정 primary-bedroom의 '창과 얇은 커튼' 요구를 본문의 upper-storey primary-bedroom 후벽 primary-rear-window 두 칸과 대조해 주침실 창 요구가 실제 개구부로 충족됨을 확인했다.
+@evidenceReview settings/10-house.md#primary-bedroom #50cf2e5 설정 primary-bedroom의 '창과 얇은 커튼' 요구를 본문의 upper-storey primary-bedroom 후벽 primary-rear-window 두 칸과 대조해 주침실 창 요구가 실제 개구부로 충족됨을 확인했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work primary-bedroom의 창 요구와 storage의 옷 수납 요구를 대조했고 창이 옷방 X 구간 전에서 끝나 부모 수정이 없었다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 primary-rear-window의 X 끝 -1.45 m를 primary-wardrobe-plan의 옷방 X = [0.90, 5.50] m와 대조해 설정 primary-bedroom의 창 요구와 storage의 옷 수납이 부모 수정 없이 공존함을 확인했다.
 -->
@@ -151,7 +151,7 @@
 @evidence principles/design/spaces.md#space-verification-address 양방향 통행, 문짝/식탁 충돌, 프라이버시·채광, 03의 프레임을 반증 관찰로 둔다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 본문 끝의 양방향 통행·문짝/식탁 충돌·프라이버시·채광·03의 프레임 unverified 목록이 garden-door 대기와 유효 폭 주장을 반증할 관찰을 지정하는지 대조해 성립함을 확인했다.
 @evidence settings/10-house.md#common-room 식탁을 후면 정원 출입 가까이 두는 관계에서 식탁·의자가 안쪽 대기를 막지 않게 한다.
-@evidenceReview settings/10-house.md#common-room #3c2b543 설정 common-room의 식탁 위치를 본문의 '식탁·의자는 안쪽 대기를 막지 않고'와 garden-door 안쪽 대기 X = [-1.50, 1.50], Z = [-10.45, -9.25] m에 대조해 식탁이 출입을 막지 않음을 확인했다.
+@evidenceReview settings/10-house.md#common-room #eb2f09d 설정 common-room의 식탁 위치를 본문의 '식탁·의자는 안쪽 대기를 막지 않고'와 garden-door 안쪽 대기 X = [-1.50, 1.50], Z = [-10.45, -9.25] m에 대조해 식탁이 출입을 막지 않음을 확인했다.
 @evidence settings/10-house.md#site-identity 공용부에서 닿는 작은 포장 테라스로 나가는 문과 바깥 대기를 정한다.
 @evidenceReview settings/10-house.md#site-identity #452f15e 설정 site-identity의 '공용부에서 닿는 작은 포장 테라스'를 본문의 garden-door 바깥 대기 Z = [-12.50, -10.70] m와 테라스 포함 관계에 대조해 공용부에서 테라스로 직접 나감을 확인했다.
 @evidence obligations/design/spaces.md#space-access-circulation 공용부와 정원 사이의 표현된 출입구에 안팎 대기와 주 문 유효폭을 배정해 문과 동선 그래프가 일치하게 한다.

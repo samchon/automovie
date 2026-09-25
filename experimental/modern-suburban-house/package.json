@@ -47,6 +47,8 @@
     "format": "ttsc format --cache-dir node_modules/.cache/ttsc -p package.json",
     "viewer": "tsx src/viewer/server.cts",
     "geometry-audit": "tsx src/measurements/geometry-check.ts",
+    "test": "node --test",
+    "docs-review-host": "node src/measurements/docs-review-host.cjs",
     "check": "node src/measurements/check.cjs"
   },
   "dependencies": {

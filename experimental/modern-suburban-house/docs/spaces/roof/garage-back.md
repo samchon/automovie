@@ -17,7 +17,7 @@
 @evidence principles/design/spaces.md#space-verification-address 뒤 처마 아래에서 본채 접점까지, 차고 내부 천장과 위 구조, 후방 경사면 전체와 공용부·욕조 욕실 창과의 겹침을 검사하게 한다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 검사 주소인 뒤 처마 아래~본채 접점, 차고 내부 천장과 위 구조, 후방 경사면 전체를 창 겹침 주장에 대조했고 source·면 census·창 간섭·시각 읽힘이 unverified로 남음을 확인했다.
 @evidence settings/10-house.md#garage 단층 차고의 후벽 위를 낮은 지붕으로 닫고 후면의 별동으로 늘리지 않는다.
-@evidenceReview settings/10-house.md#garage #f6816c7 설정 garage의 '하나의 1층 부속 볼륨'과 '낮은 박공 지붕'을 본문의 Gback 뒤 면이 차고 후벽 처마에서 끝나고 별도 작은 동으로 늘지 않는 문장에 대조해 이행을 확인했다.
+@evidenceReview settings/10-house.md#garage #261be15 설정 garage의 '하나의 1층 부속 볼륨'과 '낮은 박공 지붕'을 본문의 Gback 뒤 면이 차고 후벽 처마에서 끝나고 별도 작은 동으로 늘지 않는 문장에 대조해 이행을 확인했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work garage의 "하나의 1층 부속 볼륨"과 깊이 6.0–6.6 m를 뒤 면에 대조했고 Gback이 차고 후벽 위에서 끝나 별동 없이 성립해 부모 수정이 없었다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 설정 garage의 깊이 6.0–6.6 m를 00의 Gback 식에 대입된 후벽 Z = -6.70과 Gfront의 정면 -0.30 사이 6.40 m에 대조했고 뒤 면이 그 후벽 위에서 끝나 설정 수정이 필요 없음을 확인했다.
 -->
