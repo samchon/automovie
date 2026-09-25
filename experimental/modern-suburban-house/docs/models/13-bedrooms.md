@@ -192,7 +192,7 @@
 @evidence principles/core/common.md#scope-preservation 옷방 예약의 옷걸이 구간을 봉·상단 선반·몸통·옷까지 한 모델로 맡는다.
 @evidence principles/core/common.md#substantive-completion 길이 2.15 m, 깊이 0.55 m, 봉 후면에서 0.28 m·높이 1.65 m, 상단 선반 2.05 m, 옷 36벌 두께 0.035–0.045 m·폭 0.50 m를 고정식으로 확정한다.
 @evidence principles/core/common.md#declared-basis 외곽과 높이 2.05 m는 옷방 예약에서 받고 옷 판 치수와 인덱스 기반 결정식은 이 H2의 저작 선택으로 적힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 옷방 예약은 외곽과 높이만 주고 이 H2는 봉 위치, 상단 선반, 고정 시드 옷 판 묶음을 더한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 옷방 예약은 외곽과 높이만 주고 이 H2는 봉 위치, 상단 선반, 순번 i mod 3의 결정식으로 만든 옷 판 묶음을 더한다.
 @evidence principles/design/models.md#representation-contract 봉·상단 선반·몸통·옷 계층과 `rod`·`shelf`·`carcass`·`clothes` 경계를 두고 관절이 없다고 적는다. 보이지 않는 한계는 본문의 "옷걸이 개별 형상·소매·옷 주름은 표현하지 않는다."로 밝힌다.
 @evidence principles/design/models.md#spatial-convention 옷 판을 뒤벽과 0.55 m 앞면 사이에 머물게 해 점유 범위를 Z = [-10.45, -9.90] 안으로 한정한다.
 @evidence principles/design/models.md#reviewable-structure 위에서 옷 앞 끝이 Z = -9.90 m를 넘지 않는지를 검토 실루엣으로 둔다.

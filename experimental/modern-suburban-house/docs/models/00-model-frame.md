@@ -15,7 +15,7 @@
 @evidence spaces/06-openings.md#external-opening-interface 개구부 좌표를 네 입면 owner가 소유한다는 인계를 받아 모델이 world 좌표를 복제하지 않고 외곽을 거친 개구부에서만 산출한다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work coordinate-units의 오른손 Y-up·m·rad와 06의 개구부 좌표 owner·0.04/0.14 m 예약을 적힌 그대로 소비했고 원점 면과 회전을 정하는 데 부모와 모순되거나 빠진 값이 없었다.
 @evidence obligations/core/common.md#layer-boundary 모델은 부재 배분만 정하고 개구부 좌표·칸 수·경첩 쪽은 spaces, 색·광학값은 materials, world 배치는 instances가 정한다고 이 H2가 층 경계를 적는다.
-@evidence settings/00-production.md#build-allocation '실제 부재·가구·수목 원형은 models'라는 배분을 개구부 충전·가구·수목·조명기구·생활 소품의 원형 범위로 소비한다. 소스가 없는 계열의 실제 표면은 unverified다.
+@evidence settings/00-production.md#build-allocation '실제 부재·가구·수목 원형은 models'라는 배분을 이 국소 좌표 규칙의 적용 범위로 받는다. 각 부재 치수·형상은 뒤의 개별 H2가 정하고 소스가 없는 실제 표면은 unverified다.
 @evidence spaces/envelope/left.md#left-openings 왼쪽 벽의 개구부 좌표 owner를 창 원점 면(날씨 면) 배치의 입력으로 소비한다.
 @evidence spaces/envelope/rear.md#rear-openings 본채 후벽 Z = [-10.70, -10.45] m를 후면 창·정원문의 원점 면 위치로 소비한다.
 @evidence spaces/envelope/right.md#right-openings 오른쪽 벽의 개구부 좌표 owner를 창 원점 면 배치의 입력으로 소비한다.
@@ -28,7 +28,7 @@
 @evidenceExclude settings/00-production.md#working-language 이 상위 H2는 작업 언어를 정하며 모델 문서는 그 언어로 쓰였을 뿐 부재 결정에 값을 받지 않는다.
 @evidenceExclude settings/10-house.md#house-scale 이 상위 H2는 집 전체 규모를 정하며 모델은 그 규모를 좌표로 확정한 spaces 개구부 H2에서 치수를 받는다.
 @evidenceExclude settings/10-house.md#main-mass 이 상위 H2는 본채 매스와 지붕 형태를 정하며 모델은 지붕·벽 몸체를 만들지 않는다.
-@evidence settings/10-house.md#porch-entry 포치 구조와 기둥은 spaces가 소유하고 현관문은 02 원형이 맡는다. 발판과 화분은 별도 생활 소품 원형으로 분리해 포치 계단·문짝과 겹치지 않게 한다.
+@evidence settings/10-house.md#porch-entry 포치 구조와 기둥은 spaces, 현관문은 02, 발판과 화분은 18 H2가 소유한다. 이 국소 프레임 H2는 그 부재를 만들지 않고 각 원형에 좌표 규칙만 공급한다.
 @evidenceExclude settings/10-house.md#service-band 이 상위 H2는 우측 서비스 동선을 정하며 모델은 그 안의 문 값을 각 room plan H2에서 받는다.
 @evidenceExclude settings/20-verification.md#completion-boundary 이 상위 H2는 완료와 기록 조건을 정하는 절차이며 모델 부재의 형상·관절·표면을 정하지 않는다.
 @evidenceExclude settings/20-verification.md#data-authority 이 상위 H2는 측정과 프레임의 책임을 정하는 절차이며 모델 부재의 형상·관절·표면을 정하지 않는다.
@@ -56,7 +56,7 @@
 @evidenceExclude spaces/09-ceiling-assembly.md#upper-ceiling-closure 이 상위 H2는 상층과 계단실 천장을 정하며 모델은 천장을 만들지 않는다.
 @evidenceExclude spaces/10-ground-floor.md#garage-ground-floor-base 이 상위 H2는 차고 바닥 바탕을 정하며 모델은 바닥을 만들지 않는다.
 @evidenceExclude spaces/10-ground-floor.md#ground-support-handoff 이 상위 H2는 바닥 아래 지지와 지표 인계를 정하며 모델 부재와 관계가 없다.
-@evidence spaces/10-ground-floor.md#ground-threshold-junctions 전면·후면 문턱판은 spaces가 단 한 번 만들고 상면 +0.02 m를 이 모델의 문짝 하단 기준으로 받아 문턱 위 0.01 m 틈을 둔다.
+@evidence spaces/10-ground-floor.md#ground-threshold-junctions 전면·후면 문턱판은 spaces가 단 한 번 만들며 +0.02 m 상면은 02 외부 문 원형이 받는다. 이 프레임 H2는 문턱이나 문짝 높이를 직접 정하지 않는다.
 @evidenceExclude spaces/10-ground-floor.md#main-ground-floor-base 이 상위 H2는 본채 바닥 바탕을 정하며 모델은 바닥을 만들지 않는다.
 @evidenceExclude spaces/envelope/front.md#front-roof-closures 이 상위 H2는 전면 박공 삼각 벽 폐합을 정하며 모델은 벽을 만들지 않는다.
 @evidenceExclude spaces/envelope/left.md#left-roof-closure 이 상위 H2는 왼쪽 삼각 벽 폐합을 정하며 모델은 벽을 만들지 않는다.

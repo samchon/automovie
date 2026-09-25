@@ -14,7 +14,7 @@
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work spaces/site/terrace.md#garden-terrace-plan의 2.70 m 가구 사용 구역과 사용 가정의 네 사람을 적힌 그대로 소비했고 식탁 1.40 × 0.80 m가 그 안에 들어 부모 수정이 없었다.
 @evidence settings/00-production.md#use-profile 사용 가정의 성인 둘·자녀 둘을 긴 변마다 둘씩 앉는 네 좌석으로, 사람 점유체 폭 0.60 m를 좌석 구간 [-0.65, -0.05]와 [0.05, 0.65]로 소비한다.
 @evidence settings/10-house.md#site-identity 후면 정원 포장 테라스에 두라는 식탁을 길이 1.40 m·폭 0.80 m·상면 0.74 m의 널 상판 식탁 원형으로 만든다. 본문은 공간 예약과 사용 가정을 직접 소비한다.
-@evidence spaces/site/terrace.md#garden-terrace-plan 본문의 예약 X = [1.50, 4.20], Z = [-14.10, -11.40] m는 이 spaces H2의 가구 사용 예약과 같은 값이며, 식탁은 그 2.70 × 2.70 m 중심에 놓여 반폭 1.35 m를 좌석 배치의 한계로 쓴다.
+@evidence spaces/site/terrace.md#garden-terrace-plan 부모 terrace H2의 예약 X = [1.50, 4.20], Z = [-14.10, -11.40] m는 그 가구 사용 예약과 같은 값이며, 식탁은 그 2.70 × 2.70 m 중심에 놓여 반폭 1.35 m를 좌석 배치의 한계로 쓴다.
 @evidence obligations/design/models.md#addressable-model-decisions 식탁을 의자·lap siding 판과 다른 H2로 두어 외곽·상판 분할·국소 좌표 예외·표면 id가 독립으로 인용·수정될 주소를 가지며 배치 위치는 instances의 테라스 가구 배치에 남긴다.
 @evidence obligations/design/models.md#model-review-set 모델 리뷰 뷰 링크의 정면과 측면을 이 식탁의 고정 관찰로 지정해 상면 0.74 m와 널 틈을 개정 사이에 같은 뷰로 비교하게 한다.
 -->

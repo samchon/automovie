@@ -32,7 +32,7 @@
 | [exterior-door-surfaces](../../models/02-exterior-doors.md#exterior-door-surfaces) | — (규칙) | `jamb`·`exterior-trim`·`casing`·`leaf-exterior`·`leaf-interior`·`leaf-edge`·`leaf-panel`·`panel-edge`·`muntin`·`glass`·`sash`·`handle`·`hinge`·`rail`·`gate-batten` |
 | [exterior-door-fidelity](../../models/02-exterior-doors.md#exterior-door-fidelity) | — (규칙) | — (새 메시 없음) |
 | [interior-door-members](../../models/03-interior-doors.md#interior-door-members) | `src/models/interior-door.ts` | `jamb-a`·`jamb-b`·`jamb-core`·`casing-a`·`casing-b`·`leaf`·`leaf-panel`·`handle`·`hinge` |
-| [interior-door-hinges](../../models/03-interior-doors.md#interior-door-hinges) | `src/models/interior-door.ts` | `hinge` |
+| [interior-door-hinges](../../models/03-interior-doors.md#interior-door-hinges) | — (관절 규칙; 경첩 몸체는 interior-door-members) | `hinge` |
 | [interior-door-surfaces](../../models/03-interior-doors.md#interior-door-surfaces) | — (규칙) | `jamb-a`·`jamb-b`·`jamb-core`·`casing-a`·`casing-b`·`leaf`·`leaf-panel`·`handle`·`hinge` |
 | [interior-door-fidelity](../../models/03-interior-doors.md#interior-door-fidelity) | — (규칙) | — (새 메시 없음) |
 | [stair-balusters](../../models/04-stair-members.md#stair-balusters) | `src/models/stair-baluster.ts` | `baluster` |

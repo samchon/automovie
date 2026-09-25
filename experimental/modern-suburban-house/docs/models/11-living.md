@@ -63,8 +63,8 @@
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 예약은 외곽과 높이 0.90 m만 주고 이 H2는 쿠션 하나의 한 사람 좌석, 팔걸이 0.12 m·등받이 0.18 m의 단면, 좌면 0.43 m를 더한다.
 @evidence principles/design/models.md#representation-contract 다리 넷·받침·좌석 쿠션 하나·등받이·팔걸이 둘로 부품을 나누고 재질 경계 `leg`·`base`·`seat-cushion`·`back`·`arm`을 두며 관절이 없다고 정한다. 보이지 않는 한계는 본문의 "쿠션 눌림·솔기·패브릭 주름은 표현하지 않는다."로 밝힌다.
 @evidence principles/design/models.md#spatial-convention 가구 국소 좌표를 따라 +Z를 정면으로 두고 배치에서 world +Z를 향하며 외곽은 폭 0.85 m·깊이 0.85 m·높이 0.90 m다.
-@evidence principles/design/models.md#reviewable-structure 측면에서 좌면·팔걸이·등받이 높이가 소파와 같은 계열로 보이는지, 위에서 0.85 m 정사각 외곽이 의자 발 사용 범위 Z = [-4.80, -4.20]로 넘어가지 않는지를 고정 뷰로 확인한다.
-@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 04 벽난로 앞 안락의자를 채택한다. '독서 안락의자' 표지를 좌석 폭 0.61 m의 한 사람 좌석과 소파와 같은 계열의 단면이라는 관찰 가능한 결정으로 옮기며 재질과 색은 정하지 않는다.
+@evidence principles/design/models.md#reviewable-structure 측면에서 좌면·팔걸이·등받이 높이가 소파와 좌면·등 상단 높이만 공유하는지, 위에서 0.85 m 정사각 외곽이 의자 발 사용 범위 Z = [-4.80, -4.20]로 넘어가지 않는지를 고정 뷰로 확인한다.
+@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 04 벽난로 앞 안락의자를 채택한다. '독서 안락의자' 표지를 좌석 폭 0.61 m의 한 사람 좌석과 좌면 0.43 m와 등 상단 0.90 m만 공유하는 별도 단면 결정으로 옮기며 재질과 색은 정하지 않는다.
 @evidence principles/design/models.md#model-scale-layer-completion 좌면 0.43 m·팔걸이 0.60 m·등받이 0.90 m의 높이 층을 소파와 좌면·등 상단만 공유하는 별도 단면으로 정하고 다섯 재질 경계와 두 관찰을 함께 적어 예약 안의 표현이 결정된다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 거실 예약 X = [-3.90, -3.05]·Z = [-5.65, -4.80]·높이 0.90 m와 의자 발 사용 범위 Z = [-4.80, -4.20]을 적힌 그대로 외곽과 관찰 한계로 썼고 부모 수정이 필요하지 않았다.
 @evidence settings/10-house.md#living 거실 설정 정체성의 '작은 안락의자'를 0.85 m 정사각 외곽의 한 사람 좌석으로 구체화한다.
@@ -77,7 +77,7 @@
 
 부품은 다리 넷, 받침, 좌석 쿠션 하나, 등받이, 팔걸이 둘이다. 소파와 좌면·등 상단만 공유하면서 한 사람용 외곽에 맞춰 다리 0.08 m, 받침 Y = [0.08, 0.30], 팔걸이 폭 0.12 m·높이 0.60 m, 등받이 깊이 0.18 m·상단 0.90 m, 좌석 쿠션 상면 0.43 m를 둔다. 좌석 폭은 0.61 m이며 한 사람 좌석임이 소파와의 차이로 읽혀야 한다. 재질 경계는 `leg`, `base`, `seat-cushion`, `back`, `arm`이고 관절은 없다.
 
-쿠션 눌림·솔기·패브릭 주름은 표현하지 않는다. 소스 owner는 `src/models/furnishings/living.ts`다. 관찰은 측면에서 좌면·팔걸이·등받이 높이가 소파와 같은 계열로 보이는지, 위에서 0.85 m 정사각 외곽이 의자 발 사용 범위 Z = [-4.80, -4.20]로 넘어가지 않는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
+쿠션 눌림·솔기·패브릭 주름은 표현하지 않는다. 소스 owner는 `src/models/furnishings/living.ts`다. 관찰은 측면에서 좌면·팔걸이·등받이 높이가 소파와 좌면·등 상단 높이만 공유하는지, 위에서 0.85 m 정사각 외곽이 의자 발 사용 범위 Z = [-4.80, -4.20]로 넘어가지 않는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
 
 ## 짙은 책장과 책 {#dark-bookcase}
 <!--
