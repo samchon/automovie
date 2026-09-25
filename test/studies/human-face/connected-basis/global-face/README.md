@@ -148,6 +148,7 @@ The connected editor selects whatever `basis.json.gz` reads as its `id`; every d
 | `mpfb-connected-head-2026-09-25-canthal-tilt` | gingiva | `prepare-canthal-tilt-basis.ts`: the Asian dimorphism correctives moved along the lateral canthus field until women's canthal tilt exceeds men's by the East Asian mean, 1.07 degrees | [canthal-tilt-receipt.json](canthal-tilt-receipt.json) |
 | `mpfb-connected-head-2026-09-25-eyelash` | canthal-tilt | `prepare-eyelash-basis.ts`: each lid's lash cards redrawn from lash anatomy (count, lengths, fibre diameter, growing share), coverage as alpha, lash and brow materials blended | [eyelash-receipt.json](eyelash-receipt.json) |
 | `mpfb-connected-head-2026-09-26-lip-envelope` | eyelash | `prepare-lip-envelope-basis.ts`: each lip height control's envelope extended over the adult reference interval of its vermilion height, as far as the control still means it and the surface stays valid: `upperLipHeight` [-2.05, 1], `lowerLipHeight` [-2.23, 1] | [lip-envelope-receipt.json](lip-envelope-receipt.json) |
+| `mpfb-connected-head-2026-09-26-unseen-envelope` | lip-envelope | `prepare-unseen-envelope-basis.ts`: each control holding a reading of what a frontal photograph cannot show extended over that reading's adult interval, as far as it still means it and the surface stays valid | [unseen-envelope-receipt.json](unseen-envelope-receipt.json) |
 
 ### Single channels first
 
@@ -357,6 +358,22 @@ The editor's rig rendered a key-lit 18 percent grey card at L* 45.9 with a warm 
 A control that means one anatomical measure should reach every value adults show. The source's lip height controls end at plus and minus one, where its upper vermilion measures 0.160 of the mouth's width and its lower 0.182: the means of European men (3D Facial Norms: 7.9 and 9.2 mm over 50.4). Half of them lay beyond the envelope, and in documents of fine controls alone, which start from the source's neutral (0.210 and 0.256: fuller than every sampled population's mean below, the vermilion revision having normed the ancestry corners and left the neutral), the photographs of thin upper lips held `upperLipHeight` at -1 for thirteen to fifteen of the seventeen subjects.
 
 `prepareLipEnvelopeBasis` ([lip-envelope-receipt.json](lip-envelope-receipt.json)) reads each vermilion height where the lip region's outer surface crosses the midline, as the vermilion revision reads the upper one, over the width between the cheilia, and extends each control's endpoints (the source's rows scaled past one) until the measure reaches the populations' reference interval: the union of each sample's mean plus and minus two standard deviations (3D Facial Norms Europeans, Kenyans, Hong Kong Chinese, Korean women; the deviations of the ratios by the delta method). The extension goes no further than the control still means its measure, a step changing it at under half the authored rate ending it, and than the surface stays valid: no triangle turned over, no new crossing of its triangles, the lips' contact pair not closed past each other. The upper lip thins at 0.050 of the mouth's width per unit to -2 and at 0.012 beyond, where its lower edge begins to wave: `upperLipHeight` now reaches -2.05 (0.108, 1.3 deviations below the European men's mean, where it had stopped at their mean); its positive side keeps +1, past which the lip closes over the seam. `lowerLipHeight` reaches the interval's edge, 0.091, at -2.23. Nothing else changes, and every published document builds as before.
+
+## Unseen envelopes
+
+The documents' unseen form (E-line, facial convexity, nasofrontal and nasolabial angles, nasal tip protrusion, cephalic index, each ear's length and protrusion) is the most probable one within the controls' envelopes, so a control held at its authored end leaves its reading short of adults the populations contain: the septum control ended at a nasolabial angle of 93 degrees where African adults average 86 to 88, and derived African faces held it there. `prepareUnseenEnvelopeBasis` ([unseen-envelope-receipt.json](unseen-envelope-receipt.json)) extends each such control as the lip envelopes were extended, over its reading's adult interval: every population's norm, both sexes, at 17 and 60 years, less and plus two of the reading's spreads. On the source's neutral:
+
+| reading | control | interval | envelope |
+| --- | --- | --- | --- |
+| upper lip to the E-line | mouthForwardPosition | -12.0 to 6.6 mm | [-1.6, 1] (-10.1 mm; its triangles turn beyond) |
+| lower lip to the E-line | lowerLipVolume | -11.2 to 10.0 mm | [-1.7, 1] (-3.5 mm, its triangles turn beyond; +3.3 mm, the lips close past +1) |
+| facial convexity | chinProjection | 159.8 to 178.8 deg | [-1, 1.39] |
+| nasofrontal angle | nasalRootProjection | 115.7 to 154.6 deg | [-1.46, 1] |
+| nasolabial angle | noseSeptumAngle | 69.9 to 119.3 deg | [-1.05, 2.5] (71.5 deg) |
+| nasal tip protrusion | noseDepth | 0.280 to 0.412 | [-1, 1.94] |
+| each ear's length | left/rightEarScale | 0.418 to 0.608 | [-1, 1.38] |
+
+The occiput's depth moves the cephalic index no further past its authored end (0.83 at -1, where the interval reaches 0.92), and each ear's flap turns triangles past +1 (a protrusion of 0.41 of the ear's length, where it reaches 0.46), so they keep their envelopes. The lower lip's retrusion is the envelope's largest shortfall: the lip's own control reaches 3.5 mm behind the line where the norm of European men at 60 is 7.2, and the lip's distance to the E-line also follows the nose and chin, whose own controls carry it further. Rendered at their new ends, none shows a fault.
 
 ## Eighteen-subject acceptance
 
