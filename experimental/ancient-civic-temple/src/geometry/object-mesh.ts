@@ -39,17 +39,22 @@ export class ObjectMesh {
     for (let i = 1; i < vertices.length - 1; ++i) buffer.indices.push(first, first + i, first + i + 1);
   }
 
+  /** Box and revolved profiles are authored inside first; emit their outside face. */
+  private outwardPolygon(name: string, vertices: readonly Point[], coordinates?: readonly (readonly [number, number])[]): void {
+    this.polygon(name, [...vertices].reverse(), coordinates === undefined ? undefined : [...coordinates].reverse());
+  }
+
   box(name: string, x: number, y: number, z: number, width: number, height: number, depth: number): this {
     if (!(width > 0 && height > 0 && depth > 0)) throw new Error(`${name}: 상자 치수는 양수여야 합니다.`);
     const a = x - width / 2, b = x + width / 2;
     const c = y, d = y + height, e = z - depth / 2, f = z + depth / 2;
     const v = point;
-    this.polygon(name, [v(a,c,e),v(a,c,f),v(b,c,f),v(b,c,e)]);
-    this.polygon(name, [v(a,d,e),v(b,d,e),v(b,d,f),v(a,d,f)]);
-    this.polygon(name, [v(a,c,f),v(a,d,f),v(b,d,f),v(b,c,f)]);
-    this.polygon(name, [v(b,c,e),v(b,d,e),v(a,d,e),v(a,c,e)]);
-    this.polygon(name, [v(a,c,e),v(a,d,e),v(a,d,f),v(a,c,f)]);
-    this.polygon(name, [v(b,c,f),v(b,d,f),v(b,d,e),v(b,c,e)]);
+    this.outwardPolygon(name, [v(a,c,e),v(a,c,f),v(b,c,f),v(b,c,e)]);
+    this.outwardPolygon(name, [v(a,d,e),v(b,d,e),v(b,d,f),v(a,d,f)]);
+    this.outwardPolygon(name, [v(a,c,f),v(a,d,f),v(b,d,f),v(b,c,f)]);
+    this.outwardPolygon(name, [v(b,c,e),v(b,d,e),v(a,d,e),v(a,c,e)]);
+    this.outwardPolygon(name, [v(a,c,e),v(a,d,e),v(a,d,f),v(a,c,f)]);
+    this.outwardPolygon(name, [v(b,c,f),v(b,d,f),v(b,d,e),v(b,c,e)]);
     return this;
   }
 
@@ -61,13 +66,13 @@ export class ObjectMesh {
       low.push(point(x + lowerRadius * Math.cos(angle), bottom, z + lowerRadius * Math.sin(angle)));
       high.push(point(x + upperRadius * Math.cos(angle), top, z + upperRadius * Math.sin(angle)));
     }
-    this.polygon(name, [...low].reverse());
-    this.polygon(name, high);
+    this.outwardPolygon(name, [...low].reverse());
+    this.outwardPolygon(name, high);
     for (let i = 0; i < segments; ++i) {
       const next = (i + 1) % segments;
       const circumference = Math.PI * (lowerRadius + upperRadius);
       const u0 = circumference * i / segments, u1 = circumference * (i+1) / segments;
-      this.polygon(name, [low[i]!, low[next]!, high[next]!, high[i]!],
+      this.outwardPolygon(name, [low[i]!, low[next]!, high[next]!, high[i]!],
         [[u0,bottom],[u1,bottom],[u1,top],[u0,top]]);
     }
     return this;
@@ -88,13 +93,13 @@ export class ObjectMesh {
         const next = (i + 1) % segments;
         const circumference = Math.PI * (profile[j]![1] + profile[j+1]![1]);
         const u0 = circumference * i / segments, u1 = circumference * (i+1) / segments;
-        this.polygon(name, [a[i]!, a[next]!, b[next]!, b[i]!],
+        this.outwardPolygon(name, [a[i]!, a[next]!, b[next]!, b[i]!],
           [[u0,profile[j]![0]],[u1,profile[j]![0]],
             [u1,profile[j+1]![0]],[u0,profile[j+1]![0]]]);
       }
     }
-    this.polygon(name, [...rings[0]!].reverse());
-    this.polygon(name, rings[rings.length - 1]!);
+    this.outwardPolygon(name, [...rings[0]!].reverse());
+    this.outwardPolygon(name, rings[rings.length - 1]!);
     return this;
   }
 
