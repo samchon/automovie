@@ -1,6 +1,6 @@
 {
-  "basis": "mpfb-connected-body-2026-09-26-anatomy-r6",
-  "recorded": "2026-09-25",
+  "basis": "mpfb-connected-body-2026-09-26-anatomy-r8",
+  "recorded": "2026-09-26",
   "method": {
     "skin": "dual quaternion blend in the public builder; a posed displacement is carried to the rest frame through the inverse of the vertex's blended rotation, verified against the builder to the micrometre",
     "onset": "largest pose fraction without a crossing on the state's shape, bisected to 2.5 degrees of the widest travel; channel ramps run from zero to the state's weight so the push grows with the tissue",
@@ -239,6 +239,23 @@
       "repaired": 12,
       "published": 12,
       "stillPublished": 12,
+      "unpublished": 0
+    },
+    {
+      "round": 15,
+      "basis": "mpfb-connected-body-2026-09-26-anatomy-r7-asym",
+      "supersedes": "mpfb-connected-body-2026-09-26-anatomy-r6",
+      "method": {
+        "skin": "dual quaternion blend in the public builder; a posed displacement is carried to the rest frame through the inverse of the vertex's blended rotation, verified against the builder to the micrometre",
+        "onset": "largest pose fraction without a crossing on the state's shape, bisected to 2.5 degrees of the widest travel; channel ramps run from zero to the state's weight so the push grows with the tissue",
+        "solve": "contact solver: the crossed corners of both segments are pushed onto a clearance off the separating plane (the fold bisector of an adjacent pair or the contact plane between the bones, whichever costs less), or out of the entered surface by half their depth where the plane fails, spread as a Laplacian-relaxed displacement field over eight rings, inside a per-pair tissue budget (digits 8, toes 10, default 15, arm against trunk or leg against leg 25, knee and hip folds 50 mm)",
+        "verification": "public builder and census instrument at the state, at the midpoint of the joint ramp and at half the shape weight; a crossing midpoint is queued as its own state"
+      },
+      "states": 1,
+      "crossingStates": 1,
+      "repaired": 1,
+      "published": 1,
+      "stillPublished": 1,
       "unpublished": 0
     }
   ],
@@ -74970,6 +74987,41 @@
         }
       ],
       "round": 14
+    },
+    {
+      "id": "state/bodies:sex1-age11-bmi15-muscle-1",
+      "state": "bodies:sex1-age11-bmi15-muscle-1",
+      "onset": 0,
+      "full": 1,
+      "weight": 1,
+      "vertices": 39,
+      "mostPosedMillimetres": 3.4,
+      "mostRestMillimetres": 3.4,
+      "pairs": [
+        "hips x hips"
+      ],
+      "verification": [
+        {
+          "t": 1,
+          "u": 1,
+          "pairs": 0
+        },
+        {
+          "t": 0.5,
+          "u": 1,
+          "pairs": 0
+        },
+        {
+          "t": 1,
+          "u": 0.5,
+          "pairs": 0
+        },
+        {
+          "narrow": 0,
+          "worse": []
+        }
+      ],
+      "round": 15
     }
   ],
   "describedElsewhere": {
@@ -347765,10 +347817,67 @@
       "outcome": "repaired",
       "ms": 7967,
       "round": 14
+    },
+    {
+      "group": "bodies:sex1-age11-bmi15-muscle-1",
+      "state": "bodies:sex1-age11-bmi15-muscle-1",
+      "angle": 1,
+      "travel": 1,
+      "weight": 1,
+      "volume": null,
+      "crossing": {
+        "id": "state/bodies:sex1-age11-bmi15-muscle-1",
+        "onset": 0,
+        "full": 1,
+        "weight": 1,
+        "pairs": [
+          {
+            "part": "hips",
+            "other": "hips",
+            "triangles": 8,
+            "otherTriangles": 8
+          }
+        ],
+        "budgets": [
+          {
+            "pair": "hips x hips",
+            "budget": 0.05
+          }
+        ],
+        "vertices": 39,
+        "mostPosed": 0.0033581851803254825,
+        "log": [
+          "[hips]relax:ok@5"
+        ],
+        "verification": [
+          {
+            "t": 1,
+            "u": 1,
+            "pairs": 0
+          },
+          {
+            "t": 0.5,
+            "u": 1,
+            "pairs": 0
+          },
+          {
+            "t": 1,
+            "u": 0.5,
+            "pairs": 0
+          },
+          {
+            "narrow": 0,
+            "worse": []
+          }
+        ]
+      },
+      "outcome": "repaired",
+      "ms": 10748,
+      "round": 15
     }
   ],
-  "uncompressedSha256": "368445dd5603a1873229e2b4ec61c997610da033323552ab2c220064aa2aa17b",
-  "uncompressedBytes": 133916298,
-  "compressedSha256": "4f80ac797cd9ff912b4598af8796942fd1655691ea0d7fc1855bbfb9224997d9",
-  "compressedBytes": 31444278
+  "uncompressedSha256": "16774225e84031df4856f5573c1bbe906d38747ad3db9a680d16b05b19bf7250",
+  "uncompressedBytes": 133918389,
+  "compressedSha256": "57e7065138fb3eb26a6595ea33e41fe763212c18906e006160298bd2638034ab",
+  "compressedBytes": 31444993
 }

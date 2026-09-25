@@ -190,6 +190,34 @@ export function assertHumanBodyBasis(basis: IAutoMovieHumanBodyBasis): void {
         "Body basis connectivity must be a valid oriented surface: " +
           surface.id,
       );
+    if (surface.sag !== undefined) {
+      const { lean, gain, sweeps, softness } = surface.sag;
+      const channel = (id: string) =>
+        basis.channels.find((one) => one.id === id);
+      if (
+        !Number.isFinite(gain) ||
+        gain < 0 ||
+        !Number.isInteger(sweeps) ||
+        sweeps < 0 ||
+        !Number.isFinite(softness.base) ||
+        !(softness.range[0] >= 0 && softness.range[0] <= softness.range[1]) ||
+        !Number.isFinite(softness.range[1]) ||
+        Object.entries(lean).some(([id, weight]) => {
+          const found = channel(id);
+          return (
+            found === undefined ||
+            !(weight >= found.minimum && weight <= found.maximum)
+          );
+        }) ||
+        Object.entries(softness.channels).some(
+          ([id, value]) => channel(id) === undefined || !Number.isFinite(value),
+        )
+      )
+        throw new Error(
+          "Body surface sag needs declared lean weights in range, a finite nonnegative gain, whole sweeps and a finite softness over declared channels: " +
+            surface.id,
+        );
+    }
     const solid = humanBodyCappedSurface(surface.positions, surface.indices);
     solid.assertValid();
     solids.push(solid);
