@@ -1,6 +1,9 @@
 // Run every authored audit on every invocation; one failure cannot mask later
 // failures. Keep each producer's own exit code and report the combined result.
 const { spawnSync } = require("node:child_process");
+const path = require("node:path");
+
+const root = path.resolve(__dirname, "../..");
 
 const checks = [
   ["--lint"],
@@ -20,6 +23,7 @@ const checks = [
   ["model-part-audit.cjs", "--fixture"],
 ];
 let failures = 0;
+let total = checks.length;
 for (const args of checks) {
   const lint = args.includes("--lint");
   const tsx = args.includes("--tsx");
@@ -38,7 +42,7 @@ for (const args of checks) {
       : process.execPath,
     command,
     {
-      cwd: lint ? require("node:path").resolve(__dirname, "../..") : __dirname,
+      cwd: lint ? root : __dirname,
       encoding: "utf8",
       maxBuffer: 64 * 1024 * 1024,
     },
@@ -52,5 +56,32 @@ for (const args of checks) {
   );
   if (failed) failures++;
 }
-console.log(`self-check: ${checks.length} checks, ${failures} failures`);
+if (process.argv.includes("--bench")) {
+  const probes = process.env.AUTOMOVIE_BENCH_PROBES || "D:/AutoMovieBench/probes";
+  const benchChecks = [
+    ["src-literal-duplication.cjs", root],
+    ["src-review-host.mjs", root, "src/spaces"],
+    ["docs-review-host.mjs", root, "docs/models"],
+    ["doc-review-numbers.mjs", root],
+    ["doc-anchor-graph.cjs", root],
+    ["face-binding-owner.cjs", root],
+    ["evidence-reason-shared.py", root],
+  ];
+  total += benchChecks.length;
+  for (const [name, ...args] of benchChecks) {
+    const result = spawnSync(
+      name.endsWith(".py") ? "python" : process.execPath,
+      [path.join(probes, name), ...args],
+      { cwd: root, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 },
+    );
+    if (result.stdout) process.stdout.write(result.stdout);
+    if (result.stderr) process.stderr.write(result.stderr);
+    const failed = result.error || result.status !== 0;
+    console.log(
+      `bench/${name}: ${failed ? `FAIL (${result.error?.message || result.status})` : "PASS"}`,
+    );
+    if (failed) failures++;
+  }
+}
+console.log(`self-check: ${total} checks, ${failures} failures`);
 if (failures) process.exitCode = 1;
