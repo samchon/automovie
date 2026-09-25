@@ -1,7 +1,7 @@
 {
-  "basis": "mpfb-connected-body-2026-09-26-anatomy-r6",
-  "worstExclusiveRmsMetres": 0.004507823591751404,
-  "worstRadiusDeviationMetres": 4.0245584642661925e-15,
+  "basis": "mpfb-connected-body-2026-09-26-anatomy-r8",
+  "worstExclusiveRmsMetres": 0.004498943348317394,
+  "worstRadiusDeviationMetres": 0.001708840575781495,
   "segments": [
     {
       "bone": "spine",
@@ -12,7 +12,7 @@
       "exclusiveRms": null,
       "exclusiveDegrees": null,
       "dominantVertices": 1059,
-      "dominantRms": 0.004718677192745802,
+      "dominantRms": 0.004728604300622257,
       "radiusDeviation": 0,
       "chordSagittaIfLinear": 0
     },
@@ -25,7 +25,7 @@
       "exclusiveRms": null,
       "exclusiveDegrees": null,
       "dominantVertices": 1059,
-      "dominantRms": 0.001304628623748425,
+      "dominantRms": 0.0013133400480901769,
       "radiusDeviation": 0,
       "chordSagittaIfLinear": 0
     },
@@ -38,7 +38,7 @@
       "exclusiveRms": null,
       "exclusiveDegrees": null,
       "dominantVertices": 1059,
-      "dominantRms": 0.0017374180628201281,
+      "dominantRms": 0.0017344447865413589,
       "radiusDeviation": 0,
       "chordSagittaIfLinear": 0
     },
@@ -51,7 +51,7 @@
       "exclusiveRms": null,
       "exclusiveDegrees": null,
       "dominantVertices": 1139,
-      "dominantRms": 0.003226303928878192,
+      "dominantRms": 0.00320887154457026,
       "radiusDeviation": 0,
       "chordSagittaIfLinear": 0
     },
@@ -64,7 +64,7 @@
       "exclusiveRms": null,
       "exclusiveDegrees": null,
       "dominantVertices": 1139,
-      "dominantRms": 0.0015102269131463746,
+      "dominantRms": 0.001506805012957848,
       "radiusDeviation": 0,
       "chordSagittaIfLinear": 0
     },
@@ -77,7 +77,7 @@
       "exclusiveRms": null,
       "exclusiveDegrees": null,
       "dominantVertices": 1139,
-      "dominantRms": 0.0015914413562321146,
+      "dominantRms": 0.0015914525807945298,
       "radiusDeviation": 0,
       "chordSagittaIfLinear": 0
     },
@@ -90,7 +90,7 @@
       "exclusiveRms": null,
       "exclusiveDegrees": null,
       "dominantVertices": 4464,
-      "dominantRms": 0.003905469170276374,
+      "dominantRms": 0.00394292281540066,
       "radiusDeviation": 0,
       "chordSagittaIfLinear": 0
     },
@@ -103,7 +103,7 @@
       "exclusiveRms": null,
       "exclusiveDegrees": null,
       "dominantVertices": 4464,
-      "dominantRms": 0.001195407400398427,
+      "dominantRms": 0.0012063634442886024,
       "radiusDeviation": 0,
       "chordSagittaIfLinear": 0
     },
@@ -116,7 +116,7 @@
       "exclusiveRms": null,
       "exclusiveDegrees": null,
       "dominantVertices": 4464,
-      "dominantRms": 0.0015341814280881996,
+      "dominantRms": 0.0015360305761831627,
       "radiusDeviation": 0,
       "chordSagittaIfLinear": 0
     },
@@ -129,7 +129,7 @@
       "exclusiveRms": null,
       "exclusiveDegrees": null,
       "dominantVertices": 841,
-      "dominantRms": 0.0013157388450425254,
+      "dominantRms": 0.0013166089141241743,
       "radiusDeviation": 0,
       "chordSagittaIfLinear": 0
     },
@@ -142,7 +142,7 @@
       "exclusiveRms": null,
       "exclusiveDegrees": null,
       "dominantVertices": 841,
-      "dominantRms": 0.0017487280017909957,
+      "dominantRms": 0.0017462128113950382,
       "radiusDeviation": 0,
       "chordSagittaIfLinear": 0
     },
@@ -155,7 +155,7 @@
       "exclusiveRms": null,
       "exclusiveDegrees": null,
       "dominantVertices": 841,
-      "dominantRms": 0.0036293645966829543,
+      "dominantRms": 0.003630589747954811,
       "radiusDeviation": 0,
       "chordSagittaIfLinear": 0
     },
@@ -168,7 +168,7 @@
       "exclusiveRms": null,
       "exclusiveDegrees": null,
       "dominantVertices": 45,
-      "dominantRms": 0.0007820729565033379,
+      "dominantRms": 0.0007830069313723972,
       "radiusDeviation": 0,
       "chordSagittaIfLinear": 0
     },
@@ -181,7 +181,7 @@
       "exclusiveRms": null,
       "exclusiveDegrees": null,
       "dominantVertices": 45,
-      "dominantRms": 0.0009324798315483092,
+      "dominantRms": 0.0009344329476375107,
       "radiusDeviation": 0,
       "chordSagittaIfLinear": 0
     },
@@ -194,7 +194,7 @@
       "exclusiveRms": null,
       "exclusiveDegrees": null,
       "dominantVertices": 45,
-      "dominantRms": 0.0006389023152693009,
+      "dominantRms": 0.0006387475106692155,
       "radiusDeviation": 0,
       "chordSagittaIfLinear": 0
     },
@@ -207,7 +207,7 @@
       "exclusiveRms": null,
       "exclusiveDegrees": null,
       "dominantVertices": 140,
-      "dominantRms": 0.0024886117557180684,
+      "dominantRms": 0.0024905015869726597,
       "radiusDeviation": 0,
       "chordSagittaIfLinear": 0
     },
@@ -220,7 +220,7 @@
       "exclusiveRms": null,
       "exclusiveDegrees": null,
       "dominantVertices": 140,
-      "dominantRms": 0.00272931037925974,
+      "dominantRms": 0.0027429125128820213,
       "radiusDeviation": 0,
       "chordSagittaIfLinear": 0
     },
@@ -233,7 +233,7 @@
       "exclusiveRms": null,
       "exclusiveDegrees": null,
       "dominantVertices": 1527,
-      "dominantRms": 0.014755654983524743,
+      "dominantRms": 0.014760710956308177,
       "radiusDeviation": 0,
       "chordSagittaIfLinear": 0
     },
@@ -246,7 +246,7 @@
       "exclusiveRms": null,
       "exclusiveDegrees": null,
       "dominantVertices": 1527,
-      "dominantRms": 0.008225889517236861,
+      "dominantRms": 0.008235869858920305,
       "radiusDeviation": 0,
       "chordSagittaIfLinear": 0
     },
@@ -259,7 +259,7 @@
       "exclusiveRms": null,
       "exclusiveDegrees": null,
       "dominantVertices": 1527,
-      "dominantRms": 0.011576366027107796,
+      "dominantRms": 0.01156532990840401,
       "radiusDeviation": 0,
       "chordSagittaIfLinear": 0
     },
@@ -269,11 +269,11 @@
       "clinical": 94.02815,
       "rig": 50.971849999999996,
       "exclusiveVertices": 476,
-      "exclusiveRms": 0.0000038516085183949675,
-      "exclusiveDegrees": 50.97210445288895,
+      "exclusiveRms": 0.00008608101420059329,
+      "exclusiveDegrees": 50.959879067175805,
       "dominantVertices": 1335,
-      "dominantRms": 0.004152645199958825,
-      "radiusDeviation": 7.077671781985373e-16,
+      "dominantRms": 0.0041645595689301885,
+      "radiusDeviation": 0.0003152324181598387,
       "chordSagittaIfLinear": 0.01874819888887863
     },
     {
@@ -282,11 +282,11 @@
       "clinical": 42.5,
       "rig": 42.5,
       "exclusiveVertices": 476,
-      "exclusiveRms": 0.004502423071213733,
-      "exclusiveDegrees": 16.42256989120396,
+      "exclusiveRms": 0.004493447130875665,
+      "exclusiveDegrees": 16.36902643223388,
       "dominantVertices": 1335,
-      "dominantRms": 0.007495355809596794,
-      "radiusDeviation": 7.355227538141662e-16,
+      "dominantRms": 0.0074890805435592405,
+      "radiusDeviation": 0.000050687920121361696,
       "chordSagittaIfLinear": 0.013099817875561911
     },
     {
@@ -295,11 +295,11 @@
       "clinical": -31.7081,
       "rig": 38.2919,
       "exclusiveVertices": 327,
-      "exclusiveRms": 2.9159618416774863e-16,
-      "exclusiveDegrees": 38.29190000000002,
+      "exclusiveRms": 6.0697704360458845e-9,
+      "exclusiveDegrees": 38.29189925392752,
       "dominantVertices": 1376,
-      "dominantRms": 0.0015825613073459984,
-      "radiusDeviation": 1.3600232051658168e-15,
+      "dominantRms": 0.0015831441832235107,
+      "radiusDeviation": 2.6695677092514192e-8,
       "chordSagittaIfLinear": 0.004894107401592589
     },
     {
@@ -308,11 +308,11 @@
       "clinical": -17.00405,
       "rig": 27.99595,
       "exclusiveVertices": 327,
-      "exclusiveRms": 5.070356436707463e-16,
-      "exclusiveDegrees": 27.99594999999997,
+      "exclusiveRms": 4.252660471880259e-9,
+      "exclusiveDegrees": 27.995952121216302,
       "dominantVertices": 1376,
-      "dominantRms": 0.0014803234154856194,
-      "radiusDeviation": 1.3877787807814457e-15,
+      "dominantRms": 0.0014803932301391967,
+      "radiusDeviation": 7.183916322928141e-9,
       "chordSagittaIfLinear": 0.0026274460918666595
     },
     {
@@ -321,11 +321,11 @@
       "clinical": 62.5,
       "rig": 62.5,
       "exclusiveVertices": 398,
-      "exclusiveRms": 0.00012859081013040212,
-      "exclusiveDegrees": 62.47547526386645,
+      "exclusiveRms": 0.0005036527675961342,
+      "exclusiveDegrees": 62.80563797636521,
       "dominantVertices": 1900,
-      "dominantRms": 0.012358143013735511,
-      "radiusDeviation": 1.8596235662471372e-15,
+      "dominantRms": 0.012305687528282544,
+      "radiusDeviation": 0.001708840575781495,
       "chordSagittaIfLinear": 0.04827153215743081
     },
     {
@@ -334,11 +334,11 @@
       "clinical": 22.5,
       "rig": 22.5,
       "exclusiveVertices": 398,
-      "exclusiveRms": 1.7007177094860662e-16,
-      "exclusiveDegrees": 22.499999999999975,
+      "exclusiveRms": 0.00016089984788470732,
+      "exclusiveDegrees": 22.562261644614075,
       "dominantVertices": 1900,
-      "dominantRms": 0.005013634364982837,
-      "radiusDeviation": 3.885780586188048e-16,
+      "dominantRms": 0.004989963640641978,
+      "radiusDeviation": 0.0004386876066053702,
       "chordSagittaIfLinear": 0.006392831441231701
     },
     {
@@ -347,11 +347,11 @@
       "clinical": 22.5,
       "rig": 22.5,
       "exclusiveVertices": 398,
-      "exclusiveRms": 0.002725544305748264,
-      "exclusiveDegrees": 11.99661328794384,
+      "exclusiveRms": 0.002740923507664093,
+      "exclusiveDegrees": 11.944824887974,
       "dominantVertices": 1900,
-      "dominantRms": 0.008281592337382281,
-      "radiusDeviation": 2.220446049250313e-16,
+      "dominantRms": 0.008283772669134328,
+      "radiusDeviation": 0.000022509167312972922,
       "chordSagittaIfLinear": 0.006392831441231701
     },
     {
@@ -360,11 +360,11 @@
       "clinical": 70,
       "rig": 70,
       "exclusiveVertices": 156,
-      "exclusiveRms": 8.441490377464587e-16,
-      "exclusiveDegrees": 70,
+      "exclusiveRms": 0.0001947168773987356,
+      "exclusiveDegrees": 70.04637194501638,
       "dominantVertices": 1396,
-      "dominantRms": 0.00727965108982686,
-      "radiusDeviation": 3.469446951953614e-15,
+      "dominantRms": 0.007220311298953858,
+      "radiusDeviation": 0.0006565129357956057,
       "chordSagittaIfLinear": 0.03043089675943534
     },
     {
@@ -373,11 +373,11 @@
       "clinical": -22.5,
       "rig": 22.5,
       "exclusiveVertices": 1039,
-      "exclusiveRms": 1.2090357748083204e-15,
-      "exclusiveDegrees": 22.499999999999904,
+      "exclusiveRms": 9.193373208026072e-7,
+      "exclusiveDegrees": 22.500132474819715,
       "dominantVertices": 2077,
-      "dominantRms": 0.0017812157905042923,
-      "radiusDeviation": 2.8727020762175925e-15,
+      "dominantRms": 0.0017812118135180459,
+      "radiusDeviation": 0.000006236185067093336,
       "chordSagittaIfLinear": 0.002467680726524837
     },
     {
@@ -386,11 +386,11 @@
       "clinical": 12.5,
       "rig": 12.5,
       "exclusiveVertices": 1039,
-      "exclusiveRms": 2.555616149116553e-15,
-      "exclusiveDegrees": 12.499999999999824,
+      "exclusiveRms": 1.9159244248808206e-7,
+      "exclusiveDegrees": 12.500096921370053,
       "dominantVertices": 2077,
-      "dominantRms": 0.0009141268142152407,
-      "radiusDeviation": 2.400857290751901e-15,
+      "dominantRms": 0.0009140346740223709,
+      "radiusDeviation": 7.963896268073367e-7,
       "chordSagittaIfLinear": 0.0007633241557285087
     },
     {
@@ -415,7 +415,7 @@
       "exclusiveRms": null,
       "exclusiveDegrees": null,
       "dominantVertices": 117,
-      "dominantRms": 0.0006277434720075969,
+      "dominantRms": 0.0006277433773223581,
       "radiusDeviation": 0,
       "chordSagittaIfLinear": 0
     },
@@ -428,7 +428,7 @@
       "exclusiveRms": 2.0983574140983007e-16,
       "exclusiveDegrees": 20.777299999999684,
       "dominantVertices": 497,
-      "dominantRms": 0.0009383640161864059,
+      "dominantRms": 0.0009383640160100282,
       "radiusDeviation": 1.1449174941446927e-15,
       "chordSagittaIfLinear": 0.0004098354553475237
     },
@@ -610,7 +610,7 @@
       "exclusiveRms": null,
       "exclusiveDegrees": null,
       "dominantVertices": 138,
-      "dominantRms": 0.0024887415534238133,
+      "dominantRms": 0.002490661952601779,
       "radiusDeviation": 0,
       "chordSagittaIfLinear": 0
     },
@@ -623,7 +623,7 @@
       "exclusiveRms": null,
       "exclusiveDegrees": null,
       "dominantVertices": 138,
-      "dominantRms": 0.0027327183179859486,
+      "dominantRms": 0.0027463674069240235,
       "radiusDeviation": 0,
       "chordSagittaIfLinear": 0
     },
@@ -636,7 +636,7 @@
       "exclusiveRms": null,
       "exclusiveDegrees": null,
       "dominantVertices": 1532,
-      "dominantRms": 0.014851031467144723,
+      "dominantRms": 0.014854101673025774,
       "radiusDeviation": 0,
       "chordSagittaIfLinear": 0
     },
@@ -649,7 +649,7 @@
       "exclusiveRms": null,
       "exclusiveDegrees": null,
       "dominantVertices": 1532,
-      "dominantRms": 0.008201087274675013,
+      "dominantRms": 0.008210332072586205,
       "radiusDeviation": 0,
       "chordSagittaIfLinear": 0
     },
@@ -662,7 +662,7 @@
       "exclusiveRms": null,
       "exclusiveDegrees": null,
       "dominantVertices": 1532,
-      "dominantRms": 0.011549610150485763,
+      "dominantRms": 0.011538361233805614,
       "radiusDeviation": 0,
       "chordSagittaIfLinear": 0
     },
@@ -672,11 +672,11 @@
       "clinical": 94.02815,
       "rig": 50.971849999999996,
       "exclusiveVertices": 480,
-      "exclusiveRms": 0.000003847929212427211,
-      "exclusiveDegrees": 50.97211342754447,
+      "exclusiveRms": 0.00008571918217888629,
+      "exclusiveDegrees": 50.960388982280314,
       "dominantVertices": 1340,
-      "dominantRms": 0.004155751668475847,
-      "radiusDeviation": 6.938893903907228e-16,
+      "dominantRms": 0.004167662305197197,
+      "radiusDeviation": 0.0003152327229231644,
       "chordSagittaIfLinear": 0.018748190240398012
     },
     {
@@ -685,11 +685,11 @@
       "clinical": 42.5,
       "rig": 42.5,
       "exclusiveVertices": 480,
-      "exclusiveRms": 0.004507823591751404,
-      "exclusiveDegrees": 16.447684663028593,
+      "exclusiveRms": 0.004498943348317394,
+      "exclusiveDegrees": 16.394455419240803,
       "dominantVertices": 1340,
-      "dominantRms": 0.007498720243101824,
-      "radiusDeviation": 7.355227538141662e-16,
+      "dominantRms": 0.007492467461136871,
+      "radiusDeviation": 0.00005068783765295459,
       "chordSagittaIfLinear": 0.013099811832660315
     },
     {
@@ -698,11 +698,11 @@
       "clinical": -31.7081,
       "rig": 38.2919,
       "exclusiveVertices": 317,
-      "exclusiveRms": 5.571151410505427e-16,
-      "exclusiveDegrees": 38.291900000000034,
+      "exclusiveRms": 6.381599974323927e-9,
+      "exclusiveDegrees": 38.291899112476315,
       "dominantVertices": 1354,
-      "dominantRms": 0.0015680169993819708,
-      "radiusDeviation": 1.2975731600306517e-15,
+      "dominantRms": 0.0015685816702652607,
+      "radiusDeviation": 2.6695538349330583e-8,
       "chordSagittaIfLinear": 0.0048941091824629196
     },
     {
@@ -711,11 +711,11 @@
       "clinical": -17.00405,
       "rig": 27.99595,
       "exclusiveVertices": 317,
-      "exclusiveRms": 7.654192798622468e-16,
-      "exclusiveDegrees": 27.99594999999997,
+      "exclusiveRms": 4.459584522107339e-9,
+      "exclusiveDegrees": 27.995952338880322,
       "dominantVertices": 1354,
-      "dominantRms": 0.0014742007106454654,
-      "radiusDeviation": 1.4641066137244252e-15,
+      "dominantRms": 0.0014742677919524726,
+      "radiusDeviation": 7.183953446010527e-9,
       "chordSagittaIfLinear": 0.002627447047943101
     },
     {
@@ -724,11 +724,11 @@
       "clinical": 62.5,
       "rig": 62.5,
       "exclusiveVertices": 392,
-      "exclusiveRms": 0.00012885287699060852,
-      "exclusiveDegrees": 62.47595924206645,
+      "exclusiveRms": 0.0005002846161488166,
+      "exclusiveDegrees": 62.80658929916636,
       "dominantVertices": 1910,
-      "dominantRms": 0.01230848533901997,
-      "radiusDeviation": 1.887379141862766e-15,
+      "dominantRms": 0.01225709643794322,
+      "radiusDeviation": 0.0017088405216154068,
       "chordSagittaIfLinear": 0.04827153223535602
     },
     {
@@ -737,11 +737,11 @@
       "clinical": 22.5,
       "rig": 22.5,
       "exclusiveVertices": 392,
-      "exclusiveRms": 3.3828456482873826e-16,
-      "exclusiveDegrees": 22.499999999999975,
+      "exclusiveRms": 0.00016094690535843625,
+      "exclusiveDegrees": 22.564204867447387,
       "dominantVertices": 1910,
-      "dominantRms": 0.004951891304420774,
-      "radiusDeviation": 4.163336342344337e-16,
+      "dominantRms": 0.004928381271429996,
+      "radiusDeviation": 0.00043868774500047114,
       "chordSagittaIfLinear": 0.006392831451551712
     },
     {
@@ -750,11 +750,11 @@
       "clinical": 22.5,
       "rig": 22.5,
       "exclusiveVertices": 392,
-      "exclusiveRms": 0.002731155437823881,
-      "exclusiveDegrees": 12.03773139007098,
+      "exclusiveRms": 0.0027468037266235056,
+      "exclusiveDegrees": 11.985831263754225,
       "dominantVertices": 1910,
-      "dominantRms": 0.008273551459359986,
-      "radiusDeviation": 1.6653345369377348e-16,
+      "dominantRms": 0.008275879035921701,
+      "radiusDeviation": 0.000022509195821474037,
       "chordSagittaIfLinear": 0.006392831451551712
     },
     {
@@ -763,11 +763,11 @@
       "clinical": 70,
       "rig": 70,
       "exclusiveVertices": 154,
-      "exclusiveRms": 2.854310794397223e-16,
-      "exclusiveDegrees": 70.00000000000006,
+      "exclusiveRms": 0.00019519990125177206,
+      "exclusiveDegrees": 70.04686521510732,
       "dominantVertices": 1375,
-      "dominantRms": 0.0073906515988484845,
-      "radiusDeviation": 3.4833247397614286e-15,
+      "dominantRms": 0.007330769489116761,
+      "radiusDeviation": 0.0006565110449906764,
       "chordSagittaIfLinear": 0.03043089675943534
     },
     {
@@ -776,11 +776,11 @@
       "clinical": -22.5,
       "rig": 22.5,
       "exclusiveVertices": 1036,
-      "exclusiveRms": 4.2201228618488966e-15,
-      "exclusiveDegrees": 22.49999999999987,
+      "exclusiveRms": 9.742082622468506e-7,
+      "exclusiveDegrees": 22.50014616495477,
       "dominantVertices": 2081,
-      "dominantRms": 0.0017899407279414676,
-      "radiusDeviation": 2.733924198139448e-15,
+      "dominantRms": 0.0017899416835635514,
+      "radiusDeviation": 0.000006236185861326071,
       "chordSagittaIfLinear": 0.0024676804842211734
     },
     {
@@ -789,11 +789,11 @@
       "clinical": 12.5,
       "rig": 12.5,
       "exclusiveVertices": 1036,
-      "exclusiveRms": 5.2529669010664275e-15,
-      "exclusiveDegrees": 12.500000000000062,
+      "exclusiveRms": 2.0256481768536362e-7,
+      "exclusiveDegrees": 12.500104536701835,
       "dominantVertices": 2081,
-      "dominantRms": 0.0009156077251636108,
-      "radiusDeviation": 2.525757381022231e-15,
+      "dominantRms": 0.0009155146010635771,
+      "radiusDeviation": 7.963892073581391e-7,
       "chordSagittaIfLinear": 0.0007633240807770622
     },
     {
@@ -818,7 +818,7 @@
       "exclusiveRms": null,
       "exclusiveDegrees": null,
       "dominantVertices": 113,
-      "dominantRms": 0.0006282418678024525,
+      "dominantRms": 0.0006282417755374883,
       "radiusDeviation": 0,
       "chordSagittaIfLinear": 0
     },
@@ -831,7 +831,7 @@
       "exclusiveRms": 2.464737980048942e-16,
       "exclusiveDegrees": 20.777299999999972,
       "dominantVertices": 503,
-      "dominantRms": 0.000937535597362528,
+      "dominantRms": 0.0009375355971870778,
       "radiusDeviation": 1.1830814106161824e-15,
       "chordSagittaIfLinear": 0.0004098359409464828
     },
