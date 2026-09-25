@@ -2,7 +2,9 @@ import { swingConeAngle } from "@automovie/engine";
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
+import { assertHumanBodyPelvifemoral } from "./assertHumanBodyPelvifemoral";
 import { humanBodyShoulderOrientationDistance } from "./humanBodyShoulderOrientationDistance";
+import { humanBodyShoulderReaches } from "./humanBodyShoulderReaches";
 
 const AXES = ["abduction", "twist"] as const;
 
@@ -16,21 +18,24 @@ const AXES = ["abduction", "twist"] as const;
  * axes their generic constraint leaves mobile, and hold finite ranges that
  * contain zero and the measured rest angle. An upper arm additionally needs
  * an explicit thorax TT coordinate contract whose neutral elevation and
- * plane match the source landmarks; its old generic axes must be held. The
+ * plane match the source landmarks, and a joint-sinus envelope of at least
+ * three increasing canonical planes whose maxima are positive and in range
+ * and whose region holds that rest; its old generic axes must be held. The
  * swing cone, when declared for another joint, admits each pure-plane extreme.
  * A corrective's joint driver names a mobile generic axis or a TT shoulder
  * elevation/axial axis with a ramp inside its reach. A coupling names declared
  * joints, an open output axis that no coupling drives from or drives twice,
  * and a finite, strictly increasing curve that starts at zero no lower than
  * the source's TT or generic rest elevation and keeps every rest-plus-ordinate inside that
- * axis's range.
+ * axis's range. A declared pelvifemoral rhythm is admitted by
+ * `assertHumanBodyPelvifemoral`.
  * Every surface's skin must bind each vertex to four declared joints with
  * weights that sum to one within a micro tolerance (the payload rounds them
  * to seven decimals). A slot the skin names but the joints do not declare is
  * refused, because it would skin to nothing.
  *
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-joints Refuses a rig whose joints, pivots, signs or ranges could not be evaluated as declared.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-joints Checks the tree, measured upper-arm TT neutrals, held obsolete axes, coupling elevation source and in-range curves, and four-influence unit-sum skin.
+ * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-joints Checks the tree, measured upper-arm TT neutrals and joint-sinus envelopes, held obsolete axes, coupling elevation source and in-range curves, and four-influence unit-sum skin.
  */
 export function assertHumanBodyRig(basis: IAutoMovieHumanBodyBasis): void {
   const landmarks = new Set(basis.landmarks.ids);
@@ -72,6 +77,17 @@ export function assertHumanBodyRig(basis: IAutoMovieHumanBodyBasis): void {
     if (head === undefined || tail === undefined || joint.head === joint.tail)
       throw new Error(
         "Body joint ends must be distinct resident landmarks: " + joint.bone,
+      );
+    // a spread twist runs from the bone's head to its one child's head
+    if (
+      joint.distributeTwist !== undefined &&
+      (typeof joint.distributeTwist !== "boolean" ||
+        (joint.distributeTwist &&
+          basis.joints.filter((one) => one.parent === joint.bone).length !== 1))
+    )
+      throw new Error(
+        "Body joint spreads its twist only as a boolean on a bone with one child joint: " +
+          joint.bone,
       );
     const axis = [tail[0] - head[0], tail[1] - head[1], tail[2] - head[2]];
     const length = Math.hypot(...axis);
@@ -206,6 +222,29 @@ export function assertHumanBodyRig(basis: IAutoMovieHumanBodyBasis): void {
           "Body thorax-tt shoulders need a measured A-pose, held Euler axes, total elevation [0, <=180] and a valid axial range: " +
             joint.bone,
         );
+      // The joint sinus: one maximum per plane, so at least three knots
+      // around the hanging arm, planes on one canonical period, maxima
+      // positive (every plane admits the hanging arm) and inside the total
+      // elevation range, with the measured rest inside the region.
+      const knots = shoulder.range.envelope;
+      if (
+        knots.length < 3 ||
+        knots.some(
+          ([plane, limit], k) =>
+            !Number.isFinite(plane) ||
+            !Number.isFinite(limit) ||
+            plane < -180 ||
+            plane >= 180 ||
+            (k > 0 && plane <= knots[k - 1][0]) ||
+            limit <= 0 ||
+            limit > shoulder.range.elevation.max,
+        ) ||
+        !humanBodyShoulderReaches(shoulder, shoulder.neutral)
+      )
+        throw new Error(
+          "Body thorax-tt shoulders need a joint-sinus envelope of three or more increasing canonical planes with positive in-range maxima that admits the rest: " +
+            joint.bone,
+        );
     }
     declared.add(joint.bone);
   }
@@ -238,15 +277,9 @@ export function assertHumanBodyRig(basis: IAutoMovieHumanBodyBasis): void {
             : { bone: input.shoulder, ...shoulder.neutral };
         if (
           shoulder === undefined ||
-          !Number.isFinite(goal.plane) ||
           goal.plane < -180 ||
           goal.plane >= 180 ||
-          !Number.isFinite(goal.elevation) ||
-          goal.elevation < shoulder.range.elevation.min ||
-          goal.elevation > shoulder.range.elevation.max ||
-          !Number.isFinite(goal.axialRotation) ||
-          goal.axialRotation < shoulder.range.axialRotation.min ||
-          goal.axialRotation > shoulder.range.axialRotation.max ||
+          !humanBodyShoulderReaches(shoulder, goal) ||
           !Number.isFinite(input.innerDegrees) ||
           !Number.isFinite(input.outerDegrees) ||
           input.innerDegrees < 0 ||
@@ -377,6 +410,7 @@ export function assertHumanBodyRig(basis: IAutoMovieHumanBodyBasis): void {
     couplingIds.add(coupling.id);
     outputs.add(key);
   }
+  assertHumanBodyPelvifemoral(basis);
   for (const surface of basis.surfaces) {
     const vertices = surface.positions.length / 3;
     const skin = surface.skin;

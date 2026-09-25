@@ -3,21 +3,16 @@ import type { ITtscLintConfig } from "@ttsc/lint";
 
 /** The anatomical editors are separate application surfaces; every other new module remains a prototype carrier. */
 const prototypeSources = ["src/**/*.ts", "!src/human/**/*.ts"];
-/** The body editor's own adapters, which answer for the body contract and not the face's. */
+/**
+ * The body editor's own adapters, which answer for the body contract and not
+ * the face's: every `body*` and `connectedBody*` module under `src/human` and
+ * the body's intent gate. Derived by pattern so a new body adapter answers
+ * for the body contract from the moment it exists.
+ */
 const bodySources = [
-  "src/human/connectedBodyPanel.ts",
-  "src/human/bodyPoseControls.ts",
-  "src/human/bodySimpleControls.ts",
-  "src/human/bodyShoulderControls.ts",
-  "src/human/bodySimpleWorkerTransport.ts",
+  "src/human/body*.ts",
+  "src/human/connectedBody*.ts",
   "src/human/createBodyIntentGate.ts",
-  "src/human/connectedBodyGeometry.ts",
-  "src/human/connectedBodyPort.ts",
-  "src/human/connectedBodyPreview.ts",
-  "src/human/connectedBodyProtocol.ts",
-  "src/human/connectedBodyRenderer.ts",
-  "src/human/connectedBodyRuntime.ts",
-  "src/human/connectedBodyViewport.ts",
 ];
 const faceSources = [
   "src/human/**/*.ts",

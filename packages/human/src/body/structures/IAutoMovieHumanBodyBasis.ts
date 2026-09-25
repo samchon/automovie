@@ -218,6 +218,16 @@ export interface IAutoMovieHumanBodyBasis {
     constraint: IAutoMovieJointConstraint | null;
 
     /**
+     * Spread this bone's axial twist along its skin, as a rig's twist joints
+     * do. The bone's rotation relative to its parent is split into a swing
+     * and a twist about its rest axis (its head to its one child joint's
+     * head); a vertex it moves takes the swing whole and the twist in
+     * proportion to where it lies along that axis, none at the head and all
+     * of it at the child's head. Absent, the bone carries its skin rigidly.
+     */
+    distributeTwist?: boolean;
+
+    /**
      * Humerothoracic authoring coordinates for an upper arm. Only the two
      * upper arms carry this field. Their generic Euler axes are held at zero;
      * the shoulder goal is resolved from the thorax after girdle coupling.
@@ -230,10 +240,22 @@ export interface IAutoMovieHumanBodyBasis {
         elevation: number;
         axialRotation: number;
       };
-      /** Total humerothoracic elevation and axial rotation in degrees. */
+      /**
+       * Total humerothoracic elevation and axial rotation in degrees, and the
+       * plane-dependent reach (`humanBodyShoulderReaches`).
+       */
       range: {
         elevation: { min: number; max: number };
         axialRotation: { min: number; max: number };
+        /**
+         * The humeral joint sinus as `[plane, maximum total elevation]` knots:
+         * at least three, planes strictly increasing inside [-180, 180),
+         * maxima in (0, `elevation.max`], linear between neighbours and
+         * periodic across the -180/180 seam. A goal is admitted when its
+         * elevation is at most the envelope at its plane; the overhead pole
+         * is admitted when any knot reaches 180.
+         */
+        envelope: [number, number][];
       };
     };
   }[];
@@ -305,6 +327,59 @@ export interface IAutoMovieHumanBodyBasis {
     /** `[elevation, degrees]` knots, strictly increasing in elevation from the source's rest elevation or above, the first ordinate zero. */
     curve: [number, number][];
   }[];
+
+  /**
+   * The declared pelvifemoral rhythm: the posterior pelvic tilt that goes
+   * with hip flexion, applied by the builder after the couplings
+   * (`resolveHumanBodyPelvifemoralRhythm`, called inside
+   * `resolveHumanBodyCouplings`).
+   *
+   * With a rhythm declared, each upper leg's document flexion is the thigh's
+   * flexion relative to the trunk, the angle a goniometer reads without
+   * stabilizing the pelvis, rather than the femur's angle to the pelvis.
+   * Standing unilateral hip flexion carries the pelvis with it: Murray et al.
+   * 2002 (Clin Biomech 17:147, doi:10.1016/s0268-0033(01)00115-2) measured
+   * pelvic rotation contributing 18.1% of the change in hip flexion,
+   * throughout the movement, with the stance thigh held vertical; Tully et al.
+   * 2002 (Spine 27:E432) measured lumbar flexion concurrent with it. The curve
+   * maps the larger of the two legs' trunk-relative flexions to the tilt `T`;
+   * the pelvis turns posteriorly by `T` about the line through both hip
+   * centres (the root's flexion gains `-T` and the body is translated so the
+   * hip centres do not move), the lumbar joint's flexion gains `+T` so the
+   * trunk keeps its orientation, and each hip's pelvic-relative flexion is its
+   * document flexion minus `T`, so the lifted thigh reaches the authored
+   * direction and the other thigh stays where the author put it. One tilt for
+   * both legs is what a pelvis can do; the bilateral lift shares the larger
+   * side's tilt, which the declared curve must justify for the tasks it is
+   * cited for (Dewberry et al. 2003, Clin Biomech 18:494, measured 13.1 to
+   * 35.5% for suspended bilateral flexion, depending on knee position and
+   * hamstring length).
+   *
+   * A trunk-relative flexion past the leg's clinical range is refused, and so
+   * is a resulting pelvic-relative or lumbar angle past its own range; nothing
+   * is clamped. Correctives driven by a hip or the lumbar joint read the
+   * document's coupled angles (the hips trunk-relative): the tilt is a
+   * function of those, so a ramp on them is a ramp on the whole
+   * configuration, and the thigh's contact with the belly and chest follows
+   * the trunk-relative angle rather than the pelvic-relative one. A basis
+   * without the field poses hips pelvic-relative as before. Admission (`assertHumanBodyPelvifemoral`) requires both upper
+   * legs and the lumbar joint to be children of the root with open flexion,
+   * a nonblank id, at least two finite knots strictly increasing in flexion,
+   * the first at or above the legs' rest flexion with a zero ordinate,
+   * nondecreasing nonnegative ordinates and every `rest + ordinate` of the
+   * lumbar joint inside its flexion range, and no coupling driving a leg's or
+   * the lumbar joint's flexion.
+   */
+  pelvifemoral?: {
+    /** Name shown beside the rows it moves. */
+    id: string;
+
+    /** The lumbar joint whose flexion restores the trunk. */
+    lumbar: AutoMovieHumanoidBone;
+
+    /** `[trunk-relative hip flexion, posterior pelvic tilt]` knots in degrees. */
+    curve: [number, number][];
+  };
 
   /** Connected skin surfaces in the shared frame. */
   surfaces: {

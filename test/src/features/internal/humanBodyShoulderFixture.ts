@@ -76,6 +76,14 @@ export function humanBodyShoulderFixture(coupled = false): {
         range: {
           elevation: { min: 0, max: 180 },
           axialRotation: { min: -90, max: 90 },
+          envelope: [
+            [-180, 10],
+            [-90, 60],
+            [-45, 90],
+            [0, 180],
+            [90, 180],
+            [135, 90],
+          ],
         },
       },
     });
