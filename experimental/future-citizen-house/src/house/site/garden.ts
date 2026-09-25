@@ -64,7 +64,7 @@ export function garden(a: Assembly): void {
         a,
         "service-band-" + side + "-" + i,
         r,
-        "green",
+        "grass",
         heightRegion(
           rectangle(...s),
           () => soilBottom,
@@ -75,7 +75,7 @@ export function garden(a: Assembly): void {
   a.box(
     "cassette-staging-pad",
     r,
-    "stone",
+    "paving",
     -3.55,
     (soilBottom - 0.45) / 2,
     -7.4,
@@ -88,7 +88,7 @@ export function garden(a: Assembly): void {
     a.box(
       "site-sidewalk-" + i,
       r,
-      "stone",
+      "paving",
       (p[0] + p[1]) / 2,
       (soilBottom - 0.45) / 2,
       -8.1,
@@ -105,7 +105,7 @@ export function garden(a: Assembly): void {
     a.box(
       "approach-tread-" + i,
       r,
-      "stone",
+      "paving",
       ax,
       (top - 0.45) / 2,
       -7.28 + i * 0.32,
@@ -117,7 +117,7 @@ export function garden(a: Assembly): void {
   a.box(
     "approach-landing",
     r,
-    "stone",
+    "paving",
     ax,
     (datum.floors[0] - 0.45) / 2,
     datum.minZ - 0.4,
@@ -125,7 +125,7 @@ export function garden(a: Assembly): void {
     datum.floors[0] + 0.45,
     0.8,
   );
-  a.box("rear-paving", r, "stone", 0, -0.245, 6.65, 11.6, 0.41, 1.3);
+  a.box("rear-paving", r, "paving", 0, -0.245, 6.65, 11.6, 0.41, 1.3);
   // The walkable ground is the site minus the house outline, as four strips.
   for (const [id, x0, x1, z0, z1] of [
     ["front", -7.8, 7.8, -8.5, datum.minZ],
@@ -186,7 +186,7 @@ export function garden(a: Assembly): void {
     a.rod(
       "tree-" + i + "-trunk",
       r,
-      "oak",
+      "bark",
       v(x, -0.45, z),
       v(x + 0.08, top, z),
       0.06,
@@ -203,7 +203,7 @@ export function garden(a: Assembly): void {
       a.rod(
         "tree-" + i + "-branch-" + j,
         r,
-        "oak",
+        "bark",
         v(x, y - 0.3, z),
         end,
         0.017,

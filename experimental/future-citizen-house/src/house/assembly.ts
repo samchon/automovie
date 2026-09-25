@@ -4,6 +4,7 @@
 import type { IAutoMovieBuiltEnvironment, IAutoMovieMesh, IAutoMovieMaterial, IAutoMovieVector3, IAutoMovieQuaternion, AutoMoviePrimitiveShape } from "@automovie/interface";
 import { srgbHexToLinearColor } from "@automovie/engine";
 import { pvTextureBinding } from "./canopy-finish";
+import { materialTexture } from "../materials/bindings";
 export type State = { privacy: "day" | "private" | "night"; flex: "work" | "guest" };
 export const initialState: State = { privacy: "day", flex: "work" };
 export const v = (x: number, y: number, z: number): IAutoMovieVector3 => ({ x, y, z });
@@ -12,7 +13,8 @@ export const yaw = (angle: number): IAutoMovieQuaternion => ({ x: 0, y: Math.sin
 export const rectangle = (a: number, b: number, y0: number, y1: number) => [
   { x: a, y: y0 }, { x: b, y: y0 }, { x: b, y: y1 }, { x: a, y: y1 },
 ];
-const palette: Record<string, string> = { stone: "#cec7b6", plaster: "#e7e1d4", felt: "#a59f91", tile: "#767a78", oak: "#b28a58", walnut: "#765238", metal: "#28302f", steel: "#929b98", linen: "#d8d4c7", green: "#69755b", blue: "#697984", leaf: "#527644", soil: "#3c4132", pv: "#b9cedb", "canopy-metal": "#626e70", glass: "#d2e2dc", frosted: "#b7ccc0", shade: "#aab3a0", glow: "#fff0cc", white: "#eeeae0" };
+const palette: Record<string, string> = { stone: "#c9c3b5", paving: "#bfc1bd", plaster: "#e5e0d6", felt: "#a09a8d", tile: "#6f746f", oak: "#a78965", bark: "#665c47", walnut: "#765238", metal: "#293332", steel: "#b4bcb8", gasket: "#252b29", linen: "#c8c3b6", green: "#69755b", grass: "#69755b", blue: "#657682", leaf: "#527644", soil: "#3c4132", pv: "#b9cedb", "canopy-metal": "#626e70", cassette: "#454d4a", glass: "#d2e2dc", frosted: "#b7ccc0", shade: "#aab3a0", glow: "#fff0cc", white: "#eeeae0", "sanitary-seat": "#e7e6df" };
+const roughness: Record<string, number> = { stone: 0.82, paving: 0.86, plaster: 0.90, felt: 0.96, tile: 0.65, oak: 0.55, bark: 0.92, walnut: 0.48, metal: 0.38, steel: 0.24, gasket: 0.94, linen: 0.92, green: 0.76, grass: 0.98, blue: 0.94, leaf: 0.92, soil: 0.98, pv: 0.19, "canopy-metal": 0.36, cassette: 0.82, glass: 0.09, frosted: 0.70, shade: 0.88, glow: 0.76, white: 0.76, "sanitary-seat": 0.30 };
 export class Assembly {
   readonly wallRecords: { frame: import("./walls").Frame; cuts: import("@automovie/engine").IAutoMovieWallOpening[] }[] = [];
   // One unit includes the house and its site; its logical root has no parent.
@@ -23,9 +25,10 @@ export class Assembly {
   material(id: string): IAutoMovieMaterial {
     const glass = id === "glass" || id === "frosted";
     const tint = id === "glass" && this.state.privacy !== "day";
-    return { id, name: id, baseColor: srgbHexToLinearColor(tint ? "#526c64" : palette[id] ?? "#e7e1d4"), metallic: ["metal", "steel", "canopy-metal"].includes(id) ? 0.65 : 0,
-      roughness: id === "pv" ? 0.19 : id === "canopy-metal" ? 0.36 : id === "glass" ? 0.09 : id === "frosted" ? 0.7 : id === "steel" ? 0.26 : 0.76,
-      opacity: 1, alphaMode: id === "pv" ? "blend" : "opaque", doubleSided: false, baseColorTexture: id === "pv" ? pvTextureBinding : null,
+    if (!(id in palette)) throw new Error("Unknown material: " + id);
+    return { id, name: id, baseColor: srgbHexToLinearColor(tint ? "#526c64" : palette[id]), metallic: id === "steel" ? 0.85 : id === "canopy-metal" ? 0.65 : 0,
+      roughness: roughness[id],
+      opacity: 1, alphaMode: id === "pv" ? "blend" : "opaque", doubleSided: false, baseColorTexture: id === "pv" ? pvTextureBinding : materialTexture(id),
       emissive: id === "glow" ? srgbHexToLinearColor("#ffcf82") : null,
       transmission: glass ? (id === "frosted" ? 0.28 : tint ? 0.38 : 0.94) : 0,
       ior: 1.5, thickness: id === "pv" ? 0.012 : glass ? 0.018 : 0, clearcoat: id === "pv" ? 0.25 : 0 };

@@ -58,9 +58,12 @@ export function uploadHouse(payload) {
 /** @param {Material} entry @param {Item[]} items @param {ReturnType<typeof textureCache>} texture */
 function bake(entry, items, texture) {
   const material = uploadMaterial(entry, texture);
+  for (const { mesh } of items) if (material.map && mesh.uvs && (mesh.uvs.length !== mesh.positions.length / 3 * 2 || mesh.uvs.some((value) => !Number.isFinite(value))))
+    throw new Error(entry.id + ": invalid primary UV array");
   const withUv = items.filter((item) => item.mesh.uvs).length;
-  if (material.map && withUv !== items.length) throw new Error(entry.id + ": a textured batch needs primary UVs on every part");
-  const uv = withUv === items.length;
+  const metricProjection = typeof entry.baseColorTexture === "object" && entry.baseColorTexture?.coordinateSource === "surface-metres";
+  if (material.map && withUv !== items.length && !metricProjection) throw new Error(entry.id + ": a textured batch needs primary UVs on every part");
+  const uv = Boolean(material.map) || withUv === items.length;
   const coloured = items.some((item) => item.colour || item.mesh.colors);
   let vertices = 0, indices = 0;
   for (const { mesh } of items) { vertices += mesh.positions.length / 3; indices += mesh.indices ? mesh.indices.length : mesh.positions.length / 3; }
@@ -73,23 +76,43 @@ function bake(entry, items, texture) {
     const count = mesh.positions.length / 3;
     normalMatrix.getNormalMatrix(matrix);
     const hasNormals = Boolean(mesh.normals);
+    const source = mesh.indices ?? Array.from({ length: count }, (_, k) => k);
+    const derivedNormals = hasNormals ? null : new Float32Array(count * 3);
+    if (derivedNormals) for (let t = 0; t < source.length; t += 3) {
+      const a = source[t] * 3, b = source[t + 1] * 3, c = source[t + 2] * 3;
+      const pa = new THREE.Vector3(mesh.positions[a], mesh.positions[a + 1], mesh.positions[a + 2]);
+      const pb = new THREE.Vector3(mesh.positions[b], mesh.positions[b + 1], mesh.positions[b + 2]);
+      const pc = new THREE.Vector3(mesh.positions[c], mesh.positions[c + 1], mesh.positions[c + 2]);
+      const face = pb.sub(pa).cross(pc.sub(new THREE.Vector3(mesh.positions[a], mesh.positions[a + 1], mesh.positions[a + 2]))).normalize();
+      for (const k of [source[t], source[t + 1], source[t + 2]]) if (derivedNormals[k * 3] === 0 && derivedNormals[k * 3 + 1] === 0 && derivedNormals[k * 3 + 2] === 0) {
+        derivedNormals[k * 3] = face.x; derivedNormals[k * 3 + 1] = face.y; derivedNormals[k * 3 + 2] = face.z;
+      }
+    }
     const r = colour?.r ?? 1, g = colour?.g ?? 1, b = colour?.b ?? 1;
     for (let k = 0; k < count; k++) {
       const o = (v + k) * 3;
       point.set(mesh.positions[k * 3], mesh.positions[k * 3 + 1], mesh.positions[k * 3 + 2]).applyMatrix4(matrix);
       positions[o] = point.x; positions[o + 1] = point.y; positions[o + 2] = point.z;
-      if (hasNormals && mesh.normals) {
-        normal.set(mesh.normals[k * 3], mesh.normals[k * 3 + 1], mesh.normals[k * 3 + 2]).applyMatrix3(normalMatrix).normalize();
+      const values = mesh.normals ?? derivedNormals;
+      if (values) {
+        normal.set(values[k * 3], values[k * 3 + 1], values[k * 3 + 2]).applyMatrix3(normalMatrix).normalize();
         normals[o] = normal.x; normals[o + 1] = normal.y; normals[o + 2] = normal.z;
       }
-      if (uvs && mesh.uvs) { uvs[(v + k) * 2] = mesh.uvs[k * 2]; uvs[(v + k) * 2 + 1] = mesh.uvs[k * 2 + 1]; }
+      if (uvs) {
+        if (mesh.uvs) { uvs[(v + k) * 2] = mesh.uvs[k * 2]; uvs[(v + k) * 2 + 1] = mesh.uvs[k * 2 + 1]; }
+        else if (metricProjection) {
+          if (!Number.isFinite(normal.x + normal.y + normal.z + point.x + point.y + point.z) || normal.lengthSq() < 0.5) throw new Error(entry.id + ": cannot derive metric primary UV");
+          const axis = Math.abs(normal.y) >= Math.abs(normal.x) && Math.abs(normal.y) >= Math.abs(normal.z) ? "y" : Math.abs(normal.x) >= Math.abs(normal.z) ? "x" : "z";
+          uvs[(v + k) * 2] = axis === "x" ? point.z : point.x;
+          uvs[(v + k) * 2 + 1] = axis === "y" ? point.z : point.y;
+        } else throw new Error(entry.id + ": missing primary UV");
+      }
       if (colours) {
         colours[o] = r * (mesh.colors ? mesh.colors[k * 3] : 1);
         colours[o + 1] = g * (mesh.colors ? mesh.colors[k * 3 + 1] : 1);
         colours[o + 2] = b * (mesh.colors ? mesh.colors[k * 3 + 2] : 1);
       }
     }
-    const source = mesh.indices ?? Array.from({ length: count }, (_, k) => k);
     const mirrored = matrix.determinant() < 0;
     for (let t = 0; t < source.length; t += 3) {
       index[i + t] = v + source[t];
